@@ -80,7 +80,7 @@ void vtkQuantizePolyDataPoints::OperateOnBounds(float in[6], float out[6])
   out[5] = floor(in[5]/this->QFactor + 0.5)*this->QFactor;
 }
 //------------------------------------------------------------------------------
-void vtkQuantizePolyDataPoints::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkQuantizePolyDataPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkCleanPolyData::PrintSelf(os,indent);
   os << indent << "QFactor: " << this->QFactor << "\n";

@@ -330,7 +330,7 @@ vtkPiecewiseFunction *vtkVolumeProperty::GetGradientOpacity()
 }
 
 // Print the state of the volume property.
-void vtkVolumeProperty::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkVolumeProperty::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
 
@@ -357,7 +357,7 @@ void vtkVolumeProperty::PrintSelf(vtkOstream& os, vtkIndent indent)
      << this->GradientOpacity << "\n";
 
   os << indent << "RGB Texture Coefficient: " 
-     << this->RGBTextureCoefficient << vtkEndl;
+     << this->RGBTextureCoefficient << endl;
 
   os << indent << "Shade: " << this->Shade << "\n";
   os << indent << indent << "Ambient: " << this->Ambient << "\n";

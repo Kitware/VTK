@@ -715,7 +715,7 @@ void vtkIVExporter::WritePointData(vtkPoints *points, vtkNormals *normals,
 }
 
 
-void vtkIVExporter::PrintSelf(vtkOstream& os, vtkIndent ind)
+void vtkIVExporter::PrintSelf(ostream& os, vtkIndent ind)
 {
   vtkExporter::PrintSelf(os,ind);
  

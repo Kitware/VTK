@@ -398,7 +398,7 @@ void vtkKochanekSpline::Fit1D (int size, float *x, float *y,
   }
 }
 
-void vtkKochanekSpline::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkKochanekSpline::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkSpline::PrintSelf(os,indent);
   os << indent << "DefaultBias: " << this->DefaultBias << "\n";

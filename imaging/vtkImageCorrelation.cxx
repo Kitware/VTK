@@ -349,7 +349,7 @@ void vtkImageCorrelation::ThreadedExecute(vtkImageData **inData,
     }
 }
 
-void vtkImageCorrelation::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkImageCorrelation::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageTwoInputFilter::PrintSelf(os,indent);
 

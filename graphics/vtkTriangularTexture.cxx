@@ -215,7 +215,7 @@ void vtkTriangularTexture::Execute()
   newScalars->Delete();
 }
 
-void vtkTriangularTexture::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkTriangularTexture::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkStructuredPointsSource::PrintSelf(os,indent);
 

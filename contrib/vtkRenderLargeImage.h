@@ -54,7 +54,7 @@ class VTK_EXPORT vtkRenderLargeImage : public vtkImageSource
 public:
   static vtkRenderLargeImage *New();
   vtkTypeMacro(vtkRenderLargeImage,vtkImageSource);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);   
+  void PrintSelf(ostream& os, vtkIndent indent);   
 
   // Description:
   // The magnification of the current render window

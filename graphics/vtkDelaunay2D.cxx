@@ -1047,7 +1047,7 @@ void vtkDelaunay2D::FillPolygons(vtkCellArray *polys, int *triUse)
   neis->Delete();
 }
 
-void vtkDelaunay2D::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkDelaunay2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataSource::PrintSelf(os,indent);
 

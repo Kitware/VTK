@@ -59,7 +59,7 @@ public:
   static vtkVectors *New();
 
   vtkTypeMacro(vtkVectors,vtkAttributeData);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
   // Create the same type object as this (virtual constructor).

@@ -134,7 +134,7 @@ void vtkPoints::GetBounds(float bounds[6])
     }
 }
 
-void vtkPoints::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
   float *bounds;
 

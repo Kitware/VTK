@@ -124,7 +124,7 @@ void vtkHedgeHog::Execute()
   newLines->Delete();
 }
 
-void vtkHedgeHog::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkHedgeHog::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
 

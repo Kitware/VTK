@@ -1767,7 +1767,7 @@ void vtkVectorText::Execute()
   newPolys->Delete();
 }
   
-void vtkVectorText::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkVectorText::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataSource::PrintSelf(os,indent);
 

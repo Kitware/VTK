@@ -88,7 +88,7 @@ public:
   static vtkSuperquadricSource *New();
 
   vtkTypeMacro(vtkSuperquadricSource,vtkPolyDataSource);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set the center of the superquadric. Default is 0,0,0.

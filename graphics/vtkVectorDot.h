@@ -56,7 +56,7 @@ class VTK_EXPORT vtkVectorDot : public vtkDataSetToDataSetFilter
 {
 public:
   vtkTypeMacro(vtkVectorDot,vtkDataSetToDataSetFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Construct object with scalar range is (-1,1).

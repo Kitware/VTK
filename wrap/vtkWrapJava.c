@@ -653,7 +653,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"  jstring tmp;\n\n");
     fprintf(fp,"  op = (vtkObject *)vtkJavaGetPointerFromObject(env,obj,\"vtkObject\");\n");
     
-    fprintf(fp,"  vtkOstrstream buf;\n");
+    fprintf(fp,"  ostrstream buf;\n");
     fprintf(fp,"  op->Print(buf);\n");
     fprintf(fp,"  buf.put('\\0');\n");  
 	fprintf(fp,"  tmp = vtkJavaMakeJavaString(env,buf.str());\n");

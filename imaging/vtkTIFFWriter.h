@@ -61,9 +61,9 @@ protected:
   vtkTIFFWriter(const vtkTIFFWriter&) {};
   void operator=(const vtkTIFFWriter&) {};
 
-  virtual void WriteFile(vtkOfstream *file, vtkImageData *data, 
+  virtual void WriteFile(ofstream *file, vtkImageData *data, 
 			 int ext[6]);
-  virtual void WriteFileHeader(vtkOfstream *, vtkImageData *);
+  virtual void WriteFileHeader(ofstream *, vtkImageData *);
 };
 
 #endif

@@ -60,7 +60,7 @@ public:
   static vtkImageHSVToRGB *New();
   vtkTypeMacro(vtkImageHSVToRGB,vtkImageToImageFilter);
 
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Hue is an angle. Maximum specifies when it maps back to 0.

@@ -131,7 +131,7 @@ class VTK_EXPORT vtkDelaunay2D : public vtkPolyDataSource
 {
 public:
   vtkTypeMacro(vtkDelaunay2D,vtkPolyDataSource);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Construct object with Alpha = 0.0; Tolerance = 0.001; Offset = 1.25;

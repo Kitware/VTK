@@ -70,7 +70,7 @@ class VTK_EXPORT vtkStructuredGridGeometryFilter : public vtkStructuredGridToPol
 public:
   static vtkStructuredGridGeometryFilter *New();
   vtkTypeMacro(vtkStructuredGridGeometryFilter,vtkStructuredGridToPolyDataFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Get the extent in topological coordinate range (imin,imax, jmin,jmax,

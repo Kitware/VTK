@@ -85,7 +85,7 @@ void vtkCone::EvaluateGradient(float x[3], float g[3])
   g[2] = 2.0*x[2];
 }
 
-void vtkCone::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkCone::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImplicitFunction::PrintSelf(os,indent);
 

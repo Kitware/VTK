@@ -418,7 +418,7 @@ Colormap vtkMesaImageWindow::GetDesiredColormap ()
   return this->ColorMap;  
 }
 
-void vtkMesaImageWindow::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkMesaImageWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkImageWindow::PrintSelf(os,indent);
 

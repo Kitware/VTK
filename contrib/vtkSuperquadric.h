@@ -79,7 +79,7 @@ public:
   static vtkSuperquadric *New();
 
   vtkTypeMacro(vtkSuperquadric,vtkImplicitFunction);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // ImplicitFunction interface
   float EvaluateFunction(float x[3]);

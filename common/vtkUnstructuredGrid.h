@@ -74,7 +74,7 @@ public:
   static vtkUnstructuredGrid *New();
 
   vtkTypeMacro(vtkUnstructuredGrid,vtkPointSet);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Standard vtkDataSet API methods. See vtkDataSet for more information.

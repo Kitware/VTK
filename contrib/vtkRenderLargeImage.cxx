@@ -81,7 +81,7 @@ vtkRenderLargeImage::~vtkRenderLargeImage()
 }
 
 //----------------------------------------------------------------------------
-void vtkRenderLargeImage::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkRenderLargeImage::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageSource::PrintSelf(os,indent);
   

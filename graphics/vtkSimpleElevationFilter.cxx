@@ -132,7 +132,7 @@ void vtkSimpleElevationFilter::Execute()
   newScalars->Delete();
 }
 
-void vtkSimpleElevationFilter::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkSimpleElevationFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 

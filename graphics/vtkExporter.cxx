@@ -151,7 +151,7 @@ void vtkExporter::SetEndWrite(void (*f)(void *), void *arg)
     }
 }
 
-void vtkExporter::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkExporter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
 

@@ -64,7 +64,7 @@ class VTK_EXPORT vtkVectorNorm : public vtkDataSetToDataSetFilter
 {
 public:
   vtkTypeMacro(vtkVectorNorm,vtkDataSetToDataSetFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Construct with normalize flag off.

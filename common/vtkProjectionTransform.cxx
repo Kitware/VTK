@@ -74,7 +74,7 @@ vtkProjectionTransform::~vtkProjectionTransform()
 }
 
 //----------------------------------------------------------------------------
-void vtkProjectionTransform::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkProjectionTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPerspectiveTransform::PrintSelf(os, indent);
   os << indent << (this->PreMultiplyFlag ? "PreMultiply\n" : "PostMultiply\n");

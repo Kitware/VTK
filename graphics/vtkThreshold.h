@@ -69,7 +69,7 @@ class VTK_EXPORT vtkThreshold : public vtkDataSetToUnstructuredGridFilter
 public:
   static vtkThreshold *New();
   vtkTypeMacro(vtkThreshold,vtkDataSetToUnstructuredGridFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Criterion is cells whose scalars are less or equal to lower threshold.

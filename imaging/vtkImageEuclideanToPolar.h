@@ -55,7 +55,7 @@ class VTK_EXPORT vtkImageEuclideanToPolar : public vtkImageToImageFilter
 public:
   static vtkImageEuclideanToPolar *New();
   vtkTypeMacro(vtkImageEuclideanToPolar,vtkImageToImageFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Theta is an angle. Maximum specifies when it maps back to 0.

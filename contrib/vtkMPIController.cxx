@@ -79,7 +79,7 @@ vtkMPIController::~vtkMPIController()
 }
 
 //----------------------------------------------------------------------------
-void vtkMPIController::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkMPIController::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkMultiProcessController::PrintSelf(os,indent);
 }

@@ -200,7 +200,7 @@ void vtkProjectedTexture::Execute()
   newTCoords->Delete();
 }
 
-void vtkProjectedTexture::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkProjectedTexture::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 

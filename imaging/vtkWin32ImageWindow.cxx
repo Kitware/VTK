@@ -222,7 +222,7 @@ vtkWin32ImageWindow::~vtkWin32ImageWindow()
 
 
 //----------------------------------------------------------------------------
-void vtkWin32ImageWindow::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkWin32ImageWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageWindow::PrintSelf(os, indent);
 }

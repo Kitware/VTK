@@ -64,7 +64,7 @@ public:
   static vtkLogLookupTable *New();
 
   vtkTypeMacro(vtkLogLookupTable,vtkLookupTable);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set the minimum/maximum scalar values for scalar mapping. Scalar values

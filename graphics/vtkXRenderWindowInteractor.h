@@ -69,7 +69,7 @@ class VTK_EXPORT vtkXRenderWindowInteractor : public vtkRenderWindowInteractor
 public:
   static vtkXRenderWindowInteractor *New();
   vtkTypeMacro(vtkXRenderWindowInteractor,vtkRenderWindowInteractor);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Initializes the event handlers without an XtAppContext.  This is

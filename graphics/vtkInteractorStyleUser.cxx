@@ -81,7 +81,7 @@ vtkInteractorStyleUser::~vtkInteractorStyleUser()
     }
 }
 
-void vtkInteractorStyleUser::PrintSelf(vtkOstream& os, vtkIndent indent) 
+void vtkInteractorStyleUser::PrintSelf(ostream& os, vtkIndent indent) 
 {
   this->vtkInteractorStyleTrackball::PrintSelf(os,indent);
 

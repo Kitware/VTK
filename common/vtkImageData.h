@@ -64,7 +64,7 @@ public:
   static vtkImageData *New();
 
   vtkTypeMacro(vtkImageData,vtkDataSet);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Create the same type object as this (virtual constructor).

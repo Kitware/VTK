@@ -221,7 +221,7 @@ int vtkPlane::IntersectWithLine(float p1[3], float p2[3], float n[3],
     }
 }
 
-void vtkPlane::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkPlane::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImplicitFunction::PrintSelf(os,indent);
 

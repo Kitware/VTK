@@ -369,7 +369,7 @@ int vtkDataReader::OpenVTKFile()
     if (this->InputString)
       {
       vtkDebugMacro(<< "Reading from InputString");
-      this->IS = new vtkIstrstream(this->InputString, this->InputStringLength);
+      this->IS = new istrstream(this->InputString, this->InputStringLength);
       return 1;
       }
     }
@@ -382,7 +382,7 @@ int vtkDataReader::OpenVTKFile()
       vtkErrorMacro(<< "No file specified!");
       return 0;
       }
-    this->IS = new vtkIfstream(this->FileName, vtkIos::in);
+    this->IS = new ifstream(this->FileName, ios::in);
     if (this->IS->fail())
       {
       vtkErrorMacro(<< "Unable to open file: "<< this->FileName);
@@ -467,9 +467,9 @@ int vtkDataReader::ReadHeader()
     vtkDebugMacro(<< "Opening vtk file as binary");
     delete this->IS;
 #ifdef _WIN32
-    this->IS = new vtkIfstream(this->FileName, vtkIos::in | vtkIos::binary);
+    this->IS = new ifstream(this->FileName, ios::in | ios::binary);
 #else
-    this->IS = new vtkIfstream(this->FileName, vtkIos::in);
+    this->IS = new ifstream(this->FileName, ios::in);
 #endif
     if (this->IS->fail())
       {
@@ -787,7 +787,7 @@ int vtkDataReader::ReadPointData(vtkDataSet *ds, int numPts)
 
 // General templated function to read data of various types.
 template <class T>
-static int ReadBinaryData(vtkIstream *IS, T *data, int numTuples, int numComp)
+static int ReadBinaryData(istream *IS, T *data, int numTuples, int numComp)
 {
   char line[256];
 
@@ -1815,7 +1815,7 @@ void vtkDataReader::CloseVTKFile()
   this->IS = NULL;
 }
 
-void vtkDataReader::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkDataReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
 
@@ -1860,7 +1860,7 @@ void vtkDataReader::PrintSelf(vtkOstream& os, vtkIndent indent)
     os << indent << "Input String: (None)\n";
     }
 
-  os << indent << "Input String Length: " << this->InputStringLength << vtkEndl;
+  os << indent << "Input String Length: " << this->InputStringLength << endl;
 
   if ( this->ScalarsName )
     {
@@ -1925,7 +1925,7 @@ void vtkDataReader::PrintSelf(vtkOstream& os, vtkIndent indent)
     os << indent << "Field Data Name: (None)\n";
     }
   
-  os << indent << "InputStringLength: " << this->InputStringLength << vtkEndl;
+  os << indent << "InputStringLength: " << this->InputStringLength << endl;
 }
 
 

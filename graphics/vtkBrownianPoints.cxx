@@ -134,7 +134,7 @@ void vtkBrownianPoints::Execute()
   newVectors->Delete();
 }
 
-void vtkBrownianPoints::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkBrownianPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 

@@ -312,7 +312,7 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
     }
 }
 
-void vtkLabeledDataMapper::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkLabeledDataMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkMapper2D::PrintSelf(os,indent);
 

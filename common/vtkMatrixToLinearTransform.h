@@ -62,7 +62,7 @@ class VTK_EXPORT vtkMatrixToLinearTransform : public vtkLinearTransform
  public:
   static vtkMatrixToLinearTransform *New();
   vtkTypeMacro(vtkMatrixToLinearTransform,vtkLinearTransform);
-  void PrintSelf (vtkOstream& os, vtkIndent indent);
+  void PrintSelf (ostream& os, vtkIndent indent);
 
   // Description:
   // Set the matrix.  Calls to Identity() and Inverse() will modify

@@ -199,7 +199,7 @@ void vtkAttributeDataToFieldDataFilter::Execute()
     }
 }
 
-void vtkAttributeDataToFieldDataFilter::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkAttributeDataToFieldDataFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 

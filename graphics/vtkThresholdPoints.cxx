@@ -158,7 +158,7 @@ void vtkThresholdPoints::Execute()
   output->Squeeze();
 }
 
-void vtkThresholdPoints::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkThresholdPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
 

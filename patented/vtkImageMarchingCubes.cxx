@@ -924,7 +924,7 @@ vtkImageData *vtkImageMarchingCubes::GetInput()
 
   
 //----------------------------------------------------------------------------
-void vtkImageMarchingCubes::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkImageMarchingCubes::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataSource::PrintSelf(os,indent);
 

@@ -641,7 +641,7 @@ void vtkSliceCubes::Execute()
     }
 }
 
-void vtkSliceCubes::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkSliceCubes::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
 

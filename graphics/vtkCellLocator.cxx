@@ -1637,7 +1637,7 @@ float vtkCellLocator::Distance2ToBounds(float x[3], float bounds[6])
 }
 
 
-void vtkCellLocator::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkCellLocator::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkLocator::PrintSelf(os,indent);
 

@@ -386,7 +386,7 @@ void vtkImageMagnify::ThreadedExecute(vtkImageData *inData,
     }
 }
 
-void vtkImageMagnify::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkImageMagnify::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageToImageFilter::PrintSelf(os,indent);
 

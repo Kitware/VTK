@@ -484,7 +484,7 @@ void vtkSurfaceReconstructionFilter::Execute()
   delete [] surfacePoints;
 }
 
-void vtkSurfaceReconstructionFilter::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkSurfaceReconstructionFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToStructuredPointsFilter::PrintSelf(os,indent);
   

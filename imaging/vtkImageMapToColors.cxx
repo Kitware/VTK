@@ -212,7 +212,7 @@ void vtkImageMapToColors::ThreadedExecute(vtkImageData *inData,
 			   outData, (unsigned char *)outPtr, outExt, id);
 }
 
-void vtkImageMapToColors::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkImageMapToColors::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageToImageFilter::PrintSelf(os,indent);
 

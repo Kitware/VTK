@@ -58,7 +58,7 @@ class VTK_EXPORT vtkDiskSource : public vtkPolyDataSource
 public:
   static vtkDiskSource *New();
   vtkTypeMacro(vtkDiskSource,vtkPolyDataSource);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Specify inner radius of hole in disc.

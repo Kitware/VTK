@@ -574,7 +574,7 @@ void vtkPolyDataNormals::MarkAndReplace (int cellId, int n,
   return;
 }
 
-void vtkPolyDataNormals::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkPolyDataNormals::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 

@@ -313,7 +313,7 @@ void vtkRibbonFilter::Execute()
   output->Squeeze();
 }
 
-void vtkRibbonFilter::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkRibbonFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 

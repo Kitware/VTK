@@ -1221,7 +1221,7 @@ int vtkDecimate::CheckError ()
   return 1; // okay to delete; error computed and distributed
 }
 
-void vtkDecimate::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkDecimate::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 

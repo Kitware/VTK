@@ -340,7 +340,7 @@ void vtkAsynchronousBuffer::Execute()
 
 
 //----------------------------------------------------------------------------
-void vtkAsynchronousBuffer::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkAsynchronousBuffer::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 
@@ -352,7 +352,7 @@ void vtkAsynchronousBuffer::PrintSelf(vtkOstream& os, vtkIndent indent)
     {
     os << indent << "BlockingOff\n";
     }
-  os << "Finished: " << this->Finished << vtkEndl;
+  os << "Finished: " << this->Finished << endl;
   
   os << indent << "ThreadId: " << this->ThreadId << "\n";
 }

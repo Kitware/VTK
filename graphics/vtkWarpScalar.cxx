@@ -178,7 +178,7 @@ void vtkWarpScalar::Execute()
   newPts->Delete();
 }
 
-void vtkWarpScalar::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkWarpScalar::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPointSetToPointSetFilter::PrintSelf(os,indent);
 

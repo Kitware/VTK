@@ -345,7 +345,7 @@ char *vtkImageReader::GetDataByteOrderAsString()
 
 
 //----------------------------------------------------------------------------
-void vtkImageReader::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkImageReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   int idx;
   
@@ -561,9 +561,9 @@ void vtkImageReader::OpenFile()
   // Open the new file
   vtkDebugMacro(<< "Initialize: opening file " << this->InternalFileName);
 #ifdef _WIN32
-  this->File = new vtkIfstream(this->InternalFileName, vtkIos::in | vtkIos::binary);
+  this->File = new ifstream(this->InternalFileName, ios::in | ios::binary);
 #else
-  this->File = new vtkIfstream(this->InternalFileName, vtkIos::in);
+  this->File = new ifstream(this->InternalFileName, ios::in);
 #endif
   if (! this->File || this->File->fail())
     {
@@ -595,7 +595,7 @@ int vtkImageReader::GetHeaderSize(int idx)
     this->OpenFile();
     
     // Get the size of the header from the size of the image
-    this->File->seekg(0,vtkIos::end);
+    this->File->seekg(0,ios::end);
     
     return (int)(this->File->tellg() - 
       (long)this->DataIncrements[this->GetFileDimensionality()]);
@@ -642,7 +642,7 @@ void vtkImageReader::OpenAndSeekFile(int dataExtent[6], int idx)
   streamStart += this->GetHeaderSize(idx);
   
   // error checking
-  this->File->seekg((long)streamStart, vtkIos::beg);
+  this->File->seekg((long)streamStart, ios::beg);
   if (this->File->fail())
     {
     vtkWarningMacro("File operation failed.");
@@ -792,7 +792,7 @@ static void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
       // if that happens, store the value in correction and apply later
       if (filePos + streamSkip0 >= 0)
 	{
-	self->GetFile()->seekg(self->GetFile()->tellg() + streamSkip0, vtkIos::beg);
+	self->GetFile()->seekg(self->GetFile()->tellg() + streamSkip0, ios::beg);
 	correction = 0;
 	}
       else
@@ -803,7 +803,7 @@ static void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
       }
     // move to the next image in the file and data
     self->GetFile()->seekg(self->GetFile()->tellg() + streamSkip1 + correction, 
-		      vtkIos::beg);
+		      ios::beg);
     outPtr2 += outIncr[2];
     }
 
@@ -856,7 +856,7 @@ static void vtkImageReaderUpdate1(vtkImageReader *self,
       vtkImageReaderUpdate2(self, data, inPtr, (unsigned char *)(outPtr));
       break;
     default:
-      vtkCerr << "Update1: Unknown data type\n";
+      cerr << "Update1: Unknown data type\n";
     }  
 }
 //----------------------------------------------------------------------------

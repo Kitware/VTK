@@ -288,7 +288,7 @@ void vtkMCubesReader::CreateDefaultLocator()
     }
 }
 
-void vtkMCubesReader::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkMCubesReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataSource::PrintSelf(os,indent);
 

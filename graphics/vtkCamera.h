@@ -62,7 +62,7 @@ class vtkRenderer;
 class VTK_EXPORT vtkCamera : public vtkObject
 {
  public:
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
   vtkTypeMacro(vtkCamera,vtkObject);
 
   // Description:

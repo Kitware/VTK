@@ -106,7 +106,7 @@ class VTK_EXPORT vtkProgrammableAttributeDataFilter : public vtkDataSetToDataSet
 public:
   static vtkProgrammableAttributeDataFilter *New();
   vtkTypeMacro(vtkProgrammableAttributeDataFilter,vtkDataSetToDataSetFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Add a dataset to the list of data to process.

@@ -145,7 +145,7 @@ void vtkWarpTo::Execute()
   newPts->Delete();
 }
 
-void vtkWarpTo::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkWarpTo::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPointSetToPointSetFilter::PrintSelf(os,indent);
   

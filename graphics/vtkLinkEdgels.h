@@ -77,7 +77,7 @@ class VTK_EXPORT vtkLinkEdgels : public vtkStructuredPointsToPolyDataFilter
 {
 public:
   vtkTypeMacro(vtkLinkEdgels,vtkStructuredPointsToPolyDataFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Construct instance of vtkLinkEdgels with GradientThreshold set to 

@@ -61,7 +61,7 @@ class VTK_EXPORT vtkImageLaplacian : public vtkImageToImageFilter
 public:
   static vtkImageLaplacian *New();
   vtkTypeMacro(vtkImageLaplacian,vtkImageToImageFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
   // Determines how the input is interpreted (set of 2d slices ...)

@@ -184,7 +184,7 @@ void vtkBitArray::DeepCopy(vtkDataArray *ia)
     }
 }
 
-void vtkBitArray::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkBitArray::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataArray::PrintSelf(os,indent);
 

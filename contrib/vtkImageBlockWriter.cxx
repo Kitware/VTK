@@ -76,14 +76,14 @@ vtkImageBlockWriter::~vtkImageBlockWriter()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageBlockWriter::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkImageBlockWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkProcessObject::PrintSelf(os,indent);
   
-  os << indent << "FilePattern: " << this->FilePattern << vtkEndl;
-  os << indent << "Overlap: " << this->Overlap << vtkEndl;
+  os << indent << "FilePattern: " << this->FilePattern << endl;
+  os << indent << "Overlap: " << this->Overlap << endl;
   os << indent << "Divisions: " << this->Divisions[0] << ", "
-     << this->Divisions[1] << ", " << this->Divisions[2] << vtkEndl;
+     << this->Divisions[1] << ", " << this->Divisions[2] << endl;
 }
 
 

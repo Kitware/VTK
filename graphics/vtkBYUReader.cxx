@@ -362,7 +362,7 @@ int vtkBYUReader::ComputeDivisionExtents(vtkDataObject *vtkNotUsed(output),
     }
 }
 
-void vtkBYUReader::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkBYUReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataSource::PrintSelf(os,indent);
 

@@ -333,7 +333,7 @@ void vtkVoxelModeller::Write(char *fname)
   fp = fopen(fname,"w");
   if (!fp) 
     {
-    vtkErrorMacro(<< "Couldn't open file: " << fname << vtkEndl);
+    vtkErrorMacro(<< "Couldn't open file: " << fname << endl);
     return;
     }
 
@@ -377,7 +377,7 @@ void vtkVoxelModeller::Write(char *fname)
   fclose(fp);
 }
 
-void vtkVoxelModeller::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkVoxelModeller::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToStructuredPointsFilter::PrintSelf(os,indent);
 

@@ -258,7 +258,7 @@ void vtkPointLoad::Execute()
 }
 
 
-void vtkPointLoad::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkPointLoad::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkStructuredPointsSource::PrintSelf(os,indent);
 

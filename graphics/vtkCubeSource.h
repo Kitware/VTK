@@ -55,7 +55,7 @@ class VTK_EXPORT vtkCubeSource : public vtkPolyDataSource
 public:
   static vtkCubeSource *New();
   vtkTypeMacro(vtkCubeSource,vtkPolyDataSource);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set the length of the cube in the x-direction.

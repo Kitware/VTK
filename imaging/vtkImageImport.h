@@ -57,7 +57,7 @@ class VTK_EXPORT vtkImageImport : public vtkImageSource
 public:
   static vtkImageImport *New();
   vtkTypeMacro(vtkImageImport,vtkImageSource);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);   
+  void PrintSelf(ostream& os, vtkIndent indent);   
 
   // Description:
   // Import data and make an internal copy of it. You should use 

@@ -720,7 +720,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"int Py%s_PyPrint(PyObject *self, FILE *fp, int)\n",data->ClassName);
     if (!strcmp("vtkObject",data->ClassName))
       {
-      fprintf(fp,"{\n  %s *op;\n  vtkOstrstream buf;\n\n",data->ClassName);
+      fprintf(fp,"{\n  %s *op;\n  ostrstream buf;\n\n",data->ClassName);
       fprintf(fp,"  op = (%s *)vtkPythonGetPointerFromObject(self,\"%s\");\n",
 	      data->ClassName,data->ClassName);
       fprintf(fp,"  op->Print(buf);\n  buf.put('\\0');\n");
@@ -728,7 +728,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
       fprintf(fp,"  delete buf.str();\n  return 0;\n}\n\n");
 
       fprintf(fp,"PyObject *Py%s_PyRepr(PyObject *self)\n",data->ClassName);
-      fprintf(fp,"{\n  %s *op;\n  PyObject *tempH;\n  vtkOstrstream buf;\n\n",data->ClassName);
+      fprintf(fp,"{\n  %s *op;\n  PyObject *tempH;\n  ostrstream buf;\n\n",data->ClassName);
       fprintf(fp,"  op = (%s *)vtkPythonGetPointerFromObject(self,\"%s\");\n",
 	      data->ClassName,data->ClassName);
       fprintf(fp,"  op->Print(buf);\n  buf.put('\\0');\n");

@@ -62,7 +62,7 @@ public:
   static vtkMapper2D* New();
 
   vtkTypeMacro(vtkMapper2D,vtkAbstractMapper);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
   
   virtual void RenderOverlay(vtkViewport*, vtkActor2D*) {};
   virtual void RenderOpaqueGeometry(vtkViewport*, vtkActor2D*) {};

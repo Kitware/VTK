@@ -191,7 +191,7 @@ int vtkAxes::ComputeDivisionExtents(vtkDataObject *vtkNotUsed(output),
     }
 }
 
-void vtkAxes::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkAxes::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataSource::PrintSelf(os,indent);
   os << indent << "Origin: (" << this->Origin[0] << ", "

@@ -66,7 +66,7 @@ public:
   static vtkLandmarkTransform *New();
 
   vtkTypeMacro(vtkLandmarkTransform,vtkLinearTransform);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Specify the source and target landmark sets. The two sets must have 

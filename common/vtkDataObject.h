@@ -73,7 +73,7 @@ public:
   static vtkDataObject *New();
 
   vtkTypeMacro(vtkDataObject,vtkObject);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Create concrete instance of this data object.

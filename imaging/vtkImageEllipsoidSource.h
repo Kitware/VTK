@@ -57,7 +57,7 @@ class VTK_EXPORT vtkImageEllipsoidSource : public vtkImageSource
 public:
   static vtkImageEllipsoidSource *New();
   vtkTypeMacro(vtkImageEllipsoidSource,vtkImageSource);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);   
+  void PrintSelf(ostream& os, vtkIndent indent);   
   
   // Description:
   // Set/Get the extent of the whole output image.

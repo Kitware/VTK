@@ -54,7 +54,7 @@ class VTK_EXPORT vtkMaskPolyData : public vtkPolyDataToPolyDataFilter
 public:
   static vtkMaskPolyData *New();
   vtkTypeMacro(vtkMaskPolyData,vtkPolyDataToPolyDataFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Turn on every nth entity (cell).

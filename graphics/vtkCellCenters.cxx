@@ -139,7 +139,7 @@ void vtkCellCenters::Execute()
     }
 }
 
-void vtkCellCenters::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkCellCenters::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
 

@@ -2594,7 +2594,7 @@ char *vtkVolumeRayCastCompositeFunction::GetCompositeMethodAsString(void)
 
 // Print method for vtkVolumeRayCastCompositeFunction
 // Since there is nothing local to print, just print the object stuff.
-void vtkVolumeRayCastCompositeFunction::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkVolumeRayCastCompositeFunction::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkVolumeRayCastFunction::PrintSelf(os,indent);
 

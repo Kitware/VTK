@@ -201,7 +201,7 @@ char *vtkRIBProperty::GetDeclarations ()
   return this->Declarations;
 }
 
-void vtkRIBProperty::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkRIBProperty::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkProperty::PrintSelf(os,indent);
  

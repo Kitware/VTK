@@ -94,7 +94,7 @@ void vtkCellData::NullCell (int ptId)
 
 }
 
-void vtkCellData::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkCellData::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetAttributes::PrintSelf(os,indent);
 }

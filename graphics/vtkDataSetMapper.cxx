@@ -171,7 +171,7 @@ void vtkDataSetMapper::Render(vtkRenderer *ren, vtkActor *act)
   this->TimeToDraw = this->PolyDataMapper->GetTimeToDraw();
 }
 
-void vtkDataSetMapper::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkDataSetMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkMapper::PrintSelf(os,indent);
 

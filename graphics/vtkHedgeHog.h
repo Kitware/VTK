@@ -55,7 +55,7 @@ class VTK_EXPORT vtkHedgeHog : public vtkDataSetToPolyDataFilter
 public:
   static vtkHedgeHog *New();
   vtkTypeMacro(vtkHedgeHog,vtkDataSetToPolyDataFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set scale factor to control size of oriented lines.

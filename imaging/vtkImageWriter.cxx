@@ -114,7 +114,7 @@ vtkImageWriter::~vtkImageWriter()
 
 
 //----------------------------------------------------------------------------
-void vtkImageWriter::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkImageWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkProcessObject::PrintSelf(os,indent);
 
@@ -266,7 +266,7 @@ void vtkImageWriter::Write()
 //----------------------------------------------------------------------------
 // Breaks region into pieces with correct dimensionality.
 void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
-				    vtkOfstream *file)
+				    ofstream *file)
 {
   int             min, max, mid;
   vtkImageData    *data;
@@ -296,9 +296,9 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
       }
     // Open the file
 #ifdef _WIN32
-    file = new vtkOfstream(this->InternalFileName, vtkIos::out | vtkIos::binary);
+    file = new ofstream(this->InternalFileName, ios::out | ios::binary);
 #else
-    file = new vtkOfstream(this->InternalFileName, vtkIos::out);
+    file = new ofstream(this->InternalFileName, ios::out);
 #endif
     fileOpenedHere = 1;
     if (file->fail())
@@ -327,7 +327,7 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
     ext = cache->GetUpdateExtent();
     vtkDebugMacro("Getting input extent: " << ext[0] << ", " << 
 		  ext[1] << ", " << ext[2] << ", " << ext[3] << ", " << 
-		  ext[4] << ", " << ext[5] << vtkEndl);
+		  ext[4] << ", " << ext[5] << endl);
     cache->Update();
     data = cache;
     this->RecursiveWrite(axis,cache,data,file);
@@ -347,7 +347,7 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
   
   vtkDebugMacro("Axes: " << axis << "(" << min << ", " << max 
   	<< "), UpdateMemory: " << inputMemorySize 
-  	<< ", Limit: " << this->MemoryLimit << vtkEndl);
+  	<< ", Limit: " << this->MemoryLimit << endl);
   
   if (min == max)
     {
@@ -410,7 +410,7 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
 //----------------------------------------------------------------------------
 // same idea as the previous method, but it knows that the data is ready
 void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
-				    vtkImageData *data, vtkOfstream *file)
+				    vtkImageData *data, ofstream *file)
 {
   int idx, min, max;
   
@@ -443,9 +443,9 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
       }
     // Open the file
 #ifdef _WIN32
-    file = new vtkOfstream(this->InternalFileName, vtkIos::out | vtkIos::binary);
+    file = new ofstream(this->InternalFileName, ios::out | ios::binary);
 #else
-    file = new vtkOfstream(this->InternalFileName, vtkIos::out);
+    file = new ofstream(this->InternalFileName, ios::out);
 #endif
     if (file->fail())
       {
@@ -495,7 +495,7 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
 //----------------------------------------------------------------------------
 // Writes a region in a file.  Subclasses can override this method
 // to produce a header. This method only hanldes 3d data (plus components).
-void vtkImageWriter::WriteFile(vtkOfstream *file, vtkImageData *data,
+void vtkImageWriter::WriteFile(ofstream *file, vtkImageData *data,
 			       int extent[6])
 {
   int idxY, idxZ;

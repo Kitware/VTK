@@ -57,7 +57,7 @@ class VTK_EXPORT vtkUnstructuredGridReader : public vtkUnstructuredGridSource
 public:
   static vtkUnstructuredGridReader *New();
   vtkTypeMacro(vtkUnstructuredGridReader,vtkUnstructuredGridSource);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Return MTime also considering the vtkDataReader ivar.

@@ -67,7 +67,7 @@ class VTK_EXPORT vtkWindowLevelLookupTable : public vtkLookupTable
 public:
   static vtkWindowLevelLookupTable *New();
   vtkTypeMacro(vtkWindowLevelLookupTable,vtkLookupTable);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Generate lookup table from window and level.

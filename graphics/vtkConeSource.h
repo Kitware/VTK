@@ -59,7 +59,7 @@ class VTK_EXPORT vtkConeSource : public vtkPolyDataSource
 {
 public:
   vtkTypeMacro(vtkConeSource,vtkPolyDataSource);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Construct with default resolution 6, height 1.0, radius 0.5, and

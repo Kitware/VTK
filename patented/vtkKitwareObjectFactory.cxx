@@ -44,9 +44,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkKitwareContourFilter.h"
 #include "vtkVersion.h"
 
-void vtkKitwareObjectFactory::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkKitwareObjectFactory::PrintSelf(ostream& os, vtkIndent indent)
 {
-  os << indent << "Kitware object factory" << vtkEndl;
+  os << indent << "Kitware object factory" << endl;
 }
 
 

@@ -115,7 +115,7 @@ vtkImageOpenClose3D::~vtkImageOpenClose3D()
 
 
 //----------------------------------------------------------------------------
-void vtkImageOpenClose3D::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkImageOpenClose3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageToImageFilter::PrintSelf(os,indent);
   os << indent << "Filter0: \n";

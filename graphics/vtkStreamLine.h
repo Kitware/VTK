@@ -78,7 +78,7 @@ class VTK_EXPORT vtkStreamLine : public vtkStreamer
 {
 public:
   vtkTypeMacro(vtkStreamLine,vtkStreamer);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Construct object with step size set to 1.0.

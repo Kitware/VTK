@@ -68,7 +68,7 @@ public:
   static vtkXImageMapper *New();
 
   vtkTypeMacro(vtkXImageMapper,vtkImageMapper);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Handle the render method.

@@ -1262,7 +1262,7 @@ vtk3DSImporter::~vtk3DSImporter()
   VTK_LIST_KILL (this->MatPropList);
 }
 
-void vtk3DSImporter::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtk3DSImporter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImporter::PrintSelf(os,indent);
 }

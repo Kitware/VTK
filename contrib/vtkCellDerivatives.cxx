@@ -247,14 +247,14 @@ char *vtkCellDerivatives::GetTensorModeAsString(void)
     }
 }
 
-void vtkCellDerivatives::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkCellDerivatives::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 
   os << indent << "Vector Mode: " << this->GetVectorModeAsString() 
-     << vtkEndl;
+     << endl;
 
   os << indent << "Tensor Mode: " << this->GetTensorModeAsString() 
-     << vtkEndl;
+     << endl;
 }
 

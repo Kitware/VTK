@@ -93,15 +93,15 @@ vtkImageBlockReader::~vtkImageBlockReader()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageBlockReader::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkImageBlockReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   int idx;
   vtkImageSource::PrintSelf(os,indent);
   
-  os << indent << "FilePattern: " << this->FilePattern << vtkEndl;
-  os << indent << "Overlap: " << this->Overlap << vtkEndl;
+  os << indent << "FilePattern: " << this->FilePattern << endl;
+  os << indent << "Overlap: " << this->Overlap << endl;
   os << indent << "Divisions: " << this->Divisions[0] << ", "
-     << this->Divisions[1] << ", " << this->Divisions[2] << vtkEndl;
+     << this->Divisions[1] << ", " << this->Divisions[2] << endl;
 
   os << indent << "WholeExtent: (" << this->WholeExtent[0]
      << "," << this->WholeExtent[1];
@@ -112,8 +112,8 @@ void vtkImageBlockReader::PrintSelf(vtkOstream& os, vtkIndent indent)
     }
 
   os << indent << "NumberOfScalarComponents: " 
-     << this->NumberOfScalarComponents << vtkEndl;
-  os << indent << "ScalarType: " << this->ScalarType << vtkEndl;
+     << this->NumberOfScalarComponents << endl;
+  os << indent << "ScalarType: " << this->ScalarType << endl;
 }
 
 

@@ -60,7 +60,7 @@ class VTK_EXPORT vtkInteractorStyleUser : public vtkInteractorStyleTrackball
 public:
   static vtkInteractorStyleUser *New();
   vtkTypeMacro(vtkInteractorStyleUser,vtkInteractorStyleTrackball);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description: 
   // Hooks to set up a customized interaction mode

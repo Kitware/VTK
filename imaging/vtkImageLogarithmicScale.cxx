@@ -214,7 +214,7 @@ void vtkImageLogarithmicScale::ThreadedExecute(vtkImageData *inData,
     }
 }
 
-void vtkImageLogarithmicScale::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkImageLogarithmicScale::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageToImageFilter::PrintSelf(os,indent);
 

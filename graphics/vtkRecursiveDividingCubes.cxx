@@ -354,7 +354,7 @@ void vtkRecursiveDividingCubes::SubDivide(float origin[3], float h[3],
     }
 }
 
-void vtkRecursiveDividingCubes::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkRecursiveDividingCubes::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkStructuredPointsToPolyDataFilter::PrintSelf(os,indent);
 

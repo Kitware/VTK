@@ -68,7 +68,7 @@ class VTK_EXPORT vtkMPIController : public vtkMultiProcessController
 public:
   static vtkMPIController *New();
   vtkTypeMacro(vtkMPIController,vtkMultiProcessController);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // This method is for setting up the processes.

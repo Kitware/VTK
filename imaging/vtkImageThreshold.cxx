@@ -360,7 +360,7 @@ void vtkImageThreshold::ThreadedExecute(vtkImageData *inData,
     }
 }
 
-void vtkImageThreshold::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkImageThreshold::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageToImageFilter::PrintSelf(os,indent);
 

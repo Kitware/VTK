@@ -77,7 +77,7 @@ vtkPerspectiveTransformInverse::~vtkPerspectiveTransformInverse()
 }
 
 //----------------------------------------------------------------------------
-void vtkPerspectiveTransformInverse::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkPerspectiveTransformInverse::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPerspectiveTransform::PrintSelf(os,indent);
 

@@ -246,7 +246,7 @@ void vtkSphereSource::Execute()
   newPolys->Delete();
 }
 
-void vtkSphereSource::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkSphereSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataSource::PrintSelf(os,indent);
 

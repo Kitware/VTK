@@ -234,7 +234,7 @@ void vtkAxisActor2D::ReleaseGraphicsResources(vtkWindow *win)
   this->AxisActor->ReleaseGraphicsResources(win);
 }
 
-void vtkAxisActor2D::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkAxisActor2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkActor2D::PrintSelf(os,indent);
 

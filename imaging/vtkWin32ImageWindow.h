@@ -64,7 +64,7 @@ public:
 
   static vtkWin32ImageWindow *New();
   vtkTypeMacro(vtkWin32ImageWindow,vtkImageWindow);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Swap the front and back buffers. Normally not called by the user.

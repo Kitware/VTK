@@ -219,7 +219,7 @@ void vtkTimerLog::MarkEvent(char *event)
 // statistics (deltas and  percentages) in the process.
 void vtkTimerLog::DumpLog(char *filename)
 {
-  vtkOfstream os(filename);
+  ofstream os(filename);
   int i;
   
   os << " Entry   Wall Time (sec)  Delta   CPU Time (sec)  Delta  %CPU   Event\n";
@@ -284,7 +284,7 @@ void vtkTimerLog::DumpLog(char *filename)
 
 
 // Print method for vtkTimerLog.
-void vtkTimerLog::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkTimerLog::PrintSelf(ostream& os, vtkIndent indent)
 {
   int i;
 
@@ -371,7 +371,7 @@ double vtkTimerLog::GetElapsedTime()
   return (this->EndTime - this->StartTime);
 }
 
-void vtkTimerLog::DumpEntry(vtkOstream& os, int index, float ttime, 
+void vtkTimerLog::DumpEntry(ostream& os, int index, float ttime, 
 			    float deltatime,
 			    int tick, int deltatick, char *event)
 {

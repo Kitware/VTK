@@ -105,7 +105,7 @@ class VTK_EXPORT vtkDataObjectToDataSetFilter : public vtkSource
 public:
   static vtkDataObjectToDataSetFilter *New();
   vtkTypeMacro(vtkDataObjectToDataSetFilter,vtkSource);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set the input to the filter.

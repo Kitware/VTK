@@ -59,7 +59,7 @@ public:
   static vtkImageSimpleCache *New() {return new vtkImageSimpleCache;};
 
   vtkTypeMacro(vtkImageSimpleCache,vtkImageCache);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // This method updates the region specified by "UpdateExtent".  

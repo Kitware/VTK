@@ -1593,7 +1593,7 @@ int vtkPLOT3DReader::GetFileType(FILE *fp)
   return type;
 }
 
-void vtkPLOT3DReader::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkPLOT3DReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkStructuredGridSource::PrintSelf(os,indent);
 

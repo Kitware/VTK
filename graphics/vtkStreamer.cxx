@@ -593,7 +593,7 @@ void vtkStreamer::ComputeVorticity()
 {
 }
 
-void vtkStreamer::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkStreamer::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
 

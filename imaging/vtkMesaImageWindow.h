@@ -68,7 +68,7 @@ class VTK_EXPORT vtkMesaImageWindow : public vtkXImageWindow
 public:
   static vtkMesaImageWindow *New();
   vtkTypeMacro(vtkMesaImageWindow,vtkXImageWindow);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Initialize the window for rendering.

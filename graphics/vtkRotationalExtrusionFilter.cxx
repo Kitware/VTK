@@ -340,7 +340,7 @@ void vtkRotationalExtrusionFilter::Execute()
 
 
 
-void vtkRotationalExtrusionFilter::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkRotationalExtrusionFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 

@@ -58,7 +58,7 @@ class VTK_EXPORT vtkImageResample : public vtkImageToImageFilter
 public:
   static vtkImageResample *New();
   vtkTypeMacro(vtkImageResample,vtkImageToImageFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set desired spacing.  

@@ -64,7 +64,7 @@ class VTK_EXPORT vtkImplicitWindowFunction : public vtkImplicitFunction
 {
 public:
   vtkTypeMacro(vtkImplicitWindowFunction,vtkImplicitFunction);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Construct object with window range (0,1) and window values (0,1).

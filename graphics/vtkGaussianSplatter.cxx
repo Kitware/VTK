@@ -736,7 +736,7 @@ void vtkGaussianSplatter::SetScalar(int idx, float dist2)
     }
 }
 
-void vtkGaussianSplatter::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkGaussianSplatter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToStructuredPointsFilter::PrintSelf(os,indent);
 

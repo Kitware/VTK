@@ -59,7 +59,7 @@ public:
   static vtkGeneralTransformInverse *New();
 
   vtkTypeMacro(vtkGeneralTransformInverse,vtkGeneralTransform);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set the transform that you want this to be an inverse of.

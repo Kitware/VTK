@@ -79,7 +79,7 @@ vtkImageSobel3D::vtkImageSobel3D()
 
 
 //----------------------------------------------------------------------------
-void vtkImageSobel3D::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkImageSobel3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkImageToImageFilter::PrintSelf(os, indent);
 }

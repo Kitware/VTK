@@ -968,7 +968,7 @@ float vtkVolumeRayCastMapper::GetZeroOpacityThreshold( vtkVolume *vol )
 }
 
 // Print method for vtkVolumeRayCastMapper
-void vtkVolumeRayCastMapper::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkVolumeMapper::PrintSelf(os,indent);
 
@@ -995,20 +995,20 @@ void vtkVolumeRayCastMapper::PrintSelf(vtkOstream& os, vtkIndent indent)
   if ( this->GradientEstimator )
     {
       os << indent << "Gradient Estimator: " << (this->GradientEstimator) <<
-	vtkEndl;
+	endl;
     }
   else
     {
-      os << indent << "Gradient Estimator: (none)" << vtkEndl;
+      os << indent << "Gradient Estimator: (none)" << endl;
     }
 
   if ( this->GradientShader )
     {
-      os << indent << "Gradient Shader: " << (this->GradientShader) << vtkEndl;
+      os << indent << "Gradient Shader: " << (this->GradientShader) << endl;
     }
   else
     {
-      os << indent << "Gradient Shader: (none)" << vtkEndl;
+      os << indent << "Gradient Shader: (none)" << endl;
     }
 
 }

@@ -91,8 +91,8 @@ void vtk_vtkPanel_setWindow(struct Hvtk_vtkPanel *me,
     PEER_PDATA(CanvasData, Hsun_awt_motif_MCanvasPeer, me);
   Widget wig = wdata->comp.widget;
 
-  // vtkCerr << XtDisplay(wig) << " Display\n";
-  // vtkCerr << XtWindowOfObject(wig) << " Window\n";
+  // cerr << XtDisplay(wig) << " Display\n";
+  // cerr << XtWindowOfObject(wig) << " Window\n";
   
   op->SetDisplayId((void *)XtDisplay(wig));
   op->SetWindowId((void *)XtWindowOfObject(wig));

@@ -256,7 +256,7 @@ void vtkImageRGBToHSV::ThreadedExecute(vtkImageData *inData,
     }
 }
 
-void vtkImageRGBToHSV::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkImageRGBToHSV::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageToImageFilter::PrintSelf(os,indent);
 

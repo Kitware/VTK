@@ -56,7 +56,7 @@ public:
   static vtkReferenceCount *New();
 
   vtkTypeMacro(vtkReferenceCount,vtkObject);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
   
 protected:  
   vtkReferenceCount();

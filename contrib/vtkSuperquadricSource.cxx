@@ -358,7 +358,7 @@ void vtkSuperquadricSource::Execute()
   newPolys->Delete();
 }
 
-void vtkSuperquadricSource::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkSuperquadricSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataSource::PrintSelf(os,indent);
 

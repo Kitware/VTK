@@ -66,7 +66,7 @@ public:
   static vtkStack *New();
 
   vtkTypeMacro(vtkStack,vtkObject);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Add an object to the top of the stack. Does not prevent duplicate entries.

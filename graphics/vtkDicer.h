@@ -78,7 +78,7 @@ class VTK_EXPORT vtkDicer : public vtkDataSetToDataSetFilter
 {
 public:
   vtkTypeMacro(vtkDicer,vtkDataSetToDataSetFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set/Get the flag which controls whether to generate point scalar

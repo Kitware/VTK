@@ -574,7 +574,7 @@ void vtkPolyDataConnectivityFilter::DeleteSpecifiedRegion(int id)
   this->SpecifiedRegionIds->DeleteId(id);
 }
 
-void vtkPolyDataConnectivityFilter::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkPolyDataConnectivityFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 

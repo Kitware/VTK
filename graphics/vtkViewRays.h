@@ -88,7 +88,7 @@ class VTK_EXPORT vtkViewRays :public vtkObject
 public:
   static vtkViewRays *New();
     vtkTypeMacro(vtkViewRays,vtkObject);
-  void PrintSelf(vtkOstream& os,vtkIndent indent);
+  void PrintSelf(ostream& os,vtkIndent indent);
 
   // Description:
   // Specify the vtkRenderer whose camera will be used to to calculate 

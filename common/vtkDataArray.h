@@ -72,7 +72,7 @@ class VTK_EXPORT vtkDataArray : public vtkObject
 {
 public:
   vtkTypeMacro(vtkDataArray,vtkObject);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   virtual int Allocate(const int sz, const int ext=1000) = 0;
   virtual void Initialize() = 0;

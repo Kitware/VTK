@@ -236,7 +236,7 @@ void vtkActor2D::GetActors2D(vtkPropCollection *ac)
   ac->AddItem(this);
 }
 
-void vtkActor2D::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkActor2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkProp::PrintSelf(os,indent);
 

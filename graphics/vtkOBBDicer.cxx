@@ -256,7 +256,7 @@ void vtkOBBDicer::DeleteTree(vtkOBBNode *OBBptr)
     }
 }
 
-void vtkOBBDicer::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkOBBDicer::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDicer::PrintSelf(os,indent);
 }

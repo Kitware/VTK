@@ -58,7 +58,7 @@ public:
   static vtkCellData *New();
 
   vtkTypeMacro(vtkCellData,vtkDataSetAttributes);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set cell data to null values

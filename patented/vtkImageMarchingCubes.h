@@ -84,7 +84,7 @@ class VTK_EXPORT vtkImageMarchingCubes : public vtkPolyDataSource
 public:
   static vtkImageMarchingCubes *New();
   vtkTypeMacro(vtkImageMarchingCubes,vtkPolyDataSource);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
   // Set/Get the source for the scalar data to contour.

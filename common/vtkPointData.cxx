@@ -93,7 +93,7 @@ void vtkPointData::NullPoint (int ptId)
     }
 }
 
-void vtkPointData::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkPointData::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetAttributes::PrintSelf(os,indent);
 }

@@ -94,13 +94,13 @@ vtkImageCanvasSource2D::~vtkImageCanvasSource2D()
 
 
 //----------------------------------------------------------------------------
-void vtkImageCanvasSource2D::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkImageCanvasSource2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   int idx;
   
   vtkStructuredPoints::PrintSelf(os,indent);
   os << indent << "ImageData: (" << this->ImageData << ")\n";
-  os << indent << "DefaultZ: " << this->DefaultZ << vtkEndl;
+  os << indent << "DefaultZ: " << this->DefaultZ << endl;
   os << indent << "DrawColor: (" << this->DrawColor[0];
   for (idx = 1; idx < 4; ++idx)
     {
@@ -1104,7 +1104,7 @@ static void vtkImageCanvasSource2DFill(vtkImageData *image, float *color,
     }
   if (temp)
     { // fill the same as draw
-    vtkCerr << "Fill: Cannot handle draw color same as fill color\n";
+    cerr << "Fill: Cannot handle draw color same as fill color\n";
     return;
     }
   

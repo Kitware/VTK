@@ -134,10 +134,10 @@ vtkImageDataStreamer::vtkImageDataStreamer()
 
 
 //----------------------------------------------------------------------------
-void vtkImageDataStreamer::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkImageDataStreamer::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageToImageFilter::PrintSelf(os,indent);
-  os << indent << "MemoryLimit (in kb): " << this->MemoryLimit << vtkEndl;
+  os << indent << "MemoryLimit (in kb): " << this->MemoryLimit << endl;
   os << indent << "SplitMode: ";
   if (this->SplitMode == VTK_IMAGE_DATA_STREAMER_BLOCK_MODE)
     {

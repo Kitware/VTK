@@ -161,7 +161,7 @@ vtkImageWindow* vtkImageWindow::New()
   return (vtkImageWindow*)ret;
 }
 
-void vtkImageWindow::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkImageWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkWindow::PrintSelf(os, indent);
 

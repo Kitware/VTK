@@ -57,7 +57,7 @@ class VTK_EXPORT vtkDataInformation : public vtkObject
 public:
   static vtkDataInformation *New();
   vtkTypeMacro(vtkDataInformation,vtkObject);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Makes an empty similar type object.
@@ -108,8 +108,8 @@ public:
 
   // Description:
   // Serialization provided for the multi-process ports.
-  virtual void ReadSelf(vtkIstream& is);
-  virtual void WriteSelf(vtkOstream& os);
+  virtual void ReadSelf(istream& is);
+  virtual void WriteSelf(ostream& os);
   
 protected:
   vtkDataInformation();

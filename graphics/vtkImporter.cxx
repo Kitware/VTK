@@ -142,7 +142,7 @@ void vtkImporter::CloseImportFile()
   this->FileFD = NULL;
 }
 
-void vtkImporter::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkImporter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
 

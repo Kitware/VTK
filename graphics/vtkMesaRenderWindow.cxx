@@ -747,7 +747,7 @@ Colormap vtkMesaRenderWindow::GetDesiredColormap ()
   return this->ColorMap;  
 }
 
-void vtkMesaRenderWindow::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkMesaRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkXRenderWindow::PrintSelf(os,indent);
 

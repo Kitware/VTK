@@ -60,7 +60,7 @@ class VTK_EXPORT vtkImageMapToColors : public vtkImageToImageFilter
 public:
   static vtkImageMapToColors *New();
   vtkTypeMacro(vtkImageMapToColors,vtkImageToImageFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set the lookup table.

@@ -361,7 +361,7 @@ void vtkMarchingContourFilter::CreateDefaultLocator()
     }
 }
 
-void vtkMarchingContourFilter::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkMarchingContourFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
 

@@ -59,7 +59,7 @@ class VTK_EXPORT vtkImageRange3D : public vtkImageSpatialFilter
 public:
   static vtkImageRange3D *New();
   vtkTypeMacro(vtkImageRange3D,vtkImageSpatialFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
   // This method sets the size of the neighborhood.  It also sets the 

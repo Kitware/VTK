@@ -71,7 +71,7 @@ class VTK_EXPORT vtkMergeDataObjectFilter : public vtkDataSetToDataSetFilter
 public:
   static vtkMergeDataObjectFilter *New();
   vtkTypeMacro(vtkMergeDataObjectFilter,vtkDataSetToDataSetFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Specify the data object to merge with the input dataset.

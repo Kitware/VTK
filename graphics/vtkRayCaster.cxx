@@ -1504,7 +1504,7 @@ void vtkRayCaster::RescaleImage( )
   delete[] outputFloat;
 }
 
-void vtkRayCaster::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkRayCaster::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkObject::PrintSelf(os,indent);
 

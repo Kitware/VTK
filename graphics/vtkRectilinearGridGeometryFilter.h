@@ -68,7 +68,7 @@ class VTK_EXPORT vtkRectilinearGridGeometryFilter : public vtkRectilinearGridToP
 {
 public:
   vtkTypeMacro(vtkRectilinearGridGeometryFilter,vtkRectilinearGridToPolyDataFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Construct with initial extent (0,100, 0,100, 0,0) (i.e., a k-plane).

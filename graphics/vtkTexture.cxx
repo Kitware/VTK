@@ -97,7 +97,7 @@ void vtkTexture::SetLookupTable(vtkLookupTable *lut)
     }
 }
 
-void vtkTexture::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkTexture::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
 

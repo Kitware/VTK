@@ -60,7 +60,7 @@ class VTK_EXPORT vtkImageSobel3D : public vtkImageSpatialFilter
 public:
   static vtkImageSobel3D *New();
   vtkTypeMacro(vtkImageSobel3D,vtkImageSpatialFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
   vtkImageSobel3D();

@@ -463,7 +463,7 @@ void vtkTextSource::Execute()
   newPolys->Delete();
 }
 
-void vtkTextSource::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkTextSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataSource::PrintSelf(os,indent);
 

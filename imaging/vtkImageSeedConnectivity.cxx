@@ -301,7 +301,7 @@ void vtkImageSeedConnectivity::Execute(vtkImageData *inData,
 }
 
 
-void vtkImageSeedConnectivity::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkImageSeedConnectivity::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageToImageFilter::PrintSelf(os,indent);
 

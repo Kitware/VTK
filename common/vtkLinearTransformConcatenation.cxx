@@ -99,7 +99,7 @@ vtkLinearTransformConcatenation::~vtkLinearTransformConcatenation()
 }
 
 //----------------------------------------------------------------------------
-void vtkLinearTransformConcatenation::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkLinearTransformConcatenation::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkLinearTransform::PrintSelf(os,indent);
 

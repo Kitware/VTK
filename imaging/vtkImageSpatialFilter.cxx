@@ -80,7 +80,7 @@ vtkImageSpatialFilter::vtkImageSpatialFilter()
 
 
 //----------------------------------------------------------------------------
-void vtkImageSpatialFilter::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkImageSpatialFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   int idx;
   

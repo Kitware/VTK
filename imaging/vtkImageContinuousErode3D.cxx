@@ -92,7 +92,7 @@ vtkImageContinuousErode3D::~vtkImageContinuousErode3D()
 
 
 //----------------------------------------------------------------------------
-void vtkImageContinuousErode3D::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkImageContinuousErode3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageSpatialFilter::PrintSelf(os,indent);
 }

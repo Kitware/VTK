@@ -142,7 +142,7 @@ void vtkImageShrink3D::SetAveraging (int value)
 
 
 //----------------------------------------------------------------------------
-void vtkImageShrink3D::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkImageShrink3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageToImageFilter::PrintSelf(os,indent);
 

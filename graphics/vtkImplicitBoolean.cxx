@@ -253,7 +253,7 @@ void vtkImplicitBoolean::EvaluateGradient(float x[3], float g[3])
     }//else
 }
 
-void vtkImplicitBoolean::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkImplicitBoolean::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImplicitFunction::PrintSelf(os,indent);
 

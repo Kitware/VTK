@@ -857,7 +857,7 @@ void vtkImageResample::ThreadedExecute(vtkImageData *inData,
     }
 }
 
-void vtkImageResample::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkImageResample::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageToImageFilter::PrintSelf(os,indent);
   os << indent << "Dimensionality: " << this->Dimensionality << "\n";

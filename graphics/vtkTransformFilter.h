@@ -67,7 +67,7 @@ class VTK_EXPORT vtkTransformFilter : public vtkPointSetToPointSetFilter
 public:
   static vtkTransformFilter *New();
   vtkTypeMacro(vtkTransformFilter,vtkPointSetToPointSetFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Return the MTime also considering the transform.

@@ -301,7 +301,7 @@ char *vtkMapper::GetScalarModeAsString(void)
 }
 
 
-void vtkMapper::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkAbstractMapper3D::PrintSelf(os,indent);
 
@@ -325,11 +325,11 @@ void vtkMapper::PrintSelf(vtkOstream& os, vtkIndent indent)
   float *range = this->GetScalarRange();
   os << indent << "Scalar Range: (" << range[0] << ", " << range[1] << ")\n";
   
-  os << indent << "Color Mode: " << this->GetColorModeAsString() << vtkEndl;
+  os << indent << "Color Mode: " << this->GetColorModeAsString() << endl;
 
-  os << indent << "Scalar Mode: " << this->GetScalarModeAsString() << vtkEndl;
+  os << indent << "Scalar Mode: " << this->GetScalarModeAsString() << endl;
 
-  os << indent << "RenderTime: " << this->RenderTime << vtkEndl;
+  os << indent << "RenderTime: " << this->RenderTime << endl;
 
 }
 

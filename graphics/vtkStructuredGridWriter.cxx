@@ -81,7 +81,7 @@ vtkStructuredGrid *vtkStructuredGridWriter::GetInput()
 
 void vtkStructuredGridWriter::WriteData()
 {
-  vtkOstream *fp;
+  ostream *fp;
   vtkStructuredGrid *input= this->GetInput();
   int dim[3];
 
@@ -107,7 +107,7 @@ void vtkStructuredGridWriter::WriteData()
   this->CloseVTKFile(fp);
 }
 
-void vtkStructuredGridWriter::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkStructuredGridWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataWriter::PrintSelf(os,indent);
 }

@@ -56,7 +56,7 @@ public:
   static vtkStructuredExtent *New();
 
   vtkTypeMacro(vtkStructuredExtent,vtkExtent);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Copy information from one extent into another.
@@ -71,8 +71,8 @@ public:
   
   // Description:
   // Serialization provided for the multi-process ports.
-  void ReadSelf(vtkIstream& is);
-  void WriteSelf(vtkOstream& os);
+  void ReadSelf(istream& is);
+  void WriteSelf(ostream& os);
 
 protected:
   vtkStructuredExtent();

@@ -725,7 +725,7 @@ vtkPolyData *vtkAppendPolyData::GetInput(int idx)
 }
 
 //----------------------------------------------------------------------------
-void vtkAppendPolyData::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkAppendPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 
@@ -739,7 +739,7 @@ void vtkAppendPolyData::PrintSelf(vtkOstream& os, vtkIndent indent)
     }
   //
   os << indent << "UserManagedInputs: "
-     << this->UserManagedInputs << vtkEndl;
+     << this->UserManagedInputs << endl;
 }
 
 void vtkAppendPolyData::AppendData(vtkDataArray *dest, vtkDataArray *src,

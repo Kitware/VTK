@@ -383,7 +383,7 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
 
 
 
-void vtkOBJExporter::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkOBJExporter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkExporter::PrintSelf(os,indent);
  

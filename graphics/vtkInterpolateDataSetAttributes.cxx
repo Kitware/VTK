@@ -260,10 +260,10 @@ void vtkInterpolateDataSetAttributes::Execute()
 }
 
 
-void vtkInterpolateDataSetAttributes::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkInterpolateDataSetAttributes::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 
-  os << indent << "T: " << this->T << vtkEndl;
+  os << indent << "T: " << this->T << endl;
 }
 

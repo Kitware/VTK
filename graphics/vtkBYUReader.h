@@ -58,7 +58,7 @@ public:
   static vtkBYUReader *New();
 
   vtkTypeMacro(vtkBYUReader,vtkPolyDataSource);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Specify name of geometry FileName.

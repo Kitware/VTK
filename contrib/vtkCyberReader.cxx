@@ -427,7 +427,7 @@ void vtkCyberReader::Execute()
   close(fd);
 }
 
-void vtkCyberReader::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkCyberReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataSource::PrintSelf(os,indent);
 

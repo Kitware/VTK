@@ -429,7 +429,7 @@ vtkPolyData *vtkTensorGlyph::GetSource()
 
 
 
-void vtkTensorGlyph::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkTensorGlyph::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
 

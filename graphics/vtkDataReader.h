@@ -65,7 +65,7 @@ class VTK_EXPORT vtkDataReader : public vtkObject
 public:
   static vtkDataReader *New();
   vtkTypeMacro(vtkDataReader,vtkObject);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Specify file name of vtk data file to read.
@@ -240,7 +240,7 @@ public:
 
   // Description:
   // Return the istream being used to read in the data.
-  vtkIstream *GetIStream() {return this->IS;};
+  istream *GetIStream() {return this->IS;};
 
 protected:
   vtkDataReader();
@@ -250,7 +250,7 @@ protected:
 
   char *FileName;
   int FileType;
-  vtkIstream *IS;
+  istream *IS;
 
   char *ScalarsName;
   char *VectorsName;

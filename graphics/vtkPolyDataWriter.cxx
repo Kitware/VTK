@@ -81,7 +81,7 @@ vtkPolyData *vtkPolyDataWriter::GetInput()
 
 void vtkPolyDataWriter::WriteData()
 {
-  vtkOstream *fp;
+  ostream *fp;
   vtkPolyData *input = this->GetInput();
 
   vtkDebugMacro(<<"Writing vtk polygonal data...");
@@ -119,7 +119,7 @@ void vtkPolyDataWriter::WriteData()
   this->CloseVTKFile(fp);
 }
 
-void vtkPolyDataWriter::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkPolyDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataWriter::PrintSelf(os,indent);
 }

@@ -169,7 +169,7 @@ void vtkFloatArray::DeepCopy(vtkDataArray *fa)
     }
 }
 
-void vtkFloatArray::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkFloatArray::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataArray::PrintSelf(os,indent);
 

@@ -593,7 +593,7 @@ void vtkInteractorStyleTrackball::TrackballScaleActor(int x, int y)
     }
 }
 
-void vtkInteractorStyleTrackball::PrintSelf(vtkOstream& os, vtkIndent indent) 
+void vtkInteractorStyleTrackball::PrintSelf(ostream& os, vtkIndent indent) 
 {
   this->vtkInteractorStyle::PrintSelf(os,indent);
 

@@ -213,7 +213,7 @@ unsigned long vtkTransformFilter::GetMTime()
   return mTime;
 }
 
-void vtkTransformFilter::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkTransformFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPointSetToPointSetFilter::PrintSelf(os,indent);
 

@@ -59,7 +59,7 @@ class VTK_EXPORT vtkImageExport : public vtkProcessObject
 public:
   static vtkImageExport *New();
   vtkTypeMacro(vtkImageExport,vtkProcessObject);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
   // Get the number of bytes required (for safety checks, etc)

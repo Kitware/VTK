@@ -50,7 +50,7 @@ vtkAbstractMapper::vtkAbstractMapper()
   this->LastWindow = NULL;
 }
 
-void vtkAbstractMapper::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkAbstractMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkProcessObject::PrintSelf(os,indent);
 

@@ -87,7 +87,7 @@ class VTK_EXPORT vtkRotationalExtrusionFilter : public vtkPolyDataToPolyDataFilt
 {
 public:
   vtkTypeMacro(vtkRotationalExtrusionFilter,vtkPolyDataToPolyDataFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Create object with capping on, angle of 360 degrees, resolution = 12, and

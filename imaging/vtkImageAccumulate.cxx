@@ -327,7 +327,7 @@ void vtkImageAccumulate::EnlargeOutputUpdateExtents( vtkDataObject *vtkNotUsed(d
   this->GetOutput()->SetUpdateExtent(wholeExtent);
 }
 
-void vtkImageAccumulate::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkImageAccumulate::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageToImageFilter::PrintSelf(os,indent);
 

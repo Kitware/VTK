@@ -681,7 +681,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   if (!strcmp("vtkObject",data->ClassName))
     {
     fprintf(fp,"  if ((!strcmp(\"Print\",argv[1]))&&(argc == 2))\n    {\n");
-    fprintf(fp,"    vtkOstrstream buf;\n");
+    fprintf(fp,"    ostrstream buf;\n");
     fprintf(fp,"    op->Print(buf);\n");
     fprintf(fp,"    buf.put('\\0');\n");
     fprintf(fp,"    Tcl_SetResult(interp,buf.str(),TCL_VOLATILE);\n");

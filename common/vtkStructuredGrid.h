@@ -64,7 +64,7 @@ public:
   static vtkStructuredGrid *New();
 
   vtkTypeMacro(vtkStructuredGrid,vtkPointSet);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
  
   // Description:
   // Return what type of dataset this is.

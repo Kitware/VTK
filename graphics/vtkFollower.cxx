@@ -160,7 +160,7 @@ void vtkFollower::GetMatrix(vtkMatrix4x4 *result)
   this->Transform->Pop();  
 } 
 
-void vtkFollower::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkFollower::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkActor::PrintSelf(os,indent);
 

@@ -62,7 +62,7 @@ class VTK_EXPORT vtkImageQuantizeRGBToIndex : public vtkImageToImageFilter
 public:
   static vtkImageQuantizeRGBToIndex *New();
   vtkTypeMacro(vtkImageQuantizeRGBToIndex,vtkImageToImageFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set / Get the number of color index values to produce - must be 

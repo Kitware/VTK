@@ -86,12 +86,12 @@ vtkImageViewer::~vtkImageViewer()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageViewer::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkImageViewer::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os, indent);
-  os << indent << *this->ImageWindow << vtkEndl;
-  os << indent << *this->Imager << vtkEndl;
-  os << indent << *this->ImageMapper << vtkEndl;
+  os << indent << *this->ImageWindow << endl;
+  os << indent << *this->Imager << endl;
+  os << indent << *this->ImageMapper << endl;
 }
 
 

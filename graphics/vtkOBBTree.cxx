@@ -588,21 +588,21 @@ void vtkOBBNode::DebugPrintTree( int level, double *leaf_vol,
   
   for ( i=0; i<level; i++ )
     {
-    vtkCout<<"  ";
+    cout<<"  ";
     }
-  vtkCout <<level<<" # Cells: "<<nCells<<", Volume: "<<volume<<"\n";
+  cout <<level<<" # Cells: "<<nCells<<", Volume: "<<volume<<"\n";
   for ( i=0; i<level; i++ )
     {
-    vtkCout<<"  ";
+    cout<<"  ";
     }
-  vtkCout << "    " << vtkMath::Norm( this->Axes[0] ) << " X " <<
+  cout << "    " << vtkMath::Norm( this->Axes[0] ) << " X " <<
                     vtkMath::Norm( this->Axes[1] ) << " X " <<
                     vtkMath::Norm( this->Axes[2] ) << "\n";
   for ( i=0; i<level; i++ )
     {
-    vtkCout<<"  ";
+    cout<<"  ";
     }
-  vtkCout << "    Center: " << c[0] << " " << c[1] << " " << c[2] << "\n";
+  cout << "    Center: " << c[0] << " " << c[1] << " " << c[2] << "\n";
   if ( nCells != 0 )
     {
     *leaf_vol += volume;
@@ -678,10 +678,10 @@ void vtkOBBTree::BuildLocator()
     double volume = 0.0;
     int minCells = 65535, maxCells = 0;
     this->Tree->DebugPrintTree( 0, &volume, &minCells, &maxCells );
-    vtkCout<<"Total leafnode volume = "<<volume<<"\n";
-    vtkCout<<"Min leaf cells: "<<minCells<<", Max leaf cells: "
+    cout<<"Total leafnode volume = "<<volume<<"\n";
+    cout<<"Min leaf cells: "<<minCells<<", Max leaf cells: "
            <<maxCells<<"\n";
-    vtkCout.flush();
+    cout.flush();
     }
 
   //

@@ -56,7 +56,7 @@ class VTK_EXPORT vtkBitArray : public vtkDataArray
 public:
   static vtkBitArray *New();
   vtkTypeMacro(vtkBitArray,vtkDataArray);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Allocate memory for this array. Delete old storage only if necessary.

@@ -734,7 +734,7 @@ Colormap vtkOpenGLRenderWindow::GetDesiredColormap ()
   return this->ColorMap;  
 }
 
-void vtkOpenGLRenderWindow::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkOpenGLRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkXRenderWindow::PrintSelf(os,indent);
 

@@ -78,7 +78,7 @@ vtkImageIslandRemoval2D::vtkImageIslandRemoval2D()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageIslandRemoval2D::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkImageIslandRemoval2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageToImageFilter::PrintSelf(os,indent);
   os << indent << "AreaThreshold: " << this->AreaThreshold;

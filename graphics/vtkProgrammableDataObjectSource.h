@@ -67,7 +67,7 @@ class VTK_EXPORT vtkProgrammableDataObjectSource : public vtkSource
 public:
   static vtkProgrammableDataObjectSource *New();
   vtkTypeMacro(vtkProgrammableDataObjectSource,vtkSource);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Specify the function to use to generate the output data object. Note

@@ -205,7 +205,7 @@ void vtkTriangularTCoords::Execute()
 }
 
 
-void vtkTriangularTCoords::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkTriangularTCoords::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 }

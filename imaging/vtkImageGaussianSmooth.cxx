@@ -79,7 +79,7 @@ vtkImageGaussianSmooth::~vtkImageGaussianSmooth()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageGaussianSmooth::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkImageGaussianSmooth::PrintSelf(ostream& os, vtkIndent indent)
 {
   // int idx;
   

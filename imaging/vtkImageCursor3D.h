@@ -53,7 +53,7 @@ class VTK_EXPORT vtkImageCursor3D : public vtkImageInPlaceFilter
 public:
   static vtkImageCursor3D *New();
   vtkTypeMacro(vtkImageCursor3D,vtkImageInPlaceFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
 
   // Description:

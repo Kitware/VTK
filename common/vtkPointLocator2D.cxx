@@ -964,7 +964,7 @@ void vtkPointLocator2D::GenerateFace(int face, int i, int j, int k,
 }
 
 
-void vtkPointLocator2D::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkPointLocator2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkLocator::PrintSelf(os,indent);
 

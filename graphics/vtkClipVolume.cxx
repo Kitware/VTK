@@ -663,7 +663,7 @@ void vtkClipVolume::CreateDefaultLocator()
     }
 }
 
-void vtkClipVolume::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkClipVolume::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkStructuredPointsToUnstructuredGridFilter::PrintSelf(os,indent);
 

@@ -84,7 +84,7 @@ vtkImageAnisotropicDiffusion3D::vtkImageAnisotropicDiffusion3D()
 
 //----------------------------------------------------------------------------
 void 
-vtkImageAnisotropicDiffusion3D::PrintSelf(vtkOstream& os, vtkIndent indent)
+vtkImageAnisotropicDiffusion3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkImageSpatialFilter::PrintSelf(os, indent);
   os << indent << "NumberOfIterations: " << this->NumberOfIterations << "\n";

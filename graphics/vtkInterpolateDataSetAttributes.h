@@ -65,7 +65,7 @@ class VTK_EXPORT vtkInterpolateDataSetAttributes : public vtkDataSetToDataSetFil
 public:
   static vtkInterpolateDataSetAttributes *New();
   vtkTypeMacro(vtkInterpolateDataSetAttributes,vtkDataSetToDataSetFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Add a dataset to the list of data to interpolate.

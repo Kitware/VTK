@@ -305,7 +305,7 @@ float vtkConeSource::GetAngle()
 }
 
 //----------------------------------------------------------------------------
-void vtkConeSource::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkConeSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataSource::PrintSelf(os,indent);
 

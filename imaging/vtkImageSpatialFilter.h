@@ -60,7 +60,7 @@ class VTK_EXPORT vtkImageSpatialFilter : public vtkImageToImageFilter
 public:
   static vtkImageSpatialFilter *New();
   vtkTypeMacro(vtkImageSpatialFilter,vtkImageToImageFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Get the Kernel size.

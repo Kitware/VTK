@@ -63,7 +63,7 @@ class VTK_EXPORT vtkCutter : public vtkDataSetToPolyDataFilter
 {
 public:
   vtkTypeMacro(vtkCutter,vtkDataSetToPolyDataFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Construct with user-specified implicit function; initial value of 0.0; and

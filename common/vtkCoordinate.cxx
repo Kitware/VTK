@@ -105,7 +105,7 @@ const char *vtkCoordinate::GetCoordinateSystemAsString()
     }
 }
 
-void vtkCoordinate::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkCoordinate::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkObject::PrintSelf(os,indent);
 

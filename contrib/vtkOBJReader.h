@@ -57,7 +57,7 @@ class VTK_EXPORT vtkOBJReader : public vtkPolyDataSource
 public:
   static vtkOBJReader *New();
   vtkTypeMacro(vtkOBJReader,vtkPolyDataSource);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Specify file name of Wavefront .obj file.

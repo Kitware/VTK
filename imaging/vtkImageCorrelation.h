@@ -60,7 +60,7 @@ class VTK_EXPORT vtkImageCorrelation : public vtkImageTwoInputFilter
 public:
   static vtkImageCorrelation *New();
   vtkTypeMacro(vtkImageCorrelation,vtkImageTwoInputFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
   // Determines how the input is interpreted (set of 2d slices ...)

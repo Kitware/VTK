@@ -70,7 +70,7 @@ class VTK_EXPORT vtkRenderWindowInteractor : public vtkObject
 public:
   static vtkRenderWindowInteractor *New();
   vtkTypeMacro(vtkRenderWindowInteractor,vtkObject);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Prepare for handling events. This must be called before the

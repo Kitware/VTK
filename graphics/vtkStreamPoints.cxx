@@ -171,7 +171,7 @@ void vtkStreamPoints::Execute()
   output->Squeeze();
 }
 
-void vtkStreamPoints::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkStreamPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkStreamer::PrintSelf(os,indent);
 

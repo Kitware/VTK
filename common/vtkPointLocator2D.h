@@ -81,7 +81,7 @@ public:
   static vtkPointLocator2D *New();
 
   vtkTypeMacro(vtkPointLocator2D,vtkLocator);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set the number of divisions in x-y directions.

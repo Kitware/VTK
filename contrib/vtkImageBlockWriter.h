@@ -57,7 +57,7 @@ class VTK_EXPORT vtkImageBlockWriter : public vtkProcessObject
 public:
   static vtkImageBlockWriter *New();
   vtkTypeMacro(vtkImageBlockWriter,vtkProcessObject);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // The whole extent is broken up into this many divisions along each axis.

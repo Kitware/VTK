@@ -173,7 +173,7 @@ void vtkUnsignedCharArray::DeepCopy(vtkDataArray *ia)
     }
 }
 
-void vtkUnsignedCharArray::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkUnsignedCharArray::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataArray::PrintSelf(os,indent);
 

@@ -56,7 +56,7 @@ class VTK_EXPORT vtkUGFacetReader : public vtkPolyDataSource
 {
 public:
   vtkTypeMacro(vtkUGFacetReader,vtkPolyDataSource);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Construct object to extract all parts, and with point merging

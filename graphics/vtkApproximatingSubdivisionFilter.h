@@ -58,7 +58,7 @@ class VTK_EXPORT vtkApproximatingSubdivisionFilter : public vtkPolyDataToPolyDat
 {
 public:
   vtkTypeMacro(vtkApproximatingSubdivisionFilter,vtkPolyDataToPolyDataFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set/get the number of subdivisions.

@@ -255,7 +255,7 @@ unsigned long vtkDataArray::GetActualMemorySize()
   return (unsigned long)ceil((size * numPrims)/1000.0); //kilobytes
 }
 
-void vtkDataArray::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkDataArray::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
 

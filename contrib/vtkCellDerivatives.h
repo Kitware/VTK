@@ -79,7 +79,7 @@ class VTK_EXPORT vtkCellDerivatives : public vtkDataSetToDataSetFilter
 {
 public:
   vtkTypeMacro(vtkCellDerivatives,vtkDataSetToDataSetFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Construct to compute the gradient of the scalars and vectors.

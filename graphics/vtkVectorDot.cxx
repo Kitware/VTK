@@ -155,7 +155,7 @@ void vtkVectorDot::Execute()
   newScalars->Delete();
 }
 
-void vtkVectorDot::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkVectorDot::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 

@@ -216,7 +216,7 @@ void vtkImageConnector::MarkData(vtkImageData *data, int numberOfAxes, int exten
   vtkDebugMacro("Marked " << count << " pixels");
 }
 
-void vtkImageConnector::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkImageConnector::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
 

@@ -66,7 +66,7 @@ class VTK_EXPORT vtkDashedStreamLine : public vtkStreamLine
 public:
   static vtkDashedStreamLine *New();
   vtkTypeMacro(vtkDashedStreamLine,vtkStreamLine);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // For each dash, specify the fraction of the dash that is "on". A factor

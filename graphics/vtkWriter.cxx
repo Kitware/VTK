@@ -94,7 +94,7 @@ void vtkWriter::Update()
   this->Write();
 }
 
-void vtkWriter::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkProcessObject::PrintSelf(os,indent);
 

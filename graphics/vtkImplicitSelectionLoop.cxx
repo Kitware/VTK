@@ -216,7 +216,7 @@ unsigned long int vtkImplicitSelectionLoop::GetMTime()
   return mTime;
 }
 
-void vtkImplicitSelectionLoop::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkImplicitSelectionLoop::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImplicitFunction::PrintSelf(os,indent);
 

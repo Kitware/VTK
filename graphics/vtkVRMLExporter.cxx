@@ -692,7 +692,7 @@ void vtkVRMLExporter::WritePointData(vtkPoints *points, vtkNormals *normals,
 }
 
 
-void vtkVRMLExporter::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkVRMLExporter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkExporter::PrintSelf(os,indent);
  

@@ -364,7 +364,7 @@ void vtkImageMask::ExecuteInformation(vtkImageData **inDatas,
 
 
 
-void vtkImageMask::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkImageMask::PrintSelf(ostream& os, vtkIndent indent)
 {
   int idx;
   
@@ -375,7 +375,7 @@ void vtkImageMask::PrintSelf(vtkOstream& os, vtkIndent indent)
     {
     os << ", " << this->MaskedOutputValue[idx];
     }
-  os << vtkEndl;
+  os << endl;
 
   os << indent << "NotMask: " << (this->NotMask ? "On\n" : "Off\n");
 }

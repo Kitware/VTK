@@ -57,7 +57,7 @@ class VTK_EXPORT vtkExtractEdges : public vtkDataSetToPolyDataFilter
 public:
   static vtkExtractEdges *New();
   vtkTypeMacro(vtkExtractEdges,vtkDataSetToPolyDataFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set / get a spatial locator for merging points. By

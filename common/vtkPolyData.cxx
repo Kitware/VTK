@@ -1604,7 +1604,7 @@ void vtkPolyData::DeepCopy(vtkDataObject *dataObject)
 }
 
 
-void vtkPolyData::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPointSet::PrintSelf(os,indent);
 
@@ -1613,14 +1613,14 @@ void vtkPolyData::PrintSelf(vtkOstream& os, vtkIndent indent)
   os << indent << "Number Of Polygons: " << this->GetNumberOfPolys() << "\n";
   os << indent << "Number Of Triangle Strips: " << this->GetNumberOfStrips() << "\n";
 
-  os << indent << "Number Of Pieces: " << this->NumberOfPieces << vtkEndl;
-  os << indent << "Piece: " << this->Piece << vtkEndl;
-  os << indent << "Maximum Number Of Pieces: " << this->MaximumNumberOfPieces << vtkEndl;
+  os << indent << "Number Of Pieces: " << this->NumberOfPieces << endl;
+  os << indent << "Piece: " << this->Piece << endl;
+  os << indent << "Maximum Number Of Pieces: " << this->MaximumNumberOfPieces << endl;
 
   os << indent << "UpdateExtent: " << this->UpdateExtent[0] << ", "
      << this->UpdateExtent[1] << ", " << this->UpdateExtent[2] << ", "
      << this->UpdateExtent[3] << ", " << this->UpdateExtent[4] << ", "
-     << this->UpdateExtent[5] << vtkEndl;
+     << this->UpdateExtent[5] << endl;
 }
 
 

@@ -63,7 +63,7 @@ public:
   static vtkPropPicker *New();
 
   vtkTypeMacro(vtkPropPicker,vtkWorldPointPicker);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
 

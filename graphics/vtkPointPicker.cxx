@@ -142,7 +142,7 @@ void vtkPointPicker::Initialize()
   this->vtkPicker::Initialize();
 }
 
-void vtkPointPicker::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkPointPicker::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkPicker::PrintSelf(os,indent);
 

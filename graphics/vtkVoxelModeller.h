@@ -58,7 +58,7 @@ class VTK_EXPORT vtkVoxelModeller : public vtkDataSetToStructuredPointsFilter
 {
 public:
   vtkTypeMacro(vtkVoxelModeller,vtkDataSetToStructuredPointsFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Construct an instance of vtkVoxelModeller with its sample dimensions

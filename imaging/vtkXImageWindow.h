@@ -63,7 +63,7 @@ class VTK_EXPORT vtkXImageWindow : public vtkImageWindow
 public:
   static vtkXImageWindow *New();
   vtkTypeMacro(vtkXImageWindow,vtkImageWindow);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Implements SetWindowName for a X window

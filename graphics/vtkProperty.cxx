@@ -149,7 +149,7 @@ void vtkProperty::GetColor(float rgb[3])
 }
 
  
-void vtkProperty::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkProperty::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
 

@@ -1108,7 +1108,7 @@ void vtkDelaunay3D::InsertSphere(vtkUnstructuredGrid *Mesh, vtkPoints *points,
   this->Spheres->InsertSphere(tetraId, radius2, center);
 }
 
-void vtkDelaunay3D::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkDelaunay3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkUnstructuredGridSource::PrintSelf(os,indent);
 

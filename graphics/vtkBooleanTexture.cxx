@@ -165,7 +165,7 @@ void vtkBooleanTexture::Execute()
   newScalars->Delete();
 }
 
-void vtkBooleanTexture::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkBooleanTexture::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkStructuredPointsSource::PrintSelf(os,indent);
 

@@ -199,7 +199,7 @@ void vtkTextureMapToCylinder::Execute()
 
 }
 
-void vtkTextureMapToCylinder::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkTextureMapToCylinder::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 

@@ -70,7 +70,7 @@ class VTK_EXPORT vtkMultiProcessController : public vtkObject
 public:
   static vtkMultiProcessController *New();
   vtkTypeMacro(vtkMultiProcessController,vtkObject);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // This method returns an controller which must be UnRegistered.
   // If a global object already exists, it is registered and returned.

@@ -87,7 +87,7 @@ class VTK_EXPORT vtkConnectivityFilter : public vtkDataSetToUnstructuredGridFilt
 {
 public:
   vtkTypeMacro(vtkConnectivityFilter,vtkDataSetToUnstructuredGridFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Construct with default extraction mode to extract largest regions.

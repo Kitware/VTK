@@ -41,12 +41,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 // .NAME vtkAppendPolyData - appends one or more polygonal datasets together
 // .SECTION Description
+// 
 // vtkAppendPolyData is a filter that appends one of more polygonal datasets
-// into a single polygonal dataset. All geometry is extracted and appended, 
-// but point attributes (i.e., scalars, vectors, normals) are extracted 
-// and appended only if all datasets have the point attributes available.
-// (For example, if one dataset has scalars but another does not, scalars 
-// will not be appended.)
+// into a single polygonal dataset. All geometry is extracted and appended,
+// but point and cell attributes (i.e., scalars, vectors, normals) are
+// extracted and appended only if all datasets have the point and/or cell
+// attributes available.  (For example, if one dataset has point scalars but
+// another does not, point scalars will not be appended.)
 
 // .SECTION See Also
 // vtkAppendFilter
@@ -62,13 +63,13 @@ public:
   static vtkAppendPolyData *New();
 
   vtkTypeMacro(vtkAppendPolyData,vtkPolyDataToPolyDataFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // UserManagedInputs allows the user to set inputs by number instead of
   // using the AddInput/RemoveInput functions. Calls to
   // SetNumberOfInputs/SetInputByNumber should not be mixed with calls
-  // to AddInput/RemoveInput. Default UserManagedInputs is false
+  // to AddInput/RemoveInput. By default, UserManagedInputs is false.
   vtkSetMacro(UserManagedInputs,int);
   vtkGetMacro(UserManagedInputs,int);
   vtkBooleanMacro(UserManagedInputs,int);
@@ -108,7 +109,6 @@ public:
   vtkSetMacro(ParallelStreaming, int); 
   vtkGetMacro(ParallelStreaming, int); 
   vtkBooleanMacro(ParallelStreaming, int); 
-
 
 protected:
   vtkAppendPolyData();

@@ -155,7 +155,7 @@ void vtkElevationFilter::Execute()
   newScalars->Delete();
 }
 
-void vtkElevationFilter::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkElevationFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 

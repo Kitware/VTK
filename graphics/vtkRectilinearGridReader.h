@@ -58,7 +58,7 @@ class VTK_EXPORT vtkRectilinearGridReader : public vtkRectilinearGridSource
 public:
   static vtkRectilinearGridReader *New();
   vtkTypeMacro(vtkRectilinearGridReader,vtkRectilinearGridSource);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Return the MTime also considering the vtkDataReader ivar

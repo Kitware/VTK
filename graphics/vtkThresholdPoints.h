@@ -58,7 +58,7 @@ class VTK_EXPORT vtkThresholdPoints : public vtkDataSetToPolyDataFilter
 public:
   static vtkThresholdPoints *New();
   vtkTypeMacro(vtkThresholdPoints,vtkDataSetToPolyDataFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
   // Criterion is cells whose scalars are less than lower threshold.

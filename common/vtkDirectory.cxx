@@ -19,7 +19,7 @@ vtkDirectory::~vtkDirectory()
 
 
 
-void vtkDirectory::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkDirectory::PrintSelf(ostream& os, vtkIndent indent)
 { 
   vtkObject::PrintSelf(os, indent);
   if(!this->Path)

@@ -60,7 +60,7 @@ class VTK_EXPORT vtkRIBLight : public vtkLight
 public:
   static vtkRIBLight *New();
   vtkTypeMacro(vtkRIBLight,vtkLight);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   vtkBooleanMacro(Shadows,int);
   vtkSetMacro(Shadows,int);

@@ -1650,7 +1650,7 @@ void vtkDecimatePro::DistributeError(float error)
     }
 }
 
-void vtkDecimatePro::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkDecimatePro::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 

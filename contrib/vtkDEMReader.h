@@ -59,7 +59,7 @@ class VTK_EXPORT vtkDEMReader : public vtkImageSource
 public:
   static vtkDEMReader *New();
   vtkTypeMacro(vtkDEMReader,vtkImageSource);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Specify file name of Digital Elevation Model (DEM) file

@@ -705,7 +705,7 @@ int vtkRenderWindow::CheckAbortStatus()
   return this->AbortRender;
 }
 
-void vtkRenderWindow::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkWindow::PrintSelf(os,indent);
 

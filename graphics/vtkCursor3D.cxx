@@ -476,7 +476,7 @@ void vtkCursor3D::AllOff()
   this->ZShadowsOff();
 }
 
-void vtkCursor3D::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkCursor3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataSource::PrintSelf(os,indent);
 

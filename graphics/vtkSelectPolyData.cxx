@@ -591,7 +591,7 @@ unsigned long int vtkSelectPolyData::GetMTime()
   return mTime;
 }
 
-void vtkSelectPolyData::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkSelectPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 

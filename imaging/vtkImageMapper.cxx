@@ -79,7 +79,7 @@ vtkImageMapper::~vtkImageMapper()
     }
 }
 
-void vtkImageMapper::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkImageMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkMapper2D::PrintSelf(os, indent);
 

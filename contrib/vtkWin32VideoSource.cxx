@@ -90,7 +90,7 @@ vtkWin32VideoSource::~vtkWin32VideoSource()
 }
 
 //----------------------------------------------------------------------------
-void vtkWin32VideoSource::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkWin32VideoSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkVideoSource::PrintSelf(os,indent);
 }
@@ -105,19 +105,19 @@ vtkWin32VideoSourceWinProc(HWND hwnd, UINT message,
 
   /* Let all messages pass through
   case WM_MOVE:
-    // vtkCerr << "WM_MOVE\n";
+    // cerr << "WM_MOVE\n";
     break;
 
   case WM_SIZE:
-    // vtkCerr << "WM_SIZE\n";
+    // cerr << "WM_SIZE\n";
     break;
     
   case WM_DESTROY:
-    // vtkCerr << "WM_DESTROY\n";    
+    // cerr << "WM_DESTROY\n";    
     break;
 
   case WM_CLOSE:
-    // vtkCerr << "WM_CLOSE\n";
+    // cerr << "WM_CLOSE\n";
     break;
   */
 
@@ -146,12 +146,12 @@ LRESULT PASCAL vtkWin32VideoSourceStatusCallbackProc(HWND hwndC, int nID,
   /* 
   if (nID == IDS_CAP_BEGIN)
     {
-    vtkCerr << "start of capture\n";
+    cerr << "start of capture\n";
     }
 
   if (nID == IDS_CAP_END)
     {
-    vtkCerr << "end of capture\n";
+    cerr << "end of capture\n";
     }
   */
 

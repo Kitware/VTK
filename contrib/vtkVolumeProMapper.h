@@ -96,7 +96,7 @@ class VTK_EXPORT vtkVolumeProMapper : public vtkVolumeMapper
 {
 public:
   vtkTypeMacro(vtkVolumeProMapper,vtkVolumeMapper);
-  void PrintSelf( vtkOstream& os, vtkIndent index );
+  void PrintSelf( ostream& os, vtkIndent index );
 
   // Description:
   // Automatically create the proper subclass

@@ -120,7 +120,7 @@ double vtkVectors::GetMaxNorm()
   return this->MaxNorm;
 }
 
-void vtkVectors::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkVectors::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkAttributeData::PrintSelf(os,indent);
 

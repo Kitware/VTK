@@ -75,7 +75,7 @@ class VTK_EXPORT vtkFrustumCoverageCuller : public vtkCuller
 public:
   static vtkFrustumCoverageCuller *New();
   vtkTypeMacro(vtkFrustumCoverageCuller,vtkCuller);
-  void PrintSelf(vtkOstream& os,vtkIndent indent);
+  void PrintSelf(ostream& os,vtkIndent indent);
 
   // Description:
   // Set/Get the minimum coverage - props with less coverage than this

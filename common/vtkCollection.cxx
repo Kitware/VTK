@@ -188,7 +188,7 @@ int vtkCollection::GetNumberOfItems()
 }
 
 
-void vtkCollection::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkCollection::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
 

@@ -131,7 +131,7 @@ void vtkQuadric::SetCoefficients(float a0,float a1,float a2,float a3, float a4,
 
   vtkQuadric::SetCoefficients(a);
 }
-void vtkQuadric::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkQuadric::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImplicitFunction::PrintSelf(os,indent);
 

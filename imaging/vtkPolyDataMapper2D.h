@@ -70,7 +70,7 @@ class VTK_EXPORT vtkPolyDataMapper2D : public vtkMapper2D
 public:
   vtkTypeMacro(vtkPolyDataMapper2D,vtkMapper2D);
   static vtkPolyDataMapper2D *New();
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
   // Set the input to the mapper.  

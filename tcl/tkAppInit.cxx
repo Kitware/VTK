@@ -58,7 +58,7 @@ int *tclDummyMathPtr = (int *) matherr;
 int
 main(int argc, char **argv)
 {
-  vtkIos::sync_with_stdio();
+  ios::sync_with_stdio();
   Tk_Main(argc, argv, Tcl_AppInit);
   return 0;			/* Needed only to prevent compiler warning. */
 }

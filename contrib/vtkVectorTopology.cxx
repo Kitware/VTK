@@ -147,7 +147,7 @@ void vtkVectorTopology::Execute()
   output->Squeeze();
 }
 
-void vtkVectorTopology::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkVectorTopology::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
 

@@ -68,7 +68,7 @@ class VTK_EXPORT vtkRecursiveDividingCubes : public vtkStructuredPointsToPolyDat
 public:
   static vtkRecursiveDividingCubes *New();
   vtkTypeMacro(vtkRecursiveDividingCubes,vtkStructuredPointsToPolyDataFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set isosurface value.

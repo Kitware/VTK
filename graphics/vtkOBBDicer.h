@@ -62,7 +62,7 @@ class VTK_EXPORT vtkOBBDicer : public vtkDicer
 {
 public:
   vtkTypeMacro(vtkOBBDicer,vtkDicer);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Instantiate an object.

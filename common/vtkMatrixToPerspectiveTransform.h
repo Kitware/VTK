@@ -63,7 +63,7 @@ class VTK_EXPORT vtkMatrixToPerspectiveTransform :
  public:
   static vtkMatrixToPerspectiveTransform *New();
   vtkTypeMacro(vtkMatrixToPerspectiveTransform,vtkPerspectiveTransform);
-  void PrintSelf (vtkOstream& os, vtkIndent indent);
+  void PrintSelf (ostream& os, vtkIndent indent);
 
   // Description:
   // Set the matrix.  Calls to Identity() and Inverse() will modify

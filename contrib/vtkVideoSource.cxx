@@ -178,7 +178,7 @@ vtkVideoSource::~vtkVideoSource()
 }
 
 //----------------------------------------------------------------------------
-void vtkVideoSource::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkVideoSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   int idx;
   

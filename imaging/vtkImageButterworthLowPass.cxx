@@ -254,7 +254,7 @@ void vtkImageButterworthLowPass::ThreadedExecute(vtkImageData *inData,
     }
 }
 
-void vtkImageButterworthLowPass::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkImageButterworthLowPass::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageToImageFilter::PrintSelf(os,indent);
 

@@ -390,7 +390,7 @@ vtkXImageWindow::~vtkXImageWindow()
 
 
 //----------------------------------------------------------------------------
-void vtkXImageWindow::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkXImageWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageWindow::PrintSelf(os, indent);
   os << indent << "Parent Id: " << this->ParentId << "\n";

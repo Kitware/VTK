@@ -57,7 +57,7 @@ public:
   static vtkPerspectiveTransformInverse *New();
 
   vtkTypeMacro(vtkPerspectiveTransformInverse,vtkPerspectiveTransform);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set the transform that you want this to be an inverse of.

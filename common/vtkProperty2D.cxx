@@ -79,7 +79,7 @@ vtkProperty2D::~vtkProperty2D()
 
 }
 
-void vtkProperty2D::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkProperty2D::PrintSelf(ostream& os, vtkIndent indent)
 {
 
   this->vtkObject::PrintSelf(os, indent);

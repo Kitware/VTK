@@ -132,7 +132,7 @@ int vtkWorldPointPicker::Pick(float selectionX, float selectionY, float selectio
   return 0;
 }
 
-void vtkWorldPointPicker::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkWorldPointPicker::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkPicker::PrintSelf(os,indent);
 

@@ -837,7 +837,7 @@ void vtkHyperStreamline::BuildTube()
   output->Squeeze();
 }
 
-void vtkHyperStreamline::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkHyperStreamline::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
 

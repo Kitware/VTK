@@ -195,7 +195,7 @@ void vtkExtractGeometry::Execute()
   output->Squeeze();
 }
 
-void vtkExtractGeometry::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkExtractGeometry::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToUnstructuredGridFilter::PrintSelf(os,indent);
 

@@ -25,15 +25,15 @@
 //   and a main
 #include "rtOtherTestBase.h"
 
-void SelectorCommand(vtkOstream& strm) {
+void SelectorCommand(ostream& strm) {
   strm << "sed -e s/0x0/0/ | sed -e s/-0/0/ | grep -v 0x | grep -v Modified ";
 }
 
-void ComparatorCommand(vtkOstream& strm) {
+void ComparatorCommand(ostream& strm) {
   strm << "diff";
 }
 
-void ToAll (vtkOstream& strm, vtkCoordinate *c1, vtkViewport *ren1, 
+void ToAll (ostream& strm, vtkCoordinate *c1, vtkViewport *ren1, 
             float *from)
 {
   float *value;
@@ -61,7 +61,7 @@ void ToAll (vtkOstream& strm, vtkCoordinate *c1, vtkViewport *ren1,
 
 
 }
-void Test(vtkOstream& strm)
+void Test(ostream& strm)
 {
   // actual test
   strm << "Testing vtkCoordinate" << endl;

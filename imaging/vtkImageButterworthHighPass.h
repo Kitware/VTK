@@ -60,7 +60,7 @@ class VTK_EXPORT vtkImageButterworthHighPass : public vtkImageToImageFilter
 public:
   static vtkImageButterworthHighPass *New();
   vtkTypeMacro(vtkImageButterworthHighPass,vtkImageToImageFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set/Get the cutoff frequency for each axis.

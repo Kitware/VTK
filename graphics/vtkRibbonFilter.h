@@ -64,7 +64,7 @@ class VTK_EXPORT vtkRibbonFilter : public vtkPolyDataToPolyDataFilter
 {
 public:
   vtkTypeMacro(vtkRibbonFilter,vtkPolyDataToPolyDataFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Construct ribbon so that width is 0.1, the width does 

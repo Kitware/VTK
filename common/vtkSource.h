@@ -78,7 +78,7 @@ public:
   static vtkSource *New();
 
   vtkTypeMacro(vtkSource,vtkProcessObject);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Bring object up-to-date before execution. Update() checks modified

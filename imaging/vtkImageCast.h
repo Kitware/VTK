@@ -60,7 +60,7 @@ class VTK_EXPORT vtkImageCast : public vtkImageToImageFilter
 public:
   static vtkImageCast *New();
   vtkTypeMacro(vtkImageCast,vtkImageToImageFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set the desired output scalar type to cast to

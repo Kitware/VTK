@@ -215,7 +215,7 @@ unsigned long vtkTransformPolyDataFilter::GetMTime()
   return mTime;
 }
 
-void vtkTransformPolyDataFilter::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkTransformPolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 

@@ -58,7 +58,7 @@ class VTK_EXPORT vtkTexturedSphereSource : public vtkPolyDataSource
 {
 public:
   vtkTypeMacro(vtkTexturedSphereSource,vtkPolyDataSource);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Construct sphere with radius=0.5 and default resolution 8 in both Phi

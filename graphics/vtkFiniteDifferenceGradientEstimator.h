@@ -69,7 +69,7 @@ class VTK_EXPORT vtkFiniteDifferenceGradientEstimator : public vtkEncodedGradien
 {
 public:
   vtkTypeMacro(vtkFiniteDifferenceGradientEstimator,vtkEncodedGradientEstimator);
-  void PrintSelf( vtkOstream& os, vtkIndent index );
+  void PrintSelf( ostream& os, vtkIndent index );
 
   // Description:
   // Construct a vtkFiniteDifferenceGradientEstimator with

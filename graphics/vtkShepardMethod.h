@@ -67,7 +67,7 @@ class VTK_EXPORT vtkShepardMethod : public vtkDataSetToStructuredPointsFilter
 {
 public:
   vtkTypeMacro(vtkShepardMethod,vtkDataSetToStructuredPointsFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Construct with sample dimensions=(50,50,50) and so that model bounds are

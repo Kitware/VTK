@@ -102,7 +102,7 @@ vtkTextMapper::~vtkTextMapper()
 }
 
 //----------------------------------------------------------------------------
-void vtkTextMapper::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkTextMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkMapper2D::PrintSelf(os,indent);
 
@@ -117,16 +117,16 @@ void vtkTextMapper::PrintSelf(vtkOstream& os, vtkIndent indent)
   os << indent << "Justification: ";
   switch (this->Justification)
     {
-    case 0: os << "Left  (0)" << vtkEndl; break;
-    case 1: os << "Centered  (1)" << vtkEndl; break;
-    case 2: os << "Right  (2)" << vtkEndl; break;
+    case 0: os << "Left  (0)" << endl; break;
+    case 1: os << "Centered  (1)" << endl; break;
+    case 2: os << "Right  (2)" << endl; break;
     }
   os << indent << "VerticalJustification: ";
   switch (this->VerticalJustification)
     {
-    case VTK_TEXT_TOP: os << "Top" << vtkEndl; break;
-    case VTK_TEXT_CENTERED: os << "Centered" << vtkEndl; break;
-    case VTK_TEXT_BOTTOM: os << "Bottom" << vtkEndl; break;
+    case VTK_TEXT_TOP: os << "Top" << endl; break;
+    case VTK_TEXT_CENTERED: os << "Centered" << endl; break;
+    case VTK_TEXT_BOTTOM: os << "Bottom" << endl; break;
     }
   
   os << indent << "NumberOfLines: " << this->NumberOfLines << "\n";  

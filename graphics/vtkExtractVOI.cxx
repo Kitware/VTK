@@ -263,7 +263,7 @@ void vtkExtractVOI::Execute()
 }
 
 
-void vtkExtractVOI::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkExtractVOI::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkStructuredPointsToStructuredPointsFilter::PrintSelf(os,indent);
 

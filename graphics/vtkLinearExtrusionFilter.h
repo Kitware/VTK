@@ -85,7 +85,7 @@ class VTK_EXPORT vtkLinearExtrusionFilter : public vtkPolyDataToPolyDataFilter
 {
 public:
   vtkTypeMacro(vtkLinearExtrusionFilter,vtkPolyDataToPolyDataFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Create object with normal extrusion type, capping on, scale factor=1.0,

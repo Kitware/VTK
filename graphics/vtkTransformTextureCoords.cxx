@@ -180,7 +180,7 @@ void vtkTransformTextureCoords::Execute()
   transform->Delete();
 }
 
-void vtkTransformTextureCoords::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkTransformTextureCoords::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 

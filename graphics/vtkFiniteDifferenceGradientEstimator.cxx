@@ -456,11 +456,11 @@ void vtkFiniteDifferenceGradientEstimator::UpdateNormals( )
 }
 
 // Print the vtkFiniteDifferenceGradientEstimator
-void vtkFiniteDifferenceGradientEstimator::PrintSelf(vtkOstream& os, 
+void vtkFiniteDifferenceGradientEstimator::PrintSelf(ostream& os, 
 						     vtkIndent indent)
 {
   this->vtkEncodedGradientEstimator::PrintSelf(os, indent);
   
   os << indent << "Sample spacing in voxels: " << 
-    this->SampleSpacingInVoxels << vtkEndl;
+    this->SampleSpacingInVoxels << endl;
 }

@@ -56,7 +56,7 @@ class VTK_EXPORT vtkMergeFilter : public vtkDataSetToDataSetFilter
 public:
   static vtkMergeFilter *New();
   vtkTypeMacro(vtkMergeFilter,vtkDataSetToDataSetFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Specify object from which to extract geometry information.

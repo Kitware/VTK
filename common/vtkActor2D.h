@@ -61,7 +61,7 @@ class vtkMapper2D;
 class VTK_EXPORT vtkActor2D : public vtkProp
 {
 public:
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
   vtkTypeMacro(vtkActor2D,vtkProp);
 
   // Description:

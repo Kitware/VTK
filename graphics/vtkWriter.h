@@ -70,7 +70,7 @@ class VTK_EXPORT vtkWriter : public vtkProcessObject
 {
 public:
   vtkTypeMacro(vtkWriter,vtkProcessObject);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Write data to output. Method executes subclasses WriteData() method, as 

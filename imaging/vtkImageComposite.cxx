@@ -265,7 +265,7 @@ void vtkImageComposite::Execute()
 
 
 //----------------------------------------------------------------------------
-void vtkImageComposite::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkImageComposite::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkSource::PrintSelf(os,indent);
 }

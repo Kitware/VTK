@@ -75,12 +75,12 @@ vtkImageTranslateExtent::vtkImageTranslateExtent()
 
 
 //----------------------------------------------------------------------------
-void vtkImageTranslateExtent::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkImageTranslateExtent::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageToImageFilter::PrintSelf(os,indent);
 
   os << indent << "Translation: (" << this->Translation[0]
-     << "," << this->Translation[1] << "," << this->Translation[2] << vtkEndl;
+     << "," << this->Translation[1] << "," << this->Translation[2] << endl;
 }
   
 

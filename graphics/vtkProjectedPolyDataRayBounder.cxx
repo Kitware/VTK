@@ -201,7 +201,7 @@ float *vtkProjectedPolyDataRayBounder::Draw( vtkRenderer *vtkNotUsed(ren),
 
 // Print the object including the PolyData, the matrix source, and the
 // build time.
-void vtkProjectedPolyDataRayBounder::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkProjectedPolyDataRayBounder::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkRayBounder::PrintSelf(os, indent);
 

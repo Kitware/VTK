@@ -61,7 +61,7 @@ class VTK_EXPORT vtkOBJExporter : public vtkExporter
 public:
   static vtkOBJExporter *New();
   vtkTypeMacro(vtkOBJExporter,vtkExporter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Specify the prefix of the files to write out. The resulting filenames

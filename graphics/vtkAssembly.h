@@ -90,7 +90,7 @@ public:
   static vtkAssembly *New();
 
   vtkTypeMacro(vtkAssembly,vtkActor);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Add a part to the list of parts.

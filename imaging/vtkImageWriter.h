@@ -59,7 +59,7 @@ class VTK_EXPORT vtkImageWriter : public vtkProcessObject
 public:
   static vtkImageWriter *New();
   vtkTypeMacro(vtkImageWriter,vtkProcessObject);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
   // Specify file name for the image file. You should specify either
@@ -118,12 +118,12 @@ protected:
 
   unsigned long MemoryLimit;
   
-  void RecursiveWrite(int dim, vtkImageData *region, vtkOfstream *file);
+  void RecursiveWrite(int dim, vtkImageData *region, ofstream *file);
   void RecursiveWrite(int dim, vtkImageData *cache, 
-		      vtkImageData *data, vtkOfstream *file);
-  virtual void WriteFile(vtkOfstream *file, vtkImageData *data, int extent[6]);
-  virtual void WriteFileHeader(vtkOfstream *, vtkImageData *) {};
-  virtual void WriteFileTrailer(vtkOfstream *, vtkImageData *) {};
+		      vtkImageData *data, ofstream *file);
+  virtual void WriteFile(ofstream *file, vtkImageData *data, int extent[6]);
+  virtual void WriteFileHeader(ofstream *, vtkImageData *) {};
+  virtual void WriteFileTrailer(ofstream *, vtkImageData *) {};
 };
 
 #endif

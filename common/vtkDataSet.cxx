@@ -373,7 +373,7 @@ void vtkDataSet::InternalDataSetCopy(vtkDataSet *src)
 }
 
 //----------------------------------------------------------------------------
-void vtkDataSet::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkDataSet::PrintSelf(ostream& os, vtkIndent indent)
 {
   float *bounds;
 

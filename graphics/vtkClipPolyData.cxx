@@ -422,7 +422,7 @@ void vtkClipPolyData::CreateDefaultLocator()
 
 
 //----------------------------------------------------------------------------
-void vtkClipPolyData::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkClipPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 

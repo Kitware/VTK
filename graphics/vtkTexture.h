@@ -86,7 +86,7 @@ class VTK_EXPORT vtkTexture : public vtkObject
 public:
   static vtkTexture *New();
   vtkTypeMacro(vtkTexture,vtkObject);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Renders a texture map. It first checks the object's modified time

@@ -384,7 +384,7 @@ void vtkRectilinearGridReader::Execute()
 }
 
 static int recursing = 0;
-void vtkRectilinearGridReader::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkRectilinearGridReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   // the reader ivar's source will be this Reader. 
   // we must do this to prevent infinite printing

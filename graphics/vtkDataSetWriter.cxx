@@ -161,7 +161,7 @@ void vtkDataSetWriter::WriteData()
   writer->Delete();
 }
 
-void vtkDataSetWriter::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkDataSetWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataWriter::PrintSelf(os,indent);
 }

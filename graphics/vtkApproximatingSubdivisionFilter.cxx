@@ -251,11 +251,11 @@ void vtkApproximatingSubdivisionFilter::GenerateSubdivisionCells (vtkPolyData *i
     }
 }
 
-void vtkApproximatingSubdivisionFilter::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkApproximatingSubdivisionFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 
-  os << indent << "Number of subdivisions: " << this->NumberOfSubdivisions << vtkEndl;
+  os << indent << "Number of subdivisions: " << this->NumberOfSubdivisions << endl;
 }
 
 

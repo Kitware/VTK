@@ -93,7 +93,7 @@ class VTK_EXPORT vtkProgrammableGlyphFilter : public vtkDataSetToPolyDataFilter
 {
 public:
   vtkTypeMacro(vtkProgrammableGlyphFilter,vtkDataSetToPolyDataFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description
   // Construct object with NULL GlyphMethod() and no source object. The ColorMode

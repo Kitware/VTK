@@ -428,7 +428,7 @@ void vtkImageSkeleton2D::ThreadedExecute(vtkImageData *inData,
   tempData->Delete();
 }
 
-void vtkImageSkeleton2D::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkImageSkeleton2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageIterateFilter::PrintSelf(os,indent);
 

@@ -64,7 +64,7 @@ class VTK_EXPORT vtkImageSeedConnectivity : public vtkImageToImageFilter
 public:
   static vtkImageSeedConnectivity *New();
   vtkTypeMacro(vtkImageSeedConnectivity,vtkImageToImageFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
   // Methods for manipulating the seed pixels.

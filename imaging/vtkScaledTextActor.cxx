@@ -260,12 +260,12 @@ int vtkScaledTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
   return 1;
 }
 
-void vtkScaledTextActor::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkScaledTextActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkActor2D::PrintSelf(os,indent);
 
-  os << indent << "MaximumLineHeight: " << this->MaximumLineHeight << vtkEndl;
-  os << indent << "MinimumSize: " << this->MinimumSize[0] << " " << this->MinimumSize[1] << vtkEndl;
+  os << indent << "MaximumLineHeight: " << this->MaximumLineHeight << endl;
+  os << indent << "MinimumSize: " << this->MinimumSize[0] << " " << this->MinimumSize[1] << endl;
 }
 
 vtkCoordinate *vtkScaledTextActor::GetPosition2Coordinate() 

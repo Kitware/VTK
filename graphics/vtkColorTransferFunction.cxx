@@ -349,7 +349,7 @@ void vtkColorTransferFunction::BuildFunctionFromTable( float x1, float x2,
 
 
 // Print method for vtkColorTransferFunction
-void vtkColorTransferFunction::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkColorTransferFunction::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkScalarsToColors::PrintSelf(os, indent);
 

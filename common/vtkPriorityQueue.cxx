@@ -268,7 +268,7 @@ void vtkPriorityQueue::Reset()
     }
 }
 
-void vtkPriorityQueue::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkPriorityQueue::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
 

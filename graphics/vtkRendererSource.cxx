@@ -172,7 +172,7 @@ void vtkRendererSource::Execute()
   delete [] pixels;
 }
 
-void vtkRendererSource::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkRendererSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkStructuredPointsSource::PrintSelf(os,indent);
 

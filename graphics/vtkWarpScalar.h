@@ -70,7 +70,7 @@ class VTK_EXPORT vtkWarpScalar : public vtkPointSetToPointSetFilter
 public:
   static vtkWarpScalar *New();
   vtkTypeMacro(vtkWarpScalar,vtkPointSetToPointSetFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Specify value to scale displacement.

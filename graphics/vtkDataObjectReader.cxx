@@ -159,7 +159,7 @@ char *vtkDataObjectReader::GetFieldDataName()
   return this->Reader->GetFieldDataName();
 }
 
-void vtkDataObjectReader::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkDataObjectReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataObjectSource::PrintSelf(os,indent);
 

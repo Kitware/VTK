@@ -77,7 +77,7 @@ class VTK_EXPORT vtkExtractTensorComponents : public vtkDataSetToDataSetFilter
 {
 public:
   vtkTypeMacro(vtkExtractTensorComponents,vtkDataSetToDataSetFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Construct object to extract nothing and to not pass tensor data

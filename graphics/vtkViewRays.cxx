@@ -399,7 +399,7 @@ void vtkViewRays::ComputeParallelInfo( int size[2] )
 }
 
 // Print the class
-void vtkViewRays::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkViewRays::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkObject::PrintSelf(os,indent);
   os << "Renderer: " << this->Renderer << "\n";

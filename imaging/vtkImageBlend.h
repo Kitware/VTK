@@ -59,7 +59,7 @@ class VTK_EXPORT vtkImageBlend : public vtkImageMultipleInputFilter
 public:
   static vtkImageBlend *New();
   vtkTypeMacro(vtkImageBlend,vtkImageMultipleInputFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set the opacity of an input image: the alpha values of the image are

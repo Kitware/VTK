@@ -214,7 +214,7 @@ int vtkCompositeFilter::ComputeInputUpdateExtents(vtkDataObject *data)
 
 
 //----------------------------------------------------------------------------
-void vtkCompositeFilter::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkCompositeFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkStructuredPointsToStructuredPointsFilter::PrintSelf(os,indent);
 }

@@ -413,12 +413,12 @@ void vtkRecursiveSphereDirectionEncoder::InitializeIndexTable( void )
 
 
 // Print the vtkRecursiveSphereDirectionEncoder
-void vtkRecursiveSphereDirectionEncoder::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkRecursiveSphereDirectionEncoder::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkDirectionEncoder::PrintSelf(os,indent);
 
   os << indent << "Number of encoded directions: " << 
-    this->GetNumberOfEncodedDirections() << vtkEndl;
+    this->GetNumberOfEncodedDirections() << endl;
 
-  os << indent << "Recursion depth: " << this->RecursionDepth << vtkEndl;
+  os << indent << "Recursion depth: " << this->RecursionDepth << endl;
 }

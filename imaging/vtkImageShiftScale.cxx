@@ -309,7 +309,7 @@ void vtkImageShiftScale::ThreadedExecute(vtkImageData *inData,
 
 
 
-void vtkImageShiftScale::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkImageShiftScale::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageToImageFilter::PrintSelf(os,indent);
 

@@ -73,7 +73,7 @@ vtkImageGradientMagnitude::vtkImageGradientMagnitude()
 
 
 //----------------------------------------------------------------------------
-void vtkImageGradientMagnitude::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkImageGradientMagnitude::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkImageToImageFilter::PrintSelf(os, indent);
   os << indent << "HandleBoundaries: " << this->HandleBoundaries << "\n";

@@ -783,7 +783,7 @@ void vtkPiecewiseFunction::IncreaseArraySize()
 }
 
 // Print method for tkPiecewiseFunction
-void vtkPiecewiseFunction::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkPiecewiseFunction::PrintSelf(ostream& os, vtkIndent indent)
 {
   int i;
 

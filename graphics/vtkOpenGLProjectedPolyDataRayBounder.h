@@ -69,7 +69,7 @@ class VTK_EXPORT vtkOpenGLProjectedPolyDataRayBounder : public vtkProjectedPolyD
 {
 public:
   vtkTypeMacro(vtkOpenGLProjectedPolyDataRayBounder,vtkProjectedPolyDataRayBounder);    
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Construct a new vtkOpenGLProjectedPolyDataRayBounder.  The depth range

@@ -43,7 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkWarpTransform.h"
 
 //----------------------------------------------------------------------------
-void vtkWarpTransform::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkWarpTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkGeneralTransform::PrintSelf(os, indent);
 

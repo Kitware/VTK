@@ -59,7 +59,7 @@ public:
   static vtkUnstructuredInformation *New();
 
   vtkTypeMacro(vtkUnstructuredInformation,vtkDataInformation);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Makes an empty similar type object.
@@ -85,8 +85,8 @@ public:
   
   // Description:
   // Serialization provided for the multi-process ports.
-  void ReadSelf(vtkIstream& is);
-  void WriteSelf(vtkOstream& os);
+  void ReadSelf(istream& is);
+  void WriteSelf(ostream& os);
 
 protected:
   vtkUnstructuredInformation();

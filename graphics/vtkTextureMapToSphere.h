@@ -74,7 +74,7 @@ class VTK_EXPORT vtkTextureMapToSphere : public vtkDataSetToDataSetFilter
 {
 public:
   vtkTypeMacro(vtkTextureMapToSphere,vtkDataSetToDataSetFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Create object with Center (0,0,0) and the PreventSeam ivar is set to

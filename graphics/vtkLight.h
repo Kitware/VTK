@@ -63,7 +63,7 @@ class VTK_EXPORT vtkLight : public vtkObject
 {
 public:
   vtkTypeMacro(vtkLight,vtkObject);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Create a light with the focal point at the origin and its position
@@ -134,8 +134,8 @@ public:
   // Perform deep copy of this light.
   void DeepCopy(vtkLight *light);
 
-  void ReadSelf(vtkIstream& is);
-  void WriteSelf(vtkOstream& os);
+  void ReadSelf(istream& is);
+  void WriteSelf(ostream& os);
   
 protected:
   vtkLight();

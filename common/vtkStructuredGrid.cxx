@@ -907,7 +907,7 @@ void vtkStructuredGrid::InternalStructuredGridCopy(vtkStructuredGrid *src)
 }
 
 //----------------------------------------------------------------------------
-void vtkStructuredGrid::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkStructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPointSet::PrintSelf(os,indent);
 
@@ -920,11 +920,11 @@ void vtkStructuredGrid::PrintSelf(vtkOstream& os, vtkIndent indent)
   os << indent << "WholeExtent: " << this->WholeExtent[0] << ", "
      << this->WholeExtent[1] << ", " << this->WholeExtent[2] << ", "
      << this->WholeExtent[3] << ", " << this->WholeExtent[4] << ", "
-     << this->WholeExtent[5] << vtkEndl;
+     << this->WholeExtent[5] << endl;
   os << indent << "Extent: " << this->Extent[0] << ", "
      << this->Extent[1] << ", " << this->Extent[2] << ", "
      << this->Extent[3] << ", " << this->Extent[4] << ", "
-     << this->Extent[5] << vtkEndl;
+     << this->Extent[5] << endl;
 
   os << ")\n";
 }

@@ -63,7 +63,7 @@ vtkVolumeReader::~vtkVolumeReader ()
   delete [] this->FilePattern;
 }
 
-void vtkVolumeReader::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkVolumeReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkStructuredPointsSource::PrintSelf(os,indent);
 

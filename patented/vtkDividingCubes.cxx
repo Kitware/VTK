@@ -370,7 +370,7 @@ void vtkDividingCubes::SubDivide(float origin[3], int dim[3], float h[3],
     }
 }
 
-void vtkDividingCubes::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkDividingCubes::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkStructuredPointsToPolyDataFilter::PrintSelf(os,indent);
 

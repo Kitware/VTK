@@ -56,7 +56,7 @@ class VTK_EXPORT vtkDataSetWriter : public vtkDataWriter
 public:
   static vtkDataSetWriter *New();
   vtkTypeMacro(vtkDataSetWriter,vtkDataWriter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set / get the input data or filter.

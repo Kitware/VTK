@@ -445,9 +445,9 @@ extern VTK_EXPORT void vtkOutputWindowDisplayText(const char*);
 //
 #define vtkGenericWarningMacro(x) \
 { if (vtkObject::GetGlobalWarningDisplay()) { \
-      char *vtkmsgbuff; vtkOstrstream vtkmsg; \
+      char *vtkmsgbuff; ostrstream vtkmsg; \
       vtkmsg << "Generic Warning: In " __FILE__ ", line " << __LINE__ << "\n" x \
-      << "\n\n" << vtkEnds; \
+      << "\n\n" << ends; \
       vtkmsgbuff = vtkmsg.str(); \
       vtkOutputWindowDisplayText(vtkmsgbuff);\
       vtkmsg.rdbuf()->freeze(0);}}
@@ -462,8 +462,8 @@ extern VTK_EXPORT void vtkOutputWindowDisplayText(const char*);
 #define vtkDebugMacro(x) \
 { if (this->Debug && vtkObject::GetGlobalWarningDisplay()) \
     { char *vtkmsgbuff; \
-      vtkOstrstream vtkmsg; \
-      vtkmsg << "Debug: In " __FILE__ ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x  << "\n\n" << vtkEnds; \
+      ostrstream vtkmsg; \
+      vtkmsg << "Debug: In " __FILE__ ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x  << "\n\n" << ends; \
       vtkmsgbuff = vtkmsg.str(); \
       vtkOutputWindowDisplayText(vtkmsgbuff);\
       vtkmsg.rdbuf()->freeze(0);}}
@@ -475,8 +475,8 @@ extern VTK_EXPORT void vtkOutputWindowDisplayText(const char*);
 #define vtkWarningMacro(x) \
 { if (vtkObject::GetGlobalWarningDisplay()) { \
       char *vtkmsgbuff; \
-      vtkOstrstream vtkmsg; \
-      vtkmsg << "Warning: In " __FILE__ ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << "\n\n" << vtkEnds; \
+      ostrstream vtkmsg; \
+      vtkmsg << "Warning: In " __FILE__ ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << "\n\n" << ends; \
       vtkmsgbuff = vtkmsg.str(); \
       vtkOutputWindowDisplayText(vtkmsgbuff);\
       vtkmsg.rdbuf()->freeze(0);}}
@@ -487,8 +487,8 @@ extern VTK_EXPORT void vtkOutputWindowDisplayText(const char*);
 //
 #define vtkErrorMacro(x) \
 { if (vtkObject::GetGlobalWarningDisplay()) {char *vtkmsgbuff; \
-      vtkOstrstream vtkmsg; \
-      vtkmsg << "ERROR: In " __FILE__ ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << "\n\n" << vtkEnds; \
+      ostrstream vtkmsg; \
+      vtkmsg << "ERROR: In " __FILE__ ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << "\n\n" << ends; \
       vtkmsgbuff = vtkmsg.str(); \
       vtkOutputWindowDisplayText(vtkmsgbuff);\
       vtkmsg.rdbuf()->freeze(0); vtkObject::BreakOnError();}}
@@ -556,7 +556,7 @@ virtual int IsA(const char *type) \
 } \
 static thisClass* SafeDownCast(vtkObject *o) \
 { \
-  if ( o->IsA(#thisClass) ) \
+  if ( o && o->IsA(#thisClass) ) \
     { \
     return (thisClass *)o; \
     } \

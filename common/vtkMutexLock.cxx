@@ -139,7 +139,7 @@ vtkSimpleMutexLock *vtkSimpleMutexLock::SafeDownCast(vtkSimpleMutexLock *o)
   return (vtkSimpleMutexLock *)o;
 }
   
-void vtkMutexLock::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkMutexLock::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os, indent);
 }

@@ -63,7 +63,7 @@ class VTK_EXPORT vtkImageMask : public vtkImageTwoInputFilter
 public:
   static vtkImageMask *New();
   vtkTypeMacro(vtkImageMask,vtkImageTwoInputFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // SetGet the value of the output pixel replaced by mask.

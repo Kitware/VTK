@@ -65,7 +65,7 @@ public:
   static vtkCone *New();
 
   vtkTypeMacro(vtkCone,vtkImplicitFunction);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description
   // Evaluate cone equation.

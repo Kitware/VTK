@@ -67,7 +67,7 @@ public:
   static vtkProp* New();
 
   vtkTypeMacro(vtkProp,vtkObject);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description: 
   // For some exporters and other other operations we must be

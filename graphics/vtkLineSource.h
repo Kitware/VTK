@@ -55,7 +55,7 @@ class VTK_EXPORT vtkLineSource : public vtkPolyDataSource
 public:
   static vtkLineSource *New();
   vtkTypeMacro(vtkLineSource,vtkPolyDataSource);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set position of first end point.

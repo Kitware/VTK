@@ -65,7 +65,7 @@ class VTK_EXPORT vtkMCubesWriter : public vtkPolyDataWriter
 public:
   static vtkMCubesWriter *New();
   vtkTypeMacro(vtkMCubesWriter,vtkPolyDataWriter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set/get file name of marching cubes limits file.

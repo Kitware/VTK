@@ -77,7 +77,7 @@ vtkLinearTransformInverse::~vtkLinearTransformInverse()
 }
 
 //----------------------------------------------------------------------------
-void vtkLinearTransformInverse::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkLinearTransformInverse::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkLinearTransform::PrintSelf(os,indent);
 

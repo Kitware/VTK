@@ -55,7 +55,7 @@ class VTK_EXPORT vtkImageGaussianSource : public vtkImageSource
 public:
   static vtkImageGaussianSource *New();
   vtkTypeMacro(vtkImageGaussianSource,vtkImageSource);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set/Get the extent of the whole output image.

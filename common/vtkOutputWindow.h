@@ -76,7 +76,7 @@ public:
   vtkTypeMacro(vtkOutputWindow,vtkObject);
   // Description:
   // Print ObjectFactor to stream.
-  virtual void PrintSelf(vtkOstream& os, vtkIndent indent);
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // This is a singleton pattern New.  There will only be ONE

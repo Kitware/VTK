@@ -62,7 +62,7 @@ class VTK_EXPORT vtkWin32OpenGLRenderWindow : public vtkRenderWindow
 public:
   static vtkWin32OpenGLRenderWindow *New();
   vtkTypeMacro(vtkWin32OpenGLRenderWindow,vtkRenderWindow);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Begin the rendering process.

@@ -359,7 +359,7 @@ vtkCell *vtkScalarTree::GetNextCell(int& cellId, vtkIdList* &cellPts,
 }
 
 
-void vtkScalarTree::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkScalarTree::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
 

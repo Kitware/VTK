@@ -54,7 +54,7 @@ class VTK_EXPORT vtkSubdivideTetra : public vtkUnstructuredGridToUnstructuredGri
 public:
   static vtkSubdivideTetra *New();
   vtkTypeMacro(vtkSubdivideTetra,vtkUnstructuredGridToUnstructuredGridFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
 
 protected:

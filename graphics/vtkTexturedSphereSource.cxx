@@ -169,7 +169,7 @@ void vtkTexturedSphereSource::Execute()
   newPolys->Delete();
 }
 
-void vtkTexturedSphereSource::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkTexturedSphereSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataSource::PrintSelf(os,indent);
 

@@ -136,7 +136,7 @@ void vtkLineSource::Execute()
   newLines->Delete();
 }
 
-void vtkLineSource::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkLineSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataSource::PrintSelf(os,indent);
 

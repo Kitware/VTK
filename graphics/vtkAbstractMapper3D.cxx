@@ -115,7 +115,7 @@ float vtkAbstractMapper3D::GetLength()
   return (float)sqrt(l);
 }
 
-void vtkAbstractMapper3D::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkAbstractMapper3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkAbstractMapper::PrintSelf(os,indent);
 

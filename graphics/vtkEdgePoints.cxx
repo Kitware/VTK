@@ -231,7 +231,7 @@ void vtkEdgePoints::Execute()
   cellScalars->Delete();
 }
 
-void vtkEdgePoints::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkEdgePoints::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
 

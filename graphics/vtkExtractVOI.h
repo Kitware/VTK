@@ -69,7 +69,7 @@ class VTK_EXPORT vtkExtractVOI : public vtkStructuredPointsToStructuredPointsFil
 {
 public:
   vtkTypeMacro(vtkExtractVOI,vtkStructuredPointsToStructuredPointsFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Construct object to extract all of the input data.

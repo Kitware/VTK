@@ -201,7 +201,7 @@ void vtkImplicitDataSet::EvaluateGradient(float x[3], float n[3])
     }
 }
 
-void vtkImplicitDataSet::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkImplicitDataSet::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImplicitFunction::PrintSelf(os,indent);
 

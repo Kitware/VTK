@@ -227,7 +227,7 @@ void vtkSpatialRepresentationFilter::GenerateOutput()
     }
 }
 
-void vtkSpatialRepresentationFilter::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkSpatialRepresentationFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataSource::PrintSelf(os,indent);
 

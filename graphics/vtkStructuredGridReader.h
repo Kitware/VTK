@@ -57,7 +57,7 @@ class VTK_EXPORT vtkStructuredGridReader : public vtkStructuredGridSource
 public:
   static vtkStructuredGridReader *New();
   vtkTypeMacro(vtkStructuredGridReader,vtkStructuredGridSource);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Return MTime also considering the vtkDataReader ivar

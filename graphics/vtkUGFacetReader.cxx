@@ -383,7 +383,7 @@ void vtkUGFacetReader::CreateDefaultLocator()
     }
 }
 
-void vtkUGFacetReader::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkUGFacetReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataSource::PrintSelf(os,indent);
 

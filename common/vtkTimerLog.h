@@ -104,7 +104,7 @@ public:
   static vtkTimerLog *New();
 
   vtkTypeMacro(vtkTimerLog,vtkObject);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set/Get the maximum number of entries allowed in the timer log
@@ -192,7 +192,7 @@ protected:
   double EndTime;
 
   //BTX
-  static void DumpEntry(vtkOstream& os, int index, float time, float deltatime,
+  static void DumpEntry(ostream& os, int index, float time, float deltatime,
                         int tick, int deltatick, char *event);
   //ETX
 

@@ -140,7 +140,7 @@ class VTK_EXPORT vtkStreamer : public vtkDataSetToPolyDataFilter
 {
 public:
   vtkTypeMacro(vtkStreamer,vtkDataSetToPolyDataFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Construct object to start from position (0,0,0); integrate forward;

@@ -135,7 +135,7 @@ void vtkCellPicker::Initialize()
   this->vtkPicker::Initialize();
 }
 
-void vtkCellPicker::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkCellPicker::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkPicker::PrintSelf(os,indent);
 

@@ -69,7 +69,7 @@ public:
   // Default open value is 0, and default close value is 255.
   static vtkImageOpenClose3D *New();
   vtkTypeMacro(vtkImageOpenClose3D,vtkImageToImageFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // This method considers the sub filters MTimes when computing this objects

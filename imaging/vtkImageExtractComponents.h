@@ -58,7 +58,7 @@ class VTK_EXPORT vtkImageExtractComponents : public vtkImageToImageFilter
 public:
   static vtkImageExtractComponents *New();
   vtkTypeMacro(vtkImageExtractComponents,vtkImageToImageFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set/Get the components to extract.

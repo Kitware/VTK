@@ -634,7 +634,7 @@ void vtkDataObject::InternalDataObjectCopy(vtkDataObject *src)
 
 
 //----------------------------------------------------------------------------
-void vtkDataObject::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
 
@@ -656,25 +656,25 @@ void vtkDataObject::PrintSelf(vtkOstream& os, vtkIndent indent)
   os << indent << "Global Release Data: " 
      << (vtkDataObjectGlobalReleaseDataFlag ? "On\n" : "Off\n");
 
-  os << indent << "PipelineMTime: " << this->PipelineMTime << vtkEndl;
-  os << indent << "UpdateTime: " << this->UpdateTime << vtkEndl;
+  os << indent << "PipelineMTime: " << this->PipelineMTime << endl;
+  os << indent << "UpdateTime: " << this->UpdateTime << endl;
   
-  os << indent << "Update Number Of Pieces: " << this->UpdateNumberOfPieces << vtkEndl;
-  os << indent << "Update Piece: " << this->UpdatePiece << vtkEndl;
-  os << indent << "Maximum Number Of Pieces: " << this->MaximumNumberOfPieces << vtkEndl;
+  os << indent << "Update Number Of Pieces: " << this->UpdateNumberOfPieces << endl;
+  os << indent << "Update Piece: " << this->UpdatePiece << endl;
+  os << indent << "Maximum Number Of Pieces: " << this->MaximumNumberOfPieces << endl;
 
   os << indent << "UpdateExtent: " << this->UpdateExtent[0] << ", "
      << this->UpdateExtent[1] << ", " << this->UpdateExtent[2] << ", "
      << this->UpdateExtent[3] << ", " << this->UpdateExtent[4] << ", "
-     << this->UpdateExtent[5] << vtkEndl;
+     << this->UpdateExtent[5] << endl;
   os << indent << "WholeExtent: " << this->WholeExtent[0] << ", "
      << this->WholeExtent[1] << ", " << this->WholeExtent[2] << ", "
      << this->WholeExtent[3] << ", " << this->WholeExtent[4] << ", "
-     << this->WholeExtent[5] << vtkEndl;
+     << this->WholeExtent[5] << endl;
 
   os << indent << "Field Data:\n";
   this->FieldData->PrintSelf(os,indent.GetNextIndent());
 
   os << indent << "LastUpdateExtentWasOutsideOfTheExtent: " << 
-    this->LastUpdateExtentWasOutsideOfTheExtent << vtkEndl;
+    this->LastUpdateExtentWasOutsideOfTheExtent << endl;
 }

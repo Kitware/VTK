@@ -332,7 +332,7 @@ void vtkXRenderWindow::SetDisplayId(void *arg)
   this->OwnDisplay = 0;
 }
 
-void vtkXRenderWindow::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkXRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkRenderWindow::PrintSelf(os,indent);
 

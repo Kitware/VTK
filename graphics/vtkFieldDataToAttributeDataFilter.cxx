@@ -235,7 +235,7 @@ void vtkFieldDataToAttributeDataFilter::Execute()
   output->GetCellData()->PassNoReplaceData(input->GetCellData());
 }
 
-void vtkFieldDataToAttributeDataFilter::PrintSelf(vtkOstream& os, 
+void vtkFieldDataToAttributeDataFilter::PrintSelf(ostream& os, 
                                                   vtkIndent indent)
 {
   vtkDataSetToDataSetFilter::PrintSelf(os,indent);

@@ -211,7 +211,7 @@ void vtkProgrammableAttributeDataFilter::Execute()
     }
 }
 
-void vtkProgrammableAttributeDataFilter::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkProgrammableAttributeDataFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 

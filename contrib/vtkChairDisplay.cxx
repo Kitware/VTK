@@ -657,7 +657,7 @@ void vtkChairDisplay::GenerateTexture(vtkImageData *inData,
 }
 
 //----------------------------------------------------------------------------
-void vtkChairDisplay::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkChairDisplay::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataSource::PrintSelf(os,indent);
 

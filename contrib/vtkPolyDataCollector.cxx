@@ -182,7 +182,7 @@ void vtkPolyDataCollector::Execute()
 
 
 //----------------------------------------------------------------------------
-void vtkPolyDataCollector::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkPolyDataCollector::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 }

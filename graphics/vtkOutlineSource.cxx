@@ -146,7 +146,7 @@ void vtkOutlineSource::Execute()
 
 
 //----------------------------------------------------------------------------
-void vtkOutlineSource::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkOutlineSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataSource::PrintSelf(os,indent);
 

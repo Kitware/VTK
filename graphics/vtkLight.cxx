@@ -93,7 +93,7 @@ void vtkLight::DeepCopy(vtkLight *light)
   this->SetAttenuationValues(light->GetAttenuationValues());
 }
 
-void vtkLight::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkLight::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
 
@@ -113,7 +113,7 @@ void vtkLight::PrintSelf(vtkOstream& os, vtkIndent indent)
 }
 
 
-void vtkLight::WriteSelf(vtkOstream& os)
+void vtkLight::WriteSelf(ostream& os)
 {
   os << this->FocalPoint[0] << " " << this->FocalPoint[1] << " "
      << this->FocalPoint[2] << " ";
@@ -130,7 +130,7 @@ void vtkLight::WriteSelf(vtkOstream& os)
      << this->AttenuationValues[2] << " ";
 }
 
-void vtkLight::ReadSelf(vtkIstream& is)
+void vtkLight::ReadSelf(istream& is)
 {
   is >> this->FocalPoint[0] >> this->FocalPoint[1] >> this->FocalPoint[2] ;
   is >> this->Position[0] >> this->Position[1] >> this->Position[2];

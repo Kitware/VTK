@@ -68,7 +68,7 @@ public:
   //BTX
   // Description:
   // Print out the indentation. Basically output a bunch of spaces.
-  friend VTK_EXPORT vtkOstream& operator<<(vtkOstream& os, vtkIndent& o); 
+  friend VTK_EXPORT ostream& operator<<(ostream& os, vtkIndent& o); 
   //ETX
 
 protected:

@@ -1429,7 +1429,7 @@ void vtkPointLocator::GenerateFace(int face, int i, int j, int k,
 }
 
 
-void vtkPointLocator::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkPointLocator::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkLocator::PrintSelf(os,indent);
 

@@ -55,7 +55,7 @@ class VTK_EXPORT vtkPointSource : public vtkPolyDataSource
 public:
   static vtkPointSource *New();
   vtkTypeMacro(vtkPointSource,vtkPolyDataSource);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
   // Set the number of points to generate.

@@ -73,7 +73,7 @@ public:
 
   // Description:
   // Print the vtkEncodedGradientShader
-  void PrintSelf( vtkOstream& os, vtkIndent index );
+  void PrintSelf( ostream& os, vtkIndent index );
 
   // Description:
   // Set / Get the intensity diffuse / specular light used for the

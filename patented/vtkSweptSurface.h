@@ -85,7 +85,7 @@ class VTK_EXPORT vtkSweptSurface : public vtkStructuredPointsToStructuredPointsF
 public:
   static vtkSweptSurface *New();
   vtkTypeMacro(vtkSweptSurface,vtkStructuredPointsToStructuredPointsFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Specify i-j-k dimensions to sample input with. The higher the resolution

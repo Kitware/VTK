@@ -417,7 +417,7 @@ void vtkDataSetReader::Update()
 }
 
 static int recursing = 0;
-void vtkDataSetReader::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkDataSetReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   // the reader ivar's source will be this reader. we must do this to prevent infinite printing
   if (!recursing)

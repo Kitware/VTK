@@ -81,7 +81,7 @@ public:
   static vtkPriorityQueue *New();
 
   vtkTypeMacro(vtkPriorityQueue,vtkObject);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Allocate initial space for priority queue.

@@ -133,7 +133,7 @@ void vtkVoidArray::DeepCopy(vtkDataArray *da)
     }
 }
 
-void vtkVoidArray::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkVoidArray::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataArray::PrintSelf(os,indent);
 

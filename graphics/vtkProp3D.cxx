@@ -382,7 +382,7 @@ float *vtkProp3D::GetZRange()
   return &(this->Bounds[4]);
 }
 
-void vtkProp3D::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkProp3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkProp::PrintSelf(os,indent);
 

@@ -344,7 +344,7 @@ void vtkAppendFilter::Execute()
 }
 
 //----------------------------------------------------------------------------
-void vtkAppendFilter::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkAppendFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToUnstructuredGridFilter::PrintSelf(os,indent);
 }

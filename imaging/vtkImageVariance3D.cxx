@@ -89,7 +89,7 @@ vtkImageVariance3D::~vtkImageVariance3D()
 
 
 //----------------------------------------------------------------------------
-void vtkImageVariance3D::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkImageVariance3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageSpatialFilter::PrintSelf(os,indent);
 }

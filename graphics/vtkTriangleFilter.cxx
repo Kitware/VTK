@@ -135,7 +135,7 @@ void vtkTriangleFilter::Execute()
                 <<" output cells");
 }
 
-void vtkTriangleFilter::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkTriangleFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 

@@ -185,7 +185,7 @@ void vtkImplicitVolume::EvaluateGradient(float x[3], float n[3])
   gradient->Delete();
 }
 
-void vtkImplicitVolume::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkImplicitVolume::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImplicitFunction::PrintSelf(os,indent);
 

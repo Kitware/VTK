@@ -60,7 +60,7 @@ class VTK_EXPORT vtkImageIterateFilter : public vtkImageToImageFilter
 public:
   static vtkImageIterateFilter *New();
   vtkTypeMacro(vtkImageIterateFilter,vtkImageToImageFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Get which iteration is current being performed. Normally the

@@ -476,7 +476,7 @@ void vtkActor::BuildPaths(vtkAssemblyPaths *vtkNotUsed(paths),
   path->AddItem(copy);
 }
 
-void vtkActor::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkProp3D::PrintSelf(os,indent);
 

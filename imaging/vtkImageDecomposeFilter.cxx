@@ -73,7 +73,7 @@ vtkImageDecomposeFilter::vtkImageDecomposeFilter()
 
 
 //----------------------------------------------------------------------------
-void vtkImageDecomposeFilter::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkImageDecomposeFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageIterateFilter::PrintSelf(os,indent);
 

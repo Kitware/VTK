@@ -60,7 +60,7 @@ class VTK_EXPORT vtkImageReader : public vtkImageSource
 public:
   static vtkImageReader *New();
   vtkTypeMacro(vtkImageReader,vtkImageSource);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);   
+  void PrintSelf(ostream& os, vtkIndent indent);   
 
   // Description:
   // Specify file name for the image file. You should specify either
@@ -180,7 +180,7 @@ public:
   vtkBooleanMacro(SwapBytes,int);
 
 //BTX
-  vtkIfstream *GetFile() {return this->File;}
+  ifstream *GetFile() {return this->File;}
   vtkGetVectorMacro(DataIncrements,unsigned long,4);
 //ETX
 
@@ -220,7 +220,7 @@ protected:
   int NumberOfScalarComponents;
   int FileLowerLeft;
 
-  vtkIfstream *File;
+  ifstream *File;
   unsigned long DataIncrements[4];
   int DataExtent[6];
   unsigned short DataMask;  // Mask each pixel with ...

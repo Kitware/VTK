@@ -59,7 +59,7 @@ protected:
 public:
   static vtkMesaRenderer *New();
   vtkTypeMacro(vtkMesaRenderer,vtkRenderer);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Concrete open gl render method.

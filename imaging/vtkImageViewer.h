@@ -67,7 +67,7 @@ public:
   static vtkImageViewer *New();
   
   vtkTypeMacro(vtkImageViewer,vtkObject);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Get name of rendering window

@@ -569,7 +569,7 @@ void vtkThinPlateSplineTransform::InverseTransformPoint(const float point[3],
 }
 
 //------------------------------------------------------------------------
-void vtkThinPlateSplineTransform::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkThinPlateSplineTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkWarpTransform::PrintSelf(os,indent);
   

@@ -815,7 +815,7 @@ void vtkSweptSurface::Cap(vtkScalars *s)
     }
 }
 
-void vtkSweptSurface::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkSweptSurface::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkStructuredPointsToStructuredPointsFilter::PrintSelf(os,indent);
 

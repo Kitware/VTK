@@ -651,7 +651,7 @@ void vtkImageBlend::ThreadedExecute(vtkImageData **inData,
 
 
 //----------------------------------------------------------------------------
-void vtkImageBlend::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkImageBlend::PrintSelf(ostream& os, vtkIndent indent)
 {
   int i;
   for (i = 0; i < this->GetNumberOfInputs(); i++)

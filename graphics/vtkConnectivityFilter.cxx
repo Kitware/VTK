@@ -526,7 +526,7 @@ void vtkConnectivityFilter::DeleteSpecifiedRegion(int id)
   this->SpecifiedRegionIds->DeleteId(id);
 }
 
-void vtkConnectivityFilter::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkConnectivityFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToUnstructuredGridFilter::PrintSelf(os,indent);
 

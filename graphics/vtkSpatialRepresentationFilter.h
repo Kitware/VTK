@@ -91,7 +91,7 @@ class VTK_EXPORT vtkSpatialRepresentationFilter : public vtkPolyDataSource
 public:
   static vtkSpatialRepresentationFilter *New();
   vtkTypeMacro(vtkSpatialRepresentationFilter,vtkPolyDataSource);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set/Get the locator that will be used to generate the representation.

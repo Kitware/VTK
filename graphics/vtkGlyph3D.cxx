@@ -548,11 +548,11 @@ vtkPolyData *vtkGlyph3D::GetSource(int id)
     }
 }
 
-void vtkGlyph3D::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkGlyph3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
 
-  os << indent << "Color Mode: " << this->GetColorModeAsString() << vtkEndl;
+  os << indent << "Color Mode: " << this->GetColorModeAsString() << endl;
 
   if ( this->GetNumberOfSources() < 2 )
     {

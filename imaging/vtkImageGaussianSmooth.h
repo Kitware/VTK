@@ -54,7 +54,7 @@ class VTK_EXPORT vtkImageGaussianSmooth : public vtkImageToImageFilter
 {
 public:
   vtkTypeMacro(vtkImageGaussianSmooth,vtkImageToImageFilter);
-  void PrintSelf(vtkOstream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Creates an instance of vtkImageGaussianSmmoth with the following

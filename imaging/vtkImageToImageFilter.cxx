@@ -76,7 +76,7 @@ vtkImageToImageFilter::~vtkImageToImageFilter()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageToImageFilter::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkImageToImageFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "NumberOfThreads: " << this->NumberOfThreads << "\n";
 

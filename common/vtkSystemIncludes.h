@@ -63,20 +63,20 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <iostream>
 #include <strstream>
 #include <fstream>
-#define vtkCerr std::cerr
-#define vtkCin std::cin
-#define vtkCout std::cout
-#define vtkIos std::ios
-typedef std::ostream vtkOstream;
-typedef std::istream vtkIstream;
-#define vtkEndl std::endl
-typedef std::ostrstream vtkOstrstream;
-typedef std::istrstream vtkIstrstream;
-#define vtkEnds std::ends
-typedef std::ifstream vtkIfstream;
-typedef std::ofstream vtkOfstream;
+using std::cerr;
+using std::cout;
+using std::cin;
+using std::ios;
+using std::endl;
+using std::ends;
+using std::ostream;
+using std::istream;
+using std::ostrstream;
+using std::istrstream;
+using std::ofstream;
+using std::ifstream;
 
-// otherwise, the non-ANSI --------------------------------------------------
+// otherwise, non-ANSI -----------------------------------------------------
 #else
 #include <iostream.h>
 #if defined(_WIN32) || defined(WIN32)
@@ -85,18 +85,6 @@ typedef std::ofstream vtkOfstream;
 #include <strstream.h>
 #endif
 #include <fstream.h>
-#define vtkCerr cerr
-#define vtkCin cin
-#define vtkCout cout
-#define vtkIos ios
-typedef ostream vtkOstream;
-typedef istream vtkIstream;
-#define vtkEndl endl
-typedef ostrstream vtkOstrstream;
-typedef istrstream vtkIstrstream;
-#define vtkEnds ends
-typedef ifstream vtkIfstream;
-typedef ofstream vtkOfstream;
 #endif
 
 #endif

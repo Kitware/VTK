@@ -463,7 +463,7 @@ vtkStructuredPoints *vtkSubPixelPositionEdgels::GetGradMaps()
 
 
 // Print the state of the class.
-void vtkSubPixelPositionEdgels::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkSubPixelPositionEdgels::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 
@@ -476,7 +476,7 @@ void vtkSubPixelPositionEdgels::PrintSelf(vtkOstream& os, vtkIndent indent)
     os << indent << "Gradient Data: (none)\n";
     }
   
-  os << indent << "TargetFlag: " << this->TargetFlag << vtkEndl;
-  os << indent << "TargetValue: " << this->TargetValue << vtkEndl;
+  os << indent << "TargetFlag: " << this->TargetFlag << endl;
+  os << indent << "TargetValue: " << this->TargetValue << endl;
 }
 

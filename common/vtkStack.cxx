@@ -146,7 +146,7 @@ int vtkStack::GetNumberOfItems()
   return this->NumberOfItems;
 }
 
-void vtkStack::PrintSelf(vtkOstream& os, vtkIndent indent)
+void vtkStack::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
 
