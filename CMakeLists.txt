@@ -354,8 +354,7 @@ MARK_AS_ADVANCED(VTK_OPENGL_HAS_OSMESA
                  VTK_USE_MATROX_IMAGING
                  VTK_USE_MPI
                  VTK_USE_VIDEO_FOR_WINDOWS
-                 VTK_USE_VOLUMEPRO
-                 VTK_USE_GL2PS)
+                 VTK_USE_VOLUMEPRO)
 
 #-----------------------------------------------------------------------------
 # Provide options to use system versions of third-party libraries.
@@ -491,17 +490,6 @@ IF(VTK_USE_MATROX_IMAGING)
     "C:/Program Files/Matrox Imaging/mil/include"
     )
 ENDIF(VTK_USE_MATROX_IMAGING)
-
-#-----------------------------------------------------------------------------
-# Configure GL2PS support.
-IF(VTK_USE_GL2PS)
-  FIND_PATH(GL2PS_INCLUDE_PATH gl2ps.h
-            /usr/local/include
-            /usr/include)
-  FIND_LIBRARY(GL2PS_LIBRARY
-               NAMES gl2ps
-               PATHS /usr/local/lib /usr/lib /opt/lib)
-ENDIF(VTK_USE_GL2PS)
 
 #-----------------------------------------------------------------------------
 # Configure MPI testing support.
