@@ -226,6 +226,8 @@ float vtkFrustumCoverageCuller::OuterCullMethod( vtkRenderer *ren,
   // The allocated render times are now initialized
   initialized = 1;
   
+  delete [] allocatedTimeList;
+
   return total_time;
 }
 
