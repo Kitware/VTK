@@ -45,6 +45,7 @@ vtkProp::vtkProp()
   this->Visibility = 1;  // ON
   this->AllocatedRenderTime = 10.0;
   this->EstimatedRenderTime = 0.0;
+  this->RenderTimeMultiplier = 1.0;
 }
 
 void vtkProp::PrintSelf(ostream& os, vtkIndent indent)
