@@ -3,8 +3,8 @@ package require vtk
 # Image pipeline
 
 vtkImageReader2Factory createReader
-set reader [createReader CreateImageReader2 "$VTK_DATA_ROOT/Data/libtiff/test.tif"]
-$reader SetFileName "$VTK_DATA_ROOT/Data/libtiff/test.tif"
+set reader [createReader CreateImageReader2 "$VTK_DATA_ROOT/Data/beach.tif"]
+$reader SetFileName "$VTK_DATA_ROOT/Data/beach.tif"
 
 vtkImageViewer viewer
 viewer SetInput [$reader GetOutput]
