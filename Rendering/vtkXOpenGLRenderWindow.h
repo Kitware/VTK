@@ -63,7 +63,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkIdList;
 
-class VTK_EXPORT vtkXOpenGLRenderWindow : public vtkOpenGLRenderWindow
+class VTK_RENDERING_EXPORT vtkXOpenGLRenderWindow : public vtkOpenGLRenderWindow
 {
 protected:
   GLXContext ContextId;

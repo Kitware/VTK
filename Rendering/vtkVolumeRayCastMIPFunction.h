@@ -63,7 +63,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_MAXIMIZE_SCALAR_VALUE 0
 #define VTK_MAXIMIZE_OPACITY      1
 
-class VTK_EXPORT vtkVolumeRayCastMIPFunction : public vtkVolumeRayCastFunction
+class VTK_RENDERING_EXPORT vtkVolumeRayCastMIPFunction : public vtkVolumeRayCastFunction
 {
 public:
   static vtkVolumeRayCastMIPFunction *New();

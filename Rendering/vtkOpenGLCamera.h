@@ -51,7 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkOpenGLRenderer;
 
-class VTK_EXPORT vtkOpenGLCamera : public vtkCamera
+class VTK_RENDERING_EXPORT vtkOpenGLCamera : public vtkCamera
 {
 public:
   static vtkOpenGLCamera *New();

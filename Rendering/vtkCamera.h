@@ -59,7 +59,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkRenderer;
 
-class VTK_EXPORT vtkCamera : public vtkObject
+class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
 {
  public:
   void PrintSelf(ostream& os, vtkIndent indent);

@@ -51,7 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkOpenGLRenderer;
 
-class VTK_EXPORT vtkOpenGLLight : public vtkLight
+class VTK_RENDERING_EXPORT vtkOpenGLLight : public vtkLight
 {
 public:
   static vtkOpenGLLight *New();

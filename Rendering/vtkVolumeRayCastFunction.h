@@ -164,7 +164,7 @@ typedef struct
   int                          MaximizeOpacity;
 } VTKVRCStaticInfo;
 
-class VTK_EXPORT vtkVolumeRayCastFunction : public vtkObject
+class VTK_RENDERING_EXPORT vtkVolumeRayCastFunction : public vtkObject
 {
 public:
   vtkTypeMacro(vtkVolumeRayCastFunction,vtkObject);

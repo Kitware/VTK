@@ -78,7 +78,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_TEXT_BOTTOM 0
 #define VTK_TEXT_TOP    2
 
-class VTK_EXPORT vtkTextMapper : public vtkMapper2D
+class VTK_RENDERING_EXPORT vtkTextMapper : public vtkMapper2D
 {
 public:
   vtkTypeMacro(vtkTextMapper,vtkMapper2D);

@@ -53,7 +53,7 @@ class vtkWindow;
 class vtkMesaRenderer;
 class vtkRenderWindow;
 
-class VTK_EXPORT vtkMesaImageActor : public vtkImageActor
+class VTK_RENDERING_EXPORT vtkMesaImageActor : public vtkImageActor
 {
 public:
   static vtkMesaImageActor *New();

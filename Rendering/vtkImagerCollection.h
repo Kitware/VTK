@@ -53,7 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImager.h"
 
 
-class VTK_EXPORT vtkImagerCollection : public vtkCollection
+class VTK_RENDERING_EXPORT vtkImagerCollection : public vtkCollection
 {
  public:
   static vtkImagerCollection *New();

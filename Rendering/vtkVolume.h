@@ -65,7 +65,7 @@ class vtkPropCollection;
 class vtkVolumeCollection;
 class vtkWindow;
 
-class VTK_EXPORT vtkVolume : public vtkProp3D
+class VTK_RENDERING_EXPORT vtkVolume : public vtkProp3D
 {
 public:
   vtkTypeMacro(vtkVolume,vtkProp3D);

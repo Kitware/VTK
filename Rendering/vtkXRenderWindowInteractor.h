@@ -64,7 +64,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <X11/StringDefs.h>
 #include <X11/Intrinsic.h>
 
-class VTK_EXPORT vtkXRenderWindowInteractor : public vtkRenderWindowInteractor
+class VTK_RENDERING_EXPORT vtkXRenderWindowInteractor : public vtkRenderWindowInteractor
 {
 public:
   static vtkXRenderWindowInteractor *New();

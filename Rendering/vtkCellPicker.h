@@ -56,7 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkGenericCell;
 
-class VTK_EXPORT vtkCellPicker : public vtkPicker
+class VTK_RENDERING_EXPORT vtkCellPicker : public vtkPicker
 {
 public:
   static vtkCellPicker *New();

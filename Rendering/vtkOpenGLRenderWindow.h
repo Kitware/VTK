@@ -59,7 +59,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkIdList;
 
-class VTK_EXPORT vtkOpenGLRenderWindow : public vtkRenderWindow
+class VTK_RENDERING_EXPORT vtkOpenGLRenderWindow : public vtkRenderWindow
 {
 protected:
   int MultiSamples;

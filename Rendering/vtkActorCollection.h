@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkActor.h"
 class vtkProperty;
 
-class VTK_EXPORT vtkActorCollection : public vtkPropCollection
+class VTK_RENDERING_EXPORT vtkActorCollection : public vtkPropCollection
 {
 public:
   static vtkActorCollection *New();

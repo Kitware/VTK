@@ -51,7 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkMesaRenderer;
 
-class VTK_EXPORT vtkMesaLight : public vtkLight
+class VTK_RENDERING_EXPORT vtkMesaLight : public vtkLight
 {
 public:
   static vtkMesaLight *New();

@@ -94,7 +94,7 @@ class vtkWindow;
 class vtkRenderer;
 class vtkActor;
 
-class VTK_EXPORT vtkMapper : public vtkAbstractMapper3D
+class VTK_RENDERING_EXPORT vtkMapper : public vtkAbstractMapper3D
 {
 public:
   vtkTypeMacro(vtkMapper,vtkAbstractMapper3D);

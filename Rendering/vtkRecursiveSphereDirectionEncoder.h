@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkDirectionEncoder.h"
 
-class VTK_EXPORT vtkRecursiveSphereDirectionEncoder : public vtkDirectionEncoder
+class VTK_RENDERING_EXPORT vtkRecursiveSphereDirectionEncoder : public vtkDirectionEncoder
 {
 public:
   vtkTypeMacro(vtkRecursiveSphereDirectionEncoder,vtkDirectionEncoder);

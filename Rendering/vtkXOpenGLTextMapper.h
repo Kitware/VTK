@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkXTextMapper.h"
 
-class VTK_EXPORT vtkXOpenGLTextMapper : public vtkXTextMapper
+class VTK_RENDERING_EXPORT vtkXOpenGLTextMapper : public vtkXTextMapper
 {
 public:
   vtkTypeMacro(vtkXOpenGLTextMapper,vtkXTextMapper);

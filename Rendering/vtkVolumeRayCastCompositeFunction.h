@@ -58,7 +58,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_COMPOSITE_CLASSIFY_FIRST 0
 #define VTK_COMPOSITE_INTERPOLATE_FIRST 1
 
-class VTK_EXPORT vtkVolumeRayCastCompositeFunction : public vtkVolumeRayCastFunction
+class VTK_RENDERING_EXPORT vtkVolumeRayCastCompositeFunction : public vtkVolumeRayCastFunction
 {
 public:
   static vtkVolumeRayCastCompositeFunction *New();

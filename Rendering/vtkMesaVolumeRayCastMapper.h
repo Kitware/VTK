@@ -60,7 +60,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkToolkits.h"
 
 
-class VTK_EXPORT vtkMesaVolumeRayCastMapper : public vtkVolumeRayCastMapper
+class VTK_RENDERING_EXPORT vtkMesaVolumeRayCastMapper : public vtkVolumeRayCastMapper
 {
 public:
   static vtkMesaVolumeRayCastMapper *New();

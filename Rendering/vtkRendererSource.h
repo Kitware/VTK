@@ -61,7 +61,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkStructuredPointsSource.h"
 #include "vtkRenderer.h"
 
-class VTK_EXPORT vtkRendererSource : public vtkStructuredPointsSource
+class VTK_RENDERING_EXPORT vtkRendererSource : public vtkStructuredPointsSource
 {
 public:
   static vtkRendererSource *New();

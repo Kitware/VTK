@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdlib.h>
 #include "vtkRenderWindowInteractor.h"
 
-class VTK_EXPORT vtkWin32RenderWindowInteractor : public vtkRenderWindowInteractor {
+class VTK_RENDERING_EXPORT vtkWin32RenderWindowInteractor : public vtkRenderWindowInteractor {
 public:
   // Description:
   // Construct object so that light follows camera motion.
@@ -106,8 +106,8 @@ public:
   int DestroyTimer(void);
 
   //BTX
-  friend VTK_EXPORT LRESULT CALLBACK vtkHandleMessage(HWND hwnd,UINT uMsg, WPARAM w, LPARAM l);
-  friend VTK_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND hwnd,UINT uMsg, WPARAM w, LPARAM l, vtkWin32RenderWindowInteractor *me);
+  friend VTK_RENDERING_EXPORT LRESULT CALLBACK vtkHandleMessage(HWND hwnd,UINT uMsg, WPARAM w, LPARAM l);
+  friend VTK_RENDERING_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND hwnd,UINT uMsg, WPARAM w, LPARAM l, vtkWin32RenderWindowInteractor *me);
 
   // Description:
   // Various methods that a Win32 window can redirect to this class to be 

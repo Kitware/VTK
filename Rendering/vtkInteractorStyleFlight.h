@@ -68,7 +68,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkInteractorStyle.h"
 
-class VTK_EXPORT vtkInteractorStyleFlight : public vtkInteractorStyle
+class VTK_RENDERING_EXPORT vtkInteractorStyleFlight : public vtkInteractorStyle
 {
 public:
   static vtkInteractorStyleFlight *New();

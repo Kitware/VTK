@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkPolyDataMapper2D.h"
 
-class VTK_EXPORT vtkOpenGLPolyDataMapper2D : public vtkPolyDataMapper2D
+class VTK_RENDERING_EXPORT vtkOpenGLPolyDataMapper2D : public vtkPolyDataMapper2D
 {
 public:
   vtkTypeMacro(vtkOpenGLPolyDataMapper2D,vtkPolyDataMapper2D);

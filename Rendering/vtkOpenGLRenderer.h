@@ -50,7 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdlib.h>
 #include "vtkRenderer.h"
 
-class VTK_EXPORT vtkOpenGLRenderer : public vtkRenderer
+class VTK_RENDERING_EXPORT vtkOpenGLRenderer : public vtkRenderer
 {
 protected:
   int NumberOfLightsBound;

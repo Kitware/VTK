@@ -51,7 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkMesaRenderer;
 
-class VTK_EXPORT vtkMesaActor : public vtkActor
+class VTK_RENDERING_EXPORT vtkMesaActor : public vtkActor
 {
 protected:
   

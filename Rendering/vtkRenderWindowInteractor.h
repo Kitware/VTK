@@ -69,7 +69,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkInteractorStyle;
 
-class VTK_EXPORT vtkRenderWindowInteractor : public vtkObject
+class VTK_RENDERING_EXPORT vtkRenderWindowInteractor : public vtkObject
 {
 public:
   static vtkRenderWindowInteractor *New();

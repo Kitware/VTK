@@ -51,7 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkOpenGLRenderer;
 
-class VTK_EXPORT vtkOpenGLProperty : public vtkProperty
+class VTK_RENDERING_EXPORT vtkOpenGLProperty : public vtkProperty
 {
 public:
   static vtkOpenGLProperty *New();

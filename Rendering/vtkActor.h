@@ -65,7 +65,7 @@ class vtkRenderer;
 class vtkPropCollection;
 class vtkActorCollection;
 
-class VTK_EXPORT vtkActor : public vtkProp3D
+class VTK_RENDERING_EXPORT vtkActor : public vtkProp3D
 {
 public:
   vtkTypeMacro(vtkActor,vtkProp3D);

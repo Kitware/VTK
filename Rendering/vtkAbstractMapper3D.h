@@ -61,7 +61,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class vtkWindow;
 class vtkDataSet;
 
-class VTK_EXPORT vtkAbstractMapper3D : public vtkAbstractMapper
+class VTK_RENDERING_EXPORT vtkAbstractMapper3D : public vtkAbstractMapper
 {
 public:
   vtkTypeMacro(vtkAbstractMapper3D,vtkAbstractMapper);

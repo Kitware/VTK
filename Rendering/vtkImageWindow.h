@@ -59,7 +59,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkWindow.h"
 
 
-class VTK_EXPORT vtkImageWindow : public vtkWindow
+class VTK_RENDERING_EXPORT vtkImageWindow : public vtkWindow
 {
 public:
   // Description:

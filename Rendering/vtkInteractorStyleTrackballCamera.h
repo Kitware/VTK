@@ -67,7 +67,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_INTERACTOR_STYLE_CAMERA_ZOOM    3
 #define VTK_INTERACTOR_STYLE_CAMERA_SPIN    4
 
-class VTK_EXPORT vtkInteractorStyleTrackballCamera : public vtkInteractorStyle
+class VTK_RENDERING_EXPORT vtkInteractorStyleTrackballCamera : public vtkInteractorStyle
 {
 public:
   static vtkInteractorStyleTrackballCamera *New();

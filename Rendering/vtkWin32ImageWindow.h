@@ -54,7 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include 	"vtkImageWindow.h"
 
 #ifndef VTK_REMOVE_LEGACY_CODE
-class VTK_EXPORT vtkWin32ImageWindow : public vtkImageWindow 
+class VTK_RENDERING_EXPORT vtkWin32ImageWindow : public vtkImageWindow 
 {
 public:
   HINSTANCE ApplicationInstance;

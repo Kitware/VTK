@@ -61,7 +61,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_IMAGE_VIEWER_UPPER_LEFT 0
 #define VTK_IMAGE_VIEWER_LOWER_LEFT 1
 
-class VTK_EXPORT vtkImageViewer : public vtkObject 
+class VTK_RENDERING_EXPORT vtkImageViewer : public vtkObject 
 {
 public:
   static vtkImageViewer *New();

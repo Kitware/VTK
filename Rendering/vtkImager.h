@@ -59,7 +59,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkImageWindow;
 
-class VTK_EXPORT vtkImager : public vtkViewport
+class VTK_RENDERING_EXPORT vtkImager : public vtkViewport
 { 
 public:
   static vtkImager *New();

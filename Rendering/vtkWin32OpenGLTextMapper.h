@@ -53,7 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkWin32TextMapper.h"
 
-class VTK_EXPORT vtkWin32OpenGLTextMapper : public vtkWin32TextMapper
+class VTK_RENDERING_EXPORT vtkWin32OpenGLTextMapper : public vtkWin32TextMapper
 {
 public:
   vtkTypeMacro(vtkWin32OpenGLTextMapper,vtkWin32TextMapper);

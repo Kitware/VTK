@@ -72,7 +72,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define	VTK_LINEAR_INTERPOLATION	1
 
 
-class VTK_EXPORT vtkVolumeProperty : public vtkObject
+class VTK_RENDERING_EXPORT vtkVolumeProperty : public vtkObject
 {
 public:
   static vtkVolumeProperty *New();

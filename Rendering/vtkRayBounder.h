@@ -60,7 +60,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkWindow;
 
-class VTK_EXPORT vtkRayBounder : public vtkObject
+class VTK_RENDERING_EXPORT vtkRayBounder : public vtkObject
 {
 public:
   vtkTypeMacro(vtkRayBounder,vtkObject);

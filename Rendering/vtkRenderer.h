@@ -71,7 +71,7 @@ class vtkRenderWindow;
 class vtkVolume;
 class vtkCuller;
 
-class VTK_EXPORT vtkRenderer : public vtkViewport
+class VTK_RENDERING_EXPORT vtkRenderer : public vtkViewport
 {
 public:
   vtkTypeMacro(vtkRenderer,vtkViewport);

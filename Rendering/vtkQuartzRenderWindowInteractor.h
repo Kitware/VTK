@@ -73,7 +73,7 @@ void DoMouseDown(void *vtkClass, int shiftDown, int controlDown, int altDown, in
 
 
 
-class VTK_EXPORT vtkQuartzRenderWindowInteractor : public vtkRenderWindowInteractor {
+class VTK_RENDERING_EXPORT vtkQuartzRenderWindowInteractor : public vtkRenderWindowInteractor {
 public:
   // Description:
   // Construct object so that light follows camera motion.

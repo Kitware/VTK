@@ -58,7 +58,7 @@ class vtkViewport;
 class vtkActor2D;
 #include "vtkImageData.h"
 
-class VTK_EXPORT vtkImageMapper : public vtkMapper2D
+class VTK_RENDERING_EXPORT vtkImageMapper : public vtkMapper2D
 {
 public:
   vtkTypeMacro(vtkImageMapper,vtkMapper2D);

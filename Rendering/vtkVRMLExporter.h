@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h>
 #include "vtkExporter.h"
 
-class VTK_EXPORT vtkVRMLExporter : public vtkExporter
+class VTK_RENDERING_EXPORT vtkVRMLExporter : public vtkExporter
 {
 public:
   static vtkVRMLExporter *New();

@@ -67,7 +67,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTKIS_CONTROL_OFF 0
 #define VTKIS_CONTROL_ON 1
 
-class VTK_EXPORT vtkInteractorStyleTrackball : public vtkInteractorStyle 
+class VTK_RENDERING_EXPORT vtkInteractorStyleTrackball : public vtkInteractorStyle 
 {
 public:
   static vtkInteractorStyleTrackball *New();

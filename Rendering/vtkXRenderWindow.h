@@ -59,7 +59,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <X11/Xutil.h>
 #include "vtkRenderWindow.h"
 
-class VTK_EXPORT vtkXRenderWindow : public vtkRenderWindow
+class VTK_RENDERING_EXPORT vtkXRenderWindow : public vtkRenderWindow
 {
 public:
   vtkTypeMacro(vtkXRenderWindow,vtkRenderWindow);

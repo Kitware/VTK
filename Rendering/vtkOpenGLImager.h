@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkImager.h"
 
-class VTK_EXPORT vtkOpenGLImager : public vtkImager
+class VTK_RENDERING_EXPORT vtkOpenGLImager : public vtkImager
 { 
 public:
   static vtkOpenGLImager *New();

@@ -51,7 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObject.h"
 #include "vtkObjectFactory.h"
 
-class VTK_EXPORT vtkRayCaster : public vtkObject
+class VTK_RENDERING_EXPORT vtkRayCaster : public vtkObject
 {
 public:
   static vtkRayCaster *New()

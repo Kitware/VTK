@@ -58,7 +58,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkAbstractPropPicker.h"
 
-class VTK_EXPORT vtkWorldPointPicker : public vtkAbstractPicker
+class VTK_RENDERING_EXPORT vtkWorldPointPicker : public vtkAbstractPicker
 {
 public:
   static vtkWorldPointPicker *New();

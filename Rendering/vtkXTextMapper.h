@@ -60,7 +60,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include        <X11/keysym.h>
 
 
-class VTK_EXPORT vtkXTextMapper : public vtkTextMapper
+class VTK_RENDERING_EXPORT vtkXTextMapper : public vtkTextMapper
 {
 public:
   vtkTypeMacro(vtkXTextMapper,vtkTextMapper);

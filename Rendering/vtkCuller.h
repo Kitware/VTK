@@ -57,7 +57,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class vtkProp;
 class vtkRenderer;
 
-class VTK_EXPORT vtkCuller : public vtkObject
+class VTK_RENDERING_EXPORT vtkCuller : public vtkObject
 {
 public:
   vtkTypeMacro(vtkCuller,vtkObject);

@@ -94,7 +94,7 @@ class vtkActor;
 class vtkVolume;
 class vtkProp3D;
 
-class VTK_EXPORT vtkAbstractPropPicker : public vtkAbstractPicker
+class VTK_RENDERING_EXPORT vtkAbstractPropPicker : public vtkAbstractPicker
 {
 public:
   vtkTypeMacro(vtkAbstractPropPicker,vtkAbstractPicker);

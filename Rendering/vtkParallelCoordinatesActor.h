@@ -76,7 +76,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_IV_COLUMN 0
 #define VTK_IV_ROW    1
 
-class VTK_EXPORT vtkParallelCoordinatesActor : public vtkActor2D
+class VTK_RENDERING_EXPORT vtkParallelCoordinatesActor : public vtkActor2D
 {
 public:
   vtkTypeMacro(vtkParallelCoordinatesActor,vtkActor2D);

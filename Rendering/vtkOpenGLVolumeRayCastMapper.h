@@ -62,7 +62,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   #endif
 #endif
 
-class VTK_EXPORT vtkOpenGLVolumeRayCastMapper : public vtkVolumeRayCastMapper
+class VTK_RENDERING_EXPORT vtkOpenGLVolumeRayCastMapper : public vtkVolumeRayCastMapper
 {
 public:
   static vtkOpenGLVolumeRayCastMapper *New();

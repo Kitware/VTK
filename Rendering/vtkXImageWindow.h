@@ -58,7 +58,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include        "vtkImageWindow.h"
 
-class VTK_EXPORT vtkXImageWindow : public vtkImageWindow
+class VTK_RENDERING_EXPORT vtkXImageWindow : public vtkImageWindow
 {
 public:
   static vtkXImageWindow *New();

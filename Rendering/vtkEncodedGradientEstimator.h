@@ -63,7 +63,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageData.h"
 #include "vtkDirectionEncoder.h"
 
-class VTK_EXPORT vtkEncodedGradientEstimator : public vtkObject
+class VTK_RENDERING_EXPORT vtkEncodedGradientEstimator : public vtkObject
 {
 public:
   vtkTypeMacro(vtkEncodedGradientEstimator,vtkObject);

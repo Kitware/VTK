@@ -75,7 +75,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPolyDataMapper.h"
 #include "vtkMapperCollection.h"
 
-class VTK_EXPORT vtkLODActor : public vtkActor
+class VTK_RENDERING_EXPORT vtkLODActor : public vtkActor
 {
 public:
   vtkTypeMacro(vtkLODActor,vtkActor);

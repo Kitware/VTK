@@ -71,7 +71,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMapper.h"
 #include "vtkTransform.h"
 
-class VTK_EXPORT vtkPicker : public vtkAbstractPropPicker
+class VTK_RENDERING_EXPORT vtkPicker : public vtkAbstractPropPicker
 {
 public:
   static vtkPicker *New();

@@ -64,7 +64,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkInteractorStyleTrackballActor.h"
 #include "vtkInteractorStyleTrackballCamera.h"
 
-class VTK_EXPORT vtkInteractorStyleSwitch : public vtkInteractorStyle
+class VTK_RENDERING_EXPORT vtkInteractorStyleSwitch : public vtkInteractorStyle
 {
 public:
   static vtkInteractorStyleSwitch *New();

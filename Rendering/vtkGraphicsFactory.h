@@ -47,7 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkObject.h"
 
-class VTK_EXPORT vtkGraphicsFactory : public vtkObject
+class VTK_RENDERING_EXPORT vtkGraphicsFactory : public vtkObject
 {
 public:
   static vtkGraphicsFactory *New() {return new vtkGraphicsFactory;};

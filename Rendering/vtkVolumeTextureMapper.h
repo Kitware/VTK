@@ -59,7 +59,7 @@ class vtkVolume;
 class vtkRenderer;
 class vtkRenderWindow;
 
-class VTK_EXPORT vtkVolumeTextureMapper : public vtkVolumeMapper
+class VTK_RENDERING_EXPORT vtkVolumeTextureMapper : public vtkVolumeMapper
 {
 public:
   vtkTypeMacro(vtkVolumeTextureMapper,vtkVolumeMapper);

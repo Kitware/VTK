@@ -80,7 +80,7 @@ class vtkWindow;
 #define VTK_TEXTURE_QUALITY_16BIT   16
 #define VTK_TEXTURE_QUALITY_32BIT   32
 
-class VTK_EXPORT vtkTexture : public vtkProcessObject
+class VTK_RENDERING_EXPORT vtkTexture : public vtkProcessObject
 {
 public:
   static vtkTexture *New();

@@ -54,7 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPropCollection.h"
 #include "vtkVolume.h"
 
-class VTK_EXPORT vtkVolumeCollection : public vtkPropCollection
+class VTK_RENDERING_EXPORT vtkVolumeCollection : public vtkPropCollection
 {
  public:
   static vtkVolumeCollection *New();

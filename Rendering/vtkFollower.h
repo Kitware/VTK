@@ -59,7 +59,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkActor.h"
 #include "vtkCamera.h"
 
-class VTK_EXPORT vtkFollower : public vtkActor
+class VTK_RENDERING_EXPORT vtkFollower : public vtkActor
 {
  public:
   vtkTypeMacro(vtkFollower,vtkActor);

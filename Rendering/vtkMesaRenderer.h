@@ -51,7 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdlib.h>
 #include "vtkRenderer.h"
 
-class VTK_EXPORT vtkMesaRenderer : public vtkRenderer
+class VTK_RENDERING_EXPORT vtkMesaRenderer : public vtkRenderer
 {
 protected:
   int NumberOfLightsBound;

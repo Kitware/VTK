@@ -92,7 +92,7 @@ class VLICutPlane;
 #define VTK_VOLUME_12BIT_UPPER          1
 #define VTK_VOLUME_12BIT_LOWER          2
 
-class VTK_EXPORT vtkVolumeProMapper : public vtkVolumeMapper
+class VTK_RENDERING_EXPORT vtkVolumeProMapper : public vtkVolumeMapper
 {
 public:
   vtkTypeMacro(vtkVolumeProMapper,vtkVolumeMapper);

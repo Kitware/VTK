@@ -54,7 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class vtkActor2D;
 
 
-class VTK_EXPORT vtkOpenGLImageMapper : public vtkImageMapper
+class VTK_RENDERING_EXPORT vtkOpenGLImageMapper : public vtkImageMapper
 {
 public:
   static vtkOpenGLImageMapper *New();

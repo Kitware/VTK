@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageWindow.h"
 #include "vtkMutexLock.h"
 
-class VTK_EXPORT vtkWin32OpenGLImageWindow : public vtkImageWindow
+class VTK_RENDERING_EXPORT vtkWin32OpenGLImageWindow : public vtkImageWindow
 {
 public:
   static vtkWin32OpenGLImageWindow *New();

@@ -53,7 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkActor2D.h"
 #include "vtkTextMapper.h"
 
-class VTK_EXPORT vtkScaledTextActor : public vtkActor2D
+class VTK_RENDERING_EXPORT vtkScaledTextActor : public vtkActor2D
 {
 public:
   vtkTypeMacro(vtkScaledTextActor,vtkActor2D);

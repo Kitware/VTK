@@ -65,7 +65,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkScalarsToColors.h"
 #include "vtkPolyData.h"
 
-class VTK_EXPORT vtkPolyDataMapper2D : public vtkMapper2D
+class VTK_RENDERING_EXPORT vtkPolyDataMapper2D : public vtkMapper2D
 {
 public:
   vtkTypeMacro(vtkPolyDataMapper2D,vtkMapper2D);

@@ -76,7 +76,7 @@ void VBRedrawWindow(void *vtkClass);
 
 class vtkIdList;
 
-class VTK_EXPORT vtkQuartzRenderWindow : public vtkRenderWindow
+class VTK_RENDERING_EXPORT vtkQuartzRenderWindow : public vtkRenderWindow
 {
 public:
   static vtkQuartzRenderWindow *New();

@@ -66,7 +66,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObject.h"
 #include "vtkRenderWindow.h"
 
-class VTK_EXPORT vtkExporter : public vtkObject 
+class VTK_RENDERING_EXPORT vtkExporter : public vtkObject 
 {
 public:
   vtkTypeMacro(vtkExporter,vtkObject);

@@ -57,7 +57,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class vtkImageActor2D;
 
 #ifndef VTK_REMOVE_LEGACY_CODE
-class VTK_EXPORT vtkWin32ImageMapper : public vtkImageMapper
+class VTK_RENDERING_EXPORT vtkWin32ImageMapper : public vtkImageMapper
 {
 public:
   static vtkWin32ImageMapper *New();

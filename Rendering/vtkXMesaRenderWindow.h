@@ -63,7 +63,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkIdList;
 
-class VTK_EXPORT vtkXMesaRenderWindow : public vtkMesaRenderWindow
+class VTK_RENDERING_EXPORT vtkXMesaRenderWindow : public vtkMesaRenderWindow
 {
 protected:
   GLXContext ContextId;

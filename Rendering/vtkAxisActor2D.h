@@ -78,7 +78,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define VTK_MAX_LABELS 25
 
-class VTK_EXPORT vtkAxisActor2D : public vtkActor2D
+class VTK_RENDERING_EXPORT vtkAxisActor2D : public vtkActor2D
 {
 public:
   vtkTypeMacro(vtkAxisActor2D,vtkActor2D);

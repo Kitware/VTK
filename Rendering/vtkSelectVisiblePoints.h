@@ -72,7 +72,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkDataSetToPolyDataFilter.h"
 #include "vtkRenderer.h"
 
-class VTK_EXPORT vtkSelectVisiblePoints : public vtkDataSetToPolyDataFilter
+class VTK_RENDERING_EXPORT vtkSelectVisiblePoints : public vtkDataSetToPolyDataFilter
 {
 public:
   vtkTypeMacro(vtkSelectVisiblePoints,vtkDataSetToPolyDataFilter);

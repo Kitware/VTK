@@ -88,7 +88,7 @@ class vtkMapper;
 class vtkProperty;
 class vtkActor;
 
-class VTK_EXPORT vtkAssembly : public vtkProp3D
+class VTK_RENDERING_EXPORT vtkAssembly : public vtkProp3D
 {
 public:
   static vtkAssembly *New();

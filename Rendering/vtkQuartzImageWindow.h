@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageWindow.h"
 #include "vtkMutexLock.h"
 
-class VTK_EXPORT vtkQuartzImageWindow : public vtkImageWindow
+class VTK_RENDERING_EXPORT vtkQuartzImageWindow : public vtkImageWindow
 {
 public:
   static vtkQuartzImageWindow *New();

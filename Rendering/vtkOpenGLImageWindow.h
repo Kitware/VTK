@@ -56,7 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "GL/glx.h"
 
 
-class VTK_EXPORT vtkOpenGLImageWindow : public vtkXImageWindow
+class VTK_RENDERING_EXPORT vtkOpenGLImageWindow : public vtkXImageWindow
 {
 public:
   static vtkOpenGLImageWindow *New();

@@ -65,7 +65,7 @@ class vtkEncodedGradientEstimator;
 
 #define VTK_MAX_SHADING_TABLES   100
 
-class VTK_EXPORT vtkEncodedGradientShader : public vtkObject
+class VTK_RENDERING_EXPORT vtkEncodedGradientShader : public vtkObject
 {
 public:
   static vtkEncodedGradientShader *New();

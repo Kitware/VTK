@@ -69,7 +69,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_INTERACTOR_STYLE_ACTOR_SPIN    4
 #define VTK_INTERACTOR_STYLE_ACTOR_SCALE   5
 
-class VTK_EXPORT vtkInteractorStyleJoystickActor : public vtkInteractorStyle
+class VTK_RENDERING_EXPORT vtkInteractorStyleJoystickActor : public vtkInteractorStyle
 {
 public:
   static vtkInteractorStyleJoystickActor *New();

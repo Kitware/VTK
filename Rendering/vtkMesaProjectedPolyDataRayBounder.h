@@ -64,7 +64,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkWindow;
 
-class VTK_EXPORT vtkMesaProjectedPolyDataRayBounder : public vtkProjectedPolyDataRayBounder
+class VTK_RENDERING_EXPORT vtkMesaProjectedPolyDataRayBounder : public vtkProjectedPolyDataRayBounder
 {
 public:
   vtkTypeMacro(vtkMesaProjectedPolyDataRayBounder,vtkProjectedPolyDataRayBounder);

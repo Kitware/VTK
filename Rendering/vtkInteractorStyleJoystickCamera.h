@@ -69,7 +69,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_INTERACTOR_STYLE_CAMERA_ZOOM    3
 #define VTK_INTERACTOR_STYLE_CAMERA_SPIN    4
 
-class VTK_EXPORT vtkInteractorStyleJoystickCamera : public vtkInteractorStyle
+class VTK_RENDERING_EXPORT vtkInteractorStyleJoystickCamera : public vtkInteractorStyle
 {
 public:
   static vtkInteractorStyleJoystickCamera *New();

@@ -54,7 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkCollection.h"
 #include "vtkCuller.h"
 
-class VTK_EXPORT vtkCullerCollection : public vtkCollection
+class VTK_RENDERING_EXPORT vtkCullerCollection : public vtkCollection
 {
  public:
   static vtkCullerCollection *New();

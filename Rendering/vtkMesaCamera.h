@@ -51,7 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkMesaRenderer;
 
-class VTK_EXPORT vtkMesaCamera : public vtkCamera
+class VTK_RENDERING_EXPORT vtkMesaCamera : public vtkCamera
 {
 public:
   static vtkMesaCamera *New();

@@ -83,7 +83,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkObject.h"
 #include "vtkRenderer.h"
 
-class VTK_EXPORT vtkAbstractPicker : public vtkObject
+class VTK_RENDERING_EXPORT vtkAbstractPicker : public vtkObject
 {
 public:
   vtkTypeMacro(vtkAbstractPicker,vtkObject);

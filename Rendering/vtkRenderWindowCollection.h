@@ -54,7 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkCollection.h"
 #include "vtkRenderWindow.h"
 
-class VTK_EXPORT vtkRenderWindowCollection : public vtkCollection
+class VTK_RENDERING_EXPORT vtkRenderWindowCollection : public vtkCollection
 {
  public:
   static vtkRenderWindowCollection *New();

@@ -123,7 +123,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class vtkPolyDataMapper;
 class vtkOutlineSource;
 
-class VTK_EXPORT vtkInteractorStyle : public vtkObject 
+class VTK_RENDERING_EXPORT vtkInteractorStyle : public vtkObject 
 {
 public:
   // Description:

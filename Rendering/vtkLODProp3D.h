@@ -75,7 +75,7 @@ typedef struct
   float       Level;
 } vtkLODProp3DEntry;
 
-class VTK_EXPORT vtkLODProp3D : public vtkProp3D
+class VTK_RENDERING_EXPORT vtkLODProp3D : public vtkProp3D
 {
 public:
   // Description:

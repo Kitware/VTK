@@ -49,7 +49,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkPolyData;
 
-class VTK_EXPORT vtkProjectedPolyDataRayBounder : public vtkRayBounder
+class VTK_RENDERING_EXPORT vtkProjectedPolyDataRayBounder : public vtkRayBounder
 {
 public:
   vtkTypeMacro(vtkProjectedPolyDataRayBounder,vtkRayBounder);

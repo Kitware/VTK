@@ -53,7 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPolyDataMapper2D.h"
 
 #ifndef VTK_REMOVE_LEGACY_CODE
-class VTK_EXPORT vtkXPolyDataMapper2D : public vtkPolyDataMapper2D
+class VTK_RENDERING_EXPORT vtkXPolyDataMapper2D : public vtkPolyDataMapper2D
 {
 public:
   vtkTypeMacro(vtkXPolyDataMapper2D,vtkPolyDataMapper2D);

@@ -59,7 +59,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class vtkProp;
 class vtkWorldPointPicker;
 
-class VTK_EXPORT vtkPropPicker : public vtkAbstractPropPicker
+class VTK_RENDERING_EXPORT vtkPropPicker : public vtkAbstractPropPicker
 {
 public:
   static vtkPropPicker *New();

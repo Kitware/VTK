@@ -61,7 +61,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
-class VTK_EXPORT vtkMesaImageWindow : public vtkXImageWindow
+class VTK_RENDERING_EXPORT vtkMesaImageWindow : public vtkXImageWindow
 {
 public:
   static vtkMesaImageWindow *New();

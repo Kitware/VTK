@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class vtkImageActor2D;
 
 
-class VTK_EXPORT vtkQuartzImageMapper : public vtkImageMapper
+class VTK_RENDERING_EXPORT vtkQuartzImageMapper : public vtkImageMapper
 {
 public:
   static vtkQuartzImageMapper *New();

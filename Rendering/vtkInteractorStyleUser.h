@@ -62,7 +62,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // new motion flag
 #define VTKIS_USERINTERACTION 8 
 
-class VTK_EXPORT vtkInteractorStyleUser : public vtkInteractorStyleSwitch 
+class VTK_RENDERING_EXPORT vtkInteractorStyleUser : public vtkInteractorStyleSwitch 
 {
 public:
   static vtkInteractorStyleUser *New();

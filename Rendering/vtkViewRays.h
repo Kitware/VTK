@@ -49,7 +49,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMatrix4x4.h"
 class vtkRenderer;
 
-class VTK_EXPORT vtkViewRays :public vtkObject
+class VTK_RENDERING_EXPORT vtkViewRays :public vtkObject
 {
 public:
   static vtkViewRays *New() {return new vtkViewRays;};

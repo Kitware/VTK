@@ -57,7 +57,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPolyData.h"
 #include "vtkRenderer.h"
 
-class VTK_EXPORT vtkPolyDataMapper : public vtkMapper 
+class VTK_RENDERING_EXPORT vtkPolyDataMapper : public vtkMapper 
 {
 public:
   static vtkPolyDataMapper *New();

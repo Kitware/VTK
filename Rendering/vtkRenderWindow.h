@@ -74,7 +74,7 @@ class vtkRenderWindowInteractor;
 #define VTK_STEREO_RIGHT        5
 #define VTK_STEREO_DRESDEN      6
 
-class VTK_EXPORT vtkRenderWindow : public vtkWindow
+class VTK_RENDERING_EXPORT vtkRenderWindow : public vtkWindow
 {
 public:
   vtkTypeMacro(vtkRenderWindow,vtkWindow);

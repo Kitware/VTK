@@ -62,7 +62,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkRenderer;
 
-class VTK_EXPORT vtkProp3D : public vtkProp
+class VTK_RENDERING_EXPORT vtkProp3D : public vtkProp
 {
 public:
   vtkTypeMacro(vtkProp3D,vtkProp);

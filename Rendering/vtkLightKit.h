@@ -118,7 +118,7 @@ class vtkLight;
 class vtkPiecewiseFunction;
 class vtkRenderer;
 
-class VTK_EXPORT vtkLightKit : public vtkObject
+class VTK_RENDERING_EXPORT vtkLightKit : public vtkObject
 {
 public:
   static vtkLightKit *New();

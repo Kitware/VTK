@@ -64,7 +64,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_INTERACTOR_STYLE_IMAGE_ZOOM    3
 #define VTK_INTERACTOR_STYLE_IMAGE_SPIN    4
 
-class VTK_EXPORT vtkInteractorStyleImage : public vtkInteractorStyle
+class VTK_RENDERING_EXPORT vtkInteractorStyleImage : public vtkInteractorStyle
 {
 public:
   static vtkInteractorStyleImage *New();

@@ -61,7 +61,7 @@ class vtkRenderWindow;
 class vtkMesaRenderer;
 class vtkTimerLog;
 
-class VTK_EXPORT vtkMesaPolyDataMapper : public vtkPolyDataMapper
+class VTK_RENDERING_EXPORT vtkMesaPolyDataMapper : public vtkPolyDataMapper
 {
 public:
   static vtkMesaPolyDataMapper *New();

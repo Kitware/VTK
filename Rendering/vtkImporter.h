@@ -77,7 +77,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkActorCollection.h"
 #include "vtkLightCollection.h"
 
-class VTK_EXPORT vtkImporter : public vtkObject
+class VTK_RENDERING_EXPORT vtkImporter : public vtkObject
 {
 public:
   vtkTypeMacro(vtkImporter,vtkObject);

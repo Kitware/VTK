@@ -58,7 +58,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkIdList;
 
-class VTK_EXPORT vtkMesaRenderWindow : public vtkRenderWindow
+class VTK_RENDERING_EXPORT vtkMesaRenderWindow : public vtkRenderWindow
 {
 protected:
   int MultiSamples;

@@ -64,7 +64,7 @@ class vtkInteractorStyleImage;
 #define VTK_IMAGE_VIEWER_UPPER_LEFT 0
 #define VTK_IMAGE_VIEWER_LOWER_LEFT 1
 
-class VTK_EXPORT vtkImageViewer2 : public vtkObject 
+class VTK_RENDERING_EXPORT vtkImageViewer2 : public vtkObject 
 {
 public:
   static vtkImageViewer2 *New();

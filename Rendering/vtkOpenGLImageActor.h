@@ -53,7 +53,7 @@ class vtkWindow;
 class vtkOpenGLRenderer;
 class vtkRenderWindow;
 
-class VTK_EXPORT vtkOpenGLImageActor : public vtkImageActor
+class VTK_RENDERING_EXPORT vtkOpenGLImageActor : public vtkImageActor
 {
 public:
   static vtkOpenGLImageActor *New();

@@ -54,7 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkPicker.h"
 
-class VTK_EXPORT vtkPointPicker : public vtkPicker
+class VTK_RENDERING_EXPORT vtkPointPicker : public vtkPicker
 {
 public:
   static vtkPointPicker *New();

@@ -62,7 +62,7 @@ class vtkProperty;
 class vtkRenderWindow;
 class vtkOpenGLRenderer;
 
-class VTK_EXPORT vtkOpenGLPolyDataMapper : public vtkPolyDataMapper
+class VTK_RENDERING_EXPORT vtkOpenGLPolyDataMapper : public vtkPolyDataMapper
 {
 public:
   static vtkOpenGLPolyDataMapper *New();

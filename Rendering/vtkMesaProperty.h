@@ -51,7 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkMesaRenderer;
 
-class VTK_EXPORT vtkMesaProperty : public vtkProperty
+class VTK_RENDERING_EXPORT vtkMesaProperty : public vtkProperty
 {
 public:
   static vtkMesaProperty *New();

@@ -65,7 +65,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class vtkPropCollection;
 class vtkRenderer;
 
-class VTK_EXPORT vtkImageActor : public vtkProp
+class VTK_RENDERING_EXPORT vtkImageActor : public vtkProp
 {
 public:
   vtkTypeMacro(vtkImageActor,vtkProp);

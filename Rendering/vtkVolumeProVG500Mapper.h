@@ -108,7 +108,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkVolumeProMapper.h"
 #include "vli.h"
 
-class VTK_EXPORT vtkVolumeProVG500Mapper : public vtkVolumeProMapper
+class VTK_RENDERING_EXPORT vtkVolumeProVG500Mapper : public vtkVolumeProMapper
 {
 public:
   vtkTypeMacro(vtkVolumeProVG500Mapper,vtkVolumeProMapper);

@@ -53,7 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkVolumeTextureMapper2D.h"
 
-class VTK_EXPORT vtkOpenGLVolumeTextureMapper2D : public vtkVolumeTextureMapper2D
+class VTK_RENDERING_EXPORT vtkOpenGLVolumeTextureMapper2D : public vtkVolumeTextureMapper2D
 {
 public:
   vtkTypeMacro(vtkOpenGLVolumeTextureMapper2D,vtkVolumeTextureMapper2D);

@@ -56,7 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkIdList;
 
-class VTK_EXPORT vtkWin32OpenGLRenderWindow : public vtkOpenGLRenderWindow
+class VTK_RENDERING_EXPORT vtkWin32OpenGLRenderWindow : public vtkOpenGLRenderWindow
 {
 public:
   static vtkWin32OpenGLRenderWindow *New();
