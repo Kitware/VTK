@@ -26,7 +26,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkTextActor3D, "1.2");
+vtkCxxRevisionMacro(vtkTextActor3D, "1.3");
 vtkStandardNewMacro(vtkTextActor3D);
 
 vtkCxxSetObjectMacro(vtkTextActor3D, TextProperty, vtkTextProperty);
@@ -86,7 +86,9 @@ double* vtkTextActor3D::GetBounds()
     return this->ImageActor->GetBounds();
     }
 
-  return NULL;
+  static double unknown_bounds[6];
+  vtkMath::UninitializeBounds(unknown_bounds);
+  return unknown_bounds;
 }
 
 // --------------------------------------------------------------------------
