@@ -74,6 +74,7 @@ class vtkDataArray;
 class vtkFloatArray;
 class vtkGenericCell;
 class vtkIdList;
+class vtkIntArray;
 class vtkInterpolatedVelocityField;
 
 class VTK_GRAPHICS_EXPORT vtkStreamTracer : public vtkDataSetToPolyDataFilter
@@ -218,7 +219,8 @@ public:
   enum
   {
     FORWARD,
-    BACKWARD
+    BACKWARD,
+    BOTH
   };
 //ETX
 
@@ -226,7 +228,7 @@ public:
   // Specify whether the streamtrace will be generated in the
   // upstream or downstream direction.
   vtkSetClampMacro(IntegrationDirection, int,
-                   FORWARD, BACKWARD);
+                   FORWARD, BOTH);
   vtkGetMacro(IntegrationDirection, int);
 
 
@@ -252,6 +254,9 @@ public:
   void SelectInputVectors(const char *fieldName) 
     {this->SetInputVectorsSelection(fieldName);}
   
+  // Description:
+  // Add a dataset to the list inputs
+  void AddInput(vtkDataSet *in);
 
 protected:
 
@@ -261,7 +266,9 @@ protected:
   void Execute();
   void CalculateVorticity( vtkGenericCell* cell, float pcoords[3],
                            vtkFloatArray* cellVectors, float vorticity[3] );
-  void Integrate(vtkDataArray* seedSource, vtkIdList* seedIds);
+  void Integrate(vtkDataArray* seedSource, 
+                 vtkIdList* seedIds,
+                 vtkIntArray* integrationDirections);
 
   vtkSetStringMacro(InputVectorsSelection);
   char *InputVectorsSelection;

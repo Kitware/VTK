@@ -42,8 +42,14 @@
 #define __vtkInterpolatedVelocityField_h
 
 #include "vtkFunctionSet.h"
-#include "vtkDataSet.h"
-#include "vtkGenericCell.h"
+
+class vtkDataSet;
+class vtkGenericCell;
+
+//BTX
+template <class value>
+class vtkVector;
+//ETX
 
 class VTK_COMMON_EXPORT vtkInterpolatedVelocityField : public vtkFunctionSet
 {
@@ -63,8 +69,7 @@ public:
 
   // Description:
   // Set / get the dataset used for the implicit function evaluation.
-  virtual void SetDataSet(vtkDataSet* dataset);
-  vtkGetObjectMacro(DataSet,vtkDataSet);
+  virtual void AddDataSet(vtkDataSet* dataset);
 
   // Description:
   // Return the cell id cached from last evaluation.
@@ -102,23 +107,33 @@ public:
   void SelectVectors(const char *fieldName) 
     {this->SetVectorsSelection(fieldName);}
   
-  
+  // Description:
+  vtkGetObjectMacro(LastDataSet, vtkDataSet);
+
 protected:
   vtkInterpolatedVelocityField();
   ~vtkInterpolatedVelocityField();
 
-  vtkDataSet* DataSet;
   vtkGenericCell* GenCell; // last cell
   vtkGenericCell* Cell;
   float* Weights; // last weights
+  int WeightsSize;
   float LastPCoords[3]; // last local coordinates
   vtkIdType LastCellId;
   int CacheHit;
   int CacheMiss;
   int Caching;
 
+  vtkDataSet* LastDataSet;
+
   vtkSetStringMacro(VectorsSelection);
   char *VectorsSelection;
+
+//BTX
+  vtkVector<vtkDataSet*>* DataSets;
+//ETX
+
+  int FunctionValues(vtkDataSet* ds, float* x, float* f);
 
 private:
   vtkInterpolatedVelocityField(const vtkInterpolatedVelocityField&);  // Not implemented.

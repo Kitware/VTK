@@ -16,17 +16,21 @@
 
 =========================================================================*/
 #include "vtkInterpolatedVelocityField.h"
+
+#include "vtkDataSet.h"
+#include "vtkGenericCell.h"
+#include "vtkVector.txx"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkInterpolatedVelocityField, "1.17");
+vtkCxxRevisionMacro(vtkInterpolatedVelocityField, "1.18");
 vtkStandardNewMacro(vtkInterpolatedVelocityField);
 
 vtkInterpolatedVelocityField::vtkInterpolatedVelocityField()
 {
   this->NumFuncs = 3; // u, v, w
   this->NumIndepVars = 4; // x, y, z, t
-  this->DataSet = 0;
   this->Weights = 0;
+  this->WeightsSize = 0;
   this->GenCell = vtkGenericCell::New();
   this->LastCellId = -1;
   this->CacheHit = 0;
@@ -35,69 +39,68 @@ vtkInterpolatedVelocityField::vtkInterpolatedVelocityField()
 
   this->Cell = vtkGenericCell::New();
   this->VectorsSelection = 0;
+
+  this->DataSets = vtkVector<vtkDataSet*>::New();
+  this->LastDataSet = 0;
 }
 
 vtkInterpolatedVelocityField::~vtkInterpolatedVelocityField()
 {
   this->NumFuncs = 0;
   this->NumIndepVars = 0;
-  this->SetDataSet(0);
   this->GenCell->Delete();
   delete[] this->Weights;
   this->Weights = 0;
 
   this->Cell->Delete();
   this->SetVectorsSelection(0);
-}
 
-void vtkInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent indent)
-{
-  this->Superclass::PrintSelf(os, indent);
-  if ( this->DataSet )
-    {
-    os << indent << "Data Set: " << this->DataSet << endl;
-    }
-  else
-    {
-    os << indent << "Data Set: (none)" << endl;
-    }
-  if ( this->VectorsSelection )
-    {
-    os << indent << "VectorsSelection: " << this->VectorsSelection << endl;
-    }
-  else
-    {
-    os << indent << "VectorsSelection: (none)" << endl;
-    }
-  if ( this->GenCell )
-    {
-    os << indent << "Last cell: " << this->GenCell << endl;
-    }
-  else
-    {
-    os << indent << "Last cell: (none)" << endl;
-    }
-  os << indent << "Weights: " << this->Weights << endl;
-  os << indent << "Last cell Id: " << this->LastCellId << endl;
-  os << indent << "Cache hit: " << this->CacheHit << endl;
-  os << indent << "Cache miss: " << this->CacheMiss << endl;
-  os << indent << "Caching: ";
-  if ( this->Caching )
-    {
-    os << "on." << endl;
-    }
-  else
-    {
-    os << "off." << endl;
-    }
-
-  os << indent << "VectorsSelection: " 
-     << (this->VectorsSelection?this->VectorsSelection:"(none)") << endl;
-
+  this->DataSets->Delete();
 }
 
 // Evaluate u,v,w at x,y,z,t
 int vtkInterpolatedVelocityField::FunctionValues(float* x, float* f)
+{
+  vtkDataSet* ds=0;
+  if (!this->LastDataSet)
+    {
+    this->DataSets->GetItem(0, ds);
+    this->LastDataSet = ds;
+    }
+  else
+    {
+    ds = this->LastDataSet;
+    }
+  int retVal = this->FunctionValues(ds, x, f);
+  if (!retVal)
+    {
+    vtkIdType numItems = this->DataSets->GetNumberOfItems();
+    vtkIdType i;
+    for (i=0; i<numItems; i++)
+      {
+      ds = 0;
+      this->DataSets->GetItem(i, ds);
+      if (ds && ds != this->LastDataSet )
+        {
+        this->ClearLastCellId();
+        retVal = this->FunctionValues(ds, x, f);
+        if (retVal) 
+          {
+          this->LastDataSet = ds;
+          return retVal;
+          }
+        }
+      }
+    this->ClearLastCellId();
+    return 0;
+    }
+  return retVal;
+}
+
+// Evaluate u,v,w at x,y,z,t
+int vtkInterpolatedVelocityField::FunctionValues(vtkDataSet* dataset,
+                                                 float* x, 
+                                                 float* f)
 {
   int i, j, subId , numPts, id;
   vtkDataArray* vectors;
@@ -111,9 +114,8 @@ int vtkInterpolatedVelocityField::FunctionValues(float* x, float* f)
     }
 
   // See if a dataset has been specified and if there are input vectors
-  if ( !this->DataSet || 
-       !(vectors = this->DataSet->GetPointData()->GetVectors(
-         this->VectorsSelection)) )
+  if (!dataset || 
+      !(vectors = dataset->GetPointData()->GetVectors(this->VectorsSelection)))
     {
     vtkErrorMacro(<<"Can't evaluate dataset!");
     return 0;
@@ -134,14 +136,14 @@ int vtkInterpolatedVelocityField::FunctionValues(float* x, float* f)
         {
         this->CacheMiss++;
 
-        this->DataSet->GetCell(this->LastCellId, this->Cell);
+        dataset->GetCell(this->LastCellId, this->Cell);
         
         this->LastCellId = 
-          this->DataSet->FindCell(x, this->Cell, this->GenCell, -1, 0, 
-                                  subId, this->LastPCoords, this->Weights);
+          dataset->FindCell(x, this->Cell, this->GenCell, -1, 0, 
+                            subId, this->LastPCoords, this->Weights);
         if (this->LastCellId != - 1)
           {
-          this->DataSet->GetCell(this->LastCellId, this->GenCell);
+          dataset->GetCell(this->LastCellId, this->GenCell);
           }
         else
           {
@@ -151,11 +153,11 @@ int vtkInterpolatedVelocityField::FunctionValues(float* x, float* f)
       else
         {
         this->LastCellId = 
-          this->DataSet->FindCell(x, 0, this->GenCell, -1, 0, 
-                                  subId, this->LastPCoords, this->Weights);
+          dataset->FindCell(x, 0, this->GenCell, -1, 0, 
+                            subId, this->LastPCoords, this->Weights);
         if (this->LastCellId != - 1)
           {
-          this->DataSet->GetCell(this->LastCellId, this->GenCell);
+          dataset->GetCell(this->LastCellId, this->GenCell);
           }
         else
           {
@@ -172,9 +174,9 @@ int vtkInterpolatedVelocityField::FunctionValues(float* x, float* f)
     {
     // if caching is off, find the cell and get it
     this->LastCellId = 
-      this->DataSet->FindCell(x, 0, this->GenCell, -1, 0, 
+      dataset->FindCell(x, 0, this->GenCell, -1, 0, 
                               subId, this->LastPCoords, this->Weights);
-    this->DataSet->GetCell(this->LastCellId, this->GenCell);
+    dataset->GetCell(this->LastCellId, this->GenCell);
     }
 
   // if the cell is valid
@@ -201,24 +203,23 @@ int vtkInterpolatedVelocityField::FunctionValues(float* x, float* f)
   return 1;
 }
 
-void vtkInterpolatedVelocityField::SetDataSet(vtkDataSet* dataset)
+void vtkInterpolatedVelocityField::AddDataSet(vtkDataSet* dataset)
 {
-  if (this->DataSet != dataset)
+  if (!dataset)
     {
-    if (this->DataSet != 0) { this->DataSet->UnRegister(this); }
-    this->DataSet = dataset;
-    if (this->DataSet != 0) { this->DataSet->Register(this); }
-    this->Modified();
+    return;
+    }
+
+  this->DataSets->AppendItem(dataset);
+
+  int size = dataset->GetMaxCellSize();
+  if (size > this->WeightsSize)
+    {
+    this->WeightsSize = size;
     delete[] this->Weights;
-    this->Weights = 0; 
-    // Allocate space for the largest cell
-    if (this->DataSet != 0) 
-      {
-      this->Weights = new float[this->DataSet->GetMaxCellSize()];
-      }
+    this->Weights = new float[size]; 
     }
 }
-
 
 int vtkInterpolatedVelocityField::GetLastWeights(float* w)
 {
@@ -263,19 +264,43 @@ int vtkInterpolatedVelocityField::GetLastLocalCoordinates(float pcoords[3])
     }
 }
 
+void vtkInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+  if ( this->VectorsSelection )
+    {
+    os << indent << "VectorsSelection: " << this->VectorsSelection << endl;
+    }
+  else
+    {
+    os << indent << "VectorsSelection: (none)" << endl;
+    }
+  if ( this->GenCell )
+    {
+    os << indent << "Last cell: " << this->GenCell << endl;
+    }
+  else
+    {
+    os << indent << "Last cell: (none)" << endl;
+    }
+  os << indent << "Weights: " << this->Weights << endl;
+  os << indent << "Last cell Id: " << this->LastCellId << endl;
+  os << indent << "Cache hit: " << this->CacheHit << endl;
+  os << indent << "Cache miss: " << this->CacheMiss << endl;
+  os << indent << "Caching: ";
+  if ( this->Caching )
+    {
+    os << "on." << endl;
+    }
+  else
+    {
+    os << "off." << endl;
+    }
 
-  
+  os << indent << "VectorsSelection: " 
+     << (this->VectorsSelection?this->VectorsSelection:"(none)") << endl;
+  os << indent << "LastDataSet : "
+     << this->LastDataSet << endl;
 
-
-
-
-
-
-
-
-
-
-
-
-
+}
 
