@@ -7,10 +7,6 @@ source ../../examplesTcl/vtkInt.tcl
 source ../../examplesTcl/colors.tcl
 source ../../examplesTcl/vtkInclude.tcl
 
-#source tree.tcl
-#source vtkShow.tcl
-#source vtkPipeline.tcl
-
 # create pipeline
 #
 vtkDataSetReader reader
@@ -122,6 +118,7 @@ iren SetUserMethod {wm deiconify .vtkInteract}
 #renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
+wm withdraw .
 
-#vtkPipeline renWin
+
 
