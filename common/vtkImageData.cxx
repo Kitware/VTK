@@ -1704,7 +1704,7 @@ void vtkImageData::Crop()
   // If the extents are the same just return.
   if (this->Extent[0] == nExt[0] && this->Extent[1] == nExt[1]
       && this->Extent[2] == nExt[2] && this->Extent[3] == nExt[3]
-      && this->Extent[4] == nExt[4] && this->Extent[5] == nExt[6])
+      && this->Extent[4] == nExt[4] && this->Extent[5] == nExt[5])
     {
     vtkDebugMacro("Extents already match.");
     return;
