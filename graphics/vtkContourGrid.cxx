@@ -115,7 +115,7 @@ static void vtkContourGridExecute(vtkContourGrid *self,
                                   vtkScalars *inScalars, T *scalarArrayPtr,
                                   int numContours, float *values, 
                                   vtkPointLocator *locator, int computeScalars,
-                                  int useScalarTree, vtkScalarTree *scalarTree)
+                                  int useScalarTree,vtkScalarTree *&scalarTree)
 {
   int cellId, i, abortExecute=0;
   vtkPolyData *output=self->GetOutput();
@@ -247,7 +247,6 @@ static void vtkContourGridExecute(vtkContourGrid *self,
     // Loop over all contour values.  Then for each contour value, 
     // loop over all cells.
     //
-    cellPts = vtkIdList::New();
     for (i=0; i < numContours; i++)
       {
       for ( scalarTree->InitTraversal(values[i]); 
@@ -259,7 +258,6 @@ static void vtkContourGridExecute(vtkContourGrid *self,
            //don't want to call Contour any more than necessary
         } //for all cells
       } //for all contour values
-    cellPts->Delete();
     } //using scalar tree
 
   //
@@ -305,7 +303,7 @@ void vtkContourGrid::Execute()
   float *values = this->ContourValues->GetValues();
   int computeScalars = this->ComputeScalars;
   int useScalarTree = this->UseScalarTree;
-  vtkScalarTree *scalarTree = this->ScalarTree;
+  vtkScalarTree *&scalarTree = this->ScalarTree;
 
   vtkDebugMacro(<< "Executing contour filter");
 
