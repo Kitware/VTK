@@ -76,6 +76,7 @@ public:
     {
     return this->Object? 0 : &SafeBoolDummy::Dummy;
     }
+protected:
 
   // Initialize smart pointer to given object, but do not increment
   // reference count.  The destructor will still decrement the count.
@@ -83,7 +84,6 @@ public:
   class NoReference {};
   vtkSmartPointerBase(vtkObjectBase* r, const NoReference&);
 
-protected:
   // Pointer to the actual object.
   vtkObjectBase* Object;
 
