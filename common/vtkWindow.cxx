@@ -60,8 +60,11 @@ vtkWindow::vtkWindow()
 
 vtkWindow::~vtkWindow()
 {
-  if( WindowName ) 
+  if( WindowName )
+    {
     delete [] this->WindowName;
+	this->WindowName = NULL;
+    }
 }
 
 void vtkWindow::SetWindowName( char * _arg )
