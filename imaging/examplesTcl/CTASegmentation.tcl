@@ -95,7 +95,7 @@ vtkImageAdaptiveFilter af
 
 vtkImageCTAComposite composite
 	composite SetMaskInput       [mb     GetOutput]
-	composite SetDataOriginalInput   [reader GetOutput]
+	composite SetOriginalInput   [reader GetOutput]
 	composite SetSubSampledInput [af     GetOutput]
 	composite SetMagnificationFactors $subx $suby $subz
 	composite SetReplaceValue $invalue
@@ -111,7 +111,7 @@ vtkImageMIPFilter mip
 	mip SetInput [composite GetOutput]
 	mip ReleaseDataFlagOff
 
-vtkImageViewer viewer
+vtkImageXViewer viewer
 	viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
 	viewer SetInput [mip GetOutput]
 	viewer SetCoordinate2 0
@@ -120,12 +120,12 @@ vtkImageViewer viewer
 	viewer SetXOffset 512
         #viewer Render
 
-vtkImageViewer viewer1
-	viewer1 SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
+vtkImageXViewer viewer1
+	eval viewer1 SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
 	viewer1 SetInput [ss GetOutput]
 	viewer1 SetCoordinate2 0
-	viewer1 SetColorWindow $window
-	viewer1 SetColorLevel $level
+	eval viewer1 SetColorWindow $window
+	eval viewer1 SetColorLevel $level
 	viewer1 SetXOffset 0
 	viewer1 SetWindow [viewer GetWindow]
 	#viewer1 Render
