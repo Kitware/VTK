@@ -19,6 +19,7 @@
 
 #include "vtkDebugLeaks.h"
 #include <Common/Testing/Cxx/SystemInformation.h>
+#include <vtkstd/string>
 #include <sys/stat.h>
 #include <time.h>
 
