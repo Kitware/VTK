@@ -31,7 +31,7 @@
 #include "vtkGenericAttribute.h"
 #include "vtkGenericCellTessellator.h"
 
-vtkCxxRevisionMacro(vtkGenericAdaptorCell, "1.5");
+vtkCxxRevisionMacro(vtkGenericAdaptorCell, "1.6");
 
 vtkGenericAdaptorCell::vtkGenericAdaptorCell()
 {
@@ -442,7 +442,8 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes
     //this->PointDataScalars->SetNumberOfComponents(numComp);
     this->PointDataScalars->Allocate( this->InternalScalars->GetSize() );
 
-    vtkIdType npts, *pts = 0;
+    vtkIdType npts = 0;
+    vtkIdType *pts = 0;
     double *point  = this->InternalPoints->GetPointer(0);
     double *scalar = this->InternalScalars->GetPointer(0) + currComp;
 
@@ -477,7 +478,8 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes
       this->InternalCellArray, this->InternalScalars);
 
     //temporary:
-    vtkIdType npts, *pts = 0;
+    vtkIdType npts = 0;
+    vtkIdType *pts = 0;
     double *point = this->InternalPoints->GetPointer(0);
     int currComp = attributes->GetActiveComponent();
     double *scalar = this->InternalScalars->GetPointer(0) + currComp;
@@ -527,7 +529,8 @@ void vtkGenericAdaptorCell::TriangulateFace(vtkGenericAttributeCollection *attri
       this->InternalPoints, this->InternalCellArray, this->InternalScalars);
 
     //temporary:
-    vtkIdType npts, *pts = 0;
+    vtkIdType npts = 0;
+    vtkIdType *pts = 0;
     double *point  = this->InternalPoints->GetPointer(0);
     int currComp   = attributes->GetActiveComponent();
     double *scalar = this->InternalScalars->GetPointer(0) + currComp;
