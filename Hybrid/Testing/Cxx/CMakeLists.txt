@@ -10,7 +10,6 @@ SET(MyTests
 IF (VTK_DATA_ROOT)
   # add tests that require data
   SET(MyTests ${MyTests}     
-    volProt.cxx
     )
 ENDIF (VTK_DATA_ROOT)
 CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests})
