@@ -13,17 +13,79 @@
 
 =========================================================================*/
 #include "vtkLightKit.h"
+
+#include "vtkObjectFactory.h"
 #include "vtkLight.h"
 #include "vtkPiecewiseFunction.h"
-#include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
 
-#include <math.h>
-
-vtkCxxRevisionMacro(vtkLightKit, "1.13");
+vtkCxxRevisionMacro(vtkLightKit, "1.14");
 vtkStandardNewMacro(vtkLightKit);
 
-vtkLightKit::vtkLightKit() {
+static const char *vtkLightKitTypeStrings[] = {
+  "Key Light",
+  "Fill Light",
+  "Back Light",
+  "Head Light",
+  NULL,
+};
+
+static const char *vtkLightKitSubTypeStrings[] = {
+  "Warmth",
+  "Intensity",
+  "Elevation",
+  "Azimuth",
+  "K:F Ratio",
+  "K:B Ratio",
+  "K:H Ratio",
+  NULL
+};
+
+//const char *vtkCommand::GetStringFromEventId(unsigned long event)
+//{
+//  static unsigned long numevents = 0;
+//  
+//  // find length of table
+//  if (!numevents)
+//    {
+//    while (vtkCommandEventStrings[numevents] != NULL)
+//      {
+//      numevents++;
+//      }
+//    }
+//
+//  if (event < numevents)
+//    {
+//    return vtkCommandEventStrings[event];
+//    }
+//  else if (event == vtkCommand::UserEvent)
+//    {
+//    return "UserEvent";
+//    }
+//  else
+//    {
+//    return "NoEvent";
+//    }
+//}
+  
+//int vtkLightKit::GetLightKitTypeFromString(const char *type)
+//{  
+//  int i;
+//
+//  for (i = 0; vtkLightKitTypeStrings[i] != NULL; i++)
+//    { 
+//    if (!strcmp(vtkCommandEventStrings[i],event))
+//      {
+//      return i;
+//      }
+//    }
+//
+//  return -1;
+//}
+
+//----------------------------------------------------------------------------
+vtkLightKit::vtkLightKit()
+{
   // create members
   this->KeyLight = vtkLight::New();
   this->FillLight = vtkLight::New();
@@ -31,9 +93,10 @@ vtkLightKit::vtkLightKit() {
   this->BackLight0 = vtkLight::New();
   this->BackLight1 = vtkLight::New();
 
-  for(int i = 0; i < 4; i++) {
+  for(int i = 0; i < 4; i++)
+    {
     this->WarmthFunction[i] = vtkPiecewiseFunction::New();
-  }
+    }
   this->InitializeWarmthFunctions();
 
   // initialize values
@@ -59,58 +122,44 @@ vtkLightKit::vtkLightKit() {
   this->KeyToHeadRatio = 3.0;
 
   this->MaintainLuminance = 0;
-
-  // push initial values out
-  this->Modified();
 }  
 
-vtkLightKit::~vtkLightKit() {
+//----------------------------------------------------------------------------
+vtkLightKit::~vtkLightKit()
+{
+  this->KeyLight->Delete();
+  this->FillLight->Delete();
+  this->Headlight->Delete();
+  this->BackLight0->Delete();
+  this->BackLight1->Delete();
 
-  if(this->KeyLight != NULL) {
-    this->KeyLight->UnRegister(this);
-    this->KeyLight = NULL;
-  }
-
-  if(this->FillLight != NULL) {
-    this->FillLight->UnRegister(this);
-    this->FillLight = NULL;
-  }
-
-  if(this->Headlight != NULL) {
-    this->Headlight->UnRegister(this);
-    this->Headlight = NULL;
-  }
-
-  if(this->BackLight0 != NULL) {
-    this->BackLight0->UnRegister(this);
-    this->BackLight0 = NULL;
-  }
-
-  if(this->BackLight1 != NULL) {
-    this->BackLight1->UnRegister(this);
-    this->BackLight1 = NULL;
-  }
-
-  for(int i = 0; i < 4; i++) {
+  for(int i = 0; i < 4; i++) 
+    {
     this->WarmthFunction[i]->Delete();
-  }
+    }
 }
 
-void vtkLightKit::SetKeyLightAngle(double elevation, double azimuth) {
+//----------------------------------------------------------------------------
+void vtkLightKit::SetKeyLightAngle(double elevation, double azimuth) 
+{
   this->KeyLightAngle[0] = elevation;
   this->KeyLightAngle[1] = azimuth;
 
   this->KeyLight->SetDirectionAngle(elevation, azimuth);
 }
 
-void vtkLightKit::SetFillLightAngle(double elevation, double azimuth) {
+//----------------------------------------------------------------------------
+void vtkLightKit::SetFillLightAngle(double elevation, double azimuth) 
+{
   this->FillLightAngle[0] = elevation;
   this->FillLightAngle[1] = azimuth;
 
   this->FillLight->SetDirectionAngle(elevation, azimuth);
 }
 
-void vtkLightKit::SetBackLightAngle(double elevation, double azimuth) {
+//----------------------------------------------------------------------------
+void vtkLightKit::SetBackLightAngle(double elevation, double azimuth) 
+{
   this->BackLightAngle[0] = elevation;
   this->BackLightAngle[1] = azimuth;
 
@@ -118,51 +167,58 @@ void vtkLightKit::SetBackLightAngle(double elevation, double azimuth) {
   this->BackLight1->SetDirectionAngle(elevation, -azimuth);
 }
 
-void vtkLightKit::WarmthToRGB(double w, double rgb[3]) {
+//----------------------------------------------------------------------------
+void vtkLightKit::WarmthToRGB(double w, double rgb[3]) 
+{
   rgb[0] = this->WarmthFunction[0]->GetValue(w);
   rgb[1] = this->WarmthFunction[1]->GetValue(w);
   rgb[2] = this->WarmthFunction[2]->GetValue(w);
 }
 
-double vtkLightKit::WarmthToIntensity(double w) {
+//----------------------------------------------------------------------------
+double vtkLightKit::WarmthToIntensity(double w) 
+{
   return this->WarmthFunction[3]->GetValue(w);
 }
 
-void vtkLightKit::WarmthToRGBI(double w, double rgb[3], double& i) {
+//----------------------------------------------------------------------------
+void vtkLightKit::WarmthToRGBI(double w, double rgb[3], double& i) 
+{
   rgb[0] = this->WarmthFunction[0]->GetValue(w);
   rgb[1] = this->WarmthFunction[1]->GetValue(w);
   rgb[2] = this->WarmthFunction[2]->GetValue(w);
   i = this->WarmthFunction[3]->GetValue(w);
 }
 
-void vtkLightKit::AddLightsToRenderer(vtkRenderer *renderer) {
-  if(renderer != NULL) {
+//----------------------------------------------------------------------------
+void vtkLightKit::AddLightsToRenderer(vtkRenderer *renderer) 
+{
+  if(renderer != NULL) 
+    {
     renderer->AddLight(this->Headlight);
     renderer->AddLight(this->KeyLight);
     renderer->AddLight(this->FillLight);
     renderer->AddLight(this->BackLight0);
     renderer->AddLight(this->BackLight1);
-  }
+    }
 }
 
-void vtkLightKit::RemoveLightsFromRenderer(vtkRenderer *renderer) {
-  if(renderer != NULL) {
+//----------------------------------------------------------------------------
+void vtkLightKit::RemoveLightsFromRenderer(vtkRenderer *renderer) 
+{
+  if(renderer != NULL) 
+    {
     renderer->RemoveLight(this->Headlight);
     renderer->RemoveLight(this->KeyLight);
     renderer->RemoveLight(this->FillLight);
     renderer->RemoveLight(this->BackLight0);
     renderer->RemoveLight(this->BackLight1);
-
-  }
+    }
 }
 
-void vtkLightKit::Modified() {
-  this->Update();
-  this->MTime.Modified();
-}
-
-void vtkLightKit::Update() {
-
+//----------------------------------------------------------------------------
+void vtkLightKit::Update() 
+{
   double *fillLightColor = this->FillLightColor;
   double fillLightPI;
 
@@ -198,12 +254,13 @@ void vtkLightKit::Update() {
   // the MaintainLuminance flag says.  That flag's for controlling
   // the intensity of the entire scene, not just the fill light.
 
-  if(this->MaintainLuminance) {
+  if(this->MaintainLuminance)
+    {
     fillLightIntensity /= fillLightPI;
     headlightIntensity /= headlightPI;
     keyLightIntensity  /= keyLightPI;
-    backLightIntensity  /= backLightPI;
-  } 
+    backLightIntensity /= backLightPI;
+    } 
   this->KeyLight->SetColor(keyLightColor);
   this->KeyLight->SetIntensity(keyLightIntensity);
   
@@ -220,7 +277,9 @@ void vtkLightKit::Update() {
   this->BackLight1->SetIntensity(backLightIntensity);
 }
 
-void vtkLightKit::PrintSelf(ostream& os, vtkIndent indent) {
+//----------------------------------------------------------------------------
+void vtkLightKit::PrintSelf(ostream& os, vtkIndent indent) 
+{
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "KeyLightIntensity: " << this->KeyLightIntensity << "\n";
@@ -270,7 +329,9 @@ void vtkLightKit::PrintSelf(ostream& os, vtkIndent indent) {
   //    << this->BackLightColor[2] << ")\n";
 }
 
-void vtkLightKit::DeepCopy( vtkLightKit *k ) {
+//----------------------------------------------------------------------------
+void vtkLightKit::DeepCopy( vtkLightKit *k ) 
+{
  this->KeyLightIntensity = k->KeyLightIntensity;
  this->KeyToFillRatio = k->KeyToFillRatio;
  this->KeyToHeadRatio = k->KeyToHeadRatio;
@@ -299,6 +360,7 @@ void vtkLightKit::DeepCopy( vtkLightKit *k ) {
  this->BackLight1->DeepCopy(k->BackLight1);
 }  
 
+//----------------------------------------------------------------------------
 // r, g, b, sqrt(color length)
 static double warmthTable[] = {
   0.1674, 0.3065, 1.0000, 0.5865,
@@ -367,14 +429,15 @@ static double warmthTable[] = {
   1.0000, 0.0396, 0.0000, 0.5677,
 };
 
-void vtkLightKit::InitializeWarmthFunctions() {
-
+//----------------------------------------------------------------------------
+void vtkLightKit::InitializeWarmthFunctions() 
+{
   const int len = sizeof(warmthTable) / sizeof(double) / 4;
 
   for(int i = 0; i < 4; i++) 
     {
     this->WarmthFunction[i]->BuildFunctionFromTable(0.0, 1.0, len,
-                                                   &warmthTable[i], 4);
+      &warmthTable[i], 4);
     }
 }
 

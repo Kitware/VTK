@@ -90,6 +90,7 @@
 #define __vtkLightKit_h
 
 #include "vtkObject.h"
+
 class vtkLight;
 class vtkPiecewiseFunction;
 class vtkRenderer;
@@ -100,6 +101,26 @@ public:
   static vtkLightKit *New();
   vtkTypeRevisionMacro(vtkLightKit, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  //BTX
+  enum LightKitType {
+    TKeyLight,
+    TFillLight,
+    TBackLight,
+    THeadLight 
+  };
+
+  enum  LightKitSubType {
+    Warmth,
+    Intensity,
+    Elevation,
+    Azimuth,
+    KFRatio,
+    KBRatio,
+    KHRatio,
+    Undefined
+  };
+  //ETX
 
   // Description:
   // Set/Get the intensity of the key light.  The key light is the
@@ -252,7 +273,6 @@ public:
 
   void DeepCopy(vtkLightKit *kit);
 
-  void Modified();
   void Update();
 
 protected:
@@ -295,6 +315,7 @@ protected:
   int MaintainLuminance;
 
   vtkPiecewiseFunction *WarmthFunction[4]; // r, g, b, perceptual length
+
 private:
   vtkLightKit(const vtkLightKit&);  // Not implemented.
   void operator=(const vtkLightKit&);  // Not implemented.
