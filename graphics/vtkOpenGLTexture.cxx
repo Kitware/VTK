@@ -45,6 +45,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkOpenGLTexture.h"
 #include <GL/gl.h>
 
+// shared increasing counter
+long vtkOpenGLTexture::GlobalIndex = 0;
+
 // Initializes an instance, generates a unique index.
 vtkOpenGLTexture::vtkOpenGLTexture()
 {
