@@ -41,7 +41,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGridSynchronizedTemplates3D, "1.1");
+vtkCxxRevisionMacro(vtkGridSynchronizedTemplates3D, "1.2");
 vtkStandardNewMacro(vtkGridSynchronizedTemplates3D);
 
 struct vtkGridSynchronizedTemplates3DThreadStruct
@@ -478,7 +478,6 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self,
     inPtrZ = scalars + ((ZMin - inExt[4]) * incZ +
                         (YMin - inExt[2]) * incY +
                         (XMin - inExt[0]));
-    p2 = inPtPtrZ;
     s2 = inPtrZ;
     v2 = (*s2 < value ? 0 : 1);
 
