@@ -76,12 +76,10 @@ void TestNewVertex(vtkVertex* v, const char* expectedClassName)
     cout << "Test Failed" << endl;
   }
 }
-#include "vtkMultiThreader.h"
+
 
 int main()
 {
-  vtkMultiThreader* m = vtkMultiThreader::New();
-  m->Print(cout);
   vtkDebugLeaks::PromptUserOff();
 
   TestFactory* factory = TestFactory::New();
