@@ -29,12 +29,10 @@
 
 class vtkGenericDataSet;
 
-class VTK_FILTERING_EXPORT vtkGenericDataSetToUnstructuredGridFilter
-  : public vtkUnstructuredGridSource
+class VTK_FILTERING_EXPORT vtkGenericDataSetToUnstructuredGridFilter : public vtkUnstructuredGridSource
 {
 public:
-  vtkTypeRevisionMacro(vtkGenericDataSetToUnstructuredGridFilter,
-                       vtkUnstructuredGridSource);
+  vtkTypeRevisionMacro(vtkGenericDataSetToUnstructuredGridFilter, vtkUnstructuredGridSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -48,13 +46,11 @@ protected:
       this->NumberOfRequiredInputs = 1;
     }
   
-  ~vtkGenericDataSetToUnstructuredGridFilter()
-    {
-    }
+  ~vtkGenericDataSetToUnstructuredGridFilter() {};
 
 private:
-  vtkGenericDataSetToUnstructuredGridFilter(const vtkGenericDataSetToUnstructuredGridFilter&);  // Not implemented.
-  void operator=(const vtkGenericDataSetToUnstructuredGridFilter&);  // Not implemented.
+  vtkGenericDataSetToUnstructuredGridFilter(const vtkGenericDataSetToUnstructuredGridFilter&); // Not implemented
+  void operator=(const vtkGenericDataSetToUnstructuredGridFilter&); // Not implemented
 };
 
 #endif

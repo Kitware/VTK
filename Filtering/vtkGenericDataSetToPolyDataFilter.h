@@ -33,8 +33,7 @@
 
 class vtkGenericDataSet;
 
-class VTK_FILTERING_EXPORT vtkGenericDataSetToPolyDataFilter
-  : public vtkPolyDataSource
+class VTK_FILTERING_EXPORT vtkGenericDataSetToPolyDataFilter : public vtkPolyDataSource
 {
 public:
   vtkTypeRevisionMacro(vtkGenericDataSetToPolyDataFilter,vtkPolyDataSource);
@@ -59,8 +58,8 @@ protected:
     }
   
 private:
-  vtkGenericDataSetToPolyDataFilter(const vtkGenericDataSetToPolyDataFilter&);  // Not implemented.
-  void operator=(const vtkGenericDataSetToPolyDataFilter&);  // Not implemented.
+  vtkGenericDataSetToPolyDataFilter(const vtkGenericDataSetToPolyDataFilter&); // Not implemented
+  void operator=(const vtkGenericDataSetToPolyDataFilter&); // Not implemented
 };
 
 #endif
