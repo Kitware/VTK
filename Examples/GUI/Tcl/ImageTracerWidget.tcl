@@ -210,17 +210,9 @@ renWin Render
 wm withdraw .
 
 proc AdjustSpline { } {
+
+  set closed [itw IsClosed]
   
-  itw GetPath poly
-  set npts [ itw GetNumberOfHandles ]
-
-  if { $npts < 2 } {
-    imageActor2 SetInput [extract GetOutput]
-    return
-  }
-
-  set closed [itw GetIsClosed]
-
   if { $closed } {
     isw ClosedOn
   } else {
@@ -228,36 +220,57 @@ proc AdjustSpline { } {
     imageActor2 SetInput [extract GetOutput]
   }
 
-  isw SetNumberOfHandles $npts
+  set npts [ itw GetNumberOfHandles ]
+  if { $npts < 2 } {
+    return
+  }
 
+  itw GetPath poly
+  set pts [poly GetPoints]
+  set npts [$pts GetNumberOfPoints]
+  
+  if { $closed } { 
+    set npts [expr $npts - 1]
+  }
+  isw SetNumberOfHandles $npts 
+  
   for {set i 0} {$i < $npts} {incr i} {
-    set pt [[poly GetPoints] GetPoint $i]
+    set pt [$pts GetPoint $i]
     isw SetHandlePosition $i [lindex $pt 0] [lindex $pt 1] [lindex $pt 2]
   }
 
   if { $closed } {
     isw GetPolyData spoly
-    imageActor2 SetInput [stencil GetOutput]
     stencil Update
+    imageActor2 SetInput [stencil GetOutput]
     }
 }
 
 proc AdjustTracer { } { 
   
   set npts [isw GetNumberOfHandles]
-  points SetNumberOfPoints $npts  
+  
+  points Reset  
  
   for {set i 0} {$i < $npts} {incr i} {
     set pt [isw GetHandlePosition $i]
-    points SetPoint $i [lindex $pt 0] [lindex $pt 1] [lindex $pt 2]
+    points InsertNextPoint [lindex $pt 0] [lindex $pt 1] [lindex $pt 2]
   }
 
   set closed [isw GetClosed]
+  if { $npts < 3 } {
+     set closed 0
+  }
 
-  if { $closed } {
+  if { $closed } {    
+    set ac [itw GetAutoClose]
+    if { $ac } {
+      set pt [isw GetHandlePosition 0]
+      points InsertNextPoint [lindex $pt 0] [lindex $pt 1] [lindex $pt 2]
+    }
     isw GetPolyData spoly
-    imageActor2 SetInput [stencil GetOutput]
     stencil Update
+    imageActor2 SetInput [stencil GetOutput]
     }
 
   itw InitializeHandles points  
