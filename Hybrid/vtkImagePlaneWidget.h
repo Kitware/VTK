@@ -110,6 +110,8 @@ public:
                    float zmin, float zmax)
     {this->Superclass::PlaceWidget(xmin,xmax,ymin,ymax,zmin,zmax);}
 
+  // Description:
+  // Set the image data and generate a default texture plane.  
   void SetInput(vtkImageData* input)
     {this->Superclass::SetInput(input);
      this->ImageData = input;

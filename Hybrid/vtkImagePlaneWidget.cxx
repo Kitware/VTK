@@ -36,7 +36,7 @@
 #include "vtkTransform.h"
 #include "vtkMatrix4x4.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.2");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.3");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkImagePlaneWidget::vtkImagePlaneWidget()
@@ -45,7 +45,7 @@ vtkImagePlaneWidget::vtkImagePlaneWidget()
   this->EventCallbackCommand->SetCallback(vtkImagePlaneWidget::ProcessEvents);
   
   this->PlaneOrientation = -1; //aligned normal to x axis
-  this->RestrictPlaneToVolume = 0;
+  this->RestrictPlaneToVolume = 1;
   this->OriginalWindow = 1.0;
   this->OriginalLevel = 0.5;
   this->TextureInterpolate = 1;
@@ -226,9 +226,6 @@ void vtkImagePlaneWidget::SetEnabled(int enabling)
 
     //add the TexturePlaneActor
     this->CurrentRenderer->AddActor(this->TexturePlaneActor);
-
-    this->UpdateNormal();
-    this->UpdateOrigin();
 
     this->SetRepresentation();
 
@@ -642,9 +639,16 @@ void vtkImagePlaneWidget::WindowLevel(int X, int Y)
     {
     window = 0.001;
     }
+  
+  float rmin = level-window*0.5;
+  float rmax = level+window*0.5;
 
-  this->LookupTable->SetTableRange(level-window*0.5,
-                                   level+window*0.5);
+  if( rmin < rmax )
+    {
+    range[0] = rmin;
+    range[1] = rmax;
+    this->LookupTable->SetTableRange(range);
+    }  
 }
 
 void vtkImagePlaneWidget::Push(double *p1, double *p2)
@@ -834,7 +838,8 @@ void vtkImagePlaneWidget::GenerateTexturePlane()
 
   this->TexturePlaneActor->GetTexture()->
     SetInterpolate(this->TextureInterpolate);
-
+  
+  this->SetPlaneOrientation(0);
 }
 
 void vtkImagePlaneWidget::UpdateOrigin()
