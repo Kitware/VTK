@@ -209,7 +209,7 @@ void vtkOpenGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
 
   for (i = 0; i < numClipPlanes; i++)
     {
-     glEnable(GL_CLIP_PLANE0+i);
+     glEnable((GLenum)(GL_CLIP_PLANE0+i));
     }
 
   for (i = 0; i < numClipPlanes; i++)
@@ -222,7 +222,7 @@ void vtkOpenGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
     planeEquation[3] = -(planeEquation[0]*plane->GetOrigin()[0]+
 			 planeEquation[1]*plane->GetOrigin()[1]+
 			 planeEquation[2]*plane->GetOrigin()[2]);
-    glClipPlane(GL_CLIP_PLANE0+i,planeEquation);
+    glClipPlane((GLenum)(GL_CLIP_PLANE0+i),planeEquation);
     }
   //
   // if something has changed regenrate colors and display lists
@@ -290,7 +290,7 @@ void vtkOpenGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
 
   for (i = 0; i < numClipPlanes; i++)
     {
-    glDisable(GL_CLIP_PLANE0+i);
+    glDisable((GLenum)(GL_CLIP_PLANE0+i));
     }
 
   timer->Delete();
