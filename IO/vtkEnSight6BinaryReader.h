@@ -159,8 +159,8 @@ protected:
   // Description:
   // Read to the next time step in the geometry file.
   void SkipTimeStep();
-  void SkipStructuredGrid(char line[256]);
-  void SkipUnstructuredGrid(char line[256]);
+  int SkipStructuredGrid(char line[256]);
+  int SkipUnstructuredGrid(char line[256]);
   
   // global list of points for the unstructured parts of the model
   int NumberOfUnstructuredPoints;
