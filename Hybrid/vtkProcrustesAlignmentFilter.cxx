@@ -22,7 +22,7 @@
 #include "vtkPolyData.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkProcrustesAlignmentFilter, "1.8");
+vtkCxxRevisionMacro(vtkProcrustesAlignmentFilter, "1.9");
 vtkStandardNewMacro(vtkProcrustesAlignmentFilter);
 
 //----------------------------------------------------------------------------
@@ -30,6 +30,8 @@ vtkStandardNewMacro(vtkProcrustesAlignmentFilter);
 vtkProcrustesAlignmentFilter::vtkProcrustesAlignmentFilter()
 {
   this->LandmarkTransform = vtkLandmarkTransform::New();
+
+  this->MeanPoints = vtkPoints::New();
 }
 
 //----------------------------------------------------------------------------
@@ -39,6 +41,10 @@ vtkProcrustesAlignmentFilter::~vtkProcrustesAlignmentFilter()
   if(this->LandmarkTransform)
     {
     this->LandmarkTransform->Delete();
+    }
+  if(this->MeanPoints)
+    {
+    this->MeanPoints->Delete();
     }
 }
 
@@ -162,21 +168,21 @@ void vtkProcrustesAlignmentFilter::Execute()
       }
     }
 
-  vtkPoints *mean_points = vtkPoints::New();
-  mean_points->DeepCopy(this->GetInput(0)->GetPoints());
+//  vtkPoints *mean_points = vtkPoints::New();
+  MeanPoints->DeepCopy(this->GetInput(0)->GetPoints());
   // our initial estimate of the mean comes from the first example in the set
 
   // we keep a record of the first mean to fix the orientation and scale
   // (which are otherwise undefined and the loop will not converge)
   vtkPoints *first_mean = vtkPoints::New();
-  first_mean->DeepCopy(mean_points);
+  first_mean->DeepCopy(MeanPoints);
 
 
   // If the similarity transform is used, the mean shape must be normalised
   // to avoid shrinking
   if (this->LandmarkTransform->GetMode() == VTK_LANDMARK_SIMILARITY)
   {
-    if (!NormaliseShape(mean_points)) {
+    if (!NormaliseShape(MeanPoints)) {
       vtkErrorMacro(<<"Centroid size zero");
       return;
     }
@@ -202,7 +208,7 @@ void vtkProcrustesAlignmentFilter::Execute()
     // align each pointset with the mean
     for(i=0;i<N_SETS;i++) {
       this->LandmarkTransform->SetSourceLandmarks(this->GetOutput(i)->GetPoints());
-      this->LandmarkTransform->SetTargetLandmarks(mean_points);
+      this->LandmarkTransform->SetTargetLandmarks(MeanPoints);
       this->LandmarkTransform->Update();
       for(v=0;v<N_POINTS;v++) {
         this->LandmarkTransform->InternalTransformPoint(
@@ -259,7 +265,7 @@ void vtkProcrustesAlignmentFilter::Execute()
     for(v=0;v<N_POINTS;v++)
       {
         p = new_mean->GetPoint(v);
-        p2 = mean_points->GetPoint(v);
+        p2 = MeanPoints->GetPoint(v);
         difference += vtkMath::Distance2BetweenPoints(p,p2);
         p2[0] = p[0];
         p2[1] = p[1];
@@ -292,7 +298,6 @@ void vtkProcrustesAlignmentFilter::Execute()
     }
 
   // clean up
-  mean_points->Delete();
   first_mean->Delete();
   new_mean->Delete();
 }

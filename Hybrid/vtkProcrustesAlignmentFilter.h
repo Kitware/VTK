@@ -57,6 +57,7 @@
 
 class vtkLandmarkTransform;
 class vtkPointSet;
+class vtkPoints;
 
 class VTK_HYBRID_EXPORT vtkProcrustesAlignmentFilter : public vtkSource
 {
@@ -76,6 +77,10 @@ public:
   // degrees of freedom of the alignment (i.e. rigid body, similarity, etc.).
   // The default is a similarity alignment.
   vtkGetObjectMacro(LandmarkTransform,vtkLandmarkTransform);
+  
+  // Description: 
+  // Get the estimated mean point cloud
+  vtkGetObjectMacro(MeanPoints,vtkPoints);
   
   // Description:
   // Specify how many pointsets are going to be given as input.
@@ -103,6 +108,8 @@ protected:
   void Execute();
 
   vtkLandmarkTransform *LandmarkTransform;
+
+  vtkPoints *MeanPoints;
 
 private:
   vtkProcrustesAlignmentFilter(const vtkProcrustesAlignmentFilter&);  // Not implemented.
