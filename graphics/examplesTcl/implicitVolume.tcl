@@ -1,5 +1,5 @@
 #
-# clip a surface with a plna and a plane with an implicit volume
+# clip a surface with a plane and a plane with an implicit volume
 #
 
 # get the interactor ui
