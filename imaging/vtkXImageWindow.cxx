@@ -505,15 +505,10 @@ void vtkXImageWindow::SetBackgroundColor(float r, float g, float b)
   ", blue: " << blue);
 
   // what should I do if a window has not been created (lawcc dfss)
-  // if (this->WindowId == (Window)(NULL))
-  //  {
-  //  this->MakeDefaultWindow();
-  //  }
-	if ( !this->WindowId )
-	{
-	  vtkErrorMacro ( << "Attempt to use NULL WindowId" );
-	  return;
-  }
+  if (this->WindowId == (Window)(NULL))
+    {
+    this->MakeDefaultWindow();
+    }
   
   XSetWindowBackground(this->DisplayId, this->WindowId, background);
 
@@ -528,16 +523,11 @@ void vtkXImageWindow::EraseWindow()
 {
   
   // what should I do if a window has not been created (lawcc dfss)
-//   if (this->WindowId == (Window)(NULL))
-//     {
-//     this->MakeDefaultWindow();
-//     }
-	if ( !this->WindowId )
-	{
-		vtkErrorMacro ( << "Attempt to use NULL WindowId" );
-		return;
-	}
-
+  if (this->WindowId == (Window)(NULL))
+    {
+    this->MakeDefaultWindow();
+    }
+  
   // If double buffering is on and we don't have a drawable
   // yet, then we better make one
   if (this->DoubleBuffer && !this->Drawable)
@@ -614,12 +604,6 @@ int *vtkXImageWindow::GetPosition(void)
   int x,y;
   Window child;
  
-	if ( !this->WindowId )
-	{
-		vtkErrorMacro ( << "Attempt to use NULL WindowId" );
-		return (this->Position);
-	}
-
   // what should I do if a window has not been created (lawcc dfss)
   if (this->WindowId == (Window)(NULL))
     {
@@ -756,6 +740,11 @@ void vtkXImageWindow::MakeDefaultWindow()
 
   vtkDebugMacro (<< "vtkXImageWindow::MakeDefaultWindow" ); 
   
+  if ( ! this->WindowId )
+    {
+    vtkErrorMacro (<< "Window Id must be NULL");
+    return;
+    }
   strcpy(name,"vtk - X Viewer Window");
 
   // make sure we have a connection to the X server.
@@ -1028,7 +1017,7 @@ void vtkXImageWindow::SetWindowId(void *arg)
 
 void vtkXImageWindow::SetWindowId(Window arg)
 {
-  WindowId = arg;
+  this->WindowId = arg;
 }
 
 // Set the X display id for this ImageXWindow to use to a pre-existing 

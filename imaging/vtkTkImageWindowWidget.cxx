@@ -644,12 +644,19 @@ vtkTkImageWindowWidget_MakeImageWindow(struct vtkTkImageWindowWidget *self)
       }
     }
   
-	// If the imageviewer has already created it's window, throw up our hands and quit...
-	if ( ImageWindow->GetWindowId() != (Window)NULL )
-	{
-		return TCL_ERROR;
-	}
+  // If the imageviewer has already created it's window, throw up our hands and quit...
+  if ( ImageWindow->GetWindowId() != (Window)NULL )
+    {
+    return TCL_ERROR;
+    }
 	
+  // Use the same display
+  ImageWindow->SetDisplayId(dpy);
+  // The visual MUST BE SET BEFORE the window is created.
+  Tk_SetWindowVisual(self->TkWin, ImageWindow->GetDesiredVisual(), 
+		     ImageWindow->GetDesiredDepth(), 
+		     ImageWindow->GetDesiredColormap());
+
   // Make this window exist, then use that information to make the vtkImageViewer in sync
   Tk_MakeWindowExist ( self->TkWin );
   ImageWindow->SetWindowId ( (void*)Tk_WindowId ( self->TkWin ) );
@@ -657,8 +664,6 @@ vtkTkImageWindowWidget_MakeImageWindow(struct vtkTkImageWindowWidget *self)
   // Set the size
   self->ImageWindow->SetSize(self->Width, self->Height);
   
-  // Use the same display
-  ImageWindow->SetDisplayId(dpy);
   // Set the parent correctly
   // Possibly X dependent
   if ((Tk_Parent(self->TkWin) == NULL) || (Tk_IsTopLevel(self->TkWin))) 
@@ -670,14 +675,6 @@ vtkTkImageWindowWidget_MakeImageWindow(struct vtkTkImageWindowWidget *self)
     ImageWindow->SetParentId(Tk_WindowId(Tk_Parent(self->TkWin) ));
     }
 
-  
-  /* Make sure Tk knows to switch to the new colormap when the cursor
-   * is over this window when running in color index mode.
-   */
-  Tk_SetWindowVisual(self->TkWin, ImageWindow->GetDesiredVisual(), 
-		     ImageWindow->GetDesiredDepth(), 
-		     ImageWindow->GetDesiredColormap());
-  
   self->ImageWindow->Render();  
   XSelectInput(dpy, Tk_WindowId(self->TkWin), VTK_ALL_EVENTS_MASK);
   return TCL_OK;
