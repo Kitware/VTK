@@ -122,6 +122,52 @@ VolumeTextureMapper2D_XMajorDirection( T *data_ptr,
     textureSize[1] *= 2;
     }
 
+  // Our texture might be too big - shrink it carefully making
+  // sure that it is still big enough in the right dimensions to
+  // handle oddly shaped volumes
+  int volSize = size[0]*size[1]*size[2];
+  int done = volSize > textureSize[0]*textureSize[1];
+  int minSize[2];
+  // What is the minumum size the texture could be in X (along the Y
+  // axis of the volume)?
+  minSize[0] = 32;
+  while ( minSize[0] < size[1] )
+    {
+    minSize[0] *= 2;
+    }
+  // What is the minumum size the texture could be in Y (along the Z
+  // axis of the volume)?
+  minSize[1] = 32;
+  while ( minSize[1] < size[2] )
+    {
+    minSize[1] *= 2;
+    }
+  // Keep reducing the texture size until it is just big enough
+  while (!done)
+    {
+    // Set done to 1. Reset to 0 if we make any changes.
+    done = 1;
+
+    // If the texture is bigger in some dimension that it needs to be
+    // and chopping that dimension in half would still fit the whole
+    // volume, then chop it in half.
+    if ( textureSize[0] > minSize[0] &&
+         ( ((textureSize[0]/2)/size[1]) * 
+           (textureSize[1] / size[2]) >= size[0] ) )
+      {
+      textureSize[0] /= 2;
+      done = 0;
+      }
+    if ( textureSize[1] > minSize[1] &&
+         ( (textureSize[0] / size[1]) * 
+           ((textureSize[1]/2) / size[2]) >= size[0] ) )
+      {
+      textureSize[1] /= 2;
+      done = 0;
+      }    
+    }
+  
+  
   // Create space for the texture
   texture = new unsigned char[4*textureSize[0]*textureSize[1]];
 
@@ -391,7 +437,7 @@ VolumeTextureMapper2D_XMajorDirection( T *data_ptr,
     
     if ( tile == numTiles  || (i+iinc == iend) )
       { 
-      me->RenderQuads( numTiles, v, t, texture, textureSize);
+      me->RenderQuads( tile, v, t, texture, textureSize);
       tile = 0;
       }
     
@@ -470,6 +516,53 @@ VolumeTextureMapper2D_YMajorDirection( T *data_ptr,
   while( textureSize[1] < targetSize[1] )
     {
     textureSize[1] *= 2;
+    }
+
+  // Our texture might be too big - shrink it carefully making
+  // sure that it is still big enough in the right dimensions to
+  // handle oddly shaped volumes
+  int volSize = size[0]*size[1]*size[2];
+  int done = (volSize > textureSize[0]*textureSize[1]);
+  int minSize[2];
+  // What is the minumum size the texture could be in X (along the X
+  // axis of the volume)?
+  minSize[0] = 32;
+  while ( minSize[0] < size[0] )
+    {
+    minSize[0] *= 2;
+    }
+  
+  // What is the minumum size the texture could be in Y (along the Z
+  // axis of the volume)?
+  minSize[1] = 32;
+  while ( minSize[1] < size[2] )
+    {
+    minSize[1] *= 2;
+    }
+
+  // Keep reducing the texture size until it is just big enough
+  while (!done)
+    {
+    // Set done to 1. Reset to 0 if we make any changes.
+    done = 1;
+
+    // If the texture is bigger in some dimension that it needs to be
+    // and chopping that dimension in half would still fit the whole
+    // volume, then chop it in half.
+    if ( textureSize[0] > minSize[0] &&
+         ( ((textureSize[0]/2) / size[0]) * 
+           (textureSize[1] / size[2]) >= size[1] ) )
+      {
+      textureSize[0] /= 2;
+      done = 0;
+      }
+    if ( textureSize[1] > minSize[1] &&
+         ( (textureSize[0] / size[0]) * 
+           ((textureSize[1]/2) / size[2]) >= size[1] ) )
+      {
+      textureSize[1] /= 2;
+      done = 0;
+      }    
     }
 
   // Create space for the texture
@@ -739,7 +832,7 @@ VolumeTextureMapper2D_YMajorDirection( T *data_ptr,
     
     if ( tile == numTiles  || (j+jinc == jend) )
       { 
-      me->RenderQuads( numTiles, v, t, texture, textureSize);
+      me->RenderQuads( tile, v, t, texture, textureSize);
       tile = 0;
       }
     
@@ -819,6 +912,53 @@ VolumeTextureMapper2D_ZMajorDirection( T *data_ptr,
   while( textureSize[1] < targetSize[1] )
     {
     textureSize[1] *= 2;
+    }
+
+  // Our texture might be too big - shrink it carefully making
+  // sure that it is still big enough in the right dimensions to
+  // handle oddly shaped volumes
+  int volSize = size[0]*size[1]*size[2];
+  int done = (volSize > textureSize[0]*textureSize[1]);
+  int minSize[2];
+  // What is the minumum size the texture could be in X (along the X
+  // axis of the volume)?
+  minSize[0] = 32;
+  while ( minSize[0] < size[0] )
+    {
+    minSize[0] *= 2;
+    }
+  
+  // What is the minumum size the texture could be in Y (along the Y
+  // axis of the volume)?
+  minSize[1] = 32;
+  while ( minSize[1] < size[1] )
+    {
+    minSize[1] *= 2;
+    }
+
+  // Keep reducing the texture size until it is just big enough
+  while (!done)
+    {
+    // Set done to 1. Reset to 0 if we make any changes.
+    done = 1;
+
+    // If the texture is bigger in some dimension that it needs to be
+    // and chopping that dimension in half would still fit the whole
+    // volume, then chop it in half.
+    if ( textureSize[0] > minSize[0] &&
+         ( ((textureSize[0]/2) / size[0]) * 
+           (textureSize[1] / size[1]) >= size[2] ) )
+      {
+      textureSize[0] /= 2;
+      done = 0;
+      }
+    if ( textureSize[1] > minSize[1] &&
+         ( (textureSize[0] / size[0]) * 
+           ((textureSize[1]/2) / size[1]) >= size[2] ) )
+      {
+      textureSize[1] /= 2;
+      done = 0;
+      }    
     }
 
   // Create space for the texture
@@ -1088,7 +1228,7 @@ VolumeTextureMapper2D_ZMajorDirection( T *data_ptr,
     
     if ( tile == numTiles  || (k+kinc == kend) )
       { 
-      me->RenderQuads( numTiles, v, t, texture, textureSize);
+      me->RenderQuads( tile, v, t, texture, textureSize);
       tile = 0;
       }
     
@@ -1102,8 +1242,8 @@ VolumeTextureMapper2D_ZMajorDirection( T *data_ptr,
 
 vtkVolumeTextureMapper2D::vtkVolumeTextureMapper2D()
 {
-  this->TargetTextureSize[0] = 128;
-  this->TargetTextureSize[1] = 128;
+  this->TargetTextureSize[0] = 512;
+  this->TargetTextureSize[1] = 512;
 }
 
 vtkVolumeTextureMapper2D::~vtkVolumeTextureMapper2D()
