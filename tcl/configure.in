@@ -6,15 +6,19 @@ AC_INIT(concrete.l)
 USE_TKWIDGET_FLAG=""
   AC_ARG_WITH(tkwidget,
          [  --with-tkwidget           build the vtkTkRenderWidget class],
-	 USE_TKWIDGET_FLAG=-DVTK_USE_TKWIDGET)
+	 if test "$withval" = yes; then
+	 USE_TKWIDGET_FLAG=-DVTK_USE_TKWIDGET
+         fi)
 AC_SUBST(USE_TKWIDGET_FLAG)
 
 # option for handling BSD style makefile includes
 #
 AC_ARG_WITH(bsdmake,
          [  --with-bsdmake            uses bsd style makefile includes],
+	 if test "$withval" = yes; then
          MAKEINCLUDE=".include"
-         MAKEQUOTE='"',
+         MAKEQUOTE='"'
+         fi,
          MAKEINCLUDE="include"
          MAKEQUOTE='')
 AC_SUBST(MAKEINCLUDE)

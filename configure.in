@@ -50,7 +50,7 @@ use_glr=no
 AC_CHECK_HEADERS(gl/gl.h, [use_glr=yes])
 AC_ARG_WITH(gl,
          [  --without-gl          do not use the gl graphics classes],
-         [use_glr=no])
+         [use_glr=$withval])
 
 if test "$use_glr" = "yes"; then
 	GRAPHICS_API_LIBS="${GRAPHICS_API_LIBS} -lgl"
@@ -131,15 +131,17 @@ AC_SUBST(HAVE_SETMON)
 #
 AC_ARG_WITH(shared,
          [  --with-shared               create shared libraries],
-         [vtk_shared_ok=yes], [vtk_shared_ok=no])
+         [vtk_shared_ok=$withval], [vtk_shared_ok=no])
 
 INSTALL_TARGET="install"
 AC_ARG_WITH(tcl,
          [  --with-tcl              build vtk the tcl based interpreter],
+	 if test "$withval" = yes; then
          tcldir=tcl
          BUILD_TCL=build_tcl
          INSTALL_TARGET="${INSTALL_TARGET}_tcl"
-         CLEAN_TCL=clean_tcl)
+         CLEAN_TCL=clean_tcl
+         fi)
 
 AC_SUBST(BUILD_TCL)
 AC_SUBST(CLEAN_TCL)
@@ -147,11 +149,13 @@ AC_SUBST(CLEAN_TCL)
 USE_TOOLKIT_FLAGS=""
 
 AC_ARG_WITH(java,
-         [  --with-java             very buggy build vtk with java support],
+         [  --with-java             build vtk with java support],
+	 if test "$withval" = yes; then
          javadir=java
          INSTALL_TARGET="${INSTALL_TARGET}_java"
          BUILD_JAVA=build_java
-         CLEAN_JAVA=clean_java)
+         CLEAN_JAVA=clean_java
+         fi)
 
 AC_SUBST(BUILD_JAVA)
 AC_SUBST(CLEAN_JAVA)
@@ -163,20 +167,39 @@ DEPEND_TOOLKITS=""
 INSTALL_TOOLKITS=""
 
 AC_ARG_WITH(graphics,
-         [  --without-graphics      do not include the graphics classes],,
+         [  --without-graphics      do not include the graphics classes],
+	 if test "$withval" = yes; then
          graphicsdir=graphics
          USE_GRAPHICS_LIBS="-L../graphics -lVTKGraphicsTcl"
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\$(srcdir)/../graphics -DVTK_USE_GRAPHICS"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../graphics -DVTK_USE_GRAPHICS"
+         INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_graphics"
+         BUILD_TOOLKITS="${BUILD_TOOLKITS} build_graphics"
+         DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_graphics"
+         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_graphics"
+         fi
+         ,
+         graphicsdir=graphics
+         USE_GRAPHICS_LIBS="-L../graphics -lVTKGraphicsTcl"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../graphics -DVTK_USE_GRAPHICS"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_graphics"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_graphics"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_graphics"
          CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_graphics")
 
 AC_ARG_WITH(imaging,
-         [  --without-imaging       do not include the imaging classes],,
+         [  --without-imaging       do not include the imaging classes],
+	 if test "$withval" = yes; then
          imagingdir=imaging
          USE_IMAGING_LIBS="-L../imaging -lVTKImagingTcl"
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\$(srcdir)/../imaging -DVTK_USE_IMAGING"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../imaging -DVTK_USE_IMAGING"
+         INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_imaging"
+         BUILD_TOOLKITS="${BUILD_TOOLKITS} build_imaging"
+         DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_imaging"
+         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_imaging"
+         fi,
+         imagingdir=imaging
+         USE_IMAGING_LIBS="-L../imaging -lVTKImagingTcl"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../imaging -DVTK_USE_IMAGING"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_imaging"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_imaging"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_imaging"
@@ -187,73 +210,87 @@ AC_ARG_WITH(tkwidget,
 
 AC_ARG_WITH(patented,
          [  --with-patented           include the patented classes],
+	 if test "$withval" = yes; then
          patenteddir=patented
          USE_PATENTED_LIBS="-L../patented -lVTKPatentedTcl"
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\$(srcdir)/../patented -DVTK_USE_PATENTED"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../patented -DVTK_USE_PATENTED"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_patented"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_patented"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_patented"
-         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_patented",)
+         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_patented"
+         fi,)
 
 AC_ARG_WITH(working,
          [  --with-working           include development classes],
+	 if test "$withval" = yes; then
          workingdir=working
          USE_WORKING_LIBS="-L../working -lVTKWorkingTcl"
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\$(srcdir)/../working -DVTK_USE_WORKING"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../working -DVTK_USE_WORKING"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_working"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_working"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_working"
-         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_working",)
+         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_working"
+         fi,)
 
 AC_ARG_WITH(contrib,
          [  --with-contrib          include the contrib classes],
+	 if test "$withval" = yes; then
          contribdir=contrib
          USE_CONTRIB_LIBS="-L../contrib -lVTKContribTcl"
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\$(srcdir)/../contrib -DVTK_USE_CONTRIB"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../contrib -DVTK_USE_CONTRIB"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_contrib"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_contrib"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_contrib"
-         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_contrib",)
+         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_contrib"
+         fi,)
 
 AC_ARG_WITH(geae,
          [  --with-geae             include the geae classes],
+	 if test "$withval" = yes; then
          geaedir=geae
          USE_GEAE_LIBS="-L../geae -lVTKGeaeTcl"
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\$(srcdir)/../geae -DVTK_USE_GEAE"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../geae -DVTK_USE_GEAE"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_geae"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_geae"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_geae"
-         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_geae",)
+         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_geae"
+         fi,)
 
 AC_ARG_WITH(gemsip,
          [  --with-gemsip           include the gemsip classes],
+	 if test "$withval" = yes; then
          gemsipdir=gemsip
          USE_GEMSIP_LIBS="-L../gemsip -lVTKGemsipTcl"
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\$(srcdir)/../gemsip -DVTK_USE_GEMSIP"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../gemsip -DVTK_USE_GEMSIP"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_gemsip"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_gemsip"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_gemsip"
-         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_gemsip",)
+         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_gemsip"
+         fi,)
 
 AC_ARG_WITH(gemsio,
          [  --with-gemsio           include the gemsio classes],
+	 if test "$withval" = yes; then
          gemsiodir=gemsio
          USE_GEMSIO_LIBS="-L../gemsio -lVTKGemsioTcl"
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\$(srcdir)/../gemsio -DVTK_USE_GEMSIO"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../gemsio -DVTK_USE_GEMSIO"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_gemsio"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_gemsio"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_gemsio"
-         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_gemsio",)
+         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_gemsio"
+         fi,)
 
 AC_ARG_WITH(gemsvolume,
          [  --with-gemsvolume       include the gemsvolume classes],
+	 if test "$withval" = yes; then
          gemsvolumedir=gemsvolume
          USE_GEMSVOLUME_LIBS="-L../gemsvolume -lVTKGemsvolumeTcl"
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\$(srcdir)/../gemsvolume -DVTK_USE_GEMSVOLUME"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../gemsvolume -DVTK_USE_GEMSVOLUME"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_gemsvolume"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_gemsvolume"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_gemsvolume"
-         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_gemsvolume",)
+         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_gemsvolume"
+         fi,)
 
 AC_SUBST(BUILD_TOOLKITS)
 AC_SUBST(INSTALL_TOOLKITS)
@@ -265,8 +302,10 @@ AC_SUBST(CLEAN_TOOLKITS)
 #
 AC_ARG_WITH(bsdmake,
          [  --with-bsdmake            uses bsd style makefile includes],
+	 if test "$withval" = yes; then
          MAKEINCLUDE=".include"
-         MAKEQUOTE='"',
+         MAKEQUOTE='"'
+         fi,
          MAKEINCLUDE="include"
          MAKEQUOTE='')
 AC_SUBST(MAKEINCLUDE)

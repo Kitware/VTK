@@ -22,7 +22,7 @@ ac_help="$ac_help
 ac_help="$ac_help
   --with-tcl              build vtk the tcl based interpreter"
 ac_help="$ac_help
-  --with-java             very buggy build vtk with java support"
+  --with-java             build vtk with java support"
 ac_help="$ac_help
   --without-graphics      do not include the graphics classes"
 ac_help="$ac_help
@@ -2065,7 +2065,7 @@ done
 # Check whether --with-gl or --without-gl was given.
 if test "${with_gl+set}" = set; then
   withval="$with_gl"
-  use_glr=no
+  use_glr=$withval
 fi
 
 
@@ -2332,7 +2332,7 @@ PATH="$ac_save_path"
 # Check whether --with-shared or --without-shared was given.
 if test "${with_shared+set}" = set; then
   withval="$with_shared"
-  vtk_shared_ok=yes
+  vtk_shared_ok=$withval
 else
   vtk_shared_ok=no
 fi
@@ -2342,10 +2342,12 @@ INSTALL_TARGET="install"
 # Check whether --with-tcl or --without-tcl was given.
 if test "${with_tcl+set}" = set; then
   withval="$with_tcl"
-  tcldir=tcl
+  if test "$withval" = yes; then
+         tcldir=tcl
          BUILD_TCL=build_tcl
          INSTALL_TARGET="${INSTALL_TARGET}_tcl"
          CLEAN_TCL=clean_tcl
+         fi
 fi
 
 
@@ -2357,10 +2359,12 @@ USE_TOOLKIT_FLAGS=""
 # Check whether --with-java or --without-java was given.
 if test "${with_java+set}" = set; then
   withval="$with_java"
-  javadir=java
+  if test "$withval" = yes; then
+         javadir=java
          INSTALL_TARGET="${INSTALL_TARGET}_java"
          BUILD_JAVA=build_java
          CLEAN_JAVA=clean_java
+         fi
 fi
 
 
@@ -2376,11 +2380,20 @@ INSTALL_TOOLKITS=""
 # Check whether --with-graphics or --without-graphics was given.
 if test "${with_graphics+set}" = set; then
   withval="$with_graphics"
-  :
+  if test "$withval" = yes; then
+         graphicsdir=graphics
+         USE_GRAPHICS_LIBS="-L../graphics -lVTKGraphicsTcl"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../graphics -DVTK_USE_GRAPHICS"
+         INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_graphics"
+         BUILD_TOOLKITS="${BUILD_TOOLKITS} build_graphics"
+         DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_graphics"
+         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_graphics"
+         fi
+         
 else
   graphicsdir=graphics
          USE_GRAPHICS_LIBS="-L../graphics -lVTKGraphicsTcl"
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\$(srcdir)/../graphics -DVTK_USE_GRAPHICS"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../graphics -DVTK_USE_GRAPHICS"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_graphics"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_graphics"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_graphics"
@@ -2391,11 +2404,19 @@ fi
 # Check whether --with-imaging or --without-imaging was given.
 if test "${with_imaging+set}" = set; then
   withval="$with_imaging"
-  :
+  if test "$withval" = yes; then
+         imagingdir=imaging
+         USE_IMAGING_LIBS="-L../imaging -lVTKImagingTcl"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../imaging -DVTK_USE_IMAGING"
+         INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_imaging"
+         BUILD_TOOLKITS="${BUILD_TOOLKITS} build_imaging"
+         DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_imaging"
+         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_imaging"
+         fi
 else
   imagingdir=imaging
          USE_IMAGING_LIBS="-L../imaging -lVTKImagingTcl"
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\$(srcdir)/../imaging -DVTK_USE_IMAGING"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../imaging -DVTK_USE_IMAGING"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_imaging"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_imaging"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_imaging"
@@ -2413,91 +2434,105 @@ fi
 # Check whether --with-patented or --without-patented was given.
 if test "${with_patented+set}" = set; then
   withval="$with_patented"
-  patenteddir=patented
+  if test "$withval" = yes; then
+         patenteddir=patented
          USE_PATENTED_LIBS="-L../patented -lVTKPatentedTcl"
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\$(srcdir)/../patented -DVTK_USE_PATENTED"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../patented -DVTK_USE_PATENTED"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_patented"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_patented"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_patented"
          CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_patented"
+         fi
 fi
 
 
 # Check whether --with-working or --without-working was given.
 if test "${with_working+set}" = set; then
   withval="$with_working"
-  workingdir=working
+  if test "$withval" = yes; then
+         workingdir=working
          USE_WORKING_LIBS="-L../working -lVTKWorkingTcl"
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\$(srcdir)/../working -DVTK_USE_WORKING"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../working -DVTK_USE_WORKING"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_working"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_working"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_working"
          CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_working"
+         fi
 fi
 
 
 # Check whether --with-contrib or --without-contrib was given.
 if test "${with_contrib+set}" = set; then
   withval="$with_contrib"
-  contribdir=contrib
+  if test "$withval" = yes; then
+         contribdir=contrib
          USE_CONTRIB_LIBS="-L../contrib -lVTKContribTcl"
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\$(srcdir)/../contrib -DVTK_USE_CONTRIB"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../contrib -DVTK_USE_CONTRIB"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_contrib"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_contrib"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_contrib"
          CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_contrib"
+         fi
 fi
 
 
 # Check whether --with-geae or --without-geae was given.
 if test "${with_geae+set}" = set; then
   withval="$with_geae"
-  geaedir=geae
+  if test "$withval" = yes; then
+         geaedir=geae
          USE_GEAE_LIBS="-L../geae -lVTKGeaeTcl"
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\$(srcdir)/../geae -DVTK_USE_GEAE"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../geae -DVTK_USE_GEAE"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_geae"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_geae"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_geae"
          CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_geae"
+         fi
 fi
 
 
 # Check whether --with-gemsip or --without-gemsip was given.
 if test "${with_gemsip+set}" = set; then
   withval="$with_gemsip"
-  gemsipdir=gemsip
+  if test "$withval" = yes; then
+         gemsipdir=gemsip
          USE_GEMSIP_LIBS="-L../gemsip -lVTKGemsipTcl"
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\$(srcdir)/../gemsip -DVTK_USE_GEMSIP"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../gemsip -DVTK_USE_GEMSIP"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_gemsip"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_gemsip"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_gemsip"
          CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_gemsip"
+         fi
 fi
 
 
 # Check whether --with-gemsio or --without-gemsio was given.
 if test "${with_gemsio+set}" = set; then
   withval="$with_gemsio"
-  gemsiodir=gemsio
+  if test "$withval" = yes; then
+         gemsiodir=gemsio
          USE_GEMSIO_LIBS="-L../gemsio -lVTKGemsioTcl"
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\$(srcdir)/../gemsio -DVTK_USE_GEMSIO"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../gemsio -DVTK_USE_GEMSIO"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_gemsio"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_gemsio"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_gemsio"
          CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_gemsio"
+         fi
 fi
 
 
 # Check whether --with-gemsvolume or --without-gemsvolume was given.
 if test "${with_gemsvolume+set}" = set; then
   withval="$with_gemsvolume"
-  gemsvolumedir=gemsvolume
+  if test "$withval" = yes; then
+         gemsvolumedir=gemsvolume
          USE_GEMSVOLUME_LIBS="-L../gemsvolume -lVTKGemsvolumeTcl"
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\$(srcdir)/../gemsvolume -DVTK_USE_GEMSVOLUME"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../gemsvolume -DVTK_USE_GEMSVOLUME"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_gemsvolume"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_gemsvolume"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_gemsvolume"
          CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_gemsvolume"
+         fi
 fi
 
 
@@ -2512,8 +2547,10 @@ fi
 # Check whether --with-bsdmake or --without-bsdmake was given.
 if test "${with_bsdmake+set}" = set; then
   withval="$with_bsdmake"
-  MAKEINCLUDE=".include"
+  if test "$withval" = yes; then
+         MAKEINCLUDE=".include"
          MAKEQUOTE='"'
+         fi
 else
   MAKEINCLUDE="include"
          MAKEQUOTE=''
@@ -2569,7 +2606,7 @@ fi
 # there are a few systems, like Next, where this doesn't work.
 
 echo $ac_n "checking system version (for dynamic loading)""... $ac_c" 1>&6
-echo "configure:2573: checking system version (for dynamic loading)" >&5
+echo "configure:2610: checking system version (for dynamic loading)" >&5
 if test -f /usr/lib/NextStep/software_version; then
   system=NEXTSTEP-`awk '/3/,/3/' /usr/lib/NextStep/software_version`
 else
@@ -2592,7 +2629,7 @@ fi
 # Linux can use either -ldl or -ldld for dynamic loading.
 
 echo $ac_n "checking for dlopen in -ldl""... $ac_c" 1>&6
-echo "configure:2596: checking for dlopen in -ldl" >&5
+echo "configure:2633: checking for dlopen in -ldl" >&5
 ac_lib_var=`echo dl'_'dlopen | sed 'y%./+-%__p_%'`
 if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
@@ -2600,7 +2637,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-ldl  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 2604 "configure"
+#line 2641 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 /* We use char because int might match the return type of a gcc2
@@ -2611,7 +2648,7 @@ int main() {
 dlopen()
 ; return 0; }
 EOF
-if { (eval echo configure:2615: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest; then
+if { (eval echo configure:2652: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -2645,7 +2682,7 @@ case $system in
 	SHLIB_SUFFIX="..o"
 	DL_LIBS=""
         echo $ac_n "checking for printf in -lld""... $ac_c" 1>&6
-echo "configure:2649: checking for printf in -lld" >&5
+echo "configure:2686: checking for printf in -lld" >&5
 ac_lib_var=`echo ld'_'printf | sed 'y%./+-%__p_%'`
 if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
@@ -2653,7 +2690,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-lld  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 2657 "configure"
+#line 2694 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 /* We use char because int might match the return type of a gcc2
@@ -2664,7 +2701,7 @@ int main() {
 printf()
 ; return 0; }
 EOF
-if { (eval echo configure:2668: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest; then
+if { (eval echo configure:2705: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -2718,17 +2755,17 @@ fi
 	else
 	    ac_safe=`echo "dld.h" | sed 'y%./+-%__p_%'`
 echo $ac_n "checking for dld.h""... $ac_c" 1>&6
-echo "configure:2722: checking for dld.h" >&5
+echo "configure:2759: checking for dld.h" >&5
 if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 2727 "configure"
+#line 2764 "configure"
 #include "confdefs.h"
 #include <dld.h>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:2732: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:2769: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -2961,17 +2998,17 @@ for ac_hdr in sys/prctl.h
 do
 ac_safe=`echo "$ac_hdr" | sed 'y%./+-%__p_%'`
 echo $ac_n "checking for $ac_hdr""... $ac_c" 1>&6
-echo "configure:2965: checking for $ac_hdr" >&5
+echo "configure:3002: checking for $ac_hdr" >&5
 if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 2970 "configure"
+#line 3007 "configure"
 #include "confdefs.h"
 #include <$ac_hdr>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:2975: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:3012: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -3010,17 +3047,17 @@ for ac_hdr in pthread.h
 do
 ac_safe=`echo "$ac_hdr" | sed 'y%./+-%__p_%'`
 echo $ac_n "checking for $ac_hdr""... $ac_c" 1>&6
-echo "configure:3014: checking for $ac_hdr" >&5
+echo "configure:3051: checking for $ac_hdr" >&5
 if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 3019 "configure"
+#line 3056 "configure"
 #include "confdefs.h"
 #include <$ac_hdr>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:3024: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:3061: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -3049,7 +3086,7 @@ done
 if test "$use_pthreads" = "yes"; then
   if test "$use_sproc" = "no"; then
     echo $ac_n "checking for pthread_create in -lpthreads""... $ac_c" 1>&6
-echo "configure:3053: checking for pthread_create in -lpthreads" >&5
+echo "configure:3090: checking for pthread_create in -lpthreads" >&5
 ac_lib_var=`echo pthreads'_'pthread_create | sed 'y%./+-%__p_%'`
 if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
@@ -3057,7 +3094,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-lpthreads  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 3061 "configure"
+#line 3098 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 /* We use char because int might match the return type of a gcc2
@@ -3068,7 +3105,7 @@ int main() {
 pthread_create()
 ; return 0; }
 EOF
-if { (eval echo configure:3072: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest; then
+if { (eval echo configure:3109: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -3089,7 +3126,7 @@ else
 fi
 
     echo $ac_n "checking for pthread_create in -lpthread""... $ac_c" 1>&6
-echo "configure:3093: checking for pthread_create in -lpthread" >&5
+echo "configure:3130: checking for pthread_create in -lpthread" >&5
 ac_lib_var=`echo pthread'_'pthread_create | sed 'y%./+-%__p_%'`
 if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
@@ -3097,7 +3134,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-lpthread  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 3101 "configure"
+#line 3138 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 /* We use char because int might match the return type of a gcc2
@@ -3108,7 +3145,7 @@ int main() {
 pthread_create()
 ; return 0; }
 EOF
-if { (eval echo configure:3112: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest; then
+if { (eval echo configure:3149: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else

@@ -527,7 +527,9 @@ USE_TKWIDGET_FLAG=""
   # Check whether --with-tkwidget or --without-tkwidget was given.
 if test "${with_tkwidget+set}" = set; then
   withval="$with_tkwidget"
-  USE_TKWIDGET_FLAG=-DVTK_USE_TKWIDGET
+  if test "$withval" = yes; then
+	 USE_TKWIDGET_FLAG=-DVTK_USE_TKWIDGET
+         fi
 fi
 
 
@@ -537,8 +539,10 @@ fi
 # Check whether --with-bsdmake or --without-bsdmake was given.
 if test "${with_bsdmake+set}" = set; then
   withval="$with_bsdmake"
-  MAKEINCLUDE=".include"
+  if test "$withval" = yes; then
+         MAKEINCLUDE=".include"
          MAKEQUOTE='"'
+         fi
 else
   MAKEINCLUDE="include"
          MAKEQUOTE=''

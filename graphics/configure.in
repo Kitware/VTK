@@ -6,7 +6,9 @@ AC_INIT(vtkActor.cxx)
 TKWIDGET=""
 AC_ARG_WITH(tkwidget,
          [  --with-tkwidget           build the vtkTkRenderWidget class],
-	 TKWIDGET=vtkTkRenderWidget.o)
+	 if test "$withval" = yes; then
+	 TKWIDGET=vtkTkRenderWidget.o
+         fi)
 AC_SUBST(TKWIDGET)
 
 if test ! -r targets.make
@@ -19,8 +21,10 @@ fi
 #
 AC_ARG_WITH(bsdmake,
          [  --with-bsdmake            uses bsd style makefile includes],
+	 if test "$withval" = yes; then
          MAKEINCLUDE=".include"
-         MAKEQUOTE='"',
+         MAKEQUOTE='"'
+         fi,
          MAKEINCLUDE="include"
          MAKEQUOTE='')
 AC_SUBST(MAKEINCLUDE)
