@@ -66,57 +66,57 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 #if defined(WIN32) && !defined(VTKSTATIC)
- #if defined(vtkCommon_EXPORTS) || defined(VTKDLL)
+ #define VTK_EXPORT __declspec( dllexport )
+
+ #if defined(vtkCommon_EXPORTS)
   #define VTK_COMMON_EXPORT __declspec( dllexport ) 
-  #define VTK_EXPORT __declspec( dllexport )
  #else
   #define VTK_COMMON_EXPORT __declspec( dllimport ) 
-  #define VTK_EXPORT __declspec( dllimport )
  #endif
 
- #if defined(vtkFiltering_EXPORTS) || defined(VTKDLL)
+ #if defined(vtkFiltering_EXPORTS)
   #define VTK_FILTERING_EXPORT __declspec( dllexport ) 
  #else
   #define VTK_FILTERING_EXPORT __declspec( dllimport ) 
  #endif
 
- #if defined(vtkImaging_EXPORTS) || defined(VTKDLL)
+ #if defined(vtkImaging_EXPORTS)
   #define VTK_IMAGING_EXPORT __declspec( dllexport ) 
  #else
   #define VTK_IMAGING_EXPORT __declspec( dllimport ) 
  #endif
 
- #if defined(vtkGraphics_EXPORTS) || defined(VTKDLL)
+ #if defined(vtkGraphics_EXPORTS)
   #define VTK_GRAPHICS_EXPORT __declspec( dllexport ) 
  #else
   #define VTK_GRAPHICS_EXPORT __declspec( dllimport ) 
  #endif
 
- #if defined(vtkIO_EXPORTS) || defined(VTKDLL)
+ #if defined(vtkIO_EXPORTS)
   #define VTK_IO_EXPORT __declspec( dllexport ) 
  #else
   #define VTK_IO_EXPORT __declspec( dllimport ) 
  #endif
 
- #if defined(vtkRendering_EXPORTS) || defined(VTKDLL)
+ #if defined(vtkRendering_EXPORTS)
   #define VTK_RENDERING_EXPORT __declspec( dllexport ) 
  #else
   #define VTK_RENDERING_EXPORT __declspec( dllimport ) 
  #endif
 
- #if defined(vtkHybrid_EXPORTS) || defined(VTKDLL)
+ #if defined(vtkHybrid_EXPORTS)
   #define VTK_HYBRID_EXPORT __declspec( dllexport ) 
  #else
   #define VTK_HYBRID_EXPORT __declspec( dllimport ) 
  #endif
 
- #if defined(vtkParallel_EXPORTS) || defined(VTKDLL)
+ #if defined(vtkParallel_EXPORTS)
   #define VTK_PARALLEL_EXPORT __declspec( dllexport ) 
  #else
   #define VTK_PARALLEL_EXPORT __declspec( dllimport ) 
  #endif
 
- #if defined(vtkPatented_EXPORTS) || defined(VTKDLL)
+ #if defined(vtkPatented_EXPORTS)
   #define VTK_PATENTED_EXPORT __declspec( dllexport ) 
  #else
   #define VTK_PATENTED_EXPORT __declspec( dllimport ) 
