@@ -29,7 +29,7 @@
 #include "vtkUnsignedCharArray.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.63");
+vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.64");
 #endif
 
 #define MAX_LIGHTS 8
@@ -293,7 +293,7 @@ int vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
 
   glDisable( GL_SCISSOR_TEST );
 
-#ifdef sparc
+#if defined(sparc) && !defined(GL_VERSION_1_2)
   // We need to read the image data one row at a time and convert it
   // from RGBA to RGB to get around a bug in Sun OpenGL 1.1
   long    xloop, yloop;
@@ -429,7 +429,8 @@ int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
     }
 
   glDisable( GL_SCISSOR_TEST );
-#ifdef sparc
+
+#if defined(sparc) && !defined(GL_VERSION_1_2)
   // We need to read the image data one row at a time and convert it
   // from RGBA to RGB to get around a bug in Sun OpenGL 1.1
   long    xloop, yloop;
