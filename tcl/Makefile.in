@@ -113,7 +113,7 @@ all:  kit_init cpp_parse
 kit_init: kit_init.c
 	$(CC) $(C_FLAGS) -o kit_init $(srcdir)/kit_init.c
 
-tkAppInit.o: tkAppInit.c
+tkAppInit.o: tkAppInit.c Makefile
 	$(CC) $(C_FLAGS) -c -o tkAppInit.o $(srcdir)/tkAppInit.c
 
 cpp_parse: $(srcdir)/y.tab.c $(srcdir)/lex.yy.c
@@ -122,7 +122,7 @@ cpp_parse: $(srcdir)/y.tab.c $(srcdir)/lex.yy.c
 #------------------------------------------------------------------------------
 # build the vtk executable
 #
-vtk: 	tkAppInit.o ${COMMON_DEPENDS} ${USE_GRAPHICS_DEPENDS} \
+vtk: 	Makefile tkAppInit.o ${COMMON_DEPENDS} ${USE_GRAPHICS_DEPENDS} \
 	${USE_IMAGING_DEPENDS} ${USE_BORESCOPE_DEPENDS} ${USE_VOLUME_DEPENDS} \
 	${USE_CONTRIB_DEPENDS} ${USE_GEAE_DEPENDS} ${USE_GEMSIP_DEPENDS} \
 	${USE_GEMSIO_DEPENDS} ${USE_GEMSVOLUME_DEPENDS} 
