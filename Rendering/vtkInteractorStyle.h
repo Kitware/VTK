@@ -83,6 +83,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Eyes LCD stereo glasses; you have to invoke SetStereoTypeToCrystalEyes()
 // on the rendering window.
 // - Keypress e: exit the application.
+// - Keypress f: fly to the picked point
 // - Keypress p: perform a pick operation. The render window interactor has
 // an internal instance of vtkCellPicker that it uses to pick. 
 // - Keypress r: reset the camera view along the current view

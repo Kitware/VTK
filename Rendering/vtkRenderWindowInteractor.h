@@ -244,6 +244,25 @@ public:
   // associated vtkRenderWindow.
   void Render();
 
+  // Description:
+  // Given a position x, move the current camera's focal point to x.
+  // The movement is animated over the number of frames specified in
+  // NumberOfFlyFrames. The LOD desired frame rate is used.
+  void FlyTo(vtkRenderer *ren, float x, float y, float z);
+  void FlyTo(vtkRenderer *ren, float *x)
+    {this->FlyTo(ren, x[0], x[1], x[2]);}
+
+  // Description:
+  // Set the number of frames to fly to when FlyTo is invoked.
+  vtkSetClampMacro(NumberOfFlyFrames,int,1,VTK_LARGE_INTEGER);
+  vtkGetMacro(NumberOfFlyFrames,int);
+
+  // Description:
+  // Set the total Dolly value to use when flying to (FlyTo()) a
+  // specified point. Negative values fly away from the point.
+  vtkSetMacro(Dolly,float);
+  vtkGetMacro(Dolly,float);
+
 protected:
   vtkRenderWindowInteractor();
   ~vtkRenderWindowInteractor();
@@ -272,6 +291,11 @@ protected:
   unsigned long EndPickTag;
   unsigned long UserTag;
   unsigned long ExitTag;
+  
+  // control the fly to
+  int NumberOfFlyFrames;
+  float Dolly;
+  
 };
 
 #endif

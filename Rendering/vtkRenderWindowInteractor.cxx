@@ -43,6 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPropPicker.h"
 #include "vtkInteractorStyleSwitch.h"
 #include "vtkGraphicsFactory.h"
+#include "vtkMath.h"
 #include "vtkCommand.h"
 
 
@@ -75,6 +76,9 @@ vtkRenderWindowInteractor::vtkRenderWindowInteractor()
 
   this->Size[0] = 0;
   this->Size[1] = 0;
+  
+  this->NumberOfFlyFrames = 15;
+  this->Dolly = 0.30;
 }
 
 vtkRenderWindowInteractor::~vtkRenderWindowInteractor()
@@ -293,6 +297,34 @@ void vtkRenderWindowInteractor::EndPickCallback()
   this->InvokeEvent(vtkCommand::EndPickEvent,NULL);
 }
 
+void vtkRenderWindowInteractor::FlyTo(vtkRenderer *ren, float x, float y, float z)
+{
+  float flyFrom[3], flyTo[3];
+  float d[3], focalPt[3];
+  int i, j;
+
+  flyTo[0]=x; flyTo[1]=y; flyTo[2]=z;
+  ren->GetActiveCamera()->GetFocalPoint(flyFrom);
+  for (i=0; i<3; i++)
+    {
+    d[i] = flyTo[i] - flyFrom[i];
+    }
+  float distance = vtkMath::Normalize(d);
+  float delta = distance/this->NumberOfFlyFrames;
+  
+  for (i=1; i<=NumberOfFlyFrames; i++)
+    {
+    for (j=0; j<3; j++)
+      {
+      focalPt[j] = flyFrom[j] + d[j]*i*delta;
+      }
+    ren->GetActiveCamera()->SetFocalPoint(focalPt);
+    ren->GetActiveCamera()->Dolly(this->Dolly/this->NumberOfFlyFrames + 1.0);
+    ren->ResetCameraClippingRange();
+    this->RenderWindow->Render();
+    }
+}
+
 void vtkRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
@@ -316,6 +348,9 @@ void vtkRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
     ", " << this->EventPosition[1] << " )\n";
   os << indent << "Viewport Size: " << "( " << this->Size[0] <<
     ", " << this->Size[1] << " )\n";
+  os << indent << "Number of Fly Frames: " << this->NumberOfFlyFrames <<"\n";
+  os << indent << "Dolly: " << this->Dolly <<"\n";
+
 }
 
 
