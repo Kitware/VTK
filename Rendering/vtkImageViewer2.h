@@ -55,6 +55,7 @@
 #include "vtkRenderWindow.h" // For inline methods
 #include "vtkImageActor.h" // For inline methods
 #include "vtkImageMapToWindowLevelColors.h" // For inline methods
+#include "vtkRenderer.h" // For inline methods
 
 class vtkInteractorStyleImage;
 
@@ -87,7 +88,11 @@ public:
   // Description:
   // Set/Get the current z-slice to display.
   int GetZSlice() {return this->ImageActor->GetZSlice();}
-  void SetZSlice(int s) {this->ImageActor->SetZSlice(s);}
+  void SetZSlice(int s)
+    {
+    this->Renderer->ResetCameraClippingRange(); 
+    this->ImageActor->SetZSlice(s);
+    }
   
   // Description:
   // Set window and level for mapping pixels to colors.

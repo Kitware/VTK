@@ -23,7 +23,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkImageViewer2, "1.22");
+vtkCxxRevisionMacro(vtkImageViewer2, "1.23");
 vtkStandardNewMacro(vtkImageViewer2);
 
 //----------------------------------------------------------------------------
@@ -252,7 +252,6 @@ void vtkImageViewer2::Render()
       }
     this->FirstRender = 0;  
     }
-  this->Renderer->ResetCameraClippingRange();
   this->RenderWindow->Render();
 }
 
