@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# Time-stamp: <2001-11-12 13:42:24 barre>
+# Time-stamp: <2001-11-21 17:40:32 barre>
 #
 # Summary ?
 #
@@ -161,7 +161,7 @@ foreach my $source (@files) {
     
     # Remove all comments
    
-    $implemfile =~ s/\/\*.+?\*\/|\/\/.+?$//gms;
+    $implemfile =~ s/\/\*.*?\*\/|\/\/.*?$//gms;
 
     # Grab matches, skip to next file if none found
 
@@ -316,6 +316,7 @@ if ($args{"store"}) {
                                   \&word_section_doc,
                                   \&word_section_alpha,
                                   $header,
+                                  "",
                                   $args{"to"} . "/" . $args{"store"});
 }
 
@@ -372,6 +373,7 @@ if ($args{"store2"}) {
                                   \&word_section_doc2,
                                   \&word_section_alpha2,
                                   $header,
+                                  "",
                                   $args{"to"} . "/" . $args{"store2"});
 }
 
@@ -391,10 +393,11 @@ sub build_page_doc {
     # word's section.
     # $header is the Doxygen string summarizing what has been documented as 
     # well as the credits.
+    # $footer is a Doxygen string appended to each the resulting page
     # $destination_file is the name of the file where this page should be
     # written to.
 
-    my ($ident, $title, $rwords, $prefix, $rword_section_name, $rword_section_doc, $rword_section_alpha, $header, $destination_file) = @_;
+    my ($ident, $title, $rwords, $prefix, $rword_section_name, $rword_section_doc, $rword_section_alpha, $header, $footer, $destination_file) = @_;
 
     # %words_doc is a hash associating a word to its Doxygen doc (string)
 
@@ -525,7 +528,7 @@ sub build_page_doc {
             }
             print "\t- $section\n" if exists $args{"verbose"};
         }
-        $page_doc .= "*/\n\n";
+        $page_doc .= "$footer\n*/\n\n";
     }
 
     print "Writing documentation to ", $destination_file, "...\n";

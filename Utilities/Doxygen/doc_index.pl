@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# Time-stamp: <2001-11-12 13:45:51 barre>
+# Time-stamp: <2001-11-21 17:40:48 barre>
 #
 # Build full-text index 
 #
@@ -497,6 +497,7 @@ my $page_doc = build_page_doc($indent,
                               \&word_section_doc,
                               \&word_section_alpha,
                               $header,
+                              "",
                               $args{"to"} . "/" . $args{"store"});
 
 print join("\n", @summary), "\n";
@@ -515,10 +516,11 @@ sub build_page_doc {
     # word's section.
     # $header is the Doxygen string summarizing what has been documented as 
     # well as the credits.
+    # $footer is a Doxygen string appended to each the resulting page
     # $destination_file is the name of the file where this page should be
     # written to.
 
-    my ($ident, $title, $rwords, $prefix, $rword_section_name, $rword_section_doc, $rword_section_alpha, $header, $destination_file) = @_;
+    my ($ident, $title, $rwords, $prefix, $rword_section_name, $rword_section_doc, $rword_section_alpha, $header, $footer, $destination_file) = @_;
 
     # %words_doc is a hash associating a word to its Doxygen doc (string)
 
@@ -649,7 +651,7 @@ sub build_page_doc {
             }
             print "\t- $section\n" if exists $args{"verbose"};
         }
-        $page_doc .= "*/\n\n";
+        $page_doc .= "$footer\n*/\n\n";
     }
 
     print "Writing documentation to ", $destination_file, "...\n";

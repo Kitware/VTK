@@ -1,6 +1,6 @@
 # -------------------------------------------------------------------------
 # Doxygen documentation batch
-# modified by S. Barre (Time-stamp: <2001-11-12 15:35:57 barre>
+# modified by S. Barre (Time-stamp: <2001-11-21 17:45:00 barre>
 # -------------------------------------------------------------------------
 
 # Path to several tools (_PROG to avoid the typical GZIP env var pb)
@@ -235,6 +235,8 @@ fi
 
 if test "x$PERL_PROG" != "xNOTFOUND" ; then
     $PERL_PROG $PATH_TO_VTK_DOX_SCRIPTS/doc_class2example.pl \
+        --datamatch "\W(VTK_DATA_ROOT|VTKData|(vtk)?GetDataRoot|ExpandDataFileName)\W" \
+        --dataicon "paper-clip.gif" \
         --dirmatch "^Examples\$" \
         --label "Examples" \
         --link "$CVSWEB_CHECKOUT" \
@@ -253,6 +255,8 @@ fi
 
 if test "x$PERL_PROG" != "xNOTFOUND" ; then
     $PERL_PROG $PATH_TO_VTK_DOX_SCRIPTS/doc_class2example.pl \
+        --datamatch "\W(VTK_DATA_ROOT|VTKData|(vtk)?GetDataRoot|ExpandDataFileName)\W" \
+        --dataicon "paper-clip.gif" \
         --dirmatch "^Testing$" \
         --label "Tests" \
         --link "$CVSWEB_CHECKOUT" \

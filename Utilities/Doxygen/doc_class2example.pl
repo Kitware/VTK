@@ -1,9 +1,16 @@
 #!/usr/bin/env perl
-# Time-stamp: <2001-11-12 15:16:19 barre>
+# Time-stamp: <2001-11-21 17:42:07 barre>
 #
 # Build cross-references between classes and examples
 #
 # barre : Sebastien Barre <sebastien@barre.nom.fr>
+#
+# 0.8 (barre) :
+#   - more robust code: comments are removed from files before parsing
+#     and several identifier per lines are now supported (at last).
+#   - add --datamatch s : use string s to match any usage of data files
+#   - add --dataicon f : use f as icon file to report that file makes use 
+#     of data files
 #
 # 0.74 (barre) :
 #   - use common build_page_doc proc
@@ -81,7 +88,7 @@ use File::Basename;
 use File::Find;
 use strict;
 
-my ($VERSION, $PROGNAME, $AUTHOR) = (0.74, $0, "Sebastien Barre");
+my ($VERSION, $PROGNAME, $AUTHOR) = (0.8, $0, "Sebastien Barre");
 $PROGNAME =~ s/^.*[\\\/]//;
 print "$PROGNAME $VERSION, by $AUTHOR\n";
 
@@ -90,6 +97,7 @@ print "$PROGNAME $VERSION, by $AUTHOR\n";
 
 my %default = 
   (
+   dataicon => "paper-clip.gif",
    dirmatch => "^Examples\$",
    dirs => ["../.."],
    label => "Examples",
@@ -109,34 +117,56 @@ my %default =
 # $eliminate_matcher : regexp matching the names of the 'fake' classes 
 #                      that shall be eliminated/ignored,
 # %parsers           : hash defining each parser by associating
-#                      parser_name => [filename_matcher, function_to_call].
+#                      parser_name => [filename_matcher, func1, func2].
 #  $parser_name      : language identifier (Tcl, C++, Python, etc.),
 #  $filename_matcher : regexp matching the filenames belonging to the language,
-# @$function_to_call : function called when a filename is matched,
-#                     - receives the contents of the file as a reference to an
-#                       array of lines,
-#                     - returns an array of the class names that have been 
-#                       recognized in the example.
+# @$func1            : function called when a filename is matched,
+#                      - receives the contents of the file as a reference to a
+#                        string,
+#                      - modifies this contents by removing the comments.
+# @$func2            : function called when a filename is matched,
+#                      - receives the contents of the file as a reference to a
+#                        string (or the result of func1 if exists),
+#                      - returns an array of unique class names that have been 
+#                        recognized/matched in the file contents.
 
 my $eliminate_matcher = '^vtkCommand$';
 
 my %parsers = (
-               "Tcl" => ['\.tcl$', \&parse],
-               "C++" => ['\.c(xx|pp|c)$', \&parse],
-               "Java" => ['\.java$', \&parse],
-               "Python" => ['\.py$', \&parse]
+               "Tcl" => ['\.tcl$', \&rm_tcl_comments, \&parse],
+               "C++" => ['\.c(xx|pp|c)$', \&rm_cpp_comments, \&parse],
+               "Java" => ['\.java$', \&rm_cpp_comments, \&parse],
+               "Python" => ['\.py$', \&rm_tcl_comments, \&parse]
               );
+
+sub rm_tcl_comments {
+    my $ref = shift;
+    $$ref =~ s/#.*?$//gms;
+}
+
+sub rm_cpp_comments {
+    my $ref = shift;
+    $$ref =~ s/\/\*.*?\*\/|\/\/.*?$|#(include|define|if).*?$//gms;
+}
+
+sub rm_no_comments {
+    my $ref = shift;
+}
 
 # Parser (seems to work with all languages for the moment)
 
-sub parse {
-    my ($ref, %classes) = (shift, ());
-    foreach my $line (@$ref) {
-        if ($line =~ /\b(vtk[A-Z0-9][A-Za-z0-9]+)/) {
-            $classes{$1}++;
-        }
+sub unique {
+    my ($ref, %uniques) = (shift, ());
+    foreach my $item (@$ref) {
+        $uniques{$item}++;
     }
-    return keys %classes;
+    return keys %uniques;
+}
+
+sub parse {
+    my $ref = shift;
+    my @matches = $$ref =~ /\b(vtk[A-Z0-9][A-Za-z0-9]+)[^"]/gms;
+    return unique(\@matches);
 }
 
 # -------------------------------------------------------------------------
@@ -144,16 +174,18 @@ sub parse {
 
 my %args;
 # Getopt::Long::Configure("bundling");
-GetOptions (\%args, "help", "verbose|v", "dirmatch=s", "label=s", "limit=i", "link=s", "linksuffix=s", "project=s", "store=s", "title=s", "to=s", "unique=s", "weight=i", "parser=s@");
+GetOptions (\%args, "help", "verbose|v", "datamatch=s", "dataicon=s", "dirmatch=s", "label=s", "limit=i", "link=s", "linksuffix=s", "project=s", "store=s", "title=s", "to=s", "unique=s", "weight=i", "parser=s@");
 
 my $available_parser = join(", ", keys %parsers);
 
 if (exists $args{"help"}) {
     print <<"EOT";
 by $AUTHOR
-Usage : $PROGNAME [--help] [--verbose|-v] [--dirmatch string] [--label string] [--limit n] [--link path] [--linksuffix string] [--parser name] [--store file] [--title string] [--to path] [--weight n] [directories...]
+Usage : $PROGNAME [--help] [--verbose|-v] [--datamatch string] [--dataicon filename] [--dirmatch string] [--label string] [--limit n] [--link path] [--linksuffix string] [--parser name] [--store file] [--title string] [--to path] [--weight n] [directories...]
   --help         : this message
   --verbose|-v   : verbose (display filenames/classes while processing)
+  --datamatch s  : use string s to match any usage of data files
+  --dataicon f   : use f as icon file to report that file makes use of data files
   --dirmatch str : use string to match the directory name holding files (default: $default{dirmatch})
   --label str    : use string as label in class page (default: $default{label})
   --limit n      : limit the number of examples per parser type (default: $default{limit})
@@ -175,6 +207,7 @@ EOT
 }
 
 $args{"verbose"} = 1 if exists $default{"verbose"};
+$args{"dataicon"} = $default{"dataicon"} if ! exists $args{"dataicon"};
 $args{"dirmatch"} = $default{"dirmatch"} if ! exists $args{"dirmatch"};
 $args{"label"} = $default{"label"} if ! exists $args{"label"};
 $args{"limit"} = $default{"limit"} if ! exists $args{"limit"};
@@ -271,48 +304,69 @@ print " => ", scalar @parsable, " file(s) collected in ", time() - $start_time, 
 #     xref{"vtkPoints"}{"Tcl"}{"graphics/examplesTcl/bar.tcl"}
 #     xref{"vtkNormals"}{"C++"}{"test.cxx"}
 
-# %shorter_filename is a hash associating a filename and its shorter 
+my %xref;
+
+# %shorter_filename is a hash associating a filename to its shorter 
 # counterpart where any leading component matching the name of a directory
 # being browsed have been removed.
 
 my %shorter_filename;
 
+# %use_data is a hash associating a filename to a flag (1) when the
+# file makes use of data files (i.e. the contents of the file matches
+# $args{"datamatch"}). 
+
+my %use_data;
+
 print "Parsing files...\n";
 
 my $intermediate_time = time();
-my %xref;
 
-foreach my $file (@parsable) {
+# slurp mode
+
+my $oldslurp = $/;
+undef $/;
+
+foreach my $filename (@parsable) {
 
     # Read entire file into an array of lines
 
-    sysopen(FILE, $file, O_RDONLY|$open_file_as_text)
-      or croak "$PROGNAME: unable to open $file\n";
-    my @file = <FILE>;
+    sysopen(FILE, $filename, O_RDONLY|$open_file_as_text)
+      or croak "$PROGNAME: unable to open $filename\n";
+    my $file = <FILE>;
     close(FILE);
 
     # Submit the contents of the file to the corresponding parser
 
     foreach my $parser (@parsers) {
-        if ($file =~ m/$parsers{$parser}->[0]/) {
-            my @classes = $parsers{$parser}->[1]->(\@file);
+        if ($filename =~ m/$parsers{$parser}->[0]/) {
+            $parsers{$parser}->[1]->(\$file);
+            my @classes = $parsers{$parser}->[2]->(\$file);
             printf("%7s: %2d | ", $parser, scalar @classes)
               if exists $args{"verbose"};
+            #print "[", join(", ", @classes), "]"  if exists $args{"verbose"};
             if (@classes) {
-                $shorter_filename{$file} = $file;
+                $shorter_filename{$filename} = $filename;
                 # print "(", join(", ", sort @classes), ") " if @classes;
                 foreach my $class (@classes) {
-                    $xref{$class}{$parser}{$file}++;
+                    $xref{$class}{$parser}{$filename}++;
                 }
             }
         }
     }
-    print "=> ", $file, "\n" if exists $args{"verbose"};
+    print "=> ", $filename, "\n" if exists $args{"verbose"};
+    
+    # Check for data
+    
+    $use_data{$filename} = 1 
+      if exists $args{"datamatch"} && $file =~ m/$args{"datamatch"}/ms;
 }
 
-foreach my $file (keys %shorter_filename) {
+$/ = $oldslurp;
+
+foreach my $filename (keys %shorter_filename) {
     foreach my $dir (@ARGV) {
-        last if $shorter_filename{$file} =~ s/$dir//;
+        last if $shorter_filename{$filename} =~ s/$dir//;
     }
 }
 
@@ -406,7 +460,7 @@ my @words = sort keys %xref;
 # as the credits.
 
 my $header;
-my (@summary, @credits);
+my (@summary, @credits, @legend);
 
 push @summary, 
   "  - " . scalar @words . " class(es) in " . 
@@ -422,8 +476,22 @@ push @credits,
   "\@version $VERSION",
   "\@author \@c $PROGNAME, by $AUTHOR";
 
-$header = $indent . join("\n$indent", @summary) . 
-  "\n\n$indent" . join("\n$indent", @credits) . "\n\n";
+$header = $indent . join("\n$indent", @summary) . "\n\n" .
+  $indent . join("\n$indent", @credits) . "\n\n";
+
+my $footer;
+
+if (exists $args{"datamatch"}) {
+    push @legend,
+    "<img src='" . $args{"dataicon"} . "' align='top'> : the corresponding file uses data files (i.e. its contents matches \@c " . $args{"datamatch"} . ")";
+    # hack so that the image is automatically copied to the doc dir
+    $footer .= "\@image html " . $args{"dataicon"};
+}
+
+if (scalar @legend) {
+    unshift @legend, "\@par Legend:";
+    $header .= $indent . join("\n$indent", @legend) . "\n\n";
+}
 
 # -------------------------------------------------------------------------
 # Index to class
@@ -458,14 +526,16 @@ sub word_section_doc {
         # @files if the set of files found for that class by that parser
         my @files = sort keys %{$xref{$word}{$parser}};
         foreach my $file (@files) {
+            my $has_data;
+            $has_data = "&nbsp;<img src='" . $args{"dataicon"} . "' align='top'>" if exists $use_data{$file};
             last if ++$count > $args{"limit"};
             if (exists $args{"link"}) {
                 push @temp, 
                 '    - @htmlonly <TT><A href="' . $args{"link"} .  
                   $shorter_filename{$file} . $args{"linksuffix"} . '">@endhtmlonly ' . $shorter_filename{$file} . 
-                    '@htmlonly</A></TT> @endhtmlonly';
+                    '@htmlonly</A></TT> @endhtmlonly' . $has_data;
             } else {
-                push @temp, "    - \@c $shorter_filename{$file}";
+                push @temp, "    - \@c $shorter_filename{$file}$has_data";
             }
         }
     }
@@ -489,6 +559,7 @@ my $page_doc = build_page_doc($indent,
                               \&word_section_doc,
                               \&word_section_alpha,
                               $header,
+                              $footer,
                               $args{"to"} . "/" . $args{"store"});
 
 print join("\n", @summary), "\n => in ", time() - $intermediate_time, " s.\n";
@@ -567,10 +638,11 @@ sub build_page_doc {
     # word's section.
     # $header is the Doxygen string summarizing what has been documented as 
     # well as the credits.
+    # $footer is a Doxygen string appended to each the resulting page
     # $destination_file is the name of the file where this page should be
     # written to.
 
-    my ($ident, $title, $rwords, $prefix, $rword_section_name, $rword_section_doc, $rword_section_alpha, $header, $destination_file) = @_;
+    my ($ident, $title, $rwords, $prefix, $rword_section_name, $rword_section_doc, $rword_section_alpha, $header, $footer, $destination_file) = @_;
 
     # %words_doc is a hash associating a word to its Doxygen doc (string)
 
@@ -701,7 +773,7 @@ sub build_page_doc {
             }
             print "\t- $section\n" if exists $args{"verbose"};
         }
-        $page_doc .= "*/\n\n";
+        $page_doc .= "$footer\n*/\n\n";
     }
 
     print "Writing documentation to ", $destination_file, "...\n";
