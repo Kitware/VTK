@@ -90,6 +90,7 @@ using std::ifstream;
 #include <fstream.h>
 #endif
 
+#define VTK_HAS_ID_TYPE
 #ifdef VTK_USE_64BIT_IDS
 #ifdef _WIN32
 typedef __int64 vtkIdType;
