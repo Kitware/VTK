@@ -144,13 +144,31 @@ void vtkImageLogarithmicScale::ThreadedExecute(vtkImageData *inData,
   
   switch (inData->GetScalarType())
     {
+    case VTK_DOUBLE:
+      vtkImageLogarithmicScaleExecute(this, inData, (double *)(inPtr), 
+			       outData, (double *)(outPtr),outExt, id);
+      break;
     case VTK_FLOAT:
       vtkImageLogarithmicScaleExecute(this, inData, (float *)(inPtr), 
 			       outData, (float *)(outPtr),outExt, id);
       break;
+    case VTK_LONG:
+      vtkImageLogarithmicScaleExecute(this, inData, (long *)(inPtr), 
+			       outData, (long *)(outPtr),outExt, id);
+      break;
+    case VTK_UNSIGNED_LONG:
+      vtkImageLogarithmicScaleExecute(this, inData, 
+			       (unsigned long *)(inPtr), 
+			       outData, (unsigned long *)(outPtr),outExt, id);
+      break;
     case VTK_INT:
       vtkImageLogarithmicScaleExecute(this, inData, (int *)(inPtr), 
 			       outData, (int *)(outPtr),outExt, id);
+      break;
+    case VTK_UNSIGNED_INT:
+      vtkImageLogarithmicScaleExecute(this, inData, 
+			       (unsigned int *)(inPtr), 
+			       outData, (unsigned int *)(outPtr),outExt, id);
       break;
     case VTK_SHORT:
       vtkImageLogarithmicScaleExecute(this, inData, (short *)(inPtr), 
@@ -160,6 +178,10 @@ void vtkImageLogarithmicScale::ThreadedExecute(vtkImageData *inData,
       vtkImageLogarithmicScaleExecute(this, inData, 
 			       (unsigned short *)(inPtr), 
 			       outData, (unsigned short *)(outPtr),outExt, id);
+      break;
+    case VTK_CHAR:
+      vtkImageLogarithmicScaleExecute(this, inData, (char *)(inPtr), 
+			       outData, (char *)(outPtr),outExt, id);
       break;
     case VTK_UNSIGNED_CHAR:
       vtkImageLogarithmicScaleExecute(this, inData, 
