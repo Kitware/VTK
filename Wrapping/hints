@@ -33,6 +33,7 @@ vtkDataSet              GetBounds               301 6
 vtkDataSet              GetCenter               301 3
 vtkDataSet              GetPoint                301 3
 vtkDataSet              GetScalarRange          301 2
+vtkDICOMImageReader     GetPixelSpacing         301 3
 vtkExtractUnstructuredGrid GetExtent            301 6
 vtkExtentSplitter       GetSubExtent            304 6
 vtkFunctionParser       GetVectorResult         307 3
