@@ -111,6 +111,8 @@ vtkImageClippingExtents::~vtkImageClippingExtents()
 void vtkImageClippingExtents::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
+
+  os << indent << "ClippingObject: " << this->ClippingObject << "\n";
 }
 
 //----------------------------------------------------------------------------

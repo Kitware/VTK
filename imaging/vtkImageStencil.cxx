@@ -414,6 +414,9 @@ void vtkImageStencil::PrintSelf(ostream& os, vtkIndent indent)
   this->vtkImageMultipleInputFilter::PrintSelf(os, indent);
 
   os << indent << "StencilFunction: " << this->StencilFunction << "\n";
+  os << indent << "ReverseStencil: " << (this->ReverseStencil ?
+		                         "On\n" : "Off\n");
+
   os << indent << "ClippingExtents: " << this->ClippingExtents << "\n";
 
   os << indent << "DefaultValue: " << this->DefaultColor[0] << "\n";
