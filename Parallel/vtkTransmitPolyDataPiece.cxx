@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkTransmitPolyDataPiece, "1.12");
+vtkCxxRevisionMacro(vtkTransmitPolyDataPiece, "1.13");
 vtkStandardNewMacro(vtkTransmitPolyDataPiece);
 
 vtkCxxSetObjectMacro(vtkTransmitPolyDataPiece,Controller,
@@ -182,6 +182,7 @@ void vtkTransmitPolyDataPiece::RootExecute()
   output->CopyStructure(extract->GetOutput());
   output->GetPointData()->PassData(extract->GetOutput()->GetPointData());
   output->GetCellData()->PassData(extract->GetOutput()->GetCellData());
+  output->GetFieldData()->PassData(extract->GetOutput()->GetFieldData());
 
   // Now do each of the satellite requests.
   numProcs = this->Controller->GetNumberOfProcesses();
@@ -220,6 +221,7 @@ void vtkTransmitPolyDataPiece::SatelliteExecute(int)
   output->CopyStructure(tmp);
   output->GetPointData()->PassData(tmp->GetPointData());
   output->GetCellData()->PassData(tmp->GetCellData());
+  output->GetFieldData()->PassData(tmp->GetFieldData());
 
   tmp->Delete();
 }
