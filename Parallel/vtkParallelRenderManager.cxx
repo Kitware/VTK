@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.34");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.35");
 
 vtkParallelRenderManager::vtkParallelRenderManager()
 {
@@ -114,12 +114,19 @@ vtkParallelRenderManager::vtkParallelRenderManager()
   this->Viewports = vtkDoubleArray::New();
   this->Viewports->SetNumberOfComponents(4);
 
+  this->AddedRMIs = 0;
   this->Timer = vtkTimerLog::New();
 }
 
 vtkParallelRenderManager::~vtkParallelRenderManager()
 {
   this->SetRenderWindow(NULL);
+  if (this->Controller && this->AddedRMIs)
+    {
+    this->Controller->RemoveFirstRMI(vtkParallelRenderManager::RENDER_RMI_TAG);
+    this->Controller->RemoveFirstRMI(COMPUTE_VISIBLE_PROP_BOUNDS_RMI_TAG);
+    this->AddedRMIs = 0;
+    }
   this->SetController(NULL);
   this->FullImage->Delete();
   this->ReducedImage->Delete();
@@ -962,6 +969,7 @@ void vtkParallelRenderManager::InitializeRMIs()
     return;
     }
 
+  this->AddedRMIs = 1;
   this->Controller->AddRMI(::RenderRMI, this,
                            vtkParallelRenderManager::RENDER_RMI_TAG);
   this->Controller->AddRMI(::ComputeVisiblePropBoundsRMI, this,
@@ -1773,4 +1781,19 @@ void vtkParallelRenderManager::SatelliteStartRender()
     }
 
   this->PreRenderProcessing();
+}
+
+void vtkParallelRenderManager::TileWindows(int xsize, int ysize, int ncolumn)
+{
+  if (!this->RenderWindow || !this->Controller)
+    {
+    return;
+    }
+
+  int procId = this->Controller->GetLocalProcessId();
+
+  int row = procId / ncolumn;
+  int column = procId % ncolumn;
+
+  this->RenderWindow->SetPosition(xsize*column, ysize*row);
 }

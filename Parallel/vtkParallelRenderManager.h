@@ -265,6 +265,11 @@ public:
   // Returns the reduced image size calculated at the last render.
   vtkGetVector2Macro(ReducedImageSize, int);
 
+  // Description:
+  // Given the x and y size of the render windows, reposition them
+  // in a tile of n columns.
+  void TileWindows(int xsize, int ysize, int nColumns);
+
 //BTX
   enum Tags {
     RENDER_RMI_TAG=34532,
@@ -439,6 +444,7 @@ protected:
   static const int LIGHT_INFO_DOUBLE_SIZE;
 //ETX
 
+  int AddedRMIs;
 private:
   vtkParallelRenderManager(const vtkParallelRenderManager &); //Not implemented
   void operator=(const vtkParallelRenderManager &);  //Not implemented
