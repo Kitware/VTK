@@ -60,6 +60,9 @@ public:
   // Allocate memory for this array. Delete old storage only if necessary.
   // Note that ext is no longer used.
   virtual int Allocate(vtkIdType sz, vtkIdType ext=1000) = 0;
+
+  // Description:
+  // Release storage and reset array to initial state.
   virtual void Initialize() = 0;
 
   // Description:
