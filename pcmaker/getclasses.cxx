@@ -808,10 +808,16 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
   char file[256], temp[256];
 
   fprintf(fp,"# VTK Generic makefile\n");
-  fprintf(fp,"CPP=cl.exe\n\n");
+  fprintf(fp,"CPP=\"%s\\bin\\cl.exe\"\n\n",vals->m_WhereCompiler);
+  fprintf(fp,"PATH=%s\\bin;%s\\..\\SharedIDE\\bin\n",vals->m_WhereCompiler,
+	  vals->m_WhereCompiler);
+  fprintf(fp,"INCLUDE=%s\\INCLUDE;%s\\MFC\\INCLUDE\n",vals->m_WhereCompiler,
+	  vals->m_WhereCompiler);
+  fprintf(fp,"LIB=%s\\LIB;%s\\MFC\\LIB\n",vals->m_WhereCompiler,
+	  vals->m_WhereCompiler);
 
-	fprintf(fp,"OBJDIR=obj\n");
-	fprintf(fp,"LIBDIR=..\\lib\n\n");
+  fprintf(fp,"OBJDIR=obj\n");
+  fprintf(fp,"LIBDIR=..\\lib\n\n");
 
   fprintf(fp,"NONINCREMENTAL : vtkdll.dll\n\n");
 
@@ -1257,7 +1263,13 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
 
   fprintf(fp,"# VTK Generic makefile\n");
   fprintf(fp,"!MESSAGE making tcl library...\n");
-  fprintf(fp,"CPP=cl.exe\n");
+  fprintf(fp,"CPP=\"%s\\bin\\cl.exe\"\n\n",vals->m_WhereCompiler);
+  fprintf(fp,"PATH=%s\\bin;%s\\..\\SharedIDE\\bin\n",vals->m_WhereCompiler,
+	  vals->m_WhereCompiler);
+  fprintf(fp,"INCLUDE=%s\\INCLUDE;%s\\MFC\\INCLUDE\n",vals->m_WhereCompiler,
+	  vals->m_WhereCompiler);
+  fprintf(fp,"LIB=%s\\LIB;%s\\MFC\\LIB\n",vals->m_WhereCompiler,
+	  vals->m_WhereCompiler);
   fprintf(fp,"PATH=$(PATH);\"%s\\pcmaker\\\"\n",vals->m_WhereVTK);
   fprintf(fp,"CPP_PARSE=vtkWrapTcl.exe\n");
   fprintf(fp,"OUTDIR=obj\n\n");
@@ -1767,7 +1779,13 @@ void doMSCJavaHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
   char file[256];
 
   fprintf(fp,"# VTK Generic makefile\n");
-  fprintf(fp,"CPP=cl.exe\n\n");
+  fprintf(fp,"CPP=\"%s\\bin\\cl.exe\"\n\n",vals->m_WhereCompiler);
+  fprintf(fp,"PATH=%s\\bin;%s\\..\\SharedIDE\\bin\n",vals->m_WhereCompiler,
+	  vals->m_WhereCompiler);
+  fprintf(fp,"INCLUDE=%s\\INCLUDE;%s\\MFC\\INCLUDE\n",vals->m_WhereCompiler,
+	  vals->m_WhereCompiler);
+  fprintf(fp,"LIB=%s\\LIB;%s\\MFC\\LIB\n",vals->m_WhereCompiler,
+	  vals->m_WhereCompiler);
   fprintf(fp,"OUTDIR=obj\n\n");
 
 	fprintf(fp,"LIBDIR=..\\lib\n\n");
