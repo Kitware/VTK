@@ -24,7 +24,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkSTLReader, "1.67");
+vtkCxxRevisionMacro(vtkSTLReader, "1.68");
 vtkStandardNewMacro(vtkSTLReader);
 
 #define VTK_ASCII 0
@@ -332,12 +332,12 @@ int vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
       this->UpdateProgress((newPolys->GetNumberOfCells()%50000)/50000.0);
       }
     done = (fscanf(fp,"%s", line)==EOF);
-    if (strcmp(line, "ENDSOLID") == 0) 
+    if ((strcmp(line, "ENDSOLID") == 0) || (strcmp(line, "endsolid") == 0)) 
       {
       currentSolid++;
       fgets(line, 255, fp);
       done = feof(fp);
-      while (strncmp(line, "SOLID", 5) && !done) 
+      while ((strstr(line, "SOLID") == 0) && (strstr(line, "solid") == 0) && !done) 
         {
         fgets(line, 255, fp);
         done = feof(fp);
