@@ -49,7 +49,8 @@ void vtkTriangleFilter::Execute()
   vtkCellArray *inStrips=input->GetStrips();;
   int npts, *pts;
   vtkCellArray *newPolys;
-  int numCells;
+  int numCells, cellNum;
+  
   vtkPolygon poly;
   int i, j;
   vtkIdList outVerts(3*VTK_CELL_SIZE);
@@ -65,7 +66,7 @@ void vtkTriangleFilter::Execute()
   newPolys->Allocate(newPolys->EstimateSize(numCells,3),3*numCells);
 
   // pass through triangles; triangulate polygons if necessary
-  for (inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); )
+  for (cellNum=0, inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); cellNum++)
     {
     if ( npts == 3 )
       {
@@ -82,13 +83,21 @@ void vtkTriangleFilter::Execute()
           newPolys->InsertCellPoint(outVerts.GetId(3*i+j));
         }
       }
-    }
+
+    if ( ! (cellNum % 5000) ) //manage progress reports / early abort
+      {
+      this->UpdateProgress (cellNum / numCells);
+      if ( this->GetAbortExecute() ) break;
+      }
+    }//for each polygon
 
   if ( inStrips->GetNumberOfCells() > 0 )
     {
     vtkTriangleStrip strip;
     strip.DecomposeStrips(inStrips,newPolys);
     }
+
+  this->UpdateProgress (1.0);
 //
 // Update ourselves
 //
