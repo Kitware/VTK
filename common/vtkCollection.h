@@ -75,6 +75,8 @@ public:
   char *GetClassName() {return "vtkCollection";};
 
   void AddItem(vtkObject *);
+  void ReplaceItem(int i, vtkObject *);
+  void RemoveItem(int i);  
   void RemoveItem(vtkObject *);
   void RemoveAllItems();
   int  IsItemPresent(vtkObject *);
@@ -82,7 +84,7 @@ public:
   void InitTraversal();
   vtkObject *GetNextItemAsObject();  
   vtkObject *GetItemAsObject(int i);
-  
+
 
 protected:
   int NumberOfItems;

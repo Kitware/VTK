@@ -74,6 +74,10 @@ public:
   void SetInput(vtkDataSet& in) {this->SetInput(&in);};
   void SetInput(vtkImageSource *cache)
     {this->SetInput(cache->GetImageToStructuredPoints()->GetOutput());}
+  
+  // Description:
+  // Get the internal poly data mapper used to map data set to graphics system.
+  vtkGetObjectMacro(PolyDataMapper, vtkPolyDataMapper);
 
 protected:
   vtkGeometryFilter *GeometryExtractor;

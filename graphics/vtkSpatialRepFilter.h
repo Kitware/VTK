@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkSpatialRepresentationFilter.h
+  Module:    vtkSpatialRepFilter.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,15 +38,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkSpatialRepresentationFilter - generate polygonal model of spatial search object (i.e., a vtkLocator)
+// .NAME vtkSpatialRepFilter - generate polygonal model of spatial search object (i.e., a vtkLocator)
 // .SECTION Description
-// vtkSpatialRepresentationFilter generates an polygonal representation of a
-// spatial search (vtkLocator) object. The representation varies depending
-// upon the nature of the spatial search object. For example, the
-// representation for vtkOBBTree is a collection of oriented bounding
-// boxes. Ths input to this filter is a dataset of any type, and the output
-// is polygonal data. You must also specify the spatial search object to
-// use.
+// vtkSpatialRepFilter generates an polygonal representation of a spatial search
+// (vtkLocator) object. The representation varies depending upon the nature
+// of the spatial search object. For example, the representation for vtkOBBTree 
+// is a collection of oriented bounding boxes. Ths input to this filter is a 
+// dataset of any type, and the output is polygonal data. You must also specify 
+// the spatial search object to use.
 //
 // Generally spatial search objects are used for collision detection and other 
 // geometric operations, but in this filter one or more levels of spatial 
@@ -76,34 +75,34 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION See Also
 // vtkLocator vtkPointLocator vtkCellLocator vtkOBBTree 
 
-#ifndef __vtkSpatialRepresentationFilter_h
-#define __vtkSpatialRepresentationFilter_h
+#ifndef __vtkSpatialRepFilter_h
+#define __vtkSpatialRepFilter_h
 
 #include "vtkDataSetFilter.h"
 #include "vtkPolyData.h"
 #include "vtkLocator.h"
 
-#define VTK_MAX_SPATIAL_REP_LEVEL 24
+#define VTK_MAX_SPATIALREP_LEVEL 24
 
-class VTK_EXPORT vtkSpatialRepresentationFilter : public vtkDataSetFilter
+class VTK_EXPORT vtkSpatialRepFilter : public vtkDataSetFilter
 {
 public:
-  vtkSpatialRepresentationFilter();
-  ~vtkSpatialRepresentationFilter();
-  static vtkSpatialRepresentationFilter *New() {return new vtkSpatialRepresentationFilter;};
-  char *GetClassName() {return "vtkSpatialRepresentationFilter";};
+  vtkSpatialRepFilter();
+  ~vtkSpatialRepFilter();
+  static vtkSpatialRepFilter *New() {return new vtkSpatialRepFilter;};
+  char *GetClassName() {return "vtkSpatialRepFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set/Get the locator that will be used to generate the representation.
-  vtkSetObjectMacro(SpatialRepresentation,vtkLocator);
-  vtkGetObjectMacro(SpatialRepresentation,vtkLocator);
+  // Set/Get the SpatialRep which will be used to generate the representation.
+  vtkSetObjectMacro(SpatialRep,vtkLocator);
+  vtkGetObjectMacro(SpatialRep,vtkLocator);
 
   // Description:
   // Get the maximum number of outputs actually available.
   vtkGetMacro(Level,int);
 
-  // returns leaf nodes of the spatial representation.
+  // returns leaf nodes of SpatialRep
   vtkPolyData *GetOutput();
 
   // special form of GetOutput() method returns multiple outputs
@@ -121,8 +120,8 @@ protected:
   int Level;
   int TerminalNodesRequested;
 
-  vtkLocator *SpatialRepresentation;
-  vtkPolyData *OutputList[VTK_MAX_SPATIAL_REP_LEVEL+1];
+  vtkLocator *SpatialRep;
+  vtkPolyData *OutputList[VTK_MAX_SPATIALREP_LEVEL+1];
 };
 
 #endif

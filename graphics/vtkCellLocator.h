@@ -96,7 +96,6 @@ protected:
   float H[3]; // width of root octant in x-y-z directions
   int NumberOfDivisions; // number of "leaf" octant sub-divisions
   vtkIdList **Tree; // octree
-  vtkTimeStamp BuildTime;  
 
   void MarkParents(void*, int, int, int, int, int);
   void GetChildren(int idx, int level, int children[8]);

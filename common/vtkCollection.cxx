@@ -84,7 +84,8 @@ void vtkCollection::AddItem(vtkObject *a)
 
 // Description:
 // Remove an object from the list. Removes the first object found, not
-// all occurrences. If no object found, list is unaffected.
+// all occurrences. If no object found, list is unaffected.  See warning
+// in description of RemoveItem(int).
 void vtkCollection::RemoveItem(vtkObject *a)
 {
   int i;
@@ -110,6 +111,8 @@ void vtkCollection::RemoveItem(vtkObject *a)
 	{
 	this->Bottom = prev;
 	}
+      if ( this->Current == elem ) // protect the user
+	this->Current = elem->Next;
       
       delete elem;
       this->NumberOfItems--;
@@ -208,4 +211,60 @@ vtkObject *vtkCollection::GetItemAsObject(int i)
     {
     return NULL;
     }
+}
+
+
+// Description:
+// Replace the i'th item in the collection with a
+void vtkCollection::ReplaceItem(int i, vtkObject *a)
+{
+  vtkCollectionElement *elem;
+
+  if( i < 0 || i >= this->NumberOfItems )
+    return;
+  
+  elem = this->Top;
+  for (int j = 0; j < i; j++, elem = elem->Next ) 
+    {}
+
+  // j == i
+  elem->Item = a;
+}
+
+
+// Description:
+// Remove the i'th item in the list.
+// Be careful if using this function during traversal of the list using 
+// GetNextItemAsObject (or GetNextItem in derived class).  The list WILL
+// be shortened if a valid index is given!  If this->Current is equal to the
+// element being removed, have it point to then next element in the list.
+void vtkCollection::RemoveItem(int i)
+{
+  vtkCollectionElement *elem,*prev;
+
+  if( i < 0 || i >= this->NumberOfItems )
+    return;
+  
+  elem = this->Top;
+  prev = NULL;
+  for (int j = 0; j < i; j++)
+    {
+    prev = elem;
+    elem = elem->Next;
+    }  
+
+  // j == i
+  if (prev)
+    prev->Next = elem->Next;
+  else
+    this->Top = elem->Next;
+
+  if (!elem->Next)
+    this->Bottom = prev;
+      
+  if ( this->Current == elem )
+    this->Current = elem->Next;
+
+  delete elem;
+  this->NumberOfItems--;
 }

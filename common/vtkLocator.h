@@ -150,6 +150,8 @@ public:
   // data.
   virtual void GenerateRepresentation(int level, vtkPolyData *pd) = 0;
 
+  vtkGetMacro(BuildTime, int);
+
 protected:
   vtkDataSet *DataSet;
   int Automatic; // boolean controls automatic subdivision (or uses user spec.)

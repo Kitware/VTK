@@ -67,8 +67,8 @@ void vtkLocator::Initialize()
 
 void vtkLocator::Update()
 {
-  if ((this->BuildTime < this->MTime)||
-  (this->DataSet->GetMTime() < this->BuildTime))
+  if ((this->MTime > this->BuildTime) ||
+      (this->DataSet->GetMTime() > this->BuildTime))
     {
     this->BuildLocator();
     }
