@@ -1330,7 +1330,7 @@ fi
 
 BUILD_TOOLKITS=""
 CLEAN_TOOLKITS=""
-DEPEND_TOOKITS=""
+DEPEND_TOOLKITS=""
 
 # Check whether --with-graphics or --without-graphics was given.
 if test "${with_graphics+set}" = set; then
@@ -1342,7 +1342,7 @@ else
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../graphics -DVTK_USE_GRAPHICS"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_graphics"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_graphics"
-         CLEAN_TOOLKITS="${CLEAN_TOOKLKITS} clean_graphics"
+         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_graphics"
 fi
 
 
@@ -1356,7 +1356,7 @@ else
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../imaging -DVTK_USE_IMAGING"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_imaging"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_imaging"
-         CLEAN_TOOLKITS="${CLEAN_TOOKLKITS} clean_imaging"
+         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_imaging"
 fi
 
 
@@ -1375,7 +1375,7 @@ if test "${with_patented+set}" = set; then
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../patented -DVTK_USE_PATENTED"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_patented"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_patented"
-         CLEAN_TOOLKITS="${CLEAN_TOOKLKITS} clean_patented"
+         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_patented"
 fi
 
 
@@ -1387,7 +1387,7 @@ if test "${with_volume+set}" = set; then
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../volume -DVTK_USE_VOLUME"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_volume"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_volume"
-         CLEAN_TOOLKITS="${CLEAN_TOOKLKITS} clean_volume"
+         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_volume"
 fi
 
 
@@ -1399,7 +1399,7 @@ if test "${with_contrib+set}" = set; then
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../contrib -DVTK_USE_CONTRIB"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_contrib"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_contrib"
-         CLEAN_TOOLKITS="${CLEAN_TOOKLKITS} clean_contrib"
+         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_contrib"
 fi
 
 
@@ -1411,7 +1411,7 @@ if test "${with_geae+set}" = set; then
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../geae -DVTK_USE_GEAE"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_geae"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_geae"
-         CLEAN_TOOLKITS="${CLEAN_TOOKLKITS} clean_geae"
+         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_geae"
 fi
 
 
@@ -1423,7 +1423,7 @@ if test "${with_gemsip+set}" = set; then
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../gemsip -DVTK_USE_GEMSIP"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_gemsip"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_gemsip"
-         CLEAN_TOOLKITS="${CLEAN_TOOKLKITS} clean_gemsip"
+         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_gemsip"
 fi
 
 
@@ -1435,7 +1435,7 @@ if test "${with_gemsio+set}" = set; then
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../gemsio -DVTK_USE_GEMSIO"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_gemsio"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_gemsio"
-         CLEAN_TOOLKITS="${CLEAN_TOOKLKITS} clean_gemsio"
+         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_gemsio"
 fi
 
 
@@ -1447,7 +1447,7 @@ if test "${with_gemsvolume+set}" = set; then
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../gemsvolume -DVTK_USE_GEMSVOLUME"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_gemsvolume"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_gemsvolume"
-         CLEAN_TOOLKITS="${CLEAN_TOOKLKITS} clean_gemsvolume"
+         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_gemsvolume"
 fi
 
 
@@ -2410,7 +2410,7 @@ s%@CLEAN_TCL@%$CLEAN_TCL%g
 s%@BUILD_JAVA@%$BUILD_JAVA%g
 s%@CLEAN_JAVA@%$CLEAN_JAVA%g
 s%@BUILD_TOOLKITS@%$BUILD_TOOLKITS%g
-s%@DEPEND_TOOKITS@%$DEPEND_TOOKITS%g
+s%@DEPEND_TOOLKITS@%$DEPEND_TOOLKITS%g
 s%@CLEAN_TOOLKITS@%$CLEAN_TOOLKITS%g
 s%@MAKEINCLUDE@%$MAKEINCLUDE%g
 s%@MAKEQUOTE@%$MAKEQUOTE%g

@@ -164,7 +164,7 @@ AC_SUBST(CLEAN_JAVA)
 
 BUILD_TOOLKITS=""
 CLEAN_TOOLKITS=""
-DEPEND_TOOKITS=""
+DEPEND_TOOLKITS=""
 
 AC_ARG_WITH(graphics,
          [  --without-graphics      do not include the graphics classes],,
@@ -173,7 +173,7 @@ AC_ARG_WITH(graphics,
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../graphics -DVTK_USE_GRAPHICS"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_graphics"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_graphics"
-         CLEAN_TOOLKITS="${CLEAN_TOOKLKITS} clean_graphics")
+         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_graphics")
 
 AC_ARG_WITH(imaging,
          [  --without-imaging       do not include the imaging classes],,
@@ -182,7 +182,7 @@ AC_ARG_WITH(imaging,
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../imaging -DVTK_USE_IMAGING"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_imaging"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_imaging"
-         CLEAN_TOOLKITS="${CLEAN_TOOKLKITS} clean_imaging")
+         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_imaging")
 
 AC_ARG_WITH(tkwidget,
          [  --with-tkwidget           build the vtkTkRenderWidget class],,)
@@ -194,7 +194,7 @@ AC_ARG_WITH(patented,
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../patented -DVTK_USE_PATENTED"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_patented"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_patented"
-         CLEAN_TOOLKITS="${CLEAN_TOOKLKITS} clean_patented",)
+         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_patented",)
 
 AC_ARG_WITH(volume,
          [  --with-volume           include the volume classes],
@@ -203,7 +203,7 @@ AC_ARG_WITH(volume,
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../volume -DVTK_USE_VOLUME"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_volume"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_volume"
-         CLEAN_TOOLKITS="${CLEAN_TOOKLKITS} clean_volume",)
+         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_volume",)
 
 AC_ARG_WITH(contrib,
          [  --with-contrib          include the contrib classes],
@@ -212,7 +212,7 @@ AC_ARG_WITH(contrib,
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../contrib -DVTK_USE_CONTRIB"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_contrib"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_contrib"
-         CLEAN_TOOLKITS="${CLEAN_TOOKLKITS} clean_contrib",)
+         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_contrib",)
 
 AC_ARG_WITH(geae,
          [  --with-geae             include the geae classes],
@@ -221,7 +221,7 @@ AC_ARG_WITH(geae,
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../geae -DVTK_USE_GEAE"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_geae"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_geae"
-         CLEAN_TOOLKITS="${CLEAN_TOOKLKITS} clean_geae",)
+         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_geae",)
 
 AC_ARG_WITH(gemsip,
          [  --with-gemsip           include the gemsip classes],
@@ -230,7 +230,7 @@ AC_ARG_WITH(gemsip,
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../gemsip -DVTK_USE_GEMSIP"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_gemsip"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_gemsip"
-         CLEAN_TOOLKITS="${CLEAN_TOOKLKITS} clean_gemsip",)
+         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_gemsip",)
 
 AC_ARG_WITH(gemsio,
          [  --with-gemsio           include the gemsio classes],
@@ -239,7 +239,7 @@ AC_ARG_WITH(gemsio,
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../gemsio -DVTK_USE_GEMSIO"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_gemsio"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_gemsio"
-         CLEAN_TOOLKITS="${CLEAN_TOOKLKITS} clean_gemsio",)
+         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_gemsio",)
 
 AC_ARG_WITH(gemsvolume,
          [  --with-gemsvolume       include the gemsvolume classes],
@@ -248,10 +248,10 @@ AC_ARG_WITH(gemsvolume,
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../gemsvolume -DVTK_USE_GEMSVOLUME"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_gemsvolume"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_gemsvolume"
-         CLEAN_TOOLKITS="${CLEAN_TOOKLKITS} clean_gemsvolume",)
+         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_gemsvolume",)
 
 AC_SUBST(BUILD_TOOLKITS)
-AC_SUBST(DEPEND_TOOKITS)
+AC_SUBST(DEPEND_TOOLKITS)
 AC_SUBST(CLEAN_TOOLKITS)
 
 #------------------------------------------------------------------------------
