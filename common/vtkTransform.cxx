@@ -56,39 +56,39 @@ typedef double (*SqMatPtr)[4];
 // static inside MakeIdentity. This guarantees that the vtkMatrix4x4 will
 // be available whenever it is needed. See Meyers, _More_Effective_C++,
 // pages 130-134.
-class IdentityMatrix
+class vtkIdentityMatrix
 {
 private:
-  vtkMatrix4x4 *theMatrix;
-  IdentityMatrix() {theMatrix = vtkMatrix4x4::New();}
-  IdentityMatrix(const IdentityMatrix&); //Forbid copy constructor as well
+  vtkMatrix4x4 *TheMatrix;
+  vtkIdentityMatrix() {this->TheMatrix = vtkMatrix4x4::New();}
+  vtkIdentityMatrix(const vtkIdentityMatrix&); //Forbid copy constructor as well
   static vtkMatrix4x4* GetIdentity();
 public:
   // The dtor should be declared private, but the MSVC++5 compiler complains 
   // about not being able to invoke the private dtor from within the
   // static member function MakeIdentity, despite the fact that it has no
   // problem with invoking the private ctor. Go figure.
-  ~IdentityMatrix() {theMatrix->Delete();}
+  ~vtkIdentityMatrix() {this->TheMatrix->Delete();}
   static void MakeIdentity(vtkMatrix4x4 *target);
   static void MakeIdentity(double Elements[16]);
 };
 
-vtkMatrix4x4* IdentityMatrix::GetIdentity()
+vtkMatrix4x4* vtkIdentityMatrix::GetIdentity()
 {
-  static IdentityMatrix imat;// constructed first time function called
-  return imat.theMatrix;
+  static vtkIdentityMatrix imat;// constructed first time function called
+  return imat.TheMatrix;
 }
 
 // 
 // Copy the internal identity matrix into the target matrix
-void IdentityMatrix::MakeIdentity(vtkMatrix4x4 *target)
+void vtkIdentityMatrix::MakeIdentity(vtkMatrix4x4 *target)
 {
-  target->DeepCopy(IdentityMatrix::GetIdentity());
+  target->DeepCopy(vtkIdentityMatrix::GetIdentity());
 }
 
-void IdentityMatrix::MakeIdentity(double Elements[16])
+void vtkIdentityMatrix::MakeIdentity(double Elements[16])
 {
-  vtkMatrix4x4::DeepCopy(Elements,IdentityMatrix::GetIdentity());
+  vtkMatrix4x4::DeepCopy(Elements,vtkIdentityMatrix::GetIdentity());
 }
 
 
@@ -245,7 +245,7 @@ void vtkTransform::RotateX ( float angle)
   SqMatPtr ScratchPadMatrix = (SqMatPtr) ScratchPad; // for local manipulation
 
   // Reset the scratchpad
-  IdentityMatrix::MakeIdentity(ScratchPad);
+  vtkIdentityMatrix::MakeIdentity(ScratchPad);
 
   if (angle != 0.0) 
     {
@@ -274,7 +274,7 @@ void vtkTransform::RotateY ( float angle)
   float radians = angle * vtkMath::DegreesToRadians();
   float cosAngle, sinAngle;
 
-  IdentityMatrix::MakeIdentity(ScratchPad);
+  vtkIdentityMatrix::MakeIdentity(ScratchPad);
   if (angle != 0.0) 
     {
     cosAngle = cos (radians);
@@ -302,7 +302,7 @@ void vtkTransform::RotateZ (float angle)
   float radians = angle * vtkMath::DegreesToRadians();
   float cosAngle, sinAngle;
 
-  IdentityMatrix::MakeIdentity(ScratchPad);
+  vtkIdentityMatrix::MakeIdentity(ScratchPad);
   if (angle != 0.0) 
     {
     cosAngle = cos (radians);
@@ -333,7 +333,7 @@ void vtkTransform::RotateWXYZ ( float angle, float x, float y, float z)
   float   sinAngle;
   float   cosAngle;
 
-  IdentityMatrix::MakeIdentity(ScratchPad);
+  vtkIdentityMatrix::MakeIdentity(ScratchPad);
 
   // build a rotation matrix and concatenate it
   quat[0] = angle;
@@ -387,7 +387,7 @@ void vtkTransform::RotateWXYZ ( double angle, double x, double y, double z)
   double   sinAngle;
   double   cosAngle;
 
-  IdentityMatrix::MakeIdentity(ScratchPad);
+  vtkIdentityMatrix::MakeIdentity(ScratchPad);
 
   // build a rotation matrix and concatenate it
   quat[0] = angle;
@@ -438,7 +438,7 @@ void vtkTransform::Scale ( float x, float y, float z)
   double ScratchPad[16]; // for passing to vtkMatrix4x4 methods
   SqMatPtr ScratchPadMatrix = (SqMatPtr) ScratchPad; // for local manipulation
   
-  IdentityMatrix::MakeIdentity(ScratchPad);
+  vtkIdentityMatrix::MakeIdentity(ScratchPad);
   if (x != 1.0 || y != 1.0 || z != 1.0) 
     {
     ScratchPadMatrix[0][0] = x;
@@ -457,7 +457,7 @@ void vtkTransform::Scale ( double x, double y, double z)
   double ScratchPad[16]; // for passing to vtkMatrix4x4 methods
   SqMatPtr ScratchPadMatrix = (SqMatPtr) ScratchPad; // for local manipulation
 
-  IdentityMatrix::MakeIdentity(ScratchPad);
+  vtkIdentityMatrix::MakeIdentity(ScratchPad);
   if (x != 1.0 || y != 1.0 || z != 1.0) 
     {
     ScratchPadMatrix[0][0] = x;
@@ -475,7 +475,7 @@ void vtkTransform::Translate ( float x, float y, float z)
   double ScratchPad[16]; // for passing to vtkMatrix4x4 methods
   SqMatPtr ScratchPadMatrix = (SqMatPtr) ScratchPad; // for local manipulation
 
-  IdentityMatrix::MakeIdentity(ScratchPad);
+  vtkIdentityMatrix::MakeIdentity(ScratchPad);
   if (x != 0.0 || y != 0.0 || z != 0.0) 
     {
     ScratchPadMatrix[0][3] = x;
@@ -492,7 +492,7 @@ void vtkTransform::Translate ( double x, double y, double z)
 {
   double ScratchPad[16]; // for passing to vtkMatrix4x4 methods
   SqMatPtr ScratchPadMatrix = (SqMatPtr) ScratchPad; // for local manipulation
-  IdentityMatrix::MakeIdentity(ScratchPad);
+  vtkIdentityMatrix::MakeIdentity(ScratchPad);
   if (x != 0.0 || y != 0.0 || z != 0.0) 
     {
     ScratchPadMatrix[0][3] = x;
@@ -685,7 +685,7 @@ float *vtkTransform::GetOrientationWXYZ ()
   static float WXYZ[4];
   float mag;
   
-  IdentityMatrix::MakeIdentity(ScratchPad);
+  vtkIdentityMatrix::MakeIdentity(ScratchPad);
 
   // copy the matrix into local storage
   temp1->SetMatrix(**this->Stack);
