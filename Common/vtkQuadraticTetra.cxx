@@ -25,7 +25,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticTetra, "1.8");
+vtkCxxRevisionMacro(vtkQuadraticTetra, "1.9");
 vtkStandardNewMacro(vtkQuadraticTetra);
 
 // Construct the line with two points.
@@ -125,7 +125,7 @@ int vtkQuadraticTetra::EvaluatePosition(float* x,
 
   //  set initial position for Newton's method
   subId = 0;
-  pcoords[0] = pcoords[1] = pcoords[2] = params[0] = params[1] = params[2]=0.5;
+  pcoords[0] = pcoords[1] = pcoords[2] = params[0] = params[1] = params[2]=0.333;
 
   //  enter iteration loop
   for (iteration=converged=0;
