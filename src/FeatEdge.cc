@@ -13,7 +13,6 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-#include <math.h>
 #include "FeatEdge.hh"
 #include "vlMath.hh"
 #include "Polygon.hh"
@@ -44,11 +43,12 @@ void vlFeatureEdges::Execute()
   vlMath math;
   vlPolygon poly;
   int lineIds[2];
-  int npts, pts[MAX_CELL_SIZE];
+  int npts, *pts;
   vlCellArray *inPolys;
   vlFloatNormals *polyNormals;
   int numPts, nei;
-  vlIdList edge(2), neighbors(MAX_CELL_SIZE);
+  vlIdList neighbors(MAX_CELL_SIZE);
+  int p1, p2;
 
   vlDebugMacro(<<"Executing feature edges");
   this->Initialize();
@@ -63,7 +63,9 @@ void vlFeatureEdges::Execute()
 
   // build cell structure.  Only operate with polygons.
   Mesh.SetPoints(this->Input->GetPoints());
-  Mesh.SetPolys(this->Input->GetPolys());
+  inPolys = this->Input->GetPolys();
+  Mesh.SetPolys(inPolys);
+  Mesh.BuildLinks();
 //
 //  Allocate storage for lines/points
 //
@@ -95,9 +97,9 @@ void vlFeatureEdges::Execute()
       {
       for (i=0; i < npts; i++) 
         {
-        edge.SetId(0,pts[i]);
-        edge.SetId(1,pts[(i+1)%npts]);
-        Mesh.GetCellNeighbors(cellId,edge,neighbors);
+        p1 = pts[i];
+        p2 = pts[(i+1)%npts];
+        Mesh.GetCellEdgeNeighbors(cellId,p1,p2,neighbors);
 
         if ( (numNei=neighbors.GetNumberOfIds()) < 1 && this->BoundaryEdges )
           {
@@ -129,8 +131,8 @@ void vlFeatureEdges::Execute()
             }
           }
 
-        x1 = Mesh.GetPoint(edge.GetId(0));
-        x2 = Mesh.GetPoint(edge.GetId(1));
+        x1 = Mesh.GetPoint(p1);
+        x2 = Mesh.GetPoint(p2);
 
         lineIds[0] = newPts->InsertNextPoint(x1);
         lineIds[1] = newPts->InsertNextPoint(x2);
