@@ -1041,7 +1041,6 @@ int vtkEnSightReader::ReadCaseFile()
 	sscanf(line, "%*s %s", subLine);
 	if (strncmp(subLine, "numbers", 7) == 0)
 	  {
-	  vtkIdList *filenameNumbers = vtkIdList::New();
 	  strcpy(formatLine, "%*s %*s");
 	  strcpy(subLine, "%*s %*s");
 	  for (i = 0; i < numTimeSteps; i++)
