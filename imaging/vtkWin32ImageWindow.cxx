@@ -248,12 +248,6 @@ vtkWin32ImageWindow::vtkWin32ImageWindow()
 //----------------------------------------------------------------------------
 vtkWin32ImageWindow::~vtkWin32ImageWindow()
 {
-
-  if ((this->OwnWindow) && (this->WindowName))
-    {
-    delete this->WindowName;
-    }
-
 }
 
 
