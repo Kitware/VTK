@@ -90,8 +90,9 @@ void vtkImageCachedSource::InterceptCacheUpdate(vtkImageRegion *region)
 // This method fills an empty region with data.
 void vtkImageCachedSource::UpdateRegion(vtkImageRegion *region)
 {
-  // switch statment is determine the overhead of this series of Update calls.
-  // Does nothing and not tested.
+  // switch statment is to determine the overhead of this series of 
+  // Update calls.
+  // It does nothing and is not tested.
   switch (VTK_IMAGE_DIMENSIONS)
     {
     case 5:
@@ -309,7 +310,7 @@ void vtkImageCachedSource::SetCache(vtkImageCache *cache)
 // Description:
 // This method is used when the source is treating the data as 1d lines.
 // It chooses the parallel axis.
-void vtkImageCachedSource::SetAxis1d(int axis0)
+void vtkImageCachedSource::SetAxes1d(int axis0)
 {
   int axis1;
   

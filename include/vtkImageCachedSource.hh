@@ -76,7 +76,8 @@ public:
   void SetOutputDataType(int type);
   int  GetOutputDataType();
   
-  virtual void SetAxis1d(int axis0);
+  virtual void SetAxes1d(int axis0);
+  void SetAxis1d(int axis0){this->SetAxes1d(axis0);};
   virtual void SetAxes2d(int axis0,int axis1);
   virtual void SetAxes3d(int axis0,int axis1,int axis2);
   virtual void SetAxes4d(int axis0,int axis1,int axis2,int axis3);

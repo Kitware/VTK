@@ -232,8 +232,8 @@ void vtkImageFilter::UpdateImageInformation(vtkImageRegion *region)
 // the image information after this filter is finished.
 // outImage is identical to inImage when this method is envoked, and
 // outImage may be the same object as in image.
-void vtkImageFilter::ComputeOutputImageInformation(vtkImageRegion *outRegion,
-						   vtkImageRegion *inRegion)
+void vtkImageFilter::ComputeOutputImageInformation(vtkImageRegion *inRegion,
+						   vtkImageRegion *outRegion)
 {
   // Default: Image information does not change (do nothing).
   // Avoid warnings
@@ -685,7 +685,7 @@ vtkImageRegion *vtkImageFilter::GetInputRegion(int *bounds, int dim)
 {
   int idx;
   int *imageBounds;
-  vtkImageRegion *region = new vtkImageRegion;
+  vtkImageRegion *region;
   
   if ( ! this->Input)
     {

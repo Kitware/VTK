@@ -39,422 +39,553 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkImageDyadicFilter.hh"
 #include "vtkImageCache.hh"
-#include "vtkImageRegion.hh"
 
 
 //----------------------------------------------------------------------------
-// Description:
-// Construct an instance of vtkImageDyadicFilter fitler.
 vtkImageDyadicFilter::vtkImageDyadicFilter()
 {
   this->Input1 = NULL;
   this->Input2 = NULL;
-
-  this->Input1Data = NULL;
+  this->UseExecuteMethodOn();
 }
 
+//----------------------------------------------------------------------------
+void vtkImageDyadicFilter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkImageCachedSource::PrintSelf(os,indent);
+}
 
 //----------------------------------------------------------------------------
 // Description:
 // This Method returns the MTime of the pipeline upto and including this filter
-// It propagates the message back. 
-// (Note: current implementation may create a cascade of MTime requests.)
+// Note: current implementation may create a cascade of GetPipelineMTime calls.
+// Each GetPipelineMTime call propagates the call all the way to the original
+// source.  This works, but is not elegant.
+// An Executor would probably be the best solution if this is a problem.
+// (The pipeline could vote before it starts processing, but one object
+// has to initiate the voting.)
 unsigned long int vtkImageDyadicFilter::GetPipelineMTime()
 {
-  unsigned long int time, temp;
+  unsigned long int time1, time2;
 
   // This objects MTime
   // (Super class considers cache in case cache did not originate message)
-  time = this->vtkImageCachedSource::GetPipelineMTime();
-
-  // Input1 MTime
-  if ( ! this->Input1)
+  time1 = this->vtkImageCachedSource::GetPipelineMTime();
+  if ( ! this->Input1 )
     {
     vtkWarningMacro(<< "GetPipelineMTime: Input1 not set.");
+    time2 = time1;
     }
   else
     {
-    temp = this->Input1->GetPipelineMTime();
-    // Save the larger of the two 
-    if (temp > time)
-      time = temp;
+    time2 = this->Input1->GetPipelineMTime();
     }
+    
+  // Keep the larger of the two 
+  if (time2 > time1)
+    time1 = time2;
 
-  // Input1 MTime
-  if ( ! this->Input2)
+  if ( ! this->Input2 )
     {
     vtkWarningMacro(<< "GetPipelineMTime: Input2 not set.");
+    return time1;
     }
-  else
-    {
-    temp = this->Input2->GetPipelineMTime();
-    // Save the larger of the two 
-    if (temp > time)
-      time = temp;
-    }
+  time2 = this->Input2->GetPipelineMTime();
 
-  return time;
+  // Keep the larger of the two 
+  if (time2 > time1)
+    time1 = time2;
+
+  return time1;
 }
-
 
 
 //----------------------------------------------------------------------------
 // Description:
-// Set the first Input of a filter. (A virtual method)
+// Set the Input1 of this filter. If a DataType has not been set,
+// then the DataType of the input is used.
 void vtkImageDyadicFilter::SetInput1(vtkImageSource *input)
 {
   vtkDebugMacro(<< "SetInput1: input = " << input->GetClassName()
 		<< " (" << input << ")");
 
+  // does this change anything?
+  if (input == this->Input1)
+    {
+    return;
+    }
+  
   this->Input1 = input;
   this->Modified();
+
+  // Should we use the data type from the input?
+  this->CheckCache();      // make sure a cache exists
+  if (this->Output->GetDataType() == VTK_IMAGE_VOID)
+    {
+    this->Output->SetDataType(input->GetDataType());
+    if (this->Output->GetDataType() == VTK_IMAGE_VOID)
+      {
+      vtkErrorMacro(<< "SetInput1: Cannot determine DataType of input.");
+      }
+    }
 }
+
 
 
 //----------------------------------------------------------------------------
 // Description:
-// Set the Second Input of a filter. (A virtual method)
+// Set the Input2 of this filter. If a DataType has not been set,
+// then the DataType of the input is used.
 void vtkImageDyadicFilter::SetInput2(vtkImageSource *input)
 {
   vtkDebugMacro(<< "SetInput2: input = " << input->GetClassName()
 		<< " (" << input << ")");
 
+  // does this change anything?
+  if (input == this->Input2)
+    {
+    return;
+    }
+  
   this->Input2 = input;
   this->Modified();
+
+  // Should we use the data type from the input?
+  this->CheckCache();      // make sure a cache exists
+  if (this->Output->GetDataType() == VTK_IMAGE_VOID)
+    {
+    this->Output->SetDataType(input->GetDataType());
+    if (this->Output->GetDataType() == VTK_IMAGE_VOID)
+      {
+      vtkErrorMacro(<< "SetInput2: Cannot determine DataType of input.");
+      }
+    }
 }
+
 
 
 //----------------------------------------------------------------------------
 // Description:
-// This method gets the input tiles necessary to generate the Region,
-// gets the output tile from the cache, and executes the filter.
-// If an input tile request fails, the region of interest is broken into 
-// smaller more manigable pieces.  First it splits for input 1 then input2.
-// Any subclass that over rides this default functions must handle
-// input-tile-request failures itself.
-// Getting the cache ouput tile is guarenteed to succeed.
-// Not set up to do splitting yet.
-void vtkImageDyadicFilter::GenerateRegion(int *outOffset, int *outSize)
+// This method gets the input regions from the inputs, uses the cache to
+// allocate the output region, and calls the execute method to fill the 
+// out region.  If either of the input requests fail, the whole update
+// fails.  If dynamic splitting turns out to be important, it
+// could be imp[lemented for this class, but would be more complex
+// that the vtkImageFilter class.
+void vtkImageDyadicFilter::UpdateRegion(vtkImageRegion *outRegion)
 {
-  int in1Offset[3], in1Size[3];
-  int in2Offset[3], in2Size[3];
-  vtkImageRegion *in1Region, *in2Region;
-  vtkImageRegion *outRegion;
+  vtkImageRegion *inRegion1, *inRegion2;
   
-  vtkDebugMacro(<< "GenerateRegion: offset = (" 
-                << outOffset[0] << ", " << outOffset[1] << ", " << outOffset[2]
-                << "), size = (" 
-                << outSize[0] << ", " << outSize[1] << ", " << outSize[2] 
-                << ")");
-
-  // make sure the Input has been set 
+  if (this->Debug)
+    {
+    int *b = outRegion->GetBounds4d();
+    cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" 
+	 << this->GetClassName() << " (" << this << "): "
+	 << "GenerateRegion: " << b[0] << "," << b[1] << ", "
+	 << b[2] << "," << b[3] << ", " 
+	 << b[4] << "," << b[5] << ", "
+	 << b[6] << "," << b[7] << "\n\n";
+    }
+  
+  // To avoid doing this for each execute1d ...
+  this->UpdateImageInformation(outRegion);  // probably already has ImageBounds
+  
+  // If outBBox is empty return imediately.
+  if (outRegion->IsEmpty())
+    {
+    return;
+    }
+    
+  // Make sure the Input has been set.
   if ( ! this->Input1 || ! this->Input2)
     {
-    vtkErrorMacro(<< "An Input is not set.");
+    vtkErrorMacro(<< "An input is not set.");
     return;
     }
   
-  // get the required input Region 
-  this->RequiredInput1Region(outOffset, outSize, in1Offset, in1Size);
-  // get the required tiles from the First Input 
-  in1Region = this->Input1->RequestRegion(in1Offset, in1Size);
-
-  // get the required input Region 
-  this->RequiredInput2Region(outOffset, outSize, in2Offset, in2Size);
-  // get the required tiles from the Second Input 
-  in2Region = this->Input2->RequestRegion(in2Offset, in2Size);
-
-  // did we get the input?
-  if ( ! in1Region || ! in2Region)
+  // Determine whether to use the execute methods or the generate methods.
+  if ( ! this->UseExecuteMethod)
     {
-    vtkErrorMacro(<< "Could not get input, and splitting does not work yet");
+    this->UpdateRegion5d(outRegion);
     return;
     }
+  
+  // Make the input regions that will be used to generate the output region
+  inRegion1 = new vtkImageRegion;
+  inRegion2 = new vtkImageRegion;
+  
+  // Fill in image information
+  this->Input1->UpdateImageInformation(inRegion1);
+  this->Input2->UpdateImageInformation(inRegion2);
+  
+  // Translate to local coordinate system
+  inRegion1->SetAxes(this->Axes);
+  inRegion2->SetAxes(this->Axes);
+  
+  // Compute the required input region bounds.
+  // Copy to fill in bounds of extra dimensions.
+  inRegion1->SetBounds(outRegion->GetBounds());
+  inRegion2->SetBounds(outRegion->GetBounds());
+  this->ComputeRequiredInputRegionBounds(outRegion, inRegion1, inRegion2);
 
-  // get the output tile from the cache
-  if ( ! this->Output)
+  // Use the input to fill the data of the region.
+  this->Input1->UpdateRegion(inRegion1);
+  this->Input2->UpdateRegion(inRegion2);
+  
+  // Make sure the region was not too large 
+  if ( ! inRegion1->IsAllocated() || ! inRegion2->IsAllocated())
     {
-    vtkErrorMacro(<< "GenerateRegion: Filter has no cache object.");
-    in1Region->Delete();    
-    in2Region->Delete();    
+    // Call alternative slower generate that breaks the task into pieces 
+    inRegion1->Delete();
+    inRegion2->Delete();
+    outRegion->SetSplitFactor(2);
     return;
     }
-  outRegion = this->Output->GetRegion(outOffset, outSize);
+  
+  // Get the output region from the cache (guaranteed to succeed).
+  this->Output->AllocateRegion(outRegion);
 
-  // fill the output tile 
-  this->Execute(in1Region, in2Region, outRegion);
+  // fill the output region 
+  this->Execute5d(inRegion1, inRegion2, outRegion);
 
-  // free the input tile 
-  in1Region->Delete();
-  in2Region->Delete();
+  // free the input regions
+  inRegion1->Delete();
+  inRegion2->Delete();
 }
 
 
 //----------------------------------------------------------------------------
 // Description:
-// This method returns in "offset" and "size" the boundary of data
-// in the image. Request for regions of the image out side of these
-// bounds will have unpredictable effects.
-// i.e. no error checking is performed.
-void vtkImageDyadicFilter::GetBoundary(int *offset, int *size)
+// This method gets the boundary of the inputs then computes and returns 
+// the boundary of the largest region that can be generated. 
+void vtkImageDyadicFilter::UpdateImageInformation(vtkImageRegion *outRegion)
+{
+  vtkImageRegion *inRegion1, *inRegion2;
+  
+  // Make sure the Input has been set.
+  if ( ! this->Input1 || ! this->Input2)
+    {
+    vtkErrorMacro(<< "UpdateImageInformation: An input is not set.");
+    return;
+    }
+
+  inRegion1 = new vtkImageRegion;
+  inRegion2 = new vtkImageRegion;
+  
+  this->Input1->UpdateImageInformation(inRegion1);
+  this->Input2->UpdateImageInformation(inRegion2);
+  this->ComputeOutputImageInformation(inRegion1, inRegion2, outRegion);
+
+  inRegion1->Delete();
+  inRegion2->Delete();
+}
+
+
+
+//----------------------------------------------------------------------------
+// Description:
+// This method is passed an inRegion that holds the image information
+// (image bounds ...) of this filters input, and fills outRegion with
+// the image information after this filter is finished.
+// outImage is identical to inImage when this method is envoked, and
+// outImage may be the same object as in image.
+void 
+vtkImageDyadicFilter::ComputeOutputImageInformation(vtkImageRegion *inRegion1,
+						    vtkImageRegion *inRegion2,
+						    vtkImageRegion *outRegion)
+
+{
+  // Default: Image information does not change (do nothing).
+  // Avoid warnings
+  inRegion1 = inRegion1;
+  inRegion2 = inRegion2;
+  outRegion = outRegion;
+}
+
+
+
+//----------------------------------------------------------------------------
+// Description:
+// This method computes the bounds of the input region necessary to generate
+// an output region.  Before this method is called "region" should have the 
+// bounds of the output region.  After this method finishes, "region" should 
+// have the bounds of the required input region.  The default method assumes
+// the required input bounds are the same as the output bounds.
+// Note: The splitting methods call this method with outRegion = inRegion.
+void vtkImageDyadicFilter::ComputeRequiredInputRegionBounds(
+					       vtkImageRegion *outRegion,
+					       vtkImageRegion *inRegion1,
+					       vtkImageRegion *inRegion2)
+{
+  inRegion1->SetBounds(outRegion->GetBounds());
+  inRegion2->SetBounds(outRegion->GetBounds());
+}
+
+
+
+//----------------------------------------------------------------------------
+// Description:
+// This method is passed a 5d input and output region, and executes the filter
+// algorithm to fill the output from the input.  The default Execute5d
+// method breaks the 5d regions into 4d "images".  The regions have been
+// converted to this filters coordinates before this method is called.
+void vtkImageDyadicFilter::Execute5d(vtkImageRegion *inRegion1,
+				     vtkImageRegion *inRegion2,
+				     vtkImageRegion *outRegion)
+{
+  int coordinate4, min4, max4;
+  int *inBounds1, *inBounds2, *outBounds;
+  
+  // Get the bounds of the forth dimension to be eliminated.
+  inBounds1 = inRegion1->GetBounds5d();
+  inBounds2 = inRegion2->GetBounds5d();
+  outBounds = outRegion->GetBounds5d();
+
+  // This method assumes that the fifth axis of in and out have same bounds.
+  min4 = outBounds[8];
+  max4 = outBounds[9];
+  if (min4 != inBounds1[8] || max4 != inBounds1[9] ||
+      min4 != inBounds2[8] || max4 != inBounds2[9]) 
+    {
+    vtkErrorMacro(<< "Execute5d: Cannot break 5d images into 4d images.");
+    return;
+    }
+  
+  // loop over 4d volumes
+  for (coordinate4 = min4; coordinate4 <= max4; ++coordinate4)
+    {
+    // set up the 4d regions.
+    inRegion1->SetDefaultCoordinate4(coordinate4);
+    inRegion1->SetDefaultCoordinate4(coordinate4);
+    outRegion->SetDefaultCoordinate4(coordinate4);
+    this->Execute4d(inRegion1, inRegion2, outRegion);
+    }
+}
+  
+  
+
+//----------------------------------------------------------------------------
+// Description:
+// This method is passed a 4d input and output region, and executes the filter
+// algorithm to fill the output from the input.  The default Execute4d
+// method breaks the 4d regions into 3d volumes.  The regions have been
+// converted to this filters coordinates before this method is called.
+void vtkImageDyadicFilter::Execute4d(vtkImageRegion *inRegion1, 
+				     vtkImageRegion *inRegion2, 
+				     vtkImageRegion *outRegion)
+{
+  int coordinate3, min3, max3;
+  int *inBounds1, *inBounds2, *outBounds;
+  
+  // Get the bounds of the third dimension to be eliminated.
+  inBounds1 = inRegion1->GetBounds4d();
+  inBounds2 = inRegion2->GetBounds4d();
+  outBounds = outRegion->GetBounds4d();
+
+  // This method assumes that the third axis of in and out have same bounds.
+  min3 = outBounds[6];
+  max3 = outBounds[7];
+  if (min3 != inBounds1[6] || max3 != inBounds1[7] ||
+      min3 != inBounds2[6] || max3 != inBounds2[7])
+    {
+    vtkErrorMacro(<< "Execute4d: Cannot break 4d images into volumes.");
+    return;
+    }
+  
+  // loop over 3d volumes
+  for (coordinate3 = min3; coordinate3 <= max3; ++coordinate3)
+    {
+    // set up the 3d regions.
+    inRegion1->SetDefaultCoordinate3(coordinate3);
+    inRegion1->SetDefaultCoordinate3(coordinate3);
+    outRegion->SetDefaultCoordinate3(coordinate3);
+    this->Execute3d(inRegion1, inRegion2, outRegion);
+    }
+}
+  
+  
+
+//----------------------------------------------------------------------------
+// Description:
+// This method is passed a 3d input and output region, and executes the filter
+// algorithm to fill the output from the input.  The default Execute3d
+// method breaks the volumes into images.  The regions have been converted to
+// this filters coordinates before this method is called.
+void vtkImageDyadicFilter::Execute3d(vtkImageRegion *inRegion1, 
+				     vtkImageRegion *inRegion2, 
+				     vtkImageRegion *outRegion)
+{
+  int coordinate2, min2, max2;
+  int *inBounds1, *inBounds2, *outBounds;
+  
+  // Get the bounds of the third dimension to be eliminated.
+  inBounds1 = inRegion1->GetBounds3d();
+  inBounds2 = inRegion2->GetBounds3d();
+  outBounds = outRegion->GetBounds3d();
+
+  // This method assumes that the third axis of in and out have same bounds.
+  min2 = outBounds[4];
+  max2 = outBounds[5];
+  if (min2 != inBounds1[4] || max2 != inBounds1[5] ||
+      min2 != inBounds2[4] || max2 != inBounds2[5]) 
+    {
+    vtkErrorMacro(<< "Execute3d: Cannot break volumes into images.");
+    return;
+    }
+  
+  // loop over 2d images
+  for (coordinate2 = min2; coordinate2 <= max2; ++coordinate2)
+    {
+    // set up the 2d regions.
+    inRegion1->SetDefaultCoordinate2(coordinate2);
+    inRegion2->SetDefaultCoordinate2(coordinate2);
+    outRegion->SetDefaultCoordinate2(coordinate2);
+    this->Execute2d(inRegion1, inRegion2, outRegion);
+    }
+}
+  
+  
+
+//----------------------------------------------------------------------------
+// Description:
+// This method is passed a 2d input and output region, and executes the filter
+// algorithm to fill the output from the input.  The default Execute2d
+// method breaks the images into lines.  The regions have been converted to
+// this filters coordinates before this method is called.
+void vtkImageDyadicFilter::Execute2d(vtkImageRegion *inRegion1, 
+				     vtkImageRegion *inRegion2, 
+				     vtkImageRegion *outRegion)
+{
+  int coordinate1, min1, max1;
+  int *inBounds1, *inBounds2, *outBounds;
+  
+  // Get the bounds of the third dimension to be eliminated.
+  inBounds1 = inRegion1->GetBounds2d();
+  inBounds2 = inRegion2->GetBounds2d();
+  outBounds = outRegion->GetBounds2d();
+
+  // This method assumes that the second axis of in and out have same bounds.
+  min1 = outBounds[2];
+  max1 = outBounds[3];
+  if (min1 != inBounds1[2] || max1 != inBounds1[3] ||
+      min1 != inBounds2[2] || max1 != inBounds2[3]) 
+    {
+    vtkErrorMacro(<< "Execute2d: Cannot break images into lines.");
+    return;
+    }
+  
+  // loop over 1d lines
+  for (coordinate1 = min1; coordinate1 <= max1; ++coordinate1)
+    {
+    // set up the 1d regions.
+    inRegion1->SetDefaultCoordinate1(coordinate1);
+    inRegion2->SetDefaultCoordinate1(coordinate1);
+    outRegion->SetDefaultCoordinate1(coordinate1);
+    this->Execute1d(inRegion1, inRegion2, outRegion);
+    }
+}
+  
+  
+//----------------------------------------------------------------------------
+// Description:
+// This method is passed a 2d input and output region, and executes the filter
+// algorithm to fill the output from the input.  The default Execute2d
+// method breaks the images into lines.  The regions have been converted to
+// this filters coordinates before this method is called.
+void vtkImageDyadicFilter::Execute1d(vtkImageRegion *inRegion1, 
+				     vtkImageRegion *inRegion2, 
+				     vtkImageRegion *outRegion)
+{
+  inRegion1 = inRegion1;
+  inRegion2 = inRegion2;
+  outRegion = outRegion;
+  
+  vtkErrorMacro(<< "Execute1d: Filter does not specify an execute method.");
+}
+
+
+
+//============================================================================
+// Stuff for filters that do not use the execute methods..
+//============================================================================
+
+//----------------------------------------------------------------------------
+vtkImageRegion *vtkImageDyadicFilter::GetInput1Region(int *bounds, int dim)
 {
   int idx;
-  int offset2[3], size2[3];
-  int right1, right2;
-  
+  int *imageBounds;
+  vtkImageRegion *region;
   
   if ( ! this->Input1)
     {
-    vtkErrorMacro(<< "GetBoundary: No input1");
-    return;
+    vtkErrorMacro(<< "Input1 is not set.");
+    return NULL;
     }
-  if ( ! this->Input2)
+
+  region = new vtkImageRegion;
+
+  // This step is just error checking, and may be wastefull.  The Image
+  // Information is automatically computed when UpdateRegion is called.
+  this->Input1->UpdateImageInformation(region);
+  region->SetAxes(this->GetAxes());
+  imageBounds = region->GetImageBounds();
+  for (idx = dim; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
-    vtkErrorMacro(<< "GetBoundary: No input2");
-    return;
-    }
-  // Get the boundaries of the inputs
-  this->Input1->GetBoundary(offset, size);
-  this->Input2->GetBoundary(offset2, size2);
-  // Take the intersection of these two boundaries
-  for (idx = 0; idx < 3; ++idx)
-    {
-    right1 = offset[idx] + size[idx];
-    right2 = offset2[idx] + size2[idx];
-    offset[idx] = (offset2[idx] > offset[idx]) ? offset2[idx] : offset[idx];
-    size[idx] = 
-      (right2 > right1) ? (right1 - offset[idx]) : (right2 - offset[idx]);
+    if (imageBounds[idx*2] > 0 || imageBounds[idx*2 + 1] < 0)
+      {
+      vtkErrorMacro(<< "GetInputRegion1: dim = " << dim 
+                    << ", unspecified dimensions do not include 0.");
+      region->Delete();
+      return NULL;
+      }
     }
   
-  vtkDebugMacro(<< "GetBoundary: returning offset = ("
-        << offset[0] << ", " << offset[1] << ", " << offset[2]
-        << "), size = (" << size[0] << ", " << size[1] << ", " << size[2]
-        << ")");
-    
-  return;
-}
-
-
-
-
-
-//----------------------------------------------------------------------------
-// Description:
-// This method computes the Region from input1 necessary to generate outRegion.
-// It is used by the default GenerateRegion method to create the in1Region.
-// Boundaries are not considered yet.
-void vtkImageDyadicFilter::RequiredInput1Region(int *outOffset, int *outSize,
-					    int *in1Offset, int *in1Size)
-{
-  // Here to avoid warnings
-  outOffset = outOffset;
-  outSize = outSize;
-  in1Offset = in1Offset;
-  in1Size = in1Size;
-
-  vtkErrorMacro(<< "RequiredInput1Region method is not specified.");
+  // Note: This automatical sets the unspecified dimension bounds to [0,0]
+  region->SetBounds(bounds, dim);
+  this->Input1->UpdateRegion(region);
+  
+  return region;
 }
 
 
 
 //----------------------------------------------------------------------------
-// Description:
-// This method computes the Region from input2 necessary to generate outRegion.
-// It is used by the default GenerateRegion method to create the in2Region.
-// Boundaries are not considered yet.
-void vtkImageDyadicFilter::RequiredInput2Region(int *outOffset, int *outSize,
-					    int *in2Offset, int *in2Size)
+vtkImageRegion *vtkImageDyadicFilter::GetInput2Region(int *bounds, int dim)
 {
-  // Here to avoid warnings
-  outOffset = outOffset;
-  outSize = outSize;
-  in2Offset = in2Offset;
-  in2Size = in2Size;
-
-  vtkErrorMacro(<< "RequiredInput1Region method is not specified.");
-}
-
-
-
-//----------------------------------------------------------------------------
-// Description:
-// This method is passed a input and output tile, and executes the filter
-// algorithm to fill the output from the input.
-void vtkImageDyadicFilter::Execute(vtkImageRegion *in1Region, vtkImageRegion *in2Region, 
-				  vtkImageRegion *outRegion)
-{
-  // Here to avoid warnings
-  in1Region = in1Region;
-  in2Region = in2Region;
-  outRegion = outRegion;
-
-  vtkErrorMacro(<< "Execute method is not specified for this filter.");
-}
-
-
-
-/*****************************************************************************
-  Stuff for executing the filter in pieces.
-*****************************************************************************/
-
-
-//----------------------------------------------------------------------------
-// Description:
-// This method gets a tile from input1 in the Region.  If the data has already 
-// been given to us (and stored in Input1Data), no request is made.
-vtkImageRegion *vtkImageDyadicFilter::GetInput1Region(int *in1Offset, int *in1Size)
-{
-}
-
-//----------------------------------------------------------------------------
-// Description:
-// This method gets a tile from input1 in the Region.  If the data has already 
-// been given to us (and stored in Input1Data), no request is made.
-vtkImageRegion *vtkImageDyadicFilter::GetInput2Region(int *in1Offset, int *in1Size)
-{
-}
-
-
-//----------------------------------------------------------------------------
-// Description:
-// This design will not work, we have to come up with a different one.
-void vtkImageDyadicFilter::ClearInputs()
-{
-}
-
-
-
-
-//----------------------------------------------------------------------------
-// Description:
-// This method generates the out Region in pieces.
-void vtkImageDyadicFilter::GenerateRegionTiled(int *outOffset, int *outSize)
-{
-  int genericPieceSize[3];     
-  int pieceOffset[3], pieceSize[3];
-  int deltaOffset[3];
-
-  vtkDebugMacro(<< "GenerateRegionTiled: outRegion must be split into pieces");
-
-  // choose a piece of the outRegion to determine how the tile is divided 
-  // pieces near the edge of the tile can be smaller than this generic piece 
-  this->SplitRegion(outOffset, outSize, genericPieceSize);
-
-  // loop over the output Region generating the pieces 
-  // start at the offset 
-  deltaOffset[2] = 0;
-  while (deltaOffset[2] < outSize[2])
+  int idx;
+  int *imageBounds;
+  vtkImageRegion *region;
+  
+  if ( ! this->Input2)
     {
-    pieceOffset[2] = outOffset[2] + deltaOffset[2];
-    // make the piece smaller if it extends over edge 
-    pieceSize[2] = outSize[2] - deltaOffset[2];
-    if (pieceSize[2] > genericPieceSize[2])
-      pieceSize[2] = genericPieceSize[2];
+    vtkErrorMacro(<< "Input2 is not set.");
+    return NULL;
+    }
 
-    deltaOffset[1] = 0;
-    while (deltaOffset[1] < outSize[1])
+  region = new vtkImageRegion;
+
+  // This step is just error checking, and may be wastefull.  The Image
+  // Information is automatically computed when UpdateRegion is called.
+  this->Input2->UpdateImageInformation(region);
+  region->SetAxes(this->GetAxes());
+  imageBounds = region->GetImageBounds();
+  for (idx = dim; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    if (imageBounds[idx*2] > 0 || imageBounds[idx*2 + 1] < 0)
       {
-      pieceOffset[1] = outOffset[1] + deltaOffset[1];
-      // make the piece smaller if it extends over edge 
-      pieceSize[1] = outSize[1] - deltaOffset[1];
-      if (pieceSize[1] > genericPieceSize[1])
-	pieceSize[1] = genericPieceSize[1];
-
-      deltaOffset[0] = 0;
-      while (deltaOffset[0] < outSize[0])
-	{
-	pieceOffset[0] = outOffset[0] + deltaOffset[0];
-	// make the piece smaller if it extends over edge 
-	pieceSize[0] = outSize[0] - deltaOffset[0];
-	if (pieceSize[0] > genericPieceSize[0])
-	  pieceSize[0] = genericPieceSize[0];
-	
-	// Generate the data for this piece
-	this->GenerateRegion(pieceOffset, pieceSize);
-	
-	deltaOffset[0] += genericPieceSize[0];
-	}
-      deltaOffset[1] += genericPieceSize[1];
+      vtkErrorMacro(<< "GetInputRegion2: dim = " << dim 
+                    << ", unspecified dimensions do not include 0.");
+      region->Delete();
+      return NULL;
       }
-    deltaOffset[2] += genericPieceSize[2];
     }
+  
+  // Note: This automatical sets the unspecified dimension bounds to [0,0]
+  region->SetBounds(bounds, dim);
+  this->Input2->UpdateRegion(region);
+  
+  return region;
 }
-
-
-
-//----------------------------------------------------------------------------
-// Description:
-// This method is called when the output Region is too large to generate.
-// It specifies how to split the Region into pieces by returning a generic
-// pieceSize.  Over ride this method if you have a specific way of breaking 
-// up a tile that is more efficient than this default.
-void vtkImageDyadicFilter::SplitRegion(int *outOffset, int *outSize, 
-				    int *pieceSize)
-{
-/*
-  int newSize[3];
-  int in1Size[3], in1Offset[3];
-  int in2Size[3], in2Offset[3];
-  int memory;
-  int bestMemory;
-
-  // split down the first axis (two pieces, round down) 
-  newSize[1] = outSize[1];
-  newSize[2] = outSize[2];
-  newSize[0] = 1 + outSize[0] / 2;
-  // determine the input Region for this newSize 
-  this->RequiredRegion(outOffset, newSize, 
-		    in1Offset, in1Size, in2Offset, in2Size);
-  // calculate the memory needed (For the input we could not get)
-  if (this->GetSplitingInput() == 1)
-    memory = in1Size[0] * in1Size[1] * in1Size[2];
-  else
-    memory = in2Size[0] * in2Size[1] * in2Size[2];    
-  // save the best (smallest memory) so far 
-  bestMemory = memory;
-  pieceSize[0]=newSize[0];  pieceSize[1]=newSize[1];  pieceSize[2]=newSize[2];
-
-  // split down the second axis (two pieces, round down) 
-  newSize[0] = outSize[0];
-  newSize[2] = outSize[2];
-  newSize[1] = 1 + outSize[1] / 2;
-  // determine the input Region for this newSize 
-  this->RequiredRegion(outOffset, newSize, 
-		    in1Offset, in1Size, in2Offset, in2Size);
-  // calculate the memory needed (For the input we could not get)
-  if (this->GetSplittingInput() == 1)
-    memory = in1Size[0] * in1Size[1] * in1Size[2];
-  else
-    memory = in2Size[0] * in2Size[1] * in2Size[2];    
-  // save the best (smallest memory) so far 
-  if (memory < bestMemory)
-    {
-    bestMemory = memory;
-    pieceSize[0]=newSize[0]; pieceSize[1]=newSize[1]; pieceSize[2]=newSize[2];
-    }
-
-  // split down the first axis (two pieces, round up) 
-  newSize[0] = outSize[0];
-  newSize[1] = outSize[1];
-  newSize[2] = 1 + outSize[2] / 2;
-  // determine the input Region for this newSize 
-  this->RequiredRegion(outOffset, newSize, 
-		    in1Offset, in1Size, in2Offset, in2Size);
-  // calculate the memory needed (For the input we could not get)
-  if (this->GetSplittingInput() == 1)
-    memory = in1Size[0] * in1Size[1] * in1Size[2];
-  else
-    memory = in2Size[0] * in2Size[1] * in2Size[2];    
-  // save the best (smallest memory) so far 
-  if (memory < bestMemory)
-    {
-    bestMemory = memory;
-    pieceSize[0]=newSize[0]; pieceSize[1]=newSize[1]; pieceSize[2]=newSize[2];
-    }
-    */
-}
-
-
 
 
 

@@ -196,6 +196,7 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
     }
   else
     {
+    // Do I really want this restriction?
     if (region->GetDataType() != this->GetDataType())
       {
       vtkErrorMacro(<< "UpdateRegion: DataType does not match.");
@@ -215,9 +216,6 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
     region->SetAxes(saveAxes);
     return;
     }
-  
-  // Set the correct DataType for the region.
-  region->SetDataType(this->DataType);
   
   // If the region bounds has no "volume", allocate and return.
   if (memory <= 0)
@@ -273,9 +271,17 @@ void vtkImageCache::GenerateUnCachedRegionData(vtkImageRegion *region)
   // Save the axes just in case it is important to restore coordinate system.
   // (Update region probably does not care but ...)
   region->GetAxes(saveAxes);
+
+  // this->Data should be NULL, but just in case subclass did somthing funny.
+  if (this->Data)
+    {
+    this->Data->Delete();
+    this->Data = NULL;
+    }
   
   // Create the data object for this region, but delay allocating the
   // memory for as long as possible.
+  // Note: This step is simply to save the bounds of the region.
   this->Data = new vtkImageData;
   region->SetAxes(this->Data->GetAxes());
   this->Data->SetBounds(region->GetBounds());
@@ -283,6 +289,8 @@ void vtkImageCache::GenerateUnCachedRegionData(vtkImageRegion *region)
   region->SetAxes(saveAxes);
   
   // Tell the filter to generate the data for this region
+  // IMPORTANT: Region is just to communicate bounds, and does not
+  // return any infomation!
   this->Source->UpdateRegion(region);
 
   // this->Data should be allocated by now. 

@@ -706,9 +706,6 @@ void *vtkImageRegion::GetVoidPointer1d()
 }
 
 
-
-
-
 //----------------------------------------------------------------------------
 void vtkImageRegion::SetAxes(int *axes, int dim)
 {

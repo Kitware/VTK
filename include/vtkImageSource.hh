@@ -88,7 +88,10 @@ public:
   // number of pieces for the next call to suceed.  
   // If the failure is not memory related, and splitting the region
   // will not help, split factor should be set to zero.
+  // This should really be in the region object.
+  vtkSetMacro(SplitFactor,int);
   vtkGetMacro(SplitFactor,int);
+
 protected:
   int SplitFactor;
 };

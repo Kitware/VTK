@@ -37,10 +37,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageDyadicFilter - Generic filter has two inputs
+// .NAME vtkImageDyadicFilter - Generic filter that has two inputs.
 // .SECTION Description
-// vtkImageDyadicFilter is a filter class the main interface is the function
-// RequestRegion which is passed a Region and returns a tile.
+// vtkImageDyadicFilter is a super class for filters that have two inputs.
+// Dynamic splitting is not implemented for this super class (but could be).
+// If a input request fails, this class just passes the failure to
+// the consumer.
+
+
 
 
 #ifndef __vtkImageDyadicFilter_h
@@ -55,43 +59,74 @@ class vtkImageDyadicFilter : public vtkImageCachedSource
 public:
   vtkImageDyadicFilter();
   char *GetClassName() {return "vtkImageDyadicFilter";};
-
-  void GenerateRegion(int *outOffset, int *outSize);    
-  unsigned long int GetPipelineMTime();
-  void GetBoundary(int *offset, int *size);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   virtual void SetInput1(vtkImageSource *input);
   virtual void SetInput2(vtkImageSource *input);
+  void UpdateRegion(vtkImageRegion *outRegion);
+  void UpdateImageInformation(vtkImageRegion *outRegion);
+  unsigned long int GetPipelineMTime();
+  
+  vtkSetMacro(UseExecuteMethod,int);
+  vtkGetMacro(UseExecuteMethod,int);
+  vtkBooleanMacro(UseExecuteMethod,int);
+  
   // Description:
-  // Get the first input to this filter.
+  // Get input to this filter.
   vtkGetObjectMacro(Input1,vtkImageSource);
-
-  // Description:
-  // Get the second input to this filter.
   vtkGetObjectMacro(Input2,vtkImageSource);
 
 protected:
-  vtkImageSource *Input1;  // the first input to the filter 
-  vtkImageSource *Input2;  // the second input to the filter 
+  vtkImageSource *Input1;     // One of the inputs to the filter
+  vtkImageSource *Input2;     // One of the inputs to the filter
+  int UseExecuteMethod;       // Use UpdateRegion or Execute method?
 
-  vtkImageData *Input1Data; // cache to save in1Region while splitting for in2
-
-  // Not working yet
-  void GenerateRegionTiled(int *outOffset, int *outSize);
-  virtual void SplitRegion(int *outOffset, int *outSize, int *pieceSize);
-  int GetSplittingInput();
-  void ClearInputs();
-  vtkImageRegion *GetInput1Region(int *in1Offset, int *in1Size);
-  vtkImageRegion *GetInput2Region(int *in2Offset, int *in2Size);
-
-
-  // method specified by sub classes
-  virtual void RequiredInput1Region(int *outOffset, int *outSize,
-				 int *inOffset1, int *inSize1);
-  virtual void RequiredInput2Region(int *outOffset, int *outSize,
-				 int *inOffset2, int *inSize2);
-  virtual void Execute(vtkImageRegion *inRegion1, vtkImageRegion *inRegion2, 
-		       vtkImageRegion *outRegion);
+  // Description:
+  // These are conveniance functions for writing filters that have their
+  // own UpdateRegion methods.  They create the region object as well as 
+  // getting the input source to fill it with data.  The bounds
+  // of the unspecified dimensions default to [0, 0];
+  // Used in vtkImageScatterPlotFilter.
+  vtkImageRegion *GetInput1Region(int *bounds, int dim);    
+  vtkImageRegion *GetInput1Region5d(int bounds[10])
+    {return this->GetInput1Region(bounds, 5);};
+  vtkImageRegion *GetInput1Region4d(int bounds[8])
+    {return this->GetInput1Region(bounds, 4);};
+  vtkImageRegion *GetInput1Region3d(int bounds[6])
+    {return this->GetInput1Region(bounds, 3);};
+  vtkImageRegion *GetInput1Region2d(int bounds[4])
+    {return this->GetInput1Region(bounds, 2);};
+  vtkImageRegion *GetInput1Region1d(int bounds[2])
+    {return this->GetInput1Region(bounds, 1);};
+  vtkImageRegion *GetInput2Region(int *bounds, int dim);    
+  vtkImageRegion *GetInput2Region5d(int bounds[10])
+    {return this->GetInput2Region(bounds, 5);};
+  vtkImageRegion *GetInput2Region4d(int bounds[8])
+    {return this->GetInput2Region(bounds, 4);};
+  vtkImageRegion *GetInput2Region3d(int bounds[6])
+    {return this->GetInput2Region(bounds, 3);};
+  vtkImageRegion *GetInput2Region2d(int bounds[4])
+    {return this->GetInput2Region(bounds, 2);};
+  vtkImageRegion *GetInput2Region1d(int bounds[2])
+    {return this->GetInput2Region(bounds, 1);};
+  
+  void UpdateRegionTiled(vtkImageRegion *outRegion);
+  virtual void ComputeOutputImageInformation(vtkImageRegion *inRegion1,
+					     vtkImageRegion *inRegion2,
+					     vtkImageRegion *outRegion);
+  virtual void ComputeRequiredInputRegionBounds(vtkImageRegion *outRegion,
+						vtkImageRegion *inRegion1,
+						vtkImageRegion *inRegion2);
+  virtual void Execute5d(vtkImageRegion *inRegion1, vtkImageRegion *inRegion2, 
+			 vtkImageRegion *outRegion);
+  virtual void Execute4d(vtkImageRegion *inRegion1, vtkImageRegion *inRegion2, 
+			 vtkImageRegion *outRegion);
+  virtual void Execute3d(vtkImageRegion *inRegion1, vtkImageRegion *inRegion2, 
+			 vtkImageRegion *outRegion);
+  virtual void Execute2d(vtkImageRegion *inRegion1, vtkImageRegion *inRegion2, 
+			 vtkImageRegion *outRegion);
+  virtual void Execute1d(vtkImageRegion *inRegion1, vtkImageRegion *inRegion2, 
+			 vtkImageRegion *outRegion);
 };
 
 #endif

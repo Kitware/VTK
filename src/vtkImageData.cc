@@ -149,17 +149,13 @@ void vtkImageData::SetBounds(int min0, int max0, int min1, int max1,
 }
 
 
-
-
-
-
 //----------------------------------------------------------------------------
 // Description:
 // This method tells the data object to handle a specific DataType.
 // The method should be called before the data object is allocated.
 void vtkImageData::SetType(int type)
 {
-  if (this->Scalars)
+if (this->Scalars)
     {
     vtkErrorMacro(<< "SetType: Data object has already been allocated.");
     return;
