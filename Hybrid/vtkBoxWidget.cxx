@@ -37,7 +37,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkBoxWidget, "1.28");
+vtkCxxRevisionMacro(vtkBoxWidget, "1.29");
 vtkStandardNewMacro(vtkBoxWidget);
 
 vtkBoxWidget::vtkBoxWidget()
@@ -1195,9 +1195,9 @@ void vtkBoxWidget::GetTransform(vtkTransform *t)
     }
   else
     {
-      translate[0] = center[0];
-      translate[1] = center[1];
-      translate[2] = center[2];
+    translate[0] = center[0];
+    translate[1] = center[1];
+    translate[2] = center[2];
     }
 
   t->Translate(translate[0], translate[1], translate[2]);
@@ -1235,7 +1235,44 @@ void vtkBoxWidget::GetTransform(vtkTransform *t)
     {
     t->Translate(-position[0], -position[1], -position[2]);
     }
+}
 
+void vtkBoxWidget::SetTransform(vtkTransform* t)
+{
+  int i;
+  float trans[3], scale[3], orient[3], center[3];
+  double *pts = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
+  double xIn[3];
+
+  // Position the eight points of the box and then update the
+  // position of the other handles.
+  float *bounds=this->InitialBounds;
+
+  xIn[0] = bounds[0]; xIn[1] = bounds[2]; xIn[2] = bounds[4];
+  t->InternalTransformPoint(xIn,pts);
+
+  xIn[0] = bounds[1]; xIn[1]= bounds[2]; xIn[2] = bounds[4];
+  t->InternalTransformPoint(xIn,pts+3);
+
+  xIn[0] = bounds[1]; xIn[1]= bounds[3]; xIn[2] = bounds[4];
+  t->InternalTransformPoint(xIn,pts+6);
+
+  xIn[0] = bounds[0]; xIn[1]= bounds[3]; xIn[2] = bounds[4];
+  t->InternalTransformPoint(xIn,pts+9);
+
+  xIn[0] = bounds[0]; xIn[1]= bounds[2]; xIn[2] = bounds[5];
+  t->InternalTransformPoint(xIn,pts+12);
+
+  xIn[0] = bounds[1]; xIn[1]= bounds[2]; xIn[2] = bounds[5];
+  t->InternalTransformPoint(xIn,pts+15);
+
+  xIn[0] = bounds[1]; xIn[1]= bounds[3]; xIn[2] = bounds[5];
+  t->InternalTransformPoint(xIn,pts+18);
+
+  xIn[0] = bounds[0]; xIn[1]= bounds[3]; xIn[2] = bounds[5];
+  t->InternalTransformPoint(xIn,pts+21);
+
+  this->PositionHandles();
 }
 
 void vtkBoxWidget::GetPolyData(vtkPolyData *pd)

@@ -106,7 +106,6 @@ public:
                    float zmin, float zmax)
     {this->Superclass::PlaceWidget(xmin,xmax,ymin,ymax,zmin,zmax);}
 
-
   // Description:
   // Get the planes describing the implicit function defined by the box
   // widget. The user must provide the instance of the class vtkPlanes. Note
@@ -131,6 +130,13 @@ public:
   // transform can be used to control the position of vtkProp3D's, as well as
   // other transformation operations (e.g., vtkTranformPolyData).
   void GetTransform(vtkTransform *t);
+
+  // Description:
+  // Set the position, scale and orientation of the box widget using the
+  // transform specified. Note that the transformation is relative to 
+  // where PlaceWidget was initially called (i.e., the original bounding
+  // box). 
+  void SetTransform(vtkTransform* t);
 
   // Description:
   // Grab the polydata (including points) that define the box widget. The
