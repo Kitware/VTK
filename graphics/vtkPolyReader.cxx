@@ -161,6 +161,7 @@ void vtkPolyReader::Execute()
   if (!this->Reader.ReadString(line))
     {
     vtkErrorMacro(<<"Data file ends prematurely!");
+    this->Reader.CloseVTKFile ();
     return;
     }
 
@@ -172,12 +173,14 @@ void vtkPolyReader::Execute()
     if (!this->Reader.ReadString(line))
       {
       vtkErrorMacro(<<"Data file ends prematurely!");
+      this->Reader.CloseVTKFile ();
       return;
       } 
 
     if ( strncmp(this->Reader.LowerCase(line),"polydata",8) )
       {
       vtkErrorMacro(<< "Cannot read dataset type: " << line);
+      this->Reader.CloseVTKFile ();
       return;
       }
 //
@@ -192,6 +195,7 @@ void vtkPolyReader::Execute()
         if (!this->Reader.ReadInt(&numPts))
           {
           vtkErrorMacro(<<"Cannot read number of points!");
+          this->Reader.CloseVTKFile ();
           return;
           }
 
@@ -204,6 +208,7 @@ void vtkPolyReader::Execute()
         if (!(this->Reader.ReadInt(&ncells) && this->Reader.ReadInt(&size)))
           {
           vtkErrorMacro(<<"Cannot read vertices!");
+          this->Reader.CloseVTKFile ();
           return;
           }
 
@@ -219,6 +224,7 @@ void vtkPolyReader::Execute()
         if (!(this->Reader.ReadInt(&ncells) && this->Reader.ReadInt(&size)))
           {
           vtkErrorMacro(<<"Cannot read lines!");
+          this->Reader.CloseVTKFile ();
           return;
           }
 
@@ -234,6 +240,7 @@ void vtkPolyReader::Execute()
         if (!(this->Reader.ReadInt(&ncells) && this->Reader.ReadInt(&size)))
           {
           vtkErrorMacro(<<"Cannot read polygons!");
+          this->Reader.CloseVTKFile ();
           return;
           }
 
@@ -249,6 +256,7 @@ void vtkPolyReader::Execute()
         if (!(this->Reader.ReadInt(&ncells) && this->Reader.ReadInt(&size)))
           {
           vtkErrorMacro(<<"Cannot read triangle strips!");
+          this->Reader.CloseVTKFile ();
           return;
           }
 
@@ -263,6 +271,7 @@ void vtkPolyReader::Execute()
         if (!this->Reader.ReadInt(&npts))
           {
           vtkErrorMacro(<<"Cannot read point data!");
+          this->Reader.CloseVTKFile ();
           return;
           }
         
@@ -279,6 +288,7 @@ void vtkPolyReader::Execute()
       else
         {
         vtkErrorMacro(<< "Unrecognized keyord: " << line);
+        this->Reader.CloseVTKFile ();
         return;
         }
       }
@@ -295,6 +305,7 @@ void vtkPolyReader::Execute()
     if (!this->Reader.ReadInt(&numPts))
       {
       vtkErrorMacro(<<"Cannot read point data!");
+      this->Reader.CloseVTKFile ();
       return;
       }
 
@@ -305,6 +316,7 @@ void vtkPolyReader::Execute()
     {
     vtkErrorMacro(<< "Unrecognized keyord: " << line);
     }
+  this->Reader.CloseVTKFile ();
 }
 
 void vtkPolyReader::PrintSelf(ostream& os, vtkIndent indent)
