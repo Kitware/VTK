@@ -10,6 +10,7 @@
 class vlLookupTable : public vlObject 
 {
 public:
+  char *GetClassName() {return "vlLookupTable";};
   vlLookupTable(int sze=256, int ext=256);
   int Initialize(int sz=256, int ext=256);
   void Build();
