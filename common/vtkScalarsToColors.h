@@ -63,7 +63,7 @@ class vtkScalars;
 class VTK_EXPORT vtkScalarsToColors : public vtkObject
 {
 public:
-  const char *GetClassName() {return "vtkScalarsToColors";};
+  vtkTypeMacro(vtkScalarsToColors,vtkObject);
   
   // Description:
   // Perform any processing required (if any) before processing 

@@ -67,7 +67,7 @@ class VTK_EXPORT vtkThreadedController : public vtkMultiProcessController
 {
 public:
   static vtkThreadedController *New();
-  const char *GetClassName() {return "vtkThreadedController";};
+  vtkTypeMacro(vtkThreadedController,vtkMultiProcessController);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

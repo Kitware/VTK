@@ -65,7 +65,7 @@ class VTK_EXPORT vtkProgrammableDataObjectSource : public vtkSource
 {
 public:
   static vtkProgrammableDataObjectSource *New();
-  const char *GetClassName() {return "vtkProgrammableDataObjectSource";};
+  vtkTypeMacro(vtkProgrammableDataObjectSource,vtkSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

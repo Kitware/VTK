@@ -61,7 +61,7 @@ class VTK_EXPORT vtkPropPicker : public vtkWorldPointPicker
 public:
   static vtkPropPicker *New();
 
-  const char *GetClassName() {return "vtkPropPicker";};
+  vtkTypeMacro(vtkPropPicker,vtkWorldPointPicker);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

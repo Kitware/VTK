@@ -73,7 +73,7 @@ class VTK_EXPORT vtkFieldData : public vtkObject
 public:
   static vtkFieldData *New();
 
-  const char *GetClassName() {return "vtkFieldData";};
+  vtkTypeMacro(vtkFieldData,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

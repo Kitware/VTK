@@ -213,15 +213,16 @@ void vtkObject::SetReferenceCount(int ref)
 void vtkObject::Register(vtkObject* o)
 {
   this->ReferenceCount++;
-	if ( o )
-	{
-		vtkDebugMacro(<< "Registered by " << o->GetClassName() << " (" << o 
-			<< "), ReferenceCount = " << this->ReferenceCount);
-	}
-	else
-	{
-		vtkDebugMacro(<< "Registered by NULL, ReferenceCount = " << this->ReferenceCount);
-	}		
+        if ( o )
+        {
+        vtkDebugMacro(<< "Registered by " << o->GetClassName() << " (" << o 
+                      << "), ReferenceCount = " << this->ReferenceCount);
+        }
+        else
+        {
+        vtkDebugMacro(<< "Registered by NULL, ReferenceCount = " 
+                      << this->ReferenceCount);
+        }               
   if (this->ReferenceCount <= 0)
     {
     delete this;
@@ -234,7 +235,7 @@ void vtkObject::UnRegister(vtkObject* o)
 {
   if (o)
     {
-    vtkDebugMacro(<< "UnRegistered by " 
+    vtkDebugMacro(<< "UnRegistered by "
       << o->GetClassName() << " (" << o << "), ReferenceCount = "
       << (this->ReferenceCount-1));
     }
@@ -246,15 +247,28 @@ void vtkObject::UnRegister(vtkObject* o)
 
   if (--this->ReferenceCount <= 0)
     {
-      // invoke the delete method
-      if ( this->DeleteMethod )
-	{
-	  (*this->DeleteMethod)(this);
-	}
+    // invoke the delete method
+    if ( this->DeleteMethod )
+      {
+      (*this->DeleteMethod)(this);
+      }
     delete this;
     }
 }
 
+int vtkObject::IsA(const char *type)
+{
+  if ( !strcmp(this->vtkObject::GetClassName(),type) )
+    {
+    return 1;
+    }
+  return 0;
+}
+
+vtkObject *vtkObject::SafeDownCast(vtkObject *o)
+{
+  return (vtkObject *)o;
+}
 
 
 

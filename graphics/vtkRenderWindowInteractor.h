@@ -68,7 +68,7 @@ class VTK_EXPORT vtkRenderWindowInteractor : public vtkObject
 {
 public:
   static vtkRenderWindowInteractor *New();
-  const char *GetClassName() {return "vtkRenderWindowInteractor";};
+  vtkTypeMacro(vtkRenderWindowInteractor,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

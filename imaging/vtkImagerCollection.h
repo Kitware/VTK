@@ -56,7 +56,7 @@ class VTK_EXPORT vtkImagerCollection : public vtkCollection
 {
  public:
   static vtkImagerCollection *New();
-  const char *GetClassName() {return "vtkImagerCollection";};
+  vtkTypeMacro(vtkImagerCollection,vtkCollection);
 
   // Description:
   // Standard methods for manipulating the collection.

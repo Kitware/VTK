@@ -58,7 +58,7 @@ class VTK_EXPORT vtkVolumeCollection : public vtkPropCollection
 {
  public:
   static vtkVolumeCollection *New();
-  const char *GetClassName() {return "vtkVolumeCollection";};
+  vtkTypeMacro(vtkVolumeCollection,vtkPropCollection);
 
   // Description:
   // Add a Volume to the list.

@@ -57,7 +57,7 @@ class vtkUnstructuredGrid;
 class VTK_EXPORT vtkPyramid : public vtkCell
 {
 public:
-  const char *GetClassName() {return "vtkPyramid";};
+  vtkTypeMacro(vtkPyramid,vtkCell);
 
   // Description:
   // Create an instance of this class.

@@ -68,7 +68,7 @@ class VTK_EXPORT vtkEncodedGradientShader : public vtkObject
 {
 public:
   static vtkEncodedGradientShader *New();
-  const char *GetClassName() {return "vtkEncodedGradientShader";};
+  vtkTypeMacro(vtkEncodedGradientShader,vtkObject);
 
   // Description:
   // Print the vtkEncodedGradientShader

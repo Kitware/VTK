@@ -61,7 +61,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkFollower : public vtkActor
 {
  public:
-  const char *GetClassName() {return "vtkFollower";};
+  vtkTypeMacro(vtkFollower,vtkActor);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

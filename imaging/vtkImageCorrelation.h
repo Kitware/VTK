@@ -58,7 +58,7 @@ class VTK_EXPORT vtkImageCorrelation : public vtkImageTwoInputFilter
 {
 public:
   static vtkImageCorrelation *New();
-  const char *GetClassName() {return "vtkImageCorrelation";};
+  vtkTypeMacro(vtkImageCorrelation,vtkImageTwoInputFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

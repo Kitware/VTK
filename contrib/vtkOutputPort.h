@@ -62,7 +62,7 @@ class VTK_EXPORT vtkOutputPort : public vtkProcessObject
 {
 public:
   static vtkOutputPort *New();
-  const char *GetClassName() {return "vtkOutputPort";};
+  vtkTypeMacro(vtkOutputPort,vtkProcessObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

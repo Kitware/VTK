@@ -74,7 +74,7 @@ class vtkWindow;
 class VTK_EXPORT vtkVolumeMapper : public vtkAbstractMapper3D
 {
 public:
-  const char *GetClassName() {return "vtkVolumeMapper";};
+  vtkTypeMacro(vtkVolumeMapper,vtkAbstractMapper3D);
   void PrintSelf( ostream& os, vtkIndent index );
 
   // Description:

@@ -56,7 +56,7 @@ class VTK_EXPORT vtkPolyDataMapper : public vtkMapper
 {
 public:
   static vtkPolyDataMapper *New();
-  const char *GetClassName() {return "vtkPolyDataMapper";};
+  vtkTypeMacro(vtkPolyDataMapper,vtkMapper);
 
   // Description:
   // Implement required Render method. Just a dummy routine here.

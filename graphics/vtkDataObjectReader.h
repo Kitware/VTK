@@ -60,7 +60,7 @@ class VTK_EXPORT vtkDataObjectReader : public vtkDataObjectSource
 {
 public:
   static vtkDataObjectReader *New();
-  const char *GetClassName() {return "vtkDataObjectReader";}
+  vtkTypeMacro(vtkDataObjectReader,vtkDataObjectSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -54,7 +54,7 @@ class VTK_EXPORT vtkPNMWriter : public vtkImageWriter
 {
 public:
   static vtkPNMWriter *New();
-  const char *GetClassName() {return "vtkPNMWriter";};
+  vtkTypeMacro(vtkPNMWriter,vtkImageWriter);
 
 protected:
   vtkPNMWriter() {};

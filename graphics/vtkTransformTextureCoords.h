@@ -63,7 +63,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTransformTextureCoords : public vtkDataSetToDataSetFilter 
 {
 public:
-  const char *GetClassName() {return "vtkTransformTextureCoords";};
+  vtkTypeMacro(vtkTransformTextureCoords,vtkDataSetToDataSetFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

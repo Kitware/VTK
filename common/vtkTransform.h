@@ -76,7 +76,7 @@ class VTK_EXPORT vtkTransform : public vtkObject
   // creates an identity matrix as the top matrix on the stack.
   static vtkTransform *New();
 
-  const char *GetClassName () {return "vtkTransform";};
+  vtkTypeMacro(vtkTransform,vtkObject);
   void PrintSelf (ostream& os, vtkIndent indent);
 
   // Description:

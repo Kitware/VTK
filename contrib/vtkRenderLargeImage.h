@@ -54,7 +54,7 @@ class VTK_EXPORT vtkRenderLargeImage : public vtkImageSource
 {
 public:
   static vtkRenderLargeImage *New();
-  const char *GetClassName() {return "vtkRenderLargeImage";};
+  vtkTypeMacro(vtkRenderLargeImage,vtkImageSource);
   void PrintSelf(ostream& os, vtkIndent indent);   
 
   // Description:

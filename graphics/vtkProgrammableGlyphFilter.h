@@ -91,7 +91,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkProgrammableGlyphFilter : public vtkDataSetToPolyDataFilter
 {
 public:
-  const char *GetClassName() {return "vtkProgrammableGlyphFilter";};
+  vtkTypeMacro(vtkProgrammableGlyphFilter,vtkDataSetToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description

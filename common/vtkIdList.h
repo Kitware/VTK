@@ -56,7 +56,7 @@ public:
 
   void Initialize();
   int Allocate(const int sz, const int strategy=0);
-  const char *GetClassName() {return "vtkIdList";};
+  vtkTypeMacro(vtkIdList,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

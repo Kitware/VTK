@@ -65,7 +65,7 @@ class VTK_EXPORT vtkWindowLevelLookupTable : public vtkLookupTable
 {
 public:
   static vtkWindowLevelLookupTable *New();
-  const char *GetClassName() {return "vtkWindowLevelLookupTable";};
+  vtkTypeMacro(vtkWindowLevelLookupTable,vtkLookupTable);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkOpenGLPolyDataMapper2D : public vtkPolyDataMapper2D
 {
 public:
-  const char *GetClassName() {return "vtkOpenGLPolyDataMapper2D";};
+  vtkTypeMacro(vtkOpenGLPolyDataMapper2D,vtkPolyDataMapper2D);
   static vtkOpenGLPolyDataMapper2D *New();
 
   // Description:

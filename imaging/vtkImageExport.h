@@ -59,7 +59,7 @@ class VTK_EXPORT vtkImageExport : public vtkProcessObject
 {
 public:
   static vtkImageExport *New();
-  const char *GetClassName() {return "vtkImageExport";};
+  vtkTypeMacro(vtkImageExport,vtkProcessObject);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

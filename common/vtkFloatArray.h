@@ -53,7 +53,7 @@ class VTK_EXPORT vtkFloatArray : public vtkDataArray
 {
 public:
   static vtkFloatArray *New();
-  const char *GetClassName() {return "vtkFloatArray";};
+  vtkTypeMacro(vtkFloatArray,vtkDataArray);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -56,7 +56,7 @@ class VTK_EXPORT vtkMesaTexture : public vtkTexture
 {
 public:
   static vtkMesaTexture *New();
-  const char *GetClassName() {return "vtkMesaTexture";};
+  vtkTypeMacro(vtkMesaTexture,vtkTexture);
 
   // Description:
   // Implement base class method.

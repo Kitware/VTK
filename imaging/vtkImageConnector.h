@@ -78,7 +78,7 @@ class VTK_EXPORT vtkImageConnector : public vtkObject
 public:
   static vtkImageConnector *New();
 
-  const char *GetClassName() {return "vtkImageConnector";};
+  vtkTypeMacro(vtkImageConnector,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   //BTX

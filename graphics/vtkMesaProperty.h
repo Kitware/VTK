@@ -54,7 +54,7 @@ class VTK_EXPORT vtkMesaProperty : public vtkProperty
 {
 public:
   static vtkMesaProperty *New();
-  const char *GetClassName() {return "vtkMesaProperty";};
+  vtkTypeMacro(vtkMesaProperty,vtkProperty);
 
   // Description:
   // Implement base class method.

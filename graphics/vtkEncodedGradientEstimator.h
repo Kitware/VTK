@@ -65,7 +65,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkEncodedGradientEstimator : public vtkObject
 {
 public:
-  const char *GetClassName() {return "vtkEncodedGradientEstimator";};
+  vtkTypeMacro(vtkEncodedGradientEstimator,vtkObject);
   void PrintSelf( ostream& os, vtkIndent index );
 
   // Description:

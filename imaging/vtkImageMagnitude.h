@@ -53,7 +53,7 @@ class VTK_EXPORT vtkImageMagnitude : public vtkImageToImageFilter
 {
 public:
   static vtkImageMagnitude *New();
-  const char *GetClassName() {return "vtkImageMagnitude";};
+  vtkTypeMacro(vtkImageMagnitude,vtkImageToImageFilter);
 
 protected:
   vtkImageMagnitude() {};

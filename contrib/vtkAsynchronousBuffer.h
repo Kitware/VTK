@@ -65,7 +65,7 @@ class vtkPortController;
 class VTK_EXPORT vtkAsynchronousBuffer : public vtkDataSetToDataSetFilter
 {
 public:
-  const char *GetClassName() {return "vtkAsynchronousBuffer";};
+  vtkTypeMacro(vtkAsynchronousBuffer,vtkDataSetToDataSetFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkAsynchronousBuffer *New();
 

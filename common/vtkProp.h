@@ -65,7 +65,7 @@ public:
   // and dragable=1.
   static vtkProp* New();
 
-  const char *GetClassName() {return "vtkProp";};
+  vtkTypeMacro(vtkProp,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description: 

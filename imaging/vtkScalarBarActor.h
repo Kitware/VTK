@@ -83,7 +83,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkScalarBarActor : public vtkActor2D
 {
 public:
-  const char *GetClassName() {return "vtkScalarBarActor";};
+  vtkTypeMacro(vtkScalarBarActor,vtkActor2D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -62,7 +62,7 @@ public:
   // Construct an instance of vtkImageDilateErode3D fitler.
   // By default zero values are dilated.
   static vtkImageDilateErode3D *New();
-  const char *GetClassName() {return "vtkImageDilateErode3D";};
+  vtkTypeMacro(vtkImageDilateErode3D,vtkImageSpatialFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

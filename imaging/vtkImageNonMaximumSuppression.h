@@ -60,7 +60,7 @@ class VTK_EXPORT vtkImageNonMaximumSuppression : public vtkImageTwoInputFilter
 {
 public:
   static vtkImageNonMaximumSuppression *New();
-  const char *GetClassName() {return "vtkImageNonMaximumSuppression";};
+  vtkTypeMacro(vtkImageNonMaximumSuppression,vtkImageTwoInputFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

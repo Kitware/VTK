@@ -61,7 +61,7 @@ class VTK_EXPORT vtkImageMultipleInputFilter : public vtkImageSource
 {
 public:
   static vtkImageMultipleInputFilter *New();
-  const char *GetClassName() {return "vtkImageMultipleInputFilter";};
+  vtkTypeMacro(vtkImageMultipleInputFilter,vtkImageSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

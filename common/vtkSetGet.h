@@ -529,4 +529,26 @@ virtual float *Get##name() \
     return this->name##Coordinate->GetValue(); \
 }
 
+// Macro used to determine whether a class is the same class or
+// a subclass of the named class.
+//
+#define vtkTypeMacro(thisClass,superclass) \
+virtual const char *GetClassName() {return #thisClass;};\
+virtual int IsA(const char *type) \
+{ \
+  if ( !strcmp(this->thisClass::GetClassName(),type) ) \
+    { \
+    return 1; \
+    } \
+  return this->superclass::IsA(type); \
+} \
+static thisClass* SafeDownCast(vtkObject *o) \
+{ \
+  if ( o->IsA(#thisClass) ) \
+    { \
+    return (thisClass *)o; \
+    } \
+  return NULL;\
+}
+
 #endif

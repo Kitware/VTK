@@ -69,7 +69,7 @@ class VTK_EXPORT vtkBMPReader : public vtkImageReader
 {
 public:
   static vtkBMPReader *New();
-  const char *GetClassName() {return "vtkBMPReader";};
+  vtkTypeMacro(vtkBMPReader,vtkImageReader);
 
   void PrintSelf(ostream& os, vtkIndent indent);
 

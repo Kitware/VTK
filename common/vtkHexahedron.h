@@ -54,7 +54,7 @@ class VTK_EXPORT vtkHexahedron : public vtkCell
 {
 public:
   static vtkHexahedron *New();
-  const char *GetClassName() {return "vtkHexahedron";};
+  vtkTypeMacro(vtkHexahedron,vtkCell);
 
   // Description:
   // See the vtkCell API for descriptions of these methods.

@@ -58,7 +58,7 @@ class VTK_EXPORT vtkInteractorStyleTrackball : public vtkInteractorStyle
 {
 public:
   static vtkInteractorStyleTrackball *New();
-  const char *GetClassName() {return "vtkInteractorStyleTrackball";};
+  vtkTypeMacro(vtkInteractorStyleTrackball,vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

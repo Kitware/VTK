@@ -61,7 +61,7 @@ class VTK_EXPORT vtkVolumeRayCastCompositeFunction : public vtkVolumeRayCastFunc
 {
 public:
   static vtkVolumeRayCastCompositeFunction *New();
-  const char *GetClassName() {return "vtkVolumeRayCastCompositeFunction";};
+  vtkTypeMacro(vtkVolumeRayCastCompositeFunction,vtkVolumeRayCastFunction);
   void PrintSelf( ostream& os, vtkIndent index );
 
   // Description:

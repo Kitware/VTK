@@ -83,7 +83,7 @@ class VTK_EXPORT vtkRIBExporter : public vtkExporter
 {
 public:
   static vtkRIBExporter *New();
-  const char *GetClassName() {return "vtkRIBExporter";};
+  vtkTypeMacro(vtkRIBExporter,vtkExporter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description

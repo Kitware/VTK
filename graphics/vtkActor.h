@@ -68,7 +68,7 @@ class vtkActorCollection;
 class VTK_EXPORT vtkActor : public vtkProp3D
 {
  public:
-  const char *GetClassName() {return "vtkActor";};
+  vtkTypeMacro(vtkActor,vtkProp3D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

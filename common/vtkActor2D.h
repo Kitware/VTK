@@ -61,7 +61,7 @@ class VTK_EXPORT vtkActor2D : public vtkProp
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent);
-  const char *GetClassName() {return "vtkActor2D";};
+  vtkTypeMacro(vtkActor2D,vtkProp);
 
   // Description:
   // Creates an actor2D with the following defaults: 

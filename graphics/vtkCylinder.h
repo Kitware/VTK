@@ -59,7 +59,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkCylinder : public vtkImplicitFunction
 {
 public:
-  const char *GetClassName() {return "vtkCylinder";};
+  vtkTypeMacro(vtkCylinder,vtkImplicitFunction);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description

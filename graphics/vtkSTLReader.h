@@ -66,7 +66,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkSTLReader : public vtkPolyDataSource 
 {
 public:
-  const char *GetClassName() {return "vtkSTLReader";};
+  vtkTypeMacro(vtkSTLReader,vtkPolyDataSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

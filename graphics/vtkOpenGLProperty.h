@@ -54,7 +54,7 @@ class VTK_EXPORT vtkOpenGLProperty : public vtkProperty
 {
 public:
   static vtkOpenGLProperty *New();
-  const char *GetClassName() {return "vtkOpenGLProperty";};
+  vtkTypeMacro(vtkOpenGLProperty,vtkProperty);
 
   // Description:
   // Implement base class method.

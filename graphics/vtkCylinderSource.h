@@ -55,7 +55,7 @@ class VTK_EXPORT vtkCylinderSource : public vtkPolyDataSource
 {
 public:
   static vtkCylinderSource *New();
-  const char *GetClassName() {return "vtkCylinderSource";};
+  vtkTypeMacro(vtkCylinderSource,vtkPolyDataSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

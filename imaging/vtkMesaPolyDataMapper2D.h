@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkMesaPolyDataMapper2D : public vtkPolyDataMapper2D
 {
 public:
-  const char *GetClassName() {return "vtkMesaPolyDataMapper2D";};
+  vtkTypeMacro(vtkMesaPolyDataMapper2D,vtkPolyDataMapper2D);
   static vtkMesaPolyDataMapper2D *New();
 
   // Description:

@@ -55,7 +55,7 @@ public:
   // Construct the ProcessStatistics with eight points.
   static vtkProcessStatistics *New();
 
-  const char *GetClassName() {return "vtkProcessStatistics";};
+  vtkTypeMacro(vtkProcessStatistics,vtkObject);
 
   int   GetProcessSizeInBytes();
   float GetProcessCPUTimeInMilliseconds();

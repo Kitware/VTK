@@ -60,7 +60,7 @@ class VTK_EXPORT vtkImageAppend : public vtkImageMultipleInputFilter
 {
 public:
   static vtkImageAppend *New();
-  const char *GetClassName() {return "vtkImageAppend";};
+  vtkTypeMacro(vtkImageAppend,vtkImageMultipleInputFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

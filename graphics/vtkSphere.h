@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkSphere : public vtkImplicitFunction
 {
 public:
-  const char *GetClassName() {return "vtkSphere";};
+  vtkTypeMacro(vtkSphere,vtkImplicitFunction);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description

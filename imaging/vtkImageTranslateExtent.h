@@ -52,7 +52,7 @@ class VTK_EXPORT vtkImageTranslateExtent : public vtkImageToImageFilter
 {
 public:
   static vtkImageTranslateExtent *New();
-  const char *GetClassName() {return "vtkImageTranslateExtent";};
+  vtkTypeMacro(vtkImageTranslateExtent,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -71,7 +71,7 @@ class VTK_EXPORT vtkDataObject : public vtkObject
 public:
   static vtkDataObject *New();
 
-  const char *GetClassName() {return "vtkDataObject";};
+  vtkTypeMacro(vtkDataObject,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

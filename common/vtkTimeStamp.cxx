@@ -45,9 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMutexLock.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 vtkTimeStamp* vtkTimeStamp::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -60,12 +58,7 @@ vtkTimeStamp* vtkTimeStamp::New()
   return new vtkTimeStamp;
 }
 
-
-
-
-
 static vtkSimpleMutexLock TimeStampMutex;
-
 
 void vtkTimeStamp::Modified()
 {
@@ -76,7 +69,19 @@ void vtkTimeStamp::Modified()
   TimeStampMutex.Unlock();
 }
 
+int vtkTimeStamp::IsA(const char *type)
+{
+  if ( !strcmp(this->vtkTimeStamp::GetClassName(),type) )
+    {
+    return 1;
+    }
+  return 0;
+}
 
+vtkTimeStamp *vtkTimeStamp::SafeDownCast(vtkTimeStamp *o)
+{
+  return (vtkTimeStamp *)o;
+}
 
 
 

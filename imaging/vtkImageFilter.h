@@ -55,7 +55,7 @@ class VTK_EXPORT vtkImageFilter : public vtkImageToImageFilter
 {
 public:
   static vtkImageFilter *New();
-  const char *GetClassName() {return "vtkImageFilter";};
+  vtkTypeMacro(vtkImageFilter,vtkImageToImageFilter);
 
 protected:  
   vtkImageFilter() {};

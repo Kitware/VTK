@@ -57,7 +57,10 @@ public:
   vtkTimeStamp() {this->ModifiedTime = 0;};
   static vtkTimeStamp *New();
   void Delete() {delete this;};
+
   virtual const char *GetClassName() {return "vtkTimeStamp";};
+  virtual int IsA(const char *name);
+  static vtkTimeStamp *SafeDownCast(vtkTimeStamp *o);
 
   // Description:
   // Set this objects time to the current time. The current time is

@@ -66,7 +66,7 @@ class VTK_EXPORT vtkPNMReader : public vtkImageReader
 {
 public:
   static vtkPNMReader *New();
-  const char *GetClassName() {return "vtkPNMReader";};
+  vtkTypeMacro(vtkPNMReader,vtkImageReader);
   
 protected:
   vtkPNMReader() {};

@@ -91,7 +91,7 @@ class VTK_EXPORT vtkFieldDataToAttributeDataFilter : public vtkDataSetToDataSetF
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent);
-  const char *GetClassName() {return "vtkFieldDataToAttributeDataFilter";};
+  vtkTypeMacro(vtkFieldDataToAttributeDataFilter,vtkDataSetToDataSetFilter);
 
   // Description:
   // Construct object with input field set to the data object field, and the

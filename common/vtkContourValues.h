@@ -62,7 +62,7 @@ public:
   // Construct object with a single contour value at 0.0.
   static vtkContourValues *New();
 
-  const char *GetClassName() {return "vtkContourValues";};
+  vtkTypeMacro(vtkContourValues,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

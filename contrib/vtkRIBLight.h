@@ -58,7 +58,7 @@ class VTK_EXPORT vtkRIBLight : public vtkLight
 {
 public:
   static vtkRIBLight *New();
-  const char *GetClassName() {return "vtkRIBLight";};
+  vtkTypeMacro(vtkRIBLight,vtkLight);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   vtkBooleanMacro(Shadows,int);

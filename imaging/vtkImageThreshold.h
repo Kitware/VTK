@@ -55,7 +55,7 @@ class VTK_EXPORT vtkImageThreshold : public vtkImageToImageFilter
 {
 public:
   static vtkImageThreshold *New();
-  const char *GetClassName() {return "vtkImageThreshold";};
+  vtkTypeMacro(vtkImageThreshold,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

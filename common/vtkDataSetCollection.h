@@ -53,7 +53,7 @@ class VTK_EXPORT vtkDataSetCollection : public vtkCollection
 {
 public:
   static vtkDataSetCollection *New();
-  const char *GetClassName() {return "vtkDataSetCollection";};
+  vtkTypeMacro(vtkDataSetCollection,vtkCollection);
 
   // Description:
   // Add a dataset to the list.

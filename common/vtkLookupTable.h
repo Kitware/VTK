@@ -73,7 +73,7 @@ public:
   // (from red to blue).
   static vtkLookupTable *New();
   
-  const char *GetClassName() {return "vtkLookupTable";};
+  vtkTypeMacro(vtkLookupTable,vtkScalarsToColors);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

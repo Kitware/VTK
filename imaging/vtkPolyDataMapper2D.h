@@ -67,7 +67,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPolyDataMapper2D : public vtkMapper2D
 {
 public:
-  const char *GetClassName() {return "vtkPolyDataMapper2D";};
+  vtkTypeMacro(vtkPolyDataMapper2D,vtkMapper2D);
   static vtkPolyDataMapper2D *New();
   void PrintSelf(ostream& os, vtkIndent indent);
   

@@ -55,7 +55,7 @@ class VTK_EXPORT vtkSLCReader : public vtkStructuredPointsSource
 {
 public:
   static vtkSLCReader *New();
-  const char *GetClassName() {return "vtkSLCReader";};
+  vtkTypeMacro(vtkSLCReader,vtkStructuredPointsSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

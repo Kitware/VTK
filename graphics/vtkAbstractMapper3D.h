@@ -65,7 +65,7 @@ class vtkDataSet;
 class VTK_EXPORT vtkAbstractMapper3D : public vtkAbstractMapper
 {
 public:
-  const char *GetClassName() {return "vtkAbstractMapper3D";};
+  vtkTypeMacro(vtkAbstractMapper3D,vtkAbstractMapper);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

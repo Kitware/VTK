@@ -59,7 +59,7 @@ class VTK_EXPORT vtkImageLaplacian : public vtkImageToImageFilter
 {
 public:
   static vtkImageLaplacian *New();
-  const char *GetClassName() {return "vtkImageLaplacian";};
+  vtkTypeMacro(vtkImageLaplacian,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

@@ -56,7 +56,7 @@ class VTK_EXPORT vtkKitwareObjectFactory : public vtkObjectFactory
 {
 public:
   static vtkKitwareObjectFactory *New() {return new vtkKitwareObjectFactory;};
-  const char *GetClassName() {return "vtkKitwareObjectFactory";};
+  vtkTypeMacro(vtkKitwareObjectFactory,vtkObjectFactory);
   void PrintSelf(ostream& os, vtkIndent indent);  
   virtual const char* GetVTKSourceVersion();
 protected:

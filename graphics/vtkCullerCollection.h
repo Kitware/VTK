@@ -57,7 +57,7 @@ class VTK_EXPORT vtkCullerCollection : public vtkCollection
 {
  public:
   static vtkCullerCollection *New();
-  const char *GetClassName() {return "vtkCullerCollection";};
+  vtkTypeMacro(vtkCullerCollection,vtkCollection);
 
   // Description:
   // Add an Culler to the list.

@@ -58,7 +58,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkIdFilter : public vtkDataSetToDataSetFilter 
 {
 public:
-  const char *GetClassName() {return "vtkIdFilter";};
+  vtkTypeMacro(vtkIdFilter,vtkDataSetToDataSetFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -80,7 +80,7 @@ public:
   // Instantiate an object.
   static vtkDicer *New();
 
-  const char *GetClassName() {return "vtkDicer";};
+  vtkTypeMacro(vtkDicer,vtkDataSetToDataSetFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

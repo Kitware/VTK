@@ -66,7 +66,7 @@ class VTK_EXPORT vtkSubPixelPositionEdgels : public vtkPolyDataToPolyDataFilter
 {
 public:
   static vtkSubPixelPositionEdgels *New();
-  const char *GetClassName() {return "vtkSubPixelPositionEdgels";};
+  vtkTypeMacro(vtkSubPixelPositionEdgels,vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

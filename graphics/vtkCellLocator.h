@@ -68,7 +68,7 @@ class vtkNeighborCells;
 class VTK_EXPORT vtkCellLocator : public vtkLocator
 {
 public:
-  const char *GetClassName() {return "vtkCellLocator";};
+  vtkTypeMacro(vtkCellLocator,vtkLocator);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

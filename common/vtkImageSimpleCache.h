@@ -57,7 +57,7 @@ class VTK_EXPORT vtkImageSimpleCache : public vtkImageCache
 public:
   static vtkImageSimpleCache *New() {return new vtkImageSimpleCache;};
 
-  const char *GetClassName() {return "vtkImageSimpleCache";};
+  vtkTypeMacro(vtkImageSimpleCache,vtkImageCache);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

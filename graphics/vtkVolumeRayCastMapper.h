@@ -83,7 +83,7 @@ class VTK_EXPORT vtkVolumeRayCastMapper : public vtkVolumeMapper
 {
 public:
   static vtkVolumeRayCastMapper *New();
-  const char *GetClassName() {return "vtkVolumeRayCastMapper";};
+  vtkTypeMacro(vtkVolumeRayCastMapper,vtkVolumeMapper);
   void PrintSelf( ostream& os, vtkIndent index );
 
   // Description:

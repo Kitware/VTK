@@ -75,7 +75,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkKochanekSpline : public vtkSpline
 {
 public:
-  const char *GetClassName() {return "vtkKochanekSpline";};
+  vtkTypeMacro(vtkKochanekSpline,vtkSpline);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -69,7 +69,7 @@ class VTK_EXPORT vtkMergeDataObjectFilter : public vtkDataSetToDataSetFilter
 {
 public:
   static vtkMergeDataObjectFilter *New();
-  const char *GetClassName() {return "vtkMergeDataObjectFilter";};
+  vtkTypeMacro(vtkMergeDataObjectFilter,vtkDataSetToDataSetFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

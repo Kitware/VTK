@@ -86,7 +86,7 @@ class VTK_EXPORT vtkDataObjectSource : public vtkSource
 {
 public:
   static vtkDataObjectSource *New();
-  const char *GetClassName() {return "vtkDataObjectSource";};
+  vtkTypeMacro(vtkDataObjectSource,vtkSource);
 
   // Description:
   // Get the output field of this source.

@@ -60,7 +60,7 @@ class VTK_EXPORT vtkWin32OpenGLRenderWindow : public vtkRenderWindow
 {
 public:
   static vtkWin32OpenGLRenderWindow *New();
-  const char *GetClassName() {return "vtkWin32OpenGLRenderWindow";};
+  vtkTypeMacro(vtkWin32OpenGLRenderWindow,vtkRenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

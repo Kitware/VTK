@@ -57,7 +57,7 @@ class VTK_EXPORT vtkLightCollection : public vtkCollection
 {
  public:
   static vtkLightCollection *New();
-  const char *GetClassName() {return "vtkLightCollection";};
+  vtkTypeMacro(vtkLightCollection,vtkCollection);
 
   // Description:
   // Add a light to the list.

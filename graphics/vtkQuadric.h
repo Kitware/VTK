@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkQuadric : public vtkImplicitFunction
 {
 public:
-  const char *GetClassName() {return "vtkQuadric";};
+  vtkTypeMacro(vtkQuadric,vtkImplicitFunction);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description

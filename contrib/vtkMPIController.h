@@ -66,7 +66,7 @@ class VTK_EXPORT vtkMPIController : public vtkMultiProcessController
 {
 public:
   static vtkMPIController *New();
-  const char *GetClassName() {return "vtkMPIController";};
+  vtkTypeMacro(vtkMPIController,vtkMultiProcessController);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -73,7 +73,7 @@ class VTK_EXPORT vtkGridSynchronizedTemplates3D : public vtkStructuredGridToPoly
 {
 public:
   static vtkGridSynchronizedTemplates3D *New();
-  const char *GetClassName() {return "vtkGridSynchronizedTemplates3D";};
+  vtkTypeMacro(vtkGridSynchronizedTemplates3D,vtkStructuredGridToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

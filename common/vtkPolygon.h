@@ -56,7 +56,7 @@ class VTK_EXPORT vtkPolygon : public vtkCell
 {
 public:
   static vtkPolygon *New();
-  const char *GetClassName() {return "vtkPolygon";};
+  vtkTypeMacro(vtkPolygon,vtkCell);
 
   // Description:
   // See the vtkCell API for descriptions of these methods.

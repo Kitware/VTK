@@ -54,7 +54,7 @@ class VTK_EXPORT vtkVoidArray : public vtkDataArray
 public:
   static vtkVoidArray *New();
 
-  const char *GetClassName() {return "vtkVoidArray";};
+  vtkTypeMacro(vtkVoidArray,vtkDataArray);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

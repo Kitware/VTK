@@ -57,7 +57,7 @@ class VTK_EXPORT vtkImageAppendComponents : public vtkImageMultipleInputFilter
 {
 public:
   static vtkImageAppendComponents *New();
-  const char *GetClassName() {return "vtkImageAppendComponents";};
+  vtkTypeMacro(vtkImageAppendComponents,vtkImageMultipleInputFilter);
 
   // Description:
   // Do not use these: They are for legacy compatability back when this was a

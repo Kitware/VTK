@@ -60,7 +60,7 @@ class VTK_EXPORT vtkExtractVectorComponents : public vtkSource
 {
 public:
   static vtkExtractVectorComponents *New();
-  const char *GetClassName() {return "vtkExtractVectorComponents";};
+  vtkTypeMacro(vtkExtractVectorComponents,vtkSource);
 
   // Description:
   // Specify the input data or filter.

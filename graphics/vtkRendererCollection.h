@@ -57,7 +57,7 @@ class VTK_EXPORT vtkRendererCollection : public vtkCollection
 {
  public:
   static vtkRendererCollection *New();
-  const char *GetClassName() {return "vtkRendererCollection";};
+  vtkTypeMacro(vtkRendererCollection,vtkCollection);
 
   // Description:
   // Add a Renderer to the list.

@@ -104,7 +104,7 @@ class VTK_EXPORT vtkProgrammableAttributeDataFilter : public vtkDataSetToDataSet
 {
 public:
   static vtkProgrammableAttributeDataFilter *New();
-  const char *GetClassName() {return "vtkProgrammableAttributeDataFilter";};
+  vtkTypeMacro(vtkProgrammableAttributeDataFilter,vtkDataSetToDataSetFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

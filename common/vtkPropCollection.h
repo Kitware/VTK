@@ -57,7 +57,7 @@ class VTK_EXPORT vtkPropCollection : public vtkCollection
 {
  public:
   static vtkPropCollection *New();
-  const char *GetClassName() {return "vtkPropCollection";};
+  vtkTypeMacro(vtkPropCollection,vtkCollection);
 
   // Description:
   // Add an Prop to the list.

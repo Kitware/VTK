@@ -55,7 +55,7 @@ class VTK_EXPORT vtkMaskPoints : public vtkDataSetToPolyDataFilter
 {
 public:
   static vtkMaskPoints *New();
-  const char *GetClassName() {return "vtkMaskPoints";};
+  vtkTypeMacro(vtkMaskPoints,vtkDataSetToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -56,7 +56,7 @@ class VTK_EXPORT vtkRectilinearGridWriter : public vtkDataWriter
 {
 public:
   static vtkRectilinearGridWriter *New();
-  const char *GetClassName() {return "vtkRectilinearGridWriter";};
+  vtkTypeMacro(vtkRectilinearGridWriter,vtkDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

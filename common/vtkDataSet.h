@@ -72,7 +72,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkDataSet : public vtkDataObject
 {
 public:
-  const char *GetClassName() {return "vtkDataSet";};
+  vtkTypeMacro(vtkDataSet,vtkDataObject);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

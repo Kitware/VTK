@@ -75,7 +75,7 @@ class VTK_EXPORT vtkImageMathematics : public vtkImageTwoInputFilter
 {
 public:
   static vtkImageMathematics *New();
-  const char *GetClassName() {return "vtkImageMathematics";};
+  vtkTypeMacro(vtkImageMathematics,vtkImageTwoInputFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

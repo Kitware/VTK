@@ -56,7 +56,7 @@ class VTK_EXPORT vtkRectilinearGridToPolyDataFilter : public vtkPolyDataSource
 {
 public:
   static vtkRectilinearGridToPolyDataFilter *New();
-  const char *GetClassName() {return "vtkRectilinearGridToPolyDataFilter";};
+  vtkTypeMacro(vtkRectilinearGridToPolyDataFilter,vtkPolyDataSource);
 
   // Description:
   // Set / get the input Grid or filter.

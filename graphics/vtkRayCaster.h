@@ -64,7 +64,7 @@ class VTK_EXPORT vtkRayCaster : public vtkObject
 {
 public:
   static vtkRayCaster *New();
-  const char *GetClassName() {return "vtkRayCaster";};
+  vtkTypeMacro(vtkRayCaster,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

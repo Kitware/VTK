@@ -85,7 +85,7 @@ class vtkDelaunay3D;
 class VTK_EXPORT vtkClipVolume : public vtkStructuredPointsToUnstructuredGridFilter
 {
 public:
-  const char *GetClassName() {return "vtkClipVolume";};
+  vtkTypeMacro(vtkClipVolume,vtkStructuredPointsToUnstructuredGridFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

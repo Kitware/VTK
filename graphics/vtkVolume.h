@@ -68,7 +68,7 @@ class vtkWindow;
 class VTK_EXPORT vtkVolume : public vtkProp3D
 {
 public:
-  const char *GetClassName() {return "vtkVolume";};
+  vtkTypeMacro(vtkVolume,vtkProp3D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

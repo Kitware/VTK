@@ -58,7 +58,7 @@ class VTK_EXPORT vtkDataSetToUnstructuredGridFilter : public vtkUnstructuredGrid
 {
 public:
   static vtkDataSetToUnstructuredGridFilter *New();
-  const char *GetClassName() {return "vtkDataSetToUnstructuredGridFilter";}
+  vtkTypeMacro(vtkDataSetToUnstructuredGridFilter,vtkUnstructuredGridSource);
 
   // Description:
   // Set / get the input data or filter.

@@ -56,7 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkApproximatingSubdivisionFilter : public vtkPolyDataToPolyDataFilter
 {
 public:
-  const char *GetClassName() {return "vtkApproximatingSubdivisionFilter";};
+  vtkTypeMacro(vtkApproximatingSubdivisionFilter,vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

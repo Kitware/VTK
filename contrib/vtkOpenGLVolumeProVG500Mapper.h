@@ -71,7 +71,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkOpenGLVolumeProVG500Mapper : public vtkVolumeProVG500Mapper
 {
 public:
-  const char *GetClassName() {return "vtkOpenGLVolumeProVG500Mapper";};
+  vtkTypeMacro(vtkOpenGLVolumeProVG500Mapper,vtkVolumeProVG500Mapper);
   static vtkOpenGLVolumeProVG500Mapper *New();
 
 protected:

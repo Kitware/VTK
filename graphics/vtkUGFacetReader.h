@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkUGFacetReader : public vtkPolyDataSource 
 {
 public:
-  const char *GetClassName() {return "vtkUGFacetReader";};
+  vtkTypeMacro(vtkUGFacetReader,vtkPolyDataSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

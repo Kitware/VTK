@@ -58,7 +58,7 @@ class VTK_EXPORT vtkWedge : public vtkCell
 {
 public:
   static vtkWedge *New();
-  const char *GetClassName() {return "vtkWedge";};
+  vtkTypeMacro(vtkWedge,vtkCell);
 
   // Description:
   // See the vtkCell API for descriptions of these methods.

@@ -54,7 +54,7 @@ class VTK_EXPORT vtkPiecewiseFunction : public vtkDataObject
 {
 public:
   static vtkPiecewiseFunction *New();
-  const char *GetClassName() {return "vtkPiecewiseFunction";};
+  vtkTypeMacro(vtkPiecewiseFunction,vtkDataObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   vtkDataObject *MakeObject();

@@ -67,7 +67,7 @@ public:
   // Description:
   // Default open value is 0, and default close value is 255.
   static vtkImageOpenClose3D *New();
-  const char *GetClassName() {return "vtkImageOpenClose3D";};
+  vtkTypeMacro(vtkImageOpenClose3D,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -60,7 +60,7 @@ class VTK_EXPORT vtkAppendPolyData : public vtkPolyDataToPolyDataFilter
 public:
   static vtkAppendPolyData *New();
 
-  const char *GetClassName() {return "vtkAppendPolyData";}
+  vtkTypeMacro(vtkAppendPolyData,vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

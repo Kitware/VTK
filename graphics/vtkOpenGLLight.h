@@ -54,7 +54,7 @@ class VTK_EXPORT vtkOpenGLLight : public vtkLight
 {
 public:
   static vtkOpenGLLight *New();
-  const char *GetClassName() {return "vtkOpenGLLight";};
+  vtkTypeMacro(vtkOpenGLLight,vtkLight);
 
   // Description:
   // Implement base class method.

@@ -61,7 +61,7 @@ class VTK_EXPORT vtkImageMask : public vtkImageTwoInputFilter
 {
 public:
   static vtkImageMask *New();
-  const char *GetClassName() {return "vtkImageMask";};
+  vtkTypeMacro(vtkImageMask,vtkImageTwoInputFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

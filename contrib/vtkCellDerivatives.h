@@ -77,7 +77,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkCellDerivatives : public vtkDataSetToDataSetFilter 
 {
 public:
-  const char *GetClassName() {return "vtkCellDerivatives";};
+  vtkTypeMacro(vtkCellDerivatives,vtkDataSetToDataSetFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -57,7 +57,7 @@ class VTK_EXPORT vtkImageImport : public vtkImageSource
 {
 public:
   static vtkImageImport *New();
-  const char *GetClassName() {return "vtkImageImport";};
+  vtkTypeMacro(vtkImageImport,vtkImageSource);
   void PrintSelf(ostream& os, vtkIndent indent);   
 
   // Description:

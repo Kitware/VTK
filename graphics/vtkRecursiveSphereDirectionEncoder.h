@@ -57,7 +57,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkRecursiveSphereDirectionEncoder : public vtkDirectionEncoder
 {
 public:
-  const char *GetClassName() {return "vtkRecursiveSphereDirectionEncoder";};
+  vtkTypeMacro(vtkRecursiveSphereDirectionEncoder,vtkDirectionEncoder);
   void PrintSelf( ostream& os, vtkIndent index );
 
 // Description:

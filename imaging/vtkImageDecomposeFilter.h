@@ -59,7 +59,7 @@ public:
   // Construct an instance of vtkImageDecomposeFilter fitler with default
   // dimensionality 3.
   static vtkImageDecomposeFilter *New();
-  const char *GetClassName() {return "vtkImageDecomposeFilter";};
+  vtkTypeMacro(vtkImageDecomposeFilter,vtkImageIterateFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

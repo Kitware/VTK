@@ -64,7 +64,7 @@ class vtkActor;
 class VTK_EXPORT vtkProperty : public vtkObject
 {
 public:
-  const char *GetClassName() {return "vtkProperty";};
+  vtkTypeMacro(vtkProperty,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

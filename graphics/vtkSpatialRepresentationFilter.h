@@ -89,7 +89,7 @@ class VTK_EXPORT vtkSpatialRepresentationFilter : public vtkPolyDataSource
 {
 public:
   static vtkSpatialRepresentationFilter *New();
-  const char *GetClassName() {return "vtkSpatialRepresentationFilter";};
+  vtkTypeMacro(vtkSpatialRepresentationFilter,vtkPolyDataSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -56,7 +56,7 @@ class VTK_EXPORT vtkImageShiftScale : public vtkImageToImageFilter
 {
 public:
   static vtkImageShiftScale *New();
-  const char *GetClassName() {return "vtkImageShiftScale";};
+  vtkTypeMacro(vtkImageShiftScale,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

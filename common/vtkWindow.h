@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkWindow : public vtkObject
 {
 public:
-  const char *GetClassName() {return "vtkWindow";};
+  vtkTypeMacro(vtkWindow,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

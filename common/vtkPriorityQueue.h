@@ -79,7 +79,7 @@ public:
   // Instantiate priority queue with default size and extension size of 1000.
   static vtkPriorityQueue *New();
 
-  const char *GetClassName() {return "vtkPriorityQueue";};
+  vtkTypeMacro(vtkPriorityQueue,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

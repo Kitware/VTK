@@ -58,7 +58,7 @@ class VTK_EXPORT vtkImageSpatialFilter : public vtkImageToImageFilter
 {
 public:
   static vtkImageSpatialFilter *New();
-  const char *GetClassName() {return "vtkImageSpatialFilter";};
+  vtkTypeMacro(vtkImageSpatialFilter,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

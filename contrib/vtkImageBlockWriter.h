@@ -55,7 +55,7 @@ class VTK_EXPORT vtkImageBlockWriter : public vtkProcessObject
 {
 public:
   static vtkImageBlockWriter *New();
-  const char *GetClassName() {return "vtkImageBlockWriter";};
+  vtkTypeMacro(vtkImageBlockWriter,vtkProcessObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

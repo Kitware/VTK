@@ -64,7 +64,7 @@ class VTK_EXPORT vtkCompositeFilter : public vtkStructuredPointsToStructuredPoin
 public:
   static vtkCompositeFilter *New();
 
-  const char *GetClassName() {return "vtkCompositeFilter";}
+  vtkTypeMacro(vtkCompositeFilter,vtkStructuredPointsToStructuredPointsFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -58,7 +58,7 @@ class VTK_EXPORT vtkWin32ImageMapper : public vtkImageMapper
 {
 public:
   static vtkWin32ImageMapper *New();
-  const char *GetClassName() {return "vtkWin32ImageMapper";};
+  vtkTypeMacro(vtkWin32ImageMapper,vtkImageMapper);
   
   // Description:
   // Handle the render method.

@@ -64,7 +64,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkThinPlateSplineMeshWarp : public vtkPolyDataToPolyDataFilter
 {
 public:
-  const char *GetClassName() { return "vtkThinPlateSplineMeshWarp"; }
+  vtkTypeMacro(vtkThinPlateSplineMeshWarp,vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -55,7 +55,7 @@ class VTK_EXPORT vtkPolyDataWriter : public vtkDataWriter
 {
 public:
   static vtkPolyDataWriter *New();
-  const char *GetClassName() {return "vtkPolyDataWriter";};
+  vtkTypeMacro(vtkPolyDataWriter,vtkDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

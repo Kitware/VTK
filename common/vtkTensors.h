@@ -58,7 +58,7 @@ public:
   static vtkTensors *New(int dataType);
   static vtkTensors *New();
 
-  const char *GetClassName() {return "vtkTensors";};
+  vtkTypeMacro(vtkTensors,vtkAttributeData);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

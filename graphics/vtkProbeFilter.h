@@ -56,7 +56,7 @@ class VTK_EXPORT vtkProbeFilter : public vtkDataSetToDataSetFilter
 {
 public:
   static vtkProbeFilter *New();
-  const char *GetClassName() {return "vtkProbeFilter";};
+  vtkTypeMacro(vtkProbeFilter,vtkDataSetToDataSetFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

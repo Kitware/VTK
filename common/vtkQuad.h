@@ -53,7 +53,7 @@ class VTK_EXPORT vtkQuad : public vtkCell
 {
 public:
   static vtkQuad *New();
-  const char *GetClassName() {return "vtkQuad";};
+  vtkTypeMacro(vtkQuad,vtkCell);
 
   // Description:
   // See the vtkCell API for descriptions of these methods.

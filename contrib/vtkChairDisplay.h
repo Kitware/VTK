@@ -52,7 +52,7 @@ class VTK_EXPORT vtkChairDisplay : public vtkPolyDataSource
 {
 public:
   static vtkChairDisplay *New();
-  const char *GetClassName() {return "vtkChairDisplay";};
+  vtkTypeMacro(vtkChairDisplay,vtkPolyDataSource);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

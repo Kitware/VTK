@@ -69,7 +69,7 @@ class VTK_EXPORT vtkProgrammableFilter : public vtkDataSetToDataSetFilter
 {
 public:
   static vtkProgrammableFilter *New();
-  const char *GetClassName() {return "vtkProgrammableFilter";};
+  vtkTypeMacro(vtkProgrammableFilter,vtkDataSetToDataSetFilter);
 
   // Description:
   // Specify the function to use to operate on the point attribute data. Note

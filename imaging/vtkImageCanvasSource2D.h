@@ -77,7 +77,7 @@ public:
   // Construct an instance of vtkImageCanvasSource2D with no data.
   static vtkImageCanvasSource2D *New();
 
-  const char *GetClassName() {return "vtkImageCanvasSource2D";};
+  vtkTypeMacro(vtkImageCanvasSource2D,vtkStructuredPoints);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

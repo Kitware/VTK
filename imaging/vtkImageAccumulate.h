@@ -56,7 +56,7 @@ class VTK_EXPORT vtkImageAccumulate : public vtkImageToImageFilter
 {
 public:
   static vtkImageAccumulate *New();
-  const char *GetClassName() {return "vtkImageAccumulate";};
+  vtkTypeMacro(vtkImageAccumulate,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -64,7 +64,7 @@ class VTK_EXPORT vtkStack : public vtkObject
 public:
   static vtkStack *New();
 
-  const char *GetClassName() {return "vtkStack";};
+  vtkTypeMacro(vtkStack,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -60,7 +60,7 @@ class VTK_EXPORT vtkImageReader : public vtkImageSource
 {
 public:
   static vtkImageReader *New();
-  const char *GetClassName() {return "vtkImageReader";};
+  vtkTypeMacro(vtkImageReader,vtkImageSource);
   void PrintSelf(ostream& os, vtkIndent indent);   
 
   // Description:

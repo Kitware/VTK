@@ -64,7 +64,7 @@ class VTK_EXPORT vtkXImageWindow : public vtkImageWindow
 {
 public:
   static vtkXImageWindow *New();
-  const char *GetClassName() {return "vtkXImageWindow";};
+  vtkTypeMacro(vtkXImageWindow,vtkImageWindow);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

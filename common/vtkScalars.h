@@ -81,7 +81,7 @@ public:
   static vtkScalars *New();
   static vtkScalars *New(int dataType, int numComp=1);
 
-  const char *GetClassName() {return "vtkScalars";};
+  vtkTypeMacro(vtkScalars,vtkAttributeData);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

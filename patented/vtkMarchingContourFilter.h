@@ -99,7 +99,7 @@ class vtkScalarTree;
 class VTK_EXPORT vtkMarchingContourFilter : public vtkDataSetToPolyDataFilter
 {
 public:
-  const char *GetClassName() {return "vtkMarchingContourFilter";};
+  vtkTypeMacro(vtkMarchingContourFilter,vtkDataSetToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -71,7 +71,7 @@ class VTK_EXPORT vtkRectilinearGrid : public vtkDataSet
 public:
   static vtkRectilinearGrid *New();
 
-  const char *GetClassName() {return "vtkRectilinearGrid";};
+  vtkTypeMacro(vtkRectilinearGrid,vtkDataSet);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -60,7 +60,7 @@ class vtkActor2D;
 class VTK_EXPORT vtkImageMapper : public vtkMapper2D
 {
 public:
-  const char *GetClassName() {return "vtkImageMapper";};
+  vtkTypeMacro(vtkImageMapper,vtkMapper2D);
   static vtkImageMapper *New();
   void PrintSelf(ostream& os, vtkIndent indent);
 

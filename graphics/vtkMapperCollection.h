@@ -57,7 +57,7 @@ class VTK_EXPORT vtkMapperCollection : public vtkCollection
 {
  public:
   static vtkMapperCollection *New();
-  const char *GetClassName() {return "vtkMapperCollection";};
+  vtkTypeMacro(vtkMapperCollection,vtkCollection);
 
   // Description:
   // Add an mapper to the list.

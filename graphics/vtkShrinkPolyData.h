@@ -66,7 +66,7 @@ class VTK_EXPORT vtkShrinkPolyData : public vtkPolyDataToPolyDataFilter
 {
 public:
   static vtkShrinkPolyData *New();
-  const char *GetClassName() {return "vtkShrinkPolyData";};
+  vtkTypeMacro(vtkShrinkPolyData,vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -63,7 +63,7 @@ class VTK_EXPORT vtkMCubesWriter : public vtkPolyDataWriter
 {
 public:
   static vtkMCubesWriter *New();
-  const char *GetClassName() {return "vtkMCubesWriter";};
+  vtkTypeMacro(vtkMCubesWriter,vtkPolyDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

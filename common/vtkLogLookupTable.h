@@ -62,7 +62,7 @@ class VTK_EXPORT vtkLogLookupTable : public vtkLookupTable
 public:
   static vtkLogLookupTable *New();
 
-  const char *GetClassName() {return "vtkLogLookupTable";};
+  vtkTypeMacro(vtkLogLookupTable,vtkLookupTable);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -56,7 +56,7 @@ class vtkViewport;
 class VTK_EXPORT vtkProperty2D : public vtkObject
 {
 public:
-  const char *GetClassName() {return "vtkProperty2D";};
+  vtkTypeMacro(vtkProperty2D,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

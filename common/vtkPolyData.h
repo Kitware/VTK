@@ -83,7 +83,7 @@ class VTK_EXPORT vtkPolyData : public vtkPointSet
 public:
   static vtkPolyData *New();
 
-  const char *GetClassName() {return "vtkPolyData";};
+  vtkTypeMacro(vtkPolyData,vtkPointSet);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

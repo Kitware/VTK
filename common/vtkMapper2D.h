@@ -60,7 +60,7 @@ class VTK_EXPORT vtkMapper2D : public vtkAbstractMapper
 public:
   static vtkMapper2D* New();
 
-  const char *GetClassName() {return "vtkMapper2D";};
+  vtkTypeMacro(vtkMapper2D,vtkAbstractMapper);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   virtual void RenderOverlay(vtkViewport*, vtkActor2D*) {};

@@ -73,7 +73,7 @@ class VTK_EXPORT vtkProgrammableSource : public vtkSource
 {
 public:
   static vtkProgrammableSource *New();
-  const char *GetClassName() {return "vtkProgrammableSource";};
+  vtkTypeMacro(vtkProgrammableSource,vtkSource);
 
   // Description:
   // Specify the function to use to generate the source data. Note

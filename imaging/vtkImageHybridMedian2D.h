@@ -59,7 +59,7 @@ class VTK_EXPORT vtkImageHybridMedian2D : public vtkImageSpatialFilter
 {
 public:
   static vtkImageHybridMedian2D *New();
-  const char *GetClassName() {return "vtkImageHybridMedian2D";};
+  vtkTypeMacro(vtkImageHybridMedian2D,vtkImageSpatialFilter);
 
 protected:
   vtkImageHybridMedian2D();

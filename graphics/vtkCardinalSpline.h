@@ -59,7 +59,7 @@ class VTK_EXPORT vtkCardinalSpline : public vtkSpline
 public:
   static vtkCardinalSpline *New();
 
-  const char *GetClassName() {return "vtkCardinalSpline";};
+  vtkTypeMacro(vtkCardinalSpline,vtkSpline);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description

@@ -54,7 +54,7 @@ class VTK_EXPORT vtkStructuredPointsCollection : public vtkCollection
 {
 public:
   static vtkStructuredPointsCollection *New();
-  const char *GetClassName() {return "vtkStructuredPointsCollection";};
+  vtkTypeMacro(vtkStructuredPointsCollection,vtkCollection);
 
   // Description:
   // Add a pointer to a vtkStructuredPoints to the list.

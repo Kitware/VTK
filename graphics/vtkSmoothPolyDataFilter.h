@@ -123,7 +123,7 @@ class vtkSmoothPoints;
 class VTK_EXPORT vtkSmoothPolyDataFilter : public vtkPolyDataToPolyDataFilter
 {
 public:
-  const char *GetClassName() {return "vtkSmoothPolyDataFilter";};
+  vtkTypeMacro(vtkSmoothPolyDataFilter,vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -62,7 +62,7 @@ class VTK_EXPORT vtkImageData : public vtkDataSet
 public:
   static vtkImageData *New();
 
-  const char *GetClassName() {return "vtkImageData";};
+  vtkTypeMacro(vtkImageData,vtkDataSet);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

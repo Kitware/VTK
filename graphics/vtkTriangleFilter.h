@@ -53,7 +53,7 @@ class VTK_EXPORT vtkTriangleFilter : public vtkPolyDataToPolyDataFilter
 {
 public:
   static vtkTriangleFilter *New();
-  const char *GetClassName() {return "vtkTriangleFilter";};
+  vtkTypeMacro(vtkTriangleFilter,vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

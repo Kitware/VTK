@@ -58,7 +58,7 @@ class VTK_EXPORT vtkVRMLExporter : public vtkExporter
 {
 public:
   static vtkVRMLExporter *New();
-  const char *GetClassName() {return "vtkVRMLExporter";};
+  vtkTypeMacro(vtkVRMLExporter,vtkExporter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -65,7 +65,7 @@ class vtkVolumeRayCastMapper;
 class VTK_EXPORT vtkVolumeRayCastFunction : public vtkObject
 {
 public:
-  const char *GetClassName() {return "vtkVolumeRayCastFunction";};
+  vtkTypeMacro(vtkVolumeRayCastFunction,vtkObject);
 
   // Description:
   // Do the basic initialization. This includes saving the parameters

@@ -53,7 +53,7 @@ class VTK_EXPORT vtkImageEuclideanToPolar : public vtkImageToImageFilter
 {
 public:
   static vtkImageEuclideanToPolar *New();
-  const char *GetClassName() {return "vtkImageEuclideanToPolar";};
+  vtkTypeMacro(vtkImageEuclideanToPolar,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -59,7 +59,7 @@ class VTK_EXPORT vtkImageGradientMagnitude : public vtkImageToImageFilter
 {
 public:
   static vtkImageGradientMagnitude *New();
-  const char *GetClassName() {return "vtkImageGradientMagnitude";};
+  vtkTypeMacro(vtkImageGradientMagnitude,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

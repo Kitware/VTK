@@ -57,7 +57,7 @@ class vtkWindow;
 class VTK_EXPORT vtkAbstractMapper : public vtkProcessObject
 {
 public:
-  const char *GetClassName() {return "vtkAbstractMapper";};
+  vtkTypeMacro(vtkAbstractMapper,vtkProcessObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

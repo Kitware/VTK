@@ -55,7 +55,7 @@ class VTK_EXPORT vtkMesaImager : public vtkImager
 { 
 public:
   static vtkMesaImager *New();
-  const char *GetClassName() {return "vtkMesaImager";};
+  vtkTypeMacro(vtkMesaImager,vtkImager);
 
   // Description:
   // Renders an imager.  Passes Render message on the 

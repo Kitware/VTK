@@ -54,7 +54,7 @@ class VTK_EXPORT vtkUnsignedIntArray : public vtkDataArray
 public:
   static vtkUnsignedIntArray *New();
 
-  const char *GetClassName() {return "vtkUnsignedIntArray";};
+  vtkTypeMacro(vtkUnsignedIntArray,vtkDataArray);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

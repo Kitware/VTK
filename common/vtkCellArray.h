@@ -64,7 +64,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkCellArray : public vtkObject
 {
 public:
-  const char *GetClassName() {return "vtkCellArray";};
+  vtkTypeMacro(vtkCellArray,vtkObject);
 
   // Description:
   // Instantiate cell array (connectivity list).

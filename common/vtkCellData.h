@@ -56,7 +56,7 @@ class VTK_EXPORT vtkCellData : public vtkDataSetAttributes
 public:
   static vtkCellData *New();
 
-  const char *GetClassName() {return "vtkCellData";};
+  vtkTypeMacro(vtkCellData,vtkDataSetAttributes);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

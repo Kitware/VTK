@@ -68,7 +68,7 @@ class vtkDataArray;
 class VTK_EXPORT vtkDataWriter : public vtkWriter
 {
 public:
-  const char *GetClassName() {return "vtkDataWriter";};
+  vtkTypeMacro(vtkDataWriter,vtkWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

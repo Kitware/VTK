@@ -174,7 +174,7 @@ public:
 class VTK_EXPORT vtkDecimatePro : public vtkPolyDataToPolyDataFilter
 {
 public:
-  const char *GetClassName() {return "vtkDecimatePro";};
+  vtkTypeMacro(vtkDecimatePro,vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

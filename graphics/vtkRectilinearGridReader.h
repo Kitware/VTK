@@ -56,7 +56,7 @@ class VTK_EXPORT vtkRectilinearGridReader : public vtkRectilinearGridSource
 {
 public:
   static vtkRectilinearGridReader *New();
-  const char *GetClassName() {return "vtkRectilinearGridReader";}
+  vtkTypeMacro(vtkRectilinearGridReader,vtkRectilinearGridSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

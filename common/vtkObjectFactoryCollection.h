@@ -56,7 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkObjectFactoryCollection : public vtkCollection
 {
 public:
-  const char *GetClassName() {return "vtkObjectFactoryCollection";};
+  vtkTypeMacro(vtkObjectFactoryCollection,vtkCollection);
   static vtkObjectFactoryCollection *New() {return new vtkObjectFactoryCollection;};
 
   // Description:

@@ -66,7 +66,7 @@ class VTK_EXPORT vtkMesaImageWindow : public vtkXImageWindow
 {
 public:
   static vtkMesaImageWindow *New();
-  const char *GetClassName() {return "vtkMesaImageWindow";};
+  vtkTypeMacro(vtkMesaImageWindow,vtkXImageWindow);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

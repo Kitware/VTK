@@ -56,7 +56,7 @@ class VTK_EXPORT vtkStructuredPointsSource : public vtkSource
 {
 public:
   static vtkStructuredPointsSource *New();
-  const char *GetClassName() {return "vtkStructuredPointsSource";}
+  vtkTypeMacro(vtkStructuredPointsSource,vtkSource);
 
   // Description:
   // Set/Get the output of this source.

@@ -79,7 +79,7 @@ protected:
 
 public:
   static vtkMesaRenderWindow *New() {return new vtkMesaRenderWindow;};
-  const char *GetClassName() {return "vtkMesaRenderWindow";};
+  vtkTypeMacro(vtkMesaRenderWindow,vtkXRenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

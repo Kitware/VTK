@@ -129,7 +129,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkDelaunay2D : public vtkPolyDataSource
 {
 public:
-  const char *GetClassName() {return "vtkDelaunay2D";};
+  vtkTypeMacro(vtkDelaunay2D,vtkPolyDataSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

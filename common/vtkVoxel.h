@@ -55,7 +55,7 @@ class VTK_EXPORT vtkVoxel : public vtkCell
 {
 public:
   static vtkVoxel *New();
-  const char *GetClassName() {return "vtkVoxel";};
+  vtkTypeMacro(vtkVoxel,vtkCell);
 
   // Description:
   // See the vtkCell API for descriptions of these methods.

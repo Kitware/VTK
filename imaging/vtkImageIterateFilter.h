@@ -58,7 +58,7 @@ class VTK_EXPORT vtkImageIterateFilter : public vtkImageToImageFilter
 {
 public:
   static vtkImageIterateFilter *New();
-  const char *GetClassName() {return "vtkImageIterateFilter";};
+  vtkTypeMacro(vtkImageIterateFilter,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

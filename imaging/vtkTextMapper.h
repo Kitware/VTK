@@ -80,7 +80,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTextMapper : public vtkMapper2D
 {
 public:
-  const char *GetClassName() {return "vtkTextMapper";};
+  vtkTypeMacro(vtkTextMapper,vtkMapper2D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -86,7 +86,7 @@ class vtkDataSetCollection;
 class VTK_EXPORT vtkXYPlotActor : public vtkActor2D
 {
 public:
-  const char *GetClassName() {return "vtkXYPlotActor";};
+  vtkTypeMacro(vtkXYPlotActor,vtkActor2D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

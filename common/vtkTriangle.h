@@ -54,7 +54,7 @@ class VTK_EXPORT vtkTriangle : public vtkCell
 {
 public:
   static vtkTriangle *New();
-  const char *GetClassName() {return "vtkTriangle";};
+  vtkTypeMacro(vtkTriangle,vtkCell);
 
   // Description:
   // Create a new cell and copy this triangle's information into the

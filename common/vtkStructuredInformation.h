@@ -57,7 +57,7 @@ class VTK_EXPORT vtkStructuredInformation : public vtkDataInformation
 public:
   static vtkStructuredInformation *New();
 
-  const char *GetClassName() {return "vtkStructuredInformation";}
+  vtkTypeMacro(vtkStructuredInformation,vtkDataInformation);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

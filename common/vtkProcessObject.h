@@ -81,7 +81,7 @@ public:
   // Instantiate object with no start, end, or progress methods.
   static vtkProcessObject *New();
 
-  const char *GetClassName() {return "vtkProcessObject";};
+  vtkTypeMacro(vtkProcessObject,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -59,7 +59,7 @@ class VTK_EXPORT vtkCamera : public vtkObject
 {
  public:
   void PrintSelf(ostream& os, vtkIndent indent);
-  const char *GetClassName() {return "vtkCamera";};
+  vtkTypeMacro(vtkCamera,vtkObject);
 
   // Description:
   // Construct camera instance with its focal point at the origin, 

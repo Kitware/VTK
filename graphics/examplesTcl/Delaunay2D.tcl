@@ -17,7 +17,7 @@ vtkRenderWindowInteractor iren
 #
 vtkMath math
 vtkPoints points
-for {set i 0} {$i<1000} {incr i 1} {
+for {set i 0} {$i<5000} {incr i 1} {
     eval points InsertPoint $i [math Random 0 1] [math Random 0 1] 0.0
 }
 
@@ -26,12 +26,17 @@ vtkPolyData profile
 
 # triangulate them
 #
+vtkTimerLog t
 vtkDelaunay2D del
     del SetInput profile
     del BoundingTriangulationOn
     del SetTolerance 0.001
     del SetAlpha 0.0
+t StartTimer
     del Update
+t StopTimer
+tk_messageBox -icon info -message "Time: [t GetElapsedTime]"
+exit
     
 vtkShrinkPolyData shrink
     shrink SetInput [del GetOutput]

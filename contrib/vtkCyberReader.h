@@ -54,7 +54,7 @@ class VTK_EXPORT vtkCyberReader : public vtkPolyDataSource
 {
 public:
   static vtkCyberReader *New();
-  const char *GetClassName() {return "vtkCyberReader";};
+  vtkTypeMacro(vtkCyberReader,vtkPolyDataSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

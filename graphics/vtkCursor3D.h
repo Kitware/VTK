@@ -58,7 +58,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkCursor3D : public vtkPolyDataSource 
 {
 public:
-  const char *GetClassName() {return "vtkCursor3D";};
+  vtkTypeMacro(vtkCursor3D,vtkPolyDataSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -103,7 +103,7 @@ public:
 class VTK_EXPORT vtkOBBTree : public vtkCellLocator
 {
 public:
-  const char *GetClassName() {return "vtkOBBTree";};
+  vtkTypeMacro(vtkOBBTree,vtkCellLocator);
 
   // Description:
   // Construct with automatic computation of divisions, averaging

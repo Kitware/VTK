@@ -63,7 +63,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkCellCenters : public vtkDataSetToPolyDataFilter
 {
 public:
-  const char *GetClassName() {return "vtkCellCenters";};
+  vtkTypeMacro(vtkCellCenters,vtkDataSetToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

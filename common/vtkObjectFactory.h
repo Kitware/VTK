@@ -69,7 +69,7 @@ class VTK_EXPORT vtkObjectFactory : public vtkObject
 {
 public:  
   // Methods from vtkObject
-  virtual const char *GetClassName() {return "vtkObjectFactory";};
+  vtkTypeMacro(vtkObjectFactory,vtkObject);
   // Description:
   // Print ObjectFactor to stream.
   virtual void PrintSelf(ostream& os, vtkIndent indent);

@@ -54,7 +54,7 @@ class VTK_EXPORT vtkImageCacheFilter : public vtkImageToImageFilter
 {
 public:
   static vtkImageCacheFilter *New();
-  const char *GetClassName() {return "vtkImageCacheFilter";};
+  vtkTypeMacro(vtkImageCacheFilter,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void UpdateData(vtkDataObject *outData);

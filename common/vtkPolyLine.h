@@ -56,7 +56,7 @@ class VTK_EXPORT vtkPolyLine : public vtkCell
 {
 public:
   static vtkPolyLine *New();
-  const char *GetClassName() {return "vtkPolyLine";};
+  vtkTypeMacro(vtkPolyLine,vtkCell);
 
   // Description:
   // Given points and lines, compute normals to lines. These are not true 

@@ -106,7 +106,7 @@ class vtkExtractGeometry;
 class VTK_EXPORT vtkImplicitModeller : public vtkDataSetToStructuredPointsFilter 
 {
 public:
-  const char *GetClassName() {return "vtkImplicitModeller";};
+  vtkTypeMacro(vtkImplicitModeller,vtkDataSetToStructuredPointsFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

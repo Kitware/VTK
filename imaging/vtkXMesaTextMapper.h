@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkXMesaTextMapper : public vtkXTextMapper
 {
 public:
-  const char *GetClassName() {return "vtkXMesaTextMapper";};
+  vtkTypeMacro(vtkXMesaTextMapper,vtkXTextMapper);
   static vtkXMesaTextMapper *New();
 
   // Description:

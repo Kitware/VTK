@@ -62,7 +62,8 @@ class VTK_EXPORT vtkActor2DCollection : public vtkPropCollection
   // Desctructor for the vtkActor2DCollection class. This removes all 
   // objects from the collection.
   static vtkActor2DCollection *New();
-  const char *GetClassName() {return "vtkActor2DCollection";};
+
+  vtkTypeMacro(vtkActor2DCollection,vtkPropCollection);
 
   // Description:
   // Sorts the vtkActor2DCollection by layer number.  Smaller layer

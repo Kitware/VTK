@@ -59,7 +59,7 @@ class VTK_EXPORT vtkOBJExporter : public vtkExporter
 {
 public:
   static vtkOBJExporter *New();
-  const char *GetClassName() {return "vtkOBJExporter";};
+  vtkTypeMacro(vtkOBJExporter,vtkExporter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

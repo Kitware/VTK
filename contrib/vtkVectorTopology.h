@@ -71,7 +71,7 @@ public:
   // Construct object with distance 0.1.
   static vtkVectorTopology *New();
 
-  const char *GetClassName() {return "vtkVectorTopology";};
+  vtkTypeMacro(vtkVectorTopology,vtkDataSetToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

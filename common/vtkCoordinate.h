@@ -84,7 +84,7 @@ class vtkViewport;
 class VTK_EXPORT vtkCoordinate : public vtkObject
 {
 public:
-  const char *GetClassName() {return "vtkCoordinate";};
+  vtkTypeMacro(vtkCoordinate,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -71,7 +71,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkLODActor : public vtkActor
 {
 public:
-  const char *GetClassName() {return "vtkLODActor";};
+  vtkTypeMacro(vtkLODActor,vtkActor);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

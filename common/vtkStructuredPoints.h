@@ -59,7 +59,7 @@ class VTK_EXPORT vtkStructuredPoints : public vtkImageData
 {
 public:
   static vtkStructuredPoints *New();
-  const char *GetClassName() {return "vtkStructuredPoints";}
+  vtkTypeMacro(vtkStructuredPoints,vtkImageData);
   
   // Description:
   // Create a similar type object

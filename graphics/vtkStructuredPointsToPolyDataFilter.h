@@ -58,7 +58,7 @@ class VTK_EXPORT vtkStructuredPointsToPolyDataFilter : public vtkPolyDataSource
 {
 public:
   static vtkStructuredPointsToPolyDataFilter *New();
-  const char *GetClassName() {return "vtkStructuredPointsToPolyDataFilter";};
+  vtkTypeMacro(vtkStructuredPointsToPolyDataFilter,vtkPolyDataSource);
 
   // Description:
   // Set / get the input data or filter.

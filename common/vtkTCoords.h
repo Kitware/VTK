@@ -61,7 +61,7 @@ public:
   static vtkTCoords *New();
 
 
-  const char *GetClassName() {return "vtkTCoords";};
+  vtkTypeMacro(vtkTCoords,vtkAttributeData);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

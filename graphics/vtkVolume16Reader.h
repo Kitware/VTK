@@ -81,7 +81,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkVolume16Reader : public vtkVolumeReader
 {
 public:
-  const char *GetClassName() {return "vtkVolume16Reader";};
+  vtkTypeMacro(vtkVolume16Reader,vtkVolumeReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

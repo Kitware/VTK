@@ -65,7 +65,7 @@ class VTK_EXPORT vtkPointDataToCellData : public vtkDataSetToDataSetFilter
 {
 public:
   static vtkPointDataToCellData *New();
-  const char *GetClassName() {return "vtkPointDataToCellData";};
+  vtkTypeMacro(vtkPointDataToCellData,vtkDataSetToDataSetFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

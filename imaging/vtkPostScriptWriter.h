@@ -55,7 +55,7 @@ class VTK_EXPORT vtkPostScriptWriter : public vtkImageWriter
 {
 public:
   static vtkPostScriptWriter *New();
-  const char *GetClassName() {return "vtkPostScriptWriter";};
+  vtkTypeMacro(vtkPostScriptWriter,vtkImageWriter);
 
 protected:
   vtkPostScriptWriter() {};

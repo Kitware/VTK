@@ -59,7 +59,7 @@ public:
   // Create handle to any type of cell; by default a vtkEmptyCell.
   static vtkGenericCell *New();
 
-  const char *GetClassName() {return "vtkGenericCell";};
+  vtkTypeMacro(vtkGenericCell,vtkCell);
 
   // Description:
   // See the vtkCell API for descriptions of these methods.

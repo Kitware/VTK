@@ -71,7 +71,7 @@ class VTK_EXPORT vtkCellTypes : public vtkObject
 {
 public:
   static vtkCellTypes *New();
-  const char *GetClassName() {return "vtkCellTypes";};
+  vtkTypeMacro(vtkCellTypes,vtkObject);
 
   // Description:
   // Allocate memory for this array. Delete old storage only if necessary.

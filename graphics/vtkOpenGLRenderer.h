@@ -56,7 +56,7 @@ protected:
 
 public:
   static vtkOpenGLRenderer *New();
-  const char *GetClassName() {return "vtkOpenGLRenderer";};
+  vtkTypeMacro(vtkOpenGLRenderer,vtkRenderer);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

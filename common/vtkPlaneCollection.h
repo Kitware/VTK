@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPlaneCollection : public vtkCollection
 {
 public:
-  const char *GetClassName() {return "vtkPlaneCollection";};
+  vtkTypeMacro(vtkPlaneCollection,vtkCollection);
   static vtkPlaneCollection *New();
 
   // Description:

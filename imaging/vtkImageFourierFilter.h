@@ -115,7 +115,7 @@ class VTK_EXPORT vtkImageFourierFilter : public vtkImageDecomposeFilter
 {
 public:
   static vtkImageFourierFilter *New();
-  const char *GetClassName() {return "vtkImageFourierFilter";};
+  vtkTypeMacro(vtkImageFourierFilter,vtkImageDecomposeFilter);
   
   // public for templated functions of this object
   //BTX

@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkWin32TextMapper : public vtkTextMapper
 {
 public:
-  const char *GetClassName() {return "vtkWin32TextMapper";};
+  vtkTypeMacro(vtkWin32TextMapper,vtkTextMapper);
   static vtkWin32TextMapper *New();
 
   // Description:

@@ -73,7 +73,7 @@ class VTK_EXPORT vtkSynchronizedTemplates2D : public vtkStructuredPointsToPolyDa
 {
 public:
   static vtkSynchronizedTemplates2D *New();
-  const char *GetClassName() {return "vtkSynchronizedTemplates2D";};
+  vtkTypeMacro(vtkSynchronizedTemplates2D,vtkStructuredPointsToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

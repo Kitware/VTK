@@ -73,7 +73,7 @@ class VTK_EXPORT vtkTIFFReader : public vtkImageReader
 {
 public:
   static vtkTIFFReader *New();
-  const char *GetClassName() {return "vtkTIFFReader";};
+  vtkTypeMacro(vtkTIFFReader,vtkImageReader);
   
 protected:
   vtkTIFFReader() {};

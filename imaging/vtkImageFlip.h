@@ -58,7 +58,7 @@ class VTK_EXPORT vtkImageFlip : public vtkImageToImageFilter
 public:
   static vtkImageFlip *New();
 
-  const char *GetClassName() {return "vtkImageFlip";};
+  vtkTypeMacro(vtkImageFlip,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -56,7 +56,7 @@ class VTK_EXPORT vtkImageFourierCenter : public vtkImageDecomposeFilter
 {
 public:
   static vtkImageFourierCenter *New();
-  const char *GetClassName() {return "vtkImageFourierCenter";};
+  vtkTypeMacro(vtkImageFourierCenter,vtkImageDecomposeFilter);
   
 protected:
   vtkImageFourierCenter();

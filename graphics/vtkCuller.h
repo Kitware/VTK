@@ -59,7 +59,7 @@ class vtkRenderer;
 class VTK_EXPORT vtkCuller : public vtkObject
 {
 public:
-  const char *GetClassName() {return "vtkCuller";};
+  vtkTypeMacro(vtkCuller,vtkObject);
 
   // Description:
   // This is called outside the render loop by vtkRenderer

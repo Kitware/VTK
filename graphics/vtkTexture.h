@@ -80,7 +80,7 @@ class VTK_EXPORT vtkTexture : public vtkObject
 {
 public:
   static vtkTexture *New();
-  const char *GetClassName() {return "vtkTexture";};
+  vtkTypeMacro(vtkTexture,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -62,7 +62,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkVectorNorm : public vtkDataSetToDataSetFilter 
 {
 public:
-  const char *GetClassName() {return "vtkVectorNorm";};
+  vtkTypeMacro(vtkVectorNorm,vtkDataSetToDataSetFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

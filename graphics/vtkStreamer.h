@@ -138,7 +138,7 @@ public:
 class VTK_EXPORT vtkStreamer : public vtkDataSetToPolyDataFilter
 {
 public:
-  const char *GetClassName() {return "vtkStreamer";};
+  vtkTypeMacro(vtkStreamer,vtkDataSetToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

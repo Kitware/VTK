@@ -58,7 +58,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPointLoad :  public vtkStructuredPointsSource
 {
 public:
-  const char *GetClassName() {return "vtkPointLoad";};
+  vtkTypeMacro(vtkPointLoad,vtkStructuredPointsSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

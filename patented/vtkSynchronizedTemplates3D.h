@@ -75,7 +75,8 @@ class VTK_EXPORT vtkSynchronizedTemplates3D : public vtkPolyDataSource
 {
 public:
   static vtkSynchronizedTemplates3D *New();
-  const char *GetClassName() {return "vtkSynchronizedTemplates3D";};
+
+  vtkTypeMacro(vtkSynchronizedTemplates3D,vtkPolyDataSource);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

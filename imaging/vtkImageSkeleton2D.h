@@ -61,7 +61,7 @@ class VTK_EXPORT vtkImageSkeleton2D : public vtkImageIterateFilter
 {
 public:
   static vtkImageSkeleton2D *New();
-  const char *GetClassName() {return "vtkImageSkeleton2D";};
+  vtkTypeMacro(vtkImageSkeleton2D,vtkImageIterateFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

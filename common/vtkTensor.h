@@ -58,7 +58,7 @@ class VTK_EXPORT vtkTensor : public vtkObject
 {
 public:
   static vtkTensor *New();
-  const char *GetClassName() {return "vtkTensor";};
+  vtkTypeMacro(vtkTensor,vtkObject);
 
   // Description:
   // Initialize tensor components to 0.0.

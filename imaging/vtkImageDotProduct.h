@@ -54,7 +54,7 @@ class VTK_EXPORT vtkImageDotProduct : public vtkImageTwoInputFilter
 {
 public:
   static vtkImageDotProduct *New();
-  const char *GetClassName() {return "vtkImageDotProduct";};
+  vtkTypeMacro(vtkImageDotProduct,vtkImageTwoInputFilter);
 
 protected:
   vtkImageDotProduct() {};

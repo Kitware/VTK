@@ -56,7 +56,7 @@ class VTK_EXPORT vtkImageWrapPad : public vtkImagePadFilter
 {
 public:
   static vtkImageWrapPad *New();
-  const char *GetClassName() {return "vtkImageWrapPad";};
+  vtkTypeMacro(vtkImageWrapPad,vtkImagePadFilter);
 
 protected:
   vtkImageWrapPad() {};

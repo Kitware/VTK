@@ -67,7 +67,7 @@ class VTK_EXPORT vtkThreshold : public vtkDataSetToUnstructuredGridFilter
 {
 public:
   static vtkThreshold *New();
-  const char *GetClassName() {return "vtkThreshold";};
+  vtkTypeMacro(vtkThreshold,vtkDataSetToUnstructuredGridFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

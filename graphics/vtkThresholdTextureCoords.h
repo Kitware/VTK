@@ -67,7 +67,7 @@ class VTK_EXPORT vtkThresholdTextureCoords : public vtkDataSetToDataSetFilter
 {
 public:
   static vtkThresholdTextureCoords *New();
-  const char *GetClassName() {return "vtkThresholdTextureCoords";};
+  vtkTypeMacro(vtkThresholdTextureCoords,vtkDataSetToDataSetFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

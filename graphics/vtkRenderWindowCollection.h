@@ -57,7 +57,7 @@ class VTK_EXPORT vtkRenderWindowCollection : public vtkCollection
 {
  public:
   static vtkRenderWindowCollection *New();
-  const char *GetClassName() {return "vtkRenderWindowCollection";};
+  vtkTypeMacro(vtkRenderWindowCollection,vtkCollection);
 
   // Description:
   // Add a RenderWindow to the list.

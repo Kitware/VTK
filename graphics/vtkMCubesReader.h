@@ -81,7 +81,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkMCubesReader : public vtkPolyDataSource 
 {
 public:
-  const char *GetClassName() {return "vtkMCubesReader";};
+  vtkTypeMacro(vtkMCubesReader,vtkPolyDataSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

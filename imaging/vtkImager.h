@@ -62,7 +62,7 @@ class VTK_EXPORT vtkImager : public vtkViewport
 { 
 public:
   static vtkImager *New();
-  const char *GetClassName() {return "vtkImager";};
+  vtkTypeMacro(vtkImager,vtkViewport);
 
   // Description:
   // Renders an imager.  Passes Render message on the 

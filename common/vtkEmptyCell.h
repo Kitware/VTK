@@ -52,7 +52,7 @@ class VTK_EXPORT vtkEmptyCell : public vtkCell
 {
 public:
   static vtkEmptyCell *New();
-  const char *GetClassName() {return "vtkEmptyCell";};
+  vtkTypeMacro(vtkEmptyCell,vtkCell);
 
   // Description:
   // See the vtkCell API for descriptions of these methods.

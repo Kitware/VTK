@@ -52,7 +52,7 @@ class VTK_EXPORT vtkSubdivideTetra : public vtkUnstructuredGridToUnstructuredGri
 {
 public:
   static vtkSubdivideTetra *New();
-  const char *GetClassName() {return "vtkSubdivideTetra";};
+  vtkTypeMacro(vtkSubdivideTetra,vtkUnstructuredGridToUnstructuredGridFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 

@@ -54,7 +54,7 @@ class VTK_EXPORT vtkMesaLight : public vtkLight
 {
 public:
   static vtkMesaLight *New();
-  const char *GetClassName() {return "vtkMesaLight";};
+  vtkTypeMacro(vtkMesaLight,vtkLight);
 
   // Description:
   // Implement base class method.

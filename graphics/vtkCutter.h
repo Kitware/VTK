@@ -61,7 +61,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkCutter : public vtkDataSetToPolyDataFilter
 {
 public:
-  const char *GetClassName() {return "vtkCutter";};
+  vtkTypeMacro(vtkCutter,vtkDataSetToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -77,7 +77,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImplicitSelectionLoop : public vtkImplicitFunction
 {
 public:
-  const char *GetClassName() {return "vtkImplicitSelectionLoop";};
+  vtkTypeMacro(vtkImplicitSelectionLoop,vtkImplicitFunction);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -74,7 +74,7 @@ class VTK_EXPORT vtkDividingCubes : public vtkStructuredPointsToPolyDataFilter
 {
 public:
   static vtkDividingCubes *New();
-  const char *GetClassName() {return "vtkDividingCubes";};
+  vtkTypeMacro(vtkDividingCubes,vtkStructuredPointsToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

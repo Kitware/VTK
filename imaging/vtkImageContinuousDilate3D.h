@@ -61,7 +61,7 @@ public:
   // Construct an instance of vtkImageContinuousDilate3D fitler.
   // By default zero values are dilated.
   static vtkImageContinuousDilate3D *New();
-  const char *GetClassName() {return "vtkImageContinuousDilate3D";};
+  vtkTypeMacro(vtkImageContinuousDilate3D,vtkImageSpatialFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

@@ -65,7 +65,7 @@ class VTK_EXPORT vtkStructuredData : public vtkObject
 {
 public:
   static vtkStructuredData *New();
-  const char *GetClassName() {return "vtkStructuredData";};
+  vtkTypeMacro(vtkStructuredData,vtkObject);
 
   // Description:
   // Specify the dimensions of a regular, rectangular dataset. The input is

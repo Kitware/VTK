@@ -76,7 +76,7 @@ class VTK_EXPORT vtkSource : public vtkProcessObject
 public:
   static vtkSource *New();
 
-  const char *GetClassName() {return "vtkSource";};
+  vtkTypeMacro(vtkSource,vtkProcessObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

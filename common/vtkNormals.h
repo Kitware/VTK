@@ -58,7 +58,7 @@ public:
   static vtkNormals *New(int dataType);
   static vtkNormals *New();
 
-  const char *GetClassName() {return "vtkNormals";};
+  vtkTypeMacro(vtkNormals,vtkAttributeData);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

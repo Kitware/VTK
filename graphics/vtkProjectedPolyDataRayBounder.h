@@ -65,7 +65,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkProjectedPolyDataRayBounder : public vtkRayBounder
 {
 public:
-  const char *GetClassName() {return "vtkProjectedPolyDataRayBounder";};
+  vtkTypeMacro(vtkProjectedPolyDataRayBounder,vtkRayBounder);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

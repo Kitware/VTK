@@ -91,7 +91,7 @@ public:
   // are labeled.
   static vtkLabeledDataMapper *New();
 
-  const char *GetClassName() {return "vtkLabeledDataMapper";};
+  vtkTypeMacro(vtkLabeledDataMapper,vtkMapper2D);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

@@ -159,7 +159,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkWindowedSincPolyDataFilter : public vtkPolyDataToPolyDataFilter 
 {
 public:
-  const char *GetClassName() {return "vtkWindowedSincPolyDataFilter";};
+  vtkTypeMacro(vtkWindowedSincPolyDataFilter,vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -58,7 +58,7 @@ public:
   static vtkVectors *New();
 
 
-  const char *GetClassName() {return "vtkVectors";};
+  vtkTypeMacro(vtkVectors,vtkAttributeData);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

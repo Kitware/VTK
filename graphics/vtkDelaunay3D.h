@@ -116,7 +116,7 @@ class vtkSphereArray;
 class VTK_EXPORT vtkDelaunay3D : public vtkUnstructuredGridSource
 {
 public:
-  const char *GetClassName() {return "vtkDelaunay3D";};
+  vtkTypeMacro(vtkDelaunay3D,vtkUnstructuredGridSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

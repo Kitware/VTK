@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkVectorDot : public vtkDataSetToDataSetFilter 
 {
 public:
-  const char *GetClassName() {return "vtkVectorDot";};
+  vtkTypeMacro(vtkVectorDot,vtkDataSetToDataSetFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -59,7 +59,7 @@ class VTK_EXPORT vtkImageClip : public vtkImageToImageFilter
 {
 public:
   static vtkImageClip *New();
-  const char *GetClassName() {return "vtkImageClip";};
+  vtkTypeMacro(vtkImageClip,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

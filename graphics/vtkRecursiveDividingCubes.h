@@ -66,7 +66,7 @@ class VTK_EXPORT vtkRecursiveDividingCubes : public vtkStructuredPointsToPolyDat
 {
 public:
   static vtkRecursiveDividingCubes *New();
-  const char *GetClassName() {return "vtkRecursiveDividingCubes";}
+  vtkTypeMacro(vtkRecursiveDividingCubes,vtkStructuredPointsToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -56,7 +56,7 @@ class VTK_EXPORT vtkStructuredGridToPolyDataFilter : public vtkPolyDataSource
 {
 public:
   static vtkStructuredGridToPolyDataFilter *New();
-  const char *GetClassName() {return "vtkStructuredGridToPolyDataFilter";};
+  vtkTypeMacro(vtkStructuredGridToPolyDataFilter,vtkPolyDataSource);
 
   // Description:
   // Set / get the input Grid or filter.

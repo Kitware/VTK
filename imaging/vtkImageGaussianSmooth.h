@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageGaussianSmooth : public vtkImageToImageFilter
 {
 public:
-  const char *GetClassName() {return "vtkImageGaussianSmooth";};
+  vtkTypeMacro(vtkImageGaussianSmooth,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

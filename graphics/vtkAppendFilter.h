@@ -61,7 +61,7 @@ class VTK_EXPORT vtkAppendFilter : public vtkDataSetToUnstructuredGridFilter
 public:
   static vtkAppendFilter *New();
 
-  const char *GetClassName() {return "vtkAppendFilter";}
+  vtkTypeMacro(vtkAppendFilter,vtkDataSetToUnstructuredGridFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

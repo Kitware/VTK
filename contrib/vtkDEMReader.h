@@ -57,7 +57,7 @@ class VTK_EXPORT vtkDEMReader : public vtkImageSource
 {
 public:
   static vtkDEMReader *New();
-  const char *GetClassName() {return "vtkDEMReader";};
+  vtkTypeMacro(vtkDEMReader,vtkImageSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

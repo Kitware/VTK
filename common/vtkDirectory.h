@@ -59,7 +59,7 @@ class VTK_EXPORT vtkDirectory : public vtkObject
 public:
   // Description:
   // Return the class name as a string.
-  virtual const char *GetClassName() {return "vtkDirectory";};
+  vtkTypeMacro(vtkDirectory,vtkObject);
 
   // Description:
   // Create a new vtkDirectory object.

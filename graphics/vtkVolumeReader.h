@@ -74,7 +74,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkVolumeReader : public vtkStructuredPointsSource
 {
 public:
-  const char *GetClassName() {return "vtkVolumeReader";};
+  vtkTypeMacro(vtkVolumeReader,vtkStructuredPointsSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

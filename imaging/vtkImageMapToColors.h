@@ -58,7 +58,7 @@ class VTK_EXPORT vtkImageMapToColors : public vtkImageToImageFilter
 {
 public:
   static vtkImageMapToColors *New();
-  const char *GetClassName() {return "vtkImageMapToColors";};
+  vtkTypeMacro(vtkImageMapToColors,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

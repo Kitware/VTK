@@ -76,7 +76,7 @@ class VTK_EXPORT vtkLODProp3D : public vtkProp3D
 public:
   static vtkLODProp3D *New();
 
-  const char *GetClassName() {return "vtkLODProp3D";};
+  vtkTypeMacro(vtkLODProp3D,vtkProp3D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

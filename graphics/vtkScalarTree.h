@@ -71,7 +71,7 @@ typedef struct _vtkScalarRange
 class VTK_EXPORT vtkScalarTree : public vtkObject
 {
 public:
-  const char *GetClassName() {return "vtkScalarTree";};
+  vtkTypeMacro(vtkScalarTree,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -58,7 +58,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPointSet : public vtkDataSet
 {
 public:
-  const char *GetClassName() {return "vtkPointSet";};
+  vtkTypeMacro(vtkPointSet,vtkDataSet);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

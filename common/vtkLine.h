@@ -51,7 +51,7 @@ class VTK_EXPORT vtkLine : public vtkCell
 {
 public:
   static vtkLine *New();
-  const char *GetClassName() {return "vtkLine";};
+  vtkTypeMacro(vtkLine,vtkCell);
 
   // Description:
   // See the vtkCell API for descriptions of these methods.

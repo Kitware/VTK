@@ -55,7 +55,7 @@ class VTK_EXPORT vtkImageMaskBits : public vtkImageToImageFilter
 {
 public:
   static vtkImageMaskBits *New();
-  const char *GetClassName() {return "vtkImageMaskBits";};
+  vtkTypeMacro(vtkImageMaskBits,vtkImageToImageFilter);
   void PrintSelf(ostream &, vtkIndent);
   
   // Description:

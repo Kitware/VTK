@@ -52,7 +52,7 @@ class VTK_EXPORT vtkVectorText : public vtkPolyDataSource
 {
 public:
   static vtkVectorText *New();
-  const char *GetClassName() {return "vtkVectorText";};
+  vtkTypeMacro(vtkVectorText,vtkPolyDataSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

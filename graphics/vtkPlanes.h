@@ -66,7 +66,7 @@ class VTK_EXPORT vtkPlanes : public vtkImplicitFunction
 {
 public:
   static vtkPlanes *New();
-  const char *GetClassName() {return "vtkPlanes";};
+  vtkTypeMacro(vtkPlanes,vtkImplicitFunction);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description

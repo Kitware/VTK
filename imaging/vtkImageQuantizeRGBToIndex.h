@@ -60,7 +60,7 @@ class VTK_EXPORT vtkImageQuantizeRGBToIndex : public vtkImageToImageFilter
 {
 public:
   static vtkImageQuantizeRGBToIndex *New();
-  const char *GetClassName() {return "vtkImageQuantizeRGBToIndex";};
+  vtkTypeMacro(vtkImageQuantizeRGBToIndex,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

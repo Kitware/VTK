@@ -59,7 +59,7 @@ class VTK_EXPORT vtkWindowToImageFilter : public vtkImageSource
 public:
   static vtkWindowToImageFilter *New();
 
-  const char *GetClassName() {return "vtkWindowToImageFilter";};
+  vtkTypeMacro(vtkWindowToImageFilter,vtkImageSource);
   void PrintSelf(ostream& os, vtkIndent indent);   
 
   // Description:

@@ -54,7 +54,7 @@ class VTK_EXPORT vtkMesaCamera : public vtkCamera
 {
 public:
   static vtkMesaCamera *New();
-  const char *GetClassName() {return "vtkMesaCamera";};
+  vtkTypeMacro(vtkMesaCamera,vtkCamera);
 
   // Description:
   // Implement base class method.

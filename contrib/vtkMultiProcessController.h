@@ -70,7 +70,7 @@ class VTK_EXPORT vtkMultiProcessController : public vtkObject
 {
 public:
   static vtkMultiProcessController *New();
-  const char *GetClassName() {return "vtkMultiProcessController";};
+  vtkTypeMacro(vtkMultiProcessController,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // This method returns an controller which must be UnRegistered.

@@ -53,7 +53,7 @@ class VTK_EXPORT vtkHedgeHog : public vtkDataSetToPolyDataFilter
 {
 public:
   static vtkHedgeHog *New();
-  const char *GetClassName() {return "vtkHedgeHog";};
+  vtkTypeMacro(vtkHedgeHog,vtkDataSetToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

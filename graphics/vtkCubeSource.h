@@ -53,7 +53,7 @@ class VTK_EXPORT vtkCubeSource : public vtkPolyDataSource
 {
 public:
   static vtkCubeSource *New();
-  const char *GetClassName() {return "vtkCubeSource";};
+  vtkTypeMacro(vtkCubeSource,vtkPolyDataSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

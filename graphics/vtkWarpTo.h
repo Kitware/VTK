@@ -52,7 +52,7 @@ class VTK_EXPORT vtkWarpTo : public vtkPointSetToPointSetFilter
 {
 public:
   static vtkWarpTo *New();
-  const char *GetClassName() {return "vtkWarpTo";};
+  vtkTypeMacro(vtkWarpTo,vtkPointSetToPointSetFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -72,7 +72,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTextureMapToSphere : public vtkDataSetToDataSetFilter 
 {
 public:
-  const char *GetClassName() {return "vtkTextureMapToSphere";};
+  vtkTypeMacro(vtkTextureMapToSphere,vtkDataSetToDataSetFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

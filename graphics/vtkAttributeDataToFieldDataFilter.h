@@ -70,7 +70,7 @@ class VTK_EXPORT vtkAttributeDataToFieldDataFilter : public vtkDataSetToDataSetF
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent);
-  const char *GetClassName() {return "vtkAttributeDataToFieldDataFilter";};
+  vtkTypeMacro(vtkAttributeDataToFieldDataFilter,vtkDataSetToDataSetFilter);
 
   // Description:
   // Construct this object.

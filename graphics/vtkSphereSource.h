@@ -60,7 +60,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkSphereSource : public vtkPolyDataSource 
 {
 public:
-  const char *GetClassName() {return "vtkSphereSource";};
+  vtkTypeMacro(vtkSphereSource,vtkPolyDataSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

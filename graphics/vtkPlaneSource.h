@@ -75,7 +75,7 @@ class VTK_EXPORT vtkPlaneSource : public vtkPolyDataSource
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent);
-  const char *GetClassName() {return "vtkPlaneSource";};
+  vtkTypeMacro(vtkPlaneSource,vtkPolyDataSource);
 
   // Description:
   // Construct plane perpendicular to z-axis, resolution 1x1, width

@@ -55,7 +55,7 @@ class VTK_EXPORT vtkImagePermute : public vtkImageToImageFilter
 {
 public:
   static vtkImagePermute *New();
-  const char *GetClassName() {return "vtkImagePermute";};
+  vtkTypeMacro(vtkImagePermute,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

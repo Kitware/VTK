@@ -55,7 +55,7 @@ class VTK_EXPORT vtkWin32OpenGLImageWindow : public vtkImageWindow
 {
 public:
   static vtkWin32OpenGLImageWindow *New();
-  const char *GetClassName() {return "vtkWin32OpenGLImageWindow";};
+  vtkTypeMacro(vtkWin32OpenGLImageWindow,vtkImageWindow);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // output to the viewer.

@@ -68,7 +68,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkWriter : public vtkProcessObject
 {
 public:
-  const char *GetClassName() {return "vtkWriter";};
+  vtkTypeMacro(vtkWriter,vtkProcessObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

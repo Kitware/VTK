@@ -60,7 +60,7 @@ class VTK_EXPORT vtkHull : public vtkPolyDataToPolyDataFilter
 {
 public:
   static vtkHull *New();
-  const char *GetClassName() {return "vtkHull";};
+  vtkTypeMacro(vtkHull,vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -56,7 +56,7 @@ class VTK_EXPORT vtkMergePoints2D : public vtkPointLocator2D
 {
 public:
   static vtkMergePoints2D *New();
-  const char *GetClassName() {return "vtkMergePoints2D";};
+  vtkTypeMacro(vtkMergePoints2D,vtkPointLocator2D);
 
   // Description:
   // Determine whether point given by x[] has been inserted into points list.

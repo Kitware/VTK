@@ -55,7 +55,7 @@ class VTK_EXPORT vtkPointData : public vtkDataSetAttributes
 public:
   static vtkPointData *New();
 
-  const char *GetClassName() {return "vtkPointData";};
+  vtkTypeMacro(vtkPointData,vtkDataSetAttributes);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Set point data to null values

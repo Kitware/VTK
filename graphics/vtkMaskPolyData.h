@@ -52,7 +52,7 @@ class VTK_EXPORT vtkMaskPolyData : public vtkPolyDataToPolyDataFilter
 {
 public:
   static vtkMaskPolyData *New();
-  const char *GetClassName() {return "vtkMaskPolyData";};
+  vtkTypeMacro(vtkMaskPolyData,vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -88,7 +88,7 @@ class VTK_EXPORT vtkAssembly : public vtkActor
 public:
   static vtkAssembly *New();
 
-  const char *GetClassName() {return "vtkAssembly";};
+  vtkTypeMacro(vtkAssembly,vtkActor);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -57,7 +57,7 @@ class VTK_EXPORT vtkDataSetToStructuredPointsFilter : public vtkStructuredPoints
 {
 public:
   static vtkDataSetToStructuredPointsFilter *New();
-  const char *GetClassName() {return "vtkDataSetToStructuredPointsFilter";};
+  vtkTypeMacro(vtkDataSetToStructuredPointsFilter,vtkStructuredPointsSource);
 
   // Description:
   // Set / get the input data or filter.

@@ -57,7 +57,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageSource : public vtkSource
 {
 public:
-  const char *GetClassName() {return "vtkImageSource";};
+  vtkTypeMacro(vtkImageSource,vtkSource);
   static vtkImageSource *New();
 
   // Description:

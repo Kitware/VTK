@@ -56,7 +56,7 @@ class VTK_EXPORT vtkOpenGLTexture : public vtkTexture
 {
 public:
   static vtkOpenGLTexture *New();
-  const char *GetClassName() {return "vtkOpenGLTexture";};
+  vtkTypeMacro(vtkOpenGLTexture,vtkTexture);
 
   // Description:
   // Implement base class method.

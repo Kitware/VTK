@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkVolumeTextureMapper2D : public vtkVolumeTextureMapper
 {
 public:
-  const char *GetClassName() {return "vtkVolumeTextureMapper2D";};
+  vtkTypeMacro(vtkVolumeTextureMapper2D,vtkVolumeTextureMapper);
   void PrintSelf( ostream& os, vtkIndent index );
 
   static vtkVolumeTextureMapper2D *New();

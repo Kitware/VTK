@@ -56,7 +56,7 @@ class VTK_EXPORT vtkStructuredGridSource : public vtkSource
 {
 public:
   static vtkStructuredGridSource *New();
-  const char *GetClassName() {return "vtkStructuredGridSource";}
+  vtkTypeMacro(vtkStructuredGridSource,vtkSource);
 
   // Description:
   // Get the output of this source.

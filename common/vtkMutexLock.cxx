@@ -124,6 +124,20 @@ void vtkSimpleMutexLock::Unlock()
 #endif
 }
 
+int vtkSimpleMutexLock::IsA(const char *type)
+{
+  if ( !strcmp(this->vtkSimpleMutexLock::GetClassName(),type) )
+    {
+    return 1;
+    }
+  return 0;
+}
+
+vtkSimpleMutexLock *vtkSimpleMutexLock::SafeDownCast(vtkSimpleMutexLock *o)
+{
+  return (vtkSimpleMutexLock *)o;
+}
+  
 void vtkMutexLock::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os, indent);

@@ -86,7 +86,7 @@ class VTK_EXPORT vtkViewRays :public vtkObject
   {
 public:
   static vtkViewRays *New();
-  const char *GetClassName() {return "vtkViewRays";};
+    vtkTypeMacro(vtkViewRays,vtkObject);
   void PrintSelf(ostream& os,vtkIndent indent);
 
   // Description:

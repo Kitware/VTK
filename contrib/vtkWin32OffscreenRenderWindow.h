@@ -48,7 +48,7 @@ class VTK_EXPORT vtkWin32OffscreenRenderWindow : public vtkWin32OpenGLRenderWind
 {
 public:
   static vtkWin32OffscreenRenderWindow *New();
-  const char *GetClassName() { return "vtkWin32OffscreenRenderWindow"; }
+  vtkTypeMacro(vtkWin32OffscreenRenderWindow,vtkWin32OpenGLRenderWindow);
   void PrintSelf(ostream &os, vtkIndent indent);
   
   virtual void Frame();

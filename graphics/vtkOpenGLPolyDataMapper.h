@@ -61,7 +61,7 @@ class VTK_EXPORT vtkOpenGLPolyDataMapper : public vtkPolyDataMapper
 {
 public:
   static vtkOpenGLPolyDataMapper *New();
-  const char *GetClassName() {return "vtkOpenGLPolyDataMapper";};
+  vtkTypeMacro(vtkOpenGLPolyDataMapper,vtkPolyDataMapper);
 
   // Description:
   // Implement superclass render method.

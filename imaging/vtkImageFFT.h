@@ -58,7 +58,7 @@ class VTK_EXPORT vtkImageFFT : public vtkImageFourierFilter
 {
 public:
   static vtkImageFFT *New();
-  const char *GetClassName() {return "vtkImageFFT";};
+  vtkTypeMacro(vtkImageFFT,vtkImageFourierFilter);
 
 
   // Description:

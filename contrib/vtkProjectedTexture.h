@@ -61,7 +61,7 @@ class VTK_EXPORT vtkProjectedTexture : public vtkDataSetToDataSetFilter
 {
 public:
   static vtkProjectedTexture *New();
-  const char *GetClassName() {return "vtkProjectedTexture";};
+  vtkTypeMacro(vtkProjectedTexture,vtkDataSetToDataSetFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

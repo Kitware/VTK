@@ -64,7 +64,7 @@ class vtkWindow;
 class VTK_EXPORT vtkViewport : public vtkObject
 {
 public:
-  const char *GetClassName() {return "vtkViewport";};
+  vtkTypeMacro(vtkViewport,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

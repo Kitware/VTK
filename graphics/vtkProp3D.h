@@ -63,7 +63,7 @@ class vtkRenderer;
 class VTK_EXPORT vtkProp3D : public vtkProp
 {
 public:
-  const char *GetClassName() {return "vtkProp3D";};
+  vtkTypeMacro(vtkProp3D,vtkProp);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -81,7 +81,7 @@ class VTK_EXPORT vtkMILVideoSource : public vtkVideoSource
 {
 public:
   static vtkMILVideoSource *New();
-  const char *GetClassName() {return "vtkMILVideoSource";};
+  vtkTypeMacro(vtkMILVideoSource,vtkVideoSource);
   void PrintSelf(ostream& os, vtkIndent indent);   
 
   // Description:

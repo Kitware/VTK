@@ -54,7 +54,7 @@ class VTK_EXPORT vtkDataSetToStructuredGridFilter : public vtkStructuredGridSour
 {
 public:
   static vtkDataSetToStructuredGridFilter *New();
-  const char *GetClassName() {return "vtkDataSetToStructuredGridFilter";};
+  vtkTypeMacro(vtkDataSetToStructuredGridFilter,vtkStructuredGridSource);
 
   // Description:
   // Set / get the input data or filter.

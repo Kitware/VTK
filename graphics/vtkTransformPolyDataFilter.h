@@ -67,7 +67,7 @@ class VTK_EXPORT vtkTransformPolyDataFilter : public vtkPolyDataToPolyDataFilter
 {
 public:
   static vtkTransformPolyDataFilter *New();
-  const char *GetClassName() {return "vtkTransformPolyDataFilter";};
+  vtkTypeMacro(vtkTransformPolyDataFilter,vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

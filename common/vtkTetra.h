@@ -56,7 +56,7 @@ class VTK_EXPORT vtkTetra : public vtkCell
 {
 public:
   static vtkTetra *New();
-  const char *GetClassName() {return "vtkTetra";};
+  vtkTypeMacro(vtkTetra,vtkCell);
 
   // Description:
   // See the vtkCell API for descriptions of these methods.

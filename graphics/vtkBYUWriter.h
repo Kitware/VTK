@@ -61,7 +61,7 @@ class VTK_EXPORT vtkBYUWriter : public vtkPolyDataWriter
 public:
   static vtkBYUWriter *New();
 
-  const char *GetClassName() {return "vtkBYUWriter";};
+  vtkTypeMacro(vtkBYUWriter,vtkPolyDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

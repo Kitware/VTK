@@ -53,7 +53,7 @@ class VTK_EXPORT vtkPointSource : public vtkPolyDataSource
 {
 public:
   static vtkPointSource *New();
-  const char *GetClassName() {return "vtkPointSource";};
+  vtkTypeMacro(vtkPointSource,vtkPolyDataSource);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

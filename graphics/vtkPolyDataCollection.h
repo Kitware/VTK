@@ -56,7 +56,7 @@ class VTK_EXPORT vtkPolyDataCollection : public vtkCollection
 {
 public:
   static vtkPolyDataCollection *New();
-  const char *GetClassName() {return "vtkPolyDataCollection";};
+  vtkTypeMacro(vtkPolyDataCollection,vtkCollection);
 
   // Description:
   // Add a poly data to the list.

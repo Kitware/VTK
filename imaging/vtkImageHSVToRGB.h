@@ -57,7 +57,7 @@ class VTK_EXPORT vtkImageHSVToRGB : public vtkImageToImageFilter
 {
 public:
   static vtkImageHSVToRGB *New();
-  const char *GetClassName() {return "vtkImageHSVToRGB";};
+  vtkTypeMacro(vtkImageHSVToRGB,vtkImageToImageFilter);
 
   void PrintSelf(ostream& os, vtkIndent indent);
 

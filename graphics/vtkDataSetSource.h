@@ -52,7 +52,7 @@ class VTK_EXPORT vtkDataSetSource : public vtkSource
 {
 public:
   static vtkDataSetSource *New();
-  const char *GetClassName() {return "vtkDataSetSource";};
+  vtkTypeMacro(vtkDataSetSource,vtkSource);
 
   // Description:
   // Get the output of this source.

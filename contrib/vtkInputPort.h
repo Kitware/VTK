@@ -75,7 +75,7 @@ class VTK_EXPORT vtkInputPort : public vtkSource
 {
 public:
   static vtkInputPort *New();
-  const char *GetClassName() {return "vtkInputPort";};
+  vtkTypeMacro(vtkInputPort,vtkSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

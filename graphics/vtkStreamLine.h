@@ -76,7 +76,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkStreamLine : public vtkStreamer
 {
 public:
-  const char *GetClassName() {return "vtkStreamLine";};
+  vtkTypeMacro(vtkStreamLine,vtkStreamer);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -60,7 +60,7 @@ class VTK_EXPORT vtkSTLWriter : public vtkPolyDataWriter
 {
 public:
   static vtkSTLWriter *New();
-  const char *GetClassName() {return "vtkSTLWriter";};
+  vtkTypeMacro(vtkSTLWriter,vtkPolyDataWriter);
 
 protected:
   vtkSTLWriter();

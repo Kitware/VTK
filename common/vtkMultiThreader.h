@@ -148,7 +148,7 @@ class VTK_EXPORT vtkMultiThreader : public vtkObject
 public:
   static vtkMultiThreader *New();
 
-  const char *GetClassName() {return "vtkMultiThreader";};
+  vtkTypeMacro(vtkMultiThreader,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

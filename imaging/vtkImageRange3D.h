@@ -57,7 +57,7 @@ class VTK_EXPORT vtkImageRange3D : public vtkImageSpatialFilter
 {
 public:
   static vtkImageRange3D *New();
-  const char *GetClassName() {return "vtkImageRange3D";};
+  vtkTypeMacro(vtkImageRange3D,vtkImageSpatialFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

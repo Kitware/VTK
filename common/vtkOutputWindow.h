@@ -55,7 +55,7 @@ class VTK_EXPORT vtkOutputWindow : public vtkObject
 {
 public: 
 // Methods from vtkObject
-  virtual const char *GetClassName() {return "vtkOutputWindow";};
+  vtkTypeMacro(vtkOutputWindow,vtkObject);
   // Description:
   // Print ObjectFactor to stream.
   virtual void PrintSelf(ostream& os, vtkIndent indent);

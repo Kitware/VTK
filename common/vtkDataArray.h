@@ -70,7 +70,7 @@ class vtkFloatArray;
 class VTK_EXPORT vtkDataArray : public vtkObject 
 {
 public:
-  const char *GetClassName() {return "vtkDataArray";};
+  vtkTypeMacro(vtkDataArray,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   virtual int Allocate(const int sz, const int ext=1000) = 0;

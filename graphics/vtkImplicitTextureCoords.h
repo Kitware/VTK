@@ -78,7 +78,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImplicitTextureCoords : public vtkDataSetToDataSetFilter 
 {
 public:
-  const char *GetClassName() {return "vtkImplicitTextureCoords";};
+  vtkTypeMacro(vtkImplicitTextureCoords,vtkDataSetToDataSetFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

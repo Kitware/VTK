@@ -66,7 +66,7 @@ class VTK_EXPORT vtkVolumeRayCastMIPFunction : public vtkVolumeRayCastFunction
 {
 public:
   static vtkVolumeRayCastMIPFunction *New();
-  const char *GetClassName() {return "vtkVolumeRayCastMIPFunction";};
+  vtkTypeMacro(vtkVolumeRayCastMIPFunction,vtkVolumeRayCastFunction);
   void PrintSelf( ostream& os, vtkIndent index );
 
 

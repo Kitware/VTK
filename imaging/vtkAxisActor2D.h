@@ -80,7 +80,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkAxisActor2D : public vtkActor2D
 {
 public:
-  const char *GetClassName() {return "vtkAxisActor2D";};
+  vtkTypeMacro(vtkAxisActor2D,vtkActor2D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

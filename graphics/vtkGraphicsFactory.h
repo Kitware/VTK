@@ -50,7 +50,7 @@ class VTK_EXPORT vtkGraphicsFactory : public vtkObject
 {
 public:
   static vtkGraphicsFactory *New() {return new vtkGraphicsFactory;};
-  const char *GetClassName() {return "vtkGraphicsFactory";};
+  vtkTypeMacro(vtkGraphicsFactory,vtkObject);
 
   // Description:
   // Create and return an instance of the named vtk object.

@@ -56,7 +56,7 @@ class VTK_EXPORT vtkRectilinearGridSource : public vtkSource
 {
 public:
   static vtkRectilinearGridSource *New();
-  const char *GetClassName() {return "vtkRectilinearGridSource";};
+  vtkTypeMacro(vtkRectilinearGridSource,vtkSource);
 
   // Description:
   // Get the output of this source.

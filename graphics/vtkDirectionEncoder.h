@@ -63,7 +63,7 @@ class VTK_EXPORT vtkDirectionEncoder : public vtkObject
 public:
   // Description:
   // Get the name of this class
-  const char *GetClassName() {return "vtkDirectionEncoder";};
+  vtkTypeMacro(vtkDirectionEncoder,vtkObject);
 
   // Description:
   // Given a normal vector n, return the encoded direction

@@ -57,7 +57,7 @@ class VTK_EXPORT vtkImageIdealHighPass : public vtkImageToImageFilter
 {
 public:
   static vtkImageIdealHighPass *New();
-  const char *GetClassName() {return "vtkImageIdealHighPass";};
+  vtkTypeMacro(vtkImageIdealHighPass,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

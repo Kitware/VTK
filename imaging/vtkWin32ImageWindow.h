@@ -62,7 +62,7 @@ public:
   HWND      ParentId;
 
   static vtkWin32ImageWindow *New();
-  const char *GetClassName() {return "vtkWin32ImageWindow";};
+  vtkTypeMacro(vtkWin32ImageWindow,vtkImageWindow);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

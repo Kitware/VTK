@@ -82,7 +82,11 @@ public:
   ~vtkSimpleMutexLock();
 
   static vtkSimpleMutexLock *New();
-  const char *GetClassName() {return "vtkSimpleMutexLock";}
+
+  virtual const char *GetClassName() {return "vtkSimpleMutexLock";};
+  virtual int IsA(const char *name);
+  static vtkSimpleMutexLock *SafeDownCast(vtkSimpleMutexLock *o);
+
   void Delete() {delete this;}
   
   // Description:
@@ -104,7 +108,7 @@ class VTK_EXPORT vtkMutexLock : public vtkObject
 public:
   static vtkMutexLock *New();
 
-  const char *GetClassName() {return "vtkMutexLock";}
+  vtkTypeMacro(vtkMutexLock,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

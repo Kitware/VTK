@@ -73,7 +73,7 @@ class VTK_EXPORT vtkFrustumCoverageCuller : public vtkCuller
 {
 public:
   static vtkFrustumCoverageCuller *New();
-  const char *GetClassName() {return "vtkFrustumCoverageCuller";};
+  vtkTypeMacro(vtkFrustumCoverageCuller,vtkCuller);
   void PrintSelf(ostream& os,vtkIndent indent);
 
   // Description:

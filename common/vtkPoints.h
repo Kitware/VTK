@@ -56,7 +56,7 @@ class VTK_EXPORT vtkPoints : public vtkAttributeData
 public:
   static vtkPoints *New();
 
-  const char *GetClassName() {return "vtkPoints";};
+  vtkTypeMacro(vtkPoints,vtkAttributeData);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -59,7 +59,7 @@ class VTK_EXPORT vtkImageNoiseSource : public vtkImageSource
 {
 public:
   static vtkImageNoiseSource *New();
-  const char *GetClassName() {return "vtkImageNoiseSource";};
+  vtkTypeMacro(vtkImageNoiseSource,vtkImageSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -57,7 +57,7 @@ class VTK_EXPORT vtkCellPicker : public vtkPicker
 {
 public:
   static vtkCellPicker *New();
-  const char *GetClassName() {return "vtkCellPicker";};
+  vtkTypeMacro(vtkCellPicker,vtkPicker);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

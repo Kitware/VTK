@@ -76,7 +76,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkDataSetToDataObjectFilter : public vtkDataObjectSource
 {
 public:
-  const char *GetClassName() {return "vtkDataSetToDataObjectFilter";};
+  vtkTypeMacro(vtkDataSetToDataObjectFilter,vtkDataObjectSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

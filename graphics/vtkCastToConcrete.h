@@ -71,7 +71,7 @@ class VTK_EXPORT vtkCastToConcrete : public vtkDataSetToDataSetFilter
 
 public:
   static vtkCastToConcrete *New();
-  const char *GetClassName() {return "vtkCastToConcrete";};
+  vtkTypeMacro(vtkCastToConcrete,vtkDataSetToDataSetFilter);
 
 protected:
   vtkCastToConcrete() {};

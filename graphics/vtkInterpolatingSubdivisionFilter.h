@@ -57,7 +57,7 @@ class vtkCellArray;
 class VTK_EXPORT vtkInterpolatingSubdivisionFilter : public vtkPolyDataToPolyDataFilter
 {
 public:
-  const char *GetClassName() {return "vtkInterpolatingSubdivisionFilter";};
+  vtkTypeMacro(vtkInterpolatingSubdivisionFilter,vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

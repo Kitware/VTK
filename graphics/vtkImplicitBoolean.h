@@ -69,7 +69,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImplicitBoolean : public vtkImplicitFunction
 {
 public:
-  const char *GetClassName() {return "vtkImplicitBoolean";};
+  vtkTypeMacro(vtkImplicitBoolean,vtkImplicitFunction);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

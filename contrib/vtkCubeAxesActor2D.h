@@ -75,7 +75,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkCubeAxesActor2D : public vtkActor2D
 {
 public:
-  const char *GetClassName() {return "vtkCubeAxesActor2D";};
+  vtkTypeMacro(vtkCubeAxesActor2D,vtkActor2D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

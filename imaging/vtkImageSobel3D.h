@@ -58,7 +58,7 @@ class VTK_EXPORT vtkImageSobel3D : public vtkImageSpatialFilter
 {
 public:
   static vtkImageSobel3D *New();
-  const char *GetClassName() {return "vtkImageSobel3D";};
+  vtkTypeMacro(vtkImageSobel3D,vtkImageSpatialFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:

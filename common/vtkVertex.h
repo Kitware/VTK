@@ -51,7 +51,7 @@ class VTK_EXPORT vtkVertex : public vtkCell
 {
 public:
   static vtkVertex *New();
-  const char *GetClassName() {return "vtkVertex";};
+  vtkTypeMacro(vtkVertex,vtkCell);
   
   // Description:
   // Make a new vtkVertex object with the same information as this object.

@@ -55,7 +55,7 @@ class VTK_EXPORT vtkImageNormalize : public vtkImageToImageFilter
 {
 public:
   static vtkImageNormalize *New();
-  const char *GetClassName() {return "vtkImageNormalize";};
+  vtkTypeMacro(vtkImageNormalize,vtkImageToImageFilter);
 
 protected:
   vtkImageNormalize() {};

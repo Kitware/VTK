@@ -62,7 +62,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkXTextMapper : public vtkTextMapper
 {
 public:
-  const char *GetClassName() {return "vtkXTextMapper";};
+  vtkTypeMacro(vtkXTextMapper,vtkTextMapper);
   static vtkXTextMapper *New();
 
   // Description:

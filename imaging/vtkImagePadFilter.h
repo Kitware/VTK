@@ -55,7 +55,7 @@ class VTK_EXPORT vtkImagePadFilter : public vtkImageToImageFilter
 {
 public:
   static vtkImagePadFilter *New();
-  const char *GetClassName() {return "vtkImagePadFilter";};
+  vtkTypeMacro(vtkImagePadFilter,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -52,7 +52,7 @@ class VTK_EXPORT vtkTIFFWriter : public vtkImageWriter
 {
 public:
   static vtkTIFFWriter *New();
-  const char *GetClassName() {return "vtkTIFFWriter";};
+  vtkTypeMacro(vtkTIFFWriter,vtkImageWriter);
 
 protected:
   vtkTIFFWriter() {};

@@ -65,7 +65,7 @@ class VTK_EXPORT vtkImageComposite : public vtkSource
 public:
   static vtkImageComposite *New() {return new vtkImageComposite;}
 
-  const char *GetClassName() {return "vtkImageComposite";}
+  vtkTypeMacro(vtkImageComposite,vtkSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

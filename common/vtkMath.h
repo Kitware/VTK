@@ -56,7 +56,7 @@ class VTK_EXPORT vtkMath : public vtkObject
 {
 public:
   static vtkMath *New();
-  virtual const char *GetClassName() {return "vtkMath";};
+  vtkTypeMacro(vtkMath,vtkObject);
   
   // Description:
   // Useful constants.

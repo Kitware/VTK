@@ -72,7 +72,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPropAssembly : public vtkProp
 {
 public:
-  const char *GetClassName() {return "vtkPropAssembly";};
+  vtkTypeMacro(vtkPropAssembly,vtkProp);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

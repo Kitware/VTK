@@ -60,7 +60,7 @@ class VTK_EXPORT vtkRIBProperty : public vtkProperty
 {
 public:
   static vtkRIBProperty *New();
-  const char *GetClassName() {return "vtkRIBProperty";};
+  vtkTypeMacro(vtkRIBProperty,vtkProperty);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

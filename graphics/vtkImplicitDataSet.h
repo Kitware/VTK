@@ -69,7 +69,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImplicitDataSet : public vtkImplicitFunction
 {
 public:
-  const char *GetClassName() {return "vtkImplicitDataSet";};
+  vtkTypeMacro(vtkImplicitDataSet,vtkImplicitFunction);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description

@@ -59,7 +59,7 @@ class VTK_EXPORT vtkImageInPlaceFilter : public vtkImageToImageFilter
 {
 public:
   static vtkImageInPlaceFilter *New();
-  const char *GetClassName() {return "vtkImageInPlaceFilter";};
+  vtkTypeMacro(vtkImageInPlaceFilter,vtkImageToImageFilter);
 
 
 protected:

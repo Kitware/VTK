@@ -61,7 +61,7 @@ class VTK_EXPORT vtkPolyDataCollector : public vtkPolyDataToPolyDataFilter
 public:
   static vtkPolyDataCollector *New();
 
-  const char *GetClassName() {return "vtkPolyDataCollector";}
+  vtkTypeMacro(vtkPolyDataCollector,vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void SetInputMemoryLimit(unsigned long limit);

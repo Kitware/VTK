@@ -69,7 +69,7 @@ class vtkCollectionElement //;prevents pick-up by man page generator
 class VTK_EXPORT vtkCollection : public vtkObject
 {
 public:
-  const char *GetClassName() {return "vtkCollection";};
+  vtkTypeMacro(vtkCollection,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -110,7 +110,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkVolumeProVG500Mapper : public vtkVolumeProMapper
 {
 public:
-  const char *GetClassName() {return "vtkVolumeProVG500Mapper";};
+  vtkTypeMacro(vtkVolumeProVG500Mapper,vtkVolumeProMapper);
   static vtkVolumeProVG500Mapper *New();
  // Description:
   // Render the image using the hardware and place it in the frame buffer

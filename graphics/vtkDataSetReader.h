@@ -62,7 +62,7 @@ class VTK_EXPORT vtkDataSetReader : public vtkSource
 {
 public:
   static vtkDataSetReader *New();
-  const char *GetClassName() {return "vtkDataSetReader";};
+  vtkTypeMacro(vtkDataSetReader,vtkSource);
   void PrintSelf(ostream& os, vtkIndent indent);
   unsigned long int GetMTime();
 

@@ -73,7 +73,7 @@ class vtkRenderWindowInteractor;
 class VTK_EXPORT vtkRenderWindow : public vtkWindow
 {
 public:
-  const char *GetClassName() {return "vtkRenderWindow";};
+  vtkTypeMacro(vtkRenderWindow,vtkWindow);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

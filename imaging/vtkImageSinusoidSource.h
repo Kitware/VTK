@@ -53,7 +53,7 @@ class VTK_EXPORT vtkImageSinusoidSource : public vtkImageSource
 {
 public:
   static vtkImageSinusoidSource *New();
-  const char *GetClassName() {return "vtkImageSinusoidSource";};
+  vtkTypeMacro(vtkImageSinusoidSource,vtkImageSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -73,7 +73,7 @@ class VTK_EXPORT vtkPointSetToPointSetFilter : public vtkPointSetSource
 {
 public:
   static vtkPointSetToPointSetFilter *New();
-  const char *GetClassName() {return "vtkPointSetToPointSetFilter";};
+  vtkTypeMacro(vtkPointSetToPointSetFilter,vtkPointSetSource);
   
   // Description:
   // Specify the input data or filter.

@@ -87,7 +87,7 @@ class vtkActor;
 class VTK_EXPORT vtkMapper : public vtkAbstractMapper3D
 {
 public:
-  const char *GetClassName() {return "vtkMapper";};
+  vtkTypeMacro(vtkMapper,vtkAbstractMapper3D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

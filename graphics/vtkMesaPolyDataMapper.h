@@ -65,7 +65,7 @@ class VTK_EXPORT vtkMesaPolyDataMapper : public vtkPolyDataMapper
 {
 public:
   static vtkMesaPolyDataMapper *New();
-  const char *GetClassName() {return "vtkMesaPolyDataMapper";};
+  vtkTypeMacro(vtkMesaPolyDataMapper,vtkPolyDataMapper);
 
   // Description:
   // Implement superclass render method.

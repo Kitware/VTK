@@ -61,7 +61,7 @@ class vtkRenderer;
 class VTK_EXPORT vtkLight : public vtkObject
 {
 public:
-  const char *GetClassName() {return "vtkLight";};
+  vtkTypeMacro(vtkLight,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

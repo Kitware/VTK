@@ -117,7 +117,7 @@ public:
   // is not generated, and the inside mode is the smallest region.
   static vtkSelectPolyData *New();
 
-  const char *GetClassName() {return "vtkSelectPolyData";};
+  vtkTypeMacro(vtkSelectPolyData,vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

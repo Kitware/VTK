@@ -59,7 +59,7 @@ class VTK_EXPORT vtk3DSImporter : public vtkImporter
 public:
   static vtk3DSImporter *New();
 
-  const char *GetClassName() {return "vtk3DSImporter";};
+  vtkTypeMacro(vtk3DSImporter,vtkImporter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   OmniLight *OmniList;

@@ -56,7 +56,7 @@ protected:
   
 public:
   static vtkMesaActor *New();
-  const char *GetClassName() {return "vtkMesaActor";};
+  vtkTypeMacro(vtkMesaActor,vtkActor);
 
   // Description:
   // Actual actor render method.

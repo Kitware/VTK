@@ -82,7 +82,7 @@ class vtkPolyData;
 class VTK_EXPORT vtkLocator : public vtkObject
 {
 public:
-  const char *GetClassName() {return "vtkLocator";};
+  vtkTypeMacro(vtkLocator,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

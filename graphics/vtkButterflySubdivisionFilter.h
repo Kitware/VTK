@@ -76,7 +76,7 @@ public:
   // Description:
   // Construct object with NumberOfSubdivisions set to 1.
   static vtkButterflySubdivisionFilter *New();
-  const char *GetClassName() {return "vtkButterflySubdivisionFilter";};
+  vtkTypeMacro(vtkButterflySubdivisionFilter,vtkInterpolatingSubdivisionFilter);
 
  protected:
   vtkButterflySubdivisionFilter () {};

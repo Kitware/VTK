@@ -94,7 +94,7 @@ class VLICutPlane;
 class VTK_EXPORT vtkVolumeProMapper : public vtkVolumeMapper
 {
 public:
-  const char *GetClassName() {return "vtkVolumeProMapper";};
+  vtkTypeMacro(vtkVolumeProMapper,vtkVolumeMapper);
   void PrintSelf( ostream& os, vtkIndent index );
 
   // Description:

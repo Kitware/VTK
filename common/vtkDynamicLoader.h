@@ -71,7 +71,7 @@ class VTK_EXPORT vtkDynamicLoader : public vtkObject
 {
 public:
   static vtkDynamicLoader *New() {return new vtkDynamicLoader;};
-  const char *GetClassName() {return "vtkDynamicLoader";};
+  vtkTypeMacro(vtkDynamicLoader,vtkObject);
 
   //BTX
   // Description:

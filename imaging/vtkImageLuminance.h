@@ -51,7 +51,7 @@ class VTK_EXPORT vtkImageLuminance : public vtkImageToImageFilter
 {
 public:
   static vtkImageLuminance *New();
-  const char *GetClassName() {return "vtkImageLuminance";};
+  vtkTypeMacro(vtkImageLuminance,vtkImageToImageFilter);
 
 protected:
   vtkImageLuminance() {};

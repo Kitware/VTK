@@ -67,7 +67,7 @@ public:
   // Description:
   // Constructor: Sets default filter to be identity.
   static vtkImageIslandRemoval2D *New();
-  const char *GetClassName() {return "vtkImageIslandRemoval2D";};
+  vtkTypeMacro(vtkImageIslandRemoval2D,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

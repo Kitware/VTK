@@ -56,7 +56,7 @@ protected:
   
 public:
   static vtkOpenGLActor *New();
-  const char *GetClassName() {return "vtkOpenGLActor";};
+  vtkTypeMacro(vtkOpenGLActor,vtkActor);
 
   // Description:
   // Actual actor render method.

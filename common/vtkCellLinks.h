@@ -64,7 +64,7 @@ class VTK_EXPORT vtkCellLinks : public vtkObject
 {
 public:
   static vtkCellLinks *New();
-  const char *GetClassName() {return "vtkCellLinks";};
+  vtkTypeMacro(vtkCellLinks,vtkObject);
 
   // Description:
   // Allocate the specified number of links (i.e., number of points) that

@@ -54,7 +54,7 @@ class VTK_EXPORT vtkImageMagnify : public vtkImageToImageFilter
 {
 public:
   static vtkImageMagnify *New();
-  const char *GetClassName() {return "vtkImageMagnify";};
+  vtkTypeMacro(vtkImageMagnify,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

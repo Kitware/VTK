@@ -55,7 +55,7 @@ class VTK_EXPORT vtkImageBlockReader : public vtkImageSource
 {
 public:
   static vtkImageBlockReader *New();
-  const char *GetClassName() {return "vtkImageBlockReader";};
+  vtkTypeMacro(vtkImageBlockReader,vtkImageSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

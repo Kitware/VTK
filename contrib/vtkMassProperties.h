@@ -63,7 +63,7 @@ public:
   // Constructs with initial values of zero.
   static vtkMassProperties *New();
 
-  const char *GetClassName() {return "vtkMassProperties";};
+  vtkTypeMacro(vtkMassProperties,vtkProcessObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -82,7 +82,7 @@ class VTK_EXPORT vtkImageMarchingCubes : public vtkPolyDataSource
 {
 public:
   static vtkImageMarchingCubes *New();
-  const char *GetClassName() {return "vtkImageMarchingCubes";};
+  vtkTypeMacro(vtkImageMarchingCubes,vtkPolyDataSource);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

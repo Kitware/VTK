@@ -79,7 +79,7 @@ class VTK_EXPORT vtkDataSetToDataSetFilter : public vtkDataSetSource
 
 public:
   static vtkDataSetToDataSetFilter *New();
-  const char *GetClassName() {return "vtkDataSetToDataSetFilter";};
+  vtkTypeMacro(vtkDataSetToDataSetFilter,vtkDataSetSource);
 
   // Description:
   // Specify the input data or filter.

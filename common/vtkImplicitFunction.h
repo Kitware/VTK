@@ -74,7 +74,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImplicitFunction : public vtkObject
 {
 public:
-  const char *GetClassName() {return "vtkImplicitFunction";};
+  vtkTypeMacro(vtkImplicitFunction,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -67,7 +67,7 @@ public:
   static vtkImageWindow *New();
 
   void PrintSelf(ostream& os, vtkIndent indent);
-  const char *GetClassName() {return "vtkImageWindow";};
+  vtkTypeMacro(vtkImageWindow,vtkWindow);
 
   // Description:
   // Set the position of the window on the screen

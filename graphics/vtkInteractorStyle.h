@@ -80,7 +80,7 @@ public:
   // programmers.
   static vtkInteractorStyle *New();
 
-  const char *GetClassName() {return "vtkInteractorStyle";};
+  vtkTypeMacro(vtkInteractorStyle,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

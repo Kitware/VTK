@@ -59,7 +59,7 @@ class VTK_EXPORT vtkImageMandelbrotSource : public vtkImageSource
 {
 public:
   static vtkImageMandelbrotSource *New();
-  const char *GetClassName() {return "vtkImageMandelbrotSource";};
+  vtkTypeMacro(vtkImageMandelbrotSource,vtkImageSource);
   void PrintSelf(ostream& os, vtkIndent indent);   
   
   // Description:

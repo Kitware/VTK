@@ -54,7 +54,7 @@ class VTK_EXPORT vtkOpenGLCamera : public vtkCamera
 {
 public:
   static vtkOpenGLCamera *New();
-  const char *GetClassName() {return "vtkOpenGLCamera";};
+  vtkTypeMacro(vtkOpenGLCamera,vtkCamera);
 
   // Description:
   // Implement base class method.

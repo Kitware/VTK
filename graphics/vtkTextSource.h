@@ -64,7 +64,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTextSource : public vtkPolyDataSource 
 {
 public:
-  const char *GetClassName() {return "vtkTextSource";};
+  vtkTypeMacro(vtkTextSource,vtkPolyDataSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

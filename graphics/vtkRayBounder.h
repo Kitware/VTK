@@ -62,7 +62,7 @@ class vtkWindow;
 class VTK_EXPORT vtkRayBounder : public vtkObject
 {
 public:
-  const char *GetClassName() {return "vtkRayBounder";};
+  vtkTypeMacro(vtkRayBounder,vtkObject);
 
   // Description:
   // Get the ray bounds - a floating point array with two

@@ -57,7 +57,7 @@ class VTK_EXPORT vtkColorTransferFunction : public vtkScalarsToColors
 {
 public:
   static vtkColorTransferFunction *New();
-  const char *GetClassName() {return "vtkColorTransferFunction";};
+  vtkTypeMacro(vtkColorTransferFunction,vtkScalarsToColors);
   void DeepCopy( vtkColorTransferFunction *f );
 
   // Description:

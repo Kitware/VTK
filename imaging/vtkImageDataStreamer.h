@@ -57,7 +57,7 @@ class VTK_EXPORT vtkImageDataStreamer : public vtkImageToImageFilter
 {
 public:
   static vtkImageDataStreamer *New();
-  const char *GetClassName() {return "vtkImageDataStreamer";};
+  vtkTypeMacro(vtkImageDataStreamer,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

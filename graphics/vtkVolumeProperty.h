@@ -75,7 +75,7 @@ class VTK_EXPORT vtkVolumeProperty : public vtkObject
 {
 public:
   static vtkVolumeProperty *New();
-  const char *GetClassName() {return "vtkVolumeProperty";};
+  vtkTypeMacro(vtkVolumeProperty,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

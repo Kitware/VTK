@@ -53,7 +53,7 @@ class VTK_EXPORT vtkImageGaussianSource : public vtkImageSource
 {
 public:
   static vtkImageGaussianSource *New();
-  const char *GetClassName() {return "vtkImageGaussianSource";};
+  vtkTypeMacro(vtkImageGaussianSource,vtkImageSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

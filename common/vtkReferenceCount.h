@@ -54,7 +54,7 @@ class VTK_EXPORT vtkReferenceCount : public vtkObject
 public:
   static vtkReferenceCount *New();
 
-  const char *GetClassName() {return "vtkReferenceCount";};
+  vtkTypeMacro(vtkReferenceCount,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
   
 protected:  

@@ -63,7 +63,7 @@ class VTK_EXPORT vtkInterpolateDataSetAttributes : public vtkDataSetToDataSetFil
 {
 public:
   static vtkInterpolateDataSetAttributes *New();
-  const char *GetClassName() {return "vtkInterpolateDataSetAttributes";};
+  vtkTypeMacro(vtkInterpolateDataSetAttributes,vtkDataSetToDataSetFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

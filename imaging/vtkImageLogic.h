@@ -66,7 +66,7 @@ class VTK_EXPORT vtkImageLogic : public vtkImageTwoInputFilter
 {
 public:
   static vtkImageLogic *New();
-  const char *GetClassName() {return "vtkImageLogic";};
+  vtkTypeMacro(vtkImageLogic,vtkImageTwoInputFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

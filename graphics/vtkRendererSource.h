@@ -64,7 +64,7 @@ class VTK_EXPORT vtkRendererSource : public vtkStructuredPointsSource
 {
 public:
   static vtkRendererSource *New();
-  const char *GetClassName() {return "vtkRendererSource";};
+  vtkTypeMacro(vtkRendererSource,vtkStructuredPointsSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

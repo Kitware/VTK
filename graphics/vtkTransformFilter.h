@@ -65,7 +65,7 @@ class VTK_EXPORT vtkTransformFilter : public vtkPointSetToPointSetFilter
 {
 public:
   static vtkTransformFilter *New();
-  const char *GetClassName() {return "vtkTransformFilter";};
+  vtkTypeMacro(vtkTransformFilter,vtkPointSetToPointSetFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

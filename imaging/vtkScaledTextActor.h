@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkScaledTextActor : public vtkActor2D
 {
 public:
-  const char *GetClassName() {return "vtkScaledTextActor";};
+  vtkTypeMacro(vtkScaledTextActor,vtkActor2D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
