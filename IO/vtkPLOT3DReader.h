@@ -86,6 +86,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // a function of this class's gas constants (R, Gamma) and the equations used.
 // They may not be suitable for your computational domain.
 //
+// Additionally, you can read other data and associate it as a vtkDataArray
+// into the output's point attribute data. Use the method AddFunction()
+// to list all the functions that you'd like to read. AddFunction() accepts
+// an integer parameter that defines the function number.
+//
 // The format of the function file is as follows. An integer indicating 
 // number of grids, then an integer specifying number of functions per each 
 // grid. This is followed by the (integer) dimensions of each grid in the 
@@ -99,6 +104,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <stdio.h>
 #include "vtkStructuredGridSource.h"
+#include "vtkIntArray.h"
+
 class vtkFloatArray;
 
 // file formats
@@ -153,6 +160,16 @@ public:
   // function is extracted.
   vtkSetMacro(VectorFunctionNumber,int);
   vtkGetMacro(VectorFunctionNumber,int);
+
+  // Description:
+  // Specify additional functions to read. These are placed into the
+  // point data as data arrays. Later on they can be used by labeling
+  // them as scalars, etc.
+  void AddFunction(int functionNumber)
+    {this->FunctionList->InsertNextValue(functionNumber);}
+  void RemoveFunction(int);
+  void RemoveAllFunctions()
+    {this->FunctionList->Reset();}
 
   // these are read from PLOT3D file
   // Description:
@@ -223,6 +240,9 @@ protected:
   int FunctionFileFunctionNumber;
   void MapFunction(int fNumber,vtkPointData *outputPD);
 
+  //functions to read that are not scalars or vectors
+  vtkIntArray *FunctionList;
+
   //temporary variables used during read
   float *TempStorage;
   int NumberOfPoints;
@@ -269,6 +289,7 @@ protected:
   void ComputeVorticity(vtkPointData *outputPD);
   void ComputeMomentum(vtkPointData *outputPD);
   void ComputePressureGradient(vtkPointData *outputPD);
+
 private:
   vtkPLOT3DReader(const vtkPLOT3DReader&);  // Not implemented.
   void operator=(const vtkPLOT3DReader&);  // Not implemented.
