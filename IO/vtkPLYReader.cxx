@@ -25,7 +25,7 @@
 #include <ctype.h>
 #include <stddef.h>
 
-vtkCxxRevisionMacro(vtkPLYReader, "1.17");
+vtkCxxRevisionMacro(vtkPLYReader, "1.18");
 vtkStandardNewMacro(vtkPLYReader);
 
 #ifndef true
@@ -71,9 +71,9 @@ void vtkPLYReader::Execute()
   PlyProperty vertProps[] = {
     {"x", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex,x)),
      0, 0, 0, 0},
-    {"y", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex,x)+sizeof(x[0])),
+    {"y", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex,x)+sizeof(float)),
      0, 0, 0, 0},
-    {"z", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex,x)+sizeof(x[0])+sizeof(x[1])),
+    {"z", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex,x)+sizeof(float)+sizeof(float)),
      0, 0, 0, 0},
     {"red", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyVertex,red)), 0, 0, 0, 0},
     {"green", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyVertex,green)), 0, 0, 0, 0},

@@ -24,7 +24,7 @@
 
 #include <stddef.h>
 
-vtkCxxRevisionMacro(vtkPLYWriter, "1.19");
+vtkCxxRevisionMacro(vtkPLYWriter, "1.20");
 vtkStandardNewMacro(vtkPLYWriter);
 
 vtkCxxSetObjectMacro(vtkPLYWriter,LookupTable,vtkScalarsToColors);
@@ -80,9 +80,9 @@ void vtkPLYWriter::WriteData()
   static PlyProperty vertProps[] = { // property information for a vertex
     {"x", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex,x)),
      0, 0, 0, 0},
-    {"y", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex,x)+sizeof(x[0])),
+    {"y", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex,x)+sizeof(float)),
      0, 0, 0, 0},
-    {"z", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex,x)+sizeof(x[0])+sizeof(x[1])),
+    {"z", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex,x)+sizeof(float)+sizeof(float)),
      0, 0, 0, 0},
     {"red", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyVertex,red)), 
      0, 0, 0, 0},
