@@ -104,13 +104,15 @@ public:
   vtkGetObjectMacro( RenderWindow, vtkRenderWindow );
   vtkGetVectorMacro( DataOrigin, float, 3 );
   vtkGetVectorMacro( DataSpacing, float, 3 );
-//ETX
 
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
   // Render the volume
   virtual void Render(vtkRenderer *ren, vtkVolume *vol)=0;
+
+//ETX
+
 
 
 protected:
