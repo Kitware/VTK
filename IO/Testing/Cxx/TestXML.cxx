@@ -14,8 +14,8 @@ private:
   void StartElement(const char*, const char**) {}
   void EndElement(const char*) {}
 
-  vtkMyXML(const vtkMyXML*); // Not implemented
-  void operator=(const vtkMyXML*); // Not implemented    
+  vtkMyXML(const vtkMyXML&); // Not implemented
+  void operator=(const vtkMyXML&); // Not implemented    
 };
 
 vtkStandardNewMacro(vtkMyXML);
