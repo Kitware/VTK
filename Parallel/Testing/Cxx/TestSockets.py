@@ -12,10 +12,10 @@ else:
     # wait a little to make sure that the server is ready
     time.sleep(10)
     # run the client
-    os.system('%s -D %s -V %s' % ( sys.argv[2], sys.argv[3],
-                                   sys.argv[4] ))
+    retVal = os.system('%s -D %s -V %s' % ( sys.argv[2], sys.argv[3],
+                                            sys.argv[4] ))
     # in case the client fails, we need to kill the server
     # or it will stay around
     time.sleep(20)
     os.kill(pid, 15)
-
+    sys.exit(os.WEXITSTATUS(retVal))
