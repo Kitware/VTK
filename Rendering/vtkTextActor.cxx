@@ -22,7 +22,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkTextActor, "1.14");
+vtkCxxRevisionMacro(vtkTextActor, "1.15");
 vtkStandardNewMacro(vtkTextActor);
 
 vtkCxxSetObjectMacro(vtkTextActor,TextProperty,vtkTextProperty);
@@ -243,6 +243,7 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
     size[1] = point2[1] - point1[1];
 
     // Check to see whether we have to rebuild everything
+    int positionsHaveChanged = 0;
     if (viewport->GetMTime() > this->BuildTime ||
         (viewport->GetVTKWindow() &&
          viewport->GetVTKWindow()->GetMTime() > this->BuildTime))
@@ -252,12 +253,13 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
       if (this->LastSize[0]   != size[0]   || this->LastSize[1]   != size[1] ||
           this->LastOrigin[0] != point1[0] || this->LastOrigin[1] != point1[1])
         {
-        this->Modified();
+        positionsHaveChanged = 1;
         }
       }
     
     // Check to see whether we have to rebuild everything
-    if (this->GetMTime() > this->BuildTime ||
+    if (positionsHaveChanged ||
+        this->GetMTime() > this->BuildTime ||
         mapper->GetMTime() > this->BuildTime ||
         tpropmapper->GetMTime() > this->BuildTime)
       {
