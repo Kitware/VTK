@@ -55,6 +55,10 @@ public:
   int ArrayIsEnabled(const char* name);
   
   // Description:
+  // Return whether the array with the given name exists.
+  int ArrayExists(const char* name);
+
+  // Description:
   // Enable all arrays that currently have an entry.
   void EnableAllArrays();
   
