@@ -136,7 +136,7 @@ void vtkContourFilter::Execute()
 
   // If structured points, use more efficient algorithms
 #ifdef VTK_USE_PATENTED
-  if ( (input->GetDataObjectType() == VTK_STRUCTURED_POINTS) && 0)
+  if ( (input->GetDataObjectType() == VTK_STRUCTURED_POINTS))
     {
     if (inScalars->GetDataType() != VTK_BIT)
       {
@@ -150,7 +150,7 @@ void vtkContourFilter::Execute()
       }
     }
   
-  if ( (input->GetDataObjectType() == VTK_IMAGE_DATA) && 0) 
+  if ( (input->GetDataObjectType() == VTK_IMAGE_DATA)) 
     {
     if (inScalars->GetDataType() != VTK_BIT)
       {
