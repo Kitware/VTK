@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkRibbonFilter, "1.61");
+vtkCxxRevisionMacro(vtkRibbonFilter, "1.62");
 vtkStandardNewMacro(vtkRibbonFilter);
 
 // Construct ribbon so that width is 0.1, the width does 
@@ -63,7 +63,7 @@ void vtkRibbonFilter::Execute()
   int deleteNormals=0;
   vtkFloatArray *newNormals;
   vtkIdType i;
-  float range[2], maxSpeed=0;
+  float range[2];
   vtkCellArray *newStrips;
   vtkIdType npts, *pts;
   vtkIdType offset=0;
@@ -369,7 +369,8 @@ int vtkRibbonFilter::GeneratePoints(vtkIdType offset,
 }
 
 void vtkRibbonFilter::GenerateStrip(vtkIdType offset, vtkIdType npts, 
-                                    vtkIdType *pts, vtkIdType inCellId,
+                                    vtkIdType* vtkNotUsed(pts), 
+                                    vtkIdType inCellId,
                                     vtkCellData *cd, vtkCellData *outCD,
                                     vtkCellArray *newStrips)
 {
