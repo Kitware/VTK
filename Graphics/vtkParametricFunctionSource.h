@@ -16,7 +16,7 @@
 // .SECTION Description
 // This class tessellates parametric functions. The user must specify how
 // many points in the parametric coordinate directions are required (i.e.,
-// the resolution), and the mode to use to generate scalars.
+// the resolution), and the mode to use to generate scalars. 
 //
 // .SECTION Thanks
 // Andrew Maclean a.maclean@cas.edu.au for creating and contributing the
@@ -25,15 +25,18 @@
 // .SECTION See Also
 // vtkParametricFunction
 //
-// Implementations of derived classes implementing non-orentable surfaces:
+// Implementation of parametrics for 1D lines:
+// vtkParametricSpline
+//
+// Subclasses of vtkParametricFunction implementing non-orentable surfaces:
 // vtkParametricBoy vtkParametricCrossCap vtkParametricFig8Klein
 // vtkParametricKlein vtkParametricMobius vtkParametricRoman
 //
-// Implementations of derived classes implementing orientable surfaces:
+// Subclasses of vtkParametricFunction implementing orientable surfaces:
 // vtkParametricConicSpiral vtkParametricDini vtkParametricEnneper
 // vtkParametricRandomHills vtkParametricSuperEllipsoid 
 // vtkParametricSuperToroid vtkParametricTorus 
-//
+// 
 #ifndef __vtkParametricFunctionSource_h
 #define __vtkParametricFunctionSource_h
 
