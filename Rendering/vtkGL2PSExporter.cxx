@@ -170,7 +170,7 @@ void _Turn2DPropsOn(vtkRendererCollection *renCol, vtkIntArray *act2dVis)
     }
 }
 
-vtkCxxRevisionMacro(vtkGL2PSExporter, "1.8");
+vtkCxxRevisionMacro(vtkGL2PSExporter, "1.9");
 vtkStandardNewMacro(vtkGL2PSExporter);
 
 static float vtkGL2PSExporterGlobalPointSizeFactor = 5.0/7.0;
@@ -321,6 +321,11 @@ void vtkGL2PSExporter::WriteData()
     {
     sprintf(fName, "%s.eps", this->FilePrefix);
     format = GL2PS_EPS;
+    }
+  else if (this->FileFormat == PDF_FILE)
+    {
+    sprintf(fName, "%s.pdf", this->FilePrefix);
+    format = GL2PS_PDF;
     }
   else if (this->FileFormat == TEX_FILE)
     {
