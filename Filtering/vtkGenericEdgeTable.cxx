@@ -18,7 +18,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGenericEdgeTable, "1.8");
+vtkCxxRevisionMacro(vtkGenericEdgeTable, "1.9");
 vtkStandardNewMacro(vtkGenericEdgeTable);
 
 static int PRIME_NUMBERS[] = {1, 3, 7, 13, 31, 61, 127,  251,  509,  1021,
@@ -306,7 +306,7 @@ int vtkGenericEdgeTable::RemoveEdge(vtkIdType e1, vtkIdType e2)
   
   //Need to check size again
   //v.erase(v.begin() + index);
-  bool found = false;
+  int found = 0;
   
 #if !USE_CONST_ITERATOR
   vtkEdgeTableEdge::VectorEdgeTableType::iterator it;
@@ -328,7 +328,7 @@ int vtkGenericEdgeTable::RemoveEdge(vtkIdType e1, vtkIdType e2)
         //vect.erase(vect.begin() + index);
         vect.erase( it );
         }
-      found = true;
+      found = 1;
       ref = it->Reference;
       }
   }
@@ -351,7 +351,7 @@ int vtkGenericEdgeTable::RemoveEdge(vtkIdType e1, vtkIdType e2)
           }
         vect.erase(vect.begin() + index);
         }
-      found = true;
+      found = 1;
       ref = ent.Reference;
       }
     }
@@ -665,7 +665,7 @@ void vtkGenericEdgeTable::InsertPoint(vtkIdType ptId, double point[3])
 void vtkGenericEdgeTable::RemovePoint(vtkIdType ptId)
 {
   unsigned int index;
-  bool found = false;
+  int found = 0;
   vtkIdType pos = this->HashFunction(ptId);
 
   //Need to check size first
@@ -687,7 +687,7 @@ void vtkGenericEdgeTable::RemovePoint(vtkIdType ptId)
         {
         vect.erase(vect.begin() + index);
         }
-      found = true;
+      found = 1;
       }
     }
 
@@ -768,7 +768,7 @@ void vtkGenericEdgeTable::DumpTable()
 void vtkGenericEdgeTable::IncrementPointReferenceCount(vtkIdType ptId )
 {
   unsigned int index;
-  bool found = false;
+  int found = 0;
   vtkIdType pos = this->HashFunction(ptId);
 
   //Need to check size first
@@ -786,7 +786,7 @@ void vtkGenericEdgeTable::IncrementPointReferenceCount(vtkIdType ptId )
     if( ent.PointId == ptId )
       {
       ent.Reference++;
-      found = true;
+      found = 1;
       }
     }
 
