@@ -21,7 +21,7 @@
 #include "vtkCompositeDataVisitor.h"
 #include "vtkDataSet.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataSet, "1.1");
+vtkCxxRevisionMacro(vtkCompositeDataSet, "1.2");
 
 //----------------------------------------------------------------------------
 vtkCompositeDataSet::vtkCompositeDataSet()
@@ -60,6 +60,7 @@ void vtkCompositeDataSet::GetUpdateExtent(int &piece, int &numPieces, int &ghost
 //----------------------------------------------------------------------------
 void vtkCompositeDataSet::PrintSelf(ostream& os, vtkIndent indent)
 {
+  // this->UpdateExtent
   this->Superclass::PrintSelf(os,indent);
 }
 

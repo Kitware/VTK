@@ -43,9 +43,13 @@ struct vtkHDSNodeRef
 
   vtkstd_bool operator==(const vtkHDSNodeRef& rhs)
     {
-      return (this->Level == rhs.Level) && (this->Index && rhs.Index);
+      return (this->Level == rhs.Level) && (this->Index == rhs.Index);
     }
-
+  vtkstd_bool operator!=(const vtkHDSNodeRef& rhs)
+    {
+      return (this->Level != rhs.Level) || (this->Index != rhs.Index);
+    }
+  
   int Level;
   int Index;
 };
