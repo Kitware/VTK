@@ -17,13 +17,15 @@
 #include "vtkCell.h"
 #include "vtkCellData.h"
 #include "vtkDataSet.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkCellCenters, "1.23");
+vtkCxxRevisionMacro(vtkCellCenters, "1.24");
 vtkStandardNewMacro(vtkCellCenters);
 
 // Construct object with vertex cell generation turned off.
@@ -33,12 +35,23 @@ vtkCellCenters::vtkCellCenters()
 }
 
 // Generate points
-void vtkCellCenters::Execute()
+int vtkCellCenters::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkIdType cellId, numCells;
   int subId;
-  vtkDataSet *input = this->GetInput();
-  vtkPolyData *output = this->GetOutput();
   vtkCellData *inCD;
   vtkPointData *outPD;
   vtkPoints *newPts;
@@ -46,21 +59,13 @@ void vtkCellCenters::Execute()
   double x[3], pcoords[3];
   double *weights;
 
-  if (input == NULL)
-    {
-    vtkErrorMacro(<<"Input is NULL");
-    return;
-    }
-
-  vtkDebugMacro(<<"Generating cell center points");
-
   inCD=input->GetCellData();
   outPD=output->GetPointData();
 
   if ( (numCells = input->GetNumberOfCells()) < 1 )
     {
     vtkWarningMacro(<<"No cells to generate center points for");
-    return;
+    return 0;
     }
 
   newPts = vtkPoints::New();
@@ -118,6 +123,14 @@ void vtkCellCenters::Execute()
     {
     delete [] weights;
     }
+
+  return 1;
+}
+
+int vtkCellCenters::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  return 1;
 }
 
 void vtkCellCenters::PrintSelf(ostream& os, vtkIndent indent)
