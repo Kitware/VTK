@@ -48,7 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // equal to a large positive number.
 vtkImplicitModeller::vtkImplicitModeller()
 {
-  this->MaximumDistance = 0.075;
+  this->MaximumDistance = 0.1;
 
   this->ModelBounds[0] = 0.0;
   this->ModelBounds[1] = 0.0;
