@@ -155,8 +155,6 @@ vtkFollower \
 vtkFrustumCoverageCuller \
 vtkGaussianSplatter \
 vtkGeometryFilter \
-vtkGetGhostCells \
-vtkGetPolyDataGhostCells \
 vtkGlyph2D \
 vtkGlyph3D \
 vtkGhostLevelToScalarFilter \
