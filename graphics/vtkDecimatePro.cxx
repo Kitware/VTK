@@ -156,7 +156,7 @@ int vtkVertexQueue::Pop(float &error)
     {
     recycled = 0;
     this->RecycleBin->Reset();
-    this->Owner->ProcessDeferredSplits(this->NumberOfPoints, this->NumberOfPops);
+    this->Owner->ProcessDeferredSplits(this->NumberOfPops);
     return this->Pop(error);
     }
 
@@ -387,7 +387,7 @@ void vtkDecimatePro::Execute()
         {
         if ( Split && DeferSplit )
           {
-          this->ProcessDeferredSplits(numPts,VertexQueue->GetNumberOfPops());
+          this->ProcessDeferredSplits(VertexQueue->GetNumberOfPops());
           }
         else if ( Split ) //okay to break it up - already processed deferred splits
           {
@@ -1292,7 +1292,7 @@ int CollapseEdge(int type, int ptId, int collapseId, int pt1,
   return numDeleted;
 }
 
-void vtkDecimatePro::ProcessDeferredSplits(int numPts, int numPops)
+void vtkDecimatePro::ProcessDeferredSplits(int numPops)
 {
   vtkDebugMacro(<< "Mesh splitting beginning at operation: " << numPops);
 
@@ -1316,6 +1316,7 @@ void vtkDecimatePro::ProcessDeferredSplits(int numPts, int numPops)
 // parameter is < 0 or > 1.0, then the output is set to the ivar
 // Reduction value. Note: the vtkPolyData that you passed in has the 
 // data placed into it - you must manage the creation/desctruction of pd.
+/****
 void vtkDecimatePro::GetOutput(vtkPolyData &pd, float reduction)
 {
   // Check input
@@ -1329,15 +1330,15 @@ void vtkDecimatePro::GetOutput(vtkPolyData &pd, float reduction)
 
   // Get the mesh at the reduction level specified
 
-
 }
+****/
 
 // Description:
 // Write a progressive mesh file. This file is a compact, series of operations
 // that represents an incremental construction of a mesh at different levels
 // of detail (see vtkProgressiveMeshReader). The progressive mesh is written
 // at the current Reduction level.
-void vtkDecimatePro::WriteProgressiveMesh(char *filename)
+/****void vtkDecimatePro::WriteProgressiveMesh(char *filename)
 {
   FILE *fptr;  
 
@@ -1366,6 +1367,7 @@ void vtkDecimatePro::WriteProgressiveMesh(char *filename)
   // Clean up
   fclose(fptr);
 }
+****/
 
 // Description:
 // Get a list of inflection points. These are integer values 
