@@ -43,6 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkProp may respond to RenderGeometry, RenderVolume, and RenderPostSwap
 // calls and may repond to more than one.
 //
+// vt
 // .SECTION See Also
 // vtkActor2D  vtkActor vtkVolume
 
@@ -60,7 +61,8 @@ class VTK_EXPORT vtkProp : public vtkObject
 {
 public:
   // Description:
-  // Creates a Prop with visibility on.
+  // Creates an instance with visibility=1, pickable=1,
+  // and dragable=1.
   static vtkProp* New() {return new vtkProp;};
 
   const char *GetClassName() {return "vtkProp";};
@@ -81,6 +83,34 @@ public:
   vtkBooleanMacro(Visibility, int);
 
   // Description:
+  // Set/Get the pickable instance variable.  This determines if the vtkProp
+  // can be picked (typically using the mouse). Also see dragable.
+  vtkSetMacro(Pickable,int);
+  vtkGetMacro(Pickable,int);
+  vtkBooleanMacro(Pickable,int);
+
+  // Description:
+  // This method is invoked when an instance of vtkProp (or subclass, 
+  // e.g., vtkActor) is picked by vtkPicker.
+  void SetPickMethod(void (*f)(void *), void *arg);
+  void SetPickMethodArgDelete(void (*f)(void *));
+
+  // Description:
+  // Method invokes PickMethod() if one defined and the prop is picked.
+  virtual void Pick();
+
+  // Description:
+  // Set/Get the value of the dragable instance variable. This determines if 
+  // an Prop, once picked, can be dragged (translated) through space.
+  // This is typically done through an interactive mouse interface.
+  // This does not affect methods such as SetPosition, which will continue
+  // to work.  It is just intended to prevent some vtkProp'ss from being
+  // dragged from within a user interface.
+  vtkSetMacro(Dragable,int);
+  vtkGetMacro(Dragable,int);
+  vtkBooleanMacro(Dragable,int);
+
+  // Description:
   // Return the mtime of anything that would cause the rendered image to 
   // appear differently. Usually this involves checking the mtime of the 
   // prop plus anything else it depends on such as properties, textures
@@ -91,6 +121,10 @@ public:
   // Get the bounds for this Prop as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
   // in world coordinates. NULL means that the bounds are not defined.
   virtual float *GetBounds() {return NULL;};
+
+  // Description:
+  // Shallow copy of this vtkProp.
+  void ShallowCopy(vtkProp *Prop);
 
 //BTX  
   // Description:
@@ -211,11 +245,17 @@ public:
 
 protected:
   vtkProp();
-  ~vtkProp() {};
+  ~vtkProp();
   vtkProp(const vtkProp&) {};
   void operator=(const vtkProp&) {};
 
   int Visibility;
+  int Pickable;
+  void (*PickMethod)(void *);
+  void (*PickMethodArgDelete)(void *);
+  void *PickMethodArg;
+  int Dragable;
+
   float AllocatedRenderTime;
   float EstimatedRenderTime;
   float RenderTimeMultiplier;

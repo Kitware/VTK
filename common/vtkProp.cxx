@@ -43,14 +43,88 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkProp::vtkProp()
 {
   this->Visibility = 1;  // ON
+
+  this->Pickable   = 1;
+  this->PickMethod = NULL;
+  this->PickMethodArgDelete = NULL;
+  this->PickMethodArg = NULL;
+  this->Dragable   = 1;
+  
   this->AllocatedRenderTime = 10.0;
   this->EstimatedRenderTime = 0.0;
   this->RenderTimeMultiplier = 1.0;
 }
 
+vtkProp::~vtkProp()
+{
+  if ((this->PickMethodArg)&&(this->PickMethodArgDelete))
+    {
+    (*this->PickMethodArgDelete)(this->PickMethodArg);
+    }
+}
+
+// This method is invoked when an instance of vtkProp (or subclass, 
+// e.g., vtkActor) is picked by vtkPicker.
+void vtkProp::SetPickMethod(void (*f)(void *), void *arg)
+{
+  if ( f != this->PickMethod || arg != this->PickMethodArg )
+    {
+    // delete the current arg if there is one and a delete method
+    if ((this->PickMethodArg)&&(this->PickMethodArgDelete))
+      {
+      (*this->PickMethodArgDelete)(this->PickMethodArg);
+      }
+    this->PickMethod = f;
+    this->PickMethodArg = arg;
+    this->Modified();
+    }
+}
+
+// Set a method to delete user arguments for PickMethod.
+void vtkProp::SetPickMethodArgDelete(void (*f)(void *))
+{
+  if ( f != this->PickMethodArgDelete)
+    {
+    this->PickMethodArgDelete = f;
+    this->Modified();
+    }
+}
+
+// This method is invoked if the prop is picked.
+void vtkProp::Pick()
+  {
+  if (this->PickMethod)
+    {
+    (*this->PickMethod)(this->PickMethodArg);
+    }
+  }
+
+// Shallow copy of vtkProp.
+void vtkProp::ShallowCopy(vtkProp *Prop)
+{
+  this->Visibility = Prop->GetVisibility();
+  this->Pickable   = Prop->GetPickable();
+  this->Dragable   = Prop->GetDragable();
+
+  this->SetPickMethod(Prop->PickMethod, Prop->PickMethodArg);
+  this->SetPickMethodArgDelete(Prop->PickMethodArgDelete);
+}
+
 void vtkProp::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkObject::PrintSelf(os,indent);
+
+  os << indent << "Dragable: " << (this->Dragable ? "On\n" : "Off\n");
+  os << indent << "Pickable: " << (this->Pickable ? "On\n" : "Off\n");
+
+  if ( this->PickMethod )
+    {
+    os << indent << "Pick Method defined\n";
+    }
+  else
+    {
+    os << indent <<"No Pick Method\n";
+    }
 
   os << indent << "AllocatedRenderTime: " 
      << this->AllocatedRenderTime << endl;
