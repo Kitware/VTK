@@ -23,13 +23,14 @@
 #ifndef __vtkImageCheckerboard_h
 #define __vtkImageCheckerboard_h
 
-#include "vtkImageTwoInputFilter.h"
+#include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageCheckerboard : public vtkImageTwoInputFilter
+
+class VTK_IMAGING_EXPORT vtkImageCheckerboard : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageCheckerboard *New();
-  vtkTypeRevisionMacro(vtkImageCheckerboard,vtkImageTwoInputFilter);
+  vtkTypeRevisionMacro(vtkImageCheckerboard,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -37,12 +38,21 @@ public:
   vtkSetVector3Macro(NumberOfDivisions,int);
   vtkGetVectorMacro(NumberOfDivisions,int,3);
 
+  // Description:
+  // Set the two inputs to this filter
+  virtual void SetInput1(vtkDataObject *in) { this->SetInput(0,in); }
+  virtual void SetInput2(vtkDataObject *in) { this->SetInput(1,in); }
+  
 protected:
   vtkImageCheckerboard();
   ~vtkImageCheckerboard() {};
 
-  void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
-                       int extent[6], int id);
+  virtual void ThreadedRequestData(vtkInformation *request, 
+                                   vtkInformationVector **inputVector, 
+                                   vtkInformationVector *outputVector,
+                                   vtkImageData ***inData, 
+                                   vtkImageData **outData,
+                                   int extent[6], int threadId);
   int NumberOfDivisions[3];
 private:
   vtkImageCheckerboard(const vtkImageCheckerboard&);  // Not implemented.

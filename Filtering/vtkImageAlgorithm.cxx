@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageAlgorithm, "1.8");
+vtkCxxRevisionMacro(vtkImageAlgorithm, "1.9");
 
 //----------------------------------------------------------------------------
 vtkImageAlgorithm::vtkImageAlgorithm()
@@ -390,17 +390,6 @@ void vtkImageAlgorithm::SetInput(int index, vtkDataObject* input)
     }
 }
 
-//----------------------------------------------------------------------------
-void vtkImageAlgorithm::SetInput(vtkDataSet* input)
-{
-  this->SetInput(0, static_cast<vtkDataObject*>(input));
-}
-
-//----------------------------------------------------------------------------
-void vtkImageAlgorithm::SetInput(int index, vtkDataSet* input)
-{
-  this->SetInput(index, static_cast<vtkDataObject*>(input));
-}
 
 //----------------------------------------------------------------------------
 void vtkImageAlgorithm::AddInput(vtkDataObject* input)
@@ -415,16 +404,4 @@ void vtkImageAlgorithm::AddInput(int index, vtkDataObject* input)
     {
     this->AddInputConnection(index, input->GetProducerPort());
     }
-}
-
-//----------------------------------------------------------------------------
-void vtkImageAlgorithm::AddInput(vtkDataSet* input)
-{
-  this->AddInput(0, static_cast<vtkDataObject*>(input));
-}
-
-//----------------------------------------------------------------------------
-void vtkImageAlgorithm::AddInput(int index, vtkDataSet* input)
-{
-  this->AddInput(index, static_cast<vtkDataObject*>(input));
 }

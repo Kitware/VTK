@@ -58,6 +58,8 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
 #endif //VTK_DISPLAY_WIN32_WARNINGS
 #endif
 
+#pragma warning ( default : 4263 )
+
 #endif
 
 #if defined(WIN32) && defined(VTK_BUILD_SHARED_LIBS)

@@ -15,58 +15,77 @@
 #include "vtkImageCorrelation.h"
 
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageCorrelation, "1.28");
+vtkCxxRevisionMacro(vtkImageCorrelation, "1.29");
 vtkStandardNewMacro(vtkImageCorrelation);
 
 //----------------------------------------------------------------------------
 vtkImageCorrelation::vtkImageCorrelation()
 {
   this->Dimensionality = 2;
+  this->SetNumberOfInputPorts(2);
 }
 
 
 //----------------------------------------------------------------------------
 // Grow the output image 
-void vtkImageCorrelation::ExecuteInformation(
-                    vtkImageData **vtkNotUsed(inDatas), vtkImageData *outData)
+void vtkImageCorrelation::ExecuteInformation (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector ** vtkNotUsed( inputVector ),
+  vtkInformationVector *outputVector)
 {
-  outData->SetNumberOfScalarComponents(1);
-  outData->SetScalarType(VTK_FLOAT);
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+
+  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),1);
+  outInfo->Set(vtkDataObject::SCALAR_TYPE(),VTK_FLOAT);
 }
 
 //----------------------------------------------------------------------------
 // Grow
-void vtkImageCorrelation::ComputeInputUpdateExtent(int inExt[6], 
-                                                   int outExt[6],
-                                                   int whichInput)
+void vtkImageCorrelation::RequestUpdateExtent (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  if (whichInput == 1)
-    {
-    // get the whole image for input 2
-    memcpy(inExt,this->GetInput(whichInput)->GetWholeExtent(),6*sizeof(int));
-    }
-  else
-    {
-    // try to get all the data required to handle the boundaries
-    // but limit to the whole extent
-    int idx;
-    int *i0WExtent = this->GetInput(0)->GetWholeExtent();
-    int *i1WExtent = this->GetInput(1)->GetWholeExtent();
-    memcpy(inExt,outExt,6*sizeof(int));
-    for (idx = 0; idx < 3; idx++)
-      {
-      inExt[idx*2+1] = outExt[idx*2+1] +
-        (i1WExtent[idx*2+1] - i1WExtent[idx*2]);
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo1 = inputVector[0]->GetInformationObject(0);
+  vtkInformation* inInfo2 = inputVector[1]->GetInformationObject(0);
+  
+  // get the whole image for input 2
+  int inWExt2[6];
+  inInfo2->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),inWExt2);
+  inInfo2->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+               inWExt2, 6);
+  
+  
+  int inWExt1[6];
+  inInfo1->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),inWExt1);
 
-      // clip to whole extent
-      if (inExt[idx*2+1] > i0WExtent[idx*2+1])
-        {
-        inExt[idx*2+1] = i0WExtent[idx*2+1];
-        }
+  // try to get all the data required to handle the boundaries
+  // but limit to the whole extent
+  int idx;
+  int inUExt1[6];
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),inUExt1);
+  
+  for (idx = 0; idx < 3; idx++)
+    {
+    inUExt1[idx*2+1] = inUExt1[idx*2+1] +
+      (inWExt2[idx*2+1] - inWExt2[idx*2]);
+    
+    // clip to whole extent
+    if (inUExt1[idx*2+1] > inWExt1[idx*2+1])
+      {
+      inUExt1[idx*2+1] = inWExt1[idx*2+1];
       }
     }
+  inInfo1->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+               inUExt1, 6);
 }
 
 
@@ -104,7 +123,7 @@ void vtkImageCorrelationExecute(vtkImageCorrelation *self,
   target++;
 
   // get some other info we need
-  in2Extent = self->GetInput2()->GetWholeExtent(); 
+  in2Extent = in2Data->GetWholeExtent(); 
   
   // Get increments to march through data 
   in1Data->GetContinuousIncrements(outExt, in1CIncX, in1CIncY, in1CIncZ);
@@ -189,54 +208,46 @@ void vtkImageCorrelationExecute(vtkImageCorrelation *self,
 // algorithm to fill the output from the inputs.
 // It just executes a switch statement to call the correct function for
 // the datas data types.
-void vtkImageCorrelation::ThreadedExecute(vtkImageData **inData, 
-                                          vtkImageData *outData,
-                                          int outExt[6], int id)
+void vtkImageCorrelation::ThreadedRequestData(
+  vtkInformation * vtkNotUsed( request ), 
+  vtkInformationVector ** vtkNotUsed( inputVector ), 
+  vtkInformationVector * vtkNotUsed( outputVector ),
+  vtkImageData ***inData, 
+  vtkImageData **outData,
+  int outExt[6], int id)
 {
   int *in2Extent;
   void *in1Ptr;
   void *in2Ptr;
   float *outPtr;
   
-  vtkDebugMacro(<< "Execute: inData = " << inData << ", outData = " << outData);
-  
-  if (inData[0] == NULL)
-    {
-    vtkErrorMacro(<< "Input " << 0 << " must be specified.");
-    return;
-    }
-  if (inData[1] == NULL)
-    {
-    vtkErrorMacro(<< "Input " << 1 << " must be specified.");
-    return;
-    }
-  in2Extent = this->GetInput(1)->GetWholeExtent();
-  in1Ptr = inData[0]->GetScalarPointerForExtent(outExt);
-  in2Ptr = inData[1]->GetScalarPointerForExtent(in2Extent);
-  outPtr = (float *)outData->GetScalarPointerForExtent(outExt);
+  in2Extent = inData[1][0]->GetWholeExtent();
+  in1Ptr = inData[0][0]->GetScalarPointerForExtent(outExt);
+  in2Ptr = inData[1][0]->GetScalarPointerForExtent(in2Extent);
+  outPtr = (float *)outData[0]->GetScalarPointerForExtent(outExt);
 
   // this filter expects that input is the same type as output.
-  if (inData[0]->GetScalarType() != inData[1]->GetScalarType())
+  if (inData[0][0]->GetScalarType() != inData[1][0]->GetScalarType())
     {
     vtkErrorMacro(<< "Execute: input ScalarType, " << 
-    inData[0]->GetScalarType() << " and input2 ScalarType " <<
-    inData[1]->GetScalarType() << ", should match");
+    inData[0][0]->GetScalarType() << " and input2 ScalarType " <<
+    inData[1][0]->GetScalarType() << ", should match");
     return;
     }
   
   // input depths must match
-  if (inData[0]->GetNumberOfScalarComponents() != 
-      inData[1]->GetNumberOfScalarComponents())
+  if (inData[0][0]->GetNumberOfScalarComponents() != 
+      inData[1][0]->GetNumberOfScalarComponents())
     {
     vtkErrorMacro(<< "Execute: input depths must match");
     return;
     }
   
-  switch (inData[0]->GetScalarType())
+  switch (inData[0][0]->GetScalarType())
     {
-    vtkTemplateMacro9(vtkImageCorrelationExecute, this, inData[0], 
-                      (VTK_TT *)(in1Ptr), inData[1], (VTK_TT *)(in2Ptr), 
-                      outData, outPtr, outExt, id);
+    vtkTemplateMacro9(vtkImageCorrelationExecute, this, inData[0][0], 
+                      (VTK_TT *)(in1Ptr), inData[1][0], (VTK_TT *)(in2Ptr), 
+                      outData[0], outPtr, outExt, id);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

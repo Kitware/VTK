@@ -28,19 +28,19 @@
 #define VTK_IMAGE_NON_MAXIMUM_SUPPRESSION_MAGNITUDE_INPUT 0
 #define VTK_IMAGE_NON_MAXIMUM_SUPPRESSION_VECTOR_INPUT 1
 
-#include "vtkImageTwoInputFilter.h"
+#include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageNonMaximumSuppression : public vtkImageTwoInputFilter
+class VTK_IMAGING_EXPORT vtkImageNonMaximumSuppression : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageNonMaximumSuppression *New();
-  vtkTypeRevisionMacro(vtkImageNonMaximumSuppression,vtkImageTwoInputFilter);
+  vtkTypeRevisionMacro(vtkImageNonMaximumSuppression,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
   // Set the magnitude and vector inputs.
-  void SetMagnitudeInput(vtkImageData *input) {this->SetInput1(input);};
-  void SetVectorInput(vtkImageData *input) {this->SetInput2(input);};
+  void SetMagnitudeInput(vtkImageData *input) {this->SetInput(0,input);};
+  void SetVectorInput(vtkImageData *input) {this->SetInput(1,input);};
   
   // Description:
   // If "HandleBoundariesOn" then boundary pixels are duplicated
@@ -61,12 +61,19 @@ protected:
   int HandleBoundaries;
   int Dimensionality;
   
-  void ExecuteInformation(vtkImageData **inDatas, vtkImageData *outData);
-  virtual void ComputeInputUpdateExtent(int inExt[6], int outExt[6],
-                                        int whichInput);
-  void ExecuteInformation(){this->vtkImageTwoInputFilter::ExecuteInformation();};
-  void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
-                       int extent[6], int id);
+  void ExecuteInformation (vtkInformation *, 
+                           vtkInformationVector **, vtkInformationVector *);
+
+  virtual void RequestUpdateExtent(vtkInformation*,
+                                   vtkInformationVector**,
+                                   vtkInformationVector*);
+  
+  virtual void ThreadedRequestData(vtkInformation *request, 
+                                   vtkInformationVector **inputVector, 
+                                   vtkInformationVector *outputVector,
+                                   vtkImageData ***inData, 
+                                   vtkImageData **outData,
+                                   int extent[6], int threadId);
   
 private:
   vtkImageNonMaximumSuppression(const vtkImageNonMaximumSuppression&);  // Not implemented.

@@ -87,6 +87,17 @@ public:
   vtkSetVector4Macro(Viewport,double);
   vtkGetVectorMacro(Viewport,double,4);
 
+  // Description
+  // Override superclass input methods
+  virtual void SetInput(vtkDataObject *) 
+    { vtkErrorMacro( "Bad input for WindowToImageFilter"); };
+  virtual void SetInput(vtkDataSet*)
+    { vtkErrorMacro( "Bad input for WindowToImageFilter"); };
+  virtual void SetInput(int, vtkDataObject*)
+    { vtkErrorMacro( "Bad input for WindowToImageFilter"); };
+  virtual void SetInput(int, vtkDataSet*)
+    { vtkErrorMacro( "Bad input for WindowToImageFilter"); };
+
 protected:
   vtkWindowToImageFilter();
   ~vtkWindowToImageFilter();

@@ -44,7 +44,7 @@
 #ifndef __vtkImageRectilinearWipe_h
 #define __vtkImageRectilinearWipe_h
 
-#include "vtkImageTwoInputFilter.h"
+#include "vtkThreadedImageAlgorithm.h"
 
 #define VTK_WIPE_QUAD 0
 #define VTK_WIPE_HORIZONTAL 1
@@ -54,17 +54,22 @@
 #define VTK_WIPE_UPPER_LEFT 5
 #define VTK_WIPE_UPPER_RIGHT 6
 
-class VTK_IMAGING_EXPORT vtkImageRectilinearWipe : public vtkImageTwoInputFilter
+class VTK_IMAGING_EXPORT vtkImageRectilinearWipe : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageRectilinearWipe *New();
-  vtkTypeRevisionMacro(vtkImageRectilinearWipe,vtkImageTwoInputFilter);
+  vtkTypeRevisionMacro(vtkImageRectilinearWipe,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set/Get the location of the image transition.
   vtkSetVector2Macro(Position,int);
   vtkGetVectorMacro(Position,int,2);
+
+  // Description:
+  // Set the two inputs to this filter
+  virtual void SetInput1(vtkDataObject *in) { this->SetInput(0,in); }
+  virtual void SetInput2(vtkDataObject *in) { this->SetInput(1,in); }
 
   // Description:
   // Specify the wipe mode. This mode determnis how input 0 and input
@@ -105,10 +110,16 @@ protected:
   vtkImageRectilinearWipe();
   ~vtkImageRectilinearWipe() {};
 
-  void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
-                       int extent[6], int id);
+  virtual void ThreadedRequestData(vtkInformation *request, 
+                                   vtkInformationVector **inputVector, 
+                                   vtkInformationVector *outputVector,
+                                   vtkImageData ***inData, 
+                                   vtkImageData **outData,
+                                   int extent[6], int threadId);
+
   int Position[2];
   int Wipe;
+
 private:
   vtkImageRectilinearWipe(const vtkImageRectilinearWipe&);  // Not implemented.
   void operator=(const vtkImageRectilinearWipe&);  // Not implemented.

@@ -16,17 +16,30 @@
 
 #include "vtkImageData.h"
 #include "vtkImageProgressIterator.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageDotProduct, "1.28");
+vtkCxxRevisionMacro(vtkImageDotProduct, "1.29");
 vtkStandardNewMacro(vtkImageDotProduct);
 
 //----------------------------------------------------------------------------
-// Colapse the first axis
-void vtkImageDotProduct::ExecuteInformation(vtkImageData **vtkNotUsed(inDatas),
-                                            vtkImageData *outData)
+vtkImageDotProduct::vtkImageDotProduct()
 {
-  outData->SetNumberOfScalarComponents(1);
+  this->SetNumberOfInputPorts(2);
+}
+
+//----------------------------------------------------------------------------
+// Colapse the first axis
+void vtkImageDotProduct::ExecuteInformation (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector ** vtkNotUsed( inputVector ),
+  vtkInformationVector *outputVector)
+{
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),1);
 }
 
 
@@ -81,58 +94,48 @@ void vtkImageDotProductExecute(vtkImageDotProduct *self,
 // algorithm to fill the output from the inputs.
 // It just executes a switch statement to call the correct function for
 // the regions data types.
-void vtkImageDotProduct::ThreadedExecute(vtkImageData **inData, 
-                                         vtkImageData *outData,
-                                         int outExt[6], int id)
+void vtkImageDotProduct::ThreadedRequestData(
+  vtkInformation * vtkNotUsed( request ), 
+  vtkInformationVector ** vtkNotUsed( inputVector ), 
+  vtkInformationVector * vtkNotUsed( outputVector ),
+  vtkImageData ***inData, 
+  vtkImageData **outData,
+  int outExt[6], int id)
 {
-  vtkDebugMacro(<< "Execute: inData = " << inData 
-                << ", outData = " << outData);
-  
-  if (inData[0] == NULL)
-    {
-    vtkErrorMacro(<< "Input " << 0 << " must be specified.");
-    return;
-    }
-  if (inData[1] == NULL)
-    {
-    vtkErrorMacro(<< "Input " << 1 << " must be specified.");
-    return;
-    }
-  
   // this filter expects that input is the same type as output.
-  if (inData[0]->GetScalarType() != outData->GetScalarType())
+  if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType())
     {
     vtkErrorMacro(<< "Execute: input1 ScalarType, "
-                  <<  inData[0]->GetScalarType()
+                  <<  inData[0][0]->GetScalarType()
                   << ", must match output ScalarType "
-                  << outData->GetScalarType());
+                  << outData[0]->GetScalarType());
     return;
     }
   
-  if (inData[1]->GetScalarType() != outData->GetScalarType())
+  if (inData[1][0]->GetScalarType() != outData[0]->GetScalarType())
     {
     vtkErrorMacro(<< "Execute: input2 ScalarType, "
-                  << inData[1]->GetScalarType()
+                  << inData[1][0]->GetScalarType()
                   << ", must match output ScalarType "
-                  << outData->GetScalarType());
+                  << outData[0]->GetScalarType());
     return;
     }
   
   // this filter expects that inputs that have the same number of components
-  if (inData[0]->GetNumberOfScalarComponents() != 
-      inData[1]->GetNumberOfScalarComponents())
+  if (inData[0][0]->GetNumberOfScalarComponents() != 
+      inData[1][0]->GetNumberOfScalarComponents())
     {
     vtkErrorMacro(<< "Execute: input1 NumberOfScalarComponents, "
-                  << inData[0]->GetNumberOfScalarComponents()
+                  << inData[0][0]->GetNumberOfScalarComponents()
                   << ", must match out input2 NumberOfScalarComponents "
-                  << inData[1]->GetNumberOfScalarComponents());
+                  << inData[1][0]->GetNumberOfScalarComponents());
     return;
     }
 
-  switch (inData[0]->GetScalarType())
+  switch (inData[0][0]->GetScalarType())
     {
-    vtkTemplateMacro7(vtkImageDotProductExecute, this, inData[0], 
-                      inData[1], outData, outExt, id, 
+    vtkTemplateMacro7(vtkImageDotProductExecute, this, inData[0][0], 
+                      inData[1][0], outData[0], outExt, id, 
                       static_cast<VTK_TT *>(0));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");

@@ -22,22 +22,33 @@
 
 
 
-#include "vtkImageTwoInputFilter.h"
+#include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageDotProduct : public vtkImageTwoInputFilter
+class VTK_IMAGING_EXPORT vtkImageDotProduct : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageDotProduct *New();
-  vtkTypeRevisionMacro(vtkImageDotProduct,vtkImageTwoInputFilter);
+  vtkTypeRevisionMacro(vtkImageDotProduct,vtkThreadedImageAlgorithm);
+
+  // Description:
+  // Set the two inputs to this filter
+  virtual void SetInput1(vtkDataObject *in) { this->SetInput(0,in); }
+  virtual void SetInput2(vtkDataObject *in) { this->SetInput(1,in); }
 
 protected:
-  vtkImageDotProduct() {};
+  vtkImageDotProduct();
   ~vtkImageDotProduct() {};
 
-  void ExecuteInformation(vtkImageData **inDatas, vtkImageData *outData);
-  void ExecuteInformation(){this->vtkImageTwoInputFilter::ExecuteInformation();};
-  void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
-                       int extent[6], int id);
+  void ExecuteInformation (vtkInformation *, 
+                           vtkInformationVector **, vtkInformationVector *);
+  
+  virtual void ThreadedRequestData(vtkInformation *request, 
+                                   vtkInformationVector **inputVector, 
+                                   vtkInformationVector *outputVector,
+                                   vtkImageData ***inData, 
+                                   vtkImageData **outData,
+                                   int extent[6], int threadId);
+
 private:
   vtkImageDotProduct(const vtkImageDotProduct&);  // Not implemented.
   void operator=(const vtkImageDotProduct&);  // Not implemented.

@@ -46,13 +46,13 @@
 #define VTK_COMPLEX_MULTIPLY  19
 #define VTK_REPLACECBYK       20
 
-#include "vtkImageTwoInputFilter.h"
+#include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageMathematics : public vtkImageTwoInputFilter
+class VTK_IMAGING_EXPORT vtkImageMathematics : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageMathematics *New();
-  vtkTypeRevisionMacro(vtkImageMathematics,vtkImageTwoInputFilter);
+  vtkTypeRevisionMacro(vtkImageMathematics,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -93,6 +93,11 @@ public:
   vtkGetMacro(DivideByZeroToC,int);
   vtkBooleanMacro(DivideByZeroToC,int);
 
+  // Description:
+  // Set the two inputs to this filter
+  virtual void SetInput1(vtkDataObject *in) { this->SetInput(0,in); }
+  virtual void SetInput2(vtkDataObject *in) { this->SetInput(1,in); }
+
 protected:
   vtkImageMathematics();
   ~vtkImageMathematics() {};
@@ -102,10 +107,18 @@ protected:
   double ConstantC;
   int DivideByZeroToC;
   
-  void ExecuteInformation(vtkImageData **inDatas, vtkImageData *outData);
-  void ExecuteInformation(){this->vtkImageTwoInputFilter::ExecuteInformation();};
-  void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
-                       int extent[6], int id);
+  void ExecuteInformation (vtkInformation *, 
+                           vtkInformationVector **, vtkInformationVector *);
+  
+  virtual void ThreadedRequestData(vtkInformation *request, 
+                                   vtkInformationVector **inputVector, 
+                                   vtkInformationVector *outputVector,
+                                   vtkImageData ***inData, 
+                                   vtkImageData **outData,
+                                   int extent[6], int threadId);
+
+  virtual int FillInputPortInformation(int port, vtkInformation* info);
+
 private:
   vtkImageMathematics(const vtkImageMathematics&);  // Not implemented.
   void operator=(const vtkImageMathematics&);  // Not implemented.

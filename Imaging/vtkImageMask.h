@@ -29,13 +29,13 @@
 #define __vtkImageMask_h
 
 
-#include "vtkImageTwoInputFilter.h"
+#include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageMask : public vtkImageTwoInputFilter
+class VTK_IMAGING_EXPORT vtkImageMask : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageMask *New();
-  vtkTypeRevisionMacro(vtkImageMask,vtkImageTwoInputFilter);
+  vtkTypeRevisionMacro(vtkImageMask,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -74,6 +74,11 @@ public:
   vtkGetMacro(NotMask,int);
   vtkBooleanMacro(NotMask, int);
   
+  // Description:
+  // Set the two inputs to this filter
+  virtual void SetInput1(vtkDataObject *in) { this->SetInput(0,in); }
+  virtual void SetInput2(vtkDataObject *in) { this->SetInput(1,in); }
+
 protected:
   vtkImageMask();
   ~vtkImageMask();
@@ -83,11 +88,17 @@ protected:
   int NotMask;
   double MaskAlpha;
   
-  void ExecuteInformation(vtkImageData **inDatas, vtkImageData *outData);
-  void ExecuteInformation(){this->vtkImageTwoInputFilter::ExecuteInformation();};
+  void ExecuteInformation (vtkInformation *, 
+                           vtkInformationVector **, vtkInformationVector *);
+  
  
-  void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
-                       int extent[6], int id);
+  virtual void ThreadedRequestData(vtkInformation *request, 
+                                   vtkInformationVector **inputVector, 
+                                   vtkInformationVector *outputVector,
+                                   vtkImageData ***inData, 
+                                   vtkImageData **outData,
+                                   int extent[6], int threadId);
+
 private:
   vtkImageMask(const vtkImageMask&);  // Not implemented.
   void operator=(const vtkImageMask&);  // Not implemented.

@@ -27,7 +27,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.9");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.10");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -613,12 +613,14 @@ int vtkStreamingDemandDrivenPipeline::NeedToExecuteData(int outputPort)
     int updateExtent[6];
     outInfo->Get(UPDATE_EXTENT(), updateExtent);
     dataInfo->Get(vtkDataObject::DATA_EXTENT(), dataExtent);
+    // if the ue is out side the de
     if((updateExtent[0] < dataExtent[0] ||
         updateExtent[1] > dataExtent[1] ||
         updateExtent[2] < dataExtent[2] ||
         updateExtent[3] > dataExtent[3] ||
         updateExtent[4] < dataExtent[4] ||
         updateExtent[5] > dataExtent[5]) &&
+       // and the ue is set
        (updateExtent[0] <= updateExtent[1] &&
         updateExtent[2] <= updateExtent[3] &&
         updateExtent[4] <= updateExtent[5]))

@@ -17,7 +17,7 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageCheckerboard, "1.11");
+vtkCxxRevisionMacro(vtkImageCheckerboard, "1.12");
 vtkStandardNewMacro(vtkImageCheckerboard);
 
 //----------------------------------------------------------------------------
@@ -26,6 +26,8 @@ vtkImageCheckerboard::vtkImageCheckerboard()
   this->NumberOfDivisions[0] = 2;
   this->NumberOfDivisions[1] = 2;
   this->NumberOfDivisions[2] = 2;
+
+  this->SetNumberOfInputPorts(2);
 }
 
 //----------------------------------------------------------------------------
@@ -155,45 +157,37 @@ void vtkImageCheckerboardExecute2(vtkImageCheckerboard *self,
 //----------------------------------------------------------------------------
 // This method is passed a input and output regions, and executes the filter
 // algorithm to fill the output from the inputs.
-void vtkImageCheckerboard::ThreadedExecute(vtkImageData **inData, 
-                                           vtkImageData *outData,
-                                           int outExt[6], int id)
+void vtkImageCheckerboard::ThreadedRequestData(
+  vtkInformation * vtkNotUsed( request ), 
+  vtkInformationVector ** vtkNotUsed( inputVector ), 
+  vtkInformationVector * vtkNotUsed( outputVector ),
+  vtkImageData ***inData, 
+  vtkImageData **outData,
+  int outExt[6], int id)
 {
   void *in1Ptr, *in2Ptr;
   void *outPtr;
   
-  vtkDebugMacro(<< "Execute: inData = " << inData 
-                << ", outData = " << outData);
-  
-  if (inData[0] == NULL)
+  if (inData[0][0] == NULL)
     {
     vtkErrorMacro(<< "Input " << 0 << " must be specified.");
     return;
     }
-  in1Ptr = inData[0]->GetScalarPointerForExtent(outExt);
+  in1Ptr = inData[0][0]->GetScalarPointerForExtent(outExt);
   if (!in1Ptr)
     {
     vtkErrorMacro(<< "Input " << 0 << " cannot be empty.");
     return;
     }
 
-  outPtr = outData->GetScalarPointerForExtent(outExt);
+  outPtr = outData[0]->GetScalarPointerForExtent(outExt);
   
-  // this filter expects that input is the same type as output.
-  if (inData[0]->GetScalarType() != outData->GetScalarType())
-    {
-    vtkErrorMacro(<< "Execute: input ScalarType, " << inData[0]->GetScalarType()
-    << ", must match out ScalarType " << outData->GetScalarType());
-    return;
-    }
-
-    
-  if (inData[1] == NULL)
+  if (inData[1][0] == NULL)
     {
     vtkErrorMacro(<< "Input " << 1 << " must be specified.");
     return;
     }
-  in2Ptr = inData[1]->GetScalarPointerForExtent(outExt);
+  in2Ptr = inData[1][0]->GetScalarPointerForExtent(outExt);
   if (!in2Ptr)
     {
     vtkErrorMacro(<< "Input " << 1 << " cannot be empty.");
@@ -201,21 +195,21 @@ void vtkImageCheckerboard::ThreadedExecute(vtkImageData **inData,
     }
 
   // this filter expects that inputs that have the same number of components
-  if (inData[0]->GetNumberOfScalarComponents() != 
-      inData[1]->GetNumberOfScalarComponents())
+  if (inData[0][0]->GetNumberOfScalarComponents() != 
+      inData[1][0]->GetNumberOfScalarComponents())
     {
     vtkErrorMacro(<< "Execute: input1 NumberOfScalarComponents, "
-                  << inData[0]->GetNumberOfScalarComponents()
+                  << inData[0][0]->GetNumberOfScalarComponents()
                   << ", must match out input2 NumberOfScalarComponents "
-                  << inData[1]->GetNumberOfScalarComponents());
+                  << inData[1][0]->GetNumberOfScalarComponents());
     return;
     }
   
-  switch (inData[0]->GetScalarType())
+  switch (inData[0][0]->GetScalarType())
     {
-    vtkTemplateMacro9(vtkImageCheckerboardExecute2, this, inData[0], 
-                      (VTK_TT *)(in1Ptr), inData[1], (VTK_TT *)(in2Ptr), 
-                      outData, (VTK_TT *)(outPtr), outExt, id);
+    vtkTemplateMacro9(vtkImageCheckerboardExecute2, this, inData[0][0], 
+                      (VTK_TT *)(in1Ptr), inData[1][0], (VTK_TT *)(in2Ptr), 
+                      outData[0], (VTK_TT *)(outPtr), outExt, id);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

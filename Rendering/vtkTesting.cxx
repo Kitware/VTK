@@ -31,7 +31,7 @@
 #include <sys/stat.h>
 
 vtkStandardNewMacro(vtkTesting);
-vtkCxxRevisionMacro(vtkTesting, "1.19");
+vtkCxxRevisionMacro(vtkTesting, "1.20");
 vtkCxxSetObjectMacro(vtkTesting, RenderWindow, vtkRenderWindow);
 
 // Function returning either a command line argument, an environment variable
@@ -630,7 +630,7 @@ int vtkTesting::RegressionTest(vtkImageData* image, double thresh, ostream& os)
     rt_jpegw_dashboard->Write();
 
     // write out the image that was generated
-    rt_shrink->SetInput(rt_id->GetInput());
+    rt_shrink->SetInput(ic1->GetOutput());
     rt_jpegw_dashboard->SetInput(rt_shrink-> GetOutput());
     char* valid_test_small = new char[strlen(tmpDir) + validName.size() + 30];
     sprintf(valid_test_small, "%s/%s.test.small.jpg", tmpDir, 
@@ -639,7 +639,7 @@ int vtkTesting::RegressionTest(vtkImageData* image, double thresh, ostream& os)
     rt_jpegw_dashboard->Write();
 
     // write out the valid image that matched
-    rt_shrink->SetInput(rt_id->GetImage());
+    rt_shrink->SetInput(ic2->GetOutput());
     rt_jpegw_dashboard-> SetInput (rt_shrink->GetOutput());
     char* valid = new char[strlen(tmpDir) + validName.size() + 30];
     sprintf(valid, "%s/%s.small.jpg", tmpDir, validName.c_str());

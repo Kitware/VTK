@@ -18,30 +18,36 @@
 // It allows the images to be slightly different.  If AllowShift is on,
 // then each pixel can be shifted by one pixel. Threshold is the allowable
 // error for each pixel.
+//
+// This is not a symetric filter and the difference computed is not symetric
+// when AllowShift is on. Specifically in that case a pixel in SetImage input
+// will be compared to the matching pixel in the input as well as to the
+// input's eight connected neighbors. BUT... the opposite is not true. So for
+// example if a valid image (SetImage) has a single white pixel in it, it
+// will not find a match in the input image if the input image is black
+// (because none of the nine suspect pixels are white). In contrast, if there
+// is a single white pixel in the input image and the valid image (SetImage)
+// is all black it will match with no error because all it has to do is find
+// black pixels and even though the input image has a white pixel, its
+// neighbors are not white.
 
 #ifndef __vtkImageDifference_h
 #define __vtkImageDifference_h
 
-#include "vtkImageTwoInputFilter.h"
+#include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageDifference : public vtkImageTwoInputFilter
+class VTK_IMAGING_EXPORT vtkImageDifference : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageDifference *New();
-  vtkTypeRevisionMacro(vtkImageDifference,vtkImageTwoInputFilter);
+  vtkTypeRevisionMacro(vtkImageDifference,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Specify the Image to compare the input to.
-  void SetImage(vtkImageData *image) {this->SetInput2(image);}
-  vtkImageData *GetImage() {return this->GetInput2();}
+  void SetImage(vtkDataObject *image) {this->SetInput(1,image);}
+  vtkImageData *GetImage();
 
-  // Description:
-  // Specify the Input for comparison.
-  void SetInput(vtkImageData *input) {this->SetInput1(input);}
-  void SetInput(int num, vtkImageData *input)
-    { this->vtkImageMultipleInputFilter::SetInput(num, input); };
-  
   // Description:
   // Return the total error in comparing the two images.
   double GetError(void);
@@ -89,12 +95,17 @@ protected:
   int Threshold;
   int Averaging;
   
-  void ExecuteInformation(vtkImageData **inputs, vtkImageData *output); 
-  void ComputeInputUpdateExtent(int inExt[6], int outExt[6],
-                                int whichInput);
-  void ExecuteInformation(){this->vtkImageTwoInputFilter::ExecuteInformation();};
-  void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
-                       int extent[6], int id);  
+  void ExecuteInformation (vtkInformation *, 
+                           vtkInformationVector **, vtkInformationVector *); 
+  void RequestUpdateExtent(vtkInformation *, 
+                           vtkInformationVector **, vtkInformationVector *);
+  
+  virtual void ThreadedRequestData(vtkInformation *request, 
+                                   vtkInformationVector **inputVector, 
+                                   vtkInformationVector *outputVector,
+                                   vtkImageData ***inData, 
+                                   vtkImageData **outData,
+                                   int extent[6], int threadId);
   
 private:
   vtkImageDifference(const vtkImageDifference&);  // Not implemented.

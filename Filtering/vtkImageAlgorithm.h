@@ -26,6 +26,7 @@
 #define __vtkImageAlgorithm_h
 
 #include "vtkAlgorithm.h"
+#include "vtkImageData.h" // makes things a bit easier
 
 class vtkDataSet;
 class vtkImageData;
@@ -49,17 +50,13 @@ public:
 
   // Description:
   // Set an input of this algorithm.
-  void SetInput(vtkDataObject *);
-  void SetInput(int, vtkDataObject*);
-  void SetInput(vtkDataSet*);
-  void SetInput(int, vtkDataSet*);
+  virtual void SetInput(vtkDataObject *);
+  virtual void SetInput(int, vtkDataObject*);
 
   // Description:
   // Add an input of this algorithm.
-  void AddInput(vtkDataObject *);
-  void AddInput(vtkDataSet*);
-  void AddInput(int, vtkDataSet*);
-  void AddInput(int, vtkDataObject*);
+  virtual void AddInput(vtkDataObject *);
+  virtual void AddInput(int, vtkDataObject*);
 
 protected:
   vtkImageAlgorithm();

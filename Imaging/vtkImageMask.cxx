@@ -15,9 +15,12 @@
 #include "vtkImageMask.h"
 
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageMask, "1.33");
+vtkCxxRevisionMacro(vtkImageMask, "1.34");
 vtkStandardNewMacro(vtkImageMask);
 
 //----------------------------------------------------------------------------
@@ -29,6 +32,7 @@ vtkImageMask::vtkImageMask()
   this->MaskedOutputValue[0] = this->MaskedOutputValue[1] 
     = this->MaskedOutputValue[2] = 0.0;
   this->MaskAlpha = 1.0;
+  this->SetNumberOfInputPorts(2);
 }
 
 vtkImageMask::~vtkImageMask()
@@ -208,35 +212,24 @@ void vtkImageMaskExecute(vtkImageMask *self, int ext[6],
 // algorithm to fill the output from the inputs.
 // It just executes a switch statement to call the correct function for
 // the Datas data types.
-void vtkImageMask::ThreadedExecute(vtkImageData **inData, 
-                                   vtkImageData *outData,
-                                   int outExt[6], int id)
+void vtkImageMask::ThreadedRequestData(
+  vtkInformation * vtkNotUsed( request ), 
+  vtkInformationVector ** vtkNotUsed( inputVector ), 
+  vtkInformationVector * vtkNotUsed( outputVector ),
+  vtkImageData ***inData, 
+  vtkImageData **outData,
+  int outExt[6], int id)
 {
   void *inPtr1;
   void *inPtr2;
   void *outPtr;
   int *tExt;
   
-  vtkDebugMacro(<< "Execute: inData = " << inData 
-                << ", outData = " << outData);
-  
+  inPtr1 = inData[0][0]->GetScalarPointerForExtent(outExt);
+  inPtr2 = inData[1][0]->GetScalarPointerForExtent(outExt);
+  outPtr = outData[0]->GetScalarPointerForExtent(outExt);
 
-  if (inData[0] == NULL)
-    {
-    vtkErrorMacro(<< "Input " << 0 << " must be specified.");
-    return;
-    }
-  if (inData[1] == NULL)
-    {
-    vtkErrorMacro(<< "Input " << 1 << " must be specified.");
-    return;
-    }
-
-inPtr1 = inData[0]->GetScalarPointerForExtent(outExt);
-  inPtr2 = inData[1]->GetScalarPointerForExtent(outExt);
-  outPtr = outData->GetScalarPointerForExtent(outExt);
-
-  tExt = inData[1]->GetExtent();
+  tExt = inData[1][0]->GetExtent();
   if (tExt[0] > outExt[0] || tExt[1] < outExt[1] || 
       tExt[2] > outExt[2] || tExt[3] < outExt[3] ||
       tExt[4] > outExt[4] || tExt[5] < outExt[5])
@@ -245,26 +238,26 @@ inPtr1 = inData[0]->GetScalarPointerForExtent(outExt);
     return;
     }
   
-  if (inData[1]->GetNumberOfScalarComponents() != 1)
+  if (inData[1][0]->GetNumberOfScalarComponents() != 1)
     {
     vtkErrorMacro("Maks can have one comenent");
     }
     
-  if (inData[0]->GetScalarType() != outData->GetScalarType() ||
-      inData[1]->GetScalarType() != VTK_UNSIGNED_CHAR)
+  if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType() ||
+      inData[1][0]->GetScalarType() != VTK_UNSIGNED_CHAR)
     {
     vtkErrorMacro(<< "Execute: image ScalarType (" 
-      << inData[0]->GetScalarType() << ") must match out ScalarType (" 
-      << outData->GetScalarType() << "), and mask scalar type (" 
-      << inData[1]->GetScalarType() << ") must be unsigned char.");
+      << inData[0][0]->GetScalarType() << ") must match out ScalarType (" 
+      << outData[0]->GetScalarType() << "), and mask scalar type (" 
+      << inData[1][0]->GetScalarType() << ") must be unsigned char.");
     return;
     }
   
-  switch (inData[0]->GetScalarType())
+  switch (inData[0][0]->GetScalarType())
     {
-    vtkTemplateMacro9(vtkImageMaskExecute, this, outExt, inData[0], 
-                      (VTK_TT *)(inPtr1), inData[1], (unsigned char *)(inPtr2),
-                      outData, (VTK_TT *)(outPtr),id);
+    vtkTemplateMacro9(vtkImageMaskExecute, this, outExt, inData[0][0], 
+                      (VTK_TT *)(inPtr1), inData[1][0], (unsigned char *)(inPtr2),
+                      outData[0], (VTK_TT *)(outPtr),id);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
@@ -273,19 +266,20 @@ inPtr1 = inData[0]->GetScalarPointerForExtent(outExt);
 
 //----------------------------------------------------------------------------
 // The output extent is the intersection.
-void vtkImageMask::ExecuteInformation(vtkImageData **inDatas, 
-                                      vtkImageData *outData)
+void vtkImageMask::ExecuteInformation (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  int ext[6], *ext2, idx;
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *inInfo2 = inputVector[1]->GetInformationObject(0);
 
-  if (inDatas == NULL || inDatas[0] == NULL || inDatas[1] == NULL)
-    {
-    vtkErrorMacro("Missing and input.");
-    return;
-    }
-  
-  inDatas[0]->GetWholeExtent(ext);
-  ext2 = this->GetInput(1)->GetWholeExtent();
+  int ext[6], ext2[6], idx;
+
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),ext);
+  inInfo2->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),ext2);
   for (idx = 0; idx < 3; ++idx)
     {
     if (ext2[idx*2] > ext[idx*2])
@@ -298,7 +292,7 @@ void vtkImageMask::ExecuteInformation(vtkImageData **inDatas,
       }
     }
   
-  outData->SetWholeExtent(ext);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),ext,6);
 }
 
 

@@ -26,13 +26,13 @@
 
 
 
-#include "vtkImageTwoInputFilter.h"
+#include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageCorrelation : public vtkImageTwoInputFilter
+class VTK_IMAGING_EXPORT vtkImageCorrelation : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageCorrelation *New();
-  vtkTypeRevisionMacro(vtkImageCorrelation,vtkImageTwoInputFilter);
+  vtkTypeRevisionMacro(vtkImageCorrelation,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
@@ -40,17 +40,29 @@ public:
   vtkSetClampMacro(Dimensionality,int,2,3);
   vtkGetMacro(Dimensionality,int);
   
+  // Description:
+  // Set the two inputs to this filter
+  virtual void SetInput1(vtkDataObject *in) { this->SetInput(0,in); }
+  virtual void SetInput2(vtkDataObject *in) { this->SetInput(1,in); }
+
 protected:
   vtkImageCorrelation();
   ~vtkImageCorrelation() {};
 
   int Dimensionality;
-  void ExecuteInformation(vtkImageData **inDatas, vtkImageData *outData);
-  virtual void ComputeInputUpdateExtent(int inExt[6], int outExt[6],
-                                        int whichInput);
-  void ExecuteInformation(){this->vtkImageTwoInputFilter::ExecuteInformation();};
-  void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
-                       int extent[6], int id);
+  void ExecuteInformation (vtkInformation *, 
+                           vtkInformationVector **, vtkInformationVector *);
+  virtual void RequestUpdateExtent(vtkInformation*,
+                                   vtkInformationVector**,
+                                   vtkInformationVector*);
+  
+  virtual void ThreadedRequestData(vtkInformation *request, 
+                                   vtkInformationVector **inputVector, 
+                                   vtkInformationVector *outputVector,
+                                   vtkImageData ***inData, 
+                                   vtkImageData **outData,
+                                   int extent[6], int threadId);
+
 private:
   vtkImageCorrelation(const vtkImageCorrelation&);  // Not implemented.
   void operator=(const vtkImageCorrelation&);  // Not implemented.

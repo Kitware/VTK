@@ -9,16 +9,23 @@ ENDIF (NOT DEFINED CLASS)
 FILE (GLOB H_FILE ${CLASS}.h)
 FILE (GLOB CXX_FILE ${CLASS}.cxx)
 
+# read in both files
+FILE (READ ${H_FILE} H_CONTENTS)
+FILE (READ ${CXX_FILE} CXX_CONTENTS)
+
 #================================================================
 # First do the H file
 #================================================================
-FILE (READ ${H_FILE} H_CONTENTS)
 
 # convert vtkImageToImageFilter subclasses to subclass off of 
 # vtkImageAlgorithm, if it is threaded use threaded one
 IF ("${CXX_CONTENTS}" MATCHES ".*ThreadedExecute.*")
   STRING (REGEX REPLACE 
     "vtkImageToImageFilter" 
+    "vtkThreadedImageAlgorithm" 
+    H_CONTENTS "${H_CONTENTS}")
+  STRING (REGEX REPLACE 
+    "vtkImageTwoInputFilter" 
     "vtkThreadedImageAlgorithm" 
     H_CONTENTS "${H_CONTENTS}")
 ELSE ("${CXX_CONTENTS}" MATCHES ".*ThreadedExecute.*")
@@ -28,6 +35,10 @@ ELSE ("${CXX_CONTENTS}" MATCHES ".*ThreadedExecute.*")
     H_CONTENTS "${H_CONTENTS}")
   STRING (REGEX REPLACE 
     "vtkImageSource" 
+    "vtkImageAlgorithm" 
+    H_CONTENTS "${H_CONTENTS}")
+  STRING (REGEX REPLACE 
+    "vtkImageTwoInputFilter" 
     "vtkImageAlgorithm" 
     H_CONTENTS "${H_CONTENTS}")
   STRING (REGEX REPLACE 
@@ -69,7 +80,6 @@ FILE (WRITE ${H_FILE} "${H_CONTENTS}")
 #================================================================
 # Now do the CXX files
 #================================================================
-FILE (READ ${CXX_FILE} CXX_CONTENTS)
 
 STRING (REGEX REPLACE  
   "::ExecuteInformation[ \t]*\\([^{]*{"
@@ -80,7 +90,7 @@ STRING (REGEX REPLACE
 IF (NOT "${CXX_CONTENTS}" MATCHES ".*::ExecuteInformation[^{]*{\n  // get the info objects.*")
   STRING (REGEX REPLACE  
     "::ExecuteInformation[ \t]*\\([^{]*{"
-    "::ExecuteInformation (\n  vtkInformation * vtkNotUsed(request),\n  vtkInformationVector **inputVector,\n  vtkInformationVector *outputVector)\n{\n  // get the info objects\n  vtkInformation* outInfo = outputVector->GetInformationObject(0);\n  vtkInformation *inInfo =\n     inputVector[0]->GetInformationObject(0);\n"
+    "::ExecuteInformation (\n  vtkInformation * vtkNotUsed(request),\n  vtkInformationVector **inputVector,\n  vtkInformationVector *outputVector)\n{\n  // get the info objects\n  vtkInformation* outInfo = outputVector->GetInformationObject(0);\n  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);\n"
     CXX_CONTENTS "${CXX_CONTENTS}")
 ENDIF (NOT "${CXX_CONTENTS}" MATCHES ".*::ExecuteInformation[^{]*{\n  // get the info objects.*")
 
@@ -94,7 +104,7 @@ STRING (REGEX REPLACE
 IF (NOT "${CXX_CONTENTS}" MATCHES ".*::RequestUpdateExtent[^{]*{\n  // get the info objects.*")
   STRING (REGEX REPLACE  
     "::RequestUpdateExtent[ \t]*\\([^{]*{"
-    "::RequestUpdateExtent (\n  vtkInformation * vtkNotUsed(request),\n  vtkInformationVector **inputVector,\n  vtkInformationVector *outputVector)\n{\n  // get the info objects\n  vtkInformation* outInfo = outputVector->GetInformationObject(0);\n  vtkInformation *inInfo =\n     inputVector[0]->GetInformationObject(0);\n"
+    "::RequestUpdateExtent (\n  vtkInformation * vtkNotUsed(request),\n  vtkInformationVector **inputVector,\n  vtkInformationVector *outputVector)\n{\n  // get the info objects\n  vtkInformation* outInfo = outputVector->GetInformationObject(0);\n  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);\n"
     CXX_CONTENTS "${CXX_CONTENTS}")
 ENDIF (NOT "${CXX_CONTENTS}" MATCHES ".*::RequestUpdateExtent[^{]*{\n  // get the info objects.*")
 

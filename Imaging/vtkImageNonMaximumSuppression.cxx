@@ -15,12 +15,15 @@
 #include "vtkImageNonMaximumSuppression.h"
 
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageNonMaximumSuppression, "1.49");
+vtkCxxRevisionMacro(vtkImageNonMaximumSuppression, "1.50");
 vtkStandardNewMacro(vtkImageNonMaximumSuppression);
 
 //----------------------------------------------------------------------------
@@ -29,19 +32,26 @@ vtkImageNonMaximumSuppression::vtkImageNonMaximumSuppression()
 {
   this->Dimensionality= 2;
   this->HandleBoundaries = 1;
+  this->SetNumberOfInputPorts(2);
 }
 
 //----------------------------------------------------------------------------
 // This method is passed a region that holds the image extent of this filters
 // input, and changes the region to hold the image extent of this filters
 // output.
-void vtkImageNonMaximumSuppression::ExecuteInformation(vtkImageData **inDatas,
-                                                       vtkImageData *outData)
+void vtkImageNonMaximumSuppression::ExecuteInformation (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+
   int extent[6];
   int idx;
   
-  inDatas[0]->GetWholeExtent(extent);
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent);
   if ( ! this->HandleBoundaries)
     {
     // shrink output image extent.
@@ -51,27 +61,32 @@ void vtkImageNonMaximumSuppression::ExecuteInformation(vtkImageData **inDatas,
       extent[idx*2+1] -= 1;
       }
     }
-
   
-  outData->SetWholeExtent(extent);
+  
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent,6);
 }
 
 
 //----------------------------------------------------------------------------
 // This method computes the input extent necessary to generate the output.
-void vtkImageNonMaximumSuppression::ComputeInputUpdateExtent(int inExt[6], 
-                                                             int outExt[6],
-                                                             int whichInput)
+void vtkImageNonMaximumSuppression::RequestUpdateExtent (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* inInfo2 = inputVector[1]->GetInformationObject(0);
+  
   int *wholeExtent;
   int idx;
 
-  wholeExtent = this->GetInput(0)->GetWholeExtent();
-  memcpy(inExt,outExt,6*sizeof(int));
-  if (whichInput == 1)
-    {
-    return;
-    }
+  // get the whole image for input 2
+  int inExt[6];
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),inExt);
+  wholeExtent = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  inInfo2->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),inExt,6);
   
   // grow input image extent for input 0
   for (idx = 0; idx < this->Dimensionality; ++idx)
@@ -91,6 +106,7 @@ void vtkImageNonMaximumSuppression::ComputeInputUpdateExtent(int inExt[6],
         }
       }
     }
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),inExt,6);
 }
 
 
@@ -267,54 +283,45 @@ void vtkImageNonMaximumSuppressionExecute(vtkImageNonMaximumSuppression *self,
 // algorithm to fill the output from the inputs.
 // It just executes a switch statement to call the correct function for
 // the regions data types.
-void vtkImageNonMaximumSuppression::ThreadedExecute(vtkImageData **inData, 
-                                                    vtkImageData *outData,
-                                                    int outExt[6], int id)
+void vtkImageNonMaximumSuppression::ThreadedRequestData(
+  vtkInformation * vtkNotUsed( request ), 
+  vtkInformationVector ** vtkNotUsed( inputVector ), 
+  vtkInformationVector * vtkNotUsed( outputVector ),
+  vtkImageData ***inData, 
+  vtkImageData **outData,
+  int outExt[6], int id)
 {
   void *in1Ptr;
   void *in2Ptr;
   void *outPtr;
   
-  vtkDebugMacro(<< "Execute: inData = " << inData 
-                << ", outData = " << outData);
-
   if (id == 0)
     {
-    if (outData && outData->GetPointData()->GetScalars())
+    if (outData[0] && outData[0]->GetPointData()->GetScalars())
       {
-      outData->GetPointData()->GetScalars()->SetName("SuppressedMaximum");
+      outData[0]->GetPointData()->GetScalars()->SetName("SuppressedMaximum");
       }
     }
 
-  if (inData[0] == NULL)
-    {
-    vtkErrorMacro(<< "Input " << 0 << " must be specified.");
-    return;
-    }
-  if (inData[1] == NULL)
-    {
-    vtkErrorMacro(<< "Input " << 1 << " must be specified.");
-    return;
-    }
-  in1Ptr = inData[0]->GetScalarPointerForExtent(outExt);
-  in2Ptr = inData[1]->GetScalarPointerForExtent(outExt);
-  outPtr = outData->GetScalarPointerForExtent(outExt);
+  in1Ptr = inData[0][0]->GetScalarPointerForExtent(outExt);
+  in2Ptr = inData[1][0]->GetScalarPointerForExtent(outExt);
+  outPtr = outData[0]->GetScalarPointerForExtent(outExt);
   
   // this filter expects that input is the same type as output.
-  if (inData[0]->GetScalarType() != outData->GetScalarType() ||
-      inData[1]->GetScalarType() != outData->GetScalarType())
+  if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType() ||
+      inData[1][0]->GetScalarType() != outData[0]->GetScalarType())
     {
     vtkErrorMacro(<< "Execute: input ScalarType, " << 
-    inData[0]->GetScalarType()
-    << ", must match out ScalarType " << outData->GetScalarType());
+    inData[0][0]->GetScalarType()
+    << ", must match out ScalarType " << outData[0]->GetScalarType());
     return;
     }
   
-  switch (inData[0]->GetScalarType())
+  switch (inData[0][0]->GetScalarType())
     {
-    vtkTemplateMacro9(vtkImageNonMaximumSuppressionExecute, this, inData[0], 
-                      (VTK_TT *)(in1Ptr),inData[1], (VTK_TT *)(in2Ptr), 
-                      outData, (VTK_TT *)(outPtr), outExt, id);
+    vtkTemplateMacro9(vtkImageNonMaximumSuppressionExecute, this, inData[0][0], 
+                      (VTK_TT *)(in1Ptr),inData[1][0], (VTK_TT *)(in2Ptr), 
+                      outData[0], (VTK_TT *)(outPtr), outExt, id);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

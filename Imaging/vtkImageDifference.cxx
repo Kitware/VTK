@@ -15,9 +15,12 @@
 #include "vtkImageDifference.h"
 
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageDifference, "1.35");
+vtkCxxRevisionMacro(vtkImageDifference, "1.36");
 vtkStandardNewMacro(vtkImageDifference);
 
 // Construct object to extract all of the input data.
@@ -32,20 +35,24 @@ vtkImageDifference::vtkImageDifference()
   this->Threshold = 16;
   this->AllowShift = 1;
   this->Averaging = 1;
+  this->SetNumberOfInputPorts(2);
 }
 
 
 
 // not so simple macro for calculating error
 #define vtkImageDifferenceComputeError(c1,c2) \
-  r1 = abs(((int)(c1)[0] - (int)(c2)[0])); \
-  g1 = abs(((int)(c1)[1] - (int)(c2)[1])); \
-  b1 = abs(((int)(c1)[2] - (int)(c2)[2]));\
-  if ((r1+g1+b1) < (tr+tg+tb)) { tr = r1; tg = g1; tb = b1; } \
-  if (this->Averaging && \
-      (idx0 > inMinX + 1) && (idx0 < inMaxX - 1) && \
-      (idx1 > inMinY + 1) && (idx1 < inMaxY - 1)) \
-    {\
+/* compute the pixel to pixel difference first */ \
+r1 = abs(((int)(c1)[0] - (int)(c2)[0])); \
+g1 = abs(((int)(c1)[1] - (int)(c2)[1])); \
+b1 = abs(((int)(c1)[2] - (int)(c2)[2]));\
+if ((r1+g1+b1) < (tr+tg+tb)) { tr = r1; tg = g1; tb = b1; } \
+/* if averaging is on and we have neighbor info then compute */ \
+/* input1 to avg(input2) */ \
+if (this->Averaging && \
+    (idx0 > inMinX + 1) && (idx0 < inMaxX - 1) && \
+    (idx1 > inMinY + 1) && (idx1 < inMaxY - 1)) \
+  {\
   ar1 = (int)(c1)[0]; \
   ag1 = (int)(c1)[1]; \
   ab1 = (int)(c1)[2]; \
@@ -62,6 +69,7 @@ vtkImageDifference::vtkImageDifference()
   g1 = abs(ag1 - ag2/9); \
   b1 = abs(ab1 - ab2/9); \
   if ((r1+g1+b1) < (tr+tg+tb)) { tr = r1; tg = g1; tb = b1; } \
+  /* Now compute the avg(input1) to avg(input2) comparison */ \
   ar1 = (int)(c1)[0] + (int)(c1 - in1Inc0)[0] + (int)(c1 + in1Inc0)[0] + \
         (int)(c1-in1Inc1)[0] + (int)(c1-in1Inc1-in1Inc0)[0] + (int)(c1-in1Inc1+in1Inc0)[0] + \
         (int)(c1+in1Inc1)[0] + (int)(c1+in1Inc1-in1Inc0)[0] + (int)(c1+in1Inc1+in1Inc0)[0]; \
@@ -75,6 +83,7 @@ vtkImageDifference::vtkImageDifference()
   g1 = abs(ag1/9 - ag2/9); \
   b1 = abs(ab1/9 - ab2/9); \
   if ((r1+g1+b1) < (tr+tg+tb)) { tr = r1; tg = g1; tb = b1; } \
+  /* finally compute avg(input1) to input2) */ \
   ar2 = (int)(c2)[0]; \
   ag2 = (int)(c2)[1]; \
   ab2 = (int)(c2)[2]; \
@@ -82,46 +91,81 @@ vtkImageDifference::vtkImageDifference()
   g1 = abs(ag1/9 - ag2); \
   b1 = abs(ab1/9 - ab2); \
   if ((r1+g1+b1) < (tr+tg+tb)) { tr = r1; tg = g1; tb = b1; } \
-    }
+  }
 
 
 
 
 //----------------------------------------------------------------------------
 // This method computes the input extent necessary to generate the output.
-void vtkImageDifference::ComputeInputUpdateExtent(int inExt[6],
-                                                          int outExt[6],
-                                                          int whichInput)
+void vtkImageDifference::RequestUpdateExtent(
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  int *wholeExtent;
   int idx;
-
-  wholeExtent = this->GetInput(whichInput)->GetWholeExtent();
   
-  memcpy(inExt,outExt,6*sizeof(int));
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  
+  int *wholeExtent = 
+    inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+
+  int uExt[6];
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),uExt);
   
   // grow input whole extent.
   for (idx = 0; idx < 2; ++idx)
     {
-    inExt[idx*2] -= 2;
-    inExt[idx*2+1] += 2;
-
+    uExt[idx*2] -= 2;
+    uExt[idx*2+1] += 2;
+    
     // we must clip extent with whole extent is we hanlde boundaries.
-    if (inExt[idx*2] < wholeExtent[idx*2])
+    if (uExt[idx*2] < wholeExtent[idx*2])
       {
-        inExt[idx*2] = wholeExtent[idx*2];
+      uExt[idx*2] = wholeExtent[idx*2];
       }
-    if (inExt[idx*2 + 1] > wholeExtent[idx*2 + 1])
+    if (uExt[idx*2 + 1] > wholeExtent[idx*2 + 1])
       {
-        inExt[idx*2 + 1] = wholeExtent[idx*2 + 1];
+      uExt[idx*2 + 1] = wholeExtent[idx*2 + 1];
       }
     }
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),uExt,6);
+  
+  // now do the second input
+  inInfo = inputVector[1]->GetInformationObject(0);
+  wholeExtent = 
+    inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),uExt);
+  
+  // grow input whole extent.
+  for (idx = 0; idx < 2; ++idx)
+    {
+    uExt[idx*2] -= 2;
+    uExt[idx*2+1] += 2;
+    
+    // we must clip extent with whole extent is we hanlde boundaries.
+    if (uExt[idx*2] < wholeExtent[idx*2])
+      {
+      uExt[idx*2] = wholeExtent[idx*2];
+      }
+    if (uExt[idx*2 + 1] > wholeExtent[idx*2 + 1])
+      {
+      uExt[idx*2 + 1] = wholeExtent[idx*2 + 1];
+      }
+    }
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),uExt,6);
 }
 
 //----------------------------------------------------------------------------
-void vtkImageDifference::ThreadedExecute(vtkImageData **inData, 
-                                         vtkImageData *outData,
-                                         int outExt[6], int id)
+void vtkImageDifference::ThreadedRequestData(
+  vtkInformation * vtkNotUsed( request ), 
+  vtkInformationVector ** vtkNotUsed( inputVector ), 
+  vtkInformationVector * vtkNotUsed( outputVector ),
+  vtkImageData ***inData, 
+  vtkImageData **outData,
+  int outExt[6], int id)
 {
   unsigned char *in1Ptr0, *in1Ptr1, *in1Ptr2;
   unsigned char *in2Ptr0, *in2Ptr1, *in2Ptr2;
@@ -153,9 +197,9 @@ void vtkImageDifference::ThreadedExecute(vtkImageData **inData,
     return;
     }
 
-  if (inData[0]->GetNumberOfScalarComponents() != 3 ||
-      inData[1]->GetNumberOfScalarComponents() != 3 ||
-      outData->GetNumberOfScalarComponents() != 3)
+  if (inData[0][0]->GetNumberOfScalarComponents() != 3 ||
+      inData[1][0]->GetNumberOfScalarComponents() != 3 ||
+      outData[0]->GetNumberOfScalarComponents() != 3)
     {
     if (!id)
       {
@@ -167,9 +211,9 @@ void vtkImageDifference::ThreadedExecute(vtkImageData **inData,
     }
     
   // this filter expects that input is the same type as output.
-  if (inData[0]->GetScalarType() != VTK_UNSIGNED_CHAR || 
-      inData[1]->GetScalarType() != VTK_UNSIGNED_CHAR || 
-      outData->GetScalarType() != VTK_UNSIGNED_CHAR)
+  if (inData[0][0]->GetScalarType() != VTK_UNSIGNED_CHAR || 
+      inData[1][0]->GetScalarType() != VTK_UNSIGNED_CHAR || 
+      outData[0]->GetScalarType() != VTK_UNSIGNED_CHAR)
       {
       if (!id)
         {
@@ -180,19 +224,19 @@ void vtkImageDifference::ThreadedExecute(vtkImageData **inData,
       return;
       }
   
-  in1Ptr2 = (unsigned char *) inData[0]->GetScalarPointerForExtent(outExt);  
-  in2Ptr2 = (unsigned char *) inData[1]->GetScalarPointerForExtent(outExt);  
-  outPtr2 = (unsigned char *) outData->GetScalarPointerForExtent(outExt);  
+  in1Ptr2 = (unsigned char *) inData[0][0]->GetScalarPointerForExtent(outExt);  
+  in2Ptr2 = (unsigned char *) inData[1][0]->GetScalarPointerForExtent(outExt);  
+  outPtr2 = (unsigned char *) outData[0]->GetScalarPointerForExtent(outExt);  
 
-  inData[0]->GetIncrements(in1Inc0, in1Inc1, in1Inc2);
-  inData[1]->GetIncrements(in2Inc0, in2Inc1, in2Inc2);
-  outData->GetIncrements(outInc0, outInc1, outInc2);
+  inData[0][0]->GetIncrements(in1Inc0, in1Inc1, in1Inc2);
+  inData[1][0]->GetIncrements(in2Inc0, in2Inc1, in2Inc2);
+  outData[0]->GetIncrements(outInc0, outInc1, outInc2);
   
   min0 = outExt[0];  max0 = outExt[1];
   min1 = outExt[2];  max1 = outExt[3];
   min2 = outExt[4];  max2 = outExt[5];
   
-  inExt = inData[0]->GetExtent();
+  inExt = inData[0][0]->GetExtent();
   // we set min and Max to be one pixel in from actual values to support 
   // the 3x3 averaging we do
   inMinX = inExt[0]; inMaxX = inExt[1];
@@ -315,26 +359,22 @@ void vtkImageDifference::ThreadedExecute(vtkImageData **inData,
 }
 
 //----------------------------------------------------------------------------
-// Make sure both the inputs are the same size. Doesn't really change 
-// the output. Just performs a sanity check
-void vtkImageDifference::ExecuteInformation(vtkImageData **inputs,
-                                            vtkImageData *output)
+//Make the output the intersection of the inputs, of course the inputs better
+//be the same size
+void vtkImageDifference::ExecuteInformation (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  int i;
-  int *in1Ext, *in2Ext;
-  int ext[6];
-  
-  // Make sure the Input has been set.
-  // we require that input 1 be set.
-  if ( this->NumberOfInputs < 2 || ! inputs[0] || ! inputs[1])
-    {
-    vtkErrorMacro(<< "ExecuteInformation: Input is not set.");
-    return;
-    }
-  
-  in1Ext = inputs[0]->GetWholeExtent();
-  in2Ext = inputs[1]->GetWholeExtent();
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkInformation *inInfo1 = inputVector[0]->GetInformationObject(0);
+  vtkInformation *inInfo2 = inputVector[1]->GetInformationObject(0);
 
+  int *in1Ext = inInfo1->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  int *in2Ext = inInfo2->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+
+  int i;
   if (in1Ext[0] != in2Ext[0] || in1Ext[1] != in2Ext[1] || 
       in1Ext[2] != in2Ext[2] || in1Ext[3] != in2Ext[3] || 
       in1Ext[4] != in2Ext[4] || in1Ext[5] != in2Ext[5])
@@ -355,6 +395,7 @@ void vtkImageDifference::ExecuteInformation(vtkImageData **inputs,
 
   // We still need to set the whole extent to be the intersection.
   // Otherwise the execute may crash.
+  int ext[6];
   for (i = 0; i < 3; ++i)
     {
     ext[i*2] = in1Ext[i*2];
@@ -368,7 +409,7 @@ void vtkImageDifference::ExecuteInformation(vtkImageData **inputs,
       ext[i*2+1] = in2Ext[i*2+1];
       }
     }
-  output->SetWholeExtent(ext);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),ext,6);
 }
 
 double vtkImageDifference::GetError()
@@ -396,6 +437,17 @@ double vtkImageDifference::GetThresholdedError()
 
   return error;
 }
+
+vtkImageData *vtkImageDifference::GetImage()
+{
+  if (this->GetNumberOfInputConnections(1) < 1)
+    {
+    return 0;
+    }
+  return vtkImageData::SafeDownCast(
+    this->GetExecutive()->GetInputData(1, 0));
+}
+
 
 void vtkImageDifference::PrintSelf(ostream& os, vtkIndent indent)
 {
