@@ -66,6 +66,9 @@ if {[set pos [lsearch $files "spikeColor.tcl"]] != -1} {
 if {[set pos [lsearch $files "tkwin.tcl"]] != -1} {
    set files [lreplace $files $pos $pos ]
 }
+if {[set pos [lsearch $files "3dsToRIB.tcl"]] != -1} {
+   set files [lreplace $files $pos $pos ]
+}
 
 # now do the tests
 foreach afile $files {
