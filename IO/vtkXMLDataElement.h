@@ -66,19 +66,16 @@ public:
   int GetScalarAttribute(const char* name, float& value);
   int GetScalarAttribute(const char* name, double& value);
   int GetScalarAttribute(const char* name, unsigned long& value);
-#ifdef VTK_ID_TYPE_IS_NOT_BASIC_TYPE
-  int GetScalarAttribute(const char* name, vtkIdType& value);
-#endif
 
   // Description:
   // Set the attribute with the given name.
-  void SetScalarAttribute(const char* name, int value);
-  void SetScalarAttribute(const char* name, float value);
-  void SetScalarAttribute(const char* name, double value);
-  void SetScalarAttribute(const char* name, unsigned long value);
-#ifdef VTK_ID_TYPE_IS_NOT_BASIC_TYPE
-  void SetScalarAttribute(const char* name, vtkIdType value);
-#endif
+  // We can not use the same GetScalarAttribute() construct since
+  // the compiler will not be able to resolve between
+  // SetAttribute(..., int) and SetAttribute(..., unsigned long).
+  void SetIntAttribute(const char* name, int value);
+  void SetFloatAttribute(const char* name, float value);
+  void SetDoubleAttribute(const char* name, double value);
+  void SetUnsignedLongAttribute(const char* name, unsigned long value);
   
   // Description:
   // Get the attribute with the given name and converted to a scalar
@@ -87,18 +84,21 @@ public:
   int GetVectorAttribute(const char* name, int length, float* value);
   int GetVectorAttribute(const char* name, int length, double* value);
   int GetVectorAttribute(const char* name, int length, unsigned long* value);
-#ifdef VTK_ID_TYPE_IS_NOT_BASIC_TYPE
-  int GetVectorAttribute(const char* name, int length, vtkIdType* value);
-#endif
   
   // Description:
   // Set the attribute with the given name.
-  void SetVectorAttribute(const char* name, int length, int* value);
-  void SetVectorAttribute(const char* name, int length, float* value);
-  void SetVectorAttribute(const char* name, int length, double* value);
-  void SetVectorAttribute(const char* name, int length, unsigned long* value);
+  void SetVectorAttribute(const char* name, int length, const int* value);
+  void SetVectorAttribute(const char* name, int length, const float* value);
+  void SetVectorAttribute(const char* name, int length, const double* value);
+  void SetVectorAttribute(const char* name, int length, const unsigned long* value);
+
 #ifdef VTK_ID_TYPE_IS_NOT_BASIC_TYPE
-  void SetVectorAttribute(const char* name, int length, vtkIdType* value);
+  //BTX
+  int  GetScalarAttribute(const char* name, vtkIdType& value);
+  void SetIdTypeAttribute(const char* name, vtkIdType value);
+  int  GetVectorAttribute(const char* name, int length, vtkIdType* value);
+  void SetVectorAttribute(const char* name, int length, const vtkIdType* value);
+  //ETX
 #endif
   
   // Description:

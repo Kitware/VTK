@@ -21,7 +21,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkXMLDataElement, "1.8");
+vtkCxxRevisionMacro(vtkXMLDataElement, "1.9");
 vtkStandardNewMacro(vtkXMLDataElement);
 
 //----------------------------------------------------------------------------
@@ -627,33 +627,34 @@ int vtkXMLDataElement::GetWordTypeAttribute(const char* name, int& value)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLDataElement::SetScalarAttribute(const char* name, int value)
+void vtkXMLDataElement::SetIntAttribute(const char* name, int value)
 {
   this->SetVectorAttribute(name, 1, &value);
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLDataElement::SetScalarAttribute(const char* name, float value)
+void vtkXMLDataElement::SetFloatAttribute(const char* name, float value)
 {
   this->SetVectorAttribute(name, 1, &value);
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLDataElement::SetScalarAttribute(const char* name, double value)
+void vtkXMLDataElement::SetDoubleAttribute(const char* name, double value)
 {
   this->SetVectorAttribute(name, 1, &value);
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLDataElement::SetScalarAttribute(const char* name,
-                                           unsigned long value)
+void vtkXMLDataElement::SetUnsignedLongAttribute(const char* name,
+                                                 unsigned long value)
 {
   this->SetVectorAttribute(name, 1, &value);
 }
 
 //----------------------------------------------------------------------------
 #ifdef VTK_ID_TYPE_IS_NOT_BASIC_TYPE
-void vtkXMLDataElement::SetScalarAttribute(const char* name, vtkIdType value)
+void vtkXMLDataElement::SetIdTypeAttribute(const char* name, 
+                                           const vtkIdType& value)
 {
   this->SetVectorAttribute(name, 1, &value);
 }
@@ -661,7 +662,7 @@ void vtkXMLDataElement::SetScalarAttribute(const char* name, vtkIdType value)
 
 //----------------------------------------------------------------------------
 template <class T>
-void vtkXMLDataElementVectorAttributeSet(vtkXMLDataElement *elem, const char* name, int length, T* data)
+void vtkXMLDataElementVectorAttributeSet(vtkXMLDataElement *elem, const char* name, int length, const T* data)
 {
   if (!elem || !name || !length) 
     { 
@@ -679,28 +680,28 @@ void vtkXMLDataElementVectorAttributeSet(vtkXMLDataElement *elem, const char* na
 
 //----------------------------------------------------------------------------
 void vtkXMLDataElement::SetVectorAttribute(const char* name, int length,
-                                           int* data)
+                                           const int* data)
 {
   vtkXMLDataElementVectorAttributeSet(this, name, length, data);
 }
 
 //----------------------------------------------------------------------------
 void vtkXMLDataElement::SetVectorAttribute(const char* name, int length,
-                                           float* data)
+                                           const float* data)
 {
   vtkXMLDataElementVectorAttributeSet(this, name, length, data);
 }
 
 //----------------------------------------------------------------------------
 void vtkXMLDataElement::SetVectorAttribute(const char* name, int length,
-                                           double* data)
+                                           const double* data)
 {
   vtkXMLDataElementVectorAttributeSet(this, name, length, data);
 }
 
 //----------------------------------------------------------------------------
 void vtkXMLDataElement::SetVectorAttribute(const char* name, int length,
-                                           unsigned long* data)
+                                           const unsigned long* data)
 {
   vtkXMLDataElementVectorAttributeSet(this, name, length, data);
 }
@@ -708,7 +709,7 @@ void vtkXMLDataElement::SetVectorAttribute(const char* name, int length,
 //----------------------------------------------------------------------------
 #ifdef VTK_ID_TYPE_IS_NOT_BASIC_TYPE
 void vtkXMLDataElement::SetVectorAttribute(const char* name, int length,
-                                           vtkIdType* data)
+                                           const vtkIdType* data)
 {
   vtkXMLDataElementVectorAttributeSet(this, name, length, data);
 }
