@@ -26,19 +26,24 @@
 #include "vtkGenericDataSet.h"
 #include "vtkGenericCellIterator.h"
 #include "vtkGenericAdaptorCell.h"
+#include "vtkGenericAttributeCollection.h"
+#include "vtkGenericAttribute.h"
+#include "vtkCellData.h"
 
-vtkCxxRevisionMacro(vtkGenericDataSetTessellator, "1.4");
+vtkCxxRevisionMacro(vtkGenericDataSetTessellator, "1.5");
 vtkStandardNewMacro(vtkGenericDataSetTessellator);
 
 //----------------------------------------------------------------------------
 //
 vtkGenericDataSetTessellator::vtkGenericDataSetTessellator()
 {
+  this->internalPD=vtkPointData::New();
 }
 
 //----------------------------------------------------------------------------
 vtkGenericDataSetTessellator::~vtkGenericDataSetTessellator()
 {
+  this->internalPD->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -70,6 +75,53 @@ void vtkGenericDataSetTessellator::Execute()
   vtkCellArray *conn = vtkCellArray::New();
   conn->Allocate(numCells);
 
+  
+  // prepare the output attributes
+  vtkGenericAttributeCollection *attributes=input->GetAttributes();
+  vtkGenericAttribute *attribute;
+  vtkDataArray *attributeArray;
+  
+  int c=attributes->GetNumberOfAttributes();
+  vtkDataSetAttributes *dsAttributes;
+
+  int attributeType;
+  
+  i=0;
+  while(i<c)
+    {
+    attribute=attributes->GetAttribute(i);
+    attributeType=attribute->GetType();
+    if(attribute->GetCentering()==vtkPointCentered)
+      {
+      dsAttributes=outputPD;
+      
+      attributeArray=vtkDataArray::CreateDataArray(attribute->GetComponentType());
+      attributeArray->SetNumberOfComponents(attribute->GetNumberOfComponents());
+      attributeArray->SetName(attribute->GetName());
+      this->internalPD->AddArray(attributeArray);
+      attributeArray->Delete();
+      if(this->internalPD->GetAttribute(attributeType)==0)
+        {
+        this->internalPD->SetActiveAttribute(this->internalPD->GetNumberOfArrays()-1,attributeType);
+        }
+      }
+    else // vtkCellCentered
+      {
+      dsAttributes=outputCD;
+      }
+    attributeArray=vtkDataArray::CreateDataArray(attribute->GetComponentType());
+    attributeArray->SetNumberOfComponents(attribute->GetNumberOfComponents());
+    attributeArray->SetName(attribute->GetName());
+    dsAttributes->AddArray(attributeArray);
+    attributeArray->Delete();
+    
+    if(dsAttributes->GetAttribute(attributeType)==0)
+      {
+      dsAttributes->SetActiveAttribute(dsAttributes->GetNumberOfArrays()-1,attributeType);
+      }
+    ++i;
+    }
+  
   vtkGenericCellIterator *cellIt = input->NewCellIterator();
   vtkIdType updateCount = numCells/20 + 1;  // update roughly every 5%
   vtkIdType count = 0;
@@ -83,7 +135,7 @@ void vtkGenericDataSetTessellator::Execute()
 
     cell = cellIt->GetCell();
     cell->Tessellate(input->GetAttributes(), input->GetTessellator(),
-                     newPts, conn, outputPD, outputCD);
+                     newPts, conn, this->internalPD, outputPD, outputCD);
 
     numNew = conn->GetNumberOfCells() - numInserted;
     numInserted = conn->GetNumberOfCells();
@@ -108,12 +160,16 @@ void vtkGenericDataSetTessellator::Execute()
         } //switch
       } //insert each new cell
     } //for all cells
+  cout<<"********* count="<<count<<endl;
   cellIt->Delete();
   
   // Send to the output
   output->SetPoints(newPts);
   output->SetCells(types, locs, conn);
 
+  // Init the active attributes
+  
+  
   vtkDebugMacro(<<"Subdivided " << numCells << " cells to produce "
                 << conn->GetNumberOfCells() << "new cells");
 

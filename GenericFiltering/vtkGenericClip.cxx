@@ -35,7 +35,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGenericClip, "1.2");
+vtkCxxRevisionMacro(vtkGenericClip, "1.3");
 vtkStandardNewMacro(vtkGenericClip);
 vtkCxxSetObjectMacro(vtkGenericClip,ClipFunction,vtkImplicitFunction);
 
@@ -56,6 +56,10 @@ vtkGenericClip::vtkGenericClip(vtkImplicitFunction *cf)
   this->vtkSource::SetNthOutput(1,vtkUnstructuredGrid::New());
   this->Outputs[1]->Delete();
   this->InputScalarsSelection = NULL;
+  
+  this->internalPD=vtkPointData::New();
+  this->secondaryPD=vtkPointData::New();
+  this->secondaryCD=vtkCellData::New();
 }
 
 //----------------------------------------------------------------------------
@@ -68,6 +72,9 @@ vtkGenericClip::~vtkGenericClip()
     }
   this->SetClipFunction(NULL);
   this->SetInputScalarsSelection(NULL);
+  this->internalPD->Delete();
+  this->secondaryPD->Delete();
+  this->secondaryCD->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -111,7 +118,7 @@ vtkUnstructuredGrid *vtkGenericClip::GetClippedOutput()
     return NULL;
     }
   
-  return (vtkUnstructuredGrid *)(this->Outputs[1]);
+  return static_cast<vtkUnstructuredGrid *>(this->Outputs[1]);
 }
 
 
@@ -121,27 +128,22 @@ vtkUnstructuredGrid *vtkGenericClip::GetClippedOutput()
 //
 void vtkGenericClip::Execute()
 {
-  vtkGenericDataSet *input = this->GetInput();
-  vtkUnstructuredGrid *output = this->GetOutput();
-  vtkUnstructuredGrid *clippedOutput = this->GetClippedOutput();
-  if (input == NULL)
+  vtkGenericDataSet *input=this->GetInput();
+  if(input==0)
     {
     return;
     }
+  
+  vtkUnstructuredGrid *output = this->GetOutput();
+  vtkUnstructuredGrid *clippedOutput = this->GetClippedOutput();
+  
   vtkIdType numPts = input->GetNumberOfPoints();
   vtkIdType numCells = input->GetNumberOfCells();
-  vtkPointData *inPD = NULL; //=input->GetPointData(), 
   vtkPointData *outPD = output->GetPointData();
-  vtkCellData *inCD = NULL; //=input->GetCellData();
   vtkCellData *outCD[2];
-  vtkPoints *newPoints;
-  vtkDoubleArray *cellScalars; 
-  vtkDataArray *clipScalars;
-  double s;
   vtkIdType npts;
   vtkIdType *pts;
   int cellType = 0;
-  vtkIdType i;
   int j;
   vtkIdType estimatedSize;
   vtkUnsignedCharArray *types[2];
@@ -150,8 +152,6 @@ void vtkGenericClip::Execute()
   vtkGenericAdaptorCell *cell;
 
   vtkDebugMacro(<< "Clipping dataset");
-  
-//  int inputObjectType = input->GetDataObjectType();
 
   // Initialize self; create output objects
   //
@@ -174,8 +174,10 @@ void vtkGenericClip::Execute()
     {
     estimatedSize = 1024;
     }
-  cellScalars = vtkDoubleArray::New();
-  cellScalars->Allocate(VTK_CELL_SIZE);
+  
+  vtkPoints *newPoints = vtkPoints::New();
+  newPoints->Allocate(numPts,numPts/2);
+  
   vtkCellArray *conn[2];
   conn[0] = vtkCellArray::New();
   conn[0]->Allocate(estimatedSize,estimatedSize/2);
@@ -184,7 +186,8 @@ void vtkGenericClip::Execute()
   types[0]->Allocate(estimatedSize,estimatedSize/2);
   locs[0] = vtkIdTypeArray::New();
   locs[0]->Allocate(estimatedSize,estimatedSize/2);
-  if ( this->GenerateClippedOutput )
+  
+  if(this->GenerateClippedOutput)
     {
     numOutputs = 2;
     conn[1] = vtkCellArray::New();
@@ -195,8 +198,6 @@ void vtkGenericClip::Execute()
     locs[1] = vtkIdTypeArray::New();
     locs[1]->Allocate(estimatedSize,estimatedSize/2);
     }
-  newPoints = vtkPoints::New();
-  newPoints->Allocate(numPts,numPts/2);
   
   // locator used to merge potentially duplicate points
   if ( this->Locator == NULL )
@@ -205,89 +206,66 @@ void vtkGenericClip::Execute()
     }
   this->Locator->InitPointInsertion (newPoints, input->GetBounds());
 
-  //vtkGenericPointIterator *pointIt = input->GetPoints();
-  vtkGenericCellIterator *cellIt = input->NewCellIterator();  //explicit cell could be 2D or 3D
+  // prepare the output attributes
+  vtkGenericAttributeCollection *attributes=input->GetAttributes();
+  vtkGenericAttribute *attribute;
+  vtkDataArray *attributeArray;
   
-  // Determine whether we're clipping with input scalars or a clip function
-  // and do necessary setup.
-  double position[3];
-  if ( this->ClipFunction )
-    {
-    vtkDoubleArray *tmpScalars = vtkDoubleArray::New();
-    tmpScalars->SetNumberOfTuples(numPts);
-    tmpScalars->SetName("ClipDataSetScalars");
+  int c=attributes->GetNumberOfAttributes();
+  vtkDataSetAttributes *secondaryAttributes;
 
-//    vtkGenericCellIterator *pointIt = input->NewVertexIterator(); //specifically ask for points
-    vtkGenericPointIterator *pointIt = input->NewPointIterator();
-    for( i = 0, pointIt->Begin(); !pointIt->IsAtEnd(); pointIt->Next() )
+  int attributeType;
+  
+  vtkIdType i=0;
+  while(i<c)
+    {
+    attribute=attributes->GetAttribute(i);
+    attributeType=attribute->GetType();
+    if(attribute->GetCentering()==vtkPointCentered)
       {
-      pointIt->GetPosition(position);
-      s = this->ClipFunction->FunctionValue(position);
-      tmpScalars->SetTuple(i++,&s);
-      }
-    pointIt->Delete();
-
-    clipScalars = tmpScalars;
-    }
-  else //using input scalars
-    {
-//    clipScalars = inPD->GetScalars(this->InputScalarsSelection);
-//    if ( !clipScalars )
-//      {
-//      vtkErrorMacro(<<"Cannot clip without clip function or input scalars");
-//      return;
-//      }
-    vtkDoubleArray *tmpScalars = vtkDoubleArray::New();
-    tmpScalars->SetNumberOfTuples(numPts);
-    tmpScalars->SetName("ClipDataSetScalars");
-    
-      for (cellIt->Begin(); !cellIt->IsAtEnd(); cellIt->Next())
+      secondaryAttributes=this->secondaryPD;
+      
+      attributeArray=vtkDataArray::CreateDataArray(attribute->GetComponentType());
+      attributeArray->SetNumberOfComponents(attribute->GetNumberOfComponents());
+      attributeArray->SetName(attribute->GetName());
+      this->internalPD->AddArray(attributeArray);
+      attributeArray->Delete();
+      if(this->internalPD->GetAttribute(attributeType)==0)
         {
-        cell = cellIt->GetCell();
-//        tmpScalars->SetNumberOfComponents(
-//          cell->GetCurrentAttribute()->GetNumberOfComponents());//FIXME
-        numPts = cell->GetNumberOfPoints();
-          double *point;
-          double val[3]; // FIXME: should be double *val = new double[input->GetAttributes()->GetNumberOfComponents()]
-        for(i=0; i<numPts;i++)
-          {
-          //cell->GetParametricCoords(i, point);
-          point = cell->GetParametricCoords() + i;
-          //cell->EvaluateShapeFunction(point, val);
-          
-//          input->GetAttributes()->EvaluateTuple(cell, point, val);
-          cell->InterpolateTuple(input->GetAttributes(), point, val);
-          tmpScalars->SetTuple(i, val);
-          }
+        this->internalPD->SetActiveAttribute(this->internalPD->GetNumberOfArrays()-1,attributeType);
         }
-
-    clipScalars = tmpScalars;
+      }
+    else // vtkCellCentered
+      {
+      secondaryAttributes=this->secondaryCD;
+      }
+    
+    attributeArray=vtkDataArray::CreateDataArray(attribute->GetComponentType());
+    attributeArray->SetNumberOfComponents(attribute->GetNumberOfComponents());
+    attributeArray->SetName(attribute->GetName());
+    secondaryAttributes->AddArray(attributeArray);
+    attributeArray->Delete();
+    
+    if(secondaryAttributes->GetAttribute(attributeType)==0)
+      {
+      secondaryAttributes->SetActiveAttribute(secondaryAttributes->GetNumberOfArrays()-1,
+                                              attributeType);
+      }
+    ++i;
     }
-
-    inPD = vtkPointData::New(); //FIXME
-    inPD->SetScalars(clipScalars);//FIXME
-//    inCD = vtkCellData::New();
-//    inCD->SetScalars(cellScalars);//FIXME
-
-  if ( !this->GenerateClipScalars && false) //&& !input->GetPointData()->GetScalars(this->InputScalarsSelection))
-    {
-    //FIXME
-    outPD->CopyScalarsOff();
-    }
-  else
-    {
-    outPD->CopyScalarsOn();
-    }
-  outPD->InterpolateAllocate(inPD,estimatedSize,estimatedSize/2);
+  outPD->InterpolateAllocate(this->secondaryPD,estimatedSize,estimatedSize/2);
   
   outCD[0] = output->GetCellData();
-  outCD[0]->CopyAllocate(inCD,estimatedSize,estimatedSize/2);
+  outCD[0]->CopyAllocate(this->secondaryCD,estimatedSize,estimatedSize/2);
   if ( this->GenerateClippedOutput )
     {
     outCD[1] = clippedOutput->GetCellData();
-    outCD[1]->CopyAllocate(inCD,estimatedSize,estimatedSize/2);
+    outCD[1]->CopyAllocate(this->secondaryCD,estimatedSize,estimatedSize/2);
     }
-
+  
+  //vtkGenericPointIterator *pointIt = input->GetPoints();
+  vtkGenericCellIterator *cellIt = input->NewCellIterator();  //explicit cell could be 2D or 3D
+  
   //Process all cells and clip each in turn
   //
   int abort=0;
@@ -306,32 +284,22 @@ void vtkGenericClip::Execute()
       abort = this->GetAbortExecute();
       }
 
-    //FIXME: we temporaly create a vtkPoints and vtkIdList just for:
-    //1. The num of points and 
-    //2. retrieving there id . Should use iterator again
-    npts = cell->GetNumberOfPoints();
-
-    // evaluate implicit cutting function
-    for ( i=0; i < npts; i++ )
-      {
-      s = clipScalars->GetComponent(i, 0);
-      //cellScalars->InsertTuple1(i, s);
-      cellScalars->InsertTuple1(i, 0);
-      }
-
     // perform the clipping
-    cell->Clip(this->Value, this->ClipFunction, input->GetAttributes(),input->GetTessellator(),
-              this->InsideOut, this->Locator, 
-              conn[0], outPD, outCD[0]);
+    
+    cell->Clip(this->Value, this->ClipFunction, input->GetAttributes(),
+               input->GetTessellator(),this->InsideOut,this->Locator,conn[0],
+               outPD,outCD[0],this->internalPD,this->secondaryPD,
+               this->secondaryCD);
     numNew[0] = conn[0]->GetNumberOfCells() - num[0];
     num[0] = conn[0]->GetNumberOfCells();
  
     if ( this->GenerateClippedOutput )
       {
-      cell->Clip(this->Value, this->ClipFunction, input->GetAttributes(),input->GetTessellator(),
-                this->InsideOut,
-                 this->Locator, conn[1],
-                 outPD, outCD[1]);
+      cell->Clip(this->Value, this->ClipFunction, input->GetAttributes(),
+                 input->GetTessellator(),this->InsideOut,this->Locator,conn[1],
+                 outPD,outCD[1],this->internalPD,this->secondaryPD,
+                 this->secondaryCD);
+      
       numNew[1] = conn[1]->GetNumberOfCells() - num[1];
       num[1] = conn[1]->GetNumberOfCells();
       }
@@ -369,10 +337,6 @@ void vtkGenericClip::Execute()
       } //for both outputs
     } //for each cell
   cellIt->Delete();
-  cellScalars->Delete();
-
-    clipScalars->Delete();//FIXME
-    inPD->Delete();//FIXME
   
   output->SetPoints(newPoints);
   output->SetCells(types[0], locs[0], conn[0]);

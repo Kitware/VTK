@@ -47,6 +47,7 @@
 #include "vtkGenericDataSetToPolyDataFilter.h"
 
 class vtkPointLocator;
+class vtkPointData;
 
 class VTK_GENERIC_FILTERING_EXPORT vtkGenericGeometryFilter : public vtkGenericDataSetToPolyDataFilter
 {
@@ -147,6 +148,10 @@ protected:
 
   int Merging;
   vtkPointLocator *Locator;
+  
+  // Used internal by vtkGenericAdaptorCell::Tessellate()
+  vtkPointData *internalPD;
+  
 private:
   vtkGenericGeometryFilter(const vtkGenericGeometryFilter&);  // Not implemented.
   void operator=(const vtkGenericGeometryFilter&);  // Not implemented.

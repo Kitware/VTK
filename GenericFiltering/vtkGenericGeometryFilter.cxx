@@ -33,8 +33,10 @@
 #include "vtkGenericCellIterator.h"
 #include "vtkGenericAdaptorCell.h"
 #include "vtkGenericDataSet.h"
+#include "vtkGenericAttributeCollection.h"
+#include "vtkGenericAttribute.h"
 
-vtkCxxRevisionMacro(vtkGenericGeometryFilter, "1.2");
+vtkCxxRevisionMacro(vtkGenericGeometryFilter, "1.3");
 vtkStandardNewMacro(vtkGenericGeometryFilter);
 
 //----------------------------------------------------------------------------
@@ -60,6 +62,7 @@ vtkGenericGeometryFilter::vtkGenericGeometryFilter()
 
   this->Merging = 1;
   this->Locator = NULL;
+  this->internalPD=vtkPointData::New();
 }
 //----------------------------------------------------------------------------
 vtkGenericGeometryFilter::~vtkGenericGeometryFilter()
@@ -69,6 +72,7 @@ vtkGenericGeometryFilter::~vtkGenericGeometryFilter()
     this->Locator->UnRegister(this);
     this->Locator = NULL;
     }
+  this->internalPD->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -213,6 +217,54 @@ void vtkGenericGeometryFilter::Execute()
 //FB  newScalars->Allocate(estimatedSize, 5*numPts);
   cellArray->Allocate(numCells);
 
+  
+  // prepare the output attributes
+  vtkGenericAttributeCollection *attributes=input->GetAttributes();
+  vtkGenericAttribute *attribute;
+  vtkDataArray *attributeArray;
+  
+  int c=attributes->GetNumberOfAttributes();
+  vtkDataSetAttributes *dsAttributes;
+
+  int attributeType;
+  
+  i=0;
+  while(i<c)
+    {
+    attribute=attributes->GetAttribute(i);
+    attributeType=attribute->GetType();
+    if(attribute->GetCentering()==vtkPointCentered)
+      {
+      dsAttributes=outputPD;
+      
+      attributeArray=vtkDataArray::CreateDataArray(attribute->GetComponentType());
+      attributeArray->SetNumberOfComponents(attribute->GetNumberOfComponents());
+      attributeArray->SetName(attribute->GetName());
+      this->internalPD->AddArray(attributeArray);
+      attributeArray->Delete();
+      if(this->internalPD->GetAttribute(attributeType)==0)
+        {
+        this->internalPD->SetActiveAttribute(this->internalPD->GetNumberOfArrays()-1,attributeType);
+        }
+      }
+    else // vtkCellCentered
+      {
+      dsAttributes=outputCD;
+      }
+    attributeArray=vtkDataArray::CreateDataArray(attribute->GetComponentType());
+    attributeArray->SetNumberOfComponents(attribute->GetNumberOfComponents());
+    attributeArray->SetName(attribute->GetName());
+    dsAttributes->AddArray(attributeArray);
+    attributeArray->Delete();
+    
+    if(dsAttributes->GetAttribute(attributeType)==0)
+      {
+      dsAttributes->SetActiveAttribute(dsAttributes->GetNumberOfArrays()-1,attributeType);
+      }
+    ++i;
+    }
+  
+  
   if ( this->Merging )
     {
     if ( this->Locator == NULL )
@@ -253,7 +305,7 @@ void vtkGenericGeometryFilter::Execute()
         case 2:
             if ( cell->IsOnBoundary() )
               {
-              cell->Tessellate(input->GetAttributes(), input->GetTessellator(), newPts, cellArray, 
+              cell->Tessellate(input->GetAttributes(), input->GetTessellator(), newPts, cellArray, this->internalPD,
                                outputPD, outputCD); //newScalars );
               }
           break;
@@ -265,7 +317,7 @@ void vtkGenericGeometryFilter::Execute()
             if ( cell->IsFaceOnBoundary(j) )
               {
               cell->TriangulateFace(input->GetAttributes(), input->GetTessellator(),
-                j, newPts, cellArray, outputPD, outputCD );
+                                    j, newPts, cellArray,this->internalPD, outputPD, outputCD );
               }
             }
           break;

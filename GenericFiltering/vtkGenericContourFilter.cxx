@@ -32,7 +32,7 @@
 #include "vtkGenericAttributeCollection.h"
 #include "vtkGenericAttribute.h"
 
-vtkCxxRevisionMacro(vtkGenericContourFilter, "1.4");
+vtkCxxRevisionMacro(vtkGenericContourFilter, "1.5");
 vtkStandardNewMacro(vtkGenericContourFilter);
 
 // Construct object with initial range (0,1) and single contour value
@@ -48,6 +48,10 @@ vtkGenericContourFilter::vtkGenericContourFilter()
   this->Locator = NULL;
 
   this->InputScalarsSelection = NULL;
+  
+  this->internalPD=vtkPointData::New();
+  this->secondaryPD=vtkPointData::New();
+  this->secondaryCD=vtkCellData::New();
 }
 
 vtkGenericContourFilter::~vtkGenericContourFilter()
@@ -59,6 +63,9 @@ vtkGenericContourFilter::~vtkGenericContourFilter()
     this->Locator = NULL;
     }
   this->SetInputScalarsSelection(NULL);
+  this->internalPD->Delete();
+  this->secondaryPD->Delete();
+  this->secondaryCD->Delete();
 }
 
 // Overload standard modified time function. If contour values are modified,
@@ -85,73 +92,103 @@ unsigned long vtkGenericContourFilter::GetMTime()
   return mTime;
 }
 
+//-----------------------------------------------------------------------------
 // General contouring filter.  Handles arbitrary input.
-//
 void vtkGenericContourFilter::Execute()
 {
-//  int abortExecute=0;
-//  vtkIdList *cellPts;
-//  vtkDataArray *inScalars;
-  vtkCellArray *newVerts, *newLines, *newPolys;
-  vtkPoints *newPts;
-  vtkGenericDataSet *input = this->GetInput();
-  //vtkAttribute *att = input->GetAttribute();
-  
-  if (!input) {return;}
-  vtkPolyData *output = this->GetOutput();
-  vtkIdType numCells, estimatedSize;
-
-  vtkPointData *inPd; //FIXME
-  vtkPointData *outPd = output->GetPointData();
-
-//  vtkCellData *inCd;  //FIXME
-  vtkCellData *outCd = output->GetCellData();
-//  int numContours = this->ContourValues->GetNumberOfContours();
-//  double *values = this->ContourValues->GetValues();
-  vtkDataArray *cellScalars = vtkDoubleArray::New();
-
   vtkDebugMacro(<< "Executing contour filter");
-
+  
+  vtkGenericDataSet *input=this->GetInput();
+  
+  if(input==0)
+    {
+    vtkErrorMacro("No input specified");
+    return;
+    }
+  
+  vtkPolyData *output=this->GetOutput();
+  vtkPointData *outPd = output->GetPointData();
+  vtkCellData *outCd = output->GetCellData();
+  
   // Create objects to hold output of contour operation. First estimate
   // allocation size.
-  //
-  numCells = input->GetNumberOfCells();
-  
-  //estimatedSize = (vtkIdType) pow ((double) numCells, .75);
-//  estimatedSize *= numContours;
-
-  estimatedSize = input->GetEstimatedSize();
+  vtkIdType numCells=input->GetNumberOfCells();
+  vtkIdType estimatedSize=input->GetEstimatedSize();
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
   if (estimatedSize < 1024)
     {
     estimatedSize = 1024;
     }
 
-  newPts = vtkPoints::New();
+  vtkPoints *newPts = vtkPoints::New();
   newPts->Allocate(estimatedSize,estimatedSize);
-  newVerts = vtkCellArray::New();
+  vtkCellArray *newVerts = vtkCellArray::New();
   newVerts->Allocate(estimatedSize,estimatedSize);
-  newLines = vtkCellArray::New();
+  vtkCellArray *newLines = vtkCellArray::New();
   newLines->Allocate(estimatedSize,estimatedSize);
-  newPolys = vtkCellArray::New();
+  vtkCellArray *newPolys = vtkCellArray::New();
   newPolys->Allocate(estimatedSize,estimatedSize);
-
-  cellScalars->Allocate(estimatedSize,estimatedSize);
+  
   output->Allocate(numCells);
   
   // locator used to merge potentially duplicate points
-  if ( this->Locator == NULL )
+  if(this->Locator==0)
     {
     this->CreateDefaultLocator();
     }
-  this->Locator->InitPointInsertion (newPts, 
-                                     input->GetBounds(),estimatedSize);
+  this->Locator->InitPointInsertion(newPts,input->GetBounds(),estimatedSize);
+  
+  // prepare the output attributes
+  vtkGenericAttributeCollection *attributes=input->GetAttributes();
+  vtkGenericAttribute *attribute;
+  vtkDataArray *attributeArray;
+  
+  int c=attributes->GetNumberOfAttributes();
+  vtkDataSetAttributes *secondaryAttributes;
 
-  //outCd->CopyAllocate(inCd,estimatedSize,estimatedSize);
-  outCd->Allocate(estimatedSize,estimatedSize); //FIXME
-    inPd = vtkPointData::New(); //FIXME
-    inPd->SetScalars( cellScalars ); //FIXME
-  outPd->InterpolateAllocate(inPd,estimatedSize,estimatedSize); //FIXME
+  int attributeType;
+  
+  vtkIdType i=0;
+  while(i<c)
+    {
+    attribute=attributes->GetAttribute(i);
+    attributeType=attribute->GetType();
+    if(attribute->GetCentering()==vtkPointCentered)
+      {
+      secondaryAttributes=this->secondaryPD;
+      
+      attributeArray=vtkDataArray::CreateDataArray(attribute->GetComponentType());
+      attributeArray->SetNumberOfComponents(attribute->GetNumberOfComponents());
+      attributeArray->SetName(attribute->GetName());
+      this->internalPD->AddArray(attributeArray);
+      attributeArray->Delete();
+      if(this->internalPD->GetAttribute(attributeType)==0)
+        {
+        this->internalPD->SetActiveAttribute(this->internalPD->GetNumberOfArrays()-1,attributeType);
+        }
+      }
+    else // vtkCellCentered
+      {
+      secondaryAttributes=this->secondaryCD;
+      }
+    
+    attributeArray=vtkDataArray::CreateDataArray(attribute->GetComponentType());
+    attributeArray->SetNumberOfComponents(attribute->GetNumberOfComponents());
+    attributeArray->SetName(attribute->GetName());
+    secondaryAttributes->AddArray(attributeArray);
+    attributeArray->Delete();
+    
+    if(secondaryAttributes->GetAttribute(attributeType)==0)
+      {
+      secondaryAttributes->SetActiveAttribute(secondaryAttributes->GetNumberOfArrays()-1,
+                                              attributeType);
+      }
+    ++i;
+    }
+  
+  outPd->InterpolateAllocate(this->secondaryPD,estimatedSize,estimatedSize);
+  outCd->CopyAllocate(this->secondaryCD,estimatedSize,estimatedSize);
+  
   
   vtkGenericAdaptorCell *cell;
 
@@ -171,12 +208,24 @@ void vtkGenericContourFilter::Execute()
       }
     }
     
-  for(cellIt->Begin(); !cellIt->IsAtEnd(); cellIt->Next())
+  
+  vtkIdType updateCount = numCells/20 + 1;  // update roughly every 5%
+  vtkIdType count = 0;
+  int abortExecute=0;
+  for(cellIt->Begin(); !cellIt->IsAtEnd() && !abortExecute; cellIt->Next())
     {
+    if ( !(count % updateCount) )
+      {
+      this->UpdateProgress((double)count / numCells);
+      abortExecute = this->GetAbortExecute();
+      }
+    
     cell = cellIt->GetCell();
     cell->Contour(this->ContourValues, NULL, input->GetAttributes(),
                   input->GetTessellator(),
-                  this->Locator, newVerts, newLines, newPolys, outPd, outCd);
+                  this->Locator, newVerts, newLines, newPolys, outPd, outCd,
+                  this->internalPD,this->secondaryPD,this->secondaryCD);
+    ++count;
     } // for each cell
   cellIt->Delete();
 
@@ -186,8 +235,6 @@ void vtkGenericContourFilter::Execute()
                 << newLines->GetNumberOfCells() << " lines, " 
                 << newPolys->GetNumberOfCells() << " triangles");
 
-  inPd->Delete();
-  cellScalars->Delete();
   //----------- End of contouring algorithm ----------------------//
 
   // Update ourselves.  Because we don't know up front how many verts, lines,
@@ -196,19 +243,19 @@ void vtkGenericContourFilter::Execute()
   output->SetPoints(newPts);
   newPts->Delete();
 
-  if (newVerts->GetNumberOfCells())
+  if (newVerts->GetNumberOfCells()>0)
     {
     output->SetVerts(newVerts);
     }
   newVerts->Delete();
-
-  if (newLines->GetNumberOfCells())
+  
+  if (newLines->GetNumberOfCells()>0)
     {
     output->SetLines(newLines);
     }
   newLines->Delete();
 
-  if (newPolys->GetNumberOfCells())
+  if (newPolys->GetNumberOfCells()>0)
     {
     output->SetPolys(newPolys);
     }

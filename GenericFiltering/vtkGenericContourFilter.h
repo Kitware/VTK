@@ -53,6 +53,8 @@
 
 class vtkContourValues;
 class vtkPointLocator;
+class vtkPointData;
+class vtkCellData;
 
 class VTK_GENERIC_FILTERING_EXPORT vtkGenericContourFilter : public vtkGenericDataSetToPolyDataFilter
 {
@@ -144,6 +146,11 @@ protected:
   
   char *InputScalarsSelection;
   vtkSetStringMacro(InputScalarsSelection);
+  
+  // Used internal by vtkGenericAdaptorCell::Contour()
+  vtkPointData *internalPD;
+  vtkPointData *secondaryPD;
+  vtkCellData *secondaryCD;
   
 private:
   vtkGenericContourFilter(const vtkGenericContourFilter&);  // Not implemented.

@@ -36,6 +36,8 @@
 
 #include "vtkGenericDataSetToUnstructuredGridFilter.h"
 
+class vtkPointData;
+
 class VTK_GENERIC_FILTERING_EXPORT vtkGenericDataSetTessellator : public vtkGenericDataSetToUnstructuredGridFilter
 {
 public:
@@ -51,7 +53,10 @@ protected:
   ~vtkGenericDataSetTessellator();
 
   void Execute();
-
+  
+// Used internal by vtkGenericAdaptorCell::Tessellate()
+  vtkPointData *internalPD;
+  
 private:
   vtkGenericDataSetTessellator(const vtkGenericDataSetTessellator&);  // Not implemented.
   void operator=(const vtkGenericDataSetTessellator&);  // Not implemented.

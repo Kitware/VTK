@@ -63,6 +63,8 @@
 class vtkImplicitFunction;
 
 class vtkPointLocator;
+class vtkPointData;
+class vtkCellData;
 
 class VTK_GENERIC_FILTERING_EXPORT vtkGenericClip : public vtkGenericDataSetToUnstructuredGridFilter
 {
@@ -169,9 +171,11 @@ protected:
   char *InputScalarsSelection;
   vtkSetStringMacro(InputScalarsSelection);
 
-  //helper functions
-  void ClipVolume();
-
+  // Used internal by vtkGenericAdaptorCell::Clip()
+  vtkPointData *internalPD;
+  vtkPointData *secondaryPD;
+  vtkCellData *secondaryCD;
+  
 private:
   vtkGenericClip(const vtkGenericClip&);  // Not implemented.
   void operator=(const vtkGenericClip&);  // Not implemented.

@@ -50,6 +50,8 @@ class vtkContourValues;
 
 class vtkImplicitFunction;
 class vtkPointLocator;
+class vtkPointData;
+class vtkCellData;
 
 class VTK_GENERIC_FILTERING_EXPORT vtkGenericCutter : public vtkGenericDataSetToPolyDataFilter
 {
@@ -134,17 +136,20 @@ public:
 protected:
   vtkGenericCutter(vtkImplicitFunction *cf=NULL);
   ~vtkGenericCutter();
-
-  void Execute();
-
+  
   // Description:
   // Actual implementation of the cutter operation.
-  void UnstructuredGridCutter();
+  void Execute();
   
   vtkImplicitFunction *CutFunction;
   vtkPointLocator     *Locator;
   vtkContourValues    *ContourValues;
   int                 GenerateCutScalars;
+  
+  // Used internal by vtkGenericAdaptorCell::Contour()
+  vtkPointData *internalPD;
+  vtkPointData *secondaryPD;
+  vtkCellData *secondaryCD;
 
 private:
   vtkGenericCutter(const vtkGenericCutter&);  // Not implemented.
