@@ -257,11 +257,7 @@ INCLUDE (${VTK_SOURCE_DIR}/Common/LocalUserOptions.cmake OPTIONAL)
 #
 IF (VTK_WRAP_TCL)
   VTK_WRAP_TCL(vtkCommonTCL CommonTCL_SRCS ${Common_SRCS})
-  IF (APPLE)
-    ADD_LIBRARY(vtkCommonTCL SHARED ${CommonTCL_SRCS} vtkOSXCommonTclInit.c vtkTclUtil.cxx)
-  ELSE (APPLE)
-    ADD_LIBRARY(vtkCommonTCL ${CommonTCL_SRCS} vtkTclUtil.cxx)
-  ENDIF (APPLE)
+  ADD_LIBRARY(vtkCommonTCL ${CommonTCL_SRCS} vtkTclUtil.cxx)
   TARGET_LINK_LIBRARIES (vtkCommonTCL ${TCL_LIBRARY} vtkCommon)
   INSTALL_TARGETS(/lib/vtk vtkCommonTCL)
   INSTALL_FILES(/include/vtk .h
