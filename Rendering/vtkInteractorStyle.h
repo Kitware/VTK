@@ -84,15 +84,18 @@
 
 #include "vtkInteractorObserver.h"
 
-// motion flags
-#define VTKIS_START   0
-#define VTKIS_ROTATE 1
-#define VTKIS_ZOOM   2
-#define VTKIS_PAN    3
-#define VTKIS_SPIN   4
-#define VTKIS_DOLLY  5
-#define VTKIS_USCALE 6
-#define VTKIS_TIMER  7 
+// Motion flags
+
+#define VTKIS_START        0
+#define VTKIS_NONE         0
+#define VTKIS_ROTATE       1
+#define VTKIS_ZOOM         2
+#define VTKIS_PAN          3
+#define VTKIS_SPIN         4
+#define VTKIS_DOLLY        5
+#define VTKIS_USCALE       6
+#define VTKIS_TIMER        7  
+
 #define VTKIS_ANIM_OFF 0
 #define VTKIS_ANIM_ON  1
 
@@ -162,31 +165,32 @@ public:
 
   // Description:
   // Generic event bindings must be overridden in subclasses
-  virtual void OnMouseMove  (int ctrl, int shift, int X, int Y);
-  virtual void OnLeftButtonDown(int ctrl, int shift, int X, int Y);
-  virtual void OnLeftButtonUp  (int ctrl, int shift, int X, int Y);
-  virtual void OnMiddleButtonDown(int ctrl, int shift, int X, int Y);
-  virtual void OnMiddleButtonUp  (int ctrl, int shift, int X, int Y);
-  virtual void OnRightButtonDown(int ctrl, int shift, int X, int Y);
-  virtual void OnRightButtonUp  (int ctrl, int shift, int X, int Y);
+  virtual void OnMouseMove       (int ctrl, int shift, int x, int y);
+  virtual void OnLeftButtonDown  (int ctrl, int shift, int x, int y);
+  virtual void OnLeftButtonUp    (int ctrl, int shift, int x, int y);
+  virtual void OnMiddleButtonDown(int ctrl, int shift, int x, int y);
+  virtual void OnMiddleButtonUp  (int ctrl, int shift, int x, int y);
+  virtual void OnRightButtonDown (int ctrl, int shift, int x, int y);
+  virtual void OnRightButtonUp   (int ctrl, int shift, int x, int y);
 
   // Description:
   // OnChar implements keyboard functions, but subclasses can override this 
   // behavior
-  virtual void OnChar   (int ctrl, int shift, char keycode, int repeatcount);
-  virtual void OnKeyDown(int ctrl, int shift, char keycode, int repeatcount);
-  virtual void OnKeyUp  (int ctrl, int shift, char keycode, int repeatcount);
-  virtual void OnKeyPress(int ctrl, int shift, char keycode, char *keysym, 
-                          int repeatcount);
+  virtual void OnChar    (int ctrl, int shift, char keycode, int repeatcount);
+  virtual void OnKeyDown (int ctrl, int shift, char keycode, int repeatcount);
+  virtual void OnKeyUp   (int ctrl, int shift, char keycode, int repeatcount);
+
+  virtual void OnKeyPress  (int ctrl, int shift, char keycode, char *keysym, 
+                            int repeatcount);
   virtual void OnKeyRelease(int ctrl, int shift, char keycode, char *keysym,
                             int repeatcount);
 
   // Description:
   // These are more esoteric events, but are useful in some cases.
-  virtual void OnExpose(int x, int y, int width, int height);
+  virtual void OnExpose   (int x, int y, int width, int height);
   virtual void OnConfigure(int width, int height);
-  virtual void OnEnter(int ctrl, int shift, int x, int y);
-  virtual void OnLeave(int ctrl, int shift, int x, int y);
+  virtual void OnEnter    (int x, int y);
+  virtual void OnLeave    (int x, int y);
 
   // Description:
   // OnTimer calls RotateCamera, RotateActor etc which should be overridden by
@@ -208,6 +212,10 @@ public:
   void SetRightButtonReleaseMethod(void (*f)(void *), void *arg);
   void SetRightButtonReleaseMethodArgDelete(void (*f)(void *));
 
+  // Description:
+  // Some useful information for interaction
+  vtkGetMacro(State,int);
+
 protected:
   vtkInteractorStyle();
   ~vtkInteractorStyle();
@@ -221,7 +229,7 @@ protected:
   int AutoAdjustCameraClippingRange;
   void ResetCameraClippingRange();
   
-  virtual void UpdateInternalState(int ctrl, int shift, int X, int Y);
+  virtual void UpdateInternalState(int ctrl, int shift, int x, int y);
 
   // These methods for the different interactions in different modes
   // are overridden in subclasses to perform the correct motion
@@ -258,7 +266,6 @@ protected:
                             void* clientdata, void* calldata);
   
   // Keep track of current state
-  vtkLight           *CurrentLight;
 
   float Center[2];
   float DeltaAzimuth;
@@ -270,16 +277,21 @@ protected:
   int   AnimState;  
   float FocalDepth;  
 
-  // for picking and highlighting props
+  vtkLight           *CurrentLight;
+
+  // For picking and highlighting props
+
   vtkOutlineSource   *Outline;
   vtkPolyDataMapper  *OutlineMapper;
   vtkActor           *OutlineActor;
   vtkRenderer        *PickedRenderer;
   vtkProp            *CurrentProp;
-  int                PropPicked;          // boolean: prop picked?
-  float              PickColor[3];        // support 2D picking
   vtkActor2D         *PickedActor2D;
-  int                HandleObservers; // boolean: should observers be handled here
+
+  int                PropPicked;      // bool: prop picked?
+  float              PickColor[3];    // support 2D picking
+  int                HandleObservers; // bool: should observers be handled here
+  int                NoTimerInStartState; // bool: should StartState use timer
 
   unsigned long LeftButtonPressTag;
   unsigned long LeftButtonReleaseTag;
