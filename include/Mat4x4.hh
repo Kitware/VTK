@@ -26,9 +26,13 @@ class vlMatrix4x4 : public vlObject
   vlMatrix4x4 ();
   void operator= (float element);
   void operator= (vlMatrix4x4& source);
-  void Invert (vlMatrix4x4 in,vlMatrix4x4 & out);
+
   //  Calculate the inverse of in and
   //  return it in out.
+  void Invert (vlMatrix4x4 in,vlMatrix4x4 & out);
+  void Invert (void) { Invert(*this,*this);};
+
+  void VectorMultiply(float,float,float,float,float a[4]);
   void Adjoint (vlMatrix4x4 & in,vlMatrix4x4 & out);
   float Determinant (vlMatrix4x4 & in);
   char *GetClassName () {return "vlMatrix4x4";};
