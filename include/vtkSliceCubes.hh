@@ -46,7 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // output of this object is written to a marching cubes triangle file. That
 // way, output triangles do not need to be held in memory.
 // 
-// To use vtkSliceCubes you must specify an instance of vtkVolume16Reader to
+// To use vtkSliceCubes you must specify an instance of vtkVolumeReader to
 // read the data. Set this object up with the proper file prefix, image range,
 // data origin, data dimensions, header size, data mask, and swap bytes flag. 
 // The vtkSliceCubes object will then take over and read slices as necessary. 
@@ -65,7 +65,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // To read the output file use vtkMCubesReader.
 
 // .SECTION See Also
-// vtkMarchingCubes vtkContourFilter vtkMCubesReader vtkDividingCubes
+// vtkMarchingCubes vtkContourFilter vtkMCubesReader vtkDividingCubes vtkVolumeReader
 
 #ifndef __vtkSliceCubes_h
 #define __vtkSliceCubes_h
@@ -97,8 +97,8 @@ public:
 
   // Description:
   // Set/get isosurface contour value.
-  vtkSetMacro(Value,short);
-  vtkGetMacro(Value,short);
+  vtkSetMacro(Value,float);
+  vtkGetMacro(Value,float);
 
   // Description:
   // Specify file name of marching cubes limits file. The limits file
@@ -111,7 +111,7 @@ protected:
 
   vtkVolumeReader *Reader;
   char *Filename;  
-  short Value;
+  float Value;
   char *LimitsFilename;
 };
 
