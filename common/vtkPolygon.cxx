@@ -1175,7 +1175,7 @@ int vtkPolygon::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
 
   success = this->EarCutTriangulation();
 
-  if ( !success ) // Use slower but always successful technique.
+  if ( !success ) // Indicate possible failure
     {
     vtkErrorMacro(<<"Possible triangulation failure");
     }
