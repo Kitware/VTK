@@ -138,6 +138,7 @@ protected:
   // Internal function to read in a single integer.
   // Returns zero if there was an error.
   int ReadInt(int *result);
+  int ReadPartId(int *result);
 
   // Description:
   // Internal function to read in an integer array.
