@@ -192,7 +192,15 @@ void vtkDataObject::UpdateInformation()
     {
     this->Source->UpdateInformation();
     }
-
+  // if we don't have a source, then let's make our whole
+  // extent equal to our extent. This way if someone created
+  // a vtkStructuredPoints (for example), we will have a
+  // valid whole extent.
+  else
+    {
+    memcpy( this->WholeExtent, this->Extent, 6*sizeof(int) );
+    }
+  
   // Now we should know what our whole extent is. If our update extent
   // was not set yet, (or has been set to something invalid - with no 
   // data in it ) then set it to the whole extent.
