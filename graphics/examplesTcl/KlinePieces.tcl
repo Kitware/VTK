@@ -2,11 +2,81 @@ catch {load vtktcl}
 if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
 if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
 
-set NUMBER_OF_PIECES 4
+# Source the interactor that we will use for the TkRenderWidget
+source $VTK_TCL/../graphics/examplesTcl/TkInteractor.tcl
 
-# include get the vtk interactor ui
+# user interface command widget
 source $VTK_TCL/vtkInt.tcl
-source $VTK_TCL/colors.tcl
+
+vtkOutputWindow w
+w PromptUserOn
+
+
+# ------------------- Create the UI ---------------------
+
+# UI Variables
+set NUMBER_OF_PIECES 4
+set NUMBER_OF_SUBDIVISIONS 4
+set GHOST_FLAG 0
+
+
+
+# prevent the tk window from showing up then start the event loop
+wm withdraw .
+
+# Create the toplevel window
+toplevel .top
+wm title .top {Unstructured/Polydata Piece/GhostCell Demostration}
+
+# Create some frames
+frame .top.f1 
+frame .top.f2
+pack .top.f1 .top.f2 -side top -expand 1 -fill both
+
+vtkRenderWindow renWin
+vtkTkRenderWidget .top.f1.rw -width 400 -height 400 -rw renWin
+BindTkRenderWidget .top.f1.rw
+pack .top.f1.rw -expand 1 -fill both
+
+# create a rendering window and renderer
+vtkRenderer ren1
+    renWin AddRenderer ren1
+
+scale .top.f2.s1 -label " Number Of Pieces: " -orient horizontal \
+	-length 200 -from 1 -to 32 -variable NUMBER_OF_PIECES 
+scale .top.f2.s2 -label " Number Of Subdivision: " -orient horizontal \
+	-length 200 -from 0 -to 5 -variable NUMBER_OF_SUBDIVISIONS 
+
+checkbutton .top.f2.check -text "GhostCellsActive" \
+	-command "ToggleGhostCells" -variable GHOST_FLAG
+
+pack .top.f2.s1 .top.f2.s2 .top.f2.check -side top -expand 1 -fill both
+
+button .top.f2.b1 -text "Quit" -command {vtkCommand DeleteAllObjects; exit}
+pack .top.f2.b1  -expand 1 -fill x
+
+bind .top.f2.s1 <ButtonRelease> { 
+   streamer SetNumberOfStreamDivisions $NUMBER_OF_PIECES
+   mapper1 SetScalarRange 0 $NUMBER_OF_PIECES
+   #mapper1 SetNumberOfPieces $NUMBER_OF_PIECES
+   renWin Render
+}
+
+bind .top.f2.s2 <ButtonRelease> { 
+   subdivide SetNumberOfSubdivisions $NUMBER_OF_SUBDIVISIONS
+   renWin Render
+}
+
+proc ToggleGhostCells {} {
+	global GHOST_FLAG
+	piece SetCreateGhostCells $GHOST_FLAG
+	renWin Render
+}
+
+
+#--------------------------------
+
+
 
 vtkPoints points
 points InsertNextPoint 0 -16 0 
@@ -308,40 +378,31 @@ vtkPolyData model
 
 
 vtkExtractPolyDataPiece piece
-    piece SetInput model
-    piece CreateGhostCellsOff
-vtkAppendPolyData append1
-    # append will ask for different pieces form each of its inputs.
-    append1 ParallelStreamingOn
-    for {set i 0} {$i < $NUMBER_OF_PIECES} {incr i} {
-      # If we did not duplicate subdivision filter, all inputs to append would be the same.
-      # Because the pipline does not buffer inputs, the single input cannot have
-      # different pieces ...  I am not willing at this point to buffer inputs.
-      # We may consider doing it the future (filter loop with input = output).
+  piece SetInput model
+  piece SetCreateGhostCells $GHOST_FLAG
 
-      vtkLoopSubdivisionFilter subdivide$i
-        subdivide$i SetInput [piece GetOutput]
-        subdivide$i SetNumberOfSubdivisions 4
+vtkLoopSubdivisionFilter subdivide
+  subdivide SetInput [piece GetOutput]
+  subdivide SetNumberOfSubdivisions $NUMBER_OF_SUBDIVISIONS
 
-      append1 AddInput [subdivide$i GetOutput]
-    }
+vtkPolyDataStreamer streamer
+  streamer SetNumberOfStreamDivisions $NUMBER_OF_PIECES
+  streamer SetInput [subdivide GetOutput]
+  streamer ColorByPieceOn
+
 vtkPolyDataMapper mapper1
-    mapper1 SetInput [append1 GetOutput]
-    mapper1 ScalarVisibilityOff
+    mapper1 SetInput [streamer GetOutput]
+    #mapper1 SetInput [subdivide GetOutput]
+	mapper1 SetScalarRange 0 $NUMBER_OF_PIECES
+
 vtkActor actor1
     actor1 SetMapper mapper1
-    eval [actor1 GetProperty] SetColor $english_red
 
 
 
 
 # Create the RenderWindow, Renderer and both Actors
 #
-vtkRenderer ren1
-vtkRenderWindow renWin
-    renWin AddRenderer ren1
-vtkRenderWindowInteractor iren
-    iren SetRenderWindow renWin
 
 
 # Add the actors to the renderer, set the background and size
@@ -359,17 +420,11 @@ actor1 SetBackfaceProperty backP
 ren1 SetBackground 0.1 0.2 0.4
 renWin SetSize 300 300
 
-# render the image
-#
-iren SetUserMethod {wm deiconify .vtkInteract}
 
 set cam1 [ren1 GetActiveCamera]
 $cam1 Zoom 1.4
-iren Initialize
 renWin SetFileName "goblet.tcl.ppm"
 #renWin SaveImageAsPPM
 
-# prevent the tk window from showing up then start the event loop
-wm withdraw .
 
 
