@@ -58,11 +58,6 @@ public:
   void SetFieldDataName(char *fieldname) {this->Writer->SetFieldDataName(fieldname);};
   char *GetFieldDataName() {return this->Writer->GetFieldDataName();};
 
-  // Description:
-  // For legacy compatibility. Do not use.
-  void SetInput(vtkDataObject &input) 
-    {this->SetInput(&input);}
-
 protected:
   vtkDataObjectWriter();
   ~vtkDataObjectWriter();
