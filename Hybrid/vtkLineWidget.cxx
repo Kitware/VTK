@@ -33,7 +33,7 @@
 #include "vtkSphereSource.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkLineWidget, "1.21");
+vtkCxxRevisionMacro(vtkLineWidget, "1.22");
 vtkStandardNewMacro(vtkLineWidget);
 
 vtkLineWidget::vtkLineWidget()
@@ -172,20 +172,20 @@ void vtkLineWidget::SetEnabled(int enabling)
 
     // listen for the following events
     vtkRenderWindowInteractor *i = this->Interactor;
-    i->AddObserver(vtkCommand::MouseMoveEvent, this->EventCallbackCommand, 
-                   this->Priority);
-    i->AddObserver(vtkCommand::LeftButtonPressEvent, this->EventCallbackCommand,
-                   this->Priority);
-    i->AddObserver(vtkCommand::LeftButtonReleaseEvent, this->EventCallbackCommand,
-                   this->Priority);
-    i->AddObserver(vtkCommand::MiddleButtonPressEvent, this->EventCallbackCommand,
-                   this->Priority);
-    i->AddObserver(vtkCommand::MiddleButtonReleaseEvent, this->EventCallbackCommand,
-                   this->Priority);
-    i->AddObserver(vtkCommand::RightButtonPressEvent, this->EventCallbackCommand,
-                   this->Priority);
-    i->AddObserver(vtkCommand::RightButtonReleaseEvent, this->EventCallbackCommand,
-                   this->Priority);
+    i->AddObserver(vtkCommand::MouseMoveEvent, 
+                   this->EventCallbackCommand, this->Priority);
+    i->AddObserver(vtkCommand::LeftButtonPressEvent, 
+                   this->EventCallbackCommand, this->Priority);
+    i->AddObserver(vtkCommand::LeftButtonReleaseEvent, 
+                   this->EventCallbackCommand, this->Priority);
+    i->AddObserver(vtkCommand::MiddleButtonPressEvent, 
+                   this->EventCallbackCommand, this->Priority);
+    i->AddObserver(vtkCommand::MiddleButtonReleaseEvent, 
+                   this->EventCallbackCommand, this->Priority);
+    i->AddObserver(vtkCommand::RightButtonPressEvent, 
+                   this->EventCallbackCommand, this->Priority);
+    i->AddObserver(vtkCommand::RightButtonReleaseEvent, 
+                   this->EventCallbackCommand, this->Priority);
 
     // Add the line
     this->CurrentRenderer->AddActor(this->LineActor);
@@ -284,7 +284,7 @@ void vtkLineWidget::PrintSelf(ostream& os, vtkIndent indent)
     }
   else
     {
-    os << indent << "SelectedHandle Property: (none)\n";
+    os << indent << "Selected Handle Property: (none)\n";
     }
 
   if ( this->LineProperty )
@@ -305,7 +305,6 @@ void vtkLineWidget::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Selected Line Property: (none)\n";
     }
 
-  
   os << indent << "Align with: ";
   switch ( this->Align ) 
     {
