@@ -89,7 +89,7 @@ vtkActor::~vtkActor()
 // assigned yet then the actor will create one by itself.
 void vtkActor::Render(vtkRenderer *ren)
 {
-  /* render the property */
+  // render the property
   if (!this->Property)
     {
     // force creation of a property
@@ -97,12 +97,14 @@ void vtkActor::Render(vtkRenderer *ren)
     }
   this->Property->Render(ren);
 
-  /* render the texture */
+  // render the texture */
   if (this->Texture) this->Texture->Render(ren);
 
-  /* send a render to the modeller */
-  this->Mapper->Render(ren);
-
+  // send a render to the mapper
+  if ( ! this->Mapper )
+    vtkWarningMacro(<<"No mapper defined for actor...can't render");
+  else
+    this->Mapper->Render(ren);
 }
 
 void vtkActor::SetProperty(vtkProperty *lut)
