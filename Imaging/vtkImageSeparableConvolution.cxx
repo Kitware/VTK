@@ -160,7 +160,8 @@ vtkImageSeparableConvolution::vtkImageSeparableConvolution()
 
 //----------------------------------------------------------------------------
 // This extent of the components changes to real and imaginary values.
-void vtkImageSeparableConvolution::ExecuteInformation(vtkImageData *input, vtkImageData *output)
+void vtkImageSeparableConvolution::ExecuteInformation(vtkImageData *, 
+                                                      vtkImageData *output)
 {
   output->SetNumberOfScalarComponents(1);
   output->SetScalarType(VTK_FLOAT);
