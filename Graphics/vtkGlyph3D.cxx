@@ -26,7 +26,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkGlyph3D, "1.111");
+vtkCxxRevisionMacro(vtkGlyph3D, "1.112");
 vtkStandardNewMacro(vtkGlyph3D);
 
 // Construct object with scaling on, scaling mode is by scalar value,
@@ -204,14 +204,19 @@ void vtkGlyph3D::Execute()
   if ( this->IndexMode != VTK_INDEXING_OFF )
     {
     pd = NULL;
-    numSourcePts = numSourceCells = 0;
     haveNormals = 1;
     for (numSourcePts=numSourceCells=i=0; i < numberOfSources; i++)
       {
       if ( this->GetSource(i) != NULL )
         {
-        numSourcePts += this->GetSource(i)->GetNumberOfPoints();
-        numSourceCells += this->GetSource(i)->GetNumberOfCells();
+        if (this->GetSource(i)->GetNumberOfPoints() > numSourcePts)
+          {
+          numSourcePts = this->GetSource(i)->GetNumberOfPoints();
+          }
+        if (this->GetSource(i)->GetNumberOfCells() > numSourceCells)
+          {
+          numSourceCells = this->GetSource(i)->GetNumberOfCells();
+          }
         if ( !(sourceNormals = this->GetSource(i)->GetPointData()->GetNormals()) )
           {
           haveNormals = 0;
