@@ -16,15 +16,17 @@
 
 =========================================================================*/
 #include "vtkInteractorStyle.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkOutlineSource.h"
-#include "vtkMath.h" 
-#include "vtkCellPicker.h"
-#include "vtkAssemblyNode.h"
-#include "vtkOldStyleCallbackCommand.h"
-#include "vtkCallbackCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyle, "1.74");
+#include "vtkAssemblyNode.h"
+#include "vtkCallbackCommand.h"
+#include "vtkCellPicker.h"
+#include "vtkMath.h" 
+#include "vtkOldStyleCallbackCommand.h"
+#include "vtkOutlineSource.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
+
+vtkCxxRevisionMacro(vtkInteractorStyle, "1.75");
 
 //----------------------------------------------------------------------------
 vtkInteractorStyle *vtkInteractorStyle::New() 

@@ -33,13 +33,13 @@
 #define __vtkActor_h
 
 #include "vtkProp3D.h"
-#include "vtkProperty.h"
-#include "vtkTexture.h"
-#include "vtkMapper.h"
 
 class vtkRenderer;
 class vtkPropCollection;
 class vtkActorCollection;
+class vtkTexture;
+class vtkMapper;
+class vtkProperty;
 
 class VTK_RENDERING_EXPORT vtkActor : public vtkProp3D
 {
@@ -108,7 +108,7 @@ public:
   // Set/Get the texture object to control rendering texture maps.  This will
   // be a vtkTexture object. An actor does not need to have an associated
   // texture map and multiple actors can share one texture.
-  vtkSetObjectMacro(Texture,vtkTexture);
+  virtual void SetTexture(vtkTexture*);
   vtkGetObjectMacro(Texture,vtkTexture);
 
   // Description:

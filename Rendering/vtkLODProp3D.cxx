@@ -16,15 +16,17 @@
 
 =========================================================================*/
 #include "vtkLODProp3D.h"
+
 #include "vtkActor.h"
-#include "vtkVolume.h"
+#include "vtkMapper.h"
 #include "vtkObjectFactory.h"
 #include "vtkPropCollection.h"
+#include "vtkVolume.h"
 
 #include <stdlib.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkLODProp3D, "1.32");
+vtkCxxRevisionMacro(vtkLODProp3D, "1.33");
 vtkStandardNewMacro(vtkLODProp3D);
 
 #define VTK_INDEX_NOT_IN_USE    -1

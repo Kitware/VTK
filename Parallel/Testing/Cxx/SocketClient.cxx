@@ -15,20 +15,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkSocketController.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkRectilinearGrid.h"
-#include "vtkStructuredGrid.h"
-#include "vtkDataSetMapper.h"
 #include "vtkActor.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
+#include "vtkContourFilter.h"
+#include "vtkDataSetMapper.h"
+#include "vtkDebugLeaks.h"
 #include "vtkDoubleArray.h"
-#include "vtkRegressionTestImage.h"
 #include "vtkInputPort.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkContourFilter.h"
-#include "vtkDebugLeaks.h"
+#include "vtkRectilinearGrid.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
+#include "vtkSocketController.h"
+#include "vtkStructuredGrid.h"
+#include "vtkStructuredPoints.h"
+#include "vtkUnstructuredGrid.h"
 
 static const int scMsgLength = 10;
 

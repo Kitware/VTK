@@ -16,14 +16,17 @@
 
 =========================================================================*/
 #include "vtkIVExporter.h"
-#include "vtkGeometryFilter.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkMath.h"
+
 #include "vtkAssemblyNode.h"
+#include "vtkGeometryFilter.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
+#include "vtkTexture.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkIVExporter, "1.42");
+vtkCxxRevisionMacro(vtkIVExporter, "1.43");
 vtkStandardNewMacro(vtkIVExporter);
 
 vtkIVExporter::vtkIVExporter()

@@ -23,6 +23,7 @@
 #include "vtkActor.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkFloatArray.h"
+#include "vtkProperty.h"
 
 #include "vtkRegressionTestImage.h"
 

@@ -16,19 +16,21 @@
 
 =========================================================================*/
 #include "vtkBoxWidget.h"
+
+#include "vtkAssemblyNode.h"
+#include "vtkCallbackCommand.h"
+#include "vtkCellPicker.h"
+#include "vtkDoubleArray.h"
+#include "vtkFloatArray.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPlanes.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
 #include "vtkSphereSource.h"
-#include "vtkFloatArray.h"
-#include "vtkCellPicker.h"
-#include "vtkAssemblyNode.h"
-#include "vtkDoubleArray.h"
-#include "vtkPlanes.h"
-#include "vtkCallbackCommand.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkBoxWidget, "1.11");
+vtkCxxRevisionMacro(vtkBoxWidget, "1.12");
 vtkStandardNewMacro(vtkBoxWidget);
 
 vtkBoxWidget::vtkBoxWidget()

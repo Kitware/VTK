@@ -36,21 +36,24 @@
 #pragma warning( disable : 4005 )
 #endif
 
-#include "vtkVRML.h"
 #include "vtkVRMLImporter.h"
+
+#include "vtkActor.h"
 #include "vtkByteSwap.h"
+#include "vtkConeSource.h"
+#include "vtkCubeSource.h"
+#include "vtkCylinderSource.h"
+#include "vtkFloatArray.h"
+#include "vtkLookupTable.h"
+#include "vtkObjectFactory.h"
+#include "vtkPoints.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyDataNormals.h"
-#include "vtkStripper.h"
-#include "vtkActor.h"
+#include "vtkProperty.h"
 #include "vtkSphereSource.h"
-#include "vtkCubeSource.h"
-#include "vtkConeSource.h"
-#include "vtkCylinderSource.h"
-#include "vtkPoints.h"
+#include "vtkStripper.h"
 #include "vtkSystemIncludes.h"
-#include "vtkObjectFactory.h"
-#include "vtkFloatArray.h"
+#include "vtkVRML.h"
 
 // Heap to manage memory leaks
 vtkHeap *vtkVRMLAllocator::Heap=NULL;
@@ -4228,7 +4231,7 @@ YY_MALLOC_DECL
 #define YY_BREAK break;
 #endif
 
-vtkCxxRevisionMacro(vtkVRMLImporter, "1.50");
+vtkCxxRevisionMacro(vtkVRMLImporter, "1.51");
 vtkStandardNewMacro(vtkVRMLImporter);
 
 vtkPoints* vtkVRMLImporter::PointsNew()

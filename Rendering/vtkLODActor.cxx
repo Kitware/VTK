@@ -16,14 +16,17 @@
 
 =========================================================================*/
 #include "vtkLODActor.h"
-#include "vtkRenderWindow.h"
-#include "vtkTimerLog.h"
+
 #include "vtkObjectFactory.h"
+#include "vtkProperty.h"
+#include "vtkRenderWindow.h"
+#include "vtkTexture.h"
+#include "vtkTimerLog.h"
 
 #include <stdlib.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkLODActor, "1.59");
+vtkCxxRevisionMacro(vtkLODActor, "1.60");
 vtkStandardNewMacro(vtkLODActor);
 
 //----------------------------------------------------------------------------

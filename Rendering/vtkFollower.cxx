@@ -15,16 +15,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkMath.h"
+
 #include "vtkFollower.h"
+
 #include "vtkCamera.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkProperty.h"
 #include "vtkRenderer.h"
+#include "vtkTexture.h"
 
 #include <stdlib.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFollower, "1.39");
+vtkCxxRevisionMacro(vtkFollower, "1.40");
 vtkStandardNewMacro(vtkFollower);
 
 // Creates a follower with no camera set

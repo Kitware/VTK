@@ -28,6 +28,7 @@
 #include "vtkTriangleFilter.h"
 #include "vtkStripper.h"
 #include "vtkTimerLog.h"
+#include "vtkProperty.h"
 
 int main( int argc, char *argv[] )
 {

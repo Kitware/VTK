@@ -15,20 +15,22 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include <math.h>
-
-
-#include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLActor.h"
+
+#include "vtkMapper.h"
+#include "vtkObjectFactory.h"
+#include "vtkOpenGLRenderer.h"
+#include "vtkProperty.h"
+
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
 #else
 #include <GL/gl.h>
 #endif
-#include "vtkObjectFactory.h"
+#include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLActor, "1.23");
+vtkCxxRevisionMacro(vtkOpenGLActor, "1.24");
 vtkStandardNewMacro(vtkOpenGLActor);
 #endif
 

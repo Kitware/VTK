@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkActorCollection.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkActorCollection, "1.8");
+#include "vtkObjectFactory.h"
+#include "vtkProperty.h"
+
+vtkCxxRevisionMacro(vtkActorCollection, "1.9");
 vtkStandardNewMacro(vtkActorCollection);
 
 void vtkActorCollection::ApplyProperties(vtkProperty *p)

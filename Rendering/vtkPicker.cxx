@@ -16,17 +16,19 @@
 
 =========================================================================*/
 #include "vtkPicker.h"
-#include "vtkCamera.h"
-#include "vtkMath.h"
-#include "vtkVertex.h"
-#include "vtkRenderWindow.h"
-#include "vtkAssemblyNode.h"
-#include "vtkVolume.h"
-#include "vtkObjectFactory.h"
-#include "vtkLODProp3D.h"
-#include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkPicker, "1.72");
+#include "vtkAssemblyNode.h"
+#include "vtkCamera.h"
+#include "vtkCommand.h"
+#include "vtkLODProp3D.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkProperty.h"
+#include "vtkRenderWindow.h"
+#include "vtkVertex.h"
+#include "vtkVolume.h"
+
+vtkCxxRevisionMacro(vtkPicker, "1.73");
 vtkStandardNewMacro(vtkPicker);
 
 // Construct object with initial tolerance of 1/40th of window. There are no

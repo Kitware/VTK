@@ -15,11 +15,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-
 #include "vtkOpenGLPolyDataMapper.h"
+
+#include "vtkCommand.h"
+#include "vtkDataArray.h"
+#include "vtkObjectFactory.h"
+#include "vtkOpenGLRenderer.h"
+#include "vtkPlane.h"
+#include "vtkPolyData.h"
+#include "vtkPolygon.h"
+#include "vtkProperty.h"
+#include "vtkTriangle.h"
 
 #ifdef VTK_USE_CARBON
  #include "vtkCarbonRenderWindow.h"
@@ -34,18 +40,14 @@
   #endif
  #endif
 #endif
-#include "vtkOpenGLRenderer.h"
-#include "vtkPolyData.h"
-#include "vtkPolygon.h"
-#include "vtkTriangle.h"
-#include "vtkPlane.h"
-#include "vtkDataArray.h"
 
-#include "vtkObjectFactory.h"
-#include "vtkCommand.h"
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.70");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.71");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper);
 #endif
 

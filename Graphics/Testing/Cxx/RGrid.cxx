@@ -23,6 +23,7 @@
 #include "vtkRectilinearGridGeometryFilter.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
+#include "vtkProperty.h"
 
 #include "vtkRegressionTestImage.h"
 #include "vtkDebugLeaks.h"

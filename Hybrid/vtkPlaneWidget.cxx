@@ -30,9 +30,10 @@
 #include "vtkPlanes.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
 #include "vtkSphereSource.h"
 
-vtkCxxRevisionMacro(vtkPlaneWidget, "1.12");
+vtkCxxRevisionMacro(vtkPlaneWidget, "1.13");
 vtkStandardNewMacro(vtkPlaneWidget);
 
 vtkCxxSetObjectMacro(vtkPlaneWidget,PlaneProperty,vtkProperty);

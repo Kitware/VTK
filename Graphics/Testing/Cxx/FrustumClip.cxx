@@ -23,6 +23,7 @@
 #include "vtkActor.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkClipPolyData.h"
+#include "vtkProperty.h"
 
 #include "vtkRegressionTestImage.h"
 #include "vtkDebugLeaks.h"

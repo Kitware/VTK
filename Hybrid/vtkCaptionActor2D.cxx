@@ -16,19 +16,21 @@
 
 =========================================================================*/
 #include "vtkCaptionActor2D.h"
-#include "vtkScaledTextActor.h"
+
+#include "vtkActor.h"
+#include "vtkAppendPolyData.h"
+#include "vtkFloatArray.h"
+#include "vtkGlyph2D.h"
+#include "vtkGlyph3D.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyDataMapper2D.h"
-#include "vtkMath.h"
-#include "vtkGlyph2D.h"
-#include "vtkGlyph3D.h"
-#include "vtkAppendPolyData.h"
-#include "vtkActor.h"
-#include "vtkFloatArray.h"
-#include "vtkObjectFactory.h"
+#include "vtkProperty.h"
+#include "vtkScaledTextActor.h"
 
-vtkCxxRevisionMacro(vtkCaptionActor2D, "1.15");
+vtkCxxRevisionMacro(vtkCaptionActor2D, "1.16");
 vtkStandardNewMacro(vtkCaptionActor2D);
 
 vtkCxxSetObjectMacro(vtkCaptionActor2D,LeaderGlyph,vtkPolyData);

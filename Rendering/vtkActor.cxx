@@ -16,14 +16,21 @@
 
 =========================================================================*/
 #include "vtkActor.h"
-#include "vtkRenderWindow.h"
-#include "vtkGraphicsFactory.h"
+
 #include "vtkAssemblyPaths.h"
+#include "vtkGraphicsFactory.h"
+#include "vtkMapper.h"
+#include "vtkProperty.h"
+#include "vtkRenderWindow.h"
+#include "vtkTexture.h"
 
 #include <stdlib.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkActor, "1.114");
+vtkCxxRevisionMacro(vtkActor, "1.115");
+
+vtkCxxSetObjectMacro(vtkActor,Texture,vtkTexture);
+
 
 // Creates an actor with the following defaults: origin(0,0,0) 
 // position=(0,0,0) scale=(1,1,1) visibility=1 pickable=1 dragable=1

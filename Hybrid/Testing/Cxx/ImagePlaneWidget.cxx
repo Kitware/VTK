@@ -29,6 +29,8 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkTextMapper.h"
 #include "vtkVolume16Reader.h"
+#include "vtkProperty.h"
+#include "vtkLookupTable.h"
 
 #include "vtkRegressionTestImage.h"
 #include "vtkDebugLeaks.h"
