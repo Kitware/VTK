@@ -47,19 +47,27 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // has been subdivided into a regular array of smaller cubes. Each point/cell
 // can be addressed with i-j-k indices. Examples include finite difference 
 // grids.
+//
+// A unusual feature of vtkStructuredGrid is the ability to blank, 
+// or "turn-off" points and cells in the dataset. This is controlled by 
+// defining a "blanking array" whose values (0,1) specify whether
+// a point should be blanked or not.
 
 #ifndef __vtkStructuredGrid_h
 #define __vtkStructuredGrid_h
 
 #include "vtkPointSet.h"
 #include "vtkStructuredData.h"
+#include "vtkUnsignedCharArray.h"
+
 class vtkVertex;
 class vtkLine;
 class vtkQuad;
 class vtkHexahedron;
+class vtkEmptyCell;
 
-
-class VTK_EXPORT vtkStructuredGrid : public vtkPointSet {
+class VTK_EXPORT vtkStructuredGrid : public vtkPointSet 
+{
 public:
   static vtkStructuredGrid *New();
 
@@ -68,11 +76,11 @@ public:
  
   // Description:
   // Return what type of dataset this is.
-  int GetDataObjectType() {return VTK_STRUCTURED_GRID;};
+  int GetDataObjectType() {return VTK_STRUCTURED_GRID;}
 
   // Description:
   // Create a similar type object
-  vtkDataObject *MakeObject() {return vtkStructuredGrid::New();};
+  vtkDataObject *MakeObject() {return vtkStructuredGrid::New();}
 
   // Description:
   // Copy the geometric and topological structure of an input poly data object.
@@ -80,9 +88,9 @@ public:
 
   // Description:
   // Standard vtkDataSet API methods. See vtkDataSet for more information.
-  int GetNumberOfPoints() {return vtkPointSet::GetNumberOfPoints();};
-  float *GetPoint(int ptId) {return this->vtkPointSet::GetPoint(ptId);};
-  void GetPoint(int ptId, float p[3]) {this->vtkPointSet::GetPoint(ptId,p);};
+  int GetNumberOfPoints() {return vtkPointSet::GetNumberOfPoints();}
+  float *GetPoint(int ptId) {return this->vtkPointSet::GetPoint(ptId);}
+  void GetPoint(int ptId, float p[3]) {this->vtkPointSet::GetPoint(ptId,p);}
   vtkCell *GetCell(int cellId);
   void GetCell(int cellId, vtkGenericCell *cell);
   void GetCellBounds(int cellId, float bounds[6]);
@@ -109,17 +117,37 @@ public:
   int GetDataDimension();
 
   // Description:
-  // Methods for supporting blanking of cells.
+  // Methods for supporting blanking of cells. Blanking turns on or off
+  // points in the structured grid, and hence the cells connected to them.
+  void SetBlanking(int blanking);
+  int GetBlanking() {return this->Blanking;}
   void BlankingOn();
   void BlankingOff();
-  int GetBlanking() {return this->Blanking;};
   void BlankPoint(int ptId);
   void UnBlankPoint(int ptId);
   
   // Description:
-  // Return non-zero value if specified point is visible.
-  int IsPointVisible(int ptId);
+  // Get the array that defines the blanking (visibility) of each point
+  vtkUnsignedCharArray *GetPointVisibility() 
+    {return this->PointVisibility;}
 
+  // Description:
+  // Set an array that defines the visibility of the points in the mesh.
+  // Make sure that length of the visibility array matches the number of
+  // points in the grid.
+  void SetPointVisibility(vtkUnsignedCharArray *pointVisibility);
+
+  // Description:
+  // Return non-zero value if specified point is visible. Use this method 
+  // only if blanking has been enabled (with BlankingOn()).
+  unsigned char IsPointVisible(int ptId)
+    {return (this->Blanking ? this->PointVisibility->GetValue(ptId) : 1);}
+  
+  // Description:
+  // Return non-zero value if specified point is visible. Use this method 
+  // only if blanking has been enabled (with BlankingOn()).
+  unsigned char IsCellVisible(int cellId);
+  
   // Description:
   // Required for the lowest common denominator for setting the UpdateExtent
   // (i.e. vtkDataSetToStructuredPointsFilter).  This assumes that WholeExtent
@@ -169,24 +197,24 @@ public:
 protected:
   vtkStructuredGrid();
   ~vtkStructuredGrid();
-  vtkStructuredGrid(const vtkStructuredGrid&) {};
-  void operator=(const vtkStructuredGrid&) {};
+  vtkStructuredGrid(const vtkStructuredGrid&) {}
+  void operator=(const vtkStructuredGrid&) {}
 
   // for the GetCell method
   vtkVertex *Vertex;
   vtkLine *Line;
   vtkQuad *Quad;  
   vtkHexahedron *Hexahedron;
+  vtkEmptyCell *EmptyCell;
 
   // The extent type is a 3D extent
-  int GetExtentType() { return VTK_3D_EXTENT; };
+  int GetExtentType() { return VTK_3D_EXTENT; }
   
   int Dimensions[3];
   int DataDescription;
   int Blanking;
-  vtkScalars *PointVisibility;
+  vtkUnsignedCharArray *PointVisibility;
   void AllocatePointVisibility();
-
 
 private:
   // Description:
@@ -219,19 +247,6 @@ inline int vtkStructuredGrid::GetNumberOfCells()
 inline int vtkStructuredGrid::GetDataDimension()
 {
   return vtkStructuredData::GetDataDimension(this->DataDescription);
-}
-
-
-inline int vtkStructuredGrid::IsPointVisible(int ptId) 
-{
-  if (!this->Blanking)
-    {
-    return 1;
-    }
-  else
-    {
-    return (int) this->PointVisibility->GetScalar(ptId);
-    }
 }
 
 #endif
