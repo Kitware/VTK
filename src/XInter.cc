@@ -283,7 +283,17 @@ void vlXRenderWindowInteractorCallback(Widget w,XtPointer client_data,
       switch (ks)
 	{
 	case XK_e : exit(1); break;
-	case XK_w :
+
+	case XK_r : //reset
+	  {
+          me->FindPokedRenderer(((XKeyEvent*)event)->x,
+			       ((XKeyEvent*)event)->y);
+	  me->CurrentRenderer->ResetCamera();
+	  me->RenderWindow->Render();
+          }
+	  break;
+
+	case XK_w : //actors wireframe
 	  {
 	  vlActorCollection *ac;
 	  vlActor *anActor;
@@ -300,7 +310,7 @@ void vlXRenderWindowInteractorCallback(Widget w,XtPointer client_data,
 	  }
 	  break;
 
-	case XK_s :
+	case XK_s : //actors "surface" or solid
 	  {
 	  vlActorCollection *ac;
 	  vlActor *anActor;
@@ -314,7 +324,7 @@ void vlXRenderWindowInteractorCallback(Widget w,XtPointer client_data,
 	    }
 	  
 	  me->RenderWindow->Render();
-	  }
+          }
 	  break;
         }
       }

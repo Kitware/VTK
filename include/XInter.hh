@@ -27,6 +27,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // (Distance from center of renderer viewport controls amount of 
 // rotate, pan, zoom).
 // Keystrokes:
+//    r - reset camera view
 //    w - turn all actors wireframe
 //    s - turn all actors surface
 
