@@ -4,6 +4,16 @@ See http://www.trolltech.com for qt documentation, and
 http://www.river-bank.demon.co.uk or http://www.thekompany.com
 for the qt python bindings.
 
+*******************************************************
+
+   NOTE: The widget provided by this module is not free of bugs and it
+   is recommended that you consider using the
+   QVTKRenderWindowInteractor widget that is also in this directory
+   instead of this one.
+
+*******************************************************
+
+
 Created by David Gobbi, December 2001
 Based on vtkTkRenderWindget.py
 
