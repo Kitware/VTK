@@ -18,7 +18,7 @@
 #include "vtkTableExtentTranslator.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTableExtentTranslator, "1.1");
+vtkCxxRevisionMacro(vtkTableExtentTranslator, "1.2");
 vtkStandardNewMacro(vtkTableExtentTranslator);
 
 //----------------------------------------------------------------------------
@@ -157,80 +157,89 @@ int vtkTableExtentTranslator::PieceToExtentByPoints()
 
 //----------------------------------------------------------------------------
 int
-vtkTableExtentTranslator
-::PieceToExtentThreadSafe(int vtkNotUsed(piece),
-                          int vtkNotUsed(numPieces),
-                          int vtkNotUsed(ghostLevel),
-                          int* vtkNotUsed(wholeExtent),
-                          int* vtkNotUsed(resultExtent),
-                          int vtkNotUsed(splitMode),
-                          int vtkNotUsed(byPoints))
+vtkTableExtentTranslator::PieceToExtentThreadSafe(int piece, int numPieces, 
+                                                  int ghostLevel, 
+                                                  int *wholeExtent, 
+                                                  int *resultExtent, 
+                                                  int splitMode, 
+                                                  int byPoints)
 {
-  vtkErrorMacro("PieceToExtentThreadSafe not supported.");
-  return 0;
+  if (byPoints)
+    {
+    vtkErrorMacro("PieceToExtentByPoints not supported.");
+    return 0;
+    }
+
+  if((!this->ExtentTable) || (piece < 0) ||
+     (piece >= numPieces))
+    {
+    vtkErrorMacro("Piece " << piece << " does not exist.");
+    return 0;
+    }
+  
+  if(ghostLevel > this->MaximumGhostLevel)
+    {
+    vtkWarningMacro("Ghost level " << ghostLevel
+                    << " is larger than MaximumGhostLevel "
+                    << this->MaximumGhostLevel << ".  Using the maximum.");
+    ghostLevel = this->MaximumGhostLevel;
+    }
+  
+  memcpy(resultExtent, this->ExtentTable+piece*6, sizeof(int)*6);
+  
+  if(((resultExtent[1] - resultExtent[0] + 1)*
+      (resultExtent[3] - resultExtent[2] + 1)*
+      (resultExtent[5] - resultExtent[4] + 1)) == 0)
+    {
+    return 0;
+    }
+
+  if(ghostLevel > 0)
+    {
+    resultExtent[0] -= this->GhostLevel;
+    resultExtent[1] += this->GhostLevel;
+    resultExtent[2] -= this->GhostLevel;
+    resultExtent[3] += this->GhostLevel;
+    resultExtent[4] -= this->GhostLevel;
+    resultExtent[5] += this->GhostLevel;
+    
+    if (resultExtent[0] < wholeExtent[0])
+      {
+      resultExtent[0] = wholeExtent[0];
+      }
+    if (resultExtent[1] > wholeExtent[1])
+      {
+      resultExtent[1] = wholeExtent[1];
+      }
+    if (resultExtent[2] < wholeExtent[2])
+      {
+      resultExtent[2] = wholeExtent[2];
+      }
+    if (resultExtent[3] > wholeExtent[3])
+      {
+      resultExtent[3] = wholeExtent[3];
+      }
+    if (resultExtent[4] < wholeExtent[4])
+      {
+      resultExtent[4] = wholeExtent[4];
+      }
+    if (resultExtent[5] > wholeExtent[5])
+      {
+      resultExtent[5] = wholeExtent[5];
+      }
+    }
+  
+  return 1;
+
 }
 
 //----------------------------------------------------------------------------
 int vtkTableExtentTranslator::PieceToExtent()
 {
-  if((!this->ExtentTable) || (this->Piece < 0) ||
-     (this->Piece >= this->NumberOfPieces))
-    {
-    vtkErrorMacro("Piece " << this->Piece << " does not exist.");
-    return 0;
-    }
-  
-  if(this->GhostLevel > this->MaximumGhostLevel)
-    {
-    vtkWarningMacro("Ghost level " << this->GhostLevel
-                    << " is larger than MaximumGhostLevel "
-                    << this->MaximumGhostLevel << ".  Using the maximum.");
-    this->GhostLevel = this->MaximumGhostLevel;
-    }
-  
-  memcpy(this->Extent, this->ExtentTable+this->Piece*6, sizeof(int)*6);
-  
-  if(((this->Extent[1] - this->Extent[0] + 1)*
-      (this->Extent[3] - this->Extent[2] + 1)*
-      (this->Extent[5] - this->Extent[4] + 1)) == 0)
-    {
-    return 0;
-    }
-
-  if(this->GhostLevel > 0)
-    {
-    this->Extent[0] -= this->GhostLevel;
-    this->Extent[1] += this->GhostLevel;
-    this->Extent[2] -= this->GhostLevel;
-    this->Extent[3] += this->GhostLevel;
-    this->Extent[4] -= this->GhostLevel;
-    this->Extent[5] += this->GhostLevel;
-    
-    if (this->Extent[0] < this->WholeExtent[0])
-      {
-      this->Extent[0] = this->WholeExtent[0];
-      }
-    if (this->Extent[1] > this->WholeExtent[1])
-      {
-      this->Extent[1] = this->WholeExtent[1];
-      }
-    if (this->Extent[2] < this->WholeExtent[2])
-      {
-      this->Extent[2] = this->WholeExtent[2];
-      }
-    if (this->Extent[3] > this->WholeExtent[3])
-      {
-      this->Extent[3] = this->WholeExtent[3];
-      }
-    if (this->Extent[4] < this->WholeExtent[4])
-      {
-      this->Extent[4] = this->WholeExtent[4];
-      }
-    if (this->Extent[5] > this->WholeExtent[5])
-      {
-      this->Extent[5] = this->WholeExtent[5];
-      }
-    }
-  
-  return 1;
+  return this->PieceToExtentThreadSafe(this->Piece, this->NumberOfPieces,
+                                       this->GhostLevel,
+                                       this->WholeExtent,
+                                       this->Extent,
+                                       this->SplitMode,
+                                       0);
 }
