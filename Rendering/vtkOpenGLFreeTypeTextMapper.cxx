@@ -65,7 +65,7 @@
 struct EmbeddedFontStruct
 {
   size_t length;
-  unsigned char* ptr;
+  unsigned char *ptr;
 };
 
 // Fonts, organized by [Family][Bold][Italic]
@@ -524,12 +524,11 @@ vtkFontCache::Entry* vtkFontCache::GetFont(vtkTextProperty *tprop,
     }
   else
     {
-    if (!font->Open(
-      EmbeddedFonts[tprop->GetFontFamily()][tprop->GetBold()][tprop->GetItalic()].ptr, 
-      EmbeddedFonts[tprop->GetFontFamily()][tprop->GetBold()][tprop->GetItalic()].length,
-      false))
+    size_t length = EmbeddedFonts[tprop->GetFontFamily()][tprop->GetBold()][tprop->GetItalic()].length;
+    unsigned char *ptr = EmbeddedFonts[tprop->GetFontFamily()][tprop->GetBold()][tprop->GetItalic()].ptr;
+    if (!font->Open(ptr, length, false))
       {
-      vtkErrorWithObjectMacro(tprop,<< "Unable to create font !");
+      vtkErrorWithObjectMacro(tprop,<< "Unable to create font !" << " (family: " <<  tprop->GetFontFamily() << ", bold: " << tprop->GetBold() << ", italic: " << tprop->GetItalic() << ", length: " << length << ")");
       delete font;
       return 0;
       }
@@ -613,7 +612,7 @@ vtkFontCache::Entry* vtkFontCache::GetFont(vtkTextProperty *tprop,
 }
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.19");
+vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.20");
 vtkStandardNewMacro(vtkOpenGLFreeTypeTextMapper);
 
 //----------------------------------------------------------------------------
