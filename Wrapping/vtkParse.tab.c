@@ -1958,6 +1958,23 @@ case 131:
    currentFunction->ReturnType = 309;
    currentFunction->ReturnClass = vtkstrdup(yyvsp[-3].str);
    output_function();
+
+   if ( data.IsConcrete )
+     {
+     currentFunction->Signature = (char *)malloc(2048);
+     sigAllocatedLength = 2048;
+     sprintf(currentFunction->Signature, "%s *SafeDownCast (vtkObject* o);",
+             yyvsp[-3].str);
+     sprintf(temps,"SafeDownCast"); 
+     currentFunction->Name = vtkstrdup(temps);
+     currentFunction->NumberOfArguments = 1;
+     currentFunction->ArgTypes[0] = 309;
+     currentFunction->ArgCounts[0] = 1;
+     currentFunction->ArgClasses[0] = vtkstrdup("vtkObject");
+     currentFunction->ReturnType = 309;
+     currentFunction->ReturnClass = vtkstrdup(yyvsp[-3].str);
+     output_function();
+     }
    }
 break;
 #line 1940 "vtkParse.tab.c"

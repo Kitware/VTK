@@ -854,6 +854,22 @@ macro:
    currentFunction->ReturnType = 309;
    currentFunction->ReturnClass = vtkstrdup($<str>3);
    output_function();
+
+   if ( data.IsConcrete )
+     {
+     currentFunction->Signature = (char *)malloc(2048);
+     sigAllocatedLength = 2048;
+     sprintf(currentFunction->Signature, "%s *SafeDownCast (vtkObject* o);",
+             $<str>3);
+     sprintf(temps,"SafeDownCast"); 
+     currentFunction->NumberOfArguments = 1;
+     currentFunction->ArgTypes[0] = 309;
+     currentFunction->ArgCounts[0] = 1;
+     currentFunction->ArgClasses[0] = vtkstrdup("vtkObject");
+     currentFunction->ReturnType = 309;
+     currentFunction->ReturnClass = vtkstrdup($<str>3);
+     output_function();
+     }
    }
 ;
 
