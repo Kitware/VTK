@@ -55,6 +55,14 @@ public:
   static int Compare(const char* str1, const char* str2);
 
   // Description:
+  // This method compare two strings. It is similar to strcmp,
+  // but it can handle null pointers. Also it only returns 
+  // C style true or false versus compare which returns also which 
+  // one is greater.
+  static int Equals(const char* str1, const char* str2)
+    { return vtkString::Compare(str1, str2) == 0; }
+
+  // Description:
   // Check if the first string starts with the second one.
   static int StartsWith(const char* str1, const char* str2);
 
