@@ -82,12 +82,16 @@ public:
   void *GetVoidPointer(const int id) {return (void *)this->GetPointer(id);};
   void DeepCopy(vtkDataArray& da);
 
+  void SetArray(long* array, int size, int save);
+
 private:
   long *Array;   // pointer to data
   long *Resize(const int sz);  // function to resize data
 
   int TupleSize; //used for data conversion
   float *Tuple;
+
+  int SaveUserArray;
 };
 
 // Description:
