@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageGaussianSmooth1D.h
+  Module:    vtkPolyLinesToImage.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,47 +38,69 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageGaussianSmooth1D - smooths on one axis.
+// .NAME vtkPolyLinesToImage - Convert lines in poly data to an image.
 // .SECTION Description
-// vtkImageGaussianSmooth1D implements a 1d Gaussian smoothing
-// on one axis.
+// vtkPolyLinesToImage creates an image by drawing the polylines in
+// an image.  It ignores the Z axis, and assumes the two origins
+// coincide.
 
 
-#ifndef __vtkImageGaussianSmooth1D_h
-#define __vtkImageGaussianSmooth1D_h
+#ifndef __vtkPolyLinesToImage_h
+#define __vtkPolyLinesToImage_h
 
+#include <iostream.h>
+#include <fstream.h>
+#include "vtkPolyData.h"
+#include "vtkImageSource.h"
+#include "vtkImageCanvasSource2D.h"
 
-#include "vtkImageConvolution1D.h"
-
-class VTK_EXPORT vtkImageGaussianSmooth1D : public vtkImageConvolution1D
+class vtkPolyLinesToImage : public vtkImageSource
 {
 public:
-  vtkImageGaussianSmooth1D();
-  static vtkImageGaussianSmooth1D *New(){return new vtkImageGaussianSmooth1D;};
-  const char *GetClassName() {return "vtkImageGaussianSmooth1D";};
-  void PrintSelf(ostream& os, vtkIndent indent);
-
-  // Description:
-  // Set/Get the standard deviation of the Gaussian.
-  void SetStandardDeviation(float Std);
-  vtkGetMacro(StandardDeviation,float);
-  // Description:
-  // Set/Get the radius of the kernel in units of standard deviations.
-  void SetRadiusFactor(float radius);
-  vtkGetMacro(RadiusFactor,float);
-  // Description:
-  // Get the cutoff in units of pixels.
-  vtkGetMacro(Radius,int);
-
-protected:
-  float StandardDeviation;
-  float RadiusFactor;
-  int Radius;
+  vtkPolyLinesToImage();
+  ~vtkPolyLinesToImage();
+  static vtkPolyLinesToImage *New() {return new vtkPolyLinesToImage;};
+  const char *GetClassName() {return "vtkPolyLinesToImage";};
+  void PrintSelf(ostream& os, vtkIndent indent);   
   
-  void ComputeKernel();
+  void UpdateImageInformation();
+  void Update();
+  unsigned long GetPipelineMTime();
+  
+  // Description:
+  // Set/Get the input
+  vtkSetObjectMacro(Input,vtkPolyData);
+  vtkGetObjectMacro(Input,vtkPolyData);
+
+  // Description:
+  // Sets the maximum extent that can be requested.
+  // If this is not set by the first update, it defaults to 
+  // an extent large enough to contain all the polylines
+  void SetWholeExtent(int min0, int max0, int min1, int max1);
+
+  // Description:
+  // Sets the aspect ratio (resolution) of the output.
+  vtkSetVector2Macro(Spacing, float);
+  
+  // Description:
+  // Sets the Origin of the output image.
+  vtkSetVector2Macro(Origin, float);
+  
+protected:
+  vtkPolyData *Input;
+  vtkImageCanvasSource2D *Paint;
+  
+  int WholeExtent[8];
+  float Spacing[4];
+  float Origin[4];
+  
+  void UpdateInput();
+  void ExecuteImageInformation();
+
+  void Execute(vtkImageRegion *region);
+  
 };
 
 #endif
-
 
 

@@ -17,6 +17,7 @@ vtkImageGaussianSmooth smooth
 smooth SetInput [reader GetOutput]
 smooth SetFilteredAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS
 smooth SetStandardDeviations 2 10
+smooth SetStrides 2 2
 
 vtkImageViewer viewer
 #viewer DebugOn

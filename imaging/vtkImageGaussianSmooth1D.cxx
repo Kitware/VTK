@@ -51,6 +51,14 @@ vtkImageGaussianSmooth1D::vtkImageGaussianSmooth1D()
   this->ComputeKernel();
 }
 
+//----------------------------------------------------------------------------
+void vtkImageGaussianSmooth1D::PrintSelf(ostream& os, vtkIndent indent)
+{
+  int idx;
+  
+  this->vtkImageConvolution1D::PrintSelf(os, indent);
+  os << indent << "StandardDeviation: " << this->StandardDeviation << "\n";
+}
 
 
 //----------------------------------------------------------------------------

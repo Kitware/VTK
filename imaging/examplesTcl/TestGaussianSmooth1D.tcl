@@ -23,6 +23,7 @@ smooth SetFilteredAxis $VTK_IMAGE_Y_AXIS
 smooth SetRadiusFactor 1.5
 smooth ReleaseDataFlagOff
 
+
 vtkImageViewer viewer
 #viewer DebugOn
 viewer SetInput [smooth GetOutput]

@@ -224,6 +224,7 @@ void vtkImageMarchingCubes::Execute()
       extent[5] = zMax;
       }
     // Get the chunk from the input
+    this->Input->SetUpdateExtent(extent);
     this->Input->Update();
     inRegion = this->Input->GetScalarRegion();
     inRegion->SetExtent(3, extent);

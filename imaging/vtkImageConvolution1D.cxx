@@ -72,6 +72,7 @@ void vtkImageConvolution1D::PrintSelf(ostream& os, vtkIndent indent)
   
   this->vtkImageSpatialFilter::PrintSelf(os, indent);
   os << indent << "BoundaryRescale: " << this->BoundaryRescale << "\n";
+  os << indent << "Stride: " << this->Strides[0] << "\n";
   if (this->Kernel && this->KernelSize[0] > 0)
     {
     os << indent << "Kernel: (" << this->Kernel[0];

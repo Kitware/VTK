@@ -110,6 +110,7 @@ public:
   // the source to update the values.
   void SetSpacing(float spacing[4]);
   void SetSpacing(float x, float y, float z, float t);
+  void SetSpacing(float x, float y, float z) {this->SetSpacing(x,y,z,1.0);};
   void SetAxesSpacing(int num, int *axes, float *spacing);
   vtkImageSetAxesMacro(Spacing,float);
   void GetSpacing(float spacing[4]);
@@ -119,6 +120,7 @@ public:
   vtkImageGetAxesMacro(Spacing,float);
   void SetOrigin(float origin[4]);
   void SetOrigin(float x, float y, float z, float t);
+  void SetOrigin(float x, float y, float z) {this->SetOrigin(x,y,z,0.0);};
   void SetAxesOrigin(int num, int *axes, float *origin);
   vtkImageSetAxesMacro(Origin, float);
   void GetOrigin(float origin[4]);
