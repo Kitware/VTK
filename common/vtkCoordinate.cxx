@@ -381,7 +381,9 @@ int *vtkCoordinate::GetComputedDisplayValue(vtkViewport* viewport)
   this->ComputedDisplayValue[1] = (int)VTK_RINT(val[1]);
   
   // if we have a reference coordinate and we haven't handled it yet
-  if (this->ReferenceCoordinate && this->CoordinateSystem == VTK_DISPLAY)
+  if (this->ReferenceCoordinate && 
+      (this->CoordinateSystem == VTK_DISPLAY ||
+       this->CoordinateSystem == VTK_NORMALIZED_DISPLAY))
     {
     int *RefValue;
     
