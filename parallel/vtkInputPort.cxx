@@ -81,6 +81,8 @@ vtkInputPort::vtkInputPort()
   // State variables.
   this->TransferNeeded = 0;
   this->DataTime = 0;
+
+  this->DoUpdateInformation = 1;
 }
 
 //----------------------------------------------------------------------------
@@ -300,6 +302,11 @@ void vtkInputPort::UpdateInformation()
   vtkDataObject *output;
   unsigned long pmt;
   
+  if (!this->DoUpdateInformation)
+    {
+    return;
+    }
+
   if (this->Outputs == NULL || this->Outputs[0] == NULL)
     {
     vtkErrorMacro("No output.");
