@@ -64,10 +64,7 @@ vtkOpenGLImager* vtkOpenGLImager::New()
 
 int vtkOpenGLImager::RenderOpaqueGeometry()
 {
-  int *size, lowerLeft[2];
-
-  /* get physical window dimensions */
-  size = this->VTKWindow->GetSize();
+  int lowerLeft[2];
 
   float *vport = this->GetViewport();
 
@@ -93,10 +90,7 @@ int vtkOpenGLImager::RenderOpaqueGeometry()
 
 void vtkOpenGLImager::Erase()
 {
-  int *size, lowerLeft[2];
-
-  /* get physical window dimensions */
-  size = this->VTKWindow->GetSize();
+  int lowerLeft[2];
 
   float *vport = this->GetViewport();
 

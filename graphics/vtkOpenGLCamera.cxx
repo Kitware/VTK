@@ -69,12 +69,9 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
 {
   float aspect[2];
   float *vport;
-  int  *size, lowerLeft[2];
+  int  lowerLeft[2];
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
 
-  // get the bounds of the window 
-  size = (ren->GetRenderWindow())->GetSize();
-  
   // find out if we should stereo render
   this->Stereo = (ren->GetRenderWindow())->GetStereoRender();
   vport = ren->GetViewport();
