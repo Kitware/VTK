@@ -159,10 +159,18 @@ int vtkImageActor::RenderOpaqueGeometry(vtkViewport* viewport)
   input->SetUpdateExtent(this->DisplayExtent);
   input->PropagateUpdateExtent();
   input->UpdateData();
-  
+
   // render the texture map
-  this->Load(vtkRenderer::SafeDownCast(viewport));
-  return 1;
+  if ( input->GetScalarType() == VTK_UNSIGNED_CHAR )
+    {
+    this->Load(vtkRenderer::SafeDownCast(viewport));
+    return 1;
+    }
+  else
+    {
+    vtkErrorMacro(<<"This filter requires unsigned char scalars as input");
+    return 0;
+    }
 }
 
 // Get the bounds for this Volume as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).

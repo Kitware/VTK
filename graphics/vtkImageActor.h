@@ -39,8 +39,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkImageActor - represents an image (data & properties) in a rendered scene
-//
+// .NAME vtkImageActor - draw an image (data & properties) in a rendered 3D scene
 // .SECTION Description
 // vtkImageActor is used to render an image in a 3D scene.  The image
 // is placed at the origin of the image, and its size is controlled by the
@@ -49,8 +48,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // image is defined in. vtkImageActor duplicates the functionality 
 // of combinations of other VTK classes in a convenient, single class.
 
-// .SECTION see also
-// vtkImageData vtkProp
+// .SECTION Caveats
+// vtkImageData requires the image to be of type unsigned char. Use a
+// filter like vtkImageShiftScale to convert to unsigned char (the
+// method to use is SetOutputTypeToUnsignedChar()).
+
+// .SECTION See Also
+// vtkImageData vtkProp vtkImageShiftScale
 
 #ifndef __vtkImageActor_h
 #define __vtkImageActor_h
