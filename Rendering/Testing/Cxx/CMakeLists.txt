@@ -1,7 +1,7 @@
 SET(KIT Rendering)
 CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   otherCoordinate.cxx
-  TestRenderWindow
+  TestRenderWindow.cxx
 )
 
 ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
