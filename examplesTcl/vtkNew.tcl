@@ -13,5 +13,6 @@ proc new {className} {
    }
    # make the vtk object
    $className $instanceName
-
+   
    return $instanceName
+}
