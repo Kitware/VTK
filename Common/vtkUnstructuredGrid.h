@@ -84,7 +84,7 @@ public:
   void GetPointCells(vtkIdType ptId, vtkIdList *cellIds);
 
   int GetCellType(vtkIdType cellId);
-  vtkUnsignedCharArray* GetCellTypes() { return this->Types; }
+  vtkUnsignedCharArray* GetCellTypesArray() { return this->Types; }
   void Squeeze();
   void Initialize();
   int GetMaxCellSize();
