@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkImageQuantizeRGBToIndex_h
 #define __vtkImageQuantizeRGBToIndex_h
 
-#include "vtkImageFilter.h"
+#include "vtkImageToImageFilter.h"
 #include "vtkLookupTable.h"
 
 class VTK_EXPORT vtkImageQuantizeRGBToIndex : public vtkImageToImageFilter

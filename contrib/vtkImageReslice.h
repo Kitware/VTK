@@ -52,14 +52,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // (i.e. perspective) transformations is also risky, but will
 // work under a broad set of circumstances. 
 // .SECTION see also
-// vtkImageFilter, vtkTransform
+// vtkImageToImageFilter, vtkTransform
 
 
 #ifndef __vtkImageReslice_h
 #define __vtkImageReslice_h
 
 
-#include "vtkImageFilter.h"
+#include "vtkImageToImageFilter.h"
 #include "vtkTransform.h"
 
 class vtkMatrix4x4;

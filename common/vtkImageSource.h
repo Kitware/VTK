@@ -45,7 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // to the source.
 
 // .SECTION See Also
-// vtkImageFilter
+// vtkImageToImageFilter
 
 
 #ifndef __vtkImageSource_h
