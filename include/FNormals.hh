@@ -41,8 +41,8 @@ public:
   }
   int insertNextNormal(float *x) {
     int id = n.insertNextValue(x[0]);
-    n[id+1] = x[1]; // can do this because allocation occurs in blocks of 3
-    n[id+2] = x[2];
+    n.insertNextValue(x[1]);
+    n.insertNextValue(x[2]);
     return id/3;
   }
   void getNormals(IdList& ptId, FloatNormals& fn);

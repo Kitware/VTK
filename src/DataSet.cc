@@ -26,3 +26,17 @@ void DataSet::Initialize()
     pointData = 0;
   }
 };
+void DataSet::setPointData (PointData* pd)
+{
+  if ( pointData != pd )
+  {
+    if ( pointData ) pointData->UnRegister((void *)this);
+    pointData = pd;
+    modified();
+  }
+}
+PointData *DataSet::getPointData()
+{
+  return pointData;
+}
+

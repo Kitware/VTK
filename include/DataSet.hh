@@ -21,7 +21,7 @@ public:
   virtual int cellDimension(int cellId) = 0;
   virtual void cellPoints(int cellId, IdList& ptId) = 0;
   virtual void Initialize() = 0;
-  virtual void pointCoords(IdList& ptId, FloatPoints& fp);
+  virtual void pointCoords(IdList& ptId, FloatPoints& fp) = 0;
   virtual void update() {};
 
   void setPointData (PointData* pd);

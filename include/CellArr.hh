@@ -13,7 +13,7 @@ public:
   int Initialize(const int sz, const int ext=1000) {return ia.Initialize(sz,ext);};
   CellArray (const int sz, const int ext=1000):ncells(0),loc(0),ia(sz,ext){};
   ~CellArray() {};
-  int getNextCell(int& npts, int* pts)
+  int getNextCell(int& npts, int* &pts)
   {
     if ( loc <= ia.getMaxId() ) 
     {

@@ -41,8 +41,8 @@ public:
   }
   int insertNextVector(float *x) {
     int id = v.insertNextValue(x[0]);
-    v[id+1] = x[1]; // can do this because allocation occurs in blocks of 3
-    v[id+2] = x[2];
+    v.insertNextValue(x[1]);
+    v.insertNextValue(x[2]);
     return id/3;
   }
   void getVectors(IdList& ptId, FloatVectors& fv);

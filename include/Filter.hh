@@ -7,7 +7,7 @@
 #include "Params.h"
 #include "DataSet.h"
 
-class Filter : virtual public DataSet {
+class Filter : virtual public TimeStamp, virtual public RefCount {
 public:
   Filter() : startMethod(0), endMethod(0), updating(0) {};
   virtual ~Filter() {};
@@ -19,26 +19,9 @@ protected:
   char updating;
   void (*startMethod)();
   void (*endMethod)();
+  TimeStamp executeTime;
+
 };
-
-void Filter::setStartMethod(void (*f)())
-{
-  if ( f != startMethod )
-  {
-    startMethod = f;
-    modified();
-  }
-}
-
-void Filter::setEndMethod(void (*f)())
-{
-  if ( f != endMethod )
-  {
-    endMethod = f;
-    modified();
-  }
-
-}
 
 #endif
 
