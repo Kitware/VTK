@@ -40,6 +40,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkPNMReader.hh"
 
+//tags used to comminicate types in system
+#define VTK_UNKNOWN_TYPE 0
+#define VTK_PBM_TYPE 1
+#define VTK_PGM_TYPE 2
+#define VTK_PPM_TYPE 3
+
 char vtkPNMReaderGetChar(FILE *fp)
 {
   char c;
@@ -130,15 +136,9 @@ void vtkPNMReader::Execute()
 
 vtkColorScalars *vtkPNMReader::ReadImage(int dim[3])
 {
-  char magic[80];
-  vtkPixmap *pixmap;
-  vtkGraymap *graymap;
-  vtkBitmap *bitmap;
-  vtkColorScalars *s=NULL;
   FILE *fp;
-  int numPts;
-  char c;
-  
+  int type;
+
   dim[2] = 1;
 
   if ( !(fp = fopen(this->Filename,"rb")) )
@@ -147,6 +147,69 @@ vtkColorScalars *vtkPNMReader::ReadImage(int dim[3])
     return NULL;
     }
 
+  type = VTK_UNKNOWN_TYPE;
+  return this->ReadBinaryPNM(fp, NULL, type, 0, dim[0], dim[1]);
+}
+
+vtkColorScalars *vtkPNMReader::ReadVolume(int dim[3])
+{
+  vtkColorScalars *s, *image;
+  int size, imageSize, xsize, ysize, imageNum, numBytes, type;
+  int numImages=this->ImageRange[1] - this->ImageRange[0] + 1;
+  char filename[1024];
+  FILE *fp;
+  unsigned char *vptr, *iptr;
+
+  dim[2] = numImages;
+  sprintf (filename, "%s.%d", this->Filename, this->ImageRange[0]);
+
+  if ( !(fp = fopen(filename,"rb")) )
+    {
+    vtkErrorMacro(<<"Can't open file: " << filename);
+    return NULL;
+    }
+
+  //read the first image to initialize reading the volume
+  type = VTK_UNKNOWN_TYPE;
+  if ( !(s=this->ReadBinaryPNM(fp, NULL, type, 0, dim[0], dim[1])))
+    {
+    return NULL;
+    }
+
+  imageSize = dim[0]*dim[1];
+  if ( (size = imageSize*numImages) < 1 )
+    {
+    vtkErrorMacro(<<"Bad volume dimensions, cannot read data");
+    return NULL;
+    }
+
+  //loop over remaining images; read them; assemble into volume
+  for (imageNum=1; imageNum < numImages; imageNum++)
+    {
+    sprintf (filename, "%s.%d", this->Filename, this->ImageRange[0]+imageNum);
+    if ( !(fp = fopen(filename,"rb")) ||
+    ! this->ReadBinaryPNM(fp, s, type, imageNum*imageSize, dim[0], dim[1]) )
+      {
+      vtkErrorMacro(<<"Can't read file: " << filename);
+      s->Delete();
+      return NULL;
+      }
+    }
+
+  return s;
+}
+
+
+vtkColorScalars *vtkPNMReader::ReadBinaryPNM(FILE *fp, vtkColorScalars *s,
+                              int &type, int offset, int  &xsize, int &ysize)
+{
+  char magic[80];
+  vtkPixmap *pixmap;
+  vtkGraymap *graymap;
+  vtkBitmap *bitmap;
+  int numPts, thisType;
+  char c;
+  
   // get the magic number
   do
     {
@@ -158,72 +221,110 @@ vtkColorScalars *vtkPNMReader::ReadImage(int dim[3])
   magic[2] = '\0';
 
   // now get the dimensions
-  dim[0] = vtkPNMReaderGetInt(fp);
-  dim[1] = vtkPNMReaderGetInt(fp);
+  xsize = vtkPNMReaderGetInt(fp);
+  ysize = vtkPNMReaderGetInt(fp);
 
   // check input
-  if ( (numPts = dim[0]*dim[1]) < 1 )
+  if ( (numPts = xsize*ysize) < 1 )
     {
     vtkErrorMacro(<<"Bad input data!");
+    fclose(fp);
     return NULL;
     }
 
-  // compare magic number to see proper file type
-  if ( ! strcmp(magic,"P4") ) //pbm file
+  // compare magic number to determine file type
+  if ( ! strcmp(magic,"P4") ) 
     {
-    bitmap = new vtkBitmap(numPts);
+    thisType = VTK_PBM_TYPE;
     }
-
-  else if ( ! strcmp(magic,"P5") ) //pgm file
+  else if ( ! strcmp(magic,"P5") ) 
     {
-    graymap = new vtkGraymap(numPts);
-    if ( this->ReadBinaryPGM(fp,graymap,dim[0],dim[1]) )
-      {
-      s = (vtkColorScalars *) graymap;
-      }
-    else
-      {
-      graymap->Delete();
-      }
+    thisType = VTK_PGM_TYPE;
     }
-
-  else if ( ! strcmp(magic,"P6") ) //ppm file
+  else if ( ! strcmp(magic,"P6") ) 
     {
-    pixmap = new vtkPixmap(numPts);
-    if ( this->ReadBinaryPPM(fp,pixmap,dim[0],dim[1]) )
-      {
-      s = (vtkColorScalars *) pixmap;
-      }
-    else
-      {
-      pixmap->Delete();
-      }
+    thisType = VTK_PPM_TYPE;
     }
   else
     {
     vtkErrorMacro(<<"Unknown file type!");
+    fclose(fp);
     return NULL;
     }
 
+  //if reading multiple files (for volume), make sure each file is consistent
+  if ( type == VTK_UNKNOWN_TYPE )
+    {
+    type = thisType;
+    }
+  else if ( thisType != type )
+    {
+    vtkErrorMacro(<<"Incompatible file types");
+    fclose(fp);
+    return NULL;
+    }
+
+  //finally, read file with appropriate color scalar type
+  if ( type == VTK_PBM_TYPE )
+    {
+    if ( !s ) bitmap = new vtkBitmap(numPts);
+    else bitmap = (vtkBitmap *)s;
+
+    if ( this->ReadBinaryPBM(fp,bitmap,offset,xsize,ysize) )
+      {
+      s = (vtkColorScalars *)bitmap;
+      }
+    else 
+      {
+      if ( !s ) bitmap->Delete();
+      s = NULL;
+      }
+    }
+
+  else if ( type == VTK_PGM_TYPE )
+    {
+    if ( !s ) graymap = new vtkGraymap(numPts);
+    else graymap = (vtkGraymap *)s;
+
+    if ( this->ReadBinaryPGM(fp,graymap,offset,xsize,ysize) )
+      {
+      s = (vtkColorScalars *)graymap;
+      }
+    else 
+      {
+      if ( !s ) graymap->Delete();
+      s = NULL;
+      }
+    }
+
+  else 
+    {
+    if ( !s ) pixmap = new vtkPixmap(numPts);
+    else pixmap = (vtkPixmap *)s;
+
+    if ( this->ReadBinaryPPM(fp,pixmap,offset,xsize,ysize) )
+      {
+      s = (vtkColorScalars *)pixmap;
+      }
+    else 
+      {
+      if ( !s ) pixmap->Delete();
+      s = NULL;
+      }
+    }
+
+  fclose(fp);
   return s;
 }
 
-vtkColorScalars *vtkPNMReader::ReadVolume(int dim[3])
-{
-  vtkColorScalars *s=NULL;
-
-  return s;
-}
-
-
-int vtkPNMReader::ReadBinaryPBM(FILE *fp, vtkBitmap* bitmap,
-                               int xsize, int ysize)
+int vtkPNMReader::ReadBinaryPBM(FILE *fp, vtkBitmap* bitmap, int offset,
+                                int xsize, int ysize)
 {
   int max, j, packedXSize=xsize/8;
   unsigned char *cptr;
 
   max = vtkPNMReaderGetInt(fp);
-  cptr = bitmap->WritePtr(0,ysize*packedXSize);
+  cptr = bitmap->WritePtr(offset,ysize*packedXSize);
   cptr = cptr + packedXSize*(ysize - 1);
 
 //
@@ -242,14 +343,14 @@ int vtkPNMReader::ReadBinaryPBM(FILE *fp, vtkBitmap* bitmap,
   return 1;
 }
 
-int vtkPNMReader::ReadBinaryPGM(FILE *fp, vtkGraymap* graymap,
-                               int xsize, int ysize)
+int vtkPNMReader::ReadBinaryPGM(FILE *fp, vtkGraymap* graymap, int offset,
+                                int xsize, int ysize)
 {
   int max, j;
   unsigned char *cptr;
 
   max = vtkPNMReaderGetInt(fp);
-  cptr = graymap->WritePtr(0,ysize*xsize);
+  cptr = graymap->WritePtr(offset,ysize*xsize);
   cptr = cptr + xsize*(ysize - 1);
 //
 // Since pnm coordinate system is at upper left of image, need to convert
@@ -267,14 +368,14 @@ int vtkPNMReader::ReadBinaryPGM(FILE *fp, vtkGraymap* graymap,
   return 1;
 }
 
-int vtkPNMReader::ReadBinaryPPM(FILE *fp, vtkPixmap* pixmap,
-                               int xsize, int ysize)
+int vtkPNMReader::ReadBinaryPPM(FILE *fp, vtkPixmap* pixmap, int offset,
+                                int xsize, int ysize)
 {
   int max, j;
   unsigned char *cptr;
 
   max = vtkPNMReaderGetInt(fp);
-  cptr = pixmap->WritePtr(0,ysize*xsize);
+  cptr = pixmap->WritePtr(offset,ysize*xsize);
   cptr = cptr + 3*xsize*(ysize - 1);
   
   //
