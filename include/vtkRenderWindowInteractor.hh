@@ -50,11 +50,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // .SECTION Event Bindings
 // Specific devices have different camera bindings. The bindings are on both
-// mouse events as well as keyboard presses. See vtkXInteractor and 
-// vtkWin32Interactor for specific information.
+// mouse events as well as keyboard presses. See vtkXRenderWindowInteractor and 
+// vtkWin32RenderWindowInteractor for specific information.
 
 // .SECTION see also
-// vtkXRenderWindowInteractor vtkPicker
+// vtkXRenderWindowInteractor vtkWinRenderWindowInteractor vtkPicker
 
 #ifndef __vtkRenderWindowInteractor_h
 #define __vtkRenderWindowInteractor_h
