@@ -78,6 +78,9 @@ public:
 protected:
   virtual ~vtkGenericCellIterator();
   
+private:
+  vtkGenericCellIterator(const vtkGenericCellIterator&);  // Not implemented.
+  void operator=(const vtkGenericCellIterator&);  // Not implemented.
 };
 
 #endif

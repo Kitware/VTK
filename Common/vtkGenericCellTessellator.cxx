@@ -343,7 +343,7 @@ static signed char vtkTessellatorTetraCasesLeft[65][8][4] = {
 };
 
 
-vtkCxxRevisionMacro(vtkGenericCellTessellator, "1.1");
+vtkCxxRevisionMacro(vtkGenericCellTessellator, "1.2");
 vtkStandardNewMacro(vtkGenericCellTessellator);
 vtkCxxSetObjectMacro(vtkGenericCellTessellator, ErrorMetric, vtkGenericSubdivisionErrorMetric);
 
@@ -1331,6 +1331,8 @@ void vtkGenericCellTessellator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "TessellatePoints: " 
      << this->TessellatePoints << endl;
 
+  os << indent << "ErrorMetric: " 
+     << this->ErrorMetric << endl;
 }
 
 //-----------------------------------------------------------------------------
