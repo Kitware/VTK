@@ -54,13 +54,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkOpenGLLight.h"
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkObjectFactory.h"
+#include "vtkFloatArray.h"
 #import "vtkQuartzWindow.h"
 #import "vtkQuartzGLView.h"
 
 #define id Id // since id is a reserved token in ObjC and is used a _lot_ in vtk
 
 
-vtkCxxRevisionMacro(vtkQuartzRenderWindow, "1.10");
+vtkCxxRevisionMacro(vtkQuartzRenderWindow, "1.11");
 vtkStandardNewMacro(vtkQuartzRenderWindow);
 
 
@@ -581,7 +582,7 @@ int vtkQuartzRenderWindow::GetDepthBufferSize()
 }
 
 
-unsigned char* vtkOpenGLRenderWindow::GetPixelData(int x1, int y1, 
+unsigned char* vtkQuartzRenderWindow::GetPixelData(int x1, int y1, 
 						   int x2, int y2, 
 						   int front)
 {
@@ -616,7 +617,7 @@ unsigned char* vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
   return data;
 }
 
-int vtkOpenGLRenderWindow::GetPixelData(int x1, int y1, 
+int vtkQuartzRenderWindow::GetPixelData(int x1, int y1, 
 					int x2, int y2, 
 					int front, 
 					vtkUnsignedCharArray* data)
@@ -659,7 +660,7 @@ int vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
   
 }
 
-int vtkOpenGLRenderWindow::GetPixelData(int x1, int y1, 
+int vtkQuartzRenderWindow::GetPixelData(int x1, int y1, 
 					int x2, int y2, 
 					int front, unsigned char* data)
 {
@@ -725,7 +726,7 @@ int vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
   
 }
 
-int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
+int vtkQuartzRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
 					vtkUnsignedCharArray *data, int front)
 {
   int     y_low, y_hi;
@@ -767,7 +768,7 @@ int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
 
 }
 
-int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
+int vtkQuartzRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
 					unsigned char *data, int front)
 {
   int     y_low, y_hi;
@@ -883,7 +884,7 @@ void vtkQuartzRenderWindow::SetDeviceContext(void *arg)
   this->DeviceContext = arg;
 }
 
-float* vtkOpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
+float* vtkQuartzRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
 					       int front)
 {
 
@@ -923,7 +924,7 @@ float* vtkOpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
 
 }
 
-int vtkOpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
+int vtkQuartzRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
 					    int front, vtkFloatArray* data)
 {
   int     y_low, y_hi;
@@ -966,7 +967,7 @@ int vtkOpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
 
 }
 
-int vtkOpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
+int vtkQuartzRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
 					    int front, float* data)
 {
   int     y_low, y_hi;
@@ -1032,12 +1033,12 @@ int vtkOpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
     }
 }
 
-void vtkOpenGLRenderWindow::ReleaseRGBAPixelData(float *data) 
+void vtkQuartzRenderWindow::ReleaseRGBAPixelData(float *data) 
 {
   delete[] data;
 }
 
-int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
+int vtkQuartzRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
 					    vtkFloatArray *data, int front, 
 					    int blend)
 {
@@ -1081,7 +1082,7 @@ int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
 			 blend);
 }
 
-int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
+int vtkQuartzRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
 					    float *data, int front, int blend)
 {
   int     y_low, y_hi;
@@ -1168,7 +1169,7 @@ int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
     }
 }
 
-unsigned char *vtkOpenGLRenderWindow::GetRGBACharPixelData(int x1, int y1, 
+unsigned char *vtkQuartzRenderWindow::GetRGBACharPixelData(int x1, int y1, 
                                                            int x2, int y2, 
                                                            int front)
 {
@@ -1208,7 +1209,7 @@ unsigned char *vtkOpenGLRenderWindow::GetRGBACharPixelData(int x1, int y1,
   return data;
 }
 
-int vtkOpenGLRenderWindow::GetRGBACharPixelData(int x1, int y1, 
+int vtkQuartzRenderWindow::GetRGBACharPixelData(int x1, int y1, 
 						int x2, int y2, 
 						int front,
 						vtkUnsignedCharArray* data)
@@ -1251,7 +1252,7 @@ int vtkOpenGLRenderWindow::GetRGBACharPixelData(int x1, int y1,
 				    data->GetPointer(0));
 }
 
-int vtkOpenGLRenderWindow::GetRGBACharPixelData(int x1, int y1, 
+int vtkQuartzRenderWindow::GetRGBACharPixelData(int x1, int y1, 
 						int x2, int y2, 
 						int front,
 						unsigned char* data)
@@ -1320,7 +1321,7 @@ int vtkOpenGLRenderWindow::GetRGBACharPixelData(int x1, int y1,
 }
 
 
-int vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1,int y1,int x2,int y2, 
+int vtkQuartzRenderWindow::SetRGBACharPixelData(int x1,int y1,int x2,int y2, 
 						vtkUnsignedCharArray *data, 
 						int front, int blend)
 {
@@ -1365,7 +1366,7 @@ int vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1,int y1,int x2,int y2,
   
 }
 
-int vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1, int y1, int x2, 
+int vtkQuartzRenderWindow::SetRGBACharPixelData(int x1, int y1, int x2, 
 						int y2, unsigned char *data, 
 						int front, int blend)
 {
@@ -1461,7 +1462,7 @@ int vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1, int y1, int x2,
 }
 
 
-int vtkOpenGLRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2,
+int vtkQuartzRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2,
 					   float* z_data )
 {
   int             y_low;
@@ -1517,7 +1518,7 @@ int vtkOpenGLRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2,
     }
 }
 
-float *vtkOpenGLRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2  )
+float *vtkQuartzRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2  )
 {
   float           *z_data = NULL;
 
@@ -1531,7 +1532,7 @@ float *vtkOpenGLRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2  )
   return z_data;
 }
 
-int vtkOpenGLRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2,
+int vtkQuartzRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2,
 					   vtkFloatArray *buffer )
 {
   int  width, height;
@@ -1546,7 +1547,7 @@ int vtkOpenGLRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2,
   return this->GetZbufferData(x1, y1, x2, y2, buffer->GetPointer(0));
 }
 
-int vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
+int vtkQuartzRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
 					   vtkFloatArray *buffer )
 {
   int width, height;
@@ -1561,7 +1562,7 @@ int vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
   return this->SetZbufferData(x1, y1, x2, y2, buffer->GetPointer(0));
 }
 
-int vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
+int vtkQuartzRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
 					   float *buffer )
 {
   int             y_low;

@@ -105,6 +105,28 @@ public:
   virtual void *GetGenericWindowId()  {return (void *)this->WindowId;};
   virtual void *GetGenericContext()   {return (void *)this->DeviceContext;};
   virtual void SetDisplayId(void *) {};
+  virtual void SetParentId(void *) 
+    {
+      vtkWarningMacro("Method not implemented.");
+    }
+  virtual void* GetGenericParentId()
+    {
+      vtkWarningMacro("Method not implemented.");
+      return 0;
+    }
+  virtual void* GetGenericDrawable()
+    {
+      vtkWarningMacro("Method not implemented.");
+      return 0;
+    }
+  void SetWindowInfo(char*)
+    {
+      vtkWarningMacro("Method not implemented.");
+    }
+  void SetParentInfo(char*)
+    {
+      vtkWarningMacro("Method not implemented.");
+    }
 
   // Description:
   // Get the window id.
@@ -138,40 +160,40 @@ public:
   // Set/Get the pixel data of an image, transmitted as RGBRGB... 
   virtual unsigned char *GetPixelData(int x,int y,int x2,int y2,int front);
   virtual int GetPixelData(int x,int y,int x2,int y2, int front,
-			   vtkUnsignedCharArray*);
+                           vtkUnsignedCharArray*);
   virtual int SetPixelData(int x,int y,int x2,int y2,unsigned char *,
-			   int front);
+                           int front);
   virtual int SetPixelData(int x,int y,int x2,int y2, vtkUnsignedCharArray*,
-			   int front);
+                           int front);
 
   // Description:
   // Set/Get the pixel data of an image, transmitted as RGBARGBA... 
   virtual float *GetRGBAPixelData(int x,int y,int x2,int y2,int front);
   virtual int GetRGBAPixelData(int x,int y,int x2,int y2, int front,
-			       vtkFloatArray* data);
+                               vtkFloatArray* data);
   virtual int SetRGBAPixelData(int x,int y,int x2,int y2,float *,int front,
                                 int blend=0);
   virtual int SetRGBAPixelData(int x,int y,int x2,int y2, vtkFloatArray*,
-				int front, int blend=0);
+                                int front, int blend=0);
   virtual void ReleaseRGBAPixelData(float *data);
   virtual unsigned char *GetRGBACharPixelData(int x,int y,int x2,int y2,
                                               int front);
   virtual int GetRGBACharPixelData(int x,int y,int x2,int y2, int front,
-				   vtkUnsignedCharArray* data);
+                                   vtkUnsignedCharArray* data);
   virtual int SetRGBACharPixelData(int x,int y,int x2,int y2,unsigned char *,
                                     int front, int blend=0);  
   virtual int SetRGBACharPixelData(int x,int y,int x2,int y2,
-				   vtkUnsignedCharArray *,
-				   int front, int blend=0);  
+                                   vtkUnsignedCharArray *,
+                                   int front, int blend=0);  
 
   // Description:
   // Set/Get the zbuffer data from an image
   virtual float *GetZbufferData( int x1, int y1, int x2, int y2 );
   virtual int GetZbufferData( int x1, int y1, int x2, int y2, 
-			      vtkFloatArray* z );
+                              vtkFloatArray* z );
   virtual int SetZbufferData( int x1, int y1, int x2, int y2, float *buffer );
   virtual int SetZbufferData( int x1, int y1, int x2, int y2, 
-			      vtkFloatArray *buffer );
+                              vtkFloatArray *buffer );
 
   // Description:
   // Make this windows OpenGL context the current context.
@@ -235,7 +257,7 @@ protected:
   int GetZbufferData( int x1, int y1, int x2, int y2, float* z );
   int GetRGBAPixelData(int x,int y,int x2,int y2, int front, float* data);
   int GetRGBACharPixelData(int x,int y,int x2,int y2, int front,
-			   unsigned char* data);
+                           unsigned char* data);
 
   // the following is used to support rendering into memory
 //  void *MemoryDataHeader;

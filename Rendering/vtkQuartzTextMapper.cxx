@@ -16,10 +16,9 @@
 
 =========================================================================*/
 #include "vtkQuartzTextMapper.h"
-#include "vtkQuartzImageWindow.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuartzTextMapper, "1.4");
+vtkCxxRevisionMacro(vtkQuartzTextMapper, "1.5");
 vtkStandardNewMacro(vtkQuartzTextMapper);
 
 vtkQuartzTextMapper::vtkQuartzTextMapper()
