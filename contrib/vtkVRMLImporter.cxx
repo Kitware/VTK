@@ -83,6 +83,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <unistd.h>
 #endif
 
+static int memyyInput_i = 0;
+static int memyyInput_j = 0;
+
 vrmlPointerList* vrmlPointerList::Heap = 0;
 int vrmlPointerList::nAlloc = 0;
 
@@ -236,30 +239,30 @@ class VrmlNodeType {
     {
       return vrmlPointerList::AllocateMemory(n);
     }
-
-  void operator delete(void *vtkNotUsed(ptr)) {}
+  
+    void operator delete(void *vtkNotUsed(ptr)) {}
 
   typedef struct {
     char *name;
     int type;
-
+    
     void* operator new(size_t n)
       {
-	return vrmlPointerList::AllocateMemory(n);
+   	return vrmlPointerList::AllocateMemory(n);
       }
     
     void operator delete(void *vtkNotUsed(ptr)) {}
-
+    
   } NameTypeRec;
         
+  // Node types are stored in this data structure:
+  static VectorType<VrmlNodeType*> typeList;
+
  private:
   void add(VectorType<NameTypeRec*> &,const char *,int);
   int has(const VectorType<NameTypeRec*> &,const char *) const;
 
   char *name;
-
-  // Node types are stored in this data structure:
-  static VectorType<VrmlNodeType*> typeList;
 
   VectorType<NameTypeRec*> eventIns;
   VectorType<NameTypeRec*> eventOuts;
@@ -5412,7 +5415,7 @@ class vtkVRMLUseStruct {
     {
       return vrmlPointerList::AllocateMemory(n);
     }
-
+  
   void operator delete(void *vtkNotUsed(ptr)) {}
 };
 
@@ -5456,6 +5459,9 @@ int vtkVRMLImporter::OpenImportFile ()
 
 int vtkVRMLImporter::ImportBegin ()
 {
+
+  memyyInput_i = 0;
+  memyyInput_j = 0;
 
   vrmlPointerList::Initialize();
   if (!this->OpenImportFile())
@@ -5512,6 +5518,20 @@ int vtkVRMLImporter::ImportBegin ()
   return 1;
 }
 
+void vtkVRMLImporter::ImportEnd ()
+{
+  vrmlPointerList::CleanUp();
+  VrmlNodeType::typeList.Init();
+  useList.Init();
+  vtkDebugMacro(<<"Closing import file");
+  if ( this->FileFD != NULL )
+    {
+    fclose (this->FileFD);
+    }
+  this->FileFD = NULL;
+}
+
+
 vtkVRMLImporter::~vtkVRMLImporter()
 {
   if (this->CurrentActor)
@@ -5567,17 +5587,6 @@ vtkVRMLImporter::~vtkVRMLImporter()
       obj->Delete();
       }
     }
-}
-
-void vtkVRMLImporter::ImportEnd ()
-{
-  vrmlPointerList::CleanUp();
-  vtkDebugMacro(<<"Closing import file");
-  if ( this->FileFD != NULL )
-    {
-    fclose (this->FileFD);
-    }
-  this->FileFD = NULL;
 }
 
 void vtkVRMLImporter::PrintSelf(ostream& os, vtkIndent indent)
@@ -6291,16 +6300,14 @@ vtkVRMLImporter::GetVRMLDEFObject(const char *name)
 
 
 // Used by the lex input to get characters. Needed to read in memory structure
+
 static void memyyInput(char *buf, int &result, int max_size) {
 
-  static int i = 0;
-  static int j = 0;
-
-  result = strlen(strncpy(buf, standardNodes[i], max_size));
-  j = result - strlen(standardNodes[i]);
-  if ( j == 0 ) 
+  result = strlen(strncpy(buf, standardNodes[memyyInput_i], max_size));
+  memyyInput_j = result - strlen(standardNodes[memyyInput_i]);
+  if ( memyyInput_j == 0 ) 
     {
-    i++;
+    memyyInput_i++;
     }
 }
 
