@@ -120,22 +120,14 @@ public:
   void SetCellTypeToWedge() {this->SetCellType(VTK_WEDGE);}
   void SetCellTypeToPyramid() {this->SetCellType(VTK_PYRAMID);}
 
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // Description:
-  // For legacy compatibility. Do not use.
-  void DeepCopy(vtkCell &c) 
-    {VTK_LEGACY_METHOD(DeepCopy,"3.2"); this->DeepCopy(&c);}
-  void ShallowCopy(vtkCell &c) 
-    {VTK_LEGACY_METHOD(ShallowCopy,"3.2"); this->ShallowCopy(&c);}
-#endif
-  
- protected:
+protected:
   vtkGenericCell();
   ~vtkGenericCell();
   vtkGenericCell(const vtkGenericCell&) {};
   void operator=(const vtkGenericCell&) {};
 
   vtkCell *Cell;
+  
 };
 
 #endif

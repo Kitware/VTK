@@ -53,6 +53,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkCell.h"
 
+class vtkOrderedTriangulator;
+
 class VTK_EXPORT vtkCell3D : public vtkCell
 {
 public:
@@ -97,12 +99,13 @@ public:
   virtual int GetCellDimension() {return 3;}
 
 protected:
-  vtkCell3D() {}
-  ~vtkCell3D() {}
+  vtkCell3D():Triangulator(NULL) {}
+  ~vtkCell3D();
   vtkCell3D(const vtkCell3D&) {}
   void operator=(const vtkCell3D&) {};
   
-
+  vtkOrderedTriangulator *Triangulator;
+  
 };
 
 #endif

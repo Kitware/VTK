@@ -707,3 +707,56 @@ void vtkTetra::GetFacePoints(int faceId, int* &pts)
   pts = this->GetFaceArray(faceId);
 }
 
+// Overload vtkCell3D::Clip() because there are cases when we want to
+// insert just ourselves into the output (i.e., a case that we want to
+// template).
+void vtkTetra::Clip(float value, vtkScalars *cellScalars, 
+                    vtkPointLocator *locator, vtkCellArray *tets,
+                    vtkPointData *inPD, vtkPointData *outPD,
+                    vtkCellData *inCD, int cellId, vtkCellData *outCD,
+                    int insideOut)
+{
+  int inject;
+
+  if ( insideOut )
+    {    
+    for (inject=0; inject<4; inject++)
+      {
+      if ( cellScalars->GetScalar(inject) > value )
+        {
+        break;
+        }
+      }
+    }
+  else
+    {
+    for (inject=0; inject<4; inject++)
+      {
+      if ( cellScalars->GetScalar(inject) <= value )
+        {
+        break;
+        }
+      }
+    }
+  
+  if ( inject >= 4 ) //all points are above/below
+    {
+    int pts[4];
+    float x[3];
+    for (inject=0; inject < 4; inject++)
+      {
+      this->Points->GetPoint(inject, x);
+      if ( locator->InsertUniquePoint(x, pts[inject]) )
+        {
+        outPD->CopyData(inPD,this->PointIds->GetId(inject),pts[inject]);
+        }
+      }
+    int newCellId = tets->InsertNextCell(4,pts);
+    outCD->CopyData(inCD,cellId,newCellId);
+    }
+  else //defer to superclass
+    {
+    vtkCell3D::Clip(value, cellScalars, locator, tets, inPD, outPD,
+                    inCD, cellId, outCD, insideOut);
+    }
+}
