@@ -334,7 +334,6 @@ void vtkXImageWindow::EraseWindow()
     XGCValues vals;
     XGetGCValues(this->DisplayId, this->Gc, GCForeground, &vals);
     unsigned long oldForeground = vals.foreground;
-    unsigned long background = vals.background;
 
     // Set the foreground color to the background so the rectangle
     // matches the background color
