@@ -26,7 +26,7 @@
 
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkSource, "1.3");
+vtkCxxRevisionMacro(vtkSource, "1.4");
 
 #ifndef NULL
 #define NULL 0
@@ -1216,6 +1216,9 @@ int vtkSource::ProcessDownstreamRequest(vtkInformation* request,
       {
       if(this->Outputs[i])
         {
+        vtkDemandDrivenPipeline* ddp =
+          vtkDemandDrivenPipeline::SafeDownCast(this->GetExecutive());
+        this->Outputs[i]->SetPipelineMTime(ddp->GetPipelineMTime());
         vtkInformation* info = outputVector->GetInformationObject(i);
         vtkSourceToDataObjectFriendship
           ::CopyDownstreamIVarsToInformation(this->Outputs[i], info);
