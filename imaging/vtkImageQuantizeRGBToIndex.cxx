@@ -587,7 +587,7 @@ vtkImageQuantizeRGBToIndex::~vtkImageQuantizeRGBToIndex()
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for
 // the Datas data types.
-void vtkImageQuantizeRGBToIndex::Execute()
+void vtkImageQuantizeRGBToIndex::ExecuteData(vtkDataObject *)
 {
   void *inPtr;
   void *outPtr;

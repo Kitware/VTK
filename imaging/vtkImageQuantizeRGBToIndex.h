@@ -109,16 +109,7 @@ protected:
   void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
   void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
 
-  void Execute();
-  // Avoid warninigs.
-  // Defined in superclass, but hidden by the Execute above.
-  void Execute(vtkImageData *in, vtkImageData *out)
-    { this->vtkImageToImageFilter::Execute(in, out);};
-  void Execute(vtkImageData *outData)
-    { this->vtkImageToImageFilter::Execute(outData);};
-  
-
-
+  virtual void ExecuteData(vtkDataObject *out);
 };
 
 #endif
