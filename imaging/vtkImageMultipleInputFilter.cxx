@@ -467,31 +467,25 @@ VTK_THREAD_RETURN_TYPE vtkImageMultiThreadedExecute( void *arg )
   else
     {
     // find correct extent
-    int range = ext[axis*2+1] - ext[axis*2];
-    // if the range is smaller than the threadCount
-    // then only use the first range threads
-    if ((range + 1) <= threadCount)
+    int range = ext[axis*2+1] - ext[axis*2] + 1;
+    int valuesPerThread = (int)ceil(range/(double)threadCount);
+    int maxThreadIdUsed = (int)ceil(range/(double)valuesPerThread) - 1;
+    if (threadId < maxThreadIdUsed)
       {
-      if (threadId < range)
-	{
-	ext[axis*2] = ext[axis*2] + threadId;
-	ext[axis*2+1] = ext[axis*2];
-	str->Filter->ThreadedExecute(str->Inputs, str->Output, ext, threadId);
-	}
-      }
-    else
-      {
-      // split up the range between threads
-      float min = ext[axis*2] + (float)threadId*range/threadCount;
-      float max = ext[axis*2] + (threadId+1.0)*range/threadCount;
-      int tmp = (int)(min + 1.5);
-      if (tmp == ext[axis*2] + 1) tmp = ext[axis*2];
-      ext[axis*2] = tmp;
-      ext[axis*2+1] = (int)(max + 0.5);
+      ext[axis*2] = ext[axis*2] + threadId*valuesPerThread;
+      ext[axis*2+1] = ext[axis*2] + valuesPerThread - 1;
       str->Filter->ThreadedExecute(str->Inputs, str->Output, ext, threadId);
       }
+    if (threadId == maxThreadIdUsed)
+      {
+      ext[axis*2] = ext[axis*2] + threadId*valuesPerThread;
+      str->Filter->ThreadedExecute(str->Inputs, str->Output, ext, threadId);
+      }
+    // otherwise don't use this thread. Sometimes the threads dont
+    // break up very well and it is just as efficient to leave a 
+    // few threads idle.
     }
-  
+
   return VTK_THREAD_RETURN_VALUE;
 }
 
@@ -507,7 +501,7 @@ void vtkImageMultipleInputFilter::Execute(vtkImageData **inDatas,
   str.Inputs = inDatas;
   str.Output = outData;
   
-  this->Threader->SetNumberOfThreads(this->NumberOfThreads);
+  this->Threader->SetNumberOfThreads(1/*this->NumberOfThreads*/);
   
   // setup threading and the invoke threadedExecute
   this->Threader->SetSingleMethod(vtkImageMultiThreadedExecute, &str);
