@@ -27,6 +27,7 @@ IF (VTK_USE_RENDERING)
       OverlayTextOnImage
       TestCaptionActor
       TestExtractCTHPart
+      TestFacetReader
       TestGreedyTerrainDecimation
       TestGridWarp3D
       TestGridWarpCubic
