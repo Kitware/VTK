@@ -137,6 +137,8 @@ INCLUDE(${CMAKE_ROOT}/Modules/Dart.cmake)
 MARK_AS_ADVANCED(BUILD_TESTING DART_ROOT TCL_TCLSH)
 IF(BUILD_TESTING)
   ENABLE_TESTING()
+  OPTION(VTK_USE_DISPLAY "Turn this option off and tests will not popup windows" ON)
+  MARK_AS_ADVANCED(VTK_USE_DISPLAY)
 ENDIF(BUILD_TESTING)
 
 #-----------------------------------------------------------------------------

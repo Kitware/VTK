@@ -2,14 +2,17 @@
 IF (VTK_USE_RENDERING)
   SET(KIT Graphics)
   # add etsts that do not require data
-  SET(MyTests     
-    Mace.cxx
-    expCos.cxx
-    CellLocator.cxx
-    PointLocator.cxx
-    FrustumClip.cxx
-    RGrid.cxx
-    )
+  SET(MyTests)
+  IF(VTK_USE_DISPLAY)
+    SET(MyTests     
+      Mace.cxx
+      expCos.cxx
+      CellLocator.cxx
+      PointLocator.cxx
+      FrustumClip.cxx
+      RGrid.cxx
+      )
+  ENDIF(VTK_USE_DISPLAY)
   IF (VTK_DATA_ROOT)
     # add tests that require data
     SET(MyTests ${MyTests}     
