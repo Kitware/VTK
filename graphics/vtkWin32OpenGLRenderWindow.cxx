@@ -918,6 +918,10 @@ unsigned char *vtkWin32OpenGLRenderWindow::GetPixelData(int x1, int y1, int x2,
 
   data = new unsigned char[(x_hi - x_low + 1)*(y_hi - y_low + 1)*3];
 
+  // Turn of texturing in case it is on - some drivers have a problem
+  // getting / setting pixels with texturing enabled.
+  glDisable( GL_TEXTURE_2D );
+  
   // Calling pack alignment ensures that we can grab the any size window
   glPixelStorei( GL_PACK_ALIGNMENT, 1 );
   glReadPixels(x_low, y_low, x_hi-x_low+1, y_hi-y_low+1, GL_RGB,
@@ -964,7 +968,11 @@ void vtkWin32OpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
     x_low = x2; 
     x_hi  = x1;
     }
-  
+
+  // Turn of texturing in case it is on - some drivers have a problem
+  // getting / setting pixels with texturing enabled.
+  glDisable( GL_TEXTURE_2D );
+
   // now write the binary info
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
@@ -1191,7 +1199,12 @@ float *vtkWin32OpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int 
   height = abs(y_hi - y_low) + 1;
 
   data = new float[ (width*height*4) ];
+
+  // Turn of texturing in case it is on - some drivers have a problem
+  // getting / setting pixels with texturing enabled.
+  glDisable( GL_TEXTURE_2D );
   
+  glPixelStorei( GL_PACK_ALIGNMENT, 1 );
   glReadPixels( x_low, y_low, width, height, GL_RGBA, GL_FLOAT, data);
 
   return data;
@@ -1250,6 +1263,10 @@ void vtkWin32OpenGLRenderWindow::SetRGBAPixelData(int x1, int y1,
   width  = abs(x_hi-x_low) + 1;
   height = abs(y_hi-y_low) + 1;
 
+  // Turn of texturing in case it is on - some drivers have a problem
+  // getting / setting pixels with texturing enabled.
+  glDisable( GL_TEXTURE_2D );
+
   /* write out a row of pixels */
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
@@ -1264,6 +1281,8 @@ void vtkWin32OpenGLRenderWindow::SetRGBAPixelData(int x1, int y1,
   glPopMatrix();
   glMatrixMode( GL_MODELVIEW );
   glPopMatrix();
+
+  glPixelStorei( GL_UNPACK_ALIGNMENT, 1);
 
   if (!blend)
     {
@@ -1315,7 +1334,12 @@ float *vtkWin32OpenGLRenderWindow::GetZbufferData( int x1, int y1,
   height = abs(y2 - y1)+1;
 
   z_data = new float[width*height];
-  
+
+  // Turn of texturing in case it is on - some drivers have a problem
+  // getting / setting pixels with texturing enabled.
+  glDisable( GL_TEXTURE_2D );
+
+  glPixelStorei( GL_PACK_ALIGNMENT, 1 );
   glReadPixels( x_low, y_low, 
 		width, height,
 		GL_DEPTH_COMPONENT, GL_FLOAT,
@@ -1359,6 +1383,10 @@ void vtkWin32OpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
   width =  abs(x2 - x1)+1;
   height = abs(y2 - y1)+1;
 
+  // Turn of texturing in case it is on - some drivers have a problem
+  // getting / setting pixels with texturing enabled.
+  glDisable( GL_TEXTURE_2D );
+
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
   glLoadIdentity();
@@ -1372,6 +1400,7 @@ void vtkWin32OpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
   glMatrixMode( GL_MODELVIEW );
   glPopMatrix();
 
+  glPixelStorei( GL_UNPACK_ALIGNMENT, 1);
   glDrawPixels( width, height, GL_DEPTH_COMPONENT, GL_FLOAT, buffer);
 
 }
