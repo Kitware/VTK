@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -18,20 +16,26 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 #include "PolySrc.hh"
 
+void vlPolySource::Modified()
+{
+  this->vlPolyData::Modified();
+  this->vlSource::_Modified();
+}
+
+unsigned long int vlPolySource::GetMTime()
+{
+  unsigned long dtime = this->vlPolyData::GetMTime();
+  unsigned long ftime = this->vlSource::_GetMTime();
+  return (dtime > ftime ? dtime : ftime);
+}
+
 void vlPolySource::Update()
 {
-  vlSource::Update();
+  this->UpdateFilter();
 }
 
 void vlPolySource::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlPolySource::GetClassName()))
-    {
-    this->PrintWatchOn(); // watch for multiple inheritance
-    
-    vlPolyData::PrintSelf(os,indent);
-    vlSource::PrintSelf(os,indent);
-    
-    this->PrintWatchOff(); // stop worrying about it now
-    }
+  vlPolyData::PrintSelf(os,indent);
+  vlSource::_PrintSelf(os,indent);
 }

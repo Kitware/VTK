@@ -43,9 +43,10 @@ vlBYUWriter::~vlBYUWriter()
 void vlBYUWriter::Write()
 {
   FILE *geomFp;
-  int numPts=this->Input->GetNumberOfPoints();
+  vlPolyData *input=(vlPolyData *)this->Input;
+  int numPts=input->GetNumberOfPoints();
 
-  this->Input->Update();
+  input->Update();
 
   if ( numPts < 1 )
     {
@@ -76,11 +77,12 @@ void vlBYUWriter::WriteGeometryFile(FILE *geomFile, int numPts)
   int npts, *pts;
   vlPoints *inPts;
   vlCellArray *inPolys;
+  vlPolyData *input=(vlPolyData *)this->Input;
 //
 // Check input
 //
-  if ( (inPts=this->Input->GetPoints()) == NULL ||
-  (inPolys=this->Input->GetPolys()) == NULL )
+  if ( (inPts=input->GetPoints()) == NULL ||
+  (inPolys=input->GetPolys()) == NULL )
     {
     vlErrorMacro(<<"No data to write!");
     return;
@@ -88,7 +90,7 @@ void vlBYUWriter::WriteGeometryFile(FILE *geomFile, int numPts)
 //
 // Write header (not using fixed format! - potential problem in some files.)
 //
-  numPolys = this->Input->GetPolys()->GetNumberOfCells();
+  numPolys = input->GetPolys()->GetNumberOfCells();
   for (numEdges=0, inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); )
     {
     numEdges += npts;
@@ -125,9 +127,10 @@ void vlBYUWriter::WriteDisplacementFile(int numPts)
   int i;
   float *v;
   vlVectors *inVectors;
+  vlPolyData *input=(vlPolyData *)this->Input;
 
   if ( this->WriteDisplacement && this->DisplacementFilename &&
-  (inVectors = this->Input->GetPointData()->GetVectors()) != NULL )
+  (inVectors = input->GetPointData()->GetVectors()) != NULL )
     {
     if ( !(dispFp = fopen(this->DisplacementFilename, "r")) )
       {
@@ -155,9 +158,10 @@ void vlBYUWriter::WriteScalarFile(int numPts)
   int i;
   float s;
   vlScalars *inScalars;
+  vlPolyData *input=(vlPolyData *)this->Input;
 
   if ( this->WriteScalar && this->ScalarFilename &&
-  (inScalars = this->Input->GetPointData()->GetScalars()) != NULL )
+  (inScalars = input->GetPointData()->GetScalars()) != NULL )
     {
     if ( !(scalarFp = fopen(this->ScalarFilename, "r")) )
       {
@@ -185,9 +189,10 @@ void vlBYUWriter::WriteTextureFile(int numPts)
   int i;
   float *t;
   vlTCoords *inTCoords;
+  vlPolyData *input=(vlPolyData *)this->Input;
 
   if ( this->WriteTexture && this->TextureFilename &&
-  (inTCoords = this->Input->GetPointData()->GetTCoords()) != NULL )
+  (inTCoords = input->GetPointData()->GetTCoords()) != NULL )
     {
     if ( !(textureFp = fopen(this->TextureFilename, "r")) )
       {
@@ -215,7 +220,7 @@ void vlBYUWriter::PrintSelf(ostream& os, vlIndent indent)
     {
     this->PrintWatchOn(); // watch for multiple inheritance
 
-    vlPolyFilter::PrintSelf(os,indent);
+    vlPolyFilter::_PrintSelf(os,indent);
     vlWriter::PrintSelf(os,indent);
 
     os << indent << "Geometry Filename: " << this->GeometryFilename << "\n";

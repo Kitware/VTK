@@ -32,11 +32,12 @@ void vlSTLWriter::Write()
 {
   vlPoints *pts;
   vlCellArray *polys;
+  vlPolyData *input=(vlPolyData *)this->Input;
 
-  this->Input->Update();
+  input->Update();
 
-  if ( (pts = this->Input->GetPoints()) == NULL ||
-  (polys = this->Input->GetPolys()) == NULL )
+  if ( (pts = input->GetPoints()) == NULL ||
+  (polys = input->GetPolys()) == NULL )
     {
     vlErrorMacro(<<"No data to write!");
     return;
@@ -157,7 +158,7 @@ void vlSTLWriter::PrintSelf(ostream& os, vlIndent indent)
     {
     this->PrintWatchOn(); // watch for multiple inheritance
 
-    vlPolyFilter::PrintSelf(os,indent);
+    vlPolyFilter::_PrintSelf(os,indent);
     vlWriter::PrintSelf(os,indent);
 
     os << indent << "Filename: " << this->Filename << "\n";

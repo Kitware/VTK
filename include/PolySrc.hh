@@ -28,6 +28,9 @@ class vlPolySource : public vlSource, public vlPolyData
 public:
   char *GetClassName() {return "vlPolySource";};
   void PrintSelf(ostream& os, vlIndent indent);
+
+  void Modified();
+  unsigned long int GetMTime();
   void Update();
 };
 

@@ -1,6 +1,5 @@
 /*=========================================================================
 
-
  Program:   Visualization Library
  Module:    Source.cc
  Language:  C++
@@ -14,18 +13,24 @@
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
-
 #include "Source.hh"
 
-void vlSource::Execute()
+#ifndef NULL
+#define NULL 0
+#endif
+
+vlSource::vlSource()
 {
-  vlDebugMacro(<< "Executing Source\n");
+  this->StartMethod = NULL;
+  this->StartMethodArg = NULL;
+  this->EndMethod = NULL;
+  this->EndMethodArg = NULL;
 }
 
-void vlSource::Update()
+void vlSource::UpdateFilter()
 {
   // Make sure virtual getMTime method is called since subclasses will overload
-  if ( this->GetMTime() > this->ExecuteTime )
+  if ( this->_GetMTime() > this->ExecuteTime )
     {
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
     this->Execute();
@@ -42,7 +47,7 @@ void vlSource::SetStartMethod(void (*f)(void *), void *arg)
     {
     this->StartMethod = f;
     this->StartMethodArg = arg;
-    this->Modified();
+    this->_Modified();
     }
 }
 
@@ -54,13 +59,18 @@ void vlSource::SetEndMethod(void (*f)(void *), void *arg)
     {
     this->EndMethod = f;
     this->EndMethodArg = arg;
-    this->Modified();
+    this->_Modified();
     }
 }
 
-void vlSource::PrintSelf(ostream& os, vlIndent indent)
+void vlSource::Execute()
 {
-  vlObject::PrintSelf(os,indent);
+  cerr << "Execution of filter should be in derived class" << "\n";
+}
+
+void vlSource::_PrintSelf(ostream& os, vlIndent indent)
+{
+  vlLWObject::_PrintSelf(os,indent);
 
   os << indent << "Execute Time: " << this->ExecuteTime.GetMTime() << "\n";
 }

@@ -23,20 +23,19 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #ifndef __vlSource_h
 #define __vlSource_h
 
-#include "Object.hh"
+#include "LWObject.hh"
 
-class vlSource : virtual public vlObject 
+class vlSource : public vlLWObject
 {
 public:
-  vlSource() : StartMethod(NULL), EndMethod(NULL) {};
-  ~vlSource() {};
-  char *GetClassName() {return "vlSource";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  vlSource();
+  virtual ~vlSource() {};
+  void _PrintSelf(ostream& os, vlIndent indent);
 
   // Description:
   // Bring object up-to-date before execution. Update() checks modified
   // time against last execution time, and re-executes object if necessary.
-  virtual void Update();
+  virtual void UpdateFilter();
 
   void SetStartMethod(void (*f)(void *), void *arg);
   void SetEndMethod(void (*f)(void *), void *arg);

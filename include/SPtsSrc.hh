@@ -29,6 +29,9 @@ class vlStructuredPointsSource : public vlSource, public vlStructuredPoints
 public:
   char *GetClassName() {return "vlStructuredPointSource";};
   void PrintSelf(ostream& os, vlIndent indent);
+
+  void Modified();
+  unsigned long int GetMTime();
   void Update();
 };
 

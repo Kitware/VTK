@@ -38,18 +38,19 @@ void vlVoxelWriter::Write()
   unsigned char uc;
   int *dim;
   float *origin,*aspect;
+  vlStructuredPoints *input=(vlStructuredPoints *)this->Input;
 
   vlDebugMacro(<< "Writing Voxel model");
 
   // update the data
-  this->Input->Update();
+  input->Update();
   
-  dim = this->Input->GetDimensions();
-  origin = this->Input->GetOrigin();
-  aspect = this->Input->GetAspectRatio();
+  dim = input->GetDimensions();
+  origin = input->GetOrigin();
+  aspect = input->GetAspectRatio();
   numPts = dim[0]*dim[1]*dim[2];
 
-  newScalars = (vlBitScalars *)this->Input->GetPointData()->GetScalars();
+  newScalars = (vlBitScalars *)input->GetPointData()->GetScalars();
   
   if ( this->Filename == NULL)
     {
@@ -105,7 +106,7 @@ void vlVoxelWriter::PrintSelf(ostream& os, vlIndent indent)
     {
     this->PrintWatchOn(); // watch for multiple inheritance
 
-    vlStructuredPointsFilter::PrintSelf(os,indent);
+    vlStructuredPointsFilter::_PrintSelf(os,indent);
     vlWriter::PrintSelf(os,indent);
 
     os << indent << "Filename: " << this->Filename << "\n";

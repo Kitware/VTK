@@ -23,7 +23,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 #include "Object.hh"
 
-class vlWriter : virtual public vlObject 
+class vlWriter : public vlObject 
 {
 public:
   char *GetClassName() {return "vlWriter";};

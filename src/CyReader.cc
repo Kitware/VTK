@@ -22,7 +22,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include <fcntl.h>
 #include <stdlib.h>
 #include <errno.h>
-
+#include <math.h>
 
 vlCyberReader::vlCyberReader()
 {

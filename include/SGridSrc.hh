@@ -28,6 +28,9 @@ class vlStructuredGridSource : public vlSource, public vlStructuredGrid
 public:
   char *GetClassName() {return "vlStructuredGridSource";};
   void PrintSelf(ostream& os, vlIndent indent);
+
+  void Modified();
+  unsigned long int GetMTime();
   void Update();
 };
 
