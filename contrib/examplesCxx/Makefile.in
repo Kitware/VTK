@@ -8,6 +8,7 @@
 SHELL = /bin/sh
 .SUFFIXES: .cxx
 
+ldir          = `pwd`
 srcdir        = @srcdir@
 VPATH         = @srcdir@
 VTK_LIB_FILE  = @VTK_LIB_FILE@
@@ -24,8 +25,11 @@ VTK_LIB_FILE  = @VTK_LIB_FILE@
 
 #-----------------------------------------------------------------------------
 
-EXAMPLES = TestMPI TestController TestPorts ParallelIso 
-  
+EXAMPLES = TestMPI TestController TestPolyDataPort TestStructuredPointsPort \
+           TestImagePort TestStructuredGridPort GridIso \
+	   ParallelIso GridIso TimeIso StreamPort
+
+
 CXX_FLAGS = ${CPPFLAGS} ${USER_CXXFLAGS} ${CXXFLAGS} -I${srcdir} \
 	${KIT_FLAGS} -I. ${GRAPHICS_API_FLAGS} \
 	 -I${srcdir}/../../common -I${srcdir}/.. -I${srcdir}/../../patented \
@@ -33,7 +37,7 @@ CXX_FLAGS = ${CPPFLAGS} ${USER_CXXFLAGS} ${CXXFLAGS} -I${srcdir} \
 
 VTKLIB = ${VTK_LIB_FILE}
 
-LDLIBS = ${VTK_LIB_FILE} ${XLIBS} ${GRAPHICS_API_LIBS} ${DL_LIBS} ${THREAD_LIBS} -L/home/lawcc/mpich/build/LINUX/ch_p4/lib -lpmpich -lmpich -lXext -lXt -lSM -lICE -lX11  -lm
+LDLIBS = ${VTK_LIB_FILE} ${XLIBS} ${GRAPHICS_API_LIBS} ${DL_LIBS} ${THREAD_LIBS} ${MPI_LIBS} -lXext -lXt -lSM -lICE -lX11  -lm
 
 .cxx.o:
 	${CXX} ${CXX_FLAGS} -c $< -o $@
@@ -43,20 +47,44 @@ LDLIBS = ${VTK_LIB_FILE} ${XLIBS} ${GRAPHICS_API_LIBS} ${DL_LIBS} ${THREAD_LIBS}
 
 all: ${EXAMPLES}
 
-TestMPI: TestMPI.o ${VTKLIB}
+TestMPI: TestMPI.o 
 	${CXX} -o TestMPI ${CXX_FLAGS} TestMPI.o ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 
-TestController: TestController.o ${VTKLIB}
+TestController: TestController.o 
 	${CXX} -o TestController ${CXX_FLAGS} TestController.o ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 
-TestPorts: TestPorts.o ${VTKLIB}
-	${CXX} -o TestPorts ${CXX_FLAGS} TestPorts.o ${XLDFLAGS} ${LDLIBS} \
+TestPolyDataPort: TestPolyDataPort.o
+	${CXX} -o TestPolyDataPort ${CXX_FLAGS} TestPolyDataPort.o ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 
-ParallelIso: ParallelIso.o ${VTKLIB}
+TestImagePort: TestImagePort.o
+	${CXX} -o TestImagePort ${CXX_FLAGS} TestImagePort.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+
+TestStructuredPointsPort: TestStructuredPointsPort.o
+	${CXX} -o TestStructuredPointsPort ${CXX_FLAGS} TestStructuredPointsPort.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+
+TestStructuredGridPort: TestStructuredGridPort.o
+	${CXX} -o TestStructuredGridPort ${CXX_FLAGS} TestStructuredGridPort.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+
+ParallelIso: ParallelIso.o
 	${CXX} -o ParallelIso ${CXX_FLAGS} ParallelIso.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+
+GridIso: GridIso.o
+	${CXX} -o GridIso ${CXX_FLAGS} GridIso.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+
+TimeIso: TimeIso.o
+	${CXX} -o TimeIso ${CXX_FLAGS} TimeIso.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+
+StreamPort: StreamPort.o
+	${CXX} -o StreamPort ${CXX_FLAGS} StreamPort.o ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 
 #------------------------------------------------------------------------------
