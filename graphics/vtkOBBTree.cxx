@@ -44,13 +44,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkOBBTree.h"
 #include "vtkMath.h"
 #include "vtkLine.h"
+#include "vtkPlane.h"
+#include "vtkTriangle.h"
+#include "vtkPolygon.h"
 #include "vtkPolyData.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkOBBTree* vtkOBBTree::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -62,9 +63,6 @@ vtkOBBTree* vtkOBBTree::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkOBBTree;
 }
-
-
-
 
 #define vtkCELLTRIANGLES(CELLPTIDS, TYPE, IDX, PTID0, PTID1, PTID2) \
 	{ switch( TYPE ) \
@@ -296,8 +294,7 @@ void vtkOBBTree::ComputeOBB(vtkDataSet *input, float corner[3], float max[3],
   delete [] this->InsertedPoints;
   this->PointsList->Delete();
   cellList->Delete();
-  }
-
+}
 
 // Compute an OBB from the list of cells given. Return the corner point
 // and the three axes defining the orientation of the OBB. Also return
@@ -454,6 +451,455 @@ void vtkOBBTree::ComputeOBB(vtkIdList *cells, float corner[3], float max[3],
       mid[i] = (tMax[1] - tMin[1]) * mid[i];
       min[i] = (tMax[2] - tMin[2]) * min[i];
       }
+}
+
+// Efficient check for whether a line p1,p2 intersects with triangle
+// pt1,pt2,pt3 to within specified tolerance.  This is included here
+// because vtkTriangle doesn't have an equivalently efficient method.
+
+// The intersection point is returned, along with the parametric
+// coordinate t and the sense of the intersection (+1 if entering
+// or -1 if exiting, according to normal of triangle)
+
+// The function return value is 1 if an intersection was found.
+
+static inline
+int vtkOBBTreeLineIntersectsTriangle(float p1[3], float p2[3],
+				     float pt1[3], float pt2[3], float pt3[3],
+				     float tolerance, float point[3], 
+				     float &t, int &sense)
+{
+  float normal[3];
+  vtkTriangle::ComputeNormal(pt1, pt2, pt3, normal);
+
+  // vector from p1 to p2
+  float v12[3];
+  v12[0] = p2[0] - p1[0];
+  v12[1] = p2[1] - p1[1];
+  v12[2] = p2[2] - p1[2];
+
+  // vector from p1 to triangle
+  float v1t[3];
+  v1t[0] = pt1[0] - p1[0];
+  v1t[1] = pt1[1] - p1[1];
+  v1t[2] = pt1[2] - p1[2];
+
+  // compute numerator/denominator of parametric distance
+  float numerator = vtkMath::Dot(normal, v1t);
+  float denominator = vtkMath::Dot(normal, v12);
+
+  // If denominator less than the tolerance, then the
+  // line and plane are considered parallel. 
+  float fabsden = denominator;
+  sense = -1;
+  if (fabsden < 0.0)
+    {
+    sense = 1;
+    fabsden = -fabsden;
+    }
+  if (fabsden < 1e-6)
+    {
+    return 0;
+    }
+
+  // calculate the distance to the intersection along the line 
+  t = numerator/denominator;
+  if (t < 0.0  ||  t > 1.0)
+    {
+    return 0;
+    }
+
+  // intersection point
+  point[0] = p1[0] + t*v12[0];
+  point[1] = p1[1] + t*v12[1];
+  point[2] = p1[2] + t*v12[2];
+
+  if (tolerance == 0)
+    {
+    // find axis permutation to allow us to do the rest of the
+    // math in 2D (much more efficient than doing the math in 3D)
+    int xi = 0, yi = 1, zi = 2;
+    if (normal[0]*normal[0] < normal[1]*normal[1])
+      {
+      xi = 1; yi = 2; zi = 0;
+      }
+    if (normal[xi]*normal[xi] < normal[2]*normal[2])
+      {
+      xi = 2; yi = 0; zi = 1;
+      }
+
+    // calculate vector from triangle corner to point
+    float u0 = point[yi] - pt1[yi];
+    float v0 = point[zi] - pt1[zi];
+    // calculate edge vectors for triangle
+    float u1 = pt2[yi] - pt1[yi];
+    float v1 = pt2[zi] - pt1[zi];
+    float u2 = pt3[yi] - pt1[yi];
+    float v2 = pt3[zi] - pt1[zi];
+
+    // area of projected triangle (multiplied by 2) via cross product
+    float area = (v2*u1 - u2*v1);
+
+    // sub-areas that must sum to less than the total area
+    float alpha = (v2*u0 - u2*v0);
+    float beta = (v0*u1 - u0*v1);
+
+    if (area < 0)
+      {
+      area = -area;
+      alpha = -alpha;
+      beta = -beta;
+      }
+
+    float mintol = area*1e-6; // minimum tolerance to apply for safety
+    if (beta < -mintol  ||  alpha < -mintol  ||
+	beta + alpha > area + mintol)
+      { // outside of polygon
+      return 0;
+      }
+    }
+  else // if tolerance is not zero, have to do math in full 3D
+    {
+    // vectors from triangle corner to point, vectors for triangle edges
+    float v0[3], v1[3], v2[3], v3[3];
+    for (int i = 0; i < 3; i++)
+      {
+      v0[i] = point[i] - pt1[i];
+      v1[i] = pt2[i] - pt1[i];
+      v2[i] = pt3[i] - pt1[i];
+      v3[i] = pt3[i] - pt2[i];
+      }
+
+    // find normal vector along line
+    vtkMath::Normalize(v12);
+    // total projected area (times two) from scalar triple product
+    float area = vtkMath::Determinant3x3(v1, v2, v12);
+    // partial projected areas for two of the three sub-triangles
+    float alpha = vtkMath::Determinant3x3(v1, v0, v12);
+    float beta = vtkMath::Determinant3x3(v0, v2, v12);
+
+    // make sure area is positive so that comparisons work out
+    if (area < 0)
+      {
+      area = -area;
+      alpha = -alpha;
+      beta = -beta;
+      }
+
+    // tolerance for each edge, converted to area tolerance by multiplying
+    // by the distance tolerance by the length of the edge
+    float alphatol = tolerance*sqrt(vtkMath::Dot(v1,v1));
+    float betatol = tolerance*sqrt(vtkMath::Dot(v2,v2));
+    float gammatol = tolerance*sqrt(vtkMath::Dot(v3,v3));
+
+    if (beta < -betatol  ||  alpha < -alphatol  ||  
+	beta + alpha > area + gammatol)
+      { // outside of polygon even considering tolerance
+      return 0;
+      }
+    }
+
+  return 1;
+}
+
+// just check whether a point lies inside or outside the DataSet,
+// assuming that the data is a closed vtkPolyData surface.
+int vtkOBBTree::InsideOrOutside(const float point[3])
+{ 
+  // no points!  
+  // shoot a ray that is guaranteed to hit one of the cells and use
+  // that as our inside/outside check
+  vtkIdType numCells = this->DataSet->GetNumberOfCells();
+  for (vtkIdType i = 0; i < numCells; i++)
+    {
+    vtkIdType numPts;
+    vtkIdType *ptIds;
+    int cellType = this->DataSet->GetCellType(i);
+    ((vtkPolyData *)this->DataSet)->GetCellPoints(i, numPts, ptIds);
+
+    // break the cell into triangles
+    for (vtkIdType j = 0; j < numPts-2; j++)
+      {
+      vtkIdType pt1Id, pt2Id, pt3Id;
+      vtkCELLTRIANGLES(ptIds, cellType, j, pt1Id, pt2Id, pt3Id);
+      if (pt1Id < 0)
+	{ // cell wasn't a polygon, triangle, quad, or triangle strip
+	continue;
+	}
+      // create a point that is guaranteed to be inside the cell
+      float *pt1 = this->DataSet->GetPoint(pt1Id);
+      float *pt2 = this->DataSet->GetPoint(pt2Id);
+      float *pt3 = this->DataSet->GetPoint(pt3Id);
+
+      float x[3];
+      x[0] = (pt1[0] + pt2[0] + pt3[0])/3;
+      x[1] = (pt1[1] + pt2[1] + pt3[1])/3;
+      x[2] = (pt1[2] + pt2[2] + pt3[2])/3;
+      // make a line guaranteed to pass through the cell's first triangle
+      x[0] += x[0] - point[0];
+      x[1] += x[1] - point[1];
+      x[2] += x[2] - point[2];
+
+      // calculate vector
+      float v12[3];
+      v12[0] = x[0] - point[0];
+      v12[1] = x[1] - point[1];
+      v12[2] = x[2] - point[2];
+
+      // get triangle normal, we need a triangle for whose face is
+      // not parallel to the line
+      float normal[3];
+      vtkTriangle::ComputeNormal(pt1, pt2, pt3, normal);
+      float dotProd = vtkMath::Dot(normal, v12);
+      if (dotProd < 0)
+	{
+	dotProd = -dotProd;
+	}
+      if (dotProd >= this->Tolerance + 1e-6)
+	{
+	return this->IntersectWithLine(point, x, NULL, NULL);
+	}
+      // otherwise go on to next triangle
+      }
+    }
+  return 0;
+}
+
+
+// Take the passed line segment and intersect it with the OBB cells.
+// This method assumes that the data set is a vtkPolyData that describes
+// a closed surface, and the intersection points that are returned in
+// 'points' alternate between entrance points and exit points.
+// The return value of the function is 0 if no intersection was found,
+// 1 if point 'p1' lies inside the polydata surface, or -1 if point 'p1'
+// lies outside the polydata surface.
+int vtkOBBTree::IntersectWithLine(const float p1[3], const float p2[3],
+				  vtkPoints *points, vtkIdList *cellIds)
+{
+  if (this->DataSet == NULL)
+    {
+    if (points)
+      {
+      points->SetNumberOfPoints(0);
+      }
+    if (cellIds)
+      {
+      cellIds->SetNumberOfIds(0);
+      }
+    return 0;
+    }
+  if (!this->DataSet->IsA("vtkPolyData"))
+    {
+    vtkErrorMacro("IntersectWithLine: this method requires a vtkPolyData");
+    return 0;
+    }
+
+  int rval = 0;  // return value for function
+  vtkIdList *cells;
+
+  // temporary list used to sort intersections
+  int listSize = 0;
+  int listMaxSize = 10;
+  float *distanceList = new float[listMaxSize];
+  vtkIdType *cellList = new vtkIdType[listMaxSize];
+  char *senseList = new char[listMaxSize];
+
+  float point[3];
+  float distance;
+  int sense;
+  vtkIdType cellId;
+
+  // compute line vector from p1 to p2
+  float v12[3];
+  v12[0] = p2[0] - p1[0];
+  v12[1] = p2[1] - p1[1];
+  v12[2] = p2[2] - p1[2];
+
+  vtkOBBNode **OBBstack = new vtkOBBNode *[this->GetLevel()+1];
+  OBBstack[0] = this->Tree;
+
+  // depth counter for stack
+  int depth = 1;
+  while(depth > 0)
+    { // simulate recursion without the overhead or limitations
+    vtkOBBNode *node = OBBstack[--depth];
+
+    // check for intersection with node
+    if (this->LineIntersectsNode(node, (float *)p1, (float *)p2))
+      { 
+      if (node->Kids == NULL)
+	{ // then this is a leaf node...get Cells
+	cells = node->Cells;
+	vtkIdType numCells = cells->GetNumberOfIds();
+	for (vtkIdType i = 0; i < numCells; i++)
+	  {
+	  // get the current cell
+	  cellId = cells->GetId(i);
+	  int cellType = this->DataSet->GetCellType(cellId);
+	  vtkIdType numPts;
+	  vtkIdType *ptIds;
+	  ((vtkPolyData *)this->DataSet)->GetCellPoints(cellId, numPts, ptIds);
+
+	  // break the cell into triangles
+	  for (vtkIdType j = 0; j < numPts-2; j++)
+	    {
+	    vtkIdType pt1Id, pt2Id, pt3Id;
+	    vtkCELLTRIANGLES(ptIds, cellType, j, pt1Id, pt2Id, pt3Id);
+	    if (pt1Id < 0)
+	      { // cell wasn't a polygon, triangle, quad, or triangle strip
+	      continue;
+	      }
+
+	    // get the points for this triangle
+	    float *pt1 = this->DataSet->GetPoint(pt1Id);
+	    float *pt2 = this->DataSet->GetPoint(pt2Id);
+	    float *pt3 = this->DataSet->GetPoint(pt3Id);
+
+	    if (vtkOBBTreeLineIntersectsTriangle((float *)p1, (float *)p2,
+						 pt1, pt2, pt3,
+						 this->Tolerance, point, 
+						 distance, sense) <= 0)
+	      { // no intersection with triangle
+	      continue;
+	      }
+	    
+	    // we made it! we have a hit!
+
+	    if (listSize >= listMaxSize)
+	      { // have to grow the distanceList
+	      listMaxSize *= 2;
+	      float *tmpDistanceList = new float[listMaxSize];
+	      vtkIdType *tmpCellList = new vtkIdType[listMaxSize];
+	      char *tmpSenseList = new char[listMaxSize];
+	      for (int i = 0; i < listSize; i++)
+		{
+		tmpDistanceList[i] = distanceList[i];
+		tmpCellList[i] = cellList[i];
+		tmpSenseList[i] = senseList[i];
+		}
+	      delete [] distanceList;
+	      distanceList = tmpDistanceList;
+	      delete [] cellList;
+	      cellList = tmpCellList;
+	      delete [] senseList;
+	      senseList = tmpSenseList;
+	      }
+	    // store in the distanceList
+	    distanceList[listSize] = distance;
+	    cellList[listSize] = cellId;
+	    senseList[listSize++] = sense;
+
+	    // if cell is planar (i.e. not a triangle strip) then proceed
+	    // immediately to the next cell, otherwise go to next triangle
+	    if (cellType != VTK_TRIANGLE_STRIP)
+	      {
+	      break;
+	      }
+	    }
+	  }
+	}
+      else
+	{ // push kids onto stack
+	OBBstack[depth] = node->Kids[0];
+	OBBstack[depth+1] = node->Kids[1];
+	depth += 2;
+	}
+      }
+    } // end while
+  
+  if (listSize != 0)
+    {
+    // Look at the distanceList and return the intersection point
+    // sorted according to their distance from p1.
+
+    if (points)
+      {
+      points->SetNumberOfPoints(listSize);
+      }
+    if (cellIds)
+      {
+      cellIds->SetNumberOfIds(0);
+      }
+    float ptol = this->Tolerance/sqrt(vtkMath::Dot(v12,v12));
+    float lastDistance = 0.0;
+    int lastSense = 0;
+    int nPoints = 0;
+    int listRemainder = listSize;
+    while (listRemainder)
+      {
+      int minIdx = 0;
+      for (int j = 1; j < listRemainder; j++)
+	{ // check for closest intersection of the correct sense
+	if (senseList[j] != lastSense &&
+	    distanceList[j] < distanceList[minIdx])
+	  {
+	  minIdx = j;
+	  }
+	}
+
+      distance = distanceList[minIdx];
+      cellId = cellList[minIdx];
+      sense = senseList[minIdx];
+      listRemainder--;
+      distanceList[minIdx] = distanceList[listRemainder];
+      cellList[minIdx] = cellList[listRemainder];
+      senseList[minIdx] = senseList[listRemainder];
+
+      // only use point if it moves us forward, 
+      // or it moves us backward by less than tol
+      if (distance > lastDistance - ptol  &&  sense != lastSense)
+	{ 
+	if (points)
+	  {
+	  point[0] = p1[0] + distance*v12[0];
+	  point[1] = p1[1] + distance*v12[1];
+	  point[2] = p1[2] + distance*v12[2];
+	  points->SetPoint(nPoints, point);
+	  }
+	if (cellIds)
+	  {
+	  cellIds->InsertNextId(cellId);
+	  }
+	nPoints++;
+
+	// set return value according to sense of first intersection
+	if (rval == 0)
+	  {
+	  rval = sense;
+	  }
+	// remember the last point
+	lastDistance = distance;
+	lastSense = sense;
+	}
+      }
+    // shrink points array if not all points were used
+    if (nPoints < listSize)
+      {
+      if (points)
+	{
+	points->GetData()->Resize(nPoints);
+	}
+      }
+    // done!
+    }
+  else
+    {
+    if (points)
+     {
+     points->SetNumberOfPoints(0);
+     }
+    if (cellIds)
+      {
+      cellIds->SetNumberOfIds(0);
+      }
+    }
+
+  delete [] senseList;
+  delete [] cellList;
+  delete [] distanceList;
+
+  // return 1 if p1 is inside, 0 is p1 is outside
+  return rval;
 }
 
 // Return intersection point of line defined by two points (a0,a1) in dataset
@@ -1318,22 +1764,26 @@ int vtkOBBTree::TriangleIntersectsNode( vtkOBBNode *nodeA,
   return( 1 );
   }
 
+
+// check if a line intersects the node: the line doesn't have to actually
+// pass all the way through the node, but at least some portion of the line
+// must lie within the node.
 int vtkOBBTree::LineIntersectsNode( vtkOBBNode *pA,
                                     float B0[3], float B1[3] )
-  {
-  float AtoB[3], Bvec[3];
-  double rangeAmin, rangeAmax, rangeBmin, rangeBmax, dotA, dotB;
-  int ii, jj;
- 
-  // check for a separation plane parallel to the faces of A
-  for ( ii=0; ii<3; ii++ )
-    { // plane is normal to pA->Axes[ii]
+{
+  double rangeAmin, rangeAmax, rangeBmin, rangeBmax, dotB;
+  double eps;
+  int ii;
+
+  for ( ii = 0; ii < 3; ii++ )
+    {
     // computing A range is easy...
-    rangeAmin = rangeAmax = vtkMath::Dot( pA->Corner, pA->Axes[ii] );
-    rangeAmax += vtkMath::Dot( pA->Axes[ii], pA->Axes[ii] );
+    rangeAmin = vtkMath::Dot( pA->Corner, pA->Axes[ii] );
+    rangeAmax = rangeAmin + vtkMath::Dot( pA->Axes[ii], pA->Axes[ii] );
 
     // compute B range...
-    rangeBmin = rangeBmax = vtkMath::Dot( B0, pA->Axes[ii] );
+    rangeBmin = vtkMath::Dot( B0, pA->Axes[ii] );
+    rangeBmax = rangeBmin;
     dotB = vtkMath::Dot( B1, pA->Axes[ii] );
     if ( dotB < rangeBmin )
       {
@@ -1343,81 +1793,22 @@ int vtkOBBTree::LineIntersectsNode( vtkOBBNode *pA,
       {
       rangeBmax = dotB;
       }
-    
-    if ( (rangeAmax < rangeBmin) || (rangeBmax < rangeAmin) )
+
+    eps = this->Tolerance;
+    if ( eps != 0 )
+      { // avoid sqrt call if tolerance check isn't being done
+      eps *= sqrt(rangeAmax - rangeAmin);
+      }
+
+    if ( (rangeAmax+eps < rangeBmin) || (rangeBmax+eps < rangeAmin) )
       {
-      return( 0 ); // A and B are Disjoint by the 1st test.
+      return ( 0 );
       }
     }
 
-  // now check for a separation plane normal to the line segment B
-  // plane is normal to B1-B0
-  Bvec[0] = B1[0] - B0[0];
-  Bvec[1] = B1[1] - B0[1];
-  Bvec[2] = B1[2] - B0[2];
-  // computing B range is easy...
-  rangeBmin = vtkMath::Dot( B0, Bvec );
-  rangeBmax = vtkMath::Dot( B1, Bvec );
-
-  // compute A range...
-  rangeAmin = rangeAmax = vtkMath::Dot( pA->Corner, Bvec );
-  for ( jj=0; jj<3; jj++ )
-    {
-    dotA = vtkMath::Dot( pA->Axes[ii], Bvec );
-    if ( dotA > 0 )
-      {
-      rangeAmax += dotA;
-      }
-    else
-      {
-      rangeAmin += dotA;
-      }
-    }
-  if ( (rangeAmax < rangeBmin) || (rangeBmax < rangeAmin) )
-    {
-    return( 0 ); // A and B are Disjoint by the 2nd test.
-    }
-
-  // Bad luck: now we must look for a separation plane parallel
-  // to one edge from A and line B.
-  for ( ii=0; ii<3; ii++ )
-    {
-    // the plane is normal to pA->Axes[ii] X Bvec
-    vtkMath::Cross( pA->Axes[ii], Bvec, AtoB );
-    rangeAmin = rangeAmax = vtkMath::Dot( pA->Corner, AtoB );
-    rangeBmin = rangeBmax = vtkMath::Dot( B0, AtoB );
-    for ( jj=0; jj<3; jj++ )
-      {
-      // compute A range
-      dotA = vtkMath::Dot( pA->Axes[jj], AtoB );
-      if ( dotA > 0 )
-        {
-        rangeAmax += dotA;
-        }
-      else
-        {
-        rangeAmin += dotA;
-        }
-      }
-
-    // compute B range
-    dotB = vtkMath::Dot( Bvec, AtoB );
-    if ( dotB > 0 )
-      {
-      rangeBmax += dotB;
-      }
-    else
-      {
-      rangeBmin += dotB;
-      }
-    }
-    if ( (rangeAmax < rangeBmin) || (rangeBmax < rangeAmin) )
-      {
-      return( 0 ); // A and B are Disjoint by the 3rd test.
-      }
-    
-  return( 1 ); // if we fall through to here, the line must intersect the OBB
-  }
+  // if we fall through to here, the OBB overlaps the line segment.
+  return ( 1 );
+}
 
 // Intersect this OBBTree with OBBTreeB (as transformed) and
 // call processing function for each intersecting leaf node pair.

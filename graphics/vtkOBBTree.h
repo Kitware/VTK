@@ -126,6 +126,29 @@ public:
   void ComputeOBB(vtkDataSet *input, float corner[3], float max[3],
                   float mid[3], float min[3], float size[3]);
 
+  // Description:
+  // Determine whether a point is inside or outside the data used to build
+  // this OBB tree.  The data must be a closed surface vtkPolyData data set.
+  // The return value is +1 if outside, -1 if inside, and 0 if undecided.
+  int InsideOrOutside(const float point[3]);
+
+  // Description:
+  // Take the passed line segment and intersect it with the data set.
+  // This method assumes that the data set is a vtkPolyData that describes
+  // a closed surface, and the intersection points that are returned in
+  // 'points' alternate between entrance points and exit points.
+  // The return value of the function is 0 if no intersections were found,
+  // -1 if point 'a0' lies inside the closed surface, or +1 if point 'a0'
+  // lies outside the closed surface.
+  // Either 'points' or 'cellIds' can be set to NULL if you don't want
+  // to receive that information.
+  int IntersectWithLine(const float a0[3], const float a1[3],
+                        vtkPoints *points, vtkIdList *cellIds);
+
+  // Description:
+  // Return the first intersection of the specified line segment with
+  // the OBB tree, as well as information about the cell which the
+  // line segment intersected.
   int IntersectWithLine(float a0[3], float a1[3], float tol,
                         float& t, float x[3], float pcoords[3],
                         int &subId);
@@ -135,14 +158,14 @@ public:
                         int &subId, vtkIdType &cellId);
   
   int IntersectWithLine(float a0[3], float a1[3], float tol,
-			float& t, float x[3], float pcoords[3],
-			int &subId, vtkIdType &cellId, vtkGenericCell *cell);
+                        float& t, float x[3], float pcoords[3],
+                        int &subId, vtkIdType &cellId, vtkGenericCell *cell);
 
   //BTX
+
   // Description:
   // Returns true if nodeB and nodeA are disjoint after optional
   // transformation of nodeB with matrix XformBtoA
-  //BTX
   int DisjointOBBNodes( vtkOBBNode *nodeA, vtkOBBNode *nodeB,
                         vtkMatrix4x4 *XformBtoA );
 
