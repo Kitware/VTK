@@ -116,6 +116,10 @@
 #define VTK_TEXT_BOTTOM 0
 #define VTK_TEXT_TOP    2
 
+#define VTK_TEXT_GLOBAL_ANTIALIASING_SOME 0
+#define VTK_TEXT_GLOBAL_ANTIALIASING_NONE 1
+#define VTK_TEXT_GLOBAL_ANTIALIASING_ALL 2
+
 // 
 
 // A macro to get the name of a type
