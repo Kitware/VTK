@@ -28,12 +28,13 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkSimpleScalarTree.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTimerLog.h"
 #include "vtkUnstructuredGrid.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkContourFilter, "1.107");
+vtkCxxRevisionMacro(vtkContourFilter, "1.108");
 vtkStandardNewMacro(vtkContourFilter);
 vtkCxxSetObjectMacro(vtkContourFilter,ScalarTree,vtkScalarTree);
 
@@ -89,6 +90,18 @@ unsigned long vtkContourFilter::GetMTime()
     }
 
   return mTime;
+}
+
+int vtkContourFilter::ComputeInputUpdateExtent(vtkInformation*,
+                                               vtkInformationVector* inputVector,
+                                               vtkInformationVector*)
+{
+  vtkInformation* inInfo = 
+    inputVector->GetInformationObject(0)->Get(
+      vtkAlgorithm::INPUT_CONNECTION_INFORMATION())->GetInformationObject(0);
+
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
+  return 1;
 }
 
 // General contouring filter.  Handles arbitrary input.
