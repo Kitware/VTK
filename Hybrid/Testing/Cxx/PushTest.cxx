@@ -10,7 +10,7 @@ class PTCallback : public vtkCommand
 public:
   static PTCallback *New() { return new PTCallback;}
   static int count;
-  virtual void Execute(vtkObject *caller, unsigned long, void *callData)
+  virtual void Execute(vtkObject *, unsigned long, void *)
     {
       count++;
     }
