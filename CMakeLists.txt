@@ -9,8 +9,8 @@ IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.5)
 #-----------------------------------------------------------------------------
 # VTK version number.  An even minor number corresponds to releases.
 SET(VTK_MAJOR_VERSION 4)
-SET(VTK_MINOR_VERSION 1)
-SET(VTK_BUILD_VERSION 1)
+SET(VTK_MINOR_VERSION 3)
+SET(VTK_BUILD_VERSION 0)
 SET(VTK_VERSION
     "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}.${VTK_BUILD_VERSION}")
 
