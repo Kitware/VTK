@@ -260,7 +260,7 @@ BOOL CPcmakerApp::InitInstance()
     dlg.m_WhereTcl = "";
     dlg.m_WhereTk  = "";
     }
-   if (strcmp(m_lpCmdLine, "quality") == 0)
+   if (strncmp(m_lpCmdLine, "quality", 7) == 0)  // skip any trailing characters
     {
     // use the quality testing effort defaults
     dlg.m_WhereVTK = "d:\\production\\vtk";
