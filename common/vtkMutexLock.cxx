@@ -55,6 +55,9 @@ vtkMutexLock::vtkMutexLock()
 // Destruct the vtkMutexVariable
 vtkMutexLock::~vtkMutexLock()
 {
+#ifdef _WIN32
+  CloseHandle(this->MutexLock);
+#endif
 }
 
 // Lock the vtkMutexLock
