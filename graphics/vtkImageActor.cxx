@@ -55,6 +55,12 @@ vtkImageActor::vtkImageActor()
 {
   this->Input = NULL;
   this->Interpolate = 1;
+  this->DisplayExtent[0] = 0;
+  this->DisplayExtent[1] = 0;
+  this->DisplayExtent[2] = 0;
+  this->DisplayExtent[3] = 0;
+  this->DisplayExtent[4] = 0;
+  this->DisplayExtent[5] = 0;  
 }
 
 vtkImageActor::~vtkImageActor()
