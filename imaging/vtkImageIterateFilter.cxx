@@ -211,6 +211,7 @@ int vtkImageIterateFilter::ComputeInputUpdateExtents(vtkDataObject *output)
     in->SetUpdateExtent(inExt);
     out = in;
     }
+  return 1;
 }
 
 
