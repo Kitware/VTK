@@ -26,23 +26,18 @@
 #include "vtkPolygon.h"
 #include "vtkQuadric.h"
 
-vtkCxxRevisionMacro(vtkTriangle, "1.3");
+vtkCxxRevisionMacro(vtkTriangle, "1.4");
 vtkStandardNewMacro(vtkTriangle);
 
 //----------------------------------------------------------------------------
 // Construct the triangle with three points.
 vtkTriangle::vtkTriangle()
 {
-  int i;
-  
   this->Points->SetNumberOfPoints(3);
   this->PointIds->SetNumberOfIds(3);
-  for (i = 0; i < 3; i++)
+  for (int i = 0; i < 3; i++)
     {
     this->Points->SetPoint(i, 0.0, 0.0, 0.0);
-    }
-  for (i = 0; i < 3; i++)
-    {
     this->PointIds->SetId(i,0);
     }
   this->Line = vtkLine::New();
@@ -462,12 +457,7 @@ void vtkTriangle::Contour(double value, vtkDataArray *cellScalars,
 // coordinates.
 vtkCell *vtkTriangle::GetEdge(int edgeId)
 {
-  int edgeIdPlus1 = edgeId + 1;
-
-  if (edgeIdPlus1 > 2)
-    {
-    edgeIdPlus1 = 0;
-    }
+  int edgeIdPlus1 = (edgeId > 1 ? 0 : (edgeId+1) );
 
   // load point id's
   this->Line->PointIds->SetId(0,this->PointIds->GetId(edgeId));

@@ -38,12 +38,9 @@ class vtkUnstructuredGrid;
 class VTK_FILTERING_EXPORT vtkPyramid : public vtkCell3D
 {
 public:
+  static vtkPyramid *New();
   vtkTypeRevisionMacro(vtkPyramid,vtkCell3D);
   void PrintSelf(ostream& os, vtkIndent indent);
-
-  // Description:
-  // Create an instance of this class.
-  static vtkPyramid *New();
 
   // Description:
   // See vtkCell3D API for description of these methods.

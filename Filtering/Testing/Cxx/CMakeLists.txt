@@ -2,6 +2,7 @@ SET(KIT Filtering)
 #
 # Create a test lists
 CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
+  quadCellConsistency.cxx
   otherColorTransferFunction.cxx
   EXTRA_INCLUDE vtkSuppressCrtDbgWarning.h
   FUNCTION vtkSuppressCrtDbgWarning

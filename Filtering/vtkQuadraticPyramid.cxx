@@ -27,7 +27,7 @@
 #include "vtkQuadraticQuad.h"
 #include "vtkQuadraticTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadraticPyramid, "1.4");
+vtkCxxRevisionMacro(vtkQuadraticPyramid, "1.5");
 vtkStandardNewMacro(vtkQuadraticPyramid);
 
 //----------------------------------------------------------------------------
@@ -86,7 +86,7 @@ static int LinearPyramids[10][5] = { {0,5,13,8,9},
                                      {7,12,11,13,0},
                                      {8,9,12,13,0} };
 
-static int PyramidFaces[5][8] = { {0,1,2,3,5,6,7,8}, 
+static int PyramidFaces[5][8] = { {0,3,2,1,8,7,6,5}, 
                                   {0,1,4,5,10,9,0,0},
                                   {1,2,4,6,11,10,0,0},
                                   {2,3,4,7,12,11,0,0},

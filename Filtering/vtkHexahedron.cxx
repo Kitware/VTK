@@ -24,7 +24,7 @@
 #include "vtkPoints.h"
 #include "vtkQuad.h"
 
-vtkCxxRevisionMacro(vtkHexahedron, "1.3");
+vtkCxxRevisionMacro(vtkHexahedron, "1.4");
 vtkStandardNewMacro(vtkHexahedron);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -33,17 +33,12 @@ static const double VTK_DIVERGED = 1.e6;
 // Construct the hexahedron with eight points.
 vtkHexahedron::vtkHexahedron()
 {
-  int i;
-  
   this->Points->SetNumberOfPoints(8);
   this->PointIds->SetNumberOfIds(8);
 
-  for (i = 0; i < 8; i++)
+  for (int i = 0; i < 8; i++)
     {
     this->Points->SetPoint(i, 0.0, 0.0, 0.0);
-    }
-  for (i = 0; i < 8; i++)
-    {
     this->PointIds->SetId(i,0);
     }
   this->Line = vtkLine::New();

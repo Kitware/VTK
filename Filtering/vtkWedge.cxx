@@ -25,7 +25,7 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkWedge, "1.3");
+vtkCxxRevisionMacro(vtkWedge, "1.4");
 vtkStandardNewMacro(vtkWedge);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -482,9 +482,7 @@ int *vtkWedge::GetFaceArray(int faceId)
 //----------------------------------------------------------------------------
 vtkCell *vtkWedge::GetFace(int faceId)
 {
-  int *verts;
-
-  verts = faces[faceId];
+  int *verts = faces[faceId];
 
   if ( verts[3] != -1 ) // quad cell
     {
