@@ -286,8 +286,7 @@ static void vtkcopygenesisimage(FILE *infp, int width, int height,
 
 
 static void vtkGESignaReaderUpdate2(vtkGESignaReader *self, 
-                                    unsigned short *outPtr, int *outExt, 
-                                    int *outInc)
+                                    unsigned short *outPtr, int *outExt, int *)
 {
   FILE *fp = fopen(self->GetInternalFileName(), "rb");
   if (!fp)

@@ -112,7 +112,7 @@ void vtkJPEGReader::ExecuteInformation()
 
 template <class OT>
 static void vtkJPEGReaderUpdate2(vtkJPEGReader *self, OT *outPtr,
-                                int *outExt, int *outInc, long pixSize)
+                                int *outExt, int *outInc, long)
 {
   unsigned int ui;
   int i;

@@ -709,7 +709,6 @@ PlyFile *vtkPLY::ply_read(FILE *fp, int *nelems, char ***elem_names)
   PlyFile *plyfile;
   int nwords;
   char **words;
-  int found_format = 0;
   char **elist;
   PlyElement *elem;
   char *orig_line;
@@ -754,7 +753,6 @@ PlyFile *vtkPLY::ply_read(FILE *fp, int *nelems, char ***elem_names)
         return (NULL);
         }
       plyfile->version = atof (words[2]);
-      found_format = 1;
     }
     else if (equal_strings (words[0], "element"))
       add_element (plyfile, words, nwords);
@@ -1060,7 +1058,7 @@ Entry:
   elem    - element for which we want to save away other properties
 ******************************************************************************/
 
-void setup_other_props(PlyFile *plyfile, PlyElement *elem)
+void setup_other_props(PlyFile *, PlyElement *elem)
 {
   int i;
   PlyProperty *prop;
@@ -1355,7 +1353,7 @@ Entry:
   other_elems - data structure to free up
 ******************************************************************************/
 
-void vtkPLY::ply_free_other_elements (PlyOtherElems *other_elems)
+void vtkPLY::ply_free_other_elements (PlyOtherElems *)
 {
 
 }
@@ -2380,7 +2378,7 @@ Entry:
   nwords  - number of words in the list
 ******************************************************************************/
 
-void vtkPLY::add_element (PlyFile *plyfile, char **words, int nwords)
+void vtkPLY::add_element (PlyFile *plyfile, char **words, int)
 {
   PlyElement *elem;
 
