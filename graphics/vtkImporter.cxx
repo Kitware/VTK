@@ -73,6 +73,10 @@ void vtkImporter::Read ()
     renderer = this->Renderer;
     this->RenderWindow->AddRenderer (renderer);
     }
+  else
+    {
+    this->Renderer = renderer;
+    }
 
   // Open the import file
   if (this->OpenImportFile ())
@@ -123,6 +127,20 @@ void vtkImporter::CloseImportFile()
 void vtkImporter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
+
+  os << indent << "Render Window: ";
+  if ( this->RenderWindow ) os << this->RenderWindow << "\n";
+  else os << "(none)\n";
+
+  os << indent << "Renderer: ";
+  if ( this->Renderer ) os << this->Renderer << "\n";
+  else os << "(none)\n";
+
+  os << indent << "File Name: " 
+     << (this->FileName ? this->FileName : "(none)") << "\n";
+
+  os << indent << "Compute Normals: " 
+     << (this->ComputeNormals ? "On\n" : "Off\n");
 }
 
 

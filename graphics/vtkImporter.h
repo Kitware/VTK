@@ -105,16 +105,20 @@ public:
 
   // Description:
   // Set/Get the computation of normals. If on, imported geometry will
-  // be run through vtkPolyNormals.
+  // be run through vtkPolyDataNormals.
   vtkSetMacro(ComputeNormals,int);
   vtkGetMacro(ComputeNormals,int);
   vtkBooleanMacro(ComputeNormals,int);
 
   // Description
   // Import the actors, cameras, lights and properties into a vtkRenderWindow.
-  void Read ();
+  void Read();
+  void Update() {this->Read();};
   
-  FILE *FileFD;
+  // Description:
+  // Return the file pointer to the open file.
+  FILE *GetFileFD() {return this->FileFD;};
+
 protected:
   int OpenImportFile();
   void CloseImportFile();
@@ -124,10 +128,13 @@ protected:
   virtual void ImportLights (vtkRenderer *vtkNotUsed(renderer)) {};
   virtual void ImportProperties (vtkRenderer *vtkNotUsed(renderer)) {};
   virtual void ImportEnd () {};
+
   char *FileName;
-  int ComputeNormals;
+  FILE *FileFD;
   vtkRenderer *Renderer;
   vtkRenderWindow *RenderWindow;
+  int ComputeNormals;
+
 };
 
 #endif
