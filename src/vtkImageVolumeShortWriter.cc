@@ -52,6 +52,8 @@ vtkImageVolumeShortWriter::vtkImageVolumeShortWriter()
   this->Signed = 0;
   this->SwapBytes = 0;  
   this->First = 1;
+  this->FileRoot = NULL;
+  this->FileName = NULL;
 }
 
 
@@ -63,8 +65,8 @@ vtkImageVolumeShortWriter::~vtkImageVolumeShortWriter()
   // get rid of old names
   if (this->FileRoot)
     delete [] this->FileRoot;
-  if (this->FileRoot)
-    delete [] this->FileRoot;
+  if (this->FileName)
+    delete [] this->FileName;
 }
 
 
@@ -75,11 +77,13 @@ void vtkImageVolumeShortWriter::SetFileRoot(char *fileRoot)
 {
   long rootLength = strlen(fileRoot);
   
+  vtkDebugMacro(<< "SetFileRoot: root = " << fileRoot);
+  
   // get rid of old names
   if (this->FileRoot)
     delete [] this->FileRoot;
-  if (this->FileRoot)
-    delete [] this->FileRoot;
+  if (this->FileName)
+    delete [] this->FileName;
 
   this->FileRoot = new char [rootLength + 5];
   this->FileName = new char [rootLength + 15];
@@ -106,6 +110,31 @@ void vtkImageVolumeShortWriter::Write()
   this->Write(offset, size);
 }
 
+
+
+//----------------------------------------------------------------------------
+// Description:
+// For tcl.
+void vtkImageVolumeShortWriter::Write(int offset0, int offset1, int offset2, 
+				      int size0, int size1, int size2)
+{
+  int offset[3], size[3];
+  
+  offset[0] = offset0;
+  offset[1] = offset1;
+  offset[2] = offset2;
+  size[0] = size0;
+  size[1] = size1;
+  size[2] = size2;
+  
+  this->Write(offset, size);  
+}
+
+  
+  
+  
+  
+  
 
 
 //----------------------------------------------------------------------------
@@ -137,10 +166,10 @@ void vtkImageVolumeShortWriter::Write(int *offset, int *size)
  
   // write the volume slice by slice
   sliceSize[2] = 1;
-  for (idx = 0; idx < sliceSize[2]; ++idx)
+  for (idx = 0; idx < size[2]; ++idx)
     {
     sliceOffset[2] = offset[2] + idx;
-    region = this->Input->RequestRegion(offset, size);
+    region = this->Input->RequestRegion(sliceOffset, sliceSize);
     if ( ! region)
       vtkErrorMacro(<< "Write: Request for image " << idx << " failed.");
     else
@@ -201,7 +230,7 @@ void vtkImageVolumeShortWriter::WriteSlice(vtkImageRegion *region)
 	}
       
       ptr0 += inc0;
-      ++pbuf;
+      pbuf += 2;
       }
     
     // write a row
