@@ -191,6 +191,7 @@ void vtkAppendFilter::Execute()
     for (cellId=0; cellId < numCells; cellId++)
       {
       ds->GetCellPoints(cellId,ptIds);
+      newPtIds.Reset ();
       for (i=0; i < ptIds.GetNumberOfIds(); i++)
         newPtIds.InsertId(i,ptIds.GetId(i)+ptOffset);
       output->InsertNextCell(ds->GetCellType(cellId),newPtIds);
