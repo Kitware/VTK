@@ -13,6 +13,7 @@
 #include "vtkRenderer.h"
 #include "vtkInputPort.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkParallelFactory.h"
 
 #include "vtkDebugLeaks.h"
 #include "vtkRegressionTestImage.h"
@@ -301,6 +302,11 @@ int main(int argc, char** argv)
 
   vtkThreadedController* contr = vtkThreadedController::New();
   contr->Initialize(&argc, &argv);
+
+  vtkParallelFactory* pf = vtkParallelFactory::New();
+  vtkObjectFactory::RegisterFactory(pf);
+  pf->Delete();
+
 
   // This is repeated for the sake of MPI. This one might not
   // get called by the parent process, the first one might not

@@ -25,6 +25,7 @@
 #include "vtkTIFFWriter.h"
 #include "vtkMultiProcessController.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkParallelFactory.h"
 
 #include "vtkDebugLeaks.h"
 
@@ -254,6 +255,10 @@ int main( int argc, char* argv[] )
   vtkDebugLeaks::PromptUserOff();
   controller->Initialize(&argc, &argv);
   vtkDebugLeaks::PromptUserOff();
+
+  vtkParallelFactory* pf = vtkParallelFactory::New();
+  vtkObjectFactory::RegisterFactory(pf);
+  pf->Delete();
  
   // Added for regression test.
   // ----------------------------------------------
