@@ -92,7 +92,7 @@ void vtkMCubesReader::Execute()
     vtkErrorMacro(<< "Please specify input FileName");
     return;
     }
-  if ( (fp = fopen(this->FileName, "r")) == NULL)
+  if ( (fp = fopen(this->FileName, "rb")) == NULL)
     {
     vtkErrorMacro(<< "File " << this->FileName << " not found");
     return;
@@ -100,7 +100,7 @@ void vtkMCubesReader::Execute()
 
   // Try to read limits file to get bounds. Otherwise, read data.
   if ( this->LimitsFileName != NULL && 
-  (limitp = fopen (this->LimitsFileName, "r")) != NULL &&
+  (limitp = fopen (this->LimitsFileName, "rb")) != NULL &&
   stat (this->FileName, &buf) == 0 )
     {
     // skip first three pairs
@@ -168,7 +168,13 @@ void vtkMCubesReader::Execute()
     {
     for (j=0; j<3; j++) 
       {
-      fread (&point, sizeof(pointType), 1, fp);
+      int val;
+      val = fread (&point, sizeof(pointType), 1, fp);
+      if (val != 1)
+         {
+         vtkErrorMacro(<<"Error reading triange " << i << " (" << numTris << "), point/normal " << j);
+         }
+
       // swap bytes if necc
       vtkByteSwap::Swap4BERange((float *)(&point),6);
       if ( (nodes[j] = this->Locator->IsInsertedPoint(point.x)) < 0 )
