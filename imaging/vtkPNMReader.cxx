@@ -218,6 +218,8 @@ void vtkPNMReader::ExecuteInformation()
   
   this->SetDataScalarTypeToUnsignedChar();
   this->SetNumberOfScalarComponents(comp);
+
+  this->vtkImageReader::ExecuteInformation();
 }
 
 

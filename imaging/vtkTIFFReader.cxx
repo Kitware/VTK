@@ -370,6 +370,6 @@ void vtkTIFFReader::ExecuteInformation()
   
   this->SetNumberOfScalarComponents(numComp);
   
-  vtkImageReader::UpdateInformation();
+  vtkImageReader::ExecuteInformation();
 }
 
