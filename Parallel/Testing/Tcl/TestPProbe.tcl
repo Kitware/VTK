@@ -1,5 +1,3 @@
-# ParaView Version 0.5
-
 package require vtk
 
 if { [ info command vtkMesaRenderer ] != "" } {

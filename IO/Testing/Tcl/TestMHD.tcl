@@ -1,5 +1,3 @@
-# ParaView Version -1.6
-
 package require vtk
 package require vtkinteraction
 

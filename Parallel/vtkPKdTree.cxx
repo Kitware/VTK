@@ -1,11 +1,11 @@
 /*=========================================================================
 
-  Program:   ParaView
+  Program:   Visualization Toolkit
   Module:    vtkPKdTree.cxx
 
-  Copyright (c) Kitware, Inc.
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
-  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
      This software is distributed WITHOUT ANY WARRANTY; without even
      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -68,7 +68,7 @@ static char * makeEntry(const char *s)
 
 // Timing data ---------------------------------------------
 
-vtkCxxRevisionMacro(vtkPKdTree, "1.2");
+vtkCxxRevisionMacro(vtkPKdTree, "1.3");
 vtkStandardNewMacro(vtkPKdTree);
 
 const int vtkPKdTree::NoRegionAssignment = 0;   // default

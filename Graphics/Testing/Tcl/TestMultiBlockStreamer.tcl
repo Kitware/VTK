@@ -1,4 +1,3 @@
-# ParaView Version 0.6
 package require vtk
 package require vtkinteraction
 vtkRenderer Ren1
