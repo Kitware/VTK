@@ -366,10 +366,10 @@ IF (BUILD_EXAMPLES)
   SUBDIRS(Examples)
 ENDIF (BUILD_EXAMPLES)
 
-#
 INSTALL_FILES(/include/vtk .h vtkConfigure vtkToolkits)
-INSTALL_FILES(/include/vtk .cmake UseVTK)
-INSTALL_FILES(/include/vtk .txt CMakeCache)
+INSTALL_FILES(/lib/vtk .cmake UseVTK)
 
 INCLUDE (${VTK_BINARY_DIR}/LocalUserOptions.cmake OPTIONAL)
 INCLUDE (${VTK_SOURCE_DIR}/LocalUserOptions.cmake OPTIONAL)
+
+INCLUDE (${VTK_SOURCE_DIR}/GenerateVTKConfig.cmake)
