@@ -46,9 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//------------------------------------------------------------------------
 vtkGlyph3D* vtkGlyph3D::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -60,9 +58,6 @@ vtkGlyph3D* vtkGlyph3D::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkGlyph3D;
 }
-
-
-
 
 // Construct object with scaling on, scaling mode is by scalar value,
 // scale factor = 1.0, the range is (0,1), orient geometry is on, and
@@ -139,7 +134,7 @@ void vtkGlyph3D::Execute()
     vtkErrorMacro(<<"No points to glyph!");
     return;
     }
-  //
+
   // Check input for consistency
   //
   if ( (den = this->Range[1] - this->Range[0]) == 0.0 )
@@ -252,11 +247,9 @@ void vtkGlyph3D::Execute()
   // Setting up for calls to PolyData::InsertNextCell()
   output->Allocate(3*numPts*numSourceCells,numPts*numSourceCells);
 
-  //
   // Traverse all Input points, transforming Source points and copying
   // point attributes.
   //
-
   ptIncr=0;
   for (inPtId=0; inPtId < numPts; inPtId++)
     {
@@ -266,7 +259,7 @@ void vtkGlyph3D::Execute()
       this->UpdateProgress ((float)inPtId/numPts);
       if (this->GetAbortExecute())
         {
-	      break;
+              break;
         }
       }
 
@@ -275,7 +268,7 @@ void vtkGlyph3D::Execute()
       {
       s = inScalars->GetScalar(inPtId);
       if ( this->ScaleMode == VTK_SCALE_BY_SCALAR ||
-	        this->ScaleMode == VTK_DATA_SCALING_OFF )
+                this->ScaleMode == VTK_DATA_SCALING_OFF )
         {
         scalex = scaley = scalez = s;
         }
@@ -334,8 +327,7 @@ void vtkGlyph3D::Execute()
         value = vMag;
         }
       
-      index = (int) ((float)(value - this->Range[0]) * 
-              (numberOfSources-1) / den);
+      index = (int) ((float)(value - this->Range[0]) * numberOfSources / den);
       index = (index < 0 ? 0 :
               (index >= numberOfSources ? (numberOfSources-1) : index));
       
@@ -363,7 +355,7 @@ void vtkGlyph3D::Execute()
     // of the usefullness of point ghost levels over 1, but I will have
     // to think about it.
     if (inGhostLevels && 
-	inGhostLevels->GetGhostLevel(inPtId) > requestedGhostLevel)
+        inGhostLevels->GetGhostLevel(inPtId) > requestedGhostLevel)
       {
       continue;
       }
@@ -428,7 +420,7 @@ void vtkGlyph3D::Execute()
         }
       else if (this->ColorMode == VTK_COLOR_BY_SCALAR)
         {
-	      for (i=0; i < numSourcePts; i++)
+              for (i=0; i < numSourcePts; i++)
           {
           outputPD->CopyTuple(inScalarsData, newScalarsData, inPtId, ptIncr+i);
           }
@@ -490,8 +482,6 @@ void vtkGlyph3D::Execute()
     ptIncr += numSourcePts;
     } 
   
-  
-  //
   // Update ourselves and release memory
   //
   output->SetPoints(newPts);
@@ -642,5 +632,5 @@ void vtkGlyph3D::ComputeInputUpdateExtents( vtkDataObject *output )
   this->GetSource()->SetUpdateExtent(0, 1, 0);
   this->GetInput()->SetUpdateExtent(outPd->GetUpdatePiece(), 
                                     outPd->GetUpdateNumberOfPieces(),
-				    outPd->GetUpdateGhostLevel());
+                                    outPd->GetUpdateGhostLevel());
 }
