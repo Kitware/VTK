@@ -17,10 +17,13 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkClipVolume.h"
+#include "vtkExecutive.h"
 #include "vtkFloatArray.h"
 #include "vtkGenericCell.h"
 #include "vtkImageData.h"
 #include "vtkImplicitFunction.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
@@ -30,7 +33,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkClipDataSet, "1.36");
+vtkCxxRevisionMacro(vtkClipDataSet, "1.37");
 vtkStandardNewMacro(vtkClipDataSet);
 vtkCxxSetObjectMacro(vtkClipDataSet,ClipFunction,vtkImplicitFunction);
 
@@ -48,8 +51,11 @@ vtkClipDataSet::vtkClipDataSet(vtkImplicitFunction *cf)
   this->GenerateClippedOutput = 0;
   this->MergeTolerance = 0.01;
 
-  this->vtkSource::SetNthOutput(1,vtkUnstructuredGrid::New());
-  this->Outputs[1]->Delete();
+  this->SetNumberOfOutputPorts(2);
+  vtkUnstructuredGrid *output2 = vtkUnstructuredGrid::New();
+  this->GetExecutive()->SetOutputData(1, output2);
+  output2->Delete();
+
   this->InputScalarsSelection = NULL;
 }
 
@@ -81,7 +87,7 @@ int vtkClipDataSet::GetNumberOfOutputs()
 // then this object is modified as well.
 unsigned long vtkClipDataSet::GetMTime()
 {
-  unsigned long mTime=this->vtkDataSetToUnstructuredGridFilter::GetMTime();
+  unsigned long mTime=this->Superclass::GetMTime();
   unsigned long time;
 
   if ( this->ClipFunction != NULL )
@@ -100,12 +106,13 @@ unsigned long vtkClipDataSet::GetMTime()
 
 vtkUnstructuredGrid *vtkClipDataSet::GetClippedOutput()
 {
-  if (this->NumberOfOutputs < 2)
+  if (this->GetNumberOfOutputPorts() < 2)
     {
     return NULL;
     }
   
-  return (vtkUnstructuredGrid *)(this->Outputs[1]);
+  return vtkUnstructuredGrid::SafeDownCast(
+    this->GetExecutive()->GetOutputData(1));
 }
 
 
@@ -113,15 +120,23 @@ vtkUnstructuredGrid *vtkClipDataSet::GetClippedOutput()
 //
 // Clip through data generating surface.
 //
-void vtkClipDataSet::Execute()
+int vtkClipDataSet::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkDataSet *input = this->GetInput();
-  vtkUnstructuredGrid *output = this->GetOutput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkUnstructuredGrid *clippedOutput = this->GetClippedOutput();
-  if (input == NULL)
-    {
-    return;
-    }
+  
   vtkIdType numPts = input->GetNumberOfPoints();
   vtkIdType numCells = input->GetNumberOfCells();
   vtkPointData *inPD=input->GetPointData(), *outPD = output->GetPointData();
@@ -164,8 +179,8 @@ void vtkClipDataSet::Execute()
       }
     if ( dimension >= 3 )
       {
-      this->ClipVolume();
-      return;
+      this->ClipVolume(input, output);
+      return 1;
       }
      }
 
@@ -174,13 +189,13 @@ void vtkClipDataSet::Execute()
   if ( numPts < 1 )
     {
     //vtkErrorMacro(<<"No data to clip");
-    return;
+    return 1;
     }
 
   if ( !this->ClipFunction && this->GenerateClipScalars )
     {
     vtkErrorMacro(<<"Cannot generate clip scalars if no clip function defined");
-    return;
+    return 1;
     }
 
   // allocate the output and associated helper classes
@@ -265,7 +280,7 @@ void vtkClipDataSet::Execute()
       cellScalars->Delete();
       newPoints->Delete();
       vtkErrorMacro(<<"Cannot clip without clip function or input scalars");
-      return;
+      return 1;
       }
     }
     
@@ -388,6 +403,8 @@ void vtkClipDataSet::Execute()
   newPoints->Delete();
   this->Locator->Initialize();//release any extra memory
   output->Squeeze();
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -427,14 +444,14 @@ void vtkClipDataSet::CreateDefaultLocator()
 }
 
 //----------------------------------------------------------------------------
-void vtkClipDataSet::ClipVolume()
+void vtkClipDataSet::ClipVolume(vtkDataSet *input, vtkUnstructuredGrid *output)
 {
   vtkClipVolume *clipVolume = vtkClipVolume::New();
   
   // We cannot set the input directly.  This messes up the partitioning.
   // output->UpdateNumberOfPieces gets set to 1.
   vtkImageData* tmp = vtkImageData::New();
-  tmp->ShallowCopy(vtkImageData::SafeDownCast(this->GetInput()));
+  tmp->ShallowCopy(vtkImageData::SafeDownCast(input));
   
   clipVolume->SetInput(tmp);
   clipVolume->SetValue(this->Value);
@@ -447,7 +464,6 @@ void vtkClipDataSet::ClipVolume()
   clipVolume->Update();
   vtkUnstructuredGrid *clipOutput = clipVolume->GetOutput();
 
-  vtkUnstructuredGrid *output = this->GetOutput();
   output->CopyStructure(clipOutput);
   output->GetPointData()->ShallowCopy(clipOutput->GetPointData());
   output->GetCellData()->ShallowCopy(clipOutput->GetCellData());
@@ -455,6 +471,12 @@ void vtkClipDataSet::ClipVolume()
   tmp->Delete();
 }
 
+//----------------------------------------------------------------------------
+int vtkClipDataSet::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  return 1;
+}
 
 //----------------------------------------------------------------------------
 void vtkClipDataSet::PrintSelf(ostream& os, vtkIndent indent)
