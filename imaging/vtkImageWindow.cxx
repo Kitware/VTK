@@ -223,11 +223,6 @@ void vtkImageWindow::Render()
     return;
     }
  
-/*  if (this->DoubleBuffer)
-    {
-    this->SwapBuffers();
-    }
-*/
   if (this->Erase)
     {
     this->EraseWindow();

@@ -190,6 +190,15 @@ void vtkWin32OpenGLTextMapper::RenderOpaqueGeometry(vtkViewport* viewport,
   int size[2];
   this->GetSize(viewport, size);
 
+  // Get the window information for display
+  vtkWindow*  window = viewport->GetVTKWindow();
+  // Get the device context from the window
+  HDC hdc = (HDC) window->GetGenericContext();
+ 
+  // Select the font
+  HFONT hOldFont = (HFONT) SelectObject(hdc, this->Font);
+  
+
   // Get the position of the text actor
   POINT ptDestOff;
   int* actorPos = 
@@ -299,5 +308,8 @@ void vtkWin32OpenGLTextMapper::RenderOpaqueGeometry(vtkViewport* viewport,
   glMatrixMode( GL_MODELVIEW);
   glPopMatrix();
   glEnable( GL_LIGHTING);
+
+  // Restore the state
+  SelectObject(hdc, hOldFont);
 }
 

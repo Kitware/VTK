@@ -50,6 +50,7 @@ unsigned char *vtkWin32ImageWindow::GetPixelData(int x1, int y1,
   int height = (abs(y2 - y1)+1);
   HDC compatHdc;
   HBITMAP bitmap = (HBITMAP) 0;
+  HBITMAP oldBitmap;
   BITMAPINFO dataHeader;
   int dataWidth = ((this->Size[0]*3+3)/4)*4;
 
@@ -73,7 +74,7 @@ unsigned char *vtkWin32ImageWindow::GetPixelData(int x1, int y1,
   compatHdc = (HDC) CreateCompatibleDC(this->DeviceContext);
 
   // Put the bitmap into the device context
-  SelectObject(compatHdc, bitmap);
+  oldBitmap = (HBITMAP) SelectObject(compatHdc, bitmap);
 
   int y_low = 0;
   int y_hi = 0;
@@ -144,6 +145,7 @@ unsigned char *vtkWin32ImageWindow::GetPixelData(int x1, int y1,
     }
 
   // Free the device context
+  SelectObject(compatHdc, oldBitmap);
   DeleteDC(compatHdc);
   
   return data;
@@ -158,85 +160,9 @@ unsigned char *vtkWin32ImageWindow::GetDIBPtr()
 }
 
 //---------------------------------------------------------------------------
+// Win32 version does not handle double buffering
 void vtkWin32ImageWindow::SwapBuffers()
 {
-  int dataWidth = ((this->Size[0]*3+3)/4)*4;
-
-  if (this->SwapFlag == 0)
-    {
-    // Create buffer/check buffer size
-    vtkDebugMacro (<< "Creating buffer");
-    if (!this->BackBuffer)
-      {
-      this->DataHeader.bmiHeader.biSize = 40;
-      this->DataHeader.bmiHeader.biWidth = this->Size[0];
-      this->DataHeader.bmiHeader.biHeight = this->Size[1];
-      this->DataHeader.bmiHeader.biPlanes = 1;
-      this->DataHeader.bmiHeader.biBitCount = 24;
-      this->DataHeader.bmiHeader.biCompression = BI_RGB;
-      this->DataHeader.bmiHeader.biSizeImage = dataWidth*this->Size[1];
-      this->DataHeader.bmiHeader.biClrUsed = 0;
-      this->DataHeader.bmiHeader.biClrImportant = 0;
-
-      // try using a DIBsection
-      this->BackBuffer = CreateDIBSection(this->DeviceContext,
-					  &this->DataHeader,
-					  DIB_RGB_COLORS, 
-					  (void **)(&(this->DIBPtr)), 
-					  NULL, 0);
-      
-      // Put the current background into the device context
-      BitBlt(this->CompatHdc, 0, 0, this->Size[0], this->Size[1],
-	     this->DeviceContext, 0, 0, SRCCOPY);
-      this->CompatHdc = (HDC) CreateCompatibleDC(this->DeviceContext);
-      }
-    else
-      {
-      BITMAP bm;
-      GetObject(this->BackBuffer, sizeof (BITMAP), (LPSTR) &bm);
-      // If region size differs from bitmap size, reallocate the bitmap
-      if ((this->Size[0] != bm.bmWidth) || (this->Size[1] != bm.bmHeight))
-        {
-        DeleteObject(this->BackBuffer);
-	
-        this->DataHeader.bmiHeader.biWidth = this->Size[0];
-        this->DataHeader.bmiHeader.biHeight = this->Size[1];
-        this->DataHeader.bmiHeader.biSizeImage = dataWidth*this->Size[1];
-	
-        // try using a DIBsection
-        this->BackBuffer = CreateDIBSection(this->DeviceContext,
-					    &this->DataHeader,
-					    DIB_RGB_COLORS, 
-					    (void **)(&(this->DIBPtr)), 
-					    NULL, 0);
-	
-	// Put the current background into the device context
-	BitBlt(this->CompatHdc, 0, 0, this->Size[0], this->Size[1], 
-	       this->DeviceContext, 0, 0, SRCCOPY);
-        }
-      }
-    
-    // Put buffer into a compatible device context
-    SelectObject(this->CompatHdc, this->BackBuffer);
-    
-    // Save the old device context so we can restore it later
-    this->OldHdc = this->DeviceContext;
-    
-    // Swap device contexts
-    this->DeviceContext = this->CompatHdc;
-    this->SwapFlag = 1;
-    }
-  else
-    {
-    // Put the buffer on the screen
-    vtkDebugMacro (<<"Swapping buffer");
-    BitBlt(this->OldHdc, 0, 0, this->Size[0], this->Size[1],
-	   this->DeviceContext, 0, 0, SRCCOPY);
-    // Swap the device contexts back
-    this->DeviceContext = this->OldHdc;
-    this->SwapFlag = 0;
-    }
-  
 }
 
 

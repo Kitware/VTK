@@ -159,6 +159,7 @@ void vtkWin32TextMapper::GetSize(vtkViewport* viewport, int *size)
   this->LastSize[0] = size[0];
   this->LastSize[1] = size[1];
   this->BuildTime.Modified();
+  SelectObject(hdc, hOldFont);
 }
 
 void vtkWin32TextMapper::RenderOverlay(vtkViewport* viewport, 
@@ -188,6 +189,9 @@ void vtkWin32TextMapper::RenderOverlay(vtkViewport* viewport,
   // Get the device context from the window
   HDC hdc = (HDC) window->GetGenericContext();
  
+  // Select the font
+  HFONT hOldFont = (HFONT) SelectObject(hdc, this->Font);
+  
   // Get the position of the text actor
   POINT ptDestOff;
   int* actorPos = 
@@ -292,4 +296,9 @@ void vtkWin32TextMapper::RenderOverlay(vtkViewport* viewport,
   // Draw the text
   DrawText(hdc, this->Input, strlen(this->Input), &rect, winJust|DT_NOPREFIX);
 
+  // Return the state
+  SelectObject(hdc, hOldFont);
+
 }
+
+

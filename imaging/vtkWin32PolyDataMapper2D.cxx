@@ -177,7 +177,7 @@ void vtkWin32PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
 	rgba = c->GetColor(pts[j]);
 	}
       npen = (HPEN) CreatePen(PS_SOLID,0,RGB(rgba[0],rgba[1],rgba[2]));
-      pen = (HPEN) SelectObject(hdc,pen);
+      pen = (HPEN) SelectObject(hdc,npen);
       DeleteObject(pen);
       pen = npen;
       nbrush = (HBRUSH)CreateSolidBrush(RGB(rgba[0],rgba[1],rgba[2]));
@@ -242,6 +242,9 @@ void vtkWin32PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   
   SelectObject(hdc, oldPen);
   DeleteObject(pen);
+
+  SelectObject(hdc, oldBrush);
+  DeleteObject(brush);
 }
 
 
