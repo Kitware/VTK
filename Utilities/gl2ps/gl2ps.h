@@ -28,7 +28,8 @@
  * library in the file named "COPYING.GL2PS"; if not, I will be glad
  * to provide one.
  *
- * For the latest info about gl2ps, see http://www.geuz.org/gl2ps/
+ * For the latest info about gl2ps, see http://www.geuz.org/gl2ps/.
+ * Please report all bugs and problems to <gl2ps@geuz.org>.
  */
 
 #ifndef __GL2PS_H__
@@ -74,7 +75,7 @@
 
 #define GL2PS_MAJOR_VERSION 1
 #define GL2PS_MINOR_VERSION 1
-#define GL2PS_PATCH_VERSION 0
+#define GL2PS_PATCH_VERSION 2
 
 #define GL2PS_VERSION (GL2PS_MAJOR_VERSION + \
                        0.01 * GL2PS_MINOR_VERSION + \
@@ -227,8 +228,10 @@ typedef struct {
   char boundary, dash, culled;
   GLfloat width, depth;
   GL2PSvertex *verts;
-  GL2PSstring *text;
-  GL2PSimage *image;
+  union {
+    GL2PSstring *text;
+    GL2PSimage *image;
+  } data;
 } GL2PSprimitive;
 
 typedef struct {
@@ -267,6 +270,10 @@ typedef struct {
   int lasttype, consec_cnt, consec_inner_cnt;
   int line_width_diff, line_rgb_diff, last_line_finished, last_triangle_finished;
 } GL2PScontext;
+
+/* private prototypes */
+
+GLint gl2psPrintPrimitives(void);
 
 /* public functions */
 

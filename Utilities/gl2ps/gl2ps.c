@@ -42,9 +42,11 @@
  *   Shahzad Muzaffar <Shahzad.Muzaffar@cern.ch>
  *   Lassi Tuura <lassi.tuura@cern.ch>
  *   Guy Barrand <barrand@lal.in2p3.fr>
+ *   Prabhu Ramachandran <prabhu@aero.iitm.ernet.in>
  *   Micha Bieber <bieber@traits.de>
  *
- * For the latest info about gl2ps, see http://www.geuz.org/gl2ps/
+ * For the latest info about gl2ps, see http://www.geuz.org/gl2ps/.
+ * Please report all bugs and problems to <gl2ps@geuz.org>.
  */
 
 #include <string.h>
@@ -294,21 +296,19 @@ void gl2psListSort(GL2PSlist *list,
   qsort(list->array, list->n, list->size, fcmp);
 }
 
-void gl2psListAction(GL2PSlist *list, 
-                     void (*action)(void *data, void *dummy)){
-  GLint i, dummy;
+void gl2psListAction(GL2PSlist *list, void (*action)(void *data)){
+  GLint i;
 
   for(i = 0; i < gl2psListNbr(list); i++){
-    (*action)(gl2psListPointer(list, i), &dummy);
+    (*action)(gl2psListPointer(list, i));
   }
 }
 
-void gl2psListActionInverse(GL2PSlist *list, 
-                            void (*action)(void *data, void *dummy)){
-  GLint i, dummy;
+void gl2psListActionInverse(GL2PSlist *list, void (*action)(void *data)){
+  GLint i;
 
   for(i = gl2psListNbr(list); i > 0; i--){
-    (*action)(gl2psListPointer(list, i-1), &dummy);
+    (*action)(gl2psListPointer(list, i-1));
   }
 }
 
@@ -751,19 +751,19 @@ GLint gl2psFindRoot(GL2PSlist *primitives, GL2PSprimitive **root){
   }
 }
 
-void gl2psFreePrimitive(void *a, void *b){
+void gl2psFreePrimitive(void *data){
   GL2PSprimitive *q;
   
-  q = *(GL2PSprimitive**)a;
+  q = *(GL2PSprimitive**)data;
   gl2psFree(q->verts);
   if(q->type == GL2PS_TEXT){
-    gl2psFree(q->text->str);
-    gl2psFree(q->text->fontname);
-    gl2psFree(q->text);
+    gl2psFree(q->data.text->str);
+    gl2psFree(q->data.text->fontname);
+    gl2psFree(q->data.text);
   }
   if(q->type == GL2PS_PIXMAP){
-    gl2psFree(q->image->pixels);
-    gl2psFree(q->image);
+    gl2psFree(q->data.image->pixels);
+    gl2psFree(q->data.image);
   }
   gl2psFree(q);
 }
@@ -778,7 +778,7 @@ void gl2psAddPrimitiveInList(GL2PSprimitive *prim, GL2PSlist *list){
     gl2psDivideQuad(prim, &t1, &t2);
     gl2psListAdd(list, &t1);
     gl2psListAdd(list, &t2);
-    gl2psFreePrimitive(&prim, NULL);
+    gl2psFreePrimitive(&prim);
   }
   
 }
@@ -837,7 +837,7 @@ void gl2psBuildBspTree(GL2PSbsptree *tree, GL2PSlist *primitives){
       case GL2PS_SPANNING:
         gl2psAddPrimitiveInList(backprim, backlist);
         gl2psAddPrimitiveInList(frontprim, frontlist);
-        gl2psFreePrimitive(&prim, NULL);
+        gl2psFreePrimitive(&prim);
         break;
       }
     }
@@ -870,7 +870,7 @@ void gl2psBuildBspTree(GL2PSbsptree *tree, GL2PSlist *primitives){
 
 void gl2psTraverseBspTree(GL2PSbsptree *tree, GL2PSxyz eye, GLfloat epsilon,
                           GLboolean (*compare)(GLfloat f1, GLfloat f2),
-                          void (*action)(void *data, void *dummy), int inverse){
+                          void (*action)(void *data), int inverse){
   GLfloat result;
 
   if(!tree) return;
@@ -1226,8 +1226,8 @@ GLint gl2psAddInBspImageTree(GL2PSprimitive *prim, GL2PSbsptree2d **tree){
   return 0;
 }
 
-void gl2psAddInImageTree(void *a, void *b){
-  GL2PSprimitive *prim = *(GL2PSprimitive **)a;
+void gl2psAddInImageTree(void *data){
+  GL2PSprimitive *prim = *(GL2PSprimitive **)data;
   gl2ps->primitivetoadd = prim;
   if(!gl2psAddInBspImageTree(prim, &gl2ps->imagetree)){
     prim->culled = 1;
@@ -1554,7 +1554,7 @@ void gl2psWriteByte(unsigned char byte){
 }
 
 void gl2psPrintPostScriptPixmap(GLfloat x, GLfloat y, GLsizei width, GLsizei height,
-                                GLenum format, GLenum type, GLfloat *pixels){
+                                GLfloat *pixels){
   int nbhex, nbyte2, nbyte4, nbyte8;
   GLsizei row, col, col_max;
   GLfloat dr, dg, db;
@@ -1694,10 +1694,12 @@ void gl2psPrintPostScriptHeader(void){
   time_t now;
 
 #ifdef GL2PS_HAVE_ZLIB
-  char tmp[10] = {(char)0x1f,(char)0x8b /* magic numbers */,
-                  8 /* compression method */, 0 /* flags */, 
-                  0,0,0,0 /* time */, 2 /* xflags: max compression */,
-                  (char)0x03 /* FIXME: OS code */};
+  char tmp[10] = {'\x1f', '\x8b', /* magic numbers: 0x1f, 0x8b */
+                  8, /* compression method: Z_DEFLATED */
+                  0, /* flags */
+                  0, 0, 0, 0, /* time */
+                  2, /* extra flags: max compression */
+                  '\x03'}; /* OS code: 0x03 (Unix) */
 
   if(gl2ps->options & GL2PS_COMPRESS){
     gl2psSetupCompress();
@@ -1923,25 +1925,24 @@ void gl2psResetPostScriptColor(void){
   gl2ps->lastrgba[0] = gl2ps->lastrgba[1] = gl2ps->lastrgba[2] = -1.;
 }
 
-void gl2psPrintPostScriptPrimitive(void *a, void *b){
+void gl2psPrintPostScriptPrimitive(void *data){
   GL2PSprimitive *prim;
 
-  prim = *(GL2PSprimitive**)a;
+  prim = *(GL2PSprimitive**)data;
 
   if((gl2ps->options & GL2PS_OCCLUSION_CULL) && prim->culled) return;
 
   switch(prim->type){
   case GL2PS_PIXMAP :
     gl2psPrintPostScriptPixmap(prim->verts[0].xyz[0], prim->verts[0].xyz[1],
-                               prim->image->width, prim->image->height,
-                               prim->image->format, prim->image->type,
-                               prim->image->pixels);
+                               prim->data.image->width, prim->data.image->height,
+                               prim->data.image->pixels);
     break;
   case GL2PS_TEXT :
     gl2psPrintPostScriptColor(prim->verts[0].rgba);
     gl2psPrintf("(%s) %g %g %d /%s S\n",
-                prim->text->str, prim->verts[0].xyz[0], prim->verts[0].xyz[1],
-                prim->text->fontsize, prim->text->fontname);
+                prim->data.text->str, prim->verts[0].xyz[0], prim->verts[0].xyz[1],
+                prim->data.text->fontsize, prim->data.text->fontname);
     break;
   case GL2PS_POINT :
     gl2psPrintPostScriptColor(prim->verts[0].rgba);
@@ -2089,7 +2090,6 @@ void gl2psPrintPostScriptBeginViewport(GLint viewport[4]){
 
 GLint gl2psPrintPostScriptEndViewport(void){
   GLint res;
-  GLint gl2psPrintPrimitives(void);
 
   res = gl2psPrintPrimitives();
   gl2psPrintf("grestore\n");
@@ -2130,22 +2130,18 @@ void gl2psPrintTeXHeader(void){
           (int)gl2ps->viewport[2], (int)gl2ps->viewport[3]);
 }
 
-void gl2psPrintTeXPrimitive(void *a, void *b){
+void gl2psPrintTeXPrimitive(void *data){
   GL2PSprimitive *prim;
 
-  prim = *(GL2PSprimitive**)a;
+  prim = *(GL2PSprimitive**)data;
 
   switch(prim->type){
   case GL2PS_TEXT :
-#if 0 /* old code: */
-    fprintf(gl2ps->stream, "\\put(%g,%g){\\makebox(0,0)[lb]{%s}}\n",
-            prim->verts[0].xyz[0], prim->verts[0].xyz[1], prim->text->str);
-#endif
     fprintf(gl2ps->stream, "\\fontsize{%d}{0}\n\\selectfont", 
-            prim->text->fontsize);
+            prim->data.text->fontsize);
     fprintf(gl2ps->stream, "\\put(%g,%g){\\makebox(0,0)",
             prim->verts[0].xyz[0], prim->verts[0].xyz[1]);
-    switch (prim->text->alignment) {
+    switch (prim->data.text->alignment) {
     case GL2PS_TEXT_CL:
       fprintf(gl2ps->stream, "[l]");
       break;
@@ -2175,7 +2171,7 @@ void gl2psPrintTeXPrimitive(void *a, void *b){
     }
     fprintf(gl2ps->stream, "{\\textcolor[rgb]{%f,%f,%f}{",
             prim->verts[0].rgba[0], prim->verts[0].rgba[1], prim->verts[0].rgba[2]);
-    fprintf(gl2ps->stream, "{%s}}}}\n", prim->text->str);
+    fprintf(gl2ps->stream, "{%s}}}}\n", prim->data.text->str);
     break;
   default :
     break;
@@ -2185,13 +2181,6 @@ void gl2psPrintTeXPrimitive(void *a, void *b){
 void gl2psPrintTeXFooter(void){
   fprintf(gl2ps->stream, "\\end{picture}%s\n",
           (gl2ps->options & GL2PS_LANDSCAPE) ? "}" : "");
-}
-
-void gl2psPrintTeXBeginViewport(GLint viewport[4]){
-}
-
-GLint gl2psPrintTeXEndViewport(void){
-  return GL2PS_SUCCESS;
 }
 
 /********************************************************************* 
@@ -2423,13 +2412,13 @@ int gl2psFlushPDFLines(){
 
 /* The central primitive drawing */
 
-void gl2psPrintPDFPrimitive(void *a, void *b){
+void gl2psPrintPDFPrimitive(void *data){
   GL2PSprimitive *prim;
   GL2PStriangle t;
   GL2PSimage* image;
   GL2PSstring* str;
 
-  prim = *(GL2PSprimitive**)a;
+  prim = *(GL2PSprimitive**)data;
   
   if((gl2ps->options & GL2PS_OCCLUSION_CULL) && prim->culled) return;
   
@@ -2440,18 +2429,18 @@ void gl2psPrintPDFPrimitive(void *a, void *b){
   
   switch(prim->type){
   case GL2PS_PIXMAP :
-    image = gl2psCopyPixmap(prim->image);
+    image = gl2psCopyPixmap(prim->data.image);
     gl2psListAdd(gl2ps->ilist, &image);
     gl2ps->streamlength += gl2psPrintf("q\n"
                                        "%d 0 0 %d %f %f cm\n"
                                        "/Im%d Do\n"
                                        "Q\n",
-                                       (int)prim->image->width, (int)prim->image->height,
+                                       (int)prim->data.image->width, (int)prim->data.image->height,
                                        prim->verts[0].xyz[0], prim->verts[0].xyz[1],
                                        gl2psListNbr(gl2ps->ilist)-1);
     break;
   case GL2PS_TEXT :
-    str = gl2psCopyText(prim->text);
+    str = gl2psCopyText(prim->data.text);
     gl2psListAdd(gl2ps->slist, &str);
     gl2ps->streamlength += gl2psPrintPDFFillColor(prim->verts[0].rgba);
     gl2ps->streamlength += gl2psPrintf("BT\n"
@@ -2460,8 +2449,8 @@ void gl2psPrintPDFPrimitive(void *a, void *b){
                                        "(%s) Tj\n"
                                        "ET\n",
                                        gl2psListNbr(gl2ps->slist)-1,
-                                       prim->text->fontsize, prim->verts[0].xyz[0], 
-                                       prim->verts[0].xyz[1], prim->text->str);
+                                       prim->data.text->fontsize, prim->verts[0].xyz[0], 
+                                       prim->verts[0].xyz[1], prim->data.text->str);
     break;
   case GL2PS_POINT :
     if(gl2ps->lastlinewidth != prim->width){
@@ -2897,7 +2886,7 @@ int* gl2psPrintPDFPixmapObjects(int firstObjnumber, int firstOffs){
   return offs;
 }
 
-int gl2psPrintPDFText(int obj, GL2PSstring* s, int fontnumber ){
+int gl2psPrintPDFText(int obj, GL2PSstring* s, int fontnumber){
   int offs = 0;
   
   offs += fprintf(gl2ps->stream,
@@ -2926,7 +2915,7 @@ int* gl2psPrintPDFTextObjects(int firstObjnumber, int firstOffs){
   
   for(i = 0; i < size; ++i){
     firstOffs += gl2psPrintPDFText(i+firstObjnumber,
-                                   *(GL2PSstring**)gl2psListPointer(gl2ps->slist, i),i);
+                                   *(GL2PSstring**)gl2psListPointer(gl2ps->slist, i), i);
     offs[i+1] = firstOffs;
   }
   return offs;
@@ -3064,7 +3053,6 @@ void gl2psPrintPDFBeginViewport(GLint viewport[4]){
 
 GLint gl2psPrintPDFEndViewport(){
   GLint res;
-  GLint gl2psPrintPrimitives(void);
   
   res = gl2psPrintPrimitives();
   res += gl2psFlushPDFTriangles();
@@ -3085,7 +3073,7 @@ GLint gl2psPrintPrimitives(void){
   GL2PSbsptree *root;
   GL2PSxyz eye = {0.0F, 0.0F, 100000.0F};
   GLint used;
-  void (*pprim)(void *a, void *b) = 0;
+  void (*pprim)(void *data) = 0;
 
   used = glRenderMode(GL_RENDER);
 
@@ -3326,7 +3314,6 @@ GL2PSDLL_API GLint gl2psBeginViewport(GLint viewport[4]){
     gl2psPrintPDFBeginViewport(viewport);
     break;
   default :
-    /* FIXME: handle other formats */
     break;
   }
   
@@ -3347,7 +3334,6 @@ GL2PSDLL_API GLint gl2psEndViewport(void){
     res = gl2psPrintPDFEndViewport();
     break;
   default :
-    /* FIXME: handle other formats */
     res = GL2PS_SUCCESS;
     break;
   }
@@ -3391,13 +3377,13 @@ GL2PSDLL_API GLint gl2psTextOpt(const char *str, const char *fontname, GLshort f
   else{
     glGetFloatv(GL_CURRENT_RASTER_COLOR, prim->verts[0].rgba);
   }
-  prim->text = (GL2PSstring*)gl2psMalloc(sizeof(GL2PSstring));
-  prim->text->str = (char*)gl2psMalloc((strlen(str)+1)*sizeof(char));
-  strcpy(prim->text->str, str); 
-  prim->text->fontname = (char*)gl2psMalloc((strlen(fontname)+1)*sizeof(char));
-  strcpy(prim->text->fontname, fontname);
-  prim->text->fontsize = fontsize;
-  prim->text->alignment = alignment;
+  prim->data.text = (GL2PSstring*)gl2psMalloc(sizeof(GL2PSstring));
+  prim->data.text->str = (char*)gl2psMalloc((strlen(str)+1)*sizeof(char));
+  strcpy(prim->data.text->str, str); 
+  prim->data.text->fontname = (char*)gl2psMalloc((strlen(fontname)+1)*sizeof(char));
+  strcpy(prim->data.text->fontname, fontname);
+  prim->data.text->fontsize = fontsize;
+  prim->data.text->alignment = alignment;
 
   gl2psListAdd(gl2ps->primitives, &prim);
 
@@ -3446,14 +3432,14 @@ GL2PSDLL_API GLint gl2psDrawPixels(GLsizei width, GLsizei height,
   prim->dash = 0;
   prim->width = 1;
   glGetFloatv(GL_CURRENT_RASTER_COLOR, prim->verts[0].rgba);
-  prim->image = (GL2PSimage*)gl2psMalloc(sizeof(GL2PSimage));
-  prim->image->width = width;
-  prim->image->height = height;
-  prim->image->format = format;
-  prim->image->type = type;
+  prim->data.image = (GL2PSimage*)gl2psMalloc(sizeof(GL2PSimage));
+  prim->data.image->width = width;
+  prim->data.image->height = height;
+  prim->data.image->format = format;
+  prim->data.image->type = type;
   size = height*width*3*sizeof(GLfloat); /* FIXME: handle other types/formats */
-  prim->image->pixels = (GLfloat*)gl2psMalloc(size);
-  memcpy(prim->image->pixels, pixels, size);
+  prim->data.image->pixels = (GLfloat*)gl2psMalloc(size);
+  memcpy(prim->data.image->pixels, pixels, size);
 
   gl2psListAdd(gl2ps->primitives, &prim);
 
