@@ -173,10 +173,6 @@ void vtkImageToStructuredPoints::Update()
 void vtkImageToStructuredPoints::Execute()
 {
   int extent[6];
-  vtkScalars *scalars = NULL;
-  float spacing[3];
-  float origin[3];
-  int dim[3];
   vtkStructuredPoints *output = (vtkStructuredPoints *)(this->Output);
   vtkImageData *data;
   

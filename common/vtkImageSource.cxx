@@ -78,8 +78,6 @@ vtkImageSource::~vtkImageSource()
 //----------------------------------------------------------------------------
 void vtkImageSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  int idx;
- 
   vtkObject::PrintSelf(os,indent);
 
   os << indent << "AbortExecute: " << (this->AbortExecute ? "On\n" : "Off\n");

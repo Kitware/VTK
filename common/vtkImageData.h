@@ -80,7 +80,7 @@ public:
 
   // Description:
   // Different ways to get the increments for moving around the data.
-  vtkGetVectorMacro(Increments,int,3);
+  vtkGetVector3Macro(Increments,int);
   
   // Description:
   // Different ways to get the increments for moving around the data.

@@ -72,8 +72,6 @@ vtkImageData::vtkImageData()
 void vtkImageData::PrintSelf(ostream& os, vtkIndent indent)
 {
   int idx;
-  vtkScalars *scalars;
-  vtkIndent nextIndent = indent.GetNextIndent();
   
   vtkStructuredPoints::PrintSelf(os,indent);
 
@@ -149,11 +147,21 @@ void vtkImageData::SetExtent(int *extent)
 void vtkImageData::GetContinuousIncrements(int extent[6], int &incX,
 					   int &incY, int &incZ)
 {
+  int e0, e1, e2, e3;
+  
   incX = 0;
-  incY = this->Increments[1] - 
-    (extent[1] - extent[0] + 1)*this->Increments[0];
-  incZ = this->Increments[3] - 
-    (extent[3] - extent[2] + 1)*this->Increments[1];
+
+  e0 = extent[0];
+  if (e0 < this->Extent[0]) e0 = this->Extent[0];
+  e1 = extent[1];
+  if (e1 > this->Extent[1]) e1 = this->Extent[1];
+  e2 = extent[2];
+  if (e0 < this->Extent[2]) e2 = this->Extent[2];
+  e3 = extent[3];
+  if (e1 > this->Extent[3]) e3 = this->Extent[3];
+  
+  incY = this->Increments[1] - (e1 - e0 + 1)*this->Increments[0];
+  incZ = this->Increments[3] - (e3 - e2 + 1)*this->Increments[1];
 }
 
 
@@ -162,7 +170,7 @@ void vtkImageData::GetContinuousIncrements(int extent[6], int &incX,
 // This method computes the increments from the MemoryOrder and the extent.
 void vtkImageData::ComputeIncrements()
 {
-  int idx, axis;
+  int idx;
   int inc = this->NumberOfScalarComponents;
 
   for (idx = 0; idx < 3; ++idx)
