@@ -31,6 +31,11 @@ proc padString { str amount } {
     return $str
 }
 
+proc IncrementFileName { validImage count } {
+    set res ""
+    regsub {\.png} $validImage _${count}.png res
+    return $res
+}
 
 vtkObject rtTempObject;
 rtTempObject GlobalWarningDisplayOff;
@@ -134,20 +139,59 @@ if {$validImageFound != 0} {
    rt_id Update
    set imageError [decipadString [rt_id GetThresholdedError] 4 9]
    rt_w2if Delete 
-   rt_png Delete 
-   if {[rt_id GetThresholdedError] > $threshold} {
-      if {[catch {set channel [open $validImage.diff.png w]}] == 0 } {
-         close $channel
-         vtkPNGWriter rt_pngw2
-	 rt_pngw2 SetFileName $validImage.diff.png
-         rt_pngw2 SetInput [rt_id GetOutput]
-         rt_pngw2 Write 
-      }
-      puts "Failed Image Test with error: $imageError"
-      vtkCommand DeleteAllObjects
-      catch {destroy .top}
-      catch {destroy .geo}
-      exit 1; 
+   set minError [rt_id GetThresholdedError]
+
+   if {$minError > $threshold} {
+       set count 1
+       set testFailed 1
+       set errIndex -1
+       while 1 {
+	   set newFileName [IncrementFileName $validImage $count]
+	   puts $newFileName
+	   if {[catch {set channel [open $newFileName r]}]} {
+	       break
+	   }
+	   close $channel
+	   rt_png SetFileName $newFileName
+	   rt_png Update
+	   rt_id Update
+	   set error [rt_id GetThresholdedError]
+	   if { $error <= $threshold } { 
+	       set testFailed 0
+	       break
+	   } else {
+	       if { $error > $minError } {
+		   set errIndex $count;
+		   set minError $error;
+	       }
+	   }
+	   incr count 1
+       }
+
+       if { $testFailed } {
+	   if { $errIndex >= 0 } {
+	       set newFileName [IncrementFileName $validImage $errIndex]
+	       rt_png SetFileName $newFileName
+	   } else {
+	       rt_png SetFileName $validImage
+	   }
+
+	   rt_png Update
+	   rt_id Update
+	   
+	   if {[catch {set channel [open $validImage.diff.png w]}] == 0 } {
+	       close $channel
+	       vtkPNGWriter rt_pngw2
+	       rt_pngw2 SetFileName $validImage.diff.png
+	       rt_pngw2 SetInput [rt_id GetOutput]
+	       rt_pngw2 Write 
+	   }
+	   puts "Failed Image Test with error: $imageError"
+	   vtkCommand DeleteAllObjects
+	   catch {destroy .top}
+	   catch {destroy .geo}
+	   exit 1; 
+       }
    } 
 }
 
