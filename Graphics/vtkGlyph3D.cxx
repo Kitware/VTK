@@ -29,9 +29,10 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkGlyph3D, "1.118");
+vtkCxxRevisionMacro(vtkGlyph3D, "1.119");
 vtkStandardNewMacro(vtkGlyph3D);
 
+//----------------------------------------------------------------------------
 // Construct object with scaling on, scaling mode is by scalar value,
 // scale factor = 1.0, the range is (0,1), orient geometry is on, and
 // orientation is by vector. Clamping and indexing are turned off. No
@@ -58,6 +59,7 @@ vtkGlyph3D::vtkGlyph3D()
   this->SetNumberOfInputPorts(2);
 }
 
+//----------------------------------------------------------------------------
 vtkGlyph3D::~vtkGlyph3D()
 {
   if (this->PointIdsName)
@@ -70,6 +72,7 @@ vtkGlyph3D::~vtkGlyph3D()
   this->SetInputColorScalarsSelection(NULL);
 }
 
+//----------------------------------------------------------------------------
 int vtkGlyph3D::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
@@ -631,6 +634,7 @@ int vtkGlyph3D::RequestData(
   return 1;
 }
 
+//----------------------------------------------------------------------------
 // Specify a source object at a specified table location.
 void vtkGlyph3D::SetSource(int id, vtkPolyData *pd)
 {
@@ -665,6 +669,7 @@ void vtkGlyph3D::SetSource(int id, vtkPolyData *pd)
     }
 }
 
+//----------------------------------------------------------------------------
 // Get a pointer to a source object at a specified table location.
 vtkPolyData *vtkGlyph3D::GetSource(int id)
 {
@@ -677,6 +682,7 @@ vtkPolyData *vtkGlyph3D::GetSource(int id)
     this->GetExecutive()->GetInputData(1, id));
 }
 
+//----------------------------------------------------------------------------
 void vtkGlyph3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -746,6 +752,8 @@ void vtkGlyph3D::PrintSelf(ostream& os, vtkIndent indent)
      << (this->InputVectorsSelection ? this->InputVectorsSelection : "(none)") << "\n";
   os << indent << "InputNormalsSelection: " 
      << (this->InputNormalsSelection ? this->InputNormalsSelection : "(none)") << "\n";
+  os << indent << "InputColorScalarsSelection: " 
+     << (this->InputColorScalarsSelection ? this->InputColorScalarsSelection : "(none)") << "\n";
 }
 
 int vtkGlyph3D::RequestUpdateExtent(
@@ -778,6 +786,7 @@ int vtkGlyph3D::RequestUpdateExtent(
   return 1;
 }
 
+//----------------------------------------------------------------------------
 vtkPolyData* vtkGlyph3D::GetSource(int idx, vtkInformationVector *sourceInfo)
 {
   vtkInformation *info = sourceInfo->GetInformationObject(idx);
@@ -788,6 +797,7 @@ vtkPolyData* vtkGlyph3D::GetSource(int idx, vtkInformationVector *sourceInfo)
   return vtkPolyData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
 }
 
+//----------------------------------------------------------------------------
 int vtkGlyph3D::FillInputPortInformation(int port, vtkInformation *info)
 {
   if (port == 0)
