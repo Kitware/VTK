@@ -18,7 +18,7 @@
 #include "vtkImageSource.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageSource, "1.54");
+vtkCxxRevisionMacro(vtkImageSource, "1.54.4.1");
 
 //----------------------------------------------------------------------------
 vtkImageSource::vtkImageSource()
@@ -82,6 +82,13 @@ vtkImageData *vtkImageSource::AllocateOutputData(vtkDataObject *out)
     vtkWarningMacro("Call to AllocateOutputData with non vtkImageData output");
     return NULL;
     }
+
+  // I would like to eliminate this method which requires extra "information"
+  // That is not computed in the graphics pipeline.
+  // Until I can eliminate the method, I will reexecute the ExecuteInformation
+  // before the execute.
+  this->ExecuteInformation();
+
   res->SetExtent(res->GetUpdateExtent());
   res->AllocateScalars();
 
