@@ -65,8 +65,9 @@ class VTK_EXPORT vtkMatrix4x4 : public vtkObject
 
   void operator= (float element);
   vtkMatrix4x4& operator= (const vtkMatrix4x4& source);
-  float *operator[](const unsigned int i) {return &(Element[i][0]);};
-  const float *operator[](unsigned int i) const { return &(Element[i][0]); }
+  float *operator[](const unsigned int i) {return &(this->Element[i][0]);};
+  const float *operator[](unsigned int i) const
+        { return &(this->Element[i][0]); }
 
   void Invert (vtkMatrix4x4 in,vtkMatrix4x4 & out);
   void Invert (void) { this->Invert(*this,*this);};
