@@ -237,7 +237,6 @@ void vlRenderer::ViewToWorld()
 void vlRenderer::WorldToView()
 {
   vlMatrix4x4 matrix;
-  int       i,j;
   float     view[4];
   float     *world;
 

@@ -441,7 +441,6 @@ float *vlCamera::GetOrientation ()
 
 void vlCamera::CalcPerspectiveTransform ()
 {
-  int     i, j;
   vlMatrix4x4  matrix;
   float   view_ratio;
   float   distance, distance_old;
