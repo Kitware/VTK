@@ -18,7 +18,7 @@ set noTest {
    rtExamples.tcl polyViewer.tcl KeyFrame.tcl cameraKey.tcl timing.tcl 
    Decimate.tcl assembly2.tcl connPineRoot.tcl aniIso.tcl deciHawa.tcl 
    deciPineRoot.tcl deleted.tcl mcTest.tcl viewMCubesFile.tcl vol.tcl
-   volTkInteractor.tcl spikeColor.tcl tkwin.tcl 3dsToRIB.tcl
+   volTkInteractor.tcl spikeColor.tcl tkwin.tcl 3dsToRIB.tcl backdrop.tcl
 
    Close.tcl ContinuousClose.tcl HighPassComparison.tcl 
    HybridMedianComparison.tcl IdealHighPass.tcl ShotNoiseInclude.tcl 
@@ -61,7 +61,9 @@ foreach afile $files {
    # first check for some common names
    if {[info commands renWin] == "renWin"} {
       w2if SetInput renWin
+      set threshold 10
    } else {
+      set threshold 0
       if {[info commands viewer] == "viewer"} {
 	 w2if SetInput [viewer GetImageWindow]
 	 viewer Render
@@ -93,12 +95,14 @@ foreach afile $files {
    rtpnm SetFileName "valid/$afile.ppm"
    
    vtkImageDifference imgDiff
+   
+   if {$threshold == 0} {imgDiff AllowShiftOff; imgDiff SetThreshold 0}
    imgDiff SetInput [w2if GetOutput]
    imgDiff SetImage [rtpnm GetOutput]
    imgDiff Update
 
-   # a test has to be off by at least ten pixels for us to care   
-   if {[imgDiff GetThresholdedError] < 10.0} {
+   # a test has to be off by at least threshold pixels for us to care   
+   if {[imgDiff GetThresholdedError] <= $threshold} {
        puts "and Passed"
    } else {
        puts "but failed with an error of [imgDiff GetThresholdedError]"
