@@ -47,8 +47,7 @@ void stuffit()
 
   fprintf(stdout,"  Py_DECREF(n);\n");
   fprintf(stdout,"}\n\n");
-};
-
+}
 
 int main(int argc,char *argv[])
 {
