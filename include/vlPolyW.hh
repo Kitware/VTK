@@ -26,7 +26,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "vlDSW.hh"
 #include "PolyF.hh"
 
-class vlPolyWriter : public vlDataSetWriter, public vlPolyFilter
+class vlPolyWriter : public vlDataWriter, public vlPolyFilter
 {
 public:
   vlPolyWriter() {};

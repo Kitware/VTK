@@ -17,7 +17,25 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 void vlStructuredGridWriter::WriteData()
 {
+  FILE *fp;
+  vlStructuredGrid *input=(vlStructuredGrid *)this->Input;
+  int dim[3];
 
+  vlDebugMacro(<<"Writing vl structured grid...");
+
+  if ( !(fp=this->OpenVLFile(this->Filename)) || !this->WriteHeader(fp) )
+      return;
+//
+// Write structured grid specific stuff
+//
+  fprintf(fp,"DATASET STRUCTURED_GRID\n");
+
+  input->GetDimensions(dim);
+  fprintf(fp,"DIMENSIONS %d %d %d\n", dim[0], dim[1], dim[2]);
+
+  this->WritePoints(fp, input->GetPoints());
+
+  this->WritePointData(fp, input);
 }
 
 void vlStructuredGridWriter::Modified()

@@ -17,6 +17,26 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 void vlPolyWriter::WriteData()
 {
+  FILE *fp;
+  vlPolyData *input=(vlPolyData *)this->Input;
+
+  vlDebugMacro(<<"Writing vl polygonal data...");
+
+  if ( !(fp=this->OpenVLFile(this->Filename)) || !this->WriteHeader(fp) )
+      return;
+//
+// Write polygonal data specific stuff
+//
+  fprintf(fp,"DATASET POLYDATA\n");
+  this->WritePoints(fp, input->GetPoints());
+
+  if (input->GetVerts()) this->WriteCells(fp, input->GetVerts(),"VERTICES");
+  if (input->GetLines()) this->WriteCells(fp, input->GetLines(),"LINES");
+  if (input->GetPolys()) this->WriteCells(fp, input->GetPolys(),"POLYGONS");
+  if (input->GetStrips()) this->WriteCells(fp, input->GetStrips(),"TRIANGLE_STRIPS");
+
+  this->WritePointData(fp, input);
+
 }
 
 void vlPolyWriter::Modified()
