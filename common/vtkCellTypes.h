@@ -134,7 +134,7 @@ public:
   void DeepCopy(vtkCellTypes *src);
 
 protected:
-  vtkCellTypes() : TypeArray(NULL), LocationArray(NULL), Size(0), MaxId(-1), Extend(1000) {};
+  vtkCellTypes();
   ~vtkCellTypes();
   vtkCellTypes(const vtkCellTypes&) {};
   void operator=(const vtkCellTypes&) {};  
