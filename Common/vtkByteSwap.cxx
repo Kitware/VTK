@@ -65,6 +65,16 @@ void vtkByteSwap::Swap2BE(short *mem_ptr)
 }
 #endif
 
+// Swap 2 byte word.
+#ifdef VTK_WORDS_BIGENDIAN
+void vtkByteSwap::Swap2BE(unsigned short *) {}
+#else
+void vtkByteSwap::Swap2BE(unsigned short *mem_ptr)
+{
+  *mem_ptr = (((*mem_ptr>>8)&0xff) | ((*mem_ptr&0xff)<<8));
+}
+#endif
+
 // Swap four byte word.
 #ifdef VTK_WORDS_BIGENDIAN
 void vtkByteSwap::Swap4BE(char *){}
@@ -412,6 +422,14 @@ void vtkByteSwap::Swap2LE(short *mem_ptr)
 }
 #else
 void vtkByteSwap::Swap2LE(short *) {}
+#endif
+#ifdef VTK_WORDS_BIGENDIAN
+void vtkByteSwap::Swap2LE(unsigned short *mem_ptr)
+{
+  *mem_ptr = (((*mem_ptr>>8)&0xff) | ((*mem_ptr&0xff)<<8));
+}
+#else
+void vtkByteSwap::Swap2LE(unsigned short *) {}
 #endif
 
 // Swap four byte word.

@@ -58,6 +58,7 @@ public:
   // Description:
   // Swap 2 byte word to be LE.
   static void Swap2LE(short *s);
+  static void Swap2LE(unsigned short *s);
 
   // Description:
   // Swap four byte word to be LE.
@@ -101,6 +102,7 @@ public:
   // Description:
   // Swap 2 byte word to BE.
   static void Swap2BE(short *s);
+  static void Swap2BE(unsigned short *s);
 
   // Description:
   // For writing, swap four byte word to be BE.
