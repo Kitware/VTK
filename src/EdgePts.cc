@@ -75,7 +75,7 @@ void vlEdgePoints::Execute()
     cell = this->Input->GetCell(cellId);
     inScalars->GetScalars(cell->PointIds,cellScalars);
 
-    // loop over 8 points of voxel to check if cell straddles value
+    // loop over cell points to check if cell straddles iso-surface value
     for ( above=below=0, ptId=0; ptId < cell->GetNumberOfPoints(); ptId++ )
       {
       if ( cellScalars.GetScalar(ptId) >= this->Value )
