@@ -52,9 +52,9 @@ int vlSbrRenderer::UpdateActors()
   int count = 0;
  
   // loop through actors 
-  for (num = 1; num <= this->Actors.GetNumberOfMembers(); num++)
+  for (num = 1; num <= this->Actors.GetNumberOfItems(); num++)
     {
-    anActor = this->Actors.GetMember(num);
+    anActor = this->Actors.GetItem(num);
  
     // if it's invisible, we can skip the rest 
     visibility = anActor->GetVisibility();
@@ -115,9 +115,9 @@ int vlSbrRenderer::UpdateLights ()
 
   cur_light= this->NumberOfLightsBound;
 
-  for (i = 1; i <= this->Lights.GetNumberOfMembers(); i++)
+  for (i = 1; i <= this->Lights.GetNumberOfItems(); i++)
     {
-    light = this->Lights.GetMember(i);
+    light = this->Lights.GetItem(i);
 
     status = light->GetSwitch();
 

@@ -16,33 +16,23 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #ifndef __vlRendererCollection_hh
 #define __vlRendererColleciton_hh
 
+#include "Collect.hh"
 #include "Renderer.hh"
 
-class vlRendererListElement
+class vlRendererCollection : public vlCollection
 {
  public:
-  vlRenderer *Renderer;
-  vlRendererListElement *Next;
-
-};
-
-class vlRendererCollection : public vlObject
-{
- public:
-  int NumberOfItems;
-
- private:
-  vlRendererListElement *Top;
-  vlRendererListElement *Bottom;
-
- public:
-  void Render();
+  void AddItem(vlRenderer *a) 
+    {this->vlCollection::AddItem((vlObject *)a);};
+  void RemoveItem(vlRenderer *a) 
+    {this->vlCollection::RemoveItem((vlObject *)a);};
+  int IsItemPresent(vlRenderer *a) 
+    {return this->vlCollection::IsItemPresent((vlObject *)a);};
+  vlRenderer *GetItem(int num) 
+    { return (vlRenderer *)(this->vlCollection::GetItem(num));};
   char *GetClassName() {return "vlRendererCollection";};
-  void PrintSelf(ostream& os, vlIndent indent);
-  vlRendererCollection();
-  void AddMember(vlRenderer *);
-  int  GetNumberOfMembers();
-  vlRenderer *GetMember(int num);
+
+  void Render();
 };
 
 #endif

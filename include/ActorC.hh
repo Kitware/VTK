@@ -16,31 +16,19 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #ifndef __vlActorC_hh
 #define __vlActorC_hh
 
+#include "Collect.hh"
 #include "Actor.hh"
 
-class vlActorListElement
+class vlActorCollection : public vlCollection
 {
  public:
-  vlActor *Actor;
-  vlActorListElement *Next;
-
-};
-
-class vlActorCollection : public vlObject
-{
- public:
-  int NumberOfItems;
-
- private:
-  vlActorListElement *Top;
-  vlActorListElement *Bottom;
-
- public:
-  vlActorCollection();
-  void AddMember(vlActor *);
-  int  GetNumberOfMembers();
-  vlActor *GetMember(int num);
-  void PrintSelf(ostream& os, vlIndent indent);
+  void AddItem(vlActor *a) {this->vlCollection::AddItem((vlObject *)a);};
+  void RemoveItem(vlActor *a) 
+    {this->vlCollection::RemoveItem((vlObject *)a);};
+  int IsItemPresent(vlActor *a) 
+    {return this->vlCollection::IsItemPresent((vlObject *)a);};
+  vlActor *GetItem(int num) 
+    { return (vlActor *)(this->vlCollection::GetItem(num));};
   char *GetClassName() {return "vlActorCollection";};
 };
 
