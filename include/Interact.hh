@@ -35,7 +35,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Light.hh"
 #include "Picker.hh"
 #include "PolyMap.hh"
-#include "CubeSrc.hh"
+#include "Outline.hh"
 
 class vlRenderWindowInteractor : public vlObject
 {
@@ -99,7 +99,7 @@ protected:
   // for picking actors
   vlPicker *Picker;
   int SelfCreatedPicker;
-  vlCubeSource Outline;
+  vlOutlineSource Outline;
   vlPolyMapper OutlineMapper;
   vlActor *OutlineActor;
   vlRenderer *PickedRenderer;

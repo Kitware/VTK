@@ -103,7 +103,8 @@ void vlRenderWindowInteractor::HighlightActor(vlActor *actor)
     this->OutlineActor->DragableOff();
     this->OutlineActor->SetMapper(this->OutlineMapper);
     this->OutlineActor->GetProperty()->SetColor(1.0,1.0,1.0);
-    this->OutlineActor->GetProperty()->SetWireframe();
+    this->OutlineActor->GetProperty()->SetAmbient(1.0);
+    this->OutlineActor->GetProperty()->SetDiffuse(0.0);
     }
 
   if ( this->PickedRenderer ) 
