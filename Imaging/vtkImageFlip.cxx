@@ -21,7 +21,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageFlip, "1.34");
+vtkCxxRevisionMacro(vtkImageFlip, "1.35");
 vtkStandardNewMacro(vtkImageFlip);
 
 //----------------------------------------------------------------------------
@@ -33,7 +33,9 @@ vtkImageFlip::vtkImageFlip()
 
   if (!this->ResliceAxes)
     {
-    this->ResliceAxes = vtkMatrix4x4::New();
+    // for consistent register/unregister
+    this->SetResliceAxes(vtkMatrix4x4::New());
+    this->ResliceAxes->Delete();
     }
 }
 

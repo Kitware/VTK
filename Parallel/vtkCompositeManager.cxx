@@ -43,7 +43,7 @@
  #include <mpi.h>
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeManager, "1.45");
+vtkCxxRevisionMacro(vtkCompositeManager, "1.46");
 vtkStandardNewMacro(vtkCompositeManager);
 
 
@@ -507,7 +507,7 @@ void vtkCompositeManager::SetCompositer(vtkCompositer *c)
     }
   if (this->Compositer)
     {
-    this->Compositer->Delete();
+    this->Compositer->UnRegister(this);
     this->Compositer = NULL;
     }
   this->Compositer = c;
