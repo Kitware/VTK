@@ -16,11 +16,14 @@
 
 #include "vtkImageData.h"
 #include "vtkImageStencilData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageAccumulate, "1.51");
+vtkCxxRevisionMacro(vtkImageAccumulate, "1.52");
 vtkStandardNewMacro(vtkImageAccumulate);
 
 //----------------------------------------------------------------------------
@@ -45,6 +48,9 @@ vtkImageAccumulate::vtkImageAccumulate()
   this->Mean[0] = this->Mean[1] = this->Mean[2] = 0.0;
   this->StandardDeviation[0] = this->StandardDeviation[1] = this->StandardDeviation[2] = 0.0;  
   this->VoxelCount = 0;
+
+  // we have the image input and the optional stencil input
+  this->SetNumberOfInputPorts(2);
 }
 
 
@@ -102,21 +108,15 @@ void vtkImageAccumulate::GetComponentExtent(int extent[6])
 //----------------------------------------------------------------------------
 void vtkImageAccumulate::SetStencil(vtkImageStencilData *stencil)
 {
-  this->vtkProcessObject::SetNthInput(1, stencil); 
+  this->SetInput(1, stencil); 
 }
 
 
 //----------------------------------------------------------------------------
 vtkImageStencilData *vtkImageAccumulate::GetStencil()
 {
-  if (this->NumberOfInputs < 2) 
-    { 
-    return NULL;
-    }
-  else
-    {
-    return (vtkImageStencilData *)(this->Inputs[1]); 
-    }
+  return vtkImageStencilData::SafeDownCast(
+    this->GetExecutive()->GetInputData(this,1,0));
 }
 
 
@@ -267,12 +267,24 @@ void vtkImageAccumulateExecute(vtkImageAccumulate *self,
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for
 // the Datas data types.
-void vtkImageAccumulate::ExecuteData(vtkDataObject *vtkNotUsed(out))
+void vtkImageAccumulate::RequestData(
+  vtkInformation * vtkNotUsed( request ), 
+  vtkInformationVector * inputVector, 
+  vtkInformationVector * outputVector)
 {
   void *inPtr;
   void *outPtr;
-  vtkImageData *inData = this->GetInput();
-  vtkImageData *outData = this->GetOutput();
+  
+  // get the input
+  vtkInformation *in1Info = 
+    this->GetInputConnectionInformation(inputVector,0,0);
+  vtkImageData *inData = vtkImageData::SafeDownCast(
+    in1Info->Get(vtkDataObject::DATA_OBJECT()));
+  
+  // get the output
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkImageData *outData = vtkImageData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
   
   vtkDebugMacro(<<"Executing image accumulate");
   
@@ -285,7 +297,7 @@ void vtkImageAccumulate::ExecuteData(vtkDataObject *vtkNotUsed(out))
   outPtr = outData->GetScalarPointer();
   
   // Components turned into x, y and z
-  if (this->GetInput()->GetNumberOfScalarComponents() > 3)
+  if (inData->GetNumberOfScalarComponents() > 3)
     {
     vtkErrorMacro("This filter can handle upto 3 components");
     return;
@@ -315,35 +327,66 @@ void vtkImageAccumulate::ExecuteData(vtkDataObject *vtkNotUsed(out))
 
 
 //----------------------------------------------------------------------------
-void vtkImageAccumulate::ExecuteInformation(vtkImageData *input, 
-                                            vtkImageData *output)
+void vtkImageAccumulate::ExecuteInformation (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector *inputVector,
+  vtkInformationVector *outputVector)
 {
-  output->SetWholeExtent(this->ComponentExtent);
-  output->SetOrigin(this->ComponentOrigin);
-  output->SetSpacing(this->ComponentSpacing);
-  output->SetNumberOfScalarComponents(1);
-  output->SetScalarType(VTK_INT);
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkInformation *inInfo =
+    this->GetInputConnectionInformation(inputVector,0,0);
+  vtkInformation *inInfo2 =
+    this->GetInputConnectionInformation(inputVector,1,0);
+  
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+               this->ComponentExtent,6);
+  outInfo->Set(vtkDataObject::ORIGIN(),this->ComponentOrigin,3);
+  outInfo->Set(vtkDataObject::SPACING(),this->ComponentSpacing,3);
+  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),1);
+  outInfo->Set(vtkDataObject::SCALAR_TYPE(),VTK_INT);
 
   // need to set the spacing and origin of the stencil to match the output
-  vtkImageStencilData *stencil = this->GetStencil();
-  if (stencil)
+  if (inInfo2)
     {
-    stencil->SetSpacing(input->GetSpacing());
-    stencil->SetOrigin(input->GetOrigin());
+    inInfo2->Set(vtkDataObject::SPACING(),
+                 inInfo->Get(vtkDataObject::SPACING()),3);
+    inInfo2->Set(vtkDataObject::ORIGIN(),
+                 inInfo->Get(vtkDataObject::ORIGIN()),3);
     }
 }
 
 //----------------------------------------------------------------------------
 // Get ALL of the input.
-void vtkImageAccumulate::ComputeInputUpdateExtent(int inExt[6], 
-                                                  int *vtkNotUsed(outExt))
+void vtkImageAccumulate::RequestUpdateExtent (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector *inputVector,
+  vtkInformationVector * vtkNotUsed( outputVector ))
 {
-  int *wholeExtent;
+  // get the info objects
+  vtkInformation *inInfo =
+     this->GetInputConnectionInformation(inputVector,0,0);
 
-  wholeExtent = this->GetInput()->GetWholeExtent();
-  memcpy(inExt, wholeExtent, 6*sizeof(int));
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+              inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),6);
 }
 
+
+int vtkImageAccumulate::FillInputPortInformation(
+  int port, vtkInformation* info)
+{
+  if (port == 1)
+    {
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageStencilData");
+    // the stencil input is optional
+    info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
+    }
+  else
+    {
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+    }
+  return 1;
+}
 
 void vtkImageAccumulate::PrintSelf(ostream& os, vtkIndent indent)
 {

@@ -32,15 +32,15 @@
 #define __vtkImageAccumulate_h
 
 
-#include "vtkImageToImageFilter.h"
+#include "vtkImageAlgorithm.h"
 
 class vtkImageStencilData;
 
-class VTK_IMAGING_EXPORT vtkImageAccumulate : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImageAccumulate : public vtkImageAlgorithm
 {
 public:
   static vtkImageAccumulate *New();
-  vtkTypeRevisionMacro(vtkImageAccumulate,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageAccumulate,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -104,10 +104,14 @@ protected:
   double ComponentOrigin[3];
   int ComponentExtent[6];
 
-  void ExecuteInformation(vtkImageData *input, vtkImageData *output);
-  void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
-  void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
-  void ExecuteData(vtkDataObject *out);
+  void ExecuteInformation (vtkInformation *, vtkInformationVector *, 
+                           vtkInformationVector *);
+  void RequestUpdateExtent (vtkInformation *, vtkInformationVector *, 
+                            vtkInformationVector *);
+  
+  void RequestData(  vtkInformation *request, 
+                     vtkInformationVector * inputVector, 
+                     vtkInformationVector * outputVector);
 
   double Min[3];
   double Max[3];
@@ -116,6 +120,8 @@ protected:
   long int VoxelCount;
 
   int ReverseStencil;
+
+  virtual int FillInputPortInformation(int port, vtkInformation* info);
 
 private:
   vtkImageAccumulate(const vtkImageAccumulate&);  // Not implemented.
