@@ -46,6 +46,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMath.h"
 #include "vtkVolume.h"
 #include "vtkRayCaster.h"
+#include "vtkTimerLog.h"
+#include "vtkCuller.h"
 
 // Description:
 // Create a vtkRenderer with a black background, a white ambient light, 
@@ -62,13 +64,14 @@ vtkRenderer::vtkRenderer()
   this->RayCaster = vtkRayCaster::New();
   this->RayCaster->SetRenderer( this );
 
-  this->AllocatedRenderTime = 0;
+  this->AllocatedRenderTime = 100;
   
   this->CreatedLight = NULL;
   
   this->TwoSidedLighting = 1;
   this->BackingStore = 0;
   this->BackingImage = NULL;
+  this->LastRenderTimeInSeconds = -1.0;
 }
 
 vtkRenderer::~vtkRenderer()
@@ -132,6 +135,10 @@ vtkRenderer *vtkRenderer::New()
 // Concrete render method.
 void vtkRenderer::Render(void)
 {
+  double t1, t2;
+
+  t1 = vtkTimerLog::GetCurrentTime();
+
   if (this->StartRenderMethod) 
     {
     (*this->StartRenderMethod)(this->StartRenderMethodArg);
@@ -208,11 +215,157 @@ void vtkRenderer::Render(void)
     (*this->EndRenderMethod)(this->EndRenderMethodArg);
     }
   this->RenderTime.Modified();
+
+  t2 = vtkTimerLog::GetCurrentTime();
+
+  this->LastRenderTimeInSeconds = (float) (t2 - t1);
 }
 
 void vtkRenderer::Render2D()
 {
   this->Actors2D->Render(this);
+}
+
+// Description:
+// Ask actors to render themselves. As a side effect will cause 
+// visualization network to update.
+int vtkRenderer::UpdateActors()
+{
+  vtkActor   *anActor, **actorList;
+  vtkCuller  *aCuller;
+  int        count = 0, num_actors;
+  float      total_time, actor_time, gained_time, additional_time;
+  int        allocated_time_initialized = 0, i;
+  float      *bounds, render_time, new_render_time;
+
+  num_actors = this->Actors.GetNumberOfItems();
+
+  // We don't have any cullers so don't try to do any culling
+  if ( this->Cullers.GetNumberOfItems() == 0 )
+    {
+    // Give each actor an equal slice of the time
+    actor_time = this->AllocatedRenderTime / (float) num_actors;
+
+    // loop through actors 
+    for ( this->Actors.InitTraversal(); (anActor=this->Actors.GetNextItem()); )
+      {
+      // we need to draw it only if it is visible 
+      if ( anActor->GetVisibility() )
+	{
+	anActor->SetAllocatedRenderTime( actor_time );
+
+	// Count the number of actors we actually draw
+	count++;
+	
+	// Finally - render the thing!
+	anActor->Render((vtkRenderer *)this);
+	}
+      }
+    }
+  // We do have cullers so we'll need to do both outer culling (where each
+  // culler has a chance to change allocated render times, and order all
+  // of the actors) and inner culling (where for each actor, each culler gets
+  // a chance to set the allocated render time to 0).
+  //
+  // The first culler to do an outer culling will initialize all the
+  // allocated render times. Any subsequent outer culling will multiply
+  // the new render time by the existing render time for an actor.
+  //
+  // If an actor is culled from the inner culling method, the time it
+  // would have used for rendering is redistributed among the remaining
+  // actors.
+  else
+    {
+    // Create the initial list of actors
+    actorList = new vtkActor *[num_actors];
+    for ( i = 0,	this->Actors.InitTraversal(); 
+	  (anActor = this->Actors.GetNextItem());
+	  i++ )
+      actorList[i] = anActor;
+
+    // Give each of the cullers a chance to modify allocated rendering time
+    // for the entire set of actors. Each culler returns the total time given
+    // by AllocatedRenderTime for all actors. Each culler is required to
+    // place any actors that have an allocated render time of 0.0 or are
+    // invisible at the end of the list. The num_actors value that is
+    // returned is the number of non-zero, visible actors.
+    // Some cullers may do additional sorting of the list (by distance,
+    // importance, etc).
+    for (this->Cullers.InitTraversal(); (aCuller=this->Cullers.GetNextItem());)
+      total_time = aCuller->OuterCullMethod( (vtkRenderer *)this, 
+					     actorList, num_actors,
+					     allocated_time_initialized );
+
+    // We need to keep track of how much time we gain from the inner culling
+    // method
+    gained_time = 0;
+
+    // loop through actors 
+    for ( i = 0; i < num_actors; i++ )
+      {
+      anActor = actorList[i];
+
+      if ( allocated_time_initialized || anActor->GetVisibility() )
+	{
+	// If we don't have an outer cull method in any of the cullers,
+	// then the allocated render time has not yet been initialized
+	if ( !allocated_time_initialized )
+	  anActor->SetAllocatedRenderTime( 1.0 );
+
+	// What is the initial render time allocated to this actor
+	// before we do the inner culling
+	render_time = anActor->GetAllocatedRenderTime();
+	  
+	// Give the inner culling method a chance to do its thing.
+	// The inner cull method returns 0 if the object is culled, 1 if
+	// it is not culled. It may also just reduce the allocated render
+        // time of the actor, so we'll have to check that again later.
+	// Cullers are not allowed to increase the allocated time for
+	// an actor.
+	for (this->Cullers.InitTraversal(); 
+	     (aCuller=this->Cullers.GetNextItem());)
+	  if ( !(aCuller->InnerCullMethod((vtkRenderer *)this, anActor ) ) ) 
+	    {
+	    break;
+	    }
+
+	// What is the new render time allocated to this actor
+	// after we do the inner culling.
+	new_render_time = anActor->GetAllocatedRenderTime();
+
+	// If there is a difference between this time and the original
+	// render time, then this is time that is gained for use across
+	// all remaining actors;
+	gained_time += render_time - new_render_time;
+
+	// If it didn't get culled, we really need to render it
+	if ( new_render_time > 0.0 )
+	  {
+	  // Count the number of actors we actually draw
+	  count++;
+
+	  // If we culled a previous actor using the inner culling method, 
+	  // we will have some additional time that we can add to this actor
+	  additional_time = gained_time / (float)(num_actors - i);
+	  gained_time -= additional_time;
+	  
+	  // We need to divide by total time so that the total rendering time
+	  // (all actor's AllocatedRenderTime added together) would be 1.
+	  // We add the additional time to get the total allocated time.
+	  anActor->SetAllocatedRenderTime(
+	     ( new_render_time / total_time ) * this->AllocatedRenderTime );
+	  
+	  // Finally - render the thing!
+	  anActor->Render((vtkRenderer *)this);
+	  }
+	}
+      }
+    delete [] actorList;
+    }
+
+  vtkDebugMacro( << "Rendered " << count << " actors" );
+
+  return count;
 }
 
 vtkWindow *vtkRenderer::GetVTKWindow()
@@ -296,6 +449,20 @@ void vtkRenderer::RemoveActor(vtkActor *actor)
 void vtkRenderer::RemoveVolume(vtkVolume *volume)
 {
   this->Volumes.RemoveItem(volume);
+}
+
+// Description:
+// Add an culler to the list of cullers.
+void vtkRenderer::AddCuller(vtkCuller *culler)
+{
+  this->Cullers.AddItem(culler);
+}
+
+// Description:
+// Remove an actor from the list of cullers.
+void vtkRenderer::RemoveCuller(vtkCuller *culler)
+{
+  this->Cullers.RemoveItem(culler);
 }
 
 void vtkRenderer::CreateLight(void)
