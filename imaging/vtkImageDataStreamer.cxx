@@ -61,6 +61,7 @@ vtkImageDataStreamer* vtkImageDataStreamer::New()
 vtkImageDataStreamer::vtkImageDataStreamer()
 {
   this->NumberOfDivisions = 1;
+  this->SplitMode = VTK_IMAGE_DATA_STREAMER_SLAB_MODE;
 }
 
 
@@ -68,6 +69,20 @@ vtkImageDataStreamer::vtkImageDataStreamer()
 void vtkImageDataStreamer::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageSource::PrintSelf(os,indent);
+  os << indent << "NumberOfDivisions: " << this->NumberOfDivisions << endl;
+  os << indent << "SplitMode: ";
+  if (this->SplitMode == VTK_IMAGE_DATA_STREAMER_BLOCK_MODE)
+    {
+    os << "Block\n";
+    }
+  else if (this->SplitMode == VTK_IMAGE_DATA_STREAMER_SLAB_MODE)
+    {
+    os << "Block\n";
+    }
+  else
+    {
+    os << "Unknown\n";
+    }
 }
   
 //----------------------------------------------------------------------------
@@ -108,6 +123,7 @@ void vtkImageDataStreamer::InternalUpdate(vtkDataObject *out)
     {
     output->SetExtent(output->GetUpdateExtent());
     output->AllocateScalars();
+    output->DataHasBeenGenerated();
     return;
     }
   
@@ -118,6 +134,7 @@ void vtkImageDataStreamer::InternalUpdate(vtkDataObject *out)
     input->Update();
     output->SetExtent(input->GetExtent());
     output->GetPointData()->PassData(input->GetPointData());
+    output->DataHasBeenGenerated();
     return;
     }
   
@@ -127,17 +144,20 @@ void vtkImageDataStreamer::InternalUpdate(vtkDataObject *out)
   output->AllocateScalars();
   for (idx = 0; idx < this->NumberOfDivisions; ++idx)
     {
+    vtkDebugMacro("Streaming piece " << idx << " of " 
+		  << this->NumberOfDivisions << endl);
     output->GetUpdateExtent(ext);
-    this->SplitExtent(idx, this->NumberOfDivisions, ext);
+    this->SplitExtent(ext, idx, this->NumberOfDivisions);
     input->SetUpdateExtent(ext);
     input->Update();
     output->CopyAndCastFrom(input, ext);
     }
+  output->DataHasBeenGenerated();
 }
 
 //----------------------------------------------------------------------------
 // Assumes UpdateInformation was called first.
-int vtkImageDataStreamer::SplitExtent(int piece, int numPieces, int *ext)
+int vtkImageDataStreamer::SplitExtent(int *ext, int piece, int numPieces)
 {
   int numPiecesInFirstHalf;
   int size[3], mid, splitAxis;
@@ -150,24 +170,47 @@ int vtkImageDataStreamer::SplitExtent(int piece, int numPieces, int *ext)
     size[0] = ext[1]-ext[0];
     size[1] = ext[3]-ext[2];
     size[2] = ext[5]-ext[4];
-    // choose the biggest axis
-    if (size[2] >= size[1] && size[2] >= size[0] && 
-	size[2]/2 >= 2)
+    if (this->SplitMode == VTK_IMAGE_DATA_STREAMER_BLOCK_MODE)
       {
-      splitAxis = 2;
-      }
-    else if (size[1] >= size[0] && size[1]/2 >= 2)
-      {
-      splitAxis = 1;
-      }
-    else if (size[0]/2 >= 2)
-      {
-      splitAxis = 0;
+      // BLOCK MODE: choose the biggest axis
+      if (size[2] >= size[1] && size[2] >= size[0] && 
+	  size[2]/2 >= 2)
+	{
+	splitAxis = 2;
+	}
+      else if (size[1] >= size[0] && size[1]/2 >= 2)
+	{
+	splitAxis = 1;
+	}
+      else if (size[0]/2 >= 2)
+	{
+	splitAxis = 0;
+	}
+      else
+	{
+	// signal no more splits possible
+	splitAxis = -1;
+	}
       }
     else
       {
-      // signal no more splits possible
-      splitAxis = -1;
+      // SLAB MODE: split z down to one slice ...
+      if (size[2] > 1)
+	{
+	splitAxis = 2;
+	}
+      else if (size[1] > 1)
+	{
+	splitAxis = 1;
+	}
+      else if (size[0] > 1)
+	{
+	splitAxis = 0;
+	}
+      else
+	{
+	splitAxis = -1;
+	}
       }
 
     if (splitAxis == -1)
