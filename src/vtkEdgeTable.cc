@@ -143,7 +143,7 @@ int vtkEdgeTable::GetNextEdge(int &p1, int &p2)
     ++this->Position[1] < this->Table[this->Position[0]]->GetNumberOfIds() )
       {
       p1 = this->Position[0];
-      p2 = this->Position[1];
+      p2 = this->Table[this->Position[0]]->GetId(this->Position[1]);
       return 1;
       }
     }
