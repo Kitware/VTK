@@ -33,16 +33,23 @@
 // more information. Thus vtkGenericDataSet plays a central role in the
 // adaptor framework.
 //
-// Please note that this class introduces the concepts of "boundary cells". 
+// Please note that this class introduces the concepts of "boundary cells".
 // This refers to the boundaries of a cell (e.g., face of a tetrahedron)
-// which may in turn be represented as a cell. Boundary cells are derivatives
-// of cells, and are never explicitly represented in the dataset. Often in 
-// visualization algorithms, looping over boundaries (edges or faces) is
-// employed, and the actual dataset cells are not traversed.
+// which may in turn be represented as a cell. Boundary cells are derivative
+// topological features of cells, and are therefore never explicitly
+// represented in the dataset. Often in visualization algorithms, looping
+// over boundaries (edges or faces) is employed, while the actual dataset
+// cells may not traversed. Thus there are methods to loop over these
+// boundary cells.
 //
 // Finally, as a point of clarification, points are not the same as vertices.
 // Vertices refer to points, and points specify a position is space. Vertices
-// are a type of 0-D cell.
+// are a type of 0-D cell. Also, the concept of a DOFNode, which is where
+// coefficients for higher-order cells are kept, is a new concept introduced
+// by the adaptor framework (see vtkGenericAdaptorCell for more information).
+//
+// .SECTION See Also
+// vtkGenericAdaptorCell vtkDataSet
 
 #ifndef __vtkGenericDataSet_h
 #define __vtkGenericDataSet_h
