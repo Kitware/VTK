@@ -260,7 +260,6 @@ void vtk3DSImporter::ImportCameras (vtkRenderer *renderer)
     aCamera->SetViewUp (0, 0, 1);
     aCamera->SetClippingRange (.1,10000);
     aCamera->Roll (camera->bank);
-    aCamera->ComputeViewPlaneNormal ();
     renderer->SetActiveCamera (aCamera);
     vtkDebugMacro (<< "Importing Camera: " << camera->name);
   }
