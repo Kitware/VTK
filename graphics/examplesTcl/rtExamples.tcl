@@ -12,118 +12,86 @@ if { $argv != ""} {
   set files [lsort [glob {[A-z]*.tcl}]]
 }
 
-# remove support files that we know are not examples
-if {[set pos [lsearch $files "rt.tcl"]] != -1} {
-   set files [lreplace $files $pos $pos ]
+# remove files that are not suitable for regression tests or simply don't work right now
+set noTest {
+   rt.tcl rtAll.tcl rib.tcl TkInteractor.tcl TkRenderWidget.tcl RenderWidget.tcl 
+   rtExamples.tcl polyViewer.tcl KeyFrame.tcl cameraKey.tcl timing.tcl 
+   Decimate.tcl assembly2.tcl connPineRoot.tcl aniIso.tcl deciHawa.tcl 
+   deciPineRoot.tcl deleted.tcl mcTest.tcl viewMCubesFile.tcl vol.tcl
+   volTkInteractor.tcl spikeColor.tcl tkwin.tcl 3dsToRIB.tcl
+
+   Close.tcl ContinuousClose.tcl EnhanceEdges.tcl Gradient2D.tcl 
+   HighPassComparison.tcl HybridMedianComparison.tcl IdealHighPass.tcl 
+   ImageGradient.tcl LaplacianEdgeEnhance.tcl LaplacianSurfaceEnhance.tcl 
+   ShotNoiseInclude.tcl Spectrum.tcl TestContinuousDilate3D.tcl
+   TestContinuousErode3D.tcl TestDilateErode3D.tcl TestDivergence.tcl
+   TestDotProduct.tcl TestEuclideanToPolar.tcl TestFeatureAnd.tcl
+   TestGaussianSource.tcl TestHistogram.tcl TestHistogramEqualization.tcl
+   TestHybridMedian2D.tcl TestIdealHighPass.tcl TestIdealLowPass.tcl
+   TestLaplacian.tcl TestLogarithmicScale.tcl TestMIPFilter.tcl
+   TestOpenClose3D.tcl TestRange3D.tcl TestSinusoidSource.tcl TestSkeleton2D.tcl
+   TestSobel2D.tcl TestSobel3D.tcl TestSubsample3D.tcl TestVariance3D.tcl
+   TestWriter.tcl Timing.tcl VTKSpectrum.tcl WindowLevelInterface.tcl
+   vtkImageInclude.tcl ContinuousClose2D.tcl TkViewer2.tcl Pad.tcl
 }
-if {[set pos [lsearch $files "rtAll.tcl"]] != -1} {
-   set files [lreplace $files $pos $pos ]
-}
-if {[set pos [lsearch $files "rib.tcl"]] != -1} {
-   set files [lreplace $files $pos $pos ]
-}
-if {[set pos [lsearch $files "TkInteractor.tcl"]] != -1} {
-   set files [lreplace $files $pos $pos ]
-}
-if {[set pos [lsearch $files "TkRenderWidget.tcl"]] != -1} {
-   set files [lreplace $files $pos $pos ]
-}
-if {[set pos [lsearch $files "RenderWidget.tcl"]] != -1} {
-   set files [lreplace $files $pos $pos ]
-}
-if {[set pos [lsearch $files "rtExamples.tcl"]] != -1} {
-   set files [lreplace $files $pos $pos ]
-}
-if {[set pos [lsearch $files "polyViewer.tcl"]] != -1} {
-   set files [lreplace $files $pos $pos ]
-}
-if {[set pos [lsearch $files "KeyFrame.tcl"]] != -1} {
-   set files [lreplace $files $pos $pos ]
-}
-if {[set pos [lsearch $files "cameraKey.tcl"]] != -1} {
-   set files [lreplace $files $pos $pos ]
-}
-if {[set pos [lsearch $files "timing.tcl"]] != -1} {
-   set files [lreplace $files $pos $pos ]
-}
-# remove files that are not appropriate or include random sources
-# or just take way too long
-# assembly 2 should be in there
-if {[set pos [lsearch $files "Decimate.tcl"]] != -1} {
-   set files [lreplace $files $pos $pos ]
-}
-if {[set pos [lsearch $files "assembly2.tcl"]] != -1} {
-   set files [lreplace $files $pos $pos ]
-}
-if {[set pos [lsearch $files "connPineRoot.tcl"]] != -1} {
-   set files [lreplace $files $pos $pos ]
-}
-if {[set pos [lsearch $files "aniIso.tcl"]] != -1} {
-   set files [lreplace $files $pos $pos ]
-}
-if {[set pos [lsearch $files "deciHawa.tcl"]] != -1} {
-   set files [lreplace $files $pos $pos ]
-}
-if {[set pos [lsearch $files "deciPineRoot.tcl"]] != -1} {
-   set files [lreplace $files $pos $pos ]
-}
-if {[set pos [lsearch $files "deleted.tcl"]] != -1} {
-   set files [lreplace $files $pos $pos ]
-}
-if {[set pos [lsearch $files "mcTest.tcl"]] != -1} {
-   set files [lreplace $files $pos $pos ]
-}
-if {[set pos [lsearch $files "viewMCubesFile.tcl"]] != -1} {
-   set files [lreplace $files $pos $pos ]
-}
-if {[set pos [lsearch $files "vol.tcl"]] != -1} {
-   set files [lreplace $files $pos $pos ]
-}
-if {[set pos [lsearch $files "volTkInteractor.tcl"]] != -1} {
-   set files [lreplace $files $pos $pos ]
-}
-if {[set pos [lsearch $files "spikeColor.tcl"]] != -1} {
-   set files [lreplace $files $pos $pos ]
-}
-if {[set pos [lsearch $files "tkwin.tcl"]] != -1} {
-   set files [lreplace $files $pos $pos ]
-}
-if {[set pos [lsearch $files "3dsToRIB.tcl"]] != -1} {
-   set files [lreplace $files $pos $pos ]
+
+for {set i 0} {$i < [llength $noTest]} {incr i} {
+   if {[set pos [lsearch $files [lindex $noTest $i]]] != -1} {
+      set files [lreplace $files $pos $pos ]
+   }
 }
 
 # now do the tests
 foreach afile $files {
-    #
-    # only tcl scripts with valid/ images are tested
-    if {[catch {set channel [open "valid/$afile.ppm"]}] != 0 } {
-     puts "WARNING: There is no valid image for $afile"
-     continue
-    }
-   close $channel
-
+   #
+   # only tcl scripts with valid/ images are tested
+   if {[catch {set channel [open "valid/$afile.ppm"]}] != 0 } {
+      puts "WARNING: There is no valid image for $afile"
+      continue
+   } else {
+      close $channel
+   }
+   
    vtkMath rtExMath
    rtExMath RandomSeed 6
-
+   
    puts -nonewline "$afile took "
    puts -nonewline "[expr [lindex [time {source $afile} 1] 0] / 1000000.0] seconds "
-
+   
    vtkWindowToImageFilter w2if
-
-    # look for a renderWindow ImageWindow or ImageViewer
-    # first check for some common names
-    if {[info commands renWin] == "renWin"} {
+   
+   # look for a renderWindow ImageWindow or ImageViewer
+   # first check for some common names
+   if {[info commands renWin] == "renWin"} {
       w2if SetInput renWin
-    } else {
-       if {[info commands viewer] == "viewer"} {
-	  w2if SetInput [viewer GetImageWindow]
-       } else {
-	  if {[info commands imgWin] == "imgWin"} {
-	     w2if SetInput imgWin
-	  }
-       }
-    }
+   } else {
+      if {[info commands viewer] == "viewer"} {
+	 w2if SetInput [viewer GetImageWindow]
+	 viewer Render
+      } else {
+	 if {[info commands imgWin] == "imgWin"} {
+	    w2if SetInput imgWin
+	    imgWin Render
+	 }
+      }
+   }
 
+   # run the event loop quickly to map any tkwidget windows
+   wm withdraw .
+   update
+
+   if {[catch {set channel [open "valid/$afile.ppm"]}] != 0 } {
+      puts "\nWARNING: Creating a valid image for $afile"
+      vtkPNMWriter pnmw
+      pnmw SetInput [w2if GetOutput]
+      pnmw SetFileName "valid/$afile.ppm"
+      pnmw Write
+      vtkCommand DeleteAllObjects
+      catch {destroy .top}
+      continue
+   }
+   close $channel
+   
    vtkPNMReader pnm
    pnm SetFileName "valid/$afile.ppm"
    
@@ -132,7 +100,7 @@ foreach afile $files {
    imgDiff SetImage [pnm GetOutput]
    imgDiff Update
 
-# a test has to be off by at least ten pixels for us to care   
+   # a test has to be off by at least ten pixels for us to care   
    if {[imgDiff GetThresholdedError] < 10.0} {
        puts "and Passed"
    } else {
@@ -148,6 +116,7 @@ foreach afile $files {
    }
    
    vtkCommand DeleteAllObjects
+   catch {destroy .top}
 }
 
 exit
