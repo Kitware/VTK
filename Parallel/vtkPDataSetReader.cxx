@@ -33,7 +33,7 @@
 #include "vtkStructuredPointsReader.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkPDataSetReader, "1.20");
+vtkCxxRevisionMacro(vtkPDataSetReader, "1.21");
 vtkStandardNewMacro(vtkPDataSetReader);
 
 //----------------------------------------------------------------------------
@@ -1414,13 +1414,14 @@ void vtkPDataSetReader::CoverExtent(int ext[6], int *pieceMask)
         {
         cExt[j*2+1] = this->PieceExtents[i][j*2+1];
         }
-      if (cExt[j*2] > cExt[j*2+1])
+      // Compute the area for cells.  
+      if (cExt[j*2] >= cExt[j*2+1])
         {
         area = 0;
         }
       else
         {
-        area *= (cExt[j*2+1] - cExt[j*2] + 1);
+        area *= (cExt[j*2+1] - cExt[j*2]);
         }
       }
     if (area > bestArea)
