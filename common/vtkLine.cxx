@@ -73,10 +73,12 @@ int vtkLine::EvaluatePosition(float x[3], float closestPoint[3],
   a1 = this->Points->GetPoint(0);
   a2 = this->Points->GetPoint(1);
 
+  // DistanceToLine sets pcoords[0] to a value t, 0 <= t <= 1
   dist2 = this->DistanceToLine(x,a1,a2,pcoords[0],closestPoint);
 
-  weights[0] = pcoords[0];
-  weights[1] = 1.0 - pcoords[0];
+  // pcoords[0] == t, need weights to be 1-t and t
+  weights[0] = 1.0 - pcoords[0];
+  weights[1] = pcoords[0];
 
   if ( pcoords[0] < 0.0 || pcoords[0] > 1.0 )
     {
@@ -100,8 +102,8 @@ void vtkLine::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3],
     x[i] = a1[i] + pcoords[0]*(a2[i] - a1[i]);
     }
 
-  weights[0] = pcoords[0];
-  weights[1] = 1.0 - pcoords[0];
+  weights[0] = 1.0 - pcoords[0];
+  weights[1] = pcoords[0];
 }
 
 // Performs intersection of two finite 3D lines. An intersection is found if

@@ -306,11 +306,10 @@ void vtkPolyLine::EvaluateLocation(int& subId, float pcoords[3], float x[3],
   for (i=0; i<3; i++) 
     {
     x[i] = a1[i] + pcoords[0]*(a2[i] - a1[i]);
-    weights[i] = 0.0;
     }
-
-  weights[subId] = pcoords[0];
-  weights[subId+1] = 1.0 - pcoords[0];
+  
+  weights[0] = 1.0 - pcoords[0];
+  weights[1] = pcoords[0];
 }
 
 int vtkPolyLine::CellBoundary(int subId, float pcoords[3], vtkIdList *pts)
