@@ -44,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkImageMapToColors* vtkImageMapToColors::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -56,11 +56,6 @@ vtkImageMapToColors* vtkImageMapToColors::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkImageMapToColors;
 }
-
-
-
-
-
 
 //----------------------------------------------------------------------------
 // Constructor sets default values
@@ -97,35 +92,78 @@ unsigned long vtkImageMapToColors::GetMTime()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageMapToColors::ExecuteInformation(vtkImageData *vtkNotUsed(inData), 
-					   vtkImageData *outData)
+// This method checks to see if we can simply reference the input data
+void vtkImageMapToColors::UpdateData(vtkDataObject *outObject)
 {
-  int numComponents = 4;
+  // If LookupTable is null, just pass the data
+  if (this->LookupTable == NULL)
+    {
+    vtkDebugMacro("UpdateData: LookupTable not set, passing input to output.");
 
-  if (this->LookupTable == 0)
-    {
-    vtkErrorMacro(<< "ExecuteInformation: No LookupTable was set!");
+    vtkImageData *outData = (vtkImageData *)(outObject);
+    vtkImageData *inData = this->GetInput();
+ 
+    // Make sure the Input has been set.
+    if (inData == NULL)
+      {
+      vtkErrorMacro("UpdateData: Input is not set.");
+      return;
+      }
+
+    inData->SetUpdateExtent(outData->GetUpdateExtent());
+    inData->Update();
+    outData->SetExtent(inData->GetExtent());
+    outData->GetPointData()->PassData(inData->GetPointData());
+    outData->DataHasBeenGenerated();
     }
-  outData->SetScalarType(VTK_UNSIGNED_CHAR);
-  switch (this->OutputFormat)
+  else // normal behaviour
     {
-    case VTK_RGBA:
-      numComponents = 4;
-      break;
-    case VTK_RGB:
-      numComponents = 3;
-      break;
-    case VTK_LUMINANCE_ALPHA:
-      numComponents = 2;
-      break;
-    case VTK_LUMINANCE:
-      numComponents = 1;
-      break;
-    default:
-      vtkErrorMacro(<< "ExecuteInformation: Unrecognized color format.");
-      break;
+    this->vtkImageToImageFilter::UpdateData(outObject);
     }
-  outData->SetNumberOfScalarComponents(numComponents);
+}
+
+//----------------------------------------------------------------------------
+void vtkImageMapToColors::ExecuteInformation(vtkImageData *inData, 
+					     vtkImageData *outData)
+{
+  if (this->LookupTable == NULL)
+    {
+    if (inData->GetScalarType() != VTK_UNSIGNED_CHAR)
+      {
+      vtkErrorMacro("ExecuteInformation: No LookupTable was set and input data is not VTK_UNSIGNED_CHAR!");
+      }
+    else
+      {
+      // no lookup table, pass the input if it was UNSIGNED_CHAR 
+      outData->SetScalarType(VTK_UNSIGNED_CHAR);
+      outData->SetNumberOfScalarComponents(
+			      inData->GetNumberOfScalarComponents());
+      }
+    }
+  else  // the lookup table was set
+    {
+    int numComponents = 4;
+    outData->SetScalarType(VTK_UNSIGNED_CHAR);
+    switch (this->OutputFormat)
+      {
+      case VTK_RGBA:
+	numComponents = 4;
+	break;
+      case VTK_RGB:
+	numComponents = 3;
+	break;
+      case VTK_LUMINANCE_ALPHA:
+	numComponents = 2;
+	break;
+      case VTK_LUMINANCE:
+	numComponents = 1;
+	break;
+      default:
+	vtkErrorMacro("ExecuteInformation: Unrecognized color format.");
+	break;
+      }
+    outData->SetNumberOfScalarComponents(numComponents);
+    }
 }
 
 //----------------------------------------------------------------------------
