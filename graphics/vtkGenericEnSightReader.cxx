@@ -97,27 +97,23 @@ vtkGenericEnSightReader::~vtkGenericEnSightReader()
   if (this->Reader)
     {
     this->Reader->Delete();
+    this->Reader = NULL;
     }
-  this->Reader = NULL;
-
   if (this->IS)
     {
     delete this->IS;
+    this->IS = NULL;
     }
-  this->IS = NULL;
-
   if (this->CaseFileName)
     {
     delete [] this->CaseFileName;
+    this->CaseFileName = NULL;
     }
-  this->CaseFileName = NULL;
-  
   if (this->FilePath)
     {
     delete [] this->FilePath;
+    this->FilePath = NULL;
     }
-  this->FilePath = NULL;
-  
   if (this->NumberOfVariables > 0)
     {
     for (i = 0; i < this->NumberOfVariables; i++)
@@ -126,10 +122,9 @@ vtkGenericEnSightReader::~vtkGenericEnSightReader()
       }
     delete [] this->VariableDescriptions;
     delete [] this->VariableTypes;
+    this->VariableDescriptions = NULL;
+    this->VariableTypes = NULL;
     }
-  this->VariableDescriptions = NULL;
-  this->VariableTypes = NULL;
-  
   if (this->NumberOfComplexVariables > 0)
     {
     for (i = 0; i < this->NumberOfComplexVariables; i++)
@@ -138,9 +133,9 @@ vtkGenericEnSightReader::~vtkGenericEnSightReader()
       }
     delete [] this->ComplexVariableDescriptions;
     delete [] this->ComplexVariableTypes;
+    this->ComplexVariableDescriptions = NULL;
+    this->ComplexVariableTypes = NULL;
     }
-  this->ComplexVariableDescriptions = NULL;
-  this->ComplexVariableTypes = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -200,6 +195,7 @@ void vtkGenericEnSightReader::Execute()
     }
 
   this->Reader->Delete();
+  this->Reader = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -213,11 +209,11 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
     vtkErrorMacro("A case file name must be specified.");
     return -1;
     }
-    if (this->FilePath)
+  if (this->FilePath)
     {
     strcpy(line, this->FilePath);
     strcat(line, this->CaseFileName);
-    vtkErrorMacro("full path to case file: " << line);
+    vtkDebugMacro("full path to case file: " << line);
     }
   else
     {
@@ -258,6 +254,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
       return VTK_ENSIGHT_6;
       }
     }
+  return -1;
 }
 
 void vtkGenericEnSightReader::SetCaseFileName(char* fileName)
