@@ -103,7 +103,7 @@ int vtkTetra::EvaluatePosition(float x[3], float closestPoint[3],
     }
   else
     { //could easily be sped up using parametric localization - next release
-    float t, dist2, w[3], closest[3], pc[3];
+    float dist2, w[3], closest[3], pc[3];
     int sub;
     vtkTriangle *triangle;
 
