@@ -928,5 +928,14 @@ void vtkPointLocator2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Divisions: (" << this->Divisions[0] << ", " 
      << this->Divisions[1] << ")\n";
 
+  if ( this->Points )
+    {
+    os << indent << "Points:\n";
+    this->Points->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Points: (none)\n";
+    }
 }
 
