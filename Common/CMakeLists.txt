@@ -160,6 +160,7 @@ vtkShortArray.cxx
 vtkSmartPointerBase.cxx
 vtkSource.cxx
 vtkSphericalTransform.cxx
+vtkStdString.cxx
 vtkStructuredData.cxx
 vtkStructuredGrid.cxx
 vtkStructuredPoints.cxx
@@ -252,6 +253,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkOStreamWrapper.cxx
   vtkOldStyleCallbackCommand.cxx
   vtkSmartPointerBase.cxx
+  vtkStdString.cxx
   vtkTimeStamp.cxx
   WRAP_EXCLUDE
 )
