@@ -328,7 +328,6 @@ static int vtkTkAppInitDebugReport(int, char* message, int*)
 {
   fprintf(stderr, message);
   exit(1);
-  return 0;
 }
 void vtkTkAppInitEnableMSVCDebugHook()
 {
