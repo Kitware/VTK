@@ -116,6 +116,10 @@ public:
   void SetAttributeModeToUseCellData() 
     {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_CELL_DATA);};
   const char *GetAttributeModeAsString();
+
+  // Description:
+  // Remove all the variable names and their associated array names.
+  void RemoveAllVariables();
   
 protected:
   vtkArrayCalculator();
