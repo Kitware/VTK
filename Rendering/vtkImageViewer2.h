@@ -104,6 +104,15 @@ public:
   // Description:
   // Create and attach an interactor for this window
   void SetupInteractor(vtkRenderWindowInteractor *);
+  
+  // Description:  
+  // Create a window in memory instead of on the screen. This may not
+  // be supported for every type of window and on some windows you may
+  // need to invoke this prior to the first render.
+  void SetOffScreenRendering(int);
+  int GetOffScreenRendering(int);
+  void OffScreenRenderingOn();
+  void OffScreenRenderingOff();
 
 protected:
   vtkImageViewer2();

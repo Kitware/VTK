@@ -25,7 +25,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkImageViewer2, "1.15");
+vtkCxxRevisionMacro(vtkImageViewer2, "1.16");
 vtkStandardNewMacro(vtkImageViewer2);
 
 //----------------------------------------------------------------------------
@@ -138,10 +138,12 @@ public:
       
       // Compute normalized delta
 
-      float dx = 4.0 * (isi->GetWindowLevelCurrentPosition()[0] - 
-                        isi->GetWindowLevelStartPosition()[0]) / size[0];
-      float dy = 4.0 * (isi->GetWindowLevelStartPosition()[1] - 
-                        isi->GetWindowLevelCurrentPosition()[1]) / size[1];
+      float dx = 4.0 * 
+        (isi->GetWindowLevelCurrentPosition()[0] - 
+         isi->GetWindowLevelStartPosition()[0]) / size[0];
+      float dy = 4.0 * 
+        (isi->GetWindowLevelStartPosition()[1] - 
+         isi->GetWindowLevelCurrentPosition()[1]) / size[1];
       
       // Scale by current values
 
@@ -212,9 +214,12 @@ void vtkImageViewer2::SetupInteractor(vtkRenderWindowInteractor *rwi)
     this->InteractorStyle = vtkInteractorStyleImage::New();
     vtkImageViewer2Callback *cbk = vtkImageViewer2Callback::New();
     cbk->IV = this;
-    this->InteractorStyle->AddObserver(vtkCommand::WindowLevelEvent, cbk);
-    this->InteractorStyle->AddObserver(vtkCommand::StartWindowLevelEvent, cbk);
-    this->InteractorStyle->AddObserver(vtkCommand::ResetWindowLevelEvent, cbk);
+    this->InteractorStyle->AddObserver(
+      vtkCommand::WindowLevelEvent, cbk);
+    this->InteractorStyle->AddObserver(
+      vtkCommand::StartWindowLevelEvent, cbk);
+    this->InteractorStyle->AddObserver(
+      vtkCommand::ResetWindowLevelEvent, cbk);
     cbk->Delete();
     }
   
@@ -232,7 +237,8 @@ void vtkImageViewer2::Render()
   if (this->FirstRender)
     {
     // initialize the size if not set yet
-    if (this->RenderWindow->GetSize()[0] == 0 && this->ImageActor->GetInput())
+    if (this->RenderWindow->GetSize()[0] == 0 && 
+        this->ImageActor->GetInput())
       {
       // get the size from the mappers input
       this->WindowLevel->GetInput()->UpdateInformation();
@@ -242,12 +248,32 @@ void vtkImageViewer2::Render()
       int ys = ext[3] - ext[2] + 1;
       this->RenderWindow->SetSize(xs < 150 ? 150 : xs,
                                   ys < 100 ? 100 : ys);
-      this->Renderer->GetActiveCamera()->SetParallelScale(xs < 150 ? 75 : (xs-1)/2.0);
+      this->Renderer->GetActiveCamera()->SetParallelScale(xs < 150 ? 75 
+                                                          : (xs-1)/2.0);
       }
     this->Renderer->GetActiveCamera()->ParallelProjectionOn();
     this->FirstRender = 0;  
     }
-  
   this->RenderWindow->Render();
 }
 
+
+void vtkImageViewer2::SetOffScreenRendering(int i)
+{
+  this->RenderWindow->SetOffScreenRendering(i);
+}
+
+int vtkImageViewer2::GetOffScreenRendering(int i)
+{
+  return this->RenderWindow->GetOffScreenRendering();
+}
+
+void vtkImageViewer2::OffScreenRenderingOn()
+{
+  this->SetOffScreenRendering(1);
+}
+
+void vtkImageViewer2::OffScreenRenderingOff()
+{
+  this->SetOffScreenRendering(0);
+}
