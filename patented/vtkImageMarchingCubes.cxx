@@ -614,7 +614,7 @@ static void vtkImageMarchingCubesHandleCube(vtkImageMarchingCubes *self,
     if (cubeIndex != 0 && cubeIndex != 255)
       {
       // Get edges.
-      triCase = triCases + cubeIndex;
+      triCase = VTK_MARCHING_CUBES_TRICASES + cubeIndex;
       edge = triCase->edges; 
       // loop over triangles  
       while(*edge > -1)

@@ -387,7 +387,7 @@ static int vtkSliceCubesContour(T *slice, S *scalars, int imageRange[2], int dim
         ComputePointGradient(i,j+1, k+1, dims, Spacing, grad[7],
                              slice1, slice2, slice3);
 
-        triCase = triCases + index;
+        triCase = VTK_MARCHING_CUBES_TRICASES + index;
         edge = triCase->edges;
 
         for ( ; edge[0] > -1; edge += 3 )
