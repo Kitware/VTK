@@ -30,7 +30,7 @@ extern "C" {
 #include <setjmp.h>
 }
 
-vtkCxxRevisionMacro(vtkJPEGWriter, "1.28");
+vtkCxxRevisionMacro(vtkJPEGWriter, "1.29");
 vtkStandardNewMacro(vtkJPEGWriter);
 
 vtkCxxSetObjectMacro(vtkJPEGWriter,Result,vtkUnsignedCharArray);
@@ -204,7 +204,7 @@ extern "C"
   void
   VTK_JPEG_ERROR_EXIT (j_common_ptr cinfo)
 {
-  VTK_JPEG_ERROR_PTR jpegErr = (VTK_JPEG_ERROR_PTR) cinfo->err;
+  VTK_JPEG_ERROR_PTR jpegErr = reinterpret_cast<VTK_JPEG_ERROR_PTR>(cinfo->err);
   longjmp(jpegErr->setjmp_buffer, 1);
 }
 }
