@@ -37,7 +37,7 @@
 #include "vtkExecutive.h" // for GetExecutive()
 #endif
 
-vtkCxxRevisionMacro(vtkGenericStreamTracer, "1.1");
+vtkCxxRevisionMacro(vtkGenericStreamTracer, "1.2");
 vtkStandardNewMacro(vtkGenericStreamTracer);
 vtkCxxSetObjectMacro(vtkGenericStreamTracer,Integrator,vtkInitialValueProblemSolver);
 vtkCxxSetObjectMacro(vtkGenericStreamTracer,InterpolatorPrototype,vtkGenericInterpolatedVelocityField);
@@ -617,7 +617,6 @@ void vtkGenericStreamTracer::InitializeSeeds(
 //-----------------------------------------------------------------------------
 void vtkGenericStreamTracer::Execute()
 {
-  cout<<"void vtkGenericStreamTracer::Execute()"<<endl;
   vtkDataArray* seeds = 0;
   vtkIdList* seedIds = 0;
   vtkIntArray* integrationDirections = 0;
@@ -625,12 +624,10 @@ void vtkGenericStreamTracer::Execute()
   
   if (seeds)
     {
-    cout<<"seeds"<<endl;
     double lastPoint[3];
     vtkGenericInterpolatedVelocityField* func;
     if (this->CheckInputs(func) != VTK_OK)
       {
-      cout<<"no valid input"<<endl;
       vtkDebugMacro("No appropriate inputs have been found. Can not execute.");
       func->Delete();
       seeds->Delete();
