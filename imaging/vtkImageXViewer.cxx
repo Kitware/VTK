@@ -468,7 +468,7 @@ void vtkImageXViewer::GetDefaultVisualInfo(XVisualInfo *info)
   XVisualInfo *visuals, *v;
   XVisualInfo *best = NULL;
   int nvisuals;
-  int i;
+  int i, rate, bestRate = 100;
   
   screen = DefaultScreen(this->DisplayId);  
   templ.screen = screen;
@@ -499,27 +499,37 @@ void vtkImageXViewer::GetDefaultVisualInfo(XVisualInfo *info)
 	vtkDebugMacro(<< "Available: " << v->depth << " bit PseudoColor");
       }
   
-    // set the defualt as the first visual encountered
-    if (best == NULL)
+    // We only handle three types of visuals now.
+    // Rate the visual
+    if (v->depth == 24 && v->c_class == TrueColor)
       {
-      best = v;
+      rate = 1;
       }
-    // deeper visuals are always better
-    if (v->depth > best->depth)
+    else if (v->depth == 24 && v->c_class == DirectColor)
       {
-      best = v;
+      rate = 2;
       }
-    // true color is better than direct color which is beter than pseudo color
-    if (v->c_class == TrueColor && v->depth == best->depth)
+    else if (v->depth == 8 && v->c_class == PseudoColor)
       {
-      best = v;
+      rate = 3;
       }
-    else if (v->c_class == DirectColor && v->depth == best->depth)
+    else
       {
+      rate = 50;
+      }
+    
+    if (rate < bestRate)
+      {
+      bestRate = rate;
       best = v;
       }
     }
 
+  if (bestRate >= 50)
+    {
+    vtkWarningMacro("Could not find a visual I like");
+    }
+  
   if (this->Debug)
     {
     if (best->c_class == TrueColor)
