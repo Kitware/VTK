@@ -227,7 +227,7 @@ int vtkLinkedList<DType>::FindItem(DType a, vtkIdType &res)
 {
   vtkIdType cc = 0;
   vtkLinkedListNode<DType> *curr;
-  for ( curr = this->Head; curr; curr = curr->Next )
+  for ( curr = this->Head; curr; curr = curr->Next, cc++ )
     {
     if ( vtkContainerCompareMethod(curr->Data, a) == 0 )
       {
@@ -250,7 +250,7 @@ int vtkLinkedList<DType>::FindItem(
 {
   vtkIdType cc = 0;
   vtkLinkedListNode<DType> *curr;
-  for ( curr = this->Head; curr; curr = curr->Next )
+  for ( curr = this->Head; curr; curr = curr->Next, cc++  )
     {
     if ( compare(curr->Data, a) == 0 )
       {
