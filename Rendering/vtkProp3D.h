@@ -268,7 +268,14 @@ public:
   // the documentation for vtkProp.
   void InitPathTraversal();
 
-  
+  // Description:
+  // Get the vtkProp3D's mtime 
+  unsigned long int GetMTime();
+
+  // Description:
+  // Get the modified time of the user matrix or user transform.
+  unsigned long int GetUserTransformMatrixMTime();
+ 
   // Description:
   // Generate the matrix based on ivars
   virtual void ComputeMatrix();
