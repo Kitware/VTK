@@ -20,8 +20,9 @@
 #define __vtkMPI_h
 
 #include "mpi.h"
+#include "vtkSystemIncludes.h"
 
-class vtkMPICommunicatorOpaqueComm
+class VTK_PARALLEL_EXPORT vtkMPICommunicatorOpaqueComm
 {
 public:
   vtkMPICommunicatorOpaqueComm();
