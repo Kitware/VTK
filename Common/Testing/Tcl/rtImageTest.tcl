@@ -1,6 +1,4 @@
 
-puts "Loading rtImageTest.tcl"
-
 proc decipadString { str before total } {
     set x [string first "." $str]
     if { $x == -1 } { 
