@@ -8,6 +8,7 @@ vtkCylinder.cxx
 vtkDataObjectSource.cxx
 vtkDataSetSource.cxx
 vtkDataSetToDataSetFilter.cxx
+vtkDataSetToImageFilter.cxx
 vtkDataSetToPolyDataFilter.cxx
 vtkDataSetToStructuredGridFilter.cxx
 vtkDataSetToStructuredPointsFilter.cxx
@@ -61,6 +62,7 @@ vtkUnstructuredGridToUnstructuredGridFilter.cxx
 
 ABSTRACT_FILES(
 vtkDataSetToDataSetFilter
+vtkDataSetToImageFilter
 vtkDataSetToPolyDataFilter
 vtkDataSetToStructuredGridFilter
 vtkDataSetToStructuredPointsFilter
