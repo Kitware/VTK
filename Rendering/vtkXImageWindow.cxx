@@ -616,12 +616,6 @@ int *vtkXImageWindow::GetPosition(void)
   int x,y;
   Window child;
  
-  // what should I do if a window has not been created (lawcc dfss)
-  if (this->WindowId == (Window)(NULL))
-    {
-    this->MakeDefaultWindow();
-    }
- 
   // if we aren't mapped then just return the ivar 
   if ( ! this->Mapped)
     {
