@@ -41,13 +41,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 
 #include "vtkCommon.h"
-#include "../graphics/vtkGraphics.h"
+#include "vtkGraphics.h"
 #ifdef VTK_USE_PATENTED
-#include "../patented/vtkPatented.h"
+#include "vtkPatented.h"
 #endif
 #ifdef VTK_USE_IMAGING
-#include "../imaging/vtkImaging.h"
+#include "vtkImaging.h"
 #endif
 #ifdef VTK_USE_CONTRIB
-#include "../contrib/vtkContrib.h"
+#include "vtkContrib.h"
 #endif
