@@ -2189,7 +2189,7 @@ static void vtkOptimizedPermuteExecuteLinear(vtkImageReslice *self,
       }
     } 
 
-  int trunc, inId0, inId1, inExtK, outExtJ, doInterp;
+  int trunc, inId0, inId1, inExtK, outExtJ, doInterp, needInterp[3];
   float point,f;
   
   // set up input traversal table for linear interpolation  
@@ -2205,7 +2205,13 @@ static void vtkOptimizedPermuteExecuteLinear(vtkImageReslice *self,
 	{
 	break;
 	}
-      }    
+      }
+    needInterp[j] = 1;
+    if (newmat[k][j] == 1)
+      {
+      needInterp[j] = 0;
+      }
+    
     inExtK = inExt[2*k+1]-inExt[2*k]+1;
 
     region = 0;
@@ -2307,41 +2313,97 @@ static void vtkOptimizedPermuteExecuteLinear(vtkImageReslice *self,
 	vtkCopyPixel(outPtr,background,numscalars);
 	}
 
-      for (idX = r1; idX <= r2; idX++)
-	{
-        int idX0 = 2*idX;
-	int idX1 = idX0+1;
-	
-	int t0 = traversal[0][idX0];
-	int t1 = traversal[0][idX1];
-	
-	int i000 = t0 + i00; 
-	int i001 = t0 + i01; 
-	int i010 = t0 + i10; 
-	int i011 = t0 + i11; 
-	int i100 = t1 + i00; 
-	int i101 = t1 + i01; 
-	int i110 = t1 + i10; 
-	int i111 = t1 + i11; 
-	
-	float rx = constants[0][idX0];
-	float fx = constants[0][idX1];
-	
-	T *inPtr0 = inPtr;
-
-	i = numscalars;
-	do 
+      if (!needInterp[0] && fy == 0)
+	{ // optimize: only need linear interpolation along z
+        for (idX = r1; idX <= r2; idX++)
 	  {
-	  vtkResliceRound((rx*(ryrz*inPtr0[i000]+ryfz*inPtr0[i001]+
-			       fyrz*inPtr0[i010]+fyfz*inPtr0[i011])
-			   + fx*(ryrz*inPtr0[i100]+ryfz*inPtr0[i101]+
-				 fyrz*inPtr0[i110]+fyfz*inPtr0[i111])),
-			  *outPtr++);
-	  inPtr0++;
+          int idX0 = 2*idX;
+	  
+	  int t0 = traversal[0][idX0];
+	  
+	  int i000 = t0 + i00; 
+	  int i001 = t0 + i01; 
+	
+	  T *inPtr0 = inPtr;
+	  
+	  i = numscalars;
+	  do 
+	    {
+	    vtkResliceRound((ryrz*inPtr0[i000]+ryfz*inPtr0[i001]),
+			    *outPtr++);
+	    inPtr0++;
+	    }
+	  while (--i);
 	  }
-	while (--i);
 	}
-
+      else if (fz == 0)
+	{ // optimize: only need bilinear interpolation in x,y
+	for (idX = r1; idX <= r2; idX++)
+	  {
+	  int idX0 = 2*idX;
+	  int idX1 = idX0+1;
+	  
+	  int t0 = traversal[0][idX0];
+	  int t1 = traversal[0][idX1];
+	  
+	  int i000 = t0 + i00; 
+	  int i010 = t0 + i10; 
+	  int i100 = t1 + i00; 
+	  int i110 = t1 + i10; 
+	  
+	  float rx = constants[0][idX0];
+	  float fx = constants[0][idX1];
+	  
+	  T *inPtr0 = inPtr;
+	  
+	  i = numscalars;
+	  do 
+	    {
+	    vtkResliceRound((rx*(ryrz*inPtr0[i000]+fyrz*inPtr0[i010])
+			     + fx*(ryrz*inPtr0[i100]+fyrz*inPtr0[i110])),
+			    *outPtr++);
+	    inPtr0++;
+	    }
+	  while (--i);
+	  }
+	}
+      else
+	{ // do trilinear interpolation
+        for (idX = r1; idX <= r2; idX++)
+	  {
+          int idX0 = 2*idX;
+	  int idX1 = idX0+1;
+	  
+	  int t0 = traversal[0][idX0];
+	  int t1 = traversal[0][idX1];
+	  
+	  int i000 = t0 + i00; 
+	  int i001 = t0 + i01; 
+	  int i010 = t0 + i10; 
+	  int i011 = t0 + i11; 
+	  int i100 = t1 + i00; 
+	  int i101 = t1 + i01; 
+	  int i110 = t1 + i10; 
+	  int i111 = t1 + i11; 
+	
+	  float rx = constants[0][idX0];
+	  float fx = constants[0][idX1];
+	
+	  T *inPtr0 = inPtr;
+	  
+	  i = numscalars;
+	  do 
+	    {
+	    vtkResliceRound((rx*(ryrz*inPtr0[i000]+ryfz*inPtr0[i001]+
+				 fyrz*inPtr0[i010]+fyfz*inPtr0[i011])
+			     + fx*(ryrz*inPtr0[i100]+ryfz*inPtr0[i101]+
+				   fyrz*inPtr0[i110]+fyfz*inPtr0[i111])),
+			    *outPtr++);
+	    inPtr0++;
+	    }
+	  while (--i);
+	  }
+	}
       // clear pixels to right of input extent
       for (idX = r2+1; idX < outExtX; idX++)
         {
