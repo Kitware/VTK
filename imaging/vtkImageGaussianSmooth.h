@@ -66,7 +66,7 @@ public:
   vtkGetVector3Macro(StandardDeviations, float);
 
   vtkSetVector3Macro(RadiusFactors, float);
-  void SetRadiusFactors(float f);
+  void SetRadiusFactors(float f, float f2) {SetRadiusFactors(f,f2,1.5);}
   void SetRadiusFactor(float f) {SetRadiusFactors(f, f, f);}
   vtkGetVector3Macro(RadiusFactors, float);
 
