@@ -236,7 +236,6 @@ void vtkImageSource::CheckCache()
   if ( ! this->Output)
     {
     this->Output = vtkImageSimpleCache::New();
-    this->Output->ReleaseDataFlagOn();
     this->Output->SetSource(this);
     this->Modified();
     }

@@ -250,7 +250,10 @@ void *vtkImageData::GetScalarPointer(int coordinates[3])
       {
       vtkErrorMacro(<< "GetScalarPointer: Pixel (" << coordinates[0] << ", " 
       << coordinates[1] << ", "
-      << coordinates[2] << ") not in memory.");
+      << coordinates[2] << ") not in memory.\n Current extent= ("
+      << this->Extent[0] << ", " << this->Extent[1] << ", "
+      << this->Extent[2] << ", " << this->Extent[3] << ", "
+      << this->Extent[4] << ", " << this->Extent[5] << ")");
       return NULL;
       }
     }
