@@ -19,7 +19,7 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkLightKit, "1.16");
+vtkCxxRevisionMacro(vtkLightKit, "1.17");
 vtkStandardNewMacro(vtkLightKit);
 
 static const char *vtkLightKitTypeStrings[] = {
@@ -48,7 +48,7 @@ vtkLightKit::vtkLightKit()
   // create members
   this->KeyLight = vtkLight::New();
   this->FillLight = vtkLight::New();
-  this->Headlight = vtkLight::New();
+  this->HeadLight = vtkLight::New();
   this->BackLight0 = vtkLight::New();
   this->BackLight1 = vtkLight::New();
 
@@ -64,7 +64,7 @@ vtkLightKit::vtkLightKit()
   this->BackLight0->SetLightTypeToCameraLight();
   this->BackLight1->SetLightTypeToCameraLight();
 
-  this->Headlight->SetLightTypeToHeadlight();
+  this->HeadLight->SetLightTypeToHeadlight();
 
   this->SetKeyLightAngle(50.0, 10.0);
   this->SetFillLightAngle(-75.0, -10.0);
@@ -72,7 +72,7 @@ vtkLightKit::vtkLightKit()
 
   this->KeyLightWarmth  = 0.6;
   this->FillLightWarmth = 0.4;
-  this->HeadlightWarmth = 0.5;
+  this->HeadLightWarmth = 0.5;
   this->BackLightWarmth = 0.5;
 
   this->KeyLightIntensity = 0.75;
@@ -88,7 +88,7 @@ vtkLightKit::~vtkLightKit()
 {
   this->KeyLight->Delete();
   this->FillLight->Delete();
-  this->Headlight->Delete();
+  this->HeadLight->Delete();
   this->BackLight0->Delete();
   this->BackLight1->Delete();
 
@@ -154,7 +154,7 @@ void vtkLightKit::AddLightsToRenderer(vtkRenderer *renderer)
 {
   if(renderer != NULL) 
     {
-    renderer->AddLight(this->Headlight);
+    renderer->AddLight(this->HeadLight);
     renderer->AddLight(this->KeyLight);
     renderer->AddLight(this->FillLight);
     renderer->AddLight(this->BackLight0);
@@ -167,7 +167,7 @@ void vtkLightKit::RemoveLightsFromRenderer(vtkRenderer *renderer)
 {
   if(renderer != NULL) 
     {
-    renderer->RemoveLight(this->Headlight);
+    renderer->RemoveLight(this->HeadLight);
     renderer->RemoveLight(this->KeyLight);
     renderer->RemoveLight(this->FillLight);
     renderer->RemoveLight(this->BackLight0);
@@ -184,7 +184,7 @@ void vtkLightKit::Update()
   double *keyLightColor = this->KeyLightColor;
   double keyLightPI;
 
-  double *headlightColor = this->HeadlightColor;
+  double *headlightColor = this->HeadLightColor;
   double headlightPI;
 
   double *backLightColor = this->BackLightColor;
@@ -195,7 +195,7 @@ void vtkLightKit::Update()
 
   this->WarmthToRGBI(this->KeyLightWarmth,  keyLightColor,  keyLightPI);
   this->WarmthToRGBI(this->FillLightWarmth, fillLightColor, fillLightPI);
-  this->WarmthToRGBI(this->HeadlightWarmth, headlightColor, headlightPI);
+  this->WarmthToRGBI(this->HeadLightWarmth, headlightColor, headlightPI);
   this->WarmthToRGBI(this->BackLightWarmth, backLightColor, backLightPI);
 
   keyLightIntensity = this->KeyLightIntensity;
@@ -226,8 +226,8 @@ void vtkLightKit::Update()
   this->FillLight->SetColor(fillLightColor);
   this->FillLight->SetIntensity(fillLightIntensity);
 
-  this->Headlight->SetColor(headlightColor);
-  this->Headlight->SetIntensity(headlightIntensity);
+  this->HeadLight->SetColor(headlightColor);
+  this->HeadLight->SetIntensity(headlightIntensity);
 
   this->BackLight0->SetColor(backLightColor);
   this->BackLight0->SetIntensity(backLightIntensity);
@@ -261,7 +261,7 @@ void vtkLightKit::PrintSelf(ostream& os, vtkIndent indent)
      << this->BackLightAngle[0] << ", "
      << this->BackLightAngle[1] << ")\n";
 
-  os << indent << "HeadlightWarmth: " << this->HeadlightWarmth << "\n";
+  os << indent << "HeadLightWarmth: " << this->HeadLightWarmth << "\n";
 
   os << indent << "MaintainLuminance: " << 
     (this->MaintainLuminance ? "On" : "Off") << "\n";
@@ -277,10 +277,10 @@ void vtkLightKit::PrintSelf(ostream& os, vtkIndent indent)
   //    << this->FillLightColor[1] << ", " 
   //    << this->FillLightColor[2] << ")\n";
 
-  // os << indent << "HeadlightColor: (" 
-  //    << this->HeadlightColor[0] << ", " 
-  //    << this->HeadlightColor[1] << ", " 
-  //    << this->HeadlightColor[2] << ")\n";
+  // os << indent << "HeadLightColor: (" 
+  //    << this->HeadLightColor[0] << ", " 
+  //    << this->HeadLightColor[1] << ", " 
+  //    << this->HeadLightColor[2] << ")\n";
 
   // os << indent << "BackLightColor: (" 
   //    << this->BackLightColor[0] << ", " 
@@ -298,7 +298,7 @@ void vtkLightKit::DeepCopy( vtkLightKit *k )
 
  this->KeyLightWarmth = k->KeyLightWarmth;
  this->FillLightWarmth = k->FillLightWarmth;
- this->HeadlightWarmth = k->HeadlightWarmth;
+ this->HeadLightWarmth = k->HeadLightWarmth;
  this->BackLightWarmth = k->BackLightWarmth;
 
  this->KeyLightAngle[0] = k->KeyLightAngle[0];
@@ -314,7 +314,7 @@ void vtkLightKit::DeepCopy( vtkLightKit *k )
 
  this->KeyLight->DeepCopy(k->KeyLight);
  this->FillLight->DeepCopy(k->FillLight);
- this->Headlight->DeepCopy(k->Headlight);
+ this->HeadLight->DeepCopy(k->HeadLight);
  this->BackLight0->DeepCopy(k->BackLight0);
  this->BackLight1->DeepCopy(k->BackLight1);
 }  
