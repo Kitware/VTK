@@ -1,4 +1,4 @@
-#!/usr/people/heiland/Python/Python-1.5.1/python
+#!/usr/bin/env python
 import sys, string, regex, re
 from scanfile import scanner
 

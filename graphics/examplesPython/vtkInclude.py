@@ -1,4 +1,4 @@
-#!/usr/local/bin/python
+#!/usr/bin/env python
 VTK_BINARY = 2
 VTK_CELL_SIZE = 512
 VTK_DIFFERENCE = 2

@@ -1,4 +1,4 @@
-#!/usr/local/bin/python
+#!/usr/bin/env python
 import os
 try:
   VTK_DATA = os.environ['VTK_DATA']
