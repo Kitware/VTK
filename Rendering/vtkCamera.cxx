@@ -25,7 +25,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCamera, "1.103");
+vtkCxxRevisionMacro(vtkCamera, "1.104");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -80,6 +80,7 @@ vtkCamera::vtkCamera()
   this->ViewTransform = vtkTransform::New();
   this->PerspectiveTransform = vtkPerspectiveTransform::New();
   this->CameraLightTransform = vtkTransform::New();
+  this->UserTransform = NULL;
 
   // initialize the ViewTransform
   this->ComputeViewTransform();
@@ -94,6 +95,11 @@ vtkCamera::~vtkCamera()
   this->ViewTransform->Delete();
   this->PerspectiveTransform->Delete();
   this->CameraLightTransform->Delete();
+  if (this->UserTransform)
+    {
+    this->UserTransform->UnRegister(this);
+    this->UserTransform = NULL;
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -136,6 +142,25 @@ void vtkCamera::SetPosition(double x, double y, double z)
   this->ComputeDistance();
   this->ComputeCameraLightTransform();
 
+  this->Modified();
+}
+
+void vtkCamera::SetUserTransform(vtkLinearTransform *transform)
+{
+  if (transform == this->UserTransform) 
+    { 
+    return; 
+    }
+  if (this->UserTransform) 
+    {
+    this->UserTransform->Delete();
+    this->UserTransform = NULL;
+    }
+  if (transform)
+    {
+    this->UserTransform = transform;
+    this->UserTransform->Register(this);
+    }
   this->Modified();
 }
 
@@ -760,7 +785,6 @@ void vtkCamera::ComputePerspectiveTransform(double aspect,
   if (this->Stereo)
     {
     // set up a shear for stereo views
-
     if (this->LeftEye)
       {
       this->PerspectiveTransform->Stereo(-this->EyeAngle/2,
@@ -773,12 +797,18 @@ void vtkCamera::ComputePerspectiveTransform(double aspect,
       }
     }
 
-  if (this->ViewShear[0] != 0.0 || this->ViewShear[1] != 0.0) {
+  if (this->ViewShear[0] != 0.0 || this->ViewShear[1] != 0.0) 
+    {
     this->PerspectiveTransform->Shear(this->ViewShear[0],
                                       this->ViewShear[1],
                                       this->ViewShear[2]*this->Distance);
-  }
-
+    }
+  
+  // apply user defined transform last if there is one 
+  if (this->UserTransform)
+    {
+    this->PerspectiveTransform->Concatenate(this->UserTransform->GetMatrix());
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -937,6 +967,15 @@ void vtkCamera::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Thickness: " << this->Thickness << "\n";
   os << indent << "ViewAngle: " << this->ViewAngle << "\n";
   os << indent << "UseHorizontalViewAngle: " << this->UseHorizontalViewAngle << "\n";
+  os << indent << "UserTransform: ";
+  if (this->UserTransform)
+    {
+    os << this->UserTransform << "\n"; 
+    }
+  else
+    {
+    os << "(none)\n";
+    }
   os << indent << "ViewPlaneNormal: (" << this->ViewPlaneNormal[0]
      << ", " << this->ViewPlaneNormal[1] 
      << ", " << this->ViewPlaneNormal[2] << ")\n";
