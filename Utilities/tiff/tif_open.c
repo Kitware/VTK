@@ -31,7 +31,7 @@
 
 void _TIFFSetDefaultCompressionState(TIFF* tif);
 
-static const long typemask[13] = {
+static const unsigned long typemask[13] = {
         0L,             /* TIFF_NOTYPE */
         0x000000ffL,    /* TIFF_BYTE */
         0xffffffffL,    /* TIFF_ASCII */

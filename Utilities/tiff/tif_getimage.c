@@ -811,9 +811,9 @@ gtStripSeparate(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 h)
 
 #define A1 ((uint32)(0xffL<<24))
 #define PACK(r,g,b)     \
-        ((uint32)(r)|((uint32)(g)<<8)|((uint32)(b)<<16)|A1)
+        ((uint32)(r)|(uint32)((g)<<8)|(uint32)((b)<<16)|A1)
 #define PACK4(r,g,b,a)  \
-        ((uint32)(r)|((uint32)(g)<<8)|((uint32)(b)<<16)|((uint32)(a)<<24))
+        ((uint32)(r)|(uint32)((g)<<8)|(uint32)((b)<<16)|(uint32)((a)<<24))
 #define W2B(v) (((v)>>8)&0xff)
 #define PACKW(r,g,b)    \
         ((uint32)W2B(r)|((uint32)W2B(g)<<8)|((uint32)W2B(b)<<16)|A1)

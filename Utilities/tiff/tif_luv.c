@@ -636,7 +636,7 @@ LogLuvEncodeTile(TIFF* tif, tidata_t bp, tsize_t cc, tsample_t s)
 #ifndef M_PI
 #define M_PI            3.14159265358979323846
 #endif
-#define log2(x)         ((1./M_LN2)*log(x))
+#define tifflog2(x)     ((1./M_LN2)*log(x))
 #define exp2(x)         exp(M_LN2*(x))
 
 #define itrunc(x,m)     ((m)==SGILOGENCODE_NODITHER ? \
@@ -669,9 +669,9 @@ LogL16fromY(double Y, int em)   /* get 16-bit LogL from Y */
         if (Y <= -1.8371976e19)
                 return (0xffff);
         if (Y > 5.4136769e-20)
-                return itrunc(256.*(log2(Y) + 64.), em);
+                return itrunc(256.*(tifflog2(Y) + 64.), em);
         if (Y < -5.4136769e-20)
-                return (~0x7fff | itrunc(256.*(log2(-Y) + 64.), em));
+                return (~0x7fff | itrunc(256.*(tifflog2(-Y) + 64.), em));
         return (0);
 }
 
@@ -747,7 +747,7 @@ LogL10fromY(double Y, int em)   /* get 10-bit LogL from Y */
         else if (Y <= .00024283)
                 return (0);
         else
-                return itrunc(64.*(log2(Y) + 12.), em);
+                return itrunc(64.*(tifflog2(Y) + 12.), em);
 }
 
 #define NANGLES         100
