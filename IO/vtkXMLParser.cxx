@@ -19,7 +19,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkXMLParser, "1.18");
+vtkCxxRevisionMacro(vtkXMLParser, "1.19");
 vtkStandardNewMacro(vtkXMLParser);
 
 //----------------------------------------------------------------------------
@@ -87,7 +87,7 @@ int vtkXMLParser::Parse()
     {
     // If it is file, open it and set the appropriate stream
     struct stat fs;
-    if (stat(this->FileName, &fs) != 0) 
+    if (stat(this->FileName, &fs) != 0)
       {
       vtkErrorMacro("Cannot open XML file: " << this->FileName);
       return 0;
@@ -113,10 +113,10 @@ int vtkXMLParser::Parse()
   XML_SetCharacterDataHandler(static_cast<XML_Parser>(this->Parser),
                               &vtkXMLParserCharacterDataHandler);
   XML_SetUserData(static_cast<XML_Parser>(this->Parser), this);
-  
+
   // Parse the input.
   int result = this->ParseXML();
-  
+
   if(result)
     {
     // Tell the expat XML parser about the end-of-input.
@@ -126,11 +126,11 @@ int vtkXMLParser::Parse()
       result = 0;
       }
     }
-  
+
   // Clean up the parser.
   XML_ParserFree(static_cast<XML_Parser>(this->Parser));
   this->Parser = 0;
-  
+
   // If the source was a file, reset the stream
   if ( this->Stream == &ifs )
     {
@@ -198,11 +198,11 @@ int vtkXMLParser::CleanupParser()
       result = 0;
       }
     }
-  
+
   // Clean up the parser.
   XML_ParserFree(static_cast<XML_Parser>(this->Parser));
   this->Parser = 0;
-  
+
   return result;
 }
 
@@ -228,12 +228,12 @@ int vtkXMLParser::ParseXML()
     vtkErrorMacro("Parse() called with no Stream set.");
     return 0;
     }
-  
+
   // Default stream parser just reads a block at a time.
   istream& in = *(this->Stream);
-  const int bufferSize = 4096;  
-  char buffer[bufferSize];  
-  
+  const int bufferSize = 4096;
+  char buffer[bufferSize];
+
   // Read in the stream and send its contents to the XML parser.  This
   // read loop is very sensitive on certain platforms with slightly
   // broken stream libraries (like HPUX).  Normally, it is incorrect
@@ -251,12 +251,12 @@ int vtkXMLParser::ParseXML()
         }
       }
     }
-  
+
   // Clear the fail and eof bits on the input stream so we can later
   // seek back to read data.
   this->Stream->clear(this->Stream->rdstate() & ~ios::eofbit);
   this->Stream->clear(this->Stream->rdstate() & ~ios::failbit);
-  
+
   return 1;
 }
 
