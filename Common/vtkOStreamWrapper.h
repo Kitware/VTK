@@ -66,6 +66,14 @@ public:
   vtkOStreamWrapper& operator << (unsigned long);
   vtkOStreamWrapper& operator << (float);
   vtkOStreamWrapper& operator << (double);
+#ifdef VTK_SIZEOF_LONG_LONG
+  vtkOStreamWrapper& operator << (long long);
+  vtkOStreamWrapper& operator << (unsigned long long);
+#endif
+#if defined( VTK_SIZEOF___INT64 ) && !defined( VTK_SIZEOF_LONG_LONG )
+  vtkOStreamWrapper& operator << (__int64);
+  vtkOStreamWrapper& operator << (unsigned __int64);
+#endif
 
   // Need to switch on bool type because this wrapper is supposed to
   // be as transparent as possible to user code.  This example should

@@ -28,6 +28,15 @@ public:
   vtkLargeInteger(int n);
   vtkLargeInteger(unsigned int n);
   vtkLargeInteger(const vtkLargeInteger& n);
+#ifdef VTK_SIZEOF_LONG_LONG
+  vtkLargeInteger(long long n);
+  vtkLargeInteger(unsigned long long n);
+#endif
+#if defined( VTK_SIZEOF___INT64 ) && !defined( VTK_SIZEOF_LONG_LONG )
+  vtkLargeInteger(__int64 n);
+  vtkLargeInteger(unsigned __int64 n);
+#endif
+  
   ~vtkLargeInteger(void);
   
   char CastToChar(void) const;

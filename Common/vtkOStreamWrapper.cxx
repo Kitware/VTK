@@ -69,6 +69,14 @@ VTKOSTREAM_OPERATOR(bool);
 #ifdef VTK_NEED_ID_TYPE_STREAM_OPERATORS
 VTKOSTREAM_OPERATOR(vtkIdType);
 #endif
+#ifdef VTK_SIZEOF_LONG_LONG
+VTKOSTREAM_OPERATOR(long long);
+VTKOSTREAM_OPERATOR(unsigned long long);
+#endif
+#if defined( VTK_SIZEOF___INT64 ) && !defined( VTK_SIZEOF_LONG_LONG )
+VTKOSTREAM_OPERATOR(__int64);
+VTKOSTREAM_OPERATOR(unsigned __int64);
+#endif
 VTKOSTREAM_OPERATOR_FUNC(void (*a)(void*));
 VTKOSTREAM_OPERATOR_FUNC(void* (*a)(void*));
 VTKOSTREAM_OPERATOR_FUNC(int (*a)(void*));
