@@ -18,8 +18,8 @@ proc BuildBackdrop {minX maxX minY maxY minZ maxZ thickness} {
 
     if { [info command backMapper] == "" } {vtkPolyDataMapper backMapper;}
      backMapper SetInput [backPlane GetOutput]
-    if { [info command back] == "" } {vtkActor back;}
-   back SetMapper backMapper
+    if { [info command backWall] == "" } {vtkActor backWall;}
+   backWall SetMapper backMapper
 
     if { [info command leftPlane] == "" } {vtkCubeSource leftPlane;}
     leftPlane SetCenter $minX [expr ($maxY + $minY) / 2.0] [expr ($maxZ + $minZ) / 2.0]
