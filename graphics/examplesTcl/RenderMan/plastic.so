@@ -1,0 +1,42 @@
+surface plastic
+param
+	float 	Ka	 1 
+	float 	Kd	 0.5 
+	float 	Ks	 0.5 
+	float 	roughness	 0.1 
+	color 	specularcolor	 1 1 1 
+local
+	point 	Nf	0 0 0
+code
+	pushv	I
+	pushv	N
+	normalize
+	faceforward
+	popv	Nf
+	pushc	Os
+	popc	Oi
+	pushf	roughness
+	pushv	I
+	normalize
+	negv
+	pushv	Nf
+	specular
+	pushf	Ks
+	pushc	specularcolor
+	mulcf
+	mulcc
+	pushv	Nf
+	diffuse
+	pushf	Kd
+	mulfc
+	ambient
+	pushf	Ka
+	mulfc
+	addcc
+	pushc	Cs
+	mulcc
+	addcc
+	pushc	Os
+	mulcc
+	popc	Ci
+	return
