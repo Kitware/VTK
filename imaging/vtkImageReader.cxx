@@ -443,7 +443,6 @@ void vtkImageReader::PrintSelf(ostream& os, vtkIndent indent)
 void vtkImageReader::ExecuteInformation()
 {
   vtkImageData *output = this->GetOutput();
-  unsigned long mem;
   float spacing[3];
   int extent[6];
   float origin[3];

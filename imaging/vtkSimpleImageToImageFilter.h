@@ -93,6 +93,9 @@ protected:
   virtual void Execute();
   // In the simplest case, this is the only method you need to define.
   virtual void Execute(vtkImageData* input, vtkImageData* output) = 0;
+ private:
+  void Execute(vtkImageData* outData)
+    {this->vtkImageSource::Execute(outData);}
 };
 
 #endif

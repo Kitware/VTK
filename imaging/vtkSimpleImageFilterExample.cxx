@@ -66,6 +66,13 @@ static void vtkSimpleImageFilterExampleExecute(vtkImageData* input,
 {
   int dims[3];
   input->GetDimensions(dims);
+  if (input->GetScalarType() != output->GetScalarType())
+    {
+    vtkGenericWarningMacro(<< "Execute: input ScalarType, " << input->GetScalarType()
+                  << ", must match out ScalarType " << output->GetScalarType());
+    return;
+    }
+  
   int size = dims[0]*dims[1]*dims[2];
 
   for(int i=0; i<size; i++)

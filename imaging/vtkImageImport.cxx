@@ -135,7 +135,6 @@ void vtkImageImport::PrintSelf(ostream& os, vtkIndent indent)
 void vtkImageImport::ExecuteInformation()
 {
   vtkImageData *output = this->GetOutput();
-  unsigned long mem;
   
   // set the extent
   output->SetWholeExtent(this->DataExtent);

@@ -211,11 +211,10 @@ void vtkImageClip::ResetOutputWholeExtent()
 // This method simply copies by reference the input data to the output.
 void vtkImageClip::Execute()
 {
-  int *inExt, *outExt;
+  int *inExt;
   vtkImageData *outData = this->GetOutput();
   vtkImageData *inData = this->GetInput();
   
-  outExt = outData->GetUpdateExtent();  
   inExt  = inData->GetExtent(); 
 
   outData->SetExtent(inExt);
