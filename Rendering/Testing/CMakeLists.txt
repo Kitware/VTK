@@ -11,7 +11,8 @@ ENDIF (VTK_WRAP_PYTHON)
 IF(PYTHON_EXECUTABLE)
   ADD_TEST(HeaderTesting-Rendering ${PYTHON_EXECUTABLE}
            ${VTK_SOURCE_DIR}/Common/Testing/HeaderTesting.py
-	   "${VTK_SOURCE_DIR}/Rendering"
+           "${VTK_SOURCE_DIR}/Rendering"
+           vtkTkInternals.h
            vtkTkRenderWidget.h
            vtkTkImageViewerWidget.h
            vtkCocoaGLView.h
