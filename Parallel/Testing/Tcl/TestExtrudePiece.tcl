@@ -9,12 +9,8 @@ vtkCleanPolyData clean
   clean SetInput [disk GetOutput]
   clean SetTolerance 0.01
 
-vtkTriangleFilter tri
-  tri SetInput [clean GetOutput]
-  tri Update
-
 vtkExtractPolyDataPiece piece
-  piece SetInput [tri GetOutput]
+  piece SetInput [clean GetOutput]
 
 vtkPLinearExtrusionFilter extrude
   extrude SetInput [piece GetOutput]
