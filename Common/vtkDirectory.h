@@ -60,7 +60,13 @@ public:
   const char* GetFile(int index);
 
   // Description:
+  // Get the current working directory.
   static const char* GetCurrentWorkingDirectory(char* buf, unsigned int len);
+
+  // Description:
+  // Create directory. Needs rework to do all the testing and to work
+  // on all platforms.
+  static int CreateDirectory(const char* dir);
 
 protected:
   vtkDirectory();
