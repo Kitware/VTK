@@ -58,7 +58,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Each triangle has one of these "objects".
 // Spheres contian the triangle, but no other verticies.
 // This information needs to be stored in case new verticies are added.
-typedef struct vtkSphereTreeSphere;
 struct vtkSphereTreeSphere
 {
   // All points of triangle are TriangleRadius distance from centroid.
