@@ -334,8 +334,12 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
   
   free(sources);
   free(commands);
-  info->CAPI->FreeArguments(numConcrete,concrete);
   info->CAPI->FreeArguments(newArgc, newArgv);
+  for (i = 0; i < numConcrete; ++i)
+    {
+    free(concrete[i]);
+    }
+  free(concrete);
   return 1;
 }
 
