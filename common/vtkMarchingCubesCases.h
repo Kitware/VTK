@@ -45,7 +45,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // marching cubes case table for generating isosurfaces
 //
 typedef int EDGE_LIST;
-struct VTK_EXPORT VTK_TRIANGLE_CASES {
+struct VTK_EXPORT VTK_TRIANGLE_CASES 
+{
   EDGE_LIST edges[16];
   static VTK_TRIANGLE_CASES* GetCases();
 };

@@ -263,7 +263,7 @@ void vtkPixel::Contour(float value, vtkScalars *cellScalars,
                        vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd)
 {
   static int CASE_MASK[4] = {1,2,8,4}; //note difference!
-  LINE_CASES *lineCase;
+  VTK_LINE_CASES *lineCase;
   EDGE_LIST  *edge;
   int i, j, index, *vert;
   int newCellId;
@@ -279,7 +279,7 @@ void vtkPixel::Contour(float value, vtkScalars *cellScalars,
       }
     }
 
-  lineCase = VTK_MARCHING_SQUARES_LINECASES + index;
+  lineCase = VTK_LINE_CASES::GetCases() + index;
   edge = lineCase->edges;
 
   for ( ; edge[0] > -1; edge += 2 )
