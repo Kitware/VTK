@@ -30,7 +30,7 @@
 #include "vtkIntArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkExtractCells, "1.4");
+vtkCxxRevisionMacro(vtkExtractCells, "1.5");
 vtkStandardNewMacro(vtkExtractCells);
 
 #include <vtkstd/set>
@@ -46,7 +46,7 @@ vtkExtractCells::vtkExtractCells()
 { 
   this->SubSetUGridCellArraySize = 0;
   this->InputIsUgrid = 0;
-  this->CellList = NULL;
+  this->CellList = new vtkExtractCellsSTLCloak;
 }
 vtkExtractCells::~vtkExtractCells()
 {
@@ -55,11 +55,8 @@ vtkExtractCells::~vtkExtractCells()
 
 void vtkExtractCells::SetCellList(vtkIdList *l)
 {
-  if (this->CellList)
-    {
-    delete this->CellList;
-    this->CellList = NULL;
-    }
+  delete this->CellList;
+  this->CellList = new vtkExtractCellsSTLCloak;
 
   if (l != NULL)
     {
@@ -80,11 +77,6 @@ void vtkExtractCells::AddCellList(vtkIdList *l)
     return;
     }
 
-  if (this->CellList == NULL)
-    {
-    this->CellList = new vtkExtractCellsSTLCloak;
-    }
-
   for (int i=0; i<ncells; i++)  
     {
     this->CellList->IdTypeSet.insert(l->GetId(i));
@@ -98,11 +90,6 @@ void vtkExtractCells::AddCellRange(vtkIdType from, vtkIdType to)
 {
   if (to < from) return;
 
-  if (this->CellList == NULL)
-    {
-    this->CellList = new vtkExtractCellsSTLCloak;
-    }
-  
   for (vtkIdType id=from; id <= to; id++)  
     {
     this->CellList->IdTypeSet.insert(id);
@@ -122,7 +109,7 @@ void vtkExtractCells::Execute()
 
   int numCellsInput = input->GetNumberOfCells();
 
-  int numCells = (this->CellList ? this->CellList->IdTypeSet.size() : 0);
+  int numCells = this->CellList->IdTypeSet.size();
 
   if (numCells == numCellsInput)  
     {
