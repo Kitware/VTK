@@ -45,11 +45,20 @@ public class vtkPanel extends Canvas implements
   }
 
   public void Report() {
-    Lock();
-    System.out.println("direct rendering = " + (rw.IsDirect()==1));
-    System.out.println("opengl supported = " + (rw.SupportsOpenGL()==1));
-    System.out.println("report = " + rw.ReportCapabilities());
-    UnLock();
+
+    // must be performed on awt event thread
+    Runnable updateAComponent = new Runnable() {
+        public void run() {
+          Lock();
+          System.out.println("direct rendering = " + (rw.IsDirect()==1));
+          System.out.println("opengl supported = " + (rw.SupportsOpenGL()==1));
+          System.out.println("report = " + rw.ReportCapabilities());
+          UnLock();
+        }
+      };
+
+    SwingUtilities.invokeLater(updateAComponent);
+
   }
 
   public vtkRenderer GetRenderer()
