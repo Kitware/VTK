@@ -55,23 +55,37 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
   char temps[2048];
   int  in_public;
   int  HaveComment;
-  char CommentText[10000];
+  char CommentText[50000];
   int CommentState;
   int openSig;
   int invertSig;
+  int sigAllocatedLength;
   
 #define YYMAXDEPTH 1000
 
+  void checkSigSize(char *arg)
+    {
+    if (strlen(currentFunction->Signature) + strlen(arg) > 
+        sigAllocatedLength)
+      {
+      currentFunction->Signature = (char *)
+	realloc(currentFunction->Signature, sigAllocatedLength*2);
+      sigAllocatedLength = sigAllocatedLength*2;
+      }
+    } 
   void preSig(char *arg)
     {
     if (!currentFunction->Signature)
       {
       currentFunction->Signature = malloc(2048);
+      sigAllocatedLength = 2048; 
       sprintf(currentFunction->Signature,"%s",arg);
       }    
     else if (openSig)
       {
-      char *tmp = strdup(currentFunction->Signature);
+      char *tmp;
+      checkSigSize(arg);
+      tmp = strdup(currentFunction->Signature);
       sprintf(currentFunction->Signature,"%s%s",arg,tmp);
       free(tmp);
       }
@@ -81,11 +95,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
     if (!currentFunction->Signature)
       {
       currentFunction->Signature = malloc(2048);
+      sigAllocatedLength = 2048; 
       sprintf(currentFunction->Signature,"%s",arg);
       }    
     else if (openSig)
       {
-      char *tmp = strdup(currentFunction->Signature);
+      char *tmp;
+      checkSigSize(arg);
+      tmp = strdup(currentFunction->Signature);
       if (invertSig)
         {
         sprintf(currentFunction->Signature,"%s%s",arg,tmp);
@@ -430,7 +447,8 @@ macro:
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = 2;
    output_function();
-   currentFunction->Signature = (char *)malloc(512);
+   currentFunction->Signature = (char *)malloc(2048);
+   sigAllocatedLength = 2048;
    sprintf(currentFunction->Signature,"void %sOff ();",$<str>3); 
    sprintf(temps,"%sOff",$<str>3); 
    currentFunction->Name = strdup(temps);
@@ -457,7 +475,8 @@ macro:
    currentFunction->ReturnType = 2;
    output_function();
 
-   currentFunction->Signature = (char *)malloc(1024);
+   currentFunction->Signature = (char *)malloc(2048);
+   sigAllocatedLength = 2048;
    sprintf(currentFunction->Signature,"void Set%s (%s a[2]);",$<str>3,
      local);
    currentFunction->Name = strdup(temps);
@@ -505,7 +524,8 @@ macro:
    currentFunction->ReturnType = 2;
    output_function();
 
-   currentFunction->Signature = (char *)malloc(1024);
+   currentFunction->Signature = (char *)malloc(2048);
+   sigAllocatedLength = 2048;
    sprintf(currentFunction->Signature,"void Set%s (%s a[3]);",$<str>3,
      local);
    currentFunction->Name = strdup(temps);
@@ -555,7 +575,8 @@ macro:
    currentFunction->ReturnType = 2;
    output_function();
 
-   currentFunction->Signature = (char *)malloc(1024);
+   currentFunction->Signature = (char *)malloc(2048);
+   sigAllocatedLength = 2048;
    sprintf(currentFunction->Signature,"void Set%s (%s a[4]);",$<str>3,
      local);
    currentFunction->Name = strdup(temps);
@@ -609,7 +630,8 @@ macro:
    currentFunction->ReturnType = 2;
    output_function();
 
-   currentFunction->Signature = (char *)malloc(1024);
+   currentFunction->Signature = (char *)malloc(2048);
+   sigAllocatedLength = 2048;
    sprintf(currentFunction->Signature,"void Set%s (%s a[6]);",$<str>3,
      local);
    currentFunction->Name = strdup(temps);
@@ -683,7 +705,8 @@ macro:
      currentFunction->ReturnClass = strdup("vtkCoordinate");
      output_function();
 
-     currentFunction->Signature = (char *)malloc(1024);
+     currentFunction->Signature = (char *)malloc(2048);
+     sigAllocatedLength = 2048;
      sprintf(currentFunction->Signature,"void Set%s (float , float);",
        $<str>3);
      sprintf(temps,"Set%s",$<str>3); 
@@ -696,7 +719,8 @@ macro:
      currentFunction->ReturnType = 2;
      output_function();
 
-     currentFunction->Signature = (char *)malloc(1024);
+     currentFunction->Signature = (char *)malloc(2048);
+     sigAllocatedLength = 2048;
      sprintf(currentFunction->Signature,"void Set%s (float a[2]);",
        $<str>3);
      currentFunction->Name = strdup(temps);
@@ -705,7 +729,8 @@ macro:
      currentFunction->ArgCounts[0] = 2;
      output_function();
      
-     currentFunction->Signature = (char *)malloc(1024);
+     currentFunction->Signature = (char *)malloc(2048);
+     sigAllocatedLength = 2048;
      sprintf(currentFunction->Signature,"float *Get%s ();", $<str>3);
      sprintf(temps,"Get%s",$<str>3); 
      currentFunction->Name = strdup(temps);
@@ -728,7 +753,8 @@ macro:
      currentFunction->ReturnClass = strdup("vtkCoordinate");
      output_function();
 
-     currentFunction->Signature = (char *)malloc(1024);
+     currentFunction->Signature = (char *)malloc(2048);
+     sigAllocatedLength = 2048;
      sprintf(currentFunction->Signature,"void Set%s (float , float, float);",
        $<str>3);
      sprintf(temps,"Set%s",$<str>3); 
@@ -743,7 +769,8 @@ macro:
      currentFunction->ReturnType = 2;
      output_function();
 
-     currentFunction->Signature = (char *)malloc(1024);
+     currentFunction->Signature = (char *)malloc(2048);
+     sigAllocatedLength = 2048;
      sprintf(currentFunction->Signature,"void Set%s (float a[3]);",
        $<str>3);
      currentFunction->Name = strdup(temps);
@@ -752,7 +779,8 @@ macro:
      currentFunction->ArgCounts[0] = 3;
      output_function();
      
-     currentFunction->Signature = (char *)malloc(1024);
+     currentFunction->Signature = (char *)malloc(2048);
+     sigAllocatedLength = 2048;
      sprintf(currentFunction->Signature,"float *Get%s ();", $<str>3);
      sprintf(temps,"Get%s",$<str>3); 
      currentFunction->Name = strdup(temps);
@@ -799,6 +827,7 @@ void InitFunction(FunctionInfo *func)
   func->ReturnClass = NULL;
   func->Comment = NULL;
   func->Signature = NULL;
+  sigAllocatedLength = 0;
   openSig = 1;
   invertSig = 0;
 }
