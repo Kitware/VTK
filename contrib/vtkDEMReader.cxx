@@ -91,7 +91,7 @@ void vtkDEMReader::UpdateInformation()
 }
 
 
-void vtkDEMReader::InterceptCacheUpdate()
+void vtkDEMReader::ModifyOutputUpdateExtent()
 {
   this->GetOutput()->SetUpdateExtent(this->GetOutput()->GetWholeExtent());
 }

@@ -137,11 +137,6 @@ public:
   // to read the whole file, this method also sets the UpdateExtent.
   void UpdateInformation();
 
-  // Description:
-  // This method is call by the superclass before an update.  It sets
-  // the UpdateExtent to the WholeExtent.
-  void InterceptCacheUpdate();
-  
 protected:
   vtkTimeStamp ReadHeaderTime;
   int NumberOfColumns;
@@ -168,6 +163,10 @@ protected:
   int ReadTypeARecord ();
   int ReadProfiles (vtkImageData *data);
   void Execute(vtkImageData *outData);
+  // Description:
+  // This method is call by the superclass before an update.  It sets
+  // the UpdateExtent to the WholeExtent.
+  void ModifyOutputUpdateExtent();
 };
 
 #endif

@@ -303,7 +303,8 @@ void vtkImageReslice::ComputeRequiredInputUpdateExtent(int inExt[6],
 }
 
 //----------------------------------------------------------------------------
-void vtkImageReslice::ExecuteInformation() 
+void vtkImageReslice::ExecuteInformation(vtkImageData *input, 
+					 vtkImageData *output) 
 {
   int i,j;
   float inPoint[4], outPoint[4];
@@ -312,10 +313,10 @@ void vtkImageReslice::ExecuteInformation()
 
   int *inExt;
 
-  this->GetInput()->UpdateInformation();
-  inExt = this->GetInput()->GetWholeExtent();
-  inSpacing = this->GetInput()->GetSpacing();
-  this->GetInput()->GetOrigin(inOrigin);
+  input->UpdateInformation();
+  inExt = input->GetWholeExtent();
+  inSpacing = input->GetSpacing();
+  input->GetOrigin(inOrigin);
   
   vtkTransform *transform = vtkTransform::New();
 
@@ -353,7 +354,7 @@ void vtkImageReslice::ExecuteInformation()
  
   if (vtkMath::InvertMatrix(mat1,mat2,4,tmpIntSpace,tmpDoubleSpace) == 0)
     {
-    vtkErrorMacro(<< "ExecuteImageInformation: reslicing transform not \
+    vtkErrorMacro(<< "ExecuteInformation: reslicing transform not \
 invertible");
     }
 
@@ -424,12 +425,11 @@ invertible");
       }
     }
   
-  this->GetOutput()->SetWholeExtent(this->OutputExtent);
-  this->GetOutput()->SetSpacing(this->OutputSpacing);
-  this->GetOutput()->SetOrigin(this->OutputOrigin);
-  this->GetOutput()->SetScalarType(this->GetInput()->GetScalarType());
-  this->GetOutput()->SetNumberOfScalarComponents(
-                            this->GetInput()->GetNumberOfScalarComponents());
+  output->SetWholeExtent(this->OutputExtent);
+  output->SetSpacing(this->OutputSpacing);
+  output->SetOrigin(this->OutputOrigin);
+  output->SetScalarType(input->GetScalarType());
+  output->SetNumberOfScalarComponents(input->GetNumberOfScalarComponents());
 
   transform->Delete();
 }
