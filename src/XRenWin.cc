@@ -31,6 +31,16 @@ vtkXRenderWindow::vtkXRenderWindow()
 // Get the size of the screen in pixels
 int *vtkXRenderWindow::GetScreenSize()
 {
+  // get the default display connection 
+  if (!this->DisplayId)
+    {
+    this->DisplayId = XOpenDisplay((char *)NULL); 
+    if (this->DisplayId == NULL) 
+      {
+      vtkErrorMacro(<< "bad X server connection.\n");
+      }
+    }
+
   this->ScreenSize[0] = 
     DisplayWidth(this->DisplayId, DefaultScreen(this->DisplayId));
   this->ScreenSize[1] = 
