@@ -18,7 +18,7 @@ thresh SetInValue 0
 thresh SetOutValue 200
 thresh ReleaseDataFlagOff
 
-vtkImageCityBlockDistance dist
+vtkImageEuclideanDistance dist
 dist SetInput [thresh GetOutput]
 
 vtkImageViewer viewer
