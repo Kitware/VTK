@@ -167,7 +167,6 @@ void vtkObjectFactory::LoadLibrariesInPath(const char* path)
     // for a shared library in it.
     if(vtkNameIsSharedLibrary(file))
       {
-      vtkGenericWarningMacro("Attempt to load dll: " << file);
       char* fullpath = CreateFullPath(path, file);
       vtkLibHandle lib = vtkDynamicLoader::OpenLibrary(fullpath);
       if(lib)
