@@ -31,7 +31,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.53");
+vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.53.2.1");
 vtkStandardNewMacro(vtkEnSightGoldBinaryReader);
 
 // This is half the precision of an int.
@@ -217,7 +217,7 @@ int vtkEnSightGoldBinaryReader::ReadGeometryFile(char* fileName, int timeStep)
     
     this->ReadLine(line); // part description line
     char *name = strdup(line);
-    lineRead = this->ReadLine(line);
+    this->ReadLine(line);
     
     if (strncmp(line, "block", 5) == 0)
       {
@@ -340,7 +340,7 @@ int vtkEnSightGoldBinaryReader::SkipTimeStep()
       return 0;
       }
     this->ReadLine(line); // part description line
-    lineRead = this->ReadLine(line);
+    this->ReadLine(line);
     
     if (strncmp(line, "block", 5) == 0)
       {
@@ -392,7 +392,7 @@ int vtkEnSightGoldBinaryReader::SkipTimeStep()
 int vtkEnSightGoldBinaryReader::SkipStructuredGrid(char line[256])
 {
   char subLine[80];
-  int lineRead = 1;
+  int lineRead;
   int iblanked = 0;
   int dimensions[3];
   int numPts;
@@ -531,7 +531,7 @@ int vtkEnSightGoldBinaryReader::SkipUnstructuredGrid(char line[256])
       int *numNodesPerElement;
       int numNodes = 0;
       
-      cellType = vtkEnSightReader::NSIDED;
+      //cellType = vtkEnSightReader::NSIDED;
       this->ReadInt(&numElements);
       if (numElements < 0 || numElements*(int)sizeof(int) > this->FileSize ||
           numElements > this->FileSize)
@@ -801,7 +801,7 @@ int vtkEnSightGoldBinaryReader::SkipUnstructuredGrid(char line[256])
 int vtkEnSightGoldBinaryReader::SkipRectilinearGrid(char line[256])
 {
   char subLine[80];
-  int lineRead = 1;
+  int lineRead;
   int iblanked = 0;
   int dimensions[3];
   int numPts;
@@ -853,7 +853,7 @@ int vtkEnSightGoldBinaryReader::SkipRectilinearGrid(char line[256])
 int vtkEnSightGoldBinaryReader::SkipImageData(char line[256])
 {
   char subLine[80];
-  int lineRead = 1;
+  int lineRead;
   int iblanked = 0;
   int dimensions[3];
   float origin[3], delta[3];
@@ -1043,7 +1043,7 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(char* fileName,
   char line[80];
   int partId, numPts, i, lineRead;
   vtkFloatArray *scalars;
-  float* scalarsRead = NULL;
+  float* scalarsRead;
   vtkDataSet *output;
   
   // Initialize
@@ -1088,11 +1088,14 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(char* fileName,
       
       if (measured)
         {
-        this->ReadLine(line);
         output = this->GetOutput(this->NumberOfGeometryParts);
         numPts = output->GetNumberOfPoints();
+        if (numPts)
+          {
+          this->ReadLine(line);
         // Skip sclalars
         this->IFile->seekg(sizeof(float)*numPts, ios::cur);
+        }
         }
       
       while (this->ReadLine(line) &&
@@ -1101,11 +1104,14 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(char* fileName,
         this->ReadPartId(&partId);
         partId--; // EnSight starts #ing with 1.
         output = this->GetOutput(partId);
-        this->ReadLine(line); // "coordinates" or "block"
         numPts = output->GetNumberOfPoints();
+        if (numPts)
+          {
+        this->ReadLine(line); // "coordinates" or "block"
         // Skip sclalars
         this->IFile->seekg(sizeof(float)*numPts, ios::cur);
         }
+      }
       }
     this->ReadLine(line);
     while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
@@ -1118,15 +1124,21 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(char* fileName,
   
   if (measured)
     {
-    this->ReadLine(line);
     output = this->GetOutput(this->NumberOfGeometryParts);
     numPts = output->GetNumberOfPoints();
+    if (numPts)
+      {
+      this->ReadLine(line);
     scalars = vtkFloatArray::New();
     scalars->SetNumberOfComponents(numberOfComponents);
     scalars->SetNumberOfTuples(numPts);
     scalarsRead = new float [numPts];
     this->ReadFloatArray(scalarsRead, numPts);
     // Why are we setting only one component here?
+      // Only one component is set because scalars are single-component arrays.
+      // For complex scalars, there is a file for the real part and another
+      // file for the imaginary part, but we are storing them as a 2-component
+      // array.
     for (i = 0; i < numPts; i++)
       {
       scalars->SetComponent(i, component, scalarsRead[i]);
@@ -1139,6 +1151,7 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(char* fileName,
       }
     scalars->Delete();
     delete [] scalarsRead;
+      }
     if (this->IFile)
       {
       this->IFile->close();
@@ -1154,8 +1167,12 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(char* fileName,
     this->ReadPartId(&partId);
     partId--; // EnSight starts #ing with 1.
     output = this->GetOutput(partId);
-    this->ReadLine(line); // "coordinates" or "block"
     numPts = output->GetNumberOfPoints();
+    // If the part has no points, then only the part number is listed in
+    // the variable file.
+    if (numPts)
+      {
+    this->ReadLine(line); // "coordinates" or "block"
     if (component == 0)
       {
       scalars = vtkFloatArray::New();
@@ -1190,6 +1207,7 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(char* fileName,
       output->GetPointData()->AddArray(scalars);
       }
     delete [] scalarsRead;
+      }
     
     this->IFile->peek();
     if (this->IFile->eof())
@@ -1265,11 +1283,14 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(char* fileName,
       
       if (measured)
         {
-        this->ReadLine(line);
         output = this->GetOutput(this->NumberOfGeometryParts);
         numPts = output->GetNumberOfPoints();
+        if (numPts)
+          {
+          this->ReadLine(line);
         // Skip vectors.
         this->IFile->seekg(sizeof(float)*3*numPts, ios::cur);
+        }
         }
       
       while (this->ReadLine(line) &&
@@ -1277,12 +1298,15 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(char* fileName,
         {
         this->ReadPartId(&partId);
         partId--; // EnSight starts #ing with 1.
-        this->ReadLine(line); // "coordinates" or "block"
         output = this->GetOutput(partId);
         numPts = output->GetNumberOfPoints();
+        if (numPts)
+          {
+          this->ReadLine(line); // "coordinates" or "block"
         // Skip comp1, comp2 and comp3
         this->IFile->seekg(sizeof(float)*3*numPts, ios::cur);
         }
+      }
       }
     this->ReadLine(line);
     while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
@@ -1295,9 +1319,11 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(char* fileName,
 
   if (measured)
     {
-    this->ReadLine(line);
     output = this->GetOutput(this->NumberOfGeometryParts);
     numPts = output->GetNumberOfPoints();
+    if (numPts)
+      {
+      this->ReadLine(line);
     vectors = vtkFloatArray::New();
     vectors->SetNumberOfComponents(3);
     vectors->SetNumberOfTuples(numPts);
@@ -1310,6 +1336,7 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(char* fileName,
       output->GetPointData()->SetVectors(vectors);
       }
     vectors->Delete();
+      }
     if (this->IFile)
       {
       this->IFile->close();
@@ -1325,9 +1352,11 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(char* fileName,
     vectors = vtkFloatArray::New();
     this->ReadPartId(&partId);
     partId--; // EnSight starts #ing with 1.
-    this->ReadLine(line); // "coordinates" or "block"
     output = this->GetOutput(partId);
     numPts = output->GetNumberOfPoints();
+    if (numPts)
+      {
+      this->ReadLine(line); // "coordinates" or "block"
     vectors->SetNumberOfComponents(3);
     vectors->SetNumberOfTuples(numPts);
     comp1 = new float[numPts];
@@ -1353,6 +1382,7 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(char* fileName,
     delete [] comp1;
     delete [] comp2;
     delete [] comp3;
+      }
     
     this->IFile->peek();
     if (this->IFile->eof())
@@ -1430,12 +1460,15 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerNode(char* fileName,
         {
         this->ReadPartId(&partId);
         partId--; // EnSight starts #ing with 1.
-        this->ReadLine(line); // "coordinates" or "block"
         output = this->GetOutput(partId);
         numPts = output->GetNumberOfPoints();
+        if (numPts)
+          {
+          this->ReadLine(line); // "coordinates" or "block"
         // Skip over comp1, comp2, ... comp6
         this->IFile->seekg(sizeof(float)*6*numPts, ios::cur);
         }
+      }
       }
     this->ReadLine(line);
     while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
@@ -1449,12 +1482,14 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerNode(char* fileName,
 
   while (lineRead && strncmp(line, "part", 4) == 0)
     {
-    tensors = vtkFloatArray::New();
     this->ReadPartId(&partId);
     partId--; // EnSight starts #ing with 1.
-    this->ReadLine(line); // "coordinates" or "block"
     output = this->GetOutput(partId);
     numPts = output->GetNumberOfPoints();
+    if (numPts)
+      {
+      tensors = vtkFloatArray::New();
+      this->ReadLine(line); // "coordinates" or "block"
     tensors->SetNumberOfComponents(6);
     tensors->SetNumberOfTuples(numPts);
     comp1 = new float[numPts];
@@ -1488,6 +1523,7 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerNode(char* fileName,
     delete [] comp4;
     delete [] comp5;
     delete [] comp6;
+      }
     
     this->IFile->peek();
     if (this->IFile->eof())
@@ -1570,10 +1606,13 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(char* fileName,
         partId--; // EnSight starts #ing with 1.
         output = this->GetOutput(partId);
         numCells = output->GetNumberOfCells();
+        if (numCells)
+          {
         this->ReadLine(line); // element type or "block"
         
-        // need to find out from CellIds how many cells we have of this element
-        // type (and what their ids are) -- IF THIS IS NOT A BLOCK SECTION
+          // need to find out from CellIds how many cells we have of this
+          // element type (and what their ids are) -- IF THIS IS NOT A BLOCK
+          // SECTION
         if (strncmp(line, "block", 5) == 0)
           {
           // Skip over float scalars.
@@ -1600,15 +1639,17 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(char* fileName,
             idx = this->UnstructuredPartIds->IsId(partId);
             numCellsPerElement = this->GetCellIds(idx, elementType)->
               GetNumberOfIds();
-            scalarsRead = new float[numCellsPerElement];
-            this->ReadFloatArray(scalarsRead, numCellsPerElement);
-            
+              this->IFile->seekg(sizeof(float)*numCellsPerElement, ios::cur);
             lineRead = this->ReadLine(line);
-            delete [] scalarsRead;
+              }
             } // end while
-          } // end else
-        }
+          } // end if (numCells)
+        else
+          {
+          lineRead = this->ReadLine(line);
       }
+        } // end while
+      } // end for
     this->ReadLine(line);
     while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
       {
@@ -1625,6 +1666,8 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(char* fileName,
     partId--; // EnSight starts #ing with 1.
     output = this->GetOutput(partId);
     numCells = output->GetNumberOfCells();
+    if (numCells)
+      {
     this->ReadLine(line); // element type or "block"
     if (component == 0)
       {
@@ -1647,7 +1690,6 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(char* fileName,
         {
         scalars->SetComponent(i, component, scalarsRead[i]);
         }
-      this->IFile->peek();
       if (this->IFile->eof())
         {
         lineRead = 0;
@@ -1680,7 +1722,8 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(char* fileName,
           return 0;
           }
         idx = this->UnstructuredPartIds->IsId(partId);
-        numCellsPerElement = this->GetCellIds(idx, elementType)->GetNumberOfIds();
+          numCellsPerElement =
+            this->GetCellIds(idx, elementType)->GetNumberOfIds();
         scalarsRead = new float[numCellsPerElement];
         this->ReadFloatArray(scalarsRead, numCellsPerElement);
         for (i = 0; i < numCellsPerElement; i++)
@@ -1713,6 +1756,19 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(char* fileName,
     else
       {
       output->GetCellData()->AddArray(scalars);
+      }
+    }
+    else
+      {
+      this->IFile->peek();
+      if (this->IFile->eof())
+        {
+        lineRead = 0;
+        }
+      else
+        {
+        lineRead = this->ReadLine(line);
+        }
       }
     }
   
@@ -1786,10 +1842,13 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerElement(char* fileName,
         partId--; // EnSight starts #ing with 1.
         output = this->GetOutput(partId);
         numCells = output->GetNumberOfCells();
+        if (numCells)
+          {
         this->ReadLine(line); // element type or "block"
 
-        // need to find out from CellIds how many cells we have of this element
-        // type (and what their ids are) -- IF THIS IS NOT A BLOCK SECTION
+          // need to find out from CellIds how many cells we have of this
+          // element type (and what their ids are) -- IF THIS IS NOT A BLOCK
+          // SECTION
         if (strncmp(line, "block", 5) == 0)
           {
           // Skip over comp1, comp2 and comp3
@@ -1818,6 +1877,11 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerElement(char* fileName,
             } // end while
           } // end else
         }
+        else
+          {
+          lineRead = this->ReadLine(line);
+          }
+        }
       }
     this->ReadLine(line);
     while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
@@ -1831,11 +1895,13 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerElement(char* fileName,
   
   while (lineRead && strncmp(line, "part", 4) == 0)
     {
-    vectors = vtkFloatArray::New();
     this->ReadPartId(&partId);
     partId--; // EnSight starts #ing with 1.
     output = this->GetOutput(partId);
     numCells = output->GetNumberOfCells();
+    if (numCells)
+      {
+      vectors = vtkFloatArray::New();
     this->ReadLine(line); // element type or "block"
     vectors->SetNumberOfComponents(3);
     vectors->SetNumberOfTuples(numCells);
@@ -1884,7 +1950,8 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerElement(char* fileName,
           return 0;
           }
         idx = this->UnstructuredPartIds->IsId(partId);
-        numCellsPerElement = this->GetCellIds(idx, elementType)->GetNumberOfIds();
+          numCellsPerElement =
+            this->GetCellIds(idx, elementType)->GetNumberOfIds();
         comp1 = new float[numCellsPerElement];
         comp2 = new float[numCellsPerElement];
         comp3 = new float[numCellsPerElement];        
@@ -1920,6 +1987,19 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerElement(char* fileName,
       output->GetCellData()->SetVectors(vectors);
       }
     vectors->Delete();
+    }
+    else
+      {
+      this->IFile->peek();
+      if (this->IFile->eof())
+        {
+        lineRead = 0;
+        }
+      else
+        {
+        lineRead = this->ReadLine(line);
+        }
+      }
     }
   
   if (this->IFile)
@@ -1992,10 +2072,13 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerElement(char* fileName,
         partId--; // EnSight starts #ing with 1.
         output = this->GetOutput(partId);
         numCells = output->GetNumberOfCells();
+        if (numCells)
+          {
         this->ReadLine(line); // element type or "block"
         
-        // need to find out from CellIds how many cells we have of this element
-        // type (and what their ids are) -- IF THIS IS NOT A BLOCK SECTION
+          // need to find out from CellIds how many cells we have of this
+          // element type (and what their ids are) -- IF THIS IS NOT A BLOCK
+          // SECTION
         if (strncmp(line, "block", 5) == 0)
           {
           // Skip comp1 - comp6
@@ -2023,6 +2106,11 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerElement(char* fileName,
             lineRead = this->ReadLine(line);
             } // end while
           } // end else
+          } // end if (numCells)
+        else
+          {
+          lineRead = this->ReadLine(line);
+          }
         }
       }
     this->ReadLine(line);
@@ -2037,11 +2125,13 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerElement(char* fileName,
   
   while (lineRead && strncmp(line, "part", 4) == 0)
     {
-    tensors = vtkFloatArray::New();
     this->ReadPartId(&partId);
     partId--; // EnSight starts #ing with 1.
     output = this->GetOutput(partId);
     numCells = output->GetNumberOfCells();
+    if (numCells)
+      {
+      tensors = vtkFloatArray::New();
     this->ReadLine(line); // element type or "block"
     tensors->SetNumberOfComponents(6);
     tensors->SetNumberOfTuples(numCells);
@@ -2103,7 +2193,8 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerElement(char* fileName,
           return 0;
           }
         idx = this->UnstructuredPartIds->IsId(partId);
-        numCellsPerElement = this->GetCellIds(idx, elementType)->GetNumberOfIds();
+          numCellsPerElement =
+            this->GetCellIds(idx, elementType)->GetNumberOfIds();
         comp1 = new float[numCellsPerElement];
         comp2 = new float[numCellsPerElement];
         comp3 = new float[numCellsPerElement];
@@ -2147,6 +2238,19 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerElement(char* fileName,
     tensors->SetName(description);
     output->GetCellData()->AddArray(tensors);
     tensors->Delete();
+    }
+    else
+      {
+      this->IFile->peek();
+      if (this->IFile->eof())
+        {
+        lineRead = 0;
+        }
+      else
+        {
+        lineRead = this->ReadLine(line);
+        }
+      }
     }
   
   if (this->IFile)
@@ -2800,7 +2904,7 @@ int vtkEnSightGoldBinaryReader::CreateStructuredGridOutput(int partId,
                                                            const char* name)
 {
   char subLine[80];
-  int lineRead = 1;
+  int lineRead;
   int iblanked = 0;
   int dimensions[3];
   int i;
@@ -2934,7 +3038,7 @@ int vtkEnSightGoldBinaryReader::CreateRectilinearGridOutput(int partId,
                                                             const char* name)
 {
   char subLine[80];
-  int lineRead = 1;
+  int lineRead;
   int iblanked = 0;
   int dimensions[3];
   int i;
@@ -3058,7 +3162,7 @@ int vtkEnSightGoldBinaryReader::CreateImageDataOutput(int partId,
                                                       const char* name)
 {
   char subLine[80];
-  int lineRead = 1;
+  int lineRead;
   int iblanked = 0;
   int dimensions[3];
   float origin[3], delta[3];
