@@ -514,7 +514,7 @@ VrmlNodeType::has(const VectorType<NameTypeRec*> &recs, const char *nodeName) co
 
 #define YYDEBUG 1
 
-#ifndef DARWIN
+#ifndef __APPLE__
 #include <malloc.h>
 #endif
 

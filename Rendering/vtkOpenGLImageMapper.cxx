@@ -44,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkWindow.h"
 #include "vtkViewport.h"
 #include "vtkActor2D.h"
-#ifdef VTK_USE_QUARTZ
+#ifdef __APPLE__
  #include <OpenGL/gl.h>
 #else
  #include <GL/gl.h>
