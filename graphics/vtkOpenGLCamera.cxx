@@ -79,12 +79,18 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
   this->Stereo = (ren->GetRenderWindow())->GetStereoRender();
   vport = ren->GetViewport();
 
-  lowerLeft[0] = (int)(vport[0]*size[0] + 0.5);
-  lowerLeft[1] = (int)(vport[1]*size[1] + 0.5);
-  upperRight[0] = (int)(vport[2]*size[0] + 0.5);
-  upperRight[1] = (int)(vport[3]*size[1] + 0.5);
-  upperRight[0]--;
-  upperRight[1]--;
+  float vpu, vpv;
+  vpu = vport[0];
+  vpv = vport[1];  
+  ren->NormalizedDisplayToDisplay(vpu,vpv);
+  lowerLeft[0] = (int)(vpu+0.5);
+  lowerLeft[1] = (int)(vpv+0.5);
+  float vpu2, vpv2;
+  vpu2 = vport[2];
+  vpv2 = vport[3];  
+  ren->NormalizedDisplayToDisplay(vpu2,vpv2);
+  int usize = (int)(vpu2 + 0.5) - lowerLeft[0];
+  int vsize = (int)(vpv2 + 0.5) - lowerLeft[1];  
 
   // if were on a stereo renderer draw to special parts of screen
   if (this->Stereo)
@@ -123,17 +129,12 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
       }
     }
   
-  glViewport(lowerLeft[0],lowerLeft[1],
-	     (upperRight[0]-lowerLeft[0]+1),
-	     (upperRight[1]-lowerLeft[1]+1));
+  glViewport(lowerLeft[0],lowerLeft[1], usize, vsize);
   glEnable( GL_SCISSOR_TEST );
-  glScissor(lowerLeft[0],lowerLeft[1],
-	    (upperRight[0]-lowerLeft[0]+1),
-	    (upperRight[1]-lowerLeft[1]+1));
+  glScissor(lowerLeft[0],lowerLeft[1], usize, vsize);
     
   /* for stereo we have to fiddle with aspect */
-  aspect[0] = (float)(upperRight[0]-lowerLeft[0]+1)/
-    (float)(upperRight[1]-lowerLeft[1]+1);
+  aspect[0] = (float)(usize)/(float)(vsize);
   aspect[1] = 1.0;
   
   ren->SetAspect(aspect);
