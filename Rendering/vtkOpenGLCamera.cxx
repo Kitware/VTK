@@ -30,7 +30,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLCamera, "1.60");
+vtkCxxRevisionMacro(vtkOpenGLCamera, "1.61");
 vtkStandardNewMacro(vtkOpenGLCamera);
 #endif
 
@@ -67,8 +67,6 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
   vport = ren->GetViewport();
 
   double *tileViewPort = ren->GetVTKWindow()->GetTileViewport();
-  //int scale = 
-  ren->GetVTKWindow()->GetTileScale();
   
   double vpu, vpv;
   // find the lower left corner of the viewport, taking into account the
@@ -221,8 +219,6 @@ void vtkOpenGLCamera::UpdateViewport(vtkRenderer *ren)
   vport = ren->GetViewport();
 
   double *tileViewPort = ren->GetVTKWindow()->GetTileViewport();
-  //int scale = 
-  ren->GetVTKWindow()->GetTileScale();
   
   double vpu, vpv;
   vpu = (vport[0] - tileViewPort[0]);
