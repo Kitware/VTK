@@ -12,9 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPDataSetReader - Manages writing pieces of a data set.
+// .NAME vtkPDataSetReader - Manages reading pieces of a data set.
 // .SECTION Description
-// vtkPDataSetReader will write a piece of a file, and will also create
+// vtkPDataSetReader will read a piece of a file, it takes as input 
 // a metadata file that lists all of the files in a data set.
 
 
