@@ -22,6 +22,7 @@ vtkLookupTable lut
 
 vtkDEMReader demModel
   demModel SetFileName $VTK_DATA/albany-w
+  demModel Update
 
 demModel Print
 
