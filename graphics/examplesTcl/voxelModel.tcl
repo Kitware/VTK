@@ -22,8 +22,16 @@ vtkVoxelModeller voxelModel
   voxelModel SetInput [sphereModel GetOutput]
   voxelModel SetSampleDimensions 21 21 21
 
+vtkDataSetWriter aWriter
+  aWriter SetFileName voxelModel.vtk
+  aWriter SetInput [voxelModel GetOutput]
+  aWriter Update
+
+vtkDataSetReader aReader
+  aReader SetFileName voxelModel.vtk
+
 vtkContourFilter voxelSurface
-  voxelSurface SetInput [voxelModel GetOutput]
+  voxelSurface SetInput [aReader GetOutput]
   voxelSurface SetValue 0 .999
 
 vtkPolyDataMapper voxelMapper
