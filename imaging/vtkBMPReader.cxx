@@ -360,17 +360,11 @@ static void vtkBMPReaderUpdate2(vtkBMPReader *self, vtkImageData *data,
 	  outPtr0[1] = (OT)(self->Colors[inPtr[0]*3+1]);
 	  outPtr0[2] = (OT)(self->Colors[inPtr[0]*3+2]);
 	  }
-	else if (self->SwapBytes)
+	else
 	  {
 	  outPtr0[0] = (OT)(inPtr[2]);
 	  outPtr0[1] = (OT)(inPtr[1]);
 	  outPtr0[2] = (OT)(inPtr[0]);
-	  }
-	else 
-	  {
-	  outPtr0[0] = (OT)(inPtr[0]);
-	  outPtr0[1] = (OT)(inPtr[1]);
-	  outPtr0[2] = (OT)(inPtr[2]);
 	  }
 	// move to next pixel
 	inPtr += pixelSkip;
