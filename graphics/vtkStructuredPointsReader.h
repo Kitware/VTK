@@ -65,7 +65,7 @@ public:
 
   // Description:
   // Specify file name of vtk structured points data file to read.
-  void SetFileName(char *name);
+  void SetFileName(const char *name);
   char *GetFileName();
 
   // Description:

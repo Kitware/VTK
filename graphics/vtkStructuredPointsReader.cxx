@@ -80,7 +80,7 @@ unsigned long int vtkStructuredPointsReader::GetMTime()
 }
 
 // Specify file name of vtk structured points data file to read.
-void vtkStructuredPointsReader::SetFileName(char *name) 
+void vtkStructuredPointsReader::SetFileName(const char *name) 
 {
   this->Reader->SetFileName(name);
 }
