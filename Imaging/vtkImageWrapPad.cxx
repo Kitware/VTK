@@ -20,7 +20,7 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageWrapPad, "1.26");
+vtkCxxRevisionMacro(vtkImageWrapPad, "1.27");
 vtkStandardNewMacro(vtkImageWrapPad);
 
 //----------------------------------------------------------------------------
@@ -39,17 +39,19 @@ void vtkImageWrapPad::ComputeInputUpdateExtent(int inExt[6],
     {
     min = outExt[idx * 2];
     max = outExt[idx * 2 + 1];
-    width = max - min + 1;
     imageMin = wholeExtent[idx * 2];
     imageMax = wholeExtent[idx * 2 + 1];
+    if (min > max || imageMin > imageMax)
+      { // Empty output request.
+      inExt[0] = inExt[2] = inExt[4] = 0;
+      inExt[1] = inExt[3] = inExt[5] = -1;
+      return;
+      }
+    width = max - min + 1;
     imageWidth = imageMax - imageMin + 1;
     
     // convert min max to image extent range.
-    min = 0;
-    if (imageWidth > 0)
-      {
-      min = ((min - imageMin) % imageWidth);
-      }
+    min = ((min - imageMin) % imageWidth);
     if (min < 0)
       { // Mod does not handle negative numbers as I think it should.
       min += imageWidth;
