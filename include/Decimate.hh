@@ -75,8 +75,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 
 // Special structures for building loops
-typedef struct vlVertex    Vertex, *VertexPtr;
-struct vlVertex 
+typedef struct vlLocalVertex    Vertex, *VertexPtr;
+struct vlLocalVertex 
   {
   int     id;
   float   FAngle;
@@ -84,8 +84,8 @@ struct vlVertex
   int     newRefs;
   };
     
-typedef struct vlTri    Tri, *TriPtr;
-struct vlTri
+typedef struct vlLocalTri    Tri, *TriPtr;
+struct vlLocalTri
   {
   int     id;
   float   area;
@@ -99,30 +99,30 @@ struct vlTri
 class vlVertexArray { //;prevent man page generation
 public:
   vlVertexArray(const int sz) 
-    {this->MaxId = -1; this->Array = new struct vlVertex[sz];};
+    {this->MaxId = -1; this->Array = new struct vlLocalVertex[sz];};
   ~vlVertexArray() {if (this->Array) delete [] this->Array;};
   int GetNumberOfVertices() {return this->MaxId + 1;};
   void InsertNextVertex(vlVertex& v) 
     {this->MaxId++; this->Array[this->MaxId] = v;};
-  struct vlVertex& GetVertex(int i) {return this->Array[i];};
+  struct vlLocalVertex& GetVertex(int i) {return this->Array[i];};
   void Reset() {this->MaxId = -1;};
 
-  struct vlVertex *Array;  // pointer to data
+  struct vlLocalVertex *Array;  // pointer to data
   int MaxId;             // maximum index inserted thus far
 };
 
 class vlTriArray { //;prevent man page generation
 public:
   vlTriArray(const int sz) 
-    {this->MaxId = -1; this->Array = new struct vlTri[sz];};
+    {this->MaxId = -1; this->Array = new struct vlLocalTri[sz];};
   ~vlTriArray() {if (this->Array) delete [] this->Array;};
   int GetNumberOfTriangles() {return this->MaxId + 1;};
   void InsertNextTriangle(vlTri& t) 
     {this->MaxId++; this->Array[this->MaxId] = t;};
-  struct vlTri& GetTriangle(int i) {return this->Array[i];};
+  struct vlLocalTri& GetTriangle(int i) {return this->Array[i];};
   void Reset() {this->MaxId = -1;};
 
-  struct vlTri *Array;  // pointer to data
+  struct vlLocalTri *Array;  // pointer to data
   int MaxId;            // maximum index inserted thus far
 };
 
