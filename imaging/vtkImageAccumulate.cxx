@@ -462,5 +462,10 @@ void vtkImageAccumulate::PrintSelf(ostream& os, vtkIndent indent)
 		                         "On\n" : "Off\n");
 
   os << indent << "ClippingExtents: " << this->ClippingExtents << "\n";
+  
+  os << indent << "Mean: " << this->Mean << "\n";
+  os << indent << "Min: " << this->Min << "\n";
+  os << indent << "Max: " << this->Max << "\n";
+  os << indent << "PixelCount: " << this->PixelCount << "\n";
 }
 
