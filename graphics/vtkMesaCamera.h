@@ -61,6 +61,8 @@ public:
   // Implement base class method.
   void Render(vtkRenderer *ren);
 
+  void UpdateViewport(vtkRenderer *ren);
+  
 protected:  
   vtkMesaCamera() {};
   ~vtkMesaCamera() {};

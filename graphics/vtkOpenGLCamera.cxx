@@ -187,3 +187,28 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
 
   matrix->Delete();
 }
+
+void vtkOpenGLCamera::UpdateViewport(vtkRenderer *ren)
+{
+  float *vport;
+  int  lowerLeft[2];
+
+  vport = ren->GetViewport();
+
+  float vpu, vpv;
+  vpu = vport[0];
+  vpv = vport[1];  
+  ren->NormalizedDisplayToDisplay(vpu,vpv);
+  lowerLeft[0] = (int)(vpu+0.5);
+  lowerLeft[1] = (int)(vpv+0.5);
+  float vpu2, vpv2;
+  vpu2 = vport[2];
+  vpv2 = vport[3];  
+  ren->NormalizedDisplayToDisplay(vpu2,vpv2);
+  int usize = (int)(vpu2 + 0.5) - lowerLeft[0];
+  int vsize = (int)(vpv2 + 0.5) - lowerLeft[1];  
+
+  glViewport(lowerLeft[0],lowerLeft[1], usize, vsize);
+  glEnable( GL_SCISSOR_TEST );
+  glScissor(lowerLeft[0],lowerLeft[1], usize, vsize);
+}

@@ -355,9 +355,12 @@ class VTK_EXPORT vtkCamera : public vtkObject
   // Returns a transformation matrix for a coordinate frame attached to
   // the camera, where the camera is located at (0, 0, 1) looking at the
   // focal point at (0, 0, 0), with up being (0, 1, 0).
-  vtkMatrix4x4 *GetCameraLightTransformMatrix();  
-
-
+  vtkMatrix4x4 *GetCameraLightTransformMatrix();
+  
+  // Description:
+  // Update the viewport
+  virtual void UpdateViewport(vtkRenderer *ren) {}
+  
 #ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
   // For legacy compatibility. Do not use.

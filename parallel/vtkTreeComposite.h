@@ -133,7 +133,8 @@ public:
   // the render time.  The final image is pixel replicated to be the original 
   // size.  This option can be used by an interactor style to help get desired 
   // frame rates.  The factor only needs to be set on process 0.
-  vtkSetMacro(ReductionFactor, int);
+  // Call SetRenderWindow before calling SetReductionFactor.
+  void SetReductionFactor(int factor);
   vtkGetMacro(ReductionFactor, int);
 
   // Description:
@@ -196,9 +197,7 @@ protected:
   int UseCompositing;
   
   void Composite();
-  void ReduceBuffer(float *localZdata, float *localPdata, 
-                    int windowSize[2]);
-  void MagnifyBuffer(float *localPdata, int windowSize[2]);
+  float* MagnifyBuffer(float *localPdata, int windowSize[2]);
 
   // Convenience method used internally. It set up the start observer
   // and allows the render window's interactor to be set before or after
@@ -210,7 +209,7 @@ protected:
   // Arrays for compositing.
   float *PData;
   float *ZData;
-  int WindowSize[2];
+  int RendererSize[2];
 
   // Reduction factor (For fast interactive compositing).
   int ReductionFactor;
@@ -222,7 +221,7 @@ protected:
   // Nesting them can lock up the processes.
   int Lock;
   
-  void SetWindowSize(int x, int y);
+  void SetRendererSize(int x, int y);
   
   double GetBuffersTime;
   double SetBuffersTime;
