@@ -465,11 +465,11 @@ int vtkOrderedTriangulator::InsertPoint(int id, float x[3], int type)
     }
   
   this->Mesh->Points[idx].Id = id;
+  this->Mesh->Points[idx].InternalId = -1; //dummy value
   this->Mesh->Points[idx].X[0] = (double) x[0];
   this->Mesh->Points[idx].X[1] = (double) x[1];
   this->Mesh->Points[idx].X[2] = (double) x[2];
   this->Mesh->Points[idx].Type = (vtkOTPoint::PointClassification) type;
-  // InternalId is assigned later during point insertion
   
   return idx;
 }
