@@ -21,16 +21,22 @@ proc TestOne {cname} {
    $cname b 
 
     if {[b IsA "vtkSource"]} {
-	catch {b SetInput emptyPD}
-	catch {b Update}
-	catch {b SetInput emptyID}
-	catch {b Update}
-	catch {b SetInput emptySG}
-	catch {b Update}
-	catch {b SetInput emptyUG}
-	catch {b Update}
-	catch {b SetInput emptyRG}
-	catch {b Update}
+        catch {b Update}
+	if {[catch {b SetInput emptyPD}] == 0} {
+            catch {b Update}
+        }
+	if {[catch {b SetInput emptyID}] == 0} {
+            catch {b Update}
+        }
+	if {[catch {b SetInput emptySG}] == 0} {
+            catch {b Update}
+        }
+	if {[catch {b SetInput emptyUG}] == 0} {
+            catch {b Update}
+        }
+	if {[catch {b SetInput emptyRG}] == 0} {
+            catch {b Update}
+        }
     }
 
    b Delete
