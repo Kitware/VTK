@@ -27,7 +27,7 @@
 #ifndef __vtkInterpolatingSubdivisionFilter_h
 #define __vtkInterpolatingSubdivisionFilter_h
 
-#include "vtkPolyDataToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
 class vtkCellArray;
 class vtkCellData;
@@ -37,10 +37,10 @@ class vtkPointData;
 class vtkPoints;
 class vtkPolyData;
 
-class VTK_GRAPHICS_EXPORT vtkInterpolatingSubdivisionFilter : public vtkPolyDataToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkInterpolatingSubdivisionFilter : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkInterpolatingSubdivisionFilter,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkInterpolatingSubdivisionFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -52,7 +52,7 @@ protected:
   vtkInterpolatingSubdivisionFilter();
   ~vtkInterpolatingSubdivisionFilter() {};
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual void GenerateSubdivisionPoints (vtkPolyData *inputDS, vtkIntArray *edgeData, vtkPoints *outputPts, vtkPointData *outputPD) = 0;
   void GenerateSubdivisionCells (vtkPolyData *inputDS, vtkIntArray *edgeData, vtkCellArray *outputPolys, vtkCellData *outputCD);
   int FindEdge (vtkPolyData *mesh, vtkIdType cellId, vtkIdType p1,

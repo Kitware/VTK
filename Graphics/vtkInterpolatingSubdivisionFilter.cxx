@@ -17,10 +17,12 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkEdgeTable.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkInterpolatingSubdivisionFilter, "1.24");
+vtkCxxRevisionMacro(vtkInterpolatingSubdivisionFilter, "1.25");
 
 // Construct object with number of subdivisions set to 1.
 vtkInterpolatingSubdivisionFilter::vtkInterpolatingSubdivisionFilter()
@@ -28,26 +30,28 @@ vtkInterpolatingSubdivisionFilter::vtkInterpolatingSubdivisionFilter()
   this->NumberOfSubdivisions = 1;
 }
 
-void vtkInterpolatingSubdivisionFilter::Execute()
+int vtkInterpolatingSubdivisionFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkPolyData *input = vtkPolyData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkIdType numPts, numCells;
   int level;
   vtkPoints *outputPts;
   vtkCellArray *outputPolys;
-  vtkPolyData *input = this->GetInput();
-  vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD;
   vtkCellData *outputCD;
   vtkIntArray *edgeData;
-
-  vtkDebugMacro(<< "Generating subdivision surface using interpolating scheme");
-
-  
-  if (input == NULL)
-    {
-    vtkErrorMacro(<<"Input is NULL");
-    return;
-    }
 
   numPts=input->GetNumberOfPoints();
   numCells=input->GetNumberOfCells();
@@ -55,7 +59,7 @@ void vtkInterpolatingSubdivisionFilter::Execute()
   if (numPts < 1 || numCells < 1)
     {
     vtkDebugMacro(<<"No data to interpolate!");
-    return;
+    return 0;
     }
 
   //
@@ -90,7 +94,7 @@ void vtkInterpolatingSubdivisionFilter::Execute()
     {
     vtkWarningMacro( << this->GetClassName() << " only operates on triangles, but this data set has no triangles to operate on.");
     inputDS->Delete();
-    return;
+    return 0;
     }
   
   for (level = 0; level < this->NumberOfSubdivisions; level++)
@@ -141,6 +145,8 @@ void vtkInterpolatingSubdivisionFilter::Execute()
   output->GetPointData()->PassData(inputDS->GetPointData());
   output->GetCellData()->PassData(inputDS->GetCellData());
   inputDS->Delete();
+
+  return 1;
 }
 
 int vtkInterpolatingSubdivisionFilter::FindEdge (vtkPolyData *mesh,
