@@ -43,7 +43,7 @@
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.88");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.89");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper);
 #endif
 
@@ -228,7 +228,6 @@ void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer *ren, vtkActor *act)
     if (!this->ImmediateModeRendering && 
         !this->GetGlobalImmediateModeRendering())
       {
-      vtkTimerLog::MarkStartEvent("Building display list");
       this->ReleaseGraphicsResources(ren->GetRenderWindow());
       this->LastWindow = ren->GetRenderWindow();
       
@@ -238,7 +237,6 @@ void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer *ren, vtkActor *act)
 
       noAbort = this->Draw(ren,act);
       glEndList();
-      vtkTimerLog::MarkEndEvent("Building display list");
 
       // Time the actual drawing
       this->Timer->StartTimer();
