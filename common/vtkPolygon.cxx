@@ -382,6 +382,14 @@ int vtkPolygon::PointInPolygon (float x[3], int numPts, float *pts,
   int maxComp, comps[2];
   int deltaVotes;
 
+  // do a quick bounds check
+  if ( x[0] < bounds[0] || x[0] > bounds[1] ||
+       x[1] < bounds[2] || x[1] > bounds[3] ||
+       x[2] < bounds[4] || x[2] > bounds[5])
+    {
+    return VTK_POLYGON_OUTSIDE;
+    }
+  
   //
   //  Define a ray to fire.  The ray is a random ray normal to the
   //  normal of the face.  The length of the ray is a function of the
@@ -389,7 +397,8 @@ int vtkPolygon::PointInPolygon (float x[3], int numPts, float *pts,
   //
   for (i=0; i<3; i++)
     {
-    ray[i] = ( bounds[2*i+1] - bounds[2*i] )*1.1;
+    ray[i] = ( bounds[2*i+1] - bounds[2*i] )*1.1 +
+      fabs((bounds[2*i+1] + bounds[2*i])/2.0 - x[i]);
     }
 
   if ( (rayMag = vtkMath::Norm(ray)) == 0.0 )
