@@ -58,27 +58,37 @@
 // minimal attributes, the GenericGeometryFilter just need to tessellate the
 // face of the tetra, for which the values at points are not minimal.
 
-vtkLabeledDataMapper *labeledDataMapper;
-vtkRenderWindow *renWin;
-
 class SwitchLabelsCallback
   : public vtkCommand
 {
 public:
   static SwitchLabelsCallback *New()
     { return new SwitchLabelsCallback; }
+  
+  void SetLabeledDataMapper(vtkLabeledDataMapper *aLabeledDataMapper)
+    {
+      this->LabeledDataMapper=aLabeledDataMapper;
+    }
+  void SetRenderWindow(vtkRenderWindow *aRenWin)
+    {
+      this->RenWin=aRenWin;
+    }
+  
   virtual void Execute(vtkObject *vtkNotUsed(caller), unsigned long, void*)
     { 
-      if(labeledDataMapper->GetLabelMode()==VTK_LABEL_SCALARS)
+      if(this->LabeledDataMapper->GetLabelMode()==VTK_LABEL_SCALARS)
         {
-        labeledDataMapper->SetLabelMode(VTK_LABEL_IDS);
+        this->LabeledDataMapper->SetLabelMode(VTK_LABEL_IDS);
         }
       else
         {
-        labeledDataMapper->SetLabelMode(VTK_LABEL_SCALARS);
+        this->LabeledDataMapper->SetLabelMode(VTK_LABEL_SCALARS);
         }
-      renWin->Render();
+      this->RenWin->Render();
     }
+protected:
+  vtkLabeledDataMapper *LabeledDataMapper;
+  vtkRenderWindow *RenWin;
 };
 
 int TestGenericDataSetTessellator(int argc, char* argv[])
@@ -88,7 +98,7 @@ int TestGenericDataSetTessellator(int argc, char* argv[])
 
   // Standard rendering classes
   vtkRenderer *renderer = vtkRenderer::New();
-  renWin = vtkRenderWindow::New();
+  vtkRenderWindow *renWin = vtkRenderWindow::New();
   renWin->AddRenderer(renderer);
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
@@ -167,7 +177,7 @@ int TestGenericDataSetTessellator(int argc, char* argv[])
 #endif // #ifdef WRITE_GENERIC_RESULT
 
   vtkActor2D *actorLabel=vtkActor2D::New();
-  labeledDataMapper=vtkLabeledDataMapper::New();
+  vtkLabeledDataMapper *labeledDataMapper=vtkLabeledDataMapper::New();
   labeledDataMapper->SetLabelMode(VTK_LABEL_IDS);
   labeledDataMapper->SetInput(tessellator->GetOutput());
   actorLabel->SetMapper(labeledDataMapper);
@@ -187,6 +197,8 @@ int TestGenericDataSetTessellator(int argc, char* argv[])
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
     {
     SwitchLabelsCallback *switchLabels=SwitchLabelsCallback::New();
+    switchLabels->SetRenderWindow(renWin);
+    switchLabels->SetLabeledDataMapper(labeledDataMapper);
     iren->AddObserver(vtkCommand::UserEvent,switchLabels);
     switchLabels->Delete();
     iren->Start();
