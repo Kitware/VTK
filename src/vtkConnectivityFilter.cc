@@ -314,7 +314,7 @@ void vtkConnectivityFilter::TraverseAndMark (int cellId)
 // Obtain the number of connected regions.
 int vtkConnectivityFilter::GetNumberOfExtractedRegions()
 {
-  return this->RegionSizes.GetSize();
+  return this->RegionSizes.GetMaxId() + 1;
 }
 
 // Description:
