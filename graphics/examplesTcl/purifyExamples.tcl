@@ -74,6 +74,8 @@ foreach afile $files {
 
    w2if Update
    vtkCommand DeleteAllObjects
+    catch {destroy .top}
+    catch {destroy .geo}
 }
 
 exit
