@@ -15,7 +15,7 @@
 // .NAME vtkPOutlineFilter - create wireframe outline for arbitrary data set
 // .SECTION Description
 // vtkPOutlineFilter works like vtkOutlineFilter, but it looks for data
-// partitions in other processes.  It assmues the fitler is operation
+// partitions in other processes.  It assumes the filter is operated
 // in a data parallel pipeline.
 
 #ifndef __vtkPOutlineFilter_h
