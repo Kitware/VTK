@@ -179,14 +179,14 @@ foreach afile $files {
 
     # a test has to be off by at least threshold for us to care   
     if { $otherError == 0 } {
-        exec /bin/rm -f ${VTK_RESULTS_PATH}$afile.test.rtr
-        # file not copied over exec /bin/rm -f ${VTK_RESULTS_PATH}$afile.rtr
-        exec /bin/rm -f ${VTK_RESULTS_PATH}$afile.error.rtr
-        exec /bin/rm -f ${VTK_RESULTS_PATH}$afile.test.filtered.rtr
-        exec /bin/rm -f ${VTK_RESULTS_PATH}$afile.filtered.rtr
+        exec rm -f ${VTK_RESULTS_PATH}$afile.test.rtr
+        # file not copied over exec rm -f ${VTK_RESULTS_PATH}$afile.rtr
+        exec rm -f ${VTK_RESULTS_PATH}$afile.error.rtr
+        exec rm -f ${VTK_RESULTS_PATH}$afile.test.filtered.rtr
+        exec rm -f ${VTK_RESULTS_PATH}$afile.filtered.rtr
         set otherStatus "Passed"
     } else {
-        exec /bin/cp $validOther ${VTK_RESULTS_PATH}$afile.rtr
+        exec cp $validOther ${VTK_RESULTS_PATH}$afile.rtr
         set otherStatus "Failed"
     }
 

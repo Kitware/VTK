@@ -148,6 +148,12 @@ int vtkDEMReader::ReadTypeARecord ()
     return 0;
     }
 
+  if (!this->FileName)
+    {
+    vtkErrorMacro(<< "A FileName must be specified.");
+    return -1;
+    }
+
   if ((fp = fopen(this->FileName, "r")) == NULL)
     {
     vtkErrorMacro(<< "File " << this->FileName << " not found");
@@ -337,6 +343,12 @@ int vtkDEMReader::ReadProfiles (vtkImageData *data)
   int updateInterval;
   int status = 0;
   FILE *fp;
+
+  if (!this->FileName)
+    {
+    vtkErrorMacro(<< "A FileName must be specified.");
+    return -1;
+    }
 
   this->UpdateInformation ();
 

@@ -67,6 +67,7 @@ vtkImageToStructuredPoints* vtkImageToStructuredPoints::New()
 vtkImageToStructuredPoints::vtkImageToStructuredPoints()
 {
   this->Translate[0] = this->Translate[1] = this->Translate[2] = 0;
+  this->NumberOfRequiredInputs = 1;
   this->SetNthOutput(0,vtkStructuredPoints::New());
   this->Outputs[0]->Delete();
 }
@@ -272,7 +273,7 @@ void vtkImageToStructuredPoints::ExecuteInformation()
     spacing = input->GetSpacing();
     input->GetOrigin(origin);
     }
-  else
+  else if (vInput)
     {
     whole[0] = whole[2] = whole[4] = -VTK_LARGE_INTEGER;
     whole[1] = whole[3] = whole[5] = VTK_LARGE_INTEGER;

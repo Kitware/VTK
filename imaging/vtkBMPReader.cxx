@@ -489,7 +489,6 @@ static void vtkBMPReaderUpdate2(vtkBMPReader *self, vtkImageData *data,
 // are assumed to be the same as the file extent/order.
 void vtkBMPReader::Execute(vtkImageData *data)
 {
-  vtkErrorMacro( << "executing" );
   this->ComputeDataIncrements();
   
   // Call the correct templated function for the output

@@ -184,6 +184,7 @@ vtkDelaunaySphere *vtkSphereArray::Resize(int sz)
 // BoundingTriangulation turned off.
 vtkDelaunay3D::vtkDelaunay3D()
 {
+  this->NumberOfRequiredInputs = 1;
   this->Alpha = 0.0;
   this->Tolerance = 0.001;
   this->BoundingTriangulation = 0;

@@ -73,6 +73,7 @@ vtkDataObjectToDataSetFilter::vtkDataObjectToDataSetFilter()
   int i;
   this->Updating = 0;
 
+  this->NumberOfRequiredInputs = 1;
   this->DataSetType = VTK_POLY_DATA;
   this->vtkSource::SetNthOutput(0,vtkPolyData::New());
   // Releasing data for pipeline parallism.
@@ -408,10 +409,13 @@ vtkRectilinearGrid *vtkDataObjectToDataSetFilter::GetRectilinearGridOutput()
 void vtkDataObjectToDataSetFilter::ComputeInputUpdateExtents( 
 				       vtkDataObject *vtkNotUsed(output))
 {
-  // what should we do here?
-  if (this->GetInput()->GetDataObjectType() != VTK_DATA_OBJECT)
+  if (this->GetInput())
     {
-    this->GetInput()->SetUpdateExtent(0, 1);
+    // what should we do here?
+    if (this->GetInput()->GetDataObjectType() != VTK_DATA_OBJECT)
+      {
+      this->GetInput()->SetUpdateExtent(0, 1);
+      }
     }
 }
 

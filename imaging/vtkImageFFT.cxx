@@ -80,6 +80,11 @@ void vtkImageFFT::ComputeInputUpdateExtent(int inExt[6],
 {
   int *extent;
   
+  if (!this->GetInput())
+    {
+      vtkErrorMacro(<< "Input not set.");
+      return;
+    }
   // Assumes that the input update extent has been initialized to output ...
   extent = this->GetInput()->GetWholeExtent();
   memcpy(inExt, outExt, 6 * sizeof(int));

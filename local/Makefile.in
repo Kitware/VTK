@@ -17,7 +17,7 @@ CONCRETE_H =
 ABSTRACT = 
 
 CONCRETE = \
-
+vtkRuledSurface
 
 #------------------------------------------------------------------------------
 # Autoconfig defines that can be overridden in user.make

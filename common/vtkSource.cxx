@@ -360,7 +360,14 @@ void vtkSource::UpdateData(vtkDataObject *vtkNotUsed(output))
   // before we start to execute is 0.0.
   this->AbortExecute = 0;
   this->Progress = 0.0;
-  this->Execute();
+  if (this->NumberOfInputs < this->NumberOfRequiredInputs)
+    {
+    vtkErrorMacro(<< "At least " << this->NumberOfRequiredInputs << " inputs are required but only " << this->NumberOfInputs << " are specified");
+    }
+  else
+    {
+    this->Execute();
+    }
 
   // If we ended due to aborting, push the progress up to 1.0 (since
   // it probably didn't end there)

@@ -70,7 +70,7 @@ public:
   vtkStructuredPoints *GetInput();
 
 protected:
-  vtkStructuredPointsToUnstructuredGridFilter() {};
+  vtkStructuredPointsToUnstructuredGridFilter() {this->NumberOfRequiredInputs = 1;};
   ~vtkStructuredPointsToUnstructuredGridFilter() {};
   vtkStructuredPointsToUnstructuredGridFilter(const vtkStructuredPointsToUnstructuredGridFilter&) {};
   void operator=(const vtkStructuredPointsToUnstructuredGridFilter&) {};

@@ -67,6 +67,11 @@ void vtkLocator::Initialize()
 
 void vtkLocator::Update()
 {
+  if (!this->DataSet)
+    {
+    vtkErrorMacro(<< "Input not set!");
+    return;
+    }
   if ((this->MTime > this->BuildTime) ||
       (this->DataSet->GetMTime() > this->BuildTime))
     {

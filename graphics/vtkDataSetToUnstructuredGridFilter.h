@@ -69,7 +69,7 @@ public:
   vtkDataSet *GetInput();
   
 protected:
-  vtkDataSetToUnstructuredGridFilter() {};
+  vtkDataSetToUnstructuredGridFilter() {this->NumberOfRequiredInputs = 1;};
   ~vtkDataSetToUnstructuredGridFilter() {};
   vtkDataSetToUnstructuredGridFilter(const vtkDataSetToUnstructuredGridFilter&) {};
   void operator=(const vtkDataSetToUnstructuredGridFilter&) {};

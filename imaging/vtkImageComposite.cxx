@@ -46,6 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //----------------------------------------------------------------------------
 vtkImageComposite::vtkImageComposite()
 {
+  this->NumberOfRequiredInputs = 1;
   this->SetOutput(vtkStructuredPoints::New());
   // Releasing data for pipeline parallism.
   // Filters will know it is empty. 

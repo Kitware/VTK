@@ -15,11 +15,16 @@ vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
 vtkCylinderSource cone
+cone SetResolution 10
 #vtkDiskSource cone
 #cone SetInnerRadius 1.0
 #cone SetOuterRadius 1.0
+vtkPolyDataNormals normals
+  normals SetInput [cone GetOutput]
+normals SetFeatureAngle 36
+
 vtkPolyDataMapper coneMapper
-    coneMapper SetInput [cone GetOutput]
+    coneMapper SetInput [normals GetOutput]
 vtkActor coneActor
     coneActor SetMapper coneMapper
 

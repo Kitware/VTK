@@ -903,8 +903,16 @@ void vtkGridSynchronizedTemplates3D::ComputeInputUpdateExtents( vtkDataObject *o
   vtkStructuredGrid *input = this->GetInput();
   vtkPolyData *output = (vtkPolyData *)out;
   int piece, numPieces;
-  int *wholeExt = input->GetWholeExtent();
+  int *wholeExt;
   int ext[6];
+
+  if (!input)
+    {
+    vtkErrorMacro(<< "Input not set.");
+    return;
+    }
+
+  wholeExt = input->GetWholeExtent();
 
   // Get request from output
   output->GetUpdateExtent(piece, numPieces);

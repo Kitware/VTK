@@ -64,7 +64,7 @@ public:
   vtkRectilinearGrid *GetInput();
 
 protected:
-  vtkRectilinearGridToPolyDataFilter() {};
+  vtkRectilinearGridToPolyDataFilter() {this->NumberOfRequiredInputs = 1;};
   ~vtkRectilinearGridToPolyDataFilter() {};
   vtkRectilinearGridToPolyDataFilter(const vtkRectilinearGridToPolyDataFilter&) {};
   void operator=(const vtkRectilinearGridToPolyDataFilter&) {};

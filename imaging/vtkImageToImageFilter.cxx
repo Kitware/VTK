@@ -62,6 +62,7 @@ vtkImageToImageFilter* vtkImageToImageFilter::New()
 //----------------------------------------------------------------------------
 vtkImageToImageFilter::vtkImageToImageFilter()
 {
+  this->NumberOfRequiredInputs = 1;
   this->Bypass = 0;
   this->Threader = vtkMultiThreader::New();
   this->NumberOfThreads = this->Threader->GetNumberOfThreads();
@@ -158,7 +159,10 @@ void vtkImageToImageFilter::ComputeInputUpdateExtents( vtkDataObject *output )
 
   output->GetUpdateExtent( outExt );
 
-  this->ComputeInputUpdateExtent( inExt, outExt );
+  if (this->NumberOfInputs)
+    {
+    this->ComputeInputUpdateExtent( inExt, outExt );
+    }
 
   for (int idx = 0; idx < this->NumberOfInputs; ++idx)
     {

@@ -20,17 +20,17 @@ set ops "Minimum Maximum Mean Median"
 foreach operator $ops {
   vtkImageShrink3D shrink${operator}
     shrink${operator} ${operator}On
-    eval shrink${operator} SetShrinkFactors $factor $factor $factor
+    eval shrink${operator} SetShrinkFactors 1 1 93
   shrink${operator} SetInput [reader GetOutput];
   vtkImageMagnify mag${operator}
-    mag${operator} SetMagnificationFactors $factor $factor $factor;
+    mag${operator} SetMagnificationFactors 1 1 1
     mag${operator} InterpolateOff
     mag${operator} SetInput [shrink${operator} GetOutput]
   vtkImageMapper mapper${operator}
     mapper${operator} SetInput [mag${operator} GetOutput]
     mapper${operator} SetColorWindow 2000
     mapper${operator} SetColorLevel 1000
-    mapper${operator} SetZSlice 45
+    mapper${operator} SetZSlice 0
   vtkActor2D actor${operator}
     actor${operator} SetMapper mapper${operator}
   vtkImager imager${operator}

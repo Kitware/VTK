@@ -153,6 +153,7 @@ protected:
   void *EndMethodArg;
   float Progress;
   int NumberOfInputs;
+  int NumberOfRequiredInputs;
   vtkDataObject **Inputs;     // An Array of the inputs to the filter
 
   // Called to allocate the input array.  Copies old inputs.

@@ -157,6 +157,12 @@ void vtkImageCacheFilter::UpdateData(vtkDataObject *outObject)
   int i;
   int flag = 0;
 
+  if (!inData)
+    {
+    vtkErrorMacro(<< "Input not set.");
+    return;
+    }
+
   uExt = outData->GetUpdateExtent();
 
   // First look through the cached data to see if it is still valid.

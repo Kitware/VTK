@@ -217,6 +217,12 @@ void vtkTextSource::Execute()
   vtkPolyData *output = this->GetOutput();
   vtkUnsignedCharArray *data;
   
+  if (this->Text == NULL)
+    {
+    vtkErrorMacro (<< "Text is not set!");
+    return;
+    }
+
   // convert colors to unsigned char
   for (int i = 0; i < 4; i++)
     {

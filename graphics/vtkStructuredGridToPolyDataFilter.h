@@ -64,7 +64,7 @@ public:
   vtkStructuredGrid *GetInput();
   
 protected:  
-  vtkStructuredGridToPolyDataFilter() {};
+  vtkStructuredGridToPolyDataFilter() {this->NumberOfRequiredInputs = 1;};
   ~vtkStructuredGridToPolyDataFilter() {};
   vtkStructuredGridToPolyDataFilter(const vtkStructuredGridToPolyDataFilter&) {};
   void operator=(const vtkStructuredGridToPolyDataFilter&) {};

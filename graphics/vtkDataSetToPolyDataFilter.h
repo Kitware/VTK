@@ -68,7 +68,7 @@ public:
   vtkDataSet *GetInput();
   
 protected:
-  vtkDataSetToPolyDataFilter() {};
+  vtkDataSetToPolyDataFilter() {this->NumberOfRequiredInputs = 1;};
   ~vtkDataSetToPolyDataFilter() {};
   vtkDataSetToPolyDataFilter(const vtkDataSetToPolyDataFilter&) {};
   void operator=(const vtkDataSetToPolyDataFilter&) {};

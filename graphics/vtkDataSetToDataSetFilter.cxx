@@ -67,6 +67,7 @@ vtkDataSetToDataSetFilter* vtkDataSetToDataSetFilter::New()
 // Construct object.
 vtkDataSetToDataSetFilter::vtkDataSetToDataSetFilter()
 {
+  this->NumberOfRequiredInputs = 1;
 }
 
 vtkDataSetToDataSetFilter::~vtkDataSetToDataSetFilter()

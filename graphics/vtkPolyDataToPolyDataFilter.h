@@ -68,7 +68,7 @@ public:
   vtkPolyData *GetInput();
   
 protected:  
-  vtkPolyDataToPolyDataFilter() {};
+  vtkPolyDataToPolyDataFilter() {this->NumberOfRequiredInputs = 1;};
   ~vtkPolyDataToPolyDataFilter() {};
   vtkPolyDataToPolyDataFilter(const vtkPolyDataToPolyDataFilter&) {};
   void operator=(const vtkPolyDataToPolyDataFilter&) {};

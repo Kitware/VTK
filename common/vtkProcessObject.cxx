@@ -74,6 +74,7 @@ vtkProcessObject::vtkProcessObject()
   this->AbortExecute = 0;
   this->Progress = 0.0;
   this->NumberOfInputs = 0;
+  this->NumberOfRequiredInputs = 0;
   this->Inputs = NULL;
 }
 
@@ -350,6 +351,9 @@ void vtkProcessObject::SetEndMethodArgDelete(void (*f)(void *))
 void vtkProcessObject::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
+
+  os << indent << "Number Of Required Inputs: "
+     << this->NumberOfRequiredInputs << endl;
 
   if ( this->NumberOfInputs)
     {

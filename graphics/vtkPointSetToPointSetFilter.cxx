@@ -66,6 +66,7 @@ vtkPointSetToPointSetFilter* vtkPointSetToPointSetFilter::New()
 // Construct object.
 vtkPointSetToPointSetFilter::vtkPointSetToPointSetFilter()
 {
+  this->NumberOfRequiredInputs = 1;
 }
 
 //----------------------------------------------------------------------------

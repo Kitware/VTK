@@ -97,6 +97,12 @@ void vtkOBJReader::Execute()
 
   vtkDebugMacro(<<"Reading file");
 
+  if (!this->FileName)
+    {
+    vtkErrorMacro(<< "A FileName must be specified.");
+    return;
+    }
+
   // Initialize
   if ((fptr = fopen(this->FileName, "r")) == NULL)
     {

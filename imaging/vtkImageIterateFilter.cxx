@@ -119,11 +119,21 @@ void vtkImageIterateFilter::ComputeInputUpdateExtents( vtkDataObject *output )
   vtkImageData *in, *out = (vtkImageData*)output;
   int inExt[6], idx;
 
+  if (!this->GetInput())
+    {
+    vtkErrorMacro(<< "Input not set.");
+    return;
+    }
+
   for (idx = this->NumberOfIterations - 1; idx >= 0; --idx)
     {
     this->Iteration = idx;
     in = this->GetIterationInput();
     
+    if (!in)
+      {
+      return;
+      }
     /* default value */
     out->GetUpdateExtent(inExt);
     this->ComputeInputUpdateExtent(inExt, out->GetUpdateExtent());

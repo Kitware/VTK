@@ -79,13 +79,13 @@ vtkActor outlineActor
 
 # Add the actors to the renderer, set the background and size
 #
-ren1 AddActor outlineActor
+#ren1 AddActor outlineActor
 eval [outlineActor GetProperty] SetColor $banana
-ren1 AddActor isoActor
 isoActor VisibilityOn
+ren1 AddActor isoActor
 ren1 AddActor cut
 set opacity .06
-[cut GetProperty] SetOpacity 1
+[cut GetProperty] SetOpacity .99
 ren1 SetBackground 1 1 1
 renWin SetSize 640 480
 

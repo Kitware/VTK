@@ -69,7 +69,7 @@ public:
   vtkStructuredPoints *GetInput();
 
 protected:
-  vtkStructuredPointsToStructuredPointsFilter() {};
+  vtkStructuredPointsToStructuredPointsFilter() {this->NumberOfRequiredInputs = 1;};
   ~vtkStructuredPointsToStructuredPointsFilter() {};
   vtkStructuredPointsToStructuredPointsFilter(const vtkStructuredPointsToStructuredPointsFilter&) {};
   void operator=(const vtkStructuredPointsToStructuredPointsFilter&) {};

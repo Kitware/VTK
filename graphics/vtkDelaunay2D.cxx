@@ -68,6 +68,7 @@ vtkDelaunay2D* vtkDelaunay2D::New()
 // BoundingTriangulation turned off.
 vtkDelaunay2D::vtkDelaunay2D()
 {
+  this->NumberOfRequiredInputs = 1;
   this->Alpha = 0.0;
   this->Tolerance = 0.00001;
   this->BoundingTriangulation = 0;

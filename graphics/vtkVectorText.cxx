@@ -1696,6 +1696,12 @@ void vtkVectorText::Execute()
   float width;
   float ftmp[3];
   
+  if (this->Text == NULL)
+    {
+    vtkErrorMacro (<< "Text is not set!");
+    return;
+    }
+
   // Set things up; allocate memory
   newPoints = vtkPoints::New();
   newPolys = vtkCellArray::New();

@@ -96,6 +96,12 @@ void vtkImageCityBlockDistance::ComputeInputUpdateExtent(int inExt[6],
 {
   int *wholeExtent;
 
+  if ( ! this->GetInput())
+    {
+    vtkErrorMacro(<< "Input not set.");
+    return;
+    }
+
   memcpy(inExt, outExt, 6 * sizeof(int));
   wholeExtent = this->GetInput()->GetWholeExtent();
   inExt[this->Iteration * 2] = wholeExtent[this->Iteration * 2];

@@ -112,6 +112,11 @@ void vtkImageSpatialFilter::ExecuteInformation()
   vtkImageData *input = this->GetInput();
   vtkImageData *output = this->GetOutput();
   
+  if (!input)
+    {
+    vtkErrorMacro(<< "Input not set.");
+    return;
+    }
   // Copy the defaults
   output->CopyTypeSpecificInformation( input );
 
@@ -160,8 +165,11 @@ void vtkImageSpatialFilter::ComputeInputUpdateExtent(int extent[6],
   int idx;
   int *wholeExtent;
   
-  wholeExtent = this->GetInput()->GetWholeExtent();
-  
+  if (!this->GetInput())
+    {
+    return;
+    }
+
   for (idx = 0; idx < 3; ++idx)
     {
     // Magnify by strides

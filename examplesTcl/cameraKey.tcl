@@ -43,7 +43,6 @@ proc KeyRender {} {
     [ren1 GetLights] InitTraversal
     set light [[ren1 GetLights] GetNextItem]
     set camera [ren1 GetActiveCamera]
-    $camera SetClippingRange .1 1000
     eval $light SetPosition [$camera GetPosition]
     eval $light SetFocalPoint [$camera GetFocalPoint]
     renWin Render

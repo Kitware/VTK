@@ -69,6 +69,7 @@ vtkDataSetToDataObjectFilter* vtkDataSetToDataObjectFilter::New()
 // Instantiate object.
 vtkDataSetToDataObjectFilter::vtkDataSetToDataObjectFilter()
 {
+  this->NumberOfRequiredInputs = 1;
   this->Geometry = 1;
   this->Topology = 1;
   this->PointData = 1;
@@ -397,8 +398,11 @@ vtkDataSet *vtkDataSetToDataObjectFilter::GetInput()
 void vtkDataSetToDataObjectFilter::ComputeInputUpdateExtents(
 					    vtkDataObject *vtkNotUsed(output))
 {
-  // what should we do here?
-  this->GetInput()->SetUpdateExtent(0, 1);
+  if (this->GetInput())
+    {
+    // what should we do here?
+    this->GetInput()->SetUpdateExtent(0, 1);
+    }
 }
 
 
