@@ -146,7 +146,7 @@ float *vtkOpenGLProjectedPolyDataRayBounder::Draw( vtkRenderer *ren,
   float                  z_numerator, z_denom_mult, z_denom_add;
   float                  zfactor;
   int                    i, j;
-  int                    current_viewport[4];
+  GLint                  current_viewport[4];
 
 
   volren = (vtkNew2VolumeRenderer *) ren->GetNewVolumeRenderer();
@@ -163,7 +163,8 @@ float *vtkOpenGLProjectedPolyDataRayBounder::Draw( vtkRenderer *ren,
   // if there are more than one of them...
   glGetIntegerv( GL_VIEWPORT, current_viewport );
   glPushAttrib(GL_VIEWPORT_BIT);
-  glViewport( current_viewport[0], current_viewport[1], size[0], size[1] );
+  glViewport( current_viewport[0], current_viewport[1], 
+	      (GLsizei) size[0], (GLsizei) size[1] );
 
   // Create the near buffer storage
   near_buffer = new float[ size[0] * size[1] ];
@@ -209,7 +210,8 @@ float *vtkOpenGLProjectedPolyDataRayBounder::Draw( vtkRenderer *ren,
 
   glCallList( this->DisplayList );
 
-  glReadPixels( 0, 0, size[0], size[1], GL_DEPTH_COMPONENT, GL_FLOAT,
+  glReadPixels( (GLint) 0, (GLint) 0, (GLsizei) size[0], (GLsizei) size[1], 
+		GL_DEPTH_COMPONENT, GL_FLOAT,
 		near_buffer );
 
   // Clean up
