@@ -335,7 +335,7 @@ def wxVTKRenderWindowInteractorConeExample():
     widget = wxVTKRenderWindowInteractor(frame, -1)
     widget.Initialize()
     widget.Start()
-    widget.SetExitMethod(frame.Close)
+    widget.AddObserver("ExitEvent", lambda o,e,f=frame: f.Close())
 
     ren = vtk.vtkRenderer()
     widget.GetRenderWindow().AddRenderer(ren)
