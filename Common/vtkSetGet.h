@@ -141,9 +141,13 @@ virtual type Get##name##MaxValue () \
                 << "): setting " << #name " to " << args );     \
   if (this->name != args)                                       \
     {                                                           \
-    if (this->name != NULL) { this->name->UnRegister(this); }   \
+    type* tempSGMacroVar = this->name;                          \
     this->name = args;                                          \
     if (this->name != NULL) { this->name->Register(this); }     \
+    if (tempSGMacroVar != NULL)                                 \
+      {                                                         \
+      tempSGMacroVar->UnRegister(this);                         \
+      }                                                         \
     this->Modified();                                           \
     }                                                           \
   }
