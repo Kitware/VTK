@@ -21,7 +21,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTrivialProducer, "1.1");
+vtkCxxRevisionMacro(vtkTrivialProducer, "1.1.2.1");
 vtkStandardNewMacro(vtkTrivialProducer);
 
 //----------------------------------------------------------------------------
@@ -118,7 +118,8 @@ vtkTrivialProducer::ProcessDownstreamRequest(vtkInformation* request,
                                              vtkInformationVector*,
                                              vtkInformationVector* outputVector)
 {
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()) ||
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()) ||
+     request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()) ||
      request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
     {
     vtkInformation* info = outputVector->GetInformationObject(0);

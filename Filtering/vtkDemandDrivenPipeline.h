@@ -61,16 +61,19 @@ public:
   virtual vtkDataObject* GetOutputData(vtkAlgorithm* algorithm, int port);
 
   static vtkInformationKeyVectorKey* DOWNSTREAM_KEYS_TO_COPY();
+  static vtkInformationIntegerKey* REQUEST_DATA_OBJECT();
   static vtkInformationIntegerKey* REQUEST_INFORMATION();
   static vtkInformationIntegerKey* REQUEST_DATA();
   static vtkInformationIntegerKey* FROM_OUTPUT_PORT();
 
-  int UpdateInformation();
-  int UpdateData(int outputPort);
+  virtual int UpdateDataObject();
+  virtual int UpdateInformation();
+  virtual int UpdateData(int outputPort);
 protected:
   vtkDemandDrivenPipeline();
   ~vtkDemandDrivenPipeline();
 
+  virtual int ExecuteDataObject();
   virtual int ExecuteInformation();
   virtual int ExecuteData(int outputPort);
 
@@ -89,6 +92,7 @@ protected:
   void PrepareDownstreamRequest(vtkInformationIntegerKey* rkey);
   void PrepareUpstreamRequest(vtkInformationIntegerKey* rkey);
   virtual void CopyDefaultInformation();
+  virtual int CheckDataObject(int port);
 
   // Input connection validity checkers.
   int InputCountIsValid();
@@ -123,6 +127,7 @@ protected:
   unsigned long PipelineMTime;
 
   // Time when information or data were last generated.
+  vtkTimeStamp DataObjectTime;
   vtkTimeStamp InformationTime;
   vtkTimeStamp DataTime;
 

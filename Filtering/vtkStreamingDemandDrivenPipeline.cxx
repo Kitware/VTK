@@ -24,7 +24,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.1");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.1.2.1");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 //----------------------------------------------------------------------------
@@ -60,7 +60,7 @@ int vtkStreamingDemandDrivenPipeline::Update()
 //----------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline::Update(int port)
 {
-  if(!this->UpdateInformation())
+  if(!this->UpdateDataObject() || !this->UpdateInformation())
     {
     return 0;
     }

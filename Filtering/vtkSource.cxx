@@ -26,7 +26,7 @@
 
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkSource, "1.4");
+vtkCxxRevisionMacro(vtkSource, "1.4.2.1");
 
 #ifndef NULL
 #define NULL 0
@@ -1173,6 +1173,23 @@ int vtkSource::ProcessDownstreamRequest(vtkInformation* request,
                                         vtkInformationVector* outputVector)
 {
 #ifdef VTK_USE_EXECUTIVES
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
+    {
+    // The compatibility layer always keeps output data objects around
+    // because they are needed for connections.  Make sure the outputs
+    // are synchronized between the old and new style pipelines.
+    int i;
+    for(i=0; i < this->NumberOfOutputs; ++i)
+      {
+      if(this->Outputs[i])
+        {
+        vtkInformation* info =
+          this->GetExecutive()->GetOutputInformation(this, i);
+        info->Set(vtkDataObject::DATA_OBJECT(), this->Outputs[i]);
+        }
+      }
+    return 1;
+    }
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
     {
     // Make sure the outputs are synchronized between the old and new
