@@ -194,7 +194,8 @@ public:
   // or completely replaces the frame buffer data.
   virtual float *GetRGBAPixelData(int ,int ,int ,int ,int ) {return (float *)NULL;};
   virtual void SetRGBAPixelData(int ,int ,int ,int ,float *,int,
-                                int blend=0) = 0;
+                                int blend=0) { blend = blend;}
+  
 
   // Description:
   // Set/Get the zbuffer data from the frame buffer.
