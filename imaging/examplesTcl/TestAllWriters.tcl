@@ -41,9 +41,9 @@ vtkImageViewer viewer
 #make interface
 source WindowLevelInterface.tcl
 
-vtkWindowToImageFilter w2if
-  w2if SetInput [viewer GetImageWindow]
-vtkPNMWriter pnm
-  pnm SetInput [w2if GetOutput]
-  pnm SetFileName "TestAllWriters.tcl.ppm"
-#  pnm Write
+vtkWindowToImageFilter windowToimage
+  windowToimage SetInput [viewer GetImageWindow]
+vtkPNMWriter pnmWriter
+  pnmWriter SetInput [windowToimage GetOutput]
+  pnmWriter SetFileName "TestAllWriters.tcl.ppm"
+#  pnmWriter Write
