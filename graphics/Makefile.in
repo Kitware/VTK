@@ -35,6 +35,7 @@ vtkOpenGLActor \
 vtkOpenGLCamera \
 vtkOpenGLLight \
 vtkOpenGLPolyDataMapper \
+vtkOpenGLProjectedPolyDataRayBounder \
 vtkOpenGLProperty \
 vtkOpenGLRenderWindow \
 vtkOpenGLRenderer \
@@ -69,6 +70,7 @@ vtkExporter \
 vtkMapper \
 vtkProp \
 vtkVolumeMapper \
+vtkVolumeRayCaster \
 vtkVolumeReader \
 vtkWriter \
 vtkXRenderWindow 
@@ -92,6 +94,7 @@ vtkCellPicker \
 vtkCleanPolyData \
 vtkClipPolyData \
 vtkColorTransferFunction \
+vtkCompositeVolumeRayCaster \
 vtkCone \
 vtkConeSource \
 vtkConnectivityFilter \
@@ -143,6 +146,7 @@ vtkImplicitModeller \
 vtkImplicitTextureCoords \
 vtkImplicitVolume \
 vtkImplicitWindowFunction \
+vtkIsoVolumeRayCaster \
 vtkLODActor \
 vtkLight \
 vtkLineSource \
@@ -154,7 +158,7 @@ vtkMaskPoints \
 vtkMaskPolyData \
 vtkMergeFilter \
 vtkMergePoints \
-vtkNewVolumeRenderer \
+vtkMIPVolumeRayCaster \
 vtkNormalEncoder \
 vtkOBBTree \
 vtkOBJExporter \
@@ -181,8 +185,10 @@ vtkPolyDataSource \
 vtkPolyDataToPolyDataFilter \
 vtkPolyDataWriter \
 vtkProbeFilter \
+vtkProjectedPolyDataRayBounder \
 vtkProperty \
 vtkQuadric \
+vtkRayCaster \
 vtkRectilinearGridFilter \
 vtkRectilinearGridGeometryFilter \
 vtkRectilinearGridReader \
