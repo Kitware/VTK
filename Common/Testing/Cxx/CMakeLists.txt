@@ -33,5 +33,3 @@ ADD_TEST(otherByteSwap ${CXX_TEST_PATH}/otherByteSwap)
 ADD_TEST(otherCellArray ${CXX_TEST_PATH}/otherCellArray)
 ADD_TEST(otherCellTypes ${CXX_TEST_PATH}/otherCellTypes)
 
-
-SUBDIRS(TestWrapping)
