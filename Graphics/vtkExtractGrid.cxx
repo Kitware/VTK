@@ -153,7 +153,8 @@ void vtkExtractGrid::ComputeInputUpdateExtents(vtkDataObject *vtkNotUsed(out))
     }  
   
   input->SetUpdateExtent(ext);
-  
+  // We can handle anything.
+  input->SetRequestExactExtent(0);
 }
 
 
@@ -328,7 +329,7 @@ void vtkExtractGrid::Execute()
   newIdx = 0;
   for ( k=uExt[4]; k <= uExt[5]; ++k)
     { // Convert out coords to in coords.
-    kIn = voi[4] + ((k-outWholeExt[4])*rate[2]);
+    kIn = outWholeExt[4] + ((k-outWholeExt[4])*rate[2]);
     if (kIn > voi[5])
       { // This handles the IncludeBoundaryOn condition.
       kIn = voi[5];
@@ -336,7 +337,7 @@ void vtkExtractGrid::Execute()
     kOffset = (kIn-inExt[4]) * inInc2;
     for ( j=uExt[2]; j <= uExt[3]; ++j)
       { // Convert out coords to in coords.
-      jIn = voi[2] + ((j-outWholeExt[2])*rate[1]);
+      jIn = outWholeExt[2] + ((j-outWholeExt[2])*rate[1]);
       if (jIn > voi[3])
         { // This handles the IncludeBoundaryOn condition.
         jIn = voi[3];
@@ -344,7 +345,7 @@ void vtkExtractGrid::Execute()
       jOffset = (jIn-inExt[2]) * inInc1;
       for ( i=uExt[0]; i <= uExt[1]; ++i)
         { // Convert out coords to in coords.
-        iIn = voi[0] + ((i-outWholeExt[0])*rate[0]);
+        iIn = outWholeExt[0] + ((i-outWholeExt[0])*rate[0]);
         if (iIn > voi[1])
           { // This handles the IncludeBoundaryOn condition.
           iIn = voi[1];
