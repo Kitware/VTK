@@ -1,5 +1,4 @@
 SOURCE_FILES ( Parallel_SRCS
-vtkArcPlotter 
 vtkBranchExtentTranslator 
 vtkCommunicator 
 vtkCutMaterial 

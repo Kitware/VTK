@@ -1,4 +1,5 @@
 SOURCE_FILES ( Hybrid_SRCS
+vtkArcPlotter 
 vtkCubeAxesActor2D 
 vtkDepthSortPolyData 
 vtkEarthSource 
