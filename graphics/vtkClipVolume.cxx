@@ -461,7 +461,7 @@ void vtkClipVolume::ClipVoxel(float value, vtkScalars *cellScalars,
       }
     else
       {
-      type = 1; //outside, but to be inserted anyway
+      type = 4; //no insert, but its type might change later
       }
 
     xPtr = cellPts->GetPoint(ptId);
