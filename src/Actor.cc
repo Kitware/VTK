@@ -58,7 +58,7 @@ vtkActor::vtkActor()
 vtkActor::~vtkActor()
 {
   if ( this->SelfCreatedProperty && this->Property != NULL) 
-    delete this->Property;
+    this->Property->Delete();
 }
 
 // Description:
@@ -86,7 +86,7 @@ void vtkActor::SetProperty(vtkProperty *lut)
 {
   if ( this->Property != lut ) 
     {
-    if ( this->SelfCreatedProperty ) delete this->Property;
+    if ( this->SelfCreatedProperty ) this->Property->Delete();
     this->SelfCreatedProperty = 0;
     this->Property = lut;
     this->Modified();

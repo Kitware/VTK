@@ -74,6 +74,7 @@ void vtkBrownianPoints::Execute()
   this->PointData.PassData(this->Input->GetPointData());
 
   this->GetPointData()->SetVectors(newVectors);
+  newVectors->Delete();
 }
 
 void vtkBrownianPoints::PrintSelf(ostream& os, vtkIndent indent)

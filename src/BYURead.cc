@@ -153,7 +153,10 @@ void vtkBYUReader::ReadGeometryFile(FILE *geomFile, int &numPts)
                  << numPolys << " polygons.");
 
   this->SetPoints(newPts);
+  newPts->Delete();
+
   this->SetPolys(newPolys);
+  newPolys->Delete();
 }
 
 void vtkBYUReader::ReadDisplacementFile(int numPts)
@@ -186,6 +189,7 @@ void vtkBYUReader::ReadDisplacementFile(int numPts)
   vtkDebugMacro(<<"Read " << numPts << " displacements");
 
   this->PointData.SetVectors(newVectors);
+  newVectors->Delete();
 }
 
 void vtkBYUReader::ReadScalarFile(int numPts)
@@ -218,6 +222,7 @@ void vtkBYUReader::ReadScalarFile(int numPts)
   vtkDebugMacro(<<"Read " << numPts << " scalars");
 
   this->PointData.SetScalars(newScalars);
+  newScalars->Delete();
 }
 
 void vtkBYUReader::ReadTextureFile(int numPts)
@@ -250,6 +255,7 @@ void vtkBYUReader::ReadTextureFile(int numPts)
   vtkDebugMacro(<<"Read " << numPts << " texture coordinates");
 
   this->PointData.SetTCoords(newTCoords);
+  newTCoords->Delete();
 }
 
 void vtkBYUReader::PrintSelf(ostream& os, vtkIndent indent)

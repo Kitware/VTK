@@ -141,22 +141,19 @@ void vtkContourFilter::Execute()
 // polys we've created, take care to reclaim memory. 
 //
   this->SetPoints(newPts);
+  newPts->Delete();
+
   this->PointData.SetScalars(newScalars);
+  newScalars->Delete();
 
-  if (newVerts->GetNumberOfCells()) 
-    this->SetVerts(newVerts);
-  else
-    delete newVerts;
+  if (newVerts->GetNumberOfCells()) this->SetVerts(newVerts);
+  newVerts->Delete();
 
-  if (newLines->GetNumberOfCells()) 
-    this->SetLines(newLines);
-  else
-    delete newLines;
+  if (newLines->GetNumberOfCells()) this->SetLines(newLines);
+  newLines->Delete();
 
-  if (newPolys->GetNumberOfCells()) 
-    this->SetPolys(newPolys);
-  else
-    delete newPolys;
+  if (newPolys->GetNumberOfCells()) this->SetPolys(newPolys);
+  newPolys->Delete();
 
   this->Squeeze();
 }

@@ -291,10 +291,13 @@ void vtkCursor3D::Execute()
       }
     }
 //
-// Update ourselves
+// Update ourselves and release memory
 //
   this->SetPoints(newPts);
+  newPts->Delete();
+
   this->SetLines(newLines);
+  newLines->Delete();
 }
 
 // Description:

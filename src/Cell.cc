@@ -14,6 +14,15 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include "Cell.hh"
+
+// Description:
+// Construct cell.
+vtkCell::vtkCell():
+Points(MAX_CELL_SIZE), PointIds(MAX_CELL_SIZE)
+{
+  this->Points.ReferenceCountingOff();
+}  
+
 //
 // Instantiate cell from outside
 //

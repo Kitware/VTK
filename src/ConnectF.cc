@@ -144,7 +144,7 @@ void vtkConnectivityFilter::Execute()
   vtkDebugMacro (<<"Exceeded recursion depth " << NumExceededMaxDepth 
                 << " times\n");
 
-  delete RecursionSeeds;
+  RecursionSeeds->Delete();
 //
 // Now that points and cells have been marked, traverse these lists pulling
 // everything that has been visited.
@@ -165,9 +165,10 @@ void vtkConnectivityFilter::Execute()
 
   // if coloring regions; send down new scalar data
   if ( this->ColorRegions ) this->PointData.SetScalars(NewScalars);
-  else delete NewScalars;
+  NewScalars->Delete();
 
   this->SetPoints(newPts);
+  newPts->Delete();
 //
 // Create output cells
 //

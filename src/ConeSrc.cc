@@ -136,15 +136,18 @@ void vtkConeSource::Execute()
 // Update ourselves
 //
   this->SetPoints(newPoints);
+  newPoints->Delete();
 
   if ( newPolys )
     {
     newPolys->Squeeze(); // we may have estimated size; reclaim some space
     this->SetPolys(newPolys);
+    newPolys->Delete();
     }
   else
     {
     this->SetLines(newLines);
+    newLines->Delete();
     }
 }
 

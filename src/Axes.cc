@@ -88,14 +88,20 @@ void vtkAxes::Execute()
   newScalars->InsertNextScalar(0.5);
   newNormals->InsertNextNormal(n);
   newLines->InsertNextCell(2,ptIds);
-
 //
-// Update self
+// Update self and release memory
 // 
   this->SetPoints(newPts);
+  newPts->Delete();
+
   this->PointData.SetScalars(newScalars);
+  newScalars->Delete();
+
   this->PointData.SetNormals(newNormals);
+  newNormals->Delete();
+
   this->SetLines(newLines);
+  newLines->Delete();
 }
 
 void vtkAxes::PrintSelf(ostream& os, vtkIndent indent)

@@ -48,7 +48,7 @@ void vtkTensorGlyph::Execute()
   int inPtId, i, j;
   vtkPoints *sourcePts;
   vtkNormals *sourceNormals;
-  vtkCellArray *sourceCells;  
+  vtkCellArray *sourceCells, *cells;  
   vtkFloatPoints *newPts;
   vtkFloatScalars *newScalars=NULL;
   vtkFloatNormals *newNormals=NULL;
@@ -96,19 +96,27 @@ void vtkTensorGlyph::Execute()
   // Setting up for calls to PolyData::InsertNextCell()
   if ( (sourceCells=this->Source->GetVerts())->GetNumberOfCells() > 0 )
     {
-    this->SetVerts(new vtkCellArray(numPts*sourceCells->GetSize()));
+    cells = new vtkCellArray(numPts*sourceCells->GetSize());
+    this->SetVerts(cells);
+    cells->Delete();
     }
   if ( (sourceCells=this->Source->GetLines())->GetNumberOfCells() > 0 )
     {
-    this->SetLines(new vtkCellArray(numPts*sourceCells->GetSize()));
+    cells = new vtkCellArray(numPts*sourceCells->GetSize());
+    this->SetLines(cells);
+    cells->Delete();
     }
   if ( (sourceCells=this->Source->GetPolys())->GetNumberOfCells() > 0 )
     {
-    this->SetPolys(new vtkCellArray(numPts*sourceCells->GetSize()));
+    cells = new vtkCellArray(numPts*sourceCells->GetSize());
+    this->SetPolys(cells);
+    cells->Delete();
     }
   if ( (sourceCells=this->Source->GetStrips())->GetNumberOfCells() > 0 )
     {
-    this->SetStrips(new vtkCellArray(numPts*sourceCells->GetSize()));
+    cells = new vtkCellArray(numPts*sourceCells->GetSize());
+    this->SetStrips(cells);
+    cells->Delete();
     }
 
   // only copy scalar data through
@@ -242,8 +250,20 @@ void vtkTensorGlyph::Execute()
 // Update ourselves
 //
   this->SetPoints(newPts);
-  if ( newScalars ) this->PointData.SetScalars(newScalars);
-  if ( newNormals ) this->PointData.SetNormals(newNormals);
+  newPts->Delete();
+
+  if ( newScalars )
+    {
+    this->PointData.SetScalars(newScalars);
+    newScalars->Delete();
+    }
+
+  if ( newNormals )
+    {
+    this->PointData.SetNormals(newNormals);
+    newNormals->Delete();
+    }
+
   this->Squeeze();
 }
 

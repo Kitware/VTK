@@ -163,9 +163,11 @@ void vtkAppendFilter::Execute()
       this->InsertNextCell(ds->GetCellType(cellId),newPtIds);
       }
     }
-
-// Update ourselves
+//
+// Update ourselves and release memory
+//
   this->SetPoints(newPts);
+  newPts->Delete();
 }
 
 void vtkAppendFilter::PrintSelf(ostream& os, vtkIndent indent)

@@ -199,21 +199,22 @@ void vtkAppendPolyData::Execute()
       }
     }
 //
-// Update ourselves
+// Update ourselves and release memory
 //
   this->SetPoints(newPts);
+  newPts->Delete();
 
   if ( newVerts->GetNumberOfCells() > 0 ) this->SetVerts(newVerts);
-  else delete newVerts;
+  newVerts->Delete();
 
   if ( newLines->GetNumberOfCells() > 0 ) this->SetLines(newLines);
-  else delete newLines;
+  newLines->Delete();
 
   if ( newPolys->GetNumberOfCells() > 0 ) this->SetPolys(newPolys);
-  else delete newPolys;
+  newPolys->Delete();
 
   if ( newStrips->GetNumberOfCells() > 0 ) this->SetStrips(newStrips);
-  else delete newStrips;
+  newStrips->Delete();
 
   this->Squeeze();
 }

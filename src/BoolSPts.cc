@@ -162,15 +162,14 @@ void vtkBooleanStructuredPoints::InitializeBoolean()
 
   if ( inScalars != NULL )
     {
-    newScalars = inScalars->MakeObject(numPts);
-    this->PointData.SetScalars(newScalars);
-    newScalars->Delete();
+    newScalars = inScalars->MakeObject(numPts); //copy
     }
   else
     {
     newScalars = new vtkFloatScalars(numPts);
-    this->PointData.SetScalars(newScalars);
     }
+  this->PointData.SetScalars(newScalars);
+  newScalars->Delete();
 
 }
 

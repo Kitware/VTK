@@ -88,6 +88,7 @@ void vtkBooleanTexture::Execute()
 // Update ourselves
 //
   this->PointData.SetScalars(newScalars);
+  newScalars->Delete();
 }
 
 void vtkBooleanTexture::PrintSelf(ostream& os, vtkIndent indent)
