@@ -92,7 +92,7 @@ void vtkVoxelModeller::Execute()
   vtkCell *cell;
   float maxDistance, pcoords[3];
   vtkScalars *newScalars;
-  int numPts, idx;
+  int numPts, idx, numCells;
   int subId;
   int min[3], max[3];
   float x[3], distance2;
@@ -119,11 +119,15 @@ void vtkVoxelModeller::Execute()
 //
 // Voxel widths are 1/2 the height, width, length of a voxel
 //
-  for (i=0; i < 3; i++) voxelHalfWidth[i] = spacing[i] / 2.0;
+  for (i=0; i < 3; i++)
+    {
+    voxelHalfWidth[i] = spacing[i] / 2.0;
+    }
 //
 // Traverse all cells; computing distance function on volume points.
 //
-  for (cellNum=0; cellNum < input->GetNumberOfCells(); cellNum++)
+  numCells = input->GetNumberOfCells();
+  for (cellNum=0; cellNum < numCells; cellNum++)
     {
     cell = input->GetCell(cellNum);
     bounds = cell->GetBounds();
@@ -140,8 +144,14 @@ void vtkVoxelModeller::Execute()
                       spacing[i]);
       max[i] = (int) ((float)(adjBounds[2*i+1] - origin[i]) / 
                       spacing[i]);
-      if (min[i] < 0) min[i] = 0;
-      if (max[i] >= this->SampleDimensions[i]) max[i] = this->SampleDimensions[i] - 1;
+      if (min[i] < 0)
+	{
+	min[i] = 0;
+	}
+      if (max[i] >= this->SampleDimensions[i])
+	{
+	max[i] = this->SampleDimensions[i] - 1;
+	}
       }
 
     jkFactor = this->SampleDimensions[0]*this->SampleDimensions[1];
@@ -197,9 +207,12 @@ float vtkVoxelModeller::ComputeModelBounds(float origin[3], float spacing[3])
     }
 
   for (maxDist=0.0, i=0; i<3; i++)
+    {
     if ( (bounds[2*i+1] - bounds[2*i]) > maxDist )
+      {
       maxDist = bounds[2*i+1] - bounds[2*i];
-
+      }
+    }
   maxDist *= this->MaximumDistance;
 
   // adjust bounds so model fits strictly inside (only if not set previously)
@@ -241,25 +254,31 @@ void vtkVoxelModeller::SetSampleDimensions(int dim[3])
 
   vtkDebugMacro(<< " setting SampleDimensions to (" << dim[0] << "," << dim[1] << "," << dim[2] << ")");
 
-  if ( dim[0] != this->SampleDimensions[0] || dim[1] != SampleDimensions[1] ||
-  dim[2] != SampleDimensions[2] )
+  if ( dim[0] != this->SampleDimensions[0] || dim[1] != this->SampleDimensions[1] ||
+  dim[2] != this->SampleDimensions[2] )
     {
     if ( dim[0]<1 || dim[1]<1 || dim[2]<1 )
       {
       vtkErrorMacro (<< "Bad Sample Dimensions, retaining previous values");
       return;
       }
-
-    for (dataDim=0, i=0; i<3 ; i++) if (dim[i] > 1) dataDim++;
-
+    for (dataDim=0, i=0; i<3 ; i++)
+      {
+      if (dim[i] > 1)
+	{
+        dataDim++;
+	}
+      }
     if ( dataDim  < 3 )
       {
       vtkErrorMacro(<<"Sample dimensions must define a volume!");
       return;
       }
 
-    for ( i=0; i<3; i++) this->SampleDimensions[i] = dim[i];
-
+    for ( i=0; i<3; i++)
+      {
+      this->SampleDimensions[i] = dim[i];
+      }
     this->Modified();
     }
 }
@@ -307,7 +326,9 @@ void vtkVoxelModeller::Write(char *fname)
   uc = 0x00;
 
   for (k = 0; k < this->SampleDimensions[2]; k++)
+    {
     for (j = 0; j < this->SampleDimensions[1]; j++)
+      {
       for (i = 0; i < this->SampleDimensions[0]; i++)
 	{
 	if (newScalars->GetScalar(idx))
@@ -323,6 +344,8 @@ void vtkVoxelModeller::Write(char *fname)
 	  }
 	idx++;
 	}
+      }
+    }
   if (bitcount)
     {
     fputc(uc,fp);
