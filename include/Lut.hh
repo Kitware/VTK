@@ -73,10 +73,14 @@ public:
   vlGetVectorMacro(AlphaRange,float,2);
 
   unsigned char *MapValue(float v);
-  void SetTableValue (int indx, unsigned char rgba[4]);
-  void SetTableValue (int indx, unsigned char r, unsigned char g, unsigned char b, unsigned char a=255);
-  unsigned char *GetTableValue (int id);
-  void GetTableValue (int id, unsigned char rgba[4]);
+
+  void SetTableValue (int indx, float rgba[4]);
+  void SetTableValue (int indx, float r, float g, float b, float a=1.0);
+
+  float *GetTableValue (int id);
+  void GetTableValue (int id, float rgba[4]);
+
+  unsigned char *GetPtr(const int id);
   unsigned char *WritePtr(const int id, const int number);
 
 protected:
@@ -91,6 +95,13 @@ protected:
   vlTimeStamp BuildTime;
 };
 
+// Description:
+// Get pointer to color table data. Format is array of unsigned char
+// r-g-b-a-r-g-b-a...
+inline unsigned char *vlLookupTable::GetPtr(const int id)
+{
+  return this->Table.GetPtr(id);
+}
 // Description:
 // Get pointer to data. Useful for direct writes into object. MaxId is bumped
 // by number (and memory allocated if necessary). Id is the location you 
