@@ -2,5 +2,7 @@
 #define __vtk_SystemInformation_h
 
 #define VTK_BINARY_DIR "@VTK_BINARY_DIR@"
+#define VTKTesting_BUILD_NAME "@BUILDNAME@"
+#define VTKTesting_SITE "@SITE@"
 
 #endif
