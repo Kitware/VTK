@@ -1,4 +1,4 @@
-PROJECT (Cylinder)
+PROJECT (Rendering)
 
 INCLUDE (${CMAKE_ROOT}/Modules/FindVTK.cmake)
 IF (USE_VTK_FILE)
@@ -10,4 +10,7 @@ TARGET_LINK_LIBRARIES(Cylinder vtkRendering)
 
 ADD_EXECUTABLE(SpecularSpheres SpecularSpheres.cxx)
 TARGET_LINK_LIBRARIES(SpecularSpheres vtkRendering)
+
+ADD_EXECUTABLE(DiffuseSpheres DiffuseSpheres.cxx)
+TARGET_LINK_LIBRARIES(DiffuseSpheres vtkRendering)
 
