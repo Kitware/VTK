@@ -64,8 +64,6 @@ class VTK_EXPORT vtkOpenGLRenderer : public vtkRenderer
 
   void ClearLights(void);
 
-  int UpdateVolumes(void);
-  int UpdateCameras(void);
   int UpdateLights(void);
 
   // stereo related stuff

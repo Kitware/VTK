@@ -70,8 +70,6 @@ public:
 
   void DeviceRender(void);
 
-  int UpdateVolumes(void);
-  int UpdateCameras(void);
   int UpdateLights(void);
 
   Xgl_3d_ctx *GetContext() {return &(this->Context);};

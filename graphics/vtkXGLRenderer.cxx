@@ -54,44 +54,6 @@ vtkXGLRenderer::vtkXGLRenderer()
   this->NumberOfLightsBound = 0;
 }
 
-
-// Description:
-// Ask volumes to render themselves.
-int vtkXGLRenderer::UpdateVolumes()
-{
-  int volume_count=0;    // Number of visible volumes
-
-  volume_count = this->VisibleVolumeCount();
-
-  // Render the volumes
-  if ( volume_count > 0 )
-    {
-
-    // Render the volume
-    this->RayCaster->Render((vtkRenderer *)this);
-
-    }
-
-  return volume_count;
-}
-
-// Description:
-// Ask active camera to load its view matrix.
-int vtkXGLRenderer::UpdateCameras ()
-{
-  if (!this->ActiveCamera)
-    {
-    vtkDebugMacro(<< "No cameras are on, creating one.");
-    // the get method will automagically create a camera
-    // and reset it since one hasn't been specified yet
-    this->GetActiveCamera();
-    }
-
-  // update the viewing transformation   
-  this->ActiveCamera->Render((vtkRenderer *)this);
-  return 1;
-}
-
 // Description:
 // Ask lights to load themselves into graphics pipeline.
 int vtkXGLRenderer::UpdateLights ()

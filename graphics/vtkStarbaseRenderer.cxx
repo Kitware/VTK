@@ -62,24 +62,6 @@ int vtkStarbaseRenderer::UpdateVolumes()
 }
 
 // Description:
-// Ask active camera to load its view matrix.
-int vtkStarbaseRenderer::UpdateCameras ()
-{
-  // update the viewing transformation 
-  if (!this->ActiveCamera)
-    {
-    vtkDebugMacro(<< "No cameras are on, creating one.");
-    // the get method will automagically create a camera
-    // and reset it since one hasn't been specified yet
-    this->GetActiveCamera();
-    }
-  
-  this->ActiveCamera->Render((vtkRenderer *)this);
-
-  return 1;
-}
-
-// Description:
 // Internal method temporarily removes lights before reloading them
 // into graphics pipeline.
 void vtkStarbaseRenderer::ClearLights (void)

@@ -64,7 +64,6 @@ public:
   void DeviceRender(void);
   void ClearLights(void);
 
-  int UpdateCameras(void);
   int UpdateLights(void);
   int UpdateVolumes(void);
 
