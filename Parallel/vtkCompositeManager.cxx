@@ -44,7 +44,7 @@
  #include <mpi.h>
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeManager, "1.37");
+vtkCxxRevisionMacro(vtkCompositeManager, "1.38");
 vtkStandardNewMacro(vtkCompositeManager);
 
 
@@ -98,8 +98,9 @@ vtkCompositeManager::vtkCompositeManager()
   if (this->Controller)
     {
     this->Controller->Register(this);
+    this->NumberOfProcesses = this->Controller->GetNumberOfProcesses();
     }
-  this->NumberOfProcesses = this->Controller->GetNumberOfProcesses();
+  this->NumberOfProcesses = 1;
 
   this->RendererSize[0] = this->RendererSize[1] = 0;
 
@@ -237,9 +238,8 @@ void vtkCompositeManagerResetCamera(vtkObject *caller,
 }
 
 //-------------------------------------------------------------------------
-void vtkCompositeManagerResetCameraClippingRange(vtkObject *caller, 
-                                                 unsigned long vtkNotUsed(event), 
-                                                 void *clientData, void *)
+void vtkCompositeManagerResetCameraClippingRange(
+  vtkObject *caller, unsigned long vtkNotUsed(event),void *clientData, void *)
 {
   vtkCompositeManager *self = (vtkCompositeManager *)clientData;
   vtkRenderer *ren = (vtkRenderer*)caller;
@@ -264,7 +264,8 @@ void vtkCompositeManagerRenderRMI(void *arg, void *, int, int)
 }
 
 //----------------------------------------------------------------------------
-void vtkCompositeManagerComputeVisiblePropBoundsRMI(void *arg, void *, int, int)
+void vtkCompositeManagerComputeVisiblePropBoundsRMI(void *arg, void *, 
+                                                    int, int)
 {
   vtkCompositeManager* self = (vtkCompositeManager*) arg;
   
@@ -325,8 +326,8 @@ void vtkCompositeManager::SetRenderWindow(vtkRenderWindow *renWin)
     if (this->Controller)
       {
       // In case a subclass wants to check for aborts.
-      this->RenderWindow->SetAbortCheckMethod(vtkCompositeManagerAbortRenderCheck,
-                                              (void*)this);
+      this->RenderWindow->SetAbortCheckMethod(
+        vtkCompositeManagerAbortRenderCheck,(void*)this);
       if (this->Controller && this->Controller->GetLocalProcessId() == 0)
         {
         vtkCallbackCommand *cbc;
@@ -345,7 +346,8 @@ void vtkCompositeManager::SetRenderWindow(vtkRenderWindow *renWin)
         this->EndTag = renWin->AddObserver(vtkCommand::EndEvent,cbc);
         cbc->Delete();
         
-        // Will make do with first renderer. (Assumes renderer does not change.)
+        // Will make do with first renderer. (Assumes renderer does
+        // not change.)
         rens = this->RenderWindow->GetRenderers();
         rens->InitTraversal();
         ren = rens->GetNextItem();
@@ -374,10 +376,10 @@ void vtkCompositeManager::SetRenderWindow(vtkRenderWindow *renWin)
         // This is here for some reason?
         // ren = ren; 
 #ifdef _WIN32
-        // I had a problem with some graphics cards getting front and back
-        // buffers mixed up, so I made the remote render windows single
-        // buffered. One nice feature of this is being able to see the
-        // render in these helper windows.
+        // I had a problem with some graphics cards getting front and
+        // back buffers mixed up, so I made the remote render windows
+        // single buffered. One nice feature of this is being able to
+        // see the render in these helper windows.
         vtkWin32OpenGLRenderWindow *renWin;
   
         renWin = vtkWin32OpenGLRenderWindow::SafeDownCast(this->RenderWindow);
@@ -467,7 +469,8 @@ void vtkCompositeManager::SetCompositer(vtkCompositer *c)
 // Only satelite processes process interactor loops specially.
 // We only setup callbacks in those processes (not process 0).
 void 
-vtkCompositeManager::SetRenderWindowInteractor(vtkRenderWindowInteractor *iren)
+vtkCompositeManager::SetRenderWindowInteractor(
+  vtkRenderWindowInteractor *iren)
 {
   if (this->RenderWindowInteractor == iren)
     {
@@ -537,9 +540,9 @@ void vtkCompositeManager::RenderRMI()
     {
     // Receive the camera information.
 
-    // We put this before receive because we want the pipeline
-    // to be updated the first time if the camera does not
-    // exist and we want it to happen before we block in receive
+    // We put this before receive because we want the pipeline to be
+    // updated the first time if the camera does not exist and we want
+    // it to happen before we block in receive
     ren = rens->GetNextItem();
     if (ren)
       {
@@ -656,7 +659,8 @@ void vtkCompositeManager::ExitInteractor()
   numProcs = this->Controller->GetNumberOfProcesses();
   for (id = 1; id < numProcs; ++id)
     {
-    this->Controller->TriggerRMI(id, vtkMultiProcessController::BREAK_RMI_TAG);
+    this->Controller->TriggerRMI(id, 
+                                 vtkMultiProcessController::BREAK_RMI_TAG);
     }
 }
 
@@ -707,7 +711,8 @@ void vtkCompositeManager::StartRender()
     winInfo.ReductionFactor = this->ReductionFactor;
     vtkRenderer* renderer =
       ((vtkRenderer*)this->RenderWindow->GetRenderers()->GetItemAsObject(0));
-    renderer->SetViewport(0, 0, 1.0/this->ReductionFactor, 1.0/this->ReductionFactor);
+    renderer->SetViewport(0, 0, 1.0/this->ReductionFactor, 
+                          1.0/this->ReductionFactor);
     }
   else
     {
@@ -732,7 +737,8 @@ void vtkCompositeManager::StartRender()
     {
     if (this->Manual == 0)
       {
-      controller->TriggerRMI(id, NULL, 0, vtkCompositeManager::RENDER_RMI_TAG);
+      controller->TriggerRMI(id, NULL, 0, 
+                             vtkCompositeManager::RENDER_RMI_TAG);
       }
     // Synchronize the size of the windows.
     controller->Send((char*)(&winInfo), 
@@ -741,8 +747,8 @@ void vtkCompositeManager::StartRender()
     }
   
   // Make sure the satellite renderers have the same camera I do.
-  // Note:  This will lockup unless every process 
-  // has the same number of renderers.
+  // Note: This will lockup unless every process has the same number
+  // of renderers.
   rens->InitTraversal();
   while ( (ren = rens->GetNextItem()) )
     {
@@ -777,8 +783,8 @@ void vtkCompositeManager::StartRender()
       }
     }
   
-  // Turn swap buffers off before the render so the end render method has a chance
-  // to add to the back buffer.
+  // Turn swap buffers off before the render so the end render method
+  // has a chance to add to the back buffer.
   renWin->SwapBuffersOff();
 
   vtkTimerLog::MarkStartEvent("Render Geometry");
@@ -819,8 +825,8 @@ void vtkCompositeManager::EndRender()
     }
   else
     {
-    // Stop the timer that has been timing the render.
-    // Normally done in composite.
+    // Stop the timer that has been timing the render.  Normally done
+    // in composite.
     this->Timer->StopTimer();
     this->MaxRenderTime = this->Timer->GetElapsedTime();
     }
@@ -1115,20 +1121,22 @@ void vtkCompositeManager::ReallocPDataArrays()
   if (this->UseChar)
     {
     this->PData = vtkUnsignedCharArray::New();
-    vtkCompositeManager::ResizeUnsignedCharArray(static_cast<vtkUnsignedCharArray*>(this->PData),
-                                                 numComps, numTuples);
+    vtkCompositeManager::ResizeUnsignedCharArray(
+      static_cast<vtkUnsignedCharArray*>(this->PData),
+      numComps, numTuples);
     this->LocalPData = vtkUnsignedCharArray::New();
-    vtkCompositeManager::ResizeUnsignedCharArray(static_cast<vtkUnsignedCharArray*>(this->LocalPData),
-                                                 numComps, numTuples);
+    vtkCompositeManager::ResizeUnsignedCharArray(
+      static_cast<vtkUnsignedCharArray*>(this->LocalPData),
+      numComps, numTuples);
     }
   else 
     {
     this->PData = vtkFloatArray::New();
-    vtkCompositeManager::ResizeFloatArray(static_cast<vtkFloatArray*>(this->PData),
-                                          numComps, numTuples);
+    vtkCompositeManager::ResizeFloatArray(
+      static_cast<vtkFloatArray*>(this->PData),numComps, numTuples);
     this->LocalPData = vtkFloatArray::New();
-    vtkCompositeManager::ResizeFloatArray(static_cast<vtkFloatArray*>(this->LocalPData),
-                                          numComps, numTuples);
+    vtkCompositeManager::ResizeFloatArray(
+      static_cast<vtkFloatArray*>(this->LocalPData),numComps, numTuples);
     }
 }
 
@@ -1156,14 +1164,16 @@ void vtkCompositeManager::SetRendererSize(int x, int y)
         {
         this->PData = vtkUnsignedCharArray::New();
         }
-      vtkCompositeManager::ResizeUnsignedCharArray(static_cast<vtkUnsignedCharArray*>(this->PData), 
-                                                   numComps, numPixels);
+      vtkCompositeManager::ResizeUnsignedCharArray(
+        static_cast<vtkUnsignedCharArray*>(this->PData), 
+        numComps, numPixels);
       if (!this->LocalPData)
         {
         this->LocalPData = vtkUnsignedCharArray::New();
         }
-      vtkCompositeManager::ResizeUnsignedCharArray(static_cast<vtkUnsignedCharArray*>(this->LocalPData), 
-                                                   numComps, numPixels);
+      vtkCompositeManager::ResizeUnsignedCharArray(
+        static_cast<vtkUnsignedCharArray*>(this->LocalPData), 
+        numComps, numPixels);
       }
     else
       {
@@ -1171,14 +1181,16 @@ void vtkCompositeManager::SetRendererSize(int x, int y)
         {
         this->PData = vtkFloatArray::New();
         }
-      vtkCompositeManager::ResizeFloatArray(static_cast<vtkFloatArray*>(this->PData), 
-                                            numComps, numPixels);
+      vtkCompositeManager::ResizeFloatArray(
+        static_cast<vtkFloatArray*>(this->PData), 
+        numComps, numPixels);
       if (!this->LocalPData)
         {
         this->LocalPData = vtkFloatArray::New();
         }
-      vtkCompositeManager::ResizeFloatArray(static_cast<vtkFloatArray*>(this->LocalPData), 
-                                            numComps, numPixels);
+      vtkCompositeManager::ResizeFloatArray(
+        static_cast<vtkFloatArray*>(this->LocalPData), 
+        numComps, numPixels);
       }
 
     if (!this->ZData)
@@ -1301,32 +1313,26 @@ void vtkCompositeManager::Composite()
     if (this->LocalPData->GetNumberOfComponents() == 4)
       {
       vtkTimerLog::MarkStartEvent("Get RGBA Char Buffer");
-      this->RenderWindow->GetRGBACharPixelData(0,0,
-                             this->RendererSize[0]-1,
-                             this->RendererSize[1]-1, 
-                             front,
-                             static_cast<vtkUnsignedCharArray*>(this->LocalPData));
+      this->RenderWindow->GetRGBACharPixelData(
+        0,0,this->RendererSize[0]-1,this->RendererSize[1]-1, 
+        front,static_cast<vtkUnsignedCharArray*>(this->LocalPData));
       vtkTimerLog::MarkEndEvent("Get RGBA Char Buffer");
       }
     else if (this->LocalPData->GetNumberOfComponents() == 3)
       {
       vtkTimerLog::MarkStartEvent("Get RGB Char Buffer");
-      this->RenderWindow->GetPixelData(0,0,
-                               this->RendererSize[0]-1,
-                               this->RendererSize[1]-1, 
-                               front,
-                               static_cast<vtkUnsignedCharArray*>(this->LocalPData));
+      this->RenderWindow->GetPixelData(
+        0,0,this->RendererSize[0]-1,this->RendererSize[1]-1, 
+        front,static_cast<vtkUnsignedCharArray*>(this->LocalPData));
       vtkTimerLog::MarkEndEvent("Get RGB Char Buffer");
       }
     } 
   else 
     {
     vtkTimerLog::MarkStartEvent("Get RGBA Float Buffer");
-    this->RenderWindow->GetRGBAPixelData(0,0,
-                           this->RendererSize[0]-1, 
-                           this->RendererSize[1]-1, 
-                           front,
-                           static_cast<vtkFloatArray*>(this->LocalPData));
+    this->RenderWindow->GetRGBAPixelData(
+      0,0,this->RendererSize[0]-1,this->RendererSize[1]-1, 
+      front,static_cast<vtkFloatArray*>(this->LocalPData));
     vtkTimerLog::MarkEndEvent("Get RGBA Float Buffer");
     }
   
@@ -1367,13 +1373,15 @@ void vtkCompositeManager::Composite()
         {
         magPdata = vtkFloatArray::New();
         }
-      magPdata->SetNumberOfComponents(this->LocalPData->GetNumberOfComponents());
+      magPdata->SetNumberOfComponents(
+        this->LocalPData->GetNumberOfComponents());
       vtkTimerLog::MarkStartEvent("Magnify Buffer");
       this->MagnifyBuffer(this->LocalPData, magPdata, windowSize);
       vtkTimerLog::MarkEndEvent("Magnify Buffer");
       
       vtkRenderer* renderer =
-        ((vtkRenderer*)this->RenderWindow->GetRenderers()->GetItemAsObject(0));
+        ((vtkRenderer*)
+         this->RenderWindow->GetRenderers()->GetItemAsObject(0));
       renderer->SetViewport(0, 0, 1.0, 1.0);
       renderer->GetActiveCamera()->UpdateViewport(renderer);
       }
@@ -1420,10 +1428,9 @@ void vtkCompositeManager::Composite()
       else
         {
         vtkTimerLog::MarkStartEvent("Set RGBA Float Buffer");
-        this->RenderWindow->SetRGBAPixelData(0, 0, windowSize[0]-1, 
-                                windowSize[1]-1,
-                                static_cast<vtkFloatArray*>(this->LocalPData), 
-                                0);
+        this->RenderWindow->SetRGBAPixelData(
+          0, 0, windowSize[0]-1, windowSize[1]-1,
+          static_cast<vtkFloatArray*>(this->LocalPData), 0);
         vtkTimerLog::MarkEndEvent("Set RGBA Float Buffer");
         }
       }
