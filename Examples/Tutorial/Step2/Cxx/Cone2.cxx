@@ -10,6 +10,7 @@
 
 class myCallback : public vtkCommand
 {
+public:
   static myCallback *New() {
     return new myCallback; }
   virtual void Execute(vtkObject *caller, unsigned long, void *callData)
@@ -45,7 +46,7 @@ int main( int argc, char *argv[] )
   // eventually free the observer
   myCallback *mo1 = myCallback::New();
   ren1->AddObserver(vtkCommand::StartEvent,mo1);
-  myCallback->Delete();
+  mo1->Delete();
   
   //
   // now we loop over 360 degreeees and render the cone each time
