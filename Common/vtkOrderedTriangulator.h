@@ -68,12 +68,12 @@
 
 #include "vtkObject.h"
 
-class vtkUnstructuredGrid;
-class vtkOTMesh;
-class vtkCellArray;
-class vtkHeap;
-class vtkIdList;
-class vtkPoints;
+class  vtkUnstructuredGrid;
+class  vtkCellArray;
+class  vtkHeap;
+class  vtkIdList;
+class  vtkPoints;
+struct vtkOTMesh;
 
 class VTK_COMMON_EXPORT vtkOrderedTriangulator : public vtkObject
 {
