@@ -211,17 +211,6 @@ static void vtkImageWin32ViewerRenderGray(vtkImageWin32Viewer *self,
   {
 	  inMax1 =  inMin1 - 1 + Size[1];
   }
-#if 0
-  if (self->GetOriginLocation() == VTK_IMAGE_VIEWER_LOWER_LEFT)
-    {
-    inInc1 = -inInc1;
-    inPtr = (T *)(region->GetScalarPointer(inMin0, inMax1));
-    }  
-#endif
-
-  // #### 8/15/97 by
-    inInc1 = -inInc1;
-    inPtr = (T *)(region->GetScalarPointer(inMin0, inMax1));
 
   // Loop through in regions pixels
   rowAdder = (4 - ((inMax0-inMin0 + 1)*3)%4)%4;
@@ -340,12 +329,6 @@ static void vtkImageWin32ViewerRenderFloatGray(vtkImageWin32Viewer *self,
 	  inMax1 =  inMin1 - 1 + Size[1];
   }
 
-  if (self->GetOriginLocation() == VTK_IMAGE_VIEWER_LOWER_LEFT)
-    {
-    inInc1 = -inInc1;
-    inPtr = (float *)(region->GetScalarPointer(inMin0, inMax1));
-    }  
-  
   // Loop through in regions pixels
   rowAdder = (4 - ((inMax0-inMin0 + 1)*3)%4)%4;
   inPtr1 = inPtr;
@@ -409,11 +392,6 @@ static void vtkImageWin32ViewerRenderColor(vtkImageWin32Viewer *self,
   lower = -shift;
   upper = lower + 255.0/scale;
 
-  if (self->GetOriginLocation() == VTK_IMAGE_VIEWER_LOWER_LEFT)
-    {
-    inInc1 = -inInc1;
-    }
-  
   // Loop through in regions pixels
   redPtr1 = redPtr;
   greenPtr1 = greenPtr;
@@ -583,8 +561,8 @@ void vtkImageWin32Viewer::RenderRegion(vtkImageRegion *region)
   BITMAP bm;
   GetObject(this->HBitmap, sizeof (BITMAP), (LPSTR) &bm);
 
-  vtkDebugMacro(<< "vtkImageWin32Viewer::RenderRegion - Bitmap width: " << bm.bmWidth);
-  vtkDebugMacro(<< "vtkImageWin32Viewer::RenderRegion - Bitmap height: " << bm.bmHeight);
+  // vtkDebugMacro(<< "vtkImageWin32Viewer::RenderRegion - Bitmap width: " << bm.bmWidth);
+  // vtkDebugMacro(<< "vtkImageWin32Viewer::RenderRegion - Bitmap height: " << bm.bmHeight);
 
   // create the DIBSection if not done already
   if (!this->HBitmap)
@@ -609,8 +587,8 @@ void vtkImageWin32Viewer::RenderRegion(vtkImageRegion *region)
    else if ((width != bm.bmWidth) || (height != bm.bmHeight))
      {
 
-	vtkDebugMacro(<< "vtkImageWin32Viewer::RenderRegion - Changing bitmap size to: "
-	   << width << "," << height << "(" << dataWidth*height << " bytes)");
+	// vtkDebugMacro(<< "vtkImageWin32Viewer::RenderRegion - Changing bitmap size to: "
+	//   << width << "," << height << "(" << dataWidth*height << " bytes)");
     	
     DeleteObject(this->HBitmap);
 
@@ -630,33 +608,24 @@ void vtkImageWin32Viewer::RenderRegion(vtkImageRegion *region)
                          DIB_RGB_COLORS, (void **)(&(this->DataOut)), NULL, 0);
 
      }
-   else 
-     {
-	   vtkDebugMacro(<<"vtkImageWin32Viewer::RenderRegion - No bitmap size change");
-     }
+   
+  int min = 0;
+  int max = 0;
+  int dim = 0;
+  region->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, min, max);
+  dim = max - min + 1;
 
-
-  if (this->ColorFlag)
+  if (dim > 1)    
     {
-    if (this->GetOriginLocation() == VTK_IMAGE_VIEWER_UPPER_LEFT)
-      {
+
       ptr0 = region->GetScalarPointer(extent[0], extent[2], 
 				      this->RedComponent);
       ptr1 = region->GetScalarPointer(extent[0], extent[2], 
 				      this->GreenComponent);
       ptr2 = region->GetScalarPointer(extent[0], extent[2], 
 				      this->BlueComponent);
-      }
-    else
-      {
-      ptr0 = region->GetScalarPointer(extent[0], extent[3], 
-				      this->RedComponent);
-      ptr1 = region->GetScalarPointer(extent[0], extent[3], 
-				      this->GreenComponent);
-      ptr2 = region->GetScalarPointer(extent[0], extent[3], 
-				      this->BlueComponent);
-      }
-    
+
+
     if ( ! ptr0 ||! ptr1 || ! ptr2)
       {
       vtkErrorMacro("Render: Could not get date. Check that RGB are in range");
@@ -725,6 +694,21 @@ void vtkImageWin32Viewer::RenderRegion(vtkImageRegion *region)
   
   compatDC = CreateCompatibleDC(this->DeviceContext);  
   hOldBitmap = (HBITMAP)SelectObject(compatDC,this->HBitmap);
+
+#if 0
+  // #####
+
+  vtkDebugMacro(<<"vtkWin32ImageMapper::RenderRegion - COLORES: " <<
+	              GetDeviceCaps(this->DeviceContext, COLORRES));
+
+  vtkDebugMacro(<<"vtkWin32ImageMapper::RenderRegion - NUMCOLORS: " <<
+	              GetDeviceCaps(this->DeviceContext, NUMCOLORS));
+
+  vtkDebugMacro(<<"vtkWin32ImageMapper::RenderRegion - PLANES: " <<
+	              GetDeviceCaps(this->DeviceContext, PLANES));
+
+#endif
+
   BitBlt(this->DeviceContext,0,0,width,height,compatDC,0,0,SRCCOPY);
   SelectObject(compatDC, hOldBitmap);
   DeleteDC(compatDC);
