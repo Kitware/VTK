@@ -44,20 +44,16 @@ IF (VTKMY_WRAP_TCL)
                          vtkCommonTCL
                          ${TCL_LIBRARY})
   IF (VTK_USE_HYBRID)
-    TARGET_LINK_LIBRARIES (vtkmyUnsortedTCL 
-                           vtkHybridTCL)
+    TARGET_LINK_LIBRARIES (vtkmyUnsortedTCL vtkHybridTCL)
   ENDIF (VTK_USE_HYBRID)
   IF (VTK_USE_PARALLEL)
-    TARGET_LINK_LIBRARIES (vtkmyUnsortedTCL 
-                           vtkParallelTCL)
+    TARGET_LINK_LIBRARIES (vtkmyUnsortedTCL vtkParallelTCL)
   ENDIF (VTK_USE_PARALLEL)
   IF (VTK_USE_PATENTED)
-    TARGET_LINK_LIBRARIES (vtkmyUnsortedTCL 
-                           vtkPatentedTCL)
+    TARGET_LINK_LIBRARIES (vtkmyUnsortedTCL vtkPatentedTCL)
   ENDIF (VTK_USE_PATENTED)
   IF (VTK_USE_RENDERING)
-    TARGET_LINK_LIBRARIES (vtkmyUnsortedTCL 
-                           vtkRenderingTCL)
+    TARGET_LINK_LIBRARIES (vtkmyUnsortedTCL vtkRenderingTCL)
   ENDIF (VTK_USE_RENDERING)
 ENDIF (VTKMY_WRAP_TCL)
 
@@ -95,20 +91,16 @@ IF (VTKMY_WRAP_PYTHON)
                            ${PYTHON_LIBRARY})
   ENDIF (WIN32)
   IF (VTK_USE_HYBRID)
-    TARGET_LINK_LIBRARIES (vtkmyUnsortedPython 
-                           vtkHybridPython)
+    TARGET_LINK_LIBRARIES (vtkmyUnsortedPython vtkHybridPython)
   ENDIF (VTK_USE_HYBRID)
   IF (VTK_USE_PARALLEL)
-    TARGET_LINK_LIBRARIES (vtkmyUnsortedPython 
-                           vtkParallelPython)
+    TARGET_LINK_LIBRARIES (vtkmyUnsortedPython vtkParallelPython)
   ENDIF (VTK_USE_PARALLEL)
   IF (VTK_USE_PATENTED)
-    TARGET_LINK_LIBRARIES (vtkmyUnsortedPython 
-                           vtkPatentedPython)
+    TARGET_LINK_LIBRARIES (vtkmyUnsortedPython vtkPatentedPython)
   ENDIF (VTK_USE_PATENTED)
   IF (VTK_USE_RENDERING)
-    TARGET_LINK_LIBRARIES (vtkmyUnsortedPython 
-                           vtkRenderingPython)
+    TARGET_LINK_LIBRARIES (vtkmyUnsortedPython vtkRenderingPython)
   ENDIF (VTK_USE_RENDERING)
 ENDIF (VTKMY_WRAP_PYTHON)
 
@@ -128,20 +120,16 @@ IF (VTKMY_WRAP_JAVA)
                          vtkmyCommonJava
                          vtkCommonJava)
   IF (VTK_USE_HYBRID)
-    TARGET_LINK_LIBRARIES (vtkmyUnsortedJava 
-                           vtkHybridJava)
+    TARGET_LINK_LIBRARIES (vtkmyUnsortedJava vtkHybridJava)
   ENDIF (VTK_USE_HYBRID)
   IF (VTK_USE_PARALLEL)
-    TARGET_LINK_LIBRARIES (vtkmyUnsortedJava 
-                           vtkParallelJava)
+    TARGET_LINK_LIBRARIES (vtkmyUnsortedJava vtkParallelJava)
   ENDIF (VTK_USE_PARALLEL)
   IF (VTK_USE_PATENTED)
-    TARGET_LINK_LIBRARIES (vtkmyUnsortedJava 
-                           vtkPatentedJava)
+    TARGET_LINK_LIBRARIES (vtkmyUnsortedJava vtkPatentedJava)
   ENDIF (VTK_USE_PATENTED)
   IF (VTK_USE_RENDERING)
-    TARGET_LINK_LIBRARIES (vtkmyUnsortedJava 
-                           vtkRenderingJava)
+    TARGET_LINK_LIBRARIES (vtkmyUnsortedJava vtkRenderingJava)
   ENDIF (VTK_USE_RENDERING)
 ENDIF (VTKMY_WRAP_JAVA)
 
@@ -161,22 +149,14 @@ LINK_LIBRARIES (
 )
 
 IF (VTK_USE_HYBRID)
-  LINK_LIBRARIES (
-    vtkHybrid 
- )
+  LINK_LIBRARIES (vtkHybrid)
 ENDIF (VTK_USE_HYBRID)
 IF (VTK_USE_PARALLEL)
-  LINK_LIBRARIES (
-    vtkParallel
- )
+  LINK_LIBRARIES (vtkParallel)
 ENDIF (VTK_USE_PARALLEL)
 IF (VTK_USE_PATENTED)
-  LINK_LIBRARIES (
-    vtkPatented
- )
+  LINK_LIBRARIES (vtkPatented)
 ENDIF (VTK_USE_PATENTED)
 IF (VTK_USE_RENDERING)
-  LINK_LIBRARIES (
-    vtkRendering
- )
+  LINK_LIBRARIES (vtkRendering)
 ENDIF (VTK_USE_RENDERING)
