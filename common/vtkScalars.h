@@ -131,8 +131,8 @@ public:
   // Set/Get the active scalar component. This ivar specifies which
   // value (or component) to use with multivalued scalars. Currently,
   // a scalar can have at most four components (assumed RGBA).
-  vtkSetClampMacro(ActiveComponent,int,0,3);
-  vtkGetMacro(ActiveComponent,int);
+  void SetActiveComponent(int i);
+  int GetActiveComponent();
 
   // Special computational methods.
 
@@ -213,7 +213,6 @@ protected:
 
   float Range[8];
   vtkTimeStamp ComputeTime;
-  int ActiveComponent; //for multiple component scalars, the current component
 
   // following stuff is used for converting scalars to colors
   float CurrentAlpha;
@@ -247,24 +246,24 @@ inline void vtkScalars::SetNumberOfComponents(int num)
 
 inline float vtkScalars::GetScalar(int id)
 {
-  return this->Data->GetComponent(id,this->ActiveComponent);
+  return this->Data->GetComponent(id,this->GetActiveComponent());
 }
 
 inline void vtkScalars::SetScalar(int id, float s)
 {
-  this->Data->SetComponent(id,this->ActiveComponent,s);
+  this->Data->SetComponent(id,this->GetActiveComponent(),s);
 }
 
 inline void vtkScalars::InsertScalar(int id, float s)
 {
-  this->Data->InsertComponent(id,this->ActiveComponent,s);
+  this->Data->InsertComponent(id,this->GetActiveComponent(),s);
 }
 
 inline int vtkScalars::InsertNextScalar(float s)
 {
   int tupleSize = this->Data->GetNumberOfComponents();
   int id=(this->Data->GetMaxId() + tupleSize)/tupleSize;
-  this->Data->InsertComponent(id,this->ActiveComponent,s);
+  this->Data->InsertComponent(id,this->GetActiveComponent(),s);
   return id;
 }
 
