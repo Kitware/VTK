@@ -87,7 +87,7 @@ $iren SetUserMethod {wm deiconify .vtkInteract};
 $iren Initialize;
 
 $renWin SetFilename "DelMesh.ppm";
-$renWin SaveImageAsPPM;
+#$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

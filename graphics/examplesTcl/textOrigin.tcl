@@ -9,10 +9,10 @@ vtkPolyMapper axesMapper;
 vtkActor axesActor;
     axesActor SetMapper axesMapper;
 
-vtkVectorText text;
-    text SetText "Origin";
+vtkVectorText atext;
+    atext SetText "Origin";
 vtkPolyMapper textMapper;
-    textMapper SetInput [text GetOutput];
+    textMapper SetInput [atext GetOutput];
 vtkFollower textActor;
     textActor SetMapper textMapper;
     textActor SetScale 0.0025 0.0025 0.0025
@@ -26,11 +26,14 @@ set iren [$renWin MakeRenderWindowInteractor];
 
 $ren1 AddActors axesActor;
 $ren1 AddActors textActor;
-
+[$ren1 GetActiveCamera] Zoom 1.6;
 $renWin Render;
 textActor SetCamera [$ren1 GetActiveCamera];
 
 $iren SetUserMethod {wm deiconify .vtkInteract};
 $iren Initialize;
+
+$renWin SetFilename "textOrigin.tcl.ppm";
+#$renWin SaveImageAsPPM;
 
 wm withdraw .;

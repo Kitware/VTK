@@ -52,7 +52,6 @@ vtkPolyConnectivityFilter conn
     conn SetInput [plane1 GetOutput];
     conn ScalarConnectivityOn;
     conn SetScalarRange 1.5 4.0
-    conn DebugOn;
 vtkPolyMapper plane1Map;
     plane1Map SetInput [conn GetOutput];
     eval plane1Map SetScalarRange [[pl3d GetOutput] GetScalarRange];
@@ -77,7 +76,7 @@ $ren1 AddActors wallActor;
 $ren1 AddActors finActor;
 $ren1 AddActors plane1Actor;
 $ren1 SetBackground 1 1 1;
-$renWin SetSize 500 500;
+$renWin SetSize 400 400;
 
 vtkCamera cam1;
   cam1 SetClippingRange 1.51176 75.5879;
@@ -93,7 +92,8 @@ $iren Initialize;
 # render the image
 #
 $iren SetUserMethod {wm deiconify .vtkInteract};
-#$renWin SetFilename "texThresh.tcl.ppm";
+
+$renWin SetFilename "polyConn.tcl.ppm";
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

@@ -60,11 +60,11 @@ set iren [$renWin MakeRenderWindowInteractor];
 $ren1 SetBackground 1 1 1;
 $ren1 AddActors contActor;
 $ren1 AddActors outlineActor;
-
+[$ren1 GetActiveCamera] Zoom 1.4
 $iren SetUserMethod {wm deiconify .vtkInteract};
 $iren Initialize;
 
-#$renWin SetFilename VisQuad.tcl.ppm;
+$renWin SetFilename scalarConn.tcl.ppm;
 #$renWin SaveImageAsPPM;
 
 wm withdraw .;

@@ -38,11 +38,9 @@ vtkRotationalExtrusionFilter extrude;
 vtkCleanPolyData clean;#get rid of seam
     clean SetInput [extrude GetOutput];
     clean SetTolerance 0.001;
-    clean DebugOn;
 vtkPolyNormals normals;
     normals SetInput [clean GetOutput];
     normals SetFeatureAngle 90;
-    normals DebugOn;
 vtkPolyMapper map;
     map SetInput [normals GetOutput];
 vtkActor sweep;
@@ -86,10 +84,12 @@ vtkCamera acam;
 
 $ren1 SetActiveCamera acam;
 
-$renWin SetSize 500 500;
+$renWin SetSize 400 400;
 $renWin Render;
 
 $iren SetUserMethod {wm deiconify .vtkInteract};
+$renWin SetFilename "sweptCurve.tcl.ppm";
+#$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

@@ -16,7 +16,6 @@ vtkContourFilter iso;
     iso GenerateValues 6 600 1200;
 vtkStripper stripper;
     stripper SetInput [iso GetOutput];
-    stripper DebugOn;
 vtkTubeFilter tuber;
     tuber SetInput [stripper GetOutput];
     tuber SetNumberOfSides 4;
@@ -50,12 +49,13 @@ set iren [$renWin MakeRenderWindowInteractor];
 $ren1 AddActors outlineActor;
 $ren1 AddActors isoActor;
 $ren1 SetBackground 1 1 1;
-$renWin SetSize 500 500;
+$renWin SetSize 400 400;
+[$ren1 GetActiveCamera] Zoom 1.4;
 $ren1 SetBackground 0.1 0.2 0.4;
 
 $iren Initialize;
 
-#$renWin SetFilename "headSlic.tcl.ppm";
+$renWin SetFilename "lineStrip.tcl.ppm";
 #$renWin SaveImageAsPPM;
 
 $iren SetUserMethod {wm deiconify .vtkInteract};

@@ -61,11 +61,14 @@ set slate_grey "0.4392 0.5020 0.5647"
 eval $ren1 SetBackground $slate_grey
 $ren1 AddActors cubeActor
 $ren1 AddActors texturedActor
+[$ren1 GetActiveCamera] Zoom 1.5;
 
 # render the image
 #
 $iren SetUserMethod {wm deiconify .vtkInteract};
 $iren Initialize;
+$renWin SetFilename "triangularTCoords.tcl.ppm";
+#$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

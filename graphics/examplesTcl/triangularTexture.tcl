@@ -67,11 +67,14 @@ vtkActor triangleActor
 
 $ren1 SetBackground .3 .7 .2
 $ren1 AddActors triangleActor
+[$ren1 GetActiveCamera] Zoom 1.5;
 
 # render the image
 #
 $iren SetUserMethod {wm deiconify .vtkInteract};
 $iren Initialize;
+$renWin SetFilename "triangularTexture.tcl.ppm";
+#$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

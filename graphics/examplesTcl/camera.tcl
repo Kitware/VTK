@@ -242,6 +242,11 @@ $iren Initialize;
 #$renWin SetFilename camera.tcl.ppm;
 #$renWin SaveImageAsPPM;
 
+#vtkVRMLExporter exp;
+#exp SetInput $renWin;
+#exp SetFilename camera.wrl
+#exp Write;
+
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
 

@@ -106,7 +106,6 @@ vtkClipPolyData clipper;
     clipper SetClipFunction plane;
     clipper SetValue 0.0;
 #    clipper InsideOutOn;
-    clipper DebugOn;
 vtkDataSetMapper clippedMapper;
     clippedMapper SetInput [clipper GetOutput];
 vtkActor clippedActor
@@ -162,12 +161,15 @@ $ren1 AddActors edgeActor;
 $ren1 AddActors meshActor;
 $ren1 AddActors clippedActor;
 $ren1 SetBackground 1 1 1;
-$renWin SetSize 500 500;
+$renWin SetSize 400 400;
+[$ren1 GetActiveCamera] Zoom 1.3
 $iren Initialize;
 
 # render the image
 #
 $iren SetUserMethod {wm deiconify .vtkInteract};
+$renWin SetFilename "clipCut.tcl.ppm";
+#$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

@@ -5,7 +5,7 @@
 #vtkCommand DebugOn;
 
 # first find all the examples
-set files [lsort [glob {[p-z]*.tcl}]];
+set files [lsort [glob {[A-z]*.tcl}]];
 
 # remove support files that we know are not examples
 if {[set pos [lsearch $files "vtkInt.tcl"]] != -1} {
@@ -27,6 +27,9 @@ if {[set pos [lsearch $files "assembly2.tcl"]] != -1} {
    set files [lreplace $files $pos $pos ]
 }
 if {[set pos [lsearch $files "connPineRoot.tcl"]] != -1} {
+   set files [lreplace $files $pos $pos ]
+}
+if {[set pos [lsearch $files "aniIso.tcl"]] != -1} {
    set files [lreplace $files $pos $pos ]
 }
 if {[set pos [lsearch $files "cylMap.tcl"]] != -1} {
