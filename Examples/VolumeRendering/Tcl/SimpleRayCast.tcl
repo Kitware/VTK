@@ -47,6 +47,8 @@ vtkVolume volume
     volume SetProperty volumeProperty
 
 ren1 AddVolume volume
+ren1 SetBackground 1 1 1
+renWin SetSize 600 600
 renWin Render
 
 proc TkCheckAbort {} {
@@ -55,7 +57,7 @@ proc TkCheckAbort {} {
 }
 renWin SetAbortCheckMethod {TkCheckAbort}
 
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserMethod {wm deiconify .vtkInteract}
 iren Initialize
 
 wm withdraw .
