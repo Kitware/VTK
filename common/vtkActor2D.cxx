@@ -83,11 +83,18 @@ vtkActor2D::~vtkActor2D()
   if (this->Property)
     {
     this->Property->UnRegister(this);
+    this->Property = NULL;
     }
-  this->PositionCoordinate->Delete();
-  this->PositionCoordinate = NULL;
-  this->Position2Coordinate->Delete();
-  this->Position2Coordinate = NULL;
+  if (this->PositionCoordinate)
+    {
+    this->PositionCoordinate->Delete();
+    this->PositionCoordinate = NULL;
+    }
+  if (this->Position2Coordinate)
+    {
+    this->Position2Coordinate->Delete();
+    this->Position2Coordinate = NULL;
+    }
   if (this->Mapper != NULL)
     {
     this->Mapper->UnRegister(this);
