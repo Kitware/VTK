@@ -42,7 +42,6 @@ proc FindString { InFile SearchString } {
 	    puts "$InFile: Found $SearchString on line $lcount"
 	    puts "$line"
 	    set res 1
-	    break
 	}
 	set lcount [ expr $lcount + 1 ]
     }
