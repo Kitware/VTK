@@ -54,6 +54,15 @@ IF (VTK_USE_RENDERING)
           -V Baseline/Rendering/${tfile}.png
           -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
       ENDFOREACH( tfile )
+
+      IF (VTK_MANGLE_MESA)
+        ADD_TEST(MesaText-image ${VTK_EXECUTABLE}
+          ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+          ${VTK_SOURCE_DIR}/Rendering/Testing/Tcl/MesaText.tcl
+          -D ${VTK_DATA_ROOT}
+          -V Baseline/Rendering/MesaText.png
+          -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+      ENDIF (VTK_MANGLE_MESA)
     ENDIF (VTK_USE_FREETYPE)
   #
   # If we do not have the data, still run the tests that we can
