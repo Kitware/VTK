@@ -35,7 +35,7 @@
  #include <mpi.h>
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeManager, "1.22");
+vtkCxxRevisionMacro(vtkCompositeManager, "1.23");
 vtkStandardNewMacro(vtkCompositeManager);
 
 // Structures to communicate render info.
@@ -1453,6 +1453,15 @@ void vtkCompositeManager::PrintSelf(ostream& os, vtkIndent indent)
   else
     {
     os << indent << "UseChar: Off\n";
+    }  
+  
+  if (this->UseRGB)
+    {
+    os << indent << "UseRGB: On\n";
+    }
+  else
+    {
+    os << indent << "UseRGB: Off\n";
     }  
   
   if ( this->RenderWindow )

@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkToolkits.h"
 
-vtkCxxRevisionMacro(vtkCompositer, "1.2");
+vtkCxxRevisionMacro(vtkCompositer, "1.3");
 vtkStandardNewMacro(vtkCompositer);
 
 //-------------------------------------------------------------------------
@@ -53,6 +53,7 @@ void vtkCompositer::CompositeBuffer(vtkDataArray *pBuf, vtkFloatArray *zBuf,
 void vtkCompositer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkObject::PrintSelf(os, indent);
+  os << indent << "Controller: (" << this->Controller << ")\n";
 }
 
 
