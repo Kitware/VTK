@@ -68,6 +68,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkSynchronizedTemplates2D_h
 
 #include "vtkPolyDataSource.h"
+#include "vtkImageData.h"
 #include "vtkContourValues.h"
 #include "vtkKitwareContourFilter.h"
 
