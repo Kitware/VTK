@@ -85,7 +85,7 @@ void vtkOpenGLVolumeRayCastMapper::RenderTexture( vtkVolume *vol,
   float depthVal;
   if ( this->IntermixIntersectingGeometry )
     {
-    depthVal = 0.01;
+    depthVal = this->MinimumViewDistance;
     }
   else
     {
@@ -168,6 +168,9 @@ void vtkOpenGLVolumeRayCastMapper::RenderTexture( vtkVolume *vol,
   // be blended with other geoemtry
   glEnable( GL_BLEND );
 
+  // Don't write into the Zbuffer - just use it for comparisons
+  glDepthMask( 0 );
+  
   glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 
@@ -207,6 +210,7 @@ void vtkOpenGLVolumeRayCastMapper::RenderTexture( vtkVolume *vol,
   glDisable( GL_BLEND );
   glDisable( GL_ALPHA_TEST );
   glDisable( GL_TEXTURE_2D );
+  glDepthMask( 1 );
 
   // Turn lighting back on
   glEnable( GL_LIGHTING );  

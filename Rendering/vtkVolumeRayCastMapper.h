@@ -278,6 +278,8 @@ protected:
   float        *ZBuffer;
   int           ZBufferSize[2];
   int           ZBufferOrigin[2];
+
+  float         MinimumViewDistance;
   
   int           ClipRayAgainstVolume( VTKVRCDynamicInfo *dynamicInfo,
                                       float bounds[6] );

@@ -801,22 +801,22 @@ VTK_THREAD_RETURN_TYPE VolumeRayCastMapper_CastRays( void *arg )
             val = (dynamicInfo->Color[0]/dynamicInfo->Color[3])*255.0;
             val = (val > 255.0)?(255.0):(val);
             val = (val <   0.0)?(  0.0):(val);
-            ucptr[0] = val;
+            ucptr[0] = static_cast<unsigned char>(val);
             
             val = (dynamicInfo->Color[1]/dynamicInfo->Color[3])*255.0;
             val = (val > 255.0)?(255.0):(val);
             val = (val <   0.0)?(  0.0):(val);
-            ucptr[1] = val;
+            ucptr[1] = static_cast<unsigned char>(val);
             
             val = (dynamicInfo->Color[2]/dynamicInfo->Color[3])*255.0;
             val = (val > 255.0)?(255.0):(val);
             val = (val <   0.0)?(  0.0):(val);
-            ucptr[2] = val;
+            ucptr[2] = static_cast<unsigned char>(val);
             
             val = dynamicInfo->Color[3]*255.0;
             val = (val > 255.0)?(255.0):(val);
             val = (val <   0.0)?(  0.0):(val);
-            ucptr[3] = val;
+            ucptr[3] = static_cast<unsigned char>(val);
             }
           }
         }
@@ -979,18 +979,18 @@ VTK_THREAD_RETURN_TYPE VolumeRayCastMapper_CastRays( void *arg )
             absStep[2] = ( rayStep[2] < 0.0 )?(-rayStep[2]):(rayStep[2]);
             if ( absStep[0] >= absStep[1] && absStep[0] >= absStep[2] )
               {
-              dynamicInfo->NumberOfStepsToTake = 
-                (rayEnd[0]-rayStart[0]) / rayStep[0];
+              dynamicInfo->NumberOfStepsToTake = static_cast<int>
+                ((rayEnd[0]-rayStart[0]) / rayStep[0]);
               }
             else if ( absStep[1] >= absStep[2] && absStep[1] >= absStep[0] )
               {
-              dynamicInfo->NumberOfStepsToTake = 
-                (rayEnd[1]-rayStart[1]) / rayStep[1];
+              dynamicInfo->NumberOfStepsToTake = static_cast<int>
+                ((rayEnd[1]-rayStart[1]) / rayStep[1]);
               }
             else
               {
-              dynamicInfo->NumberOfStepsToTake = 
-                (rayEnd[2]-rayStart[2]) / rayStep[2];
+              dynamicInfo->NumberOfStepsToTake = static_cast<int>
+                ((rayEnd[2]-rayStart[2]) / rayStep[2]);
               }
             
             // Cast the ray
@@ -1129,22 +1129,22 @@ VTK_THREAD_RETURN_TYPE VolumeRayCastMapper_CastRays( void *arg )
           val = (dynamicInfo->Color[0]/dynamicInfo->Color[3])*255.0;
           val = (val > 255.0)?(255.0):(val);
           val = (val <   0.0)?(  0.0):(val);
-          ucptr[0] = val;
+          ucptr[0] = static_cast<unsigned char>(val);
           
           val = (dynamicInfo->Color[1]/dynamicInfo->Color[3])*255.0;
           val = (val > 255.0)?(255.0):(val);
           val = (val <   0.0)?(  0.0):(val);
-          ucptr[1] = val;
+          ucptr[1] = static_cast<unsigned char>(val);
           
           val = (dynamicInfo->Color[2]/dynamicInfo->Color[3])*255.0;
           val = (val > 255.0)?(255.0):(val);
           val = (val <   0.0)?(  0.0):(val);
-          ucptr[2] = val;
+          ucptr[2] = static_cast<unsigned char>(val);
           
           val = dynamicInfo->Color[3]*255.0;
           val = (val > 255.0)?(255.0):(val);
           val = (val <   0.0)?(  0.0):(val);
-          ucptr[3] = val;
+          ucptr[3] = static_cast<unsigned char>(val);
           }
         }
       
@@ -1178,21 +1178,22 @@ int vtkVolumeRayCastMapper::ComputeRowBounds(vtkVolume   *vol,
   float viewPoint[8][4];
   int i, j, k;
   unsigned char *ucptr;
-  float minX, minY, maxX, maxY;
+  float minX, minY, maxX, maxY, minZ;
 
   minX =  1.0;
   minY =  1.0;
   maxX = -1.0;
   maxY = -1.0;
-
-  int bounds[6];
+  minZ =  1.0;
+  
+  float bounds[6];
   int dim[3];
   
   this->GetInput()->GetDimensions(dim);
   bounds[0] = bounds[2] = bounds[4] = 0.0;
-  bounds[1] = dim[0]-1;
-  bounds[3] = dim[1]-1;
-  bounds[5] = dim[2]-1;
+  bounds[1] = static_cast<float>(dim[0]-1);
+  bounds[3] = static_cast<float>(dim[1]-1);
+  bounds[5] = static_cast<float>(dim[2]-1);
   
   float camPos[3];
   float worldBounds[6];
@@ -1242,6 +1243,7 @@ int vtkVolumeRayCastMapper::ComputeRowBounds(vtkVolume   *vol,
     maxX =  1.0;
     minY = -1.0;
     maxY =  1.0;
+    minZ =  0.001;
     }
   else
     {
@@ -1254,20 +1256,22 @@ int vtkVolumeRayCastMapper::ComputeRowBounds(vtkVolume   *vol,
         for ( i = 0; i < 2; i++ )
           {
           voxelPoint[0] = bounds[i];
-          vtkVRCMultiplyViewPointMacro( voxelPoint, viewPoint[idx],
-                                        voxelsToViewMatrix );
+          vtkVRCMultiplyPointMacro( voxelPoint, viewPoint[idx],
+                                   voxelsToViewMatrix );
           
           minX = (viewPoint[idx][0]<minX)?(viewPoint[idx][0]):(minX);
           minY = (viewPoint[idx][1]<minY)?(viewPoint[idx][1]):(minY);        
           maxX = (viewPoint[idx][0]>maxX)?(viewPoint[idx][0]):(maxX);
           maxY = (viewPoint[idx][1]>maxY)?(viewPoint[idx][1]):(maxY);
+          minZ = (viewPoint[idx][2]<minZ)?(viewPoint[idx][2]):(minZ);
           idx++;
           }
         }
       }
     }
   
-
+  this->MinimumViewDistance = (minZ<0.001)?(0.001):((minZ>0.999)?(0.999):(minZ));
+  
   // We have min/max values from -1.0 to 1.0 now - we want to convert 
   // these to pixel locations. Give a couple of pixels of breathing room
   // on each side if possible
