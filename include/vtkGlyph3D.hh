@@ -103,6 +103,12 @@ public:
   vtkGetMacro(Orient,int);
 
   // Description:
+  // Turn on/off clamping of scalar values to range.
+  vtkSetMacro(Clamping,int);
+  vtkBooleanMacro(Clamping,int);
+  vtkGetMacro(Clamping,int);
+
+  // Description:
   // Specify whether to use vector or normal to perform vector operations.
   vtkSetMacro(VectorMode,int);
   vtkGetMacro(VectorMode,int);
@@ -118,6 +124,7 @@ protected:
   float Range[2]; // Range to use to perform scalar scaling
   int Orient; // boolean controls whether to "orient" data
   int VectorMode; // Orient/scale via normal or via vector data
+  int Clamping;
 };
 
 #endif
