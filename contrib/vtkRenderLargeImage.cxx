@@ -47,7 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkRenderLargeImage* vtkRenderLargeImage::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -142,7 +142,7 @@ void vtkRenderLargeImage::Execute(vtkImageData *data)
   int inIncr[3];
   int *size;
   int inWindowExtent[4];
-  float viewAngle;
+  double viewAngle, parallelScale, windowCenter[2];
   vtkCamera *cam;
   unsigned char *pixels, *outPtr;
   int x, y, row;
@@ -171,18 +171,20 @@ void vtkRenderLargeImage::Execute(vtkImageData *data)
 
   // store the old view angle & set the new
   cam = this->Input->GetActiveCamera();
+  cam->GetWindowCenter(windowCenter);
   viewAngle = cam->GetViewAngle();
+  parallelScale = cam->GetParallelScale();
   cam->SetViewAngle(asin(sin(viewAngle*3.1415926/360.0)/this->Magnification) 
 		    * 360.0 / 3.1415926);
-  cam->SetParallelScale(cam->GetParallelScale()/this->Magnification);
+  cam->SetParallelScale(parallelScale/this->Magnification);
   
   // render each of the tiles required to fill this request
   for (y = inWindowExtent[2]; y <= inWindowExtent[3]; y++)
     {
     for (x = inWindowExtent[0]; x <= inWindowExtent[1]; x++)
       {
-      cam->SetWindowCenter(x*2 - this->Magnification + 1, 
-			   y*2 - this->Magnification + 1);
+      cam->SetWindowCenter(x*2 - this->Magnification*(1-windowCenter[0]) + 1, 
+			   y*2 - this->Magnification*(1-windowCenter[1]) + 1);
       this->Input->GetRenderWindow()->Render();
       pixels = this->Input->GetRenderWindow()->GetPixelData(0,0,size[0] - 1,
 							    size[1] - 1, 1);
@@ -227,7 +229,8 @@ void vtkRenderLargeImage::Execute(vtkImageData *data)
     }
 
   cam->SetViewAngle(viewAngle);
-  cam->SetWindowCenter(0.0,0.0);
+  cam->SetParallelScale(parallelScale);
+  cam->SetWindowCenter(windowCenter[0],windowCenter[1]);
 }
 
 
