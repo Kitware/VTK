@@ -55,10 +55,8 @@ class vtkVertex;
 class vtkVoxel;
 class vtkWedge;
 
-class VTK_COMMON_EXPORT vtkUnstructuredGrid : public vtkPointSet {
-private:
-  vtkUnstructuredGrid(const vtkUnstructuredGrid&);  // Not implemented.
-  void operator=(const vtkUnstructuredGrid&);  // Not implemented.
+class VTK_COMMON_EXPORT vtkUnstructuredGrid : public vtkPointSet 
+{
 public:
   static vtkUnstructuredGrid *New();
 
@@ -219,6 +217,9 @@ protected:
   // For legacy compatibility. Do not use.
   void GetCellNeighbors(vtkIdType cellId, vtkIdList& ptIds, vtkIdList& cellIds)
     {this->GetCellNeighbors(cellId, &ptIds, &cellIds);}
+
+  vtkUnstructuredGrid(const vtkUnstructuredGrid&);  // Not implemented.
+  void operator=(const vtkUnstructuredGrid&);  // Not implemented.
 };
 
 #endif
