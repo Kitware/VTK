@@ -86,7 +86,10 @@ protected:
   vtkMetaImageReader();
   ~vtkMetaImageReader();
 
-  void ExecuteInformation();
+  virtual int RequestInformation(vtkInformation* request,
+                                 vtkInformationVector** inputVector,
+                                 vtkInformationVector* outputVector);
+
   int GetFileInformation(const char* fname, int populate);
 
   vtkSetStringMacro(MHDFileName);

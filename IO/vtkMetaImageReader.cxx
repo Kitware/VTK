@@ -16,13 +16,14 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkImageData.h"
+#include "vtkInformationVector.h"
 
 #include <vtkstd/string>
 
 #include <sys/stat.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMetaImageReader, "1.16");
+vtkCxxRevisionMacro(vtkMetaImageReader, "1.17");
 vtkStandardNewMacro(vtkMetaImageReader);
 
 //----------------------------------------------------------------------------
@@ -256,14 +257,20 @@ int vtkMetaImageReaderInternal::StringEquals(const char* s1, const char* s2, siz
 }
 
 //----------------------------------------------------------------------------
-void vtkMetaImageReader::ExecuteInformation()
+int vtkMetaImageReader::RequestInformation(vtkInformation* request,
+                             vtkInformationVector** inputVector,
+                             vtkInformationVector* outputVector)
 {
   const char* fname = this->MHDFileName;
   if ( !this->GetFileInformation(fname, 1) )
     {
-    return;
+    return 0;
     }
-  this->Superclass::ExecuteInformation();
+
+  vtkDataObject::SetPointDataActiveScalarInfo( outputVector->GetInformationObject(0),
+    this->DataScalarType, this->NumberOfScalarComponents);
+
+  return this->Superclass::RequestInformation( request, inputVector, outputVector );
 }
 
 
@@ -601,7 +608,9 @@ int vtkMetaImageReader::GetFileInformation(const char* fname, int populate)
 
   if ( populate )
     {
-    this->SetDataScalarType(data_type);
+    this->DataScalarType = data_type;
+    //this->SetDataScalarType(data_type);
+
     this->SetNumberOfScalarComponents(number_of_channels);
     this->SetDataExtent(0, dims[0]-1, 0, dims[1]-1, 0, dims[2]-1);
     this->SetFileDimensionality(3);
