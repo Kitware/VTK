@@ -54,6 +54,7 @@ vtkBandedPolyDataContourFilter bcf
   bcf SetInput [warp GetPolyDataOutput]
   eval bcf GenerateValues 15 [[demModel GetOutput] GetScalarRange]
   bcf SetScalarModeToIndex
+  bcf GenerateContourEdgesOn
 
 # Compute normals to give a better look.
 vtkPolyDataNormals normals
@@ -70,6 +71,14 @@ vtkPolyDataMapper demMapper
 
 vtkLODActor demActor
   demActor SetMapper demMapper
+
+## Create contour edges
+vtkPolyDataMapper edgeMapper
+  edgeMapper SetInput [bcf GetContourEdgesOutput]
+  edgeMapper SetResolveCoincidentTopologyToPolygonOffset 
+vtkActor edgeActor
+  edgeActor SetMapper edgeMapper
+  [edgeActor GetProperty] SetColor 0 0 0
 
 ## Test clipping
 # Create the contour bands.
@@ -110,6 +119,8 @@ vtkRenderWindowInteractor iren
 #
 ren1 AddActor demActor
 ren1 AddActor demActor2
+ren1 AddActor edgeActor
+
 ren1 SetBackground .4 .4 .4
 renWin SetSize 375 200
 
