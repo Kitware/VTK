@@ -38,6 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+#include <math.h>
 #include "vtkLinkEdgels.h"
 
 
@@ -125,10 +126,21 @@ void vtkLinkEdgels::Execute()
   region->GetImageBounds4d(regionBounds);
   region->SetBounds4d(regionBounds);
 
+  this->Input->UpdateRegion(region);
+
+  if ( ! region->IsAllocated())
+    {
+    vtkErrorMacro(<< "Execute: Could not get region.");
+    return;
+    }
+
   // chekc data type for float
   if (region->GetDataType() != VTK_IMAGE_FLOAT)
     {
-    vtkImageRegion *temp = region;
+    cerr << region->GetDataType() << "\n";
+    
+    /*
+      vtkImageRegion *temp = region;
     
     vtkWarningMacro(<<"Converting non float image data to float");
     
@@ -137,15 +149,9 @@ void vtkLinkEdgels::Execute()
     region->SetBounds(temp->GetBounds());
     region->CopyRegionData(temp);
     temp->Delete();
+    */
     }
     
-  this->Input->UpdateRegion(region);
-  if ( ! region->IsAllocated())
-    {
-    vtkErrorMacro(<< "Execute: Could not get region.");
-    return;
-    }
-
   // Finally do edge following to extract the edge data from the Thin image
   newPts = new vtkFloatPoints;
   newLines = new vtkCellArray;
@@ -190,8 +196,8 @@ void vtkLinkEdgels::LinkEdgels(vtkImageRegion *region,
   int *bounds = region->GetBounds2d();
   int xdim = bounds[1] - bounds[0] + 1;
   int ydim = bounds[3] - bounds[2] + 1;
-  int forward[ydim][xdim];
-  int backward[ydim][xdim];
+  int **forward;
+  int **backward;
   int x,y,ypos,zpos;
   int currX, currY, i;
   int newX, newY;
@@ -213,8 +219,16 @@ void vtkLinkEdgels::LinkEdgels(vtkImageRegion *region,
   float *imgPtrX, *imgPtrY, *imgPtrX2;
   int    imgIncX,  imgIncY, imgIncVec;
   
-  memset(forward,0,ydim*xdim*sizeof(int));
-  memset(backward,0,ydim*xdim*sizeof(int));
+  forward  = new int *[ydim];
+  backward = new int *[ydim];
+  for (i = 0; i < ydim; i++)
+    {
+    forward[i]  = new int [xdim];
+    backward[i] = new int [xdim];
+    memset(forward[i],0,xdim*sizeof(int));
+    memset(backward[i],0,xdim*sizeof(int));
+    }
+
   zpos = z*xdim*ydim;
   linkThresh = cos(this->LinkThreshold*3.1415926/180.0);
   phiThresh = cos(this->PhiThreshold*3.1415926/180.0);
@@ -410,6 +424,15 @@ void vtkLinkEdgels::LinkEdgels(vtkImageRegion *region,
 	}
       }
     }
+
+  // free up the memory
+  for (i = 0; i < ydim; i++)
+    {
+    delete [] forward[i];
+    delete [] backward[i];
+    }
+  delete [] forward;
+  delete [] backward;
 }
 
 void vtkLinkEdgels::PrintSelf(ostream& os, vtkIndent indent)
