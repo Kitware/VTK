@@ -18,7 +18,7 @@
 #include "vtkBitArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkBitArray, "1.51");
+vtkCxxRevisionMacro(vtkBitArray, "1.52");
 vtkStandardNewMacro(vtkBitArray);
 
 vtkDataArray *vtkBitArray::MakeObject()
@@ -383,7 +383,7 @@ void vtkBitArray::InsertComponent(const vtkIdType i, const int j,
                                   const float c)
 {
   this->InsertValue(i*this->NumberOfComponents + j, 
-                    static_cast<int>(c));
+                    static_cast<const int>(c));
 }
 
 // Set the data component at the ith tuple and jth component location.
