@@ -487,6 +487,10 @@ int vtkOBBTreeLineIntersectsTriangle(float p1[3], float p2[3],
   // compute numerator/denominator of parametric distance
   float numerator = vtkMath::Dot(normal, v1t);
   float denominator = vtkMath::Dot(normal, v12);
+  if (denominator == 0)
+    {
+    return 0;
+    }
 
   // If denominator less than the tolerance, then the
   // line and plane are considered parallel. 
@@ -497,25 +501,20 @@ int vtkOBBTreeLineIntersectsTriangle(float p1[3], float p2[3],
     sense = 1;
     fabsden = -fabsden;
     }
-  if (fabsden < 1e-6)
+  if (fabsden > 1e-6 + tolerance)
     {
-    return 0;
-    }
+    // calculate the distance to the intersection along the line 
+    t = numerator/denominator;
+    if (t < 0.0  ||  t > 1.0)
+      {
+      return 0;
+      }
 
-  // calculate the distance to the intersection along the line 
-  t = numerator/denominator;
-  if (t < 0.0  ||  t > 1.0)
-    {
-    return 0;
-    }
+    // intersection point
+    point[0] = p1[0] + t*v12[0];
+    point[1] = p1[1] + t*v12[1];
+    point[2] = p1[2] + t*v12[2];
 
-  // intersection point
-  point[0] = p1[0] + t*v12[0];
-  point[1] = p1[1] + t*v12[1];
-  point[2] = p1[2] + t*v12[2];
-
-  if (tolerance == 0)
-    {
     // find axis permutation to allow us to do the rest of the
     // math in 2D (much more efficient than doing the math in 3D)
     int xi = 0, yi = 1, zi = 2;
@@ -553,60 +552,62 @@ int vtkOBBTreeLineIntersectsTriangle(float p1[3], float p2[3],
       gamma = -gamma;
       }
 
-    float mintol = area*1e-6; // minimum tolerance to apply for safety
-    if (alpha < -mintol  ||  beta < -mintol  ||  gamma < -mintol)
-      { // outside of polygon
-      return 0;
+    if (alpha > 0  &&  beta > 0  &&  gamma > 0)
+      { // inside of polygon
+      return 1;
       }
     }
-  else // if tolerance is not zero, have to do math in full 3D
+
+  // if zero tolerance, nothing more that we can do!
+  if (tolerance == 0)
     {
-    // vectors from triangle corner to point, vectors for triangle edges
-    float v0[3], v1[3], v2[3], v3[3];
-    for (int i = 0; i < 3; i++)
-      {
-      v0[i] = point[i] - pt1[i];
-      v1[i] = pt2[i] - pt1[i];
-      v2[i] = pt3[i] - pt1[i];
-      v3[i] = pt3[i] - pt2[i];
-      }
-
-    // find normal vector along line
-    vtkMath::Normalize(v12);
-    // total projected area (times two) from scalar triple product
-    float area = vtkMath::Determinant3x3(v1, v2, v12);
-    // partial projected areas for two of the three sub-triangles
-    float alpha = vtkMath::Determinant3x3(v1, v0, v12);
-    float beta = vtkMath::Determinant3x3(v0, v2, v12);
-    float gamma = area - alpha - beta;
-
-    // make sure area is positive so that comparisons work out
-    if (area < 0)
-      {
-      area = -area;
-      alpha = -alpha;
-      beta = -beta;
-      gamma = -gamma;
-      }
-
-    // tolerance for each edge, converted to area tolerance by multiplying
-    // the distance tolerance (i.e. allowed distance from edge) by the
-    // length of the edge
-    float alphatol = tolerance*sqrt(vtkMath::Dot(v1,v1));
-    float betatol = tolerance*sqrt(vtkMath::Dot(v2,v2));
-    float gammatol = tolerance*sqrt(vtkMath::Dot(v3,v3));
-
-    if (alpha < -alphatol  ||  beta < -betatol  ||  gamma < -gammatol)
-      { // outside of polygon even considering tolerance
-      return 0;
-      }
-
-    // The alpha, beta, gamma can be divided by 'area' to get parametric
-    // coordinates (whether they would be the same parametric coordinates
-    // used by VTK, I don't know)
+    return 0;
     }
 
-  return 1;
+  // check the edges of the triangle (because triangles share edges,
+  // this check should be identical for adjacent triangles which is
+  // a 'good thing'
+  float tolsquared = tolerance*tolerance;
+
+  // make sure that order of points in each line segment is the
+  // same for faces pointed in opposite directions
+  float *tpoints[4];
+  if (sense > 0)
+    {
+    tpoints[0] = pt1;
+    tpoints[1] = pt2;
+    tpoints[2] = pt3;
+    tpoints[3] = pt1;
+    }
+  else
+    {
+    tpoints[0] = pt3;
+    tpoints[1] = pt2;
+    tpoints[2] = pt1;
+    tpoints[3] = pt3;
+    }
+  
+  float vec[3];
+  float v;
+  for (int i = 0; i < 3; i++)
+    {
+    pt1 = tpoints[i];
+    pt2 = tpoints[i+1];
+
+    if (vtkLine::Intersection(p1,p2, pt1,pt2, t,v) == 2)
+      {
+      vec[0] = (p1[0] + v12[0]*t) - (pt1[0] + (pt2[0] - pt1[0])*v);
+      vec[1] = (p1[1] + v12[1]*t) - (pt1[1] + (pt2[1] - pt1[1])*v);
+      vec[2] = (p1[2] + v12[2]*t) - (pt1[2] + (pt2[2] - pt1[2])*v);
+
+      if (vtkMath::Dot(vec,vec) < tolsquared)
+	{
+	return 1;
+	}
+      }
+    }
+
+  return 0;
 }
 
 // just check whether a point lies inside or outside the DataSet,
