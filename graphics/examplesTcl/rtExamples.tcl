@@ -108,14 +108,27 @@ foreach afile $files {
    puts -nonewline "$afile took "
    puts -nonewline "[expr [lindex [time {source $afile} 1] 0] / 1000000.0] seconds "
 
-   vtkRendererSource renSrc
-   renSrc WholeWindowOn
-   renSrc SetInput ren1
+   vtkWindowToImageFilter w2if
+
+    # look for a renderWindow ImageWindow or ImageViewer
+    # first check for some common names
+    if {[info commands renWin] == "renWin"} {
+      w2if SetInput renWin
+    } else {
+       if {[info commands viewer] == "viewer"} {
+	  w2if SetInput [viewer GetImageWindow]
+       } else {
+	  if {[info commands imgWin] == "imgWin"} {
+	     w2if SetInput imgWin
+	  }
+       }
+    }
+
    vtkPNMReader pnm
    pnm SetFileName "valid/$afile.ppm"
    
    vtkImageDifference imgDiff
-   imgDiff SetInput [renSrc GetOutput]
+   imgDiff SetInput [w2if GetOutput]
    imgDiff SetImage [pnm GetOutput]
    imgDiff Update
 
@@ -129,7 +142,7 @@ foreach afile $files {
          pnmw SetFileName "$afile.error.ppm"
          pnmw Write
          vtkPNMWriter pnmw2
-         pnmw2 SetInput [renSrc GetOutput]
+         pnmw2 SetInput [w2if GetOutput]
          pnmw2 SetFileName "$afile.test.ppm"
          pnmw2 Write
    }
