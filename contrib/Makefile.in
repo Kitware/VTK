@@ -20,7 +20,10 @@ CONCRETE = \
 vtkEarthSource \
 vtkIVWriter \
 vtkOBJReader \
-vtkRenderLargeImage
+vtkRenderLargeImage \
+vtkRIBExporter \
+vtkRIBLight \
+vtkRIBProperty 
 
 #------------------------------------------------------------------------------
 # Include the generated targets
