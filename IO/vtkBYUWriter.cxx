@@ -193,11 +193,11 @@ void vtkBYUWriter::WriteDisplacementFile(int numPts)
   FILE *dispFp;
   int i;
   float *v;
-  vtkVectors *inVectors;
+  vtkDataArray *inVectors;
   vtkPolyData *input= this->GetInput();
 
   if ( this->WriteDisplacement && this->DisplacementFileName &&
-  (inVectors = input->GetPointData()->GetVectors()) != NULL )
+  (inVectors = input->GetPointData()->GetActiveVectors()) != NULL )
     {
     if ( !(dispFp = fopen(this->DisplacementFileName, "w")) )
       {
@@ -214,7 +214,7 @@ void vtkBYUWriter::WriteDisplacementFile(int numPts)
   //
   for (i=0; i < numPts; i++)
     {
-    v = inVectors->GetVector(i);
+    v = inVectors->GetTuple(i);
     fprintf(dispFp, "%e %e %e", v[0], v[1], v[2]);
     if ( (i % 2) )
       {
@@ -231,11 +231,11 @@ void vtkBYUWriter::WriteScalarFile(int numPts)
   FILE *scalarFp;
   int i;
   float s;
-  vtkScalars *inScalars;
+  vtkDataArray *inScalars;
   vtkPolyData *input= this->GetInput();
 
   if ( this->WriteScalar && this->ScalarFileName &&
-  (inScalars = input->GetPointData()->GetScalars()) != NULL )
+  (inScalars = input->GetPointData()->GetActiveScalars()) != NULL )
     {
     if ( !(scalarFp = fopen(this->ScalarFileName, "w")) )
       {
@@ -252,7 +252,7 @@ void vtkBYUWriter::WriteScalarFile(int numPts)
   //
   for (i=0; i < numPts; i++)
     {
-    s = inScalars->GetScalar(i);
+    s = inScalars->GetComponent(i,0);
     fprintf(scalarFp, "%e ", s);
     if ( i != 0 && !(i % 6) )
       {
@@ -269,11 +269,11 @@ void vtkBYUWriter::WriteTextureFile(int numPts)
   FILE *textureFp;
   int i;
   float *t;
-  vtkTCoords *inTCoords;
+  vtkDataArray *inTCoords;
   vtkPolyData *input= this->GetInput();
 
   if ( this->WriteTexture && this->TextureFileName &&
-  (inTCoords = input->GetPointData()->GetTCoords()) != NULL )
+  (inTCoords = input->GetPointData()->GetActiveTCoords()) != NULL )
     {
     if ( !(textureFp = fopen(this->TextureFileName, "w")) )
       {
@@ -294,7 +294,7 @@ void vtkBYUWriter::WriteTextureFile(int numPts)
       {
       fprintf (textureFp, "\n");
       }
-    t = inTCoords->GetTCoord(i);
+    t = inTCoords->GetTuple(i);
     fprintf(textureFp, "%e %e", t[0], t[1]);
     }
 

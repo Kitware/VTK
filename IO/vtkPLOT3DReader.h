@@ -99,8 +99,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <stdio.h>
 #include "vtkStructuredGridSource.h"
-#include "vtkScalars.h"
-#include "vtkVectors.h"
+class vtkFloatArray;
 
 // file formats
 #define VTK_WHOLE_SINGLE_GRID_NO_IBLANKING 0
@@ -252,9 +251,9 @@ protected:
   int ReadBinaryVectorFunctionFile(FILE *fp, vtkStructuredGrid *output);
 
   vtkPoints *Grid;
-  vtkScalars *Density;
-  vtkScalars *Energy;
-  vtkVectors *Momentum;
+  vtkFloatArray *Density;
+  vtkFloatArray *Energy;
+  vtkFloatArray *Momentum;
 
   // derived functions from data in PLOT3D files
   void ComputeDensity(vtkPointData *outputPD);

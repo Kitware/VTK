@@ -1390,18 +1390,16 @@ int vtkDataReader::ReadCoScalarData(vtkDataSetAttributes *a, int numPts)
       {
       if ( ! skipScalar ) 
 	{
-	vtkScalars *scalars=vtkScalars::New(VTK_UNSIGNED_CHAR,numComp);
-	vtkUnsignedCharArray *ucharData=
-	  (vtkUnsignedCharArray *)scalars->GetData();
-	ucharData->SetNumberOfTuples(numPts);
-	ucharData->SetName(name);
+	vtkUnsignedCharArray *scalars=vtkUnsignedCharArray::New();
+	scalars->SetNumberOfComponents(numComp);
+	scalars->SetNumberOfTuples(numPts);
+	scalars->SetName(name);
 	for (i=0; i<numPts; i++)
 	  {
 	  for (j=0; j<numComp; j++)
 	    {
 	    idx = i*numComp + j;
-	    ucharData->SetValue(idx,
-				(unsigned char)(255.0*data->GetValue(idx)));
+	    scalars->SetValue(idx,(unsigned char)(255.0*data->GetValue(idx)));
 	    }
 	  }
 	a->SetScalars(scalars);

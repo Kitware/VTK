@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkOBJReader.h"
 #include "vtkObjectFactory.h"
-
+#include "vtkFloatArray.h"
 
 
 //------------------------------------------------------------------------------
@@ -81,11 +81,11 @@ void vtkOBJReader::Execute()
   FILE *fptr;
   char line[1024];
   vtkPoints *objPts;
-  vtkNormals *objNormals;
-  vtkTCoords *objTCoords;
+  vtkFloatArray *objNormals;
+  vtkFloatArray *objTCoords;
   vtkPoints *pts;
-  vtkNormals *normals;
-  vtkTCoords *tcoords;
+  vtkFloatArray *normals;
+  vtkFloatArray *tcoords;
   vtkCellArray *polys;
   float xyz[3], n[3], tc[3];
   vtkPolyData *output = this->GetOutput();
@@ -115,10 +115,11 @@ void vtkOBJReader::Execute()
   objPts = vtkPoints::New();
   objPts->Allocate(1000,5000);  
 
-  objNormals = vtkNormals::New();
+  objNormals = vtkFloatArray::New();
+  objNormals->SetNumberOfComponents(3);
   objNormals->Allocate(1000,5000);  
 
-  objTCoords = vtkTCoords::New();
+  objTCoords = vtkFloatArray::New();
   objTCoords->SetNumberOfComponents(2);
   objTCoords->Allocate(1000,5000);  
 
@@ -136,12 +137,12 @@ void vtkOBJReader::Execute()
     else if (strncmp (line, "vt", 2) == 0)
       {
       sscanf (line, "%*[^ ]%f %f %f", tc, tc + 1, tc + 2);
-      objTCoords->InsertNextTCoord(tc);
+      objTCoords->InsertNextTuple(tc);
       }
     else if (strncmp (line, "vn", 2) == 0)
       {
       sscanf (line, "%*[^ ]%f %f %f", n, n + 1, n + 2);
-      objNormals->InsertNextNormal(n);
+      objNormals->InsertNextTuple(n);
       }
     }
 
@@ -150,21 +151,22 @@ void vtkOBJReader::Execute()
   numberOfPts = objPts->GetNumberOfPoints();
   pts->Allocate(numberOfPts, numberOfPts);
 
-  numberOfNormals = objNormals->GetNumberOfNormals ();
+  numberOfNormals = objNormals->GetNumberOfTuples ();
   if (numberOfNormals > 0)
     {
-    normals = vtkNormals::New();
-    normals->Allocate(numberOfPts, numberOfPts);
+    normals = vtkFloatArray::New();
+    normals->SetNumberOfComponents(3);
+    normals->Allocate(3*numberOfPts, 3*numberOfPts);
     }
   else
     {
     normals = NULL;
     }
 
-  numberOfTCoords = objTCoords->GetNumberOfTCoords ();
+  numberOfTCoords = objTCoords->GetNumberOfTuples ();
   if (numberOfTCoords > 0)
     {
-    tcoords = vtkTCoords::New();
+    tcoords = vtkFloatArray::New();
     tcoords->SetNumberOfComponents(2);
     tcoords->Allocate(numberOfPts, numberOfPts);
     }
@@ -216,11 +218,11 @@ void vtkOBJReader::Execute()
             }
 	  if (normals && objNormalId != -1)
 	    {
-	    normals->InsertNextNormal (objNormals->GetNormal (objNormalId - 1));
+	    normals->InsertNextTuple (objNormals->GetTuple (objNormalId - 1));
 	    }
 	  if (tcoords && objTCoordId != -1)
 	    {
-	    tcoords->InsertNextTCoord (objTCoords->GetTCoord (objTCoordId - 1));
+	    tcoords->InsertNextTuple (objTCoords->GetTuple (objTCoordId - 1));
 	    }
           }
         }
@@ -242,7 +244,7 @@ void vtkOBJReader::Execute()
   // update output
   if (normals)
     {
-    if ( normals->GetNumberOfNormals() > 0 )
+    if ( normals->GetNumberOfTuples() > 0 )
       {
       outputPD->SetNormals(normals);
       }
@@ -251,7 +253,7 @@ void vtkOBJReader::Execute()
 
   if (tcoords)
     {
-    if ( tcoords->GetNumberOfTCoords() > 0 )
+    if ( tcoords->GetNumberOfTuples() > 0 )
       {
       outputPD->SetTCoords(tcoords);
       }

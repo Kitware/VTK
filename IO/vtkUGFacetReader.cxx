@@ -43,7 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkByteSwap.h"
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
-
+#include "vtkFloatArray.h"
 
 
 //------------------------------------------------------------------------------
@@ -117,7 +117,7 @@ void vtkUGFacetReader::Execute()
   short ugiiColor, direction;
   int numberTris, numFacetSets, setNumber, facetNumber;
   vtkPoints *newPts, *mergedPts;
-  vtkNormals *newNormals, *mergedNormals;
+  vtkFloatArray *newNormals, *mergedNormals;
   vtkCellArray *newPolys, *mergedPolys;
   vtkPolyData *output = this->GetOutput();
   fpos_t pos;
@@ -169,8 +169,9 @@ void vtkUGFacetReader::Execute()
 
   newPts = vtkPoints::New();
   newPts->Allocate(triEstimate,triEstimate);
-  newNormals = vtkNormals::New();
-  newNormals->Allocate(triEstimate,triEstimate);
+  newNormals = vtkFloatArray::New();
+  newNormals->SetNumberOfComponents(3);
+  newNormals->Allocate(3*triEstimate,3*triEstimate);
   newPolys = vtkCellArray::New();
   newPolys->Allocate(newPolys->EstimateSize(triEstimate,3),triEstimate);
 
@@ -210,9 +211,9 @@ void vtkUGFacetReader::Execute()
         ptId[1] = newPts->InsertNextPoint(facet.v2);
         ptId[2] = newPts->InsertNextPoint(facet.v3);
 
-        newNormals->InsertNormal(ptId[0],facet.n1);
-        newNormals->InsertNormal(ptId[1],facet.n2);
-        newNormals->InsertNormal(ptId[2],facet.n3);
+        newNormals->InsertTuple(ptId[0],facet.n1);
+        newNormals->InsertTuple(ptId[1],facet.n2);
+        newNormals->InsertTuple(ptId[2],facet.n3);
 
         newPolys->InsertNextCell(3,ptId);
         }//if appropriate part
@@ -237,8 +238,9 @@ void vtkUGFacetReader::Execute()
 
     mergedPts = vtkPoints::New();
     mergedPts->Allocate(newPts->GetNumberOfPoints()/3);
-    mergedNormals = vtkNormals::New();
-    mergedNormals->Allocate(newNormals->GetNumberOfNormals()/3);
+    mergedNormals = vtkFloatArray::New();
+    mergedNormals->SetNumberOfComponents(3);
+    mergedNormals->Allocate(newNormals->GetNumberOfTuples());
     mergedPolys = vtkCellArray::New();
     mergedPolys->Allocate(newPolys->GetSize());
 
@@ -255,7 +257,7 @@ void vtkUGFacetReader::Execute()
         x = newPts->GetPoint(pts[i]);
         if ( this->Locator->InsertUniquePoint(x, nodes[i]) )
           {
-          mergedNormals->InsertNormal(nodes[i],newNormals->GetNormal(pts[i]));
+          mergedNormals->InsertTuple(nodes[i],newNormals->GetTuple(pts[i]));
           }
         }
 

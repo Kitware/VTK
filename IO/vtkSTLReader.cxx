@@ -45,6 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkByteSwap.h"
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
+#include "vtkFloatArray.h"
 
 //---------------------------------------------------------------------------
 vtkSTLReader* vtkSTLReader::New()
@@ -106,7 +107,7 @@ void vtkSTLReader::Execute()
   FILE *fp;
   vtkPoints *newPts, *mergedPts;
   vtkCellArray *newPolys, *mergedPolys;
-  vtkScalars *newScalars=0, *mergedScalars=0;
+  vtkFloatArray *newScalars=0, *mergedScalars=0;
   vtkPolyData *output = this->GetOutput();
   
   // All of the data in the first piece.
@@ -138,12 +139,12 @@ void vtkSTLReader::Execute()
   //
   if ( this->GetSTLFileType(fp) == VTK_ASCII )
     {
-	if (ScalarTags) 
-	{
-      newScalars = vtkScalars::New();
-	  newScalars->Allocate(5000,10000);
-	}
-	if ( this->ReadASCIISTL(fp,newPts,newPolys,newScalars) )
+    if (ScalarTags) 
+      {
+      newScalars = vtkFloatArray::New();
+      newScalars->Allocate(5000,10000);
+      }
+    if ( this->ReadASCIISTL(fp,newPts,newPolys,newScalars) )
       {
       return;
       }
@@ -159,8 +160,8 @@ void vtkSTLReader::Execute()
     }
 
   vtkDebugMacro(<< "Read: " 
-               << newPts->GetNumberOfPoints() << " points, "
-               << newPolys->GetNumberOfCells() << " triangles");
+  << newPts->GetNumberOfPoints() << " points, "
+  << newPolys->GetNumberOfCells() << " triangles");
 
   fclose(fp);
   //
@@ -168,7 +169,7 @@ void vtkSTLReader::Execute()
   //
 //  if (0)
   if ( this->Merging )  
-  {
+    {
     int i;
     vtkIdType *pts, nodes[3], npts;
     float *x;
@@ -178,11 +179,12 @@ void vtkSTLReader::Execute()
     mergedPts->Allocate(newPts->GetNumberOfPoints()/2);
     mergedPolys = vtkCellArray::New();
     mergedPolys->Allocate(newPolys->GetSize());
-	if (newScalars) {
-		mergedScalars = vtkScalars::New();
-		mergedScalars->Allocate(newPolys->GetSize());
-	}
-
+    if (newScalars) 
+      {
+      mergedScalars = vtkFloatArray::New();
+      mergedScalars->Allocate(newPolys->GetSize());
+      }
+    
     if ( this->Locator == NULL )
       {
       this->CreateDefaultLocator();
@@ -194,7 +196,7 @@ void vtkSTLReader::Execute()
       for (i=0; i < 3; i++) 
         {
         x = newPts->GetPoint(pts[i]);
-		this->Locator->InsertUniquePoint(x, nodes[i]);
+	this->Locator->InsertUniquePoint(x, nodes[i]);
         }
 
       if ( nodes[0] != nodes[1] &&
@@ -202,30 +204,31 @@ void vtkSTLReader::Execute()
            nodes[1] != nodes[2] )
         {
         mergedPolys->InsertNextCell(3,nodes);
-		if (newScalars) 
-          {
-	      mergedScalars->InsertNextScalar(newScalars->GetScalar(nextCell));	
-		  }
+	if (newScalars) 
+	  {
+	  mergedScalars->InsertNextValue(newScalars->GetValue(nextCell));	
+	  }
         }
-        nextCell++;
+      nextCell++;
       }
 
-      newPts->Delete();
-      newPolys->Delete();
-	  if (newScalars) {
-		  newScalars->Delete();
-	  }
-
-      vtkDebugMacro(<< "Merged to: " 
-                   << mergedPts->GetNumberOfPoints() << " points, " 
-                   << mergedPolys->GetNumberOfCells() << " triangles");
-	}
+    newPts->Delete();
+    newPolys->Delete();
+    if (newScalars) 
+      {
+      newScalars->Delete();
+      }
+      
+    vtkDebugMacro(<< "Merged to: " 
+    << mergedPts->GetNumberOfPoints() << " points, " 
+    << mergedPolys->GetNumberOfCells() << " triangles");
+    }
   else
     {
     mergedPts = newPts;
     mergedPolys = newPolys;
     mergedScalars = newScalars;
-	}
+    }
 //
 // Update ourselves
 //
@@ -235,10 +238,11 @@ void vtkSTLReader::Execute()
   output->SetPolys(mergedPolys);
   mergedPolys->Delete();
 
-  if (mergedScalars) {
-	  output->GetCellData()->SetScalars(mergedScalars);
-	  mergedScalars->Delete();
-  }
+  if (mergedScalars) 
+    {
+    output->GetCellData()->SetScalars(mergedScalars);
+    mergedScalars->Delete();
+    }
 
   if (this->Locator)
     {
@@ -248,7 +252,8 @@ void vtkSTLReader::Execute()
   output->Squeeze();
 }
 
-int vtkSTLReader::ReadBinarySTL(FILE *fp, vtkPoints *newPts, vtkCellArray *newPolys)
+int vtkSTLReader::ReadBinarySTL(FILE *fp, vtkPoints *newPts, 
+				vtkCellArray *newPolys)
 {
   int i, numTris;
   vtkIdType pts[3];
@@ -272,7 +277,7 @@ int vtkSTLReader::ReadBinarySTL(FILE *fp, vtkPoints *newPts, vtkCellArray *newPo
   if ( (numTris = (int) ulint) <= 0 )
     {
     vtkDebugMacro(<< "Bad binary count: attempting to correct (" 
-                  << numTris << ")");
+    << numTris << ")");
     }
 
   for ( i=0; fread(&facet,48,1,fp) > 0; i++ )
@@ -310,7 +315,8 @@ int vtkSTLReader::ReadBinarySTL(FILE *fp, vtkPoints *newPts, vtkCellArray *newPo
   return 0;
 }
 
-int vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts, vtkCellArray *newPolys, vtkScalars *scalars)
+int vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts, 
+			       vtkCellArray *newPolys, vtkFloatArray *scalars)
 {
   char line[256];
   float x[3];
@@ -330,7 +336,7 @@ int vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts, vtkCellArray *newPol
   //
 //  while (fscanf(fp,"%*s %*s %f %f %f\n", x, x+1, x+2)!=EOF) 
   while (!done)
-	{
+    {
 //if (ctr>=253840) { 
 //    fprintf(stdout, "Reading record %d\n", ctr);
 //}
@@ -338,42 +344,42 @@ int vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts, vtkCellArray *newPol
     fgets (line, 255, fp);
     fscanf (fp, "%*s %f %f %f\n", x,x+1,x+2);
     pts[0] = newPts->InsertNextPoint(x);
-	fscanf (fp, "%*s %f %f %f\n", x,x+1,x+2);
+    fscanf (fp, "%*s %f %f %f\n", x,x+1,x+2);
     pts[1] = newPts->InsertNextPoint(x);
-	fscanf (fp, "%*s %f %f %f\n", x,x+1,x+2);
+    fscanf (fp, "%*s %f %f %f\n", x,x+1,x+2);
     pts[2] = newPts->InsertNextPoint(x);
-	fgets (line, 255, fp); // end loop
+    fgets (line, 255, fp); // end loop
     fgets (line, 255, fp); // end facet
 
     newPolys->InsertNextCell(3,pts);
-	if (scalars) 
-	{
-		scalars->InsertNextScalar(currentSolid);
-	}
+    if (scalars) 
+      {
+      scalars->InsertNextValue(currentSolid);
+      }
 
-	if ( (newPolys->GetNumberOfCells() % 5000) == 0 )
+    if ( (newPolys->GetNumberOfCells() % 5000) == 0 )
       {
       vtkDebugMacro(<< "triangle# " << newPolys->GetNumberOfCells());
       this->UpdateProgress((newPolys->GetNumberOfCells()%50000)/50000.0);
       }
-	done = (fscanf(fp,"%s", line)==EOF);
-	if (strcmp(line, "ENDSOLID") == 0) 
+    done = (fscanf(fp,"%s", line)==EOF);
+    if (strcmp(line, "ENDSOLID") == 0) 
+      {
+      currentSolid++;
+      fgets(line, 255, fp);
+      done = feof(fp);
+      while (strncmp(line, "SOLID", 5) && !done) 
 	{
-		currentSolid++;
-		fgets(line, 255, fp);
-		done = feof(fp);
-		while (strncmp(line, "SOLID", 5) && !done) 
-		{
-			fgets(line, 255, fp);
-			done = feof(fp);
-		}
-
-		done = (fscanf(fp,"%s", line)==EOF);
+	fgets(line, 255, fp);
+	done = feof(fp);
 	}
-	if (!done) {
-		done = (fscanf(fp,"%*s %f %f %f\n", x, x+1, x+2)==EOF);
-  	}
-  }
+
+      done = (fscanf(fp,"%s", line)==EOF);
+      }
+    if (!done) {
+    done = (fscanf(fp,"%*s %f %f %f\n", x, x+1, x+2)==EOF);
+    }
+    }
   //fprintf(stdout, "Maximum ctr val %d\n", ctr);
   return 0;
 }

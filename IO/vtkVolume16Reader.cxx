@@ -174,7 +174,7 @@ void vtkVolume16Reader::ExecuteInformation()
     
 void vtkVolume16Reader::Execute()
 {
-  vtkScalars *newScalars;
+  vtkDataArray *newScalars;
   int first, last;
   int *dim;
   int dimensions[3];
@@ -240,7 +240,7 @@ void vtkVolume16Reader::Execute()
 
 vtkStructuredPoints *vtkVolume16Reader::GetImage(int ImageNumber)
 {
-  vtkScalars *newScalars;
+  vtkDataArray *newScalars;
   int *dim;
   int dimensions[3];
   vtkStructuredPoints *result;
@@ -283,9 +283,9 @@ vtkStructuredPoints *vtkVolume16Reader::GetImage(int ImageNumber)
 }
 
 // Read a slice of volume data.
-vtkScalars *vtkVolume16Reader::ReadImage(int sliceNumber)
+vtkUnsignedShortArray *vtkVolume16Reader::ReadImage(int sliceNumber)
 {
-  vtkScalars *scalars = NULL;
+  vtkUnsignedShortArray *scalars = NULL;
   unsigned short *pixels;
   FILE *fp;
   int numPts;
@@ -310,14 +310,16 @@ vtkScalars *vtkVolume16Reader::ReadImage(int sliceNumber)
   numPts = this->DataDimensions[0] * this->DataDimensions[1];
 
   // create the short scalars
-  scalars = vtkScalars::New(VTK_UNSIGNED_SHORT,1);
+  scalars = vtkUnsignedShortArray::New();
   scalars->Allocate(numPts);
 
   // get a pointer to the data
-  pixels = ((vtkUnsignedShortArray *)scalars->GetData())->WritePointer(0, numPts);
+  pixels = scalars->WritePointer(0, numPts);
 
   // read the image data
-  status = this->Read16BitImage (fp, pixels, this->DataDimensions[0], this->DataDimensions[1], this->HeaderSize, this->SwapBytes);
+  status = this->Read16BitImage (fp, pixels, this->DataDimensions[0], 
+				 this->DataDimensions[1], this->HeaderSize, 
+				 this->SwapBytes);
 
   // close the file
   fclose (fp);
@@ -335,9 +337,9 @@ vtkScalars *vtkVolume16Reader::ReadImage(int sliceNumber)
 }
 
 // Read a volume of data.
-vtkScalars *vtkVolume16Reader::ReadVolume(int first, int last)
+vtkUnsignedShortArray *vtkVolume16Reader::ReadVolume(int first, int last)
 {
-  vtkScalars *scalars = NULL;
+  vtkUnsignedShortArray *scalars = NULL;
   unsigned short *pixels;
   unsigned short *slice;
   FILE *fp;
@@ -362,12 +364,11 @@ vtkScalars *vtkVolume16Reader::ReadVolume(int first, int last)
   slice = new unsigned short[numPts];
 
   // create the short scalars for all of the images
-  scalars = vtkScalars::New(VTK_UNSIGNED_SHORT,1);
+  scalars = vtkUnsignedShortArray::New();
   scalars->Allocate(numPts * numberSlices);
 
   // get a pointer to the scalar data
-  pixels = ((vtkUnsignedShortArray *)scalars->GetData())->
-                                                WritePointer(0, numPts*numberSlices);
+  pixels = scalars->WritePointer(0, numPts*numberSlices);
 
   vtkDebugMacro (<< "Creating scalars with " << numPts * numberSlices 
                  << " points.");

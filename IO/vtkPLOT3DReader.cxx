@@ -44,6 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPLOT3DReader.h"
 #include "vtkByteSwap.h"
 #include "vtkObjectFactory.h"
+#include "vtkFloatArray.h"
 
 //-------------------------------------------------------------------------
 vtkPLOT3DReader* vtkPLOT3DReader::New()
@@ -459,8 +460,8 @@ int vtkPLOT3DReader::ReadBinaryGridDimensions(FILE *fp,
 
 int vtkPLOT3DReader::ReadBinarySolution(FILE *fp,vtkStructuredGrid *output)
 {
-  vtkScalars *newDensity, *newEnergy;
-  vtkVectors *newMomentum;
+  vtkFloatArray *newDensity, *newEnergy;
+  vtkFloatArray *newMomentum;
   int dim[3];
   int i, gridFound, offset, gridSize;
   float m[3], params[4];
@@ -538,12 +539,13 @@ int vtkPLOT3DReader::ReadBinarySolution(FILE *fp,vtkStructuredGrid *output)
   this->Time = params[3];
 
   //allocate temporary storage to copy density data into
-  newDensity = vtkScalars::New();
-  newDensity->SetNumberOfScalars(numPts);
-  newEnergy = vtkScalars::New();
-  newEnergy->SetNumberOfScalars(numPts);
-  newMomentum = vtkVectors::New();
-  newMomentum->SetNumberOfVectors(numPts);
+  newDensity = vtkFloatArray::New();
+  newDensity->SetNumberOfTuples(numPts);
+  newEnergy = vtkFloatArray::New();
+  newEnergy->SetNumberOfTuples(numPts);
+  newMomentum = vtkFloatArray::New();
+  newMomentum->SetNumberOfComponents(3);
+  newMomentum->SetNumberOfTuples(numPts);
 
   if (fread(this->TempStorage, sizeof(float), numPts, fp) < 
       (unsigned int)numPts ) 
@@ -559,7 +561,7 @@ int vtkPLOT3DReader::ReadBinarySolution(FILE *fp,vtkStructuredGrid *output)
     vtkByteSwap::Swap4BERange(this->TempStorage,numPts);
     for (i=0; i < this->NumberOfPoints; i++) 
       {
-      newDensity->SetScalar(i,this->TempStorage[i]);
+      newDensity->SetValue(i,this->TempStorage[i]);
       }
     }
 
@@ -580,7 +582,7 @@ int vtkPLOT3DReader::ReadBinarySolution(FILE *fp,vtkStructuredGrid *output)
       m[0] = this->TempStorage[i];
       m[1] = this->TempStorage[this->NumberOfPoints+i];
       m[2] = this->TempStorage[2*this->NumberOfPoints+i];
-      newMomentum->SetVector(i,m);
+      newMomentum->SetTuple(i,m);
       }
     }
 
@@ -598,7 +600,7 @@ int vtkPLOT3DReader::ReadBinarySolution(FILE *fp,vtkStructuredGrid *output)
     vtkByteSwap::Swap4BERange(this->TempStorage,numPts);
     for (i=0; i < this->NumberOfPoints; i++) 
       {
-      newEnergy->SetScalar(i,this->TempStorage[i]);
+      newEnergy->SetValue(i,this->TempStorage[i]);
       }
     }
   //
@@ -754,7 +756,7 @@ void vtkPLOT3DReader::ComputeTemperature(vtkPointData *outputPD)
 {
   float *m, e, rr, u, v, w, v2, p, d, rrgas;
   int i;
-  vtkScalars *temperature;
+  vtkFloatArray *temperature;
 //
 //  Check that the required data is available
 //
@@ -765,25 +767,25 @@ void vtkPLOT3DReader::ComputeTemperature(vtkPointData *outputPD)
     return;
     }
 
-  temperature = vtkScalars::New();
-  temperature->SetNumberOfScalars(this->NumberOfPoints);
+  temperature = vtkFloatArray::New();
+  temperature->SetNumberOfTuples(this->NumberOfPoints);
 //
 //  Compute the temperature
 //
   rrgas = 1.0 / this->R;
   for (i=0; i < this->NumberOfPoints; i++) 
     {
-    d = this->Density->GetScalar(i);
+    d = this->Density->GetComponent(i,0);
     d = (d != 0.0 ? d : 1.0);
-    m = this->Momentum->GetVector(i);
-    e = this->Energy->GetScalar(i);
+    m = this->Momentum->GetTuple(i);
+    e = this->Energy->GetComponent(i,0);
     rr = 1.0 / d;
     u = m[0] * rr;        
     v = m[1] * rr;        
     w = m[2] * rr;        
     v2 = u*u + v*v + w*w;
     p = (this->Gamma-1.) * (e - 0.5 * d * v2);
-    temperature->SetScalar(i, p*rr*rrgas);
+    temperature->SetValue(i, p*rr*rrgas);
   }
   outputPD->SetScalars(temperature);
   temperature->Delete();
@@ -794,7 +796,7 @@ void vtkPLOT3DReader::ComputePressure(vtkPointData *outputPD)
 {
   float *m, e, u, v, w, v2, p, d, rr;
   int i;
-  vtkScalars *pressure;
+  vtkFloatArray *pressure;
 //
 //  Check that the required data is available
 //
@@ -805,24 +807,24 @@ void vtkPLOT3DReader::ComputePressure(vtkPointData *outputPD)
     return;
     }
 
-  pressure = vtkScalars::New();
-  pressure->SetNumberOfScalars(this->NumberOfPoints);
+  pressure = vtkFloatArray::New();
+  pressure->SetNumberOfTuples(this->NumberOfPoints);
 //
 //  Compute the pressure
 //
   for (i=0; i < this->NumberOfPoints; i++) 
     {
-    d = this->Density->GetScalar(i);
+    d = this->Density->GetComponent(i,0);
     d = (d != 0.0 ? d : 1.0);
-    m = this->Momentum->GetVector(i);
-    e = this->Energy->GetScalar(i);
+    m = this->Momentum->GetTuple(i);
+    e = this->Energy->GetComponent(i,0);
     rr = 1.0 / d;
     u = m[0] * rr;        
     v = m[1] * rr;        
     w = m[2] * rr;        
     v2 = u*u + v*v + w*w;
     p = (this->Gamma-1.) * (e - 0.5 * d * v2);
-    pressure->SetScalar(i, p);
+    pressure->SetValue(i, p);
   }
   outputPD->SetScalars(pressure);
   pressure->Delete();
@@ -833,7 +835,7 @@ void vtkPLOT3DReader::ComputeEnthalpy(vtkPointData *outputPD)
 {
   float *m, e, u, v, w, v2, d, rr;
   int i;
-  vtkScalars *enthalpy;
+  vtkFloatArray *enthalpy;
 //
 //  Check that the required data is available
 //
@@ -844,23 +846,23 @@ void vtkPLOT3DReader::ComputeEnthalpy(vtkPointData *outputPD)
     return;
     }
 
-  enthalpy = vtkScalars::New();
-  enthalpy->SetNumberOfScalars(this->NumberOfPoints);
+  enthalpy = vtkFloatArray::New();
+  enthalpy->SetNumberOfTuples(this->NumberOfPoints);
 //
 //  Compute the enthalpy
 //
   for (i=0; i < this->NumberOfPoints; i++) 
     {
-    d = this->Density->GetScalar(i);
+    d = this->Density->GetComponent(i,0);
     d = (d != 0.0 ? d : 1.0);
-    m = this->Momentum->GetVector(i);
-    e = this->Energy->GetScalar(i);
+    m = this->Momentum->GetTuple(i);
+    e = this->Energy->GetComponent(i,0);
     rr = 1.0 / d;
     u = m[0] * rr;        
     v = m[1] * rr;        
     w = m[2] * rr;        
     v2 = u*u + v*v + w*w;
-    enthalpy->SetScalar(i, this->Gamma*(e*rr - 0.5*v2));
+    enthalpy->SetValue(i, this->Gamma*(e*rr - 0.5*v2));
   }
   outputPD->SetScalars(enthalpy);
   enthalpy->Delete();
@@ -877,7 +879,7 @@ void vtkPLOT3DReader::ComputeKineticEnergy(vtkPointData *outputPD)
 {
   float *m, u, v, w, v2, d, rr;
   int i;
-  vtkScalars *kineticEnergy;
+  vtkFloatArray *kineticEnergy;
 //
 //  Check that the required data is available
 //
@@ -887,22 +889,22 @@ void vtkPLOT3DReader::ComputeKineticEnergy(vtkPointData *outputPD)
     return;
     }
 
-  kineticEnergy = vtkScalars::New();
-  kineticEnergy->SetNumberOfScalars(this->NumberOfPoints);
+  kineticEnergy = vtkFloatArray::New();
+  kineticEnergy->SetNumberOfTuples(this->NumberOfPoints);
 //
 //  Compute the kinetic energy
 //
   for (i=0; i < this->NumberOfPoints; i++) 
     {
-    d = this->Density->GetScalar(i);
+    d = this->Density->GetComponent(i,0);
     d = (d != 0.0 ? d : 1.0);
-    m = this->Momentum->GetVector(i);
+    m = this->Momentum->GetTuple(i);
     rr = 1.0 / d;
     u = m[0] * rr;        
     v = m[1] * rr;        
     w = m[2] * rr;        
     v2 = u*u + v*v + w*w;
-    kineticEnergy->SetScalar(i, 0.5*v2);
+    kineticEnergy->SetValue(i, 0.5*v2);
   }
   outputPD->SetScalars(kineticEnergy);
   kineticEnergy->Delete();
@@ -913,7 +915,7 @@ void vtkPLOT3DReader::ComputeVelocityMagnitude(vtkPointData *outputPD)
 {
   float *m, u, v, w, v2, d, rr;
   int i;
-  vtkScalars *velocityMag;
+  vtkFloatArray *velocityMag;
 //
 //  Check that the required data is available
 //
@@ -924,22 +926,22 @@ void vtkPLOT3DReader::ComputeVelocityMagnitude(vtkPointData *outputPD)
     return;
     }
 
-  velocityMag = vtkScalars::New();
-  velocityMag->SetNumberOfScalars(this->NumberOfPoints);
+  velocityMag = vtkFloatArray::New();
+  velocityMag->SetNumberOfTuples(this->NumberOfPoints);
 //
 //  Compute the velocity magnitude
 //
   for (i=0; i < this->NumberOfPoints; i++) 
     {
-    d = this->Density->GetScalar(i);
+    d = this->Density->GetComponent(i,0);
     d = (d != 0.0 ? d : 1.0);
-    m = this->Momentum->GetVector(i);
+    m = this->Momentum->GetTuple(i);
     rr = 1.0 / d;
     u = m[0] * rr;        
     v = m[1] * rr;        
     w = m[2] * rr;        
     v2 = u*u + v*v + w*w;
-    velocityMag->SetScalar(i, sqrt((double)v2));
+    velocityMag->SetValue(i, sqrt((double)v2));
   }
   outputPD->SetScalars(velocityMag);
   velocityMag->Delete();
@@ -956,7 +958,7 @@ void vtkPLOT3DReader::ComputeEntropy(vtkPointData *outputPD)
 {
   float *m, u, v, w, v2, d, rr, s, p, e;
   int i;
-  vtkScalars *entropy;
+  vtkFloatArray *entropy;
 //
 //  Check that the required data is available
 //
@@ -967,17 +969,17 @@ void vtkPLOT3DReader::ComputeEntropy(vtkPointData *outputPD)
     return;
     }
 
-  entropy = vtkScalars::New();
-  entropy->SetNumberOfScalars(this->NumberOfPoints);
+  entropy = vtkFloatArray::New();
+  entropy->SetNumberOfTuples(this->NumberOfPoints);
 //
 //  Compute the entropy
 //
   for (i=0; i < this->NumberOfPoints; i++) 
     {
-    d = this->Density->GetScalar(i);
+    d = this->Density->GetComponent(i,0);
     d = (d != 0.0 ? d : 1.0);
-    m = this->Momentum->GetVector(i);
-    e = this->Energy->GetScalar(i);
+    m = this->Momentum->GetTuple(i);
+    e = this->Energy->GetComponent(i,0);
     rr = 1.0 / d;
     u = m[0] * rr;        
     v = m[1] * rr;        
@@ -985,7 +987,7 @@ void vtkPLOT3DReader::ComputeEntropy(vtkPointData *outputPD)
     v2 = u*u + v*v + w*w;
     p = (this->Gamma-1.)*(e - 0.5*d*v2);
     s = VTK_CV * log((p/VTK_PINF)/pow((double)d/VTK_RHOINF,(double)this->Gamma));
-    entropy->SetScalar(i, s);
+    entropy->SetValue(i,s);
   }
   outputPD->SetScalars(entropy);
   entropy->Delete();
@@ -994,11 +996,11 @@ void vtkPLOT3DReader::ComputeEntropy(vtkPointData *outputPD)
 
 void vtkPLOT3DReader::ComputeSwirl(vtkPointData *outputPD)
 {
-  vtkVectors *currentVector;
-  vtkVectors *vorticity;
+  vtkDataArray *currentVector;
+  vtkDataArray *vorticity;
   float d, rr, *m, u, v, w, v2, *vort, s;
   int i;
-  vtkScalars *swirl;
+  vtkFloatArray *swirl;
 //
 //  Check that the required data is available
 //
@@ -1009,26 +1011,26 @@ void vtkPLOT3DReader::ComputeSwirl(vtkPointData *outputPD)
     return;
     }
 
-  swirl = vtkScalars::New();
-  swirl->SetNumberOfScalars(this->NumberOfPoints);
+  swirl = vtkFloatArray::New();
+  swirl->SetNumberOfTuples(this->NumberOfPoints);
 
-  currentVector = outputPD->GetVectors();
+  currentVector = outputPD->GetActiveVectors();
   if (currentVector)
     {
     currentVector->Register(this);
     }
 
   this->ComputeVorticity(outputPD);
-  vorticity = outputPD->GetVectors();
+  vorticity = outputPD->GetActiveVectors();
 //
 //  Compute the swirl
 //
   for (i=0; i < this->NumberOfPoints; i++) 
     {
-    d = this->Density->GetScalar(i);
+    d = this->Density->GetComponent(i,0);
     d = (d != 0.0 ? d : 1.0);
-    m = this->Momentum->GetVector(i);
-    vort = vorticity->GetVector(i);
+    m = this->Momentum->GetTuple(i);
+    vort = vorticity->GetTuple(i);
     rr = 1.0 / d;
     u = m[0] * rr;        
     v = m[1] * rr;        
@@ -1043,7 +1045,7 @@ void vtkPLOT3DReader::ComputeSwirl(vtkPointData *outputPD)
       s = 0.0;
       }
 
-    swirl->SetScalar(i,s);
+    swirl->SetValue(i,s);
   }
   outputPD->SetScalars(swirl);
   swirl->Delete();
@@ -1062,7 +1064,7 @@ void vtkPLOT3DReader::ComputeVelocity(vtkPointData *outputPD)
 {
   float *m, v[3], d, rr;
   int i;
-  vtkVectors *velocity;
+  vtkFloatArray *velocity;
 //
 //  Check that the required data is available
 //
@@ -1073,21 +1075,22 @@ void vtkPLOT3DReader::ComputeVelocity(vtkPointData *outputPD)
     return;
     }
 
-  velocity = vtkVectors::New();
-  velocity->SetNumberOfVectors(this->NumberOfPoints);
+  velocity = vtkFloatArray::New();
+  velocity->SetNumberOfComponents(3);
+  velocity->SetNumberOfTuples(this->NumberOfPoints);
 //
 //  Compute the velocity
 //
   for (i=0; i < this->NumberOfPoints; i++) 
     {
-    d = this->Density->GetScalar(i);
+    d = this->Density->GetComponent(i,0);
     d = (d != 0.0 ? d : 1.0);
-    m = this->Momentum->GetVector(i);
+    m = this->Momentum->GetTuple(i);
     rr = 1.0 / d;
     v[0] = m[0] * rr;        
     v[1] = m[1] * rr;        
     v[2] = m[2] * rr;        
-    velocity->SetVector(i, v);
+    velocity->SetTuple(i, v);
   }
   outputPD->SetVectors(velocity);
   velocity->Delete();
@@ -1096,8 +1099,8 @@ void vtkPLOT3DReader::ComputeVelocity(vtkPointData *outputPD)
 
 void vtkPLOT3DReader::ComputeVorticity(vtkPointData *outputPD)
 {
-  vtkVectors *velocity;
-  vtkVectors *vorticity;
+  vtkDataArray *velocity;
+  vtkFloatArray *vorticity;
   int dims[3], ijsize;
   vtkPoints *points;
   int i, j, k, idx, idx2, ii;
@@ -1116,11 +1119,12 @@ void vtkPLOT3DReader::ComputeVorticity(vtkPointData *outputPD)
     return;
     }
 
-  vorticity = vtkVectors::New();
-  vorticity->SetNumberOfVectors(this->NumberOfPoints);
+  vorticity = vtkFloatArray::New();
+  vorticity->SetNumberOfComponents(3);
+  vorticity->SetNumberOfTuples(this->NumberOfPoints);
 
   this->ComputeVelocity(outputPD);
-  velocity = outputPD->GetVectors();
+  velocity = outputPD->GetActiveVectors();
 
   this->GetOutput()->GetDimensions(dims);
   ijsize = dims[0]*dims[1];
@@ -1148,8 +1152,8 @@ void vtkPLOT3DReader::ComputeVorticity(vtkPointData *outputPD)
           idx2 = i + j*dims[0] + k*ijsize;
           points->GetPoint(idx,xp);
           points->GetPoint(idx2,xm);
-          velocity->GetVector(idx,vp);
-          velocity->GetVector(idx2,vm);
+          velocity->GetTuple(idx,vp);
+          velocity->GetTuple(idx2,vm);
           } 
         else if ( i == (dims[0]-1) ) 
           {
@@ -1158,8 +1162,8 @@ void vtkPLOT3DReader::ComputeVorticity(vtkPointData *outputPD)
           idx2 = i-1 + j*dims[0] + k*ijsize;
           points->GetPoint(idx,xp);
           points->GetPoint(idx2,xm);
-          velocity->GetVector(idx,vp);
-          velocity->GetVector(idx2,vm);
+          velocity->GetTuple(idx,vp);
+          velocity->GetTuple(idx2,vm);
           } 
         else 
           {
@@ -1168,8 +1172,8 @@ void vtkPLOT3DReader::ComputeVorticity(vtkPointData *outputPD)
           idx2 = (i-1) + j*dims[0] + k*ijsize;
           points->GetPoint(idx,xp);
           points->GetPoint(idx2,xm);
-          velocity->GetVector(idx,vp);
-          velocity->GetVector(idx2,vm);
+          velocity->GetTuple(idx,vp);
+          velocity->GetTuple(idx2,vm);
           }
 
         xxi = factor * (xp[0] - xm[0]);
@@ -1196,8 +1200,8 @@ void vtkPLOT3DReader::ComputeVorticity(vtkPointData *outputPD)
           idx2 = i + j*dims[0] + k*ijsize;
           points->GetPoint(idx,xp);
           points->GetPoint(idx2,xm);
-          velocity->GetVector(idx,vp);
-          velocity->GetVector(idx2,vm);
+          velocity->GetTuple(idx,vp);
+          velocity->GetTuple(idx2,vm);
           } 
         else if ( j == (dims[1]-1) ) 
           {
@@ -1206,8 +1210,8 @@ void vtkPLOT3DReader::ComputeVorticity(vtkPointData *outputPD)
           idx2 = i + (j-1)*dims[0] + k*ijsize;
           points->GetPoint(idx,xp);
           points->GetPoint(idx2,xm);
-          velocity->GetVector(idx,vp);
-          velocity->GetVector(idx2,vm);
+          velocity->GetTuple(idx,vp);
+          velocity->GetTuple(idx2,vm);
           } 
         else 
           {
@@ -1216,8 +1220,8 @@ void vtkPLOT3DReader::ComputeVorticity(vtkPointData *outputPD)
           idx2 = i + (j-1)*dims[0] + k*ijsize;
           points->GetPoint(idx,xp);
           points->GetPoint(idx2,xm);
-          velocity->GetVector(idx,vp);
-          velocity->GetVector(idx2,vm);
+          velocity->GetTuple(idx,vp);
+          velocity->GetTuple(idx2,vm);
           }
 
 
@@ -1245,8 +1249,8 @@ void vtkPLOT3DReader::ComputeVorticity(vtkPointData *outputPD)
           idx2 = i + j*dims[0] + k*ijsize;
           points->GetPoint(idx,xp);
           points->GetPoint(idx2,xm);
-          velocity->GetVector(idx,vp);
-          velocity->GetVector(idx2,vm);
+          velocity->GetTuple(idx,vp);
+          velocity->GetTuple(idx2,vm);
           } 
         else if ( k == (dims[2]-1) ) 
           {
@@ -1255,8 +1259,8 @@ void vtkPLOT3DReader::ComputeVorticity(vtkPointData *outputPD)
           idx2 = i + j*dims[0] + (k-1)*ijsize;
           points->GetPoint(idx,xp);
           points->GetPoint(idx2,xm);
-          velocity->GetVector(idx,vp);
-          velocity->GetVector(idx2,vm);
+          velocity->GetTuple(idx,vp);
+          velocity->GetTuple(idx2,vm);
           } 
         else 
           {
@@ -1265,8 +1269,8 @@ void vtkPLOT3DReader::ComputeVorticity(vtkPointData *outputPD)
           idx2 = i + j*dims[0] + (k-1)*ijsize;
           points->GetPoint(idx,xp);
           points->GetPoint(idx2,xm);
-          velocity->GetVector(idx,vp);
-          velocity->GetVector(idx2,vm);
+          velocity->GetTuple(idx,vp);
+          velocity->GetTuple(idx2,vm);
           }
 
 
@@ -1310,7 +1314,7 @@ void vtkPLOT3DReader::ComputeVorticity(vtkPointData *outputPD)
         vort[1]= xiz*uxi+etaz*ueta+zetaz*uzeta - xix*wxi-etax*weta-zetax*wzeta;
         vort[2]= xix*vxi+etax*veta+zetax*vzeta - xiy*uxi-etay*ueta-zetay*uzeta;
         idx = i + j*dims[0] + k*ijsize;
-        vorticity->SetVector(idx,vort);
+        vorticity->SetTuple(idx,vort);
         }
       }
     }
@@ -1328,9 +1332,9 @@ void vtkPLOT3DReader::ComputeMomentum(vtkPointData *outputPD)
 
 void vtkPLOT3DReader::ComputePressureGradient(vtkPointData *outputPD)
 {
-  vtkScalars *currentScalar;
-  vtkScalars *pressure;
-  vtkVectors *gradient;
+  vtkDataArray *currentScalar;
+  vtkDataArray *pressure;
+  vtkFloatArray *gradient;
   int dims[3], ijsize;
   vtkPoints *points;
   int i, j, k, idx, idx2, ii;
@@ -1349,16 +1353,17 @@ void vtkPLOT3DReader::ComputePressureGradient(vtkPointData *outputPD)
     return;
     }
 
-  gradient = vtkVectors::New();
-  gradient->SetNumberOfVectors(this->NumberOfPoints);
+  gradient = vtkFloatArray::New();
+  gradient->SetNumberOfComponents(3);
+  gradient->SetNumberOfTuples(this->NumberOfPoints);
 
-  currentScalar = outputPD->GetScalars();
+  currentScalar = outputPD->GetActiveScalars();
   if (currentScalar)
     {
     currentScalar->Register(this);
     }
   this->ComputePressure(outputPD);
-  pressure = outputPD->GetScalars();
+  pressure = outputPD->GetActiveScalars();
 
   this->GetOutput()->GetDimensions(dims);
   ijsize = dims[0]*dims[1];
@@ -1388,8 +1393,8 @@ void vtkPLOT3DReader::ComputePressureGradient(vtkPointData *outputPD)
           idx2 = i + j*dims[0] + k*ijsize;
           points->GetPoint(idx,xp);
           points->GetPoint(idx2,xm);
-          pp = pressure->GetScalar(idx);
-          pm = pressure->GetScalar(idx2);
+          pp = pressure->GetComponent(idx,0);
+          pm = pressure->GetComponent(idx2,0);
           } 
         else if ( i == (dims[0]-1) ) 
           {
@@ -1398,8 +1403,8 @@ void vtkPLOT3DReader::ComputePressureGradient(vtkPointData *outputPD)
           idx2 = i-1 + j*dims[0] + k*ijsize;
           points->GetPoint(idx,xp);
           points->GetPoint(idx2,xm);
-          pp = pressure->GetScalar(idx);
-          pm = pressure->GetScalar(idx2);
+          pp = pressure->GetComponent(idx,0);
+          pm = pressure->GetComponent(idx2,0);
           } 
         else 
           {
@@ -1408,8 +1413,8 @@ void vtkPLOT3DReader::ComputePressureGradient(vtkPointData *outputPD)
           idx2 = (i-1) + j*dims[0] + k*ijsize;
           points->GetPoint(idx,xp);
           points->GetPoint(idx2,xm);
-          pp = pressure->GetScalar(idx);
-          pm = pressure->GetScalar(idx2);
+          pp = pressure->GetComponent(idx,0);
+          pm = pressure->GetComponent(idx2,0);
           }
 
         xxi = factor * (xp[0] - xm[0]);
@@ -1435,8 +1440,8 @@ void vtkPLOT3DReader::ComputePressureGradient(vtkPointData *outputPD)
           idx2 = i + j*dims[0] + k*ijsize;
           points->GetPoint(idx,xp);
           points->GetPoint(idx2,xm);
-          pp = pressure->GetScalar(idx);
-          pm = pressure->GetScalar(idx2);
+          pp = pressure->GetComponent(idx,0);
+          pm = pressure->GetComponent(idx2,0);
           } 
         else if ( j == (dims[1]-1) ) 
           {
@@ -1445,8 +1450,8 @@ void vtkPLOT3DReader::ComputePressureGradient(vtkPointData *outputPD)
           idx2 = i + (j-1)*dims[0] + k*ijsize;
           points->GetPoint(idx,xp);
           points->GetPoint(idx2,xm);
-          pp = pressure->GetScalar(idx);
-          pm = pressure->GetScalar(idx2);
+          pp = pressure->GetComponent(idx,0);
+          pm = pressure->GetComponent(idx2,0);
           } 
         else 
           {
@@ -1455,8 +1460,8 @@ void vtkPLOT3DReader::ComputePressureGradient(vtkPointData *outputPD)
           idx2 = i + (j-1)*dims[0] + k*ijsize;
           points->GetPoint(idx,xp);
           points->GetPoint(idx2,xm);
-          pp = pressure->GetScalar(idx);
-          pm = pressure->GetScalar(idx2);
+          pp = pressure->GetComponent(idx,0);
+          pm = pressure->GetComponent(idx2,0);
           }
 
         xeta = factor * (xp[0] - xm[0]);
@@ -1482,8 +1487,8 @@ void vtkPLOT3DReader::ComputePressureGradient(vtkPointData *outputPD)
           idx2 = i + j*dims[0] + k*ijsize;
           points->GetPoint(idx,xp);
           points->GetPoint(idx2,xm);
-          pp = pressure->GetScalar(idx);
-          pm = pressure->GetScalar(idx2);
+          pp = pressure->GetComponent(idx,0);
+          pm = pressure->GetComponent(idx2,0);
           } 
         else if ( k == (dims[2]-1) ) 
           {
@@ -1492,8 +1497,8 @@ void vtkPLOT3DReader::ComputePressureGradient(vtkPointData *outputPD)
           idx2 = i + j*dims[0] + (k-1)*ijsize;
           points->GetPoint(idx,xp);
           points->GetPoint(idx2,xm);
-          pp = pressure->GetScalar(idx);
-          pm = pressure->GetScalar(idx2);
+          pp = pressure->GetComponent(idx,0);
+          pm = pressure->GetComponent(idx2,0);
           } 
         else 
           {
@@ -1502,8 +1507,8 @@ void vtkPLOT3DReader::ComputePressureGradient(vtkPointData *outputPD)
           idx2 = i + j*dims[0] + (k-1)*ijsize;
           points->GetPoint(idx,xp);
           points->GetPoint(idx2,xm);
-          pp = pressure->GetScalar(idx);
-          pm = pressure->GetScalar(idx2);
+          pp = pressure->GetComponent(idx,0);
+          pm = pressure->GetComponent(idx2,0);
           }
 
         xzeta = factor * (xp[0] - xm[0]);
@@ -1549,7 +1554,7 @@ void vtkPLOT3DReader::ComputePressureGradient(vtkPointData *outputPD)
         g[2]= xiz*pxi+etaz*peta+zetaz*pzeta;
 
         idx = i + j*dims[0] + k*ijsize;
-        gradient->SetVector(idx,g);
+        gradient->SetTuple(idx,g);
         }
       }
     }

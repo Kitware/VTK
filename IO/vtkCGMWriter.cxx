@@ -518,7 +518,7 @@ void vtkCGMWriter::WriteData()
   vtkPolyData *input=this->GetInput();
   vtkPoints *inPts=input->GetPoints(), *pts;
   vtkGenericCell *cell=vtkGenericCell::New();
-  vtkScalars *inScalars=input->GetCellData()->GetScalars();
+  vtkDataArray *inScalars=input->GetCellData()->GetActiveScalars();
   vtkIdType numCells=input->GetNumberOfCells(), cellId;
   vtkIdType numPts=input->GetNumberOfPoints();
   int i, id, type, npts, size[2], *p;
@@ -612,7 +612,7 @@ void vtkCGMWriter::WriteData()
       {
       colorMode = VTK_COLOR_MODE_DEFAULT;
       bpp = inScalars->GetNumberOfComponents();
-      colors = ((vtkUnsignedCharArray *)inScalars->GetData())->GetPointer(0);
+      colors = static_cast<vtkUnsignedCharArray *>(inScalars)->GetPointer(0);
       }
     else
       {

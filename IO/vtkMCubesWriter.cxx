@@ -40,7 +40,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkMCubesWriter.h"
 #include "vtkByteSwap.h"
-#include "vtkNormals.h"
 #include "vtkObjectFactory.h"
 
 //--------------------------------------------------------------------------
@@ -69,14 +68,15 @@ vtkMCubesWriter::~vtkMCubesWriter()
     delete [] this->LimitsFileName;
     }
 }
-static void WriteMCubes(FILE *fp, vtkPoints *pts, vtkNormals *normals, vtkCellArray *polys);
+static void WriteMCubes(FILE *fp, vtkPoints *pts, vtkDataArray *normals, 
+			vtkCellArray *polys);
 static void WriteLimits(FILE *fp, float *bounds);
 
 // Write out data in MOVIE.BYU format.
 void vtkMCubesWriter::WriteData()
 {
   vtkPoints *pts;
-  vtkNormals *normals;
+  vtkDataArray *normals;
   vtkCellArray *polys;
   vtkPolyData *input=this->GetInput();
 
@@ -88,7 +88,7 @@ void vtkMCubesWriter::WriteData()
     return;
     }
 
-  normals = input->GetPointData()->GetNormals();
+  normals = input->GetPointData()->GetActiveNormals();
   if (normals == NULL )
     {
     vtkErrorMacro(<<"No normals to write!: use vtkPolyDataNormals to generate them");
@@ -124,7 +124,8 @@ void vtkMCubesWriter::WriteData()
   }
 }
 
-void WriteMCubes(FILE *fp, vtkPoints *pts, vtkNormals *normals, vtkCellArray *polys)
+void WriteMCubes(FILE *fp, vtkPoints *pts, vtkDataArray *normals, 
+		 vtkCellArray *polys)
 {
   typedef struct {float x[3], n[3];} pointType;
   pointType point;
@@ -139,7 +140,7 @@ void WriteMCubes(FILE *fp, vtkPoints *pts, vtkNormals *normals, vtkCellArray *po
     for (i=0; i < 3; i++)
       {
       pts->GetPoint(indx[i],&point.x[0]);
-      normals->GetNormal(indx[i],&point.n[0]);
+      normals->GetTuple(indx[i],&point.n[0]);
       vtkByteSwap::SwapWrite4BERange((float *) (&point),6,fp);
       }
     }

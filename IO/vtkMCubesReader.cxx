@@ -45,7 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMergePoints.h"
 #include "vtkByteSwap.h"
 #include "vtkObjectFactory.h"
-
+#include "vtkFloatArray.h"
 
 
 //------------------------------------------------------------------------------
@@ -105,7 +105,7 @@ void vtkMCubesReader::Execute()
   FILE *limitp = NULL;
   vtkPoints *newPts;
   vtkCellArray *newPolys;
-  vtkNormals *newNormals = NULL;
+  vtkFloatArray *newNormals = NULL;
   float bounds[6];
   int i, j, k, numPts, numTris;
   typedef struct {float x[3], n[3];} pointType;
@@ -207,8 +207,9 @@ void vtkMCubesReader::Execute()
 
   if ( this->Normals ) 
     {
-    newNormals = vtkNormals::New();
-    newNormals->Allocate(numPts/3,numPts/3);
+    newNormals = vtkFloatArray::New();
+    newNormals->SetNumberOfComponents(3);
+    newNormals->Allocate(numPts,numPts);
     }
   
   if ( this->Locator == NULL )
@@ -247,7 +248,7 @@ void vtkMCubesReader::Execute()
 	    {
 	    n[k] = point.n[k] * direction;
 	    }
-          newNormals->InsertNormal(nodes[j],n);
+          newNormals->InsertTuple(nodes[j],n);
           }
         }
       }

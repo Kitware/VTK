@@ -92,7 +92,7 @@ vtkStructuredPoints *vtkStructuredPointsReader::GetOutput()
 void vtkStructuredPointsReader::ExecuteInformation()
 {
   vtkStructuredPoints *output = this->GetOutput();
-  vtkScalars *scalars;
+  vtkDataArray *scalars;
   int saveRequestFlag;
   
   // Now here is a problem.
@@ -105,7 +105,7 @@ void vtkStructuredPointsReader::ExecuteInformation()
   output->vtkDataObject::UpdateData();
   output->SetRequestExactExtent(saveRequestFlag);
   
-  scalars = output->GetPointData()->GetScalars();
+  scalars = output->GetPointData()->GetActiveScalars();
   if (scalars)
     {
     output->SetScalarType(scalars->GetDataType());
