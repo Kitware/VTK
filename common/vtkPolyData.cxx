@@ -282,7 +282,7 @@ vtkCell *vtkPolyData::GetCell(int cellId)
     case VTK_VERTEX:
       if (!this->Vertex)
         {
-	this->Vertex = vtkVertex::New();
+        this->Vertex = vtkVertex::New();
         }
       cell = this->Vertex;
       this->Verts->GetCell(loc,numPts,pts);
@@ -291,7 +291,7 @@ vtkCell *vtkPolyData::GetCell(int cellId)
     case VTK_POLY_VERTEX:
       if (! this->PolyVertex)
         {
-	this->PolyVertex = vtkPolyVertex::New();
+        this->PolyVertex = vtkPolyVertex::New();
         }
       cell = this->PolyVertex;
       this->Verts->GetCell(loc,numPts,pts);
@@ -302,7 +302,7 @@ vtkCell *vtkPolyData::GetCell(int cellId)
     case VTK_LINE: 
       if (! this->Line )
         {
-	this->Line = vtkLine::New();
+        this->Line = vtkLine::New();
         }
       cell = this->Line;
       this->Lines->GetCell(loc,numPts,pts);
@@ -311,7 +311,7 @@ vtkCell *vtkPolyData::GetCell(int cellId)
     case VTK_POLY_LINE:
       if (!this->PolyLine)
         {
-	this->PolyLine = vtkPolyLine::New();
+        this->PolyLine = vtkPolyLine::New();
         }
       cell = this->PolyLine;
       this->Lines->GetCell(loc,numPts,pts);
@@ -322,7 +322,7 @@ vtkCell *vtkPolyData::GetCell(int cellId)
     case VTK_TRIANGLE:
       if (!this->Triangle)
         {
-	this->Triangle = vtkTriangle::New();
+        this->Triangle = vtkTriangle::New();
         }
       cell = this->Triangle;
       this->Polys->GetCell(loc,numPts,pts);
@@ -331,7 +331,7 @@ vtkCell *vtkPolyData::GetCell(int cellId)
     case VTK_QUAD:
       if (!this->Quad)
         {
-	this->Quad = vtkQuad::New();
+        this->Quad = vtkQuad::New();
         }
       cell = this->Quad;
       this->Polys->GetCell(loc,numPts,pts);
@@ -340,7 +340,7 @@ vtkCell *vtkPolyData::GetCell(int cellId)
     case VTK_POLYGON:
       if (!this->Polygon)
         {
-	this->Polygon = vtkPolygon::New();
+        this->Polygon = vtkPolygon::New();
         }
       cell = this->Polygon;
       this->Polys->GetCell(loc,numPts,pts);
@@ -351,7 +351,7 @@ vtkCell *vtkPolyData::GetCell(int cellId)
     case VTK_TRIANGLE_STRIP:
       if (!this->TriangleStrip)
         {
-	this->TriangleStrip = vtkTriangleStrip::New();
+        this->TriangleStrip = vtkTriangleStrip::New();
         }
       cell = this->TriangleStrip;
       this->Strips->GetCell(loc,numPts,pts);
@@ -362,7 +362,7 @@ vtkCell *vtkPolyData::GetCell(int cellId)
     default:
       if (!this->EmptyCell)
         {
-	this->EmptyCell = vtkEmptyCell::New();
+        this->EmptyCell = vtkEmptyCell::New();
         }
       cell = this->EmptyCell;
       return cell;
@@ -455,7 +455,7 @@ void vtkPolyData::GetCell(int cellId, vtkGenericCell *cell)
 }
 
 void vtkPolyData::CopyCells(vtkPolyData *pd, vtkIdList *idList,
-			    vtkPointLocator *locator)
+                            vtkPointLocator *locator)
 {
   int numPts, cellId, numCellPts, i, ptId, newId, newCellId, locatorPtId;
   vtkPoints *newPoints;
@@ -492,29 +492,29 @@ void vtkPolyData::CopyCells(vtkPolyData *pd, vtkIdList *idList,
       {
       ptId = cellPts->GetId(i);
       if ( (newId = pointMap->GetId(ptId)) < 0 )
-	{
-	pd->GetPoint(ptId, x);
-	if (locator != NULL)
-	  {
-	  if ((locatorPtId = locator->IsInsertedPoint(x)) == -1)
-	    {
-	    newId = newPoints->InsertNextPoint(x);
-	    locator->InsertNextPoint(x);
-	    pointMap->SetId(ptId, newId);
-	    outPD->CopyData(pd->GetPointData(), ptId, newId);
-	    }
-	  else
-	    {
-	    newId = locatorPtId;
-	    }
-	  }
-	else
-	  {
-	  newId = newPoints->InsertNextPoint(x);
-	  pointMap->SetId(ptId, newId);
-	  outPD->CopyData(pd->GetPointData(), ptId, newId);
-	  }
-	}
+        {
+        pd->GetPoint(ptId, x);
+        if (locator != NULL)
+          {
+          if ((locatorPtId = locator->IsInsertedPoint(x)) == -1)
+            {
+            newId = newPoints->InsertNextPoint(x);
+            locator->InsertNextPoint(x);
+            pointMap->SetId(ptId, newId);
+            outPD->CopyData(pd->GetPointData(), ptId, newId);
+            }
+          else
+            {
+            newId = locatorPtId;
+            }
+          }
+        else
+          {
+          newId = newPoints->InsertNextPoint(x);
+          pointMap->SetId(ptId, newId);
+          outPD->CopyData(pd->GetPointData(), ptId, newId);
+          }
+        }
       newCellPts->InsertId(i,newId);
       }
     newCellId = this->InsertNextCell(cell->GetCellType(), newCellPts);
@@ -567,7 +567,7 @@ void vtkPolyData::GetCellBounds(int cellId, float bounds[6])
 
     default:
       bounds[0] = bounds[1] = bounds[2] = bounds[3] = bounds[4] = bounds[5]
-	= 0.0;
+        = 0.0;
       return;
     }
 
@@ -609,69 +609,67 @@ void vtkPolyData::GetCellBounds(int cellId, float bounds[6])
 //----------------------------------------------------------------------------
 void vtkPolyData::ComputeBounds()
 {
-    if (this->GetMTime() > this->ComputeTime)
+  if (this->GetMTime() > this->ComputeTime)
     {
-        // If there are no cells, but there are points, back to the
-        // bounds of the points set.
+    // If there are no cells, but there are points, back to the
+    // bounds of the points set.
+    if (this->GetNumberOfCells() == 0 && this->GetNumberOfPoints()) 
+      {
+      vtkPointSet::ComputeBounds();
+      return;
+      } 
 
-        if (this->GetNumberOfCells() == 0 && this->GetNumberOfPoints()) 
+    int t, i, npts, *pts;
+    float x[3];
+
+    this->Bounds[0] = this->Bounds[2] = this->Bounds[4] =  VTK_LARGE_FLOAT;
+    this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_LARGE_FLOAT;
+
+    vtkCellArray *cella[4];
+
+    cella[0] = this->GetVerts();
+    cella[1] = this->GetLines();
+    cella[2] = this->GetPolys();
+    cella[3] = this->GetStrips();
+
+    // Iterate over cells's points
+    for (t = 0; t < 4; t++) 
+      {
+      for (cella[t]->InitTraversal(); cella[t]->GetNextCell(npts,pts); )
         {
-            vtkPointSet::ComputeBounds();
-            return;
-        } 
+        for (i = 0;  i < npts; i++)
+          {
+          this->Points->GetPoint( pts[i], x );
 
-        int t, i, npts, *pts;
-        float x[3];
-      
-        this->Bounds[0] = this->Bounds[2] = this->Bounds[4] =  VTK_LARGE_FLOAT;
-        this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_LARGE_FLOAT;
-
-        vtkCellArray *cella[4];
-
-        cella[0] = this->GetVerts();
-        cella[1] = this->GetLines();
-        cella[2] = this->GetPolys();
-        cella[3] = this->GetStrips();
-
-        // Iterate over cells's points
-
-        for (t = 0; t < 4; t++) 
-        {
-            for (cella[t]->InitTraversal(); cella[t]->GetNextCell(npts,pts); )
+          if (x[0] < this->Bounds[0])
             {
-                for (i = 0;  i < npts; i++)
-                {
-                    this->Points->GetPoint( pts[i], x );
-
-                    if (x[0] < this->Bounds[0])
-                    {
-                        this->Bounds[0] = x[0];
-                    }
-                    if (x[0] > this->Bounds[1])
-                    {
-                        this->Bounds[1] = x[0];
-                    }
-                    if (x[1] < this->Bounds[2])
-                    {
-                        this->Bounds[2] = x[1];
-                    }
-                    if (x[1] > this->Bounds[3])
-                    {
-                        this->Bounds[3] = x[1];
-                    }
-                    if (x[2] < this->Bounds[4])
-                    {
-                        this->Bounds[4] = x[2];
-                    }
-                    if (x[2] > this->Bounds[5])
-                    {
-                        this->Bounds[5] = x[2];
-                    }
-                }
+            this->Bounds[0] = x[0];
             }
+          if (x[0] > this->Bounds[1])
+            {
+            this->Bounds[1] = x[0];
+            }
+          if (x[1] < this->Bounds[2])
+            {
+            this->Bounds[2] = x[1];
+            }
+          if (x[1] > this->Bounds[3])
+            {
+            this->Bounds[3] = x[1];
+            }
+          if (x[2] < this->Bounds[4])
+            {
+            this->Bounds[4] = x[2];
+            }
+          if (x[2] > this->Bounds[5])
+            {
+            this->Bounds[5] = x[2];
+            }
+          }
         }
+      }
 
-        this->ComputeTime.Modified();
+    this->ComputeTime.Modified();
     }
 }
 
@@ -997,7 +995,7 @@ void vtkPolyData::BuildCells()
     if ( npts > 1 )
       {
       cells->InsertNextCell(VTK_POLY_VERTEX,
-			    inVerts->GetTraversalLocation(npts));
+                            inVerts->GetTraversalLocation(npts));
       }
     else
       {
@@ -1036,7 +1034,7 @@ void vtkPolyData::BuildCells()
   for (inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); )
     {
     cells->InsertNextCell(VTK_TRIANGLE_STRIP,
-			  inStrips->GetTraversalLocation(npts));
+                          inStrips->GetTraversalLocation(npts));
     }
 }
 
@@ -1209,19 +1207,19 @@ int vtkPolyData::InsertNextCell(int type, int npts, int *pts)
     case VTK_VERTEX: case VTK_POLY_VERTEX:
       this->Verts->InsertNextCell(npts,pts);
       id = this->Cells->InsertNextCell(type, 
-				       this->Verts->GetInsertLocation(npts));
+                                       this->Verts->GetInsertLocation(npts));
       break;
 
     case VTK_LINE: case VTK_POLY_LINE:
       this->Lines->InsertNextCell(npts,pts);
       id = this->Cells->InsertNextCell(type, 
-				       this->Lines->GetInsertLocation(npts));
+                                       this->Lines->GetInsertLocation(npts));
       break;
 
     case VTK_TRIANGLE: case VTK_QUAD: case VTK_POLYGON:
       this->Polys->InsertNextCell(npts,pts);
       id = this->Cells->InsertNextCell(type, 
-				       this->Polys->GetInsertLocation(npts));
+                                       this->Polys->GetInsertLocation(npts));
       break;
 
     case VTK_PIXEL: //need to rearrange vertices
@@ -1233,14 +1231,14 @@ int vtkPolyData::InsertNextCell(int type, int npts, int *pts)
       pixPts[3] = pts[2];
       this->Polys->InsertNextCell(npts,pixPts);
       id = this->Cells->InsertNextCell(VTK_QUAD, 
-				       this->Polys->GetInsertLocation(npts));
+                                       this->Polys->GetInsertLocation(npts));
       break;
       }
 
     case VTK_TRIANGLE_STRIP:
       this->Strips->InsertNextCell(npts,pts);
       id = this->Cells->InsertNextCell(type, 
-				       this->Strips->GetInsertLocation(npts));
+                                       this->Strips->GetInsertLocation(npts));
       break;
 
     default:
@@ -1547,16 +1545,16 @@ void vtkPolyData::GetCellEdgeNeighbors(int cellId, int p1, int p2,
       {
       this->GetCellPoints(cells[i],npts,pts);
       for (j=0; j < npts; j++)
-	{
-	if ( pts[j] == p2 )
-	  {
-	  break;
-	  }
-	}
+        {
+        if ( pts[j] == p2 )
+          {
+          break;
+          }
+        }
       if ( j < npts )
-	{
-	cellIds->InsertNextId(cells[i]);
-	}
+        {
+        cellIds->InsertNextId(cells[i]);
+        }
       }
     }
 }
