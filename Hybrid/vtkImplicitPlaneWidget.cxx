@@ -38,7 +38,7 @@
 #include "vtkTransform.h"
 #include "vtkTubeFilter.h"
 
-vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.24");
+vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.25");
 vtkStandardNewMacro(vtkImplicitPlaneWidget);
 
 vtkImplicitPlaneWidget::vtkImplicitPlaneWidget() : vtkPolyDataSourceWidget()
@@ -958,24 +958,21 @@ void vtkImplicitPlaneWidget::PlaceWidget(double bds[6])
                         (bounds[5]-bounds[4]));
   this->Outline->Update();
 
-  if (this->Input || this->Prop3D)
+  this->LineSource->SetPoint1(this->Plane->GetOrigin());
+  if ( this->NormalToYAxis )
     {
-    this->LineSource->SetPoint1(this->Plane->GetOrigin());
-    if ( this->NormalToYAxis )
-      {
-      this->Plane->SetNormal(0,1,0);
-      this->LineSource->SetPoint2(0,1,0);
-      }
-    else if ( this->NormalToZAxis )
-      {
-      this->Plane->SetNormal(0,0,1);
-      this->LineSource->SetPoint2(0,0,1);
-      }
-    else //default or x-normal
-      {
-      this->Plane->SetNormal(1,0,0);
-      this->LineSource->SetPoint2(1,0,0);
-      }
+    this->Plane->SetNormal(0,1,0);
+    this->LineSource->SetPoint2(0,1,0);
+    }
+  else if ( this->NormalToZAxis )
+    {
+    this->Plane->SetNormal(0,0,1);
+    this->LineSource->SetPoint2(0,0,1);
+    }
+  else //default or x-normal
+    {
+    this->Plane->SetNormal(1,0,0);
+    this->LineSource->SetPoint2(1,0,0);
     }
 
   for (i=0; i<6; i++)
