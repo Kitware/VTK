@@ -26,7 +26,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkConeSource, "1.71");
+vtkCxxRevisionMacro(vtkConeSource, "1.72");
 vtkStandardNewMacro(vtkConeSource);
 
 //----------------------------------------------------------------------------
@@ -247,8 +247,18 @@ int vtkConeSource::RequestData(
     vtkTransform *t = vtkTransform::New();
     t->Translate(this->Center[0], this->Center[1], this->Center[2]);
     double vMag = vtkMath::Norm(this->Direction);
-    t->RotateWXYZ((double)180.0, (this->Direction[0]+vMag)/2.0,
-                  this->Direction[1]/2.0, this->Direction[2]/2.0);
+    if ( this->Direction[0] < 0.0 && 
+         this->Direction[1] == 0.0 && 
+         this->Direction[2] == 0.0 )
+      {
+      // just flip x
+      t->RotateWXYZ(180.0,0,1,0);
+      }
+    else
+      {
+      t->RotateWXYZ((double)180.0, (this->Direction[0]+vMag)/2.0,
+                    this->Direction[1]/2.0, this->Direction[2]/2.0);
+      }
     float *ipts = ((vtkFloatArray *)newPoints->GetData())->GetPointer(0);
     for (i=0; i<numPts; i++, ipts+=3)
       {
