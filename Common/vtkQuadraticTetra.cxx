@@ -25,7 +25,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticTetra, "1.7");
+vtkCxxRevisionMacro(vtkQuadraticTetra, "1.8");
 vtkStandardNewMacro(vtkQuadraticTetra);
 
 // Construct the line with two points.
@@ -278,13 +278,13 @@ void vtkQuadraticTetra::Contour(float value, vtkDataArray* cellScalars,
     {
     for ( int j=0; j<4; j++) //for each of the four vertices of the tetra
       {
-      this->Face->Points->SetPoint(j,this->Points->GetPoint(Tetras[i][j]));
-      this->Face->PointIds->SetId(j,this->PointIds->GetId(Tetras[i][j]));
+      this->Tetra->Points->SetPoint(j,this->Points->GetPoint(Tetras[i][j]));
+      this->Tetra->PointIds->SetId(j,this->PointIds->GetId(Tetras[i][j]));
       this->Scalars->SetTuple(j,cellScalars->GetTuple(Tetras[i][j]));
       }
 
-    this->Face->Contour(value, this->Scalars, locator, verts,
-                        lines, polys, inPd, outPd, inCd, cellId, outCd);
+    this->Tetra->Contour(value, this->Scalars, locator, verts,
+                         lines, polys, inPd, outPd, inCd, cellId, outCd);
     }
 }
 
