@@ -92,6 +92,10 @@ public:
   virtual int GetCellDimension() = 0;
 
   // Description:
+  // Return the interpolation order of the cell.
+  virtual int GetInterpolationOrder() {return 1;}; //usually linear
+
+  // Description:
   // Get the point coordinates for the cell.
   vtkFloatPoints *GetPoints() {return &this->Points;};
 
