@@ -20,6 +20,7 @@
 #include "vtkTkRenderWidget.h"
 #include <tcl.h>
 #include <tk.h>
+#include "vtkRenderWindowInteractor.h"
 
 #ifdef _WIN32
 #include "vtkWin32OpenGLRenderWindow.h"
@@ -37,7 +38,7 @@
     VisibilityChangeMask|FocusChangeMask|PropertyChangeMask|ColormapChangeMask
 
 #define VTK_MAX(a,b)    (((a)>(b))?(a):(b))
-    
+
 // These are the options that can be set when the widget is created
 // or with the command configure.  The only new one is "-rw" which allows
 // the uses to set their own render window.
@@ -285,7 +286,15 @@ static void vtkTkRenderWidget_Destroy(char *memPtr)
 
   if (self->RenderWindow)
     {
-    if (self->RenderWindow->GetReferenceCount() > 1)
+    int netRefCount = 0;
+    netRefCount =  self->RenderWindow->GetReferenceCount();
+    if (self->RenderWindow->GetInteractor() && 
+        self->RenderWindow->GetInteractor()->GetRenderWindow() == self->RenderWindow &&
+        self->RenderWindow->GetInteractor()->GetReferenceCount() == 1)
+      {
+      netRefCount = netRefCount - 1;
+      }
+    if (netRefCount > 1)
       {
       vtkGenericWarningMacro("A TkRenderWidget is being destroyed before it associated vtkRenderWindow is destroyed. This is very bad and usually due to the order in which objects are being destroyed. Always destroy the vtkRenderWindow before destroying the user interface components.");
       }
