@@ -77,10 +77,6 @@ void vtkImageMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Color Window: " << this->ColorWindow << "\n";
   os << indent << "Color Level: " << this->ColorLevel << "\n";
   os << indent << "ZSlice: " << this->ZSlice << "\n";
-  os << indent << "Display Extent: (" << this->DisplayExtent[0] << ", "
-     << this->DisplayExtent[1] << ", " << this->DisplayExtent[2] << ", " 
-     << this->DisplayExtent[3] << ", " << this->DisplayExtent[4]
-     << ", " << this->DisplayExtent [5] << ")\n";
 }
 
 vtkImageMapper* vtkImageMapper::New()
@@ -107,12 +103,8 @@ void vtkImageMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
 {
   vtkDebugMacro(<< "vtkImageMapper::Render");
 
-  int min, max;
-  int wholeMin, wholeMax;
-  int idx, axis;
   vtkImageData *data;
   int displayExtent[6];
-  int *wholeExtent = this->Input->GetWholeExtent();
 
   if (!viewport)
     {
@@ -142,48 +134,50 @@ void vtkImageMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
   displayExtent[5] = this->ZSlice;
 
   // scale the extent
-  float *scale = actor->GetScale();
-  displayExtent[0] *= scale[0];
-  displayExtent[1] *= scale[0];
-  displayExtent[2] *= scale[1];
-  displayExtent[3] *= scale[1];
+  //float *scale = actor->GetScale();
+  //displayExtent[0] *= scale[0];
+  //displayExtent[1] *= scale[0];
+  //displayExtent[2] *= scale[1];
+  //displayExtent[3] *= scale[1];
 
   // position the extent
-  float *pos = actor->GetViewPosition();
+  int *pos = actor->GetComputedViewportPixelPosition(viewport);
   displayExtent[0] += pos[0];
   displayExtent[1] += pos[0];
   displayExtent[2] += pos[1];
   displayExtent[3] += pos[1];
+  
+  // Get the viewport coordinates
+  float* vpt = viewport->GetViewport(); 
 
-
-
-  // Clip minimum extents
-  for (idx = 0; idx < 3; idx++)
+  // Get the window size
+  vtkWindow* window = viewport->GetVTKWindow();
+  int* winSize = window->GetSize();
+  
+  // Now clip to imager extents
+  if (displayExtent[0] < 0) 
     {
-    if (displayExtent[idx*2] < wholeExtent[idx*2]) 
-      {
-	displayExtent[idx*2] = wholeExtent[idx*2];
-      }
+    displayExtent[0] = 0;
+    }
+  if (displayExtent[1] > (winSize[0] - 1)*(vpt[XMAX]-vpt[XMIN])) 
+    {
+    displayExtent[1] = (int)((winSize[0] - 1)*(vpt[XMAX]-vpt[XMIN]));
+    }
+  if (displayExtent[2] < 0) 
+    {
+    displayExtent[2] = 0;
+    }
+  if (displayExtent[3] > (winSize[1] - 1)*(vpt[YMAX]-vpt[YMIN])) 
+    {
+    displayExtent[3] = (int)((winSize[1] - 1)*(vpt[YMAX] - vpt[YMIN]));
     }
 
-
-  int clip[2] = {0};
-  this->GetActorClipSize(viewport, actor, &clip[0], &clip[1]);
-  // Add the clipped size of the actor to the minimum extent
-  for (idx = 0; idx < 2; idx++)
-    {
-      displayExtent[idx*2+1] = displayExtent[idx*2] + clip[idx] - 1;
-    }
-
-  // Clip the maximum extents
-  for (idx = 0; idx < 3; idx++)
-    {
-    if (displayExtent[idx*2+1] > wholeExtent[idx*2+1]) 
-      {
-      displayExtent[idx*2+1] = wholeExtent[idx*2+1];
-      }
-    }
-
+  // now add back in the position to determine the update Extent
+  displayExtent[0] -= pos[0];
+  displayExtent[1] -= pos[0];
+  displayExtent[2] -= pos[1];
+  displayExtent[3] -= pos[1];
+  
   this->Input->SetUpdateExtent(displayExtent);
 
   // Get the region from the input

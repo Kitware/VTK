@@ -145,7 +145,7 @@ static void vtkWin32ImageMapperRenderGray(vtkWin32ImageMapper *self,
   // or may be type dependent
   sscale = scale*4096.0;
 
-  int* tempExt = data->GetExtent();
+  int* tempExt = self->GetInput()->GetUpdateExtent();
   inMin0 = tempExt[0];
   inMax0 = tempExt[1];
   inMin1 = tempExt[2];
@@ -259,7 +259,7 @@ static void vtkWin32ImageMapperRenderFloatGray(vtkWin32ImageMapper *self,
   lower = -shift;
   upper = lower + 255.0/scale;
 
-  int* tempExt = data->GetExtent();
+  int* tempExt = self->GetInput()->GetUpdateExtent();
   inMin0 = tempExt[0];
   inMax0 = tempExt[1];
   inMin1 = tempExt[2];
@@ -329,7 +329,7 @@ static void vtkWin32ImageMapperRenderColor(vtkWin32ImageMapper *self,
   T *bluePtr;  
 
   // data->GetExtent(inMin0, inMax0, inMin1, inMax1);
-  int* tempExt = data->GetExtent();
+  int* tempExt = self->GetInput()->GetUpdateExtent();
   inMin0 = tempExt[0];
   inMax0 = tempExt[1];
   inMin1 = tempExt[2];
@@ -419,7 +419,7 @@ static void vtkWin32ImageMapperRenderShortGray(vtkWin32ImageMapper *self,
   sscale = scale*4096.0;
 
   // data->GetExtent(inMin0, inMax0, inMin1, inMax1);
-  int* tempExt = data->GetExtent();
+  int* tempExt = self->GetInput()->GetUpdateExtent();
   inMin0 = tempExt[0];
   inMax0 = tempExt[1];
   inMin1 = tempExt[2];
@@ -499,7 +499,7 @@ void vtkWin32ImageMapper::RenderData(vtkViewport* viewport,
   HDC windowDC = (HDC) window->GetGenericContext();
 
   // Determine the size of the displayed data.
-  int* extent = data->GetExtent();
+  int* extent = this->Input->GetUpdateExtent();
   width = (extent[1] - extent[0] + 1);
   height = (extent[3] - extent[2] + 1);
   
@@ -507,12 +507,12 @@ void vtkWin32ImageMapper::RenderData(vtkViewport* viewport,
   
   shift = this->GetColorShift();
   scale = this->GetColorScale();
-
+  
   if (!this->HBitmap)
     {
-	vtkDebugMacro (<< "vtkWin32ImageMapper::RenderData - creating HBitmap: " << width << "," << height
-		           << "(" << dataWidth*height << " bytes)");
-
+    vtkDebugMacro (<< "vtkWin32ImageMapper::RenderData - creating HBitmap: " << width << "," << height
+    << "(" << dataWidth*height << " bytes)");
+    
     dataHeader.bmiHeader.biSize = 40;
     dataHeader.bmiHeader.biWidth = width;
     dataHeader.bmiHeader.biHeight = height;
