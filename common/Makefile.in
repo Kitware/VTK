@@ -83,6 +83,7 @@ vtkPolyVertex \
 vtkPolygon \
 vtkPriorityQueue \
 vtkQuad \
+vtkRectilinearGrid \
 vtkRefCount \
 vtkShortArray \
 vtkShortScalars \
