@@ -137,7 +137,6 @@ void vtkCellLocator::SubDivide()
   vtkCell *cell;
   float *bounds, *cellBounds;
   int numCells;
-  float level;
   int ndivs, product;
   int i, j, k, cellId, ijkMin[3], ijkMax[3];
   int idx, parentOffset;
