@@ -301,9 +301,9 @@ void vtkImageToIsoSurface::Execute()
 // of a point. Note: This method assumes that max > min for all 3 axes!
 // It does not consider aspect ratio.
 template <class T>
-static void vtkImageToIsoSurfaceComputePointGradient(float g[3], T *ptr,
+static void vtkImageToIsoSurfaceComputePointGradient(T *ptr, float *g,
 					     int inc0, int inc1, int inc2,
-					     int b0, int b1, int b2)
+					     short b0, short b1, short b2)
 {
   if (b0 < 0)
     {
@@ -473,7 +473,7 @@ static int vtkImageToIsoSurfaceMakeNewPoint(vtkImageToIsoSurface *self,
     if (idx1 == imageExtent[2]) b1 = -1;
     b2 = (idx2 == imageExtent[5]);
     if (idx2 == imageExtent[4]) b2 = -1;
-    vtkImageToIsoSurfaceComputePointGradient(g, ptr, inc0, inc1, inc2, 
+    vtkImageToIsoSurfaceComputePointGradient(ptr, g, inc0, inc1, inc2, 
 					     b0, b1, b2);
     // Find boundary conditions and compute gradient (second point)
     switch (edgeAxis)
@@ -491,7 +491,7 @@ static int vtkImageToIsoSurfaceMakeNewPoint(vtkImageToIsoSurface *self,
 	b2 = (idx2 == imageExtent[5]);
 	break;
       }
-    vtkImageToIsoSurfaceComputePointGradient(gB, ptrB, inc0, inc1, inc2, 
+    vtkImageToIsoSurfaceComputePointGradient(ptrB, gB, inc0, inc1, inc2, 
 					     b0, b1, b2);
     // Interpolate Gradient
     g[0] = g[0] + temp * (gB[0] - g[0]);
