@@ -764,6 +764,25 @@ void vtkRenderWindowInteractor::SetEndPickMethodArgDelete(void (*f)(void *))
 }
 
 
+// Called when a void* argument is being discarded.  Lets the user free it.
+void vtkRenderWindowInteractor::SetStartInteractionPickMethodArgDelete(void (*f)(void *))
+{
+  if ( f != this->StartInteractionPickMethodArgDelete)
+    {
+    this->StartInteractionPickMethodArgDelete = f;
+    this->Modified();
+    }
+}
+// Called when a void* argument is being discarded.  Lets the user free it.
+void vtkRenderWindowInteractor::SetEndInteractionPickMethodArgDelete(void (*f)(void *))
+{
+  if ( f != this->EndInteractionPickMethodArgDelete)
+    {
+    this->EndInteractionPickMethodArgDelete = f;
+    this->Modified();
+    }
+}
+
 // Set the CameraMode method. This method is invoked on a <c> keypress.
 void 
 vtkRenderWindowInteractor::SetCameraModeMethod(void (*f)(void *), void *arg)
