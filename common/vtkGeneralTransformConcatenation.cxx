@@ -328,14 +328,14 @@ void vtkGeneralTransformConcatenation::Update()
     {
     for (int i = 0; i < this->NumberOfTransforms; i++)
       {
-      this->TransformList[i]->Update();
+      this->InverseList[i]->Update();
       }
     }
   else
     {
     for (int i = 0; i < this->NumberOfTransforms; i++)
       {
-      this->InverseList[i]->Update();
+      this->TransformList[i]->Update();
       }
     }
 }
