@@ -23,7 +23,7 @@
 #include <sys/stat.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMetaImageReader, "1.6");
+vtkCxxRevisionMacro(vtkMetaImageReader, "1.7");
 vtkStandardNewMacro(vtkMetaImageReader);
 
 //----------------------------------------------------------------------------
@@ -503,7 +503,7 @@ void vtkMetaImageReader::ExecuteInformation()
     this->SetDataByteOrderToLittleEndian();
     }
 
-  cout << "Read file: " << datafile.c_str() << endl;
+  vtkDebugMacro("Read raw file: " << datafile.c_str());
   this->Superclass::SetFileName(datafile.c_str());
   this->Superclass::ExecuteInformation();
 }
