@@ -87,7 +87,6 @@ public:
 
   // these operate with specified dataset
   virtual int FindClosestPoint(float x[3]);
-  virtual int *MergePoints();
 
   // these all operate on array of points from InitPointInsertion()
   virtual int InitPointInsertion(vtkPoints *newPts, float bounds[6]);

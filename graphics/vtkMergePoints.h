@@ -59,7 +59,6 @@ public:
   static vtkMergePoints *New() {return new vtkMergePoints;};
   const char *GetClassName() {return "vtkMergePoints";};
 
-  int *MergePoints();
   int IsInsertedPoint(float x[3]);
 };
 
