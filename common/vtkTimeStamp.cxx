@@ -46,12 +46,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 void vtkTimeStamp::Modified()
 {
-  static vtkMutexLock *lock = vtkMutexLock::New();
   static unsigned long vtkTimeStampTime = 0; 
 
-  lock->Lock();
   this->ModifiedTime = ++vtkTimeStampTime;
-  lock->Unlock();
 }
 
 
