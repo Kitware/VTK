@@ -19,7 +19,12 @@
 // .SECTION Description
 // vtkWin32VideoSource grabs frames or streaming video from a
 // Video for Windows compatible device on the Win32 platform. 
-
+// .SECTION Caveats
+// With some capture cards, if this class is leaked and ReleaseSystemResources 
+// is not called, you may have to reboot before you can capture again.
+// vtkVideoSource used to keep a global list and delete the video sources
+// if your program leaked, due to exit crashes that was removed.
+//
 // .SECTION See Also
 // vtkVideoSource vtkMILVideoSource
 

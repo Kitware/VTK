@@ -60,7 +60,7 @@
 // Finally, when Execute() is reading from the FrameBuffer it must do
 // so from within a mutex lock.  Otherwise tearing artifacts might result.
 
-vtkCxxRevisionMacro(vtkVideoSource, "1.29");
+vtkCxxRevisionMacro(vtkVideoSource, "1.30");
 vtkStandardNewMacro(vtkVideoSource);
 
 #if ( _MSC_VER >= 1300 ) // Visual studio .NET
@@ -68,78 +68,6 @@ vtkStandardNewMacro(vtkVideoSource);
 #pragma warning ( disable : 4312 )
 #endif 
 
-//----------------------------------------------------------------------------
-// keep a list of all the existing vtkVideoSource objects, to ensure
-// that proper deallocation occurs then the program exits.
-static int vtkVideoSourcesLen = 0;
-static vtkVideoSource **vtkVideoSources = NULL;
-static int vtkVideoSourceExitFuncRegistered = 0;
-
-// this function is called at exit
-extern "C"
-{
-  void vtkVideoSourceExitFunc()
-  {
-    int i = 0;
-    
-    for (i = 0; i < vtkVideoSourcesLen; i++)
-      {
-      vtkVideoSources[i]->ReleaseSystemResources();
-      }
-    
-    free((void *)vtkVideoSources);
-    vtkVideoSources = 0;
-    vtkVideoSourcesLen = 0;
-  }
-}
-
-// this function is called to add a source to the list
-static void vtkVideoSourceAdd(vtkVideoSource *o)
-{
-  vtkVideoSource **newlist = 0;
-  int i = 0;
-
-  if (!vtkVideoSourceExitFuncRegistered)
-    {
-    vtkVideoSourceExitFuncRegistered = atexit(vtkVideoSourceExitFunc);
-    }
-
-  newlist = (vtkVideoSource **)malloc((vtkVideoSourcesLen+1)*sizeof(void *));
-  for (i = 0; i < vtkVideoSourcesLen; i++)
-    {
-    newlist[i] = vtkVideoSources[i];
-    }
-  newlist[vtkVideoSourcesLen++] = o;
-
-  if (vtkVideoSources)
-    {
-    free((void *)vtkVideoSources);
-    }
-  vtkVideoSources = newlist;
-}
-
-// this function is called to remove a source from the list 
-static void vtkVideoSourceRemove(vtkVideoSource *o)
-{
-  int i,j,n;
-
-  n = vtkVideoSourcesLen;
-  for (i = 0, j = 0; i < n; i++, j++)
-    {
-    vtkVideoSources[j] = vtkVideoSources[i];
-    if (vtkVideoSources[i] == o)
-      {
-      vtkVideoSourcesLen--;
-      j--;
-      }
-    }
-
-  if (vtkVideoSourcesLen == 0 && vtkVideoSources != 0)
-    {
-    free((void *)vtkVideoSources);
-    vtkVideoSources = 0;
-    }
-}   
 
 //----------------------------------------------------------------------------
 vtkVideoSource::vtkVideoSource()
@@ -210,8 +138,6 @@ vtkVideoSource::vtkVideoSource()
   this->FrameBufferBitsPerPixel = 8;
   this->FrameBufferRowAlignment = 1;
 
-  // add ourselves to the global list
-  vtkVideoSourceAdd(this);
 }
 
 //----------------------------------------------------------------------------
@@ -224,9 +150,6 @@ vtkVideoSource::~vtkVideoSource()
   this->SetFrameBufferSize(0);
   this->FrameBufferMutex->Delete();
   this->PlayerThreader->Delete();
-
-  // remove ourselves from the global list
-  vtkVideoSourceRemove(this);
 }
 
 //----------------------------------------------------------------------------
