@@ -28,7 +28,8 @@ void vtkDashedStreamLine::Execute()
   vtkFloatScalars *newScalars=NULL;
   vtkCellArray *newLines;
   int i, ptId, j, pts[2];
-  float tOffset, dashOffset, x[3], v[3], s, r;
+  float tOffset, x[3], v[3], s, r, xPrev[3], vPrev[3], scalarPrev;
+  float xEnd[3], vEnd[3], sEnd;
 
   this->vtkStreamer::Integrate();
   if ( this->NumberOfStreamers <= 0 ) return;
@@ -46,77 +47,83 @@ void vtkDashedStreamLine::Execute()
 //
   for (ptId=0; ptId < this->NumberOfStreamers; ptId++)
     {
-    tOffset = 0.0;
-
     if ( this->Streamers[ptId].GetNumberOfPoints() < 2 ) continue;
+
+    sPrev = this->Streamers[ptId].GetStreamPoint(0);
+
     if ( this->Streamers[ptId].GetNumberOfPoints() == 2 )
       {
-      sPtr=this->Streamers[ptId].GetStreamPoint(1);
+      sPtr = this->Streamers[ptId].GetStreamPoint(1);
       if ( sPtr->cellId < 0 ) continue;
       }
 
-    for ( sPrev=sPtr=this->Streamers[ptId].GetStreamPoint(0), i=0; 
+    tOffset = sPrev->t;
+
+    for ( i=0, sPtr=sPrev; 
     i < this->Streamers[ptId].GetNumberOfPoints() && sPtr->cellId >= 0;
     i++, sPrev=sPtr, sPtr=this->Streamers[ptId].GetStreamPoint(i) )
       {
 
       if ( i == 0 ) //create first point
         {
-        pts[0] = newPts->InsertNextPoint(sPtr->x);
-        newVectors->InsertVector(pts[0],sPtr->v);
-        if ( newScalars ) newScalars->InsertScalar(pts[0],sPtr->s);
+        for (j=0; j<3; j++)
+          {
+          xPrev[j] = sPrev->x[j];
+          vPrev[j] = sPrev->v[j];
+          }
+        scalarPrev = sPrev->s;
+        pts[0] = newPts->InsertNextPoint(sPrev->x);
+        newVectors->InsertVector(pts[0],sPrev->v);
+        if ( newScalars ) newScalars->InsertScalar(pts[0],sPrev->s);
         continue;
         }
 //
-// Start point of dash created here
+// Search for end of dash...create end of one dash, beginning of next
 //
       if ( (sPtr->t - tOffset) > this->DashTime )
         {
-        r = (this->DashTime - (sPrev->t-tOffset)) / (sPtr->t - sPrev->t);
-        for (j=0; j<3; j++)
+        while ( tOffset < sPtr->t )
           {
-          x[j] = sPrev->x[j] + r * (sPtr->x[j] - sPrev->x[j]);
-          v[j] = sPrev->v[j] + r * (sPtr->v[j] - sPrev->v[j]);
-          }
+          r = (tOffset - sPrev->t) / (sPtr->t - sPrev->t);
 
-        pts[0] = newPts->InsertNextPoint(x);
-        newVectors->InsertVector(pts[0],v);
+          for (j=0; j<3; j++)
+            {
+            x[j] = sPrev->x[j] + r * (sPtr->x[j] - sPrev->x[j]);
+            v[j] = sPrev->v[j] + r * (sPtr->v[j] - sPrev->v[j]);
+            xEnd[j] = xPrev[j] + this->DashFactor * (x[j] - xPrev[j]);
+            vEnd[j] = vPrev[j] + this->DashFactor * (v[j] - vPrev[j]);
+            }
 
-        if ( newScalars ) 
-          {
-          s = sPrev->s + r * (sPtr->s - sPrev->s);
-          newScalars->InsertScalar(pts[0],s);
-          }
+          // terminate this dash
+          pts[1] = newPts->InsertNextPoint(xEnd);
+          newVectors->InsertVector(pts[1],vEnd);
 
-        tOffset += this->DashTime;
-        }
-//
-// End point of dash created here
-//
-      dashOffset = this->DashTime * this->DashFactor;
-      if ( (sPtr->t - dashOffset) > this->DashTime )
-        {
-        r = (this->DashTime - (sPrev->t-dashOffset)) / (sPtr->t - sPrev->t);
-        for (j=0; j<3; j++)
-          {
-          x[j] = sPrev->x[j] + r * (sPtr->x[j] - sPrev->x[j]);
-          v[j] = sPrev->v[j] + r * (sPtr->v[j] - sPrev->v[j]);
-          }
+          if ( newScalars ) 
+            {
+            s = sPrev->s + r * (sPtr->s - sPrev->s);
+            sEnd = scalarPrev + this->DashFactor * (s - scalarPrev);
+            newScalars->InsertScalar(pts[1],sEnd);
+            }
+  
+          newLines->InsertNextCell(2,pts);
 
-        pts[1] = newPts->InsertNextPoint(x);
-        newVectors->InsertVector(pts[1],v);
+          //start beginning of next dash
+          pts[0] = newPts->InsertNextPoint(x);
+          newVectors->InsertVector(pts[0],v);
 
-        if ( newScalars ) 
-          {
-          s = sPrev->s + r * (sPtr->s - sPrev->s);
-          newScalars->InsertScalar(pts[1],s);
-          }
+          if ( newScalars ) newScalars->InsertScalar(pts[0],s);
 
-        newLines->InsertNextCell(2,pts);
+          for (j=0; j<3; j++)
+            {
+            xPrev[j] = x[j];
+            vPrev[j] = v[j];
+            }
+          if ( newScalars ) scalarPrev = s;
 
-        dashOffset += this->DashTime;
-        }
+          tOffset += this->DashTime;
+          } // while
 
+        } //if dash should be created
       } //for this streamer
     } //for all streamers
 //
