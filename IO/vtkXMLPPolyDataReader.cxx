@@ -23,7 +23,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkXMLPPolyDataReader, "1.2");
+vtkCxxRevisionMacro(vtkXMLPPolyDataReader, "1.3");
 vtkStandardNewMacro(vtkXMLPPolyDataReader);
 
 //----------------------------------------------------------------------------
@@ -236,6 +236,10 @@ void vtkXMLPPolyDataReader::CopyArrayForCells(vtkDataArray* inArray,
                                               vtkDataArray* outArray)
 {
   if(!this->PieceReaders[this->Piece])
+    {
+    return;
+    }
+  if (inArray == NULL || outArray == NULL)
     {
     return;
     }
