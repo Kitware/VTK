@@ -886,10 +886,6 @@ void vtkTransform::PrintSelf (ostream& os, vtkIndent indent)
   os << indent << "Point: " << "( " << 
      this->Point[0] << ", " << this->Point[1] << ", " <<
      this->Point[2] << ", " << this->Point[3] << ")\n";
-
-  os << indent << "Current Transformation:" << "\n";
-
-  this->Matrix->PrintSelf (os, indent.GetNextIndent());
 }
 
 // Returns the result of multiplying the currently set Point by the current 
