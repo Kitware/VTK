@@ -145,6 +145,20 @@ int vtkPropPicker::PickProp(float selectionX, float selectionY,
 void vtkPropPicker::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkWorldPointPicker::PrintSelf(os, indent);
-  os << indent << "Prop:    " << this->Prop << endl;
-  os << indent << "PickFrom List: " << this->PickFromProps << endl;
+  if (this->Prop)
+    {
+    os << indent << "Prop:    " << this->Prop << endl;
+    }
+  else
+    {
+    os << indent << "Prop:    (none)" << endl;    
+    }
+  if (this->PickFromProps)
+    {
+    os << indent << "PickFrom List: " << this->PickFromProps << endl;
+    }
+  else
+    {
+    os << indent << "PickFrom List: (none)" << endl;
+    }
 }
