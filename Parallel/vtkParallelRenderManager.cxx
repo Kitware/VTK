@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.29");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.29.2.1");
 
 vtkParallelRenderManager::vtkParallelRenderManager()
 {
@@ -538,7 +538,15 @@ void vtkParallelRenderManager::StartRender()
   int numProcs = this->Controller->GetNumberOfProcesses();
 
   // Make adjustments for window size.
-  int *size = this->RenderWindow->GetSize();
+  int *tilesize = this->RenderWindow->GetSize();
+  // To me, it seems dangerous for RenderWindow to return a size bigger
+  // than it actually supports or for GetSize to not return the same values
+  // as SetSize.  Yet this is the case when tile rendering is established
+  // in RenderWindow.  Correct for this.
+  int size[2];
+  int *tilescale;
+  tilescale = this->RenderWindow->GetTileScale();
+  size[0] = tilesize[0]/tilescale[0];  size[1] = tilesize[1]/tilescale[1];
   if ((size[0] == 0) || (size[1] == 0))
     {
     // It helps to have a real window size.
