@@ -12,6 +12,7 @@ vtkIterativeClosestPointTransform
 vtkLandmarkTransform 
 vtkLegendBoxActor 
 vtkPolyDataToImageStencil
+vtkProcrustesAlignmentFilter
 vtkRenderLargeImage 
 vtkRIBExporter 
 vtkRIBLight 
