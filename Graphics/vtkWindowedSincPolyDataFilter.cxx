@@ -25,7 +25,7 @@
 #include "vtkTriangle.h"
 #include "vtkTriangleFilter.h"
 
-vtkCxxRevisionMacro(vtkWindowedSincPolyDataFilter, "1.36");
+vtkCxxRevisionMacro(vtkWindowedSincPolyDataFilter, "1.37");
 vtkStandardNewMacro(vtkWindowedSincPolyDataFilter);
 
 // Construct object with number of iterations 20; passband .1;
@@ -786,6 +786,7 @@ void vtkWindowedSincPolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Number of Iterations: " << this->NumberOfIterations << "\n";
   os << indent << "Passband: " << this->PassBand << "\n";
+  os << indent << "Normalize Coordinates: " << (this->NormalizeCoordinates ? "On\n" : "Off\n");
   os << indent << "Feature Edge Smoothing: " << (this->FeatureEdgeSmoothing ? "On\n" : "Off\n");
   os << indent << "Feature Angle: " << this->FeatureAngle << "\n";
   os << indent << "Edge Angle: " << this->EdgeAngle << "\n";
