@@ -41,6 +41,57 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkHyperStreamline.h"
 #include "vtkMath.h"
 
+//
+// Special classes for manipulating data
+//
+class vtkHyperPoint { //;prevent man page generation
+public:
+    vtkHyperPoint(); // method sets up storage
+    vtkHyperPoint &operator=(const vtkHyperPoint& hp); //for resizing
+    
+    float   x[3];    // position 
+    int     cellId;  // cell
+    int     subId;   // cell sub id
+    float   p[3];    // parametric coords in cell 
+    float   w[3];    // eigenvalues (sorted in decreasing value)
+    float   *v[3];   // pointers to eigenvectors (also sorted)
+    float   v0[3];   // storage for eigenvectors
+    float   v1[3];
+    float   v2[3];
+    float   s;       // scalar value 
+    float   d;       // distance travelled so far 
+};
+
+class vtkHyperArray { //;prevent man page generation
+public:
+  vtkHyperArray();
+  ~vtkHyperArray()
+    {
+      if (this->Array)
+	{
+	delete [] this->Array;
+	}
+    };
+  int GetNumberOfPoints() {return this->MaxId + 1;};
+  vtkHyperPoint *GetHyperPoint(int i) {return this->Array + i;};
+  vtkHyperPoint *InsertNextHyperPoint() 
+    {
+    if ( ++this->MaxId >= this->Size )
+      {
+      this->Resize(this->MaxId);
+      }
+    return this->Array + this->MaxId;
+    }
+  vtkHyperPoint *Resize(int sz); //reallocates data
+  void Reset() {this->MaxId = -1;};
+
+  vtkHyperPoint *Array;  // pointer to data
+  int MaxId;             // maximum index inserted thus far
+  int Size;              // allocated size of data
+  int Extend;            // grow array by this amount
+  float Direction;       // integration direction
+};
+
 #define VTK_START_FROM_POSITION 0
 #define VTK_START_FROM_LOCATION 1
 
