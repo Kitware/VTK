@@ -32,7 +32,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformation, "1.10");
+vtkCxxRevisionMacro(vtkInformation, "1.11");
 vtkStandardNewMacro(vtkInformation);
 
 #ifdef VTK_DEBUG_LEAKS
@@ -80,33 +80,39 @@ void vtkInformation::PrintSelf(ostream& os, vtkIndent indent)
 void vtkInformation::SetAsObjectBase(vtkInformationKey* key,
                                      vtkObjectBase* value)
 {
-  vtkInformationInternals::MapType::iterator i =
-    this->Internal->Map.find(key);
-  if(i != this->Internal->Map.end())
+  if(key)
     {
-    if(value)
+    vtkInformationInternals::MapType::iterator i =
+      this->Internal->Map.find(key);
+    if(i != this->Internal->Map.end())
       {
-      i->second = value;
+      if(value)
+        {
+        i->second = value;
+        }
+      else
+        {
+        this->Internal->Map.erase(i);
+        }
       }
-    else
+    else if(value)
       {
-      this->Internal->Map.erase(i);
+      this->Internal->Map[key] = value;
       }
-    }
-  else if(value)
-    {
-    this->Internal->Map[key] = value;
     }
 }
 
 //----------------------------------------------------------------------------
 vtkObjectBase* vtkInformation::GetAsObjectBase(vtkInformationKey* key)
 {
-  vtkInformationInternals::MapType::const_iterator i =
-    this->Internal->Map.find(key);
-  if(i != this->Internal->Map.end())
+  if(key)
     {
-    return i->second.GetPointer();
+    vtkInformationInternals::MapType::const_iterator i =
+      this->Internal->Map.find(key);
+    if(i != this->Internal->Map.end())
+      {
+      return i->second.GetPointer();
+      }
     }
   return 0;
 }
@@ -276,12 +282,19 @@ VTK_INFORMATION_DEFINE_KEY_METHOD(UPDATE_EXTENT, IntegerVector);
   void vtkInformation::Set(vtkInformation##name##VectorKey* key,            \
                            type* value, int length)                         \
     {                                                                       \
-    vtkInformation##name##VectorValue* v =                                  \
-      new vtkInformation##name##VectorValue;                                \
-    vtkInformationConstructClass("vtkInformation" #name "VectorValue");     \
-    v->Value.insert(v->Value.begin(), value, value+length);                 \
-    this->SetAsObjectBase(key, v);                                          \
-    v->Delete();                                                            \
+    if(value)                                                               \
+      {                                                                     \
+      vtkInformation##name##VectorValue* v =                                \
+        new vtkInformation##name##VectorValue;                              \
+      vtkInformationConstructClass("vtkInformation" #name "VectorValue");   \
+      v->Value.insert(v->Value.begin(), value, value+length);               \
+      this->SetAsObjectBase(key, v);                                        \
+      v->Delete();                                                          \
+      }                                                                     \
+    else                                                                    \
+      {                                                                     \
+      this->SetAsObjectBase(key, 0);                                        \
+      }                                                                     \
     }                                                                       \
   type* vtkInformation::Get(vtkInformation##name##VectorKey* key)           \
     {                                                                       \
@@ -296,7 +309,7 @@ VTK_INFORMATION_DEFINE_KEY_METHOD(UPDATE_EXTENT, IntegerVector);
     vtkInformation##name##VectorValue* v =                                  \
       vtkInformation##name##VectorValue::SafeDownCast(                      \
         this->GetAsObjectBase(key));                                        \
-    if(v)                                                                   \
+    if(v && value)                                                          \
       {                                                                     \
       for(vtkstd::vector<type>::size_type i = 0; i < v->Value.size(); ++i)  \
         {                                                                   \
@@ -338,17 +351,24 @@ VTK_INFORMATION_DEFINE_VECTOR_PROPERTY(Key, vtkInformationKey*);
   void vtkInformation::Set(vtkInformation##name##VectorKey* key,            \
                            vtk##type** value, int length)                   \
     {                                                                       \
-    vtkInformation##name##VectorValue* v =                                  \
-      new vtkInformation##name##VectorValue;                                \
-    vtkInformationConstructClass("vtkInformation" #name "VectorValue");     \
-    v->Value.insert(v->Value.begin(), value, value+length);                 \
-    for(vtkstd::vector<vtk##type*>::size_type i = 0;                        \
-        i < v->Value.size(); ++i)                                           \
+    if(value)                                                               \
       {                                                                     \
-      v->References.push_back(v->Value[i]);                                 \
+      vtkInformation##name##VectorValue* v =                                \
+        new vtkInformation##name##VectorValue;                              \
+      vtkInformationConstructClass("vtkInformation" #name "VectorValue");   \
+      v->Value.insert(v->Value.begin(), value, value+length);               \
+      for(vtkstd::vector<vtk##type*>::size_type i = 0;                      \
+          i < v->Value.size(); ++i)                                         \
+        {                                                                   \
+        v->References.push_back(v->Value[i]);                               \
+        }                                                                   \
+      this->SetAsObjectBase(key, v);                                        \
+      v->Delete();                                                          \
       }                                                                     \
-    this->SetAsObjectBase(key, v);                                          \
-    v->Delete();                                                            \
+    else                                                                    \
+      {                                                                     \
+      this->SetAsObjectBase(key, 0);                                        \
+      }                                                                     \
     }                                                                       \
   vtk##type** vtkInformation::Get(vtkInformation##name##VectorKey* key)     \
     {                                                                       \
@@ -363,7 +383,7 @@ VTK_INFORMATION_DEFINE_VECTOR_PROPERTY(Key, vtkInformationKey*);
     vtkInformation##name##VectorValue* v =                                  \
       vtkInformation##name##VectorValue::SafeDownCast(                      \
         this->GetAsObjectBase(key));                                        \
-    if(v)                                                                   \
+    if(v && value)                                                          \
       {                                                                     \
       for(vtkstd::vector<vtk##type*>::size_type i = 0;                      \
           i < v->Value.size(); ++i)                                         \
