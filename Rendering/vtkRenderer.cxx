@@ -33,7 +33,7 @@
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.212");
+vtkCxxRevisionMacro(vtkRenderer, "1.213");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -536,6 +536,32 @@ vtkCamera *vtkRenderer::GetActiveCamera()
     }
 
   return this->ActiveCamera;
+}
+
+//----------------------------------------------------------------------------
+void vtkRenderer::AddActor(vtkProp* p)
+{
+  this->AddProp(p);
+}
+
+//----------------------------------------------------------------------------
+void vtkRenderer::AddVolume(vtkProp* p)
+{
+  this->AddProp(p);
+}
+
+//----------------------------------------------------------------------------
+void vtkRenderer::RemoveActor(vtkProp* p)
+{
+  this->Actors->RemoveItem(p);
+  this->RemoveProp(p);
+}
+
+//----------------------------------------------------------------------------
+void vtkRenderer::RemoveVolume(vtkProp* p)
+{
+  this->Volumes->RemoveItem(p);
+  this->RemoveProp(p);
 }
 
 // Add a light to the list of lights.

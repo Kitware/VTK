@@ -17,7 +17,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkAssemblyNode, "1.6");
+vtkCxxRevisionMacro(vtkAssemblyNode, "1.7");
 vtkStandardNewMacro(vtkAssemblyNode);
 
 vtkAssemblyNode::vtkAssemblyNode()
@@ -38,8 +38,27 @@ vtkAssemblyNode::~vtkAssemblyNode()
     }
 }
 
+//----------------------------------------------------------------------------
+#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+# undef SetProp
+// Define possible mangled names.
+void vtkAssemblyNode::SetPropA(vtkProp* prop)
+{
+  this->SetPropInternal(prop);
+}
+void vtkAssemblyNode::SetPropW(vtkProp* prop)
+{
+  this->SetPropInternal(prop);
+}
+#endif
+void vtkAssemblyNode::SetProp(vtkProp* prop)
+{
+  this->SetPropInternal(prop);
+}
+
+//----------------------------------------------------------------------------
 // Don't do reference counting
-void vtkAssemblyNode::SetProp(vtkProp *prop)
+void vtkAssemblyNode::SetPropInternal(vtkProp *prop)
 {
   this->Prop = prop;
 }
@@ -80,6 +99,32 @@ unsigned long vtkAssemblyNode::GetMTime()
     }
   
   return (propMTime > matrixMTime ? propMTime : matrixMTime);
+}
+
+//----------------------------------------------------------------------------
+#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+# undef GetProp
+// Define possible mangled names.
+vtkProp* vtkAssemblyNode::GetPropA()
+{
+  return this->GetPropInternal();
+}
+vtkProp* vtkAssemblyNode::GetPropW()
+{
+  return this->GetPropInternal();
+}
+#endif
+vtkProp* vtkAssemblyNode::GetProp()
+{
+  return this->GetPropInternal();
+}
+
+//----------------------------------------------------------------------------
+vtkProp* vtkAssemblyNode::GetPropInternal()
+{
+  vtkDebugMacro(<< this->GetClassName() << " (" << this
+                << "): returning Prop address " << this->Prop );
+  return this->Prop;
 }
 
 void vtkAssemblyNode::PrintSelf(ostream& os, vtkIndent indent)

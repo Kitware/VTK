@@ -48,12 +48,30 @@ class vtkGarbageCollectorToObjectBaseFriendship;
 
 class VTK_COMMON_EXPORT vtkObjectBase
 {
+  virtual const char* GetClassNameInternal() const { return "vtkObjectBase"; }
 public:
+
+#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+  // Avoid windows name mangling.
+# define GetClassNameA GetClassName
+# define GetClassNameW GetClassName
+#endif
+
   // Description:
   // Return the class name as a string. This method is defined
   // in all subclasses of vtkObjectBase with the vtkTypeRevisionMacro found
   // in vtkSetGet.h.
-  virtual const char *GetClassName() const {return "vtkObjectBase";};
+  const char* GetClassName() const;
+
+#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+# undef GetClassNameW
+# undef GetClassNameA
+  //BTX
+  // Define possible mangled names.
+  const char* GetClassNameA() const;
+  const char* GetClassNameW() const;
+  //ETX
+#endif
 
   // Description:
   // Return 1 if this class type is the same type of (or a subclass of)

@@ -57,11 +57,33 @@ public:
   vtkTypeRevisionMacro(vtkAssemblyNode,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+  // Avoid windows name mangling.
+# define SetPropA SetProp
+# define SetPropW SetProp
+# define GetPropA GetProp
+# define GetPropW GetProp
+#endif
+
   // Description:
   // Set/Get the prop that this assembly node refers to.
-  void SetProp(vtkProp *prop);
-  vtkGetObjectMacro(Prop, vtkProp);
-  
+  void SetProp(vtkProp* prop);
+  vtkProp* GetProp();
+
+#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+# undef SetPropW
+# undef SetPropA
+# undef GetPropW
+# undef GetPropA
+  //BTX
+  // Define possible mangled names.
+  void SetPropA(vtkProp* prop);
+  void SetPropW(vtkProp* prop);
+  vtkProp* GetPropA();
+  vtkProp* GetPropW();
+  //ETX
+#endif
+
   // Description:
   // Specify a transformation matrix associated with the prop.
   // Note: if the prop is not a type of vtkProp3D, then the
@@ -80,6 +102,8 @@ protected:
   vtkAssemblyNode();
   ~vtkAssemblyNode();
 
+  void SetPropInternal(vtkProp* prop);
+  virtual vtkProp* GetPropInternal();
 private:
   vtkProp *Prop; //reference to vtkProp
   vtkMatrix4x4 *Matrix; //associated matrix

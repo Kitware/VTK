@@ -189,6 +189,9 @@ IF(CMAKE_BUILD_TOOL MATCHES "(msdev|devenv|nmake)")
   ENDIF(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
 ENDIF(CMAKE_BUILD_TOOL MATCHES "(msdev|devenv|nmake)")
 
+# Tell VTK source files they are being built inside VTK.
+ADD_DEFINITIONS(-DVTK_IN_VTK)
+
 #-----------------------------------------------------------------------------
 # Add compiler flags VTK needs to work on this platform.  This must be
 # done after the call to CMAKE_EXPORT_BUILD_SETTINGS, but before any

@@ -71,10 +71,6 @@ typedef struct
 } vtkTimerLogEntry;
 //ETX
 
-// The microsoft compiler defines this as a macro, so
-// undefine it here
-#undef GetCurrentTime
-
 class VTK_COMMON_EXPORT vtkTimerLog : public vtkObject 
 {
 public:
@@ -142,10 +138,23 @@ public:
   // Remove timer log.
   static void CleanupLog();
 
+#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+  // Avoid windows name mangling.
+# define GetTickCount() GetCurrentTime()
+#endif
+
   // Description:
   // Returns the elapsed number of seconds since January 1, 1970. This
   // is also called Universal Coordinated Time.
   static double GetCurrentTime();
+
+#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+# undef GetTickCount
+  //BTX
+  // Define possible mangled names.
+  static double GetTickCount();
+  //ETX
+#endif
 
   // Description:
   // Returns the CPU time for this process

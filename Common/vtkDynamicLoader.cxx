@@ -24,7 +24,7 @@
 // Each part of the ifdef contains a complete implementation for
 // the static methods of vtkDynamicLoader.  
 
-vtkCxxRevisionMacro(vtkDynamicLoader, "1.20");
+vtkCxxRevisionMacro(vtkDynamicLoader, "1.21");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -158,7 +158,7 @@ const char* vtkDynamicLoader::LastError()
 // ---------------------------------------------------------------
 // 3. Implementation for Windows win32 code
 #ifdef _WIN32
-#include <windows.h>
+# include "vtkWindows.h"
 #define VTKDYNAMICLOADER_DEFINED 1
 
 vtkLibHandle vtkDynamicLoader::OpenLibrary(const char* libname )
@@ -176,7 +176,7 @@ vtkLibHandle vtkDynamicLoader::OpenLibrary(const char* libname )
 
 int vtkDynamicLoader::CloseLibrary(vtkLibHandle lib)
 {
-  return (int)FreeLibrary(lib);
+  return (int)FreeLibrary(static_cast<HMODULE>(lib));
 }
 
 void* vtkDynamicLoader::GetSymbolAddress(vtkLibHandle lib, const char* sym)
@@ -191,7 +191,7 @@ void* vtkDynamicLoader::GetSymbolAddress(vtkLibHandle lib, const char* sym)
   delete [] wsym;
   return ret;
 #else
-  return (void*)GetProcAddress(lib, sym);
+  return (void*)GetProcAddress(static_cast<HMODULE>(lib), sym);
 #endif
 }
 

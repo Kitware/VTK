@@ -23,9 +23,9 @@
 #include "vtkTransform.h"
 #include "vtkVolume.h"
 
-#include <GL/gl.h>
+#include "vtkOpenGL.h"
 
-vtkCxxRevisionMacro(vtkOpenGLVolumeProVP1000Mapper, "1.14");
+vtkCxxRevisionMacro(vtkOpenGLVolumeProVP1000Mapper, "1.15");
 vtkStandardNewMacro(vtkOpenGLVolumeProVP1000Mapper);
 
 void vtkOpenGLVolumeProVP1000Mapper::RenderImageBuffer(vtkRenderer  *ren,

@@ -28,9 +28,9 @@
   jclass cls = E->GetObjectClass(C);\
   jmethodID mid = E->GetMethodID(cls, "hashCode", "()I");\
   H = E->CallIntMethod(C, mid); }
-#include <windows.h>
+# include "vtkWindows.h"
 int WJLH_init_check = 0;
-#include "vtkstd/map"
+# include <vtkstd/map>
 vtkstd::map<int,int> WJLH_lock_map;
 #endif
 

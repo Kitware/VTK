@@ -34,6 +34,7 @@
 #ifndef VTK_PYTHON_BUILD
 #include "vtkTclUtil.h"
 #endif
+#include "vtkWindows.h"
 
 struct vtkTkImageViewerWidget
 {

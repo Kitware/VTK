@@ -23,10 +23,6 @@
 
 #include "vtkOpenGLRenderWindow.h"
 
-#ifndef VTK_IMPLEMENT_MESA_CXX
-#include <GL/gl.h> // Needed for mesa internals
-#endif
-
 class vtkIdList;
 
 class VTK_RENDERING_EXPORT vtkWin32OpenGLRenderWindow : public vtkOpenGLRenderWindow

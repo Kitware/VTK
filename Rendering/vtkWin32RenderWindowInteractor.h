@@ -27,6 +27,7 @@
 #define __vtkWin32RenderWindowInteractor_h
 
 #include "vtkRenderWindowInteractor.h"
+#include "vtkWindows.h" // For windows API.
 
 class VTK_RENDERING_EXPORT vtkWin32RenderWindowInteractor : public vtkRenderWindowInteractor 
 {

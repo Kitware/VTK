@@ -24,11 +24,7 @@
 
 #include "vtkRenderWindow.h"
 
-#if defined(__APPLE__) && (defined(VTK_USE_CARBON) || defined(VTK_USE_COCOA))
-#include <OpenGL/gl.h> // Needed for GLuint
-#else
-#include <GL/gl.h> // Needed for GLuint
-#endif
+#include "vtkOpenGL.h" // Needed for GLuint.
 
 class vtkIdList;
 

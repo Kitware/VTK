@@ -13,16 +13,18 @@
 
 =========================================================================*/
 #include "vtkWin32OutputWindow.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkWin32OutputWindow, "1.20");
+#include "vtkObjectFactory.h"
+#include "vtkWindows.h"
+
+vtkCxxRevisionMacro(vtkWin32OutputWindow, "1.21");
 vtkStandardNewMacro(vtkWin32OutputWindow);
 
-HWND vtkWin32OutputWindow::OutputWindow = 0;
+HWND vtkWin32OutputWindowOutputWindow = 0;
 
-LRESULT APIENTRY vtkWin32OutputWindow::WndProc(HWND hWnd, UINT message,
-                                               WPARAM wParam,
-                                               LPARAM lParam)
+LRESULT APIENTRY vtkWin32OutputWindowWndProc(HWND hWnd, UINT message,
+                                             WPARAM wParam,
+                                             LPARAM lParam)
 {
   switch (message)
     {
@@ -31,12 +33,12 @@ LRESULT APIENTRY vtkWin32OutputWindow::WndProc(HWND hWnd, UINT message,
       int w = LOWORD(lParam);  // width of client area
       int h = HIWORD(lParam); // height of client area
 
-      MoveWindow(vtkWin32OutputWindow::OutputWindow,
+      MoveWindow(vtkWin32OutputWindowOutputWindow,
                  0, 0, w, h, true);
       }
       break;
     case WM_DESTROY:
-      vtkWin32OutputWindow::OutputWindow = NULL;
+      vtkWin32OutputWindowOutputWindow = NULL;
       vtkObject::GlobalWarningDisplayOff();
       break;
     case WM_CREATE:
@@ -97,22 +99,24 @@ void vtkWin32OutputWindow::AddText(const char* someText)
     {
     return;
     }
-  
-  // move to the end of the text area
-  SendMessage( vtkWin32OutputWindow::OutputWindow, EM_SETSEL, 
-               (WPARAM)-1, (LPARAM)-1 );  
 
 #ifdef UNICODE
+  // move to the end of the text area
+  SendMessageW( vtkWin32OutputWindowOutputWindow, EM_SETSEL,
+               (WPARAM)-1, (LPARAM)-1 );
   wchar_t *wmsg = new wchar_t [mbstowcs(NULL, someText, 32000)+1];
   mbstowcs(wmsg, someText, 32000);
   // Append the text to the control
-  SendMessage( vtkWin32OutputWindow::OutputWindow, EM_REPLACESEL, 
-               0, (LPARAM)wmsg );
+  SendMessageW( vtkWin32OutputWindowOutputWindow, EM_REPLACESEL, 
+                0, (LPARAM)wmsg );
   delete [] wmsg;
 #else
+  // move to the end of the text area
+  SendMessageA( vtkWin32OutputWindowOutputWindow, EM_SETSEL,
+               (WPARAM)-1, (LPARAM)-1 );
   // Append the text to the control
-  SendMessage( vtkWin32OutputWindow::OutputWindow, EM_REPLACESEL, 
-               0, (LPARAM)someText );
+  SendMessageA( vtkWin32OutputWindowOutputWindow, EM_REPLACESEL, 
+                0, (LPARAM)someText );
 #endif
 }
 
@@ -123,7 +127,7 @@ void vtkWin32OutputWindow::AddText(const char* someText)
 int vtkWin32OutputWindow::Initialize()
 {
   // check to see if it is already initialized
-  if(vtkWin32OutputWindow::OutputWindow)
+  if(vtkWin32OutputWindowOutputWindow)
     {
     return 1;
     }
@@ -138,7 +142,7 @@ int vtkWin32OutputWindow::Initialize()
 #endif
   {
     wndClass.style = CS_HREDRAW | CS_VREDRAW;
-    wndClass.lpfnWndProc = vtkWin32OutputWindow::WndProc;
+    wndClass.lpfnWndProc = vtkWin32OutputWindowWndProc;
     wndClass.cbClsExtra = 0;
     wndClass.hInstance = GetModuleHandle(NULL);
 #ifndef _WIN32_WCE
@@ -209,7 +213,7 @@ int vtkWin32OutputWindow::Initialize()
   lpParam.dwExStyle = 0;
   // Create the EDIT window as a child of win
 #if defined(_WIN32_WCE) || defined(UNICODE)
-  vtkWin32OutputWindow::OutputWindow = CreateWindow(
+  vtkWin32OutputWindowOutputWindow = CreateWindow(
     lpParam.lpszClass,  // pointer to registered class name
     L"", // pointer to window name
     lpParam.style,        // window style
@@ -223,7 +227,7 @@ int vtkWin32OutputWindow::Initialize()
     &lpParam        // pointer to window-creation data
     );
 #else
-  vtkWin32OutputWindow::OutputWindow = CreateWindow(
+  vtkWin32OutputWindowOutputWindow = CreateWindow(
     lpParam.lpszClass,  // pointer to registered class name
     "", // pointer to window name
     lpParam.style,        // window style
@@ -240,8 +244,13 @@ int vtkWin32OutputWindow::Initialize()
 
   const int maxsize = 5242880;
   
-  SendMessage(vtkWin32OutputWindow::OutputWindow, 
-              EM_LIMITTEXT, maxsize, 0L);
+#ifdef UNICODE
+  SendMessageW(vtkWin32OutputWindowOutputWindow,
+               EM_LIMITTEXT, maxsize, 0L);
+#else
+  SendMessageA(vtkWin32OutputWindowOutputWindow,
+               EM_LIMITTEXT, maxsize, 0L);
+#endif
 
   
   // show the top level container window
@@ -278,9 +287,10 @@ void vtkWin32OutputWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   
-  if (this->OutputWindow)
+  if (vtkWin32OutputWindowOutputWindow)
     {
-    os << indent << "OutputWindow: " << this->OutputWindow << "\n";
+    os << indent << "OutputWindow: "
+       << vtkWin32OutputWindowOutputWindow << "\n";
     }
   else
     {

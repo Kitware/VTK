@@ -23,11 +23,7 @@
 
 #include "vtkPolyDataMapper.h"
 
-#if defined(__APPLE__) && (defined(VTK_USE_CARBON) || defined(VTK_USE_COCOA))
-#include <OpenGL/gl.h> // Needed for GLenum
-#else
-#include <GL/gl.h> // Needed for GLenum
-#endif
+#include "vtkOpenGL.h" // Needed for GLenum
 
 class vtkCellArray;
 class vtkPoints;

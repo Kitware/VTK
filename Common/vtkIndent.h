@@ -33,8 +33,6 @@ public:
   vtkIndent(int ind=0) {this->Indent=ind;};
   static vtkIndent *New();
 
-  virtual const char *GetClassName() {return "vtkIndent";};
-
   // Description:
   // Determine the next indentation level. Keep indenting by two until the 
   // max of forty.

@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.44");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.45");
 
 //----------------------------------------------------------------------------
 vtkParallelRenderManager::vtkParallelRenderManager()
@@ -453,7 +453,25 @@ void vtkParallelRenderManager::StartInteractor()
 }
 
 //----------------------------------------------------------------------------
+#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+# undef StartService
+// Define possible mangled names.
+void vtkParallelRenderManager::StartServiceA()
+{
+  this->StartServiceInternal();
+}
+void vtkParallelRenderManager::StartServiceW()
+{
+  this->StartServiceInternal();
+}
+#endif
 void vtkParallelRenderManager::StartService()
+{
+  this->StartServiceInternal();
+}
+
+//----------------------------------------------------------------------------
+void vtkParallelRenderManager::StartServiceInternal()
 {
   vtkDebugMacro("StartService");
   

@@ -35,12 +35,12 @@
 #include "vtkTransform.h"
 #include "vtkWorldPointPicker.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleUnicam, "1.35");
+vtkCxxRevisionMacro(vtkInteractorStyleUnicam, "1.36");
 vtkStandardNewMacro(vtkInteractorStyleUnicam);
 
 // define 'TheTime()' function-- returns time in elapsed seconds
 #if defined(_WIN32) || defined(WIN32)
-#include <winbase.h>
+# include "vtkWindows.h"
 
 static double TheTime() 
   {return double(GetTickCount())/1000.0;}

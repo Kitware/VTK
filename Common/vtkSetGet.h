@@ -549,7 +549,9 @@ virtual double *Get##name() \
 //
 #define vtkTypeMacro(thisClass,superclass) \
   typedef superclass Superclass; \
-  virtual const char *GetClassName() const {return #thisClass;} \
+  private: \
+  virtual const char* GetClassNameInternal() const { return #thisClass; } \
+  public: \
   static int IsTypeOf(const char *type) \
   { \
     if ( !strcmp(#thisClass,type) ) \

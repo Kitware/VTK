@@ -43,7 +43,7 @@ protected:
   void Write(const char* data, int length);
 
   // The write end of the pipe to the child process.
-  HANDLE OutputPipe;
+  vtkWindowsHANDLE OutputPipe;
 
   // Whether the pipe has been broken.
   int Broken;

@@ -16,9 +16,9 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
-#include <GL/gl.h>
 #include "vtkWinCEOpenGLRenderWindow.h"
 #include "vtkWin32RenderWindowInteractor.h"
+#include "vtkOpenGL.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLProperty.h"
 #include "vtkOpenGLTexture.h"
@@ -28,7 +28,7 @@
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkWinCEOpenGLRenderWindow, "1.10");
+vtkCxxRevisionMacro(vtkWinCEOpenGLRenderWindow, "1.11");
 vtkStandardNewMacro(vtkWinCEOpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8

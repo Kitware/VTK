@@ -78,12 +78,34 @@ public:
   virtual void SetInput(vtkDataSet*);
   vtkGetObjectMacro(Input, vtkDataSet);
 
+#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+  // Avoid windows name mangling.
+# define SetPropA SetProp
+# define SetPropW SetProp
+# define GetPropA GetProp
+# define GetPropW GetProp
+#endif
+
   // Description:
-  // Use the bounding box of this prop to draw the cube axes. The Prop is used 
+  // Use the bounding box of this prop to draw the cube axes. The Prop is used
   // to determine the bounds only if the Input is not defined.
-  virtual void SetProp(vtkProp*);
-  vtkGetObjectMacro(Prop, vtkProp);
-  
+  void SetProp(vtkProp* prop);
+  vtkProp* GetProp();
+
+#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+# undef SetPropW
+# undef SetPropA
+# undef GetPropW
+# undef GetPropA
+  //BTX
+  // Define possible mangled names.
+  void SetPropA(vtkProp* prop);
+  void SetPropW(vtkProp* prop);
+  vtkProp* GetPropA();
+  vtkProp* GetPropW();
+  //ETX
+#endif
+
   // Description:
   // Explicitly specify the region in space around which to draw the bounds.
   // The bounds is used only when no Input or Prop is specified. The bounds
@@ -279,6 +301,8 @@ protected:
                   double xCoords[4], double yCoords[4], double zCoords[4],
                   double xRange[2], double yRange[2], double zRange[2]);
 
+  virtual void SetPropInternal(vtkProp* prop);
+  virtual vtkProp* GetPropInternal();
 private:
   // hide the superclass' ShallowCopy() from the user and the compiler.
   void ShallowCopy(vtkProp *prop) { this->vtkProp::ShallowCopy( prop ); };

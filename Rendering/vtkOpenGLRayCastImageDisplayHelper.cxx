@@ -22,17 +22,13 @@
 #include "vtkCamera.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-#if defined(__APPLE__) && (defined(VTK_USE_CARBON) || defined(VTK_USE_COCOA))
-#include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
-#endif
+# include "vtkOpenGL.h"
 #endif
 
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRayCastImageDisplayHelper, "1.4");
+vtkCxxRevisionMacro(vtkOpenGLRayCastImageDisplayHelper, "1.5");
 vtkStandardNewMacro(vtkOpenGLRayCastImageDisplayHelper);
 #endif
 

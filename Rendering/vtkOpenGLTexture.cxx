@@ -22,16 +22,12 @@
 #include "vtkRenderWindow.h"
 #include "vtkOpenGLRenderWindow.h"
 
-#if defined(__APPLE__) && (defined(VTK_USE_CARBON) || defined(VTK_USE_COCOA))
-#include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
-#endif
+#include "vtkOpenGL.h"
 
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLTexture, "1.55");
+vtkCxxRevisionMacro(vtkOpenGLTexture, "1.56");
 vtkStandardNewMacro(vtkOpenGLTexture);
 #endif
 

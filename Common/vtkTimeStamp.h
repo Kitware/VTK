@@ -32,8 +32,6 @@ public:
   static vtkTimeStamp *New();
   void Delete() {delete this;};
 
-  virtual const char *GetClassName() {return "vtkTimeStamp";};
-
   // Description:
   // Set this objects time to the current time. The current time is
   // just a monotonically increasing unsigned long integer. It is

@@ -120,8 +120,8 @@ protected:
   static void InitializeBarrier();
   static void WaitForNextThread();
 #ifdef VTK_USE_WIN32_THREADS
-  static HANDLE BarrierEndedEvent;
-  static HANDLE NextThread;
+  static vtkWindowsHANDLE BarrierEndedEvent;
+  static vtkWindowsHANDLE NextThread;
 #else
   static vtkSimpleCriticalSection* BarrierLock;
   static vtkSimpleCriticalSection* BarrierInProgress;

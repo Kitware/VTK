@@ -60,10 +60,10 @@ public:
   // Add/Remove different types of props to the renderer.
   // These methods are all synonyms to AddProp and RemoveProp.
   // They are here for convenience and backwards compatibility.
-  void AddActor(vtkProp *p) {this->AddProp(p);};
-  void AddVolume(vtkProp *p) {this->AddProp(p);};
-  void RemoveActor(vtkProp *p) {this->Actors->RemoveItem(p);this->RemoveProp(p);};
-  void RemoveVolume(vtkProp *p) {this->Volumes->RemoveItem(p);this->RemoveProp(p);};
+  void AddActor(vtkProp *p);
+  void AddVolume(vtkProp *p);
+  void RemoveActor(vtkProp *p);
+  void RemoveVolume(vtkProp *p);
 
   // Description:
   // Add a light to the list of lights.

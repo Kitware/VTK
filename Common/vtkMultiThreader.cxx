@@ -17,7 +17,7 @@
 #include "vtkMutexLock.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMultiThreader, "1.48");
+vtkCxxRevisionMacro(vtkMultiThreader, "1.49");
 vtkStandardNewMacro(vtkMultiThreader);
 
 // These are the includes necessary for multithreaded rendering on an SGI
@@ -38,6 +38,10 @@ vtkStandardNewMacro(vtkMultiThreader);
 extern "C" { typedef void *(*vtkExternCThreadFunctionType)(void *); }
 #else
 typedef vtkThreadFunctionType vtkExternCThreadFunctionType;
+#endif
+
+#ifdef VTK_USE_WIN32_THREADS
+# include "vtkWindows.h"
 #endif
 
 #ifdef __APPLE__

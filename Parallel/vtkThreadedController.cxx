@@ -22,6 +22,10 @@
 #include "vtkCriticalSection.h"
 #include "vtkSharedMemoryCommunicator.h"
 
+#ifdef VTK_USE_WIN32_THREADS
+# include "vtkWindows.h"
+#endif
+
 #ifdef VTK_USE_SPROC
 #include <sys/prctl.h>
 #endif
@@ -67,9 +71,9 @@ private:
   void operator=(const vtkThreadedControllerOutputWindow&);
 };
 
-vtkCxxRevisionMacro(vtkThreadedControllerOutputWindow, "1.21");
+vtkCxxRevisionMacro(vtkThreadedControllerOutputWindow, "1.22");
 
-vtkCxxRevisionMacro(vtkThreadedController, "1.21");
+vtkCxxRevisionMacro(vtkThreadedController, "1.22");
 vtkStandardNewMacro(vtkThreadedController);
 
 void vtkThreadedController::CreateOutputWindow()
@@ -236,8 +240,8 @@ vtkSimpleCriticalSection vtkThreadedController::CounterLock;
 int vtkThreadedController::Counter;
 
 #ifdef VTK_USE_WIN32_THREADS
-HANDLE vtkThreadedController::BarrierEndedEvent = 0;
-HANDLE vtkThreadedController::NextThread = 0;
+vtkWindowsHANDLE vtkThreadedController::BarrierEndedEvent = 0;
+vtkWindowsHANDLE vtkThreadedController::NextThread = 0;
 #else
 //vtkSimpleCriticalSection vtkThreadedController::BarrierLock(1);
 //vtkSimpleCriticalSection vtkThreadedController::BarrierInProgress;

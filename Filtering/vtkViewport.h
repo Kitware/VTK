@@ -56,9 +56,25 @@ public:
   // Query if a prop is in the list of props.
   int HasProp(vtkProp *);
 
+#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+  // Avoid windows name mangling.
+# define RemovePropA RemoveProp
+# define RemovePropW RemoveProp
+#endif
+
   // Description:
   // Remove an actor from the list of actors.
   void RemoveProp(vtkProp *);
+
+#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+# undef RemovePropA
+# undef RemovePropW
+  //BTX
+  // Define possible mangled names.
+  void RemovePropA(vtkProp*);
+  void RemovePropW(vtkProp*);
+  //ETX
+#endif
 
   // Description:
   // Remove all actors from the list of actors.
@@ -232,6 +248,8 @@ protected:
   // Return the id of the picked object, only valid after a call to DonePick
   virtual unsigned int GetPickedId() = 0;
   //ETX
+
+  void RemovePropInternal(vtkProp *);
 
   // Ivars for picking
   // Store a picked Prop (contained in an assembly path)

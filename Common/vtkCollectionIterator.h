@@ -58,12 +58,28 @@ public:
   // Test whether the iterator is currently positioned at a valid item.
   // Returns 1 for yes, 0 for no.
   int IsDoneWithTraversal();
-  
+
+#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+  // Avoid windows name mangling.
+# define GetObjectA GetObject
+# define GetObjectW GetObject
+#endif
+
   // Description:
   // Get the item at the current iterator position.  Valid only when
   // IsDoneWithTraversal() returns 1.
   vtkObject* GetObject();
-  
+
+#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+# undef GetObjectW
+# undef GetObjectA
+  //BTX
+  // Define possible mangled names.
+  vtkObject* GetObjectA();
+  vtkObject* GetObjectW();
+  //ETX
+#endif
+
 protected:
   vtkCollectionIterator();
   ~vtkCollectionIterator();
@@ -73,7 +89,8 @@ protected:
   
   // The current iterator position.
   vtkCollectionElement* Element;
-  
+
+  vtkObject* GetObjectInternal();
 private:
   vtkCollectionIterator(const vtkCollectionIterator&); // Not implemented
   void operator=(const vtkCollectionIterator&); // Not implemented

@@ -41,10 +41,6 @@ public:
   // Description:  Put the text into the display window.
   // New lines are converted to carriage return new lines.
   virtual void DisplayText(const char*);
-  //BTX
-  static LRESULT APIENTRY WndProc(HWND hWnd, UINT message, 
-                                  WPARAM wParam, LPARAM lParam);
-  //ETX
 protected: 
   vtkWin32OutputWindow() {}; 
   virtual ~vtkWin32OutputWindow() {}; 
@@ -52,7 +48,6 @@ protected:
   void PromptText(const char* text);
   static void AddText(const char*);
   static int Initialize();
-  static HWND OutputWindow;
 private:
   vtkWin32OutputWindow(const vtkWin32OutputWindow&);  // Not implemented.
   void operator=(const vtkWin32OutputWindow&);  // Not implemented.

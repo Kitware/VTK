@@ -29,7 +29,7 @@
 # include <dl.h> // Needed for special dynamic loading on hp
   typedef shl_t vtkLibHandle;
 #elif defined(_WIN32)
-  typedef HMODULE vtkLibHandle;
+  typedef void* vtkLibHandle;
 #else
   typedef void* vtkLibHandle;
 #endif

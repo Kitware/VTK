@@ -18,7 +18,7 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkDirectory, "1.23");
+vtkCxxRevisionMacro(vtkDirectory, "1.24");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -77,11 +77,10 @@ void vtkDirectory::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
-
 // First microsoft and borland compilers
 
 #if defined(_MSC_VER) || defined(__BORLANDC__) || defined(__MINGW32__)
-#include <windows.h>
+#include "vtkWindows.h"
 #include <io.h>
 #include <ctype.h>
 #include <direct.h>
@@ -214,7 +213,26 @@ const char* vtkDirectory::GetCurrentWorkingDirectory(char* buf,
 
 #endif
 
+//----------------------------------------------------------------------------
+#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+# undef CreateDirectory
+// Define possible mangled names.
+int vtkDirectory::CreateDirectoryA(const char* dir)
+{
+  return vtkDirectory::CreateDirectoryInternal(dir);
+}
+int vtkDirectory::CreateDirectoryW(const char* dir)
+{
+  return vtkDirectory::CreateDirectoryInternal(dir);
+}
+#endif
 int vtkDirectory::CreateDirectory(const char* dir)
+{
+  return vtkDirectory::CreateDirectoryInternal(dir);
+}
+
+//----------------------------------------------------------------------------
+int vtkDirectory::CreateDirectoryInternal(const char* dir)
 {
 #if defined(_WIN32) && (defined(_MSC_VER) || defined(__BORLANDC__) \
                         || defined(__MINGW32__))
@@ -235,4 +253,3 @@ const char* vtkDirectory::GetFile(int index)
   
   return this->Files[index];
 }
-

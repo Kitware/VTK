@@ -74,6 +74,11 @@ typedef int vtkIdType;
 #include <stdlib.h>
 #include <string.h>
 
+// Borland C++ does not put qsort in global namespace from stdlib.h.
+#if defined(__BORLANDC__)
+using vtkstd::qsort;
+#endif
+
 // Some constants used throughout the code
 #define VTK_LARGE_FLOAT 1.0e+38F
 #ifdef VTK_USE_64BIT_IDS
@@ -219,7 +224,7 @@ typedef int vtkIdType;
 
 #ifdef VTK_USE_WIN32_THREADS
 #define VTK_THREAD_RETURN_VALUE 0
-#define VTK_THREAD_RETURN_TYPE DWORD __stdcall
+#define VTK_THREAD_RETURN_TYPE vtkWindowsDWORD __stdcall
 #endif
 
 #if !defined(VTK_USE_PTHREADS) && !defined(VTK_USE_WIN32_THREADS)

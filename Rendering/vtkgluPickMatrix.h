@@ -21,11 +21,7 @@
 #define vtkgluPickMatrix_h
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-# if defined(__APPLE__) && (defined(VTK_USE_CARBON) || defined(VTK_USE_COCOA))
-#  include <OpenGL/gl.h>
-# else
-#  include <GL/gl.h>
-# endif
+# include "vtkOpenGL.h" // Needed for GLfloat and GLdouble.
 #endif
 
 // This function was copied from Mesa and sets up the pick matrix

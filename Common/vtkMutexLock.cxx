@@ -15,7 +15,11 @@
 #include "vtkMutexLock.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMutexLock, "1.22");
+#ifdef VTK_USE_WIN32_THREADS
+# include "vtkWindows.h"
+#endif
+
+vtkCxxRevisionMacro(vtkMutexLock, "1.23");
 vtkStandardNewMacro(vtkMutexLock);
 
 // New for the SimpleMutex
@@ -89,20 +93,6 @@ void vtkSimpleMutexLock::Unlock()
 #endif
 }
 
-int vtkSimpleMutexLock::IsA(const char *type)
-{
-  if ( !strcmp(this->vtkSimpleMutexLock::GetClassName(),type) )
-    {
-    return 1;
-    }
-  return 0;
-}
-
-vtkSimpleMutexLock *vtkSimpleMutexLock::SafeDownCast(vtkSimpleMutexLock *o)
-{
-  return (vtkSimpleMutexLock *)o;
-}
-  
 void vtkMutexLock::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

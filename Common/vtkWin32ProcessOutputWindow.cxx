@@ -13,7 +13,9 @@
 
 =========================================================================*/
 #include "vtkWin32ProcessOutputWindow.h"
+
 #include "vtkObjectFactory.h"
+#include "vtkWindows.h"
 
 #include <vtkstd/string>
 
@@ -24,7 +26,7 @@
 # define _MAX_PATH 4096
 #endif
 
-vtkCxxRevisionMacro(vtkWin32ProcessOutputWindow, "1.4");
+vtkCxxRevisionMacro(vtkWin32ProcessOutputWindow, "1.5");
 vtkStandardNewMacro(vtkWin32ProcessOutputWindow);
 
 extern "C" int vtkEncodedArrayWin32OutputWindowProcessWrite(const char* fname);

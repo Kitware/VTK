@@ -37,8 +37,7 @@ typedef pthread_mutex_t vtkMutexType;
 #endif
  
 #ifdef VTK_USE_WIN32_THREADS
-#include <winbase.h> // Needed for WIN32 implementation of mutex
-typedef HANDLE vtkMutexType;
+typedef vtkWindowsHANDLE vtkMutexType;
 #endif
 
 #ifndef VTK_USE_SPROC
@@ -58,10 +57,6 @@ public:
   virtual ~vtkSimpleMutexLock();
 
   static vtkSimpleMutexLock *New();
-
-  virtual const char *GetClassName() {return "vtkSimpleMutexLock";};
-  virtual int IsA(const char *name);
-  static vtkSimpleMutexLock *SafeDownCast(vtkSimpleMutexLock *o);
 
   void Delete() {delete this;}
   

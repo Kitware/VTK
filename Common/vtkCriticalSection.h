@@ -48,7 +48,7 @@ typedef pthread_mutex_t vtkCritSecType;
 #endif
 
 #ifdef VTK_USE_WIN32_THREADS
-#include <winbase.h> // Needed for win32 implementation of mutex
+# include "vtkWindows.h" // Needed for win32 implementation of mutex
 typedef CRITICAL_SECTION vtkCritSecType;
 #endif
 
@@ -83,12 +83,6 @@ public:
   virtual ~vtkSimpleCriticalSection();
 
   static vtkSimpleCriticalSection *New();
-
-  // What's the point of these (here and in MutexLock)? This class
-  // is not part of the hierarchy!! -CRV
-  virtual const char *GetClassName() {return "vtkSimpleCriticalSection";};
-  virtual int IsA(const char *name);
-  static vtkSimpleCriticalSection *SafeDownCast(vtkSimpleCriticalSection *o);
 
   void Delete() {delete this;}
   

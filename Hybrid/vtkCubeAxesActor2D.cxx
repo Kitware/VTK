@@ -22,11 +22,10 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkCubeAxesActor2D, "1.44");
+vtkCxxRevisionMacro(vtkCubeAxesActor2D, "1.45");
 vtkStandardNewMacro(vtkCubeAxesActor2D);
 
 vtkCxxSetObjectMacro(vtkCubeAxesActor2D,Input, vtkDataSet);
-vtkCxxSetObjectMacro(vtkCubeAxesActor2D,Prop, vtkProp);
 vtkCxxSetObjectMacro(vtkCubeAxesActor2D,Camera,vtkCamera);
 vtkCxxSetObjectMacro(vtkCubeAxesActor2D,AxisLabelTextProperty,vtkTextProperty);
 vtkCxxSetObjectMacro(vtkCubeAxesActor2D,AxisTitleTextProperty,vtkTextProperty);
@@ -1000,4 +999,69 @@ static int IsInBounds(double x[3], double bounds[6])
     {
     return 1;
     }
+}
+
+//----------------------------------------------------------------------------
+#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+# undef SetProp
+// Define possible mangled names.
+void vtkCubeAxesActor2D::SetPropA(vtkProp* prop)
+{
+  this->SetPropInternal(prop);
+}
+void vtkCubeAxesActor2D::SetPropW(vtkProp* prop)
+{
+  this->SetPropInternal(prop);
+}
+#endif
+void vtkCubeAxesActor2D::SetProp(vtkProp* prop)
+{
+  this->SetPropInternal(prop);
+}
+
+//----------------------------------------------------------------------------
+void vtkCubeAxesActor2D::SetPropInternal(vtkProp* newProp)
+{
+  vtkDebugMacro(<< this->GetClassName() << " (" << this
+                << "): setting Prop to " << newProp );
+  vtkProp* oldProp = this->Prop;
+  if(newProp != oldProp)
+    {
+    if(newProp)
+      {
+      newProp->Register(this);
+      }
+    this->Prop = newProp;
+    if(oldProp)
+      {
+      oldProp->UnRegister(this);
+      }
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+# undef GetProp
+// Define possible mangled names.
+vtkProp* vtkCubeAxesActor2D::GetPropA()
+{
+  return this->GetPropInternal();
+}
+vtkProp* vtkCubeAxesActor2D::GetPropW()
+{
+  return this->GetPropInternal();
+}
+#endif
+vtkProp* vtkCubeAxesActor2D::GetProp()
+{
+  return this->GetPropInternal();
+}
+
+//----------------------------------------------------------------------------
+vtkProp* vtkCubeAxesActor2D::GetPropInternal()
+{
+  vtkDebugMacro(<< this->GetClassName() << " (" << this
+                << "): returning Prop address " << this->Prop );
+  return this->Prop;
 }

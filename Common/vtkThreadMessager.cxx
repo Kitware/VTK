@@ -16,7 +16,11 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkThreadMessager, "1.1");
+#ifdef VTK_USE_WIN32_THREADS
+# include "vtkWindows.h"
+#endif
+
+vtkCxxRevisionMacro(vtkThreadMessager, "1.2");
 vtkStandardNewMacro(vtkThreadMessager);
 
 vtkThreadMessager::vtkThreadMessager()
@@ -50,7 +54,26 @@ void vtkThreadMessager::WaitForMessage()
 #endif
 }
 
+//----------------------------------------------------------------------------
+#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+# undef SendMessage
+// Define possible mangled names.
+void vtkThreadMessager::SendMessageA()
+{
+  this->SendMessageInternal();
+}
+void vtkThreadMessager::SendMessageW()
+{
+  this->SendMessageInternal();
+}
+#endif
 void vtkThreadMessager::SendMessage()
+{
+  this->SendMessageInternal();
+}
+
+//----------------------------------------------------------------------------
+void vtkThreadMessager::SendMessageInternal()
 {
 #ifdef VTK_USE_WIN32_THREADS
   SetEvent( this->WSignal );

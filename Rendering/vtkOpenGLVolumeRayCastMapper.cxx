@@ -20,17 +20,13 @@
 #include "vtkRenderer.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-#if defined(__APPLE__) && (defined(VTK_USE_CARBON) || defined(VTK_USE_COCOA))
-#include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
-#endif
+# include "vtkOpenGL.h"
 #endif
 
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLVolumeRayCastMapper, "1.19");
+vtkCxxRevisionMacro(vtkOpenGLVolumeRayCastMapper, "1.20");
 vtkStandardNewMacro(vtkOpenGLVolumeRayCastMapper);
 #endif
 

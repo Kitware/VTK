@@ -21,8 +21,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkCommand.h"
+#include "vtkWindows.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleFlight, "1.29");
+vtkCxxRevisionMacro(vtkInteractorStyleFlight, "1.30");
 vtkStandardNewMacro(vtkInteractorStyleFlight);
 
 class CPIDControl

@@ -110,9 +110,25 @@ public:
   virtual void SetSelectedLineProperty(vtkProperty*);
   vtkGetObjectMacro(SelectedLineProperty, vtkProperty);
 
+#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+  // Avoid windows name mangling.
+# define SetPropA SetProp
+# define SetPropW SetProp
+#endif
+
   // Description:
   // Set the prop, usually a vtkImageActor, to trace over.
   void SetProp(vtkProp* prop);
+
+#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+# undef SetPropA
+# undef SetPropW
+  //BTX
+  // Define possible mangled names.
+  void SetPropA(vtkProp*);
+  void SetPropW(vtkProp*);
+  //ETX
+#endif
 
   // Description:
   // Force handles to be on a specific ortho plane.
@@ -272,6 +288,8 @@ protected:
   vtkTransformPolyDataFilter *TransformFilter;
   vtkTransform               *Transform;
   vtkFloatArray              *TemporaryHandlePoints;
+
+  void SetPropInternal(vtkProp* prop);
 
   void AppendHandles(double*);
   void ResetHandles();

@@ -16,7 +16,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkCollection.h"
 
-vtkCxxRevisionMacro(vtkCollectionIterator, "1.2");
+vtkCxxRevisionMacro(vtkCollectionIterator, "1.3");
 vtkStandardNewMacro(vtkCollectionIterator);
 
 //----------------------------------------------------------------------------
@@ -82,7 +82,25 @@ int vtkCollectionIterator::IsDoneWithTraversal()
 }
 
 //----------------------------------------------------------------------------
+#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+# undef GetObject
+// Define possible mangled names.
+vtkObject* vtkCollectionIterator::GetObjectA()
+{
+  return this->GetObjectInternal();
+}
+vtkObject* vtkCollectionIterator::GetObjectW()
+{
+  return this->GetObjectInternal();
+}
+#endif
 vtkObject* vtkCollectionIterator::GetObject()
+{
+  return this->GetObjectInternal();
+}
+
+//----------------------------------------------------------------------------
+vtkObject* vtkCollectionIterator::GetObjectInternal()
 {
   if(this->Element)
     {

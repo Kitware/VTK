@@ -16,11 +16,7 @@
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLProperty.h"
 #ifndef VTK_IMPLEMENT_MESA_CXX
-#if defined(__APPLE__) && (defined(VTK_USE_CARBON) || defined(VTK_USE_COCOA))
-#include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
-#endif
+# include "vtkOpenGL.h"
 #endif
 #include "vtkObjectFactory.h"
 #include "vtkToolkits.h"  // for VTK_USE_GL2PS
@@ -32,7 +28,7 @@
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLProperty, "1.30");
+vtkCxxRevisionMacro(vtkOpenGLProperty, "1.31");
 vtkStandardNewMacro(vtkOpenGLProperty);
 #endif
 

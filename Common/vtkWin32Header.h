@@ -41,7 +41,33 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
 #endif
 #endif
 
-#include <windows.h>
+// Never include the windows header here when building VTK itself.
+#if defined(VTK_IN_VTK)
+# undef VTK_INCLUDE_WINDOWS_H
+#endif
+
+#if defined(_WIN32)
+  // Include the windows header here only if requested by user code.
+# if defined(VTK_INCLUDE_WINDOWS_H)
+#  include <windows.h>
+   // Define types from the windows header file.
+   typedef DWORD vtkWindowsDWORD;
+   typedef PVOID vtkWindowsPVOID;
+   typedef LPVOID vtkWindowsLPVOID;
+   typedef HANDLE vtkWindowsHANDLE;
+   typedef LPTHREAD_START_ROUTINE vtkWindowsLPTHREAD_START_ROUTINE;
+# else
+   // Define types from the windows header file.
+   typedef unsigned long vtkWindowsDWORD;
+   typedef void* vtkWindowsPVOID;
+   typedef vtkWindowsPVOID vtkWindowsLPVOID;
+   typedef vtkWindowsPVOID vtkWindowsHANDLE;
+   typedef vtkWindowsDWORD (__stdcall *vtkWindowsLPTHREAD_START_ROUTINE)(vtkWindowsLPVOID);
+# endif
+  // Enable workaround for windows header name mangling.
+# define VTK_WORKAROUND_WINDOWS_MANGLE
+#endif
+
 
 #ifdef _MSC_VER
 // Handle MSVC compiler warning messages, etc.
@@ -55,6 +81,7 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
 #pragma warning ( disable : 4706 )
 #pragma warning ( disable : 4786 )
 #pragma warning ( disable : 4097 )
+#pragma warning ( disable : 4514 ) /* Unreferenced inline function. */
 #endif //VTK_DISPLAY_WIN32_WARNINGS
 #endif
 

@@ -23,6 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointerBase.h"
 #include "vtkTimeStamp.h"
+#include "vtkWindows.h"
 
 #include <vtkstd/map>
 #include <vtkstd/string>

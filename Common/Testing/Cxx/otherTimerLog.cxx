@@ -24,7 +24,8 @@
 #if defined(__CYGWIN__)
 #include <sys/unistd.h>
 #elif defined(_WIN32)
-#include <io.h>
+# include <io.h>
+# include "vtkWindows.h"
 #endif
 
 void otherTimerLogTest(ostream& strm)

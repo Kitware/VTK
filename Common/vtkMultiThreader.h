@@ -66,11 +66,11 @@ typedef pthread_t vtkMultiThreaderIDType;
 #endif
 
 #ifdef VTK_USE_WIN32_THREADS
-typedef LPTHREAD_START_ROUTINE vtkThreadFunctionType;
-typedef HANDLE vtkThreadProcessIDType;
+typedef vtkWindowsLPTHREAD_START_ROUTINE vtkThreadFunctionType;
+typedef vtkWindowsHANDLE vtkThreadProcessIDType;
 // #define VTK_THREAD_RETURN_VALUE 0
 // #define VTK_THREAD_RETURN_TYPE DWORD __stdcall
-typedef DWORD vtkMultiThreaderIDType;
+typedef vtkWindowsDWORD vtkMultiThreaderIDType;
 #endif
 
 #if !defined(VTK_USE_PTHREADS) && !defined(VTK_USE_WIN32_THREADS)

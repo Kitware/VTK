@@ -21,7 +21,7 @@
 
 #include <ctype.h>
 
-#include <windows.h>
+#include "vtkWindows.h"
 #include <winuser.h>
 #include <vfw.h>
 
@@ -40,7 +40,7 @@ public:
 // VFW compressed formats are listed at http://www.webartz.com/fourcc/
 #define VTK_BI_UYVY 0x59565955
 
-vtkCxxRevisionMacro(vtkWin32VideoSource, "1.23");
+vtkCxxRevisionMacro(vtkWin32VideoSource, "1.24");
 vtkStandardNewMacro(vtkWin32VideoSource);
 
 #if ( _MSC_VER >= 1300 ) // Visual studio .NET

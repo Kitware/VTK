@@ -22,16 +22,12 @@
 #include "vtkVolume.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-#if defined(__APPLE__) && (defined(VTK_USE_CARBON) || defined(VTK_USE_COCOA))
-#include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
-#endif
+# include "vtkOpenGL.h"
 #endif
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLVolumeTextureMapper2D, "1.30");
+vtkCxxRevisionMacro(vtkOpenGLVolumeTextureMapper2D, "1.31");
 vtkStandardNewMacro(vtkOpenGLVolumeTextureMapper2D);
 #endif
 

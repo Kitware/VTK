@@ -31,6 +31,7 @@
 
 #include "vtkRenderWindow.h"
 #include "vtkTcl.h"
+#include "vtkWindows.h"
 
 // For the moment, we are not compatable w/Photo compositing
 // By defining USE_COMPOSITELESS_PHOTO_PUT_BLOCK, we use the compatable

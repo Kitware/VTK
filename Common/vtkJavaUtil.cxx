@@ -24,6 +24,7 @@
 #define _INTEGRAL_MAX_BITS 64
 
 #include "vtkObject.h"
+#include "vtkWindows.h"
 
 #ifdef _WIN32
 HANDLE vtkGlobalMutex = NULL;

@@ -20,7 +20,7 @@
 #include "vtkPropCollection.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkViewport, "1.1");
+vtkCxxRevisionMacro(vtkViewport, "1.2");
 
 // Create a vtkViewport with a black background, a white ambient light, 
 // two-sided lighting turned on, a viewport of (0,0,1,1), and backface culling
@@ -115,7 +115,26 @@ void vtkViewport::AddProp(vtkProp *p)
     }
 }
 
-void vtkViewport::RemoveProp(vtkProp *p)
+//----------------------------------------------------------------------------
+#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+# undef RemoveProp
+// Define possible mangled names.
+void vtkViewport::RemovePropA(vtkProp* p)
+{
+  this->RemovePropInternal(p);
+}
+void vtkViewport::RemovePropW(vtkProp* p)
+{
+  this->RemovePropInternal(p);
+}
+#endif
+void vtkViewport::RemoveProp(vtkProp* p)
+{
+  this->RemovePropInternal(p);
+}
+
+//----------------------------------------------------------------------------
+void vtkViewport::RemovePropInternal(vtkProp *p)
 {
   if (p && this->HasProp(p))
     {
