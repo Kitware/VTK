@@ -103,12 +103,6 @@ public:
   virtual void ThreadedExecute(vtkImageData *inData, 
 			       vtkImageData *outData,
 			       int extent[6], int threadId);
-
-  // Description:
-  // subclass can over ride this method to do custom streaming and
-  // splitting for multiprocessing.
-  virtual int SplitExtent(int splitExt[6], int startExt[6], 
-			  int num, int total);
   
 protected:
   vtkImageCache *Input;     

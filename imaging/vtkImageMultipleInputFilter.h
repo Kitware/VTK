@@ -121,7 +121,7 @@ protected:
   virtual void ExecuteImageInformation();
   virtual void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6],
 						int whichInput);
-  void RecursiveStreamUpdate(vtkImageData *outData, int axis);
+  virtual void RecursiveStreamUpdate(vtkImageData *outData);
   virtual void Execute(vtkImageData **inDatas, vtkImageData *outData);
 };
 
