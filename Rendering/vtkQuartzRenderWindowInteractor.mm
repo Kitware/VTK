@@ -100,7 +100,6 @@ void DoMouseUp(void *vtkClass, int shiftDown, int controlDown, int altDown, int 
 void DoMouseDown(void *vtkClass, int shiftDown, int controlDown, int altDown, int commandDown, float xLoc, float yLoc)
 {
     int button=1;
-    
     if (vtkClass){
         if (altDown) {button=2;}
         if (commandDown) {button=3;}
@@ -250,7 +249,7 @@ void vtkQuartzRenderWindowInteractor::TerminateApp(void)
 
 int vtkQuartzRenderWindowInteractor::CreateTimer(int notUsed) 
 {
-    //QBStartTimer(0.01); can be implemented with NSTimer
+    [NSEvent startPeriodicEventsAfterDelay:0.01 withPeriod:0.01];
     return 1;
 }
 

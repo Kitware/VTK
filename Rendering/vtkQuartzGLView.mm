@@ -9,23 +9,35 @@
 
 @implementation vtkQuartzGLView
 
+// perform post-nib load setup here
+- (void)awakeFromNib
+{
+    // Initialization
+    bitsPerPixel = depthSize = (enum NSOpenGLPixelFormatAttribute)32;
+}
+
 - (id)initWithFrame:(NSRect)theFrame
 {
 
-  NSOpenGLPixelFormatAttribute attribs[] = {NSOpenGLPFAAccelerated, 
-					    (enum NSOpenGLPixelFormatAttribute)1,
-                                            (enum NSOpenGLPixelFormatAttribute)0};
+  NSOpenGLPixelFormatAttribute attribs[] = 
+    {
+        (enum NSOpenGLPixelFormatAttribute)1,
+        (enum NSOpenGLPixelFormatAttribute)0};
+        
   NSOpenGLPixelFormat *fmt;
 
   /* Choose a pixel format */
   fmt = [[NSOpenGLPixelFormat alloc] initWithAttributes:attribs];
+  if(!fmt)
+    NSLog(@"Pixel format is nil");
   
   /* Create a GLX context */
   self = [super initWithFrame:theFrame pixelFormat:fmt];
-  
-  /* Destroy the pixel format */
-  [fmt release];
+  if (!self)
+    NSLog(@"initWithFrame failed");
 
+  [[self openGLContext] makeCurrentContext];
+  [[self window] setAcceptsMouseMovedEvents:YES];
   return self;
 }
 
@@ -77,7 +89,8 @@
 
     mouseLoc = [self convertPoint:[theEvent locationInWindow] fromView:nil];
 
-    DoMouseMoved([[self getvtkQuartzWindowController] getVTKRenderWindowInteractor], shiftDown, controlDown, altDown, commandDown, mouseLoc.x, mouseLoc.y);
+    DoMouseMoved([[self getvtkQuartzWindowController] getVTKRenderWindowInteractor],
+                  shiftDown, controlDown, altDown, commandDown, mouseLoc.x, mouseLoc.y);
 
 }
 

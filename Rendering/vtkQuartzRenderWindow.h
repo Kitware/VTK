@@ -250,6 +250,7 @@ protected:
   void     *ContextId;
   void     *DeviceContext;
   void     *WindowId;
+  void     *WindowController;
   int       OwnWindow;
   int       ScreenSize[2];
   int       MultiSamples;
