@@ -103,9 +103,9 @@ public:
   // TargetReduction is set to 0.9, this filter will try to reduce the data set
   // to 10% of its original size). Because of various constraints, this level of
   // reduction may not be realized. If you want to guarantee a particular
-  // reduction, you must turn off PreserveTopology and BoundaryVertexDeletion,
-  // turn on SplitEdges, and set the MaximumError to VTK_DOUBLE_MAX (these ivars
-  // are initialized this way when the object is instantiated).
+  // reduction, you must turn off PreserveTopology, turn on SplitEdges and
+  // BoundaryVertexDeletion, and set the MaximumError to VTK_DOUBLE_MAX (these
+  // ivars are initialized this way when the object is instantiated).
   vtkSetClampMacro(TargetReduction,double,0.0,1.0);
   vtkGetMacro(TargetReduction,double);
 
