@@ -22,7 +22,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkCubeAxesActor2D, "1.46");
+vtkCxxRevisionMacro(vtkCubeAxesActor2D, "1.47");
 vtkStandardNewMacro(vtkCubeAxesActor2D);
 
 vtkCxxSetObjectMacro(vtkCubeAxesActor2D,Input, vtkDataSet);
@@ -1003,6 +1003,15 @@ static int IsInBounds(double x[3], double bounds[6])
 }
 
 //----------------------------------------------------------------------------
+
+// Disable warnings about qualifiers on return types.
+#if defined(_COMPILER_VERSION)
+# pragma set woff 3303
+#endif
+#if defined(__INTEL_COMPILER)
+# pragma warning (disable:858)
+#endif
+
 #ifndef VTK_LEGACY_REMOVE
 # ifdef VTK_WORKAROUND_WINDOWS_MANGLE
 #  undef SetProp

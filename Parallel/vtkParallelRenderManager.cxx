@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.46");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.47");
 
 //----------------------------------------------------------------------------
 vtkParallelRenderManager::vtkParallelRenderManager()
@@ -1892,6 +1892,15 @@ void vtkParallelRenderManager::TileWindows(int xsize, int ysize, int ncolumn)
 }
 
 //----------------------------------------------------------------------------
+
+// Disable warnings about qualifiers on return types.
+#if defined(_COMPILER_VERSION)
+# pragma set woff 3303
+#endif
+#if defined(__INTEL_COMPILER)
+# pragma warning (disable:858)
+#endif
+
 #ifndef VTK_LEGACY_REMOVE
 # ifdef VTK_WORKAROUND_WINDOWS_MANGLE
 #  undef StartService
