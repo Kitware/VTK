@@ -144,7 +144,7 @@ public:
   // Description:
   // Set/Get the value which is used to initialize the NumberOfThreads
   // in the constructor.  Initially this default is set to the number of 
-  // processors or 8 (which ever is less).
+  // processors or VTK_MAX_THREADS (which ever is less).
   static void SetGlobalDefaultNumberOfThreads(int val);
   static int  GetGlobalDefaultNumberOfThreads();
 
