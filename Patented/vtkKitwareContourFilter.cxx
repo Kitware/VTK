@@ -35,7 +35,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkKitwareContourFilter, "1.44");
+vtkCxxRevisionMacro(vtkKitwareContourFilter, "1.45");
 vtkStandardNewMacro(vtkKitwareContourFilter);
 
 // Construct object with initial range (0,1) and single contour value
@@ -67,7 +67,7 @@ int vtkKitwareContourFilter::RequestUpdateExtent(
     return 0;
     }
 
-  const char* inputObjectType = inInfo->Get(vtkDataObject::DATA_TYPE_NAME());
+  const char* inputObjectType = input->GetClassName();
 
   if ( !strcmp(inputObjectType, "vtkStructuredPoints") ||
        !strcmp(inputObjectType, "vtkImageData"))
