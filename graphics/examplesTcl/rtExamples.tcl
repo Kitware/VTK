@@ -68,6 +68,35 @@ for {set i 0} {$i < [llength $noTest]} {incr i} {
     }
 }
 
+proc decipad { str before total } {
+    set x [string first "." $str]
+    if { $x == -1 } { 
+	set str "${str}.0"
+    }
+
+    set x [string first "." $str]
+    while { $x >= 0 && $x < $before } {
+	set str " $str"
+	set x [string first "." $str]
+    }
+
+    if { [string length $str] >= $total } {
+        return [string range $str 0 [expr $total - 1]]
+    }
+
+    while { [string length $str] < $total } {
+        set str "${str}0"
+    }
+    return $str
+}
+
+# Convenience script to pad a string out to a given length
+proc pad { str amount } {
+    while { [string length $str] < $amount } {
+        set str " $str"
+    }
+    return $str
+}
 
 
 # now do the tests
@@ -108,9 +137,21 @@ foreach afile $files {
     vtkMath rtExMath
     rtExMath RandomSeed 6
     
-    puts -nonewline $logFile "$afile took "
+    # Start by putting the name out - right justify it and pad to 30 characters.
+    # This line MUST start with a space so that name conflicts won't occur in
+    # grep statements in other files
+    set Name [pad $afile 29]
+    puts -nonewline $logFile " $Name - "
     flush stdout
-    puts -nonewline $logFile "[expr [lindex [time {source $afile} 1] 0] / 1000000.0] seconds "
+    
+    # Create a timer so that we can get CPU time.
+    # Use the tcl time command to get wall time
+    vtkTimerLog timer
+    set startCPU [timer GetCPUTime]
+    set wallTime [decipad [expr [lindex [time {source $afile} 1] 0] / 1000000.0] 4 9]
+    set endCPU [timer GetCPUTime]
+    set CPUTime [decipad [expr $endCPU - $startCPU] 3 8]
+    puts -nonewline $logFile "$wallTime wall, $CPUTime cpu, "
     
     vtkWindowToImageFilter w2if
     
@@ -158,11 +199,13 @@ foreach afile $files {
     imgDiff SetImage [rtpnm GetOutput]
     imgDiff Update
 
+    set imageError [decipad [imgDiff GetThresholdedError] 4 9]
+
     # a test has to be off by at least threshold pixels for us to care   
     if {[imgDiff GetThresholdedError] <= $threshold} {
-	puts $logFile "and Passed"
+	set imageStatus "Passed"
     } else {
-	puts $logFile "but failed with an error of [imgDiff GetThresholdedError]"
+	set imageStatus "Failed"
 	vtkPNMWriter rtpnmw
 	rtpnmw SetInput [imgDiff GetOutput]
 	rtpnmw SetFileName "${VTK_RESULTS_PATH}$afile.error.ppm"
@@ -172,7 +215,20 @@ foreach afile $files {
 	rtpnmw2 SetFileName "${VTK_RESULTS_PATH}$afile.test.ppm"
 	rtpnmw2 Write
     }
-    
+
+    # Write the image error out to the log file
+    puts -nonewline $logFile "$imageError error, "
+
+    # Put the final passed or failed flag out there.
+    # If it failed, say why (Image, Time)
+    if { $imageStatus == "Passed" } {
+	puts $logFile "Passed"
+    } else {
+	puts $logFile "Failed (Image)"
+    }
+
+  
+
     vtkCommand DeleteAllObjects
     catch {destroy .top}
 }
