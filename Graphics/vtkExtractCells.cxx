@@ -23,6 +23,7 @@
 #include "vtkIntArray.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkModelMetadata.h"
 #include "vtkCell.h"
 #include "vtkPoints.h"
 #include "vtkPointData.h"
@@ -30,7 +31,7 @@
 #include "vtkIntArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkExtractCells, "1.10");
+vtkCxxRevisionMacro(vtkExtractCells, "1.1");
 vtkStandardNewMacro(vtkExtractCells);
 
 #include <vtkstd/set>
@@ -107,6 +108,8 @@ void vtkExtractCells::Execute()
   this->InputIsUgrid =
     ((vtkUnstructuredGrid::SafeDownCast(input)) != NULL);
 
+  vtkModelMetadata *extractMetadata = this->ExtractMetadata();
+
   int numCellsInput = input->GetNumberOfCells();
 
   int numCells = this->CellList->IdTypeSet.size();
@@ -115,11 +118,19 @@ void vtkExtractCells::Execute()
     {
     #if 0
     this->Copy();
+
+    if (extractMetadata)
+      {
+      vtkModelMetadata::RemoveMetadata((vtkDataSet *)output);
+      extractMetadata->Pack(output);
+      extractMetadata->Delete();
+      }
     return;
    #else
     // The Copy method seems to have a bug, causing codes using ExtractCells to die
     #endif
     }
+
   vtkPointData *PD = input->GetPointData();
   vtkCellData *CD = input->GetCellData();
 
@@ -139,6 +150,13 @@ void vtkExtractCells::Execute()
     output->SetPoints(pts);
 
     pts->Delete();
+
+    if (extractMetadata)
+      {
+      vtkModelMetadata::RemoveMetadata((vtkDataSet *)output);
+      extractMetadata->Pack(output);
+      extractMetadata->Delete();
+      }
 
     return;
     }
@@ -181,8 +199,80 @@ void vtkExtractCells::Execute()
 
   output->Squeeze();
 
+  if (extractMetadata)
+    {
+    vtkModelMetadata::RemoveMetadata((vtkDataSet *)output);
+    extractMetadata->Pack(output);
+    extractMetadata->Delete();
+    }
+
   return;
 }
+vtkModelMetadata *vtkExtractCells::ExtractMetadata()
+{
+  vtkModelMetadata *extractedMD = NULL;
+  int numCells = this->CellList->IdTypeSet.size();
+  vtkDataSet *input = this->GetInput();
+
+  if (vtkModelMetadata::HasMetadata(input))
+    {
+    if (numCells == input->GetNumberOfCells())
+      {
+      extractedMD = vtkModelMetadata::New();
+      extractedMD->Unpack(input, 0);
+      }
+    else
+      {
+      vtkDataArray *c = input->GetCellData()->GetArray("GlobalElementId");
+      vtkDataArray *p = input->GetPointData()->GetArray("GlobalNodeId");
+
+      if (c && p)
+        {
+        vtkIntArray *cgids = vtkIntArray::SafeDownCast(c);
+
+        if (cgids)
+          {
+          int *cids = cgids->GetPointer(0);
+
+          vtkIntArray *gids = vtkIntArray::New();
+          gids->SetNumberOfValues(numCells);
+        
+          int next = 0;
+          vtkstd::set<vtkIdType>::iterator cellPtr;
+        
+          for (cellPtr = this->CellList->IdTypeSet.begin();
+               cellPtr != this->CellList->IdTypeSet.end();
+               ++cellPtr)
+            {
+            gids->SetValue(next++, cids[*cellPtr]);  // global cell IDs
+            }
+
+          vtkModelMetadata *mmd = vtkModelMetadata::New();
+          mmd->Unpack(input, 0);
+        
+          extractedMD = mmd->ExtractModelMetadata(gids,
+               input, "GlobalElementId", "GlobalNodeId");
+        
+          gids->Delete();
+          mmd->Delete();
+          }
+        else
+          {
+          vtkWarningMacro(<< 
+    "vtkExtractCells: metadata lost, GlobalElementId array is not a vtkIntArray");
+          }
+        }
+      else
+        {
+        vtkWarningMacro(<< 
+    "vtkExtractCells: metadata lost, no GlobalElementId or GlobalNodeId array");
+        }
+      }      
+    }
+
+  return extractedMD;
+}
+
 void vtkExtractCells::Copy()
 {
   int i;

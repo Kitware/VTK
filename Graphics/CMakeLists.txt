@@ -53,6 +53,7 @@ vtkDiskSource.cxx
 vtkEdgePoints.cxx
 vtkElevationFilter.cxx
 vtkEllipticalButtonSource.cxx
+vtkExtractCells.cxx
 vtkExtractEdges.cxx
 vtkExtractGeometry.cxx
 vtkExtractGrid.cxx

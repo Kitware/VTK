@@ -50,7 +50,6 @@ vtkCutMaterial.cxx
 vtkDistributedDataFilter.cxx
 vtkDistributedStreamTracer.cxx
 vtkDummyController.cxx
-vtkExtractCells.cxx
 vtkExtractPolyDataPiece.cxx
 vtkExtractUnstructuredGridPiece.cxx
 vtkExtractUserDefinedPiece.cxx
