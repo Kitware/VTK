@@ -52,6 +52,7 @@ IF (VTK_USE_RENDERING)
       glyph2D
       KlineBottle
       motor
+      MatrixToTransform
       MultidimensionalSolution
       nacaBinary
       OBBTree
