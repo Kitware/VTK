@@ -94,7 +94,6 @@ vtkPlaneCollection.cxx
 vtkPlanes.cxx
 vtkPointData.cxx
 vtkPointLocator.cxx
-vtkPointLocator2D.cxx
 vtkPointSet.cxx
 vtkPoints.cxx
 vtkPolyData.cxx
