@@ -65,7 +65,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // dataset interface
-  vtkDataSet *MakeObject() {return new vtkStructuredPoints(*this);};
+  vtkDataObject *MakeObject() {return new vtkStructuredPoints;};
   void CopyStructure(vtkDataSet *ds);
   int GetNumberOfCells();
   int GetNumberOfPoints();
@@ -105,7 +105,7 @@ public:
   vtkGetVectorMacro(Origin,float,3);
 
   int ComputeStructuredCoordinates(float x[3], int ijk[3], float pcoords[3]);
-  void GetVoxelGradient(int i,int j,int k, vtkScalars *s, vtkFloatVectors& g);
+  void GetVoxelGradient(int i,int j,int k, vtkScalars *s, vtkVectors& g);
   void GetPointGradient(int i, int j, int k, vtkScalars *s, float g[3]);
   int GetDataDimension();
 

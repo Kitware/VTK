@@ -40,14 +40,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkGraymap.h"
-#include "vtkAGraymap.h"
-#include "vtkPixmap.h"
-#include "vtkAPixmap.h"
 #include "vtkImageCache.h"
 #include "vtkImageToStructuredPoints.h"
-#include "vtkFloatVectors.h"
-#include "vtkFloatScalars.h"
+#include "vtkScalars.h"
 
 
 //----------------------------------------------------------------------------
@@ -263,19 +258,9 @@ void vtkImageToStructuredPoints::Execute()
     output->GetPointData()->PassData(data->GetPointData());
     if (this->VectorInput)
       {
-      // make sure the vectors are float
-      if (vData->GetScalarType() != VTK_FLOAT)
-	{
-	vtkWarningMacro(<< "vector data must be of type float!!");
-	}
-      else
-	{
-	vtkFloatVectors *fv = vtkFloatVectors::New();
-	output->GetPointData()->SetVectors(fv);
-	fv->SetV(((vtkFloatScalars *)
-		  vData->GetPointData()->GetScalars())->GetS());
-	fv->Delete();
-	}
+      vtkVectors *fv = vtkVectors::New(vData->GetScalarType());
+      output->GetPointData()->SetVectors(fv);
+      fv->SetData(vData->GetPointData()->GetScalars()->GetData());
       }
     }
   else
@@ -301,7 +286,7 @@ void vtkImageToStructuredPoints::Execute()
     inIncY *= data->GetScalarSize();
     inIncZ *= data->GetScalarSize();
     
-    // Loop through ouput pixels
+    // Loop through output pixels
     for (idxZ = 0; idxZ <= maxZ; idxZ++)
       {
       inPtr1 = inPtr + idxZ*inIncZ;
@@ -315,39 +300,31 @@ void vtkImageToStructuredPoints::Execute()
 
     if (this->VectorInput)
       {
-      // make sure the vectors are float
-      if (vData->GetScalarType() != VTK_FLOAT)
+      vtkVectors *fv = vtkVectors::New(vData->GetScalarType());
+      output->GetPointData()->SetVectors(fv);
+      float *inPtr2 = (float *)(vData->GetScalarPointerForExtent(uExtent));
+
+      fv->SetNumberOfVectors((maxZ+1)*(maxY+1)*(maxX+1));
+      vData->GetContinuousIncrements(uExtent, inIncX, inIncY, inIncZ);
+      int numComp = vData->GetNumberOfScalarComponents();
+      int idx = 0;
+
+      // Loop through ouput pixels
+      for (idxZ = 0; idxZ <= maxZ; idxZ++)
 	{
-	vtkWarningMacro(<< "vector data must be of type float!!");
-	}
-      else
-	{
-	vtkFloatVectors *fv = vtkFloatVectors::New();
-	output->GetPointData()->SetVectors(fv);
-	float *inPtr2 = (float *)(vData->GetScalarPointerForExtent(uExtent));
-	
-	fv->SetNumberOfVectors((maxZ+1)*(maxY+1)*(maxX+1));
-	vData->GetContinuousIncrements(uExtent, inIncX, inIncY, inIncZ);
-	int numComp = vData->GetNumberOfScalarComponents();
-	int idx = 0;
-	
-	// Loop through ouput pixels
-	for (idxZ = 0; idxZ <= maxZ; idxZ++)
+	for (idxY = 0; idxY <= maxY; idxY++)
 	  {
-	  for (idxY = 0; idxY <= maxY; idxY++)
+	  for (idxX = 0; idxX <= maxX; idxX++)
 	    {
-	    for (idxX = 0; idxX <= maxX; idxX++)
-	      {
-	      fv->SetVector(idx,inPtr2);
-	      inPtr2 += numComp;
-	      idx++;
-	      }
-	    inPtr2 += inIncY;
+	    fv->SetVector(idx,inPtr2);
+	    inPtr2 += numComp;
+	    idx++;
 	    }
-	  inPtr2 += inIncZ;
+	  inPtr2 += inIncY;
 	  }
-	fv->Delete();
+	inPtr2 += inIncZ;
 	}
+      fv->Delete();
       }
     }
 }

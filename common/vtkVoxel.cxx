@@ -53,12 +53,11 @@ vtkVoxel::vtkVoxel()
   this->PointIds.SetNumberOfIds(8);
 }
 
-// Description:
-// Deep copy of cell.
-vtkVoxel::vtkVoxel(const vtkVoxel& b)
+vtkCell *vtkVoxel::MakeObject()
 {
-  this->Points = b.Points;
-  this->PointIds = b.PointIds;
+  vtkCell *cell = vtkVoxel::New();
+  cell->ShallowCopy(*this);
+  return cell;
 }
 
 int vtkVoxel::EvaluatePosition(float x[3], float closestPoint[3],
@@ -272,7 +271,7 @@ static int faces[6][4] = { {2,0,6,4}, {1,3,5,7},
 //
 #include "vtkMarchingCubesCases.h"
 
-void vtkVoxel::Contour(float value, vtkFloatScalars *cellScalars, 
+void vtkVoxel::Contour(float value, vtkScalars *cellScalars, 
 		       vtkPointLocator *locator,
 		       vtkCellArray *vtkNotUsed(verts), 
 		       vtkCellArray *vtkNotUsed(lines), 
@@ -330,35 +329,33 @@ void vtkVoxel::Contour(float value, vtkFloatScalars *cellScalars,
 vtkCell *vtkVoxel::GetEdge(int edgeId)
 {
   int *verts;
-  static vtkLine line;
   
   verts = edges[edgeId];
 
   // load point id's
-  line.PointIds.SetId(0,this->PointIds.GetId(verts[0]));
-  line.PointIds.SetId(1,this->PointIds.GetId(verts[1]));
+  this->Line.PointIds.SetId(0,this->PointIds.GetId(verts[0]));
+  this->Line.PointIds.SetId(1,this->PointIds.GetId(verts[1]));
 
   // load coordinates
-  line.Points.SetPoint(0,this->Points.GetPoint(verts[0]));
-  line.Points.SetPoint(1,this->Points.GetPoint(verts[1]));
+  this->Line.Points.SetPoint(0,this->Points.GetPoint(verts[0]));
+  this->Line.Points.SetPoint(1,this->Points.GetPoint(verts[1]));
 
-  return &line;
+  return &this->Line;
 }
 
 vtkCell *vtkVoxel::GetFace(int faceId)
 {
-  static vtkPixel pixel;
   int *verts, i;
 
   verts = faces[faceId];
 
   for (i=0; i<4; i++)
     {
-    pixel.PointIds.SetId(i,this->PointIds.GetId(verts[i]));
-    pixel.Points.SetPoint(i,this->Points.GetPoint(verts[i]));
+    this->Pixel.PointIds.SetId(i,this->PointIds.GetId(verts[i]));
+    this->Pixel.Points.SetPoint(i,this->Points.GetPoint(verts[i]));
     }
 
-  return &pixel;
+  return &this->Pixel;
 }
 
 // 
@@ -394,7 +391,7 @@ int vtkVoxel::IntersectWithLine(float p1[3], float p2[3], float vtkNotUsed(tol),
   return 1;
 }
 
-int vtkVoxel::Triangulate(int index, vtkIdList &ptIds, vtkFloatPoints &pts)
+int vtkVoxel::Triangulate(int index, vtkIdList &ptIds, vtkPoints &pts)
 {
   int p[4], i;
 
@@ -518,7 +515,7 @@ void vtkVoxel::Derivatives(int vtkNotUsed(subId), float pcoords[3],
 }
 
 void vtkVoxel::Clip(float vtkNotUsed(value), 
-			 vtkFloatScalars *vtkNotUsed(cellScalars), 
+			 vtkScalars *vtkNotUsed(cellScalars), 
                          vtkPointLocator *vtkNotUsed(locator), 
 			 vtkCellArray *vtkNotUsed(tetras),
                          vtkPointData *vtkNotUsed(inPd), 

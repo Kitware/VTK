@@ -51,111 +51,70 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkTensor_h
 #define __vtkTensor_h
 
-#define VTK_TENSOR_MAXDIM 3
 #include "vtkWin32Header.h"
 
 class VTK_EXPORT vtkTensor
 {
 public:
+  vtkTensor();
   void Delete() {delete this;};
-  inline vtkTensor(int dim=3);
   static vtkTensor *New() {return new vtkTensor;};
   void Initialize();
   float GetComponent(int i, int j);
   void SetComponent(int i, int j, float v);
   void AddComponent(int i, int j, float v);
   float *GetColumn(int j);
-  void operator=(float *t);
-  void operator=(vtkTensor &t);
+  void DeepCopy(vtkTensor &t);
   operator float*() {return this->T;};
-  void SetDimension(int dim);
-  int GetDimension();
   float *T;
 
 protected: 
-  int Dimension;
-  float Storage[VTK_TENSOR_MAXDIM*VTK_TENSOR_MAXDIM];
+  float Storage[9];
 };
 
-// Description:
-// Construct tensor initially pointing to internal storage.
-inline vtkTensor::vtkTensor(int dim)
-{
-  this->T = this->Storage;
-  this->Dimension = dim;
-  for (int j=0; j<this->Dimension; j++)
-    for (int i=0; i<this->Dimension; i++)
-      this->T[i+j*this->Dimension] = 0.0;
-}
-
-// Description:
-// Set the dimensions of the tensor.
-inline void vtkTensor::SetDimension(int dim)
-{
-  this->Dimension = (dim < 1 ? 1 : (dim > VTK_TENSOR_MAXDIM ? VTK_TENSOR_MAXDIM : dim));
-}
-
-// Description:
-// Get the dimensions of the tensor.
-inline int vtkTensor::GetDimension()
-{
-  return this->Dimension;
-}
-
-// Description:
 // Initialize tensor components to 0.0.
 inline void vtkTensor::Initialize()
 {
-  for (int j=0; j<this->Dimension; j++)
-    for (int i=0; i<this->Dimension; i++)
-      this->T[i+j*this->Dimension] = 0.0;
+  for (int j=0; j<3; j++)
+    for (int i=0; i<3; i++)
+      this->T[i+j*3] = 0.0;
 }
 
 // Description:
 // Get the tensor component (i,j).
 inline float vtkTensor::GetComponent(int i, int j)
 {
-  return this->T[i+this->Dimension*j];
+  return this->T[i+3*j];
 }
 
 // Description:
 // Set the value of the tensor component (i,j).
 inline void vtkTensor::SetComponent(int i, int j, float v)
 {
-  this->T[i+this->Dimension*j] = v;
+  this->T[i+3*j] = v;
 }
 
 // Description:
 // Add to the value of the tensor component at location (i,j).
 inline void vtkTensor::AddComponent(int i, int j, float v)
 {
-  this->T[i+this->Dimension*j] += v;
-}
-
-// Description:
-// Assign tensors to a float array. Float array must be sized
-// Dimension*Dimension.
-inline void vtkTensor::operator=(float *t)
-{
-  for (int j=0; j < this->Dimension; j++)
-    for (int i=0; i < this->Dimension; i++)
-      this->T[i+this->Dimension*j] = t[i+this->Dimension*j];
-}
-
-// Description:
-// Assign tensor to another tensor.
-inline void vtkTensor::operator=(vtkTensor &t)
-{
-  for (int j=0; j < this->Dimension; j++)
-    for (int i=0; i < this->Dimension; i++)
-      this->T[i+this->Dimension*j] = t.T[i+this->Dimension*j];
+  this->T[i+3*j] += v;
 }
 
 // Description:
 // Return column vector from tensor. (Assumes 2D matrix form and 0-offset.)
 inline float *vtkTensor::GetColumn(int j)
 {
-  return this->T + this->Dimension*j;
+  return this->T + 3*j;
+}
+
+// Description:
+// Deep copy of one tensor to another tensor.
+inline void vtkTensor::DeepCopy(vtkTensor &t)
+{
+  for (int j=0; j < 3; j++)
+    for (int i=0; i < 3; i++)
+      this->T[i+3*j] = t.T[i+3*j];
 }
 
 #endif

@@ -60,7 +60,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkLookupTable_h
 
 #include "vtkReferenceCount.h"
-#include "vtkAPixmap.h"
+#include "vtkUnsignedCharArray.h"
 
 class VTK_EXPORT vtkLookupTable : public vtkReferenceCount
 {
@@ -121,7 +121,7 @@ public:
 
 protected:
   int NumberOfColors;
-  vtkAPixmap Table;  
+  vtkUnsignedCharArray Table;
   float TableRange[2];
   float HueRange[2];
   float SaturationRange[2];
@@ -129,6 +129,7 @@ protected:
   float AlphaRange[2];
   vtkTimeStamp InsertTime;
   vtkTimeStamp BuildTime;
+  float RGBA[4]; //used during conversion process
 };
 
 // Description:
@@ -136,7 +137,7 @@ protected:
 // r-g-b-a-r-g-b-a...
 inline unsigned char *vtkLookupTable::GetPointer(const int id)
 {
-  return this->Table.GetPointer(id);
+  return this->Table.GetPointer(4*id);
 }
 // Description:
 // Get pointer to data. Useful for direct writes into object. MaxId is bumped
@@ -144,7 +145,7 @@ inline unsigned char *vtkLookupTable::GetPointer(const int id)
 // wish to write into; number is the number of rgba values to write.
 inline unsigned char *vtkLookupTable::WritePointer(const int id, const int number)
 {
-  return this->Table.WritePointer(id,number);
+ return this->Table.WritePointer(4*id,4*number);
 }
 
 #endif

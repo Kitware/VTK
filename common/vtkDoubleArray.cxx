@@ -41,6 +41,22 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkDoubleArray.h"
 
 // Description:
+// Instantiate object.
+vtkDoubleArray::vtkDoubleArray(int numComp)
+{
+  this->NumberOfComponents = (numComp < 1 ? 1 : numComp);
+  this->Array = NULL;
+  this->TupleSize = 3;
+  this->Tuple = new float[this->TupleSize]; //used for conversion
+}
+
+vtkDoubleArray::~vtkDoubleArray()
+{
+  if (this->Array) delete [] this->Array;
+  delete [] this->Tuple;
+}
+
+// Description:
 // Allocate memory for this array. Delete old storage only if necessary.
 int vtkDoubleArray::Allocate(const int sz, const int ext)
 {
@@ -72,39 +88,8 @@ void vtkDoubleArray::Initialize()
 }
 
 // Description:
-// Construct with specified storage and extend value.
-vtkDoubleArray::vtkDoubleArray(const int sz, const int ext)
-{
-  this->Size = ( sz > 0 ? sz : 1);
-  this->Array = new double[this->Size];
-  this->Extend = ( ext > 0 ? ext : 1);
-  this->MaxId = -1;
-}
-
-vtkDoubleArray::~vtkDoubleArray()
-{
-  delete [] this->Array;
-}
-
-// Description:
-// Construct array from another array. Copy each element of other array.
-vtkDoubleArray::vtkDoubleArray(const vtkDoubleArray& fa)
-{
-  int i;
-
-  this->MaxId = fa.MaxId;
-  this->Size = fa.Size;
-  this->Extend = fa.Extend;
-
-  this->Array = new double[this->Size];
-  for (i=0; i<this->MaxId; i++)
-    this->Array[i] = fa.Array[i];
-
-}
-
-// Description:
-// Deep copy of another array.
-vtkDoubleArray& vtkDoubleArray::operator=(const vtkDoubleArray& fa)
+// Deep copy of another double array.
+void vtkDoubleArray::DeepCopy(vtkDoubleArray& fa)
 {
   int i;
 
@@ -112,30 +97,14 @@ vtkDoubleArray& vtkDoubleArray::operator=(const vtkDoubleArray& fa)
     {
     delete [] this->Array;
 
+    this->NumberOfComponents = fa.NumberOfComponents;
     this->MaxId = fa.MaxId;
     this->Size = fa.Size;
     this->Extend = fa.Extend;
 
     this->Array = new double[this->Size];
-    for (i=0; i<=this->MaxId; i++)
-      this->Array[i] = fa.Array[i];
+    for (i=0; i<=this->MaxId; i++) this->Array[i] = fa.Array[i];
     }
-  return *this;
-}
-
-// Description:
-// Append one array onto the end of this array.
-void vtkDoubleArray::operator+=(const vtkDoubleArray& fa)
-{
-  int i, sz;
-
-  if ( this->Size <= (sz = this->MaxId + fa.MaxId + 2) ) this->Resize(sz);
-
-  for (i=0; i<=fa.MaxId; i++)
-    {
-    this->Array[this->MaxId+1+i] = fa.Array[i];
-    }
-  this->MaxId += fa.MaxId + 1;
 }
 
 void vtkDoubleArray::PrintSelf(ostream& os, vtkIndent indent)
@@ -143,9 +112,6 @@ void vtkDoubleArray::PrintSelf(ostream& os, vtkIndent indent)
   vtkObject::PrintSelf(os,indent);
 
   os << indent << "Array: " << this->Array << "\n";
-  os << indent << "Size: " << this->Size << "\n";
-  os << indent << "MaxId: " << this->MaxId << "\n";
-  os << indent << "Extend size: " << this->Extend << "\n";
 }
 
 // Protected function does "reallocate"
@@ -175,4 +141,67 @@ double *vtkDoubleArray::Resize(const int sz)
   this->Array = newArray;
 
   return this->Array;
+}
+
+// Description:
+// Set the number of n-tuples in the array.
+void vtkDoubleArray::SetNumberOfTuples(const int number)
+{
+  this->SetNumberOfValues(number*this->NumberOfComponents);
+}
+
+// Description:
+// Get a pointer to a tuple at the ith location. This is a dangerous method
+// (it is not thread safe since a pointer is returned).
+float *vtkDoubleArray::GetTuple(const int i) 
+{
+  if ( this->TupleSize < this->NumberOfComponents )
+    {
+    this->TupleSize = this->NumberOfComponents;
+    delete [] this->Tuple;
+    this->Tuple = new float[this->TupleSize];
+    }
+
+  double *t = this->Array + this->NumberOfComponents*i;
+  for (int j=0; j<this->NumberOfComponents; j++) this->Tuple[j] = (float)t[j];
+  return this->Tuple;
+}
+
+// Description:
+// Copy the tuple value into a user-provided array.
+void vtkDoubleArray::GetTuple(const int i, float tuple[])
+{
+  double *t = this->Array + this->NumberOfComponents*i;
+  for (int j=0; j<this->NumberOfComponents; j++) tuple[j] = (float)t[j];
+}
+
+// Description:
+// Set the tuple value at the ith location in the array.
+void vtkDoubleArray::SetTuple(const int i, const float tuple[])
+{
+  int loc = i * this->NumberOfComponents; 
+  for (int j=0; j<this->NumberOfComponents; j++) 
+    this->Array[loc+j] = (double)tuple[j];
+}
+
+// Description:
+// Insert (memory allocation performed) the tuple into the ith location
+// in the array.
+void vtkDoubleArray::InsertTuple(const int i, const float tuple[])
+{
+  double *t = this->WritePointer(i*this->NumberOfComponents,this->NumberOfComponents);
+
+  for (int j=0; j<this->NumberOfComponents; j++) *t++ = (double)*tuple++;
+}
+
+// Description:
+// Insert (memory allocation performed) the tuple onto the end of the array.
+int vtkDoubleArray::InsertNextTuple(const float tuple[])
+{
+  int i = this->MaxId + 1;
+  double *t = this->WritePointer(i,this->NumberOfComponents);
+
+  for (i=0; i<this->NumberOfComponents; i++) *t++ = (double)*tuple++;
+
+  return this->MaxId / this->NumberOfComponents;
 }

@@ -47,47 +47,49 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkFloatArray_h
 #define __vtkFloatArray_h
 
-#include "vtkReferenceCount.h"
+#include "vtkDataArray.h"
 
-class VTK_EXPORT vtkFloatArray : public vtkReferenceCount 
+class VTK_EXPORT vtkFloatArray : public vtkDataArray
 {
 public:
-  vtkFloatArray():Array(NULL),Size(0),MaxId(-1),Extend(1000) {};
+  vtkFloatArray(int numComp=1);
+  ~vtkFloatArray();
   int Allocate(const int sz, const int ext=1000);
   void Initialize();
-  vtkFloatArray(const int sz, const int ext=1000);
-  vtkFloatArray(const vtkFloatArray& fa);
-  ~vtkFloatArray();
   static vtkFloatArray *New() {return new vtkFloatArray;};
   const char *GetClassName() {return "vtkFloatArray";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // access/insertion methods
+  // satisfy vtkDataArray API
+  vtkDataArray *MakeObject() {return new vtkFloatArray(this->NumberOfComponents);};
+  int GetDataType() {return VTK_FLOAT;};
+  void SetNumberOfTuples(const int number);
+  float *GetTuple(const int i);
+  void GetTuple(const int i, float tuple[]);
+  void SetTuple(const int i, const float tuple[]);
+  void InsertTuple(const int i, const float tuple[]);
+  int InsertNextTuple(const float tuple[]);
+  void Squeeze();
+
+  // overload vtkDataArray for efficiency
+  float GetComponent(const int i, const int j);
+  void SetComponent(const int i, const int j, const float c);
+  void InsertComponent(const int i, const int j, const float c);
+
+  // native access/insertion methods
   float GetValue(const int id);
   void SetNumberOfValues(const int number);
   void SetValue(const int id, const float value);
-  vtkFloatArray &InsertValue(const int id, const float f);
+  void InsertValue(const int id, const float f);
   int InsertNextValue(const float f);
-  float *GetPointer(const int id);
+  float *GetPointer(const int id) {return this->Array + id;}
   float *WritePointer(const int id, const int number);
-
-  // special operators
-  vtkFloatArray &operator=(const vtkFloatArray& fa);
-  void operator+=(const vtkFloatArray& fa);
-  void operator+=(const float f);
-
-  // miscellaneous methods
-  void Squeeze();
-  int GetSize();
-  int GetMaxId();
-  void Reset();
+  void *GetVoidPointer(const int id) {return (void *)this->GetPointer(id);};
+  void DeepCopy(vtkFloatArray& fa);
 
 private:
   float *Array;  // pointer to data
-  int Size;      // allocated size of data
-  int MaxId;     // maximum index inserted thus far
-  int Extend;    // grow array by this point
-  float *Resize(const int sz);  // function to resize data
+  float *Resize(const int sz);  // function to reallocate data
 };
 
 // Description:
@@ -113,10 +115,6 @@ inline void vtkFloatArray::SetValue(const int id, const float value)
 }
 
 // Description:
-// Get the address of a particular data index.
-inline float *vtkFloatArray::GetPointer(const int id) {return this->Array + id;}
-
-// Description:
 // Get the address of a particular data index. Make sure data is allocated
 // for the number of items requested. Set MaxId according to the number of
 // data values requested.
@@ -130,12 +128,11 @@ inline float *vtkFloatArray::WritePointer(const int id, const int number)
 
 // Description:
 // Insert data at a specified position in the array.
-inline vtkFloatArray& vtkFloatArray::InsertValue(const int id, const float f)
+inline void vtkFloatArray::InsertValue(const int id, const float f)
 {
   if ( id >= this->Size ) this->Resize(id+1);
   this->Array[id] = f;
   if ( id > this->MaxId ) this->MaxId = id;
-  return *this;
 }
 
 // Description:
@@ -145,26 +142,9 @@ inline int vtkFloatArray::InsertNextValue(const float f)
   this->InsertValue (++this->MaxId,f); 
   return this->MaxId;
 }
-inline void vtkFloatArray::operator+=(const float f) 
-{
-  this->InsertNextValue(f);
-}
 
 // Description:
 // Resize object to just fit data requirement. Reclaims extra memory.
 inline void vtkFloatArray::Squeeze() {this->Resize (this->MaxId+1);}
-
-// Description:
-// Get the allocated size of the object in terms of number of data items.
-inline int vtkFloatArray::GetSize() {return this->Size;}
-
-// Description:
-// Returning the maximum index of data inserted so far.
-inline int vtkFloatArray::GetMaxId() {return this->MaxId;}
-
-// Description:
-// Reuse the memory allocated by this object. Object appears as if
-// no data has been previously inserted.
-inline void vtkFloatArray::Reset() {this->MaxId = -1;}
 
 #endif

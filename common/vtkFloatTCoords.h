@@ -38,9 +38,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkFloatTCoords - floating point representation of texture coordinates
+// .NAME vtkFloatVectors - (obsolete)floating point representation of texture coordinates
 // .SECTION Description
-// vtkFloatTCoords is a concrete implementation of vtkTCoords. Texture
+// vtkFloatTCoords is an (obsolete) concrete implementation of vtkTCoords. Texture
 // coordinates are represented using float values.
 
 #ifndef __vtkFloatTCoords_h
@@ -52,80 +52,62 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkFloatTCoords : public vtkTCoords
 {
 public:
-  vtkFloatTCoords();
-  vtkFloatTCoords(const vtkFloatTCoords& ftc);
-  vtkFloatTCoords(int sz, int d=2, int ext=1000);
-  ~vtkFloatTCoords();
-
-  int Allocate(const int sz, const int dim=2, const int ext=1000) {return this->TC->Allocate(dim*sz,dim*ext);};
-  void Initialize() {this->TC->Initialize();};
   static vtkFloatTCoords *New() {return new vtkFloatTCoords;};
-  const char *GetClassName() {return "vtkFloatTCoords";};
+  vtkFloatTCoords():vtkTCoords(VTK_FLOAT) {};
+  
+  // overload vtkAttributeData API
+  void SetDataType(int dataType);
+  void SetData(vtkDataArray *);
 
-  // vtkTCoords interface
-  vtkTCoords *MakeObject(int sze, int d=2, int ext=1000);
-  int GetDataType() {return VTK_FLOAT;};
-  int GetNumberOfTCoords() {return (this->TC->GetMaxId()+1)/this->Dimension;};
-  void Squeeze() {this->TC->Squeeze();};
-  float *GetTCoord(int i) {return this->TC->GetPointer(this->Dimension*i);};
-  void GetTCoord(int i,float tc[3]) {this->vtkTCoords::GetTCoord(i,tc);};
-  void SetNumberOfTCoords(int number);
-  void SetTCoord(int i, float *tc);
-  void InsertTCoord(int i, float *tc);
-  int InsertNextTCoord(float *tc);
-
-  // miscellaneous
   float *GetPointer(const int id);
   float *WritePointer(const int id, const int number);
-  vtkFloatTCoords &operator=(const vtkFloatTCoords& ftc);
-  void operator+=(const vtkFloatTCoords& ftc) {*(this->TC) += *(ftc.TC);};
-  void Reset() {this->TC->Reset();};
 
-protected:
-  vtkFloatArray *TC;
 };
-
 
 // Description:
 // Get pointer to array of data starting at data position "id".
 inline float *vtkFloatTCoords::GetPointer(const int id)
 {
-  return this->TC->GetPointer(this->Dimension*this->Dimension*id);
+  return ((vtkFloatArray *)this->Data)->GetPointer(this->Data->GetNumberOfComponents()*id);
+} 
+
+// Description:
+// Get pointer to data array. Useful for direct writes of data. MaxId is
+// bumped by number (and memory allocated if necessary). Id is the
+// location you wish to write into; number is the number of vectors to
+// write.
+inline float *vtkFloatTCoords::WritePointer(const int id, const int number)
+{
+  int num=this->Data->GetNumberOfComponents();
+  
+  return ((vtkFloatArray *)this->Data)->WritePointer(num*id,num*number);
 }
 
 // Description:
-// Get pointer to data array. Useful for direct writes of data. MaxId is 
-// bumped by number (and memory allocated if necessary). Id is the 
-// location you wish to write into; number is the number of texture coordinates to 
-// write. Make sure the dimension of the texture coordinate is set prior to issuing 
-// this call.
-inline float *vtkFloatTCoords::WritePointer(const int id, const int number)
+// Set the data for this object. Only accepts VTK_FLOAT type.
+inline void vtkFloatTCoords::SetData(vtkDataArray *data)
 {
-  return this->TC->WritePointer(this->Dimension*id,this->Dimension*number);
+  if ( data->GetDataType() != VTK_FLOAT )
+    {
+    vtkErrorMacro(<<"Float tcoords only accepts float data type");
+    return;
+    }
+
+  vtkTCoords::SetData(data);
 }
 
-inline void vtkFloatTCoords::SetNumberOfTCoords(int number)
+// Description:
+// Set the data type for this object.
+inline void vtkFloatTCoords::SetDataType(int type)
 {
-  this->TC->SetNumberOfValues(number*this->Dimension);
-}
+  if ( type != VTK_FLOAT )
+    {
+    vtkErrorMacro(<<"Float tcoords only accepts float data type");
+    return;
+    }
 
-inline void vtkFloatTCoords::SetTCoord(int i, float *tc) 
-{
-  i*=this->Dimension; 
-  for(int j=0;j<this->Dimension;j++) this->TC->SetValue(i+j,tc[j]);
-}
-
-inline void vtkFloatTCoords::InsertTCoord(int i, float *tc) 
-{
-  i*=this->Dimension; 
-  for(int j=0; j<this->Dimension; j++) this->TC->InsertValue(i+j, tc[j]);
-}
-
-inline int vtkFloatTCoords::InsertNextTCoord(float *tc) 
-{
-  int id = this->TC->InsertNextValue(tc[0]);
-  for(int j=1; j<this->Dimension; j++) this->TC->InsertNextValue(tc[j]);
-  return id/this->Dimension;
+  vtkTCoords::SetDataType(type);
 }
 
 #endif
+

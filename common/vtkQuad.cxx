@@ -54,12 +54,11 @@ vtkQuad::vtkQuad()
   this->PointIds.SetNumberOfIds(4);
 }
 
-// Description:
-// Deep copy of cell.
-vtkQuad::vtkQuad(const vtkQuad& q)
+vtkCell *vtkQuad::MakeObject()
 {
-  this->Points = q.Points;
-  this->PointIds = q.PointIds;
+  vtkCell *cell = vtkQuad::New();
+  cell->ShallowCopy(*this);
+  return cell;
 }
 
 #define MAX_ITERATION 10
@@ -345,7 +344,7 @@ static LINE_CASES lineCases[] = {
   {{-1, -1, -1, -1, -1}}
 };
 
-void vtkQuad::Contour(float value, vtkFloatScalars *cellScalars, 
+void vtkQuad::Contour(float value, vtkScalars *cellScalars, 
 		      vtkPointLocator *locator, 
 		      vtkCellArray *vtkNotUsed(verts), 
 		      vtkCellArray *lines, 
@@ -414,20 +413,19 @@ void vtkQuad::Contour(float value, vtkFloatScalars *cellScalars,
 
 vtkCell *vtkQuad::GetEdge(int edgeId)
 {
-  static vtkLine line;
   int edgeIdPlus1 = edgeId + 1;
   
   if (edgeIdPlus1 > 3) edgeIdPlus1 = 0;
 
   // load point id's
-  line.PointIds.SetId(0,this->PointIds.GetId(edgeId));
-  line.PointIds.SetId(1,this->PointIds.GetId(edgeIdPlus1));
+  this->Line.PointIds.SetId(0,this->PointIds.GetId(edgeId));
+  this->Line.PointIds.SetId(1,this->PointIds.GetId(edgeIdPlus1));
 
   // load coordinates
-  line.Points.SetPoint(0,this->Points.GetPoint(edgeId));
-  line.Points.SetPoint(1,this->Points.GetPoint(edgeIdPlus1));
+  this->Line.Points.SetPoint(0,this->Points.GetPoint(edgeId));
+  this->Line.Points.SetPoint(1,this->Points.GetPoint(edgeIdPlus1));
 
-  return &line;
+  return &this->Line;
 }
 
 // 
@@ -465,7 +463,7 @@ int vtkQuad::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
 }
 
 int vtkQuad::Triangulate(int vtkNotUsed(index), vtkIdList &ptIds,
-                         vtkFloatPoints &pts)
+                         vtkPoints &pts)
 {
   float d1, d2;
 
@@ -641,7 +639,7 @@ static QUAD_CASES quadCasesComplement[] = {
 // Description:
 // Clip this quad using scalar value provided. Like contouring, except
 // that it cuts the quad to produce other quads and/or triangles.
-void vtkQuad::Clip(float value, vtkFloatScalars *cellScalars, 
+void vtkQuad::Clip(float value, vtkScalars *cellScalars, 
                        vtkPointLocator *locator, vtkCellArray *polys,
                        vtkPointData *inPd, vtkPointData *outPd,
                        int insideOut)

@@ -41,6 +41,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkFloatArray.h"
 
 // Description:
+// Instantiate object with 1 components.
+vtkFloatArray::vtkFloatArray(int numComp)
+{
+  this->NumberOfComponents = (numComp < 1 ? 1 : numComp);
+  this->Array = NULL;
+}
+
+vtkFloatArray::~vtkFloatArray()
+{
+  if (this->Array) delete [] this->Array;
+}
+
+// Description:
 // Allocate memory for this array. Delete old storage only if necessary.
 int vtkFloatArray::Allocate(const int sz, const int ext)
 {
@@ -72,42 +85,8 @@ void vtkFloatArray::Initialize()
 }
 
 // Description:
-// Construct with specified storage and extend value.
-vtkFloatArray::vtkFloatArray(const int sz, const int ext)
-{
-  this->Size = ( sz > 0 ? sz : 1);
-  this->Array = new float[this->Size];
-  this->Extend = ( ext > 0 ? ext : 1);
-  this->MaxId = -1;
-}
-
-vtkFloatArray::~vtkFloatArray()
-{
-  if (this->Array)
-    {
-    delete [] this->Array;
-    }
-}
-
-// Description:
-// Construct array from another array. Copy each element of other array.
-vtkFloatArray::vtkFloatArray(const vtkFloatArray& fa)
-{
-  int i;
-
-  this->MaxId = fa.MaxId;
-  this->Size = fa.Size;
-  this->Extend = fa.Extend;
-
-  this->Array = new float[this->Size];
-  for (i=0; i<this->MaxId; i++)
-    this->Array[i] = fa.Array[i];
-
-}
-
-// Description:
-// Deep copy of another array.
-vtkFloatArray& vtkFloatArray::operator=(const vtkFloatArray& fa)
+// Deep copy of another float array.
+void vtkFloatArray::DeepCopy(vtkFloatArray& fa)
 {
   int i;
 
@@ -115,30 +94,14 @@ vtkFloatArray& vtkFloatArray::operator=(const vtkFloatArray& fa)
     {
     delete [] this->Array;
 
+    this->NumberOfComponents = fa.NumberOfComponents;
     this->MaxId = fa.MaxId;
     this->Size = fa.Size;
     this->Extend = fa.Extend;
 
     this->Array = new float[this->Size];
-    for (i=0; i<=this->MaxId; i++)
-      this->Array[i] = fa.Array[i];
+    for (i=0; i<=this->MaxId; i++) this->Array[i] = fa.Array[i];
     }
-  return *this;
-}
-
-// Description:
-// Append one array onto the end of this array.
-void vtkFloatArray::operator+=(const vtkFloatArray& fa)
-{
-  int i, sz;
-
-  if ( this->Size <= (sz = this->MaxId + fa.MaxId + 2) ) this->Resize(sz);
-
-  for (i=0; i<=fa.MaxId; i++)
-    {
-    this->Array[this->MaxId+1+i] = fa.Array[i];
-    }
-  this->MaxId += fa.MaxId + 1;
 }
 
 void vtkFloatArray::PrintSelf(ostream& os, vtkIndent indent)
@@ -146,9 +109,6 @@ void vtkFloatArray::PrintSelf(ostream& os, vtkIndent indent)
   vtkObject::PrintSelf(os,indent);
 
   os << indent << "Array: " << this->Array << "\n";
-  os << indent << "Size: " << this->Size << "\n";
-  os << indent << "MaxId: " << this->MaxId << "\n";
-  os << indent << "Extend size: " << this->Extend << "\n";
 }
 
 // Protected function does "reallocate"
@@ -170,7 +130,6 @@ float *vtkFloatArray::Resize(const int sz)
     return 0;
     }
 
-
   if (this->Array)
     {
     memcpy(newArray, this->Array,
@@ -183,3 +142,84 @@ float *vtkFloatArray::Resize(const int sz)
 
   return this->Array;
 }
+
+// Description:
+// Set the number of n-tuples in the array.
+void vtkFloatArray::SetNumberOfTuples(const int number)
+{
+  this->SetNumberOfValues(number*this->NumberOfComponents);
+}
+
+// Description:
+// Get a pointer to a tuple at the ith location.
+float *vtkFloatArray::GetTuple(const int i)
+{
+  return this->Array + this->NumberOfComponents*i;
+}
+
+// Description:
+// Copy the tuple value into a user-provided array.
+void vtkFloatArray::GetTuple(const int i, float tuple[])
+{
+  float *t = this->Array + this->NumberOfComponents*i;
+  for (int j=0; j<this->NumberOfComponents; j++) tuple[j] = t[j];
+}
+
+// Description:
+// Set the tuple value at the ith location in the array.
+void vtkFloatArray::SetTuple(const int i, const float tuple[])
+{
+  int loc = i * this->NumberOfComponents; 
+  for (int j=0; j<this->NumberOfComponents; j++) this->Array[loc+j] = tuple[j];
+}
+
+// Description:
+// Insert (memory allocation performed) the tuple into the ith location
+// in the array.
+void vtkFloatArray::InsertTuple(const int i, const float tuple[])
+{
+  float *t = this->WritePointer(i*this->NumberOfComponents,this->NumberOfComponents);
+
+  for (int j=0; j<this->NumberOfComponents; j++) *t++ = *tuple++;
+}
+
+// Description:
+// Insert (memory allocation performed) the tuple onto the end of the array.
+int vtkFloatArray::InsertNextTuple(const float tuple[])
+{
+  int i = this->MaxId + 1;
+  float *t = this->WritePointer(i,this->NumberOfComponents);
+
+  for (i=0; i<this->NumberOfComponents; i++) *t++ = *tuple++;
+
+  return this->MaxId / this->NumberOfComponents;
+
+}
+
+// Description:
+// Return the data component at the ith tuple and jth component location.
+// Note that i<NumberOfTuples and j<NumberOfComponents.
+float vtkFloatArray::GetComponent(const int i, const int j)
+{
+  return this->GetValue(i*this->NumberOfComponents + j);
+}
+
+// Description:
+// Set the data component at the ith tuple and jth component location.
+// Note that i<NumberOfTuples and j<NumberOfComponents. Make sure enough
+// memory has been allocated (use SetNumberOfTuples() and 
+// SetNumberOfComponents()).
+void vtkFloatArray::SetComponent(const int i, const int j, const float c)
+{
+  this->SetValue(i*this->NumberOfComponents + j, c);
+}
+
+// Description:
+// Insert the data component at ith tuple and jth component location. 
+// Note that memory allocation is performed as necessary to hold the data.
+void vtkFloatArray::InsertComponent(const int i, const int j, const float c)
+{
+  this->InsertValue(i*this->NumberOfComponents + j, c);
+}
+
+

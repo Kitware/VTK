@@ -40,49 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkPoints.h"
 
-vtkPoints::vtkPoints()
+// Description:
+// Construct object with an initial data array of type float.
+vtkPoints::vtkPoints(int dataType) : vtkAttributeData(dataType)
 {
+  this->Data->SetNumberOfComponents(3);
+
   this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = 0.0;
   this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = 1.0;
 }
 
 // Description:
-// Insert point into position indicated.
-void vtkPoints::InsertPoint(int id, float x, float y, float z)
+// Given a list of pt ids, return an array of points.
+void vtkPoints::GetPoints(vtkIdList& ptIds, vtkPoints& fp)
 {
-  float X[3];
+  int num=ptIds.GetNumberOfIds();
 
-  X[0] = x;
-  X[1] = y;
-  X[2] = z;
-  this->InsertPoint(id,X);
-}
-
-// Description:
-// Insert point into position indicated.
-int vtkPoints::InsertNextPoint(float x, float y, float z)
-{
-  float X[3];
-
-  X[0] = x;
-  X[1] = y;
-  X[2] = z;
-  return this->InsertNextPoint(X);
-}
-
-void vtkPoints::GetPoint(int id, float x[3])
-{
-  float *xp = this->GetPoint(id);
-  for (int i=0; i<3; i++) x[i] = xp[i];
-}
-
-// Description:
-// Given a list of pt ids, return an array of point coordinates.
-void vtkPoints::GetPoints(vtkIdList& ptId, vtkFloatPoints& fp)
-{
-  for (int i=0; i<ptId.GetNumberOfIds(); i++)
+  for (int i=0; i<num; i++)
     {
-    fp.InsertPoint(i,this->GetPoint(ptId.GetId(i)));
+    fp.InsertPoint(i,this->GetPoint(ptIds.GetId(i)));
     }
 }
 

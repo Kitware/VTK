@@ -74,7 +74,7 @@ int vtkEmptyCell::CellBoundary(int vtkNotUsed(subId),
 }
 
 void vtkEmptyCell::Contour(float vtkNotUsed(value), 
-                          vtkFloatScalars *vtkNotUsed(cellScalars), 
+                          vtkScalars *vtkNotUsed(cellScalars), 
                           vtkPointLocator *vtkNotUsed(locator),
                           vtkCellArray *vtkNotUsed(verts), 
                           vtkCellArray *vtkNotUsed(lines), 
@@ -99,7 +99,7 @@ int vtkEmptyCell::IntersectWithLine(float vtkNotUsed(p1)[3],
 }
 
 int vtkEmptyCell::Triangulate(int vtkNotUsed(index),
-                             vtkIdList& ptIds, vtkFloatPoints& pts)
+                             vtkIdList& ptIds, vtkPoints& pts)
 {
   pts.Reset();
   ptIds.Reset();
@@ -116,7 +116,7 @@ void vtkEmptyCell::Derivatives(int vtkNotUsed(subId),
 }
 
 void vtkEmptyCell::Clip(float vtkNotUsed(value), 
-                       vtkFloatScalars *vtkNotUsed(cellScalars), 
+                       vtkScalars *vtkNotUsed(cellScalars), 
                        vtkPointLocator *vtkNotUsed(locator), 
                        vtkCellArray *vtkNotUsed(verts),    
                        vtkPointData *vtkNotUsed(inPD), 

@@ -52,7 +52,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkPointSet.h"
 #include "vtkStructuredData.h"
-#include "vtkBitScalars.h"
 
 class VTK_EXPORT vtkStructuredGrid : public vtkPointSet {
 public:
@@ -65,7 +64,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
  
   // dataset interface
-  vtkDataSet *MakeObject() {return new vtkStructuredGrid(*this);};
+  vtkDataObject *MakeObject() {return new vtkStructuredGrid;};
   void CopyStructure(vtkDataSet *ds);
   int GetNumberOfPoints() {return vtkPointSet::GetNumberOfPoints();};
   vtkCell *GetCell(int cellId);
@@ -99,7 +98,7 @@ protected:
   int Dimensions[3];
   int DataDescription;
   int Blanking;
-  vtkBitScalars *PointVisibility;
+  vtkScalars *PointVisibility;
   void AllocatePointVisibility();
 };
 

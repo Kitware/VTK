@@ -51,11 +51,10 @@ class VTK_EXPORT vtkVertex : public vtkCell
 {
 public:
   vtkVertex();
-  vtkVertex(const vtkVertex& p);
   static vtkVertex *New() {return new vtkVertex;};
   const char *GetClassName() {return "vtkVertex";};
 
-  vtkCell *MakeObject() {return new vtkVertex(*this);};
+  vtkCell *MakeObject();
   int GetCellType() {return VTK_VERTEX;};
   int GetCellDimension() {return 0;};
   int GetNumberOfEdges() {return 0;};
@@ -64,11 +63,11 @@ public:
   vtkCell *GetFace(int) {return 0;};
   int CellBoundary(int subId, float pcoords[3], vtkIdList& pts);
 
-  void Contour(float value, vtkFloatScalars *cellScalars, 
+  void Contour(float value, vtkScalars *cellScalars, 
                vtkPointLocator *locator, vtkCellArray *verts1, 
                vtkCellArray *lines, vtkCellArray *verts2, 
                vtkPointData *inPd, vtkPointData *outPd);
-  void Clip(float value, vtkFloatScalars *cellScalars, 
+  void Clip(float value, vtkScalars *cellScalars, 
             vtkPointLocator *locator, vtkCellArray *pts,
             vtkPointData *inPd, vtkPointData *outPd, int insideOut);
   int EvaluatePosition(float x[3], float closestPoint[3], 
@@ -78,7 +77,7 @@ public:
                         float *weights);
   int IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
                         float x[3], float pcoords[3], int& subId);
-  int Triangulate(int index, vtkIdList &ptIds, vtkFloatPoints &pts);
+  int Triangulate(int index, vtkIdList &ptIds, vtkPoints &pts);
   void Derivatives(int subId, float pcoords[3], float *values, 
                    int dim, float *derivs);
 };

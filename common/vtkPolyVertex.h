@@ -47,17 +47,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkPolyVertex_h
 
 #include "vtkCell.h"
+#include "vtkVertex.h"
 
 class VTK_EXPORT vtkPolyVertex : public vtkCell
 {
 public:
   vtkPolyVertex() {};
-  vtkPolyVertex(const vtkPolyVertex& pp);
   static vtkPolyVertex *New() {return new vtkPolyVertex;};
   const char *GetClassName() {return "vtkPolyVertex";};
 
   // cell methods
-  vtkCell *MakeObject() {return new vtkPolyVertex(*this);};
+  vtkCell *MakeObject();
   int GetCellType() {return VTK_POLY_VERTEX;};
   int GetCellDimension() {return 0;};
   int GetNumberOfEdges() {return 0;};
@@ -66,11 +66,11 @@ public:
   vtkCell *GetFace(int vtkNotUsed(faceId)) {return 0;};
 
   int CellBoundary(int subId, float pcoords[3], vtkIdList& pts);
-  void Contour(float value, vtkFloatScalars *cellScalars, 
+  void Contour(float value, vtkScalars *cellScalars, 
                vtkPointLocator *locator, vtkCellArray *verts, 
                vtkCellArray *lines, vtkCellArray *polys,
                vtkPointData *inPd, vtkPointData *outPd);
-  void Clip(float value, vtkFloatScalars *cellScalars, 
+  void Clip(float value, vtkScalars *cellScalars, 
             vtkPointLocator *locator, vtkCellArray *verts,
             vtkPointData *inPd, vtkPointData *outPd, int insideOut);
   int EvaluatePosition(float x[3], float closestPoint[3], 
@@ -80,9 +80,12 @@ public:
                         float *weights);
   int IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
                         float x[3], float pcoords[3], int& subId);
-  int Triangulate(int index, vtkIdList &ptIds, vtkFloatPoints &pts);
+  int Triangulate(int index, vtkIdList &ptIds, vtkPoints &pts);
   void Derivatives(int subId, float pcoords[3], float *values, 
                    int dim, float *derivs);
+
+protected:
+  vtkVertex Vertex;
 
 };
 

@@ -40,15 +40,27 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkTensors.h"
 
-vtkTensors::vtkTensors(int dim)
+// Description:
+// Construct object with an initial data array of type float.
+vtkTensors::vtkTensors(int dataType) : vtkAttributeData(dataType)
 {
-  this->Dimension = dim;
+  this->Data->SetNumberOfComponents(9);
 }
 
 void vtkTensors::GetTensor(int id, vtkTensor &ft)
 {
   vtkTensor *t = this->GetTensor(id);
-  ft = *t;
+  ft.DeepCopy(*t);
+}
+
+void vtkTensors::SetTensor(int id, vtkTensor *t)
+{
+  this->Data->SetTuple(id,t->T);
+}
+
+void vtkTensors::InsertTensor(int id, vtkTensor *t)
+{
+  this->Data->InsertTuple(id,t->T);
 }
 
 void vtkTensors::InsertTensor(int id, float t11, float t12, float t13, 
@@ -67,6 +79,11 @@ void vtkTensors::InsertTensor(int id, float t11, float t12, float t13,
   t.SetComponent(2,2,t33);
 
   this->InsertTensor(id,&t);
+}
+
+int vtkTensors::InsertNextTensor(vtkTensor *t)
+{
+  return this->Data->InsertNextTuple(t->T);
 }
 
 int vtkTensors::InsertNextTensor(float t11, float t12, float t13, 
@@ -89,17 +106,19 @@ int vtkTensors::InsertNextTensor(float t11, float t12, float t13,
 
 // Description:
 // Given a list of pt ids, return an array of tensors.
-void vtkTensors::GetTensors(vtkIdList& ptId, vtkFloatTensors& ft)
+void vtkTensors::GetTensors(vtkIdList& ptIds, vtkTensors& ft)
 {
-  for (int i=0; i<ptId.GetNumberOfIds(); i++)
+  int num=ptIds.GetNumberOfIds();
+
+  for (int i=0; i<num; i++)
     {
-    ft.InsertTensor(i,this->GetTensor(ptId.GetId(i)));
+    ft.InsertTensor(i,this->GetTensor(ptIds.GetId(i)));
     }
 }
 
 void vtkTensors::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkReferenceCount::PrintSelf(os,indent);
+  vtkAttributeData::PrintSelf(os,indent);
 
   os << indent << "Number Of Tensors: " << this->GetNumberOfTensors() << "\n";
 }

@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkFloatNormals - floating point representation of 3D normals
+// .NAME vtkFloatNormals - (obsolete)floating point representation of 3D normals
 // .SECTION Description
 // vtkFloatNormals is a concrete implementation of vtkNormals. Normals are
 // represented using float values.
@@ -52,88 +52,60 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkFloatNormals : public vtkNormals
 {
 public:
-  vtkFloatNormals();
-  vtkFloatNormals(const vtkFloatNormals& fn);
-  vtkFloatNormals(const int sz, const int ext=1000);
-  ~vtkFloatNormals();
-
-  int Allocate(const int sz, const int ext=1000) {return this->N->Allocate(3*sz,3*ext);};
-  void Initialize() {this->N->Initialize();};
   static vtkFloatNormals *New() {return new vtkFloatNormals;};
-  const char *GetClassName() {return "vtkFloatNormals";};
+  vtkFloatNormals():vtkNormals(VTK_FLOAT) {};
+  
+  // overload vtkAttributeData API
+  void SetDataType(int dataType);
+  void SetData(vtkDataArray *);
 
-  // vtkNormal interface
-  vtkNormals *MakeObject(int sze, int ext=1000);
-  int GetDataType() {return VTK_FLOAT;};
-  int GetNumberOfNormals() {return (N->GetMaxId()+1)/3;};
-  void Squeeze() {this->N->Squeeze();};
-  float *GetNormal(int i) {return this->N->GetPointer(3*i);};
-  void GetNormal(int i,float n[3]) {this->vtkNormals::GetNormal(i,n);};
-  void SetNumberOfNormals(int number);
-  void SetNormal(int id, float n[3]);
-  void InsertNormal(int i, float n[3]);
-  int InsertNextNormal(float n[3]);
-
-  // miscellaneous
   float *GetPointer(const int id);
   float *WritePointer(const int id, const int number);
-  vtkFloatNormals &operator=(const vtkFloatNormals& fn);
-  void operator+=(const vtkFloatNormals& fn);
-  void Reset() {this->N->Reset();};
 
-protected:
-  vtkFloatArray *N;
 };
 
 // Description:
 // Get pointer to array of data starting at data position "id".
 inline float *vtkFloatNormals::GetPointer(const int id)
 {
-  return this->N->GetPointer(3*id);
+  return ((vtkFloatArray *)this->Data)->GetPointer(3*id);
+} 
+
+// Description:
+// Get pointer to data array. Useful for direct writes of data. MaxId is
+// bumped by number (and memory allocated if necessary). Id is the
+// location you wish to write into; number is the number of normals to
+// write.
+inline float *vtkFloatNormals::WritePointer(const int id, const int number)
+{
+  return ((vtkFloatArray *)this->Data)->WritePointer(3*id,3*number);
 }
 
 // Description:
-// Get pointer to data array. Useful for direct writes of data. MaxId is 
-// bumped by number (and memory allocated if necessary). Id is the 
-// location you wish to write into; number is the number of normals to 
-// write. 
-inline float *vtkFloatNormals::WritePointer(const int id, const int number)
+// Set the data for this object. Only accepts VTK_FLOAT type.
+inline void vtkFloatNormals::SetData(vtkDataArray *data)
 {
-  return this->N->WritePointer(3*id,3*number);
+  if ( data->GetDataType() != VTK_FLOAT )
+    {
+    vtkErrorMacro(<<"Float normals only accepts float data type");
+    return;
+    }
+
+  vtkNormals::SetData(data);
 }
 
-inline void vtkFloatNormals::SetNumberOfNormals(int number)
+// Description:
+// Set the data type for this object.
+inline void vtkFloatNormals::SetDataType(int type)
 {
-  this->N->SetNumberOfValues(3*number);
-}
+  if ( type != VTK_FLOAT )
+    {
+    vtkErrorMacro(<<"Float normals only accepts float data type");
+    return;
+    }
 
-inline void vtkFloatNormals::SetNormal(int id, float n[3]) 
-{
-  id *= 3;
-  this->N->SetValue(id++, n[0]);
-  this->N->SetValue(id++, n[1]);
-  this->N->SetValue(id,   n[2]);
-}
-
-inline void vtkFloatNormals::InsertNormal(int i, float n[3]) 
-{
-  float *ptr = this->N->WritePointer(i*3,3);
-
-  *ptr++ = n[0];
-  *ptr++ = n[1];
-  *ptr   = n[2];
-}
-
-inline int vtkFloatNormals::InsertNextNormal(float n[3]) 
-{
-  int id = this->N->GetMaxId() + 1;
-  float *ptr = this->N->WritePointer(id,3);
-
-  *ptr++ = n[0];
-  *ptr++ = n[1];
-  *ptr   = n[2];
-
-  return (id+2)/3;
+  vtkNormals::SetDataType(type);
 }
 
 #endif
+

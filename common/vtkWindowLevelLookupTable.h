@@ -57,7 +57,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkWindowLevelLookupTable_h
 
 #include "vtkReferenceCount.h"
-#include "vtkAPixmap.h"
 #include "vtkLookupTable.h"
 
 class VTK_EXPORT vtkWindowLevelLookupTable : public vtkLookupTable

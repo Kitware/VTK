@@ -41,6 +41,22 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkUnsignedShortArray.h"
 
 // Description:
+// Instantiate object.
+vtkUnsignedShortArray::vtkUnsignedShortArray(int numComp)
+{
+  this->NumberOfComponents = (numComp < 1 ? 1 : numComp);
+  this->Array = NULL;
+  this->TupleSize = 3;
+  this->Tuple = new float[this->TupleSize]; //used for conversion
+}
+
+vtkUnsignedShortArray::~vtkUnsignedShortArray()
+{
+  if (this->Array) delete [] this->Array;
+  delete [] this->Tuple;
+}
+
+// Description:
 // Allocate memory for this array. Delete old storage only if necessary.
 int vtkUnsignedShortArray::Allocate(const int sz, const int ext)
 {
@@ -58,13 +74,6 @@ int vtkUnsignedShortArray::Allocate(const int sz, const int ext)
   return 1;
 }
 
-void vtkUnsignedShortArray::SetArray(unsigned short *ptr, int size)
-{
-    this->Size = size;
-    this->Array = ptr;
-    this->MaxId = size -1;
-}
-
 // Description:
 // Release storage and reset array to initial state.
 void vtkUnsignedShortArray::Initialize()
@@ -79,39 +88,8 @@ void vtkUnsignedShortArray::Initialize()
 }
 
 // Description:
-// Construct with specified storage size and extend value.
-vtkUnsignedShortArray::vtkUnsignedShortArray(const int sz, const int ext)
-{
-  this->Size = ( sz > 0 ? sz : 1);
-  this->Array = new unsigned short[this->Size];
-  this->Extend = ( ext > 0 ? ext : 1);
-  this->MaxId = -1;
-}
-
-vtkUnsignedShortArray::~vtkUnsignedShortArray()
-{
-  delete [] this->Array;
-}
-
-// Description:
-// Construct array from another array. Copy each element of other array.
-vtkUnsignedShortArray::vtkUnsignedShortArray(const vtkUnsignedShortArray& sa)
-{
-  int i;
-
-  this->MaxId = sa.MaxId;
-  this->Size = sa.Size;
-  this->Extend = sa.Extend;
-
-  this->Array = new unsigned short[this->Size];
-  for (i=0; i<this->MaxId; i++)
-    this->Array[i] = sa.Array[i];
-
-}
-
-// Description:
-// Deep copy of another array.
-vtkUnsignedShortArray& vtkUnsignedShortArray::operator=(const vtkUnsignedShortArray& sa)
+// Deep copy of another unsigned short array.
+void vtkUnsignedShortArray::DeepCopy(vtkUnsignedShortArray& sa)
 {
   int i;
 
@@ -119,30 +97,14 @@ vtkUnsignedShortArray& vtkUnsignedShortArray::operator=(const vtkUnsignedShortAr
     {
     delete [] this->Array;
 
+    this->NumberOfComponents = sa.NumberOfComponents;
     this->MaxId = sa.MaxId;
     this->Size = sa.Size;
     this->Extend = sa.Extend;
 
     this->Array = new unsigned short[this->Size];
-    for (i=0; i<=this->MaxId; i++)
-      this->Array[i] = sa.Array[i];
+    for (i=0; i<=this->MaxId; i++) this->Array[i] = sa.Array[i];
     }
-  return *this;
-}
-
-// Description:
-// Append one array onto the end of this array.
-void vtkUnsignedShortArray::operator+=(const vtkUnsignedShortArray& sa)
-{
-  int i, sz;
-
-  if ( this->Size <= (sz = this->MaxId + sa.MaxId + 2) ) this->Resize(sz);
-
-  for (i=0; i<=sa.MaxId; i++)
-    {
-    this->Array[this->MaxId+1+i] = sa.Array[i];
-    }
-  this->MaxId += sa.MaxId + 1;
 }
 
 void vtkUnsignedShortArray::PrintSelf(ostream& os, vtkIndent indent)
@@ -150,9 +112,6 @@ void vtkUnsignedShortArray::PrintSelf(ostream& os, vtkIndent indent)
   vtkObject::PrintSelf(os,indent);
 
   os << indent << "Array: " << this->Array << "\n";
-  os << indent << "Size: " << this->Size << "\n";
-  os << indent << "MaxId: " << this->MaxId << "\n";
-  os << indent << "Extend size: " << this->Extend << "\n";
 }
 
 //
@@ -184,3 +143,95 @@ unsigned short *vtkUnsignedShortArray::Resize(const int sz)
 
   return this->Array;
 }
+
+
+// Description:
+// Set the number of n-tuples in the array.
+void vtkUnsignedShortArray::SetNumberOfTuples(const int number)
+{
+  this->SetNumberOfValues(number*this->NumberOfComponents);
+}
+
+// Description:
+// Get a pointer to a tuple at the ith location. This is a dangerous method
+// (it is not thread safe since a pointer is returned).
+float *vtkUnsignedShortArray::GetTuple(const int i) 
+{
+  if ( this->TupleSize < this->NumberOfComponents )
+    {
+    this->TupleSize = this->NumberOfComponents;
+    delete [] this->Tuple;
+    this->Tuple = new float[this->TupleSize];
+    }
+
+  unsigned short *t = this->Array + this->NumberOfComponents*i;
+  for (int j=0; j<this->NumberOfComponents; j++) this->Tuple[j] = (float)t[j];
+  return this->Tuple;
+}
+
+// Description:
+// Copy the tuple value into a user-provided array.
+void vtkUnsignedShortArray::GetTuple(const int i, float tuple[]) 
+{
+  unsigned short *t = this->Array + this->NumberOfComponents*i;
+  for (int j=0; j<this->NumberOfComponents; j++) tuple[j] = (float)t[j];
+}
+
+// Description:
+// Set the tuple value at the ith location in the array.
+void vtkUnsignedShortArray::SetTuple(const int i, const float tuple[])
+{
+  int loc = i * this->NumberOfComponents; 
+
+  for (int j=0; j<this->NumberOfComponents; j++) 
+    this->Array[loc+j] = (unsigned short)tuple[j];
+}
+
+// Description:
+// Insert (memory allocation performed) the tuple into the ith location
+// in the array.
+void vtkUnsignedShortArray::InsertTuple(const int i, const float tuple[])
+{
+  unsigned short *t = this->WritePointer(i*this->NumberOfComponents,this->NumberOfComponents);
+
+  for (int j=0; j<this->NumberOfComponents; j++) *t++ = (unsigned short)*tuple++;
+}
+
+// Description:
+// Insert (memory allocation performed) the tuple onto the end of the array.
+int vtkUnsignedShortArray::InsertNextTuple(const float tuple[])
+{
+  int i = this->MaxId + 1;
+  unsigned short *t = this->WritePointer(i,this->NumberOfComponents);
+
+  for (i=0; i<this->NumberOfComponents; i++) *t++ = (unsigned short)*tuple++;
+
+  return this->MaxId / this->NumberOfComponents;
+}
+
+// Description:
+// Return the data component at the ith tuple and jth component location.
+// Note that i<NumberOfTuples and j<NumberOfComponents.
+float vtkUnsignedShortArray::GetComponent(const int i, const int j)
+{
+  return (float) this->GetValue(i*this->NumberOfComponents + j);
+}
+
+// Description:
+// Set the data component at the ith tuple and jth component location.
+// Note that i<NumberOfTuples and j<NumberOfComponents. Make sure enough
+// memory has been allocated (use SetNumberOfTuples() and 
+// SetNumberOfComponents()).
+void vtkUnsignedShortArray::SetComponent(const int i, const int j, const float c)
+{
+  this->SetValue(i*this->NumberOfComponents + j, (short)c);
+}
+
+// Description:
+// Insert the data component at ith tuple and jth component location. 
+// Note that memory allocation is performed as necessary to hold the data.
+void vtkUnsignedShortArray::InsertComponent(const int i, const int j, const float c)
+{
+  this->InsertValue(i*this->NumberOfComponents + j, (short)c);
+}
+

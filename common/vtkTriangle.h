@@ -48,17 +48,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkCell.h"
 #include "vtkMath.h"
+#include "vtkLine.h"
 
 class VTK_EXPORT vtkTriangle : public vtkCell
 {
 public:
   vtkTriangle();
-  vtkTriangle(const vtkTriangle& t);
   static vtkTriangle *New() {return new vtkTriangle;};
   const char *GetClassName() {return "vtkTriangle";};
 
   // cell methods
-  vtkCell *MakeObject() {return new vtkTriangle(*this);};
+  vtkCell *MakeObject();
   int GetCellType() {return VTK_TRIANGLE;};
   int GetCellDimension() {return 2;};
   int GetNumberOfEdges() {return 3;};
@@ -67,11 +67,11 @@ public:
   vtkCell *GetFace(int) {return 0;};
 
   int CellBoundary(int subId, float pcoords[3], vtkIdList& pts);
-  void Contour(float value, vtkFloatScalars *cellScalars, 
+  void Contour(float value, vtkScalars *cellScalars, 
                vtkPointLocator *locator, vtkCellArray *verts,
                vtkCellArray *lines, vtkCellArray *polys, 
                vtkPointData *inPd, vtkPointData *outPd);
-  void Clip(float value, vtkFloatScalars *cellScalars, 
+  void Clip(float value, vtkScalars *cellScalars, 
             vtkPointLocator *locator, vtkCellArray *polys,
             vtkPointData *inPd, vtkPointData *outPd, int insideOut);
   int EvaluatePosition(float x[3], float closestPoint[3],
@@ -81,7 +81,7 @@ public:
                         float *weights);
   int IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
                         float x[3], float pcoords[3], int& subId);
-  int Triangulate(int index, vtkIdList &ptIds, vtkFloatPoints &pts);
+  int Triangulate(int index, vtkIdList &ptIds, vtkPoints &pts);
   void Derivatives(int subId, float pcoords[3], float *values, 
                    int dim, float *derivs);
 
@@ -99,6 +99,9 @@ public:
   static void ComputeNormal(float v1[3], float v2[3], float v3[3], float n[3]);
   static int PointInTriangle(float x[3], float x1[3], float x2[3], float x3[3], 
                              float tol2);
+
+protected:
+  vtkLine Line;
 
 };
 
@@ -122,10 +125,6 @@ inline void vtkTriangle::ComputeNormal(float v1[3], float v2[3],
     n[0] /= length;
     n[1] /= length;
     n[2] /= length;
-    }
-  else
-    {
-    n[0] = 1.0;
     }
 }
 

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkUnsignedCharScalars.cxx
+  Module:    vtkTensor.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,71 +38,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkUnsignedCharScalars.h"
-
-vtkUnsignedCharScalars::vtkUnsignedCharScalars()
-{
-  this->S = vtkUnsignedCharArray::New();
-}
-
-vtkUnsignedCharScalars::vtkUnsignedCharScalars(const vtkUnsignedCharScalars& cs)
-{
-  this->S = vtkUnsignedCharArray::New();
-  *(this->S) = *(cs.S);
-  }
-
-vtkUnsignedCharScalars::vtkUnsignedCharScalars(const int sz, const int ext)
-{
-  this->S = vtkUnsignedCharArray::New();
-  this->S->Allocate(sz, ext);
-}
-
-vtkUnsignedCharScalars::~vtkUnsignedCharScalars()
-{
-  this->S->Delete();
-}
-
-
-
-
-vtkScalars *vtkUnsignedCharScalars::MakeObject(int sze, int ext)
-{
-  return new vtkUnsignedCharScalars(sze,ext);
-}
+#include "vtkTensor.h"
 
 // Description:
-// Deep copy of scalars.
-vtkUnsignedCharScalars& vtkUnsignedCharScalars::operator=(const vtkUnsignedCharScalars& cs)
+// Construct tensor initially pointing to internal storage.
+vtkTensor::vtkTensor()
 {
-  *(this->S) = *(cs.S);
-  return *this;
+  this->T = this->Storage;
+  for (int j=0; j<3; j++)
+    for (int i=0; i<3; i++)
+      this->T[i+j*3] = 0.0;
 }
-
-void vtkUnsignedCharScalars::GetScalars(vtkIdList& ptId, vtkFloatScalars& fs)
-{
-  for (int i=0; i<ptId.GetNumberOfIds(); i++)
-    {
-    fs.InsertScalar(i,(float)this->S->GetValue(ptId.GetId(i)));
-    }
-}
-
-void vtkUnsignedCharScalars::GetScalars(int p1, int p2, vtkFloatScalars& fs)
-{
-  float *fp=fs.GetPointer(0);
-  unsigned char *cp=this->S->GetPointer(p1);
-  
-  for (int id=p1; id <= p2; id++)
-    {
-    *fp++ = (float)*cp++;
-    }
-}
-
-
-
-
-
-
-
-
-
 

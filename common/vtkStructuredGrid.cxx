@@ -285,7 +285,7 @@ void vtkStructuredGrid::AllocatePointVisibility()
 {
   if ( !this->PointVisibility )
     {
-    this->PointVisibility = vtkBitScalars::New();
+    this->PointVisibility = vtkScalars::New(VTK_BIT,1);
     this->PointVisibility->Allocate(this->GetNumberOfPoints(),1000);
     this->PointVisibility->Register((vtkObject *)this);
     for (int i=0; i<this->GetNumberOfPoints(); i++)

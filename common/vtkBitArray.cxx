@@ -40,12 +40,28 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkBitArray.h"
 
+// Description:
+// Instantiate object.
+vtkBitArray::vtkBitArray(int numComp)
+{
+  this->NumberOfComponents = (numComp < 1 ? 1 : numComp);
+  this->Array = NULL;
+  this->TupleSize = 3;
+  this->Tuple = new float[this->TupleSize]; //used for conversion
+}
+
+vtkBitArray::~vtkBitArray()
+{
+  if (this->Array) delete [] this->Array;
+  delete [] this->Tuple;
+}
 
 // Description:
 // Get the data at a particular index.
-int vtkBitArray::GetValue(const int id) 
+int vtkBitArray::GetValue(const int id)
 {
-  if (this->Array[id/8]&(0x80 >> (id%8))) return 1; return 0;
+  if (this->Array[id/8]&(0x80 >> (id%8))) return 1; 
+  return 0;
 };
 
 // Description:
@@ -80,39 +96,8 @@ void vtkBitArray::Initialize()
 }
 
 // Description:
-// Construct with specified storage and extend value.
-vtkBitArray::vtkBitArray(const int sz, const int ext)
-{
-  this->Size = ( (sz/8) > 0 ? sz : 1);
-  this->Array = new unsigned char[(this->Size+7)/8];
-  this->Extend = ( ext > 0 ? ext : 1);
-  this->MaxId = -1;
-}
-
-vtkBitArray::~vtkBitArray()
-{
-  delete [] this->Array;
-}
-
-// Description:
-// Construct array from another array. Copy each element of other array.
-vtkBitArray::vtkBitArray(const vtkBitArray& ia)
-{
-  int i;
-
-  this->MaxId = ia.MaxId;
-  this->Size = ia.Size;
-  this->Extend = ia.Extend;
-
-  this->Array = new unsigned char[(this->Size+7)/8];
-  for (i=0; i<this->MaxId; i++)
-    this->Array[i] = ia.Array[i];
-
-}
-
-// Description:
-// Deep copy of another array.
-vtkBitArray& vtkBitArray::operator=(const vtkBitArray& ia)
+// Deep copy of another bit array.
+void vtkBitArray::DeepCopy(vtkBitArray& ia)
 {
   int i;
 
@@ -120,31 +105,14 @@ vtkBitArray& vtkBitArray::operator=(const vtkBitArray& ia)
     {
     delete [] this->Array;
 
+    this->NumberOfComponents = ia.NumberOfComponents;
     this->MaxId = ia.MaxId;
     this->Size = ia.Size;
     this->Extend = ia.Extend;
 
     this->Array = new unsigned char[(this->Size+7)/8];
-    for (i=0; i<=this->MaxId; i++)
-      this->Array[i] = ia.Array[i];
+    for (i=0; i<=this->MaxId; i++) this->Array[i] = ia.Array[i];
     }
-  return *this;
-}
-
-// Description:
-// Append one array onto the end of this array.
-vtkBitArray& vtkBitArray::operator+=(const vtkBitArray& ia)
-{
-  int i, sz;
-
-  if ( this->Size <= (sz = this->MaxId + ia.MaxId + 2) ) this->Resize(sz);
-
-  for (i=0; i<=ia.MaxId; i++)
-    {
-    this->Array[this->MaxId+1+i] = ia.Array[i];
-    }
-  this->MaxId += ia.MaxId + 1;
-  return *this;
 }
 
 void vtkBitArray::PrintSelf(ostream& os, vtkIndent indent)
@@ -152,9 +120,6 @@ void vtkBitArray::PrintSelf(ostream& os, vtkIndent indent)
   vtkObject::PrintSelf(os,indent);
 
   os << indent << "Array: " << this->Array << "\n";
-  os << indent << "Size: " << this->Size << "\n";
-  os << indent << "MaxId: " << this->MaxId << "\n";
-  os << indent << "Extend size: " << this->Extend << "\n";
 }
 
 //
@@ -185,4 +150,72 @@ unsigned char *vtkBitArray::Resize(const int sz)
   this->Array = newArray;
 
   return this->Array;
+}
+
+
+// Description:
+// Set the number of n-tuples in the array.
+void vtkBitArray::SetNumberOfTuples(const int number)
+{
+  this->SetNumberOfValues(number*this->NumberOfComponents);
+}
+
+// Description:
+// Get a pointer to a tuple at the ith location. This is a dangerous method
+// (it is not thread safe since a pointer is returned).
+float *vtkBitArray::GetTuple(const int i)
+{
+  if ( this->TupleSize < this->NumberOfComponents )
+    {
+    this->TupleSize = this->NumberOfComponents;
+    delete [] this->Tuple;
+    this->Tuple = new float[this->TupleSize];
+    }
+
+  int loc = this->NumberOfComponents*i;
+  for (int j=0; j<this->NumberOfComponents; j++) 
+    this->Tuple[j] = (float)this->GetValue(loc+j);
+
+  return this->Tuple;
+}
+
+// Description:
+// Copy the tuple value into a user-provided array.
+void vtkBitArray::GetTuple(const int i, float tuple[])
+{
+  int loc = this->NumberOfComponents*i;
+
+  for (int j=0; j<this->NumberOfComponents; j++) 
+    tuple[j] = (float)this->GetValue(loc+j);
+}
+
+// Description:
+// Set the tuple value at the ith location in the array.
+void vtkBitArray::SetTuple(const int i, const float tuple[])
+{
+  int loc = i * this->NumberOfComponents; 
+
+  for (int j=0; j<this->NumberOfComponents; j++) 
+    this->SetValue(loc+j,(int)tuple[j]);
+}
+
+// Description:
+// Insert (memory allocation performed) the tuple into the ith location
+// in the array.
+void vtkBitArray::InsertTuple(const int i, const float tuple[])
+{
+  int loc = this->NumberOfComponents*i;
+
+  for (int j=0; j<this->NumberOfComponents; j++) 
+    this->InsertValue(loc+j,(int)tuple[j]);
+}
+
+// Description:
+// Insert (memory allocation performed) the tuple onto the end of the array.
+int vtkBitArray::InsertNextTuple(const float tuple[])
+{
+  for (int i=0; i<this->NumberOfComponents; i++) 
+    this->InsertNextValue((int)tuple[i]);
+
+  return this->MaxId / this->NumberOfComponents;
 }

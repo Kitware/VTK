@@ -39,52 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkVectors.h"
-#include "vtkFloatVectors.h"
-#include "vtkIdList.h"
 #include "vtkMath.h"
 
-vtkVectors::vtkVectors()
+// Description:
+// Construct object with an initial data array of type float.
+vtkVectors::vtkVectors(int dataType) : vtkAttributeData(dataType)
 {
   this->MaxNorm = 0.0;
-}
-
-void vtkVectors::GetVector(int id, float v[3])
-{
-  float *vp = this->GetVector(id);
-  for (int i=0; i<3; i++) v[i] = vp[i];
-}
-
-// Description:
-// Insert vector into position indicated.
-void vtkVectors::InsertVector(int id, float vx, float vy, float vz)
-{
-  float v[3];
-
-  v[0] = vx;
-  v[1] = vy;
-  v[2] = vz;
-  this->InsertVector(id,v);
-}
-
-// Description:
-// Insert vector into position indicated.
-int vtkVectors::InsertNextVector(float vx, float vy, float vz)
-{
-  float v[3];
-
-  v[0] = vx;
-  v[1] = vy;
-  v[2] = vz;
-  return this->InsertNextVector(v);
+  this->Data->SetNumberOfComponents(3);
 }
 
 // Description:
 // Given a list of pt ids, return an array of vectors.
-void vtkVectors::GetVectors(vtkIdList& ptId, vtkFloatVectors& fp)
+void vtkVectors::GetVectors(vtkIdList& ptIds, vtkVectors& fv)
 {
-  for (int i=0; i<ptId.GetNumberOfIds(); i++)
+  int num=ptIds.GetNumberOfIds();
+
+  for (int i=0; i<num; i++)
     {
-    fp.InsertVector(i,this->GetVector(ptId.GetId(i)));
+    fv.InsertVector(i,this->GetVector(ptIds.GetId(i)));
     }
 }
 
@@ -119,8 +92,9 @@ float vtkVectors::GetMaxNorm()
 
 void vtkVectors::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkReferenceCount::PrintSelf(os,indent);
+  vtkAttributeData::PrintSelf(os,indent);
 
   os << indent << "Number Of Vectors: " << this->GetNumberOfVectors() << "\n";
   os << indent << "Maximum Euclidean Norm: " << this->GetMaxNorm() << "\n";
 }
+

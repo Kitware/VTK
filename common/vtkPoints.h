@@ -38,85 +38,44 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkPoints - abstract interface to 3D points
+// .NAME vtkPoints - represent and manipulate 3D points
 // .SECTION Description
-// vtkPoints provides an abstract interface to 3D points. The data model
-// for vtkPoints is an array of x-y-z triplets accessible by point id.
-// The subclasses of vtkPoints are concrete data types (float, int, etc.) 
-// that implement the interface of vtkPoints. 
-
-// .SECTION See Also
-// vtkFloatPoints vtkIntPoints
+// vtkPoints represents 3D points. The data model for vtkPoints is an 
+// array of vx-vy-vz triplets accessible by (point or cell) id.
 
 #ifndef __vtkPoints_h
 #define __vtkPoints_h
 
-#include "vtkReferenceCount.h"
+#include "vtkAttributeData.h"
 
-class vtkFloatPoints;
 class vtkIdList;
+class vtkPoints;
 
-class VTK_EXPORT vtkPoints : public vtkReferenceCount 
+class VTK_EXPORT vtkPoints : public vtkAttributeData
 {
 public:
-  vtkPoints();
+  vtkPoints(int dataType=VTK_FLOAT);
+  static vtkPoints *New() {return new vtkPoints;};
   const char *GetClassName() {return "vtkPoints";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Create a copy of this object.
-  virtual vtkPoints *MakeObject(int sze, int ext=1000) = 0;
+  // overload vtkAttributeData API
+  vtkAttributeData *MakeObject();
 
-  // Description:
-  // Return data type. An integer data type as follows:
-  // VTK_FLOAT = 1 VTK_INT = 2 VTK_SHORT = 3 VTK_UNSIGNED_SHORT = 4
-  // VTK_UNSIGNED_CHAR = 5 VTK_BIT = 6
-  virtual int GetDataType() = 0;
-
-  // Description:
-  // Return number of points in list.
-  virtual int GetNumberOfPoints() = 0;
-
-  // Description:
-  // Return a pointer to a float array x[3] for a specified point id.
-  virtual float *GetPoint(int id) = 0;
-
-  // Description:
-  // Copy point coordinates into user provided array x[3] for specified
-  // point id.
-  virtual void GetPoint(int id, float x[3]);
-
-  // Description:
-  // Specify the number of points for this object to hold. Does an
-  // allocation as well as setting the MaxId ivar. Used in conjunction with
-  // SetPoint() method for fast insertion.
-  virtual void SetNumberOfPoints(int number) = 0;
-
-  // Description:
-  // Insert point into object. No range checking performed (fast!).
-  // Make sure you use SetNumberOfPoints() to allocate memory prior
-  // to using SetPoint().
-  virtual void SetPoint(int id, float x[3]) = 0;
-
-  // Description:
-  // Insert point into object. Range checking performed and memory
-  // allocated as necessary.
-  virtual void InsertPoint(int id, float x[3]) = 0;
+  // generic access to point data
+  int GetNumberOfPoints();
+  float *GetPoint(int id);
+  void GetPoint(int id, float x[3]);
+  void SetNumberOfPoints(int number);
+  void SetPoint(int id, float x[3]);
+  void InsertPoint(int id, float x[3]);
   void InsertPoint(int id, float x, float y, float z);
-
-  // Description:
-  // Insert point into next available slot. Returns point id of slot.
-  virtual int InsertNextPoint(float x[3]) = 0;
+  int InsertNextPoint(float x[3]);
   int InsertNextPoint(float x, float y, float z);
 
-  // Description:
-  // Reclaim any extra memory.
-  virtual void Squeeze() = 0; // reclaim memory
+  void GetPoints(vtkIdList& ptId, vtkPoints& fp);
 
-  // Description:
-  // Get the point coordinates for the point ids specified.
-  virtual void GetPoints(vtkIdList& ptId, vtkFloatPoints& fp);
-
+  // Compute point attributes
   virtual void ComputeBounds();
   float *GetBounds();
   void GetBounds(float bounds[6]);
@@ -127,9 +86,96 @@ protected:
 
 };
 
+// Description:
+// Create a coy of this object.
+inline vtkAttributeData *vtkPoints::MakeObject()
+{
+  return new vtkPoints(this->GetDataType());
+}
+
+// Description:
+// Return number of points in array.
+inline int vtkPoints::GetNumberOfPoints()
+{
+  return this->Data->GetNumberOfTuples();
+}
+
+// Description:
+// Return a pointer to a float point x[3] for a specific id.
+inline float *vtkPoints::GetPoint(int id)
+{
+  return this->Data->GetTuple(id);
+}
+
+// Description:
+// Coy point components into user provided array v[3] for specified
+// id.
+inline void vtkPoints::GetPoint(int id, float x[3])
+{
+  this->Data->GetTuple(id,x);
+}
+
+// Description:
+// Specify the number of points for this object to hold. Does an
+// allocation as well as setting the MaxId ivar. Used in conjunction with
+// SetPoint() method for fast insertion.
+inline void vtkPoints::SetNumberOfPoints(int number)
+{
+  this->Data->SetNumberOfComponents(3);
+  this->Data->SetNumberOfTuples(number);
+}
+
+// Description:
+// Insert point into object. No range checking performed (fast!).
+// Make sure you use SetNumberOfPoints() to allocate memory prior
+// to using SetPoint().
+inline void vtkPoints::SetPoint(int id, float x[3])
+{
+  this->Data->SetTuple(id,x);
+}
+
+// Description:
+// Insert point into object. Range checking performed and memory
+// allocated as necessary.
+inline void vtkPoints::InsertPoint(int id, float x[3])
+{
+  this->Data->InsertTuple(id,x);
+}
+
+// Description:
+// Insert point into position indicated.
+inline void vtkPoints::InsertPoint(int id, float x, float y, float z)
+{
+  float p[3];
+
+  p[0] = x;
+  p[1] = y;
+  p[2] = z;
+  this->Data->InsertTuple(id,p);
+}
+
+// Description:
+// Insert point at end of array and return its location (id) in the array.
+inline int vtkPoints::InsertNextPoint(float x, float y, float z)
+{
+  float p[3];
+
+  p[0] = x;
+  p[1] = y;
+  p[2] = z;
+  return this->Data->InsertNextTuple(p);
+}
+
+// Description:
+// Insert point into next available slot. Returns id of slot.
+inline int vtkPoints::InsertNextPoint(float x[3])
+{
+  return this->Data->InsertNextTuple(x);
+}
+
 // These include files are placed here so that if Points.h is included 
 // all other classes necessary for compilation are also included. 
 #include "vtkIdList.h"
-#include "vtkFloatPoints.h"
 
 #endif
+

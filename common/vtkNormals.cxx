@@ -39,52 +39,29 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkNormals.h"
-#include "vtkIdList.h"
-#include "vtkFloatNormals.h"
 
-void vtkNormals::GetNormal(int id, float n[3])
+// Description:
+// Construct object with an initial data array of type float.
+vtkNormals::vtkNormals(int dataType) : vtkAttributeData(dataType)
 {
-  float *np = this->GetNormal(id);
-  for (int i=0; i<3; i++) n[i] = np[i];
+  this->Data->SetNumberOfComponents(3);
 }
 
 // Description:
-// Insert normal into position indicated.
-void vtkNormals::InsertNormal(int id, float nx, float ny, float nz)
+// Given a list of pt ids, return an array of normals.
+void vtkNormals::GetNormals(vtkIdList& ptIds, vtkNormals& fp)
 {
-  float n[3];
+  int num=ptIds.GetNumberOfIds();
 
-  n[0] = nx;
-  n[1] = ny;
-  n[2] = nz;
-  this->InsertNormal(id,n);
-}
-
-// Description:
-// Insert normal into position indicated.
-int vtkNormals::InsertNextNormal(float nx, float ny, float nz)
-{
-  float n[3];
-
-  n[0] = nx;
-  n[1] = ny;
-  n[2] = nz;
-  return this->InsertNextNormal(n);
-}
-
-// Description:
-// Given a list of pt ids, return an array of corresponding normals.
-void vtkNormals::GetNormals(vtkIdList& ptId, vtkFloatNormals& fp)
-{
-  for (int i=0; i<ptId.GetNumberOfIds(); i++)
+  for (int i=0; i<num; i++)
     {
-    fp.InsertNormal(i,this->GetNormal(ptId.GetId(i)));
+    fp.InsertNormal(i,this->GetNormal(ptIds.GetId(i)));
     }
 }
 
 void vtkNormals::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkReferenceCount::PrintSelf(os,indent);
+  vtkAttributeData::PrintSelf(os,indent);
 
   os << indent << "Number Of Normals: " << this->GetNumberOfNormals() << "\n";
 }

@@ -38,7 +38,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <string.h>
-#include "vtkColorScalars.h"
 #include "vtkImageSimpleCache.h"
 #include "vtkStructuredPoints.h"
 #include "vtkStructuredPointsToImage.h"
@@ -131,16 +130,7 @@ void vtkStructuredPointsToImage::UpdateImageInformation()
   scalars = this->Input->GetPointData()->GetScalars();
   this->Output->SetWholeExtent(0, size[0]-1, 
 			       0, size[1]-1, 0, size[2]-1);
-  if ( scalars->GetScalarType() == VTK_COLOR_SCALAR )
-    {
-    int bpp;
-    bpp = ((vtkColorScalars *)scalars)->GetNumberOfValuesPerScalar();
-    this->Output->SetNumberOfScalarComponents(bpp);
-    }
-  else
-    {
-    this->Output->SetNumberOfScalarComponents(1);
-    }
+  this->Output->SetNumberOfScalarComponents(scalars->GetNumberOfComponents());
   
   // Releasing data here would be inefficient because cache calls
   // UpdateImageInformation and then Update.
@@ -202,7 +192,7 @@ void vtkStructuredPointsToImage::Execute(vtkImageData *data)
   
   scalars = this->Input->GetPointData()->GetScalars();
   // We do not handle bit arrays (yet?)
-  if (strcmp(scalars->GetClassName(), "vtkBitScalars") == 0)
+  if ( scalars->GetDataType() == VTK_BIT )
     {
     vtkErrorMacro("This class does not handle bit scalars.");
     return;

@@ -55,12 +55,11 @@ vtkPixel::vtkPixel()
   this->PointIds.SetNumberOfIds(4);
 }
 
-// Description:
-// Deep copy of cell.
-vtkPixel::vtkPixel(const vtkPixel& p)
+vtkCell *vtkPixel::MakeObject()
 {
-  this->Points = p.Points;
-  this->PointIds = p.PointIds;
+  vtkCell *cell = vtkPixel::New();
+  cell->ShallowCopy(*this);
+  return cell;
 }
 
 int vtkPixel::EvaluatePosition(float x[3], float closestPoint[3],
@@ -191,7 +190,7 @@ int vtkPixel::CellBoundary(int vtkNotUsed(subId), float pcoords[3], vtkIdList& p
 
 static int edges[4][2] = { {0,1}, {1,3}, {3,2}, {2,0} };
 
-void vtkPixel::Contour(float value, vtkFloatScalars *cellScalars,
+void vtkPixel::Contour(float value, vtkScalars *cellScalars,
 		       vtkPointLocator *locator, 
 		       vtkCellArray *vtkNotUsed(verts),
 		       vtkCellArray *lines, 
@@ -244,20 +243,19 @@ void vtkPixel::Contour(float value, vtkFloatScalars *cellScalars,
 
 vtkCell *vtkPixel::GetEdge(int edgeId)
 {
-  static vtkLine line;
   int *verts;
 
   verts = edges[edgeId];
 
   // load point id's
-  line.PointIds.SetId(0,this->PointIds.GetId(verts[0]));
-  line.PointIds.SetId(1,this->PointIds.GetId(verts[1]));
+  this->Line.PointIds.SetId(0,this->PointIds.GetId(verts[0]));
+  this->Line.PointIds.SetId(1,this->PointIds.GetId(verts[1]));
 
   // load coordinates
-  line.Points.SetPoint(0,this->Points.GetPoint(verts[0]));
-  line.Points.SetPoint(1,this->Points.GetPoint(verts[1]));
+  this->Line.Points.SetPoint(0,this->Points.GetPoint(verts[0]));
+  this->Line.Points.SetPoint(1,this->Points.GetPoint(verts[1]));
 
-  return &line;
+  return &this->Line;
 }
 //
 // Compute interpolation functions (similar but different than Quad interpolation 
@@ -343,7 +341,7 @@ int vtkPixel::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
   return 0;
 }
 
-int vtkPixel::Triangulate(int index, vtkIdList &ptIds, vtkFloatPoints &pts)
+int vtkPixel::Triangulate(int index, vtkIdList &ptIds, vtkPoints &pts)
 {
   pts.Reset();
   ptIds.Reset();
@@ -446,7 +444,7 @@ void vtkPixel::Derivatives(int vtkNotUsed(subId),
 }
 
 void vtkPixel::Clip(float vtkNotUsed(value), 
-		    vtkFloatScalars *vtkNotUsed(cellScalars), 
+		    vtkScalars *vtkNotUsed(cellScalars), 
 		    vtkPointLocator *vtkNotUsed(locator), 
 		    vtkCellArray *vtkNotUsed(tetras),
 		    vtkPointData *vtkNotUsed(inPd), 

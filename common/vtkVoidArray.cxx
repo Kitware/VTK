@@ -41,6 +41,22 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkVoidArray.h"
 
 typedef void *voidPtr;
+
+// Description:
+// Instantiate object.
+vtkVoidArray::vtkVoidArray()
+{
+  this->Array = NULL;
+  this->TupleSize = 3;
+  this->Tuple = new float[this->TupleSize]; //used for conversion
+}
+
+vtkVoidArray::~vtkVoidArray()
+{
+  if (this->Array) delete [] this->Array;
+  delete [] this->Tuple;
+}
+
 // Description:
 // Allocate memory for this array. Delete old storage only if necessary.
 int vtkVoidArray::Allocate(const int sz, const int ext)
@@ -73,39 +89,8 @@ void vtkVoidArray::Initialize()
 }
 
 // Description:
-// Construct with specified storage and extend value.
-vtkVoidArray::vtkVoidArray(const int sz, const int ext)
-{
-  this->Size = ( sz > 0 ? sz : 1);
-  this->Array = new voidPtr[sz];
-  this->Extend = ( ext > 0 ? ext : 1);
-  this->MaxId = -1;
-}
-
-vtkVoidArray::~vtkVoidArray()
-{
-  delete [] this->Array;
-}
-
-// Description:
-// Construct array from another array. Copy each element of other array.
-vtkVoidArray::vtkVoidArray(const vtkVoidArray& fa)
-{
-  int i;
-
-  this->MaxId = fa.MaxId;
-  this->Size = fa.Size;
-  this->Extend = fa.Extend;
-
-  this->Array = new voidPtr[this->Size];
-  for (i=0; i<this->MaxId; i++)
-    this->Array[i] = fa.Array[i];
-
-}
-
-// Description:
-// Deep copy of another array.
-vtkVoidArray& vtkVoidArray::operator=(const vtkVoidArray& fa)
+// Deep copy of another void array.
+void vtkVoidArray::DeepCopy(vtkVoidArray& fa)
 {
   int i;
 
@@ -118,25 +103,8 @@ vtkVoidArray& vtkVoidArray::operator=(const vtkVoidArray& fa)
     this->Extend = fa.Extend;
 
     this->Array = new voidPtr[this->Size];
-    for (i=0; i<=this->MaxId; i++)
-      this->Array[i] = fa.Array[i];
+    for (i=0; i<=this->MaxId; i++) this->Array[i] = fa.Array[i];
     }
-  return *this;
-}
-
-// Description:
-// Append one array onto the end of this array.
-void vtkVoidArray::operator+=(const vtkVoidArray& fa)
-{
-  int i, sz;
-
-  if ( this->Size <= (sz = this->MaxId + fa.MaxId + 2) ) this->Resize(sz);
-
-  for (i=0; i<=fa.MaxId; i++)
-    {
-    this->Array[this->MaxId+1+i] = fa.Array[i];
-    }
-  this->MaxId += fa.MaxId + 1;
 }
 
 void vtkVoidArray::PrintSelf(ostream& os, vtkIndent indent)
@@ -144,9 +112,6 @@ void vtkVoidArray::PrintSelf(ostream& os, vtkIndent indent)
   vtkObject::PrintSelf(os,indent);
 
   os << indent << "Array: " << this->Array << "\n";
-  os << indent << "Size: " << this->Size << "\n";
-  os << indent << "MaxId: " << this->MaxId << "\n";
-  os << indent << "Extend size: " << this->Extend << "\n";
 }
 
 // Protected function does "reallocate"
@@ -177,3 +142,46 @@ void** vtkVoidArray::Resize(const int sz)
 
   return this->Array;
 }
+
+
+// Description:
+// Set the number of n-tuples in the array.
+void vtkVoidArray::SetNumberOfTuples(const int number)
+{
+  this->SetNumberOfValues(number*this->NumberOfComponents);
+}
+
+// Description:
+// Get a pointer to a tuple at the ith location.
+float *vtkVoidArray::GetTuple(const int i)
+{
+  return NULL;
+}
+
+// Description:
+// Copy the tuple value into a user-provided array.
+void vtkVoidArray::GetTuple(const int i, float tuple[])
+{
+}
+
+// Description:
+// Set the tuple value at the ith location in the array.
+void vtkVoidArray::SetTuple(const int i, const float tuple[])
+{
+}
+
+// Description:
+// Insert (memory allocation performed) the tuple into the ith location
+// in the array.
+void vtkVoidArray::InsertTuple(const int i, const float tuple[])
+{
+}
+
+// Description:
+// Insert (memory allocation performed) the tuple onto the end of the array.
+int vtkVoidArray::InsertNextTuple(const float tuple[])
+{
+  return -1;
+}
+
+

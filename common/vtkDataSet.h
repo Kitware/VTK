@@ -40,45 +40,42 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkDataSet - abstract class to specify dataset behavior
 // .SECTION Description
-// vtkDataSet is an abstract class that specifies an interface for 
-// data objects. (Data objects are synonymous with datasets.) vtkDataSet
-// also provides methods to provide informations about the data, such
-// as center, bounding box, and representative length.
+// vtkDataSet is an abstract class that specifies an interface for dataset
+// objects. vtkDataSet also provides methods to provide informations about
+// the data, such as center, bounding box, and representative length.
+//
+// In vtk a dataset consists of a structure (geometry and topology) and 
+// attribute data. The structure is defined implicitly or explicitly as
+// a collection of cells. The geometry of the structure is contained in
+// point coordinates plus the cell interpolation functions. The topology
+// of the dataset structure is defined by cell types and how the cells
+// share their defining points. 
+//
+// Attribute data in vtk is either point data (data at points) or cell data
+// (data at cells). Typically filters operate on point data, but some may
+// operate on cell data, both cell and point data, eithoer one, or none.
 
 // .SECTION See Also
-// vtkPointSet vtkStructuredPoints
+// vtkPointSet vtkStructuredPoints vtkStructuredGrid vtkUnstructuredGrid
+// vtkRectilinearGrid vtkPolyData vtkPointData vtkCellData
+// vtkDataObject vtkField
 
 #ifndef __vtkDataSet_h
 #define __vtkDataSet_h
 
-#include "vtkObject.h"
-#include "vtkIdList.h"
-#include "vtkFloatPoints.h"
+#include "vtkDataObject.h"
+#include "vtkPoints.h"
+#include "vtkCellData.h"
 #include "vtkPointData.h"
 #include "vtkCell.h"
 
-class vtkSource;
-
-class VTK_EXPORT vtkDataSet : public vtkObject 
+class VTK_EXPORT vtkDataSet : public vtkDataObject
 {
 public:
   vtkDataSet();
   vtkDataSet(const vtkDataSet& ds);
   const char *GetClassName() {return "vtkDataSet";};
   void PrintSelf(ostream& os, vtkIndent indent);
-
-  // Description:
-  // Provides opportunity for data to insure internal consistency before 
-  // access. Also causes owning filter (if any) to update itself.
-  virtual void Update();
-
-  // Description:
-  // Force the data to update itself no matter what.
-  virtual void ForceUpdate();
-
-  // Description:
-  // Create concrete instance of this dataset.
-  virtual vtkDataSet *MakeObject() = 0;
 
   // Description:
   // Copy the geometric and topological structure of an object. Note that
@@ -89,7 +86,7 @@ public:
   // Description:
   // Return class name of data type. This is one of VTK_STRUCTURED_GRID, 
   // VTK_STRUCTURED_POINTS, VTK_UNSTRUCTURED_GRID, VTK_POLY_DATA, or
-  // VTK_RECTILINEAR_GRID.
+  // VTK_RECTILINEAR_GRID (see vtkSetGet.h for definitions).
   virtual int GetDataSetType() = 0;
 
   // Description:
@@ -168,35 +165,8 @@ public:
   // Datasets are composite objects and need to check each part for MTime
   unsigned long int GetMTime();
 
-  // Description:
-  // Release data back to system to conserve memory resource. Used during
-  // visualization network execution.
-  void ReleaseData();
-
-  // Description:
-  // Return flag indicating whether data should be released after use  
-  // by a filter.
-  int ShouldIReleaseData();
-
-  // Description:
-  // Set/Get the DataReleased ivar.
-  vtkSetMacro(DataReleased,int);
-  vtkGetMacro(DataReleased,int);
-
-  // Description:
-  // Turn on/off flag to control whether this object's data is released
-  // after being used by a filter.
-  vtkSetMacro(ReleaseDataFlag,int);
-  vtkGetMacro(ReleaseDataFlag,int);
-  vtkBooleanMacro(ReleaseDataFlag,int);
-
-  // Description:
-  // Turn on/off flag to control whether every object releases its data
-  // after being used by a filter.
-  static void SetGlobalReleaseDataFlag(int val);
-  void GlobalReleaseDataFlagOn() {this->SetGlobalReleaseDataFlag(1);};
-  void GlobalReleaseDataFlagOff() {this->SetGlobalReleaseDataFlag(0);};
-  static int  GetGlobalReleaseDataFlag();
+  // return pointer to this dataset's point data
+  vtkCellData *GetCellData() {return &this->CellData;};
 
   // return pointer to this dataset's point data
   vtkPointData *GetPointData() {return &this->PointData;};
@@ -205,11 +175,6 @@ public:
   // Reclaim any extra memory used to store data.
   virtual void Squeeze();
 
-  // Description:
-  // Specify the filter creating this dataset. 
-  vtkSetObjectMacro(Source,vtkSource);
-  vtkGetObjectMacro(Source,vtkSource);
-  
   // compute geometric bounds, center, longest side
   virtual void ComputeBounds();
   float *GetBounds();
@@ -219,11 +184,13 @@ public:
   float GetLength();
 
   // Restore data object to initial state,
-  virtual void Initialize();
+  void Initialize();
 
   // Description:
   // Convenience method to get the range of the scalar data (if there is any 
-  // scalar data). Otherwise the method will return (0,1).
+  // scalar data). Returns the (min/max) range of combined point and cell data.
+  // If there are no point or cell scalars the method will return (0,1).
+  void GetScalarRange(float range[2]);
   float *GetScalarRange();
   
   // Description:
@@ -232,13 +199,11 @@ public:
   virtual int GetMaxCellSize() = 0;
 
 protected:
-  vtkSource *Source; // if I am the output of a Source this is a pntr to it
+  vtkCellData CellData;   // Scalars, vectors, etc. associated w/ each cell
   vtkPointData PointData;   // Scalars, vectors, etc. associated w/ each point
   vtkTimeStamp ComputeTime; // Time at which bounds, center, etc. computed
   float Bounds[6];  // (xmin,xmax, ymin,ymax, zmin,zmax) geometric bounds
 
-  int DataReleased; //keep track of data release during network execution
-  int ReleaseDataFlag; //data will release after use by a filter
 };
 
 inline void vtkDataSet::GetPoint(int id, float x[3])

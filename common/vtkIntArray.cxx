@@ -41,6 +41,22 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkIntArray.h"
 
 // Description:
+// Instantiate object.
+vtkIntArray::vtkIntArray(int numComp)
+{
+  this->NumberOfComponents = (numComp < 1 ? 1 : numComp);
+  this->Array = NULL;
+  this->TupleSize = 3;
+  this->Tuple = new float[this->TupleSize]; //used for conversion
+}
+
+vtkIntArray::~vtkIntArray()
+{
+  if (this->Array) delete [] this->Array;
+  delete [] this->Tuple;
+}
+
+// Description:
 // Allocate memory for this array. Delete old storage only if necessary.
 int vtkIntArray::Allocate(const int sz, const int ext)
 {
@@ -72,39 +88,8 @@ void vtkIntArray::Initialize()
 }
 
 // Description:
-// Construct with specified storage and extend value.
-vtkIntArray::vtkIntArray(const int sz, const int ext)
-{
-  this->Size = ( sz > 0 ? sz : 1);
-  this->Array = new int[this->Size];
-  this->Extend = ( ext > 0 ? ext : 1);
-  this->MaxId = -1;
-}
-
-vtkIntArray::~vtkIntArray()
-{
-  delete [] this->Array;
-}
-
-// Description:
-// Construct array from another array. Copy each element of other array.
-vtkIntArray::vtkIntArray(const vtkIntArray& ia)
-{
-  int i;
-
-  this->MaxId = ia.MaxId;
-  this->Size = ia.Size;
-  this->Extend = ia.Extend;
-
-  this->Array = new int[this->Size];
-  for (i=0; i<this->MaxId; i++)
-    this->Array[i] = ia.Array[i];
-
-}
-
-// Description:
-// Deep copy of another array.
-vtkIntArray& vtkIntArray::operator=(const vtkIntArray& ia)
+// Deep copy of another integer array.
+void vtkIntArray::DeepCopy(vtkIntArray& ia)
 {
   int i;
 
@@ -112,30 +97,14 @@ vtkIntArray& vtkIntArray::operator=(const vtkIntArray& ia)
     {
     delete [] this->Array;
 
+    this->NumberOfComponents = ia.NumberOfComponents;
     this->MaxId = ia.MaxId;
     this->Size = ia.Size;
     this->Extend = ia.Extend;
 
     this->Array = new int[this->Size];
-    for (i=0; i<=this->MaxId; i++)
-      this->Array[i] = ia.Array[i];
+    for (i=0; i<=this->MaxId; i++) this->Array[i] = ia.Array[i];
     }
-  return *this;
-}
-
-// Description:
-// Append one array onto the end of this array.
-void vtkIntArray::operator+=(const vtkIntArray& ia)
-{
-  int i, sz;
-
-  if ( this->Size <= (sz = this->MaxId + ia.MaxId + 2) ) this->Resize(sz);
-
-  for (i=0; i<=ia.MaxId; i++)
-    {
-    this->Array[this->MaxId+1+i] = ia.Array[i];
-    }
-  this->MaxId += ia.MaxId + 1;
 }
 
 void vtkIntArray::PrintSelf(ostream& os, vtkIndent indent)
@@ -143,9 +112,6 @@ void vtkIntArray::PrintSelf(ostream& os, vtkIndent indent)
   vtkObject::PrintSelf(os,indent);
 
   os << indent << "Array: " << this->Array << "\n";
-  os << indent << "Size: " << this->Size << "\n";
-  os << indent << "MaxId: " << this->MaxId << "\n";
-  os << indent << "Extend size: " << this->Extend << "\n";
 }
 
 //
@@ -176,4 +142,67 @@ int *vtkIntArray::Resize(const int sz)
   this->Array = newArray;
 
   return this->Array;
+}
+
+// Description:
+// Set the number of n-tuples in the array.
+void vtkIntArray::SetNumberOfTuples(const int number)
+{
+  this->SetNumberOfValues(number*this->NumberOfComponents);
+}
+
+// Description:
+// Get a pointer to a tuple at the ith location. This is a dangerous method
+// (it is not thread safe since a pointer is returned).
+float *vtkIntArray::GetTuple(const int i) 
+{
+  if ( this->TupleSize < this->NumberOfComponents )
+    {
+    this->TupleSize = this->NumberOfComponents;
+    delete [] this->Tuple;
+    this->Tuple = new float[this->TupleSize];
+    }
+
+  int *t = this->Array + this->NumberOfComponents*i;
+  for (int j=0; j<this->NumberOfComponents; j++) this->Tuple[j] = (float)t[j];
+  return this->Tuple;
+}
+
+// Description:
+// Copy the tuple value into a user-provided array.
+void vtkIntArray::GetTuple(const int i, float tuple[]) 
+{
+  int *t = this->Array + this->NumberOfComponents*i;
+  for (int j=0; j<this->NumberOfComponents; j++) tuple[j] = (float)t[j];
+}
+
+// Description:
+// Set the tuple value at the ith location in the array.
+void vtkIntArray::SetTuple(const int i, const float tuple[])
+{
+  int loc = i * this->NumberOfComponents; 
+  for (int j=0; j<this->NumberOfComponents; j++) this->Array[loc+j] = (int)tuple[j];
+}
+
+// Description:
+// Insert (memory allocation performed) the tuple into the ith location
+// in the array.
+void vtkIntArray::InsertTuple(const int i, const float tuple[])
+{
+  int *t = this->WritePointer(i*this->NumberOfComponents,this->NumberOfComponents);
+
+  for (int j=0; j<this->NumberOfComponents; j++) *t++ = (int)*tuple++;
+}
+
+// Description:
+// Insert (memory allocation performed) the tuple onto the end of the array.
+int vtkIntArray::InsertNextTuple(const float tuple[])
+{
+  int i = this->MaxId + 1;
+  int *t = this->WritePointer(i,this->NumberOfComponents);
+
+  for (i=0; i<this->NumberOfComponents; i++) *t++ = (int)*tuple++;
+
+  return this->MaxId / this->NumberOfComponents;
+
 }

@@ -38,90 +38,142 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkVectors - abstract interface to 3D vectors
+// .NAME vtkVectors - represent and manipulate 3D vectors
 // .SECTION Description
-// vtkVectors provides an abstract interface to 3D vectors. The data model
-// for vtkVectors is an array of vx-vy-vz triplets accessible by point id.
-// The subclasses of vtkVectors are concrete data types (float, int, etc.)
-// that implement the interface of vtkVectors.
+// vtkVectors represents 3D vectors. The data model for vtkVectors is an 
+// array of vx-vy-vz triplets accessible by (point or cell) id.
 
 #ifndef __vtkVectors_h
 #define __vtkVectors_h
 
-#include "vtkReferenceCount.h"
+#include "vtkAttributeData.h"
 
 class vtkIdList;
-class vtkFloatVectors;
+class vtkVectors;
 
-class VTK_EXPORT vtkVectors : public vtkReferenceCount 
+class VTK_EXPORT vtkVectors : public vtkAttributeData
 {
 public:
-  vtkVectors();
+  vtkVectors(int dataType=VTK_FLOAT);
+  static vtkVectors *New(int dataType=VTK_FLOAT) {return new vtkVectors(dataType);};
   const char *GetClassName() {return "vtkVectors";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Create a copy of this object.
-  virtual vtkVectors *MakeObject(int sze, int ext=1000) = 0;
+  // overload vtkAttributeData API
+  vtkAttributeData *MakeObject();
 
-  // Description:
-  // Return data type. An integer data type as follows:
-  // VTK_FLOAT = 1 VTK_INT = 2 VTK_SHORT = 3 VTK_UNSIGNED_SHORT = 4
-  // VTK_UNSIGNED_CHAR = 5 VTK_BIT = 6
-  virtual int GetDataType() = 0;
-
-  // Description:
-  // Return number of vectors in array.
-  virtual int GetNumberOfVectors() = 0;
-
-  // Description:
-  // Return a pointer to a float vector v[3] for a specific point id.
-  virtual float *GetVector(int id) = 0;
-
-  // Description:
-  // Copy vector components into user provided array v[3] for specified
-  // point id.
-  virtual void GetVector(int id, float v[3]);
-
-  // Description:
-  // Specify the number of vectors for this object to hold. Does an
-  // allocation as well as setting the MaxId ivar. Used in conjunction with
-  // SetVector() method for fast insertion.
-  virtual void SetNumberOfVectors(int number) = 0;
-
-  // Description:
-  // Insert vector into object. No range checking performed (fast!).
-  // Make sure you use SetNumberOfVectors() to allocate memory prior
-  // to using SetVector().
-  virtual void SetVector(int id, float v[3]) = 0;
-
-  // Description:
-  // Insert vector into object. Range checking performed and memory
-  // allocated as necessary.
-  virtual void InsertVector(int id, float v[3]) = 0;
+  // generic access to vector data
+  int GetNumberOfVectors();
+  float *GetVector(int id);
+  void GetVector(int id, float v[3]);
+  void SetNumberOfVectors(int number);
+  void SetVector(int id, float v[3]);
+  void InsertVector(int id, float v[3]);
   void InsertVector(int id, float vx, float vy, float vz);
-
-  // Description:
-  // Insert vector into next available slot. Returns point id of slot.
-  virtual int InsertNextVector(float v[3]) = 0;
+  int InsertNextVector(float v[3]);
   int InsertNextVector(float vx, float vy, float vz);
 
-  // Description:
-  // Reclaim any extra memory.
-  virtual void Squeeze() = 0;
-
-  void GetVectors(vtkIdList& ptId, vtkFloatVectors& fp);
-  virtual void ComputeMaxNorm();
+  // Compute vector attributes
+  void ComputeMaxNorm();
   float GetMaxNorm();
+
+  void GetVectors(vtkIdList& ptId, vtkVectors& fv);
 
 protected:
   float MaxNorm;
   vtkTimeStamp ComputeTime; // Time at which MaxNorm computed
 };
 
+// Description:
+// Create a copy of this object.
+inline vtkAttributeData *vtkVectors::MakeObject()
+{
+  return new vtkVectors(this->GetDataType());
+}
+
+// Description:
+// Return number of vectors in array.
+inline int vtkVectors::GetNumberOfVectors()
+{
+  return this->Data->GetNumberOfTuples();
+}
+
+// Description:
+// Return a pointer to a float vector v[3] for a specific id.
+inline float *vtkVectors::GetVector(int id)
+{
+  return this->Data->GetTuple(id);
+}
+
+// Description:
+// Copy vector components into user provided array v[3] for specified
+// id.
+inline void vtkVectors::GetVector(int id, float v[3])
+{
+  this->Data->GetTuple(id,v);
+}
+
+// Description:
+// Specify the number of vectors for this object to hold. Does an
+// allocation as well as setting the MaxId ivar. Used in conjunction with
+// SetVector() method for fast insertion.
+inline void vtkVectors::SetNumberOfVectors(int number)
+{
+  this->Data->SetNumberOfComponents(3);
+  this->Data->SetNumberOfTuples(number);
+}
+
+// Description:
+// Insert vector into object. No range checking performed (fast!).
+// Make sure you use SetNumberOfVectors() to allocate memory prior
+// to using SetVector().
+inline void vtkVectors::SetVector(int id, float v[3])
+{
+  this->Data->SetTuple(id,v);
+}
+
+// Description:
+// Insert vector into object. Range checking performed and memory
+// allocated as necessary.
+inline void vtkVectors::InsertVector(int id, float v[3])
+{
+  this->Data->InsertTuple(id,v);
+}
+
+// Description:
+// Insert vector into position indicated.
+inline void vtkVectors::InsertVector(int id, float vx, float vy, float vz)
+{
+  float v[3];
+
+  v[0] = vx;
+  v[1] = vy;
+  v[2] = vz;
+  this->Data->InsertTuple(id,v);
+}
+
+// Description:
+// Insert vector at end of array and return its location (id) in the array.
+inline int vtkVectors::InsertNextVector(float vx, float vy, float vz)
+{
+  float v[3];
+
+  v[0] = vx;
+  v[1] = vy;
+  v[2] = vz;
+  return this->Data->InsertNextTuple(v);
+}
+
+// Description:
+// Insert vector into next available slot. Returns id of slot.
+inline int vtkVectors::InsertNextVector(float v[3])
+{
+  return this->Data->InsertNextTuple(v);
+}
+
 // These include files are placed here so that if Vectors.h is included 
 // all other classes necessary for compilation are also included. 
 #include "vtkIdList.h"
-#include "vtkFloatVectors.h"
 
 #endif
+

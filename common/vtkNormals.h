@@ -38,86 +38,134 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkNormals - abstract interface to 3D normals
+// .NAME vtkNormals - represent and manipulate 3D normals
 // .SECTION Description
-// vtkNormals provides an abstract interface to 3D normals. The data model
-// for vtkNormals is an array of nx-ny-nz triplets accessible by point id.
-// (Each normal is assumed normalized |n| = 1.) The subclasses of 
-// vtkNormals are concrete data types (float, int, etc.) that implement 
-// the interface of vtkNormals. 
+// vtkNormals represents 3D normals. The data model for vtkNormals is an 
+// array of nx-ny-nz triplets accessible by (point or cell) id. Each normal
+// is assumed to have magnitude |n| = 1.
 
 #ifndef __vtkNormals_h
 #define __vtkNormals_h
 
-#include "vtkReferenceCount.h"
+#include "vtkAttributeData.h"
 
 class vtkIdList;
-class vtkFloatNormals;
+class vtkNormals;
 
-class VTK_EXPORT vtkNormals : public vtkReferenceCount 
+class VTK_EXPORT vtkNormals : public vtkAttributeData
 {
 public:
-  vtkNormals() {};
-  virtual ~vtkNormals() {};
+  vtkNormals(int dataType=VTK_FLOAT);
+  static vtkNormals *New(int dataType=VTK_FLOAT) {return new vtkNormals(dataType);};
   const char *GetClassName() {return "vtkNormals";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Create a copy of this object.
-  virtual vtkNormals *MakeObject(int sze, int ext=1000) = 0;
+  // overload vtkAttributeData API
+  vtkAttributeData *MakeObject();
 
-  // Description:
-  // Return data type. An integer data type as follows:
-  // VTK_FLOAT = 1 VTK_INT = 2 VTK_SHORT = 3 VTK_UNSIGNED_SHORT = 4
-  // VTK_UNSIGNED_CHAR = 5 VTK_BIT = 6
-  virtual int GetDataType() = 0;
-
-  // Description:
-  // Return number of normals in array.
-  virtual int GetNumberOfNormals() = 0;
-
-  // Description:
-  // Return a float normal n[3] for a particular point id.
-  virtual float *GetNormal(int id) = 0;
-
-  // Description:
-  // Copy normal components into user provided array n[3] for specified
-  // point id.
-  virtual void GetNormal(int id, float n[3]);
-
-  // Description:
-  // Specify the number of normals for this object to hold. Does an
-  // allocation as well as setting the MaxId ivar. Used in conjunction with
-  // SetNormal() method for fast insertion.
-  virtual void SetNumberOfNormals(int number) = 0;
-
-  // Description:
-  // Insert normal into object. No range checking performed (fast!).
-  // Make sure you use SetNumberOfNormals() to allocate memory prior
-  // to using SetNormal().
-  virtual void SetNormal(int id, float n[3]) = 0;
-
-  // Description:
-  // Insert normal into object. Range checking performed and memory
-  // allocated as necessary.
-  virtual void InsertNormal(int id, float n[3]) = 0;
+  // generic access to normal data
+  int GetNumberOfNormals();
+  float *GetNormal(int id);
+  void GetNormal(int id, float n[3]);
+  void SetNumberOfNormals(int number);
+  void SetNormal(int id, float n[3]);
+  void InsertNormal(int id, float n[3]);
   void InsertNormal(int id, float nx, float ny, float nz);
-
-  // Description:
-  // Insert normal into next available slot. Returns point id of slot.
-  virtual int InsertNextNormal(float n[3]) = 0;
+  int InsertNextNormal(float n[3]);
   int InsertNextNormal(float nx, float ny, float nz);
 
-  // Description:
-  // Reclaim any extra memory.
-  virtual void Squeeze() = 0;
-
-  void GetNormals(vtkIdList& ptId, vtkFloatNormals& fp);
+  void GetNormals(vtkIdList& ptId, vtkNormals& fn);
 };
+
+// Description:
+// Create a copy of this object.
+inline vtkAttributeData *vtkNormals::MakeObject()
+{
+  return new vtkNormals(this->GetDataType());
+}
+
+// Description:
+// Return number of normals in array.
+inline int vtkNormals::GetNumberOfNormals()
+{
+  return this->Data->GetNumberOfTuples();
+}
+
+// Description:
+// Return a pointer to a float normal n[3] for a specific id.
+inline float *vtkNormals::GetNormal(int id)
+{
+  return this->Data->GetTuple(id);
+}
+
+// Description:
+// Copy normal components into user provided array n[3] for specified
+// id.
+inline void vtkNormals::GetNormal(int id, float n[3])
+{
+  this->Data->GetTuple(id,n);
+}
+
+// Description:
+// Specify the number of normals for this object to hold. Does an
+// allocation as well as setting the MaxId ivar. Used in conjunction with
+// SetNormal() method for fast insertion.
+inline void vtkNormals::SetNumberOfNormals(int number)
+{
+  this->Data->SetNumberOfComponents(3);
+  this->Data->SetNumberOfTuples(number);
+}
+
+// Description:
+// Insert normal into object. No range checking performed (fast!).
+// Make sure you use SetNumberOfNormals() to allocate memory prior
+// to using SetNormal().
+inline void vtkNormals::SetNormal(int id, float n[3])
+{
+  this->Data->SetTuple(id,n);
+}
+
+// Description:
+// Insert normal into object. Range checking performed and memory
+// allocated as necessary.
+inline void vtkNormals::InsertNormal(int id, float n[3])
+{
+  this->Data->InsertTuple(id,n);
+}
+
+// Description:
+// Insert normal into position indicated.
+inline void vtkNormals::InsertNormal(int id, float nx, float ny, float nz)
+{
+  float n[3];
+
+  n[0] = nx;
+  n[1] = ny;
+  n[2] = nz;
+  this->Data->InsertTuple(id,n);
+}
+
+// Description:
+// Insert normal at end of array and return its location (id) in the array.
+inline int vtkNormals::InsertNextNormal(float nx, float ny, float nz)
+{
+  float n[3];
+
+  n[0] = nx;
+  n[1] = ny;
+  n[2] = nz;
+  return this->Data->InsertNextTuple(n);
+}
+
+// Description:
+// Insert normal into next available slot. Returns id of slot.
+inline int vtkNormals::InsertNextNormal(float n[3])
+{
+  return this->Data->InsertNextTuple(n);
+}
 
 // These include files are placed here so that if Normals.h is included 
 // all other classes necessary for compilation are also included. 
 #include "vtkIdList.h"
-#include "vtkFloatNormals.h"
 
 #endif

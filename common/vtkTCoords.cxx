@@ -39,65 +39,51 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkTCoords.h"
-#include "vtkIdList.h"
-#include "vtkFloatTCoords.h"
 
-void vtkTCoords::GetTCoord(int id, float tc[3])
+// Description:
+// Construct object with an initial data array of type float and initial
+// texture dimension of 2.
+vtkTCoords::vtkTCoords(int dataType, int dim) : vtkAttributeData(dataType)
 {
-  float *tcp = this->GetTCoord(id);
-  for (int i=0; i<this->Dimension; i++) tc[i] = tcp[i];
+  dim = (dim < 1 ? 1 : (dim > 3 ? 3 : dim));
+  this->Data->SetNumberOfComponents(dim);
 }
 
 // Description:
-// Insert texture coordinate into position indicated. Although up to three
-// texture components may be specified (i.e., tc1, tc2, tc3), if the texture
-// coordinates are less than 3 dimensions the extra components will be ignored.
-void vtkTCoords::InsertTCoord(int id, float tc1, float tc2, float tc3)
+// Set the data for this object. The tuple dimension must be consistent with
+// the object.
+void vtkTCoords::SetData(vtkDataArray *data)
 {
-  float tc[3];
-
-  tc[0] = tc1;
-  tc[1] = tc2;
-  tc[2] = tc3;
-  this->InsertTCoord(id,tc);
-}
-
-// Description:
-// Insert texture coordinate into position indicated. Although up to three
-// texture components may be specified (i.e., tc1, tc2, tc3), if the texture
-// coordinates are less than 3 dimensions, the extra components will be 
-// ignored.
-int vtkTCoords::InsertNextTCoord(float tc1, float tc2, float tc3)
-{
-  float tc[3];
-
-  tc[0] = tc1;
-  tc[1] = tc2;
-  tc[2] = tc3;
-  return this->InsertNextTCoord(tc);
-}
-
-// Description:
-// Construct object whose texture coordinates are of specified dimension.
-vtkTCoords::vtkTCoords(int dim)
-{
-  this->Dimension = dim;
+  if ( data != this->Data && data != NULL )
+    {
+    if (data->GetNumberOfComponents() > 3 )
+      {
+      vtkErrorMacro(<<"Tuple dimension for texture coordinates must be <= 3");
+      return;
+      }
+    this->Data->UnRegister(this);
+    this->Data = data;
+    this->Data->Register(this);
+    this->Modified();
+    }
 }
 
 // Description:
 // Given a list of pt ids, return an array of texture coordinates.
-void vtkTCoords::GetTCoords(vtkIdList& ptId, vtkFloatTCoords& ftc)
+void vtkTCoords::GetTCoords(vtkIdList& ptIds, vtkTCoords& ftc)
 {
-  for (int i=0; i<ptId.GetNumberOfIds(); i++)
+  int num=ptIds.GetNumberOfIds();
+
+  for (int i=0; i<num; i++)
     {
-    ftc.InsertTCoord(i,this->GetTCoord(ptId.GetId(i)));
+    ftc.InsertTCoord(i,this->GetTCoord(ptIds.GetId(i)));
     }
 }
 
 void vtkTCoords::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkReferenceCount::PrintSelf(os,indent);
+  vtkAttributeData::PrintSelf(os,indent);
 
   os << indent << "Number Of Texture Coordinates: " << this->GetNumberOfTCoords() << "\n";
-  os << indent << "Texture Dimension: " << this->Dimension << "\n";
+  os << indent << "Number Of Texture Components: " << this->GetNumberOfComponents() << "\n";
 }

@@ -73,7 +73,7 @@ public:
   vtkCellArray *GetCells() {return this->Connectivity;};
 
   // dataset interface
-  vtkDataSet *MakeObject() {return new vtkUnstructuredGrid(*this);};
+  vtkDataObject *MakeObject() {return new vtkUnstructuredGrid;};
   void CopyStructure(vtkDataSet *ds);
   int GetNumberOfCells();
   vtkCell *GetCell(int cellId);

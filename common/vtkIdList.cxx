@@ -44,7 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkIdList::vtkIdList(const int sz, const int ext)
 {
-  this->Ia = vtkIntArray::New();
+  this->Ia = vtkIntArray::New(); //reference count is 1
   this->Ia->Allocate(sz,ext);
 }
 
@@ -53,6 +53,27 @@ vtkIdList::~vtkIdList()
   this->Ia->Delete();
 }
 
+// Description:
+// Copy an id list by reference counting internal array.
+void vtkIdList::ShallowCopy(vtkIdList& ids)
+{
+  if ( ids.Ia != NULL )
+    {
+    this->Ia->Delete();
+    this->Ia = ids.Ia;
+    this->Ia->Register(this);
+    }
+}
+
+// Description:
+// Copy an id list by explicitly copying the internal array.
+void vtkIdList::DeepCopy(vtkIdList& ids)
+{
+  if ( ids.Ia != NULL )
+    {
+    this->Ia->DeepCopy(*ids.Ia);
+    }
+}
 
 // Description:
 // Delete specified id from list. Will replace all occurences of id in list.

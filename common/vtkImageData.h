@@ -10,7 +10,7 @@
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
-The following terms apply to all files associated with the software unless
+lorscThe following terms apply to all files associated with the software unless
 explicitly disclaimed in individual files. This copyright specifically does
 not apply to the related textbook "The Visualization Toolkit" ISBN
 013199837-4 published by Prentice Hall which is covered by its own copyright.
@@ -43,17 +43,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkImageData is the basic image data structure specific to the  image
 // pipeline.  The axes cannot be reordered as in vtkImageRegion.  All
 // the ivars are accessed as if the Axes were set to (0,1,2,3,4).
-// The extent represetns the actual dimensions of the underlying memory.
+// The extent represents the actual dimensions of the underlying memory.
 // The actual memory is stored in objects (vtkPointData,vtkScalars,vtkArray)
 // used in the visualization pipline, so transfer of data is efficient.
-// Cuurently, only the only contents of PointData used are the Scalars,
-// and vtkColorScalars are excluded.  The underlying memory can be any data 
-// type.
-
+// Currently, the only contents of PointData used are the Scalars.
+// The underlying memory can be any data type.
 
 #ifndef __vtkImageData_h
 #define __vtkImageData_h
-
 
 #include "vtkStructuredPoints.h"
 

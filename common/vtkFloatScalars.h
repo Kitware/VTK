@@ -38,10 +38,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkFloatScalars - floating point representation of scalar data
+// .NAME vtkFloatScalars - (obsolete)floating point representation of scalars
 // .SECTION Description
-// vtkFloatScalars is a concrete implementation of vtkScalars. Scalars are
-// represented using float values.
+// vtkFloatScalars is an (obsolete) concrete implementation of vtkScalars. Scalars
+// coordinates are represented using float values.
 
 #ifndef __vtkFloatScalars_h
 #define __vtkFloatScalars_h
@@ -49,80 +49,65 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkScalars.h"
 #include "vtkFloatArray.h"
 
-class VTK_EXPORT vtkFloatScalars : public vtkScalars 
+class VTK_EXPORT vtkFloatScalars : public vtkScalars
 {
 public:
-  vtkFloatScalars();
-  vtkFloatScalars(const vtkFloatScalars& fs);
-  vtkFloatScalars(const int sz, const int ext=1000);
-  ~vtkFloatScalars();
-
-  int Allocate(const int sz, const int ext=1000) {return this->S->Allocate(sz,ext);};
-  void Initialize() {this->S->Initialize();};
   static vtkFloatScalars *New() {return new vtkFloatScalars;};
-  const char *GetClassName() {return "vtkFloatScalars";};
+  vtkFloatScalars():vtkScalars(VTK_FLOAT) {};
+  
+  // overload vtkAttributeData API
+  void SetDataType(int dataType);
+  void SetData(vtkDataArray *);
 
-  // vtkScalar interface
-  vtkScalars *MakeObject(int sze, int ext=1000);
-  int GetDataType() {return VTK_FLOAT;};
-  void GetDataTypeRange (float* range) { range[0] = VTK_FLOAT_MIN;
-  range[1] = VTK_FLOAT_MAX; return;}
-  float GetDataTypeMin() { return VTK_FLOAT_MIN; }
-  float GetDataTypeMax() { return VTK_FLOAT_MAX; }
-  int GetNumberOfScalars() {return (this->S->GetMaxId()+1);};
-  void Squeeze() {this->S->Squeeze();};
-  float GetScalar(int i) {return this->S->GetValue(i);};
-  void SetNumberOfScalars(int number);
-  void SetScalar(int i, float s) {this->S->SetValue(i,s);};
-  void InsertScalar(int i, float s) {S->InsertValue(i,s);};
-  int InsertNextScalar(float s) {return S->InsertNextValue(s);};
-  void GetScalars(vtkIdList& ptIds, vtkFloatScalars& fs);
-  void GetScalars(int p1, int p2, vtkFloatScalars& fs);
-
-  // miscellaneous
   float *GetPointer(const int id);
-  void *GetVoidPtr(const int id);
   float *WritePointer(const int id, const int number);
-  vtkFloatScalars &operator=(const vtkFloatScalars& fs);
-  void operator+=(const vtkFloatScalars& fs) {*(this->S) += *(fs.S);};
-  void Reset() {this->S->Reset();};
 
-  // Used by vtkImageToStructuredPoints (Proper length array is up to user!)
-  vtkSetReferenceCountedObjectMacro(S, vtkFloatArray);
-  vtkGetObjectMacro(S, vtkFloatArray);
-
-protected:
-  vtkFloatArray *S;
 };
-
-inline void vtkFloatScalars::SetNumberOfScalars(int number)
-{
-  this->S->SetNumberOfValues(number);
-}
 
 // Description:
 // Get pointer to array of data starting at data position "id".
 inline float *vtkFloatScalars::GetPointer(const int id)
 {
-  return this->S->GetPointer(id);
-}
+  return ((vtkFloatArray *)this->Data)->GetPointer(this->Data->GetNumberOfComponents()*id);
+} 
 
 // Description:
-// Get pointer to array of data starting at data position "id" and return as
-// a void pointer.
-inline void *vtkFloatScalars::GetVoidPtr(const int id)
-{
-  return (void *)(this->S->GetPointer(id));
-}
-
-// Description:
-// Get pointer to data array. Useful for direct writes of data. MaxId is 
-// bumped by number (and memory allocated if necessary). Id is the 
-// location you wish to write into; number is the number of scalars to 
-// write. 
+// Get pointer to data array. Useful for direct writes of data. MaxId is
+// bumped by number (and memory allocated if necessary). Id is the
+// location you wish to write into; number is the number of scalars to
+// write.
 inline float *vtkFloatScalars::WritePointer(const int id, const int number)
 {
-  return this->S->WritePointer(id,number);
+  int num=this->Data->GetNumberOfComponents();
+  
+  return ((vtkFloatArray *)this->Data)->WritePointer(num*id,num*number);
+}
+
+// Description:
+// Set the data for this object. Only accepts VTK_FLOAT type.
+inline void vtkFloatScalars::SetData(vtkDataArray *data)
+{
+  if ( data->GetDataType() != VTK_FLOAT )
+    {
+    vtkErrorMacro(<<"Float scalars only accepts float data type");
+    return;
+    }
+
+  vtkScalars::SetData(data);
+}
+
+// Description:
+// Set the data type for this object.
+inline void vtkFloatScalars::SetDataType(int type)
+{
+  if ( type != VTK_FLOAT )
+    {
+    vtkErrorMacro(<<"Float Scalars only accepts float data type");
+    return;
+    }
+
+  vtkScalars::SetDataType(type);
 }
 
 #endif
+

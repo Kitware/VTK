@@ -58,10 +58,7 @@ class VTK_EXPORT vtkIdList : public vtkObject
   int Allocate(const int sz=512, const int ext=1000) {return this->Ia->Allocate(sz,ext);};
   const char *GetClassName() {return "vtkIdList";};
   void PrintSelf(ostream& os, vtkIndent indent);
-
-  vtkIdList &operator=(const vtkIdList& ids) {*(this->Ia) = *(ids.Ia); return *this;};
   static vtkIdList *New() {return new vtkIdList(8);};
-  void Squeeze() {this->Ia->Squeeze();};
 
   int GetNumberOfIds();
   int GetId(const int i);
@@ -73,6 +70,10 @@ class VTK_EXPORT vtkIdList : public vtkObject
   int *GetPointer(const int id);
   int *WritePointer(const int id, const int number);
   void Reset() {this->Ia->Reset();};
+  void Squeeze() {this->Ia->Squeeze();};
+  void ShallowCopy(vtkIdList& ids);
+  void DeepCopy(vtkIdList& ids);
+  vtkIdList &operator=(const vtkIdList& ids) {vtkErrorMacro(<<"operator="); return *this;};
 
   // special set operations
   void DeleteId(int Id);

@@ -47,17 +47,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkSource::vtkSource()
 {
   this->Output = NULL;
-  this->StartMethod = NULL;
-  this->StartMethodArgDelete = NULL;
-  this->StartMethodArg = NULL;
-  this->ProgressMethod = NULL;
-  this->ProgressMethodArgDelete = NULL;
-  this->ProgressMethodArg = NULL;
-  this->EndMethod = NULL;
-  this->EndMethodArgDelete = NULL;
-  this->EndMethodArg = NULL;
-  this->AbortExecute = 0;
-  this->Progress = 0.0;
 }
 
 int vtkSource::GetDataReleased()
@@ -122,123 +111,16 @@ void vtkSource::Update()
     }
 }
 
-void vtkSource::UpdateProgress(float amount)
-{
-  this->Progress = amount;
-  if ( this->ProgressMethod )
-    {
-    (*this->ProgressMethod)(this->ProgressMethodArg);
-    }
-}
-
-// Description:
-// Specify function to be called before object executes.
-void vtkSource::SetStartMethod(void (*f)(void *), void *arg)
-{
-  if ( f != this->StartMethod || arg != this->StartMethodArg )
-    {
-    // delete the current arg if there is one and a delete meth
-    if ((this->StartMethodArg)&&(this->StartMethodArgDelete))
-      {
-      (*this->StartMethodArgDelete)(this->StartMethodArg);
-      }
-    this->StartMethod = f;
-    this->StartMethodArg = arg;
-    this->Modified();
-    }
-}
-
-// Description:
-// Specify function to be called to show progress of filter
-void vtkSource::SetProgressMethod(void (*f)(void *), void *arg)
-{
-  if ( f != this->ProgressMethod || arg != this->ProgressMethodArg )
-    {
-    // delete the current arg if there is one and a delete meth
-    if ((this->ProgressMethodArg)&&(this->ProgressMethodArgDelete))
-      {
-      (*this->ProgressMethodArgDelete)(this->ProgressMethodArg);
-      }
-    this->ProgressMethod = f;
-    this->ProgressMethodArg = arg;
-    this->Modified();
-    }
-}
-
-// Description:
-// Specify function to be called after object executes.
-void vtkSource::SetEndMethod(void (*f)(void *), void *arg)
-{
-  if ( f != this->EndMethod || arg != this->EndMethodArg )
-    {
-    // delete the current arg if there is one and a delete meth
-    if ((this->EndMethodArg)&&(this->EndMethodArgDelete))
-      {
-      (*this->EndMethodArgDelete)(this->EndMethodArg);
-      }
-    this->EndMethod = f;
-    this->EndMethodArg = arg;
-    this->Modified();
-    }
-}
-
-
-// Description:
-// Set the arg delete method. This is used to free user memory.
-void vtkSource::SetStartMethodArgDelete(void (*f)(void *))
-{
-  if ( f != this->StartMethodArgDelete)
-    {
-    this->StartMethodArgDelete = f;
-    this->Modified();
-    }
-}
-
-// Description:
-// Set the arg delete method. This is used to free user memory.
-void vtkSource::SetProgressMethodArgDelete(void (*f)(void *))
-{
-  if ( f != this->ProgressMethodArgDelete)
-    {
-    this->ProgressMethodArgDelete = f;
-    this->Modified();
-    }
-}
-
-// Description:
-// Set the arg delete method. This is used to free user memory.
-void vtkSource::SetEndMethodArgDelete(void (*f)(void *))
-{
-  if ( f != this->EndMethodArgDelete)
-    {
-    this->EndMethodArgDelete = f;
-    this->Modified();
-    }
-}
-
 void vtkSource::Execute()
 {
   vtkErrorMacro(<< "Definition of Execute() method should be in subclass");
 }
 
-
 void vtkSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os,indent);
+  vtkProcessObject::PrintSelf(os,indent);
 
   os << indent << "Execute Time: " << this->ExecuteTime.GetMTime() << "\n";
-
-  if ( this->StartMethod ) os << indent << "Start Method defined\n";
-  else os << indent <<"No Start Method\n";
-
-  if ( this->ProgressMethod ) os << indent << "Progress Method defined\n";
-  else os << indent << "No Progress Method\n";
-
-  if ( this->EndMethod ) os << indent << "End Method defined\n";
-  else os << indent << "No End Method\n";
-
-  os << indent << "AbortExecute: " << (this->AbortExecute ? "On\n" : "Off\n");
-  os << indent << "Progress: " << this->Progress << "\n";
 
   if ( this->Output )
     {

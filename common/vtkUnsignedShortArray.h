@@ -47,54 +47,52 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkUnsignedShortArray_h
 #define __vtkUnsignedShortArray_h
 
-#include "vtkReferenceCount.h"
+#include "vtkDataArray.h"
 
-class VTK_EXPORT vtkUnsignedShortArray : public vtkReferenceCount 
+class VTK_EXPORT vtkUnsignedShortArray : public vtkDataArray 
 {
 public:
-  vtkUnsignedShortArray():Array(NULL),Size(0),MaxId(-1),Extend(1000) {};
+  vtkUnsignedShortArray(int numComp=1);
+  ~vtkUnsignedShortArray();
   int Allocate(const int sz, const int ext=1000);
   void Initialize();
-  vtkUnsignedShortArray(const int sz, const int ext=1000);
-  vtkUnsignedShortArray(const vtkUnsignedShortArray& ia);
-  ~vtkUnsignedShortArray();
   static vtkUnsignedShortArray *New() {return new vtkUnsignedShortArray;};
   const char *GetClassName() {return "vtkUnsignedShortArray";};
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // satisfy vtkDataArray API
+  vtkDataArray *MakeObject() {return new vtkUnsignedShortArray(this->NumberOfComponents);};
+  int GetDataType() {return VTK_UNSIGNED_SHORT;};
+  void SetNumberOfTuples(const int number);
+  float *GetTuple(const int i);
+  void GetTuple(const int i, float tuple[]);
+  void SetTuple(const int i, const float tuple[]);
+  void InsertTuple(const int i, const float tuple[]);
+  int InsertNextTuple(const float tuple[]);
+  void Squeeze();
+
+  // overload vtkDataArray for efficiency
+  float GetComponent(const int i, const int j);
+  void SetComponent(const int i, const int j, const float c);
+  void InsertComponent(const int i, const int j, const float c);
 
   // access/insertion methods
   unsigned short GetValue(const int id);
   void SetNumberOfValues(const int number);
   void SetValue(const int id, const unsigned short value);
-  vtkUnsignedShortArray &InsertValue(const int id, const unsigned short i);
+  void InsertValue(const int id, const unsigned short i);
   int InsertNextValue(const unsigned short);
-  unsigned short *GetPointer(const int id);
+  unsigned short *GetPointer(const int id) {return this->Array + id;}
   unsigned short *WritePointer(const int id, const int number);
-
-  // special operators
-  vtkUnsignedShortArray &operator=(const vtkUnsignedShortArray& ia);
-  void operator+=(const vtkUnsignedShortArray& ia);
-  void operator+=(const unsigned short i);
-
-  // miscellaneous methods
-  void Squeeze();
-  int GetSize();
-  int GetMaxId();
-  void Reset();
-
-  // Description:
-  // secret voodoo method to get a raw pointer into this object
-  // once into this object you still own the pointer. You must free
-  // it. Just don't free it before this object is done using it.
-  // the size is the number of short scalars, NOT the number of bytes.
-  void SetArray(unsigned short *, int size);
+  void *GetVoidPointer(const int id) {return (void *)this->GetPointer(id);};
+  void DeepCopy(vtkUnsignedShortArray& ia);
 
 private:
   unsigned short *Array;   // pointer to data
-  int Size;       // allocated size of data
-  int MaxId;     // maximum index inserted thus far
-  int Extend;     // grow array by this point
   unsigned short *Resize(const int sz);  // function to resize data
+
+  int TupleSize; //used for data conversion
+  float *Tuple;
 };
 
 // Description:
@@ -120,10 +118,6 @@ inline void vtkUnsignedShortArray::SetValue(const int id, const unsigned short v
 }
 
 // Description:
-// Get the address of a particular data index.
-inline unsigned short *vtkUnsignedShortArray::GetPointer(const int id) {return this->Array + id;}
-
-// Description:
 // Get the address of a particular data index. Make sure data is allocated
 // for the number of items requested. Set MaxId according to the number of
 // data values requested.
@@ -137,12 +131,11 @@ inline unsigned short *vtkUnsignedShortArray::WritePointer(const int id, const i
 
 // Description:
 // Insert data at a specified position in the array.
-inline vtkUnsignedShortArray& vtkUnsignedShortArray::InsertValue(const int id, const unsigned short i)
+inline void vtkUnsignedShortArray::InsertValue(const int id, const unsigned short i)
 {
   if ( id >= this->Size ) this->Resize(id+1);
   this->Array[id] = i;
   if ( id > this->MaxId ) this->MaxId = id;
-  return *this;
 }
 
 // Description:
@@ -152,27 +145,10 @@ inline int vtkUnsignedShortArray::InsertNextValue(const unsigned short i)
   this->InsertValue (++this->MaxId,i); 
   return this->MaxId;
 }
-inline void vtkUnsignedShortArray::operator+=(const unsigned short i) 
-{
-  this->InsertNextValue(i);
-}
 
 // Description:
 // Resize object to just fit data requirement. Reclaims extra memory.
 inline void vtkUnsignedShortArray::Squeeze() {this->Resize (this->MaxId+1);}
-
-// Description:
-// Get the allocated size of the object in terms of number of data items.
-inline int vtkUnsignedShortArray::GetSize() {return this->Size;}
-
-// Description:
-// Returning the maximum index of data inserted so far.
-inline int vtkUnsignedShortArray::GetMaxId() {return this->MaxId;}
-
-// Description:
-// Reuse the memory allocated by this object. Objects appears like
-// no data has been previously inserted.
-inline void vtkUnsignedShortArray::Reset() {this->MaxId = -1;}
 
 #endif
 

@@ -47,47 +47,47 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkDoubleArray_h
 #define __vtkDoubleArray_h
 
-#include "vtkReferenceCount.h"
+#include "vtkDataArray.h"
 
-class VTK_EXPORT vtkDoubleArray : public vtkReferenceCount 
+class VTK_EXPORT vtkDoubleArray : public vtkDataArray 
 {
 public:
-  vtkDoubleArray():Array(NULL),Size(0),MaxId(-1),Extend(1000) {};
+  vtkDoubleArray(int numComp=1);
+  ~vtkDoubleArray();
   int Allocate(const int sz, const int ext=1000);
   void Initialize();
-  vtkDoubleArray(const int sz, const int ext=1000);
-  vtkDoubleArray(const vtkDoubleArray& fa);
-  ~vtkDoubleArray();
   static vtkDoubleArray *New() {return new vtkDoubleArray;};
   const char *GetClassName() {return "vtkDoubleArray";};
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // satisfy vtkDataArray API
+  vtkDataArray *MakeObject() {return new vtkDoubleArray(this->NumberOfComponents);};
+  int GetDataType() {return VTK_DOUBLE;};
+  void SetNumberOfTuples(const int number);
+  float *GetTuple(const int i);
+  void GetTuple(const int i, float tuple[]);
+  void SetTuple(const int i, const float tuple[]);
+  void InsertTuple(const int i, const float tuple[]);
+  int InsertNextTuple(const float tuple[]);
+  void Squeeze();
 
   // access/insertion methods
   double GetValue(const int id);
   void SetNumberOfValues(const int number);
   void SetValue(const int id, const double value);
-  vtkDoubleArray &InsertValue(const int id, const double f);
+  void InsertValue(const int id, const double f);
   int InsertNextValue(const double f);
-  double *GetPointer(const int id);
+  double *GetPointer(const int id) {return this->Array + id;}
   double *WritePointer(const int id, const int number);
-
-  // special operators
-  vtkDoubleArray &operator=(const vtkDoubleArray& fa);
-  void operator+=(const vtkDoubleArray& fa);
-  void operator+=(const double f);
-
-  // miscellaneous methods
-  void Squeeze();
-  int GetSize();
-  int GetMaxId();
-  void Reset();
+  void *GetVoidPointer(const int id) {return (void *)this->GetPointer(id);};
+  void DeepCopy(vtkDoubleArray& fa);
 
 private:
   double *Array;   // pointer to data
-  int Size;       // allocated size of data
-  int MaxId;     // maximum index inserted thus far
-  int Extend;     // grow array by this point
   double *Resize(const int sz);  // function to resize data
+
+  int TupleSize; //used for data conversion
+  float *Tuple;
 };
 
 // Description:
@@ -113,10 +113,6 @@ inline void vtkDoubleArray::SetValue(const int id, const double value)
 }
 
 // Description:
-// Get the address of a particular data index.
-inline double *vtkDoubleArray::GetPointer(const int id) {return this->Array + id;}
-
-// Description:
 // Get the address of a particular data index. Make sure data is allocated
 // for the number of items requested. Set MaxId according to the number of
 // data values requested.
@@ -130,12 +126,11 @@ inline double *vtkDoubleArray::WritePointer(const int id, const int number)
 
 // Description:
 // Insert data at a specified position in the array.
-inline vtkDoubleArray& vtkDoubleArray::InsertValue(const int id, const double f)
+inline void vtkDoubleArray::InsertValue(const int id, const double f)
 {
   if ( id >= this->Size ) this->Resize(id+1);
   this->Array[id] = f;
   if ( id > this->MaxId ) this->MaxId = id;
-  return *this;
 }
 
 // Description:
@@ -145,26 +140,9 @@ inline int vtkDoubleArray::InsertNextValue(const double f)
   this->InsertValue (++this->MaxId,f); 
   return this->MaxId;
 }
-inline void vtkDoubleArray::operator+=(const double f) 
-{
-  this->InsertNextValue(f);
-}
 
 // Description:
 // Resize object to just fit data requirement. Reclaims extra memory.
 inline void vtkDoubleArray::Squeeze() {this->Resize (this->MaxId+1);}
-
-// Description:
-// Get the allocated size of the object in terms of number of data items.
-inline int vtkDoubleArray::GetSize() {return this->Size;}
-
-// Description:
-// Returning the maximum index of data inserted so far.
-inline int vtkDoubleArray::GetMaxId() {return this->MaxId;}
-
-// Description:
-// Reuse the memory allocated by this object. Objects appear as if
-// no data has been previously inserted.
-inline void vtkDoubleArray::Reset() {this->MaxId = -1;}
 
 #endif

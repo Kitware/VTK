@@ -55,18 +55,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // time comparisons and then invokes the Execute() which is an implementation 
 // of a particular algorithm.
 //
-// vtkSource provides a mechanism for invoking the methods StartMethod() and
-// EndMethod() before and after object execution (via Execute()). These are
-// convenience methods you can use for any purpose (e.g., debugging info,
-// highlighting/notifying user interface, etc.) These methods accept a single
-// void* pointer that can be used to send data to the methods. It is also
-// possible to specify a function to delete the argument via 
-// StartMethodArgDelete and EndMethodArgDelete.
-//
-// Another method, ProgressMethod() can be specified. Some filters invoke this 
-// method periodically during their execution. The use is similar to that of 
-// StartMethod() and EndMethod().
-//
 // An important feature of subclasses of vtkSource is that it is possible 
 // to control the memory-management model (i.e., retain output versus delete
 // output data). If enabled the ReleaseDataFlag enables the deletion of the
@@ -74,20 +62,20 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // data (please see text).
 
 // .SECTION See Also
-// vtkDataSetReader vtkFilter vtkPolyDataSource vtkStructuredGridSource
-// vtkStructuredPointsSource vtkUnstructuredGridSource
+// vtkProcessObject vtkDataSetReader vtkFilter vtkPolyDataSource 
+// vtkStructuredGridSource vtkStructuredPointsSource vtkUnstructuredGridSource
 
 #ifndef __vtkSource_h
 #define __vtkSource_h
 
-#include "vtkObject.h"
-#include "vtkDataSet.h"
+#include "vtkProcessObject.h"
+#include "vtkDataObject.h"
 
-class VTK_EXPORT vtkSource : public vtkObject
+class VTK_EXPORT vtkSource : public vtkProcessObject
 {
 public:
   vtkSource();
-  virtual ~vtkSource() { if (this->Output) this->Output->Delete();};
+  ~vtkSource() { if (this->Output) this->Output->Delete();};
   static vtkSource *New() {return new vtkSource;};
   const char *GetClassName() {return "vtkSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -96,25 +84,6 @@ public:
   // Bring object up-to-date before execution. Update() checks modified
   // time against last execution time, and re-executes object if necessary.
   virtual void Update();
-
-  void SetStartMethod(void (*f)(void *), void *arg);
-  void SetProgressMethod(void (*f)(void *), void *arg);
-  void SetEndMethod(void (*f)(void *), void *arg);
-  void SetStartMethodArgDelete(void (*f)(void *));
-  void SetProgressMethodArgDelete(void (*f)(void *));
-  void SetEndMethodArgDelete(void (*f)(void *));
-
-  // Description:
-  // Set/Get the AbortExecute flag for the filter. Filters handle
-  // premature termination of execution in different ways.
-  vtkSetMacro(AbortExecute,int);
-  vtkGetMacro(AbortExecute,int);
-  vtkBooleanMacro(AbortExecute,int);
-
-  // Description:
-  // Set/Get the execution progress of a filter.
-  vtkSetClampMacro(Progress,float,0.0,1.0);
-  vtkGetMacro(Progress,float);
 
   // Description:
   // Turn on/off flag to control whether this object's data is released
@@ -130,26 +99,10 @@ public:
   virtual int GetDataReleased();
   virtual void SetDataReleased(int flag);
 
-  // Description:
-  // Update the progress of a filter. If a ProgressMEthod, exists, executes it. Then sets
-  // the Progress ivar to amount.
-  void UpdateProgress(float amount);
-
 protected:
   virtual void Execute();
-  void (*StartMethod)(void *);
-  void (*StartMethodArgDelete)(void *);
-  void *StartMethodArg;
-  void (*ProgressMethod)(void *);
-  void *ProgressMethodArg;
-  void (*ProgressMethodArgDelete)(void *);
-  void (*EndMethod)(void *);
-  void (*EndMethodArgDelete)(void *);
-  void *EndMethodArg;
-  float Progress;
-  int AbortExecute;
   vtkTimeStamp ExecuteTime;
-  vtkDataSet *Output;
+  vtkDataObject *Output;
 };
 
 #endif

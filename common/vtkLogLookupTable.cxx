@@ -113,7 +113,7 @@ unsigned char *vtkLogLookupTable::MapValue(float v)
                   (this->NumberOfColors-1) );
     }
 
-  return this->Table.GetColor(indx);
+  return this->Table.GetPointer(4*indx);
 }
 
 void vtkLogLookupTable::PrintSelf(ostream& os, vtkIndent indent)

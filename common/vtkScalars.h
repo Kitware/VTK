@@ -38,129 +38,83 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkScalars - abstract interface to array of scalar data
+// .NAME vtkScalars - represent and manipulate scalar data
 // .SECTION Description
-// vtkScalars provides an abstract interface to an array of scalar data. 
-// The data model for vtkScalars is an array accessible by point id.
-// The subclasses of vtkScalars are concrete data types (float, int, etc.) 
-// that implement the interface of vtkScalars.
+// vtkScalars provides an interface to scalar data.  The data model for
+// vtkScalars is an array accessible by point or cell id.  Scalar data is
+// represented by a subclass of vtkDataArray, and may be any any type of
+// data, although generic operations on scalar data is performed using
+// floating point values.
 //
 // Scalars typically provide a single value per point. However, there are
-// types of scalars that have multiple values per point (e.g., vtkPixmap or
-// vtkAPixmap that provide three and four values per point, respectively).
-// These are used when reading data in rgb and rgba form (e.g., images 
-// and volumes).
+// types of scalars that have multiple values or components. (For example,
+// scalars that represent (RGB) color information, etc.) In this case,
+// the ActiveComponent instance variable is used to indicate which
+// component value is to be used for scalar data.
 //
 // Because of the close relationship between scalars and colors, scalars 
 // also maintain an internal lookup table. If provided, this table is used 
 // to map scalars into colors, rather than the lookup table that the vtkMapper
 // objects are associated with.
-
 // .SECTION See Also
-// vtkBitScalars vtkColorScalars vtkFloatScalars vtkIntScalars
-// vtkShortScalars vtkUnsignedCharScalars
+// vtkDataArray vtkAttributeData vtkPointData vtkCellData
 
 #ifndef __vtkScalars_h
 #define __vtkScalars_h
 
-#include "vtkReferenceCount.h"
+#include "vtkAttributeData.h"
+
+#define VTK_COLOR_MODE_DEFAULT 0
+#define VTK_COLOR_MODE_MAP_SCALARS 1
+#define VTK_COLOR_MODE_LUMINANCE 2
 
 class vtkIdList;
-class vtkFloatScalars;
-class vtkShortScalars;
+class vtkScalars;
 class vtkLookupTable;
+class vtkUnsignedCharArray;
 
-  
-class VTK_EXPORT vtkScalars : public vtkReferenceCount 
+class VTK_EXPORT vtkScalars : public vtkAttributeData
 {
 public:
-  vtkScalars();
-  virtual ~vtkScalars();
+  vtkScalars(int dataType=VTK_FLOAT, int numComp=1);
+  ~vtkScalars();
+  static vtkScalars *New(int dataType=VTK_FLOAT, int numComp=1) 
+    {return new vtkScalars(dataType,numComp);};
   const char *GetClassName() {return "vtkScalars";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // For ImageData
-  virtual int Allocate(const int sz, const int ext=1000) = 0;
-  virtual void *GetVoidPtr(const int id) {(void)(id); return NULL;};
-  
-  // Description:
-  // Create a copy of this object.
-  virtual vtkScalars *MakeObject(int sze, int ext=1000) = 0;
+  // overload vtkAttributeData API
+  void SetData(vtkDataArray *);
+  vtkAttributeData *MakeObject();
+
+  // generic access to scalar data
+  int GetNumberOfScalars();
+  float GetScalar(int id);
+  void SetNumberOfScalars(int number);
+  void SetScalar(int id, float s);
+  void InsertScalar(int id, float s);
+  int InsertNextScalar(float s);
 
   // Description:
-  // Return data type. An integer data type as follows:
-  // VTK_FLOAT = 1 VTK_INT = 2 VTK_SHORT = 3 VTK_UNSIGNED_SHORT = 4
-  // VTK_UNSIGNED_CHAR = 5 VTK_BIT = 6
-  virtual int GetDataType() = 0;
+  // Specify/Get the number of components in scalar data.
+  void SetNumberOfComponents(int num);
+  int GetNumberOfComponents() {return this->Data->GetNumberOfComponents();}
 
   // Description:
-  // Return data type range (min and max values) in the array provided 
-  // by the client.
-  virtual void GetDataTypeRange(float*) = 0;
-  // Description:
-  // Return data type min value.
-  virtual float GetDataTypeMin() = 0;
-  // Description:
-  // Return data type max value.
-  virtual float GetDataTypeMax() = 0;
+  // Set/Get the active scalar component. This ivar specifies which
+  // value (or component) to use with multivalued scalars. Currently,
+  // a scalar can have at most four components (assumed RGBA).
+  vtkSetClampMacro(ActiveComponent,int,0,3);
+  vtkGetMacro(ActiveComponent,int);
 
-  // Description:
-  // Return the type of scalar. Want to differentiate between
-  // single-valued scalars and multiple-valued (e.g., "color" scalars).
-  // Returns either VTK_SINGLE_VALUED or VTK_COLOR_SCALAR.
-  virtual int GetScalarType() {return VTK_SINGLE_VALUED;};
-
-  // Description:
-  // Return the number of values per scalar. Should range between (1,4).
-  virtual int GetNumberOfValuesPerScalar() {return 1;};
-
-  // Description:
-  // Return number of scalars in this object.
-  virtual int GetNumberOfScalars() = 0;
-
-  // Description:
-  // Return a float scalar value for a particular point id.
-  virtual float GetScalar(int id) = 0;
-
-  // Description:
-  // Specify the number of scalars for this object to hold. Does an
-  // allocation as well as setting the MaxId ivar. Used in conjunction with
-  // SetScalar() method for fast insertion.
-  virtual void SetNumberOfScalars(int number) = 0;
-
-  // Description:
-  // Insert scalar into array. No range checking performed (fast!).
-  // Make sure you use SetNumberOfScalars() to allocate memory prior
-  // to using SetScalar().
-  virtual void SetScalar(int id, float s) = 0;
-
-  // Description:
-  // Insert scalar into array. Range checking performed and memory
-  // allocated as necessary.
-  virtual void InsertScalar(int id, float s) = 0;
-
-  // Description:
-  // Insert scalar into next available slot. Returns point id of slot.
-  virtual int InsertNextScalar(float s) = 0;
-
-  // Description:
-  // Reclaim any extra memory.
-  virtual void Squeeze() = 0;
-
-  // Description:
-  // Get the scalar values for the point ids specified.
-  virtual void GetScalars(vtkIdList& ptIds, vtkFloatScalars& fs);
-
-  // Description:
-  // Get the scalar values for the range of points ids specified 
-  // (i.e., p1->p2 inclusive). You must insure that the vtkFloatScalars has 
-  // been previously allocated with enough space to hold the data.
-  virtual void GetScalars(int p1, int p2, vtkFloatScalars& fs);
-
-  virtual void ComputeRange();
+  // Special computational methods.
+  void ComputeRange();
   float *GetRange();
   void GetRange(float range[2]);
-
+  void GetDataTypeRange(float range[2]);
+  float GetDataTypeMin();
+  float GetDataTypeMax();
+  
   // Description:
   // Create default lookup table. Generally used to create one when none
   // is available.
@@ -169,15 +123,121 @@ public:
   void SetLookupTable(vtkLookupTable *lut);
   vtkGetObjectMacro(LookupTable,vtkLookupTable);
 
+  // Get a list of scalars for ids listed.
+  void GetScalars(vtkIdList& ptIds, vtkScalars& fv);
+
+  // Description:
+  // Get the scalar values for the range of points ids specified 
+  // (i.e., p1->p2 inclusive). You must insure that the vtkScalars has 
+  // been previously allocated with enough space to hold the data.
+  void GetScalars(int p1, int p2, vtkScalars& fs);
+  
+  // Description:
+  // Initialize the traversal of the scalar data to generate colors 
+  // (typically used during the rendering process). The method takes
+  // an alpha opacity value and returns a flag indicating whether alpha
+  // blending will occur. Also takes a lookup table used to map the 
+  // scalar data. The color mode parameter controls how the scalar data 
+  // is mapped to colors (see vtkMapper::ColorMode methods for a definition).
+  int InitColorTraversal(float alpha, vtkLookupTable *lut, 
+			 int colorMode=VTK_COLOR_MODE_DEFAULT);
+  
+  // Description:
+  // Get the color value at a particular id. Returns a pointer to a 4-byte
+  // array of rgba. Make sure you call InitColorTraversal() before
+  // invoking this method.
+  unsigned char *GetColor(int id) {return (this->*(CurrentColorFunction))(id);};
+
 protected:
   float Range[8];
-  vtkTimeStamp ComputeTime; // Time at which range computed
+  vtkTimeStamp ComputeTime;
   vtkLookupTable *LookupTable;
+  int ActiveComponent; //for multiple component scalars, the current component
+
+  // following stuff is used for converting scalars to colors
+  float CurrentAlpha;
+  vtkLookupTable *CurrentLookupTable;
+  //BTX
+  unsigned char *(vtkScalars::*CurrentColorFunction)(int id);
+  unsigned char *PassRGBA(int id);
+  unsigned char *PassRGB(int id);
+  unsigned char *PassIA(int id);
+  unsigned char *PassI(int id);
+  unsigned char *CompositeRGBA(int id);
+  unsigned char *CompositeIA(int id);
+  unsigned char *CompositeMapThroughLookupTable(int id);  
+  unsigned char *MapThroughLookupTable(int id);  
+  unsigned char *Luminance(int id);  
+  vtkUnsignedCharArray *Colors;
+  unsigned char RGBA[4];
+  //ETX
 };
+
+// Description:
+// Create a copy of this object.
+inline vtkAttributeData *vtkScalars::MakeObject()
+{
+  return new vtkScalars(this->GetDataType(),this->GetNumberOfComponents());
+}
+
+// Description:
+// Specify the number of components in the scalar.
+inline void vtkScalars::SetNumberOfComponents(int num)
+{
+  num = (num < 1 ? 1 : (num > 4 ? 4 : num));
+  this->Data->SetNumberOfComponents(num);
+}
+
+// Description:
+// Specify the number of scalars for this object to hold. Make sure
+// that you set the number of components in texture first.
+inline void vtkScalars::SetNumberOfScalars(int number)
+{
+  this->Data->SetNumberOfTuples(number);
+}
+
+// Description:
+// Return number of scalars in the array.
+inline int vtkScalars::GetNumberOfScalars()
+{
+  return this->Data->GetNumberOfTuples();
+}
+
+// Description:
+// Return the scalar value as a float for a specific id.
+inline float vtkScalars::GetScalar(int id)
+{
+  return this->Data->GetComponent(id,this->ActiveComponent);
+}
+
+// Description:
+// Insert Scalar into object. No range checking performed (fast!).
+// Make sure you use SetNumberOfScalars() to allocate memory prior
+// to using SetScalar().
+inline void vtkScalars::SetScalar(int id, float s)
+{
+  this->Data->SetComponent(id,this->ActiveComponent,s);
+}
+
+// Description:
+// Insert Scalar into object. Range checking performed and memory
+// allocated as necessary.
+inline void vtkScalars::InsertScalar(int id, float s)
+{
+  this->Data->InsertComponent(id,this->ActiveComponent,s);
+}
+
+// Description:
+// Insert Scalar at end of array and return its location (id) in the array.
+inline int vtkScalars::InsertNextScalar(float s)
+{
+  int id=this->Data->GetMaxId()+1;
+  this->Data->InsertComponent(id,this->ActiveComponent,s);
+  return this->Data->GetNumberOfTuples();
+}
 
 // These include files are placed here so that if Scalars.h is included 
 // all other classes necessary for compilation are also included. 
 #include "vtkIdList.h"
-#include "vtkFloatScalars.h"
 
 #endif

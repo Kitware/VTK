@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkFloatTCoords.cxx
+  Module:    vtkCellData.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,46 +38,43 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkFloatTCoords.h"
+#include "vtkCellData.h"
 
-vtkFloatTCoords::vtkFloatTCoords()
+void vtkCellData::NullCell (int ptId)
 {
-  this->TC = vtkFloatArray::New();
+  if ( this->Scalars )
+    {
+    this->Scalars->GetData()->InsertTuple(ptId, this->Null4Tuple);
+    }
+
+  if ( this->Vectors )
+    {
+    this->Vectors->InsertVector(ptId,this->Null3Tuple);
+    }
+
+  if ( this->Normals )
+    {
+    this->Normals->InsertNormal(ptId,this->Null3Tuple);
+    }
+
+  if ( this->TCoords )
+    {
+    this->TCoords->InsertTCoord(ptId,this->Null3Tuple);
+    }
+
+  if ( this->Tensors )
+    {
+    this->Tensors->InsertTensor(ptId,&NullTensor);
+    }
+
+  if ( this->FieldData )
+    {
+    this->FieldData->InsertTuple(ptId,NullTuple);
+    }
+
 }
 
-vtkFloatTCoords::vtkFloatTCoords(const vtkFloatTCoords& ftc)
+void vtkCellData::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->TC = vtkFloatArray::New();
-  *(this->TC) = *(ftc.TC);
-  this->Dimension = ftc.Dimension;
+  vtkDataSetAttributes::PrintSelf(os,indent);
 }
-
-vtkFloatTCoords::vtkFloatTCoords(int sz, int d, int ext)
-{
-  this->TC = vtkFloatArray::New();
-  this->TC->Allocate(d*sz,d*ext);
-  this->Dimension = d;
-}
-
-vtkFloatTCoords::~vtkFloatTCoords()
-{
-  this->TC->Delete();
-}
-
-
-
-vtkTCoords *vtkFloatTCoords::MakeObject(int sze, int d, int ext)
-{
-  return new vtkFloatTCoords(sze,d,ext);
-}
-
-// Description:
-// Deep copy of texture coordinates.
-vtkFloatTCoords& vtkFloatTCoords::operator=(const vtkFloatTCoords& ftc)
-{
-  *(this->TC) = *(ftc.TC);
-  this->Dimension = ftc.Dimension;
-  
-  return *this;
-}
-

@@ -61,7 +61,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkPolyData_h
 
 #include "vtkPointSet.h"
-#include "vtkFloatPoints.h"
+#include "vtkPoints.h"
 #include "vtkCellArray.h"
 #include "vtkCellTypes.h"
 #include "vtkCellLinks.h"
@@ -78,7 +78,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // dataset interface
-  vtkDataSet *MakeObject() {return new vtkPolyData(*this);};
+  vtkDataObject *MakeObject() {return new vtkPolyData;};
   void CopyStructure(vtkDataSet *ds);
   int GetNumberOfCells();
   vtkCell *GetCell(int cellId);

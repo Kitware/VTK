@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkFloatPoints - floating point representation of 3D points
+// .NAME vtkFloatPoints - (obsolete)floating point representation of 3D points
 // .SECTION Description
 // vtkFloatPoints is a concrete implementation of vtkPoints. Points are
 // represented using float values.
@@ -52,95 +52,59 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkFloatPoints : public vtkPoints
 {
 public:
-  vtkFloatPoints();
-  vtkFloatPoints(const vtkFloatPoints& fp);
-  vtkFloatPoints(const int sz, const int ext=1000);
-  ~vtkFloatPoints();
-
-  int Allocate(const int sz, const int ext=1000) {return this->P->Allocate(3*sz,3*ext);};
-  void Initialize() {this->P->Initialize();};
+  vtkFloatPoints():vtkPoints(VTK_FLOAT) {};
   static vtkFloatPoints *New() {return new vtkFloatPoints;};
-  const char *GetClassName() {return "vtkFloatPoints";};
+  
+  // overload vtkAttributeData API
+  void SetDataType(int dataType);
+  void SetData(vtkDataArray *);
 
-  // vtkPoint interface
-  vtkPoints *MakeObject(int sze, int ext=1000);
-  int GetDataType() {return VTK_FLOAT;};
-  int GetNumberOfPoints() {return (P->GetMaxId()+1)/3;};
-  void Squeeze() {this->P->Squeeze();};
-  float *GetPoint(int id) {return this->P->GetPointer(3*id);};
-  void GetPoint(int id, float x[3]);
-  void SetNumberOfPoints(int number);
-  void SetPoint(int id, float x[3]);
-  void InsertPoint(int id, float x[3]);
-  int InsertNextPoint(float x[3]);
-  void GetPoints(vtkIdList& ptId, vtkFloatPoints& fp);
-
-  // miscellaneous
   float *GetPointer(const int id);
   float *WritePointer(const int id, const int number);
-  vtkFloatPoints &operator=(const vtkFloatPoints& fp);
-  void operator+=(const vtkFloatPoints& fp) {*(this->P) += *(fp.P);};
-  void Reset() {this->P->Reset();};
 
-protected:
-  vtkFloatArray *P;
 };
 
 // Description:
 // Get pointer to array of data starting at data position "id".
 inline float *vtkFloatPoints::GetPointer(const int id)
 {
-  return this->P->GetPointer(3*id);
+  return ((vtkFloatArray *)this->Data)->GetPointer(3*id);
+} 
+
+// Description:
+// Get pointer to data array. Useful for direct writes of data. MaxId is
+// bumped by number (and memory allocated if necessary). Id is the
+// location you wish to write into; number is the number of points to
+// write.
+inline float *vtkFloatPoints::WritePointer(const int id, const int number)
+{
+  return ((vtkFloatArray *)this->Data)->WritePointer(3*id,3*number);
 }
 
 // Description:
-// Get pointer to data array. Useful for direct writes of data. MaxId is 
-// bumped by number (and memory allocated if necessary). Id is the 
-// location you wish to write into; number is the number of scalars to 
-// write. 
-inline float *vtkFloatPoints::WritePointer(const int id, const int number)
+// Set the data for this object. Only accepts VTK_FLOAT type.
+inline void vtkFloatPoints::SetData(vtkDataArray *data)
 {
-  return this->P->WritePointer(3*id,3*number);
+  if ( data->GetDataType() != VTK_FLOAT )
+    {
+    vtkErrorMacro(<<"Float points only accepts float data type");
+    return;
+    }
+
+  vtkPoints::SetData(data);
 }
 
-inline void vtkFloatPoints::GetPoint(int id, float x[3])
+// Description:
+// Set the data type for this object.
+inline void vtkFloatPoints::SetDataType(int type)
 {
-  float *p=this->P->GetPointer(3*id); 
-  x[0] = p[0]; x[1] = p[1]; x[2] = p[2];
-}
+  if ( type != VTK_FLOAT )
+    {
+    vtkErrorMacro(<<"Float points only accepts float data type");
+    return;
+    }
 
-inline void vtkFloatPoints::SetNumberOfPoints(int number)
-{
-  this->P->SetNumberOfValues(3*number);
-}
-
-inline void vtkFloatPoints::SetPoint(int id, float x[3]) 
-{
-  id *= 3;
-  this->P->SetValue(id++, x[0]);
-  this->P->SetValue(id++, x[1]);
-  this->P->SetValue(id,   x[2]);
-}
-
-inline void vtkFloatPoints::InsertPoint(int id, float x[3])
-{
-  float *ptr = this->P->WritePointer(id*3,3);
-
-  *ptr++ = x[0];
-  *ptr++ = x[1];
-  *ptr   = x[2];
-}
-
-inline int vtkFloatPoints::InsertNextPoint(float x[3])
-{
-  int id = this->P->GetMaxId() + 1;
-  float *ptr = this->P->WritePointer(id,3);
-
-  *ptr++ = x[0];
-  *ptr++ = x[1];
-  *ptr   = x[2];
-
-  return (id+2)/3;
+  vtkPoints::SetDataType(type);
 }
 
 #endif

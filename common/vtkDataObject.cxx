@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkFloatPoints.cxx
+  Module:    vtkDataObject.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,50 +38,82 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkFloatPoints.h"
+#include "vtkDataObject.h"
+#include "vtkSource.h"
 
+// Initialize static member that controls global data release after use by filter
+static int vtkDataObjectGlobalReleaseDataFlag = 0;
 
-vtkFloatPoints::vtkFloatPoints()
+vtkDataObject::vtkDataObject()
 {
-  this->P = vtkFloatArray::New();
+  this->Source = NULL;
+  this->DataReleased = 1;
+  this->ReleaseDataFlag = 0;
+  this->FieldData.ReferenceCountingOff();//because it's always deleted with data object
 }
 
-vtkFloatPoints::vtkFloatPoints(const vtkFloatPoints& fp)
+vtkDataObject::~vtkDataObject()
 {
-  this->P = vtkFloatArray::New();
-  *(this->P) = *(fp.P);
 }
 
-vtkFloatPoints::vtkFloatPoints(const int sz, const int ext)
+void vtkDataObject::Initialize()
 {
-  this->P = vtkFloatArray::New();
-  this->P->Allocate(3*sz,3*ext);
+//
+// We don't modify ourselves because the "ReleaseData" methods depend upon
+// no modification when initialized.
+//
+  this->FieldData.Initialize();
+};
+
+void vtkDataObject::SetGlobalReleaseDataFlag(int val)
+{
+  if (val == vtkDataObjectGlobalReleaseDataFlag) return;
+  vtkDataObjectGlobalReleaseDataFlag = val;
 }
 
-vtkFloatPoints::~vtkFloatPoints()
+int vtkDataObject::GetGlobalReleaseDataFlag()
 {
-  this->P->Delete();
+  return vtkDataObjectGlobalReleaseDataFlag;
 }
 
-
-vtkPoints *vtkFloatPoints::MakeObject(int sze, int ext)
+void vtkDataObject::ReleaseData()
 {
-  return new vtkFloatPoints(sze,ext);
+  this->Initialize();
+  this->DataReleased = 1;
 }
 
-// Description:
-// Deep copy of points.
-vtkFloatPoints& vtkFloatPoints::operator=(const vtkFloatPoints& fp)
+int vtkDataObject::ShouldIReleaseData()
 {
-  *(this->P) = *(fp.P);
-  return *this;
+  if ( vtkDataObjectGlobalReleaseDataFlag || this->ReleaseDataFlag ) return 1;
+  else return 0;
 }
 
-void vtkFloatPoints::GetPoints(vtkIdList& ptId, vtkFloatPoints& fp)
+void vtkDataObject::Update()
 {
-  for (int i=0; i<ptId.GetNumberOfIds(); i++)
+  if (this->Source)
     {
-    fp.InsertPoint(i,this->P->GetPointer(3*ptId.GetId(i)));
+    this->Source->Update();
     }
+}
+
+void vtkDataObject::ForceUpdate()
+{
+  if (this->Source)
+    {
+    this->Source->Modified();
+    this->Source->Update();
+    }
+}
+
+void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkObject::PrintSelf(os,indent);
+
+  os << indent << "Release Data: " << (this->ReleaseDataFlag ? "On\n" : "Off\n");
+  os << indent << "Global Release Data: " 
+     << (vtkDataObjectGlobalReleaseDataFlag ? "On\n" : "Off\n");
+
+  os << indent << "Field Data:\n";
+  this->FieldData.PrintSelf(os,indent.GetNextIndent());
 }
 

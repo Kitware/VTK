@@ -45,9 +45,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkDataSet.h"
 #include "vtkSource.h"
 
-// Initialize static member that controls global data release after use by filter
-static int vtkDataSetGlobalReleaseDataFlag = 0;
-
 // Description:
 // Constructor with default bounds (0,1, 0,1, 0,1).
 vtkDataSet::vtkDataSet ()
@@ -58,9 +55,6 @@ vtkDataSet::vtkDataSet ()
   this->Bounds[3] = 1.0;
   this->Bounds[4] = 0.0;
   this->Bounds[5] = 1.0;
-  this->DataReleased = 1;
-  this->ReleaseDataFlag = 0;
-  this->Source = NULL;
 }
 
 // Description:
@@ -71,56 +65,16 @@ PointData(ds.PointData)
   for (int i=0; i < 6; i++) this->Bounds[i] = ds.Bounds[i];
   this->DataReleased = 1;
   this->ReleaseDataFlag = ds.ReleaseDataFlag;
-  this->Source = NULL;
 }
 
 void vtkDataSet::Initialize()
 {
-//
-// We don't modify ourselves because the "ReleaseData" methods depend upon
-// no modification when initialized.
-//
+  // We don't modify ourselves because the "ReleaseData" methods depend upon
+  // no modification when initialized.
+  vtkDataObject::Initialize();
+
+  this->CellData.Initialize();
   this->PointData.Initialize();
-}
-
-void vtkDataSet::SetGlobalReleaseDataFlag(int val)
-{
-  if (val == vtkDataSetGlobalReleaseDataFlag) return;
-  vtkDataSetGlobalReleaseDataFlag = val;
-}
-
-int vtkDataSet::GetGlobalReleaseDataFlag()
-{
-  return vtkDataSetGlobalReleaseDataFlag;
-}
-
-void vtkDataSet::ReleaseData()
-{
-  this->Initialize();
-  this->DataReleased = 1;
-}
-
-int vtkDataSet::ShouldIReleaseData()
-{
-  if ( vtkDataSetGlobalReleaseDataFlag || this->ReleaseDataFlag ) return 1;
-  else return 0;
-}
-
-void vtkDataSet::Update()
-{
-  if (this->Source)
-    {
-    this->Source->Update();
-    }
-}
-
-void vtkDataSet::ForceUpdate()
-{
-  if (this->Source)
-    {
-    this->Source->Modified();
-    this->Source->Update();
-    }
 }
 
 // Description:
@@ -148,16 +102,40 @@ void vtkDataSet::ComputeBounds()
     }
 }
 
+void vtkDataSet::GetScalarRange(float range[2])
+{
+  vtkScalars *ptScalars, *cellScalars;
+  ptScalars = this->PointData.GetScalars();
+  cellScalars = this->CellData.GetScalars();
+  float r1[2], r2[2];
+  
+  if ( ptScalars && cellScalars)
+    {
+    ptScalars->GetRange(r1);
+    cellScalars->GetRange(r2);
+    range[0] = (r1[0] < r2[0] ? r1[0] : r2[0]);
+    range[1] = (r1[1] > r2[1] ? r1[1] : r2[1]);
+    }
+  else if ( ptScalars )
+    {
+    ptScalars->GetRange(range);
+    }
+  else if ( cellScalars )
+    {
+    cellScalars->GetRange(range);
+    }
+  else
+    {
+    range[0] = 0.0;
+    range[1] = 1.0;
+    }
+}
+
 float *vtkDataSet::GetScalarRange()
 {
-  vtkScalars *tmp;
-  static float res[2] = {0.0,1.0};
-  
-  tmp = this->PointData.GetScalars();
-  
-  if (tmp) return tmp->GetRange();
-  
-  return res;
+  static float range[2];
+  this->GetScalarRange(range);
+  return range;
 }
 
 // Description:
@@ -212,7 +190,7 @@ float vtkDataSet::GetLength()
 
 unsigned long int vtkDataSet::GetMTime()
 {
-  unsigned long result, pointDataMTime;
+  unsigned long result, pointDataMTime, cellDataMTime;
   
   if (this->Source)
     {
@@ -228,7 +206,10 @@ unsigned long int vtkDataSet::GetMTime()
     }
   
   pointDataMTime = this->PointData.GetMTime();
-  return ( pointDataMTime > result ? pointDataMTime : result );
+  result = ( pointDataMTime > result ? pointDataMTime : result );
+
+  cellDataMTime = this->CellData.GetMTime();
+  return ( cellDataMTime > result ? cellDataMTime : result );
 }
 
 vtkCell *vtkDataSet::FindAndGetCell (float x[3], vtkCell *cell, int cellId, 
@@ -286,6 +267,7 @@ void vtkDataSet::GetCellTypes(vtkCellTypes *types)
 
 void vtkDataSet::Squeeze()
 {
+  this->CellData.Squeeze();
   this->PointData.Squeeze();
 }
 
@@ -293,12 +275,17 @@ void vtkDataSet::PrintSelf(ostream& os, vtkIndent indent)
 {
   float *bounds;
 
-  vtkObject::PrintSelf(os,indent);
+  vtkDataObject::PrintSelf(os,indent);
 
   os << indent << "Number Of Points: " << this->GetNumberOfPoints() << "\n";
   os << indent << "Number Of Cells: " << this->GetNumberOfCells() << "\n";
+
+  os << indent << "Cell Data:\n";
+  this->CellData.PrintSelf(os,indent.GetNextIndent());
+
   os << indent << "Point Data:\n";
   this->PointData.PrintSelf(os,indent.GetNextIndent());
+
   bounds = this->GetBounds();
   os << indent << "Bounds: \n";
   os << indent << "  Xmin,Xmax: (" <<bounds[0] << ", " << bounds[1] << ")\n";
@@ -306,6 +293,5 @@ void vtkDataSet::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "  Zmin,Zmax: (" <<bounds[4] << ", " << bounds[5] << ")\n";
   os << indent << "Compute Time: " <<this->ComputeTime.GetMTime() << "\n";
   os << indent << "Release Data: " << (this->ReleaseDataFlag ? "On\n" : "Off\n");
-  os << indent << "Global Release Data: " << (vtkDataSetGlobalReleaseDataFlag ? "On\n" : "Off\n");
 }
 

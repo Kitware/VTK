@@ -54,12 +54,11 @@ vtkTriangle::vtkTriangle()
   this->PointIds.SetNumberOfIds(3);
 }
 
-// Description:
-// Deep copy of cell.
-vtkTriangle::vtkTriangle(const vtkTriangle& t)
+vtkCell *vtkTriangle::MakeObject()
 {
-  this->Points = t.Points;
-  this->PointIds = t.PointIds;
+  vtkCell *cell = vtkTriangle::New();
+  cell->ShallowCopy(*this);
+  return cell;
 }
 
 int vtkTriangle::EvaluatePosition(float x[3], float closestPoint[3],
@@ -300,7 +299,7 @@ static LINE_CASES lineCases[] = {
 
 static int edges[3][2] = { {0,1}, {1,2}, {2,0} };
 
-void vtkTriangle::Contour(float value, vtkFloatScalars *cellScalars, 
+void vtkTriangle::Contour(float value, vtkScalars *cellScalars, 
 			  vtkPointLocator *locator,
 			  vtkCellArray *vtkNotUsed(verts), 
 			  vtkCellArray *lines, 
@@ -369,20 +368,19 @@ void vtkTriangle::Contour(float value, vtkFloatScalars *cellScalars,
 
 vtkCell *vtkTriangle::GetEdge(int edgeId)
 {
-  static vtkLine line;
   int edgeIdPlus1 = edgeId + 1;
 
   if (edgeIdPlus1 > 2) edgeIdPlus1 = 0;
 
   // load point id's
-  line.PointIds.SetId(0,this->PointIds.GetId(edgeId));
-  line.PointIds.SetId(1,this->PointIds.GetId(edgeIdPlus1));
+  this->Line.PointIds.SetId(0,this->PointIds.GetId(edgeId));
+  this->Line.PointIds.SetId(1,this->PointIds.GetId(edgeIdPlus1));
 
   // load coordinates
-  line.Points.SetPoint(0,this->Points.GetPoint(edgeId));
-  line.Points.SetPoint(1,this->Points.GetPoint(edgeIdPlus1));
+  this->Line.Points.SetPoint(0,this->Points.GetPoint(edgeId));
+  this->Line.Points.SetPoint(1,this->Points.GetPoint(edgeIdPlus1));
 
-  return &line;
+  return &this->Line;
 }
 
 //
@@ -396,7 +394,6 @@ int vtkTriangle::IntersectWithLine(float p1[3], float p2[3], float tol,
   float tol2 = tol*tol;
   float closestPoint[3];
   float dist2, weights[3];
-  vtkLine aline;
   
   subId = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
@@ -424,25 +421,25 @@ int vtkTriangle::IntersectWithLine(float p1[3], float p2[3], float tol,
   // so the easy test failed. The line is not intersecting the triangle.
   // Let's now do the 3d case check to see how close the line comes.
   // basically we just need to test against the three lines of the triangle
-  aline.Points.InsertPoint(0,pt1);
-  aline.Points.InsertPoint(1,pt2);
-  aline.PointIds.InsertId(0,0);
-  aline.PointIds.InsertId(1,1);
-  if (aline.IntersectWithLine(p1,p2,tol,t,x,pcoords,subId)) 
+  this->Line.Points.InsertPoint(0,pt1);
+  this->Line.Points.InsertPoint(1,pt2);
+  this->Line.PointIds.InsertId(0,0);
+  this->Line.PointIds.InsertId(1,1);
+  if (this->Line.IntersectWithLine(p1,p2,tol,t,x,pcoords,subId)) 
     {
     return 1;
     }
   
-  aline.Points.InsertPoint(0,pt2);
-  aline.Points.InsertPoint(1,pt3);
-  if (aline.IntersectWithLine(p1,p2,tol,t,x,pcoords,subId)) 
+  this->Line.Points.InsertPoint(0,pt2);
+  this->Line.Points.InsertPoint(1,pt3);
+  if (this->Line.IntersectWithLine(p1,p2,tol,t,x,pcoords,subId)) 
     {
     return 1;
     }
   
-  aline.Points.InsertPoint(0,pt3);
-  aline.Points.InsertPoint(1,pt1);
-  if (aline.IntersectWithLine(p1,p2,tol,t,x,pcoords,subId)) 
+  this->Line.Points.InsertPoint(0,pt3);
+  this->Line.Points.InsertPoint(1,pt1);
+  if (this->Line.IntersectWithLine(p1,p2,tol,t,x,pcoords,subId)) 
     {
     return 1;
     }
@@ -452,7 +449,7 @@ int vtkTriangle::IntersectWithLine(float p1[3], float p2[3], float tol,
 }
 
 int vtkTriangle::Triangulate(int vtkNotUsed(index), vtkIdList &ptIds, 
-                             vtkFloatPoints &pts)
+                             vtkPoints &pts)
 {
   pts.Reset();
   ptIds.Reset();
@@ -716,7 +713,7 @@ static TRIANGLE_CASES triangleCases[] = {
 // Description:
 // Clip this triangle using scalar value provided. Like contouring, except
 // that it cuts the triangle to produce other triangles.
-void vtkTriangle::Clip(float value, vtkFloatScalars *cellScalars, 
+void vtkTriangle::Clip(float value, vtkScalars *cellScalars, 
                        vtkPointLocator *locator, vtkCellArray *tris,
                        vtkPointData *inPd, vtkPointData *outPd,
                        int insideOut)

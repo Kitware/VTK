@@ -44,10 +44,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkImageToStructuredPoints changes an image region format to
 // a structured points dataset.  The Order of the axes is fixed.
 // VTK_IMAGE_X_AXIS is always mapped to X axis of the structured points,
-// VTK_IMAGE_COMPONENT_AXIS is always mapped to the Colors of
-// ColorScalars of Vectors.  The only use of the Axes instance variable
-// is for specifying an extent.
-
+// VTK_IMAGE_COMPONENT_AXIS is always mapped to Vectors.  The only use 
+// of the Axes instance variable is for specifying an extent.
 
 #ifndef __vtkImageToStructuredPoints_h
 #define __vtkImageToStructuredPoints_h
@@ -55,8 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkSource.h"
 #include "vtkImageData.h"
 class vtkImageCache;
-class vtkColorScalars;
-class vtkFloatVectors;
+class vtkVectors;
 
 class VTK_EXPORT vtkImageToStructuredPoints : public vtkSource
   {

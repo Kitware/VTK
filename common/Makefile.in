@@ -13,56 +13,49 @@ VPATH         = @srcdir@
 ABSTRACT_H = 
 
 CONCRETE_H = \
-vtkImplicitFunctionCollection \
-vtkTensor \
-vtkTransformCollection
-
-ABSTRACT = \
-vtkCell \
-vtkColorScalars \
-vtkDataSet \
-vtkImplicitFunction \
-vtkImageCache \
-vtkImageSource \
-vtkLocator \
-vtkNormals \
-vtkPointSet \
-vtkPoints \
-vtkScalars \
-vtkTCoords \
-vtkTensors \
-vtkVectors \
-vtkViewport \
-vtkWindow \
-vtkMapper2D
-
-# put all concrete classes here
-CONCRETE = \
-vtkActor2D \
-vtkActor2DCollection \
-vtkAGraymap \
-vtkAPixmap \
-vtkBitArray \
-vtkBitScalars \
-vtkBitmap \
-vtkByteSwap \
-vtkCellArray \
-vtkCellLinks \
-vtkCellTypes \
-vtkCharArray \
-vtkCollection \
-vtkContourValues \
-vtkDoubleArray \
-vtkEdgeTable \
-vtkEmptyCell \
-vtkFloatArray \
 vtkFloatNormals \
 vtkFloatPoints \
 vtkFloatScalars \
 vtkFloatTCoords \
 vtkFloatTensors \
 vtkFloatVectors \
-vtkGraymap \
+vtkImplicitFunctionCollection \
+vtkTransformCollection
+
+ABSTRACT = \
+vtkAttributeData \
+vtkCell \
+vtkDataArray \
+vtkDataSet \
+vtkImplicitFunction \
+vtkImageCache \
+vtkImageSource \
+vtkLocator \
+vtkMapper2D \
+vtkPointSet \
+vtkViewport \
+vtkWindow
+
+# put all concrete classes here
+CONCRETE = \
+vtkActor2D \
+vtkActor2DCollection \
+vtkBitArray \
+vtkByteSwap \
+vtkCellArray \
+vtkCellData \
+vtkCellLinks \
+vtkCellTypes \
+vtkCharArray \
+vtkCollection \
+vtkContourValues \
+vtkDataObject \
+vtkDataSetAttributes \
+vtkDoubleArray \
+vtkEdgeTable \
+vtkEmptyCell \
+vtkFieldData \
+vtkFloatArray \
 vtkHexahedron \
 vtkIdList \
 vtkImageData \
@@ -70,33 +63,34 @@ vtkImageSimpleCache \
 vtkImageToStructuredPoints \
 vtkIndent \
 vtkIntArray \
-vtkIntPoints \
-vtkIntScalars \
 vtkLine \
 vtkLogLookupTable \
+vtkLongArray \
 vtkLookupTable \
 vtkMath \
 vtkMatrix4x4 \
 vtkMultiThreader \
 vtkMutexLock \
 vtkMutexFunctionLock \
+vtkNormals \
 vtkObject \
 vtkPixel \
-vtkPixmap \
 vtkPlane \
 vtkPointData \
 vtkPointLocator \
+vtkPoints \
 vtkPolyData \
 vtkPolyLine \
 vtkPolyVertex \
 vtkPolygon \
 vtkPriorityQueue \
+vtkProcessObject \
 vtkProperty2D \
 vtkQuad \
 vtkRectilinearGrid \
 vtkReferenceCount \
+vtkScalars \
 vtkShortArray \
-vtkShortScalars \
 vtkSource \
 vtkStack \
 vtkStructuredData \
@@ -104,6 +98,9 @@ vtkStructuredGrid \
 vtkStructuredPoints \
 vtkStructuredPointsSource \
 vtkStructuredPointsToImage \
+vtkTCoords \
+vtkTensor \
+vtkTensors \
 vtkTetra \
 vtkTimerLog \
 vtkTimeStamp \
@@ -111,11 +108,11 @@ vtkTransform \
 vtkTriangle \
 vtkTriangleStrip \
 vtkUnsignedCharArray \
-vtkUnsignedCharScalars \
+vtkUnsignedIntArray \
+vtkUnsignedLongArray \
 vtkUnsignedShortArray \
-vtkUnsignedShortScalars \
 vtkUnstructuredGrid \
-vtkUserDefined \
+vtkVectors \
 vtkVertex \
 vtkVoidArray \
 vtkVoxel \

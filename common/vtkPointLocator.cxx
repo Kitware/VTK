@@ -46,7 +46,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class vtkNeighborPoints
 {
 public:
-  vtkNeighborPoints(const int sz, const int ext=1000){this->P = new vtkIntArray(3*sz,3*ext);};
+  vtkNeighborPoints(const int sz, const int ext=1000)
+    {this->P = new vtkIntArray; this->P->Allocate(3*sz,3*ext);};
   ~vtkNeighborPoints(){this->P->Delete();}; 
   int GetNumberOfNeighbors() {return (this->P->GetMaxId()+1)/3;};
   void Reset() {this->P->Reset();};
@@ -794,7 +795,7 @@ int vtkPointLocator::FindClosestInsertedPoint(float x[3])
 // inside/outside buckets, or separate inside/boundary of locator.
 void vtkPointLocator::GenerateRepresentation(int vtkNotUsed(level), vtkPolyData *pd)
 {
-  vtkFloatPoints *pts;
+  vtkPoints *pts;
   vtkCellArray *polys;
   int ii, i, j, k, idx, offset[3], minusOffset[3], inside, sliceSize;
 
@@ -804,7 +805,7 @@ void vtkPointLocator::GenerateRepresentation(int vtkNotUsed(level), vtkPolyData 
     return;
     }
 
-  pts = vtkFloatPoints::New();
+  pts = vtkPoints::New();
   pts->Allocate(5000);
   polys = vtkCellArray::New();
   polys->Allocate(10000);
@@ -874,7 +875,7 @@ void vtkPointLocator::GenerateRepresentation(int vtkNotUsed(level), vtkPolyData 
 }
 
 void vtkPointLocator::GenerateFace(int face, int i, int j, int k, 
-                                   vtkFloatPoints *pts, vtkCellArray *polys)
+                                   vtkPoints *pts, vtkCellArray *polys)
 {
   int ids[4];
   float origin[3], x[3];

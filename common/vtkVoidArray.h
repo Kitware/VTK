@@ -47,47 +47,47 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkVoidArray_h
 #define __vtkVoidArray_h
 
-#include "vtkObject.h"
+#include "vtkDataArray.h"
 
-class VTK_EXPORT vtkVoidArray : public vtkObject 
+class VTK_EXPORT vtkVoidArray : public vtkDataArray
 {
 public:
-  vtkVoidArray():Array(NULL),Size(0),MaxId(-1),Extend(1000) {};
+  vtkVoidArray();
+  ~vtkVoidArray();
   int Allocate(const int sz, const int ext=1000);
   void Initialize();
-  vtkVoidArray(const int sz, const int ext=1000);
-  vtkVoidArray(const vtkVoidArray& fa);
-  ~vtkVoidArray();
   static vtkVoidArray *New() {return new vtkVoidArray;};
   const char *GetClassName() {return "vtkVoidArray";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // access/insertion methods
+  // satisfy vtkDataArray API
+  vtkDataArray *MakeObject() {return new vtkVoidArray;};
+  int GetDataType() {return VTK_VOID;};
+  void SetNumberOfTuples(const int number);
+  float *GetTuple(const int i);
+  void GetTuple(const int i, float tuple[]);
+  void SetTuple(const int i, const float tuple[]);
+  void InsertTuple(const int i, const float tuple[]);
+  int InsertNextTuple(const float tuple[]);
+  void Squeeze();
+
+  // native access/insertion methods
   void* GetValue(const int id);
   void SetNumberOfValues(const int number);
   void SetValue(const int id, void *value);
-  vtkVoidArray &InsertValue(const int id, void* p);
+  void InsertValue(const int id, void* p);
   int InsertNextValue(void* v);
-  void** GetPointer(const int id);
+  void** GetPointer(const int id) {return this->Array + id;}
   void** WritePointer(const int id, const int number);
-
-  // special operators
-  vtkVoidArray &operator=(const vtkVoidArray& fa);
-  void operator+=(const vtkVoidArray& fa);
-  void operator+=(void* p);
-
-  // miscellaneous methods
-  void Squeeze();
-  int GetSize();
-  int GetMaxId();
-  void Reset();
+  void *GetVoidPointer(const int id) {return this->GetPointer(id);};
+  void DeepCopy(vtkVoidArray& va);
 
 private:
   void** Array;  // pointer to data
-  int Size;      // allocated size of data
-  int MaxId;     // maximum index inserted thus far
-  int Extend;    // grow array by this point
   void** Resize(const int sz);  // function to resize data
+
+  int TupleSize; //used for data conversion
+  float *Tuple;
 };
 
 // Description:
@@ -113,10 +113,6 @@ inline void vtkVoidArray::SetValue(const int id, void *value)
 }
 
 // Description:
-// Get the address of a particular data index.
-inline void** vtkVoidArray::GetPointer(const int id) {return this->Array + id;}
-
-// Description:
 // Get the address of a particular data index. Make sure data is allocated
 // for the number of items requested. Set MaxId according to the number of
 // data values requested.
@@ -130,12 +126,11 @@ inline void** vtkVoidArray::WritePointer(const int id, const int number)
 
 // Description:
 // Insert data at a specified position in the array.
-inline vtkVoidArray& vtkVoidArray::InsertValue(const int id, void* p)
+inline void vtkVoidArray::InsertValue(const int id, void* p)
 {
   if ( id >= this->Size ) this->Resize(id+1);
   this->Array[id] = p;
   if ( id > this->MaxId ) this->MaxId = id;
-  return *this;
 }
 
 // Description:
@@ -145,26 +140,9 @@ inline int vtkVoidArray::InsertNextValue(void* p)
   this->InsertValue (++this->MaxId,p);
   return this->MaxId;
 }
-inline void vtkVoidArray::operator+=(void* p) 
-{
-  this->InsertNextValue(p);
-}
 
 // Description:
 // Resize object to just fit data requirement. Reclaims extra memory.
 inline void vtkVoidArray::Squeeze() {this->Resize (this->MaxId+1);}
-
-// Description:
-// Get the allocated size of the object in terms of number of data items.
-inline int vtkVoidArray::GetSize() {return this->Size;}
-
-// Description:
-// Returning the maximum index of data inserted so far.
-inline int vtkVoidArray::GetMaxId() {return this->MaxId;}
-
-// Description:
-// Reuse the memory allocated by this object. Objects appears like
-// no data has been previously inserted.
-inline void vtkVoidArray::Reset() {this->MaxId = -1;}
 
 #endif

@@ -49,132 +49,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkPointData_h
 #define __vtkPointData_h
 
-#include "vtkObject.h"
-#include "vtkScalars.h"
-#include "vtkVectors.h"
-#include "vtkNormals.h"
-#include "vtkTCoords.h"
-#include "vtkTensors.h"
-#include "vtkUserDefined.h"
+#include "vtkDataSetAttributes.h"
 
-class VTK_EXPORT vtkPointData : public vtkObject 
+class VTK_EXPORT vtkPointData : public vtkDataSetAttributes
 {
 public:
-  vtkPointData();
-  void Initialize();
-  ~vtkPointData();
   static vtkPointData *New() {return new vtkPointData;};
   const char *GetClassName() {return "vtkPointData";};
   void PrintSelf(ostream& os, vtkIndent indent);
-  vtkPointData (const vtkPointData& pd);
-  vtkPointData &operator=(vtkPointData& pd);
-  virtual void Update() {};
-
-  // pass thru all input data to output
-  void PassData(vtkPointData* pd);
-
-  // use to copy data on a point by point basis
-  void CopyAllocate(vtkPointData* pd, int sze=0, int ext=1000);
-  void CopyData(vtkPointData *fromPd, int fromId, int toId);
-
-  // use to interpolate data
-  void InterpolateAllocate(vtkPointData* pd, int sze=0, int ext=1000);
-  void InterpolatePoint(vtkPointData *fromPd, int toId, vtkIdList *ptIds, 
-                        float *weights);
-  void InterpolateEdge(vtkPointData *fromPd, int toId, int p1, int p2,
-                        float t);
 
   // Set point data to null values
   void NullPoint(int ptId);
-
-  // Reclaim memory
-  void Squeeze();
-
-  // Need to check component pieces for modified time
-  unsigned long int GetMTime();
-
-  // Description:
-  // Set scalar data.
-  vtkSetReferenceCountedObjectMacro(Scalars,vtkScalars);
-  vtkGetObjectMacro(Scalars,vtkScalars);
-
-  // Description:
-  // Set vector data.
-  vtkSetReferenceCountedObjectMacro(Vectors,vtkVectors);
-  vtkGetObjectMacro(Vectors,vtkVectors);
-
-  // Description:
-  // Set normal data.
-  vtkSetReferenceCountedObjectMacro(Normals,vtkNormals);
-  vtkGetObjectMacro(Normals,vtkNormals);
-
-  // Description:
-  // Set texture coordinate data.
-  vtkSetReferenceCountedObjectMacro(TCoords,vtkTCoords);
-  vtkGetObjectMacro(TCoords,vtkTCoords);
-
-  // Description:
-  // Set tensor data.
-  vtkSetReferenceCountedObjectMacro(Tensors,vtkTensors);
-  vtkGetObjectMacro(Tensors,vtkTensors);
-
-  // Description:
-  // Set user defined data.
-  vtkSetReferenceCountedObjectMacro(UserDefined,vtkUserDefined);
-  vtkGetObjectMacro(UserDefined,vtkUserDefined);
-
-  // Description:
-  // Turn on/off the copying of scalar data.
-  vtkSetMacro(CopyScalars,int);
-  vtkGetMacro(CopyScalars,int);
-  vtkBooleanMacro(CopyScalars,int);
-
-  // Description:
-  // Turn on/off the copying of vector data.
-  vtkSetMacro(CopyVectors,int);
-  vtkGetMacro(CopyVectors,int);
-  vtkBooleanMacro(CopyVectors,int);
-
-  // Description:
-  // Turn on/off the copying of normals data.
-  vtkSetMacro(CopyNormals,int);
-  vtkGetMacro(CopyNormals,int);
-  vtkBooleanMacro(CopyNormals,int);
-
-  // Description:
-  // Turn on/off the copying of texture coordinates data.
-  vtkSetMacro(CopyTCoords,int);
-  vtkGetMacro(CopyTCoords,int);
-  vtkBooleanMacro(CopyTCoords,int);
-
-  // Description:
-  // Turn on/off the copying of tensor data.
-  vtkSetMacro(CopyTensors,int);
-  vtkGetMacro(CopyTensors,int);
-  vtkBooleanMacro(CopyTensors,int);
-
-  // Description:
-  // Turn on/off the copying of user defined data.
-  vtkSetMacro(CopyUserDefined,int);
-  vtkGetMacro(CopyUserDefined,int);
-  vtkBooleanMacro(CopyUserDefined,int);
-
-  void CopyAllOn();
-  void CopyAllOff();
-
-protected:
-  vtkScalars *Scalars;
-  vtkVectors *Vectors;
-  vtkNormals *Normals;
-  vtkTCoords *TCoords;
-  vtkTensors *Tensors;
-  vtkUserDefined *UserDefined;
-  int CopyScalars;
-  int CopyVectors;
-  int CopyNormals;
-  int CopyTCoords;
-  int CopyTensors;
-  int CopyUserDefined;
 };
 
 #endif

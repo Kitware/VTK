@@ -71,10 +71,10 @@ void vtkWindowLevelLookupTable::Build()
   int indxStartsAt, indxEndsAt;
   int indx;
   int i;
-  unsigned char rgba[4];
+  unsigned char *rgba;
   unsigned char *minimum, *maximum;
 
-  if ( this->Table.GetNumberOfColors() < 1 ||
+  if ( this->Table.GetNumberOfTuples() < 1 ||
   (this->GetMTime() > this->BuildTime && this->InsertTime < this->BuildTime) )
     {
     // determine where ramp starts and ends
@@ -112,34 +112,27 @@ void vtkWindowLevelLookupTable::Build()
       }
 
     // first do below the ramp
-    for (i=0; i < 4; i++)
-      {
-      rgba[i] = minimum[i];
-      }
     for (indx=0; indx < indxStartsAt; indx++)
       {
-      this->Table.InsertColor(indx,rgba);
+      rgba = this->Table.WritePointer(4*indx,4);
+      for (i=0; i < 4; i++) rgba[i] = minimum[i];
       }
 
     // now do the ramp
     incrValue = (float) (highValue - lowValue) / (indxEndsAt - indxStartsAt);
     for (indx=indxStartsAt; indx < indxEndsAt; indx++)
       {
+      rgba = this->Table.WritePointer(4*indx,4);
       rgba[0] = rgba[1] = rgba[2] = (unsigned char) (lowValue + incrValue * (indx - indxStartsAt) + .5);
       rgba[3] = 255;
-      this->Table.InsertColor(indx,rgba);
       }
 
     // finally do above the ramp
-    for (i=0; i < 4; i++)
-      {
-      rgba[i] = maximum[i];
-      }
     for (indx=indxEndsAt; indx < this->NumberOfColors; indx++)
       {
-      this->Table.InsertColor(indx,rgba);
+      rgba = this->Table.WritePointer(4*indx,4);
+      for (i=0; i < 4; i++) rgba[i] = maximum[i];
       }
-
   }
   this->BuildTime.Modified();
 }

@@ -41,15 +41,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPolyVertex.h"
 #include "vtkMath.h"
 #include "vtkCellArray.h"
-#include "vtkVertex.h"
 #include "vtkPointLocator.h"
 
-// Description:
-// Deep copy of cell.
-vtkPolyVertex::vtkPolyVertex(const vtkPolyVertex& pp)
+vtkCell *vtkPolyVertex::MakeObject()
 {
-  this->Points = pp.Points;
-  this->PointIds = pp.PointIds;
+  vtkCell *cell = vtkPolyVertex::New();
+  cell->ShallowCopy(*this);
+  return cell;
 }
 
 int vtkPolyVertex::EvaluatePosition(float x[3], float closestPoint[3],
@@ -111,7 +109,7 @@ int vtkPolyVertex::CellBoundary(int subId, float pcoords[3], vtkIdList& pts)
   else return 1;
 }
 
-void vtkPolyVertex::Contour(float value, vtkFloatScalars *cellScalars, 
+void vtkPolyVertex::Contour(float value, vtkScalars *cellScalars, 
 			    vtkPointLocator *locator, vtkCellArray *verts,
 			    vtkCellArray *vtkNotUsed(lines), 
 			    vtkCellArray *vtkNotUsed(polys), 
@@ -140,14 +138,13 @@ int vtkPolyVertex::IntersectWithLine(float p1[3], float p2[3],
                                     float tol, float& t, float x[3], 
                                     float pcoords[3], int& subId)
 {
-  static vtkVertex vertex;
   int subTest;
 
   for (subId=0; subId<this->Points.GetNumberOfPoints(); subId++)
     {
-    vertex.Points.SetPoint(0,this->Points.GetPoint(subId));
+    this->Vertex.Points.SetPoint(0,this->Points.GetPoint(subId));
 
-    if ( vertex.IntersectWithLine(p1, p2, tol, t, x, pcoords, subTest) )
+    if ( this->Vertex.IntersectWithLine(p1, p2, tol, t, x, pcoords, subTest) )
       return 1;
     }
 
@@ -155,7 +152,7 @@ int vtkPolyVertex::IntersectWithLine(float p1[3], float p2[3],
 }
 
 int vtkPolyVertex::Triangulate(int vtkNotUsed(index), vtkIdList &ptIds, 
-                               vtkFloatPoints &pts)
+                               vtkPoints &pts)
 {
   int subId;
 
@@ -185,7 +182,7 @@ void vtkPolyVertex::Derivatives(int vtkNotUsed(subId),
     }
 }
 
-void vtkPolyVertex::Clip(float value, vtkFloatScalars *cellScalars, 
+void vtkPolyVertex::Clip(float value, vtkScalars *cellScalars, 
                          vtkPointLocator *locator, vtkCellArray *verts,
                          vtkPointData *inPD, vtkPointData *outPD,
                          int insideOut)

@@ -51,12 +51,11 @@ vtkLine::vtkLine()
   this->PointIds.SetNumberOfIds(2);
 }
 
-// Description:
-// Deep copy of cell.
-vtkLine::vtkLine(const vtkLine& l)
+vtkCell *vtkLine::MakeObject()
 {
-  this->Points = l.Points;
-  this->PointIds = l.PointIds;
+  vtkCell *cell = vtkLine::New();
+  cell->ShallowCopy(*this);
+  return cell;
 }
 
 #define NO_INTERSECTION 0
@@ -196,7 +195,7 @@ static VERT_CASES vertCases[4]= {
   {{0,1}},
   {{-1,-1}}};
 
-void vtkLine::Contour(float value, vtkFloatScalars *cellScalars, 
+void vtkLine::Contour(float value, vtkScalars *cellScalars, 
 		      vtkPointLocator *locator, vtkCellArray *verts, 
 		      vtkCellArray *vtkNotUsed(lines), 
 		      vtkCellArray *vtkNotUsed(polys), 
@@ -377,7 +376,7 @@ int vtkLine::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
   return 0;
 }
 
-int vtkLine::Triangulate(int vtkNotUsed(index), vtkIdList &ptIds, vtkFloatPoints &pts)
+int vtkLine::Triangulate(int vtkNotUsed(index), vtkIdList &ptIds, vtkPoints &pts)
 {
   pts.Reset();
   ptIds.Reset();
@@ -428,7 +427,7 @@ static LINE_CASES lineCases[] = {
 // Description:
 // Clip this line using scalar value provided. Like contouring, except
 // that it cuts the line to produce other lines.
-void vtkLine::Clip(float value, vtkFloatScalars *cellScalars, 
+void vtkLine::Clip(float value, vtkScalars *cellScalars, 
                    vtkPointLocator *locator, vtkCellArray *lines,
                    vtkPointData *inPd, vtkPointData *outPd,
                    int insideOut)

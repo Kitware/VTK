@@ -53,12 +53,11 @@ vtkHexahedron::vtkHexahedron()
   this->PointIds.SetNumberOfIds(8);
 }
 
-// Description:
-// Deep copy of cell.
-vtkHexahedron::vtkHexahedron(const vtkHexahedron& h)
+vtkCell *vtkHexahedron::MakeObject()
 {
-  this->Points = h.Points;
-  this->PointIds = h.PointIds;
+  vtkCell *cell = vtkHexahedron::New();
+  cell->ShallowCopy(*this);
+  return cell;
 }
 
 //
@@ -332,7 +331,7 @@ static int faces[6][4] = { {0,4,7,3}, {1,2,6,5},
 //
 #include "vtkMarchingCubesCases.h"
 
-void vtkHexahedron::Contour(float value, vtkFloatScalars *cellScalars, 
+void vtkHexahedron::Contour(float value, vtkScalars *cellScalars, 
 			    vtkPointLocator *locator,
 			    vtkCellArray *vtkNotUsed(verts), 
 			    vtkCellArray *vtkNotUsed(lines), 
@@ -346,11 +345,10 @@ void vtkHexahedron::Contour(float value, vtkFloatScalars *cellScalars,
   int e1, e2;
   int pts[3];
   float t, x1[3], x2[3], x[3], deltaScalar;
-  float *hexaScalars = cellScalars->GetPointer (0);
 
   // Build the case table
   for ( i=0, index = 0; i < 8; i++)
-      if (hexaScalars[i] >= value)
+      if (cellScalars->GetScalar(i) >= value)
           index |= CASE_MASK[i];
 
   triCase = triCases + index;
@@ -405,19 +403,18 @@ void vtkHexahedron::Contour(float value, vtkFloatScalars *cellScalars,
 vtkCell *vtkHexahedron::GetEdge(int edgeId)
 {
   int *verts;
-  static vtkLine line;
   
   verts = edges[edgeId];
 
   // load point id's
-  line.PointIds.SetId(0,this->PointIds.GetId(verts[0]));
-  line.PointIds.SetId(1,this->PointIds.GetId(verts[1]));
+  this->Line.PointIds.SetId(0,this->PointIds.GetId(verts[0]));
+  this->Line.PointIds.SetId(1,this->PointIds.GetId(verts[1]));
 
   // load coordinates
-  line.Points.SetPoint(0,this->Points.GetPoint(verts[0]));
-  line.Points.SetPoint(1,this->Points.GetPoint(verts[1]));
+  this->Line.Points.SetPoint(0,this->Points.GetPoint(verts[0]));
+  this->Line.Points.SetPoint(1,this->Points.GetPoint(verts[1]));
 
-  return &line;
+  return &this->Line;
 }
 
 vtkCell *vtkHexahedron::GetFace(int faceId)
@@ -447,7 +444,6 @@ int vtkHexahedron::IntersectWithLine(float p1[3], float p2[3], float tol,
   float tTemp;
   float pc[3], xTemp[3];
   int faceNum;
-  static vtkQuad theQuad; // using "quad" bothers IBM xlc compiler!
 
   t = VTK_LARGE_FLOAT;
   for (faceNum=0; faceNum<6; faceNum++)
@@ -457,12 +453,12 @@ int vtkHexahedron::IntersectWithLine(float p1[3], float p2[3], float tol,
     pt3 = this->Points.GetPoint(faces[faceNum][2]);
     pt4 = this->Points.GetPoint(faces[faceNum][3]);
 
-    theQuad.Points.SetPoint(0,pt1);
-    theQuad.Points.SetPoint(1,pt2);
-    theQuad.Points.SetPoint(2,pt3);
-    theQuad.Points.SetPoint(3,pt4);
+    this->Quad.Points.SetPoint(0,pt1);
+    this->Quad.Points.SetPoint(1,pt2);
+    this->Quad.Points.SetPoint(2,pt3);
+    this->Quad.Points.SetPoint(3,pt4);
 
-    if ( theQuad.IntersectWithLine(p1, p2, tol, tTemp, xTemp, pc, subId) )
+    if ( this->Quad.IntersectWithLine(p1, p2, tol, tTemp, xTemp, pc, subId) )
       {
       intersection = 1;
       if ( tTemp < t )
@@ -501,7 +497,7 @@ int vtkHexahedron::IntersectWithLine(float p1[3], float p2[3], float tol,
   return intersection;
 }
 
-int vtkHexahedron::Triangulate(int index, vtkIdList &ptIds, vtkFloatPoints &pts)
+int vtkHexahedron::Triangulate(int index, vtkIdList &ptIds, vtkPoints &pts)
 {
   int p[4], i;
 
@@ -662,7 +658,7 @@ void vtkHexahedron::JacobianInverse(float pcoords[3], double **inverse,
 }
 
 void vtkHexahedron::Clip(float vtkNotUsed(value), 
-			 vtkFloatScalars *vtkNotUsed(cellScalars), 
+			 vtkScalars *vtkNotUsed(cellScalars), 
                          vtkPointLocator *vtkNotUsed(locator), 
 			 vtkCellArray *vtkNotUsed(tetras),
                          vtkPointData *vtkNotUsed(inPd), 

@@ -48,55 +48,48 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkBitArray_h
 #define __vtkBitArray_h
 
-#include "vtkObject.h"
+#include "vtkDataArray.h"
 
-class VTK_EXPORT vtkBitArray : public vtkObject 
+class VTK_EXPORT vtkBitArray : public vtkDataArray
 {
 public:
-  vtkBitArray():Array(NULL),Size(0),MaxId(-1),Extend(1000) {};
+  vtkBitArray(int numComp=1);
+  ~vtkBitArray();
   int Allocate(const int sz, const int ext=1000);
   void Initialize();
-  vtkBitArray(const int sz, const int ext=1000);
-  vtkBitArray(const vtkBitArray& ia);
-  ~vtkBitArray();
   static vtkBitArray *New() {return new vtkBitArray;};
   virtual const char *GetClassName() {return "vtkBitArray";};
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // satisfy vtkDataArray API
+  vtkDataArray *MakeObject() {return new vtkBitArray(this->NumberOfComponents);};
+  int GetDataType() {return VTK_BIT;};
+  void SetNumberOfTuples(const int number);
+  float *GetTuple(const int i);
+  void GetTuple(const int i, float tuple[]);
+  void SetTuple(const int i, const float tuple[]);
+  void InsertTuple(const int i, const float tuple[]);
+  int InsertNextTuple(const float tuple[]);
+  void Squeeze();
 
   // access/insertion methods
   int GetValue(const int id);
   void SetNumberOfValues(const int number);
   void SetValue(const int id, const int value);
-  vtkBitArray &InsertValue(const int id, const int i);
+  void InsertValue(const int id, const int i);
   int InsertNextValue(const int i);
-  unsigned char *GetPointer(const int id);
+  unsigned char *GetPointer(const int id) {return this->Array + id/8;}
   unsigned char *WritePointer(const int id, const int number);
-
-  // special operators
-  vtkBitArray &operator=(const vtkBitArray& ia);
-  vtkBitArray &operator+=(const vtkBitArray& ia);
-  void operator+=(const char i);
-
-  // miscellaneous methods
-  void Squeeze();
-  int GetSize();
-  int GetMaxId();
-  void Reset();
+  void *GetVoidPointer(const int id) {return (void *)this->GetPointer(id);};
+  void DeepCopy(vtkBitArray& ia);
 
 private:
   unsigned char *Array;   // pointer to data
-  int Size;       // allocated size of data
-  int MaxId;     // maximum index inserted thus iar
-  int Extend;     // grow array by this point
   unsigned char *Resize(const int sz);  // function to resize data
-};
 
-// Description:
-// Get the address of a particular data index.
-inline unsigned char *vtkBitArray::GetPointer(const int id)
-{
-  return this->Array + id/8;
-}
+  int TupleSize; //used for data conversion
+  float *Tuple;
+};
 
 // Description:
 // Get the address of a particular data index. Make sure data is allocated
@@ -131,13 +124,12 @@ inline void vtkBitArray::SetValue(const int id, const int value)
 
 // Description:
 // Insert data at a specified position in the array.
-inline vtkBitArray& vtkBitArray::InsertValue(const int id, const int i)
+inline void vtkBitArray::InsertValue(const int id, const int i)
 {
   if ( id >= this->Size ) this->Resize(id+1);
   if (i) this->Array[id/8] |= (0x80 >> id%8);
   else this->Array[id/8] &= (~(0x80 >> id%8));
   if ( id > this->MaxId ) this->MaxId = id;
-  return *this;
 }
 
 // Description:
@@ -146,27 +138,10 @@ inline int vtkBitArray::InsertNextValue(const int i)
 {
   this->InsertValue (++this->MaxId,i); return this->MaxId;
 }
-inline void vtkBitArray::operator+=(const char i) 
-{
-  this->InsertNextValue(i);
-}
 
 // Description:
 // Resize object to just fit data requirement. Reclaims extra memory.
 inline void vtkBitArray::Squeeze() {this->Resize (this->MaxId+1);}
-
-// Description:
-// Get the allocated size of the object in terms of number of data items.
-inline int vtkBitArray::GetSize() {return this->Size;}
-
-// Description:
-// Returning the maximum index of data inserted so far.
-inline int vtkBitArray::GetMaxId() {return this->MaxId;}
-
-// Description:
-// Reuse the memory allocated by this object. Object appears as if
-// no data has been previously inserted.
-inline void vtkBitArray::Reset() {this->MaxId = -1;}
 
 #endif
 

@@ -39,27 +39,51 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkScalars.h"
-#include "vtkFloatScalars.h"
-#include "vtkShortScalars.h"
-#include "vtkIdList.h"
 #include "vtkLookupTable.h"
 
-vtkScalars::vtkScalars()
+vtkScalars::vtkScalars(int dataType, int dim) : vtkAttributeData(dataType)
 {
+  dim = (dim < 1 ? 1 : (dim > 4 ? 4 : dim));
+  this->Data->SetNumberOfComponents(dim);
+
   this->Range[0] = this->Range[2] = this->Range[4] = this->Range[6] = 0.0;
   this->Range[1] = this->Range[3] = this->Range[5] = this->Range[7] = 1.0;
 
   this->LookupTable = NULL;
+  this->ActiveComponent = 0;
+  
+  this->CurrentAlpha = 1.0;
+  this->CurrentLookupTable = NULL;
+  this->CurrentColorFunction = NULL;
 }
 
 vtkScalars::~vtkScalars()
 {
-  if ( this->LookupTable ) this->LookupTable->UnRegister(this);
+  if ( this->LookupTable ) this->LookupTable->Delete();
+}
+
+// Description:
+// Set the data for this object. The tuple dimension must be consistent with
+// the object.
+void vtkScalars::SetData(vtkDataArray *data)
+{
+  if ( data != this->Data && data != NULL )
+    {
+    if (data->GetNumberOfComponents() > 4 )
+      {
+      vtkErrorMacro(<<"Tuple dimension for scalars must be <= 4");
+      return;
+      }
+    this->Data->UnRegister(this);
+    this->Data = data;
+    this->Data->Register(this);
+    this->Modified();
+    }
 }
 
 // Description:
 // Given a list of point ids, return an array of scalar values.
-void vtkScalars::GetScalars(vtkIdList& ptId, vtkFloatScalars& fs)
+void vtkScalars::GetScalars(vtkIdList& ptId, vtkScalars& fs)
 {
   for (int i=0; i<ptId.GetNumberOfIds(); i++)
     {
@@ -69,9 +93,9 @@ void vtkScalars::GetScalars(vtkIdList& ptId, vtkFloatScalars& fs)
 
 // Description:
 // Given a range of point ids [p1,p2], return an array of scalar values.
-// Make sure enough space has been allocated in the vtkFloatScalars object
+// Make sure enough space has been allocated in the vtkScalars object
 // to hold all the values.
-void vtkScalars::GetScalars(int p1, int p2, vtkFloatScalars& fs)
+void vtkScalars::GetScalars(int p1, int p2, vtkScalars& fs)
 {
   int i, id;
 
@@ -85,14 +109,14 @@ void vtkScalars::GetScalars(int p1, int p2, vtkFloatScalars& fs)
 // Determine (rmin,rmax) range of scalar values.
 void vtkScalars::ComputeRange()
 {
-  int i;
+  int i, numScalars=this->GetNumberOfScalars();
   float s;
 
   if ( this->GetMTime() > this->ComputeTime )
     {
     this->Range[0] =  VTK_LARGE_FLOAT;
     this->Range[1] =  -VTK_LARGE_FLOAT;
-    for (i=0; i<this->GetNumberOfScalars(); i++)
+    for (i=0; i<numScalars; i++)
       {
       s = this->GetScalar(i);
       if ( s < this->Range[0] ) this->Range[0] = s;
@@ -143,6 +167,209 @@ void vtkScalars::SetLookupTable(vtkLookupTable *lut)
     }
 }
 
+void vtkScalars::GetDataTypeRange(float range[2])
+{
+  range[0] = this->GetDataTypeMin();
+  range[1] = this->GetDataTypeMax();
+}
+
+float vtkScalars::GetDataTypeMin()
+{
+  int dataType=this->Data->GetDataType();
+  switch (dataType)
+    {
+    case VTK_BIT:            return (float)VTK_BIT_MIN;
+    case VTK_UNSIGNED_CHAR:  return (float)VTK_UNSIGNED_CHAR_MIN;
+    case VTK_CHAR:           return (float)VTK_CHAR_MIN;
+    case VTK_UNSIGNED_SHORT: return (float)VTK_UNSIGNED_SHORT_MIN;
+    case VTK_SHORT:          return (float)VTK_SHORT_MIN;
+    case VTK_UNSIGNED_INT:   return (float)VTK_UNSIGNED_INT_MIN;
+    case VTK_INT:            return (float)VTK_INT_MIN;
+    case VTK_UNSIGNED_LONG:  return (float)VTK_UNSIGNED_LONG_MIN;
+    case VTK_LONG:           return (float)VTK_LONG_MIN;
+    case VTK_FLOAT:          return (float)VTK_FLOAT_MIN;
+    case VTK_DOUBLE:         return (float)VTK_DOUBLE_MIN;
+    default: return 0;
+    }
+}
+
+float vtkScalars::GetDataTypeMax()
+{
+  int dataType=this->Data->GetDataType();
+  switch (dataType)
+    {
+    case VTK_BIT:            return (float)VTK_BIT_MAX;
+    case VTK_UNSIGNED_CHAR:  return (float)VTK_UNSIGNED_CHAR_MAX;
+    case VTK_CHAR:           return (float)VTK_CHAR_MAX;
+    case VTK_UNSIGNED_SHORT: return (float)VTK_UNSIGNED_SHORT_MAX;
+    case VTK_SHORT:          return (float)VTK_SHORT_MAX;
+    case VTK_UNSIGNED_INT:   return (float)VTK_UNSIGNED_INT_MAX;
+    case VTK_INT:            return (float)VTK_INT_MAX;
+    case VTK_UNSIGNED_LONG:  return (float)VTK_UNSIGNED_LONG_MAX;
+    case VTK_LONG:           return (float)VTK_LONG_MAX;
+    case VTK_FLOAT:          return (float)VTK_FLOAT_MAX;
+    case VTK_DOUBLE:         return (float)VTK_DOUBLE_MAX;
+    default: return 1;
+    }
+}
+
+int vtkScalars::InitColorTraversal(float alpha, vtkLookupTable *lut,
+                                   int colorMode)
+{
+  int numComp=this->GetNumberOfComponents();
+  int blend=0;
+
+  this->CurrentAlpha = alpha;
+  this->RGBA[3] = alpha * 255.0;
+  this->CurrentLookupTable = lut;
+  
+  // If unsigned char, assume that we have colors
+  if ( this->GetDataType() == VTK_UNSIGNED_CHAR && 
+  colorMode == VTK_COLOR_MODE_DEFAULT )
+    {
+    this->Colors = (vtkUnsignedCharArray *)this->GetData();
+    if (numComp == 4) //rgba
+      {
+      blend = 1;
+      if ( this->CurrentAlpha < 1.0 )
+        {
+        this->CurrentColorFunction = &vtkScalars::CompositeRGBA;
+        }
+      else
+        {
+        this->CurrentColorFunction = &vtkScalars::PassRGBA;
+        }
+      }
+    else if (numComp == 3) //rgb
+      {
+      if ( this->CurrentAlpha < 1.0 )
+        {
+        blend = 1;
+        }
+      this->CurrentColorFunction = &vtkScalars::PassRGB;
+      }
+    else if (numComp == 2)
+      {
+      blend = 1;
+      if ( this->CurrentAlpha < 1.0 )
+        {
+        this->CurrentColorFunction = &vtkScalars::CompositeIA;
+        }
+      else
+        {
+        this->CurrentColorFunction = &vtkScalars::PassIA;
+        }
+      }
+    else
+      {
+      if ( this->CurrentAlpha < 1.0 )
+        {
+        blend = 1;
+        }
+      this->CurrentColorFunction = &vtkScalars::PassI;
+      }
+    }
+  
+  else if ( colorMode == VTK_COLOR_MODE_LUMINANCE )
+    {
+    this->CurrentColorFunction = &vtkScalars::Luminance;
+    }
+  
+  else //have to be going through lookup table
+    {
+    this->Colors = NULL;
+    if ( this->CurrentAlpha < 1.0 )
+      {
+      blend = 1;
+      this->CurrentColorFunction = &vtkScalars::CompositeMapThroughLookupTable;
+      }
+    else
+      {
+      this->CurrentColorFunction = &vtkScalars::MapThroughLookupTable;
+      }
+    }
+  
+  return blend;
+}
+
+unsigned char *vtkScalars::PassRGBA(int id)
+{
+  return this->Colors->GetPointer(4*id);
+}
+
+unsigned char *vtkScalars::PassRGB(int id)
+{
+  unsigned char *rgba=this->Colors->GetPointer(3*id);
+  this->RGBA[0] = *rgba++;
+  this->RGBA[1] = *rgba++;
+  this->RGBA[2] = *rgba;
+  return this->RGBA;
+}
+
+unsigned char *vtkScalars::PassIA(int id)
+{
+  unsigned char *rgba=this->Colors->GetPointer(2*id);
+  this->RGBA[0] = *rgba;
+  this->RGBA[1] = *rgba;
+  this->RGBA[2] = *rgba++;
+  this->RGBA[3]  = *rgba;
+  return this->RGBA;
+}
+
+unsigned char *vtkScalars::PassI(int id)
+{
+  unsigned char *rgba=this->Colors->GetPointer(id);
+  this->RGBA[0] = *rgba;
+  this->RGBA[1] = *rgba;
+  this->RGBA[2] = *rgba;
+  return this->RGBA;
+}
+
+unsigned char *vtkScalars::CompositeRGBA(int id)
+{
+  unsigned char *rgba=this->Colors->GetPointer(4*id);
+  this->RGBA[0] = *rgba++;
+  this->RGBA[1] = *rgba++;
+  this->RGBA[2] = *rgba++;
+  this->RGBA[3]  = *rgba * this->CurrentAlpha;
+  return this->RGBA;
+}
+
+unsigned char *vtkScalars::CompositeIA(int id)
+{
+  unsigned char *rgba=this->Colors->GetPointer(2*id);
+  this->RGBA[0] = *rgba;
+  this->RGBA[1] = *rgba;
+  this->RGBA[2] = *rgba++;
+  this->RGBA[3]  = *rgba * this->CurrentAlpha;
+  return this->RGBA;
+}
+
+unsigned char *vtkScalars::CompositeMapThroughLookupTable(int id)
+{
+  unsigned char *rgba = this->CurrentLookupTable->MapValue(this->GetScalar(id));
+  this->RGBA[0] = *rgba++;
+  this->RGBA[1] = *rgba++;
+  this->RGBA[2] = *rgba++;
+  this->RGBA[3]  = *rgba * this->CurrentAlpha;
+  return this->RGBA;
+}
+
+unsigned char *vtkScalars::MapThroughLookupTable(int id)
+{
+  return this->CurrentLookupTable->MapValue(this->GetScalar(id));
+}
+
+unsigned char *vtkScalars::Luminance(int id)
+{
+  unsigned char *rgba = this->CompositeMapThroughLookupTable(id);
+  this->RGBA[0] = 0.30*rgba[0] + 0.59*rgba[1] + 0.11*rgba[2];
+  this->RGBA[1] = this->RGBA[2] = this->RGBA[0];
+  this->RGBA[3] = rgba[3];
+  
+  return this->RGBA;
+}
+
 void vtkScalars::PrintSelf(ostream& os, vtkIndent indent)
 {
   float *range;
@@ -161,4 +388,7 @@ void vtkScalars::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "LookupTable: (none)\n";
     }
+
+  os << indent << "Number Of Components: " << this->GetNumberOfComponents() << "\n";
+  os << indent << "Active Component: " << this->ActiveComponent << "\n";
 }

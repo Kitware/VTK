@@ -47,17 +47,18 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkHexahedron_h
 
 #include "vtkCell.h"
+#include "vtkLine.h"
+#include "vtkQuad.h"
 
 class VTK_EXPORT vtkHexahedron : public vtkCell
 {
 public:
   vtkHexahedron();
-  vtkHexahedron(const vtkHexahedron& h);
   static vtkHexahedron *New() {return new vtkHexahedron;};
   const char *GetClassName() {return "vtkHexahedron";};
 
   // cell methods
-  vtkCell *MakeObject() {return new vtkHexahedron(*this);};
+  vtkCell *MakeObject();
   int GetCellType() {return VTK_HEXAHEDRON;};
   int GetCellDimension() {return 3;};
   int GetNumberOfEdges() {return 12;};
@@ -66,11 +67,11 @@ public:
   vtkCell *GetFace(int faceId);
 
   int CellBoundary(int subId, float pcoords[3], vtkIdList& pts);
-  void Contour(float value, vtkFloatScalars *cellScalars, 
+  void Contour(float value, vtkScalars *cellScalars, 
                vtkPointLocator *locator, vtkCellArray *verts, 
                vtkCellArray *lines, vtkCellArray *polys,
                vtkPointData *inPd, vtkPointData *outPd);
-  void Clip(float value, vtkFloatScalars *cellScalars, 
+  void Clip(float value, vtkScalars *cellScalars, 
             vtkPointLocator *locator, vtkCellArray *tetras,
             vtkPointData *inPd, vtkPointData *outPd, int insideOut);
   int EvaluatePosition(float x[3], float closestPoint[3],
@@ -80,7 +81,7 @@ public:
                         float *weights);
   int IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
                         float x[3], float pcoords[3], int& subId);
-  int Triangulate(int index, vtkIdList &ptIds, vtkFloatPoints &pts);
+  int Triangulate(int index, vtkIdList &ptIds, vtkPoints &pts);
   void Derivatives(int subId, float pcoords[3], float *values, 
                    int dim, float *derivs);
 
@@ -88,6 +89,10 @@ public:
   static void InterpolationFunctions(float pcoords[3], float weights[8]);
   static void InterpolationDerivs(float pcoords[3], float derivs[24]);
   void JacobianInverse(float pcoords[3], double **inverse, float derivs[24]);
+
+protected:
+  vtkLine Line;
+  vtkQuad Quad;
 
 };
 

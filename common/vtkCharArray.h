@@ -47,47 +47,53 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkCharArray_h
 #define __vtkCharArray_h
 
-#include "vtkObject.h"
+#include "vtkDataArray.h"
 
-class VTK_EXPORT vtkCharArray : public vtkObject 
+class VTK_EXPORT vtkCharArray : public vtkDataArray
 {
 public:
-  vtkCharArray():Array(NULL),Size(0),MaxId(-1),Extend(1000) {};
+  vtkCharArray(int numComp=1);
+  ~vtkCharArray();
   int Allocate(const int sz, const int ext=1000);
   void Initialize();
-  vtkCharArray(const int sz, const int ext=1000);
-  vtkCharArray(const vtkCharArray& ia);
-  ~vtkCharArray();
   static vtkCharArray *New() {return new vtkCharArray;};
   const char *GetClassName() {return "vtkCharArray";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // access/insertion methods
+  // satisfy vtkDataArray API
+  vtkDataArray *MakeObject() {return new vtkCharArray(this->NumberOfComponents);};
+  int GetDataType() {return VTK_CHAR;};
+  void SetNumberOfTuples(const int number);
+  float *GetTuple(const int i);
+  void GetTuple(const int i, float tuple[]);
+  void SetTuple(const int i, const float tuple[]);
+  void InsertTuple(const int i, const float tuple[]);
+  int InsertNextTuple(const float tuple[]);
+  void Squeeze();
+
+  // overload vtkDataArray for efficiency
+  float GetComponent(const int i, const int j);
+  void SetComponent(const int i, const int j, const float c);
+  void InsertComponent(const int i, const int j, const float c);
+
+  // native access/insertion methods
   char GetValue(const int id);
   void SetNumberOfValues(const int number);
   void SetValue(const int id, const char c);
-  vtkCharArray &InsertValue(const int id, const char c);
+  void InsertValue(const int id, const char c);
   int InsertNextValue(const char c);
-  char *GetPointer(const int id);
+  char *GetPointer(const int id) {return this->Array + id;}
+
   char *WritePointer(const int id, const int number);
-
-  // special operators
-  vtkCharArray &operator=(const vtkCharArray& ia);
-  void operator+=(const vtkCharArray& ia);
-  void operator+=(const char c);
-
-  // miscellaneous methods
-  void Squeeze();
-  int GetSize();
-  int GetMaxId();
-  void Reset();
+  void *GetVoidPointer(const int id) {return (void *)this->GetPointer(id);};
+  void DeepCopy(vtkCharArray& ia);
 
 private:
   char *Array;    // pointer to data
-  int Size;       // allocated size of data
-  int MaxId;      // maximum index inserted thus far
-  int Extend;     // grow array by this point
   char *Resize(const int sz);  // function to resize data
+
+  int TupleSize; //used for data conversion
+  float *Tuple;
 };
 
 // Description:
@@ -113,10 +119,6 @@ inline void vtkCharArray::SetValue(const int id, const char value)
 }
 
 // Description:
-// Get the address of a particular data index.
-inline char *vtkCharArray::GetPointer(const int id) {return this->Array + id;}
-
-// Description:
 // Get the address of a particular data index. Make sure data is allocated
 // for the number of items requested. Set MaxId according to the number of
 // data values requested.
@@ -130,12 +132,11 @@ inline char *vtkCharArray::WritePointer(const int id, const int number)
 
 // Description:
 // Insert data at a specified position in the array.
-inline vtkCharArray& vtkCharArray::InsertValue(const int id, const char c)
+inline void vtkCharArray::InsertValue(const int id, const char c)
 {
   if ( id >= this->Size ) this->Resize(id+1);
   this->Array[id] = c;
   if ( id > this->MaxId ) this->MaxId = id;
-  return *this;
 }
 
 // Description:
@@ -145,26 +146,9 @@ inline int vtkCharArray::InsertNextValue(const char c)
   this->InsertValue (++this->MaxId,c); 
   return this->MaxId;
 }
-inline void vtkCharArray::operator+=(const char c)
-{
-  this->InsertNextValue(c);
-}
 
 // Description:
 // Resize object to just fit data requirement. Reclaims extra memory.
 inline void vtkCharArray::Squeeze() {this->Resize (this->MaxId+1);}
-
-// Description:
-// Get the allocated size of the object in terms of number of data items.
-inline int vtkCharArray::GetSize() {return this->Size;}
-
-// Description:
-// Returning the maximum index of data inserted so far.
-inline int vtkCharArray::GetMaxId() {return this->MaxId;}
-
-// Description:
-// Reuse the memory allocated by this object. Objects appears like
-// no data has been previously inserted.
-inline void vtkCharArray::Reset() {this->MaxId = -1;}
 
 #endif

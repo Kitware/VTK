@@ -39,16 +39,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkTriangleStrip.h"
-#include "vtkTriangle.h"
 #include "vtkCellArray.h"
 #include "vtkLine.h"
 
-// Description:
-// Deep copy of cell.
-vtkTriangleStrip::vtkTriangleStrip(const vtkTriangleStrip& ts)
+vtkCell *vtkTriangleStrip::MakeObject()
 {
-  this->Points = ts.Points;
-  this->PointIds = ts.PointIds;
+  vtkCell *cell = vtkTriangleStrip::New();
+  cell->ShallowCopy(*this);
+  return cell;
 }
 
 int vtkTriangleStrip::EvaluatePosition(float x[3], float closestPoint[3],
@@ -59,7 +57,6 @@ int vtkTriangleStrip::EvaluatePosition(float x[3], float closestPoint[3],
   int ignoreId, i, return_status, status;
   float tempWeights[3], activeWeights[3];
   float closest[3];
-  static vtkTriangle tri;
 
   pcoords[2] = 0.0;
 
@@ -67,10 +64,10 @@ int vtkTriangleStrip::EvaluatePosition(float x[3], float closestPoint[3],
   for (minDist2=VTK_LARGE_FLOAT,i=0; i<this->Points.GetNumberOfPoints()-2; i++)
     {
     weights[i] = 0.0;
-    tri.Points.SetPoint(0,this->Points.GetPoint(i));
-    tri.Points.SetPoint(1,this->Points.GetPoint(i+1));
-    tri.Points.SetPoint(2,this->Points.GetPoint(i+2));
-    status = tri.EvaluatePosition(x,closest,ignoreId,pc,dist2,tempWeights);
+    this->Triangle.Points.SetPoint(0,this->Points.GetPoint(i));
+    this->Triangle.Points.SetPoint(1,this->Points.GetPoint(i+1));
+    this->Triangle.Points.SetPoint(2,this->Points.GetPoint(i+2));
+    status = this->Triangle.EvaluatePosition(x,closest,ignoreId,pc,dist2,tempWeights);
     if ( status != -1 && dist2 < minDist2 )
       {
       return_status = status;
@@ -118,12 +115,11 @@ int vtkTriangleStrip::CellBoundary(int subId, float pcoords[3], vtkIdList& pts)
 {
   int numPts=this->Points.GetNumberOfPoints();
   int retStatus;
-  static vtkTriangle tri;
 
-  tri.Points.SetPoint(0,this->Points.GetPoint(subId));
-  tri.Points.SetPoint(1,this->Points.GetPoint(subId+1));
-  tri.Points.SetPoint(2,this->Points.GetPoint(subId+2));
-  retStatus = tri.CellBoundary(0, pcoords, pts);
+  this->Triangle.Points.SetPoint(0,this->Points.GetPoint(subId));
+  this->Triangle.Points.SetPoint(1,this->Points.GetPoint(subId+1));
+  this->Triangle.Points.SetPoint(2,this->Points.GetPoint(subId+2));
+  retStatus = this->Triangle.CellBoundary(0, pcoords, pts);
 
   if ( subId > 0 && subId < (numPts-3) ) //in the middle of the strip
     {
@@ -158,43 +154,41 @@ int vtkTriangleStrip::CellBoundary(int subId, float pcoords[3], vtkIdList& pts)
 
 }
 
-void vtkTriangleStrip::Contour(float value, vtkFloatScalars *cellScalars, 
+void vtkTriangleStrip::Contour(float value, vtkScalars *cellScalars, 
                               vtkPointLocator *locator, vtkCellArray *verts, 
                               vtkCellArray *lines, vtkCellArray *polys, 
                               vtkPointData *inPd, vtkPointData *outPd)
 {
   int i;
-  vtkFloatScalars triScalars(3); triScalars.ReferenceCountingOff();
-  static vtkTriangle tri;
-
-  triScalars.SetNumberOfScalars(3);
+  vtkScalars *triScalars=vtkScalars::New();
+  triScalars->SetNumberOfScalars(3);
 
   for ( i=0; i<this->Points.GetNumberOfPoints()-2; i++)
     {
-    tri.Points.SetPoint(0,this->Points.GetPoint(i));
-    tri.Points.SetPoint(1,this->Points.GetPoint(i+1));
-    tri.Points.SetPoint(2,this->Points.GetPoint(i+2));
+    this->Triangle.Points.SetPoint(0,this->Points.GetPoint(i));
+    this->Triangle.Points.SetPoint(1,this->Points.GetPoint(i+1));
+    this->Triangle.Points.SetPoint(2,this->Points.GetPoint(i+2));
 
     if ( outPd )
       {
-      tri.PointIds.SetId(0,this->PointIds.GetId(i));
-      tri.PointIds.SetId(1,this->PointIds.GetId(i+1));
-      tri.PointIds.SetId(2,this->PointIds.GetId(i+2));
+      this->Triangle.PointIds.SetId(0,this->PointIds.GetId(i));
+      this->Triangle.PointIds.SetId(1,this->PointIds.GetId(i+1));
+      this->Triangle.PointIds.SetId(2,this->PointIds.GetId(i+2));
       }
 
-    triScalars.SetScalar(0,cellScalars->GetScalar(i));
-    triScalars.SetScalar(1,cellScalars->GetScalar(i+1));
-    triScalars.SetScalar(2,cellScalars->GetScalar(i+2));
+    triScalars->SetScalar(0,cellScalars->GetScalar(i));
+    triScalars->SetScalar(1,cellScalars->GetScalar(i+1));
+    triScalars->SetScalar(2,cellScalars->GetScalar(i+2));
 
-    tri.Contour(value, &triScalars, locator, verts,
-                lines, polys, inPd, outPd);
+    this->Triangle.Contour(value, triScalars, locator, verts,
+			   lines, polys, inPd, outPd);
     }
+  triScalars->Delete();
 }
 
 
 vtkCell *vtkTriangleStrip::GetEdge(int edgeId)
 {
-  static vtkLine line;
   int id1, id2;
 
   if ( edgeId == 0 )
@@ -213,12 +207,12 @@ vtkCell *vtkTriangleStrip::GetEdge(int edgeId)
     id2 = edgeId + 1;
     }
 
-  line.PointIds.SetId(0,this->PointIds.GetId(id1));
-  line.PointIds.SetId(1,this->PointIds.GetId(id2));
-  line.Points.SetPoint(0,this->Points.GetPoint(id1));
-  line.Points.SetPoint(1,this->Points.GetPoint(id2));
+  this->Line.PointIds.SetId(0,this->PointIds.GetId(id1));
+  this->Line.PointIds.SetId(1,this->PointIds.GetId(id2));
+  this->Line.Points.SetPoint(0,this->Points.GetPoint(id1));
+  this->Line.Points.SetPoint(1,this->Points.GetPoint(id2));
 
-  return &line;
+  return &this->Line;
 }
 
 // 
@@ -228,16 +222,15 @@ int vtkTriangleStrip::IntersectWithLine(float p1[3], float p2[3], float tol,
                                        float& t, float x[3], float pcoords[3],
                                        int& subId)
 {
-  static vtkTriangle tri;
   int subTest;
 
   for (subId=0; subId<this->Points.GetNumberOfPoints()-2; subId++)
     {
-    tri.Points.SetPoint(0,this->Points.GetPoint(subId));
-    tri.Points.SetPoint(1,this->Points.GetPoint(subId+1));
-    tri.Points.SetPoint(2,this->Points.GetPoint(subId+2));
+    this->Triangle.Points.SetPoint(0,this->Points.GetPoint(subId));
+    this->Triangle.Points.SetPoint(1,this->Points.GetPoint(subId+1));
+    this->Triangle.Points.SetPoint(2,this->Points.GetPoint(subId+2));
 
-    if ( tri.IntersectWithLine(p1, p2, tol, t, x, pcoords, subTest) )
+    if ( this->Triangle.IntersectWithLine(p1, p2, tol, t, x, pcoords, subTest) )
       return 1;
     }
 
@@ -245,7 +238,7 @@ int vtkTriangleStrip::IntersectWithLine(float p1[3], float p2[3], float tol,
 }
 
 int vtkTriangleStrip::Triangulate(int vtkNotUsed(index), vtkIdList &ptIds, 
-                                  vtkFloatPoints &pts)
+                                  vtkPoints &pts)
 {
   pts.Reset();
   ptIds.Reset();
@@ -265,13 +258,12 @@ int vtkTriangleStrip::Triangulate(int vtkNotUsed(index), vtkIdList &ptIds,
 void vtkTriangleStrip::Derivatives(int subId, float pcoords[3], float *values, 
                                    int dim, float *derivs)
 {
-  static vtkTriangle tri;
 
-  tri.Points.SetPoint(0,this->Points.GetPoint(subId));
-  tri.Points.SetPoint(1,this->Points.GetPoint(subId+1));
-  tri.Points.SetPoint(2,this->Points.GetPoint(subId+2));
+  this->Triangle.Points.SetPoint(0,this->Points.GetPoint(subId));
+  this->Triangle.Points.SetPoint(1,this->Points.GetPoint(subId+1));
+  this->Triangle.Points.SetPoint(2,this->Points.GetPoint(subId+2));
 
-  tri.Derivatives(0, pcoords, values, dim, derivs);
+  this->Triangle.Derivatives(0, pcoords, values, dim, derivs);
 }
 
 // Description:
@@ -307,17 +299,15 @@ void vtkTriangleStrip::DecomposeStrips(vtkCellArray *strips, vtkCellArray *polys
     }
 }
 
-void vtkTriangleStrip::Clip(float value, vtkFloatScalars *cellScalars, 
+void vtkTriangleStrip::Clip(float value, vtkScalars *cellScalars, 
                             vtkPointLocator *locator, vtkCellArray *tris,
                             vtkPointData *inPd, vtkPointData *outPd,
                             int insideOut)
 {
   int i;
   int id1, id2, id3;
-  vtkFloatScalars triScalars(3); triScalars.ReferenceCountingOff();
-  static vtkTriangle tri;
-
-  triScalars.SetNumberOfScalars(3);
+  vtkScalars *triScalars=vtkScalars::New();
+  triScalars->SetNumberOfScalars(3);
 
   for ( i=0; i < this->Points.GetNumberOfPoints()-2; i++)
     {
@@ -330,19 +320,20 @@ void vtkTriangleStrip::Clip(float value, vtkFloatScalars *cellScalars,
       id1 = i; id2 = i + 1; id3 = i + 2;
       }
   
-    tri.Points.SetPoint(0,this->Points.GetPoint(id1));
-    tri.Points.SetPoint(1,this->Points.GetPoint(id2));
-    tri.Points.SetPoint(2,this->Points.GetPoint(id3));
+    this->Triangle.Points.SetPoint(0,this->Points.GetPoint(id1));
+    this->Triangle.Points.SetPoint(1,this->Points.GetPoint(id2));
+    this->Triangle.Points.SetPoint(2,this->Points.GetPoint(id3));
 
-    tri.PointIds.SetId(0,this->PointIds.GetId(id1));
-    tri.PointIds.SetId(1,this->PointIds.GetId(id2));
-    tri.PointIds.SetId(2,this->PointIds.GetId(id3));
+    this->Triangle.PointIds.SetId(0,this->PointIds.GetId(id1));
+    this->Triangle.PointIds.SetId(1,this->PointIds.GetId(id2));
+    this->Triangle.PointIds.SetId(2,this->PointIds.GetId(id3));
 
-    triScalars.SetScalar(0,cellScalars->GetScalar(id1));
-    triScalars.SetScalar(1,cellScalars->GetScalar(id2));
-    triScalars.SetScalar(2,cellScalars->GetScalar(id3));
+    triScalars->SetScalar(0,cellScalars->GetScalar(id1));
+    triScalars->SetScalar(1,cellScalars->GetScalar(id2));
+    triScalars->SetScalar(2,cellScalars->GetScalar(id3));
 
-    tri.Clip(value, &triScalars, locator, tris, inPd, outPd, insideOut);
+    this->Triangle.Clip(value, triScalars, locator, tris, inPd, outPd, insideOut);
     }
 
+  triScalars->Delete();
 }

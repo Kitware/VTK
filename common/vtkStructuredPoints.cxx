@@ -456,7 +456,7 @@ void vtkStructuredPoints::ComputeBounds()
 // from which the gradient is to be computed. This method will treat 
 // only 3D structured point datasets (i.e., volumes).
 void vtkStructuredPoints::GetVoxelGradient(int i, int j, int k, vtkScalars *s, 
-                                          vtkFloatVectors& g)
+                                          vtkVectors& g)
 {
   float gv[3];
   int ii, jj, kk, idx=0;

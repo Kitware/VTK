@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkBitScalars.cxx
+  Module:    vtkCellData.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,55 +38,30 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkBitScalars.h"
+// .NAME vtkCellData - represent and manipulate cell attribute data
+// .SECTION Description
+// vtkCellData is a class that is used to represent and manipulate
+// cell attribute data (e.g., scalars, vectors, normals, texture 
+// coordinates, etc.) Special methods are provided to work with filter
+// objects, such as passing data through filter, copying data from one 
+// cell to another, and interpolating data given cell interpolation weights.
 
-vtkBitScalars::vtkBitScalars()
+#ifndef __vtkCellData_h
+#define __vtkCellData_h
+
+#include "vtkDataSetAttributes.h"
+
+class VTK_EXPORT vtkCellData : public vtkDataSetAttributes
 {
-  this->S = vtkBitArray::New();
-}
+public:
+  static vtkCellData *New() {return new vtkCellData;};
+  const char *GetClassName() {return "vtkCellData";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
-vtkBitScalars::vtkBitScalars(const vtkBitScalars& cs)
-{
-  this->S = vtkBitArray::New();
-  *(this->S) = *(cs.S);
-}
+  // Set cell data to null values
+  void NullCell(int cellId);
+};
 
-vtkBitScalars::vtkBitScalars(const int sz, const int ext)
-{
-  this->S = vtkBitArray::New();
-  this->S->Allocate(sz,ext);
-}
-
-vtkBitScalars::~vtkBitScalars()
-{
-  this->S->Delete();
-}
-
-vtkScalars *vtkBitScalars::MakeObject(int sze, int ext)
-{
-  return new vtkBitScalars(sze,ext);
-}
-
-// Description:
-// Deep copy of scalars.
-vtkBitScalars& vtkBitScalars::operator=(const vtkBitScalars& cs)
-{
-  *(this->S) = *(cs.S);
-  return *this;
-}
-
-void vtkBitScalars::GetScalars(vtkIdList& ptId, vtkFloatScalars& fs)
-{
-  for (int i=0; i<ptId.GetNumberOfIds(); i++)
-    {
-    fs.InsertScalar(i,(float)this->S->GetValue(ptId.GetId(i)));
-    }
-}
+#endif
 
 
-// need to override this GetScalar routine from vtkScalars so it is not
-// hidden
-void vtkBitScalars::GetScalars(int p1, int p2, vtkFloatScalars&fs)
-{
-    this->vtkScalars::GetScalars(p1, p2, fs);
-}

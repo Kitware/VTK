@@ -54,12 +54,11 @@ vtkTetra::vtkTetra()
   this->PointIds.SetNumberOfIds(4);
 }
 
-// Description:
-// Deep copy of cell.
-vtkTetra::vtkTetra(const vtkTetra& t)
+vtkCell *vtkTetra::MakeObject()
 {
-  this->Points = t.Points;
-  this->PointIds = t.PointIds;
+  vtkCell *cell = vtkTetra::New();
+  cell->ShallowCopy(*this);
+  return cell;
 }
 
 int vtkTetra::EvaluatePosition(float x[3], float closestPoint[3],
@@ -239,7 +238,7 @@ static TRIANGLE_CASES triCases[] = {
   {{-1, -1, -1, -1, -1, -1, -1}}
 };
 
-void vtkTetra::Contour(float value, vtkFloatScalars *cellScalars, 
+void vtkTetra::Contour(float value, vtkScalars *cellScalars, 
 		       vtkPointLocator *locator,
 		       vtkCellArray *vtkNotUsed(verts), 
 		       vtkCellArray *vtkNotUsed(lines), 
@@ -294,40 +293,38 @@ void vtkTetra::Contour(float value, vtkFloatScalars *cellScalars,
 
 vtkCell *vtkTetra::GetEdge(int edgeId)
 {
-  static vtkLine line;
   int *verts;
 
   verts = edges[edgeId];
 
   // load point id's
-  line.PointIds.SetId(0,this->PointIds.GetId(verts[0]));
-  line.PointIds.SetId(1,this->PointIds.GetId(verts[1]));
+  this->Line.PointIds.SetId(0,this->PointIds.GetId(verts[0]));
+  this->Line.PointIds.SetId(1,this->PointIds.GetId(verts[1]));
 
   // load coordinates
-  line.Points.SetPoint(0,this->Points.GetPoint(verts[0]));
-  line.Points.SetPoint(1,this->Points.GetPoint(verts[1]));
+  this->Line.Points.SetPoint(0,this->Points.GetPoint(verts[0]));
+  this->Line.Points.SetPoint(1,this->Points.GetPoint(verts[1]));
 
-  return &line;
+  return &this->Line;
 }
 
 vtkCell *vtkTetra::GetFace(int faceId)
 {
   int *verts;
-  static vtkTriangle tri;
 
   verts = faces[faceId];
 
   // load point id's
-  tri.PointIds.SetId(0,this->PointIds.GetId(verts[0]));
-  tri.PointIds.SetId(1,this->PointIds.GetId(verts[1]));
-  tri.PointIds.SetId(2,this->PointIds.GetId(verts[2]));
+  this->Triangle.PointIds.SetId(0,this->PointIds.GetId(verts[0]));
+  this->Triangle.PointIds.SetId(1,this->PointIds.GetId(verts[1]));
+  this->Triangle.PointIds.SetId(2,this->PointIds.GetId(verts[2]));
 
   // load coordinates
-  tri.Points.SetPoint(0,this->Points.GetPoint(verts[0]));
-  tri.Points.SetPoint(1,this->Points.GetPoint(verts[1]));
-  tri.Points.SetPoint(2,this->Points.GetPoint(verts[2]));
+  this->Triangle.Points.SetPoint(0,this->Points.GetPoint(verts[0]));
+  this->Triangle.Points.SetPoint(1,this->Points.GetPoint(verts[1]));
+  this->Triangle.Points.SetPoint(2,this->Points.GetPoint(verts[2]));
 
-  return &tri;
+  return &this->Triangle;
 }
 
 // 
@@ -341,7 +338,6 @@ int vtkTetra::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
   float tTemp;
   float pc[3], xTemp[3];
   int faceNum;
-  static vtkTriangle tri;
 
   t = VTK_LARGE_FLOAT;
   for (faceNum=0; faceNum<4; faceNum++)
@@ -350,11 +346,11 @@ int vtkTetra::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
     pt2 = this->Points.GetPoint(faces[faceNum][1]);
     pt3 = this->Points.GetPoint(faces[faceNum][2]);
 
-    tri.Points.SetPoint(0,pt1);
-    tri.Points.SetPoint(1,pt2);
-    tri.Points.SetPoint(2,pt3);
+    this->Triangle.Points.SetPoint(0,pt1);
+    this->Triangle.Points.SetPoint(1,pt2);
+    this->Triangle.Points.SetPoint(2,pt3);
 
-    if ( tri.IntersectWithLine(p1, p2, tol, tTemp, xTemp, pc, subId) )
+    if ( this->Triangle.IntersectWithLine(p1, p2, tol, tTemp, xTemp, pc, subId) )
       {
       intersection = 1;
       if ( tTemp < t )
@@ -385,7 +381,7 @@ int vtkTetra::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
   return intersection;
 }
 
-int vtkTetra::Triangulate(int vtkNotUsed(index), vtkIdList &ptIds, vtkFloatPoints &pts)
+int vtkTetra::Triangulate(int vtkNotUsed(index), vtkIdList &ptIds, vtkPoints &pts)
 {
   ptIds.Reset();
   pts.Reset();
@@ -399,11 +395,12 @@ int vtkTetra::Triangulate(int vtkNotUsed(index), vtkIdList &ptIds, vtkFloatPoint
   return 1;
 }
 
+
 void vtkTetra::Derivatives(int vtkNotUsed(subId), float vtkNotUsed(pcoords)[3],
                            float *values, int dim, float *derivs)
 {
   double *jI[3], j0[3], j1[3], j2[3];
-  float functionDerivs[12], sum[3];
+  float functionDerivs[12], sum[3], value;
   int i, j, k;
 
   // compute inverse Jacobian and interpolation function derivatives
@@ -413,16 +410,18 @@ void vtkTetra::Derivatives(int vtkNotUsed(subId), float vtkNotUsed(pcoords)[3],
   // now compute derivates of values provided
   for (k=0; k < dim; k++) //loop over values per vertex
     {
+    sum[0] = sum[1] = sum[2] = 0.0;
+    for ( i=0; i < 4; i++) //loop over interp. function derivatives
+      {
+      value = values[dim*i + k];
+      sum[0] += functionDerivs[i] * value;
+      sum[1] += functionDerivs[4 + i] * value;
+      sum[2] += functionDerivs[8 + i] * value;
+      }
+
     for (j=0; j < 3; j++) //loop over derivative directions
       {
-      sum[0] = sum[1] = sum[2] = 0.0;
-      for ( i=0; i < 4; i++) //loop over interp. function derivatives
-        {
-        sum[0] += functionDerivs[i] * values[dim*i + k]; 
-        sum[1] += functionDerivs[4 + i] * values[dim*i + k];
-        sum[2] += functionDerivs[8 + i] * values[dim*i + k];
-        }
-      derivs[3*k + j] = sum[0]*jI[j][0] + sum[1]*jI[j][1] + sum[2]*jI[j][2];
+      derivs[3*k + j] = sum[0]*jI[0][j] + sum[1]*jI[1][j] + sum[2]*jI[2][j];
       }
     }
 }
@@ -557,7 +556,7 @@ void vtkTetra::InterpolationFunctions(float pcoords[3], float sf[4])
   sf[3] = pcoords[2];
 }
 
-void vtkTetra::InterpolationDerivs(float derivs[12])
+inline void vtkTetra::InterpolationDerivs(float derivs[12])
 {
   // r-derivatives
   derivs[0] = -1.0;
@@ -581,8 +580,8 @@ void vtkTetra::InterpolationDerivs(float derivs[12])
 // Description:
 // Given parametric coordinates compute inverse Jacobian transformation
 // matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
-// function derivatives.
-void vtkTetra::JacobianInverse(double **inverse, float derivs[12])
+// function derivatives. Returns 0 if no inverse exists.
+int vtkTetra::JacobianInverse(double **inverse, float derivs[12])
 {
   int i, j;
   double *m[3], m0[3], m1[3], m2[3];
@@ -612,9 +611,19 @@ void vtkTetra::JacobianInverse(double **inverse, float derivs[12])
   // now find the inverse
   if ( vtkMath::InvertMatrix(m,inverse,3) == 0 )
     {
-    vtkErrorMacro(<<"Jacobian inverse not found");
-    return;
+#define VTK_MAX_WARNS 3    
+    static int numWarns=0;
+    if ( numWarns++ < VTK_MAX_WARNS )
+      {
+      vtkErrorMacro(<<"Jacobian inverse not found");
+      vtkErrorMacro(<<"Matrix:" << m[0][0] << " " << m[0][1] << " " << m[0][2]
+      << m[1][0] << " " << m[1][1] << " " << m[1][2] 
+      << m[2][0] << " " << m[2][1] << " " << m[2][2] );
+      return 0;
+      }
     }
+
+  return 1;
 }
 
 // support tetra clipping
@@ -645,7 +654,7 @@ static TETRA_CASES tetraCases[] = {
 // Description:
 // Clip this tetra using scalar value provided. Like contouring, except
 // that it cuts the tetra to produce other tetrahedra.
-void vtkTetra::Clip(float value, vtkFloatScalars *cellScalars, 
+void vtkTetra::Clip(float value, vtkScalars *cellScalars, 
                     vtkPointLocator *locator, vtkCellArray *tetras,
                     vtkPointData *inPd, vtkPointData *outPd,
                     int insideOut)

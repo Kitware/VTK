@@ -75,7 +75,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // dataset interface
-  vtkDataSet *MakeObject() {return new vtkRectilinearGrid(*this);};
+  vtkDataObject *MakeObject() {return new vtkRectilinearGrid;};
   void CopyStructure(vtkDataSet *ds);
   void Initialize();
   int GetNumberOfCells();

@@ -40,14 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include "vtkImageData.h"
-#include "vtkFloatScalars.h"
-#include "vtkIntScalars.h"
-#include "vtkShortScalars.h"
-#include "vtkUnsignedShortScalars.h"
-#include "vtkGraymap.h"
-#include "vtkPixmap.h"
-#include "vtkAGraymap.h"
-#include "vtkAPixmap.h"
+#include "vtkScalars.h"
 
 //----------------------------------------------------------------------------
 // Description:
@@ -279,7 +272,7 @@ void *vtkImageData::GetScalarPointer(int coordinates[3])
 	 + (coordinates[1] - this->Extent[2]) * this->Increments[1]
 	 + (coordinates[2] - this->Extent[4]) * this->Increments[2]);
   
-  return scalars->GetVoidPtr(idx);
+  return scalars->GetVoidPointer(idx);
 }
 
 
@@ -293,7 +286,7 @@ void *vtkImageData::GetScalarPointer()
     vtkDebugMacro("Allocating scalars in ImageData");
     this->AllocateScalars();
     }
-  return this->PointData.GetScalars()->GetVoidPtr(0);
+  return this->PointData.GetScalars()->GetVoidPointer(0);
 }
 
 static int vtkGetScalarType(vtkImageData *self)
@@ -309,6 +302,8 @@ static int vtkGetScalarType(vtkImageData *self)
 //----------------------------------------------------------------------------
 void vtkImageData::AllocateScalars()
 {
+  vtkScalars *scalars;
+  
   // if the scalar type has not been set then we have a problem
   if (this->ScalarType == VTK_VOID)
     {
@@ -344,42 +339,11 @@ void vtkImageData::AllocateScalars()
     }
   
   // allocate the new scalars
-  switch (this->ScalarType)
-    {
-    case VTK_FLOAT:
-      this->PointData.SetScalars(vtkFloatScalars::New());
-      break;
-    case VTK_INT:
-      this->PointData.SetScalars(vtkIntScalars::New());
-      break;
-    case VTK_SHORT:
-      this->PointData.SetScalars(vtkShortScalars::New());
-      break;
-    case VTK_UNSIGNED_SHORT:
-      this->PointData.SetScalars(vtkUnsignedShortScalars::New());
-      break;
-    case VTK_UNSIGNED_CHAR:
-      // this depends on how many components we have
-      switch (this->NumberOfScalarComponents)
-	{
-	case 1:
-	  this->PointData.SetScalars(vtkGraymap::New());
-	  break;
-	case 2:
-	  this->PointData.SetScalars(vtkAGraymap::New());
-	  break;
-	case 3:
-	  this->PointData.SetScalars(vtkPixmap::New());
-	  break;
-	case 4:
-	  this->PointData.SetScalars(vtkAPixmap::New());
-	  break;
-	}
-      break;
-    }
-  
-  // Unregister the scalars since PointData now has a references
-  this->PointData.GetScalars()->UnRegister(this);
+  scalars = vtkScalars::New();
+  scalars->SetDataType(this->ScalarType);
+  scalars->SetNumberOfComponents(this->NumberOfScalarComponents);
+  this->PointData.SetScalars(scalars);
+  scalars->Delete();
   
   // allocate enough memory
   if (this->ScalarType == VTK_UNSIGNED_CHAR)
@@ -398,8 +362,6 @@ void vtkImageData::AllocateScalars()
 			 (this->Extent[5] - this->Extent[4] + 1));
     }
 }
-
-
 
 int vtkImageData::GetScalarSize()
 {

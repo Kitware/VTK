@@ -55,33 +55,46 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //
 // Some constants used throughout code
 //
-#define VTK_LARGE_FLOAT 1.0e29
+#define VTK_LARGE_FLOAT 1.0e+38F
 #define VTK_LARGE_INTEGER 2147483647 // 2^31 - 1
 
+// These types are returned by GetDataType to indicate pixel type.
+#define VTK_VOID            0
+#define VTK_BIT             1 
+#define VTK_CHAR            2
+#define VTK_UNSIGNED_CHAR   3
+#define VTK_SHORT           4
+#define VTK_UNSIGNED_SHORT  5
+#define VTK_INT             6
+#define VTK_UNSIGNED_INT    7
+#define VTK_LONG            8
+#define VTK_UNSIGNED_LONG   9
+#define VTK_FLOAT          10
+#define VTK_DOUBLE         11 
+
 // Some constant required for correct template performance
-#define VTK_FLOAT_MIN -1.0e+38F
-#define VTK_FLOAT_MAX 1.0e+38F
-#define VTK_INT_MIN (-2147483647-1)
-#define VTK_INT_MAX 2147483647
+#define VTK_BIT_MIN 0
+#define VTK_BIT_MAX 1
+#define VTK_CHAR_MIN -128
+#define VTK_CHAR_MAX 127
+#define VTK_UNSIGNED_CHAR_MIN 0
+#define VTK_UNSIGNED_CHAR_MAX 255
 #define VTK_SHORT_MIN -32768
 #define VTK_SHORT_MAX 32767
 #define VTK_UNSIGNED_SHORT_MIN 0
 #define VTK_UNSIGNED_SHORT_MAX 65535
-#define VTK_UNSIGNED_CHAR_MIN 0
-#define VTK_UNSIGNED_CHAR_MAX 255
-
-// These types are returned by GetDataType to indicate pixel type.
-#define VTK_VOID            0
-#define VTK_FLOAT           1
-#define VTK_INT             2
-#define VTK_SHORT           3
-#define VTK_UNSIGNED_SHORT  4
-#define VTK_UNSIGNED_CHAR   5
-#define VTK_BIT             6 
-
-// These types are returned to distinguish scalar type
-#define VTK_SINGLE_VALUED 0
-#define VTK_COLOR_SCALAR  1
+#define VTK_INT_MIN (-VTK_LARGE_INTEGER-1)
+#define VTK_INT_MAX VTK_LARGE_INTEGER
+#define VTK_UNSIGNED_INT_MIN 0
+#define VTK_UNSIGNED_INT_MAX 4294967296
+#define VTK_LONG_MIN (-VTK_LARGE_INTEGER-1)
+#define VTK_LONG_MAX VTK_LARGE_INTEGER
+#define VTK_UNSIGNED_LONG_MIN 0
+#define VTK_UNSIGNED_LONG_MAX 4294967296
+#define VTK_FLOAT_MIN -VTK_LARGE_FLOAT
+#define VTK_FLOAT_MAX VTK_LARGE_FLOAT
+#define VTK_DOUBLE_MIN -1.0e+99L
+#define VTK_DOUBLE_MAX  1.0e+99L
 
 // These types are returned to distinguish dataset types
 #define VTK_POLY_DATA          0

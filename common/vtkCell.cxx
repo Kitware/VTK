@@ -42,8 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Description:
 // Construct cell.
-vtkCell::vtkCell():
-Points(VTK_CELL_SIZE), PointIds(VTK_CELL_SIZE)
+vtkCell::vtkCell()
 {
   this->Points.ReferenceCountingOff();
 }  
@@ -63,6 +62,18 @@ void vtkCell::Initialize(int npts, int *pts, vtkPoints *p)
     }
 }
  
+void vtkCell::ShallowCopy(vtkCell& c)
+{
+  this->Points.ShallowCopy(c.Points);
+  this->PointIds.ShallowCopy(c.PointIds);
+}
+
+void vtkCell::DeepCopy(vtkCell& c)
+{
+  this->Points.DeepCopy(c.Points);
+  this->PointIds.DeepCopy(c.PointIds);
+}
+
 #define VTK_RIGHT 0
 #define VTK_LEFT 1
 #define VTK_MIDDLE 2

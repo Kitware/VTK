@@ -55,8 +55,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // the method ReferenceCountingOff()).
 
 // .SECTION See Also
-// vtkLookupTable vtkTCoords vtkCellTypes vtkCellLinks vtkNormals vtkPoints
-// vtkScalars vtkTensors vtkUserDefined vtkVectors
+// vtkDataArray vtkLookupTable vtkTCoords vtkCellTypes vtkCellLinks vtkNormals vtkPoints
+// vtkScalars vtkTensors vtkField vtkVectors
 
 #ifndef __vtkReferenceCount_h
 #define __vtkReferenceCount_h

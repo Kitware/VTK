@@ -62,8 +62,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_TOL 1.e-05 // Tolerance for geometric calculation
 
 #include "vtkObject.h"
-#include "vtkFloatPoints.h"
-#include "vtkFloatScalars.h"
+#include "vtkPoints.h"
+#include "vtkScalars.h"
 #include "vtkIdList.h"
 #include "vtkCellTypes.h"
 
@@ -80,8 +80,20 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Create concrete copy of this cell.
+  // Create concrete copy of this cell. Initially, the copy is made by performing
+  // a ShallowCopy() operation.
   virtual vtkCell *MakeObject() = 0;
+
+  // Description:
+  // Copy this cell by reference counting the internal data structures. 
+  // This is safe if you want a "read-only" copy. If you modify the cell
+  // you might wish to use DeepCopy().
+  virtual void ShallowCopy(vtkCell& c);
+
+  // Description:
+  // Copy this cell by completely copying internal data structures. This is
+  // slower but safer than ShallowCopy().
+  virtual void DeepCopy(vtkCell& c);
 
   // Description:
   // Return the type of cell.
@@ -97,7 +109,7 @@ public:
 
   // Description:
   // Get the point coordinates for the cell.
-  vtkFloatPoints *GetPoints() {return &this->Points;};
+  vtkPoints *GetPoints() {return &this->Points;};
 
   // Description:
   // Return the number of points in the cell.
@@ -168,7 +180,7 @@ public:
   // polygons. It is possible to interpolate point data along the edge
   // by providing input and output point data - if outPd is NULL, then
   // no interpolation is performed.
-  virtual void Contour(float value, vtkFloatScalars *cellScalars, 
+  virtual void Contour(float value, vtkScalars *cellScalars, 
                        vtkPointLocator *locator, vtkCellArray *verts, 
                        vtkCellArray *lines, vtkCellArray *polys, 
                        vtkPointData *inPd, vtkPointData *outPd) = 0;
@@ -180,7 +192,7 @@ public:
   // The flag insideOut controls what part of the cell is considered inside - 
   // normally cell points whose scalar value is greater than "value" are
   // considered inside. If insideOut is on, this is reversed.
-  virtual void Clip(float value, vtkFloatScalars *cellScalars, 
+  virtual void Clip(float value, vtkScalars *cellScalars, 
                     vtkPointLocator *locator, vtkCellArray *connectivity,
                     vtkPointData *inPd, vtkPointData *outPd, int insideOut) = 0;
 
@@ -198,7 +210,7 @@ public:
   // cell dimension) defining a simplex. The index is a parameter that controls
   // which triangulation to use (if more than one is possible). If numerical
   // degeneracy encountered, 0 is returned, otherwise 1 is returned.
-  virtual int Triangulate(int index, vtkIdList &ptIds, vtkFloatPoints &pts) = 0;
+  virtual int Triangulate(int index, vtkIdList &ptIds, vtkPoints &pts) = 0;
 
   // Description:
   // Compute derivatives given cell subId and parametric coordinates. The values
@@ -224,7 +236,7 @@ public:
                       float coord[3], float& t);
 
   // left public for quick computational access
-  vtkFloatPoints Points;
+  vtkPoints Points;
   vtkIdList PointIds;
 
 };

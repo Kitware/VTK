@@ -47,47 +47,52 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkUnsignedCharArray_h
 #define __vtkUnsignedCharArray_h
 
-#include "vtkReferenceCount.h"
+#include "vtkDataArray.h"
 
-class VTK_EXPORT vtkUnsignedCharArray : public vtkReferenceCount
+class VTK_EXPORT vtkUnsignedCharArray : public vtkDataArray
 {
 public:
-  vtkUnsignedCharArray():Array(NULL),Size(0),MaxId(-1),Extend(1000) {};
+  vtkUnsignedCharArray(int numComp=1);
+  ~vtkUnsignedCharArray();
   int Allocate(const int sz, const int ext=1000);
   void Initialize();
-  vtkUnsignedCharArray(const int sz, const int ext=1000);
-  vtkUnsignedCharArray(const vtkUnsignedCharArray& ia);
-  ~vtkUnsignedCharArray();
   static vtkUnsignedCharArray *New() {return new vtkUnsignedCharArray;};
   const char *GetClassName() {return "vtkUnsignedCharArray";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // access/insertion methods
+  // satisfy vtkDataArray API
+  vtkDataArray *MakeObject() {return new vtkUnsignedCharArray(this->NumberOfComponents);};
+  int GetDataType() {return VTK_UNSIGNED_CHAR;};
+  void SetNumberOfTuples(const int number);
+  float *GetTuple(const int i);
+  void GetTuple(const int i, float tuple[]);
+  void SetTuple(const int i, const float tuple[]);
+  void InsertTuple(const int i, const float tuple[]);
+  int InsertNextTuple(const float tuple[]);
+  void Squeeze();
+
+  // overload vtkDataArray for efficiency
+  float GetComponent(const int i, const int j);
+  void SetComponent(const int i, const int j, const float c);
+  void InsertComponent(const int i, const int j, const float c);
+
+  // native access/insertion methods
   unsigned char GetValue(const int id);
   void SetNumberOfValues(const int number);
   void SetValue(const int id, const unsigned char value);
-  vtkUnsignedCharArray &InsertValue(const int id, const unsigned char c);
+  void InsertValue(const int id, const unsigned char c);
   int InsertNextValue(const unsigned char c);
-  unsigned char *GetPointer(const int id);
+  unsigned char *GetPointer(const int id) {return this->Array + id;}
   unsigned char *WritePointer(const int id, const int number);
-
-  // special operators
-  vtkUnsignedCharArray &operator=(const vtkUnsignedCharArray& ia);
-  void operator+=(const vtkUnsignedCharArray& ia);
-  void operator+=(const unsigned char c);
-
-  // miscellaneous methods
-  void Squeeze();
-  int GetSize();
-  int GetMaxId();
-  void Reset();
+  void *GetVoidPointer(const int id) {return (void *)this->GetPointer(id);};
+  void DeepCopy(vtkUnsignedCharArray& ia);
 
 private:
   unsigned char *Array;   // pointer to data
-  int Size;       // allocated size of data
-  int MaxId;     // maximum index inserted thus far
-  int Extend;     // grow array by this point
   unsigned char *Resize(const int sz);  // function to resize data
+
+  int TupleSize; //used for data conversion
+  float *Tuple;
 };
 
 // Description:
@@ -113,10 +118,6 @@ inline void vtkUnsignedCharArray::SetValue(const int id, const unsigned char val
 }
 
 // Description:
-// Get the address of a particular data index.
-inline unsigned char *vtkUnsignedCharArray::GetPointer(const int id) {return this->Array + id;}
-
-// Description:
 // Get the address of a particular data index. Make sure data is allocated
 // for the number of items requested. Set MaxId according to the number of
 // data values requested.
@@ -130,12 +131,11 @@ inline unsigned char *vtkUnsignedCharArray::WritePointer(const int id, const int
 
 // Description:
 // Insert data at a specified position in the array.
-inline vtkUnsignedCharArray& vtkUnsignedCharArray::InsertValue(const int id, const unsigned char c)
+inline void vtkUnsignedCharArray::InsertValue(const int id, const unsigned char c)
 {
   if ( id >= this->Size ) this->Resize(id+1);
   this->Array[id] = c;
   if ( id > this->MaxId ) this->MaxId = id;
-  return *this;
 }
 
 // Description:
@@ -145,26 +145,9 @@ inline int vtkUnsignedCharArray::InsertNextValue(const unsigned char c)
   this->InsertValue (++this->MaxId,c); 
   return this->MaxId;
 }
-inline void vtkUnsignedCharArray::operator+=(const unsigned char c)
-{
-  this->InsertNextValue(c);
-}
 
 // Description:
 // Resize object to just fit data requirement. Reclaims extra memory.
 inline void vtkUnsignedCharArray::Squeeze() {this->Resize (this->MaxId+1);}
-
-// Description:
-// Get the allocated size of the object in terms of number of data items.
-inline int vtkUnsignedCharArray::GetSize() {return this->Size;}
-
-// Description:
-// Returning the maximum index of data inserted so far.
-inline int vtkUnsignedCharArray::GetMaxId() {return this->MaxId;}
-
-// Description:
-// Reuse the memory allocated by this object. Objects appears like
-// no data has been previously inserted.
-inline void vtkUnsignedCharArray::Reset() {this->MaxId = -1;}
 
 #endif
