@@ -735,8 +735,15 @@ void vtkFieldData::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number Of Arrays: " << this->GetNumberOfArrays() << "\n";
   for (int i=0; i<this->GetNumberOfArrays(); i++)
     {
-    os << indent << "Array " << i << " name = " 
-       << this->GetArrayName(i) << "\n";
+    if (this->GetArrayName(i))
+      {
+      os << indent << "Array " << i << " name = " 
+         << this->GetArrayName(i) << "\n";
+      }
+    else
+      {
+      os << indent << "Array " << i << " name = NULL\n";
+      }
     }
   os << indent << "Number Of Components: " << this->GetNumberOfComponents() 
      << "\n";
