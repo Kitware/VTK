@@ -1137,7 +1137,6 @@ void makeIncrementalMakefiles(CPcmakerDlg *vals, int debugFlag)
   // always has common
   fprintf(fp,"ALL : vtkLibs ");
 
-
   // Java?
   if (vals->m_BuildJava &&strlen(vals->m_WhereJDK) > 1)
     {
@@ -1157,12 +1156,41 @@ void makeIncrementalMakefiles(CPcmakerDlg *vals, int debugFlag)
 
   fprintf(fp,"\n\n");
 
+  // Non incremental build (if you are wondering : makeNonIncrementalMakefile
+  // does *not* do what its name implies :)
+
+  fprintf(fp,"NonInc : vtkLibsNonInc ");
+
+  // Java?
+  if (vals->m_BuildJava &&strlen(vals->m_WhereJDK) > 1)
+    {
+    fprintf(fp,"vtkJavaLibNonInc ");
+    }
+
+  if (vals->m_BuildPython)
+    {
+    fprintf(fp,"vtkPythonLibNonInc ");
+    }
+
+  // TCL.. but last
+  if (vals->m_BuildTcl)
+    {
+    fprintf(fp,"vtkTclLibNonInc  ");
+    }
+
+  fprintf(fp,"\n\n");
+
+
   fprintf(fp,"vtkLibs :\n");
   fprintf(fp,"   cd vtkdll\n");
   fprintf(fp,"   nmake OBJS\n");
   fprintf(fp,"   nmake LIBRARIES\n");
   fprintf(fp,"   cd ../\n\n");
 
+  fprintf(fp,"vtkLibsNonInc :\n");
+  fprintf(fp,"   cd vtkdll\n");
+  fprintf(fp,"   nmake\n");
+  fprintf(fp,"   cd ../\n\n");
 
   if (vals->m_BuildJava && strlen(vals->m_WhereJDK) > 1)
     {
@@ -1170,6 +1198,11 @@ void makeIncrementalMakefiles(CPcmakerDlg *vals, int debugFlag)
     fprintf(fp,"   cd vtkjava\n");
     fprintf(fp,"   nmake ..\\lib\\%sjava.dll\n",vals->adlg.m_LibPrefix);
     fprintf(fp,"   nmake ..\\lib\\%sjava.dll\n",vals->adlg.m_LibPrefix);
+    fprintf(fp,"   cd ../\n\n");
+
+    fprintf(fp,"vtkJavaLibNonInc :\n");
+    fprintf(fp,"   cd vtkjava\n");
+    fprintf(fp,"   nmake\n");
     fprintf(fp,"   cd ../\n\n");
     }
 
@@ -1188,6 +1221,11 @@ void makeIncrementalMakefiles(CPcmakerDlg *vals, int debugFlag)
       fprintf(fp,"   nmake ..\\lib\\%spython.dll\n",vals->adlg.m_LibPrefix);
       }
     fprintf(fp,"   cd ../\n\n");
+
+    fprintf(fp,"vtkPythonLibNonInc :\n");
+    fprintf(fp,"   cd vtkpython\n");
+    fprintf(fp,"   nmake\n");
+    fprintf(fp,"   cd ../\n\n");
     }
 
   // tcl
@@ -1197,6 +1235,11 @@ void makeIncrementalMakefiles(CPcmakerDlg *vals, int debugFlag)
     fprintf(fp,"   cd vtktcl\n");
     fprintf(fp,"   nmake ..\\lib\\%stcl.dll\n",vals->adlg.m_LibPrefix);
     fprintf(fp,"   nmake ..\\lib\\%stcl.dll\n",vals->adlg.m_LibPrefix);
+    fprintf(fp,"   cd ../\n\n");
+
+    fprintf(fp,"vtkTclLibNonInc :\n");
+    fprintf(fp,"   cd vtktcl\n");
+    fprintf(fp,"   nmake\n");
     fprintf(fp,"   cd ../\n\n");
     }
 
