@@ -18,6 +18,8 @@
 #include "vtkCellData.h"
 #include "vtkGenericCell.h"
 #include "vtkMath.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -25,7 +27,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedIntArray.h"
 
-vtkCxxRevisionMacro(vtkDepthSortPolyData, "1.31");
+vtkCxxRevisionMacro(vtkDepthSortPolyData, "1.32");
 vtkStandardNewMacro(vtkDepthSortPolyData);
 
 vtkCxxSetObjectMacro(vtkDepthSortPolyData,Camera,vtkCamera);
@@ -113,12 +115,23 @@ extern "C"
   }
 }
 
-void vtkDepthSortPolyData::Execute()
+int vtkDepthSortPolyData::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkPolyData *input = vtkPolyData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkSortValues *depth;
   vtkIdType cellId, id;
-  vtkPolyData *input=this->GetInput();
-  vtkPolyData *output=this->GetOutput();
   vtkGenericCell *cell;
   vtkIdType numCells=input->GetNumberOfCells();
   vtkCellData *inCD=input->GetCellData();
@@ -151,7 +164,7 @@ void vtkDepthSortPolyData::Execute()
     if ( this->Camera == NULL)
       {
       vtkErrorMacro(<<"Need a camera to sort");
-      return;
+      return 0;
       }
   
     this->ComputeProjectionVector(vector, origin);
@@ -164,14 +177,14 @@ void vtkDepthSortPolyData::Execute()
     }
 
   // Create temporary input
-  input = vtkPolyData::New();
-  input->CopyStructure(this->GetInput());
+  vtkPolyData *tmpInput = vtkPolyData::New();
+  tmpInput->CopyStructure(input);
 
   // Compute the depth value
   depth = new vtkSortValues [numCells];
   for ( cellId=0; cellId < numCells; cellId++ )
     {
-    input->GetCell(cellId, cell);
+    tmpInput->GetCell(cellId, cell);
     if ( this->DepthSortMode == VTK_SORT_FIRST_POINT )
       {
       cell->Points->GetPoint(0,x);
@@ -224,11 +237,11 @@ void vtkDepthSortPolyData::Execute()
     scalars = sortScalars->GetPointer(0);
     }
   outCD->CopyAllocate(inCD);
-  output->Allocate(input,numCells);
+  output->Allocate(tmpInput,numCells);
   for ( cellId=0; cellId < numCells; cellId++ )
     {
     id = depth[cellId].cellId;
-    input->GetCell(id, cell);
+    tmpInput->GetCell(id, cell);
     type = cell->GetCellType();
     npts = cell->GetNumberOfPoints();
     pts = cell->GetPointIds()->GetPointer(0);
@@ -244,8 +257,8 @@ void vtkDepthSortPolyData::Execute()
   this->UpdateProgress(0.90);
 
   // Points are left alone
-  output->SetPoints(this->GetInput()->GetPoints());
-  output->GetPointData()->PassData(this->GetInput()->GetPointData());
+  output->SetPoints(input->GetPoints());
+  output->GetPointData()->PassData(input->GetPointData());
   if ( this->SortScalars )
     {
     int idx = output->GetCellData()->AddArray(sortScalars);
@@ -254,10 +267,12 @@ void vtkDepthSortPolyData::Execute()
     }
 
   // Clean up and get out    
-  input->Delete();
+  tmpInput->Delete();
   delete [] depth;
   cell->Delete();
   output->Squeeze();
+
+  return 1;
 }
 
 void vtkDepthSortPolyData::ComputeProjectionVector(double vector[3], 
@@ -305,7 +320,7 @@ void vtkDepthSortPolyData::ComputeProjectionVector(double vector[3],
 
 unsigned long int vtkDepthSortPolyData::GetMTime()
 {
-  unsigned long mTime=this->vtkPolyDataToPolyDataFilter::GetMTime();
+  unsigned long mTime=this->Superclass::GetMTime();
  
   if ( this->Direction != VTK_DIRECTION_SPECIFIED_VECTOR )
     {

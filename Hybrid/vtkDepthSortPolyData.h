@@ -28,7 +28,7 @@
 #ifndef __vtkDepthSortPolyData_h
 #define __vtkDepthSortPolyData_h
 
-#include "vtkPolyDataToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
 #define VTK_DIRECTION_BACK_TO_FRONT 0
 #define VTK_DIRECTION_FRONT_TO_BACK 1
@@ -42,14 +42,14 @@ class vtkCamera;
 class vtkProp3D;
 class vtkTransform;
 
-class VTK_HYBRID_EXPORT vtkDepthSortPolyData : public vtkPolyDataToPolyDataFilter 
+class VTK_HYBRID_EXPORT vtkDepthSortPolyData : public vtkPolyDataAlgorithm 
 {
 public:
   // Description:
   // Instantiate object.
   static vtkDepthSortPolyData *New();
 
-  vtkTypeRevisionMacro(vtkDepthSortPolyData,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkDepthSortPolyData,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -126,7 +126,7 @@ protected:
   vtkDepthSortPolyData();
   ~vtkDepthSortPolyData();
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   void ComputeProjectionVector(double vector[3], double origin[3]);
 
   int Direction;
