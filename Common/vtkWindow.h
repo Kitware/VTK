@@ -12,13 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkWindow - window superclass for ImageWindow and RenderWindow
+// .NAME vtkWindow - window superclass for vtkRenderWindow
 // .SECTION Description
 // vtkWindow is an abstract object to specify the behavior of a
-// rendering or imaging window. It contains vtkViewports.
+// rendering window. It contains vtkViewports.
 
 // .SECTION see also
-// vtkImageWindow vtkRenderWindow vtkViewport
+// vtkRenderWindow vtkViewport
 
 #ifndef __vtkWindow_h
 #define __vtkWindow_h
