@@ -21,6 +21,7 @@ vtkImage1dGaussianSmoothFilter.o \
 vtkImage1dMagnifyFilter.o \
 vtkImage1dRfftFilter.o \
 vtkImage1dSpatialFilter.o \
+vtkImage2dAnisotropicDiffusionFilter.o \
 vtkImage2dDecomposedFilter.o \
 vtkImage2dDilateValueFilter.o \
 vtkImage2dDistanceFilter.o \
@@ -75,6 +76,7 @@ tcl/vtkImage1dGaussianSmoothFilterTcl.o \
 tcl/vtkImage1dMagnifyFilterTcl.o \
 tcl/vtkImage1dRfftFilterTcl.o \
 tcl/vtkImage1dSpatialFilterTcl.o \
+tcl/vtkImage2dAnisotropicDiffusionFilterTcl.o \
 tcl/vtkImage2dDecomposedFilterTcl.o \
 tcl/vtkImage2dDilateValueFilterTcl.o \
 tcl/vtkImage2dDistanceFilterTcl.o \
@@ -129,6 +131,7 @@ vtkImage1dGaussianSmoothFilter.h \
 vtkImage1dMagnifyFilter.h \
 vtkImage1dRfftFilter.h \
 vtkImage1dSpatialFilter.h \
+vtkImage2dAnisotropicDiffusionFilter.h \
 vtkImage2dDecomposedFilter.h \
 vtkImage2dDilateValueFilter.h \
 vtkImage2dDistanceFilter.h \
@@ -255,6 +258,9 @@ tcl/vtkImage1dRfftFilterTcl.cxx: vtkImage1dRfftFilter.h ../tcl/cpp_parse
 
 tcl/vtkImage1dSpatialFilterTcl.cxx: vtkImage1dSpatialFilter.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImage1dSpatialFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage1dSpatialFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage1dSpatialFilterTcl.cxx
+
+tcl/vtkImage2dAnisotropicDiffusionFilterTcl.cxx: vtkImage2dAnisotropicDiffusionFilter.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImage2dAnisotropicDiffusionFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage2dAnisotropicDiffusionFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage2dAnisotropicDiffusionFilterTcl.cxx
 
 tcl/vtkImage2dDecomposedFilterTcl.cxx: vtkImage2dDecomposedFilter.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImage2dDecomposedFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage2dDecomposedFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage2dDecomposedFilterTcl.cxx
