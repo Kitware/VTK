@@ -21,3 +21,14 @@ YACC:
 3. Build vtkHTML.exe, vtkWrapTcl.exe, vtkParseJava.exe,vtkWrapJava.exe, 
    vtkWrapPython.exe on the PC and check them in.
 4. Check in vtkParse.l, lex.yy.c, vtkParse.y, vtkParse.tab.c
+
+
+Important Note on YACC:
+-----------------------
+
+   Do not use GNU Bison on vtkParse.y.  New versions won't even parse
+   the file and old ones will create compile problems on various
+   platforms.  Use a recent byacc instead.  Byacc is the Berkeley LALR
+   parser generator.  Red Hat Linux apparently installs byacc by
+   default.
+
