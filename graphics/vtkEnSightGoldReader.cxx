@@ -1104,7 +1104,7 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
       numElements = atoi(line);
       this->ReadNextDataLine(line);
       if (sscanf(line, " %d %d %d %d", &nodeIds[0], &nodeIds[1],
-                 &nodeIds[2], nodeIds[3]) != 4)
+                 &nodeIds[2], &nodeIds[3]) != 4)
         {
         for (i = 0; i < numElements; i++)
           {
@@ -1459,12 +1459,12 @@ int vtkEnSightGoldReader::CreateStructuredPointsOutput(int partId,
   ((vtkStructuredPoints*)this->GetOutput(partId))->
     SetWholeExtent(0, dimensions[0]-1, 0, dimensions[1]-1, 0, dimensions[2]-1);
   this->ReadNextDataLine(line);
-  sscanf(line, " %d %d %d", &origin[0], &origin[1], &origin[2]);
+  sscanf(line, " %f %f %f", &origin[0], &origin[1], &origin[2]);
   ((vtkStructuredPoints*)this->GetOutput(partId))->SetOrigin(origin[0],
                                                              origin[1],
                                                              origin[2]);
   this->ReadNextDataLine(line);
-  sscanf(line, " %d %d %d", &delta[0], &delta[1], &delta[2]);
+  sscanf(line, " %f %f %f", &delta[0], &delta[1], &delta[2]);
   ((vtkStructuredPoints*)this->GetOutput(partId))->SetSpacing(delta[0],
                                                               delta[1],
                                                               delta[2]);

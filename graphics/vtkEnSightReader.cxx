@@ -606,7 +606,7 @@ int vtkEnSightReader::ReadCaseFile()
             vtkDebugMacro("complex scalar per node");
             this->VariableMode = VTK_COMPLEX_SCALAR_PER_NODE;
             this->AddVariableType();
-            if (sscanf(line, " %*s %*s %*s %*s %*d %*d %s %s", subLine) == 1)
+            if (sscanf(line, " %*s %*s %*s %*s %*d %*d %*s %s", subLine) == 1)
               {
               this->AddVariableDescription(subLine);
               sscanf(line, " %*s %*s %*s %*s %*d %*d %*s %s %s", subLine,

@@ -88,7 +88,6 @@ int vtkEnSight6Reader::ReadGeometryFile()
   char tempLine1[256], tempLine2[256], tempLine3[256], tempLine4[256];
   int partId;
   int lineRead;
-  int useListedIds = 0;
   int pointId;
   float point[3];
   int i;
