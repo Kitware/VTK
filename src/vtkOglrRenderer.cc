@@ -50,6 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkOglrCamera.hh"
 #include "vtkOglrLight.hh"
 #include "vtkVolumeRenderer.hh"
+#include "vtkNewVolumeRenderer.hh"
 
 #define MAX_LIGHTS 8
 
@@ -189,6 +190,11 @@ void vtkOglrRenderer::Render(void)
   if (this->VolumeRenderer)
     {
     this->VolumeRenderer->Render((vtkRenderer *)this);
+    }
+
+  if (this->NewVolumeRenderer)
+    {
+    this->NewVolumeRenderer->Render((vtkRenderer *)this);
     }
 
   if (this->EndRenderMethod) 

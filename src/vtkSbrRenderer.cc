@@ -46,6 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkSbrRenderWindow.hh"
 #include "vtkSbrRenderer.hh"
 #include "vtkVolumeRenderer.hh"
+#include "vtkNewVolumeRenderer.hh"
 
 #define MAX_LIGHTS 16
 
@@ -168,6 +169,11 @@ void vtkSbrRenderer::Render(void)
   if (this->VolumeRenderer)
     {
     this->VolumeRenderer->Render((vtkRenderer *)this);
+    }
+
+  if (this->NewVolumeRenderer)
+    {
+    this->NewVolumeRenderer->Render((vtkRenderer *)this);
     }
 
   if (this->EndRenderMethod) 

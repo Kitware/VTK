@@ -44,6 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkRenderer.hh"
 #include "vtkRenderWindow.hh"
 #include "vtkVolumeRenderer.hh"
+#include "vtkNewVolumeRenderer.hh"
 #include "vtkMath.hh"
 
 // Description:
@@ -84,6 +85,7 @@ vtkRenderer::vtkRenderer()
   
   this->Aspect[0] = this->Aspect[1] = 1.0;
   this->VolumeRenderer = NULL;
+  this->NewVolumeRenderer = NULL;
   this->SelfCreatedCamera = 0;
   this->SelfCreatedLight = 0;
   this->CreatedLight = NULL;
@@ -146,6 +148,20 @@ void vtkRenderer::SetVolumeRenderer(vtkVolumeRenderer *vol)
 vtkVolumeRenderer *vtkRenderer::GetVolumeRenderer()
 {
   return this->VolumeRenderer;
+}
+
+// Description:
+// Set the volume renderer to use
+void vtkRenderer::SetNewVolumeRenderer(vtkNewVolumeRenderer *vol)
+{
+  this->NewVolumeRenderer = vol;
+}
+
+// Description:
+// Get the volume renderer.
+vtkNewVolumeRenderer *vtkRenderer::GetNewVolumeRenderer()
+{
+  return this->NewVolumeRenderer;
 }
 
 // Description:
@@ -274,6 +290,12 @@ void vtkRenderer::ResetCamera()
 	if (bounds[5] > allBounds[5]) allBounds[5] = bounds[5]; 
 	}
       }
+    }
+
+  if ( this->NewVolumeRenderer )
+    {
+    // Add bounds code!!!
+
     }
 
   if ( nothingVisible )
