@@ -22,6 +22,7 @@ ENDIF(VTK_USE_CARBON)
 FIND_LIBRARY(UTIL_LIBRARY
   NAMES util
   PATHS /usr/lib
+  DOC "Utility library needed for vtkpython"
 )
 IF(UTIL_LIBRARY)
   SET(UTIL_LIBRARY_LIB ${UTIL_LIBRARY})
