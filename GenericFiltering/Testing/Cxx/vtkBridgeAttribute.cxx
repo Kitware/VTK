@@ -32,7 +32,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkBridgeAttribute, "1.2");
+vtkCxxRevisionMacro(vtkBridgeAttribute, "1.3");
 vtkStandardNewMacro(vtkBridgeAttribute);
 
 void vtkBridgeAttribute::PrintSelf(ostream& os, vtkIndent indent)
@@ -113,11 +113,11 @@ unsigned long vtkBridgeAttribute::GetActualMemorySize()
 // Range of the attribute component `component'. It returns double, even if
 // GetType()==VTK_INT.
 // NOT THREAD SAFE
-// \pre valid_component: (component>=0)&&(component<GetNumberOfComponents())
+// \pre valid_component: (component>=-1)&&(component<GetNumberOfComponents())
 // \post result_exists: result!=0
 double *vtkBridgeAttribute::GetRange(int component)
 {
-  assert("pre: valid_component" && (component>=0)&&(component<this->GetNumberOfComponents()));
+  assert("pre: valid_component" && (component>=-1)&&(component<this->GetNumberOfComponents()));
   double *result=this->Data->GetArray(this->AttributeNumber)->GetRange(component);
   assert("post: result_exists" && result!=0);
   return result;
@@ -127,11 +127,11 @@ double *vtkBridgeAttribute::GetRange(int component)
 // Description:
 // Range of the attribute component `component'.
 // THREAD SAFE
-// \pre valid_component: (component>=0)&&(component<GetNumberOfComponents())
+// \pre valid_component: (component>=-1)&&(component<GetNumberOfComponents())
 void vtkBridgeAttribute::GetRange(int component,
                                   double range[2])
 {
-   assert("pre: valid_component" && (component>=0)&&(component<this->GetNumberOfComponents()));
+   assert("pre: valid_component" && (component>=-1)&&(component<this->GetNumberOfComponents()));
    this->Data->GetArray(this->AttributeNumber)->GetRange(range,component);
 }
 
