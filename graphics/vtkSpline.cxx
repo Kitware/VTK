@@ -111,4 +111,6 @@ void vtkSpline::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Piecewise Function:\n";
   this->PiecewiseFunction->PrintSelf(os,indent.GetNextIndent());
+
+  os << indent << "Closed: " << (this->Closed ? "On\n" : "Off\n");
 }
