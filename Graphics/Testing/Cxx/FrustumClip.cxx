@@ -17,6 +17,7 @@
 #include "vtkClipPolyData.h"
 #include "vtkDebugLeaks.h"
 #include "vtkPlanes.h"
+#include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
