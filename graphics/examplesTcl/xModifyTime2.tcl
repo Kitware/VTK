@@ -757,10 +757,21 @@ set ERROR_STRING ""
 
 viewer GlobalWarningDisplayOff
 
-#TestKit common
-#TestKit graphics
-#TestKit imaging
-#TestKit patented
+# Check to see if  classes was specified.
+if { $argv != ""} {
+   foreach file $argv {
+      # we do not know what kit it is in, so try them all
+      TestObject graphics $file
+      TestObject imaging $file
+      TestObject patented $file
+      TestObject common $file
+   }
+} else {
+   TestKit common
+   TestKit graphics
+   TestKit imaging
+   TestKit patented
+}
 
 if {$ERROR_STRING != ""} {
    mapper SetInput "$LABEL_STRING $ERROR_STRING"

@@ -13,7 +13,6 @@ source ../../examplesTcl/vtkInt.tcl
 
 
 
-
 # A global variable similar to "DebugOn"
 # When this is set to 1, the method calls will be echoed, and
 # the mtime results displayed.  When an error is encountered,
@@ -711,14 +710,24 @@ set ERROR_STRING ""
 viewer GlobalWarningDisplayOff
 
 
-# Still Reference counting problems in graphics. (seg faults)
-# next: Exporter has pointer to deleted window (GetMTime)
-#TestObject graphics vtkIVExporter
-#TestKit graphics
-TestKit imaging
-TestKit patented
-TestKit common
-
+# Check to see if  classes was specified.
+if { $argv != ""} {
+   foreach file $argv {
+      # we do not know what kit it is in, so try them all
+      TestObject graphics $file
+      TestObject imaging $file
+      TestObject patented $file
+      TestObject common $file
+   }
+} else {
+   # Still Reference counting problems in graphics. (seg faults)
+   # next: Exporter has pointer to deleted window (GetMTime)
+   #TestObject graphics vtkIVExporter
+   #TestKit graphics
+   TestKit imaging
+   TestKit patented
+   TestKit common
+}
 
 if {$ERROR_STRING != ""} {
    mapper SetInput "$LABEL_STRING $ERROR_STRING"

@@ -757,10 +757,22 @@ viewer GlobalWarningDisplayOff
 #TestObject graphics vtkExtractVectorComponents
 #TestObject graphics vtkGlyph3D
 
-TestKit graphics
-TestKit imaging
-TestKit patented
-TestKit common
+# Check to see if  classes was specified.
+if { $argv != ""} {
+   foreach file $argv {
+      # we do not know what kit it is in, so try them all
+      TestObject graphics $file
+      TestObject imaging $file
+      TestObject patented $file
+      TestObject common $file
+   }
+} else {
+   TestKit graphics
+   TestKit imaging
+   TestKit patented
+   TestKit common
+}
+
 
 if {$ERROR_STRING_CHANGE != ""} {
    mapper SetInput "$LABEL_STRING_CHANGE $ERROR_STRING_CHANGE"
