@@ -23,7 +23,7 @@
 #include "vtkTimerLog.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkCompositeRenderManager, "1.6");
+vtkCxxRevisionMacro(vtkCompositeRenderManager, "1.7");
 vtkStandardNewMacro(vtkCompositeRenderManager);
 
 vtkCxxSetObjectMacro(vtkCompositeRenderManager, Compositer, vtkCompositer);
@@ -31,7 +31,8 @@ vtkCxxSetObjectMacro(vtkCompositeRenderManager, Compositer, vtkCompositer);
 //----------------------------------------------------------------------------
 vtkCompositeRenderManager::vtkCompositeRenderManager()
 {
-  this->SetCompositer( vtkCompressCompositer::New() );
+  this->Compositer = vtkCompressCompositer::New();
+  this->Compositer->Register( this );
   this->Compositer->Delete();
 
   this->DepthData = vtkFloatArray::New();
