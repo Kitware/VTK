@@ -722,7 +722,7 @@ void vtkRenderWindow::CopyResultFrame(void)
 
 // Description:
 // This method indicates if a StereoOn/Off will require the window to 
-// be remapped. Soe types of stereo rendering require a new window
+// be remapped. Some types of stereo rendering require a new window
 // to be created.
 int vtkRenderWindow::GetRemapWindow(void)
 {

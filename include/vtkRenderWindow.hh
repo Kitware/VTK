@@ -85,7 +85,7 @@ public:
 
   // Description:
   // Performed at the end of the rendering process to swap buffers
-  // if neccessary etc.
+  // if necessary etc.
   virtual void Frame() = 0;
 
   virtual void SetDisplayId(void *) = 0;
@@ -98,7 +98,7 @@ public:
 
   // Description:
   // Create a device specific renderer. This is the only way to create
-  // a renderer that will work. This method is implimented in the
+  // a renderer that will work. This method is implemented in the
   // subclasses of vtkRenderWindow so that each subclass will return
   // the correct renderer for its graphics library.
   virtual vtkRenderer  *MakeRenderer() = 0;
@@ -150,7 +150,7 @@ public:
   // Description:
   // Turn on/off window manager borders. Typically you shouldn't turn the 
   // borders off because that bypasses the window manager and can cause
-  // undesirable behaviour.
+  // undesirable behavior.
   vtkSetMacro(Borders,int);
   vtkGetMacro(Borders,int);
   vtkBooleanMacro(Borders,int);
@@ -229,7 +229,7 @@ public:
   virtual void SetPixelData(int x,int y,int x2,int y2,unsigned char *,int front) = 0;
 
   // Description:
-  // Set the number of frames for doing anti aliasing. The defualt is
+  // Set the number of frames for doing anti aliasing. The default is
   // zero. Typically five or six will yield reasonable results without
   // taking too long.
   vtkGetMacro(AAFrames,int);
@@ -254,7 +254,7 @@ public:
   vtkSetMacro(SubFrames,int);
 
   // Description:
-  // Set/Get the desired update rate. This is used in conjuntion with
+  // Set/Get the desired update rate. This is used with
   // the vtkLODActor class. When using level of detail actors you
   // need to specify what update rate you require. The LODActors then
   // will pick the correct resolution to meet your desired update rate
