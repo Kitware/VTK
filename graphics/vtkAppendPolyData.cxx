@@ -145,7 +145,7 @@ void vtkAppendPolyData::Execute()
   vtkCellArray *inVerts, *newVerts;
   vtkCellArray *inLines, *newLines;
   vtkCellArray *inPolys, *newPolys;
-  int sizePolys, numPolys, *pPolys;
+  int sizePolys, numPolys;
   vtkCellArray *inStrips, *newStrips;
   int numPts, numCells;
   vtkPointData *inPD = NULL;
@@ -158,8 +158,8 @@ void vtkAppendPolyData::Execute()
   vtkDataArray *newPtNormals = NULL;
   vtkDataArray *newPtTCoords = NULL;
   vtkDataArray *newPtTensors = NULL;
-  int i, ptId, cellId, npts;
-  vtkIdType *pts;
+  int i, ptId, cellId;
+  vtkIdType *pts, *pPolys, npts;
   
   vtkDebugMacro(<<"Appending polydata");
 
@@ -679,17 +679,17 @@ void vtkAppendPolyData::AppendDifferentPoints(vtkDataArray *dest, vtkDataArray *
 
 
 // returns the next pointer in dest
-int *vtkAppendPolyData::AppendCells(int *pDest, vtkCellArray *src, int offset)
+vtkIdType *vtkAppendPolyData::AppendCells(vtkIdType *pDest, vtkCellArray *src,
+                                          int offset)
 {
-  int *pSrc, *end;
-  int *pNum;
+  vtkIdType *pSrc, *end, *pNum;
 
   if (src == NULL)
     {
     return pDest;
     }
 
-  pSrc = (int*)(src->GetPointer());
+  pSrc = (vtkIdType*)(src->GetPointer());
   end = pSrc + src->GetNumberOfConnectivityEntries();
   pNum = pSrc;
   

@@ -102,6 +102,8 @@ public:
   { vtkByteSwap::Swap4BERange((char *)i,num); };
   static void Swap4BERange(unsigned long *i,int num) 
   { vtkByteSwap::Swap4BERange((char *)i,num); };
+  static void Swap4BERange(vtkIdType *i,int num) 
+  { vtkByteSwap::Swap4BERange((char *)i,num); };
 
 
   // Description:
@@ -115,6 +117,8 @@ public:
   { vtkByteSwap::SwapWrite4BERange((char *)i,num,fp);};
   static void SwapWrite4BERange(unsigned long *i,int num, FILE *fp) 
   { vtkByteSwap::SwapWrite4BERange((char *)i,num,fp);};
+  static void SwapWrite4BERange(vtkIdType *i,int num, FILE *fp) 
+  { vtkByteSwap::SwapWrite4BERange((char *)i,num,fp);};
 
   static void SwapWrite4BERange(char *c,int num, ostream *fp);
   static void SwapWrite4BERange(float *p,int num, ostream *fp) 
@@ -122,6 +126,8 @@ public:
   static void SwapWrite4BERange(int *i,int num, ostream *fp) 
   { vtkByteSwap::SwapWrite4BERange((char *)i,num,fp);};
   static void SwapWrite4BERange(unsigned long *i,int num, ostream *fp) 
+  { vtkByteSwap::SwapWrite4BERange((char *)i,num,fp);};
+  static void SwapWrite4BERange(vtkIdType *i,int num, ostream *fp) 
   { vtkByteSwap::SwapWrite4BERange((char *)i,num,fp);};
 
 

@@ -251,7 +251,7 @@ void vtkApproximatingSubdivisionFilter::GenerateSubdivisionCells (vtkPolyData *i
 {
   int numCells = inputDS->GetNumberOfCells();
   int cellId, newId, id;
-  int npts;
+  vtkIdType npts;
   vtkIdType *pts;
   float edgePts[3];
   vtkIdType newCellPts[3];

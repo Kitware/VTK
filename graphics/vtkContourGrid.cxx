@@ -130,7 +130,8 @@ static void vtkContourGridExecute(vtkContourGrid *self,
   vtkScalars *cellScalars;
   vtkUnstructuredGrid *grid = (vtkUnstructuredGrid *)input;
   //In this case, we know that the input is an unstructured grid.
-  int numPoints, needCell = 0, *cellArrayPtr, cellArrayIt = 0;
+  int numPoints, needCell = 0, cellArrayIt = 0;
+  vtkIdType *cellArrayPtr;
   T tempScalar;
 
   numCells = input->GetNumberOfCells();

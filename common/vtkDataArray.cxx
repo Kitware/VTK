@@ -265,7 +265,7 @@ void vtkDataArray::InsertTuple(const vtkIdType i, const double * tuple)
   delete [] ftuple;
 }
 
-int vtkDataArray::InsertNextTuple(const double * tuple)
+vtkIdType vtkDataArray::InsertNextTuple(const double * tuple)
 {
   int c;
   int numComp=this->GetNumberOfComponents();

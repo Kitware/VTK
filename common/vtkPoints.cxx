@@ -90,7 +90,8 @@ void vtkPoints::GetPoints(vtkIdList *ptIds, vtkPoints *fp)
 // Determine (xmin,xmax, ymin,ymax, zmin,zmax) bounds of points.
 void vtkPoints::ComputeBounds()
 {
-  int i, j;
+  vtkIdType i;
+  int j;
   float *x;
 
   if ( this->GetMTime() > this->ComputeTime )

@@ -80,7 +80,7 @@ void vtkTransformPolyDataFilter::Execute()
   vtkVectors *newVectors=NULL, *newCellVectors=NULL;
   vtkNormals *inNormals, *inCellNormals;
   vtkNormals *newNormals=NULL, *newCellNormals=NULL;
-  int numPts, numCells;
+  vtkIdType numPts, numCells;
   vtkPolyData *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();

@@ -85,7 +85,7 @@ vtkCell *vtkPolyLine::MakeObject()
 // in the same direction as much as possible (i.e., minimal rotation).
 int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines, vtkNormals *normals)
 {
-  int npts;
+  vtkIdType npts;
   vtkIdType *linePts;
   float sPrev[3], sNext[3], q[3], w[3], normal[3], theta;
   float p[3], pNext[3];

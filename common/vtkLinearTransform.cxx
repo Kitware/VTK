@@ -216,7 +216,7 @@ void vtkLinearTransform::TransformPoints(vtkPoints *inPts,
 void vtkLinearTransform::TransformNormals(vtkNormals *inNms, 
 					  vtkNormals *outNms)
 {
-  int n = inNms->GetNumberOfNormals();
+  vtkIdType n = inNms->GetNumberOfNormals();
   double norm[3];
   double matrix[4][4];
   
@@ -227,7 +227,7 @@ void vtkLinearTransform::TransformNormals(vtkNormals *inNms,
   vtkMatrix4x4::Invert(*matrix,*matrix);
   vtkMatrix4x4::Transpose(*matrix,*matrix);
 
-  for (int i = 0; i < n; i++)
+  for (vtkIdType i = 0; i < n; i++)
     {
     inNms->GetNormal(i,norm);
 
@@ -270,14 +270,14 @@ void vtkLinearTransform::TransformNormals(vtkDataArray *inNms,
 void vtkLinearTransform::TransformVectors(vtkVectors *inNms, 
 					  vtkVectors *outNms)
 {
-  int n = inNms->GetNumberOfVectors();
+  vtkIdType n = inNms->GetNumberOfVectors();
   double vec[3];
   
   this->Update();
 
   double (*matrix)[4] = this->Matrix->Element;
 
-  for (int i = 0; i < n; i++)
+  for (vtkIdType i = 0; i < n; i++)
     {
     inNms->GetVector(i,vec);
 

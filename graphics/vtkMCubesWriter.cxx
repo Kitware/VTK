@@ -129,7 +129,7 @@ void WriteMCubes(FILE *fp, vtkPoints *pts, vtkNormals *normals, vtkCellArray *po
   typedef struct {float x[3], n[3];} pointType;
   pointType point;
   int i;
-  int npts;
+  vtkIdType npts;
   vtkIdType *indx;
 
   //  Write out triangle polygons.  In not a triangle polygon, create triangles.

@@ -91,9 +91,27 @@ using std::ifstream;
 #endif
 
 #ifdef VTK_USE_64BIT_IDS
-typedef long vtkIdType;
+#ifdef _WIN32
+typedef __int64 vtkIdType;
+
+/* ostream operator for __int64 */
+inline ostream& __cdecl operator<<(ostream& _O, __int64 i64Val)
+{
+  wchar_t wchBuf[32];
+  if (i64Val < 0)
+  {
+    _O << char("-");
+    i64Val *= -1;
+  }
+  return (_O << _i64tow(i64Val, wchBuf, 10));
+};
+
 #else
-typedef int vtkIdType;
+typedef long long vtkIdType;
+#endif
+#else
+typedef long vtkIdType;
 #endif
 
 #endif
+

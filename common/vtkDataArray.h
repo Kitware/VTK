@@ -85,7 +85,7 @@ public:
   // Description:
   // Allocate memory for this array. Delete old storage only if necessary.
   // Note that ext is no longer used.
-  virtual int Allocate(const vtkIdType sz, const int ext=1000) = 0;
+  virtual int Allocate(const vtkIdType sz, const vtkIdType ext=1000) = 0;
   virtual void Initialize() = 0;
 
   // Description:
@@ -148,8 +148,8 @@ public:
   // Insert the data tuple at the end of the array and return the location at
   // which the data was inserted. Memory is allocated as necessary to hold
   // the data.
-  virtual int InsertNextTuple(const float * tuple) = 0;
-  virtual int InsertNextTuple(const double * tuple);
+  virtual vtkIdType InsertNextTuple(const float * tuple) = 0;
+  virtual vtkIdType InsertNextTuple(const double * tuple);
 
   // Description:
   // Return the data component at the ith tuple and jth component location.

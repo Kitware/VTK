@@ -122,7 +122,7 @@ void vtkCleanPolyData::Execute()
   int inCellID, newId;
   int i;
   vtkIdType ptId;
-  int npts;
+  vtkIdType npts;
   vtkIdType *pts;
   float x[3];
   float newx[3];

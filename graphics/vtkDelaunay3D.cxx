@@ -230,8 +230,8 @@ int vtkDelaunay3D::FindEnclosingFaces(float x[3], vtkUnstructuredGrid *Mesh,
 {
   int tetraId, i, j, numTetras;
   int p1, p2, p3, insertFace;
-  int npts, nei, hasNei;
-  vtkIdType *tetraPts;
+  int nei, hasNei;
+  vtkIdType *tetraPts, npts;
   int closestPoint;
   double xd[3]; xd[0]=x[0]; xd[1]=x[1]; xd[2]=x[2];
 
@@ -443,7 +443,7 @@ void vtkDelaunay3D::Execute()
   vtkPointSet *input=this->GetInput();
   vtkUnstructuredGrid *output=this->GetOutput();
   float x[3];
-  int npts;
+  vtkIdType npts;
   vtkIdType *tetraPts, pts[4];
   vtkIdList *cells, *holeTetras;
   float center[3], tol;
@@ -1028,8 +1028,7 @@ void vtkDelaunay3D::InsertTetra(vtkUnstructuredGrid *Mesh, vtkPoints *points,
 {
   float *x1, *x2, *x3, *x4;
   double dx1[3], dx2[3], dx3[3], dx4[3], radius2, center[3];
-  int npts;
-  vtkIdType *pts;
+  vtkIdType *pts, npts;
   
   Mesh->GetCellPoints(tetraId, npts, pts);
   x1 = points->GetPoint(pts[0]); dx1[0]=x1[0]; dx1[1]=x1[1]; dx1[2]=x1[2];
@@ -1090,8 +1089,8 @@ static int GetTetraFaceNeighbor(vtkUnstructuredGrid *Mesh, int tetraId,
   vtkCellLinks *links = Mesh->GetCellLinks();
   int numCells = links->GetNcells(p1);
   vtkIdType *cells = links->GetCells(p1);
-  int i, npts;
-  vtkIdType *pts;
+  int i;
+  vtkIdType *pts, npts;
   
   //perform set operation
   for (i=0; i < numCells; i++)

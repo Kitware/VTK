@@ -137,7 +137,7 @@ void vtkClipDataSet::Execute()
   vtkPoints *cellPts;
   vtkIdList *cellIds;
   float s;
-  int npts;
+  vtkIdType npts;
   vtkIdType *pts;
   int cellType = 0;
   int i, j;

@@ -103,7 +103,7 @@ void vtkSTLWriter::WriteAsciiSTL(vtkPoints *pts, vtkCellArray *polys)
 {
   FILE *fp;
   float n[3], *v1, *v2, *v3;
-  int npts;
+  vtkIdType npts;
   vtkIdType *indx;
   
   if ((fp = fopen(this->FileName, "w")) == NULL)
@@ -145,7 +145,7 @@ void vtkSTLWriter::WriteBinarySTL(vtkPoints *pts, vtkCellArray *polys)
 {
   FILE *fp;
   float n[3], *v1, *v2, *v3;
-  int npts;
+  vtkIdType npts;
   vtkIdType *indx;
   unsigned long ulint;
   unsigned short ibuff2=0;

@@ -72,6 +72,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_UNSIGNED_LONG   9
 #define VTK_FLOAT          10
 #define VTK_DOUBLE         11 
+#define VTK_ID_TYPE        12
 
 // Some constant required for correct template performance
 #define VTK_BIT_MIN 0

@@ -77,6 +77,7 @@ vtkGenericCell \
 vtkHexahedron \
 vtkIdentityTransform \
 vtkIdList \
+vtkIdTypeArray \
 vtkImageData \
 vtkImageSource \
 vtkImageToStructuredPoints \

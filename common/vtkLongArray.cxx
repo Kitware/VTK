@@ -110,7 +110,7 @@ void vtkLongArray::SetArray(long* array, vtkIdType size, int save)
 
 
 // Allocate memory for this array. Delete old storage only if necessary.
-int vtkLongArray::Allocate(const vtkIdType sz, const int vtkNotUsed(ext))
+int vtkLongArray::Allocate(const vtkIdType sz, const vtkIdType vtkNotUsed(ext))
 {
   if ( sz > this->Size || this->Array == NULL )
     {
@@ -367,7 +367,7 @@ void vtkLongArray::InsertTuple(const vtkIdType i, const double * tuple)
 }
 
 // Insert (memory allocation performed) the tuple onto the end of the array.
-int vtkLongArray::InsertNextTuple(const float * tuple)
+vtkIdType vtkLongArray::InsertNextTuple(const float * tuple)
 {
   vtkIdType i = this->MaxId + 1;
   long *t = this->WritePointer(i,this->NumberOfComponents);
@@ -380,7 +380,7 @@ int vtkLongArray::InsertNextTuple(const float * tuple)
   return this->MaxId / this->NumberOfComponents;
 }
 
-int vtkLongArray::InsertNextTuple(const double * tuple)
+vtkIdType vtkLongArray::InsertNextTuple(const double * tuple)
 {
   vtkIdType i = this->MaxId + 1;
   long *t = this->WritePointer(i,this->NumberOfComponents);

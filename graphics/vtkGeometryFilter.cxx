@@ -461,7 +461,7 @@ void vtkGeometryFilter::PolyDataExecute()
   vtkPolyData *input= (vtkPolyData *)this->GetInput();
   int i, cellId;
   int allVisible;
-  int npts;
+  vtkIdType npts;
   vtkIdType *pts;
   vtkPoints *p = input->GetPoints();
   int numCells=input->GetNumberOfCells();
@@ -591,7 +591,7 @@ void vtkGeometryFilter::UnstructuredGridExecute()
   if (Connectivity == NULL) {return;}
   int i, cellId;
   int allVisible;
-  int npts;
+  vtkIdType npts;
   vtkIdType *pts;
   vtkPoints *p = input->GetPoints();
   int numCells=input->GetNumberOfCells();

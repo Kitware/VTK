@@ -58,7 +58,7 @@ vtkCellLinks* vtkCellLinks::New()
   return new vtkCellLinks;
 }
 
-void vtkCellLinks::Allocate(int sz, int ext)
+void vtkCellLinks::Allocate(vtkIdType sz, vtkIdType ext)
 {
   static _vtkLink_s linkInit = {0,NULL};
 
@@ -71,7 +71,7 @@ void vtkCellLinks::Allocate(int sz, int ext)
   this->Extend = ext;
   this->MaxId = -1;
 
-  for (int i=0; i < sz; i++)
+  for (vtkIdType i=0; i < sz; i++)
     {
     this->Array[i] = linkInit;
     }
@@ -84,7 +84,7 @@ vtkCellLinks::~vtkCellLinks()
     return;
     }
 
-  for (int i=0; i<=this->MaxId; i++)
+  for (vtkIdType i=0; i<=this->MaxId; i++)
     {
     if ( this->Array[i].cells != NULL )
       {
@@ -118,11 +118,11 @@ void vtkCellLinks::Reset()
 //
 // Private function does "reallocate"
 //
-_vtkLink_s *vtkCellLinks::Resize(int sz)
+_vtkLink_s *vtkCellLinks::Resize(vtkIdType sz)
 {
-  int i;
+  vtkIdType i;
   _vtkLink_s *newArray;
-  int newSize;
+  vtkIdType newSize;
   _vtkLink_s linkInit = {0,NULL};
 
   if ( sz >= this->Size )
@@ -156,9 +156,10 @@ _vtkLink_s *vtkCellLinks::Resize(int sz)
 // Build the link list array.
 void vtkCellLinks::BuildLinks(vtkDataSet *data)
 {
-  int numPts = data->GetNumberOfPoints();
-  int numCells = data->GetNumberOfCells();
-  int j, cellId;
+  vtkIdType numPts = data->GetNumberOfPoints();
+  vtkIdType numCells = data->GetNumberOfCells();
+  int j;
+  vtkIdType cellId;
   unsigned short *linkLoc;
 
   // fill out lists with number of references to cells
@@ -168,8 +169,7 @@ void vtkCellLinks::BuildLinks(vtkDataSet *data)
   // Use fast path if polydata
   if ( data->GetDataObjectType() == VTK_POLY_DATA )
     {
-    int npts;
-    vtkIdType *pts;
+    vtkIdType *pts, npts;
     
     vtkPolyData *pdata = (vtkPolyData *)data;
     // traverse data to determine number of uses of each point
@@ -198,7 +198,7 @@ void vtkCellLinks::BuildLinks(vtkDataSet *data)
 
   else //any other type of dataset
     {
-    int numberOfPoints, ptId;
+    vtkIdType numberOfPoints, ptId;
     vtkGenericCell *cell=vtkGenericCell::New();
 
     // traverse data to determine number of uses of each point
@@ -235,12 +235,12 @@ void vtkCellLinks::BuildLinks(vtkDataSet *data)
 // Build the link list array.
 void vtkCellLinks::BuildLinks(vtkDataSet *data, vtkCellArray *Connectivity)
 {
-  int numPts = data->GetNumberOfPoints();
-  int j, cellId;
+  vtkIdType numPts = data->GetNumberOfPoints();
+  vtkIdType j, cellId;
   unsigned short *linkLoc;
-  int npts;
+  vtkIdType npts;
   vtkIdType *pts;
-  int loc = Connectivity->GetTraversalLocation();
+  vtkIdType loc = Connectivity->GetTraversalLocation();
   
   // traverse data to determine number of uses of each point
   for (Connectivity->InitTraversal(); 
@@ -275,7 +275,7 @@ void vtkCellLinks::BuildLinks(vtkDataSet *data, vtkCellArray *Connectivity)
 
 // Insert a new point into the cell-links data structure. The size parameter
 // is the initial size of the list.
-int vtkCellLinks::InsertNextPoint(int numLinks)
+vtkIdType vtkCellLinks::InsertNextPoint(int numLinks)
 {
   if ( ++this->MaxId >= this->Size )
     {
@@ -288,7 +288,7 @@ int vtkCellLinks::InsertNextPoint(int numLinks)
 unsigned long vtkCellLinks::GetActualMemorySize()
 {
   unsigned long size=0;
-  int ptId;
+  vtkIdType ptId;
 
   for (ptId=0; ptId < (this->MaxId+1); ptId++)
     {

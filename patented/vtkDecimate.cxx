@@ -465,8 +465,8 @@ void vtkDecimate::CreateOutput(int numPts, int numTris, int numEliminated,
   vtkIdType newCellPts[VTK_CELL_SIZE];
   unsigned short int ncells;
   vtkIdType *cells;
-  int ptId, cellId, npts;
-  vtkIdType *pts;
+  int ptId, cellId;
+  vtkIdType *pts, npts;
   vtkPoints *newPts;
   vtkCellArray *newPolys;
   vtkScalars *newScalars = NULL;
@@ -564,7 +564,7 @@ void vtkDecimate::CreateOutput(int numPts, int numTris, int numEliminated,
 int vtkDecimate::BuildLoop (int ptId, unsigned short int numTris,
                             vtkIdType *tris)
 {
-  int numVerts;
+  vtkIdType numVerts;
   int numNei;
   vtkLocalTri t;
   vtkLocalVertex sn;

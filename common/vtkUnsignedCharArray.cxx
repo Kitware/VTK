@@ -111,7 +111,7 @@ void vtkUnsignedCharArray::SetArray(unsigned char* array, vtkIdType size,
 
 // Allocate memory for this array. Delete old storage only if necessary.
 int vtkUnsignedCharArray::Allocate(const vtkIdType sz,
-                                   const int vtkNotUsed(ext))
+                                   const vtkIdType vtkNotUsed(ext))
 {
   if ( sz > this->Size )
     {
@@ -372,7 +372,7 @@ void vtkUnsignedCharArray::InsertTuple(const vtkIdType i, const double * tuple)
 }
 
 // Insert (memory allocation performed) the tuple onto the end of the array.
-int vtkUnsignedCharArray::InsertNextTuple(const float * tuple)
+vtkIdType vtkUnsignedCharArray::InsertNextTuple(const float * tuple)
 {
   vtkIdType i = this->MaxId + 1;
   unsigned char *t = this->WritePointer(i,this->NumberOfComponents);
@@ -385,7 +385,7 @@ int vtkUnsignedCharArray::InsertNextTuple(const float * tuple)
   return this->MaxId / this->NumberOfComponents;
 }
 
-int vtkUnsignedCharArray::InsertNextTuple(const double * tuple)
+vtkIdType vtkUnsignedCharArray::InsertNextTuple(const double * tuple)
 {
   vtkIdType i = this->MaxId + 1;
   unsigned char *t = this->WritePointer(i,this->NumberOfComponents);

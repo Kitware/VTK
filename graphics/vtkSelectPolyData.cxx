@@ -106,8 +106,8 @@ void vtkSelectPolyData::Execute()
   vtkCellArray *inPolys;
   vtkPoints *inPts;
   int id, pt1, pt2, currentId = 0, nextId, numCells, numNei, neiId;
-  int npts, numMeshLoopPts, prevId;
-  vtkIdType *cells, *pts;
+  int numMeshLoopPts, prevId;
+  vtkIdType *cells, *pts, npts;
   unsigned short int ncells;
   int mark, s1, s2, val;
 
@@ -562,8 +562,8 @@ void vtkSelectPolyData::Execute()
 void vtkSelectPolyData::GetPointNeighbors (int ptId, vtkIdList *nei)
 {
   unsigned short ncells;
-  int npts, i, j;
-  vtkIdType *cells, *pts;
+  int i, j;
+  vtkIdType *cells, *pts, npts;
   
   nei->Reset();
   this->Mesh->GetPointCells(ptId, ncells, cells);

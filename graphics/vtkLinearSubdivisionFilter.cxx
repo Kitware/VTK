@@ -60,7 +60,7 @@ void vtkLinearSubdivisionFilter::GenerateSubdivisionPoints (vtkPolyData *inputDS
 {
   vtkIdType *pts;
   int cellId, edgeId, newId;
-  int npts;
+  vtkIdType npts;
   int p1, p2;
   vtkCellArray *inputPolys=inputDS->GetPolys();
   vtkEdgeTable *edgeTable;
@@ -77,7 +77,8 @@ void vtkLinearSubdivisionFilter::GenerateSubdivisionPoints (vtkPolyData *inputDS
   pointIds->SetNumberOfIds(2);
 
   // Generate new points for subdivisions surface
-  for (cellId=0, inputPolys->InitTraversal(); inputPolys->GetNextCell(npts, pts); cellId++)
+  for (cellId=0, inputPolys->InitTraversal();
+       inputPolys->GetNextCell(npts, pts); cellId++)
     {
     if ( inputDS->GetCellType(cellId) != VTK_TRIANGLE )
       {

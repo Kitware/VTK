@@ -76,8 +76,8 @@ void vtkRotationalExtrusionFilter::Execute()
   vtkPolyData *mesh;
   vtkPoints *inPts;
   vtkCellArray *inVerts, *inLines, *inPolys, *inStrips;
-  int npts, numEdges, cellId, dim;
-  vtkIdType *pts;
+  int numEdges, cellId, dim;
+  vtkIdType *pts, npts;
   int ptId, ncells;
   float *x, newX[3], radius, angleIncr, radIncr, transIncr;
   float psi, theta;

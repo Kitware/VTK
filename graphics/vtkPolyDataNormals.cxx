@@ -80,14 +80,15 @@ vtkPolyDataNormals::vtkPolyDataNormals()
 // Generate normals for polygon meshes
 void vtkPolyDataNormals::Execute()
 {
-  int i, j;
-  int npts;
+  int j;
+  vtkIdType npts, i;
   vtkIdType *pts;
-  int numNewPts;
+  vtkIdType numNewPts;
   float *polyNormal, *vertNormal, length;
   float flipDirection=1.0;
   int numPolys, numStrips;
-  int cellId, numPts;
+  int cellId;
+  vtkIdType numPts;
   vtkPoints *inPts;
   vtkCellArray *inPolys, *inStrips, *polys;
   vtkPoints *newPts = NULL;
@@ -96,7 +97,7 @@ void vtkPolyDataNormals::Execute()
   vtkCellData *outCD;
   float n[3];
   vtkCellArray *newPolys;
-  int ptId, oldId;
+  vtkIdType ptId, oldId;
   vtkPolyData *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
 
@@ -396,9 +397,9 @@ void vtkPolyDataNormals::TraverseAndOrder (void)
 {
   int p1, p2;
   int i, j, k, l;
-  int npts, numIds, cellId;
-  vtkIdType *pts, *neiPts;
-  int numNeiPts, neighbor;
+  int numIds, cellId;
+  vtkIdType *pts, *neiPts, npts, numNeiPts;
+  int neighbor;
   vtkIdList *tmpWave;
 
   // propagate wave until nothing left in wave
@@ -494,7 +495,7 @@ void vtkPolyDataNormals::MarkAndSplit (int ptId)
 
   // Loop over all cells and mark the region that each is in.
   //
-  int numPts;
+  vtkIdType numPts;
   vtkIdType *pts;
   int numRegions = 0;
   int neiPt[2], nei, spot, cellId, neiCellId;
@@ -598,13 +599,14 @@ void vtkPolyDataNormals::MarkAndSplit (int ptId)
   // replaced with a new ptId, which is a duplicate of the first
   // point, but disconnected topologically.
   //
-  int lastId = this->Map->GetNumberOfIds();
-  int replacementPoint;
+  vtkIdType lastId = this->Map->GetNumberOfIds();
+  vtkIdType replacementPoint;
   for (j=0; j<ncells; j++)
     {
     if (this->Visited[cells[j]] > 0 ) //replace point if splitting needed
       {
       replacementPoint = lastId + this->Visited[cells[j]] - 1;
+      
       this->Map->InsertId(replacementPoint, ptId);
 
       this->NewMesh->GetCellPoints(cells[j],numPts,pts);

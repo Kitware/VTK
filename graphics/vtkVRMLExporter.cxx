@@ -265,7 +265,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   vtkProperty *prop;
   float *tempf;
   vtkCellArray *cells;
-  int npts;
+  vtkIdType npts;
   vtkIdType *indx;
   float tempf2;
   int pointDataWritten = 0;
