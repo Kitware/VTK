@@ -33,7 +33,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkClipDataSet, "1.39");
+vtkCxxRevisionMacro(vtkClipDataSet, "1.40");
 vtkStandardNewMacro(vtkClipDataSet);
 vtkCxxSetObjectMacro(vtkClipDataSet,ClipFunction,vtkImplicitFunction);
 
@@ -175,7 +175,7 @@ int vtkClipDataSet::RequestData(
   //
   if ( numPts < 1 )
     {
-    //vtkErrorMacro(<<"No data to clip");
+    vtkDebugMacro(<<"No data to clip");
     return 1;
     }
 

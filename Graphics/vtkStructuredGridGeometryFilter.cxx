@@ -25,7 +25,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkStructuredGridGeometryFilter, "1.63");
+vtkCxxRevisionMacro(vtkStructuredGridGeometryFilter, "1.64");
 vtkStandardNewMacro(vtkStructuredGridGeometryFilter);
 
 // Construct with initial extent of all the data
@@ -71,7 +71,7 @@ int vtkStructuredGridGeometryFilter::RequestData(
 
   if ( input->GetPoints() == NULL)
     {
-    //vtkErrorMacro(<<"No data to extract");
+    vtkDebugMacro(<<"No data to extract");
     return 1;
     }
 

@@ -29,7 +29,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridReader.h"
 
-vtkCxxRevisionMacro(vtkDataSetReader, "1.67");
+vtkCxxRevisionMacro(vtkDataSetReader, "1.68");
 vtkStandardNewMacro(vtkDataSetReader);
 
 vtkDataSetReader::vtkDataSetReader()
@@ -371,7 +371,7 @@ int vtkDataSetReader::ReadOutputType()
   //
   if (!this->ReadString(line))
     {
-    //vtkErrorMacro(<< "Premature EOF reading dataset keyword");
+    vtkDebugMacro(<< "Premature EOF reading dataset keyword");
     return -1;
     }
 
@@ -381,7 +381,7 @@ int vtkDataSetReader::ReadOutputType()
     //
     if (!this->ReadString(line))
       {
-      //vtkErrorMacro(<< "Premature EOF reading type");
+      vtkDebugMacro(<< "Premature EOF reading type");
       this->CloseVTKFile ();
       return -1;
       }
@@ -409,17 +409,17 @@ int vtkDataSetReader::ReadOutputType()
       }
     else
       {
-      //vtkErrorMacro(<< "Cannot read dataset type: " << line);
+      vtkDebugMacro(<< "Cannot read dataset type: " << line);
       return -1;
       }
     }
   else if ( !strncmp(this->LowerCase(line),"field",(unsigned long)5) )
     {
-    //vtkErrorMacro(<<"This object can only read datasets, not fields");
+    vtkDebugMacro(<<"This object can only read datasets, not fields");
     }
   else
     {
-    //vtkErrorMacro(<<"Expecting DATASET keyword, got " << line << " instead");
+    vtkDebugMacro(<<"Expecting DATASET keyword, got " << line << " instead");
     }
 
   return -1;

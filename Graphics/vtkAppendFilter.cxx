@@ -25,7 +25,7 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkAppendFilter, "1.72");
+vtkCxxRevisionMacro(vtkAppendFilter, "1.73");
 vtkStandardNewMacro(vtkAppendFilter);
 
 //----------------------------------------------------------------------------
@@ -180,7 +180,7 @@ int vtkAppendFilter::RequestData(
 
   if ( numPts < 1)
     {
-    //vtkErrorMacro(<<"No data to append!");
+    vtkDebugMacro(<<"No data to append!");
     return 1;
     }
   

@@ -35,7 +35,7 @@ public:
   vtkSharedMemoryCommunicatorMessage* Previous;
 };
 
-vtkCxxRevisionMacro(vtkSharedMemoryCommunicator, "1.20");
+vtkCxxRevisionMacro(vtkSharedMemoryCommunicator, "1.21");
 vtkStandardNewMacro(vtkSharedMemoryCommunicator);
 
 void vtkSharedMemoryCommunicator::PrintSelf(ostream& os, vtkIndent indent)
@@ -283,7 +283,7 @@ int vtkSharedMemoryCommunicator::Receive(vtkDataArray* object,
     message = this->FindMessage(remoteThreadId, tag);
     if (message == NULL)
       {
-      //vtkErrorMacro("I passed through the gate, but there is no message.");
+      vtkDebugMacro("I passed through the gate, but there is no message.");
       }
     }
 

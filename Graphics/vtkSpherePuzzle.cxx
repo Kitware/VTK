@@ -29,7 +29,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSpherePuzzle, "1.18");
+vtkCxxRevisionMacro(vtkSpherePuzzle, "1.19");
 vtkStandardNewMacro(vtkSpherePuzzle);
 
 //----------------------------------------------------------------------------
@@ -400,9 +400,9 @@ int vtkSpherePuzzle::SetPoint(double x, double y, double z)
   xn = (theta/(360.0/8.0)) - (double)(xi);
   yn = (phi/(360.0/8.0)) - (double)(yi);
 
-  //vtkErrorMacro("point: " << x << ", " << y << ", " << z);
-  //vtkErrorMacro("theta: " << theta << ",  phi: " << phi);
-  //vtkErrorMacro("theta: " << xi << ", " << xn << ",  phi: " << yi << ", " << y);
+  vtkDebugMacro("point: " << x << ", " << y << ", " << z);
+  vtkDebugMacro("theta: " << theta << ",  phi: " << phi);
+  vtkDebugMacro("theta: " << xi << ", " << xn << ",  phi: " << yi << ", " << y);
 
   xp = 1.0 - xn;
   yp = 1.0 - yn;

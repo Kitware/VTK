@@ -18,7 +18,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGenericEdgeTable, "1.9");
+vtkCxxRevisionMacro(vtkGenericEdgeTable, "1.10");
 vtkStandardNewMacro(vtkGenericEdgeTable);
 
 static int PRIME_NUMBERS[] = {1, 3, 7, 13, 31, 61, 127,  251,  509,  1021,
@@ -525,7 +525,7 @@ void vtkGenericEdgeTable::Initialize(vtkIdType start)
   if(this->LastPointId)
     {
     //if different from zero then raise problem:
-    //vtkErrorMacro( << "You are not supposed to initialize during algorithm" );
+    vtkDebugMacro( << "You are not supposed to initialize during algorithm" );
     return;
     }
 

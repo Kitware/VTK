@@ -31,7 +31,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.58");
+vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.59");
 vtkStandardNewMacro(vtkEnSightGoldBinaryReader);
 
 // This is half the precision of an int.
@@ -3263,7 +3263,7 @@ int vtkEnSightGoldBinaryReader::ReadLine(char result[80])
     // We need to determine what EnSight does when the part with zero point
     // is not the last, and change the read array method.
     //int fixme; // I do not a file to test with yet.
-    //vtkErrorMacro("Read failed");
+    vtkDebugMacro("Read failed");
     return 0;
     }
   

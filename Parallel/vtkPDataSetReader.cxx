@@ -34,7 +34,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkExtentTranslator.h"
 
-vtkCxxRevisionMacro(vtkPDataSetReader, "1.35");
+vtkCxxRevisionMacro(vtkPDataSetReader, "1.36");
 vtkStandardNewMacro(vtkPDataSetReader);
 
 //----------------------------------------------------------------------------
@@ -868,7 +868,7 @@ ifstream *vtkPDataSetReader::OpenFile(const char* filename)
 
   if (!filename || filename[0] == '\0')
     {
-    //vtkErrorMacro(<<"A FileName must be specified.");
+    vtkDebugMacro(<<"A FileName must be specified.");
     return NULL;
     }
   

@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.47");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.48");
 
 //----------------------------------------------------------------------------
 vtkParallelRenderManager::vtkParallelRenderManager()
@@ -1228,7 +1228,7 @@ static void MagnifyImageNearestFourComp(vtkUnsignedCharArray *fullImage,
   int numComp = reducedImage->GetNumberOfComponents();
   if (numComp != 4)
     {
-    //vtkErrorMacro("MagnifyImageNearestFourComp only works on 4 component image");
+    vtkDebugMacro("MagnifyImageNearestFourComp only works on 4 component image");
     return;
     }
   fullImage->SetNumberOfComponents(numComp);

@@ -23,7 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkSimpleElevationFilter, "1.19");
+vtkCxxRevisionMacro(vtkSimpleElevationFilter, "1.20");
 vtkStandardNewMacro(vtkSimpleElevationFilter);
 
 // Construct object with LowPoint=(0,0,0) and HighPoint=(0,0,1). Scalar
@@ -66,7 +66,7 @@ int vtkSimpleElevationFilter::RequestData(
 
   if ( ((numPts=input->GetNumberOfPoints()) < 1) )
     {
-    //vtkErrorMacro(<< "No input!");
+    vtkDebugMacro(<< "No input!");
     return 1;
     }
 

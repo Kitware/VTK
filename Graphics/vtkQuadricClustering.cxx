@@ -27,7 +27,7 @@
 #include "vtkTimerLog.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadricClustering, "1.76");
+vtkCxxRevisionMacro(vtkQuadricClustering, "1.77");
 vtkStandardNewMacro(vtkQuadricClustering);
 
 //----------------------------------------------------------------------------
@@ -309,7 +309,7 @@ void vtkQuadricClustering::Append(vtkPolyData *pd)
   // Check for mis-use of the Append methods.
   if (this->OutputTriangleArray == NULL || this->OutputLines == NULL)
     {
-    //vtkErrorMacro("Missing Array:  Did you call StartAppend?");
+    vtkDebugMacro("Missing Array:  Did you call StartAppend?");
     return;
     }
 
@@ -870,7 +870,7 @@ void vtkQuadricClustering::EndAppend()
   // Check for mis use of the Append methods.
   if (this->OutputTriangleArray == NULL || this->OutputLines == NULL)
     {
-    //vtkErrorMacro("Missing Array:  Did you call StartAppend?");
+    vtkDebugMacro("Missing Array:  Did you call StartAppend?");
     return;
     }
 
@@ -1186,7 +1186,7 @@ void vtkQuadricClustering::EndAppendUsingPoints(vtkPolyData *input,
   // Check for misuse of the Append methods.
   if (this->OutputTriangleArray == NULL || this->OutputLines == NULL)
     {
-    //vtkErrorMacro("Missing Array:  Did you call StartAppend?");
+    vtkDebugMacro("Missing Array:  Did you call StartAppend?");
     return;
     }
 
