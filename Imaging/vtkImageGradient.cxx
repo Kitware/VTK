@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGradient, "1.49");
+vtkCxxRevisionMacro(vtkImageGradient, "1.50");
 vtkStandardNewMacro(vtkImageGradient);
 
 //----------------------------------------------------------------------------
@@ -246,6 +246,14 @@ void vtkImageGradient::ThreadedExecute (vtkImageData *inData,
                                        vtkImageData *outData,
                                        int outExt[6], int id)
 {
+  // return if nothing to do
+  if (outExt[1] < outExt[0] ||
+      outExt[3] < outExt[2] ||
+      outExt[5] < outExt[4])
+    {
+    return;
+    }
+
   void *inPtr;
   double *outPtr = (double *)(outData->GetScalarPointerForExtent(outExt));
   inPtr = inData->GetScalarPointer();
