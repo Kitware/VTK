@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkTextMapper.cxx
+  Module:    vtkXOpenGLTextMapper.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,93 +38,47 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkTextMapper.h"
+// .NAME vtkXOpenGLTextMapper - 2D Text annotation support for windows
+// .SECTION Description
+// vtkXOpenGLTextMapper provides 2D text annotation support for vtk under
+// Xwindows.  Normally the user should use vtktextMapper which in turn will
+// use this class.
 
-#ifdef _WIN32
-  #include "vtkWin32OpenGLTextMapper.h"
-  #include "vtkWin32TextMapper.h"
-#else
-#ifdef VTK_USE_OGLR
-  #include "vtkXOpenGLTextMapper.h"
+// .SECTION See Also
+// vtkTextMapper
+
+#ifndef __vtkXOpenGLTextMapper_h
+#define __vtkXOpenGLTextMapper_h
+
+#include "vtkXTextMapper.h"
+
+class VTK_EXPORT vtkXOpenGLTextMapper : public vtkXTextMapper
+{
+public:
+  vtkXOpenGLTextMapper();
+  const char *GetClassName() {return "vtkXOpenGLTextMapper";};
+  static vtkXOpenGLTextMapper *New() {
+    return new vtkXOpenGLTextMapper;};
+
+  // Description:
+  // Actally draw the text.
+  void RenderOpaqueGeometry(vtkViewport* viewport, vtkActor2D* actor);
+  void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor) {};
+
+  // Description:
+  // Release any graphics resources that are being consumed by this actor.
+  // The parameter window could be used to determine which graphic
+  // resources to release.
+  virtual void ReleaseGraphicsResources(vtkWindow *);
+
+  // Description:
+  // An internal function used for caching font display lists.
+  static int GetListBaseForFont(vtkTextMapper *tm, vtkViewport *vp,
+				Font);
+
+protected:
+};
+
+
 #endif
-  #include "vtkXTextMapper.h"
-#endif
-
-// Creates a new text mapper with Font size 12, bold off, italic off,
-// and Arial font
-vtkTextMapper::vtkTextMapper()
-{
-  this->Input = (char*) NULL;
-  this->FontSize = 12;
-  this->Bold = 0;
-  this->Italic = 0;
-  this->Shadow = 0;
-  this->FontFamily = VTK_ARIAL;
-  this->Justification = 0;
-}
-
-vtkTextMapper *vtkTextMapper::New()
-{
-#ifdef _WIN32
-  return vtkWin32OpenGLTextMapper::New();
-  return vtkWin32TextMapper::New();
-#else
-#ifdef VTK_USE_OGLR
-  return vtkXOpenGLTextMapper::New();
-#else
-  return vtkXTextMapper::New();
-#endif
-#endif
-
-}
-
-
-vtkTextMapper::~vtkTextMapper()
-{
-  if (this->Input)
-    {
-    delete [] this->Input;
-    this->Input = NULL;
-    }
-}
-
-
-
-//----------------------------------------------------------------------------
-void vtkTextMapper::PrintSelf(ostream& os, vtkIndent indent)
-{
-  os << indent << "Bold: " << (this->Bold ? "On\n" : "Off\n");
-  os << indent << "Italic: " << (this->Italic ? "On\n" : "Off\n");
-  os << indent << "Shadow: " << (this->Shadow ? "On\n" : "Off\n");
-  os << indent << "FontFamily: " << this->FontFamily << "\n";
-  os << indent << "FontSize: " << this->FontSize << "\n";
-  os << indent << "Input: " << (this->Input ? this->Input : "(none)") << "\n";
-  os << indent << "Justification: ";
-  switch (this->Justification)
-    {
-    case 0: os << "Left  (0)" << endl; break;
-    case 1: os << "Centered  (1)" << endl; break;
-    case 2: os << "Right  (2)" << endl; break;
-    }
-  
-  vtkMapper2D::PrintSelf(os,indent);
-}
-
-
-void vtkTextMapper::SetShadow(int val) 
-{
-  if (val == this->Shadow)
-    {
-    return;
-    }
-  
-  this->Shadow = val; 
-  this->Modified();
-}
-
-
-
-
-
-
 
