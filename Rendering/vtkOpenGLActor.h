@@ -34,6 +34,7 @@ protected:
 public:
   static vtkOpenGLActor *New();
   vtkTypeRevisionMacro(vtkOpenGLActor,vtkActor);
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Actual actor render method.

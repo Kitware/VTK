@@ -35,6 +35,7 @@ class VTK_RENDERING_EXPORT vtkRenderWindowCollection : public vtkCollection
  public:
   static vtkRenderWindowCollection *New();
   vtkTypeRevisionMacro(vtkRenderWindowCollection,vtkCollection);
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Add a RenderWindow to the list.

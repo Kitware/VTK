@@ -18,5 +18,11 @@
 #include "vtkProp3DCollection.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkProp3DCollection, "1.5");
+vtkCxxRevisionMacro(vtkProp3DCollection, "1.6");
 vtkStandardNewMacro(vtkProp3DCollection);
+
+//----------------------------------------------------------------------------
+void vtkProp3DCollection::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}

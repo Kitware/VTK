@@ -27,7 +27,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkWin32OpenGLTextMapper, "1.46");
+vtkCxxRevisionMacro(vtkWin32OpenGLTextMapper, "1.47");
 vtkStandardNewMacro(vtkWin32OpenGLTextMapper);
 
 struct vtkFontStruct
@@ -444,3 +444,7 @@ void vtkWin32OpenGLTextMapper::RenderOverlay(vtkViewport* viewport,
   SelectObject(hdc, hOldFont);
 }
 
+void vtkWin32OpenGLTextMapper::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}

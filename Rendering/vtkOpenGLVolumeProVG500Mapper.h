@@ -50,6 +50,7 @@ class VTK_VOLUMEPRO_EXPORT vtkOpenGLVolumeProVG500Mapper : public vtkVolumeProVG
 public:
   vtkTypeRevisionMacro(vtkOpenGLVolumeProVG500Mapper,vtkVolumeProVG500Mapper);
   static vtkOpenGLVolumeProVG500Mapper *New();
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
   vtkOpenGLVolumeProVG500Mapper() {};

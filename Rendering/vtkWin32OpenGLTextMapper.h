@@ -34,6 +34,7 @@ class VTK_RENDERING_EXPORT vtkWin32OpenGLTextMapper : public vtkWin32TextMapper
 public:
   vtkTypeRevisionMacro(vtkWin32OpenGLTextMapper,vtkWin32TextMapper);
   static vtkWin32OpenGLTextMapper *New();
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Actally draw the text.

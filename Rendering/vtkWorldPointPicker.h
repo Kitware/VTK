@@ -32,7 +32,7 @@
 #ifndef __vtkWorldPointPicker_h
 #define __vtkWorldPointPicker_h
 
-#include "vtkAbstractPropPicker.h"
+#include "vtkAbstractPicker.h"
 
 class VTK_RENDERING_EXPORT vtkWorldPointPicker : public vtkAbstractPicker
 {

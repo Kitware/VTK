@@ -17,6 +17,7 @@
 =========================================================================*/
 #include "vtkParallelCoordinatesActor.h"
 
+#include "vtkAxisActor2D.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
@@ -25,7 +26,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkParallelCoordinatesActor, "1.23");
+vtkCxxRevisionMacro(vtkParallelCoordinatesActor, "1.24");
 vtkStandardNewMacro(vtkParallelCoordinatesActor);
 
 vtkCxxSetObjectMacro(vtkParallelCoordinatesActor,Input,vtkDataObject);

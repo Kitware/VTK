@@ -35,6 +35,7 @@ class VTK_RENDERING_EXPORT vtkCarbonTextMapper : public vtkTextMapper
 public:
   vtkTypeRevisionMacro(vtkCarbonTextMapper,vtkTextMapper);
   static vtkCarbonTextMapper *New();
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Actally draw the text.

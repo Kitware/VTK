@@ -32,6 +32,7 @@ class VTK_RENDERING_EXPORT vtkOpenGLProperty : public vtkProperty
 public:
   static vtkOpenGLProperty *New();
   vtkTypeRevisionMacro(vtkOpenGLProperty,vtkProperty);
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Implement base class method.

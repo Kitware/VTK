@@ -37,7 +37,7 @@ class VTK_RENDERING_EXPORT vtkCarbonRenderWindow : public vtkOpenGLRenderWindow
 {
 public:
   static vtkCarbonRenderWindow *New();
-  vtkTypeRevisionMacro(vtkCarbonRenderWindow,vtkRenderWindow);
+  vtkTypeRevisionMacro(vtkCarbonRenderWindow,vtkOpenGLRenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

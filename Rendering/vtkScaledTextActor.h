@@ -32,6 +32,7 @@ class VTK_RENDERING_EXPORT vtkScaledTextActor : public vtkTextActor
 {
 public:
   vtkTypeRevisionMacro(vtkScaledTextActor,vtkTextActor);
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Instantiate object with a rectangle in normaled view coordinates

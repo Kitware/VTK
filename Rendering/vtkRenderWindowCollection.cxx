@@ -18,5 +18,10 @@
 #include "vtkRenderWindowCollection.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkRenderWindowCollection, "1.6");
+vtkCxxRevisionMacro(vtkRenderWindowCollection, "1.7");
 vtkStandardNewMacro(vtkRenderWindowCollection);
+
+void vtkRenderWindowCollection::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}

@@ -32,7 +32,7 @@
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLProperty, "1.21");
+vtkCxxRevisionMacro(vtkOpenGLProperty, "1.22");
 vtkStandardNewMacro(vtkOpenGLProperty);
 #endif
 
@@ -172,3 +172,8 @@ void vtkOpenGLProperty::BackfaceRender(vtkActor *vtkNotUsed(anActor),
 
 }
 
+//----------------------------------------------------------------------------
+void vtkOpenGLProperty::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}

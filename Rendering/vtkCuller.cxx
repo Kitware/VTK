@@ -17,7 +17,7 @@
 =========================================================================*/
 #include "vtkCuller.h"
 
-vtkCxxRevisionMacro(vtkCuller, "1.2");
+vtkCxxRevisionMacro(vtkCuller, "1.3");
 
 vtkCuller::vtkCuller()
 {
@@ -25,4 +25,10 @@ vtkCuller::vtkCuller()
 
 vtkCuller::~vtkCuller()
 {
+}
+
+//----------------------------------------------------------------------------
+void vtkCuller::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
 }

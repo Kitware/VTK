@@ -29,7 +29,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkLODActor, "1.61");
+vtkCxxRevisionMacro(vtkLODActor, "1.62");
 vtkStandardNewMacro(vtkLODActor);
 
 //----------------------------------------------------------------------------
@@ -375,4 +375,3 @@ void vtkLODActor::ShallowCopy(vtkProp *prop)
   // Now do superclass
   this->vtkActor::ShallowCopy(prop);
 }
-

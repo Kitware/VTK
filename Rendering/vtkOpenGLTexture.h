@@ -34,6 +34,7 @@ class VTK_RENDERING_EXPORT vtkOpenGLTexture : public vtkTexture
 public:
   static vtkOpenGLTexture *New();
   vtkTypeRevisionMacro(vtkOpenGLTexture,vtkTexture);
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Implement base class method.

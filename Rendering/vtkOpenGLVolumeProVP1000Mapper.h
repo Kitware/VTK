@@ -50,12 +50,11 @@ class VTK_EXPORT vtkOpenGLVolumeProVP1000Mapper : public vtkVolumeProVP1000Mappe
 public:
   vtkTypeRevisionMacro(vtkOpenGLVolumeProVP1000Mapper,vtkVolumeProVP1000Mapper);
   static vtkOpenGLVolumeProVP1000Mapper *New();
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
-  vtkOpenGLVolumeProVP1000Mapper() {};
-  ~vtkOpenGLVolumeProVP1000Mapper() {};
-  vtkOpenGLVolumeProVP1000Mapper(const vtkOpenGLVolumeProVP1000Mapper&);
-  void operator=(const vtkOpenGLVolumeProVP1000Mapper&);
+  vtkOpenGLVolumeProVP1000Mapper();
+  ~vtkOpenGLVolumeProVP1000Mapper();
 
   // Render the hexagon returned by the hardware to the screen.
   void RenderImageBuffer( vtkRenderer  *ren,
@@ -71,6 +70,10 @@ protected:
   // Render a bounding box of the volume because the texture map would be
   // too large
   virtual void RenderBoundingBox(vtkRenderer *ren, vtkVolume *vol);
+
+private:
+  vtkOpenGLVolumeProVP1000Mapper(const vtkOpenGLVolumeProVP1000Mapper&); // Not implemented
+  void operator=(const vtkOpenGLVolumeProVP1000Mapper&); // Not implemented
 };
 
 

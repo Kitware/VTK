@@ -24,7 +24,7 @@
 #include "vtkImageData.h"
 #include "vtkImagingFactory.h"
 
-vtkCxxRevisionMacro(vtkImageMapper, "1.44");
+vtkCxxRevisionMacro(vtkImageMapper, "1.45");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -264,5 +264,4 @@ int vtkImageMapper::GetWholeZMax()
   extent = this->GetInput()->GetWholeExtent();
   return extent[5];
 }
-
 

@@ -39,7 +39,7 @@ class VTK_RENDERING_EXPORT vtkVolumeRayCastCompositeFunction : public vtkVolumeR
 public:
   static vtkVolumeRayCastCompositeFunction *New();
   vtkTypeRevisionMacro(vtkVolumeRayCastCompositeFunction,vtkVolumeRayCastFunction);
-  void PrintSelf( ostream& os, vtkIndent index );
+  void PrintSelf( ostream& os, vtkIndent indent );
 
   // Description:
   // Set the CompositeMethod to either Classify First or Interpolate First

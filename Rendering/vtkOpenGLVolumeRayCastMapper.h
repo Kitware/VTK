@@ -43,6 +43,7 @@ class VTK_RENDERING_EXPORT vtkOpenGLVolumeRayCastMapper : public vtkVolumeRayCas
 public:
   static vtkOpenGLVolumeRayCastMapper *New();
   vtkTypeRevisionMacro(vtkOpenGLVolumeRayCastMapper,vtkVolumeRayCastMapper);
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
   vtkOpenGLVolumeRayCastMapper();

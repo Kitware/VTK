@@ -55,7 +55,7 @@
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.73");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.74");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper);
 #endif
 
@@ -2852,4 +2852,9 @@ int vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
     }
 
   return noAbort;
+}
+
+void vtkOpenGLPolyDataMapper::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
 }

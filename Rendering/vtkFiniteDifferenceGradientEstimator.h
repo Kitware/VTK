@@ -45,7 +45,7 @@ class VTK_RENDERING_EXPORT vtkFiniteDifferenceGradientEstimator : public vtkEnco
 {
 public:
   vtkTypeRevisionMacro(vtkFiniteDifferenceGradientEstimator,vtkEncodedGradientEstimator);
-  void PrintSelf( ostream& os, vtkIndent index );
+  void PrintSelf( ostream& os, vtkIndent indent );
 
   // Description:
   // Construct a vtkFiniteDifferenceGradientEstimator with

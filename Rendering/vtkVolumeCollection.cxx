@@ -18,5 +18,11 @@
 #include "vtkVolumeCollection.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkVolumeCollection, "1.6");
+vtkCxxRevisionMacro(vtkVolumeCollection, "1.7");
 vtkStandardNewMacro(vtkVolumeCollection);
+
+//----------------------------------------------------------------------------
+void vtkVolumeCollection::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}

@@ -39,7 +39,7 @@ class VTK_RENDERING_EXPORT vtkVolumeRayCastIsosurfaceFunction : public vtkVolume
 {
 public:
   vtkTypeRevisionMacro(vtkVolumeRayCastIsosurfaceFunction,vtkVolumeRayCastFunction);
-  void PrintSelf( ostream& os, vtkIndent index );
+  void PrintSelf( ostream& os, vtkIndent indent );
 
   // Description:
   // Construct a new vtkVolumeRayCastIsosurfaceFunction

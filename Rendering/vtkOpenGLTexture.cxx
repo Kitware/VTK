@@ -45,7 +45,7 @@
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLTexture, "1.48");
+vtkCxxRevisionMacro(vtkOpenGLTexture, "1.49");
 vtkStandardNewMacro(vtkOpenGLTexture);
 #endif
 
@@ -435,4 +435,9 @@ unsigned char *vtkOpenGLTexture::ResampleToPowerOfTwo(int &xs, int &ys, unsigned
   ys = ysize;
   
   return tptr;
+}
+
+void vtkOpenGLTexture::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
 }

@@ -38,6 +38,7 @@ class VTK_RENDERING_EXPORT vtkMesaFreeTypeTextMapper : public vtkTextMapper
 public:
   vtkTypeRevisionMacro(vtkMesaFreeTypeTextMapper,vtkTextMapper);
   static vtkMesaFreeTypeTextMapper *New();
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Actally draw the text.

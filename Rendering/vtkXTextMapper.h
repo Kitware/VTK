@@ -41,6 +41,7 @@ class VTK_RENDERING_EXPORT vtkXTextMapper : public vtkTextMapper
 public:
   vtkTypeRevisionMacro(vtkXTextMapper,vtkTextMapper);
   static vtkXTextMapper *New();
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // What is the size of the rectangle required to draw this

@@ -35,6 +35,7 @@ class VTK_RENDERING_EXPORT vtkXPolyDataMapper2D : public vtkPolyDataMapper2D
 public:
   vtkTypeRevisionMacro(vtkXPolyDataMapper2D,vtkPolyDataMapper2D);
   static vtkXPolyDataMapper2D *New();
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Actually draw the poly data.

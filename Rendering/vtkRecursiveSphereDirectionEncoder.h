@@ -35,7 +35,7 @@ class VTK_RENDERING_EXPORT vtkRecursiveSphereDirectionEncoder : public vtkDirect
 {
 public:
   vtkTypeRevisionMacro(vtkRecursiveSphereDirectionEncoder,vtkDirectionEncoder);
-  void PrintSelf( ostream& os, vtkIndent index );
+  void PrintSelf( ostream& os, vtkIndent indent );
 
 // Description:
 // Construct the object. Initialize the index table which will be

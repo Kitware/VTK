@@ -29,7 +29,7 @@
 #include "vtkRenderer.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLVolumeRayCastMapper, "1.15");
+vtkCxxRevisionMacro(vtkOpenGLVolumeRayCastMapper, "1.16");
 vtkStandardNewMacro(vtkOpenGLVolumeRayCastMapper);
 #endif
 
@@ -387,3 +387,7 @@ void vtkOpenGLVolumeRayCastMapper::RenderTexture( vtkVolume *vol,
 #endif
 }
 
+void vtkOpenGLVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}

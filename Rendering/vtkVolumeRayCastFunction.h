@@ -134,6 +134,7 @@ class VTK_RENDERING_EXPORT vtkVolumeRayCastFunction : public vtkObject
 {
 public:
   vtkTypeRevisionMacro(vtkVolumeRayCastFunction,vtkObject);
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Do the basic initialization. This includes saving the parameters

@@ -34,6 +34,7 @@ class VTK_RENDERING_EXPORT vtkCocoaTextMapper : public vtkTextMapper
 public:
   vtkTypeRevisionMacro(vtkCocoaTextMapper,vtkTextMapper);
   static vtkCocoaTextMapper *New();
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Actally draw the text.
@@ -52,8 +53,8 @@ protected:
   int LastSize[2];
   void *Font;
 private:
-  vtkCocoaTextMapper(const vtkCocoaTextMapper&) {};  // Not implemented.
-  void operator=(const vtkCocoaTextMapper&) {};  // Not implemented.
+  vtkCocoaTextMapper(const vtkCocoaTextMapper&);  // Not implemented.
+  void operator=(const vtkCocoaTextMapper&);  // Not implemented.
 };
 
 

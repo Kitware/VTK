@@ -80,15 +80,17 @@ using namespace vli3;
 #define VTK_VOLUME_12BIT_LOWER          2
 //BTX
 #if ((VTK_MAJOR_VERSION == 3)&&(VTK_MINOR_VERSION == 2))
-class VTK_EXPORT vtkVolumeProMapper : public vtkVolumeMapper
+#define VTK_VOLUME_PRO_MAPPER_EXPORT VTK_EXPORT
 #else
-//ETX
-class VTK_RENDERING_EXPORT vtkVolumeProMapper : public vtkVolumeMapper
+#define VTK_VOLUME_PRO_MAPPER_EXPORT VTK_RENDERING_EXPORT 
 #endif
+//ETX
+
+class VTK_VOLUME_PRO_MAPPER_EXPORT vtkVolumeProMapper : public vtkVolumeMapper
 {
 public:
   vtkTypeRevisionMacro(vtkVolumeProMapper,vtkVolumeMapper);
-  void PrintSelf( ostream& os, vtkIndent index );
+  void PrintSelf( ostream& os, vtkIndent indent );
 
   // Description:
   // Automatically create the proper subclass

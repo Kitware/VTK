@@ -69,7 +69,9 @@ class VTK_VOLUMEPRO_EXPORT vtkVolumeProVG500Mapper : public vtkVolumeProMapper
 public:
   vtkTypeRevisionMacro(vtkVolumeProVG500Mapper,vtkVolumeProMapper);
   static vtkVolumeProVG500Mapper *New();
- // Description:
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
   // Render the image using the hardware and place it in the frame buffer
   virtual void Render( vtkRenderer *, vtkVolume * );
   virtual int GetAvailableBoardMemory();

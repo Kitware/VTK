@@ -56,9 +56,13 @@
 #ifndef __vtkParallelCoordinatesActor_h
 #define __vtkParallelCoordinatesActor_h
 
-#include "vtkAxisActor2D.h"
+#include "vtkActor2D.h"
 
+class vtkAxisActor2D;
 class vtkDataObject;
+class vtkPolyData;
+class vtkPolyDataMapper2D;
+class vtkTextMapper;
 class vtkTextProperty;
 
 #define VTK_IV_COLUMN 0

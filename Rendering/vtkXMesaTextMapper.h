@@ -34,6 +34,7 @@ class VTK_RENDERING_EXPORT vtkXMesaTextMapper : public vtkXTextMapper
 public:
   vtkTypeRevisionMacro(vtkXMesaTextMapper,vtkXTextMapper);
   static vtkXMesaTextMapper *New();
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Actally draw the text.

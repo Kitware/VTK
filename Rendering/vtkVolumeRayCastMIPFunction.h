@@ -44,7 +44,7 @@ class VTK_RENDERING_EXPORT vtkVolumeRayCastMIPFunction : public vtkVolumeRayCast
 public:
   static vtkVolumeRayCastMIPFunction *New();
   vtkTypeRevisionMacro(vtkVolumeRayCastMIPFunction,vtkVolumeRayCastFunction);
-  void PrintSelf( ostream& os, vtkIndent index );
+  void PrintSelf( ostream& os, vtkIndent indent );
 
 
   // Description:

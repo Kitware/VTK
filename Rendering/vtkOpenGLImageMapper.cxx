@@ -34,7 +34,7 @@
 #include <limits.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLImageMapper, "1.50");
+vtkCxxRevisionMacro(vtkOpenGLImageMapper, "1.51");
 vtkStandardNewMacro(vtkOpenGLImageMapper);
 #endif
 
@@ -673,4 +673,9 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
 #if defined(sparc) && defined(GL_VERSION_1_1)
   glEnable(GL_BLEND);
 #endif
+}
+
+void vtkOpenGLImageMapper::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
 }

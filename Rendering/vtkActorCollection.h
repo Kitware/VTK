@@ -37,6 +37,7 @@ class VTK_RENDERING_EXPORT vtkActorCollection : public vtkPropCollection
 public:
   static vtkActorCollection *New();
   vtkTypeRevisionMacro(vtkActorCollection,vtkPropCollection);
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Add an actor to the list.

@@ -18,7 +18,7 @@
 #include "vtkScaledTextActor.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkScaledTextActor, "1.26");
+vtkCxxRevisionMacro(vtkScaledTextActor, "1.27");
 vtkStandardNewMacro(vtkScaledTextActor);
 
 vtkScaledTextActor::vtkScaledTextActor()
@@ -29,3 +29,7 @@ vtkScaledTextActor::vtkScaledTextActor()
   this->SetScaledText(1);
 }
 
+void vtkScaledTextActor::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}

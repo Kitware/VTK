@@ -37,6 +37,7 @@ class VTK_RENDERING_EXPORT vtkCuller : public vtkObject
 {
 public:
   vtkTypeRevisionMacro(vtkCuller,vtkObject);
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // This is called outside the render loop by vtkRenderer

@@ -44,7 +44,7 @@ class VTK_RENDERING_EXPORT vtkEncodedGradientEstimator : public vtkObject
 {
 public:
   vtkTypeRevisionMacro(vtkEncodedGradientEstimator,vtkObject);
-  void PrintSelf( ostream& os, vtkIndent index );
+  void PrintSelf( ostream& os, vtkIndent indent );
 
   // Description:
   // Set/Get the scalar input for which the normals will be 

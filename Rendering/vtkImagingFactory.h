@@ -28,6 +28,7 @@ class VTK_RENDERING_EXPORT vtkImagingFactory : public vtkObject
 public:
   static vtkImagingFactory *New();
   vtkTypeRevisionMacro(vtkImagingFactory,vtkObject);
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Create and return an instance of the named vtk object.

@@ -41,6 +41,7 @@ public:
   // Description:
   // Get the name of this class
   vtkTypeRevisionMacro(vtkDirectionEncoder,vtkObject);
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Given a normal vector n, return the encoded direction

@@ -34,6 +34,7 @@ class VTK_RENDERING_EXPORT vtkMesaImageActor : public vtkImageActor
 public:
   static vtkMesaImageActor *New();
   vtkTypeRevisionMacro(vtkMesaImageActor,vtkImageActor);
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Implement base class method.

@@ -36,6 +36,7 @@ class VTK_RENDERING_EXPORT vtkLightCollection : public vtkCollection
  public:
   static vtkLightCollection *New();
   vtkTypeRevisionMacro(vtkLightCollection,vtkCollection);
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Add a light to the list.

@@ -32,6 +32,7 @@ class VTK_RENDERING_EXPORT vtkMesaCamera : public vtkCamera
 public:
   static vtkMesaCamera *New();
   vtkTypeRevisionMacro(vtkMesaCamera,vtkCamera);
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Implement base class method.

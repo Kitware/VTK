@@ -30,7 +30,7 @@
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLLight, "1.17");
+vtkCxxRevisionMacro(vtkOpenGLLight, "1.18");
 vtkStandardNewMacro(vtkOpenGLLight);
 #endif
 
@@ -118,3 +118,8 @@ void vtkOpenGLLight::Render(vtkRenderer *vtkNotUsed(ren),int light_index)
   }
 }
 
+//----------------------------------------------------------------------------
+void vtkOpenGLLight::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}

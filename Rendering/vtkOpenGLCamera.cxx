@@ -30,7 +30,7 @@
 #include "vtkgluPickMatrix.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLCamera, "1.52");
+vtkCxxRevisionMacro(vtkOpenGLCamera, "1.53");
 vtkStandardNewMacro(vtkOpenGLCamera);
 #endif
 
@@ -244,3 +244,8 @@ void vtkOpenGLCamera::UpdateViewport(vtkRenderer *ren)
   glScissor(lowerLeft[0],lowerLeft[1], usize, vsize);
 }
 
+//----------------------------------------------------------------------------
+void vtkOpenGLCamera::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}

@@ -36,6 +36,7 @@ class VTK_RENDERING_EXPORT vtkMesaVolumeRayCastMapper : public vtkVolumeRayCastM
 public:
   static vtkMesaVolumeRayCastMapper *New();
   vtkTypeRevisionMacro(vtkMesaVolumeRayCastMapper,vtkVolumeRayCastMapper);
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
   vtkMesaVolumeRayCastMapper();

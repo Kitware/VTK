@@ -47,7 +47,7 @@
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLImageActor, "1.14");
+vtkCxxRevisionMacro(vtkOpenGLImageActor, "1.15");
 vtkStandardNewMacro(vtkOpenGLImageActor);
 #endif
 
@@ -404,5 +404,7 @@ void vtkOpenGLImageActor::Load(vtkRenderer *ren)
   glEnable( GL_LIGHTING );
 }
 
-
-
+void vtkOpenGLImageActor::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}

@@ -18,5 +18,11 @@
 #include "vtkCullerCollection.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCullerCollection, "1.6");
+vtkCxxRevisionMacro(vtkCullerCollection, "1.7");
 vtkStandardNewMacro(vtkCullerCollection);
+
+//----------------------------------------------------------------------------
+void vtkCullerCollection::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}

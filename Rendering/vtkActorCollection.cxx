@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkProperty.h"
 
-vtkCxxRevisionMacro(vtkActorCollection, "1.9");
+vtkCxxRevisionMacro(vtkActorCollection, "1.10");
 vtkStandardNewMacro(vtkActorCollection);
 
 void vtkActorCollection::ApplyProperties(vtkProperty *p)
@@ -38,5 +38,8 @@ void vtkActorCollection::ApplyProperties(vtkProperty *p)
     }
 }
 
-
-
+//----------------------------------------------------------------------------
+void vtkActorCollection::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}

@@ -76,7 +76,7 @@
 static vtkSimpleCriticalSection vtkUseMesaClassesCriticalSection;
 int vtkGraphicsFactory::UseMesaClasses = 0;
 
-vtkCxxRevisionMacro(vtkGraphicsFactory, "1.29");
+vtkCxxRevisionMacro(vtkGraphicsFactory, "1.30");
 vtkStandardNewMacro(vtkGraphicsFactory);
 
 const char *vtkGraphicsFactory::GetRenderLibrary()
@@ -317,3 +317,8 @@ int vtkGraphicsFactory::GetUseMesaClasses()
   return vtkGraphicsFactory::UseMesaClasses;
 }
 
+//----------------------------------------------------------------------------
+void vtkGraphicsFactory::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}

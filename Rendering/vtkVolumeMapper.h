@@ -48,7 +48,7 @@ class VTK_RENDERING_EXPORT vtkVolumeMapper : public vtkAbstractMapper3D
 {
 public:
   vtkTypeRevisionMacro(vtkVolumeMapper,vtkAbstractMapper3D);
-  void PrintSelf( ostream& os, vtkIndent index );
+  void PrintSelf( ostream& os, vtkIndent indent );
 
   // Description:
   // Update the volume rendering pipeline by updating the scalar input

@@ -35,6 +35,7 @@ class VTK_RENDERING_EXPORT vtkCullerCollection : public vtkCollection
  public:
   static vtkCullerCollection *New();
   vtkTypeRevisionMacro(vtkCullerCollection,vtkCollection);
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Add an Culler to the list.

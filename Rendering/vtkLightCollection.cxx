@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkLightCollection, "1.13");
+vtkCxxRevisionMacro(vtkLightCollection, "1.14");
 vtkStandardNewMacro(vtkLightCollection);
 
 // Add a light to the list.
@@ -38,9 +38,8 @@ vtkLight *vtkLightCollection::GetNextItem()
   return static_cast<vtkLight *>(this->GetNextItemAsObject());
 }
 
-
-
-
-
-
-
+//----------------------------------------------------------------------------
+void vtkLightCollection::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}

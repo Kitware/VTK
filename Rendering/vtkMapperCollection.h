@@ -35,6 +35,7 @@ class VTK_RENDERING_EXPORT vtkMapperCollection : public vtkCollection
  public:
   static vtkMapperCollection *New();
   vtkTypeRevisionMacro(vtkMapperCollection,vtkCollection);
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Add an mapper to the list.

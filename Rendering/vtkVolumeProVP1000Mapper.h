@@ -66,7 +66,9 @@ class VTK_EXPORT vtkVolumeProVP1000Mapper : public vtkVolumeProMapper
 public:
   vtkTypeRevisionMacro(vtkVolumeProVP1000Mapper,vtkVolumeProMapper);
   static vtkVolumeProVP1000Mapper *New();
- // Description:
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
   // Render the image using the hardware and place it in the frame buffer
   virtual void Render( vtkRenderer *, vtkVolume * );
   virtual int GetAvailableBoardMemory();
@@ -78,8 +80,6 @@ public:
 protected:
   vtkVolumeProVP1000Mapper();
   ~vtkVolumeProVP1000Mapper();
-  vtkVolumeProVP1000Mapper(const vtkVolumeProVP1000Mapper&);
-  void operator=(const vtkVolumeProVP1000Mapper&);
   
   // Update the camera - set the camera matrix
   void UpdateCamera( vtkRenderer *, vtkVolume * );
@@ -144,6 +144,10 @@ protected:
                              int &outImageWidth, int &outImageHeight);
   
   int DrawBoundingBox;
+
+private:
+  vtkVolumeProVP1000Mapper(const vtkVolumeProVP1000Mapper&); // Not implemented
+  void operator=(const vtkVolumeProVP1000Mapper&); // Not implemented
 };
 
 

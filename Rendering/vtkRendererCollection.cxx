@@ -21,7 +21,7 @@
 
 #include <stdlib.h>
 
-vtkCxxRevisionMacro(vtkRendererCollection, "1.29");
+vtkCxxRevisionMacro(vtkRendererCollection, "1.30");
 vtkStandardNewMacro(vtkRendererCollection);
 
 // Forward the Render() method to each renderer in the list.
@@ -66,5 +66,8 @@ void vtkRendererCollection::Render()
     }
 }
 
-
-
+//----------------------------------------------------------------------------
+void vtkRendererCollection::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}

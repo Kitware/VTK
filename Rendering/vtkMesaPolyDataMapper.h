@@ -36,6 +36,7 @@ class VTK_RENDERING_EXPORT vtkMesaPolyDataMapper : public vtkPolyDataMapper
 public:
   static vtkMesaPolyDataMapper *New();
   vtkTypeRevisionMacro(vtkMesaPolyDataMapper,vtkPolyDataMapper);
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Implement superclass render method.

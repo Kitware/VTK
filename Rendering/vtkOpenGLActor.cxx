@@ -30,7 +30,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLActor, "1.24");
+vtkCxxRevisionMacro(vtkOpenGLActor, "1.25");
 vtkStandardNewMacro(vtkOpenGLActor);
 #endif
 
@@ -108,3 +108,8 @@ void vtkOpenGLActor::Render(vtkRenderer *ren, vtkMapper *mapper)
     }
 }
 
+//----------------------------------------------------------------------------
+void vtkOpenGLActor::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}

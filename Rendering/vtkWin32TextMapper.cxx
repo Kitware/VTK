@@ -21,7 +21,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkWin32TextMapper, "1.32");
+vtkCxxRevisionMacro(vtkWin32TextMapper, "1.33");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -190,5 +190,7 @@ void vtkWin32TextMapper::GetSize(vtkViewport* viewport, int *size)
   SelectObject(hdc, hOldFont);
 }
 
-
-
+void vtkWin32TextMapper::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}

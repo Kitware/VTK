@@ -55,8 +55,8 @@ protected:
   char *FileName;
 
 private:
-  vtkOOGLExporter(const vtkOOGLExporter&);
-  void operator=(const vtkOOGLExporter&);
+  vtkOOGLExporter(const vtkOOGLExporter&); // Not implemented
+  void operator=(const vtkOOGLExporter&); // Not implemented
 };
 
 #endif

@@ -23,7 +23,7 @@
 #include "vtkVolume.h"
 #include "vtkVolumeRayCastMapper.h"
 
-vtkCxxRevisionMacro(vtkVolumeRayCastFunction, "1.19");
+vtkCxxRevisionMacro(vtkVolumeRayCastFunction, "1.20");
 
 // Grab everything we need for rendering now. This procedure will be called
 // during the initialization phase of ray casting. It is called once per 
@@ -130,5 +130,8 @@ void vtkVolumeRayCastFunction::FunctionInitialize(
   this->SpecificFunctionInitialize( ren, vol, staticInfo, mapper );
 }
 
-
-
+//----------------------------------------------------------------------------
+void vtkVolumeRayCastFunction::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}
