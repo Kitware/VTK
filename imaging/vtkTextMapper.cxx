@@ -61,6 +61,7 @@ vtkTextMapper::vtkTextMapper()
   this->Shadow = 0;
   this->FontFamily = VTK_ARIAL;
   this->Justification = VTK_TEXT_LEFT;
+  this->VerticalJustification = VTK_TEXT_BOTTOM;
 
   this->TextLines = NULL;
   this->NumberOfLines = 0;
