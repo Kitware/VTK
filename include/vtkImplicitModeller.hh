@@ -41,10 +41,18 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkImplicitModeller - compute distance from input geometry on structured point set
 // .SECTION Description
 // vtkImplicitModeller is a filter that computes the distance from the input
-// geometry on a structured point set. This distance function can then be
-// "contoured" to generate new, offset surfaces from the original geometry.
+// geometry to the points in a structured point set. This distance function can 
+// then be "contoured" to generate new, offset surfaces from the original geometry.
+//
+// An important feature of this object is "capping". If cappiung is turned on, after 
+// the implicit model is created, the values on the boundary of the structured points
+// dataset are set to the cap value. This is used to force closure of the resulting
+// contoured surface. Note, however, that large cap values can generate weird surface
+// normals in those cells adjacent to the boundary of the dataset. Using s amller cap 
+// value will reduce this effect.
+
 // .SECTION See Also
-// vtkSampleFunction
+// vtkSampleFunction vtkContourFilter
 
 #ifndef __vtkImplicitModeller_h
 #define __vtkImplicitModeller_h
