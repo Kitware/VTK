@@ -55,6 +55,8 @@ class vlTransform : public vlObject
   //  stackSize = 10
   //  creates an identity matrix as the top matrix on the stack
   //  
+  vlTransform (const vlTransform& t);
+  // copy constructor
   ~vlTransform ();
   //  Delete any matrices on the stack.
   void Identity ();

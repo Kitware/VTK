@@ -20,16 +20,42 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 vlMatrix4x4::vlMatrix4x4 ()
 {
+  int i,j;
+
+  for (i = 0; i < 4; i++) 
+    {
+    for (j = 0; j < 4; j++)
+      {
+      if ( i == j ) this->Element[i][j] = 1.0;
+      else this->Element[i][j] = 0.0;
+      }
+    }
 }
+
+vlMatrix4x4::vlMatrix4x4(const vlMatrix4x4& m)
+{
+  int i,j;
+
+  for (i = 0; i < 4; i++) 
+    {
+    for (j = 0; j < 4; j++)
+      {
+      this->Element[i][j] = m.Element[i][j];
+      }
+    }
+}
+
 void vlMatrix4x4::operator= (float element)
 {
   int i,j;
 
-  for (i = 0; i < 4; i++) {
-    for (j = 0; j < 4; j++) {
+  for (i = 0; i < 4; i++)
+    {
+    for (j = 0; j < 4; j++)
+      {
       this->Element[i][j] = element;
+      }
     }
-  }
   this->Modified ();
 }
 
@@ -224,11 +250,13 @@ void vlMatrix4x4::operator= (vlMatrix4x4& source)
 {
   int i, j;
 
-  for (i = 0; i < 4; i++) {
-    for (j = 0; j < 4; j++) {
+  for (i = 0; i < 4; i++) 
+    {
+    for (j = 0; j < 4; j++) 
+      {
       this->Element[i][j] = source.Element[i][j];
+      }
     }
-  }
 }
 
 void vlMatrix4x4::PrintSelf (ostream& os, vlIndent indent)

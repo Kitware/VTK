@@ -24,6 +24,7 @@ class vlMatrix4x4 : public vlObject
   float Element[4][4];
   //  A 4 x 4 matrix.
   vlMatrix4x4 ();
+  vlMatrix4x4 (const vlMatrix4x4& m);
   void operator= (float element);
   void operator= (vlMatrix4x4& source);
   float *operator[](const unsigned int i) {return &(Element[i][0]);};

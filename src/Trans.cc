@@ -36,6 +36,24 @@ vlTransform::vlTransform ()
   this->Modified ();
 }
 
+vlTransform::vlTransform (const vlTransform& t)
+{
+  int i;
+  vlMatrix4x4 *stack;
+
+  this->PreMultiplyFlag = t.PreMultiplyFlag;
+  this->StackSize = t.StackSize;
+  this->Stack = new vlMatrix4x4 *[this->StackSize];
+
+  // now copy each matrix in the stack
+  for (stack = *this->Stack, i = 0; i < this->StackSize; i++)
+    {
+    this->Stack[i] = new vlMatrix4x4(*(t.Stack[i]));
+    }
+
+  this->StackBottom = this->Stack + (this->StackSize - 1);
+}
+
 void vlTransform::Pop ()
   //  Deletes the transformation on the top of the
   //  stack and sets the top to the next transformation
