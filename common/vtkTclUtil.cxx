@@ -184,6 +184,17 @@ int vtkCommand(ClientData cd, Tcl_Interp *interp, int argc, char *argv[])
       }
     return TCL_OK;
     }
+  if (!strcmp(argv[1],"ListAllInstances"))
+    {
+    for (entry = Tcl_FirstHashEntry(&vtkInstanceLookup,&search); 
+	 entry != NULL; entry = Tcl_NextHashEntry(&search))
+      {
+      Tcl_AppendResult(interp,
+		       (char *)Tcl_GetHashKey(&vtkInstanceLookup,entry),NULL);
+      Tcl_AppendResult(interp,"\n",NULL);
+      }
+    return TCL_OK;
+    }
   if (!strcmp(argv[1],"DebugOn"))
     {
     vtkTclDebugOn = 1;
@@ -200,6 +211,7 @@ int vtkCommand(ClientData cd, Tcl_Interp *interp, int argc, char *argv[])
     Tcl_AppendResult(interp,"  DebugOn\n",NULL);
     Tcl_AppendResult(interp,"  DebugOff\n",NULL);
     Tcl_AppendResult(interp,"  DeleteAllObjects\n",NULL);
+    Tcl_AppendResult(interp,"  ListAllInstances\n",NULL);
     return TCL_OK;
     }
 
