@@ -27,7 +27,7 @@
 
 #include "vtkRegressionTestImage.h"
 
-int main( int argc, char *argv[] )
+int TestRenderWindow( int argc, char *argv[] )
 {
   // Create the renderers, render window, and interactor
   vtkRenderWindow *renWin = vtkRenderWindow::New();

@@ -169,7 +169,7 @@ int Test(ostream& strm)
   return 0;
 }
 
-int main()
+int otherCoordinate(int,char *[])
 {
   vtkDebugLeaks::PromptUserOff();
 
