@@ -126,11 +126,8 @@ protected:
 
   int Clipping;
 
-  // internal structures to support the algorithm
+  // sorted and cleaned contour values
   float *ClipValues;
-  float *T;
-  int *PtIds;
-  int *CellScalars;
   
 private:
   vtkBandedPolyDataContourFilter(const vtkBandedPolyDataContourFilter&);  // Not implemented.
