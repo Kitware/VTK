@@ -172,7 +172,6 @@ vtkMaskPolyData \
 vtkMergeFilter \
 vtkMergeDataObjectFilter \
 vtkMergePoints \
-vtkNormalEncoder \
 vtkOBBTree \
 vtkOBJExporter \
 vtkOutlineFilter \
