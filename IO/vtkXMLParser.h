@@ -127,7 +127,7 @@ protected:
   unsigned long GetXMLByteIndex();
   
   // Send the given buffer to the XML parser.
-  int ParseBuffer(const char* buffer, unsigned int count);
+  virtual int ParseBuffer(const char* buffer, unsigned int count);
   
   // Send the given c-style string to the XML parser.
   int ParseBuffer(const char* buffer);
