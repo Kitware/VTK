@@ -68,7 +68,7 @@ public:
   vtkDataSet *GetScalars();
   void SetScalars(vtkImageData *cache)
     {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
-    this->SetScalars(tmp->GetOutput()); tmp->Delete();}
+    this->SetScalars(((vtkDataSet *)tmp->GetOutput())); tmp->Delete();}
 
   // Description:
   // Set / get the object from which to extract vector information.

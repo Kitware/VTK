@@ -106,7 +106,7 @@ public:
   void SetInput(vtkDataSet *input);
   void SetInput(vtkImageData *cache)
     {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
-    this->SetInput(tmp->GetOutput()); tmp->Delete();}  
+    this->SetInput(((vtkDataSet *)tmp->GetOutput())); tmp->Delete();}  
 
 //BTX
   vtkDataSet *GetInput();

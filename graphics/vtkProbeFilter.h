@@ -66,7 +66,7 @@ public:
   vtkDataSet *GetSource();
   void SetSource(vtkImageData *cache) 
     {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
-    this->SetSource(tmp->GetOutput()); tmp->Delete();}
+    this->SetSource((vtkDataSet *)tmp->GetOutput()); tmp->Delete();}
 
 protected:
   vtkProbeFilter();
