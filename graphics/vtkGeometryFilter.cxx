@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkGeometryFilter.h"
+#include "vtkMergePoints.h"
 
 // Description:
 // Construct with all types of clipping turned off.
@@ -60,6 +61,15 @@ vtkGeometryFilter::vtkGeometryFilter()
   this->PointClipping = 0;
   this->CellClipping = 0;
   this->ExtentClipping = 0;
+
+  this->Merging = 1;
+  this->Locator = NULL;
+  this->SelfCreatedLocator = 0;
+}
+
+vtkGeometryFilter::~vtkGeometryFilter()
+{
+  if (this->SelfCreatedLocator) this->Locator->Delete();
 }
 
 // Description:
@@ -174,6 +184,11 @@ void vtkGeometryFilter::Execute()
   newPts = new vtkFloatPoints(numPts,numPts/2);
   output->Allocate(4*numCells,numCells/2);
   outputPD->CopyAllocate(pd,numPts,numPts/2);
+  if ( this->Merging )
+    {
+    if ( this->Locator == NULL ) this->CreateDefaultLocator();
+    this->Locator->InitPointInsertion (newPts, this->Input->GetBounds());
+    }
 //
 // Traverse cells to extract geometry
 //
@@ -193,12 +208,15 @@ void vtkGeometryFilter::Execute()
             {
             ptId = cell->GetPointId(i);
             x = this->Input->GetPoint(ptId);
-            pt = newPts->InsertNextPoint(x);
-            outputPD->CopyData(pd,ptId,pt);
+
+            if ( this->Merging && (pt=this->Locator->IsInsertedPoint(x)) < 0 )
+              {
+              pt = this->Locator->InsertNextPoint(x);
+              outputPD->CopyData(pd,ptId,pt);
+              }
+
             pts->InsertId(i,pt);
             }
-	  //	  cerr << "inserting " << npts << "," << pts->GetNumberOfIds() << "\n";
-	  // cerr << "total " << newPts->GetNumberOfPoints() << "\n";
           output->InsertNextCell(cell->GetCellType(), *pts);
           break;
 
@@ -217,14 +235,17 @@ void vtkGeometryFilter::Execute()
                 {
                 ptId = face->GetPointId(i);
                 x = this->Input->GetPoint(ptId);
-                pt = newPts->InsertNextPoint(x);
-                outputPD->CopyData(pd,ptId,pt);
+                if ( this->Merging && (pt=this->Locator->IsInsertedPoint(x)) < 0)
+                  {
+                  pt = this->Locator->InsertNextPoint(x);
+                  outputPD->CopyData(pd,ptId,pt);
+                  }
                 pts->InsertId(i,pt);
                 }
               output->InsertNextCell(face->GetCellType(), *pts);
               }
             }
-            cellCopy->Delete();
+          cellCopy->Delete();
           break;
 
         } //switch
@@ -239,11 +260,34 @@ void vtkGeometryFilter::Execute()
   output->SetPoints(newPts);
   newPts->Delete();
 
+  if (this->Locator) this->Locator->Initialize(); //free storage
+
   output->Squeeze();
 
   cellIds->Delete();
   pts->Delete();
   if ( cellVis ) delete [] cellVis;
+}
+
+// Description:
+// Specify a spatial locator for merging points. By
+// default an instance of vtkMergePoints is used.
+void vtkGeometryFilter::SetLocator(vtkPointLocator *locator)
+{
+  if ( this->Locator != locator ) 
+    {
+    if ( this->SelfCreatedLocator ) this->Locator->Delete();
+    this->SelfCreatedLocator = 0;
+    this->Locator = locator;
+    this->Modified();
+    }
+}
+
+void vtkGeometryFilter::CreateDefaultLocator()
+{
+  if ( this->SelfCreatedLocator ) this->Locator->Delete();
+  this->Locator = new vtkMergePoints;
+  this->SelfCreatedLocator = 1;
 }
 
 void vtkGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)
@@ -265,5 +309,14 @@ void vtkGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "CellClipping: " << (this->CellClipping ? "On\n" : "Off\n");
   os << indent << "ExtentClipping: " << (this->ExtentClipping ? "On\n" : "Off\n");
 
+  os << indent << "Merging: " << (this->Merging ? "On\n" : "Off\n");
+  if ( this->Locator )
+    {
+    os << indent << "Locator: " << this->Locator << "\n";
+    }
+  else
+    {
+    os << indent << "Locator: (none)\n";
+    }
 }
 
