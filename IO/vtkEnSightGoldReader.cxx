@@ -30,7 +30,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.49");
+vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.50");
 vtkStandardNewMacro(vtkEnSightGoldReader);
 
 //BTX
@@ -2106,10 +2106,11 @@ int vtkEnSightGoldReader::CheckForUndefOrPartial(const char *line)
       this->ReadNextDataLine( subline );
       int nLines = atoi(subline);
       vtkIdType val;
+      int i;
       switch( this->GetSectionType(line) )
         {
         case vtkEnSightReader::COORDINATES:
-          for(int i=0; i<nLines; ++i)
+          for(i=0; i<nLines; ++i)
             {
             this->ReadNextDataLine(subline);
             val = atoi(subline) - 1; //EnSight start at 1
@@ -2117,7 +2118,7 @@ int vtkEnSightGoldReader::CheckForUndefOrPartial(const char *line)
             }
           break;
         case vtkEnSightReader::BLOCK:
-          for(int i=0; i<nLines; ++i)
+          for(i=0; i<nLines; ++i)
             {
             this->ReadNextDataLine(subline);
             val = atoi(subline) - 1; //EnSight start at 1
@@ -2125,7 +2126,7 @@ int vtkEnSightGoldReader::CheckForUndefOrPartial(const char *line)
             }
           break;
         case vtkEnSightReader::ELEMENT:
-          for(int i=0; i<nLines; ++i)
+          for(i=0; i<nLines; ++i)
             {
             this->ReadNextDataLine(subline);
             val = atoi(subline) - 1; //EnSight start at 1
