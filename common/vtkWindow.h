@@ -67,7 +67,8 @@ public:
   virtual void *GetGenericWindowId()  = 0;
   virtual void *GetGenericParentId()  = 0;
   virtual void *GetGenericContext()   = 0;
-  
+  virtual void *GetGenericDrawable()  = 0;  
+
   // useful for scripting languages
   virtual void SetWindowInfo(char *) = 0;
 
@@ -99,6 +100,12 @@ public:
   vtkBooleanMacro(Erase,int);
 
   // Description:
+  // Keep track of whether double buffering is on or off
+  vtkSetMacro(DoubleBuffer,int);
+  vtkGetMacro(DoubleBuffer,int);
+  vtkBooleanMacro(DoubleBuffer,int);
+
+  // Description:
   // Get name of rendering window
   vtkGetStringMacro(WindowName);
   virtual void SetWindowName(char * );
@@ -109,6 +116,7 @@ protected:
   int Position[2];
   int Mapped;
   int Erase;
+  int DoubleBuffer;
 };
 
 #endif
