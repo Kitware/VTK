@@ -31,17 +31,11 @@
 
 class VTK_COMMON_EXPORT vtkOutputWindow;
 
-class VTK_COMMON_EXPORT vtkOutputWindowSmartPointer
+class VTK_COMMON_EXPORT vtkOutputWindowCleanup
 {
 public:
-  vtkOutputWindowSmartPointer(vtkOutputWindow* p) { this->Pointer=p; };
-  void SetPointer(vtkOutputWindow* obj)
-    {
-      this->Pointer = obj;
-    }
-  ~vtkOutputWindowSmartPointer();
-private:
-  vtkOutputWindow* Pointer;
+  vtkOutputWindowCleanup();
+  ~vtkOutputWindowCleanup();
 };
 //ETX
 
@@ -88,7 +82,7 @@ public:
   // use this as a way of memory management when the
   // program exits the SmartPointer will be deleted which
   // will delete the Instance singleton
-  static vtkOutputWindowSmartPointer SmartPointer;
+  static vtkOutputWindowCleanup Cleanup;
 //ETX
 protected:
   vtkOutputWindow();

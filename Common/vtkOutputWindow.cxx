@@ -22,11 +22,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkDebugLeaks.h"
 
-vtkCxxRevisionMacro(vtkOutputWindow, "1.26");
+vtkCxxRevisionMacro(vtkOutputWindow, "1.27");
 
 vtkOutputWindow* vtkOutputWindow::Instance = 0;
-vtkOutputWindowSmartPointer vtkOutputWindow::SmartPointer(NULL);
-
+vtkOutputWindowCleanup vtkOutputWindow::Cleanup;
 
 void vtkOutputWindowDisplayText(const char* message)
 {
@@ -53,12 +52,14 @@ void vtkOutputWindowDisplayDebugText(const char* message)
   vtkOutputWindow::GetInstance()->DisplayDebugText(message);
 }
 
-vtkOutputWindowSmartPointer::~vtkOutputWindowSmartPointer()
+vtkOutputWindowCleanup::vtkOutputWindowCleanup()
 {
-  if (this->Pointer)
-    {
-    this->Pointer->Delete();
-    }
+}
+
+vtkOutputWindowCleanup::~vtkOutputWindowCleanup()
+{
+  // Destroy any remaining output window.
+  vtkOutputWindow::SetInstance(0);
 }
 
 vtkOutputWindow::vtkOutputWindow()
@@ -68,7 +69,6 @@ vtkOutputWindow::vtkOutputWindow()
 
 vtkOutputWindow::~vtkOutputWindow()
 {
-  vtkOutputWindow::Instance = 0;
 }
 
 void vtkOutputWindow::PrintSelf(ostream& os, vtkIndent indent)
@@ -145,7 +145,7 @@ vtkOutputWindow* vtkOutputWindow::GetInstance()
       {
       // if the factory failed to create the object,
       // then destroy it now, as vtkDebugLeaks::ConstructClass was called
-      // with vtkclassname, and not the real name of the class
+      // with "vtkOutputWindow", and not the real name of the class
 #ifdef _WIN32    
 #ifdef VTK_DEBUG_LEAKS
       vtkDebugLeaks::DestructClass("vtkOutputWindow");
@@ -155,9 +155,6 @@ vtkOutputWindow* vtkOutputWindow::GetInstance()
       vtkOutputWindow::Instance = new vtkOutputWindow;
 #endif
       }
-    // set the smart pointer to the instance, so
-    // it will be UnRegister'ed at exit of the program
-    vtkOutputWindow::SmartPointer.SetPointer(vtkOutputWindow::Instance );
     }
   // return the instance
   return vtkOutputWindow::Instance;
@@ -169,7 +166,6 @@ void vtkOutputWindow::SetInstance(vtkOutputWindow* instance)
     {
     return;
     }
-  vtkOutputWindow::SmartPointer.SetPointer( instance );
   // preferably this will be NULL
   if (vtkOutputWindow::Instance)
     {
@@ -179,11 +175,6 @@ void vtkOutputWindow::SetInstance(vtkOutputWindow* instance)
   if (!instance)
     {
     return;
-    }
-  // Should be safe to send a message now as instance is set
-  if (instance->GetReferenceCount()!=1)
-    {
-    vtkGenericWarningMacro(<<"OutputWindow should have reference count = 1");
     }
   // user will call ->Delete() after setting instance
   instance->Register(NULL);
