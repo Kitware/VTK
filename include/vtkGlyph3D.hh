@@ -46,7 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // to scalar data or vector magnitude. The geometry is supplied via the 
 // Source instance variable; the points come from the Input.
 // .SECTION See Also
-// vtkTensorEllipsoid
+// vtkTensorGlyph
 
 #ifndef __vtkGlyph3D_h
 #define __vtkGlyph3D_h

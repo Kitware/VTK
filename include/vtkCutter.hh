@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkCutter - Cut vtkDataSets with user-specified implicit function
+// .NAME vtkCutter - Cut vtkDataSet with user-specified implicit function
 // .SECTION Description
 // vtkCutter is a filter to cut through data using any subclass of 
 // vtkImplicitFunction. That is, a polygonal surface is created

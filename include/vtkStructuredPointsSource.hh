@@ -53,7 +53,7 @@ class vtkStructuredPointsSource : public vtkSource
 {
 public:
   vtkStructuredPointsSource();
-  char *GetClassName() {return "vtkStructuredPointSource";};
+  char *GetClassName() {return "vtkStructuredPointsSource";};
 
   // Description:
   // Get the output of this source.

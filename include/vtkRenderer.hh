@@ -111,7 +111,7 @@ public:
   // Description:
   // Set/Get the amount of time this renderer is allowed to spend
   // rendering its scene. Zero indicates an infinite amount of time.
-  // This is used by vtkLODActors.
+  // This is used by vtkLODActor's.
   vtkSetMacro(AllocatedRenderTime,float);
   vtkGetMacro(AllocatedRenderTime,float);
 

@@ -44,7 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // combinations of implicit functions. The class has a list of functions
 // (FunctionList) that are combined according to a specified operator
 // (VTK_UNION or VTK_INTERSECTION or VTK_DIFFERENCE). You can use nested
-// combinations of vtkImplicitFunctions (and/or vtkImplicitBoolean) to create
+// combinations of vtkImplicitFunction's (and/or vtkImplicitBoolean) to create
 // elaborate implicit functions.  vtkImplicitBoolean is a concrete
 // implementation of vtkImplicitFunction.
 //

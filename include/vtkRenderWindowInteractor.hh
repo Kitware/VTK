@@ -89,7 +89,7 @@ public:
   vtkBooleanMacro(LightFollowCamera,int);
 
   // Description:
-  // Set/Get the desired update rate. This is used by vtkLODActors to tell 
+  // Set/Get the desired update rate. This is used by vtkLODActor's to tell 
   // them how quickly they need to render.  This update is in effect only
   // when the camera is being rotated, or zoomed.  When the interactor is
   // still the StillUpdateRate is used instead. A value of zero indicates
