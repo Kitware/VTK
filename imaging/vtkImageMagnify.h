@@ -38,15 +38,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMagnify - Magnifies an image by integer values
+// .NAME vtkImageMagnify - magnify an image by an integer value
 // .SECTION Description
 // vtkImageMagnify maps each pixel of the input onto a nxmx... region
-// of the output.  Location (0,0,...) remains in the same place.
-
+// of the output.  Location (0,0,...) remains in the same place. The
+// magnification occurs via pixel replication, or if Interpolate is on,
+// by bilinear interpolation.
 
 #ifndef __vtkImageMagnify_h
 #define __vtkImageMagnify_h
-
 
 #include "vtkImageFilter.h"
 
@@ -59,12 +59,12 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set/Get Magnification factors
+  // Set/Get the integer magnification factors in the i-j-k directions.
   vtkSetVector3Macro(MagnificationFactors,int);
   vtkGetVector3Macro(MagnificationFactors,int);
   
   // Description:
-  // Turn interpolation on and off (pixel replication used when off)
+  // Turn interpolation on and off (pixel replication is used when off).
   vtkSetMacro(Interpolate,int);
   vtkGetMacro(Interpolate,int);
   vtkBooleanMacro(Interpolate,int);
