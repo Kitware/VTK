@@ -407,6 +407,33 @@ void vtkDataSetReader::Execute()
   return;
 }
 
+
+vtkPolyData *vtkDataSetReader::GetPolyDataOutput()
+{
+  return vtkPolyData::SafeDownCast(this->GetOutput());
+}
+
+vtkStructuredPoints *vtkDataSetReader::GetStructuredPointsOutput() 
+{
+  return vtkStructuredPoints::SafeDownCast(this->GetOutput());
+}
+
+vtkStructuredGrid *vtkDataSetReader::GetStructuredGridOutput() 
+{
+  return vtkStructuredGrid::SafeDownCast(this->GetOutput());
+}
+
+vtkUnstructuredGrid *vtkDataSetReader::GetUnstructuredGridOutput() 
+{
+  return vtkUnstructuredGrid::SafeDownCast(this->GetOutput());
+}
+
+vtkRectilinearGrid *vtkDataSetReader::GetRectilinearGridOutput() 
+{
+  return vtkRectilinearGrid::SafeDownCast(this->GetOutput());
+}
+
+
 //----------------------------------------------------------------------------
 void vtkDataSetReader::Update()
 {

@@ -142,20 +142,14 @@ public:
   // Description:
   // Get the output as various concrete types. This method is typically used
   // when you know exactly what type of data is being read.  Otherwise, use
-  // the general GetOutput() method. Warning: the method is dangerous because
-  // of the cast; make sure you know the type you request is actually the
-  // type in the file. (You must also set the filename of the object prior
-  // to getting the output.)
-  vtkPolyData *GetPolyDataOutput() {
-    return (vtkPolyData *)this->GetOutput();};
-  vtkStructuredPoints *GetStructuredPointsOutput() {
-    return (vtkStructuredPoints *)this->GetOutput();};
-  vtkStructuredGrid *GetStructuredGridOutput() {
-    return (vtkStructuredGrid *)this->GetOutput();};
-  vtkUnstructuredGrid *GetUnstructuredGridOutput() {
-    return (vtkUnstructuredGrid *)this->GetOutput();};
-  vtkRectilinearGrid *GetRectilinearGridOutput() {
-    return (vtkRectilinearGrid *)this->GetOutput();};
+  // the general GetOutput() method. If the wrong type is used NULL is returned.
+  // (You must also set the filename of the object prior
+  // to getting the output.)  
+  vtkPolyData *GetPolyDataOutput();
+  vtkStructuredPoints *GetStructuredPointsOutput();
+  vtkStructuredGrid *GetStructuredGridOutput();
+  vtkUnstructuredGrid *GetUnstructuredGridOutput();
+  vtkRectilinearGrid *GetRectilinearGridOutput();
 
   // Description:
   // If there is no output, execute anyway.  Execute creates an output.
