@@ -24,14 +24,16 @@
 #include "vtkPolyData.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkExtractPolyDataPiece, "1.15");
+vtkCxxRevisionMacro(vtkExtractPolyDataPiece, "1.16");
 vtkStandardNewMacro(vtkExtractPolyDataPiece);
 
+//=============================================================================
 vtkExtractPolyDataPiece::vtkExtractPolyDataPiece()
 {
   this->CreateGhostCells = 1;
 }
 
+//=============================================================================
 void vtkExtractPolyDataPiece::ComputeInputUpdateExtents(vtkDataObject *out)
 {
   vtkPolyData *input = this->GetInput();
@@ -46,6 +48,7 @@ void vtkExtractPolyDataPiece::ComputeInputUpdateExtents(vtkDataObject *out)
   input->SetUpdateExtent(0, 1, 0);
 }
 
+//=============================================================================
 void vtkExtractPolyDataPiece::ExecuteInformation()
 {
   if (this->GetInput() == NULL)
@@ -55,7 +58,9 @@ void vtkExtractPolyDataPiece::ExecuteInformation()
     }
   this->GetOutput()->SetMaximumNumberOfPieces(-1);
 }
+
   
+//=============================================================================
 void vtkExtractPolyDataPiece::ComputeCellTags(vtkIntArray *tags, 
                                               vtkIdList *pointOwnership,
                                               int piece, int numPieces)
@@ -73,8 +78,9 @@ void vtkExtractPolyDataPiece::ComputeCellTags(vtkIntArray *tags,
     {
     pointOwnership->SetId(idx, -1);
     }
-  
+
   // Brute force division.
+  // The first N cells go to piece 0 ...
   for (idx = 0; idx < numCells; ++idx)
     {
     if ((idx * numPieces / numCells) == piece)
@@ -96,7 +102,7 @@ void vtkExtractPolyDataPiece::ComputeCellTags(vtkIntArray *tags,
         }  
       }
     }
-  
+
   cellPtIds->Delete(); 
   
   //dicer->SetInput(input);
@@ -109,6 +115,7 @@ void vtkExtractPolyDataPiece::ComputeCellTags(vtkIntArray *tags,
   //pointScalars = intermediate->GetPointData()->GetScalars();
 }
 
+//=============================================================================
 void vtkExtractPolyDataPiece::Execute()
 {
   vtkPolyData *input = this->GetInput();
@@ -150,7 +157,7 @@ void vtkExtractPolyDataPiece::Execute()
   cellTags->Allocate(input->GetNumberOfCells(), 1000);
   pointOwnership = vtkIdList::New();
   pointOwnership->Allocate(input->GetNumberOfPoints());
-  // Cell tags end up bieing 0 for cells in piece and -1 for all others.
+  // Cell tags end up being 0 for cells in piece and -1 for all others.
   // Point ownership is the cell that owns the point.
   this->ComputeCellTags(cellTags, pointOwnership, piece, numPieces);
   
@@ -215,6 +222,36 @@ void vtkExtractPolyDataPiece::Execute()
       } // satisfied thresholding
     } // for all cells
 
+
+  // Split up points that are not used by cells, 
+  // and have not been assigned to any piece. 
+  // Count the number of unassigned points.  This is an extra pass through
+  // the points, but the pieces will be better load balanced and
+  // more spatially coherent.
+  vtkIdType count = 0;
+  vtkIdType idx;
+  for (idx = 0; idx < input->GetNumberOfPoints(); ++idx)
+    {
+    if (pointOwnership->GetId(idx) == -1)
+      {
+      ++count;
+      }
+    }
+  vtkIdType count2 = 0;
+  for (idx = 0; idx < input->GetNumberOfPoints(); ++idx)
+    {
+    if (pointOwnership->GetId(idx) == -1)
+      {
+      if ((count2 * numPieces / count) == piece)
+      x = input->GetPoint(ptId);
+      newId = newPoints->InsertNextPoint(x);
+      if (pointGhostLevels)
+        {
+        pointGhostLevels->InsertNextValue(0);
+        }
+      }
+    }
+
   vtkDebugMacro(<< "Extracted " << output->GetNumberOfCells() 
                 << " number of cells.");
 
@@ -245,6 +282,7 @@ void vtkExtractPolyDataPiece::Execute()
 
 }
 
+//=============================================================================
 void vtkExtractPolyDataPiece::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -252,6 +290,7 @@ void vtkExtractPolyDataPiece::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Create Ghost Cells: " << (this->CreateGhostCells ? "On\n" : "Off\n");
 }
 
+//=============================================================================
 void vtkExtractPolyDataPiece::AddGhostLevel(vtkPolyData *input,
                                             vtkIntArray *cellTags, 
                                             int level)
@@ -289,3 +328,21 @@ void vtkExtractPolyDataPiece::AddGhostLevel(vtkPolyData *input,
   cell2->Delete();
   cellIds->Delete();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
