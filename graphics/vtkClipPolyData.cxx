@@ -73,12 +73,17 @@ vtkClipPolyData::~vtkClipPolyData()
 unsigned long vtkClipPolyData::GetMTime()
 {
   unsigned long mTime=this->vtkPolyDataToPolyDataFilter::GetMTime();
-  unsigned long ClipFuncMTime;
+  unsigned long time;
 
   if ( this->ClipFunction != NULL )
     {
-    ClipFuncMTime = this->ClipFunction->GetMTime();
-    mTime = ( ClipFuncMTime > mTime ? ClipFuncMTime : mTime );
+    time = this->ClipFunction->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
+    }
+  if ( this->Locator != NULL )
+    {
+    time = this->Locator->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
     }
 
   return mTime;

@@ -300,6 +300,12 @@ void vtkXImageWindow::SetBackgroundColor(float r, float g, float b)
   vtkDebugMacro(<<"vtkXImageWindow::SetBackgroundColor - red: " << red << ", green: " << green <<
   ", blue: " << blue);
 
+  // what should I do if a window has not been created (lawcc dfss)
+  if (this->WindowId == (Window)(NULL))
+    {
+    this->MakeDefaultWindow();
+    }
+  
   XSetWindowBackground(this->DisplayId, this->WindowId, background);
 
   XClearWindow(this->DisplayId, this->WindowId);
@@ -311,6 +317,13 @@ void vtkXImageWindow::SetBackgroundColor(float r, float g, float b)
 
 void vtkXImageWindow::EraseWindow()
 {
+  
+  // what should I do if a window has not been created (lawcc dfss)
+  if (this->WindowId == (Window)(NULL))
+    {
+    this->MakeDefaultWindow();
+    }
+  
   // Erase the drawable if double buffering is on
   // and the drawable exists
   if (this->DoubleBuffer && this->Drawable)
@@ -390,7 +403,11 @@ int *vtkXImageWindow::GetPosition(void)
   int x,y;
   Window child;
  
-//  vtkDebugMacro (<< "vtkXImageWindow::GetPosition");
+  // what should I do if a window has not been created (lawcc dfss)
+  if (this->WindowId == (Window)(NULL))
+    {
+    this->MakeDefaultWindow();
+    }
  
   // if we aren't mapped then just return the ivar 
   if ( ! this->Mapped)
@@ -414,8 +431,12 @@ int *vtkXImageWindow::GetPosition(void)
 // Move the window to a new position on the display.
 void vtkXImageWindow::SetPosition(int x, int y)
 {
-//  vtkDebugMacro (<< "vtkXImageWindow::SetPosition");
-
+  // what should I do if a window has not been created (lawcc dfss)
+  if (this->WindowId == (Window)(NULL))
+    {
+    this->MakeDefaultWindow();
+    }
+  
   // if we aren't mapped then just set the ivars
   if (!this->Mapped)
     {

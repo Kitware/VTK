@@ -325,6 +325,12 @@ unsigned long int vtkActor::GetMTime()
     mTime = ( time > mTime ? time : mTime );
     }
 
+if ( this->BackfaceProperty != NULL )
+    {
+    time = this->BackfaceProperty->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
+    }
+
   if ( this->UserMatrix != NULL )
     {
     time = this->UserMatrix->GetMTime();

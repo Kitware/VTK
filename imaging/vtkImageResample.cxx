@@ -80,11 +80,6 @@ void vtkImageResample::SetAxisOutputSpacing(int axis, float spacing)
     }
 }
 
-void vtkImageResample::SetABogusVariable(int a)
-{
-  this->Modified();
-}
-
 //----------------------------------------------------------------------------
 void vtkImageResample::SetAxisMagnificationFactor(int axis, float factor)
 {

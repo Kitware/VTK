@@ -295,3 +295,15 @@ void vtkCleanPolyData::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Tolerance: " << this->Tolerance << "\n";
 }
 
+unsigned long int vtkCleanPolyData::GetMTime()
+{
+  unsigned long mTime=this->vtkObject::GetMTime();
+  unsigned long time;
+
+  if ( this->Locator != NULL )
+    {
+    time = this->Locator->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
+    }
+  return mTime;
+}

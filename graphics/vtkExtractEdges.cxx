@@ -182,3 +182,17 @@ void vtkExtractEdges::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
+
+unsigned long int vtkExtractEdges::GetMTime()
+{
+  unsigned long mTime=this-> vtkDataSetToPolyDataFilter::GetMTime();
+  unsigned long time;
+
+  if ( this->Locator != NULL )
+    {
+    time = this->Locator->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
+    }
+  return mTime;
+}
+

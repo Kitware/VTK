@@ -96,7 +96,8 @@ public:
   // Set/Get the bold property.
   //  vtkSetMacro(Bold, int);
   void SetBold(int val) 
-  {this->Bold = val; this->FontChanged = 1; this->Modified();};
+  {if (val == this->Bold) return;
+    this->Bold = val; this->FontChanged = 1; this->Modified();};
   vtkGetMacro(Bold, int);
   vtkBooleanMacro(Bold, int);
 
@@ -104,7 +105,8 @@ public:
   // Set/Get the italic property.
   // vtkSetMacro(Italic, int);
   void SetItalic(int val) 
-  {this->Italic = val; this->FontChanged = 1; this->Modified();};
+  {if (val == this->Italic) return;
+    this->Italic = val; this->FontChanged = 1; this->Modified();};
   vtkGetMacro(Italic, int);
   vtkBooleanMacro(Italic, int);
 
@@ -121,7 +123,8 @@ public:
   // Courier (VTK_COURIER), and Times (VTK_TIMES).
   // vtkSetMacro(FontFamily, int);
   void SetFontFamily(int val) 
-  {this->FontFamily = val; this->FontChanged = 1; this->Modified();};
+  {if (val == this->FontFamily) return;
+    this->FontFamily = val; this->FontChanged = 1; this->Modified();};
   vtkGetMacro(FontFamily, int);
   void SetFontFamilyToArial() {SetFontFamily(VTK_ARIAL);};
   void SetFontFamilyToCourier() {SetFontFamily(VTK_COURIER);};

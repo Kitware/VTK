@@ -87,14 +87,14 @@ vtkClipVolume::~vtkClipVolume()
 // then this object is modified as well.
 unsigned long vtkClipVolume::GetMTime()
 {
-  unsigned long mTime, ClipFuncMTime;
+  unsigned long mTime, time;
 
   mTime=this->vtkStructuredPointsToUnstructuredGridFilter::GetMTime();
 
   if ( this->ClipFunction != NULL )
     {
-    ClipFuncMTime = this->ClipFunction->GetMTime();
-    mTime = ( ClipFuncMTime > mTime ? ClipFuncMTime : mTime );
+    time = this->ClipFunction->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
     }
 
   return mTime;

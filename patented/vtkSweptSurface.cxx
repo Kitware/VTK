@@ -341,13 +341,16 @@ unsigned long int vtkSweptSurface::GetMTime()
   unsigned long int transMtime;
   vtkTransform *t;
 
-  for (this->Transforms->InitTraversal(); 
-       (t = this->Transforms->GetNextItem()); )
+  if (this->Transforms != NULL)
     {
-    transMtime = t->GetMTime();
-    if ( transMtime > mtime ) mtime = transMtime;
+    for (this->Transforms->InitTraversal(); 
+	 (t = this->Transforms->GetNextItem()); )
+      {
+      transMtime = t->GetMTime();
+      if ( transMtime > mtime ) mtime = transMtime;
+      }
     }
-
+  
   return mtime;
 }
 
@@ -392,6 +395,14 @@ void vtkSweptSurface::ComputeBounds(float origin[3], float spacing[3], float bbo
         
     numTransforms = this->Transforms->GetNumberOfItems();
 
+    // I don not know how to handle this "correctly"
+    // but NULL Pointers should be handled correctly (CLAW)
+    if (this->Transforms == NULL)
+      {
+      vtkErrorMacro("Transforms is NULL");
+      return;
+      }
+        
     this->Transforms->InitTraversal();
     transform2 = this->Transforms->GetNextItem();
     transform2->GetMatrix(t.GetMatrix());

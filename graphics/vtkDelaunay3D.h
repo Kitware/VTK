@@ -176,6 +176,8 @@ public:
                           vtkPoints* &pts);
   void InsertPoint(vtkUnstructuredGrid *Mesh, vtkPoints *points,
 		   int id, float x[3], vtkIdList& holeTetras);
+  
+  unsigned long int GetMTime();
 
 protected:
   void Execute();

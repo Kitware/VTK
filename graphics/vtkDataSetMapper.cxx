@@ -155,3 +155,21 @@ void vtkDataSetMapper::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Geometry Extractor: (none)\n";
     }
 }
+
+unsigned long vtkDataSetMapper::GetMTime()
+{
+  unsigned long mTime=this->vtkMapper::GetMTime();
+  unsigned long time;
+
+  if ( this->LookupTable != NULL )
+    {
+    time = this->LookupTable->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
+    }
+
+  return mTime;
+}
+
+
+
+

@@ -60,7 +60,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include        "vtkImageWindow.h"
 
-class VTK_EXPORT vtkXImageWindow : public vtkImageWindow {
+class VTK_EXPORT vtkXImageWindow : public vtkImageWindow
+{
 public:
   vtkXImageWindow();
   ~vtkXImageWindow();

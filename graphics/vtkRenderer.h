@@ -178,6 +178,8 @@ public:
 
   void Render2D();
 
+  unsigned long int GetMTime();
+
 protected:
 
   vtkRayCaster *RayCaster;

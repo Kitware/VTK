@@ -89,6 +89,8 @@ public:
   void SetStartWriteArgDelete(void (*f)(void *));
   void SetEndWriteArgDelete(void (*f)(void *));
 
+  unsigned long int GetMTime();
+
 protected:
   vtkRenderWindow *RenderWindow;
   virtual void WriteData() = 0;

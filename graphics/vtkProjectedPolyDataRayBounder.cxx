@@ -200,3 +200,19 @@ void vtkProjectedPolyDataRayBounder::PrintSelf(ostream& os, vtkIndent indent)
 
   vtkObject::PrintSelf(os, indent);
 }
+
+
+unsigned long int vtkProjectedPolyDataRayBounder::GetMTime()
+{
+  unsigned long mTime=this-> vtkRayBounder::GetMTime();
+  unsigned long time;
+
+  if ( this->ActorMatrixSource != NULL )
+    {
+    time = this->ActorMatrixSource->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
+    }
+  return mTime;
+}
+
+

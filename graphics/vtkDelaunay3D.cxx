@@ -913,3 +913,20 @@ void vtkDelaunay3D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Offset: " << this->Offset << "\n";
   os << indent << "Bounding Triangulation: " << (this->BoundingTriangulation ? "On\n" : "Off\n");
 }
+
+unsigned long int vtkDelaunay3D::GetMTime()
+{
+  unsigned long mTime=this->vtkPointSetFilter::GetMTime();
+  unsigned long time;
+
+  if ( this->Locator != NULL )
+    {
+    time = this->Locator->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
+    }
+  return mTime;
+}
+
+
+
+

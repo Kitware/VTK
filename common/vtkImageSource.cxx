@@ -190,15 +190,21 @@ unsigned long vtkImageSource::GetPipelineMTime()
 // The Source of the Cache is set as a side action.
 void vtkImageSource::SetCache(vtkImageCache *cache)
 {
+  if (cache == this->Output)
+    {
+    return;
+    }
+  
   if (cache)
     {
-    cache->ReleaseData();
+    // cache->ReleaseData();
     cache->SetSource(this);
     }
   
   if (this->Output)
     {
     this->Output->Delete();
+    this->Output = NULL;
     }
 
   this->Output = cache;
@@ -233,7 +239,7 @@ int vtkImageSource::GetReleaseDataFlag()
 void vtkImageSource::CheckCache()
 {
   // create a default cache if one has not been set
-  if ( ! this->Output)
+  if (this->Output == NULL)
     {
     this->Output = vtkImageSimpleCache::New();
     this->Output->SetSource(this);

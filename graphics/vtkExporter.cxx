@@ -167,3 +167,19 @@ void vtkExporter::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "End Write: (none)\n";
     }
 }
+
+unsigned long int vtkExporter::GetMTime()
+{
+  unsigned long mTime=this-> vtkObject::GetMTime();
+  unsigned long time;
+
+  if ( this->RenderWindow != NULL )
+    {
+    time = this->RenderWindow->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
+    }
+  return mTime;
+}
+
+
+

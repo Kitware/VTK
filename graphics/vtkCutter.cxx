@@ -70,14 +70,20 @@ unsigned long vtkCutter::GetMTime()
 {
   unsigned long mTime=this->vtkDataSetFilter::GetMTime();
   unsigned long contourValuesMTime=this->ContourValues->GetMTime();
-  unsigned long cutFuncMTime;
+  unsigned long time;
  
   mTime = ( contourValuesMTime > mTime ? contourValuesMTime : mTime );
 
   if ( this->CutFunction != NULL )
     {
-    cutFuncMTime = this->CutFunction->GetMTime();
-    mTime = ( cutFuncMTime > mTime ? cutFuncMTime : mTime );
+    time = this->CutFunction->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
+    }
+
+  if ( this->Locator != NULL )
+    {
+    time = this->Locator->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
     }
 
   return mTime;

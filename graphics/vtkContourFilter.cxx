@@ -82,9 +82,18 @@ vtkContourFilter::~vtkContourFilter()
 unsigned long vtkContourFilter::GetMTime()
 {
   unsigned long mTime=this->vtkDataSetToPolyDataFilter::GetMTime();
-  unsigned long contourValuesMTime=this->ContourValues->GetMTime();
+  unsigned long time;
 
-  mTime = ( contourValuesMTime > mTime ? contourValuesMTime : mTime );
+  if (this->ContourValues)
+    {
+    time = this->ContourValues->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
+    }
+  if (this->Locator)
+    {
+    time = this->Locator->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
+    }
 
   return mTime;
 }

@@ -89,7 +89,9 @@ public:
   // to the matrix of the given actor or volume.
   void SetMatrixSource( vtkActor *actor );
   void SetMatrixSource( vtkVolume *volume );
-  
+
+  unsigned long int GetMTime();
+
 protected:
 
   vtkPolyData   *PolyData;

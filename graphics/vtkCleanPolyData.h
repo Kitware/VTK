@@ -80,6 +80,8 @@ public:
   // Create default locator. Used to create one when none is specified.
   void CreateDefaultLocator();
 
+  unsigned long int GetMTime();
+
 protected:
   // Usual data generation method
   void Execute();

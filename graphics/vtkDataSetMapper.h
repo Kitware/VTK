@@ -79,6 +79,8 @@ public:
   // Get the internal poly data mapper used to map data set to graphics system.
   vtkGetObjectMacro(PolyDataMapper, vtkPolyDataMapper);
 
+  unsigned long GetMTime();
+
 protected:
   vtkGeometryFilter *GeometryExtractor;
   vtkPolyDataMapper *PolyDataMapper;

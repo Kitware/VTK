@@ -244,3 +244,19 @@ void vtkMCubesReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Normals: " << (this->Normals ? "On\n" : "Off\n");
   os << indent << "FlipNormals: " << (this->FlipNormals ? "On\n" : "Off\n");
 }
+
+unsigned long int vtkMCubesReader::GetMTime()
+{
+  unsigned long mTime=this-> vtkPolyDataSource::GetMTime();
+  unsigned long time;
+
+  if ( this->Locator != NULL )
+    {
+    time = this->Locator->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
+    }
+  return mTime;
+}
+
+
+

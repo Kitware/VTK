@@ -567,3 +567,31 @@ int vtkRenderer::VisibleVolumeCount()
   return count;
 
 }
+
+
+
+
+unsigned long int vtkRenderer::GetMTime()
+{
+  unsigned long mTime=this-> vtkViewport::GetMTime();
+  unsigned long time;
+
+  if ( this-> RayCaster != NULL )
+    {
+    time = this->RayCaster ->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
+    }
+if ( this->ActiveCamera != NULL )
+    {
+    time = this->ActiveCamera ->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
+    }
+if ( this->CreatedLight != NULL )
+    {
+    time = this->CreatedLight ->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
+    }
+
+  return mTime;
+}
+

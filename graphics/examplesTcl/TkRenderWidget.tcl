@@ -13,7 +13,7 @@ toplevel .top
 
 frame .top.f1 
 
-vtkTkRenderWidget .top.f1.r1 -width 300 -height 300 
+vtkTkRenderWidget .top.f1.r1 -width 600 -height 600 
     BindTkRenderWidget .top.f1.r1
 
 #vtkTkRenderWidget .top.f1.r2 -width 300 -height 300 
