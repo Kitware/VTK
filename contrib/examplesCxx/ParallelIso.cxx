@@ -119,8 +119,10 @@ void process( vtkMultiProcessController *controller,
     // This is the main thread: Collect the data and render it.
     app->AddInput(elev->GetPolyDataOutput());
     // ###################### important ####################
-    // # this tells the append filter to request pieces from
-    // # each of its inputs.
+    // # This tells the append filter to request pieces from
+    // # each of its inputs.  Singe each of its inputs comes from
+    // # a different process,  each process generates a separate 
+    // # piece of the data (data parallelism).
     app->ParallelStreamingOn();
     
     for (i = 1; i < numProcs; ++i)
