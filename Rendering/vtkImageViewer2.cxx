@@ -20,7 +20,7 @@
 #include "vtkInteractorStyleImage.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkImageViewer2, "1.11");
+vtkCxxRevisionMacro(vtkImageViewer2, "1.12");
 vtkStandardNewMacro(vtkImageViewer2);
 
 //----------------------------------------------------------------------------
@@ -91,10 +91,18 @@ public:
   
   void Execute(vtkObject *caller, unsigned long event, void *callData)
     {
-      if (event == vtkCommand::ResetWindowLevelEvent && this->IV->GetInput())
+      if (this->IV->GetInput() == NULL)
+        {
+        return;
+        }
+
+      // Reset
+
+      if (event == vtkCommand::ResetWindowLevelEvent)
         {
         this->IV->GetInput()->UpdateInformation();
-        this->IV->GetInput()->SetUpdateExtent(this->IV->GetInput()->GetWholeExtent());
+        this->IV->GetInput()->SetUpdateExtent
+          (this->IV->GetInput()->GetWholeExtent());
         this->IV->GetInput()->Update();
         float *range = this->IV->GetInput()->GetScalarRange();
         this->IV->SetColorWindow(range[1] - range[0]);
@@ -103,14 +111,17 @@ public:
         return;
         }
 
-      if (callData)
+      // Start
+
+      if (event == vtkCommand::StartWindowLevelEvent)
         {
         this->InitialWindow = this->IV->GetColorWindow();
         this->InitialLevel = this->IV->GetColorLevel();
         return;
         }
       
-      // adjust the window level here
+      // Adjust the window level here
+
       vtkInteractorStyleImage *isi = 
         static_cast<vtkInteractorStyleImage *>(caller);
 
@@ -118,13 +129,15 @@ public:
       float window = this->InitialWindow;
       float level = this->InitialLevel;
       
-      // compute normalized delta
+      // Compute normalized delta
+
       float dx = 4.0 * (isi->GetWindowLevelCurrentPosition()[0] - 
                         isi->GetWindowLevelStartPosition()[0]) / size[0];
       float dy = 4.0 * (isi->GetWindowLevelStartPosition()[1] - 
                         isi->GetWindowLevelCurrentPosition()[1]) / size[1];
       
-      // scale by current values
+      // Scale by current values
+
       if (fabs(window) > 0.01)
         {
         dx = dx * window;
@@ -142,7 +155,8 @@ public:
         dy = dy * (level < 0 ? -0.01 : 0.01);
         }
       
-      // abs so that direction does not flip
+      // Abs so that direction does not flip
+
       if (window < 0.0) 
         {
         dx = -1*dx;
@@ -152,12 +166,14 @@ public:
         dy = -1*dy;
         }
       
-      // compute new window level
+      // Compute new window level
+
       float newWindow = dx + window;
       float newLevel;
       newLevel = level - dy;
       
-      // stay away from zero and really
+      // Stay away from zero and really
+
       if (fabs(newWindow) < 0.01)
         {
         newWindow = 0.01*(newWindow < 0 ? -1 : 1);
@@ -190,6 +206,7 @@ void vtkImageViewer2::SetupInteractor(vtkRenderWindowInteractor *rwi)
     vtkImageViewer2Callback *cbk = vtkImageViewer2Callback::New();
     cbk->IV = this;
     this->InteractorStyle->AddObserver(vtkCommand::WindowLevelEvent, cbk);
+    this->InteractorStyle->AddObserver(vtkCommand::StartWindowLevelEvent, cbk);
     this->InteractorStyle->AddObserver(vtkCommand::ResetWindowLevelEvent, cbk);
     cbk->Delete();
     }
