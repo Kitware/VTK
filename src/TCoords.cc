@@ -38,7 +38,7 @@ void vlTCoords::PrintSelf(ostream& os, vlIndent indent)
 {
   if (this->ShouldIPrint(vlTCoords::GetClassName()))
     {
-    vlObject::PrintSelf(os,indent);
+    vlRefCount::PrintSelf(os,indent);
 
     os << indent << "Number Of Texture Coordinates: " << this->GetNumberOfTCoords() << "\n";
     os << indent << "Texture Dimension: " << this->Dimension << "\n";

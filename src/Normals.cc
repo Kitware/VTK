@@ -29,7 +29,7 @@ void vlNormals::GetNormals(vlIdList& ptId, vlFloatNormals& fp)
 
 void vlNormals::PrintSelf(ostream& os, vlIndent indent)
 {
-  vlObject::PrintSelf(os,indent);
+  vlRefCount::PrintSelf(os,indent);
 
   os << indent << "Number Of Normals: " << this->GetNumberOfNormals() << "\n";
 }

@@ -23,7 +23,7 @@ vlStructuredDataSet::vlStructuredDataSet()
   this->DataDescription = SINGLE_POINT;
   
   this->Blanking = 0;
-  this->PointVisibility = 0;
+  this->PointVisibility = NULL;
 }
 
 vlStructuredDataSet::vlStructuredDataSet(const vlStructuredDataSet& sds) :
@@ -35,7 +35,10 @@ vlDataSet(sds)
   this->DataDescription = sds.DataDescription;
 
   this->Blanking = sds.Blanking;
-  this->PointVisibility = sds.PointVisibility;
+  if ( sds.PointVisibility != NULL )
+    this->PointVisibility = new vlBitArray(*sds.PointVisibility);
+  else
+    this->PointVisibility = NULL;
 }
 
 vlStructuredDataSet::~vlStructuredDataSet()
@@ -198,8 +201,8 @@ void vlStructuredDataSet::Initialize()
 
   if ( this->PointVisibility )
     {
-    this->PointVisibility->UnRegister(this);
-    this->PointVisibility = 0;
+    delete this->PointVisibility;
+    this->PointVisibility = NULL;
     }
 }
 

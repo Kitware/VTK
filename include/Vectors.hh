@@ -23,12 +23,12 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #ifndef __vlVectors_h
 #define __vlVectors_h
 
-#include "Object.hh"
+#include "RefCount.hh"
 
 class vlIdList;
 class vlFloatVectors;
 
-class vlVectors : public vlObject 
+class vlVectors : public vlRefCount 
 {
 public:
   vlVectors();

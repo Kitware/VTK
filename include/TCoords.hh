@@ -25,12 +25,12 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #ifndef __vlTCoords_h
 #define __vlTCoords_h
 
-#include "Object.hh"
+#include "RefCount.hh"
 
 class vlIdList;
 class vlFloatTCoords;
 
-class vlTCoords : public vlObject 
+class vlTCoords : public vlRefCount
 {
 public:
   vlTCoords(int dim=2);

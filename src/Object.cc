@@ -26,37 +26,13 @@ ostream& operator<<(ostream& os, vlObject& o)
 
 vlObject::vlObject()
 {
-  this->RefCount = 0;
   this->Debug = 0;
-
   this->Modified(); // Insures modified time > than any other time
 }
 
 vlObject::~vlObject() 
 {
-  if (this->RefCount > 0)
-    {
-    vlErrorMacro(<< "Trying to delete object with non-zero refCount");
-    }
-
   vlDebugMacro(<< "Destructing!");
-}
-
-// Description:
-// Increase the reference count (mark as used by another object).
-void vlObject::Register(vlObject* o)
-{
-  this->RefCount++;
-  vlDebugMacro(<< "Registered by " << o->GetClassName() << " (" << o << ")");
-}
-
-// Description:
-// Decrease the reference count (release by another object).
-void vlObject::UnRegister(vlObject* o)
-{
-  vlDebugMacro(<< "UnRegistered by " << o->GetClassName() << " (" << 0 << ")");
-
-  if (--this->RefCount <= 0) delete this;
 }
 
 // Description:
@@ -89,7 +65,6 @@ void vlObject::PrintSelf(ostream& os, vlIndent indent)
     {
     os << indent << "Debug: " << (this->Debug ? "On\n" : "Off\n");
     os << indent << "Modified Time: " << this->GetMTime() << "\n";
-    os << indent << "Reference Count: " << this->RefCount << "\n";
     }
 }
 

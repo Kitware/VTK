@@ -23,14 +23,15 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #ifndef __vlCellList_h
 #define __vlCellList_h
 
-#include "Object.hh"
+#include "RefCount.hh"
 
 struct vlCell_s {
     unsigned char type; //from CellTypes.hh
     int loc; //location in associated CellArray object
 };
 
-class vlCellList : public vlObject {
+class vlCellList : public vlRefCount 
+{
 public:
   vlCellList() : Array(NULL),Size(0),MaxId(-1),Extend(1000) {};
   vlCellList(const int sz, const int ext);

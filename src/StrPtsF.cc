@@ -24,10 +24,6 @@ vlStructuredPointsFilter::vlStructuredPointsFilter()
 
 vlStructuredPointsFilter::~vlStructuredPointsFilter()
 {
-  if ( this->Input != NULL )
-    {
-    this->Input->UnRegister(this);
-    }
 }
 
 void vlStructuredPointsFilter::Update()

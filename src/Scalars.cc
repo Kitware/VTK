@@ -69,7 +69,7 @@ void vlScalars::PrintSelf(ostream& os, vlIndent indent)
     {
     float *range;
 
-    vlObject::PrintSelf(os,indent);
+    vlRefCount::PrintSelf(os,indent);
 
     os << indent << "Number Of Scalars: " << this->GetNumberOfScalars() << "\n";
     range = this->GetRange();

@@ -24,12 +24,12 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #ifndef __vlNormals_h
 #define __vlNormals_h
 
-#include "Object.hh"
+#include "RefCount.hh"
 
 class vlIdList;
 class vlFloatNormals;
 
-class vlNormals : public vlObject 
+class vlNormals : public vlRefCount 
 {
 public:
   vlNormals() {};
@@ -50,16 +50,16 @@ public:
   virtual float *GetNormal(int i) = 0;
 
   // Description:
-  // Insert vector into object. No range checking performed (fast!).
+  // Insert normal into object. No range checking performed (fast!).
   virtual void SetNormal(int i,float n[3]) = 0;
 
   // Description:
-  // Insert vector into object. Range checking performed and memory
+  // Insert normal into object. Range checking performed and memory
   // allocated as necessary.
   virtual void InsertNormal(int i, float n[3]) = 0;
 
   // Description:
-  // Insert vector into next available slot. Returns point id of slot.
+  // Insert normal into next available slot. Returns point id of slot.
   virtual int InsertNextNormal(float n[3]) = 0;
 
   // Description:

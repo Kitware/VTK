@@ -28,7 +28,6 @@ vlDataSet(ps)
   if (this->Points) this->Points->Register(this);
 
   this->Locator = ps.Locator;
-  if (this->Locator) this->Locator->Register(this);
 }
 
 void vlPointSet::Initialize()
@@ -43,8 +42,7 @@ void vlPointSet::Initialize()
 
   if ( this->Locator ) 
   {
-    this->Locator->UnRegister(this);
-    this->Locator = NULL;
+    this->Locator->Initialize();
   }
 }
 void vlPointSet::ComputeBounds()

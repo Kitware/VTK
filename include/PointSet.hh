@@ -51,7 +51,7 @@ public:
 
   // Description:
   // Specify point array to define point coordinates.
-  vlSetObjectMacro(Points,vlPoints);
+  vlSetRefCountedObjectMacro(Points,vlPoints);
   vlGetObjectMacro(Points,vlPoints);
 
 protected:

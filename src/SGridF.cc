@@ -25,10 +25,6 @@ vlStructuredDataSetFilter::vlStructuredDataSetFilter()
 
 vlStructuredDataSetFilter::~vlStructuredDataSetFilter()
 {
-  if ( this->Input != NULL )
-    {
-    this->Input->UnRegister(this);
-    }
 }
 
 void vlStructuredDataSetFilter::Update()

@@ -71,6 +71,8 @@ protected:
   vlBitArray *PointVisibility;
 };
 
+// Description:
+// Return non-zero value if specified point is visible.
 inline int vlStructuredDataSet::IsPointVisible(int ptId) 
 {
   if (!this->Blanking) return 1; 

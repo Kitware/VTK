@@ -16,8 +16,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // .NAME vlObject - abstract base class for visualization library
 // .SECTION Description
 // vlObject is the base class for many objects in the visualization 
-// library. vlObject provides methods for reference counting, tracking
-// modification time, debugging, and printing.
+// library. vlObject provides methods for tracking modification time, 
+// debugging, and printing.
 
 #ifndef __vlObject_hh
 #define __vlObject_hh
@@ -34,11 +34,6 @@ public:
   vlObject();
   virtual ~vlObject();
   virtual char *GetClassName() {return "vlObject";};
-
-  // reference counting
-  void Register(vlObject* o);
-  void UnRegister(vlObject* o);
-  int  GetRefCount() {return this->RefCount;};
 
   // debugging
   void DebugOn();
@@ -63,7 +58,6 @@ protected:
   vlTimeStamp MTime; // Keep track of modification time
 
 private:
-  int RefCount;      // Number of uses of this object by other objects
   vlPrintList PrintList;
 
   friend ostream& operator<<(ostream& os, vlObject& o);

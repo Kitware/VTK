@@ -25,10 +25,6 @@ vlPointSetFilter::vlPointSetFilter()
 
 vlPointSetFilter::~vlPointSetFilter()
 {
-  if ( this->Input != NULL )
-    {
-    this->Input->UnRegister(this);
-    }
 }
 
 void vlPointSetFilter::Update()

@@ -72,7 +72,7 @@ void vlPoints::PrintSelf(ostream& os, vlIndent indent)
     {
     float *bounds;
 
-    vlObject::PrintSelf(os,indent);
+    vlRefCount::PrintSelf(os,indent);
 
     os << indent << "Number Of Points: " << this->GetNumberOfPoints() << "\n";
     bounds = this->GetBounds();

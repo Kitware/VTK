@@ -43,7 +43,7 @@ public:
 
   // Description:
   // Set list of points to insert into locator.
-  vlSetObjectMacro(Points,vlPoints);
+  vlSetRefCountedObjectMacro(Points,vlPoints);
   vlGetObjectMacro(Points,vlPoints);
 
   // Description:

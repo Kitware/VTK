@@ -25,10 +25,6 @@ vlDataSetFilter::vlDataSetFilter()
 
 vlDataSetFilter::~vlDataSetFilter()
 {
-  if ( this->Input != NULL )
-    {
-    this->Input->UnRegister(this);
-    }
 }
 
 void vlDataSetFilter::Update()

@@ -2,10 +2,6 @@
 
 vlPolyFilter::~vlPolyFilter()
 {
-  if ( this->Input != NULL )
-    {
-    this->Input->UnRegister(this);
-    }
 }
 
 void vlPolyFilter::Update()

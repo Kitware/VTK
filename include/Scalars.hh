@@ -23,12 +23,12 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #ifndef __vlScalars_h
 #define __vlScalars_h
 
-#include "Object.hh"
+#include "RefCount.hh"
 
 class vlIdList;
 class vlFloatScalars;
 
-class vlScalars : public vlObject 
+class vlScalars : public vlRefCount 
 {
 public:
   vlScalars();

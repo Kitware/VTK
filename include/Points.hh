@@ -23,12 +23,12 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #ifndef __vlPoints_h
 #define __vlPoints_h
 
-#include "Object.hh"
+#include "RefCount.hh"
 
 class vlFloatPoints;
 class vlIdList;
 
-class vlPoints : public vlObject 
+class vlPoints : public vlRefCount 
 {
 public:
   vlPoints();

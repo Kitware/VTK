@@ -67,7 +67,7 @@ void vlVectors::PrintSelf(ostream& os, vlIndent indent)
 {
   if (this->ShouldIPrint(vlVectors::GetClassName()))
     {
-    vlObject::PrintSelf(os,indent);
+    vlRefCount::PrintSelf(os,indent);
 
     os << indent << "Number Of Vectors: " << this->GetNumberOfVectors() << "\n";
     os << indent << "Maximum Euclidean Norm: " << this->GetMaxNorm() << "\n";

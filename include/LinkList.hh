@@ -13,7 +13,7 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlLinkList - object represents upward pointers from point list to cell list
+// .NAME vlLinkList - object represents upward pointers from points to list of cells using each point
 // .SECTION Description
 // vlLinkList is a supplemental object to CellArray and CellList to allow
 // access from points to cells using the points. LinkList is a collection 
@@ -24,7 +24,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #ifndef __vlLinkList_h
 #define __vlLinkList_h
 
-#include "Object.hh"
+#include "RefCount.hh"
 class vlDataSet;
 
 struct vlLink {
@@ -32,7 +32,8 @@ struct vlLink {
     int *cells;
 };
 
-class vlLinkList : public vlObject {
+class vlLinkList : public vlRefCount 
+{
 public:
   vlLinkList():Array(NULL),Size(0),MaxId(-1),Extend(1000) {};
   vlLinkList(int sz, int ext=1000);
