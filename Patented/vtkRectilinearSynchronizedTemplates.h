@@ -41,25 +41,20 @@
 #ifndef __vtkRectilinearSynchronizedTemplates_h
 #define __vtkRectilinearSynchronizedTemplates_h
 
-#include "vtkPolyDataSource.h"
+#include "vtkPolyDataAlgorithm.h"
 #include "vtkContourValues.h" // Passes calls through
 
 class vtkRectilinearGrid;
 class vtkKitwareContourFilter;
 class vtkDataArray;
 
-class VTK_PATENTED_EXPORT vtkRectilinearSynchronizedTemplates : public vtkPolyDataSource
+class VTK_PATENTED_EXPORT vtkRectilinearSynchronizedTemplates : public vtkPolyDataAlgorithm
 {
 public:
   static vtkRectilinearSynchronizedTemplates *New();
 
-  vtkTypeRevisionMacro(vtkRectilinearSynchronizedTemplates,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkRectilinearSynchronizedTemplates,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
-  // Description:
-  // Set/Get the source for the scalar data to contour.
-  void SetInput(vtkRectilinearGrid *input);
-  vtkRectilinearGrid *GetInput();
   
   // Description:
   // Because we delegate to vtkContourValues
@@ -167,10 +162,8 @@ protected:
   int ComputeScalars;
   vtkContourValues *ContourValues;
 
-  void Execute();
-  void ExecuteInformation();
-
-  void ComputeInputUpdateExtents(vtkDataObject *output);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   
   int ExecuteExtent[6];
 
@@ -179,7 +172,8 @@ protected:
 
   int ArrayComponent;
 
-  void* GetScalarsForExtent(vtkDataArray *array, int extent[6]);
+  void* GetScalarsForExtent(vtkDataArray *array, int extent[6],
+                            vtkRectilinearGrid *input);
 
   virtual int FillInputPortInformation(int, vtkInformation*);
 private:
@@ -192,12 +186,6 @@ private:
   void operator=(const vtkRectilinearSynchronizedTemplates&);  // Not implemented.
 };
 
-
-
-
-
-
-
 // template table.
 //BTX
 
@@ -207,4 +195,3 @@ extern int VTK_RECTILINEAR_SYNCHONIZED_TEMPLATES_TABLE_2[];
 //ETX
 
 #endif
-

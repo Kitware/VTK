@@ -35,7 +35,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkKitwareContourFilter, "1.40");
+vtkCxxRevisionMacro(vtkKitwareContourFilter, "1.41");
 vtkStandardNewMacro(vtkKitwareContourFilter);
 
 // Construct object with initial range (0,1) and single contour value
@@ -67,14 +67,13 @@ int vtkKitwareContourFilter::RequestUpdateExtent(
     return 0;
     }
 
-  int inputObjectType = input->GetDataObjectType();
-  
-  if ( inputObjectType == VTK_STRUCTURED_POINTS || 
-       inputObjectType == VTK_IMAGE_DATA )
-    {
-     
+  const char* inputObjectType = inInfo->Get(vtkDataObject::DATA_TYPE_NAME());
+
+  if ( !strcmp(inputObjectType, "vtkStructuredPoints") ||
+       !strcmp(inputObjectType, "vtkImageData"))
+    {     
     int ext[6], dims[3], dim=0;
-    ((vtkImageData *)input)->GetWholeExtent(ext);
+    inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), ext);
     for(int j=0; j<3; j++)
       {
       dims[j] = ext[2*j+1]-ext[2*j];
@@ -109,10 +108,10 @@ int vtkKitwareContourFilter::RequestUpdateExtent(
       }
     }
 
-  if ( inputObjectType  == VTK_STRUCTURED_GRID )
+  if ( !strcmp(inputObjectType, "vtkStructuredGrid") )
     {
     int ext[6], dim=0;
-    ((vtkStructuredGrid *)input)->GetWholeExtent(ext);
+    inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), ext);
     for(int j=0; j<3; j++)
       {
       if ( ( ext[2*j+1]-ext[2*j] ) != 0 )
@@ -135,10 +134,10 @@ int vtkKitwareContourFilter::RequestUpdateExtent(
       }
     }
 
-  if ( inputObjectType == VTK_RECTILINEAR_GRID )
+  if ( !strcmp(inputObjectType, "vtkRectilinearGrid") )
     {
     int ext[6], dim=0;
-    ((vtkRectilinearGrid *)input)->GetWholeExtent(ext);
+    inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), ext);
     for(int j=0; j<3; j++)
       {
       if ( ( ext[2*j+1]-ext[2*j] ) != 0 )
@@ -155,7 +154,7 @@ int vtkKitwareContourFilter::RequestUpdateExtent(
       rTemp->SetComputeGradients (this->ComputeGradients);
       rTemp->SetComputeScalars (this->ComputeScalars);
       rTemp->SetDebug(this->Debug);
-      rTemp->ComputeInputUpdateExtents(output);
+      rTemp->RequestUpdateExtent(request, inputVector, outputVector);
       rTemp->Delete();
       return 1;
       }

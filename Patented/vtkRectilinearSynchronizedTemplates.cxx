@@ -33,6 +33,7 @@
 #include "vtkExtentTranslator.h"
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkLongArray.h"
 #include "vtkMath.h"
@@ -41,6 +42,7 @@
 #include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkShortArray.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredPoints.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
@@ -49,7 +51,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkRectilinearSynchronizedTemplates, "1.16");
+vtkCxxRevisionMacro(vtkRectilinearSynchronizedTemplates, "1.17");
 vtkStandardNewMacro(vtkRectilinearSynchronizedTemplates);
 
 //----------------------------------------------------------------------------
@@ -58,8 +60,6 @@ vtkStandardNewMacro(vtkRectilinearSynchronizedTemplates);
 // of 0.0. The ImageRange are set to extract the first k-plane.
 vtkRectilinearSynchronizedTemplates::vtkRectilinearSynchronizedTemplates()
 {
-  this->NumberOfRequiredInputs = 1;
-  this->SetNumberOfInputPorts(1);
   this->ContourValues = vtkContourValues::New();
   this->ComputeNormals = 1;
   this->ComputeGradients = 0;
@@ -86,7 +86,7 @@ vtkRectilinearSynchronizedTemplates::~vtkRectilinearSynchronizedTemplates()
 // then this object is modified as well.
 unsigned long vtkRectilinearSynchronizedTemplates::GetMTime()
 {
-  unsigned long mTime=this->vtkPolyDataSource::GetMTime();
+  unsigned long mTime=this->Superclass::GetMTime();
   unsigned long mTime2=this->ContourValues->GetMTime();
 
   mTime = ( mTime2 > mTime ? mTime2 : mTime );
@@ -267,7 +267,7 @@ void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates *self, int *exEx
                   vtkRectilinearGrid *data, vtkPolyData *output, T *ptr, 
                   const char* inputScalars)
 {
-  int *inExt = self->GetInput()->GetExtent();
+  int *inExt = data->GetExtent();
   int xdim = exExt[1] - exExt[0] + 1;
   int ydim = exExt[3] - exExt[2] + 1;
   double *values = self->GetValues();
@@ -295,8 +295,8 @@ void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates *self, int *exEx
   double value;
   // We need to know the edgePointId's for interpolating attributes.
   int edgePtId, inCellId, outCellId;
-  vtkPointData *inPD = self->GetInput()->GetPointData();
-  vtkCellData *inCD = self->GetInput()->GetCellData();
+  vtkPointData *inPD = data->GetPointData();
+  vtkCellData *inCD = data->GetCellData();
   vtkPointData *outPD = output->GetPointData();  
   vtkCellData *outCD = output->GetCellData();  
   // Use to be arguments
@@ -324,7 +324,7 @@ void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates *self, int *exEx
     {
     newGradients = vtkFloatArray::New();
     }
-  vtkRectilinearSynchronizedTemplatesInitializeOutput(self, exExt, self->GetInput(), output, 
+  vtkRectilinearSynchronizedTemplatesInitializeOutput(self, exExt, data, output, 
                                          newScalars, newNormals, newGradients);
   newPts = output->GetPoints();
   newPolys = output->GetPolys();
@@ -578,12 +578,23 @@ void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates *self, int *exEx
 //
 // Contouring filter specialized for images (or slices from images)
 //
-void vtkRectilinearSynchronizedTemplates::Execute()
+int vtkRectilinearSynchronizedTemplates::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkRectilinearGrid *data = vtkRectilinearGrid::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   void *ptr;
   vtkDataArray *inScalars;
-  vtkRectilinearGrid *data = this->GetInput();
-  vtkPolyData *output = this->GetOutput();
   
   vtkDebugMacro(<< "Executing 3D structured contour");
   
@@ -592,7 +603,7 @@ void vtkRectilinearSynchronizedTemplates::Execute()
        this->ExecuteExtent[4] >= this->ExecuteExtent[5] )
     {
     vtkDebugMacro(<<"3D structured contours requires 3D data");
-    return;
+    return 1;
     }
   
   //
@@ -609,46 +620,46 @@ void vtkRectilinearSynchronizedTemplates::Execute()
     {
     vtkErrorMacro("Scalars have " << numComps << " components. "
                   "ArrayComponent must be smaller than " << numComps);
-    return;
+    return 1;
     }
   
-  ptr = this->GetScalarsForExtent(inScalars, this->ExecuteExtent);
+  ptr = this->GetScalarsForExtent(inScalars, this->ExecuteExtent, data);
   switch (inScalars->GetDataType())
     {
     vtkTemplateMacro6(ContourRectilinearGrid, this, this->ExecuteExtent, data,
                       output, (VTK_TT *)ptr, this->GetInputScalarsSelection());
     }
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkRectilinearSynchronizedTemplates::ExecuteInformation()
+int vtkRectilinearSynchronizedTemplates::RequestUpdateExtent(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-}
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-//----------------------------------------------------------------------------
-void vtkRectilinearSynchronizedTemplates::ComputeInputUpdateExtents(vtkDataObject *out)
-{
-  vtkRectilinearGrid *input = this->GetInput();
-  vtkPolyData *output = (vtkPolyData *)out;
   int piece, numPieces, ghostLevel;
-  int *wholeExt;
-  int ext[6];
+  int *wholeExt, *ext;
   vtkExtentTranslator *translator;
 
-  if (input == NULL)
-    {
-    vtkErrorMacro("Input not set");
-    return;
-    }
-  translator = input->GetExtentTranslator();
+  translator = vtkExtentTranslator::SafeDownCast(
+    inInfo->Get(vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR()));
 
-  wholeExt = input->GetWholeExtent();
+  ext = wholeExt =
+    inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
 
   // Get request from output
-  output->GetUpdateExtent(piece, numPieces, ghostLevel);
-
-  // Start with the whole grid.
-  input->GetWholeExtent(ext);  
+  piece =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  numPieces =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  ghostLevel =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
 
   // get the extent associated with the piece.
   if (translator == NULL)
@@ -716,37 +727,16 @@ void vtkRectilinearSynchronizedTemplates::ComputeInputUpdateExtents(vtkDataObjec
     }
 
   // Set the update extent of the input.
-  input->SetUpdateExtent(ext);
-}
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ext, 6);
 
-//----------------------------------------------------------------------------
-void vtkRectilinearSynchronizedTemplates::SetInput(vtkRectilinearGrid *input)
-{
-  this->vtkProcessObject::SetNthInput(0, input);
-}
-
-//----------------------------------------------------------------------------
-vtkRectilinearGrid *vtkRectilinearSynchronizedTemplates::GetInput()
-{
-  if (this->NumberOfInputs < 1)
-    {
-    return NULL;
-    }
-  
-  return (vtkRectilinearGrid *)(this->Inputs[0]);
+  return 1;
 }
 
 //----------------------------------------------------------------------------
 void* vtkRectilinearSynchronizedTemplates::GetScalarsForExtent(
-  vtkDataArray *array, int extent[6])
+  vtkDataArray *array, int extent[6], vtkRectilinearGrid *input)
 {
   if ( ! array )
-    {
-    return NULL;
-    }
-  
-  vtkRectilinearGrid *input = this->GetInput();
-  if ( ! input )
     {
     return NULL;
     }
