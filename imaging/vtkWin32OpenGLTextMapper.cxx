@@ -214,7 +214,7 @@ void vtkWin32OpenGLTextMapper::RenderOpaqueGeometry(vtkViewport* viewport,
   vtkWindow*  window = viewport->GetVTKWindow();
   if (this->LastWindow && this->LastWindow != window)
     {
-    this->ReleaseGraphicsResources(this->Window);
+    this->ReleaseGraphicsResources(this->LastWindow);
     }
   this->LastWindow = window;
   
