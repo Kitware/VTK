@@ -23,7 +23,6 @@ proc parseFile {} {
    set line [gets $file]
    scan $line "%*s %d" numPts
    set numLines [expr (($numPts - 1) / 8) + 1 ]
-   puts $numPts
 
    # create the data object
    vtkFieldData field
@@ -40,7 +39,6 @@ proc parseFile {} {
    }
    field SetArray 0 timeLate
    field SetArrayName 0 TIME_LATE
-   puts [timeLate GetNumberOfTuples]
 
    # MONTHLY_PAYMENT - independent variable
    while { [gets $file arrayName] == 0 } {}
