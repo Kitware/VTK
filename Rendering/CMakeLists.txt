@@ -98,7 +98,8 @@ IF (VTK_USE_FREETYPE)
     ${VTKFTGL_BINARY_DIR}
   )
   SET(Rendering_SRCS ${Rendering_SRCS}
-    vtkOpenGLFreeTypeTextMapper.cxx
+    vtkOpenGLFreeTypeTextMapper.cxx)
+  SET(Rendering_FT_SRCS 
     fonts/face_arial.cxx
     fonts/face_arial_bold.cxx
     fonts/face_arial_bold_italic.cxx
@@ -111,21 +112,6 @@ IF (VTK_USE_FREETYPE)
     fonts/face_times_bold.cxx
     fonts/face_times_bold_italic.cxx
     fonts/face_times_italic.cxx
-  )
-  SET_SOURCE_FILES_PROPERTIES(
-    fonts/face_arial.cxx
-    fonts/face_arial_bold.cxx
-    fonts/face_arial_bold_italic.cxx
-    fonts/face_arial_italic.cxx
-    fonts/face_courier.cxx
-    fonts/face_courier_bold.cxx
-    fonts/face_courier_bold_italic.cxx
-    fonts/face_courier_italic.cxx
-    fonts/face_times.cxx
-    fonts/face_times_bold.cxx
-    fonts/face_times_bold_italic.cxx
-    fonts/face_times_italic.cxx
-    WRAP_EXCLUDE
   )
 ENDIF (VTK_USE_FREETYPE)
 
@@ -279,15 +265,26 @@ IF(HAVE_OPENGL_SRCS)
                         ${Rendering_SRCS} ${RenderingOpenGL_SRCS}
                         EXPORT_MACRO VTK_RENDERING_EXPORT
                         HEADER_LOCATION ${VTK_BINARY_DIR})
-  ADD_LIBRARY(vtkRendering ${Rendering_SRCS} ${RenderingOpenGL_SRCS}
-                           ${RenderingInstantiator_SRCS})
+  IF (VTK_USE_FREETYPE)
+    ADD_LIBRARY(vtkRendering ${Rendering_SRCS} ${Rendering_FT_SRCS} 
+                             ${RenderingOpenGL_SRCS}
+                             ${RenderingInstantiator_SRCS})
+  ELSE (VTK_USE_FREETYPE)
+    ADD_LIBRARY(vtkRendering ${Rendering_SRCS} ${RenderingOpenGL_SRCS}
+                             ${RenderingInstantiator_SRCS})
+  ENDIF (VTK_USE_FREETYPE)
 ELSE(HAVE_OPENGL_SRCS)
   # Setup vtkInstantiator registration for this library's classes.
   VTK_MAKE_INSTANTIATOR(vtkRenderingInstantiator RenderingInstantiator_SRCS
                         ${Rendering_SRCS}
                         EXPORT_MACRO VTK_RENDERING_EXPORT
                         HEADER_LOCATION ${VTK_BINARY_DIR})
-  ADD_LIBRARY(vtkRendering ${Rendering_SRCS} ${RenderingInstantiator_SRCS})
+  IF (VTK_USE_FREETYPE)
+    ADD_LIBRARY(vtkRendering ${Rendering_SRCS} ${Rendering_FT_SRCS} 
+                             ${RenderingInstantiator_SRCS})
+  ELSE (VTK_USE_FREETYPE)
+    ADD_LIBRARY(vtkRendering ${Rendering_SRCS} ${RenderingInstantiator_SRCS})
+  ENDIF (VTK_USE_FREETYPE)
 ENDIF(HAVE_OPENGL_SRCS)
 
 TARGET_LINK_LIBRARIES(vtkRendering ${Rendering_LIBS})
