@@ -62,13 +62,15 @@ typedef union
 # define SetVector2Macro 291
 # define SetVector3Macro 292
 # define SetVector4Macro 293
-# define GetVector2Macro 294
-# define GetVector3Macro 295
-# define GetVector4Macro 296
-# define SetVectorMacro 297
-# define GetVectorMacro 298
-# define ViewportCoordinateMacro 299
-# define WorldCoordinateMacro 300
+# define SetVector6Macro 294
+# define GetVector2Macro 295
+# define GetVector3Macro 296
+# define GetVector4Macro 297
+# define GetVector6Macro 298
+# define SetVectorMacro 299
+# define GetVectorMacro 300
+# define ViewportCoordinateMacro 301
+# define WorldCoordinateMacro 302
 
 #ifdef __STDC__
 #include <stdlib.h>
@@ -118,7 +120,7 @@ YYSTYPE *yyv;
 static int yymaxdepth = YYMAXDEPTH;
 # define YYERRCODE 256
 
-# line 561 "vtkParse.y"
+# line 599 "vtkParse.y"
 
 #include <string.h>
 #include "lex.yy.c"
@@ -257,114 +259,112 @@ yytabelem yyexca[] ={
 -1, 1,
 	0, -1,
 	-2, 0,
--1, 98,
+-1, 100,
 	40, 21,
 	-2, 64,
--1, 99,
+-1, 101,
 	40, 22,
 	-2, 63,
--1, 100,
+-1, 102,
 	44, 68,
 	-2, 67,
--1, 174,
+-1, 180,
 	44, 30,
 	-2, 29,
 	};
-# define YYNPROD 126
-# define YYLAST 546
+# define YYNPROD 128
+# define YYLAST 519
 yytabelem yyact[]={
 
-    70,    18,   139,    27,   149,     9,   111,    12,    22,    13,
-   100,    48,    38,    34,    31,    35,    36,    37,    32,    33,
-   110,    11,     4,    18,    10,    27,    39,     9,   111,    12,
-    22,    13,   257,   111,   270,   247,    58,    59,    60,    96,
-    70,    41,   110,    11,   108,   140,    10,   110,   173,   255,
-   261,    68,   142,   149,    30,    38,    34,    31,    35,    36,
-    37,    32,    33,   114,   256,    92,   254,    28,   101,    39,
-    94,   176,   228,   226,   147,   225,    30,    49,    38,    34,
-    31,    35,    36,    37,    32,    33,    26,    55,   138,    23,
-    28,    56,    39,    38,    34,    31,    35,    36,    37,    32,
-    33,   208,    51,   252,   269,    28,   262,    39,    26,   260,
-    65,    23,   177,   146,   112,   106,   103,    54,   105,   267,
-   246,   245,   234,   115,   229,   200,    93,     5,   199,   198,
-   197,   196,    58,    59,    60,    71,    61,   227,    99,    34,
-    31,    35,    36,    37,    32,    33,   195,   194,    92,    96,
-    28,    66,    98,    94,    69,   193,    73,    74,    75,    76,
-    77,    78,    79,    80,    81,    82,    84,    86,    83,    85,
-    87,    88,    89,    90,    91,    71,    95,   104,    99,    34,
-    31,    35,    36,    37,    32,    33,   192,   178,    92,    96,
-    28,   175,    98,    94,   148,   183,   179,   180,   191,   102,
-   190,    99,    34,    31,    35,    36,    37,    32,    33,   189,
-   188,    92,    96,    28,   185,    98,    94,    72,   184,   136,
-   205,   137,   181,   182,   141,    14,    16,    38,    34,    31,
-    35,    36,    37,    32,    33,    17,     6,    20,    21,    28,
-   268,    39,    24,   148,    25,   109,   265,    14,    16,    38,
-    34,    31,    35,    36,    37,    32,    33,    17,     6,    20,
-    21,    28,    15,    39,    24,   171,    25,   257,   111,   141,
-   264,   143,    57,   207,   249,   144,   244,   141,   250,   243,
-   253,   175,   110,   231,   242,   241,   107,   240,   113,   116,
-   239,   238,   237,   236,   152,   153,   154,   155,   156,   157,
+    70,    18,   143,    27,   102,     9,   113,    12,    22,    13,
+   153,    48,    38,    34,    31,    35,    36,    37,    32,    33,
+   112,    11,     4,    18,    10,    27,    39,     9,   268,    12,
+    22,    13,   266,   269,   113,    38,    34,    31,    35,    36,
+    37,    32,    33,    11,   282,    94,    10,    28,   112,    39,
+    96,   182,   259,   153,    30,    41,   273,   267,    97,   179,
+    58,    59,    60,    55,    70,    38,    34,    31,    35,    36,
+    37,    32,    33,   113,    56,   142,    30,    28,   103,    39,
+    49,   216,    51,   264,    98,   281,    26,   112,    65,    23,
+    38,    34,    31,    35,    36,    37,    32,    33,   274,   272,
+   183,   110,    28,   150,    39,   114,   108,   105,    26,    54,
+   279,    23,   151,   258,    61,   257,   244,   239,   208,   207,
+   206,   205,   204,   203,   202,   201,   200,   111,   199,   116,
+   198,   197,    58,    59,    60,    71,   196,   146,   101,    34,
+    31,    35,    36,    37,    32,    33,     5,   144,    94,    98,
+    28,    66,   100,    96,    69,   106,    73,    74,    75,    76,
+    77,    78,    79,    80,    81,    82,    84,    86,    88,    83,
+    85,    87,    89,    90,    91,    92,    93,   104,   156,   157,
    158,   159,   160,   161,   162,   163,   164,   165,   166,   167,
-   168,   169,   170,   259,   235,   233,   232,     2,    97,   263,
-   266,    42,   203,   107,   202,    97,   201,   187,    63,    97,
-   186,    50,   150,   151,    97,    63,   139,   135,   134,   133,
-   132,   131,   130,   129,    43,    44,   128,   127,    46,   126,
-   125,   124,   206,   123,   122,    97,   141,    97,    47,   121,
-   120,   119,   141,   118,   117,    29,    19,     8,     7,     3,
-   145,   251,   230,   204,   174,   224,   172,    67,    64,    62,
-    53,    52,    40,     1,     0,     0,     0,     0,     0,     0,
-     0,     0,     0,     0,    45,     0,     0,     0,     0,     0,
-     0,    97,    97,     0,     0,     0,     0,     0,     0,     0,
+   168,   169,   170,   171,   172,   173,   174,   175,   176,    71,
+   152,   195,   101,    34,    31,    35,    36,    37,    32,    33,
+   194,   191,    94,    98,    28,    95,   100,    96,   190,   187,
+   147,   280,    68,   143,   148,    14,    16,    38,    34,    31,
+    35,    36,    37,    32,    33,    17,     6,    20,    21,    28,
+   214,    39,    24,   152,    25,   145,    15,    14,    16,    38,
+    34,    31,    35,    36,    37,    32,    33,    17,     6,    20,
+    21,    28,   215,    39,    24,   188,    25,   101,    34,    31,
+    35,    36,    37,    32,    33,   269,   113,    94,    98,    28,
+     2,   100,    96,   213,    42,   185,   186,   277,    72,   107,
+   112,   271,   145,   184,   117,   276,   278,   275,    57,   262,
+   145,   189,    99,   238,   236,   256,   235,    43,    44,    99,
+   140,    46,   141,    99,   255,   254,   270,   270,    99,   253,
+   252,    47,   251,   270,   250,   249,   270,   248,   247,   241,
+   246,   245,   243,   242,   211,   210,   209,   193,   192,    50,
+   139,    99,   138,    99,   137,   136,   135,   134,   133,   132,
+   131,   130,   129,   128,    63,   127,   126,   109,   177,   115,
+   118,    63,   125,   124,   123,   122,   181,   121,   237,   120,
+   119,    29,    19,     8,     7,     3,   149,   263,   240,   212,
+   180,   234,   178,    67,    64,   145,   261,    62,    53,    99,
+    99,   145,   265,    52,    40,     1,   109,     0,     0,     0,
+    45,     0,     0,     0,     0,   154,   155,     0,     0,     0,
      0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-     0,     0,   258,   258,     0,     0,     0,     0,     0,   258,
-     0,     0,   258,     0,     0,     0,     0,     0,     0,     0,
-     0,     0,     0,     0,     0,     0,     0,   209,   210,     0,
-     0,   211,   212,   213,   214,   215,   216,   217,   218,   219,
-   220,   221,   222,   223,     0,     0,     0,     0,     0,     0,
+     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+     0,     0,     0,     0,     0,     0,     0,   217,   218,     0,
+     0,   219,   220,   221,   222,   223,   224,   225,   226,   227,
+   228,   229,   230,   231,   232,   233,     0,     0,     0,     0,
+     0,     0,   181,     0,     0,     0,     0,     0,     0,     0,
+     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+     0,     0,     0,     0,     0,     0,    99,     0,     0,     0,
      0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
      0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-     0,     0,    97,     0,     0,     0,     0,     0,     0,     0,
-     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-     0,     0,     0,     0,     0,   248 };
+     0,     0,     0,     0,     0,     0,     0,     0,   260 };
 yytabelem yypact[]={
 
-   -37,-10000000,  -216,   -37,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,
+   -37,-10000000,  -202,   -37,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,
 -10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,
 -10000000,-10000000,-10000000,-10000000,-10000000,-10000000,   -37,   -37,  -252,-10000000,
    -37,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,
-   -37,  -267,-10000000,   -48,   290,-10000000,     9,-10000000,-10000000,-10000000,
--10000000,-10000000,    59,   -36,  -222,  -126,-10000000,  -268,-10000000,-10000000,
--10000000,   -57,  -126,    58,-10000000,-10000000,   -86,    56,  -236,    55,
-  -236,   -63,-10000000,   324,   323,   321,   320,   319,   314,   313,
-   311,   310,   309,   307,   306,   303,   302,   301,   300,   299,
-   298,   297,  -171,-10000000,  -186,   296,   -15,   233,-10000000,-10000000,
--10000000,-10000000,-10000000,-10000000,-10000000,  -236,-10000000,-10000000,    54,   -38,
--10000000,-10000000,-10000000,-10000000,  -236,  -236,-10000000,  -258,  -258,  -258,
+   -37,  -267,-10000000,   -45,   298,-10000000,   -11,-10000000,-10000000,-10000000,
+-10000000,-10000000,    51,   -60,  -198,  -126,-10000000,  -274,-10000000,-10000000,
+-10000000,   -47,  -126,    49,-10000000,-10000000,   -62,    47,  -191,    46,
+  -191,     3,-10000000,   330,   329,   327,   325,   324,   323,   322,
+   316,   315,   313,   312,   311,   310,   309,   308,   307,   306,
+   305,   304,   302,   300,  -174,-10000000,  -199,   183,   -15,   182,
+-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,  -191,-10000000,-10000000,
+    44,   -38,-10000000,-10000000,-10000000,-10000000,  -191,  -191,-10000000,  -258,
   -258,  -258,  -258,  -258,  -258,  -258,  -258,  -258,  -258,  -258,
-  -258,  -258,  -258,  -258,  -258,  -258,-10000000,-10000000,  -171,  -209,
-    53,   -15,-10000000,   233,   233,   178,-10000000,-10000000,   -87,   -15,
--10000000,-10000000,   174,   170,   289,   286,   166,   165,   156,   154,
-   142,   111,   103,   102,    87,    86,    85,    84,    81,   285,
-   283,-10000000,   281,-10000000,-10000000,  -258,-10000000,-10000000,-10000000,-10000000,
--10000000,  -222,-10000000,     8,  -171,  -171,-10000000,-10000000,  -171,  -171,
-  -171,  -171,  -171,  -171,  -171,  -171,  -171,  -171,  -171,  -171,
-  -171,-10000000,-10000000,    14,    80,-10000000,   -87,-10000000,   -87,   275,
-   274,    78,   273,   252,   251,   250,   249,   246,   244,   243,
-   238,   235,    77,    76,-10000000,  -228,-10000000,   -37,   -15,  -209,
-    42,-10000000,-10000000,-10000000,   -15,-10000000,-10000000,-10000000,-10000000,-10000000,
--10000000,-10000000,-10000000,-10000000,-10000000,     4,     4,    50,   -75,    47,
--10000000,-10000000,     4,   229,   205,  -231,-10000000,    73,-10000000,   199,
--10000000,    45,-10000000,-10000000,-10000000,-10000000,-10000000,  -229,-10000000,-10000000,
--10000000 };
+  -258,  -258,  -258,  -258,  -258,  -258,  -258,  -258,  -258,  -258,
+-10000000,-10000000,  -174,  -229,    41,   -15,-10000000,   182,   182,   175,
+-10000000,-10000000,   -81,   -15,-10000000,-10000000,   174,   167,   297,   296,
+   166,   157,    92,    87,    86,    84,    82,    81,    80,    79,
+    78,    77,    76,    75,    74,   295,   294,-10000000,   293,-10000000,
+-10000000,  -258,-10000000,-10000000,-10000000,-10000000,-10000000,  -198,-10000000,   -12,
+  -174,  -174,-10000000,-10000000,  -174,  -174,  -174,  -174,  -174,  -174,
+  -174,  -174,  -174,  -174,  -174,  -174,  -174,  -174,  -174,-10000000,
+-10000000,   245,    73,-10000000,   -81,-10000000,   -81,   292,   291,    72,
+   290,   289,   287,   286,   284,   283,   281,   279,   278,   274,
+   273,   264,    71,    69,-10000000,  -211,-10000000,   -37,   -15,  -229,
+    22,-10000000,-10000000,-10000000,   -15,-10000000,-10000000,-10000000,-10000000,-10000000,
+-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,    12,    12,    40,
+   -69,    39,-10000000,-10000000,    12,   254,   246,  -230,-10000000,    64,
+-10000000,   180,-10000000,    26,-10000000,-10000000,-10000000,-10000000,-10000000,  -219,
+-10000000,-10000000,-10000000 };
 yytabelem yypgo[]={
 
-     0,   383,   317,   382,   381,   380,   136,   379,   272,   378,
-   110,   377,   217,    51,   176,   376,   375,    45,    48,   374,
-   373,    44,   372,   371,    66,    74,   126,   262,    52,   365,
-    91,   370,    64,   369,   127,   368,   367,   366 };
+     0,   395,   280,   394,   393,   388,   114,   387,   298,   384,
+    88,   383,   288,   222,    58,   382,   381,   147,    59,   380,
+   379,   101,   378,   377,    32,   112,   215,   246,   137,   371,
+    74,   376,    28,   375,   146,   374,   373,   372 };
 yytabelem yyr1[]={
 
      0,     1,     4,     3,     6,     6,     7,     7,     7,     7,
@@ -376,10 +376,10 @@ yytabelem yyr1[]={
     29,    29,    29,    29,    29,     5,     5,    30,    31,    30,
      8,     8,     8,    24,    24,    32,    32,    32,    11,    11,
     11,    11,    11,    11,    11,    11,    11,    11,    11,    11,
-    11,    11,    11,    11,    11,    11,    11,     2,     2,    17,
-    17,    33,    33,    34,    34,    34,    34,    34,    34,    34,
+    11,    11,    11,    11,    11,    11,    11,    11,    11,     2,
+     2,    17,    17,    33,    33,    34,    34,    34,    34,    34,
     34,    34,    34,    34,    34,    34,    34,    34,    34,    34,
-    34,    34,    34,    35,    36,    37 };
+    34,    34,    34,    34,    34,    35,    36,    37 };
 yytabelem yyr2[]={
 
      0,     6,     1,    14,     2,     4,     4,     2,     2,     4,
@@ -391,10 +391,10 @@ yytabelem yyr2[]={
      3,     3,     3,     3,     3,     0,     4,     5,     1,    10,
      3,     3,     3,     4,     2,     3,     7,     3,    13,    13,
      9,     9,    17,    13,    13,    13,    13,    13,    13,    13,
-    13,    13,    13,    17,    17,     9,     9,     0,     4,     0,
-     4,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+    13,    13,    13,    13,    13,    17,    17,     9,     9,     0,
+     4,     0,     4,     2,     2,     2,     2,     2,     2,     2,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-     2,     2,     2,     6,     6,     6 };
+     2,     2,     2,     2,     2,     6,     6,     6 };
 yytabelem yychk[]={
 
 -10000000,    -1,    -2,   -33,    59,   -34,   273,   -35,   -36,    42,
@@ -405,56 +405,58 @@ yytabelem yychk[]={
     41,    93,    -4,    -5,    58,   123,   -30,    -8,   258,   259,
    260,    -6,    -7,    -8,    -9,   -10,   277,   -11,   -13,   280,
    126,   261,   -12,   282,   283,   284,   285,   286,   287,   288,
-   289,   290,   291,   294,   292,   295,   293,   296,   297,   298,
-   299,   300,   274,   -26,   279,   -14,   275,   -27,   278,   264,
-   278,   125,    -6,    58,   -10,   -13,    59,   -12,   -21,   -14,
-   278,   264,    59,   -12,   126,   -13,   -12,    40,    40,    40,
+   289,   290,   291,   295,   292,   296,   293,   297,   294,   298,
+   299,   300,   301,   302,   274,   -26,   279,   -14,   275,   -27,
+   278,   264,   278,   125,    -6,    58,   -10,   -13,    59,   -12,
+   -21,   -14,   278,   264,    59,   -12,   126,   -13,   -12,    40,
     40,    40,    40,    40,    40,    40,    40,    40,    40,    40,
-    40,    40,    40,    40,    40,    40,   -26,   -26,   274,    40,
-   -17,   -34,   -28,    38,    42,   -31,    59,   -25,   281,    91,
-   -12,   -12,   -14,   -14,   -14,   -14,   -14,   -14,   -14,   -14,
+    40,    40,    40,    40,    40,    40,    40,    40,    40,    40,
+   -26,   -26,   274,    40,   -17,   -34,   -28,    38,    42,   -31,
+    59,   -25,   281,    91,   -12,   -12,   -14,   -14,   -14,   -14,
    -14,   -14,   -14,   -14,   -14,   -14,   -14,   -14,   -14,   -14,
-   -14,   -26,   -15,   -18,   -19,   -13,   280,    59,   -17,   -28,
-   -28,    44,   -25,   -17,    44,    44,    41,    41,    44,    44,
-    44,    44,    44,    44,    44,    44,    44,    44,    44,    44,
-    44,    41,    41,    41,   -20,   -21,   -14,   -30,    93,   -27,
+   -14,   -14,   -14,   -14,   -14,   -14,   -14,   -26,   -15,   -18,
+   -19,   -13,   280,    59,   -17,   -28,   -28,    44,   -25,   -17,
+    44,    44,    41,    41,    44,    44,    44,    44,    44,    44,
+    44,    44,    44,    44,    44,    44,    44,    44,    44,    41,
+    41,    41,   -20,   -21,   -14,   -30,    93,   -27,   -27,   -27,
    -27,   -27,   -27,   -27,   -27,   -27,   -27,   -27,   -27,   -27,
    -27,   -27,   -27,   -27,   -16,    61,    59,   123,    58,    44,
    -22,   -25,    41,    41,    44,    41,    41,    41,    41,    41,
-    41,    41,    41,    41,    41,    44,    44,   263,    -2,   -17,
-   -18,   -23,    61,   -17,   -24,    45,   -32,   263,   -14,   -24,
-    59,   125,    59,   -24,    41,    41,   -32,    46,    41,    59,
-   263 };
+    41,    41,    41,    41,    41,    41,    41,    44,    44,   263,
+    -2,   -17,   -18,   -23,    61,   -17,   -24,    45,   -32,   263,
+   -14,   -24,    59,   125,    59,   -24,    41,    41,   -32,    46,
+    41,    59,   263 };
 yytabelem yydef[]={
 
-    97,    -2,     0,    97,   101,   102,   103,   104,   105,   106,
-   107,   108,   109,   110,   111,   112,   113,   114,   115,   116,
-   117,   118,   119,   120,   121,   122,    97,    97,     0,    55,
-    97,    56,    57,    58,    59,    60,    61,    62,    63,    64,
-    97,     0,    98,     0,     0,    54,     0,     1,     2,   123,
-   124,   125,    65,     0,     0,     0,    66,     0,    70,    71,
+    99,    -2,     0,    99,   103,   104,   105,   106,   107,   108,
+   109,   110,   111,   112,   113,   114,   115,   116,   117,   118,
+   119,   120,   121,   122,   123,   124,    99,    99,     0,    55,
+    99,    56,    57,    58,    59,    60,    61,    62,    63,    64,
+    99,     0,   100,     0,     0,    54,     0,     1,     2,   125,
+   126,   127,    65,     0,     0,     0,    66,     0,    70,    71,
     72,     0,     4,     0,     7,     8,     0,    11,     0,     0,
      0,     0,    14,     0,     0,     0,     0,     0,     0,     0,
      0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-     0,     0,     0,    45,     0,     0,    99,    48,    -2,    -2,
-    -2,     3,     5,     6,     9,     0,    10,    15,     0,    41,
-    21,    22,    39,    12,     0,     0,    17,     0,     0,     0,
+     0,     0,     0,     0,     0,    45,     0,     0,   101,    48,
+    -2,    -2,    -2,     3,     5,     6,     9,     0,    10,    15,
+     0,    41,    21,    22,    39,    12,     0,     0,    17,     0,
      0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-     0,     0,     0,     0,     0,     0,    44,    46,     0,    27,
-     0,    99,    49,    50,    51,     0,    38,    40,    41,    99,
-    13,    16,     0,     0,     0,     0,     0,     0,     0,     0,
      0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-     0,    47,     0,    28,    -2,    32,    35,    19,   100,    52,
-    53,     0,    42,     0,     0,     0,    80,    81,     0,     0,
+    44,    46,     0,    27,     0,   101,    49,    50,    51,     0,
+    38,    40,    41,   101,    13,    16,     0,     0,     0,     0,
      0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-     0,    95,    96,     0,     0,    33,    41,    69,    41,     0,
+     0,     0,     0,     0,     0,     0,     0,    47,     0,    28,
+    -2,    32,    35,    19,   102,    52,    53,     0,    42,     0,
+     0,     0,    80,    81,     0,     0,     0,     0,     0,     0,
+     0,     0,     0,     0,     0,     0,     0,     0,     0,    97,
+    98,     0,     0,    33,    41,    69,    41,     0,     0,     0,
      0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-     0,     0,     0,     0,    18,     0,    23,    97,    99,     0,
-    36,    43,    78,    79,    99,    83,    84,    85,    86,    87,
-    88,    89,    90,    91,    92,     0,     0,     0,     0,     0,
-    31,    34,     0,     0,     0,     0,    74,    75,    77,     0,
-    20,    25,    26,    37,    82,    93,    73,     0,    94,    24,
-    76 };
+     0,     0,     0,     0,    18,     0,    23,    99,   101,     0,
+    36,    43,    78,    79,   101,    83,    84,    85,    86,    87,
+    88,    89,    90,    91,    92,    93,    94,     0,     0,     0,
+     0,     0,    31,    34,     0,     0,     0,     0,    74,    75,
+    77,     0,    20,    25,    26,    37,    82,    95,    73,     0,
+    96,    24,    76 };
 typedef struct
 #ifdef __cplusplus
 	yytoktype
@@ -505,13 +507,15 @@ yytoktype yytoks[] =
 	"SetVector2Macro",	291,
 	"SetVector3Macro",	292,
 	"SetVector4Macro",	293,
-	"GetVector2Macro",	294,
-	"GetVector3Macro",	295,
-	"GetVector4Macro",	296,
-	"SetVectorMacro",	297,
-	"GetVectorMacro",	298,
-	"ViewportCoordinateMacro",	299,
-	"WorldCoordinateMacro",	300,
+	"SetVector6Macro",	294,
+	"GetVector2Macro",	295,
+	"GetVector3Macro",	296,
+	"GetVector4Macro",	297,
+	"GetVector6Macro",	298,
+	"SetVectorMacro",	299,
+	"GetVectorMacro",	300,
+	"ViewportCoordinateMacro",	301,
+	"WorldCoordinateMacro",	302,
 	"-unknown-",	-1	/* ends search */
 };
 
@@ -610,6 +614,8 @@ char * yyreds[] =
 	"macro : GetVector3Macro '(' any_id ',' type_red2 ')'",
 	"macro : SetVector4Macro '(' any_id ',' type_red2 ')'",
 	"macro : GetVector4Macro '(' any_id ',' type_red2 ')'",
+	"macro : SetVector6Macro '(' any_id ',' type_red2 ')'",
+	"macro : GetVector6Macro '(' any_id ',' type_red2 ')'",
 	"macro : SetVectorMacro '(' any_id ',' type_red2 ',' float_num ')'",
 	"macro : GetVectorMacro '(' any_id ',' type_red2 ',' float_num ')'",
 	"macro : ViewportCoordinateMacro '(' any_id ')'",
@@ -1178,52 +1184,52 @@ int yyparse()
 	{
 		
 case 2:
-# line 119 "vtkParse.y"
+# line 121 "vtkParse.y"
 {
       data.ClassName = strdup(yypvt[-0].str);
       } break;
 case 12:
-# line 129 "vtkParse.y"
+# line 131 "vtkParse.y"
 { output_function(); } break;
 case 13:
-# line 130 "vtkParse.y"
+# line 132 "vtkParse.y"
 { output_function(); } break;
 case 14:
-# line 132 "vtkParse.y"
+# line 134 "vtkParse.y"
 {
          output_function();
 	 } break;
 case 15:
-# line 136 "vtkParse.y"
+# line 138 "vtkParse.y"
 {
          currentFunction->ReturnType = yypvt[-1].integer;
          output_function();
 	 } break;
 case 16:
-# line 141 "vtkParse.y"
+# line 143 "vtkParse.y"
 {
          currentFunction->ReturnType = yypvt[-1].integer;
          output_function();
 	 } break;
 case 17:
-# line 146 "vtkParse.y"
+# line 148 "vtkParse.y"
 {
          output_function();
 	 } break;
 case 18:
-# line 151 "vtkParse.y"
+# line 153 "vtkParse.y"
 {
       currentFunction->Name = yypvt[-4].str; 
       fprintf(stderr,"   Parsed func %s\n",yypvt[-4].str); 
     } break;
 case 19:
-# line 156 "vtkParse.y"
+# line 158 "vtkParse.y"
 { 
       currentFunction->IsOperator = 1; 
       fprintf(stderr,"   Converted operator\n"); 
     } break;
 case 20:
-# line 161 "vtkParse.y"
+# line 163 "vtkParse.y"
 { 
       currentFunction->Name = yypvt[-6].str; 
       fprintf(stderr,"   Parsed func %s\n",yypvt[-6].str); 
@@ -1231,98 +1237,98 @@ case 20:
       data.IsAbstract = 1;
     } break;
 case 29:
-# line 177 "vtkParse.y"
+# line 179 "vtkParse.y"
 { currentFunction->NumberOfArguments++;} break;
 case 30:
-# line 178 "vtkParse.y"
+# line 180 "vtkParse.y"
 { currentFunction->NumberOfArguments++;} break;
 case 32:
-# line 181 "vtkParse.y"
+# line 183 "vtkParse.y"
 {
       currentFunction->ArgCounts[currentFunction->NumberOfArguments] = 0; 
       currentFunction->ArgTypes[currentFunction->NumberOfArguments] = 
 	yypvt[-0].integer;} break;
 case 33:
-# line 186 "vtkParse.y"
+# line 188 "vtkParse.y"
 {
       currentFunction->ArgCounts[currentFunction->NumberOfArguments] = 0; 
       currentFunction->ArgTypes[currentFunction->NumberOfArguments] = 
 	yypvt[-1].integer;
     } break;
 case 35:
-# line 192 "vtkParse.y"
+# line 194 "vtkParse.y"
 { 
       currentFunction->ArgCounts[currentFunction->NumberOfArguments] = 0; 
       currentFunction->ArgTypes[currentFunction->NumberOfArguments] = 5000;
     } break;
 case 42:
-# line 204 "vtkParse.y"
-{ currentFunction->ArrayFailure = 1; } break;
-case 43:
 # line 206 "vtkParse.y"
 { currentFunction->ArrayFailure = 1; } break;
+case 43:
+# line 208 "vtkParse.y"
+{ currentFunction->ArrayFailure = 1; } break;
 case 44:
-# line 209 "vtkParse.y"
+# line 211 "vtkParse.y"
 {yyval.integer = 1000 + yypvt[-0].integer;} break;
 case 45:
-# line 210 "vtkParse.y"
+# line 212 "vtkParse.y"
 {yyval.integer = yypvt[-0].integer;} break;
 case 46:
-# line 211 "vtkParse.y"
+# line 213 "vtkParse.y"
 {yyval.integer = 2000 + yypvt[-0].integer;} break;
 case 47:
-# line 212 "vtkParse.y"
+# line 214 "vtkParse.y"
 {yyval.integer = 3000 + yypvt[-0].integer;} break;
 case 48:
-# line 214 "vtkParse.y"
+# line 216 "vtkParse.y"
 {yyval.integer = yypvt[-0].integer;} break;
 case 49:
-# line 216 "vtkParse.y"
+# line 218 "vtkParse.y"
 {yyval.integer = yypvt[-1].integer + yypvt[-0].integer;} break;
 case 50:
-# line 225 "vtkParse.y"
+# line 227 "vtkParse.y"
 { yyval.integer = 100;} break;
 case 51:
-# line 226 "vtkParse.y"
+# line 228 "vtkParse.y"
 { yyval.integer = 300;} break;
 case 52:
-# line 227 "vtkParse.y"
+# line 229 "vtkParse.y"
 { yyval.integer = 100 + yypvt[-0].integer;} break;
 case 53:
-# line 228 "vtkParse.y"
+# line 230 "vtkParse.y"
 { yyval.integer = 400 + yypvt[-0].integer;} break;
 case 54:
-# line 230 "vtkParse.y"
+# line 232 "vtkParse.y"
 { yyval.integer = 10 + yypvt[-0].integer;} break;
 case 55:
-# line 231 "vtkParse.y"
+# line 233 "vtkParse.y"
 { yyval.integer = yypvt[-0].integer;} break;
 case 56:
-# line 234 "vtkParse.y"
+# line 236 "vtkParse.y"
 { yyval.integer = 1;} break;
 case 57:
-# line 235 "vtkParse.y"
+# line 237 "vtkParse.y"
 { yyval.integer = 2;} break;
 case 58:
-# line 236 "vtkParse.y"
+# line 238 "vtkParse.y"
 { yyval.integer = 3;} break;
 case 59:
-# line 237 "vtkParse.y"
+# line 239 "vtkParse.y"
 { yyval.integer = 4;} break;
 case 60:
-# line 238 "vtkParse.y"
+# line 240 "vtkParse.y"
 { yyval.integer = 5;} break;
 case 61:
-# line 239 "vtkParse.y"
+# line 241 "vtkParse.y"
 { yyval.integer = 6;} break;
 case 62:
-# line 240 "vtkParse.y"
+# line 242 "vtkParse.y"
 { yyval.integer = 7;} break;
 case 63:
-# line 241 "vtkParse.y"
+# line 243 "vtkParse.y"
 { yyval.integer = 8;} break;
 case 64:
-# line 243 "vtkParse.y"
+# line 245 "vtkParse.y"
 { 
       yyval.integer = 9; 
       currentFunction->ArgClasses[currentFunction->NumberOfArguments] =
@@ -1337,37 +1343,37 @@ case 64:
         }
     } break;
 case 67:
-# line 260 "vtkParse.y"
+# line 262 "vtkParse.y"
 { 
       data.SuperClasses[data.NumberOfSuperClasses] = strdup(yypvt[-0].str); 
       data.NumberOfSuperClasses++; 
     } break;
 case 68:
-# line 265 "vtkParse.y"
+# line 267 "vtkParse.y"
 { 
       data.SuperClasses[data.NumberOfSuperClasses] = strdup(yypvt[-0].str); 
       data.NumberOfSuperClasses++; 
     } break;
 case 70:
-# line 270 "vtkParse.y"
+# line 272 "vtkParse.y"
 {in_public = 1;} break;
 case 71:
-# line 270 "vtkParse.y"
+# line 272 "vtkParse.y"
 {in_public = 0;} break;
 case 72:
-# line 271 "vtkParse.y"
+# line 273 "vtkParse.y"
 {in_public = 0;} break;
 case 75:
-# line 275 "vtkParse.y"
+# line 277 "vtkParse.y"
 {yyval.integer = yypvt[-0].integer;} break;
 case 76:
-# line 276 "vtkParse.y"
+# line 278 "vtkParse.y"
 {yyval.integer = -1;} break;
 case 77:
-# line 276 "vtkParse.y"
+# line 278 "vtkParse.y"
 {yyval.integer = -1;} break;
 case 78:
-# line 280 "vtkParse.y"
+# line 282 "vtkParse.y"
 {
    sprintf(temps,"Set%s",yypvt[-3].str); 
    currentFunction->Name = strdup(temps);
@@ -1378,7 +1384,7 @@ case 78:
    output_function();
    } break;
 case 79:
-# line 290 "vtkParse.y"
+# line 292 "vtkParse.y"
 { 
    sprintf(temps,"Get%s",yypvt[-3].str); 
    currentFunction->Name = strdup(temps);
@@ -1387,7 +1393,7 @@ case 79:
    output_function();
    } break;
 case 80:
-# line 298 "vtkParse.y"
+# line 300 "vtkParse.y"
 { 
    sprintf(temps,"Set%s",yypvt[-1].str); 
    currentFunction->Name = strdup(temps);
@@ -1398,7 +1404,7 @@ case 80:
    output_function();
    } break;
 case 81:
-# line 308 "vtkParse.y"
+# line 310 "vtkParse.y"
 { 
    sprintf(temps,"Get%s",yypvt[-1].str); 
    currentFunction->Name = strdup(temps);
@@ -1407,7 +1413,7 @@ case 81:
    output_function();
    } break;
 case 82:
-# line 316 "vtkParse.y"
+# line 318 "vtkParse.y"
 { 
    sprintf(temps,"Set%s",yypvt[-5].str); 
    currentFunction->Name = strdup(temps);
@@ -1418,7 +1424,7 @@ case 82:
    output_function();
    } break;
 case 83:
-# line 326 "vtkParse.y"
+# line 328 "vtkParse.y"
 { 
    sprintf(temps,"Set%s",yypvt[-3].str); 
    currentFunction->Name = strdup(temps);
@@ -1429,7 +1435,7 @@ case 83:
    output_function();
    } break;
 case 84:
-# line 336 "vtkParse.y"
+# line 338 "vtkParse.y"
 { 
    sprintf(temps,"Set%s",yypvt[-3].str); 
    currentFunction->Name = strdup(temps);
@@ -1440,7 +1446,7 @@ case 84:
    output_function();
    } break;
 case 85:
-# line 346 "vtkParse.y"
+# line 348 "vtkParse.y"
 { 
    sprintf(temps,"Get%s",yypvt[-3].str); 
    currentFunction->Name = strdup(temps);
@@ -1449,7 +1455,7 @@ case 85:
    output_function();
    } break;
 case 86:
-# line 354 "vtkParse.y"
+# line 356 "vtkParse.y"
 { 
    sprintf(temps,"%sOn",yypvt[-3].str); 
    currentFunction->Name = strdup(temps);
@@ -1462,7 +1468,7 @@ case 86:
    output_function();
    } break;
 case 87:
-# line 366 "vtkParse.y"
+# line 368 "vtkParse.y"
 { 
    sprintf(temps,"Set%s",yypvt[-3].str); 
    currentFunction->Name = strdup(temps);
@@ -1481,7 +1487,7 @@ case 87:
    output_function();
    } break;
 case 88:
-# line 384 "vtkParse.y"
+# line 386 "vtkParse.y"
 { 
    sprintf(temps,"Get%s",yypvt[-3].str); 
    currentFunction->Name = strdup(temps);
@@ -1492,7 +1498,7 @@ case 88:
    output_function();
    } break;
 case 89:
-# line 394 "vtkParse.y"
+# line 396 "vtkParse.y"
 { 
    sprintf(temps,"Set%s",yypvt[-3].str); 
    currentFunction->Name = strdup(temps);
@@ -1513,7 +1519,7 @@ case 89:
    output_function();
    } break;
 case 90:
-# line 414 "vtkParse.y"
+# line 416 "vtkParse.y"
 { 
    sprintf(temps,"Get%s",yypvt[-3].str); 
    currentFunction->Name = strdup(temps);
@@ -1524,7 +1530,7 @@ case 90:
    output_function();
    } break;
 case 91:
-# line 424 "vtkParse.y"
+# line 426 "vtkParse.y"
 { 
    sprintf(temps,"Set%s",yypvt[-3].str); 
    currentFunction->Name = strdup(temps);
@@ -1547,7 +1553,7 @@ case 91:
    output_function();
    } break;
 case 92:
-# line 446 "vtkParse.y"
+# line 448 "vtkParse.y"
 { 
    sprintf(temps,"Get%s",yypvt[-3].str); 
    currentFunction->Name = strdup(temps);
@@ -1558,7 +1564,45 @@ case 92:
    output_function();
    } break;
 case 93:
-# line 456 "vtkParse.y"
+# line 458 "vtkParse.y"
+{ 
+   sprintf(temps,"Set%s",yypvt[-3].str); 
+   currentFunction->Name = strdup(temps);
+   currentFunction->NumberOfArguments = 6;
+   currentFunction->ArgTypes[0] = yypvt[-1].integer;
+   currentFunction->ArgCounts[0] = 0;
+   currentFunction->ArgTypes[1] = yypvt[-1].integer;
+   currentFunction->ArgCounts[1] = 0;
+   currentFunction->ArgTypes[2] = yypvt[-1].integer;
+   currentFunction->ArgCounts[2] = 0;
+   currentFunction->ArgTypes[3] = yypvt[-1].integer;
+   currentFunction->ArgCounts[3] = 0;
+   currentFunction->ArgTypes[4] = yypvt[-1].integer;
+   currentFunction->ArgCounts[4] = 0;
+   currentFunction->ArgTypes[5] = yypvt[-1].integer;
+   currentFunction->ArgCounts[5] = 0;
+   currentFunction->ReturnType = 2;
+   output_function();
+
+   currentFunction->Name = strdup(temps);
+   currentFunction->NumberOfArguments = 1;
+   currentFunction->ArgTypes[0] = 300 + yypvt[-1].integer;
+   currentFunction->ArgCounts[0] = 6;
+   output_function();
+   } break;
+case 94:
+# line 484 "vtkParse.y"
+{ 
+   sprintf(temps,"Get%s",yypvt[-3].str); 
+   currentFunction->Name = strdup(temps);
+   currentFunction->NumberOfArguments = 0;
+   currentFunction->ReturnType = 300 + yypvt[-1].integer;
+   currentFunction->HaveHint = 1;
+   currentFunction->HintSize = 6;
+   output_function();
+   } break;
+case 95:
+# line 494 "vtkParse.y"
 {
      sprintf(temps,"Set%s",yypvt[-5].str); 
      currentFunction->Name = strdup(temps);
@@ -1568,8 +1612,8 @@ case 93:
      currentFunction->ArgCounts[0] = yypvt[-1].integer;
      output_function();
    } break;
-case 94:
-# line 466 "vtkParse.y"
+case 96:
+# line 504 "vtkParse.y"
 { 
    sprintf(temps,"Get%s",yypvt[-5].str); 
    currentFunction->Name = strdup(temps);
@@ -1579,8 +1623,8 @@ case 94:
    currentFunction->HintSize = yypvt[-1].integer;
    output_function();
    } break;
-case 95:
-# line 476 "vtkParse.y"
+case 97:
+# line 514 "vtkParse.y"
 { 
      sprintf(temps,"Get%sCoordinate",yypvt[-1].str); 
      currentFunction->Name = strdup(temps);
@@ -1613,8 +1657,8 @@ case 95:
      currentFunction->HintSize = 2;
      output_function();
    } break;
-case 96:
-# line 509 "vtkParse.y"
+case 98:
+# line 547 "vtkParse.y"
 { 
      sprintf(temps,"Get%sCoordinate",yypvt[-1].str); 
      currentFunction->Name = strdup(temps);

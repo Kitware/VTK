@@ -101,9 +101,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 %token SetVector2Macro
 %token SetVector3Macro
 %token SetVector4Macro
+%token SetVector6Macro
 %token GetVector2Macro
 %token GetVector3Macro
 %token GetVector4Macro
+%token GetVector6Macro
 %token SetVectorMacro
 %token GetVectorMacro
 %token ViewportCoordinateMacro
@@ -450,6 +452,42 @@ macro:
    currentFunction->ReturnType = 300 + $<integer>5;
    currentFunction->HaveHint = 1;
    currentFunction->HintSize = 4;
+   output_function();
+   }
+| SetVector6Macro '(' any_id ',' type_red2 ')'
+   { 
+   sprintf(temps,"Set%s",$<str>3); 
+   currentFunction->Name = strdup(temps);
+   currentFunction->NumberOfArguments = 6;
+   currentFunction->ArgTypes[0] = $<integer>5;
+   currentFunction->ArgCounts[0] = 0;
+   currentFunction->ArgTypes[1] = $<integer>5;
+   currentFunction->ArgCounts[1] = 0;
+   currentFunction->ArgTypes[2] = $<integer>5;
+   currentFunction->ArgCounts[2] = 0;
+   currentFunction->ArgTypes[3] = $<integer>5;
+   currentFunction->ArgCounts[3] = 0;
+   currentFunction->ArgTypes[4] = $<integer>5;
+   currentFunction->ArgCounts[4] = 0;
+   currentFunction->ArgTypes[5] = $<integer>5;
+   currentFunction->ArgCounts[5] = 0;
+   currentFunction->ReturnType = 2;
+   output_function();
+
+   currentFunction->Name = strdup(temps);
+   currentFunction->NumberOfArguments = 1;
+   currentFunction->ArgTypes[0] = 300 + $<integer>5;
+   currentFunction->ArgCounts[0] = 6;
+   output_function();
+   }
+| GetVector6Macro  '(' any_id ',' type_red2 ')'
+   { 
+   sprintf(temps,"Get%s",$<str>3); 
+   currentFunction->Name = strdup(temps);
+   currentFunction->NumberOfArguments = 0;
+   currentFunction->ReturnType = 300 + $<integer>5;
+   currentFunction->HaveHint = 1;
+   currentFunction->HintSize = 6;
    output_function();
    }
 | SetVectorMacro  '(' any_id ',' type_red2 ',' float_num ')'

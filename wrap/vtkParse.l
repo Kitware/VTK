@@ -1,5 +1,3 @@
-%p 5000
-%a 2500
 %%
 
 "/*" { int c1 = 0, c2 = input();
@@ -77,9 +75,11 @@
 "vtkSetVector2Macro"   return(SetVector2Macro);
 "vtkSetVector3Macro"   return(SetVector3Macro);
 "vtkSetVector4Macro"   return(SetVector4Macro);
+"vtkSetVector6Macro"   return(SetVector6Macro);
 "vtkGetVector2Macro"   return(GetVector2Macro);
 "vtkGetVector3Macro"   return(GetVector3Macro);
 "vtkGetVector4Macro"   return(GetVector4Macro);
+"vtkGetVector6Macro"   return(GetVector6Macro);
 "vtkSetVectorMacro"    return(SetVectorMacro);
 "vtkGetVectorMacro"    return(GetVectorMacro);
 "vtkViewportCoordinateMacro"     return(ViewportCoordinateMacro);
