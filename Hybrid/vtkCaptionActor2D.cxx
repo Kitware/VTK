@@ -32,7 +32,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkCaptionActor2D, "1.27");
+vtkCxxRevisionMacro(vtkCaptionActor2D, "1.28");
 vtkStandardNewMacro(vtkCaptionActor2D);
 
 vtkCxxSetObjectMacro(vtkCaptionActor2D,LeaderGlyph,vtkPolyData);
@@ -339,11 +339,20 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
     viewport->WorldToView();
     viewport->GetViewPoint(p1);
     
-    viewport->SetDisplayPoint(minPt[0],minPt[1],0.0);
-    viewport->DisplayToView();
-    viewport->GetViewPoint(p2);
-    p2[2] = p1[2];
-    viewport->SetViewPoint(p2);
+    // minPt is in display coordinates and it is OK
+    double val[3];
+    val[0] = minPt[0];
+    val[1] = minPt[1];
+    val[2] = 0;
+    // convert to view
+    viewport->DisplayToNormalizedDisplay(val[0],val[1]);
+    viewport->NormalizedDisplayToViewport(val[0],val[1]);
+    viewport->ViewportToNormalizedViewport(val[0],val[1]);
+    viewport->NormalizedViewportToView(val[0],val[1],val[2]);
+
+    // use the zvalue from the attach point
+    val[2] = p1[2];
+    viewport->SetViewPoint(val);
     viewport->ViewToWorld();
     double w3[4];
     viewport->GetWorldPoint(w3);
