@@ -90,7 +90,6 @@ int vtkEnSight6BinaryReader::ReadGeometryFile()
   char line[80], subLine[80];
   int partId;
   int lineRead;
-  int useListedIds = 0;
   float point[3];
   float *coordinateArray;
   int i;
