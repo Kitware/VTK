@@ -78,7 +78,7 @@ void vlConnectivityFilter::Execute()
   if ( this->ExtractionMode != EXTRACT_POINT_SEEDED_REGIONS && 
   this->ExtractionMode != EXTRACT_CELL_SEEDED_REGIONS ) 
     { //visit all cells marking with region number
-    for (cellId=0; cellId < numCells; cellId++, RegionNumber++)
+    for (cellId=0; cellId < numCells; cellId++)
       {
       if ( Visited[cellId] < 0 ) 
         {
