@@ -62,6 +62,7 @@ vtkPointWidget.cxx
 vtkPolyDataSourceWidget.cxx
 vtkPolyDataToImageStencil.cxx
 vtkProcrustesAlignmentFilter.cxx
+vtkProjectedTerrainPath.cxx
 vtkRIBExporter.cxx
 vtkRIBLight.cxx
 vtkRIBProperty.cxx
