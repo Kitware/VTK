@@ -7,3 +7,7 @@ ENDIF (USE_VTK_FILE)
 
 ADD_EXECUTABLE(Cylinder Cylinder.cxx)
 TARGET_LINK_LIBRARIES(Cylinder vtkRendering)
+
+ADD_EXECUTABLE(SpecularSpheres SpecularSpheres.cxx)
+TARGET_LINK_LIBRARIES(SpecularSpheres vtkRendering)
+
