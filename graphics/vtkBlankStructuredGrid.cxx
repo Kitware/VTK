@@ -76,7 +76,7 @@ vtkBlankStructuredGrid::~vtkBlankStructuredGrid()
 
 
 template <class T>
-static void vtkBlankStructuredGridExecute(vtkBlankStructuredGrid *self,
+static void vtkBlankStructuredGridExecute(vtkBlankStructuredGrid *vtkNotUsed(self),
                                           T *dptr, int numPts, int numComp,
                                           int comp, float min, float max,
                                           vtkUnsignedCharArray *blanking)

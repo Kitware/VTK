@@ -112,7 +112,7 @@ vtkImageData *vtkImageStencil::GetBackgroundInput()
 
 //----------------------------------------------------------------------------
 void vtkImageStencil::ExecuteInformation(vtkImageData *input, 
-                                         vtkImageData *output)
+                                         vtkImageData *vtkNotUsed(output))
 {
   // need to set the spacing and origin of the stencil to match the output
   vtkImageStencilData *stencil = this->GetStencil();

@@ -72,6 +72,8 @@ public:
   // Get or set the output for this source.
   void SetOutput(vtkImageStencilData *output);
   vtkImageStencilData *GetOutput();
+  vtkImageStencilData *GetOutput(int idx)
+    {return (vtkImageStencilData *) this->vtkSource::GetOutput(idx);}
 
 protected:
   vtkImageStencilSource();
