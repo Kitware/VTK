@@ -45,6 +45,9 @@ vtkVolumeMapper::vtkVolumeMapper()
 {
   this->ScalarInput = NULL;
   this->Clipping = 0;
+  this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = -1.0;
+  this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = 1.0;
+  this->Center[0] = this->Center[1] = this->Center[2] = 0.0;
 }
 
 vtkVolumeMapper::~vtkVolumeMapper()
@@ -73,6 +76,38 @@ float *vtkVolumeMapper::GetBounds()
     this->ScalarInput->GetBounds(this->Bounds);
     return this->Bounds;
     }
+}
+
+// Get the bounds for this Prop as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
+void vtkVolumeMapper::GetBounds(float bounds[6])
+{
+  this->GetBounds();
+  for (int i=0; i<6; i++) bounds[i] = this->Bounds[i];
+}
+
+float *vtkVolumeMapper::GetCenter()
+{
+  this->GetBounds();
+  for (int i=0; i<3; i++) 
+    {
+    this->Center[i] = (this->Bounds[2*i+1] + this->Bounds[2*i]) / 2.0;
+    }
+  return this->Center;
+}
+
+float vtkVolumeMapper::GetLength()
+{
+  double diff, l=0.0;
+  int i;
+
+  this->GetBounds();
+  for (i=0; i<3; i++)
+    {
+    diff = this->Bounds[2*i+1] - this->Bounds[2*i];
+    l += diff * diff;
+    }
+ 
+  return (float)sqrt(l);
 }
 
 // Print the vtkVolumeMapper

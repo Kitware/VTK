@@ -81,6 +81,18 @@ public:
   virtual float *GetBounds();
 
   // Description:
+  // Get the bounds for this mapper as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
+  void GetBounds(float bounds[6]);
+  
+  // Description:
+  // Return the Center of this mapper's data.
+  float *GetCenter();
+
+  // Description:
+  // Return the diagonal length of this mappers bounding box.
+  float GetLength();
+
+  // Description:
   // Will the hardware color and z buffers be destroyed during a render?
   virtual int DestroyHardwareBuffer() = 0;
 
@@ -131,6 +143,8 @@ protected:
   int                  Clipping;
   float                ClippingPlanes[6];
   vtkTimeStamp         BuildTime;
+  float Bounds[6];
+  float Center[3];
 };
 
 inline void vtkVolumeMapper::SetClippingPlanes(float a, float b, float c, 
