@@ -12,7 +12,7 @@ vtkVolume16Reader v16
     v16 SetDataByteOrderToLittleEndian
     v16 SetFilePrefix "../../../vtkdata/fullHead/headsq"
     v16 SetDataSpacing 0.8 0.8 1.5
-    v16 SetImageRange 1 5;
+    v16 SetImageRange 30 50
     v16 SetDataMask 0x7fff
 
 # write isosurface to file
