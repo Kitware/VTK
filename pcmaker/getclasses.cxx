@@ -1222,19 +1222,18 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
       }
     else
       {
-      fclose(testfp);
       sprintf(fname,"%s\\mpi.lib",vals->adlg.m_WhereMPILibrary);
       testfp = fopen(fname,"r");
       if (testfp)
         {
         sprintf(libs,"mpi.lib");
+        fclose(testfp);
         }
       else
         {
         sprintf(libs,"");
         }
       }
-    fclose(testfp);
     sprintf(mpilibs,"/libpath:\"%s\" %s",
             vals->adlg.m_WhereMPILibrary, libs);
     }
