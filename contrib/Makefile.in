@@ -19,16 +19,18 @@ ABSTRACT =
 CONCRETE = \
 vtkEarthSource \
 vtkIVWriter \
+vtkMassProperties \
 vtkOBJReader \
 vtkProjectedTexture \
 vtkRenderLargeImage \
 vtkRIBExporter \
 vtkRIBLight \
 vtkRIBProperty \
+vtkStringTree \
 vtkSuperquadric \
 vtkSuperquadricSource \
 vtkSubdivideTetra \
-vtkMassProperties
+vtkTree
 
 #vtkHershey \
 #vtkVectorTextSource
