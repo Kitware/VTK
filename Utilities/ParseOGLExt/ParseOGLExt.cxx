@@ -543,6 +543,7 @@ static void WriteClassDeclarationGuts(ostream &hfile, int type)
     if (cExts != consts.end())
       {
       hfile << "  enum " << cExts->first.name << "_consts {" << endl;
+      bool wroteFirst = false;
 
       for (list<Constant>::iterator iconst = cExts->second.begin();
            iconst != cExts->second.end(); iconst++)
@@ -559,8 +560,15 @@ static void WriteClassDeclarationGuts(ostream &hfile, int type)
                                                       iconst->value ) )
              == ConstantsAlreadyWritten.end() )
           {
-          hfile << "    " << iconst->name << " = " << iconst->value
-                << "," << endl;
+          if (wroteFirst)
+            {
+            hfile << "," << endl;
+            }
+          else
+            {
+            wroteFirst = true;
+            }
+          hfile << "    " << iconst->name << " = " << iconst->value;
 
           ConstantsAlreadyWritten.insert( make_pair( iconst->name, 
                                                      iconst->value ) );
