@@ -51,14 +51,17 @@ claw SetGoalState 107 216 176;
 claw GeneratePath;
 
 puts "Exploring ------------------------------------------------";
-claw SetChildFraction 0.6;
-claw SetNeighborFraction 0.7;
+claw SetChildFraction 0.5;
+claw SetNeighborFraction 0.6;
 claw ExplorePath 5;
 
 puts "Smoothing ------------------------------------------------";
-claw SmoothPath 3;
+claw SmoothPath 6;
 
 puts "Finished  ------------------------------------------------";
+
+claw SavePath "colon.path"
+
 
 region ReleaseData;
 
