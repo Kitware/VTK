@@ -32,7 +32,7 @@ Thanks:    to Yves Starreveld for developing this class
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.15");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.16");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 
@@ -818,7 +818,7 @@ int *vtkCarbonRenderWindow::GetSize(void)
   // if we aren't mapped then just return the ivar
   if (!this->Mapped)
     {
-    return this->Size;
+    return this->Superclass::GetSize();
     }
 
   //  Find the current window size
@@ -830,7 +830,7 @@ int *vtkCarbonRenderWindow::GetSize(void)
     this->Size[1] = (int) windowRect.bottom-windowRect.top;
     }
 
-  return this->Size;
+  return this->Superclass::GetSize();
 }
 
 //--------------------------------------------------------------------------
