@@ -15,15 +15,15 @@ vtkSampleFunction sample
 
 
 vtkThreshold threshold
-    threshold SetInput [sample GetOutput]
+    threshold SetInputConnection [sample GetOutputPort]
     threshold ThresholdByLower 0.001
 
 vtkGeometryFilter geometry
-  geometry SetInput [threshold GetOutput]
+  geometry SetInputConnection [threshold GetOutputPort]
 
 vtkImageGradient grad
 grad SetDimensionality 3
-grad SetInput [sample GetOutput]
+grad SetInputConnection [sample GetOutputPort]
 
 vtkImageMathematics mult
 mult SetOperationToMultiply
@@ -31,16 +31,16 @@ mult SetInput1 [sample GetOutput]
 mult SetInput2 [sample GetOutput]
 
 vtkImageToStructuredPoints itosp
-itosp SetInput [mult GetOutput]
+itosp SetInputConnection [mult GetOutputPort]
 itosp SetVectorInput [grad GetOutput]
 
 vtkSubPixelPositionEdgels sub
-sub SetInput [geometry GetOutput]
+sub SetInputConnection [geometry GetOutputPort]
 sub SetGradMaps [itosp GetOutput]
 
 
 vtkDataSetMapper mapper
-  mapper SetInput [sub GetOutput]
+  mapper SetInputConnection [sub GetOutputPort]
 
 vtkActor actor
   actor SetMapper mapper

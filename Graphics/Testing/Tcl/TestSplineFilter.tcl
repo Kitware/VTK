@@ -25,7 +25,7 @@ vtkPlaneSource ps
     ps SetPoint1 2  2 26
     ps SetPoint2 2 -2 32
 vtkPolyDataMapper psMapper
-    psMapper SetInput [ps GetOutput]
+    psMapper SetInputConnection [ps GetOutputPort]
 vtkActor psActor
     psActor SetMapper psMapper
     [psActor GetProperty] SetRepresentationToWireframe
@@ -33,7 +33,7 @@ vtkActor psActor
 vtkRungeKutta4 rk4
 
 vtkStreamLine streamer
-    streamer SetInput [pl3d GetOutput]
+    streamer SetInputConnection [pl3d GetOutputPort]
     streamer SetSource [ps GetOutput]
     streamer SetMaximumPropagationTime 100
     streamer SetIntegrationStepLength .2
@@ -43,23 +43,23 @@ vtkStreamLine streamer
     streamer VorticityOn
     streamer SetIntegrator rk4
 vtkSplineFilter sf
-    sf SetInput [streamer GetOutput]
+    sf SetInputConnection [streamer GetOutputPort]
     sf SetSubdivideToLength
     sf SetLength 0.15
 vtkRibbonFilter rf
-    rf SetInput [sf GetOutput]
+    rf SetInputConnection [sf GetOutputPort]
     rf SetWidth 0.1
     rf SetWidthFactor 5
 vtkPolyDataMapper streamMapper
-    streamMapper SetInput [rf GetOutput]
+    streamMapper SetInputConnection [rf GetOutputPort]
     eval streamMapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
 vtkActor streamline
     streamline SetMapper streamMapper
 
 vtkStructuredGridOutlineFilter outline
-    outline SetInput [pl3d GetOutput]
+    outline SetInputConnection [pl3d GetOutputPort]
 vtkPolyDataMapper outlineMapper
-    outlineMapper SetInput [outline GetOutput]
+    outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
 

@@ -23,21 +23,21 @@ vtkTransform xform
   xform Scale 2 5 4
 
 vtkTransformFilter xformFilter
-  xformFilter SetInput [sphere GetOutput]
+  xformFilter SetInputConnection [sphere GetOutputPort]
   xformFilter SetTransform xform
 
 vtkElevationFilter el
-  el SetInput [xformFilter GetOutput]
+  el SetInputConnection [xformFilter GetOutputPort]
   el SetLowPoint 0 0 0
   el SetHighPoint 0 0 1
 
 vtkQuadricDecimation mesh
-  mesh SetInput [el GetOutput]
+  mesh SetInputConnection [el GetOutputPort]
   mesh SetMaximumCost 850
   mesh SetMaximumCollapsedEdges 5
 
 vtkPolyDataMapper mapper
-  mapper SetInput [mesh GetOutput]
+  mapper SetInputConnection [mesh GetOutputPort]
 
 vtkActor actor
   actor SetMapper mapper

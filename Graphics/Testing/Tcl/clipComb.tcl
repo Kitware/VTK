@@ -27,21 +27,21 @@ vtkImplicitBoolean bool
 
 # clip the structured grid to produce a tetrahedral mesh
 vtkClipDataSet clip
-    clip SetInput [pl3d GetOutput]
+    clip SetInputConnection [pl3d GetOutputPort]
     clip SetClipFunction bool
     clip InsideOutOn
 
 vtkGeometryFilter gf
-    gf SetInput [clip GetOutput]
+    gf SetInputConnection [clip GetOutputPort]
 vtkPolyDataMapper clipMapper
-    clipMapper SetInput [gf GetOutput]
+    clipMapper SetInputConnection [gf GetOutputPort]
 vtkActor clipActor
     clipActor SetMapper clipMapper
 
 vtkStructuredGridOutlineFilter outline
-    outline SetInput [pl3d GetOutput]
+    outline SetInputConnection [pl3d GetOutputPort]
 vtkPolyDataMapper outlineMapper
-    outlineMapper SetInput [outline GetOutput]
+    outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
 

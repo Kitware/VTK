@@ -12,7 +12,7 @@ polyline GeneratePolylineOn
 polyline GeneratePolygonOff
 
 vtkPolyDataMapper polylineMapper
-polylineMapper SetInput [polyline GetOutput]
+polylineMapper SetInputConnection [polyline GetOutputPort]
 
 vtkActor polylineActor
 polylineActor SetMapper polylineMapper
@@ -29,7 +29,7 @@ polygon GeneratePolylineOff
 polygon GeneratePolygonOn
 
 vtkPolyDataMapper polygonMapper
-polygonMapper SetInput [polygon GetOutput]
+polygonMapper SetInputConnection [polygon GetOutputPort]
 
 vtkActor polygonActor
 polygonActor SetMapper polygonMapper

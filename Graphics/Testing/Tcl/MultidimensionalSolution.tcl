@@ -46,16 +46,16 @@ vtkPLOT3DReader pl3d_velocity
 
 # contour the scalar fields
 vtkContourFilter contour
-contour SetInput [pl3d_gradient GetOutput]
+contour SetInputConnection [pl3d_gradient GetOutputPort]
 contour SetValue 0 0.225
 
 # probe the vector fields to get data at the contour surface
 vtkProbeFilter probe_gradient
-probe_gradient SetInput [contour GetOutput]
+probe_gradient SetInputConnection [contour GetOutputPort]
 probe_gradient SetSource [pl3d_gradient GetOutput]
 
 vtkProbeFilter probe_velocity
-probe_velocity SetInput [contour GetOutput]
+probe_velocity SetInputConnection [contour GetOutputPort]
 probe_velocity SetSource [pl3d_velocity GetOutput]
 
 
@@ -63,11 +63,11 @@ probe_velocity SetSource [pl3d_velocity GetOutput]
 # To display the vector fields, we use vtkHedgeHog to create lines.
 #
 vtkHedgeHog velocity
-velocity SetInput [probe_velocity GetOutput]
+velocity SetInputConnection [probe_velocity GetOutputPort]
 velocity SetScaleFactor 0.0015
 
 vtkHedgeHog pressureGradient
-pressureGradient SetInput [probe_gradient GetOutput]
+pressureGradient SetInputConnection [probe_gradient GetOutputPort]
 pressureGradient SetScaleFactor 0.00002
 
 #
@@ -77,7 +77,7 @@ pressureGradient SetScaleFactor 0.00002
 #
 #
 vtkProgrammableAttributeDataFilter dotProduct
-dotProduct SetInput [probe_velocity GetOutput]
+dotProduct SetInputConnection [probe_velocity GetOutputPort]
 dotProduct AddInput [probe_velocity GetOutput]
 dotProduct AddInput [probe_gradient GetOutput]
 dotProduct SetExecuteMethod ExecuteDot
@@ -138,7 +138,7 @@ proc ExecuteDot {} {
 # setting up the mapper for the ProgrammableAttributeDataFilter
 #
 vtkPolyDataMapper velocityMapper
-    velocityMapper SetInput [velocity GetOutput]
+    velocityMapper SetInputConnection [velocity GetOutputPort]
     velocityMapper ScalarVisibilityOff
 
 vtkLODActor velocityActor
@@ -147,7 +147,7 @@ vtkLODActor velocityActor
     eval [velocityActor GetProperty] SetColor 1 0 0 
 
 vtkPolyDataMapper pressureGradientMapper
-    pressureGradientMapper SetInput [pressureGradient GetOutput]
+    pressureGradientMapper SetInputConnection [pressureGradient GetOutputPort]
     pressureGradientMapper ScalarVisibilityOff
 
 vtkLODActor pressureGradientActor
@@ -170,9 +170,9 @@ vtkPLOT3DReader pl3d
     pl3d SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
 
 vtkStructuredGridOutlineFilter outline
-    outline SetInput [pl3d GetOutput]
+    outline SetInputConnection [pl3d GetOutputPort]
 vtkPolyDataMapper outlineMapper
-    outlineMapper SetInput [outline GetOutput]
+    outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
     [outlineActor GetProperty] SetColor 0 0 0 

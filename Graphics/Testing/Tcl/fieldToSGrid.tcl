@@ -21,7 +21,7 @@ vtkPLOT3DReader comb
     comb SetScalarFunctionNumber 100
 
 vtkStructuredGridWriter wsg
-  wsg SetInput [comb GetOutput] 
+  wsg SetInputConnection [comb GetOutputPort] 
   wsg SetFileTypeToBinary
   wsg SetFileName "combsg.vtk"
   wsg Write
@@ -30,10 +30,10 @@ vtkStructuredGridReader pl3d
   pl3d SetFileName "combsg.vtk"
 
 vtkDataSetToDataObjectFilter ds2do
-    ds2do SetInput [pl3d GetOutput]
+    ds2do SetInputConnection [pl3d GetOutputPort]
 
 vtkDataObjectWriter writer
-    writer SetInput [ds2do GetOutput]
+    writer SetInputConnection [ds2do GetOutputPort]
     writer SetFileName "SGridField.vtk"
     writer Write
 
@@ -41,7 +41,7 @@ vtkDataObjectWriter writer
 vtkDataObjectReader dor
     dor SetFileName "SGridField.vtk"
 vtkDataObjectToDataSetFilter do2ds
-    do2ds SetInput [dor GetOutput]
+    do2ds SetInputConnection [dor GetOutputPort]
     do2ds SetDataSetTypeToStructuredGrid
     do2ds SetDimensionsComponent Dimensions 0 
     do2ds SetPointComponent 0 Points 0 
@@ -59,13 +59,13 @@ vtkFieldDataToAttributeDataFilter fd2ad
 # create pipeline
 #
 vtkContourFilter iso
-    iso SetInput [fd2ad GetOutput]
+    iso SetInputConnection [fd2ad GetOutputPort]
     iso SetValue 0 .38
 vtkPolyDataNormals normals
-    normals SetInput [iso GetOutput]
+    normals SetInputConnection [iso GetOutputPort]
     normals SetFeatureAngle 45
 vtkPolyDataMapper isoMapper
-    isoMapper SetInput [normals GetOutput]
+    isoMapper SetInputConnection [normals GetOutputPort]
     isoMapper ScalarVisibilityOff
 vtkActor isoActor
     isoActor SetMapper isoMapper
@@ -74,7 +74,7 @@ vtkActor isoActor
 vtkStructuredGridOutlineFilter outline
     outline SetInput [fd2ad GetStructuredGridOutput]
 vtkPolyDataMapper outlineMapper
-    outlineMapper SetInput [outline GetOutput]
+    outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
 

@@ -13,7 +13,7 @@ vtkSphereSource sphere
     sphere SetThetaResolution 11
 
 vtkElevationFilter colorIt
-  colorIt SetInput [sphere GetOutput]
+  colorIt SetInputConnection [sphere GetOutputPort]
   colorIt SetLowPoint 0 0 -.5
   colorIt SetHighPoint 0 0 .5
 
@@ -26,7 +26,7 @@ vtkLookupTable lut
   lut Build
 
 vtkPolyDataMapper mapper
-  mapper SetInput [butterfly GetOutput] 
+  mapper SetInputConnection [butterfly GetOutputPort] 
   mapper SetLookupTable lut
 
 vtkActor actor
@@ -37,14 +37,14 @@ vtkLinearSubdivisionFilter linear
   linear SetNumberOfSubdivisions 3
 
 vtkPolyDataMapper mapper2
-  mapper2 SetInput [linear GetOutput] 
+  mapper2 SetInputConnection [linear GetOutputPort] 
   mapper2 SetLookupTable lut
 
 vtkActor actor2
   actor2 SetMapper mapper2
 
 vtkPolyDataMapper mapper3
-  mapper3 SetInput [colorIt GetOutput] 
+  mapper3 SetInputConnection [colorIt GetOutputPort] 
   mapper3 SetLookupTable lut
 
 vtkActor actor3

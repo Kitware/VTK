@@ -21,13 +21,13 @@ vtkSphereSource aSphere
     aSphere SetPhiResolution 20
 
 vtkTriangularTCoords tCoords
-    tCoords SetInput [aSphere GetOutput]
+    tCoords SetInputConnection [aSphere GetOutputPort]
 
 vtkPolyDataMapper triangleMapper
-    triangleMapper SetInput [tCoords GetOutput]
+    triangleMapper SetInputConnection [tCoords GetOutputPort]
 
 vtkTexture aTexture
-    aTexture SetInput [aTriangularTexture GetOutput]
+    aTexture SetInputConnection [aTriangularTexture GetOutputPort]
     aTexture InterpolateOn
 
 set banana "0.8900 0.8100 0.3400"
@@ -44,7 +44,7 @@ vtkCubeSource aCube
     aCube SetYLength .5
 
 vtkPolyDataMapper aCubeMapper
-    aCubeMapper SetInput [aCube GetOutput]
+    aCubeMapper SetInputConnection [aCube GetOutputPort]
 
 set tomato "1.0000 0.3882 0.2784"
 vtkActor cubeActor

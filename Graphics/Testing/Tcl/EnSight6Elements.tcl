@@ -14,10 +14,10 @@ vtkGenericEnSightReader reader
     reader Update
 
 vtkGeometryFilter geom
-    geom SetInput [reader GetOutput]
+    geom SetInputConnection [reader GetOutputPort]
 
 vtkArrayCalculator calc
-    calc SetInput [geom GetOutput]
+    calc SetInputConnection [geom GetOutputPort]
     calc SetAttributeModeToUsePointData
     calc SetFunction "pointCVectors_r . pointCVectors_i + pointScalars"
     calc AddScalarArrayName pointScalars 0
@@ -26,7 +26,7 @@ vtkArrayCalculator calc
     calc SetResultArrayName test
 
 vtkPolyDataMapper mapper
-    mapper SetInput [calc GetOutput]
+    mapper SetInputConnection [calc GetOutputPort]
     mapper SetColorModeToMapScalars
     mapper SetScalarModeToUsePointFieldData
     mapper ColorByArrayComponent test 0

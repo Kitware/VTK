@@ -14,7 +14,7 @@ vtkSampleFunction sample
 
 # Extract cells that contains isosurface of interest
 vtkConnectivityFilter conn
-  conn SetInput [sample GetOutput]
+  conn SetInputConnection [sample GetOutputPort]
   conn ScalarConnectivityOn
   conn SetScalarRange 0.6 0.6
   conn SetExtractionModeToCellSeededRegions
@@ -22,13 +22,13 @@ vtkConnectivityFilter conn
 
 # Create a surface 
 vtkContourFilter contours
-  contours SetInput [conn GetOutput]
-#  contours SetInput [sample GetOutput]
+  contours SetInputConnection [conn GetOutputPort]
+#  contours SetInputConnection [sample GetOutputPort]
   contours GenerateValues 5 0.0 1.2
 
 vtkDataSetMapper contMapper
-#  contMapper SetInput [contours GetOutput]
-  contMapper SetInput [conn GetOutput]
+#  contMapper SetInputConnection [contours GetOutputPort]
+  contMapper SetInputConnection [conn GetOutputPort]
   contMapper SetScalarRange 0.0 1.2
 
 vtkActor contActor
@@ -36,10 +36,10 @@ vtkActor contActor
 
 # Create outline
 vtkOutlineFilter outline
-  outline SetInput [sample GetOutput]
+  outline SetInputConnection [sample GetOutputPort]
 
 vtkPolyDataMapper outlineMapper
-  outlineMapper SetInput [outline GetOutput]
+  outlineMapper SetInputConnection [outline GetOutputPort]
 
 vtkActor outlineActor
   outlineActor SetMapper outlineMapper

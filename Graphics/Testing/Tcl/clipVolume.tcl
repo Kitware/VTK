@@ -16,12 +16,12 @@ vtkSampleFunction sample
     
 # Generate tetrahedral mesh
 vtkClipVolume clip
-  clip SetInput [sample GetOutput]
+  clip SetInputConnection [sample GetOutputPort]
   clip SetValue 1.0
   clip GenerateClippedOutputOff
 
 vtkDataSetMapper clipMapper
-  clipMapper SetInput [clip GetOutput]
+  clipMapper SetInputConnection [clip GetOutputPort]
   clipMapper ScalarVisibilityOff
 
 vtkActor clipActor
@@ -33,7 +33,7 @@ vtkOutlineFilter outline
   outline SetInput [clip GetInput]
 
 vtkPolyDataMapper outlineMapper
-  outlineMapper SetInput [outline GetOutput]
+  outlineMapper SetInputConnection [outline GetOutputPort]
 
 vtkActor outlineActor
   outlineActor SetMapper outlineMapper

@@ -14,11 +14,11 @@ foo RotateZ 27
 foo Scale 1 .7 .3
 
 vtkTransformPolyDataFilter transPD
-transPD SetInput [cylinder GetOutput]
+transPD SetInputConnection [cylinder GetOutputPort]
 transPD SetTransform foo
 
 vtkPolyDataMapper dataMapper
-  dataMapper SetInput [transPD GetOutput]
+  dataMapper SetInputConnection [transPD GetOutputPort]
 vtkActor model
   model SetMapper dataMapper
   [model GetProperty] SetColor 1 0 0
@@ -30,12 +30,12 @@ vtkOBBTree obb
   obb AutomaticOff
 
 vtkSpatialRepresentationFilter boxes
-  boxes SetInput [transPD GetOutput]
+  boxes SetInputConnection [transPD GetOutputPort]
   boxes SetSpatialRepresentation obb
 vtkExtractEdges boxEdges
   boxEdges SetInput [ boxes GetOutput ]
 vtkPolyDataMapper boxMapper
-  boxMapper SetInput [boxEdges GetOutput]
+  boxMapper SetInputConnection [boxEdges GetOutputPort]
   boxMapper SetResolveCoincidentTopology 1
 vtkActor boxActor
   boxActor SetMapper boxMapper

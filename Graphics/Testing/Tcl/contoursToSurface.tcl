@@ -132,7 +132,7 @@ f SetInput contours
 f SetMemoryLimitInBytes 100000
 
 vtkPolyDataMapper m
-m SetInput [f GetOutput]
+m SetInputConnection [f GetOutputPort]
 m ScalarVisibilityOff
 m ImmediateModeRenderingOn
 

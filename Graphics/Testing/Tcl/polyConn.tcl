@@ -20,14 +20,14 @@ vtkPLOT3DReader pl3d
 
 # planes to connect
 vtkStructuredGridGeometryFilter plane1
-    plane1 SetInput [pl3d GetOutput]
+    plane1 SetInputConnection [pl3d GetOutputPort]
     plane1 SetExtent 20 20 0 100 0 100
 vtkPolyDataConnectivityFilter conn
-    conn SetInput [plane1 GetOutput]
+    conn SetInputConnection [plane1 GetOutputPort]
     conn ScalarConnectivityOn
     conn SetScalarRange 0.19 0.25
 vtkPolyDataMapper plane1Map
-    plane1Map SetInput [conn GetOutput]
+    plane1Map SetInputConnection [conn GetOutputPort]
     eval plane1Map SetScalarRange [[pl3d GetOutput] GetScalarRange]
 vtkActor plane1Actor
     plane1Actor SetMapper plane1Map
@@ -35,9 +35,9 @@ vtkActor plane1Actor
 
 # outline
 vtkStructuredGridOutlineFilter outline
-    outline SetInput [pl3d GetOutput]
+    outline SetInputConnection [pl3d GetOutputPort]
 vtkPolyDataMapper outlineMapper
-    outlineMapper SetInput [outline GetOutput]
+    outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
     set outlineProp [outlineActor GetProperty]

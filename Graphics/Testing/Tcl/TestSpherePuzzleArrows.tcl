@@ -14,13 +14,13 @@ vtkRenderer ren1
 
 vtkSpherePuzzle puzzle
 vtkPolyDataMapper mapper
-   mapper SetInput [puzzle GetOutput]
+   mapper SetInputConnection [puzzle GetOutputPort]
 vtkActor actor
     actor SetMapper mapper
 
 vtkSpherePuzzleArrows arrows
 vtkPolyDataMapper mapper2
-   mapper2 SetInput [arrows GetOutput]
+   mapper2 SetInputConnection [arrows GetOutputPort]
 vtkActor actor2
     actor2 SetMapper mapper2
 

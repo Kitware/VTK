@@ -22,7 +22,7 @@ vtkPointLoad ptLoad
 
 # extract plane of data
 vtkImageDataGeometryFilter plane
-    plane SetInput [ptLoad GetOutput]
+    plane SetInputConnection [ptLoad GetOutputPort]
     plane SetExtent 2 2 0 99 0 99
 
 # Generate ellipsoids
@@ -30,19 +30,19 @@ vtkSphereSource sphere
     sphere SetThetaResolution 8
     sphere SetPhiResolution 8
 vtkTensorGlyph ellipsoids
-    ellipsoids SetInput [ptLoad GetOutput]
+    ellipsoids SetInputConnection [ptLoad GetOutputPort]
     ellipsoids SetSource [sphere GetOutput]
     ellipsoids SetScaleFactor 10
     ellipsoids ClampScalingOn
   
 vtkPolyDataNormals ellipNormals
-  ellipNormals SetInput [ellipsoids GetOutput]
+  ellipNormals SetInputConnection [ellipsoids GetOutputPort]
 
 # Map contour
 vtkLogLookupTable lut
     lut SetHueRange .6667 0.0
 vtkPolyDataMapper ellipMapper
-    ellipMapper SetInput [ellipNormals GetOutput]
+    ellipMapper SetInputConnection [ellipNormals GetOutputPort]
     ellipMapper SetLookupTable lut
     plane Update;#force update for scalar range
     eval ellipMapper SetScalarRange [[plane GetOutput] GetScalarRange]
@@ -53,10 +53,10 @@ vtkActor ellipActor
 # Create outline around data
 #
 vtkOutlineFilter outline
-    outline SetInput [ptLoad GetOutput]
+    outline SetInputConnection [ptLoad GetOutputPort]
 
 vtkPolyDataMapper outlineMapper
-    outlineMapper SetInput [outline GetOutput]
+    outlineMapper SetInputConnection [outline GetOutputPort]
 
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
@@ -69,7 +69,7 @@ vtkConeSource coneSrc
     coneSrc  SetRadius .5
     coneSrc  SetHeight 2
 vtkPolyDataMapper coneMap
-    coneMap SetInput [coneSrc GetOutput]
+    coneMap SetInputConnection [coneSrc GetOutputPort]
 vtkActor coneActor
     coneActor SetMapper coneMap;    
     coneActor SetPosition 0 0 11

@@ -14,9 +14,9 @@ reader SetFileName "$VTK_DATA_ROOT/Data/office.binary.vtk"
 reader Update;#force a read to occur
 
 vtkStructuredGridOutlineFilter outline
-outline SetInput [reader GetOutput]
+outline SetInputConnection [reader GetOutputPort]
 vtkPolyDataMapper mapOutline
-mapOutline SetInput [outline GetOutput]
+mapOutline SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
 outlineActor SetMapper mapOutline
 [outlineActor GetProperty] SetColor 0 0 0
@@ -25,7 +25,7 @@ vtkRungeKutta45 rk
 
 # Create source for streamtubes
 vtkStreamTracer streamer
-streamer SetInput [reader GetOutput]
+streamer SetInputConnection [reader GetOutputPort]
 streamer SetStartPosition 0.1 2.1 0.5
 streamer SetMaximumPropagation 0 500
 streamer SetMinimumIntegrationStep 1 0.1
@@ -37,16 +37,16 @@ streamer SetRotationScale 0.5
 streamer SetMaximumError 1.0E-8
 
 vtkAssignAttribute aa
-aa SetInput [streamer GetOutput]
+aa SetInputConnection [streamer GetOutputPort]
 aa Assign Normals NORMALS POINT_DATA
 
 vtkRibbonFilter rf1
-rf1 SetInput [aa GetOutput]
+rf1 SetInputConnection [aa GetOutputPort]
 rf1 SetWidth 0.1
 rf1 VaryWidthOff
 
 vtkPolyDataMapper mapStream
-mapStream SetInput [rf1 GetOutput]
+mapStream SetInputConnection [rf1 GetOutputPort]
 eval mapStream SetScalarRange [[reader GetOutput] GetScalarRange]
 vtkActor streamActor
 streamActor SetMapper mapStream

@@ -47,13 +47,13 @@ vtkPolyData polys
   polys SetPolys tris
 
 vtkQuadricClustering mesh
-  mesh SetInput [sphere GetOutput]
+  mesh SetInputConnection [sphere GetOutputPort]
   mesh SetNumberOfXDivisions 10
   mesh SetNumberOfYDivisions 10
   mesh SetNumberOfZDivisions 10
 
 vtkPolyDataMapper mapper
-  mapper SetInput [mesh GetOutput]
+  mapper SetInputConnection [mesh GetOutputPort]
 vtkActor actor
   actor SetMapper mapper
 eval [actor GetProperty] SetDiffuseColor $tomato

@@ -22,20 +22,20 @@ vtkPolyDataReader reader
 vtkMath math
 for {set i 0} {$i < 51} {incr i} {
     vtkGeometryFilter extractCell$i
-	extractCell$i SetInput [reader GetOutput]
+	extractCell$i SetInputConnection [reader GetOutputPort]
         extractCell$i CellClippingOn
         extractCell$i SetCellMinimum $i
         extractCell$i SetCellMaximum $i
     vtkTriangleFilter tf$i
-	tf$i SetInput [extractCell$i GetOutput]
+	tf$i SetInputConnection [extractCell$i GetOutputPort]
     vtkLinearExtrusionFilter extrude$i
-	extrude$i SetInput [tf$i GetOutput]
+	extrude$i SetInputConnection [tf$i GetOutputPort]
 	extrude$i SetExtrusionType 1
 	extrude$i SetVector 0 0 1
 	extrude$i CappingOn
 	extrude$i SetScaleFactor [math Random 1 10]
     vtkPolyDataMapper mapper$i
-	mapper$i SetInput [extrude$i GetOutput]
+	mapper$i SetInputConnection [extrude$i GetOutputPort]
     vtkActor actor$i
 	actor$i SetMapper mapper$i
 	[actor$i GetProperty] SetColor [math Random 0 1] \

@@ -20,26 +20,26 @@ vtkPlaneSource plane
 vtkCylindricalTransform transform
 
 vtkTransformPolyDataFilter tpoly
-    tpoly SetInput [plane GetOutput]
+    tpoly SetInputConnection [plane GetOutputPort]
     tpoly SetTransform transform
 
 vtkTransformPolyDataFilter tpoly2
-    tpoly2 SetInput [tpoly GetOutput]
+    tpoly2 SetInputConnection [tpoly GetOutputPort]
     tpoly2 SetTransform [transform GetInverse]
 
 # also cover the inverse transformation by going back and forth
 vtkTransformPolyDataFilter tpoly3
-    tpoly3 SetInput [tpoly2 GetOutput]
+    tpoly3 SetInputConnection [tpoly2 GetOutputPort]
     tpoly3 SetTransform transform
 
 vtkDataSetMapper mapper
-    mapper SetInput [tpoly3 GetOutput]
+    mapper SetInputConnection [tpoly3 GetOutputPort]
 
 vtkPNMReader earth
     earth SetFileName "$VTK_DATA_ROOT/Data/earth.ppm"
 
 vtkTexture texture
-    texture SetInput [earth GetOutput]
+    texture SetInputConnection [earth GetOutputPort]
     texture InterpolateOn
 
 vtkActor world

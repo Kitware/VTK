@@ -4,19 +4,19 @@ package require vtkinteraction
 vtkConeSource cone
 
 vtkReflectionFilter reflect
-reflect SetInput [cone GetOutput]
+reflect SetInputConnection [cone GetOutputPort]
 reflect SetPlaneToXMax
 
 vtkReflectionFilter reflect2
-reflect2 SetInput [reflect GetOutput]
+reflect2 SetInputConnection [reflect GetOutputPort]
 reflect2 SetPlaneToYMax
 
 vtkReflectionFilter reflect3
-reflect3 SetInput [reflect2 GetOutput]
+reflect3 SetInputConnection [reflect2 GetOutputPort]
 reflect3 SetPlaneToZMax
 
 vtkDataSetMapper mapper
-mapper SetInput [reflect3 GetOutput]
+mapper SetInputConnection [reflect3 GetOutputPort]
 
 vtkActor actor
 actor SetMapper mapper

@@ -27,18 +27,18 @@ proc NotUsed {} {
   # This filter actually spoils the example because it asks for the whole input.
   # The only reason it is here is because sphere complains it cannot generate ghost cells.
   vtkExtractPolyDataPiece piece
-    piece SetInput [sphere GetOutput]
+    piece SetInputConnection [sphere GetOutputPort]
     # purposely put seams in here.
     piece CreateGhostCellsOff
 
   # purposely put seams in here.
   vtkPolyDataNormals pdn
-    pdn SetInput [piece GetOutput]
+    pdn SetInputConnection [piece GetOutputPort]
 }
 
 # Just playing with an alternative that is not currently used.
 vtkDecimatePro deci
-  deci SetInput [sphere GetOutput]
+  deci SetInputConnection [sphere GetOutputPort]
   # this did not remove seams as I thought it would
   deci BoundaryVertexDeletionOff
   #deci PreserveTopologyOn
@@ -46,22 +46,22 @@ vtkDecimatePro deci
 # Since quadric Clustering does not handle borders properly yet,
 # the pieces will have dramatic "eams"
 vtkQuadricClustering q
-  q SetInput [sphere GetOutput]
+  q SetInputConnection [sphere GetOutputPort]
   q SetNumberOfXDivisions 5
   q SetNumberOfYDivisions 5
   q SetNumberOfZDivisions 10
   q UseInputPointsOn
 
 vtkPolyDataStreamer streamer
-  #streamer SetInput [deci GetOutput]
-  streamer SetInput [q GetOutput]
-  #streamer SetInput [pdn GetOutput]
+  #streamer SetInputConnection [deci GetOutputPort]
+  streamer SetInputConnection [q GetOutputPort]
+  #streamer SetInputConnection [pdn GetOutputPort]
   streamer SetNumberOfStreamDivisions $NUMBER_OF_PIECES
 
 
 
 vtkPolyDataMapper mapper
-  mapper SetInput [streamer GetOutput]
+  mapper SetInputConnection [streamer GetOutputPort]
   mapper ScalarVisibilityOff
   mapper SetPiece 0
   mapper SetNumberOfPieces 2

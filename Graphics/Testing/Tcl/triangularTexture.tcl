@@ -57,7 +57,7 @@ vtkPolyDataMapper triangleMapper
     triangleMapper SetInput triangle
 
 vtkTexture aTexture
-    aTexture SetInput [aTriangularTexture GetOutput]
+    aTexture SetInputConnection [aTriangularTexture GetOutputPort]
 
 vtkActor triangleActor
     triangleActor SetMapper triangleMapper

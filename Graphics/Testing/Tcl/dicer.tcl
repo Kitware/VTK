@@ -15,20 +15,20 @@ vtkRenderWindowInteractor iren
 vtkSTLReader reader
     reader SetFileName $VTK_DATA_ROOT/Data/42400-IDGH.stl
 vtkOBBDicer dicer
-    dicer SetInput [reader GetOutput]
+    dicer SetInputConnection [reader GetOutputPort]
     dicer SetNumberOfPointsPerPiece 1000
     dicer Update
 vtkDataSetMapper isoMapper
-    isoMapper SetInput [dicer GetOutput]
+    isoMapper SetInputConnection [dicer GetOutputPort]
     isoMapper SetScalarRange 0 [dicer GetNumberOfActualPieces]
 vtkActor isoActor
     isoActor SetMapper isoMapper
     eval [isoActor GetProperty] SetColor 0.7 0.3 0.3
 
 vtkOutlineCornerFilter outline
-    outline SetInput [reader GetOutput]
+    outline SetInputConnection [reader GetOutputPort]
 vtkPolyDataMapper outlineMapper
-    outlineMapper SetInput [outline GetOutput]
+    outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
     [outlineActor GetProperty] SetColor 0 0 0

@@ -8,7 +8,7 @@ cone SetResolution 256
 cone SetCenter 0.15 0.0 0.15
 
 vtkRotationFilter rotate
-rotate SetInput [cone GetOutput]
+rotate SetInputConnection [cone GetOutputPort]
 rotate SetAxisToZ
 rotate SetCenter 0.0 0.0 0.0
 rotate SetAngle 45
@@ -16,7 +16,7 @@ rotate SetNumberOfCopies 7
 rotate CopyInputOn
 
 vtkDataSetMapper mapper
-mapper SetInput [rotate GetOutput]
+mapper SetInputConnection [rotate GetOutputPort]
 
 vtkActor actor
 actor SetMapper mapper

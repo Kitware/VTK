@@ -15,19 +15,19 @@ vtkVolume16Reader v16
 
 # do the pixel clipping
 vtkClipDataSet clip
-  clip SetInput [v16 GetOutput]
+  clip SetInputConnection [v16 GetOutputPort]
   clip SetValue 1000
 vtkDataSetMapper clipMapper
-  clipMapper SetInput [clip GetOutput]
+  clipMapper SetInputConnection [clip GetOutputPort]
   clipMapper ScalarVisibilityOff
 vtkActor clipActor
   clipActor SetMapper clipMapper
 
 # put an outline around the data
 vtkOutlineFilter outline
-  outline SetInput [v16 GetOutput]
+  outline SetInputConnection [v16 GetOutputPort]
 vtkPolyDataMapper outlineMapper
-  outlineMapper SetInput [outline GetOutput]
+  outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
   outlineActor SetMapper outlineMapper
   outlineActor VisibilityOff

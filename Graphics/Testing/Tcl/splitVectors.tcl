@@ -19,7 +19,7 @@ vtkPLOT3DReader pl3d
     pl3d Update
 
 vtkSplitField sf
-    sf SetInput [pl3d GetOutput]
+    sf SetInputConnection [pl3d GetOutputPort]
     sf SetInputField VECTORS POINT_DATA
     sf Split 0 "vx"
     sf Split 1 "vy"
@@ -28,16 +28,16 @@ vtkSplitField sf
 sf Print
 
 vtkAssignAttribute aax
-   aax SetInput [sf GetOutput]
+   aax SetInputConnection [sf GetOutputPort]
    aax Assign vx SCALARS POINT_DATA
 vtkContourFilter isoVx
-    isoVx SetInput [aax GetOutput]
+    isoVx SetInputConnection [aax GetOutputPort]
     isoVx SetValue 0 .38
 vtkPolyDataNormals normalsVx
-    normalsVx SetInput [isoVx GetOutput]
+    normalsVx SetInputConnection [isoVx GetOutputPort]
     normalsVx SetFeatureAngle 45
 vtkPolyDataMapper isoVxMapper
-    isoVxMapper SetInput [normalsVx GetOutput]
+    isoVxMapper SetInputConnection [normalsVx GetOutputPort]
     isoVxMapper ScalarVisibilityOff
     isoVxMapper ImmediateModeRenderingOn
 vtkActor isoVxActor
@@ -45,16 +45,16 @@ vtkActor isoVxActor
     eval [isoVxActor GetProperty] SetColor 1 0.7 0.6
 
 vtkAssignAttribute aay
-   aay SetInput [sf GetOutput]
+   aay SetInputConnection [sf GetOutputPort]
    aay Assign vy SCALARS POINT_DATA
 vtkContourFilter isoVy
-    isoVy SetInput [aay GetOutput]
+    isoVy SetInputConnection [aay GetOutputPort]
     isoVy SetValue 0 .38
 vtkPolyDataNormals normalsVy
-    normalsVy SetInput [isoVy GetOutput]
+    normalsVy SetInputConnection [isoVy GetOutputPort]
     normalsVy SetFeatureAngle 45
 vtkPolyDataMapper isoVyMapper
-    isoVyMapper SetInput [normalsVy GetOutput]
+    isoVyMapper SetInputConnection [normalsVy GetOutputPort]
     isoVyMapper ScalarVisibilityOff
     isoVyMapper ImmediateModeRenderingOn
 vtkActor isoVyActor
@@ -62,16 +62,16 @@ vtkActor isoVyActor
     eval [isoVyActor GetProperty] SetColor 0.7 1 0.6
 
 vtkAssignAttribute aaz
-   aaz SetInput [sf GetOutput]
+   aaz SetInputConnection [sf GetOutputPort]
    aaz Assign vz SCALARS POINT_DATA
 vtkContourFilter isoVz
-    isoVz SetInput [aaz GetOutput]
+    isoVz SetInputConnection [aaz GetOutputPort]
     isoVz SetValue 0 .38
 vtkPolyDataNormals normalsVz
-    normalsVz SetInput [isoVz GetOutput]
+    normalsVz SetInputConnection [isoVz GetOutputPort]
     normalsVz SetFeatureAngle 45
 vtkPolyDataMapper isoVzMapper
-    isoVzMapper SetInput [normalsVz GetOutput]
+    isoVzMapper SetInputConnection [normalsVz GetOutputPort]
     isoVzMapper ScalarVisibilityOff
     isoVzMapper ImmediateModeRenderingOn
 vtkActor isoVzActor
@@ -79,7 +79,7 @@ vtkActor isoVzActor
     eval [isoVzActor GetProperty] SetColor 0.4 0.5 1
 
 vtkMergeFields mf
-   mf SetInput [sf GetOutput]
+   mf SetInputConnection [sf GetOutputPort]
    mf SetOutputField merged POINT_DATA
    mf SetNumberOfComponents 3
    mf Merge 0 vy 0
@@ -89,32 +89,32 @@ vtkMergeFields mf
 mf Print
 
 vtkAssignAttribute aa
-   aa SetInput [mf GetOutput]
+   aa SetInputConnection [mf GetOutputPort]
    aa Assign merged SCALARS POINT_DATA
 vtkAssignAttribute aa2
-   aa2 SetInput [aa GetOutput]
+   aa2 SetInputConnection [aa GetOutputPort]
    aa2 Assign SCALARS VECTORS POINT_DATA
 vtkStreamLine sl
-   sl SetInput [aa2 GetOutput]
+   sl SetInputConnection [aa2 GetOutputPort]
    sl SetStartPosition 2 -2 26
    sl SetMaximumPropagationTime 40
    sl SetIntegrationStepLength 0.2
    sl SetIntegrationDirectionToForward
    sl SetStepLength 0.001
 vtkRibbonFilter rf
-   rf SetInput [sl GetOutput]
+   rf SetInputConnection [sl GetOutputPort]
    rf SetWidth 1.0
    rf SetWidthFactor 5
 vtkPolyDataMapper slMapper
-    slMapper SetInput [rf GetOutput]
+    slMapper SetInputConnection [rf GetOutputPort]
     slMapper ImmediateModeRenderingOn
 vtkActor slActor
     slActor SetMapper slMapper
 
 vtkStructuredGridOutlineFilter outline
-    outline SetInput [pl3d GetOutput]
+    outline SetInputConnection [pl3d GetOutputPort]
 vtkPolyDataMapper outlineMapper
-    outlineMapper SetInput [outline GetOutput]
+    outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
 

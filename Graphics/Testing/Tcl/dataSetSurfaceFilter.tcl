@@ -11,17 +11,17 @@ vtkPLOT3DReader pl3d
     pl3d Update
 
 vtkDataSetSurfaceFilter gf
-    gf SetInput [pl3d GetOutput]
+    gf SetInputConnection [pl3d GetOutputPort]
 vtkPolyDataMapper gMapper
-    gMapper SetInput [gf GetOutput]
+    gMapper SetInputConnection [gf GetOutputPort]
     eval gMapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
 vtkActor gActor
     gActor SetMapper gMapper
 vtkDataSetSurfaceFilter gf2
-    gf2 SetInput [pl3d GetOutput]
+    gf2 SetInputConnection [pl3d GetOutputPort]
     gf2 UseStripsOn
 vtkPolyDataMapper g2Mapper
-    g2Mapper SetInput [gf2 GetOutput]
+    g2Mapper SetInputConnection [gf2 GetOutputPort]
     eval g2Mapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
 vtkActor g2Actor
     g2Actor SetMapper g2Mapper
@@ -30,18 +30,18 @@ vtkActor g2Actor
 # create pipeline - poly data
 #
 vtkDataSetSurfaceFilter gf3
-    gf3 SetInput [gf GetOutput]
+    gf3 SetInputConnection [gf GetOutputPort]
 vtkPolyDataMapper g3Mapper
-    g3Mapper SetInput [gf3 GetOutput]
+    g3Mapper SetInputConnection [gf3 GetOutputPort]
     eval g3Mapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
 vtkActor g3Actor
     g3Actor SetMapper g3Mapper
     g3Actor AddPosition 0 0 15
 vtkDataSetSurfaceFilter gf4
-    gf4 SetInput [gf2 GetOutput]
+    gf4 SetInputConnection [gf2 GetOutputPort]
     gf4 UseStripsOn
 vtkPolyDataMapper g4Mapper
-    g4Mapper SetInput [gf4 GetOutput]
+    g4Mapper SetInputConnection [gf4 GetOutputPort]
     eval g4Mapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
 vtkActor g4Actor
     g4Actor SetMapper g4Mapper
@@ -53,21 +53,21 @@ vtkSphere s
     eval s SetCenter [[pl3d GetOutput] GetCenter]
     s SetRadius 100.0; #everything
 vtkExtractGeometry eg
-    eg SetInput [pl3d GetOutput]
+    eg SetInputConnection [pl3d GetOutputPort]
     eg SetImplicitFunction s
 vtkDataSetSurfaceFilter gf5
-    gf5 SetInput [eg GetOutput]
+    gf5 SetInputConnection [eg GetOutputPort]
 vtkPolyDataMapper g5Mapper
-    g5Mapper SetInput [gf5 GetOutput]
+    g5Mapper SetInputConnection [gf5 GetOutputPort]
     eval g5Mapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
 vtkActor g5Actor
     g5Actor SetMapper g5Mapper
     g5Actor AddPosition 0 0 30
 vtkDataSetSurfaceFilter gf6
-    gf6 SetInput [eg GetOutput]
+    gf6 SetInputConnection [eg GetOutputPort]
     gf6 UseStripsOn
 vtkPolyDataMapper g6Mapper
-    g6Mapper SetInput [gf6 GetOutput]
+    g6Mapper SetInputConnection [gf6 GetOutputPort]
     eval g6Mapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
 vtkActor g6Actor
     g6Actor SetMapper g6Mapper
@@ -79,18 +79,18 @@ vtkRectilinearGridReader rgridReader
     rgridReader SetFileName "$VTK_DATA_ROOT/Data/RectGrid2.vtk"
     rgridReader Update
 vtkDataSetSurfaceFilter gf7
-    gf7 SetInput [rgridReader GetOutput]
+    gf7 SetInputConnection [rgridReader GetOutputPort]
 vtkPolyDataMapper g7Mapper
-    g7Mapper SetInput [gf7 GetOutput]
+    g7Mapper SetInputConnection [gf7 GetOutputPort]
     eval g7Mapper SetScalarRange [[rgridReader GetOutput] GetScalarRange]
 vtkActor g7Actor
     g7Actor SetMapper g7Mapper
     g7Actor SetScale 3 3 3
 vtkDataSetSurfaceFilter gf8
-    gf8 SetInput [rgridReader GetOutput]
+    gf8 SetInputConnection [rgridReader GetOutputPort]
     gf8 UseStripsOn
 vtkPolyDataMapper g8Mapper
-    g8Mapper SetInput [gf8 GetOutput]
+    g8Mapper SetInputConnection [gf8 GetOutputPort]
     eval g8Mapper SetScalarRange [[rgridReader GetOutput] GetScalarRange]
 vtkActor g8Actor
     g8Actor SetMapper g8Mapper

@@ -6,27 +6,27 @@ package require vtkinteraction
 vtkRectilinearGridReader rgridReader
     rgridReader SetFileName "$VTK_DATA_ROOT/Data/RectGrid2.vtk"
 vtkOutlineFilter outline
-  outline SetInput [rgridReader GetOutput]
+  outline SetInputConnection [rgridReader GetOutputPort]
 vtkPolyDataMapper mapper
-  mapper SetInput [outline GetOutput]
+  mapper SetInputConnection [outline GetOutputPort]
 vtkActor actor
   actor SetMapper mapper
 
 rgridReader Update
 
 vtkExtractRectilinearGrid extract1
-   extract1 SetInput [rgridReader GetOutput]
+   extract1 SetInputConnection [rgridReader GetOutputPort]
    #extract1 SetVOI 0 46 0 32 0 10
    extract1 SetVOI 23 40 16 30 9 9
    extract1 SetSampleRate 2 2 1
    extract1 IncludeBoundaryOn
    extract1 Update
 vtkDataSetSurfaceFilter surf1
-    surf1 SetInput [extract1 GetOutput]
+    surf1 SetInputConnection [extract1 GetOutputPort]
 vtkTriangleFilter tris
-    tris SetInput [surf1 GetOutput]
+    tris SetInputConnection [surf1 GetOutputPort]
 vtkPolyDataMapper mapper1
-    mapper1 SetInput [tris GetOutput]
+    mapper1 SetInputConnection [tris GetOutputPort]
     eval mapper1 SetScalarRange [[extract1 GetOutput] GetScalarRange]
 vtkActor actor1
     actor1 SetMapper mapper1
@@ -44,7 +44,7 @@ if {[catch {set channel [open $dir/test.tmp w]}] == 0 } {
    file delete -force $dir/test.tmp
    
    vtkRectilinearGridWriter rectWriter
-   rectWriter SetInput [extract1 GetOutput]
+   rectWriter SetInputConnection [extract1 GetOutputPort]
    rectWriter SetFileName $dir/rect.tmp
    rectWriter Write   
    # delete the file

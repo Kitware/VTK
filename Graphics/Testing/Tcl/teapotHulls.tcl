@@ -12,7 +12,7 @@ vtkBYUReader byuReader
     byuReader SetGeometryFileName $VTK_DATA_ROOT/Data/teapot.g
 
 vtkPolyDataMapper   byuMapper
-    byuMapper SetInput [byuReader GetOutput]
+    byuMapper SetInputConnection [byuReader GetOutputPort]
 
 for { set i 0 } { $i < 9 } { incr i } {
     vtkActor byuActor${i}
@@ -20,10 +20,10 @@ for { set i 0 } { $i < 9 } { incr i } {
     ren1 AddActor byuActor${i}
 
     vtkHull hull${i}
-    hull${i} SetInput [byuReader GetOutput]
+    hull${i} SetInputConnection [byuReader GetOutputPort]
 
     vtkPolyDataMapper hullMapper${i}
-    hullMapper${i} SetInput [hull${i} GetOutput]
+    hullMapper${i} SetInputConnection [hull${i} GetOutputPort]
     
     vtkActor hullActor${i}
     hullActor${i} SetMapper hullMapper${i}

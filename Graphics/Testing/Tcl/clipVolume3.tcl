@@ -27,7 +27,7 @@ vtkImplicitWindowFunction window
 
 # Generate tetrahedral mesh
 vtkClipVolume clip
-  clip SetInput [sample GetOutput]
+  clip SetInputConnection [sample GetOutputPort]
   clip SetClipFunction window
   clip SetValue 0.0
   clip GenerateClippedOutputOff
@@ -35,10 +35,10 @@ vtkClipVolume clip
 
 vtkGeometryFilter gf
 #  gf SetInput [clip GetClippedOutput]
-  gf SetInput [clip GetOutput]
+  gf SetInputConnection [clip GetOutputPort]
 
 vtkPolyDataMapper clipMapper
-  clipMapper SetInput [gf GetOutput]
+  clipMapper SetInputConnection [gf GetOutputPort]
   clipMapper ScalarVisibilityOn
   eval clipMapper SetScalarRange 0 2
 
@@ -51,7 +51,7 @@ vtkOutlineFilter outline
   outline SetInput [clip GetInput]
 
 vtkPolyDataMapper outlineMapper
-  outlineMapper SetInput [outline GetOutput]
+  outlineMapper SetInputConnection [outline GetOutputPort]
 
 vtkActor outlineActor
   outlineActor SetMapper outlineMapper

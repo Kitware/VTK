@@ -8,9 +8,9 @@ vtkTransform t
   t Translate 1.1 0 0
 vtkTransformFilter tf
   tf SetTransform t
-  tf SetInput [disk GetOutput]
+  tf SetInputConnection [disk GetOutputPort]
 vtkStripper strips
-  strips SetInput [tf GetOutput]
+  strips SetInputConnection [tf GetOutputPort]
 
 vtkAppendPolyData app
   app AddInput [disk GetOutput]
@@ -42,7 +42,7 @@ for { set i 0 } { $i < [$model GetNumberOfCells] } { incr i } {
 # Lets test the arrow source instead of creating another test.
 vtkArrowSource arrow1
 vtkPolyDataMapper mapper1
-  mapper1 SetInput [arrow1 GetOutput]
+  mapper1 SetInputConnection [arrow1 GetOutputPort]
 vtkActor actor1 
   actor1 SetMapper mapper1 
   actor1 SetPosition 0 -0.2 1
@@ -51,7 +51,7 @@ vtkArrowSource arrow2
   arrow2 SetShaftResolution 2
   arrow2 SetTipResolution 1
 vtkPolyDataMapper mapper2
-  mapper2 SetInput [arrow2 GetOutput]
+  mapper2 SetInputConnection [arrow2 GetOutputPort]
 vtkActor actor2 
   actor2 SetMapper mapper2
   actor2 SetPosition 1 -0.2 1
@@ -69,7 +69,7 @@ vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
 vtkPolyDataMapper mapper
-   mapper SetInput [extrude GetOutput]
+   mapper SetInputConnection [extrude GetOutputPort]
 
 vtkActor actor
     actor SetMapper mapper

@@ -8,9 +8,9 @@ vtkRectilinearGridToTetrahedra FormMesh
   FormMesh SetInput 4 2 2 1 1 1 0.001
   FormMesh RememberVoxelIdOn
 vtkExtractEdges TetraEdges
-  TetraEdges SetInput [FormMesh GetOutput]
+  TetraEdges SetInputConnection [FormMesh GetOutputPort]
 vtkTubeFilter tubes
-  tubes SetInput [TetraEdges GetOutput]
+  tubes SetInputConnection [TetraEdges GetOutputPort]
   tubes SetRadius 0.05
   tubes SetNumberOfSides 6
 

@@ -18,12 +18,12 @@ vtkCylinder cylfunc
     cylfunc SetRadius 0.5
     cylfunc SetTransform t
 vtkExtractPolyDataGeometry extract
-    extract SetInput [sphere GetOutput]
+    extract SetInputConnection [sphere GetOutputPort]
     extract SetImplicitFunction cylfunc
     extract ExtractBoundaryCellsOn
 
 vtkPolyDataMapper  sphereMapper
-    sphereMapper SetInput [extract GetOutput]
+    sphereMapper SetInputConnection [extract GetOutputPort]
     sphereMapper GlobalImmediateModeRenderingOn
 
 vtkActor sphereActor

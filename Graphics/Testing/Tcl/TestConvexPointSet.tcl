@@ -44,12 +44,12 @@ vtkElevationFilter ele
 # Clip
 #
 vtkClipDataSet clip
-  clip SetInput [ele GetOutput]
+  clip SetInputConnection [ele GetOutputPort]
   clip SetValue 0.5
 vtkDataSetSurfaceFilter g
-  g SetInput [clip GetOutput]
+  g SetInputConnection [clip GetOutputPort]
 vtkPolyDataMapper map
-  map SetInput [g GetOutput]
+  map SetInputConnection [g GetOutputPort]
   map ScalarVisibilityOff
 vtkActor clipActor
   clipActor SetMapper map
@@ -59,12 +59,12 @@ vtkActor clipActor
 # Contour
 #
 vtkContourFilter contour
-  contour SetInput [ele GetOutput]
+  contour SetInputConnection [ele GetOutputPort]
   contour SetValue 0 0.5
 vtkDataSetSurfaceFilter g2
-  g2 SetInput [contour GetOutput]
+  g2 SetInputConnection [contour GetOutputPort]
 vtkPolyDataMapper map2
-  map2 SetInput [g2 GetOutput]
+  map2 SetInputConnection [g2 GetOutputPort]
   map2 ScalarVisibilityOff
 vtkActor contourActor
   contourActor SetMapper map2

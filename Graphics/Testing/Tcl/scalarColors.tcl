@@ -58,7 +58,7 @@ vtkGlyph3D glyphs
   glyphs SetSource [sphere GetOutput]
 
 vtkDataSetMapper glyphsMapper
-  glyphsMapper SetInput [glyphs GetOutput]
+  glyphsMapper SetInputConnection [glyphs GetOutputPort]
 
 vtkActor glyphsActor
   glyphsActor SetMapper glyphsMapper

@@ -19,15 +19,15 @@ vtkPLOT3DReader pl3d
     pl3d Update
 
 vtkExtractVectorComponents vx
-  vx SetInput [pl3d GetOutput]
+  vx SetInputConnection [pl3d GetOutputPort]
 vtkContourFilter isoVx
     isoVx SetInput [vx GetVxComponent]
     isoVx SetValue 0 .38
 vtkPolyDataNormals normalsVx
-    normalsVx SetInput [isoVx GetOutput]
+    normalsVx SetInputConnection [isoVx GetOutputPort]
     normalsVx SetFeatureAngle 45
 vtkPolyDataMapper isoVxMapper
-    isoVxMapper SetInput [normalsVx GetOutput]
+    isoVxMapper SetInputConnection [normalsVx GetOutputPort]
     isoVxMapper ScalarVisibilityOff
     isoVxMapper ImmediateModeRenderingOn
 vtkActor isoVxActor
@@ -35,15 +35,15 @@ vtkActor isoVxActor
     eval [isoVxActor GetProperty] SetColor 1 0.7 0.6
 
 vtkExtractVectorComponents vy
-  vy SetInput [pl3d GetOutput]
+  vy SetInputConnection [pl3d GetOutputPort]
 vtkContourFilter isoVy
     isoVy SetInput [vy GetVyComponent]
     isoVy SetValue 0 .38
 vtkPolyDataNormals normalsVy
-    normalsVy SetInput [isoVy GetOutput]
+    normalsVy SetInputConnection [isoVy GetOutputPort]
     normalsVy SetFeatureAngle 45
 vtkPolyDataMapper isoVyMapper
-    isoVyMapper SetInput [normalsVy GetOutput]
+    isoVyMapper SetInputConnection [normalsVy GetOutputPort]
     isoVyMapper ScalarVisibilityOff
     isoVyMapper ImmediateModeRenderingOn
 vtkActor isoVyActor
@@ -51,15 +51,15 @@ vtkActor isoVyActor
     eval [isoVyActor GetProperty] SetColor 0.7 1 0.6
 
 vtkExtractVectorComponents vz
-  vz SetInput [pl3d GetOutput]
+  vz SetInputConnection [pl3d GetOutputPort]
 vtkContourFilter isoVz
     isoVz SetInput [vz GetVzComponent]
     isoVz SetValue 0 .38
 vtkPolyDataNormals normalsVz
-    normalsVz SetInput [isoVz GetOutput]
+    normalsVz SetInputConnection [isoVz GetOutputPort]
     normalsVz SetFeatureAngle 45
 vtkPolyDataMapper isoVzMapper
-    isoVzMapper SetInput [normalsVz GetOutput]
+    isoVzMapper SetInputConnection [normalsVz GetOutputPort]
     isoVzMapper ScalarVisibilityOff
     isoVzMapper ImmediateModeRenderingOn
 vtkActor isoVzActor
@@ -67,9 +67,9 @@ vtkActor isoVzActor
     eval [isoVzActor GetProperty] SetColor 0.4 0.5 1
 
 vtkStructuredGridOutlineFilter outline
-    outline SetInput [pl3d GetOutput]
+    outline SetInputConnection [pl3d GetOutputPort]
 vtkPolyDataMapper outlineMapper
-    outlineMapper SetInput [outline GetOutput]
+    outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
 

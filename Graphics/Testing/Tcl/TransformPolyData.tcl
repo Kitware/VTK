@@ -61,11 +61,11 @@ ap AddInput [p6 GetOutput]
 vtkIdentityTransform t1
 
 vtkTransformPolyDataFilter f11
-f11 SetInput [ap GetOutput]
+f11 SetInputConnection [ap GetOutputPort]
 f11 SetTransform t1
 
 vtkDataSetMapper m11
-m11 SetInput [f11 GetOutput]
+m11 SetInputConnection [f11 GetOutputPort]
 
 vtkActor a11
 a11 SetMapper m11
@@ -80,11 +80,11 @@ renWin AddRenderer ren11
 
 # inverse identity transform
 vtkTransformPolyDataFilter f12
-f12 SetInput [ap GetOutput]
+f12 SetInputConnection [ap GetOutputPort]
 f12 SetTransform [t1 GetInverse]
 
 vtkDataSetMapper m12
-m12 SetInput [f12 GetOutput]
+m12 SetInputConnection [f12 GetOutputPort]
 
 vtkActor a12
 a12 SetMapper m12
@@ -106,11 +106,11 @@ t2 RotateY 30
 t2 Translate 0.2 0.1 -0.15
 
 vtkTransformPolyDataFilter f21
-f21 SetInput [ap GetOutput]
+f21 SetInputConnection [ap GetOutputPort]
 f21 SetTransform t2
 
 vtkDataSetMapper m21
-m21 SetInput [f21 GetOutput]
+m21 SetInputConnection [f21 GetOutputPort]
 
 vtkActor a21
 a21 SetMapper m21
@@ -125,11 +125,11 @@ renWin AddRenderer ren21
 
 # inverse linear transform
 vtkTransformPolyDataFilter f22
-f22 SetInput [ap GetOutput]
+f22 SetInputConnection [ap GetOutputPort]
 f22 SetTransform [t2 GetInverse]
 
 vtkDataSetMapper m22
-m22 SetInput [f22 GetOutput]
+m22 SetInputConnection [f22 GetOutputPort]
 
 vtkActor a22
 a22 SetMapper m22
@@ -154,11 +154,11 @@ vtkPerspectiveTransform t3
 t3 SetMatrix matrix
 
 vtkTransformPolyDataFilter f31
-f31 SetInput [ap GetOutput]
+f31 SetInputConnection [ap GetOutputPort]
 f31 SetTransform t3
 
 vtkDataSetMapper m31
-m31 SetInput [f31 GetOutput]
+m31 SetInputConnection [f31 GetOutputPort]
 
 vtkActor a31
 a31 SetMapper m31
@@ -173,11 +173,11 @@ renWin AddRenderer ren31
 
 # inverse linear transform
 vtkTransformPolyDataFilter f32
-f32 SetInput [ap GetOutput]
+f32 SetInputConnection [ap GetOutputPort]
 f32 SetTransform [t3 GetInverse]
 
 vtkDataSetMapper m32
-m32 SetInput [f32 GetOutput]
+m32 SetInputConnection [f32 GetOutputPort]
 
 vtkActor a32
 a32 SetMapper m32
@@ -199,11 +199,11 @@ t4 Concatenate t2
 t4 Concatenate t3
 
 vtkTransformPolyDataFilter f41
-f41 SetInput [ap GetOutput]
+f41 SetInputConnection [ap GetOutputPort]
 f41 SetTransform t4
 
 vtkDataSetMapper m41
-m41 SetInput [f41 GetOutput]
+m41 SetInputConnection [f41 GetOutputPort]
 
 vtkActor a41
 a41 SetMapper m41
@@ -218,11 +218,11 @@ renWin AddRenderer ren41
 
 # inverse linear transform
 vtkTransformPolyDataFilter f42
-f42 SetInput [ap GetOutput]
+f42 SetInputConnection [ap GetOutputPort]
 f42 SetTransform [t4 GetInverse]
 
 vtkDataSetMapper m42
-m42 SetInput [f42 GetOutput]
+m42 SetInputConnection [f42 GetOutputPort]
 
 vtkActor a42
 a42 SetMapper m42

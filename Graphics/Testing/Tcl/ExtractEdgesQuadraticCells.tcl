@@ -315,14 +315,14 @@ vtkAppendFilter appendF
 
 # Extract the edges
 vtkExtractEdges extract
-  extract SetInput [appendF GetOutput]
+  extract SetInputConnection [appendF GetOutputPort]
 
 vtkShrinkPolyData shrink
-  shrink SetInput [extract GetOutput]
+  shrink SetInputConnection [extract GetOutputPort]
   shrink SetShrinkFactor 0.90
 
 vtkDataSetMapper aMapper
-  aMapper SetInput [shrink GetOutput]
+  aMapper SetInputConnection [shrink GetOutputPort]
   #aMapper ScalarVisibilityOff
 
 vtkActor aActor

@@ -301,7 +301,7 @@ vtkClipDataSet wedgeContours
   wedgeContours SetInput aWedgeGrid
   wedgeContours SetValue 0.5
 vtkDataSetMapper aWedgeContourMapper
-  aWedgeContourMapper SetInput [wedgeContours GetOutput]
+  aWedgeContourMapper SetInputConnection [wedgeContours GetOutputPort]
   aWedgeContourMapper ScalarVisibilityOff
 vtkDataSetMapper aWedgeMapper
   aWedgeMapper SetInput aWedgeGrid
@@ -368,7 +368,7 @@ vtkClipDataSet pyraContours
   pyraContours SetInput aPyramidGrid
   pyraContours SetValue 0.5
 vtkDataSetMapper aPyramidContourMapper
-  aPyramidContourMapper SetInput [pyraContours GetOutput]
+  aPyramidContourMapper SetInputConnection [pyraContours GetOutputPort]
   aPyramidContourMapper ScalarVisibilityOff
 vtkDataSetMapper aPyramidMapper
   aPyramidMapper SetInput aPyramidGrid
@@ -431,7 +431,7 @@ vtkPlaneSource pm
   pm SetXResolution 1
   pm SetYResolution 1
 vtkPolyDataMapper pmapper
-  pmapper SetInput [pm GetOutput]
+  pmapper SetInputConnection [pm GetOutputPort]
 
 # now try intersecting rays with the cell
 vtkCellPicker cellPicker

@@ -37,7 +37,7 @@ vtkShepardMethod shepard
     shepard Update
     
 vtkDataSetMapper map
-    map SetInput [shepard GetOutput]
+    map SetInputConnection [shepard GetOutputPort]
 
 vtkActor block
     block SetMapper map

@@ -26,7 +26,7 @@ vtkLineSource probeLine
   probeLine SetResolution 500
 
 vtkProbeFilter probe
-  probe SetInput [probeLine GetOutput]
+  probe SetInputConnection [probeLine GetOutputPort]
   probe SetSource [pl3d GetOutput]
 
 vtkTubeFilter probeTube
@@ -35,7 +35,7 @@ vtkTubeFilter probeTube
   probeTube SetRadius .05
 
 vtkPolyDataMapper probeMapper
-  probeMapper SetInput [probeTube GetOutput]
+  probeMapper SetInputConnection [probeTube GetOutputPort]
   eval probeMapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
 
 vtkActor probeActor
@@ -63,9 +63,9 @@ vtkActor displayActor
   displayActor SetMapper displayMapper
 
 vtkStructuredGridOutlineFilter outline
-  outline SetInput [pl3d GetOutput]
+  outline SetInputConnection [pl3d GetOutputPort]
 vtkPolyDataMapper outlineMapper
-  outlineMapper SetInput [outline GetOutput]
+  outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
   outlineActor SetMapper outlineMapper
   [outlineActor GetProperty] SetColor 0 0 0

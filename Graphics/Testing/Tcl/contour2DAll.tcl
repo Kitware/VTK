@@ -19,20 +19,20 @@ set types  "Char UnsignedChar Short UnsignedShort Int UnsignedInt Long UnsignedL
 set i 3
 foreach vtkType $types {
   vtkImageClip clip$vtkType
-    clip$vtkType SetInput [slc GetOutput]
+    clip$vtkType SetInputConnection [slc GetOutputPort]
     clip$vtkType SetOutputWholeExtent -1000 1000 -1000 1000 $i $i
   incr i 2
   vtkImageCast castTo$vtkType
     castTo$vtkType SetOutputScalarTypeTo$vtkType
-    castTo$vtkType SetInput [clip$vtkType GetOutput]
+    castTo$vtkType SetInputConnection [clip$vtkType GetOutputPort]
     castTo$vtkType ClampOverflowOn
 
   vtkContourFilter iso$vtkType
-    iso$vtkType SetInput [castTo$vtkType GetOutput]
+    iso$vtkType SetInputConnection [castTo$vtkType GetOutputPort]
     iso$vtkType GenerateValues 1 30 30
 
   vtkPolyDataMapper iso${vtkType}Mapper
-    iso${vtkType}Mapper SetInput [iso$vtkType GetOutput]
+    iso${vtkType}Mapper SetInputConnection [iso$vtkType GetOutputPort]
     iso${vtkType}Mapper SetColorModeToMapScalars
 
   vtkActor iso${vtkType}Actor
@@ -41,9 +41,9 @@ foreach vtkType $types {
 }
 
 vtkOutlineFilter outline
-  outline SetInput [slc GetOutput]
+  outline SetInputConnection [slc GetOutputPort]
 vtkPolyDataMapper outlineMapper
-  outlineMapper SetInput [outline GetOutput]
+  outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
   outlineActor SetMapper outlineMapper
   outlineActor VisibilityOff

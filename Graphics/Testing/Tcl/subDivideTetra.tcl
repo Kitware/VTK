@@ -23,10 +23,10 @@ vtkSubdivideTetra sub
   sub SetInput aTetraGrid
 
 vtkShrinkFilter shrinker
-  shrinker SetInput [sub GetOutput]
+  shrinker SetInputConnection [sub GetOutputPort]
 
 vtkDataSetMapper mapper
-  mapper SetInput [shrinker GetOutput]
+  mapper SetInputConnection [shrinker GetOutputPort]
 
 vtkActor actor
   actor SetMapper mapper

@@ -12,16 +12,16 @@ vtkSampleFunction sample
   sample ComputeNormalsOn
 
 vtkContourFilter contours
-  contours SetInput [sample GetOutput]
+  contours SetInputConnection [sample GetOutputPort]
   contours GenerateValues 5 -0.5 1.5
 
 vtkPolyDataWriter w
-w SetInput [contours GetOutput]
+w SetInputConnection [contours GetOutputPort]
 w SetFileName "junk.vtk"
 #w Write
 
 vtkPolyDataMapper contMapper
-  contMapper SetInput [contours GetOutput]
+  contMapper SetInputConnection [contours GetOutputPort]
   contMapper SetScalarRange -0.5 1.5
 
 vtkActor contActor
@@ -29,10 +29,10 @@ vtkActor contActor
 
 # We'll put a simple outline around the data.
 vtkOutlineFilter outline
-  outline SetInput [sample GetOutput]
+  outline SetInputConnection [sample GetOutputPort]
 
 vtkPolyDataMapper outlineMapper
-  outlineMapper SetInput [outline GetOutput]
+  outlineMapper SetInputConnection [outline GetOutputPort]
 
 vtkActor outlineActor
   outlineActor SetMapper outlineMapper

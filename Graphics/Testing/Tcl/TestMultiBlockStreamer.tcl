@@ -21,10 +21,10 @@ Plot3D0 SetForceRead 0
 Plot3D0 SetByteOrder 0
 
 vtkStructuredGridOutlineFilter Geometry5
-Geometry5 SetInput [Plot3D0 GetOutput]
+Geometry5 SetInputConnection [Plot3D0 GetOutputPort]
 
 vtkPolyDataMapper Mapper5
-Mapper5 SetInput [Geometry5 GetOutput]
+Mapper5 SetInputConnection [Geometry5 GetOutputPort]
 Mapper5 SetImmediateModeRendering 1
 Mapper5 UseLookupTableScalarRangeOn
 Mapper5 SetScalarVisibility 0
@@ -44,19 +44,19 @@ Actor5 SetMapper Mapper5
 Ren1 AddActor Actor5
 
 vtkExtractGrid ExtractGrid0
-ExtractGrid0 SetInput [Plot3D0 GetOutput]
+ExtractGrid0 SetInputConnection [Plot3D0 GetOutputPort]
 ExtractGrid0 SetVOI 0 14 0 32 0 24 
 ExtractGrid0 SetSampleRate 1 1 1 
 ExtractGrid0 SetIncludeBoundary 0
 
 vtkExtractGrid ExtractGrid1
-ExtractGrid1 SetInput [Plot3D0 GetOutput]
+ExtractGrid1 SetInputConnection [Plot3D0 GetOutputPort]
 ExtractGrid1 SetVOI 14 29 0 32 0 24 
 ExtractGrid1 SetSampleRate 1 1 1 
 ExtractGrid1 SetIncludeBoundary 0
 
 vtkExtractGrid ExtractGrid2
-ExtractGrid2 SetInput [Plot3D0 GetOutput]
+ExtractGrid2 SetInputConnection [Plot3D0 GetOutputPort]
 ExtractGrid2 SetVOI 29 56 0 32 0 24 
 ExtractGrid2 SetSampleRate 1 1 1 
 ExtractGrid2 SetIncludeBoundary 0
@@ -81,11 +81,11 @@ Stream0 SetMaximumNumberOfSteps 2000
 Stream0 SetTerminalSpeed 1e-12
 
 vtkAssignAttribute aa
-aa SetInput [Stream0 GetOutput]
+aa SetInputConnection [Stream0 GetOutputPort]
 aa Assign Normals NORMALS POINT_DATA
 
 vtkRibbonFilter Ribbon0
-Ribbon0 SetInput [aa GetOutput]
+Ribbon0 SetInputConnection [aa GetOutputPort]
 Ribbon0 SetWidth 0.1
 Ribbon0 SetAngle 0
 Ribbon0 SetDefaultNormal 0 0 1 
@@ -101,7 +101,7 @@ LookupTable1 SetVectorComponent 0
 LookupTable1 Build
 
 vtkPolyDataMapper Mapper10
-Mapper10 SetInput [Ribbon0 GetOutput]
+Mapper10 SetInputConnection [Ribbon0 GetOutputPort]
 Mapper10 SetImmediateModeRendering 1
 Mapper10 UseLookupTableScalarRangeOn
 Mapper10 SetScalarVisibility 1

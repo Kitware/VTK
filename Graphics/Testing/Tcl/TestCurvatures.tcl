@@ -25,22 +25,22 @@ vtkSuperquadricSource torus
 # The quadric is made of strips, so pass it through a triangle filter as
 # the curvature filter only operates on polys
 vtkTriangleFilter tri
-    tri SetInput [torus GetOutput]
+    tri SetInputConnection [torus GetOutputPort]
 
 # The quadric has nasty discontinuities from the way the edges are generated
 # so let's pass it though a CleanPolyDataFilter and merge any points which
 # are coincident, or very close
 
 vtkCleanPolyData cleaner
-    cleaner SetInput [tri GetOutput]
+    cleaner SetInputConnection [tri GetOutputPort]
     cleaner SetTolerance 0.005
 
 vtkCurvatures curve1
-    curve1 SetInput [cleaner GetOutput]
+    curve1 SetInputConnection [cleaner GetOutputPort]
     curve1 SetCurvatureTypeToGaussian
 
 vtkCurvatures curve2
-    curve2 SetInput [cleaner GetOutput]
+    curve2 SetInputConnection [cleaner GetOutputPort]
     curve2 SetCurvatureTypeToMean
 
 vtkLookupTable lut1
@@ -60,12 +60,12 @@ vtkLookupTable lut2
     lut2 SetRange 0 4
 
 vtkPolyDataMapper cmapper1
-    cmapper1 SetInput [curve1 GetOutput]
+    cmapper1 SetInputConnection [curve1 GetOutputPort]
     cmapper1 SetLookupTable lut1
     cmapper1 SetUseLookupTableScalarRange 1
 
 vtkPolyDataMapper cmapper2
-    cmapper2 SetInput [curve2 GetOutput]
+    cmapper2 SetInputConnection [curve2 GetOutputPort]
     cmapper2 SetLookupTable lut2
     cmapper2 SetUseLookupTableScalarRange 1
 

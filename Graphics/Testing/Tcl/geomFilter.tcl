@@ -10,14 +10,14 @@ vtkPLOT3DReader pl3d
     pl3d Update
 
 vtkGeometryFilter gf
-    gf SetInput [pl3d GetOutput]
+    gf SetInputConnection [pl3d GetOutputPort]
 vtkPolyDataMapper gMapper
-    gMapper SetInput [gf GetOutput]
+    gMapper SetInputConnection [gf GetOutputPort]
     eval gMapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
 vtkActor gActor
     gActor SetMapper gMapper
 vtkGeometryFilter gf2
-    gf2 SetInput [pl3d GetOutput]
+    gf2 SetInputConnection [pl3d GetOutputPort]
     gf2 ExtentClippingOn
     gf2 SetExtent 10 17 -6 6 23 37
     gf2 PointClippingOn
@@ -27,7 +27,7 @@ vtkGeometryFilter gf2
     gf2 SetCellMinimum 0 
     gf2 SetCellMaximum 7500
 vtkPolyDataMapper g2Mapper
-    g2Mapper SetInput [gf2 GetOutput]
+    g2Mapper SetInputConnection [gf2 GetOutputPort]
     eval g2Mapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
 vtkActor g2Actor
     g2Actor SetMapper g2Mapper
@@ -36,15 +36,15 @@ vtkActor g2Actor
 # create pipeline - poly data
 #
 vtkGeometryFilter gf3
-    gf3 SetInput [gf GetOutput]
+    gf3 SetInputConnection [gf GetOutputPort]
 vtkPolyDataMapper g3Mapper
-    g3Mapper SetInput [gf3 GetOutput]
+    g3Mapper SetInputConnection [gf3 GetOutputPort]
     eval g3Mapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
 vtkActor g3Actor
     g3Actor SetMapper g3Mapper
     g3Actor AddPosition 0 0 15
 vtkGeometryFilter gf4
-    gf4 SetInput [gf2 GetOutput]
+    gf4 SetInputConnection [gf2 GetOutputPort]
     gf4 ExtentClippingOn
     gf4 SetExtent 10 17 -6 6 23 37
     gf4 PointClippingOn
@@ -54,7 +54,7 @@ vtkGeometryFilter gf4
     gf4 SetCellMinimum 0 
     gf4 SetCellMaximum 7500
 vtkPolyDataMapper g4Mapper
-    g4Mapper SetInput [gf4 GetOutput]
+    g4Mapper SetInputConnection [gf4 GetOutputPort]
     eval g4Mapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
 vtkActor g4Actor
     g4Actor SetMapper g4Mapper
@@ -66,18 +66,18 @@ vtkSphere s
     eval s SetCenter [[pl3d GetOutput] GetCenter]
     s SetRadius 100.0; #everything
 vtkExtractGeometry eg
-    eg SetInput [pl3d GetOutput]
+    eg SetInputConnection [pl3d GetOutputPort]
     eg SetImplicitFunction s
 vtkGeometryFilter gf5
-    gf5 SetInput [eg GetOutput]
+    gf5 SetInputConnection [eg GetOutputPort]
 vtkPolyDataMapper g5Mapper
-    g5Mapper SetInput [gf5 GetOutput]
+    g5Mapper SetInputConnection [gf5 GetOutputPort]
     eval g5Mapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
 vtkActor g5Actor
     g5Actor SetMapper g5Mapper
     g5Actor AddPosition 0 0 30
 vtkGeometryFilter gf6
-    gf6 SetInput [eg GetOutput]
+    gf6 SetInputConnection [eg GetOutputPort]
     gf6 ExtentClippingOn
     gf6 SetExtent 10 17 -6 6 23 37
     gf6 PointClippingOn
@@ -87,7 +87,7 @@ vtkGeometryFilter gf6
     gf6 SetCellMinimum 0 
     gf6 SetCellMaximum 7500
 vtkPolyDataMapper g6Mapper
-    g6Mapper SetInput [gf6 GetOutput]
+    g6Mapper SetInputConnection [gf6 GetOutputPort]
     eval g6Mapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
 vtkActor g6Actor
     g6Actor SetMapper g6Mapper
@@ -99,15 +99,15 @@ vtkRectilinearGridReader rgridReader
     rgridReader SetFileName "$VTK_DATA_ROOT/Data/RectGrid2.vtk"
     rgridReader Update
 vtkGeometryFilter gf7
-    gf7 SetInput [rgridReader GetOutput]
+    gf7 SetInputConnection [rgridReader GetOutputPort]
 vtkPolyDataMapper g7Mapper
-    g7Mapper SetInput [gf7 GetOutput]
+    g7Mapper SetInputConnection [gf7 GetOutputPort]
     eval g7Mapper SetScalarRange [[rgridReader GetOutput] GetScalarRange]
 vtkActor g7Actor
     g7Actor SetMapper g7Mapper
     g7Actor SetScale 3 3 3
 vtkGeometryFilter gf8
-    gf8 SetInput [rgridReader GetOutput]
+    gf8 SetInputConnection [rgridReader GetOutputPort]
     gf8 ExtentClippingOn
     gf8 SetExtent 0 1 -2 2 0 4
     gf8 PointClippingOn
@@ -117,7 +117,7 @@ vtkGeometryFilter gf8
     gf8 SetCellMinimum 0 
     gf8 SetCellMaximum 7500
 vtkPolyDataMapper g8Mapper
-    g8Mapper SetInput [gf8 GetOutput]
+    g8Mapper SetInputConnection [gf8 GetOutputPort]
     eval g8Mapper SetScalarRange [[rgridReader GetOutput] GetScalarRange]
 vtkActor g8Actor
     g8Actor SetMapper g8Mapper

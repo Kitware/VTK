@@ -29,7 +29,7 @@ if {[catch {set channel [open test.tmp w]}] == 0 } {
    file delete -force test.tmp
 
    vtkDataSetWriter wSP
-   wSP SetInput [ptLoad GetOutput]
+   wSP SetInputConnection [ptLoad GetOutputPort]
    wSP SetFileName wSP.vtk
    wSP SetTensorsName pointload
    wSP SetScalarsName effective_stress
@@ -65,7 +65,7 @@ s1 Update
 vtkLogLookupTable lut
     lut SetHueRange .6667 0.0
 vtkPolyDataMapper s1Mapper
-    s1Mapper SetInput [s1 GetOutput]
+    s1Mapper SetInputConnection [s1 GetOutputPort]
     s1Mapper SetLookupTable lut
     ptLoad Update;#force update for scalar range
     eval s1Mapper SetScalarRange [[ptLoad GetOutput] GetScalarRange]
@@ -84,7 +84,7 @@ vtkHyperStreamline s2
     s2 SetIntegrationDirection $VTK_INTEGRATE_BOTH_DIRECTIONS
     s2 Update
 vtkPolyDataMapper s2Mapper
-    s2Mapper SetInput [s2 GetOutput]
+    s2Mapper SetInputConnection [s2 GetOutputPort]
     s2Mapper SetLookupTable lut
     eval s2Mapper SetScalarRange [$input GetScalarRange]
 vtkActor s2Actor
@@ -102,7 +102,7 @@ vtkHyperStreamline s3
     s3 SetIntegrationDirection $VTK_INTEGRATE_BOTH_DIRECTIONS
     s3 Update
 vtkPolyDataMapper s3Mapper
-    s3Mapper SetInput [s3 GetOutput]
+    s3Mapper SetInputConnection [s3 GetOutputPort]
     s3Mapper SetLookupTable lut
     eval s3Mapper SetScalarRange [$input GetScalarRange]
 vtkActor s3Actor
@@ -120,7 +120,7 @@ vtkHyperStreamline s4
     s4 SetIntegrationDirection $VTK_INTEGRATE_BOTH_DIRECTIONS
     s4 Update
 vtkPolyDataMapper s4Mapper
-    s4Mapper SetInput [s4 GetOutput]
+    s4Mapper SetInputConnection [s4 GetOutputPort]
     s4Mapper SetLookupTable lut
     eval s4Mapper SetScalarRange [$input GetScalarRange]
 vtkActor s4Actor
@@ -133,7 +133,7 @@ vtkImageDataGeometryFilter g
     g SetExtent 0 100 0 100 0 0
     g Update;#for scalar range
 vtkPolyDataMapper gm
-    gm SetInput [g GetOutput]
+    gm SetInputConnection [g GetOutputPort]
     eval gm SetScalarRange [[g GetOutput] GetScalarRange]
 vtkActor ga
     ga SetMapper gm
@@ -143,7 +143,7 @@ vtkActor ga
 vtkOutlineFilter outline
     outline SetInput $input
 vtkPolyDataMapper outlineMapper
-    outlineMapper SetInput [outline GetOutput]
+    outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
     eval [outlineActor GetProperty] SetColor 0 0 0
@@ -154,7 +154,7 @@ vtkConeSource coneSrc
     coneSrc  SetRadius .5
     coneSrc  SetHeight 2
 vtkPolyDataMapper coneMap
-    coneMap SetInput [coneSrc GetOutput]
+    coneMap SetInputConnection [coneSrc GetOutputPort]
 vtkActor coneActor
     coneActor SetMapper coneMap;    
     coneActor SetPosition 0 0 11

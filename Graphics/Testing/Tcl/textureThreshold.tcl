@@ -21,10 +21,10 @@ vtkPLOT3DReader pl3d
 # wall
 #
 vtkStructuredGridGeometryFilter wall
-    wall SetInput [pl3d GetOutput]
+    wall SetInputConnection [pl3d GetOutputPort]
     wall SetExtent 0 100 0 0 0 100
 vtkPolyDataMapper wallMap
-    wallMap SetInput [wall GetOutput]
+    wallMap SetInputConnection [wall GetOutputPort]
     wallMap ScalarVisibilityOff
 vtkActor wallActor
     wallActor SetMapper wallMap
@@ -33,10 +33,10 @@ vtkActor wallActor
 # fin
 # 
 vtkStructuredGridGeometryFilter fin
-    fin SetInput [pl3d GetOutput]
+    fin SetInputConnection [pl3d GetOutputPort]
     fin SetExtent 0 100 0 100 0 0
 vtkPolyDataMapper finMap
-    finMap SetInput [fin GetOutput]
+    finMap SetInputConnection [fin GetOutputPort]
     finMap ScalarVisibilityOff
 vtkActor finActor
     finActor SetMapper finMap
@@ -46,18 +46,18 @@ vtkActor finActor
 vtkStructuredPointsReader tmap
   tmap SetFileName "$VTK_DATA_ROOT/Data/texThres2.vtk"
 vtkTexture texture
-  texture SetInput [tmap GetOutput]
+  texture SetInputConnection [tmap GetOutputPort]
   texture InterpolateOff
   texture RepeatOff
 
 vtkStructuredGridGeometryFilter plane1
-    plane1 SetInput [pl3d GetOutput]
+    plane1 SetInputConnection [pl3d GetOutputPort]
     plane1 SetExtent 10 10 0 100 0 100
 vtkThresholdTextureCoords thresh1
-    thresh1 SetInput [plane1 GetOutput]
+    thresh1 SetInputConnection [plane1 GetOutputPort]
     thresh1 ThresholdByUpper 1.5
 vtkDataSetMapper plane1Map
-    plane1Map SetInput [thresh1 GetOutput]
+    plane1Map SetInputConnection [thresh1 GetOutputPort]
     eval plane1Map SetScalarRange [[pl3d GetOutput] GetScalarRange]
 vtkActor plane1Actor
     plane1Actor SetMapper plane1Map
@@ -65,13 +65,13 @@ vtkActor plane1Actor
 [plane1Actor GetProperty] SetOpacity 0.999
 
 vtkStructuredGridGeometryFilter plane2
-    plane2 SetInput [pl3d GetOutput]
+    plane2 SetInputConnection [pl3d GetOutputPort]
     plane2 SetExtent 30 30 0 100 0 100
 vtkThresholdTextureCoords thresh2
-    thresh2 SetInput [plane2 GetOutput]
+    thresh2 SetInputConnection [plane2 GetOutputPort]
     thresh2 ThresholdByLower 1.5
 vtkDataSetMapper plane2Map
-    plane2Map SetInput [thresh2 GetOutput]
+    plane2Map SetInputConnection [thresh2 GetOutputPort]
     eval plane2Map SetScalarRange [[pl3d GetOutput] GetScalarRange]
 vtkActor plane2Actor
     plane2Actor SetMapper plane2Map
@@ -79,13 +79,13 @@ vtkActor plane2Actor
     [plane2Actor GetProperty] SetOpacity 0.999
 
 vtkStructuredGridGeometryFilter plane3
-    plane3 SetInput [pl3d GetOutput]
+    plane3 SetInputConnection [pl3d GetOutputPort]
     plane3 SetExtent 35 35 0 100 0 100
 vtkThresholdTextureCoords thresh3
-    thresh3 SetInput [plane3 GetOutput]
+    thresh3 SetInputConnection [plane3 GetOutputPort]
     thresh3 ThresholdBetween 1.5 1.8
 vtkDataSetMapper plane3Map
-    plane3Map SetInput [thresh3 GetOutput]
+    plane3Map SetInputConnection [thresh3 GetOutputPort]
     eval plane3Map SetScalarRange [[pl3d GetOutput] GetScalarRange]
 vtkActor plane3Actor
     plane3Actor SetMapper plane3Map
@@ -94,9 +94,9 @@ vtkActor plane3Actor
 
 # outline
 vtkStructuredGridOutlineFilter outline
-    outline SetInput [pl3d GetOutput]
+    outline SetInputConnection [pl3d GetOutputPort]
 vtkPolyDataMapper outlineMapper
-    outlineMapper SetInput [outline GetOutput]
+    outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
     set outlineProp [outlineActor GetProperty]

@@ -16,13 +16,13 @@ vtkPlane plane
     plane SetOrigin 0 0 0
     plane SetNormal -1 -1 0
 vtkClipPolyData clipper
-    clipper SetInput [sphere GetOutput]
+    clipper SetInputConnection [sphere GetOutputPort]
     clipper SetClipFunction plane
     clipper GenerateClipScalarsOn
     clipper GenerateClippedOutputOn
     clipper SetValue 0
 vtkPolyDataMapper clipMapper
-    clipMapper SetInput [clipper GetOutput]
+    clipMapper SetInputConnection [clipper GetOutputPort]
     clipMapper ScalarVisibilityOff
 
 vtkProperty backProp
@@ -34,16 +34,16 @@ vtkActor clipActor
 
 # now extract feature edges
 vtkFeatureEdges boundaryEdges
-  boundaryEdges SetInput [clipper GetOutput]
+  boundaryEdges SetInputConnection [clipper GetOutputPort]
   boundaryEdges BoundaryEdgesOn
   boundaryEdges FeatureEdgesOff
   boundaryEdges NonManifoldEdgesOff
 
 vtkCleanPolyData boundaryClean
-  boundaryClean SetInput [boundaryEdges GetOutput]
+  boundaryClean SetInputConnection [boundaryEdges GetOutputPort]
 
 vtkStripper boundaryStrips
-  boundaryStrips SetInput [boundaryClean GetOutput]
+  boundaryStrips SetInputConnection [boundaryClean GetOutputPort]
   boundaryStrips Update
 
 vtkPolyData boundaryPoly
@@ -54,7 +54,7 @@ vtkTriangleFilter boundaryTriangles
   boundaryTriangles SetInput boundaryPoly
 
 vtkPolyDataMapper boundaryMapper
-boundaryMapper SetInput [boundaryTriangles GetOutput]
+boundaryMapper SetInputConnection [boundaryTriangles GetOutputPort]
 
 vtkActor boundaryActor
   boundaryActor SetMapper boundaryMapper

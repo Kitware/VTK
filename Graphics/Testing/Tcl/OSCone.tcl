@@ -10,7 +10,7 @@ renWin AddRenderer ren
 vtkConeSource cone
 
 vtkPolyDataMapper mp
-mp SetInput [cone GetOutput]
+mp SetInputConnection [cone GetOutputPort]
 
 vtkActor actor
 actor SetMapper mp

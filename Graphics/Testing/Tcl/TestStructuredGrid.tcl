@@ -29,7 +29,7 @@ ZeroDGeom SetInput ZeroDGrid
 ZeroDGeom SetExtent 0 2 0 2 0 2
 
 vtkPolyDataMapper ZeroDMapper
-ZeroDMapper SetInput [ZeroDGeom GetOutput]
+ZeroDMapper SetInputConnection [ZeroDGeom GetOutputPort]
 
 vtkActor ZeroDActor
 ZeroDActor SetMapper ZeroDMapper
@@ -55,7 +55,7 @@ XGeom SetInput XGrid
 XGeom SetExtent 0 2 0 2 0 2
 
 vtkPolyDataMapper XMapper
-XMapper SetInput [XGeom GetOutput]
+XMapper SetInputConnection [XGeom GetOutputPort]
 
 vtkActor XActor
 XActor SetMapper XMapper
@@ -81,7 +81,7 @@ YGeom SetInput YGrid
 YGeom SetExtent 0 2 0 2 0 2
 
 vtkPolyDataMapper YMapper
-YMapper SetInput [YGeom GetOutput]
+YMapper SetInputConnection [YGeom GetOutputPort]
 
 vtkActor YActor
 YActor SetMapper YMapper
@@ -108,7 +108,7 @@ ZGeom SetInput ZGrid
 ZGeom SetExtent 0 2 0 2 0 2
 
 vtkPolyDataMapper ZMapper
-ZMapper SetInput [ZGeom GetOutput]
+ZMapper SetInputConnection [ZGeom GetOutputPort]
 
 vtkActor ZActor
 ZActor SetMapper ZMapper
@@ -136,7 +136,7 @@ XYGeom SetInput XYGrid
 XYGeom SetExtent 0 2 0 2 0 2
 
 vtkPolyDataMapper XYMapper
-XYMapper SetInput [XYGeom GetOutput]
+XYMapper SetInputConnection [XYGeom GetOutputPort]
 
 vtkActor XYActor
 XYActor SetMapper XYMapper
@@ -164,7 +164,7 @@ YZGeom SetInput YZGrid
 YZGeom SetExtent 0 2 0 2 0 2
 
 vtkPolyDataMapper YZMapper
-YZMapper SetInput [YZGeom GetOutput]
+YZMapper SetInputConnection [YZGeom GetOutputPort]
 
 vtkActor YZActor
 YZActor SetMapper YZMapper
@@ -192,7 +192,7 @@ XZGeom SetInput XZGrid
 XZGeom SetExtent 0 2 0 2 0 2
 
 vtkPolyDataMapper XZMapper
-XZMapper SetInput [XZGeom GetOutput]
+XZMapper SetInputConnection [XZGeom GetOutputPort]
 
 vtkActor XZActor
 XZActor SetMapper XZMapper
@@ -224,7 +224,7 @@ XYZGeom SetInput XYZGrid
 XYZGeom SetExtent 0 2 0 2 0 2
 
 vtkPolyDataMapper XYZMapper
-XYZMapper SetInput [XYZGeom GetOutput]
+XYZMapper SetInputConnection [XYZGeom GetOutputPort]
 
 vtkActor XYZActor
 XYZActor SetMapper XYZMapper

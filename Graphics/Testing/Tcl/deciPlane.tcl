@@ -23,12 +23,12 @@ vtkPlaneSource plane
     plane SetYResolution 10
 
 vtkTriangleFilter tf
-    tf SetInput [plane GetOutput]
+    tf SetInputConnection [plane GetOutputPort]
 
 # This filter modifies the point coordinates in a couple of spots
 #
 vtkProgrammableFilter adjustPoints
-   adjustPoints SetInput [tf GetOutput]
+   adjustPoints SetInputConnection [tf GetOutputPort]
    adjustPoints SetExecuteMethod adjustPointsProc
 
 # The SetExecuteMethod takes a Tcl proc as an argument
@@ -73,12 +73,12 @@ set accumulates "On Off"
 foreach topology $boundaryVertexDeletion {
   foreach accumulate $accumulates {
     vtkDecimatePro deci$topology$accumulate
-      deci$topology$accumulate SetInput [gf GetOutput]
+      deci$topology$accumulate SetInputConnection [gf GetOutputPort]
       deci$topology$accumulate SetTargetReduction .95
       deci$topology$accumulate BoundaryVertexDeletion$topology
       deci$topology$accumulate AccumulateError$accumulate
     vtkPolyDataMapper mapper$topology$accumulate
-      mapper$topology$accumulate SetInput [deci$topology$accumulate GetOutput]
+      mapper$topology$accumulate SetInputConnection [deci$topology$accumulate GetOutputPort]
     vtkActor plane$topology$accumulate
       plane$topology$accumulate SetMapper mapper$topology$accumulate
   }

@@ -14,12 +14,12 @@ vtkVolume16Reader v16
 
 # create points on edges
 vtkEdgePoints edgePoints
-  edgePoints SetInput [v16 GetOutput]
+  edgePoints SetInputConnection [v16 GetOutputPort]
   edgePoints SetValue 1150
 
 #
 vtkDataSetMapper mapper
-  mapper SetInput [edgePoints GetOutput]
+  mapper SetInputConnection [edgePoints GetOutputPort]
   mapper ImmediateModeRenderingOn
   mapper ScalarVisibilityOff
    

@@ -13,20 +13,20 @@ package require vtktesting
 vtkBYUReader cow
   cow SetGeometryFileName "$VTK_DATA_ROOT/Data/Viewpoint/cow.g"
 vtkPolyDataNormals cowNormals
-  cowNormals SetInput [cow GetOutput]
+  cowNormals SetInputConnection [cow GetOutputPort]
 
 # Define a clip plane to clip the cow in half
 vtkPlane plane
     plane SetOrigin 0.25 0 0
     plane SetNormal -1 -1 0
 vtkClipPolyData clipper
-    clipper SetInput [cowNormals GetOutput]
+    clipper SetInputConnection [cowNormals GetOutputPort]
     clipper SetClipFunction plane
     clipper GenerateClipScalarsOn
     clipper GenerateClippedOutputOn
     clipper SetValue 0.5
 vtkPolyDataMapper clipMapper
-    clipMapper SetInput [clipper GetOutput]
+    clipMapper SetInputConnection [clipper GetOutputPort]
     clipMapper ScalarVisibilityOff
 vtkProperty backProp
     eval backProp SetDiffuseColor $tomato
@@ -37,12 +37,12 @@ vtkActor clipActor
 
 # Create polygons outlining clipped areas and triangulate them to generate cut surface
 vtkCutter cutEdges; #Generate cut lines
-  cutEdges SetInput [cowNormals GetOutput]
+  cutEdges SetInputConnection [cowNormals GetOutputPort]
   cutEdges SetCutFunction plane
   cutEdges GenerateCutScalarsOn
   cutEdges SetValue 0 0.5
 vtkStripper cutStrips; #Forms loops (closed polylines) from cutter
-  cutStrips SetInput [cutEdges GetOutput]
+  cutStrips SetInputConnection [cutEdges GetOutputPort]
   cutStrips Update
 vtkPolyData cutPoly; #This trick defines polygons as polyline loop
   cutPoly SetPoints [[cutStrips GetOutput] GetPoints]
@@ -51,7 +51,7 @@ vtkTriangleFilter cutTriangles; #Triangulates the polygons to create cut surface
   cutTriangles SetInput cutPoly
 vtkPolyDataMapper cutMapper
   cutMapper SetInput cutPoly
-  cutMapper SetInput [cutTriangles GetOutput]
+  cutMapper SetInputConnection [cutTriangles GetOutputPort]
 vtkActor cutActor
   cutActor SetMapper cutMapper
   eval [cutActor GetProperty] SetColor $peacock

@@ -29,7 +29,7 @@ vtkContourFilter edgeContours
   edgeContours SetInput aEdgeGrid
   edgeContours SetValue 0 0.5
 vtkDataSetMapper aEdgeContourMapper
-  aEdgeContourMapper SetInput [edgeContours GetOutput]
+  aEdgeContourMapper SetInputConnection [edgeContours GetOutputPort]
   aEdgeContourMapper ScalarVisibilityOff
 vtkDataSetMapper aEdgeMapper
   aEdgeMapper SetInput aEdgeGrid
@@ -76,7 +76,7 @@ vtkContourFilter triContours
   triContours SetInput aTriGrid
   triContours SetValue 0 0.5
 vtkDataSetMapper aTriContourMapper
-  aTriContourMapper SetInput [triContours GetOutput]
+  aTriContourMapper SetInputConnection [triContours GetOutputPort]
   aTriContourMapper ScalarVisibilityOff
 vtkDataSetMapper aTriMapper
   aTriMapper SetInput aTriGrid
@@ -129,7 +129,7 @@ vtkContourFilter quadContours
   quadContours SetInput aQuadGrid
   quadContours SetValue 0 0.5
 vtkDataSetMapper aQuadContourMapper
-  aQuadContourMapper SetInput [quadContours GetOutput]
+  aQuadContourMapper SetInputConnection [quadContours GetOutputPort]
   aQuadContourMapper ScalarVisibilityOff
 vtkDataSetMapper aQuadMapper
   aQuadMapper SetInput aQuadGrid
@@ -188,7 +188,7 @@ vtkContourFilter tetContours
   tetContours SetInput aTetGrid
   tetContours SetValue 0 0.5
 vtkDataSetMapper aTetContourMapper
-  aTetContourMapper SetInput [tetContours GetOutput]
+  aTetContourMapper SetInputConnection [tetContours GetOutputPort]
   aTetContourMapper ScalarVisibilityOff
 vtkDataSetMapper aTetMapper
   aTetMapper SetInput aTetGrid
@@ -276,7 +276,7 @@ vtkContourFilter hexContours
   hexContours SetInput aHexGrid
   hexContours SetValue 0 0.5
 vtkDataSetMapper aHexContourMapper
-  aHexContourMapper SetInput [hexContours GetOutput]
+  aHexContourMapper SetInputConnection [hexContours GetOutputPort]
   aHexContourMapper ScalarVisibilityOff
 vtkDataSetMapper aHexMapper
   aHexMapper SetInput aHexGrid
@@ -349,7 +349,7 @@ vtkContourFilter wedgeContours
   wedgeContours SetInput aWedgeGrid
   wedgeContours SetValue 0 0.5
 vtkDataSetMapper aWedgeContourMapper
-  aWedgeContourMapper SetInput [wedgeContours GetOutput]
+  aWedgeContourMapper SetInputConnection [wedgeContours GetOutputPort]
   aWedgeContourMapper ScalarVisibilityOff
 vtkDataSetMapper aWedgeMapper
   aWedgeMapper SetInput aWedgeGrid
@@ -416,7 +416,7 @@ vtkContourFilter pyraContours
   pyraContours SetInput aPyramidGrid
   pyraContours SetValue 0 0.5
 vtkDataSetMapper aPyramidContourMapper
-  aPyramidContourMapper SetInput [pyraContours GetOutput]
+  aPyramidContourMapper SetInputConnection [pyraContours GetOutputPort]
   aPyramidContourMapper ScalarVisibilityOff
 vtkDataSetMapper aPyramidMapper
   aPyramidMapper SetInput aPyramidGrid

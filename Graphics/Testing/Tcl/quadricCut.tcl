@@ -247,12 +247,12 @@ vtkSphereSource aSphere
 
   # create texture coordianates for all
 vtkImplicitTextureCoords tcoords
-      tcoords SetInput [aSphere GetOutput]
+      tcoords SetInputConnection [aSphere GetOutputPort]
       tcoords SetRFunction quadric1 
       tcoords SetSFunction quadric2 
 
 vtkDataSetMapper aMapper
-      aMapper SetInput  [tcoords GetOutput]
+      aMapper SetInputConnection [tcoords GetOutputPort]
 
   # create a mapper, sphere and texture map for each case
 for  {set i 0} {$i < 16} {incr i} {

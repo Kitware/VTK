@@ -18,7 +18,7 @@ vtkPointLoad ptLoad
     ptLoad SetModelBounds -10 10 -10 10 -10 10
 
 vtkExtractTensorComponents extractTensor
-  extractTensor SetInput [ptLoad GetOutput]
+  extractTensor SetInputConnection [ptLoad GetOutputPort]
   extractTensor ScalarIsEffectiveStress
   extractTensor ScalarIsComponent
   extractTensor ExtractScalarsOn
@@ -27,20 +27,20 @@ vtkExtractTensorComponents extractTensor
   extractTensor ExtractTCoordsOn
 
 vtkContourFilter contour
-  contour SetInput [extractTensor GetOutput]
+  contour SetInputConnection [extractTensor GetOutputPort]
   contour SetValue 0 0
 
 vtkProbeFilter probe
-  probe SetInput [contour GetOutput]
+  probe SetInputConnection [contour GetOutputPort]
   probe SetSource [ptLoad GetOutput]
 
 vtkLoopSubdivisionFilter su
-  su SetInput [probe GetOutput]
+  su SetInputConnection [probe GetOutputPort]
   su SetNumberOfSubdivisions 1
 
 vtkPolyDataMapper s1Mapper
-    s1Mapper SetInput [probe GetOutput]
-#    s1Mapper SetInput [su GetOutput]
+    s1Mapper SetInputConnection [probe GetOutputPort]
+#    s1Mapper SetInputConnection [su GetOutputPort]
 
 vtkActor s1Actor
     s1Actor SetMapper s1Mapper
@@ -49,12 +49,12 @@ vtkActor s1Actor
 # plane for context
 #
 vtkImageDataGeometryFilter g
-    g SetInput [ptLoad GetOutput]
+    g SetInputConnection [ptLoad GetOutputPort]
     g SetExtent 0 100 0 100 0 0
     g Update;#for scalar range
 
 vtkPolyDataMapper gm
-    gm SetInput [g GetOutput]
+    gm SetInputConnection [g GetOutputPort]
     eval gm SetScalarRange [[g GetOutput] GetScalarRange]
 vtkActor ga
     ga SetMapper gm
@@ -64,9 +64,9 @@ vtkActor ga
 # Create outline around data
 #
 vtkOutlineFilter outline
-    outline SetInput [ptLoad GetOutput]
+    outline SetInputConnection [ptLoad GetOutputPort]
 vtkPolyDataMapper outlineMapper
-    outlineMapper SetInput [outline GetOutput]
+    outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
     eval [outlineActor GetProperty] SetColor 0 0 0
@@ -77,7 +77,7 @@ vtkConeSource coneSrc
     coneSrc  SetRadius .5
     coneSrc  SetHeight 2
 vtkPolyDataMapper coneMap
-    coneMap SetInput [coneSrc GetOutput]
+    coneMap SetInputConnection [coneSrc GetOutputPort]
 vtkActor coneActor
     coneActor SetMapper coneMap;    
     coneActor SetPosition 0 0 11

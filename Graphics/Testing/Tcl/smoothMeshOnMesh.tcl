@@ -3526,11 +3526,11 @@ vtkPolyData patch
 vtkTriangleFilter tf
     tf SetInput patch
 vtkSmoothPolyDataFilter smooth
-    smooth SetInput [tf GetOutput]
+    smooth SetInputConnection [tf GetOutputPort]
     smooth SetSource [cyber GetOutput]
     smooth SetNumberOfIterations 50
 vtkPolyDataMapper patchMapper
-    patchMapper SetInput [smooth GetOutput]
+    patchMapper SetInputConnection [smooth GetOutputPort]
 vtkProperty back
     back SetDiffuseColor 1.0 1.0 0.0
 vtkActor patchActor

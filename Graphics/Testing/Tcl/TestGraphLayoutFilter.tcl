@@ -64,11 +64,11 @@ vtkAppendPolyData apf
     apf AddInput [layout3D GetOutput]
 
 vtkTubeFilter tubes
-    tubes SetInput [apf GetOutput]
+    tubes SetInputConnection [apf GetOutputPort]
     tubes SetRadius 0.01
     tubes SetNumberOfSides 6
 vtkPolyDataMapper mapEdges
-    mapEdges SetInput [tubes GetOutput]
+    mapEdges SetInputConnection [tubes GetOutputPort]
 vtkActor edgeActor
     edgeActor SetMapper mapEdges
     eval [edgeActor GetProperty] SetColor $peacock
@@ -83,10 +83,10 @@ vtkSphereSource ball
     ball SetThetaResolution 12
     ball SetPhiResolution 12
 vtkGlyph3D balls
-    balls SetInput [apf GetOutput]
+    balls SetInputConnection [apf GetOutputPort]
     balls SetSource [ball GetOutput]
 vtkPolyDataMapper mapBalls
-    mapBalls SetInput [balls GetOutput]
+    mapBalls SetInputConnection [balls GetOutputPort]
 vtkActor ballActor
     ballActor SetMapper mapBalls
     eval [ballActor GetProperty] SetColor $hot_pink

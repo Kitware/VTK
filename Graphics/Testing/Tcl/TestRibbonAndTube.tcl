@@ -10,19 +10,19 @@ vtkPolyDataReader reader
 vtkPNGReader r
   r SetFileName "$VTK_DATA_ROOT/Data/ruler.png"
 vtkTexture atext
-  atext SetInput [r GetOutput]
+  atext SetInputConnection [r GetOutputPort]
   atext InterpolateOn
 
 # produce some ribbons
 vtkRibbonFilter ribbon
-    ribbon SetInput [reader GetOutput]
+    ribbon SetInputConnection [reader GetOutputPort]
     ribbon SetWidth 0.1
     ribbon SetGenerateTCoordsToUseLength
     ribbon SetTextureLength 1.0
     ribbon UseDefaultNormalOn
     ribbon SetDefaultNormal 0 0 1
 vtkPolyDataMapper ribbonMapper
-    ribbonMapper SetInput [ribbon GetOutput]
+    ribbonMapper SetInputConnection [ribbon GetOutputPort]
 vtkActor ribbonActor
     ribbonActor SetMapper ribbonMapper
     eval [ribbonActor GetProperty] SetColor 1 1 0
@@ -30,14 +30,14 @@ vtkActor ribbonActor
 
 # produce some tubes
 vtkTubeFilter tuber
-    tuber SetInput [reader GetOutput]
+    tuber SetInputConnection [reader GetOutputPort]
     tuber SetRadius 0.1
     tuber SetNumberOfSides 12
     tuber SetGenerateTCoordsToUseLength
     tuber SetTextureLength 0.5
     tuber CappingOn
 vtkPolyDataMapper tubeMapper
-    tubeMapper SetInput [tuber GetOutput]
+    tubeMapper SetInputConnection [tuber GetOutputPort]
 vtkActor tubeActor
     tubeActor SetMapper tubeMapper
     eval [tubeActor GetProperty] SetColor 1 1 0

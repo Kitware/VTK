@@ -16,7 +16,7 @@ vtkDiskSource disk
     disk SetCircumferentialResolution 20
 
 vtkPolyDataMapper diskMapper
-    diskMapper SetInput [disk GetOutput]
+    diskMapper SetInputConnection [disk GetOutputPort]
 vtkActor diskActor
     diskActor SetMapper diskMapper
 

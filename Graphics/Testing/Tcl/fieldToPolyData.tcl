@@ -10,11 +10,11 @@ package require vtkinteraction
 vtkPolyDataReader reader
     reader SetFileName "$VTK_DATA_ROOT/Data/polyEx.vtk"
 vtkDataSetToDataObjectFilter ds2do
-    ds2do SetInput [reader GetOutput]
+    ds2do SetInputConnection [reader GetOutputPort]
 if {[catch {set channel [open PolyField.vtk w]}] == 0 } {
    close $channel
    vtkDataObjectWriter writer
-    writer SetInput [ds2do GetOutput]
+    writer SetInputConnection [ds2do GetOutputPort]
     writer SetFileName "PolyField.vtk"
     writer Write
 
@@ -23,7 +23,7 @@ if {[catch {set channel [open PolyField.vtk w]}] == 0 } {
 vtkDataObjectReader dor
     dor SetFileName "PolyField.vtk"
 vtkDataObjectToDataSetFilter do2ds
-    do2ds SetInput [dor GetOutput]
+    do2ds SetInputConnection [dor GetOutputPort]
     do2ds SetDataSetTypeToPolyData
     do2ds SetPointComponent 0 Points 0 
     do2ds SetPointComponent 1 Points 1 

@@ -28,10 +28,10 @@ vtkDelaunay2D del
     del Update
     
 vtkShrinkPolyData shrink
-    shrink SetInput [del GetOutput]
+    shrink SetInputConnection [del GetOutputPort]
 
 vtkPolyDataMapper map
-    map SetInput [shrink GetOutput]
+    map SetInputConnection [shrink GetOutputPort]
 
 vtkActor triangulation
     triangulation SetMapper map

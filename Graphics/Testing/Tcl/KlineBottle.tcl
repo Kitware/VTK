@@ -312,17 +312,17 @@ vtkLoopSubdivisionFilter subdivide
   subdivide SetNumberOfSubdivisions 4
 
 vtkDataSetMapper mapper
-   mapper SetInput [subdivide GetOutput]
+   mapper SetInputConnection [subdivide GetOutputPort]
 
 vtkLODActor rose
     rose SetMapper mapper
 
 vtkFeatureEdges fe
-  fe SetInput [subdivide GetOutput]
+  fe SetInputConnection [subdivide GetOutputPort]
   fe SetFeatureAngle 100
 
 vtkPolyDataMapper feMapper
-  feMapper SetInput [fe GetOutput]
+  feMapper SetInputConnection [fe GetOutputPort]
 
 vtkActor edges
   edges SetMapper feMapper

@@ -13,29 +13,29 @@ vtkUnstructuredGridReader reader
 vtkPlane plane
     plane SetNormal 1 1 0
 vtkClipDataSet clip
-  clip SetInput [reader GetOutput]
+  clip SetInputConnection [reader GetOutputPort]
   clip SetClipFunction plane
   clip GenerateClipScalarsOn
 vtkDataSetSurfaceFilter g
-  g SetInput [clip GetOutput]
+  g SetInputConnection [clip GetOutputPort]
 vtkPolyDataMapper map
-  map SetInput [g GetOutput]
+  map SetInputConnection [g GetOutputPort]
 vtkActor clipActor
   clipActor SetMapper map
 
 # Contour
 #
 vtkContourFilter contour
-  contour SetInput [reader GetOutput]
+  contour SetInputConnection [reader GetOutputPort]
   contour SetValue 0 0.125
   contour SetValue 1 0.25
   contour SetValue 2 0.5
   contour SetValue 3 0.75
   contour SetValue 4 1.0
 vtkDataSetSurfaceFilter g2
-  g2 SetInput [contour GetOutput]
+  g2 SetInputConnection [contour GetOutputPort]
 vtkPolyDataMapper map2
-  map2 SetInput [g2 GetOutput]
+  map2 SetInputConnection [g2 GetOutputPort]
   map2 ScalarVisibilityOff
 vtkActor contourActor
   contourActor SetMapper map2
@@ -45,14 +45,14 @@ vtkActor contourActor
 
 # Triangulate
 vtkDataSetTriangleFilter tris
-  tris SetInput [reader GetOutput]
+  tris SetInputConnection [reader GetOutputPort]
 
 vtkShrinkFilter shrink
-  shrink SetInput [tris GetOutput]
+  shrink SetInputConnection [tris GetOutputPort]
   shrink SetShrinkFactor .8
 
 vtkDataSetMapper map3
-  map3 SetInput [shrink GetOutput]
+  map3 SetInputConnection [shrink GetOutputPort]
   map3 SetScalarRange 0 26
 
 vtkActor triActor

@@ -85,7 +85,7 @@ vtkTriangleFilter tf
 tf SetInput pd
 
 vtkPolyDataMapper mapper
-mapper SetInput [tf GetOutput]
+mapper SetInputConnection [tf GetOutputPort]
 
 vtkActor actor
 actor SetMapper mapper

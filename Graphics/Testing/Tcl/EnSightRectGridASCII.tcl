@@ -10,17 +10,17 @@ vtkGenericEnSightReader reader
     reader SetCaseFileName "$VTK_DATA_ROOT/Data/EnSight/RectGrid_ascii.case"
     reader Update
 vtkCastToConcrete toRectilinearGrid
-    toRectilinearGrid SetInput [reader GetOutput] 
+    toRectilinearGrid SetInputConnection [reader GetOutputPort] 
 vtkRectilinearGridGeometryFilter plane
     plane SetInput [toRectilinearGrid GetRectilinearGridOutput]
     plane SetExtent 0 100 0 100 15 15 
 vtkTriangleFilter tri
-    tri SetInput [plane GetOutput]
+    tri SetInputConnection [plane GetOutputPort]
 vtkWarpVector warper
-    warper SetInput [tri GetOutput]
+    warper SetInputConnection [tri GetOutputPort]
     warper SetScaleFactor 0.05
 vtkDataSetMapper planeMapper
-    planeMapper SetInput [warper GetOutput]
+    planeMapper SetInputConnection [warper GetOutputPort]
     planeMapper SetScalarRange 0.197813 0.710419
 vtkActor planeActor
     planeActor SetMapper planeMapper
@@ -32,7 +32,7 @@ vtkCutter planeCut
     planeCut SetInput [toRectilinearGrid GetRectilinearGridOutput]
     planeCut SetCutFunction cutPlane
 vtkDataSetMapper cutMapper
-    cutMapper SetInput [planeCut GetOutput]
+    cutMapper SetInputConnection [planeCut GetOutputPort]
     eval cutMapper SetScalarRange \
       [[[[reader GetOutput] GetPointData] GetScalars] GetRange]
 vtkActor cutActor
@@ -42,10 +42,10 @@ vtkContourFilter iso
     iso SetInput [toRectilinearGrid GetRectilinearGridOutput]
     iso SetValue 0 0.7
 vtkPolyDataNormals normals
-    normals SetInput [iso GetOutput]
+    normals SetInputConnection [iso GetOutputPort]
     normals SetFeatureAngle 45
 vtkPolyDataMapper isoMapper
-    isoMapper SetInput [normals GetOutput]
+    isoMapper SetInputConnection [normals GetOutputPort]
     isoMapper ScalarVisibilityOff
 vtkActor isoActor
     isoActor SetMapper isoMapper
@@ -53,7 +53,7 @@ vtkActor isoActor
     eval [isoActor GetProperty] SetRepresentationToWireframe
 
 vtkStreamLine streamer
-    streamer SetInput [reader GetOutput]
+    streamer SetInputConnection [reader GetOutputPort]
     streamer SetStartPosition -1.2 -0.1 1.3
     streamer SetMaximumPropagationTime 500
     streamer SetStepLength 0.05
@@ -61,12 +61,12 @@ vtkStreamLine streamer
     streamer SetIntegrationDirectionToIntegrateBothDirections
 
 vtkTubeFilter streamTube
-    streamTube SetInput [streamer GetOutput]
+    streamTube SetInputConnection [streamer GetOutputPort]
     streamTube SetRadius 0.025
     streamTube SetNumberOfSides 6
     streamTube SetVaryRadius $VTK_VARY_RADIUS_BY_VECTOR
 vtkPolyDataMapper mapStreamTube
-    mapStreamTube SetInput [streamTube GetOutput]
+    mapStreamTube SetInputConnection [streamTube GetOutputPort]
     eval mapStreamTube SetScalarRange \
        [[[[reader GetOutput] GetPointData] GetScalars] GetRange]
 vtkActor streamTubeActor
@@ -76,7 +76,7 @@ vtkActor streamTubeActor
 vtkOutlineFilter outline
     outline SetInput [toRectilinearGrid GetRectilinearGridOutput]
 vtkPolyDataMapper outlineMapper
-    outlineMapper SetInput [outline GetOutput]
+    outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
     eval [outlineActor GetProperty] SetColor $black

@@ -10,28 +10,28 @@ vtkPointSource sphere
 # triangulate the points
 #
 vtkDelaunay3D del
-  del SetInput [sphere GetOutput]
+  del SetInputConnection [sphere GetOutputPort]
   del SetTolerance 0.01
     
 # texture map the sphere (using cylindrical coordinate system)
 #
 vtkTextureMapToCylinder tmapper
-  tmapper SetInput [del GetOutput]
+  tmapper SetInputConnection [del GetOutputPort]
   tmapper PreventSeamOn
 
 vtkTransformTextureCoords xform
-  xform SetInput [tmapper GetOutput]
+  xform SetInputConnection [tmapper GetOutputPort]
   xform SetScale 4 4 1
 
 vtkDataSetMapper mapper
-  mapper SetInput [xform GetOutput]
+  mapper SetInputConnection [xform GetOutputPort]
 
 # load in the texture map and assign to actor
 #
 vtkBMPReader bmpReader
   bmpReader SetFileName "$VTK_DATA_ROOT/Data/masonry.bmp"
 vtkTexture atext
-  atext SetInput [bmpReader GetOutput]
+  atext SetInputConnection [bmpReader GetOutputPort]
   atext InterpolateOn
 vtkActor triangulation
   triangulation SetMapper mapper

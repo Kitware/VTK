@@ -19,11 +19,11 @@ vtkLineSource line
 
 vtkRotationalExtrusionFilter lineSweeper
   lineSweeper SetResolution 20
-  lineSweeper SetInput [line GetOutput]
+  lineSweeper SetInputConnection [line GetOutputPort]
   lineSweeper SetAngle 270
 
 vtkBrownianPoints bump
-  bump SetInput [lineSweeper GetOutput]
+  bump SetInputConnection [lineSweeper GetOutputPort]
 
 vtkWarpVector warp
   warp SetInput [bump GetPolyDataOutput]
@@ -38,10 +38,10 @@ vtkWindowedSincPolyDataFilter smooth
     smooth SetPassBand 0.1
 
 vtkPolyDataNormals normals
-    normals SetInput [smooth GetOutput]
+    normals SetInputConnection [smooth GetOutputPort]
 
 vtkPolyDataMapper cylMapper
-    cylMapper SetInput [normals GetOutput]
+    cylMapper SetInputConnection [normals GetOutputPort]
 
 vtkActor cylActor
     cylActor SetMapper cylMapper

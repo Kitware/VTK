@@ -18,11 +18,11 @@ c1 SetCenter 0 0.8 0
 vtkTransform t1
 
 vtkTransformPolyDataFilter f1
-f1 SetInput [c1 GetOutput]
+f1 SetInputConnection [c1 GetOutputPort]
 f1 SetTransform t1
 
 vtkDataSetMapper m1
-m1 SetInput [f1 GetOutput]
+m1 SetInputConnection [f1 GetOutputPort]
 
 vtkActor a1
 a1 SetMapper m1
@@ -45,11 +45,11 @@ t2 Translate 0 1.6 0
 t2 Concatenate joint1 
 
 vtkTransformPolyDataFilter f2
-f2 SetInput [c2 GetOutput]
+f2 SetInputConnection [c2 GetOutputPort]
 f2 SetTransform t2
 
 vtkDataSetMapper m2
-m2 SetInput [f2 GetOutput]
+m2 SetInputConnection [f2 GetOutputPort]
 
 vtkActor a2
 a2 SetMapper m2
@@ -72,11 +72,11 @@ t3 Translate 0 1.6 0
 t3 Concatenate joint2
 
 vtkTransformPolyDataFilter f3
-f3 SetInput [c3 GetOutput]
+f3 SetInputConnection [c3 GetOutputPort]
 f3 SetTransform t3
 
 vtkDataSetMapper m3
-m3 SetInput [f3 GetOutput]
+m3 SetInputConnection [f3 GetOutputPort]
 
 vtkActor a3
 a3 SetMapper m3

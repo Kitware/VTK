@@ -9,14 +9,14 @@ vtkUnstructuredGridReader reader
     reader SetScalarsName "thickness9"
     reader SetVectorsName "displacement9"
 vtkDataSetToDataObjectFilter ds2do
-    ds2do SetInput [reader GetOutput]
+    ds2do SetInputConnection [reader GetOutputPort]
 
 # we must be able to write here
 if {[catch {set channel [open UGridField.vtk w]}] == 0 } {
    close $channel
 
 vtkDataObjectWriter write
-    write SetInput [ds2do GetOutput]
+    write SetInputConnection [ds2do GetOutputPort]
     write SetFileName "UGridField.vtk"
     write Write
 
@@ -24,7 +24,7 @@ vtkDataObjectWriter write
 vtkDataObjectReader dor
     dor SetFileName "UGridField.vtk"
 vtkDataObjectToDataSetFilter do2ds
-    do2ds SetInput [dor GetOutput]
+    do2ds SetInputConnection [dor GetOutputPort]
     do2ds SetDataSetTypeToUnstructuredGrid
     do2ds SetPointComponent 0 Points 0 
     do2ds SetPointComponent 1 Points 1 
@@ -46,12 +46,12 @@ vtkWarpVector warp
 
 # extract mold from mesh using connectivity
 vtkConnectivityFilter connect
-    connect SetInput [warp GetOutput]
+    connect SetInputConnection [warp GetOutputPort]
     connect SetExtractionModeToSpecifiedRegions
     connect AddSpecifiedRegion 0
     connect AddSpecifiedRegion 1
 vtkDataSetMapper moldMapper
-    moldMapper SetInput [connect GetOutput]
+    moldMapper SetInputConnection [connect GetOutputPort]
     moldMapper ScalarVisibilityOff
 vtkActor moldActor
     moldActor SetMapper moldMapper
@@ -60,28 +60,28 @@ vtkActor moldActor
 
 # extract parison from mesh using connectivity
 vtkConnectivityFilter connect2
-    connect2 SetInput [warp GetOutput]
+    connect2 SetInputConnection [warp GetOutputPort]
     connect2 SetExtractionModeToSpecifiedRegions
     connect2 AddSpecifiedRegion 2
 vtkGeometryFilter parison
-    parison SetInput [connect2 GetOutput]
+    parison SetInputConnection [connect2 GetOutputPort]
 vtkPolyDataNormals normals2
-    normals2 SetInput [parison GetOutput]
+    normals2 SetInputConnection [parison GetOutputPort]
     normals2 SetFeatureAngle 60
 vtkLookupTable lut
     lut SetHueRange 0.0 0.66667
 vtkPolyDataMapper parisonMapper
-    parisonMapper SetInput [normals2 GetOutput]
+    parisonMapper SetInputConnection [normals2 GetOutputPort]
     parisonMapper SetLookupTable lut
     parisonMapper SetScalarRange 0.12 1.0
 vtkActor parisonActor
     parisonActor SetMapper parisonMapper
 
 vtkContourFilter cf
-    cf SetInput [connect2 GetOutput]
+    cf SetInputConnection [connect2 GetOutputPort]
     cf SetValue 0 .5
 vtkPolyDataMapper contourMapper
-    contourMapper SetInput [cf GetOutput]
+    contourMapper SetInputConnection [cf GetOutputPort]
 vtkActor contours
     contours SetMapper contourMapper
 

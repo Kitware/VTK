@@ -23,10 +23,10 @@ reader SetCellArrayStatus displacement 1
 reader Update
 
 vtkGeometryFilter geom
-geom SetInput [reader GetOutput]
+geom SetInputConnection [reader GetOutputPort]
 
 vtkPolyDataMapper mapper
-mapper SetInput [geom GetOutput]
+mapper SetInputConnection [geom GetOutputPort]
 mapper SetScalarRange 0.5 1.0
 
 vtkActor actor

@@ -15,7 +15,7 @@ vtkPointLoad ptLoad
 
 # Generate hyperstreamlines
 vtkHyperStreamline s1
-    s1 SetInput [ptLoad GetOutput]
+    s1 SetInputConnection [ptLoad GetOutputPort]
     s1 SetStartPosition 9 9 -9
     s1 IntegrateMinorEigenvector
     s1 SetMaximumPropagationDistance 18.0
@@ -42,7 +42,7 @@ vtkScalarBarActor scalarBar
     [scalarBar GetLabelTextProperty] SetColor 1 0 0
     [scalarBar GetTitleTextProperty] SetColor 1 0 0
 vtkPolyDataMapper s1Mapper
-    s1Mapper SetInput [s1 GetOutput]
+    s1Mapper SetInputConnection [s1 GetOutputPort]
     s1Mapper SetLookupTable lut
     ptLoad Update;#force update for scalar range
     eval s1Mapper SetScalarRange [[ptLoad GetOutput] GetScalarRange]
@@ -50,7 +50,7 @@ vtkActor s1Actor
     s1Actor SetMapper s1Mapper
 
 vtkHyperStreamline s2
-    s2 SetInput [ptLoad GetOutput]
+    s2 SetInputConnection [ptLoad GetOutputPort]
     s2 SetStartPosition -9 -9 -9
     s2 IntegrateMinorEigenvector
     s2 SetMaximumPropagationDistance 18.0
@@ -61,14 +61,14 @@ vtkHyperStreamline s2
     s2 SetIntegrationDirection $VTK_INTEGRATE_BOTH_DIRECTIONS
     s2 Update
 vtkPolyDataMapper s2Mapper
-    s2Mapper SetInput [s2 GetOutput]
+    s2Mapper SetInputConnection [s2 GetOutputPort]
     s2Mapper SetLookupTable lut
     eval s2Mapper SetScalarRange [[ptLoad GetOutput] GetScalarRange]
 vtkActor s2Actor
     s2Actor SetMapper s2Mapper
 
 vtkHyperStreamline s3
-    s3 SetInput [ptLoad GetOutput]
+    s3 SetInputConnection [ptLoad GetOutputPort]
     s3 SetStartPosition 9 -9 -9
     s3 IntegrateMinorEigenvector
     s3 SetMaximumPropagationDistance 18.0
@@ -79,14 +79,14 @@ vtkHyperStreamline s3
     s3 SetIntegrationDirection $VTK_INTEGRATE_BOTH_DIRECTIONS
     s3 Update
 vtkPolyDataMapper s3Mapper
-    s3Mapper SetInput [s3 GetOutput]
+    s3Mapper SetInputConnection [s3 GetOutputPort]
     s3Mapper SetLookupTable lut
     eval s3Mapper SetScalarRange [[ptLoad GetOutput] GetScalarRange]
 vtkActor s3Actor
     s3Actor SetMapper s3Mapper
 
 vtkHyperStreamline s4
-    s4 SetInput [ptLoad GetOutput]
+    s4 SetInputConnection [ptLoad GetOutputPort]
     s4 SetStartPosition -9 9 -9
     s4 IntegrateMinorEigenvector
     s4 SetMaximumPropagationDistance 18.0
@@ -97,7 +97,7 @@ vtkHyperStreamline s4
     s4 SetIntegrationDirection $VTK_INTEGRATE_BOTH_DIRECTIONS
     s4 Update
 vtkPolyDataMapper s4Mapper
-    s4Mapper SetInput [s4 GetOutput]
+    s4Mapper SetInputConnection [s4 GetOutputPort]
     s4Mapper SetLookupTable lut
     eval s4Mapper SetScalarRange [[ptLoad GetOutput] GetScalarRange]
 vtkActor s4Actor
@@ -106,11 +106,11 @@ vtkActor s4Actor
 # plane for context
 #
 vtkImageDataGeometryFilter g
-    g SetInput [ptLoad GetOutput]
+    g SetInputConnection [ptLoad GetOutputPort]
     g SetExtent 0 100 0 100 0 0
     g Update;#for scalar range
 vtkPolyDataMapper gm
-    gm SetInput [g GetOutput]
+    gm SetInputConnection [g GetOutputPort]
     eval gm SetScalarRange [[g GetOutput] GetScalarRange]
 vtkActor ga
     ga SetMapper gm
@@ -118,9 +118,9 @@ vtkActor ga
 # Create outline around data
 #
 vtkOutlineFilter outline
-    outline SetInput [ptLoad GetOutput]
+    outline SetInputConnection [ptLoad GetOutputPort]
 vtkPolyDataMapper outlineMapper
-    outlineMapper SetInput [outline GetOutput]
+    outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
     eval [outlineActor GetProperty] SetColor 0 0 0
@@ -131,7 +131,7 @@ vtkConeSource coneSrc
     coneSrc  SetRadius .5
     coneSrc  SetHeight 2
 vtkPolyDataMapper coneMap
-    coneMap SetInput [coneSrc GetOutput]
+    coneMap SetInputConnection [coneSrc GetOutputPort]
 vtkActor coneActor
     coneActor SetMapper coneMap;    
     coneActor SetPosition 0 0 11

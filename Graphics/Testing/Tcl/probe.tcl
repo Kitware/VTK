@@ -20,13 +20,13 @@ vtkPlane plane
     eval plane SetOrigin [[pl3d GetOutput] GetCenter]
     plane SetNormal -0.287 0 0.9579
 vtkCutter planeCut
-    planeCut SetInput [pl3d GetOutput]
+    planeCut SetInputConnection [pl3d GetOutputPort]
     planeCut SetCutFunction plane
 vtkProbeFilter probe
-    probe SetInput [planeCut GetOutput]
+    probe SetInputConnection [planeCut GetOutputPort]
     probe SetSource [pl3d GetOutput]
 vtkDataSetMapper cutMapper
-    cutMapper SetInput [probe GetOutput]
+    cutMapper SetInputConnection [probe GetOutputPort]
     eval cutMapper SetScalarRange \
       [[[[pl3d GetOutput] GetPointData] GetScalars] GetRange]
 vtkActor cutActor
@@ -34,10 +34,10 @@ vtkActor cutActor
 
 #extract plane
 vtkStructuredGridGeometryFilter compPlane
-    compPlane SetInput [pl3d GetOutput]
+    compPlane SetInputConnection [pl3d GetOutputPort]
     compPlane SetExtent 0 100 0 100 9 9
 vtkPolyDataMapper planeMapper
-    planeMapper SetInput [compPlane GetOutput]
+    planeMapper SetInputConnection [compPlane GetOutputPort]
     planeMapper ScalarVisibilityOff
 vtkActor planeActor
     planeActor SetMapper planeMapper
@@ -46,9 +46,9 @@ vtkActor planeActor
 
 #outline
 vtkStructuredGridOutlineFilter outline
-    outline SetInput [pl3d GetOutput]
+    outline SetInputConnection [pl3d GetOutputPort]
 vtkPolyDataMapper outlineMapper
-    outlineMapper SetInput [outline GetOutput]
+    outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
 set outlineProp [outlineActor GetProperty]

@@ -22,22 +22,22 @@ vtkConeSource cone8
   cone8 SetCenter 5 0 0
 
 vtkPolyDataMapper cone0Mapper
-  cone0Mapper SetInput [cone0 GetOutput]
+  cone0Mapper SetInputConnection [cone0 GetOutputPort]
 vtkActor cone0Actor
   cone0Actor SetMapper cone0Mapper
 
 vtkPolyDataMapper cone1Mapper
-  cone1Mapper SetInput [cone1 GetOutput]
+  cone1Mapper SetInputConnection [cone1 GetOutputPort]
 vtkActor cone1Actor
   cone1Actor SetMapper cone1Mapper
 
 vtkPolyDataMapper cone2Mapper
-  cone2Mapper SetInput [cone2 GetOutput]
+  cone2Mapper SetInputConnection [cone2 GetOutputPort]
 vtkActor cone2Actor
   cone2Actor SetMapper cone2Mapper
 
 vtkPolyDataMapper cone8Mapper
-  cone8Mapper SetInput [cone8 GetOutput]
+  cone8Mapper SetInputConnection [cone8 GetOutputPort]
 vtkActor cone8Actor
   cone8Actor SetMapper cone8Mapper
 

@@ -14,25 +14,25 @@ vtkPNMReader imageIn
 imageIn SetFileName "$VTK_DATA_ROOT/Data/earth.ppm"
 
 vtkImageLuminance il
-il SetInput [imageIn GetOutput]
+il SetInputConnection [imageIn GetOutputPort]
 
 vtkImageCast ic
 ic SetOutputScalarTypeToFloat
-ic SetInput [il GetOutput]
+ic SetInputConnection [il GetOutputPort]
 
 # smooth the image
 vtkImageGaussianSmooth gs
-gs SetInput [ic GetOutput]
+gs SetInputConnection [ic GetOutputPort]
 gs SetDimensionality 2
 gs SetRadiusFactors 1 1 0
 
 # gradient the image
 vtkImageGradient imgGradient;
-imgGradient SetInput [gs GetOutput];
+imgGradient SetInputConnection [gs GetOutputPort];
 imgGradient SetDimensionality 2
 
 vtkImageMagnitude imgMagnitude
-imgMagnitude SetInput [imgGradient GetOutput]
+imgMagnitude SetInputConnection [imgGradient GetOutputPort]
 
 # non maximum suppression
 vtkImageNonMaximumSuppression nonMax;
@@ -41,42 +41,42 @@ nonMax SetVectorInput [imgGradient GetOutput];
 nonMax SetDimensionality 2
 
 vtkImageConstantPad pad
-pad SetInput [imgGradient GetOutput]
+pad SetInputConnection [imgGradient GetOutputPort]
 pad SetOutputNumberOfScalarComponents 3
 pad SetConstant 0
 
 vtkImageToStructuredPoints i2sp1
-i2sp1 SetInput [nonMax GetOutput]
+i2sp1 SetInputConnection [nonMax GetOutputPort]
 i2sp1 SetVectorInput [pad GetOutput]
 
 # link edgles
 vtkLinkEdgels imgLink;
-imgLink SetInput [i2sp1 GetOutput];
+imgLink SetInputConnection [i2sp1 GetOutputPort];
 imgLink SetGradientThreshold 2;
 
 # threshold links
 vtkThreshold thresholdEdgels;
-thresholdEdgels SetInput [imgLink GetOutput];
+thresholdEdgels SetInputConnection [imgLink GetOutputPort];
 thresholdEdgels ThresholdByUpper 10;
 thresholdEdgels AllScalarsOff
 
 vtkGeometryFilter gf
-gf SetInput [thresholdEdgels GetOutput]
+gf SetInputConnection [thresholdEdgels GetOutputPort]
 
 vtkImageToStructuredPoints i2sp
-i2sp SetInput [imgMagnitude GetOutput]
+i2sp SetInputConnection [imgMagnitude GetOutputPort]
 i2sp SetVectorInput [pad GetOutput]
 
 # subpixel them
 vtkSubPixelPositionEdgels spe;
-spe SetInput [gf GetOutput];
+spe SetInputConnection [gf GetOutputPort];
 spe SetGradMaps [i2sp GetOutput];
 
 vtkStripper strip
-strip SetInput [spe GetOutput]
+strip SetInputConnection [spe GetOutputPort]
 
 vtkPolyDataMapper dsm
-dsm SetInput [strip GetOutput]
+dsm SetInputConnection [strip GetOutputPort]
 dsm ScalarVisibilityOff
 
 vtkActor planeActor

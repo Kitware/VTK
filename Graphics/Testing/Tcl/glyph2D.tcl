@@ -68,7 +68,7 @@ vtkGlyph2D glypher
   glypher SetScaleModeToDataScalingOff
 
 vtkPolyDataMapper2D mapper
-    mapper SetInput [glypher GetOutput]
+    mapper SetInputConnection [glypher GetOutputPort]
     mapper SetScalarRange 0 5
 
 vtkActor2D glyphActor

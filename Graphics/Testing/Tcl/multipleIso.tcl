@@ -24,7 +24,7 @@ set max [lindex $range 1]
 set value [expr ($min + $max) / 2.0]
 
 vtkContourFilter cf
-    cf SetInput [pl3d GetOutput]
+    cf SetInputConnection [pl3d GetOutputPort]
     cf SetValue 0 $value
     cf UseScalarTreeOn
 

@@ -22,34 +22,34 @@ vtkImageReader reader
   reader SetDataSpacing 1.6 1.6 1.5
 
 vtkImageClip clipper
-  clipper SetInput [reader GetOutput]
+  clipper SetInputConnection [reader GetOutputPort]
   clipper SetOutputWholeExtent 30 36 30 36 30 36
 
 vtkImageClip clipper2
-  clipper2 SetInput [reader GetOutput]
+  clipper2 SetInputConnection [reader GetOutputPort]
   clipper2 SetOutputWholeExtent 30 36 30 36 30 36
 
 vtkDataSetTriangleFilter tris
-  tris SetInput [clipper GetOutput]
+  tris SetInputConnection [clipper GetOutputPort]
 
 vtkDataSetTriangleFilter tris2
-  tris2 SetInput [clipper2 GetOutput]
+  tris2 SetInputConnection [clipper2 GetOutputPort]
 
 vtkGeometryFilter geom
-  geom SetInput [tris GetOutput]
+  geom SetInputConnection [tris GetOutputPort]
 
 vtkExtractEdges edges
-  edges SetInput [tris2 GetOutput]
+  edges SetInputConnection [tris2 GetOutputPort]
 
 vtkPolyDataMapper mapper1
-  mapper1 SetInput [geom GetOutput]
+  mapper1 SetInputConnection [geom GetOutputPort]
   mapper1 ScalarVisibilityOn
   mapper1 SetScalarRange 0 1200
   mapper1 SetPiece $PIECE
   mapper1 SetNumberOfPieces $NUMBER_OF_PIECES
 
 vtkPolyDataMapper mapper2
-  mapper2 SetInput [edges GetOutput]
+  mapper2 SetInputConnection [edges GetOutputPort]
   mapper2 SetPiece $PIECE
   mapper2 SetNumberOfPieces $NUMBER_OF_PIECES
 

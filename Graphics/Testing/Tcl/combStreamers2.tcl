@@ -25,13 +25,13 @@ vtkPlaneSource ps
     ps SetPoint1 2  2 26
     ps SetPoint2 2 -2 32
 vtkPolyDataMapper psMapper
-    psMapper SetInput [ps GetOutput]
+    psMapper SetInputConnection [ps GetOutputPort]
 vtkActor psActor
     psActor SetMapper psMapper
     [psActor GetProperty] SetRepresentationToWireframe
 
 vtkDashedStreamLine streamer
-    streamer SetInput [pl3d GetOutput]
+    streamer SetInputConnection [pl3d GetOutputPort]
     streamer SetSource [ps GetOutput]
     streamer SetMaximumPropagationTime 100
     streamer SetIntegrationStepLength .2
@@ -39,15 +39,15 @@ vtkDashedStreamLine streamer
     streamer SetNumberOfThreads 1
     streamer SetIntegrationDirectionToForward
 vtkPolyDataMapper streamMapper
-    streamMapper SetInput [streamer GetOutput]
+    streamMapper SetInputConnection [streamer GetOutputPort]
     eval streamMapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
 vtkActor streamline
     streamline SetMapper streamMapper
 
 vtkStructuredGridOutlineFilter outline
-    outline SetInput [pl3d GetOutput]
+    outline SetInputConnection [pl3d GetOutputPort]
 vtkPolyDataMapper outlineMapper
-    outlineMapper SetInput [outline GetOutput]
+    outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
 

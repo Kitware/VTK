@@ -28,7 +28,7 @@ planes SetNormals norms
 vtkStructuredPointsReader texReader
     texReader SetFileName "$VTK_DATA_ROOT/Data/texThres2.vtk"
 vtkTexture texture
-    texture SetInput [texReader GetOutput]
+    texture SetInputConnection [texReader GetOutputPort]
     texture InterpolateOff
     texture RepeatOff
 
@@ -38,13 +38,13 @@ vtkBYUReader byu
     byu SetGeometryFileName "$VTK_DATA_ROOT/Data/motor.g"
     byu SetPartNumber 1
 vtkPolyDataNormals normals
-    normals SetInput [byu GetOutput]
+    normals SetInputConnection [byu GetOutputPort]
 vtkImplicitTextureCoords tex1
-    tex1 SetInput [normals GetOutput]
+    tex1 SetInputConnection [normals GetOutputPort]
     tex1 SetRFunction planes
 #    tex1 FlipTextureOn
 vtkDataSetMapper byuMapper
-    byuMapper SetInput [tex1 GetOutput]
+    byuMapper SetInputConnection [tex1 GetOutputPort]
 vtkActor byuActor
     byuActor SetMapper byuMapper
     byuActor SetTexture texture
@@ -54,13 +54,13 @@ vtkBYUReader byu2
     byu2 SetGeometryFileName "$VTK_DATA_ROOT/Data/motor.g"
     byu2 SetPartNumber 2
 vtkPolyDataNormals normals2
-    normals2 SetInput [byu2 GetOutput]
+    normals2 SetInputConnection [byu2 GetOutputPort]
 vtkImplicitTextureCoords tex2
-    tex2 SetInput [normals2 GetOutput]
+    tex2 SetInputConnection [normals2 GetOutputPort]
     tex2 SetRFunction planes
 #    tex2 FlipTextureOn
 vtkDataSetMapper byuMapper2
-    byuMapper2 SetInput [tex2 GetOutput]
+    byuMapper2 SetInputConnection [tex2 GetOutputPort]
 vtkActor byuActor2
     byuActor2 SetMapper byuMapper2
     byuActor2 SetTexture texture
@@ -71,16 +71,16 @@ vtkBYUReader byu3
     byu3 SetPartNumber 3
 
 vtkTriangleFilter triangle3
-  triangle3 SetInput [byu3 GetOutput]
+  triangle3 SetInputConnection [byu3 GetOutputPort]
 
 vtkPolyDataNormals normals3
-    normals3 SetInput [triangle3 GetOutput]
+    normals3 SetInputConnection [triangle3 GetOutputPort]
 vtkImplicitTextureCoords tex3
-    tex3 SetInput [normals3 GetOutput]
+    tex3 SetInputConnection [normals3 GetOutputPort]
     tex3 SetRFunction planes
 #    tex3 FlipTextureOn
 vtkDataSetMapper byuMapper3
-    byuMapper3 SetInput [tex3 GetOutput]
+    byuMapper3 SetInputConnection [tex3 GetOutputPort]
 vtkActor byuActor3
     byuActor3 SetMapper byuMapper3
     byuActor3 SetTexture texture
@@ -90,13 +90,13 @@ vtkBYUReader byu4
     byu4 SetGeometryFileName "$VTK_DATA_ROOT/Data/motor.g"
     byu4 SetPartNumber 4
 vtkPolyDataNormals normals4
-    normals4 SetInput [byu4 GetOutput]
+    normals4 SetInputConnection [byu4 GetOutputPort]
 vtkImplicitTextureCoords tex4
-    tex4 SetInput [normals4 GetOutput]
+    tex4 SetInputConnection [normals4 GetOutputPort]
     tex4 SetRFunction planes
 #    tex4 FlipTextureOn
 vtkDataSetMapper byuMapper4
-    byuMapper4 SetInput [tex4 GetOutput]
+    byuMapper4 SetInputConnection [tex4 GetOutputPort]
 vtkActor byuActor4
     byuActor4 SetMapper byuMapper4
     byuActor4 SetTexture texture
@@ -106,13 +106,13 @@ vtkBYUReader byu5
     byu5 SetGeometryFileName "$VTK_DATA_ROOT/Data/motor.g"
     byu5 SetPartNumber 5
 vtkPolyDataNormals normals5
-    normals5 SetInput [byu5 GetOutput]
+    normals5 SetInputConnection [byu5 GetOutputPort]
 vtkImplicitTextureCoords tex5
-    tex5 SetInput [normals5 GetOutput]
+    tex5 SetInputConnection [normals5 GetOutputPort]
     tex5 SetRFunction planes
 #    tex5 FlipTextureOn
 vtkDataSetMapper byuMapper5
-    byuMapper5 SetInput [tex5 GetOutput]
+    byuMapper5 SetInputConnection [tex5 GetOutputPort]
 vtkActor byuActor5
     byuActor5 SetMapper byuMapper5
     byuActor5 SetTexture texture

@@ -5,7 +5,7 @@ set res 6
 vtkPlaneSource plane
     plane SetResolution $res $res
 vtkElevationFilter colors
-    colors SetInput [plane GetOutput]
+    colors SetInputConnection [plane GetOutputPort]
     colors SetLowPoint -0.25 -0.25 -0.25
     colors SetHighPoint 0.25 0.25 0.25
 vtkPolyDataMapper planeMapper
@@ -17,11 +17,11 @@ vtkActor planeActor
 # create simple poly data so we can apply glyph
 vtkSuperquadricSource squad
 vtkProgrammableGlyphFilter glypher
-    glypher SetInput [colors GetOutput]
+    glypher SetInputConnection [colors GetOutputPort]
     glypher SetSource [squad GetOutput]
     glypher SetGlyphMethod {Glyph}
 vtkPolyDataMapper glyphMapper
-    glyphMapper SetInput [glypher GetOutput]
+    glyphMapper SetInputConnection [glypher GetOutputPort]
 vtkActor glyphActor
     glyphActor SetMapper glyphMapper
 

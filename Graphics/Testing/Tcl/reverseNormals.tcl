@@ -17,11 +17,11 @@ vtkPlane plane
   plane SetNormal 1 0 0
 
 vtkClipPolyData cowClipper
-  cowClipper SetInput [cowReader GetOutput]
+  cowClipper SetInputConnection [cowReader GetOutputPort]
   cowClipper SetClipFunction plane
 
 vtkPolyDataNormals cellNormals
-  cellNormals SetInput [cowClipper GetOutput]
+  cellNormals SetInputConnection [cowClipper GetOutputPort]
   cellNormals ComputePointNormalsOn
   cellNormals ComputeCellNormalsOn
 
@@ -30,15 +30,15 @@ vtkTransform reflect
 
 vtkTransformPolyDataFilter cowReflect
   cowReflect SetTransform reflect
-  cowReflect SetInput [cellNormals GetOutput]
+  cowReflect SetInputConnection [cellNormals GetOutputPort]
 
 vtkReverseSense cowReverse
-  cowReverse SetInput [cowReflect GetOutput]
+  cowReverse SetInputConnection [cowReflect GetOutputPort]
   cowReverse ReverseNormalsOn
   cowReverse ReverseCellsOff
 
 vtkPolyDataMapper reflectedMapper
-  reflectedMapper SetInput [cowReverse GetOutput]
+  reflectedMapper SetInputConnection [cowReverse GetOutputPort]
 
 vtkActor reflected
   reflected SetMapper reflectedMapper
@@ -51,7 +51,7 @@ eval [reflected GetProperty] SetDiffuseColor $flesh
 ren1 AddActor reflected
 
 vtkPolyDataMapper cowMapper
-    cowMapper SetInput [cowClipper GetOutput]
+    cowMapper SetInputConnection [cowClipper GetOutputPort]
 
 vtkActor cow
     cow SetMapper cowMapper

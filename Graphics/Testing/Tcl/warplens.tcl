@@ -18,10 +18,10 @@ set xWidth [lindex [[pngReader GetOutput] GetDimensions] 0]
 set yHeight [lindex [[pngReader GetOutput] GetDimensions] 1]
 
 vtkGeometryFilter gf
-gf SetInput [pngReader GetOutput]
+gf SetInputConnection [pngReader GetOutputPort]
 
 vtkWarpLens wl
-wl SetInput [gf GetOutput]
+wl SetInputConnection [gf GetOutputPort]
 
 wl SetPrincipalPoint 2.4507 1.7733
 wl SetFormatWidth 4.792
@@ -37,11 +37,11 @@ vtkTriangleFilter tf
 tf SetInput [wl GetPolyDataOutput]
 
 vtkStripper strip
-strip SetInput [tf GetOutput]
+strip SetInputConnection [tf GetOutputPort]
 strip SetMaximumLength 250
 
 vtkPolyDataMapper dsm
-dsm SetInput [strip GetOutput]
+dsm SetInputConnection [strip GetOutputPort]
 
 vtkActor planeActor
 planeActor SetMapper dsm

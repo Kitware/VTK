@@ -5,7 +5,7 @@ set res 6
 vtkPlaneSource plane
     plane SetResolution $res $res
 vtkElevationFilter colors
-    colors SetInput [plane GetOutput]
+    colors SetInputConnection [plane GetOutputPort]
     colors SetLowPoint -0.25 -0.25 -0.25
     colors SetHighPoint 0.25 0.25 0.25
 vtkPolyDataMapper planeMapper
@@ -18,24 +18,24 @@ vtkActor planeActor
 vtkSuperquadricSource squad
 
 vtkElevationFilter squadColors
-    squadColors SetInput [squad GetOutput]
+    squadColors SetInputConnection [squad GetOutputPort]
     squadColors SetLowPoint -0.25 -0.25 -0.25
     squadColors SetHighPoint 0.25 0.25 0.25
 vtkCastToConcrete squadCaster
-  squadCaster SetInput [squadColors GetOutput]
+  squadCaster SetInputConnection [squadColors GetOutputPort]
 vtkTransform squadTransform
 vtkTransformPolyDataFilter transformSquad
   transformSquad SetInput [squadColors GetPolyDataOutput]
   transformSquad SetTransform squadTransform
 
 vtkProgrammableGlyphFilter glypher
-    glypher SetInput [colors GetOutput]
+    glypher SetInputConnection [colors GetOutputPort]
     glypher SetSource [transformSquad GetOutput]
     glypher SetGlyphMethod {Glyph}
     glypher SetColorModeToColorBySource
 
 vtkPolyDataMapper glyphMapper
-    glyphMapper SetInput [glypher GetOutput]
+    glyphMapper SetInputConnection [glypher GetOutputPort]
 vtkActor glyphActor
     glyphActor SetMapper glyphMapper
 

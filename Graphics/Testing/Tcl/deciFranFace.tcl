@@ -20,7 +20,7 @@ vtkPNGReader pnm1
     pnm1 SetFileName "$VTK_DATA_ROOT/Data/fran_cut.png"
 
 vtkTexture atext
-  atext SetInput [pnm1 GetOutput]
+  atext SetInputConnection [pnm1 GetOutputPort]
   atext InterpolateOn
 
 # create a cyberware source
@@ -33,12 +33,12 @@ set accumulates "On Off"
 foreach topology $topologies {
   foreach accumulate $accumulates {
     vtkDecimatePro deci$topology$accumulate
-      deci$topology$accumulate SetInput [fran GetOutput]
+      deci$topology$accumulate SetInputConnection [fran GetOutputPort]
       deci$topology$accumulate SetTargetReduction .95
       deci$topology$accumulate PreserveTopology$topology
       deci$topology$accumulate AccumulateError$accumulate
     vtkPolyDataMapper mapper$topology$accumulate
-      mapper$topology$accumulate SetInput [deci$topology$accumulate GetOutput]
+      mapper$topology$accumulate SetInputConnection [deci$topology$accumulate GetOutputPort]
     vtkActor fran$topology$accumulate
       fran$topology$accumulate SetMapper mapper$topology$accumulate
       fran$topology$accumulate SetTexture atext

@@ -62,7 +62,7 @@ vtkContourFilter voxelContours
   voxelContours SetValue 0 .5
 
 vtkDataSetMapper aVoxelContourMapper
-  aVoxelContourMapper SetInput [voxelContours GetOutput]
+  aVoxelContourMapper SetInputConnection [voxelContours GetOutputPort]
   aVoxelContourMapper ScalarVisibilityOff
 
 vtkDataSetMapper aVoxelMapper
@@ -123,7 +123,7 @@ vtkContourFilter hexahedronContours
   hexahedronContours SetValue 0 .5
 
 vtkDataSetMapper aHexahedronContourMapper
-  aHexahedronContourMapper SetInput [hexahedronContours GetOutput]
+  aHexahedronContourMapper SetInputConnection [hexahedronContours GetOutputPort]
   aHexahedronContourMapper ScalarVisibilityOff
 
 vtkDataSetMapper aHexahedronMapper
@@ -172,7 +172,7 @@ vtkContourFilter tetraContours
   tetraContours SetValue 0 .5
 
 vtkDataSetMapper aTetraContourMapper
-  aTetraContourMapper SetInput [tetraContours GetOutput]
+  aTetraContourMapper SetInputConnection [tetraContours GetOutputPort]
   aTetraContourMapper ScalarVisibilityOff
 
 vtkDataSetMapper aTetraMapper
@@ -226,7 +226,7 @@ vtkContourFilter wedgeContours
   wedgeContours SetValue 0 .5
 
 vtkDataSetMapper aWedgeContourMapper
-  aWedgeContourMapper SetInput [wedgeContours GetOutput]
+  aWedgeContourMapper SetInputConnection [wedgeContours GetOutputPort]
   aWedgeContourMapper ScalarVisibilityOff
 
 vtkDataSetMapper aWedgeMapper
@@ -277,7 +277,7 @@ vtkContourFilter pyramidContours
   pyramidContours SetValue 0 .5
 
 vtkDataSetMapper aPyramidContourMapper
-  aPyramidContourMapper SetInput [pyramidContours GetOutput]
+  aPyramidContourMapper SetInputConnection [pyramidContours GetOutputPort]
   aPyramidContourMapper ScalarVisibilityOff
 
 vtkDataSetMapper aPyramidMapper
@@ -324,7 +324,7 @@ vtkContourFilter pixelContours
   pixelContours SetValue 0 .5
 
 vtkDataSetMapper aPixelContourMapper
-  aPixelContourMapper SetInput [pixelContours GetOutput]
+  aPixelContourMapper SetInputConnection [pixelContours GetOutputPort]
   aPixelContourMapper ScalarVisibilityOff
 
 vtkDataSetMapper aPixelMapper
@@ -372,7 +372,7 @@ vtkContourFilter quadContours
   quadContours SetValue 0 .5
 
 vtkDataSetMapper aQuadContourMapper
-  aQuadContourMapper SetInput [quadContours GetOutput]
+  aQuadContourMapper SetInputConnection [quadContours GetOutputPort]
   aQuadContourMapper ScalarVisibilityOff
 
 vtkDataSetMapper aQuadMapper
@@ -417,7 +417,7 @@ vtkContourFilter triangleContours
   triangleContours SetValue 0 .5
 
 vtkDataSetMapper aTriangleContourMapper
-  aTriangleContourMapper SetInput [triangleContours GetOutput]
+  aTriangleContourMapper SetInputConnection [triangleContours GetOutputPort]
   aTriangleContourMapper ScalarVisibilityOff
 
 vtkActor aTriangleContourActor
@@ -466,7 +466,7 @@ vtkContourFilter polygonContours
   polygonContours SetValue 0 .5
 
 vtkDataSetMapper aPolygonContourMapper
-  aPolygonContourMapper SetInput [polygonContours GetOutput]
+  aPolygonContourMapper SetInputConnection [polygonContours GetOutputPort]
   aPolygonContourMapper ScalarVisibilityOff
 
 vtkDataSetMapper aPolygonMapper
@@ -522,7 +522,7 @@ vtkContourFilter triangleStripContours
   triangleStripContours SetValue 0 .5
 
 vtkDataSetMapper aTriangleStripContourMapper
-  aTriangleStripContourMapper SetInput [triangleStripContours GetOutput]
+  aTriangleStripContourMapper SetInputConnection [triangleStripContours GetOutputPort]
   aTriangleStripContourMapper ScalarVisibilityOff
 
 vtkActor aTriangleStripContourActor
@@ -560,7 +560,7 @@ vtkContourFilter lineContours
   lineContours SetValue 0 .5
 
 vtkDataSetMapper aLineContourMapper
-  aLineContourMapper SetInput [lineContours GetOutput]
+  aLineContourMapper SetInputConnection [lineContours GetOutputPort]
   aLineContourMapper ScalarVisibilityOff
 
 vtkActor aLineContourActor
@@ -606,7 +606,7 @@ vtkContourFilter polyLineContours
   polyLineContours SetValue 0 .5
 
 vtkDataSetMapper aPolyLineContourMapper
-  aPolyLineContourMapper SetInput [polyLineContours GetOutput]
+  aPolyLineContourMapper SetInputConnection [polyLineContours GetOutputPort]
   aPolyLineContourMapper ScalarVisibilityOff
 
 vtkActor aPolyLineContourActor
@@ -645,7 +645,7 @@ vtkContourFilter vertexContours
   vertexContours SetValue 0 1
 
 vtkDataSetMapper aVertexContourMapper
-  aVertexContourMapper SetInput [vertexContours GetOutput]
+  aVertexContourMapper SetInputConnection [vertexContours GetOutputPort]
   aVertexContourMapper ScalarVisibilityOff
 
 vtkActor aVertexContourActor
@@ -691,7 +691,7 @@ vtkContourFilter polyVertexContours
   polyVertexContours SetValue 0 0
 
 vtkDataSetMapper aPolyVertexContourMapper
-  aPolyVertexContourMapper SetInput [polyVertexContours GetOutput]
+  aPolyVertexContourMapper SetInputConnection [polyVertexContours GetOutputPort]
   aPolyVertexContourMapper ScalarVisibilityOff
 
 vtkActor aPolyVertexContourActor
@@ -757,7 +757,7 @@ vtkContourFilter pentaContours
   pentaContours SetValue 0 .5
 
 vtkDataSetMapper aPentaContourMapper
-  aPentaContourMapper SetInput [pentaContours GetOutput]
+  aPentaContourMapper SetInputConnection [pentaContours GetOutputPort]
   aPentaContourMapper ScalarVisibilityOff
 
 vtkDataSetMapper aPentaMapper
@@ -832,7 +832,7 @@ vtkContourFilter hexaContours
   hexaContours SetValue 0 .5
 
 vtkDataSetMapper aHexaContourMapper
-  aHexaContourMapper SetInput [hexaContours GetOutput]
+  aHexaContourMapper SetInputConnection [hexaContours GetOutputPort]
   aHexaContourMapper ScalarVisibilityOff
 
 vtkDataSetMapper aHexaMapper

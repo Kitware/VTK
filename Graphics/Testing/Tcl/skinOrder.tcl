@@ -42,13 +42,13 @@ foreach order $orders {
     [reader$order GetOutput] ReleaseDataFlagOn
 
   vtkContourFilter iso$order
-    iso$order SetInput [reader$order GetOutput]
+    iso$order SetInputConnection [reader$order GetOutputPort]
     iso$order SetValue 0 550.5
     iso$order ComputeScalarsOff
     iso$order ReleaseDataFlagOn
 
   vtkPolyDataMapper mapper$order
-    mapper$order SetInput [iso$order GetOutput]
+    mapper$order SetInputConnection [iso$order GetOutputPort]
     mapper$order ImmediateModeRenderingOn
 
   vtkActor actor$order

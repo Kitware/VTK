@@ -43,12 +43,12 @@ vtkAppendPolyData appendPD
 # extrude profile to make wall
 #
 vtkRuledSurfaceFilter extrude
-    extrude SetInput [appendPD GetOutput]
+    extrude SetInputConnection [appendPD GetOutputPort]
     extrude SetResolution 51 51
     extrude SetRuledModeToResample
 
 vtkPolyDataMapper map
-    map SetInput [extrude GetOutput]
+    map SetInputConnection [extrude GetOutputPort]
 
 vtkActor wall
     wall SetMapper map

@@ -22,11 +22,11 @@ vtkDelaunay3D del
     del BoundingTriangulationOff
     
 vtkShrinkFilter shrink
-    shrink SetInput [del GetOutput]
+    shrink SetInputConnection [del GetOutputPort]
     shrink SetShrinkFactor 0.9
 
 vtkDataSetMapper map
-    map SetInput [shrink GetOutput]
+    map SetInputConnection [shrink GetOutputPort]
 
 vtkActor triangulation
     triangulation SetMapper map

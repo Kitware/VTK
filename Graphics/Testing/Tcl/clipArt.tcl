@@ -30,20 +30,20 @@ set padX [PowerOfTwo $orgX]
 set padY [PowerOfTwo $orgY]
 
 vtkImageConstantPad imagePowerOf2
-  imagePowerOf2 SetInput [imageIn GetOutput]
+  imagePowerOf2 SetInputConnection [imageIn GetOutputPort]
   imagePowerOf2 SetOutputWholeExtent 0 [expr $padX - 1] 0 [expr $padY - 1] 0 0
 
 vtkImageRGBToHSV toHSV
-  toHSV SetInput [imageIn GetOutput]
+  toHSV SetInputConnection [imageIn GetOutputPort]
   toHSV ReleaseDataFlagOff
 
 vtkImageExtractComponents extractImage
-  extractImage SetInput [toHSV GetOutput]
+  extractImage SetInputConnection [toHSV GetOutputPort]
   extractImage SetComponents 2
   extractImage ReleaseDataFlagOff
 
 vtkImageThreshold threshold
-  threshold SetInput [extractImage GetOutput]
+  threshold SetInputConnection [extractImage GetOutputPort]
   threshold ThresholdByUpper 230
   threshold SetInValue 255
   threshold SetOutValue 0
@@ -57,7 +57,7 @@ set seed3 "[lindex $extent 1] [lindex $extent 3]"
 set seed4 "[lindex $extent 0] [lindex $extent 3]"
 
 vtkImageSeedConnectivity connect
-  connect SetInput [threshold GetOutput]
+  connect SetInputConnection [threshold GetOutputPort]
   connect SetInputConnectValue 255
   connect SetOutputConnectedValue 255
   connect SetOutputUnconnectedValue 0
@@ -69,24 +69,24 @@ vtkImageSeedConnectivity connect
 vtkImageGaussianSmooth smooth
   smooth SetDimensionality 2
   smooth SetStandardDeviation 1 1
-  smooth SetInput [connect GetOutput]
+  smooth SetInputConnection [connect GetOutputPort]
 
 vtkImageShrink3D shrink
-  shrink SetInput [smooth GetOutput]
+  shrink SetInputConnection [smooth GetOutputPort]
   shrink SetShrinkFactors 2 2 1
   shrink AveragingOn
 
 vtkImageDataGeometryFilter geometry
-  geometry SetInput [shrink GetOutput]
+  geometry SetInputConnection [shrink GetOutputPort]
 
 vtkTextureMapToPlane geometryTexture
-  geometryTexture SetInput [geometry GetOutput]
+  geometryTexture SetInputConnection [geometry GetOutputPort]
   geometryTexture SetOrigin 0 0 0
   geometryTexture SetPoint1 [expr $padX - 1] 0 0
   geometryTexture SetPoint2 0 [expr $padY - 1] 0
 
 vtkCastToConcrete geometryPD
-  geometryPD SetInput [geometryTexture GetOutput]
+  geometryPD SetInputConnection [geometryTexture GetOutputPort]
 
 vtkClipPolyData clip
   clip SetInput [geometryPD GetPolyDataOutput]
@@ -98,34 +98,34 @@ vtkClipPolyData clip
   clip Update
 
 vtkTriangleFilter triangles
-  triangles SetInput [clip GetOutput]
+  triangles SetInputConnection [clip GetOutputPort]
 
 vtkDecimatePro decimate
-  decimate SetInput [triangles GetOutput]
+  decimate SetInputConnection [triangles GetOutputPort]
   decimate BoundaryVertexDeletionOn
   decimate SetDegree 25
   decimate PreserveTopologyOn
 
 vtkLinearExtrusionFilter extrude
-  extrude SetInput [decimate GetOutput]
+  extrude SetInputConnection [decimate GetOutputPort]
   extrude SetExtrusionType 2
   extrude SetScaleFactor -20
 
 vtkPolyDataNormals normals
-  normals SetInput [extrude GetOutput]
+  normals SetInputConnection [extrude GetOutputPort]
   normals SetFeatureAngle 80
 
 vtkStripper strip
-  strip SetInput [extrude GetOutput]
+  strip SetInputConnection [extrude GetOutputPort]
 
 vtkPolyDataMapper map
-  map SetInput [strip GetOutput]
-  map SetInput [normals GetOutput]
+  map SetInputConnection [strip GetOutputPort]
+  map SetInputConnection [normals GetOutputPort]
   map ScalarVisibilityOff
 
 vtkTexture imageTexture
   imageTexture InterpolateOn
-  imageTexture SetInput [imagePowerOf2 GetOutput]
+  imageTexture SetInputConnection [imagePowerOf2 GetOutputPort]
 
 vtkActor clipart
   clipart SetMapper map

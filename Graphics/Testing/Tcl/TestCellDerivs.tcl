@@ -599,7 +599,7 @@ aPolyLine aVertex aPolyVertex aPixel aPolygon aPenta aHexa"  {
    file delete -force $dir/test.tmp
 
    vtkUnstructuredGridWriter ${cell}Writer
-     ${cell}Writer SetInput [${cell}derivs GetOutput]
+     ${cell}Writer SetInputConnection [${cell}derivs GetOutputPort]
      ${cell}Writer SetFileName $FileName
      ${cell}Writer Write   
    # delete the file
@@ -607,14 +607,14 @@ aPolyLine aVertex aPolyVertex aPixel aPolygon aPenta aHexa"  {
    }
 
   vtkCellCenters ${cell}Centers
-    ${cell}Centers SetInput [${cell}derivs GetOutput]
+    ${cell}Centers SetInputConnection [${cell}derivs GetOutputPort]
     ${cell}Centers VertexCellsOn
     
   vtkHedgeHog ${cell}hog
-    ${cell}hog SetInput [${cell}Centers GetOutput]
+    ${cell}hog SetInputConnection [${cell}Centers GetOutputPort]
 
   vtkPolyDataMapper ${cell}mapHog
-    ${cell}mapHog SetInput [${cell}hog GetOutput]
+    ${cell}mapHog SetInputConnection [${cell}hog GetOutputPort]
     ${cell}mapHog SetScalarModeToUseCellData
     ${cell}mapHog ScalarVisibilityOff
   vtkActor ${cell}hogActor
@@ -622,10 +622,10 @@ aPolyLine aVertex aPolyVertex aPixel aPolygon aPenta aHexa"  {
     [${cell}hogActor GetProperty] SetColor 0 1 0
 
   vtkGlyph3D ${cell}Glyph3D
-    ${cell}Glyph3D SetInput [${cell}Centers GetOutput]
+    ${cell}Glyph3D SetInputConnection [${cell}Centers GetOutputPort]
     ${cell}Glyph3D SetSource [ball GetOutput]
   vtkPolyDataMapper ${cell}CentersMapper
-    ${cell}CentersMapper SetInput [${cell}Glyph3D GetOutput]
+    ${cell}CentersMapper SetInputConnection [${cell}Glyph3D GetOutputPort]
   vtkActor ${cell}CentersActor
     ${cell}CentersActor SetMapper ${cell}CentersMapper
   eval ${cell}hogActor SetPosition [${cell}Actor GetPosition]

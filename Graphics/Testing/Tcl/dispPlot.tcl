@@ -15,12 +15,12 @@ vtkPolyDataReader plate
     plate SetFileName "$VTK_DATA_ROOT/Data/plate.vtk"
     plate SetVectorsName "mode8"
 vtkWarpVector warp
-    warp SetInput [plate GetOutput]
+    warp SetInputConnection [plate GetOutputPort]
     warp SetScaleFactor 0.5
 vtkPolyDataNormals normals
     normals SetInput [warp GetPolyDataOutput]
 vtkVectorDot color
-    color SetInput [normals GetOutput]
+    color SetInputConnection [normals GetOutputPort]
 vtkLookupTable lut
     lut SetNumberOfColors 256
     lut Build
@@ -32,7 +32,7 @@ vtkLookupTable lut
     }
 
 vtkDataSetMapper plateMapper
-    plateMapper SetInput [color GetOutput]
+    plateMapper SetInputConnection [color GetOutputPort]
     plateMapper SetLookupTable lut
     plateMapper SetScalarRange -1 1
 vtkActor plateActor

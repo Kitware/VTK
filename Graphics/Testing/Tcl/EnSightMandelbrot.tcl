@@ -15,18 +15,18 @@ vtkEnSightMasterServerReader reader1
     reader1 Update
 
 vtkGeometryFilter geom0
-    geom0 SetInput [reader1 GetOutput]
+    geom0 SetInputConnection [reader1 GetOutputPort]
 vtkGeometryFilter geom1
     geom1 SetInput [reader1 GetOutput 1]
 
 vtkPolyDataMapper mapper0
-    mapper0 SetInput [geom0 GetOutput]
+    mapper0 SetInputConnection [geom0 GetOutputPort]
     mapper0 SetColorModeToMapScalars
     mapper0 SetScalarModeToUsePointFieldData
     mapper0 ColorByArrayComponent Iterations 0
     mapper0 SetScalarRange 0 112
 vtkPolyDataMapper mapper1
-    mapper1 SetInput [geom1 GetOutput]
+    mapper1 SetInputConnection [geom1 GetOutputPort]
     mapper1 SetColorModeToMapScalars
     mapper1 SetScalarModeToUsePointFieldData
     mapper1 ColorByArrayComponent Iterations 0
@@ -43,18 +43,18 @@ vtkEnSightMasterServerReader reader2
     reader2 Update
 
 vtkGeometryFilter geom2
-    geom2 SetInput [reader2 GetOutput]
+    geom2 SetInputConnection [reader2 GetOutputPort]
 vtkGeometryFilter geom3
     geom3 SetInput [reader2 GetOutput 1]
 
 vtkPolyDataMapper mapper2
-    mapper2 SetInput [geom2 GetOutput]
+    mapper2 SetInputConnection [geom2 GetOutputPort]
     mapper2 SetColorModeToMapScalars
     mapper2 SetScalarModeToUsePointFieldData
     mapper2 ColorByArrayComponent Iterations 0
     mapper2 SetScalarRange 0 112
 vtkPolyDataMapper mapper3
-    mapper3 SetInput [geom3 GetOutput]
+    mapper3 SetInputConnection [geom3 GetOutputPort]
     mapper3 SetColorModeToMapScalars
     mapper3 SetScalarModeToUsePointFieldData
     mapper3 ColorByArrayComponent Iterations 0

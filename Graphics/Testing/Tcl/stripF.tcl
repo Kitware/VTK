@@ -14,15 +14,15 @@ vtkRenderWindowInteractor iren
 vtkPolyDataReader cyber
     cyber SetFileName "$VTK_DATA_ROOT/Data/fran_cut.vtk"
 vtkPolyDataNormals normals;#enable this for cool effect
-    normals SetInput [cyber GetOutput]
+    normals SetInputConnection [cyber GetOutputPort]
     normals FlipNormalsOn
 vtkStripper stripper
-    stripper SetInput [cyber GetOutput]
+    stripper SetInputConnection [cyber GetOutputPort]
 vtkMaskPolyData mask
-    mask SetInput [stripper GetOutput]
+    mask SetInputConnection [stripper GetOutputPort]
     mask SetOnRatio 2
 vtkPolyDataMapper cyberMapper
-    cyberMapper SetInput [mask GetOutput]
+    cyberMapper SetInputConnection [mask GetOutputPort]
 vtkActor cyberActor
     cyberActor SetMapper cyberMapper
     [cyberActor GetProperty] SetColor 1.0 0.49 0.25

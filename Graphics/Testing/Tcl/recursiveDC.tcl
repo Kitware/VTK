@@ -15,12 +15,12 @@ vtkRenderWindowInteractor iren
 vtkStructuredPointsReader reader
     reader SetFileName "$VTK_DATA_ROOT/Data/ironProt.vtk"
 vtkRecursiveDividingCubes iso
-    iso SetInput [reader GetOutput]
+    iso SetInputConnection [reader GetOutputPort]
     iso SetValue 128
     iso SetDistance .5
     iso SetIncrement 2
 vtkPolyDataMapper isoMapper
-    isoMapper SetInput [iso GetOutput]
+    isoMapper SetInputConnection [iso GetOutputPort]
     isoMapper ScalarVisibilityOff
     isoMapper ImmediateModeRenderingOn
 vtkActor isoActor
@@ -28,9 +28,9 @@ vtkActor isoActor
     eval [isoActor GetProperty] SetColor $bisque
 
 vtkOutlineFilter outline
-    outline SetInput [reader GetOutput]
+    outline SetInputConnection [reader GetOutputPort]
 vtkPolyDataMapper outlineMapper
-    outlineMapper SetInput [outline GetOutput]
+    outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
     eval [outlineActor GetProperty] SetColor $black

@@ -8,14 +8,14 @@ package require vtktesting
 vtkPlatonicSolidSource tet
   tet SetSolidTypeToTetrahedron
 vtkPolyDataMapper tetMapper
-  tetMapper SetInput [tet GetOutput]
+  tetMapper SetInputConnection [tet GetOutputPort]
 vtkActor tetActor
   tetActor SetMapper tetMapper
 
 vtkPlatonicSolidSource cube
   cube SetSolidTypeToCube
 vtkPolyDataMapper cubeMapper
-  cubeMapper SetInput [cube GetOutput]
+  cubeMapper SetInputConnection [cube GetOutputPort]
 vtkActor cubeActor
   cubeActor SetMapper cubeMapper
   cubeActor AddPosition 2.0 0 0
@@ -23,7 +23,7 @@ vtkActor cubeActor
 vtkPlatonicSolidSource oct
   oct SetSolidTypeToOctahedron
 vtkPolyDataMapper octMapper
-  octMapper SetInput [oct GetOutput]
+  octMapper SetInputConnection [oct GetOutputPort]
 vtkActor octActor
   octActor SetMapper octMapper
   octActor AddPosition 4.0 0 0
@@ -31,7 +31,7 @@ vtkActor octActor
 vtkPlatonicSolidSource icosa
   icosa SetSolidTypeToIcosahedron
 vtkPolyDataMapper icosaMapper
-  icosaMapper SetInput [icosa GetOutput]
+  icosaMapper SetInputConnection [icosa GetOutputPort]
 vtkActor icosaActor
   icosaActor SetMapper icosaMapper
   icosaActor AddPosition 6.0 0 0
@@ -39,7 +39,7 @@ vtkActor icosaActor
 vtkPlatonicSolidSource dode
   dode SetSolidTypeToDodecahedron
 vtkPolyDataMapper dodeMapper
-  dodeMapper SetInput [dode GetOutput]
+  dodeMapper SetInputConnection [dode GetOutputPort]
 vtkActor dodeActor
   dodeActor SetMapper dodeMapper
   dodeActor AddPosition 8.0 0 0

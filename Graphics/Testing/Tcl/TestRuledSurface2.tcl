@@ -18,12 +18,12 @@ vtkPlane plane
   plane SetNormal 1 0 0
 
 vtkCutter cut
-  cut SetInput [sphere GetOutput]
+  cut SetInputConnection [sphere GetOutputPort]
   cut SetCutFunction plane
   cut GenerateCutScalarsOn
 
 vtkStripper strip
-  strip SetInput [cut GetOutput]
+  strip SetInputConnection [cut GetOutputPort]
 
 vtkPoints points
     points InsertPoint 0 1 0 0
@@ -44,15 +44,15 @@ vtkAppendPolyData appendPD
 # extrude profile to make coverage
 #
 vtkRuledSurfaceFilter extrude
-    extrude SetInput [appendPD GetOutput]
+    extrude SetInputConnection [appendPD GetOutputPort]
     extrude SetRuledModeToPointWalk
 
 vtkCleanPolyData clean
-  clean SetInput [extrude GetOutput]
+  clean SetInputConnection [extrude GetOutputPort]
   clean ConvertPolysToLinesOff
 
 vtkPolyDataMapper mapper
-  mapper SetInput [clean GetOutput]
+  mapper SetInputConnection [clean GetOutputPort]
   mapper ScalarVisibilityOff
 
 vtkActor actor

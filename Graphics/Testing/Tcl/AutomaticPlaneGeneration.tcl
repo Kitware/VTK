@@ -20,14 +20,14 @@ vtkPNMReader imageIn
   imageIn SetFileName "$VTK_DATA_ROOT/Data/earth.ppm"
   
 vtkTexture texture
-  texture SetInput [imageIn GetOutput]
+  texture SetInputConnection [imageIn GetOutputPort]
 
 vtkTextureMapToPlane texturePlane
-  texturePlane SetInput [aPlane GetOutput]
+  texturePlane SetInputConnection [aPlane GetOutputPort]
   texturePlane AutomaticPlaneGenerationOn
 
 vtkPolyDataMapper planeMapper
-  planeMapper SetInput [texturePlane GetOutput]
+  planeMapper SetInputConnection [texturePlane GetOutputPort]
 
 vtkActor texturedPlane
   texturedPlane SetMapper planeMapper

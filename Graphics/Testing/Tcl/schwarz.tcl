@@ -175,7 +175,7 @@ vtkTransform t4
   t4 RotateX 180
 vtkTransformPolyDataFilter tf4
   tf4 SetTransform t4
-  tf4 SetInput [af GetOutput]
+  tf4 SetInputConnection [af GetOutputPort]
 
 vtkAppendPolyData af2
   af2 AddInput [af GetOutput]
@@ -186,7 +186,7 @@ vtkTransform t5
   t5 Translate 0 0 -8
 vtkTransformPolyDataFilter tf5
   tf5 SetTransform t5
-  tf5 SetInput [af2 GetOutput]
+  tf5 SetInputConnection [af2 GetOutputPort]
 
 vtkAppendPolyData af3
   af3 AddInput [af2 GetOutput]
@@ -197,7 +197,7 @@ vtkTransform t6
   t6 Translate 0 -8 0
 vtkTransformPolyDataFilter tf6
   tf6 SetTransform t6
-  tf6 SetInput [af3 GetOutput]
+  tf6 SetInputConnection [af3 GetOutputPort]
 
 vtkAppendPolyData af4
   af4 AddInput [af3 GetOutput]
@@ -214,33 +214,33 @@ vtkRenderWindowInteractor iren
 vtkCleanPolyData clean
   clean SetTolerance .001
   clean SetInput model
-  clean SetInput [af2 GetOutput]
-  clean SetInput [af3 GetOutput]
-  clean SetInput [af4 GetOutput]
+  clean SetInputConnection [af2 GetOutputPort]
+  clean SetInputConnection [af3 GetOutputPort]
+  clean SetInputConnection [af4 GetOutputPort]
 
 vtkButterflySubdivisionFilter subdivide
-  subdivide SetInput [clean GetOutput]
+  subdivide SetInputConnection [clean GetOutputPort]
   subdivide SetNumberOfSubdivisions 3
 
 vtkDataSetMapper mapper
-   mapper SetInput [subdivide GetOutput]
+   mapper SetInputConnection [subdivide GetOutputPort]
 
 vtkActor surface
     surface SetMapper mapper
 
 vtkFeatureEdges fe
-  fe SetInput [subdivide GetOutput]
+  fe SetInputConnection [subdivide GetOutputPort]
   fe SetFeatureAngle 100
 
 vtkStripper feStripper
-  feStripper SetInput [fe GetOutput]
+  feStripper SetInputConnection [fe GetOutputPort]
 
 vtkTubeFilter feTubes
-  feTubes SetInput [feStripper GetOutput]
+  feTubes SetInputConnection [feStripper GetOutputPort]
   feTubes SetRadius .1
 
 vtkPolyDataMapper feMapper
-  feMapper SetInput [feTubes GetOutput]
+  feMapper SetInputConnection [feTubes GetOutputPort]
 
 vtkActor edges
   edges SetMapper feMapper

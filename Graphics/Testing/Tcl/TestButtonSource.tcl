@@ -7,7 +7,7 @@ vtkJPEGReader r
   r SetFileName "$VTK_DATA_ROOT/Data/beach.jpg"
   r Update
 vtkTexture t
-  t SetInput [r GetOutput]
+  t SetInputConnection [r GetOutputPort]
 set dims [[r GetOutput] GetDimensions]
 set d1 [lindex $dims 0]
 set d2 [lindex $dims 1]
@@ -23,7 +23,7 @@ vtkEllipticalButtonSource bs
   bs SetTextureResolution 4
   bs TwoSidedOn
 vtkPolyDataMapper bMapper
-  bMapper SetInput [bs GetOutput]
+  bMapper SetInputConnection [bs GetOutputPort]
 vtkActor b1
   b1 SetMapper bMapper
   b1 SetTexture t
@@ -42,7 +42,7 @@ vtkEllipticalButtonSource bs2
   bs2 SetTextureStyleToFitImage
   bs2 SetTextureDimensions $d1 $d2
 vtkPolyDataMapper b2Mapper
-  b2Mapper SetInput [bs2 GetOutput]
+  b2Mapper SetInputConnection [bs2 GetOutputPort]
 vtkActor b2
   b2 SetMapper b2Mapper
   b2 SetTexture t
@@ -56,7 +56,7 @@ vtkRectangularButtonSource bs3
   bs3 SetCenter 0 1 0
   bs3 SetTextureDimensions $d1 $d2
 vtkPolyDataMapper b3Mapper
-  b3Mapper SetInput [bs3 GetOutput]
+  b3Mapper SetInputConnection [bs3 GetOutputPort]
 vtkActor b3
   b3 SetMapper b3Mapper
   b3 SetTexture t
@@ -71,7 +71,7 @@ vtkRectangularButtonSource bs4
   bs4 SetTextureStyleToFitImage
   bs4 SetTextureDimensions $d1 $d2
 vtkPolyDataMapper b4Mapper
-  b4Mapper SetInput [bs4 GetOutput]
+  b4Mapper SetInputConnection [bs4 GetOutputPort]
 vtkActor b4
   b4 SetMapper b4Mapper
   b4 SetTexture t

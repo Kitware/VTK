@@ -25,12 +25,12 @@ reader SetCaseFileName $VTK_DATA_ROOT/Data/EnSight/ironProt_bin.case
 reader Update
 
 vtkContourFilter Contour0
-Contour0 SetInput [reader GetOutput]
+Contour0 SetInputConnection [reader GetOutputPort]
 Contour0 SetValue 0 200
 Contour0 SetComputeScalars 1
 
 vtkPolyDataMapper mapper
-mapper SetInput [Contour0 GetOutput]
+mapper SetInputConnection [Contour0 GetOutputPort]
 mapper SetImmediateModeRendering 1
 mapper SetScalarRange 0 1
 mapper SetScalarVisibility 1

@@ -12,7 +12,7 @@ iren SetRenderWindow renWin
 vtkConeSource cone
 
 vtkMesaPolyDataMapper mp
-mp SetInput [cone GetOutput]
+mp SetInputConnection [cone GetOutputPort]
 
 vtkMesaActor actor
 actor SetMapper mp

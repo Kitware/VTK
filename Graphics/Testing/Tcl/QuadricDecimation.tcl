@@ -10,35 +10,35 @@ vtkPLOT3DReader pl3d
     pl3d SetVectorFunctionNumber 202
     pl3d Update
 vtkGeometryFilter gf
-    gf SetInput [pl3d GetOutput]
+    gf SetInputConnection [pl3d GetOutputPort]
 vtkTriangleFilter tf
-    tf SetInput [gf GetOutput]
+    tf SetInputConnection [gf GetOutputPort]
 vtkPolyDataMapper gMapper
-    gMapper SetInput [gf GetOutput]
+    gMapper SetInputConnection [gf GetOutputPort]
     eval gMapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
 vtkActor gActor
     gActor SetMapper gMapper
 
 # Don't look at attributes
 vtkQuadricDecimation mesh
-  mesh SetInput [tf GetOutput]
+  mesh SetInputConnection [tf GetOutputPort]
   mesh SetTargetReduction .90
   mesh AttributeErrorMetricOn
 
 vtkPolyDataMapper mapper
-  mapper SetInput [mesh GetOutput]
+  mapper SetInputConnection [mesh GetOutputPort]
 
 vtkActor actor
   actor SetMapper mapper
 
 # This time worry about attributes
 vtkQuadricDecimation mesh2
-  mesh2 SetInput [tf GetOutput]
+  mesh2 SetInputConnection [tf GetOutputPort]
   mesh2 SetTargetReduction .90
   mesh2 AttributeErrorMetricOff
 
 vtkPolyDataMapper mapper2
-  mapper2 SetInput [mesh2 GetOutput]
+  mapper2 SetInputConnection [mesh2 GetOutputPort]
 
 vtkActor actor2
   actor2 SetMapper mapper2

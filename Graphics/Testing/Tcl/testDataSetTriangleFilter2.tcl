@@ -15,14 +15,14 @@ vtkDataSetReader reader
   reader SetFileName "$VTK_DATA_ROOT/Data/uGridEx.vtk"
 
 vtkDataSetTriangleFilter tris
-  tris SetInput [reader GetOutput]
+  tris SetInputConnection [reader GetOutputPort]
 
 vtkShrinkFilter shrink
-  shrink SetInput [tris GetOutput]
+  shrink SetInputConnection [tris GetOutputPort]
   shrink SetShrinkFactor .8
 
 vtkDataSetMapper mapper
-  mapper SetInput [shrink GetOutput]
+  mapper SetInputConnection [shrink GetOutputPort]
   mapper SetScalarRange 0 26
 vtkActor actor
   actor SetMapper mapper

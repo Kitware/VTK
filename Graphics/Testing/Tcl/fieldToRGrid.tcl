@@ -11,11 +11,11 @@ package require vtktesting
 vtkDataSetReader reader
     reader SetFileName "$VTK_DATA_ROOT/Data/RectGrid2.vtk"
 vtkDataSetToDataObjectFilter ds2do
-    ds2do SetInput [reader GetOutput]
+    ds2do SetInputConnection [reader GetOutputPort]
 if {[catch {set channel [open RGridField.vtk w]}] == 0 } {
    close $channel
 vtkDataObjectWriter writer
-    writer SetInput [ds2do GetOutput]
+    writer SetInputConnection [ds2do GetOutputPort]
     writer SetFileName "RGridField.vtk"
     writer Write
 
@@ -24,7 +24,7 @@ vtkDataObjectWriter writer
 vtkDataObjectReader dor
     dor SetFileName "RGridField.vtk"
 vtkDataObjectToDataSetFilter do2ds
-    do2ds SetInput [dor GetOutput]
+    do2ds SetInputConnection [dor GetOutputPort]
     do2ds SetDataSetTypeToRectilinearGrid
     do2ds SetDimensionsComponent Dimensions 0 
     do2ds SetPointComponent 0 XCoordinates 0
@@ -46,10 +46,10 @@ vtkRectilinearGridGeometryFilter plane
     plane SetInput [fd2ad GetRectilinearGridOutput]
     plane SetExtent 0 100 0 100 15 15 
 vtkWarpVector warper
-    warper SetInput [plane GetOutput]
+    warper SetInputConnection [plane GetOutputPort]
     warper SetScaleFactor 0.05
 vtkDataSetMapper planeMapper
-    planeMapper SetInput [warper GetOutput]
+    planeMapper SetInputConnection [warper GetOutputPort]
     planeMapper SetScalarRange 0.197813 0.710419
 vtkActor planeActor
     planeActor SetMapper planeMapper
@@ -61,7 +61,7 @@ vtkCutter planeCut
     planeCut SetInput [fd2ad GetRectilinearGridOutput]
     planeCut SetCutFunction cutPlane
 vtkDataSetMapper cutMapper
-    cutMapper SetInput [planeCut GetOutput]
+    cutMapper SetInputConnection [planeCut GetOutputPort]
     eval cutMapper SetScalarRange \
     [[[[fd2ad GetOutput] GetPointData] GetScalars] GetRange]
 vtkActor cutActor
@@ -71,10 +71,10 @@ vtkContourFilter iso
     iso SetInput [fd2ad GetRectilinearGridOutput]
     iso SetValue 0 0.7
 vtkPolyDataNormals normals
-    normals SetInput [iso GetOutput]
+    normals SetInputConnection [iso GetOutputPort]
     normals SetFeatureAngle 45
 vtkPolyDataMapper isoMapper
-    isoMapper SetInput [normals GetOutput]
+    isoMapper SetInputConnection [normals GetOutputPort]
     isoMapper ScalarVisibilityOff
 vtkActor isoActor
     isoActor SetMapper isoMapper
@@ -82,7 +82,7 @@ vtkActor isoActor
     eval [isoActor GetProperty] SetRepresentationToWireframe
 
 vtkStreamLine streamer
-    streamer SetInput [fd2ad GetOutput]
+    streamer SetInputConnection [fd2ad GetOutputPort]
     streamer SetStartPosition -1.2 -0.1 1.3
     streamer SetMaximumPropagationTime 500
     streamer SetStepLength 0.05
@@ -90,12 +90,12 @@ vtkStreamLine streamer
     streamer SetIntegrationDirectionToIntegrateBothDirections
 
 vtkTubeFilter streamTube
-    streamTube SetInput [streamer GetOutput]
+    streamTube SetInputConnection [streamer GetOutputPort]
     streamTube SetRadius 0.025
     streamTube SetNumberOfSides 6
     streamTube SetVaryRadiusToVaryRadiusByVector
 vtkPolyDataMapper mapStreamTube
-    mapStreamTube SetInput [streamTube GetOutput]
+    mapStreamTube SetInputConnection [streamTube GetOutputPort]
     eval mapStreamTube SetScalarRange \
        [[[[fd2ad GetOutput] GetPointData] GetScalars] GetRange]
 vtkActor streamTubeActor
@@ -105,7 +105,7 @@ vtkActor streamTubeActor
 vtkOutlineFilter outline
     outline SetInput [fd2ad GetRectilinearGridOutput]
 vtkPolyDataMapper outlineMapper
-    outlineMapper SetInput [outline GetOutput]
+    outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
     eval [outlineActor GetProperty] SetColor $black

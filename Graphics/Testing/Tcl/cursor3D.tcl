@@ -16,9 +16,9 @@ vtkPLOT3DReader reader
 
   # create outline
 vtkStructuredGridOutlineFilter outlineF
-  outlineF SetInput [reader GetOutput]
+  outlineF SetInputConnection [reader GetOutputPort]
 vtkPolyDataMapper outlineMapper
-  outlineMapper SetInput [outlineF GetOutput]
+  outlineMapper SetInputConnection [outlineF GetOutputPort]
 vtkActor outline
   outline SetMapper outlineMapper
   [outline GetProperty] SetColor 0 0 0
@@ -34,7 +34,7 @@ vtkCursor3D cursor
   cursor YShadowsOn
   cursor ZShadowsOn
 vtkPolyDataMapper cursorMapper
-  cursorMapper SetInput [cursor GetOutput]
+  cursorMapper SetInputConnection [cursor GetOutputPort]
 vtkActor cursorActor
   cursorActor SetMapper cursorMapper
   [cursorActor GetProperty] SetColor 1 0 0
@@ -51,13 +51,13 @@ vtkConeSource cone
 
   # create glyph
 vtkGlyph3D glyph
-  glyph SetInput [probe GetOutput]
+  glyph SetInputConnection [probe GetOutputPort]
   glyph SetSource [cone GetOutput]
   glyph SetVectorModeToUseVector
   glyph SetScaleModeToScaleByScalar
   glyph SetScaleFactor .0002
 vtkPolyDataMapper glyphMapper
-  glyphMapper SetInput [glyph GetOutput]
+  glyphMapper SetInputConnection [glyph GetOutputPort]
 vtkActor glyphActor
   glyphActor SetMapper glyphMapper
 

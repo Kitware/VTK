@@ -26,27 +26,27 @@ vtkTransform transform
     transform Translate 0.5 0.0 0.0
 
 vtkTransformPolyDataFilter transformF
-    transformF SetInput [cone GetOutput]
+    transformF SetInputConnection [cone GetOutputPort]
     transformF SetTransform transform
 
 # we just clean the normals for efficiency (keep down number of cones)
 vtkCleanPolyData clean
-  clean SetInput [wavefront GetOutput]
+  clean SetInputConnection [wavefront GetOutputPort]
   clean PointMergingOff
 
 vtkHedgeHog glyph
-  glyph SetInput [clean GetOutput]
+  glyph SetInputConnection [clean GetOutputPort]
   glyph SetVectorModeToUseNormal
   glyph SetScaleFactor 0.4
 
 vtkPolyDataMapper hairMapper
-  hairMapper SetInput [glyph GetOutput]
+  hairMapper SetInputConnection [glyph GetOutputPort]
 
 vtkActor hair
   hair SetMapper hairMapper
 
 vtkPolyDataMapper cowMapper
-  cowMapper SetInput [wavefront GetOutput]
+  cowMapper SetInputConnection [wavefront GetOutputPort]
 
 vtkActor cow
   cow SetMapper cowMapper

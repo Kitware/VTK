@@ -116,19 +116,19 @@ vtkBandedPolyDataContourFilter bf
   bf SetInput polyData
   bf GenerateValues 3 25 75 
 vtkPolyDataMapper mapper
-  mapper SetInput [bf GetOutput]
+  mapper SetInputConnection [bf GetOutputPort]
   mapper SetScalarModeToUseCellData
   mapper SetScalarRange 0 4
 vtkActor actor
   actor SetMapper mapper
 
 vtkIdFilter ids
-  ids SetInput [bf GetOutput]
+  ids SetInputConnection [bf GetOutputPort]
   ids PointIdsOn
   ids CellIdsOn
   ids FieldDataOn
 vtkLabeledDataMapper ldm
-  ldm SetInput [ids GetOutput]
+  ldm SetInputConnection [ids GetOutputPort]
   ldm SetLabelFormat "%g"
   ldm SetLabelModeToLabelFieldData
 vtkActor2D pointLabels

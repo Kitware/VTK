@@ -16,13 +16,13 @@ vtkImageGaussianSmooth gaussian
     eval gaussian SetStandardDeviations 2 2
     gaussian SetDimensionality 2
     gaussian SetRadiusFactors 1 1
-    gaussian SetInput [imageIn GetOutput]
+    gaussian SetInputConnection [imageIn GetOutputPort]
 
 vtkImageDataGeometryFilter geometry
-  geometry SetInput [gaussian GetOutput]
+  geometry SetInputConnection [gaussian GetOutputPort]
 
 vtkClipPolyData aClipper
-    aClipper SetInput [geometry GetOutput]
+    aClipper SetInputConnection [geometry GetOutputPort]
     aClipper SetValue 127.5
     aClipper GenerateClipScalarsOff
     aClipper InsideOutOn
@@ -30,7 +30,7 @@ vtkClipPolyData aClipper
     aClipper Update
 
 vtkPolyDataMapper mapper
-  mapper SetInput [aClipper GetOutput]
+  mapper SetInputConnection [aClipper GetOutputPort]
   mapper ScalarVisibilityOff
 
 vtkActor letter

@@ -40,23 +40,23 @@ vtkSphereSource sphere
     sphere SetStartPhi 0
     sphere SetEndPhi 90
 vtkSelectPolyData loop
-    loop SetInput [sphere GetOutput]
+    loop SetInputConnection [sphere GetOutputPort]
     loop SetLoop selectionPoints
     loop GenerateSelectionScalarsOn
     loop SetSelectionModeToSmallestRegion; #negative scalars inside
 vtkClipPolyData clip; #clips out positive region
-    clip SetInput [loop GetOutput]
+    clip SetInputConnection [loop GetOutputPort]
 vtkPolyDataMapper clipMapper
-    clipMapper SetInput [clip GetOutput]
+    clipMapper SetInputConnection [clip GetOutputPort]
 vtkLODActor clipActor
     clipActor SetMapper clipMapper
 
 vtkSelectPolyData loop2
-    loop2 SetInput [sphere GetOutput]
+    loop2 SetInputConnection [sphere GetOutputPort]
     loop2 SetLoop selectionPoints
     loop2 SetSelectionModeToSmallestRegion
 vtkPolyDataMapper selectMapper
-    selectMapper SetInput [loop2 GetOutput]
+    selectMapper SetInputConnection [loop2 GetOutputPort]
 vtkLODActor selectActor
     selectActor SetMapper selectMapper
     selectActor AddPosition 1 0 0

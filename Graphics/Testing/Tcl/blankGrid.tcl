@@ -20,7 +20,7 @@ pl3d SetScalarFunctionNumber 100
 pl3d SetVectorFunctionNumber 202
 
 vtkExtractGrid plane
-plane SetInput [pl3d GetOutput]
+plane SetInputConnection [pl3d GetOutputPort]
 plane SetVOI 0 57 0 33 0 0
 plane Update
 
@@ -48,15 +48,15 @@ $blanking SetComponent 1553 0 0
 # The first blanking technique uses the image to set the blanking values
 #
 vtkBlankStructuredGridWithImage blankIt
-blankIt SetInput [plane GetOutput]
+blankIt SetInputConnection [plane GetOutputPort]
 blankIt SetBlankingInput blankImage
 
 vtkStructuredGridGeometryFilter blankedPlane
-blankedPlane SetInput [blankIt GetOutput]
+blankedPlane SetInputConnection [blankIt GetOutputPort]
 blankedPlane SetExtent 0 100 0 100 0 0
 
 vtkPolyDataMapper planeMapper
-planeMapper SetInput [blankedPlane GetOutput]
+planeMapper SetInputConnection [blankedPlane GetOutputPort]
 planeMapper SetScalarRange 0.197813 0.710419
 
 vtkActor planeActor
@@ -76,11 +76,11 @@ blankGrid SetMinBlankingValue -0.5
 blankGrid SetMaxBlankingValue  0.5
 
 vtkStructuredGridGeometryFilter blankedPlane2
-blankedPlane2 SetInput [blankGrid GetOutput]
+blankedPlane2 SetInputConnection [blankGrid GetOutputPort]
 blankedPlane2 SetExtent 0 100 0 100 0 0
 
 vtkPolyDataMapper planeMapper2
-planeMapper2 SetInput [blankedPlane2 GetOutput]
+planeMapper2 SetInputConnection [blankedPlane2 GetOutputPort]
 planeMapper2 SetScalarRange 0.197813 0.710419
 
 vtkActor planeActor2
@@ -89,17 +89,17 @@ planeActor2 SetMapper planeMapper2
 # An outline around the data
 #
 vtkStructuredGridOutlineFilter outline
-outline SetInput [pl3d GetOutput]
+outline SetInputConnection [pl3d GetOutputPort]
 
 vtkPolyDataMapper outlineMapper
-outlineMapper SetInput [outline GetOutput]
+outlineMapper SetInputConnection [outline GetOutputPort]
 
 vtkActor outlineActor
 outlineActor SetMapper outlineMapper
 eval [outlineActor GetProperty] SetColor $black
 
 vtkPolyDataMapper outlineMapper2
-outlineMapper2 SetInput [outline GetOutput]
+outlineMapper2 SetInputConnection [outline GetOutputPort]
 
 vtkActor outlineActor2
 outlineActor2 SetMapper outlineMapper2

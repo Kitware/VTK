@@ -404,7 +404,7 @@ vtkLookupTable lut
   lut SetTableValue 2 .8 .8 .9 1
 
 vtkDataSetMapper mapper
-    mapper SetInput [ballTC GetOutput]
+    mapper SetInputConnection [ballTC GetOutputPort]
     mapper SetScalarModeToUseCellData
     mapper SetLookupTable lut
     mapper SetScalarRange 0 2
@@ -413,7 +413,7 @@ vtkPNMReader earth
   earth SetFileName "$VTK_DATA_ROOT/Data/earth.ppm"
 
 vtkTexture texture
-texture SetInput [earth GetOutput]
+texture SetInputConnection [earth GetOutputPort]
 
 vtkActor soccerBall
     soccerBall SetMapper mapper

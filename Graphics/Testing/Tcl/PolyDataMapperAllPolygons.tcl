@@ -10,7 +10,7 @@ vtkRenderWindowInteractor iren
 vtkBMPReader bmpReader
   bmpReader SetFileName "$VTK_DATA_ROOT/Data/masonry.bmp"
 vtkTexture texture
-  texture SetInput [bmpReader GetOutput]
+  texture SetInputConnection [bmpReader GetOutputPort]
 
 vtkPoints triangleStripPoints
   triangleStripPoints SetNumberOfPoints 5
@@ -83,10 +83,10 @@ foreach type $types {
     vtkGeometryFilter geometry$i
       geometry$i SetInput grid$i
     vtkTriangleFilter triangles$i
-      triangles$i SetInput [geometry$i GetOutput]
+      triangles$i SetInputConnection [geometry$i GetOutputPort]
     vtkPolyDataMapper mapper$i
-    if {$type == "strip"} {mapper$i SetInput [geometry$i GetOutput]}
-    if {$type == "triangle"} {mapper$i SetInput [triangles$i GetOutput]}
+    if {$type == "strip"} {mapper$i SetInputConnection [geometry$i GetOutputPort]}
+    if {$type == "triangle"} {mapper$i SetInputConnection [triangles$i GetOutputPort]}
       mapper$i SetLookupTable lut
       mapper$i SetScalarRange 0 4
     vtkActor actor$i
