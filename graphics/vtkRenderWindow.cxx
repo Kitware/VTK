@@ -46,6 +46,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTransform.h"
 #include "vtkMath.h"
 
+vtkSafeSetStringMacro2(FileName,vtkRenderWindow);
+
 // Construct an instance of  vtkRenderWindow with its screen size 
 // set to 300x300, borders turned on, positioned at (0,0), double 
 // buffering turned on, stereo capable off.

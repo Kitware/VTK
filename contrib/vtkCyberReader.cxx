@@ -55,6 +55,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <errno.h>
 #include <math.h>
 
+vtkSafeSetStringMacro2(FileName,vtkCyberReader);
+
+  
 vtkCyberReader::vtkCyberReader()
 {
   this->FileName = NULL;

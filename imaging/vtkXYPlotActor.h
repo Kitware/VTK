@@ -133,11 +133,11 @@ public:
   // Description:
   // Set/Get the title of the x-y plot, and the title along the 
   // x and y axes.
-  vtkSetStringMacro(Title);
+  vtkSafeSetStringMacro(Title);
   vtkGetStringMacro(Title);
-  vtkSetStringMacro(XTitle);
+  vtkSafeSetStringMacro(XTitle);
   vtkGetStringMacro(XTitle);
-  vtkSetStringMacro(YTitle);
+  vtkSafeSetStringMacro(YTitle);
   vtkGetStringMacro(YTitle);
 
   // Description:
@@ -212,7 +212,7 @@ public:
   // Description:
   // Set/Get the format with which to print the labels on the scalar
   // bar.
-  vtkSetStringMacro(LabelFormat);
+  vtkSafeSetStringMacro(LabelFormat);
   vtkGetStringMacro(LabelFormat);
 
   // Description:

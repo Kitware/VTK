@@ -44,6 +44,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPolyDataMapper.h"
 #include "vtkMath.h"
 
+vtkSafeSetStringMacro2(FileName,vtkIVExporter);
+
 vtkIVExporter::vtkIVExporter()
 {
   this->FileName = NULL;

@@ -44,6 +44,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMergePoints.h"
 #include "vtkByteSwap.h"
 
+vtkSafeSetStringMacro2(FileName,vtkMCubesReader);
+vtkSafeSetStringMacro2(LimitsFileName,vtkMCubesReader);
+
 // Construct object with FlipNormals turned off and Normals set to true.
 vtkMCubesReader::vtkMCubesReader()
 {

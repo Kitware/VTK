@@ -40,6 +40,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkBYUWriter.h"
 
+vtkSafeSetStringMacro2(GeometryFileName,vtkBYUWriter);
+vtkSafeSetStringMacro2(DisplacementFileName,vtkBYUWriter);
+vtkSafeSetStringMacro2(ScalarFileName,vtkBYUWriter);
+vtkSafeSetStringMacro2(TextureFileName,vtkBYUWriter);
+
 // Create object so that it writes displacement, scalar, and texture files
 // (if data is available).
 vtkBYUWriter::vtkBYUWriter()

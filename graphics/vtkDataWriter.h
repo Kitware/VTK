@@ -80,12 +80,12 @@ public:
 
   // Description:
   // Specify file name of vtk polygon data file to write.
-  vtkSetStringMacro(FileName);
+  vtkSafeSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
 
   // Description:
   // Specify the header for the vtk data file.
-  vtkSetStringMacro(Header);
+  vtkSafeSetStringMacro(Header);
   vtkGetStringMacro(Header);
 
   // Description:
@@ -98,43 +98,43 @@ public:
   // Description:
   // Give a name to the scalar data. If not specified, uses default
   // name "scalars".
-  vtkSetStringMacro(ScalarsName);
+  vtkSafeSetStringMacro(ScalarsName);
   vtkGetStringMacro(ScalarsName);
 
   // Description:
   // Give a name to the vector data. If not specified, uses default
   // name "vectors".
-  vtkSetStringMacro(VectorsName);
+  vtkSafeSetStringMacro(VectorsName);
   vtkGetStringMacro(VectorsName);
 
   // Description:
   // Give a name to the tensors data. If not specified, uses default
   // name "tensors".
-  vtkSetStringMacro(TensorsName);
+  vtkSafeSetStringMacro(TensorsName);
   vtkGetStringMacro(TensorsName);
 
   // Description:
   // Give a name to the normals data. If not specified, uses default
   // name "normals".
-  vtkSetStringMacro(NormalsName);
+  vtkSafeSetStringMacro(NormalsName);
   vtkGetStringMacro(NormalsName);
 
   // Description:
   // Give a name to the texture coordinates data. If not specified, uses 
   // default name "textureCoords".
-  vtkSetStringMacro(TCoordsName);
+  vtkSafeSetStringMacro(TCoordsName);
   vtkGetStringMacro(TCoordsName);
 
   // Description:
   // Give a name to the lookup table. If not specified, uses default
   // name "lookupTable".
-  vtkSetStringMacro(LookupTableName);
+  vtkSafeSetStringMacro(LookupTableName);
   vtkGetStringMacro(LookupTableName);
 
   // Description:
   // Give a name to the field data. If not specified, uses default 
   // name "field".
-  vtkSetStringMacro(FieldDataName);
+  vtkSafeSetStringMacro(FieldDataName);
   vtkGetStringMacro(FieldDataName);
 
   // Description:

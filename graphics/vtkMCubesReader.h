@@ -92,12 +92,12 @@ public:
 
   // Description:
   // Specify file name of marching cubes file.
-  vtkSetStringMacro(FileName);
+  vtkSafeSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
 
   // Description:
   // Set / get the file name of the marching cubes limits file.
-  vtkSetStringMacro(LimitsFileName);
+  vtkSafeSetStringMacro(LimitsFileName);
   vtkGetStringMacro(LimitsFileName);
 
   // Description:

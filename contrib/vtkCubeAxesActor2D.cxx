@@ -42,6 +42,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkAxisActor2D.h"
 #include "vtkMath.h"
 
+vtkSafeSetStringMacro2(XLabel,vtkCubeAxesActor2D);
+vtkSafeSetStringMacro2(YLabel,vtkCubeAxesActor2D);
+vtkSafeSetStringMacro2(ZLabel,vtkCubeAxesActor2D);
+vtkSafeSetStringMacro2(LabelFormat,vtkCubeAxesActor2D);
+
+  
 // Instantiate this object.
 vtkCubeAxesActor2D::vtkCubeAxesActor2D()
 {

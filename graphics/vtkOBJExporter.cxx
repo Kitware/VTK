@@ -41,6 +41,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkOBJExporter.h"
 #include "vtkGeometryFilter.h"
 
+vtkSafeSetStringMacro2(FilePrefix,vtkOBJExporter);
+
 vtkOBJExporter::vtkOBJExporter()
 {
   this->FilePrefix = NULL;

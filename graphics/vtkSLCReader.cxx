@@ -42,6 +42,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkSLCReader.h"
 
+vtkSafeSetStringMacro2(FileName,vtkSLCReader);
+
 // Constructor for a vtkSLCReader.
 vtkSLCReader::vtkSLCReader()
 {

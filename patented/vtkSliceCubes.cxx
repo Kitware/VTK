@@ -67,6 +67,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 
+vtkSafeSetStringMacro2(FileName,vtkSliceCubes);
+vtkSafeSetStringMacro2(LimitsFileName,vtkSliceCubes);
+
 // Description:
 // Construct with NULL reader, output FileName specification, and limits 
 // FileName.

@@ -71,7 +71,7 @@ public:
 
   // Description:
   // Specify Unigraphics file name.
-  vtkSetStringMacro(FileName);
+  vtkSafeSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
 
   // Description:

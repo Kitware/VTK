@@ -113,7 +113,7 @@ public:
   // Description:
   // Set/Get the format with which to print the labels on the scalar
   // bar.
-  vtkSetStringMacro(LabelFormat);
+  vtkSafeSetStringMacro(LabelFormat);
   vtkGetStringMacro(LabelFormat);
 
   // Description:
@@ -126,7 +126,7 @@ public:
 
   // Description:
   // Set/Get the title of the scalar bar actor,
-  vtkSetStringMacro(Title);
+  vtkSafeSetStringMacro(Title);
   vtkGetStringMacro(Title);
 
   // Description:

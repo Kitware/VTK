@@ -43,6 +43,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkDataSetCollection.h"
 #include "vtkMath.h"
 
+vtkSafeSetStringMacro2(Title,vtkXYPlotActor);
+vtkSafeSetStringMacro2(XTitle,vtkXYPlotActor);
+vtkSafeSetStringMacro2(YTitle,vtkXYPlotActor);
+vtkSafeSetStringMacro2(LabelFormat,vtkXYPlotActor);
+
 // Instantiate object
 vtkXYPlotActor::vtkXYPlotActor()
 {

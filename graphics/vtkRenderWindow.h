@@ -224,7 +224,7 @@ public:
   // Description:
   // Set/Get the FileName used for saving images. See the SaveImageAsPPM 
   // method.
-  vtkSetStringMacro(FileName);
+  vtkSafeSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
 
   // Description:

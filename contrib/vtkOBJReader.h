@@ -62,7 +62,7 @@ public:
 
   // Description:
   // Specify file name of Wavefront .obj file.
-  vtkSetStringMacro(FileName);
+  vtkSafeSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
 
 protected:

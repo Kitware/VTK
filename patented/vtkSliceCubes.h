@@ -107,7 +107,7 @@ public:
 
   // Description:
   // Specify file name of marching cubes output file.
-  vtkSetStringMacro(FileName);
+  vtkSafeSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
 
   // Description:
@@ -118,7 +118,7 @@ public:
   // Description:
   // Specify file name of marching cubes limits file. The limits file
   // speeds up subsequent reading of output triangle file.
-  vtkSetStringMacro(LimitsFileName);
+  vtkSafeSetStringMacro(LimitsFileName);
   vtkGetStringMacro(LimitsFileName);
 
 protected:

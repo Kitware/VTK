@@ -64,7 +64,7 @@ public:
 
   // Description:
   // Specify file name of Digital Elevation Model (DEM) file
-  vtkSetStringMacro(FileName);
+  vtkSafeSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
 
   // Description:

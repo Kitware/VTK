@@ -43,6 +43,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPolyDataMapper.h"
 #include "vtkMath.h"
 
+vtkSafeSetStringMacro2(FileName,vtkVRMLExporter);
+
 vtkVRMLExporter::vtkVRMLExporter()
 {
   this->Speed = 4.0;

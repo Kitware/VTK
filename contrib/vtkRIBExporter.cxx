@@ -54,6 +54,9 @@ typedef float RtPoint[3];
 typedef char   *RtPointer;
 typedef float RtFloat;
 
+vtkSafeSetStringMacro2(FilePrefix,vtkRIBExporter);
+vtkSafeSetStringMacro2(TexturePrefix,vtkRIBExporter);
+
 vtkRIBExporter::vtkRIBExporter()
 {
   this->FilePrefix = NULL;

@@ -40,6 +40,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkVolumeReader.h"
 
+vtkSafeSetStringMacro2(FilePrefix,vtkVolumeReader);
+vtkSafeSetStringMacro2(FilePattern,vtkVolumeReader);
+
 // Construct object with NULL file prefix; file pattern "%s.%d"; image range 
 // set to (1,1); 
 vtkVolumeReader::vtkVolumeReader()

@@ -81,12 +81,12 @@ public:
 
   // Description:
   // Specify file prefix for the image file(s).
-  vtkSetStringMacro(FilePrefix);
+  vtkSafeSetStringMacro(FilePrefix);
   vtkGetStringMacro(FilePrefix);
 
   // Description:
   // The sprintf format used to build filename from FilePrefix and number.
-  vtkSetStringMacro(FilePattern);
+  vtkSafeSetStringMacro(FilePattern);
   vtkGetStringMacro(FilePattern);
 
   // Description:
