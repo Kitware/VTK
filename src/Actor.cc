@@ -188,11 +188,9 @@ void vlActor::RotateWXYZ (float degree, float x, float y, float z)
 }
 
 // Description:
-// Return the 4x4 composit matrix for this actor.
-vlMatrix4x4 vlActor::GetMatrix ()
+// Load the 4x4 composite actor matrix into the matrix provided.
+void vlActor::GetMatrix(vlMatrix4x4& result)
 {
-  vlMatrix4x4 result;
-
   this->GetOrientation();
   this->Transform.Push();  
   this->Transform.Identity();  
@@ -208,7 +206,6 @@ vlMatrix4x4 vlActor::GetMatrix ()
 			    this->Origin[1],
 			    this->Origin[2]);
    
-
   // rotate
   this->Transform.RotateZ(this->Orientation[2]);
   this->Transform.RotateX(this->Orientation[0]);
@@ -227,7 +224,16 @@ vlMatrix4x4 vlActor::GetMatrix ()
   result = this->Transform.GetMatrix();
 
   this->Transform.Pop();  
-  return(result);
+} 
+
+// Description:
+// Return a reference to the actor'sLoad the 4x4 composite actor 
+// matrix into the matrix provided.
+vlMatrix4x4& vlActor::GetMatrix()
+{
+  static vlMatrix4x4 result;
+  this->GetMatrix(result);
+  return result;
 } 
 
 // Description:
@@ -237,6 +243,7 @@ float *vlActor::GetBounds()
   int i,n;
   float *bounds, bbox[24], *fptr;
   float *result;
+  vlMatrix4x4 matrix;
   
   // get the bounds of the Mapper
   bounds = this->Mapper->GetBounds();
@@ -254,7 +261,8 @@ float *vlActor::GetBounds()
   // save the old transform
   this->Transform.Push();  
   this->Transform.Identity();
-  this->Transform.Concatenate(this->GetMatrix());
+  this->GetMatrix(matrix);
+  this->Transform.Concatenate(matrix);
 
   // and transform into actors coordinates
   fptr = bbox;

@@ -62,7 +62,7 @@ int vlSbrRenderer::UpdateActors()
       {
       count++;
       // build transformation 
-      matrix = anActor->GetMatrix();
+      anActor->GetMatrix(matrix);
       matrix.Transpose();
  
       concat_transformation3d(this->Fd, z_ref_matrix, PRE, PUSH);

@@ -57,7 +57,7 @@ int vlGlrRenderer::UpdateActors()
       {
       count++;
       // build transformation 
-      matrix = anActor->GetMatrix();
+      anActor->GetMatrix(matrix);
       matrix.Transpose();
  
       // insert model transformation 

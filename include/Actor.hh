@@ -131,7 +131,8 @@ class vlActor : public vlObject
   // This does not affect methods such as SetPosition.
   vlBooleanMacro(Dragable,int);
 
-  vlMatrix4x4 GetMatrix();
+  vlMatrix4x4& GetMatrix();
+  void GetMatrix(vlMatrix4x4& m);
 
   float *GetBounds();
   float *GetXRange();
