@@ -36,8 +36,8 @@ protected:
   vtkImageDivergence();
   ~vtkImageDivergence() {};
 
-  void ComputeInputUpdateExtent (vtkInformation *, vtkInformationVector *, 
-                                 vtkInformationVector *);
+  void RequestUpdateExtent (vtkInformation *, vtkInformationVector *, 
+                            vtkInformationVector *);
   void ExecuteInformation (vtkInformation *, vtkInformationVector *, 
                            vtkInformationVector *);
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,

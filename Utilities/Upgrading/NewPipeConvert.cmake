@@ -56,7 +56,7 @@ STRING (REGEX REPLACE
 
 STRING (REGEX REPLACE  
   "ComputeInputUpdateExtent[ \t]*\\([^,]*,[^,\)]*\\)"
-  "ComputeInputUpdateExtent (vtkInformation *, vtkInformationVector *, vtkInformationVector *)"
+  "RequestUpdateExtent (vtkInformation *, vtkInformationVector *, vtkInformationVector *)"
   H_CONTENTS "${H_CONTENTS}")
 
 FILE (WRITE ${H_FILE} "${H_CONTENTS}")
@@ -83,16 +83,16 @@ ENDIF (NOT "${CXX_CONTENTS}" MATCHES ".*::ExecuteInformation[^{]*{\n  // get the
 
 STRING (REGEX REPLACE  
   "::ComputeInputUpdateExtent[ \t]*\\([^,\)]*,[^,\)]*\\)"
-  "::ComputeInputUpdateExtent (\n  vtkInformation * vtkNotUsed(request),\n  vtkInformationVector *inputVector,\n  vtkInformationVector *outputVector)"
+  "::RequestUpdateExtent (\n  vtkInformation * vtkNotUsed(request),\n  vtkInformationVector *inputVector,\n  vtkInformationVector *outputVector)"
   CXX_CONTENTS "${CXX_CONTENTS}")
 
 # add outInfo only once
-IF (NOT "${CXX_CONTENTS}" MATCHES ".*::ComputeInputUpdateExtent[^{]*{\n  // get the info objects.*")
+IF (NOT "${CXX_CONTENTS}" MATCHES ".*::RequestUpdateExtent[^{]*{\n  // get the info objects.*")
   STRING (REGEX REPLACE  
-    "::ComputeInputUpdateExtent[ \t]*\\([^{]*{"
-    "::ComputeInputUpdateExtent (\n  vtkInformation * vtkNotUsed(request),\n  vtkInformationVector *inputVector,\n  vtkInformationVector *outputVector)\n{\n  // get the info objects\n  vtkInformation* outInfo = outputVector->GetInformationObject(0);\n  vtkInformation *inInfo =\n     this->GetInputConnectionInformation(inputVector,0,0);\n"
+    "::RequestUpdateExtent[ \t]*\\([^{]*{"
+    "::RequestUpdateExtent (\n  vtkInformation * vtkNotUsed(request),\n  vtkInformationVector *inputVector,\n  vtkInformationVector *outputVector)\n{\n  // get the info objects\n  vtkInformation* outInfo = outputVector->GetInformationObject(0);\n  vtkInformation *inInfo =\n     this->GetInputConnectionInformation(inputVector,0,0);\n"
     CXX_CONTENTS "${CXX_CONTENTS}")
-ENDIF (NOT "${CXX_CONTENTS}" MATCHES ".*::ComputeInputUpdateExtent[^{]*{\n  // get the info objects.*")
+ENDIF (NOT "${CXX_CONTENTS}" MATCHES ".*::RequestUpdateExtent[^{]*{\n  // get the info objects.*")
 
 STRING (REGEX REPLACE  
   "this->GetInput\\(\\)->GetWholeExtent\\("

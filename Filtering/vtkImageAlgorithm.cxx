@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageAlgorithm, "1.2");
+vtkCxxRevisionMacro(vtkImageAlgorithm, "1.3");
 
 //----------------------------------------------------------------------------
 vtkImageAlgorithm::vtkImageAlgorithm()
@@ -148,7 +148,7 @@ int vtkImageAlgorithm::ProcessRequest(vtkInformation* request,
   // propagate update extent
   if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
     {
-    this->ComputeInputUpdateExtent(request, inputVector, outputVector);
+    this->RequestUpdateExtent(request, inputVector, outputVector);
     return 1;
     }
 
@@ -177,7 +177,7 @@ void vtkImageAlgorithm::ExecuteInformation(
   // do nothing let subclasses handle it
 }
 
-void vtkImageAlgorithm::ComputeInputUpdateExtent(
+void vtkImageAlgorithm::RequestUpdateExtent(
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector * vtkNotUsed(inputVector), 
   vtkInformationVector * vtkNotUsed(outputVector))

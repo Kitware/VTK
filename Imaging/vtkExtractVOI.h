@@ -67,9 +67,9 @@ protected:
   vtkExtractVOI();
   ~vtkExtractVOI() {};
 
-  virtual void ComputeInputUpdateExtent (vtkInformation *, 
-                                         vtkInformationVector *, 
-                                         vtkInformationVector *);
+  virtual void RequestUpdateExtent (vtkInformation *, 
+                                    vtkInformationVector *, 
+                                    vtkInformationVector *);
   void ExecuteInformation (vtkInformation *, 
                            vtkInformationVector *, 
                            vtkInformationVector *);

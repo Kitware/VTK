@@ -22,7 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkExtractVOI, "1.38");
+vtkCxxRevisionMacro(vtkExtractVOI, "1.39");
 vtkStandardNewMacro(vtkExtractVOI);
 
 //-----------------------------------------------------------------------------
@@ -37,7 +37,7 @@ vtkExtractVOI::vtkExtractVOI()
 
 //-----------------------------------------------------------------------------
 // Get ALL of the input.
-void vtkExtractVOI::ComputeInputUpdateExtent (
+void vtkExtractVOI::RequestUpdateExtent (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector *inputVector,
   vtkInformationVector *vtkNotUsed( outputVector ))

@@ -64,7 +64,8 @@ protected:
   int Dimensionality;
   
   void ExecuteInformation (vtkInformation *, vtkInformationVector *, vtkInformationVector *); 
-  void ComputeInputUpdateExtent (vtkInformation *, vtkInformationVector *, vtkInformationVector *);
+  void RequestUpdateExtent (vtkInformation *, 
+                            vtkInformationVector *, vtkInformationVector *);
   
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
                        int extent[6], int id);

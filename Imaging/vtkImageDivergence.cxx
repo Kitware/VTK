@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageDivergence, "1.28");
+vtkCxxRevisionMacro(vtkImageDivergence, "1.29");
 vtkStandardNewMacro(vtkImageDivergence);
 
 vtkImageDivergence::vtkImageDivergence()
@@ -45,7 +45,7 @@ void vtkImageDivergence::ExecuteInformation(
 
 //----------------------------------------------------------------------------
 // Just clip the request.  The subclass may need to overwrite this method.
-void vtkImageDivergence::ComputeInputUpdateExtent (
+void vtkImageDivergence::RequestUpdateExtent (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector *inputVector,
   vtkInformationVector *outputVector)

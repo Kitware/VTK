@@ -64,9 +64,9 @@ protected:
   virtual void ExecuteInformation(vtkInformation *request, 
                                   vtkInformationVector *inputVector, 
                                   vtkInformationVector *outputVector);
-  virtual void ComputeInputUpdateExtent(vtkInformation *,
-                                        vtkInformationVector *,
-                                        vtkInformationVector *);
+  virtual void RequestUpdateExtent(vtkInformation *,
+                                   vtkInformationVector *,
+                                   vtkInformationVector *);
 
   // This is called by the superclass.
   // This is the method you should override.

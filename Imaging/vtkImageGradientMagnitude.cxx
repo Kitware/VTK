@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGradientMagnitude, "1.37");
+vtkCxxRevisionMacro(vtkImageGradientMagnitude, "1.38");
 vtkStandardNewMacro(vtkImageGradientMagnitude);
 
 //----------------------------------------------------------------------------
@@ -89,7 +89,7 @@ void vtkImageGradientMagnitude::ExecuteInformation (
 
 //----------------------------------------------------------------------------
 // This method computes the input extent necessary to generate the output.
-void vtkImageGradientMagnitude::ComputeInputUpdateExtent (
+void vtkImageGradientMagnitude::RequestUpdateExtent (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector *inputVector,
   vtkInformationVector *outputVector)
