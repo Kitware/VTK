@@ -153,9 +153,9 @@ void vtkImageImport::ExecuteInformation()
 //----------------------------------------------------------------------------
 // This function reads a data from a file.  The datas extent/axes
 // are assumed to be the same as the file extent/order.
-void vtkImageImport::Execute()
+void vtkImageImport::ExecuteData(vtkDataObject *output)
 {
-  vtkImageData *data = this->GetOutput();
+  vtkImageData *data = this->AllocateOutputData(output);
   void *ptr = this->GetImportVoidPointer();
   int size = 
     (this->DataExtent[1] - this->DataExtent[0]+1) *
@@ -163,11 +163,6 @@ void vtkImageImport::Execute()
     (this->DataExtent[5] - this->DataExtent[4]+1) *
     this->NumberOfScalarComponents;    
 
-  // We do not need to allocate, but we do need to set up the pointer.
-  data->SetExtent(this->DataExtent);
-  // Somewhat wasteful.
-  data->AllocateScalars();
-  
   data->GetPointData()->GetScalars()->GetData()->SetVoidArray(ptr,size,1);
 }
 

@@ -58,6 +58,10 @@ class VTK_EXPORT vtkImageFourierCenter : public vtkImageDecomposeFilter
 public:
   static vtkImageFourierCenter *New();
   vtkTypeMacro(vtkImageFourierCenter,vtkImageDecomposeFilter);
+
+  virtual void IterativeExecuteData(vtkImageData *, vtkImageData *out) {
+    this->MultiThread(out); };
+  
   
 protected:
   vtkImageFourierCenter();

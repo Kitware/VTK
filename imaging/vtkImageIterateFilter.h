@@ -58,7 +58,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_EXPORT vtkImageIterateFilter : public vtkImageToImageFilter
 {
 public:
-  static vtkImageIterateFilter *New();
   vtkTypeMacro(vtkImageIterateFilter,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -90,12 +89,9 @@ protected:
   
   // Superclass API: Calls Execute(vtkImageData *inData, vtkImageData *outData)
   // for each iteration.
-  void Execute();
-  // defined in superclass, but hidden by Execute().
-  void Execute(vtkImageData *inData, vtkImageData *outData);
-  void Execute(vtkImageData *outData)
-    { this->vtkImageToImageFilter::Execute(outData);};
-
+  void ExecuteData(vtkDataObject *output);
+  virtual void IterativeExecuteData(vtkImageData *in, vtkImageData *out) = 0;
+  
   // Replaces "EnlargeOutputUpdateExtent"
   virtual void AllocateOutputScalars(vtkImageData *outData);
   

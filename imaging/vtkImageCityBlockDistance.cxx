@@ -112,8 +112,8 @@ void vtkImageCityBlockDistance::ComputeInputUpdateExtent(int inExt[6],
 
 //----------------------------------------------------------------------------
 // This is writen as a 1D execute method, but is called several times.
-void vtkImageCityBlockDistance::Execute(vtkImageData *inData, 
-					vtkImageData *outData)
+void vtkImageCityBlockDistance::IterativeExecuteData(vtkImageData *inData, 
+                                                     vtkImageData *outData)
 {
   short *inPtr0, *inPtr1, *inPtr2, *inPtrC;
   short *outPtr0, *outPtr1, *outPtr2, *outPtrC;

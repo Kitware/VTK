@@ -72,10 +72,7 @@ protected:
   void operator=(const vtkImageCityBlockDistance&) {};
 
   void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
-  void Execute(vtkImageData *inData, vtkImageData *outData);
-  void Execute() {this->vtkImageIterateFilter::Execute();}
-  void Execute(vtkImageData *outData)
-    { this->vtkImageIterateFilter::Execute(outData); };
+  void IterativeExecuteData(vtkImageData *inData, vtkImageData *outData);
 
   void AllocateOutputScalars(vtkImageData *outData);
 

@@ -148,7 +148,7 @@ void vtkImageSeedConnectivity::ComputeInputUpdateExtents(vtkDataObject *out)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageSeedConnectivity::Execute()
+void vtkImageSeedConnectivity::ExecuteData(vtkDataObject *)
 {
   vtkImageData *inData = this->GetInput();
   vtkImageData *outData = this->GetOutput();

@@ -40,24 +40,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 #include "vtkImageIterateFilter.h"
-#include "vtkObjectFactory.h"
-
-
-
-//------------------------------------------------------------------------------
-vtkImageIterateFilter* vtkImageIterateFilter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageIterateFilter");
-  if(ret)
-    {
-    return (vtkImageIterateFilter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageIterateFilter;
-}
-
-
 
 
 //----------------------------------------------------------------------------
@@ -153,7 +135,7 @@ void vtkImageIterateFilter::AllocateOutputScalars(vtkImageData *outData)
 //----------------------------------------------------------------------------
 // Some filters (decomposes, anisotropic difusion ...) have execute 
 // called multiple times per update.
-void vtkImageIterateFilter::Execute()
+void vtkImageIterateFilter::ExecuteData(vtkDataObject *out)
 {
   int idx;
   vtkImageData *inData, *outData;
@@ -170,7 +152,7 @@ void vtkImageIterateFilter::Execute()
     this->AllocateOutputScalars(outData);
 
     // execute for this iteration
-    this->Execute(inData, outData);
+    this->IterativeExecuteData(inData, outData);
     
     // Part of me thinks we should always release the 
     // intermediate (iteration) data.  But saving it could speed execution ...
@@ -181,16 +163,6 @@ void vtkImageIterateFilter::Execute()
       }
     }
 }
-
-
-//----------------------------------------------------------------------------
-// Hidden by Execute().
-void vtkImageIterateFilter::Execute(vtkImageData *inData, vtkImageData *outData)
-{
-  this->vtkImageToImageFilter::Execute(inData, outData);
-}
-
-
 
 
 //----------------------------------------------------------------------------

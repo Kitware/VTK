@@ -60,6 +60,11 @@ vtkImageFFT* vtkImageFFT::New()
 }
 
 
+void vtkImageFFT::IterativeExecuteData(vtkImageData *in, vtkImageData *out)
+{
+  this->MultiThread(out);
+}
+
 
 
 

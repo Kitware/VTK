@@ -45,24 +45,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 
 
-
-//------------------------------------------------------------------------------
-vtkImageDecomposeFilter* vtkImageDecomposeFilter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageDecomposeFilter");
-  if(ret)
-    {
-    return (vtkImageDecomposeFilter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageDecomposeFilter;
-}
-
-
-
-
-
 //----------------------------------------------------------------------------
 // Construct an instance of vtkImageDecomposeFilter fitler.
 vtkImageDecomposeFilter::vtkImageDecomposeFilter()

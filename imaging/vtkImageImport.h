@@ -122,11 +122,10 @@ protected:
 
   // Description:
   // This method returns the largest data that can be generated.
-  void ExecuteInformation();
+  virtual void ExecuteInformation();
   
   void *ImportVoidPointer;
   int SaveUserArray;
-
   
   int NumberOfScalarComponents;
   int DataScalarType;
@@ -135,8 +134,7 @@ protected:
   float DataSpacing[3];
   float DataOrigin[3];
   
-  void Execute(vtkImageData *d) {this->vtkImageSource::Execute(d);}
-  void Execute();
+  virtual void ExecuteData(vtkDataObject *d);
 };
 
 

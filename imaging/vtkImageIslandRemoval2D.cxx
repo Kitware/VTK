@@ -515,7 +515,7 @@ static void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
 // This method uses the input data to fill the output data.
 // It can handle any type data, but the two datas must have the same 
 // data type.  Assumes that in and out have the same lower extent.
-void vtkImageIslandRemoval2D::Execute()
+void vtkImageIslandRemoval2D::ExecuteData(vtkDataObject *output)
 {
   int *outExt;
   vtkImageData *inData = this->GetInput();

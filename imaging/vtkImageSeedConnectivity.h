@@ -112,13 +112,7 @@ protected:
   
   void ComputeInputUpdateExtents(vtkDataObject *out);
 
-  void Execute(); 
-  // Get rid of warnings.
-  void Execute(vtkImageData *in, vtkImageData *out)
-    { this->vtkImageToImageFilter::Execute(in, out); };
-  void Execute(vtkImageData *outData)
-    { this->vtkImageToImageFilter::Execute(outData); };
-
+  void ExecuteData(vtkDataObject *out); 
 };
 
 

@@ -103,13 +103,7 @@ protected:
   float IslandValue;
   float ReplaceValue;
 
-  void Execute();
-  // These are just to avoid warnings.
-  void Execute(vtkImageData *in, vtkImageData *out)
-    { this->vtkImageToImageFilter::Execute(in, out); };
-  void Execute(vtkImageData *output)
-    { this->vtkImageToImageFilter::Execute(output); };
-
+  void ExecuteData(vtkDataObject *output);
 };
 
 #endif
