@@ -162,7 +162,13 @@ static inline unsigned long vtkHashMapHashMethod(const char* s)
 }
 
 static inline unsigned long vtkHashMapHashMethod(vtkObjectBase* o) 
-{ return reinterpret_cast<unsigned long>(o); }
+{ 
+#if defined ( _MSC_VER )
+  return PtrToUlong(o);
+#else
+  return reinterpret_cast<unsigned long>(o); 
+#endif
+}
 
 #ifdef VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION
 #include "vtkHashMap.txx"
