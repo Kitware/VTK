@@ -31,6 +31,7 @@ vtkImageData blankImage
    blankImage SetScalarTypeToUnsignedChar
    blankImage SetDimensions 57 33 1
    blankImage AllocateScalars
+   [[[blankImage GetPointData] GetScalars] GetData] SetName blankScalars
 set blanking [[blankImage GetPointData] GetScalars]
 set numBlanks [expr 57*33]
 for {set i 0} {$i<$numBlanks} {incr i} {
@@ -62,13 +63,14 @@ vtkActor planeActor
 #
 vtkStructuredGrid anotherGrid
     anotherGrid CopyStructure [plane GetOutput]
-    [anotherGrid GetPointData] SetScalars [blankImage GetPointData]
+    [anotherGrid GetPointData] SetScalars [[blankImage GetPointData] GetScalars]
 vtkBlankStructuredGrid blankGrid
     blankGrid SetInput anotherGrid 
-    blankGrid SetMinBlankValue -0.5
-    blankGrid SetMaxBlankValue  0.5
+    blankGrid SetArrayName blankScalars
+    blankGrid SetMinBlankingValue -0.5
+    blankGrid SetMaxBlankingValue  0.5
 vtkStructuredGridGeometryFilter blankedPlane2
-    blankedPlane2 SetInput [blankIt GetOutput]
+    blankedPlane2 SetInput [blankGrid GetOutput]
     blankedPlane2 SetExtent 0 100 0 100 0 0
 vtkPolyDataMapper planeMapper2
     planeMapper2 SetInput [blankedPlane2 GetOutput]
@@ -95,7 +97,9 @@ vtkActor outlineActor2
 # Create the RenderWindow, Renderer and both Actors
 #
 vtkRenderer ren1
+    ren1 SetViewport 0 0 0.5 1
 vtkRenderer ren2
+    ren2 SetViewport 0.5 0 1 1
 vtkRenderWindow renWin
     renWin AddRenderer ren1
     renWin AddRenderer ren2
@@ -119,11 +123,7 @@ set cam1 [ren1 GetActiveCamera]
     $cam1 SetFocalPoint 8.88908 0.595038 29.3342
     $cam1 SetPosition -12.3332 31.7479 41.2387
     $cam1 SetViewUp 0.060772 -0.319905 0.945498
-set cam2 [ren2 GetActiveCamera]
-    $cam2 SetClippingRange 3.95297 50
-    $cam2 SetFocalPoint 8.88908 0.595038 29.3342
-    $cam2 SetPosition -12.3332 31.7479 41.2387
-    $cam2 SetViewUp 0.060772 -0.319905 0.945498
+ren2 SetActiveCamera [ren1 GetActiveCamera]
 
 # render the image
 #

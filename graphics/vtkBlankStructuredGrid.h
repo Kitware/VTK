@@ -69,14 +69,14 @@ public:
   // Description:
   // Specify the lower data value in the data array specified which will be converted
   // into a "blank" (or off) value in the blanking array.
-  vtkSetMacro(MinBlankingValue,int);
-  vtkGetMacro(MinBlankingValue,int);
+  vtkSetMacro(MinBlankingValue,float);
+  vtkGetMacro(MinBlankingValue,float);
 
   // Description:
   // Specify the upper data value in the data array specified which will be converted
   // into a "blank" (or off) value in the blanking array.
-  vtkSetMacro(MaxBlankingValue,int);
-  vtkGetMacro(MaxBlankingValue,int);
+  vtkSetMacro(MaxBlankingValue,float);
+  vtkGetMacro(MaxBlankingValue,float);
 
   // Description:
   // Specify the data array name to use to generate the blanking field. Alternatively,
