@@ -25,7 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyLine.h"
 
-vtkCxxRevisionMacro(vtkStreamTracer, "1.6");
+vtkCxxRevisionMacro(vtkStreamTracer, "1.7");
 vtkStandardNewMacro(vtkStreamTracer);
 
 const float vtkStreamTracer::EPSILON = 1.0E-12;
@@ -42,15 +42,15 @@ vtkStreamTracer::vtkStreamTracer()
   this->MaximumPropagation.Interval = 1.0;
 
   this->MinimumIntegrationStep.Unit = CELL_LENGTH_UNIT;
-  this->MinimumIntegrationStep.Interval = -1.0;
+  this->MinimumIntegrationStep.Interval = 1.0E-2;
 
   this->MaximumIntegrationStep.Unit = CELL_LENGTH_UNIT;
-  this->MaximumIntegrationStep.Interval = -1.0;
+  this->MaximumIntegrationStep.Interval = 1.0;
 
   this->InitialIntegrationStep.Unit = CELL_LENGTH_UNIT;
   this->InitialIntegrationStep.Interval = 0.5;
 
-  this->MaximumError = 1.0e-5;
+  this->MaximumError = 1.0e-6;
 
   this->MaximumNumberOfSteps = 2000;
 
@@ -551,6 +551,8 @@ void vtkStreamTracer::Integrate(vtkDataArray* seedSource, vtkIdList* seedIds)
     IntervalInformation delT;
     delT.Unit = TIME_UNIT;
     delT.Interval = 0;
+    IntervalInformation aStep;
+    aStep.Unit = this->MaximumPropagation.Unit;
     float propagation = 0.0, step, minStep=0, maxStep=0;
     float stepTaken, accumTime=0;
     float speed;
@@ -612,11 +614,21 @@ void vtkStreamTracer::Integrate(vtkDataArray* seedSource, vtkIdList* seedIds)
 
       // If, with the next step, propagation will be larger than
       // max, reduce it so that it is (approximately) equal to max.
-      maxPropTime = this->ConvertToTime(this->MaximumPropagation, cellLength, 
-                                        speed);
-      if ( (accumTime + delT.Interval) > maxPropTime )
+      aStep.Interval = fabs(this->ConvertToUnit(delT, 
+                                                this->MaximumPropagation.Unit,
+                                                cellLength, speed));
+      if ( (propagation + aStep.Interval) >  
+           this->MaximumPropagation.Interval )
         {
-        delT.Interval = maxPropTime - accumTime;
+        aStep.Interval = this->MaximumPropagation.Interval - propagation;
+        if (delT.Interval >= 0)
+          {
+          delT.Interval = this->ConvertToTime(aStep, cellLength, speed);
+          }
+        else
+          {
+          delT.Interval = -1.0 * this->ConvertToTime(aStep, cellLength, speed);
+          }
         maxStep = delT.Interval;
         }
           
@@ -630,11 +642,13 @@ void vtkStreamTracer::Integrate(vtkDataArray* seedSource, vtkIdList* seedIds)
         retVal = tmp;
         break;
         }
+
       accumTime += stepTaken;
       // Calculate propagation (using the same units as MaximumPropagation
       propagation += fabs(this->ConvertToUnit(delT, 
                                               this->MaximumPropagation.Unit,
                                               cellLength, speed));
+
 
       // This is the next starting point
       for(i=0; i<3; i++)
@@ -703,13 +717,13 @@ void vtkStreamTracer::Integrate(vtkDataArray* seedSource, vtkIdList* seedIds)
       // size (unless it is specified in time units)
       if (integrator->IsAdaptive())
         {
-        if (delT.Interval < minStep)
+        if (fabs(delT.Interval) < fabs(minStep))
           {
-          delT.Interval = minStep * delT.Interval/fabs(delT.Interval);
+          delT.Interval = fabs(minStep) * delT.Interval/fabs(delT.Interval);
           }
-        else if (delT.Interval > maxStep)
+        else if (fabs(delT.Interval) > fabs(maxStep))
           {
-          delT.Interval = maxStep * delT.Interval/fabs(delT.Interval);
+          delT.Interval = fabs(maxStep) * delT.Interval/fabs(delT.Interval);
           }
         }
       else
