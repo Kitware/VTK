@@ -34,7 +34,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkFacetWriter, "1.1");
+vtkCxxRevisionMacro(vtkFacetWriter, "1.2");
 vtkStandardNewMacro(vtkFacetWriter);
 
 //----------------------------------------------------------------------------
@@ -178,8 +178,8 @@ int vtkFacetWriter::WriteDataToStream(ostream* ost, vtkPolyData* data)
       for ( cc = 0; cc < numPts; cc ++ )
         {
         // Indices of point starts with 1
-        vtkIdType point = pts[cc] + 1;
-        *ost << point << " " << material << " " << part << endl;
+        vtkIdType pointIndex = pts[cc] + 1;
+        *ost << pointIndex << " " << material << " " << part << endl;
         }
       }
     written = 1;
