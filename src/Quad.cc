@@ -24,7 +24,6 @@ static vlMath math;
 static vlPolygon poly;
 static vlPlane plane;
 
-
 // Description:
 // Deep copy of cell.
 vlQuad::vlQuad(const vlQuad& q)
@@ -51,7 +50,7 @@ int vlQuad::EvaluatePosition(float x[3], float closestPoint[3],
   float derivs[8];
 
   subId = 0;
-  pcoords[0] = pcoords[1] = pcoords[2] = params[0] = params[1] = 0.0;
+  pcoords[0] = pcoords[1] = pcoords[2] = params[0] = params[1] = 0.5;
 //
 // Get normal for quadrilateral
 //
@@ -150,9 +149,6 @@ int vlQuad::EvaluatePosition(float x[3], float closestPoint[3],
     }
   else
     {
-    // shift to (0,1)
-    for(i=0; i<3; i++) pcoords[i] = 0.5*(pcoords[i]+1.0); 
-
     if ( pcoords[0] >= 0.0 && pcoords[0] <= 1.0 &&
     pcoords[1] >= 0.0 && pcoords[1] <= 1.0 )
       {
@@ -179,7 +175,6 @@ void vlQuad::EvaluateLocation(int& subId, float pcoords[3], float x[3],
   int i, j;
   float *pt, pc[3];
 
-  for (i=0; i<2; i++) pc[i] = 2.0*pcoords[i] - 1.0; //shift to -1<=r,s,t<=1
   this->InterpolationFunctions(pc, weights);
 
   x[0] = x[1] = x[2] = 0.0;
@@ -198,36 +193,32 @@ void vlQuad::EvaluateLocation(int& subId, float pcoords[3], float x[3],
 //
 void vlQuad::InterpolationFunctions(float pcoords[3], float sf[4])
 {
-  double rm, rp, sm, sp;
+  double rm, sm;
 
   rm = 1. - pcoords[0];
-  rp = 1. + pcoords[0];
   sm = 1. - pcoords[1];
-  sp = 1. + pcoords[1];
 
-  sf[0] = 0.25 * rm * sm;
-  sf[1] = 0.25 * rp * sm;
-  sf[2] = 0.25 * rp * sp;
-  sf[3] = 0.25 * rm * sp;
+  sf[0] = rm * sm;
+  sf[1] = pcoords[0] * sm;
+  sf[2] = pcoords[0] * pcoords[1];
+  sf[3] = rm * pcoords[1];
 }
 
 void vlQuad::InterpolationDerivs(float pcoords[3], float derivs[8])
 {
-  double rm, rp, sm, sp;
+  double rm, sm;
 
   rm = 1. - pcoords[0];
-  rp = 1. + pcoords[0];
   sm = 1. - pcoords[1];
-  sp = 1. + pcoords[1];
 
-  derivs[0] = -0.25*sm;
-  derivs[1] = 0.25*sm;
-  derivs[2] = 0.25*sp;
-  derivs[3] = -0.25*sp;
-  derivs[4] = -0.25*rm;
-  derivs[5] = -0.25*rp;
-  derivs[6] = 0.25*rp;
-  derivs[7] = 0.25*rm;
+  derivs[0] = -sm;
+  derivs[1] = sm;
+  derivs[2] = pcoords[1];
+  derivs[3] = -pcoords[1];
+  derivs[4] = -rm;
+  derivs[5] = -pcoords[0];
+  derivs[6] = pcoords[0];
+  derivs[7] = rm;
 }
 
 int vlQuad::CellBoundary(int subId, float pcoords[3], vlIdList& pts)

@@ -33,10 +33,7 @@ vlHexahedron::vlHexahedron(const vlHexahedron& h)
 
 //
 //  Method to calculate parametric coordinates in an eight noded
-//  linear hexahedron element from global coordinates.  Note: the natural 
-//  formulation calls for r,s,t parametric coordinates to range
-//  from -1<=r,s,t<=1. We need to shift to 0<=r,s,t<=1.
-//  Uses Newton's method to solve the non-linear equations.
+//  linear hexahedron element from global coordinates.
 //
 #define MAX_ITERATION 10
 #define CONVERGED 1.e-03
@@ -55,7 +52,7 @@ int vlHexahedron::EvaluatePosition(float x[3], float closestPoint[3],
 //  set initial position for Newton's method
 //
   subId = 0;
-  pcoords[0] = pcoords[1] = pcoords[2] = params[0] = params[1] = params[2] = 0.0;
+  pcoords[0] = pcoords[1] = pcoords[2] = params[0] = params[1] = params[2] = 0.5;
 //
 //  enter iteration loop
 ///
@@ -130,9 +127,6 @@ int vlHexahedron::EvaluatePosition(float x[3], float closestPoint[3],
     }
   else
     {
-    // shift to (0,1)
-    for(i=0; i<3; i++) pcoords[i] = 0.5*(pcoords[i]+1.0);
-
     if ( pcoords[0] >= 0.0 && pcoords[0] <= 1.0 &&
     pcoords[1] >= 0.0 && pcoords[1] <= 1.0 &&
     pcoords[2] >= 0.0 && pcoords[2] <= 1.0 )
@@ -159,60 +153,54 @@ int vlHexahedron::EvaluatePosition(float x[3], float closestPoint[3],
 //
 void vlHexahedron::InterpolationFunctions(float pcoords[3], float sf[8])
 {
-  double rm, rp, sm, sp, tm, tp;
+  double rm, sm, tm;
 
   rm = 1. - pcoords[0];
-  rp = 1. + pcoords[0];
   sm = 1. - pcoords[1];
-  sp = 1. + pcoords[1];
   tm = 1. - pcoords[2];
-  tp = 1. + pcoords[2];
 
-  sf[0] = 0.125*rm*sm*tm;
-  sf[1] = 0.125*rp*sm*tm;
-  sf[2] = 0.125*rp*sp*tm;
-  sf[3] = 0.125*rm*sp*tm;
-  sf[4] = 0.125*rm*sm*tp;
-  sf[5] = 0.125*rp*sm*tp;
-  sf[6] = 0.125*rp*sp*tp;
-  sf[7] = 0.125*rm*sp*tp;
+  sf[0] = rm*sm*tm;
+  sf[1] = pcoords[0]*sm*tm;
+  sf[2] = pcoords[0]*pcoords[1]*tm;
+  sf[3] = rm*pcoords[1]*tm;
+  sf[4] = rm*sm*pcoords[2];
+  sf[5] = pcoords[0]*sm*pcoords[2];
+  sf[6] = pcoords[0]*pcoords[1]*pcoords[2];
+  sf[7] = rm*pcoords[1]*pcoords[2];
 }
 
 void vlHexahedron::InterpolationDerivs(float pcoords[3], float derivs[24])
 {
-  double rm, rp, sm, sp, tm, tp;
+  double rm, sm, tm;
 
   rm = 1. - pcoords[0];
-  rp = 1. + pcoords[0];
   sm = 1. - pcoords[1];
-  sp = 1. + pcoords[1];
   tm = 1. - pcoords[2];
-  tp = 1. + pcoords [2];
 
-  derivs[0] = -0.125*sm*tm;
-  derivs[1] = 0.125*sm*tm;
-  derivs[2] = 0.125*sp*tm;
-  derivs[3] = -0.125*sp*tm;
-  derivs[4] = -0.125*sm*tp;
-  derivs[5] = 0.125*sm*tp;
-  derivs[6] = 0.125*sp*tp;
-  derivs[7] = -0.125*sp*tp;
-  derivs[8] = -0.125*rm*tm;
-  derivs[9] = -0.125*rp*tm;
-  derivs[10] = 0.125*rp*tm;
-  derivs[11] = 0.125*rm*tm;
-  derivs[12] = -0.125*rm*tp;
-  derivs[13] = -0.125*rp*tp;
-  derivs[14] = 0.125*rp*tp;
-  derivs[15] = 0.125*rm*tp;
-  derivs[16] = -0.125*rm*sm;
-  derivs[17] = -0.125*rp*sm;
-  derivs[18] = -0.125*rp*sp;
-  derivs[19] = -0.125*rm*sp;
-  derivs[20] = 0.125*rm*sm;
-  derivs[21] = 0.125*rp*sm;
-  derivs[22] = 0.125*rp*sp;
-  derivs[23] = 0.125*rm*sp;
+  derivs[0] = -sm*tm;
+  derivs[1] = sm*tm;
+  derivs[2] = pcoords[1]*tm;
+  derivs[3] = -pcoords[1]*tm;
+  derivs[4] = -sm*pcoords[2];
+  derivs[5] = sm*pcoords[2];
+  derivs[6] = pcoords[1]*pcoords[2];
+  derivs[7] = -pcoords[1]*pcoords[2];
+  derivs[8] = -rm*tm;
+  derivs[9] = -pcoords[0]*tm;
+  derivs[10] = pcoords[0]*tm;
+  derivs[11] = rm*tm;
+  derivs[12] = -rm*pcoords[2];
+  derivs[13] = -pcoords[0]*pcoords[2];
+  derivs[14] = pcoords[0]*pcoords[2];
+  derivs[15] = rm*pcoords[2];
+  derivs[16] = -rm*sm;
+  derivs[17] = -pcoords[0]*sm;
+  derivs[18] = -pcoords[0]*pcoords[1];
+  derivs[19] = -rm*pcoords[1];
+  derivs[20] = rm*sm;
+  derivs[21] = pcoords[0]*sm;
+  derivs[22] = pcoords[0]*pcoords[1];
+  derivs[23] = rm*pcoords[1];
 }
 
 void vlHexahedron::EvaluateLocation(int& subId, float pcoords[3], float x[3],
@@ -221,7 +209,6 @@ void vlHexahedron::EvaluateLocation(int& subId, float pcoords[3], float x[3],
   int i, j;
   float *pt, pc[3];
 
-  for (i=0;i<3;i++) pc[i] = 2.0*pcoords[i] - 1.0; //shift to -1<=r,s,t<=1
   this->InterpolationFunctions(pc, weights);
 
   x[0] = x[1] = x[2] = 0.0;
