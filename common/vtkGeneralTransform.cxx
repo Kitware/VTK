@@ -51,6 +51,15 @@ void vtkGeneralTransform::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
+vtkGeneralTransform::~vtkGeneralTransform()
+{
+  if (this->MyInverse)
+    {
+    this->MyInverse->Delete();
+    }
+}
+
+//----------------------------------------------------------------------------
 // If the subclass has not defined a 'double' transform method, then
 // use the 'float' transform method instead.  
 void vtkGeneralTransform::TransformPoint(const double in[3], double out[3])

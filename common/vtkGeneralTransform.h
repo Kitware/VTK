@@ -152,7 +152,7 @@ protected:
                           this->MyInverse = NULL; 
                           this->InUnRegister = 0; };
 
-  ~vtkGeneralTransform() {};
+  ~vtkGeneralTransform();
   vtkGeneralTransform(const vtkGeneralTransform&) {};
   void operator=(const vtkGeneralTransform&) {};
 
