@@ -35,7 +35,7 @@
 #include "vtkPoints.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkHexagonalPrism, "1.2");
+vtkCxxRevisionMacro(vtkHexagonalPrism, "1.3");
 vtkStandardNewMacro(vtkHexagonalPrism);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -413,6 +413,7 @@ void vtkHexagonalPrism::Contour(double value, vtkDataArray *cellScalars,
                                 vtkCellData *inCd, vtkIdType cellId,
                                 vtkCellData *outCd)
 {
+  int i;
   double s1, s2;
 
   // subdivide into 3 internal hexahedra with two points added in the middle
@@ -422,7 +423,7 @@ void vtkHexagonalPrism::Contour(double value, vtkDataArray *cellScalars,
   vtkDoubleArray *newCellScalars=vtkDoubleArray::New();
   newCellScalars->SetNumberOfValues(8);
 
-  s1 = s2 = 0.;
+  s1 = s2 = 0.0;
   for(i=0; i<6; ++i)
     {
     s1 +=  cellScalars->GetComponent(i,0);
@@ -436,7 +437,7 @@ void vtkHexagonalPrism::Contour(double value, vtkDataArray *cellScalars,
   vtkDataArray *localScalars = this->PointData->GetScalars();
 
  //contour each internal hexahedron separately
-  for(int i=0; i<3; ++i) // for each hexahedron
+  for(i=0; i<3; ++i) // for each hexahedron
     {
     for(int j=0; j<8; j++)
       {
@@ -465,6 +466,7 @@ void vtkHexagonalPrism::Clip(double value, vtkDataArray *cellScalars,
                          vtkCellData *inCd, vtkIdType cellId, 
                          vtkCellData *outCd, int insideOut)
 {
+  int i;
   double s1, s2;
 
   // subdivide into 3 internal hexahedra with two points added in the middle
@@ -488,7 +490,7 @@ void vtkHexagonalPrism::Clip(double value, vtkDataArray *cellScalars,
   vtkDataArray *localScalars = this->PointData->GetScalars();
 
  //contour each internal hexahedron separately
-  for(int i=0; i<3; ++i) // for each hexahedron
+  for(i=0; i<3; ++i) // for each hexahedron
     {
     for(int j=0; j<8; j++)
       {
