@@ -10,6 +10,7 @@ IF (VTK_USE_RENDERING)
       ImageActor
       labeledContours
       pickCells
+      rendererSource
       rotations
       TestStyleJoystickActor
       TestStyleJoystickCamera
