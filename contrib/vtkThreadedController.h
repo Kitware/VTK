@@ -90,6 +90,7 @@ public:
   // Description:
   // This method sends data to another process.  Tag eliminates ambiguity
   // when multiple sends ar receives exist in the same process.
+  int Send(vtkObject *data, int remoteProcessId, int tag);
   int Send(int *data, int length, int remoteProcessId, int tag);
   int Send(unsigned long *data, int length, int remoteProcessId, int tag);
   int Send(char *data, int length, int remoteProcessId, int tag);
@@ -99,6 +100,7 @@ public:
   // This method receives data from a corresponding send. It blocks
   // until the receive is finished.  It calls methods in "data"
   // to communicate the sending data.
+  int Receive(vtkObject *data, int remoteProcessId, int tag);
   int Receive(int *data, int length, int remoteProcessId, int tag);
   int Receive(unsigned long *data, int length, int remoteProcessId, int tag);
   int Receive(char *data, int length, int remoteProcessId, int tag);
@@ -140,8 +142,13 @@ protected:
   void CreateThreadInfoObjects();
   void DeleteThreadInfoObjects();
   
-  int Send(void *data, int length, int remoteProcessId, int tag);
-  int Receive(void *data, int length, int remoteProcessId, int tag);
+  int Send(vtkObject *object, void *data, int length, 
+	   int remoteProcessId, int tag);
+  int Receive(vtkObject *object, void *data, int length, 
+	      int remoteProcessId, int tag);
+
+  // For shallow copy on object sends / receives.
+  void CopyObject(vtkObject *src, vtkObject *dest);
 };
 
 

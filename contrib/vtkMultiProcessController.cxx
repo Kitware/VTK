@@ -597,6 +597,7 @@ void vtkMultiProcessController::CopyImageData(vtkImageData *src,
       src->GetPointData()->GetScalars()->GetNumberOfComponents());
     }
   
+  dest->DataHasBeenGenerated();
 }
 
 
@@ -617,7 +618,7 @@ int vtkMultiProcessController::WriteDataSet(vtkDataSet *data)
     writer->SetFileTypeToBinary();
     }
   writer->WriteToOutputStringOn();
-  writer->SetInput(data);  
+  writer->SetInput(data);
   
   writer->Write();
   size = writer->GetOutputStringLength();
@@ -667,6 +668,7 @@ void vtkMultiProcessController::CopyDataSet(vtkDataSet *src, vtkDataSet *dest)
   dest->CopyStructure(src);
   dest->GetPointData()->ShallowCopy(src->GetPointData());  
   dest->GetCellData()->ShallowCopy(src->GetCellData());  
+  dest->DataHasBeenGenerated();
 }
 
 

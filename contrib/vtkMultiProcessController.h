@@ -123,7 +123,7 @@ public:
   // Description:
   // This method sends an object to another process.  Tag eliminates ambiguity
   // when multiple sends or receives exist in the same process.
-  int Send(vtkObject *data, int remoteProcessId, int tag);
+  virtual int Send(vtkObject *data, int remoteProcessId, int tag);
   
   // Description:
   // Subclass have to supply these methods to send various arrays of data.
@@ -139,7 +139,7 @@ public:
   // This method receives data from a corresponding send. It blocks
   // until the receive is finished.  It calls methods in "data"
   // to communicate the sending data.
-  int Receive(vtkObject *data, int remoteProcessId, int tag);
+  virtual int Receive(vtkObject *data, int remoteProcessId, int tag);
 
   // Description:
   // Subclass have to supply these methods to receive various arrays of data.

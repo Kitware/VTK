@@ -40,12 +40,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkThreadedController.h"
 #include "vtkObjectFactory.h"
 
+#include "vtkDataSet.h"
+class vtkImageData;
+
 
 
 //----------------------------------------------------------------------------
 vtkThreadedController* vtkThreadedController::New()
 {
-  // First try to create the object from the vtkObjectFactory
+  // First try to create the object from the vtkObjectactory
   vtkObject* ret = vtkObjectFactory::CreateInstance("vtkThreadedController");
   if(ret)
     {
@@ -68,6 +71,7 @@ public:
   vtkThreadedControllerProcessInfo() 
     { this->BlockLock = vtkMutexLock::New();
       this->InfoLock = vtkMutexLock::New();
+      this->Object = NULL;
       this->Data = NULL;
       this->DataLength = 0;
       this->Tag = 0;
@@ -83,8 +87,12 @@ public:
   vtkMutexLock        *BlockLock;
   // To avoid changing this info in one thread while reading an another.
   vtkMutexLock        *InfoLock;
+  // Messages can be sent by reference
+  vtkObject           *Object;
+  // Or by marshalling data
   void                *Data;
   int                 DataLength;
+  // Tag and process id are the only things that differentiat messages.
   int                 Tag;
   int                 RemoteId;
   // This flag saves whether this info is for a send or a receive.
@@ -227,7 +235,8 @@ void vtkThreadedController::SingleMethodExecute()
 {
   this->CreateThreadInfoObjects();
   this->MultipleMethodFlag = 0;
-  this->MultiThreader->SetSingleMethod(vtkThreadedControllerStart, (void*)this);
+  this->MultiThreader->SetSingleMethod(vtkThreadedControllerStart, 
+				       (void*)this);
   this->MultiThreader->SetNumberOfThreads(this->NumberOfProcesses);
   this->MultiThreader->SingleMethodExecute();
   this->DeleteThreadInfoObjects();
@@ -238,7 +247,8 @@ void vtkThreadedController::MultipleMethodExecute()
 {
   this->CreateThreadInfoObjects();
   this->MultipleMethodFlag = 1;
-  this->MultiThreader->SetSingleMethod(vtkThreadedControllerStart, (void*)this);
+  this->MultiThreader->SetSingleMethod(vtkThreadedControllerStart, 
+				       (void*)this);
   this->MultiThreader->SetNumberOfThreads(this->NumberOfProcesses);
   this->MultiThreader->SingleMethodExecute();
   this->DeleteThreadInfoObjects();
@@ -271,10 +281,11 @@ int vtkThreadedController::GetLocalProcessId()
   
 }
 
-
+  
 //----------------------------------------------------------------------------
-int vtkThreadedController::Send(void *data, int length, int remoteProcessId, 
-			      int tag)
+// Handles message in object or in data string.
+int vtkThreadedController::Send(vtkObject *object, void *data, int length, 
+				int remoteProcessId, int tag)
 {
   int myIdx = this->GetLocalProcessId();
   vtkThreadedControllerProcessInfo *snd;
@@ -296,30 +307,26 @@ int vtkThreadedController::Send(void *data, int length, int remoteProcessId,
   
   // Look at pending receives to find any matches.
   if ((rcv->RemoteId == myIdx || rcv->RemoteId == VTK_MP_CONTROLLER_ANY_SOURCE)
-      && rcv->SendFlag == 0 && rcv->Tag == tag)
+      && rcv->SendFlag == 0 && rcv->Tag == tag && rcv->DataLength == length
+      && !(rcv->Object) == !object)
     {
     // We have a match. A receive is already waiting.
     fprintf(this->LogFile, "%d:              send %d->%d, T: %d,  Match! \n",
 	    myIdx, myIdx, remoteProcessId, tag);
     fflush(this->LogFile);    
     
-    if (length != rcv->DataLength)
-      {
-      vtkWarningMacro("tag: " << tag << ", Sending length " << length 
-		      << " does not match receive length " 
-		      << rcv->DataLength);
-      if (length > rcv->DataLength)
-	{
-	length = rcv->DataLength;
-	}
-      }
-    
     // Copy the message.
-    if (length > 0)
+    if (length > 0 && rcv->Data && data)
       {
       memcpy(rcv->Data, data, length);
       }
+    if (rcv->Object && object)
+      {
+      this->CopyObject(object, rcv->Object);
+      }
+    
     // set "ProcessInfo" back to default values
+    rcv->Object = NULL;
     rcv->Data = NULL;
     rcv->DataLength = 0;
     rcv->SendFlag = 0;
@@ -361,6 +368,7 @@ int vtkThreadedController::Send(void *data, int length, int remoteProcessId,
   fflush(this->LogFile);
   snd->InfoLock->Lock();
   snd->SendFlag = 1;
+  snd->Object = object;
   snd->Data = data;
   snd->DataLength = length;
   snd->Tag = tag;
@@ -389,8 +397,9 @@ int vtkThreadedController::Send(void *data, int length, int remoteProcessId,
 
 
 //----------------------------------------------------------------------------
-int vtkThreadedController::Receive(void *data, int length, int remoteProcessId, 
-				 int tag)
+// Handles message in object or in data string.
+int vtkThreadedController::Receive(vtkObject *object, void *data, int length, 
+				   int remoteProcessId, int tag)
 {
   int myIdx;
   int start, end, i;
@@ -422,29 +431,27 @@ int vtkThreadedController::Receive(void *data, int length, int remoteProcessId,
 	    myIdx, i, remoteProcessId, myIdx, tag);
     fflush(this->LogFile);
     snd->InfoLock->Lock();
-    if (snd->RemoteId == myIdx && snd->SendFlag == 1 && snd->Tag == tag)
+    if (snd->RemoteId == myIdx && snd->SendFlag == 1 && snd->Tag == tag &&
+        snd->DataLength == length && !(snd->Object) == !object)
       {
       // We have a match. A send is already waiting.
       fprintf(this->LogFile, "%d:              recv %d->%d, T: %d,  Match! \n",
 	      myIdx, remoteProcessId, myIdx, tag);
       fflush(this->LogFile);    
    
-      if (length != snd->DataLength)
-	{
-	vtkWarningMacro("tag: " << tag << ", Sending length "
-	   << snd->DataLength << " does not match receive length " << length);
-	if (length > snd->DataLength)
-	  {
-	  length = snd->DataLength;
-	  }
-	}
-    
       // Copy the message.
-      if (length > 0)
+      if (length > 0 && snd->Data && data)
 	{
 	memcpy(data, snd->Data, length);
 	}
+      // Copy the object
+      if (object && snd->Object)
+	{
+	this->CopyObject(snd->Object, object);
+	}
+      
       // set "ProcessInfo" back to default values
+      snd->Object = NULL;
       snd->Data = NULL;
       snd->DataLength = 0;
       snd->SendFlag = 0;
@@ -485,6 +492,7 @@ int vtkThreadedController::Receive(void *data, int length, int remoteProcessId,
   fflush(this->LogFile);
   rcv->InfoLock->Lock();
   rcv->SendFlag = 0;
+  rcv->Object = object;
   rcv->Data = data;
   rcv->DataLength = length;
   rcv->Tag = tag;
@@ -516,34 +524,34 @@ int vtkThreadedController::Receive(void *data, int length, int remoteProcessId,
 
 //----------------------------------------------------------------------------
 int vtkThreadedController::Send(int *data, int length, int remoteProcessId, 
-			      int tag)
+				int tag)
 {
   length = length * sizeof(int);
-  return this->Send((void*)data, length, remoteProcessId, tag);
+  return this->Send(NULL, (void*)data, length, remoteProcessId, tag);
 }
 
 //----------------------------------------------------------------------------
 int vtkThreadedController::Send(unsigned long *data, int length, 
-			      int remoteProcessId, int tag)
+				int remoteProcessId, int tag)
 {
   length = length * sizeof(unsigned long);
-  return this->Send((void*)data, length, remoteProcessId, tag);
+  return this->Send(NULL, (void*)data, length, remoteProcessId, tag);
 }
 
 //----------------------------------------------------------------------------
 int vtkThreadedController::Send(char *data, int length, int remoteProcessId, 
-			      int tag)
+				int tag)
 {
   length = length * sizeof(char);
-  return this->Send((void*)data, length, remoteProcessId, tag);
+  return this->Send(NULL, (void*)data, length, remoteProcessId, tag);
 }
 
 //----------------------------------------------------------------------------
 int vtkThreadedController::Send(float *data, int length, int remoteProcessId, 
-			      int tag)
+				int tag)
 {
   length = length * sizeof(float);
-  return this->Send((void*)data, length, remoteProcessId, tag);
+  return this->Send(NULL, (void*)data, length, remoteProcessId, tag);
 }
 
 
@@ -551,33 +559,107 @@ int vtkThreadedController::Send(float *data, int length, int remoteProcessId,
 
 //----------------------------------------------------------------------------
 int vtkThreadedController::Receive(int *data, int length, int remoteProcessId, 
-				 int tag)
+				   int tag)
 {
   length = length * sizeof(int);
-  return this->Receive((void*)data, length, remoteProcessId, tag);
+  return this->Receive(NULL, (void*)data, length, remoteProcessId, tag);
 }
 
 //----------------------------------------------------------------------------
 int vtkThreadedController::Receive(unsigned long *data, int length, 
-				 int remoteProcessId, int tag)
+				   int remoteProcessId, int tag)
 {
   length = length * sizeof(unsigned long);
-  return this->Receive((void*)data, length, remoteProcessId, tag);
+  return this->Receive(NULL, (void*)data, length, remoteProcessId, tag);
 }
 
 //----------------------------------------------------------------------------
-int vtkThreadedController::Receive(char *data, int length, int remoteProcessId, 
-				 int tag)
+int vtkThreadedController::Receive(char *data, int length, 
+				   int remoteProcessId, int tag)
 {
   length = length * sizeof(char);
-  return this->Receive((void*)data, length, remoteProcessId, tag);
+  return this->Receive(NULL, (void*)data, length, remoteProcessId, tag);
 }
 
 //----------------------------------------------------------------------------
-int vtkThreadedController::Receive(float *data, int length, int remoteProcessId, 
-				 int tag)
+int vtkThreadedController::Receive(float *data, int length, 
+				   int remoteProcessId, int tag)
 {
   length = length * sizeof(float);
-  return this->Receive((void*)data, length, remoteProcessId, tag);
+  return this->Receive(NULL, (void*)data, length, remoteProcessId, tag);
 }
+
+
+
+//----------------------------------------------------------------------------
+int vtkThreadedController::Send(vtkObject *data, int remoteProcessId, 
+				int tag)
+{
+  if (strcmp(data->GetClassName(), "vtkPolyData") == 0)
+    {
+    return this->Send(data, NULL, 0, remoteProcessId, tag);
+    return 1;
+    }
+  if (strcmp(data->GetClassName(), "vtkImageData") == 0)
+    {
+    return this->Send(data, NULL, 0, remoteProcessId, tag);
+    return 1;
+    }
+  
+  // By default, just use the normal marshaling from the superclass. 
+  return this->vtkMultiProcessController::Send(data, remoteProcessId, tag);
+}
+
+//----------------------------------------------------------------------------
+int vtkThreadedController::Receive(vtkObject *data, 
+				   int remoteProcessId, int tag)
+{
+  if (strcmp(data->GetClassName(), "vtkPolyData") == 0)
+    {
+    return this->Receive(data, NULL, 0, remoteProcessId, tag);
+    return 1;
+    }
+  if (strcmp(data->GetClassName(), "vtkImageData") == 0)
+    {
+    return this->Receive(data, NULL, 0, remoteProcessId, tag);
+    return 1;
+    }
+
+  // By default, just use the normal marshaling from the superclass. 
+  return this->vtkMultiProcessController::Receive(data, remoteProcessId, tag);
+}
+
+
+//----------------------------------------------------------------------------
+void vtkThreadedController::CopyObject(vtkObject *src, vtkObject *dest)
+{
+  if (strcmp(src->GetClassName(), dest->GetClassName()) != 0)
+    {
+    vtkErrorMacro("Object are not the same type. Cannot copy");
+    return;
+    }
+  
+  if (strcmp(src->GetClassName(), "vtkPolyData") == 0)
+    {
+    this->CopyDataSet((vtkDataSet*)src, (vtkDataSet*)dest);
+    return;
+    }
+  if (strcmp(src->GetClassName(), "vtkImageData") == 0)
+    {
+    this->CopyImageData((vtkImageData*)src, (vtkImageData*)dest);
+    return;
+    }
+  
+  vtkErrorMacro("Missing case for shallow copy");
+}
+
+
+
+
+
+
+
+
+
+
 
