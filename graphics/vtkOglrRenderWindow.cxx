@@ -81,14 +81,16 @@ XVisualInfo *vtkOglrRenderWindow::GetDesiredVisualInfo()
   attributes[index++] = 1;
   attributes[index++] = GLX_BLUE_SIZE;
   attributes[index++] = 1;
+  attributes[index++] = GLX_DEPTH_SIZE;
+  attributes[index++] = 1;
   if (this->DoubleBuffer)
     {
     attributes[index++] = GLX_DOUBLEBUFFER;
     }
-  attributes[index++] = GLX_DEPTH_SIZE;
-  attributes[index++] = 1;
-
-// not all OpenGL implementations support MultiSamples
+  // also try for STEREO
+  // attributes[index++] = GLX_STEREO;
+  
+  // not all OpenGL implementations support MultiSamples
 #ifdef GLX_SAMPLE_BUFFER_SGIS
   if (this->MultiSamples > 1 )
     {
@@ -108,20 +110,11 @@ XVisualInfo *vtkOglrRenderWindow::GetDesiredVisualInfo()
     while ((ms > 1)&&(!v))
       {
       ms--;
-      index = 0;
-      attributes[index++] = GLX_RGBA;
-      attributes[index++] = GLX_RED_SIZE;
-      attributes[index++] = 1;
-      attributes[index++] = GLX_GREEN_SIZE;
-      attributes[index++] = 1;
-      attributes[index++] = GLX_BLUE_SIZE;
-      attributes[index++] = 1;
+      index = 9;
       if ( this->DoubleBuffer)
 	{
 	attributes[index++] = GLX_DOUBLEBUFFER;
 	}
-      attributes[index++] = GLX_DEPTH_SIZE;
-      attributes[index++] = 1;
 #ifdef GLX_SAMPLE_BUFFER_SGIS
       attributes[index++] = GLX_SAMPLE_BUFFER_SGIS;
       attributes[index++] = 1;
@@ -139,20 +132,11 @@ XVisualInfo *vtkOglrRenderWindow::GetDesiredVisualInfo()
       }
     else
       {
-      index = 0;
-      attributes[index++] = GLX_RGBA;
-      attributes[index++] = GLX_RED_SIZE;
-      attributes[index++] = 1;
-      attributes[index++] = GLX_GREEN_SIZE;
-      attributes[index++] = 1;
-      attributes[index++] = GLX_BLUE_SIZE;
-      attributes[index++] = 1;
+      index = 9;
       if ( this->DoubleBuffer)
 	{
 	attributes[index++] = GLX_DOUBLEBUFFER;
 	}
-      attributes[index++] = GLX_DEPTH_SIZE;
-      attributes[index++] = 1;
       attributes[index++] = None;
     
       v = glXChooseVisual(this->DisplayId, DefaultScreen(this->DisplayId), 
@@ -164,16 +148,7 @@ XVisualInfo *vtkOglrRenderWindow::GetDesiredVisualInfo()
   // is we still don't have a visual lets ditch the double buffering
   if ((!v) && (this->DoubleBuffer))
     {
-    index = 0;
-    attributes[index++] = GLX_RGBA;
-    attributes[index++] = GLX_RED_SIZE;
-    attributes[index++] = 1;
-    attributes[index++] = GLX_GREEN_SIZE;
-    attributes[index++] = 1;
-    attributes[index++] = GLX_BLUE_SIZE;
-    attributes[index++] = 1;
-    attributes[index++] = GLX_DEPTH_SIZE;
-    attributes[index++] = 1;
+    index = 9;
     attributes[index++] = None;
     
     v = glXChooseVisual(this->DisplayId, DefaultScreen(this->DisplayId), 
@@ -733,14 +708,14 @@ unsigned char *vtkOglrRenderWindow::GetPixelData(int x1, int y1, int x2, int y2,
   long     xloop,yloop;
   int     y_low, y_hi;
   int     x_low, x_hi;
-  unsigned long   *buffer;
+  unsigned char   *buffer;
   unsigned char   *data = NULL;
   unsigned char   *p_data = NULL;
 
   // set the current window 
   glXMakeCurrent(this->DisplayId,this->WindowId,this->ContextId);
 
-  buffer = new unsigned long[abs(x2 - x1)+1];
+  buffer = new unsigned char [4*(abs(x2 - x1)+1)];
   data = new unsigned char[(abs(x2 - x1) + 1)*(abs(y2 - y1) + 1)*3];
 
   if (y1 < y2)
@@ -781,9 +756,9 @@ unsigned char *vtkOglrRenderWindow::GetPixelData(int x1, int y1, int x2, int y2,
 		 GL_RGBA, GL_UNSIGNED_BYTE, buffer);
     for (xloop = 0; xloop <= (abs(x2-x1)); xloop++)
       {
-      *p_data = (buffer[xloop] & (0xff000000)) >> 24; p_data++;
-      *p_data = (buffer[xloop] & (0x00ff0000)) >> 16; p_data++;
-      *p_data = (buffer[xloop] & (0x0000ff00)) >> 8; p_data++;
+      *p_data = buffer[xloop*4]; p_data++;
+      *p_data = buffer[xloop*4+1]; p_data++;
+      *p_data = buffer[xloop*4+2]; p_data++;
       }
     }
   
@@ -798,7 +773,7 @@ void vtkOglrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
   int     y_low, y_hi;
   int     x_low, x_hi;
   int     xloop,yloop;
-  unsigned long   *buffer;
+  unsigned char   *buffer;
   unsigned char   *p_data = NULL;
 
   // set the current window 
@@ -813,7 +788,7 @@ void vtkOglrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
     glDrawBuffer(GL_BACK);
     }
 
-  buffer = new unsigned long[4*(abs(x2 - x1)+1)];
+  buffer = new unsigned char [4*(abs(x2 - x1)+1)];
 
   if (y1 < y2)
     {
@@ -843,10 +818,10 @@ void vtkOglrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
     {
     for (xloop = 0; xloop <= (abs(x2-x1)); xloop++)
       {
-      buffer[xloop] = 0x000000ff;
-      buffer[xloop] += (*p_data) << 24; p_data++; 
-      buffer[xloop] += (*p_data) << 16; p_data++;
-      buffer[xloop] += (*p_data) <<  8; p_data++;
+      buffer[xloop*4] = *p_data; p_data++; 
+      buffer[xloop*4+1] = *p_data; p_data++;
+      buffer[xloop*4+2] = *p_data; p_data++;
+      buffer[xloop*4+3] = 0xff;
       }
     /* write out a row of pixels */
     glMatrixMode( GL_MODELVIEW );
