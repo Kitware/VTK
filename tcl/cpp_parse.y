@@ -113,7 +113,7 @@ class_def : CLASS VTK_ID
 	}
       fprintf(yyout,"int %sCppCommand(%s *op, Tcl_Interp *interp,\n             int argc, char *argv[]);\n",class_name,class_name);
       fprintf(yyout,"\nint %sCommand(ClientData cd, Tcl_Interp *interp,\n             int argc, char *argv[])\n{\n",class_name);
-      fprintf(yyout,"  if ((!strcmp(\"Delete\",argv[1]))&&(argc == 2)&& !vtkTclInDelete())\n    {\n");
+      fprintf(yyout,"  if ((argc == 2)&&(!strcmp(\"Delete\",argv[1]))&& !vtkTclInDelete())\n    {\n");
       fprintf(yyout,"    Tcl_DeleteCommand(interp,argv[0]);\n");
       fprintf(yyout,"    return TCL_OK;\n    }\n");
       fprintf(yyout,"   return %sCppCommand((%s *)cd,interp, argc, argv);\n}\n",class_name,class_name);
@@ -126,6 +126,8 @@ class_def : CLASS VTK_ID
       fprintf(yyout,"  tempi = 0;\n");
       fprintf(yyout,"  tempd = 0;\n");
       fprintf(yyout,"  temps[0] = 0;\n\n");
+
+      fprintf(yyout,"  if (argc < 2)\n    {\n    sprintf(interp->result,\"Could not find requested method.\");\n    return TCL_ERROR;\n    }\n");
 
       /* stick in the typecasting and delete functionality here */
       fprintf(yyout,"  if (!interp)\n    {\n");
@@ -203,8 +205,7 @@ class_def : CLASS VTK_ID
 	fprintf(yyout,"    return TCL_OK;\n    }\n");
 	}
       fprintf(yyout,"\n  if ((argc >= 2)&&(!strstr(interp->result,\"Object named:\")))\n    {\n");
-      fprintf(yyout,"    char temps2[256];\n    sprintf(temps2,\"Object named: %%s, could not find requested method: %%s\\nor the method was called with incorrect arguments.\\n\",argv[0],argv[1]);\n    Tcl_AppendResult(interp,temps2,NULL);\n    }\n  if (argc < 2)\n    {\n");
-      fprintf(yyout,"    sprintf(interp->result,\"Could not find requested method.\");\n    }\n");
+      fprintf(yyout,"    char temps2[256];\n    sprintf(temps2,\"Object named: %%s, could not find requested method: %%s\\nor the method was called with incorrect arguments.\\n\",argv[0],argv[1]);\n    Tcl_AppendResult(interp,temps2,NULL);\n    }\n");
       fprintf(yyout,"  return TCL_ERROR;\n}\n");
       };
 
