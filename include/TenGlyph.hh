@@ -27,7 +27,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // lies along the major eigenvector, y-axis along the medium eigenvector, and
 // z-axis along the minor.
 //    A scale factor is provided to control the amount of scaling. Also, you 
-// can turn off scaling completely if desired. The boolean variable LogScaling
+// can turn off scaling completely if desired. The boolean variable ClampScaling
 // controls whether the scaling is performed logarithmically. That is, the
 // log base 10 of the scale factors (i.e., absolute values of eigenvalues)
 // are used. This is useful in certain applications where singularities or 
@@ -90,9 +90,17 @@ public:
   // Description:
   // Turn on/off logarithmic scaling. If scaling is on, the log base 10
   // of the original scale factors are used to scale the glyphs.
-  vtkSetMacro(LogScaling,int);
-  vtkGetMacro(LogScaling,int);
-  vtkBooleanMacro(LogScaling,int);
+  vtkSetMacro(ClampScaling,int);
+  vtkGetMacro(ClampScaling,int);
+  vtkBooleanMacro(ClampScaling,int);
+
+  // Description:
+  // Set/Get the maximum allowable scale factor. This value is compared to the
+  // combination of the scale factor times the eigenvalue. If less, the scale
+  // factor is reset to the MaxScaleFactor. The boolean ClampScaling has to 
+  // be "on" for this to work.
+  vtkSetMacro(MaxScaleFactor,float);
+  vtkGetMacro(MaxScaleFactor,float);
 
 protected:
   void Execute();
@@ -102,7 +110,8 @@ protected:
   float ScaleFactor; // Scale factor to use to scale geometry
   int ExtractEigenvalues; // Boolean controls eigenfunction extraction
   int ColorGlyphs; // Boolean controls coloring with input scalar data
-  int LogScaling; // Boolean controls logarithmic scaling
+  int ClampScaling; // Boolean controls whether scaling is clamped.
+  float MaxScaleFactor; // Maximum scale factor (ScaleFactor*eigenvalue)
 };
 
 #endif
