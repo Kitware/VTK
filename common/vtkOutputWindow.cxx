@@ -128,10 +128,10 @@ vtkOutputWindow* vtkOutputWindow::GetInstance()
       // if the factory failed to create the object,
       // then destroy it now, as vtkDebugLeaks::ConstructClass was called
       // with vtkclassname, and not the real name of the class
+#ifdef _WIN32    
 #ifdef VTK_DEBUG_LEAKS
       vtkDebugLeaks::DestructClass("vtkOutputWindow");
 #endif
-#ifdef _WIN32    
       vtkOutputWindow::Instance = vtkWin32OutputWindow::New();
 #else
       vtkOutputWindow::Instance = new vtkOutputWindow;
