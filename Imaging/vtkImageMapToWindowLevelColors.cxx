@@ -18,7 +18,7 @@
 #include "vtkImageMapToWindowLevelColors.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageMapToWindowLevelColors, "1.10");
+vtkCxxRevisionMacro(vtkImageMapToWindowLevelColors, "1.11");
 vtkStandardNewMacro(vtkImageMapToWindowLevelColors);
 
 // Constructor sets default values
@@ -268,7 +268,7 @@ static void vtkImageMapToWindowLevelColorsExecute(vtkImageMapToWindowLevelColors
   numberOfOutputComponents = outData->GetNumberOfScalarComponents();
   outputFormat = self->GetOutputFormat();
   
-  rowLength = extX;
+  rowLength = extX*numberOfComponents;
 
   // Loop through output pixels
   outPtr1 = outPtr;
@@ -325,7 +325,7 @@ static void vtkImageMapToWindowLevelColorsExecute(vtkImageMapToWindowLevelColors
               *(optr+1) = 255;
               break;
             }
-          iptr++;
+          iptr += numberOfComponents;
           optr += numberOfOutputComponents;
           }
         }
@@ -361,7 +361,7 @@ static void vtkImageMapToWindowLevelColorsExecute(vtkImageMapToWindowLevelColors
               *(optr+1) = 255;
               break;
             }
-          iptr++;
+          iptr += numberOfComponents;
           optr += numberOfOutputComponents;
           }
         }      
