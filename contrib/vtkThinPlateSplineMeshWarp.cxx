@@ -9,7 +9,7 @@
              Informatics, Eastman Dental Institute, London, UK) who
              developed and contributed this class.
 
-Copyright (c) 1993-1998 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-2000 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -270,6 +270,7 @@ void vtkThinPlateSplineMeshWarp::Execute()
   // create a new points structure for the output mesh
   vtkPoints *outputPoints = vtkPoints::New();
   output->SetPoints(outputPoints);
+  outputPoints->Delete();
   outputPoints->SetNumberOfPoints(input->GetPoints()->GetNumberOfPoints());
 
   double **SOURCE = NewMatrix(D,1); // we know the target, we want the source
