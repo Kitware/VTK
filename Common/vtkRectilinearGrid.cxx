@@ -958,6 +958,141 @@ void vtkRectilinearGrid::DeepCopy(vtkDataObject *dataObject)
 }
 
 //----------------------------------------------------------------------------
+void vtkRectilinearGrid::Crop()
+{
+  int i, j, k;
+  int uExt[6];
+
+  // If the update extent is larger than the extent, 
+  // we cannot do anything about it here.
+  for (i = 0; i < 3; ++i)
+    {
+    uExt[i*2] = this->UpdateExtent[i*2];
+    if (uExt[i*2] < this->Extent[i*2])
+      {
+      uExt[i*2] = this->Extent[i*2];
+      }
+    uExt[i*2+1] = this->UpdateExtent[i*2+1];
+    if (uExt[i*2+1] > this->Extent[i*2+1])
+      {
+      uExt[i*2+1] = this->Extent[i*2+1];
+      }
+    }
+  
+  // If extents already match, then we need to do nothing.
+  if (this->Extent[0] == uExt[0] && this->Extent[1] == uExt[1]
+      && this->Extent[2] == uExt[2] && this->Extent[3] == uExt[3]
+      && this->Extent[4] == uExt[4] && this->Extent[5] == uExt[5])
+    {
+    return;
+    }
+  else
+    {
+    vtkRectilinearGrid *newGrid;
+    vtkPointData *inPD, *outPD;
+    vtkCellData *inCD, *outCD;
+    int outSize, jOffset, kOffset;
+    vtkIdType idx, newId;
+    int inInc1, inInc2;
+    vtkDataArray *coords, *newCoords;
+
+    vtkDebugMacro(<< "Cropping Grid");
+
+    newGrid = vtkRectilinearGrid::New();
+
+    inPD  = this->GetPointData();
+    inCD  = this->GetCellData();
+    outPD = newGrid->GetPointData();
+    outCD = newGrid->GetCellData();
+
+    // Allocate necessary objects
+    //
+    newGrid->SetExtent(uExt);
+    outSize = (uExt[1]-uExt[0]+1)*(uExt[3]-uExt[2]+1)*(uExt[5]-uExt[4]+1);
+    outPD->CopyAllocate(inPD,outSize,outSize);
+    outCD->CopyAllocate(inCD,outSize,outSize);
+
+    // Create the coordinate arrays.
+    // X
+    coords = this->GetXCoordinates();
+    newCoords = coords->MakeObject();
+    newCoords->Allocate(uExt[1] - uExt[0] + 1);
+    for (idx = uExt[0]; idx <= uExt[1]; ++idx)
+      {
+      newCoords->SetTuple(idx-(vtkIdType)uExt[0],
+                           coords->GetTuple(idx));
+      }
+    newGrid->SetXCoordinates(newCoords);
+    newCoords->Delete();
+    // Y
+    coords = this->GetYCoordinates();
+    newCoords = coords->MakeObject();
+    newCoords->Allocate(uExt[3] - uExt[2] + 1);
+    for (idx = uExt[0]; idx <= uExt[1]; ++idx)
+      {
+      newCoords->SetTuple(idx-(vtkIdType)uExt[0],
+                           coords->GetTuple(idx));
+      }
+    newGrid->SetYCoordinates(newCoords);
+    newCoords->Delete();
+    // Z
+    coords = this->GetZCoordinates();
+    newCoords = coords->MakeObject();
+    newCoords->Allocate(uExt[5] - uExt[4] + 1);
+    for (idx = uExt[0]; idx <= uExt[1]; ++idx)
+      {
+      newCoords->SetTuple(idx-(vtkIdType)uExt[0],
+                           coords->GetTuple(idx));
+      }
+    newGrid->SetZCoordinates(newCoords);
+    newCoords->Delete();
+
+
+    // Traverse this data and copy point attributes to output
+    newId = 0;
+    inInc1 = (this->Extent[1]-this->Extent[0]+1);
+    inInc2 = inInc1*(this->Extent[3]-this->Extent[2]+1);
+    for ( k=uExt[4]; k <= uExt[5]; ++k)
+      { 
+      kOffset = (k - this->Extent[4]) * inInc2;
+      for ( j=uExt[2]; j <= uExt[3]; ++j)
+        {
+        jOffset = (j - this->Extent[2]) * inInc1;
+        for ( i=uExt[0]; i <= uExt[1]; ++i)
+          {
+          idx = (i - this->Extent[0]) + jOffset + kOffset;
+          outPD->CopyData(inPD, idx, newId++);
+          }
+        }
+      }
+
+    // Traverse input data and copy cell attributes to output
+    newId = 0;
+    inInc1 = (this->Extent[1] - this->Extent[0]);
+    inInc2 = inInc1*(this->Extent[3] - this->Extent[2]);
+    for ( k=uExt[4]; k < uExt[5]; ++k )
+      {
+      kOffset = (k - this->Extent[4]) * inInc2;
+      for ( j=uExt[2]; j < uExt[3]; ++j )
+        {
+        jOffset = (j - this->Extent[2]) * inInc1;
+        for ( i=uExt[0]; i < uExt[1]; ++i )
+          {
+          idx = (i - this->Extent[0]) + jOffset + kOffset;
+          outCD->CopyData(inCD, idx, newId++);
+          }
+        }
+      }
+
+    this->SetExtent(uExt);
+    inPD->ShallowCopy(outPD);
+    inCD->ShallowCopy(outCD);
+    newGrid->Delete();
+    }
+}
+
+
+//----------------------------------------------------------------------------
 void vtkRectilinearGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSet::PrintSelf(os,indent);
