@@ -131,6 +131,8 @@ protected:
   typedef pid_t ThreadIdType;
 #elif defined _WIN32
   typedef DWORD ThreadIdType;
+#else
+  typedef int ThreadIdType;
 #endif
 
 //ETX
