@@ -10,7 +10,7 @@ VTK.
 
 The following command was used to obtain the symbol list:
 
-nm libvtktiff.a |grep " T "
+nm libvtktiff.a |grep " [TR] "
 
 */
 
@@ -42,6 +42,11 @@ nm libvtktiff.a |grep " T "
 #define TIFFDefaultStripSize vtk_TIFFDefaultStripSize
 #define TIFFDefaultTileSize vtk_TIFFDefaultTileSize
 #define TIFFError vtk_TIFFError
+#define TIFFFaxBlackCodes vtk_TIFFFaxBlackCodes
+#define TIFFFaxBlackTable vtk_TIFFFaxBlackTable
+#define TIFFFaxMainTable vtk_TIFFFaxMainTable
+#define TIFFFaxWhiteCodes vtk_TIFFFaxWhiteCodes
+#define TIFFFaxWhiteTable vtk_TIFFFaxWhiteTable
 #define TIFFFdOpen vtk_TIFFFdOpen
 #define TIFFFileName vtk_TIFFFileName
 #define TIFFFileno vtk_TIFFFileno

@@ -10,7 +10,7 @@ VTK.
 
 The following command was used to obtain the symbol list:
 
-nm libvtkexpat.a |grep " T "
+nm libvtkexpat.a |grep " [TR] "
 
 */
 
