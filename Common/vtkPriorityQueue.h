@@ -98,7 +98,7 @@ public:
   // is exhausted, then a value < 0 is returned. (Note: the location
   // is not the same as deleting an id; id is mapped to location.)
 //BTX
-  vtkIdType Pop(float &priority, vtkIdType location=0);
+  vtkIdType Pop(vtkIdType location, float &priority);
 //ETX    
 
   // Description:
@@ -110,7 +110,7 @@ public:
   // Peek into the queue without actually removing anything. Returns the
   // id and the priority.
 //BTX
-  vtkIdType Peek(float &priority, vtkIdType location=0);
+  vtkIdType Peek(vtkIdType location, float &priority);
 //ETX    
   
   // Description:
@@ -161,7 +161,7 @@ inline float vtkPriorityQueue::DeleteId(vtkIdType id)
   if ( id <= this->ItemLocation->GetMaxId() &&  
   (loc=this->ItemLocation->GetValue(id)) != -1 )
     {
-    this->Pop(priority,loc);
+    this->Pop(loc,priority);
     }
   return priority;
 }
@@ -178,7 +178,7 @@ inline float vtkPriorityQueue::GetPriority(vtkIdType id)
   return VTK_LARGE_FLOAT;
 }
 
-inline vtkIdType vtkPriorityQueue::Peek(float &priority, vtkIdType location)
+inline vtkIdType vtkPriorityQueue::Peek(vtkIdType location, float &priority)
 {
   if ( this->MaxId < 0 )
     {

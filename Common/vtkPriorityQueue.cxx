@@ -151,12 +151,12 @@ void vtkPriorityQueue::Insert(float priority, vtkIdType id)
 vtkIdType vtkPriorityQueue::Pop(vtkIdType location)
 {
   float priority;
-  return this->Pop(priority, location);
+  return this->Pop(location, priority);
 }
 
 // Removes item at specified location from tree; then reorders and
 // balances tree. The location == 0 is the root of the tree.
-vtkIdType vtkPriorityQueue::Pop(float &priority, vtkIdType location)
+vtkIdType vtkPriorityQueue::Pop(vtkIdType location, float &priority)
 {
   vtkIdType id, i, j, idx;
   vtkPriorityItem temp;

@@ -1132,7 +1132,7 @@ vtkIdType vtkDecimatePro::FindSplit (int type, vtkIdType fedges[2],
         }
 
       // See whether the collapse is okay
-      while ( (maxI = this->EdgeLengths->Pop(dist2)) >= 0 )
+      while ( (maxI = this->EdgeLengths->Pop(0, dist2)) >= 0 )
         {
         if ( this->IsValidSplit(maxI) )
           {
@@ -1498,7 +1498,7 @@ int vtkDecimatePro::Pop(float &error)
   vtkIdType ptId;
 
   // Try returning what's in queue
-  if ( (ptId = this->Queue->Pop(error)) >= 0 )
+  if ( (ptId = this->Queue->Pop(0, error)) >= 0 )
     {
     if ( error > this->Error )
       {
@@ -1527,7 +1527,7 @@ int vtkDecimatePro::Pop(float &error)
       this->Insert(ptId);
       }
 
-    if ( (ptId = this->Queue->Pop(error)) >= 0 )
+    if ( (ptId = this->Queue->Pop(0, error)) >= 0 )
       {
       if ( error > this->Error )
         {
@@ -1552,7 +1552,7 @@ int vtkDecimatePro::Pop(float &error)
       this->Insert(ptId);
       }
 
-    if ( (ptId = this->Queue->Pop(error)) >= 0 )
+    if ( (ptId = this->Queue->Pop(0, error)) >= 0 )
       {
       if ( error > this->Error )
         {

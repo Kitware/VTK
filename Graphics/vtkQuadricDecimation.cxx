@@ -176,7 +176,7 @@ void vtkQuadricDecimation::Execute()
   
   this->NumberOfCollapsedEdges = 0;
   // Get id of edge with minimum cost to collapse.
-  edgeId = this->EdgeCosts->Pop(cost);
+  edgeId = this->EdgeCosts->Pop(0,cost);
   while (edgeId >= 0 && cost < this->MaximumCost &&
          this->NumberOfCollapsedEdges < this->MaximumCollapsedEdges)
     {
@@ -333,7 +333,7 @@ void vtkQuadricDecimation::Execute()
           }
         }
       }
-    edgeId = this->EdgeCosts->Pop(cost);
+    edgeId = this->EdgeCosts->Pop(0,cost);
     if (edgeId == -1)
       {
       // tried to pop empty priority queue, so need to exit loop
