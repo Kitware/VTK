@@ -21,7 +21,7 @@
 
 #include "vtkObject.h"
 #include "vtkCommand.h"
-#include <vtkTcl.h>
+#include "vtkTcl.h"
 
 #ifdef WIN32
 #define VTKTCL_EXPORT __declspec( dllexport )

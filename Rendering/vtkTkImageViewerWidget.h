@@ -32,8 +32,8 @@
 #define __vtkTkImageViewerWidget_h
 
 #include "vtkImageViewer.h"
-#include <vtkTcl.h>
-#include <vtkTk.h>
+#include "vtkTcl.h"
+#include "vtkTk.h"
 #ifndef VTK_PYTHON_BUILD
 #include "vtkTclUtil.h"
 #endif

@@ -33,13 +33,13 @@
 #define __vtkTkRenderWidget_h
 
 #include "vtkRenderWindow.h"
-#include <vtkTcl.h>
+#include "vtkTcl.h"
 
 // For the moment, we are not compatable w/Photo compositing
 // By defining USE_COMPOSITELESS_PHOTO_PUT_BLOCK, we use the compatable
 // call.
 #define USE_COMPOSITELESS_PHOTO_PUT_BLOCK
-#include <vtkTk.h>
+#include "vtkTk.h"
 
 #ifndef VTK_PYTHON_BUILD
 #include "vtkTclUtil.h"

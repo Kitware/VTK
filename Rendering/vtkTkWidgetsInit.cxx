@@ -15,8 +15,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include <vtkTcl.h>
-#include <vtkTk.h>
+#include "vtkTcl.h"
+#include "vtkTk.h"
 
 #include "vtkTkImageViewerWidget.h"
 #include "vtkTkRenderWidget.h"
