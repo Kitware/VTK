@@ -61,6 +61,7 @@ class vtkCell;
 #define VTK_QUALITY_EDGE_RATIO 3
 #define VTK_QUALITY_MED_FROBENIUS_NORM 4
 #define VTK_QUALITY_MAX_FROBENIUS_NORM 5
+#define VTK_QUALITY_MIN_ANGLE 6
 
 class VTK_GRAPHICS_EXPORT vtkMeshQuality : public vtkDataSetAlgorithm
 {
@@ -99,6 +100,10 @@ public:
   void SetTriangleQualityMeasureToEdgeRatio()
     {
     this->SetTriangleQualityMeasure( VTK_QUALITY_EDGE_RATIO );
+    }
+  void SetTriangleQualityMeasureToMinAngle()
+    {
+    this->SetTriangleQualityMeasure( VTK_QUALITY_MIN_ANGLE );
     }
 
   // Description:
@@ -214,6 +219,14 @@ public:
   // where \f$|t|_\infty\f$ and \f$|t|_0\f$ respectively denote the greatest and
   // the smallest edge lengths of \f$t\f$.
   static double TriangleEdgeRatio( vtkCell* cell );
+
+  // Description:
+  // This is a static function used to calculate the minimal (nonoriented) angle
+  // of a triangle, expressed in degrees.
+  // It assumes that you pass the correct type of cell -- no type checking is
+  // performed because this method is called from the inner loop of the Execute()
+  // member function.
+  static double TriangleMinAngle( vtkCell* cell );
 
   // Description:
   // This is a static function used to calculate the radius ratio of a planar 
