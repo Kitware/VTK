@@ -364,7 +364,7 @@ static signed char vtkTessellatorTetraCasesLeft[65][8][4] = {
 };
 
 
-vtkCxxRevisionMacro(vtkSimpleCellTessellator, "1.5");
+vtkCxxRevisionMacro(vtkSimpleCellTessellator, "1.6");
 vtkStandardNewMacro(vtkSimpleCellTessellator);
 //-----------------------------------------------------------------------------
 //
@@ -419,7 +419,7 @@ public:
         if(!isValid)
           {
           k=0;
-          isValid=true;
+          isValid=1;
           while(k<4 && isValid)
             {
             isValid=!((this->Vertex[j][0] ==this->Vertex[k][0]) &&
@@ -547,7 +547,7 @@ public:
         if(!isValid)
           {
           k=0;
-          isValid=true;
+          isValid=1;
           while(k<4 && isValid)
             {
             isValid=!((this->Vertex[j][0] ==this->Vertex[k][0]) &&
