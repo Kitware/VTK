@@ -1,10 +1,22 @@
 SET(KIT Rendering)
-CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
+
+SET(RenderingTests
   otherCoordinate.cxx
-  TestOrderedTriangulator.cxx
+  )
+
+IF(VTK_USE_DISPLAY) 
+  # For tests that actually render something
+  SET(RenderingTests
+    ${RenderingTests}
+    TestOrderedTriangulator.cxx
+    )
+ENDIF(VTK_USE_DISPLAY)
+
+CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
+  ${RenderingTests}
   EXTRA_INCLUDE vtkSuppressCrtDbgWarning.h
   FUNCTION vtkSuppressCrtDbgWarning
-)
+  )
 
 ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
 TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkRendering vtkIO)
@@ -24,9 +36,9 @@ ENDFOREACH (test)
 # Add other odd tests or executables
 #
 FOREACH (exe
-  TimeRenderer
-  TimeRenderer2
-  )
+    TimeRenderer
+    TimeRenderer2
+    )
   ADD_EXECUTABLE(${exe} ${exe}.cxx)
   TARGET_LINK_LIBRARIES(${exe} vtkRendering vtkIO)
   IF (APPLE)
