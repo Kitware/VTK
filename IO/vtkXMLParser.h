@@ -22,6 +22,7 @@
 // the StartElement method.  Each element end tag is sent to the
 // EndElement method.  Subclasses should replace these methods to actually
 // use the tags.
+// ToDo: Add commands for parsing in Tcl.
 
 #ifndef __vtkXMLParser_h
 #define __vtkXMLParser_h
