@@ -104,10 +104,6 @@ void vtkFollower::GetMatrix(vtkMatrix4x4& result)
     // first rotate y 
     distance = sqrt((this->Position[0]-pos[0])*(this->Position[0]-pos[0]) +
 		    (this->Position[2]-pos[2])*(this->Position[2]-pos[2]));
-    vn[0] = (pos[0] - this->Position[0])/distance;
-    vn[1] = (pos[1] - this->Position[1])/distance;
-    vn[2] = (pos[2] - this->Position[2])/distance;
-
     // rotate y
     if (distance > 0.0)
       {
@@ -144,8 +140,16 @@ void vtkFollower::GetMatrix(vtkMatrix4x4& result)
 		    (this->Position[2]-pos[2])*(this->Position[2]-pos[2]));
     matrix[0][0] = 1.0;
     matrix[0][1] = matrix[0][2] = matrix[0][3] = 0.0;
-    matrix[1][1] = distance_old/distance;
-    matrix[1][2] = (this->Position[1] - pos[1])/distance;
+    if (distance > 0.0) 
+      {
+      matrix[1][1] = distance_old/distance;
+      matrix[1][2] = (this->Position[1] - pos[1])/distance;
+      }
+    else
+      {
+      matrix[1][1] = 1.0;
+      matrix[1][2] = 0.0;
+      }
     matrix[1][0] = matrix[1][3] = 0.0;
     matrix[2][1] = -1.0*matrix[1][2];
     matrix[2][2] = matrix[1][1];
@@ -155,73 +159,82 @@ void vtkFollower::GetMatrix(vtkMatrix4x4& result)
     matrix[3][0] = matrix[3][1] = matrix[3][2] = 0.0;
     this->Transform.Concatenate(matrix);
 
-    // calc the twist
-    // compute: vn X ( vup X vn)
-    // and:     vn X ( y-axis X vn)
-    // then find the angle between the two projected vectors
-    //
-    y_axis[0] = y_axis[2] = 0.0; y_axis[1] = 1.0;
-
-    // bump the view normal if it is parallel to the y-axis
-    //
-    if ((vn[0] == 0.0) && (vn[2] == 0.0))
-      vn[2] = 0.01*vn[1];
-
-    // first project the view_up onto the view_plane
-    //
-    vtkMath::Cross(vup, vn, v1);
-    vtkMath::Cross(vn, v1, v1);
-    
-    // then project the y-axis onto the view plane
-    //
-    vtkMath::Cross(y_axis, vn, v2);
-    vtkMath::Cross(vn, v2, v2);
-    
-    // then find the angle between the two projected vectors
-    //
-    dot = v1[0]*v2[0] + v1[1]*v2[1] + v1[2]*v2[2];
-    mag = sqrt((double)(v1[0]*v1[0] + v1[1]*v1[1] + v1[2]*v1[2]));
-    mag *= sqrt((double)(v2[0]*v2[0] + v2[1]*v2[1] + v2[2]*v2[2]));
-    
-    // make sure we dont divide by 0 
-    if (mag != 0.0) 
+    // compute vn 
+    // if the distance if zero then we cannot compute vn
+    if (distance > 0)
       {
-      cosang = dot / mag;
-      if (cosang < -1.0) cosang = -1.0;
-      if (cosang > 1.0) cosang = 1.0;
-      theta = acos(cosang);
+      vn[0] = (pos[0] - this->Position[0])/distance;
+      vn[1] = (pos[1] - this->Position[1])/distance;
+      vn[2] = (pos[2] - this->Position[2])/distance;
+      
+      // calc the twist
+      // compute: vn X ( vup X vn)
+      // and:     vn X ( y-axis X vn)
+      // then find the angle between the two projected vectors
+      //
+      y_axis[0] = y_axis[2] = 0.0; y_axis[1] = 1.0;
+      
+      // bump the view normal if it is parallel to the y-axis
+      //
+      if ((vn[0] == 0.0) && (vn[2] == 0.0))
+	vn[2] = 0.01*vn[1];
+      
+      // first project the view_up onto the view_plane
+      //
+      vtkMath::Cross(vup, vn, v1);
+      vtkMath::Cross(vn, v1, v1);
+      
+      // then project the y-axis onto the view plane
+      //
+      vtkMath::Cross(y_axis, vn, v2);
+      vtkMath::Cross(vn, v2, v2);
+      
+      // then find the angle between the two projected vectors
+      //
+      dot = v1[0]*v2[0] + v1[1]*v2[1] + v1[2]*v2[2];
+      mag = sqrt((double)(v1[0]*v1[0] + v1[1]*v1[1] + v1[2]*v1[2]));
+      mag *= sqrt((double)(v2[0]*v2[0] + v2[1]*v2[1] + v2[2]*v2[2]));
+      
+      // make sure we dont divide by 0 
+      if (mag != 0.0) 
+	{
+	cosang = dot / mag;
+	if (cosang < -1.0) cosang = -1.0;
+	if (cosang > 1.0) cosang = 1.0;
+	theta = acos(cosang);
+	}
+      else
+	theta = 0.0;
+      
+      // now see if the angle is positive or negative
+      //
+      vtkMath::Cross(v1, v2, v1);
+      dot = v1[0]*vn[0] + v1[1]*vn[1] + v1[2]*vn[2];
+      
+      twist = (theta);
+      if (dot < 0.0)
+	twist = -twist;
+      
+      // now rotate z (twist) 
+      matrix[0][0] = cos(-twist);
+      matrix[0][1] = sin(-twist);
+      matrix[0][2] = matrix[0][3] = 0.0;
+      matrix[1][0] = -1.0*matrix[0][1];
+      matrix[1][1] = matrix[0][0];
+      matrix[1][2] = matrix[1][3] = 0.0;
+      matrix[2][1] = 0.0;
+      matrix[2][2] = 1.0;
+      matrix[2][3] = 0.0;
+      matrix[2][0] = 0.0;
+      matrix[3][3] = 1.0;
+      matrix[3][0] = matrix[3][1] = matrix[3][2] = 0.0;
+      this->Transform.Concatenate(matrix);
+      
+      // rotate y by 180 to get the positive zaxis instead of negative
+      this->Transform.RotateY(180);
       }
-    else
-      theta = 0.0;
-    
-    // now see if the angle is positive or negative
-    //
-    vtkMath::Cross(v1, v2, v1);
-    dot = v1[0]*vn[0] + v1[1]*vn[1] + v1[2]*vn[2];
-    
-    twist = (theta);
-    if (dot < 0.0)
-      twist = -twist;
-    
-    // now rotate z (twist) 
-    matrix[0][0] = cos(-twist);
-    matrix[0][1] = sin(-twist);
-    matrix[0][2] = matrix[0][3] = 0.0;
-    matrix[1][0] = -1.0*matrix[0][1];
-    matrix[1][1] = matrix[0][0];
-    matrix[1][2] = matrix[1][3] = 0.0;
-    matrix[2][1] = 0.0;
-    matrix[2][2] = 1.0;
-    matrix[2][3] = 0.0;
-    matrix[2][0] = 0.0;
-    matrix[3][3] = 1.0;
-    matrix[3][0] = matrix[3][1] = matrix[3][2] = 0.0;
-    this->Transform.Concatenate(matrix);
-
-    // rotate y by 180 to get the positive zaxis instead of negative
-    this->Transform.RotateY(180);
     }
-
+  
   // rotate
   this->Transform.RotateZ(this->Orientation[2]);
   this->Transform.RotateX(this->Orientation[0]);
