@@ -208,6 +208,7 @@ void vtkActor::SetOrientation (float x,float y,float z)
   << this->Orientation[1] << ", " << this->Orientation[2] << ")\n");
 
   this->Transform.Identity();
+  this->Transform.PreMultiply ();
   this->Transform.RotateZ(this->Orientation[2]);
   this->Transform.RotateX(this->Orientation[0]);
   this->Transform.RotateY(this->Orientation[1]);
@@ -259,32 +260,46 @@ void vtkActor::AddOrientation(float a[3])
 }
 
 // Description:
-// Rotate the actor in degrees about the X axis using the right hand rule.
+// Rotate the actor in degrees about the X axis using the right hand rule. The
+// axis is the actor's X axis, which can change as other rotations are performed.
+// To rotate about the world X axis use RotateWXYZ (angle, 1, 0, 0). This rotation
+// is applied before all others in the current transformation matrix.
 void vtkActor::RotateX (float angle)
 {
+  this->Transform.PreMultiply ();
   this->Transform.RotateX(angle);
   this->Modified();
 } 
 
 // Description:
-// Rotate the actor in degrees about the Y axis using the right hand rule.
+// Rotate the actor in degrees about the Y axis using the right hand rule. The
+// axis is the actor's Y axis, which can change as other rotations are performed.
+// To rotate about the world Y axis use RotateWXYZ (angle, 0, 1, 0). This rotation
+// is applied before all others in the current transformation matrix.
 void vtkActor::RotateY (float angle)
 {
+  this->Transform.PreMultiply ();
   this->Transform.RotateY(angle);
   this->Modified();
 } 
 
 // Description:
-// Rotate the actor in degrees about the Z axis using the right hand rule.
+// Rotate the actor in degrees about the Z axis using the right hand rule. The
+// axis is the actor's Z axis, which can change as other rotations are performed.
+// To rotate about the world Z axis use RotateWXYZ (angle, 0, 0, 1). This rotation
+// is applied before all others in the current transformation matrix.
+
 void vtkActor::RotateZ (float angle)
 {
+  this->Transform.PreMultiply ();
   this->Transform.RotateZ(angle);
   this->Modified();
 } 
 
 // Description:
 // Rotate the actor in degrees about an arbitrary axis specified by the 
-// last three arguments. 
+// last three arguments. The axis is specified in world coordinates. To
+// rotate an about its model axes, use RotateX, RotateY, RotateZ.
 void vtkActor::RotateWXYZ (float degree, float x, float y, float z)
 {
   this->Transform.PostMultiply();  
@@ -313,9 +328,9 @@ void vtkActor::GetMatrix(vtkMatrix4x4& result)
 			this->Scale[2]);
 
   // rotate
-  this->Transform.RotateZ(this->Orientation[2]);
-  this->Transform.RotateX(this->Orientation[0]);
   this->Transform.RotateY(this->Orientation[1]);
+  this->Transform.RotateX(this->Orientation[0]);
+  this->Transform.RotateZ(this->Orientation[2]);
 
   // shift to origin
   this->Transform.Translate(this->Origin[0],
@@ -333,6 +348,7 @@ void vtkActor::GetMatrix(vtkMatrix4x4& result)
     this->Transform.Concatenate(*this->UserMatrix);
     }
 
+  this->Transform.PreMultiply();  
   result = this->Transform.GetMatrix();
 
   this->Transform.Pop();  
@@ -385,6 +401,7 @@ float *vtkActor::GetBounds()
   // save the old transform
   this->GetMatrix(matrix);
   this->Transform.Push(); 
+  this->Transform.PostMultiply ();
   this->Transform.Identity();
   this->Transform.Concatenate(matrix);
 
@@ -402,6 +419,7 @@ float *vtkActor::GetBounds()
     fptr += 3;
     }
   
+  this->Transform.PreMultiply ();
   this->Transform.Pop();  
   
   // now calc the new bounds
