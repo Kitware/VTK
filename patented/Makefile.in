@@ -1,0 +1,83 @@
+#
+# vtk library makefile
+#
+# NOTE !!! when adding a class, it must be added in one location.
+# Place it in the correct list based on whether it is only a .h file
+# and whether it is abstract or concrete.
+#
+ME = Patented
+
+
+ABSTRACT_H = 
+
+CONCRETE_H = 
+
+ABSTRACT =
+
+CONCRETE = \
+vtkDecimate \
+vtkDividingCubes \
+vtkSliceCubes \
+vtkSmoothPolyFilter \
+vtkStripper \
+vtkTubeFilter
+
+#------------------------------------------------------------------------------
+# Include the generated targets
+
+@MAKEINCLUDE@ @MAKEQUOTE@targets.make@MAKEQUOTE@
+
+# add in any extra libraies here
+KIT_LIBS =
+
+# standard stuff here
+KIT_OBJ = ${SRC_OBJ}
+KIT_TCL_OBJ = ${TCL_OBJ} ${KIT_OBJ}
+KIT_NEWS = ${TCL_NEWS}
+KIT_FLAGS = -I${srcdir}/../graphics -I${srcdir}/../imaging
+
+# The following is all boiler plate 
+#------------------------------------------------------------------------------
+# Autoconfig defines that can be overridden in Config.mk
+
+CC            = @CC@
+CFLAGS        = @CFLAGS@
+CXX           = @CXX@
+CXXFLAGS      = @CXXFLAGS@
+XCFLAGS       = @X_CFLAGS@
+XLIBS         = @X_LIBS@
+RANLIB        = @RANLIB@
+srcdir        = @srcdir@
+VPATH         = @srcdir@
+prefix        = @prefix@
+exec_prefix   = @exec_prefix@
+WORDS_BIGENDIAN = @BIGENDIAN@
+VTK_SHLIB_CFLAGS = @VTK_SHLIB_CFLAGS@
+SHLIB_LD      = @SHLIB_LD@
+SHLIB_LD_LIBS = @SHLIB_LD_LIBS@
+SHLIB_SUFFIX  = @SHLIB_SUFFIX@
+SHLIB_VERSION = @SHLIB_VERSION@
+VTK_LIB_FILE  = libVTK${ME}@VTK_LIB_EXT@
+TCL_LIB_FILE  = libVTK${ME}Tcl@VTK_LIB_EXT@
+VTK_TEMPLATE_FLAGS = @VTK_TEMPLATE_FLAGS@
+VTK_INLINE_FLAGS = @VTK_INLINE_FLAGS@
+BUILD_TCL         = @BUILD_TCL@
+CLEAN_TCL         = @CLEAN_TCL@
+BUILD_JAVA        = @BUILD_JAVA@
+CLEAN_JAVA        = @CLEAN_JAVA@
+
+#------------------------------------------------------------------------------
+# Include user-editable defines.
+
+@MAKEINCLUDE@ @MAKEQUOTE@../Config.mk@MAKEQUOTE@
+
+#------------------------------------------------------------------------------
+# Include the generic stuff here
+
+@MAKEINCLUDE@ @MAKEQUOTE@@srcdir@/../Kits.make@MAKEQUOTE@
+
+#------------------------------------------------------------------------------
+# Include the depend stuff here
+
+@MAKEINCLUDE@ @MAKEQUOTE@depend.make@MAKEQUOTE@
+

@@ -26,6 +26,9 @@ CLEAN_GRAPHICS    = @CLEAN_GRAPHICS@
 BUILD_IMAGING     = @BUILD_IMAGING@
 DEPEND_IMAGING    = @DEPEND_IMAGING@
 CLEAN_IMAGING     = @CLEAN_IMAGING@
+BUILD_PATENTED    = @BUILD_PATENTED@
+DEPEND_PATENTED   = @DEPEND_PATENTED@
+CLEAN_PATENTED    = @CLEAN_PATENTED@
 BUILD_VOLUME      = @BUILD_VOLUME@
 DEPEND_VOLUME     = @DEPEND_VOLUME@
 CLEAN_VOLUME      = @CLEAN_VOLUME@
@@ -58,7 +61,7 @@ CLEAN_GEMSVOLUME  = @CLEAN_GEMSVOLUME@
 all: targets ${BUILD_TCL} ${BUILD_JAVA} build_common \
 	${BUILD_GRAPHICS} ${BUILD_IMAGING} ${BUILD_BORESCOPE} ${BUILD_VOLUME} \
 	${BUILD_CONTRIB} ${BUILD_GEAE} ${BUILD_GEMSIP} ${BUILD_GEMSIO} \
-	${BUILD_GEMSVOLUME} \
+	${BUILD_GEMSVOLUME} ${BUILD_PATENTED} \
 	${BUILD_TCL}${BUILD_TCL} ${BUILD_JAVA}${BUILD_JAVA}
 
 targets: ${srcdir}/targets.c
@@ -75,6 +78,10 @@ build_graphics:
 build_imaging:
 	cd imaging;    ${MAKE} -${MAKEFLAGS} targets.make
 	cd imaging;    ${MAKE} -${MAKEFLAGS} all
+
+build_patented:
+	cd patented;    ${MAKE} -${MAKEFLAGS} targets.make
+	cd patented;    ${MAKE} -${MAKEFLAGS} all
 
 build_volume:
 	cd volume;    ${MAKE} -${MAKEFLAGS} targets.make
@@ -121,7 +128,7 @@ build_javabuild_java:
 #------------------------------------------------------------------------------
 # generate dpend.make files
 
-depend: ${DEPEND_TCL} ${DEPEND_GRAPHICS} ${DEPEND_IMAGING} \
+depend: ${DEPEND_TCL} ${DEPEND_GRAPHICS} ${DEPEND_IMAGING} ${DEPEND_PATENTED} \
 	${DEPEND_BORESCOPE} ${DEPEND_VOLUME} ${DEPEND_GEMSVOLUME} \
 	${DEPEND_CONTRIB} ${DEPEND_GEAE} ${DEPEND_GEMSIP} ${DEPEND_GEMSIO} 
 	cd common;    ${MAKE} -${MAKEFLAGS} depend
@@ -134,6 +141,9 @@ depend_graphics:
 
 depend_imaging:
 	cd imaging;   ${MAKE} -${MAKEFLAGS} depend
+
+depend_patented:
+	cd patented;    ${MAKE} -${MAKEFLAGS} depend
 
 depend_volume:
 	cd volume;    ${MAKE} -${MAKEFLAGS} depend
@@ -160,6 +170,7 @@ depend_gemsvolume:
 # Clean up all files that were built by make.
 clean: ${CLEAN_TCL} ${CLEAN_JAVA} ${CLEAN_GRAPHICS} ${CLEAN_IMAGING} \
 	${CLEAN_BORESCOPE} ${CLEAN_VOLUME} ${CLEAN_GEMSVOLUME} \
+	${CLEAN_PATENTED} \
 	${CLEAN_CONTRIB} ${CLEAN_GEAE} ${CLEAN_GEMSIP} ${CLEAN_GEMSIO} 
 	cd common;    ${MAKE} -${MAKEFLAGS} clean
 	rm -f config.cache
@@ -175,6 +186,9 @@ clean_graphics:
 
 clean_imaging:
 	cd imaging;   ${MAKE} -${MAKEFLAGS} clean
+
+clean_patented:
+	cd patented;    ${MAKE} -${MAKEFLAGS} clean
 
 clean_volume:
 	cd volume;    ${MAKE} -${MAKEFLAGS} clean
