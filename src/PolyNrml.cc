@@ -76,21 +76,15 @@ void vlPolyNormals::Execute()
 // mesh used to perform topological queries.  The other is used to write into
 // and modify the connectivity of the mesh.
 //
-  OldMesh = new vlPolyData(*this->Input);
-  OldMesh->LoadNone();
-  OldMesh->LoadPolysOn();
-  OldMesh->SetReadOnly();
-  OldMesh->BuildLinks(); // need full-blown data structure
+  OldMesh = new vlPolyData;
+  OldMesh->SetPolys(this->Input->GetPolys());
   
   pd = this->Input->GetPointData();
     
-  NewMesh = new vlPolyData(*this->Input);
-  NewMesh->LoadNone();
-  NewMesh->LoadPolysOn();
-  NewMesh->WritableOn();
-  NewMesh->BuildCells(); // just need random access to cells
-
-  newPolys = NewMesh->GetPolys();
+  NewMesh = new vlPolyData;
+  // create a copy because we're modifying it
+  newPolys = new vlCellArray(*(this->Input->GetPolys()));
+  NewMesh->SetPolys(newPolys);
 //
 // The visited array keeps track of which polygons have been visited.
 //
@@ -256,7 +250,7 @@ void vlPolyNormals::Execute()
     }
 
   this->PointData.SetNormals(newNormals);
-  this->SetPolys(NewMesh->GetPolys());
+  this->SetPolys(newPolys);
 
   delete OldMesh;
   delete NewMesh;

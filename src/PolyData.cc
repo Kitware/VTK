@@ -40,13 +40,6 @@ vlPolyData::vlPolyData ()
   // static variable, initialized only once.
   if (!this->Dummy) this->Dummy = new vlCellArray;
 
-  this->LoadVerts = 1;
-  this->LoadLines = 1;
-  this->LoadPolys = 1;
-  this->LoadStrips = 1;
-
-  this->Writable = 0;
-
   this->Cells = NULL;
   this->Links = NULL;
 }
@@ -66,13 +59,6 @@ vlPointSet(pd)
   this->Strips = pd.Strips;
   if (this->Strips) this->Strips->Register(this);
  
-  this->LoadVerts = pd.LoadVerts;
-  this->LoadLines = pd.LoadLines;
-  this->LoadPolys = pd.LoadPolys;
-  this->LoadStrips = pd.LoadStrips;
-
-  this->Writable = pd.Writable;
-
   this->Cells = pd.Cells;
   if (this->Cells) this->Cells->Register(this);
 
@@ -304,12 +290,6 @@ void vlPolyData::PrintSelf(ostream& os, vlIndent indent)
     os << indent << "Number Of Lines: " << this->GetNumberOfLines() << "\n";
     os << indent << "Number Of Polygons: " << this->GetNumberOfPolys() << "\n";
     os << indent << "Number Of Triangle Strips: " << this->GetNumberOfStrips() << "\n";
-    os << indent << "Load Verts: " << (this->LoadVerts ? "On\n" : "Off\n");
-    os << indent << "Load Lines: " << (this->LoadLines ? "On\n" : "Off\n");
-    os << indent << "Load Polys: " << (this->LoadPolys ? "On\n" : "Off\n");
-    os << indent << "Load Strips: " << (this->LoadStrips ? "On\n" : "Off\n");
-
-    os << indent << "Writable: " << (this->Writable ? "On\n" : "Off\n");
     }
 }
 
@@ -345,75 +325,37 @@ void vlPolyData::BuildCells()
     this->Cells->Register(this);
     }
 //
-// If we are just reading the data structure, can use the input data
-// without any copying or allocation.  Otherwise have to allocate
-// working storage that is a copy of the input data.
+// Traverse various lists to create cell array
 //
-  if ( ! this->Writable )
+  for (inVerts->InitTraversal(); inVerts->GetNextCell(npts,pts); )
     {
-    if (this->LoadVerts) verts = inVerts;
-    if (this->LoadLines) lines = inLines;
-    if (this->LoadPolys) polys = inPolys;
-    if (this->LoadStrips) strips = inStrips;
-    }
-  else
-    {
-    if (this->LoadVerts && inVerts) verts = new vlCellArray(*inVerts);
-    if (this->LoadLines && inLines) lines = new vlCellArray(*inLines);
-    if (this->LoadPolys && inPolys) polys = new vlCellArray(*inPolys);
-    if (this->LoadStrips && inStrips) strips = new vlCellArray(*inStrips);
-    }
-//
-// Update ourselves
-//
-  this->SetVerts(verts);
-  this->SetLines(lines);
-  this->SetPolys(polys);
-  this->SetStrips(strips);
-//
-// Now traverse various lists to create cell array
-//
-  if ( verts )
-    {
-    for (verts->InitTraversal(); verts->GetNextCell(npts,pts); )
-      {
-      if ( npts > 1 )
-        cells->InsertNextCell(vlPOLY_POINTS,verts->GetLocation(npts));
-      else
-        cells->InsertNextCell(vlPOINT,verts->GetLocation(npts));
-      }
+    if ( npts > 1 )
+      cells->InsertNextCell(vlPOLY_POINTS,inVerts->GetLocation(npts));
+    else
+      cells->InsertNextCell(vlPOINT,inVerts->GetLocation(npts));
     }
 
-  if ( lines )
+  for (lines->InitTraversal(); lines->GetNextCell(npts,pts); )
     {
-    for (lines->InitTraversal(); lines->GetNextCell(npts,pts); )
-      {
-      if ( npts > 2 )
-        cells->InsertNextCell(vlPOLY_LINE,lines->GetLocation(npts));
-      else
-        cells->InsertNextCell(vlLINE,lines->GetLocation(npts));
-      }
+    if ( npts > 2 )
+      cells->InsertNextCell(vlPOLY_LINE,lines->GetLocation(npts));
+    else
+      cells->InsertNextCell(vlLINE,lines->GetLocation(npts));
     }
 
-  if ( polys )
+  for (polys->InitTraversal(); polys->GetNextCell(npts,pts); )
     {
-    for (polys->InitTraversal(); polys->GetNextCell(npts,pts); )
-      {
-      if ( npts == 3 )
-        cells->InsertNextCell(vlTRIANGLE,polys->GetLocation(npts));
-      else if ( npts == 4 )
-        cells->InsertNextCell(vlQUAD,polys->GetLocation(npts));
-      else
-        cells->InsertNextCell(vlPOLYGON,polys->GetLocation(npts));
-      }
+    if ( npts == 3 )
+      cells->InsertNextCell(vlTRIANGLE,polys->GetLocation(npts));
+    else if ( npts == 4 )
+      cells->InsertNextCell(vlQUAD,polys->GetLocation(npts));
+    else
+      cells->InsertNextCell(vlPOLYGON,polys->GetLocation(npts));
     }
 
-  if ( strips )
+  for (strips->InitTraversal(); strips->GetNextCell(npts,pts); )
     {
-    for (strips->InitTraversal(); strips->GetNextCell(npts,pts); )
-      {
-      cells->InsertNextCell(vlTRIANGLE_STRIP,strips->GetLocation(npts));
-      }
+    cells->InsertNextCell(vlTRIANGLE_STRIP,strips->GetLocation(npts));
     }
 }
 

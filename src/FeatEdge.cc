@@ -36,7 +36,7 @@ void vlFeatureEdges::Execute()
   vlFloatPoints *newPts;
   vlFloatScalars *newScalars;
   vlCellArray *newLines;
-  vlPolyData Mesh(*this->Input);
+  vlPolyData Mesh;
   int i, j, numNei, cellId;
   int numBEdges, numNonManifoldEdges, numFedges;
   float scalar, n[3], *x1, *x2, cosAngle;
@@ -60,11 +60,8 @@ void vlFeatureEdges::Execute()
     return;
     }
 
-  // build cell structure
-  Mesh.LoadVertsOff();
-  Mesh.LoadLinesOff();
-  Mesh.LoadStripsOff();
-  Mesh.BuildLinks();  
+  // build cell structure.  Only operate with polygons.
+  Mesh.SetPolys(this->Input->GetPolys());
 //
 //  Allocate storage for lines/points
 //

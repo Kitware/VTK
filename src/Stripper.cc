@@ -35,7 +35,7 @@ void vlStripper::Execute()
   vlIdList edge(2);
   vlIdList cellIds(MAX_CELL_SIZE);
   int neighbor;
-  vlPolyData Mesh(*this->Input);
+  vlPolyData Mesh;
   char *visited;
   int pts[MAX_CELL_SIZE];
   int numStripPts, *stripPts;
@@ -44,10 +44,9 @@ void vlStripper::Execute()
 
   this->Initialize();
 
-  // build cell structure
-  Mesh.LoadVertsOff();
-  Mesh.LoadLinesOff();
-  Mesh.BuildLinks();  
+  // build cell structure.  Only operate with polygons and triangle strips.
+  Mesh.SetPolys(this->Input->GetPolys());
+  Mesh.SetStrips(this->Input->GetStrips());
 
   // check input
   if ( (numCells=Mesh.GetNumberOfCells()) < 1 )

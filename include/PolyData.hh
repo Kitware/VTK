@@ -71,34 +71,6 @@ public:
   void ReverseCell(int cellId);
   void ReplaceCell(int cellId, vlIdList& ptIds);
 
-  // following stuff supports cell structure
-  // Booleans control whether certain types of data are loaded.
-  vlBooleanMacro(LoadVerts,int);
-  vlSetMacro(LoadVerts,int);
-  vlGetMacro(LoadVerts,int);
-
-  vlBooleanMacro(LoadLines,int);
-  vlSetMacro(LoadLines,int);
-  vlGetMacro(LoadLines,int);
-
-  vlBooleanMacro(LoadPolys,int);
-  vlSetMacro(LoadPolys,int);
-  vlGetMacro(LoadPolys,int);
-
-  vlBooleanMacro(LoadStrips,int);
-  vlSetMacro(LoadStrips,int);
-  vlGetMacro(LoadStrips,int);
-
-  void LoadAll() {this->LoadVertsOn(); this->LoadLinesOn(); 
-             this->LoadPolysOn(); this->LoadStripsOn();};
-  void LoadNone() {this->LoadVertsOff(); this->LoadLinesOff(); 
-             this->LoadPolysOff(); this->LoadStripsOff();};
-
-  void SetReadOnly() {this->SetWritable(0);};
-  vlBooleanMacro(Writable,int);
-  vlSetMacro(Writable,int)
-  vlGetMacro(Writable,int);
-  
 protected:
   // points inherited
   // point data (i.e., scalars, vectors, normals, tcoords) inherited
@@ -106,14 +78,12 @@ protected:
   vlCellArray *Lines;
   vlCellArray *Polys;
   vlCellArray *Strips;
+
   // dummy static member below used as a trick to simplify traversal
   static vlCellArray *Dummy;
-  // supports building Cell structure
-  int LoadVerts;
-  int LoadLines;
-  int LoadPolys;
-  int LoadStrips;
-  int Writable;
+
+  // supporting structures for more complex topological operations
+  // built only when necessary
   vlCellList *Cells;
   vlLinkList *Links;
   void BuildCells();
