@@ -98,7 +98,7 @@ void vtkRenderWindow::SetDesiredUpdateRate(float rate)
   if (this->DesiredUpdateRate != rate)
     {
     for (this->Renderers.InitTraversal(); 
-	 aren = this->Renderers.GetNextItem(); )
+	 (aren = this->Renderers.GetNextItem()); )
       {
       aren->SetAllocatedRenderTime(1.0/
 				   (rate*this->Renderers.GetNumberOfItems()));
@@ -281,7 +281,7 @@ void vtkRenderWindow::DoAARender()
       offsets[1] = math.Random() - 0.5;
 
       for (this->Renderers.InitTraversal(); 
-	   aren = this->Renderers.GetNextItem(); )
+	   (aren = this->Renderers.GetNextItem()); )
 	{
 	acam = aren->GetActiveCamera();
 
@@ -315,7 +315,7 @@ void vtkRenderWindow::DoAARender()
 
       // restore the jitter to normal
       for (this->Renderers.InitTraversal(); 
-	   aren = this->Renderers.GetNextItem(); )
+	   (aren = this->Renderers.GetNextItem()); )
 	{
 	acam = aren->GetActiveCamera();
 
@@ -421,7 +421,7 @@ void vtkRenderWindow::DoFDRender()
 
       // store offsets for each renderer 
       for (this->Renderers.InitTraversal(); 
-	   aren = this->Renderers.GetNextItem(); )
+	   (aren = this->Renderers.GetNextItem()); )
 	{
 	acam = aren->GetActiveCamera();
 	focalDisk = acam->GetFocalDisk()*offsets[0];
@@ -450,7 +450,7 @@ void vtkRenderWindow::DoFDRender()
       // restore the jitter to normal
       j = 0;
       for (this->Renderers.InitTraversal(); 
-	   aren = this->Renderers.GetNextItem(); )
+	   (aren = this->Renderers.GetNextItem()); )
 	{
 	acam = aren->GetActiveCamera();
 	acam->SetPosition(orig + j*3);

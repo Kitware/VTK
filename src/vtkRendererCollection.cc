@@ -47,7 +47,7 @@ void vtkRendererCollection::Render()
 {
   vtkRenderer *ren;
 
-  for ( this->InitTraversal(); ren = GetNextItem(); )
+  for (this->InitTraversal(); (ren = GetNextItem()); )
     {
     ren->Render();
     }

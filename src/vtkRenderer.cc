@@ -235,7 +235,8 @@ void vtkRenderer::ResetCamera()
   allBounds[1] = allBounds[3] = allBounds[5] = -VTK_LARGE_FLOAT;
   
   // loop through actors 
-  for ( this->Actors.InitTraversal(); anActor = this->Actors.GetNextItem(); )
+  for (this->Actors.InitTraversal(); 
+       (anActor = this->Actors.GetNextItem()); )
     {
     // if it's invisible, we can skip the rest 
     if ( anActor->GetVisibility() )
@@ -256,7 +257,7 @@ void vtkRenderer::ResetCamera()
   if (this->VolumeRenderer)
     {
     for (this->VolumeRenderer->GetVolumes()->InitTraversal(); 
-	 aVolume = this->VolumeRenderer->GetVolumes()->GetNextItem(); )
+	 (aVolume = this->VolumeRenderer->GetVolumes()->GetNextItem()); )
       {
       // if it's invisible, we can skip the rest 
       if ( aVolume->GetVisibility() )
