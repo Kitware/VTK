@@ -46,9 +46,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct an instance of vtkImagePaint with no data.
 vtkImagePaint::vtkImagePaint()
 {
-  this->DrawColor[0] = 0.0;
-  this->DrawColor[1] = 0.0;
-  this->DrawColor[2] = 0.0;
+  int idx;
+  
+  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    this->DrawColor[idx] = 0.0;
+    }
 }
 
 
@@ -66,10 +69,71 @@ vtkImagePaint::~vtkImagePaint()
 //----------------------------------------------------------------------------
 void vtkImagePaint::PrintSelf(ostream& os, vtkIndent indent)
 {
+  int idx, num, min, max;
+  
   vtkImageRegion::PrintSelf(os,indent);
-  os << indent << "DrawColor: (R=" << this->DrawColor[0] << ", G=" 
-     <<this->DrawColor[1] << ", B=" <<this->DrawColor[2] << "/n";
+  os << indent << "DrawColor: (" << this->DrawColor[0];
+  this->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, min, max);
+  num = max - min + 1;
+  for (idx = 1; idx < num; ++idx)
+    {
+    os << ", " << this->DrawColor[idx];
+    }
+  os << ")\n";
 }
+
+
+
+//----------------------------------------------------------------------------
+void vtkImagePaint::SetDrawColor(int num, float *color)
+{
+  int idx, min, max;
+  
+  this->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, min, max);
+  if (num != (max - min + 1))
+    {
+    vtkErrorMacro(<< "Color dimensions, " << num 
+       << ", does not match component extent (" << min << ", " << max << ")");
+    return;
+    }
+  
+  if (num > VTK_IMAGE_DIMENSIONS)
+    {
+    vtkErrorMacro(<< "Cannot this long of a 'color'");
+    return;
+    }
+    
+  for (idx = 0; idx < num; ++idx)
+    {
+    this->DrawColor[idx] = color[idx];
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkImagePaint::GetDrawColor(int num, float *color)
+{
+  int idx, min, max;
+  
+  this->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, min, max);
+  if (num != (max - min + 1))
+    {
+    vtkErrorMacro(<< "Color dimensions, " << num 
+       << ", does not match component extent (" << min << ", " << max << ")");
+    return;
+    }
+  
+  if (num > VTK_IMAGE_DIMENSIONS)
+    {
+    vtkErrorMacro(<< "Cannot this long of a 'color'");
+    return;
+    }
+    
+  for (idx = 0; idx < num; ++idx)
+    {
+    color[idx] = this->DrawColor[idx];
+    }
+}
+
 
 //----------------------------------------------------------------------------
 // Draw a region.  Only implentented for 2D extents.
@@ -78,19 +142,16 @@ void vtkImagePaintFillBox(vtkImagePaint *self, T *ptr,
 			 int min0, int max0, int min1, int max1)
 {
   T *ptr0, *ptr1, *ptrV;
-  int idx0, idx1;
-  int inc0, inc1;
-  int incV;
-  float *drawColor;
-  T   r, g, b;
+  int idx0, idx1, idxV;
+  int inc0, inc1, incV;
+  int minV, maxV;
+  float *drawColor, *pf;
   
   drawColor = self->GetDrawColor();
-  r = (T)(drawColor[0]);
-  g = (T)(drawColor[1]);
-  b = (T)(drawColor[2]);
   
   self->GetIncrements(inc0, inc1);
   self->GetAxisIncrements(VTK_IMAGE_COMPONENT_AXIS, incV);
+  self->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, minV, maxV);
   ptr1 = ptr;
   for (idx1 = min1; idx1 <= max1; ++idx1)
     {
@@ -98,14 +159,15 @@ void vtkImagePaintFillBox(vtkImagePaint *self, T *ptr,
     for (idx0 = min0; idx0 <= max0; ++idx0)
       {
       ptrV = ptr0;
+      pf = drawColor;
       
       // Assign color to pixel.
-      *ptrV = r;
-      ptrV += incV;
-      *ptrV = g;
-      ptrV += incV;
-      *ptrV = b;
-
+      for (idxV = minV; idxV <= maxV; ++idxV)
+	{
+	*ptrV = (T)(*pf++);
+	ptrV += incV;
+	}
+      
       ptr0 += inc0;
       }
     ptr1 += inc1;
@@ -163,11 +225,10 @@ void vtkImagePaintFillTube(vtkImagePaint *self, T *ptr,
 			  int a0, int a1, int b0, int b1, float radius)
 {
   T *ptr0, *ptr1, *ptrV;
-  int idx0, idx1;
+  int idx0, idx1, idxV;
   int inc0, inc1, incV;
-  int min0, max0, min1, max1;
-  float *drawColor;
-  T   r, g, b;
+  int min0, max0, min1, max1, minV, maxV;
+  float *drawColor, *pf;
   int n0, n1;
   int ak, bk, k;
   float fract;
@@ -189,11 +250,9 @@ void vtkImagePaintFillTube(vtkImagePaint *self, T *ptr,
     }
 
   drawColor = self->GetDrawColor();
-  r = (T)(drawColor[0]);
-  g = (T)(drawColor[1]);
-  b = (T)(drawColor[2]);
   
   self->GetExtent(min0, max0, min1, max1);
+  self->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, minV, maxV);
   // Loop trough whole extent.
   self->GetIncrements(inc0, inc1);
   self->GetAxisIncrements(VTK_IMAGE_COMPONENT_AXIS, incV);
@@ -219,12 +278,14 @@ void vtkImagePaintFillTube(vtkImagePaint *self, T *ptr,
 	if (radius >= sqrt(v0*v0 + v1*v1))
 	  {
 	  ptrV = ptr0;
+	  pf = drawColor;
+
 	  // Assign color to pixel.
-	  *ptrV = r;
-	  ptrV += incV;
-	  *ptrV = g;
-	  ptrV += incV;
-	  *ptrV = b;	  
+	  for (idxV = minV; idxV <= maxV; ++idxV)
+	    {
+	    *ptrV = (T)(*pf++);
+	    ptrV += incV;
+	    }
 	  }
 	}
       
@@ -280,18 +341,15 @@ void vtkImagePaintFillTriangle(vtkImagePaint *self, T *ptr,
   float longT, shortT;  // end points of intersection of trainge and row.
   float longStep, shortStep;
   int left, right;
-  int idx0, idx1;
-  float *drawColor;
-  T   r, g, b;
+  int idx0, idx1, idxV;
+  int minV, maxV;
+  float *drawColor, *pf;
   int incV;
   
-  self->GetAxisIncrements(VTK_IMAGE_COMPONENT_AXIS, incV);
   ptr = ptr;
-
+  self->GetAxisIncrements(VTK_IMAGE_COMPONENT_AXIS, incV);
+  self->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, minV, maxV);
   drawColor = self->GetDrawColor();
-  r = (T)(drawColor[0]);
-  g = (T)(drawColor[1]);
-  b = (T)(drawColor[2]);
   
   // index1 of b must be between a, and c
   if((b1 < a1 && a1 < c1) || (b1 > a1 && a1 > c1))
@@ -331,11 +389,14 @@ void vtkImagePaintFillTriangle(vtkImagePaint *self, T *ptr,
       ptr = (T *)(self->GetScalarPointer(idx0, idx1));
       if (ptr)
 	{
-	*ptr = r;
-	ptr += incV;
-	*ptr = g;
-	ptr += incV;
-	*ptr = b;
+	pf = drawColor;
+	// Assign color to pixel.
+	for (idxV = minV; idxV <= maxV; ++idxV)
+	  {
+	  *ptr = (T)(*pf++);
+	  ptr += incV;
+	  }
+	
 	}
       }
 
@@ -360,11 +421,14 @@ void vtkImagePaintFillTriangle(vtkImagePaint *self, T *ptr,
       ptr = (T *)(self->GetScalarPointer(idx0, idx1));
       if (ptr)
 	{
-	*ptr = r;
-	ptr += incV;
-	*ptr = g;
-	ptr += incV;
-	*ptr = b;
+	pf = drawColor;
+	// Assign color to pixel.
+	for (idxV = minV; idxV <= maxV; ++idxV)
+	  {
+	  *ptr = (T)(*pf++);
+	  ptr += incV;
+	  }
+	
 	}
       }
 
@@ -414,28 +478,27 @@ void vtkImagePaint::FillTriangle(int a0, int a1, int b0, int b1, int c0, int c1)
 template <class T>
 void vtkImagePaintDrawPoint(vtkImagePaint *self, T *ptr, int p0, int p1)
 {
-  int min0, max0, min1, max1;
-  int incV;
-  float *drawColor;
-  T   r, g, b;
+  int min0, max0, min1, max1, minV, maxV;
+  int incV, idxV;
+  float *drawColor, *pf;
   
   self->GetExtent(min0, max0, min1, max1);
-
-  drawColor = self->GetDrawColor();
-  r = (T)(drawColor[0]);
-  g = (T)(drawColor[1]);
-  b = (T)(drawColor[2]);
-
+  self->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, minV, maxV);
   self->GetAxisIncrements(VTK_IMAGE_COMPONENT_AXIS, incV);
+  drawColor = self->GetDrawColor();
 
   if (p0 >= min0 && p0 <= max0 && p1 >= min1 && p1 <= max1)
     {
     ptr = (T *)(self->GetScalarPointer(p0, p1));
+
+    pf = drawColor;
     // Assign color to pixel.
-    *ptr = r;
-    ptr += incV;
-    *ptr = g;
-    ptr += incV;
+    for (idxV = minV; idxV <= maxV; ++idxV)
+      {
+      *ptr = (T)(*pf++);
+      ptr += incV;
+      }
+    
     }
 }
 
@@ -480,17 +543,19 @@ template <class T>
 void vtkImagePaintDrawCircle(vtkImagePaint *self, T *ptr, 
 			     int c0, int c1, float radius)
 {
-  int min0, max0, min1, max1;
-  int incV;
-  float *drawColor;
-  T   r, g, b;
+  int min0, max0, min1, max1, minV, maxV;
+  int incV, idxV;
+  float *drawColor, *pf;
   int numberOfSteps;
   double thetaCos, thetaSin;
   double x, y, temp;
   int p0, p1;
   int idx;
   
+  drawColor = self->GetDrawColor();
   self->GetExtent(min0, max0, min1, max1);
+  self->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, minV, maxV);
+  self->GetAxisIncrements(VTK_IMAGE_COMPONENT_AXIS, incV);
 
   numberOfSteps = (int)(ceil(6.2831853 * radius));
   thetaCos = cos(1.0 / radius);
@@ -498,13 +563,6 @@ void vtkImagePaintDrawCircle(vtkImagePaint *self, T *ptr,
   x = radius;
   y = 0.0;
   
-  drawColor = self->GetDrawColor();
-  r = (T)(drawColor[0]);
-  g = (T)(drawColor[1]);
-  b = (T)(drawColor[2]);
-  
-  self->GetAxisIncrements(VTK_IMAGE_COMPONENT_AXIS, incV);
-
   for (idx = 0; idx < numberOfSteps; ++idx)
     {
     p0 = c0+(int)(x);
@@ -512,12 +570,15 @@ void vtkImagePaintDrawCircle(vtkImagePaint *self, T *ptr,
     if (p0 >= min0 && p0 <= max0 && p1 >= min1 && p1 <= max1)
       {
       ptr = (T *)(self->GetScalarPointer(p0, p1));
+
+      pf = drawColor;
       // Assign color to pixel.
-      *ptr = r;
-      ptr += incV;
-      *ptr = g;
-      ptr += incV;
-      *ptr = b;	  
+      for (idxV = minV; idxV <= maxV; ++idxV)
+	{
+	*ptr = (T)(*pf++);
+	ptr += incV;
+	}
+      
       }
     
     // rotate the point
@@ -572,21 +633,19 @@ void vtkImagePaintDrawSegment(vtkImagePaint *self, T *ptr,
   float f0, f1;
   float s0, s1;
   int numberOfSteps;
-  int idx;
+  int minV, maxV;
+  int idx, idxV;
   int inc0, inc1, incV;
-  float *drawColor;
-  T   r, g, b;
+  float *drawColor, *pf;
   T *ptrV;
   
   
   drawColor = self->GetDrawColor();
-  r = (T)(drawColor[0]);
-  g = (T)(drawColor[1]);
-  b = (T)(drawColor[2]);
-
-  // make sure we are stepping in the positive direction.
   self->GetIncrements(inc0, inc1);
   self->GetAxisIncrements(VTK_IMAGE_COMPONENT_AXIS, incV);
+  self->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, minV, maxV);
+
+  // make sure we are stepping in the positive direction.
   if (p0 < 0)
     {
     p0 = -p0;
@@ -615,12 +674,14 @@ void vtkImagePaintDrawSegment(vtkImagePaint *self, T *ptr,
   f0 = f1 = 0.5;
 
   ptrV = ptr;
+  pf = drawColor;
   // Assign color to pixel.
-  *ptrV = r;
-  ptrV += incV;
-  *ptrV = g;
-  ptrV += incV;
-  *ptrV = b;	  
+  for (idxV = minV; idxV <= maxV; ++idxV)
+    {
+    *ptrV = (T)(*pf++);
+    ptrV += incV;
+    }
+    
 
   for (idx = 0; idx < numberOfSteps; ++idx)
     {
@@ -638,12 +699,16 @@ void vtkImagePaintDrawSegment(vtkImagePaint *self, T *ptr,
       }
 
     ptrV = ptr;
+    pf = drawColor;
+    
     // Assign color to pixel.
-    *ptrV = r;
-    ptrV += incV;
-    *ptrV = g;
-    ptrV += incV;
-    *ptrV = b;	  
+    for (idxV = minV; idxV <= maxV; ++idxV)
+      {
+      *ptrV = (T)(*pf++);
+      ptrV += incV;
+      }
+    
+
     }
 }
 
@@ -823,21 +888,18 @@ void vtkImagePaintDrawSegment3D(vtkImagePaint *self, T *ptr,
   float f0, f1, f2;
   float s0, s1, s2;
   int numberOfSteps;
-  int idx;
+  int idx, idxV, minV, maxV;
   int inc0, inc1, inc2, incV;
-  float *drawColor;
-  T   r, g, b;
+  float *drawColor, *pf;
   T *ptrV;
   
   
   drawColor = self->GetDrawColor();
-  r = (T)(drawColor[0]);
-  g = (T)(drawColor[1]);
-  b = (T)(drawColor[2]);
-
-  // make sure we are stepping in the positive direction.
   self->GetIncrements(inc0, inc1, inc2);
   self->GetAxisIncrements(VTK_IMAGE_COMPONENT_AXIS, incV);
+  self->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, minV, maxV);
+
+  // make sure we are stepping in the positive direction.
   if (p0 < 0)
     {
     p0 = -p0;
@@ -867,13 +929,14 @@ void vtkImagePaintDrawSegment3D(vtkImagePaint *self, T *ptr,
 
   
   ptrV = ptr;
+  pf = drawColor;
   // Assign color to pixel.
-  *ptrV = r;
-  ptrV += incV;
-  *ptrV = g;
-  ptrV += incV;
-  *ptrV = b;	 
-  
+  for (idxV = minV; idxV <= maxV; ++idxV)
+    {
+    *ptrV = (T)(*pf++);
+    ptrV += incV;
+    }
+    
   for (idx = 0; idx < numberOfSteps; ++idx)
     {
     f0 += s0;
@@ -896,12 +959,13 @@ void vtkImagePaintDrawSegment3D(vtkImagePaint *self, T *ptr,
       }
 
     ptrV = ptr;
+    pf = drawColor;
     // Assign color to pixel.
-    *ptrV = r;
-    ptrV += incV;
-    *ptrV = g;
-    ptrV += incV;
-    *ptrV = b;	 
+    for (idxV = minV; idxV <= maxV; ++idxV)
+      {
+      *ptrV = (T)(*pf++);
+      ptrV += incV;
+      }
     }
 }
 

@@ -41,9 +41,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkImagePaint - A region that can be drawn into with colors.
 // .SECTION Description
 // vtkImagePaint is a region object with methods to draw boxs, lines ...
-// over the data.  Components are used for RGB values.
-// vtkImageDraw is a subset of paint.  Maybe these two classes should
-// be combined.
+// over the data.  DrawColor is a vector that is placed into the components
+// of the region.  It can be color (RGB) Greyscale scalar, or any 
+// arbitrary vector.  This object is limited to drawing into 2d regions 
+// for now.
 
 
 #ifndef __vtkImagePaint_h
@@ -64,8 +65,11 @@ public:
   // Description:
   // Set/Get DrawValue.  This is the value that is used when filling regions
   // or drawing lines.
-  vtkSetVector3Macro(DrawColor,float);
-  vtkGetVector3Macro(DrawColor,float);
+  void SetDrawColor(int dim, float *color);
+  void GetDrawColor(int dim, float *color);
+  float *GetDrawColor() {return this->DrawColor;}
+  vtkImageSetMacro(DrawColor, float);
+  vtkImageGetMacro(DrawColor, float);
   
   void FillBox(int min0, int max0, int min1, int max1);
   void FillTube(int x0, int y0, int x1, int y1, float radius);
@@ -76,7 +80,7 @@ public:
   void DrawSegment3D(float *p0, float *p1);
 
 protected:
-  float DrawColor[3];
+  float DrawColor[VTK_IMAGE_DIMENSIONS];
   
   int ClipSegment(int &a0, int &a1, int &b0, int &b1);
 };
