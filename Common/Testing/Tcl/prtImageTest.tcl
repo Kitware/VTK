@@ -16,7 +16,7 @@ rtDebugLeaks PromptUserOff
 
 set myProcId 0
 set numProcs 1
-vtkCompositeManager compManager
+vtkCompositeRenderManager compManager
 if { [compManager GetController] != "" } {
     catch [ set myProcId [[compManager GetController] GetLocalProcessId] ]
     catch [ set numProcs [[compManager GetController] GetNumberOfProcesses] ]

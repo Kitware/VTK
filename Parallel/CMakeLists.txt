@@ -22,6 +22,7 @@ vtkCollectPolyData.cxx
 vtkCommunicator.cxx
 vtkCompositeManager.cxx
 vtkCompositer.cxx
+vtkCompositeRenderManager.cxx
 vtkCompressCompositer.cxx
 vtkCutMaterial.cxx
 vtkDistributedStreamTracer.cxx
@@ -32,6 +33,7 @@ vtkInputPort.cxx
 vtkMemoryLimitImageDataStreamer.cxx
 vtkMultiProcessController.cxx
 vtkOutputPort.cxx
+vtkParallelRenderManager.cxx
 vtkPassThroughFilter.cxx
 vtkPCellDataToPointData.cxx
 vtkPDataSetReader.cxx
@@ -59,6 +61,7 @@ vtkTreeCompositer.cxx
 )
 
 SET_SOURCE_FILES_PROPERTIES(
+vtkParallelRenderManager
 vtkPStreamTracer
 ABSTRACT
 )

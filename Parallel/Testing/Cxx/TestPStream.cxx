@@ -17,7 +17,7 @@
 =========================================================================*/
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkCompositeManager.h"
+#include "vtkCompositeRenderManager.h"
 #include "vtkDebugLeaks.h"
 #include "vtkDistributedStreamTracer.h"
 #include "vtkLineSource.h"
@@ -170,8 +170,9 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
 
-  vtkCompositeManager* compManager = vtkCompositeManager::New();
+  vtkCompositeRenderManager* compManager = vtkCompositeRenderManager::New();
   compManager->SetRenderWindow(renWin);
+  compManager->SetController(controller);
   compManager->InitializePieces();
  
   if (myId)
