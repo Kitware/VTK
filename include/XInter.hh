@@ -69,6 +69,8 @@ public:
   friend void vtkXRenderWindowInteractorTimer(XtPointer,XtIntervalId *);
 
 protected:
+  Display *DisplayId;
+  Window WindowId;
   Widget top;
   XtAppContext App;
   int PositionBeforeStereo[2];
