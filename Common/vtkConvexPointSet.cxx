@@ -28,7 +28,7 @@
 #include "vtkTetra.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkConvexPointSet, "1.16");
+vtkCxxRevisionMacro(vtkConvexPointSet, "1.17");
 vtkStandardNewMacro(vtkConvexPointSet);
 
 // Construct the hexahedron with eight points.
@@ -131,7 +131,7 @@ int vtkConvexPointSet::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
 
   
 void vtkConvexPointSet::Contour(float value,
-                                vtkDataArray *vtkNotUsed(cellScalars),
+                                vtkDataArray *cellScalars,
                                 vtkPointLocator *locator,
                                 vtkCellArray *verts, vtkCellArray *lines, 
                                 vtkCellArray *polys, 
@@ -141,17 +141,17 @@ void vtkConvexPointSet::Contour(float value,
 {
   // For each tetra, contour it
   int i, j;
-  vtkIdType ptId;
-  vtkDataArray *localScalars = inPd->GetScalars();
+  vtkIdType ptId, localId;
   int numTets = this->TetraIds->GetNumberOfIds() / 4;
   for (i=0; i<numTets; i++)
     {
     for (j=0; j<4; j++)
       {
-      ptId = this->PointIds->GetId(this->TetraIds->GetId(4*i+j));
+      localId = this->TetraIds->GetId(4*i+j);
+      ptId = this->PointIds->GetId(localId);
       this->Tetra->PointIds->SetId(j,ptId);
       this->Tetra->Points->SetPoint(j,this->TetraPoints->GetPoint(4*i+j));
-      this->TetraScalars->SetValue(j,localScalars->GetTuple1(ptId));
+      this->TetraScalars->SetValue(j,cellScalars->GetTuple1(localId));
       }
     this->Tetra->Contour(value,this->TetraScalars,locator,verts,lines,polys,
                          inPd,outPd,inCd,cellId,outCd);
@@ -161,7 +161,7 @@ void vtkConvexPointSet::Contour(float value,
 
 
 void vtkConvexPointSet::Clip(float value, 
-                             vtkDataArray *vtkNotUsed(cellScalars), 
+                             vtkDataArray *cellScalars, 
                              vtkPointLocator *locator, vtkCellArray *tets,
                              vtkPointData *inPD, vtkPointData *outPD,
                              vtkCellData *inCD, vtkIdType cellId,
@@ -169,17 +169,17 @@ void vtkConvexPointSet::Clip(float value,
 {
   // For each tetra, contour it
   int i, j;
-  vtkIdType ptId;
-  vtkDataArray *localScalars = inPD->GetArray("ClipDataSetScalars");
+  vtkIdType ptId, localId;
   int numTets = this->TetraIds->GetNumberOfIds() / 4;
   for (i=0; i<numTets; i++)
     {
     for (j=0; j<4; j++)
       {
-      ptId = this->PointIds->GetId(this->TetraIds->GetId(4*i+j));
+      localId = this->TetraIds->GetId(4*i+j);
+      ptId = this->PointIds->GetId(localId);
       this->Tetra->PointIds->SetId(j,ptId);
       this->Tetra->Points->SetPoint(j,this->TetraPoints->GetPoint(4*i+j));
-      this->TetraScalars->SetValue(j,localScalars->GetTuple1(ptId));
+      this->TetraScalars->SetValue(j,cellScalars->GetTuple1(localId));
       }
     this->Tetra->Clip(value,this->TetraScalars,locator,tets,inPD,outPD,inCD,
                       cellId, outCD, insideOut);
