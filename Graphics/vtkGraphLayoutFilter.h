@@ -108,8 +108,8 @@ public:
 protected:
   vtkGraphLayoutFilter();
   ~vtkGraphLayoutFilter() {}
-  vtkGraphLayoutFilter(const vtkGraphLayoutFilter&) {}
-  void operator=(const vtkGraphLayoutFilter&) {}
+  vtkGraphLayoutFilter(const vtkGraphLayoutFilter&);
+  void operator=(const vtkGraphLayoutFilter&);
 
   void Execute();
 
