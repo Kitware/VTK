@@ -101,11 +101,11 @@ vtkFloatArray quadScalars
   quadScalars SetNumberOfTuples 8
   quadScalars InsertValue 0 0.0
   quadScalars InsertValue 1 0.0
-  quadScalars InsertValue 2 0.0
-  quadScalars InsertValue 3 0.0
+  quadScalars InsertValue 2 1.0
+  quadScalars InsertValue 3 1.0
   quadScalars InsertValue 4 1.0
   quadScalars InsertValue 5 0.0
-  quadScalars InsertValue 6 1.0
+  quadScalars InsertValue 6 0.0
   quadScalars InsertValue 7 0.0
 vtkQuadraticQuad aQuad
   [aQuad GetPointIds] SetId 0 0
@@ -137,6 +137,150 @@ vtkActor aQuadContourActor
   aQuadContourActor SetMapper aQuadContourMapper
   [aQuadContourActor GetProperty] BackfaceCullingOn
 
+# Quadratic tetrahedron
+vtkPoints tetPoints
+  tetPoints SetNumberOfPoints 10
+  tetPoints InsertPoint 0 0.0 0.0 0.0
+  tetPoints InsertPoint 1 1.0 0.0 0.0
+  tetPoints InsertPoint 2 0.5 0.8 0.0
+  tetPoints InsertPoint 3 0.5 0.4 1.0
+  tetPoints InsertPoint 4 0.5 0.0 0.0
+  tetPoints InsertPoint 5 0.75 0.4 0.0
+  tetPoints InsertPoint 6 0.25 0.4 0.0
+  tetPoints InsertPoint 7 0.25 0.2 0.5
+  tetPoints InsertPoint 8 0.75 0.2 0.5
+  tetPoints InsertPoint 9 0.50 0.6 0.5
+vtkFloatArray tetScalars
+  tetScalars SetNumberOfTuples 10
+  tetScalars InsertValue 0 0.0
+  tetScalars InsertValue 1 0.0
+  tetScalars InsertValue 2 0.0
+  tetScalars InsertValue 3 1.0
+  tetScalars InsertValue 4 0.0
+  tetScalars InsertValue 5 0.0
+  tetScalars InsertValue 6 0.0
+  tetScalars InsertValue 7 0.0
+  tetScalars InsertValue 8 0.0
+  tetScalars InsertValue 9 0.0
+vtkQuadraticTetra aTet
+  [aTet GetPointIds] SetId 0 0
+  [aTet GetPointIds] SetId 1 1
+  [aTet GetPointIds] SetId 2 2
+  [aTet GetPointIds] SetId 3 3
+  [aTet GetPointIds] SetId 4 4
+  [aTet GetPointIds] SetId 5 5
+  [aTet GetPointIds] SetId 6 6
+  [aTet GetPointIds] SetId 7 7
+  [aTet GetPointIds] SetId 8 8
+  [aTet GetPointIds] SetId 9 9
+vtkUnstructuredGrid aTetGrid
+  aTetGrid Allocate 1 1
+  aTetGrid InsertNextCell [aTet GetCellType] [aTet GetPointIds]
+  aTetGrid SetPoints tetPoints
+  [aTetGrid GetPointData] SetScalars tetScalars
+vtkContourFilter tetContours
+  tetContours SetInput aTetGrid
+  tetContours SetValue 0 0.5
+vtkDataSetMapper aTetContourMapper
+  aTetContourMapper SetInput [tetContours GetOutput]
+  aTetContourMapper ScalarVisibilityOff
+vtkDataSetMapper aTetMapper
+  aTetMapper SetInput aTetGrid
+  aTetMapper ScalarVisibilityOff
+vtkActor aTetActor
+  aTetActor SetMapper aTetMapper
+  [aTetActor GetProperty] SetRepresentationToWireframe
+vtkActor aTetContourActor
+  aTetContourActor SetMapper aTetContourMapper
+  [aTetContourActor GetProperty] BackfaceCullingOn
+
+# Quadratic hexahedron
+vtkPoints hexPoints
+  hexPoints SetNumberOfPoints 20
+  hexPoints InsertPoint 0 0 0 0
+  hexPoints InsertPoint 1 1 0 0
+  hexPoints InsertPoint 2 1 1 0
+  hexPoints InsertPoint 3 0 1 0
+  hexPoints InsertPoint 4 0 0 1
+  hexPoints InsertPoint 5 1 0 1
+  hexPoints InsertPoint 6 1 1 1
+  hexPoints InsertPoint 7 0 1 1
+  hexPoints InsertPoint 8 0.5 0 0
+  hexPoints InsertPoint 9 1 0.5 0
+  hexPoints InsertPoint 10 0.5 1 0
+  hexPoints InsertPoint 11 0 0.5 0
+  hexPoints InsertPoint 12 0.5 0 1
+  hexPoints InsertPoint 13 1 0.5 1
+  hexPoints InsertPoint 14 0.5 1 1
+  hexPoints InsertPoint 15 0 0.5 1
+  hexPoints InsertPoint 16 0 0 0.5
+  hexPoints InsertPoint 17 1 0 0.5
+  hexPoints InsertPoint 18 1 1 0.5
+  hexPoints InsertPoint 19 0 1 0.5
+vtkFloatArray hexScalars
+  hexScalars SetNumberOfTuples 20
+  hexScalars InsertValue 0 0.0
+  hexScalars InsertValue 1 0.0
+  hexScalars InsertValue 2 0.0
+  hexScalars InsertValue 3 1.0
+  hexScalars InsertValue 4 0.0
+  hexScalars InsertValue 5 0.0
+  hexScalars InsertValue 6 0.0
+  hexScalars InsertValue 7 0.0
+  hexScalars InsertValue 8 0.0
+  hexScalars InsertValue 9 0.0
+  hexScalars InsertValue 10 0.0
+  hexScalars InsertValue 11 0.0
+  hexScalars InsertValue 12 0.0
+  hexScalars InsertValue 13 0.0
+  hexScalars InsertValue 14 0.0
+  hexScalars InsertValue 15 0.0
+  hexScalars InsertValue 16 0.0
+  hexScalars InsertValue 17 0.0
+  hexScalars InsertValue 18 0.0
+  hexScalars InsertValue 19 0.0
+vtkQuadraticHexahedron aHex
+  [aHex GetPointIds] SetId 0 0
+  [aHex GetPointIds] SetId 1 1
+  [aHex GetPointIds] SetId 2 2
+  [aHex GetPointIds] SetId 3 3
+  [aHex GetPointIds] SetId 4 4
+  [aHex GetPointIds] SetId 5 5
+  [aHex GetPointIds] SetId 6 6
+  [aHex GetPointIds] SetId 7 7
+  [aHex GetPointIds] SetId 8 8
+  [aHex GetPointIds] SetId 9 9
+  [aHex GetPointIds] SetId 10 10
+  [aHex GetPointIds] SetId 11 11
+  [aHex GetPointIds] SetId 12 12
+  [aHex GetPointIds] SetId 13 13
+  [aHex GetPointIds] SetId 14 14
+  [aHex GetPointIds] SetId 15 15
+  [aHex GetPointIds] SetId 16 16
+  [aHex GetPointIds] SetId 17 17
+  [aHex GetPointIds] SetId 18 18
+  [aHex GetPointIds] SetId 19 19
+vtkUnstructuredGrid aHexGrid
+  aHexGrid Allocate 1 1
+  aHexGrid InsertNextCell [aHex GetCellType] [aHex GetPointIds]
+  aHexGrid SetPoints hexPoints
+  [aHexGrid GetPointData] SetScalars hexScalars
+vtkContourFilter hexContours
+  hexContours SetInput aHexGrid
+  hexContours SetValue 0 0.5
+vtkDataSetMapper aHexContourMapper
+  aHexContourMapper SetInput [hexContours GetOutput]
+  aHexContourMapper ScalarVisibilityOff
+vtkDataSetMapper aHexMapper
+  aHexMapper SetInput aHexGrid
+  aHexMapper ScalarVisibilityOff
+vtkActor aHexActor
+  aHexActor SetMapper aHexMapper
+  [aHexActor GetProperty] SetRepresentationToWireframe
+vtkActor aHexContourActor
+  aHexContourActor SetMapper aHexContourMapper
+  [aHexContourActor GetProperty] BackfaceCullingOn
+
 # Create the rendering related stuff.
 # Since some of our actors are a single vertex, we need to remove all
 # cullers so the single vertex actors will render
@@ -167,14 +311,28 @@ ren1 AddActor aQuadActor
 ren1 AddActor aQuadContourActor
 [aQuadContourActor GetProperty] SetDiffuseColor 1 0 0
 
+ren1 AddActor aTetActor 
+[aTetActor GetProperty] SetDiffuseColor 1 0 0
+ren1 AddActor aTetContourActor
+[aTetContourActor GetProperty] SetDiffuseColor 1 0 0
+
+ren1 AddActor aHexActor 
+[aHexActor GetProperty] SetDiffuseColor 1 0 0
+ren1 AddActor aHexContourActor
+[aHexContourActor GetProperty] SetDiffuseColor 1 0 0
+
 # places everyone!!
 aEdgeContourActor AddPosition 0 2 0
 aTriActor AddPosition 2 0 0
 aTriContourActor AddPosition 2 2 0
 aQuadActor AddPosition 4 0 0
 aQuadContourActor AddPosition 4 2 0
+aTetActor AddPosition 6 0 0
+aTetContourActor AddPosition 6 2 0
+aHexActor AddPosition 8 0 0
+aHexContourActor AddPosition 8 2 0
 
-BuildBackdrop -1 11 -1 16 -1 2 .1
+BuildBackdrop -1 11 -1 4 -1 2 .1
 
 ren1 AddActor base
 [base GetProperty] SetDiffuseColor .2 .2 .2
