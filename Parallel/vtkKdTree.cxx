@@ -51,7 +51,7 @@
 #include <algorithm>
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkKdTree, "1.10");
+vtkCxxRevisionMacro(vtkKdTree, "1.11");
 
 // methods for vtkKdNode -------------------------------------------
 
@@ -148,7 +148,10 @@ void vtkKdNode::SetDataBounds(float *v)
    
     for (i=0; i<3; i++)
       {
-      if (i == dim) continue;
+      if (i == dim)
+        {
+        continue;
+        }
 
       newbounds[i*2]  = bounds[i*2];
       newbounds[i*2+1] = bounds[i*2+1];
@@ -158,8 +161,14 @@ void vtkKdNode::SetDataBounds(float *v)
 
     for (i = dim+3; i< numCells*3; i+=3)
       {
-      if (v[i] < newbounds[dim*2]) newbounds[dim*2] = (double)v[i];
-      else if (v[i] > newbounds[dim*2+1]) newbounds[dim*2+1] = (double)v[i];
+      if (v[i] < newbounds[dim*2])
+        {
+        newbounds[dim*2] = (double)v[i];
+        }
+      else if (v[i] > newbounds[dim*2+1]) 
+        {
+        newbounds[dim*2+1] = (double)v[i];
+        }
       }
     }
   else
@@ -174,14 +183,32 @@ void vtkKdNode::SetDataBounds(float *v)
       int y=x+1;
       int z=x+2;
 
-      if (v[x] < newbounds[0]) newbounds[0] = (double)v[x];
-      else if (v[x] > newbounds[1]) newbounds[1] = (double)v[x];
+      if (v[x] < newbounds[0]) 
+        {
+        newbounds[0] = (double)v[x];
+        }
+      else if (v[x] > newbounds[1]) 
+        {
+        newbounds[1] = (double)v[x];
+        }
 
-      if (v[y] < newbounds[2]) newbounds[2] = (double)v[y];
-      else if (v[y] > newbounds[3]) newbounds[3] = (double)v[y];
+      if (v[y] < newbounds[2]) 
+        {
+        newbounds[2] = (double)v[y];
+        }
+      else if (v[y] > newbounds[3]) 
+        {
+        newbounds[3] = (double)v[y];
+        }
 
-      if (v[z] < newbounds[4]) newbounds[4] = (double)v[z];
-      else if (v[z] > newbounds[5]) newbounds[5] = (double)v[z];
+      if (v[z] < newbounds[4]) 
+        {
+        newbounds[4] = (double)v[z];
+        }
+      else if (v[z] > newbounds[5]) 
+        {
+        newbounds[5] = (double)v[z];
+        }
       }
     }
 
@@ -777,7 +804,10 @@ int vtkKdNode::IntersectsCell(vtkCell *cell, int useDataBounds, int cellRegion)
 
       intersects = (result != 0);
 
-      if (intersects) break;
+      if (intersects)
+        {
+        break;
+        }
       }
     }
   else if (dim == 2)     // polygons
@@ -853,7 +883,10 @@ int vtkKdNode::IntersectsCell(vtkCell *cell, int useDataBounds, int cellRegion)
 //----------------------------------------------------------------------------
 void vtkKdNode::PrintNode(int depth)
 {
-  if ( (depth < 0) || (depth > 19)) depth = 19;
+  if ( (depth < 0) || (depth > 19))
+    {
+    depth = 19;
+    }
       
   if (this->Id > -1)
     {
@@ -878,7 +911,10 @@ void vtkKdNode::PrintNode(int depth)
 //----------------------------------------------------------------------------
 void vtkKdNode::PrintVerboseNode(int depth)
 {
-  if ( (depth < 0) || (depth > 19)) depth = 19;
+  if ( (depth < 0) || (depth > 19)) 
+    {
+    depth = 19;
+    }
       
   printf("%s Space (%.4f, %.4f) y (%.4f %.4f) z (%.4f %.4f)\n",
       vtkKdNode::LevelMarker[depth],
@@ -1155,7 +1191,10 @@ void vtkKdTree::SetDataSet(vtkDataSet *set)
 }
 void vtkKdTree::AddDataSet(vtkDataSet *set)
 {
-  if (set == NULL) return;
+  if (set == NULL)
+    {
+    return;
+    }
 
   int firstSlot = this->NumDataSetsAllocated;
 
@@ -1175,7 +1214,10 @@ void vtkKdTree::AddDataSet(vtkDataSet *set)
 }
 void vtkKdTree::RemoveDataSet(vtkDataSet *set)
 {
-  if (set == NULL) return;
+  if (set == NULL) 
+    {
+    return;
+    }
 
   int i;
   int removeSet = -1;
@@ -1290,13 +1332,19 @@ int vtkKdTree::GetNumberOfCells()
 //----------------------------------------------------------------------------
 void vtkKdTree::GetBounds(float *bounds)
 {
-  if (this->Top) this->Top->GetBounds(bounds);
+  if (this->Top)
+    {
+    this->Top->GetBounds(bounds);
+    }
 }
 
 //----------------------------------------------------------------------------
 void vtkKdTree::GetBounds(double *bounds)
 {
-  if (this->Top) this->Top->GetBounds(bounds);
+  if (this->Top)
+    {
+    this->Top->GetBounds(bounds);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -1379,7 +1427,10 @@ vtkKdNode **vtkKdTree::_GetRegionsAtLevel(int level, vtkKdNode **nodes, vtkKdNod
 //----------------------------------------------------------------------------
 void vtkKdTree::GetRegionsAtLevel(int level, vtkKdNode **nodes)
 {
-  if ( (level < 0) || (level > this->Level)) return;
+  if ( (level < 0) || (level > this->Level)) 
+    {
+    return;
+    }
 
   vtkKdTree::_GetRegionsAtLevel(level, nodes, this->Top);
 
@@ -1436,7 +1487,10 @@ float *vtkKdTree::ComputeCellCenters(vtkDataSet *set)
     totalCells = this->GetNumberOfCells();   // all data sets
     }
 
-  if (totalCells == 0) return NULL;
+  if (totalCells == 0) 
+    {
+    return NULL;
+    }
 
   float *center = new float [3 * totalCells];
 
@@ -1483,7 +1537,10 @@ float *vtkKdTree::ComputeCellCenters(vtkDataSet *set)
     {
     for (i=0; i<this->NumDataSetsAllocated; i++)
       {
-      if (!this->DataSets[i]) continue;
+      if (!this->DataSets[i]) 
+        {
+        continue;
+        }
   
       vtkDataSet *iset = this->DataSets[i];
 
@@ -1590,9 +1647,9 @@ void vtkKdTree::BuildLocator()
 
   vtkDebugMacro( << "Creating Kdtree" );
 
-  if (this->Timing)
+  if ((this->Timing) && (this->TimerLog == NULL))
     {
-    if (this->TimerLog == NULL) this->TimerLog = vtkTimerLog::New();
+    this->TimerLog = vtkTimerLog::New();
     }
 
   TIMER("Set up to build k-d tree");
@@ -1606,7 +1663,10 @@ void vtkKdTree::BuildLocator()
 
   for (i=0; i<this->NumDataSetsAllocated; i++)
     {
-    if (this->DataSets[i] == NULL) continue;
+    if (this->DataSets[i] == NULL) 
+      {
+      continue;
+      }
 
     if (first)
       {
@@ -1616,12 +1676,30 @@ void vtkKdTree::BuildLocator()
     else
       {
       this->DataSets[i]->GetBounds(setBounds);
-      if (setBounds[0] < volBounds[0]) volBounds[0] = setBounds[0];
-      if (setBounds[2] < volBounds[2]) volBounds[2] = setBounds[2];
-      if (setBounds[4] < volBounds[4]) volBounds[4] = setBounds[4];
-      if (setBounds[1] > volBounds[1]) volBounds[1] = setBounds[1];
-      if (setBounds[3] > volBounds[3]) volBounds[3] = setBounds[3];
-      if (setBounds[5] > volBounds[5]) volBounds[5] = setBounds[5];
+      if (setBounds[0] < volBounds[0]) 
+        {
+        volBounds[0] = setBounds[0];
+        }
+      if (setBounds[2] < volBounds[2]) 
+        {
+        volBounds[2] = setBounds[2];
+        }
+      if (setBounds[4] < volBounds[4]) 
+        {
+        volBounds[4] = setBounds[4];
+        }
+      if (setBounds[1] > volBounds[1]) 
+        {
+        volBounds[1] = setBounds[1];
+        }
+      if (setBounds[3] > volBounds[3]) 
+        {
+        volBounds[3] = setBounds[3];
+        }
+      if (setBounds[5] > volBounds[5]) 
+        {
+        volBounds[5] = setBounds[5];
+        }
       }
     }
 
@@ -1704,7 +1782,10 @@ void vtkKdTree::BuildLocator()
 //----------------------------------------------------------------------------
 int vtkKdTree::ComputeLevel(vtkKdNode *kd)
 {
-  if (!kd) return 0;
+  if (!kd)
+    {
+    return 0;
+    }
   
   int iam = 1;
 
@@ -1713,8 +1794,14 @@ int vtkKdTree::ComputeLevel(vtkKdNode *kd)
      int depth1 = vtkKdTree::ComputeLevel(kd->Left);
      int depth2 = vtkKdTree::ComputeLevel(kd->Right);
 
-     if (depth1 > depth2) iam += depth1;
-     else         iam += depth2;
+     if (depth1 > depth2) 
+       {
+       iam += depth1;
+       }
+     else
+       {
+       iam += depth2;
+       }
     }
   return iam;
 }
@@ -1779,13 +1866,19 @@ int vtkKdTree::SelectCutDirection(vtkKdNode *kd)
 //----------------------------------------------------------------------------
 int vtkKdTree::DivideRegion(vtkKdNode *kd, float *c1, int *ids, int nlevels)
 {
-  if (nlevels == 0) return 0;
+  if (nlevels == 0) 
+    {
+    return 0;
+    }
 
   int minCells = this->GetMinCells();
 
   int npoints = kd->GetNumberOfCells();
 
-  if ((npoints < 2) || (minCells && (minCells > (npoints/2)))) return 0;
+  if ((npoints < 2) || (minCells && (minCells > (npoints/2)))) 
+    {
+    return 0;
+    }
 
   int maxdim = this->SelectCutDirection(kd);
 
@@ -1869,11 +1962,17 @@ void vtkKdTree::DoMedianFind(vtkKdNode *kd, float *c1, int *ids,
 
   for (dim = 0; dim < 3; dim++)
     {
-    if (dims[dim] < 0) break;
+    if (dims[dim] < 0) 
+      {
+      break;
+      }
 
     midpt = vtkKdTree::Select(dims[dim], c1, ids, npoints, coord);
 
-    if (midpt == 0) continue;    // fatal
+    if (midpt == 0) 
+      {
+      continue;    // fatal
+      }
 
     kd->SetDim(dims[dim]);
 
@@ -2013,7 +2112,10 @@ float vtkKdTree::FindMaxLeftHalf(int dim, float *c1, int K)
 
   for (i=3; i<K*3; i+=3)
     {
-    if (Xcomponent[i] > max) max = Xcomponent[i];
+    if (Xcomponent[i] > max) 
+      {
+      max = Xcomponent[i];
+      }
     }
   return max;
 }
@@ -2060,7 +2162,10 @@ void vtkKdTree::_Select(int dim, float *X, int *ids,
 
     Exchange(X, ids, L, K);
 
-    if (Xcomponent[R*3] >= T) Exchange(X, ids, R, L);
+    if (Xcomponent[R*3] >= T) 
+      {
+      Exchange(X, ids, R, L);
+      }
 
     while (I < J)
       {
@@ -2084,8 +2189,14 @@ void vtkKdTree::_Select(int dim, float *X, int *ids,
     // "now adjust L,R so they surround the subset containing
     // the (K-L+1)-th smallest element"
 
-    if (J <= K) L = J + 1;
-    if (K <= J) R = J - 1;
+    if (J <= K) 
+      {
+      L = J + 1;
+      }
+    if (K <= J) 
+      {
+      R = J - 1;
+      }
     }
 }
 
@@ -2142,7 +2253,10 @@ int vtkKdTree::SelfOrder(int startId, vtkKdNode *kd)
 //
 void vtkKdTree::BuildRegionList()
 {
-  if (this->Top == NULL) return;
+  if (this->Top == NULL) 
+    {
+    return;
+    }
 
   this->NumRegions = vtkKdTree::SelfOrder(0, this->Top);
   
@@ -2194,9 +2308,9 @@ void vtkKdTree::BuildLocatorFromPoints(vtkPoints **ptArrays, int numPtArrays)
 
   vtkDebugMacro( << "Creating Kdtree" );
   
-  if (this->Timing)
+  if ((this->Timing) && (this->TimerLog == NULL) )
     {
-    if (this->TimerLog == NULL) this->TimerLog = vtkTimerLog::New();
+    this->TimerLog = vtkTimerLog::New();
     }
 
   TIMER("Set up to build k-d tree");
@@ -2218,12 +2332,30 @@ void vtkKdTree::BuildLocatorFromPoints(vtkPoints **ptArrays, int numPtArrays)
     double tmpbounds[6];
     ptArrays[i]->GetBounds(tmpbounds);
 
-    if (tmpbounds[0] < bounds[0]) bounds[0] = tmpbounds[0];
-    if (tmpbounds[2] < bounds[2]) bounds[2] = tmpbounds[2];
-    if (tmpbounds[4] < bounds[4]) bounds[4] = tmpbounds[4];
-    if (tmpbounds[1] > bounds[1]) bounds[1] = tmpbounds[1];
-    if (tmpbounds[3] > bounds[3]) bounds[3] = tmpbounds[3];
-    if (tmpbounds[5] > bounds[5]) bounds[5] = tmpbounds[5];
+    if (tmpbounds[0] < bounds[0]) 
+      {
+      bounds[0] = tmpbounds[0];
+      }
+    if (tmpbounds[2] < bounds[2]) 
+      {
+      bounds[2] = tmpbounds[2];
+      }
+    if (tmpbounds[4] < bounds[4]) 
+      {
+      bounds[4] = tmpbounds[4];
+      }
+    if (tmpbounds[1] > bounds[1]) 
+      {
+      bounds[1] = tmpbounds[1];
+      }
+    if (tmpbounds[3] > bounds[3]) 
+      {
+      bounds[3] = tmpbounds[3];
+      }
+    if (tmpbounds[5] > bounds[5]) 
+      {
+      bounds[5] = tmpbounds[5];
+      }
     }
 
   this->MaxWidth = 0.0; 
@@ -2373,8 +2505,14 @@ vtkIdTypeArray *vtkKdTree::BuildMapForDuplicatePoints(float tolerance = 0.0)
 
   if (!idCount || !uniqueFound)
     {
-    if (idCount) delete [] idCount;
-    if (uniqueFound) delete [] uniqueFound;
+    if (idCount) 
+      {
+      delete [] idCount;
+      }
+    if (uniqueFound) 
+      {
+      delete [] uniqueFound;
+      }
 
     vtkErrorMacro(<< "vtkKdTree::BuildMapForDuplicatePoints memory allocation");
     return NULL;
@@ -2567,14 +2705,18 @@ int vtkKdTree::SearchNeighborsForDuplicate(int regionId, float *point,
 
   for (int reg=0; reg < nRegions; reg++)
     {
-    if (regionIds[reg] == regionId) continue;
-
-    if (len[reg] == 0) continue;
+    if ((regionIds[reg] == regionId)  || (len[reg] == 0) )
+      {
+      continue;
+      }
 
     duplicateFound = this->SearchRegionForDuplicate(point,  pointsSoFar[reg], 
                                                   len[reg], tolerance2);
 
-    if (duplicateFound) break;
+    if (duplicateFound) 
+      {
+      break;
+      }
     }
 
   delete [] regionIds;
@@ -2703,22 +2845,29 @@ vtkIdType vtkKdTree::FindClosestPoint(float x, float y, float z, float &dist2)
     // just barely *inside* instead.
 
     if (pt[0] <= this->Top->Min[0]) 
+      {
       pt[0] = this->Top->Min[0] + this->FudgeFactor;
-
+      }
     if (pt[1] <= this->Top->Min[1]) 
+      {
       pt[1] = this->Top->Min[1] + this->FudgeFactor;
-
+      }
     if (pt[2] <= this->Top->Min[2]) 
+      {
       pt[2] = this->Top->Min[2] + this->FudgeFactor;
-
+      }
     if (pt[0] >= this->Top->Max[0]) 
+      {
       pt[0] = this->Top->Max[0] - this->FudgeFactor;
-
+      }
     if (pt[1] >= this->Top->Max[1])
+      {
       pt[1] = this->Top->Max[1] - this->FudgeFactor;
-
+      }
     if (pt[2] >= this->Top->Max[2]) 
+      {
       pt[2] = this->Top->Max[2] - this->FudgeFactor;
+      }
 
     regionId = this->GetRegionContainingPoint(pt[0], pt[1], pt[2]);
 
@@ -2834,7 +2983,10 @@ int vtkKdTree::_FindClosestPointInRegion(int regionId,
           minId = idx + i;
           minDistance2 = dxyz;
 
-          if (dxyz == 0.0) break;
+          if (dxyz == 0.0) 
+            {
+            break;
+            }
           }
         }
       }
@@ -2865,7 +3017,10 @@ int vtkKdTree::FindClosestPointInSphere(float x, float y, float z,
 
   for (int reg=0; reg < nRegions; reg++)
     {
-    if (regionIds[reg] == skipRegion) continue;
+    if (regionIds[reg] == skipRegion) 
+      {
+      continue;
+      }
 
     int neighbor = regionIds[reg];
     float newDistance2;
@@ -2972,7 +3127,10 @@ void vtkKdTree::UpdateBuildTime()
     {
     vtkDataSet *in = this->DataSets[i];
 
-    if (in == NULL) continue;
+    if (in == NULL) 
+      {
+      continue;
+      }
 
     if (nextds >= this->NumDataSets)
       {
@@ -3067,7 +3225,10 @@ int vtkKdTree::NewGeometry()
   int nextds = 0;
   for (int i=0; i<this->NumDataSetsAllocated; i++)
     {
-    if (this->DataSets[i] == NULL) continue;
+    if (this->DataSets[i] == NULL) 
+      {
+      continue;
+      }
     if (nextds >= this->NumDataSets)
       {
       vtkErrorMacro(<<"vtkKdTree::NewGeometry corrupt counts");
@@ -3206,7 +3367,10 @@ int vtkKdTree::NewGeometry(vtkDataSet **sets, int numSets)
   
         newGeometry = 1;
       }
-    if (newGeometry) break;
+    if (newGeometry) 
+      {
+      break;
+      }
     }
 
   return newGeometry;
@@ -3215,11 +3379,23 @@ int vtkKdTree::NewGeometry(vtkDataSet **sets, int numSets)
 //----------------------------------------------------------------------------
 void vtkKdTree::__printTree(vtkKdNode *kd, int depth, int v)
 {
-  if (v) kd->PrintVerboseNode(depth);
-  else   kd->PrintNode(depth);
+  if (v) 
+    { 
+    kd->PrintVerboseNode(depth);
+    }
+  else   
+    { 
+    kd->PrintNode(depth);
+    }
 
-  if (kd->Left) vtkKdTree::__printTree(kd->Left, depth+1, v);
-  if (kd->Right) vtkKdTree::__printTree(kd->Right, depth+1, v);
+  if (kd->Left) 
+    { 
+    vtkKdTree::__printTree(kd->Left, depth+1, v);
+    }
+  if (kd->Right) 
+    { 
+    vtkKdTree::__printTree(kd->Right, depth+1, v);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -3320,7 +3496,10 @@ void vtkKdTree::GenerateRepresentationWholeSpace(int level, vtkPolyData *pd)
     return;
     }
 
-  if ((level < 0) || (level > this->Level)) level = this->Level;
+  if ((level < 0) || (level > this->Level)) 
+    {
+    level = this->Level;
+    }
 
   int npoints = 0;
   int npolys  = 0;
@@ -3411,7 +3590,10 @@ void vtkKdTree::_generateRepresentationWholeSpace(vtkKdNode *kd,
   double p[4][3];
   vtkIdType ids[4];
 
-  if ((level < 0) || (kd->Left == NULL)) return;
+  if ((level < 0) || (kd->Left == NULL)) 
+    {
+    return;
+    }
 
   double *min = kd->Min;
   double *max = kd->Max;  
@@ -3421,7 +3603,6 @@ void vtkKdTree::_generateRepresentationWholeSpace(vtkKdNode *kd,
 
   switch (kd->Dim)
     {
-
     case XDIM:
 
       p[0][0] = leftmax[0]; p[0][1] = max[1]; p[0][2] = max[2];
@@ -3472,7 +3653,10 @@ void vtkKdTree::GenerateRepresentationDataBounds(int level, vtkPolyData *pd)
     return;
     }
 
-  if ((level < 0) || (level > this->Level)) level = this->Level;
+  if ((level < 0) || (level > this->Level)) 
+    {
+    level = this->Level;
+    }
 
   int npoints = 0;
   int npolys  = 0;
@@ -3506,8 +3690,8 @@ void vtkKdTree::_generateRepresentationDataBounds(vtkKdNode *kd, vtkPoints *pts,
     {
       if (kd->Left)
         {
-           _generateRepresentationDataBounds(kd->Left, pts, polys, level-1);
-           _generateRepresentationDataBounds(kd->Right, pts, polys, level-1);
+        _generateRepresentationDataBounds(kd->Left, pts, polys, level-1);
+        _generateRepresentationDataBounds(kd->Right, pts, polys, level-1);
         }
 
       return;
@@ -3606,7 +3790,10 @@ void vtkKdTree::GenerateRepresentation(int *regions, int len, vtkPolyData *pd)
 
   for (i=0; i<len; i++)
     {
-    if ((regions[i] < 0) || (regions[i] >= this->NumRegions)) break;
+    if ((regions[i] < 0) || (regions[i] >= this->NumRegions)) 
+      {
+      break;
+      }
 
     vtkKdTree::AddPolys(this->RegionList[regions[i]], pts, polys);
     }
@@ -3631,15 +3818,21 @@ void vtkKdTree::SetCellBounds(vtkCell *cell, double *bounds)
 #define SORTLIST(l, lsize) vtkstd::sort(l, l + lsize)
 
 #define REMOVEDUPLICATES(l, lsize, newsize) \
-{                                  \
-int ii,jj;                           \
-for (ii=0, jj=0; ii<lsize; ii++)    \
-  {                               \
-  if ((ii > 0) && (l[ii] == l[jj-1])) continue; \
-  if (jj != ii) l[jj] = l[ii];       \
-  jj++;                           \
-}                                \
-newsize = jj;                     \
+{                                     \
+int ii,jj;                            \
+for (ii=0, jj=0; ii<lsize; ii++)      \
+  {                                   \
+  if ((ii > 0) && (l[ii] == l[jj-1])) \
+    {         \
+    continue; \
+    }         \
+  if (jj != ii)    \
+    {              \
+    l[jj] = l[ii]; \
+    }              \
+  jj++;            \
+}                  \
+newsize = jj;      \
 }
 
 //----------------------------------------------------------------------------
@@ -3880,7 +4073,10 @@ void vtkKdTree::CreateCellLists(vtkDataSet *set, int *regionList, int listSize)
     {
     list->cells[i] = vtkIdList::New();
 
-    if (listptr) listptr[list->regionIds[i]] = i;
+    if (listptr) 
+      {
+      listptr[list->regionIds[i]] = i;
+      }
     }
 
   // acquire a list in cell Id order of the region Id each
@@ -3922,7 +4118,10 @@ void vtkKdTree::CreateCellLists(vtkDataSet *set, int *regionList, int listSize)
         {
         int idx = (listptr) ? listptr[idlist[0]] : idlist[0];
       
-        if (idx >= 0) list->cells[idx]->InsertNextId(cellId);
+        if (idx >= 0) 
+          {
+          list->cells[idx]->InsertNextId(cellId);
+          }
         }
       else
         {
@@ -3932,7 +4131,10 @@ void vtkKdTree::CreateCellLists(vtkDataSet *set, int *regionList, int listSize)
     
           int idx = (listptr) ? listptr[regionId] : regionId;
 
-          if (idx < 0) continue;
+          if (idx < 0) 
+            {
+            continue;
+            }
 
           if (regionId == regList[cellId])
             {
@@ -3953,7 +4155,10 @@ void vtkKdTree::CreateCellLists(vtkDataSet *set, int *regionList, int listSize)
     
       int idx = (listptr) ? listptr[regionId] : regionId;
   
-      if (idx >= 0) list->cells[idx]->InsertNextId(cellId);
+      if (idx >= 0) 
+        {
+        list->cells[idx]->InsertNextId(cellId);
+        }
       } 
     }
 
@@ -4196,7 +4401,10 @@ vtkIdType vtkKdTree::GetCellLists(vtkIntArray *regions, vtkDataSet *set,
 
         idRec = ids.insert(cellId);
 
-        if (idRec.second == 0) continue;
+        if (idRec.second == 0) 
+          {
+          continue;
+          }
         }
 
       onBoundaryCells->InsertNextId(cellId);
@@ -4286,7 +4494,10 @@ int *vtkKdTree::AllGetRegionContainingCell()
   
   for (int set=0; set < this->NumDataSetsAllocated; set++)
     {
-    if (this->DataSets[set] == NULL) continue;
+    if (this->DataSets[set] == NULL) 
+      {
+      continue;
+      }
 
     int setCells = this->DataSets[set]->GetNumberOfCells();
     
@@ -4424,8 +4635,14 @@ int vtkKdTree::__ConvexSubRegions(int *ids, int len, vtkKdNode *tree, vtkKdNode 
 
     for (int i=1; i<len-1; i++)
       {
-      if (ids[i] <= leftMax) leftIds++;
-      else                   break;
+      if (ids[i] <= leftMax) 
+        {
+        leftIds++;
+        }
+      else                   
+        {
+        break;
+        }
       }
 
     int numNodesLeft =
@@ -4539,7 +4756,10 @@ int vtkKdTree::__DepthOrderRegions(vtkKdNode *node,
   int nextNextId = vtkKdTree::__DepthOrderRegions(closeNode, list, 
                                          IdsOfInterest, dir, nextId);
 
-  if (nextNextId == -1) return -1;
+  if (nextNextId == -1) 
+    {
+    return -1;
+    }
     
   nextNextId = vtkKdTree::__DepthOrderRegions(farNode, list, 
                                      IdsOfInterest, dir, nextNextId);
@@ -4640,7 +4860,10 @@ int vtkKdTree::_IntersectsBox(vtkKdNode *node, int *ids, int len,
   result = node->IntersectsBox(x0, x1, y0, y1, z0, z1,
                              this->ComputeIntersectionsUsingDataBounds);
 
-  if (!result) return 0;
+  if (!result) 
+    {
+    return 0;
+    }
 
   if (node->Left == NULL)
     {
@@ -4723,7 +4946,10 @@ int vtkKdTree::_IntersectsSphere2(vtkKdNode *node, int *ids, int len,
   result = node->IntersectsSphere2(x, y, z, rSquared,
                              this->ComputeIntersectionsUsingDataBounds);
                              
-  if (!result) return 0;
+  if (!result) 
+    {
+    return 0;
+    }
   
   if (node->Left == NULL)
     {
@@ -4903,7 +5129,10 @@ int vtkKdTree::IntersectsRegion(int regionId, vtkPlanes *planes,
   int intersects = this->IntersectsRegion(regionId, 
                                           planes, nvertices, dv);
 
-  if (dv) delete [] dv;
+  if (dv) 
+    {
+    delete [] dv;
+    }
   return intersects;
 }
 
@@ -4922,7 +5151,10 @@ int vtkKdTree::IntersectsRegion(int regionId, vtkPlanes *planes,
   pi->SetNormals(planes->GetNormals());
   pi->SetPoints(planes->GetPoints());
 
-  if (vertices && (nvertices>0)) pi->SetRegionVertices(vertices, nvertices);
+  if (vertices && (nvertices>0)) 
+    {
+    pi->SetRegionVertices(vertices, nvertices);
+    }
 
   vtkKdNode *node = this->RegionList[regionId];
 
@@ -4977,7 +5209,10 @@ int vtkKdTree::IntersectsRegion(int *ids, int len, vtkPlanes *planes,
   pi->SetNormals(planes->GetNormals());
   pi->SetPoints(planes->GetPoints());
 
-  if (vertices && (nvertices>0)) pi->SetRegionVertices(vertices, nvertices);
+  if (vertices && (nvertices>0)) 
+    {
+    pi->SetRegionVertices(vertices, nvertices);
+    }
 
   if (len > 0)
     {
@@ -4998,7 +5233,10 @@ int vtkKdTree::_IntersectsRegion(vtkKdNode *node, int *ids, int len,
 
   result = node->IntersectsRegion(pi, this->ComputeIntersectionsUsingDataBounds);
 
-  if (!result) return 0;
+  if (!result) 
+    {
+    return 0;
+    }
 
   if (node->Left == NULL)
     {
