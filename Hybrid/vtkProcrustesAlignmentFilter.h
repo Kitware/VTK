@@ -91,7 +91,7 @@ public:
   vtkPointSet* GetOutput(int idx);
 
   // Description:
-  // A wrapper function for accessing the inputs within the filter and subclasses.
+  // Retrieve the input point set with index idx (usuall only for pipeline tracing).
   vtkPointSet* GetInput(int idx);
 
 protected:
