@@ -144,6 +144,12 @@ output_proto_vars(int i)
     return;
     }
   
+  if (arg_types[i] == 5000)
+    {
+    fprintf(yyout,"jobject id0, jstring id1");
+    return;
+    }
+
   if (arg_types[i] == 303)
     {
     fprintf(yyout,"jstring ");
@@ -269,7 +275,7 @@ output_temp(int i)
   /* handle VAR FUNCTIONS */
   if (arg_types[i] == 5000)
     {
-    fprintf(yyout,"    vtkTclVoidFuncArg *temp%i = new vtkTclVoidFuncArg;\n",i);
+    fprintf(yyout,"  vtkJavaVoidFuncArg *temp%i = new vtkJavaVoidFuncArg;\n",i);
     return;
     }
   
@@ -351,8 +357,9 @@ get_args(int i)
   /* handle VAR FUNCTIONS */
   if (arg_types[i] == 5000)
     {
-    fprintf(yyout,"    temp%i->interp = interp;\n",i);
-    fprintf(yyout,"    temp%i->command = strcpy(new char [strlen(argv[2])+1],argv[2]);\n",i);
+    fprintf(yyout,"  temp%i->uenv = env;\n",i);
+    fprintf(yyout,"  temp%i->uobj = env->NewGlobalRef(id0);\n",i);
+    fprintf(yyout,"  temp%i->mid = env->GetMethodID(env->GetObjectClass(id0),vtkJavaUTFToChar(env,id1),\"()V\");\n",i,class_name);
     return;
     }
 
@@ -537,9 +544,7 @@ output_function()
   /* look for VAR FUNCTIONS */
   if ((arg_types[0] == 5000)&&(num_args == 2)) 
     {
-    /*    args_ok = 1; */
-    /* right now punt on var functions */
-    args_ok = 0;
+    args_ok = 1; 
     num_args = 1;
     }
 
@@ -644,7 +649,7 @@ output_function()
 	    }
 	  else if (arg_types[i] == 5000)
 	    {
-	    fprintf(yyout,"vtkTclVoidFunc,(void *)temp%i",i);
+	    fprintf(yyout,"vtkJavaVoidFunc,(void *)temp%i",i);
 	    }
 	  else
 	    {
@@ -654,7 +659,7 @@ output_function()
 	fprintf(yyout,");\n");
 	if (arg_types[0] == 5000)
 	  {
-	  fprintf(yyout,"      op->%sArgDelete(vtkTclVoidFuncArgDelete);\n",
+	  fprintf(yyout,"  op->%sArgDelete(vtkJavaVoidFuncArgDelete);\n",
 		  func_name);
 	  }
 	

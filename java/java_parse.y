@@ -629,6 +629,12 @@ output_temp(int i)
     return;
     }
   
+  if (arg_types[i] == 5000)
+    {
+    fprintf(yyout,"Object id0, String id1");  
+    return;
+    }
+
   if (arg_types[i] == 303)
     {
     fprintf(yyout,"String ");
@@ -819,9 +825,7 @@ output_function()
   /* look for VAR FUNCTIONS */
   if ((arg_types[0] == 5000)&&(num_args == 2)) 
     {
-    /*    args_ok = 1; */
-    /* right now punt on var functions */
-    args_ok = 0;
+    args_ok = 1; 
     num_args = 1;
     }
 
@@ -920,6 +924,7 @@ output_function()
 	    }
 	  fprintf(yyout,"id%i",i);
 	  }
+	if (arg_types[0] == 5000) fprintf(yyout,",id1");
 	fprintf(yyout,"); }\n");
 
 	funcNames[numFuncs] = strdup(func_name);
