@@ -92,6 +92,14 @@ public:
   virtual void Delete();
 
   // Description:
+  // Delete a reference to this object.  This version will not invoke
+  // garbage collection and can potentially leak the object if it is
+  // part of a reference loop.  Use this method only when it is known
+  // that the object has another reference and would not be collected
+  // if a full garbage collection check were done.
+  virtual void FastDelete();
+
+  // Description:
   // Create an object with Debug turned off, modified time initialized 
   // to zero, and reference counting on.
   static vtkObjectBase *New() 

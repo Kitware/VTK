@@ -102,6 +102,13 @@ void vtkObjectBase::Delete()
   this->UnRegister((vtkObjectBase *)NULL);
 }
 
+void vtkObjectBase::FastDelete()
+{
+  // Remove the reference without doing a collection check even if
+  // this object normally participates in garbage collection.
+  this->UnRegisterInternal(0, 0);
+}
+
 void vtkObjectBase::Print(ostream& os)
 {
   vtkIndent indent;
@@ -152,7 +159,7 @@ void vtkObjectBase::UnRegister(vtkObjectBase* o)
 
 void vtkObjectBase::CollectRevisions(ostream& os)
 {
-  os << "vtkObjectBase 1.12\n";
+  os << "vtkObjectBase 1.13\n";
 }
 
 void vtkObjectBase::PrintRevisions(ostream& os)
