@@ -53,7 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageReader2.h"
 
 //BTX
-class TIFFInternal;
+class vtkTIFFReaderInternal;
 //ETX
 
 class VTK_IO_EXPORT vtkTIFFReader : public vtkImageReader2
@@ -61,20 +61,6 @@ class VTK_IO_EXPORT vtkTIFFReader : public vtkImageReader2
 public:
   static vtkTIFFReader *New();
   vtkTypeMacro(vtkTIFFReader,vtkImageReader2);
-
-//BTX
-  enum { NOFORMAT, RGB, GRAYSCALE, PALETTE_RGB, PALETTE_GRAYSCALE, OTHER };
-
-  void GetColor( int index, 
-                 unsigned short *r, unsigned short *g, unsigned short *b );
-  unsigned int  GetFormat();
-  void InitializeColors();
-
-  void ReadImageInternal( void *, void *outPtr,  
-                          int *outExt, unsigned int size );
-
-  //Description: create a clone of this object.
-  virtual vtkImageReader2* MakeObject() { return vtkTIFFReader::New(); }
 
   // Description: is the given file name a png file?
   virtual int CanReadFile(const char* fname);
@@ -96,15 +82,34 @@ public:
     return "TIFF";
     }
 
-  TIFFInternal *GetInternalImage()
+  // Description:
+  // Auxilary methods used by the reader internally.
+  void InitializeColors();
+
+  //Description: 
+  // create a clone of this object.
+  virtual vtkImageReader2* MakeObject() { return vtkTIFFReader::New(); }
+
+//BTX
+  enum { NOFORMAT, RGB, GRAYSCALE, PALETTE_RGB, PALETTE_GRAYSCALE, OTHER };
+
+  void ReadImageInternal( void *, void *outPtr,  
+                          int *outExt, unsigned int size );
+  
+
+  // Description:
+  // Method to access internal image. Not to be used outside the class.
+  vtkTIFFReaderInternal *GetInternalImage()
     { return this->InternalImage; }
- 
 //ETX
 
 protected:
   vtkTIFFReader();
   ~vtkTIFFReader();
 
+  void GetColor( int index, 
+                 unsigned short *r, unsigned short *g, unsigned short *b );
+  unsigned int  GetFormat();
   virtual void ExecuteInformation();
   virtual void ExecuteData(vtkDataObject *out);
 
@@ -113,6 +118,7 @@ protected:
                          unsigned int size );
   
   int EvaluateImageAt( void*, void* ); 
+
 private:
   vtkTIFFReader(const vtkTIFFReader&);  // Not implemented.
   void operator=(const vtkTIFFReader&);  // Not implemented.
@@ -122,7 +128,7 @@ private:
   unsigned short *ColorBlue;
   int TotalColors;
   unsigned int ImageFormat;
-  TIFFInternal *InternalImage;
+  vtkTIFFReaderInternal *InternalImage;
   int *InternalExtents;
 };
 #endif

@@ -47,10 +47,10 @@ extern "C" {
 #include <tiffio.h>
 }
 
-class TIFFInternal
+class vtkTIFFReaderInternal
 {
 public:
-  TIFFInternal();
+  vtkTIFFReaderInternal();
   int Initialize();
   void Clean();
   int CanRead();
@@ -67,15 +67,18 @@ public:
   static void ErrorHandler(const char* module, const char* fmt, va_list ap);
 };
 
-void TIFFInternal::ErrorHandler(const char* vtkNotUsed(module), 
+
+extern "C" {
+void vtkTIFFReaderInternalErrorHandler(const char* vtkNotUsed(module), 
                                 const char* vtkNotUsed(fmt), 
                                 va_list vtkNotUsed(ap))
 {
   // Do nothing
   // Ignore errors
 }
+}
 
-int TIFFInternal::Open( const char *filename )
+int vtkTIFFReaderInternal::Open( const char *filename )
 {
   this->Clean();
   struct stat fs;
@@ -97,7 +100,7 @@ int TIFFInternal::Open( const char *filename )
   return 1;
 }
 
-void TIFFInternal::Clean()
+void vtkTIFFReaderInternal::Clean()
 {
   if ( this->Image )
     {
@@ -114,15 +117,15 @@ void TIFFInternal::Clean()
   this->TileDepth = 0;
 }
 
-TIFFInternal::TIFFInternal()
+vtkTIFFReaderInternal::vtkTIFFReaderInternal()
 {
   this->Image           = NULL;
-  TIFFSetErrorHandler(&TIFFInternal::ErrorHandler);
-  TIFFSetWarningHandler(&TIFFInternal::ErrorHandler);
+  TIFFSetErrorHandler(&vtkTIFFReaderInternalErrorHandler);
+  TIFFSetWarningHandler(&vtkTIFFReaderInternalErrorHandler);
   this->Clean();
 }
 
-int TIFFInternal::Initialize()
+int vtkTIFFReaderInternal::Initialize()
 {
   if ( this->Image )
     {
@@ -146,7 +149,7 @@ int TIFFInternal::Initialize()
   return 1;
 }
 
-int TIFFInternal::CanRead()
+int vtkTIFFReaderInternal::CanRead()
 {
   return ( this->Image && ( this->Width > 0 ) && ( this->Height > 0 ) &&
            ( this->SamplesPerPixel > 0 ) && 
@@ -166,7 +169,7 @@ vtkStandardNewMacro(vtkTIFFReader);
 vtkTIFFReader::vtkTIFFReader()
 {
   this->InitializeColors();
-  this->InternalImage = new TIFFInternal;
+  this->InternalImage = new vtkTIFFReaderInternal;
   this->InternalExtents = 0;
 }
 
@@ -633,7 +636,7 @@ int vtkTIFFReader::EvaluateImageAt( void* out, void* in )
 
 int vtkTIFFReader::CanReadFile(const char* fname)
 {
-  TIFFInternal tf;
+  vtkTIFFReaderInternal tf;
   int res = tf.Open(fname);
   tf.Clean();
   return res;
