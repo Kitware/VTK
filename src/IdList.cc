@@ -39,11 +39,15 @@ void vlIdList::DeleteId(int cellId)
 
 void vlIdList::IntersectWith(vlIdList *otherIds)
 {
-  int id;
+  int id, i, j;
+  int numOriginalIds=this->GetNumberOfIds();
 
-  for ( int i=0; i < this->GetNumberOfIds(); i++ )
+  for ( i=0; i < numOriginalIds; i++ )
     {
-    id =  this->GetId(i);
-    if ( ! otherIds->IsId(id) ) this->DeleteId(id);
+    for ( j=0; j < this->GetNumberOfIds(); j++)
+      {
+      id =  this->GetId(j);
+      if ( ! otherIds->IsId(id) ) this->DeleteId(id);
+      }
     }
 }

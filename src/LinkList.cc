@@ -36,9 +36,9 @@ vlLinkList::~vlLinkList()
 //
 // Add a link to structure
 //
-void vlLinkList::AllocateLinks()
+void vlLinkList::AllocateLinks(int n)
 {
-  for (int i=0; i<=this->MaxId; i++)
+  for (int i=0; i < n; i++)
     {
     this->Array[i].cells = new int[this->Array[i].ncells];
     }
@@ -97,7 +97,7 @@ void vlLinkList::BuildLinks(vlDataSet *data)
     }
 
   // now allocate storage for the links
-   this->AllocateLinks();
+   this->AllocateLinks(numPts);
 
   // fill out lists with references to cells
   linkLoc = new unsigned short[numPts];

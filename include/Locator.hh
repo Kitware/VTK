@@ -53,7 +53,7 @@ public:
   // return closest point id to coordinate specified
   int FindClosestPoint(float x[3]);
   // return index of merged points
-  void MergePoints(int *index); // dimensioned Points->NumberOfPoints long
+  int *MergePoints(); // dimensioned Points->NumberOfPoints long
 
 protected:
   // place points in appropriate cells

@@ -25,6 +25,11 @@ vlStructuredGrid::vlStructuredGrid()
 {
 }
 
+vlStructuredGrid::vlStructuredGrid(const vlStructuredGrid& sg) :
+vlStructuredDataSet(sg), vlPointSet(sg)
+{
+}
+
 vlStructuredGrid::~vlStructuredGrid()
 {
   this->Initialize();
@@ -34,6 +39,24 @@ void vlStructuredGrid::Initialize()
 {
   vlPointSet::Initialize(); 
   vlStructuredDataSet::Initialize();
+}
+
+int vlStructuredGrid::GetCellType(int cellId)
+{
+  switch (this->DataDescription)
+    {
+    case SINGLE_POINT: 
+      return vlPOINT;
+
+    case X_LINE: case Y_LINE: case Z_LINE:
+      return vlLINE;
+
+    case XY_PLANE: case YZ_PLANE: case XZ_PLANE:
+      return vlQUAD;
+
+    case XYZ_GRID:
+      return vlHEXAHEDRON;
+    }
 }
 
 vlCell *vlStructuredGrid::GetCell(int cellId)

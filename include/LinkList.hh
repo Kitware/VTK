@@ -37,7 +37,7 @@ public:
   unsigned short GetNcells(int id) {return this->Array[id].ncells;};
   int *GetCells(int id) {return this->Array[id].cells;};
   void IncrementLinkCount(int id) {this->Array[id].ncells++;};
-  void AllocateLinks();
+  void AllocateLinks(int n);
   void InsertCellReference(int id, unsigned short pos, int cellId)
     {this->Array[id].cells[pos] = cellId;};
   void BuildLinks(vlDataSet *data);

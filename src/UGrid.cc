@@ -105,6 +105,11 @@ void vlUnstructuredGrid::Initialize()
   }
 };
 
+int vlUnstructuredGrid::GetCellType(int cellId)
+{
+  return this->Cells->GetCellType(cellId);
+}
+
 vlCell *vlUnstructuredGrid::GetCell(int cellId)
 {
   static vlPoint point;

@@ -50,6 +50,7 @@ public:
   int GetNumberOfCells();
   vlCell *GetCell(int cellId);
   void GetPointCells(int ptId, vlIdList *cellIds);
+  int GetCellType(int cellId);
 
 protected:
   // points inherited

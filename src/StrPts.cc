@@ -32,7 +32,8 @@ vlStructuredPoints::vlStructuredPoints()
   this->Origin[2] = 0.0;
 }
 
-vlStructuredPoints::vlStructuredPoints(const vlStructuredPoints& v)
+vlStructuredPoints::vlStructuredPoints(const vlStructuredPoints& v) :
+vlStructuredDataSet(v)
 {
 
   this->AspectRatio[1] = v.AspectRatio[1];
@@ -252,3 +253,20 @@ int vlStructuredPoints::FindCell(float x[3], vlCell *cell, float tol2)
          loc[1] * (this->Dimensions[0]-1) + loc[0];
 }
 
+int vlStructuredPoints::GetCellType(int cellId)
+{
+  switch (this->DataDescription)
+    {
+    case SINGLE_POINT: 
+      return vlPOINT;
+
+    case X_LINE: case Y_LINE: case Z_LINE:
+      return vlLINE;
+
+    case XY_PLANE: case YZ_PLANE: case XZ_PLANE:
+      return vlRECTANGLE;
+
+    case XYZ_GRID:
+      return vlBRICK;
+    }
+}

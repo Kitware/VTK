@@ -52,6 +52,7 @@ public:
   // Get point or cell of id 0<=cellId<NumberOfPoints/Cells
   virtual float *GetPoint(int ptId) = 0;
   virtual vlCell *GetCell(int cellId) = 0;
+  virtual int GetCellType(int cellId) = 0;
 
   // topological inquiries to get neighbors and cells that use a point
   virtual void GetPointCells(int ptId, vlIdList *cellIds) = 0;

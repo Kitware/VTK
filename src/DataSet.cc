@@ -122,16 +122,19 @@ void vlDataSet::GetCellNeighbors(int cellId, vlIdList *ptIds,
                                  vlIdList *cellIds)
 {
   int i;
-  static vlIdList otherCells(MAX_CELL_SIZE);
+  vlIdList otherCells(MAX_CELL_SIZE);
 
   // load list with candidate cells, remove current cell
   this->GetPointCells(ptIds->GetId(0),cellIds);
   cellIds->DeleteId(cellId);
 
   // now perform multiple intersections on list
-  for ( i=1; i < ptIds->GetNumberOfIds(); i++)
+  if ( cellIds->GetNumberOfIds() > 0 )
     {
-    this->GetPointCells(ptIds->GetId(i), &otherCells);
-    cellIds->IntersectWith(&otherCells);
+    for ( i=1; i < ptIds->GetNumberOfIds(); i++)
+      {
+      this->GetPointCells(ptIds->GetId(i), &otherCells);
+      cellIds->IntersectWith(&otherCells);
+      }
     }
 }

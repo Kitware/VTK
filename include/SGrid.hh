@@ -27,6 +27,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 class vlStructuredGrid : public vlPointSet, public vlStructuredDataSet {
 public:
   vlStructuredGrid();
+  vlStructuredGrid(const vlStructuredGrid& sg);
   ~vlStructuredGrid();
   char *GetClassName() {return "vlStructuredGrid";};
   void PrintSelf(ostream& os, vlIndent indent);
@@ -37,6 +38,7 @@ public:
   void Initialize();
   int GetNumberOfPoints() {vlPointSet::GetNumberOfPoints();};
   vlCell *GetCell(int cellId);
+  int GetCellType(int cellId);
 
 protected:
   // points inherited

@@ -129,7 +129,7 @@ int vlLocator::FindClosestPoint(float x[3])
       cno = nei[0] + nei[1]*this->Divisions[0] + 
             nei[2]*this->Divisions[0]*this->Divisions[1];
 
-      if ( (ptIds = this->HashTable[cno]) )
+      if ( (ptIds = this->HashTable[cno]) != NULL )
         {
         for (j=0; j<=ptIds->GetNumberOfIds(); j++) 
           {
@@ -191,9 +191,91 @@ int vlLocator::FindClosestPoint(float x[3])
     return closest;
 }
 
-void vlLocator::MergePoints(int *index)
+int *vlLocator::MergePoints()
 {
+  float *bounds, tol2;
+  int ptId, i, j, k;
+  int numPts;
+  int *index;
+  int newPtId;
+  int maxDivs;
+  float hmin, *pt, *p;
+  int ijk[3], *nei;
+  int level, lvl, cno;
+  vlIdList *ptIds;
+  vlMath math;
 
+  vlDebugMacro(<<"Merging points");
+
+  if ( this->Points == NULL || 
+  (numPts=this->Points->GetNumberOfPoints()) < 1 ) return NULL;
+
+  this->SubDivide(); // subdivides if necessary
+
+  bounds = this->Points->GetBounds();
+
+  index = new int[numPts];
+  for (i=0; i < numPts; i++) index[i] = -1;
+
+  tol2 = this->Tolerance * this->Tolerance;
+  newPtId = 0; // renumbering points
+
+  for (maxDivs=0, hmin=LARGE_FLOAT, i=0; i<3; i++) 
+    {
+    hmin = (this->H[i] < hmin ? this->H[i] : hmin);
+    maxDivs = (maxDivs > this->Divisions[i] ? maxDivs : this->Divisions[i]);
+    }
+  level = ceil ((double) this->Tolerance / hmin);
+  level = (level > maxDivs ? maxDivs : level);
+//
+//  Traverse each point, find cell that point is in, check the list of
+//  points in that cell for merging.  Also need to search all
+//  neighboring cells within the tolerance.  The number and level of
+//  neighbors to search depends upon the tolerance and the cell width.
+//
+  for ( i=0; i < numPts; i++ ) //loop over all points
+    {
+    // Only try to merge the point if it hasn't yet been merged.
+
+    if ( index[i] == -1 ) 
+      {
+      p = this->Points->GetPoint(i);
+      index[i] = newPtId;
+
+      for (j=0; j<3; j++) 
+        ijk[j] = (int) ((float)((p[j] - bounds[2*j])*0.999 / 
+                       (bounds[2*j+1] - bounds[2*j])) * this->Divisions[j]);
+
+      for (lvl=0; lvl <= level; lvl++) 
+        {
+        this->GetCellNeighbors (ijk, this->Divisions, lvl);
+
+        for ( k=0; k < Cells.GetNumberOfNeighbors(); k++ ) 
+          {
+          nei = Cells.GetPoint(k);
+          cno = nei[0] + nei[1]*this->Divisions[0] + 
+                nei[2]*this->Divisions[0]*this->Divisions[1];
+
+           if ( (ptIds = this->HashTable[cno]) != NULL )
+            {
+            for (j=0; j < ptIds->GetNumberOfIds(); j++) 
+              {
+              ptId = ptIds->GetId(j);
+              pt = this->Points->GetPoint(ptId);
+
+              if ( index[ptId] == -1 && math.Distance2BetweenPoints(p,pt) <= tol2 )
+                {
+                index[ptId] = newPtId;
+                }
+              }
+            }
+          }
+        }
+      newPtId++;
+      } // if point hasn't been merged
+    } // for all points
+
+  return index;
 }
 
 //
@@ -215,7 +297,7 @@ void vlLocator::SubDivide()
   float *x;
   typedef vlIdList *vlIdListPtr;
 
-  if ( this->HashTable &&  this->SubDivideTime > this->MTime ) return;
+  if ( this->HashTable != NULL && this->SubDivideTime > this->MTime ) return;
 
   vlDebugMacro( << "Hashing points..." );
 
