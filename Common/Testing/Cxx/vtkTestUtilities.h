@@ -14,9 +14,11 @@ struct vtkTestUtilities
   // is (in theory) the full path. This path is constructed by
   // prepending the file name with a command line argument 
   // (-D path) or VTK_DATA_ROOT env. variable.
+  // If slash is true, appends a slash to the resulting string.
   // The returned string has to be deleted (with delete[]) by the user.
   static char* ExpandDataFileName(int argc, char* argv[], 
-				  const char* fname);
+				  const char* fname,
+                                  int slash = 0);
   // Description:
   // Function returning either a command line argument, an environment 
   // variable or a default value.
@@ -31,12 +33,14 @@ struct vtkTestUtilities
   // is (in theory) the full path. This path is constructed by
   // prepending the file name with a command line argument, an environment 
   // variable or a default value.
+  // If slash is true, appends a slash to the resulting string.
   // The returned string has to be deleted (with delete[]) by the user.
   static char* ExpandFileNameWithArgOrEnvOrDefault(const char* arg, 
                                                    int argc, char* argv[], 
                                                    const char* env, 
                                                    const char* def, 
-                                                   const char* fname);
+                                                   const char* fname,
+                                                   int slash = 0);
 };
 
 char* vtkTestUtilities::GetDataRoot(int argc, char* argv[])
@@ -48,13 +52,15 @@ char* vtkTestUtilities::GetDataRoot(int argc, char* argv[])
 }
 
 char* vtkTestUtilities::ExpandDataFileName(int argc, char* argv[], 
-					   const char* fname)
+					   const char* fname,
+                                           int slash)
 {
   return vtkTestUtilities::ExpandFileNameWithArgOrEnvOrDefault(
     "-D", argc, argv, 
     "VTK_DATA_ROOT", 
     "../../../../VTKData",
-    fname);
+    fname,
+    slash);
 }
 
 char* vtkTestUtilities::GetArgOrEnvOrDefault(const char* arg, 
@@ -102,7 +108,8 @@ char* vtkTestUtilities::ExpandFileNameWithArgOrEnvOrDefault(const char* arg,
                                                             char* argv[], 
                                                             const char* env, 
                                                             const char *def, 
-                                                            const char* fname)
+                                                            const char* fname,
+                                                            int slash)
 {
   char* fullName = 0;
 
@@ -111,7 +118,7 @@ char* vtkTestUtilities::ExpandFileNameWithArgOrEnvOrDefault(const char* arg,
                                                        def);
   if (value)
     {
-    fullName = new char[strlen(value) + strlen(fname) + 2];
+    fullName = new char[strlen(value) + strlen(fname) + 2 + (slash ? 1 : 0)];
     fullName[0] = 0;
     strcat(fullName, value);
     int len = strlen(fullName);
@@ -121,8 +128,13 @@ char* vtkTestUtilities::ExpandFileNameWithArgOrEnvOrDefault(const char* arg,
     }
   else
     {
-    fullName = new char[strlen(fname) + 1];
+    fullName = new char[strlen(fname) + 1 + (slash ? 1 : 0)];
     strcpy(fullName, fname);
+    }
+
+  if (slash)
+    {
+    strcat(fullName, "/");
     }
 
   delete[] value;
