@@ -3,49 +3,85 @@
 #include "vtkContourFilter.h"
 #include "vtkPolyDataNormals.h"
 #include "vtkStructuredGridOutlineFilter.h"
+#include "vtkStructuredGridGeometryFilter.h"
 #include "vtkPolyDataMapper.h"
+
+
+
+char *getCGIValue(char *key, char *input)
+{
+  int idx, found, end;
+  int len = strlen(input);
+  int klen = strlen(key);
+  char *result;
+
+  // first find the key
+  found = -1;
+  for (idx = 0; idx < len; idx++)
+    {
+    if (strncmp(key,input+idx,klen) == 0)
+      {
+      found = idx;
+      break;
+      }
+    }
+  
+  if (found == -1) return NULL;
+
+  // find end of return value
+  end = -1;
+  found = found + strlen(key);
+  for (idx = found; idx < len; idx++)
+    {
+    if (input[idx] == '&')
+      {
+      end = idx;
+      break;
+      }
+    }
+  
+  if (end == -1) end = len;
+  
+  result = new char [end - found + 1];
+  for (idx = found; idx < end; idx++)
+    {
+    result[idx - found] = input[idx];
+    }
+  result[end-found] = '\0';
+  
+  return result;
+}
 
 int main ()
 {
-  char arg1[80];
+  char arg1[1024];
   float isoval;
-  char isoType[20];
+  char *isoType;
   char *env;
+  char *probeOn;
+  char *probeCont;
+  float probeLoc;
   
   // first get the form data
   env = getenv("CONTENT_LENGTH");
   if (!env) return -1;
   int inputLength = atoi(env);
-  // a quick sanity check on the input
-  if ((inputLength > 40)||(inputLength < 17)) return -1;
   cin >> arg1;
-  //  printf("Content-type: text/plain\n\n");
   
-  if (strncmp(arg1,"isoval=",7) == 0)
-    {
-    isoval = atof(arg1 + 7);
-    strcpy(isoType,arg1 + 11);
-    //    printf("Status: 200 %s %f %s\n",arg1,isoval,isoType);
-    //    return 0;
-    }
-  else
-    {
-    isoval = atof(arg1 + inputLength - 4);
-    strncpy(isoType,arg1 + 4,inputLength - 16);
-    isoType[inputLength - 16] = '\0';
-    //    printf("Status: 200 %i %s %f %s\n",inputLength,arg1,isoval,isoType);
-    //    return 0;
-    }
+  isoval = atof(getCGIValue("isoval=",arg1));
+  isoType = getCGIValue("iso=",arg1);
+  probeLoc = atof(getCGIValue("probeloc=",arg1));
+  probeCont = getCGIValue("probecont=",arg1);
+  probeOn = getCGIValue("probe=",arg1);
   
-
   vtkRenderer *ren1 = vtkRenderer::New();
   vtkRenderWindow *renWin = vtkRenderWindow::New();
   renWin->AddRenderer(ren1);
   
   // read data
   vtkPLOT3DReader *reader = vtkPLOT3DReader::New();
-  reader->SetXYZFileName("/home/martink2/vtkdata/combxyz.bin");
-  reader->SetQFileName("/home/martink2/vtkdata/combq.bin");
+  reader->SetXYZFileName("/home/martink/vtkdata/combxyz.bin");
+  reader->SetQFileName("/home/martink/vtkdata/combq.bin");
   reader->SetFileFormat(VTK_WHOLE_SINGLE_GRID_NO_IBLANKING);
   reader->SetScalarFunctionNumber(100);
   reader->SetVectorFunctionNumber(202);
@@ -77,10 +113,36 @@ int main ()
   vtkActor *outline = vtkActor::New();
   outline->SetMapper(outlineMapper);
   outline->GetProperty()->SetAmbient(1);
-  outline->GetProperty()->SetDiffuse(0);
+  outline->GetProperty()->SetDiffuse(1);
   outline->GetProperty()->SetColor(0.5,1,0.5);
   
+  vtkStructuredGridGeometryFilter *plane = 
+    vtkStructuredGridGeometryFilter::New();
+  plane->SetInput(reader->GetOutput());
+  plane->SetExtent(1,100,1,100,probeLoc,probeLoc);
+
+  vtkPolyDataMapper *contourMapper = vtkPolyDataMapper::New();
+  contourMapper->SetScalarRange(reader->GetOutput()->GetScalarRange());
+  if (!strcmp(probeCont,"On"))
+    {
+    vtkContourFilter *contour = vtkContourFilter::New();
+    contour->SetInput(plane->GetOutput());
+    contour->GenerateValues(50,reader->GetOutput()->GetScalarRange());
+    contourMapper->SetInput(contour->GetOutput());
+    }
+  else
+    {
+    contourMapper->SetInput(plane->GetOutput());
+    }
+  
+  vtkActor *planeActor = vtkActor::New();
+  planeActor->SetMapper(contourMapper);
+
   // should we do the iso-surface
+  if (strcmp(probeOn,"Off")) 
+    {
+    ren1->AddActor( planeActor );
+    }
   if (strcmp(isoType,"Off")) 
     {
     ren1->AddActor( isoActor );
