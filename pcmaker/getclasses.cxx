@@ -152,7 +152,7 @@ void removeUNIXOnlyFiles(CPcmakerDlg *vals)
           strcmp(concrete[i], "vtkXImageMapper") &&
 		  strcmp(concrete[i], "vtkXImageWindow") &&
 		  strcmp(concrete[i], "vtkXTextMapper") &&
-		  strcmp(concrete[i], "vtkXPolyMapper2D") &&
+		  strcmp(concrete[i], "vtkXPolyDataMapper2D") &&
           strncmp(concrete[i],"vtkDFA",6) && 
           strncmp(concrete[i],"vtkTcl",6) && 
           strncmp(concrete[i],"vtkTk",5) ))
