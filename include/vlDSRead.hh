@@ -38,7 +38,6 @@ public:
   void SetFilename(char *name);
   char *GetFilename();
 
-  void SetFileType(int type);
   int GetFileType();
 
   void SetScalarsName(char *name);

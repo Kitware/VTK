@@ -28,6 +28,97 @@ vlDataSetReader::~vlDataSetReader()
 {
 }
 
+// Description:
+// Specify file name of vl data file to read.
+void vlDataSetReader::SetFilename(char *name) 
+{
+  this->Reader.SetFilename(name);
+}
+char *vlDataSetReader::GetFilename() 
+{
+  return this->Reader.GetFilename();
+}
+
+// Description:
+// Get the type of file (ASCII or BINARY)
+int vlDataSetReader::GetFileType() 
+{
+  return this->Reader.GetFileType();
+}
+
+// Description:
+// Set the name of the scalar data to extract. If not specified, first 
+// scalar data encountered is extracted.
+void vlDataSetReader::SetScalarsName(char *name) 
+{
+  this->Reader.SetScalarsName(name);
+}
+char *vlDataSetReader::GetScalarsName() 
+{
+  return this->Reader.GetScalarsName();
+}
+
+// Description:
+// Set the name of the vector data to extract. If not specified, first 
+// vector data encountered is extracted.
+void vlDataSetReader::SetVectorsName(char *name) 
+{
+  this->Reader.SetVectorsName(name);
+}
+char *vlDataSetReader::GetVectorsName() 
+{
+  return this->Reader.GetVectorsName();
+}
+
+// Description:
+// Set the name of the tensor data to extract. If not specified, first 
+// tensor data encountered is extracted.
+void vlDataSetReader::SetTensorsName(char *name) 
+{
+  this->Reader.SetTensorsName(name);
+}
+char *vlDataSetReader::GetTensorsName() 
+{
+  return this->Reader.GetTensorsName();
+}
+
+// Description:
+// Set the name of the normal data to extract. If not specified, first 
+// normal data encountered is extracted.
+void vlDataSetReader::SetNormalsName(char *name) 
+{
+  this->Reader.SetNormalsName(name);
+}
+char *vlDataSetReader::GetNormalsName() 
+{
+  return this->Reader.GetNormalsName();
+}
+
+// Description:
+// Set the name of the texture coordinate data to extract. If not specified,
+// first texture coordinate data encountered is extracted.
+void vlDataSetReader::SetTCoordsName(char *name) 
+{
+  this->Reader.SetTCoordsName(name);
+}
+char *vlDataSetReader::GetTCoordsName() 
+{
+  return this->Reader.GetTCoordsName();
+}
+
+// Description:
+// Set the name of the lookup table data to extract. If not specified, uses 
+// lookup table named by scalar. Otherwise, this specification supersedes.
+void vlDataSetReader::SetLookupTableName(char *name) 
+{
+  this->Reader.SetLookupTableName(name);
+}
+char *vlDataSetReader::GetLookupTableName() 
+{
+  return this->Reader.GetLookupTableName();
+}
+
+
 void vlDataSetReader::Execute()
 {
   FILE *fp;
