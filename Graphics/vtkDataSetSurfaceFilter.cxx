@@ -718,6 +718,8 @@ class vtkFastGeomQuad
 //----------------------------------------------------------------------------
 void vtkDataSetSurfaceFilter::UnstructuredGridExecute()
 {
+  vtkCellArray *newVerts;
+  vtkCellArray *newLines;
   vtkCellArray *newPolys;
   vtkPoints *newPts;
   vtkIdType *ids;
@@ -731,7 +733,7 @@ void vtkDataSetSurfaceFilter::UnstructuredGridExecute()
   vtkIdType numPts=input->GetNumberOfPoints();
   vtkIdType numCells=input->GetNumberOfCells();
   vtkGenericCell *cell;
-  int numFacePts;
+  int numFacePts, numCellPts;
   vtkIdType inPtId, outPtId;
   vtkPointData *inputPD = input->GetPointData();
   vtkCellData *inputCD = input->GetCellData();
@@ -756,6 +758,8 @@ void vtkDataSetSurfaceFilter::UnstructuredGridExecute()
   newPts->Allocate(numPts);
   newPolys = vtkCellArray::New();
   newPolys->Allocate(4*numCells,numCells/2);
+  newVerts = vtkCellArray::New();
+  newLines = vtkCellArray::New();
 
   outputPD->CopyAllocate(inputPD, numPts, numPts/2);
   outputCD->CopyAllocate(inputCD, numCells, numCells/2);
@@ -782,12 +786,35 @@ void vtkDataSetSurfaceFilter::UnstructuredGridExecute()
   
     // Direct acces to cells.
     cellType = input->GetCellType(cellId);
+    numCellPts = cellPointer[0];
     ids = cellPointer+1;
     // Move to the next cell.
     cellPointer += (1 + *cellPointer);
 
     // A couple of common cases to see if things go faster.
-    if (cellType == VTK_HEXAHEDRON)
+    if (cellType == VTK_VERTEX || cellType == VTK_POLY_VERTEX)
+      {
+      newCellId = newVerts->InsertNextCell(numCellPts);
+      for (i = 0; i < numCellPts; ++i)
+        {
+        inPtId = ids[i];
+        outPtId = this->GetOutputPointId(inPtId, input, newPts, outputPD); 
+        newVerts->InsertCellPoint(outPtId);
+        }
+      outputCD->CopyData(cd,cellId,newCellId);
+      }
+    else if (cellType == VTK_LINE || cellType == VTK_POLY_LINE)
+      {
+      newCellId = newLines->InsertNextCell(numCellPts);
+      for (i = 0; i < numCellPts; ++i)
+        {
+        inPtId = ids[i];
+        outPtId = this->GetOutputPointId(inPtId, input, newPts, outputPD); 
+        newLines->InsertCellPoint(outPtId);
+        }
+      outputCD->CopyData(cd,cellId,newCellId);
+      }
+    else if (cellType == VTK_HEXAHEDRON)
       {
       this->InsertQuadInHash(ids[0], ids[1], ids[5], ids[4], cellId);
       this->InsertQuadInHash(ids[0], ids[3], ids[2], ids[1], cellId);
@@ -812,79 +839,89 @@ void vtkDataSetSurfaceFilter::UnstructuredGridExecute()
       this->InsertTriInHash(ids[0], ids[3], ids[2], cellId);
       this->InsertTriInHash(ids[1], ids[2], ids[3], cellId);
       }
+    else if (cellType == VTK_PIXEL)
+      { // Do we really want to insert the 2D cells into a hash?
+      this->InsertQuadInHash(ids[0], ids[1], ids[3], ids[2], cellId);
+      }
+    else if (cellType == VTK_QUAD)
+      {
+      this->InsertQuadInHash(ids[0], ids[1], ids[2], ids[3], cellId);
+      }
+    else if (cellType == VTK_TRIANGLE)
+      {
+      this->InsertTriInHash(ids[0], ids[1], ids[2], cellId);
+      }
+    else if (cellType == VTK_POLYGON)
+      {
+      if (cell->GetCellType() == VTK_POLYGON
+          || cell->GetCellType() == VTK_TRIANGLE)
+        {
+        numFacePts = cell->GetNumberOfPoints();
+        pts->Reset();
+        for ( i=0; i < numFacePts; i++)
+          {
+          inPtId = cell->GetPointId(i);
+          outPtId = this->GetOutputPointId(inPtId, input, newPts, outputPD); 
+          pts->InsertId(i, outPtId);
+          }
+        newCellId = newPolys->InsertNextCell(pts);
+        outputCD->CopyData(cd,cellId,newCellId);
+        }
+      }
+    else if (cellType == VTK_TRIANGLE_STRIP)
+      {
+      // Change strips to triangles so we do not have to worry about order.
+      int toggle = 0;
+      vtkIdType ptIds[3];
+      numFacePts = cell->GetNumberOfPoints();
+      inPtId = cell->GetPointId(0);
+      ptIds[0] = this->GetOutputPointId(inPtId, input, newPts, outputPD); 
+      inPtId = cell->GetPointId(1);
+      ptIds[1] = this->GetOutputPointId(inPtId, input, newPts, outputPD); 
+      for (i = 2; i < numFacePts; ++i)
+        {
+        inPtId = cell->GetPointId(i);
+        ptIds[2] = this->GetOutputPointId(inPtId, input, newPts, outputPD); 
+        newCellId = newPolys->InsertNextCell(3, ptIds);
+        outputCD->CopyData(cd,cellId,newCellId);
+        ptIds[toggle] = ptIds[2];
+        toggle = !toggle;
+        }
+      }
     else
       { // Default way of getting faces.
       input->GetCell(cellId,cell);
-      switch (cell->GetCellDimension())
+      if (cell->GetCellDimension() == 3)
         {
-        // create new points and then cell
-        case 0:
-          break; 
-        case 1: 
-          break;
-        case 2:
-          if (cell->GetCellType() == VTK_POLYGON
-              || cell->GetCellType() == VTK_TRIANGLE)
+        for (j=0; j < cell->GetNumberOfFaces(); j++)
+          {
+          face = cell->GetFace(j);
+          numFacePts = face->GetNumberOfPoints();
+          if (numFacePts == 4)
             {
-            numFacePts = cell->GetNumberOfPoints();
-            pts->Reset();
-            for ( i=0; i < numFacePts; i++)
-              {
-              inPtId = cell->GetPointId(i);
-              outPtId = this->GetOutputPointId(inPtId, input, newPts, outputPD); 
-              pts->InsertId(i, outPtId);
-              }
-            newCellId = newPolys->InsertNextCell(pts);
-            outputCD->CopyData(cd,cellId,newCellId);
+            this->InsertQuadInHash(face->PointIds->GetId(0),
+            face->PointIds->GetId(1),
+            face->PointIds->GetId(2),
+            face->PointIds->GetId(3), cellId);
             }
-          if (cell->GetCellType() == VTK_TRIANGLE_STRIP)
+          else if (numFacePts == 3)
             {
-            // Change strips to triangles so we do not have to worry about order.
-            int toggle = 0;
-            vtkIdType ptIds[3];
-            numFacePts = cell->GetNumberOfPoints();
-            inPtId = cell->GetPointId(0);
-            ptIds[0] = this->GetOutputPointId(inPtId, input, newPts, outputPD); 
-            inPtId = cell->GetPointId(1);
-            ptIds[1] = this->GetOutputPointId(inPtId, input, newPts, outputPD); 
-            for (i = 2; i < numFacePts; ++i)
-              {
-              inPtId = cell->GetPointId(i);
-              ptIds[2] = this->GetOutputPointId(inPtId, input, newPts, outputPD); 
-              newCellId = newPolys->InsertNextCell(3, ptIds);
-              outputCD->CopyData(cd,cellId,newCellId);
-              ptIds[toggle] = ptIds[2];
-              toggle = !toggle;
-              }
+            this->InsertTriInHash(face->PointIds->GetId(0),
+                                  face->PointIds->GetId(1),
+                                  face->PointIds->GetId(2), cellId);
             }
-          break;
-        case 3:
-          for (j=0; j < cell->GetNumberOfFaces(); j++)
+          else
             {
-            face = cell->GetFace(j);
-            numFacePts = face->GetNumberOfPoints();
-            if (numFacePts == 4)
-              {
-              this->InsertQuadInHash(face->PointIds->GetId(0),
-              face->PointIds->GetId(1),
-              face->PointIds->GetId(2),
-              face->PointIds->GetId(3), cellId);
-              }
-            else if (numFacePts == 3)
-              {
-              this->InsertTriInHash(face->PointIds->GetId(0),
-                                    face->PointIds->GetId(1),
-                                    face->PointIds->GetId(2), cellId);
-              }
-            else
-              {
-              vtkWarningMacro("I cannot deal with faces with " << numPts
-                              << " points.");
-              }
+            vtkWarningMacro("I cannot deal with faces with " << numPts
+                            << " points.");
             }
-          break;
-        } //switch
-      } // else
+          } // for all cell faces
+        } // if 3D
+      else
+        {
+        vtkErrorMacro("Missing cell type.");
+        }
+      } // Cell type else.
     } // for all cells.
   
   
@@ -921,6 +958,20 @@ void vtkDataSetSurfaceFilter::UnstructuredGridExecute()
   newPts->Delete();
   output->SetPolys(newPolys);
   newPolys->Delete();
+  if (newVerts->GetNumberOfCells() > 0)
+    {
+    output->SetVerts(newVerts);
+    }
+  newVerts->Delete();
+  newVerts = NULL;
+  if (newLines->GetNumberOfCells() > 0)
+    {
+    output->SetLines(newLines);
+    }
+  newLines->Delete();
+  newLines = NULL;
+
+
 
   //free storage
   output->Squeeze();

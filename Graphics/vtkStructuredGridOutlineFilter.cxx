@@ -61,7 +61,7 @@ vtkStructuredGridOutlineFilter* vtkStructuredGridOutlineFilter::New()
 void vtkStructuredGridOutlineFilter::Execute()
 {
   vtkStructuredGrid *input=this->GetInput();
-  int *ext, *wExt;
+  int *ext, *wExt, cExt[6];
   int xInc, yInc, zInc;
   vtkPoints *inPts;
   vtkPoints *newPts;
@@ -73,6 +73,7 @@ void vtkStructuredGridOutlineFilter::Execute()
   vtkIdType start = 0, id;
   int num = 0, inc = 0;
   int edgeFlag;
+  int i;
 
   newLines = vtkCellArray::New();
   newPts = vtkPoints::New();
@@ -81,7 +82,23 @@ void vtkStructuredGridOutlineFilter::Execute()
   ext = input->GetExtent();
   wExt = input->GetWholeExtent();
 
-  for ( int i = 0; i < 12; i++ )
+  // Since it is possible that the extent is larger than the whole extent,
+  // and we want the outline to be the whole extent, 
+  // compute the clipped extent.
+  input->GetExtent(cExt);
+  for (i = 0; i < 3; ++i)
+    {
+    if (cExt[2*i] < wExt[2*i])
+      {
+      cExt[2*i] = wExt[2*i];
+      }
+    if (cExt[2*i+1] > wExt[2*i+1])
+      {
+      cExt[2*i+1] = wExt[2*i+1];
+      }
+    }
+
+  for (i = 0; i < 12; i++ )
     {  
     // Find the start of this edge, the length of this edge, and increment.
     ext = input->GetExtent();
@@ -92,125 +109,125 @@ void vtkStructuredGridOutlineFilter::Execute()
     switch (i)
       {
       case 0:
-	// start (0, 0, 0) increment z axis.
+        // start (0, 0, 0) increment z axis.
         if (ext[0] <= wExt[0] && ext[2] <= wExt[2])
           {
           edgeFlag = 1;
           }
-	num = ext[5]-ext[4]+1;
-	start = (0-ext[0])*xInc + (0-ext[2])*yInc + (0-ext[4])*zInc;
-	inc = zInc;
-	break;
+        num = cExt[5]-cExt[4]+1;
+        start = (wExt[0]-ext[0])*xInc + (wExt[2]-ext[2])*yInc + (cExt[4]-ext[4])*zInc;
+        inc = zInc;
+      break;
       case 1:
-	// start (xMax, 0, 0) increment z axis.
+	    // start (xMax, 0, 0) increment z axis.
         if (ext[1] >= wExt[1] && ext[2] <= wExt[2])
           {
           edgeFlag = 1;
           }
-	num = ext[5]-ext[4]+1;
-	start = (ext[1]-ext[0])*xInc + (0-ext[2])*yInc + (0-ext[4])*zInc;
-	inc = zInc;
-	break;
+        num = cExt[5]-cExt[4]+1;
+        start = (wExt[1]-ext[0])*xInc + (wExt[2]-ext[2])*yInc + (cExt[4]-ext[4])*zInc;
+        inc = zInc;
+        break;
       case 2:
-	// start (0, yMax, 0) increment z axis.
+        // start (0, yMax, 0) increment z axis.
         if (ext[0] <= wExt[0] && ext[3] >= wExt[3])
           {
           edgeFlag = 1;
           }
-	num = ext[5]-ext[4]+1;
-	start = (0-ext[0])*xInc + (ext[3]-ext[2])*yInc + (0-ext[4])*zInc;
-	inc = zInc;
-	break;
+        num = cExt[5]-cExt[4]+1;
+        start = (wExt[0]-ext[0])*xInc + (wExt[3]-ext[2])*yInc + (cExt[4]-ext[4])*zInc;
+        inc = zInc;
+        break;
       case 3:
-	// start (xMax, yMax, 0) increment z axis.
+        // start (xMax, yMax, 0) increment z axis.
         if (ext[1] >= wExt[1] && ext[3] >= wExt[3])
           {
           edgeFlag = 1;
           }
-	num = ext[5]-ext[4]+1;
-	start = (ext[1]-ext[0])*xInc + (ext[3]-ext[2])*yInc + (0-ext[4])*zInc;
-	inc = zInc;
-	break;
+        num = cExt[5]-cExt[4]+1;
+        start = (wExt[1]-ext[0])*xInc + (wExt[3]-ext[2])*yInc + (cExt[4]-ext[4])*zInc;
+        inc = zInc;
+        break;
       case 4:
-	// start (0, 0, 0) increment y axis.
+        // start (0, 0, 0) increment y axis.
         if (ext[0] <= wExt[0] && ext[4] <= wExt[4])
           {
           edgeFlag = 1;
           }
-	num = ext[3]-ext[2]+1;
-	start = (0-ext[0])*xInc + (0-ext[2])*yInc + (0-ext[4])*zInc;
-	inc = yInc;
-	break;
+        num = cExt[3]-cExt[2]+1;
+        start = (wExt[0]-ext[0])*xInc + (cExt[2]-ext[2])*yInc + (wExt[4]-ext[4])*zInc;
+        inc = yInc;
+        break;
       case 5:
-	// start (xMax, 0, 0) increment y axis.
+        // start (xMax, 0, 0) increment y axis.
         if (ext[1] >= wExt[1] && ext[4] <= wExt[4])
           {
           edgeFlag = 1;
           }
-	num = ext[3]-ext[2]+1;
-	start = (ext[1]-ext[0])*xInc + (0-ext[2])*yInc + (0-ext[4])*zInc;
-	inc = yInc;
-	break;
+        num = cExt[3]-cExt[2]+1;
+        start = (wExt[1]-ext[0])*xInc + (cExt[2]-ext[2])*yInc + (wExt[4]-ext[4])*zInc;
+        inc = yInc;
+        break;
       case 6:
-	// start (0, 0, zMax) increment y axis.
+        // start (0, 0, zMax) increment y axis.
         if (ext[0] <= wExt[0] && ext[5] >= wExt[5])
           {
           edgeFlag = 1;
           }
-	num = ext[3]-ext[2]+1;
-	start = (0-ext[0])*xInc + (0-ext[2])*yInc + (ext[5]-ext[4])*zInc;
-	inc = yInc;
-	break;
+        num = cExt[3]-cExt[2]+1;
+        start = (wExt[0]-ext[0])*xInc + (cExt[2]-ext[2])*yInc + (wExt[5]-ext[4])*zInc;
+        inc = yInc;
+        break;
       case 7:
-	// start (xMax, 0, zMax) increment y axis.
+        // start (xMax, 0, zMax) increment y axis.
         if (ext[1] >= wExt[1] && ext[5] >= wExt[5])
           {
           edgeFlag = 1;
           }
-	num = ext[3]-ext[2]+1;
-	start = (ext[1]-ext[0])*xInc + (0-ext[2])*yInc + (ext[5]-ext[4])*zInc;
-	inc = yInc;
-	break;
+        num = cExt[3]-cExt[2]+1;
+        start = (wExt[1]-ext[0])*xInc + (cExt[2]-ext[2])*yInc + (wExt[5]-ext[4])*zInc;
+        inc = yInc;
+        break;
       case 8:
-	// start (0, 0, 0) increment x axis.
+        // start (0, 0, 0) increment x axis.
         if (ext[2] <= wExt[2] && ext[4] <= wExt[4])
           {
           edgeFlag = 1;
           }
-	num = ext[1]-ext[0]+1;
-	start = (0-ext[0])*xInc + (0-ext[2])*yInc + (0-ext[4])*zInc;
-	inc = xInc;
-	break;
+        num = cExt[1]-cExt[0]+1;
+        start = (cExt[0]-ext[0])*xInc + (wExt[2]-ext[2])*yInc + (wExt[4]-ext[4])*zInc;
+        inc = xInc;
+        break;
       case 9:
-	// start (0, yMax, 0) increment x axis.
+        // start (0, yMax, 0) increment x axis.
         if (ext[3] >= wExt[3] && ext[4] <= wExt[4])
           {
           edgeFlag = 1;
           }
-	num = ext[1]-ext[0]+1;
-	start = (0-ext[0])*xInc + (ext[3]-ext[2])*yInc + (0-ext[4])*zInc;
-	inc = xInc;
-	break;
+        num = cExt[1]-cExt[0]+1;
+        start = (cExt[0]-ext[0])*xInc + (wExt[3]-ext[2])*yInc + (wExt[4]-ext[4])*zInc;
+        inc = xInc;
+        break;
       case 10:
-	// start (0, 0, zMax) increment x axis.
+        // start (0, 0, zMax) increment x axis.
         if (ext[2] <= wExt[2] && ext[5] >= wExt[5])
           {
           edgeFlag = 1;
           }
-	num = ext[1]-ext[0]+1;
-	start = (0-ext[0])*xInc + (0-ext[2])*yInc + (ext[5]-ext[4])*zInc;
-	inc = xInc;
-	break;
+        num = cExt[1]-cExt[0]+1;
+        start = (cExt[0]-ext[0])*xInc + (wExt[2]-ext[2])*yInc + (wExt[5]-ext[4])*zInc;
+        inc = xInc;
+        break;
       case 11:
-	// start (0, yMax, zMax) increment x axis.
+        // start (0, yMax, zMax) increment x axis.
         if (ext[3] >= wExt[3] && ext[5] >= wExt[5])
           {
           edgeFlag = 1;
           }
-	num = ext[1]-ext[0]+1;
-	start = (0-ext[0])*xInc + (ext[3]-ext[2])*yInc + (ext[5]-ext[4])*zInc;
-	inc = xInc;
-	break;
+        num = cExt[1]-cExt[0]+1;
+        start = (cExt[0]-ext[0])*xInc + (wExt[3]-ext[2])*yInc + (wExt[5]-ext[4])*zInc;
+        inc = xInc;
+        break;
       }
     
     if (edgeFlag && num > 1)
@@ -224,10 +241,10 @@ void vtkStructuredGridOutlineFilter::Execute()
         id = start + idx * inc;
         // sanity check
         if (id < 0 || id >= numPts)
-	  {
-	  vtkErrorMacro("Error stepping through points.");
-	  return;
-	  }
+          {
+          vtkErrorMacro("Error stepping through points.");
+          return;
+          }
         newPts->InsertNextPoint(inPts->GetPoint(id));
         }
 
