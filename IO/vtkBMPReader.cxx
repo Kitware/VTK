@@ -23,7 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkBMPReader, "1.42");
+vtkCxxRevisionMacro(vtkBMPReader, "1.42.2.1");
 vtkStandardNewMacro(vtkBMPReader);
 
 #ifdef read
@@ -634,6 +634,7 @@ int vtkBMPReader::CanReadFile(const char* fname)
     }
 
   // get size of header
+  int res = 3;
   if (sizeLong == 4)   // if we are on a 32 bit machine
     {
     fread(&infoSize,sizeof(long),1,fp);
@@ -656,9 +657,9 @@ int vtkBMPReader::CanReadFile(const char* fname)
     if ((infoSize != 40)&&(infoSize != 12))
       {
       fclose(fp);
-      return 0;
+      res = 0;
       }
     }
   fclose(fp);
-  return 3;
+  return res;
 }
