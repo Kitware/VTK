@@ -44,20 +44,20 @@
     } 
 
 #define vtkSCSendError \
-  if (sent == -1) \
+  if (sent == -1 || sent == 0) \
     { \
     vtkGenericWarningMacro("Could not send message."); \
     return 0; \
     } 
 
 #define vtkSCReceiveError \
-  if (received == -1) \
+  if (received == -1 || received == 0) \
     { \
     vtkErrorMacro("Could not receive message."); \
     return 0; \
     }
 
-vtkCxxRevisionMacro(vtkSocketCommunicator, "1.37");
+vtkCxxRevisionMacro(vtkSocketCommunicator, "1.38");
 vtkStandardNewMacro(vtkSocketCommunicator);
 
 //----------------------------------------------------------------------------
@@ -79,6 +79,7 @@ vtkSocketCommunicator::~vtkSocketCommunicator()
   if (this->IsConnected)
     {
     vtkCloseSocketMacro(this->Socket);
+    this->Socket = -1;
     }
 
   if ( this->TraceFile )
@@ -123,7 +124,7 @@ static int SendMessage(char* data, int length, int tag, int sock)
   int sent, total = 0;
 
   total = send(sock, (char*)&tag, sizeof(int), 0);
-  if (total == -1)
+  if (total == -1 || total == 0)
     {
     vtkGenericWarningMacro("Could not send tag.");
     return 0;
@@ -136,7 +137,7 @@ static int SendMessage(char* data, int length, int tag, int sock)
     }
 
   total = send(sock, data, length, 0);
-  if (total == -1)
+  if (total == -1 || total == 0)
     {
     vtkGenericWarningMacro("Could not send message.");
     return 0;
@@ -274,7 +275,7 @@ int vtkSocketCommunicator::ReceiveMessage( char *data, int size, int length,
 
   total = recv( this->Socket, charTag, sizeof(int), MSG_PEEK );
 
-  if ( total == -1 )
+  if ( total == -1 || total == 0 )
     {
     vtkErrorMacro("Could not receive tag.");
     if ( this->TraceFile )
@@ -307,7 +308,8 @@ int vtkSocketCommunicator::ReceiveMessage( char *data, int size, int length,
   
   // Since we've already peeked at the entire tag, it must all be here, so
   // we should be able to get all of it in one try.
-  if (recv( this->Socket, charTag, sizeof(int), 0 ) == -1)
+  received = recv( this->Socket, charTag, sizeof(int), 0 );
+  if ( received == -1 || received == 0 )
     {
     if ( this->TraceFile )
       {
@@ -318,7 +320,7 @@ int vtkSocketCommunicator::ReceiveMessage( char *data, int size, int length,
     }
 
   total = recv( this->Socket, data, totalLength, 0 );
-  if (total == -1)
+  if (total == -1 || total == 0)
     {
     if ( this->TraceFile )
       {
@@ -381,7 +383,7 @@ int vtkSocketCommunicator::ReceiveMessage(char *data, int *length,
     }
 #endif
 
-  if ( *length < 0 )
+  if ( *length <= 0 )
     {
     return VTK_ERROR;
     }
@@ -542,6 +544,7 @@ int vtkSocketCommunicator::WaitForConnection(int port)
     return 0;
     }
   vtkCloseSocketMacro(sock);
+  sock = -1;
     
   this->IsConnected = 1;
 
@@ -580,6 +583,7 @@ void vtkSocketCommunicator::CloseConnection()
   if ( this->IsConnected )
     {
     vtkCloseSocketMacro(this->Socket);
+    this->Socket = -1; 
     this->IsConnected = 0;
     }
 }
