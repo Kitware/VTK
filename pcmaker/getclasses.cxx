@@ -119,7 +119,7 @@ void removeUNIXOnlyFiles()
 }
 
 // warning this code is also in kit_init.cxx under tcl
-void stuffit(FILE *fp)
+void stuffit(FILE *fp, CPcmakerDlg *vals)
 {
   int i;
   
@@ -239,7 +239,7 @@ void stuffit(FILE *fp)
   fprintf(fp,"  return %s_Init(interp);\n}\n",kitName);
 
   /* prototype for tkRenderWidget */
-  fprintf(fp,"extern \"C\" {int Vtktkrenderwidget_Init(Tcl_Interp *interp);}\n\n");
+  if (vals->m_Graphics) fprintf(fp,"extern \"C\" {int Vtktkrenderwidget_Init(Tcl_Interp *interp);}\n\n");
   
   fprintf(fp,"\n\nint %s_Init(Tcl_Interp *interp)\n{\n",kitName);
   if (!strcmp(kitName,"Vtktcl"))
@@ -254,7 +254,7 @@ void stuffit(FILE *fp)
     /* create special vtkCommand command */
     fprintf(fp,"  Tcl_CreateCommand(interp,\"vtkCommand\",vtkCommand,\n		    (ClientData *)NULL, NULL);\n\n");
     /* initialize the tkRenderWidget */
-    fprintf(fp,"  Vtktkrenderwidget_Init(interp);\n");
+    if (vals->m_Graphics) fprintf(fp,"  Vtktkrenderwidget_Init(interp);\n");
   }
   
   for (i = 0; i < anindex; i++)
@@ -267,7 +267,7 @@ void stuffit(FILE *fp)
 }
 
 
-void MakeInit(char *fname, char *argv1)
+void MakeInit(char *fname, char *argv1, CPcmakerDlg *vals)
 {
   int i;
   FILE *fp;
@@ -299,7 +299,7 @@ void MakeInit(char *fname, char *argv1)
   {
   fprintf(fp,"#include <string.h>\n");
   fprintf(fp,"#include <tcl.h>\n\n");
-  stuffit(fp);
+  stuffit(fp,vals);
   fclose(fp);
   }
 }
@@ -439,7 +439,7 @@ void makeMakefile(CPcmakerDlg *vals)
 
   // we must create CommonInit.cxx etc
   sprintf(fname,"%s\\vtktcl\\src\\vtktcl.cxx",vals->m_WhereBuild);
-  MakeInit(fname,"Vtktcl");
+  MakeInit(fname,"Vtktcl",vals);
 
   // we must create vtkPCForce.cxx
   sprintf(fname,"%s\\vtkdll\\vtkPCForce.cxx",vals->m_WhereBuild);
@@ -516,7 +516,7 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
     {
     fprintf(fp," \"_WINDOWS\" /D \"_WINDLL\" /D \"_USRDLL\" /D \"_MBCS\" /D \"VTKDLL\"\\\n");
     }
-  fprintf(fp," /Fp\"$(OUTDIR)/vtkdll.pch\" /YX /Fo\"$(OUTDIR)/\" /c \n");
+  fprintf(fp," /Fo\"$(OUTDIR)/\" /c \n");
   fprintf(fp,"LINK32=link.exe\n");
   if (vals->m_Debug)
     {
@@ -580,7 +580,7 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
       vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereVTK,vals->m_WhereVTK);
     }
   fprintf(fp," /D \"_WINDLL\" /D \"_MBCS\" /D \"_USRDLL\" /D \"VTKDLL\"\\\n");
-  fprintf(fp," /Fp\"$(OUTDIR)/vtkdll.pch\" /Yc\"stdafx.h\" /Fo\"$(OUTDIR)/\" /c %s\\vtkdll\\StdAfx.cpp \\\n",
+  fprintf(fp," /Fo\"$(OUTDIR)/\" /c %s\\vtkdll\\StdAfx.cpp \\\n",
 	  vals->m_WhereVTK);
   fprintf(fp,"	\n");
   fprintf(fp,"\n");
@@ -814,7 +814,7 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
     }
   if (doAddedValue) fprintf(fp," /I \"%s\\gemsio\" /I \"%s\\gemsip\" /I \"%s\\gemsvolume\" /I \"%s\\volume\" \\\n",
     vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
-  fprintf(fp," /Fp\"$(OUTDIR)/vtktcl.pch\" /YX /Fo\"$(OUTDIR)/\" /c \n");
+  fprintf(fp," /Fo\"$(OUTDIR)/\" /c \n");
   fprintf(fp,"LINK32=link.exe\n");
   if (vals->m_Debug)
     {
@@ -1200,7 +1200,7 @@ void doMSCJavaHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
     }
   if (doAddedValue) fprintf(fp," /I \"%s\\gemsio\" /I \"%s\\gemsip\" /I \"%s\\gemsvolume\" /I \"%s\\volume\" \\\n",
     vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
-  fprintf(fp,"/I \"%s\\include\" /I \"%s\\include\\win32\" /Fp\"$(OUTDIR)/vtkjava.pch\" /YX /Fo\"$(OUTDIR)/\" /c \n",
+  fprintf(fp,"/I \"%s\\include\" /I \"%s\\include\\win32\" /Fo\"$(OUTDIR)/\" /c \n",
     vals->m_WhereJDK, vals->m_WhereJDK);
   fprintf(fp,"LINK32=link.exe\n");
   if (vals->m_Debug)

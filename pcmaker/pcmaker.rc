@@ -108,13 +108,13 @@ BEGIN
     CONTROL         "GemsVolume",IDC_GEMSVOLUME,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,117,219,57,10
     CONTROL         "Include Patented Algorithms",IDC_PATENTED,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,43,174,99,10
+                    BS_AUTOCHECKBOX | WS_TABSTOP,43,174,109,10
     LTEXT           "Where is your Java JDK (this is optional)",IDC_STATIC,
                     10,93,141,13
     EDITTEXT        IDC_WHEREJDK,16,105,153,15,ES_AUTOHSCROLL
     CONTROL         "Progress1",IDC_PROGRESS1,"msctls_progress32",WS_BORDER,
-                    7,249,171,14
-    LTEXT           "Progress",IDC_STATIC,7,240,77,11
+                    7,251,171,14
+    LTEXT           "Progress",IDC_STATIC,7,240,77,10
 END
 
 
