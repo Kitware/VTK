@@ -43,7 +43,7 @@ public:
 };
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.45");
+vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.46");
 vtkStandardNewMacro(vtkOpenGLRenderer);
 #endif
 
@@ -202,7 +202,7 @@ void vtkOpenGLRenderer::Clear(void)
     glClearColor( ((GLclampf)(this->Background[0])),
                   ((GLclampf)(this->Background[1])),
                   ((GLclampf)(this->Background[2])),
-                  ((GLclampf)(1.0)) );
+                  ((GLclampf)(0.0)) );
     clear_mask |= GL_COLOR_BUFFER_BIT;
     }
 
