@@ -41,6 +41,7 @@ vlDataSet* vlDataSetMapper::GetInput()
 //
 void vlDataSetMapper::Render(vlRenderer *ren)
 {
+  vlMapper *mapper;
 //
 // make sure that we've been properly initialized
 //
@@ -49,24 +50,20 @@ void vlDataSetMapper::Render(vlRenderer *ren)
     cerr << this->GetClassName() << ": No input!\n";
     return;
     }
-  else
-    this->Input->Update();
 //
 // Now can create appropriate mapper
 //
-  if ( !this->Mapper ) 
+  if ( !(mapper = this->Input->MakeMapper(this->Input)) )
     {
-    this->Mapper = this->Input->MakeMapper(this->Input);
-    if ( !this->Mapper )
-      {
-      cerr << this->GetClassName() << ": Cannot map type: " 
-           << this->Input->GetClassName() <<"\n";
-      return;
-      }
-    else
-      {
-      this->Mapper->Register((void *)this);
-      }
+    cerr << this->GetClassName() << ": Cannot map type: " 
+         << this->Input->GetClassName() <<"\n";
+    return;
+    }
+  if ( mapper != this->Mapper ) 
+    {
+    if (this->Mapper) this->Mapper->UnRegister((void *)this);
+    this->Mapper = mapper;
+    this->Mapper->Register((void *)this);
     }
  
   this->Mapper->Render(ren);

@@ -26,9 +26,7 @@ public:
   void PointCoords(vlIdList& ptId, vlFloatPoints& fp)
     {this->DataSet->PointCoords(ptId,fp);}
   void ComputeBounds() {this->DataSet->ComputeBounds();};
-  vlMapper *MakeMapper(vlDataSet *ds) 
-    {return this->DataSet->MakeMapper(this->DataSet);};
-
+  vlMapper *MakeMapper(vlDataSet *ds);
   void Update();
 
 private:

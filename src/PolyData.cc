@@ -196,8 +196,12 @@ vlMapper *vlPolyData::MakeMapper(vlDataSet *ds)
 {
   vlPolyMapper *mapper;
 
-  mapper = new vlPolyMapper;
-  // following cast ok because using virtual function
-  mapper->SetInput((vlPolyData *)ds);
-  return mapper;
+  if ( ! this->Mapper )
+    {
+    this->Mapper = mapper = new vlPolyMapper;
+    this->Mapper->Register((void *)this);
+    // following cast ok because using virtual function
+    mapper->SetInput((vlPolyData *)ds);
+    }
+  return this->Mapper;
 }

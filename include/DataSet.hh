@@ -8,10 +8,9 @@
 #include "IdList.hh"
 #include "FPoints.hh"
 #include "PtData.hh"
+#include "Mapper.hh"
 
 #define MAX_CELL_SIZE 128
-
-class vlMapper;
 
 class vlDataSet : virtual public vlObject 
 {
@@ -43,6 +42,7 @@ protected:
   vlPointData PointData;   // Scalars, vectors, etc. associated w/ each point
   vlTimeStamp ComputeTime; // Time at which bounds, center, etc. computed
   float Bounds[6];
+  vlMapper *Mapper;
 };
 
 #endif
