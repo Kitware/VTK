@@ -59,7 +59,10 @@ vtkRenderer::vtkRenderer()
 
   this->Aspect[0] = this->Aspect[1] = 1.0;
   this->VolumeRenderer = NULL;
-
+  this->SelfCreatedCamera = 0;
+  this->SelfCreatedLight = 0;
+  this->CreatedLight = NULL;
+  
   this->StartRenderMethod = NULL;
   this->StartRenderMethodArgDelete = NULL;
   this->StartRenderMethodArg = NULL;
@@ -68,17 +71,38 @@ vtkRenderer::vtkRenderer()
   this->EndRenderMethodArg = NULL;
 }
 
+vtkRenderer::~vtkRenderer()
+{
+  if ( this->SelfCreatedCamera && this->ActiveCamera != NULL) 
+    delete this->ActiveCamera;
+  if ( this->SelfCreatedLight && this->CreatedLight != NULL) 
+    delete this->CreatedLight;
+}
+
 // Description:
 // Specify the camera to use.
 void vtkRenderer::SetActiveCamera(vtkCamera *cam)
 {
-  this->ActiveCamera = cam;
+  if ( this->ActiveCamera != cam ) 
+    {
+    if ( this->SelfCreatedCamera ) delete this->ActiveCamera;
+    this->SelfCreatedCamera = 0;
+    this->ActiveCamera = cam;
+    this->Modified();
+    }
 }
 
 // Description:
 // Get the current camera.
 vtkCamera *vtkRenderer::GetActiveCamera()
 {
+  if ( this->ActiveCamera == NULL )
+    {
+    this->ActiveCamera = new vtkCamera;
+    this->SelfCreatedCamera = 1;
+    this->ResetCamera();
+    }
+
   return this->ActiveCamera;
 }
 
@@ -128,15 +152,14 @@ void vtkRenderer::RemoveActors(vtkActor *actor)
 // Process the list of lights during the rendering process.
 void vtkRenderer::DoLights()
 {
-  vtkLight *light1;
-
   if (!this->UpdateLights())
     {
     vtkDebugMacro(<<"No lights are on, creating one.");
-    light1 = new vtkLight;
-    this->AddLights(light1);
-    light1->SetPosition(this->ActiveCamera->GetPosition());
-    light1->SetFocalPoint(this->ActiveCamera->GetFocalPoint());
+    this->CreatedLight = new vtkLight;
+    this->SelfCreatedLight = 1;
+    this->AddLights(this->CreatedLight);
+    this->CreatedLight->SetPosition(this->ActiveCamera->GetPosition());
+    this->CreatedLight->SetFocalPoint(this->ActiveCamera->GetFocalPoint());
     this->UpdateLights();
     }
 }
@@ -145,14 +168,12 @@ void vtkRenderer::DoLights()
 // Process the list of cameras during the rendering process.
 void vtkRenderer::DoCameras()
 {
-  vtkCamera *cam1;
-
   if (!this->UpdateCameras())
     {
     vtkDebugMacro(<< "No cameras are on, creating one.");
-    cam1 = new vtkCamera;
-    this->SetActiveCamera(cam1);
-    this->ResetCamera();
+    // the get method will automagically create a camera
+    // and reset it since one hasn't been specified yet
+    this->GetActiveCamera();
     this->UpdateCameras();
     }
 }
