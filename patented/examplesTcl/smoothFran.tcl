@@ -1,7 +1,10 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # this is a tcl version to decimtae fran's face
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
+source $VTK_TCL/vtkInt.tcl
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -14,7 +17,7 @@ vtkRenderWindowInteractor iren
 # create a cyberware source
 #
 vtkPolyDataReader cyber
-    cyber SetFileName "../../../vtkdata/fran_cut.vtk"
+    cyber SetFileName "$VTK_DATA/fran_cut.vtk"
 #7347 triangles remain
 vtkDecimate deci; 
     deci SetInput [cyber GetOutput]

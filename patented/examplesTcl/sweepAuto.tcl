@@ -1,6 +1,9 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
+source $VTK_TCL/vtkInt.tcl
 
 # Create rendering stuff
 vtkRenderer ren1
@@ -11,7 +14,7 @@ vtkRenderWindowInteractor iren
 
 # ingest data file
 vtkUGFacetReader reader
-  reader SetFileName ../../../vtkdata/bolt.fac
+  reader SetFileName $VTK_DATA/bolt.fac
   reader MergingOff
 
 # create implicit model of vtk

@@ -1,9 +1,12 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # Generate marching cubes pine root model (256^3 model)
 
 # get the interactor ui and colors
-source ../../examplesTcl/vtkInt.tcl
-source ../../examplesTcl/colors.tcl
+source $VTK_TCL/vtkInt.tcl
+source $VTK_TCL/colors.tcl
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -18,7 +21,7 @@ vtkRenderWindowInteractor iren
 vtkVolume16Reader v16
     v16 SetDataDimensions 256 256
     v16 SetDataByteOrderToBigEndian
-    v16 SetFilePrefix "../../../vtkdata/pineRoot/pine_root"
+    v16 SetFilePrefix "$VTK_DATA/pineRoot/pine_root"
     v16 SetImageRange 50 100
     v16 SetDataSpacing 0.3125 0.3125 0.390625
     v16 SetDataMask 0x7fff

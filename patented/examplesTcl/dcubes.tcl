@@ -1,7 +1,10 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
-source ../../examplesTcl/colors.tcl
+source $VTK_TCL/vtkInt.tcl
+source $VTK_TCL/colors.tcl
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -17,7 +20,7 @@ vtkRenderWindowInteractor iren
 # create pipeline
 #
 vtkStructuredPointsReader reader
-    reader SetFileName "../../../vtkdata/ironProt.vtk"
+    reader SetFileName "$VTK_DATA/ironProt.vtk"
 #vtkRecursiveDividingCubes iso
 vtkDividingCubes iso
     iso SetInput [reader GetOutput]

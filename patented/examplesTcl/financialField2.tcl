@@ -1,4 +1,7 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # demonstrate the use and manipulation of fields and use of 
 # vtkProgrammableDataObjectSource. This creates fields the hard way 
 # (as compared to reading a vtk field file), but shows you how to
@@ -7,7 +10,7 @@ catch {load vtktcl}
 # The image should be the same as financialField.tcl
 
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
+source $VTK_TCL/vtkInt.tcl
 
 set xAxis INTEREST_RATE
 set yAxis MONTHLY_PAYMENT
@@ -19,7 +22,8 @@ set scalar TIME_LATE
 vtkProgrammableDataObjectSource dos
     dos SetExecuteMethod parseFile
 proc parseFile {} {
-   set file [open "../../../vtkdata/financial.txt" r]
+global $VTK_DATA
+   set file [open "$VTK_DATA/financial.txt" r]
    set line [gets $file]
    scan $line "%*s %d" numPts
    set numLines [expr (($numPts - 1) / 8) + 1 ]

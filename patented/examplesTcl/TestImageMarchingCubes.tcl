@@ -1,7 +1,10 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
-source ../../examplesTcl/colors.tcl
+source $VTK_TCL/vtkInt.tcl
+source $VTK_TCL/colors.tcl
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -17,7 +20,7 @@ vtkVolume16Reader v16
   v16 SetDataDimensions 128 128
   [v16 GetOutput] SetOrigin 0.0 0.0 0.0
   v16 SetDataByteOrderToLittleEndian
-  v16 SetFilePrefix "../../../vtkdata/headsq/half"
+  v16 SetFilePrefix "$VTK_DATA/headsq/half"
   v16 SetImageRange 1 93
   v16 SetDataSpacing 1.6 1.6 1.5
   v16 Update
