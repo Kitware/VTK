@@ -105,10 +105,12 @@ public:
   // Insert color into object. Range checking performed and memory
   // allocated as necessary.
   virtual void InsertColor(int id, unsigned char rgba[4]) = 0;
+  void InsertColor(int id, float R, float G, float B, float A);
 
   // Description:
   // Insert color into next available slot. Returns point id of slot.
   virtual int InsertNextColor(unsigned char rgba[4]) = 0;
+  void InsertNextColor(float R, float G, float B, float A);
 
   // Description:
   // Allocate space for color data.
