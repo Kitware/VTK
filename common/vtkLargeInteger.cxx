@@ -111,6 +111,49 @@ vtkLargeInteger::vtkLargeInteger(long n)
   this->Contract(); // remove leading 0s
 }
 
+vtkLargeInteger::vtkLargeInteger(unsigned long n)
+{
+  this->Negative = 0;
+  this->Number = new char[BIT_INCREMENT];
+  for (int i = 0; i < BIT_INCREMENT; i++)
+    {
+    this->Number[i] = n & 1;
+    n >>= 1;
+    }
+  this->Max = BIT_INCREMENT - 1;
+  this->Sig = BIT_INCREMENT - 1;
+  this->Contract(); // remove leading 0s
+}
+
+vtkLargeInteger::vtkLargeInteger(unsigned int n)
+{
+  this->Negative = 0;
+  this->Number = new char[BIT_INCREMENT];
+  for (int i = 0; i < BIT_INCREMENT; i++)
+    {
+    this->Number[i] = n & 1;
+    n >>= 1;
+    }
+  this->Max = BIT_INCREMENT - 1;
+  this->Sig = BIT_INCREMENT - 1;
+  this->Contract(); // remove leading 0s
+}
+
+vtkLargeInteger::vtkLargeInteger(int n)
+{
+  this->Negative = n < 0 ? 1 : 0;
+  n = n < 0 ? -n : n; // strip of sign
+  this->Number = new char[BIT_INCREMENT];
+  for (int i = 0; i < BIT_INCREMENT; i++)
+    {
+    this->Number[i] = n & 1;
+    n >>= 1;
+    }
+  this->Max = BIT_INCREMENT - 1;
+  this->Sig = BIT_INCREMENT - 1;
+  this->Contract(); // remove leading 0s
+}
+
 vtkLargeInteger::vtkLargeInteger(const vtkLargeInteger& n)
 {
   this->Number = new char[n.Max + 1];
@@ -629,7 +672,9 @@ vtkLargeInteger& vtkLargeInteger::operator/=(const vtkLargeInteger& n)
   vtkLargeInteger c;
   vtkLargeInteger m = n;
   m <<= maximum(this->Sig - n.Sig, 0); // vtkpower of two multiple of n
-  for (int i = vtkpow(2, this->Sig - n.Sig); i > 0; i /= 2)
+  vtkLargeInteger i = 1;
+  i = i << (this->Sig - n.Sig);
+  for (; i > 0; i = i >> 1)
     {
     if (!m.IsGreater(*this))
       {

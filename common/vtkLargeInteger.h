@@ -50,6 +50,9 @@ class VTK_EXPORT vtkLargeInteger
 public:
   vtkLargeInteger(void);
   vtkLargeInteger(long n);
+  vtkLargeInteger(unsigned long n);
+  vtkLargeInteger(int n);
+  vtkLargeInteger(unsigned int n);
   vtkLargeInteger(const vtkLargeInteger& n);
   ~vtkLargeInteger(void);
   

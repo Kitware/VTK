@@ -169,7 +169,8 @@ int vtkExtentTranslator::SplitExtent(int piece, int numPieces, int *ext,
                                      int splitMode)
 {
   int numPiecesInFirstHalf;
-  int size[3], splitAxis;
+  unsigned long size[3];
+  int splitAxis;
   vtkLargeInteger mid;
   
   // keep splitting until we have only one piece.

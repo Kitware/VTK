@@ -224,6 +224,7 @@ unsigned long vtkImageData::GetEstimatedMemorySize()
   // In case the extent is set improperly, set the size to 0
   if (size < 0)
     {
+    vtkWarningMacro("Oops, size should not be negative.");
     size = 0;
     }
 

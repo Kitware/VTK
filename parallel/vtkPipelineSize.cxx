@@ -71,6 +71,7 @@ vtkPipelineSize::GetEstimatedSize(vtkDataObject *input)
   
   if (input->GetSource())
     {
+    input->UpdateInformation();
     this->ComputeSourcePipelineSize(input->GetSource(),input, sizes );
     memorySize = sizes[2];
     } 
@@ -379,10 +380,9 @@ unsigned long vtkPipelineSize::GetNumberOfSubPieces(unsigned long memoryLimit,
       }
     subDivisions = subDivisions*2;
     count++;
-    vtkWarningMacro(<< size << " " << ratio << " " << count);
     }
   while (size > memoryLimit && 
-         (size < maxSize && ratio < 0.8) && count < 29);
+         (size > maxSize || ratio < 0.8) && count < 29);
   
   // undo the last *2
   subDivisions = subDivisions/2;
