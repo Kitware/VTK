@@ -280,6 +280,18 @@ int main (int argc, char *argv[])
     }
   fprintf(fp,"\n\n");
 
+  /* create PYTHON_WRAP_H */
+  fprintf(fp,"PYTHON_WRAP_H = ");
+  for (i = concrete_start; i < argc; i++)
+    {
+    if (strcmp(argv[i],"abstract")&&
+	strcmp(argv[i],"concrete_h")&&strcmp(argv[i],"abstract_h"))
+      {
+      fprintf(fp,"\\\n%s.h ",argv[i]);
+      }
+    }
+  fprintf(fp,"\n\n");
+
   for (i = concrete_start; i < argc; i++)
     {
     if (strcmp(argv[i],"abstract")&&

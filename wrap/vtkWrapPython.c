@@ -43,11 +43,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include "vtkParse.h"
 
 int numberOfWrappedFunctions = 0;
 FunctionInfo *wrappedFunctions[1000];
 extern FunctionInfo *currentFunction;
+
+static int class_has_new = 0;
 
 /* when the cpp file doesn't have enough info use the hint file */
 void use_hints(FILE *fp)
@@ -315,13 +318,212 @@ char *get_format_string()
   return result;
 }
 
+static void add_to_sig(char *sig, char *add, int *i)
+{
+  strcpy(&sig[*i],add);
+  *i += strlen(add);
+}
+
+void get_python_signature()
+{
+  static char result[1024];
+  int currPos = 0;
+  int argtype;
+  int i, j;
+
+  /* print out the name of the method */
+  add_to_sig(result,"V.",&currPos);
+  add_to_sig(result,currentFunction->Name,&currPos);
+
+  /* print the arg list */
+  add_to_sig(result,"(",&currPos);
+  
+  for (i = 0; i < currentFunction->NumberOfArguments; i++)
+    {
+    if (currentFunction->ArgTypes[i] == 5000)
+      {
+      add_to_sig(result,"function",&currPos); 
+      }
+    
+    argtype = currentFunction->ArgTypes[i]%1000;
+
+    if (i != 0)
+      {
+      add_to_sig(result,", ",&currPos);
+      }
+
+    switch (argtype)
+      {
+      case 301:
+      case 307:
+	add_to_sig(result,"(",&currPos);
+	for (j = 0; j < currentFunction->ArgCounts[i]; j++) 
+	  {
+	  if (j != 0)
+	    {
+	    add_to_sig(result,", ",&currPos);
+	    }
+	  add_to_sig(result,"float",&currPos);
+	  }
+	add_to_sig(result,")",&currPos);
+	break;
+      case 304: 
+	add_to_sig(result,"(",&currPos);
+	for (j = 0; j < currentFunction->ArgCounts[i]; j++) 
+	  {
+	  if (j != 0)
+	    {
+	    add_to_sig(result,", ",&currPos);
+	    }
+	  add_to_sig(result,"int",&currPos);
+	  }
+	add_to_sig(result,")",&currPos);
+	break;
+      case 109:
+      case 309: add_to_sig(result,currentFunction->ArgClasses[i],&currPos); break;
+      case 302:
+      case 303: add_to_sig(result,"string",&currPos); break;
+      case 1:
+      case 7:   add_to_sig(result,"float",&currPos); break;
+      case 14:
+      case 4:
+      case 15:
+      case 5:
+      case 16:
+      case 6:   add_to_sig(result,"int",&currPos); break;
+      case 3:   add_to_sig(result,"char",&currPos); break;
+      case 13:  add_to_sig(result,"int",&currPos); break;
+      }
+    }
+
+  add_to_sig(result,")",&currPos);
+
+  /* if this is a void method, we are finished */
+  /* otherwise, print "->" and the return type */
+  if ((!((currentFunction->ReturnType % 10) == 2)) ||
+      ((currentFunction->ReturnType%1000)/100))
+    {
+    add_to_sig(result," -> ",&currPos);
+
+    switch (currentFunction->ReturnType%1000)
+      {
+      case 302:
+      case 303: add_to_sig(result,"string",&currPos); break;
+      case 109:
+      case 309: add_to_sig(result,currentFunction->ReturnClass,&currPos); break;
+      case 301:
+      case 307:
+	add_to_sig(result,"(",&currPos);
+	for (j = 0; j < currentFunction->HintSize; j++) 
+	  {
+	  if (j != 0)
+	    {
+	    add_to_sig(result,", ",&currPos);
+	    }
+	  add_to_sig(result,"float",&currPos);
+	  }
+	add_to_sig(result,")",&currPos);
+	break;
+      case 304: 
+	add_to_sig(result,"(",&currPos);
+	for (j = 0; j < currentFunction->HintSize; j++) 
+	  {
+	  if (j != 0)
+	    {
+	    add_to_sig(result,", ",&currPos);
+	    }
+	  add_to_sig(result,"int",&currPos);
+	  }
+	add_to_sig(result,")",&currPos);
+	break;
+      case 1:
+      case 7: add_to_sig(result,"float",&currPos); break;
+      case 13:
+      case 14:
+      case 15:
+      case 16:
+      case 4:
+      case 5:
+      case 6: add_to_sig(result,"int",&currPos); break;
+      case 3: add_to_sig(result,"char",&currPos); break;
+      }
+    }
+  
+  if (currentFunction->Signature)
+    {
+    add_to_sig(result,"\\n ",&currPos);
+    add_to_sig(result,currentFunction->Signature,&currPos);
+    }
+
+  currentFunction->Signature = realloc(currentFunction->Signature,currPos+1);
+  strcpy(currentFunction->Signature,result);
+  /* fprintf(stderr,"%s\n",currentFunction->Signature); */
+}
+
+/* convert special characters in a string into their escape codes,
+   so that the string can be quoted in a source file */
+static const char *quote_string(const char *comment)
+{
+  static char result[8192];
+  int i, j, n;
+
+  if (comment == NULL)
+    {
+    return "";
+    }
+
+  j = 0;
+
+  n = strlen(comment);
+  for (i = 0; i < n; i++)
+    {
+    if (comment[i] == '\"')
+      {
+      strcpy(&result[j],"\\\"");
+      j += 2;
+      }
+    else if (comment[i] == '\\')
+      {
+      strcpy(&result[j],"\\\\");
+      j += 2;
+      }
+    else if (comment[i] == '\n')
+      {
+      strcpy(&result[j],"\\n");
+      j += 2;
+      }      
+    else if (isprint(comment[i]))
+      {
+      result[j] = comment[i];
+      j++;
+      }
+    else
+      {
+      sprintf(&result[j],"\\%3.3o",comment[i]);
+      j += 4;
+      }
+    }
+  result[j] = '\0';
+
+  return result;
+}
+  
+
 void outputFunction2(FILE *fp, FileInfo *data)
 {
   int i, j, k, is_static, fnum, occ, backnum, goto_used;
   FunctionInfo *theFunc;
   FunctionInfo *backFunc;
 
-  /* first create external type declarations for all object
+  /* create a python-type signature for each method (for use in docstring) */
+  for (fnum = 0; fnum < numberOfWrappedFunctions; fnum++)
+    {
+    theFunc = wrappedFunctions[fnum];
+    currentFunction = theFunc;
+    get_python_signature();
+    }
+
+  /* create external type declarations for all object
      return types */
   for (fnum = 0; fnum < numberOfWrappedFunctions; fnum++)
     {
@@ -361,9 +563,6 @@ void outputFunction2(FILE *fp, FileInfo *data)
 	      data->ClassName,currentFunction->Name);
       fprintf(fp,"{\n");
       
-      /* declare the variables */
-      fprintf(fp,"  %s *op;\n\n",data->ClassName);
-
       /* find all occurances of this method */
       for (occ = fnum; occ < numberOfWrappedFunctions; occ++)
 	{
@@ -381,6 +580,12 @@ void outputFunction2(FILE *fp, FileInfo *data)
 	    }
 
 	  fprintf(fp,"  /* handle an occurrence */\n  {\n");
+	  /* declare the variables */
+	  if (!is_static)
+	    {
+	    fprintf(fp,"    %s *op;\n\n",data->ClassName);
+	    }
+
 	  currentFunction = wrappedFunctions[occ];
 	  /* process the args */
 	  for (i = 0; i < currentFunction->NumberOfArguments; i++)
@@ -481,7 +686,7 @@ void outputFunction2(FILE *fp, FileInfo *data)
 	      {
 	      if (is_static)
 		{
-		  fprintf(fp,"      {\n      op = NULL; /* avoid compiler warning */\n");
+		fprintf(fp,"      {\n");
 		sprintf(methodname,"%s::%s",
 			data->ClassName,currentFunction->Name);
 		}
@@ -561,7 +766,7 @@ void outputFunction2(FILE *fp, FileInfo *data)
 	  /* memory leak here but ... */
 	  wrappedFunctions[occ]->Name = NULL;
 	  wrappedFunctions[fnum]->Signature = (char *)
-	    realloc(wrappedFunctions[fnum]->Signature,siglen+2+
+	    realloc(wrappedFunctions[fnum]->Signature,siglen+3+
 		    strlen(wrappedFunctions[occ]->Signature));
 	  strcpy(&wrappedFunctions[fnum]->Signature[siglen],"\\n");
 	  strcpy(&wrappedFunctions[fnum]->Signature[siglen+2],
@@ -579,15 +784,16 @@ void outputFunction2(FILE *fp, FileInfo *data)
     {
     if (wrappedFunctions[fnum]->Name)
       {
-      fprintf(fp,"  {\"%s\",		(PyCFunction)Py%s_%s, 1,\n   \"%s\"},\n",
+      fprintf(fp,"  {\"%s\",		(PyCFunction)Py%s_%s, 1,\n   \"%s\\n\\n%s\"},\n",
 	      wrappedFunctions[fnum]->Name, data->ClassName, 
-	      wrappedFunctions[fnum]->Name, wrappedFunctions[fnum]->Signature);
+	      wrappedFunctions[fnum]->Name, wrappedFunctions[fnum]->Signature,
+	      quote_string(wrappedFunctions[fnum]->Comment));
       }
     }
   if (!strcmp("vtkObject",data->ClassName))
     {
-    fprintf(fp,"  {\"GetAddressAsString\",  (PyCFunction)Py%s_GetAddressAsString, 1,\n   \"Get address of vtkObject in format 'Addr=%%p'\"},\n", data->ClassName);
-    fprintf(fp,"  {\"AddObserver\",  (PyCFunction)Py%s_AddObserver, 1,\n   \"Add a callback for an event type\"},\n", data->ClassName);
+    fprintf(fp,"  {\"GetAddressAsString\",  (PyCFunction)Py%s_GetAddressAsString, 1,\n   \"V.GetAddressAsString(string) -> string\\n\\n Get address of C++ object in format 'Addr=%%p' after casting to\\n the specified type.  You can get the same information from V.__this__.\"},\n", data->ClassName);
+    fprintf(fp,"  {\"AddObserver\",  (PyCFunction)Py%s_AddObserver, 1,\n   \"V.AddObserver(int, function) -> int\\n\\n Add an event callback function(vtkObject, int) for an event type.\\n Returns a handle that can be used with RemoveEvent(int).\"},\n", data->ClassName);
     }
   
   fprintf(fp,"  {NULL,	       	NULL}\n};\n\n");
@@ -666,6 +872,11 @@ void outputFunction(FILE *fp, FileInfo *data)
       !strcmp("New",currentFunction->Name))
     {
     args_ok = 0;
+    if (!strcmp("New",currentFunction->Name) &&
+	currentFunction->NumberOfArguments == 0)
+      {
+      class_has_new = 1;
+      }
     }
   
   if (currentFunction->IsPublic && args_ok && 
@@ -674,6 +885,59 @@ void outputFunction(FILE *fp, FileInfo *data)
     {
     wrappedFunctions[numberOfWrappedFunctions] = currentFunction;
     numberOfWrappedFunctions++;
+    }
+}
+
+static void create_class_doc(FILE *fp, FileInfo *data)
+{
+  const char *text;
+
+  if (data->NameComment) 
+    {
+    text = data->NameComment;
+    while (*text == ' ')
+      {
+      text++;
+      }
+    fprintf(fp,"%s\\n\\n",quote_string(text));
+    }
+  else
+    {
+    fprintf(fp,"%s - no description provided.\\n\\n",
+	    quote_string(data->ClassName));
+    }
+
+  if (data->NumberOfSuperClasses > 0)
+    {
+    fprintf(fp,"Super Class:\\n\\n %s\\n\\n",
+	    quote_string(data->SuperClasses[0]));
+    }
+
+  fprintf(fp,"Description:\\n\\n");
+  fprintf(fp,"%s\\n",  
+	  data->Description ? quote_string(data->Description) : 
+	                      "None provided.\\n\\n");
+
+  if (data->Caveats)
+    {
+    fprintf(fp,"Caveats:\\n\\n");
+    fprintf(fp,"%s\\n", quote_string(data->Caveats));
+    }
+
+  if (data->SeeAlso)
+    {
+    char *dup, *tok;
+    
+    fprintf(fp,"See Also:\\n\\n");
+    dup = strdup(data->SeeAlso);
+    tok = strtok(dup," ");
+    while (tok)
+      {
+      fprintf(fp," %s",quote_string(tok));
+      tok = strtok(NULL," ");
+      }
+    free(dup);
+    fprintf(fp,"\\n");
     }
 }
 
@@ -747,25 +1011,44 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   /* output the class initilization function */
   if (data->NumberOfSuperClasses)
     { 
-    fprintf(fp,"static vtkObject *%sStaticNew()\n",data->ClassName);
-    fprintf(fp,"{\n  return %s::New();\n}\n\n",data->ClassName);
-
+    if (class_has_new)
+      {
+      fprintf(fp,"static vtkObject *%sStaticNew()\n",data->ClassName);
+      fprintf(fp,"{\n  return %s::New();\n}\n\n",data->ClassName);
+      }
     fprintf(fp,"PyObject *PyVTKClass_%sNew(char *modulename)\n{\n",data->ClassName);
-    fprintf(fp,"  return PyVTKClass_New(&%sStaticNew,\n",
-	    data->ClassName);
+    if (class_has_new)
+      {
+      fprintf(fp,"  return PyVTKClass_New(&%sStaticNew,\n",data->ClassName);
+      }
+    else
+      {
+      fprintf(fp,"  return PyVTKClass_New(NULL,\n");
+      }      
     fprintf(fp,"                        Py%sMethods,\n",data->ClassName);
-    fprintf(fp,"                        \"%s\",modulename,\"\",\n",data->ClassName);
+    fprintf(fp,"                        \"%s\",modulename,\n",data->ClassName);
+    fprintf(fp,"                        \"");
+    create_class_doc(fp,data);
+    fprintf(fp,"\",\n");
     fprintf(fp,"                        PyVTKClass_%sNew(modulename));\n}\n\n",
 	    data->SuperClasses[0]);
     }
   else if (strcmp(data->ClassName,"vtkObject") == 0)
     {
-    fprintf(fp,"static vtkObject *%sStaticNew()\n",data->ClassName);
-    fprintf(fp,"{\n  return %s::New();\n}\n\n",data->ClassName);
-
+    if (class_has_new)
+      {
+      fprintf(fp,"static vtkObject *%sStaticNew()\n",data->ClassName);
+      fprintf(fp,"{\n  return %s::New();\n}\n\n",data->ClassName);
+      }
     fprintf(fp,"PyObject *PyVTKClass_%sNew(char *modulename)\n{\n",data->ClassName);
-    fprintf(fp,"  return PyVTKClass_New(&%sStaticNew,\n",
-            data->ClassName);
+    if (class_has_new)
+      {
+      fprintf(fp,"  return PyVTKClass_New(&%sStaticNew,\n",data->ClassName);
+      }
+    else
+      {
+      fprintf(fp,"  return PyVTKClass_New(NULL,\n");
+      }      
     fprintf(fp,"                        Py%sMethods,\n",
             data->ClassName);
     fprintf(fp,"                        \"%s\",modulename,\"\",0);\n}\n\n",

@@ -90,8 +90,8 @@ libVTK$(ME)Java$(SHLIB_SUFFIX): ${JAVA_O_ADD} ${JAVA_WRAP}
 #
 build_python: ${PYTHON_O_ADD} ${PYTHON_WRAP} ${PYTHON_LIB_FILE} 
 
-python/${ME}Init.cxx: ../wrap/vtkWrapPythonInit ${KIT_NEWS} Makefile
-	../wrap/vtkWrapPythonInit libVTK${ME}Python ${KIT_NEWS} > python/${ME}Init.cxx
+python/${ME}Init.cxx: ../wrap/vtkWrapPythonInit ${PYTHON_WRAP_H} Makefile
+	../wrap/vtkWrapPythonInit libVTK${ME}Python ${PYTHON_WRAP_H} > python/${ME}Init.cxx
 
 libVTK${ME}Python.a: python/${ME}Init.o ${PYTHON_O_ADD} ${PYTHON_WRAP} 
 	${AR} cr libVTK${ME}Python.a python/${ME}Init.o \

@@ -39,6 +39,9 @@ vtkOpenGLVolumeTextureMapper2D
 UNIX_ABSTRACT = \
 vtkXRenderWindow 
 
+UNIX_CONCRETE = \
+vtkXRenderWindowInteractor
+
 ABSTRACT_H = \
 vtkCuller \
 vtkDirectionEncoder \
@@ -325,7 +328,8 @@ vtkWarpTo \
 vtkWindowedSincPolyDataFilter \
 vtkWorldPointPicker \
 vtkWarpVector \
- ${GRAPHICS_API_OBJ}
+${GRAPHICS_API_OBJ} \
+${UNIX_CONCRETE}
 
 WIN32_OBJ = \
 vtkOpenGLRenderer \
@@ -378,7 +382,7 @@ java/vtk_vtkPanel.c: ../java/vtk/vtkPanel${JAVA_BEANS}.java
 vtkJavaPanel.o: java/vtk_vtkPanel.h java/vtk_vtkPanel.c
 
 # standard stuff here
-KIT_OBJ = vtkXRenderWindowInteractor.o ${SRC_OBJ} 
+KIT_OBJ = ${SRC_OBJ} 
 
 KIT_TCL_OBJ = vtkXRenderWindowTclInteractor.o ${TCL_OBJ}
 

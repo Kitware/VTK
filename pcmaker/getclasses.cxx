@@ -500,6 +500,14 @@ void MakePythonInit(char *fname, char *argv1, CPcmakerDlg *vals)
     {
     names[anindex++] = concrete_h[i];
     }
+  for (i = 0; i < num_abstract; i++)
+    {
+    names[anindex++] = abstract[i];
+    }
+  for (i = 0; i < num_abstract_h; i++)
+    {
+    names[anindex++] = abstract_h[i];
+    }  
   
   fp = fopen(fname,"w");
   if (fp)

@@ -259,15 +259,21 @@ int PyVTKObject_Check(PyObject *obj)
 
 PyObject *PyVTKObject_New(PyObject *vtkclass, vtkObject *ptr)
 {
-  PyVTKObject *self = PyObject_NEW(PyVTKObject, &PyVTKObjectType);
   if (ptr)
     {
-      ptr->Register(NULL);
+    ptr->Register(NULL);
+    }
+  else if (((PyVTKClass *)vtkclass)->vtk_new != NULL)
+    {
+    ptr = ((PyVTKClass *)vtkclass)->vtk_new();
     }
   else
     {
-      ptr = ((PyVTKClass *)vtkclass)->vtk_new();
+    PyErr_SetString(PyExc_TypeError,
+		    "this is an abstract class and cannot be instantiated");
+    return 0;
     }
+  PyVTKObject *self = PyObject_NEW(PyVTKObject, &PyVTKObjectType);
   self->vtk_ptr = ptr;
   self->vtk_class = (PyVTKClass *)
     PyDict_GetItemString(vtkPythonHash->ClassDict,(char *)ptr->GetClassName());
