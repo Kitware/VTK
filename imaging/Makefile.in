@@ -42,7 +42,6 @@ vtkImageMedian.o \
 vtkImageMIPFilter.o \
 vtkImageNonMaximalSuppression2D.o \
 vtkImageNonMaximalSuppression3D.o \
-vtkImageOpenClose3D.o \
 vtkImageRFFT.o \
 vtkImageRFFT1D.o \
 vtkImageScatterPlot.o \
@@ -87,7 +86,6 @@ tcl/vtkImageMedianTcl.o \
 tcl/vtkImageMIPFilterTcl.o \
 tcl/vtkImageNonMaximalSuppression2DTcl.o \
 tcl/vtkImageNonMaximalSuppression3DTcl.o \
-tcl/vtkImageOpenClose3DTcl.o \
 tcl/vtkImageRFFTTcl.o \
 tcl/vtkImageRFFT1DTcl.o \
 tcl/vtkImageScatterPlotTcl.o \
@@ -130,7 +128,6 @@ vtkImageMedian.h \
 vtkImageMIPFilter.h \
 vtkImageNonMaximalSuppression2D.h \
 vtkImageNonMaximalSuppression3D.h \
-vtkImageOpenClose3D.h \
 vtkImageRFFT.h \
 vtkImageRFFT1D.h \
 vtkImageScatterPlot.h \
@@ -288,9 +285,6 @@ tcl/vtkImageNonMaximalSuppression2DTcl.cxx: vtkImageNonMaximalSuppression2D.h ..
 
 tcl/vtkImageNonMaximalSuppression3DTcl.cxx: vtkImageNonMaximalSuppression3D.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageNonMaximalSuppression3DTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageNonMaximalSuppression3D.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageNonMaximalSuppression3DTcl.cxx
-
-tcl/vtkImageOpenClose3DTcl.cxx: vtkImageOpenClose3D.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImageOpenClose3DTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageOpenClose3D.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageOpenClose3DTcl.cxx
 
 tcl/vtkImageRFFTTcl.cxx: vtkImageRFFT.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageRFFTTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageRFFT.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageRFFTTcl.cxx
