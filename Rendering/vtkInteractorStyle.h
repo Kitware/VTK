@@ -251,8 +251,8 @@ public:
   // Description:
   // Set/Get the pick color (used by default to color vtkActor2D's).
   // The color is expressed as red/green/blue values between (0.0,1.0).
-  vtkSetVector3Macro(PickColor,float);
-  vtkGetVectorMacro(PickColor, float, 3);
+  vtkSetVector3Macro(PickColor,double);
+  vtkGetVectorMacro(PickColor, double, 3);
 
 protected:
   vtkInteractorStyle();
@@ -286,7 +286,7 @@ protected:
   vtkProp            *CurrentProp;
   vtkActor2D         *PickedActor2D;
   int                PropPicked;      // bool: prop picked?
-  float              PickColor[3];    // support 2D picking
+  double             PickColor[3];    // support 2D picking
 
 private:
   vtkInteractorStyle(const vtkInteractorStyle&);  // Not implemented.

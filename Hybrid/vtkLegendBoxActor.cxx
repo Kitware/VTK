@@ -16,7 +16,7 @@
 
 #include "vtkActor.h"
 #include "vtkCellArray.h"
-#include "vtkFloatArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
@@ -28,7 +28,7 @@
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkLegendBoxActor, "1.29");
+vtkCxxRevisionMacro(vtkLegendBoxActor, "1.30");
 vtkStandardNewMacro(vtkLegendBoxActor);
 
 vtkCxxSetObjectMacro(vtkLegendBoxActor,EntryTextProperty,vtkTextProperty);
@@ -182,7 +182,7 @@ void vtkLegendBoxActor::SetNumberOfEntries(int num)
     int i;
 
     //Create internal actors, etc.
-    vtkFloatArray *colors = vtkFloatArray::New();
+    vtkDoubleArray *colors = vtkDoubleArray::New();
     colors->SetNumberOfComponents(3);
     colors->SetNumberOfTuples(num);
     vtkTextMapper **textMapper= new vtkTextMapper* [num];
@@ -216,7 +216,7 @@ void vtkLegendBoxActor::SetNumberOfEntries(int num)
       symbolActor[i]->Register(this);
       }
     //initialize data values
-    static float color[3]={-1.0,-1.0,-1.0};
+    static double color[3]={-1.0,-1.0,-1.0};
     for (i=this->NumberOfEntries; i<num; i++) //initialize
       {
       colors->SetTuple(i,color);
@@ -254,7 +254,7 @@ void vtkLegendBoxActor::SetNumberOfEntries(int num)
 
 //----------------------------------------------------------------------------
 void vtkLegendBoxActor::SetEntry(int i, vtkPolyData *symbol, const char* string,
-                                 float color[3])
+                                 double color[3])
 {
   if ( i >= 0 && i < this->NumberOfEntries )
     {
@@ -304,7 +304,7 @@ void vtkLegendBoxActor::SetEntryString(int i, const char* string)
 }
 
 //----------------------------------------------------------------------------
-void vtkLegendBoxActor::SetEntryColor(int i, float color[3])
+void vtkLegendBoxActor::SetEntryColor(int i, double color[3])
 {
   if ( i >= 0 && i < this->NumberOfEntries )
     {
@@ -321,9 +321,9 @@ void vtkLegendBoxActor::SetEntryColor(int i, float color[3])
 }
 
 //----------------------------------------------------------------------------
-void vtkLegendBoxActor::SetEntryColor(int i, float r, float g, float b)
+void vtkLegendBoxActor::SetEntryColor(int i, double r, double g, double b)
 {
-  float rgb[3];
+  double rgb[3];
   rgb[0] = r; rgb[1] = g; rgb[2] = b;
   this->SetEntryColor(i,rgb);
 }
@@ -355,7 +355,7 @@ const char* vtkLegendBoxActor::GetEntryString(int i)
 }
 
 //----------------------------------------------------------------------------
-float* vtkLegendBoxActor::GetEntryColor(int i)
+double* vtkLegendBoxActor::GetEntryColor(int i)
 {
   if ( i < 0 || i >= this->NumberOfEntries )
     {
@@ -363,7 +363,7 @@ float* vtkLegendBoxActor::GetEntryColor(int i)
     }
   else
     {
-    return vtkFloatArray::SafeDownCast(this->Colors)->GetPointer(i*3);
+    return vtkDoubleArray::SafeDownCast(this->Colors)->GetPointer(i*3);
     }
 }
 
@@ -428,7 +428,7 @@ int vtkLegendBoxActor::RenderOverlay(vtkViewport *viewport)
 int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
 {
   int i;
-  float symbolSize;
+  double symbolSize;
 
   if ( this->NumberOfEntries <= 0 )
     {
@@ -466,11 +466,11 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
 
     //Get position information
     int *x1, *x2;
-    float p1[3], p2[3];
+    double p1[3], p2[3];
     x1 = this->PositionCoordinate->GetComputedViewportValue(viewport);
     x2 = this->Position2Coordinate->GetComputedViewportValue(viewport);
-    p1[0] = (float)x1[0]; p1[1] = (float)x1[1]; p1[2] = 0.0;
-    p2[0] = (float)x2[0]; p2[1] = (float)x2[1]; p2[2] = 0.0;
+    p1[0] = (double)x1[0]; p1[1] = (double)x1[1]; p1[2] = 0.0;
+    p2[0] = (double)x2[0]; p2[1] = (double)x2[1]; p2[2] = 0.0;
 
     //Compute spacing...trying to keep things proportional
     //
@@ -479,7 +479,7 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
     int maxTextMapper = 0;
     char *str;
     int tempi[2], fontSize;
-    float sf, twr, swr;
+    double sf, twr, swr;
     double *bounds;
     for (swr=0.0, maxLength=i=0; i<this->NumberOfEntries; i++)
       {
@@ -517,7 +517,7 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
     fontSize = 12;
     this->TextMapper[maxTextMapper]->GetTextProperty()->SetFontSize(fontSize);
     this->TextMapper[maxTextMapper]->GetSize(viewport,tempi);
-    twr = (float)tempi[0]/tempi[1];
+    twr = (double)tempi[0]/tempi[1];
     symbolSize = swr / (swr + twr);
 
     //Okay, now that the proportions are okay, let's size everything
@@ -565,12 +565,12 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
 
     //Place text strings
     double color[3];
-    float posY;
-    float posX = p1[0] + this->Padding + 
+    double posY;
+    double posX = p1[0] + this->Padding + 
                  symbolSize*(p2[0] - p1[0] - 2.0*this->Padding);
     for (i=0; i<this->NumberOfEntries; i++)
       {
-      posY = p2[1] - this->Padding - (float)i*size[1] - 0.5*size[1];
+      posY = p2[1] - this->Padding - (double)i*size[1] - 0.5*size[1];
       this->TextActor[i]->SetPosition(posX,posY);
       this->TextMapper[i]->GetTextProperty()->SetFontSize(fontSize);
       this->TextActor[i]->GetProperty()->DeepCopy(this->GetProperty());
@@ -598,7 +598,7 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
 
         if ( (bounds[1]-bounds[0]) == 0.0 ) 
           { 
-          sf = VTK_LARGE_FLOAT; 
+          sf = VTK_DOUBLE_MAX; 
           }
         else 
           { 
@@ -607,7 +607,7 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
         
         if ( (bounds[3]-bounds[2]) == 0.0 )
           {
-          if ( sf >= VTK_LARGE_FLOAT )          
+          if ( sf >= VTK_DOUBLE_MAX )          
             {
             sf = 1.0;
             }
@@ -617,7 +617,7 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
           sf = size[1]/(bounds[3]-bounds[2]);
           }
 
-        posY = p2[1] - this->Padding - (float)i*size[1] - 0.5*size[1] -
+        posY = p2[1] - this->Padding - (double)i*size[1] - 0.5*size[1] -
                        0.25*tempi[1];
         this->Transform[i]->Identity();
         this->Transform[i]->Translate(posX, posY, 0.0);

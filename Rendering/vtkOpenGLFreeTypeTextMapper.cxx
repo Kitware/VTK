@@ -91,7 +91,7 @@ vtkOpenGLFreeTypeTextMapper_GetGL2PSFontName(vtkTextProperty *tprop,
 
 //----------------------------------------------------------------------------
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.38");
+vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.39");
 vtkStandardNewMacro(vtkOpenGLFreeTypeTextMapper);
 #endif
 
@@ -359,8 +359,7 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
   // to maintain backward compatibility for a while. Text mapper classes will
   // use the Actor2D color instead of the text prop color if this value is 
   // found (i.e. if the text prop color has not been set).
-
-  float* tpropColor = tprop->GetColor();
+  double* tpropColor = tprop->GetColor();
   if (tpropColor[0] < 0.0 && tpropColor[1] < 0.0 && tpropColor[2] < 0.0)
     {
     tpropColor = actor->GetProperty()->GetColor();

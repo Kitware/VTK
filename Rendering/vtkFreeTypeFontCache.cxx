@@ -281,7 +281,7 @@ vtkFreeTypeFontCache::Entry* vtkFreeTypeFontCache::GetFont(vtkTextProperty *tpro
   unsigned char alpha = (opacity < 0.0) ? 255 : (unsigned char)(opacity*255.0);
   if (!override_color)
     {
-    float* tpropColor = tprop->GetColor();
+    double* tpropColor = tprop->GetColor();
     red   = (tpropColor[0] < 0.0) ? 0 : (unsigned char)(tpropColor[0] * 255.0);
     green = (tpropColor[1] < 0.0) ? 0 : (unsigned char)(tpropColor[1] * 255.0);
     blue  = (tpropColor[2] < 0.0) ? 0 : (unsigned char)(tpropColor[2] * 255.0);

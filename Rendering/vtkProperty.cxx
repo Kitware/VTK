@@ -20,7 +20,7 @@
 
 #include <stdlib.h>
 
-vtkCxxRevisionMacro(vtkProperty, "1.54");
+vtkCxxRevisionMacro(vtkProperty, "1.55");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -100,7 +100,7 @@ vtkProperty *vtkProperty::New()
   return (vtkProperty*)ret;
 }
 
-void vtkProperty::SetColor(float R,float G,float B)
+void vtkProperty::SetColor(double R,double G,double B)
 {
   // Use Set macros to insure proper modified time behavior
   this->SetAmbientColor(R,G,B);
@@ -110,9 +110,9 @@ void vtkProperty::SetColor(float R,float G,float B)
 
 // Return composite color of object (ambient + diffuse + specular). Return value
 // is a pointer to rgb values.
-float *vtkProperty::GetColor()
+double *vtkProperty::GetColor()
 {
-  float norm;
+  double norm;
   int i;
   
   if ((this->Ambient + this->Diffuse + this->Specular)>0)
@@ -136,7 +136,7 @@ float *vtkProperty::GetColor()
 
 // Copy composite color of object (ambient + diffuse + specular) into array 
 // provided.
-void vtkProperty::GetColor(float rgb[3])
+void vtkProperty::GetColor(double rgb[3])
 {
   this->GetColor();
 

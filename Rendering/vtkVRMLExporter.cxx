@@ -33,7 +33,7 @@
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkVRMLExporter, "1.73");
+vtkCxxRevisionMacro(vtkVRMLExporter, "1.74");
 vtkStandardNewMacro(vtkVRMLExporter);
 
 vtkVRMLExporter::vtkVRMLExporter()
@@ -240,7 +240,6 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   vtkDataArray *tcoords = NULL;
   int i, i1, i2;
   vtkProperty *prop;
-  float *tempf;
   double *tempd;
   vtkCellArray *cells;
   vtkIdType npts = 0;
@@ -317,18 +316,18 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
         pd->GetNumberOfStrips()))
     {
     tempf2 = prop->GetAmbient();
-    tempf = prop->GetAmbientColor();
+    tempd = prop->GetAmbientColor();
     fprintf(fp,"              emissiveColor %g %g %g\n",
-            tempf[0]*tempf2, tempf[1]*tempf2, tempf[2]*tempf2);
+            tempd[0]*tempf2, tempd[1]*tempf2, tempd[2]*tempf2);
     }
   tempf2 = prop->GetDiffuse();
-  tempf = prop->GetDiffuseColor();
+  tempd = prop->GetDiffuseColor();
   fprintf(fp,"              diffuseColor %g %g %g\n",
-          tempf[0]*tempf2, tempf[1]*tempf2, tempf[2]*tempf2);
+          tempd[0]*tempf2, tempd[1]*tempf2, tempd[2]*tempf2);
   tempf2 = prop->GetSpecular();
-  tempf = prop->GetSpecularColor();
+  tempd = prop->GetSpecularColor();
   fprintf(fp,"              specularColor %g %g %g\n",
-          tempf[0]*tempf2, tempf[1]*tempf2, tempf[2]*tempf2);
+          tempd[0]*tempf2, tempd[1]*tempf2, tempd[2]*tempf2);
   fprintf(fp,"              shininess %g\n",prop->GetSpecularPower()/128.0);
   fprintf(fp,"              transparency %g\n",1.0 - prop->GetOpacity());
   fprintf(fp,"              }\n"); // close matrial

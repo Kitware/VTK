@@ -98,54 +98,54 @@ public:
   // Set the color of the object. Has the side effect of setting the
   // ambient diffuse and specular colors as well. This is basically
   // a quick overall color setting method.
-  void SetColor(float r,float g,float b);
-  void SetColor(float a[3]) { this->SetColor(a[0], a[1], a[2]); };
-  float *GetColor();
-  void GetColor(float rgb[3]);
+  void SetColor(double r,double g,double b);
+  void SetColor(double a[3]) { this->SetColor(a[0], a[1], a[2]); };
+  double *GetColor();
+  void GetColor(double rgb[3]);
 
   // Description:
   // Set/Get the ambient lighting coefficient.
-  vtkSetClampMacro(Ambient,float,0.0f,1.0f);
-  vtkGetMacro(Ambient,float);
+  vtkSetClampMacro(Ambient,double,0.0f,1.0f);
+  vtkGetMacro(Ambient,double);
 
   // Description:
   // Set/Get the diffuse lighting coefficient.
-  vtkSetClampMacro(Diffuse,float,0.0f,1.0f);
-  vtkGetMacro(Diffuse,float);
+  vtkSetClampMacro(Diffuse,double,0.0f,1.0f);
+  vtkGetMacro(Diffuse,double);
 
   // Description:
   // Set/Get the specular lighting coefficient.
-  vtkSetClampMacro(Specular,float,0.0f,1.0f);
-  vtkGetMacro(Specular,float);
+  vtkSetClampMacro(Specular,double,0.0f,1.0f);
+  vtkGetMacro(Specular,double);
 
   // Description:
   // Set/Get the specular power.
-  vtkSetClampMacro(SpecularPower,float,0.0f,100.0f);
-  vtkGetMacro(SpecularPower,float);
+  vtkSetClampMacro(SpecularPower,double,0.0f,100.0f);
+  vtkGetMacro(SpecularPower,double);
 
   // Description:
   // Set/Get the object's opacity. 1.0 is totally opaque and 0.0 is completely
   // transparent.
-  vtkSetClampMacro(Opacity,float,0.0f,1.0f);
-  vtkGetMacro(Opacity,float);
+  vtkSetClampMacro(Opacity,double,0.0f,1.0f);
+  vtkGetMacro(Opacity,double);
 
   // Description:
   // Set/Get the ambient surface color. Not all renderers support separate
   // ambient and diffuse colors. From a physical standpoint it really
   // doesn't make too much sense to have both. For the rendering
   // libraries that don't support both, the diffuse color is used.
-  vtkSetVector3Macro(AmbientColor,float);
-  vtkGetVectorMacro(AmbientColor,float,3);
+  vtkSetVector3Macro(AmbientColor,double);
+  vtkGetVectorMacro(AmbientColor,double,3);
 
   // Description:
   // Set/Get the diffuse surface color.
-  vtkSetVector3Macro(DiffuseColor,float);
-  vtkGetVectorMacro(DiffuseColor,float,3);
+  vtkSetVector3Macro(DiffuseColor,double);
+  vtkGetVectorMacro(DiffuseColor,double,3);
 
   // Description:
   // Set/Get the specular surface color.
-  vtkSetVector3Macro(SpecularColor,float);
-  vtkGetVectorMacro(SpecularColor,float,3);
+  vtkSetVector3Macro(SpecularColor,double);
+  vtkGetVectorMacro(SpecularColor,double,3);
 
   // Description:
   // Turn on/off the visibility of edges. On some renderers it is
@@ -157,8 +157,8 @@ public:
 
   // Description:
   // Set/Get the color of primitive edges (if edge visibility is enabled).
-  vtkSetVector3Macro(EdgeColor,float);
-  vtkGetVectorMacro(EdgeColor,float,3);
+  vtkSetVector3Macro(EdgeColor,double);
+  vtkGetVectorMacro(EdgeColor,double,3);
 
   // Description:
   // Set/Get the width of a Line. The width is expressed in screen units.
@@ -206,16 +206,16 @@ protected:
   vtkProperty();
   ~vtkProperty() {};
 
-  float Color[3];
-  float AmbientColor[3];
-  float DiffuseColor[3];
-  float SpecularColor[3];
-  float EdgeColor[3];
-  float Ambient;
-  float Diffuse;
-  float Specular;
-  float SpecularPower;
-  float Opacity;
+  double Color[3];
+  double AmbientColor[3];
+  double DiffuseColor[3];
+  double SpecularColor[3];
+  double EdgeColor[3];
+  double Ambient;
+  double Diffuse;
+  double Specular;
+  double SpecularPower;
+  double Opacity;
   float PointSize;
   float LineWidth;
   int   LineStipplePattern;

@@ -35,7 +35,7 @@
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLProperty, "1.28");
+vtkCxxRevisionMacro(vtkOpenGLProperty, "1.29");
 vtkStandardNewMacro(vtkOpenGLProperty);
 #endif
 
@@ -49,7 +49,7 @@ void vtkOpenGLProperty::Render(vtkActor *vtkNotUsed(anActor),
   GLenum method;
   float Info[4];
   GLenum Face;
-  float  color[4];
+  double  color[4];
 
   // unbind any textures for starters
   glDisable(GL_TEXTURE_2D);
@@ -81,21 +81,21 @@ void vtkOpenGLProperty::Render(vtkActor *vtkNotUsed(anActor),
 
   for (i=0; i < 3; i++) 
     {
-    Info[i] = this->Ambient*this->AmbientColor[i];
+    Info[i] = static_cast<float>(this->Ambient*this->AmbientColor[i]);
     }
   glMaterialfv( Face, GL_AMBIENT, Info );
   for (i=0; i < 3; i++) 
     {
-    Info[i] = this->Diffuse*this->DiffuseColor[i];
+    Info[i] = static_cast<float>(this->Diffuse*this->DiffuseColor[i]);
     }
   glMaterialfv( Face, GL_DIFFUSE, Info );
   for (i=0; i < 3; i++) 
     {
-    Info[i] = this->Specular*this->SpecularColor[i];
+    Info[i] = static_cast<float>(this->Specular*this->SpecularColor[i]);
     }
   glMaterialfv( Face, GL_SPECULAR, Info );
 
-  Info[0] = this->SpecularPower;
+  Info[0] = static_cast<float>(this->SpecularPower);
   glMaterialfv( Face, GL_SHININESS, Info );
 
   // set interpolation 
@@ -122,7 +122,7 @@ void vtkOpenGLProperty::Render(vtkActor *vtkNotUsed(anActor),
   // are encountered without normals. 
   this->GetColor( color );
   color[3] = this->Opacity;
-  glColor4fv( color );
+  glColor4dv( color );
 
   // Set the PointSize
   glPointSize (this->PointSize);
@@ -170,21 +170,21 @@ void vtkOpenGLProperty::BackfaceRender(vtkActor *vtkNotUsed(anActor),
 
   for (i=0; i < 3; i++) 
     {
-    Info[i] = this->Ambient*this->AmbientColor[i];
+    Info[i] = static_cast<float>(this->Ambient*this->AmbientColor[i]);
     }
   glMaterialfv( Face, GL_AMBIENT, Info );
   for (i=0; i < 3; i++) 
     {
-    Info[i] = this->Diffuse*this->DiffuseColor[i];
+    Info[i] = static_cast<float>(this->Diffuse*this->DiffuseColor[i]);
     }
   glMaterialfv( Face, GL_DIFFUSE, Info );
   for (i=0; i < 3; i++) 
     {
-    Info[i] = this->Specular*this->SpecularColor[i];
+    Info[i] = static_cast<float>(this->Specular*this->SpecularColor[i]);
     }
   glMaterialfv( Face, GL_SPECULAR, Info );
 
-  Info[0] = this->SpecularPower;
+  Info[0] = static_cast<float>(this->SpecularPower);
   glMaterialfv( Face, GL_SHININESS, Info );
 
 }

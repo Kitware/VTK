@@ -38,7 +38,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper2D, "1.49");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper2D, "1.50");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper2D);
 #endif
 
@@ -128,7 +128,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     vtkMath::Round(size[1]*(visVP[3] - visVP[1])/(vport[3] - vport[1]));
   
   // Set up the font color from the text actor
-  float*  actorColor = actor->GetProperty()->GetColor();
+  double*  actorColor = actor->GetProperty()->GetColor();
   color[0] = (unsigned char) (actorColor[0] * 255.0);
   color[1] = (unsigned char) (actorColor[1] * 255.0);
   color[2] = (unsigned char) (actorColor[2] * 255.0);

@@ -12,8 +12,8 @@ vtkAbstractTransform    TransformPoint          307 3
 vtkAbstractTransform    TransformVectorAtPoint  307 3
 vtkActor                GetBounds               307 6
 vtkAssembly             GetBounds               307 6
-vtkCamera               GetOrientation          301 3
-vtkCamera               GetOrientationWXYZ      301 4
+vtkCamera               GetOrientation          307 3
+vtkCamera               GetOrientationWXYZ      307 4
 vtkCell                 GetBounds               307 6
 vtkColorTransferFunction GetColor               307 3
 vtkCoordinate           GetComputedDisplayValue 304 2
@@ -78,7 +78,7 @@ vtkImageViewer          GetSize                 304 2
 vtkImplicitFunction     FunctionGradient        307 3
 vtkImplicitPlaneWidget	GetNormal		307 3
 vtkImplicitPlaneWidget	GetOrigin		307 3
-vtkLegendBoxActor       GetEntryColor           301 3
+vtkLegendBoxActor       GetEntryColor           307 3
 vtkLight                GetColor                307 3
 vtkLight                GetTransformedFocalPoint 307 3
 vtkLight                GetTransformedPosition  307 3
@@ -132,7 +132,7 @@ vtkProp3D               GetXRange               307 2
 vtkProp3D               GetYRange               307 2
 vtkProp3D               GetZRange               307 2
 vtkPropAssembly         GetBounds               307 6
-vtkProperty             GetColor                301 3
+vtkProperty             GetColor                307 3
 vtkPyramid              GetEdgeArray            304 2
 vtkPyramid              GetFaceArray            304 4
 vtkQuadricClustering    GetNumberOfDivisions    304 3
@@ -140,7 +140,7 @@ vtkRayCaster            GetParallelIncrements   301 2
 vtkRayCaster            GetParallelStartPosition 301 3
 vtkRectilinearGrid      GetPoint                307 3
 vtkRecursiveSphereDirectionEncoder GetDecodedGradient 301 3
-vtkRenderer		ComputeVisiblePropBounds    301 6
+vtkRenderer		ComputeVisiblePropBounds    307 6
 vtkScalarsToColors      GetColor                307 3
 vtkSplineWidget         GetHandlePosition       307 3
 vtkStreamer             GetStartPosition        307 3
@@ -178,5 +178,5 @@ vtkXImageWindow         GetSize                 304 2
 vtkXRenderWindow        GetPosition             304 2
 vtkXRenderWindow        GetScreenSize           304 2
 vtkXRenderWindow        GetSize                 304 2
-vtkXYPlotActor          GetPlotColor            301 3
+vtkXYPlotActor          GetPlotColor            307 3
 

@@ -39,7 +39,7 @@
 
 #define VTK_MAX_PLOTS 50
 
-vtkCxxRevisionMacro(vtkXYPlotActor, "1.51");
+vtkCxxRevisionMacro(vtkXYPlotActor, "1.52");
 vtkStandardNewMacro(vtkXYPlotActor);
 
 vtkCxxSetObjectMacro(vtkXYPlotActor,TitleTextProperty,vtkTextProperty);
@@ -1793,13 +1793,13 @@ int vtkXYPlotActor::GetPlotPoints(int i)
 }
 
 //----------------------------------------------------------------------------
-void vtkXYPlotActor::SetPlotColor(int i, float r, float g, float b)
+void vtkXYPlotActor::SetPlotColor(int i, double r, double g, double b)
 {
   this->LegendActor->SetEntryColor(i, r, g, b);
 }
 
 //----------------------------------------------------------------------------
-float *vtkXYPlotActor::GetPlotColor(int i)
+double *vtkXYPlotActor::GetPlotColor(int i)
 {
   return this->LegendActor->GetEntryColor(i);
 }

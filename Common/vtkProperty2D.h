@@ -47,13 +47,13 @@ public:
 
   // Description:
   // Set/Get the RGB color of this property.
-  vtkSetVector3Macro(Color, float);
-  vtkGetVectorMacro(Color, float, 3);
+  vtkSetVector3Macro(Color, double);
+  vtkGetVectorMacro(Color, double, 3);
 
   // Description:
   // Set/Get the Opacity of this property.
-  vtkGetMacro(Opacity, float);
-  vtkSetMacro(Opacity, float);
+  vtkGetMacro(Opacity, double);
+  vtkSetMacro(Opacity, double);
 
   // Description:
   // Set/Get the diameter of a Point. The size is expressed in screen units.
@@ -106,8 +106,8 @@ protected:
   vtkProperty2D();
   ~vtkProperty2D();
 
-  float Color[3];
-  float Opacity;
+  double Color[3];
+  double Opacity;
   float PointSize;
   float LineWidth;
   int   LineStipplePattern;

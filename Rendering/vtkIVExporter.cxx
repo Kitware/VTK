@@ -34,7 +34,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkIVExporter, "1.55");
+vtkCxxRevisionMacro(vtkIVExporter, "1.56");
 vtkStandardNewMacro(vtkIVExporter);
 
 vtkIVExporter::vtkIVExporter()
@@ -323,17 +323,17 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   // the following is based on a guess about how VTK's GetAmbient
   // property corresponds to SoMaterial's ambientColor
   tempf2 = prop->GetAmbient();
-  tempf = prop->GetAmbientColor();
+  tempd = prop->GetAmbientColor();
   fprintf(fp,"%sambientColor %g %g %g\n", indent,
-          tempf[0]*tempf2, tempf[1]*tempf2, tempf[2]*tempf2);
+          tempd[0]*tempf2, tempd[1]*tempf2, tempd[2]*tempf2);
   tempf2 = prop->GetDiffuse();
-  tempf = prop->GetDiffuseColor();
+  tempd = prop->GetDiffuseColor();
   fprintf(fp,"%sdiffuseColor %g %g %g\n", indent,
-          tempf[0]*tempf2, tempf[1]*tempf2, tempf[2]*tempf2);
+          tempd[0]*tempf2, tempd[1]*tempf2, tempd[2]*tempf2);
   tempf2 = prop->GetSpecular();
-  tempf = prop->GetSpecularColor();
+  tempd = prop->GetSpecularColor();
   fprintf(fp,"%sspecularColor %g %g %g\n", indent,
-          tempf[0]*tempf2, tempf[1]*tempf2, tempf[2]*tempf2);
+          tempd[0]*tempf2, tempd[1]*tempf2, tempd[2]*tempf2);
   fprintf(fp,"%sshininess %g\n", indent,prop->GetSpecularPower()/128.0);
   fprintf(fp,"%stransparency %g\n", indent,1.0 - prop->GetOpacity());
   fprintf(fp,"%s}\n", indent); // close matrial

@@ -30,7 +30,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkOBJExporter, "1.51");
+vtkCxxRevisionMacro(vtkOBJExporter, "1.52");
 vtkStandardNewMacro(vtkOBJExporter);
 
 vtkOBJExporter::vtkOBJExporter()
@@ -129,7 +129,7 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
   vtkDataArray *tcoords = NULL;
   int i, i1, i2, idNext;
   vtkProperty *prop;
-  float *tempf;
+  double *tempd;
   double *p;
   vtkCellArray *cells;
   vtkTransform *trans = vtkTransform::New();
@@ -145,12 +145,12 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
   // write out the material properties to the mat file
   prop = anActor->GetProperty();
   fprintf(fpMtl,"newmtl mtl%i\n",idStart);
-  tempf = prop->GetAmbientColor();
-  fprintf(fpMtl,"Ka %g %g %g\n",tempf[0], tempf[1], tempf[2]);
-  tempf = prop->GetDiffuseColor();
-  fprintf(fpMtl,"Kd %g %g %g\n",tempf[0], tempf[1], tempf[2]);
-  tempf = prop->GetSpecularColor();
-  fprintf(fpMtl,"Ks %g %g %g\n",tempf[0], tempf[1], tempf[2]);
+  tempd = prop->GetAmbientColor();
+  fprintf(fpMtl,"Ka %g %g %g\n",tempd[0], tempd[1], tempd[2]);
+  tempd = prop->GetDiffuseColor();
+  fprintf(fpMtl,"Kd %g %g %g\n",tempd[0], tempd[1], tempd[2]);
+  tempd = prop->GetSpecularColor();
+  fprintf(fpMtl,"Ks %g %g %g\n",tempd[0], tempd[1], tempd[2]);
   fprintf(fpMtl,"Ns %g\n",prop->GetSpecularPower());
   fprintf(fpMtl,"Tf %g %g %g\n",1.0 - prop->GetOpacity(),
           1.0 - prop->GetOpacity(),1.0 - prop->GetOpacity());

@@ -38,7 +38,7 @@
 #include "vtkActor2D.h"
 
 class vtkActor;
-class vtkFloatArray;
+class vtkDoubleArray;
 class vtkPolyData;
 class vtkPolyDataMapper2D;
 class vtkPolyDataMapper;
@@ -74,14 +74,14 @@ public:
   // string and optionally a color. (If a color is not specified, then the
   // entry color is the same as this actor's color.) (Note: use the set
   // methods when you use SetNumberOfEntries().)
-  void SetEntry(int i, vtkPolyData *symbol, const char* string, float color[3]);
+  void SetEntry(int i, vtkPolyData *symbol, const char* string, double color[3]);
   void SetEntrySymbol(int i, vtkPolyData *symbol);
   void SetEntryString(int i, const char* string);
-  void SetEntryColor(int i, float color[3]);
-  void SetEntryColor(int i, float r, float g, float b);
+  void SetEntryColor(int i, double color[3]);
+  void SetEntryColor(int i, double r, double g, double b);
   vtkPolyData *GetEntrySymbol(int i);
   const char* GetEntryString(int i);
-  float *GetEntryColor(int i);
+  double *GetEntryColor(int i);
 
   // Description:
   // Set/Get the text property.
@@ -166,12 +166,12 @@ protected:
   int   Padding;
   int   LockBorder;
   int   ScalarVisibility;
-  float BoxOpacity;
+  double BoxOpacity;
 
   // Internal actors, mappers, data to represent the legend
   int                        NumberOfEntries;
   int                        Size; //allocation size
-  vtkFloatArray              *Colors;
+  vtkDoubleArray              *Colors;
   vtkTextMapper              **TextMapper;
   vtkActor2D                 **TextActor;
   vtkPolyData                **Symbol;

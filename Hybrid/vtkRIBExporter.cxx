@@ -40,7 +40,7 @@
 #include "vtkTIFFWriter.h"
 #include "vtkTexture.h"
 
-vtkCxxRevisionMacro(vtkRIBExporter, "1.58");
+vtkCxxRevisionMacro(vtkRIBExporter, "1.59");
 vtkStandardNewMacro(vtkRIBExporter);
 
 typedef double RtColor[3];
@@ -249,13 +249,14 @@ void vtkRIBExporter::WriteTrailer ()
   fprintf (this->FilePtr, "FrameEnd\n");
 }
 
-void vtkRIBExporter::WriteProperty (vtkProperty *aProperty, vtkTexture *aTexture)
+void vtkRIBExporter::WriteProperty (vtkProperty *aProperty, 
+                                    vtkTexture *aTexture)
 {
   char *mapName;
-  RtFloat Ambient, Diffuse, Specular;
-  RtFloat Opacity;
-  RtFloat *DiffuseColor, *SpecularColor;
-  RtFloat Roughness;
+  double Ambient, Diffuse, Specular;
+  double Opacity;
+  double *DiffuseColor, *SpecularColor;
+  double Roughness;
   RtColor opacity;
   Opacity = aProperty->GetOpacity();
 

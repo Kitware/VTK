@@ -40,14 +40,14 @@ public:
 
   // Description:
   // Set the color of the text..
-  vtkSetVector3Macro(Color,float);
-  vtkGetVectorMacro(Color,float,3);
+  vtkSetVector3Macro(Color,double);
+  vtkGetVectorMacro(Color,double,3);
 
   // Description:
   // Set/Get the text's opacity. 1.0 is totally opaque and 0.0 is completely
   // transparent.
-  vtkSetMacro(Opacity,float);
-  vtkGetMacro(Opacity,float);
+  vtkSetMacro(Opacity,double);
+  vtkGetMacro(Opacity,double);
 
   // Description:
   // Set/Get the font family. Three font types are allowed: Arial (VTK_ARIAL),
@@ -132,10 +132,10 @@ public:
   // text (in the vertical direction). LineOffset is a vertical offset 
   // (measured in pixels); LineSpacing is the spacing between lines, 
   // expressed as a text height multiplication factor.
-  vtkSetMacro(LineOffset, float);
-  vtkGetMacro(LineOffset, float);
-  vtkSetMacro(LineSpacing, float);
-  vtkGetMacro(LineSpacing, float);
+  vtkSetMacro(LineOffset, double);
+  vtkGetMacro(LineOffset, double);
+  vtkSetMacro(LineSpacing, double);
+  vtkGetMacro(LineSpacing, double);
   
   // Description:
   // Shallow copy of a text property.
@@ -151,8 +151,8 @@ protected:
   vtkTextProperty();
   ~vtkTextProperty();
 
-  float Color[3];
-  float Opacity;
+  double Color[3];
+  double Opacity;
   int   FontFamily;
   int   FontSize;
   int   Bold;
@@ -161,8 +161,8 @@ protected:
   int   AntiAliasing;
   int   Justification;
   int   VerticalJustification;
-  float LineOffset;
-  float LineSpacing;
+  double LineOffset;
+  double LineSpacing;
   char  *FaceFileName;
   
 private:

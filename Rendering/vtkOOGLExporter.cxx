@@ -36,7 +36,7 @@
 #include "vtkTriangleStrip.h"
 #include "vtkVersion.h"
 
-vtkCxxRevisionMacro(vtkOOGLExporter, "1.24");
+vtkCxxRevisionMacro(vtkOOGLExporter, "1.25");
 vtkStandardNewMacro(vtkOOGLExporter);
 
 vtkOOGLExporter::vtkOOGLExporter()
@@ -274,12 +274,12 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
   vtkPoints *points = NULL;
   int i;
   vtkProperty *prop;
-  static float defcolor[3] = {  1.0f, 1.0f, 1.0f };
-  float *tempf = defcolor;
+  static double defcolor[3] = {  1.0f, 1.0f, 1.0f };
+  double *tempd = defcolor;
   vtkCellArray *cells;
   vtkIdType npts = 0;
   vtkIdType *indx = 0;
-  float tempf2=0;
+  double tempf2=0;
   vtkPolyDataMapper *pm;
   vtkUnsignedCharArray *colors;
    
@@ -493,8 +493,8 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
        }
      
      // write out color indices
-     tempf = prop->GetColor();
-     fprintf(fp, "%f %f %f 1\n", tempf[0], tempf[1], tempf[2]);
+     tempd = prop->GetColor();
+     fprintf(fp, "%f %f %f 1\n", tempd[0], tempd[1], tempd[2]);
      fprintf(fp, "}\n");
      
      VTK_INDENT_LESS;
@@ -658,30 +658,30 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
   // Indicate whether edges are shown or not 
    if (prop->GetEdgeVisibility())
      {
-     tempf = prop->GetEdgeColor();
+     tempd = prop->GetEdgeColor();
      }
    if (prop->GetRepresentation() != 2)
      {
-     tempf = prop->GetColor();
+     tempd = prop->GetColor();
      } 
   if (prop->GetEdgeVisibility() || (prop->GetRepresentation() != 2))
     {
     fprintf(fp, "%sedgecolor %f %f %f\n", indent,
-            tempf[0], tempf[1], tempf[2]);
+            tempd[0], tempd[1], tempd[2]);
     }
       
   tempf2 = prop->GetAmbient();
-  tempf = prop->GetAmbientColor();
+  tempd = prop->GetAmbientColor();
   fprintf(fp, "%ska %f\n", indent, tempf2);
-  fprintf(fp, "%sambient %f %f %f\n", indent, tempf[0], tempf[1], tempf[2]);
+  fprintf(fp, "%sambient %f %f %f\n", indent, tempd[0], tempd[1], tempd[2]);
   tempf2 = prop->GetDiffuse();
-  tempf = prop->GetDiffuseColor();
+  tempd = prop->GetDiffuseColor();
   fprintf(fp, "%skd %f\n", indent, tempf2);
-  fprintf(fp, "%sdiffuse %f %f %f\n", indent, tempf[0], tempf[1], tempf[2]);
+  fprintf(fp, "%sdiffuse %f %f %f\n", indent, tempd[0], tempd[1], tempd[2]);
   tempf2 = prop->GetSpecular();
-  tempf = prop->GetSpecularColor();
+  tempd = prop->GetSpecularColor();
   fprintf(fp, "%sks %f\n", indent, tempf2);
-  fprintf(fp, "%sspecular %f %f %f\n", indent, tempf[0], tempf[1], tempf[2]);
+  fprintf(fp, "%sspecular %f %f %f\n", indent, tempd[0], tempd[1], tempd[2]);
   if (prop->GetOpacity() < 1)
     {
     fprintf(fp, "%salpha %f\n", indent, prop->GetOpacity());
