@@ -173,6 +173,10 @@ public:
   virtual void *GetGenericWindowId();
   virtual void *GetGenericContext();
 
+  // Description:
+  // Get the size of the depth buffer.
+  int GetDepthBufferSize();
+  
 protected:
   void *OffScreenWindow;
   int ScreenDoubleBuffer;

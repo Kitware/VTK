@@ -744,6 +744,22 @@ void vtkOpenGLRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MultiSamples: " << this->MultiSamples << "\n";
 }
 
+int vtkOpenGLRenderWindow::GetDepthBufferSize()
+{
+  GLint size;
+
+  if ( this->Mapped )
+    {
+    size = 0;
+    glGetIntegerv( GL_DEPTH_BITS, &size );
+    return (int) size;
+    }
+  else
+    {
+    vtkDebugMacro(<< "Window is not mapped yet!" );
+    return 24;
+    }
+}
 
 unsigned char *vtkOpenGLRenderWindow::GetPixelData(int x1, int y1, 
 						   int x2, int y2, 

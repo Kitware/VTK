@@ -220,6 +220,10 @@ public:
   // Register a texture name with this render window
   void RegisterTextureResource (GLuint id);
 
+  // Description:
+  // Get the size of the depth buffer.
+  int GetDepthBufferSize();
+  
 protected:
   vtkWin32OpenGLRenderWindow();
   ~vtkWin32OpenGLRenderWindow();

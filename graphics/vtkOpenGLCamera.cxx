@@ -64,16 +64,6 @@ vtkOpenGLCamera* vtkOpenGLCamera::New()
   return new vtkOpenGLCamera;
 }
 
-
-int vtkOpenGLCamera::GetDepthBufferSize()
-{
-  GLint size;
-
-  size = 0;
-  glGetIntegerv( GL_DEPTH_BITS, &size );
-  return (int) size;
-}
-
 // Implement base class method.
 void vtkOpenGLCamera::Render(vtkRenderer *ren)
 {

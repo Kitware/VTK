@@ -338,7 +338,14 @@ public:
   virtual void *GetGenericDrawable() {return NULL;};
   virtual void SetWindowInfo(char *) {};
 
+  // Description:
+  // Make this the current window. 
   virtual void MakeCurrent() {};
+
+  // Description:
+  // This method should be defined by the subclass. How many bits of
+  // precision are there in the zbuffer?
+  virtual int GetDepthBufferSize() {return -1;};
 
 protected:
   vtkRenderWindow();
