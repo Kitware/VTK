@@ -66,7 +66,11 @@ vtkPolyData::vtkPolyData ()
   this->Strips = NULL;
 
   // static variable, initialized only once.
-  if (!this->Dummy) this->Dummy = &StaticDummyObject;
+  if (!this->Dummy) 
+    {
+    this->Dummy = &StaticDummyObject;
+    this->Dummy->ReferenceCountingOff();
+    }
 
   this->Cells = NULL;
   this->Links = NULL;
