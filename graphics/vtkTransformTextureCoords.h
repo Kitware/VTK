@@ -38,9 +38,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkTransformTexture - transform (scale, rotate, translate) texture coordinates
+// .NAME vtkTransformTextureCoords - transform (scale, rotate, translate) texture coordinates
 // .SECTION Description
-// vtkTransformTexture is a filter that operates on texture coordinates. It ingests
+// vtkTransformTextureCoords is a filter that operates on texture coordinates. It ingests
 // any type of dataset, and outputs a dataset of the same type. The filter lets
 // you scale, translate, and rotate texture coordinates. For example, by using the
 // the Scale ivar, you can shift texture coordinates that range from (0->1) to
