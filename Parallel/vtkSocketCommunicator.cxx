@@ -138,7 +138,7 @@ static int SendMessage(char* data, int length, int tag, int sock)
     vtkGenericWarningMacro("Could not send tag.");
     return 0;
     }
-  while ( total < sizeof(int) )
+  while ( total < (int)sizeof(int) )
     {
     sent = send ( sock, (char*)data + total, sizeof(int) - total, 0 );
     vtkSCSendError;
@@ -243,7 +243,7 @@ int vtkSocketCommunicator::ReceiveMessage( char *data, int size, int length,
     vtkErrorMacro("Could not receive tag.");
     return 0;
     }
-  while ( total < sizeof(int) )
+  while ( total < (int)sizeof(int) )
     {
     cout << total << endl;
     received = recv( this->Socket, &(charTag[total]), sizeof(int) - total, 0 );
