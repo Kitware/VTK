@@ -41,7 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkUpStreamPort.h"
 #include "vtkMultiProcessController.h"
 #include "vtkPolyData.h"
-
+#include "vtkUnstructuredInformation.h"
 
 
 //----------------------------------------------------------------------------
@@ -166,7 +166,7 @@ void vtkDownStreamPort::UpdateInformation()
   // Now this is a hack until we can receive information from upstream.
   if (this->TransferNeeded)
     {
-    output->SetMaximumNumberOfPieces(256);
+    ((vtkPolyData*)(output))->GetUnstructuredInformation()->SetMaximumNumberOfPieces(256);
     }
   
 }
