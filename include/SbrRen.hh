@@ -43,6 +43,7 @@ public:
   int UpdateLights(void);
   vtkGetMacro(Fd,int);
   vtkGetMacro(LightSwitch,int);
+  vtkSetMacro(LightSwitch,int);
   virtual float *GetCenter();
   virtual void DisplayToView(); 
   virtual void ViewToDisplay(); 
