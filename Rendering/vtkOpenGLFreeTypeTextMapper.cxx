@@ -120,7 +120,7 @@ static vtkEmbeddedFontStruct embedded_fonts[3][2][2] =
   }
 };
 
-vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.2");
+vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.3");
 vtkStandardNewMacro(vtkOpenGLFreeTypeTextMapper);
 
 //----------------------------------------------------------------------------
@@ -214,7 +214,6 @@ FTFont* vtkFontStruct::GetFTFont(vtkTextProperty *tprop,
   vtkWindow *win = vp->GetVTKWindow();
 
   int antialiasing_requested = vtkFontStruct::IsAntiAliasingRequested(tprop);
-  char *face_file_name = tprop->GetFaceFileName();
 
 #if VTK_FTTM_CACHE_BY_RGBA
   float opacity = tprop->GetOpacity();
