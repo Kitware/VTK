@@ -29,7 +29,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkDICOMImageReader, "1.23");
+vtkCxxRevisionMacro(vtkDICOMImageReader, "1.24");
 vtkStandardNewMacro(vtkDICOMImageReader);
 
 class vtkDICOMImageReaderVector : public vtkstd::vector<vtkstd::string>
@@ -247,10 +247,6 @@ void vtkDICOMImageReader::ExecuteData(vtkDataObject *output)
   data->GetPointData()->GetScalars()->SetName("DICOMImage");
 
   this->ComputeDataIncrements();
-
-  // Get the pointer to the output pixel data
-  void *outPtr;
-  outPtr = data->GetScalarPointer();
 
   if (this->FileName)
     {
