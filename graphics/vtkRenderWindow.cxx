@@ -747,7 +747,7 @@ void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Double Buffer: " << (this->DoubleBuffer ? "On\n":"Off\n");
   os << indent << "Erase: " << (this->Erase ? "On\n" : "Off\n");
   os << indent << "Full Screen: " << (this->FullScreen ? "On\n":"Off\n");
-  os << indent << "WindowName: " << this->WindowName << "\n";
+  os << indent << "Window Name: " << this->WindowName << "\n";
   temp = this->GetPosition();
   os << indent << "Position: (" << temp[0] << ", " << temp[1] << ")\n";
   temp = this->GetSize();
@@ -757,7 +757,7 @@ void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Stereo Render: " 
      << (this->StereoRender ? "On\n":"Off\n");
 
-  os << indent << "FileName: " 
+  os << indent << "File Name: " 
      << (this->FileName ? this->FileName : "(none)") << "\n";
 
   if ( this->AbortCheckMethod )
