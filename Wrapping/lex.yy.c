@@ -784,6 +784,13 @@ char *yytext;
 /* We do not care of interactive mode */
 #define YY_NEVER_INTERACTIVE 1
 #define YY_NO_UNPUT 1
+#ifdef _WIN32
+#pragma warning ( disable : 4127 )
+#pragma warning ( disable : 4131 )
+#pragma warning ( disable : 4244 )
+#pragma warning ( disable : 4706 )
+#endif
+
 #line 789 "lex.yy.c"
 
 /* Macros after this point can all be overridden by user definitions in

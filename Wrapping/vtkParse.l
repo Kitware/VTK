@@ -3,6 +3,17 @@
 /* We do not care of interactive mode */
 #define YY_NEVER_INTERACTIVE 1
 #define YY_NO_UNPUT 1
+
+#ifdef _WIN32
+#pragma warning ( disable : 4251 )
+#pragma warning ( disable : 4786 )
+#pragma warning ( disable : 4244 )
+#pragma warning ( disable : 4305 )
+#pragma warning ( disable : 4309 )
+#pragma warning ( disable : 4706 )
+#pragma warning ( disable : 4127 )
+#endif
+
 %}
 
 
