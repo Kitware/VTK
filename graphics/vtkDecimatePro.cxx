@@ -190,7 +190,8 @@ void vtkVertexQueue::Insert(int ptId, float error)
       type = EvaluateVertex(ptId, ncells, cells, fedges);
 
       // Compute error for simple types - split vertex handles others
-      if ( type == VTK_SIMPLE_VERTEX || type == VTK_EDGE_END_VERTEX )
+      if ( type == VTK_SIMPLE_VERTEX || type == VTK_EDGE_END_VERTEX ||
+      type == VTK_CRACK_TIP_VERTEX )
         {
         simpleType = 1;
         error = ComputeSimpleError(X,Normal,Pt);
@@ -336,7 +337,7 @@ void vtkDecimatePro::Execute()
     vtkDebugMacro(<<"Pre-splitting mesh");
 
     CosAngle = cos ((double) vtkMath::DegreesToRadians() * this->SplitAngle);
-    for ( ptId=0; ptId < numPts; ptId++ )
+    for ( ptId=0; ptId < Mesh->GetNumberOfPoints(); ptId++ )
       {
       Mesh->GetPoint(ptId,X);
       Mesh->GetPointCells(ptId,ncells,cells);
@@ -348,7 +349,6 @@ void vtkDecimatePro::Execute()
         SplitVertex(ptId, type, ncells, cells, 0);
         }
       }
-    numPts = Mesh->GetNumberOfPoints();
     CosAngle = oldFeatureAngle;
     }
 
@@ -357,7 +357,7 @@ void vtkDecimatePro::Execute()
   // necessary to resolve non-manifold geometry or to split edges.) 
   // Then evaluate the local error for the vertex. The vertex is then
   // inserted into the priority queue.
-  for ( ptId=0; ptId < numPts; ptId++ )
+  for ( ptId=0; ptId < Mesh->GetNumberOfPoints(); ptId++ )
     {
     if ( ! (ptId % 10000) ) vtkDebugMacro(<<"Inserting vertex #" << ptId);
     VertexQueue->Insert(ptId);
@@ -917,13 +917,14 @@ static void SplitVertex(int ptId, int type, unsigned short int numTris, int *tri
     vtkIdList group(VTK_MAX_TRIS_PER_VERTEX);
 
      //changes in group size control how to split loop
-    if ( type == VTK_HIGH_DEGREE_VERTEX ) 
-      maxGroupSize = VTK_MAX_TRIS_PER_VERTEX - 1;
+    if ( numTris <= 1 ) return; //prevents infinite recursion
+
+    if ( type == VTK_SIMPLE_VERTEX || type == VTK_BOUNDARY_VERTEX ||
+    type == VTK_EDGE_END_VERTEX || type == VTK_CRACK_TIP_VERTEX ||
+    type == VTK_DEGENERATE_VERTEX )
+      maxGroupSize = (numTris/2) + 1; 
     else
-      {
-      if ( numTris <= 1 ) return;
-      maxGroupSize = (numTris/2) + 1; //prevents infinite recursion
-      }
+      maxGroupSize = VTK_MAX_TRIS_PER_VERTEX - 1;
 
     for ( i=0; i < numTris; i++ ) triangles.SetId(i,tris[i]);
 
@@ -966,13 +967,14 @@ static void SplitVertex(int ptId, int type, unsigned short int numTris, int *tri
           {
           tri = group.GetId(j);
           Mesh->RemoveReferenceToCell(ptId, tri);
+          Mesh->AddReferenceToCell(id, tri);
           Mesh->ReplaceCellPoint(tri, ptId, id);
           }
         if ( insert ) VertexQueue->Insert(id);
         }//if not first group
       }//for all groups
     //Don't forget to reinsert original vertex
-    if ( insert) VertexQueue->Insert(ptId);
+    if ( insert ) VertexQueue->Insert(ptId);
     }
 
   return;
@@ -1210,7 +1212,9 @@ int CollapseEdge(int type, int ptId, int collapseId, int pt1,
 {
   int i, numDeleted=CollapseTris.GetNumberOfIds();
   int ntris=T->MaxId+1;
+  int nverts=V->MaxId+1;
   int tri[2];
+  int verts[VTK_MAX_TRIS_PER_VERTEX+1];
 
   for ( i=0; i < numDeleted; i++ ) tri[i] = CollapseTris.GetId(i);
 
@@ -1270,13 +1274,14 @@ int CollapseEdge(int type, int ptId, int collapseId, int pt1,
     cerr << "bad fall thru\n";
     }
 
+  // Update surrounding vertices. Need to copy verts first because the V/T
+  // arrays might change as points are being reinserted.
   //
-  // Update surrounding vertices
-  //
-  for ( i=0; i <= V->MaxId; i++ )
+  for ( i=0; i < nverts; i++ ) verts[i] = V->Array[i].id;
+  for ( i=0; i < nverts; i++ )
     {
-    VertexQueue->Delete(V->Array[i].id);
-    VertexQueue->Insert(V->Array[i].id);
+    VertexQueue->Delete(verts[i]);
+    VertexQueue->Insert(verts[i]);
     }
 
   return numDeleted;
