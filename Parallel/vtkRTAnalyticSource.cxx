@@ -20,7 +20,7 @@
 #include "vtkRTAnalyticSource.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkRTAnalyticSource, "1.9");
+vtkCxxRevisionMacro(vtkRTAnalyticSource, "1.10");
 vtkStandardNewMacro(vtkRTAnalyticSource);
 
 //----------------------------------------------------------------------------
@@ -117,7 +117,9 @@ void vtkRTAnalyticSource::ExecuteData(vtkDataObject *output)
     vtkErrorMacro("Execute: This source only outputs doubles");
     return;
     }
-  
+
+  data->GetPointData()->GetScalars()->SetName("RTData");
+
   outExt = data->GetExtent();
   whlExt = data->GetWholeExtent();
 
