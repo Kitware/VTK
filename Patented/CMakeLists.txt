@@ -11,6 +11,7 @@ vtkDividingCubes.cxx
 vtkGridSynchronizedTemplates3D.cxx
 vtkImageMarchingCubes.cxx
 vtkKitwareContourFilter.cxx
+vtkKitwareCutter.cxx
 vtkMarchingContourFilter.cxx
 vtkMarchingCubes.cxx
 vtkMarchingSquares.cxx
