@@ -712,7 +712,7 @@ int vtkDataObjectToDataSetFilter::ConstructPoints(vtkRectilinearGrid *rg)
       this->PointComponentRange[0][1],
       this->PointNormalize[0]) == 0 )
       {
-      XPts->Delete(); YPts->Delete(); ZPts->Delete(); 
+      XPts->Delete();
       return 0;
       }
     }
@@ -738,7 +738,7 @@ int vtkDataObjectToDataSetFilter::ConstructPoints(vtkRectilinearGrid *rg)
       this->PointComponentRange[1][1],
       this->PointNormalize[1]) == 0 )
       {
-      XPts->Delete(); YPts->Delete(); ZPts->Delete(); 
+      XPts->Delete(); YPts->Delete();
       return 0;
       }
     }
