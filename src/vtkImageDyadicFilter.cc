@@ -172,14 +172,14 @@ void vtkImageDyadicFilter::GenerateRegion(int *outOffset, int *outSize)
     }
 
   // get the output tile from the cache
-  if ( ! this->Cache)
+  if ( ! this->Output)
     {
     vtkErrorMacro(<< "GenerateRegion: Filter has no cache object.");
     in1Region->Delete();    
     in2Region->Delete();    
     return;
     }
-  outRegion = this->Cache->GetRegion(outOffset, outSize);
+  outRegion = this->Output->GetRegion(outOffset, outSize);
 
   // fill the output tile 
   this->Execute(in1Region, in2Region, outRegion);

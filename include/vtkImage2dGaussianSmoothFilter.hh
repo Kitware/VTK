@@ -47,39 +47,18 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImage2dGaussianSmoothFilter_h
 
 
-#include "vtkImageFilter.hh"
+#include "vtkImage2dDecomposedFilter.hh"
 #include "vtkImage1dGaussianSmoothFilter.hh"
 
-class vtkImage2dGaussianSmoothFilter : public vtkImageFilter
+class vtkImage2dGaussianSmoothFilter : public vtkImage2dDecomposedFilter
 {
 public:
   vtkImage2dGaussianSmoothFilter();
-  ~vtkImage2dGaussianSmoothFilter();
   char *GetClassName() {return "vtkImage2dGaussianSmoothFilter";};
 
-  // Forward Object messages to filter1 and fitler2
-  void DebugOn();
-  void Modified();
-  // Foward Source messages to fitler2
-  void GenerateRegion(int *outOffset, int *outSize);
-  void SetCache(vtkImageCache *cache);
-  vtkImageCache *GetCache();
-  vtkImageSource *GetOutput();
-  void GetBoundary(int *offset, int *size);
-  unsigned long GetPipelineMTime();
-  // Foward filter messages to fitler1
-  void SetInput(vtkImageSource *Input);
-
-  void SetAxes(int axis1, int axis2);
-  void SetGauss(float Std, int Radius);
+  void SetGaussianStdRadius(float std, int rad);
 
 protected:
-
-  vtkImage1dGaussianSmoothFilter *Filter1;
-  vtkImage1dGaussianSmoothFilter *Filter2;
-
-  int Axis1;
-  int Axis2;
 };
 
 #endif

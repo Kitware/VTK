@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <ctype.h>
 #include <string.h>
 #include "vtkImageShortReader.hh"
+#include "vtkImageTemplatedRegionCache.hh"
 #include "vtkImageCache.hh"
 
 //----------------------------------------------------------------------------
@@ -119,7 +120,7 @@ void vtkImageShortReader::SetFileName(char *fileName)
 // It writes the first image set and ignores the rest.
 void vtkImageShortReader::GenerateRegion(int *outOffset, int *outSize)
 {
-  vtkImageRegion *tile;
+  vtkImageTemplatedRegion<float> *region;
   int *offset;
   int size0, size1, size2;
   int inc0, inc1, inc2;
@@ -137,18 +138,19 @@ void vtkImageShortReader::GenerateRegion(int *outOffset, int *outSize)
                 << outSize[0] << ", " << outSize[1] << ", " << outSize[2]
                 << ")");
 
-  // Get the tile to fill from the cache
-  if ( ! this->Cache)
+  // Get the region to fill from the cache
+  if ( ! this->Output)
     {
     vtkErrorMacro(<< "GenerateRegion: Cache not created yet");
     return;
     }
-  tile = this->Cache->GetRegion(outOffset, outSize);
+  region = (vtkImageTemplatedRegion<float>)
+    (this->Output->GetRegion(outOffset, outSize));
   
   // get the information needed to find a location in the file
-  offset = tile->GetOffset();
-  tile->GetSize(size0, size1, size2);
-  tile->GetInc(inc0, inc1, inc2);
+  offset = region->GetOffset();
+  region->GetSize(size0, size1, size2);
+  region->GetInc(inc0, inc1, inc2);
   streamStartPos = offset[0] * this->Inc[0] 
                  + offset[1] * this->Inc[1] 
                  + offset[2] * this->Inc[2];
@@ -159,7 +161,7 @@ void vtkImageShortReader::GenerateRegion(int *outOffset, int *outSize)
   streamRowSkip = (this->Inc[1] - size0 * this->Inc[0]) 
     * sizeof(unsigned short int);
 
-  // move to the correct location in the file (offset of tile)
+  // move to the correct location in the file (offset of region)
   this->File->seekg(streamStartPos, ios::beg);
   if (this->File->fail())
     {
@@ -167,11 +169,11 @@ void vtkImageShortReader::GenerateRegion(int *outOffset, int *outSize)
     return;
     }
   
-  // create a buffer to hold a row of the tile
+  // create a buffer to hold a row of the region
   buf = new unsigned char[size0 * 2 + 2]; 
   
   // read the data row by row
-  pf1 = tile->GetPointer(offset);
+  pf1 = region->GetPointer(offset);
   for (idx1 = 0; idx1 < size1; ++idx1)
     {
     if ( ! this->File->read(buf, streamRowRead))
@@ -183,7 +185,7 @@ void vtkImageShortReader::GenerateRegion(int *outOffset, int *outSize)
 		    << ", FilePos = " << this->File->tellg());
       return;
       }
-    // copy the bytes into the float tile
+    // copy the bytes into the float region
     pf0 = pf1;
     pbuf = buf;
     for (idx0 = 0; idx0 < size0; ++idx0)
@@ -196,7 +198,7 @@ void vtkImageShortReader::GenerateRegion(int *outOffset, int *outSize)
       pbuf += 2;
       pf0 += inc0;
       }
-    // move to the next row in the file and tile
+    // move to the next row in the file and region
     this->File->seekg(streamRowSkip, ios::cur);
     pf1 += inc1;
     }

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageUpperThresholdFilter.hh
+  Module:    vtkImage2dMagnifyFilter.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,40 +37,38 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageUpperThresholdFilter - Upper threshold on pixel values
+// .NAME vtkImage2dMagnifyFilter - Magnifies an image with pixel replication.
 // .SECTION Description
-// vtkImageUpperThresholdFilter is a pixel filter class that implements a 
-// nonlinear upper threshold.  If a pixel is above Threshold, it is replaced
-// with Replace.
+// vtkImage2dMagnifyFilter maps each pixel of the input onto a nxn region
+// of the output.  Location (0,0) remains in the same place.
 
 
-#ifndef __vtkImageUpperThresholdFilter_h
-#define __vtkImageUpperThresholdFilter_h
+#ifndef __vtkImage2dMagnifyFilter_h
+#define __vtkImage2dMagnifyFilter_h
 
 
 #include "vtkImageFilter.hh"
 
-class vtkImageUpperThresholdFilter : public vtkImageFilter
+class vtkImage2dMagnifyFilter : public vtkImageFilter
 {
 public:
-  vtkImageUpperThresholdFilter();
-  char *GetClassName() {return "vtkImageUpperThresholdFilter";};
+  vtkImage2dMagnifyFilter();
+  char *GetClassName() {return "vtkImage2dMagnifyFilter";};
 
   // Description:
-  // Set/Get the Threshold
-  vtkSetMacro(Threshold,float);
-  vtkGetMacro(Threshold,float);
+  // Set/Get the convolution axis.
+  vtkSetVector2Macro(MagnificationFactors,int);
+  vtkGetVector2Macro(MagnificationFactors,int);
 
-  // Description:
-  // Set/Get the Replace Value;
-  vtkSetMacro(Replace,float);
-  vtkGetMacro(Replace,float);
+  void InterceptCacheUpdate(vtkImageRegion *region);
 
 protected:
-  float Threshold;
-  float Replace;
+  int MagnificationFactors[2];
 
-  void Execute2d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  void ComputeOutputImageInformation(vtkImageRegion *region);
+  void ComputeRequiredInputRegionBounds(vtkImageRegion *outRegion,
+					vtkImageRegion *inRegion);
+  void Execute2d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);  
 };
 
 #endif

@@ -39,61 +39,87 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkImageCachedSource - Source of data for pipeline.
 // .SECTION Description
-// vtkImageCachedSource objects are sources with vtkImageCache
-// as output objects.
+// vtkImageCachedSource is a source with a vtkImageCache as an output object.
 // There is a one to one relationship between caches and cached sources.
-// If a cache is not explicitely set, a default cache object will be created.
-// The default cache releases its data after every request.
+// If a cache is not explicitely set, a default cache object will be created,
+// and default cache releases its data after every call to generate.
 // Consumers of the source's data are connected to its cache object with
 // a statment similar to: 
 //  "consumer->SetInput(source->GetOuput());"
 //  This convention was chosen to allow sources to have multiple outputs.
 // Caches are resposible for collecting regions generated when the source
 // splits the generation into pieces, and can also save data in between
-// multiple requests for regions.
+// multiple region gerenates.
 // The chain of events is: 
-//  1: Consummer calls caches RequestRegion method,
-//  2: Cache can satisfy request or can call sources GenerateRegion method.
-//  3: Source asks cache for the region to fill (all at once or in pieces)
-//     by calling the caches GetRegion method. 
-//  4: Source fills the region/regions and returns. 
+//  1: Consummer calls caches UpdateRegion method,
+//  2: Cache can fill data imediately using cached data,
+//     or can call sources UpdateRegion method.
+//  4: Source asks cache to allocate the data (all at once or in pieces)
+//     by calling the caches AllocateRegion method. 
+//  5: Source fills the region/regions and returns. 
 //  It is set up this way to keep all of the data managment in the cache.
-// See vtkImageMagnifyFilter class for an example of deviation from this
-// chain of events.
 
 
 #ifndef __vtkImageCachedSource_h
 #define __vtkImageCachedSource_h
 
+#include "vtkObject.hh"
 #include "vtkImageSource.hh"
 #include "vtkImageRegion.hh"
 class vtkImageCache;
 
 
-class vtkImageCachedSource : public vtkImageSource 
+class vtkImageCachedSource : public vtkObject
 {
 public:
   vtkImageCachedSource();
   ~vtkImageCachedSource();
   char *GetClassName() {return "vtkImageCachedSource";};
 
-  virtual vtkImageRegion *RequestRegion(int offset[3], int size[3]); 
-  virtual void GenerateRegion(int outOffset[3], int outSize[3]); 
+  virtual void InterceptCacheUpdate(vtkImageRegion *region);
+  virtual void UpdateRegion(vtkImageRegion *region); 
   vtkImageSource *GetOutput();
-  unsigned long GetPipelineMTime();
-  void SetCache(vtkImageCache *cache);
+  // Description:
+  // This method should return the bounding box of the largest region 
+  // that can be generated.
+  virtual void UpdateImageInformation(vtkImageRegion *region) = 0;
+  virtual unsigned long GetPipelineMTime();
+
+  virtual void SetCache(vtkImageCache *cache);
   vtkImageCache *GetCache();
+
   void SetReleaseDataFlag(int value);
+  int  GetReleaseDataFlag();
+
+  void SetDataType(int type);
+  int  GetDataType();
+  
+  virtual void SetAxis1d(int axis0);
+  virtual void SetAxes2d(int axis0, int axis1);
+  virtual void SetAxes3d(int axis0, int axis1, int axis2);
+  virtual void SetAxes4d(int axis0, int axis1, int axis2, int axis3);
+  // Description:
+  // Get the axes reordering of this filter.
+  vtkGetVector4Macro(Axes,int);
   
   void DebugOn();
   void DebugOff();
-  void SetRequestMemoryLimit(long limit);
+  void SetMemoryLimit(long limit);
 
 protected:
-  vtkImageCache *Cache;
+  vtkImageCache *Output;
+  int Axes[VTK_IMAGE_DIMENSIONS];            // reorder the axes
   
-  void CheckCache();
+  virtual void UpdateRegion4d(vtkImageRegion *region); 
+  virtual void UpdateRegion3d(vtkImageRegion *region); 
+  virtual void UpdateRegion2d(vtkImageRegion *region); 
+  virtual void UpdateRegion1d(vtkImageRegion *region); 
+  virtual void CheckCache();
 };
+
+
+// all necessary header files will be included automatically.
+#include "vtkImageCache.hh"
 
 #endif
 

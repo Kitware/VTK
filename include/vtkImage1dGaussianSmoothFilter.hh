@@ -39,7 +39,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkImage1dGaussianSmoothFilter - smooths on one axis.
 // .SECTION Description
-// vtkImage1dGaussianSmoothFilter implements a 1d Gaussian smoothing on one axis.
+// vtkImage1dGaussianSmoothFilter implements a 1d Gaussian smoothing
+// on one axis.
 
 
 #ifndef __vtkImage1dGaussianSmoothFilter_h
@@ -55,7 +56,7 @@ public:
 
   // Description:
   // Set/Get the Guassian.
-  void SetGauss(float Std, int Radius);
+  void SetGaussianStdRadius(float Std, int Radius);
   vtkGetMacro(Radius,float);
   vtkGetMacro(Std,float);
 

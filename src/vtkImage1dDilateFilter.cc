@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImage1dConvolutionFilter.cc
+  Module:    vtkImage1dDilateFilter.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,128 +37,43 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include <math.h>
-#include "vtkImage1dConvolutionFilter.hh"
+#include "vtkImage1dDilateFilter.hh"
 
 
 //----------------------------------------------------------------------------
 // Description:
-// Construct an instance of vtkImage1dConvolutionFilter fitler.
-vtkImage1dConvolutionFilter::vtkImage1dConvolutionFilter()
+// Construct an instance of vtkImage1dDilateFilter fitler.
+// By default zero values are dilated.
+vtkImage1dDilateFilter::vtkImage1dDilateFilter()
 {
-  this->Kernel = NULL;
-  this->BoundaryFactors = NULL;
-  this->SetAxis1d(VTK_IMAGE_X_AXIS);
-  this->BoundaryRescaleOn();
   this->HandleBoundariesOn();
 }
 
 
 //----------------------------------------------------------------------------
 // Description:
-// Free the kernel before the object is deleted.
-vtkImage1dConvolutionFilter::~vtkImage1dConvolutionFilter()
-{
-  if (this->Kernel)
-    delete [] this->Kernel;
-  if (this->BoundaryFactors)
-    delete [] this->BoundaryFactors;
-}
-
-
-
-//----------------------------------------------------------------------------
-// Description:
-// This method copies a kernel into the filter.
-void vtkImage1dConvolutionFilter::SetKernel(float *kernel, int size)
-{
-  int idx, mid;
-  float temp;
-
-  vtkDebugMacro(<< "SetKernel: kernel = " << kernel 
-		<< ", size = " << size);
-
-  // free the old kernel 
-  if (this->Kernel)
-    delete [] this->Kernel;
-  if (this->BoundaryFactors)
-    delete [] this->BoundaryFactors;
-
-  // allocate memory for the kernel 
-  this->Kernel = new float[size];
-  if ( ! this->Kernel)
-    {
-    vtkWarningMacro(<<"Could not allocate memory for kernel.");
-    return;
-    }
-
-  // allocate memory for the boundary-rescale factors. 
-  this->BoundaryFactors = new float[size];
-  if ( ! this->BoundaryFactors)
-    {
-    vtkWarningMacro(<<"Could not allocate memory for BoundaryFactors array.");
-    delete [] this->Kernel;
-    this->Kernel = NULL;
-    return;
-    }
-
-  // copy kernel 
-  for (idx = 0; idx < size; ++idx)
-    {
-    this->Kernel[idx] = kernel[idx];
-    }
-  this->KernelSize = size;
-  mid = this->KernelMiddle = size / 2;
-  
-  // compute default BoundaryFactors factors
-  temp = (float)(size-1)/2.0;
-  for (idx = 0; idx < size; ++idx)
-    {
-    this->BoundaryFactors[idx] = 
-      1.0 / (1.0 - fabs((float)(idx) - temp)/(2.0*temp));
-    }
-
-  
-  this->Modified();
-}
-  
-
-
-
-
-//----------------------------------------------------------------------------
-// Description:
 // This templated function is passed a input and output region, 
-// and executes the Conv1d algorithm to fill the output from the input.
+// and executes the dilate algorithm to fill the output from the input.
 // Note that input pixel is offset from output pixel.
 // It also handles ImageBounds by truncating the kernel.  
-// It renormalizes the truncated kernel if Normalize is on.
 template <class T>
-void vtkImage1dConvolutionFilterExecute1d(vtkImage1dConvolutionFilter *self,
-					  vtkImageRegion *inRegion, T *inPtr,
-					  vtkImageRegion *outRegion, T *outPtr)
+void vtkImage1dDilateFilterExecute1d(vtkImage1dDilateFilter *self,
+				     vtkImageRegion *inRegion, T *inPtr,
+				     vtkImageRegion *outRegion, T *outPtr)
 {
   int outIdx, kernelIdx;
   int outMin, outMax;
   int inInc, outInc;
   T *tmpPtr;
-  float *kernelPtr;
-  float sum;
   int cut;
   int outImageBoundsMin, outImageBoundsMax;
   
-  if ( ! self->Kernel)
-    {
-    cerr << "vtkImage1dConvolutionFilterExecute1d: Kernel not set";
-    return;
-    }
-
   // Get information to march through data 
   inRegion->GetIncrements1d(inInc);
   outRegion->GetIncrements1d(outInc);  
   outRegion->GetBounds1d(outMin, outMax);  
 
-  // Compute the middle portion of the region 
+  // Determine the middle portion of the region 
   // that does not need ImageBounds handling.
   outRegion->GetImageBounds1d(outImageBoundsMin, outImageBoundsMax);
   if (self->HandleBoundaries)
@@ -171,7 +86,7 @@ void vtkImage1dConvolutionFilterExecute1d(vtkImage1dConvolutionFilter *self,
     // just some error checking
     if (outMin < outImageBoundsMin || outMax > outImageBoundsMax)
       {
-      cerr << "vtkImage1dConvolutionFilterExecute1d: Boundaries not handled.";
+      cerr << "vtkImage1dDilateFilterExecute1d: Boundaries not handled.";
       return;
       }
     }
@@ -186,25 +101,19 @@ void vtkImage1dConvolutionFilterExecute1d(vtkImage1dConvolutionFilter *self,
   // loop through the ImageBounds pixels on the left.
   for ( ; outIdx < outImageBoundsMin; ++outIdx)
     {
-    // The number of pixels cut from the convolution.
+    *outPtr = *inPtr;
+    // The number of pixels cut from the kernel
     cut = (outImageBoundsMin - outIdx);
-    // loop for convolution (sum)
-    sum = 0.0;
-    kernelPtr = self->Kernel + cut;
+    // loop over neighborhood pixels
     tmpPtr = inPtr;
     for (kernelIdx = cut; kernelIdx < self->KernelSize; ++kernelIdx)
       {
-      sum += *kernelPtr * (float)(*tmpPtr);
-      ++kernelPtr;
+      if (*tmpPtr > *outPtr)
+	{
+	*outPtr = *tmpPtr;
+	}
       tmpPtr += inInc;
       }
-    // Rescale
-    if (self->BoundaryRescale)
-      {
-      sum *= self->BoundaryFactors[self->KernelMiddle - cut];
-      }
-    // Set output pixel.
-    *outPtr = (T)(sum);
     // increment to next pixel.
     outPtr += outInc;
     // the input pixel is not being incremented because of ImageBounds.
@@ -213,20 +122,18 @@ void vtkImage1dConvolutionFilterExecute1d(vtkImage1dConvolutionFilter *self,
   // loop through non ImageBounds pixels
   for ( ; outIdx <= outImageBoundsMax; ++outIdx)
     {
-    // loop for convolution 
-    sum = 0.0;
-    kernelPtr = self->Kernel;
+    *outPtr = *inPtr;
+    // loop for neighborhood
     tmpPtr = inPtr;
     for (kernelIdx = 0; kernelIdx < self->KernelSize; ++kernelIdx)
       {
-      sum += *kernelPtr * (float)(*tmpPtr);
-      ++kernelPtr;
+      if (*tmpPtr > *outPtr)
+	{
+	*outPtr = *tmpPtr;
+	}
       tmpPtr += inInc;
       }
-    // Normalization not needed:
-    // If Normalize is on, then Normalization[mid] = 1;
-    *outPtr = (T)(sum);
-    
+    // Increment to nect pixel
     outPtr += outInc;
     inPtr += inInc;
     }
@@ -235,25 +142,19 @@ void vtkImage1dConvolutionFilterExecute1d(vtkImage1dConvolutionFilter *self,
   // loop through the ImageBounds pixels on the right.
   for ( ; outIdx <= outMax; ++outIdx)
     {
-    // The number of pixels cut from the convolution.
+    *outPtr = *inPtr;
+    // The number of pixels cut from the Dilate.
     cut = (outIdx - outImageBoundsMax);
-    // loop for convolution (sum)
-    sum = 0.0;
-    kernelPtr = self->Kernel;
+    // loop for Dilate (sum)
     tmpPtr = inPtr;
     for (kernelIdx = cut; kernelIdx < self->KernelSize; ++kernelIdx)
       {
-      sum += *kernelPtr * (float)(*tmpPtr);
-      ++kernelPtr;
+      if (*tmpPtr > *outPtr)
+	{
+	*outPtr = *tmpPtr;
+	}
       tmpPtr += inInc;
       }
-    // Normalize sum.
-    if (self->BoundaryRescale)
-      {
-      sum *= self->BoundaryFactors[self->KernelMiddle + cut];
-      }
-    // Set output pixel.
-    *outPtr = (T)(sum);
     // increment to next pixel.
     outPtr += outInc;
     inPtr += inInc;
@@ -267,12 +168,12 @@ void vtkImage1dConvolutionFilterExecute1d(vtkImage1dConvolutionFilter *self,
 // Description:
 // This method is passed a input and output region, and executes the Conv1d
 // algorithm to fill the output from the input.
-void vtkImage1dConvolutionFilter::Execute1d(vtkImageRegion *inRegion, 
-					    vtkImageRegion *outRegion)
+void vtkImage1dDilateFilter::Execute1d(vtkImageRegion *inRegion, 
+				       vtkImageRegion *outRegion)
 {
   void *inPtr, *outPtr;
 
-  // perform convolution for each pixel of output.
+  // perform Dilate for each pixel of output.
   // Note that input pixel is offset from output pixel.
   inPtr = inRegion->GetVoidPointer1d();
   outPtr = outRegion->GetVoidPointer1d();
@@ -292,24 +193,24 @@ void vtkImage1dConvolutionFilter::Execute1d(vtkImageRegion *inRegion,
   switch (inRegion->GetDataType())
     {
     case VTK_IMAGE_FLOAT:
-      vtkImage1dConvolutionFilterExecute1d(this, inRegion, (float *)(inPtr), 
+      vtkImage1dDilateFilterExecute1d(this, inRegion, (float *)(inPtr), 
 				 outRegion, (float *)(outPtr));
       break;
     case VTK_IMAGE_INT:
-      vtkImage1dConvolutionFilterExecute1d(this, inRegion, (int *)(inPtr),
+      vtkImage1dDilateFilterExecute1d(this, inRegion, (int *)(inPtr),
 				 outRegion, (int *)(outPtr));
       break;
     case VTK_IMAGE_SHORT:
-      vtkImage1dConvolutionFilterExecute1d(this, inRegion, (short *)(inPtr),
+      vtkImage1dDilateFilterExecute1d(this, inRegion, (short *)(inPtr),
 				 outRegion, (short *)(outPtr));
       break;
     case VTK_IMAGE_UNSIGNED_SHORT:
-      vtkImage1dConvolutionFilterExecute1d(this,
+      vtkImage1dDilateFilterExecute1d(this,
 				 inRegion, (unsigned short *)(inPtr), 
 				 outRegion, (unsigned short *)(outPtr));
       break;
     case VTK_IMAGE_UNSIGNED_CHAR:
-      vtkImage1dConvolutionFilterExecute1d(this,
+      vtkImage1dDilateFilterExecute1d(this,
 				 inRegion, (unsigned char *)(inPtr),
 				 outRegion, (unsigned char *)(outPtr));
       break;
@@ -318,22 +219,6 @@ void vtkImage1dConvolutionFilter::Execute1d(vtkImageRegion *inRegion,
       return;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

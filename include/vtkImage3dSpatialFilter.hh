@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageUpperThresholdFilter.hh
+  Module:    vtkImage3dSpatialFilter.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,43 +37,56 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageUpperThresholdFilter - Upper threshold on pixel values
+// .NAME vtkImage3dSpatialFilter - Filters that operate on pixel neighborhoods.
 // .SECTION Description
-// vtkImageUpperThresholdFilter is a pixel filter class that implements a 
-// nonlinear upper threshold.  If a pixel is above Threshold, it is replaced
-// with Replace.
+// vtkImage3dSpatialFilter is a class of filters that use a 3d neighborhood
+// of input pixels to compute a output pixel.  
+// An example is vtkImageMedianFilter.
 
 
-#ifndef __vtkImageUpperThresholdFilter_h
-#define __vtkImageUpperThresholdFilter_h
+#ifndef __vtkImage3dSpatialFilter_h
+#define __vtkImage3dSpatialFilter_h
 
 
 #include "vtkImageFilter.hh"
+#include "vtkImageRegion.hh"
 
-class vtkImageUpperThresholdFilter : public vtkImageFilter
+class vtkImage3dSpatialFilter : public vtkImageFilter
 {
 public:
-  vtkImageUpperThresholdFilter();
-  char *GetClassName() {return "vtkImageUpperThresholdFilter";};
-
+  vtkImage3dSpatialFilter();
+  char *GetClassName() {return "vtkImage3dSpatialFilter";};
+  virtual void SetKernelSize(int size0, int size1, int size2);
+  void SetKernelSize(int size) {this->SetKernelSize(size, size, size);};
   // Description:
-  // Set/Get the Threshold
-  vtkSetMacro(Threshold,float);
-  vtkGetMacro(Threshold,float);
-
+  // Get the Spatial kernel size and middle.
+  vtkGetVector3Macro(KernelSize,int);
+  vtkGetVector3Macro(KernelMiddle,int);
   // Description:
-  // Set/Get the Replace Value;
-  vtkSetMacro(Replace,float);
-  vtkGetMacro(Replace,float);
+  // Set/Get whether convolve up to boundaries or not (truncate kernel).
+  vtkSetMacro(HandleBoundaries,int);
+  vtkGetMacro(HandleBoundaries,int);
+  vtkBooleanMacro(HandleBoundaries,int);
+  
 
 protected:
-  float Threshold;
-  float Replace;
+  int   KernelSize[3];
+  int   KernelMiddle[3];      // Index of kernel origin
+  int   HandleBoundaries; // Shrink kernel at boundaries.
 
-  void Execute2d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  void ComputeOutputImageInformation(vtkImageRegion *region);
+  void ComputeRequiredInputRegionBounds(vtkImageRegion *outRegion, 
+					vtkImageRegion *inRegion);
 };
 
 #endif
+
+
+
+
+
+
+
 
 
 

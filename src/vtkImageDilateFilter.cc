@@ -68,33 +68,6 @@ void vtkImageDilateFilter::RequiredRegion(int *outOffset, int *outSize,
 
 //----------------------------------------------------------------------------
 // Description:
-// Returns the largest region which can be requested.
-// Since borders are not handled yet, the valid image shrinks.
-void vtkImageDilateFilter::GetBoundary(int *offset, int *size)
-{
-  int idx;
-
-  // get the Boundary of the input
-  this->vtkImageFilter::GetBoundary(offset, size);
-  
-  for (idx = 0; idx < 3; ++idx)
-    {
-    offset[idx] += this->Radius[idx];
-    size[idx] -= (2 * this->Radius[idx]);
-    }
-  
-  vtkDebugMacro(<< "GetBoundary: returning offset = ("
-          << offset[0] << ", " << offset[1] << ", " << offset[2]
-          << "), size = (" << size[0] << ", " << size[1] << ", " << size[2]
-          << ")");  
-}
-
-
-
-
-
-//----------------------------------------------------------------------------
-// Description:
 // This method is passed a input and output tile, and executes the Median
 // algorithm to fill the output from the input.
 // As a place holder, an identity Median is implemented.

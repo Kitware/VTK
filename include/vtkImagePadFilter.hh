@@ -76,8 +76,6 @@ protected:
   void RequiredRegion(int *outOffset, int *outSize, 
 		      int *inOffset, int *inSize);
   void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-  void Pad(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-  void PadRegion(vtkImageRegion *region, int *offset, int *size);
 };
 
 #endif

@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImagePadFilter.hh"
 
 
-
 //----------------------------------------------------------------------------
 // Description:
 // Constructor
@@ -112,8 +111,6 @@ void vtkImagePadFilter::RequiredRegion(int *outOffset, int *outSize,
     }
 }
 
-
-
 //----------------------------------------------------------------------------
 // Description:
 // This method is passed a input and output region, and executes the filter
@@ -122,16 +119,51 @@ void vtkImagePadFilter::RequiredRegion(int *outOffset, int *outSize,
 void vtkImagePadFilter::Execute(vtkImageRegion *inRegion, 
 				vtkImageRegion *outRegion)
 {
+  switch (inRegion->GetType())
+    {
+    case VTK_IMAGE_FLOAT:
+      vtkImagePadFilterExecute(this, 
+	       (vtkImageTemplateRegion<float>)(inRegion), 
+	       (vtkImageTemplateRegion<float>)(outRegion));
+      break;
+    case VTK_IMAGE_INT:
+      vtkImagePadFilterExecute(this, 
+	       (vtkImageTemplateRegion<int>)(inRegion), 
+	       (vtkImageTemplateRegion<int>)(outRegion));
+      break;
+    case VTK_IMAGE_SHORT:
+      vtkImagePadFilterExecute(this, 
+	       (vtkImageTemplateRegion<short int>)(inRegion), 
+	       (vtkImageTemplateRegion<short int>)(outRegion));
+      break;
+    case VTK_IMAGE_UNSIGNED_SHORT:
+      vtkImagePadFilterExecute(this, 
+	       (vtkImageTemplateRegion<unsigned short int>)(inRegion), 
+	       (vtkImageTemplateRegion<unsigned short int>)(outRegion));
+      break;
+    case VTK_IMAGE_UNSIGNED_CHAR:
+      vtkImagePadFilterExecute(this, 
+	       (vtkImageTemplateRegion<unsigned char>)(inRegion), 
+	       (vtkImageTemplateRegion<unsigned char>)(outRegion));
+      break;
+    }
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// Templated execute function.
+template <class T>
+void vtkImagePadFilterExecute(vtkImagePadFilter *self,
+			      vtkImageTemplatedRegion<T> *inRegion, 
+			      vtkImageTemplatedRegion<T> *outRegion)
+{
   int idx0, idx1, idx2;
   int inSize0, inSize1, inSize2;
   int inInc0, inInc1, inInc2;
   int outInc0, outInc1, outInc2;
-  float *inPtr0, *inPtr1, *inPtr2;
-  float *outPtr0, *outPtr1, *outPtr2;
+  T *inPtr0, *inPtr1, *inPtr2;
+  T *outPtr0, *outPtr1, *outPtr2;
 
-  
-  vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
-		<< ", outRegion = " << outRegion);
   
   // Get information from regions to march through data
   inRegion->GetInc(inInc0, inInc1, inInc2);
@@ -168,24 +200,26 @@ void vtkImagePadFilter::Execute(vtkImageRegion *inRegion,
       }
 
     // Pad the rest of the output
-    this->Pad(inRegion, outRegion);
+    vtkImagePadFilterPad(self, inRegion, outRegion);
     }
   else
     {
     // Special case: No overlap.  Just fill the entire region with pad value
-    this->PadRegion(outRegion, outRegion->GetOffset(), outRegion->GetSize());
+    vtkImagePadFilterPadRegion(self, outRegion, 
+			       outRegion->GetOffset(), outRegion->GetSize());
     }
 }
 
 
-  
+
 //----------------------------------------------------------------------------
 // Description:
 // This method is passed a input and output region.
 // It fills the output region not covered by input region with the pad value.
 // IT ASSUMES INPUT IS CONTAINED IN OUTPUT.
-void vtkImagePadFilter::Pad(vtkImageRegion *inRegion, 
-			    vtkImageRegion *outRegion)
+template <class T>
+void vtkImagePadFilterPad(vtkImageTemplatedRegion<T> *inRegion, 
+			  vtkImageTemplatedRegion<T> *outRegion)
 {
   int padOffset[3], padSize[3];
   int filledOffset[3], filledSize[3];
@@ -200,9 +234,9 @@ void vtkImagePadFilter::Pad(vtkImageRegion *inRegion,
   outOffset = outRegion->GetOffset();
   outSize = outRegion->GetSize();
 
-  vtkDebugMacro(<< "Pad: inOffset = (" << padOffset[0] << ", " << padOffset[1] 
-                << ", " << padOffset[2] << "), inSize = (" << padSize[0] << ", "
-                << padSize[1] << ", " << padSize[2] << ")");
+  vtkDebugMacro(<< "Pad: inOffset = (" << padOffset[0] << ", " << padOffset[1]
+      << ", " << padOffset[2] << "), inSize = (" << padSize[0] << ", "
+      << padSize[1] << ", " << padSize[2] << ")");
   
   
   // loop through the axes
@@ -215,7 +249,7 @@ void vtkImagePadFilter::Pad(vtkImageRegion *inRegion,
       padOffset[idx] = outOffset[idx];
       padSize[idx] = filledOffset[idx] - outOffset[idx];
       // pad this portion of the region.
-      this->PadRegion(outRegion, padOffset, padSize);
+      PadRegion(this, outRegion, padOffset, padSize);
       // leave pad equal to filled
       filledOffset[idx] = padOffset[idx];
       padSize[idx] = filledSize[idx] += padSize[idx];
@@ -226,7 +260,7 @@ void vtkImagePadFilter::Pad(vtkImageRegion *inRegion,
       padOffset[idx] = filledOffset[idx] + filledSize[idx];
       padSize[idx] = outSize[idx] - filledSize[idx];
       // pad this portion of the region.
-      this->PadRegion(outRegion, padOffset, padSize);
+      PadRegion(this, outRegion, padOffset, padSize);
       // leave pad equal to filled
       padSize[idx] = filledSize[idx] += padSize[idx];
       padOffset[idx] = filledOffset[idx];
@@ -237,23 +271,22 @@ void vtkImagePadFilter::Pad(vtkImageRegion *inRegion,
 
 //----------------------------------------------------------------------------
 // Description:
-// This method fills a rectangular portion of a region with the pad value.
-void vtkImagePadFilter::PadRegion(vtkImageRegion *region,
-				  int *offset, int *size)
+// This function fills a rectangular portion of a region with the pad value.
+// It has to be templated also.
+template <class T>
+void vtkImagePadFilterPadRegion(vtkImagePadFilter *self,
+				vtkImageTemplatedRegion<T> *region,
+				int *offset, int *size)
 {
   int idx0, idx1, idx2;
   int size0, size1, size2;
   int inc0, inc1, inc2;
-  float *ptr0, *ptr1, *ptr2;
-
+  T *ptr0, *ptr1, *ptr2;
+  T padValue = (T)(self->PadValue);
+  
   // if the region is empty return imediately
   if (size[0] <= 0 || size[1] <= 0 || size[1] <= 0)
     return;
-  
-  vtkDebugMacro(<< "PadRegion: region = (" << region << "), offset = ("
-     << offset[0] << ", " << offset[1] << ", " << offset[2]
-     << "), size = (" << size[0] << ", " << size[1] << ", " << size[2] << ")");
-  
   
   // Get information from regions to march through data
   region->GetInc(inc0, inc1, inc2);
@@ -271,7 +304,7 @@ void vtkImagePadFilter::PadRegion(vtkImageRegion *region,
 	{
 
 	// Copy the pixel
-	*ptr0 = this->PadValue;
+	*ptr0 = padValue;
 	
 	ptr0 += inc0;
 	}

@@ -40,13 +40,20 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkImageToStructuredPoints.hh"
 
-// Decription:
-// Constructor.
+
+
+//----------------------------------------------------------------------------
 vtkImageToStructuredPoints::vtkImageToStructuredPoints()
 {
   this->Input = NULL;
-  this->WholeImageFlag = 1;
-  this->FlipYFlag = 1;
+  this->WholeImage = 1;
+}
+
+
+
+//----------------------------------------------------------------------------
+vtkImageToStructuredPoints::~vtkImageToStructuredPoints()
+{
 }
 
 
@@ -56,9 +63,9 @@ vtkImageToStructuredPoints::vtkImageToStructuredPoints()
 // Description:
 // This filter executes if it or a previous filter has been modified or
 // if its data has been released and it is forced to update.
-void vtkImageToStructuredPoints::ConditionalUpdate(int forcedFlag)
+void vtkImageToStructuredPoints::ConditionalUpdate(int forced)
 {
-  int executeFlag;
+  int execute;
   
   // make sure input is available
   if ( !this->Input )
@@ -67,14 +74,14 @@ void vtkImageToStructuredPoints::ConditionalUpdate(int forcedFlag)
     return;
     }
 
-  executeFlag = this->Input->GetPipelineMTime() > this->ExecuteTime
+  execute = this->Input->GetPipelineMTime() > this->ExecuteTime
     || this->GetMTime() > this->ExecuteTime 
-    || (forcedFlag && this->Output->GetDataReleased());
+    || (forced && this->Output->GetDataReleased());
   
-  if (executeFlag)
+  if (execute)
     {
-    vtkDebugMacro(<< "ConditionalUpdate: Condition satisfied, forcedFlag = "
-                  << forcedFlag << ", executeTime = " << this->ExecuteTime
+    vtkDebugMacro(<< "ConditionalUpdate: Condition satisfied, forced = "
+                  << forced << ", executeTime = " << this->ExecuteTime
                   << ", modifiedTime = " << this->GetMTime() 
                   << ", input MTime = " << this->Input->GetPipelineMTime()
                   << ", released = " << this->Output->GetDataReleased());
@@ -97,12 +104,12 @@ void vtkImageToStructuredPoints::Update()
 }
 
 
-// Not connected to the Image pipeline yet. Just uses the Input variable.
 void vtkImageToStructuredPoints::Execute()
 {
-  vtkImageRegion *region;
-  vtkGraymap *graymap;
-  int dim[3];
+  vtkImageRegion *region = new vtkImageRegion;
+  int regionBounds[6];
+  int dataBounds[8];
+  int *bounds, dim[3];
   float aspectRatio[3] = {1.0, 1.0, 1.0};
   float origin[3];
   vtkStructuredPoints *output = this->GetOutput();
@@ -113,98 +120,91 @@ void vtkImageToStructuredPoints::Execute()
     vtkErrorMacro(<<"Execute:Please specify an input!");
     return;
     }
+  
+  // Fill in image information.
+  this->Input->UpdateImageInformation(region);
 
   // get the input region
-  if (this->WholeImageFlag)
-    this->Input->GetBoundary(this->Offset, this->Size);
-  region = this->Input->RequestRegion(this->Offset, this->Size);
-  if ( ! region)
+  if (this->WholeImage)
+    {
+    region->SetBounds3d(region->GetImageBounds3d());
+    }
+  else
+    {
+    region->SetBounds3d(this->Region.GetBounds3d());
+    }
+  this->Input->UpdateRegion(region);
+  if ( ! region->IsAllocated())
     {
     vtkErrorMacro(<< "Execute: Could not get region.");
     return;
     }
+
+  // If data is not the same size as the region, we need to reformat.
+  // Assume that relativeCoordinates == absoluteCoordinates.
+  region->GetBounds3d(regionBounds);
+  region->GetData()->GetBounds(dataBounds);
+  if (dataBounds[0] != regionBounds[0] || dataBounds[1] != regionBounds[1] ||
+      dataBounds[2] != regionBounds[2] || dataBounds[3] != regionBounds[3] ||
+      dataBounds[4] != regionBounds[4] || dataBounds[5] != regionBounds[5])
+    {
+    region = this->ReformatRegion(region);
+    }
   
-  // make the output scalars
-  graymap = new vtkGraymap;
-  
-  // Copy the data from input region to output scalars
-  this->Generate(region, graymap);
-    
   // setup the structured points with the scalars
-  region->GetOffset(dim);
-  origin[0] = (float)(dim[0]); 
-  origin[1] = (float)(dim[1]); 
-  origin[2] = (float)(dim[2]); 
-  region->GetSize(dim);
-  
+  bounds = region->GetBounds3d();
+  origin[0] = (float)(bounds[0]); 
+  origin[1] = (float)(bounds[2]); 
+  origin[2] = (float)(bounds[4]);
+  dim[0] = bounds[1] - bounds[0] + 1;
+  dim[1] = bounds[3] - bounds[2] + 1;
+  dim[2] = bounds[5] - bounds[4] + 1;
   output->SetDimensions(dim);
   output->SetAspectRatio(aspectRatio);
   output->SetOrigin(origin);
-  output->GetPointData()->SetScalars(graymap);
+  output->GetPointData()->SetScalars(region->GetData()->GetScalars());
 
   // delete the temporary structures
-  graymap->Delete();
-  region->Delete();
+  //region->Delete();
 }
 
 
+
 // Copy the region data to scalar data
-void vtkImageToStructuredPoints::Generate(vtkImageRegion *region, 
-					  vtkGraymap *scalars)
+template <class T>
+void vtkImageToStructuredPointsReformatRegion(vtkImageToStructuredPoints *self,
+				      vtkImageRegion *inRegion, T *inPtr,
+				      vtkImageRegion *outRegion, T *outPtr)
 {
-  float max, min;
   int idx0, idx1, idx2;
-  int size0, size1, size2;
+  int min0, max0,  min1, max1,  min2, max2;
   int inInc0, inInc1, inInc2;
   int outInc0, outInc1, outInc2;
-  float *inPtr0, *inPtr1, *inPtr2;
-  unsigned char *outPtr0, *outPtr1, *outPtr2;
+  T *inPtr0, *inPtr1, *inPtr2;
+  T *outPtr0, *outPtr1, *outPtr2;
   
-  
+  self = self;
   
   // set up variables to march through data
-  inPtr2 = region->GetPointer(region->GetOffset());
-  region->GetSize(size0, size1, size2);
-  region->GetInc(inInc0, inInc1, inInc2);
-  vtkDebugMacro(<< "Generate: size = (" 
-                << size0 << ", " << size1 << ", " << size2 << ")");
-  // output scalar data stuff
-  outPtr2 = scalars->WritePtr(0,size0*size1*size2);
-  outInc0 = 1;
-  outInc1 = size0;
-  outInc2 = size0 * size1;
-  // move the initial position to the lower left corner of the image.
-  if (this->FlipYFlag)
-    {
-    outPtr2 = outPtr2 + size0*(size1 - 1);
-    outInc1 = -size0;
-    }
-  max = min = *inPtr2;
-  for (idx2 = 0; idx2 < size2; ++idx2)
+  inRegion->GetBounds3d(min0, max0, min1, max1, min2, max2);
+  inRegion->GetIncrements3d(inInc0, inInc1, inInc2);
+  outRegion->GetIncrements3d(outInc0, outInc1, outInc2);
+
+  inPtr2 = inPtr;
+  outPtr2 = outPtr;
+  for (idx2 = min2; idx2 <= max2; ++idx2)
     {
     inPtr1 = inPtr2;
     outPtr1 = outPtr2;
-    for (idx1 = 0; idx1 < size1; ++idx1)
+    for (idx1 = min1; idx1 <= max1; ++idx1)
       {
       inPtr0 = inPtr1;
       outPtr0 = outPtr1;
-      for (idx0 = 0; idx0 < size0; ++idx0)
+      for (idx0 = min0; idx0 <= max0; ++idx0)
 	{
 	
-	// Compute the Max and Min for debugging purposes
-	if (*inPtr0 > max)
-	  max = *inPtr0;
-	if (*inPtr0 < min)
-	  min = *inPtr0;
-
-	// Copy the pixel (dont wrap)
-	if (*inPtr0 < 0.0)
-	  *outPtr0 = 0;
-	else if (*inPtr0 < 256.0)
-	  *outPtr0 = (unsigned char)(*inPtr0);
-	else
-	  *outPtr0 = 255;
-
+	// Copy the pixel
+	*outPtr0 = *inPtr0;
 	
 	inPtr0 += inInc0;
 	outPtr0 += outInc0;
@@ -215,7 +215,65 @@ void vtkImageToStructuredPoints::Generate(vtkImageRegion *region,
     inPtr2 += inInc2;
     outPtr2 += outInc2;
     }
-  
-  vtkDebugMacro(<< "Generate: range of input was (" << min << ", " << max << ").");
 }
+
+
+
+
+// Description:
+// This method duplicates a region.  The intent is to have data
+// with the same dimensions as the region.  The input region is deleted.
+vtkImageRegion *
+vtkImageToStructuredPoints::ReformatRegion(vtkImageRegion *inRegion)
+{
+  vtkImageRegion *outRegion = new vtkImageRegion;
+  void *inPtr, *outPtr;
+
+  outRegion->SetDataType(inRegion->GetDataType());
+  outRegion->SetBounds3d(inRegion->GetBounds3d());
+  outRegion->Allocate();
+  inPtr = inRegion->GetVoidPointer3d();
+  outPtr = outRegion->GetVoidPointer3d();
+  
+  switch (inRegion->GetDataType())
+    {
+    case VTK_IMAGE_FLOAT:
+      vtkImageToStructuredPointsReformatRegion(this,
+				       inRegion, (float *)(inPtr), 
+				       outRegion, (float *)(outPtr));
+      break;
+    case VTK_IMAGE_INT:
+      vtkImageToStructuredPointsReformatRegion(this,
+				       inRegion, (int *)(inPtr), 
+				       outRegion, (int *)(outPtr));
+      break;
+    case VTK_IMAGE_SHORT:
+      vtkImageToStructuredPointsReformatRegion(this,
+				       inRegion, (short *)(inPtr), 
+				       outRegion, (short *)(outPtr));
+      break;
+    case VTK_IMAGE_UNSIGNED_SHORT:
+      vtkImageToStructuredPointsReformatRegion(this,
+				       inRegion, (unsigned short *)(inPtr), 
+				       outRegion, (unsigned short *)(outPtr));
+      break;
+    case VTK_IMAGE_UNSIGNED_CHAR:
+      vtkImageToStructuredPointsReformatRegion(this,
+				       inRegion, (unsigned char *)(inPtr), 
+				       outRegion, (unsigned char *)(outPtr));
+      break;
+    }
+  inRegion->Delete();
+  
+  return outRegion;
+}
+
+  
+  
+  
+  
+    
+
+
+
 

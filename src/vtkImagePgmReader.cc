@@ -143,12 +143,12 @@ void vtkImagePgmReader::GenerateRegion(int *outOffset, int *outSize)
                 << ")");
 
   // Get the region to fill from the cache
-  if ( ! this->Cache)
+  if ( ! this->Output)
     {
     vtkErrorMacro(<< "GenerateRegion: Cache not created yet");
     return;
     }
-  region = this->Cache->GetRegion(outOffset, outSize);
+  region = this->Output->GetRegion(outOffset, outSize);
   
 
   // get the information needed to find a location in the file

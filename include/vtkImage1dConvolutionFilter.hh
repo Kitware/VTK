@@ -37,10 +37,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImage1dConvolutionFilter - Filter that performs a convolution with a 1d kernel.
+// .NAME vtkImage1dConvolutionFilter - Performs a 1 dimensional convilution.
 // .SECTION Description
-// vtkImage1dConvolutionFilter implements a 1d convolution along any axis.  It is used
-// in higher level filter which decompose their convolution 
+// vtkImage1dConvolutionFilter implements a 1d convolution along any axis.  
+// It is used in higher level filter which decompose their convolution 
 // (i.e. 2d Gaussian smoothing)
 
 
@@ -48,38 +48,61 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImage1dConvolutionFilter_h
 
 
-#include "vtkImageFilter.hh"
+#include "vtkImage1dSpatialFilter.hh"
+#include "vtkImageRegion.hh"
 
-class vtkImage1dConvolutionFilter : public vtkImageFilter
+class vtkImage1dConvolutionFilter : public vtkImage1dSpatialFilter
 {
 public:
   vtkImage1dConvolutionFilter();
   ~vtkImage1dConvolutionFilter();
   char *GetClassName() {return "vtkImage1dConvolutionFilter";};
-  void GetBoundary(int *offset, int *size);
-
+  void SetKernel(float *kernel, int size);
   // Description:
-  // Set/Get the convolution kernal (kernel is copied).
-  void SetKernel(float *Kernel, int KernelSize);
-  vtkGetMacro(KernelSize,int);
-
-  // Description:
-  // Set/Get the convolution axis.
-  vtkSetMacro(Axis,int);
-  vtkGetMacro(Axis,int);
+  // Set/Get whether to rescale boundary-truncated kernel
+  vtkSetMacro(BoundaryRescale,int);
+  vtkGetMacro(BoundaryRescale,int);
+  vtkBooleanMacro(BoundaryRescale,int);
 
 protected:
   float *Kernel;
-  int   KernelSize;
-  int   KernelOffset;    /* how to center the kernel */
-  int   Axis;            /* the axis of the convolution */
+  float *BoundaryFactors;     // Used to scale boundary-truncated kernel
+  int   BoundaryRescale;  // Kernel is rescaled at boundaries
 
-  void RequiredRegion(int *outOffset, int *outSize,
-		   int *inOffset, int *inSize);
-  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  void Execute1d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  
+  // for templated function.
+  friend void vtkImage1dConvolutionFilterExecute1d(
+			   vtkImage1dConvolutionFilter *self,
+			   vtkImageRegion *inRegion, float *inPtr,
+			   vtkImageRegion *outRegion, float *outPtr);
+  friend void vtkImage1dConvolutionFilterExecute1d(
+			   vtkImage1dConvolutionFilter *self,
+			   vtkImageRegion *inRegion, int *inPtr,
+			   vtkImageRegion *outRegion, int *outPtr);
+  friend void vtkImage1dConvolutionFilterExecute1d(
+			   vtkImage1dConvolutionFilter *self,
+			   vtkImageRegion *inRegion, short *inPtr,
+			   vtkImageRegion *outRegion, short *outPtr);
+  friend void vtkImage1dConvolutionFilterExecute1d(
+			   vtkImage1dConvolutionFilter *self,
+			   vtkImageRegion *inRegion, unsigned short *inPtr,
+			   vtkImageRegion *outRegion, unsigned short *outPtr);
+  friend void vtkImage1dConvolutionFilterExecute1d(
+			   vtkImage1dConvolutionFilter *self,
+			   vtkImageRegion *inRegion, unsigned char *inPtr,
+			   vtkImageRegion *outRegion, unsigned char *outPtr);
+  
 };
 
 #endif
+
+
+
+
+
+
+
 
 
 

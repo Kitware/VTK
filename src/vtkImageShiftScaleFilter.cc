@@ -40,105 +40,119 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageShiftScaleFilter.hh"
 
 
+
 //----------------------------------------------------------------------------
 // Description:
-// Constructor: Set defualt Scale and Shift values.
+// Constructor sets default values
 vtkImageShiftScaleFilter::vtkImageShiftScaleFilter()
 {
-  this->Scale = 1.0;
   this->Shift = 0.0;
-}
-
-
-
-
-
-//----------------------------------------------------------------------------
-// Description:
-// This method computes the Region of the input necessary to generate 
-// out Region.  For this filter the two Regions are the same.
-void vtkImageShiftScaleFilter::RequiredRegion(int *outOffset, int *outSize,
-				  int *inOffset, int *inSize)
-{
-  int idx;
-  
-  for (idx = 0; idx < 3; ++idx)
-    {
-    inOffset[idx] = outOffset[idx];
-    inSize[idx] = outSize[idx];
-    }
+  this->Scale = 1.0;
+  this->SetAxes2d(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
 }
 
 
 
 //----------------------------------------------------------------------------
 // Description:
-// This method is passed a input and output tile, and executes the filter
-// algorithm to fill the output from the input.
-void vtkImageShiftScaleFilter::Execute(vtkImageRegion *inRegion, 
-				       vtkImageRegion *outRegion)
+// This templated function executes the filter for any type of data.
+template <class T>
+void vtkImageShiftScaleFilterExecute2d(vtkImageShiftScaleFilter *self,
+				   vtkImageRegion *inRegion, T *inPtr,
+				   vtkImageRegion *outRegion, T *outPtr)
 {
-  int *size;
-  int size0, size1, size2;
-  int idx0, idx1, idx2;
-  int *inInc;
-  int inInc0, inInc1, inInc2;
-  int *outInc;
-  int outInc0, outInc1, outInc2;
-  float *inPtr0, *inPtr1, *inPtr2;
-  float *outPtr0, *outPtr1, *outPtr2;
-  
+  int min0, max0, min1, max1;
+  int idx0, idx1;
+  int inInc0, inInc1;
+  int outInc0, outInc1;
+  T *inPtr0, *inPtr1;
+  T *outPtr0, *outPtr1;
+  T shift = (T)(self->GetShift());
+  float scale = self->GetScale();
   
   // Get information to march through data 
-  inPtr2 = inRegion->GetPointer(inRegion->GetOffset());
-  inInc = inRegion->GetInc();
-  inInc0 = inInc[0];  inInc1 = inInc[1];  inInc2 = inInc[2];  
-  outPtr2 = outRegion->GetPointer(outRegion->GetOffset());
-  outInc = outRegion->GetInc();
-  outInc0 = outInc[0];  outInc1 = outInc[1];  outInc2 = outInc[2];  
-  size = outRegion->GetSize();
-  size0 = size[0];  size1 = size[1];  size2 = size[2];  
-  
-  vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
-                << ", outRegion = " << outRegion);
-  
-  // Loop through output pixels
-  for (idx2 = 0; idx2 < size2; ++idx2)
+  inRegion->GetIncrements2d(inInc0, inInc1);
+  outRegion->GetIncrements2d(outInc0, outInc1);
+  outRegion->GetBounds2d(min0, max0, min1, max1);
+
+  // Loop through ouput pixels
+  inPtr1 = inPtr;
+  outPtr1 = outPtr;
+  for (idx1 = min1; idx1 <= max1; ++idx1)
     {
-    outPtr1 = outPtr2;
-    inPtr1 = inPtr2;
-    for (idx1 = 0; idx1 < size1; ++idx1)
+    outPtr0 = outPtr1;
+    inPtr0 = inPtr1;
+    for (idx0 = min0; idx0 <= max0; ++idx0)
       {
-      outPtr0 = outPtr1;
-      inPtr0 = inPtr1;
-      for (idx0 = 0; idx0 < size0; ++idx0)
-	{
-	
-	// perform pixel operation
-	*outPtr0 = (*inPtr0 + this->Shift) * this->Scale;
-	
-	outPtr0 += outInc0;
-	inPtr0 += inInc0;
-	}
-      outPtr1 += outInc1;
-      inPtr1 += inInc1;
+      
+      // Pixel operation
+      *outPtr0 = (T)((float)(*inPtr0 + shift) * scale);
+      
+      outPtr0 += outInc0;
+      inPtr0 += inInc0;
       }
-    outPtr2 += outInc2;
-    inPtr2 += inInc2;
+    outPtr1 += outInc1;
+    inPtr1 += inInc1;
     }
 }
 
 
 
-
-
-
-
-
-
-
-
-
+//----------------------------------------------------------------------------
+// Description:
+// This method is passed a input and output region, and executes the filter
+// algorithm to fill the output from the input.
+// It just executes a switch statement to call the correct function for
+// the regions data types.
+void vtkImageShiftScaleFilter::Execute2d(vtkImageRegion *inRegion, 
+					     vtkImageRegion *outRegion)
+{
+  void *inPtr = inRegion->GetVoidPointer2d();
+  void *outPtr = outRegion->GetVoidPointer2d();
+  
+  vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
+		<< ", outRegion = " << outRegion);
+  
+  // this filter expects that input is the same type as output.
+  if (inRegion->GetDataType() != outRegion->GetDataType())
+    {
+    vtkErrorMacro(<< "Execute: input DataType, " << inRegion->GetDataType()
+                  << ", must match out DataType " << outRegion->GetDataType());
+    return;
+    }
+  
+  switch (inRegion->GetDataType())
+    {
+    case VTK_IMAGE_FLOAT:
+      vtkImageShiftScaleFilterExecute2d(this, 
+			  inRegion, (float *)(inPtr), 
+			  outRegion, (float *)(outPtr));
+      break;
+    case VTK_IMAGE_INT:
+      vtkImageShiftScaleFilterExecute2d(this, 
+			  inRegion, (int *)(inPtr), 
+			  outRegion, (int *)(outPtr));
+      break;
+    case VTK_IMAGE_SHORT:
+      vtkImageShiftScaleFilterExecute2d(this, 
+			  inRegion, (short *)(inPtr), 
+			  outRegion, (short *)(outPtr));
+      break;
+    case VTK_IMAGE_UNSIGNED_SHORT:
+      vtkImageShiftScaleFilterExecute2d(this, 
+			  inRegion, (unsigned short *)(inPtr), 
+			  outRegion, (unsigned short *)(outPtr));
+      break;
+    case VTK_IMAGE_UNSIGNED_CHAR:
+      vtkImageShiftScaleFilterExecute2d(this, 
+			  inRegion, (unsigned char *)(inPtr), 
+			  outRegion, (unsigned char *)(outPtr));
+      break;
+    default:
+      vtkErrorMacro(<< "Execute: Unknown DataType");
+      return;
+    }
+}
 
 
 

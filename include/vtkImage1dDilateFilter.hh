@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageUpperThresholdFilter.hh
+  Module:    vtkImage1dDilateFilter.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,40 +37,50 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageUpperThresholdFilter - Upper threshold on pixel values
+// .NAME vtkImage1dDilateFilter - Continous dilation (Max of neighborhood)
 // .SECTION Description
-// vtkImageUpperThresholdFilter is a pixel filter class that implements a 
-// nonlinear upper threshold.  If a pixel is above Threshold, it is replaced
-// with Replace.
+// vtkImage1dDilateFilter implements a 1d continous dilation by replacing
+// a pixel with the maximum of its neighborhood.
+// It is meant to decompose 2 or 3d dilation so they will be faster.
 
 
-#ifndef __vtkImageUpperThresholdFilter_h
-#define __vtkImageUpperThresholdFilter_h
+#ifndef __vtkImage1dDilateFilter_h
+#define __vtkImage1dDilateFilter_h
 
 
-#include "vtkImageFilter.hh"
+#include "vtkImage1dSpatialFilter.hh"
 
-class vtkImageUpperThresholdFilter : public vtkImageFilter
+class vtkImage1dDilateFilter : public vtkImage1dSpatialFilter
 {
 public:
-  vtkImageUpperThresholdFilter();
-  char *GetClassName() {return "vtkImageUpperThresholdFilter";};
-
-  // Description:
-  // Set/Get the Threshold
-  vtkSetMacro(Threshold,float);
-  vtkGetMacro(Threshold,float);
-
-  // Description:
-  // Set/Get the Replace Value;
-  vtkSetMacro(Replace,float);
-  vtkGetMacro(Replace,float);
-
+  vtkImage1dDilateFilter();
+  char *GetClassName() {return "vtkImage1dDilateFilter";};
+  
 protected:
-  float Threshold;
-  float Replace;
+  
+  void Execute1d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 
-  void Execute2d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  // for templated function.
+  friend void vtkImage1dDilateFilterExecute1d(
+			   vtkImage1dDilateFilter *self,
+			   vtkImageRegion *inRegion, float *inPtr,
+			   vtkImageRegion *outRegion, float *outPtr);
+  friend void vtkImage1dDilateFilterExecute1d(
+			   vtkImage1dDilateFilter *self,
+			   vtkImageRegion *inRegion, int *inPtr,
+			   vtkImageRegion *outRegion, int *outPtr);
+  friend void vtkImage1dDilateFilterExecute1d(
+			   vtkImage1dDilateFilter *self,
+			   vtkImageRegion *inRegion, short *inPtr,
+			   vtkImageRegion *outRegion, short *outPtr);
+  friend void vtkImage1dDilateFilterExecute1d(
+			   vtkImage1dDilateFilter *self,
+			   vtkImageRegion *inRegion, unsigned short *inPtr,
+			   vtkImageRegion *outRegion, unsigned short *outPtr);
+  friend void vtkImage1dDilateFilterExecute1d(
+			   vtkImage1dDilateFilter *self,
+			   vtkImageRegion *inRegion, unsigned char *inPtr,
+			   vtkImageRegion *outRegion, unsigned char *outPtr);
 };
 
 #endif

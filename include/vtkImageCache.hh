@@ -40,15 +40,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkImageCache - Caches are used by vtkImageCachedSource.
 // .SECTION Description
 // vtkImageCache is the super class of all filter caches.  
-// If the source descides to generate a request in pieces, the caches 
+// If the cached source descides to generate in pieces, the caches 
 // collects all of the pieces into a single vtkImageRegion object.
-// The cache can also save vtkImageData objects between RequestRegion
-// messages, to avoid regeneration of data.  Since requests for regions
-// of an image can be any size or location, caching strategies can be
+// The cache can also save vtkImageData objects between UpdateRegion
+// messages, to avoid regeneration of data.  Since regions
+// can be any size or location, caching strategies can be
 // numerous and complex.  Some predefined generic subclasses have been 
 // defined, but specific applications may need to implement subclasses
-// with their own stratgies tailored to the pattern of requests which
-// will be made.
+// with their own stratgies tailored to the pattern of regions generated.
 
 
 #ifndef __vtkImageCache_h
@@ -65,11 +64,11 @@ public:
   vtkImageCache();
   char *GetClassName() {return "vtkImageCache";};
 
-  vtkImageRegion *RequestRegion(int offset[3], int size[3]);
-  virtual vtkImageRegion *GetRegion(int offset[3], int size[3]);
+  void UpdateRegion(vtkImageRegion *region);
+  virtual void AllocateRegion(vtkImageRegion *region);
   unsigned long int GetPipelineMTime();
-  void GetBoundary(int *offset, int *size);
-
+  void UpdateImageInformation(vtkImageRegion *region);
+  
   // Description:
   // Set/Get the source associated with this cache
   vtkSetObjectMacro(Source,vtkImageCachedSource);
@@ -80,36 +79,49 @@ public:
   // Turn the save data option on or off
   vtkGetMacro(ReleaseDataFlag,int);
   vtkBooleanMacro(ReleaseDataFlag,int);
+  // Description:
+  // Subclass implements this method to delete any cached data.
+  virtual void ReleaseData() = 0;
   
   // Description:
-  // Set/Get the MemoryLimit for region requests.  If a request is made that
-  // exceeds this limit (number of pixels), the RequestRegion method
+  // Set/Get the MemoryLimit for region.  If a region
+  // exceeds this limit (number of pixels), the UpdateRegion method
   // will return NULL.  I assume that a memory manager will query the memory
   // resources of a system, and set this value when the program starts.
-  vtkSetMacro(RequestMemoryLimit,long);
-  vtkGetMacro(RequestMemoryLimit,long);
+  vtkSetMacro(MemoryLimit,long);
+  vtkGetMacro(MemoryLimit,long);
 
+  // Description:
+  // Set the data type of the regions created by this cache.
+  vtkSetMacro(DataType,int);
+  vtkGetMacro(DataType,int);
+  
 protected:
   vtkImageCachedSource *Source;
-  // Flag to tell the cache to save data or not.
+
+  //  to tell the cache to save data or not.
   int ReleaseDataFlag;
-  // Will every cache have a data object?
+
+  // A pointer to the data is kept during one generate.
+  // This may not be needed.
   vtkImageData *Data;
-  // Allows one tile to be used for GetRegion and RequestRegion calls
-  // "Region" is NULL before a request, is allocated when a request is made.
-  // The same region is used for all GetRegion calls during a request.
-  // RequestRegion returns the region and sets "Region" to NULL again.
-  vtkImageRegion *Region;
-  // Upperlimit on memory that can be returned by RequestRegion call
-  long RequestMemoryLimit;
+  
+  // Upperlimit on memory that can be allocated by UpdateRegion call
+  long MemoryLimit;
 
-  // Cache the boundary, to avoid recomputing the boundary on each pass.
-  int BoundaryOffset[3];
-  int BoundarySize[3];
-  vtkTimeStamp BoundaryTime;
+  // Cache the ImageBounds, to avoid recomputing the ImageBounds on each pass.
+  int ImageBounds[VTK_IMAGE_BOUNDS_DIMENSIONS];
+  vtkTimeStamp ImageBoundsTime;
 
-  vtkImageRegion *RequestUnCachedRegion(int Offset[3], int Size[3]);
-  virtual vtkImageRegion *RequestCachedRegion(int Offset[3], int Size[3]);
+  // The cache manipulates (and returns) regions with this data type.
+  int DataType;
+  
+  void GenerateUnCachedRegionData(vtkImageRegion *region);
+  // Description:
+  // This method is used by a subclass to first look to cached 
+  // data.  It can also return null if the method
+  // fails for any reason.
+  virtual void GenerateCachedRegionData(vtkImageRegion *region) = 0;
 };
 
 #endif

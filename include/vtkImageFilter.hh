@@ -40,18 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkImageFilter - Generic filter that has one input..
 // .SECTION Description
 // vtkImageFilter is a filter class that can dynamically split up a task
-// if a request for input is too large.  This functionality is hidden
+// if a region is too large.  This functionality is hidden
 // in this superclass so filter writers never need to worry about this
-// feature.  The filter designer must supply two functions:
-//   1: RequiredRegion:  Returns the offset and size of the input
+// feature.  The filter designer can supply the functions:
+//   1: UpdateImageInformation: Given the ImageBounds of the input, this function
+// returns the ImageBounds of the output.
+//   2: GetRequiredRegionBounds:  Returns the offset and size of the input
 // region required to generate the given output region.
-//   2: Execute: Given an input region and an output region, this method
+//   3: Execute3d: Given an input region and an output region, this method
 // fills in the output using the input.
+//   4: Execute2d: Same as Execute3d, but the method assumes the regions
+// have a single image.
+//   5: Execute1d: Same as Execute3d and Execute2d, but the method assumes
+// the regions are one dimensional lines.
 //   If this structure does not suit the filter designer, the
-// GenerateRegion method can be overwritten, and the subclass can make
-// requests for input on its own.  If an input request fails,  the filter
-// can split the task its self, or simple fail the whole request leaving
-// the task of splitting the problem to  the requestor.
+// UpdateRegion method can be overwritten, and the subclass can get
+// its input regions on its own.  If an input generate fails,  the filter
+// can split the task its self, or simple fail the whole generate leaving
+// the task of splitting the problem to  the consumer.  This method has
+// to deal with the full dimensionality of the data.
 
 
 
@@ -68,26 +75,32 @@ public:
   vtkImageFilter();
   char *GetClassName() {return "vtkImageFilter";};
 
-  void GenerateRegion(int *outOffset, int *outSize);
-  void GetBoundary(int *offset, int *size);
+  virtual void SetInput(vtkImageSource *input);
+  void UpdateRegion(vtkImageRegion *outRegion);
+  void UpdateImageInformation(vtkImageRegion *region);
   unsigned long int GetPipelineMTime();
   
-  virtual void SetInput(vtkImageSource *input);
+  vtkSetMacro(UseExecuteMethod,int);
+  vtkGetMacro(UseExecuteMethod,int);
+  vtkBooleanMacro(UseExecuteMethod,int);
   
   // Description:
   // Get input to this filter.
   vtkGetObjectMacro(Input,vtkImageSource);
 
 protected:
-  vtkImageSource *Input;  // the input to the filter 
-
-  void GenerateRegionTiled(int *outOffset, int *outSize);
-  virtual void SplitRegion(int *outOffset, int *outSize, int *pieceSize);
-
-  // method specified by sub classes
-  virtual void RequiredRegion(int *outOffset, int *outSize,
-			   int *inOffset, int *inSize);
-  virtual void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  vtkImageSource *Input;     // the input to the filter
+  int UseExecuteMethod;  // Use UpdateRegion or Execute method?
+  
+  void UpdateRegionTiled(vtkImageRegion *outRegion);
+  virtual void SplitRegion(vtkImageRegion *region, int *pieceSize);
+  virtual void ComputeOutputImageInformation(vtkImageRegion *region);
+  virtual void ComputeRequiredInputRegionBounds(vtkImageRegion *outRegion,
+					   vtkImageRegion *inRegion);
+  virtual void Execute4d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  virtual void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  virtual void Execute2d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  virtual void Execute1d(vtkImageRegion *inRegion,vtkImageRegion *outRegion);
 };
 
 #endif

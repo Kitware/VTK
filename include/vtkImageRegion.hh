@@ -37,51 +37,279 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageRegion - Generic piece of an image used in pipeline.
+// .NAME vtkImageRegion - Piece of image. Pixel type defaults to float.
 // .SECTION Description
-// vtkImageRegion holds a 3d piece of an image and is the object filters
-// deal with directly.  The actual data for the image is stored in the
+// vtkImageRegion holds a piece of an image. 
+// The actual data for the image is stored in the
 // vtkImageData object.  The vtkImageRegion can represent only a portion 
 // of its vtkImageData, hiding the actual dimensions of the vtkImageData.
+// It can also transparently reorder the axes of the data with out
+// coping the data.
+//   A region can now be used as an input to a filter, but the relative
+// coordinates of the region are ignored.
+
 
 #ifndef __vtkImageRegion_h
 #define __vtkImageRegion_h
 
 
-#include "vtkObject.hh"
+#include "vtkImageSource.hh"
 #include "vtkImageData.hh"
 
-class vtkImageRegion : public vtkObject 
+
+// These definitions give semantics to the abstract implementation of axes.
+#define VTK_IMAGE_X_AXIS 0
+#define VTK_IMAGE_Y_AXIS 1
+#define VTK_IMAGE_Z_AXIS 2
+#define VTK_IMAGE_TIME_AXIS 3
+
+
+
+
+
+
+class vtkImageRegion : public vtkImageSource 
 {
 public:
   vtkImageRegion();
   ~vtkImageRegion();
   char *GetClassName() {return "vtkImageRegion";};
 
-  // Description:
-  // Set/Get the portion, offset and size, of the vtkImageRegion represented
-  // by this object.  The portion must be contained the vtkImageData.
-  // No error checking is performed!
-  vtkSetVector3Macro(Size,int);
-  vtkGetVector3Macro(Size,int);
-  vtkSetVector3Macro(Offset,int);
-  vtkGetVector3Macro(Offset,int);
+  // Stuff to use region as a source.
+  void UpdateRegion(vtkImageRegion *region); 
+  void UpdateImageInformation(vtkImageRegion *region);
+  unsigned long GetPipelineMTime();
 
-  int Allocate();
   void SetData(vtkImageData *data);
   // Description:
   // You can get the data object to share with another vtkImageRegion.
   vtkGetObjectMacro(Data,vtkImageData);
+  // Description:
+  // Get the data type of this region.
+  vtkSetMacro(DataType,int);
+  vtkGetMacro(DataType,int);
+  
+  // Description:
+  // Returns pointer increments that can be used to step around the data.
+  // Increments do not include size of data type, so should be used after
+  // pointers have been converted to their actual type.
+  void GetIncrements4d(int &inc0, int &inc1, int &inc2, int &inc3);
+  void GetIncrements3d(int &inc0, int &inc1, int &inc2);
+  void GetIncrements2d(int &inc0, int &inc1);
+  void GetIncrements1d(int &inc0);
+  int *GetIncrements4d() {return this->GetIncrements();};
+  int *GetIncrements3d() {return this->GetIncrements();};
+  int *GetIncrements2d() {return this->GetIncrements();};
+  int *GetIncrements1d() {return this->GetIncrements();};
 
-  float *GetPointer(int coordinates[3]);
-  void GetInc(int &inc0, int &inc1, int &inc2);
-  int *GetInc();
+  // Description:
+  // Set the current volume, image or line.  Used to disambiguate the
+  // 3d, 2d and 1d coordinates.
+  vtkSetMacro(DefaultCoordinate3,int);
+  vtkGetMacro(DefaultCoordinate3,int);
+  vtkSetMacro(DefaultCoordinate2,int);
+  vtkGetMacro(DefaultCoordinate2,int);
+  vtkSetMacro(DefaultCoordinate1,int);
+  vtkGetMacro(DefaultCoordinate1,int);
+  vtkSetMacro(DefaultCoordinate0,int);
+  vtkGetMacro(DefaultCoordinate0,int);
+  
+  // Description:
+  // Returns a pointer relative to the current volume, image or line.
+  void *GetVoidPointer4d(int coordinates[4]);
+  void *GetVoidPointer3d(int coordinates[3]);
+  void *GetVoidPointer2d(int coordinates[2]);
+  void *GetVoidPointer1d(int coordinates[1]);
+  // Description:
+  // Returns pointer at origin of current volume, image or line.
+  void *GetVoidPointer4d();
+  void *GetVoidPointer3d();
+  void *GetVoidPointer2d();
+  void *GetVoidPointer1d();
+  
+  // Description:
+  // Different methods for setting the bounds.
+  // The 2d and 1d functions do not modify bounds of the higher dimensions.
+  void SetBounds4d(int min0, int max0, int min1, int max1, 
+		   int min2, int max2, int min3, int max3);
+  void SetBounds3d(int min0, int max0, int min1, int max1, int min2, int max2);
+  void SetBounds2d(int min0, int max0, int min1, int max1);
+  void SetBounds1d(int min0, int max0);
 
+  void SetBounds4d(int *bounds) {this->SetBounds(bounds,4);};
+  void SetBounds3d(int *bounds) {this->SetBounds(bounds,3);};
+  void SetBounds2d(int *bounds) {this->SetBounds(bounds,2);};
+  void SetBounds1d(int *bounds) {this->SetBounds(bounds,1);};
+
+  // Description:
+  // Different methods for getting the bounds.
+  void GetBounds4d(int &min0, int &max0, int &min1, int &max1,
+		   int &min2, int &max2, int &min3, int &max3);
+  void GetBounds3d(int &min0, int &max0, int &min1, int &max1,
+		   int &min2, int &max2);
+  void GetBounds2d(int &min0, int &max0, int &min1, int &max1);
+  void GetBounds1d(int &min0, int &max0);
+
+  void GetBounds4d(int *bounds) {this->GetBounds(bounds, 4);};
+  void GetBounds3d(int *bounds) {this->GetBounds(bounds, 3);};
+  void GetBounds2d(int *bounds) {this->GetBounds(bounds, 2);};
+  void GetBounds1d(int *bounds) {this->GetBounds(bounds, 1);};
+  
+  int *GetBounds4d() { return this->Bounds;};
+  int *GetBounds3d() { return this->Bounds;};
+  int *GetBounds2d() { return this->Bounds;};
+  int *GetBounds1d() { return this->Bounds;};
+  
+  int *GetAbsoluteBounds() {return this->AbsoluteBounds;};
+  
+  
+  // Description:
+  // Different methods for setting the ImageBounds.
+  // The 2d and 1d functions do not modify ImageBounds of the higher dimensions.
+  void SetImageBounds4d(int min0, int max0, int min1, int max1, 
+			int min2, int max2, int min3, int max3);
+  void SetImageBounds3d(int min0,int max0, int min1,int max1, 
+			int min2,int max2);
+  void SetImageBounds2d(int min0, int max0, int min1, int max1);
+  void SetImageBounds1d(int min0, int max0);
+
+  void SetImageBounds4d(int *bounds) {this->SetImageBounds(bounds,4);};
+  void SetImageBounds3d(int *bounds) {this->SetImageBounds(bounds,3);};
+  void SetImageBounds2d(int *bounds) {this->SetImageBounds(bounds,2);};
+  void SetImageBounds1d(int *bounds) {this->SetImageBounds(bounds,1);};
+
+  // Description:
+  // Different methods for getting the ImageBounds.
+  void GetImageBounds4d(int &min0, int &max0, int &min1, int &max1,
+			int &min2, int &max2, int &min3, int &max3);
+  void GetImageBounds3d(int &min0, int &max0, int &min1, int &max1,
+			int &min2, int &max2);
+  void GetImageBounds2d(int &min0, int &max0, int &min1, int &max1);
+  void GetImageBounds1d(int &min0, int &max0);
+
+  void GetImageBounds4d(int *bounds) {this->GetImageBounds(bounds, 4);};
+  void GetImageBounds3d(int *bounds) {this->GetImageBounds(bounds, 3);};
+  void GetImageBounds2d(int *bounds) {this->GetImageBounds(bounds, 2);};
+  void GetImageBounds1d(int *bounds) {this->GetImageBounds(bounds, 1);};
+  
+  int *GetImageBounds4d() { return this->ImageBounds;};
+  int *GetImageBounds3d() { return this->ImageBounds;};
+  int *GetImageBounds2d() { return this->ImageBounds;};
+  int *GetImageBounds1d() { return this->ImageBounds;};
+  
+  
+
+  
+  // Description:
+  // Different methods for setting the axes.
+  void SetAxes4d(int *axes);
+  void SetAxes4d(int axis0, int axis1, int axis2, int axis3);
+
+  // Description:
+  // Different methods for getting the axes.
+  void GetAxes4d(int &axis0, int &axis1, int &axis2, int &axis3);
+  void GetAxes3d(int &axis0, int &axis1, int &axis2);
+  void GetAxes2d(int &axis0, int &axis1);
+  void GetAxes1d(int &axis0);
+
+  void GetAxes4d(int *axes) {this->GetAxes(axes, 4);};
+  void GetAxes3d(int *axes) {this->GetAxes(axes, 3);};
+  void GetAxes2d(int *axes) {this->GetAxes(axes, 2);};
+  void GetAxes1d(int *axes) {this->GetAxes(axes, 1);};
+  
+  int *GetAxes4d() { return this->Axes;};
+  int *GetAxes3d() { return this->Axes;};
+  int *GetAxes2d() { return this->Axes;};
+  int *GetAxes1d() { return this->Axes;};
+
+  // Description:
+  // This method returns the number of pixels enclosed in this bounding box.
+  int GetVolume(){return ((Bounds[1]-Bounds[0]+1) 
+			  * (Bounds[3]-Bounds[2]+1)
+			  * (Bounds[5]-Bounds[4]+1)
+			  * (Bounds[7]-Bounds[6]+1));};
+  
+  // Description:
+  // This method returns 1 if this bounding box has zero volume.
+  int IsEmpty() {return (Bounds[1] < Bounds[0] 
+			 || Bounds[3] < Bounds[2] 
+			 || Bounds[5] < Bounds[4] 
+			 || Bounds[7] < Bounds[6]);};
+
+  // Description:
+  // This method returns 1 if the region has associated data.
+  int IsAllocated(){return this->Data && this->Data->IsAllocated();};
+
+  // Description:
+  // If the image pipeline will with another package with a different
+  // data structure, these functions will act as the glue.
+  // Import will take a chunk of memory with its type and dimensions,
+  // so you can use it as a region.  Export will give you a pointer to 
+  // the data to manipulate.  Warning! when this region is deleted,
+  // the data memory may be deleted also.
+  void ImportMemory(void *ptr);
+  void *ExportMemory();
+  
+  void Allocate();
+  
 protected:
   vtkImageData *Data;   // Data is stored in this object.
-  int Size[3];          // The size of the tile (can be smaller than data)
-  int Offset[3];        // The offset relative to image origin.
+  int DataType;         // Remember the pixel type of this region.
+  int DefaultCoordinate3;          // The current volume
+  int DefaultCoordinate2;          // The current image
+  int DefaultCoordinate1;          // The current line
+  int DefaultCoordinate0;          // The current pixel
+
+  // Defines the relative coordinate system
+  int Axes[VTK_IMAGE_DIMENSIONS]; // Reorder the axis of the Data.
+
+  // Absolute Coordinates: Is not affected by Axes instance variable.
+  int AbsoluteBounds[VTK_IMAGE_BOUNDS_DIMENSIONS]; // Min/Max for each axis.
+  
+  // Bounds reordered to match Axes (relative coordinate system).
+  int Bounds[VTK_IMAGE_BOUNDS_DIMENSIONS];         // Min/Max for each axis.
+  // Increments in relative coordinate system
+  int Increments[VTK_IMAGE_DIMENSIONS];
+
+  // Possibly make a new object to hold global information like ImageBounds.
+  int ImageBounds[VTK_IMAGE_BOUNDS_DIMENSIONS];
+  int AbsoluteImageBounds[VTK_IMAGE_BOUNDS_DIMENSIONS];
+  
+
+  // Helper methods.
+  void ResetDefaultCoordinates(int dim);
+  void SetBounds(int *bounds, int dim);
+  void GetBounds(int *bounds, int dim);
+  void SetImageBounds(int *bounds, int dim);
+  void GetImageBounds(int *bounds, int dim);
+  void GetAxes(int *axes, int dim);  
+  int *GetIncrements();
+  void UpdateAbsoluteBounds();
+  void UpdateAbsoluteImageBounds();
+  void ShuffleRelativeToAbsolute4d(int *relative, int *absolute);
+  void ShuffleAbsoluteToRelative4d(int *absolute, int *relative);
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #endif
 

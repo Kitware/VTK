@@ -47,26 +47,85 @@ vtkImageData::vtkImageData()
 {
   int idx;
 
-  this->Data = NULL;
-  this->Length = 0;
-  for (idx = 0; idx < 3; ++idx)
-    this->Size[idx] = this->Offset[idx] = this->Inc[idx] = 0;
+  this->Scalars = NULL;
+  this->Allocated = 0;
+  this->Type = VTK_IMAGE_VOID;
+  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    this->Increments[idx] = 0;
+    this->Bounds[idx*2] = 0;
+    this->Bounds[idx*2 + 1] = 0;
+    }
 }
 
 //----------------------------------------------------------------------------
 vtkImageData::~vtkImageData()
 {
-  if (this->Data)
-    delete [] this->Data;
+  if (this->Scalars)
+    {
+    this->Scalars->Delete();
+    this->Scalars = NULL;
+    }
 }
+
+
+
+
+//----------------------------------------------------------------------------
+// Description:
+// This method sets the bounds of the data, and 
+// should be called before the data object is allocated.
+void vtkImageData::SetBounds(int min0, int max0, int min1, int max1, 
+			     int min2, int max2, int min3, int max3)
+{
+  vtkDebugMacro(<< "SetBounds: ...");
+
+  if (this->Scalars)
+    {
+    vtkErrorMacro(<< "SetBounds: Data object has already been allocated.");
+    return;
+    }
+  
+  this->Modified();
+  this->Bounds[0] = min0;
+  this->Bounds[1] = max0;
+  this->Bounds[2] = min1;
+  this->Bounds[3] = max1;
+  this->Bounds[4] = min2;
+  this->Bounds[5] = max2;
+  this->Bounds[6] = min3;
+  this->Bounds[7] = max3;
+}
+
+
+
+
+
+
+//----------------------------------------------------------------------------
+// Description:
+// This method tells the data object to handle a specific DataType.
+// The method should be called before the data object is allocated.
+void vtkImageData::SetType(int type)
+{
+  if (this->Scalars)
+    {
+    vtkErrorMacro(<< "SetType: Data object has already been allocated.");
+    return;
+    }
+  
+  this->Modified();
+  this->Type = type;
+}
+
 
 
 //----------------------------------------------------------------------------
 // Description:
 // This method returns 1 if the data object has already been allocated.
-int vtkImageData::Allocated()
+int vtkImageData::IsAllocated()
 {
-  if (this->Data)
+  if (this->Scalars)
     return 1;
   else
     return 0;
@@ -85,41 +144,61 @@ int vtkImageData::Allocate()
 
   // delete previous data
   // in the future try to reuse memory
-  if (this->Data)
+  if (this->Scalars)
     {
-    delete [] this->Data;
-    this->Data = NULL;
-    this->Length = 0;
+    this->Scalars->Delete();
+    this->Scalars = NULL;
     }
   
-  // set up size and increments
-  for (idx = 0; idx < 3; ++idx)
+  // set up increments
+  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
-    this->Inc[idx] = inc;
-    inc *= this->Size[idx];
+    this->Increments[idx] = inc;
+    inc *= (this->Bounds[idx*2+1] - this->Bounds[idx*2] + 1);
     }
   
   // special case zero length array
   if (inc <= 0)
     {
-    this->Length = inc;
-    this->Data = NULL;
+    this->Scalars = NULL;
     return 1;
     }
   
-  // allocate more memory
-  this->Data = new float[inc];
-  if (this->Data)
+  // create the Scalars object.
+  switch (this->Type)
     {
-    this->Length = inc;
-    return 1;
-    } 
-  else 
-    {
-    // allocation of data failed.
-    vtkErrorMacro(<< "Allocate: Could not allocate memory.");
-    return 0;
+    case VTK_IMAGE_VOID:
+      vtkErrorMacro(<< "Allocate: Type Unknown");
+      break;
+    case VTK_IMAGE_FLOAT:
+      this->Scalars = new vtkFloatScalars;
+      this->Allocated = this->Scalars->Allocate(inc);
+      ((vtkFloatScalars *)(this->Scalars))->WritePtr(0,inc);
+      break;
+    case VTK_IMAGE_INT:
+      this->Scalars = new vtkIntScalars;
+      this->Allocated = this->Scalars->Allocate(inc);
+      ((vtkIntScalars *)(this->Scalars))->WritePtr(0,inc);
+      break;
+    case VTK_IMAGE_SHORT:
+      this->Scalars = new vtkShortScalars;
+      this->Allocated =  this->Scalars->Allocate(inc);
+      ((vtkShortScalars *)(this->Scalars))->WritePtr(0,inc);
+      break;
+    case VTK_IMAGE_UNSIGNED_SHORT:
+      this->Scalars = new vtkUnsignedShortScalars;
+      this->Allocated = this->Scalars->Allocate(inc);
+      ((vtkUnsignedShortScalars *)(this->Scalars))->WritePtr(0,inc);
+      break;
+    case VTK_IMAGE_UNSIGNED_CHAR:
+      this->Scalars = new vtkUnsignedCharScalars;
+      this->Allocated = this->Scalars->Allocate(inc);
+      ((vtkUnsignedCharScalars *)(this->Scalars))->WritePtr(0,inc);
+      break;
     }
+
+
+  return this->Allocated;
 }
 
 
@@ -128,28 +207,41 @@ int vtkImageData::Allocate()
 // This Method returns a pointer to a location in the vtkImageData.
 // Coordinates are in pixel units and are relative to the whole
 // image origin.
-float *vtkImageData::GetPointer(int coordinates[3])
+void *vtkImageData::GetVoidPointer(int coordinates[VTK_IMAGE_DIMENSIONS])
 {
   int idx;
     
   // error checking: since most acceses will be from pointer arithmatic.
   // this should not waste much time.
-  for (idx = 0; idx < 3; ++idx)
+  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
-    if (coordinates[idx] < this->Offset[idx] ||
-	coordinates[idx] >= this->Offset[idx] + this->Size[idx])
+    if (coordinates[idx] < this->Bounds[idx*2] ||
+	coordinates[idx] > this->Bounds[idx*2+1])
       {
-      vtkErrorMacro(<< "GetPointer: Pixel (" << coordinates[0] << ", " 
-                    << coordinates[1] << ", " << coordinates[2]
-                    << ") not in memory.");
+      vtkErrorMacro(<< "GetVoidPointer: Pixel (" << coordinates[0] << ", " 
+                    << coordinates[1] << ", " << coordinates[2] << ", "
+                    << coordinates[3] << ") not in memory.");
       return NULL;
       }
     }
   
-  return this->Data 
-    + (coordinates[0] - this->Offset[0]) * this->Inc[0]
-      + (coordinates[1] - this->Offset[1]) * this->Inc[1]
-	+ (coordinates[2] - this->Offset[2]) * this->Inc[2];
+  // Note the VTK data model (Scalars) does not exactly fit with
+  // Image data model. We need a switch to get a void pointer.
+  idx = ((coordinates[0] - this->Bounds[0]) * this->Increments[0]
+	 + (coordinates[1] - this->Bounds[2]) * this->Increments[1]
+	 + (coordinates[2] - this->Bounds[4]) * this->Increments[2]
+	 + (coordinates[3] - this->Bounds[6]) * this->Increments[3]);
+  
+  return this->Scalars->GetVoidPtr(idx);
+}
+
+
+//----------------------------------------------------------------------------
+// Description:
+// This Method returns a pointer to the origin of the vtkImageData.
+void *vtkImageData::GetVoidPointer()
+{
+  return this->Scalars->GetVoidPtr(0);
 }
 
 

@@ -43,28 +43,28 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Constructor:  By default caches ReleaseDataFlags are turned off. However,
 // the vtkImageCachedSource method CheckCache, which create a default cache, 
 // turns this flag on.  If a cache is created and set explicitely, by 
-// default it saves its data between requests.  But if the cache is created
+// default it saves its data between generates.  But if the cache is created
 // automatically by the vtkImageCachedSource, it does not.
 vtkImageCache::vtkImageCache()
 {
   this->Source = NULL;
   this->Data = NULL;
-  this->Region = NULL;
+  
+  // Invalid data type
+  // This will be changed when the filter gets an input or
+  // the DataType is set explicitly
+  this->DataType = VTK_IMAGE_VOID;
+  
   // default is to save data,
   // (But caches automatically created by sources set ReleaseDataFlag to 1)
   this->ReleaseDataFlag = 0;
-  this->RequestMemoryLimit = 25000000;  // 5000 x 5000 image
+  this->MemoryLimit = 25000000;  // 5000 x 5000 image
 }
 
 
 //----------------------------------------------------------------------------
 vtkImageCache::~vtkImageCache()
 {
-  if (this->Region)
-    {
-    this->Region->Delete();
-    this->Region = NULL;
-    }
   if (this->Data)
     {
     this->Data->Delete();
@@ -79,7 +79,7 @@ vtkImageCache::~vtkImageCache()
 // Description:
 // This Method returns the MTime of the pipeline before this cache.
 // It considers both the source and the cache.  This method assumes
-// that the pipeline does not changed until the next RequestRegion call.
+// that the pipeline does not changed until the next UpdateRegion call.
 unsigned long int vtkImageCache::GetPipelineMTime()
 {
   unsigned long int time1, time2;
@@ -104,111 +104,138 @@ unsigned long int vtkImageCache::GetPipelineMTime()
 
 //----------------------------------------------------------------------------
 // Description:
-// This method returns the boundary of the largest region that can be
-// requested.  It simply passes the message to its source.
-void vtkImageCache::GetBoundary(int *offset, int *size)
+// This method computes and returns the bounding box of the whole image.
+// Any data associated with "region" is ignored.
+void vtkImageCache::UpdateImageInformation(vtkImageRegion *region)
 {
-  int idx;
-  
-  if (this->BoundaryTime.GetMTime() < this->GetPipelineMTime())
+  int saveAxes[VTK_IMAGE_DIMENSIONS];
+
+  // Save the old coordinate system
+  region->GetAxes4d(saveAxes);
+
+  if (this->ImageBoundsTime.GetMTime() < this->GetPipelineMTime())
     {
-    // pipeline has been modified, we have to get the boundary again.
-    vtkDebugMacro(<< "GetBoundary: Pipeline modified, recompute boundary");
+    // pipeline has been modified, we have to get the ImageBounds again.
+    vtkDebugMacro(<< "UpdateImageInformation: Pipeline modified, "
+                  << "recompute ImageBounds");
     if ( ! this->Source)
       {
-      vtkErrorMacro(<< "GetBoundary: No source");
+      vtkErrorMacro(<< "UpdateImageInformation: No source");
       return;
       }
-    this->Source->GetBoundary(offset, size);
-    
-    // Save the boundary
-    for (idx = 0; idx < 3; ++idx)
-      {
-      this->BoundaryOffset[idx] = offset[idx];
-      this->BoundarySize[idx] = size[idx];      
-      }
-    this->BoundaryTime.Modified();
 
+    // Translate region into the sources coordinate system. (save old)
+    region->SetAxes4d(this->Source->GetAxes());
+    // Get the ImageBounds
+    this->Source->UpdateImageInformation(region);
+    // Save the ImageBounds to satisfy later calls.
+    // We do not have the method GetAbsoluteBounds(int *), so ...
+    region->SetAxes4d(0, 1, 2, 3);
+    region->GetImageBounds4d(this->ImageBounds);
+    this->ImageBoundsTime.Modified();
+
+    // Leave the region in the original (before this method) coordinate system.
+    region->SetAxes4d(saveAxes);
+    
     return;
     }
   
   // No modifications have been made, so return our own copy.
-  vtkDebugMacro(<< "GetBoundary: Using own copy of boundary");
-  for (idx = 0; idx < 3; ++idx)
-    {
-    offset[idx] = this->BoundaryOffset[idx];
-    size[idx] = this->BoundarySize[idx];
-    }
+  vtkDebugMacro(<< "UpdateImageInformation: Using own copy of ImageBounds");
+  // We do not have a method SetAbsoluteBounds(int *), so ...
+  region->SetAxes4d(0, 1, 2, 3);
+  region->SetImageBounds4d(this->ImageBounds);
+
+  // Leave the region in the original (before this method) coordinate system.
+  region->SetAxes4d(saveAxes);
 }
+
 
 //----------------------------------------------------------------------------
 // Description:
 // This Method sets the value of "ReleaseDataFlag" which turns cache on or off.
-// When cache is off, memory is freed after a request has been satisfied.
+// When cache is off, memory is freed after a generate has been completed.
 void vtkImageCache::SetReleaseDataFlag(int value)
 {
-  if ( value == 1 && this->Data)
-    {
-    this->Data->Delete();
-    this->Data = NULL;
-    }
+  this->ReleaseDataFlag = value;
 
-  if ((value && ! this->ReleaseDataFlag) || ( ! value && this->ReleaseDataFlag))
+  if ( value == 1)
     {
-    // value has changed
-    this->Modified();
-    this->ReleaseDataFlag = value;
+    // Tell the subclass to delete data it has cached.
+    this->ReleaseData();
     }
 }
 
 
 //----------------------------------------------------------------------------
 // Description:
-// This Method handles external requests for data.
-// It returns a region contianing the region requested,
-// or NULL if the memory could not be allocated (SplitFactor is set).
-vtkImageRegion *vtkImageCache::RequestRegion(int offset[3], int size[3])
+// This Method handles external calls to generate data.
+// It Allocates and fills the passed region.
+// If the method cannot complete, the region is not allocated and
+// SplitFactor is set as a hint for splitting the region so the next call
+// will suceed.  "region" should not have data when this method is called.
+void vtkImageCache::UpdateRegion(vtkImageRegion *region)
 {
-  long requestMemory;
-  vtkImageRegion *region;
-  
-  vtkDebugMacro(<< "RequestRegion: offset = (" 
-		<< offset[0] << ", " << offset[1] << ", " << offset[2] 
-		<< "), size = (" 
-		<< size[0] << ", " << size[1] << ", " << size[2] << ")");
+  long memory;
+  int saveAxes[VTK_IMAGE_DIMENSIONS];
+  int saveBounds[VTK_IMAGE_BOUNDS_DIMENSIONS];
 
-  // Check if request exceeds memory limit
-  requestMemory = size[0] * size[1] * size[2];
-  if ( requestMemory > this->RequestMemoryLimit)
+  vtkDebugMacro(<< "UpdateRegion: ");
+
+  // Translate region into the sources coordinate system. (save old)
+  region->GetAxes4d(saveAxes);
+  region->SetAxes4d(this->Source->GetAxes());
+  
+  // Allow the source to modify the bounds of the region
+  region->GetBounds4d(saveBounds);
+  this->Source->InterceptCacheUpdate(region);
+  
+  // Check if bounds exceeds memory limit
+  memory = region->GetVolume();
+  if ( memory > this->MemoryLimit)
     {
-    this->SplitFactor = (requestMemory / this->RequestMemoryLimit) + 1;
-    vtkDebugMacro(<< "RequestRegion: Reuest too large, SplitFactor= "
+    this->SplitFactor = (memory / this->MemoryLimit) + 1;
+    vtkDebugMacro(<< "UpdateRegion: Reuest too large, SplitFactor= "
                   << this->SplitFactor);
-    return NULL;
+    region->SetAxes4d(saveAxes);
+    return;
+    }
+  
+  // Set the correct DataType for the region.
+  region->SetDataType(this->DataType);
+  
+  // If the region bounds has no "volume", allocate and return.
+  if (memory <= 0)
+    {
+    this->AllocateRegion(region);
+    region->SetAxes4d(saveAxes);
+    return;
     }
   
   // Must have a source to generate the data
   if ( ! this->Source)
     {
-    vtkErrorMacro(<< "RequestRegion: Can not GenerateData with no Source");
-    // Tell the requestor that spliting the request will not help.
+    vtkErrorMacro(<< "UpdateRegion: Can not generate data with no Source");
+    // Tell the consumer that spliting the region will not help.
     this->SplitFactor = 0;
-    return NULL;
+    region->SetAxes4d(saveAxes);
+    return;
     }
 
-  // Pass request to subclass method to satisfy
   if (this->ReleaseDataFlag)
     {
-    // Since SaveData is off, Data must be NULL.  Generate request.
-    region = this->RequestUnCachedRegion(offset, size);
+    // Since SaveData is off, Data must be NULL.  Source should Generate.
+    this->GenerateUnCachedRegionData(region);
     }
   else
     {
-    // look to cached data to fill request
-    region = this->RequestCachedRegion(offset, size);
+    // look to cached data for generate (subclass will handle the generate)
+    this->GenerateCachedRegionData(region);
     }
-  
-  return region;
+
+  // Leave the region in the original (before this method) coordinate system.
+  region->SetAxes4d(saveAxes);
+  region->SetBounds4d(saveBounds);
 }
 
 
@@ -216,107 +243,76 @@ vtkImageRegion *vtkImageCache::RequestRegion(int offset[3], int size[3])
 //----------------------------------------------------------------------------
 // Description:
 // This method uses the source to generate a whole region.  
-// It is called by RequestRegion when ReleaseDataFlag is on, or
-// the Requested region is not in cache.  The method returns
-// the region (or NULL if a something failed).  If "Data" is set the
-// method first frees it.  "Data" is set to NULL before method returns.
-// The subclass method which calls this function is resposible for
-// getting the data from the tile and saving it if it want to.
-vtkImageRegion *vtkImageCache::RequestUnCachedRegion(int offset[3],int size[3])
+// It is called by UpdateRegion when ReleaseDataFlag is on, or
+// by the subclass GenerateUnCachedRegionData method when the region data
+// is not in cache.  The method returns the region (or NULL if a something 
+// failed).  The subclass method which calls this function is responsible for
+// getting the data from the region and saving it if it wants to.
+// outBBox is not modified or deleted.
+void vtkImageCache::GenerateUnCachedRegionData(vtkImageRegion *region)
 {
-  vtkImageRegion *region;
-
-
-  vtkDebugMacro(<< "RequestUnCachedRegion: offset = ..., size = ...");
+  vtkDebugMacro(<< "GenerateUnCachedRegionData: ");
   
-  // Get rid of old data (Just in case)
-  if (this->Data)
-    {
-    this->Data->Delete();
-    this->Data = NULL;
-    }
-  
-  // Create the data object for this request, but delay allocating the
+  // Create the data object for this region, but delay allocating the
   // memory for as long as possible.
   this->Data = new vtkImageData;
-  this->Data->SetOffset(offset);
-  this->Data->SetSize(size);
-
-  // Create a region (data container) to satisfy GetRegion calls from the 
-  // source. Saving this reduces creation and destruction of objects, and
-  // the filter does not have to delete the region it obtained with GetRegion..
-  this->Region = new vtkImageRegion;
+  this->Data->SetBounds(region->GetAbsoluteBounds());
+  this->Data->SetType(this->DataType);
 
   // Tell the filter to generate the data for this region
-  this->Source->GenerateRegion(offset, size);
+  this->Source->UpdateRegion(region);
 
-  // this->Data should be allocated by now.
-  if ( ! this->Data->Allocated())
+  // this->Data should be allocated by now. 
+  // (unless somthing unexpected happened).
+  if ( ! this->Data->IsAllocated())
     {
-    vtkWarningMacro(<< "RequestUnCachedRegion: Data should be allocated, "
+    vtkWarningMacro(<< "GenerateUnCachedRegionData: Data should be allocated, "
                     << "but is not!");
-    // why did the source fail?  Will splitting help or not?
-    // Split Factor should be set by source or GetRegion method
-    return NULL;
+    // Split Factor should have been set by source or GetRegion method
+    this->Data->Delete();
+    this->Data = NULL;
+    return;
     }
 
   // Prepare region to be returned
-  region = this->Region;
-  this->Region = NULL;
-  region->SetSize(size);
-  region->SetOffset(offset);
   region->SetData(this->Data);
 
   // Delete (unregister) the data. (region has pointer/register by now)
   this->Data->UnRegister(this);
   this->Data = NULL;
-
-  return region;
 }
+
 
 
 
 //----------------------------------------------------------------------------
 // Description:
-// This pure virtual method is used by a subclass to first look to cached 
-// data to fill requests.  It can also return null if the request 
-// fails for any reason.
-vtkImageRegion *vtkImageCache::RequestCachedRegion(int offset[3], int size[3])
-{
-  // Avoid compiler warning messages
-  offset = offset;
-  size = size;
-  vtkErrorMacro(<< "RequestCachedRegion method has not been defined.");
-  // tell the requestor that splitting the request will not help.
-  this->SplitFactor = 0;  
-
-  return NULL;
-}
-
-
-
-//----------------------------------------------------------------------------
-// Description:
-// The caches source calls this method to obtain a region to fill in.
+// The caches source calls this method to allocate the region to fill in.
 // The data may or may not be allocated before the method is called,
-// but must be allocated before the method returns.
-vtkImageRegion *vtkImageCache::GetRegion(int offset[3], int size[3])
+// but must be allocated before the method returns.  The region
+// may or may not be the same region passed to GenerateRegion method.
+void vtkImageCache::AllocateRegion(vtkImageRegion *region)
 {
   // Allocate memory at the last possible moment
-  if ( ! this->Data->Allocated())
+  if ( ! this->Data)
+    {
+    this->Data = new vtkImageData;
+    this->Data->SetBounds(region->GetAbsoluteBounds());
+    this->Data->SetType(this->DataType);
+    }
+
+  if ( ! this->Data->IsAllocated())
     if ( ! this->Data->Allocate())
       {
       // Output data could not be allocated.  Splitting will help.
+      // Memory failure should not happen. MemoryLimits set wrong.
+      vtkWarningMacro(<< "AllocateRegion: Failure. MemoryLimits too big.");
       this->SplitFactor = 2;
-      return NULL;
+      return;
       }
 
   // Set up the region for the source
-  this->Region->SetData(this->Data);
-  this->Region->SetOffset(offset);
-  this->Region->SetSize(size);
-
-  return this->Region;
+  region->SetData(this->Data);
 }
   
 

@@ -37,11 +37,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageShiftScaleFilter - Filter that shifts and scales each pixel.
+// .NAME vtkImageShiftScaleFilter - Upper threshold on pixel values
 // .SECTION Description
-// vtkImageShiftScaleFilter is a pixel filter class that shift and scales each 
-// pixel value.
-// newValue = Scale * (oldValue + Shift);
+// vtkImageShiftScaleFilter is a pixel filter class that implements a 
+// nonlinear upper threshold.  If a pixel is above Threshold, it is replaced
+// with Replace.
 
 
 #ifndef __vtkImageShiftScaleFilter_h
@@ -54,22 +54,23 @@ class vtkImageShiftScaleFilter : public vtkImageFilter
 {
 public:
   vtkImageShiftScaleFilter();
-  char *GetClassName() {return "vtkImageShiftScaleFilter";}
+  char *GetClassName() {return "vtkImageShiftScaleFilter";};
 
-  // Set/Get the scale of the filter.
-  vtkSetMacro(Scale,float);
-  vtkGetMacro(Scale,float);
-
-  // Set/Get the shift of the filter.
+  // Description:
+  // Set/Get the Shift
   vtkSetMacro(Shift,float);
   vtkGetMacro(Shift,float);
 
-protected:
-  float Scale;
-  float Shift;
+  // Description:
+  // Set/Get the scale Value;
+  vtkSetMacro(Scale,float);
+  vtkGetMacro(Scale,float);
 
-  void RequiredRegion(int *outOffset, int *outSize, int *inOffset, int *inSize);
-  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+protected:
+  float Shift;
+  float Scale;
+
+  void Execute2d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };
 
 #endif

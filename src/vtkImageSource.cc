@@ -40,59 +40,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageSource.hh"
 
 
-//----------------------------------------------------------------------------
-// Description:
-// This method should return a region filled with the requested data, or
-// return NULL if the request could not be fulfilled.  This class implements
-// a dummy method that MUST be overwritten (pure virtual).
-vtkImageRegion *vtkImageSource::RequestRegion(int outOffset[3], int outSize[3])
-{
-  vtkDebugMacro(<< "RequestRegion: offset = ("
-                << outOffset[0] << ", " << outOffset[1] << ", " << outOffset[2]
-                << "), size = ("
-                << outSize[0] << ", " << outSize[1] << ", " << outSize[2]
-                << ")");
-
-  vtkErrorMacro(<< "RequestRegion has not been defined for this source");
-  // Indicate that splitting will not help.
-  this->SplitFactor = 0;
-  
-  return NULL;
-}
-
 
 //----------------------------------------------------------------------------
 // Description:
-// This method returns an object which will satisfy requests.
+// This method returns an object which will generate regions.
 // For non cached sources, it returns the source itself.
 // The convention for connection elements in an image pipeline is
-// "requestor->SetInput(source->GetOutput)".  It is primarily
+// "consumer->SetInput(source->GetOutput)".  It is primarily
 // designed to allows sources with multple outputs.
 vtkImageSource *vtkImageSource::GetOutput()
 {
   return this;
-}
-
-
-//----------------------------------------------------------------------------
-// Description:
-// This method returns in "offset" and "size" the boundary of data
-// in the image. Requests for regions of the image out side of these
-// bounds will have unpredictable effects
-// (i.e. no error checking is performed).  In the future the boundary 
-// information may be encapsulated in the vtkImageRegion objects.
-// Every subclass has to supply this method.
-void vtkImageSource::GetBoundary(int *offset, int *size)
-{
-  int idx;
-  
-  vtkErrorMacro(<< "GetBoundary: Not defined for this source.");
-  
-  for (idx = 0; idx < 3; ++idx)
-    {
-    offset[idx] = 0;
-    size[idx] = 0;
-    }
 }
 
 
@@ -110,6 +68,8 @@ unsigned long vtkImageSource::GetPipelineMTime()
 
 
   
+
+
 
 
 

@@ -37,12 +37,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageSimpleCache - Caches the last tile request.
+// .NAME vtkImageSimpleCache - Caches the last region generated.
 // .SECTION Description
 // vtkImageSimpleCache saves previously the last generated tile.
-// If a subsequent request is for the same Region or smaller, the
-// cached tile is returned with no call to the filters Generate method.
-// If the new request is not completely contained in the cached tile,
+// If a subsequent region is contained in the cached data, the
+// cached data is returned with no call to the filters Generate method.
+// If the new region is not completely contained in the cached data,
 // the cache is not used.
 
 
@@ -55,12 +55,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class vtkImageSimpleCache : public vtkImageCache
 {
 public:
+  vtkImageSimpleCache();
+  ~vtkImageSimpleCache();
   char *GetClassName() {return "vtkImageSimpleCache";};
+  void ReleaseData();
 
 protected:
+  vtkImageData *CachedData;
   vtkTimeStamp GenerateTime;
 
-  vtkImageRegion *RequestCachedRegion(int Offset[3], int Size[3]); 
+  void GenerateCachedRegionData(vtkImageRegion *region); 
 };
 
 #endif

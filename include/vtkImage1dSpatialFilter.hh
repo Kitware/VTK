@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageUpperThresholdFilter.hh
+  Module:    vtkImage1dSpatialFilter.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,43 +37,55 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageUpperThresholdFilter - Upper threshold on pixel values
+// .NAME vtkImage1dSpatialFilter - Filters that operate on pixel neighborhoods.
 // .SECTION Description
-// vtkImageUpperThresholdFilter is a pixel filter class that implements a 
-// nonlinear upper threshold.  If a pixel is above Threshold, it is replaced
-// with Replace.
+// vtkImage1dSpatialFilter is a class of filters that use a 1d neighborhood
+// of input pixels to compute a output pixel.  
+// An example is vtkImage1dConvolutionFilter.
 
 
-#ifndef __vtkImageUpperThresholdFilter_h
-#define __vtkImageUpperThresholdFilter_h
+#ifndef __vtkImage1dSpatialFilter_h
+#define __vtkImage1dSpatialFilter_h
 
 
 #include "vtkImageFilter.hh"
+#include "vtkImageRegion.hh"
 
-class vtkImageUpperThresholdFilter : public vtkImageFilter
+class vtkImage1dSpatialFilter : public vtkImageFilter
 {
 public:
-  vtkImageUpperThresholdFilter();
-  char *GetClassName() {return "vtkImageUpperThresholdFilter";};
-
+  vtkImage1dSpatialFilter();
+  char *GetClassName() {return "vtkImage1dSpatialFilter";};
+  void SetKernelSize(int size);
   // Description:
-  // Set/Get the Threshold
-  vtkSetMacro(Threshold,float);
-  vtkGetMacro(Threshold,float);
-
+  // Get the Spatial kernel size and middle.
+  vtkGetMacro(KernelSize,int);
+  vtkGetMacro(KernelMiddle,int);
   // Description:
-  // Set/Get the Replace Value;
-  vtkSetMacro(Replace,float);
-  vtkGetMacro(Replace,float);
+  // Set/Get whether convolve up to boundaries or not (truncate kernel).
+  vtkSetMacro(HandleBoundaries,int);
+  vtkGetMacro(HandleBoundaries,int);
+  vtkBooleanMacro(HandleBoundaries,int);
+  
 
 protected:
-  float Threshold;
-  float Replace;
+  int   KernelSize;
+  int   KernelMiddle;         // Index of kernel origin
+  int   HandleBoundaries; // Shrink kernel at boundaries.
 
-  void Execute2d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  void ComputeOutputImageInformation(vtkImageRegion *region);
+  void ComputeRequiredInputRegionBounds(vtkImageRegion *outRegion, 
+				   vtkImageRegion *inRegion);
 };
 
 #endif
+
+
+
+
+
+
+
 
 
 

@@ -44,13 +44,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //----------------------------------------------------------------------------
 // Description:
 // This method sets up the Gaussian kernel.
-void vtkImage1dGaussianSmoothFilter::SetGauss(float Std, int Radius)
+void vtkImage1dGaussianSmoothFilter::SetGaussianStdRadius(float Std,int Radius)
 {
   int idx;
   float *kernel;
   float sum;
 
-  vtkDebugMacro(<< "SetGauss: Std = " << Std << ", Radius = " << Radius);
+  vtkDebugMacro(<< "SetGaussianStdRadius: Std = " << Std 
+                << ", Radius = " << Radius);
   
   // save the values
   this->Std = Std;
@@ -68,10 +69,12 @@ void vtkImage1dGaussianSmoothFilter::SetGauss(float Std, int Radius)
   // normalize
   sum = 0.5 / sum;
   kernel[Radius] *= sum;
-  for (idx = 0; idx <= Radius; ++idx)
+  for (idx = 1; idx <= Radius; ++idx)
     kernel[Radius + idx] = kernel[Radius - idx] = 
       kernel[Radius + idx] * sum;
 
+  this->BoundaryRescaleOn();
+  
   // set the kernel
   this->SetKernel(kernel, Radius * 2 + 1);
 

@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageSource_h
 
 #include "vtkObject.hh"
-#include "vtkImageRegion.hh"
+class vtkImageRegion;
 
 
 class vtkImageSource : public vtkObject 
@@ -61,23 +61,41 @@ class vtkImageSource : public vtkObject
 public:
   char *GetClassName() {return "vtkImageSource";};
 
-  virtual vtkImageRegion *RequestRegion(int Offset[3], int Size[3]); 
+  // Description:
+  // This method should the allocate and generate the Region's data, or
+  // if the data could not be generated set the split factor.
+  virtual void UpdateRegion(vtkImageRegion *region) = 0; 
   virtual vtkImageSource *GetOutput();
-  virtual void GetBoundary(int *offset, int *size);
+  // Description:
+  // This method fills the regions bounds with the largest region that can
+  // be generated from the source.  The regions data is ignored.
+  virtual void UpdateImageInformation(vtkImageRegion *region) = 0;
   virtual unsigned long GetPipelineMTime();
+  // Description:
+  // This method returns the data type of the region that will be returned by
+  // the UpdateRegion method.  This method is used to automatically set
+  // the DataTypes of elements in the pipline.  When this source is set as an 
+  // input, the consumer may call this function and use the returned DataType
+  // as a default.
+  virtual int GetDataType() = 0;
 
   // Description:
-  // If RequestRegion fails, "SplitFactor" has to be set.
+  // If UpdateRegion fails, "SplitFactor" has to be set.
   // If the failure was due to a memory limitation, SplitFactor 
-  // suggests that the request should be broken into "SplitFactor" 
-  // number of pieces for the request to suceed.  
-  // If the failure is not memory related, and splitting the request
+  // suggests that the region should be broken into "SplitFactor" 
+  // number of pieces for the next call to suceed.  
+  // If the failure is not memory related, and splitting the region
   // will not help, split factor should be set to zero.
   vtkGetMacro(SplitFactor,int);
 protected:
   int SplitFactor;
 };
 
+
+
+#include "vtkImageRegion.hh"
+
 #endif
+
 
 

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageUpperThresholdFilter.hh
+  Module:    vtkImage3dGaussianSmoothFilter.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,40 +37,28 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageUpperThresholdFilter - Upper threshold on pixel values
+// .NAME vtkImage3dGaussianSmoothFilter - smooths on a 3D plane.
 // .SECTION Description
-// vtkImageUpperThresholdFilter is a pixel filter class that implements a 
-// nonlinear upper threshold.  If a pixel is above Threshold, it is replaced
-// with Replace.
+// vtkImage3dGaussianSmoothFilter implements a 3d Gaussian smoothing on an axis
+// aligned plane.  It really consists of two 1d Gaussian filters.
 
 
-#ifndef __vtkImageUpperThresholdFilter_h
-#define __vtkImageUpperThresholdFilter_h
+#ifndef __vtkImage3dGaussianSmoothFilter_h
+#define __vtkImage3dGaussianSmoothFilter_h
 
 
-#include "vtkImageFilter.hh"
+#include "vtkImage3dDecomposedFilter.hh"
+#include "vtkImage1dGaussianSmoothFilter.hh"
 
-class vtkImageUpperThresholdFilter : public vtkImageFilter
+class vtkImage3dGaussianSmoothFilter : public vtkImage3dDecomposedFilter
 {
 public:
-  vtkImageUpperThresholdFilter();
-  char *GetClassName() {return "vtkImageUpperThresholdFilter";};
+  vtkImage3dGaussianSmoothFilter();
+  char *GetClassName() {return "vtkImage3dGaussianSmoothFilter";};
 
-  // Description:
-  // Set/Get the Threshold
-  vtkSetMacro(Threshold,float);
-  vtkGetMacro(Threshold,float);
-
-  // Description:
-  // Set/Get the Replace Value;
-  vtkSetMacro(Replace,float);
-  vtkGetMacro(Replace,float);
+  void SetGaussianStdRadius(float std, int rad);
 
 protected:
-  float Threshold;
-  float Replace;
-
-  void Execute2d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };
 
 #endif

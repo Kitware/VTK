@@ -47,38 +47,31 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageMedianFilter_h
 
 
-#include "vtkImageFilter.hh"
+#include "vtkImage3dSpatialFilter.hh"
 
-class vtkImageMedianFilter : public vtkImageFilter
+class vtkImageMedianFilter : public vtkImage3dSpatialFilter
 {
 public:
   vtkImageMedianFilter();
   char *GetClassName() {return "vtkImageMedianFilter";};
-  void GetBoundary(int *offset, int *size);
+
+  void SetKernelSize(int size0, int size1, int size2);
+  void ClearMedian();
+  void AccumulateMedian(double val);
+  double GetMedian();
   
-  void SetRadius(int rad0, int rad1, int rad2);
-  // Description:
-  // Get the convolution axis.
-  vtkGetVector3Macro(Radius,int);
-
 protected:
-  int Radius[3];
-
   // stuff for sorting the pixels
   int NumNeighborhood;
-  float *Sort;
-  float *Median;
+  double *Sort;
+  double *Median;
   int UpMax;
   int DownMax;
   int UpNum;
   int DownNum;
 
-  void RequiredRegion(int *outOffset, int *outSize, 
-		      int *inOffset, int *inSize);
-  void Execute(vtkImageRegion *inTile, vtkImageRegion *outTile);
-  float NeighborhoodMedian(float *inPtr, int inc0, int inc1, int inc2);
-  void ClearMedian();
-  void AccumulateMedian(float val);
+  void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+
 };
 
 #endif

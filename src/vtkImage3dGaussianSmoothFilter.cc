@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageUpperThresholdFilter.hh
+  Module:    vtkImage3dGaussianSmoothFilter.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,43 +37,36 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageUpperThresholdFilter - Upper threshold on pixel values
-// .SECTION Description
-// vtkImageUpperThresholdFilter is a pixel filter class that implements a 
-// nonlinear upper threshold.  If a pixel is above Threshold, it is replaced
-// with Replace.
+#include "vtkImage3dGaussianSmoothFilter.hh"
 
-
-#ifndef __vtkImageUpperThresholdFilter_h
-#define __vtkImageUpperThresholdFilter_h
-
-
-#include "vtkImageFilter.hh"
-
-class vtkImageUpperThresholdFilter : public vtkImageFilter
+//----------------------------------------------------------------------------
+// Description:
+// This method sets up the 2 1d filters that perform the convolution.
+vtkImage3dGaussianSmoothFilter::vtkImage3dGaussianSmoothFilter()
 {
-public:
-  vtkImageUpperThresholdFilter();
-  char *GetClassName() {return "vtkImageUpperThresholdFilter";};
+  // create the filter chain 
+  this->Filter0 = new vtkImage1dGaussianSmoothFilter;
+  this->Filter1 = new vtkImage1dGaussianSmoothFilter;
+  this->Filter2 = new vtkImage1dGaussianSmoothFilter;
 
-  // Description:
-  // Set/Get the Threshold
-  vtkSetMacro(Threshold,float);
-  vtkGetMacro(Threshold,float);
-
-  // Description:
-  // Set/Get the Replace Value;
-  vtkSetMacro(Replace,float);
-  vtkGetMacro(Replace,float);
-
-protected:
-  float Threshold;
-  float Replace;
-
-  void Execute2d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-};
-
-#endif
+  this->SetAxes3d(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS);
+}
 
 
+//----------------------------------------------------------------------------
+// Description:
+// This method sets the kernal. Both axes are the same.  
+// A future simple extension could make the kernel eliptical.
+void vtkImage3dGaussianSmoothFilter::SetGaussianStdRadius(float std, int rad)
+{
+  vtkDebugMacro(<< "SetGauss: Std = " << std << ", Radius = " << rad);
 
+  ((vtkImage1dGaussianSmoothFilter *)
+   (this->Filter0))->SetGaussianStdRadius(std, rad);
+  ((vtkImage1dGaussianSmoothFilter *)
+   (this->Filter1))->SetGaussianStdRadius(std, rad);
+  ((vtkImage1dGaussianSmoothFilter *)
+   (this->Filter2))->SetGaussianStdRadius(std, rad);
+
+  this->Modified();
+}

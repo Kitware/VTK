@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageUpperThresholdFilter.hh
+  Module:    vtkImage2dDilateValueFilter.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,40 +37,30 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageUpperThresholdFilter - Upper threshold on pixel values
+// .NAME vtkImage2dDilateValueFilter - smooths on a 2D plane.
 // .SECTION Description
-// vtkImageUpperThresholdFilter is a pixel filter class that implements a 
-// nonlinear upper threshold.  If a pixel is above Threshold, it is replaced
-// with Replace.
+// vtkImage2dDilateValueFilter implements a 2d Gaussian smoothing on an axis
+// aligned plane.  It really consists of two 1d Gaussian filters.
 
 
-#ifndef __vtkImageUpperThresholdFilter_h
-#define __vtkImageUpperThresholdFilter_h
+#ifndef __vtkImage2dDilateValueFilter_h
+#define __vtkImage2dDilateValueFilter_h
 
 
-#include "vtkImageFilter.hh"
+#include "vtkImage2dDecomposedFilter.hh"
+#include "vtkImage1dDilateValueFilter.hh"
 
-class vtkImageUpperThresholdFilter : public vtkImageFilter
+class vtkImage2dDilateValueFilter : public vtkImage2dDecomposedFilter
 {
 public:
-  vtkImageUpperThresholdFilter();
-  char *GetClassName() {return "vtkImageUpperThresholdFilter";};
+  vtkImage2dDilateValueFilter();
+  char *GetClassName() {return "vtkImage2dDilateValueFilter";};
 
-  // Description:
-  // Set/Get the Threshold
-  vtkSetMacro(Threshold,float);
-  vtkGetMacro(Threshold,float);
-
-  // Description:
-  // Set/Get the Replace Value;
-  vtkSetMacro(Replace,float);
-  vtkGetMacro(Replace,float);
+  void SetKernelSize(int width, int height);
+  void SetKernelSize(int size) {this->SetKernelSize(size, size);};
+  void SetValue(float value);
 
 protected:
-  float Threshold;
-  float Replace;
-
-  void Execute2d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };
 
 #endif

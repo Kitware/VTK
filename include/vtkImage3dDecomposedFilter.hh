@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageUpperThresholdFilter.hh
+  Module:    vtkImage3dDecomposedFilter.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,40 +37,44 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageUpperThresholdFilter - Upper threshold on pixel values
+// .NAME vtkImage3dDecomposedFilter - Contains three 1d filters.
 // .SECTION Description
-// vtkImageUpperThresholdFilter is a pixel filter class that implements a 
-// nonlinear upper threshold.  If a pixel is above Threshold, it is replaced
-// with Replace.
+// vtkImage3dDecomposedFilter is a super class for filters that break
+// their 3d processing into three 1d steps.  They contain a sub pipeline
+// that contains three 1d filters in series.
 
 
-#ifndef __vtkImageUpperThresholdFilter_h
-#define __vtkImageUpperThresholdFilter_h
+#ifndef __vtkImage3dDecomposedFilter_h
+#define __vtkImage3dDecomposedFilter_h
 
 
 #include "vtkImageFilter.hh"
 
-class vtkImageUpperThresholdFilter : public vtkImageFilter
+class vtkImage3dDecomposedFilter : public vtkImageFilter
 {
 public:
-  vtkImageUpperThresholdFilter();
-  char *GetClassName() {return "vtkImageUpperThresholdFilter";};
+  vtkImage3dDecomposedFilter();
+  ~vtkImage3dDecomposedFilter();
+  char *GetClassName() {return "vtkImage3dDecomposedFilter";};
 
-  // Description:
-  // Set/Get the Threshold
-  vtkSetMacro(Threshold,float);
-  vtkGetMacro(Threshold,float);
+  // Forward Object messages to filter1 and fitler2
+  void DebugOn();
+  void Modified();
+  // Foward Source messages to filter2
+  void SetCache(vtkImageCache *cache);
+  vtkImageCache *GetCache();
+  vtkImageSource *GetOutput();
+  unsigned long GetPipelineMTime();
+  // Foward filter messages to fitler1
+  void SetInput(vtkImageSource *Input);
 
-  // Description:
-  // Set/Get the Replace Value;
-  vtkSetMacro(Replace,float);
-  vtkGetMacro(Replace,float);
+  void SetAxes3d(int axis0, int axis1, int axis2);
 
 protected:
-  float Threshold;
-  float Replace;
 
-  void Execute2d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  vtkImageFilter *Filter0;
+  vtkImageFilter *Filter1;
+  vtkImageFilter *Filter2;
 };
 
 #endif

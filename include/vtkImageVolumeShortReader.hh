@@ -41,7 +41,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkImageVolumeShortReader will read an image saved as unsigned shorts.
 // The dimensions of the image has to be prespecified.
-// The header of the file is completely ignored.
+// The header of the file is completely ignored.  
+// Images are stored in individual files: i.e. root.1, root.2 ...
+// This class generate 4d regions.  It will just 
+// duplicate the 3d volume for each slice of the extra dimension.
 
 
 #ifndef __vtkImageVolumeShortReader_h
@@ -61,9 +64,9 @@ public:
   void SetSize(int *size);
   
   void SetFileRoot(char *fileRoot);
-  void GenerateRegion(int *outOffset, int *outSize);    
-  void GetBoundary(int *offset, int *size);
-
+  void UpdateImageInformation(vtkImageRegion *region);
+  vtkImageSource *GetOutput();
+  
   // Description:
   // Set/Get the number of the first image
   vtkSetMacro(First,int);
@@ -86,6 +89,24 @@ public:
   vtkGetMacro(SwapBytes,int);
   vtkBooleanMacro(SwapBytes,int);
 
+  // Templated function that reads into different data types.
+  friend void vtkImageVolumeShortReaderGenerateData2d(
+			     vtkImageVolumeShortReader *self,
+			     vtkImageRegion *region, float *ptr);
+  friend void vtkImageVolumeShortReaderGenerateData2d(
+			     vtkImageVolumeShortReader *self,
+			     vtkImageRegion *region, int *ptr);
+  friend void vtkImageVolumeShortReaderGenerateData2d(
+			     vtkImageVolumeShortReader *self,
+			     vtkImageRegion *region, short *ptr);
+  friend void vtkImageVolumeShortReaderGenerateData2d(
+			     vtkImageVolumeShortReader *self,
+			     vtkImageRegion *region, unsigned short *ptr);
+  friend void vtkImageVolumeShortReaderGenerateData2d(
+			     vtkImageVolumeShortReader *self,
+			     vtkImageRegion *region, unsigned char *ptr);
+  
+  
 protected:
   char FileRoot[100];
   char FileName[110];
@@ -95,13 +116,13 @@ protected:
   int Signed;
   int SwapBytes;
   int Size[3];
-  int Inc[3];
+  int Increments[3];
   // The first image has this number
   int First;
   // Mask each pixel with
   unsigned short PixelMask;
-  
-  void GenerateSlice(vtkImageRegion *region, int slice);  
+
+  void UpdateRegion2d(vtkImageRegion *outRegion);    
 };
 
 #endif

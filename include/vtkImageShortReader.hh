@@ -75,7 +75,7 @@ protected:
   int HeaderSize;
   int Signed;
   int Size[3];
-  int Inc[3];
+  int Increments[3];
 };
 
 #endif

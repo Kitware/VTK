@@ -40,84 +40,84 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageSimpleCache.hh"
 
 //----------------------------------------------------------------------------
-// Description:
-// This Method handles external requests for data.
-// It returns a tile contianing the Region requested,
-// or NULL if the memory could not be allocated.
-vtkImageRegion *vtkImageSimpleCache::RequestCachedRegion(int offset[3], int size[3])
+vtkImageSimpleCache::vtkImageSimpleCache()
 {
-  vtkImageRegion *tile;
-  
-  // Check Data to see if the tile is already exists
-  if (this->Data)
+  this->CachedData = NULL;
+}
+
+
+//----------------------------------------------------------------------------
+vtkImageSimpleCache::~vtkImageSimpleCache()
+{
+  if (this->CachedData)
     {
-    int *dataOffset, *dataSize;
-    dataOffset = this->Data->GetOffset();
-    dataSize = this->Data->GetSize();
-    // Is the new request contained in the data?
-    if (offset[0] >= dataOffset[0] 
-	&& offset[1] >= dataOffset[1] 
-	&& offset[2] >= dataOffset[2])
+    this->CachedData->Delete();
+    this->CachedData = NULL;
+    }
+}
+
+
+//----------------------------------------------------------------------------
+// Description:
+// This Method allocates a region and generates the data.
+void vtkImageSimpleCache::GenerateCachedRegionData(vtkImageRegion *region)
+{
+  // Check Data to see if the region already exists
+  if (this->CachedData)
+    {
+    int *cacheBounds, *regionBounds;
+    cacheBounds = this->CachedData->GetBounds();
+    regionBounds = region->GetAbsoluteBounds();
+    // Is the new region contained in the cache?
+    if (regionBounds[0] >= cacheBounds[0] &&
+	regionBounds[1] <= cacheBounds[1] &&
+	regionBounds[2] >= cacheBounds[2] &&
+	regionBounds[3] <= cacheBounds[3] &&
+	regionBounds[4] >= cacheBounds[4] &&
+	regionBounds[5] <= cacheBounds[5] &&
+	regionBounds[6] >= cacheBounds[6] &&
+	regionBounds[7] <= cacheBounds[7])
       {
-      if (offset[0] + size[0] <= dataOffset[0] + dataSize[0]
-	  && offset[1] + size[1] <= dataOffset[1] + dataSize[1]
-	  && offset[2] + size[2] <= dataOffset[2] + dataSize[2])
+      // check the gtime of cache to see if it is more recent than mtime */
+      if (this->GenerateTime.GetMTime() >= this->GetPipelineMTime())
 	{
-	// check the gtime of data to see if it is more recent than mtime */
-	if (this->GenerateTime.GetMTime() >= this->GetPipelineMTime())
-	  {
-	  /* use the cache data (automatically registered by tile) */
-	  vtkDebugMacro(<< "RequestRegion: Using cache to satisfy request.");
-	  tile = new vtkImageRegion;
-	  tile->SetOffset(offset);
-	  tile->SetSize(size);
-	  tile->SetData(this->Data);
-	  return tile;
+	/* use the cache data (automatically registered by region) */
+	vtkDebugMacro(<< "GenerateCachedRegionData: " 
+	              << "Using cache to fill region.");
+	region->SetDataType(this->DataType);
+	region->SetData(this->CachedData);
+	return;
 	}
       }
     }
-  }
-
+  
+  // Region not entirely in cache
   // Get rid of the old cached data
-  if (this->Data)
+  if (this->CachedData)
     {
-    this->Data->Delete();
-    this->Data = NULL;
+    this->CachedData->Delete();
+    this->CachedData = NULL;
     }
   // Generate a new region
-  tile = this->RequestUnCachedRegion(offset, size);
+  this->GenerateUnCachedRegionData(region);
   // Save the data in cache
-  this->Data = tile->GetData();
-  this->Data->Register(this);
+  this->CachedData = region->GetData();
+  this->CachedData->Register(this);
   // Mark when this data was generated
   this->GenerateTime.Modified();
-  
-  return tile;
 }
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+//----------------------------------------------------------------------------
+// Description:
+// This Method deletes any data in cache.
+void vtkImageSimpleCache::ReleaseData()
+{
+  if (this->CachedData)
+    {
+    this->CachedData->Delete();
+    this->CachedData = NULL;
+    }
+}

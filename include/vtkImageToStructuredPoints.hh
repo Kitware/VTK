@@ -64,34 +64,53 @@ public:
   vtkSetObjectMacro(Input,vtkImageSource);
   vtkGetObjectMacro(Input,vtkImageSource);
   // Description:
-  // Set/Get the region to request
-  vtkSetVector3Macro(Offset,int);
-  vtkGetVector3Macro(Offset,int);
-  vtkSetVector3Macro(Size,int);
-  vtkGetVector3Macro(Size,int);
-  // Description:
-  // Set/Get the flag that tells the object toconvert the whole image or not.
-  vtkSetMacro(WholeImageFlag,int);
-  vtkGetMacro(WholeImageFlag,int);
-  vtkBooleanMacro(WholeImageFlag,int);
-  // Description:
-  // Set/Get the flag that flips the Y axis (origin upper left?)
-  vtkSetMacro(FlipYFlag,int);
-  vtkGetMacro(FlipYFlag,int);
-  vtkBooleanMacro(FlipYFlag,int);
+  // Set/Get the flag that tells the object to convert the whole image or not.
+  vtkSetMacro(WholeImage,int);
+  vtkGetMacro(WholeImage,int);
+  vtkBooleanMacro(WholeImage,int);
 
-  void ConditionalUpdate(int forcedFlag);
+  // Forward these messages to the "Region".
+  void SetBounds(int *bounds){this->Region.SetBounds3d(bounds);};
+  void SetBounds(int min0, int max0, int min1, int max1, int min2, int max2)
+    {this->Region.SetBounds3d(min0,max0,min1,max1,min2,max2);};
+  int *GetBounds(){return this->Region.GetBounds3d();};
+  void GetBounds(int *bounds){this->Region.GetBounds3d(bounds);};
+  void GetBounds(int &min0,int &max0,int &min1,int &max1,int &min2,int &max2)
+    {this->Region.GetBounds3d(min0,max0,min1,max1,min2,max2);};
+  
+  
+  
   void Update();
+  void ConditionalUpdate(int forced);
+  
+  friend void vtkImageToStructuredPointsReformatRegion(
+			 vtkImageToStructuredPoints *self,
+			 vtkImageRegion *inRegion, float *inPtr,
+			 vtkImageRegion *outRegion, float *outPtr);
+  friend void vtkImageToStructuredPointsReformatRegion(
+			 vtkImageToStructuredPoints *self,
+			 vtkImageRegion *inRegion, int *inPtr,
+			 vtkImageRegion *outRegion, int *outPtr);
+  friend void vtkImageToStructuredPointsReformatRegion(
+			 vtkImageToStructuredPoints *self,
+			 vtkImageRegion *inRegion, short *inPtr,
+			 vtkImageRegion *outRegion, short *outPtr);
+  friend void vtkImageToStructuredPointsReformatRegion(
+			 vtkImageToStructuredPoints *self,
+			 vtkImageRegion *inRegion, unsigned short *inPtr,
+			 vtkImageRegion *outRegion, unsigned short *outPtr);
+  friend void vtkImageToStructuredPointsReformatRegion(
+			 vtkImageToStructuredPoints *self,
+			 vtkImageRegion *inRegion, unsigned char *inPtr,
+			 vtkImageRegion *outRegion, unsigned char *outPtr);
   
 protected:
   vtkImageSource *Input;
-  int Offset[3];
-  int Size[3];
-  int WholeImageFlag;
-  int FlipYFlag;
+  int WholeImage;
+  vtkImageRegion Region;
 
   void Execute();
-  void Generate(vtkImageRegion *region, vtkGraymap *scalars);
+  vtkImageRegion *ReformatRegion(vtkImageRegion *inRegion);
 };
 
 #endif

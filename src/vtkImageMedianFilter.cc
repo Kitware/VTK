@@ -47,7 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImageMedianFilter::vtkImageMedianFilter()
 {
   this->Sort = NULL;
-  this->SetRadius(1, 1, 0);
+  this->SetKernelSize(1, 1, 1);
 }
 
 
@@ -62,164 +62,244 @@ vtkImageMedianFilter::~vtkImageMedianFilter()
 
 //----------------------------------------------------------------------------
 // Description:
-// Set the radius of each axis.
-void vtkImageMedianFilter::SetRadius(int rad0, int rad1, int rad2)
+// This method sets the size of the 3d neighborhood.  It also sets the 
+// default middle of the neighborhood 
+void vtkImageMedianFilter::SetKernelSize(int size0, int size1, int size2)
 {
-  this->Modified();
-
-  // Set the Radius
-  this->Radius[0] = rad0;
-  this->Radius[1] = rad1;
-  this->Radius[2] = rad2;
-
+  // Call the superclass to set the kernel size
+  this->vtkImage3dSpatialFilter::SetKernelSize(size0, size1, size2);
+  
   // free old sort memeory
   if (this->Sort)
     delete [] this->Sort;
+  this->Sort = NULL;
 
   // compute the numbe4r of pixels in the neighborhood 
-  this->NumNeighborhood = (1 + 2 * rad0) * (1 + 2 * rad1) * (1 + 2 * rad2);
+  this->NumNeighborhood = size0 * size1 * size2;
 
   // allocate new sort memory
-  this->Sort = new float[(this->NumNeighborhood + 2)];
-}
-
-
-//----------------------------------------------------------------------------
-// Description:
-// This method computes the Region of the input necessary to generate outRegion.
-void vtkImageMedianFilter::RequiredRegion(int *outOffset, int *outSize,
-					  int *inOffset, int *inSize)
-{
-  int idx;
-
-  // ignoring boundaries for now
-  for (idx = 0; idx < 3; ++idx)
+  if (this->NumNeighborhood > 0)
     {
-    inOffset[idx] = outOffset[idx] - this->Radius[idx];
-    inSize[idx] = outSize[idx] + 2 * this->Radius[idx];
+    this->Sort = new double[(this->NumNeighborhood + 2)];
     }
 }
 
-//----------------------------------------------------------------------------
-// Description:
-// Returns the largest region which can be requested.
-// Since borders are not handled yet, the valid image shrinks.
-void vtkImageMedianFilter::GetBoundary(int *offset, int *size)
-{
-  int idx;
-
-  // get the Boundary of the input
-  this->vtkImageFilter::GetBoundary(offset, size);
-  
-  for (idx = 0; idx < 3; ++idx)
-    {
-    offset[idx] += this->Radius[idx];
-    size[idx] -= (2 * this->Radius[idx]);
-    }
-
-  vtkDebugMacro(<< "GetBoundary: returning offset = ("
-          << offset[0] << ", " << offset[1] << ", " << offset[2]
-          << "), size = (" << size[0] << ", " << size[1] << ", " << size[2]
-          << ")");  
-}
-
-
-
-
 
 //----------------------------------------------------------------------------
 // Description:
-// This method is passed a input and output region, and executes the Median
-// algorithm to fill the output from the input.
-// As a place holder, an identity Median is implemented.
-void vtkImageMedianFilter::Execute(vtkImageRegion *inRegion, 
-				   vtkImageRegion *outRegion)
+// This method contains the second switch statement that calls the correct
+// templated function for the mask types.
+template <class T>
+void vtkImageMedianFilterExecute(vtkImageMedianFilter *self,
+				 vtkImageRegion *inRegion, T *inPtr, 
+				 vtkImageRegion *outRegion, T *outPtr)
 {
-  int size0, size1, size2;
-  int idx0, idx1, idx2;
+  int *kernelMiddle, *kernelSize;
+  // For looping though output (and input) pixels.
+  int outMin0, outMax0, outMin1, outMax1, outMin2, outMax2;
+  int outIdx0, outIdx1, outIdx2;
   int inInc0, inInc1, inInc2;
   int outInc0, outInc1, outInc2;
-  float *inPtr0, *inPtr1, *inPtr2;
-  float *outPtr0, *outPtr1, *outPtr2;
-
+  T *inPtr0, *inPtr1, *inPtr2;
+  T *outPtr0, *outPtr1, *outPtr2;
+  // For looping through hood pixels
+  int hoodMin0, hoodMax0, hoodMin1, hoodMax1, hoodMin2, hoodMax2;
+  int hoodStartMin0, hoodStartMax0, hoodStartMin1, hoodStartMax1;
+  int hoodIdx0, hoodIdx1, hoodIdx2;
+  T *tmpPtr0, *tmpPtr1, *tmpPtr2;
+  // The portion of the out image that needs no boundary processing.
+  int middleMin0, middleMax0, middleMin1, middleMax1, middleMin2, middleMax2;
+  
   // Get information to march through data
-  inPtr2 = inRegion->GetPointer(inRegion->GetOffset());
-  inRegion->GetInc(inInc0, inInc1, inInc2);  
-  outPtr2 = outRegion->GetPointer(outRegion->GetOffset());
-  outRegion->GetInc(outInc0, outInc1, outInc2);  
-  outRegion->GetSize(size0, size1, size2);  
+  inRegion->GetIncrements3d(inInc0, inInc1, inInc2); 
+  outRegion->GetIncrements3d(outInc0, outInc1, outInc2); 
+  outRegion->GetBounds3d(outMin0, outMax0, outMin1, outMax1, outMin2, outMax2);
+  kernelMiddle = self->GetKernelMiddle();
+  kernelSize = self->GetKernelSize();
+  
+  hoodMin0 = outMin0 - kernelMiddle[0]; 
+  hoodMin1 = outMin1 - kernelMiddle[1]; 
+  hoodMin2 = outMin2 - kernelMiddle[2]; 
+  hoodMax0 = kernelSize[0] + hoodMin0 - 1;
+  hoodMax1 = kernelSize[1] + hoodMin1 - 1;
+  hoodMax2 = kernelSize[2] + hoodMin2 - 1;
+  
+  // Clip by the input image bounds
+  inRegion->GetImageBounds3d(middleMin0, middleMax0, 
+			     middleMin1, middleMax1, 
+			     middleMin2, middleMax2);
+  hoodMin0 = (hoodMin0 > middleMin0) ? hoodMin0 : middleMin0;
+  hoodMin1 = (hoodMin1 > middleMin1) ? hoodMin1 : middleMin1;
+  hoodMin2 = (hoodMin2 > middleMin2) ? hoodMin2 : middleMin2;
+  hoodMax0 = (hoodMax0 < middleMax0) ? hoodMax0 : middleMax0;
+  hoodMax1 = (hoodMax1 < middleMax1) ? hoodMax1 : middleMax1;
+  hoodMax2 = (hoodMax2 < middleMax2) ? hoodMax2 : middleMax2;
 
-  vtkDebugMacro(<< "Execute: inRegion = (" << inRegion 
-		<< "), outRegion = (" << outRegion << ")");
-    
-  // perform filter for each pixel of output
-  for (idx2 = 0; idx2 < size2; ++idx2){
+  // Save the starting neighborhood dimensions (2 loops only once)
+  hoodStartMin0 = hoodMin0;    hoodStartMax0 = hoodMax0;
+  hoodStartMin1 = hoodMin1;    hoodStartMax1 = hoodMax1;
+  
+  // The portion of the output that needs no boundary computation.
+  middleMin0 += kernelMiddle[0];
+  middleMax0 -= (kernelSize[0] - 1) - kernelMiddle[0];
+  middleMin1 += kernelMiddle[1];
+  middleMax1 -= (kernelSize[1] - 1) - kernelMiddle[1];
+  middleMin2 += kernelMiddle[2];
+  middleMax2 -= (kernelSize[2] - 1) - kernelMiddle[2];
+  
+  // loop through pixel of output
+  outPtr2 = outPtr;
+  inPtr2 = inPtr;
+  for (outIdx2 = outMin2; outIdx2 <= outMax2; ++outIdx2)
+    {
     outPtr1 = outPtr2;
     inPtr1 = inPtr2;
-    for (idx1 = 0; idx1 < size1; ++idx1){
+    hoodMin1 = hoodStartMin1;
+    hoodMax1 = hoodStartMax1;
+    for (outIdx1 = outMin1; outIdx1 <= outMax1; ++outIdx1)
+      {
       outPtr0 = outPtr1;
       inPtr0 = inPtr1;
-      for (idx0 = 0; idx0 < size0; ++idx0){
-
-        // Replace this pixel with the neighborhood median
-        *outPtr0 = this->NeighborhoodMedian(inPtr0, inInc0, inInc1, inInc2);
-
+      hoodMin0 = hoodStartMin0;
+      hoodMax0 = hoodStartMax0;
+      for (outIdx0 = outMin0; outIdx0 <= outMax0; ++outIdx0)
+	{
+	
+	// Compute median of neighborhood
+	// Note: For boundary, NumNeighborhood could be changed for
+	// a faster sort.
+	self->ClearMedian();
+	// loop through neighborhood pixels
+	tmpPtr2 = inPtr0;
+	for (hoodIdx2 = hoodMin2; hoodIdx2 <= hoodMax2; ++hoodIdx2)
+	  {
+	  tmpPtr1 = tmpPtr2;
+	  for (hoodIdx1 = hoodMin1; hoodIdx1 <= hoodMax1; ++hoodIdx1)
+	    {
+	    tmpPtr0 = tmpPtr1;
+	    for (hoodIdx0 = hoodMin0; hoodIdx0 <= hoodMax0; ++hoodIdx0)
+	      {
+	      // Add this pixel to the median
+	      self->AccumulateMedian(double(*tmpPtr0));
+	      
+	      tmpPtr0 += inInc0;
+	      }
+	    tmpPtr1 += inInc1;
+	    }
+	  tmpPtr2 += inInc2;
+	  }
+	
+	// Replace this pixel with the hood median
+        *outPtr0 = (T)(self->GetMedian());
+	
+	// shift neighborhood considering boundaries
+	if (outIdx0 >= middleMin0)
+	  {
+	  inPtr0 += inInc0;
+	  ++hoodMin0;
+	  }
+	if (outIdx0 < middleMax0)
+	  {
+	  ++hoodMax0;
+	  }
 	outPtr0 += outInc0;
-	inPtr0 += inInc0;
       }
+      // shift neighborhood considering boundaries
+      if (outIdx1 >= middleMin1)
+	{
+	inPtr1 += inInc1;
+	++hoodMin1;
+	}
+      if (outIdx1 < middleMax1)
+	{
+	++hoodMax1;
+	}
       outPtr1 += outInc1;
-      inPtr1 += inInc1;
     }
+    // shift neighborhood considering boundaries
+    if (outIdx2 >= middleMin2)
+      {
+      inPtr2 += inInc2;
+      ++hoodMin2;
+      }
+    if (outIdx2 < middleMax2)
+      {
+      ++hoodMax2;
+      }
     outPtr2 += outInc2;
-    inPtr2 += inInc2;
-  }
+    }
 }
 
+//----------------------------------------------------------------------------
+// Description:
+// This method contains the first switch statement that calls the correct
+// templated function for the input and output region types.
+void vtkImageMedianFilter::Execute3d(vtkImageRegion *inRegion, 
+				     vtkImageRegion *outRegion)
+{
+  void *inPtr = inRegion->GetVoidPointer3d();
+  void *outPtr = outRegion->GetVoidPointer3d();
+  
+  vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
+		<< ", outRegion = " << outRegion);
+  
+  // this filter expects that input is the same type as output.
+  if (inRegion->GetDataType() != outRegion->GetDataType())
+    {
+    vtkErrorMacro(<< "Execute: input DataType, " << inRegion->GetDataType()
+                  << ", must match out DataType " << outRegion->GetDataType());
+    return;
+    }
+  
+  switch (inRegion->GetDataType())
+    {
+    case VTK_IMAGE_FLOAT:
+      vtkImageMedianFilterExecute(this, 
+			  inRegion, (float *)(inPtr), 
+			  outRegion, (float *)(outPtr));
+      break;
+    case VTK_IMAGE_INT:
+      vtkImageMedianFilterExecute(this, 
+			  inRegion, (int *)(inPtr), 
+			  outRegion, (int *)(outPtr));
+      break;
+    case VTK_IMAGE_SHORT:
+      vtkImageMedianFilterExecute(this, 
+			  inRegion, (short *)(inPtr), 
+			  outRegion, (short *)(outPtr));
+      break;
+    case VTK_IMAGE_UNSIGNED_SHORT:
+      vtkImageMedianFilterExecute(this, 
+			  inRegion, (unsigned short *)(inPtr), 
+			  outRegion, (unsigned short *)(outPtr));
+      break;
+    case VTK_IMAGE_UNSIGNED_CHAR:
+      vtkImageMedianFilterExecute(this, 
+			  inRegion, (unsigned char *)(inPtr), 
+			  outRegion, (unsigned char *)(outPtr));
+      break;
+    default:
+      vtkErrorMacro(<< "Execute: Unknown DataType");
+      return;
+    }
+}
 
 
 
 //----------------------------------------------------------------------------
 // Description:
-// This private method calculates and returns the median of a neighborhood
-// around a pixel.  Is this approach faster than a sort?
-float vtkImageMedianFilter::NeighborhoodMedian(float *inPtr, 
-					       int inc0, int inc1, int inc2)
+// Get the current median of all accumilated values.
+double vtkImageMedianFilter::GetMedian()
 {
-  int idx0, idx1, idx2;
-  float *ptr0, *ptr1, *ptr2;
-  int diam0, diam1, diam2;
-
-  // allocate sort arrays from dimensions of neighborhood
-  diam0 = 1 + 2 * this->Radius[0];
-  diam1 = 1 + 2 * this->Radius[1];
-  diam2 = 1 + 2 * this->Radius[2];
-
-  // start accumilating a new median
-  this->ClearMedian();
-
-  // find the corner of the neighborhood (already at corner)
-  ptr2 = inPtr;
-  // loop over neighborhood pixels
-  for (idx2 = 0; idx2 < diam2; ++idx2)
+  if ( ! this->Median)
     {
-    ptr1 = ptr2;
-    for (idx1 = 0; idx1 < diam1; ++idx1)
-      {
-      ptr0 = ptr1;
-      for (idx0 = 0; idx0 < diam0; ++idx0)
-	{
-	// insert sample in sorted arrays 
-	this->AccumulateMedian(*ptr0);
-	ptr0 += inc0;
-	}
-      ptr1 += inc1;
-      }
-    ptr2 += inc2;
+    vtkErrorMacro(<< "GetMedian: No median memory!");
+    return 0.0;
     }
-
+  
   return *(this->Median);
 }
-
+  
 
 
 //----------------------------------------------------------------------------
@@ -235,10 +315,10 @@ void vtkImageMedianFilter::ClearMedian()
 //----------------------------------------------------------------------------
 // Description:
 // Add a sample to the median computation
-void vtkImageMedianFilter::AccumulateMedian(float val)
+void vtkImageMedianFilter::AccumulateMedian(double val)
 {
   int idx, max;
-  float temp, *ptr;
+  double temp, *ptr;
 
   // special case: no samples yet 
   if (this->UpNum == 0)
@@ -327,23 +407,9 @@ void vtkImageMedianFilter::AccumulateMedian(float val)
     }
 }
 
+
+
   
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

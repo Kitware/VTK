@@ -95,6 +95,7 @@ vtkImageRegion *vtkImagePanCache::RequestCachedRegion(int offset[3],
   newData = new vtkImageData;
   newData->SetOffset(offset);
   newData->SetSize(size);
+  newData->SetSizeOfType(sizeof(float));
   if ( ! newData->Allocate())
     {
     newData->Delete();
@@ -198,12 +199,12 @@ int vtkImagePanCache::GetCacheStatus(int *newOffset, int *newSize,
  
   if (newContainedInCache)
     {
-    vtkDebugMacro(<< "RequestRegion: requested region lies entirely in cache");
+    vtkDebugMacro(<<"GetCacheStatus: requested region lies entirely in cache");
     return 2;
     }
   else
     {
-    vtkDebugMacro(<< "RequestRegion: a part of requested region is in cache");
+    vtkDebugMacro(<< "GetCacheStatus: a part of requested region is in cache");
     return 3;
     }
 }
@@ -213,14 +214,17 @@ int vtkImagePanCache::GetCacheStatus(int *newOffset, int *newSize,
 //----------------------------------------------------------------------------
 // Description:
 // This method copies data from cache into the newly requested region.
-void vtkImagePanCache::CopyOverlap(vtkImageData *newData, int *offset, int* size)
+// It has a loop for bytes in a pixel which might not be the most efficient
+// implementation.
+void vtkImagePanCache::CopyOverlap(vtkImageData *newData, 
+				   int *offset, int* size)
 {
   int newInc0, newInc1, newInc2;
-  float *newPtr0, *newPtr1, *newPtr2;
+  unsigned char *newPtr, *newPtr0, *newPtr1, *newPtr2;
   int cacheInc0, cacheInc1, cacheInc2;
-  float *cachePtr0, *cachePtr1, *cachePtr2;
-  int idx0, idx1, idx2;
-  
+  unsigned char *cachePtr, *cachePtr0, *cachePtr1, *cachePtr2;
+  int idx, idx0, idx1, idx2;
+  int sizeOfType;
   
   vtkDebugMacro(<< "CopyOverlap: " << newData->GetClassName() 
                 << "(" << newData << ")" << ", offset = ("
@@ -229,10 +233,12 @@ void vtkImagePanCache::CopyOverlap(vtkImageData *newData, int *offset, int* size
                 << size[0] << ", " << size[1] << ", " << size[2] << ")");
   
   // copy the overlapping region into newData
-  newPtr2 = newData->GetPointer(offset);
   newData->GetInc(newInc0, newInc1, newInc2);
-  cachePtr2 = this->Data->GetPointer(offset);
   this->Data->GetInc(cacheInc0, cacheInc1, cacheInc2);
+  sizeOfType = newData->GetSizeOfType(); // assume same as this->Data
+  
+  newPtr2 = newData->GetPointer(offset);
+  cachePtr2 = this->Data->GetPointer(offset);
   for (idx2 = 0; idx2 < size[2]; ++idx2)
     {
     newPtr1 = newPtr2;
@@ -245,7 +251,12 @@ void vtkImagePanCache::CopyOverlap(vtkImageData *newData, int *offset, int* size
 	{
 	
 	// Copy a pixel
-	*newPtr0 = *cachePtr0;
+	newPtr = newPtr0;
+	cachePtr = cachePtr0;
+	for (idx = 0; idx < sizeOfType; ++idx)
+	  {
+	  *newPtr++ = *cachePtr++;
+	  }
 	
 	newPtr0 += newInc0;
 	cachePtr0 += cacheInc0;

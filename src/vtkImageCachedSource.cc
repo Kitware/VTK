@@ -43,7 +43,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //----------------------------------------------------------------------------
 vtkImageCachedSource::vtkImageCachedSource()
 {
-  this->Cache = NULL;
+  this->Output = NULL;
+  this->SetAxes4d(VTK_IMAGE_X_AXIS,
+		  VTK_IMAGE_Y_AXIS,
+		  VTK_IMAGE_Z_AXIS,
+		  VTK_IMAGE_TIME_AXIS);
 }
 
 
@@ -52,31 +56,115 @@ vtkImageCachedSource::vtkImageCachedSource()
 // Destructor: Delete the cache as well. (should caches by reference counted?)
 vtkImageCachedSource::~vtkImageCachedSource()
 {
-  if (this->Cache)
+  if (this->Output)
     {
-    this->Cache->Delete();
-    this->Cache = NULL;
+    this->Output->Delete();
+    this->Output = NULL;
+    }
+}
+
+
+
+//----------------------------------------------------------------------------
+// Description:
+// This method can be used to intercept a generate call made to a cache.
+// It allows a source to generate a larger region than was originally 
+// specified.  The default method does not alter the specified region bounds.
+void vtkImageCachedSource::InterceptCacheUpdate(vtkImageRegion *region)
+{
+  region = region;
+}
+
+
+
+//----------------------------------------------------------------------------
+// Description:
+// This method fills an empty region with data.
+void vtkImageCachedSource::UpdateRegion(vtkImageRegion *region)
+{
+  this->UpdateRegion4d(region);
+}
+
+  
+//----------------------------------------------------------------------------
+// Description:
+// This default GenerateRegion4d method treats the 4d image as a 
+// set of volumes.  It loops over these volumes and calls GenerateRegion3d.
+void vtkImageCachedSource::UpdateRegion4d(vtkImageRegion *region)
+{
+  int coordinate3;
+  int *bounds;
+  int min3, max3;
+  
+  bounds = region->GetBounds4d();
+  min3 = bounds[6];
+  max3 = bounds[7];
+  
+  for (coordinate3 = min3; coordinate3 <= max3; ++coordinate3)
+    {
+    region->SetDefaultCoordinate3(coordinate3);
+    this->UpdateRegion3d(region);
     }
 }
 
 
 //----------------------------------------------------------------------------
 // Description:
-// Since this is a vtkCachedSource this method should not be called 
-// (for consistencey).  All requests for regions should be made through
-// this sources cache object (use the GetOutput method).  The only subclass
-// which viloates this rule is vtkImageMagnifyFilter.
-vtkImageRegion *vtkImageCachedSource::RequestRegion(int offset[3], int size[3])
+// This default UpdateRegion3d method treats the volume as a set of 
+// images.  It loops over these images and calls UpdateRegion2d.
+void vtkImageCachedSource::UpdateRegion3d(vtkImageRegion *region)
 {
-  vtkWarningMacro(<< "RequestRegion: This is a CachedSource. "
-                  << "All requests should be made through the cache.");
-  // make sure a cache exists
-  this->CheckCache();
-  // forward the message to the cache
-  return this->Cache->RequestRegion(offset, size);
+  int coordinate2;
+  int *bounds;
+  int min2, max2;
+  
+  bounds = region->GetBounds3d();
+  min2 = bounds[4];
+  max2 = bounds[5];
+  
+  for (coordinate2 = min2; coordinate2 <= max2; ++coordinate2)
+    {
+    region->SetDefaultCoordinate2(coordinate2);
+    this->UpdateRegion2d(region);
+    }
 }
 
+
+//----------------------------------------------------------------------------
+// Description:
+// This default UpdateRegion2d method treats the image as a set of lines.
+// It loops over these lines and calls UpdateRegion1d.
+void vtkImageCachedSource::UpdateRegion2d(vtkImageRegion *region)
+{
+  int coordinate1;
+  int *bounds;
+  int min1, max1;
   
+  bounds = region->GetBounds2d();
+  min1 = bounds[2];
+  max1 = bounds[3];
+  
+  for (coordinate1 = min1; coordinate1 <= max1; ++coordinate1)
+    {
+    region->SetDefaultCoordinate1(coordinate1);
+    this->UpdateRegion1d(region);
+    }
+}
+
+
+//----------------------------------------------------------------------------
+// Description:
+// There is no default UpdateRegion1d.  This method just prints an error.
+void vtkImageCachedSource::UpdateRegion1d(vtkImageRegion *region)
+{
+  region = region;
+  vtkErrorMacro(<< "UpdateRegion1d: "
+                << "Subclass did not provide a UpdateRegion method.");
+}
+
+
+
+
 
 
 //----------------------------------------------------------------------------
@@ -87,21 +175,19 @@ vtkImageCache *vtkImageCachedSource::GetCache()
 {
   this->CheckCache();
   
-  return this->Cache;
+  return this->Output;
 }
 
 
 
 //----------------------------------------------------------------------------
 // Description:
-// Returns an object which will satisfy requests for Regions.
-// All requests for data are made through this object.  It allows the 
-// vtkImageCache object to check its local data before 
-// calling the sources GenerateRegion method.
+// Returns an object which will generate data for Regions.
 vtkImageSource *vtkImageCachedSource::GetOutput()
 {
   return this->GetCache();
 }
+
 
 
 
@@ -117,7 +203,7 @@ unsigned long vtkImageCachedSource::GetPipelineMTime()
   time1 = this->GetMTime();
   // get the caches modified time (just in case cache did not originate call)
   this->CheckCache();
-  time2 = this->Cache->GetMTime();
+  time2 = this->Output->GetMTime();
   
   // Get the maximum of the two times
   time1 = (time1 > time2) ? time1 : time2;
@@ -134,11 +220,11 @@ unsigned long vtkImageCachedSource::GetPipelineMTime()
 // Limits the size of tile which can be returned. 
 // The messaged is forwarded to the sources cache.
 // If the source does not have a cache, a default cache is created.
-void vtkImageCachedSource::SetRequestMemoryLimit(long limit)
+void vtkImageCachedSource::SetMemoryLimit(long limit)
 {
   this->CheckCache();
 
-  this->Cache->SetRequestMemoryLimit(limit);
+  this->Output->SetMemoryLimit(limit);
 }
 
 
@@ -151,14 +237,14 @@ void vtkImageCachedSource::SetRequestMemoryLimit(long limit)
 // before any connections are made.
 void vtkImageCachedSource::SetCache(vtkImageCache *cache)
 {
-  if (this->Cache)
+  if (this->Output)
     {
     // could this be handled more elegantly?
     vtkErrorMacro(<< "SetCache: A cache already exists for this source");
     return;
     }
 
-  this->Cache = cache;
+  this->Output = cache;
   cache->SetSource(this);
   this->Modified();
 
@@ -169,21 +255,78 @@ void vtkImageCachedSource::SetCache(vtkImageCache *cache)
 
 
 
+
 //----------------------------------------------------------------------------
 // Description:
-// This is a dummy (pure virtual) method that MUST be supplied by a subclass.
-// It should get the output tile from the cache and fill the
-// data in the requested region (offset, size).
-void vtkImageCachedSource::GenerateRegion(int outOffset[3], int outSize[3])
+// This method is used when the source is treating the data as 1d lines.
+// It chooses the parallel axis.
+void vtkImageCachedSource::SetAxis1d(int axis0)
 {
-  vtkDebugMacro(<< "GenerateRegion: offset = ("
-                << outOffset[0] << ", " << outOffset[1] << ", " << outOffset[2]
-                << "), size = ("
-                << outSize[0] << ", " << outSize[1] << ", " << outSize[2]
-                << ")");
-
-  vtkErrorMacro(<< "GenerateRegion has not been defined for this cached source");
+  int axis1;
+  
+  // Choose the next axis (2d) as the smallest axis.
+  // This is the most efficeint if the data is ordered this way.
+  // Maybe the cache or input should be queried for its data order.
+  axis1 = 0;
+  while (axis1 == axis0)
+    {
+    ++axis1;
+    }
+  
+  this->SetAxes2d(axis0, axis1);
 }
+
+//----------------------------------------------------------------------------
+// Description:
+// This method is used when the source is treating the data as 2d images.
+// It chooses the parallel plane axes.
+void vtkImageCachedSource::SetAxes2d(int axis0, int axis1)
+{
+  int axis2;
+  
+  // Choose the next axis (3d) as the smallest axis.
+  // This is the most efficeint if the data is ordered this way.
+  // Maybe the cache or input should be queried for its data order.
+  axis2 = 0;
+  while (axis2 == axis0 || axis2 == axis1)
+    {
+    ++axis2;
+    }
+  
+  this->SetAxes3d(axis0, axis1, axis2);
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// This method is used when the source is treating the data as 3d volumes.
+// It chooses the basis of the volume.
+void vtkImageCachedSource::SetAxes3d(int axis0, int axis1, int axis2)
+{
+  int axis3;
+  
+  // Choose the next axis (4d) as the smallest axis (only remaining axis).
+  axis3 = 0;
+  while (axis3 == axis0 || axis3 == axis1 || axis3 == axis2)
+    {
+    ++axis3;
+    }
+  
+  this->SetAxes4d(axis0, axis1, axis2, axis3);
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// This method is used when the source is treating the data as 4d "image".
+// It chooses the axes that form the basis of the space.
+void vtkImageCachedSource::SetAxes4d(int axis0,int axis1,int axis2,int axis3)
+{
+  this->Axes[0] = axis0;
+  this->Axes[1] = axis1;
+  this->Axes[2] = axis2;
+  this->Axes[3] = axis3;
+}
+
+    
 
 
 
@@ -196,8 +339,8 @@ void vtkImageCachedSource::GenerateRegion(int outOffset[3], int outSize[3])
 void vtkImageCachedSource::DebugOn()
 {
   this->vtkObject::DebugOn();
-  if ( this->Cache)
-    this->Cache->DebugOn();
+  if ( this->Output)
+    this->Output->DebugOn();
 }
 
 
@@ -209,8 +352,8 @@ void vtkImageCachedSource::DebugOn()
 void vtkImageCachedSource::DebugOff()
 {
   this->vtkObject::DebugOff();
-  if ( this->Cache)
-    this->Cache->DebugOff();
+  if ( this->Output)
+    this->Output->DebugOff();
 }
 
 
@@ -219,12 +362,47 @@ void vtkImageCachedSource::DebugOff()
 //----------------------------------------------------------------------------
 // Description:
 // This method sets the value of the caches ReleaseDataFlag.  When this flag
-// is set, the cache releases its data after every request.  When a default
+// is set, the cache releases its data after every generate.  When a default
 // cache is created, this flag is automatically set.
 void vtkImageCachedSource::SetReleaseDataFlag(int value)
 {
   this->CheckCache();
-  this->Cache->SetReleaseDataFlag(value);
+  this->Output->SetReleaseDataFlag(value);
+}
+
+
+
+//----------------------------------------------------------------------------
+// Description:
+// This method gets the value of the caches ReleaseDataFlag.
+int vtkImageCachedSource::GetReleaseDataFlag()
+{
+  this->CheckCache();
+  return this->Output->GetReleaseDataFlag();
+}
+
+
+
+
+
+//----------------------------------------------------------------------------
+// Description:
+// This method sets the value of the caches DataType.
+void vtkImageCachedSource::SetDataType(int value)
+{
+  this->CheckCache();
+  this->Output->SetDataType(value);
+}
+
+
+
+//----------------------------------------------------------------------------
+// Description:
+// This method returns the caches DataType.
+int vtkImageCachedSource::GetDataType()
+{
+  this->CheckCache();
+  return this->Output->GetDataType();
 }
 
 
@@ -238,13 +416,13 @@ void vtkImageCachedSource::SetReleaseDataFlag(int value)
 void vtkImageCachedSource::CheckCache()
 {
   // create a default cache if one has not been set
-  if ( ! this->Cache)
+  if ( ! this->Output)
     {
-    this->Cache = new vtkImageSimpleCache;
-    this->Cache->ReleaseDataFlagOn();
-    this->Cache->SetSource(this);
+    this->Output = new vtkImageSimpleCache;
+    this->Output->ReleaseDataFlagOn();
+    this->Output->SetSource(this);
     if (this->GetDebug())
-      this->Cache->DebugOn();
+      this->Output->DebugOn();
     this->Modified();
     }
 }

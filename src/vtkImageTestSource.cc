@@ -62,12 +62,12 @@ void vtkImageTestSource::GenerateRegion(int *outOffset, int *outSize)
                 << ")");
 
   // Get the tile to fill from the cache
-  if ( ! this->Cache)
+  if ( ! this->Output)
     {
     vtkErrorMacro(<< "GenerateRegion: Cache not created yet");
     return;
     }
-  outRegion = this->Cache->GetRegion(outOffset, outSize);
+  outRegion = this->Output->GetRegion(outOffset, outSize);
   
   // Get information to march through data
   ptr2 = outRegion->GetPointer(outRegion->GetOffset());

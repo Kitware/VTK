@@ -53,6 +53,24 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 #include "vtkRefCount.hh"
+#include "vtkScalars.hh"
+
+
+// The current maximum dimensionality of "images" is 4 (volume and time).
+// These definitions will help (a little) if this needs to be changed.
+#define VTK_IMAGE_DIMENSIONS 4
+#define VTK_IMAGE_BOUNDS_DIMENSIONS 8
+
+
+// These types are returned by GetType to indicate pixel type.
+#define VTK_IMAGE_VOID            0
+#define VTK_IMAGE_FLOAT           1
+#define VTK_IMAGE_INT             2
+#define VTK_IMAGE_SHORT           3
+#define VTK_IMAGE_UNSIGNED_SHORT  4
+#define VTK_IMAGE_UNSIGNED_CHAR   5
+
+
 
 class vtkImageData : public vtkRefCount
 {
@@ -62,33 +80,51 @@ public:
   char *GetClassName() {return "vtkImageData";};
 
   // Description:
-  // Set/Get the offset and size of the data array.
-  // The size should be set before the Allocate method is called.
-  vtkSetVector3Macro(Size,int);
-  vtkGetVector3Macro(Size,int);
-  vtkSetVector3Macro(Offset,int);
-  vtkGetVector3Macro(Offset,int);
+  // Get the vtkScalars that contain the actual data.
+  vtkGetObjectMacro(Scalars,vtkScalars);
   
-  // HACK DONT USE
-  void SetData(float *data){this->Data = data;};
+  // Description:
+  // Get the bounds of the data array.
+  vtkSetVectorMacro(Bounds,int,VTK_IMAGE_BOUNDS_DIMENSIONS);
+  vtkGetVectorMacro(Bounds,int,VTK_IMAGE_BOUNDS_DIMENSIONS);
 
+  void SetBounds(int min0, int max0, int min1, int max1, 
+		 int min2, int max2, int min3, int max3);
+
+  // Description:
+  // Set/Get the size in chars, of each pixel.
+  // The pixel size should also be set before the Allocate method is called.
+  void SetType(int type);
+  vtkGetMacro(Type,int);
+  
   // Description:
   // Gets the increments between columns, rows, and images.  These
   // Values are computed from the size of the data array, and allow the
   // user to step through memory using pointer arithmatic.
-  vtkGetVector3Macro(Inc,int);
+  vtkGetVector4Macro(Increments,int);
 
-  int Allocated();
+  int IsAllocated();
   int Allocate();
-  float *GetPointer(int coordinates[3]);
-
+  void *GetVoidPointer(int coordinates[VTK_IMAGE_DIMENSIONS]);
+  void *GetVoidPointer();
+  
 protected:
-  float *Data;       // Data is stored in this array.
-  int Length;        // The number of floats in the data memory.
-  int Size[3];       // The actual size of the data outImageData
-  int Offset[3];     // The actual offset of the data
-  int Inc[3];        // Values used to move around data.
+  vtkScalars *Scalars;  // Store the data in native VTK format.
+  int Type;             // What type of data is in this object.
+  int Bounds[VTK_IMAGE_BOUNDS_DIMENSIONS]; // bounds of data.
+  int Increments[VTK_IMAGE_DIMENSIONS];    // Values used to move around data.
+  int Allocated;
 };
+
+
+
+// Avoid including these in vtkImageData.cc .
+#include "vtkFloatScalars.hh"
+#include "vtkIntScalars.hh"
+#include "vtkShortScalars.hh"
+#include "vtkUnsignedShortScalars.hh"
+#include "vtkUnsignedCharScalars.hh"
+
 
 #endif
 
