@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkPolyDataToImageStencil, "1.6");
+vtkCxxRevisionMacro(vtkPolyDataToImageStencil, "1.7");
 vtkStandardNewMacro(vtkPolyDataToImageStencil);
 
 //----------------------------------------------------------------------------
@@ -32,6 +32,7 @@ vtkPolyDataToImageStencil::vtkPolyDataToImageStencil()
 {
   this->OBBTree = NULL;
   this->Tolerance = 1e-3;
+  this->NumberOfRequiredInputs = 1;
 }
 
 //----------------------------------------------------------------------------
