@@ -263,6 +263,10 @@ protected:
   vtkStreamTracer();
   ~vtkStreamTracer();
 
+  // hide the superclass' AddInput() from the user and the compiler
+  void AddInput(vtkDataObject *) 
+    { vtkErrorMacro( << "AddInput() must be called with a vtkDataSet not a vtkDataObject."); };
+  
   void Execute();
   void CalculateVorticity( vtkGenericCell* cell, float pcoords[3],
                            vtkFloatArray* cellVectors, float vorticity[3] );
