@@ -45,7 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkTriangleStrip.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.12");
+vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.13");
 vtkStandardNewMacro(vtkBandedPolyDataContourFilter);
 
 // Construct object.
@@ -410,7 +410,7 @@ void vtkBandedPolyDataContourFilter::Execute()
   // Triangle strips are treated similarly.
   //
   int numPolys = input->GetPolys()->GetNumberOfCells();
-  int numStrips = numStrips=input->GetStrips()->GetNumberOfCells();
+  int numStrips = input->GetStrips()->GetNumberOfCells();
   if ( numPolys > 0 || numStrips > 0 )
     {
     // Set up processing. We are going to store an ordered list of
