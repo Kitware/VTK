@@ -74,7 +74,7 @@ public:
   int  IsItemPresent(vtkObject *);
   int  GetNumberOfItems();
   void InitTraversal();
-  vtkObject *GetNextItem();  
+  vtkObject *GetNextItemAsObject();  
 
 protected:
   int NumberOfItems;
@@ -95,7 +95,7 @@ inline void vtkCollection::InitTraversal()
 // Description:
 // Get the next item in the collection. NULL is returned if the collection
 // is exhausted.
-inline vtkObject *vtkCollection::GetNextItem()
+inline vtkObject *vtkCollection::GetNextItemAsObject()
 {
   vtkCollectionElement *elem=this->Current;
 

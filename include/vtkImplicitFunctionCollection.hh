@@ -88,7 +88,7 @@ inline int vtkImplicitFunctionCollection::IsItemPresent(vtkImplicitFunction *f)
 // Get the next implicit function in the list.
 inline vtkImplicitFunction *vtkImplicitFunctionCollection::GetNextItem() 
 { 
-  return (vtkImplicitFunction *)(this->vtkCollection::GetNextItem());
+  return (vtkImplicitFunction *)(this->GetNextItemAsObject());
 }
 
 #endif

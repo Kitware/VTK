@@ -87,7 +87,7 @@ inline int vtkDataSetCollection::IsItemPresent(vtkDataSet *ds)
 // Get the next dataset in the list.
 inline vtkDataSet *vtkDataSetCollection::GetNextItem() 
 { 
-  return (vtkDataSet *)(this->vtkCollection::GetNextItem());
+  return (vtkDataSet *)(this->GetNextItemAsObject());
 }
 
 #endif

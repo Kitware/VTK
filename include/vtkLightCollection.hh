@@ -91,7 +91,7 @@ inline int vtkLightCollection::IsItemPresent(vtkLight *a)
 // exhausted.
 inline vtkLight *vtkLightCollection::GetNextItem() 
 { 
-  return (vtkLight *)(this->vtkCollection::GetNextItem());
+  return (vtkLight *)(this->GetNextItemAsObject());
 }
 
 #endif

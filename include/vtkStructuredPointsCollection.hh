@@ -89,7 +89,7 @@ inline int vtkStructuredPointsCollection::IsItemPresent(vtkStructuredPoints *ds)
 // is exhausted.
 inline vtkStructuredPoints *vtkStructuredPointsCollection::GetNextItem()
 {
- return (vtkStructuredPoints *)(this->vtkCollection::GetNextItem());
+ return (vtkStructuredPoints *)(this->GetNextItemAsObject());
 }
 
 #endif

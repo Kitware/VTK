@@ -89,7 +89,7 @@ inline int vtkTransformCollection::IsItemPresent(vtkTransform *t)
 // list is reached.
 inline vtkTransform *vtkTransformCollection::GetNextItem() 
 { 
-  return (vtkTransform *)(this->vtkCollection::GetNextItem());
+  return (vtkTransform *)(this->GetNextItemAsObject());
 }
 
 #endif

@@ -91,7 +91,7 @@ inline int vtkRendererCollection::IsItemPresent(vtkRenderer *a)
 // Get the next renderer in the list. Return NULL when at the end of the list.
 inline vtkRenderer *vtkRendererCollection::GetNextItem() 
 {
-  return (vtkRenderer *)(this->vtkCollection::GetNextItem());
+  return (vtkRenderer *)(this->GetNextItemAsObject());
 }
 
 #endif

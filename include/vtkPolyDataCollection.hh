@@ -88,7 +88,7 @@ inline int vtkPolyDataCollection::IsItemPresent(vtkPolyData *pd)
 // Get the next poly data in the list.
 inline vtkPolyData *vtkPolyDataCollection::GetNextItem() 
 { 
-  return (vtkPolyData *)(this->vtkCollection::GetNextItem());
+  return (vtkPolyData *)(this->GetNextItemAsObject());
 }
 
 #endif

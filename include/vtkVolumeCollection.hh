@@ -91,7 +91,7 @@ inline int vtkVolumeCollection::IsItemPresent(vtkVolume *a)
 // is reached.
 inline vtkVolume *vtkVolumeCollection::GetNextItem() 
 { 
-  return (vtkVolume *)(this->vtkCollection::GetNextItem());
+  return (vtkVolume *)(this->GetNextItemAsObject());
 }
 
 #endif

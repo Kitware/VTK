@@ -90,7 +90,7 @@ inline int vtkActorCollection::IsItemPresent(vtkActor *a)
 // Get the next actor in the list.
 inline vtkActor *vtkActorCollection::GetNextItem() 
 { 
-  return (vtkActor *)(this->vtkCollection::GetNextItem());
+  return (vtkActor *)(this->GetNextItemAsObject());
 }
 
 #endif
