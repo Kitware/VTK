@@ -601,7 +601,7 @@ void vtkVolume16Reader::AdjustSpacingAndOrigin (int dimensions[3], float Spacing
     {
     if (Spacing[i] < 0)
       {
-      origin[i] = origin[i] + Spacing[i] * (dimensions[i] - 1);
+      origin[i] = origin[i] + Spacing[i] * dimensions[i];
       Spacing[i] = -Spacing[i];
       }
     }

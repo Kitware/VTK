@@ -933,7 +933,7 @@ void vtkImageReader::ComputeTransformedOrigin (float origin[3])
       if (transformedSpacing[i] < 0)
 	{
 	origin[i] = transformedOrigin[i] + transformedSpacing[i]*
-	  (transformedExtent[i*2+1] -  transformedExtent[i*2]);
+	  (transformedExtent[i*2+1] -  transformedExtent[i*2] + 1);
 	}
       else
 	{
