@@ -147,6 +147,20 @@ void vtkExtractEdges::Execute()
   output->Squeeze();
 }
 
+// Description:
+// Specify a spatial locator for merging points. By
+// default an instance of vtkMergePoints is used.
+void vtkExtractEdges::SetLocator(vtkPointLocator *locator)
+{
+  if ( this->Locator != locator ) 
+    {
+    if ( this->SelfCreatedLocator ) this->Locator->Delete();
+    this->SelfCreatedLocator = 0;
+    this->Locator = locator;
+    this->Modified();
+    }
+}
+
 void vtkExtractEdges::CreateDefaultLocator()
 {
   if ( this->SelfCreatedLocator ) this->Locator->Delete();
