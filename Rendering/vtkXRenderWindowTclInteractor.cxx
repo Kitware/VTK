@@ -74,12 +74,13 @@ vtkXRenderWindowTclInteractor* vtkXRenderWindowTclInteractor::New()
 
 
 
-// steal the first two elements of the TkMainInfo stuct
+// steal the first three elements of the TkMainInfo stuct
 // we don't care about the rest of the elements.
 struct TkMainInfo
 {
   int refCount;
   struct TkWindow *winPtr;
+  Tcl_Interp *interp;
 };
 
 #if ((TK_MAJOR_VERSION <= 4)||((TK_MAJOR_VERSION == 8)&&(TK_MINOR_VERSION == 0)))
@@ -527,9 +528,10 @@ int vtkXRenderWindowTclInteractor::DestroyTimer(void)
 
 void vtkXRenderWindowTclInteractor::TerminateApp(void) 
 {
-#if TCL_MAJOR_VERSION >= 8 && TCL_MINOR_VERSION > 1
-  Tcl_Finalize();
+#if ((TK_MAJOR_VERSION <= 4)||((TK_MAJOR_VERSION == 8)&&(TK_MINOR_VERSION == 0)))
+  Tcl_Interp* interp = tkMainWindowList->interp
 #else
-  Tcl_Exit(1);
+  Tcl_Interp* interp = TkGetMainInfoList()->interp;
 #endif
+  Tcl_EvalEx(interp, "exit", -1, TCL_EVAL_GLOBAL);
 }
