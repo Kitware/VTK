@@ -32,7 +32,7 @@
 #include "vtkRungeKutta4.h"
 #include "vtkRungeKutta45.h"
 
-vtkCxxRevisionMacro(vtkStreamTracer, "1.26");
+vtkCxxRevisionMacro(vtkStreamTracer, "1.27");
 vtkStandardNewMacro(vtkStreamTracer);
 vtkCxxSetObjectMacro(vtkStreamTracer,Integrator,vtkInitialValueProblemSolver);
 
@@ -98,11 +98,6 @@ void vtkStreamTracer::AddInput(vtkDataSet* input)
 {
   int idx;
   
-  if (input)
-    {
-    input->AddConsumer(this);
-    input->Register(this);
-    }
   this->Modified();
   
   // Always leave room for source (2nd input)
