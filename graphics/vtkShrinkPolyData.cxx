@@ -177,13 +177,14 @@ void vtkShrinkPolyData::Execute()
 //
 // Triangle strips need to be shrunk and split into separate pieces.
 //
+  int tmp;
   for (inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); )
     {
     for (j=0; j<(npts-2); j++)
       {
       p1 = inPts->GetPoint(pts[j]);
       p2 = inPts->GetPoint(pts[j+1]);
-      p3 = inPts->GetPoint(pts[j+1]);
+      p3 = inPts->GetPoint(pts[j+2]);
       for (k=0; k<3; k++) center[k] = (p1[k] + p2[k] + p3[k]) / 3.0;
 
       for (k=0; k<3; k++)
@@ -201,6 +202,13 @@ void vtkShrinkPolyData::Execute()
       newIds[2] = newPoints->InsertNextPoint(pt);
       pointData->CopyData(pd,pts[j+2],newIds[2]);
 
+      // must reverse order for every other triangle
+      if (j%2)
+        {
+        tmp = newIds[0];
+        newIds[0] = newIds[2];
+        newIds[2] = tmp;
+        }
       newPolys->InsertNextCell(3,newIds);
       }
     }
