@@ -163,15 +163,24 @@ void vtkVolumeRayCastMapper::InitializeRender( vtkRenderer *ren, vtkVolume *vol,
 void vtkVolumeRayCastMapper::CastViewRay( VTKRayCastRayInfo *rayInfo,
 					  VTKRayCastVolumeInfo *volumeInfo )
 {
-  int i;
-  float *volumeRayIncrement;
-  float rayStart[4], rayEnd[4];
-  float *rayOrigin, *rayDirection;
-  float *volumeRayStart, *volumeRayEnd, *volumeRayDirection;
-  float incrementLength, rayLength;
-  float *viewToVolumeMatrix;
-  float nearplane, farplane, bounderNear, bounderFar;
-  float oneStep[4], volumeOneStep[4];
+  int     i;
+  float   *volumeRayIncrement;
+  float   rayStart[4], rayEnd[4];
+  float   *rayOrigin, *rayDirection;
+  float   *volumeRayStart, *volumeRayEnd, *volumeRayDirection;
+  float   incrementLength, rayLength;
+  float   *viewToVolumeMatrix;
+  float   nearplane, farplane, bounderNear, bounderFar;
+  float   oneStep[4], volumeOneStep[4];
+  int     bitFlag, bitLoop;
+  float   savedClippingPlanes[6];
+  float   savedRayStart[3];
+  float   savedRayEnd[3];
+  float   savedRayDirection[3];
+  float   rgbaArray[10*4];
+  float   distanceArray[10];
+  int     arrayCount;
+  float   tmp, tmpArray[4];
 
   rayOrigin = rayInfo->Origin;
   rayDirection = rayInfo->Direction;
@@ -180,6 +189,14 @@ void vtkVolumeRayCastMapper::CastViewRay( VTKRayCastRayInfo *rayInfo,
   volumeRayDirection = rayInfo->TransformedDirection;
   volumeRayIncrement = rayInfo->TransformedIncrement;
   viewToVolumeMatrix = volumeInfo->ViewToVolumeMatrix;
+
+  // In case we don't encounter anything, initialize everything
+  rayInfo->Color[0] = 
+    rayInfo->Color[1] = 
+    rayInfo->Color[2] = 
+    rayInfo->Color[3] = 0.0;
+  rayInfo->Depth = VTK_LARGE_FLOAT;
+  rayInfo->NumberOfStepsTaken = 0;
 
   nearplane = rayInfo->NearClip;
   farplane  = rayInfo->FarClip;
@@ -206,12 +223,6 @@ void vtkVolumeRayCastMapper::CastViewRay( VTKRayCastRayInfo *rayInfo,
 
     if ( bounderNear <= 0.0 || nearplane >= farplane )
       {
-      rayInfo->Color[0] = 
-	rayInfo->Color[1] = 
-	rayInfo->Color[2] = 
-	rayInfo->Color[3] = 0.0;
-      rayInfo->Depth = VTK_LARGE_FLOAT;
-      rayInfo->NumberOfStepsTaken = 0;
       return;
       }
     }
@@ -264,73 +275,219 @@ void vtkVolumeRayCastMapper::CastViewRay( VTKRayCastRayInfo *rayInfo,
     volumeRayDirection[2] /= rayLength;
     }
 
-  if ( incrementLength && rayLength && this->ClipRayAgainstVolume( rayInfo ) )
+  // If we are not clipping, or we are only clipping with a subvolume between the clipping
+  // planes, do the simple thing
+  if ( incrementLength && rayLength && 
+       (!this->Clipping || this->ClippingRegionFlags == 0x2000) )
     {
-    // Recompute the ray length since the start and end may have been
-    // modified by ClipRayAgainstVolume() 
- 
-    volumeRayDirection[0] = volumeRayEnd[0] - volumeRayStart[0];
-    volumeRayDirection[1] = volumeRayEnd[1] - volumeRayStart[1];
-    volumeRayDirection[2] = volumeRayEnd[2] - volumeRayStart[2];
-    
-    rayLength = sqrt( (double) (volumeRayDirection[0]*volumeRayDirection[0] +
-				volumeRayDirection[1]*volumeRayDirection[1] +
-				volumeRayDirection[2]*volumeRayDirection[2]) );
-
-    if ( rayLength )
+    if ( this->ClipRayAgainstVolume( rayInfo, volumeInfo ) )
       {
-      volumeRayDirection[0] /= rayLength;
-      volumeRayDirection[1] /= rayLength;
-      volumeRayDirection[2] /= rayLength;
-      }
-
-    volumeRayIncrement[0] = incrementLength * volumeRayDirection[0];
-    volumeRayIncrement[1] = incrementLength * volumeRayDirection[1];
-    volumeRayIncrement[2] = incrementLength * volumeRayDirection[2];
-
-    rayInfo->NumberOfStepsToTake = (rayLength / incrementLength) + 1;
-
-    for ( i = 0; i < 3; i++ )
-      {
-      if ( ( volumeRayIncrement[i] > 0.0 && 
-	     ( volumeRayStart[i] + (float)(rayInfo->NumberOfStepsToTake-1) * volumeRayIncrement[i]) >
-	     volumeRayEnd[i] ) ||
-	   ( volumeRayIncrement[i] < 0.0 && 
-	     ( volumeRayStart[i] + (float)(rayInfo->NumberOfStepsToTake-1) * volumeRayIncrement[i]) <
-	     volumeRayEnd[i] ) )
+      // Recompute the ray length since the start and end may have been
+      // modified by ClipRayAgainstVolume() 
+      volumeRayDirection[0] = volumeRayEnd[0] - volumeRayStart[0];
+      volumeRayDirection[1] = volumeRayEnd[1] - volumeRayStart[1];
+      volumeRayDirection[2] = volumeRayEnd[2] - volumeRayStart[2];
+      
+      rayLength = sqrt( (double) (volumeRayDirection[0]*volumeRayDirection[0] +
+				  volumeRayDirection[1]*volumeRayDirection[1] +
+				  volumeRayDirection[2]*volumeRayDirection[2]) );
+      if ( rayLength )
 	{
-        rayInfo->NumberOfStepsToTake--;
+	volumeRayDirection[0] /= rayLength;
+	volumeRayDirection[1] /= rayLength;
+	volumeRayDirection[2] /= rayLength;
+	}
+
+      volumeRayIncrement[0] = incrementLength * volumeRayDirection[0];
+      volumeRayIncrement[1] = incrementLength * volumeRayDirection[1];
+      volumeRayIncrement[2] = incrementLength * volumeRayDirection[2];
+
+      rayInfo->NumberOfStepsToTake = (rayLength / incrementLength) + 1;
+      
+      for ( i = 0; i < 3; i++ )
+	{
+	if ( ( volumeRayIncrement[i] > 0.0 && 
+	       ( volumeRayStart[i] + 
+		 (float)(rayInfo->NumberOfStepsToTake-1) * volumeRayIncrement[i]) >
+	       volumeRayEnd[i] ) ||
+	     ( volumeRayIncrement[i] < 0.0 && 
+	       ( volumeRayStart[i] + 
+		 (float)(rayInfo->NumberOfStepsToTake-1) * volumeRayIncrement[i]) <
+	       volumeRayEnd[i] ) )
+	  {
+	  rayInfo->NumberOfStepsToTake--;
+	  }
+	}
+
+      if ( rayInfo->NumberOfStepsToTake > 0 )
+	{
+	this->VolumeRayCastFunction->CastRay( rayInfo, volumeInfo );
+	}
+      }
+    }
+  // Otherwise, we are clipping, and our flags are more complex than just a
+  // center crop box - so loop through all 27 subregions, cast the rays, and
+  // merge the results.
+  else
+    {
+    memcpy( savedClippingPlanes, this->ClippingPlanes, 6*sizeof(float) );
+    memcpy( savedRayStart, volumeRayStart, 3*sizeof(float) );
+    memcpy( savedRayEnd, volumeRayEnd, 3*sizeof(float) );
+    memcpy( savedRayDirection, volumeRayDirection, 3*sizeof(float) );
+    
+    arrayCount = 0;
+
+    for ( bitLoop = 0; bitLoop < 27; bitLoop++ )
+      {
+      bitFlag = 1 << bitLoop;
+      if ( this->ClippingRegionFlags & bitFlag )
+	{
+	memcpy( volumeRayStart, savedRayStart, 3*sizeof(float) );
+	memcpy( volumeRayEnd, savedRayEnd, 3*sizeof(float) );
+	memcpy( volumeRayDirection, savedRayDirection, 3*sizeof(float) );
+
+	switch ( bitLoop % 3 )
+	  {
+	  case 0:
+	    this->ClippingPlanes[0] = 0;
+	    this->ClippingPlanes[1] = savedClippingPlanes[0];
+	    break;
+	  case 1:
+	    this->ClippingPlanes[0] = savedClippingPlanes[0];
+	    this->ClippingPlanes[1] = savedClippingPlanes[1];
+	    break;
+	  case 2:
+	    this->ClippingPlanes[0] = savedClippingPlanes[1];
+	    this->ClippingPlanes[1] = volumeInfo->DataSize[0] - 1;
+	    break;
+	  }
+
+	switch ( (bitLoop % 9) / 3 )
+	  {
+	  case 0:
+	    this->ClippingPlanes[2] = 0;
+	    this->ClippingPlanes[3] = savedClippingPlanes[2];
+	    break;
+	  case 1:
+	    this->ClippingPlanes[2] = savedClippingPlanes[2];
+	    this->ClippingPlanes[3] = savedClippingPlanes[3];
+	    break;
+	  case 2:
+	    this->ClippingPlanes[2] = savedClippingPlanes[3];
+	    this->ClippingPlanes[3] = volumeInfo->DataSize[1] - 1;
+	    break;
+	  }
+
+	switch ( bitLoop / 9 )
+	  {
+	  case 0:
+	    this->ClippingPlanes[4] = 0;
+	    this->ClippingPlanes[5] = savedClippingPlanes[4];
+	    break;
+	  case 1:
+	    this->ClippingPlanes[4] = savedClippingPlanes[4];
+	    this->ClippingPlanes[5] = savedClippingPlanes[5];
+	    break;
+	  case 2:
+	    this->ClippingPlanes[4] = savedClippingPlanes[5];
+	    this->ClippingPlanes[5] = volumeInfo->DataSize[2] - 1;
+	    break;
+	  }
+
+	if ( this->ClipRayAgainstVolume( rayInfo, volumeInfo ) )
+	  {
+	  // Recompute the ray length since the start and end may have been
+	  // modified by ClipRayAgainstVolume() 
+	  volumeRayDirection[0] = volumeRayEnd[0] - volumeRayStart[0];
+	  volumeRayDirection[1] = volumeRayEnd[1] - volumeRayStart[1];
+	  volumeRayDirection[2] = volumeRayEnd[2] - volumeRayStart[2];
+      
+	  rayLength = sqrt( (double) (volumeRayDirection[0]*volumeRayDirection[0] +
+				      volumeRayDirection[1]*volumeRayDirection[1] +
+				      volumeRayDirection[2]*volumeRayDirection[2]) );
+	  if ( rayLength > 0.01 )
+	    {
+	    volumeRayDirection[0] /= rayLength;
+	    volumeRayDirection[1] /= rayLength;
+	    volumeRayDirection[2] /= rayLength;
+
+	    volumeRayIncrement[0] = incrementLength * volumeRayDirection[0];
+	    volumeRayIncrement[1] = incrementLength * volumeRayDirection[1];
+	    volumeRayIncrement[2] = incrementLength * volumeRayDirection[2];
+
+	    rayInfo->NumberOfStepsToTake = (rayLength / incrementLength) + 1;
+      
+	    for ( i = 0; i < 3; i++ )
+	      {
+	      if ( ( volumeRayIncrement[i] > 0.0 && 
+		     ( volumeRayStart[i] + (float)(rayInfo->NumberOfStepsToTake-1) * volumeRayIncrement[i]) >
+		     volumeRayEnd[i] ) ||
+		   ( volumeRayIncrement[i] < 0.0 && 
+		     ( volumeRayStart[i] + (float)(rayInfo->NumberOfStepsToTake-1) * volumeRayIncrement[i]) <
+		     volumeRayEnd[i] ) )
+		{
+		rayInfo->NumberOfStepsToTake--;
+		}
+	      }
+	    }
+	  else
+	    {
+	    rayInfo->NumberOfStepsToTake = 0;
+	    }
+
+	  if ( rayInfo->NumberOfStepsToTake > 0 )
+	    {
+	    this->VolumeRayCastFunction->CastRay( rayInfo, volumeInfo );
+
+	    for ( i = 0; i < 3; i++ )
+	      {
+	      if ( volumeRayDirection[i] >= volumeRayDirection[(i+1)%3] && 
+		   volumeRayDirection[i] >= volumeRayDirection[(i+2)%3] )
+		{
+		distanceArray[arrayCount] = (volumeRayStart[i] - savedRayStart[i]) / volumeRayDirection[i];
+		break;
+		}
+	      }
+	    memcpy( (rgbaArray + 4*arrayCount), rayInfo->Color, 4*sizeof(float) );
+	    for ( i = arrayCount; i > 0 && distanceArray[i] > distanceArray[i-1]; i-- )
+	      {
+	      tmp = distanceArray[i];
+	      distanceArray[i] = distanceArray[i-1];
+	      distanceArray[i-1] = tmp;
+
+	      memcpy( tmpArray, (rgbaArray + 4*i), 4*sizeof(float) );
+	      memcpy( (rgbaArray + 4*i), (rgbaArray + 4*(i-1)), 4*sizeof(float) );
+	      memcpy( (rgbaArray + 4*(i-1)), tmpArray, 4*sizeof(float) );
+	      }
+	    
+	    arrayCount++;
+	    }
+	  }
 	}
       }
 
-    if ( rayInfo->NumberOfStepsToTake > 0 )
-      {
-      this->VolumeRayCastFunction->CastRay( rayInfo, volumeInfo );
-      }
-    else
-      {
-      rayInfo->Color[0] = 
-	rayInfo->Color[1] = 
-	rayInfo->Color[2] = 
-	rayInfo->Color[3] = 0.0;
-      rayInfo->Depth = VTK_LARGE_FLOAT;
-      rayInfo->NumberOfStepsTaken = 0;
-      }
-    }
-  else
-    {
     rayInfo->Color[0] = 
-      rayInfo->Color[1] = 
-      rayInfo->Color[2] = 
-      rayInfo->Color[3] = 0.0;
-    rayInfo->Depth = VTK_LARGE_FLOAT;
-    rayInfo->NumberOfStepsTaken = 0;
+      rayInfo->Color[1] =
+      rayInfo->Color[2] = 0.0;
+    rayInfo->Color[3] = 1.0;
+
+    for ( i = 0; i < arrayCount; i++ )
+      {
+      rayInfo->Color[0] = rayInfo->Color[0] * (1.0 - rgbaArray[i*4 + 3]) + rgbaArray[i*4 + 0];
+      rayInfo->Color[1] = rayInfo->Color[1] * (1.0 - rgbaArray[i*4 + 3]) + rgbaArray[i*4 + 1];
+      rayInfo->Color[2] = rayInfo->Color[2] * (1.0 - rgbaArray[i*4 + 3]) + rgbaArray[i*4 + 2];
+      rayInfo->Color[3] *= 1.0 - rgbaArray[i*4 + 3];
+      }
+    rayInfo->Color[3] = 1.0 - rayInfo->Color[3];
+
+    memcpy( this->ClippingPlanes, savedClippingPlanes, 6*sizeof(float) );
+
     }
 }
 
-int vtkVolumeRayCastMapper::ClipRayAgainstVolume( VTKRayCastRayInfo *rayInfo )
+int vtkVolumeRayCastMapper::ClipRayAgainstVolume( VTKRayCastRayInfo *rayInfo, VTKRayCastVolumeInfo *volumeInfo )
 {
-  int    loop;
+  int    loop, i;
   float  diff;
   float  t;
   float  *rayStart, *rayEnd, *rayDirection;
@@ -338,6 +495,24 @@ int vtkVolumeRayCastMapper::ClipRayAgainstVolume( VTKRayCastRayInfo *rayInfo )
   rayStart = rayInfo->TransformedStart;
   rayEnd = rayInfo->TransformedEnd;
   rayDirection = rayInfo->TransformedDirection;
+
+  if ( this->Clipping && this->ClippingRegionFlags != 0x2000 )
+    {
+    for ( i = 0; i < 3; i++ )
+      {
+      this->VolumeBounds[2*i] = 0.0;
+      this->VolumeBounds[2*i+1] = volumeInfo->DataSize[i] - 1;
+
+      if ( this->ClippingPlanes[2*i] > this->VolumeBounds[2*i] )
+	{
+	this->VolumeBounds[2*i] = this->ClippingPlanes[2*i];
+	}
+      if ( this->ClippingPlanes[2*i+1] < this->VolumeBounds[2*i+1] )
+	{
+	this->VolumeBounds[2*i+1] = this->ClippingPlanes[2*i+1];
+	}
+      }
+    }
 
   if ( rayStart[0] >= this->VolumeBounds[1] ||
        rayStart[1] >= this->VolumeBounds[3] ||

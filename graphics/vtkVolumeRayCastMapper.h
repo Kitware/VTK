@@ -167,7 +167,8 @@ protected:
   float                        *DepthRangeBufferPointer;
 
 //BTX
-  int                          ClipRayAgainstVolume( VTKRayCastRayInfo *rayInfo );
+  int                          ClipRayAgainstVolume( VTKRayCastRayInfo *rayInfo,
+						     VTKRayCastVolumeInfo *volumeInfo );
 //ETX
   void                         GeneralImageInitialization( vtkRenderer *ren, 
 							   vtkVolume *vol );
