@@ -2718,6 +2718,19 @@ void doMSCJavaHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     fprintf(fp," /I \"%s\" \\\n",vals->adlg.m_WhereMPIInclude);
     }
   
+  // do we have JAWT support ?
+  // look for the jawt include
+  char jname[1024];
+  sprintf(jname,"%s/include/jawt.h",vals->m_WhereJDK);
+  FILE *fp2 = fopen(jname,"r");
+  int haveJAWT = 0;
+  if (fp2)
+    {
+    haveJAWT = 1;
+    fprintf(fp," /D VTK_USE_JAWT ");
+    fclose(fp2);
+    }
+    
   fprintf(fp,"/I \"%s\\include\" /I \"%s\\include\\win32\"",
 	  vals->m_WhereJDK, vals->m_WhereJDK);
 
@@ -2727,17 +2740,22 @@ void doMSCJavaHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
 
   fprintf(fp,"\n");
 
+  if (haveJAWT)
+    {
+    fprintf(fp,"JAWTLIB=jawt.lib\n");
+    }
+  
   fprintf(fp,"LINK32=link.exe\n");
 
   if (debugFlag)
     {
-    fprintf(fp,"LINK32_FLAGS=/debug /libpath:\"%s\\lib\" \"%s\\lib\\user32.lib\" /nologo /version:1.3 /subsystem:windows\n",
-	    vals->m_WhereCompiler, vals->m_WhereCompiler);
+    fprintf(fp,"LINK32_FLAGS=/debug /libpath:\"%s\\lib\" /libpath:\"%s\\lib\" \"%s\\lib\\user32.lib\" /nologo /version:1.3 /subsystem:windows $(JAWTLIB)\n",
+	    vals->m_WhereCompiler, vals->m_WhereJDK, vals->m_WhereCompiler);
     }
   else
     {
-    fprintf(fp,"LINK32_FLAGS=/libpath:\"%s\\lib\"  \"%s\\lib\\user32.lib\" /nologo /version:1.3 /subsystem:windows\n",
-	    vals->m_WhereCompiler, vals->m_WhereCompiler);
+    fprintf(fp,"LINK32_FLAGS=/libpath:\"%s\\lib\" /libpath:\"%s\\lib\" \"%s\\lib\\user32.lib\" /nologo /version:1.3 /subsystem:windows $(JAWTLIB)\n",
+	    vals->m_WhereCompiler, vals->m_WhereJDK, vals->m_WhereCompiler);
     }
 
 
