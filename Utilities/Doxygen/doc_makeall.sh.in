@@ -356,10 +356,10 @@ fi
 if test "x$DOXYGEN_PROG" != "xNOTFOUND" ; then
 
     if test "x$RM_PROG" != "xNOTFOUND" ; then
-        $RM_PROG -fr $OUTPUT_DIRECTORY
+        $RM_PROG -fr "$OUTPUT_DIRECTORY"
     fi
 
-    $DOXYGEN_PROG $DOXYFILE
+    $DOXYGEN_PROG "$DOXYFILE"
 fi
 
 # ----------------------------------------------------------------------------
@@ -384,11 +384,11 @@ fi
 
 if test "x$COMPILE_HTML_HELP" == "xON" ; then
     if test "x$RESULTING_HTML_HELP_FILE" != "x" ; then
-        cd $OUTPUT_DIRECTORY/html
+        cd "$OUTPUT_DIRECTORY/html"
         if test "x$HHC_PROG" != "xNOTFOUND" ; then
             $HHC_PROG index.hhp
             if test "x$MV_PROG" != "xNOTFOUND" ; then
-                $MV_PROG -f index.chm $RESULTING_HTML_HELP_FILE
+                $MV_PROG -f index.chm "$RESULTING_HTML_HELP_FILE"
             fi
        fi
    fi
@@ -399,7 +399,7 @@ fi
 
 if test "x$CREATE_HTML_TARZ_ARCHIVE" == "xON" ; then
     if test "x$RESULTING_HTML_TARZ_ARCHIVE_FILE" != "x" ; then
-        cd $OUTPUT_DIRECTORY
+        cd "$OUTPUT_DIRECTORY"
         if test "x$TAR_PROG" != "xNOTFOUND" ; then
             if test "x$RM_PROG" != "xNOTFOUND" ; then
                 $RM_PROG -f html.tar
@@ -410,7 +410,7 @@ if test "x$CREATE_HTML_TARZ_ARCHIVE" == "xON" ; then
                     $RM_PROG -f html.tar.gz
                 fi
                 $GZIP_PROG html.tar
-                $MV_PROG -f html.tar.gz $RESULTING_HTML_TARZ_ARCHIVE_FILE
+                $MV_PROG -f html.tar.gz "$RESULTING_HTML_TARZ_ARCHIVE_FILE"
             fi
        fi
    fi
