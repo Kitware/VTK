@@ -192,7 +192,10 @@ void vtkImageClip::InternalUpdate(vtkImageData *outData)
   this->Input->SetUpdateExtent(this->Output->GetUpdateExtent());
   inData = this->Input->UpdateAndReturnData();
   outData->GetPointData()->PassData(inData->GetPointData());
-
+  // cliping will change the extent but since we are passing the data
+  // we need to reset it back to the original input size
+  outData->SetExtent(inData->GetExtent());
+  
   // release input data
   if (this->Input->ShouldIReleaseData())
     {
