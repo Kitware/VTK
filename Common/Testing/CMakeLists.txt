@@ -29,6 +29,7 @@ IF(PYTHON_EXECUTABLE)
            vtkDynamicLoader.h
            vtkErrorCode.h
            vtkGarbageCollector.h
+           vtkGarbageCollectorManager.h
            vtkHashMap.h
            vtkHashMapIterator.h
            vtkIdListCollection.h

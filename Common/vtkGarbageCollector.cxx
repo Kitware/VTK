@@ -14,12 +14,13 @@
 =========================================================================*/
 #include "vtkGarbageCollector.h"
 
+#include <vtkstd/map>
 #include <vtkstd/queue>
 #include <vtkstd/set>
 #include <vtkstd/stack>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkGarbageCollector, "1.13");
+vtkCxxRevisionMacro(vtkGarbageCollector, "1.14");
 
 //----------------------------------------------------------------------------
 class vtkGarbageCollectorInternals
@@ -464,4 +465,38 @@ void vtkGarbageCollectorInternals::DeleteComponent()
     {
     vtkGarbageCollector::ForwardGarbageCollectionFinishing((*obj)->Object);
     }
+}
+
+//----------------------------------------------------------------------------
+// The reference map singleton.  This MUST be default initialized to
+// zero by the compiler and is therefore not initialized here.
+typedef vtkstd::map<vtkObjectBase*, int> vtkGarbageCollectorMapType;
+static vtkGarbageCollectorMapType* vtkGarbageCollectorMap;
+
+//----------------------------------------------------------------------------
+void vtkGarbageCollector::ClassInitialize()
+{
+  // Delayed GC not yet implemented.
+  // vtkGarbageCollectorMap = new vtkGarbageCollectorMapType;
+}
+
+//----------------------------------------------------------------------------
+void vtkGarbageCollector::ClassFinalize()
+{
+  // Delayed GC not yet implemented.
+  // delete vtkGarbageCollectorMap;
+}
+
+//----------------------------------------------------------------------------
+int vtkGarbageCollector::GiveReference(vtkObjectBase*)
+{
+  // Delayed GC not yet implemented.  Do not accept the reference.
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+int vtkGarbageCollector::TakeReference(vtkObjectBase*)
+{
+  // Delayed GC not yet implemented.  Do not return a reference.
+  return 0;
 }

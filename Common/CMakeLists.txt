@@ -54,6 +54,7 @@ vtkFloatArray.cxx
 vtkFunctionParser.cxx
 vtkFunctionSet.cxx
 vtkGarbageCollector.cxx
+vtkGarbageCollectorManager.cxx
 vtkGeneralTransform.cxx
 vtkHeap.cxx
 vtkHomogeneousTransform.cxx
@@ -160,6 +161,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkCommand.cxx
   vtkDebugLeaksManager.cxx
   vtkErrorCode.cxx
+  vtkGarbageCollectorManager.cxx
   vtkIOStream.cxx
   vtkIndent.cxx
   vtkLargeInteger.cxx

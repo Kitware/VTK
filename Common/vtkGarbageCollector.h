@@ -76,6 +76,7 @@
 #define __vtkGarbageCollector_h
 
 #include "vtkObject.h"
+#include "vtkGarbageCollectorManager.h" // Needed for singleton initialization.
 
 class vtkGarbageCollectorInternals;
 
@@ -86,10 +87,30 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Called by the UnRegister method of an object that supports
-  // garbage collection to check for a connected component starting at
-  // itself.
+  // Check for a strongly connected component in the reference graph
+  // starting at the given object.  If the net reference count of the
+  // component is zero the component is deleted.
   static void Check(vtkObjectBase* root);
+
+  // Description:
+  // Called by UnRegister method of an object that supports garbage
+  // collection.  The UnRegister may not actually decrement the
+  // reference count, but instead hands the reference to the garbage
+  // collector.  If a reference can be given, this method accepts it
+  // from the caller by returning 1.  If the reference cannot be
+  // accepted then it returns 0.  This may be the case when delayed
+  // garbage collection is disabled, or when the collector has decided
+  // it is time to do a check.
+  static int GiveReference(vtkObjectBase* obj);
+
+  // Description:
+  // Called by Register method of an object that supports garbage
+  // collection.  The Register may not actually increment the
+  // reference count if it can take a reference previously handed to
+  // the garbage collector.  If a reference can be taken, this method
+  // hands it back to the caller by returning 1.  If no reference is
+  // available, returns 0.
+  static int TakeReference(vtkObjectBase* obj);
 
   // Description:
   // Called by the ReportReferences method of objects in a reference
@@ -128,6 +149,14 @@ protected:
 private:
   // Internal implementation details.
   vtkGarbageCollectorInternals* Internal;
+
+  // Singleton management functions.
+  static void ClassInitialize();
+  static void ClassFinalize();
+
+  //BTX
+  friend class vtkGarbageCollectorManager;
+  //ETX
 
   //BTX
   friend class vtkGarbageCollectorInternals;

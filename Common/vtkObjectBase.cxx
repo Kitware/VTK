@@ -134,7 +134,7 @@ void vtkObjectBase::UnRegister(vtkObjectBase* o)
 
 void vtkObjectBase::CollectRevisions(ostream& os)
 {
-  os << "vtkObjectBase 1.9\n";
+  os << "vtkObjectBase 1.10\n";
 }
 
 void vtkObjectBase::PrintRevisions(ostream& os)
@@ -184,15 +184,28 @@ void vtkObjectBase::PrintRevisions(ostream& os)
 }
 
 //----------------------------------------------------------------------------
-void vtkObjectBase::RegisterInternal(vtkObjectBase*, int)
+void vtkObjectBase::RegisterInternal(vtkObjectBase*, int check)
 {
-  // Increment the reference count.
-  ++this->ReferenceCount;
+  // If a reference is available from the garbage collector, use it.
+  // Otherwise create a new reference by incrementing the reference
+  // count.
+  if(!(check && vtkGarbageCollector::TakeReference(this)))
+    {
+    ++this->ReferenceCount;
+    }
 }
 
 //----------------------------------------------------------------------------
 void vtkObjectBase::UnRegisterInternal(vtkObjectBase*, int check)
 {
+  // If the garbage collector accepts a reference, do not decrement
+  // the count.
+  if(check && this->ReferenceCount > 1 &&
+     vtkGarbageCollector::GiveReference(this))
+    {
+    return;
+    }
+
   // Decrement the reference count.
   if(--this->ReferenceCount <= 0)
     {
@@ -204,7 +217,10 @@ void vtkObjectBase::UnRegisterInternal(vtkObjectBase*, int check)
     }
   else if(check)
     {
-    // A garbage collection check has been requested.
+    // The garbage collector did not accept the reference, but the
+    // object still exists and is participating in garbage collection.
+    // This means either that delayed garbage collection is disabled
+    // or the collector has decided it is time to do a check.
     vtkGarbageCollector::Check(this);
     }
 }
