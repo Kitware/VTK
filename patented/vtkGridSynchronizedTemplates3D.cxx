@@ -64,6 +64,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkFloatArray.h"
 #include "vtkSynchronizedTemplates3D.h"
 #include "vtkGridSynchronizedTemplates3D.h"
+#include "vtkUnstructuredInformation.h"
 #include "vtkMath.h"
 
 
@@ -943,6 +944,8 @@ void vtkGridSynchronizedTemplates3D::ExecuteInformation()
     }
   this->GetOutput()->SetEstimatedWholeMemorySize(
     numTris*sizeTri + numPts*sizePt);
+  this->GetOutput()->GetUnstructuredInformation()->SetMaximumNumberOfPieces(100000);
+    
 }
 
 //----------------------------------------------------------------------------
