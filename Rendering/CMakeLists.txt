@@ -18,6 +18,7 @@ vtkExporter.cxx
 vtkFiniteDifferenceGradientEstimator.cxx
 vtkFollower.cxx
 vtkFrustumCoverageCuller.cxx
+vtkGenericRenderWindowInteractor.cxx
 vtkGraphicsFactory.cxx
 vtkIVExporter.cxx
 vtkImageActor.cxx
