@@ -146,6 +146,15 @@ public:
   virtual int FindCell(float x[3], vtkCell *cell, float tol2, int& subId, 
                        float pcoords[3], float *weights) = 0;
 
+  // Description:
+  // Locate the cell that contains a point and return the cell. Also returns
+  // the subcell id, parametric coordinates and weights for subsequent
+  // interpolation. This method combines the derived class methods
+  // int FindCell and vtkCell *GetCell. Derived classes may provide a more efficient
+  // implementation. See for example vtkStructuredPoints.
+  virtual vtkCell *FindAndGetCell(float x[3], vtkCell *cell, float tol2, int& subId,
+			    float pcoords[3], float *weights);
+
   // Datasets are composite objects and need to check each part for MTime
   unsigned long int GetMTime();
 
