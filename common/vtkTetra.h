@@ -47,28 +47,31 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkTetra_h
 #define __vtkTetra_h
 
-#include "vtkCell.h"
+#include "vtkCell3D.h"
 #include "vtkLine.h"
 #include "vtkTriangle.h"
 
 class vtkUnstructuredGrid;
 
-class VTK_EXPORT vtkTetra : public vtkCell
+class VTK_EXPORT vtkTetra : public vtkCell3D
 {
 public:
   static vtkTetra *New();
   vtkTypeMacro(vtkTetra,vtkCell);
 
   // Description:
+  // See vtkCell3D API for description of these methods.
+  virtual void GetEdge(int edgeId, int* &pts);
+  virtual void GetFace(int faceId, int* &pts);
+
+  // Description:
   // See the vtkCell API for descriptions of these methods.
   vtkCell *MakeObject();
-  int GetCellType() {return VTK_TETRA;};
-  int GetCellDimension() {return 3;};
-  int GetNumberOfEdges() {return 6;};
-  int GetNumberOfFaces() {return 4;};
+  int GetCellType() {return VTK_TETRA;}
+  int GetNumberOfEdges() {return 6;}
+  int GetNumberOfFaces() {return 4;}
   vtkCell *GetEdge(int edgeId);
   vtkCell *GetFace(int faceId);
-  static int *GetFaceArray(int faceId);
   void Contour(float value, vtkScalars *cellScalars, 
                vtkPointLocator *locator, vtkCellArray *verts, 
                vtkCellArray *lines, vtkCellArray *polys,
@@ -90,17 +93,7 @@ public:
   // are closest parametrically to the point specified. This may include faces,
   // edges, or vertices.
   int CellBoundary(int subId, float pcoords[3], vtkIdList *pts);
-
   
-  // Description:
-  // Clip this tetra using scalar value provided. Like contouring, except
-  // that it cuts the tetra to produce other tetrahedra.
-  void Clip(float value, vtkScalars *cellScalars, 
-            vtkPointLocator *locator, vtkCellArray *tetras,
-            vtkPointData *inPd, vtkPointData *outPd,
-            vtkCellData *inCd, int cellId, vtkCellData *outCd, int insideOut);
-
-
   // Description:
   // Return the center of the tetrahedron in parametric coordinates.
   int GetParametricCenter(float pcoords[3]);
@@ -140,16 +133,9 @@ public:
   // Tetra specific methods.
   static void InterpolationFunctions(float pcoords[3], float weights[4]);
   static void InterpolationDerivs(float derivs[12]);
+  static int *GetEdgeArray(int edgeId);
+  static int *GetFaceArray(int faceId);
 
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // Description:
-  // For legacy compatibility. Do not use.
-  int CellBoundary(int subId, float pcoords[3], vtkIdList &pts)
-    {VTK_LEGACY_METHOD(CellBoundary,"3.2"); return this->CellBoundary(subId, pcoords, &pts);}
-  int Triangulate(int index, vtkIdList &ptIds, vtkPoints &pts)
-    {VTK_LEGACY_METHOD(Triangulate,"3.2"); return this->Triangulate(index, &ptIds, &pts);}
-#endif
-  
 protected:
   vtkTetra();
   ~vtkTetra();

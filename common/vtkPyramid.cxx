@@ -425,6 +425,11 @@ void vtkPyramid::Contour(float value, vtkScalars *cellScalars,
     }
 }
 
+int *vtkPyramid::GetEdgeArray(int edgeId)
+{
+  return edges[edgeId];
+}
+
 vtkCell *vtkPyramid::GetEdge(int edgeId)
 {
   int *verts;
@@ -687,15 +692,12 @@ int vtkPyramid::JacobianInverse(float pcoords[3], double **inverse, float derivs
   return 1;
 }
 
-// Clip this pyramid using scalar value provided. Like contouring, except
-// that it cuts the pyramid to produce other pyramids or tetrahedra.
-void vtkPyramid::Clip(float vtkNotUsed(value), 
-		    vtkScalars *vtkNotUsed(cellScalars), 
-		    vtkPointLocator *vtkNotUsed(locator), 
-		    vtkCellArray *vtkNotUsed(tetras),
-		    vtkPointData *vtkNotUsed(inPd), 
-		    vtkPointData *vtkNotUsed(outPd),
-		    vtkCellData *vtkNotUsed(inCd), int vtkNotUsed(cellId), 
-		    vtkCellData *vtkNotUsed(outCd), int vtkNotUsed(insideOut))
+void vtkPyramid::GetEdge(int edgeId, int* &pts)
 {
+  pts = this->GetEdgeArray(edgeId);
+}
+
+void vtkPyramid::GetFace(int faceId, int* &pts)
+{
+  pts = this->GetFaceArray(faceId);
 }

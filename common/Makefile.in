@@ -21,6 +21,7 @@ vtkAbstractMapper \
 vtkAbstractTransform \
 vtkAttributeData \
 vtkCell \
+vtkCell3D \
 vtkCommand \
 vtkDataArray \
 vtkDataSet \
