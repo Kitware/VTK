@@ -21,7 +21,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkXMLDataElement, "1.5.2.2");
+vtkCxxRevisionMacro(vtkXMLDataElement, "1.5.2.3");
 vtkStandardNewMacro(vtkXMLDataElement);
 
 //----------------------------------------------------------------------------
@@ -654,7 +654,7 @@ void vtkXMLDataElement::SetUnsignedLongAttribute(const char* name,
 //----------------------------------------------------------------------------
 #ifdef VTK_ID_TYPE_IS_NOT_BASIC_TYPE
 void vtkXMLDataElement::SetIdTypeAttribute(const char* name, 
-                                           const vtkIdType& value)
+                                           vtkIdType value)
 {
   this->SetVectorAttribute(name, 1, &value);
 }
