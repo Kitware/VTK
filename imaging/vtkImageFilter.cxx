@@ -457,6 +457,10 @@ void vtkImageFilter::RecursiveLoopExecute(int dim, vtkImageRegion *inRegion,
       // set up the lower dimensional regions.
       inRegion->SetAxisExtent(axis, coordinate, coordinate);
       outRegion->SetAxisExtent(axis, coordinate, coordinate);
+      if (dim == 3)
+        {
+	this->UpdateProgress ((float) (coordinate - inMin + 1) / (float) (inMax - inMin + 1));
+	}
       this->RecursiveLoopExecute(dim - 1, inRegion, outRegion);
       }
     // restore the original extent
