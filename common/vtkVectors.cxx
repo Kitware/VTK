@@ -114,7 +114,7 @@ void vtkVectors::ComputeMaxNorm()
 }
 
 // Return the maximum norm for these vectors.
-float vtkVectors::GetMaxNorm()
+double vtkVectors::GetMaxNorm()
 {
   this->ComputeMaxNorm();
   return this->MaxNorm;

@@ -86,33 +86,27 @@ public:
   // Make sure you use SetNumberOfPoints() to allocate memory prior
   // to using SetPoint().
   void SetPoint(int id, float x[3]) { this->Data->SetTuple(id,x);};
-  void SetPoint(int id, float x, float y, float z);
   void SetPoint(int id, double x[3]) { this->Data->SetTuple(id,x);};
+  void SetPoint(int id, double x, double y, double z);
 
   // Description:
   // Insert point into object. Range checking performed and memory
   // allocated as necessary.
   void InsertPoint(int id, float x[3]) { this->Data->InsertTuple(id,x);};
   void InsertPoint(int id, double x[3]) { this->Data->InsertTuple(id,x);};
+  void InsertPoint(int id, double x, double y, double z);
   
   // Description:
   // Insert point into next available slot. Returns id of slot.
   int InsertNextPoint(float x[3]) { return this->Data->InsertNextTuple(x);};
   int InsertNextPoint(double x[3]) { return this->Data->InsertNextTuple(x);};
+  int InsertNextPoint(double x, double y, double z);
 
   // Description:
   // Specify the number of points for this object to hold. Does an
   // allocation as well as setting the MaxId ivar. Used in conjunction with
   // SetPoint() method for fast insertion.
   void SetNumberOfPoints(int number);
-
-  // Description:
-  // Insert point into position indicated.
-  void InsertPoint(int id, float x, float y, float z);
-
-  // Description:
-  // Insert point at end of array and return its location (id) in the array.
-  int InsertNextPoint(float x, float y, float z);
 
   // Description:
   // Given a list of pt ids, return an array of points.
@@ -151,18 +145,18 @@ inline void vtkPoints::SetNumberOfPoints(int number)
   this->Data->SetNumberOfTuples(number);
 }
 
-inline void vtkPoints::SetPoint(int id, float x, float y, float z)
+inline void vtkPoints::SetPoint(int id, double x, double y, double z)
 {
-  float p[3];
+  double p[3];
   p[0] = x;
   p[1] = y;
   p[2] = z;
   this->Data->SetTuple(id,p);
 }
 
-inline void vtkPoints::InsertPoint(int id, float x, float y, float z)
+inline void vtkPoints::InsertPoint(int id, double x, double y, double z)
 {
-  float p[3];
+  double p[3];
 
   p[0] = x;
   p[1] = y;
@@ -170,9 +164,9 @@ inline void vtkPoints::InsertPoint(int id, float x, float y, float z)
   this->Data->InsertTuple(id,p);
 }
 
-inline int vtkPoints::InsertNextPoint(float x, float y, float z)
+inline int vtkPoints::InsertNextPoint(double x, double y, double z)
 {
-  float p[3];
+  double p[3];
 
   p[0] = x;
   p[1] = y;

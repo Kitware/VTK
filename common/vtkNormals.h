@@ -77,37 +77,35 @@ public:
   // Description:
   // Copy normal components into user provided array n[3] for specified
   // id.
-  void GetNormal(int id, float n[3]){this->Data->GetTuple(id,n);};
+  void GetNormal(int id, float n[3]) {this->Data->GetTuple(id,n);};
+  void GetNormal(int id, double n[3]) {this->Data->GetTuple(id,n);};
   
   // Description:
   // Insert normal into object. No range checking performed (fast!).
   // Make sure you use SetNumberOfNormals() to allocate memory prior
   // to using SetNormal().
-  void SetNormal(int id, float n[3]){this->Data->SetTuple(id,n);};
-  void SetNormal(int id, float x, float y, float z);
+  void SetNormal(int id, float n[3]) {this->Data->SetTuple(id,n);};
+  void SetNormal(int id, double n[3]) {this->Data->SetTuple(id,n);};
+  void SetNormal(int id, double x, double y, double z);
 
   // Description:
   // Insert normal into object. Range checking performed and memory
   // allocated as necessary.
-  void InsertNormal(int id, float n[3]){this->Data->InsertTuple(id,n);};
+  void InsertNormal(int id, double n[3]) {this->Data->InsertTuple(id,n);};
+  void InsertNormal(int id, float n[3]) {this->Data->InsertTuple(id,n);};
+  void InsertNormal(int id, double nx, double ny, double nz);
 
   // Description:
   // Insert normal into next available slot. Returns id of slot.
-  int InsertNextNormal(float n[3]){return this->Data->InsertNextTuple(n);};
+  int InsertNextNormal(float n[3]) {return this->Data->InsertNextTuple(n);};
+  int InsertNextNormal(double n[3]) {return this->Data->InsertNextTuple(n);};
+  int InsertNextNormal(double nx, double ny, double nz);
 
   // Description:
   // Specify the number of normals for this object to hold. Does an
   // allocation as well as setting the MaxId ivar. Used in conjunction with
   // SetNormal() method for fast insertion.
   void SetNumberOfNormals(int number);
-
-  // Description:
-  // Insert normal into position indicated.
-  void InsertNormal(int id, float nx, float ny, float nz);
-
-  // Description:
-  // Insert normal at end of array and return its location (id) in the array.
-  int InsertNextNormal(float nx, float ny, float nz);
 
   // Description:
   // Given a list of pt ids, return an array of normals.
@@ -132,18 +130,18 @@ inline void vtkNormals::SetNumberOfNormals(int number)
   this->Data->SetNumberOfTuples(number);
 }
 
-inline void vtkNormals::SetNormal(int id, float nx, float ny, float nz)
+inline void vtkNormals::SetNormal(int id, double nx, double ny, double nz)
 {
-  float n[3];
+  double n[3];
   n[0] = nx;
   n[1] = ny;
   n[2] = nz;
   this->Data->SetTuple(id,n);
 }
 
-inline void vtkNormals::InsertNormal(int id, float nx, float ny, float nz)
+inline void vtkNormals::InsertNormal(int id, double nx, double ny, double nz)
 {
-  float n[3];
+  double n[3];
 
   n[0] = nx;
   n[1] = ny;
@@ -151,9 +149,9 @@ inline void vtkNormals::InsertNormal(int id, float nx, float ny, float nz)
   this->Data->InsertTuple(id,n);
 }
 
-inline int vtkNormals::InsertNextNormal(float nx, float ny, float nz)
+inline int vtkNormals::InsertNextNormal(double nx, double ny, double nz)
 {
-  float n[3];
+  double n[3];
 
   n[0] = nx;
   n[1] = ny;

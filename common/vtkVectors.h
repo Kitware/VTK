@@ -78,22 +78,28 @@ public:
   // Copy vector components into user provided array v[3] for specified
   // id.
   void GetVector(int id, float v[3]) { this->Data->GetTuple(id,v);};
+  void GetVector(int id, double v[3]) { this->Data->GetTuple(id,v);};
 
   // Description:
   // Insert vector into object. No range checking performed (fast!).
   // Make sure you use SetNumberOfVectors() to allocate memory prior
   // to using SetVector().
   void SetVector(int id, float v[3]) {this->Data->SetTuple(id,v);};
-  void SetVector(int id, float vx, float vy, float vz);
+  void SetVector(int id, double v[3]) {this->Data->SetTuple(id,v);};
+  void SetVector(int id, double vx, double vy, double vz);
 
   // Description:
   // Insert vector into object. Range checking performed and memory
   // allocated as necessary.
   void InsertVector(int id, float v[3]) {this->Data->InsertTuple(id,v);};
+  void InsertVector(int id, double v[3]) {this->Data->InsertTuple(id,v);};
+  void InsertVector(int id, double vx, double vy, double vz);
 
   // Description:
   // Insert vector into next available slot. Returns id of slot.
   int InsertNextVector(float v[3]) {return this->Data->InsertNextTuple(v);};
+  int InsertNextVector(double v[3]) {return this->Data->InsertNextTuple(v);};
+  int InsertNextVector(double vx, double vy, double vz);
 
   // Description:
   // Specify the number of vectors for this object to hold. Does an
@@ -102,20 +108,12 @@ public:
   void SetNumberOfVectors(int number);
 
   // Description:
-  // Insert vector into position indicated.
-  void InsertVector(int id, float vx, float vy, float vz);
-
-  // Description:
-  // Insert vector at end of array and return its location (id) in the array.
-  int InsertNextVector(float vx, float vy, float vz);
-
-  // Description:
   // Compute the largest norm for these vectors.
   void ComputeMaxNorm();
 
   // Description:
   // Return the maximum norm for these vectors.
-  float GetMaxNorm();
+  double GetMaxNorm();
 
   // Description:
   // Given a list of pt ids, return an array of vectors.
@@ -133,8 +131,9 @@ protected:
   vtkVectors(const vtkVectors&) {};
   void operator=(const vtkVectors&) {};
 
-  float MaxNorm;
+  double MaxNorm;
   vtkTimeStamp ComputeTime; // Time at which MaxNorm computed
+
 };
 
 
@@ -144,18 +143,18 @@ inline void vtkVectors::SetNumberOfVectors(int number)
   this->Data->SetNumberOfTuples(number);
 }
 
-inline void vtkVectors::SetVector(int id, float vx, float vy, float vz)
+inline void vtkVectors::SetVector(int id, double vx, double vy, double vz)
 {
-  float v[3];
+  double v[3];
   v[0] = vx;
   v[1] = vy;
   v[2] = vz;
   this->Data->SetTuple(id,v);
 }
 
-inline void vtkVectors::InsertVector(int id, float vx, float vy, float vz)
+inline void vtkVectors::InsertVector(int id, double vx, double vy, double vz)
 {
-  float v[3];
+  double v[3];
 
   v[0] = vx;
   v[1] = vy;
@@ -163,9 +162,9 @@ inline void vtkVectors::InsertVector(int id, float vx, float vy, float vz)
   this->Data->InsertTuple(id,v);
 }
 
-inline int vtkVectors::InsertNextVector(float vx, float vy, float vz)
+inline int vtkVectors::InsertNextVector(double vx, double vy, double vz)
 {
-  float v[3];
+  double v[3];
 
   v[0] = vx;
   v[1] = vy;
