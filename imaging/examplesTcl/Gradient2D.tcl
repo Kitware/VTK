@@ -59,6 +59,15 @@ viewer SetInput [rgb GetOutput]
 viewer SetZSlice 22
 viewer SetColorWindow 255
 viewer SetColorLevel 127.5
+viewer Render
+
+vtkWindowToImageFilter wtoif
+  wtoif SetInput [viewer GetImageWindow]
+
+vtkPostScriptWriter psWriter
+  psWriter SetInput [wtoif GetOutput]
+  psWriter SetFileName junk.ps 
+  psWriter Write
 
 #make interface
 source WindowLevelInterface.tcl
