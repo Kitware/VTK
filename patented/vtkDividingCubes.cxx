@@ -119,6 +119,13 @@ void vtkDividingCubes::Execute()
   vtkPolyData *output = this->GetOutput();
   
   vtkDebugMacro(<< "Executing dividing cubes...");
+
+  if (input == NULL)
+    {
+    vtkErrorMacro(<<"Input is NULL");
+    return;
+    }
+
   //
   // Initialize self; check input; create output objects
   //

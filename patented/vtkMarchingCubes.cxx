@@ -409,8 +409,8 @@ void vtkMarchingCubes::Execute()
   vtkNormals *newNormals;
   vtkVectors *newGradients;
   vtkStructuredPoints *input = this->GetInput();
-  vtkPointData *pd=input->GetPointData();
-  vtkScalars *inScalars=pd->GetScalars();
+  vtkPointData *pd;
+  vtkScalars *inScalars;
   int dims[3];
   int estimatedSize;
   float Spacing[3], origin[3];
@@ -420,9 +420,22 @@ void vtkMarchingCubes::Execute()
   float *values=this->ContourValues->GetValues();
   
   vtkDebugMacro(<< "Executing marching cubes");
+
 //
 // Initialize and check input
 //
+  if (input == NULL)
+    {
+    vtkErrorMacro(<<"Input is NULL");
+    return;
+    }
+  pd=input->GetPointData();
+  if (pd ==NULL)
+    {
+    vtkErrorMacro(<<"PointData is NULL");
+    return;
+    }
+  inScalars=pd->GetScalars();
   if ( inScalars == NULL )
     {
     vtkErrorMacro(<<"Scalars must be defined for contouring");

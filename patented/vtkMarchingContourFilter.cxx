@@ -144,12 +144,20 @@ void vtkMarchingContourFilter::Execute()
   vtkDataSet *input=this->GetInput();
   vtkPolyData *output=this->GetOutput();
   int numCells;
-  vtkPointData *inPd=input->GetPointData(), *outPd=output->GetPointData();
-  vtkCellData *inCd=input->GetCellData(), *outCd=output->GetCellData();
+  vtkPointData *inPd, *outPd=output->GetPointData();
+  vtkCellData *inCd, *outCd=output->GetCellData();
   int numContours=this->ContourValues->GetNumberOfContours();
   float *values=this->ContourValues->GetValues();
   
   vtkDebugMacro(<< "Executing marching contour filter");
+
+  if (input == NULL)
+    {
+      vtkErrorMacro(<<"Input is NULL");
+      return;
+    }
+  inPd=input->GetPointData();
+  inCd=input->GetCellData();
 
   numCells = input->GetNumberOfCells();
   inScalars = input->GetPointData()->GetScalars();

@@ -183,6 +183,12 @@ void vtkDecimate::Execute()
 
 
   vtkDebugMacro(<<"Decimating mesh...");
+
+  if (input == NULL)
+    {
+    vtkErrorMacro(<<"Input is NULL");
+    return;
+    }
   //
   // Check input
   //

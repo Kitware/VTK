@@ -277,10 +277,10 @@ static void ContourImage(T *scalars, vtkScalars *newScalars, int roi[6], int dir
 void vtkMarchingSquares::Execute()
 {
   vtkStructuredPoints *input = this->GetInput();
-  vtkPointData *pd=input->GetPointData();
+  vtkPointData *pd;
   vtkPoints *newPts;
   vtkCellArray *newLines;
-  vtkScalars *inScalars=pd->GetScalars(), *newScalars;
+  vtkScalars *inScalars, *newScalars;
   int i, dims[3], roi[6], dataSize, dim, plane=0;
   float origin[3], ar[3];
   vtkPolyData *output = this->GetOutput();
@@ -292,6 +292,18 @@ void vtkMarchingSquares::Execute()
 //
 // Initialize and check input
 //
+  if (input == NULL)
+    {
+    vtkErrorMacro(<<"Input is NULL");
+    return;
+    }
+  pd=input->GetPointData();
+  if (pd ==NULL)
+    {
+    vtkErrorMacro(<<"PointData is NULL");
+    return;
+    }
+  inScalars=pd->GetScalars();
   if ( inScalars == NULL )
     {
     vtkErrorMacro(<<"Scalars must be defined for contouring");
