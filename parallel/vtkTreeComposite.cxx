@@ -850,10 +850,7 @@ float vtkTreeComposite::GetZ(int x, int y)
     idx = (x + (y * this->WindowSize[0]));
     }
 
-  int temp = this->WindowSize[0] * this->WindowSize[1] * 0.5;
-    
   return this->ZData[idx];
-  
 }
 
 
