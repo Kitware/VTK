@@ -226,7 +226,7 @@ static void vtkFreeBackground(vtkImageStencil *vtkNotUsed(self),
 template <class T>
 static void vtkImageStencilExecute(vtkImageStencil *self,
                                    vtkImageData *inData, T *inPtr,
-                                   vtkImageData *in2Data, T *in2Ptr,
+                                   vtkImageData *in2Data,T *vtkNotUsed(in2Ptr),
                                    vtkImageData *outData, T *outPtr,
                                    int outExt[6], int id)
 {

@@ -99,7 +99,7 @@ public:
 
   // Description:
   // Set the default color to use when the second input is not set.
-  // This is like SetDefaultValue1, but for multi-component images.
+  // This is like SetDefaultValue, but for multi-component images.
   vtkSetVector4Macro(DefaultColor, float);
   vtkGetVector4Macro(DefaultColor, float);
 
@@ -111,6 +111,8 @@ protected:
 
   void ComputeInputUpdateExtent(int inExt[6], int outExt[6], int n);
   
+  void ExecuteInformation() { 
+    this->vtkImageMultipleInputFilter::ExecuteInformation(); };
   void ExecuteInformation(vtkImageData **inDatas, vtkImageData *outData);
 
   void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
