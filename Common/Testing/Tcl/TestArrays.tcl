@@ -5,7 +5,6 @@ for {set i  0} {$i < [expr $argc - 1]} {incr i} {
 }
 
 package require vtktcl
-puts "Array test started"
 
 foreach array "Bit Char Double Float Int Long Short UnsignedChar UnsignedInt UnsignedLong UnsignedShort" {
     puts "$array array"
@@ -40,6 +39,7 @@ foreach array "Bit Char Double Float Int Long Short UnsignedChar UnsignedInt Uns
     
     # MakeObject
     set m${array} [b${array}Array MakeObject]
+    eval [set m${array}] UnRegister b${array}Array
 
     # confirm the deep copy
     for {set i 0} {$i < [a${array}Array GetNumberOfTuples]} {incr i} {
@@ -51,16 +51,12 @@ foreach array "Bit Char Double Float Int Long Short UnsignedChar UnsignedInt Uns
 	}
     }
     b${array}Array InsertComponent 2001 0 1
-    puts "Actual memory size is: [b${array}Array GetActualMemorySize]"
     b${array}Array Resize 3000
-    puts "Actual memory size after Resize is: [b${array}Array GetActualMemorySize]"
 
     a${array}Array Squeeze
     a${array}Array Initialize
 
-    puts "[a${array}Array Print]"
     a${array}Array Delete
     b${array}Array Delete
 }
-puts "Array test ended"
 exit
