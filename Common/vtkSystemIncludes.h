@@ -207,4 +207,28 @@
 #define VTK_THREAD_RETURN_TYPE void
 #endif
 
+// For encoding
+
+#define VTK_ENCODING_NONE         0 // to specify that no encoding should occur
+#define VTK_ENCODING_US_ASCII     1
+#define VTK_ENCODING_UNICODE      2
+#define VTK_ENCODING_UTF_8        3
+#define VTK_ENCODING_ISO_8859_1   4
+#define VTK_ENCODING_ISO_8859_2   5
+#define VTK_ENCODING_ISO_8859_3   6
+#define VTK_ENCODING_ISO_8859_4   7
+#define VTK_ENCODING_ISO_8859_5   8
+#define VTK_ENCODING_ISO_8859_6   9
+#define VTK_ENCODING_ISO_8859_7   10
+#define VTK_ENCODING_ISO_8859_8   11
+#define VTK_ENCODING_ISO_8859_9   12
+#define VTK_ENCODING_ISO_8859_10  13
+#define VTK_ENCODING_ISO_8859_11  14
+#define VTK_ENCODING_ISO_8859_12  15
+#define VTK_ENCODING_ISO_8859_13  16
+#define VTK_ENCODING_ISO_8859_14  17
+#define VTK_ENCODING_ISO_8859_15  18
+#define VTK_ENCODING_ISO_8859_16  19
+#define VTK_ENCODING_UNKNOWN      20  // leave this one at the end
+
 #endif
