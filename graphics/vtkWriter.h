@@ -44,7 +44,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // to disk (or into a communications port). All writers respond to Write()
 // method. This method insures that there is input and input is up to date.
 //
-// vtkWriter provides the convenience methods StartWrite() and EndWrite().
+// Since vtkWriter is a subclass of vtkProcessObject, StartMethod(), 
+// EndMethod(), and ProgressMethod() are all available to writers.
 // These methods are executed before and after execution of the Write() 
 // method. You can also specify arguments to these methods.
 // .SECTION Caveats
