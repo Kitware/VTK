@@ -127,6 +127,14 @@ protected:
   vtkImageData *DisplacementGrid;
   float DisplacementScale;
   float DisplacementShift;
+  
+  void *GridPointer;
+  int GridScalarType;
+  float GridSpacing[3];
+  float GridOrigin[3];
+  int GridExtent[6];
+  int GridIncrements[3];
+
 private:
   vtkGridTransform(const vtkGridTransform&);  // Not implemented.
   void operator=(const vtkGridTransform&);  // Not implemented.
