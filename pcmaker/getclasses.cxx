@@ -1053,7 +1053,8 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     {
     fprintf(fp,"GEMSIP_FLAGS= /dll /incremental:yes /machine:I386\\\n");
     fprintf(fp," /out:\"$(LIBDIR)/vtkGemsip.dll\" /implib:\"$(LIBDIR)/vtkGemsip.lib\" \n");
-    fprintf(fp,"GEMSIP_LIBS=\"$(LIBDIR)/vtkCommon.lib\" \"$(LIBDIR)/vtkImaging.lib\" ");
+    fprintf(fp,"GEMSIP_LIBS=\"$(LIBDIR)/vtkCommon.lib\" \"$(LIBDIR)/vtkImaging.lib\" \\\n ");
+    fprintf(fp,"\"$(LIBDIR)/vtkGemsVolume.lib\" ");
     if ( vals->m_Graphics )
       {
       for (i = 0; i < NumOfGraphicsLibs ; i++)
