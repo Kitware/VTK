@@ -442,7 +442,7 @@ void GetGLibDependency(int index)
 int GetGraphicsSplit(int maxSet[])
 {
   int i, theIndex;
-  int SetOfClasses[500], numInSet;
+  int SetOfClasses[1000], numInSet;
 //  FILE *fp = fopen("GraphicsDependenciesMore.txt","w");
   int maxNumInSet=0, maxNumIndex;
 
