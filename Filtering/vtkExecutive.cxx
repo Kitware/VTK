@@ -29,7 +29,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkExecutive, "1.20");
+vtkCxxRevisionMacro(vtkExecutive, "1.21");
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_AFTER_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_BEFORE_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_DIRECTION, Integer);
@@ -626,14 +626,32 @@ void vtkExecutive::CopyDefaultInformation(vtkInformation* request,
 //----------------------------------------------------------------------------
 int vtkExecutive::CallAlgorithm(vtkInformation* request, int direction)
 {
+  // Add the direction of information flow to the request for the
+  // algorithm.
   request->Set(ALGORITHM_DIRECTION(), direction);
+
+  // Copy default information in the direction of information flow.
   this->CopyDefaultInformation(request, direction);
+
+  // Invoke the request on the algorithm.
   this->InAlgorithm = 1;
   int result = this->Algorithm->ProcessRequest(request,
                                                this->GetInputInformation(),
                                                this->GetOutputInformation());
   this->InAlgorithm = 0;
+
+  // Remove the algorithm-specific information from the request.
   request->Remove(ALGORITHM_DIRECTION());
+
+  // If the algorithm failed report it now.
+  if(!result)
+    {
+    vtkErrorMacro("Algorithm " << this->Algorithm->GetClassName()
+                  << "(" << this->Algorithm
+                  << ") returned failure for request: "
+                  << *request);
+    }
+
   return result;
 }
 
