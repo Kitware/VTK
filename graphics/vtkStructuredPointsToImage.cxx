@@ -159,7 +159,7 @@ int vtkStructuredPointsToImage::ComputeDataType()
   scalars = (this->Input->GetPointData())->GetScalars();
   
   type = scalars->GetScalarType();
-  if (strcmp(type, "ColorScalar"))
+  if (strcmp(type, "ColorScalar") == 0)
     {
     return VTK_IMAGE_FLOAT;
     }
