@@ -339,6 +339,10 @@ void vtkTIFFWriter::WriteFileHeader(ofstream *file, vtkImageCache *cache)
   file->write((char *)&myDir, sizeof (myDir));
   
   short photometricInterpretation = PHOTOMETRIC_RGB;
+  if (bpp == 1 || bpp == 2)
+    {
+    photometricInterpretation = PHOTOMETRIC_MINISBLACK;
+    }
   myDir.tdir_tag = TIFFTAG_PHOTOMETRIC;
   myDir.tdir_type = TIFF_SHORT;
   myDir.tdir_count = 1;
