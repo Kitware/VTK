@@ -36,7 +36,8 @@ IF (VTK_WRAP_TCL)
   ELSE (APPLE)
     ADD_LIBRARY(vtkPatentedTCL ${PatentedTCL_SRCS})
   ENDIF (APPLE)
-  TARGET_LINK_LIBRARIES (vtkPatentedTCL vtkIOTCL vtkGraphicsTCL vtkImagingTCL)
+  TARGET_LINK_LIBRARIES (vtkPatentedTCL vtkPatented vtkIOTCL vtkGraphicsTCL
+                         vtkImagingTCL)
   INSTALL_TARGETS(/lib/vtk vtkPatentedTCL)
 ENDIF (VTK_WRAP_TCL)
 
@@ -49,7 +50,7 @@ IF (VTK_WRAP_PYTHON)
     ADD_LIBRARY(vtkPatentedPython MODULE ${PatentedPython_SRCS})
   ELSE (APPLE)
     ADD_LIBRARY(vtkPatentedPython SHARED ${PatentedPython_SRCS})
-    TARGET_LINK_LIBRARIES (vtkPatentedPython
+    TARGET_LINK_LIBRARIES (vtkPatentedPython vtkPatented
                            vtkGraphicsPython
                            vtkImagingPython)
   ENDIF (APPLE)
@@ -71,7 +72,8 @@ ENDIF (VTK_WRAP_PYTHON)
 IF (VTK_WRAP_JAVA)
   VTK_WRAP_JAVA(vtkPatentedJava PatentedJava_SRCS ${Patented_SRCS})
   ADD_LIBRARY(vtkPatentedJava SHARED ${PatentedJava_SRCS})
-  TARGET_LINK_LIBRARIES (vtkPatentedJava vtkImagingJava vtkGraphicsJava)
+  TARGET_LINK_LIBRARIES (vtkPatentedJava vtkPatented vtkImagingJava
+                         vtkGraphicsJava)
   INSTALL_TARGETS(/lib/vtk vtkPatentedJava)
 ENDIF (VTK_WRAP_JAVA)
 
