@@ -24,6 +24,7 @@ vtkJPEGWriter
 vtkMCubesReader
 vtkMCubesWriter
 vtkOBJReader
+vtkParticleReader
 vtkPLOT3DReader
 vtkPLY
 vtkPLYReader
