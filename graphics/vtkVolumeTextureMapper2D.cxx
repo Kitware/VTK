@@ -1259,5 +1259,9 @@ void vtkVolumeTextureMapper2D::InitializeRender( vtkRenderer *ren,
 // Print the vtkVolumeTextureMapper2D
 void vtkVolumeTextureMapper2D::PrintSelf(ostream& os, vtkIndent indent)
 {
+  os << indent << "TargetTextureSize: "
+     << this->TargetTextureSize[0] << ", "
+     << this->TargetTextureSize[1] << endl;
+  
   this->vtkVolumeTextureMapper::PrintSelf(os,indent);
 }
