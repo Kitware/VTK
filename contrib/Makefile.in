@@ -26,6 +26,7 @@ vtkArcPlotter \
 vtkCellDerivatives \
 vtkCubeAxesActor2D \
 vtkDEMReader \
+vtkDepthSortPolyData \
 vtkEarthSource \
 vtkGridTransform \
 vtkImageToPolyDataFilter \
