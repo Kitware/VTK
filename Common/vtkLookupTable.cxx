@@ -77,6 +77,7 @@ vtkLookupTable::vtkLookupTable(int sze, int ext)
 
   this->AlphaRange[0] = 1.0;
   this->AlphaRange[1] = 1.0;
+  this->Alpha = 1.0;
 
   this->TableRange[0] = 0.0;
   this->TableRange[1] = 1.0;
@@ -622,7 +623,7 @@ static void vtkLookupTableMapData(vtkLookupTable *self, T *input,
           *output++ = *cptr++;
           *output++ = *cptr++;
           *output++ = *cptr++;
-          *output++ = cptr[3]*alpha;
+          *output++ = (*cptr)*alpha; cptr++;
           input += inIncr;
           }
         }
