@@ -407,10 +407,16 @@ void vtkGlrRenderWindow::WindowInitialize (void)
     this->ColorMap = attr.colormap;
 
     attr.border_pixel = 0;
+
+    // get a default parent if one has not been set.
+    if (! this->ParentId)
+      {
+      this->ParentId = RootWindow(this->DisplayId, 
+				  DefaultScreen(this->DisplayId));
+      }
+    
     this->WindowId = 
-      XCreateWindow(this->DisplayId,
-		    RootWindow(this->DisplayId,
-			       DefaultScreen(this->DisplayId)), 
+      XCreateWindow(this->DisplayId, this->ParentId,
 		    x, y, width, height, 0, v->depth, InputOutput, v->visual,
 		    CWBorderPixel|CWColormap|CWOverrideRedirect, &attr);
     XStoreName(this->DisplayId, this->WindowId, this->WindowName);

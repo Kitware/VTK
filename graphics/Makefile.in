@@ -308,7 +308,7 @@ CLEAN_JAVA         = @CLEAN_JAVA@
 OGLR_INCLUDE       = @OGLR_INCLUDE@
 
 # add in any extra libraies here
-KIT_LIBS = 
+KIT_LIBS = vtkRenderWidget.o
 #JAVA_O_ADD = vtkJavaPanel.o 
 JAVA_CODE_ADD = ../java/vtk/vtkPanel.class
 

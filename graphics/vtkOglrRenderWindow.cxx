@@ -444,9 +444,15 @@ void vtkOglrRenderWindow::WindowInitialize (void)
     attr.colormap = this->ColorMap;
     attr.event_mask = StructureNotifyMask | ExposureMask;
     
+    // get a default parent if one has not been set.
+    if (! this->ParentId)
+      {
+      this->ParentId = RootWindow(this->DisplayId, v->screen);
+      }
+    
     this->WindowId = 
       XCreateWindow(this->DisplayId,
-		    RootWindow(this->DisplayId, v->screen), 
+		    this->ParentId,
 		    x, y, width, height, 0, v->depth, InputOutput, v->visual,
 		    CWBackPixel | CWBorderPixel | CWColormap | 
 		    CWOverrideRedirect | CWEventMask, 

@@ -456,7 +456,8 @@ Visual *vtkXglrRenderWindow::GetDesiredVisual ()
  * use Xlib functions to create a window
  */
 static Window
-XlibWindowCreate(Display *display, Visual *vis, int depth, char *name, 
+XlibWindowCreate(Display *display, Window parent, 
+		 Visual *vis, int depth, char *name, 
 		 int w, int h, int x, int y, int borders)
 {
   Window	win;
@@ -480,7 +481,7 @@ XlibWindowCreate(Display *display, Visual *vis, int depth, char *name,
   
   XFlush(display);
   
-  win = XCreateWindow(display, RootWindow(display,DefaultScreen(display)),
+  win = XCreateWindow(display, parent,
 		      x, y, w, h, 0, depth, InputOutput, vis,
 		      CWEventMask | CWBackPixel | CWBorderPixel | CWColormap |
 		      CWOverrideRedirect, 
@@ -528,7 +529,14 @@ void vtkXglrRenderWindow::WindowInitialize (void)
   
   if (!this->WindowId) 
     {
-    this->WindowId = XlibWindowCreate(this->DisplayId, vis, 
+    // get a default parent if one has not been set.
+    if (! this->ParentId)
+      {
+      this->ParentId = RootWindow(this->DisplayId, 
+				  DefaultScreen(this->DisplayId));
+      }
+    
+    this->WindowId = XlibWindowCreate(this->DisplayId, this->ParentId, vis, 
 				      this->GetDesiredDepth(), 
 				      "Visualization Toolkit - XGL",
 				      this->Size[0], 
@@ -1275,14 +1283,18 @@ int vtkXglrRenderWindow::GetRemapWindow(void)
 
 float *vtkXglrRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2  )
 {
+  x1 = x2;
+  y1 = y2;
   vtkErrorMacro(<< "GetZbufferData() not implemented yet for XGL.\n");
-
-  return NULL ;
+  return NULL;
 }
 
 void vtkXglrRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
                                           float *buffer )
 {
+  x1 = x2;
+  y1 = y2;
+  buffer = buffer;
   vtkErrorMacro(<< "SetZbufferData() not implemented yet for XGL.\n");
 
 }

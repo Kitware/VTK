@@ -76,6 +76,8 @@ public:
   Display *GetDisplayId();
   void     SetDisplayId(Display *);
   void     SetDisplayId(void *);
+  Window   GetParentId();
+  void     SetParentId(Window);
   Window   GetWindowId();
   void     SetWindowId(Window);
   void     SetWindowId(void *);
@@ -87,6 +89,7 @@ public:
   virtual Visual  *GetDesiredVisual()   = 0;
 
 protected:
+  Window   ParentId;
   Window   WindowId;
   Window   NextWindowId;
   Display *DisplayId;

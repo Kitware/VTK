@@ -622,12 +622,17 @@ int vtkSbrRenderWindow::CreateXWindow(Display *dpy,int xpos,int ypos,
   /*
    * create the parent X11 Window
    */
+  // get a default parent if one has not been set.
+  if (! this->ParentId)
+    {
+    this->ParentId = RootWindowOfScreen(ScreenOfDisplay(dpy,0));
+    }
   
-  win = XCreateWindow(dpy, RootWindowOfScreen(ScreenOfDisplay(dpy,0)),
+  win = XCreateWindow(dpy, this->ParentId,
                       xsh.x, xsh.y, xsh.width, xsh.height, 0, depth,
                       InputOutput, pVisInfo->visual,
                       CWColormap | CWBorderPixel | CWBackPixel |
-			CWEventMask | CWOverrideRedirect , &winattr);
+		      CWEventMask | CWOverrideRedirect , &winattr);
   if(! win) 
     {
     fprintf(stderr,"Could not create window\n");
