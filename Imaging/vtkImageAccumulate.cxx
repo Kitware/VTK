@@ -45,7 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <math.h>
 #include <stdlib.h>
 
-vtkCxxRevisionMacro(vtkImageAccumulate, "1.40");
+vtkCxxRevisionMacro(vtkImageAccumulate, "1.41");
 vtkStandardNewMacro(vtkImageAccumulate);
 
 //----------------------------------------------------------------------------
@@ -360,11 +360,10 @@ void vtkImageAccumulate::ExecuteInformation(vtkImageData *input,
 //----------------------------------------------------------------------------
 // Get ALL of the input.
 void vtkImageAccumulate::ComputeInputUpdateExtent(int inExt[6], 
-                                                  int outExt[6])
+                                                  int *vtkNotUsed(outExt))
 {
   int *wholeExtent;
 
-  outExt = outExt;
   wholeExtent = this->GetInput()->GetWholeExtent();
   memcpy(inExt, wholeExtent, 6*sizeof(int));
 }
