@@ -93,19 +93,19 @@ void vtkXglrProperty::Render(vtkProperty *prop, vtkXglrRenderer *ren)
 
   switch (prop->GetRepresentation()) 
     {
-    case VL_POINTS:
+    case VTK_POINTS:
       xgl_object_set(*context,
 		     XGL_CTX_SURF_FRONT_FILL_STYLE, XGL_SURF_FILL_HOLLOW,
 		     XGL_3D_CTX_SURF_BACK_FILL_STYLE, XGL_SURF_FILL_HOLLOW,
 		     NULL);
       break;
-    case VL_WIREFRAME:
+    case VTK_WIREFRAME:
       xgl_object_set(*context,
 		     XGL_CTX_SURF_FRONT_FILL_STYLE, XGL_SURF_FILL_HOLLOW,
 		     XGL_3D_CTX_SURF_BACK_FILL_STYLE, XGL_SURF_FILL_HOLLOW,
 		     NULL);
       break;
-    case VL_SURFACE:
+    case VTK_SURFACE:
       xgl_object_set(*context,
 		     XGL_CTX_SURF_FRONT_FILL_STYLE, XGL_SURF_FILL_SOLID,
 		     XGL_3D_CTX_SURF_BACK_FILL_STYLE, XGL_SURF_FILL_SOLID,
@@ -122,12 +122,12 @@ void vtkXglrProperty::Render(vtkProperty *prop, vtkXglrRenderer *ren)
   // set interpolation 
   switch (prop->GetInterpolation()) 
     {
-    case VL_FLAT:
+    case VTK_FLAT:
       method = XGL_ILLUM_PER_FACET;
       line_method = FALSE;
       break;
-    case VL_GOURAUD:
-    case VL_PHONG:
+    case VTK_GOURAUD:
+    case VTK_PHONG:
       method = XGL_ILLUM_PER_VERTEX;
       line_method = TRUE;
       break;

@@ -105,7 +105,7 @@ vtkGlrRenderWindow::vtkGlrRenderWindow()
   this->WindowId = (Window)NULL;
   this->NextWindowId = (Window)NULL;
   this->ColorMap = (Colormap)0;
-  this->StereoType = VL_STEREO_CRYSTAL_EYES;
+  this->StereoType = VTK_STEREO_CRYSTAL_EYES;
 
   strcpy(this->Name,"Visualization Toolkit - GL");
 }
@@ -198,7 +198,7 @@ void vtkGlrRenderWindow::StereoUpdate(void)
     {
     switch (this->StereoType) 
       {
-      case VL_STEREO_CRYSTAL_EYES:
+      case VTK_STEREO_CRYSTAL_EYES:
 	{
 	this->OldMonitorSetting = getmonitor();
 	gflush();
@@ -209,7 +209,7 @@ void vtkGlrRenderWindow::StereoUpdate(void)
 	this->FullScreenOn();
 	}
 	break;
-      case VL_STEREO_RED_BLUE:
+      case VTK_STEREO_RED_BLUE:
 	{
         this->StereoStatus = 1;
 	}
@@ -219,7 +219,7 @@ void vtkGlrRenderWindow::StereoUpdate(void)
     {
     switch (this->StereoType) 
       {
-      case VL_STEREO_CRYSTAL_EYES:
+      case VTK_STEREO_CRYSTAL_EYES:
 	{
 	/* restore the monitor */
 	gflush();
@@ -230,7 +230,7 @@ void vtkGlrRenderWindow::StereoUpdate(void)
 	this->FullScreenOff();
 	}
 	break;
-      case VL_STEREO_RED_BLUE:
+      case VTK_STEREO_RED_BLUE:
 	{
         this->StereoStatus = 0;
 	}

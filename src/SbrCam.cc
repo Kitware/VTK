@@ -187,7 +187,7 @@ void vtkSbrCamera::Render(vtkCamera *cam, vtkSbrRenderer *ren)
     {
     switch ((ren->GetRenderWindow())->GetStereoType())
       {
-      case VL_STEREO_CRYSTAL_EYES:
+      case VTK_STEREO_CRYSTAL_EYES:
 	if (cam->GetLeftEye()) 
 	  {
 	  viewport[1] = 0.5 + viewport[1]*0.5;
@@ -217,7 +217,7 @@ void vtkSbrCamera::Render(vtkCamera *cam, vtkSbrRenderer *ren)
     {
     switch ((ren->GetRenderWindow())->GetStereoType())
       {
-      case VL_STEREO_CRYSTAL_EYES:
+      case VTK_STEREO_CRYSTAL_EYES:
 	{
 	aspect[0] = view_size[0]/(2.0*view_size[1]);
 	aspect[1] = 1.0;

@@ -133,7 +133,7 @@ void vtkPolyReader::Execute()
   if ( this->Debug ) this->Reader.DebugOn();
   else this->Reader.DebugOff();
 
-  if ( !(fp=this->Reader.OpenVLFile()) ||
+  if ( !(fp=this->Reader.OpenVTKFile()) ||
   ! this->Reader.ReadHeader(fp) )
       return;
 //

@@ -74,11 +74,11 @@ void vtkGlrProperty::Render(vtkProperty *prop, vtkGlrRenderer *ren)
   // set interpolation 
   switch (prop->GetInterpolation()) 
     {
-    case VL_FLAT:
+    case VTK_FLAT:
       method = FLAT;
       break;
-    case VL_GOURAUD:
-    case VL_PHONG:
+    case VTK_GOURAUD:
+    case VTK_PHONG:
       method = GOURAUD;
       break;
     default:

@@ -79,7 +79,7 @@ void vtkGlrCamera::Render(vtkCamera *cam, vtkGlrRenderer *ren)
     {
     switch ((ren->GetRenderWindow())->GetStereoType())
       {
-      case VL_STEREO_CRYSTAL_EYES:
+      case VTK_STEREO_CRYSTAL_EYES:
 	if (cam->GetLeftEye()) 
 	  {
 	  bottom = (int)(532 + (1023-532)*vport[1]);
@@ -109,7 +109,7 @@ void vtkGlrCamera::Render(vtkCamera *cam, vtkGlrRenderer *ren)
     {
     switch ((ren->GetRenderWindow())->GetStereoType())
       {
-      case VL_STEREO_CRYSTAL_EYES:
+      case VTK_STEREO_CRYSTAL_EYES:
 	aspect[0] = 1.0;
 	aspect[1] = 2.0*(float)(top-bottom+1)/(float)(right-left+1);
 	break;

@@ -201,7 +201,7 @@ void vtkXglrCamera::Render(vtkCamera *cam, vtkXglrRenderer *ren)
     {
     switch ((ren->GetRenderWindow())->GetStereoType())
       {
-      case VL_STEREO_CRYSTAL_EYES:
+      case VTK_STEREO_CRYSTAL_EYES:
 	if (cam->GetLeftEye())
 	  {
 	  xgl_object_set(*win_ras,
@@ -235,7 +235,7 @@ void vtkXglrCamera::Render(vtkCamera *cam, vtkXglrRenderer *ren)
   bg_color.g = background[1];
   bg_color.b = background[2];
   if (cam->GetLeftEye() || (!stereo) || 
-      ((ren->GetRenderWindow())->GetStereoType() != VL_STEREO_CRYSTAL_EYES))
+      ((ren->GetRenderWindow())->GetStereoType() != VTK_STEREO_CRYSTAL_EYES))
     {
     xgl_object_set(*context,XGL_CTX_BACKGROUND_COLOR,
 		   &bg_color,0);

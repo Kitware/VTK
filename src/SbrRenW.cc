@@ -32,7 +32,7 @@ static char *lights[MAX_LIGHTS] =
 vtkSbrRenderWindow::vtkSbrRenderWindow()
 {
   this->Fd = -1;
-  this->StereoType = VL_STEREO_CRYSTAL_EYES;
+  this->StereoType = VTK_STEREO_CRYSTAL_EYES;
   strcpy(this->Name,"Visualization Toolkit - Starbase");
   this->Buffer = 0;
 }
@@ -113,7 +113,7 @@ void vtkSbrRenderWindow::StereoUpdate(void)
     {
     switch (this->StereoType) 
       {
-      case VL_STEREO_CRYSTAL_EYES:
+      case VTK_STEREO_CRYSTAL_EYES:
 	{
 	gescape_arg arg1,arg2;
 	arg1.i[0] = 1;
@@ -123,7 +123,7 @@ void vtkSbrRenderWindow::StereoUpdate(void)
 	this->FullScreenOn();
 	}
 	break;
-      case VL_STEREO_RED_BLUE:
+      case VTK_STEREO_RED_BLUE:
 	{
         this->StereoStatus = 1;
 	}
@@ -133,7 +133,7 @@ void vtkSbrRenderWindow::StereoUpdate(void)
     {
     switch (this->StereoType) 
       {
-      case VL_STEREO_CRYSTAL_EYES:
+      case VTK_STEREO_CRYSTAL_EYES:
 	{
 	gescape_arg arg1,arg2;
 	arg1.i[0] = 0;
@@ -143,7 +143,7 @@ void vtkSbrRenderWindow::StereoUpdate(void)
 	this->FullScreenOff();
 	}
 	break;
-      case VL_STEREO_RED_BLUE:
+      case VTK_STEREO_RED_BLUE:
 	{
         this->StereoStatus = 0;
 	}

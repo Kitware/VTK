@@ -35,7 +35,7 @@ void vtkUnstructuredGridWriter::WriteData()
 
   vtkDebugMacro(<<"Writing vtk unstructured grid data...");
 
-  if ( !(fp=this->OpenVLFile()) || !this->WriteHeader(fp) )
+  if ( !(fp=this->OpenVTKFile()) || !this->WriteHeader(fp) )
       return;
 //
 // Write unstructured grid specific stuff
@@ -70,7 +70,7 @@ void vtkUnstructuredGridWriter::WriteData()
   delete [] types;
   this->WritePointData(fp, input);
 
-  this->CloseVLFile(fp);  
+  this->CloseVTKFile(fp);  
 }
 
 void vtkUnstructuredGridWriter::PrintSelf(ostream& os, vtkIndent indent)

@@ -18,7 +18,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // vtkRenderMaster is used to create device specific rendering window.
 // vtkRenderMaster interfaces with the operating system to determine
 // which type of rendering library to use. If the environment variable
-// VL_RENDERER is set, then that rendering library is used. Otherwise
+// VTK_RENDERER is set, then that rendering library is used. Otherwise
 // the internal software rendering library kgl is used.
 
 #ifndef __vtkRenderMaster_hh

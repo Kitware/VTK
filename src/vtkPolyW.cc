@@ -34,7 +34,7 @@ void vtkPolyWriter::WriteData()
 
   vtkDebugMacro(<<"Writing vtk polygonal data...");
 
-  if ( !(fp=this->OpenVLFile()) || !this->WriteHeader(fp) )
+  if ( !(fp=this->OpenVTKFile()) || !this->WriteHeader(fp) )
       return;
 //
 // Write polygonal data specific stuff
@@ -49,7 +49,7 @@ void vtkPolyWriter::WriteData()
 
   this->WritePointData(fp, input);
 
-  this->CloseVLFile(fp);
+  this->CloseVTKFile(fp);
 }
 
 void vtkPolyWriter::PrintSelf(ostream& os, vtkIndent indent)

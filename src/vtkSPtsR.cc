@@ -134,7 +134,7 @@ void vtkStructuredPointsReader::Execute()
   if ( this->Debug ) this->Reader.DebugOn();
   else this->Reader.DebugOff();
 
-  if ( !(fp=this->Reader.OpenVLFile()) || !this->Reader.ReadHeader(fp) )
+  if ( !(fp=this->Reader.OpenVTKFile()) || !this->Reader.ReadHeader(fp) )
       return;
 //
 // Read structured points specific stuff

@@ -60,7 +60,7 @@ vtkDataReader::~vtkDataReader()
 
 // Description:
 // Open a vtk data file. Returns NULL if error.
-FILE *vtkDataReader::OpenVLFile()
+FILE *vtkDataReader::OpenVTKFile()
 {
   FILE *fptr;
 
@@ -1021,7 +1021,7 @@ char *vtkDataReader::LowerCase(char *str)
 
 // Description:
 // Close a vtk file.
-void vtkDataReader::CloseVLFile(FILE *fp)
+void vtkDataReader::CloseVTKFile(FILE *fp)
 {
   vtkDebugMacro(<<"Closing vtk file");
   if ( fp != NULL ) fclose(fp);

@@ -51,8 +51,8 @@ vtkProperty::vtkProperty()
   this->Specular = 0.0;
   this->SpecularPower = 1.0;
   this->Transparency = 1.0;
-  this->Interpolation = VL_GOURAUD;
-  this->Representation = VL_SURFACE;
+  this->Interpolation = VTK_GOURAUD;
+  this->Representation = VTK_SURFACE;
   this->EdgeVisibility = 0;
   this->Backface = 0;
   this->Device = NULL;
@@ -71,42 +71,42 @@ void vtkProperty::Render(vtkRenderer *ren)
 // Set shading method to flat.
 void vtkProperty::SetFlat (void)
 {
-  this->Interpolation= VL_FLAT;
+  this->Interpolation= VTK_FLAT;
 }
 
 // Description:
 // Set shading method to Gouraud.
 void vtkProperty::SetGouraud (void)
 {
-  this->Interpolation = VL_GOURAUD;
+  this->Interpolation = VTK_GOURAUD;
 }
 
 // Description:
 // Set shading method to Phong.
 void vtkProperty::SetPhong (void)
 {
-  this->Interpolation = VL_PHONG;
+  this->Interpolation = VTK_PHONG;
 }
 
 // Description:
 // Represent geometry with points.
 void vtkProperty::SetPoints (void)
 {
-  this->Interpolation = VL_POINTS;
+  this->Interpolation = VTK_POINTS;
 }
 
 // Description:
 // Represent geometry as wireframe.
 void vtkProperty::SetWireframe (void)
 {
-  this->Representation = VL_WIREFRAME;
+  this->Representation = VTK_WIREFRAME;
 }
 
 // Description:
 // Represent geometry as surface.
 void vtkProperty::SetSurface (void)
 {
-  this->Representation = VL_SURFACE;
+  this->Representation = VTK_SURFACE;
 }
 
 // Description:
@@ -152,17 +152,17 @@ void vtkProperty::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Interpolation: ";
   switch (this->Interpolation) 
     {
-    case 0: os << "VL_FLAT\n"; break;
-    case 1: os << "VL_GOURAUD\n"; break;
-    case 2: os << "VL_PHONG\n"; break;
+    case 0: os << "VTK_FLAT\n"; break;
+    case 1: os << "VTK_GOURAUD\n"; break;
+    case 2: os << "VTK_PHONG\n"; break;
     default: os << "unknown\n";
     }
   os << indent << "Representation: ";
   switch (this->Representation) 
     {
-    case 0: os << "VL_POINTS\n"; break;
-    case 1: os << "VL_WIREFRAME\n"; break;
-    case 2: os << "VL_SURFACE\n"; break;
+    case 0: os << "VTK_POINTS\n"; break;
+    case 1: os << "VTK_WIREFRAME\n"; break;
+    case 2: os << "VTK_SURFACE\n"; break;
     default: os << "unknown\n";
     }
   os << indent << "Specular: " << this->Specular << "\n";

@@ -87,12 +87,12 @@ public:
   vtkSetStringMacro(LookupTableName);
   vtkGetStringMacro(LookupTableName);
 
-  FILE *OpenVLFile();
+  FILE *OpenVTKFile();
   int WriteHeader(FILE *fp);
   int WritePoints(FILE *fp, vtkPoints *p);
   int WriteCells(FILE *fp, vtkCellArray *cells, char *label);
   int WritePointData(FILE *fp, vtkDataSet *ds);
-  void CloseVLFile(FILE *fp);
+  void CloseVTKFile(FILE *fp);
 
 protected:
   char *Filename;

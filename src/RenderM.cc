@@ -84,14 +84,14 @@ vtkRenderWindow *vtkRenderMaster::MakeRenderWindow(char *type)
 }
 
 // Description:
-// Create renderer based on environment variable VL_RENDERER. If VL_RENDERER
+// Create renderer based on environment variable VTK_RENDERER. If VTK_RENDERER
 // not defined, then use default renderer kglr.
 vtkRenderWindow *vtkRenderMaster::MakeRenderWindow(void)
 {
   char *temp;
   
   // if nothing is set then try kglr
-  temp = getenv("VL_RENDERER");
+  temp = getenv("VTK_RENDERER");
   if (!temp) temp = "kglr";
 
   return (this->MakeRenderWindow(temp));

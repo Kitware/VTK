@@ -242,7 +242,7 @@ float *vtkGlrRenderer::GetCenter()
     // take into account stereo effects
     switch (this->RenderWindow->GetStereoType()) 
       {
-      case VL_STEREO_CRYSTAL_EYES:
+      case VTK_STEREO_CRYSTAL_EYES:
 	{
 	this->Center[0] = ((this->Viewport[2]+this->Viewport[0])
 				/2.0*(float)size[0]);
@@ -290,7 +290,7 @@ void vtkGlrRenderer::DisplayToView()
     // take into account stereo effects
     switch (this->RenderWindow->GetStereoType()) 
       {
-      case VL_STEREO_CRYSTAL_EYES:
+      case VTK_STEREO_CRYSTAL_EYES:
 	{
 	vx = 2.0 * (this->DisplayPoint[0] - sizex*this->Viewport[0])/ 
 	  (sizex*(this->Viewport[2]-this->Viewport[0])) - 1.0;
@@ -340,7 +340,7 @@ void vtkGlrRenderer::ViewToDisplay()
     // take into account stereo effects
     switch (this->RenderWindow->GetStereoType()) 
       {
-      case VL_STEREO_CRYSTAL_EYES:
+      case VTK_STEREO_CRYSTAL_EYES:
 	{
 	dx = (int)((this->ViewPoint[0]/this->Aspect[0] + 1.0) * 
 		   (sizex*(this->Viewport[2]-this->Viewport[0])) / 2.0 +
@@ -391,7 +391,7 @@ int vtkGlrRenderer::IsInViewport(int x,int y)
     // take into account stereo effects
     switch (this->RenderWindow->GetStereoType()) 
       {
-      case VL_STEREO_CRYSTAL_EYES:
+      case VTK_STEREO_CRYSTAL_EYES:
 	{
 	int ty = (int)(y*(1023.0/491.0));
 

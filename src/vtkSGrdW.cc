@@ -35,7 +35,7 @@ void vtkStructuredGridWriter::WriteData()
 
   vtkDebugMacro(<<"Writing vtk structured grid...");
 
-  if ( !(fp=this->OpenVLFile()) || !this->WriteHeader(fp) )
+  if ( !(fp=this->OpenVTKFile()) || !this->WriteHeader(fp) )
       return;
 //
 // Write structured grid specific stuff
@@ -49,7 +49,7 @@ void vtkStructuredGridWriter::WriteData()
 
   this->WritePointData(fp, input);
 
-  this->CloseVLFile(fp);
+  this->CloseVTKFile(fp);
 }
 
 void vtkStructuredGridWriter::PrintSelf(ostream& os, vtkIndent indent)

@@ -47,17 +47,17 @@ XrmOptionDescRec Desc[] =
 
 
 // states
-#define VLXI_START  0
-#define VLXI_ROTATE 1
-#define VLXI_ZOOM   2
-#define VLXI_PAN    3
+#define VTKXI_START  0
+#define VTKXI_ROTATE 1
+#define VTKXI_ZOOM   2
+#define VTKXI_PAN    3
 
 
 // Description:
 // Construct object so that light follows camera motion.
 vtkXRenderWindowInteractor::vtkXRenderWindowInteractor()
 {
-  this->State = VLXI_START;
+  this->State = VTKXI_START;
   this->App = 0;
 }
 
@@ -117,7 +117,7 @@ void vtkXRenderWindowInteractor::Initialize()
     }
   this->App = app;
 
-  display = XtOpenDisplay(this->App,NULL,"VL","vtk",NULL,0,&argc,NULL);
+  display = XtOpenDisplay(this->App,NULL,"VTK","vtk",NULL,0,&argc,NULL);
 
   // get the info we need from the RenderingWindow
   ren = (vtkXRenderWindow *)(this->RenderWindow);
@@ -175,26 +175,26 @@ void  vtkXRenderWindowInteractor::UpdateSize(int x,int y)
  
 void  vtkXRenderWindowInteractor::StartRotate()
 {
-  if (this->State != VLXI_START) return;
-  this->State = VLXI_ROTATE;
+  if (this->State != VTKXI_START) return;
+  this->State = VTKXI_ROTATE;
   XtAppAddTimeOut(this->App,10,vtkXRenderWindowInteractorTimer,(XtPointer)this);
 }
 void  vtkXRenderWindowInteractor::EndRotate()
 {
-  if (this->State != VLXI_ROTATE) return;
-  this->State = VLXI_START;
+  if (this->State != VTKXI_ROTATE) return;
+  this->State = VTKXI_START;
 }
 
 void  vtkXRenderWindowInteractor::StartZoom()
 {
-  if (this->State != VLXI_START) return;
-  this->State = VLXI_ZOOM;
+  if (this->State != VTKXI_START) return;
+  this->State = VTKXI_ZOOM;
   XtAppAddTimeOut(this->App,10,vtkXRenderWindowInteractorTimer,(XtPointer)this);
 }
 void  vtkXRenderWindowInteractor::EndZoom()
 {
-  if (this->State != VLXI_ZOOM) return;
-  this->State = VLXI_START;
+  if (this->State != VTKXI_ZOOM) return;
+  this->State = VTKXI_START;
 }
 
 void  vtkXRenderWindowInteractor::StartPan()
@@ -202,9 +202,9 @@ void  vtkXRenderWindowInteractor::StartPan()
   float *FocalPoint;
   float *Result;
 
-  if (this->State != VLXI_START) return;
+  if (this->State != VTKXI_START) return;
 
-  this->State = VLXI_PAN;
+  this->State = VTKXI_PAN;
 
   // calculate the focal depth since we'll be using it a lot
   FocalPoint = this->CurrentCamera->GetFocalPoint();
@@ -219,8 +219,8 @@ void  vtkXRenderWindowInteractor::StartPan()
 }
 void  vtkXRenderWindowInteractor::EndPan()
 {
-  if (this->State != VLXI_PAN) return;
-  this->State = VLXI_START;
+  if (this->State != VTKXI_PAN) return;
+  this->State = VTKXI_START;
 }
 
 void vtkXRenderWindowInteractorCallback(Widget w,XtPointer client_data, 
@@ -394,7 +394,7 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,XtIntervalId *id)
 
   switch (me->State)
     {
-    case VLXI_ROTATE :
+    case VTKXI_ROTATE :
       // get the pointer position
       XQueryPointer(XtDisplay(me->top),XtWindow(me->top),
 		    &root,&child,&root_x,&root_y,&x,&y,&keys);
@@ -412,7 +412,7 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,XtIntervalId *id)
       me->RenderWindow->Render();
       XtAppAddTimeOut(me->App,10,vtkXRenderWindowInteractorTimer,client_data);
       break;
-    case VLXI_PAN :
+    case VTKXI_PAN :
       {
       float  FPoint[3];
       float *PPoint;
@@ -457,7 +457,7 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,XtIntervalId *id)
       XtAppAddTimeOut(me->App,10,vtkXRenderWindowInteractorTimer,client_data);
       }
       break;
-    case VLXI_ZOOM :
+    case VTKXI_ZOOM :
       {
       float zoomFactor;
       float *clippingRange;

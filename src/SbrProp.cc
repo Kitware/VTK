@@ -63,13 +63,13 @@ void vtkSbrProperty::Render(vtkProperty *prop, vtkSbrRenderer *ren)
 
   switch (prop->GetRepresentation()) 
     {
-  case VL_POINTS:
+  case VTK_POINTS:
     style = INT_POINT;
     break;
-  case VL_WIREFRAME:
+  case VTK_WIREFRAME:
     style = INT_OUTLINE;
     break;
-  case VL_SURFACE:
+  case VTK_SURFACE:
     style = INT_SOLID;
     break;
   default:

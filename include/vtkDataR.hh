@@ -84,12 +84,12 @@ public:
 
   // Special methods
   char *LowerCase(char *);
-  FILE *OpenVLFile();
+  FILE *OpenVTKFile();
   int ReadHeader(FILE *fp);
   int ReadPointData(FILE *fp, vtkDataSet *ds, int numPts);
   int ReadPoints(FILE *fp, vtkPointSet *ps, int numPts);
   int ReadCells(FILE *fp, int size, int *data);
-  void CloseVLFile(FILE *fp);
+  void CloseVTKFile(FILE *fp);
 
 protected:
   char *Filename;

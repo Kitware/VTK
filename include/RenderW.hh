@@ -21,7 +21,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // synchronize the rendering process, set window size, and control double
 // buffering. Another set of important methods allow the creation of
 // device dependent actors, lights, and cameras. These objects are created
-// depending upon the value of the environment variable "VL_RENDERER".
+// depending upon the value of the environment variable "VTK_RENDERER".
 
 #ifndef __vtkRenderWindow_hh
 #define __vtkRenderWindow_hh
@@ -36,8 +36,8 @@ class vtkTextureDevice;
 class vtkPropertyDevice;
 
 // lets define the diferent types of stereo
-#define VL_STEREO_CRYSTAL_EYES 1
-#define VL_STEREO_RED_BLUE     2
+#define VTK_STEREO_CRYSTAL_EYES 1
+#define VTK_STEREO_RED_BLUE     2
 
 class vtkRenderWindow : public vtkObject
 {

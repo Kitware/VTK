@@ -75,7 +75,7 @@ vtkDataWriter::~vtkDataWriter()
 
 // Description:
 // Open a vtk data file. Returns NULL if error.
-FILE *vtkDataWriter::OpenVLFile()
+FILE *vtkDataWriter::OpenVTKFile()
 {
   FILE *fptr;
 
@@ -656,7 +656,7 @@ int vtkDataWriter::WriteCells(FILE *fp, vtkCellArray *cells, char *label)
 
 // Description:
 // Close a vtk file.
-void vtkDataWriter::CloseVLFile(FILE *fp)
+void vtkDataWriter::CloseVTKFile(FILE *fp)
 {
   vtkDebugMacro(<<"Closing vtk file\n");
   if ( fp != NULL ) fclose(fp);
