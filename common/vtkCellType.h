@@ -44,12 +44,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // library (vtk). In vtk, datasets consist of collections of cells. 
 // Different datasets consist of different cell types. The cells may be 
 // explicitly represented (as in vtkPolyData), or may be implicit to the
-// data type (vtkStructuredPoints).
+// data type (as in vtkStructuredPoints).
 
 #ifndef __vtkCellType_h
 #define __vtkCellType_h
 
-#define VTK_NULL_ELEMENT 0
+// To add a new cell type, define a new integer type flag here, then
+// create a subclass of vtkCell to implement the proper behavior. You 
+// may have to modify the following methods: vtkDataSet (and subclasses) 
+// GetCell() and vtkGenericCell::SetCellType(). Also, to do the job right,
+// you'll also have to modify the readers/writers and regression tests
+// (example scripts) to reflect the new cell addition.
+
+#define VTK_EMPTY_CELL 0
 #define VTK_VERTEX 1
 #define VTK_POLY_VERTEX 2
 #define VTK_LINE 3
@@ -62,6 +69,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_TETRA 10
 #define VTK_VOXEL 11
 #define VTK_HEXAHEDRON 12
+#define VTK_WEDGE 13
+#define VTK_PYRAMID 14
 
 #define VTK_PARAMETRIC_CURVE 51
 #define VTK_PARAMETRIC_SURFACE 52

@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION See Also
 // vtkHexahedron vtkLine vtkPixel vtkPolyLine vtkPolyVertex
 // vtkPolygon vtkQuad vtkTetra vtkTriangle 
-// vtkTriangleStrip vtkVertex vtkVoxel
+// vtkTriangleStrip vtkVertex vtkVoxel vtkWedge vtkPyramid
 
 #ifndef __vtkCell_h
 #define __vtkCell_h
