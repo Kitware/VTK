@@ -502,7 +502,7 @@ void vtkDataArray::CopyComponent(const int j, vtkDataArray *from,
 float vtkDataArray::GetMaxNorm()
 {
   vtkIdType i;
-  float *v, norm, maxNorm;
+  float norm, maxNorm;
   int nComponents = this->GetNumberOfComponents();
 
   maxNorm = 0.0;
