@@ -94,7 +94,13 @@
 //----------------------------------------------------------------------------
 
 /* Test inclusion of some stl headers.  */
+#ifdef _MSC_VER
+#pragma warning (push, 3)
+#endif
 #include <vector>
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 #ifndef VTK_NO_STD_NAMESPACE
 # define vtkstd std
 #else
