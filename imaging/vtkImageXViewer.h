@@ -122,7 +122,8 @@ public:
 
   void Render(void);
   
-  void SetWindow(Window win);
+  void SetWindow(int win);
+  int GetWindow();
   
   // Description:
   // Gets the windows depth. For the templated function.
@@ -146,8 +147,18 @@ public:
   vtkSetMacro(Blue, int);
   vtkGetMacro(Blue, int);
   
+  // Description:
+  // Set/Get the upper left location of the viewer in the window.
+  vtkSetMacro(XOffset, int);
+  vtkGetMacro(XOffset, int);
+  vtkSetMacro(YOffset, int);
+  vtkGetMacro(YOffset, int);
+  
   
 protected:
+  // location of upper left corner in window.
+  int                  XOffset;
+  int                  YOffset;
   // X stuff
   Window	       WindowId;
   Display             *DisplayId;

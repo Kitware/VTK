@@ -97,6 +97,7 @@ public:
   
   // Description:
   // Get the number of the first image
+  vtkSetMacro(First,int);
   vtkGetMacro(First,int);
 
   // Description:

@@ -173,8 +173,9 @@ void vtkImageFilter::UpdatePointData(int dim, vtkImageRegion *outRegion)
   // Streaming not implemented yet.
   if (inRegion->GetVolume() > this->InputMemoryLimit)
     {
-    vtkErrorMacro(<< "Streaming not implemented yet.");
-    return;
+    vtkWarningMacro(<< "Streaming not implemented yet: Volume = "
+      << inRegion->GetVolume() << ", limit = " 
+      << this->InputMemoryLimit);
     }
   
   // Use the input to fill the data of the region.

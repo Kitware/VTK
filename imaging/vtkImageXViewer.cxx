@@ -59,6 +59,8 @@ vtkImageXViewer::vtkImageXViewer()
 
   this->DisplayId = (Display *)NULL;
   this->WindowId = (Window)(NULL);
+  this->XOffset = 0;
+  this->YOffset = 0;
 }
 
 
@@ -277,7 +279,8 @@ void vtkImageXViewer::Render(void)
   // In case a window has not been set.
   if ( ! this->WindowId)
     {
-    this->SetWindow(this->MakeDefaultWindow(width, height));
+    this->SetWindow(this->MakeDefaultWindow(width + this->XOffset,
+					    height + this->YOffset));
     }
   
   // Allocate output data
@@ -361,7 +364,7 @@ void vtkImageXViewer::Render(void)
   this->Image = XCreateImage(this->DisplayId, this->VisualId,this->VisualDepth,
 			     ZPixmap, 0, (char *)dataOut, width, height, 8,0);
   XPutImage(this->DisplayId, this->WindowId, this->Gc, this->Image, 0, 0,
-	    0, 0, width, height);
+	    this->XOffset, this->YOffset, width, height);
 
   XFlush(this->DisplayId);
   XSync(this->DisplayId, False);
@@ -395,7 +398,6 @@ float vtkImageXViewer::GetColorScale()
 {
   return (float)(this->NumberColors - 1) / this->ColorWindow;
 }
-
 
 
 //----------------------------------------------------------------------------
@@ -543,18 +545,59 @@ void vtkImageXViewer::GetDefaultVisualInfo(XVisualInfo *info)
 }
 
 
+//----------------------------------------------------------------------------
+int vtkImageXViewer::GetWindow() 
+{
+  int extent[8];
+  int width, height;
+  
+  if ( this->WindowId)
+    {
+    return (int)(this->WindowId);
+    }
+  
+  // In case a window has not been set.
+  if ( ! this->Input)
+    {
+    return (int)(NULL);
+    }
+
+  // determine the Extent of the input region to be displayed
+  if (this->WholeImage)
+    {
+    this->Input->UpdateImageInformation(&(this->Region));
+    this->Region.GetImageExtent(2, extent);
+    }
+  else
+    {
+    this->Region.GetExtent(2, extent);
+    }
+  
+  // allocate the display data array.
+  width = (extent[1] - extent[0] + 1);
+  height = (extent[3] - extent[2] + 1);
+
+  this->SetWindow(this->MakeDefaultWindow(width + this->XOffset,
+					  height + this->YOffset));
+  this->Modified();
+
+  return (int)(this->WindowId);
+}
+
+  
+
 
 //----------------------------------------------------------------------------
 // Description:
 // An arbitrary window can be used for the window.
-void vtkImageXViewer::SetWindow(Window win) 
+void vtkImageXViewer::SetWindow(int win) 
 {
   XVisualInfo templ;
   XVisualInfo *visuals;
   int nvisuals;
   XWindowAttributes attributes;
   
-  this->WindowId = win;
+  this->WindowId = (Window)(win);
   
   // Now we must get the right visual, Gc, and DisplayId ...
   if ( ! this->DisplayId)

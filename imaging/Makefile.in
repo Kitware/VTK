@@ -55,11 +55,11 @@ vtkImageScatterPlot.o \
 vtkImageSGComposite.o \
 vtkImageShiftScale.o \
 vtkImageShortReader.o \
+vtkImageShortWriter.o \
 vtkImageShrink3D.o \
 vtkImageSpatialFilter.o \
 vtkImageSubSampling.o \
 vtkImageThreshold.o \
-vtkImageVolumeShortWriter.o \
 vtkImageXViewer.o 
 
 
@@ -108,11 +108,11 @@ tcl/vtkImageScatterPlotTcl.o \
 tcl/vtkImageSGCompositeTcl.o \
 tcl/vtkImageShiftScaleTcl.o \
 tcl/vtkImageShortReaderTcl.o \
+tcl/vtkImageShortWriterTcl.o \
 tcl/vtkImageShrink3DTcl.o \
 tcl/vtkImageSpatialFilterTcl.o \
 tcl/vtkImageSubSamplingTcl.o \
 tcl/vtkImageThresholdTcl.o \
-tcl/vtkImageVolumeShortWriterTcl.o \
 tcl/vtkImageXViewerTcl.o 
 
 # put all vtk classes that are concrete here as vtkFooTcl.h files
@@ -158,11 +158,11 @@ vtkImageScatterPlot.h \
 vtkImageSGComposite.h \
 vtkImageShiftScale.h \
 vtkImageShortReader.h \
+vtkImageShortWriter.h \
 vtkImageShrink3D.h \
 vtkImageSpatialFilter.h \
 vtkImageSubSampling.h \
 vtkImageThreshold.h \
-vtkImageVolumeShortWriter.h \
 vtkImageXViewer.h
 
 # add in any extra libraies here
@@ -351,6 +351,9 @@ tcl/vtkImageShiftScaleTcl.cxx: vtkImageShiftScale.h ../tcl/cpp_parse
 tcl/vtkImageShortReaderTcl.cxx: vtkImageShortReader.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageShortReaderTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageShortReader.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageShortReaderTcl.cxx
 
+tcl/vtkImageShortWriterTcl.cxx: vtkImageShortWriter.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageShortWriterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageShortWriter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageShortWriterTcl.cxx
+
 tcl/vtkImageShrink3DTcl.cxx: vtkImageShrink3D.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageShrink3DTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageShrink3D.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageShrink3DTcl.cxx
 
@@ -365,9 +368,6 @@ tcl/vtkImageSubSamplingTcl.cxx: vtkImageSubSampling.h ../tcl/cpp_parse
 
 tcl/vtkImageThresholdTcl.cxx: vtkImageThreshold.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageThresholdTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageThreshold.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageThresholdTcl.cxx
-
-tcl/vtkImageVolumeShortWriterTcl.cxx: vtkImageVolumeShortWriter.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImageVolumeShortWriterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageVolumeShortWriter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageVolumeShortWriterTcl.cxx
 
 tcl/vtkImageXViewerTcl.cxx: vtkImageXViewer.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageXViewerTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageXViewer.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageXViewerTcl.cxx
