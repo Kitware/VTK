@@ -149,6 +149,9 @@ public:
   void SetVoidArray(void* array, vtkIdType size, int save)
     { this->SetArray(static_cast<T*>(array), size, save); }
 
+  // Description:
+  // Do not call.  Use GetRange.
+  virtual void ComputeRange(int comp);
 protected:
   vtkDataArrayTemplate(vtkIdType numComp);
   ~vtkDataArrayTemplate();
@@ -161,6 +164,8 @@ protected:
 
   int SaveUserArray;
 
+  void ComputeScalarRange(int comp);
+  void ComputeVectorRange();
 private:
   vtkDataArrayTemplate(const vtkDataArrayTemplate&);  // Not implemented.
   void operator=(const vtkDataArrayTemplate&);  // Not implemented.
