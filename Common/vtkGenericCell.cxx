@@ -39,7 +39,7 @@
 #include "vtkConvexPointSet.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkGenericCell, "1.16");
+vtkCxxRevisionMacro(vtkGenericCell, "1.17");
 vtkStandardNewMacro(vtkGenericCell);
 
 // Construct cell.
@@ -51,13 +51,6 @@ vtkGenericCell::vtkGenericCell()
 vtkGenericCell::~vtkGenericCell()
 {
   this->Cell->Delete();
-}
-
-// The following methods dereference vtkCell virtual functions to allow
-// vtkCell to act like a concrete object.
-vtkCell *vtkGenericCell::MakeObject()
-{
-  return this->Cell->MakeObject();
 }
 
 void vtkGenericCell::ShallowCopy(vtkCell *c)

@@ -46,7 +46,6 @@ public:
 
   // Description:
   // See the vtkCell API for descriptions of these methods.
-  vtkCell *MakeObject();
   int GetCellType() {return VTK_HEXAHEDRON;}
   int GetNumberOfEdges() {return 12;}
   int GetNumberOfFaces() {return 6;}

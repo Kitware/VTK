@@ -25,7 +25,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticHexahedron, "1.12");
+vtkCxxRevisionMacro(vtkQuadraticHexahedron, "1.13");
 vtkStandardNewMacro(vtkQuadraticHexahedron);
 
 // Construct the hex with 20 points + 7 extra points for internal
@@ -67,13 +67,6 @@ vtkQuadraticHexahedron::~vtkQuadraticHexahedron()
   this->Scalars->Delete();
 }
 
-
-vtkCell *vtkQuadraticHexahedron::MakeObject()
-{
-  vtkQuadraticHexahedron *cell = vtkQuadraticHexahedron::New();
-  cell->DeepCopy(this);
-  return (vtkCell *)cell;
-}
 
 static int LinearHexs[8][8] = { {0,8,24,11,16,22,26,20},
                                 {8,1,9,24,22,17,21,26},

@@ -25,7 +25,7 @@
 #include "vtkPointData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkConvexPointSet, "1.13");
+vtkCxxRevisionMacro(vtkConvexPointSet, "1.14");
 vtkStandardNewMacro(vtkConvexPointSet);
 
 // Construct the hexahedron with eight points.
@@ -51,13 +51,6 @@ vtkConvexPointSet::~vtkConvexPointSet()
   this->TetraScalars->Delete();
   this->BoundaryTris->Delete();
   this->Triangle->Delete();
-}
-
-vtkCell *vtkConvexPointSet::MakeObject()
-{
-  vtkCell *cell = vtkConvexPointSet::New();
-  cell->DeepCopy(this);
-  return cell;
 }
 
 // Should be called by GetCell() prior to any other method invocation

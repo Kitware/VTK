@@ -25,7 +25,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticTetra, "1.9");
+vtkCxxRevisionMacro(vtkQuadraticTetra, "1.10");
 vtkStandardNewMacro(vtkQuadraticTetra);
 
 // Construct the line with two points.
@@ -55,13 +55,6 @@ vtkQuadraticTetra::~vtkQuadraticTetra()
   this->Scalars->Delete();
 }
 
-
-vtkCell *vtkQuadraticTetra::MakeObject()
-{
-  vtkQuadraticTetra *cell = vtkQuadraticTetra::New();
-  cell->DeepCopy(this);
-  return (vtkCell *)cell;
-}
 
 static int TetraEdge[6][3] = { {0,1,4}, {1,2,5}, {2,0,6}, 
                                {0,3,7}, {1,3,8}, {2,3,9} };

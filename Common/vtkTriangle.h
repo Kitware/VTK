@@ -37,7 +37,6 @@ public:
   // Description:
   // Create a new cell and copy this triangle's information into the
   // cell. Returns a pointer to the new cell created.
-  vtkCell *MakeObject();
 
   // Description:
   // Get the edge specified by edgeId (range 0 to 2) and return that edge's

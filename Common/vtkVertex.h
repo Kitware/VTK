@@ -32,7 +32,6 @@ public:
   
   // Description:
   // Make a new vtkVertex object with the same information as this object.
-  vtkCell *MakeObject();
 
   // Description:
   // See the vtkCell API for descriptions of these methods.

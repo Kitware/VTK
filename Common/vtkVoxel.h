@@ -42,7 +42,6 @@ public:
 
   // Description:
   // See the vtkCell API for descriptions of these methods.
-  vtkCell *MakeObject();
   int GetCellType() {return VTK_VOXEL;}
   int GetCellDimension() {return 3;}
   int GetNumberOfEdges() {return 12;}

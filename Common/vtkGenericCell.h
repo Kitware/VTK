@@ -43,7 +43,6 @@ public:
 
   // Description:
   // See the vtkCell API for descriptions of these methods.
-  vtkCell *MakeObject();
   void ShallowCopy(vtkCell *c);
   void DeepCopy(vtkCell *c);
   int GetCellType();

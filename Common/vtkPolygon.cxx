@@ -26,7 +26,7 @@
 
 #include <stdlib.h>
 
-vtkCxxRevisionMacro(vtkPolygon, "1.96");
+vtkCxxRevisionMacro(vtkPolygon, "1.97");
 vtkStandardNewMacro(vtkPolygon);
 
 // Instantiate polygon.
@@ -48,13 +48,6 @@ vtkPolygon::~vtkPolygon()
   this->Quad->Delete();
   this->TriScalars->Delete();
   this->Line->Delete();
-}
-
-vtkCell *vtkPolygon::MakeObject()
-{
-  vtkCell *cell = vtkPolygon::New();
-  cell->DeepCopy(this);
-  return cell;
 }
 
 #define VTK_POLYGON_FAILURE -1

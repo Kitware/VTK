@@ -47,7 +47,6 @@ public:
 
   // Description:
   // See the vtkCell API for descriptions of these methods.
-  vtkCell *MakeObject();
   int GetCellType() {return VTK_TETRA;}
   int GetNumberOfEdges() {return 6;}
   int GetNumberOfFaces() {return 4;}

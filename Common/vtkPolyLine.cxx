@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkPolyLine, "1.72");
+vtkCxxRevisionMacro(vtkPolyLine, "1.73");
 vtkStandardNewMacro(vtkPolyLine);
 
 vtkPolyLine::vtkPolyLine()
@@ -32,13 +32,6 @@ vtkPolyLine::vtkPolyLine()
 vtkPolyLine::~vtkPolyLine()
 {
   this->Line->Delete();
-}
-
-vtkCell *vtkPolyLine::MakeObject()
-{
-  vtkCell *cell = vtkPolyLine::New();
-  cell->DeepCopy(this);
-  return cell;
 }
 
 // Given points and lines, compute normals to lines. These are not true 

@@ -51,7 +51,6 @@ public:
 
   // Description:
   // See the vtkCell API for descriptions of these methods.
-  virtual vtkCell *MakeObject();
   virtual int GetCellType() {return VTK_CONVEX_POINT_SET;}
 
   // Description:

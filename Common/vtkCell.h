@@ -63,10 +63,11 @@ public:
   // coordinates specified.
   void Initialize(int npts, vtkIdType *pts, vtkPoints *p);
 
+#ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
-  // Create concrete copy of this cell. Initially, the copy is made by
-  // performing a ShallowCopy() operation.
-  virtual vtkCell *MakeObject() = 0;
+  // For legacy compatibility.  Do not use.
+  virtual vtkCell* MakeObject();
+#endif
 
   // Description:
   // Copy this cell by reference counting the internal data structures. 

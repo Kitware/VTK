@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkCellData.h"
 
-vtkCxxRevisionMacro(vtkVertex, "1.56");
+vtkCxxRevisionMacro(vtkVertex, "1.57");
 vtkStandardNewMacro(vtkVertex);
 
 // Construct the vertex with a single point.
@@ -45,13 +45,6 @@ vtkVertex::vtkVertex()
 }
 
 // Make a new vtkVertex object with the same information as this object.
-vtkCell *vtkVertex::MakeObject()
-{
-  vtkCell *cell = vtkVertex::New();
-  cell->DeepCopy(this);
-  return cell;
-}
-
 int vtkVertex::EvaluatePosition(float x[3], float* closestPoint,
                                 int& subId, float pcoords[3], 
                                 float& dist2, float *weights)

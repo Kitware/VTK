@@ -26,7 +26,7 @@
 #include "vtkPointLocator.h"
 #include "vtkQuad.h"
 
-vtkCxxRevisionMacro(vtkHexahedron, "1.83");
+vtkCxxRevisionMacro(vtkHexahedron, "1.84");
 vtkStandardNewMacro(vtkHexahedron);
 
 static const float VTK_DIVERGED = 1.e6;
@@ -55,13 +55,6 @@ vtkHexahedron::~vtkHexahedron()
 {
   this->Line->Delete();
   this->Quad->Delete();
-}
-
-vtkCell *vtkHexahedron::MakeObject()
-{
-  vtkCell *cell = vtkHexahedron::New();
-  cell->DeepCopy(this);
-  return cell;
 }
 
 //  Method to calculate parametric coordinates in an eight noded

@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkPointLocator.h"
 
-vtkCxxRevisionMacro(vtkLine, "1.76");
+vtkCxxRevisionMacro(vtkLine, "1.77");
 vtkStandardNewMacro(vtkLine);
 
 // Construct the line with two points.
@@ -42,13 +42,6 @@ vtkLine::vtkLine()
     {
     this->PointIds->SetId(i,0);
     }
-}
-
-vtkCell *vtkLine::MakeObject()
-{
-  vtkCell *cell = vtkLine::New();
-  cell->DeepCopy(this);
-  return cell;
 }
 
 static const int VTK_NO_INTERSECTION=0;

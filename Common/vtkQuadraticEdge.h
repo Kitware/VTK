@@ -45,7 +45,6 @@ public:
   // Description:
   // Implement the vtkCell API. See the vtkCell API for descriptions 
   // of these methods.
-  vtkCell *MakeObject();
   int GetCellType() {return VTK_QUADRATIC_EDGE;};
   int GetCellDimension() {return 1;}
   int GetNumberOfEdges() {return 0;}

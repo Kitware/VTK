@@ -24,7 +24,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTetra, "1.73");
+vtkCxxRevisionMacro(vtkTetra, "1.74");
 vtkStandardNewMacro(vtkTetra);
 
 // Construct the tetra with four points.
@@ -50,13 +50,6 @@ vtkTetra::~vtkTetra()
 {
   this->Triangle->Delete();
   this->Line->Delete();
-}
-
-vtkCell *vtkTetra::MakeObject()
-{
-  vtkCell *cell = vtkTetra::New();
-  cell->DeepCopy(this);
-  return cell;
 }
 
 int vtkTetra::EvaluatePosition(float x[3], float* closestPoint,

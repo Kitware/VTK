@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkTriangleStrip, "1.69");
+vtkCxxRevisionMacro(vtkTriangleStrip, "1.70");
 vtkStandardNewMacro(vtkTriangleStrip);
 
 vtkTriangleStrip::vtkTriangleStrip()
@@ -34,13 +34,6 @@ vtkTriangleStrip::~vtkTriangleStrip()
 {
   this->Line->Delete();
   this->Triangle->Delete();
-}
-
-vtkCell *vtkTriangleStrip::MakeObject()
-{
-  vtkCell *cell = vtkTriangleStrip::New();
-  cell->DeepCopy(this);
-  return cell;
 }
 
 int vtkTriangleStrip::EvaluatePosition(float x[3], float* closestPoint,

@@ -30,7 +30,8 @@
 void TestOEC(ostream& strm)
 {
   vtkEmptyCell *cell = vtkEmptyCell::New();
-  vtkCell *cell2 = cell->MakeObject();
+  vtkCell *cell2 = cell->NewInstance();
+  cell2->DeepCopy(cell);
   vtkIdList *ids = vtkIdList::New();
   vtkPoints *pts = vtkPoints::New();
   float v = 0.0;

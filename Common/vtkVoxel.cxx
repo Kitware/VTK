@@ -26,7 +26,7 @@
 #include "vtkPointData.h"
 #include "vtkPointLocator.h"
 
-vtkCxxRevisionMacro(vtkVoxel, "1.74");
+vtkCxxRevisionMacro(vtkVoxel, "1.75");
 vtkStandardNewMacro(vtkVoxel);
 
 // Construct the voxel with eight points.
@@ -52,13 +52,6 @@ vtkVoxel::~vtkVoxel()
 {
   this->Line->Delete();
   this->Pixel->Delete();
-}
-
-vtkCell *vtkVoxel::MakeObject()
-{
-  vtkCell *cell = vtkVoxel::New();
-  cell->DeepCopy(this);
-  return cell;
 }
 
 int vtkVoxel::EvaluatePosition(float x[3], float* closestPoint,

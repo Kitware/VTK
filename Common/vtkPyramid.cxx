@@ -22,7 +22,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPyramid, "1.27");
+vtkCxxRevisionMacro(vtkPyramid, "1.28");
 vtkStandardNewMacro(vtkPyramid);
 
 static const float VTK_DIVERGED = 1.e6;
@@ -52,13 +52,6 @@ vtkPyramid::~vtkPyramid()
   this->Line->Delete();
   this->Triangle->Delete();
   this->Quad->Delete();
-}
-
-vtkCell *vtkPyramid::MakeObject()
-{
-  vtkCell *cell = vtkPyramid::New();
-  cell->DeepCopy(this);
-  return cell;
 }
 
 static const int VTK_MAX_ITERATION=10;

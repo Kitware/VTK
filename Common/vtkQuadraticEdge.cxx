@@ -23,7 +23,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticEdge, "1.16");
+vtkCxxRevisionMacro(vtkQuadraticEdge, "1.17");
 vtkStandardNewMacro(vtkQuadraticEdge);
 
 // Construct the line with two points.
@@ -46,13 +46,6 @@ vtkQuadraticEdge::~vtkQuadraticEdge()
   this->Line->Delete();
 }
 
-
-vtkCell *vtkQuadraticEdge::MakeObject()
-{
-  vtkQuadraticEdge *cell = vtkQuadraticEdge::New();
-  cell->DeepCopy(this);
-  return (vtkCell *)cell;
-}
 
 int vtkQuadraticEdge::EvaluatePosition(float* x, float* closestPoint, 
                                        int& subId, float pcoords[3],

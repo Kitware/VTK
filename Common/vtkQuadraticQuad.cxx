@@ -24,7 +24,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticQuad, "1.13");
+vtkCxxRevisionMacro(vtkQuadraticQuad, "1.14");
 vtkStandardNewMacro(vtkQuadraticQuad);
 
 // Construct the line with two points.
@@ -59,13 +59,6 @@ vtkQuadraticQuad::~vtkQuadraticQuad()
   this->PointData->Delete();
   this->CellData->Delete();
   this->Scalars->Delete();
-}
-
-vtkCell *vtkQuadraticQuad::MakeObject()
-{
-  vtkQuadraticQuad *cell = vtkQuadraticQuad::New();
-  cell->DeepCopy(this);
-  return (vtkCell *)cell;
 }
 
 vtkCell *vtkQuadraticQuad::GetEdge(int edgeId)

@@ -18,7 +18,7 @@
 #include "vtkCell.h"
 #include "vtkMarchingSquaresCases.h"
 
-vtkCxxRevisionMacro(vtkCell, "1.53");
+vtkCxxRevisionMacro(vtkCell, "1.54");
 
 // Construct cell.
 vtkCell::vtkCell()
@@ -306,3 +306,14 @@ vtkMarchingSquaresLineCases* vtkMarchingSquaresLineCases::GetCases()
 {
   return VTK_MARCHING_SQUARES_LINECASES;
 }
+
+//----------------------------------------------------------------------------
+#ifndef VTK_REMOVE_LEGACY_CODE
+vtkCell* vtkCell::MakeObject()
+{
+  VTK_LEGACY_METHOD(MakeObject, "4.2");
+  vtkCell* c = this->NewInstance();
+  c->DeepCopy(this);
+  return c;
+}
+#endif

@@ -43,7 +43,6 @@ public:
 
   // Description:
   // See the vtkCell API for descriptions of these methods.
-  vtkCell *MakeObject();
   int GetCellType() {return VTK_POLY_LINE;};
   int GetCellDimension() {return 1;};
   int GetNumberOfEdges() {return 0;};

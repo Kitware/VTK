@@ -27,7 +27,7 @@
 #include "vtkPointLocator.h"
 #include "vtkPolygon.h"
 
-vtkCxxRevisionMacro(vtkTriangle, "1.90");
+vtkCxxRevisionMacro(vtkTriangle, "1.91");
 vtkStandardNewMacro(vtkTriangle);
 
 // Construct the triangle with three points.
@@ -56,13 +56,6 @@ vtkTriangle::~vtkTriangle()
 
 // Create a new cell and copy this triangle's information into the cell.
 // Returns a poiner to the new cell created.
-vtkCell *vtkTriangle::MakeObject()
-{
-  vtkCell *cell = vtkTriangle::New();
-  cell->DeepCopy(this);
-  return cell;
-}
-
 int vtkTriangle::EvaluatePosition(float x[3], float* closestPoint,
                                  int& subId, float pcoords[3], 
                                  float& dist2, float *weights)

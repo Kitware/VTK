@@ -28,7 +28,7 @@
 #include "vtkPointData.h"
 #include "vtkCellData.h"
 
-vtkCxxRevisionMacro(vtkPixel, "1.74");
+vtkCxxRevisionMacro(vtkPixel, "1.75");
 vtkStandardNewMacro(vtkPixel);
 
 // Construct the pixel with four points.
@@ -52,13 +52,6 @@ vtkPixel::vtkPixel()
 vtkPixel::~vtkPixel()
 {
   this->Line->Delete();
-}
-
-vtkCell *vtkPixel::MakeObject()
-{
-  vtkCell *cell = vtkPixel::New();
-  cell->DeepCopy(this);
-  return cell;
 }
 
 int vtkPixel::EvaluatePosition(float x[3], float* closestPoint,

@@ -22,7 +22,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkWedge, "1.27");
+vtkCxxRevisionMacro(vtkWedge, "1.28");
 vtkStandardNewMacro(vtkWedge);
 
 static const float VTK_DIVERGED = 1.e6;
@@ -52,13 +52,6 @@ vtkWedge::~vtkWedge()
   this->Line->Delete();
   this->Triangle->Delete();
   this->Quad->Delete();
-}
-
-vtkCell *vtkWedge::MakeObject()
-{
-  vtkCell *cell = vtkWedge::New();
-  cell->DeepCopy(this);
-  return cell;
 }
 
 static const int VTK_MAX_ITERATION=10;
