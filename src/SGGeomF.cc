@@ -283,6 +283,8 @@ void vlStructuredGridGeometryFilter::SetExtent(int *extent)
 
 void vlStructuredGridGeometryFilter::PrintSelf(ostream& os, vlIndent indent)
 {
+  vlStructuredGridToPolyFilter::PrintSelf(os,indent);
+
   os << indent << "Extent: \n";
   os << indent << "  Imin,Imax: (" << this->Extent[0] << ", " << this->Extent[1] << ")\n";
   os << indent << "  Jmin,Jmax: (" << this->Extent[2] << ", " << this->Extent[3] << ")\n";

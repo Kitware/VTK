@@ -284,6 +284,8 @@ void vlStructuredPointsGeometryFilter::SetExtent(int *extent)
 
 void vlStructuredPointsGeometryFilter::PrintSelf(ostream& os, vlIndent indent)
 {
+  vlStructuredPointsToPolyDataFilter::PrintSelf(os,indent);
+
   os << indent << "Extent: \n";
   os << indent << "  Imin,Imax: (" << this->Extent[0] << ", " << this->Extent[1] << ")\n";
   os << indent << "  Jmin,Jmax: (" << this->Extent[2] << ", " << this->Extent[3] << ")\n";
