@@ -37,27 +37,13 @@ vlXglrRenderWindow::vlXglrRenderWindow()
 }
 
 // Description:
-// Create a XGL-specific actor.
-vlActor *vlXglrRenderWindow::MakeActor()
-{
-  vlActor *actor;
-  vlXglrProperty *prop;
-
-  actor = new vlActor;
-  prop  = new vlXglrProperty;
-
-  actor->SetProperty((vlProperty *)prop);
-  return (vlActor *)actor;
-}
-
-// Description:
 // Create a XGL specific light.
-vlLight *vlXglrRenderWindow::MakeLight()
+vlLightDevice *vlXglrRenderWindow::MakeLight()
 {
   vlXglrLight *light;
 
   light = new vlXglrLight;
-  return (vlLight *)light;
+  return (vlLightDevice *)light;
 }
 
 // Description:
@@ -77,32 +63,32 @@ vlRenderer *vlXglrRenderWindow::MakeRenderer()
 
 // Description:
 // Create a XGL specific camera.
-vlCamera *vlXglrRenderWindow::MakeCamera()
+vlCameraDevice *vlXglrRenderWindow::MakeCamera()
 {
   vlXglrCamera *camera;
 
   camera = new vlXglrCamera;
-  return (vlCamera *)camera;
+  return (vlCameraDevice *)camera;
 }
 
 // Description:
 // Create a XGL specific property.
-vlProperty *vlXglrRenderWindow::MakeProperty()
+vlPropertyDevice *vlXglrRenderWindow::MakeProperty()
 {
   vlXglrProperty *property;
 
   property = new vlXglrProperty;
-  return (vlProperty *)property;
+  return (vlPropertyDevice *)property;
 }
 
 // Description:
 // Create a XGL specific texture.
-vlTexture *vlXglrRenderWindow::MakeTexture()
+vlTextureDevice *vlXglrRenderWindow::MakeTexture()
 {
   vlXglrTexture *texture;
 
   texture = new vlXglrTexture;
-  return (vlTexture *)texture;
+  return (vlTextureDevice *)texture;
 }
 
 // Description:

@@ -21,66 +21,77 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 // Description:
 // Implement base class method.
-void vlXglrProperty::Render(vlRenderer *ren)
+void vlXglrProperty::Render(vlProperty *prop, vlRenderer *ren)
 {
-  this->Render((vlXglrRenderer *)ren);
+  this->Render(prop, (vlXglrRenderer *)ren);
 }
 
 // Description:
 // Actual property render method.
-void vlXglrProperty::Render(vlXglrRenderer *ren)
+void vlXglrProperty::Render(vlProperty *prop, vlXglrRenderer *ren)
 {
   int i, method, line_method;
   Xgl_ctx *context;
   Xgl_color_rgb diffuseColor;
   Xgl_color_rgb specularColor;
- 
+  float Ambient, Diffuse, Specular;
+  float *AmbientColor, *DiffuseColor, *SpecularColor;
+
+  Ambient = prop->GetAmbient();
+  Diffuse = prop->GetDiffuse();
+  Specular = prop->GetSpecular();
+  AmbientColor = prop->GetAmbientColor();
+  DiffuseColor = prop->GetDiffuseColor();
+  SpecularColor = prop->GetSpecularColor();
+
   // get the context for this renderer 
   context = ren->GetContext();
-  diffuseColor.r = this->DiffuseColor[0];
-  diffuseColor.g = this->DiffuseColor[1];
-  diffuseColor.b = this->DiffuseColor[2];
-  specularColor.r = this->SpecularColor[0];
-  specularColor.g = this->SpecularColor[1];
-  specularColor.b = this->SpecularColor[2];
+  diffuseColor.r = DiffuseColor[0];
+  diffuseColor.g = DiffuseColor[1];
+  diffuseColor.b = DiffuseColor[2];
+  specularColor.r = SpecularColor[0];
+  specularColor.g = SpecularColor[1];
+  specularColor.b = SpecularColor[2];
 
 
   // see if this is a frontface or backface property 
-  if (this->Backface == 0.0) 
+  if (prop->GetBackface() == 0.0) 
     {
     xgl_object_set(*context,
-		   XGL_3D_CTX_SURF_FRONT_AMBIENT, this->Ambient,
-		   XGL_3D_CTX_SURF_FRONT_DIFFUSE, this->Diffuse,
-		   XGL_3D_CTX_SURF_FRONT_SPECULAR, this->Specular,
-		   XGL_3D_CTX_SURF_FRONT_SPECULAR_POWER, this->SpecularPower,
+		   XGL_3D_CTX_SURF_FRONT_AMBIENT, Ambient,
+		   XGL_3D_CTX_SURF_FRONT_DIFFUSE, Diffuse,
+		   XGL_3D_CTX_SURF_FRONT_SPECULAR, Specular,
+		   XGL_3D_CTX_SURF_FRONT_SPECULAR_POWER, 
+		   prop->GetSpecularPower(),
 		   XGL_3D_CTX_SURF_FRONT_SPECULAR_COLOR, &specularColor,
 		   XGL_CTX_SURF_FRONT_COLOR, &diffuseColor,
 		   XGL_CTX_LINE_COLOR, &DiffuseColor,
-		   XGL_3D_CTX_SURF_BACK_AMBIENT, this->Ambient,
-		   XGL_3D_CTX_SURF_BACK_DIFFUSE, this->Diffuse,
-		   XGL_3D_CTX_SURF_BACK_SPECULAR, this->Specular,
-		   XGL_3D_CTX_SURF_BACK_SPECULAR_POWER, this->SpecularPower,
+		   XGL_3D_CTX_SURF_BACK_AMBIENT, Ambient,
+		   XGL_3D_CTX_SURF_BACK_DIFFUSE, Diffuse,
+		   XGL_3D_CTX_SURF_BACK_SPECULAR, Specular,
+		   XGL_3D_CTX_SURF_BACK_SPECULAR_POWER, 
+		   prop->GetSpecularPower(),
 		   XGL_3D_CTX_SURF_BACK_SPECULAR_COLOR, &specularColor,
 		   XGL_3D_CTX_SURF_BACK_COLOR, &diffuseColor,
-		   XGL_3D_CTX_SURF_FRONT_TRANSP, 1.0-this->Transparency,
-		   XGL_3D_CTX_SURF_BACK_TRANSP, 1.0-this->Transparency,
+		   XGL_3D_CTX_SURF_FRONT_TRANSP, 1.0-prop->GetTransparency(),
+		   XGL_3D_CTX_SURF_BACK_TRANSP, 1.0-prop->GetTransparency(),
 		   NULL);
     }
   else 
     {
     xgl_object_set(*context,
-		 XGL_3D_CTX_SURF_BACK_AMBIENT, this->Ambient,
-		 XGL_3D_CTX_SURF_BACK_DIFFUSE, this->Diffuse,
-		 XGL_3D_CTX_SURF_BACK_SPECULAR, this->Specular,
-		 XGL_3D_CTX_SURF_BACK_SPECULAR_POWER, this->SpecularPower,
+		 XGL_3D_CTX_SURF_BACK_AMBIENT, Ambient,
+		 XGL_3D_CTX_SURF_BACK_DIFFUSE, Diffuse,
+		 XGL_3D_CTX_SURF_BACK_SPECULAR, Specular,
+		 XGL_3D_CTX_SURF_BACK_SPECULAR_POWER, prop->GetSpecularPower(),
 		 XGL_3D_CTX_SURF_BACK_SPECULAR_COLOR, &specularColor,
 		 XGL_3D_CTX_SURF_BACK_COLOR, &diffuseColor,
-		 XGL_3D_CTX_SURF_BACK_TRANSP, 1.0-this->Transparency,
+		 XGL_3D_CTX_SURF_BACK_TRANSP, 1.0-prop->GetTransparency(),
 		 NULL);
     return;
     }		 
 
-  switch (this->Representation) 
+  switch (prop->GetRepresentation()) 
     {
     case VL_POINTS:
       xgl_object_set(*context,
@@ -109,7 +120,7 @@ void vlXglrProperty::Render(vlXglrRenderer *ren)
     }
 
   // set interpolation 
-  switch (this->Interpolation) 
+  switch (prop->GetInterpolation()) 
     {
     case VL_FLAT:
       method = XGL_ILLUM_PER_FACET;
@@ -132,6 +143,5 @@ void vlXglrProperty::Render(vlXglrRenderer *ren)
 		 NULL);
   
   // Tell the geometry primitives about the default properties 
-  vlXglrPrimitive::SetProperty(this);
-
+  vlXglrPrimitive::SetProperty(prop);
 }

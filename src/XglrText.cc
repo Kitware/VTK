@@ -31,14 +31,14 @@ vlXglrTexture::vlXglrTexture()
 
 // Description:
 // Implement base class method.
-void vlXglrTexture::Load(vlRenderer *ren)
+void vlXglrTexture::Load(vlTexture *txt, vlRenderer *ren)
 {
-  this->Load((vlXglrRenderer *)ren);
+  this->Load(txt, (vlXglrRenderer *)ren);
 }
 
 // Description:
 // Actual Texture load method.
-void vlXglrTexture::Load(vlXglrRenderer *ren)
+void vlXglrTexture::Load(vlTexture *txt, vlXglrRenderer *ren)
 {
   // currently a nop
 }

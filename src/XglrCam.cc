@@ -163,14 +163,14 @@ view_calc (Xgl_pt_f3d *eye, Xgl_pt_f3d *focus,
 
 // Description:
 // Implement base class method.
-void vlXglrCamera::Render(vlRenderer *ren)
+void vlXglrCamera::Render(vlCamera *cam, vlRenderer *ren)
 {
-  this->Render((vlXglrRenderer *)ren);
+  this->Render(cam, (vlXglrRenderer *)ren);
 }
 
 // Description:
 // Actual camera render method.
-void vlXglrCamera::Render(vlXglrRenderer *ren)
+void vlXglrCamera::Render(vlCamera *cam, vlXglrRenderer *ren)
 {
   Xgl_ctx *context;
   Xgl_win_ras *win_ras = NULL; // XGLR Window Raster object 
@@ -186,6 +186,7 @@ void vlXglrCamera::Render(vlXglrRenderer *ren)
   float twist;
   float matrix[4][4];
   vlXglrRenderWindow *rw;
+  float *Position, *FocalPoint, *ClippingRange;
 
   context = ren->GetContext();
   win_ras = ren->GetRaster();
@@ -201,7 +202,7 @@ void vlXglrCamera::Render(vlXglrRenderer *ren)
     switch ((ren->GetRenderWindow())->GetStereoType())
       {
       case VL_STEREO_CRYSTAL_EYES:
-	if (this->LeftEye)
+	if (cam->GetLeftEye())
 	  {
 	  xgl_object_set(*win_ras,
 			 XGL_WIN_RAS_STEREO_MODE,XGL_STEREO_LEFT,NULL);
@@ -224,12 +225,16 @@ void vlXglrCamera::Render(vlXglrRenderer *ren)
     }
 
 
+  ClippingRange = cam->GetClippingRange();
+  Position = cam->GetPosition();
+  FocalPoint = cam->GetFocalPoint();
+
   // get the background color
   background = ren->GetBackground();
   bg_color.r = background[0];
   bg_color.g = background[1];
   bg_color.b = background[2];
-  if (this->LeftEye || (!stereo) || 
+  if (cam->GetLeftEye() || (!stereo) || 
       ((ren->GetRenderWindow())->GetStereoType() != VL_STEREO_CRYSTAL_EYES))
     {
     xgl_object_set(*context,XGL_CTX_BACKGROUND_COLOR,
@@ -251,41 +256,41 @@ void vlXglrCamera::Render(vlXglrRenderer *ren)
   ren->SetAspect(aspect);
 
   trans = xgl_object_create(xglr_sys_state,XGL_TRANS,NULL,NULL);
-  eye.x = this->Position[0];
-  eye.y = this->Position[1];
-  eye.z = this->Position[2];
-  focus.x = this->FocalPoint[0];
-  focus.y = this->FocalPoint[1];
-  focus.z = this->FocalPoint[2];
+  eye.x = Position[0];
+  eye.y = Position[1];
+  eye.z = Position[2];
+  focus.x = FocalPoint[0];
+  focus.y = FocalPoint[1];
+  focus.z = FocalPoint[2];
 
   /* xgl_object_set(*context,XGL_CTX_VDC_WINDOW, &vdc_bounds, NULL); */
   xgl_object_set(*context,XGL_CTX_VDC_WINDOW, &vdc_bounds, NULL);
   xgl_object_set(*context,XGL_CTX_VIEW_CLIP_BOUNDS, &vdc_bounds, NULL);
 
-  twist = this->GetTwist();
+  twist = cam->GetTwist();
 
   if (stereo)
     {
-    if (this->LeftEye)
+    if (cam->GetLeftEye())
       {
-      view_calc(&eye,&focus,this->ClippingRange[0],
-		this->ClippingRange[1],
-		this->ViewAngle,twist,&trans,this->Distance,
-		-1.0*this->EyeAngle,aspect[0]/aspect[1]);
+      view_calc(&eye,&focus,ClippingRange[0],
+		ClippingRange[1],
+		cam->GetViewAngle(),twist,&trans,cam->GetDistance(),
+		-1.0*cam->GetEyeAngle(),aspect[0]/aspect[1]);
       }
     else
       {
-      view_calc(&eye,&focus,this->ClippingRange[0],
-		this->ClippingRange[1],
-		this->ViewAngle,twist,&trans,this->Distance,
-		this->EyeAngle,aspect[0]/aspect[1]);
+      view_calc(&eye,&focus,ClippingRange[0],
+		ClippingRange[1],
+		cam->GetViewAngle(),twist,&trans,cam->GetDistance(),
+		cam->GetEyeAngle(),aspect[0]/aspect[1]);
       }
     }
   else
     {
-      view_calc(&eye,&focus,this->ClippingRange[0],
-		this->ClippingRange[1],
-		this->ViewAngle,twist,&trans,this->Distance,
+      view_calc(&eye,&focus,ClippingRange[0],
+		ClippingRange[1],
+		cam->GetViewAngle(),twist,&trans,cam->GetDistance(),
 		0.0,aspect[0]/aspect[1]);
     }
 
@@ -297,7 +302,7 @@ void vlXglrCamera::Render(vlXglrRenderer *ren)
   // if we have a stereo renderer, draw other eye next time 
   if (stereo)
     {
-    if (this->LeftEye) this->LeftEye = 0;
-    else this->LeftEye = 1;
+    if (cam->GetLeftEye()) cam->SetLeftEye(0);
+    else cam->SetLeftEye(1);
     }
 }

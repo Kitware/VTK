@@ -20,29 +20,35 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 // Description:
 // Implement base class method.
-void vlXglrLight::Render(vlRenderer *ren,int light_index)
+void vlXglrLight::Render(vlLight *lgt, vlRenderer *ren,int light_index)
 {
-  this->Render((vlXglrRenderer *)ren,light_index);
+  this->Render(lgt, (vlXglrRenderer *)ren,light_index);
 }
 
 // Description:
 // Actual light render method.
-void vlXglrLight::Render(vlXglrRenderer *ren,int light_index)
+void vlXglrLight::Render(vlLight *lgt, vlXglrRenderer *ren,int light_index)
 {
   Xgl_light *lights;
   Xgl_color light_color;
   Xgl_pt_f3d direction;
+  float *Color, *Position, *FocalPoint;
+  float Intensity;
+
+  // get required info from light
+  Intensity = lgt->GetIntensity();
+  Color = lgt->GetColor();
+  light_color.rgb.r = Intensity * Color[0];
+  light_color.rgb.g = Intensity * Color[1];
+  light_color.rgb.b = Intensity * Color[2];
+  
+  FocalPoint = lgt->GetFocalPoint();
+  Position   = lgt->GetPosition();
+  direction.x = Position[0] - FocalPoint[0];
+  direction.y = Position[1] - FocalPoint[1];
+  direction.z = Position[2] - FocalPoint[2];
 
   lights = ren->GetLightArray();
-  
-  // get required info from light
-  light_color.rgb.r = this->Intensity * this->Color[0];
-  light_color.rgb.g = this->Intensity * this->Color[1];
-  light_color.rgb.b = this->Intensity * this->Color[2];
-  
-  direction.x = this->Position[0] - this->FocalPoint[0];
-  direction.y = this->Position[1] - this->FocalPoint[1];
-  direction.z = this->Position[2] - this->FocalPoint[2];
   
   // define the light source
   xgl_object_set(lights[light_index],
