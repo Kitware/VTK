@@ -40,10 +40,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkVRMLImporter - imports VRML 2.0 files.
 // .SECTION Description
+//
 // vtkVRMLImporter imports VRML 2.0 files into vtk.
 // .SECTION Caveats
-// These nodes are currently supported:
 //
+// These nodes are currently supported:
 //	Appearance				IndexedFaceSet
 //	Box								IndexedLineSet
 //	Color							Material
@@ -51,7 +52,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //	Coordinate				Sphere
 //	Cylinder					Transform
 //	DirectionalLight
-//
 // As you can see this implementation focuses on getting the geometry translated.
 // The routes and scripting nodes are ignored since they deal with directly
 // accessing a nodes internal structure based on the VRML spec. Since this is a
@@ -61,6 +61,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // using the native language (Tcl, Python, Java, or whatever language Vtk is wrapped
 // in). This, in a way, removes the need for the route and script mechanism 
 // (not completely though).
+//
 // .SECTION See Also
 // vtkImporter
 
@@ -111,8 +112,8 @@ public:
   // This routine will return the associated VTK object which
   // was created as a result of the DEF mechanism
   // Send in the name from the VRML file, get the VTK object.
-	// You will have to cast the object since this only returns 
-	// vtkObjects.
+	// You will have to check and correctly cast the object since
+	// this only returns vtkObjects.
   vtkObject *GetVRMLDEFObject(const char *name);
 
   // Description:
