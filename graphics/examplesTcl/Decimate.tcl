@@ -114,7 +114,7 @@ menu .mbar.options.menu
 	    -command Properties
 
 menu .mbar.help.menu
-    .mbar.help.menu add command -label {Are you kidding?}
+    .mbar.help.menu add command -label {Buy a Kitware support contract}
 
 # The rendering widget
 vtkTkRenderWidget .window -width 300 -height 300 

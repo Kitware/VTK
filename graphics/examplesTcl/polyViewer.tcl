@@ -37,7 +37,7 @@ menu .mbar.view.menu
         -value Isometric -command {UpdateView 1 1 1 0 1 0}
 
 menu .mbar.help.menu
-    .mbar.help.menu add command -label {Buy a book!}
+    .mbar.help.menu add command -label {Buy a Kitware support contract!}
 
 vtkTkRenderWidget .window -width 300 -height 300 
     BindTkRenderWidget .window
@@ -104,7 +104,7 @@ vtkActor actor
     actor SetMapper mapper
 
 vtkVectorText banner
-    banner SetText "     vtk\nPolygonal Data\n    Viewer"
+    banner SetText "         vtk\nPolygonal Data\n      Viewer"
 vtkPolyDataMapper bannerMapper
     bannerMapper SetInput [banner GetOutput]
 vtkActor bannerActor
