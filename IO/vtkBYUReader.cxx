@@ -26,7 +26,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkBYUReader, "1.48");
+vtkCxxRevisionMacro(vtkBYUReader, "1.48.2.1");
 vtkStandardNewMacro(vtkBYUReader);
 
 vtkBYUReader::vtkBYUReader()
@@ -68,7 +68,7 @@ void vtkBYUReader::Execute()
   FILE *geomFp;
   int numPts;
 
-  if (this->GeometryFileName == NULL)
+  if (this->GeometryFileName == NULL || this->GeometryFileName == '\0')
     {
     vtkErrorMacro(<< "No GeometryFileName specified!");
     return;
