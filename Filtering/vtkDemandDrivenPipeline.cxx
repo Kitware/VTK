@@ -29,7 +29,6 @@
 #include "vtkInformationUnsignedLongKey.h"
 #include "vtkInformationVector.h"
 #include "vtkInstantiator.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
@@ -42,7 +41,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.23");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.24");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, DATA_NOT_GENERATED, Integer);
@@ -226,6 +225,10 @@ int vtkDemandDrivenPipeline::ProcessRequest(vtkInformation* request)
 
       // Data are now up to date.
       this->DataTime.Modified();
+      // Information is now up to date.
+      this->InformationTime.Modified();
+      // Data object is now up to date.
+      this->DataObjectTime.Modified();
       }
     return result;
     }
@@ -896,10 +899,6 @@ vtkDataObject* vtkDemandDrivenPipeline::NewDataObject(const char* type)
   else if(strcmp(type, "vtkUnstructuredGrid") == 0)
     {
     return vtkUnstructuredGrid::New();
-    }
-  else if(strcmp(type, "vtkMultiBlockDataSet") == 0)
-    {
-    return vtkMultiBlockDataSet::New();
     }
   else if(strcmp(type, "vtkHierarchicalDataSet") == 0)
     {
