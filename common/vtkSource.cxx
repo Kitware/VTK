@@ -300,10 +300,6 @@ void vtkSource::InternalUpdate(vtkDataObject *output)
     return;
     }
 
-  // Let the source initialize the data for streaming.
-  // output->Initialize and CopyStructure ...
-  this->StreamExecuteStart();
-  
   // Determine how many pieces we are going to process.
   numDivisions = this->GetNumberOfStreamDivisions();
   for (division = 0; division < numDivisions; ++division)
@@ -333,6 +329,14 @@ void vtkSource::InternalUpdate(vtkDataObject *output)
 	  }
 	}
       this->Updating = 0;
+      
+      // Let the source initialize the data for streaming.
+      // This allocates memory, so should be after input update,
+      // but should be done only once per execute.
+      if (division == 0)
+	{
+	this->StreamExecuteStart();
+	}
       
       // Execute
       if ( this->StartMethod )
