@@ -29,7 +29,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCutter, "1.76");
+vtkCxxRevisionMacro(vtkCutter, "1.77");
 vtkStandardNewMacro(vtkCutter);
 vtkCxxSetObjectMacro(vtkCutter,CutFunction,vtkImplicitFunction);
 
@@ -103,7 +103,6 @@ void vtkCutter::Execute()
 
   if ( input->GetNumberOfPoints() < 1 )
     {
-    vtkErrorMacro("Input data set is empty");
     return;
     }
   
