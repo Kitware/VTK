@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.18");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.19");
 
 vtkParallelRenderManager::vtkParallelRenderManager()
 {
@@ -207,9 +207,15 @@ void vtkParallelRenderManager::SetRenderWindow(vtkRenderWindow *renWin)
     // Remove all of the observers.
     if (this->ObservingRenderWindow)
       {
-      this->RenderWindow->RemoveObserver(this->StartRenderTag);
-      this->RenderWindow->RemoveObserver(this->EndRenderTag);
-
+      rens = this->RenderWindow->GetRenderers();
+      rens->InitTraversal();
+      ren = rens->GetNextItem();
+      if (ren)
+        {
+        ren->RemoveObserver(this->StartRenderTag);
+        ren->RemoveObserver(this->EndRenderTag);
+        }
+    
       // Will make do with first renderer. (Assumes renderer does not change.)
       if (this->ObservingRenderer)
         {
@@ -258,29 +264,27 @@ void vtkParallelRenderManager::SetRenderWindow(vtkRenderWindow *renWin)
       {
       if (this->Controller->GetLocalProcessId() == this->RootProcessId)
         {
-        this->ObservingRenderWindow = 1;
-
-        cbc = vtkCallbackCommand::New();
-        cbc->SetCallback(::StartRender);
-        cbc->SetClientData((void*)this);
-        // renWin will delete the cbc when the observer is removed.
-        this->StartRenderTag = renWin->AddObserver(vtkCommand::StartEvent,cbc);
-        cbc->Delete();
-
-        cbc = vtkCallbackCommand::New();
-        cbc->SetCallback(::EndRender);
-        cbc->SetClientData((void*)this);
-        // renWin will delete the cbc when the observer is removed.
-        this->EndRenderTag = renWin->AddObserver(vtkCommand::EndEvent,cbc);
-        cbc->Delete();
-
-        // Will make do with first renderer. (Assumes renderer does
-        // not change.)
         rens = this->RenderWindow->GetRenderers();
         rens->InitTraversal();
         ren = rens->GetNextItem();
         if (ren)
           {
+          this->ObservingRenderWindow = 1;
+
+          cbc = vtkCallbackCommand::New();
+          cbc->SetCallback(::StartRender);
+          cbc->SetClientData((void*)this);
+          // renWin will delete the cbc when the observer is removed.
+          this->StartRenderTag = ren->AddObserver(vtkCommand::StartEvent,cbc);
+          cbc->Delete();
+          
+          cbc = vtkCallbackCommand::New();
+          cbc->SetCallback(::EndRender);
+          cbc->SetClientData((void*)this);
+          // renWin will delete the cbc when the observer is removed.
+          this->EndRenderTag = ren->AddObserver(vtkCommand::EndEvent,cbc);
+          cbc->Delete();
+
           this->ObservingRenderer = 1;
 
           //cbc = vtkCallbackCommand::New();
@@ -302,21 +306,27 @@ void vtkParallelRenderManager::SetRenderWindow(vtkRenderWindow *renWin)
         }
       else // LocalProcessId != RootProcessId
         {
-        this->ObservingRenderWindow = 1;
+        rens = this->RenderWindow->GetRenderers();
+        rens->InitTraversal();
+        ren = rens->GetNextItem();
+        if (ren)
+          {
+          this->ObservingRenderWindow = 1;
 
-        cbc= vtkCallbackCommand::New();
-        cbc->SetCallback(::SatelliteStartRender);
-        cbc->SetClientData((void*)this);
-        // renWin will delete the cbc when the observer is removed.
-        this->StartRenderTag = renWin->AddObserver(vtkCommand::StartEvent,cbc);
-        cbc->Delete();
-
-        cbc = vtkCallbackCommand::New();
-        cbc->SetCallback(::SatelliteEndRender);
-        cbc->SetClientData((void*)this);
-        // renWin will delete the cbc when the observer is removed.
-        this->EndRenderTag = renWin->AddObserver(vtkCommand::EndEvent,cbc);
-        cbc->Delete();
+          cbc= vtkCallbackCommand::New();
+          cbc->SetCallback(::SatelliteStartRender);
+          cbc->SetClientData((void*)this);
+          // renWin will delete the cbc when the observer is removed.
+          this->StartRenderTag = ren->AddObserver(vtkCommand::StartEvent,cbc);
+          cbc->Delete();
+          
+          cbc = vtkCallbackCommand::New();
+          cbc->SetCallback(::SatelliteEndRender);
+          cbc->SetClientData((void*)this);
+          // renWin will delete the cbc when the observer is removed.
+          this->EndRenderTag = ren->AddObserver(vtkCommand::EndEvent,cbc);
+          cbc->Delete();
+          }
         }
       }
     }
@@ -1483,11 +1493,6 @@ static void AbortRenderCheck(vtkObject *caller, unsigned long vtkNotUsed(event),
                  void *clientData, void *)
 {
   vtkParallelRenderManager *self = (vtkParallelRenderManager *)clientData;
-  if (caller != self->GetRenderWindow())
-    {
-    vtkGenericWarningMacro("vtkParallelRenderManager caller mismatch");
-    return;
-    }
   self->CheckForAbortRender();
 }
 
@@ -1495,11 +1500,6 @@ static void StartRender(vtkObject *caller, unsigned long vtkNotUsed(event),
             void *clientData, void *)
 {
   vtkParallelRenderManager *self = (vtkParallelRenderManager *)clientData;
-  if (caller != self->GetRenderWindow())
-    {
-    vtkGenericWarningMacro("vtkParallelRenderManager caller mismatch");
-    return;
-    }
   self->StartRender();
 }
 
@@ -1507,11 +1507,6 @@ static void EndRender(vtkObject *caller, unsigned long vtkNotUsed(event),
             void *clientData, void *)
 {
   vtkParallelRenderManager *self = (vtkParallelRenderManager *)clientData;
-  if (caller != self->GetRenderWindow())
-    {
-    vtkGenericWarningMacro("vtkParallelRenderManager caller mismatch");
-    return;
-    }
   self->EndRender();
 }
 
@@ -1520,11 +1515,6 @@ static void SatelliteStartRender(vtkObject *caller,
                 void *clientData, void *)
 {
   vtkParallelRenderManager *self = (vtkParallelRenderManager *)clientData;
-  if (caller != self->GetRenderWindow())
-    {
-    vtkGenericWarningMacro("vtkParallelRenderManager caller mismatch");
-    return;
-    }
   self->SatelliteStartRender();
 }
 
@@ -1533,11 +1523,6 @@ static void SatelliteEndRender(vtkObject *caller,
                   void *clientData, void *)
 {
   vtkParallelRenderManager *self = (vtkParallelRenderManager *)clientData;
-  if (caller != self->GetRenderWindow())
-    {
-    vtkGenericWarningMacro("vtkParallelRenderManager caller mismatch");
-    return;
-    }
   self->SatelliteEndRender();
 }
 
