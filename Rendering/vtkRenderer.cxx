@@ -90,8 +90,6 @@ vtkRenderer::vtkRenderer()
   this->NumberOfPropsToRenderIntoImage = 0;
 
   this->PropArray                = NULL;
-  this->RayCastPropArray         = NULL;
-  this->RenderIntoImagePropArray = NULL;   
 
   this->Layer                    = 0;
   this->Interactive              = 1;
@@ -218,14 +216,10 @@ void vtkRenderer::Render(void)
   if ( this->Props->GetNumberOfItems() > 0 )
     {
     this->PropArray                = new vtkProp *[this->Props->GetNumberOfItems()];
-    this->RayCastPropArray         = new vtkProp *[this->Props->GetNumberOfItems()];
-    this->RenderIntoImagePropArray = new vtkProp *[this->Props->GetNumberOfItems()];
     }
   else
     {
     this->PropArray = NULL;
-    this->RayCastPropArray = NULL;
-    this->RenderIntoImagePropArray = NULL;
     }
 
   this->PropArrayCount = 0;
@@ -272,12 +266,7 @@ void vtkRenderer::Render(void)
   if ( this->PropArray)
     {
     delete [] this->PropArray;
-    delete [] this->RayCastPropArray;
-    delete [] this->RenderIntoImagePropArray;
-
     this->PropArray                = NULL;
-    this->RayCastPropArray         = NULL;
-    this->RenderIntoImagePropArray = NULL;   
     }
 
   if (this->BackingStore)

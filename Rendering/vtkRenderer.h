@@ -375,12 +375,6 @@ protected:
   vtkProp            **PropArray;
   int                PropArrayCount;
 
-  // A sublist of props that need ray casting
-  vtkProp            **RayCastPropArray;
-
-  // A sublist of props that want to be rendered into an image
-  vtkProp            **RenderIntoImagePropArray;
-
   // A temporary list used for picking
   vtkAssemblyPath    **PathArray;
   int                PathArrayCount;
