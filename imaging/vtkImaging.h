@@ -118,3 +118,4 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageXViewer.h"
 #include "vtkPNMReader.h"
 #include "vtkPNMWriter.h"
+#include "vtkTIFFWriter.h"

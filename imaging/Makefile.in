@@ -108,7 +108,8 @@ vtkImageWrapPad \
 vtkImageWriter \
 vtkImageXViewer \
 vtkPNMReader \
-vtkPNMWriter 
+vtkPNMWriter \
+vtkTIFFWriter
 
 
 #------------------------------------------------------------------------------

@@ -42,13 +42,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 void vtkPNMWriter::WriteFileHeader(ofstream *file, vtkImageCache *cache)
 {
-  int min0, max0, min1, max1, min2, max2, min3, max3, minC, maxC;
+  int min0, max0, min1, max1, min2, max2, min3, max3;
   int bpp;
   
   // Find the length of the rows to write.
   cache->GetUpdateExtent(min0, max0, min1, max1, min2, max2, min3, max3);
-  cache->GetAxisUpdateExtent(VTK_IMAGE_COMPONENT_AXIS, minC, maxC);
-  bpp = maxC - minC + 1;
+  bpp = cache->GetNumberOfScalarComponents();
   
   // spit out the pnm header
   if (bpp == 1)
