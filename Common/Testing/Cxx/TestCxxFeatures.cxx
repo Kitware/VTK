@@ -32,11 +32,20 @@ int FullySpecializedFunction(T*)
   return 0;
 }
 
+#if 0
+// Fails on kulu.crd IRIX64-6.5-CC-o3 (old SGI compiler).
 template <>
 int FullySpecializedFunction<int>(int*)
 {
   return 1;
 }
+#else
+// Let overload resolution pick this one instead.
+int FullySpecializedFunction(int*)
+{
+  return 1;
+}
+#endif
 
 int TestFullySpecializedFunction()
 {
@@ -51,7 +60,7 @@ int TestFullySpecializedFunction()
   int should_be_1 = FullySpecializedFunction(static_cast<int*>(0));
   if(should_be_1 != 1)
     {    
-    cerr << "FullySpecializedFunction<int*>() returned "
+    cerr << "FullySpecializedFunction(int*) returned "
          << should_be_1 << ", not 1.\n";
     result = 0;
     }
