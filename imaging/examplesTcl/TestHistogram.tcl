@@ -4,15 +4,15 @@
 set firstslice 1
 set slicenumber 0
 set numslices  10
-set xdim 128
-set ydim 128
+set xdim 256
+set ydim 256
 
-set prefix "/home/alyassin2/database/gems/CTangio/CW1/LR_Data/max/i7903CTGE_sub"
+#set prefix "/home/alyassin2/database/gems/CTangio/CW1/LR_Data/max/i7903CTGE_sub"
 #set prefix "/home/alyassin2/database/gems/CTangio/CW1/HR_Data/i7903CTGE_flat"
 #set prefix "/home/alyassin2/database/gems/CTangio/CW1/processed/PM1_MaxT1390"
-
+set prefix "../../data/fullHead/headsq"
 set numberofbins $xdim;
-set offsetlevel 5
+set offsetlevel 1050
 set window 3000
 set level  1500;
 
@@ -33,7 +33,7 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 
 vtkImageShortReader reader;
 	#reader DebugOn
-	#reader SwapBytesOff;
+	reader SwapBytesOn;
 	reader SetDimensions $xdim $ydim $numslices 1;
 	reader SetFilePrefix $prefix;
 	reader SetPixelMask 0x7fff;
