@@ -79,6 +79,12 @@ public:
   vtkSetMacro(MaximumGhostLevel, int);
   vtkGetMacro(MaximumGhostLevel, int);
   
+  // Description:
+  // Get/Set whether the given piece is available.  Requesting a piece
+  // that is not available will produce errors in the pipeline.
+  virtual void SetPieceAvailable(int piece, int available);
+  virtual int GetPieceAvailable(int piece);
+  
 protected:
   vtkTableExtentTranslator();
   ~vtkTableExtentTranslator();
@@ -86,6 +92,9 @@ protected:
   // Store the extent table in a single array.  Every 6 values form an extent.
   int* ExtentTable;
   int MaximumGhostLevel;
+  
+  // Store a flag for the availability of each piece.
+  int* PieceAvailable;
   
 private:
   vtkTableExtentTranslator(const vtkTableExtentTranslator&);  // Not implemented.
