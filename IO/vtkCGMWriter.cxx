@@ -27,7 +27,7 @@
 #include "vtkCellData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCGMWriter, "1.11");
+vtkCxxRevisionMacro(vtkCGMWriter, "1.12");
 vtkStandardNewMacro(vtkCGMWriter);
 
 vtkCxxSetObjectMacro(vtkCGMWriter, Viewport, vtkViewport);
@@ -1044,7 +1044,7 @@ static int cgmCgmHeader(cgmImagePtr im)
 
   /*** Attribute: BegMF; Elem Class 0; Elem ID 1 */
   buf = (const unsigned char *) "vtk: Visualization Toolkit";
-  blen = strlen( (const char *) buf);
+  blen = (int)strlen( (const char *) buf);
   cgmcomhead(head, 0, 1, blen+1);
   head += 2;
   head += cgmAppByte(head, (short int) blen); 
@@ -1068,7 +1068,7 @@ static int cgmCgmHeader(cgmImagePtr im)
   octet_count += 4;
 
   /*** Attribute: MFDesc; Elem Class 1; Elem ID 2 */
-  blen = strlen( (char *) im->desc);
+  blen = (int)strlen( (char *) im->desc);
   cgmcomheadlong(head, 1, 2, blen+1);
   head += 4;
   head += cgmAppByte(head, (short int) blen); 
@@ -1123,7 +1123,7 @@ static int cgmCgmHeader(cgmImagePtr im)
   if (0) 
     { /* don't do this if there aren't any fonts */
     //      if (buf)  /* don't do this if there aren't any fonts */
-    fontlistlen = strlen( (const char *) buf) + 1;
+    fontlistlen = (int)strlen( (const char *) buf) + 1;
     cgmcomheadlong(head, 1, 13, fontlistlen);
     head +=4;
 
@@ -1208,7 +1208,7 @@ static int cgmCgmPic(cgmImagePtr im, int sticky)
   sprintf(tb, "picture %d", im->picnum);
   buf = (unsigned char*) tb;
   /* buf = (unsigned char *) "picture 1"; */
-  blen = strlen( (char *) buf);
+  blen = (int)strlen( (char *) buf);
   cgmcomhead(head, 0, 3, blen+1);
   head += 2;
   head += cgmAppByte(head, (short int) blen); 
@@ -4371,7 +4371,7 @@ static cgmImagePtr cgmImageStartCgm()
 
   /* don't make this longer than 250 characters */
   tmps = "vtk CGM Output file";
-  tmpsl = strlen(tmps);
+  tmpsl = (int)strlen(tmps);
   if (tmpsl >250) 
     {
     tmpsl = 250;
@@ -4382,7 +4382,7 @@ static cgmImagePtr cgmImageStartCgm()
    * can only be 250 chars */
   tmps = "TIMES_ROMAN,TIMES_BOLD,TIMES_ITALIC,TIMES_BOLD_ITALIC,HELVETICA,HELVETICA_BOLD,HELVETICA_ITALIC,HELVETICA_BOLD_ITALIC,COURIER,COURIER_BOLD,COURIER_ITALIC,COURIER_BOLD_ITALIC";
   im->numfonts=12;
-  tmpsl = strlen(tmps);
+  tmpsl = (int)strlen(tmps);
   im->fontlist = (unsigned char *) calloc(tmpsl+1, SIZEOF(unsigned char));
   strcpy((char*)im->fontlist, tmps);
   im->outfile = NULL;
