@@ -1256,12 +1256,111 @@ void vtkDataSetAttributes::InterpolateTuple(vtkDataArray *fromData1,
     }
 }
 
+int vtkDataSetAttributes::SetScalars(vtkDataArray* da) 
+{ 
+  return this->SetAttribute(da, SCALARS); 
+}
+
+void vtkDataSetAttributes::SetScalars(vtkScalars* scalars)
+{ 
+  this->SetAttributeData(scalars, SCALARS); 
+}
+
+int vtkDataSetAttributes::SetActiveScalars(const char* name)
+{ 
+  return this->SetActiveAttribute(name, SCALARS); 
+}
+
 int vtkDataSetAttributes::SetActiveAttribute(const char* name,
                                              int attributeType)
 {
   int index; 
   this->GetArray(name, index);
   return this->SetActiveAttribute(index, attributeType);
+}
+
+vtkDataArray* vtkDataSetAttributes::GetActiveScalars() 
+{ 
+  return this->GetActiveAttribute(SCALARS); 
+}
+
+int vtkDataSetAttributes::SetVectors(vtkDataArray* da) 
+{ 
+return this->SetAttribute(da, VECTORS); 
+}
+
+void vtkDataSetAttributes::SetVectors(vtkVectors* vectors)
+{ 
+  this->SetAttributeData(vectors, VECTORS); 
+}
+
+int vtkDataSetAttributes::SetActiveVectors(const char* name)
+{ 
+  return this->SetActiveAttribute(name, VECTORS); 
+}
+
+vtkDataArray* vtkDataSetAttributes::GetActiveVectors() 
+{ 
+  return this->GetActiveAttribute(VECTORS); 
+}
+
+int vtkDataSetAttributes::SetNormals(vtkDataArray* da) 
+{ 
+  return this->SetAttribute(da, NORMALS); 
+}
+
+void vtkDataSetAttributes::SetNormals(vtkNormals* normals)
+{ 
+  this->SetAttributeData(normals, NORMALS); 
+}
+
+int vtkDataSetAttributes::SetActiveNormals(const char* name)
+{ 
+  return this->SetActiveAttribute(name, NORMALS); 
+}
+
+vtkDataArray* vtkDataSetAttributes::GetActiveNormals() 
+{ 
+  return this->GetActiveAttribute(NORMALS); 
+}
+
+int vtkDataSetAttributes::SetTCoords(vtkDataArray* da) 
+{ 
+  return this->SetAttribute(da, TCOORDS); 
+}
+
+void vtkDataSetAttributes::SetTCoords(vtkTCoords* tcoords)
+{ 
+  this->SetAttributeData(tcoords, TCOORDS); 
+}
+
+int vtkDataSetAttributes::SetActiveTCoords(const char* name)
+{ 
+  return this->SetActiveAttribute(name, TCOORDS); 
+}
+vtkDataArray* vtkDataSetAttributes::GetActiveTCoords() 
+{ 
+  return this->GetActiveAttribute(TCOORDS); 
+}
+
+int vtkDataSetAttributes::SetTensors(vtkDataArray* da) 
+{ 
+  return this->SetAttribute(da, TENSORS); 
+}
+
+void vtkDataSetAttributes::SetTensors(vtkTensors* Tensors)
+{ 
+  this->SetAttributeData(Tensors, TENSORS); 
+}
+
+int vtkDataSetAttributes::SetActiveTensors(const char* name)
+{ 
+  return this->SetActiveAttribute(name, TENSORS); 
+}
+
+vtkDataArray* vtkDataSetAttributes::GetActiveTensors() 
+{ 
+  return this->GetActiveAttribute(TENSORS); 
 }
 
 int vtkDataSetAttributes::SetActiveAttribute(int index, int attributeType)
@@ -1588,6 +1687,65 @@ int vtkDataSetAttributes::IsArrayAnAttribute(int idx)
       }
     }
   return -1;
+}
+
+void vtkDataSetAttributes::SetCopyAttribute (int index, int value) 
+{ 
+  if (this->CopyAttributeFlags[ index ] != value) 
+    { 
+    this->CopyAttributeFlags[ index ] = value; 
+    this->Modified(); 
+    } 
+} 
+
+void vtkDataSetAttributes::SetCopyScalars(int i) 
+{ 
+  this->SetCopyAttribute(SCALARS, i); 
+}
+int vtkDataSetAttributes::GetCopyScalars() { 
+  return this->CopyAttributeFlags[SCALARS]; 
+}
+
+void vtkDataSetAttributes::SetCopyVectors(int i) 
+{ 
+  this->SetCopyAttribute(VECTORS, i); 
+}
+int vtkDataSetAttributes::GetCopyVectors() 
+{ 
+  return this->CopyAttributeFlags[VECTORS]; 
+}
+
+void vtkDataSetAttributes::SetCopyNormals(int i) 
+{ 
+  this->SetCopyAttribute(NORMALS, i); 
+}
+int vtkDataSetAttributes::GetCopyNormals() 
+{ 
+  return this->CopyAttributeFlags[NORMALS]; 
+}
+
+void vtkDataSetAttributes::SetCopyTCoords(int i) 
+{ 
+  this->SetCopyAttribute(TCOORDS, i); 
+}
+int vtkDataSetAttributes::GetCopyTCoords() 
+{ 
+  return this->CopyAttributeFlags[TCOORDS]; 
+}
+
+void vtkDataSetAttributes::SetCopyTensors(int i) 
+{ 
+  this->SetCopyAttribute(TENSORS, i); 
+}
+int vtkDataSetAttributes::GetCopyTensors() { 
+  return this->CopyAttributeFlags[TENSORS]; 
+}
+
+void vtkDataSetAttributes::RemoveArray(const char *name)
+{
+  int i;
+  this->GetArray(name, i);
+  this->RemoveArray(i);
 }
 
 void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes::FieldList& list, 

@@ -148,63 +148,43 @@ public:
 
   // Description:
   // Set/Get the scalar data.
-  int SetScalars(vtkDataArray* da) 
-    { return this->SetAttribute(da, SCALARS); }
-  void SetScalars(vtkScalars* scalars)
-    { this->SetAttributeData(scalars, SCALARS); }
-  int SetActiveScalars(const char* name)
-    { return this->SetActiveAttribute(name, SCALARS); }
+  int SetScalars(vtkDataArray* da);
+  void SetScalars(vtkScalars* scalars);
+  int SetActiveScalars(const char* name);
   vtkScalars* GetScalars();
-  vtkDataArray* GetActiveScalars() 
-    { return this->GetActiveAttribute(SCALARS); }
+  vtkDataArray* GetActiveScalars();
 
   // Description:
   // Set/Get the vector data.
-  int SetVectors(vtkDataArray* da) 
-    { return this->SetAttribute(da, VECTORS); }
-  void SetVectors(vtkVectors* vectors)
-    { this->SetAttributeData(vectors, VECTORS); }
-  int SetActiveVectors(const char* name)
-    { return this->SetActiveAttribute(name, VECTORS); }
+  int SetVectors(vtkDataArray* da);
+  void SetVectors(vtkVectors* vectors);
+  int SetActiveVectors(const char* name);
   vtkVectors* GetVectors();
-  vtkDataArray* GetActiveVectors() 
-    { return this->GetActiveAttribute(VECTORS); }
+  vtkDataArray* GetActiveVectors();
 
   // Description:
   // Set/get the normal data.
-  int SetNormals(vtkDataArray* da) 
-    { return this->SetAttribute(da, NORMALS); }
-  void SetNormals(vtkNormals* normals)
-    { this->SetAttributeData(normals, NORMALS); }
-  int SetActiveNormals(const char* name)
-    { return this->SetActiveAttribute(name, NORMALS); }
+  int SetNormals(vtkDataArray* da);
+  void SetNormals(vtkNormals* normals);
+  int SetActiveNormals(const char* name);
   vtkNormals* GetNormals();
-  vtkDataArray* GetActiveNormals() 
-    { return this->GetActiveAttribute(NORMALS); }
+  vtkDataArray* GetActiveNormals();
 
   // Description:
   // Set/Get the texture coordinate data.
-  int SetTCoords(vtkDataArray* da) 
-    { return this->SetAttribute(da, TCOORDS); }
-  void SetTCoords(vtkTCoords* tcoords)
-    { this->SetAttributeData(tcoords, TCOORDS); }
-  int SetActiveTCoords(const char* name)
-    { return this->SetActiveAttribute(name, TCOORDS); }
+  int SetTCoords(vtkDataArray* da);
+  void SetTCoords(vtkTCoords* tcoords);
+  int SetActiveTCoords(const char* name);
   vtkTCoords* GetTCoords();
-  vtkDataArray* GetActiveTCoords() 
-    { return this->GetActiveAttribute(TCOORDS); }
+  vtkDataArray* GetActiveTCoords();
 
   // Description:
   // Set/Get the tensor data.
-  int SetTensors(vtkDataArray* da) 
-    { return this->SetAttribute(da, TENSORS); }
-  void SetTensors(vtkTensors* Tensors)
-    { this->SetAttributeData(Tensors, TENSORS); }
-  int SetActiveTensors(const char* name)
-    { return this->SetActiveAttribute(name, TENSORS); }
+  int SetTensors(vtkDataArray* da);
+  void SetTensors(vtkTensors* Tensors);
+  int SetActiveTensors(const char* name);
   vtkTensors* GetTensors();
-  vtkDataArray* GetActiveTensors() 
-    { return this->GetActiveAttribute(TENSORS); }
+  vtkDataArray* GetActiveTensors();
 
   // Description:
   // Make the array with the given name the active attribute.
@@ -228,14 +208,7 @@ public:
 
   // Description:
   // Specify whether to copy the data attribute referred to by index i.
-  void SetCopyAttribute (int index, int value) 
-    { 
-      if (this->CopyAttributeFlags[ index ] != value) 
-        { 
-        this->CopyAttributeFlags[ index ] = value; 
-        this->Modified(); 
-        } 
-    } 
+  void SetCopyAttribute (int index, int value);
 
   // Description:
   // Turn on/off the copying of scalar data.
@@ -247,8 +220,8 @@ public:
   //    This overrides rule 3.
   // 3. If CopyAllOn is set, copy the array.
   //    If CopyAllOff is set, do not copy the array
-  void SetCopyScalars(int i) { this->SetCopyAttribute(SCALARS, i); }
-  int GetCopyScalars() { return this->CopyAttributeFlags[SCALARS]; }
+  void SetCopyScalars(int i);
+  int GetCopyScalars();
   vtkBooleanMacro(CopyScalars, int);
 
   // Description:
@@ -261,8 +234,8 @@ public:
   //    This overrides rule 3.
   // 3. If CopyAllOn is set, copy the array.
   //    If CopyAllOff is set, do not copy the array
-  void SetCopyVectors(int i) { this->SetCopyAttribute(VECTORS, i); }
-  int GetCopyVectors() { return this->CopyAttributeFlags[VECTORS]; }
+  void SetCopyVectors(int i);
+  int GetCopyVectors();
   vtkBooleanMacro(CopyVectors, int);
 
   // Description:
@@ -275,8 +248,8 @@ public:
   //    This overrides rule 3.
   // 3. If CopyAllOn is set, copy the array.
   //    If CopyAllOff is set, do not copy the array
-  void SetCopyNormals(int i) { this->SetCopyAttribute(NORMALS, i); }
-  int GetCopyNormals() { return this->CopyAttributeFlags[NORMALS]; }
+  void SetCopyNormals(int i);
+  int GetCopyNormals();
   vtkBooleanMacro(CopyNormals, int);
 
   // Description:
@@ -289,8 +262,8 @@ public:
   //    This overrides rule 3.
   // 3. If CopyAllOn is set, copy the array.
   //    If CopyAllOff is set, do not copy the array
-  void SetCopyTCoords(int i) { this->SetCopyAttribute(TCOORDS, i); }
-  int GetCopyTCoords() { return this->CopyAttributeFlags[TCOORDS]; }
+  void SetCopyTCoords(int i);
+  int GetCopyTCoords();
   vtkBooleanMacro(CopyTCoords, int);
 
   // Description:
@@ -303,8 +276,8 @@ public:
   //    This overrides rule 3.
   // 3. If CopyAllOn is set, copy the array.
   //    If CopyAllOff is set, do not copy the array
-  void SetCopyTensors(int i) { this->SetCopyAttribute(TENSORS, i); }
-  int GetCopyTensors() { return this->CopyAttributeFlags[TENSORS]; }
+  void SetCopyTensors(int i);
+  int GetCopyTensors();
   vtkBooleanMacro(CopyTensors, int);
 
   // Description:
@@ -358,12 +331,7 @@ public:
 
   // Description:
   // Remove an array (with the given name) from the list of arrays.
-  virtual void RemoveArray(const char *name)
-    {
-      int i;
-      this->GetArray(name, i);
-      this->RemoveArray(i);
-    }
+  virtual void RemoveArray(const char *name);
 
 //BTX
   // Always keep NUM_ATTRIBUTES as the last entry
