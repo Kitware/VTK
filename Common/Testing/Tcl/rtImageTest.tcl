@@ -117,7 +117,7 @@ if {$validImageFound != 0} {
          rt_pngw SetInput [rt_w2if GetOutput]
          rt_pngw Write
       } else {
-         puts "Unable to find valid image!!!"
+         puts "Unable to find valid image:${validImage}"
          vtkCommand DeleteAllObjects
          catch {destroy .top}
          catch {destroy .geo}
