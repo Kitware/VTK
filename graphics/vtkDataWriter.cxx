@@ -164,7 +164,7 @@ int vtkDataWriter::WritePointData(FILE *fp, vtkDataSet *ds)
 
   if ( numPts <= 0 || !(scalars || vectors || normals || tcoords || tensors) )
     {
-    vtkWarningMacro(<<"No point data to write!");
+    vtkDebugMacro(<<"No point data to write!");
     return 1;
     }
 
