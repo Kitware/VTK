@@ -18,6 +18,7 @@
 #include "vtkEnSightGoldReader.h"
 
 #include "vtkCellData.h"
+#include "vtkCharArray.h"
 #include "vtkFloatArray.h"
 #include "vtkIdList.h"
 #include "vtkImageData.h"
@@ -31,7 +32,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.37");
+vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.38");
 vtkStandardNewMacro(vtkEnSightGoldReader);
 
 //----------------------------------------------------------------------------
@@ -120,6 +121,7 @@ int vtkEnSightGoldReader::ReadGeometryFile(char* fileName, int timeStep)
     partId = atoi(line) - 1; // EnSight starts #ing at 1.
     
     this->ReadNextDataLine(line); // part description line
+    char *name = strdup(line);
     lineRead = this->ReadNextDataLine(line);
     
     if (strncmp(line, "block", 5) == 0)
@@ -129,35 +131,37 @@ int vtkEnSightGoldReader::ReadGeometryFile(char* fileName, int timeStep)
         if (strcmp(subLine, "rectilinear") == 0)
           {
           // block rectilinear
-          lineRead = this->CreateRectilinearGridOutput(partId, line);
+          lineRead = this->CreateRectilinearGridOutput(partId, line, name);
           }
         else if (strcmp(subLine, "uniform") == 0)
           {
           // block uniform
-          lineRead = this->CreateImageDataOutput(partId, line);
+          lineRead = this->CreateImageDataOutput(partId, line, name);
           }
         else
           {
           // block iblanked
-          lineRead = this->CreateStructuredGridOutput(partId, line);
+          lineRead = this->CreateStructuredGridOutput(partId, line, name);
           }
         }
       else
         {
         // block
-        lineRead = this->CreateStructuredGridOutput(partId, line);
+        lineRead = this->CreateStructuredGridOutput(partId, line, name);
         }
       }
     else
       {
-      lineRead = this->CreateUnstructuredGridOutput(partId, line);
+      lineRead = this->CreateUnstructuredGridOutput(partId, line, name);
       if (lineRead < 0)
         {
+        free(name);
         delete this->IS;
         this->IS = NULL;
         return 0;
         }
       }
+    free(name);
     }
   
   delete this->IS;
@@ -1060,7 +1064,8 @@ int vtkEnSightGoldReader::ReadTensorsPerElement(char* fileName,
 
 //----------------------------------------------------------------------------
 int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
-                                                       char line[256])
+                                                       char line[256],
+                                                       const char* name)
 {
   int lineRead = 1;
   char subLine[256];
@@ -1089,6 +1094,19 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
     return 0;
     }
   
+  vtkUnstructuredGrid* output = vtkUnstructuredGrid::SafeDownCast(
+    this->GetOutput(partId));    
+
+  vtkCharArray* nmArray =  vtkCharArray::New();
+  nmArray->SetName("Name");
+  size_t len = strlen(name);
+  nmArray->SetNumberOfTuples(len+1);
+  char* copy = nmArray->GetPointer(0);
+  memcpy(copy, name, len);
+  copy[len] = '\0';
+  output->GetFieldData()->AddArray(nmArray);
+  nmArray->Delete();
+
   // Clear all cell ids from the last execution, if any.
   idx = this->UnstructuredPartIds->IsId(partId);
   for (i = 0; i < 16; i++)
@@ -1096,7 +1114,7 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
     this->GetCellIds(idx, i)->Reset();
     }
   
-  ((vtkUnstructuredGrid *)this->GetOutput(partId))->Allocate(1000);
+  output->Allocate(1000);
   
   while(lineRead && strncmp(line, "part", 4) != 0)
     {
@@ -1143,7 +1161,7 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
           lineRead = this->ReadNextDataLine(line);
           }
         }
-      ((vtkUnstructuredGrid*)this->GetOutput(partId))->SetPoints(points);
+      output->SetPoints(points);
       points->Delete();
       }
     else if (strncmp(line, "point", 5) == 0)
@@ -1168,8 +1186,7 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
         for (i = 0; i < numElements; i++)
           {
           nodeIds[0] = atoi(line) - 1; // because EnSight ids start at 1
-          cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
-            InsertNextCell(VTK_VERTEX, 1, nodeIds);
+          cellId = output->InsertNextCell(VTK_VERTEX, 1, nodeIds);
           this->GetCellIds(idx, vtkEnSightReader::POINT)->InsertNextId(cellId);
           lineRead = this->ReadNextDataLine(line);
           }
@@ -1179,8 +1196,7 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
         for (i = 0; i < numElements; i++)
           {
           nodeIds[0] = elementIds[i] - 1;
-          cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
-            InsertNextCell(VTK_VERTEX, 1, nodeIds);
+          cellId = output->InsertNextCell(VTK_VERTEX, 1, nodeIds);
           this->GetCellIds(idx, vtkEnSightReader::POINT)->InsertNextId(cellId);
           }
         }
@@ -1214,8 +1230,7 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
           intIds[j]--;
           nodeIds[j] = intIds[j];
           }
-        cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
-          InsertNextCell(VTK_LINE, 2, nodeIds);
+        cellId = output->InsertNextCell(VTK_LINE, 2, nodeIds);
         this->GetCellIds(idx, vtkEnSightReader::BAR2)->InsertNextId(cellId);
         lineRead = this->ReadNextDataLine(line);
         }
@@ -1248,8 +1263,7 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
           intIds[j]--;
           nodeIds[j] = intIds[j];
           }
-        cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
-          InsertNextCell(VTK_LINE, 2, nodeIds);
+        cellId = output->InsertNextCell(VTK_LINE, 2, nodeIds);
         this->GetCellIds(idx, vtkEnSightReader::BAR3)->InsertNextId(cellId);
         lineRead = this->ReadNextDataLine(line);
         }      
@@ -1295,8 +1309,7 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
             intIds[numNodes-j-1]--;
             nodeIds[numNodes-j-1] = intIds[numNodes-j-1];
             }
-          cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
-            InsertNextCell(VTK_POLYGON, numNodes, nodeIds);
+          cellId = output->InsertNextCell(VTK_POLYGON, numNodes, nodeIds);
           this->GetCellIds(idx, vtkEnSightReader::NSIDED)->InsertNextId(cellId);
           lineRead = this->ReadNextDataLine(line);
           delete [] nodeIds;
@@ -1324,8 +1337,7 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
             strcat(tempLine, " %*d");
             strcpy(formatLine, tempLine);
             }
-          cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
-            InsertNextCell(VTK_POLYGON, numNodes, nodeIds);
+          cellId = output->InsertNextCell(VTK_POLYGON, numNodes, nodeIds);
           this->GetCellIds(idx, vtkEnSightReader::NSIDED)->InsertNextId(cellId);
           delete [] nodeIds;
           delete [] intIds;
@@ -1377,8 +1389,7 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
           intIds[j]--;
           nodeIds[j] = intIds[j];
           }
-        cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
-          InsertNextCell(VTK_TRIANGLE, 3, nodeIds);
+        cellId = output->InsertNextCell(VTK_TRIANGLE, 3, nodeIds);
         this->GetCellIds(idx, cellType)->InsertNextId(cellId);
         lineRead = this->ReadNextDataLine(line);
         }      
@@ -1424,8 +1435,7 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
           intIds[j]--;
           nodeIds[j] = intIds[j];
           }
-        cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
-          InsertNextCell(VTK_QUAD, 4, nodeIds);
+        cellId = output->InsertNextCell(VTK_QUAD, 4, nodeIds);
         this->GetCellIds(idx, cellType)->InsertNextId(cellId);
         lineRead = this->ReadNextDataLine(line);
         }      
@@ -1471,8 +1481,7 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
           intIds[j]--;
           nodeIds[j] = intIds[j];
           }
-        cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
-          InsertNextCell(VTK_TETRA, 4, nodeIds);
+        cellId = output->InsertNextCell(VTK_TETRA, 4, nodeIds);
         this->GetCellIds(idx, cellType)->InsertNextId(cellId);
         lineRead = this->ReadNextDataLine(line);
         }
@@ -1518,8 +1527,7 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
           intIds[j]--;
           nodeIds[j] = intIds[j];
           }
-        cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
-          InsertNextCell(VTK_PYRAMID, 5, nodeIds);
+        cellId = output->InsertNextCell(VTK_PYRAMID, 5, nodeIds);
         this->GetCellIds(idx, cellType)->InsertNextId(cellId);
         lineRead = this->ReadNextDataLine(line);
         }          
@@ -1567,8 +1575,7 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
           intIds[j]--;
           nodeIds[j] = intIds[j];
           }
-        cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
-          InsertNextCell(VTK_HEXAHEDRON, 8, nodeIds);
+        cellId = output->InsertNextCell(VTK_HEXAHEDRON, 8, nodeIds);
         this->GetCellIds(idx, cellType)->InsertNextId(cellId);
         lineRead = this->ReadNextDataLine(line);
         }      
@@ -1614,8 +1621,7 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
           intIds[j]--;
           nodeIds[j] = intIds[j];
           }
-        cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
-          InsertNextCell(VTK_WEDGE, 6, nodeIds);
+        cellId = output->InsertNextCell(VTK_WEDGE, 6, nodeIds);
         this->GetCellIds(idx, cellType)->InsertNextId(cellId);
         lineRead = this->ReadNextDataLine(line);
         }      
@@ -1637,7 +1643,8 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
 
 //----------------------------------------------------------------------------
 int vtkEnSightGoldReader::CreateStructuredGridOutput(int partId,
-                                                     char line[256])
+                                                     char line[256],
+                                                     const char* name)
 {
   char subLine[256];
   int lineRead = 1;
@@ -1664,6 +1671,19 @@ int vtkEnSightGoldReader::CreateStructuredGridOutput(int partId,
     return 0;
     }
   
+  vtkStructuredGrid* output = vtkStructuredGrid::SafeDownCast(
+    this->GetOutput(partId));    
+
+  vtkCharArray* nmArray =  vtkCharArray::New();
+  nmArray->SetName("Name");
+  size_t len = strlen(name);
+  nmArray->SetNumberOfTuples(len+1);
+  char* copy = nmArray->GetPointer(0);
+  memcpy(copy, name, len);
+  copy[len] = '\0';
+  output->GetFieldData()->AddArray(nmArray);
+  nmArray->Delete();
+
   if (sscanf(line, " %*s %s", subLine) == 1)
     {
     if (strcmp(subLine, "iblanked") == 0)
@@ -1674,9 +1694,9 @@ int vtkEnSightGoldReader::CreateStructuredGridOutput(int partId,
 
   this->ReadNextDataLine(line);
   sscanf(line, " %d %d %d", &dimensions[0], &dimensions[1], &dimensions[2]);
-  ((vtkStructuredGrid*)this->GetOutput(partId))->SetDimensions(dimensions);
-  ((vtkStructuredGrid*)this->GetOutput(partId))->
-    SetWholeExtent(0, dimensions[0]-1, 0, dimensions[1]-1, 0, dimensions[2]-1);
+  output->SetDimensions(dimensions);
+  output->SetWholeExtent(
+    0, dimensions[0]-1, 0, dimensions[1]-1, 0, dimensions[2]-1);
   numPts = dimensions[0] * dimensions[1] * dimensions[2];
   points->Allocate(numPts);
   
@@ -1697,16 +1717,16 @@ int vtkEnSightGoldReader::CreateStructuredGridOutput(int partId,
     points->GetPoint(i, point);
     points->SetPoint(i, point[0], point[1], atof(line));
     }
-  ((vtkStructuredGrid*)this->GetOutput(partId))->SetPoints(points);
+  output->SetPoints(points);
   if (iblanked)
     {
-    ((vtkStructuredGrid*)this->GetOutput(partId))->BlankingOn();
+    output->BlankingOn();
     for (i = 0; i < numPts; i++)
       {
       this->ReadNextDataLine(line);
       if (!atoi(line))
         {
-        ((vtkStructuredGrid*)this->GetOutput(partId))->BlankPoint(i);
+        output->BlankPoint(i);
         }
       }
     }
@@ -1719,7 +1739,8 @@ int vtkEnSightGoldReader::CreateStructuredGridOutput(int partId,
 
 //----------------------------------------------------------------------------
 int vtkEnSightGoldReader::CreateRectilinearGridOutput(int partId,
-                                                      char line[256])
+                                                      char line[256],
+                                                      const char* name)
 {
   char subLine[256];
   int lineRead = 1;
@@ -1746,6 +1767,20 @@ int vtkEnSightGoldReader::CreateRectilinearGridOutput(int partId,
     this->OutputsAreValid = 0;
     return 0;
     }
+
+  vtkRectilinearGrid* output = vtkRectilinearGrid::SafeDownCast(
+    this->GetOutput(partId));    
+
+  vtkCharArray* nmArray =  vtkCharArray::New();
+  nmArray->SetName("Name");
+  size_t len = strlen(name);
+  nmArray->SetNumberOfTuples(len+1);
+  char* copy = nmArray->GetPointer(0);
+  memcpy(copy, name, len);
+  copy[len] = '\0';
+  output->GetFieldData()->AddArray(nmArray);
+  nmArray->Delete();
+
   
   if (sscanf(line, " %*s %*s %s", subLine) == 1)
     {
@@ -1757,9 +1792,9 @@ int vtkEnSightGoldReader::CreateRectilinearGridOutput(int partId,
 
   this->ReadNextDataLine(line);
   sscanf(line, " %d %d %d", &dimensions[0], &dimensions[1], &dimensions[2]);
-  ((vtkRectilinearGrid*)this->GetOutput(partId))->SetDimensions(dimensions);
-  ((vtkRectilinearGrid*)this->GetOutput(partId))->
-    SetWholeExtent(0, dimensions[0]-1, 0, dimensions[1]-1, 0, dimensions[2]-1);
+  output->SetDimensions(dimensions);
+  output->SetWholeExtent(
+    0, dimensions[0]-1, 0, dimensions[1]-1, 0, dimensions[2]-1);
   xCoords->Allocate(dimensions[0]);
   yCoords->Allocate(dimensions[1]);
   zCoords->Allocate(dimensions[2]);
@@ -1794,9 +1829,9 @@ int vtkEnSightGoldReader::CreateRectilinearGridOutput(int partId,
       }
     }
   
-  ((vtkRectilinearGrid*)this->GetOutput(partId))->SetXCoordinates(xCoords);  
-  ((vtkRectilinearGrid*)this->GetOutput(partId))->SetYCoordinates(yCoords);
-  ((vtkRectilinearGrid*)this->GetOutput(partId))->SetZCoordinates(zCoords);
+  output->SetXCoordinates(xCoords);  
+  output->SetYCoordinates(yCoords);
+  output->SetZCoordinates(zCoords);
 
   xCoords->Delete();
   yCoords->Delete();
@@ -1808,7 +1843,9 @@ int vtkEnSightGoldReader::CreateRectilinearGridOutput(int partId,
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSightGoldReader::CreateImageDataOutput(int partId, char line[256])
+int vtkEnSightGoldReader::CreateImageDataOutput(int partId, 
+                                                char line[256],
+                                                const char* name)
 {
   char subLine[256];
   int lineRead = 1;
@@ -1833,6 +1870,19 @@ int vtkEnSightGoldReader::CreateImageDataOutput(int partId, char line[256])
     this->OutputsAreValid = 0;
     return 0;
     }
+
+  vtkImageData* output = vtkImageData::SafeDownCast(
+    this->GetOutput(partId));    
+
+  vtkCharArray* nmArray =  vtkCharArray::New();
+  nmArray->SetName("Name");
+  size_t len = strlen(name);
+  nmArray->SetNumberOfTuples(len+1);
+  char* copy = nmArray->GetPointer(0);
+  memcpy(copy, name, len);
+  copy[len] = '\0';
+  output->GetFieldData()->AddArray(nmArray);
+  nmArray->Delete();
   
   if (sscanf(line, " %*s %*s %s", subLine) == 1)
     {
@@ -1844,17 +1894,16 @@ int vtkEnSightGoldReader::CreateImageDataOutput(int partId, char line[256])
 
   this->ReadNextDataLine(line);
   sscanf(line, " %d %d %d", &dimensions[0], &dimensions[1], &dimensions[2]);
-  ((vtkImageData*)this->GetOutput(partId))->SetDimensions(dimensions);
-  ((vtkImageData*)this->GetOutput(partId))->
-    SetWholeExtent(0, dimensions[0]-1, 0, dimensions[1]-1, 0, dimensions[2]-1);
+  output->SetDimensions(dimensions);
+  output->SetWholeExtent(
+    0, dimensions[0]-1, 0, dimensions[1]-1, 0, dimensions[2]-1);
   
   for (i = 0; i < 3; i++)
     {
     this->ReadNextDataLine(line);
     sscanf(line, " %f", &origin[i]);
     }
-  ((vtkImageData*)this->GetOutput(partId))->SetOrigin(origin[0], origin[1],
-                                                      origin[2]);
+  output->SetOrigin(origin[0], origin[1], origin[2]);
   
   for (i = 0; i < 3; i++)
     {
@@ -1862,8 +1911,7 @@ int vtkEnSightGoldReader::CreateImageDataOutput(int partId, char line[256])
     sscanf(line, " %f", &delta[i]);
     }
   
-  ((vtkImageData*)this->GetOutput(partId))->SetSpacing(delta[0], delta[1],
-                                                       delta[2]);
+  output->SetSpacing(delta[0], delta[1], delta[2]);
   
   if (iblanked)
     {

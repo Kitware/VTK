@@ -107,12 +107,16 @@ protected:
   // Description:
   // Read an unstructured part (partId) from the geometry file and create a
   // vtkUnstructuredGrid output.  Return 0 if EOF reached.
-  virtual int CreateUnstructuredGridOutput(int partId, char line[256]);
+  virtual int CreateUnstructuredGridOutput(int partId, 
+                                           char line[256],
+                                           const char* name);
   
   // Description:
   // Read a structured part from the geometry file and create a
   // vtkStructuredGridOutput.  Return 0 if EOF reached.
-  virtual int CreateStructuredGridOutput(int partId, char line[256]);
+  virtual int CreateStructuredGridOutput(int partId, 
+                                         char line[256],
+                                         const char* name);
   
   // Description:
   // Internal function to read in a line up to 80 characters.

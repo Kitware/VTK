@@ -18,6 +18,7 @@
 #include "vtkEnSight6Reader.h"
 
 #include "vtkCellData.h"
+#include "vtkCharArray.h"
 #include "vtkFloatArray.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
@@ -29,10 +30,11 @@
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 
+
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSight6Reader, "1.39");
+vtkCxxRevisionMacro(vtkEnSight6Reader, "1.40");
 vtkStandardNewMacro(vtkEnSight6Reader);
 
 //----------------------------------------------------------------------------
@@ -287,16 +289,18 @@ int vtkEnSight6Reader::ReadGeometryFile(char* fileName, int timeStep)
     partId--; // EnSight starts #ing at 1.
     
     this->ReadLine(line); // part description line
+    char *name = strdup(line);
     lineRead = this->ReadNextDataLine(line);
     
     if (strncmp(line, "block", 5) == 0)
       {
-      lineRead = this->CreateStructuredGridOutput(partId, line);
+      lineRead = this->CreateStructuredGridOutput(partId, line, name);
       }
     else
       {
-      lineRead = this->CreateUnstructuredGridOutput(partId, line);
+      lineRead = this->CreateUnstructuredGridOutput(partId, line, name);
       }
+    free(name);
     }
   
   delete this->IS;
@@ -1429,7 +1433,8 @@ int vtkEnSight6Reader::ReadTensorsPerElement(char* fileName, char* description,
 
 //----------------------------------------------------------------------------
 int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
-                                                    char line[256])
+                                                    char line[256],
+                                                    const char* name)
 {
   int lineRead = 1;
   char subLine[256];
@@ -1457,6 +1462,19 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
     return 0;
     }
   
+  vtkUnstructuredGrid* output = vtkUnstructuredGrid::SafeDownCast(
+    this->GetOutput(partId));    
+
+  vtkCharArray* nmArray =  vtkCharArray::New();
+  nmArray->SetName("Name");
+  size_t len = strlen(name);
+  nmArray->SetNumberOfTuples(len+1);
+  char* copy = nmArray->GetPointer(0);
+  memcpy(copy, name, len);
+  copy[len] = '\0';
+  output->GetFieldData()->AddArray(nmArray);
+  nmArray->Delete();
+
   // Clear all cell ids from the last execution, if any.
   idx = this->UnstructuredPartIds->IsId(partId);
   for (i = 0; i < 16; i++)
@@ -1464,7 +1482,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
     this->GetCellIds(idx, i)->Reset();
     }
   
-  ((vtkUnstructuredGrid *)this->GetOutput(partId))->Allocate(1000);
+  output->Allocate(1000);
   
   while(lineRead && strncmp(line, "part", 4) != 0)
     {
@@ -1505,8 +1523,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
             nodeIds[0] = atoi(line) - 1;
             }
           }
-        cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
-          InsertNextCell(VTK_VERTEX, 1, nodeIds);
+        cellId = output->InsertNextCell(VTK_VERTEX, 1, nodeIds);
         this->GetCellIds(idx, vtkEnSightReader::POINT)->InsertNextId(cellId);
         lineRead = this->ReadNextDataLine(line);
         }
@@ -1543,8 +1560,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
           {
           nodeIds[j] = intIds[j];
           }
-        cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
-          InsertNextCell(VTK_LINE, 2, nodeIds);
+        cellId = output->InsertNextCell(VTK_LINE, 2, nodeIds);
         this->GetCellIds(idx, vtkEnSightReader::BAR2)->InsertNextId(cellId);
         lineRead = this->ReadNextDataLine(line);
         }
@@ -1582,8 +1598,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
           {
           nodeIds[j] = intIds[j];
           }
-        cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
-          InsertNextCell(VTK_LINE, 2, nodeIds);
+        cellId = output->InsertNextCell(VTK_LINE, 2, nodeIds);
         this->GetCellIds(idx, vtkEnSightReader::BAR3)->InsertNextId(cellId);
         lineRead = this->ReadNextDataLine(line);
         }
@@ -1637,8 +1652,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
           {
           nodeIds[j] = intIds[j];
           }
-        cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
-          InsertNextCell(VTK_TRIANGLE, 3, nodeIds);
+        cellId = output->InsertNextCell(VTK_TRIANGLE, 3, nodeIds);
         this->GetCellIds(idx, cellType)->InsertNextId(cellId);
         lineRead = this->ReadNextDataLine(line);
         }
@@ -1693,8 +1707,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
           {
           nodeIds[j] = intIds[j];
           }
-        cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
-          InsertNextCell(VTK_QUAD, 4, nodeIds);
+        cellId = output->InsertNextCell(VTK_QUAD, 4, nodeIds);
         this->GetCellIds(idx, cellType)->InsertNextId(cellId);
         lineRead = this->ReadNextDataLine(line);
         }
@@ -1750,8 +1763,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
           {
           nodeIds[j] = intIds[j];
           }
-        cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
-            InsertNextCell(VTK_TETRA, 4, nodeIds);
+        cellId = output->InsertNextCell(VTK_TETRA, 4, nodeIds);
         this->GetCellIds(idx, cellType)->InsertNextId(cellId);
         lineRead = this->ReadNextDataLine(line);
         }
@@ -1807,8 +1819,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
           {
           nodeIds[j] = intIds[j];
           }
-        cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
-          InsertNextCell(VTK_PYRAMID, 5, nodeIds);
+        cellId = output->InsertNextCell(VTK_PYRAMID, 5, nodeIds);
         this->GetCellIds(idx, cellType)->InsertNextId(cellId);
         lineRead = this->ReadNextDataLine(line);
         }
@@ -1867,8 +1878,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
           {
           nodeIds[j] = intIds[j];
           }
-        cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
-          InsertNextCell(VTK_HEXAHEDRON, 8, nodeIds);
+        cellId = output->InsertNextCell(VTK_HEXAHEDRON, 8, nodeIds);
         this->GetCellIds(idx, cellType)->InsertNextId(cellId);
         lineRead = this->ReadNextDataLine(line);
         }
@@ -1925,8 +1935,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
           {
           nodeIds[j] = intIds[j];
           }
-        cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
-          InsertNextCell(VTK_WEDGE, 6, nodeIds);
+        cellId = output->InsertNextCell(VTK_WEDGE, 6, nodeIds);
         this->GetCellIds(idx, cellType)->InsertNextId(cellId);
         lineRead = this->ReadNextDataLine(line);
         }
@@ -1939,14 +1948,14 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
       }
     }
 
-  ((vtkUnstructuredGrid*)this->GetOutput(partId))->
-    SetPoints(this->UnstructuredPoints);
+  output->SetPoints(this->UnstructuredPoints);
   return lineRead;
 }
 
 //----------------------------------------------------------------------------
 int vtkEnSight6Reader::CreateStructuredGridOutput(int partId,
-                                                  char line[256])
+                                                  char line[256],
+                                                  const char* name)
 {
   char subLine[256];
   char formatLine[256], tempLine[256];
@@ -1976,6 +1985,19 @@ int vtkEnSight6Reader::CreateStructuredGridOutput(int partId,
     return 0;
     }
   
+  vtkStructuredGrid* output = vtkStructuredGrid::SafeDownCast(
+    this->GetOutput(partId));    
+
+  vtkCharArray* nmArray =  vtkCharArray::New();
+  nmArray->SetName("Name");
+  size_t len = strlen(name);
+  nmArray->SetNumberOfTuples(len+1);
+  char* copy = nmArray->GetPointer(0);
+  memcpy(copy, name, len);
+  copy[len] = '\0';
+  output->GetFieldData()->AddArray(nmArray);
+  nmArray->Delete();
+
   if (sscanf(line, " %*s %s", subLine) == 1)
     {
     if (strcmp(subLine, "iblanked") == 0)
@@ -1986,9 +2008,9 @@ int vtkEnSight6Reader::CreateStructuredGridOutput(int partId,
 
   this->ReadNextDataLine(line);
   sscanf(line, " %d %d %d", &dimensions[0], &dimensions[1], &dimensions[2]);
-  ((vtkStructuredGrid*)this->GetOutput(partId))->SetDimensions(dimensions);
-  ((vtkStructuredGrid*)this->GetOutput(partId))->
-    SetWholeExtent(0, dimensions[0]-1, 0, dimensions[1]-1, 0, dimensions[2]-1);
+  output->SetDimensions(dimensions);
+  output->SetWholeExtent(
+    0, dimensions[0]-1, 0, dimensions[1]-1, 0, dimensions[2]-1);
   numPts = dimensions[0] * dimensions[1] * dimensions[2];
   points->Allocate(numPts);
   
@@ -2059,10 +2081,10 @@ int vtkEnSight6Reader::CreateStructuredGridOutput(int partId,
   
   numLines = numPts / 10;
   moreBlanking = numPts % 10;
-  ((vtkStructuredGrid*)this->GetOutput(partId))->SetPoints(points);
+  output->SetPoints(points);
   if (iblanked)
     {
-    ((vtkStructuredGrid*)this->GetOutput(partId))->BlankingOn();
+    output->BlankingOn();
     for (i = 0; i < numLines; i++)
       {
       this->ReadNextDataLine(line);
@@ -2073,7 +2095,7 @@ int vtkEnSight6Reader::CreateStructuredGridOutput(int partId,
         {
         if (!iblanks[j])
           {
-          ((vtkStructuredGrid*)this->GetOutput(partId))->BlankPoint(i*numLines+j);
+          output->BlankPoint(i*numLines+j);
           }
         }
       }
@@ -2088,7 +2110,7 @@ int vtkEnSight6Reader::CreateStructuredGridOutput(int partId,
         sscanf(line, formatLine, &iblanks[j]);
         if (!iblanks[j])
           {
-          ((vtkStructuredGrid*)this->GetOutput(partId))->BlankPoint(i*numLines+j);
+          output->BlankPoint(i*numLines+j);
           }
         strcat(tempLine, " %*d");
         strcpy(formatLine, tempLine);

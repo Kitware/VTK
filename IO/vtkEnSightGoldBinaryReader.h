@@ -105,22 +105,26 @@ protected:
   // Read an unstructured part (partId) from the geometry file and create a
   // vtkUnstructuredGrid output.  Return 0 if EOF reached. Return -1 if
   // an error occurred.
-  virtual int CreateUnstructuredGridOutput(int partId, char line[80]);
+  virtual int CreateUnstructuredGridOutput(int partId, 
+                                           char line[80],
+                                           const char* name);
   
   // Description:
   // Read a structured part from the geometry file and create a
   // vtkStructuredGrid output.  Return 0 if EOF reached.
-  virtual int CreateStructuredGridOutput(int partId, char line[256]);
+  virtual int CreateStructuredGridOutput(int partId, 
+                                         char line[256],
+                                         const char* name);
   
   // Description:
   // Read a structured part from the geometry file and create a
   // vtkRectilinearGrid output.  Return 0 if EOF reached.
-  int CreateRectilinearGridOutput(int partId, char line[256]);
+  int CreateRectilinearGridOutput(int partId, char line[256], const char* name);
   
   // Description:
   // Read a structured part from the geometry file and create a
   // vtkImageData output.  Return 0 if EOF reached.
-  int CreateImageDataOutput(int partId, char line[80]);
+  int CreateImageDataOutput(int partId, char line[80], const char* name);
   
   // Description:
   // Internal function to read in a line up to 80 characters.
