@@ -66,10 +66,12 @@ public:
   // Insert point into object. Range checking performed and memory
   // allocated as necessary.
   virtual void InsertPoint(int id, float x[3]) = 0;
+  void InsertPoint(int id, float x, float y, float z);
 
   // Description:
   // Insert point into next available slot. Returns point id of slot.
   virtual int InsertNextPoint(float x[3]) = 0;
+  int InsertNextPoint(float x, float y, float z);
 
   // Description:
   // Reclaim any extra memory.

@@ -24,6 +24,30 @@ void vtkNormals::GetNormal(int id, float n[3])
 }
 
 // Description:
+// Insert normal into position indicated.
+void vtkNormals::InsertNormal(int id, float nx, float ny, float nz)
+{
+  float n[3];
+
+  n[0] = nx;
+  n[1] = ny;
+  n[2] = nz;
+  this->InsertNormal(id,n);
+}
+
+// Description:
+// Insert normal into position indicated.
+int vtkNormals::InsertNextNormal(float nx, float ny, float nz)
+{
+  float n[3];
+
+  n[0] = nx;
+  n[1] = ny;
+  n[2] = nz;
+  return this->InsertNextNormal(n);
+}
+
+// Description:
 // Given a list of pt ids, return an array of corresponding normals.
 void vtkNormals::GetNormals(vtkIdList& ptId, vtkFloatNormals& fp)
 {

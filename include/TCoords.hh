@@ -68,11 +68,13 @@ public:
   // Insert texture coordinate into object. Range checking performed and 
   // memory allocated as necessary.
   virtual void InsertTCoord(int id, float *tc) = 0;
+  void InsertTCoord(int id, float tc1, float tc2, float tc3);
 
   // Description:
   // Insert texture coordinate into next available slot. Returns point
   // id of slot.
   virtual int InsertNextTCoord(float *tc) = 0;
+  int InsertNextTCoord(float tc1, float tc2, float tc3);
 
   // Description:
   // Reclaim any extra memory.

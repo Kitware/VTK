@@ -66,10 +66,12 @@ public:
   // Insert vector into object. Range checking performed and memory
   // allocated as necessary.
   virtual void InsertVector(int id, float v[3]) = 0;
+  void InsertVector(int id, float vx, float vy, float vz);
 
   // Description:
   // Insert vector into next available slot. Returns point id of slot.
   virtual int InsertNextVector(float v[3]) = 0;
+  int InsertNextVector(float vx, float vy, float vz);
 
   // Description:
   // Reclaim any extra memory.

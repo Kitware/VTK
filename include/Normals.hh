@@ -67,10 +67,12 @@ public:
   // Insert normal into object. Range checking performed and memory
   // allocated as necessary.
   virtual void InsertNormal(int id, float n[3]) = 0;
+  void InsertNormal(int id, float nx, float ny, float nz);
 
   // Description:
   // Insert normal into next available slot. Returns point id of slot.
   virtual int InsertNextNormal(float n[3]) = 0;
+  int InsertNextNormal(float nx, float ny, float nz);
 
   // Description:
   // Reclaim any extra memory.

@@ -30,6 +30,30 @@ void vtkVectors::GetVector(int id, float v[3])
 }
 
 // Description:
+// Insert vector into position indicated.
+void vtkVectors::InsertVector(int id, float vx, float vy, float vz)
+{
+  float v[3];
+
+  v[0] = vx;
+  v[1] = vy;
+  v[2] = vz;
+  this->InsertVector(id,v);
+}
+
+// Description:
+// Insert vector into position indicated.
+int vtkVectors::InsertNextVector(float vx, float vy, float vz)
+{
+  float v[3];
+
+  v[0] = vx;
+  v[1] = vy;
+  v[2] = vz;
+  return this->InsertNextVector(v);
+}
+
+// Description:
 // Given a list of pt ids, return an array of vectors.
 void vtkVectors::GetVectors(vtkIdList& ptId, vtkFloatVectors& fp)
 {

@@ -15,6 +15,25 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "WarpScal.hh"
 
+vtkWarpScalar::vtkWarpScalar()
+{
+  this->ScaleFactor = 1.0;
+  this->UseNormal = 0;
+  this->Normal[0] = 0.0;
+  this->Normal[1] = 0.0;
+  this->Normal[2] = 1.0;
+}
+
+float *vtkWarpScalar::DataNormal(int id, vtkNormals *normals)
+{
+  return normals->GetNormal(id);
+}
+
+float *vtkWarpScalar::InstanceNormal(int id, vtkNormals *normals)
+{
+  return this->Normal;
+}
+
 void vtkWarpScalar::Execute()
 {
   vtkPoints *inPts;
@@ -34,10 +53,21 @@ void vtkWarpScalar::Execute()
   inNormals = pd->GetNormals();
   inScalars = pd->GetScalars();
 
-  if ( !inNormals || !inPts || !inScalars )
+  if ( !inPts || !inScalars )
     {
-    vtkErrorMacro(<<"No input data");
+    vtkErrorMacro(<<"No data to warp");
     return;
+    }
+
+  if ( inNormals && !this->UseNormal )
+    {
+    this->PointNormal = &vtkWarpScalar::DataNormal;
+    vtkDebugMacro(<<"Using data normals");
+    }
+  else
+    {
+    this->PointNormal = &vtkWarpScalar::InstanceNormal;
+    vtkDebugMacro(<<"Using Normal instance variable");
     }
 
   newPts = new vtkFloatPoints(inPts->GetNumberOfPoints());
@@ -47,7 +77,7 @@ void vtkWarpScalar::Execute()
   for (ptId=0; ptId < inPts->GetNumberOfPoints(); ptId++)
     {
     x = inPts->GetPoint(ptId);
-    n = inNormals->GetNormal(ptId);
+    n = (this->*(PointNormal))(ptId,inNormals);
     s = inScalars->GetScalar(ptId);
     for (i=0; i<3; i++)
       {
@@ -69,4 +99,7 @@ void vtkWarpScalar::PrintSelf(ostream& os, vtkIndent indent)
   vtkPointSetToPointSetFilter::PrintSelf(os,indent);
 
   os << indent << "Scale Factor: " << this->ScaleFactor << "\n";
+  os << indent << "Use Normal: " << (this->UseNormal ? "On\n" : "Off\n");
+  os << indent << "Normal: (" << this->Normal[0] << ", " 
+     << this->Normal[1] << ", " << this->Normal[2] << ")\n";
 }
