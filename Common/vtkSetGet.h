@@ -162,6 +162,7 @@ virtual type Get##name () { \
 virtual void Set##name (const char* _arg) \
   { \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting " << #name " to " << _arg ); \
+  if ( this->name == NULL && _arg == NULL) { return;} \
   if ( this->name && _arg && (!strcmp(this->name,_arg))) { return;} \
   if (this->name) { delete [] this->name; } \
   if (_arg) \
