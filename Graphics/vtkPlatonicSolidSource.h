@@ -23,7 +23,7 @@
 #ifndef __vtkPlatonicSolidSource_h
 #define __vtkPlatonicSolidSource_h
 
-#include "vtkPolyDataSource.h"
+#include "vtkPolyDataAlgorithm.h"
 
 #define VTK_SOLID_TETRAHEDRON  0
 #define VTK_SOLID_CUBE         1
@@ -31,11 +31,11 @@
 #define VTK_SOLID_ICOSAHEDRON  3
 #define VTK_SOLID_DODECAHEDRON 4
 
-class VTK_GRAPHICS_EXPORT vtkPlatonicSolidSource : public vtkPolyDataSource 
+class VTK_GRAPHICS_EXPORT vtkPlatonicSolidSource : public vtkPolyDataAlgorithm 
 {
 public:
   static vtkPlatonicSolidSource *New();
-  vtkTypeRevisionMacro(vtkPlatonicSolidSource,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkPlatonicSolidSource,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -54,10 +54,10 @@ public:
     {this->SetSolidType(VTK_SOLID_DODECAHEDRON);}
 
 protected:
-  vtkPlatonicSolidSource() : SolidType(VTK_SOLID_TETRAHEDRON) {}
+  vtkPlatonicSolidSource();
   ~vtkPlatonicSolidSource() {}
 
-  void Execute();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   int SolidType;
 
 private:

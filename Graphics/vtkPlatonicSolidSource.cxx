@@ -14,13 +14,15 @@
 =========================================================================*/
 #include "vtkPlatonicSolidSource.h"
 
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkPlatonicSolidSource, "1.3");
+vtkCxxRevisionMacro(vtkPlatonicSolidSource, "1.4");
 vtkStandardNewMacro(vtkPlatonicSolidSource);
 
 // The geometry and topology of each solid. Solids are centered at
@@ -77,11 +79,24 @@ static vtkIdType IcosaVerts[] = {
   2,4,9, 2,8,6
 };
 
-
-
-void vtkPlatonicSolidSource::Execute()
+vtkPlatonicSolidSource::vtkPlatonicSolidSource()
 {
-  vtkPolyData *output = this->GetOutput();
+  this->SolidType = VTK_SOLID_TETRAHEDRON;
+  this->SetNumberOfInputPorts(0);
+}
+
+int vtkPlatonicSolidSource::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
+{
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the ouptut
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   int i;
   double *pptr, *solidPoints=NULL, solidScale=1.0;
   vtkIdType *cptr, numPts=0, numCells=0, cellSize=0, *solidVerts=NULL;
@@ -172,6 +187,8 @@ void vtkPlatonicSolidSource::Execute()
   pts->Delete();
   polys->Delete();
   colors->Delete();
+
+  return 1;
 }
 
 void vtkPlatonicSolidSource::PrintSelf(ostream& os, vtkIndent indent)
@@ -200,4 +217,3 @@ void vtkPlatonicSolidSource::PrintSelf(ostream& os, vtkIndent indent)
     os << "Dodecahedron\n";
     }
 }
-

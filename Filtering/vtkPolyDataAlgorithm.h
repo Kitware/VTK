@@ -35,6 +35,7 @@
 #define __vtkPolyDataAlgorithm_h
 
 #include "vtkAlgorithm.h"
+#include "vtkPolyData.h" // makes things a bit easier
 
 class vtkDataSet;
 class vtkPolyData;
