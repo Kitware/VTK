@@ -9,12 +9,8 @@ if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdat
 
 # You can use vtkAssembly to do the same thing, but this approach provides
 # hands-on control over the orientation/position of each part relative to 
-# the others
-
-
-# set up a dummy vtkLinearTransformConcatenation namespace
-# (this is a hack - I wish the wrappers would do static functions properly)
-vtkLinearTransformConcatenation vtkLinearConcatenation
+# the others i.e. you are not restricted to using vtkProp3D's methods for
+# modifying the transform.
 
 # create a rendering window and renderer
 vtkRenderer ren1
@@ -22,6 +18,7 @@ vtkRenderWindow renWin
     renWin AddRenderer ren1
 vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
+
 
 # set up first set of polydata
 vtkCylinderSource c1
@@ -53,13 +50,16 @@ t2t Translate 0 1.6 0
 vtkTransform t2r
 
 # concatenate with initial transform
-set t2 [vtkLinearConcatenation Concatenate t1 t2t t2r]
+vtkLinearTransformConcatenation t2
+t2 Concatenate t1
+t2 Concatenate t2t
+t2 Concatenate t2r
 
 vtkDataSetMapper m2
 m2 SetInput [c2 GetOutput]
 
 vtkActor a2
-a2 SetUserTransform $t2
+a2 SetUserTransform t2
 a2 SetMapper m2
 [a2 GetProperty] SetColor 0.0 0.7 1.0
 
@@ -77,13 +77,16 @@ t3t Translate 0 1.6 0
 vtkTransform t3r
 
 # concatenate with previous segment
-set t3 [vtkLinearConcatenation Concatenate $t2 t3t t3r]
+vtkLinearTransformConcatenation t3
+t3 Concatenate t2
+t3 Concatenate t3t
+t3 Concatenate t3r
 
 vtkDataSetMapper m3
 m3 SetInput [c3 GetOutput]
 
 vtkActor a3
-a3 SetUserTransform $t3
+a3 SetUserTransform t3
 a3 SetMapper m3
 [a3 GetProperty] SetColor 0.9 0.9 0
 
