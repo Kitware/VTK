@@ -75,9 +75,6 @@ public:
   int *GetExecuteExtent() 
     {return this->ExecuteExtent;}
   
-  // Description:
-  virtual void PropagateUpdateExtent(vtkDataObject *output);
-  
 protected:
   vtkImageSource();
   ~vtkImageSource() {};
@@ -90,6 +87,10 @@ protected:
   
   void Execute();
   virtual void Execute(vtkImageData *data);
+
+  // a helper method that sets the extent and allocates the output 
+  // passed into it and returns it as an image data
+  vtkImageData *AllocateOutputData(vtkDataObject *out);
 
   void ComputeRequiredInputUpdateExtent( int *vtkNotUsed(in), 
 					 int *vtkNotUsed(out) ) 

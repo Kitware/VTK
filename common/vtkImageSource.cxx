@@ -91,15 +91,6 @@ vtkImageData *vtkImageSource::GetOutput()
 
 
 //----------------------------------------------------------------------------
-void vtkImageSource::PropagateUpdateExtent(vtkDataObject *out)
-{
-  vtkImageData *output = (vtkImageData*)out;
-
-  this->vtkSource::PropagateUpdateExtent(output);
-}
-
-
-//----------------------------------------------------------------------------
 // Convert to Imaging API
 void vtkImageSource::Execute()
 {
@@ -121,3 +112,17 @@ void vtkImageSource::Execute(vtkImageData *)
   vtkErrorMacro(<< "Execute(): Method not defined.");
 }
 
+
+vtkImageData *vtkImageSource::AllocateOutputData(vtkDataObject *out)
+{
+  vtkImageData *res = vtkImageData::SafeDownCast(out);
+  if (!res)
+    {
+    vtkWarningMacro("Call to AllocateOutputData with non vtkImageData output");
+    return NULL;
+    }
+  res->SetExtent(res->GetUpdateExtent());
+  res->AllocateScalars();
+
+  return res;
+}
