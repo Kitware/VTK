@@ -123,7 +123,7 @@ public:
   vtkBooleanMacro(HSVWrap, int);
  
   // Should be deprecated at some point:
-  VTK_LEGACY(void SetColorSpaceToHSVNoWrap()){this->SetColorSpace(VTK_CTF_HSV);
+  void SetColorSpaceToHSVNoWrap(){this->SetColorSpace(VTK_CTF_HSV);
                                   this->SetHSVWrap(0);};
     
   // Description:
