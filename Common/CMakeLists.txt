@@ -72,6 +72,7 @@ vtkFunctionSet.cxx
 vtkGeneralTransform.cxx
 vtkGenericCell.cxx
 vtkHeap.cxx
+vtkHexagonalPrism.cxx
 vtkHexahedron.cxx
 vtkHierarchicalBoxDataSet.cxx
 vtkHierarchicalBoxVisitor.cxx
@@ -133,6 +134,7 @@ vtkOrderedTriangulator.cxx
 vtkOutputWindow.cxx
 vtkOverrideInformation.cxx
 vtkOverrideInformationCollection.cxx
+vtkPentagonalPrism.cxx
 vtkPerspectiveTransform.cxx
 vtkPixel.cxx
 vtkPlane.cxx

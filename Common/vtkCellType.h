@@ -46,6 +46,8 @@
 #define VTK_HEXAHEDRON    12
 #define VTK_WEDGE         13
 #define VTK_PYRAMID       14
+#define VTK_PENTAGONAL_PRISM 15
+#define VTK_HEXAGONAL_PRISM  16
 
 // Quadratic, isoparametric cells
 #define VTK_QUADRATIC_EDGE       21
