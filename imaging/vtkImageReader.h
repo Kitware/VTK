@@ -60,8 +60,8 @@ public:
 
   // Description:
   // Set/Get the file format.  Pixels are this type in the file.
-  vtkSetMacro(InputScalarType, int);
-  vtkGetMacro(InputScalarType, int);
+  vtkSetMacro(DataScalarType, int);
+  vtkGetMacro(DataScalarType, int);
   
   // Description:
   // Get/Set the image extent.  This is an alternative way of setting
@@ -124,7 +124,7 @@ public:
 
   
   // following should only be used by methods or template helpers, not users
-  int InputScalarType;
+  int DataScalarType;
   ifstream *File;
   int FileSize;
   int HeaderSize;

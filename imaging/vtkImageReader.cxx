@@ -49,7 +49,7 @@ vtkImageReader::vtkImageReader()
   int idx;
   
   this->File = NULL;
-  this->InputScalarType = VTK_SHORT;
+  this->DataScalarType = VTK_SHORT;
   this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS,
 		VTK_IMAGE_Z_AXIS, VTK_IMAGE_COMPONENT_AXIS);
 
@@ -106,8 +106,8 @@ void vtkImageReader::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "FileName: " << this->FileName << "\n";
     }
 
-  os << indent << "InputScalarType: " 
-     << vtkImageScalarTypeNameMacro(this->InputScalarType) << "\n";
+  os << indent << "DataScalarType: " 
+     << vtkImageScalarTypeNameMacro(this->DataScalarType) << "\n";
 
   os << indent << "DataDimensions: (" << this->DataDimensions[0];
   for (idx = 1; idx < VTK_IMAGE_DIMENSIONS; ++idx)
@@ -276,7 +276,7 @@ void vtkImageReader::Initialize()
     }
   
   // Determine the expected length of the data ...
-  switch (this->InputScalarType)
+  switch (this->DataScalarType)
     {
     case VTK_FLOAT:
       this->PixelSize = sizeof(float);
@@ -294,7 +294,7 @@ void vtkImageReader::Initialize()
       this->PixelSize = sizeof(unsigned char);
       break;
     default:
-      vtkErrorMacro(<< "Initialize: Unknown InputScalarType");
+      vtkErrorMacro(<< "Initialize: Unknown DataScalarType");
       return;
     }
 
@@ -502,7 +502,7 @@ void vtkImageReader::UpdateFromFile(vtkImageRegion *region)
   void *ptr;
   
   // Call the correct templated function for the output
-  switch (this->GetInputScalarType())
+  switch (this->GetDataScalarType())
     {
     case VTK_FLOAT:
       vtkImageReaderUpdate1(this, region, (float *)(ptr));
@@ -533,7 +533,7 @@ vtkImageSource *vtkImageReader::GetOutput()
   this->CheckCache();
   if (this->Output->GetScalarType() == VTK_VOID)
     {
-    this->Output->SetScalarType(this->InputScalarType);
+    this->Output->SetScalarType(this->DataScalarType);
     }
   
   return this->Output;
