@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.15");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.16");
 
 vtkParallelRenderManager::vtkParallelRenderManager()
 {
@@ -568,7 +568,7 @@ void vtkParallelRenderManager::StartRender()
                            vtkParallelRenderManager::WIN_INFO_INT_SIZE, 
                            id,
                            vtkParallelRenderManager::WIN_INFO_INT_TAG);
-    this->Controller->Send((float *)(&winInfoDouble), 
+    this->Controller->Send((double *)(&winInfoDouble), 
                            vtkParallelRenderManager::WIN_INFO_DOUBLE_SIZE,
                            id, 
                            vtkParallelRenderManager::WIN_INFO_DOUBLE_TAG);
@@ -1604,7 +1604,7 @@ void vtkParallelRenderManager::SatelliteStartRender()
     return;
     }
   
-  if (!this->Controller->Receive((float *)(&winInfoDouble),
+  if (!this->Controller->Receive((double *)(&winInfoDouble),
                                  vtkParallelRenderManager::WIN_INFO_DOUBLE_SIZE, 
                                  this->RootProcessId,
                                  vtkParallelRenderManager::WIN_INFO_DOUBLE_TAG))
