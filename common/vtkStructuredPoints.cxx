@@ -326,7 +326,7 @@ vtkCell *vtkStructuredPoints::FindAndGetCell(float x[3], vtkCell *vtkNotUsed(cel
   for (i=0; i<3; i++) 
     {
     d = x[i] - this->Origin[i];
-    if ( d < 0.0 || d > ((this->Dimensions[i]-1)*this->AspectRatio[i]) ) 
+    if ( d < 0.0 || d >= ((this->Dimensions[i]-1)*this->AspectRatio[i]) ) 
       {
       return NULL;
       } 
