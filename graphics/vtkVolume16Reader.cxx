@@ -236,7 +236,7 @@ vtkScalars *vtkVolume16Reader::ReadImage(int sliceNumber)
   char filename[1024];
 
   // build the file name. if there is no prefix, just use the slice number
-  if (this->FilePattern)
+  if (this->FilePrefix)
     {
     sprintf (filename, this->FilePattern, this->FilePrefix, sliceNumber);
     }
