@@ -1,7 +1,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkScalars.h"
+#include "vtkFloatArray.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkRectilinearGridGeometryFilter.h"
 #include "vtkPolyDataMapper.h"
@@ -41,14 +41,14 @@ int main( int argc, char *argv[] )
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
     iren->SetRenderWindow(renWin);
 
-  vtkScalars *xCoords = vtkScalars::New();
-  for (i=0; i<47; i++) xCoords->InsertScalar(i,x[i]);
+  vtkFloatArray *xCoords = vtkFloatArray::New();
+  for (i=0; i<47; i++) xCoords->InsertNextValue(x[i]);
   
-  vtkScalars *yCoords = vtkScalars::New();
-  for (i=0; i<33; i++) yCoords->InsertScalar(i,y[i]);
+  vtkFloatArray *yCoords = vtkFloatArray::New();
+  for (i=0; i<33; i++) yCoords->InsertNextValue(y[i]);
   
-  vtkScalars *zCoords = vtkScalars::New();
-  for (i=0; i<44; i++) zCoords->InsertScalar(i,z[i]);
+  vtkFloatArray *zCoords = vtkFloatArray::New();
+  for (i=0; i<44; i++) zCoords->InsertNextValue(z[i]);
   
   vtkRectilinearGrid *rgrid = vtkRectilinearGrid::New();
     rgrid->SetDimensions(47,33,44);
