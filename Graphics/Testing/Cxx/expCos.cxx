@@ -93,7 +93,7 @@ int main( int argc, char *argv[] )
   ren->ResetCameraClippingRange();
   renWin->Render();
 
-  vtkRegressionTestImage( renWin );
+  int retVal = vtkRegressionTestImage( renWin );
 
   // Clean up
   ren->Delete();
@@ -107,5 +107,5 @@ int main( int argc, char *argv[] )
   mapper->Delete();
   carpet->Delete();
 
-  return 0;
+  return !retVal;
 }

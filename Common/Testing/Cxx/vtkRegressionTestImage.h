@@ -1,13 +1,14 @@
 
 // Includes and a macro necessary for saving the image produced by a cxx 
 // example program. This capability is critical for regression testing.
+// This function returns 1 if test passed, 0 if test failed.
 
 #include "vtkWindowToImageFilter.h"
 #include "vtkPNGReader.h"
 #include "vtkPNGWriter.h"
 #include "vtkImageDifference.h"
 
-void vtkRegressionTestImage2(int argc, char *argv[], vtkWindow *rw ) 
+int vtkRegressionTestImage2(int argc, char *argv[], vtkWindow *rw ) 
 {
   if( (argc >= 3) && (strcmp("-V", argv[argc-2]) == 0) ) 
     { 
@@ -33,7 +34,7 @@ void vtkRegressionTestImage2(int argc, char *argv[], vtkWindow *rw )
       else
         {
         fprintf(stderr,"Unable to find valid image!!!");
-        exit(1);
+        return 0;
         }
       }
     vtkPNGReader *rt_png = vtkPNGReader::New(); 
@@ -47,11 +48,11 @@ void vtkRegressionTestImage2(int argc, char *argv[], vtkWindow *rw )
     if (rt_id->GetThresholdedError() <= 10) 
       { 
       rt_id->Delete(); 
-      exit(0); 
+      return 1; 
       } 
     fprintf(stderr,"Failed Image Test : %f", rt_id->GetThresholdedError()); 
     rt_id->Delete(); 
-    exit( 1 );
+    return 0;
     }
 }
 

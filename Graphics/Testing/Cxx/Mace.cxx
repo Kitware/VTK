@@ -49,7 +49,7 @@ int main( int argc, char *argv[] )
   // interact with data
   renWin->Render();
 
-  vtkRegressionTestImage( renWin );
+  int retVal = vtkRegressionTestImage( renWin );
 
   // Clean up
   renderer->Delete();
@@ -63,5 +63,5 @@ int main( int argc, char *argv[] )
   spikeMapper->Delete();
   spikeActor->Delete();
 
-  return 0;
+  return !retVal;
 }
