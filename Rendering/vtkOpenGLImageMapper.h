@@ -39,7 +39,7 @@ public:
   
   // Description:
   // Handle the render method.
-  void RenderOpaqueGeometry(vtkViewport* viewport, vtkActor2D* actor) {
+  void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor) {
     this->RenderStart(viewport,actor);}
 
   // Description:

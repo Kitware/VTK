@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkgluPickMatrix.h"
 
-vtkCxxRevisionMacro(vtkXOpenGLTextMapper, "1.31");
+vtkCxxRevisionMacro(vtkXOpenGLTextMapper, "1.32");
 vtkStandardNewMacro(vtkXOpenGLTextMapper);
 
 struct vtkFontStruct
@@ -171,30 +171,10 @@ vtkXOpenGLTextMapper::~vtkXOpenGLTextMapper()
     }  
 }
 
-void vtkXOpenGLTextMapper::RenderOpaqueGeometry(vtkViewport* viewport, 
-                                                    vtkActor2D* actor)
+void vtkXOpenGLTextMapper::RenderOverlay(vtkViewport* viewport, 
+                                         vtkActor2D* actor)
 {
-  float*  actorColor = actor->GetProperty()->GetColor();
-  if ( actorColor[3] == 1.0 )
-    {
-    this->RenderGeometry( viewport, actor );
-    }
-}
-
-void vtkXOpenGLTextMapper::RenderTranslucentGeometry(vtkViewport* viewport, 
-                                                     vtkActor2D* actor)
-{
-  float*  actorColor = actor->GetProperty()->GetColor();
-  if ( actorColor[3] != 1.0 )
-    {
-    this->RenderGeometry( viewport, actor );
-    }
-}
-
-void vtkXOpenGLTextMapper::RenderGeometry(vtkViewport* viewport, 
-                                          vtkActor2D* actor)
-{
-  vtkDebugMacro (<< "RenderOpaqueGeometry");
+  vtkDebugMacro (<< "RenderOverlay");
 
   // turn off texturing in case it is on
   glDisable( GL_TEXTURE_2D );
@@ -210,7 +190,7 @@ void vtkXOpenGLTextMapper::RenderGeometry(vtkViewport* viewport,
   // Check for input
   if ( this->NumberOfLines > 1 )
     {
-    this->RenderOpaqueGeometryMultipleLines(viewport, actor);
+    this->RenderOverlayMultipleLines(viewport, actor);
     return;
     }
 

@@ -37,10 +37,7 @@ public:
 
   // Description:
   // Actally draw the text.
-  void RenderOpaqueGeometry(vtkViewport* viewport, vtkActor2D* actor);
-  void RenderTranslucentGeometry(vtkViewport* viewport, vtkActor2D* actor);
-  void RenderGeometry(vtkViewport* viewport, vtkActor2D* actor);
-  void RenderOverlay(vtkViewport*, vtkActor2D*) {};
+  void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor);
 
   // Description:
   // Release any graphics resources that are being consumed by this actor.

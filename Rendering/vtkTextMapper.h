@@ -179,7 +179,6 @@ protected:
   char *NextLine(const char *input, int lineNum);
   void GetMultiLineSize(vtkViewport* viewport, int size[2]);
   void RenderOverlayMultipleLines(vtkViewport *viewport, vtkActor2D *actor);
-  void RenderOpaqueGeometryMultipleLines(vtkViewport *viewport, vtkActor2D *actor);
   
 private:
   vtkTextMapper(const vtkTextMapper&);  // Not implemented.
