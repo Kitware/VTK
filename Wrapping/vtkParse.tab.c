@@ -839,9 +839,15 @@ int main(int argc,char *argv[])
   ret = yyparse();
   if (ret)
     {
+    // The following prevents warning
+    char *str = 0;
+    str = (char *)yy_flex_realloc(0, strlen("SYNTAX ERROR")+1);
+    sprintf(str, "SYNTAX ERROR");
+    
     fprintf(stdout,
-            "*** SYNTAX ERROR found in parsing the header file %s before line %d***\n", 
-            argv[1], yylineno);
+            "*** %s found in parsing the header file %s before line %d***\n", 
+            str, argv[1], yylineno);
+    free(str);
     return ret;
     }
 
