@@ -46,7 +46,8 @@
 // vtkTextProperty objects associated to this actor.
 //
 // .SECTION See Also
-// vtkAxisActor3D can be used to create axes in world coordinate space.
+// vtkCubeAxesActor2D can be used to create axes in world coordinate space.
+//
 // vtkActor2D vtkTextMapper vtkPolyDataMapper2D vtkScalarBarActor
 // vtkCoordinate vtkTextProperty
 

@@ -19,7 +19,6 @@
 
 // .SECTION See Also
 // vtkImageToImageFilter vtkImageInPlaceFilter vtkImageTwoInputFilter
-// vtkImageTwoOutputFilter
 
 
 

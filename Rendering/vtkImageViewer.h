@@ -15,13 +15,13 @@
 // .NAME vtkImageViewer - Display a 2d image.
 // .SECTION Description
 // vtkImageViewer is a convenience class for displaying a 2d image.  It
-// packages up the functionality found in vtkImageWindow, vtkImager,
+// packages up the functionality found in vtkRenderWindow, vtkRenderer,
 // vtkActor2D and vtkImageMapper into a single easy to use class.  Behind the
 // scenes these four classes are actually used to to provide the required
 // functionality. vtkImageViewer is simply a wrapper around them.
 
 // .SECTION See Also
-// vtkImageWindow vtkImager vtkImageMapper vtkActor2D
+// vtkRenderWindow vtkRenderer vtkImageMapper vtkActor2D
 
 #ifndef __vtkImageViewer_h
 #define __vtkImageViewer_h

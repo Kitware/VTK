@@ -30,7 +30,7 @@
 // automatically be clamped to 49.
 
 // .SECTION See Also
-// vtkGeometryFilter vtkStructuredGridFilter
+// vtkGeometryFilter vtkStructuredGridSource
 
 #ifndef __vtkImageDataGeometryFilter_h
 #define __vtkImageDataGeometryFilter_h

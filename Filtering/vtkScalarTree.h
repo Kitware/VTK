@@ -27,7 +27,7 @@
 // scalar value specified.
 
 // .SECTION See Also
-// vtkSimpleScalarTree vtkBONOScalarTree
+// vtkSimpleScalarTree 
 
 #ifndef __vtkScalarTree_h
 #define __vtkScalarTree_h

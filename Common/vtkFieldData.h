@@ -35,7 +35,7 @@
 // faster, more efficient algorithms that do not lose information.
 
 // .SECTION See Also
-// vtkDataArray vtkAttribueData vtkPointData vtkCellData
+// vtkDataArray vtkDataSetAttributes vtkPointData vtkCellData
 
 #ifndef __vtkFieldData_h
 #define __vtkFieldData_h

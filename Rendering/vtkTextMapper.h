@@ -16,7 +16,7 @@
 // .SECTION Description
 // vtkTextMapper provides 2D text annotation support for vtk.  It is a
 // vtkMapper2D that can be associated with a vtkActor2D and placed into a
-// vtkRenderer or vtkImager.
+// vtkRenderer.
 //
 // To use vtkTextMapper, specify an input text string.
 

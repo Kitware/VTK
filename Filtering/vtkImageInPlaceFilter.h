@@ -21,7 +21,6 @@
 
 // .SECTION See Also
 // vtkImageToImageFilter vtkImageMultipleInputFilter vtkImageTwoInputFilter
-// vtkImageTwoOutputFilter
 
 
 #ifndef __vtkImageInPlaceFilter_h

@@ -18,7 +18,7 @@
 // take as input polygonal data and generate polygonal data on output.
 
 // .SECTION See Also
-// vtkCleanPolyData vtkDecimate vtkFeatureEdges vtkFeatureVertices
+// vtkCleanPolyData vtkDecimate vtkFeatureEdges 
 // vtkMaskPolyData vtkPolyDataNormals vtkSmoothPolyDataFilter vtkStripper
 // vtkTransformPolyDataFilter vtkTriangleFilter vtkTubeFilter
 // vtkLinearExtrusionFilter vtkRibbonFilter vtkRotationalExtrusionFilter

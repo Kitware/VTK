@@ -38,7 +38,7 @@
 // Bounds instance variable (an array of six doubles) is used.
 // 
 // .SECTION See Also
-// vtkActor2D vtkAxis2DActor vtkXYPlotActor vtkTextProperty
+// vtkActor2D vtkAxisActor2D vtkXYPlotActor vtkTextProperty
 
 #ifndef __vtkCubeAxesActor2D_h
 #define __vtkCubeAxesActor2D_h

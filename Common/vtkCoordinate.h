@@ -102,7 +102,7 @@ public:
 
   // Description:
   // If you want this coordinate to be relative to a specific
-  // vtkViewport (vtkRenderer, vtkImager) then you can specify
+  // vtkViewport (vtkRenderer) then you can specify
   // that here.
   void SetViewport(vtkViewport *viewport);
   vtkGetObjectMacro(Viewport,vtkViewport);
