@@ -40,6 +40,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkPNMWriter.h"
 
+#ifdef write
+#undef write
+#endif
+
+#ifdef close
+#undef close
+#endif
+
 void vtkPNMWriter::WriteFileHeader(ofstream *file, vtkImageData *cache)
 {
   int min1, max1, min2, max2, min3, max3;

@@ -41,6 +41,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkUnstructuredGridReader.h"
 #include "vtkByteSwap.h"
 
+#ifdef read
+#undef read
+#endif
+
 vtkUnstructuredGridReader::vtkUnstructuredGridReader()
 {
   this->Reader = vtkDataReader::New();

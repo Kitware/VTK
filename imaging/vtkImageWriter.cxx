@@ -44,6 +44,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <string.h>
 #include "vtkImageWriter.h"
 
+#ifdef write
+#undef write
+#endif
+
+#ifdef close
+#undef close
+#endif
 
 
 //----------------------------------------------------------------------------

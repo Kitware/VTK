@@ -40,6 +40,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkTIFFWriter.h"
 
+#ifdef write
+#undef write
+#endif
+
+#ifdef close
+#undef close
+#endif
+
 /*
  * Tag Image File Format (TIFF)
  *

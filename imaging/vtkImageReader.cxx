@@ -44,6 +44,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageReader.h"
 
+#ifdef read
+#undef read
+#endif
+
+#ifdef close
+#undef close
+#endif
+
 //----------------------------------------------------------------------------
 vtkImageReader::vtkImageReader()
 {

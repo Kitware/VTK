@@ -43,6 +43,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkByteSwap.h"
 #include <stdio.h>
 
+#ifdef read
+#undef read
+#endif
+
 vtkBMPReader::vtkBMPReader()
 {
   this->Colors = NULL;
