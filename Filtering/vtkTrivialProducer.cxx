@@ -21,7 +21,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTrivialProducer, "1.4");
+vtkCxxRevisionMacro(vtkTrivialProducer, "1.5");
 vtkStandardNewMacro(vtkTrivialProducer);
 
 //----------------------------------------------------------------------------
@@ -130,6 +130,8 @@ vtkTrivialProducer::ProcessRequest(vtkInformation* request,
         outputInfo->Set(vtkDataObject::SCALAR_TYPE(),id->GetScalarType());
         outputInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),
                         id->GetNumberOfScalarComponents());
+        outputInfo->Set(vtkDataObject::ORIGIN(), id->GetOrigin(), 3);
+        outputInfo->Set(vtkDataObject::SPACING(), id->GetSpacing(), 3);
         }
       }
     }
