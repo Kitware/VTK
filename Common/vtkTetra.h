@@ -84,6 +84,11 @@ public:
   int GetParametricCenter(float pcoords[3]);
 
   // Description:
+  // Return the distance of the parametric coordinate provided to the
+  // cell. If inside the cell, a distance of zero is returned. 
+  float GetParametricDistance(float pcoords[3]);
+
+  // Description:
   // Compute the center of the tetrahedron,
   static void TetraCenter(float p1[3], float p2[3], float p3[3], float p4[3], 
                           float center[3]);

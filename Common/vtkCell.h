@@ -267,6 +267,15 @@ public:
 
 
   // Description:
+  // Return the distance of the parametric coordinate provided to the
+  // cell. If inside the cell, a distance of zero is returned. This is
+  // used during picking to get the correct cell picked. (The tolerance
+  // will occasionally allow cells to be picked who are not really
+  // intersected "inside" the cell.)
+  virtual float GetParametricDistance(float pcoords[3]);
+
+
+  // Description:
   // Bounding box intersection modified from Graphics Gems Vol I. The method
   // returns a non-zero value if the bounding box is hit. Origin[3] starts
   // the ray, dir[3] is the vector components of the ray in the x-y-z

@@ -29,7 +29,7 @@
 #include "vtkPolygon.h"
 #include "vtkQuadric.h"
 
-vtkCxxRevisionMacro(vtkTriangle, "1.93");
+vtkCxxRevisionMacro(vtkTriangle, "1.94");
 vtkStandardNewMacro(vtkTriangle);
 
 // Construct the triangle with three points.
@@ -918,9 +918,9 @@ int vtkTriangle::PointInTriangle(float x[3], float p1[3], float p2[3],
   float       x1[3], x2[3], x3[3], v13[3], v21[3], v32[3];
   float       n1[3], n2[3], n3[3];
   int           i;
-//
-//  Compute appropriate vectors
-//
+
+  //  Compute appropriate vectors
+  //
   for (i=0; i<3; i++) 
     {
     x1[i] = x[i] - p1[i];
@@ -930,9 +930,9 @@ int vtkTriangle::PointInTriangle(float x[3], float p1[3], float p2[3],
     v21[i] = p2[i] - p1[i];
     v32[i] = p3[i] - p2[i];
     }
-//
-//  See whether intersection point is within tolerance of a vertex.
-//
+
+  //  See whether intersection point is within tolerance of a vertex.
+  //
   if ( (x1[0]*x1[0] + x1[1]*x1[1] + x1[2]*x1[2]) <= tol2 ||
   (x2[0]*x2[0] + x2[1]*x2[1] + x2[2]*x2[2]) <= tol2 ||
   (x3[0]*x3[0] + x3[1]*x3[1] + x3[2]*x3[2]) <= tol2 )
@@ -940,16 +940,16 @@ int vtkTriangle::PointInTriangle(float x[3], float p1[3], float p2[3],
     return 1;
     }
 
-//  If not near a vertex, check whether point is inside of triangular face.
-//
-//  Obtain normal off of triangular face
-//
+  //  If not near a vertex, check whether point is inside of triangular face.
+  //
+  //  Obtain normal off of triangular face
+  //
   vtkMath::Cross (x1, v13, n1);
   vtkMath::Cross (x2, v21, n2);
   vtkMath::Cross (x3, v32, n3);
-//
-//  Check whether normals go in same direction
-//
+
+  //  Check whether normals go in same direction
+  //
   if ( (vtkMath::Dot(n1,n2) > 0.0) && (vtkMath::Dot(n2,n3) > 0.0) )
     {
     return 1;
@@ -959,6 +959,41 @@ int vtkTriangle::PointInTriangle(float x[3], float p1[3], float p2[3],
     return 0;
     }
 }
+
+//----------------------------------------------------------------------------
+float vtkTriangle::GetParametricDistance(float pcoords[3])
+{
+  int i;
+  float pDist, pDistMax=0.0f;
+  float pc[3];
+
+  pc[0] = pcoords[0];
+  pc[1] = pcoords[1];
+  pc[2] = 1.0 - pcoords[0] - pcoords[1];
+
+  for (i=0; i<3; i++)
+    {
+    if ( pc[i] < 0.0 ) 
+      {
+      pDist = -pc[i];
+      }
+    else if ( pc[i] > 1.0 ) 
+      {
+      pDist = pc[i] - 1.0f;
+      }
+    else //inside the cell in the parametric direction
+      {
+      pDist = 0.0;
+      }
+    if ( pDist > pDistMax )
+      {
+      pDistMax = pDist;
+      }
+    }
+  
+  return pDistMax;
+}
+
 
 //----------------------------------------------------------------------------
 void vtkTriangle::ComputeQuadric(float x1[3], float x2[3], float x3[3],

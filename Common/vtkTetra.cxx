@@ -27,7 +27,7 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkTetra, "1.77");
+vtkCxxRevisionMacro(vtkTetra, "1.78");
 vtkStandardNewMacro(vtkTetra);
 
 // Construct the tetra with four points.
@@ -822,3 +822,39 @@ float *vtkTetra::GetParametricCoords()
 {
   return vtkTetraCellPCoords;
 }
+
+float vtkTetra::GetParametricDistance(float pcoords[3])
+{
+  int i;
+  float pDist, pDistMax=0.0f;
+  float pc[4];
+
+  pc[0] = pcoords[0];
+  pc[1] = pcoords[1];
+  pc[2] = pcoords[1];
+  pc[3] = 1.0 - pcoords[0] - pcoords[1] - pcoords[2];
+
+  for (i=0; i<4; i++)
+    {
+    if ( pc[i] < 0.0 ) 
+      {
+      pDist = -pc[i];
+      }
+    else if ( pc[i] > 1.0 ) 
+      {
+      pDist = pc[i] - 1.0f;
+      }
+    else //inside the cell in the parametric direction
+      {
+      pDist = 0.0;
+      }
+    if ( pDist > pDistMax )
+      {
+      pDistMax = pDist;
+      }
+    }
+  
+  return pDistMax;
+}
+
+
