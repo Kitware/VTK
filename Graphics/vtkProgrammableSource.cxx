@@ -24,7 +24,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkProgrammableSource, "1.24");
+vtkCxxRevisionMacro(vtkProgrammableSource, "1.25");
 vtkStandardNewMacro(vtkProgrammableSource);
 
 // Construct programmable filter with empty execute method.
@@ -182,7 +182,7 @@ int vtkProgrammableSource::RequestData(
   return 1;
 }
 
-int vtkProgrammableSource::CreateOutput(
+int vtkProgrammableSource::RequestDataObject(
   vtkInformation *,
   vtkInformationVector **,
   vtkInformationVector *outputVector)

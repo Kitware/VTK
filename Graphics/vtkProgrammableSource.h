@@ -86,7 +86,7 @@ protected:
   ~vtkProgrammableSource();
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int CreateOutput(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestDataObject(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   void (*ExecuteMethod)(void *); //function to invoke
   void (*ExecuteMethodArgDelete)(void *);
