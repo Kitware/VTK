@@ -66,7 +66,10 @@
   // Set proper viewport
   //glViewport((long int)visibleRect.origin.x, (long int)visibleRect.origin.y, 
 	//     (long int)visibleRect.size.width, (long int)visibleRect.size.height);
-  myVTKRenderWindow->Render();
+  if ( myVTKRenderWindow->GetMapped() )
+    {
+    myVTKRenderWindow->Render();
+    }
   [[self openGLContext] flushBuffer];
 }
 
