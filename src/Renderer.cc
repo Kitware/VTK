@@ -77,7 +77,7 @@ void vlRenderer::DoLights()
 
   if (!this->UpdateLights())
     {
-    cerr << this->GetClassName() << " : No lights are on, creating one.\n";
+    vlErrorMacro(<<"No lights are on, creating one.");
     light1 = this->RenderWindow->MakeLight();
     this->AddLights(light1);
     light1->SetPosition(this->ActiveCamera->GetPosition());
@@ -92,7 +92,7 @@ void vlRenderer::DoCameras()
 
   if (!this->UpdateCameras())
     {
-    cerr << this->GetClassName() << " : No cameras are on, creating one.\n";
+    vlErrorMacro(<< "No cameras are on, creating one.");
     cam1 = this->RenderWindow->MakeCamera();
     this->SetActiveCamera(cam1);
     this->ResetCamera();
@@ -105,7 +105,7 @@ void vlRenderer::DoActors()
 
   if (!this->UpdateActors())
     {
-    cerr << "No actors are on.\n";
+    vlErrorMacro(<< "No actors are on.");
     }
 }
 
