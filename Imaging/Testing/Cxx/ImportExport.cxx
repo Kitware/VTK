@@ -72,7 +72,7 @@ int main( int argc, char *argv[] )
 
  viewer->Render();
 
- int retVal = vtkRegressionTestImage( viewer->GetImageWindow() );
+ int retVal = vtkRegressionTestImage( viewer->GetRenderWindow() );
   
  viewer->Delete();
  importer->Delete();
