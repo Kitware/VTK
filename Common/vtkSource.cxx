@@ -45,7 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkCommand.h"
 #include "vtkErrorCode.h"
 
-vtkCxxRevisionMacro(vtkSource, "1.90");
+vtkCxxRevisionMacro(vtkSource, "1.91");
 vtkStandardNewMacro(vtkSource);
 
 #ifndef NULL
@@ -624,6 +624,8 @@ void vtkSource::SetNthOutput(int idx, vtkDataObject *newOutput)
     }
   // now actually make the link that was registered previously.
   this->Outputs[idx] = newOutput;
+
+  this->InvokeEvent(vtkCommand::SetOutputEvent,NULL);
 
   this->Modified();
 }

@@ -115,6 +115,7 @@ public:
     WindowLevelEvent,
     NextDataEvent,
     PushDataStartEvent,
+    SetOutputEvent,
     EndOfDataEvent,
     ErrorEvent,
     WarningEvent,

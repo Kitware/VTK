@@ -77,6 +77,7 @@ static const char *vtkCommandEventStrings[] = {
   "WindowLevelEvent",
   "NextDataEvent",
   "PushDataStartEvent",
+  "SetOutputEvent",
   "EndOfDataEvent",
   "ErrorEvent",
   "WarningEvent",
