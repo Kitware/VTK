@@ -75,7 +75,7 @@ vtkCellArray strips
   strips InsertCellPoint 25
   strips InsertCellPoint 24
 
-vtkIntArray scalars
+vtkFloatArray scalars
   scalars SetNumberOfTuples 26
   scalars SetTuple1 0 0
   scalars SetTuple1 1 50
