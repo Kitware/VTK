@@ -255,7 +255,7 @@ void stuffit(FILE *fp, CPcmakerDlg *vals)
     fprintf(fp,"extern Tcl_HashTable vtkCommandLookup;\n");
     }
   fprintf(fp,"extern void vtkTclListInstances(Tcl_Interp *interp, ClientData arg);\n");
-  
+  fprintf(fp,"extern void vtkTclDeleteObjectFromHash(void *);\n");  
   fprintf(fp,"\n\nextern \"C\" {__declspec(dllexport) int %s_SafeInit(Tcl_Interp *interp);}\n\n",
 	  kitName);
   fprintf(fp,"\n\nextern \"C\" {__declspec(dllexport) int %s_Init(Tcl_Interp *interp);}\n\n",
@@ -298,6 +298,7 @@ void stuffit(FILE *fp, CPcmakerDlg *vals)
 	      names[i]);
       fprintf(fp,"                      temp,(Tcl_CmdDeleteProc *)vtkTclGenericDeleteObject);\n");
       fprintf(fp,"    entry = Tcl_CreateHashEntry(&vtkCommandLookup,argv[1],&is_new);\n    Tcl_SetHashValue(entry,(ClientData)(%sCommand));\n",names[i]);
+      fprintf(fp,"    ((vtkObject *)temp)->SetDeleteMethod(vtkTclDeleteObjectFromHash);\n");
       fprintf(fp,"    }\n\n");
       }
     // call the helper function
@@ -325,6 +326,7 @@ void stuffit(FILE *fp, CPcmakerDlg *vals)
 	      names[i]);
       fprintf(fp,"                      temp,(Tcl_CmdDeleteProc *)vtkTclGenericDeleteObject);\n");
       fprintf(fp,"    entry = Tcl_CreateHashEntry(&vtkCommandLookup,argv[1],&is_new);\n    Tcl_SetHashValue(entry,(ClientData)(%sCommand));\n",names[i]);
+	  fprintf(fp,"    ((vtkObject *)temp)->SetDeleteMethod(vtkTclDeleteObjectFromHash);\n");
       fprintf(fp,"    }\n\n");
       }
     fprintf(fp,"  return TCL_ERROR;\n}\n");
@@ -348,6 +350,7 @@ void stuffit(FILE *fp, CPcmakerDlg *vals)
 	      names[i]);
       fprintf(fp,"                      temp,(Tcl_CmdDeleteProc *)vtkTclGenericDeleteObject);\n");
       fprintf(fp,"    entry = Tcl_CreateHashEntry(&vtkCommandLookup,argv[1],&is_new);\n    Tcl_SetHashValue(entry,(ClientData)(%sCommand));\n",names[i]);
+	  fprintf(fp,"    ((vtkObject *)temp)->SetDeleteMethod(vtkTclDeleteObjectFromHash);\n");
       fprintf(fp,"    }\n\n");
       }
     fprintf(fp,"  sprintf(interp->result,\"%%s\",argv[1]);\n  return TCL_OK;\n}\n");
@@ -454,6 +457,7 @@ void MakeInit(char *fname, char *argv1, CPcmakerDlg *vals)
     {
     fprintf(fp,"#include <string.h>\n");
     fprintf(fp,"#include <tcl.h>\n");
+    fprintf(fp,"#include \"vtkObject.h\"\n");
     fprintf(fp,"#include \"vtkWin32RenderWindowInteractor.h\"\n\n");
     stuffit(fp,vals);
     fclose(fp);
