@@ -276,7 +276,7 @@ void vtkImageToStructuredPoints::ExecuteInformation()
   whole[1] -= whole[0];
   whole[3] -= whole[2];
   whole[5] -= whole[4];
-  whole[0] = whole[2] = whole[4];
+  whole[0] = whole[2] = whole[4] = 0;
   
   output->SetWholeExtent(whole);
   // Now should Origin and Spacing really be part of information?
