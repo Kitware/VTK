@@ -328,9 +328,7 @@ void vlPolyData::BuildCells()
   vlCellArray *inLines=this->GetLines();
   vlCellArray *inPolys=this->GetPolys();
   vlCellArray *inStrips=this->GetStrips();
-  int i, j;
   int npts, *pts;
-  vlIdList outVerts(3*MAX_CELL_SIZE);
   vlCellList *cells;
   vlPoints *inPoints=this->GetPoints();
 
