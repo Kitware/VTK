@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkTextureMapToPlane.h"
 #include "vtkMath.h"
-#include "vtkTCoords.h"
+#include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
 //--------------------------------------------------------------------------
@@ -82,7 +82,7 @@ void vtkTextureMapToPlane::Execute()
 {
   float tcoords[2];
   vtkIdType numPts;
-  vtkTCoords *newTCoords;
+  vtkFloatArray *newTCoords;
   vtkIdType i;
   int j;
   float *bounds;
@@ -108,8 +108,9 @@ void vtkTextureMapToPlane::Execute()
 
   //  Allocate texture data
   //
-  newTCoords = vtkTCoords::New();
-  newTCoords->SetNumberOfTCoords(numPts);
+  newTCoords = vtkFloatArray::New();
+  newTCoords->SetNumberOfComponents(2);
+  newTCoords->SetNumberOfTuples(numPts);
   progressInterval = numPts/20 + 1;
 
   //  Compute least squares plane if on automatic mode; otherwise use
@@ -188,7 +189,7 @@ void vtkTextureMapToPlane::Execute()
       tcoords[0] = this->SRange[0] + vtkMath::Dot(sAxis,axis) * sSf;
       tcoords[1] = this->TRange[0] + vtkMath::Dot(tAxis,axis) * tSf;
 
-      newTCoords->SetTCoord(i,tcoords);
+      newTCoords->SetTuple(i,tcoords);
       }
     } //compute plane and/or parametric range
 
@@ -233,7 +234,7 @@ void vtkTextureMapToPlane::Execute()
       num = tAxis[0]*axis[0] + tAxis[1]*axis[1] + tAxis[2]*axis[2];
       tcoords[1] = num / tDenom;
 
-      newTCoords->SetTCoord(i,tcoords);
+      newTCoords->SetTuple(i,tcoords);
       }
     }
 

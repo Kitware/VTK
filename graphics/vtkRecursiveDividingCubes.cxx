@@ -44,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkVoxel.h"
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
-
+#include "vtkFloatArray.h"
 
 
 //------------------------------------------------------------------------------
@@ -81,21 +81,21 @@ static float X[3]; //origin of current voxel
 static float Spacing[3]; //spacing of current voxel
 static float Normals[8][3]; //voxel normals
 static vtkPoints *NewPts; //points being generated
-static vtkNormals *NewNormals; //points being generated
+static vtkFloatArray *NewNormals; //points being generated
 static vtkCellArray *NewVerts; //verts being generated
 
 void vtkRecursiveDividingCubes::Execute()
 {
   int i, j, k;
   vtkIdType idx;
-  vtkScalars *inScalars;
+  vtkDataArray *inScalars;
   vtkIdList *voxelPts;
   float origin[3];
   int dim[3], jOffset, kOffset, sliceSize;
   int above, below, vertNum;
   vtkImageData *input= this->GetInput();
   vtkPolyData *output= this->GetOutput();
-  vtkScalars *voxelScalars;
+  vtkFloatArray *voxelScalars;
 
   vtkDebugMacro(<< "Executing recursive dividing cubes...");
   //
@@ -104,7 +104,7 @@ void vtkRecursiveDividingCubes::Execute()
   this->Count = 0;
 
   // make sure we have scalar data
-  if ( ! (inScalars = input->GetPointData()->GetScalars()) )
+  if ( ! (inScalars = input->GetPointData()->GetActiveScalars()) )
     {
     vtkErrorMacro(<<"No scalar data to contour");
     return;
@@ -122,19 +122,21 @@ void vtkRecursiveDividingCubes::Execute()
 
   // creating points
   NewPts = vtkPoints::New();
-  NewPts->Allocate(500000,1000000);
-  NewNormals = vtkNormals::New();
-  NewNormals->Allocate(500000,1000000);
+  NewPts->Allocate(50000,100000);
+  NewNormals = vtkFloatArray::New();
+  NewNormals->SetNumberOfComponents(3);
+  NewNormals->Allocate(50000,100000);
   NewVerts = vtkCellArray::New();
-  NewVerts->Allocate(500000,1000000);
+  NewVerts->Allocate(50000,100000);
   NewVerts->InsertNextCell(0); //temporary cell count
 
   voxelPts = vtkIdList::New();
   voxelPts->Allocate(8); 
   voxelPts->SetNumberOfIds(8);
 
-  voxelScalars = vtkScalars::New();
-  voxelScalars->Allocate(8);
+  voxelScalars = vtkFloatArray::New();
+  voxelScalars->SetNumberOfComponents(inScalars->GetNumberOfComponents());
+  voxelScalars->Allocate(8*inScalars->GetNumberOfComponents());
   
   //
   // Loop over all cells checking to see which straddle the specified value. 
@@ -168,16 +170,16 @@ void vtkRecursiveDividingCubes::Execute()
         voxelPts->SetId(7, idx + sliceSize + dim[0] + 1);
 
         // get scalars of this voxel
-        inScalars->GetScalars(voxelPts,voxelScalars);
+        inScalars->GetTuples(voxelPts,voxelScalars);
 
         // loop over 8 points of voxel to check if cell straddles value
         for ( above=below=0, vertNum=0; vertNum < 8; vertNum++ )
           {
-          if ( voxelScalars->GetScalar(vertNum) >= this->Value )
+          if ( voxelScalars->GetComponent(vertNum,0) >= this->Value )
 	    {
             above = 1;
 	    }
-          else if ( voxelScalars->GetScalar(vertNum) < this->Value )
+          else if ( voxelScalars->GetComponent(vertNum,0) < this->Value )
 	    {
             below = 1;
 	    }
@@ -193,8 +195,7 @@ void vtkRecursiveDividingCubes::Execute()
             input->GetPointGradient(i,j+1,k+1, inScalars, Normals[6]);
             input->GetPointGradient(i+1,j+1,k+1, inScalars, Normals[7]);
 
-            this->SubDivide(X, Spacing, 
-		    ((vtkFloatArray *)voxelScalars->GetData())->GetPointer(0));
+            this->SubDivide(X, Spacing, voxelScalars->GetPointer(0));
             }
           }
         }
@@ -270,7 +271,7 @@ void vtkRecursiveDividingCubes::SubDivide(float origin[3], float h[3],
 	n[2] += Normals[i][2]*w[i];
 	}
       vtkMath::Normalize(n);
-      NewNormals->InsertNormal(id,n);
+      NewNormals->InsertTuple(id,n);
 
       if ( !(NewPts->GetNumberOfPoints() % VTK_POINTS_PER_POLY_VERTEX) )
         {

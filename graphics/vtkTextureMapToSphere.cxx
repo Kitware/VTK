@@ -42,6 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkTextureMapToSphere.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkFloatArray.h"
 
 //----------------------------------------------------------------------------
 vtkTextureMapToSphere* vtkTextureMapToSphere::New()
@@ -68,7 +69,7 @@ vtkTextureMapToSphere::vtkTextureMapToSphere()
 
 void vtkTextureMapToSphere::Execute()
 {
-  vtkTCoords *newTCoords;
+  vtkFloatArray *newTCoords;
   vtkDataSet *input = this->GetInput();
   vtkDataSet *output = this->GetOutput();
   vtkIdType numPts=input->GetNumberOfPoints();
@@ -107,8 +108,9 @@ void vtkTextureMapToSphere::Execute()
 
   //loop over all points computing spherical coordinates. Only tricky part
   //is keeping track of singularities/numerical problems.
-  newTCoords = vtkTCoords::New();
-  newTCoords->SetNumberOfTCoords(numPts);
+  newTCoords = vtkFloatArray::New();
+  newTCoords->SetNumberOfComponents(2);
+  newTCoords->SetNumberOfTuples(numPts);
   for ( ptId=0; ptId < numPts; ptId++ )
     {
     x = input->GetPoint(ptId);
@@ -193,7 +195,7 @@ void vtkTextureMapToSphere::Execute()
         }
       }
 
-    newTCoords->SetTCoord(ptId,tc);
+    newTCoords->SetTuple(ptId,tc);
     }
 
   output->GetPointData()->CopyTCoordsOff();

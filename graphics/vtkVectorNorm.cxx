@@ -70,7 +70,7 @@ void vtkVectorNorm::Execute()
   int computePtScalars=1, computeCellScalars=1;
   vtkFloatArray *newScalars;
   float *v, s, maxScalar;
-  vtkVectors *ptVectors, *cellVectors;
+  vtkDataArray *ptVectors, *cellVectors;
   vtkDataSet *input = this->GetInput();
   vtkDataSet *output = this->GetOutput();
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
@@ -82,8 +82,8 @@ void vtkVectorNorm::Execute()
   // First, copy the input to the output as a starting point
   output->CopyStructure( input );
 
-  ptVectors = pd->GetVectors();
-  cellVectors = cd->GetVectors();
+  ptVectors = pd->GetActiveVectors();
+  cellVectors = cd->GetActiveVectors();
   if (!ptVectors || this->AttributeMode == VTK_ATTRIBUTE_MODE_USE_CELL_DATA)
     {
     computePtScalars = 0;
@@ -105,14 +105,14 @@ void vtkVectorNorm::Execute()
   vtkIdType progressInterval;
   if ( computePtScalars )
     {
-    numVectors = ptVectors->GetNumberOfVectors();
+    numVectors = ptVectors->GetNumberOfTuples();
     newScalars = vtkFloatArray::New();
     newScalars->SetNumberOfTuples(numVectors);
 
     progressInterval=numVectors/10+1;
     for (maxScalar=0.0, i=0; i < numVectors && !abort; i++)
       {
-      v = ptVectors->GetVector(i);
+      v = ptVectors->GetTuple(i);
       s = sqrt((double)v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
       if ( s > maxScalar )
 	{
@@ -146,14 +146,14 @@ void vtkVectorNorm::Execute()
   // Allocate / operate on cell data
   if ( computeCellScalars )
     {
-    numVectors = cellVectors->GetNumberOfVectors();
+    numVectors = cellVectors->GetNumberOfTuples();
     newScalars = vtkFloatArray::New();
     newScalars->SetNumberOfTuples(numVectors);
 
     progressInterval=numVectors/10+1;
     for (maxScalar=0.0, i=0; i < numVectors && !abort; i++)
       {
-      v = cellVectors->GetVector(i);
+      v = cellVectors->GetTuple(i);
       s = sqrt((double)v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
       if ( s > maxScalar )
 	{

@@ -40,7 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 #include "vtkTextureMapToBox.h"
-#include "vtkTCoords.h"
+#include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
 
@@ -84,7 +84,7 @@ void vtkTextureMapToBox::Execute()
 {
   float tc[3];
   vtkIdType numPts, i;
-  vtkTCoords *newTCoords;
+  vtkFloatArray *newTCoords;
   int j;
   float *box, *p;
   float min[3], max[3];
@@ -101,9 +101,9 @@ void vtkTextureMapToBox::Execute()
     return;
     }
 
-  newTCoords = vtkTCoords::New();
+  newTCoords = vtkFloatArray::New();
   newTCoords->SetNumberOfComponents(3);
-  newTCoords->SetNumberOfTCoords(numPts);
+  newTCoords->SetNumberOfTuples(numPts);
 
   if ( this->AutomaticBoxGeneration ) 
     {
@@ -135,7 +135,7 @@ void vtkTextureMapToBox::Execute()
 	tc[j] = max[j];
 	}
       }
-    newTCoords->SetTCoord(i,tc);
+    newTCoords->SetTuple(i,tc);
     }
   //
   // Update ourselves

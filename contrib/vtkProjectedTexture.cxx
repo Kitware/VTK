@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkProjectedTexture.h"
 #include "vtkMath.h"
-#include "vtkTCoords.h"
+#include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
 
@@ -118,7 +118,7 @@ void vtkProjectedTexture::Execute()
 {
   float tcoords[2];
   vtkIdType numPts;
-  vtkTCoords *newTCoords;
+  vtkFloatArray *newTCoords;
   vtkIdType i;
   int j;
   float proj;
@@ -139,8 +139,9 @@ void vtkProjectedTexture::Execute()
   //  Allocate texture data
   //
 
-  newTCoords = vtkTCoords::New();
-  newTCoords->SetNumberOfTCoords(numPts);
+  newTCoords = vtkFloatArray::New();
+  newTCoords->SetNumberOfComponents(2);
+  newTCoords->SetNumberOfTuples(numPts);
 
   vtkMath::Normalize (this->Orientation);
   
@@ -189,7 +190,7 @@ void vtkProjectedTexture::Execute()
 	tcoords[1] = t * tScale + tOffset;
       }
       
-      newTCoords->SetTCoord(i,tcoords);
+      newTCoords->SetTuple(i,tcoords);
     }
   //
   // Update ourselves

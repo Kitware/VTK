@@ -74,7 +74,7 @@ void vtkVectorTopology::Execute()
   int negative[3], positive[3], subId=0;
   float x[3], pcoords[3], *v;
   vtkCell *cell;
-  vtkVectors *inVectors;
+  vtkDataArray *inVectors;
   vtkPoints *newPts;
   vtkCellArray *newVerts;
   vtkDataSet *input=(vtkDataSet *)this->GetInput();
@@ -88,7 +88,7 @@ void vtkVectorTopology::Execute()
   vtkDebugMacro(<< "Executing vector topology...");
 
   // make sure we have vector data
-  if ( ! (inVectors = input->GetPointData()->GetVectors()) )
+  if ( ! (inVectors = input->GetPointData()->GetActiveVectors()) )
     {
     vtkErrorMacro(<<"No vector data, can't create topology markers...");
     return;
@@ -115,7 +115,7 @@ void vtkVectorTopology::Execute()
     for (i=0; i < npts; i++)
       {
       ptId = cell->GetPointId(i);
-      v = inVectors->GetVector(ptId);
+      v = inVectors->GetTuple(ptId);
       for (j=0; j<3; j++)
         {
         if ( v[j] < 0.0 )

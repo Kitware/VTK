@@ -44,6 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkLine.h"
 #include "vtkOBBTree.h"
 #include "vtkObjectFactory.h"
+#include "vtkFloatArray.h"
 
 //----------------------------------------------------------------------------
 vtkTextureMapToCylinder* vtkTextureMapToCylinder::New()
@@ -77,7 +78,7 @@ vtkTextureMapToCylinder::vtkTextureMapToCylinder()
 
 void vtkTextureMapToCylinder::Execute()
 {
-  vtkTCoords *newTCoords;
+  vtkFloatArray *newTCoords;
   vtkDataSet *input= this->GetInput();
   vtkDataSet *output= this->GetOutput();
   vtkIdType numPts=input->GetNumberOfPoints();
@@ -151,8 +152,9 @@ void vtkTextureMapToCylinder::Execute()
     vtkErrorMacro(<<"Bad cylinder axis");
     return;
     }
-  newTCoords = vtkTCoords::New();
-  newTCoords->Allocate(numPts,2);
+  newTCoords = vtkFloatArray::New();
+  newTCoords->SetNumberOfComponents(2);
+  newTCoords->Allocate(2*numPts);
 
   //loop over all points computing spherical coordinates
   for ( ptId=0; ptId < numPts; ptId++ )
@@ -183,7 +185,7 @@ void vtkTextureMapToCylinder::Execute()
         }
       }
 
-    newTCoords->InsertTCoord(ptId,tc);
+    newTCoords->InsertTuple(ptId,tc);
     }
 
   output->GetPointData()->CopyTCoordsOff();

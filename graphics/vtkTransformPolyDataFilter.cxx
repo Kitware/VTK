@@ -40,8 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 #include "vtkTransformPolyDataFilter.h"
-#include "vtkNormals.h"
-#include "vtkVectors.h"
+#include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
 //----------------------------------------------------------------------------
@@ -71,10 +70,10 @@ void vtkTransformPolyDataFilter::Execute()
 {
   vtkPoints *inPts;
   vtkPoints *newPts;
-  vtkVectors *inVectors, *inCellVectors;
-  vtkVectors *newVectors=NULL, *newCellVectors=NULL;
-  vtkNormals *inNormals, *inCellNormals;
-  vtkNormals *newNormals=NULL, *newCellNormals=NULL;
+  vtkDataArray *inVectors, *inCellVectors;
+  vtkFloatArray *newVectors=NULL, *newCellVectors=NULL;
+  vtkDataArray *inNormals, *inCellNormals;
+  vtkFloatArray *newNormals=NULL, *newCellNormals=NULL;
   vtkIdType numPts, numCells;
   vtkPolyData *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
@@ -92,10 +91,10 @@ void vtkTransformPolyDataFilter::Execute()
     }
 
   inPts = input->GetPoints();
-  inVectors = pd->GetVectors();
-  inNormals = pd->GetNormals();
-  inCellVectors = cd->GetVectors();
-  inCellNormals = cd->GetNormals();
+  inVectors = pd->GetActiveVectors();
+  inNormals = pd->GetActiveNormals();
+  inCellVectors = cd->GetActiveVectors();
+  inCellNormals = cd->GetActiveNormals();
 
   if ( !inPts )
     {
@@ -110,13 +109,15 @@ void vtkTransformPolyDataFilter::Execute()
   newPts->Allocate(numPts);
   if ( inVectors ) 
     {
-    newVectors = vtkVectors::New();
-    newVectors->Allocate(numPts);
+    newVectors = vtkFloatArray::New();
+    newVectors->SetNumberOfComponents(3);
+    newVectors->Allocate(3*numPts);
     }
   if ( inNormals ) 
     {
-    newNormals = vtkNormals::New();
-    newNormals->Allocate(numPts);
+    newNormals = vtkFloatArray::New();
+    newNormals->SetNumberOfComponents(3);
+    newNormals->Allocate(3*numPts);
     }
 
   this->UpdateProgress (.2);
@@ -138,21 +139,22 @@ void vtkTransformPolyDataFilter::Execute()
 
   // Can only transform cell normals/vectors if the transform
   // is linear.
-  if (this->Transform->IsA("vtkLinearTransform"))
+  vtkLinearTransform* lt = vtkLinearTransform::SafeDownCast(this->Transform);
+  if (lt)
     {
     if ( inCellVectors ) 
       {
-      newCellVectors = vtkVectors::New();
-      newCellVectors->Allocate(numCells);
-      ((vtkLinearTransform *)this->Transform)->
-	TransformVectors(inCellVectors,newCellVectors);
+      newCellVectors = vtkFloatArray::New();
+      newCellVectors->SetNumberOfComponents(3);
+      newCellVectors->Allocate(3*numCells);
+      lt->TransformVectors(inCellVectors,newCellVectors);
       }
     if ( inCellNormals ) 
       {
-      newCellNormals = vtkNormals::New();
-      newCellNormals->Allocate(numCells);
-      ((vtkLinearTransform *)this->Transform)->
-       TransformNormals(inCellNormals,newCellNormals);
+      newCellNormals = vtkFloatArray::New();
+      newCellNormals->SetNumberOfComponents(3);
+      newCellNormals->Allocate(3*numCells);
+      lt->TransformNormals(inCellNormals,newCellNormals);
       }
     }
 

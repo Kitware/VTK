@@ -50,10 +50,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <math.h>
 #include "vtkSuperquadricSource.h"
 #include "vtkPoints.h"
-#include "vtkNormals.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-
+#include "vtkFloatArray.h"
 
 
 //------------------------------------------------------------------------------
@@ -173,8 +172,8 @@ void vtkSuperquadricSource::Execute()
   int i, j;
   vtkIdType numPts;
   vtkPoints *newPoints; 
-  vtkNormals *newNormals;
-  vtkTCoords *newTCoords;
+  vtkFloatArray *newNormals;
+  vtkFloatArray *newTCoords;
   vtkCellArray *newPolys;
   vtkIdType *ptidx;
   float pt[3], nv[3], dims[3];
@@ -243,12 +242,14 @@ void vtkSuperquadricSource::Execute()
   //
   newPoints = vtkPoints::New();
   newPoints->Allocate(numPts);
-  newNormals = vtkNormals::New();
-  newNormals->Allocate(numPts);
-  newNormals->GetData()->SetName("Normals");
-  newTCoords = vtkTCoords::New();
-  newTCoords->Allocate(numPts);
-  newTCoords->GetData()->SetName("TextureCoords");
+  newNormals = vtkFloatArray::New();
+  newNormals->SetNumberOfComponents(3);
+  newNormals->Allocate(3*numPts);
+  newNormals->SetName("Normals");
+  newTCoords = vtkFloatArray::New();
+  newTCoords->SetNumberOfComponents(2);
+  newTCoords->Allocate(2*numPts);
+  newTCoords->SetName("TextureCoords");
 
   newPolys = vtkCellArray::New();
   newPolys->Allocate(newPolys->EstimateSize(numStrips,ptsPerStrip));
@@ -320,8 +321,8 @@ void vtkSuperquadricSource::Execute()
 	  pt[2] += this->Center[2];
 	  
 	  newPoints->InsertNextPoint(pt);
-	  newNormals->InsertNextNormal(nv);
-	  newTCoords->InsertNextTCoord(texCoord);
+	  newNormals->InsertNextTuple(nv);
+	  newTCoords->InsertNextTuple(texCoord);
 	}
       }
     }

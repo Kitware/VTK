@@ -251,10 +251,10 @@ VTK_THREAD_RETURN_TYPE vtkStreamer::ThreadedIntegrate( void *arg )
   vtkDataSet               *input;
   vtkGenericCell           *cell;
   vtkPointData             *pd;
-  vtkScalars               *inScalars;
-  vtkVectors               *inVectors;
-  vtkVectors               *cellVectors;
-  vtkScalars               *cellScalars;
+  vtkDataArray             *inScalars;
+  vtkDataArray             *inVectors;
+  vtkFloatArray            *cellVectors;
+  vtkDataArray             *cellScalars;
   float tOffset, vort[3];
   int nSavePts = 0, counter=0;
 
@@ -264,14 +264,15 @@ VTK_THREAD_RETURN_TYPE vtkStreamer::ThreadedIntegrate( void *arg )
 
   input     = self->GetInput();
   pd        = input->GetPointData();
-  inScalars = pd->GetScalars();
-  inVectors = pd->GetVectors();
+  inScalars = pd->GetActiveScalars();
+  inVectors = pd->GetActiveVectors();
 
   cell = vtkGenericCell::New();
-  cellVectors = vtkVectors::New();
-  cellVectors->Allocate(VTK_CELL_SIZE);
-  cellScalars = vtkScalars::New();
-  cellScalars->Allocate(VTK_CELL_SIZE);
+  cellVectors = vtkFloatArray::New();
+  cellVectors->SetNumberOfComponents(3);
+  cellVectors->Allocate(3*VTK_CELL_SIZE);
+  cellScalars = inScalars->MakeObject();
+  cellScalars->Allocate(inScalars->GetNumberOfComponents()*VTK_CELL_SIZE);
 
   w = new float[input->GetMaxCellSize()];
 
@@ -379,10 +380,10 @@ VTK_THREAD_RETURN_TYPE vtkStreamer::ThreadedIntegrate( void *arg )
 	if ( inScalars )
 	  {
 	  // Interpolate scalars
-	  inScalars->GetScalars(cell->PointIds, cellScalars);
+	  inScalars->GetTuples(cell->PointIds, cellScalars);
 	  for (pt2.s=0.0, i=0; i < cell->GetNumberOfPoints(); i++)
 	    {
-	    pt2.s += cellScalars->GetScalar(i) * w[i];
+	    pt2.s += cellScalars->GetComponent(i,0) * w[i];
 	    }
 	  }
 
@@ -401,8 +402,8 @@ VTK_THREAD_RETURN_TYPE vtkStreamer::ThreadedIntegrate( void *arg )
 	if (self->GetVorticity() && inVectors)
 	  {
 	  // compute vorticity
-	  inVectors->GetVectors(cell->PointIds, cellVectors);
-	  cellVel = ((vtkFloatArray *)cellVectors->GetData())->GetPointer(0);
+	  inVectors->GetTuples(cell->PointIds, cellVectors);
+	  cellVel = cellVectors->GetPointer(0);
 	  cell->Derivatives(0, pcoords, cellVel, 3, derivs);
           vort[0] = derivs[7] - derivs[5];
           vort[1] = derivs[2] - derivs[6];
@@ -472,8 +473,8 @@ void vtkStreamer::Integrate()
   vtkDataSet *input = this->GetInput();
   vtkDataSet *source = this->GetSource();
   vtkPointData *pd=input->GetPointData();
-  vtkScalars *inScalars;
-  vtkVectors *inVectors;
+  vtkDataArray *inScalars;
+  vtkDataArray *inVectors;
   vtkIdType numSourcePts, idx, idxNext;
   vtkStreamPoint *sNext, *sPtr;
   vtkIdType ptId, i;
@@ -482,8 +483,8 @@ void vtkStreamer::Integrate()
   float *v, *cellVel, derivs[9], xNext[3], vort[3];
   float tol2;
   float *w=new float[input->GetMaxCellSize()];
-  vtkVectors *cellVectors;
-  vtkScalars *cellScalars;
+  vtkFloatArray *cellVectors;
+  vtkDataArray *cellScalars=0;
 
   vtkDebugMacro(<<"Generating streamers");
   this->NumberOfStreamers = 0;
@@ -492,18 +493,24 @@ void vtkStreamer::Integrate()
   delete [] this->Streamers;
   this->Streamers = NULL;
 
-  if ( ! (inVectors=pd->GetVectors()) )
+  if ( ! (inVectors=pd->GetActiveVectors()) )
     {
     vtkErrorMacro(<<"No vector data defined!");
     return;
     }
 
-  cellVectors = vtkVectors::New();
-  cellVectors->Allocate(VTK_CELL_SIZE);
-  cellScalars = vtkScalars::New();
-  cellScalars->Allocate(VTK_CELL_SIZE);
+  cellVectors = vtkFloatArray::New();
+  cellVectors->SetNumberOfComponents(3);
+  cellVectors->Allocate(3*VTK_CELL_SIZE);
+
+  inScalars = pd->GetActiveScalars();
+
+  if (inScalars)
+    {
+    cellScalars = inScalars->MakeObject();
+    cellScalars->Allocate(cellScalars->GetNumberOfComponents()*VTK_CELL_SIZE);
+    }
   
-  inScalars = pd->GetScalars();
   tol2 = input->GetLength()/1000; 
   tol2 = tol2*tol2;
 
@@ -576,11 +583,11 @@ void vtkStreamer::Integrate()
       cell = input->GetCell(sPtr->cellId);
       cell->EvaluateLocation(sPtr->subId, sPtr->p, xNext, w);
 
-      inVectors->GetVectors(cell->PointIds, cellVectors);
+      inVectors->GetTuples(cell->PointIds, cellVectors);
       sPtr->v[0]  = sPtr->v[1] = sPtr->v[2] = 0.0;
       for (i=0; i < cell->GetNumberOfPoints(); i++)
         {
-        v =  cellVectors->GetVector(i);
+        v =  cellVectors->GetTuple(i);
         for (j=0; j<3; j++)
 	  {
 	  sPtr->v[j] += v[j] * w[i];
@@ -592,8 +599,8 @@ void vtkStreamer::Integrate()
       if (this->GetVorticity() && inVectors)
 	{
 	  // compute vorticity
-	inVectors->GetVectors(cell->PointIds, cellVectors);
-	cellVel = ((vtkFloatArray *)cellVectors->GetData())->GetPointer(0);
+	inVectors->GetTuples(cell->PointIds, cellVectors);
+	cellVel = cellVectors->GetPointer(0);
 	cell->Derivatives(0, sPtr->p, cellVel, 3, derivs);
 	vort[0] = derivs[7] - derivs[5];
 	vort[1] = derivs[2] - derivs[6];
@@ -606,10 +613,10 @@ void vtkStreamer::Integrate()
 
       if ( inScalars ) 
         {
-        inScalars->GetScalars(cell->PointIds, cellScalars);
+        inScalars->GetTuples(cell->PointIds, cellScalars);
         for (sPtr->s=0, i=0; i < cell->GetNumberOfPoints(); i++)
 	  {
-          sPtr->s += cellScalars->GetScalar(i) * w[i];
+          sPtr->s += cellScalars->GetComponent(i,0) * w[i];
 	  }
         }
       }
@@ -680,7 +687,10 @@ void vtkStreamer::Integrate()
     }
   delete [] w;
   cellVectors->Delete();
-  cellScalars->Delete();
+  if (cellScalars)
+    {
+    cellScalars->Delete();
+    }
 }
 
 void vtkStreamer::ComputeVorticity()

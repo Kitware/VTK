@@ -42,6 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkQuadricDecimation.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkFloatArray.h"
 
 //----------------------------------------------------------------------------
 vtkQuadricDecimation* vtkQuadricDecimation::New()
@@ -380,8 +381,10 @@ void vtkQuadricDecimation::ComputeQuadric(vtkIdType pointId)
   float triArea2;
   int scalars, vectors, normals, tcoords, tensors, fieldData;
   vtkPointData *pd = input->GetPointData();
-  vtkNormals *faceNormals = vtkNormals::New();
+  vtkFloatArray *faceNormals = vtkFloatArray::New();
   double *A[4], A0[4], A1[4], A2[4], A3[4], b[4];
+
+  faceNormals->SetNumberOfComponents(3);
   
   this->ErrorQuadrics[pointId].Quadric =
     new float[11 + 4 * this->NumberOfComponents];
@@ -407,7 +410,7 @@ void vtkQuadricDecimation::ComputeQuadric(vtkIdType pointId)
     vtkMath::Cross(tempP1, tempP2, n);
     triArea2 = vtkMath::Normalize(n);
     triArea2 = triArea2 * triArea2 * 0.25;
-    faceNormals->InsertNormal(cellIds->GetId(i), n);
+    faceNormals->InsertTuple(cellIds->GetId(i), n);
     d = -vtkMath::Dot(n, point0);
 
     this->ErrorQuadrics[pointId].Quadric[0] += n[0] * n[0] * triArea2;
@@ -439,7 +442,7 @@ void vtkQuadricDecimation::ComputeQuadric(vtkIdType pointId)
     cellPtIds[0] = cellPtIdList->GetId(0);
     cellPtIds[1] = cellPtIdList->GetId(1);
     cellPtIds[2] = cellPtIdList->GetId(2);
-    faceNormals->GetNormal(cellIds->GetId(i), n);
+    faceNormals->GetTuple(cellIds->GetId(i), n);
     for (j = 0; j < 3; j++)
       {
       A[0][j] = point0[j];

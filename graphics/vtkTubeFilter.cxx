@@ -43,6 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPolyLine.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkFloatArray.h"
 
 //--------------------------------------------------------------------------
 vtkTubeFilter* vtkTubeFilter::New()
@@ -81,13 +82,13 @@ void vtkTubeFilter::Execute()
   int j, k;
   vtkPoints *inPts;
   vtkCellArray *inLines = NULL;
-  vtkNormals *inNormals;
+  vtkDataArray *inNormals;
   vtkDataArray *inScalars=NULL;
-  vtkVectors *inVectors=NULL;
+  vtkDataArray *inVectors=NULL;
   vtkIdType numPts = 0;
   vtkIdType numNewPts;
   vtkPoints *newPts;
-  vtkNormals *newNormals;
+  vtkFloatArray *newNormals;
   vtkCellArray *newStrips;
   int i1, i2, ptOffset=0;
   vtkIdType *pts, npts;
@@ -105,10 +106,11 @@ void vtkTubeFilter::Execute()
   vtkPolyData *output = this->GetOutput();
   // Keep caps separate (add later for simplicity).
   vtkPoints *capPoints = vtkPoints::New();
-  vtkNormals *capNormals = vtkNormals::New();
+  vtkFloatArray *capNormals = vtkFloatArray::New();
   float capNorm[3];
   int capPointFlag;
 
+  capNormals->SetNumberOfComponents(3);
   // Initialize
   //
   vtkDebugMacro(<<"Creating tube");
@@ -133,17 +135,18 @@ void vtkTubeFilter::Execute()
   int generate_normals = 0;
   vtkPolyLine *lineNormalGenerator;
   
-  if ( !(inNormals=pd->GetNormals()) || this->UseDefaultNormal )
+  if ( !(inNormals=pd->GetActiveNormals()) || this->UseDefaultNormal )
     {
     deleteNormals = 1;
-    inNormals = vtkNormals::New();
-    inNormals->SetNumberOfNormals(numPts);
+    inNormals = vtkFloatArray::New();
+    inNormals->SetNumberOfComponents(3);
+    inNormals->SetNumberOfTuples(numPts);
 
     if ( this->UseDefaultNormal )
       {
       for ( i=0; i < numPts; i++)
         {
-        inNormals->SetNormal(i,this->DefaultNormal);
+        inNormals->SetTuple(i,this->DefaultNormal);
         }
       }
     else
@@ -162,15 +165,16 @@ void vtkTubeFilter::Execute()
     inScalars->GetRange(range,0);
     }
   else if ( this->VaryRadius == VTK_VARY_RADIUS_BY_VECTOR && 
-  (inVectors=pd->GetVectors()) )
+  (inVectors=pd->GetActiveVectors()) )
     {
     maxSpeed = inVectors->GetMaxNorm();
     }
 
   newPts = vtkPoints::New();
   newPts->Allocate(numNewPts);
-  newNormals = vtkNormals::New();
-  newNormals->Allocate(numNewPts);
+  newNormals = vtkFloatArray::New();
+  newNormals->SetNumberOfComponents(3);
+  newNormals->Allocate(3*numNewPts);
   newStrips = vtkCellArray::New();
   newStrips->Allocate(newStrips->EstimateSize(1,numNewPts));
 
@@ -188,7 +192,7 @@ void vtkTubeFilter::Execute()
       singlePolyline->InsertNextCell( npts, pts );
     
       if ( !lineNormalGenerator->GenerateSlidingNormals(inPts,singlePolyline,
-                                          (vtkNormals*)inNormals) )
+							inNormals) )
         {
         vtkErrorMacro(<< "No normals for line!\n");
         if (deleteNormals)
@@ -253,7 +257,7 @@ void vtkTubeFilter::Execute()
         capPointFlag = 0;
         }
 
-      n = inNormals->GetNormal(pts[j]);
+      n = inNormals->GetTuple(pts[j]);
 
       if ( vtkMath::Normalize(sNext) == 0.0 )
         {
@@ -338,7 +342,7 @@ void vtkTubeFilter::Execute()
       else if ( inVectors ) // use flux preserving relationship
         {
         sFactor = 
-          sqrt((double)maxSpeed/vtkMath::Norm(inVectors->GetVector(pts[j])));
+          sqrt((double)maxSpeed/vtkMath::Norm(inVectors->GetTuple(pts[j])));
         if ( sFactor > this->RadiusFactor )
           {
           sFactor = this->RadiusFactor;
@@ -357,10 +361,10 @@ void vtkTubeFilter::Execute()
           {
           vtkMath::Normalize(capNorm);
           capPoints->InsertNextPoint(s);
-          capNormals->InsertNextNormal(capNorm);
+          capNormals->InsertNextTuple(capNorm);
           }
         ptId = newPts->InsertNextPoint(s);
-        newNormals->InsertNormal(ptId,normal);
+        newNormals->InsertTuple(ptId,normal);
         outPD->CopyData(pd,pts[j],ptId);
         }
       }//for all points in polyline
@@ -396,8 +400,8 @@ void vtkTubeFilter::Execute()
       {
       tmp = capPoints->GetPoint(i);
       newPts->InsertNextPoint(tmp);
-      tmp = capNormals->GetNormal(i);
-      newNormals->InsertNextNormal(tmp);
+      tmp = capNormals->GetTuple(i);
+      newNormals->InsertNextTuple(tmp);
       }
     // Now add the triangle strips.
     num = num / this->NumberOfSides;

@@ -40,7 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 #include "vtkTriangularTCoords.h"
-#include "vtkTCoords.h"
+#include "vtkFloatArray.h"
 #include <math.h>
 #include "vtkObjectFactory.h"
 
@@ -65,7 +65,7 @@ void vtkTriangularTCoords::Execute()
   vtkPointData *pd;
   vtkCellArray *inPolys,*inStrips;
   vtkIdType numNewPts, numNewPolys, polyAllocSize;
-  vtkTCoords *newTCoords;
+  vtkFloatArray *newTCoords;
   vtkIdType newId, numCells, cellId;
   vtkIdType *pts, newIds[3], npts;
   int errorLogging = 1;
@@ -110,8 +110,9 @@ void vtkTriangularTCoords::Execute()
 
   //  Allocate texture data
   //
-  newTCoords = vtkTCoords::New(VTK_FLOAT,2);
-  newTCoords->Allocate(numNewPts);
+  newTCoords = vtkFloatArray::New();
+  newTCoords->SetNumberOfComponents(2);
+  newTCoords->Allocate(2*numNewPts);
 
   // Allocate
   //
@@ -158,7 +159,7 @@ void vtkTriangularTCoords::Execute()
       newId = newPoints->InsertNextPoint(p1);
       newPolys->InsertCellPoint(newId);
       pointData->CopyData(pd,pts[j],newId);
-      newTCoords->SetTCoord (newId,&tCoords[2*j]);
+      newTCoords->SetTuple (newId,&tCoords[2*j]);
       }
     }
 
@@ -181,15 +182,15 @@ void vtkTriangularTCoords::Execute()
 
       newIds[0] = newPoints->InsertNextPoint(p1);
       pointData->CopyData(pd,pts[j],newIds[0]);
-      newTCoords->SetTCoord (newIds[0],&tCoords[0]);
+      newTCoords->SetTuple (newIds[0],&tCoords[0]);
 
       newIds[1] = newPoints->InsertNextPoint(p2);
       pointData->CopyData(pd,pts[j+1],newIds[1]);
-      newTCoords->SetTCoord (newIds[1],&tCoords[2]);
+      newTCoords->SetTuple (newIds[1],&tCoords[2]);
 
       newIds[2] = newPoints->InsertNextPoint(p3);
       pointData->CopyData(pd,pts[j+2],newIds[2]);
-      newTCoords->SetTCoord (newIds[2],&tCoords[4]);
+      newTCoords->SetTuple (newIds[2],&tCoords[4]);
 
       // flip orientation for odd tris
       if (j%2) 

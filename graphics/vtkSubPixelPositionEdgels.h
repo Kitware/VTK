@@ -93,7 +93,7 @@ protected:
   // Usual data generation method
   void Execute();
   void Move(int xdim, int ydim, int zdim, int x, int y,
-	    float *img, vtkVectors *inVecs, 
+	    float *img, vtkDataArray *inVecs, 
 	    float *result, int z, float *aspect, float *resultNormal);
   // extension for target instead of maximum
   int TargetFlag;

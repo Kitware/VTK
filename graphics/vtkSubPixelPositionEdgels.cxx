@@ -71,9 +71,9 @@ void vtkSubPixelPositionEdgels::Execute()
   vtkPolyData *input = this->GetInput();
   vtkIdType numPts=input->GetNumberOfPoints();
   vtkPoints *newPts;
-  vtkNormals *newNormals;
+  vtkFloatArray *newNormals;
   vtkPoints *inPts;
-  vtkVectors *inVectors;
+  vtkDataArray *inVectors;
   vtkIdType ptId;
   vtkPolyData *output = this->GetOutput();
   float *MapData;
@@ -91,14 +91,15 @@ void vtkSubPixelPositionEdgels::Execute()
     }
 
   newPts = vtkPoints::New();
-  newNormals = vtkNormals::New();
+  newNormals = vtkFloatArray::New();
+  newNormals->SetNumberOfComponents(3);
   
   dimensions = this->GetGradMaps()->GetDimensions();
   spacing = this->GetGradMaps()->GetSpacing();
   origin = this->GetGradMaps()->GetOrigin();
   MapData = ((vtkFloatArray *)(this->GetGradMaps()->GetPointData())
 	     ->GetScalars()->GetData())->GetPointer(0);
-  inVectors = this->GetGradMaps()->GetPointData()->GetVectors();
+  inVectors = this->GetGradMaps()->GetPointData()->GetActiveVectors();
 
   //
   // Loop over all points, adjusting locations
@@ -117,7 +118,7 @@ void vtkSubPixelPositionEdgels::Execute()
     result[1] = result[1]*spacing[1] + origin[1];
     result[2] = result[2]*spacing[2] + origin[2];
     newPts->InsertNextPoint(result);
-    newNormals->InsertNextNormal(resultNormal);
+    newNormals->InsertNextTuple(resultNormal);
     }
   
   output->CopyStructure(input);
@@ -131,7 +132,7 @@ void vtkSubPixelPositionEdgels::Execute()
 
 void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
 				     int x, int y,
-				     float *img, vtkVectors *inVecs, 
+				     float *img, vtkDataArray *inVecs, 
 				     float *result, int z, float *spacing,
 				     float *resultNormal)
 {
@@ -160,14 +161,14 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
       for (i = 0; i < 3; i++)
 	{
 	resultNormal[i] = 
-	  inVecs->GetVector(x + xdim*y)[i];
+	  inVecs->GetTuple(x + xdim*y)[i];
 	}
       vtkMath::Normalize(resultNormal);
       }
     else 
       {
       // first get the orientation
-      inVecs->GetVector(x+ypos,vec);
+      inVecs->GetTuple(x+ypos,vec);
       vec[0] = vec[0]*spacing[0];
       vec[1] = vec[1]*spacing[1];
       vec[2] = 0;
@@ -229,10 +230,10 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
       for (i = 0; i < 3; i++)
 	{
 	resultNormal[i] = 
-	  inVecs->GetVector(xi + xdim*yi)[i] * (1.0 -xn +xi)*(1.0 -yn +yi) +
-	  inVecs->GetVector(1 + xi + xdim*yi)[i] * (xn -xi)*(1.0 -yn +yi) +
-	  inVecs->GetVector(xi + xdim*(yi +1))[i] * (1.0 -xn +xi)*(yn -yi) +
-	  inVecs->GetVector(1 + xi + xdim*(yi +1))[i] * (xn -xi)*(yn -yi);
+	  inVecs->GetTuple(xi + xdim*yi)[i] * (1.0 -xn +xi)*(1.0 -yn +yi) +
+	  inVecs->GetTuple(1 + xi + xdim*yi)[i] * (xn -xi)*(1.0 -yn +yi) +
+	  inVecs->GetTuple(xi + xdim*(yi +1))[i] * (1.0 -xn +xi)*(yn -yi) +
+	  inVecs->GetTuple(1 + xi + xdim*(yi +1))[i] * (xn -xi)*(yn -yi);
 	}
       vtkMath::Normalize(resultNormal);
       }
@@ -248,14 +249,14 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
       for (i = 0; i < 3; i++)
 	{
 	resultNormal[i] = 
-	  inVecs->GetVector(x + xdim*y + xdim*ydim*z)[i];
+	  inVecs->GetTuple(x + xdim*y + xdim*ydim*z)[i];
 	}
       vtkMath::Normalize(resultNormal);
       }
     else 
       {
       // first get the orientation
-      inVecs->GetVector(x+ypos+zpos,vec);
+      inVecs->GetTuple(x+ypos+zpos,vec);
       vec[0] = vec[0]*spacing[0];
       vec[1] = vec[1]*spacing[1];
       vec[2] = vec[2]*spacing[2];
@@ -378,21 +379,21 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
       for (i = 0; i < 3; i++)
 	{
 	resultNormal[i] = 
-	  inVecs->GetVector(xi + xdim*(yi + zi*ydim))[i] * 
+	  inVecs->GetTuple(xi + xdim*(yi + zi*ydim))[i] * 
 	  (1.0 -xn +xi)*(1.0 -yn +yi)*(1.0 -zn +zi) +
-	  inVecs->GetVector(1 + xi + xdim*(yi + zi*ydim))[i] *
+	  inVecs->GetTuple(1 + xi + xdim*(yi + zi*ydim))[i] *
 	  (xn -xi)*(1.0 -yn +yi)*(1.0 -zn +zi) +
-	  inVecs->GetVector(xi + xdim*(yi +1 + zi*ydim))[i] *
+	  inVecs->GetTuple(xi + xdim*(yi +1 + zi*ydim))[i] *
 	  (1.0 -xn +xi)*(yn -yi)*(1.0 -zn +zi) +
-	  inVecs->GetVector(1 + xi + xdim*(yi +1 +zi*ydim))[i] *
+	  inVecs->GetTuple(1 + xi + xdim*(yi +1 +zi*ydim))[i] *
 	  (xn -xi)*(yn -yi)*(1.0 -zn +zi) +
-	  inVecs->GetVector(xi + xdim*(yi + (zi+1)*ydim))[i] *
+	  inVecs->GetTuple(xi + xdim*(yi + (zi+1)*ydim))[i] *
 	  (1.0 -xn +xi)*(1.0 -yn +yi)*(zn -zi) +
-	  inVecs->GetVector(1 + xi + xdim*(yi + (zi+1)*ydim))[i] * 
+	  inVecs->GetTuple(1 + xi + xdim*(yi + (zi+1)*ydim))[i] * 
 	  (xn -xi)*(1.0 -yn +yi)*(zn -zi) +
-	  inVecs->GetVector(xi + xdim*(yi +1 + (zi+1)*ydim))[i] *
+	  inVecs->GetTuple(xi + xdim*(yi +1 + (zi+1)*ydim))[i] *
 	  (1.0 -xn +xi)*(yn -yi)*(zn -zi) +
-	  inVecs->GetVector(1 + xi + xdim*(yi +1 +(zi+1)*ydim))[i] *
+	  inVecs->GetTuple(1 + xi + xdim*(yi +1 +(zi+1)*ydim))[i] *
 	  (xn -xi)*(yn -yi)*(zn -zi);
 	}
       vtkMath::Normalize(resultNormal);

@@ -199,7 +199,20 @@ public:
 					     vtkNormals *inNms, 
 					     vtkNormals *outNms,
 					     vtkVectors *inVrs, 
-					     vtkVectors *outVrs);
+					     vtkVectors *outVrs)
+    { 
+      this->TransformPointsNormalsVectors(inPts, outPts,
+					  inNms->GetData(),
+					  outNms->GetData(),
+					  inVrs->GetData(),
+					  outVrs->GetData());
+    }
+  virtual void TransformPointsNormalsVectors(vtkPoints *inPts, 
+					     vtkPoints *outPts, 
+					     vtkDataArray *inNms, 
+					     vtkDataArray *outNms,
+					     vtkDataArray *inVrs, 
+					     vtkDataArray *outVrs);
 
   // Description:
   // Get the inverse of this transform.  If you modify this transform,

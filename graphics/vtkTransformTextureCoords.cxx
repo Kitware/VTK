@@ -42,6 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkTransformTextureCoords.h"
 #include "vtkTransform.h"
 #include "vtkObjectFactory.h"
+#include "vtkFloatArray.h"
 
 //-------------------------------------------------------------------------
 vtkTransformTextureCoords* vtkTransformTextureCoords::New()
@@ -91,8 +92,8 @@ void vtkTransformTextureCoords::Execute()
 {
   vtkDataSet *input = this->GetInput();
   vtkDataSet *output = this->GetOutput();
-  vtkTCoords *inTCoords=input->GetPointData()->GetTCoords();
-  vtkTCoords *newTCoords;
+  vtkDataArray *inTCoords=input->GetPointData()->GetActiveTCoords();
+  vtkDataArray *newTCoords;
   vtkIdType numPts=input->GetNumberOfPoints(), ptId;
   int i, j, texDim;
   vtkTransform *transform = vtkTransform::New();
@@ -112,8 +113,8 @@ void vtkTransformTextureCoords::Execute()
 
   // create same type as input
   texDim = inTCoords->GetNumberOfComponents();
-  newTCoords = (vtkTCoords *)inTCoords->MakeObject();
-  newTCoords->Allocate(numPts,texDim);
+  newTCoords = inTCoords->MakeObject();
+  newTCoords->Allocate(numPts*texDim);
 
   // just pretend texture coordinate is 3D point and use transform object to
   // manipulate
@@ -159,7 +160,7 @@ void vtkTransformTextureCoords::Execute()
       abort = this->GetAbortExecute();
       }
 
-    TC = inTCoords->GetTCoord(ptId);
+    TC = inTCoords->GetTuple(ptId);
     for (i=0; i<texDim; i++)
       {
       newTC[i] = matrix->Element[i][3];
@@ -169,7 +170,7 @@ void vtkTransformTextureCoords::Execute()
         }
       }
 
-    newTCoords->InsertTCoord(ptId,newTC);
+    newTCoords->InsertTuple(ptId,newTC);
     }
 
   // Update self

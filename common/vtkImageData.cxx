@@ -859,7 +859,7 @@ void vtkImageData::GetVoxelGradient(int i, int j, int k, vtkScalars *s,
 // dataset, compute the gradient vector from the scalar data at that point. 
 // The scalars s are the scalars from which the gradient is to be computed.
 // This method will treat structured point datasets of any dimension.
-void vtkImageData::GetPointGradient(int i,int j,int k, vtkScalars *s, 
+void vtkImageData::GetPointGradient(int i,int j,int k, vtkDataArray *s, 
                                     float g[3])
 {
   int *dims=this->GetDimensions();
@@ -874,20 +874,20 @@ void vtkImageData::GetPointGradient(int i,int j,int k, vtkScalars *s,
     }
   else if ( i == 0 )
     {
-    sp = s->GetScalar(i+1 + j*dims[0] + k*ijsize);
-    sm = s->GetScalar(i + j*dims[0] + k*ijsize);
+    sp = s->GetComponent(i+1 + j*dims[0] + k*ijsize, 0);
+    sm = s->GetComponent(i + j*dims[0] + k*ijsize, 0);
     g[0] = (sm - sp) / ar[0];
     }
   else if ( i == (dims[0]-1) )
     {
-    sp = s->GetScalar(i + j*dims[0] + k*ijsize);
-    sm = s->GetScalar(i-1 + j*dims[0] + k*ijsize);
+    sp = s->GetComponent(i + j*dims[0] + k*ijsize,0);
+    sm = s->GetComponent(i-1 + j*dims[0] + k*ijsize,0);
     g[0] = (sm - sp) / ar[0];
     }
   else
     {
-    sp = s->GetScalar(i+1 + j*dims[0] + k*ijsize);
-    sm = s->GetScalar(i-1 + j*dims[0] + k*ijsize);
+    sp = s->GetComponent(i+1 + j*dims[0] + k*ijsize,0);
+    sm = s->GetComponent(i-1 + j*dims[0] + k*ijsize,0);
     g[0] = 0.5 * (sm - sp) / ar[0];
     }
 
@@ -898,20 +898,20 @@ void vtkImageData::GetPointGradient(int i,int j,int k, vtkScalars *s,
     }
   else if ( j == 0 )
     {
-    sp = s->GetScalar(i + (j+1)*dims[0] + k*ijsize);
-    sm = s->GetScalar(i + j*dims[0] + k*ijsize);
+    sp = s->GetComponent(i + (j+1)*dims[0] + k*ijsize,0);
+    sm = s->GetComponent(i + j*dims[0] + k*ijsize,0);
     g[1] = (sm - sp) / ar[1];
     }
   else if ( j == (dims[1]-1) )
     {
-    sp = s->GetScalar(i + j*dims[0] + k*ijsize);
-    sm = s->GetScalar(i + (j-1)*dims[0] + k*ijsize);
+    sp = s->GetComponent(i + j*dims[0] + k*ijsize,0);
+    sm = s->GetComponent(i + (j-1)*dims[0] + k*ijsize,0);
     g[1] = (sm - sp) / ar[1];
     }
   else
     {
-    sp = s->GetScalar(i + (j+1)*dims[0] + k*ijsize);
-    sm = s->GetScalar(i + (j-1)*dims[0] + k*ijsize);
+    sp = s->GetComponent(i + (j+1)*dims[0] + k*ijsize,0);
+    sm = s->GetComponent(i + (j-1)*dims[0] + k*ijsize,0);
     g[1] = 0.5 * (sm - sp) / ar[1];
     }
 
@@ -922,20 +922,20 @@ void vtkImageData::GetPointGradient(int i,int j,int k, vtkScalars *s,
     }
   else if ( k == 0 )
     {
-    sp = s->GetScalar(i + j*dims[0] + (k+1)*ijsize);
-    sm = s->GetScalar(i + j*dims[0] + k*ijsize);
+    sp = s->GetComponent(i + j*dims[0] + (k+1)*ijsize,0);
+    sm = s->GetComponent(i + j*dims[0] + k*ijsize,0);
     g[2] = (sm - sp) / ar[2];
     }
   else if ( k == (dims[2]-1) )
     {
-    sp = s->GetScalar(i + j*dims[0] + k*ijsize);
-    sm = s->GetScalar(i + j*dims[0] + (k-1)*ijsize);
+    sp = s->GetComponent(i + j*dims[0] + k*ijsize,0);
+    sm = s->GetComponent(i + j*dims[0] + (k-1)*ijsize,0);
     g[2] = (sm - sp) / ar[2];
     }
   else
     {
-    sp = s->GetScalar(i + j*dims[0] + (k+1)*ijsize);
-    sm = s->GetScalar(i + j*dims[0] + (k-1)*ijsize);
+    sp = s->GetComponent(i + j*dims[0] + (k+1)*ijsize,0);
+    sm = s->GetComponent(i + j*dims[0] + (k-1)*ijsize,0);
     g[2] = 0.5 * (sm - sp) / ar[2];
     }
 }
