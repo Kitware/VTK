@@ -21,7 +21,7 @@
 #include "vtkgluPickMatrix.h"
 #include "vtkString.h"
 
-vtkCxxRevisionMacro(vtkWin32OpenGLTextMapper, "1.41");
+vtkCxxRevisionMacro(vtkWin32OpenGLTextMapper, "1.42");
 vtkStandardNewMacro(vtkWin32OpenGLTextMapper);
 
 struct vtkFontStruct
@@ -218,7 +218,7 @@ void vtkWin32OpenGLTextMapper::RenderOverlay(vtkViewport* viewport,
   // Get the position of the text actor
   POINT ptDestOff;
   int* actorPos = 
-    actor->GetPositionCoordinate()->GetComputedViewportValue(viewport);
+    actor->GetActualPositionCoordinate()->GetComputedViewportValue(viewport);
   ptDestOff.x = actorPos[0];
   ptDestOff.y = static_cast<long>(actorPos[1] - this->LineOffset);
 

@@ -48,7 +48,7 @@
 // with the leader moving with the AttachmentPoint.
 
 // .SECTION See Also
-// vtkLegendBoxActor vtkTextMapper vtkScaledTextActor vtkTextMapper
+// vtkLegendBoxActor vtkTextMapper vtkTextActor vtkTextMapper
 // vtkCoordinate
 
 #ifndef __vtkCaptionActor2D_h
@@ -58,7 +58,7 @@
 
 class vtkPolyDataMapper2D;
 class vtkPolyDataMapper;
-class vtkScaledTextActor;
+class vtkTextActor;
 class vtkGlyph2D;
 class vtkGlyph3D;
 class vtkAppendPolyData;
@@ -232,8 +232,7 @@ protected:
   int   VerticalJustification;
 
 private:
-  vtkTextMapper      *CaptionMapper;
-  vtkScaledTextActor *CaptionActor;
+  vtkTextActor       *CaptionActor;
 
   vtkPolyData         *BorderPolyData;
   vtkPolyDataMapper2D *BorderMapper;

@@ -57,9 +57,9 @@ public:
   // Description:
   // Return the size[2]/width/height of the rectangle required to draw this
   // mapper (in pixels).
-  virtual void GetSize(vtkViewport*, int size[2]) {size[0]=size[0];};
-  int GetWidth(vtkViewport*);
-  int GetHeight(vtkViewport*);
+  virtual void GetSize(vtkViewport*v, int size[2]) {size[0]=size[0];};
+  int GetWidth(vtkViewport*v);
+  int GetHeight(vtkViewport*v);
   
   // Description:
   // Set the input text string to the mapper.  The mapper recognizes "\n"

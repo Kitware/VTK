@@ -25,7 +25,7 @@
 #include "vtkXMesaTextMapper.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkXMesaTextMapper, "1.15");
+vtkCxxRevisionMacro(vtkXMesaTextMapper, "1.16");
 vtkStandardNewMacro(vtkXMesaTextMapper);
 
 static void
@@ -363,7 +363,7 @@ void vtkXMesaTextMapper::RenderOverlay(vtkViewport* viewport,
 
   // Get the position of the text actor
   int* actorPos = 
-    actor->GetPositionCoordinate()->GetComputedViewportValue(viewport);
+    actor->GetActualPositionCoordinate()->GetComputedViewportValue(viewport);
 
   // Set up the font color from the text actor
   unsigned char red = 0;

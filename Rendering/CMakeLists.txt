@@ -69,6 +69,7 @@ vtkRendererSource.cxx
 vtkScalarBarActor.cxx
 vtkScaledTextActor.cxx
 vtkSelectVisiblePoints.cxx
+vtkTextActor.cxx
 vtkTextMapper.cxx
 vtkTexture.cxx
 vtkVRMLExporter.cxx

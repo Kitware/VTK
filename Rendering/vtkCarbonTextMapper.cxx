@@ -23,7 +23,7 @@
 #include "vtkgluPickMatrix.h"
 #include "vtkString.h"
 
-vtkCxxRevisionMacro(vtkCarbonTextMapper, "1.4");
+vtkCxxRevisionMacro(vtkCarbonTextMapper, "1.5");
 vtkStandardNewMacro(vtkCarbonTextMapper);
 
 struct vtkFontStruct
@@ -307,7 +307,7 @@ void vtkCarbonTextMapper::RenderOverlay(vtkViewport* viewport,
   // Get the position of the text actor
   Point ptDestOff;
   int* actorPos = 
-    actor->GetPositionCoordinate()->GetComputedViewportValue(viewport);
+    actor->GetActualPositionCoordinate()->GetComputedViewportValue(viewport);
   ptDestOff.h = actorPos[0];
   ptDestOff.v = static_cast<long>(actorPos[1] - this->LineOffset);
 

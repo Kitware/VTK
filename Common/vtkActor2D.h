@@ -117,6 +117,20 @@ public:
   // resources to release.
   virtual void ReleaseGraphicsResources(vtkWindow *);
 
+  // Description:
+  // Return the actual vtkCoordinate reference that the mapper should use
+  // to position the actor. This is used internally by the mappers and should
+  // be overridden in specialized subclasses and otherwise ignored.
+  virtual vtkCoordinate *GetActualPositionCoordinate(void)
+    { return this->PositionCoordinate; }
+
+  // Description:
+  // Return the actual vtkCoordinate reference that the mapper should use
+  // to position the actor. This is used internally by the mappers and should
+  // be overridden in specialized subclasses and otherwise ignored.
+  virtual vtkCoordinate *GetActualPosition2Coordinate(void)
+    { return this->Position2Coordinate; }
+
 protected:
   vtkActor2D();
   ~vtkActor2D();

@@ -18,7 +18,7 @@
 #include "vtkCocoaTextMapper.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCocoaTextMapper, "1.1");
+vtkCxxRevisionMacro(vtkCocoaTextMapper, "1.2");
 vtkStandardNewMacro(vtkCocoaTextMapper);
 
 vtkCocoaTextMapper::vtkCocoaTextMapper()
@@ -175,7 +175,7 @@ void vtkCocoaTextMapper::RenderOverlay(vtkViewport* viewport,
   // Get the position of the text actor
 //  POINT ptDestOff;
   int* actorPos = 
-    actor->GetPositionCoordinate()->GetComputedLocalDisplayValue(viewport);
+    actor->GetActualPositionCoordinate()->GetComputedLocalDisplayValue(viewport);
 //  ptDestOff.x = actorPos[0];
 //  ptDestOff.y = actorPos[1] - this->LineOffset;
 

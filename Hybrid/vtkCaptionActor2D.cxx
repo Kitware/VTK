@@ -28,9 +28,9 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyDataMapper2D.h"
 #include "vtkProperty.h"
-#include "vtkScaledTextActor.h"
+#include "vtkTextActor.h"
 
-vtkCxxRevisionMacro(vtkCaptionActor2D, "1.16");
+vtkCxxRevisionMacro(vtkCaptionActor2D, "1.17");
 vtkStandardNewMacro(vtkCaptionActor2D);
 
 vtkCxxSetObjectMacro(vtkCaptionActor2D,LeaderGlyph,vtkPolyData);
@@ -69,13 +69,12 @@ vtkCaptionActor2D::vtkCaptionActor2D()
   this->VerticalJustification = VTK_TEXT_BOTTOM;
 
   // What is actually drawn
-  this->CaptionMapper = vtkTextMapper::New();
-  this->CaptionActor = vtkScaledTextActor::New();
-  this->CaptionActor->SetMapper(this->CaptionMapper);
+  this->CaptionActor = vtkTextActor::New();
   this->CaptionActor->GetPositionCoordinate()->SetCoordinateSystemToDisplay();
   this->CaptionActor->GetPositionCoordinate()->SetReferenceCoordinate(NULL);
   this->CaptionActor->GetPosition2Coordinate()->SetCoordinateSystemToDisplay();
   this->CaptionActor->GetPosition2Coordinate()->SetReferenceCoordinate(NULL);
+  this->CaptionActor->SetScaledText(1);
 
   this->BorderPolyData = vtkPolyData::New();
   vtkPoints *pts = vtkPoints::New();
@@ -161,7 +160,6 @@ vtkCaptionActor2D::~vtkCaptionActor2D()
   
   this->AttachmentPointCoordinate->Delete();
 
-  this->CaptionMapper->Delete();
   this->CaptionActor->Delete();
   
   if ( this->LeaderGlyph )
@@ -397,13 +395,13 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
 
   // assign properties
   //
-  this->CaptionMapper->SetInput(this->Caption);
-  this->CaptionMapper->SetBold(this->Bold);
-  this->CaptionMapper->SetItalic(this->Italic);
-  this->CaptionMapper->SetShadow(this->Shadow);
-  this->CaptionMapper->SetFontFamily(this->FontFamily);
-  this->CaptionMapper->SetJustification(this->Justification);
-  this->CaptionMapper->SetVerticalJustificationToCentered();
+  this->CaptionActor->SetInput(this->Caption);
+  this->CaptionActor->SetBold(this->Bold);
+  this->CaptionActor->SetItalic(this->Italic);
+  this->CaptionActor->SetShadow(this->Shadow);
+  this->CaptionActor->SetFontFamily(this->FontFamily);
+  this->CaptionActor->SetJustification(this->Justification);
+  this->CaptionActor->SetVerticalJustificationToCentered();
 
   this->CaptionActor->SetProperty(this->GetProperty());
   this->BorderActor->SetProperty(this->GetProperty());
