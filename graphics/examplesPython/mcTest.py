@@ -21,7 +21,7 @@ iso = vtkContourFilter()
 iso.SetInput(v16.GetOutput())
 iso.SetValue(0,1150)
 iso.Update()
-print time.time() - start
+print "%6.2f seconds" % (time.time() - start)
 
 #exit()
 #iren.Start()
