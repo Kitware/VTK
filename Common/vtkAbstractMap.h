@@ -74,11 +74,11 @@ public:
       { 
       return 1;
       }
-    return superclass::IsTypeOf(type);
+    return vtkContainer::IsTypeOf(type);
   }
   virtual int IsA(const char *type)
   {
-    return this->thisClass::IsTypeOf(type);
+    return this->vtkAbstractMap<KeyType,DataType>::IsTypeOf(type);
   }
   static vtkAbstractMap<KeyType,DataType>* SafeDownCast(vtkObject *o)
   {
