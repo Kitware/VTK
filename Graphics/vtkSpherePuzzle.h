@@ -19,16 +19,16 @@
 #ifndef __vtkSpherePuzzle_h
 #define __vtkSpherePuzzle_h
 
-#include "vtkPolyDataSource.h"
+#include "vtkPolyDataAlgorithm.h"
 
 #define VTK_MAX_SPHERE_RESOLUTION 1024
 
 class vtkTransform;
 
-class VTK_EXPORT vtkSpherePuzzle : public vtkPolyDataSource 
+class VTK_EXPORT vtkSpherePuzzle : public vtkPolyDataAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkSpherePuzzle,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkSpherePuzzle,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -69,7 +69,7 @@ protected:
   vtkSpherePuzzle();
   ~vtkSpherePuzzle();
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   void MarkVertical(int section);
   void MarkHorizontal(int section);  
   
@@ -94,5 +94,3 @@ private:
 };
 
 #endif
-
-

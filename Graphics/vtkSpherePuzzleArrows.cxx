@@ -15,6 +15,8 @@
 #include "vtkSpherePuzzleArrows.h"
 
 #include "vtkCellArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
@@ -22,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSpherePuzzleArrows, "1.12");
+vtkCxxRevisionMacro(vtkSpherePuzzleArrows, "1.13");
 vtkStandardNewMacro(vtkSpherePuzzleArrows);
 
 //----------------------------------------------------------------------------
@@ -37,15 +39,15 @@ vtkSpherePuzzleArrows::vtkSpherePuzzleArrows()
     }
 
   this->Radius = 0.51;
+
+  this->SetNumberOfInputPorts(0);
 }
 
 //----------------------------------------------------------------------------
-// Construct a new puzzle.
+// Destruct the puzzle.
 vtkSpherePuzzleArrows::~vtkSpherePuzzleArrows()
 {
 }
-
-
 
 //----------------------------------------------------------------------------
 void vtkSpherePuzzleArrows::SetPermutationComponent(int comp, int val)
@@ -57,13 +59,21 @@ void vtkSpherePuzzleArrows::SetPermutationComponent(int comp, int val)
 
   this->Permutation[comp] = val;
   this->Modified();
-
 }
 
 //----------------------------------------------------------------------------
-void vtkSpherePuzzleArrows::Execute()
+int vtkSpherePuzzleArrows::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
-  vtkPolyData *output = this->GetOutput();
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the ouptut
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkPoints *pts = vtkPoints::New();
   vtkCellArray *polys = vtkCellArray::New();
   int idx;
@@ -80,6 +90,8 @@ void vtkSpherePuzzleArrows::Execute()
   output->SetPolys(polys);
   pts->Delete();
   polys->Delete();
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -135,7 +147,6 @@ void vtkSpherePuzzleArrows::AppendArrow(int id1, int id2,
   length = sqrt(thetaOff*thetaOff + phiOff*phiOff);
   phiOff = 0.08 * phiOff / length;
   thetaOff = 0.08 * thetaOff / length;
-
 
   // First point.
   x = cos(theta1+thetaOff)*sin(phi1+phiOff);
@@ -210,6 +221,4 @@ void vtkSpherePuzzleArrows::PrintSelf(ostream& os, vtkIndent indent)
     os << this->Permutation[i] << " ";
     }
   os << endl;
-
 }
-

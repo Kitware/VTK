@@ -19,16 +19,16 @@
 #ifndef __vtkSpherePuzzleArrows_h
 #define __vtkSpherePuzzleArrows_h
 
-#include "vtkPolyDataSource.h"
+#include "vtkPolyDataAlgorithm.h"
 
 class vtkCellArray;
 class vtkPoints;
 class vtkSpherePuzzle;
 
-class VTK_EXPORT vtkSpherePuzzleArrows : public vtkPolyDataSource 
+class VTK_EXPORT vtkSpherePuzzleArrows : public vtkPolyDataAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkSpherePuzzleArrows,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkSpherePuzzleArrows,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -44,7 +44,7 @@ protected:
   vtkSpherePuzzleArrows();
   ~vtkSpherePuzzleArrows();
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   void AppendArrow(int id0, int id1, vtkPoints *pts, vtkCellArray *polys);
   
   int Permutation[32];
@@ -57,5 +57,3 @@ private:
 };
 
 #endif
-
-

@@ -16,6 +16,8 @@
 
 #include "vtkAppendPolyData.h"
 #include "vtkGarbageCollector.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkLinearExtrusionFilter.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
@@ -27,7 +29,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSpherePuzzle, "1.15");
+vtkCxxRevisionMacro(vtkSpherePuzzle, "1.16");
 vtkStandardNewMacro(vtkSpherePuzzle);
 
 //----------------------------------------------------------------------------
@@ -37,6 +39,8 @@ vtkSpherePuzzle::vtkSpherePuzzle()
   this->Transform = vtkTransform::New();
   this->Reset();
   this->Active = 0;
+
+  this->SetNumberOfInputPorts(0);
 }
 
 //----------------------------------------------------------------------------
@@ -46,7 +50,6 @@ vtkSpherePuzzle::~vtkSpherePuzzle()
   this->Transform->Delete();
   this->Transform = NULL;
 }
-
 
 //----------------------------------------------------------------------------
 void vtkSpherePuzzle::Reset()
@@ -96,10 +99,19 @@ void vtkSpherePuzzle::Reset()
     }
 }
 
-
 //----------------------------------------------------------------------------
-void vtkSpherePuzzle::Execute()
+int vtkSpherePuzzle::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the ouptut
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   // We are about to create/destroy alot of objects.  Defer garbage
   // collection until we are done.
   vtkGarbageCollector::DeferredCollectionPush();
@@ -173,7 +185,7 @@ void vtkSpherePuzzle::Execute()
   append->Update();
 
   // Move the data to the output.
-  tmp = this->GetOutput();
+  tmp = output;
   tmp->CopyStructure(append->GetOutput());
   tmp->GetPointData()->PassData(append->GetOutput()->GetPointData());
   tmp->GetPointData()->SetScalars(scalars);
@@ -185,9 +197,9 @@ void vtkSpherePuzzle::Execute()
 
   // We are done creating/destroying objects.
   vtkGarbageCollector::DeferredCollectionPop();
+
+  return 1;
 }
-
-
 
 //----------------------------------------------------------------------------
 void vtkSpherePuzzle::MarkHorizontal(int section)
@@ -357,7 +369,6 @@ void vtkSpherePuzzle::MoveVertical(int half, int percentage, int rightFlag)
 
 }
 
-
 //----------------------------------------------------------------------------
 int vtkSpherePuzzle::SetPoint(double x, double y, double z) 
 {
@@ -427,7 +438,6 @@ int vtkSpherePuzzle::SetPoint(double x, double y, double z)
   return this->Section + this->VerticalFlag * 10 + this->RightFlag * 100;
 }
 
-
 //----------------------------------------------------------------------------
 void vtkSpherePuzzle::MovePoint(int percentage) 
 {
@@ -460,4 +470,3 @@ void vtkSpherePuzzle::PrintSelf(ostream& os, vtkIndent indent)
     }
   os << endl;
 }
-
