@@ -33,6 +33,8 @@ class vlDataSet : virtual public vlObject
 {
 public:
   vlDataSet();
+  vlDataSet(const vlDataSet& ds);
+  ~vlDataSet() {};
   char *GetClassName() {return "vlDataSet";};
   void PrintSelf(ostream& os, vlIndent indent);
 

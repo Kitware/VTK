@@ -18,6 +18,10 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "VoxelMod.hh"
 #include "BScalars.hh"
 
+// Description:
+// Construct with sample dimensions=(50,50,50) and so that model bounds are
+// automatically computer from input. Maximum distance is set to examine
+// whole grid.
 vlVoxelModeller::vlVoxelModeller()
 {
   this->MaximumDistance = 1.0;
@@ -51,6 +55,8 @@ void vlVoxelModeller::PrintSelf(ostream& os, vlIndent indent)
     }
 }
 
+// Description:
+// Specify the position in space to perform the voxelization.
 void vlVoxelModeller::SetModelBounds(float *bounds)
 {
   vlVoxelModeller::SetModelBounds(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);
@@ -170,6 +176,8 @@ void vlVoxelModeller::Execute()
 
 }
 
+// Description:
+// Compute ModelBounds from input geometry.
 float vlVoxelModeller::ComputeModelBounds()
 {
   float *bounds, maxDist;
@@ -215,6 +223,8 @@ float vlVoxelModeller::ComputeModelBounds()
   return maxDist;  
 }
 
+// Description:
+// Set the i-j-k dimensions on which to sample the distance function.
 void vlVoxelModeller::SetSampleDimensions(int i, int j, int k)
 {
   int dim[3];

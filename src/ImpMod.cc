@@ -56,7 +56,8 @@ void vlImplicitModeller::PrintSelf(ostream& os, vlIndent indent)
     os << indent << "  Zmin,Zmax: (" << this->ModelBounds[4] << ", " << this->ModelBounds[5] << ")\n";
     }
 }
-
+// Description:
+// Specify the position in space to perform the sampling.
 void vlImplicitModeller::SetModelBounds(float *bounds)
 {
   vlImplicitModeller::SetModelBounds(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);
@@ -105,9 +106,6 @@ void vlImplicitModeller::Execute()
   float closestPoint[3];
 
   vlDebugMacro(<< "Executing implicit model");
-//
-// Initialize self; create output objects
-//
   this->Initialize();
 
   numPts = this->SampleDimensions[0] * this->SampleDimensions[1] 

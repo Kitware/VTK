@@ -13,11 +13,11 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Floating point representation of scalars
-//
-//  use internal floating point array to represent data
-//
+// .NAME vlFloatScalars - floating point representation of scalar data
+// .SECTION Description
+// vlFloatScalars is a concrete implementation of vlScalars. Scalars are
+// represented using float values.
+
 #ifndef __vlFloatScalars_h
 #define __vlFloatScalars_h
 
@@ -28,26 +28,28 @@ class vlFloatScalars : public vlScalars
 {
 public:
   vlFloatScalars() {};
-  vlScalars *MakeObject(int sze, int ext=1000);
-  int Allocate(const int sz, const int ext=1000) 
-    {return this->S.Allocate(sz,ext);};
-  void Initialize() {return this->S.Initialize();};
   vlFloatScalars(const vlFloatScalars& fs) {this->S = fs.S;};
   vlFloatScalars(const int sz, const int ext=1000):S(sz,ext){};
   ~vlFloatScalars() {};
+  int Allocate(const int sz, const int ext=1000) {return this->S.Allocate(sz,ext);};
+  void Initialize() {return this->S.Initialize();};
   char *GetClassName() {return "vlFloatScalars";};
-  int GetNumberOfScalars() {return (this->S.GetMaxId()+1);};
-  void Reset() {this->S.Reset();};
-  void Squeeze() {this->S.Squeeze();};
-  vlFloatScalars &operator=(const vlFloatScalars& fs);
-  void operator+=(const vlFloatScalars& fs) {this->S += fs.S;};
 
+  // vlScalar interface
+  vlScalars *MakeObject(int sze, int ext=1000);
+  int GetNumberOfScalars() {return (this->S.GetMaxId()+1);};
+  void Squeeze() {this->S.Squeeze();};
   float GetScalar(int i) {return this->S[i];};
   void SetScalar(int i, float s) {this->S[i] = s;};
   void InsertScalar(int i, float s) {S.InsertValue(i,s);};
   int InsertNextScalar(float s) {return S.InsertNextValue(s);};
 
-private:
+  // miscellaneous
+  vlFloatScalars &operator=(const vlFloatScalars& fs);
+  void operator+=(const vlFloatScalars& fs) {this->S += fs.S;};
+  void Reset() {this->S.Reset();};
+
+protected:
   vlFloatArray S;
 };
 

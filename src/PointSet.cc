@@ -21,7 +21,8 @@ vlPointSet::vlPointSet ()
   this->Locator = NULL;
 }
 
-vlPointSet::vlPointSet(const vlPointSet& ps)
+vlPointSet::vlPointSet(const vlPointSet& ps) :
+vlDataSet(ps)
 {
   this->Points = ps.Points;
   if (this->Points) this->Points->Register(this);

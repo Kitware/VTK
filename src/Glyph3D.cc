@@ -84,9 +84,8 @@ void vlGlyph3D::Execute()
   int orient, scaleSource, ptIncr, cellId;
   float scale, den;
   vlMath math;
-//
-// Initialize
-//
+
+  vlDebugMacro(<<"Generating glyphs");
   this->Initialize();
 
   pd = this->Input->GetPointData();
@@ -251,7 +250,6 @@ void vlGlyph3D::Execute()
 // Description:
 // Override update method because execution can branch two ways (Input 
 // and Source)
-
 void vlGlyph3D::Update()
 {
   // make sure input is available
@@ -263,7 +261,7 @@ void vlGlyph3D::Update()
 
   if ( this->Source == NULL )
     {
-    vlErrorMacro(<< "No data to copy");
+    vlErrorMacro(<< "No source data!");
     return;
     }
 
@@ -275,7 +273,9 @@ void vlGlyph3D::Update()
   this->Source->Update();
   this->Updating = 0;
 
-  if (this->Input->GetMTime() > this->GetMTime() || this->GetMTime() > this->ExecuteTime )
+  if (this->Input->GetMTime() > this->GetMTime() || 
+  this->Source->GetMTime() > this->GetMTime() || 
+  this->GetMTime() > this->ExecuteTime )
     {
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
     this->Execute();

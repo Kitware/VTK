@@ -13,13 +13,12 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-//  3D normals, abstract representation
-//
 #include "Normals.hh"
 #include "IdList.hh"
 #include "FNormals.hh"
 
+// Description:
+// Given a list of pt ids, return an array of corresponding normals.
 void vlNormals::GetNormals(vlIdList& ptId, vlFloatNormals& fp)
 {
   for (int i=0; i<ptId.GetNumberOfIds(); i++)

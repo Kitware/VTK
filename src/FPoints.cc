@@ -13,10 +13,6 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-//  3D points, floating representation
-//
-//
 #include "FPoints.hh"
 
 vlPoints *vlFloatPoints::MakeObject(int sze, int ext)
@@ -24,6 +20,8 @@ vlPoints *vlFloatPoints::MakeObject(int sze, int ext)
   return new vlFloatPoints(sze,ext);
 }
 
+// Description:
+// Deep copy of points.
 vlFloatPoints& vlFloatPoints::operator=(const vlFloatPoints& fp)
 {
   this->P = fp.P;

@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -15,9 +13,12 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Generate scalars from euclidean norm of vectors
-//
+// .NAME vlVectorNorm - generate scalars from euclidean norm of vectors
+// .SECTION Description
+// vlVectorNorm is a filter that generates scalar values by computing
+// euclidean norm of vector triplets. Scalars can be normalized 
+// 0<=s<=1 if desired.
+
 #ifndef __vlVectorNorm_h
 #define __vlVectorNorm_h
 
@@ -30,6 +31,8 @@ public:
   char *GetClassName() {return "vlVectorNorm";};
   void PrintSelf(ostream& os, vlIndent indent);
 
+  // Description:
+  // Specify whether to normalize scalar values.
   vlSetMacro(Normalize,int);
   vlGetMacro(Normalize,int);
   vlBooleanMacro(Normalize,int);

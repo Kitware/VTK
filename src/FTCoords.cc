@@ -13,9 +13,6 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-//  3D TCoords, floating representation
-//
 #include "FTCoords.hh"
 
 vlTCoords *vlFloatTCoords::MakeObject(int sze, int d, int ext)
@@ -23,6 +20,8 @@ vlTCoords *vlFloatTCoords::MakeObject(int sze, int d, int ext)
   return new vlFloatTCoords(sze,d,ext);
 }
 
+// Description:
+// Deep copy of texture coordinates.
 vlFloatTCoords& vlFloatTCoords::operator=(const vlFloatTCoords& ftc)
 {
   this->TC = ftc.TC;

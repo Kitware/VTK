@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -15,11 +13,11 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Char representation of scalars
-//
-//  use internal char array to represent data
-//
+// .NAME vlCharScalars - char representation of scalar data
+// .SECTION Description
+// vlCharScalars is a concrete implementation of vlScalars. Scalars are
+// represented using char values.
+
 #ifndef __vlCharScalars_h
 #define __vlCharScalars_h
 
@@ -30,21 +28,17 @@ class vlCharScalars : public vlScalars
 {
 public:
   vlCharScalars() {};
-  vlScalars *MakeObject(int sze, int ext=1000);
-  int Allocate(const int sz, const int ext=1000) 
-    {return this->S.Allocate(sz,ext);};
-  void Initialize() {return this->S.Initialize();};
   vlCharScalars(const vlCharScalars& cs) {this->S = cs.S;};
   vlCharScalars(const int sz, const int ext=1000):S(sz,ext){};
   ~vlCharScalars() {};
+  int Allocate(const int sz, const int ext=1000) {return this->S.Allocate(sz,ext);};
+  void Initialize() {return this->S.Initialize();};
   char *GetClassName() {return "vlCharScalars";};
-  int GetNumberOfScalars() {return (this->S.GetMaxId()+1);};
-  void Reset() {this->S.Reset();};
-  void Squeeze() {this->S.Squeeze();};
-  vlCharScalars &operator=(const vlCharScalars& cs);
-  void operator+=(const vlCharScalars& cs) {this->S += cs.S;};
 
-  // float conversion for abstract computation
+  // vlScalar interface
+  vlScalars *MakeObject(int sze, int ext=1000);
+  int GetNumberOfScalars() {return (this->S.GetMaxId()+1);};
+  void Squeeze() {this->S.Squeeze();};
   float GetScalar(int i) {return (float)this->S[i];};
   void SetScalar(int i, char s) {this->S[i] = s;};
   void SetScalar(int i, float s) {this->S[i] = (char)s;};
@@ -53,7 +47,12 @@ public:
   int InsertNextScalar(char s) {return S.InsertNextValue(s);};
   int InsertNextScalar(float s) {return S.InsertNextValue((char)s);};
 
-private:
+  // miscellaneous
+  vlCharScalars &operator=(const vlCharScalars& cs);
+  void operator+=(const vlCharScalars& cs) {this->S += cs.S;};
+  void Reset() {this->S.Reset();};
+
+protected:
   vlCharArray S;
 };
 

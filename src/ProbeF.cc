@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -26,23 +24,12 @@ void vlProbeFilter::Execute()
   int numPts, subId;
   float pcoords[3], dist2, weights[MAX_CELL_SIZE];
   float closestPoint[3];
-//
-// Initialize
-//
+
+  vlDebugMacro(<<"Probing data");
   this->Initialize();
 
   pd = this->Input->GetPointData();
   numPts = this->Input->GetNumberOfPoints();
-
-  if ( ! this->Source )
-    {
-    vlErrorMacro(<< "No data to probe with");
-    return;
-    }
-  else
-    {
-    this->Source->Update();
-    }
 //
 // Allocate storage for output PointData
 //
@@ -84,5 +71,42 @@ void vlProbeFilter::Initialize()
   else
     {
     return;
+    }
+}
+
+// Description:
+// Override update method because execution can branch two ways (Input 
+// and Source)
+void vlProbeFilter::Update()
+{
+  // make sure input is available
+  if ( this->Input == NULL )
+    {
+    vlErrorMacro(<< "No input!");
+    return;
+    }
+
+  if ( this->Source == NULL )
+    {
+    vlErrorMacro(<< "No source data!");
+    return;
+    }
+
+  // prevent chasing our tail
+  if (this->Updating) return;
+
+  this->Updating = 1;
+  this->Input->Update();
+  this->Source->Update();
+  this->Updating = 0;
+
+  if (this->Input->GetMTime() > this->GetMTime() || 
+  this->Source->GetMTime() > this->GetMTime() || 
+  this->GetMTime() > this->ExecuteTime )
+    {
+    if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
+    this->Execute();
+    this->ExecuteTime.Modified();
+    if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
     }
 }

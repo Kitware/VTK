@@ -18,8 +18,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // vlPointSetToPointSetFilter is an abstract filter class whose subclasses
 // take as input a point set and generates a point set on output.
 // At a minimum the concrete subclasses of vlPointSetToPointSetFilter
-// modify their point coordinates. They neve modify their topological form,
-// however.
+// modify their point coordinates. They never modify their topological 
+// form, however.
 
 #ifndef __vlPointSetToPointSetFilter_h
 #define __vlPointSetToPointSetFilter_h
@@ -37,10 +37,8 @@ public:
   void PrintSelf(ostream& os, vlIndent indent);
 
   // dataset interface
-  vlDataSet *MakeObject() {return this->PointSet->MakeObject();};
+  vlDataSet *MakeObject();
   int GetNumberOfCells() {return this->PointSet->GetNumberOfCells();};
-  int GetNumberOfPoints() {return this->Points->GetNumberOfPoints();};
-  float *GetPoint(int i) {return this->Points->GetPoint(i);};
   vlCell *GetCell(int cellId) {return this->PointSet->GetCell(cellId);};
   int GetCellType(int cellId) {return this->PointSet->GetCellType(cellId);};
   void GetCellPoints(int cellId, vlIdList& ptIds)
@@ -49,7 +47,7 @@ public:
     {this->PointSet->GetPointCells(ptId, cellIds);};
   void Initialize();
 
-  void ComputeBounds() {this->PointSet->ComputeBounds();};
+  void ComputeBounds();
   void Update();
 
 protected:

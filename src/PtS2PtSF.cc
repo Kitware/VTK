@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -30,15 +28,18 @@ vlPointSetToPointSetFilter::~vlPointSetToPointSetFilter()
   this->PointSet->UnRegister(this);
 }
 
+vlDataSet* vlPointSetToPointSetFilter::MakeObject()
+{
+  vlPointSetToPointSetFilter *o = new vlPointSetToPointSetFilter();
+  o->PointSet = this->PointSet;
+  o->PointSet->Register(o);
+  o->SetPoints(this->GetPoints());
+  return o;
+}
+
 void vlPointSetToPointSetFilter::Update()
 {
-  vlPointData *pd;
-  vlPoints *points;
-
   vlPointSetFilter::Update();
-  // Copy data from this filter to internal data set.
-  pd = this->PointSet->GetPointData();
-  *pd = this->PointData;
 }
 
 void vlPointSetToPointSetFilter::Initialize()
@@ -55,6 +56,16 @@ void vlPointSetToPointSetFilter::Initialize()
     return;
     }
 }
+
+void vlPointSetToPointSetFilter::ComputeBounds()
+{
+  if ( this->Points != NULL )
+    {
+    this->Points->ComputeBounds();
+    float *bounds=this->Points->GetBounds();
+    for (int i=0; i < 6; i++) this->Bounds[i] = bounds[i];
+    }
+};
 
 void vlPointSetToPointSetFilter::PrintSelf(ostream& os, vlIndent indent)
 {

@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -19,6 +17,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "vlMath.hh"
 #include "FScalars.hh"
 
+// Description:
+// Construct with normalize flag off.
 vlVectorNorm::vlVectorNorm()
 {
   this->Normalize = 0;
@@ -55,6 +55,7 @@ void vlVectorNorm::Execute()
     vlErrorMacro(<< "No input vectors!\n");
     return;
     }
+
 //
 // Allocate
 //
@@ -81,6 +82,9 @@ void vlVectorNorm::Execute()
 //
 // Update self
 //
+  this->PointData.CopyScalarsOff();
+  this->PointData.PassData(pd);
+
   this->PointData.SetScalars(newScalars);
 }
 

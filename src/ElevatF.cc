@@ -90,6 +90,9 @@ void vlElevationFilter::Execute()
 //
 // Update self
 //
+  this->PointData.CopyScalarsOff();
+  this->PointData.PassData(this->Input->GetPointData());
+
   this->PointData.SetScalars(newScalars);
 }
 

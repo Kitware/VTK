@@ -30,14 +30,13 @@ vlDataSetToDataSetFilter::~vlDataSetToDataSetFilter()
 
 void vlDataSetToDataSetFilter::Update()
 {
-  vlPointData *pd;
-
   vlDataSetFilter::Update();
-  // Following copies data from this filter to internal dataset
-  pd = this->DataSet->GetPointData();
-  *pd = this->PointData;
 }
 
+// Description:
+// Initialize method is fancy: creates an internal dataset that holds
+// geometry representation. All methods directed at geometry are 
+// forwarded to internal dataset.
 void vlDataSetToDataSetFilter::Initialize()
 {
   if ( this->Input )

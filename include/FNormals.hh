@@ -13,11 +13,11 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Floating point representation of 3D normals.
-//
-//  use internal floating point array to represent data
-//
+// .NAME vlFloatNormals - floating point representation of 3D normals
+// .SECTION Description
+// vlFloatNormals is a concrete implementation of vlNormals. Normals are
+// represented using float values.
+
 #ifndef __vlFloatNormals_h
 #define __vlFloatNormals_h
 
@@ -28,38 +28,53 @@ class vlFloatNormals : public vlNormals
 {
 public:
   vlFloatNormals() {};
-  vlNormals *MakeObject(int sze, int ext=1000);
-  int Allocate(const int sz, const int ext=1000) 
-    {return this->N.Allocate(3*sz,3*ext);};
-  void Initialize() {return this->N.Initialize();};
   vlFloatNormals(const vlFloatNormals& fn) {this->N = fn.N;};
   vlFloatNormals(const int sz, const int ext=1000):N(3*sz,3*ext){};
   ~vlFloatNormals() {};
+  int Allocate(const int sz, const int ext=1000) {return this->N.Allocate(3*sz,3*ext);};
+  void Initialize() {return this->N.Initialize();};
   char *GetClassName() {return "vlFloatNormals";};
+
+  // vlNormal interface
+  vlNormals *MakeObject(int sze, int ext=1000);
   int GetNumberOfNormals() {return (N.GetMaxId()+1)/3;};
-  void Reset() {this->N.Reset();};
   void Squeeze() {this->N.Squeeze();};
+  float *GetNormal(int i) {return this->N.GetPtr(3*i);};
+  void SetNormal(int i, float n[3]);
+  void InsertNormal(int i, float *n);
+  int InsertNextNormal(float *n);
+
+  // miscellaneous
   vlFloatNormals &operator=(const vlFloatNormals& fn);
   void operator+=(const vlFloatNormals& fn);
+  void Reset() {this->N.Reset();};
 
-  float *GetNormal(int i) {return this->N.GetPtr(3*i);};
-  void SetNormal(int i, float x[3]) 
-    {i*=3; this->N[i]=x[0]; this->N[i+1]=x[1]; this->N[i+2]=x[2];};
-  void InsertNormal(int i, float *x) {
-      this->N.InsertValue(3*i+2, x[2]);
-      this->N[3*i] =  x[0];
-      this->N[3*i+1] =  x[1];
-  }
-  int InsertNextNormal(float *x) {
-    int id = this->N.GetMaxId() + 3;
-    this->N.InsertValue(id,x[2]);
-    this->N[id-2] = x[0];
-    this->N[id-1] = x[1];
-    return id/3;
-  }
-
-private:
+protected:
   vlFloatArray N;
 };
+
+inline void vlFloatNormals::SetNormal(int i, float n[3]) 
+{
+  i*=3; 
+  this->N[i]=n[0]; 
+  this->N[i+1]=n[1]; 
+  this->N[i+2]=n[2];
+}
+
+inline void vlFloatNormals::InsertNormal(int i, float *n) 
+{
+  this->N.InsertValue(3*i+2, n[2]);
+  this->N[3*i] =  n[0];
+  this->N[3*i+1] =  n[1];
+}
+
+inline int vlFloatNormals::InsertNextNormal(float *n) 
+{
+  int id = this->N.GetMaxId() + 3;
+  this->N.InsertValue(id,n[2]);
+  this->N[id-2] = n[0];
+  this->N[id-1] = n[1];
+  return id/3;
+}
 
 #endif

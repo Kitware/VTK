@@ -31,6 +31,14 @@ vlDataSet::vlDataSet ()
   this->Bounds[5] = 1.0;
 }
 
+// Description:
+// Copy constructor.
+vlDataSet::vlDataSet (const vlDataSet& ds) :
+PointData(ds.PointData)
+{
+  for (int i=0; i < 6; i++) this->Bounds[i] = ds.Bounds[i];
+}
+
 void vlDataSet::Initialize()
 {
   this->PointData.Initialize();

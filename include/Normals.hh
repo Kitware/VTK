@@ -13,9 +13,14 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Abstract interface to 3D normals.
-//
+// .NAME vlNormals - abstract interface to 3D normals
+// .SECTION Description
+// vlNormals provides an abstract interface to 3D normals. The data model
+// for vlNormals is an array of nx-ny-nz triplets accessible by point id.
+// (Each normal is assumed normalized |n| = 1). The subclasses of 
+// vlNormals are concrete data types (float, int, etc.) that implement 
+// the interface of vlNormals. 
+
 #ifndef __vlNormals_h
 #define __vlNormals_h
 
@@ -27,18 +32,41 @@ class vlFloatNormals;
 class vlNormals : public vlObject 
 {
 public:
+  vlNormals() {};
   virtual ~vlNormals() {};
+  char *GetClassName() {return "vlNormals";};
+  void PrintSelf(ostream& os, vlIndent indent);
+
+  // Description:
+  // Create a copy of this object.
   virtual vlNormals *MakeObject(int sze, int ext=1000) = 0;
+
+  // Description:
+  // Return number of normals in array.
   virtual int GetNumberOfNormals() = 0;
+
+  // Description:
+  // Return a float normal n[3] for a particular point id.
   virtual float *GetNormal(int i) = 0;
-  virtual void SetNormal(int i,float n[3]) = 0;     // fast insert
-  virtual void InsertNormal(int i, float n[3]) = 0; // allocates memory as necessary
+
+  // Description:
+  // Insert vector into object. No range checking performed (fast!).
+  virtual void SetNormal(int i,float n[3]) = 0;
+
+  // Description:
+  // Insert vector into object. Range checking performed and memory
+  // allocated as necessary.
+  virtual void InsertNormal(int i, float n[3]) = 0;
+
+  // Description:
+  // Insert vector into next available slot. Returns point id of slot.
   virtual int InsertNextNormal(float n[3]) = 0;
+
+  // Description:
+  // Reclaim any extra memory.
   virtual void Squeeze() = 0;
 
   void GetNormals(vlIdList& ptId, vlFloatNormals& fp);
-  char *GetClassName() {return "vlNormals";};
-  void PrintSelf(ostream& os, vlIndent indent);
 };
 
 #endif

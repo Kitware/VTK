@@ -13,9 +13,6 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-//  3D normals, floating representation
-//
 #include "FNormals.hh"
 
 vlNormals *vlFloatNormals::MakeObject(int sze, int ext)
@@ -23,6 +20,8 @@ vlNormals *vlFloatNormals::MakeObject(int sze, int ext)
   return new vlFloatNormals(sze,ext);
 }
 
+// Description:
+// Deep copy of normals.
 vlFloatNormals& vlFloatNormals::operator=(const vlFloatNormals& fn)
 {
   this->N = fn.N;
