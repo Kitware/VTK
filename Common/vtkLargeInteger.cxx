@@ -86,7 +86,7 @@ vtkLargeInteger::vtkLargeInteger(long long n)
   this->Contract(); // remove leading 0s
 }
 
-vtkLargeInteger::vtkLargeInteger(unsigned __int64 n)
+vtkLargeInteger::vtkLargeInteger(unsigned long long n)
 {
   this->Negative = 0;
   this->Number = new char[BIT_INCREMENT];
