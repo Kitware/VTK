@@ -136,7 +136,7 @@ void vlStructuredDataSet::BlankingOn()
 
   if ( !this->PointVisibility )
     {
-    this->PointVisibility = new vlCharArray(this->GetNumberOfPoints(),1000);
+    this->PointVisibility = new vlBitArray(this->GetNumberOfPoints(),1000);
     for (int i=0; i<this->GetNumberOfPoints(); i++)
       {
       this->PointVisibility->InsertValue(i,1);
@@ -193,7 +193,7 @@ void vlStructuredDataSet::GetPointCells(int ptId, vlIdList *cellIds)
 //  Get the location of the point
 //
   ptLoc[0] = ptId % ptDim[0];
-  ptLoc[1] = ptId % (ptDim[0]*ptDim[1]) / ptDim[0];
+  ptLoc[1] = (ptId / ptDim[0]) % ptDim[1];
   ptLoc[2] = ptId / (ptDim[0]*ptDim[1]);
 //
 //  From the point lcoation, compute the cell locations.  There are at
