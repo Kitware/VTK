@@ -51,7 +51,21 @@ foreach family {
         1 1 0
     } {
         set mapper [vtkTextMapper mapper_${family}_${bold}_${italic}_${shadow}]
-        $mapper SetInput "$family: $default_text"
+        set attribs {}
+        if {$bold} {
+            lappend attribs "b"
+        }
+        if {$italic} {
+            lappend attribs "i"
+        }
+        if {$shadow} {
+            lappend attribs "s"
+        }
+        set face_name "$family"
+        if {[llength $attribs]} {
+            set face_name "$face_name ([join $attribs ,])"
+        }
+        $mapper SetInput "$face_name: $default_text"
         set tprop [$mapper GetTextProperty]
         eval $tprop SetFontFamilyTo$family
         eval $tprop SetColor $text_color
