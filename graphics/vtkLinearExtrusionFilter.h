@@ -95,6 +95,12 @@ public:
   // Set/Get the type of extrusion.
   vtkSetClampMacro(ExtrusionType,int,VTK_VECTOR_EXTRUSION,VTK_POINT_EXTRUSION);
   vtkGetMacro(ExtrusionType,int);
+  void SetExtrusionTypeToVectorExtrusion()
+    {this->SetExtrusionType(VTK_VECTOR_EXTRUSION);};
+  void SetExtrusionTypeToNormalExtrusion()
+    {this->SetExtrusionType(VTK_NORMAL_EXTRUSION);};
+  void SetExtrusionTypeToPointExtrusion()
+    {this->SetExtrusionType(VTK_POINT_EXTRUSION);};
 
   // Description:
   // Turn on/off the capping of the skirt.
