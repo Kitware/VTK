@@ -170,7 +170,7 @@ proc GeneratePlotFiles { theTest currentTime } {
     set high [lindex $limits 1]
 
     puts $fd "BAR_GRAPH"
-    puts $fd "450 250"
+    puts $fd "375 250"
     puts $fd "CPU Time History - $length days"
     puts $fd "Days Ago"
     puts $fd "CPU Seconds"
@@ -208,7 +208,7 @@ proc GeneratePlotFiles { theTest currentTime } {
     set high [lindex $limits 1]
 
     puts $fd "BAR_GRAPH"
-    puts $fd "450 250"
+    puts $fd "375 250"
     puts $fd "CPU Time History - $length days"
     puts $fd "Weeks Ago"
     puts $fd "CPU Seconds"
