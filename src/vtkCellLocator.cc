@@ -386,7 +386,7 @@ void vtkCellLocator::BuildLocator()
           octant = this->Tree[idx];
           if ( ! octant )
             {
-            octant = new vtkIdList(numCellsPerBucket);
+            octant = new vtkIdList(numCellsPerBucket,numCellsPerBucket/2);
             this->Tree[idx] = octant;
             }
           octant->InsertNextId(cellId);

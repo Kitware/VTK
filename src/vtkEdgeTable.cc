@@ -116,7 +116,7 @@ void vtkEdgeTable::InsertEdge(int p1, int p2)
 
   if ( this->Table[index] == NULL ) 
     {
-    this->Table[index] = new vtkIdList(6);
+    this->Table[index] = new vtkIdList(6,12);
     }
 
   this->Table[index]->InsertNextId(search);
