@@ -78,6 +78,14 @@ public:
   void PrintSelf( ostream& os, vtkIndent index );
 
   // Description:
+  // Set / Get the intensity diffuse / specular light used for the
+  // zero normals. 
+  vtkSetClampMacro( ZeroNormalDiffuseIntensity,  float, 0.0, 1.0);
+  vtkGetMacro( ZeroNormalDiffuseIntensity, float );
+  vtkSetClampMacro( ZeroNormalSpecularIntensity, float, 0.0, 1.0);
+  vtkGetMacro( ZeroNormalSpecularIntensity, float );
+
+  // Description:
   // Cause the shading table to be updated
   void UpdateShadingTable( vtkRenderer *ren, vtkVolume *vol,
 			   vtkEncodedGradientEstimator *gradest);
@@ -121,6 +129,10 @@ protected:
   vtkVolume                    *ShadingTableVolume[VTK_MAX_SHADING_TABLES];
   int                          ShadingTableSize[VTK_MAX_SHADING_TABLES];
 
+  // The intensity of light used for the zero normals, since it
+  // can not be computed from the normal angles. Defaults to 0.0.
+  float    ZeroNormalDiffuseIntensity;
+  float    ZeroNormalSpecularIntensity;
 }; 
 
 

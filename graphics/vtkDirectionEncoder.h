@@ -45,8 +45,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Given a direction, encode it into an integer value. This value should
 // be less than 65536, which is the maximum number of encoded directions
 // supported by this superclass. A direction encoded is used to encode
-// normals in a volume for use during volume rendering, and the largest
-// amount of space that can be allocated per normal is 2 bytes.
+// normals in a volume for use during volume rendering, and the
+// amount of space that is allocated per normal is 2 bytes.
 // This is an abstract superclass - see the subclasses for specific 
 // implementation details.
 //
@@ -61,6 +61,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkDirectionEncoder : public vtkObject
 {
 public:
+  // Description:
+  // Create a default instance of this class with
+  // ZeroNormalTolerance = 0.0
+  vtkDirectionEncoder();
+
+  // Description:
+  // Print the variables of this class
+  void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Get the name of this class
   const char *GetClassName() {return "vtkDirectionEncoder";};
 
   // Description:
@@ -82,8 +93,21 @@ public:
   // 3 times the number of directions floats in an array.
   virtual float *GetDecodedGradientTable( void )=0;
 
+  // Description:
+  // Set / Get the ZeroNormalTolerance - this is the minimum magnitude 
+  // of a gradient that is considered sufficient to define a 
+  // direction. Gradients with magnitudes less than this value are given
+  // a "zero normal" index. These are handled specially in the shader, 
+  // and you can set the intensity of light for these zero normals in
+  // the gradient shader.
+  void SetZeroNormalTolerance( float v );
+  vtkGetMacro( ZeroNormalTolerance, float );
+  
+
 protected:
 
+  float ZeroNormalTolerance;
+  float ZeroNormalToleranceSquared;
 }; 
 
 

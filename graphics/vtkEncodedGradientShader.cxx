@@ -57,6 +57,9 @@ vtkEncodedGradientShader::vtkEncodedGradientShader()
 	this->ShadingTable[j][i] = NULL;
 	}
     }
+
+  this->ZeroNormalDiffuseIntensity  = 0.0;
+  this->ZeroNormalSpecularIntensity = 0.0;
 }
 
 vtkEncodedGradientShader::~vtkEncodedGradientShader()
@@ -437,17 +440,40 @@ void vtkEncodedGradientShader::BuildShadingTable( int index,
   // material properties
   for ( i = 0; i < norm_size; i++ )
     {
+    // If we have a zero normal, treat it specially
     if ( ( *(nptr+0) == 0.0 ) && 
 	 ( *(nptr+1) == 0.0 ) && 
 	 ( *(nptr+2) == 0.0 ) )
       {
-      *(sdr_ptr) = 0.0;
-      *(sdg_ptr) = 0.0;
-      *(sdb_ptr) = 0.0;
+      // If we are not updating, initial everything to 0.0
+      if ( !update_flag )
+	{
+	*(sdr_ptr) = 0.0;
+	*(sdg_ptr) = 0.0;
+	*(sdb_ptr) = 0.0;
 
-      *(ssr_ptr) = 0.0;
-      *(ssg_ptr) = 0.0;
-      *(ssb_ptr) = 0.0;
+	*(ssr_ptr) = 0.0;
+	*(ssg_ptr) = 0.0;
+	*(ssb_ptr) = 0.0;
+	}
+
+      // Now add in ambient
+      *(sdr_ptr) += Ka * light_color[0];
+      *(sdg_ptr) += Ka * light_color[1];
+      *(sdb_ptr) += Ka * light_color[2];
+
+      // Add in diffuse
+      *(sdr_ptr) += 
+	(Kd_intensity * this->ZeroNormalDiffuseIntensity * light_color[0]);
+      *(sdg_ptr) += 
+	(Kd_intensity * this->ZeroNormalDiffuseIntensity * light_color[1]);
+      *(sdb_ptr) += 
+	(Kd_intensity * this->ZeroNormalDiffuseIntensity * light_color[2]);
+
+      // Add in specular
+      *(ssr_ptr) += this->ZeroNormalSpecularIntensity * light_color[0];
+      *(ssg_ptr) += this->ZeroNormalSpecularIntensity * light_color[1];
+      *(ssb_ptr) += this->ZeroNormalSpecularIntensity * light_color[2];
       }
     else
       {
@@ -506,5 +532,11 @@ void vtkEncodedGradientShader::BuildShadingTable( int index,
 void vtkEncodedGradientShader::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
+  
+  os << indent << "Zero Normal Diffuse Intensity: " <<
+    this->ZeroNormalDiffuseIntensity << endl;
+
+  os << indent << "Zero Normal Specular Intensity: " <<
+    this->ZeroNormalSpecularIntensity << endl;
 }
 
