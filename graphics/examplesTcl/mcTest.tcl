@@ -4,7 +4,7 @@ catch {load vtktcl}
 vtkVolume16Reader v16
   v16 SetDataDimensions 64 64
   [v16 GetOutput] SetOrigin 0.0 0.0 0.0
-  v16 SetFileByteOrderToLittleEndian
+  v16 SetDataByteOrderToLittleEndian
   v16 SetFilePrefix "../../../data/headsq/quarter"
   v16 SetImageRange 1 93
   v16 SetDataSpacing 3.2 3.2 1.5

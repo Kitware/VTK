@@ -17,7 +17,7 @@ vtkRenderWindowInteractor iren
 #
 vtkVolume16Reader v16
     v16 SetDataDimensions 256 256
-    v16 SetFileByteOrderToBigEndian
+    v16 SetDataByteOrderToBigEndian
     v16 SetFilePrefix "../../../data/pineRoot/pine_root"
     v16 SetImageRange 1 256
     v16 SetDataSpacing 0.3125 0.3125 0.390625

@@ -8,7 +8,7 @@ source colors.tcl
 vtkVolume16Reader v16
     v16 SetDataDimensions 128 128 
     [v16 GetOutput] SetOrigin 0.0 0.0 0.0
-    v16 SetFileByteOrderToLittleEndian
+    v16 SetDataByteOrderToLittleEndian
     v16 SetFilePrefix "../../../data/headsq/half"
     v16 SetImageRange 45 45
     v16 SetDataSpacing 1.6 1.6 1.5
