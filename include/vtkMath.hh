@@ -122,7 +122,7 @@ inline float vtkMath::Determinant2x2(float c1[2], float c2[2])
 }
 
 // Description:
-// Calculate the determinent of a 2x2 matrix: | a b |
+// Calculate the determinant of a 2x2 matrix: | a b |
 //                                            | c d |
 inline double vtkMath::Determinant2x2(double a, double b, double c, double d)
 {

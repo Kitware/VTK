@@ -228,7 +228,7 @@ void vtkLookupTable::SetTableValue(int indx, float r, float g, float b, float a)
 
 // Description:
 // Return a rgba color value for the given index into the lookup table. Color
-// componenets are expressed as [0,1] float values.
+// components are expressed as [0,1] float values.
 float *vtkLookupTable::GetTableValue (int indx)
 {
   static float rgba[4];
@@ -243,7 +243,7 @@ float *vtkLookupTable::GetTableValue (int indx)
 
 // Description:
 // Return a rgba color value for the given index into the lookup table. Color
-// componenets are expressed as [0,1] float values.
+// components are expressed as [0,1] float values.
 void vtkLookupTable::GetTableValue (int indx, float rgba[4])
 {
   float *_rgba = this->GetTableValue(indx);

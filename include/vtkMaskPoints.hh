@@ -74,7 +74,7 @@ public:
 
   // Description:
   // Special flag causes randomization of point selection. If this mode is on,
-  // statitically every nth point (i.e., OnRatio) will be displayed.
+  // statically every nth point (i.e., OnRatio) will be displayed.
   vtkSetMacro(RandomMode,int);
   vtkGetMacro(RandomMode,int);
   vtkBooleanMacro(RandomMode,int);
