@@ -529,7 +529,7 @@ TKWIDGET=""
 if test "${with_tkwidget+set}" = set; then
   withval="$with_tkwidget"
   if test "$withval" = yes; then
-	 TKWIDGET=vtkTkImageViewerWidget.o
+	 TKWIDGET="vtkTkImageViewerWidget.o vtkTkImageWindowWidget.o"
          fi
 fi
 

@@ -8,7 +8,7 @@ TKWIDGET=""
 AC_ARG_WITH(tkwidget,
          [  --with-tkwidget           build the vtkTkImageViewerWidget class],
 	 if test "$withval" = yes; then
-	 TKWIDGET=vtkTkImageViewerWidget.o
+	 TKWIDGET="vtkTkImageViewerWidget.o vtkTkImageWindowWidget.o"
          fi)
 AC_SUBST(TKWIDGET)
 
