@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 
+#include "vtkAbstractMapper.h"
 #include "vtkActor2D.h"
 #include "vtkActor2DCollection.h"
 #include "vtkAttributeData.h"

@@ -40,7 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 
 #include "vtk3DSImporter.h"
-#include "vtkAbstractMapper.h"
+#include "vtkAbstractMapper3D.h"
 #include "vtkActor.h"
 #include "vtkActorCollection.h"
 #include "vtkAppendFilter.h"
