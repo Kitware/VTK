@@ -302,7 +302,7 @@ SET(Kit_JAVA_EXTRA_SRCS vtkJavaUtil.cxx)
 # Setup vtkInstantiator registration for this library's classes.
 VTK_MAKE_INSTANTIATOR3(vtk${KIT}Instantiator KitInstantiator_SRCS
                        "${Kit_SRCS}"
-                       VTK_${KIT}_EXPORT
+                       VTK_${UKIT}_EXPORT
                        ${VTK_BINARY_DIR} "")
 ADD_LIBRARY(vtk${KIT} ${Kit_SRCS} ${Kit_EXTRA_SRCS} ${KitInstantiator_SRCS})
 
