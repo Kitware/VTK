@@ -56,6 +56,8 @@ vtkPolyDataMapper *vtkPolyDataMapper::New()
 void vtkPolyDataMapper::SetInput(vtkPolyData *input)
 {
   this->vtkProcessObject::SetNthInput(0, input);
+  this->Piece = 0;
+  this->NumberOfPieces = 1;
 }
 
 //----------------------------------------------------------------------------
@@ -68,4 +70,36 @@ vtkPolyData *vtkPolyDataMapper::GetInput()
     }
   
   return (vtkPolyData *)(this->Inputs[0]);
+}
+
+
+// Request a piece before we get the bounds.
+float *vtkPolyDataMapper::GetBounds()
+{
+  if (this->GetInput() ) 
+    {
+    this->GetInput()->SetUpdateExtent(this->Piece, this->NumberOfPieces);
+    }
+
+  return this->vtkMapper::GetBounds();
+}
+
+
+// Update the network connected to this mapper.
+void vtkPolyDataMapper::Update()
+{
+  if (this->GetInput() ) 
+    {
+    this->GetInput()->SetUpdateExtent(this->Piece, this->NumberOfPieces);
+    }
+  this->vtkMapper::Update();
+}
+
+
+void vtkPolyDataMapper::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkMapper::PrintSelf(os,indent);
+
+  os << indent << "Piece : " << this->Piece << endl;
+  os << indent << "NumberOfPieces : " << this->NumberOfPieces << endl;
 }

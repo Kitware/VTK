@@ -507,6 +507,8 @@ void vtkGlyph3D::ExecuteInformation()
     vtkErrorMacro("Missing input or source");
     return;
     }
+  this->GetOutput()->SetMaximumNumberOfPieces(
+                        this->GetInput()->GetMaximumNumberOfPieces());
 }
 
 
@@ -607,3 +609,13 @@ void vtkGlyph3D::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
+void vtkGlyph3D::ComputeInputUpdateExtents( vtkDataObject *output )
+{
+  vtkPolyData *outPd;
+
+  output = output;
+  outPd = this->GetOutput();
+  this->GetSource()->SetUpdateExtent(0, 1);
+  this->GetInput()->SetUpdateExtent(outPd->GetUpdatePiece(), 
+                                    outPd->GetUpdateNumberOfPieces());
+}

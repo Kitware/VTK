@@ -68,11 +68,25 @@ public:
   void SetInput(vtkPolyData *in);
   vtkPolyData *GetInput();
   
+  void Update();
+  float *GetBounds();
+
+  // Description:
+  // If you want only a part of the data, specify by seting the piece.
+  vtkSetMacro(Piece, int);
+  vtkGetMacro(Piece, int);
+  vtkSetMacro(NumberOfPieces, int);
+  vtkGetMacro(NumberOfPieces, int);
+
 protected:  
   vtkPolyDataMapper() {};
   ~vtkPolyDataMapper() {};
   vtkPolyDataMapper(const vtkPolyDataMapper&) {};
   void operator=(const vtkPolyDataMapper&) {};
+  void PrintSelf(ostream& os, vtkIndent indent);
+
+  int Piece;
+  int NumberOfPieces;
 
 };
 

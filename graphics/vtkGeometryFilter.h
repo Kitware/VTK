@@ -164,6 +164,8 @@ protected:
   void PolyDataExecute(); //special cases for performance
   void UnstructuredGridExecute();
   void StructuredGridExecute();
+  void ComputeInputUpdateExtents(vtkDataObject *output);
+  void ExecuteInformation();
 
   int PointMaximum;
   int PointMinimum;

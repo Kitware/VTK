@@ -228,7 +228,8 @@ protected:
 
   void Execute();
   void ExecuteInformation();
-  
+  void ComputeInputUpdateExtents(vtkDataObject *output);
+
   int NumberOfSources; // Number of source objects
   vtkPolyData **Source; // Geometry to copy to each point
   int Scaling; // Determine whether scaling of geometry is performed
