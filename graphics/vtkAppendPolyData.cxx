@@ -64,6 +64,7 @@ vtkAppendPolyData* vtkAppendPolyData::New()
 vtkAppendPolyData::vtkAppendPolyData()
 {
   this->ParallelStreaming = 0;
+  this->UserManagedInputs = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -75,6 +76,12 @@ vtkAppendPolyData::~vtkAppendPolyData()
 // Add a dataset to the list of data to append.
 void vtkAppendPolyData::AddInput(vtkPolyData *ds)
 {
+  if (UserManagedInputs)
+    {
+    vtkErrorMacro(<<
+      "AddInput is not supported if UserManagedInputs is true");
+    return;
+    }
   this->vtkProcessObject::AddInput(ds);
 }
 
@@ -82,8 +89,41 @@ void vtkAppendPolyData::AddInput(vtkPolyData *ds)
 // Remove a dataset from the list of data to append.
 void vtkAppendPolyData::RemoveInput(vtkPolyData *ds)
 {
+  if (UserManagedInputs)
+    {
+    vtkErrorMacro(<<
+      "RemoveInput is not supported if UserManagedInputs is true");
+    return;
+    }
   this->vtkProcessObject::RemoveInput(ds);
-  this->vtkProcessObject::SqueezeInputArray();  
+  this->vtkProcessObject::SqueezeInputArray();
+}
+
+//----------------------------------------------------------------------------
+// make ProcessObject function visible
+// should only be used when UserManagedInputs is true.
+void vtkAppendPolyData::SetNumberOfInputs(int num)
+{
+  if (!UserManagedInputs)
+    {
+    vtkErrorMacro(<<
+      "SetNumberOfInputs is not supported if UserManagedInputs is false");
+    return;
+    }
+  this->vtkProcessObject::SetNumberOfInputs(num);
+}
+
+//----------------------------------------------------------------------------
+// Set Nth input, should only be used when UserManagedInputs is true.
+void vtkAppendPolyData::SetNthInput(int num, vtkPolyData *input)
+{
+  if (!UserManagedInputs)
+    {
+    vtkErrorMacro(<<
+      "SetNthInput is not supported if UserManagedInputs is false");
+    return;
+    }
+  this->vtkProcessObject::SetNthInput(num, input);
 }
 
 //----------------------------------------------------------------------------
@@ -91,6 +131,18 @@ void vtkAppendPolyData::RemoveInput(vtkPolyData *ds)
 // Append data sets into single unstructured grid
 void vtkAppendPolyData::Execute()
 {
+  int idx;
+  // check no null inputs are present
+  for (idx = 0; idx < this->NumberOfInputs; ++idx)
+    {
+    vtkPolyData *pd = (vtkPolyData *)(this->Inputs[idx]);
+    if (!pd)
+      {
+      vtkErrorMacro(<<"Can't execute with NULL input");
+      return;
+      }
+    }
+  //
   int scalarsPresentInPD;
   vtkScalars *newPtScalars = NULL;
   int vectorsPresentInPD;
@@ -122,7 +174,6 @@ void vtkAppendPolyData::Execute()
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
-  int idx;
   
   vtkDebugMacro(<<"Appending data together");
 
