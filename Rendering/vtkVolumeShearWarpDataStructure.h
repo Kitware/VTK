@@ -622,12 +622,17 @@ public:
   // Encodes the volume by opacity (for alpha-compositing)
   void encodeOpacity(vtkImageData *data, vtkVolume *volume, vtkEncodedGradientEstimator* gradest, float opacityThreshold)
   {
+    int l;
     this->IsoValue = -1.0f;
     this->OpacityEncoded = 1;
     
-    for (int l=0;l<3;l++)
+    for (l=0;l<3;l++)
+      {
       if (this->EncodedSlices[l] != NULL)
+        {
         delete[] this->EncodedSlices[l];
+        }
+      }
     
     int *dimensions = data->GetDimensions();    
     this->Volume = volume;
@@ -635,24 +640,31 @@ public:
     this->VolumeDimensions[1] = dimensions[1];
     this->VolumeDimensions[2] = dimensions[2];
 
-    for (int l=0; l<3; l++)
+    for (l=0; l<3; l++)
     {
       this->EncodedSlices[l] = new vtkShearWarpRLESlice<T>[dimensions[l]];
       
       for (int k = 0; k < dimensions[l]; k++)
-          this->EncodedSlices[l][k].encodeOpacity(data,volume,gradest,l,k,opacityThreshold);
+        {
+        this->EncodedSlices[l][k].encodeOpacity(data,volume,gradest,l,k,opacityThreshold);
+        }
     }
   };
 
   // Encodes the volume by scalar (for isosurface display)
   void encodeScalar(vtkImageData *data, vtkVolume *volume, vtkEncodedGradientEstimator* gradest, float isoValue)
   {
+    int l;
     this->IsoValue = isoValue;
     this->OpacityEncoded = 0;    
     
-    for (int l=0;l<3;l++)
+    for (l=0;l<3;l++)
+      {
       if (this->EncodedSlices[l] != NULL)
+        {
         delete[] this->EncodedSlices[l];
+        }
+      }
 
     int *dimensions = data->GetDimensions();
     this->Volume = volume;
@@ -660,12 +672,14 @@ public:
     this->VolumeDimensions[1] = dimensions[1];
     this->VolumeDimensions[2] = dimensions[2];
 
-    for (int l=0; l<3; l++)
+    for (l=0; l<3; l++)
     {
       this->EncodedSlices[l] = new vtkShearWarpRLESlice<T>[dimensions[l]];
 
       for (int k = 0; k < dimensions[l]; k++)
+        {
         this->EncodedSlices[l][k].encodeScalar(data,volume,gradest,l,k,isoValue);
+        }
     }
   };
 

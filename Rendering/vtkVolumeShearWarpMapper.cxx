@@ -46,7 +46,7 @@
   B[1] = A[0]*M[1]  + A[1]*M[5]  + A[2]*M[9]; \
   B[2] = A[0]*M[2]  + A[1]*M[6]  + A[2]*M[10]
   
-vtkCxxRevisionMacro(vtkVolumeShearWarpMapper, "1.1");
+vtkCxxRevisionMacro(vtkVolumeShearWarpMapper, "1.2");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -679,8 +679,8 @@ void CompositeIntermediateNearestSimple(vtkShearWarpRLEImage *image, vtkVolumeSh
   int plane = dimensions[0]*dimensions[1];
   int halfDistance = myThis->ImageSampleDistance / 2;
 
-  float depthCueFactor;
-  float depthCueRatio;
+  //float depthCueFactor;
+  //float depthCueRatio;
 
   if (myThis->ReverseOrder)
   {
