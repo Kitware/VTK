@@ -107,6 +107,7 @@ public:
 
   //BTX
   friend VTK_EXPORT LRESULT CALLBACK vtkHandleMessage(HWND hwnd,UINT uMsg, WPARAM w, LPARAM l);
+  friend VTK_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND hwnd,UINT uMsg, WPARAM w, LPARAM l, vtkWin32RenderWindowInteractor *me);
 
   // Description:
   // Various methods that a Win32 window can redirect to this class to be 

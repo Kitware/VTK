@@ -91,7 +91,7 @@ vtkWin32RenderWindowInteractor::~vtkWin32RenderWindowInteractor()
     {
     vtkWin32OpenGLRenderWindow *ren;
     ren = (vtkWin32OpenGLRenderWindow *)(this->RenderWindow);
-    tmp = (vtkWin32OpenGLRenderWindow *)GetWindowLong(this->WindowId,GWL_USERDATA);
+    tmp = (vtkWin32OpenGLRenderWindow *)GetWindowLong(this->WindowId,4);
     // watch for odd conditions
     if ((tmp != ren) && (ren != NULL)) 
       {
@@ -168,7 +168,7 @@ void vtkWin32RenderWindowInteractor::Enable()
     // add our callback
     ren = (vtkWin32OpenGLRenderWindow *)(this->RenderWindow);
     this->OldProc = (WNDPROC)GetWindowLong(this->WindowId,GWL_WNDPROC);
-    tmp=(vtkWin32OpenGLRenderWindow *)GetWindowLong(this->WindowId,GWL_USERDATA);
+    tmp=(vtkWin32OpenGLRenderWindow *)GetWindowLong(this->WindowId,4);
     // watch for odd conditions
     if (tmp != ren) 
       {
@@ -207,7 +207,7 @@ void vtkWin32RenderWindowInteractor::Disable()
     // we need to release any hold we have on a windows event loop
     vtkWin32OpenGLRenderWindow *ren;
     ren = (vtkWin32OpenGLRenderWindow *)(this->RenderWindow);
-    tmp = (vtkWin32OpenGLRenderWindow *)GetWindowLong(this->WindowId,GWL_USERDATA);
+    tmp = (vtkWin32OpenGLRenderWindow *)GetWindowLong(this->WindowId,4);
     // watch for odd conditions
     if ((tmp != ren) && (ren != NULL)) 
       {
@@ -393,19 +393,25 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam,
   vtkWin32OpenGLRenderWindow *ren;
   vtkWin32RenderWindowInteractor *me;
   
-  ren = (vtkWin32OpenGLRenderWindow *)GetWindowLong(hWnd,GWL_USERDATA);
+  ren = (vtkWin32OpenGLRenderWindow *)GetWindowLong(hWnd,4);
   if (ren == NULL) 
     { 
     return 0; 
-		}
- 
-	me = (vtkWin32RenderWindowInteractor *)ren->GetInteractor();
+    }
+  
+  me = (vtkWin32RenderWindowInteractor *)ren->GetInteractor();
   
   if (me == NULL) 
     { 
     return 0; 
     }
-  
+  vtkHandleMessage2(hWnd,uMsg,wParam, lParam, me);
+}
+
+LRESULT CALLBACK vtkHandleMessage2(HWND hWnd,UINT uMsg, WPARAM wParam, 
+                                   LPARAM lParam, 
+                                   vtkWin32RenderWindowInteractor *me) 
+{
   if ((uMsg == WM_USER+13)&&(wParam == 26)) 
     {
     // someone is telling us to set our OldProc

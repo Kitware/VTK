@@ -162,7 +162,7 @@ LRESULT APIENTRY vtkWin32OpenGLRenderWindow::WndProc(HWND hWnd, UINT message,
 						     LPARAM lParam)
 {
   vtkWin32OpenGLRenderWindow *me = 
-    (vtkWin32OpenGLRenderWindow *)GetWindowLong(hWnd,GWL_USERDATA);
+    (vtkWin32OpenGLRenderWindow *)GetWindowLong(hWnd,4);
 
   // forward to actual object
   if (me)
@@ -609,9 +609,10 @@ void vtkWin32OpenGLRenderWindow::WindowInitialize (void)
         wndClass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
         wndClass.lpszMenuName = NULL;
         wndClass.lpszClassName = "vtkOpenGL";
-        // vtk doesn't use these extra 4 bytes, but app writers
-        // may want them, so we provide them.
-        wndClass.cbWndExtra = 4;
+        // vtk doesn't use the first extra 4 bytes, but app writers
+        // may want them, so we provide them. VTK does use the second 
+        // four bytes of extra space.
+        wndClass.cbWndExtra = 8;
         RegisterClass(&wndClass);
         }
       
@@ -644,8 +645,8 @@ void vtkWin32OpenGLRenderWindow::WindowInitialize (void)
       ShowWindow(this->WindowId, SW_SHOW);
       //UpdateWindow(this->WindowId);
       this->OwnWindow = 1;
+      SetWindowLong(this->WindowId,4,(LONG)this);
       }
-    SetWindowLong(this->WindowId,GWL_USERDATA,(LONG)this);
     this->DeviceContext = GetDC(this->WindowId);
     if (this->StereoCapableWindow)
       {

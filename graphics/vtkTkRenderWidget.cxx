@@ -387,7 +387,7 @@ LRESULT APIENTRY vtkTkRenderWidgetProc(HWND hWnd, UINT message,
 {
   LRESULT rval;
   struct vtkTkRenderWidget *self = 
-    (struct vtkTkRenderWidget *)GetWindowLong(hWnd,GWL_USERDATA);
+    (struct vtkTkRenderWidget *)GetWindowLong(hWnd,4);
 
   // watch for WM_USER + 12  this is a special message
   // from the vtkRenderWIndowInteractor letting us 
@@ -396,9 +396,9 @@ LRESULT APIENTRY vtkTkRenderWidgetProc(HWND hWnd, UINT message,
     {
     WNDPROC tmp = (WNDPROC)lParam;
     // we need to tell it what the original vtk event handler was 
-    SetWindowLong(hWnd,GWL_USERDATA,(LONG)self->RenderWindow);
+    SetWindowLong(hWnd,4,(LONG)self->RenderWindow);
     tmp(hWnd, WM_USER+13,26,(LONG)self->OldProc);
-    SetWindowLong(hWnd,GWL_USERDATA,(LONG)self);
+    SetWindowLong(hWnd,4,(LONG)self);
     self->OldProc = tmp;
     return 1;
     }
@@ -410,7 +410,7 @@ LRESULT APIENTRY vtkTkRenderWidgetProc(HWND hWnd, UINT message,
     }
 
   // forward message to Tk handler
-  SetWindowLong(hWnd,GWL_USERDATA,(LONG)((TkWindow *)self->TkWin)->window);
+  SetWindowLong(hWnd,4,(LONG)((TkWindow *)self->TkWin)->window);
   if (((TkWindow *)self->TkWin)->parentPtr)
     {
     SetWindowLong(hWnd,GWL_WNDPROC,(LONG)TkWinChildProc);
@@ -473,13 +473,13 @@ LRESULT APIENTRY vtkTkRenderWidgetProc(HWND hWnd, UINT message,
 
     if (message != WM_PAINT)
       {
-      SetWindowLong(hWnd,GWL_USERDATA,(LONG)self->RenderWindow);
+      SetWindowLong(hWnd,4,(LONG)self->RenderWindow);
       SetWindowLong(hWnd,GWL_WNDPROC,(LONG)self->OldProc);
       CallWindowProc(self->OldProc,hWnd,message,wParam,lParam);
       }
 
   // now reset to the original config
-  SetWindowLong(hWnd,GWL_USERDATA,(LONG)self);
+  SetWindowLong(hWnd,4,(LONG)self);
   SetWindowLong(hWnd,GWL_WNDPROC,(LONG)vtkTkRenderWidgetProc);
   return rval;
 }
@@ -587,7 +587,7 @@ static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
 #endif
 
   self->OldProc = (WNDPROC)GetWindowLong(twdPtr->window.handle,GWL_WNDPROC);
-  SetWindowLong(twdPtr->window.handle,GWL_USERDATA,(LONG)self);
+  SetWindowLong(twdPtr->window.handle,4,(LONG)self);
   SetWindowLong(twdPtr->window.handle,GWL_WNDPROC,(LONG)vtkTkRenderWidgetProc);
 
   winPtr->window = (Window)twdPtr;
