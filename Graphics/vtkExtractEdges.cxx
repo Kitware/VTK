@@ -81,7 +81,7 @@ void vtkExtractEdges::Execute()
   vtkCellArray *newLines;
   vtkIdType numCells, cellNum, numPts, newId;
   int edgeNum, numEdgePts, numCellEdges;
-  int i;
+  int i, abort;
   vtkIdType pts[2];
   vtkIdType pt1 = 0, pt2;
   float *x;
@@ -131,15 +131,13 @@ void vtkExtractEdges::Execute()
 
   // Loop over all cells, extracting non-visited edges. 
   //
-  for (cellNum=0; cellNum < numCells; cellNum++ )
+  int tenth = numCells/10 + 1;
+  for (cellNum=0; cellNum < numCells && !abort; cellNum++ )
     {
-    if ( ! (cellNum % 10000) ) //manage progress reports / early abort
+    if ( ! (cellNum % tenth) ) //manage progress reports / early abort
       {
       this->UpdateProgress ((float)cellNum / numCells);
-      if ( this->GetAbortExecute() ) 
-        {
-        break;
-        }
+      abort = this->GetAbortExecute();
       }
 
     input->GetCell(cellNum,cell);
