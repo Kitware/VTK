@@ -450,6 +450,7 @@ vtkWin32RenderWindowInteractor::SetClassExitMethodArgDelete(void (*f)(void *))
 void vtkWin32RenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkRenderWindowInteractor::PrintSelf(os,indent);
+  os << indent << "InstallMessageProc: " << this->InstallMessageProc << endl;
 }
 
 void vtkWin32RenderWindowInteractor::ExitCallback()
