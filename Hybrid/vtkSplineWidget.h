@@ -208,10 +208,7 @@ public:
   // user supplied subclasses of vtkSpline.
   void SetClosed(int closed);
   vtkGetMacro(Closed,int);
-  void ClosedOn()
-    { this->SetClosed(1); }
-  void ClosedOff()
-    { this->SetClosed(0); }
+  vtkBooleanMacro(Closed,int);
 
 protected:
   vtkSplineWidget();
