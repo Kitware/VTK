@@ -271,7 +271,7 @@ static vlFloatNormals cellNormals(MAX_CELL_SIZE);
 static vlFloatTCoords cellTCoords(MAX_CELL_SIZE,3);
 static vlFloatTensors cellTensors(MAX_CELL_SIZE,3);
 static vlUserDefined cellUserDefined(MAX_CELL_SIZE);
-static vlPixmap cellColors(MAX_CELL_SIZE);
+static vlAPixmap cellColors(MAX_CELL_SIZE);
 
 // Description:
 // Initialize point interpolation.

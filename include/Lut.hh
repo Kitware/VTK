@@ -16,9 +16,10 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // .NAME vlLookupTable - map scalar values into colors or colors to scalars; generate color table
 // .SECTION Description
 // vlLookupTable is an object that is used by mapper objects to map scalar 
-// values into rgb color specification, or rgb into scalar values. The 
-// color table can be created by direct insertion of color values, or by 
-// specifying  hue, saturation, and value range and generating a table.
+// values into rgba (red-green-blue-alpha transparency) color specification, 
+// or rgba into scalar values. The color table can be created by direct 
+// insertion of color values, or by specifying  hue, saturation, value, and 
+// alpha range and generating a table.
 // .SECTION Caveats
 //    vlLookupTable is a reference counted object. Therefore you should 
 // always use operator "new" to construct new objects. This procedure will
@@ -28,7 +29,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #define __vlLookupTable_h
 
 #include "RefCount.hh"
-#include "Pixmap.hh"
+#include "APixmap.hh"
 
 class vlLookupTable : public vlRefCount
 {
@@ -49,33 +50,42 @@ public:
   vlGetVectorMacro(TableRange,float,2);
 
   // Description:
-  // Set the range in hue (using automatic generation).
+  // Set the range in hue (using automatic generation). Hue ranges from (0,1).
   vlSetVector2Macro(HueRange,float);
   vlGetVectorMacro(HueRange,float,2);
 
   // Description:
-  // Set the range in saturation (using automatic generation).
+  // Set the range in saturation (using automatic generation). Hue ranges from
+  // (0,1).
   vlSetVector2Macro(SaturationRange,float);
   vlGetVectorMacro(SaturationRange,float,2);
 
   // Description:
-  // Set the range in value (using automatic generation).
+  // Set the range in value (using automatic generation). Value ranges from
+  // (0,1).
   vlSetVector2Macro(ValueRange,float);
   vlGetVectorMacro(ValueRange,float,2);
 
+  // Description:
+  // Set the range in alpha (using automatic generation). Alpha ranges from 
+  // (0,1).
+  vlSetVector2Macro(AlphaRange,float);
+  vlGetVectorMacro(AlphaRange,float,2);
+
   unsigned char *MapValue(float v);
-  void SetTableValue (int indx, unsigned char rgb[3]);
-  void SetTableValue (int indx, unsigned char r, unsigned char g, unsigned char b);
+  void SetTableValue (int indx, unsigned char rgba[4]);
+  void SetTableValue (int indx, unsigned char r, unsigned char g, unsigned char b, unsigned char a=255);
   unsigned char *GetTableValue (int id);
-  void GetTableValue (int id, unsigned char rgb[3]);
+  void GetTableValue (int id, unsigned char rgba[4]);
 
 protected:
   int NumberOfColors;
-  vlPixmap Table;  
+  vlAPixmap Table;  
   float TableRange[2];
   float HueRange[2];
   float SaturationRange[2];
   float ValueRange[2];
+  float AlphaRange[2];
   vlTimeStamp InsertTime;
   vlTimeStamp BuildTime;
 };
