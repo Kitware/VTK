@@ -15,8 +15,7 @@ vtkGeometryFilter gf
 vtkPolyDataMapper meshMapper
     meshMapper SetInput [gf GetOutput]
     meshMapper ScalarVisibilityOff
-    meshMapper SetResolveCoincidentTopologyToShiftZBuffer
-    meshMapper SetResolveCoincidentTopologyZShift 0.02
+    meshMapper SetResolveCoincidentTopologyToPolygonOffset
 vtkActor meshActor
     meshActor SetMapper meshMapper
 
@@ -31,18 +30,6 @@ vtkActor edgeActor
     edgeActor SetMapper edgeMapper
     [edgeActor GetProperty] SetColor 0 0 0
 
-vtkMaskPoints verts
-    verts SetInput [gf GetOutput]
-    verts GenerateVerticesOn
-    verts SetOnRatio 1
-vtkPolyDataMapper vertMapper
-    vertMapper SetInput [verts GetOutput]
-    vertMapper ScalarVisibilityOff
-vtkActor vertActor
-    vertActor SetMapper vertMapper
-    [vertActor GetProperty] SetColor 1 0 0
-    [vertActor GetProperty] SetPointSize 3
-
 # Create the RenderWindow, Renderer and both Actors
 #
 vtkRenderer ren1
@@ -55,7 +42,6 @@ vtkRenderWindowInteractor iren
 #
 ren1 AddActor meshActor
 ren1 AddActor edgeActor
-ren1 AddActor vertActor
 ren1 SetBackground 1 1 1
 renWin SetSize 450 250
 
