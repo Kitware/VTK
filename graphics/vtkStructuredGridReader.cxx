@@ -239,6 +239,33 @@ void vtkStructuredGridReader::Execute()
         dimsRead = 1;
         }
 
+      else if ( ! strncmp(line,"blanking",8) )
+        {
+        if (!this->Read(&npts))
+          {
+          vtkErrorMacro(<<"Error reading blanking!");
+          this->CloseVTKFile ();
+          return;
+          }
+
+        if (!this->ReadString(line)) 
+          {
+          vtkErrorMacro(<<"Cannot read blank type!" );
+          this->CloseVTKFile ();
+          return;
+          }
+
+        vtkUnsignedCharArray *data = vtkUnsignedCharArray::SafeDownCast(
+                                        this->ReadArray(line, numPts, 1));
+
+        if ( data != NULL )
+          {
+          output->BlankingOn();
+          output->SetPointVisibility(data);
+          data->Delete();
+          }
+        }
+
       else if ( ! strncmp(line,"points",6) )
         {
         if (!this->Read(&npts))
