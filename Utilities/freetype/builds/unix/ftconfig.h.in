@@ -57,7 +57,6 @@ FT_BEGIN_HEADER
   /*************************************************************************/
 
 
-#undef HAVE_UNISTD_H
 #cmakedefine HAVE_FCNTL_H ${HAVE_FCNTL_H}
 #cmakedefine HAVE_UNISTD_H ${HAVE_UNISTD_H}
 
