@@ -91,7 +91,6 @@ int vlPointSet::FindCell(float x[3], vlCell *cell, float tol2, int& subId,
 {
   int i;
   int closestCell = -1;
-  vlCell *cell;
   int ptId, cellId;
   float dist2;
   static vlIdList cellIds(MAX_CELL_SIZE);
