@@ -242,10 +242,11 @@ void vtkImageGaussianSmooth::ExecuteAxis(int axis,
   int idxA, max;
   int *wholeExtent, wholeMax, wholeMin;
   double *kernel;
-  // kernelNotClipped rembers that the previous was not clipped
+  // previousClip and currentClip rembers that the previous was not clipped
   // keeps from recomputing kernels for center pixels.
   int kernelSize = 0;
-  int kernelLeftClip, kernelRightClip, kernelClipped = 1;
+  int kernelLeftClip, kernelRightClip;
+  int previousClipped, currentClipped;
   int radius, size;
   void *inPtr;
   void *outPtr;
@@ -295,6 +296,7 @@ void vtkImageGaussianSmooth::ExecuteAxis(int axis,
   kernel = new double[size];
   
   // loop over the convolution axis
+  previousClipped = currentClipped = 1;
   max = outExt[axis*2+1];
   for (idxA = outExt[axis*2]; idxA <= max; ++idxA)
     {
@@ -316,18 +318,17 @@ void vtkImageGaussianSmooth::ExecuteAxis(int axis,
       kernelRightClip = 0;
       }
     
-    // compute the clipped Kernel.
-    if (kernelClipped || kernelLeftClip || kernelRightClip)
-      { 
-      // We can only use previous kernel if it is not clipped and new
-      // kernel is also not clipped.
+    // We can only use previous kernel if it is not clipped and new
+    // kernel is also not clipped.
+    currentClipped = kernelLeftClip + kernelRightClip;
+    if (currentClipped || previousClipped)
+      {
       this->ComputeKernel(kernel, -radius+kernelLeftClip, 
 			  radius-kernelRightClip,
 			  (double)(this->StandardDeviations[axis]));
-      // we might be able to avoid recomputing kernel next time
-      kernelClipped = ( ! kernelLeftClip && ! kernelRightClip);
       kernelSize = size - kernelLeftClip - kernelRightClip;
       }
+    previousClipped = currentClipped;
     
     /* now do the convolution on the rest of the axes */
     inPtr = inData->GetScalarPointer(coords);
