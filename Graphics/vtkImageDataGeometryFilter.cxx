@@ -18,7 +18,7 @@
 #include "vtkImageDataGeometryFilter.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageDataGeometryFilter, "1.4");
+vtkCxxRevisionMacro(vtkImageDataGeometryFilter, "1.5");
 vtkStandardNewMacro(vtkImageDataGeometryFilter);
 
 // Construct with initial extent of all the data
@@ -49,7 +49,10 @@ void vtkImageDataGeometryFilter::Execute()
   vtkCellData *cd, *outCD;
   vtkImageData *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
-
+  if (input==NULL)
+    {
+    return;
+    }
   vtkDebugMacro(<< "Extracting structured points geometry");
 
   pd = input->GetPointData();
