@@ -14,6 +14,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include <math.h>
+#include <stdlib.h>
 #include <iostream.h>
 #include "SbrRenW.hh"
 #include "SbrRen.hh"
@@ -587,7 +588,7 @@ int vlSbrRenderWindow::CreateXWindow(Display *dpy,int xpos,int ypos,
 // Initialize the rendering window.
 void vlSbrRenderWindow::WindowInitialize (void)
 {
-  char *device, *driver, *getenv(), *str;
+  char *device, *driver, *str;
   int planes, depth, mode;
   int create_xwindow();
   int cmap_size;
