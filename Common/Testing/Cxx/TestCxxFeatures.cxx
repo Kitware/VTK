@@ -316,6 +316,20 @@ int TestNonTypeTemplate()
 
 //----------------------------------------------------------------------------
 
+int TestBinaryWriting()
+{
+  int result = 1;
+  ofstream fout("TestCxxFeatures_TestBinaryWriting", ios::out | ios::binary);
+  if(!fout)
+    {
+    cerr << "Error opening TestCxxFeatures_TestBinaryWriting for binary writing.\n";
+    result = 0;
+    }
+  return result;
+}
+
+//----------------------------------------------------------------------------
+
 #define DO_TEST(x) \
   if(x()) { cout << "Passed: " #x "\n"; } \
   else { cout << "Failed: " #x "\n"; result = 1; }
@@ -330,5 +344,6 @@ int main()
   DO_TEST(TestFullySpecializedClass);
   DO_TEST(TestIfScope);
   DO_TEST(TestNonTypeTemplate);
+  DO_TEST(TestBinaryWriting);
   return result;
 }
