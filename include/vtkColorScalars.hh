@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Derived classes of vtkColorScalars treat colors differently. All derived 
 // classes will return a rgba (red-green-blue-alpha transparency) array in
 // response to "GetColor()" methods. However, when setting colors, the rgba
-// data is converted to internal form. For example, a vtkAGrayMap converts
+// data is converted to internal form. For example, a vtkAGraymap converts
 // rgba into a luminance value and stores that.
 
 #ifndef __vtkColorScalars_h
