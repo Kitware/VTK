@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkFilter - abstract class for specifying filter behaviour
+// .NAME vtkFilter - abstract class for specifying filter behavior
 // .SECTION Description
 // vtkFilter is an abstract class that specifies the interface for data 
 // filters. Each filter must have an Update() and Execute() method 

@@ -38,10 +38,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkHexahedron - a cell that represents a 3D parallelpiped
+// .NAME vtkHexahedron - a cell that represents a 3D parallelepiped
 // .SECTION Description
 // vtkHexahedron is a concrete implementation of vtkCell to represent a 3D
-// parallelpiped (a "cube" topology).
+// parallelepiped (a "cube" topology).
 
 #ifndef __vtkHexahedron_h
 #define __vtkHexahedron_h

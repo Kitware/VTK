@@ -121,7 +121,7 @@ void vtkHyperStreamline::SetStartLocation(int cellId, int subId, float r, float 
 }
 
 // Description:
-// Get the starting location of the streamline in the cell corrdinate system.
+// Get the starting location of the streamline in the cell coordinate system.
 int vtkHyperStreamline::GetStartLocation(int& subId, float pcoords[3])
 {
   subId = this->StartSubId;
@@ -133,7 +133,7 @@ int vtkHyperStreamline::GetStartLocation(int& subId, float pcoords[3])
 
 // Description:
 // Specify the start of the streamline in the global coordinate system. Search
-// must be performed to find initial cell to strart integration from.
+// must be performed to find initial cell to start integration from.
 void vtkHyperStreamline::SetStartPosition(float x[3])
 {
   if ( x[0] != this->StartPosition[0] || x[1] != this->StartPosition[1] || 
@@ -150,7 +150,7 @@ void vtkHyperStreamline::SetStartPosition(float x[3])
 
 // Description:
 // Specify the start of the streamline in the global coordinate system. Search
-// must be performed to find initial cell to strart integration from.
+// must be performed to find initial cell to start integration from.
 void vtkHyperStreamline::SetStartPosition(float x, float y, float z)
 {
   float pos[3];

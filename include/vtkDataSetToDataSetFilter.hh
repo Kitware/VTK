@@ -43,7 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkDataSetToDataSetFilter is an abstract filter class. Subclasses of 
 // vtkDataSetToDataSetFilter take a dataset as input and create a dataset 
 // as output. The form of the input geometry is not changed in these 
-// filters, only the point attributes (e,g,, scalars, vectors, etc.).
+// filters, only the point attributes (e.g. scalars, vectors, etc.).
 
 #ifndef __vtkDataSetToDataSetFilter_h
 #define __vtkDataSetToDataSetFilter_h

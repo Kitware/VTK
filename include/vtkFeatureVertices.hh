@@ -44,7 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // input polygonal data. In particular, the filter operates on the line
 // primitives in the polygonal data. The vertex types are: 1) boundary 
 // (used by one line) or a vertex cell type, 2) non-manifold (used by three 
-// or more lines lines), or 3) feature edges (vertices used by two lines 
+// or more lines), or 3) feature edges (vertices used by two lines 
 // and whose orientation angle > FeatureAngle). The orientation angle is 
 // computed from the dot product between the two lines. These vertices may 
 // be extracted in any combination. Vertices may also be "colored" (i.e., 

@@ -62,7 +62,7 @@ public:
 };
 
 // Description:
-// Add a implicit functionl to the list.
+// Add a implicit function to the list.
 inline void vtkImplicitFunctionCollection::AddItem(vtkImplicitFunction *f) 
 {
   this->vtkCollection::AddItem((vtkObject *)f);

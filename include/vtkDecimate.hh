@@ -215,7 +215,7 @@ public:
   vtkGetMacro(FeatureAngleIncrement,float);
 
   // Description:
-  // Set the largest permissable feature angle.
+  // Set the largest permissible feature angle.
   vtkSetClampMacro(MaximumFeatureAngle,float,0.0,180.0);
   vtkGetMacro(MaximumFeatureAngle,float);
 

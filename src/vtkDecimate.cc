@@ -66,8 +66,8 @@ static vtkTriArray *T; //cycle of triangles around point
 
 // Description:
 // Create object with target reduction of 90%, feature angle of 30 degrees, 
-// intial error of 0.0, error increment of 0.005, maximum error of 0.1, and
-// maximum iterions of 6.
+// initial error of 0.0, error increment of 0.005, maximum error of 0.1, and
+// maximum iterations of 6.
 vtkDecimate::vtkDecimate()
 {
   this->InitialFeatureAngle = 30;
