@@ -89,11 +89,6 @@ vtkStructuredGrid::vtkStructuredGrid()
 vtkStructuredGrid::~vtkStructuredGrid()
 {
   this->Initialize();
-  if (this->PointVisibility) 
-    {
-    this->PointVisibility->UnRegister((vtkObject *)this);
-    }
-  this->PointVisibility = NULL;
 
   this->Vertex->Delete();
   this->Line->Delete();
