@@ -18,7 +18,7 @@
 #include "vtkImageThreshold.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageThreshold, "1.34");
+vtkCxxRevisionMacro(vtkImageThreshold, "1.35");
 vtkStandardNewMacro(vtkImageThreshold);
 
 //----------------------------------------------------------------------------
@@ -127,16 +127,35 @@ static void vtkImageThresholdExecute(vtkImageThreshold *self,
   int inIncX, inIncY, inIncZ;
   int outIncX, outIncY, outIncZ;
   int rowLength;
-  float  lowerThreshold = self->GetLowerThreshold();
-  float  upperThreshold = self->GetUpperThreshold();
+  IT  lowerThreshold;
+  IT  upperThreshold;
   int replaceIn = self->GetReplaceIn();
   OT  inValue = (OT)(self->GetInValue());
   int replaceOut = self->GetReplaceOut();
   OT  outValue = (OT)(self->GetOutValue());
-  float temp;
+  IT temp;
   unsigned long count = 0;
   unsigned long target;
   
+  // Make sure the thresholds are valid for the scalar
+  if (self->GetLowerThreshold() < (float) inData->GetScalarTypeMin())
+    {
+    lowerThreshold = inData->GetScalarTypeMin();
+    }
+  else
+    {
+    lowerThreshold = (IT) self->GetLowerThreshold();
+    }
+
+  if (self->GetUpperThreshold() > (float) inData->GetScalarTypeMax())
+    {
+    upperThreshold = inData->GetScalarTypeMax();
+    }
+  else
+    {
+    upperThreshold = (IT) self->GetUpperThreshold();
+    }
+
   // find the region to loop over
   rowLength = (outExt[1] - outExt[0]+1)*inData->GetNumberOfScalarComponents();
   maxY = outExt[3] - outExt[2]; 
@@ -148,7 +167,7 @@ static void vtkImageThresholdExecute(vtkImageThreshold *self,
   inData->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
 
-  // Loop through ouput pixels
+  // Loop through output pixels
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {
     for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
@@ -164,7 +183,7 @@ static void vtkImageThresholdExecute(vtkImageThreshold *self,
       for (idxR = 0; idxR < rowLength; idxR++)
         {
         // Pixel operation
-        temp = (float)(*inPtr);
+        temp = (*inPtr);
         if (lowerThreshold <= temp && temp <= upperThreshold)
           {
           // match
