@@ -37,7 +37,7 @@
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkUnstructuredGridPreIntegration, "1.1");
+vtkCxxRevisionMacro(vtkUnstructuredGridPreIntegration, "1.2");
 vtkStandardNewMacro(vtkUnstructuredGridPreIntegration);
 
 vtkCxxSetObjectMacro(vtkUnstructuredGridPreIntegration, Integrator,
@@ -84,6 +84,9 @@ void vtkUnstructuredGridPreIntegration::PrintSelf(ostream &os, vtkIndent indent)
      << this->IntegrationTableScalarResolution << endl;
   os << indent << "IntegrationTableLengthResolution: "
      << this->IntegrationTableLengthResolution << endl;
+
+  os << indent << "IncrementalPreIntegration: "
+     << this->IncrementalPreIntegration << endl;
 }
 
 //-----------------------------------------------------------------------------
