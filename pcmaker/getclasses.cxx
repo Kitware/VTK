@@ -512,12 +512,12 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
   fprintf(fp,"\n");
   if (vals->m_Debug)
     {
-    fprintf(fp,"CPP_PROJ=/nologo /D \"_DEBUG\" /MTd /GX /Od /Zi /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\imaging\" /I \"%s\\graphics\" /I \"%s\\volume\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
+    fprintf(fp,"CPP_PROJ=/nologo /D \"STRICT\" /D \"_DEBUG\" /MTd /GX /Od /Zi /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\imaging\" /I \"%s\\graphics\" /I \"%s\\volume\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
       vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
     }
   else
     {
-    fprintf(fp,"CPP_PROJ=/nologo /MT /G5 /Ox /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\volume\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
+    fprintf(fp,"CPP_PROJ=/nologo /D \"STRICT\" /MT /G5 /Ox /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\volume\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
       vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
     }
   if (vals->m_Patented)
@@ -796,12 +796,12 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
 
   if (vals->m_Debug)
     {
-    fprintf(fp,"CPP_PROJ=/D \"_DEBUG\" /nologo /MTd /GX /Od /Zi /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\"  /I \"%s\\volume\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
+    fprintf(fp,"CPP_PROJ=/D \"STRICT\" /D \"_DEBUG\" /nologo /MTd /GX /Od /Zi /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\"  /I \"%s\\volume\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
       vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
     }
   else
     {
-    fprintf(fp,"CPP_PROJ=/nologo /MT /GX /O2 /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\"  /I \"%s\\volume\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
+    fprintf(fp,"CPP_PROJ=/D \"STRICT\" /nologo /MT /GX /O2 /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\"  /I \"%s\\volume\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
       vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
     }
   if (vals->m_Patented)
@@ -1196,22 +1196,22 @@ void doMSCJavaHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
 
   if (vals->m_Debug)
     {
-    fprintf(fp,"CPP_PROJ=/D \"_DEBUG\" /nologo /MTd /GX /Od /Zi /I \"%s\\mfc\\include\" /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\"  /I \"%s\\volume\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
-      vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+    fprintf(fp,"CPP_PROJ=/D \"STRICT\" /D \"_DEBUG\" /nologo /MTd /GX /Od /Zi /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\"  /I \"%s\\volume\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
+      vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
     }
   else
     {
-    fprintf(fp,"CPP_PROJ=/nologo /MT /GX /O2 /I \"%s\\mfc\\include\" /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\"  /I \"%s\\volume\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
-      vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+    fprintf(fp,"CPP_PROJ=/D \"STRICT\" /nologo /MT /GX /O2 /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\"  /I \"%s\\volume\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
+      vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
     }
   if (vals->m_Patented)
     {
-    fprintf(fp," \"_WINDOWS\" /D \"VTK_USE_PATENTED\" /I \"%s\\patented\" /D \"_WINDLL\" /D \"_USRDLL\" /D \"_MBCS\" \\\n",
+    fprintf(fp," \"_WINDOWS\" /D \"VTK_USE_PATENTED\" /I \"%s\\patented\" /D \"_WINDLL\" /D \"_MBCS\" \\\n",
       vals->m_WhereVTK);
     }
   else
     {
-    fprintf(fp," \"_WINDOWS\" /D \"_WINDLL\" /D \"_USRDLL\" /D \"_MBCS\" \\\n");
+    fprintf(fp," \"_WINDOWS\" /D \"_WINDLL\" /D \"_MBCS\" \\\n");
     }
   if (doAddedValue) fprintf(fp," /I \"%s\\gemsio\" /I \"%s\\gemsip\" /I \"%s\\gemsvolume\" /I \"%s\\volume\" \\\n",
     vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
@@ -1220,12 +1220,12 @@ void doMSCJavaHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
   fprintf(fp,"LINK32=link.exe\n");
   if (vals->m_Debug)
     {
-    fprintf(fp,"LINK32_FLAGS=/debug /libpath:\"%s\\mfc\\lib\" /libpath:\"%s\\lib\" nafxcwd.lib ..\\vtkdll\\obj\\vtkdll.lib /nologo /version:1.3 /subsystem:windows\\\n",
+    fprintf(fp,"LINK32_FLAGS=/debug /libpath:\"%s\\lib\" ..\\vtkdll\\obj\\vtkdll.lib \"%s\\lib\\user32.lib\" /nologo /version:1.3 /subsystem:windows\\\n",
 	    vals->m_WhereCompiler, vals->m_WhereCompiler);
     }
   else
     {
-    fprintf(fp,"LINK32_FLAGS=/libpath:\"%s\\mfc\\lib\" /libpath:\"%s\\lib\" nafxcw.lib ..\\vtkdll\\obj\\vtkdll.lib /nologo /version:1.3 /subsystem:windows\\\n",
+    fprintf(fp,"LINK32_FLAGS=/libpath:\"%s\\lib\" ..\\vtkdll\\obj\\vtkdll.lib \"%s\\lib\\user32.lib\" /nologo /version:1.3 /subsystem:windows\\\n",
 	    vals->m_WhereCompiler, vals->m_WhereCompiler);
     }
   fprintf(fp," /dll /incremental:no /pdb:\"$(OUTDIR)/vtkjava.pdb\" /machine:I386\\\n");
