@@ -29,7 +29,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.17");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.18");
 vtkStandardNewMacro(vtkAlgorithm);
 
 vtkCxxSetObjectMacro(vtkAlgorithm,Information,vtkInformation);
@@ -734,8 +734,19 @@ void vtkAlgorithm::GarbageCollectionStarting()
 void vtkAlgorithm::RemoveReferences()
 {
   this->AlgorithmInternal->Executive = 0;
-  this->AlgorithmInternal->InputPorts.clear();
-  this->AlgorithmInternal->OutputPorts.clear();
+
+  // Remove all connection-related references without clearing the ports
+  // array.  The destructor of a subclass may still need to access the number
+  // of input or output ports.
+  int i;
+  for(i=0; i < this->GetNumberOfInputPorts(); ++i)
+    {
+    this->AlgorithmInternal->InputPorts[i].clear();
+    }
+  for(i=0; i < this->GetNumberOfOutputPorts(); ++i)
+    {
+    this->AlgorithmInternal->OutputPorts[i].clear();
+    }
   this->Superclass::RemoveReferences();
 }
 
