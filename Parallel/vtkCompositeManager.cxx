@@ -35,7 +35,7 @@
  #include <mpi.h>
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeManager, "1.21");
+vtkCxxRevisionMacro(vtkCompositeManager, "1.22");
 vtkStandardNewMacro(vtkCompositeManager);
 
 // Structures to communicate render info.
@@ -69,7 +69,10 @@ vtkCompositeManager::vtkCompositeManager()
   this->RenderWindow = NULL;
   this->RenderWindowInteractor = NULL;
   this->Controller = vtkMultiProcessController::GetGlobalController();
-  this->Controller->Register(this);
+  if (this->Controller)
+    {
+    this->Controller->Register(this);
+    }
 
   this->RendererSize[0] = this->RendererSize[1] = 0;
 
@@ -170,8 +173,8 @@ void vtkCompositeManagerStartRender(vtkObject *caller,
 
 //-------------------------------------------------------------------------
 void vtkCompositeManagerEndRender(vtkObject *caller,
-                               unsigned long vtkNotUsed(event), 
-                               void *clientData, void *)
+                                  unsigned long vtkNotUsed(event), 
+                                  void *clientData, void *)
 {
   vtkCompositeManager *self = (vtkCompositeManager *)clientData;
   
@@ -187,8 +190,8 @@ void vtkCompositeManagerEndRender(vtkObject *caller,
 
 //-------------------------------------------------------------------------
 void vtkCompositeManagerExitInteractor(vtkObject *vtkNotUsed(o),
-                                    unsigned long vtkNotUsed(event), 
-                                    void *clientData, void *)
+                                       unsigned long vtkNotUsed(event), 
+                                       void *clientData, void *)
 {
   vtkCompositeManager *self = (vtkCompositeManager *)clientData;
 
@@ -197,8 +200,8 @@ void vtkCompositeManagerExitInteractor(vtkObject *vtkNotUsed(o),
 
 //-------------------------------------------------------------------------
 void vtkCompositeManagerResetCamera(vtkObject *caller,
-                                 unsigned long vtkNotUsed(event), 
-                                 void *clientData, void *)
+                                    unsigned long vtkNotUsed(event), 
+                                    void *clientData, void *)
 {
   vtkCompositeManager *self = (vtkCompositeManager *)clientData;
   vtkRenderer *ren = (vtkRenderer*)caller;
@@ -208,8 +211,8 @@ void vtkCompositeManagerResetCamera(vtkObject *caller,
 
 //-------------------------------------------------------------------------
 void vtkCompositeManagerResetCameraClippingRange(vtkObject *caller, 
-                                              unsigned long vtkNotUsed(event), 
-                                              void *clientData, void *)
+                                                 unsigned long vtkNotUsed(event), 
+                                                 void *clientData, void *)
 {
   vtkCompositeManager *self = (vtkCompositeManager *)clientData;
   vtkRenderer *ren = (vtkRenderer*)caller;
@@ -873,7 +876,7 @@ void vtkCompositeManager::InitializeOffScreen()
 //-------------------------------------------------------------------------
 
 void vtkCompositeManager::ResizeFloatArray(vtkFloatArray* fa, int numComp,
-					   vtkIdType size)
+                                           vtkIdType size)
 {
   fa->SetNumberOfComponents(numComp);
 
@@ -901,8 +904,8 @@ void vtkCompositeManager::ResizeFloatArray(vtkFloatArray* fa, int numComp,
 }
 
 void vtkCompositeManager::ResizeUnsignedCharArray(vtkUnsignedCharArray* uca, 
-						  int numComp, 
-						  vtkIdType size)
+                                                  int numComp, 
+                                                  vtkIdType size)
 {
   uca->SetNumberOfComponents(numComp);
 #ifdef MPIPROALLOC
@@ -1136,7 +1139,7 @@ float vtkCompositeManager::GetZ(int x, int y)
     
     // Get the z buffer.
     this->RenderWindow->GetZbufferData(0,0,size[0]-1, size[1]-1, 
-				       this->LocalZData);
+                                       this->LocalZData);
     }
   
   if (x < 0 || x >= this->RendererSize[0] || 
@@ -1175,9 +1178,9 @@ void vtkCompositeManager::Composite()
   // Get the z buffer.
   timer->StartTimer();
   this->RenderWindow->GetZbufferData(0,0,
-				     this->RendererSize[0]-1, 
-				     this->RendererSize[1]-1,
-				     this->LocalZData);  
+                                     this->RendererSize[0]-1, 
+                                     this->RendererSize[1]-1,
+                                     this->LocalZData);  
 
   // If we are process 0 and using double buffering, then we want 
   // to get the back buffer, otherwise we need to get the front.
@@ -1196,27 +1199,27 @@ void vtkCompositeManager::Composite()
     if (this->LocalPData->GetNumberOfComponents() == 4)
       {
       this->RenderWindow->GetRGBACharPixelData(0,0,
-			  		     this->RendererSize[0]-1,
-				  	     this->RendererSize[1]-1, 
-					       front,
-					       static_cast<vtkUnsignedCharArray*>(this->LocalPData));
+                             this->RendererSize[0]-1,
+                             this->RendererSize[1]-1, 
+                             front,
+                             static_cast<vtkUnsignedCharArray*>(this->LocalPData));
       }
     else if (this->LocalPData->GetNumberOfComponents() == 3)
       {
       this->RenderWindow->GetPixelData(0,0,
-			  		     this->RendererSize[0]-1,
-				  	     this->RendererSize[1]-1, 
-					       front,
-					       static_cast<vtkUnsignedCharArray*>(this->LocalPData));
+                               this->RendererSize[0]-1,
+                               this->RendererSize[1]-1, 
+                               front,
+                               static_cast<vtkUnsignedCharArray*>(this->LocalPData));
       }
     } 
   else 
     {
     this->RenderWindow->GetRGBAPixelData(0,0,
-					 this->RendererSize[0]-1, 
-					 this->RendererSize[1]-1, 
-					 front,
-					 static_cast<vtkFloatArray*>(this->LocalPData));
+                           this->RendererSize[0]-1, 
+                           this->RendererSize[1]-1, 
+                           front,
+                           static_cast<vtkFloatArray*>(this->LocalPData));
     }
   
   timer->StopTimer();
@@ -1270,7 +1273,7 @@ void vtkCompositeManager::Composite()
       if (magPdata)
         {
         buf = static_cast<vtkUnsignedCharArray*>(magPdata);
-	      }
+        }
       else
         {
         buf = static_cast<vtkUnsignedCharArray*>(this->LocalPData);
@@ -1289,19 +1292,19 @@ void vtkCompositeManager::Composite()
     else 
       {
       if (magPdata)
-	{
-	this->RenderWindow->SetRGBAPixelData(0, 0, windowSize[0]-1, 
-					     windowSize[1]-1,
-					     static_cast<vtkFloatArray*>(magPdata), 
-					     0);
-	}
+        {
+        this->RenderWindow->SetRGBAPixelData(0, 0, windowSize[0]-1, 
+                                windowSize[1]-1,
+                                static_cast<vtkFloatArray*>(magPdata), 
+                                0);
+        }
       else
-	{
-	this->RenderWindow->SetRGBAPixelData(0, 0, windowSize[0]-1, 
-					     windowSize[1]-1,
-					     static_cast<vtkFloatArray*>(this->LocalPData), 
-					     0);
-	}
+        {
+        this->RenderWindow->SetRGBAPixelData(0, 0, windowSize[0]-1, 
+                                windowSize[1]-1,
+                                static_cast<vtkFloatArray*>(this->LocalPData), 
+                                0);
+        }
       }
     timer->StopTimer();
     this->SetBuffersTime = timer->GetElapsedTime();
@@ -1321,8 +1324,8 @@ void vtkCompositeManager::Composite()
 //----------------------------------------------------------------------------
 // We have do do this backward so we can keep it inplace.     
 void vtkCompositeManager::MagnifyBuffer(vtkDataArray* localP, 
-					vtkDataArray* magP,
-					int windowSize[2])
+                                        vtkDataArray* magP,
+                                        int windowSize[2])
 {
   float *rowp, *subp;
   float *pp1;
