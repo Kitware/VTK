@@ -21,7 +21,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkLinearSubdivisionFilter, "1.16");
+vtkCxxRevisionMacro(vtkLinearSubdivisionFilter, "1.17");
 vtkStandardNewMacro(vtkLinearSubdivisionFilter);
 
 void vtkLinearSubdivisionFilter::GenerateSubdivisionPoints (vtkPolyData *inputDS, vtkIntArray *edgeData, vtkPoints *outputPts, vtkPointData *outputPD)
@@ -43,6 +43,9 @@ void vtkLinearSubdivisionFilter::GenerateSubdivisionPoints (vtkPolyData *inputDS
   edgeTable->InitEdgeInsertion(inputDS->GetNumberOfPoints());
 
   pointIds->SetNumberOfIds(2);
+
+  double total = inputPolys->GetNumberOfCells();
+  double curr = 0;
 
   // Generate new points for subdivisions surface
   for (cellId=0, inputPolys->InitTraversal();
@@ -83,6 +86,8 @@ void vtkLinearSubdivisionFilter::GenerateSubdivisionPoints (vtkPolyData *inputDS
         p2 = pts[edgeId + 1];
         }
       } // each edge
+    this->UpdateProgress(curr / total);
+    curr += 1;
     } // each cell
 
   edgeTable->Delete();

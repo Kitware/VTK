@@ -24,7 +24,7 @@
 #include "vtkTimerLog.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadricClustering, "1.65");
+vtkCxxRevisionMacro(vtkQuadricClustering, "1.66");
 vtkStandardNewMacro(vtkQuadricClustering);
 
 //----------------------------------------------------------------------------
@@ -141,7 +141,10 @@ void vtkQuadricClustering::Execute()
     this->NumberOfDivisions[2] = this->NumberOfZDivisions;
     }
 
+  this->UpdateProgress(.01);
+
   this->StartAppend(input->GetBounds());
+  this->UpdateProgress(.2);
   this->SliceSize = this->NumberOfDivisions[0]*this->NumberOfDivisions[1];
 
   this->Append(input);
@@ -280,18 +283,21 @@ void vtkQuadricClustering::Append(vtkPolyData *pd)
     {
     this->AddVertices(inputVerts, inputPoints, 1);
     }
+  this->UpdateProgress(.40);
 
   inputLines = pd->GetLines();
   if (inputLines)
     {
     this->AddEdges(inputLines, inputPoints, 1);
     }
+  this->UpdateProgress(.60);
 
   inputPolys = pd->GetPolys();
   if (inputPolys)
     {
     this->AddPolygons(inputPolys, inputPoints, 1);
     }
+  this->UpdateProgress(.80);
 
   inputStrips = pd->GetStrips();
   if (inputStrips)
@@ -310,6 +316,11 @@ void vtkQuadricClustering::AddPolygons(vtkCellArray *polys, vtkPoints *points,
   double pts0[3], pts1[3], pts2[3];
   vtkIdType binIds[3];
 
+  double total = polys->GetNumberOfCells();
+  double curr = 0;
+  double step = total / 100;
+  double cstep = 0;
+
   for ( polys->InitTraversal(); polys->GetNextCell(numPts, ptIds); )
     {
     points->GetPoint(ptIds[0],pts0);
@@ -323,6 +334,12 @@ void vtkQuadricClustering::AddPolygons(vtkCellArray *polys, vtkPoints *points,
       this->AddTriangle(binIds, pts0, pts1, pts2, geometryFlag);
       }
     ++this->InCellCount;
+    if ( curr > cstep )
+      {
+      this->UpdateProgress(.6 + .2 * curr / total);
+      cstep += step;
+      }
+    curr += 1;
     }//for all polygons
 }
 
@@ -621,6 +638,7 @@ void vtkQuadricClustering::AddVertices(vtkCellArray *verts, vtkPoints *points,
       this->AddVertex(binId, pt, geometryFlag);
       }
     ++this->InCellCount;
+    this->UpdateProgress(.2 + .2 * i / static_cast<double>(numCells));
     }
 }
 //----------------------------------------------------------------------------

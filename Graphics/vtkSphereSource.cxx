@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSphereSource, "1.64");
+vtkCxxRevisionMacro(vtkSphereSource, "1.65");
 vtkStandardNewMacro(vtkSphereSource);
 
 //----------------------------------------------------------------------------
@@ -166,6 +166,8 @@ void vtkSphereSource::Execute()
   jEnd = (this->EndPhi >= 180.0 ? this->PhiResolution - 1 
         : this->PhiResolution);
 
+  this->UpdateProgress(0.1);
+
   // Create intermediate points
   for (i=0; i < localThetaResolution; i++)
     {
@@ -190,6 +192,7 @@ void vtkSphereSource::Execute()
       n[0] /= norm; n[1] /= norm; n[2] /= norm; 
       newNormals->InsertNextTuple(n);
       }
+    this->UpdateProgress (0.10 + 0.50*i/static_cast<float>(localThetaResolution));
     }
 
   // Generate mesh connectivity
@@ -223,6 +226,7 @@ void vtkSphereSource::Execute()
       newPolys->InsertNextCell(3, pts);
       }
     }
+  this->UpdateProgress (0.70);
 
   // bands in-between poles
   for (i=0; i < localThetaResolution; i++)
@@ -245,6 +249,7 @@ void vtkSphereSource::Execute()
         newPolys->InsertNextCell(4, pts);
         }
       }
+    this->UpdateProgress (0.70 + 0.30*i/static_cast<double>(localThetaResolution));
     }
 
   // Update ourselves and release memeory
