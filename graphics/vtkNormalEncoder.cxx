@@ -246,10 +246,10 @@ vtkNormalEncoder::vtkNormalEncoder()
 vtkNormalEncoder::~vtkNormalEncoder()
 {
   if ( this->EncodedNormal )
-    delete this->EncodedNormal;
+    delete [] this->EncodedNormal;
 
   if ( this->GradientMagnitude )
-    delete this->GradientMagnitude;
+    delete [] this->GradientMagnitude;
 }
 
 
@@ -421,9 +421,9 @@ void vtkNormalEncoder::UpdateNormals( )
 	  this->EncodedNormalSize[1] != scalar_input_size[1] ||
           this->EncodedNormalSize[2] != scalar_input_size[2] ) )
     {
-    delete this->EncodedNormal;
+    delete [] this->EncodedNormal;
     this->EncodedNormal = NULL;
-    delete this->GradientMagnitude;
+    delete [] this->GradientMagnitude;
     this->GradientMagnitude = NULL;
     }
 
