@@ -49,7 +49,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkWin32OpenGLRenderWindow_h
 
 #include <stdlib.h>
-#include "vtkRenderWindow.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkMutexLock.h"
 #ifndef VTK_IMPLEMENT_MESA_CXX
 #include <GL/gl.h>
@@ -57,27 +57,23 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkIdList;
 
-class VTK_EXPORT vtkWin32OpenGLRenderWindow : public vtkRenderWindow
+class VTK_EXPORT vtkWin32OpenGLRenderWindow : public vtkOpenGLRenderWindow
 {
 public:
   static vtkWin32OpenGLRenderWindow *New();
-  vtkTypeMacro(vtkWin32OpenGLRenderWindow,vtkRenderWindow);
+  vtkTypeMacro(vtkWin32OpenGLRenderWindow,vtkOpenGLRenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Begin the rendering process.
-  void Start(void);
+  virtual void Start(void);
 
   // Description:
   // End the rendering process and display the image.
   void Frame(void);
 
   // Description:
-  // Specify various window parameters.
-  virtual void WindowConfigure(void);
-
-  // Description:
-  // Initialize the window for rendering.
+  // Create the window
   virtual void WindowInitialize(void);
 
   // Description:
@@ -158,42 +154,12 @@ public:
   virtual void  SetNextWindowId(HWND);
   //ETX
 
-  // supply base class virtual function
-  vtkSetMacro(MultiSamples,int);
-  vtkGetMacro(MultiSamples,int);
-
-  // Description:
-  // Update system if needed due to stereo rendering.
-  virtual void StereoUpdate();
-  
   // Description:
   // Prescribe that the window be created in a stereo-capable mode. This
   // method must be called before the window is realized. This method
   // overrides the superclass method since this class can actually check
   // whether the window has been realized yet.
   virtual void SetStereoCapableWindow(int capable);
-
-  // Description:
-  // Set/Get the pixel data of an image, transmitted as RGBRGB... 
-  virtual unsigned char *GetPixelData(int x,int y,int x2,int y2,int front);
-  virtual void SetPixelData(int x,int y,int x2,int y2,unsigned char *,
-			    int front);
-
-  // Description:
-  // Set/Get the pixel data of an image, transmitted as RGBARGBA... 
-  virtual float *GetRGBAPixelData(int x,int y,int x2,int y2,int front);
-  virtual void SetRGBAPixelData(int x,int y,int x2,int y2,float *,int front,
-                                int blend=0);
-  virtual void ReleaseRGBAPixelData(float *data);
-  virtual unsigned char *GetRGBACharPixelData(int x,int y,int x2,int y2,
-					      int front);
-  virtual void SetRGBACharPixelData(int x,int y,int x2,int y2,unsigned char *,
-				    int front, int blend=0);  
-
-  // Description:
-  // Set/Get the zbuffer data from an image
-  virtual float *GetZbufferData( int x1, int y1, int x2, int y2 );
-  virtual void SetZbufferData( int x1, int y1, int x2, int y2, float *buffer );
 
   // Description:
   // Make this windows OpenGL context the current context.
@@ -209,13 +175,13 @@ public:
   // to support print preview and printing, or more
   // general rendering into memory. 
   void SetupMemoryRendering(int x, int y, HDC prn);
+  void SetupMemoryRendering(HBITMAP hbmp);
   void ResumeScreenRendering();
   HDC GetMemoryDC();
   unsigned char *GetMemoryData(){return this->MemoryData;};  
 
   // Description:
   // Initialize OpenGL for this window.
-  virtual void OpenGLInit();
   virtual void SetupPalette(HDC hDC);
   virtual void SetupPixelFormat(HDC hDC, DWORD dwFlags, int debug, 
 				int bpp=16, int zbpp=16);
@@ -224,14 +190,6 @@ public:
   // Clean up device contexts, rendering contexts, etc.
   void Clean();
 
-  // Description:
-  // Register a texture name with this render window.
-  void RegisterTextureResource (GLuint id);
-
-  // Description:
-  // Get the size of the depth buffer.
-  int GetDepthBufferSize();
-  
   // Description:
   // Hide or Show the mouse cursor, it is nice to be able to hide the
   // default cursor if you want VTK to display a 3D cursor instead.
@@ -260,8 +218,6 @@ protected:
   HWND      NextWindowId;
   int       OwnWindow;
   int       ScreenSize[2];
-  int       MultiSamples;
-  vtkIdList *TextureResourceIds;
 
   // the following is used to support rendering into memory
   BITMAPINFO MemoryDataHeader;
@@ -283,7 +239,6 @@ protected:
   static LRESULT APIENTRY WndProc(HWND hWnd, UINT message, 
 				  WPARAM wParam, LPARAM lParam);
   //ETX
-
   int CursorHidden;
 
   void ResizeWhileOffscreen(int xsize, int ysize);
@@ -291,6 +246,7 @@ protected:
   void InitializeApplication();
   void CleanUpOffScreenRendering();
   void CreateOffScreenDC(int xsize, int ysize, HDC aHdc);
+  void CreateOffScreenDC(HBITMAP hbmp, HDC aHdc);
 };
 
 

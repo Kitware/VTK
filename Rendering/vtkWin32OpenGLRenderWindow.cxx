@@ -92,8 +92,6 @@ vtkWin32OpenGLRenderWindow::vtkWin32OpenGLRenderWindow()
   this->DeviceContext = (HDC)0;		// hsr
   this->MFChandledWindow = FALSE;	// hsr
   this->StereoType = VTK_STEREO_CRYSTAL_EYES;  
-  this->SetWindowName("Visualization Toolkit - Win32OpenGL");
-  this->TextureResourceIds = vtkIdList::New();
   this->CursorHidden = 0;
 }
 
@@ -115,7 +113,6 @@ vtkWin32OpenGLRenderWindow::~vtkWin32OpenGLRenderWindow()
     SetWindowLong(this->WindowId,4,(LONG)0);
     DestroyWindow(this->WindowId);
     }
-  this->TextureResourceIds->Delete();
 }
 
 void vtkWin32OpenGLRenderWindow::Clean()
@@ -201,25 +198,21 @@ int vtkWin32OpenGLRenderWindow::GetEventPending()
   return PeekMessage(&msg,this->WindowId,WM_LBUTTONDOWN,WM_MBUTTONDOWN,PM_NOREMOVE);
 }
 
-// Begin the rendering process.
-void vtkWin32OpenGLRenderWindow::Start(void)
-{
-  // if the renderer has not been initialized, do so now
-  if (!this->ContextId)
-    {
-    this->Initialize();
-    }
-
-  // set the current window 
-  this->MakeCurrent();
-}
+// this is a global because we really don't think you are doing
+// multithreaded OpenGL rendering anyhow. Most current libraries
+// don't support it.
+HGLRC vtkWin32OpenGLGlobalContext = 0;
 
 void vtkWin32OpenGLRenderWindow::MakeCurrent()
 {
-  // Try to avoid doing anything (for performance).
-  if (this->ContextId && (this->ContextId != wglGetCurrentContext()))
+  if (this->ContextId != vtkWin32OpenGLGlobalContext)
     {
-    wglMakeCurrent(this->DeviceContext, this->ContextId);
+    // Try to avoid doing anything (for performance).
+    if (this->ContextId)
+      {
+      wglMakeCurrent(this->DeviceContext, this->ContextId);
+      }
+    vtkWin32OpenGLGlobalContext = this->ContextId;
     }
 }
 
@@ -305,57 +298,17 @@ inline static void vtkWin32OpenGLSwapBuffers(HDC hdc)
 void vtkWin32OpenGLRenderWindow::Frame(void)
 {
   this->MakeCurrent();
-  glFlush();
   if (!this->AbortRender && this->DoubleBuffer && this->SwapBuffers)
     {
     vtkWin32OpenGLSwapBuffers(this->DeviceContext);
     vtkDebugMacro(<< " SwapBuffers\n");
     }
+  else
+    {
+    glFlush();
+    }
 }
  
-
-// Update system if needed due to stereo rendering.
-void vtkWin32OpenGLRenderWindow::StereoUpdate(void)
-{
-  // if stereo is on and it wasn't before
-  if (this->StereoRender && (!this->StereoStatus))
-    {
-    switch (this->StereoType) 
-      {
-      case VTK_STEREO_CRYSTAL_EYES:
-	{
-        this->StereoStatus = 1;
-	}
-	break;
-      case VTK_STEREO_RED_BLUE:
-	{
-        this->StereoStatus = 1;
-	}
-      }
-    }
-  else if ((!this->StereoRender) && this->StereoStatus)
-    {
-    switch (this->StereoType) 
-      {
-      case VTK_STEREO_CRYSTAL_EYES:
-	{
-        this->StereoStatus = 0;
-	}
-	break;
-      case VTK_STEREO_RED_BLUE:
-	{
-        this->StereoStatus = 0;
-	}
-      }
-    }
-}
-
-// Specify various window parameters.
-void vtkWin32OpenGLRenderWindow::WindowConfigure()
-{
-  // this is all handled by the desiredVisualInfo method
-}
-
 void vtkWin32OpenGLRenderWindow::SetupPixelFormat(HDC hDC, DWORD dwFlags, 
 						  int debug, int bpp, 
 						  int zbpp)
@@ -466,48 +419,6 @@ void vtkWin32OpenGLRenderWindow::SetupPalette(HDC hDC)
         this->OldPalette = SelectPalette(hDC, this->Palette, FALSE);
         RealizePalette(hDC);
     }
-}
-
-void vtkWin32OpenGLRenderWindow::OpenGLInit()
-{
-  glMatrixMode( GL_MODELVIEW );
-  glDepthFunc( GL_LEQUAL );
-  glEnable( GL_DEPTH_TEST );
-  glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
-
-  // initialize blending for transparency
-  glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-  glEnable(GL_BLEND);
-
-  if (this->PointSmoothing)
-    {
-    glEnable(GL_POINT_SMOOTH);
-    }
-  else
-    {
-    glDisable(GL_POINT_SMOOTH);
-    }
-
-  if (this->LineSmoothing)
-    {
-    glEnable(GL_LINE_SMOOTH);
-    }
-  else
-    {
-    glDisable(GL_LINE_SMOOTH);
-    }
-
-  if (this->PolygonSmoothing)
-    {
-    glEnable(GL_POLYGON_SMOOTH);
-    }
-  else
-    {
-    glDisable(GL_POLYGON_SMOOTH);
-    }
-
-  glEnable( GL_NORMALIZE );
-  glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
 }
 
 
@@ -902,152 +813,11 @@ void vtkWin32OpenGLRenderWindow::WindowRemap()
 
 void vtkWin32OpenGLRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkRenderWindow::PrintSelf(os,indent);
+  this->vtkOpenGLRenderWindow::PrintSelf(os,indent);
 
   os << indent << "ContextId: " << this->ContextId << "\n";
   os << indent << "Next Window Id: " << this->NextWindowId << "\n";
   os << indent << "Window Id: " << this->WindowId << "\n";
-  os << indent << "MultiSamples: " << this->MultiSamples << "\n";
-}
-
-int vtkWin32OpenGLRenderWindow::GetDepthBufferSize()
-{
-  GLint size;
-
-  if ( this->Mapped )
-    {
-    this->MakeCurrent();
-    size = 0;
-    glGetIntegerv( GL_DEPTH_BITS, &size );
-    return (int) size;
-    }
-  else
-    {
-    vtkDebugMacro(<< "Window is not mapped yet!" );
-    return 24;
-    }
-}
-
-
-unsigned char *vtkWin32OpenGLRenderWindow::GetPixelData(int x1, int y1, int x2,
-							int y2, int front)
-{
-  int     y_low, y_hi;
-  int     x_low, x_hi;
-  unsigned char   *data = NULL;
-
-  // set the current window 
-  this->MakeCurrent();
-
-  if (y1 < y2)
-    {
-    y_low = y1; 
-    y_hi  = y2;
-    }
-  else
-    {
-    y_low = y2; 
-    y_hi  = y1;
-    }
-
-  if (x1 < x2)
-    {
-    x_low = x1; 
-    x_hi  = x2;
-    }
-  else
-    {
-    x_low = x2; 
-    x_hi  = x1;
-    }
-
-  if (front)
-    {
-    glReadBuffer(GL_FRONT);
-    }
-  else
-    {
-    glReadBuffer(GL_BACK);
-    }
-
-  data = new unsigned char[(x_hi - x_low + 1)*(y_hi - y_low + 1)*3];
-
-  // Turn of texturing in case it is on - some drivers have a problem
-  // getting / setting pixels with texturing enabled.
-  glDisable( GL_TEXTURE_2D );
-  
-  // Calling pack alignment ensures that we can grab the any size window
-  glPixelStorei( GL_PACK_ALIGNMENT, 1 );
-  glReadPixels(x_low, y_low, x_hi-x_low+1, y_hi-y_low+1, GL_RGB,
-               GL_UNSIGNED_BYTE, data);
-  return data;
-}
-
-void vtkWin32OpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
-					    unsigned char *data, int front)
-{
-  int     y_low, y_hi;
-  int     x_low, x_hi;
-
-  // set the current window
-  this->MakeCurrent();
-
-  if (front)
-    {
-    glDrawBuffer(GL_FRONT);
-    }
-  else
-    {
-    glDrawBuffer(GL_BACK);
-    }
-
-  if (y1 < y2)
-    {
-    y_low = y1; 
-    y_hi  = y2;
-    }
-  else
-    {
-    y_low = y2; 
-    y_hi  = y1;
-    }
-  
-  if (x1 < x2)
-    {
-    x_low = x1; 
-    x_hi  = x2;
-    }
-  else
-    {
-    x_low = x2; 
-    x_hi  = x1;
-    }
-
-  // Turn of texturing in case it is on - some drivers have a problem
-  // getting / setting pixels with texturing enabled.
-  glDisable( GL_TEXTURE_2D );
-
-  // now write the binary info
-  glMatrixMode( GL_MODELVIEW );
-  glPushMatrix();
-  glLoadIdentity();
-  glMatrixMode( GL_PROJECTION );
-  glPushMatrix();
-  glLoadIdentity();
-  glRasterPos3f( (2.0 * (GLfloat)(x_low) / this->Size[0] - 1), 
-                 (2.0 * (GLfloat)(y_low) / this->Size[1] - 1),
-                 -1.0 );
-  glMatrixMode( GL_PROJECTION );
-  glPopMatrix();
-  glMatrixMode( GL_MODELVIEW );
-  glPopMatrix();
-
-
-  glDisable(GL_BLEND);
-  glPixelStorei( GL_UNPACK_ALIGNMENT, 1);
-  glDrawPixels((x_hi-x_low+1), (y_hi - y_low + 1),
-               GL_RGB, GL_UNSIGNED_BYTE, data);
-  glEnable(GL_BLEND);
 }
 
 // Get the window id.
@@ -1103,6 +873,20 @@ void vtkWin32OpenGLRenderWindow::SetNextWindowId(HWND arg)
 
   this->NextWindowId = arg;
 }
+
+// Begin the rendering process.
+void vtkWin32OpenGLRenderWindow::Start(void)
+{
+  // if the renderer has not been initialized, do so now
+  if (!this->ContextId)
+    {
+    this->Initialize();
+    }
+
+  // set the current window 
+  this->MakeCurrent();
+}
+
 
 void vtkWin32OpenGLRenderWindow::SetOffScreenRendering(int offscreen)
 {
@@ -1165,9 +949,18 @@ void vtkWin32OpenGLRenderWindow::CreateOffScreenDC(int xsize, int ysize,
   this->MemoryDataHeader.bmiHeader.biSizeImage = dataWidth*ysize;
 	
   // try using a DIBsection
-  this->MemoryBuffer = CreateDIBSection(aHdc,
-				&this->MemoryDataHeader, DIB_RGB_COLORS, 
-				(void **)(&(this->MemoryData)),  NULL, 0);
+  this->CreateOffScreenDC(
+    CreateDIBSection(aHdc,
+                     &this->MemoryDataHeader, DIB_RGB_COLORS, 
+                     (void **)(&(this->MemoryData)),  NULL, 0), aHdc);
+}
+
+void vtkWin32OpenGLRenderWindow::CreateOffScreenDC(HBITMAP hbmp, HDC aHdc)
+{
+  SIZE sz;
+  GetBitmapDimensionEx(hbmp,&sz);
+
+  this->MemoryBuffer = hbmp;
   
   // Create a compatible device context
   this->MemoryHdc = (HDC)CreateCompatibleDC(aHdc);
@@ -1176,7 +969,7 @@ void vtkWin32OpenGLRenderWindow::CreateOffScreenDC(int xsize, int ysize,
   
   // Put the bitmap into the device context
   SelectObject(this->MemoryHdc, this->MemoryBuffer);
-
+  
   // we need to release resources
   vtkRenderer *ren;
   for (this->Renderers->InitTraversal(); (ren = this->Renderers->GetNextItem());)
@@ -1186,8 +979,8 @@ void vtkWin32OpenGLRenderWindow::CreateOffScreenDC(int xsize, int ysize,
 
   // adjust settings for renderwindow
   this->Mapped =0;
-  this->Size[0] = xsize;
-  this->Size[1] = ysize;
+  this->Size[0] = sz.cx;
+  this->Size[1] = sz.cy;
   
   this->DeviceContext = this->MemoryHdc;
   this->DoubleBuffer = 0;
@@ -1220,6 +1013,22 @@ void vtkWin32OpenGLRenderWindow::SetupMemoryRendering(int xsize, int ysize,
   this->ScreenContextId = this->ContextId;
 
   this->CreateOffScreenDC(xsize, ysize, aHdc);
+}
+
+void vtkWin32OpenGLRenderWindow::SetupMemoryRendering(HBITMAP hbmp)
+{
+  HDC dc = CreateDC("DISPLAY", 0, 0, 0);
+
+  // save the current state
+  this->ScreenMapped = this->Mapped;
+  this->ScreenWindowSize[0] = this->Size[0];
+  this->ScreenWindowSize[1] = this->Size[1];
+  this->ScreenDeviceContext = this->DeviceContext;
+  this->ScreenDoubleBuffer = this->DoubleBuffer;
+  this->ScreenContextId = this->ContextId;
+
+  this->CreateOffScreenDC(hbmp, dc);
+  DeleteDC(dc); 
 }
 
 HDC vtkWin32OpenGLRenderWindow::GetMemoryDC()
@@ -1272,415 +1081,6 @@ void vtkWin32OpenGLRenderWindow::SetDeviceContext(HDC arg) // hsr
   this->DeviceContext = arg;							 // hsr
   this->MFChandledWindow = TRUE;						 // hsr
 }														 // hsr
-
-float *vtkWin32OpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2, int front)
-{
-  int     y_low, y_hi;
-  int     x_low, x_hi;
-  int     width, height;
-
-  float   *data = NULL;
-
-  float   *p_data = NULL;
-
-  // set the current window 
-  this->MakeCurrent();
-
-  if (y1 < y2)
-    {
-    y_low = y1; 
-    y_hi  = y2;
-    }
-  else
-    {
-    y_low = y2; 
-    y_hi  = y1;
-    }
-
-  if (x1 < x2)
-    {
-    x_low = x1; 
-    x_hi  = x2;
-    }
-  else
-    {
-    x_low = x2; 
-    x_hi  = x1;
-    }
-
-  if (front)
-    {
-    glReadBuffer(GL_FRONT);
-    }
-  else
-    {
-    glReadBuffer(GL_BACK);
-    }
-
-  width  = abs(x_hi - x_low) + 1;
-  height = abs(y_hi - y_low) + 1;
-
-  data = new float[ (width*height*4) ];
-
-  // Turn of texturing in case it is on - some drivers have a problem
-  // getting / setting pixels with texturing enabled.
-  glDisable( GL_TEXTURE_2D );
-  
-  glPixelStorei( GL_PACK_ALIGNMENT, 1 );
-  glReadPixels( x_low, y_low, width, height, GL_RGBA, GL_FLOAT, data);
-
-  return data;
-}
-void vtkWin32OpenGLRenderWindow::ReleaseRGBAPixelData(float *data) 
-  {
-  delete[] data;
-  }
-
-void vtkWin32OpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, 
-                                                  int x2, int y2,
-                                                  float *data, int front,
-                                                  int blend)
-{
-  int     y_low, y_hi;
-  int     x_low, x_hi;
-  int     width, height;
-  float   *p_data = NULL;
-
-  // set the current window 
-  this->MakeCurrent();
-
-  if (front)
-    {
-    glDrawBuffer(GL_FRONT);
-    }
-  else
-    {
-    glDrawBuffer(GL_BACK);
-    }
-
-  if (y1 < y2)
-    {
-    y_low = y1; 
-    y_hi  = y2;
-    }
-  else
-    {
-    y_low = y2; 
-    y_hi  = y1;
-    }
-  
-  if (x1 < x2)
-    {
-    x_low = x1; 
-    x_hi  = x2;
-    }
-  else
-    {
-    x_low = x2; 
-    x_hi  = x1;
-    }
-  
-  width  = abs(x_hi-x_low) + 1;
-  height = abs(y_hi-y_low) + 1;
-
-  // Turn of texturing in case it is on - some drivers have a problem
-  // getting / setting pixels with texturing enabled.
-  glDisable( GL_TEXTURE_2D );
-  glDisable( GL_LIGHTING );
-  
-  /* write out a row of pixels */
-  glMatrixMode( GL_MODELVIEW );
-  glPushMatrix();
-  glLoadIdentity();
-  glMatrixMode( GL_PROJECTION );
-  glPushMatrix();
-  glLoadIdentity();
-  glRasterPos3f( (2.0 * (GLfloat)(x_low) / this->Size[0] - 1), 
-                 (2.0 * (GLfloat)(y_low) / this->Size[1] - 1), 
-		 -1.0 );
-  glMatrixMode( GL_PROJECTION );
-  glPopMatrix();
-  glMatrixMode( GL_MODELVIEW );
-  glPopMatrix();
-
-  glPixelStorei( GL_UNPACK_ALIGNMENT, 1);
-
-  if (!blend)
-    {
-    glDisable(GL_BLEND);
-    glDrawPixels( width, height, GL_RGBA, GL_FLOAT, data);
-    glEnable(GL_BLEND);
-    }
-  else
-    {
-    glDrawPixels( width, height, GL_RGBA, GL_FLOAT, data);
-    }    
-  
-  glEnable( GL_LIGHTING );
-  
-
-}
-
-unsigned char *vtkWin32OpenGLRenderWindow::GetRGBACharPixelData(int x1, 
-								int y1, 
-								int x2, 
-								int y2, 
-								int front)
-{
-  int     y_low, y_hi;
-  int     x_low, x_hi;
-  int     width, height;
-  unsigned char *data = NULL;
-
-
-  // set the current window
-  this->MakeCurrent();
-
-
-  if (y1 < y2)
-    {
-    y_low = y1;
-    y_hi  = y2;
-    }
-  else
-    {
-    y_low = y2;
-    y_hi  = y1;
-    }
-
-
-  if (x1 < x2)
-    {
-    x_low = x1;
-    x_hi  = x2;
-    }
-  else
-    {
-    x_low = x2;
-    x_hi  = x1;
-    }
-
-
-  if (front)
-    {
-    glReadBuffer(GL_FRONT);
-    }
-  else
-    {
-    glReadBuffer(GL_BACK);
-    }
-
-
-  width  = abs(x_hi - x_low) + 1;
-  height = abs(y_hi - y_low) + 1;
-
-
-  data = new unsigned char[ (width*height)*4 ];
-
-
-  glReadPixels( x_low, y_low, width, height, GL_RGBA, GL_UNSIGNED_BYTE,
-		data);
-
-
-  return data;
-}
-
-
-void vtkWin32OpenGLRenderWindow::SetRGBACharPixelData(int x1, int y1, int x2, 
-						      int y2, 
-						      unsigned char *data, 
-						      int front, int blend)
-{
-  int     y_low, y_hi;
-  int     x_low, x_hi;
-  int     width, height;
-
-
-  // set the current window
-  this->MakeCurrent();
-
-
-  if (front)
-    {
-    glDrawBuffer(GL_FRONT);
-    }
-  else
-    {
-    glDrawBuffer(GL_BACK);
-    }
-
-
-  if (y1 < y2)
-    {
-    y_low = y1;
-    y_hi  = y2;
-    }
-  else
-    {
-    y_low = y2;
-    y_hi  = y1;
-    }
-
-
-  if (x1 < x2)
-    {
-    x_low = x1;
-    x_hi  = x2;
-    }
-  else
-    {
-    x_low = x2;
-    x_hi  = x1;
-    }
-
-
-  width  = abs(x_hi-x_low) + 1;
-  height = abs(y_hi-y_low) + 1;
-
-
-  /* write out a row of pixels */
-  glMatrixMode( GL_MODELVIEW );
-  glPushMatrix();
-  glLoadIdentity();
-  glMatrixMode( GL_PROJECTION );
-  glPushMatrix();
-  glLoadIdentity();
-  glRasterPos3f( (2.0 * (GLfloat)(x_low) / this->Size[0] - 1),
-                 (2.0 * (GLfloat)(y_low) / this->Size[1] - 1),
-                 -1.0 );
-  glMatrixMode( GL_PROJECTION );
-  glPopMatrix();
-  glMatrixMode( GL_MODELVIEW );
-  glPopMatrix();
-
-
-  if (!blend)
-    {
-    glDisable(GL_BLEND);
-    glDrawPixels( width, height, GL_RGBA, GL_UNSIGNED_BYTE, 
-		  data);
-    glEnable(GL_BLEND);
-    }
-  else
-    {
-    glDrawPixels( width, height, GL_RGBA, GL_UNSIGNED_BYTE, 
-		  data);
-    }
-}
-
-
-float *vtkWin32OpenGLRenderWindow::GetZbufferData( int x1, int y1, 
-						 int x2, int y2  )
-{
-  int             y_low, y_hi;
-  int             x_low, x_hi;
-  int             width, height;
-  float           *z_data = NULL;
-
-  // set the current window 
-  this->MakeCurrent();
-
-  if (y1 < y2)
-    {
-    y_low = y1; 
-    y_hi  = y2;
-    }
-  else
-    {
-    y_low = y2; 
-    y_hi  = y1;
-    }
-
-  if (x1 < x2)
-    {
-    x_low = x1; 
-    x_hi  = x2;
-    }
-  else
-    {
-    x_low = x2; 
-    x_hi  = x1;
-    }
-
-  width =  abs(x2 - x1)+1;
-  height = abs(y2 - y1)+1;
-
-  z_data = new float[width*height];
-
-  // Turn of texturing in case it is on - some drivers have a problem
-  // getting / setting pixels with texturing enabled.
-  glDisable( GL_TEXTURE_2D );
-
-  glPixelStorei( GL_PACK_ALIGNMENT, 1 );
-  glReadPixels( x_low, y_low, 
-		width, height,
-		GL_DEPTH_COMPONENT, GL_FLOAT,
-		z_data );
-
-  return z_data;
-}
-
-void vtkWin32OpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
-					       float *buffer )
-{
-  int             y_low, y_hi;
-  int             x_low, x_hi;
-  int             width, height;
-
-  // set the current window 
-  this->MakeCurrent();
-
-  if (y1 < y2)
-    {
-    y_low = y1; 
-    y_hi  = y2;
-    }
-  else
-    {
-    y_low = y2; 
-    y_hi  = y1;
-    }
-
-  if (x1 < x2)
-    {
-    x_low = x1; 
-    x_hi  = x2;
-    }
-  else
-    {
-    x_low = x2; 
-    x_hi  = x1;
-    }
-
-  width =  abs(x2 - x1)+1;
-  height = abs(y2 - y1)+1;
-
-  // Turn of texturing in case it is on - some drivers have a problem
-  // getting / setting pixels with texturing enabled.
-  glDisable( GL_TEXTURE_2D );
-
-  glMatrixMode( GL_MODELVIEW );
-  glPushMatrix();
-  glLoadIdentity();
-  glMatrixMode( GL_PROJECTION );
-  glPushMatrix();
-  glLoadIdentity();
-  glRasterPos2f( 2.0 * (GLfloat)(x_low) / this->Size[0] - 1, 
-                 2.0 * (GLfloat)(y_low) / this->Size[1] - 1);
-  glMatrixMode( GL_PROJECTION );
-  glPopMatrix();
-  glMatrixMode( GL_MODELVIEW );
-  glPopMatrix();
-
-  glPixelStorei( GL_UNPACK_ALIGNMENT, 1);
-  glDrawPixels( width, height, GL_DEPTH_COMPONENT, GL_FLOAT, buffer);
-
-}
-
-void vtkWin32OpenGLRenderWindow::RegisterTextureResource (GLuint id)
-{
-  this->TextureResourceIds->InsertNextId ((int) id);
-}
 
 //----------------------------------------------------------------------------
 void vtkWin32OpenGLRenderWindow::HideCursor()
