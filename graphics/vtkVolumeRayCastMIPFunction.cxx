@@ -65,67 +65,69 @@ static void CastMaxScalarValueRay( T *data_ptr,
 				   struct VolumeRayCastRayInfoStruct *rayInfo,
 				   struct VolumeRayCastVolumeInfoStruct *volumeInfo )
 {
+  float     triMax, triValue;
   int       max;
   float     max_opacity;
   float     value;
   int       loop;
   int       xinc, yinc, zinc;
-  int       voxel[3];
-  int       prev_voxel[3];
+  int       voxel[3], prev_voxel[3];
   float     ray_position[3];
   T         A, B, C, D, E, F, G, H;
   float     t00, t01, t10, t11, t0, t1;
   int       Binc, Cinc, Dinc, Einc, Finc, Ginc, Hinc;
   float     xoff, yoff, zoff;
   T         *dptr;
-  int       steps_this_ray = 0;
   int       num_steps;
-  float     *ray_start, *ray_increment;
+  float     *ray_increment;
   float     *grayArray, *RGBArray;
   float     *scalarArray;
+  T         nnValue, nnMax;
 
   num_steps = rayInfo->VolumeRayNumberOfSamples;
-  ray_start = rayInfo->VolumeRayStart;
   ray_increment = rayInfo->VolumeRayIncrement;
 
   grayArray = volumeInfo->Volume->GetGrayArray();
   RGBArray = volumeInfo->Volume->GetRGBArray();
   scalarArray = volumeInfo->Volume->GetScalarOpacityArray();
 
-  // Set the max value.  This will not always be correct and should be fixed
-  max = -999999;
-
   xinc = volumeInfo->DataIncrement[0];
   yinc = volumeInfo->DataIncrement[1];
   zinc = volumeInfo->DataIncrement[2];
 
   // Initialize the ray position and voxel location
-  ray_position[0] = ray_start[0];
-  ray_position[1] = ray_start[1];
-  ray_position[2] = ray_start[2];
+  memcpy( ray_position, rayInfo->VolumeRayStart, 3*sizeof(float) );
 
   // If we have nearest neighbor interpolation
   if ( volumeInfo->InterpolationType == VTK_NEAREST_INTERPOLATION )
     {
+    voxel[0] = vtkRoundFuncMacro( ray_position[0] );
+    voxel[1] = vtkRoundFuncMacro( ray_position[1] );
+    voxel[2] = vtkRoundFuncMacro( ray_position[2] );
 
+    // Access the value at this voxel location
+    nnMax = *(data_ptr + voxel[2] * zinc +
+	      voxel[1] * yinc + voxel[0] );
+
+    // Increment our position and compute our voxel location
+    ray_position[0] += ray_increment[0];
+    ray_position[1] += ray_increment[1];
+    ray_position[2] += ray_increment[2];
     voxel[0] = vtkRoundFuncMacro( ray_position[0] );
     voxel[1] = vtkRoundFuncMacro( ray_position[1] );
     voxel[2] = vtkRoundFuncMacro( ray_position[2] );
 
     // For each step along the ray
-    for ( loop = 0; loop < num_steps; loop++ )
+    for ( loop = 1; loop < num_steps; loop++ )
       {	    
-      // We've taken another step
-      steps_this_ray++;
-      
       // Access the value at this voxel location
-      value = *(data_ptr + voxel[2] * zinc +
-		voxel[1] * yinc + voxel[0] );
+      nnValue = *(data_ptr + voxel[2] * zinc +
+		  voxel[1] * yinc + voxel[0] );
 
       // If this is greater than the max, this is the new max.
-      if ( (int) value > max )
+      if ( nnValue > nnMax )
 	{
-	max = (int) value;
+	nnMax = nnValue;
 	}
       
       // Increment our position and compute our voxel location
@@ -136,6 +138,7 @@ static void CastMaxScalarValueRay( T *data_ptr,
       voxel[1] = vtkRoundFuncMacro( ray_position[1] );
       voxel[2] = vtkRoundFuncMacro( ray_position[2] );
       }
+    max = (int)nnMax;
     }
   // We are using trilinear interpolation
   else if ( volumeInfo->InterpolationType == VTK_LINEAR_INTERPOLATION )
@@ -164,18 +167,28 @@ static void CastMaxScalarValueRay( T *data_ptr,
     G = *(dptr + Ginc);
     H = *(dptr + Hinc);
 
+    // Compute our offset in the voxel, and use that to trilinearly
+    // interpolate a value
+    xoff = ray_position[0] - (float) voxel[0];
+    yoff = ray_position[1] - (float) voxel[1];
+    zoff = ray_position[2] - (float) voxel[2];
+    vtkTrilinFuncMacro( triMax, xoff, yoff, zoff, A, B, C, D, E, F, G, H );
+
     // Keep the voxel location so that we know when we've moved into a
     // new voxel
-    prev_voxel[0] = voxel[0];
-    prev_voxel[1] = voxel[1];
-    prev_voxel[2] = voxel[2];
+    memcpy( prev_voxel, voxel, 3*sizeof(int) );
+
+    // Increment our position and compute our voxel location
+    ray_position[0] += ray_increment[0];
+    ray_position[1] += ray_increment[1];
+    ray_position[2] += ray_increment[2];      
+    voxel[0] = (int)( ray_position[0] );
+    voxel[1] = (int)( ray_position[1] );
+    voxel[2] = (int)( ray_position[2] );
 
     // For each step along the ray
-    for ( loop = 0; loop < num_steps; loop++ )
+    for ( loop = 1; loop < num_steps; loop++ )
       {	    
-      // We've taken another step
-      steps_this_ray++;
-
       // Have we moved into a new voxel? If so we need to recompute A-H
       if ( prev_voxel[0] != voxel[0] ||
 	   prev_voxel[1] != voxel[1] ||
@@ -192,9 +205,7 @@ static void CastMaxScalarValueRay( T *data_ptr,
 	G = *(dptr + Ginc);
 	H = *(dptr + Hinc);
 
-	prev_voxel[0] = voxel[0];
-	prev_voxel[1] = voxel[1];
-	prev_voxel[2] = voxel[2];
+	memcpy( prev_voxel, voxel, 3*sizeof(float) );
 	}
 
       // Compute our offset in the voxel, and use that to trilinearly
@@ -202,12 +213,12 @@ static void CastMaxScalarValueRay( T *data_ptr,
       xoff = ray_position[0] - (float) voxel[0];
       yoff = ray_position[1] - (float) voxel[1];
       zoff = ray_position[2] - (float) voxel[2];
-      vtkTrilinFuncMacro( value, xoff, yoff, zoff, A, B, C, D, E, F, G, H );
+      vtkTrilinFuncMacro( triValue, xoff, yoff, zoff, A, B, C, D, E, F, G, H );
 
       // If this value is greater than max, it is the new max
-      if ( (int) value > max )
+      if ( triValue > triMax )
 	{
-	max = (int) value;
+	triMax = triValue;
 	}
 
       // Increment our position and compute our voxel location
@@ -218,6 +229,7 @@ static void CastMaxScalarValueRay( T *data_ptr,
       voxel[1] = (int)( ray_position[1] );
       voxel[2] = (int)( ray_position[2] );
       }
+    max = (int)triMax;
     }
 
   if ( max < 0 ) 
@@ -231,8 +243,7 @@ static void CastMaxScalarValueRay( T *data_ptr,
 
   max_opacity = scalarArray[max];
   
-  // Set the return pixel value.  The depth value is currently useless and
-  // should be fixed.
+  // Set the return pixel value.  
   if( volumeInfo->ColorChannels == 1 )
     {
     rayInfo->RayColor[0] = max_opacity * grayArray[max];
@@ -248,7 +259,7 @@ static void CastMaxScalarValueRay( T *data_ptr,
     rayInfo->RayColor[3] = max_opacity;
     }
 
-  rayInfo->VolumeRayStepsTaken = steps_this_ray;
+  rayInfo->VolumeRayStepsTaken = num_steps;
 }
 
 
