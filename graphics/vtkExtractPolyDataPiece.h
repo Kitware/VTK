@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkDataSetMapper.h
+  Module:    vtkExtractPolyDataPiece.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -39,65 +39,41 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkDataSetMapper - map vtkDataSet and derived classes to graphics primitives
-// .SECTION Description
-// vtkDataSetMapper is a mapper to map data sets (i.e., vtkDataSet and 
-// all derived classes) to graphics primitives. The mapping procedure
-// is as follows: all 0D, 1D, and 2D cells are converted into points,
-// lines, and polygons/triangle strips and then mapped to the graphics 
-// system. The 2D faces of 3D cells are mapped only if they are used by 
-// only one cell, i.e., on the boundary of the data set.
+// .NAME vtkExtractPolyDataPiece - Return specified piece, including specified
+// number of ghost levels.
 
-#ifndef __vtkDataSetMapper_h
-#define __vtkDataSetMapper_h
+#ifndef __vtkExtractPolyDataPiece_h
+#define __vtkExtractPolyDataPiece_h
 
-#include "vtkGeometryFilter.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkRenderer.h"
-#include "vtkImageData.h"
+#include "vtkPolyDataToPolyDataFilter.h"
 
-
-class VTK_EXPORT vtkDataSetMapper : public vtkMapper 
+class VTK_EXPORT vtkExtractPolyDataPiece : public vtkPolyDataToPolyDataFilter
 {
 public:
-  static vtkDataSetMapper *New();
-  vtkTypeMacro(vtkDataSetMapper,vtkMapper);
+  static vtkExtractPolyDataPiece *New();
+  vtkTypeMacro(vtkExtractPolyDataPiece, vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
-  void Render(vtkRenderer *ren, vtkActor *act);
-
+  
   // Description:
-  // Get the internal poly data mapper used to map data set to graphics system.
-  vtkGetObjectMacro(PolyDataMapper, vtkPolyDataMapper);
-
-  // Description:
-  // Release any graphics resources that are being consumed by this mapper.
-  // The parameter window could be used to determine which graphic
-  // resources to release.
-  void ReleaseGraphicsResources(vtkWindow *);
-
-  // Description:
-  // Get the mtime also considering the lookup table.
-  unsigned long GetMTime();
-
-  // Description:
-  // Set the Input of this mapper.
-  void SetInput(vtkDataSet *input);
-  void SetInput(vtkImageData *cache)
-    {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
-    this->SetInput(((vtkDataSet *)tmp->GetOutput())); tmp->Delete();}  
-
-  vtkDataSet *GetInput();
+  // Turn on/off creating ghost cells (on by default).
+  vtkSetMacro(CreateGhostCells, int);
+  vtkGetMacro(CreateGhostCells, int);
+  vtkBooleanMacro(CreateGhostCells, int);
   
 protected:
-  vtkDataSetMapper();
-  ~vtkDataSetMapper();
-  vtkDataSetMapper(const vtkDataSetMapper&) {};
-  void operator=(const vtkDataSetMapper&) {};
+  vtkExtractPolyDataPiece();
+  ~vtkExtractPolyDataPiece() {};
+  vtkExtractPolyDataPiece(const vtkExtractPolyDataPiece&) {};
+  void operator=(const vtkExtractPolyDataPiece&) {};
 
-  vtkGeometryFilter *GeometryExtractor;
-  vtkPolyDataMapper *PolyDataMapper;
+  // Usual data generation method
+  void Execute();
+  
+  void AddGhostLevel(vtkGhostLevels *ghostLevels, vtkPolyData *polyData,
+		     vtkCellArray *newPolys, vtkScalars *cellScalars,
+		     int ghostLevel);
+  
+  int CreateGhostCells;
 };
 
 #endif
-
-

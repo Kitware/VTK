@@ -207,7 +207,3 @@ unsigned long vtkDataSetMapper::GetMTime()
 
   return mTime;
 }
-
-
-
-

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkDataSetMapper.h
+  Module:    vtkGetGhostCells.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -39,65 +39,67 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkDataSetMapper - map vtkDataSet and derived classes to graphics primitives
-// .SECTION Description
-// vtkDataSetMapper is a mapper to map data sets (i.e., vtkDataSet and 
-// all derived classes) to graphics primitives. The mapping procedure
-// is as follows: all 0D, 1D, and 2D cells are converted into points,
-// lines, and polygons/triangle strips and then mapped to the graphics 
-// system. The 2D faces of 3D cells are mapped only if they are used by 
-// only one cell, i.e., on the boundary of the data set.
+// .NAME vtkGetGhostCells
 
-#ifndef __vtkDataSetMapper_h
-#define __vtkDataSetMapper_h
+#ifndef __vtkGetGhostCells_h
+#define __vtkGetGhostCells_h
 
-#include "vtkGeometryFilter.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkRenderer.h"
-#include "vtkImageData.h"
+#include "vtkDataSetToUnstructuredGridFilter.h"
+#include "vtkDataSetCollection.h"
 
-
-class VTK_EXPORT vtkDataSetMapper : public vtkMapper 
+class VTK_EXPORT vtkGetGhostCells : public vtkDataSetToUnstructuredGridFilter
 {
 public:
-  static vtkDataSetMapper *New();
-  vtkTypeMacro(vtkDataSetMapper,vtkMapper);
+  static vtkGetGhostCells *New();
+
+  vtkTypeMacro(vtkGetGhostCells, vtkDataSetToUnstructuredGridFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
-  void Render(vtkRenderer *ren, vtkActor *act);
 
   // Description:
-  // Get the internal poly data mapper used to map data set to graphics system.
-  vtkGetObjectMacro(PolyDataMapper, vtkPolyDataMapper);
+  // Add a piece of a dataset from which to get ghost cells.  The first
+  // input added is the one that the ghost cells will be added to.
+  void AddInput(vtkDataSet *in);
 
   // Description:
-  // Release any graphics resources that are being consumed by this mapper.
-  // The parameter window could be used to determine which graphic
-  // resources to release.
-  void ReleaseGraphicsResources(vtkWindow *);
-
-  // Description:
-  // Get the mtime also considering the lookup table.
-  unsigned long GetMTime();
-
-  // Description:
-  // Set the Input of this mapper.
-  void SetInput(vtkDataSet *input);
-  void SetInput(vtkImageData *cache)
-    {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
-    this->SetInput(((vtkDataSet *)tmp->GetOutput())); tmp->Delete();}  
-
-  vtkDataSet *GetInput();
+  // Get any input of this filter.
+  vtkDataSet *GetInput(int idx);
+  vtkDataSet *GetInput() { return this->GetInput( 0 ); };
   
-protected:
-  vtkDataSetMapper();
-  ~vtkDataSetMapper();
-  vtkDataSetMapper(const vtkDataSetMapper&) {};
-  void operator=(const vtkDataSetMapper&) {};
+  // Description:
+  // Remove a dataset from the list of data to append.
+  void RemoveInput(vtkDataSet *in);
 
-  vtkGeometryFilter *GeometryExtractor;
-  vtkPolyDataMapper *PolyDataMapper;
+  // Description:
+  // Returns a copy of the input array.  Modifications to this list
+  // will not be reflected in the actual inputs.
+  vtkDataSetCollection *GetInputList();
+
+protected:
+  vtkGetGhostCells();
+  ~vtkGetGhostCells();
+  vtkGetGhostCells(const vtkGetGhostCells&) {};
+  void operator=(const vtkGetGhostCells&) {};
+
+  // Usual data generation method
+  void Execute();
+  
+  void AddGhostLevel(vtkUnstructuredGrid *output, int ghostLevel,
+		     vtkPoints *points, vtkPointLocator **locators,
+		     int numInputs, vtkGhostLevels *ghostLevels);
+  
+  int IsCellInserted(int *pointIds, int numPoints, vtkUnstructuredGrid *grid);
+  
+  // list pieces of data set from which to get ghost cells.
+  // Here as a convenience.  It is a copy of the input array.
+  vtkDataSetCollection *InputList;
+
+ private:
+  // hide the superclass' AddInput() from the user and the compiler
+  void AddInput(vtkDataObject *)
+    { vtkErrorMacro( << "AddInput() must be called with a vtkDataSet not a vtkDataObject."); };
+  void RemoveInput(vtkDataObject *input)
+    { this->vtkProcessObject::RemoveInput(input); };
 };
 
+
 #endif
-
-

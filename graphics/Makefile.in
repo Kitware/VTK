@@ -141,6 +141,7 @@ vtkEncodedGradientShader \
 vtkExtractEdges \
 vtkExtractGeometry \
 vtkExtractPolyDataGeometry \
+vtkExtractPolyDataPiece \
 vtkExtractGrid \
 vtkExtractTensorComponents \
 vtkExtractUnstructuredGrid \
@@ -153,6 +154,8 @@ vtkFollower \
 vtkFrustumCoverageCuller \
 vtkGaussianSplatter \
 vtkGeometryFilter \
+vtkGetGhostCells \
+vtkGetPolyDataGhostCells \
 vtkGlyph3D \
 vtkHedgeHog \
 vtkHull \
