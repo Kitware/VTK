@@ -318,4 +318,6 @@ int main(int argc, char** argv)
   
   contr->Finalize();
   contr->Delete();
+
+  return !retVal;
 }
