@@ -115,7 +115,6 @@ vtkDelaunay2D \
 vtkDelaunay3D \
 vtkDicer \
 vtkDiskSource \
-vtkEarthSource \
 vtkEdgePoints \
 vtkElevationFilter \
 vtkExtractEdges \
@@ -134,7 +133,6 @@ vtkGeometryFilter \
 vtkGlyph3D \
 vtkHedgeHog \
 vtkHyperStreamline \
-vtkIVWriter \
 vtkImageDifference \
 vtkImplicitBoolean \
 vtkImplicitDataSet \
@@ -196,6 +194,8 @@ vtkRendererCollection \
 vtkRendererSource \
 vtkReverseSense \
 vtkRibbonFilter \
+vtkRIBExporter \
+vtkRIBProperty \
 vtkRotationalExtrusionFilter \
 vtkSLCReader \
 vtkSTLReader \
