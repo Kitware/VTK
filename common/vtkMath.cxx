@@ -58,6 +58,35 @@ long vtkMath::Seed = 1177; // One authors home address
 // Some useful macros
 //
 #define Sign(x)              (( (x) < 0 )?( -1 ):( 1 ))
+// avoid dll boundary problems
+
+#ifdef _WIN32
+void* vtkMath::operator new(size_t nSize, const char *, int)
+{
+void* p=malloc(nSize);
+return p;
+}
+
+void* vtkMath::operator new(size_t nSize)
+{
+void* p=malloc(nSize);
+return p;
+}
+
+void vtkMath::operator delete( void *p )
+{
+free(p);
+}
+#endif 
+
+// Description:
+// Delete a vtk object. This method should always be used to delete an object 
+// when the new operator was used to create it. Using the C++ delete method
+// will not work with reference counting.
+void vtkMath::Delete() 
+{
+  delete this;
+}
 
 // Description:
 // Generate random numbers between 0.0 and 1.0.
