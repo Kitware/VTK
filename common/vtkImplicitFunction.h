@@ -80,6 +80,7 @@ public:
   char *GetClassName() {return "vtkImplicitFunction";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  unsigned long int GetMTime();
   float FunctionValue(float x[3]);
   void FunctionGradient(float x[3], float g[3]);
 
