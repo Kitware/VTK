@@ -45,6 +45,10 @@
 #include <iostream>
 #include <strstream>
 #include <fstream>
+#include <iomanip>
+using std::dec;
+using std::hex;
+using std::setw;
 using std::cerr;
 using std::cout;
 using std::cin;
