@@ -23,6 +23,8 @@ vtkMCubesReader
 vtkMCubesWriter
 vtkOBJReader
 vtkPLOT3DReader
+vtkPNGReader
+vtkPNGWriter
 vtkPNMReader
 vtkPNMWriter
 vtkPolyDataReader
@@ -53,18 +55,8 @@ vtkVolumeReader
 vtkWriter
 )
 
-# 
-# if we found the PNG libraries then add those classes
-#
-IF (HAVE_PNG)
-  SOURCE_FILES( IO_SRCS vtkPNGReader vtkPNGWriter )
-  LINK_LIBRARIES(${PNG_LIBRARY})
-  IF (ZLIB_LIBRARY)
-    LINK_LIBRARIES(${ZLIB_LIBRARY})
-  ENDIF (ZLIB_LIBRARY)
-ENDIF (HAVE_PNG)
-  
 ADD_LIBRARY(vtkIO IO_SRCS)
+LINK_LIBRARIES ( png zlib )
 
 # Allow the user to customize their build with some local options
 #

@@ -2,7 +2,7 @@ PROJECT(VTK)
 OPTION(BUILD_SHARED_LIBS "Build VTK with shared libraries." OFF)
 OPTION(BUILD_EXAMPLES "Build VTK examples." OFF)
 
-SUBDIRS(Wrapping Common Filtering Imaging Graphics IO)
+SUBDIRS(Wrapping Utilities Common Filtering Imaging Graphics IO)
 
 INCLUDE (${VTK_SOURCE_DIR}/vtkCMakeOptions.cmake)
 

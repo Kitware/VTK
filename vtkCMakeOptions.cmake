@@ -117,13 +117,15 @@ ${VTK_SOURCE_DIR}/Graphics
 ${VTK_SOURCE_DIR}/IO
 )
 
-LINK_DIRECTORIES(
-${VTK_BINARY_DIR}/Common 
-${VTK_BINARY_DIR}/Filtering
-${VTK_BINARY_DIR}/Imaging
-${VTK_BINARY_DIR}/Graphics
-${VTK_BINARY_DIR}/IO
-)
+IF (NOT LIBRARY_OUTPUT_PATH)
+  LINK_DIRECTORIES(
+    ${VTK_BINARY_DIR}/Common 
+    ${VTK_BINARY_DIR}/Filtering
+    ${VTK_BINARY_DIR}/Imaging
+    ${VTK_BINARY_DIR}/Graphics
+    ${VTK_BINARY_DIR}/IO
+    )
+IF (NOT LIBRARY_OUTPUT_PATH)
 
 IF (UNIX)
   LINK_LIBRARIES(${CMAKE_THREAD_LIBS} ${CMAKE_DL_LIBS} -lm)
@@ -135,46 +137,12 @@ OPTION(VTK_USE_ANSI_STDLIB "Use the ANSI standard iostream library", OFF)
 #
 # Look for the PNG and zlib libraries and header files
 #
-# on windows we have it checked in
-
-IF (WIN32)
-  FIND_LIBRARY(PNG_LIBRARY libpng "${VTK_SOURCE_DIR}/IO/PNG")
-  FIND_PATH(PNG_INCLUDE_PATH png.h "${VTK_SOURCE_DIR}/IO/PNG")
-  FIND_PATH(ZLIB_INCLUDE_PATH zlib.h  "${VTK_SOURCE_DIR}/IO/PNG")
-  FIND_LIBRARY(ZLIB_LIBRARY zlib  "${VTK_SOURCE_DIR}/IO/PNG")
-ELSE (WIN32)
-  FIND_LIBRARY(PNG_LIBRARY
-    NAMES png libpng
-    PATHS  
-    /usr/lib 
-    /usr/local/lib
-  )
-  FIND_PATH(PNG_INCLUDE_PATH png.h 
-    /usr/include 
-    /usr/local/include
-    "${VTK_SOURCE_DIR}/IO/PNG"
-  )
-  FIND_LIBRARY(ZLIB_LIBRARY
-    NAMES z zlib
-    PATHS  
-    /usr/lib 
-    /usr/local/lib
-  )
-  FIND_PATH(ZLIB_INCLUDE_PATH zlib.h 
-    /usr/include 
-    /usr/local/include
-    "${VTK_SOURCE_DIR}/IO/PNG"
-  )
-ENDIF (WIN32)
-
-IF (PNG_LIBRARY)
-  IF (PNG_INCLUDE_PATH)
-    IF (ZLIB_INCLUDE_PATH)
-      SET (HAVE_PNG 1)
-      INCLUDE_DIRECTORIES(${PNG_INCLUDE_PATH})
-    ENDIF (ZLIB_INCLUDE_PATH)
-  ENDIF (PNG_INCLUDE_PATH)
-ENDIF (PNG_LIBRARY)
+INCLUDE_DIRECTORIES(${VTK_SOURCE_DIR}/Utilities/zlib)
+INCLUDE_DIRECTORIES(${VTK_SOURCE_DIR}/Utilities/png)
+IF (NOT LIBRARY_OUTPUT_PATH)
+  LINK_DIRECTORIES(${VTK_BINARY_DIR}/Utilities/png)
+  LINK_DIRECTORIES(${VTK_BINARY_DIR}/Utilities/zlib)
+ENDIF (NOT LIBRARY_OUTPUT_PATH)
 
 #
 # add include path for general testing header file
