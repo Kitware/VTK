@@ -40,7 +40,7 @@
 // .SECTION See Also
 // vtkBitArray vtkCharArray vtkUnsignedCharArray vtkShortArray
 // vtkUnsignedShortArray vtkIntArray vtkUnsignedIntArray vtkLongArray
-// vtkUnsignedLongArray vtkFloatArray vtkDoubleArray vtkVoidArray
+// vtkUnsignedLongArray vtkFloatArray vtkDoubleArray
 
 #ifndef __vtkDataArray_h
 #define __vtkDataArray_h
