@@ -1,6 +1,6 @@
 # -------------------------------------------------------------------------
 # Doxygen documentation batch
-# modified by S. Barre (Time-stamp: <2002-01-14 16:45:33 barre>
+# modified by S. Barre (Time-stamp: <2002-01-29 18:09:16 barre>
 # -------------------------------------------------------------------------
 
 # Path to several tools (_PROG to avoid the typical GZIP env var pb)
@@ -220,6 +220,35 @@ if test "x$PERL_PROG" != "xNOTFOUND" ; then
         --project "$PROJECT_NAME" \
         --stop  "$PATH_TO_VTK_DOX_SCRIPTS/doc_index.stop" \
         --store "doc_""$PROJECT_NAME""_index.dox" \
+        --to "$INTERMEDIATE_DOX_DIR" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/Common" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/Filtering" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/Graphics" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/Hybrid" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/Imaging" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/IO" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/Parallel" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/Patented" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/Rendering"
+fi
+
+# ----------------------------------------------------------------------------
+# Build the contributors list.
+
+if test "x$PERL_PROG" != "xNOTFOUND" ; then
+    $PERL_PROG $PATH_TO_VTK_DOX_SCRIPTS/doc_contributors.pl \
+        --authors  "$PATH_TO_VTK_DOX_SCRIPTS/authors.txt" \
+        --cachedir "$DOXTEMP\cache" \
+        --cvsdir "$SOURCE_DIR" \
+        --in 1.0 \
+        --out 0.5 \
+        --massive 200 \
+        --max_class_nb 10 \
+        --min_class 0.02 \
+        --min_contrib 0.05 \
+        --min_gcontrib 0.0001 \
+        --store "doc_""$PROJECT_NAME""_contributors.dox" \
+        --relativeto "$SOURCE_DIR/$REL_PATH_TO_TOP" \
         --to "$INTERMEDIATE_DOX_DIR" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Common" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Filtering" \

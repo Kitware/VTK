@@ -1,6 +1,6 @@
 # -------------------------------------------------------------------------
 # doxyfile for VTK
-# modified by S. Barre (Time-stamp: <2001-11-12 15:30:11 barre>
+# modified by S. Barre (Time-stamp: <2002-01-29 17:08:29 barre>
 # -------------------------------------------------------------------------
 
 PROJECT_NAME         = VTK
@@ -46,6 +46,7 @@ INPUT                = \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Parallel" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Patented" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Rendering" \
+          "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/doc_VTK_contributors.dox" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/doc_VTK_version.dox" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/doc_VTK_class2examples.dox" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/doc_VTK_class2tests.dox" \

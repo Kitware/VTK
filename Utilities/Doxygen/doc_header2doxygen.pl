@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# Time-stamp: <2002-01-09 14:26:21 barre>
+# Time-stamp: <2002-01-28 11:56:19 barre>
 #
 # Convert VTK headers to doxygen format
 #
@@ -315,7 +315,8 @@ foreach my $source (@files) {
             push @converted, "    $revision\n";
         }
 
-        push @converted, "    \@par     Thanks:\n", @thanks if @thanks;
+        # Do not add thanks anymore. Will be done externally.
+        # push @converted, "    \@par     Thanks:\n", @thanks if @thanks;
         
         # Read until the end of the documentation block is reached
         # Translate 'See Also', 'Caveats' and whatever .SECTION
