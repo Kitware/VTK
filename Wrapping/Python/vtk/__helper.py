@@ -32,4 +32,4 @@ def refine_import_err(mod_name, exc):
 try:
   import dl
   sys.setdlopenflags(dl.RTLD_NOW|dl.RTLD_GLOBAL)
-except Exception: pass
+except: pass
