@@ -285,7 +285,7 @@ static void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self,
   unsigned char *newPtr;
   if (bpp < 4)
     {
-    newPtr = new unsigned char[3*width*height + (3*width*height)%4];
+    newPtr = new unsigned char[3*width*height + (4 - (3*width*height)%4)%4];
     }
   else
     {
@@ -473,6 +473,7 @@ static void vtkOpenGLImageMapperRenderChar(vtkOpenGLImageMapper *self,
 
     delete [] newPtr;    
     }
+  glPixelStorei( GL_UNPACK_ROW_LENGTH, 0);
 }
 
       
