@@ -723,7 +723,10 @@ PlyFile *vtkPLY::ply_read(FILE *fp, int *nelems, char ***elem_names)
       else if (equal_strings (words[1], "binary_little_endian"))
         plyfile->file_type = PLY_BINARY_LE;
       else
+        {
+        free (words);
         return (NULL);
+        }
       plyfile->version = atof (words[2]);
       found_format = 1;
     }
@@ -736,13 +739,17 @@ PlyFile *vtkPLY::ply_read(FILE *fp, int *nelems, char ***elem_names)
     else if (equal_strings (words[0], "obj_info"))
       add_obj_info (plyfile, orig_line);
     else if (equal_strings (words[0], "end_header"))
+      {
+      free (words);
       break;
+      }
 
     /* free up words space */
     free (words);
 
     words = get_words (plyfile->fp, &nwords, &orig_line);
   }
+  
 
   /* create tags for each property of each element, to be used */
   /* later to say whether or not to store each property for the user */
@@ -1750,8 +1757,6 @@ char **vtkPLY::get_words(FILE *fp, int *nwords, char **orig_line)
   char *ptr,*ptr2;
   char *result;
 
-  words = (char **) myalloc (sizeof (char *) * max_words);
-
   /* read in a line */
   result = fgets (str, BIG_STRING, fp);
   if (result == NULL) {
@@ -1759,6 +1764,8 @@ char **vtkPLY::get_words(FILE *fp, int *nwords, char **orig_line)
     *orig_line = NULL;
     return (NULL);
   }
+
+  words = (char **) myalloc (sizeof (char *) * max_words);
 
   /* convert line-feed and tabs into spaces */
   /* (this guarentees that there will be a space before the */
