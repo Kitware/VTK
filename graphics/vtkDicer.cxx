@@ -221,7 +221,6 @@ void vtkDicer::DeleteTree(vtkOBBNode *OBBptr)
     this->DeleteTree(OBBptr->Kids[1]);
     delete OBBptr->Kids[0];
     delete OBBptr->Kids[1];
-    delete [] OBBptr->Kids;
     }
 }
 
