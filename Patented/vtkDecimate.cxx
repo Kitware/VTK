@@ -11,6 +11,21 @@
      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 
+
+     THIS CLASS IS PATENTED UNDER UNITED STATES PATENT NUMBER 5,559,388
+     "Method for Reducting the Complexity of a Polygonal Mesh".
+     Application of this software for commercial purposes requires 
+     a license grant from GE. Contact:
+
+         Carl B. Horton
+         Sr. Counsel, Intellectual Property
+         3000 N. Grandview Blvd., W-710
+         Waukesha, WI  53188
+         Phone:  (262) 513-4022
+         E-Mail: Carl.Horton@med.ge.com
+
+     for more information.
+
 =========================================================================*/
 #include "vtkDecimate.h"
 
@@ -24,7 +39,7 @@
 #include "vtkPolyData.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkDecimate, "1.75");
+vtkCxxRevisionMacro(vtkDecimate, "1.76");
 vtkStandardNewMacro(vtkDecimate);
 
 //-----  This hack needed to compile using gcc3 on OSX until new stdc++.dylib

@@ -11,6 +11,18 @@
      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 
+
+     THIS CLASS IS PATENT PENDING.
+
+     Application of this software for commercial purposes requires 
+     a license grant from Kitware. Contact:
+         Ken Martin
+         Kitware
+         469 Clifton Corporate Parkway,
+         Clifton Park, NY 12065
+         Phone:1-518-371-3971 
+     for more information.
+
 =========================================================================*/
 #include "vtkSynchronizedTemplates3D.h"
 
@@ -38,7 +50,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGridSynchronizedTemplates3D, "1.68");
+vtkCxxRevisionMacro(vtkGridSynchronizedTemplates3D, "1.69");
 vtkStandardNewMacro(vtkGridSynchronizedTemplates3D);
 
 //----------------------------------------------------------------------------

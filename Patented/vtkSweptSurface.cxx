@@ -11,6 +11,21 @@
      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 
+
+     THIS CLASS IS PATENTED UNDER UNITED STATES PATENT NUMBER 5,542,036
+     "Implicit Modeling of Swept Volumes and Swept Surfaces"
+     Application of this software for commercial purposes requires 
+     a license grant from GE. Contact:
+
+         Carl B. Horton
+         Sr. Counsel, Intellectual Property
+         3000 N. Grandview Blvd., W-710
+         Waukesha, WI  53188
+         Phone:  (262) 513-4022
+         E-Mail: Carl.Horton@med.ge.com
+
+     for more information.
+
 =========================================================================*/
 #include "vtkSweptSurface.h"
 
@@ -22,7 +37,7 @@
 #include "vtkTransformCollection.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkSweptSurface, "1.79");
+vtkCxxRevisionMacro(vtkSweptSurface, "1.80");
 vtkStandardNewMacro(vtkSweptSurface);
 
 vtkCxxSetObjectMacro(vtkSweptSurface,Transforms, vtkTransformCollection);
