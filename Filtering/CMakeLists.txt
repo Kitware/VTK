@@ -114,7 +114,7 @@ ENDIF (VTK_WRAP_PYTHON)
 #
 IF (VTK_WRAP_JAVA)
   VTK_WRAP_JAVA(vtkFilteringJava FilteringJava_SRCS Filtering_SRCS)
-  ADD_LIBRARY(vtkFilteringJava FilteringJava_SRCS)
+  ADD_LIBRARY(vtkFilteringJava SHARED FilteringJava_SRCS)
   TARGET_LINK_LIBRARIES (vtkFilteringJava vtkCommonJava )
   INSTALL_TARGETS(/lib/vtk vtkFilteringJava)
 ENDIF (VTK_WRAP_JAVA)

@@ -77,14 +77,15 @@ ENDIF (VTK_WRAP_PYTHON)
 
 IF (VTK_WRAP_JAVA)
   VTK_WRAP_JAVA(vtkHybridJava HybridJava_SRCS Hybrid_SRCS)
-  ADD_LIBRARY(vtkHybridJava HybridJava_SRCS)
+  ADD_LIBRARY(vtkHybridJava SHARED HybridJava_SRCS)
   TARGET_LINK_LIBRARIES (vtkHybridJava 
                          vtkCommonJava 
                          vtkFilteringJava
                          vtkImagingJava 
                          vtkGraphicsJava 
                          vtkRenderingJava
-                         vtkIOJava)
+                         vtkIOJava
+			 ${OPENGL_LIBRARY})
   INSTALL_TARGETS(/lib/vtk vtkHybridJava)
 ENDIF (VTK_WRAP_JAVA)
 

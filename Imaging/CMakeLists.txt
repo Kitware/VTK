@@ -164,7 +164,7 @@ ENDIF (VTK_WRAP_PYTHON)
 #
 IF (VTK_WRAP_JAVA)
   VTK_WRAP_JAVA(vtkImagingJava ImagingJava_SRCS Imaging_SRCS)
-  ADD_LIBRARY(vtkImagingJava ImagingJava_SRCS)
+  ADD_LIBRARY(vtkImagingJava SHARED ImagingJava_SRCS)
   TARGET_LINK_LIBRARIES (vtkImagingJava 
                          vtkCommonJava 
                          vtkFilteringJava)

@@ -189,7 +189,7 @@ ENDIF (VTK_WRAP_PYTHON)
 #
 IF (VTK_WRAP_JAVA)
   VTK_WRAP_JAVA(vtkGraphicsJava GraphicsJava_SRCS Graphics_SRCS)
-  ADD_LIBRARY(vtkGraphicsJava GraphicsJava_SRCS)
+  ADD_LIBRARY(vtkGraphicsJava SHARED GraphicsJava_SRCS)
   TARGET_LINK_LIBRARIES (vtkGraphicsJava vtkCommonJava vtkFilteringJava)
   INSTALL_TARGETS(/lib/vtk vtkGraphicsJava)
 ENDIF (VTK_WRAP_JAVA)

@@ -56,7 +56,7 @@ ENDIF (VTK_WRAP_PYTHON)
 #
 IF (VTK_WRAP_JAVA)
   VTK_WRAP_JAVA(vtkPatentedJava PatentedJava_SRCS Patented_SRCS)
-  ADD_LIBRARY(vtkPatentedJava PatentedJava_SRCS)
+  ADD_LIBRARY(vtkPatentedJava SHARED PatentedJava_SRCS)
   TARGET_LINK_LIBRARIES (vtkPatentedJava vtkCommonJava vtkFilteringJava
                          vtkImagingJava vtkGraphicsJava)
   INSTALL_TARGETS(/lib/vtk vtkPatentedJava)

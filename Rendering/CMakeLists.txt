@@ -366,7 +366,7 @@ IF (VTK_WRAP_JAVA)
   VTK_WRAP_JAVA(vtkRenderingJava 
                 RenderingJava_SRCS 
                 Rendering_SRCS)
-  ADD_LIBRARY(vtkRenderingJava RenderingJava_SRCS)
+  ADD_LIBRARY(vtkRenderingJava SHARED RenderingJava_SRCS)
   TARGET_LINK_LIBRARIES (vtkRenderingJava 
                          vtkCommonJava 
                          vtkFilteringJava

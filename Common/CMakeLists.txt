@@ -206,7 +206,7 @@ ENDIF (VTK_WRAP_PYTHON)
 #
 IF (VTK_WRAP_JAVA)
   VTK_WRAP_JAVA(vtkCommonJava CommonJava_SRCS Common_SRCS)
-  ADD_LIBRARY(vtkCommonJava CommonJava_SRCS vtkJavaUtil)
+  ADD_LIBRARY(vtkCommonJava SHARED CommonJava_SRCS vtkJavaUtil)
   INSTALL_TARGETS(/lib/vtk vtkCommonJava)
 ENDIF (VTK_WRAP_JAVA)
 

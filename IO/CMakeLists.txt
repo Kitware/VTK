@@ -109,7 +109,7 @@ ENDIF (VTK_WRAP_PYTHON)
 #
 IF (VTK_WRAP_JAVA)
   VTK_WRAP_JAVA(vtkIOJava IOJava_SRCS IO_SRCS)
-  ADD_LIBRARY(vtkIOJava IOJava_SRCS)
+  ADD_LIBRARY(vtkIOJava SHARED IOJava_SRCS)
   TARGET_LINK_LIBRARIES (vtkIOJava 
                          vtkCommonJava 
                          vtkFilteringJava)
