@@ -22,7 +22,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.6");
+vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.7");
 vtkStandardNewMacro(vtkWindowToImageFilter);
 
 //----------------------------------------------------------------------------
@@ -114,7 +114,7 @@ void vtkWindowToImageFilter::ExecuteData(vtkDataObject *vtkNotUsed(data))
   
   int outIncrY;
   int size[2];
-  unsigned char *pixels, *outPtr, *pixels1;
+  unsigned char *pixels, *outPtr;
   int idxY, rowSize;
   int i;
   
@@ -183,6 +183,7 @@ void vtkWindowToImageFilter::ExecuteData(vtkDataObject *vtkNotUsed(data))
                                    (float)y/this->Magnification,
                                    (x+1.0)/this->Magnification,
                                    (y+1.0)/this->Magnification);
+      float *tvp = this->Input->GetTileViewport();
       
       // for each renderer, setup camera
       rc->InitTraversal();
@@ -190,56 +191,43 @@ void vtkWindowToImageFilter::ExecuteData(vtkDataObject *vtkNotUsed(data))
         {
         aren = rc->GetNextItem();
         cam = aren->GetActiveCamera();
-        cam->SetWindowCenter(
-          x*2 - this->Magnification*(1-windowCenters[i*2]) + 1, 
-          y*2 - this->Magnification*(1-windowCenters[i*2+1]) + 1);
+        float *vp = aren->GetViewport();
+        float visVP[4];
+        visVP[0] = (vp[0] >= tvp[0]) ? vp[0] : tvp[0];
+        visVP[1] = (vp[1] >= tvp[1]) ? vp[1] : tvp[1];
+        visVP[2] = (vp[2] <= tvp[2]) ? vp[2] : tvp[2];
+        visVP[3] = (vp[3] <= tvp[3]) ? vp[3] : tvp[3];
+        // compute the delta
+        float deltax = (visVP[2] + visVP[0])/2.0 - (vp[2] + vp[0])/2.0;
+        float deltay = (visVP[3] + visVP[1])/2.0 - (vp[3] + vp[1])/2.0;
+        // scale by original window size
+        if (visVP[2] - visVP[0] > 0)
+          {
+          deltax = 2.0*deltax/(visVP[2] - visVP[0]);
+          }
+        if (visVP[3] - visVP[1] > 0)
+          {
+          deltay = 2.0*deltay/(visVP[3] - visVP[1]);
+          }
+        cam->SetWindowCenter(deltax,deltay);        
         }
       
       // now render the tile and get the data
       this->Input->Render();
       pixels = this->Input->GetPixelData(0,0,size[0] - 1,
                                          size[1] - 1, 1);
-      pixels1 = pixels;
+      unsigned char *pixels1 = pixels;
       
-      // now for each renderer copy its pixels to the correct location
-      rc->InitTraversal();
-      for (i = 0; i < numRenderers; ++i)
+      // now write the data to the output image
+      outPtr = 
+        (unsigned char *)out->GetScalarPointer(x*size[0],y*size[1], 0);
+      
+      // Loop through ouput pixels
+      for (idxY = 0; idxY < size[1]; idxY++)
         {
-        aren = rc->GetNextItem();
-        int pixelx, pixely;
-        int finalx, finaly;
-        
-        float *vport;
-        vport = aren->GetViewport();
-        float *tileViewPort = this->Input->GetTileViewport();
-
-        float vpu, vpv;
-        pixelx = (int)(size[0]*vport[0]+0.5);
-        pixely = (int)(size[1]*vport[1]+0.5);
-        vpu = vport[0] + tileViewPort[0]*(vport[2] - vport[0]);
-        vpv = vport[1] + tileViewPort[1]*(vport[3] - vport[1]);
-        aren->NormalizedDisplayToDisplay(vpu,vpv);
-        finalx = (int)(vpu+0.5);
-        finaly = (int)(vpv+0.5);
-        vpu = vport[0] + tileViewPort[2]*(vport[2] - vport[0]);
-        vpv = vport[1] + tileViewPort[3]*(vport[3] - vport[1]);
-        aren->NormalizedDisplayToDisplay(vpu,vpv);
-        int sizex = (int)(vpu + 0.5) - finalx;
-        int sizey = (int)(vpv + 0.5) - finaly;  
-        
-        // now write the data to the output image
-        outPtr = 
-          (unsigned char *)out->GetScalarPointer(finalx, finaly, 0);
-        
-        pixels1 = pixels + pixelx*3 + pixely*rowSize;
-          
-        // Loop through ouput pixels
-        for (idxY = 0; idxY < sizey; idxY++)
-          {
-          memcpy(outPtr,pixels1,sizex*3);
-          outPtr += outIncrY;
-          pixels1 = pixels1 + rowSize;
-          }
+        memcpy(outPtr,pixels1,rowSize);
+        outPtr += outIncrY;
+        pixels1 += rowSize;
         }
       
       // free the memory

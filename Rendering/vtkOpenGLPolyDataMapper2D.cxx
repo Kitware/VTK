@@ -29,10 +29,11 @@
 #include "vtkgluPickMatrix.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper2D, "1.32");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper2D, "1.33");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper2D);
 #endif
 
+#include "vtkMath.h"
 
 
 void vtkOpenGLPolyDataMapper2D::RenderOpaqueGeometry(vtkViewport* viewport,
@@ -93,13 +94,30 @@ void vtkOpenGLPolyDataMapper2D::RenderOpaqueGeometry(vtkViewport* viewport,
 
   // Get the position of the actor
   int *size = viewport->GetSize();
+  float *vport = viewport->GetViewport();
   int* actorPos = 
     actor->GetPositionCoordinate()->GetComputedViewportValue(viewport);
 
   // get window info
   float *tileViewPort = viewport->GetVTKWindow()->GetTileViewport();
-  int tileScale = viewport->GetVTKWindow()->GetTileScale();
-
+  float visVP[4];
+  visVP[0] = (vport[0] >= tileViewPort[0]) ? vport[0] : tileViewPort[0];
+  visVP[1] = (vport[1] >= tileViewPort[1]) ? vport[1] : tileViewPort[1];
+  visVP[2] = (vport[2] <= tileViewPort[2]) ? vport[2] : tileViewPort[2];
+  visVP[3] = (vport[3] <= tileViewPort[3]) ? vport[3] : tileViewPort[3];
+  if (visVP[0] == visVP[2])
+    {
+    return;
+    }
+  if (visVP[1] == visVP[3])
+    {
+    return;
+    }
+  size[0] = 
+    vtkMath::Round(size[0]*(visVP[2] - visVP[0])/(vport[2] - vport[0]));
+  size[1] = 
+    vtkMath::Round(size[1]*(visVP[3] - visVP[1])/(vport[3] - vport[1]));
+  
   // Set up the font color from the text actor
   float*  actorColor = actor->GetProperty()->GetColor();
   color[0] = (unsigned char) (actorColor[0] * 255.0);
@@ -155,20 +173,23 @@ void vtkOpenGLPolyDataMapper2D::RenderOpaqueGeometry(vtkViewport* viewport,
 
   glDisable(GL_TEXTURE_2D);
   glDisable( GL_LIGHTING);
-
-  int xoff = static_cast<int>(actorPos[0] - size[0]*tileViewPort[0]);
-  int yoff = static_cast<int>(actorPos[1] - size[1]*tileViewPort[1]);
+  int *winSize = viewport->GetVTKWindow()->GetSize();
+  
+  int xoff = static_cast<int>(actorPos[0] - (visVP[0] - vport[0])*
+                              winSize[0]);
+  int yoff = static_cast<int>(actorPos[1] - (visVP[1] - vport[1])*
+                              winSize[1]);
 
   if ( actor->GetProperty()->GetDisplayLocation() == 
        VTK_FOREGROUND_LOCATION )
     {
-    glOrtho(-xoff,-xoff + (float)size[0]/tileScale,
-            -yoff, -yoff +(float)size[1]/tileScale, 0, 1);
+    glOrtho(-xoff,-xoff + size[0],
+            -yoff, -yoff +size[1], 0, 1);
     }  
   else
     {
-    glOrtho(-xoff,-xoff + (float)size[0]/tileScale,
-            -yoff, -yoff + (float)size[1]/tileScale, -1, 0);
+    glOrtho(-xoff,-xoff + size[0],
+            -yoff, -yoff + size[1], -1, 0);
     }
     
   // Clipping plane stuff

@@ -30,9 +30,29 @@
 #include "vtkgluPickMatrix.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLCamera, "1.48");
+vtkCxxRevisionMacro(vtkOpenGLCamera, "1.49");
 vtkStandardNewMacro(vtkOpenGLCamera);
 #endif
+
+void vtkOpenGLCameraBound(float &vpu, float &vpv)
+{
+  if (vpu > 1.0) 
+    {
+    vpu = 1.0;
+    }
+  if (vpu < 0.0)
+    {
+    vpu = 0.0;
+    }
+  if (vpv > 1.0) 
+    {
+    vpv = 1.0;
+    }
+  if (vpv < 0.0)
+    {
+    vpv = 0.0;
+    }  
+}
 
 // Implement base class method.
 void vtkOpenGLCamera::Render(vtkRenderer *ren)
@@ -47,26 +67,38 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
   vport = ren->GetViewport();
 
   float *tileViewPort = ren->GetVTKWindow()->GetTileViewport();
-
+  int scale = ren->GetVTKWindow()->GetTileScale();
+  
   float vpu, vpv;
-  vpu = tileViewPort[0] + (tileViewPort[2] - tileViewPort[0])*vport[0];
-  vpv = tileViewPort[1] + (tileViewPort[3] - tileViewPort[1])*vport[1];  
+  vpu = (vport[0] - tileViewPort[0]);
+  vpv = (vport[1] - tileViewPort[1]);
+  vtkOpenGLCameraBound(vpu,vpv);
   ren->NormalizedDisplayToDisplay(vpu,vpv);
   lowerLeft[0] = (int)(vpu+0.5);
   lowerLeft[1] = (int)(vpv+0.5);
   float vpu2, vpv2;
-  vpu2 = tileViewPort[0] + (tileViewPort[2] - tileViewPort[0])*vport[2];
-  vpv2 = tileViewPort[1] + (tileViewPort[3] - tileViewPort[1])*vport[3];  
+  vpu2 = (vport[2] - tileViewPort[0]);
+  vpv2 = (vport[3] - tileViewPort[1]);
+  vtkOpenGLCameraBound(vpu2,vpv2);
+  if (vpu2 > tileViewPort[2])
+    {
+    vpu2 = tileViewPort[2];
+    }
+  if (vpv2 > tileViewPort[3])
+    {
+    vpv2 = tileViewPort[3];
+    }  
   ren->NormalizedDisplayToDisplay(vpu2,vpv2);
   int usize = (int)(vpu2 + 0.5) - lowerLeft[0];
   int vsize = (int)(vpv2 + 0.5) - lowerLeft[1];  
-  
-  vpu2 = tileViewPort[0];
-  vpv2 = tileViewPort[1];  
-  ren->NormalizedDisplayToDisplay(vpu2,vpv2);
-  lowerLeft[0] = lowerLeft[0] - (int)(vpu2+0.5);
-  lowerLeft[1] = lowerLeft[1] - (int)(vpv2+0.5);
-  
+  if (usize < 0)
+    {
+    usize = 0;
+    }
+  if (vsize < 0)
+    {
+    vsize = 0;
+    }
   
   // if were on a stereo renderer draw to special parts of screen
   if (this->Stereo)
@@ -113,7 +145,7 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
   ren->GetAspect(aspect);
 
   glMatrixMode( GL_PROJECTION);
-  matrix->DeepCopy(this->GetPerspectiveTransformMatrix(aspect[0]/aspect[1],
+  matrix->DeepCopy(this->GetPerspectiveTransformMatrix(1.0*usize/vsize,
                                                        -1,1));
   matrix->Transpose();
   if(ren->GetIsPicking())
@@ -169,25 +201,38 @@ void vtkOpenGLCamera::UpdateViewport(vtkRenderer *ren)
   vport = ren->GetViewport();
 
   float *tileViewPort = ren->GetVTKWindow()->GetTileViewport();
-
+  int scale = ren->GetVTKWindow()->GetTileScale();
+  
   float vpu, vpv;
-  vpu = tileViewPort[0] + (tileViewPort[2] - tileViewPort[0])*vport[0];
-  vpv = tileViewPort[1] + (tileViewPort[3] - tileViewPort[1])*vport[1];  
+  vpu = (vport[0] - tileViewPort[0]);
+  vpv = (vport[1] - tileViewPort[1]);
+  vtkOpenGLCameraBound(vpu,vpv);
   ren->NormalizedDisplayToDisplay(vpu,vpv);
   lowerLeft[0] = (int)(vpu+0.5);
   lowerLeft[1] = (int)(vpv+0.5);
   float vpu2, vpv2;
-  vpu2 = tileViewPort[0] + (tileViewPort[2] - tileViewPort[0])*vport[2];
-  vpv2 = tileViewPort[1] + (tileViewPort[3] - tileViewPort[1])*vport[3];  
+  vpu2 = (vport[2] - tileViewPort[0]);
+  vpv2 = (vport[3] - tileViewPort[1]);
+  vtkOpenGLCameraBound(vpu2,vpv2);
+  if (vpu2 > tileViewPort[2])
+    {
+    vpu2 = tileViewPort[2];
+    }
+  if (vpv2 > tileViewPort[3])
+    {
+    vpv2 = tileViewPort[3];
+    }  
   ren->NormalizedDisplayToDisplay(vpu2,vpv2);
   int usize = (int)(vpu2 + 0.5) - lowerLeft[0];
   int vsize = (int)(vpv2 + 0.5) - lowerLeft[1];  
-
-  vpu2 = tileViewPort[0];
-  vpv2 = tileViewPort[1];  
-  ren->NormalizedDisplayToDisplay(vpu2,vpv2);
-  lowerLeft[0] = lowerLeft[0] - (int)(vpu2+0.5);
-  lowerLeft[1] = lowerLeft[1] - (int)(vpv2+0.5);
+  if (usize < 0)
+    {
+    usize = 0;
+    }
+  if (vsize < 0)
+    {
+    vsize = 0;
+    }
 
   glViewport(lowerLeft[0],lowerLeft[1], usize, vsize);
   glEnable( GL_SCISSOR_TEST );

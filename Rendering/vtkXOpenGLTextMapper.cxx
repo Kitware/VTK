@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkgluPickMatrix.h"
 
-vtkCxxRevisionMacro(vtkXOpenGLTextMapper, "1.30");
+vtkCxxRevisionMacro(vtkXOpenGLTextMapper, "1.31");
 vtkStandardNewMacro(vtkXOpenGLTextMapper);
 
 struct vtkFontStruct
@@ -282,6 +282,8 @@ void vtkXOpenGLTextMapper::RenderGeometry(vtkViewport* viewport,
   
   // push a 2D matrix on the stack
   int *vsize = viewport->GetSize();
+  float *vport = viewport->GetViewport();
+
   glMatrixMode( GL_PROJECTION);
   glPushMatrix();
   glLoadIdentity();
@@ -298,11 +300,26 @@ void vtkXOpenGLTextMapper::RenderGeometry(vtkViewport* viewport,
   int front = 
     (actor->GetProperty()->GetDisplayLocation() == VTK_FOREGROUND_LOCATION);
 
-  float *tileViewport = viewport->GetVTKWindow()->GetTileViewport();
+  float *tileViewPort = viewport->GetVTKWindow()->GetTileViewport();
+  float visVP[4];
+  visVP[0] = (vport[0] >= tileViewPort[0]) ? vport[0] : tileViewPort[0];
+  visVP[1] = (vport[1] >= tileViewPort[1]) ? vport[1] : tileViewPort[1];
+  visVP[2] = (vport[2] <= tileViewPort[2]) ? vport[2] : tileViewPort[2];
+  visVP[3] = (vport[3] <= tileViewPort[3]) ? vport[3] : tileViewPort[3];
+  if (visVP[0] == visVP[2])
+    {
+    return;
+    }
+  if (visVP[1] == visVP[3])
+    {
+    return;
+    }
+ 
+  int *winSize = viewport->GetVTKWindow()->GetSize();
   int xoff = static_cast<int>
-    (pos[0] - vsize[0]*(tileViewport[2] + tileViewport[0])/2.0);
+    (pos[0] - winSize[0]*((visVP[2] + visVP[0])/2.0 - vport[0]));
   int yoff = static_cast<int>
-    (pos[1] - vsize[1]*(tileViewport[3] + tileViewport[1])/2.0);
+    (pos[1] - winSize[1]*((visVP[3] + visVP[1])/2.0 - vport[1]));
   
   // When picking draw the bounds of the text as a rectangle,
   // as text only picks when the pick point is exactly on the

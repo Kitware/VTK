@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkgluPickMatrix.h"
 
-vtkCxxRevisionMacro(vtkWin32OpenGLTextMapper, "1.37");
+vtkCxxRevisionMacro(vtkWin32OpenGLTextMapper, "1.38");
 vtkStandardNewMacro(vtkWin32OpenGLTextMapper);
 
 struct vtkFontStruct
@@ -325,10 +325,25 @@ vtkDebugMacro (<< "RenderOpaqueGeometry");
     (actor->GetProperty()->GetDisplayLocation() == VTK_FOREGROUND_LOCATION);
 
   float *tileViewport = viewport->GetVTKWindow()->GetTileViewport();
+  float visVP[4];
+  visVP[0] = (vport[0] >= tileViewPort[0]) ? vport[0] : tileViewPort[0];
+  visVP[1] = (vport[1] >= tileViewPort[1]) ? vport[1] : tileViewPort[1];
+  visVP[2] = (vport[2] <= tileViewPort[2]) ? vport[2] : tileViewPort[2];
+  visVP[3] = (vport[3] <= tileViewPort[3]) ? vport[3] : tileViewPort[3];
+  if (visVP[0] == visVP[2])
+    {
+    return;
+    }
+  if (visVP[1] == visVP[3])
+    {
+    return;
+    }
+ 
+  int *winSize = viewport->GetVTKWindow()->GetSize();
   int xoff = static_cast<int>
-    (rect.left - vsize[0]*(tileViewport[2] + tileViewport[0])/2.0);
+    (rect.left - winSize[0]*((visVP[2] + visVP[0])/2.0 - vport[0]));
   int yoff = static_cast<int>
-    (rect.bottom - vsize[1]*(tileViewport[3] + tileViewport[1])/2.0);
+    (rect.bottom - winSize[1]*((visVP[3] + visVP[1])/2.0 - vport[1]));
 
   // When picking draw the bounds of the text as a rectangle,
   // as text only picks when the pick point is exactly on the
