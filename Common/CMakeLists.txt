@@ -5,6 +5,13 @@ SET(KIT_PYTHON_LIBS)
 SET(KIT_JAVA_LIBS)
 SET(KIT_LIBS)
 
+IF(WIN32)
+  IF (NOT VTK_USE_X)
+    ADD_EXECUTABLE(vtkWin32OutputWindowProcess WIN32
+                   vtkWin32OutputWindowProcess.c)
+  ENDIF (NOT VTK_USE_X)
+ENDIF(WIN32)
+
 IF (APPLE)
   SET(KIT_LIBS ${KIT_LIBS} "-framework AppKit")
 ENDIF (APPLE)
@@ -214,7 +221,8 @@ vtkXMLFileOutputWindow.cxx
 
 IF (WIN32)
   IF (NOT VTK_USE_X)
-    SET(Kit_SRCS ${Kit_SRCS} vtkWin32OutputWindow.cxx)
+    SET(Kit_SRCS ${Kit_SRCS} vtkWin32OutputWindow.cxx
+      vtkWin32ProcessOutputWindow.cxx)
   ENDIF (NOT VTK_USE_X)
 ENDIF (WIN32)
 
