@@ -544,14 +544,20 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     if (strcmp(data->ClassName, "vtkRenderWindowInteractor") == 0)
       {
       fprintf(fp,"#ifndef _WIN32\n");
+      fprintf(fp,"#ifndef __APPLE__\n");
       fprintf(fp,"#include \"vtkXRenderWindowTclInteractor.h\"\n");
+      fprintf(fp,"#endif\n");
       fprintf(fp,"#endif\n");
 
       fprintf(fp,"\nClientData %sNewCommand()\n{\n",data->ClassName);
 
       fprintf(fp,"#ifndef _WIN32\n");
+      fprintf(fp,"#ifndef __APPLE__\n");
       fprintf(fp,"  %s *temp = vtkXRenderWindowTclInteractor::New();\n",
               data->ClassName);
+      fprintf(fp,"#else\n");
+      fprintf(fp,"  %s *temp = %s::New();\n",data->ClassName,data->ClassName);
+      fprintf(fp,"#endif\n");
       fprintf(fp,"#else\n");
       fprintf(fp,"  %s *temp = %s::New();\n",data->ClassName,data->ClassName);
       fprintf(fp,"#endif\n");
