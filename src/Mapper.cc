@@ -19,6 +19,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // Construct with initial range (0,1).
 vlMapper::vlMapper()
 {
+  this->Input = NULL;
+
   this->StartRender = NULL;
   this->StartRenderArg = NULL;
   this->EndRender = NULL;
@@ -125,6 +127,15 @@ float *vlMapper::GetCenter()
 void vlMapper::PrintSelf(ostream& os, vlIndent indent)
 {
   vlObject::PrintSelf(os,indent);
+
+  if ( this->Input )
+    {
+    os << indent << "Input: (" << this->Input << ")\n";
+    }
+  else
+    {
+    os << indent << "Input: (none)\n";
+    }
 
   os << indent << "Build Time: " <<this->BuildTime.GetMTime() << "\n";
   if ( this->StartRender )

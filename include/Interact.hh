@@ -17,19 +17,15 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // .SECTION Description
 // vlRenderWindowInteractor is a convenience object that provides event 
 // bindings to common graphics functions. For example, camera 
-// zoom-in/zoom-out, azimuth, and roll.
+// zoom-in/zoom-out, pan, rotate, and reset view; picking of actors, points, 
+// or cells; in/out of stereo mode; property changes such as wireframe 
+// and surface; and a toggle to force the light to be placed at camera 
+// viewpoint (pointing in view direction).
 
 // .SECTION Event Bindings
-// Mouse bindings:
-//    Button 1 - rotate
-//    Button 2 - pan
-//    Button 3 - zoom
-// (Distance from center of renderer viewport controls amount of 
-// rotate, pan, zoom).
-// Keystrokes:
-//    r - reset camera view
-//    w - turn all actors wireframe
-//    s - turn all actors surface
+// Specific devices have different camera bindings. The bindings are on both
+// mouse events as well as keyboard presses. See vlXInteractor and 
+// vlWindowsInteractor for specific information.
 
 #ifndef __vlRenderWindowInteractor_h
 #define __vlRenderWindowInteractor_h
@@ -37,6 +33,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "RenderW.hh"
 #include "Camera.hh"
 #include "Light.hh"
+#include "Picker.hh"
+#include "PolyMap.hh"
+#include "CubeSrc.hh"
 
 class vlRenderWindowInteractor : public vlObject
 {
@@ -67,6 +66,8 @@ public:
   void FindPokedCamera(int,int);
   void FindPokedRenderer(int,int);
 
+  virtual void PickActor(vlActor *actor);
+
 protected:
   vlRenderWindow *RenderWindow;
   vlCamera   *CurrentCamera;
@@ -80,6 +81,14 @@ protected:
   int   State;
   float FocalDepth;
   int Initialized;
+
+  // for picking actors
+  vlPicker Picker;
+  vlCubeSource Outline;
+  vlPolyMapper OutlineMapper;
+  vlActor *OutlineActor;
+  vlRenderer *PickedRenderer;
+  vlActor *CurrentActor;
 };
 
 #endif

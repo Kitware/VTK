@@ -42,6 +42,7 @@ vlPicker::vlPicker()
 
   this->Actor = NULL;
   this->Mapper = NULL;
+  this->DataSet = NULL;
   this->GlobalTMin = LARGE_FLOAT;
 }
 
@@ -55,6 +56,7 @@ void vlPicker::MarkPicked(vlActor *actor, vlMapper *mapper, float tMin,
 
   this->Actor = actor;
   this->Mapper = mapper;
+  this->DataSet = mapper->GetInput();
   this->GlobalTMin = tMin;
   for (i=0; i < 3; i++) 
     {
@@ -303,17 +305,17 @@ void vlPicker::PrintSelf(ostream& os, vlIndent indent)
 {
   this->vlObject::PrintSelf(os,indent);
 
-  os << "Rendering Window: " << this->RenderWindow << "\n";
-  os << "Selection Point: (" <<  this->SelectionPoint[0] << ","
+  os << indent << "Rendering Window: " << this->RenderWindow << "\n";
+  os << indent << "Selection Point: (" <<  this->SelectionPoint[0] << ","
      << this->SelectionPoint[1] << ","
      << this->SelectionPoint[2] << ")\n";
-  os << "Tolerance: " << this->Tolerance << "\n";
-  os << "Pick Position: (" <<  this->PickPosition[0] << ","
+  os << indent << "Tolerance: " << this->Tolerance << "\n";
+  os << indent << "Pick Position: (" <<  this->PickPosition[0] << ","
      << this->PickPosition[1] << ","
      << this->PickPosition[2] << ")\n";
-  os << "Mapper Position: (" <<  this->MapperPosition[0] << ","
+  os << indent << "Mapper Position: (" <<  this->MapperPosition[0] << ","
      << this->MapperPosition[1] << ","
      << this->MapperPosition[2] << ")\n";
-  os << "Actor: " << this->Actor << "\n";
-  os << "Mapper: " << this->Mapper << "\n";
+  os << indent << "Actor: " << this->Actor << "\n";
+  os << indent << "Mapper: " << this->Mapper << "\n";
 }

@@ -39,9 +39,8 @@ public:
 
   // Description:
   // Specify the input data to map.
-  virtual void SetInput(vlPolyData *in);
+  void SetInput(vlPolyData *in);
   void SetInput(vlPolyData& in) {this->SetInput(&in);};
-  virtual vlPolyData* GetInput();
 
   // Description:
   // Control the visibility of vertices.
@@ -68,7 +67,6 @@ public:
   vlBooleanMacro(StripsVisibility,int);
 
 protected:
-  vlPolyData *Input;
   vlGeometryPrimitive *Verts;
   vlGeometryPrimitive *Lines;
   vlGeometryPrimitive *Polys;

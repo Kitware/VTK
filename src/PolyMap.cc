@@ -20,7 +20,6 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // turned on.
 vlPolyMapper::vlPolyMapper()
 {
-  this->Input = NULL;
   this->Verts = NULL;
   this->Lines = NULL;
   this->Polys = NULL;
@@ -47,14 +46,12 @@ void vlPolyMapper::SetInput(vlPolyData *in)
 {
   if (in != this->Input )
     {
-    this->Input = in;
+    vlDebugMacro(<<" setting Input to " << (void *)in);
+    this->Input = (vlDataSet *) in;
     this->Modified();
     }
 }
-vlPolyData* vlPolyMapper::GetInput()
-{
-  return this->Input;
-}
+
 //
 // Return bounding box of data
 //
@@ -80,36 +77,37 @@ void vlPolyMapper::Render(vlRenderer *ren)
   vlScalars *scalars;
   int i;
   char forceBuild = 0;
+  vlPolyData *input=(vlPolyData *)this->Input;
 //
 // make sure that we've been properly initialized
 //
-  if ( this->Input == NULL ) 
+  if ( input == NULL ) 
     {
-    vlErrorMacro(<< "No input!\n");
+    vlErrorMacro(<< "No input!");
     return;
     }
   else
-    this->Input->Update();
+    input->Update();
 
   if ( this->LookupTable == NULL ) this->CreateDefaultLookupTable();
   this->LookupTable->Build();
 //
 // Now send data down to primitives and draw it
 //
-  if ( forceBuild || this->Input->GetMTime() > this->BuildTime || 
+  if ( forceBuild || input->GetMTime() > this->BuildTime || 
   this->LookupTable->GetMTime() > this->BuildTime )
     {
 //
 // create colors
 //
-    if ( this->ScalarsVisible && (pd=this->Input->GetPointData()) && 
+    if ( this->ScalarsVisible && (pd=input->GetPointData()) && 
     (scalars=pd->GetScalars()) )
       {
       if ( this->Colors == NULL ) this->Colors = new vlRGBArray;
-      this->Colors->Allocate (this->Input->GetNumberOfPoints());
+      this->Colors->Allocate (input->GetNumberOfPoints());
 
       this->LookupTable->SetTableRange(this->ScalarRange);
-      for (i=0; i<this->Input->GetNumberOfPoints(); i++)
+      for (i=0; i<input->GetNumberOfPoints(); i++)
         {
         this->Colors->SetColor(i,this->LookupTable->MapValue(scalars->GetScalar(i)));
         }
@@ -120,44 +118,44 @@ void vlPolyMapper::Render(vlRenderer *ren)
       this->Colors = NULL;
       }
 
-    if (this->VertsVisibility && this->Input->GetNumberOfVerts())
+    if (this->VertsVisibility && input->GetNumberOfVerts())
       {
       if (!this->Verts) this->Verts = ren->GetPrimitive("points");
-      this->Verts->Build(this->Input,this->Colors);
+      this->Verts->Build(input,this->Colors);
       }
-    if ( this->LinesVisibility && this->Input->GetNumberOfLines())
+    if ( this->LinesVisibility && input->GetNumberOfLines())
       {
       if (!this->Lines) this->Lines = ren->GetPrimitive("lines");
-      this->Lines->Build(this->Input,this->Colors);
+      this->Lines->Build(input,this->Colors);
       }
-    if ( this->PolysVisibility && this->Input->GetNumberOfPolys())
+    if ( this->PolysVisibility && input->GetNumberOfPolys())
       {
       if (!this->Polys) this->Polys = ren->GetPrimitive("polygons");
-      this->Polys->Build(this->Input,this->Colors);
+      this->Polys->Build(input,this->Colors);
       }
-    if ( this->StripsVisibility && this->Input->GetNumberOfStrips())
+    if ( this->StripsVisibility && input->GetNumberOfStrips())
       {
       if (!this->Strips) this->Strips = ren->GetPrimitive("triangle_strips");
-      this->Strips->Build(this->Input,this->Colors);
+      this->Strips->Build(input,this->Colors);
       }
 
     this->BuildTime.Modified();
     }
 
   // draw the primitives
-  if (this->VertsVisibility && this->Input->GetNumberOfVerts())
+  if (this->VertsVisibility && input->GetNumberOfVerts())
     {
     this->Verts->Draw(ren);
     }
-  if ( this->LinesVisibility && this->Input->GetNumberOfLines())
+  if ( this->LinesVisibility && input->GetNumberOfLines())
     {
     this->Lines->Draw(ren);
     }
-  if ( this->PolysVisibility && this->Input->GetNumberOfPolys())
+  if ( this->PolysVisibility && input->GetNumberOfPolys())
     {
     this->Polys->Draw(ren);
     }
-  if ( this->StripsVisibility && this->Input->GetNumberOfStrips())
+  if ( this->StripsVisibility && input->GetNumberOfStrips())
     {
     this->Strips->Draw(ren);
     }
@@ -167,15 +165,6 @@ void vlPolyMapper::Render(vlRenderer *ren)
 void vlPolyMapper::PrintSelf(ostream& os, vlIndent indent)
 {
   vlMapper::PrintSelf(os,indent);
-
-  if ( this->Input )
-    {
-    os << indent << "Input: (" << this->Input << ")\n";
-    }
-  else
-    {
-    os << indent << "Input: (none)\n";
-    }
 
   os << indent << "Vertex Visibility: " << (this->VertsVisibility ? "On\n" : "Off\n");
   os << indent << "Line Visibility: " << (this->LinesVisibility ? "On\n" : "Off\n");

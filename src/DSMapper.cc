@@ -18,7 +18,6 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 vlDataSetMapper::vlDataSetMapper()
 {
-  this->Input = NULL;
   this->GeometryExtractor = NULL;
   this->PolyMapper = NULL;
 }
@@ -37,10 +36,6 @@ void vlDataSetMapper::SetInput(vlDataSet *in)
     this->Input = in;
     this->Modified();
     }
-}
-vlDataSet* vlDataSetMapper::GetInput()
-{
-  return this->Input;
 }
 
 //
@@ -101,15 +96,6 @@ void vlDataSetMapper::Render(vlRenderer *ren)
 void vlDataSetMapper::PrintSelf(ostream& os, vlIndent indent)
 {
   vlMapper::PrintSelf(os,indent);
-
-  if ( this->Input )
-    {
-    os << indent << "Input: (" << this->Input << ")\n";
-    }
-  else
-    {
-    os << indent << "Input: (none)\n";
-    }
 
   if ( this->PolyMapper )
     {

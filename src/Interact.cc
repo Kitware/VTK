@@ -27,6 +27,11 @@ vlRenderWindowInteractor::vlRenderWindowInteractor()
 
   this->LightFollowCamera = 1;
   this->Initialized = 0;
+
+  this->OutlineActor = NULL;
+  this->OutlineMapper.SetInput(this->Outline);
+  this->PickedRenderer = NULL;
+  this->CurrentActor = NULL;
 }
 
 vlRenderWindowInteractor::~vlRenderWindowInteractor()
@@ -86,6 +91,37 @@ void  vlRenderWindowInteractor::FindPokedCamera(int x,int y)
   this->CurrentLight = lc->GetNextItem();
 }
 
+// Description:
+// When pick action successfully selects actor, this method highlights the 
+// actor appropriately.
+void vlRenderWindowInteractor::PickActor(vlActor *actor)
+{
+  if ( ! this->OutlineActor )
+    {
+    // have to defer creation to get right type
+    this->OutlineActor = this->RenderWindow->MakeActor();
+    this->OutlineActor->PickableOff();
+    this->OutlineActor->DragableOff();
+    this->OutlineActor->SetMapper(this->OutlineMapper);
+    this->OutlineActor->GetProperty()->SetColor(1.0,1.0,1.0);
+    this->OutlineActor->GetProperty()->SetWireframe();
+    }
+
+  if ( this->PickedRenderer ) 
+    this->PickedRenderer->RemoveActors(OutlineActor);
+
+  if ( ! actor )
+    {
+    this->PickedRenderer = NULL;
+    }
+  else 
+    {
+    this->PickedRenderer = this->CurrentRenderer;
+    this->CurrentRenderer->AddActors(OutlineActor);
+    this->Outline.SetBounds(actor->GetBounds());
+    this->CurrentActor = actor;
+    }
+}
 
 void vlRenderWindowInteractor::PrintSelf(ostream& os, vlIndent indent)
 {
@@ -98,4 +134,3 @@ void vlRenderWindowInteractor::PrintSelf(ostream& os, vlIndent indent)
   os << indent << "LightFollowCamera: " << (this->LightFollowCamera ? "On\n" : "Off\n");
 }
 
- 

@@ -27,7 +27,6 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 #include "GeomF.hh"
 #include "PolyMap.hh"
-#include "DataSet.hh"
 #include "Renderer.hh"
 
 class vlDataSetMapper : public vlMapper 
@@ -42,12 +41,10 @@ public:
 
   // Description:
   // Specify the input data to map.
-  virtual void SetInput(vlDataSet *in);
+  void SetInput(vlDataSet *in);
   void SetInput(vlDataSet& in) {this->SetInput(&in);};
-  virtual vlDataSet* GetInput();
 
 protected:
-  vlDataSet *Input;
   vlGeometryFilter *GeometryExtractor;
   vlPolyMapper *PolyMapper;
 };

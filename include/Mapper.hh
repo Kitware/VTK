@@ -28,6 +28,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Object.hh"
 #include "GeomPrim.hh"
 #include "Lut.hh"
+#include "DataSet.hh"
 
 class vlRenderer;
 
@@ -78,8 +79,11 @@ public:
   virtual float *GetBounds() = 0;
 
   float *GetCenter();
+  virtual vlDataSet *GetInput() {return this->Input;};
 
 protected:
+  vlDataSet *Input;
+
   void (*StartRender)(void *);
   void *StartRenderArg;
   void (*EndRender)(void *);

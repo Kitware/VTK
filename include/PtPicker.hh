@@ -35,8 +35,15 @@ public:
   char *GetClassName() {return "vlPointPicker";};
   void PrintSelf(ostream& os, vlIndent indent);
 
+  // Description:
+  // Get the id of the picked point. If PointId = -1, nothing was picked.
+  vlGetMacro(PointId,int);
+
 protected:
-  void Intersect(float p1[3], float p2[3], float tol, vlActor *a, vlMapper *m);
+  int PointId; //picked point
+
+  void IntersectWithLine(float p1[3], float p2[3], float tol, 
+                         vlActor *a, vlMapper *m);
   void Initialize();
 
 };
