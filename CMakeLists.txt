@@ -47,6 +47,15 @@ IF (VTK_USE_PARALLEL)
         SET (MPI_POSTFLAGS "" CACHE STRING "Flags used by mpi start program.")
         SET (MPI_MAX_NUMPROCS "2" CACHE STRING "Maximum number of processors available to run parallel applications.")
         MARK_AS_ADVANCED(MPI_PREFLAGS MPI_POSTFLAGS MPI_MAX_NUMPROCS)
+ 
+        # Make sure that CMake version is >= 1.4
+        IF (CMAKE_MAJOR_VERSION MATCHES [1-9][0-9]*)
+         IF (CMAKE_MINOR_VERSION MATCHES [4-9][0-9]*)
+           SEPARATE_ARGUMENTS(MPI_PREFLAGS)
+           SEPARATE_ARGUMENTS(MPI_POSTFLAGS)
+         ENDIF (CMAKE_MINOR_VERSION MATCHES [4-9][0-9]*)
+        ENDIF (CMAKE_MAJOR_VERSION MATCHES [1-9][0-9]*)
+
       ENDIF (VTK_USE_MPI)
     ENDIF(BUILD_TESTING)
 ENDIF (VTK_USE_PARALLEL)
