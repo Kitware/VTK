@@ -153,7 +153,7 @@ foreach afile $files {
 	if {[catch {set channel [open ${validImage}]}] != 0 } {
 	    puts $logFile "WARNING: There is no valid image for $afile"
             set returnStatus 2
-	    #continue
+	    continue
 	} else {
 	    close $channel
 	}
