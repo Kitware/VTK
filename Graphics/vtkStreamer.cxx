@@ -25,7 +25,7 @@
 #include "vtkPointData.h"
 #include "vtkRungeKutta2.h"
 
-vtkCxxRevisionMacro(vtkStreamer, "1.87");
+vtkCxxRevisionMacro(vtkStreamer, "1.88");
 vtkCxxSetObjectMacro(vtkStreamer,Integrator,vtkInitialValueProblemSolver);
 
 #define VTK_START_FROM_POSITION 0
@@ -465,7 +465,11 @@ void vtkStreamer::Integrate()
   this->NumberOfStreamers = 0;
 
 // reexecuting - delete old stuff
-  delete [] this->Streamers;
+  if( this->Streamers )
+    {
+    // C++ does not define behavior of delete[] NULL
+    delete [] this->Streamers;
+    }
   this->Streamers = NULL;
 
   if ( ! (inVectors=pd->GetVectors()) )
