@@ -1098,6 +1098,7 @@ int vtkDecimatePro::FindSplit (int type, int fedges[2], int& pt1, int& pt2,
   float dist2, e2dist2;
   int numVerts=this->V->MaxId+1;
 
+  pt2 = -1;
   CollapseTris->SetNumberOfIds(2);
   this->EdgeLengths->Reset();
 
