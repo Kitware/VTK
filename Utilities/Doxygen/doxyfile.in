@@ -18,6 +18,8 @@ GENERATE_MAN         = NO
 GENERATE_RTF         = NO
 GENERATE_TAGFILE     = "@VTK_BINARY_DIR@/Utilities/Doxygen/vtk4.tag"
 
+PDF_HYPERLINKS       = YES
+
 HAVE_DOT             = YES
 #HAVE_DOT            = NO
 DOT_PATH             = "@DOT_PATH@"
@@ -59,6 +61,7 @@ INPUT                = \
 EXTRACT_ALL          = YES
 EXTRACT_PRIVATE      = NO
 EXTRACT_STATIC       = YES
+EXTRACT_LOCAL_CLASSES = NO
 HIDE_UNDOC_MEMBERS   = NO
 HIDE_UNDOC_CLASSES   = YES
 ALWAYS_DETAILED_SEC  = NO
@@ -71,6 +74,8 @@ JAVADOC_AUTOBRIEF    = YES
 SORT_MEMBER_DOCS     = NO
 DISTRIBUTE_GROUP_DOC = YES
 TAB_SIZE             = 3
+DETAILS_AT_TOP       = YES
+# PAPER_TYPE           = letter
 
 FILE_PATTERNS        = *.h
 RECURSIVE            = NO
