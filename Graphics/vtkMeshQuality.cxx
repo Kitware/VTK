@@ -35,7 +35,7 @@
 #include "vtkMath.h"
 #include "vtkTetra.h"
 
-vtkCxxRevisionMacro(vtkMeshQuality,"1.26");
+vtkCxxRevisionMacro(vtkMeshQuality,"1.27");
 vtkStandardNewMacro(vtkMeshQuality);
 
 typedef double (*CellQualityType)( vtkCell* );
@@ -168,6 +168,9 @@ int vtkMeshQuality::RequestData(
       break;
     case VTK_QUALITY_EDGE_RATIO:
       QuadQuality = QuadEdgeRatio;
+      break;
+    case VTK_QUALITY_MIN_ANGLE:
+      QuadQuality = QuadMinAngle;
       break;
     default:
       vtkWarningMacro( "Bad QuadQualityMeasure ("
@@ -923,6 +926,51 @@ double vtkMeshQuality::QuadEdgeRatio( vtkCell* cell )
   M2 = Mab > Mcd ? Mab : Mcd;
 
   return sqrt(M2 / m2);
+}
+
+double vtkMeshQuality::QuadMinAngle( vtkCell* cell )
+{
+  double p0[3],p1[3],p2[3],p3[3];
+  double a[3],b[3],c[3],d[3];
+  double a2,b2,c2,d2,alpha,beta,gamma,delta;
+  const double normal_coeff = .3183098861837906715377675267450287;
+
+  vtkPoints *p = cell->GetPoints();
+  p->GetPoint(0, p0);
+  p->GetPoint(1, p1);
+  p->GetPoint(2, p2);
+  p->GetPoint(3, p3);
+
+  a[0] = p1[0]-p0[0];
+  a[1] = p1[1]-p0[1];
+  a[2] = p1[2]-p0[2];
+ 
+  b[0] = p2[0]-p1[0];
+  b[1] = p2[1]-p1[1];
+  b[2] = p2[2]-p1[2];
+ 
+  c[0] = p3[0]-p2[0];
+  c[1] = p3[1]-p2[1];
+  c[2] = p3[2]-p2[2];
+ 
+  d[0] = p0[0]-p3[0];
+  d[1] = p0[1]-p3[1];
+  d[2] = p0[2]-p3[2];
+ 
+  a2 = vtkMath::Dot(a,a);
+  b2 = vtkMath::Dot(b,b);
+  c2 = vtkMath::Dot(c,c);
+  d2 = vtkMath::Dot(d,d);
+
+  alpha = acos(vtkMath::Dot(b,c) / sqrt(b2 * c2));
+  beta  = acos(vtkMath::Dot(c,d) / sqrt(c2 * d2));
+  gamma = acos(vtkMath::Dot(d,a) / sqrt(d2 * a2));
+  delta = acos(vtkMath::Dot(a,b) / sqrt(a2 * b2));
+
+  alpha = alpha < beta  ? alpha : beta;
+  gamma = gamma < delta ? gamma : delta;
+
+  return  (alpha < gamma ? alpha : gamma) * 180. * normal_coeff;
 }
 
 double TetVolume( vtkCell* cell )

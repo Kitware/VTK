@@ -120,6 +120,12 @@ int MeshQuality( int argc, char* argv[] )
          << endl;
     DumpQualityStats( iq, "Mesh Quadrilateral Quality" );
     
+    iq->SetQuadQualityMeasureToMinAngle();
+    iq->Update();
+    cout << " Minimal Angle:"
+         << endl;
+    DumpQualityStats( iq, "Mesh Quadrilateral Quality" );
+ 
     cout << endl; 
     cout << "Tetrahedral quality of mesh" << endl;
     cout << mr->GetFileName()

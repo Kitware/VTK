@@ -135,6 +135,10 @@ public:
     {
     this->SetQuadQualityMeasure( VTK_QUALITY_EDGE_RATIO );
     }
+  void SetQuadQualityMeasureToMinAngle()
+    {
+    this->SetQuadQualityMeasure( VTK_QUALITY_MIN_ANGLE );
+    }
 
   // Description:
   // Set/Get the particular estimator used to measure the quality of tetrahedra.
@@ -292,6 +296,14 @@ public:
   // where \f$|q|_\infty\f$ and \f$|q|_0\f$ respectively denote the greatest and
   // the smallest edge lengths of \f$q\f$.
   static double QuadEdgeRatio( vtkCell* cell );
+
+  // Description:
+  // This is a static function used to calculate the minimal (nonoriented) angle
+  // of a quadrilateral, expressed in degrees.
+  // It assumes that you pass the correct type of cell -- no type checking is
+  // performed because this method is called from the inner loop of the Execute()
+  // member function.
+  static double QuadMinAngle( vtkCell* cell );
 
   // Description:
   // This is a static function used to calculate the radius ratio of a tetrahedron.
