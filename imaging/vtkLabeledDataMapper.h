@@ -207,6 +207,7 @@ protected:
 
 private:
   int NumberOfLabels;
+  int NumberOfLabelsAllocated;
   vtkTextMapper **TextMappers;
 
 };

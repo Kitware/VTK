@@ -59,7 +59,13 @@ vtkLabeledDataMapper::vtkLabeledDataMapper()
   this->FieldDataArray = 0;
  
   this->NumberOfLabels = 0;
-  this->TextMappers = NULL;
+  this->NumberOfLabelsAllocated = 50;
+
+  this->TextMappers = new vtkTextMapper * [this->NumberOfLabelsAllocated];
+  for (int i=0; i<this->NumberOfLabelsAllocated; i++)
+    {
+    this->TextMappers[i] = vtkTextMapper::New();
+    }
 }
 
 // Release any graphics resources that are being consumed by this actor.
@@ -69,7 +75,7 @@ void vtkLabeledDataMapper::ReleaseGraphicsResources(vtkWindow *win)
 {
   if (this->TextMappers != NULL )
     {
-    for (int i=0; i < this->NumberOfLabels; i++)
+    for (int i=0; i < this->NumberOfLabelsAllocated; i++)
       {
       this->TextMappers[i]->ReleaseGraphicsResources(win);
       }
@@ -85,7 +91,7 @@ vtkLabeledDataMapper::~vtkLabeledDataMapper()
 
   if (this->TextMappers != NULL )
     {
-    for (int i=0; i < this->NumberOfLabels; i++)
+    for (int i=0; i < this->NumberOfLabelsAllocated; i++)
       {
       this->TextMappers[i]->Delete();
       }
@@ -139,16 +145,6 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
        input->GetMTime() > this->BuildTime ) 
     {
     vtkDebugMacro(<<"Rebuilding labels");
-
-    // Delete previously constructed objects
-    if (this->TextMappers != NULL )
-      {
-      for (i=0; i < this->NumberOfLabels; i++)
-	{
-	this->TextMappers[i]->Delete();
-	}
-      delete [] this->TextMappers;
-      }
 
     // figure out what to label, and if we can label it
     pointIdLabels = 0;
@@ -222,7 +218,23 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
       }
 
     this->NumberOfLabels = this->Input->GetNumberOfPoints();
-    this->TextMappers = new vtkTextMapper * [this->NumberOfLabels];
+    if ( this->NumberOfLabels > this->NumberOfLabelsAllocated )
+      {
+      // delete old stuff
+      for (int i=0; i < this->NumberOfLabelsAllocated; i++)
+	{
+	this->TextMappers[i]->Delete();
+	}
+      delete [] this->TextMappers;
+
+      this->NumberOfLabelsAllocated = this->NumberOfLabels;
+      this->TextMappers = new vtkTextMapper * [this->NumberOfLabelsAllocated];
+      for (i=0; i<this->NumberOfLabelsAllocated; i++)
+	{
+	this->TextMappers[i] = vtkTextMapper::New();
+	}
+      }//if we have to allocate new text mappers
+    
     for (i=0; i < this->NumberOfLabels; i++)
       {
       if ( pointIdLabels )
@@ -251,7 +263,6 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
 	  }
 	}
 
-      this->TextMappers[i] = vtkTextMapper::New();
       this->TextMappers[i]->SetInput(string);
       this->TextMappers[i]->SetFontSize(this->FontSize);
       this->TextMappers[i]->SetBold(this->Bold);
