@@ -58,6 +58,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkOpenGLTexture.h"
 #include "vtkOpenGLVolumeTextureMapper2D.h"
 #include "vtkOpenGLProjectedPolyDataRayBounder.h"
+#include "vtkOpenGLVolumeRayCastMapper.h"
 #endif
 
 #ifdef VTK_USE_MESA
