@@ -80,7 +80,8 @@ vtkRenderer::vtkRenderer()
   this->Viewport[3] = 1;
 
   this->BackLight = 1;
-
+  this->AllocatedRenderTime = 0;
+  
   this->Aspect[0] = this->Aspect[1] = 1.0;
   this->VolumeRenderer = NULL;
   this->SelfCreatedCamera = 0;
@@ -202,11 +203,11 @@ void vtkRenderer::DoCameras()
     }
 }
 
+
 // Description:
 // Process the list of actors during the rendering process.
 void vtkRenderer::DoActors()
 {
-
   if (!this->UpdateActors())
     {
     vtkWarningMacro(<< "No actors are on.");
