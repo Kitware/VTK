@@ -61,7 +61,7 @@ int vtkPropCollection::GetNumberOfPaths()
   int numPaths=0;
   vtkProp *aProp;
 
-  for ( this->InitTraversal(); aProp=this->GetNextProp(); )
+  for ( this->InitTraversal(); (aProp=this->GetNextProp()); )
     {
     numPaths += aProp->GetNumberOfPaths();
     }

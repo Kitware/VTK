@@ -107,7 +107,6 @@ void vtkFeatureEdges::Execute()
   vtkPolyData *output = this->GetOutput();
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
-  int ghostLevel = input->GetUpdateGhostLevel();
   
   vtkDebugMacro(<<"Executing feature edges");
 

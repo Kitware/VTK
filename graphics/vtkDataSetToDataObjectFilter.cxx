@@ -283,37 +283,37 @@ void vtkDataSetToDataObjectFilter::Execute()
     {
     vtkPointData *inPD=input->GetPointData();
 
-    if ( scalars=inPD->GetScalars() )
+    if ( (scalars=inPD->GetScalars()) )
       {
       fd->SetArray(arrayNum, scalars->GetData());
       fd->SetArrayName(arrayNum++, "PointScalars");
       }
 
-    if ( vectors=inPD->GetVectors() )
+    if ( (vectors=inPD->GetVectors()) )
       {
       fd->SetArray(arrayNum, vectors->GetData());
       fd->SetArrayName(arrayNum++, "PointVectors");
       }
 
-    if ( tensors=inPD->GetTensors() )
+    if ( (tensors=inPD->GetTensors()) )
       {
       fd->SetArray(arrayNum, tensors->GetData());
       fd->SetArrayName(arrayNum++, "PointTensors");
       }
 
-    if ( normals=inPD->GetNormals() )
+    if ( (normals=inPD->GetNormals()) )
       {
       fd->SetArray(arrayNum, normals->GetData());
       fd->SetArrayName(arrayNum++, "PointNormals");
       }
 
-    if ( tcoords=inPD->GetTCoords() )
+    if ( (tcoords=inPD->GetTCoords()) )
       {
       fd->SetArray(arrayNum, tcoords->GetData());
       fd->SetArrayName(arrayNum++, "PointTCoords");
       }
 
-    if ( fieldData=inPD->GetFieldData() )
+    if ( (fieldData=inPD->GetFieldData()) )
       {
       for (int i=0; i<fieldData->GetNumberOfArrays(); i++)
         {
@@ -328,37 +328,37 @@ void vtkDataSetToDataObjectFilter::Execute()
     {
     vtkCellData *inCD=input->GetCellData();
     
-    if ( scalars=inCD->GetScalars() )
+    if ( (scalars=inCD->GetScalars()) )
       {
       fd->SetArray(arrayNum, scalars->GetData());
       fd->SetArrayName(arrayNum++, "CellScalars");
       }
 
-    if ( vectors=inCD->GetVectors() )
+    if ( (vectors=inCD->GetVectors()) )
       {
       fd->SetArray(arrayNum, vectors->GetData());
       fd->SetArrayName(arrayNum++, "CellVectors");
       }
 
-    if ( tensors=inCD->GetTensors() )
+    if ( (tensors=inCD->GetTensors()) )
       {
       fd->SetArray(arrayNum, tensors->GetData());
       fd->SetArrayName(arrayNum++, "CellTensors");
       }
 
-    if ( normals=inCD->GetNormals() )
+    if ( (normals=inCD->GetNormals()) )
       {
       fd->SetArray(arrayNum, normals->GetData());
       fd->SetArrayName(arrayNum++, "CellNormals");
       }
 
-    if ( tcoords=inCD->GetTCoords() )
+    if ( (tcoords=inCD->GetTCoords()) )
       {
       fd->SetArray(arrayNum, tcoords->GetData());
       fd->SetArrayName(arrayNum++, "CellTCoords");
       }
 
-    if ( fieldData=inCD->GetFieldData() )
+    if ( (fieldData=inCD->GetFieldData()) )
       {
       for (int i=0; i<fieldData->GetNumberOfArrays(); i++)
         {

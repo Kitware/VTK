@@ -1,7 +1,7 @@
 #include "vtkDirectory.h"
 
 vtkDirectory::vtkDirectory() 
-  :NumberOfFiles(0), Files(0), Path(0)
+  : Path(0), Files(0), NumberOfFiles(0)
 {
 }
 

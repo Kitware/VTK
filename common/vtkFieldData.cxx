@@ -633,7 +633,7 @@ int vtkFieldData::AddArray(vtkDataArray *array, const char *name)
 int vtkFieldData::AddReplaceArray(vtkDataArray *array, const char *name)
 {
     int index;
-    vtkDataArray *oldarray = this->GetArray(name, index);
+
     if (index==-1)
     {
       index = this->AddArray(array, name);

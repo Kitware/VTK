@@ -162,7 +162,6 @@ float vtkVolume::ComputeScreenCoverage( vtkViewport *vp )
   if ( ren )
     {
     vtkCamera *cam = ren->GetActiveCamera();
-    vtkRenderWindow *renWin = ren->GetRenderWindow();
     ren->ComputeAspect();
     float *aspect = ren->GetAspect();
     vtkMatrix4x4 *mat = 

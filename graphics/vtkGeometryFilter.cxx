@@ -448,7 +448,6 @@ void vtkGeometryFilter::PolyDataExecute()
   int allVisible;
   int npts, *pts;    
   vtkPoints *p = input->GetPoints();
-  int numPts=input->GetNumberOfPoints();
   int numCells=input->GetNumberOfCells();
   vtkPointData *pd = input->GetPointData();
   vtkCellData *cd = input->GetCellData();
@@ -567,7 +566,6 @@ void vtkGeometryFilter::UnstructuredGridExecute()
   int allVisible;
   int npts, *pts;    
   vtkPoints *p = input->GetPoints();
-  int numPts=input->GetNumberOfPoints();
   int numCells=input->GetNumberOfCells();
   vtkPointData *pd = input->GetPointData();
   vtkCellData *cd = input->GetCellData();
@@ -880,7 +878,6 @@ void vtkGeometryFilter::StructuredGridExecute()
 {
   int cellId, i, newCellId;
   vtkStructuredGrid *input=(vtkStructuredGrid *)this->GetInput();
-  int numPts=input->GetNumberOfPoints();
   int numCells=input->GetNumberOfCells();
   char *cellVis;
   vtkGenericCell *cell;

@@ -95,7 +95,6 @@ void vtkOutlineFilter::Execute()
 
 void vtkOutlineFilter::ExecuteInformation()
 {
-  vtkPolyData *output = this->GetOutput();
   
   vtkDebugMacro(<< "Creating dataset outline");
 

@@ -92,7 +92,7 @@ class VTK_EXPORT vtkSimpleCriticalSection
 {
 public:
   vtkSimpleCriticalSection();
-  ~vtkSimpleCriticalSection();
+  virtual ~vtkSimpleCriticalSection();
 
   static vtkSimpleCriticalSection *New();
 

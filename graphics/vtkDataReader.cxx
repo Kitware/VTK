@@ -2221,7 +2221,6 @@ void vtkDataReader::PrintSelf(ostream& os, vtkIndent indent)
 
 int vtkDataReader::ReadDataSetData(vtkDataSet *vtkNotUsed(ds))
 {
-  vtkFieldData* fd = this->ReadFieldData();
   return 0;
 }
 
