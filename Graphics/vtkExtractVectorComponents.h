@@ -98,13 +98,6 @@ public:
   // vector component. By default, the x component is extracted.
   vtkDataSet *GetOutput(int i=0); //default extracts vector component.
 
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // Description:
-  // For legacy compatibility. Do not use.
-  void SetInput(vtkDataSet &input) 
-    {VTK_LEGACY_METHOD(SetInput,"3.2"); this->SetInput(&input);}
-#endif
-  
 protected:
   vtkExtractVectorComponents();
   ~vtkExtractVectorComponents();

@@ -117,15 +117,6 @@ public:
     {this->SetOperationType(VTK_UNION_OF_MAGNITUDES);};
   const char *GetOperationTypeAsString();
   
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // Description:
-  // For legacy compatibility. Do not use.
-  void AddFunction(vtkImplicitFunction &in) 
-    {VTK_LEGACY_METHOD(AddFunction,"3.2"); this->AddFunction(&in);}
-  void RemoveFunction(vtkImplicitFunction &in) 
-    {VTK_LEGACY_METHOD(RemoveFunction,"3.2"); this->RemoveFunction(&in);}
-#endif
-  
 protected:
   vtkImplicitBoolean();
   ~vtkImplicitBoolean();

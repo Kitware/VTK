@@ -132,13 +132,6 @@ protected:
   // This is the one you should override.
   virtual void ExecuteInformation(vtkImageData **, vtkImageData *) {};
 
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // legacy  !!!!! ------------------------
-  virtual void ExecuteImageInformation() 
-    { this->LegacyHack = 0;}
-  int LegacyHack;
-#endif
-  
 private:
   // hide the superclass' AddInput() from the user and the compiler
   void AddInput(vtkDataObject *)

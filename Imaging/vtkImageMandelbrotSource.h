@@ -107,13 +107,6 @@ public:
   // What about other parameters ???
   void CopyOriginAndSample(vtkImageMandelbrotSource *source); 
 
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // Description:
-  // Convienence/Legacy - set all the spacing values the same.
-  void SetSample(double v) 
-    {VTK_LEGACY_METHOD(SetSampleCX,"3.2"); this->SetSampleCX(v, v, v, v);}
-#endif
-  
 protected:
   vtkImageMandelbrotSource();
   ~vtkImageMandelbrotSource();

@@ -65,21 +65,12 @@ vtkAssembly* vtkAssembly::New()
 vtkAssembly::vtkAssembly()
 {
   this->Parts = vtkProp3DCollection::New();
-#ifndef VTK_REMOVE_LEGACY_CODE
-  this->CompatibilityActor = NULL;
-#endif
 }
 
 vtkAssembly::~vtkAssembly()
 {
   this->Parts->Delete();
   this->Parts = NULL;
-#ifndef VTK_REMOVE_LEGACY_CODE
-  if ( this->CompatibilityActor )
-    {
-    this->CompatibilityActor->Delete();
-    }
-#endif
 }
 
 // Add a part to the list of Parts.
@@ -395,54 +386,6 @@ unsigned long int vtkAssembly::GetMTime()
 
   return mTime;
 }
-
-#ifndef VTK_REMOVE_LEGACY_CODE
-void vtkAssembly::SetMapper(vtkMapper *mapper)
-{
-  VTK_LEGACY_METHOD(SetMapper,"3.2");
-  vtkErrorMacro(<<"This method (SetMapper()) is obsolete, see the documentation\n"
-                <<"for vtkAssembly to use the correct alternative\n"
-                <<"(refer to SetMapper() documentation)\n");
-
-  this->CreateCompatibilityActor();
-  this->CompatibilityActor->SetMapper(mapper);
-}
-
-vtkMapper *vtkAssembly::GetMapper()
-{
-  VTK_LEGACY_METHOD(GetMapper,"3.2");
-  this->CreateCompatibilityActor();
-  return this->CompatibilityActor->GetMapper();
-}
-
-void vtkAssembly::SetProperty(vtkProperty *property)
-{
-  VTK_LEGACY_METHOD(SetProperty,"3.2");
-  vtkErrorMacro(<<"This method (SetProperty()) is obsolete, see the documentation\n"
-                <<"for vtkAssembly to use the correct alternative\n"
-                <<"(refer to SetProperty() documentation)\n");
-
-  this->CreateCompatibilityActor();
-  this->CompatibilityActor->SetProperty(property);
-}
-
-vtkProperty *vtkAssembly::GetProperty()
-{
-  VTK_LEGACY_METHOD(SetMapper,"3.2");
-  this->CreateCompatibilityActor();
-  return this->CompatibilityActor->GetProperty();
-}
-
-void vtkAssembly::CreateCompatibilityActor()
-{
-  VTK_LEGACY_METHOD(CreateCompatibilityActor,"3.2");
-  if ( ! this->CompatibilityActor )
-    {
-    this->CompatibilityActor = vtkActor::New();
-    this->AddPart(this->CompatibilityActor);
-    }
-}
-#endif
 
 void vtkAssembly::PrintSelf(ostream& os, vtkIndent indent)
 {
