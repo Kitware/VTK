@@ -613,7 +613,7 @@ vtkFontCache::Entry* vtkFontCache::GetFont(vtkTextProperty *tprop,
 }
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.18");
+vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.19");
 vtkStandardNewMacro(vtkOpenGLFreeTypeTextMapper);
 
 //----------------------------------------------------------------------------
@@ -821,6 +821,7 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
   glMatrixMode(GL_PROJECTION);
   glPushMatrix();
   glLoadIdentity();
+
   if(viewport->GetIsPicking())
     {
     vtkgluPickMatrix(viewport->GetPickX(), viewport->GetPickY(),
@@ -832,16 +833,22 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
   glLoadIdentity();
   glDisable(GL_LIGHTING);
 
+  if (actor->GetProperty()->GetDisplayLocation() == VTK_FOREGROUND_LOCATION)
+    {
+    glOrtho(0, vsize[0] - 1, 0, vsize[1] - 1, 0, 1);
+    }
+  else
+    {
+    glOrtho(0, vsize[0] - 1, 0, vsize[1] - 1, -1, 0);
+    }
+
   int front = 
     (actor->GetProperty()->GetDisplayLocation() == VTK_FOREGROUND_LOCATION);
 
   int *winSize = viewport->GetVTKWindow()->GetSize();
 
-  int xoff = static_cast<int>
-    (pos[0] - winSize[0] * ((visVP[2] + visVP[0]) / 2.0 - vport[0]));
-
-  int yoff = static_cast<int>
-    (pos[1] - winSize[1] * ((visVP[3] + visVP[1]) / 2.0 - vport[1]));
+  int xoff = static_cast<int>(pos[0] - winSize[0] * (visVP[0] - vport[0]));
+  int yoff = static_cast<int>(pos[1] - winSize[1] * (visVP[1] - vport[1]));
   
   // When picking draw the bounds of the text as a rectangle,
   // as text only picks when the pick point is exactly on the
@@ -938,7 +945,7 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
 
     // Required for clipping to work correctly
 
-    glRasterPos3f(0, 0, (front)?(-1):(.99999));
+    glRasterPos2i(0, 0);
     glBitmap(0, 0, 0, 0, xoff + 1, yoff - 1, NULL);
     
     // Draw the shadow text
@@ -971,7 +978,7 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
 
   // Required for clipping to work correctly
 
-  glRasterPos3f(0, 0, (front)?(-1):(.99999));
+  glRasterPos2i(0, 0);
   glBitmap(0, 0, 0, 0, xoff, yoff, NULL);
 
   // Display a string
