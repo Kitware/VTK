@@ -41,6 +41,8 @@ vlActor::vlActor()
   this->Scale[2] = 1.0;
 
   this->Visibility = 1;
+  this->Pickable   = 1;
+  this->Dragable   = 1;
 }
 
 vlActor::~vlActor()
