@@ -230,7 +230,7 @@ void vtkImageDataStreamer::UpdateInformation()
   if (t2 > t1)
     {
     t1 = t2;
-    this->ExtentStack.PopAll();
+    //this->ExtentStack.PopAll();
     }
   
   // on all incremental updates except the last mark as modified
