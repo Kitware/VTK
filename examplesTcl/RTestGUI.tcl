@@ -776,18 +776,53 @@ proc FindKitName {file} {
    return $kitname
 }
 
+# determine the appropriate valid image
+proc GetValidFile {file valid} {
+   global env
+
+   # find the platform we are on
+   if { [catch {set VTK_PLATFORM ".$env(VTK_PLATFORM)"}] != 0} { set VTK_PLATFORM "" }
+   
+   #first see if image exists, and what its characteristics are
+   set kitname [FindKitName $file]
+   set validFile $env(VTK_VALID_IMAGE_PATH)/$kitname/$valid$VTK_PLATFORM.tif
+   
+   # first see if vtk has been built --with-patented
+   if { [info command vtkMarchingCubes] == "" } {
+      set validFile $env(VTK_VALID_IMAGE_PATH)/$kitname/$valid$VTK_PLATFORM.withoutpatented.tif
+      if {[catch {set channel [open ${validFile}]}] != 0 } {
+         set validFile $env(VTK_VALID_IMAGE_PATH)/$kitname/$valid.withoutpatented.tif
+         if {[catch {set channel [open ${validFile}]}] != 0 } {
+            set validFile $env(VTK_VALID_IMAGE_PATH)/$kitname/$valid${VTK_PLATFORM}.tif
+         } else {
+            close $channel
+         }
+      } else {
+         close $channel
+      }
+   }
+   
+   if {[catch {set channel [open ${validFile}]}] != 0 } {
+      set validFile $env(VTK_VALID_IMAGE_PATH)/$kitname/$valid.tif
+      if {[catch {set channel [open ${validFile}]}] != 0 } {
+         tk_messageBox -icon info -message "Valid image not available: $validFile"
+         return 
+      } else {
+         close $channel
+      }
+   } else {
+      close $channel
+   }
+   return $validFile
+}
+
 # This brings up the images
 proc InvokeBrowser {file} {
    global env BrowserOpen ViewSize
-
-   #first see if image exists, and what its characteristics are
-   set kitname [FindKitName $file]
+   
+   # find the right valid image
    set valid [file tail $file]
-   set validFile $env(VTK_VALID_IMAGE_PATH)/$kitname/$valid.tif
-   if { [file exists $validFile] == 0 } {
-      tk_messageBox -icon info -message "Valid image not available: $validFile"
-      return 
-   }
+   set validFile [GetValidFile $file $valid]
 
    # Create the data processing pipeline and set attributes
    CreatePipeline
