@@ -139,8 +139,4 @@ KIT_FLAGS = @THREAD_FLAGS@
 
 @MAKEINCLUDE@ @MAKEQUOTE@@srcdir@/../Kits.make@MAKEQUOTE@
 
-#------------------------------------------------------------------------------
-# Include the depend stuff here
-
-@MAKEINCLUDE@ @MAKEQUOTE@depend.make@MAKEQUOTE@
 

@@ -339,7 +339,3 @@ KIT_FLAGS = @SBR_FLAGS@ @XGLR_FLAGS@ @GLR_FLAGS@ @OGLR_FLAGS@ @PATENTED_FLAGS@ @
 
 @MAKEINCLUDE@ @MAKEQUOTE@@srcdir@/../Kits.make@MAKEQUOTE@
 
-#------------------------------------------------------------------------------
-# Include the depend stuff here
-
-@MAKEINCLUDE@ @MAKEQUOTE@depend.make@MAKEQUOTE@
