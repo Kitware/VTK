@@ -2,11 +2,8 @@
 
   Program:   Visualization Toolkit
   Module:    vtkImagePlaneWidget.cxx
-  Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
 
-  Copyright (c) 1993-2002 Ken Martin, Will Schroeder, Bill Lorensen
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
@@ -43,7 +40,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.78");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.79");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);

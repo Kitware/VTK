@@ -2,11 +2,8 @@
 
   Program:   Visualization Toolkit
   Module:    vtkCurvatures.cxx
-  Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
 
-  Copyright (c) 1993-2002 Ken Martin, Will Schroeder, Bill Lorensen
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
@@ -30,7 +27,7 @@
 #include "vtkTensor.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkCurvatures, "1.8");
+vtkCxxRevisionMacro(vtkCurvatures, "1.9");
 vtkStandardNewMacro(vtkCurvatures);
 
 //------------------------------------------------------------------------------
