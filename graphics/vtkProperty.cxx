@@ -191,6 +191,7 @@ void vtkProperty::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Representation: ";
   switch (this->Representation) 
     {
+    case VTK_POINTS: os << "VTK_POINTS\n"; break;
     case VTK_WIREFRAME: os << "VTK_WIREFRAME\n"; break;
     case VTK_SURFACE: os << "VTK_SURFACE\n"; break;
     default: os << "unknown\n";
