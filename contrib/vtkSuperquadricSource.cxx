@@ -81,11 +81,15 @@ vtkSuperquadricSource::vtkSuperquadricSource(int res)
 
 void vtkSuperquadricSource::SetPhiResolution(int i)
 {
-  if(i < 4) 
+  if(i < 4)
+    {
     i = 4;
+    }
   i = (i+3)/4*4;  // make it divisible by 4
   if(i > VTK_MAX_SUPERQUADRIC_RESOLUTION)
+    {
     i =  VTK_MAX_SUPERQUADRIC_RESOLUTION;
+    }
   
   if (this->PhiResolution != i)
     {
@@ -96,11 +100,15 @@ void vtkSuperquadricSource::SetPhiResolution(int i)
 
 void vtkSuperquadricSource::SetThetaResolution(int i)
 {
-  if(i < 8) 
+  if(i < 8)
+    {
     i = 8;
+    }
   i = (i+7)/8*8; // make it divisible by 8
   if(i > VTK_MAX_SUPERQUADRIC_RESOLUTION)
+    {
     i =  VTK_MAX_SUPERQUADRIC_RESOLUTION;
+    }
   
   if (this->ThetaResolution != i)
     {
@@ -112,7 +120,9 @@ void vtkSuperquadricSource::SetThetaResolution(int i)
 void vtkSuperquadricSource::SetThetaRoundness(float e) 
 {
   if(e < VTK_MIN_SUPERQUADRIC_ROUNDNESS)
+    {
     e = VTK_MIN_SUPERQUADRIC_ROUNDNESS;
+    }
 
   if (this->ThetaRoundness != e)
     {
@@ -124,7 +134,9 @@ void vtkSuperquadricSource::SetThetaRoundness(float e)
 void vtkSuperquadricSource::SetPhiRoundness(float e) 
 {
   if(e < VTK_MIN_SUPERQUADRIC_ROUNDNESS)
+    {
     e = VTK_MIN_SUPERQUADRIC_ROUNDNESS;
+    }
 
   if (this->PhiRoundness != e)
     {
@@ -226,12 +238,18 @@ void vtkSuperquadricSource::Execute()
       // SQ_SMALL_OFFSET makes sure that the normal vector isn't 
       // evaluated exactly on a crease;  if that were to happen, 
       // large shading errors can occur.
-      if(i == 0) 
+      if(i == 0)
+	{
 	phiOffset =  SQ_SMALL_OFFSET*deltaPhi;
-      else if (i == phiSubsegs) 
+	}
+      else if (i == phiSubsegs)
+	{
 	phiOffset = -SQ_SMALL_OFFSET*deltaPhi;
+	}
       else
+	{
 	phiOffset =  0.0;
+	}
       
       for(jq = 0; jq < thetaSegs; jq++) {
 	for(j = 0; j <= thetaSubsegs; j++) {
@@ -239,18 +257,27 @@ void vtkSuperquadricSource::Execute()
 	  texCoord[0] = deltaThetaTex*(j + jq*thetaSubsegs);
 	  
 	  if(j == 0)
+	    {
 	    thetaOffset =  SQ_SMALL_OFFSET*deltaTheta;
-	  else if (j == thetaSubsegs) 
+	    }
+	  else if (j == thetaSubsegs)
+	    {
 	    thetaOffset = -SQ_SMALL_OFFSET*deltaTheta;
+	    }
 	  else
+	    {
 	    thetaOffset =  0.0;
+	    }
 
 	  evalSuperquadric(theta, phi, 
 			   thetaOffset, phiOffset, 
 			   this->PhiRoundness, this->ThetaRoundness,
 			   dims, alpha, pt, nv);
 	  
-	  if((len = vtkMath::Norm(nv)) == 0.0) len = 1.0;
+	  if((len = vtkMath::Norm(nv)) == 0.0)
+	    {
+	    len = 1.0;
+	    }
 	  nv[0] /= len; nv[1] /= len; nv[2] /= len;
 
 	  if(!this->Toroidal && 

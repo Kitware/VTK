@@ -119,11 +119,11 @@ void vtkProjectedTexture::Execute()
   sSize = this->AspectRatio[0] / this->AspectRatio[2];
   tSize = this->AspectRatio[1] / this->AspectRatio[2];
 
-  sScale = (SRange[1] - SRange[0])/sSize;
-  tScale = (TRange[1] - TRange[0])/tSize;
+  sScale = (this->SRange[1] - this->SRange[0])/sSize;
+  tScale = (this->TRange[1] - this->TRange[0])/tSize;
 
-  sOffset = (SRange[1] - SRange[0])/2.0 + SRange[0];
-  tOffset = (TRange[1] - TRange[0])/2.0 + TRange[0];
+  sOffset = (this->SRange[1] - this->SRange[0])/2.0 + this->SRange[0];
+  tOffset = (this->TRange[1] - this->TRange[0])/2.0 + this->TRange[0];
   
 
   // compute s-t coordinates
@@ -143,7 +143,10 @@ void vtkProjectedTexture::Execute()
       } 
 
       else {
-	for (j = 0; j < 3; j++) diff[j] = diff[j]/proj - this->Orientation[j];
+	for (j = 0; j < 3; j++)
+	  {
+	  diff[j] = diff[j]/proj - this->Orientation[j];
+	  }
 
 	s = vtkMath::Dot(diff, rightv);
 	t = vtkMath::Dot(diff, upv);

@@ -6867,7 +6867,10 @@ void vtkEarthSource::Execute()
     {
     // read a polygon
     npts = vtkEarthData[offset++];
-    if ((npts == 0) || (actualpolys > maxPolys)) break;
+    if ((npts == 0) || (actualpolys > maxPolys))
+      {
+      break;
+      }
     
     land  = vtkEarthData[offset++];
     

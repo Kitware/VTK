@@ -53,10 +53,22 @@ vtkRIBProperty::vtkRIBProperty ()
 
 vtkRIBProperty::~vtkRIBProperty()
 {
-  if (this->SurfaceShader) delete [] this->SurfaceShader;
-  if (this->DisplacementShader) delete [] this->DisplacementShader;
-  if (this->Declarations) delete [] this->Declarations;
-  if (this->Property) this->Property->Delete ();
+  if (this->SurfaceShader)
+    {
+    delete [] this->SurfaceShader;
+    }
+  if (this->DisplacementShader)
+    {
+    delete [] this->DisplacementShader;
+    }
+  if (this->Declarations)
+    {
+    delete [] this->Declarations;
+    }
+  if (this->Property)
+    {
+    this->Property->Delete ();
+    }
 }
 
 void vtkRIBProperty::Render(vtkActor *anActor, vtkRenderer *ren)
@@ -70,7 +82,10 @@ void vtkRIBProperty::Render(vtkActor *anActor, vtkRenderer *ren)
 
 void vtkRIBProperty::SetVariable (char *variable, char *value)
 {
-  if (this->Declarations) delete [] this->Declarations;
+  if (this->Declarations)
+    {
+    delete [] this->Declarations;
+    }
 
   // format of line is: Declare "variable" "type"\n
   this->Declarations = new char [strlen ("Declare ") +
@@ -108,7 +123,10 @@ void vtkRIBProperty::AddVariable (char *variable, char *value)
 
 void vtkRIBProperty::SetParameter (char *parameter, char *value)
 {
-  if (this->Parameters) delete [] this->Parameters;
+  if (this->Parameters)
+    {
+    delete [] this->Parameters;
+    }
 
   // format of line is: "parameter" "value"
   this->Parameters = new char [strlen (parameter) +

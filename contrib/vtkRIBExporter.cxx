@@ -66,8 +66,14 @@ vtkRIBExporter::vtkRIBExporter()
 
 vtkRIBExporter::~vtkRIBExporter()
 {
-  if ( this->FilePrefix ) delete [] this->FilePrefix;
-  if ( this->TexturePrefix ) delete [] this->TexturePrefix;
+  if ( this->FilePrefix )
+    {
+    delete [] this->FilePrefix;
+    }
+  if ( this->TexturePrefix )
+    {
+    delete [] this->TexturePrefix;
+    }
 }
 
 void vtkRIBExporter::WriteData()
@@ -174,7 +180,10 @@ void vtkRIBExporter::WriteData()
   int lightCount = 2;
   for (lc->InitTraversal(); (aLight = lc->GetNextItem()); )
     {
-    if (aLight->GetSwitch ()) this->WriteLight(aLight, lightCount++);
+    if (aLight->GetSwitch ())
+      {
+      this->WriteLight(aLight, lightCount++);
+      }
     }
 
   //
@@ -185,7 +194,10 @@ void vtkRIBExporter::WriteData()
     {
     for (anActor->InitPartTraversal();(aPart=anActor->GetNextPart()); )
       {
-      if ( anActor->GetVisibility () ) this->WriteActor(aPart);
+      if ( anActor->GetVisibility () )
+	{
+	this->WriteActor(aPart);
+	}
       }
     }
 
@@ -462,7 +474,7 @@ void vtkRIBExporter::WriteCamera (vtkCamera *aCamera)
  *    roll: an optional rotation of the camera about its direction axis 
  */
 
-static float matrix[4][4] = {
+static float cameraMatrix[4][4] = {
   {-1, 0, 0, 0},
   { 0, 1, 0, 0},
   { 0, 0, 1, 0},
@@ -473,10 +485,10 @@ void PlaceCamera(FILE *filePtr, RtPoint position, RtPoint direction, float roll)
 {
   fprintf (filePtr, "Identity\n");    
   fprintf (filePtr, "Transform [%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f ]\n",
-	matrix[0][0], matrix[0][1], matrix[0][2], matrix[0][3],
-	matrix[1][0], matrix[1][1], matrix[1][2], matrix[1][3],
-	matrix[2][0], matrix[2][1], matrix[2][2], matrix[2][3],
-	matrix[3][0], matrix[3][1], matrix[3][2], matrix[3][3]);
+	cameraMatrix[0][0], cameraMatrix[0][1], cameraMatrix[0][2], cameraMatrix[0][3],
+	cameraMatrix[1][0], cameraMatrix[1][1], cameraMatrix[1][2], cameraMatrix[1][3],
+	cameraMatrix[2][0], cameraMatrix[2][1], cameraMatrix[2][2], cameraMatrix[2][3],
+	cameraMatrix[3][0], cameraMatrix[3][1], cameraMatrix[3][2], cameraMatrix[3][3]);
 
   fprintf (filePtr, "Rotate %f %f %f %f\n", -roll, 0.0, 0.0, 1.0);
     AimZ(filePtr, direction);
@@ -492,14 +504,15 @@ void PlaceCamera(FILE *filePtr, RtPoint position, RtPoint direction, float roll)
  *    might be in negative z, but not afterward.
  */
 
-#define PI 3.14159265359
 static void 
 AimZ(FILE *filePtr, RtPoint direction)
 {
     double xzlen, yzlen, yrot, xrot;
 
     if (direction[0]==0 && direction[1]==0 && direction[2]==0)
-        return;
+      {
+      return;
+      }
     /*
      * The initial rotation about the y axis is given by the projection of
      * the direction vector onto the x,z plane: the x and z components
@@ -507,16 +520,20 @@ AimZ(FILE *filePtr, RtPoint direction)
      */
     xzlen = sqrt(direction[0]*direction[0]+direction[2]*direction[2]);
     if (xzlen == 0)
-        yrot = (direction[1] < 0) ? 180 : 0;
+      {
+      yrot = (direction[1] < 0) ? 180 : 0;
+      }
     else
-        yrot = 180*acos(direction[2]/xzlen)/PI;
+      {
+      yrot = 180*acos(direction[2]/xzlen)/vtkMath::Pi();
+      }
     /*
      * The second rotation, about the x axis, is given by the projection on
      * the y,z plane of the y-rotated direction vector: the original y
      * component, and the rotated x,z vector from above. 
     */
     yzlen = sqrt(direction[1]*direction[1]+xzlen*xzlen);
-    xrot = 180*acos(xzlen/yzlen)/PI;       /* yzlen should never be 0 */
+    xrot = 180*acos(xzlen/yzlen)/vtkMath::Pi();       /* yzlen should never be 0 */
 
     if (direction[1] > 0)
       {
@@ -542,7 +559,7 @@ void vtkRIBExporter::WriteActor(vtkActor *anActor)
   vtkDataSet *aDataSet;
   vtkPolyData *polyData;
   vtkGeometryFilter *geometryFilter = NULL;
-  static vtkMatrix4x4 matrix;
+  vtkMatrix4x4 matrix;
   
   fprintf (this->FilePtr, "AttributeBegin\n");
 
@@ -576,11 +593,20 @@ void vtkRIBExporter::WriteActor(vtkActor *anActor)
     polyData = (vtkPolyData *)aDataSet;
     }
 
-  if (polyData->GetNumberOfPolys ()) this->WritePolygons (polyData, anActor->GetMapper()->GetColors (), anActor->GetProperty ());
-  if (polyData->GetNumberOfStrips ()) this->WriteStrips (polyData, anActor->GetMapper()->GetColors (), anActor->GetProperty ());
+  if (polyData->GetNumberOfPolys ())
+    {
+    this->WritePolygons (polyData, anActor->GetMapper()->GetColors (), anActor->GetProperty ());
+    }
+  if (polyData->GetNumberOfStrips ())
+    {
+    this->WriteStrips (polyData, anActor->GetMapper()->GetColors (), anActor->GetProperty ());
+    }
   fprintf (this->FilePtr, "TransformEnd\n");
   fprintf (this->FilePtr, "AttributeEnd\n");
-  if (geometryFilter) geometryFilter->Delete();
+  if (geometryFilter)
+    {
+    geometryFilter->Delete();
+    }
 }
 
 void vtkRIBExporter::WritePolygons (vtkPolyData *polyData, vtkScalars *s, vtkProperty *aProperty)
@@ -635,12 +661,17 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData, vtkScalars *s, vtkPro
     }
 
   if ( interpolation == VTK_FLAT || !(polyData->GetPointData()) || 
-  !(n=polyData->GetPointData()->GetNormals()) ) n = 0;
+       !(n=polyData->GetPointData()->GetNormals()) )
+    {
+    n = 0;
+    }
 
   for (polys->InitTraversal(); polys->GetNextCell(npts,pts); )
     { 
     if (!n)
+      {
       polygon.ComputeNormal(p,npts,pts,poly_norm);
+      }
     
     for (j = 0; j < npts; j++) 
       {
@@ -774,7 +805,10 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData, vtkScalars *s, vtkPrope
     }
 
   if ( interpolation == VTK_FLAT || !(polyData->GetPointData()) || 
-  !(n=polyData->GetPointData()->GetNormals()) ) n = 0;
+       !(n=polyData->GetPointData()->GetNormals()) )
+    {
+    n = 0;
+    }
 
 
   // each iteration returns a triangle strip
@@ -799,8 +833,10 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData, vtkScalars *s, vtkPrope
 	idx[2] = p3;
 	}
 
-      if (!n)
+      if (!n) 
+	{
 	polygon.ComputeNormal (p, 3, idx, poly_norm);
+	}
 
       // build colors, texture coordinates and normals for the triangle
       for (k = 0; k < 3; k++)
@@ -879,7 +915,10 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData, vtkScalars *s, vtkPrope
       // Get ready for next triangle
       p1 = p2;
       p2 = p3;
-      if (j+3 < npts) p3 = pts[j+3];
+      if (j+3 < npts)
+	{
+	p3 = pts[j+3];
+	}
       }
     }
 }
@@ -1042,7 +1081,7 @@ void vtkRIBExporter::WriteTexture (vtkTexture *aTexture)
     {
     aWriter->SetInput (anImage);
     }
-  aWriter->SetFileName (GetTIFFName (aTexture));
+  aWriter->SetFileName (this->GetTIFFName (aTexture));
   aWriter->Write ();
 
    if (bpp == 1)

@@ -39,8 +39,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkMassProperties.h"
-#define  abs(a)	(((a) < 0.0) ? -a : a)
-#define  CRoot(x) ((x<0.0)?(-pow((-x),0.333333333333333)):(pow((x),0.333333333333333)))
+
+#define  VTK_CUBE_ROOT(x) ((x<0.0)?(-pow((-x),0.333333333333333)):(pow((x),0.333333333333333)))
 
 // Description:
 // Specifies the input data...
@@ -91,18 +91,30 @@ void vtkMassProperties::Update()
       {
       this->Input->ForceUpdate();
       }
-    if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
+    if ( this->StartMethod )
+      {
+      (*this->StartMethod)(this->StartMethodArg);
+      }
 
     // reset Abort flag
     this->AbortExecute = 0;
     this->Progress = 0.0;
     this->Execute();
     this->ExecuteTime.Modified();
-    if ( !this->AbortExecute ) this->UpdateProgress(1.0);
+    if ( !this->AbortExecute )
+      {
+      this->UpdateProgress(1.0);
+      }
 
-    if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
+    if ( this->EndMethod )
+      {
+      (*this->EndMethod)(this->EndMethodArg);
+      }
     }
-  if ( this->Input->ShouldIReleaseData() ) this->Input->ReleaseData();
+  if ( this->Input->ShouldIReleaseData() )
+    {
+    this->Input->ReleaseData();
+    }
 
 }
 
@@ -197,13 +209,34 @@ void vtkMassProperties::Execute()
 //
     absu[0] = fabs(u[0]); absu[1] = fabs(u[1]); absu[2] = fabs(u[2]);	
 
-    if (( absu[0] > absu[1]) && ( absu[0] > absu[2]) ) munc[0]++;
-    else if (( absu[1] > absu[0]) && ( absu[1] > absu[2]) ) munc[1]++;
-    else if (( absu[2] > absu[0]) && ( absu[2] > absu[1]) ) munc[2]++;
-    else if (( absu[0] == absu[1])&& ( absu[0] == absu[2])) wxyz++;
-    else if (( absu[0] == absu[1])&& ( absu[0] > absu[2]) ) wxy++;
-    else if (( absu[0] == absu[2])&& ( absu[0] > absu[1]) ) wxz++;
-    else if (( absu[1] == absu[2])&& ( absu[0] < absu[2]) ) wyz++;
+    if (( absu[0] > absu[1]) && ( absu[0] > absu[2]) )
+      {
+      munc[0]++;
+      }
+    else if (( absu[1] > absu[0]) && ( absu[1] > absu[2]) )
+      {
+      munc[1]++;
+      }
+    else if (( absu[2] > absu[0]) && ( absu[2] > absu[1]) )
+      {
+      munc[2]++;
+      }
+    else if (( absu[0] == absu[1])&& ( absu[0] == absu[2]))
+      {
+      wxyz++;
+      }
+    else if (( absu[0] == absu[1])&& ( absu[0] > absu[2]) )
+      {
+      wxy++;
+      }
+    else if (( absu[0] == absu[2])&& ( absu[0] > absu[1]) )
+      {
+      wxz++;
+      }
+    else if (( absu[1] == absu[2])&& ( absu[0] < absu[2]) )
+      {
+      wyz++;
+      }
     else 
       { 
       vtkErrorMacro(<<"Unpredicted situation...!");
@@ -256,7 +289,7 @@ void vtkMassProperties::Execute()
   this->Kz = kxyz[2];
   this->Volume =  (kxyz[0] * vol[0] + kxyz[1] * vol[1] + kxyz[2]  * vol[2]);
   this->Volume =  fabs(this->Volume);
-  this->NormalizedShapeIndex = (sqrt(surfacearea)/CRoot(this->Volume))/2.199085233;
+  this->NormalizedShapeIndex = (sqrt(surfacearea)/VTK_CUBE_ROOT(this->Volume))/2.199085233;
 }
 
 void vtkMassProperties::PrintSelf(ostream& os, vtkIndent indent)

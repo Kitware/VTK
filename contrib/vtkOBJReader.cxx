@@ -158,7 +158,10 @@ void vtkOBJReader::Execute()
       ptr = line;
       while ((ptr = (char *) strchr (ptr, (int) ' '))) 
         {
-        while (*ptr == ' ') ptr++;
+        while (*ptr == ' ')
+	  {
+	  ptr++;
+	  }
         if ( sscanf(ptr, "%d", &objPtId) == 1 ) 
           {
           polys->InsertCellPoint(ptId++);

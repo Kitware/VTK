@@ -72,7 +72,9 @@ static float VTK_MIN_SUPERQUADRIC_ROUNDNESS = 1e-24;
 void vtkSuperquadric::SetThetaRoundness(float e) 
 {
   if(e < VTK_MIN_SUPERQUADRIC_ROUNDNESS)
+    {
     e = VTK_MIN_SUPERQUADRIC_ROUNDNESS;
+    }
 
   if (this->ThetaRoundness != e)
     {
@@ -84,7 +86,9 @@ void vtkSuperquadric::SetThetaRoundness(float e)
 void vtkSuperquadric::SetPhiRoundness(float e) 
 {
   if(e < VTK_MIN_SUPERQUADRIC_ROUNDNESS)
+    {
     e = VTK_MIN_SUPERQUADRIC_ROUNDNESS;
+    }
 
   if (this->PhiRoundness != e)
     {

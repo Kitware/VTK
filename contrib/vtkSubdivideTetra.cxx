@@ -63,7 +63,7 @@ void vtkSubdivideTetra::Execute()
   vtkPoints *newPts;
   int ptId;
   vtkCellTypes *types=vtkCellTypes::New(); types->ReferenceCountingOff();
-  vtkCellArray *connect;
+  vtkCellArray *connections;
   float weights[4], x0[3], x1[3], x2[3], x3[3], x[3];
   int p0, p1, p2, p3, center;
   int e01, e02, e03, e12, e13, e23;
@@ -79,7 +79,7 @@ void vtkSubdivideTetra::Execute()
     vtkErrorMacro(<<"Must be tetrahedra");
     return;
     }
-  connect = input->GetCells();
+  connections = input->GetCells();
   
   // Copy original points and point data
   newPts = vtkPoints::New();
@@ -117,38 +117,59 @@ void vtkSubdivideTetra::Execute()
 
         // compute center point
     weights[0] = weights[1] = weights[2] = weights[3] = 0.25;
-    for (i=0; i<3; i++) x[i] = 0.25*(x0[i] + x1[i] + x2[i] + x3[i]);
+    for (i=0; i<3; i++)
+      {
+      x[i] = 0.25*(x0[i] + x1[i] + x2[i] + x3[i]);
+      }
     center = locator->InsertNextPoint(x);
     outputPD->InterpolatePoint(pd, center, &cell->PointIds, weights);
     
     // compute edge points
     // edge 0-1
-    for (i=0; i<3; i++) x[i] = 0.5 * (x1[i] + x0[i]);
+    for (i=0; i<3; i++)
+      {
+      x[i] = 0.5 * (x1[i] + x0[i]);
+      }
     e01 = locator->InsertNextPoint(x);
     outputPD->InterpolateEdge(pd, e01, p0, p1, 0.5);
     
     // edge 1-2
-    for (i=0; i<3; i++) x[i] = 0.5 * (x2[i] + x1[i]);
+    for (i=0; i<3; i++)
+      {
+      x[i] = 0.5 * (x2[i] + x1[i]);
+      }
     e12 = locator->InsertNextPoint(x);
     outputPD->InterpolateEdge(pd, e12, p1, p2, 0.5);
     
     // edge 2-0
-    for (i=0; i<3; i++) x[i] = 0.5 * (x2[i] + x0[i]);
+    for (i=0; i<3; i++)
+      {
+      x[i] = 0.5 * (x2[i] + x0[i]);
+      }
     e02 = locator->InsertNextPoint(x);
     outputPD->InterpolateEdge(pd, e02, p2, p0, 0.5);
     
     // edge 0-3
-    for (i=0; i<3; i++) x[i] = 0.5 * (x3[i] + x0[i]);
+    for (i=0; i<3; i++)
+      {
+      x[i] = 0.5 * (x3[i] + x0[i]);
+      }
     e03 = locator->InsertNextPoint(x);
     outputPD->InterpolateEdge(pd, e03, p0, p3, 0.5);
     
     // edge 1-3
-    for (i=0; i<3; i++) x[i] = 0.5 * (x3[i] + x1[i]);
+    for (i=0; i<3; i++)
+      {
+      x[i] = 0.5 * (x3[i] + x1[i]);
+      }
     e13 = locator->InsertNextPoint(x);
     outputPD->InterpolateEdge(pd, e13, p1, p3, 0.5);
     
     // edge 2-3
-    for (i=0; i<3; i++) x[i] = 0.5 * (x3[i] + x2[i]);
+    for (i=0; i<3; i++)
+      {
+      x[i] = 0.5 * (x3[i] + x2[i]);
+      }
     e23 = locator->InsertNextPoint(x);
     outputPD->InterpolateEdge(pd, e23, p2, p3, 0.5);
 
