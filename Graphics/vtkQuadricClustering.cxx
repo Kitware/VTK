@@ -22,7 +22,7 @@
 #include "vtkFeatureEdges.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkQuadricClustering, "1.39");
+vtkCxxRevisionMacro(vtkQuadricClustering, "1.40");
 vtkStandardNewMacro(vtkQuadricClustering);
 
 //----------------------------------------------------------------------------
@@ -79,6 +79,16 @@ vtkQuadricClustering::~vtkQuadricClustering()
     {
     delete [] this->QuadricArray;
     this->QuadricArray = NULL;
+    }
+  if (this->OutputTriangleArray)
+    {
+    this->OutputTriangleArray->Delete();
+    this->OutputTriangleArray = NULL;
+    }
+  if (this->OutputLines)
+    {
+    this->OutputLines->Delete();
+    this->OutputLines = NULL;
     }
 }
 
