@@ -161,6 +161,13 @@ public:
   // vtkRenderWindow, the last argument is provided, but currently not used.
   unsigned char *GetPixelData(int x1, int y1, int x2, int y2, int);
 
+  // Description:
+  // Set this ImageWindow's X window id to a pre-existing window.
+  void     SetWindowInfo(char *info);
+
+  // Description:
+  // Sets the X window id of the window that WILL BE created.
+  void     SetParentInfo(char *info);
 
 protected:
   vtkXImageWindow();

@@ -71,6 +71,7 @@ public:
   virtual void *GetGenericContext()   = 0;
   virtual void *GetGenericDrawable()  = 0;  
   virtual void SetWindowInfo(char *) = 0;
+  virtual void SetParentInfo(char *) = 0;
 
   // Description:
   // Set/Get the position in screen coordinates of the rendering window.

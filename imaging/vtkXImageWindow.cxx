@@ -739,6 +739,54 @@ int* vtkXImageWindow::GetSize()
 
 }
 
+// Set this ImageWindow's X window id to a pre-existing window.
+void vtkXImageWindow::SetWindowInfo(char *info)
+{
+  int tmp;
+  
+  // get the default display connection 
+  if (!this->DisplayId)
+    {
+    this->DisplayId = XOpenDisplay((char *)NULL); 
+    if (this->DisplayId == NULL) 
+      {
+      vtkErrorMacro(<< "bad X server connection.\n");
+      }
+    else
+      {
+      this->OwnDisplay = 1;
+      }
+    }
+
+  sscanf(info,"%i",&tmp);
+ 
+  this->SetWindowId(tmp);
+}
+
+// Sets the X window id of the window that WILL BE created.
+void vtkXImageWindow::SetParentInfo(char *info)
+{
+  int tmp;
+  
+  // get the default display connection 
+  if (!this->DisplayId)
+    {
+    this->DisplayId = XOpenDisplay((char *)NULL); 
+    if (this->DisplayId == NULL) 
+      {
+      vtkErrorMacro(<< "bad X server connection.\n");
+      }
+    else
+      {
+      this->OwnDisplay = 1;
+      }
+    }
+
+  sscanf(info,"%i",&tmp);
+ 
+  this->SetParentId(tmp);
+}
+
 //----------------------------------------------------------------------------
 void vtkXImageWindow::MakeDefaultWindow() 
 {

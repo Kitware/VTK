@@ -1040,6 +1040,17 @@ void vtkWin32OpenGLRenderWindow::SetWindowInfo(char *info)
   vtkDebugMacro(<< "Setting WindowId to " << this->WindowId << "\n"); 
 }
 
+// Sets the HWND id of the window that WILL BE created.
+void vtkWin32OpenGLRenderWindow::SetParentInfo(char *info)
+{
+  int tmp;
+  
+  sscanf(info,"%i",&tmp);
+ 
+  this->ParentId = (HWND)tmp;
+  vtkDebugMacro(<< "Setting ParentId to " << this->ParentId << "\n"); 
+}
+
 // Set the window id to a pre-existing window.
 void vtkWin32OpenGLRenderWindow::SetParentId(HWND arg)
 {

@@ -142,6 +142,10 @@ public:
   void     SetWindowInfo(char *info);
 
   // Description:
+  // Sets the X window id of the window that WILL BE created.
+  void     SetParentInfo(char *info);
+
+  // Description:
   // This computes the size of the render window 
   // before calling the supper classes render
   void Render();  

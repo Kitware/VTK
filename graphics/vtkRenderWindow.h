@@ -360,6 +360,7 @@ public:
   virtual void *GetGenericContext() {return NULL;}
   virtual void *GetGenericDrawable() {return NULL;}
   virtual void SetWindowInfo(char *) {}
+  virtual void SetParentInfo(char *) {};
 
   // Description:
   // Make this the current window. 

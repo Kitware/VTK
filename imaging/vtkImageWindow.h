@@ -116,6 +116,8 @@ public:
   // useful for scripting languages
   virtual void SetWindowInfo(char *) 
       { vtkErrorMacro(<<"vtkImageWindow::SetWindowInfo - Not implemented"); };
+  virtual void SetParentInfo(char *)
+      { vtkErrorMacro(<<"vtkImageWindow::SetParentInfo - Not implemented"); };
 
   // Description:
   // By default this is a color viewer.  GrayScaleHintOn will improve the

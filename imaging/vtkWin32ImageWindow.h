@@ -80,6 +80,14 @@ public:
   // output to the viewer.
   vtkWin32ImageWindow *GetOutput(){return this;};
   
+  // Description:
+  // Set this ImageWindow's window id to a pre-existing window.
+  void SetWindowInfo(char *);
+
+  // Description:
+  // Sets the HWND id of the window that WILL BE created.
+  void SetParentInfo(char *);
+
   //BTX
 
   // Description:

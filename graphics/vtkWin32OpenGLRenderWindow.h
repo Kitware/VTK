@@ -125,6 +125,10 @@ public:
   // Set this RenderWindow's window id to a pre-existing window.
   void SetWindowInfo(char *);
 
+  // Description:
+  // Sets the HWND id of the window that WILL BE created.
+  void SetParentInfo(char *);
+
   //BTX
   virtual void *GetGenericDisplayId() {return (void *)this->ContextId;};
   virtual void *GetGenericWindowId()  {return (void *)this->WindowId;};
