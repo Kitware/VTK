@@ -25,7 +25,7 @@
 #include "vtkQuadraticEdge.h"
 #include "vtkQuadraticQuad.h"
 
-vtkCxxRevisionMacro(vtkQuadraticHexahedron, "1.19");
+vtkCxxRevisionMacro(vtkQuadraticHexahedron, "1.20");
 vtkStandardNewMacro(vtkQuadraticHexahedron);
 
 // Construct the hex with 20 points + 7 extra points for internal
@@ -109,7 +109,7 @@ vtkCell *vtkQuadraticHexahedron::GetEdge(int edgeId)
 
 vtkCell *vtkQuadraticHexahedron::GetFace(int faceId)
 {
-  faceId = (faceId < 0 ? 0 : (faceId > 11 ? 11 : faceId ));
+  faceId = (faceId < 0 ? 0 : (faceId > 5 ? 5 : faceId ));
 
   for (int i=0; i<8; i++)
     {
