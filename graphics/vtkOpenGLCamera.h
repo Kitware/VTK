@@ -61,6 +61,8 @@ public:
   // Implement base class method.
   void Render(vtkRenderer *ren);
 
+  int GetDepthBufferSize();
+
 protected:  
   vtkOpenGLCamera() {};
   ~vtkOpenGLCamera() {};

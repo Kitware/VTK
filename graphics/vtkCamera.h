@@ -308,6 +308,11 @@ class VTK_EXPORT vtkCamera : public vtkObject
   void GetFrustumPlanes( float aspect, float planes[24] );
 
   // Description:
+  // This method should be defined by the subclass. How many bits of
+  // precision are there in the zbuffer?
+  virtual int GetDepthBufferSize() {return -1;};
+
+  // Description:
   // For legacy compatibility. Do not use.
   vtkMatrix4x4 &GetViewTransform(){return *this->GetViewTransformMatrix();}
   vtkMatrix4x4 &GetPerspectiveTransform(double aspect,double nearz,
