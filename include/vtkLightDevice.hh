@@ -38,11 +38,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkDeviceObject - an object that requires hardware independence.
+// .NAME vtkLightDevice - abstract definition of a hardware dependent light
 // .SECTION Description
-// vtkDeviceObject is the superclass that any device dependent object should
-// use.  It allows a device independent object to create a device dependent
-// object to execute hardware specific calls.
+// vtkLightDevice is the superclass of the hardware dependent lights
+// such as vtkOglrLight and vtkSbrLight. This object is typically created
+// automatically by a vtkLight object when it renders. The user should
+// never see this class.
+
+// .SECTION see also
+// vtkLight
 
 #ifndef __vtkLightDevice_hh
 #define __vtkLightDevice_hh
@@ -55,6 +59,9 @@ class vtkLightDevice : public vtkObject
 {
 public:
   char *GetClassName() {return "vtkLightDevice";};
+
+  // Description:
+  // This is the only method that the subclasses must supply.
   virtual void Render(vtkLight *lgt, vtkRenderer *ren,int light_index) = 0;
 };
 
