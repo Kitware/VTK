@@ -222,7 +222,7 @@ void vtkLookupTable::SetTableValue (int indx, float rgba[4])
 void vtkLookupTable::SetTableValue(int indx, float r, float g, float b, float a)
 {
   float rgba[4];
-  rgba[0] = r; rgba[1] = g; rgba[2] = b; rgba[4] = a;
+  rgba[0] = r; rgba[1] = g; rgba[2] = b; rgba[3] = a;
   this->SetTableValue(indx,rgba);
 }
 
