@@ -27,16 +27,13 @@ vtkTexture atext
 vtkPolyDataReader fran
     fran SetFileName "$VTK_DATA_ROOT/Data/fran_cut.vtk"
 
-vtkPolyDataMapper mp1
-mp1 SetInput [fran GetOutput]
-
 set topologies "On Off"
 set accumulates "On Off"
 foreach topology $topologies {
   foreach accumulate $accumulates {
     vtkDecimatePro deci$topology$accumulate
       deci$topology$accumulate SetInput [fran GetOutput]
-      deci$topology$accumulate SetTargetReduction .99
+      deci$topology$accumulate SetTargetReduction .95
       deci$topology$accumulate PreserveTopology$topology
       deci$topology$accumulate AccumulateError$accumulate
     vtkPolyDataMapper mapper$topology$accumulate
@@ -53,8 +50,6 @@ ren1 SetViewport 0 .5 .5 1
 ren2 SetViewport .5 .5 1 1
 ren3 SetViewport 0 0 .5 .5
 ren4 SetViewport .5 0 1 .5
-
-franOnOn SetMapper mp1
 
 ren1 AddActor franOnOn
 ren2 AddActor franOnOff
