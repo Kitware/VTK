@@ -114,7 +114,7 @@ BEGIN
     EDITTEXT        IDC_WHEREJDK,16,105,153,15,ES_AUTOHSCROLL
     CONTROL         "Progress1",IDC_PROGRESS1,"msctls_progress32",WS_BORDER,
                     7,249,171,14
-    LTEXT           "Progress",IDC_STATIC,7,239,77,11
+    LTEXT           "Progress",IDC_STATIC,7,240,77,11
 END
 
 
