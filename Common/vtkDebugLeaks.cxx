@@ -13,8 +13,11 @@
 
 =========================================================================*/
 #include "vtkDebugLeaks.h"
-#include "vtkObjectFactory.h"
+
 #include "vtkCriticalSection.h"
+#include "vtkObjectFactory.h"
+#include "vtkWindows.h"
+
 #include <vtkstd/string>
 
 static const char *vtkDebugLeaksIgnoreClasses[] = {
@@ -37,7 +40,7 @@ int vtkDebugLeaksIgnoreClassesCheck(const char* s)
   return 0;
 }
 
-vtkCxxRevisionMacro(vtkDebugLeaks, "1.33");
+vtkCxxRevisionMacro(vtkDebugLeaks, "1.34");
 vtkStandardNewMacro(vtkDebugLeaks);
 
 //----------------------------------------------------------------------------

@@ -16,8 +16,10 @@
 // Initialize static member
 //
 #include "vtkTimeStamp.h"
+
 #include "vtkCriticalSection.h"
 #include "vtkObjectFactory.h"
+#include "vtkWindows.h"
 
 //-------------------------------------------------------------------------
 vtkTimeStamp* vtkTimeStamp::New()
