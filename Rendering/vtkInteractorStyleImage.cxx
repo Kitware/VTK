@@ -20,7 +20,7 @@
 #include "vtkMath.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleImage, "1.7");
+vtkCxxRevisionMacro(vtkInteractorStyleImage, "1.8");
 vtkStandardNewMacro(vtkInteractorStyleImage);
 
 //----------------------------------------------------------------------------
@@ -305,6 +305,41 @@ void vtkInteractorStyleImage::OnRightButtonUp(int vtkNotUsed(ctrl),
                                                         int vtkNotUsed(y))
 {
   this->State = VTK_INTERACTOR_STYLE_IMAGE_NONE;
+}
+
+void vtkInteractorStyleImage::OnChar(int ctrl, int shift, char keycode, 
+                                     int repeatcount) 
+{
+  this->CtrlKey  = ctrl;
+  this->ShiftKey = shift;
+  
+  vtkRenderWindowInteractor *rwi = this->Interactor;
+  switch (keycode) 
+    {
+    case 'f' :      
+    case 'F' :
+      {
+      this->AnimState = VTKIS_ANIM_ON;
+      vtkAssemblyPath *path=NULL;
+      this->FindPokedRenderer(this->LastPos[0],this->LastPos[1]);
+      rwi->GetPicker()->Pick(this->LastPos[0],this->LastPos[1], 0.0, 
+                             this->CurrentRenderer);
+      vtkAbstractPropPicker *picker;
+      if ( (picker=vtkAbstractPropPicker::SafeDownCast(rwi->GetPicker())) )
+        {
+        path = picker->GetPath();
+        }
+      if ( path != NULL )
+        {
+        rwi->FlyToImage(this->CurrentRenderer,picker->GetPickPosition());
+        }
+      this->AnimState = VTKIS_ANIM_OFF;
+      break;
+      }
+    default:
+      this->Superclass::OnChar(ctrl,shift,keycode,repeatcount);
+      break;
+    }
 }
 
 //----------------------------------------------------------------------------

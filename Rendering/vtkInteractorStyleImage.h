@@ -15,18 +15,26 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkInteractorStyleImage - interactive manipulation of the camera
+// .NAME vtkInteractorStyleImage - interactive manipulation of the camera specialized for images
 // .SECTION Description
-// vtkInteractorStyleImage allows the user to interactively
-// manipulate (rotate, pan, etc.) the camera, the viewpoint of the scene.
-// For a 3-button mouse, the left button is for rotation, the right button
-// for zooming, the middle button for panning, and ctrl + left button for
-// spinning.  (With fewer mouse buttons, ctrl + shift + left button is
-// for zooming, and shift + left button is for panning.)
+// vtkInteractorStyleImage allows the user to interactively manipulate
+// (rotate, pan, zoomm etc.) the camera.  vtkInteractorStyleImage is specially
+// designed to work with images that are being rendered with
+// vtkImageActor. Several events are overloaded from its superclass
+// vtkInteractorStyle, hence the mouse bindings are different. (The bindings
+// keep the camera's view plane normal perpendicular to the x-y plane.) In
+// summary the mouse events are as follows:
+// + CTRL Left Mouse spins the camera around its view plane normal
+// + SHIFT Left  Mouse pans the camera
+// + CTRL SHIFT Left Mouse dollys (a positional zoom) the camera
+// + Middle mouse button pans the camera
+// + Right mouse button dollys the camera.
+//
+// Note that the renderer's actors are not moved; instead the camera is moved.
 
 // .SECTION See Also
-// vtkInteractorStyleTrackballActor vtkInteractorStyleJoystickCamera
-// vtkInteractorStyleJoystickActor
+// vtkInteractorStyle vtkInteractorStyleTrackballActor 
+// vtkInteractorStyleJoystickCamera vtkInteractorStyleJoystickActor
 
 #ifndef __vtkInteractorStyleImage_h
 #define __vtkInteractorStyleImage_h
@@ -57,6 +65,10 @@ public:
   void OnMiddleButtonUp  (int ctrl, int shift, int x, int y);
   void OnRightButtonDown(int ctrl, int shift, int x, int y);
   void OnRightButtonUp  (int ctrl, int shift, int x, int y);
+
+  // Description:
+  // Override the "fly-to" (f keypress) for images.
+  void OnChar   (int ctrl, int shift, char keycode, int repeatcount);
 
   // Description:
   // Some useful information for handling window level

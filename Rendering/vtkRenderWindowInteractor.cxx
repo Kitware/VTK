@@ -22,7 +22,7 @@
 #include "vtkMath.h"
 #include "vtkOldStyleCallbackCommand.h"
 
-vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.81");
+vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.82");
 
 // Construct object so that light follows camera motion.
 vtkRenderWindowInteractor::vtkRenderWindowInteractor()
@@ -329,6 +329,38 @@ void vtkRenderWindowInteractor::FlyTo(vtkRenderer *ren, float x, float y, float 
       focalPt[j] = flyFrom[j] + d[j]*i*delta;
       }
     ren->GetActiveCamera()->SetFocalPoint(focalPt);
+    ren->GetActiveCamera()->Dolly(this->Dolly/this->NumberOfFlyFrames + 1.0);
+    ren->ResetCameraClippingRange();
+    this->RenderWindow->Render();
+    }
+}
+
+void vtkRenderWindowInteractor::FlyToImage(vtkRenderer *ren, float x, float y)
+{
+  float flyFrom[3], flyTo[3];
+  float d[3], focalPt[3], position[3], positionFrom[3];
+  int i, j;
+
+  flyTo[0]=x; flyTo[1]=y;
+  ren->GetActiveCamera()->GetFocalPoint(flyFrom);  flyTo[2] = flyFrom[2];
+  ren->GetActiveCamera()->GetPosition(positionFrom);
+  for (i=0; i<2; i++)
+    {
+    d[i] = flyTo[i] - flyFrom[i];
+    }
+  d[2] = 0.0;
+  float distance = vtkMath::Normalize(d);
+  float delta = distance/this->NumberOfFlyFrames;
+  
+  for (i=1; i<=NumberOfFlyFrames; i++)
+    {
+    for (j=0; j<3; j++)
+      {
+      focalPt[j] = flyFrom[j] + d[j]*i*delta;
+      position[j] = positionFrom[j] + d[j]*i*delta;
+      }
+    ren->GetActiveCamera()->SetFocalPoint(focalPt);
+    ren->GetActiveCamera()->SetPosition(position);
     ren->GetActiveCamera()->Dolly(this->Dolly/this->NumberOfFlyFrames + 1.0);
     ren->ResetCameraClippingRange();
     this->RenderWindow->Render();
