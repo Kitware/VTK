@@ -605,11 +605,12 @@ int vtkQuad::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
 void vtkQuad::Derivatives(int vtkNotUsed(subId), float pcoords[3], 
                           float *values, int dim, float *derivs)
 {
-  float v0[2], v1[2], v2[2], v3[3], v10[3], v20[3], lenX;
+  float v0[2], v1[2], v2[2], v3[2], v10[3], v20[3], lenX;
   float *x0, *x1, *x2, *x3, n[3], vec20[3], vec30[3];
   double *J[2], J0[2], J1[2];
   double *JI[2], JI0[2], JI1[2];
   float funcDerivs[8], sum[2], dBydx, dBydy;
+  float idet;
   int i, j;
 
   // Project points of quad into 2D system
@@ -660,13 +661,24 @@ void vtkQuad::Derivatives(int vtkNotUsed(subId), float pcoords[3],
             v2[1]*funcDerivs[2] + v3[1]*funcDerivs[3];
   J[1][0] = v0[0]*funcDerivs[4] + v1[0]*funcDerivs[5] +
             v2[0]*funcDerivs[6] + v3[0]*funcDerivs[7];
-  J[1][1] = v0[1]*funcDerivs[4] + v1[0]*funcDerivs[5] +
-            v2[1]*funcDerivs[6] + v3[0]*funcDerivs[7];
+  J[1][1] = v0[1]*funcDerivs[4] + v1[1]*funcDerivs[5] +
+            v2[1]*funcDerivs[6] + v3[1]*funcDerivs[7];
 
-  // Compute inverse Jacobian
-  vtkMath::InvertMatrix(J,JI,2);
+  // Compute inverse Jacobian, return if Jacobian is singular
+  if (!vtkMath::InvertMatrix(J,JI,2))
+    {
+    for ( j=0; j < dim; j++ )
+      {
+      for ( i=0; i < 3; i++ )
+	{
+        derivs[j*dim + i] = 0.0;
+	}
+      }
+    return;
+    }
 
-  // Loop over "dim" derivative values. For each set of values, compute derivatives
+  // Loop over "dim" derivative values. For each set of values, 
+  // compute derivatives
   // in local system and then transform into modelling system.
   // First compute derivatives in local x'-y' coordinate system
   for ( j=0; j < dim; j++ )
@@ -675,7 +687,7 @@ void vtkQuad::Derivatives(int vtkNotUsed(subId), float pcoords[3],
     for ( i=0; i < 4; i++) //loop over interp. function derivatives
       {
       sum[0] += funcDerivs[i] * values[dim*i + j]; 
-      sum[1] += funcDerivs[3 + i] * values[dim*i + j];
+      sum[1] += funcDerivs[4 + i] * values[dim*i + j];
       }
     dBydx = sum[0]*JI[0][0] + sum[1]*JI[0][1];
     dBydy = sum[0]*JI[1][0] + sum[1]*JI[1][1];
