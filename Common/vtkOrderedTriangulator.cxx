@@ -29,7 +29,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/stack>
 
-vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.51");
+vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.52");
 vtkStandardNewMacro(vtkOrderedTriangulator);
 
 #ifdef _WIN32_WCE
@@ -167,7 +167,7 @@ struct vtkOTTetra
   void GetFacePoints(int i, vtkOTFace *face);
   int InCircumSphere(double x[3]);
   TetraClassification GetType(); //inside, outside
-  TetraListIterator ListIterator; //points to the list of tetras
+  vtkstd::list<vtkOTTetra*>::iterator ListIterator; //points to the list of tetras
 };
 
 //---Class represents the Delaunay triangulation using points, faces,
