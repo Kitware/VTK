@@ -93,9 +93,9 @@ protected:
 
   // This is called by the superclass.
   // This is the method you should override.
-  virtual int RequestInputUpdateExtent(vtkInformation*,
-                                       vtkInformationVector**,
-                                       vtkInformationVector*)
+  virtual int RequestUpdateExtent(vtkInformation*,
+                                  vtkInformationVector**,
+                                  vtkInformationVector*)
     {
       return 1;
     };

@@ -22,7 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkPolyDataAlgorithm, "1.10");
+vtkCxxRevisionMacro(vtkPolyDataAlgorithm, "1.11");
 vtkStandardNewMacro(vtkPolyDataAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -98,7 +98,7 @@ int vtkPolyDataAlgorithm::ProcessRequest(vtkInformation* request,
 
   if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
     {
-    return this->RequestInputUpdateExtent(request, inputVector, outputVector);
+    return this->RequestUpdateExtent(request, inputVector, outputVector);
     }
 
   // execute information
