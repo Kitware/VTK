@@ -51,7 +51,7 @@ vtkCutter::vtkCutter(vtkImplicitFunction *cf)
   this->NumberOfContours = 1;
   this->Range[0] = 0.0;
   this->Range[1] = 1.0;
-
+  this->SortBy = VTK_SORT_BY_VALUE;
   this->CutFunction = cf;
 
   this->GenerateCutScalars = 0;
@@ -117,7 +117,7 @@ void vtkCutter::Execute()
 //
 // Create objects to hold output of contour operation
 //
-  estimatedSize = (int) pow ((double) numCells, .75);
+  estimatedSize = (int) pow ((double) numCells, .75) * this->NumberOfContours;
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
   if (estimatedSize < 1024) estimatedSize = 1024;
 
@@ -154,36 +154,75 @@ void vtkCutter::Execute()
     cutScalars->InsertScalar(i,s);
     }
 
-  //
-  // Loop over all cells creating scalar function determined by evaluating cell
-  // points using cut function.
-  //
-  for (cellId=0; cellId < numCells; cellId++)
+  switch (this->SortBy)
     {
-    cell = input->GetCell(cellId);
-    cellPts = cell->GetPoints();
-    cellIds = cell->GetPointIds();
-
-    numCellPts = cellPts->GetNumberOfPoints();
-    cellScalars.SetNumberOfScalars(numCellPts);
-    for (i=0; i < numCellPts; i++)
+    case VTK_SORT_BY_CELL:
       {
-      s = cutScalars->GetScalar(cellIds->GetId(i));
-      cellScalars.SetScalar(i,s);
-      }
+    //
+    // Loop over all contour values.  Then for each contour value, 
+    // loop over all cells.
+    //
+      for (iter=0; iter < this->NumberOfContours; iter++)
+        {
+      //
+      // Loop over all cells creating scalar function determined by evaluating cell
+      // points using cut function.
+      //
+        for (cellId=0; cellId < numCells; cellId++)
+          {
+          cell = input->GetCell(cellId);
+          cellPts = cell->GetPoints();
+          cellIds = cell->GetPointIds();
 
-  //
-  // Loop over all contour values.  Then for each contour value, 
-  // loop over all cells.
-  //
-    for (iter=0; iter < this->NumberOfContours; iter++)
-      {
-      value = this->Values[iter];
-      cell->Contour(value, &cellScalars, this->Locator, 
+          numCellPts = cellPts->GetNumberOfPoints();
+          cellScalars.SetNumberOfScalars(numCellPts);
+          for (i=0; i < numCellPts; i++)
+            {
+            s = cutScalars->GetScalar(cellIds->GetId(i));
+            cellScalars.SetScalar(i,s);
+            }
+
+          value = this->Values[iter];
+          cell->Contour(value, &cellScalars, this->Locator, 
                     newVerts, newLines, newPolys, inPD, outPD);
 
-      } // for all contour values
-    } // for all cells
+          } // for all cells
+        } // for all contour values
+      } // sort by cell
+    case VTK_SORT_BY_VALUE:
+      {
+    //
+    // Loop over all cells creating scalar function determined by evaluating cell
+    // points using cut function.
+    //
+    for (cellId=0; cellId < numCells; cellId++)
+      {
+      cell = input->GetCell(cellId);
+      cellPts = cell->GetPoints();
+      cellIds = cell->GetPointIds();
+
+      numCellPts = cellPts->GetNumberOfPoints();
+      cellScalars.SetNumberOfScalars(numCellPts);
+      for (i=0; i < numCellPts; i++)
+        {
+        s = cutScalars->GetScalar(cellIds->GetId(i));
+        cellScalars.SetScalar(i,s);
+        }
+
+    //
+    // Loop over all contour values.  Then for each contour value, 
+    // loop over all cells.
+    //
+      for (iter=0; iter < this->NumberOfContours; iter++)
+        {
+        value = this->Values[iter];
+        cell->Contour(value, &cellScalars, this->Locator, 
+                    newVerts, newLines, newPolys, inPD, outPD);
+
+        } // for all contour values
+      } // for all cells
+    } // sort by value
+  } // end switch
 //
 // Update ourselves.  Because we don't know upfront how many verts, lines,
 // polys we've created, take care to reclaim memory. 

@@ -54,6 +54,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImplicitFunction.h"
 
 #define VTK_MAX_CONTOURS 1024
+#define VTK_SORT_BY_VALUE 0
+#define VTK_SORT_BY_CELL 1
 
 class VTK_EXPORT vtkCutter : public vtkDataSetToPolyFilter
 {
@@ -98,6 +100,18 @@ public:
   vtkGetObjectMacro(Locator,vtkPointLocator);
 
   // Description:
+  // Set the sorting order for the generated polydata.
+  //  Two possibilities:
+  //   Sort by value = 0 - This is the most efficient sort. For each cell,
+  //      all contour values are processed. This is the default.
+  //   Sort by cell = 1 - For each contour value, all cells are processed.
+  //      This order should be used if the extracted polygons must be rendered
+  //      in a back-to-front or front-to-back order. This is very problem dependent.
+  //      For most applications, the default order is fine (and faster).
+  vtkSetClampMacro(SortBy,int,0,1);
+  vtkGetMacro(SortBy,int);
+
+  // Description:
   // Create default locator. Used to create one when none is specified. The locator
   // is used to merge coincident points.
   void CreateDefaultLocator();
@@ -108,6 +122,7 @@ protected:
   
   vtkPointLocator *Locator;
   int SelfCreatedLocator;
+  int SortBy;
   float Values[VTK_MAX_CONTOURS];
   int NumberOfContours;
   float Range[2];
