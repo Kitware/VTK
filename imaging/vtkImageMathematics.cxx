@@ -332,18 +332,34 @@ void vtkImageMathematics::ThreadedExecute(vtkImageData **inData,
 					  vtkImageData *outData,
 					  int outExt[6], int id)
 {
-  void *inPtr1 = inData[0]->GetScalarPointerForExtent(outExt);
-  void *outPtr = outData->GetScalarPointerForExtent(outExt);
+  void *inPtr1;
+  void *outPtr;
   
   vtkDebugMacro(<< "Execute: inData = " << inData 
 		<< ", outData = " << outData);
   
 
+  if (inData[0] == NULL)
+    {
+    vtkErrorMacro(<< "Input " << 0 << " must be specified.");
+    return;
+    }
+
+  inPtr1 = inData[0]->GetScalarPointerForExtent(outExt);
+  outPtr = outData->GetScalarPointerForExtent(outExt);
+  
   if (this->Operation == VTK_ADD || this->Operation == VTK_SUBTRACT || 
       this->Operation == VTK_MULTIPLY || this->Operation == VTK_DIVIDE ||
       this->Operation == VTK_MIN || this->Operation == VTK_MAX || this->Operation == VTK_ATAN2) 
     {
-    void *inPtr2 = inData[1]->GetScalarPointerForExtent(outExt);
+    void *inPtr2;
+    
+    if (inData[1] == NULL)
+      {
+      vtkErrorMacro(<< "Input " << 1 << " must be specified.");
+      return;
+      }
+    inPtr2 = inData[1]->GetScalarPointerForExtent(outExt);
 
     // this filter expects that input is the same type as output.
     if (inData[0]->GetScalarType() != outData->GetScalarType())

@@ -63,6 +63,7 @@ vtkImageTwoInputFilter* vtkImageTwoInputFilter::New()
 //----------------------------------------------------------------------------
 vtkImageTwoInputFilter::vtkImageTwoInputFilter()
 {
+  this->NumberOfRequiredInputs = 2;
   this->SetNumberOfInputs(2);
   this->Inputs[0] = NULL;
   this->Inputs[1] = NULL;

@@ -235,13 +235,28 @@ void vtkImageCorrelation::ThreadedExecute(vtkImageData **inData,
 					  vtkImageData *outData,
 					  int outExt[6], int id)
 {
-  int *in2Extent = this->GetInput(1)->GetWholeExtent();
-  void *in1Ptr = inData[0]->GetScalarPointerForExtent(outExt);
-  void *in2Ptr = inData[1]->GetScalarPointerForExtent(in2Extent);
-  float *outPtr = (float *)outData->GetScalarPointerForExtent(outExt);
+  int *in2Extent;
+  void *in1Ptr;
+  void *in2Ptr;
+  float *outPtr;
   
   vtkDebugMacro(<< "Execute: inData = " << inData << ", outData = " << outData);
   
+  if (inData[0] == NULL)
+    {
+    vtkErrorMacro(<< "Input " << 0 << " must be specified.");
+    return;
+    }
+  if (inData[1] == NULL)
+    {
+    vtkErrorMacro(<< "Input " << 1 << " must be specified.");
+    return;
+    }
+  in2Extent = this->GetInput(1)->GetWholeExtent();
+  in1Ptr = inData[0]->GetScalarPointerForExtent(outExt);
+  in2Ptr = inData[1]->GetScalarPointerForExtent(in2Extent);
+  outPtr = (float *)outData->GetScalarPointerForExtent(outExt);
+
   // this filter expects that input is the same type as output.
   if (inData[0]->GetScalarType() != inData[1]->GetScalarType())
     {

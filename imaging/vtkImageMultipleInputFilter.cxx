@@ -64,6 +64,7 @@ vtkImageMultipleInputFilter* vtkImageMultipleInputFilter::New()
 vtkImageMultipleInputFilter::vtkImageMultipleInputFilter()
 {
   this->NumberOfInputs = 0;
+  this->NumberOfRequiredInputs = 1;
   this->Bypass = 0;
 
   this->Threader = vtkMultiThreader::New();
