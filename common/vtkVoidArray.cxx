@@ -136,7 +136,14 @@ void vtkVoidArray::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataArray::PrintSelf(os,indent);
 
-  os << indent << "Array: " << this->Array << "\n";
+  if (this->Array)
+    {
+    os << indent << "Array: " << this->Array << "\n";
+    }
+  else
+    {
+    os << indent << "Array: (null)\n";
+    }
 }
 
 // Protected function does "reallocate"
