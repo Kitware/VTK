@@ -97,6 +97,8 @@ void vtkExtractEdges::Execute()
   pd = input->GetPointData();
   outPD = output->GetPointData();
   outPD->CopyAllocate(pd,numPts);
+
+  cd = input->GetCellData();
   outCD = output->GetCellData();
   outCD->CopyAllocate(cd,numCells);
   
