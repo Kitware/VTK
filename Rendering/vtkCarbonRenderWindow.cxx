@@ -16,10 +16,10 @@ Thanks:    to Yves Starreveld for developing this class
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
 #include "vtkCarbonRenderWindow.h"
 
 #include "vtkCarbonRenderWindowInteractor.h"
+#include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLActor.h"
 #include "vtkOpenGLCamera.h"
@@ -32,7 +32,7 @@ Thanks:    to Yves Starreveld for developing this class
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.9");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.10");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 
