@@ -20,6 +20,7 @@
 
 #include "vtkDataSet.h"
 #include "vtkImageData.h"
+#include "vtkMultiThreader.h"
 #include "vtkOutputWindow.h"
 #include "vtkCriticalSection.h"
 #include "vtkSharedMemoryCommunicator.h"
@@ -69,9 +70,9 @@ private:
   void operator=(const vtkThreadedControllerOutputWindow&);
 };
 
-vtkCxxRevisionMacro(vtkThreadedControllerOutputWindow, "1.16");
+vtkCxxRevisionMacro(vtkThreadedControllerOutputWindow, "1.17");
 
-vtkCxxRevisionMacro(vtkThreadedController, "1.16");
+vtkCxxRevisionMacro(vtkThreadedController, "1.17");
 vtkStandardNewMacro(vtkThreadedController);
 
 void vtkThreadedController::CreateOutputWindow()
@@ -285,7 +286,7 @@ void vtkThreadedController::Barrier()
 VTK_THREAD_RETURN_TYPE vtkThreadedController::vtkThreadedControllerStart( 
   void *arg )
 {
-  ThreadInfoStruct* info = (ThreadInfoStruct*)(arg);
+  vtkMultiThreader::ThreadInfoStruct* info = (vtkMultiThreader::ThreadInfoStruct*)(arg);
   int threadId = info->ThreadID;
   vtkThreadedController *controller0 =(vtkThreadedController*)(info->UserData);
 

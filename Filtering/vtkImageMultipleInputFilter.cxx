@@ -18,9 +18,10 @@
 #include "vtkImageMultipleInputFilter.h"
 
 #include "vtkImageData.h"
+#include "vtkMultiThreader.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageMultipleInputFilter, "1.58");
+vtkCxxRevisionMacro(vtkImageMultipleInputFilter, "1.59");
 
 //----------------------------------------------------------------------------
 vtkImageMultipleInputFilter::vtkImageMultipleInputFilter()
@@ -163,10 +164,10 @@ VTK_THREAD_RETURN_TYPE vtkImageMultiThreadedExecute( void *arg )
   int ext[6], splitExt[6], total;
   int threadId, threadCount;
   
-  threadId = ((ThreadInfoStruct *)(arg))->ThreadID;
-  threadCount = ((ThreadInfoStruct *)(arg))->NumberOfThreads;
+  threadId = ((vtkMultiThreader::ThreadInfoStruct *)(arg))->ThreadID;
+  threadCount = ((vtkMultiThreader::ThreadInfoStruct *)(arg))->NumberOfThreads;
   
-  str = (vtkImageMultiThreadStruct *)(((ThreadInfoStruct *)(arg))->UserData);
+  str = (vtkImageMultiThreadStruct *)(((vtkMultiThreader::ThreadInfoStruct *)(arg))->UserData);
   
   memcpy(ext,str->Filter->GetOutput()->GetUpdateExtent(),
          sizeof(int)*6);

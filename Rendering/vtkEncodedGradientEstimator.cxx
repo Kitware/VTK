@@ -17,13 +17,14 @@
 =========================================================================*/
 #include "vtkEncodedGradientEstimator.h"
 
+#include "vtkMultiThreader.h"
 #include "vtkRecursiveSphereDirectionEncoder.h"
 #include "vtkTimerLog.h"
 #include "vtkImageData.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkEncodedGradientEstimator, "1.31");
+vtkCxxRevisionMacro(vtkEncodedGradientEstimator, "1.32");
 
 vtkCxxSetObjectMacro(vtkEncodedGradientEstimator, Input, vtkImageData );
 

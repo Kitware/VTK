@@ -165,7 +165,7 @@ public:
 
   // Description:
   // Set / Get the number of threads used during Per-Voxel processing mode
-  vtkSetMacro( NumberOfThreads, int );
+  vtkSetClampMacro( NumberOfThreads, int, 1, VTK_MAX_THREADS );
   vtkGetMacro( NumberOfThreads, int );
 
   // Description:

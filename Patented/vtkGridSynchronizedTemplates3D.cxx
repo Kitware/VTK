@@ -36,6 +36,7 @@
 #include "vtkIntArray.h"
 #include "vtkLongArray.h"
 #include "vtkMath.h"
+#include "vtkMultiThreader.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkShortArray.h"
@@ -48,7 +49,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGridSynchronizedTemplates3D, "1.62");
+vtkCxxRevisionMacro(vtkGridSynchronizedTemplates3D, "1.63");
 vtkStandardNewMacro(vtkGridSynchronizedTemplates3D);
 
 //----------------------------------------------------------------------------
@@ -899,10 +900,10 @@ VTK_THREAD_RETURN_TYPE vtkGridSyncTempThreadedExecute( void *arg )
   int threadId, threadCount;
   int ext[6], *tmp;
   
-  threadId = ((ThreadInfoStruct *)(arg))->ThreadID;
-  threadCount = ((ThreadInfoStruct *)(arg))->NumberOfThreads;
+  threadId = ((vtkMultiThreader::ThreadInfoStruct *)(arg))->ThreadID;
+  threadCount = ((vtkMultiThreader::ThreadInfoStruct *)(arg))->NumberOfThreads;
   self = (vtkGridSynchronizedTemplates3D *)
-            (((ThreadInfoStruct *)(arg))->UserData);
+            (((vtkMultiThreader::ThreadInfoStruct *)(arg))->UserData);
 
 
   // we need to breakup the ExecuteExtent based on the threadId/Count

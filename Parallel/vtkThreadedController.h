@@ -31,8 +31,9 @@
 #define __vtkThreadedController_h
 
 #include "vtkMultiProcessController.h"
-#include "vtkMultiThreader.h" // For VTK_THREAD_RETURN_TYPE
 #include "vtkCriticalSection.h" // For vtkSimpleCriticalSection
+
+class vtkMultiThreader;
 
 class VTK_PARALLEL_EXPORT vtkThreadedController : public vtkMultiProcessController
 {

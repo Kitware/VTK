@@ -42,10 +42,10 @@
 #define __vtkGridSynchronizedTemplates3D_h
 
 #include "vtkStructuredGridToPolyDataFilter.h"
-#include "vtkMultiThreader.h" // For the VTK_MAX_THREADS
 #include "vtkContourValues.h" // Because it passes all the calls to it
 
 class vtkKitwareContourFilter;
+class vtkMultiThreader;
 
 class VTK_PATENTED_EXPORT vtkGridSynchronizedTemplates3D : public vtkStructuredGridToPolyDataFilter
 {

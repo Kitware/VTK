@@ -30,7 +30,7 @@
 
 #include "vtkImageSource.h"
 
-#include "vtkMultiThreader.h" // Needed for VTK_MAX_THREADS
+class vtkMultiThreader;
 
 class VTK_FILTERING_EXPORT vtkImageToImageFilter : public vtkImageSource
 {

@@ -17,12 +17,13 @@
 =========================================================================*/
 #include "vtkStreamer.h"
 #include "vtkMath.h"
+#include "vtkMultiThreader.h"
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 #include "vtkInterpolatedVelocityField.h"
 #include "vtkRungeKutta2.h"
 
-vtkCxxRevisionMacro(vtkStreamer, "1.75");
+vtkCxxRevisionMacro(vtkStreamer, "1.76");
 
 #define VTK_START_FROM_POSITION 0
 #define VTK_START_FROM_LOCATION 1
@@ -220,9 +221,9 @@ VTK_THREAD_RETURN_TYPE vtkStreamer::ThreadedIntegrate( void *arg )
   float err;
   int nSavePts = 0, counter=0;
 
-  thread_id = ((ThreadInfoStruct *)(arg))->ThreadID;
-  thread_count = ((ThreadInfoStruct *)(arg))->NumberOfThreads;
-  self = (vtkStreamer *)(((ThreadInfoStruct *)(arg))->UserData);
+  thread_id = ((vtkMultiThreader::ThreadInfoStruct *)(arg))->ThreadID;
+  thread_count = ((vtkMultiThreader::ThreadInfoStruct *)(arg))->NumberOfThreads;
+  self = (vtkStreamer *)(((vtkMultiThreader::ThreadInfoStruct *)(arg))->UserData);
 
   input     = self->GetInput();
   pd        = input->GetPointData();

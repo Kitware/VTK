@@ -35,10 +35,10 @@
 #define __vtkEncodedGradientEstimator_h
 
 #include "vtkObject.h"
-#include "vtkMultiThreader.h" // for VTK_MAX_THREADS
 
 class vtkImageData;
 class vtkDirectionEncoder;
+class vtkMultiThreader;
 
 class VTK_RENDERING_EXPORT vtkEncodedGradientEstimator : public vtkObject
 {

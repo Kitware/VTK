@@ -34,7 +34,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImplicitModeller, "1.79");
+vtkCxxRevisionMacro(vtkImplicitModeller, "1.80");
 vtkStandardNewMacro(vtkImplicitModeller);
 
 struct vtkImplicitModellerAppendInfo
@@ -161,10 +161,10 @@ static VTK_THREAD_RETURN_TYPE vtkImplicitModeller_ThreadedAppend( void *arg )
   int slabSize, slabMin, slabMax;
   vtkMutexLock *mutex;
 
-  thread_id = ((ThreadInfoStruct *)(arg))->ThreadID;
-  thread_count = ((ThreadInfoStruct *)(arg))->NumberOfThreads;
+  thread_id = ((vtkMultiThreader::ThreadInfoStruct *)(arg))->ThreadID;
+  thread_count = ((vtkMultiThreader::ThreadInfoStruct *)(arg))->NumberOfThreads;
   userData = (vtkImplicitModellerAppendInfo *)
-    (((ThreadInfoStruct *)(arg))->UserData);
+    (((vtkMultiThreader::ThreadInfoStruct *)(arg))->UserData);
   mutex = userData->ProgressMutex;
 
 

@@ -25,6 +25,7 @@
 #endif
 
 #include "vtkCollection.h"
+#include "vtkMultiThreader.h"
 #include "vtkObjectFactory.h"
 #include "vtkOutputWindow.h"
 
@@ -52,10 +53,10 @@ protected:
   void operator=(const vtkMultiProcessControllerRMI&);
 };
 
-vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.13");
+vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.14");
 vtkStandardNewMacro(vtkMultiProcessControllerRMI);
 
-vtkCxxRevisionMacro(vtkMultiProcessController, "1.13");
+vtkCxxRevisionMacro(vtkMultiProcessController, "1.14");
 
 //----------------------------------------------------------------------------
 // An RMI function that will break the "ProcessRMIs" loop.

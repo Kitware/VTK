@@ -55,7 +55,8 @@
 
 #include "vtkDataSetToPolyDataFilter.h"
 #include "vtkInitialValueProblemSolver.h"
-#include "vtkMultiThreader.h"
+
+class vtkMultiThreader;
 
 #define VTK_INTEGRATE_FORWARD 0
 #define VTK_INTEGRATE_BACKWARD 1

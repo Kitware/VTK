@@ -27,10 +27,8 @@
 #define __vtkVolumeRayCastMapper_h
 
 #include "vtkVolumeMapper.h"
-#include "vtkMultiThreader.h"         // For VTK_THREAD_RETURN_TYPE
 #include "vtkVolumeRayCastFunction.h" // For VTKVRCStaticInfo 
                                       // and VTKVRCDynamicInfo
-
 class vtkEncodedGradientEstimator;
 class vtkEncodedGradientShader;
 class vtkMatrix4x4;

@@ -43,27 +43,8 @@
 // pthread_create() will be used to create multiple threads (on
 // a sun, for example)
 
-// The maximum number of threads allowed
-#ifdef VTK_USE_SPROC
-#define VTK_MAX_THREADS              32
-#endif
-
-#ifdef VTK_USE_PTHREADS
-#define VTK_MAX_THREADS              32
-#endif
-
-
-#ifdef VTK_USE_WIN32_THREADS
-#define VTK_MAX_THREADS              8
-#endif
-
-#ifndef VTK_USE_WIN32_THREADS
-#ifndef VTK_USE_SPROC
-#ifndef VTK_USE_PTHREADS
-#define VTK_MAX_THREADS              1
-#endif
-#endif
-#endif
+// Defined in vtkSystemIncludes.h:
+//   VTK_MAX_THREADS
 
 // If VTK_USE_PTHREADS is defined, then the multithreaded
 // function is of type void *, and returns NULL
@@ -74,49 +55,30 @@
 typedef int vtkThreadProcessIDType;
 #endif
 
+// Defined in vtkSystemIncludes.h:
+//   VTK_THREAD_RETURN_VALUE
+//   VTK_THREAD_RETURN_TYPE
+
 #ifdef VTK_USE_PTHREADS
 typedef void *(*vtkThreadFunctionType)(void *);
 typedef pthread_t vtkThreadProcessIDType;
-#define VTK_THREAD_RETURN_VALUE  NULL
-#define VTK_THREAD_RETURN_TYPE   void *
+// #define VTK_THREAD_RETURN_VALUE  NULL
+// #define VTK_THREAD_RETURN_TYPE   void *
 #endif
 
 #ifdef VTK_USE_WIN32_THREADS
 typedef LPTHREAD_START_ROUTINE vtkThreadFunctionType;
 typedef HANDLE vtkThreadProcessIDType;
-#define VTK_THREAD_RETURN_VALUE 0
-#define VTK_THREAD_RETURN_TYPE DWORD __stdcall
+// #define VTK_THREAD_RETURN_VALUE 0
+// #define VTK_THREAD_RETURN_TYPE DWORD __stdcall
 #endif
 
 #if !defined(VTK_USE_PTHREADS) && !defined(VTK_USE_WIN32_THREADS)
 typedef void (*vtkThreadFunctionType)(void *);
 typedef int vtkThreadProcessIDType;
-#define VTK_THREAD_RETURN_VALUE
-#define VTK_THREAD_RETURN_TYPE void
+// #define VTK_THREAD_RETURN_VALUE
+// #define VTK_THREAD_RETURN_TYPE void
 #endif
-//ETX
-
-// Description:
-// This is the structure that is passed to the thread that is
-// created from the SingleMethodExecute, MultipleMethodExecute or
-// the SpawnThread method. It is passed in as a void *, and it is
-// up to the method to cast correctly and extract the information.
-// The ThreadID is a number between 0 and NumberOfThreads-1 that indicates
-// the id of this thread. The NumberOfThreads is this->NumberOfThreads for
-// threads created from SingleMethodExecute or MultipleMethodExecute,
-// and it is 1 for threads created from SpawnThread.
-// The UserData is the (void *)arg passed into the SetSingleMethod,
-// SetMultipleMethod, or SpawnThread method.
-
-//BTX
-struct ThreadInfoStruct
-{
-  int                 ThreadID;
-  int                 NumberOfThreads;
-  int                 *ActiveFlag;
-  vtkMutexLock        *ActiveFlagLock;
-  void                *UserData;
-};
 //ETX
 
 class VTK_COMMON_EXPORT vtkMultiThreader : public vtkObject 
@@ -126,6 +88,29 @@ public:
 
   vtkTypeRevisionMacro(vtkMultiThreader,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // This is the structure that is passed to the thread that is
+  // created from the SingleMethodExecute, MultipleMethodExecute or
+  // the SpawnThread method. It is passed in as a void *, and it is
+  // up to the method to cast correctly and extract the information.
+  // The ThreadID is a number between 0 and NumberOfThreads-1 that indicates
+  // the id of this thread. The NumberOfThreads is this->NumberOfThreads for
+  // threads created from SingleMethodExecute or MultipleMethodExecute,
+  // and it is 1 for threads created from SpawnThread.
+  // The UserData is the (void *)arg passed into the SetSingleMethod,
+  // SetMultipleMethod, or SpawnThread method.
+
+  //BTX
+  struct ThreadInfoStruct
+  {
+    int                 ThreadID;
+    int                 NumberOfThreads;
+    int                 *ActiveFlag;
+    vtkMutexLock        *ActiveFlagLock;
+    void                *UserData;
+  };
+  //ETX
 
   // Description:
   // Get/Set the number of threads to create. It will be clamped to the range

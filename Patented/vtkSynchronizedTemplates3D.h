@@ -44,10 +44,10 @@
 
 #include "vtkPolyDataSource.h"
 #include "vtkContourValues.h" // Passes calls through
-#include "vtkMultiThreader.h" // For VTK_MAX_THREADS
 
 class vtkImageData;
 class vtkKitwareContourFilter;
+class vtkMultiThreader;
 
 class VTK_PATENTED_EXPORT vtkSynchronizedTemplates3D : public vtkPolyDataSource
 {

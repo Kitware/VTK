@@ -223,7 +223,46 @@ typedef int vtkIdType;
 // For volume rendering
 #define VTK_MAX_VRCOMP                  4
 
-// 
+// For multithreading
 
+// The maximum number of threads allowed
+#ifdef VTK_USE_SPROC
+#define VTK_MAX_THREADS              32
 #endif
 
+#ifdef VTK_USE_PTHREADS
+#define VTK_MAX_THREADS              32
+#endif
+
+#ifdef VTK_USE_WIN32_THREADS
+#define VTK_MAX_THREADS              8
+#endif
+
+#ifndef VTK_USE_WIN32_THREADS
+#ifndef VTK_USE_SPROC
+#ifndef VTK_USE_PTHREADS
+#define VTK_MAX_THREADS              1
+#endif
+#endif
+#endif
+
+// If VTK_USE_PTHREADS is defined, then the multithreaded
+// function is of type void *, and returns NULL
+// Otherwise the type is void which is correct for WIN32
+// and SPROC
+#ifdef VTK_USE_PTHREADS
+#define VTK_THREAD_RETURN_VALUE  NULL
+#define VTK_THREAD_RETURN_TYPE   void *
+#endif
+
+#ifdef VTK_USE_WIN32_THREADS
+#define VTK_THREAD_RETURN_VALUE 0
+#define VTK_THREAD_RETURN_TYPE DWORD __stdcall
+#endif
+
+#if !defined(VTK_USE_PTHREADS) && !defined(VTK_USE_WIN32_THREADS)
+#define VTK_THREAD_RETURN_VALUE
+#define VTK_THREAD_RETURN_TYPE void
+#endif
+
+#endif
