@@ -188,13 +188,25 @@ vtkRenderWindowInteractor::vtkRenderWindowInteractor()
 
 vtkRenderWindowInteractor::~vtkRenderWindowInteractor()
 {
-  if ( this->InteractionPicker ) {
+  if ( this->InteractionPicker )
+    {
     this->InteractionPicker->Delete();
-  }
+    }
 
-  if ( this->OutlineActor ) {this->OutlineActor->Delete();}
-  if ( this->OutlineMapper ) {this->OutlineMapper->Delete();}
-  if ( this->Picker) {this->Picker->UnRegister(this);}
+  if ( this->OutlineActor )
+    {
+    this->OutlineActor->Delete();
+    }
+  
+  if ( this->OutlineMapper )
+    {
+    this->OutlineMapper->Delete();
+    }
+  
+  if ( this->Picker)
+    {
+    this->Picker->UnRegister(this);
+    }
 
   this->Outline->Delete();
   this->Outline = NULL;
@@ -288,7 +300,10 @@ void vtkRenderWindowInteractor::SetRenderWindow(vtkRenderWindow *aren)
     // to avoid destructor recursion
     vtkRenderWindow *temp = this->RenderWindow;
     this->RenderWindow = aren;
-    if (temp != NULL) {temp->UnRegister(this);}
+    if (temp != NULL)
+      {
+      temp->UnRegister(this);
+      }
     if (this->RenderWindow != NULL) 
       {
       this->RenderWindow->Register(this);
@@ -421,9 +436,15 @@ void vtkRenderWindowInteractor::SetPicker(vtkPicker *picker)
 {
   if ( this->Picker != picker ) 
     {
-    if ( this->Picker != NULL ) {this->Picker->UnRegister(this);}
+    if ( this->Picker != NULL )
+      {
+      this->Picker->UnRegister(this);
+      }
     this->Picker = picker;
-    if ( this->Picker != NULL ) {this->Picker->Register(this);}
+    if ( this->Picker != NULL )
+      {
+      this->Picker->Register(this);
+      }
     this->Modified();
     }
 }
@@ -894,16 +915,18 @@ void vtkRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 // WorldPt has to be allocated as 4 vector
 void vtkRenderWindowInteractor::ComputeDisplayToWorld(float x, float y,
                                                       float z,
-                                                      float *worldPt) {
+                                                      float *worldPt)
+{
   this->CurrentRenderer->SetDisplayPoint(x, y, z);
   this->CurrentRenderer->DisplayToWorld();
   this->CurrentRenderer->GetWorldPoint(worldPt);
-  if (worldPt[3]) {
+  if (worldPt[3])
+    {
     worldPt[0] /= worldPt[3];
     worldPt[1] /= worldPt[3];
     worldPt[2] /= worldPt[3];
     worldPt[3] = 1.0;
-  }
+    }
 }
 
 
@@ -912,7 +935,8 @@ void vtkRenderWindowInteractor::ComputeDisplayToWorld(float x, float y,
 // displayPt has to be allocated as 3 vector
 void vtkRenderWindowInteractor::ComputeWorldToDisplay(float x, float y,
                                                       float z,
-                                                      float *displayPt) {
+                                                      float *displayPt)
+{
   this->CurrentRenderer->SetWorldPoint(x, y, z, 1.0);
   this->CurrentRenderer->WorldToDisplay();
   this->CurrentRenderer->GetDisplayPoint(displayPt);
@@ -921,10 +945,12 @@ void vtkRenderWindowInteractor::ComputeWorldToDisplay(float x, float y,
 
 // Description:
 // rotate the camera in joystick (position sensitive) style
-void vtkRenderWindowInteractor::JoystickRotateCamera(int x, int y) {
-  if (this->Preprocess) {
+void vtkRenderWindowInteractor::JoystickRotateCamera(int x, int y)
+{
+  if (this->Preprocess)
+    {
     this->Preprocess = 0;
-  }
+    }
   
   float rxf = (float)(x - this->Center[0]) * this->DeltaAzimuth;
   float ryf = (float)((this->Size[1] - y) -
@@ -933,31 +959,36 @@ void vtkRenderWindowInteractor::JoystickRotateCamera(int x, int y) {
   this->CurrentCamera->Azimuth(rxf);
   this->CurrentCamera->Elevation(ryf);
   this->CurrentCamera->OrthogonalizeViewUp();
-  if (this->LightFollowCamera) {
+  if (this->LightFollowCamera)
+    {
     /* get the first light */
     this->CurrentLight->SetPosition(this->CurrentCamera->GetPosition());
     this->CurrentLight->SetFocalPoint(this->CurrentCamera->GetFocalPoint());
-  }
+    }
   this->RenderWindow->Render();
 }
 
 // Description:
 // spin the camera in joystick (position sensitive) style
-void vtkRenderWindowInteractor::JoystickSpinCamera(int x, int y) {
+void vtkRenderWindowInteractor::JoystickSpinCamera(int x, int y)
+{
 
-  if (this->Preprocess) {
+  if (this->Preprocess)
+    {
     this->Preprocess = 0;
-  }
-
+    }
+  
   // spin is based on y value
   float yf = (float)(this->Size[1] - y -
                      this->Center[1]) / (float)(this->Center[1]);
-  if (yf > 1) {
+  if (yf > 1)
+    {
     yf = 1;
-  }
-  else if (yf < -1) {
+    }
+  else if (yf < -1)
+    {
     yf = -1;
-  }
+    }
 
   float newAngle = asin(yf) * this->RadianToDegree / this->TrackballFactor;
 
@@ -968,9 +999,11 @@ void vtkRenderWindowInteractor::JoystickSpinCamera(int x, int y) {
 
 // Description:
 // Pan the camera in joystick (position sensitive) style
-void vtkRenderWindowInteractor::JoystickPanCamera(int x, int y) {
+void vtkRenderWindowInteractor::JoystickPanCamera(int x, int y)
+{
   
-  if (this->Preprocess) {
+  if (this->Preprocess)
+    {
     // calculate the focal depth since we'll be using it a lot
     this->CurrentCamera->GetFocalPoint(this->ViewFocus);      
     this->ComputeWorldToDisplay(this->ViewFocus[0], this->ViewFocus[1],
@@ -978,7 +1011,7 @@ void vtkRenderWindowInteractor::JoystickPanCamera(int x, int y) {
     this->FocalDepth = this->ViewFocus[2];
 
     this->Preprocess = 0;
-  }
+    }
 
   this->ComputeDisplayToWorld(float(x), float(this->Size[1] - y),
                               this->FocalDepth,
@@ -1012,40 +1045,46 @@ void vtkRenderWindowInteractor::JoystickPanCamera(int x, int y) {
                                    this->MotionVector[2]
                                    + this->ViewPoint[2]);
   
-  if (this->LightFollowCamera) {
+  if (this->LightFollowCamera)
+    {
     /* get the first light */
     this->CurrentLight->SetPosition(this->CurrentCamera->GetPosition());
     this->CurrentLight->SetFocalPoint(this->CurrentCamera->GetFocalPoint());
-  }
+    }
   this->RenderWindow->Render();
 }
 
 // Description:
 // dolly the camera in joystick (position sensitive) style
-void vtkRenderWindowInteractor::JoystickDollyCamera(int x, int y) {
-  if (this->Preprocess) {
+void vtkRenderWindowInteractor::JoystickDollyCamera(int x, int y)
+{
+  if (this->Preprocess)
+    {
     this->Preprocess = 0;
-  }
+    }
   
   float dyf = 0.5 * (float)((this->Size[1] - y) - this->Center[1]) /
     (float)(this->Center[1]);
   float zoomFactor = pow((float)1.1, dyf);
-  if (this->CurrentCamera->GetParallelProjection()) {
+  if (this->CurrentCamera->GetParallelProjection())
+    {
     this->CurrentCamera->
       SetParallelScale(this->CurrentCamera->GetParallelScale()/zoomFactor);
-  }
-  else {
+    }
+  else
+    {
     float *clippingRange = this->CurrentCamera->GetClippingRange();
     this->CurrentCamera->SetClippingRange(clippingRange[0]/zoomFactor,
                                           clippingRange[1]/zoomFactor);
     this->CurrentCamera->Dolly(zoomFactor);
-  }
+    }
 
-  if (this->LightFollowCamera) {
+  if (this->LightFollowCamera)
+    {
     /* get the first light */
     this->CurrentLight->SetPosition(this->CurrentCamera->GetPosition());
     this->CurrentLight->SetFocalPoint(this->CurrentCamera->GetFocalPoint());
-  }
+    }
   this->RenderWindow->Render();
 }
 
@@ -1053,11 +1092,14 @@ void vtkRenderWindowInteractor::JoystickDollyCamera(int x, int y) {
 
 // Description:
 // rotate the camera in trackball (motion sensitive) style
-void vtkRenderWindowInteractor::TrackballRotateCamera(int x, int y) {
-  if ((this->OldX != x) || (this->OldY != y)) {
-    if (this->Preprocess) {
+void vtkRenderWindowInteractor::TrackballRotateCamera(int x, int y)
+{
+  if ((this->OldX != x) || (this->OldY != y))
+    {
+    if (this->Preprocess)
+      {
       this->Preprocess = 0;
-    }
+      }
 
     float rxf = (float)(x - this->OldX) * this->DeltaAzimuth *
       this->TrackballFactor;
@@ -1067,24 +1109,28 @@ void vtkRenderWindowInteractor::TrackballRotateCamera(int x, int y) {
     this->CurrentCamera->Azimuth(rxf);
     this->CurrentCamera->Elevation(ryf);
     this->CurrentCamera->OrthogonalizeViewUp();
-    if (this->LightFollowCamera) {
+    if (this->LightFollowCamera)
+      {
       // get the first light
       this->CurrentLight->SetPosition(this->CurrentCamera->GetPosition());
       this->CurrentLight->SetFocalPoint(this->CurrentCamera->GetFocalPoint());
-    }	
+      }	
     this->OldX = x;
     this->OldY = y;
     this->RenderWindow->Render();
-  }
+    }
 }
 
 // Description:
 // spin the camera in trackball (motion sensitive) style
-void vtkRenderWindowInteractor::TrackballSpinCamera(int x, int y) {
-  if ((this->OldX != x) || (this->OldY != y)) {
-    if (this->Preprocess) {
+void vtkRenderWindowInteractor::TrackballSpinCamera(int x, int y)
+{
+  if ((this->OldX != x) || (this->OldY != y))
+    {
+    if (this->Preprocess)
+      {
       this->Preprocess = 0;
-    }
+      }
 
     float newAngle = atan2((float)(this->Size[1] - y - this->Center[1]),
                            (float)(x - this->Center[0]));
@@ -1101,15 +1147,18 @@ void vtkRenderWindowInteractor::TrackballSpinCamera(int x, int y) {
     this->OldX = x;
     this->OldY = y;
     this->RenderWindow->Render();
-  }
+    }
 }
 
 
 // Description:
 // pan the camera in trackball (motion sensitive) style
-void vtkRenderWindowInteractor::TrackballPanCamera(int x, int y) {
-  if ((this->OldX != x) || (this->OldY != y)) {
-    if (this->Preprocess) {
+void vtkRenderWindowInteractor::TrackballPanCamera(int x, int y)
+{
+  if ((this->OldX != x) || (this->OldY != y))
+    {
+    if (this->Preprocess)
+      {
       // calculate the focal depth since we'll be using it a lot
       this->CurrentCamera->GetFocalPoint(this->ViewFocus);      
       this->ComputeWorldToDisplay(this->ViewFocus[0], this->ViewFocus[1],
@@ -1117,7 +1166,7 @@ void vtkRenderWindowInteractor::TrackballPanCamera(int x, int y) {
       this->FocalDepth = this->ViewFocus[2];
 
       this->Preprocess = 0;
-    }
+      }
 
     this->ComputeDisplayToWorld(float(x), float(this->Size[1] - y),
                                 this->FocalDepth,
@@ -1149,60 +1198,69 @@ void vtkRenderWindowInteractor::TrackballPanCamera(int x, int y) {
                                      this->MotionVector[2] +
                                      this->ViewPoint[2]);
       
-    if (this->LightFollowCamera) {
+    if (this->LightFollowCamera)
+      {
       /* get the first light */
       this->CurrentLight->SetPosition(this->CurrentCamera->GetPosition());
       this->CurrentLight->SetFocalPoint(this->CurrentCamera->GetFocalPoint());
-    }
+      }
     
     this->OldX = x;
     this->OldY = y;
     this->RenderWindow->Render();
-  }
+    }
 }
 
 // Description:
 // dolly the camera in trackball (motion sensitive) style
 // dolly is based on distance from center of screen,
 // and the upper half is positive, lower half is negative
-void vtkRenderWindowInteractor::TrackballDollyCamera(int x, int y) {
-  if (this->OldY != y) {
-    if (this->Preprocess) {
+void vtkRenderWindowInteractor::TrackballDollyCamera(int x, int y)
+{
+  if (this->OldY != y)
+    {
+    if (this->Preprocess)
+      {
       this->Preprocess = 0;
-    }
+      }
     
     float dyf = this->TrackballFactor * (float)(this->OldY - y) /
       (float)(this->Center[1]);
     float zoomFactor = pow((float)1.1, dyf);
           
-    if (this->CurrentCamera->GetParallelProjection()) {
+    if (this->CurrentCamera->GetParallelProjection())
+      {
       this->CurrentCamera->
         SetParallelScale(this->CurrentCamera->GetParallelScale()/zoomFactor);
-    }
-    else {
+      }
+    else
+      {
       float *clippingRange = this->CurrentCamera->GetClippingRange();
       this->CurrentCamera->SetClippingRange(clippingRange[0]/zoomFactor,
                                             clippingRange[1]/zoomFactor);
       this->CurrentCamera->Dolly(zoomFactor);
-    }
+      }
     
-    if (this->LightFollowCamera) {
+    if (this->LightFollowCamera)
+      {
       /* get the first light */
       this->CurrentLight->SetPosition(this->CurrentCamera->GetPosition());
       this->CurrentLight->SetFocalPoint(this->CurrentCamera->GetFocalPoint());
-    }
+      }
 
     this->OldX = x;
     this->OldY = y;
     this->RenderWindow->Render();
-  }
+    }
 }
 
 
 // Description:
 // rotate the actor in joystick (position sensitive) style
-void vtkRenderWindowInteractor::JoystickRotateActor(int x, int y) {
-  if (this->Preprocess) {
+void vtkRenderWindowInteractor::JoystickRotateActor(int x, int y)
+{
+  if (this->Preprocess)
+    {
     // first get the origin of the assembly
     memmove(this->ObjCenter,
             this->InteractionActor->GetCenter(), 3 * sizeof(float));
@@ -1236,26 +1294,30 @@ void vtkRenderWindowInteractor::JoystickRotateActor(int x, int y) {
 
     this->HighlightActor(NULL);
     this->Preprocess = 0;
-  }
+    }
 
     
   float nxf = (float)(x - this->DispObjCenter[0]) / this->Radius;
   float nyf = (float)(this->Size[1] - y - this->DispObjCenter[1]) /
     this->Radius;
 
-  if (nxf > 1.0) {
+  if (nxf > 1.0)
+    {
     nxf = 1.0;
-  }
-  else if (nxf < -1.0) {
+    }
+  else if (nxf < -1.0)
+    {
     nxf = -1.0;
-  }
+    }
 
-  if (nyf > 1.0) {
+  if (nyf > 1.0)
+    {
     nyf = 1.0;
-  }
-  else if (nyf < -1.0) {
+    }
+  else if (nyf < -1.0)
+    {
     nyf = -1.0;
-  }
+    }
   
   float newXAngle = asin(nxf) * this->RadianToDegree / this->TrackballFactor;
   float newYAngle = asin(nyf) * this->RadianToDegree / this->TrackballFactor;
@@ -1286,49 +1348,52 @@ void vtkRenderWindowInteractor::JoystickRotateActor(int x, int y) {
   delete [] rotate;
   
   this->RenderWindow->Render();
-  //this->HighlightActor( this->InteractionActor );
 }
 
 
 // Description:
 // spin the actor in joystick (position sensitive) style
-void vtkRenderWindowInteractor::JoystickSpinActor(int x, int y) {
-
+void vtkRenderWindowInteractor::JoystickSpinActor(int x, int y)
+{
   // get the axis to rotate around = vector from eye to origin
-  if (this->Preprocess) {
-
+  if (this->Preprocess)
+    {
     memmove(this->ObjCenter, this->InteractionActor->GetCenter(),
             3 * sizeof(float));
 
-    if (this->CurrentCamera->GetParallelProjection()) {
+    if (this->CurrentCamera->GetParallelProjection())
+      {
       // if parallel projection, want to get the view plane normal...
       this->CurrentCamera->ComputeViewPlaneNormal();
       this->CurrentCamera->GetViewPlaneNormal(this->MotionVector);
-    }
-    else {
+      }
+    else
+      {
       // perspective projection, get vector from eye to center of actor
       this->CurrentCamera->GetPosition(this->ViewPoint);
       this->MotionVector[0] = this->ViewPoint[0] - this->ObjCenter[0];
       this->MotionVector[1] = this->ViewPoint[1] - this->ObjCenter[1];
       this->MotionVector[2] = this->ViewPoint[2] - this->ObjCenter[2];
       vtkMath::Normalize(this->MotionVector);
-    }
+      }
     
     this->ComputeWorldToDisplay(this->ObjCenter[0], this->ObjCenter[1],
                                 this->ObjCenter[2], this->DispObjCenter);
     
     this->HighlightActor(NULL);
     this->Preprocess = 0;
-  }
+    }
   
   float yf = (float)(this->Size[1] - y -
                      this->DispObjCenter[1]) / (float)(this->Center[1]);
-  if (yf > 1.0) {
+  if (yf > 1.0)
+    {
     yf = 1.0;
-  }
-  else if (yf < -1.0) {
+    }
+  else if (yf < -1.0)
+    {
     yf = -1.0;
-  }
+    }
 
   float newAngle = asin(yf) * this->RadianToDegree / this->TrackballFactor;
 
@@ -1349,15 +1414,16 @@ void vtkRenderWindowInteractor::JoystickSpinActor(int x, int y) {
   delete [] rotate[0];
   delete [] rotate;
   
-  //this->HighlightActor(this->InteractionActor);
   this->RenderWindow->Render();
 }
 
 
 // Description:
 // pan the actor in joystick (position sensitive) style
-void vtkRenderWindowInteractor::JoystickPanActor(int x, int y) {
-  if (this->Preprocess) {
+void vtkRenderWindowInteractor::JoystickPanActor(int x, int y)
+{
+  if (this->Preprocess)
+    {
     // use initial center as the origin from which to pan
     memmove(this->ObjCenter,
             this->InteractionActor->GetCenter(), 3 * sizeof(float));
@@ -1368,7 +1434,7 @@ void vtkRenderWindowInteractor::JoystickPanActor(int x, int y) {
     
     this->HighlightActor(NULL);
     this->Preprocess = 0;
-  }
+    }
   
   this->ComputeDisplayToWorld(float(x), float(this->Size[1] - y),
                               this->FocalDepth,
@@ -1392,11 +1458,13 @@ void vtkRenderWindowInteractor::JoystickPanActor(int x, int y) {
 
 // Description:
 // Dolly the actor in joystick (position sensitive) style
-void vtkRenderWindowInteractor::JoystickDollyActor(int x, int y) {
+void vtkRenderWindowInteractor::JoystickDollyActor(int x, int y)
+{
   // dolly is based on distance from center of screen,
   // and the upper half is positive, lower half is negative
 
-  if (this->Preprocess) {
+  if (this->Preprocess)
+    {
     this->CurrentCamera->GetPosition(this->ViewPoint);
     this->CurrentCamera->GetFocalPoint(this->ViewFocus);
 
@@ -1408,7 +1476,7 @@ void vtkRenderWindowInteractor::JoystickDollyActor(int x, int y) {
 
     this->HighlightActor(NULL);
     this->Preprocess = 0;
-  }
+    }
   
   float yf = (float)((this->Size[1] - y) - this->DispObjCenter[1]) /
     (float)(this->Center[1]);
@@ -1431,11 +1499,13 @@ void vtkRenderWindowInteractor::JoystickDollyActor(int x, int y) {
 
 // Description:
 // scale the actor in joystick (position sensitive) style
-void vtkRenderWindowInteractor::JoystickScaleActor(int x, int y) {
+void vtkRenderWindowInteractor::JoystickScaleActor(int x, int y)
+{
   // Uniform scale is based on distance from center of screen,
   // and the upper half is positive, lower half is negative
 
-  if (this->Preprocess) {
+  if (this->Preprocess)
+    {
     // use bounding box center as the origin from which to pan
     memmove(this->ObjCenter,
             this->InteractionActor->GetCenter(), 3 * sizeof(float));
@@ -1445,7 +1515,7 @@ void vtkRenderWindowInteractor::JoystickScaleActor(int x, int y) {
     
     this->HighlightActor(NULL);
     this->Preprocess = 0;
-  }
+    }
   
   float yf = (float)(this->Size[1] - y - this->DispObjCenter[1]) /
     (float)(this->Center[1]);
@@ -1467,10 +1537,13 @@ void vtkRenderWindowInteractor::JoystickScaleActor(int x, int y) {
 
 // Description:
 // rotate the actor in trackball (motion sensitive) style
-void vtkRenderWindowInteractor::TrackballRotateActor(int x, int y) {
-  if ((this->OldX != x) || (this->OldY != y)) {
+void vtkRenderWindowInteractor::TrackballRotateActor(int x, int y)
+{
+  if ((this->OldX != x) || (this->OldY != y))
+    {
 
-    if (this->Preprocess) {
+    if (this->Preprocess)
+      {
       memmove(this->ObjCenter, this->InteractionActor->GetCenter(),
               3 * sizeof(float));
 
@@ -1504,7 +1577,7 @@ void vtkRenderWindowInteractor::TrackballRotateActor(int x, int y) {
 
       this->HighlightActor(NULL);
       this->Preprocess = 0;
-    }
+      }
 
     float nxf = (float)(x - this->DispObjCenter[0]) / this->Radius;
     float nyf = (float)(this->Size[1] - y -
@@ -1514,7 +1587,8 @@ void vtkRenderWindowInteractor::TrackballRotateActor(int x, int y) {
                         this->DispObjCenter[1]) / this->Radius;
 
     if (((nxf * nxf + nyf * nyf) <= 1.0) &&
-        ((oxf * oxf + oyf * oyf) <= 1.0)) {
+        ((oxf * oxf + oyf * oyf) <= 1.0))
+      {
 	    
       float newXAngle = asin(nxf) * this->RadianToDegree;
       float newYAngle = asin(nyf) * this->RadianToDegree;
@@ -1549,39 +1623,44 @@ void vtkRenderWindowInteractor::TrackballRotateActor(int x, int y) {
       this->OldX = x;
       this->OldY = y;
       this->RenderWindow->Render();
+      }
     }
-  }
 }
 
 // Description:
 // spin the actor in trackball (motion sensitive) style
-void vtkRenderWindowInteractor::TrackballSpinActor(int x, int y) {
-  if ((this->OldX != x) || (this->OldY != y)) {
+void vtkRenderWindowInteractor::TrackballSpinActor(int x, int y)
+{
+  if ((this->OldX != x) || (this->OldY != y))
+    {
   
-    if (this->Preprocess) {
+    if (this->Preprocess)
+      {
       // get the position plus origin of the object
       memmove(this->ObjCenter, this->InteractionActor->GetCenter(),
               3 * sizeof(float));
   
       // get the axis to rotate around = vector from eye to origin
-      if (this->CurrentCamera->GetParallelProjection()) {
+      if (this->CurrentCamera->GetParallelProjection())
+        {
         this->CurrentCamera->ComputeViewPlaneNormal();
         this->CurrentCamera->GetViewPlaneNormal(this->MotionVector);
-      }
-      else {   
+        }
+      else
+        {   
         this->CurrentCamera->GetPosition(this->ViewPoint);
         this->MotionVector[0] = this->ViewPoint[0] - this->ObjCenter[0];
         this->MotionVector[1] = this->ViewPoint[1] - this->ObjCenter[1];
         this->MotionVector[2] = this->ViewPoint[2] - this->ObjCenter[2];
         vtkMath::Normalize(this->MotionVector);
-      }
+        }
       
       this->ComputeWorldToDisplay(this->ObjCenter[0], this->ObjCenter[1],
                                   this->ObjCenter[2], this->DispObjCenter);
 
       this->HighlightActor(NULL);
       this->Preprocess = 0;
-    }
+      }
     
     // this has to be in the loop
     float newAngle = atan2((float)(this->Size[1] - y - this->DispObjCenter[1]),
@@ -1613,15 +1692,18 @@ void vtkRenderWindowInteractor::TrackballSpinActor(int x, int y) {
     this->OldX = x;
     this->OldY = y;
     this->RenderWindow->Render();
-  }
+    }
 }
 
 // Description:
 // pan the actor in trackball (motion sensitive) style
-void vtkRenderWindowInteractor::TrackballPanActor(int x, int y) {
-  if ((this->OldX != x) || (this->OldY != y)) {
+void vtkRenderWindowInteractor::TrackballPanActor(int x, int y)
+{
+  if ((this->OldX != x) || (this->OldY != y))
+    {
 
-    if (this->Preprocess) {
+    if (this->Preprocess)
+      {
       // use initial center as the origin from which to pan
       memmove(this->ObjCenter,
               this->InteractionActor->GetCenter(), 3 * sizeof(float));
@@ -1631,7 +1713,7 @@ void vtkRenderWindowInteractor::TrackballPanActor(int x, int y) {
       
       this->HighlightActor(NULL);
       this->Preprocess = 0;
-    }
+      }
   
     this->ComputeDisplayToWorld(float(x), float(this->Size[1] - y),
                                 this->FocalDepth,
@@ -1650,21 +1732,24 @@ void vtkRenderWindowInteractor::TrackballPanActor(int x, int y) {
     this->OldX = x;
     this->OldY = y;
     this->RenderWindow->Render();
-  }
+    }
 }
 
 
 // Description:
 // Dolly the actor in trackball (motion sensitive) style
-void vtkRenderWindowInteractor::TrackballDollyActor(int x, int y) {
-  if (this->OldY != y) {
-    if (this->Preprocess) {
+void vtkRenderWindowInteractor::TrackballDollyActor(int x, int y)
+{
+  if (this->OldY != y)
+    {
+    if (this->Preprocess)
+      {
       this->CurrentCamera->GetPosition(this->ViewPoint);
       this->CurrentCamera->GetFocalPoint(this->ViewFocus);
 
       this->HighlightActor(NULL);
       this->Preprocess = 0;
-    }
+      }
     
     float yf = (float)(this->OldY - y) / (float)(this->Center[1]) *
       this->TrackballFactor;
@@ -1679,25 +1764,27 @@ void vtkRenderWindowInteractor::TrackballDollyActor(int x, int y) {
                              this->ViewFocus[2]) * dollyFactor;
     
     this->InteractionActor->AddPosition(this->MotionVector);
-    //    this->HighlightActor(this->InteractionActor);
   
     this->OldX = x;
     this->OldY = y;
     this->RenderWindow->Render();
-  }
+    }
 }
 
 // Description:
 // Scale the actor in trackball (motion sensitive) style
-void vtkRenderWindowInteractor::TrackballScaleActor(int x, int y) {
-  if ((this->OldX != x) || (this->OldY != y)) {
-    if (this->Preprocess) {
+void vtkRenderWindowInteractor::TrackballScaleActor(int x, int y)
+{
+  if ((this->OldX != x) || (this->OldY != y))
+    {
+    if (this->Preprocess)
+      {
       memmove(this->ObjCenter, this->InteractionActor->GetCenter(),
               3 * sizeof(float));
 
       this->HighlightActor(NULL);
       this->Preprocess = 0;
-    }
+      }
     
     float yf = (float)(this->OldY - y) / (float)(this->Center[1]) *
       this->TrackballFactor;
@@ -1715,7 +1802,7 @@ void vtkRenderWindowInteractor::TrackballScaleActor(int x, int y) {
     this->OldX = x;
     this->OldY = y;
     this->RenderWindow->Render();
-  }
+    }
 }
 
 
@@ -1723,7 +1810,8 @@ void vtkRenderWindowInteractor::ActorTransform(vtkActor *actor,
                                                float *boxCenter,
                                                int numRotation,
                                                float **rotate,
-                                               float *scale) {
+                                               float *scale)
+{
   vtkMatrix4x4 *oldMatrix = vtkMatrix4x4::New();
   actor->GetMatrix(oldMatrix);
 
@@ -1736,14 +1824,16 @@ void vtkRenderWindowInteractor::ActorTransform(vtkActor *actor,
 
   newTransform->Translate(-(boxCenter[0]), -(boxCenter[1]), -(boxCenter[2]));
   
-  for (int i = 0; i < numRotation; i++) {
+  for (int i = 0; i < numRotation; i++)
+    {
     newTransform->RotateWXYZ(rotate[i][0], rotate[i][1],
                              rotate[i][2], rotate[i][3]);
-  }
+    }
 
-  if ((scale[0] * scale[1] * scale[2]) != 0.0) {
+  if ((scale[0] * scale[1] * scale[2]) != 0.0)
+    {
     newTransform->Scale(scale[0], scale[1], scale[2]);
-  }
+    }
 
   newTransform->Translate(boxCenter[0], boxCenter[1], boxCenter[2]);
 

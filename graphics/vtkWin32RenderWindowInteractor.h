@@ -43,54 +43,18 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkWin32RenderWindowInteractor is a convenience object that provides event 
 // event bindings to common graphics functions. For example, camera and actor
 // functions such as zoom-in/zoom-out, azimuth, roll, and pan. It is one of
-// the window system specific subclasses of vtkRenderWindowInteractor.
-
-// Mouse bindings:
-//    camera: Button 1 - rotate; Button 2 - pan; and Button 3 - zoom;
-//            ctrl-Button 1 - spin.
-//    actor:  Button 1 - rotate; Button 2 - pan; Button 3 - uniform scale;
-//            ctrl-Button 1 - spin; ctrl-Button 2 - dolly.
+// the window system specific subclasses of vtkRenderWindowInteractor. Please
+// see vtkRenderWindowInteractor documentation for event bindings.
 //
-// Camera mode is the default mode for compatibility reasons
+// Win32RenderWindowInteractor has an additional "animate" mode, which
+// currently does not perform any animation, and has been left in the source
+// code for compatibility.  Here both lower case and upper case will work
 //
-// When "j" is pressed, the interaction models after a joystick. The distance
-// from the center of the renderer viewport determines how quickly to rotate,
-// pan, zoom, spin, and dolly.  This is the default mode for compatiblity
-// reasons.  This is also known as position sensitive motion.
+//<PRE>
+// Additional keyboard bindings:
+//    a - animate
+//</PRE>
 //
-// When "t" is pressed, the interaction models after a trackball. Each mouse
-// movement is used to move the actor or camera. When the mouse stops, the
-// camera or actor motion is also stopped. This is also known as motion
-// sensitive motion.
-//
-// Rotate, pan, and zoom work the same way as before.  Spin has two different
-// interfaces depending on whether the interactor is in trackball or joystick
-// mode.  In trackball mode, by moving the mouse around the camera or actor
-// center in a circular motion, the camera or actor is spun.  In joystick mode
-// by moving the mouse in the y direction, the actor or camera is spun. Scale
-// dolly, and zoom all work in the same manner, that motion of mouse in y
-// direction generates the transformation.
-//
-// There are no difference between camera and actor mode interactions, which
-// means that the same events elicit the same responses
-//
-// Actor picking can be accomplished with the "p" key or with a mouse click
-// in actor mode. 
-//
-// Keystrokes:
-//    j - joystick-like mouse interactions
-//    t - trackball-like mouse interactions
-//    o - object / actor interaction
-//    c - camera interaction
-//    r - reset camera view
-//    w - turn all actors wireframe
-//    s - turn all actors surface
-//    u - execute user defined function
-//    p - pick actor under mouse pointer (if pickable)
-//    3 - toggle in/out of 3D mode (if supported by renderer)
-//    e - exits
-//    q - exits
-
 // .SECTION see also
 // vtkRenderWindowInteractor vtkWin32OpenGLRenderWindow
 

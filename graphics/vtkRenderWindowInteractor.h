@@ -48,11 +48,63 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // or cells; switching in/out of stereo mode; property changes such as
 // wireframe and surface; and a toggle to force the light to be placed at
 // camera viewpoint (pointing in view direction).
+//
+//<PRE>
+// Mouse bindings:
+//    camera: Button 1 - rotate
+//            Button 2 - pan
+//            Button 3 - zoom
+//            ctrl-Button 1 - spin
+//    actor:  Button 1 - rotate
+//            Button 2 - pan
+//            Button 3 - uniform scale
+//            ctrl-Button 1 - spin
+//            ctrl-Button 2 - dolly.
+//
+// Keyboard bindings (upper or lower case):
+//    j - joystick like mouse interactions
+//    t - trackball like mouse interactions
+//    o - object/ actor interaction
+//    c - camera interaction
+//    r - reset camera view
+//    w - turn all actors wireframe
+//    s - turn all actors surface
+//    u - execute user defined function
+//    p - pick actor under mouse pointer (if pickable)
+//    3 - toggle in/out of 3D mode (if supported by renderer)
+//    e - exit
+//    q - exit
+//</PRE>
+//
+// Camera mode and joystick mode are the default modes for compatibility.
 // 
-// Specific devices have different camera and actor bindings. The bindings
-// are on both mouse events as well as keyboard presses. See
-// vtkXRenderWindowInteractor and vtkWin32RenderWindowInteractor for
-// specific information.
+// When "j" is pressed, the interaction models after a joystick. The distance
+// from the center of the renderer viewport determines how quickly to rotate,
+// pan, zoom, spin, and dolly.  This is the default mode for compatiblity
+// reasons.  This is also known as position sensitive motion.
+//
+// When "t" is pressed, the interaction models after a trackball. Each mouse
+// movement is used to move the actor or camera. When the mouse stops, the
+// camera or actor motion is also stopped. This is also known as motion
+// sensitive motion.
+//
+// Rotate, pan, and zoom work the same way as before.  Spin has two different
+// interfaces depending on whether the interactor is in trackball or joystick
+// mode.  In trackball mode, by moving the mouse around the camera or actor
+// center in a circular motion, the camera or actor is spun.  In joystick mode
+// by moving the mouse in the y direction, the actor or camera is spun. Scale
+// dolly, and zoom all work in the same manner, that motion of mouse in y
+// direction generates the transformation.
+//
+// The event bindings for Camera mode and Actor mode are very similar, with
+// the exception of zoom (Camera only), and scale and dolly (Actor only). The
+// same user events elicit the same responses from the interactor.
+//
+// Actor picking can be accomplished with the "p" key or with a mouse click
+// in actor mode. 
+//
+// Interactors for a particular platform may have additional, specific event
+// bindings.  Please see the documentation for the subclasses.
 
 // .SECTION See Also
 // vtkXRenderWindowInteractor vtkWin32RenderWindowInteractor vtkPicker
@@ -183,7 +235,7 @@ public:
   virtual vtkPicker *CreateDefaultPicker();
 
   // Description:
-  // Set the user method. This method is invoked on a <u> keypress.
+  // Set the user method. This method is invoked on a "u" keypress.
   void SetUserMethod(void (*f)(void *), void *arg);
   
   // Description:
@@ -191,7 +243,7 @@ public:
   void SetUserMethodArgDelete(void (*f)(void *));
 
   // Description:
-  // Set the exit method. This method is invoked on a <e> keypress.
+  // Set the exit method. This method is invoked on a "e" or "q" keypress.
   void SetExitMethod(void (*f)(void *), void *arg);
 
   // Description:
@@ -199,7 +251,7 @@ public:
   void SetExitMethodArgDelete(void (*f)(void *));
 
   // Description:
-  // Set the exit method. This method is invoked during rotate/zoom/pan
+  // Set the timer method. This method is invoked during rotate/zoom/pan
   void SetTimerMethod(void (*f)(void *), void *arg);
 
   // Description:
@@ -207,7 +259,7 @@ public:
   void SetTimerMethodArgDelete(void (*f)(void *));
 
   // Description:
-  // Set the exit method. This method is invoked on a <e> keypress.
+  // Set the mouse event method, invoked on left mouse button press.
   void SetLeftButtonPressMethod(void (*f)(void *), void *arg);
 
   // Description:
@@ -215,7 +267,7 @@ public:
   void SetLeftButtonPressMethodArgDelete(void (*f)(void *));
 
   // Description:
-  // Set the exit method. This method is invoked on a <e> keyrelease.
+  // Set the mouse event method, invoked on left mouse button release.
   void SetLeftButtonReleaseMethod(void (*f)(void *), void *arg);
 
   // Description:
@@ -223,7 +275,7 @@ public:
   void SetLeftButtonReleaseMethodArgDelete(void (*f)(void *));
 
   // Description:
-  // Set the exit method. This method is invoked on a <e> keypress.
+  // Set the mouse event method, invoked on middle mouse button press.
   void SetMiddleButtonPressMethod(void (*f)(void *), void *arg);
 
   // Description:
@@ -231,7 +283,7 @@ public:
   void SetMiddleButtonPressMethodArgDelete(void (*f)(void *));
 
   // Description:
-  // Set the exit method. This method is invoked on a <e> keyrelease.
+  // Set the mouse event method, invoked on middle mouse button release.
   void SetMiddleButtonReleaseMethod(void (*f)(void *), void *arg);
 
   // Description:
@@ -239,7 +291,7 @@ public:
   void SetMiddleButtonReleaseMethodArgDelete(void (*f)(void *));
 
   // Description:
-  // Set the exit method. This method is invoked on a <e> keypress.
+  // Set the mouse event method, invoked on right mouse button press.
   void SetRightButtonPressMethod(void (*f)(void *), void *arg);
 
   // Description:
@@ -247,7 +299,7 @@ public:
   void SetRightButtonPressMethodArgDelete(void (*f)(void *));
 
   // Description:
-  // Set the exit method. This method is invoked on a <e> keyrelease.
+  // Set the mouse event method, invoked on right mouse button release.
   void SetRightButtonReleaseMethod(void (*f)(void *), void *arg);
 
   // Description:
@@ -255,7 +307,7 @@ public:
   void SetRightButtonReleaseMethodArgDelete(void (*f)(void *));
 
   // Description:
-  // This method is invoked on a <c> keypress
+  // This method is invoked on a "c" keypress
   void SetCameraModeMethod(void (*f)(void *), void *arg);
 
   // Description:
@@ -263,7 +315,7 @@ public:
   void SetCameraModeMethodArgDelete(void (*f)(void *));
 
   // Description:
-  // This method is invoked on a <a> keypress
+  // This method is invoked on a "a" keypress
   void SetActorModeMethod(void (*f)(void *), void *arg);
 
   // Description:
@@ -271,7 +323,7 @@ public:
   void SetActorModeMethodArgDelete(void (*f)(void *));
 
   // Description:
-  // This method is invoked on a <t> keypress
+  // This method is invoked on a "t" keypress
   void SetTrackballModeMethod(void (*f)(void *), void *arg);
 
   // Description:
@@ -279,7 +331,7 @@ public:
   void SetTrackballModeMethodArgDelete(void (*f)(void *));
 
   // Description:
-  // This method is invoked on a <j> keypress
+  // This method is invoked on a "j" keypress
   void SetJoystickModeMethod(void (*f)(void *), void *arg);
 
   // Description:
@@ -309,7 +361,7 @@ public:
   virtual void EndUniformScale() {};
 
   // Description:
-  // This Method detects loops of RenderWindow<->Interactor,
+  // This Method detects loops of RenderWindow-Interactor,
   // so objects are freed properly.
   void UnRegister(vtkObject *o);
   

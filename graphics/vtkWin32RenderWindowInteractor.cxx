@@ -174,9 +174,15 @@ void  vtkWin32RenderWindowInteractor::UpdateSize(int x,int y)
  
 void  vtkWin32RenderWindowInteractor::StartRotate()
 {
-  if (this->State != VTKXI_START) return;
+  if (this->State != VTKXI_START)
+    {
+    return;
+    }
   this->State = VTKXI_ROTATE;
-  if (this->AnimationState != VTKXI_START) return;
+  if (this->AnimationState != VTKXI_START)
+    {
+    return;
+    }
   this->Preprocess = 1;
   this->RenderWindow->SetDesiredUpdateRate(this->DesiredUpdateRate);
   if (!SetTimer(this->WindowId,this->TimerId,10,NULL))
@@ -184,9 +190,13 @@ void  vtkWin32RenderWindowInteractor::StartRotate()
     vtkErrorMacro(<< "Not enough timers");
     }
 }
+
 void  vtkWin32RenderWindowInteractor::EndRotate()
 {
-  if (this->State != VTKXI_ROTATE) return;
+  if (this->State != VTKXI_ROTATE)
+    {
+    return;
+    }
   this->State = VTKXI_START;
   if (this->AnimationState == VTKXI_START)
     {
@@ -198,9 +208,15 @@ void  vtkWin32RenderWindowInteractor::EndRotate()
 
 void  vtkWin32RenderWindowInteractor::StartZoom()
 {
-  if (this->State != VTKXI_START) return;
+  if (this->State != VTKXI_START)
+    {
+    return;
+    }
   this->State = VTKXI_ZOOM;
-  if (this->AnimationState != VTKXI_START) return;
+  if (this->AnimationState != VTKXI_START)
+    {
+    return;
+    }
   this->Preprocess = 1;
   this->RenderWindow->SetDesiredUpdateRate(this->DesiredUpdateRate);
   if (!SetTimer(this->WindowId,this->TimerId,10,NULL))
@@ -211,7 +227,10 @@ void  vtkWin32RenderWindowInteractor::StartZoom()
 
 void  vtkWin32RenderWindowInteractor::EndZoom()
 {
-  if (this->State != VTKXI_ZOOM) return;
+  if (this->State != VTKXI_ZOOM)
+    {
+    return;
+    }
   this->State = VTKXI_START;
   if (this->AnimationState == VTKXI_START)
     {
@@ -223,10 +242,16 @@ void  vtkWin32RenderWindowInteractor::EndZoom()
 
 void  vtkWin32RenderWindowInteractor::StartPan()
 {
-  if (this->State != VTKXI_START) return;
+  if (this->State != VTKXI_START)
+    {
+    return;
+    }
   this->State = VTKXI_PAN;
-  if (this->AnimationState != VTKXI_START) return;
-
+  if (this->AnimationState != VTKXI_START)
+    {
+    return;
+    }
+  
   // calculation of focal depth has been moved to panning function.
        
   this->Preprocess = 1;
@@ -239,7 +264,10 @@ void  vtkWin32RenderWindowInteractor::StartPan()
 
 void  vtkWin32RenderWindowInteractor::EndPan()
 {
-  if (this->State != VTKXI_PAN) return;
+  if (this->State != VTKXI_PAN)
+    {
+    return;
+    }
   this->State = VTKXI_START;
   if (this->AnimationState == VTKXI_START)
     {
@@ -251,10 +279,16 @@ void  vtkWin32RenderWindowInteractor::EndPan()
 
 void  vtkWin32RenderWindowInteractor::StartAnimation()
 {
-  if (this->AnimationState != VTKXI_START) return;
+  if (this->AnimationState != VTKXI_START)
+    {
+    return;
+    }
   this->RenderWindow->SetDesiredUpdateRate(this->DesiredUpdateRate);
   this->AnimationState = VTKXI_ANIMATE;
-  if (this->State != VTKXI_START) return;
+  if (this->State != VTKXI_START)
+    {
+    return;
+    }
   if (!SetTimer(this->WindowId,this->TimerId,10,NULL))
     {
     vtkErrorMacro(<< "Not enough timers");
@@ -265,18 +299,24 @@ void  vtkWin32RenderWindowInteractor::EndAnimation()
 {
   this->AnimationState = VTKXI_START;
   if (this->State == VTKXI_START) 
-	{
-	this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
-	KillTimer(this->WindowId,this->TimerId);
-	}
+    {
+    this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
+    KillTimer(this->WindowId,this->TimerId);
+    }
   this->RenderWindow->Render();
 }
 
 void  vtkWin32RenderWindowInteractor::StartSpin()
 {
-  if (this->State != VTKXI_START) return;
+  if (this->State != VTKXI_START)
+    {
+    return;
+    }
   this->State = VTKXI_SPIN;
-  if (this->AnimationState != VTKXI_START) return;
+  if (this->AnimationState != VTKXI_START)
+    {
+    return;
+    }
   this->Preprocess = 1;
   this->RenderWindow->SetDesiredUpdateRate(this->DesiredUpdateRate);
   if (!SetTimer(this->WindowId,this->TimerId,10,NULL))
@@ -287,21 +327,30 @@ void  vtkWin32RenderWindowInteractor::StartSpin()
 
 void  vtkWin32RenderWindowInteractor::EndSpin()
 {
-  if (this->State != VTKXI_SPIN) return;
+  if (this->State != VTKXI_SPIN)
+    {
+    return;
+    }
   this->State = VTKXI_START;
   if (this->AnimationState == VTKXI_START)
-	{
-	this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
-	KillTimer(this->WindowId,this->TimerId);
-	}
+    {
+    this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
+    KillTimer(this->WindowId,this->TimerId);
+    }
   this->RenderWindow->Render();
 }
 
 void  vtkWin32RenderWindowInteractor::StartDolly()
 {
-  if (this->State != VTKXI_START) return;
+  if (this->State != VTKXI_START)
+    {
+    return;
+    }
   this->State = VTKXI_DOLLY;
-  if (this->AnimationState != VTKXI_START) return;
+  if (this->AnimationState != VTKXI_START)
+    {
+    return;
+    }
   this->Preprocess = 1;
   this->RenderWindow->SetDesiredUpdateRate(this->DesiredUpdateRate);
   if (!SetTimer(this->WindowId,this->TimerId,10,NULL))
@@ -312,22 +361,31 @@ void  vtkWin32RenderWindowInteractor::StartDolly()
 
 void  vtkWin32RenderWindowInteractor::EndDolly()
 {
-  if (this->State != VTKXI_DOLLY) return;
+  if (this->State != VTKXI_DOLLY)
+    {
+    return;
+    }
   this->State = VTKXI_START;
   if (this->AnimationState == VTKXI_START)
-	{
-	this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
-	KillTimer(this->WindowId,this->TimerId);
-	}
+    {
+    this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
+    KillTimer(this->WindowId,this->TimerId);
+    }
   this->RenderWindow->Render();
 }
 
 
 void  vtkWin32RenderWindowInteractor::StartUniformScale()
 {
-  if (this->State != VTKXI_START) return;
+  if (this->State != VTKXI_START)
+    {
+    return;
+    }
   this->State = VTKXI_USCALE;
-  if (this->AnimationState != VTKXI_START) return;
+  if (this->AnimationState != VTKXI_START)
+    {
+    return;
+    }
   this->Preprocess = 1;
   this->RenderWindow->SetDesiredUpdateRate(this->DesiredUpdateRate);
   if (!SetTimer(this->WindowId,this->TimerId,10,NULL))
@@ -338,13 +396,16 @@ void  vtkWin32RenderWindowInteractor::StartUniformScale()
 
 void  vtkWin32RenderWindowInteractor::EndUniformScale()
 {
-  if (this->State != VTKXI_USCALE) return;
+  if (this->State != VTKXI_USCALE)
+    {
+    return;
+    }
   this->State = VTKXI_START;
   if (this->AnimationState == VTKXI_START)
-	{
-	this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
-	KillTimer(this->WindowId,this->TimerId);
-	}
+    {
+    this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
+    KillTimer(this->WindowId,this->TimerId);
+    }
   this->RenderWindow->Render();
 }
 
@@ -390,20 +451,24 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
       me->OldX = LOWORD(lParam);
       me->OldY = HIWORD(lParam);
 
-      if (wParam & MK_CONTROL) {
+      if (wParam & MK_CONTROL)
+        {
 	me->ControlMode = VTKXI_CONTROL_ON;
-      }
-      else {
+        }
+      else
+        {
 	me->ControlMode = VTKXI_CONTROL_OFF;
-      };
+        }
 
       me->FindPokedCamera(LOWORD(lParam),
                           me->Size[1] - HIWORD(lParam) - 1);
       
-      if (me->ActorMode) {
-        if (me->StartPickMethod) {
+      if (me->ActorMode)
+        {
+        if (me->StartPickMethod)
+          {
 	  (*me->StartPickMethod)(me->StartPickMethodArg);
-        };
+          }
         
 	me->Picker->Pick(LOWORD(lParam), 
 			 me->Size[1]-HIWORD(lParam)-1,
@@ -415,14 +480,13 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
 	me->InteractionActor = (me->InteractionPicker)->GetAssembly();
         me->ActorPicked = (me->InteractionActor != NULL);
         // highlight actor at the end of interaction
-	//me->HighlightActor(me->InteractionActor);
 
 	if (me->EndPickMethod)
 	  {
 	  (*me->EndPickMethod)(me->EndPickMethodArg);
 	  }
 
-      };
+        }
 
       //      if ((wParam & MK_SHIFT) || (wParam & MK_RBUTTON))
       if (wParam & MK_SHIFT)
@@ -433,8 +497,13 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
 	  }
 	else
 	  {
-	    if (me->ControlMode) me->StartDolly();
-	    else                 me->StartPan(); 
+          if (me->ControlMode)
+            {
+            me->StartDolly();
+            }
+          else
+            {me->StartPan();
+            }
 	  }
 	}
       else
@@ -445,8 +514,14 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
 	  }
 	else
 	  {
-	    if (me->ControlMode) me->StartSpin();
-	    else                 me->StartRotate(); 
+          if (me->ControlMode)
+            {
+            me->StartSpin();
+            }
+          else
+            {
+            me->StartRotate();
+            }
 	  }
 	}
       break;
@@ -467,8 +542,14 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
 	  }
 	else
 	  {
-	    if (me->ControlMode) me->EndDolly();
-	    else                 me->EndPan();
+          if (me->ControlMode)
+            {
+            me->EndDolly();
+            }
+          else
+            {
+            me->EndPan();
+            }
 	  }
 	}
       else
@@ -479,16 +560,22 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
 	  }
 	else
 	  {
-	    if (me->ControlMode) me->EndSpin();
-	    else                 me->EndRotate(); 
+          if (me->ControlMode)
+            {
+            me->EndSpin();
+            }
+          else
+            {
+            me->EndRotate();
+            }
 	  }
 	}
       me->OldX = 0.0;
       me->OldY = 0.0;
-      if (me->ActorMode && me->ActorPicked) {
+      if (me->ActorMode && me->ActorPicked)
+        {
         me->HighlightActor(me->InteractionActor);
-      }
-
+        }
       break;
 	    
     case WM_MBUTTONDOWN: 
@@ -498,18 +585,20 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
       me->OldX = LOWORD(lParam);
       me->OldY = HIWORD(lParam);
             
-      if (wParam & MK_CONTROL) {
+      if (wParam & MK_CONTROL)
+        {
 	me->ControlMode = VTKXI_CONTROL_ON;
-      }
-      else {
+        }
+      else
+        {
 	me->ControlMode = VTKXI_CONTROL_OFF;
-      };
+        }
 
       me->FindPokedCamera(LOWORD(lParam),
                           me->Size[1] - HIWORD(lParam) - 1);
 
-      if (me->ActorMode) {
-      
+      if (me->ActorMode)
+        {
 	if (me->StartPickMethod)
 	  {
 	  (*me->StartPickMethod)(me->StartPickMethodArg);
@@ -524,14 +613,12 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
 	me->InteractionActor = (me->InteractionPicker)->GetAssembly();
         me->ActorPicked = (me->InteractionActor != NULL);
         // highlight actor at the end of interaction
-        // me->HighlightActor(me->InteractionActor);
 
 	if (me->EndPickMethod)
 	  {
 	  (*me->EndPickMethod)(me->EndPickMethodArg);
-	  };
-
-      };
+	  }
+        }
 
       if (me->MiddleButtonPressMethod) 
 	{
@@ -539,11 +626,17 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
 	}
       else
 	{
-          if (me->ControlMode) me->StartDolly();
-	  else                 me->StartPan(); 
+        if (me->ControlMode)
+          {
+          me->StartDolly();
+          }
+        else
+          {
+          me->StartPan();
+          }
 	}
       break;
-	    
+      
     case WM_MBUTTONUP: 
       me->SetEventPosition(LOWORD(lParam),
                            me->Size[1] - HIWORD(lParam) - 1);
@@ -557,15 +650,21 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
 	}
       else
 	{
-	  if (me->ControlMode) me->EndDolly();
-	  else                 me->EndPan();
+        if (me->ControlMode)
+          {
+          me->EndDolly();
+          }
+        else
+          {
+          me->EndPan();
+          }
 	}
       me->OldX = 0.0;
       me->OldY = 0.0;
-      if (me->ActorMode && me->ActorPicked) {
+      if (me->ActorMode && me->ActorPicked)
+        {
         me->HighlightActor(me->InteractionActor);
-      }
-
+        }
       break;
       
     case WM_RBUTTONDOWN: 
@@ -575,19 +674,21 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
       me->OldX = LOWORD(lParam);
       me->OldY = HIWORD(lParam);
             
-      if (wParam & MK_CONTROL) {
+      if (wParam & MK_CONTROL)
+        {
 	me->ControlMode = VTKXI_CONTROL_ON;
-      }
-      else {
+        }
+      else
+        {
 	me->ControlMode = VTKXI_CONTROL_OFF;
-      };
+        }
 
 
       me->FindPokedCamera(LOWORD(lParam),
                           me->Size[1] - HIWORD(lParam) - 1);
       
-      if (me->ActorMode) { 
-
+      if (me->ActorMode)
+        { 
         if (me->StartPickMethod)
 	  {
 	  (*me->StartPickMethod)(me->StartPickMethodArg);
@@ -602,13 +703,12 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
 	me->InteractionActor = (me->InteractionPicker)->GetAssembly();
         me->ActorPicked = (me->InteractionActor != NULL);
         // highlight actor at the end of interaction
-        //me->HighlightActor(me->InteractionActor);
 
 	if (me->EndPickMethod)
 	  {
 	  (*me->EndPickMethod)(me->EndPickMethodArg);
-	  };
-      };
+	  }
+        }
 
       if (me->RightButtonPressMethod) 
 	{
@@ -616,8 +716,14 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
 	}
       else
 	{
-	  if (me->ActorMode) me->StartUniformScale();
-	  else               me->StartZoom(); 
+        if (me->ActorMode)
+          {
+          me->StartUniformScale();
+          }
+        else
+          {
+          me->StartZoom();
+          }
 	}
       break;
 	    
@@ -634,15 +740,21 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
 	}
       else
 	{
-	  if (me->ActorMode) me->EndUniformScale();
-	  else               me->EndZoom();
+        if (me->ActorMode)
+          {
+          me->EndUniformScale();
+          }
+        else
+          {
+          me->EndZoom();
+          }
 	}
       me->OldX = 0.0;
       me->OldY = 0.0;
-      if (me->ActorMode && me->ActorPicked) {
+      if (me->ActorMode && me->ActorPicked)
+        {
         me->HighlightActor(me->InteractionActor);
-      }
-
+        }
       break;
 	    
     case WM_MOUSEMOVE:
@@ -651,10 +763,17 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
 
     case WM_CLOSE:
       if (me->ExitMethod)
-	(*me->ExitMethod)(me->ExitMethodArg);
+	{
+        (*me->ExitMethod)(me->ExitMethodArg);
+        }
       else if (me->ClassExitMethod)
-	(*me->ClassExitMethod)(me->ClassExitMethodArg);
-      else PostQuitMessage(0); 
+	{
+        (*me->ClassExitMethod)(me->ClassExitMethodArg);
+        }
+      else
+        {
+        PostQuitMessage(0);
+        }
       break;
 	    
     case WM_CHAR:
@@ -677,34 +796,46 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
 	case 'e':
 	case 'E': 
 	  if (me->ExitMethod)
-	    (*me->ExitMethod)(me->ExitMethodArg);
+	    {
+            (*me->ExitMethod)(me->ExitMethodArg);
+            }
 	  else if (me->ClassExitMethod)
-	    (*me->ClassExitMethod)(me->ClassExitMethodArg);
-	  else PostQuitMessage(0); 
+	    {
+            (*me->ClassExitMethod)(me->ClassExitMethodArg);
+            }
+	  else
+            {
+            PostQuitMessage(0);
+            }
 	  break;
           
 	case 'u':
 	case 'U':
-	  if (me->UserMethod) (*me->UserMethod)(me->UserMethodArg);
+	  if (me->UserMethod)
+            {
+            (*me->UserMethod)(me->UserMethodArg);
+            }
 	  break;
           
 	case 'r':
 	case 'R':
-	  if (me->ActorMode) {
-          //vtkDebugMacro(<<"Please switch to Camera mode when resetting");
-	  }
-	  else {
+	  if (me->ActorMode)
+            {
+            //vtkDebugMacro(<<"Please switch to Camera mode when resetting");
+            }
+	  else
+            {
             me->FindPokedRenderer(LOWORD(me->LastPosition),
 				  me->Size[1]-HIWORD(me->LastPosition)-1);
 	    me->CurrentRenderer->ResetCamera();
 	    me->RenderWindow->Render();
-	  }
+            }
 	  break;
           
 	case 'w':
 	case 'W':
 	  {
-	  vtkActorCollection *ac;
+          vtkActorCollection *ac;
 	  vtkActor *anActor, *aPart;
 	  
 	  me->FindPokedRenderer(LOWORD(me->LastPosition),
@@ -720,12 +851,12 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
 	  
 	  me->RenderWindow->Render();
 	  }
-	  break;
+          break;
           
 	case 's':
 	case 'S':
 	  {
-	  vtkActorCollection *ac;
+          vtkActorCollection *ac;
 	  vtkActor *anActor, *aPart;
 	  
 	  me->FindPokedRenderer(LOWORD(me->LastPosition),
@@ -741,10 +872,9 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
 	  
 	  me->RenderWindow->Render();
 	  }
-	  break;
+          break;
           
 	case '3':
-	  {
 	  if (me->RenderWindow->GetStereoRender())
 	    {
 	    me->RenderWindow->StereoRenderOff();
@@ -754,12 +884,10 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
 	    me->RenderWindow->StereoRenderOn();
 	    }
 	  me->RenderWindow->Render();
-	  }
 	  break;
           
 	case 'p':
 	case 'P':
-	  {
 	  me->FindPokedRenderer(LOWORD(me->LastPosition),
                                 me->Size[1]-HIWORD(me->LastPosition)-1);
 	  if (me->StartPickMethod)
@@ -782,7 +910,6 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
 	    {
 	    (*me->EndPickMethod)(me->EndPickMethodArg);
 	    }
-	  }
 	  break;
           
 	case 'j':
@@ -841,130 +968,159 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
       break;
       
     case WM_TIMER:
-      if (me->TimerMethod) {
+      if (me->TimerMethod)
+        {
 	me->SetEventPosition(LOWORD(me->LastPosition),
                              me->Size[1] - HIWORD(me->LastPosition)-1);
 	(*me->TimerMethod)(me->TimerMethodArg);
-      };
+        }
       
-      switch (me->State) {
+      switch (me->State)
+        {
         case VTKXI_START:
           //?? me->RenderWindow->Render();
           break;
           
         case VTKXI_ROTATE:  // rotate with respect to an axis perp to look
-          if (me->ActorMode && me->ActorPicked) {
-            if (me->TrackballMode) {
-            me->TrackballRotateActor(LOWORD(me->LastPosition),
-                                     HIWORD(me->LastPosition));
-            }
-  	    else {
+          if (me->ActorMode && me->ActorPicked)
+            {
+            if (me->TrackballMode)
+              {
+              me->TrackballRotateActor(LOWORD(me->LastPosition),
+                                       HIWORD(me->LastPosition));
+              }
+  	    else
+              {
               me->JoystickRotateActor(LOWORD(me->LastPosition),
                                       HIWORD(me->LastPosition));
-            };
-          }
-          else if (!(me->ActorMode)) {
-            if (me->TrackballMode) {
+              }
+            }
+          else if (!(me->ActorMode))
+            {
+            if (me->TrackballMode)
+              {
               me->TrackballRotateCamera(LOWORD(me->LastPosition),
                                         HIWORD(me->LastPosition));
-            }
-            else {
+              }
+            else
+              {
               me->JoystickRotateCamera(LOWORD(me->LastPosition),
                                        HIWORD(me->LastPosition));
-            };
-          };
+              }
+            }
           break;
           
         case VTKXI_PAN: // move perpendicular to camera's look vector
-          if (me->ActorMode && me->ActorPicked) {
-            if (me->TrackballMode) { 
+          if (me->ActorMode && me->ActorPicked)
+            {
+            if (me->TrackballMode)
+              { 
               me->TrackballPanActor(LOWORD(me->LastPosition),
                                     HIWORD(me->LastPosition));
-            }
-            else {
+              }
+            else
+              {
               me->JoystickPanActor(LOWORD(me->LastPosition),
                                    HIWORD(me->LastPosition));
-            };
-          }
-          else if (!(me->ActorMode)) {
-            if (me->TrackballMode) {
+              }
+            }
+          else if (!(me->ActorMode))
+            {
+            if (me->TrackballMode)
+              {
               me->TrackballPanCamera(LOWORD(me->LastPosition),
                                      HIWORD(me->LastPosition));
-            }
-            else {
+              }
+            else
+              {
               me->JoystickPanCamera(LOWORD(me->LastPosition),
                                     HIWORD(me->LastPosition));
-            };
-          };
+              }
+            }
           break;
           
         case VTKXI_ZOOM:
-          if (!(me->ActorMode)) {
-            if (me->TrackballMode) { 
+          if (!(me->ActorMode))
+            {
+            if (me->TrackballMode)
+              { 
               me->TrackballDollyCamera(LOWORD(me->LastPosition),
                                        HIWORD(me->LastPosition));
-            }
-            else {
+              }
+            else
+              {
               me->JoystickDollyCamera(LOWORD(me->LastPosition),
                                       HIWORD(me->LastPosition));
-            };
-          };
+              }
+            }
           break;
           
         case VTKXI_SPIN:
-          if (me->ActorMode && me->ActorPicked) {
-            if (me->TrackballMode) { 
+          if (me->ActorMode && me->ActorPicked)
+            {
+            if (me->TrackballMode)
+              { 
               me->TrackballSpinActor(LOWORD(me->LastPosition),
                                      HIWORD(me->LastPosition));
-            }
-            else {
+              }
+            else
+              {
               me->JoystickSpinActor(LOWORD(me->LastPosition),
                                     HIWORD(me->LastPosition));
-            };
-          }
-          else if (!(me->ActorMode)) {
-            if (me->TrackballMode) {
+              }
+            }
+          else if (!(me->ActorMode))
+            {
+            if (me->TrackballMode)
+              {
               me->TrackballSpinCamera(LOWORD(me->LastPosition),
                                       HIWORD(me->LastPosition));
-            }
-            else {
+              }
+            else
+              {
               me->JoystickSpinCamera(LOWORD(me->LastPosition),
                                      HIWORD(me->LastPosition));
-            };
-          };
+              }
+            }
           break;
           
         case VTKXI_DOLLY:  // move along camera's view vector
-          if (me->ActorMode && me->ActorPicked) {
-            if (me->TrackballMode) { 
+          if (me->ActorMode && me->ActorPicked)
+            {
+            if (me->TrackballMode)
+              { 
               me->TrackballDollyActor(LOWORD(me->LastPosition),
                                       HIWORD(me->LastPosition));
-            }
-            else {
+              }
+            else
+              {
               me->JoystickDollyActor(LOWORD(me->LastPosition),
                                      HIWORD(me->LastPosition));
-            };
-          };
+              }
+            }
           break;
 
         case VTKXI_USCALE:
-          if (me->ActorMode && me->ActorPicked) {
-            if (me->TrackballMode) {
+          if (me->ActorMode && me->ActorPicked)
+            {
+            if (me->TrackballMode)
+              {
               me->TrackballScaleActor(LOWORD(me->LastPosition),
                                       HIWORD(me->LastPosition));
-            }
-            else {
+              }
+            else
+              {
               me->JoystickScaleActor(LOWORD(me->LastPosition),
                                      HIWORD(me->LastPosition));
-            };
-          };
+              }
+            }
           break;
           
-      };
+        }
       break;
     default:
       return me->OldProc(hWnd,uMsg,wParam,lParam);
-  };
+    }
   return 0;
 }
 
