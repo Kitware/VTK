@@ -171,9 +171,10 @@ void vtkImageToStructuredPoints::Execute()
   // setup the structured points with the scalars
   bounds = region->GetBounds3d();
   region->GetAspectRatio3d(aspectRatio);
-  origin[0] = (float)(bounds[0]) * aspectRatio[0]; 
-  origin[1] = (float)(bounds[2]) * aspectRatio[1]; 
-  origin[2] = (float)(bounds[4]) * aspectRatio[2];
+  region->GetOrigin3d(origin);
+  origin[0] += (float)(bounds[0]) * aspectRatio[0]; 
+  origin[1] += (float)(bounds[2]) * aspectRatio[1]; 
+  origin[2] += (float)(bounds[4]) * aspectRatio[2];
   dim[0] = bounds[1] - bounds[0] + 1;
   dim[1] = bounds[3] - bounds[2] + 1;
   dim[2] = bounds[5] - bounds[4] + 1;
@@ -192,59 +193,51 @@ void vtkImageToStructuredPoints::Execute()
 //----------------------------------------------------------------------------
 // Description:
 // This function is for streaming.  It divides a region into two pieces,
-// An executes each one.  The spliting logic is hardwired.  First
-// the TIME axis is split then ZYX and COMPONENT axes are split.
+// An executes each one.  SplitOrder is used to determine which axis
+// to split first.  The default values are:
+// the TIME axis is tried first then ZYX and COMPONENT axes are tried.
 int vtkImageToStructuredPoints::SplitExecute(vtkImageRegion *outRegion)
 {
+  int saveAxes[VTK_IMAGE_DIMENSIONS];
   int saveBounds[VTK_IMAGE_BOUNDS_DIMENSIONS];
   int splitBounds[VTK_IMAGE_BOUNDS_DIMENSIONS];
-  int splitAxisIdx = 0;
-  int splitAxis;
-  int *splitAxes;
+  int splitAxisIdx;
   int min, max;
   vtkImageRegion *inRegion;
   
   // Save the  region state to restore later
   outRegion->GetBounds(saveBounds);
+  outRegion->GetAxes(saveAxes);
+  
+  // change to split order coordinat system to make spliting easier.
+  outRegion->SetAxes(this->SplitOrder.GetAxes());
   
   // Split output into two pieces and update separately.
   inRegion = new vtkImageRegion;
-  splitAxes = this->SplitOrder.GetAxes();
-  vtkDebugMacro ("Split order is: " << splitAxes[0] << ", " 
-				    << splitAxes[1] << ", " 
-				    << splitAxes[2] << ", " 
-				    << splitAxes[3]);
   outRegion->GetBounds(splitBounds);
-  vtkDebugMacro (<<"Initial split region bounds are: " <<
-         splitBounds[0] << ", " <<
-         splitBounds[1] << ", " <<
-         splitBounds[2] << ", " <<
-         splitBounds[3] << ", " <<
-         splitBounds[4] << ", " <<
-         splitBounds[5] << ", " <<
-         splitBounds[6] << ", " <<
-         splitBounds[7]);
 
-  splitAxis = splitAxes[splitAxisIdx];
-  while (splitBounds[splitAxis * 2] == splitBounds[splitAxis * 2 + 1])
+  splitAxisIdx = 0;
+  while (splitBounds[splitAxisIdx * 2] == splitBounds[splitAxisIdx * 2 + 1])
     {
     ++splitAxisIdx;
     if (splitAxisIdx >= VTK_IMAGE_DIMENSIONS)
       {
       vtkErrorMacro(<< "SplitExecute: Cannot split one pixel.");
+      inRegion->Delete();
+      outRegion->SetAxes(saveAxes);
+      outRegion->SetBounds(saveBounds);
       return 0;
       }
-    splitAxis = splitAxes[splitAxisIdx];
     }
-  min = splitBounds[splitAxis * 2];
-  max = splitBounds[splitAxis * 2 + 1];
+  min = splitBounds[splitAxisIdx * 2];
+  max = splitBounds[splitAxisIdx * 2 + 1];
   // lower part
-  splitBounds[splitAxis * 2 + 1] = (min + max) / 2;
+  splitBounds[splitAxisIdx * 2 + 1] = (min + max) / 2;
   inRegion->SetBounds(splitBounds);
   outRegion->SetBounds(splitBounds);
   if ( inRegion->GetVolume() < this->InputMemoryLimit)
     {
-    vtkDebugMacro (<<"Updating Split Region: bounds are: " <<
+    vtkDebugMacro (<<"Updating Split Region: bounds: " <<
          splitBounds[0] << ", " <<
          splitBounds[1] << ", " <<
          splitBounds[2] << ", " <<
@@ -263,12 +256,15 @@ int vtkImageToStructuredPoints::SplitExecute(vtkImageRegion *outRegion)
     if ( ! this->SplitExecute(outRegion))
       {
       vtkErrorMacro(<< "SplitExecute: Split failed.");
+      inRegion->Delete();
+      outRegion->SetAxes(saveAxes);
+      outRegion->SetBounds(saveBounds);
       return 0;
       }
     }
   // upper part
-  splitBounds[splitAxis * 2] = splitBounds[splitAxis * 2 + 1] + 1;
-  splitBounds[splitAxis * 2 + 1] = max;
+  splitBounds[splitAxisIdx * 2] = splitBounds[splitAxisIdx * 2 + 1] + 1;
+  splitBounds[splitAxisIdx * 2 + 1] = max;
   inRegion->SetBounds(splitBounds);
   outRegion->SetBounds(splitBounds);
   if ( inRegion->GetVolume() < this->InputMemoryLimit)
@@ -292,13 +288,18 @@ int vtkImageToStructuredPoints::SplitExecute(vtkImageRegion *outRegion)
     if ( ! this->SplitExecute(outRegion))
       {
       vtkErrorMacro(<< "SplitExecute: Split failed.");
+      inRegion->Delete();
+      outRegion->SetAxes(saveAxes);
+      outRegion->SetBounds(saveBounds);
       return 0;
       }
     }
   
   // Clean up
   inRegion->Delete();
+  outRegion->SetAxes(saveAxes);
   outRegion->SetBounds(saveBounds);
+  return 1;
 }
 
   
