@@ -24,7 +24,7 @@
 #define __vtkImageIslandRemoval2D_h
 
 
-#include "vtkImageToImageFilter.h"
+#include "vtkImageAlgorithm.h"
 
 //BTX
 typedef struct{
@@ -35,13 +35,13 @@ typedef struct{
   } vtkImage2DIslandPixel;
 //ETX
 
-class VTK_IMAGING_EXPORT vtkImageIslandRemoval2D : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImageIslandRemoval2D : public vtkImageAlgorithm
 {
 public:
   // Description:
   // Constructor: Sets default filter to be identity.
   static vtkImageIslandRemoval2D *New();
-  vtkTypeRevisionMacro(vtkImageIslandRemoval2D,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageIslandRemoval2D,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
@@ -74,7 +74,10 @@ protected:
   double IslandValue;
   double ReplaceValue;
 
-  void ExecuteData(vtkDataObject *output);
+  void RequestData(vtkInformation *,
+                   vtkInformationVector **,
+                   vtkInformationVector *);
+
 private:
   vtkImageIslandRemoval2D(const vtkImageIslandRemoval2D&);  // Not implemented.
   void operator=(const vtkImageIslandRemoval2D&);  // Not implemented.

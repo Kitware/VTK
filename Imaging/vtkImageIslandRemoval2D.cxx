@@ -15,9 +15,12 @@
 #include "vtkImageIslandRemoval2D.h"
 
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageIslandRemoval2D, "1.43");
+vtkCxxRevisionMacro(vtkImageIslandRemoval2D, "1.44");
 vtkStandardNewMacro(vtkImageIslandRemoval2D);
 
 //----------------------------------------------------------------------------
@@ -471,17 +474,27 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
 // This method uses the input data to fill the output data.
 // It can handle any type data, but the two datas must have the same 
 // data type.  Assumes that in and out have the same lower extent.
-void vtkImageIslandRemoval2D::ExecuteData(vtkDataObject *vtkNotUsed(output))
+void vtkImageIslandRemoval2D::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  int *outExt;
-  vtkImageData *inData = this->GetInput();
-  vtkImageData *outData = this->GetOutput();
+  int outExt[6];
+  
+  // get the data object
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkImageData *inData = vtkImageData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkImageData *outData = vtkImageData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   int wholeExtent[6];
   int extent[6];
   
   // We need to allocate our own scalars.
-  memcpy(wholeExtent, outData->GetWholeExtent(), 6*sizeof(int));
-  memcpy(extent, outData->GetUpdateExtent(), 6*sizeof(int));
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExtent);
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), extent);
   extent[0] = wholeExtent[0];
   extent[1] = wholeExtent[1];
   extent[2] = wholeExtent[2];
@@ -490,20 +503,23 @@ void vtkImageIslandRemoval2D::ExecuteData(vtkDataObject *vtkNotUsed(output))
   outData->AllocateScalars();
   
   // this filter expects that input is the same type as output.
-  if (inData->GetScalarType() != outData->GetScalarType())
+  if (inInfo->Get(vtkDataObject::SCALAR_TYPE()) !=
+      outInfo->Get(vtkDataObject::SCALAR_TYPE()))
     {
     vtkErrorMacro(<< "Execute: input ScalarType, " 
-                  << vtkImageScalarTypeNameMacro(inData->GetScalarType())
+                  << vtkImageScalarTypeNameMacro(
+                    inInfo->Get(vtkDataObject::SCALAR_TYPE()))
                   << ", must match out ScalarType "
-                  << vtkImageScalarTypeNameMacro(outData->GetScalarType()));
+                  << vtkImageScalarTypeNameMacro(
+                    outInfo->Get(vtkDataObject::SCALAR_TYPE())));
     return;
     }
 
-  outExt = this->GetOutput()->GetUpdateExtent();
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), outExt);
   void *inPtr = inData->GetScalarPointerForExtent(outExt);
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
   
-  switch (inData->GetScalarType())
+  switch (inInfo->Get(vtkDataObject::SCALAR_TYPE()))
     {
     vtkTemplateMacro6(vtkImageIslandRemoval2DExecute, this, inData, 
                       (VTK_TT *)(inPtr), outData, (VTK_TT *)(outPtr), outExt);
