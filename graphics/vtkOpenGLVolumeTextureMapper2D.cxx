@@ -125,7 +125,7 @@ void vtkOpenGLVolumeTextureMapper2D::Render(vtkRenderer *ren, vtkVolume *vol)
 
     for (i = 0; i < numClipPlanes; i++)
       {
-      glEnable(GL_CLIP_PLANE0+i);
+      glEnable((GLenum)(GL_CLIP_PLANE0+i));
 
       plane = (vtkPlane *)clipPlanes->GetItemAsObject(i);
 
@@ -135,7 +135,7 @@ void vtkOpenGLVolumeTextureMapper2D::Render(vtkRenderer *ren, vtkVolume *vol)
       planeEquation[3] = -(planeEquation[0]*plane->GetOrigin()[0]+
 			   planeEquation[1]*plane->GetOrigin()[1]+
 			   planeEquation[2]*plane->GetOrigin()[2]);
-      glClipPlane(GL_CLIP_PLANE0+i,planeEquation);
+      glClipPlane((GLenum)(GL_CLIP_PLANE0+i),planeEquation);
       }
     }
 
@@ -157,7 +157,7 @@ void vtkOpenGLVolumeTextureMapper2D::Render(vtkRenderer *ren, vtkVolume *vol)
     {
     for (i = 0; i < numClipPlanes; i++)
       {
-      glDisable(GL_CLIP_PLANE0+i);
+      glDisable((GLenum)(GL_CLIP_PLANE0+i));
       }
     }
 
