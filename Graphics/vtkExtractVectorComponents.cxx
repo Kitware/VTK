@@ -191,8 +191,8 @@ void vtkExtractVectorComponents::Execute()
   vtkDataArray *vectors, *vectorsc;
   vtkDataArray *vx, *vy, *vz;
   vtkDataArray *vxc, *vyc, *vzc;
-  vtkPointData *pd, *outVx, *outVy, *outVz;
-  vtkCellData *cd, *outVxc, *outVyc, *outVzc;
+  vtkPointData *pd, *outVx, *outVy=0, *outVz=0;
+  vtkCellData *cd, *outVxc, *outVyc=0, *outVzc=0;
 
   vtkDebugMacro(<<"Extracting vector components...");
 
