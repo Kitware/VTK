@@ -194,6 +194,7 @@ vtkRenderWindowInteractor \
 vtkRenderer \
 vtkRendererCollection \
 vtkRendererSource \
+vtkReverseSense \
 vtkRibbonFilter \
 vtkRotationalExtrusionFilter \
 vtkSLCReader \
@@ -308,7 +309,7 @@ CLEAN_JAVA         = @CLEAN_JAVA@
 OGLR_INCLUDE       = @OGLR_INCLUDE@
 
 # add in any extra libraies here
-KIT_LIBS = vtkRenderWidget.o
+KIT_LIBS = vtkTkRenderWidget.o
 #JAVA_O_ADD = vtkJavaPanel.o 
 JAVA_CODE_ADD = ../java/vtk/vtkPanel.class
 
