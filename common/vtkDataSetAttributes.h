@@ -173,9 +173,10 @@ public:
   void CopyAllOn();
   void CopyAllOff();
 
+  void CopyTuple(vtkDataArray *fromData, vtkDataArray *toData, int fromId, int toId);
+
 protected:
   // special methods to support managing data
-  void CopyTuple(vtkDataArray *fromData, vtkDataArray *toData, int fromId, int toId);
   void InterpolateTuple(vtkDataArray *fromData, vtkDataArray *toData, int toId,
 			vtkIdList *ptIds, float *weights);
   void InterpolateTuple(vtkDataArray *fromData, vtkDataArray *toData, int toId, 
