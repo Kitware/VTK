@@ -27,11 +27,13 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkTimerLog.h"
+#include "vtkTransform.h"
+#include "vtkVolumeProperty.h"
 #include "vtkVolumeRayCastFunction.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.89");
+vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.90");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.

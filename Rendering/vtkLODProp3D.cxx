@@ -19,14 +19,15 @@
 
 #include "vtkActor.h"
 #include "vtkMapper.h"
+#include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkPropCollection.h"
 #include "vtkVolume.h"
+#include "vtkVolumeMapper.h"
 
-#include <stdlib.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkLODProp3D, "1.33");
+vtkCxxRevisionMacro(vtkLODProp3D, "1.34");
 vtkStandardNewMacro(vtkLODProp3D);
 
 #define VTK_INDEX_NOT_IN_USE    -1

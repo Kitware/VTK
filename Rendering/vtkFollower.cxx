@@ -20,14 +20,16 @@
 
 #include "vtkCamera.h"
 #include "vtkMath.h"
+#include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
 #include "vtkTexture.h"
+#include "vtkTransform.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFollower, "1.42");
+vtkCxxRevisionMacro(vtkFollower, "1.43");
 vtkStandardNewMacro(vtkFollower);
 
 vtkCxxSetObjectMacro(vtkFollower,Camera,vtkCamera);

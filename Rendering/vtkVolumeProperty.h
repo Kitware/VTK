@@ -52,12 +52,6 @@ class vtkPiecewiseFunction;
 class vtkTimeStamp;
 class vtkColorTransferFunction;
 
-// Constants for InterpolationType
-#define VTK_NEAREST_INTERPOLATION       0
-#define VTK_LINEAR_INTERPOLATION        1
-
-#define VTK_MAX_VRCOMP                  4
-
 class VTK_RENDERING_EXPORT vtkVolumeProperty : public vtkObject
 {
 public:

@@ -16,17 +16,19 @@
 
 =========================================================================*/
 #include "vtkPushPipeline.h"
-#include "vtkSource.h"
-#include "vtkObjectFactory.h"
+
 #include "vtkAbstractMapper.h"
+#include "vtkArrayMap.txx"
 #include "vtkCommand.h"
 #include "vtkImageActor.h"
+#include "vtkObjectFactory.h"
 #include "vtkPushImageReader.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
+#include "vtkSource.h"
 #include "vtkVector.txx"
-#include "vtkArrayMap.txx"
+#include "vtkVolumeMapper.h"
 
 class vtkPushPipelineProcessInfo {
 public:
@@ -103,7 +105,7 @@ public:
   vtkPushPipeline *PushPipeline;
 };
 
-vtkCxxRevisionMacro(vtkPushPipeline, "1.7");
+vtkCxxRevisionMacro(vtkPushPipeline, "1.8");
 vtkStandardNewMacro(vtkPushPipeline);
 
 vtkPushPipeline::vtkPushPipeline()

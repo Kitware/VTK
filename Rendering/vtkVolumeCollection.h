@@ -28,7 +28,8 @@
 #define __vtkVolumeC_h
 
 #include "vtkPropCollection.h"
-#include "vtkVolume.h"
+
+#include "vtkVolume.h"  // Needed for static cast
 
 class VTK_RENDERING_EXPORT vtkVolumeCollection : public vtkPropCollection
 {

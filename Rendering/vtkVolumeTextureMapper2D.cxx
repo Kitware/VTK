@@ -20,8 +20,11 @@
 #include "vtkCamera.h"
 #include "vtkGraphicsFactory.h"
 #include "vtkLargeInteger.h"
+#include "vtkMatrix4x4.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
+#include "vtkTransform.h"
+#include "vtkVolumeProperty.h"
 
 #define VTK_PLUS_X_MAJOR_DIRECTION  0
 #define VTK_MINUS_X_MAJOR_DIRECTION 1
@@ -464,7 +467,7 @@ void vtkVolumeTextureMapper2D_TraverseVolume( T *data_ptr,
 
 }
 
-vtkCxxRevisionMacro(vtkVolumeTextureMapper2D, "1.49");
+vtkCxxRevisionMacro(vtkVolumeTextureMapper2D, "1.50");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.

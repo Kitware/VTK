@@ -31,9 +31,17 @@
 #ifndef __vtkProperty_h
 #define __vtkProperty_h
 
-#include "vtkRender.h"
 #include "vtkObject.h"
-#include "vtkStructuredPoints.h"
+
+// shading models
+#define VTK_FLAT    0
+#define VTK_GOURAUD 1
+#define VTK_PHONG   2
+
+// representation models
+#define VTK_POINTS    0
+#define VTK_WIREFRAME 1
+#define VTK_SURFACE   2
 
 class vtkRenderer;
 class vtkActor;

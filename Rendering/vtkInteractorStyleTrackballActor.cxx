@@ -21,12 +21,14 @@
 #include "vtkCellPicker.h"
 #include "vtkCommand.h"
 #include "vtkMath.h"
+#include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkProp3D.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+#include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTrackballActor, "1.27");
+vtkCxxRevisionMacro(vtkInteractorStyleTrackballActor, "1.28");
 vtkStandardNewMacro(vtkInteractorStyleTrackballActor);
 
 //----------------------------------------------------------------------------

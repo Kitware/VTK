@@ -18,6 +18,7 @@
 #include "vtkOpenGLActor.h"
 
 #include "vtkMapper.h"
+#include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkProperty.h"
@@ -30,7 +31,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLActor, "1.25");
+vtkCxxRevisionMacro(vtkOpenGLActor, "1.26");
 vtkStandardNewMacro(vtkOpenGLActor);
 #endif
 

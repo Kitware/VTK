@@ -19,15 +19,19 @@
 
 #include "vtkCamera.h"
 #include "vtkColorTransferFunction.h"
+#include "vtkLinearTransform.h"
+#include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
-#include "vtkVolumeCollection.h"
-#include "vtkVolumeRayCastMapper.h"
 #include "vtkPiecewiseFunction.h"
+#include "vtkRenderer.h"
+#include "vtkTransform.h"
+#include "vtkVolumeCollection.h"
+#include "vtkVolumeProperty.h"
+#include "vtkVolumeRayCastMapper.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolume, "1.71");
+vtkCxxRevisionMacro(vtkVolume, "1.72");
 vtkStandardNewMacro(vtkVolume);
 
 // Creates a Volume with the following defaults: origin(0,0,0) 

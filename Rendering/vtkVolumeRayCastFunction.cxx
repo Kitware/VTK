@@ -15,15 +15,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
 #include "vtkVolumeRayCastFunction.h"
 
 #include "vtkEncodedGradientEstimator.h"
 #include "vtkEncodedGradientShader.h"
 #include "vtkVolume.h"
+#include "vtkVolumeProperty.h"
 #include "vtkVolumeRayCastMapper.h"
 
-vtkCxxRevisionMacro(vtkVolumeRayCastFunction, "1.20");
+vtkCxxRevisionMacro(vtkVolumeRayCastFunction, "1.21");
 
 // Grab everything we need for rendering now. This procedure will be called
 // during the initialization phase of ray casting. It is called once per 

@@ -28,7 +28,7 @@
 #define __vtkProp3DCollection_h
 
 #include "vtkPropCollection.h"
-#include "vtkProp3D.h"
+#include "vtkProp3D.h" // Needed for inline methods
 
 class VTK_RENDERING_EXPORT vtkProp3DCollection : public vtkPropCollection
 {

@@ -32,14 +32,13 @@
 #define __vtkVolume_h
 
 #include "vtkProp3D.h"
-#include "vtkTransform.h"
-#include "vtkVolumeProperty.h"
-#include "vtkVolumeMapper.h"
 
 class vtkRenderer;
 class vtkPropCollection;
 class vtkVolumeCollection;
 class vtkWindow;
+class vtkVolumeProperty;
+class vtkVolumeMapper;
 
 class VTK_RENDERING_EXPORT vtkVolume : public vtkProp3D
 {

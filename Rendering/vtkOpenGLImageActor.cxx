@@ -21,6 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkImageData.h"
 
 #ifdef VTK_USE_CARBON
  #include "vtkCarbonRenderWindow.h"
@@ -37,7 +38,6 @@
 #endif
 
 #include <math.h>
-#include <string.h>
 
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
@@ -47,7 +47,7 @@
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLImageActor, "1.15");
+vtkCxxRevisionMacro(vtkOpenGLImageActor, "1.16");
 vtkStandardNewMacro(vtkOpenGLImageActor);
 #endif
 

@@ -30,10 +30,11 @@
 #include "vtkRendererCollection.h"
 #include "vtkSystemIncludes.h"
 #include "vtkTexture.h"
+#include "vtkTransform.h"
 #include "vtkTriangleStrip.h"
 #include "vtkVersion.h"
 
-vtkCxxRevisionMacro(vtkOOGLExporter, "1.15");
+vtkCxxRevisionMacro(vtkOOGLExporter, "1.16");
 vtkStandardNewMacro(vtkOOGLExporter);
 
 vtkOOGLExporter::vtkOOGLExporter()

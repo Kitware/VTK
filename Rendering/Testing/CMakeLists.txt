@@ -15,7 +15,6 @@ IF(PYTHON_EXECUTABLE)
            vtkFreeTypeFontCache.h
            vtkgluPickMatrix.h
            vtkOpenGLStateCache.h
-           vtkRender.h
            vtkVolumeRayCastStructures.h
            )
 ENDIF(PYTHON_EXECUTABLE)

@@ -38,8 +38,9 @@
 #include "vtkPlane.h"
 #include "vtkFeatureEdges.h"
 #include "vtkTransform.h"
+#include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.10");
+vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.11");
 vtkStandardNewMacro(vtkImplicitPlaneWidget);
 
 vtkImplicitPlaneWidget::vtkImplicitPlaneWidget() : vtkPolyDataSourceWidget()

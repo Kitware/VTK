@@ -22,13 +22,16 @@
 #include "vtkEncodedGradientEstimator.h"
 #include "vtkLight.h"
 #include "vtkLightCollection.h"
+#include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
+#include "vtkTransform.h"
 #include "vtkVolume.h"
+#include "vtkVolumeProperty.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkEncodedGradientShader, "1.25");
+vtkCxxRevisionMacro(vtkEncodedGradientShader, "1.26");
 vtkStandardNewMacro(vtkEncodedGradientShader);
 
 vtkEncodedGradientShader::vtkEncodedGradientShader()

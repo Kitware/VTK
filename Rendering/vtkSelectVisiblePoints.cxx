@@ -18,11 +18,12 @@
 #include "vtkSelectVisiblePoints.h"
 
 #include "vtkCamera.h"
+#include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkSelectVisiblePoints, "1.25");
+vtkCxxRevisionMacro(vtkSelectVisiblePoints, "1.26");
 vtkStandardNewMacro(vtkSelectVisiblePoints);
 
 // Instantiate object with no renderer; window selection turned off; 

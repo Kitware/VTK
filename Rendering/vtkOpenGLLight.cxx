@@ -15,10 +15,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include <math.h>
+#include "vtkOpenGLLight.h"
 
 #include "vtkOpenGLRenderer.h"
-#include "vtkOpenGLLight.h"
+#include "vtkObjectFactory.h"
+#include "vtkMatrix4x4.h"
+
 #ifndef VTK_IMPLEMENT_MESA_CXX
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
@@ -26,15 +28,13 @@
 #include <GL/gl.h>
 #endif
 #endif
-#include "vtkObjectFactory.h"
 
+#include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLLight, "1.18");
+vtkCxxRevisionMacro(vtkOpenGLLight, "1.19");
 vtkStandardNewMacro(vtkOpenGLLight);
 #endif
-
-
 
 // Implement base class method.
 void vtkOpenGLLight::Render(vtkRenderer *vtkNotUsed(ren),int light_index)

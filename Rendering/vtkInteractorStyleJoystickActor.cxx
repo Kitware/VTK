@@ -25,8 +25,10 @@
 #include "vtkProp3D.h"
 #include "vtkRenderer.h"
 #include "vtkCellPicker.h"
+#include "vtkTransform.h"
+#include "vtkMatrix4x4.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleJoystickActor, "1.25");
+vtkCxxRevisionMacro(vtkInteractorStyleJoystickActor, "1.26");
 vtkStandardNewMacro(vtkInteractorStyleJoystickActor);
 
 //----------------------------------------------------------------------------

@@ -216,6 +216,13 @@ typedef int vtkIdType;
 #define VTK_COLOR_MODE_DEFAULT 0
 #define VTK_COLOR_MODE_MAP_SCALARS 1
 
+// Constants for InterpolationType
+#define VTK_NEAREST_INTERPOLATION       0
+#define VTK_LINEAR_INTERPOLATION        1
+
+// For volume rendering
+#define VTK_MAX_VRCOMP                  4
+
 // 
 
 #endif

@@ -15,12 +15,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include "vtkActor.h"
+#include "vtkContourFilter.h"
+#include "vtkImageData.h"
 #include "vtkInputPort.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkContourFilter.h"
-#include "vtkActor.h"
+
 #include "PipelineParallelism.h"
 
 // Pipe 2 for PipelineParallelism.

@@ -16,10 +16,12 @@
 
 =========================================================================*/
 #include "vtkImageActor.h"
+
 #include "vtkGraphicsFactory.h"
 #include "vtkRenderer.h"
+#include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkImageActor, "1.12");
+vtkCxxRevisionMacro(vtkImageActor, "1.13");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.

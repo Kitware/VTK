@@ -29,8 +29,9 @@
 #include "vtkRenderWindow.h"
 #include "vtkRendererCollection.h"
 #include "vtkTexture.h"
+#include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkVRMLExporter, "1.64");
+vtkCxxRevisionMacro(vtkVRMLExporter, "1.65");
 vtkStandardNewMacro(vtkVRMLExporter);
 
 vtkVRMLExporter::vtkVRMLExporter()

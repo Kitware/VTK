@@ -33,8 +33,9 @@
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkBoxWidget, "1.20");
+vtkCxxRevisionMacro(vtkBoxWidget, "1.21");
 vtkStandardNewMacro(vtkBoxWidget);
 
 vtkBoxWidget::vtkBoxWidget()
