@@ -27,7 +27,7 @@
 #include "vtkByteSwap.h"
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.19");
+vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.20");
 vtkStandardNewMacro(vtkEnSight6BinaryReader);
 
 //----------------------------------------------------------------------------
@@ -401,12 +401,12 @@ int vtkEnSight6BinaryReader::SkipUnstructuredGrid(char line[256])
         {
         vtkDebugMacro("tria3");
         vtkWarningMacro("Only vertex nodes of this element will be read.");
-        cellType = VTK_ENSIGHT_TRIA3;
+        cellType = vtkEnSightReader::TRIA3;
         }
       else
         {
         vtkDebugMacro("tria6");
-        cellType = VTK_ENSIGHT_TRIA6;
+        cellType = vtkEnSightReader::TRIA6;
         }
       
       this->ReadInt(&numElements);
@@ -417,7 +417,7 @@ int vtkEnSight6BinaryReader::SkipUnstructuredGrid(char line[256])
         delete [] tempArray;
         }
       
-      if (cellType == VTK_ENSIGHT_TRIA3)
+      if (cellType == vtkEnSightReader::TRIA3)
         {
         nodeIdList = new int[numElements * 3];
         this->ReadIntArray(nodeIdList, numElements*3);
@@ -437,12 +437,12 @@ int vtkEnSight6BinaryReader::SkipUnstructuredGrid(char line[256])
         {
         vtkDebugMacro("quad8");
         vtkWarningMacro("Only vertex nodes of this element will be read.");
-        cellType = VTK_ENSIGHT_QUAD8;
+        cellType = vtkEnSightReader::QUAD8;
         }
       else
         {
         vtkDebugMacro("quad4");
-        cellType = VTK_ENSIGHT_QUAD4;
+        cellType = vtkEnSightReader::QUAD4;
         }
       
       this->ReadInt(&numElements);
@@ -453,7 +453,7 @@ int vtkEnSight6BinaryReader::SkipUnstructuredGrid(char line[256])
         delete [] tempArray;
         }
       
-      if (cellType == VTK_ENSIGHT_QUAD4)
+      if (cellType == vtkEnSightReader::QUAD4)
         {
         nodeIdList = new int[numElements * 4];
         this->ReadIntArray(nodeIdList, numElements*4);
@@ -473,12 +473,12 @@ int vtkEnSight6BinaryReader::SkipUnstructuredGrid(char line[256])
         {
         vtkDebugMacro("tetra10");
         vtkWarningMacro("Only vertex nodes of this element will be read.");
-        cellType = VTK_ENSIGHT_TETRA10;
+        cellType = vtkEnSightReader::TETRA10;
         }
       else
         {
         vtkDebugMacro("tetra4");
-        cellType = VTK_ENSIGHT_TETRA4;
+        cellType = vtkEnSightReader::TETRA4;
         }
       
       this->ReadInt(&numElements);
@@ -489,7 +489,7 @@ int vtkEnSight6BinaryReader::SkipUnstructuredGrid(char line[256])
         delete [] tempArray;
         }
       
-      if (cellType == VTK_ENSIGHT_TETRA4)
+      if (cellType == vtkEnSightReader::TETRA4)
         {
         nodeIdList = new int[numElements * 4];
         this->ReadIntArray(nodeIdList, numElements*4);
@@ -509,12 +509,12 @@ int vtkEnSight6BinaryReader::SkipUnstructuredGrid(char line[256])
         {
         vtkDebugMacro("pyramid13");
         vtkWarningMacro("Only vertex nodes of this element will be read.");
-        cellType = VTK_ENSIGHT_PYRAMID13;
+        cellType = vtkEnSightReader::PYRAMID13;
         }
       else
         {
         vtkDebugMacro("pyramid5");
-        cellType = VTK_ENSIGHT_PYRAMID5;
+        cellType = vtkEnSightReader::PYRAMID5;
         }
 
       this->ReadInt(&numElements);
@@ -525,7 +525,7 @@ int vtkEnSight6BinaryReader::SkipUnstructuredGrid(char line[256])
         delete [] tempArray;
         }
       
-      if (cellType == VTK_ENSIGHT_PYRAMID5)
+      if (cellType == vtkEnSightReader::PYRAMID5)
         {
         nodeIdList = new int[numElements * 5];
         this->ReadIntArray(nodeIdList, numElements*5);
@@ -545,12 +545,12 @@ int vtkEnSight6BinaryReader::SkipUnstructuredGrid(char line[256])
         {
         vtkDebugMacro("hexa20");
         vtkWarningMacro("Only vertex nodes of this element will be read.");
-        cellType = VTK_ENSIGHT_HEXA20;
+        cellType = vtkEnSightReader::HEXA20;
         }
       else
         {
         vtkDebugMacro("hexa8");
-        cellType = VTK_ENSIGHT_HEXA8;
+        cellType = vtkEnSightReader::HEXA8;
         }
       
       this->ReadInt(&numElements);
@@ -561,7 +561,7 @@ int vtkEnSight6BinaryReader::SkipUnstructuredGrid(char line[256])
         delete [] tempArray;
         }
       
-      if (cellType == VTK_ENSIGHT_HEXA8)
+      if (cellType == vtkEnSightReader::HEXA8)
         {
         nodeIdList = new int[numElements * 8];
         this->ReadIntArray(nodeIdList, numElements*8);
@@ -581,12 +581,12 @@ int vtkEnSight6BinaryReader::SkipUnstructuredGrid(char line[256])
         {
         vtkDebugMacro("penta15");
         vtkWarningMacro("Only vertex nodes of this element will be read.");
-        cellType = VTK_ENSIGHT_PENTA15;
+        cellType = vtkEnSightReader::PENTA15;
         }
       else
         {
         vtkDebugMacro("penta6");
-        cellType = VTK_ENSIGHT_PENTA6;
+        cellType = vtkEnSightReader::PENTA6;
         }
       
       this->ReadInt(&numElements);
@@ -597,7 +597,7 @@ int vtkEnSight6BinaryReader::SkipUnstructuredGrid(char line[256])
         delete [] tempArray;
         }
       
-      if (cellType == VTK_ENSIGHT_PENTA6)
+      if (cellType == vtkEnSightReader::PENTA6)
         {
         nodeIdList = new int[numElements * 6];
         this->ReadIntArray(nodeIdList, numElements*6);
@@ -1907,7 +1907,7 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
           }
         cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
           InsertNextCell(VTK_VERTEX, 1, nodeIds);
-        this->CellIds[idx][VTK_ENSIGHT_POINT]->InsertNextId(cellId);
+        this->CellIds[idx][vtkEnSightReader::POINT]->InsertNextId(cellId);
         }
       delete [] nodeIds;
       delete [] nodeIdList;
@@ -1945,7 +1945,7 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
           }
         cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
           InsertNextCell(VTK_LINE, 2, nodeIds);
-        this->CellIds[idx][VTK_ENSIGHT_BAR2]->InsertNextId(cellId);
+        this->CellIds[idx][vtkEnSightReader::BAR2]->InsertNextId(cellId);
         }
       delete [] nodeIds;
       delete [] nodeIdList;
@@ -1984,7 +1984,7 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
           }
         cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
           InsertNextCell(VTK_LINE, 2, nodeIds);
-        this->CellIds[idx][VTK_ENSIGHT_BAR3]->InsertNextId(cellId);
+        this->CellIds[idx][vtkEnSightReader::BAR3]->InsertNextId(cellId);
         }
       delete [] nodeIds;
       delete [] nodeIdList;
@@ -1996,12 +1996,12 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
         {
         vtkDebugMacro("tria3");
         vtkWarningMacro("Only vertex nodes of this element will be read.");
-        cellType = VTK_ENSIGHT_TRIA3;
+        cellType = vtkEnSightReader::TRIA3;
         }
       else
         {
         vtkDebugMacro("tria6");
-        cellType = VTK_ENSIGHT_TRIA6;
+        cellType = vtkEnSightReader::TRIA6;
         }
       
       nodeIds = new vtkIdType[3];
@@ -2014,7 +2014,7 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
         delete [] tempArray;
         }
       
-      if (cellType == VTK_ENSIGHT_TRIA3)
+      if (cellType == vtkEnSightReader::TRIA3)
         {
         nodeIdList = new int[numElements * 3];
         this->ReadIntArray(nodeIdList, numElements*3);
@@ -2027,7 +2027,7 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
       
       for (i = 0; i < numElements; i++)
         {
-        if (cellType == VTK_ENSIGHT_TRIA3)
+        if (cellType == vtkEnSightReader::TRIA3)
           {
           for (j = 0; j < 3; j++)
             {
@@ -2062,12 +2062,12 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
         {
         vtkDebugMacro("quad8");
         vtkWarningMacro("Only vertex nodes of this element will be read.");
-        cellType = VTK_ENSIGHT_QUAD8;
+        cellType = vtkEnSightReader::QUAD8;
         }
       else
         {
         vtkDebugMacro("quad4");
-        cellType = VTK_ENSIGHT_QUAD4;
+        cellType = vtkEnSightReader::QUAD4;
         }
       
       nodeIds = new vtkIdType[4];
@@ -2080,7 +2080,7 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
         delete [] tempArray;
         }
       
-      if (cellType == VTK_ENSIGHT_QUAD4)
+      if (cellType == vtkEnSightReader::QUAD4)
         {
         nodeIdList = new int[numElements * 4];
         this->ReadIntArray(nodeIdList, numElements*4);
@@ -2093,7 +2093,7 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
       
       for (i = 0; i < numElements; i++)
         {
-        if (cellType == VTK_ENSIGHT_QUAD4)
+        if (cellType == vtkEnSightReader::QUAD4)
           {
           for (j = 0; j < 4; j++)
             {
@@ -2128,12 +2128,12 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
         {
         vtkDebugMacro("tetra10");
         vtkWarningMacro("Only vertex nodes of this element will be read.");
-        cellType = VTK_ENSIGHT_TETRA10;
+        cellType = vtkEnSightReader::TETRA10;
         }
       else
         {
         vtkDebugMacro("tetra4");
-        cellType = VTK_ENSIGHT_TETRA4;
+        cellType = vtkEnSightReader::TETRA4;
         }
       
       nodeIds = new vtkIdType[4];
@@ -2146,7 +2146,7 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
         delete [] tempArray;
         }
       
-      if (cellType == VTK_ENSIGHT_TETRA4)
+      if (cellType == vtkEnSightReader::TETRA4)
         {
         nodeIdList = new int[numElements * 4];
         this->ReadIntArray(nodeIdList, numElements*4);
@@ -2159,7 +2159,7 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
       
       for (i = 0; i < numElements; i++)
         {
-        if (cellType == VTK_ENSIGHT_TETRA4)
+        if (cellType == vtkEnSightReader::TETRA4)
           {
           for (j = 0; j < 4; j++)
             {
@@ -2194,12 +2194,12 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
         {
         vtkDebugMacro("pyramid13");
         vtkWarningMacro("Only vertex nodes of this element will be read.");
-        cellType = VTK_ENSIGHT_PYRAMID13;
+        cellType = vtkEnSightReader::PYRAMID13;
         }
       else
         {
         vtkDebugMacro("pyramid5");
-        cellType = VTK_ENSIGHT_PYRAMID5;
+        cellType = vtkEnSightReader::PYRAMID5;
         }
 
       nodeIds = new vtkIdType[5];
@@ -2212,7 +2212,7 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
         delete [] tempArray;
         }
       
-      if (cellType == VTK_ENSIGHT_PYRAMID5)
+      if (cellType == vtkEnSightReader::PYRAMID5)
         {
         nodeIdList = new int[numElements * 5];
         this->ReadIntArray(nodeIdList, numElements*5);
@@ -2225,7 +2225,7 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
       
       for (i = 0; i < numElements; i++)
         {
-        if (cellType == VTK_ENSIGHT_PYRAMID5)
+        if (cellType == vtkEnSightReader::PYRAMID5)
           {
           for (j = 0; j < 5; j++)
             {
@@ -2260,12 +2260,12 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
         {
         vtkDebugMacro("hexa20");
         vtkWarningMacro("Only vertex nodes of this element will be read.");
-        cellType = VTK_ENSIGHT_HEXA20;
+        cellType = vtkEnSightReader::HEXA20;
         }
       else
         {
         vtkDebugMacro("hexa8");
-        cellType = VTK_ENSIGHT_HEXA8;
+        cellType = vtkEnSightReader::HEXA8;
         }
       
       nodeIds = new vtkIdType[8];
@@ -2278,7 +2278,7 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
         delete [] tempArray;
         }
       
-      if (cellType == VTK_ENSIGHT_HEXA8)
+      if (cellType == vtkEnSightReader::HEXA8)
         {
         nodeIdList = new int[numElements * 8];
         this->ReadIntArray(nodeIdList, numElements*8);
@@ -2291,7 +2291,7 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
       
       for (i = 0; i < numElements; i++)
         {
-        if (cellType == VTK_ENSIGHT_HEXA8)
+        if (cellType == vtkEnSightReader::HEXA8)
           {
           for (j = 0; j < 8; j++)
             {
@@ -2326,12 +2326,12 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
         {
         vtkDebugMacro("penta15");
         vtkWarningMacro("Only vertex nodes of this element will be read.");
-        cellType = VTK_ENSIGHT_PENTA15;
+        cellType = vtkEnSightReader::PENTA15;
         }
       else
         {
         vtkDebugMacro("penta6");
-        cellType = VTK_ENSIGHT_PENTA6;
+        cellType = vtkEnSightReader::PENTA6;
         }
       
       nodeIds = new vtkIdType[6];
@@ -2344,7 +2344,7 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
         delete [] tempArray;
         }
       
-      if (cellType == VTK_ENSIGHT_PENTA6)
+      if (cellType == vtkEnSightReader::PENTA6)
         {
         nodeIdList = new int[numElements * 6];
         this->ReadIntArray(nodeIdList, numElements*6);
@@ -2357,7 +2357,7 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
       
       for (i = 0; i < numElements; i++)
         {
-        if (cellType == VTK_ENSIGHT_PENTA6)
+        if (cellType == vtkEnSightReader::PENTA6)
           {
           for (j = 0; j < 6; j++)
             {

@@ -22,40 +22,6 @@
 
 #include "vtkGenericEnSightReader.h"
 
-class vtkCollection;
-
-// element types
-#define VTK_ENSIGHT_POINT               0
-#define VTK_ENSIGHT_BAR2                1
-#define VTK_ENSIGHT_BAR3                2
-#define VTK_ENSIGHT_NSIDED              3
-#define VTK_ENSIGHT_TRIA3               4
-#define VTK_ENSIGHT_TRIA6               5
-#define VTK_ENSIGHT_QUAD4               6
-#define VTK_ENSIGHT_QUAD8               7
-#define VTK_ENSIGHT_TETRA4              8
-#define VTK_ENSIGHT_TETRA10             9
-#define VTK_ENSIGHT_PYRAMID5           10
-#define VTK_ENSIGHT_PYRAMID13          11
-#define VTK_ENSIGHT_HEXA8              12
-#define VTK_ENSIGHT_HEXA20             13
-#define VTK_ENSIGHT_PENTA6             14
-#define VTK_ENSIGHT_PENTA15            15
-
-// variable types
-#define VTK_SCALAR_PER_NODE             0
-#define VTK_VECTOR_PER_NODE             1
-#define VTK_TENSOR_SYMM_PER_NODE        2
-#define VTK_SCALAR_PER_ELEMENT          3
-#define VTK_VECTOR_PER_ELEMENT          4
-#define VTK_TENSOR_SYMM_PER_ELEMENT     5
-#define VTK_SCALAR_PER_MEASURED_NODE    6
-#define VTK_VECTOR_PER_MEASURED_NODE    7
-#define VTK_COMPLEX_SCALAR_PER_NODE     8
-#define VTK_COMPLEX_VECTOR_PER_NODE     9
-#define VTK_COMPLEX_SCALAR_PER_ELEMENT 10
-#define VTK_COMPLEX_VECTOR_PER_ELEMENT 11
-
 class VTK_IO_EXPORT vtkEnSightReader : public vtkGenericEnSightReader
 {
 public:
@@ -63,7 +29,51 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   
   void Update();
-  void UpdateInformation();
+  void ExecuteInformation();
+  
+  //BTX
+  enum ElementTypesList
+  {
+    POINT     = 0,
+    BAR2      = 1,
+    BAR3      = 2,
+    NSIDED    = 3,
+    TRIA3     = 4,
+    TRIA6     = 5,
+    QUAD4     = 6,
+    QUAD8     = 7,
+    TETRA4    = 8,
+    TETRA10   = 9,
+    PYRAMID5  = 10,
+    PYRAMID13 = 11,
+    HEXA8     = 12,
+    HEXA20    = 13,
+    PENTA6    = 14,
+    PENTA15   = 15
+  };
+
+  enum VariableTypesList
+  {
+    SCALAR_PER_NODE            = 0,
+    VECTOR_PER_NODE            = 1,
+    TENSOR_SYMM_PER_NODE       = 2,
+    SCALAR_PER_ELEMENT         = 3,
+    VECTOR_PER_ELEMENT         = 4,
+    TENSOR_SYMM_PER_ELEMENT    = 5,
+    SCALAR_PER_MEASURED_NODE   = 6,
+    VECTOR_PER_MEASURED_NODE   = 7,
+    COMPLEX_SCALAR_PER_NODE    = 8,
+    COMPLEX_VECTOR_PER_NODE    = 9,
+    COMPLEX_SCALAR_PER_ELEMENT = 10,
+    COMPLEX_VECTOR_PER_ELEMENT = 11
+  };
+  //ETX
+
+  // Description:
+  // This method sets/replaces one of the outputs of the
+  // reader without changing it's modification time.
+  // Make sure that you pass the right type of data object.
+  void ReplaceNthOutput(int n, vtkDataObject* output);
   
 protected:
   vtkEnSightReader();
@@ -192,29 +202,26 @@ protected:
   char** ComplexVariableFileNames;
   
   // array of time sets
-  vtkIdList *VariableTimeSets;
-  vtkIdList *ComplexVariableTimeSets;
+  vtkIdList *VariableTimeSetIds;
+  vtkIdList *ComplexVariableTimeSetIds;
   
   // array of file sets
-  vtkIdList *VariableFileSets;
-  vtkIdList *ComplexVariableFileSets;
+  vtkIdList *VariableFileSetIds;
+  vtkIdList *ComplexVariableFileSetIds;
   
   // collection of filename numbers per time set
-  vtkCollection *TimeSetFilenameNumbersCollection;
+  vtkIdListCollection *TimeSetFileNameNumbers;
   vtkIdList *TimeSetsWithFilenameNumbers;
   
-  // collection of time values per time set
-  vtkCollection *TimeSetTimeValuesCollection;
-  
   // collection of filename numbers per file set
-  vtkCollection *FileSetFilenameNumbersCollection;
+  vtkIdListCollection *FileSetFileNameNumbers;
   vtkIdList *FileSetsWithFilenameNumbers;
   
   // collection of number of steps per file per file set
-  vtkCollection *FileSetNumberOfStepsCollection;
+  vtkIdListCollection *FileSetNumberOfSteps;
   
   // ids of the time and file sets
-  vtkIdList *TimeSets;
+  vtkIdList *TimeSetIds;
   vtkIdList *FileSets;
   
   int GeometryTimeSet;
@@ -237,6 +244,8 @@ protected:
   
   int NumberOfGeometryParts;
   
+  void SetNumberOfOutputsInternal(int num);
+
   // global list of points for measured geometry
   int NumberOfMeasuredPoints;
   vtkIdList *MeasuredNodeIds;

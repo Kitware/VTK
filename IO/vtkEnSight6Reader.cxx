@@ -27,7 +27,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkEnSight6Reader, "1.29");
+vtkCxxRevisionMacro(vtkEnSight6Reader, "1.30");
 vtkStandardNewMacro(vtkEnSight6Reader);
 
 //----------------------------------------------------------------------------
@@ -1440,7 +1440,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
           }
         cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
           InsertNextCell(VTK_VERTEX, 1, nodeIds);
-        this->CellIds[idx][VTK_ENSIGHT_POINT]->InsertNextId(cellId);
+        this->CellIds[idx][vtkEnSightReader::POINT]->InsertNextId(cellId);
         lineRead = this->ReadNextDataLine(line);
         }
       delete [] nodeIds;
@@ -1478,7 +1478,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
           }
         cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
           InsertNextCell(VTK_LINE, 2, nodeIds);
-        this->CellIds[idx][VTK_ENSIGHT_BAR2]->InsertNextId(cellId);
+        this->CellIds[idx][vtkEnSightReader::BAR2]->InsertNextId(cellId);
         lineRead = this->ReadNextDataLine(line);
         }
       delete [] nodeIds;
@@ -1517,7 +1517,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
           }
         cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
           InsertNextCell(VTK_LINE, 2, nodeIds);
-        this->CellIds[idx][VTK_ENSIGHT_BAR3]->InsertNextId(cellId);
+        this->CellIds[idx][vtkEnSightReader::BAR3]->InsertNextId(cellId);
         lineRead = this->ReadNextDataLine(line);
         }
       delete [] nodeIds;
@@ -1530,12 +1530,12 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
         {
         vtkDebugMacro("tria6");
         vtkWarningMacro("Only vertex nodes of this element will be read.");
-        cellType = VTK_ENSIGHT_TRIA6;
+        cellType = vtkEnSightReader::TRIA6;
         }
       else
         {
         vtkDebugMacro("tria3");
-        cellType = VTK_ENSIGHT_TRIA3;
+        cellType = vtkEnSightReader::TRIA3;
         }
       
       nodeIds = new vtkIdType[3];
@@ -1548,10 +1548,10 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
         {
         if (!(sscanf(line, " %*d %d %d %d", &intIds[0], &intIds[1],
                      &intIds[2]) == 3 &&
-              cellType == VTK_ENSIGHT_TRIA3) &&
+              cellType == vtkEnSightReader::TRIA3) &&
             !(sscanf(line, " %*d %d %d %d %*d %*d %d", &intIds[0], &intIds[1],
                      &intIds[2], &testId) == 4 &&
-              cellType == VTK_ENSIGHT_TRIA6))
+              cellType == vtkEnSightReader::TRIA6))
           {
           sscanf(line, " %d %d %d", &intIds[0], &intIds[1], &intIds[2]);
           }
@@ -1585,12 +1585,12 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
         {
         vtkDebugMacro("quad8");
         vtkWarningMacro("Only vertex nodes of this element will be read.");
-        cellType = VTK_ENSIGHT_QUAD8;
+        cellType = vtkEnSightReader::QUAD8;
         }
       else
         {
         vtkDebugMacro("quad4");
-        cellType = VTK_ENSIGHT_QUAD4;
+        cellType = vtkEnSightReader::QUAD4;
         }
       
       nodeIds = new vtkIdType[4];
@@ -1603,10 +1603,10 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
         {
         if (!(sscanf(line, " %*d %d %d %d %d", &intIds[0], &intIds[1],
                      &intIds[2], &intIds[3]) == 4 &&
-              cellType == VTK_ENSIGHT_QUAD4) &&
+              cellType == vtkEnSightReader::QUAD4) &&
             !(sscanf(line, " %*d %d %d %d %d %*d %*d %*d %d", &intIds[0],
                      &intIds[1], &intIds[2], &intIds[3], &testId) == 5 &&
-              cellType == VTK_ENSIGHT_QUAD8))
+              cellType == vtkEnSightReader::QUAD8))
           {
           sscanf(line, " %d %d %d %d", &intIds[0], &intIds[1], &intIds[2],
                  &intIds[3]);
@@ -1641,12 +1641,12 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
         {
         vtkDebugMacro("tetra10");
         vtkWarningMacro("Only vertex nodes of this element will be read.");
-        cellType = VTK_ENSIGHT_TETRA10;
+        cellType = vtkEnSightReader::TETRA10;
         }
       else
         {
         vtkDebugMacro("tetra4");
-        cellType = VTK_ENSIGHT_TETRA4;
+        cellType = vtkEnSightReader::TETRA4;
         }
       
       nodeIds = new vtkIdType[4];
@@ -1659,11 +1659,11 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
         {
         if (!(sscanf(line, " %*d %d %d %d %d", &intIds[0], &intIds[1],
                      &intIds[2], &intIds[3]) == 4 &&
-              cellType == VTK_ENSIGHT_TETRA4) &&
+              cellType == vtkEnSightReader::TETRA4) &&
             !(sscanf(line, " %*d %d %d %d %d %*d %*d %*d %*d %*d %d",
                      &intIds[0], &intIds[1], &intIds[2], &intIds[3],
                      &testId) == 5 &&
-              cellType == VTK_ENSIGHT_TETRA10))
+              cellType == vtkEnSightReader::TETRA10))
           {
           sscanf(line, " %d %d %d %d", &intIds[0], &intIds[1], &intIds[2],
                  &intIds[3]);
@@ -1698,12 +1698,12 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
         {
         vtkDebugMacro("pyramid13");
         vtkWarningMacro("Only vertex nodes of this element will be read.");
-        cellType = VTK_ENSIGHT_PYRAMID13;
+        cellType = vtkEnSightReader::PYRAMID13;
         }
       else
         {
         vtkDebugMacro("pyramid5");
-        cellType = VTK_ENSIGHT_PYRAMID5;
+        cellType = vtkEnSightReader::PYRAMID5;
         }
 
       nodeIds = new vtkIdType[5];
@@ -1716,11 +1716,11 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
         {
         if (!(sscanf(line, " %*d %d %d %d %d %d", &intIds[0], &intIds[1],
                      &intIds[2], &intIds[3], &intIds[4]) == 5 &&
-              cellType == VTK_ENSIGHT_PYRAMID5) &&
+              cellType == vtkEnSightReader::PYRAMID5) &&
             !(sscanf(line, " %*d %d %d %d %d %d %*d %*d %*d %*d %*d %*d %*d %d",
                      &intIds[0], &intIds[1], &intIds[2], &intIds[3],
                      &intIds[4], &testId) == 6 &&
-              cellType == VTK_ENSIGHT_PYRAMID13))
+              cellType == vtkEnSightReader::PYRAMID13))
           {
           sscanf(line, " %d %d %d %d %d", &intIds[0], &intIds[1], &intIds[2],
                  &intIds[3], &intIds[4]);
@@ -1755,12 +1755,12 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
         {
         vtkDebugMacro("hexa20");
         vtkWarningMacro("Only vertex nodes of this element will be read.");
-        cellType = VTK_ENSIGHT_HEXA20;
+        cellType = vtkEnSightReader::HEXA20;
         }
       else
         {
         vtkDebugMacro("hexa8");
-        cellType = VTK_ENSIGHT_HEXA8;
+        cellType = vtkEnSightReader::HEXA8;
         }
       
       nodeIds = new vtkIdType[8];
@@ -1774,12 +1774,12 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
         if (!(sscanf(line, " %*d %d %d %d %d %d %d %d %d", &intIds[0],
                      &intIds[1], &intIds[2], &intIds[3], &intIds[4],
                      &intIds[5], &intIds[6], &intIds[7]) == 8 &&
-              cellType == VTK_ENSIGHT_HEXA8) &&
+              cellType == vtkEnSightReader::HEXA8) &&
             !(sscanf(line, " %*d %d %d %d %d %d %d %d %d %*d %*d %*d %*d %*d %*d %*d %*d %*d %*d %*d %d",
                      &intIds[0], &intIds[1], &intIds[2], &intIds[3],
                      &intIds[4], &intIds[5], &intIds[6], &intIds[7],
                      &testId) == 9 &&
-              cellType == VTK_ENSIGHT_HEXA20))
+              cellType == vtkEnSightReader::HEXA20))
           {
           sscanf(line, " %d %d %d %d %d %d %d %d", &intIds[0], &intIds[1],
                  &intIds[2], &intIds[3], &intIds[4], &intIds[5],
@@ -1815,12 +1815,12 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
         {
         vtkDebugMacro("penta15");
         vtkWarningMacro("Only vertex nodes of this element will be read.");
-        cellType = VTK_ENSIGHT_PENTA15;
+        cellType = vtkEnSightReader::PENTA15;
         }
       else
         {
         vtkDebugMacro("penta6");
-        cellType = VTK_ENSIGHT_PENTA6;
+        cellType = vtkEnSightReader::PENTA6;
         }
       
       nodeIds = new vtkIdType[6];
@@ -1834,11 +1834,11 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
         if (!(sscanf(line, " %*d %d %d %d %d %d %d", &intIds[0],
                      &intIds[1], &intIds[2], &intIds[3], &intIds[4],
                      &intIds[5]) == 6 &&
-              cellType == VTK_ENSIGHT_PENTA6) &&
+              cellType == vtkEnSightReader::PENTA6) &&
             !(sscanf(line, " %*d %d %d %d %d %d %d %*d %*d %*d %*d %*d %*d %*d %*d %d",
                      &intIds[0], &intIds[1], &intIds[2], &intIds[3],
                      &intIds[4], &intIds[5], &testId) == 7 &&
-              cellType == VTK_ENSIGHT_PENTA15))
+              cellType == vtkEnSightReader::PENTA15))
           {
           sscanf(line, " %d %d %d %d %d %d", &intIds[0], &intIds[1],
                  &intIds[2], &intIds[3], &intIds[4], &intIds[5]);
