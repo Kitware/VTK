@@ -101,6 +101,9 @@ otherCoordinate: otherCoordinate.o ../../common/examplesCxx/rtOtherTestBase.o ${
 VisQuad: VisQuad.o ${VTKLIB}
 	${CXX} -o VisQuad ${CXX_FLAGS} VisQuad.o ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+spCellData: spCellData.o ${VTKLIB}
+	${CXX} -o spCellData ${CXX_FLAGS} spCellData.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 CamBlur: CamBlur.o ${VTKLIB}
 	${CXX} -o CamBlur ${CXX_FLAGS} CamBlur.o ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
