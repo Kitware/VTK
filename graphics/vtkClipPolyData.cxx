@@ -55,6 +55,14 @@ vtkClipPolyData::vtkClipPolyData(vtkImplicitFunction *cf)
   this->Value = 0.0;
   this->GenerateClipScalars = 0;
   this->SelfCreatedLocator = 0;
+
+  this->GenerateClippedOutput = 0;
+  this->ClippedOutput = new vtkPolyData;
+}
+
+vtkClipPolyData::~vtkClipPolyData()
+{
+  this->ClippedOutput->Delete();
 }
 
 // Description:
@@ -81,23 +89,22 @@ void vtkClipPolyData::Execute()
 {
   vtkPolyData *input = (vtkPolyData *)this->Input;
   vtkPolyData *output = this->GetOutput();
-  int cellId, i, j, idx, id;
+  int cellId, i;
   vtkFloatPoints *cellPts;
   vtkFloatScalars *clipScalars;
   vtkFloatScalars cellScalars(VTK_CELL_SIZE); cellScalars.ReferenceCountingOff();
   vtkCell *cell;
-  vtkTriangle triangle;
-  vtkLine line;
-  vtkCellArray *newVerts, *newLines, *newPolys;
+  vtkCellArray *newVerts, *newLines, *newPolys, *connList=NULL;
+  vtkCellArray *clippedVerts=NULL, *clippedLines=NULL;
+  vtkCellArray *clippedPolys=NULL, *clippedList=NULL;
   vtkFloatPoints *newPoints;
-  vtkIdList *cellIds, triIds(64,64);
-  float value, *x, s, range[2];
+  vtkIdList *cellIds;
+  float value, s;
   int estimatedSize, numCells=input->GetNumberOfCells();
   int numPts=input->GetNumberOfPoints();
   vtkPoints *inPts=input->GetPoints();  
-  int numberOfPoints, pts[1], numSimplices;
+  int numberOfPoints;
   vtkPointData *inPD, *outPD;
-  vtkFloatPoints triPts(30); triPts.ReferenceCountingOff();
   
   vtkDebugMacro(<< "Clipping polygonal data");
   
@@ -146,6 +153,15 @@ void vtkClipPolyData::Execute()
   outPD = output->GetPointData();
   outPD->InterpolateAllocate(inPD,estimatedSize,estimatedSize/2);
 
+  // If generating second output, setup clipped output
+  if ( this->GenerateClippedOutput )
+    {
+    this->ClippedOutput->Initialize();
+    clippedVerts = new vtkCellArray(estimatedSize,estimatedSize/2);
+    clippedLines = new vtkCellArray(estimatedSize,estimatedSize/2);
+    clippedPolys = new vtkCellArray(estimatedSize,estimatedSize/2);
+    }
+
   //
   // Loop over all cells creating scalar function determined by evaluating cell
   // points using clip function.
@@ -166,106 +182,56 @@ void vtkClipPolyData::Execute()
     numberOfPoints = cellPts->GetNumberOfPoints();
 
     // evaluate implicit cutting function
-    range[0] = VTK_LARGE_FLOAT; range[1] = -VTK_LARGE_FLOAT;
     for ( i=0; i < numberOfPoints; i++ )
       {
       s = clipScalars->GetScalar(cellIds->GetId(i));
       cellScalars.InsertScalar(i, s);
-      if ( s < range[0] ) range[0] = s;
-      if ( s > range[1] ) range[1] = s;
       }
 
-    // if cell is inside or cut by the implicit function, process it
-    if ( ( !this->InsideOut && range[1] > this->Value ) ||
-    ( this->InsideOut && range[0] <= this->Value) )
+    switch ( cell->GetCellDimension() )
       {
 
-      switch ( cell->GetCellDimension() )
-        {
+      case 0: //points are generated-------------------------------
+        connList = newVerts;
+        clippedList = clippedVerts;
+        break;
 
-        case 0: //vertices-------------------------------
+      case 1: //lines are generated----------------------------------
+        connList = newLines;
+        clippedList = clippedLines;
+        break;
 
-          for ( i=0; i < numberOfPoints; i++ )
-            {
-            s = cellScalars.GetScalar(i);
-            if ( (!this->InsideOut && s > this->Value) ||
-            (this->InsideOut && s <= this->Value) )
-              {
-              x = cellPts->GetPoint(i);
-              if ( (pts[0] = this->Locator->IsInsertedPoint(x)) < 0 )
-                {
-                pts[0] = this->Locator->InsertNextPoint(x);
-                outPD->CopyData(inPD,cellIds->GetId(i),pts[0]);
-                }
-              newVerts->InsertNextCell(1,pts);
-              }
-            }
-          break;
+      case 2: //triangles are generated------------------------------
+        connList = newPolys;
+        clippedList = clippedPolys;
+        break;
 
-        case 1: //lines----------------------------------
+      } //switch
 
-          if ( input->GetCellType(cellId) == VTK_LINE )
-            {
-            ((vtkLine *)cell)->Clip(this->Value, &cellScalars, this->Locator,
-                                    newLines, inPD, outPD, this->InsideOut);
-            }
-          else
-            {
-            cell->Triangulate(cellId, triIds, triPts);
-            numSimplices = triPts.GetNumberOfPoints() / 2;
-            for ( i=0; i < numSimplices; i++ )
-              {
-              for ( j=0; j < 2; j++ )
-                {
-                idx = 2*i + j;
-                line.Points.SetPoint(j,triPts.GetPoint(idx));
-                id = triIds.GetId(idx);
-                line.PointIds.SetId(j,id);
-                cellScalars.InsertScalar(j,clipScalars->GetScalar(id));
-                }
-              line.Clip(this->Value, &cellScalars, this->Locator,  newLines,
-                        inPD, outPD, this->InsideOut);
-              }
-            }
+    cell->Clip(this->Value, &cellScalars, this->Locator, connList,
+               inPD, outPD, this->InsideOut);
 
-          break;
+    if ( this->GenerateClippedOutput )
+      {
+      cell->Clip(this->Value, &cellScalars, this->Locator, clippedList,
+                 inPD, outPD, !this->InsideOut);
+      }
 
-        case 2: //triangles------------------------------
-
-          if ( input->GetCellType(cellId) == VTK_TRIANGLE )
-            {
-            ((vtkTriangle *)cell)->Clip(this->Value, &cellScalars, this->Locator, 
-                                        newPolys, inPD, outPD, this->InsideOut);
-            }
-          else
-            {
-            cell->Triangulate(cellId, triIds, triPts);
-            numSimplices = triPts.GetNumberOfPoints() / 3;
-            for ( i=0; i < numSimplices; i++ )
-              {
-              for ( j=0; j < 3; j++ )
-                {
-                idx = 3*i + j;
-                triangle.Points.SetPoint(j,triPts.GetPoint(idx));
-                id = triIds.GetId(idx);
-                triangle.PointIds.SetId(j,id);
-                cellScalars.InsertScalar(j,clipScalars->GetScalar(id));
-                }
-              triangle.Clip(this->Value, &cellScalars, this->Locator, newPolys,
-                            inPD, outPD, this->InsideOut);
-              }
-            }
-          break;
-
-        } //switch
-      } //if inside implicit function
     } //for each cell
 
   vtkDebugMacro(<<"Created: " 
                << newPoints->GetNumberOfPoints() << " points, " 
                << newVerts->GetNumberOfCells() << " verts, " 
                << newLines->GetNumberOfCells() << " lines, " 
-               << newPolys->GetNumberOfCells() << " triangles");
+               << newPolys->GetNumberOfCells() << " polys");
+
+  if ( this->GenerateClippedOutput )
+    {
+    vtkDebugMacro(<<"Created (clipped output): " 
+                 << clippedVerts->GetNumberOfCells() << " verts, " 
+                 << clippedLines->GetNumberOfCells() << " lines, " 
+                 << clippedPolys->GetNumberOfCells() << " triangles");
+    }
 
   //
   // Update ourselves.  Because we don't know upfront how many verts, lines,
@@ -273,9 +239,6 @@ void vtkClipPolyData::Execute()
   //
   clipScalars->Delete();
   if ( this->GenerateClipScalars ) inPD->Delete();
-
-  output->SetPoints(newPoints);
-  newPoints->Delete();
 
   if (newVerts->GetNumberOfCells()) output->SetVerts(newVerts);
   newVerts->Delete();
@@ -285,6 +248,26 @@ void vtkClipPolyData::Execute()
 
   if (newPolys->GetNumberOfCells()) output->SetPolys(newPolys);
   newPolys->Delete();
+
+  if ( this->GenerateClippedOutput )
+    {
+    this->ClippedOutput->SetPoints(newPoints);
+
+    if (clippedVerts->GetNumberOfCells()) this->ClippedOutput->SetVerts(clippedVerts);
+    clippedVerts->Delete();
+
+    if (clippedLines->GetNumberOfCells()) this->ClippedOutput->SetLines(clippedLines);
+    clippedLines->Delete();
+
+    if (clippedPolys->GetNumberOfCells()) this->ClippedOutput->SetPolys(clippedPolys);
+    clippedPolys->Delete();
+    
+    this->ClippedOutput->GetPointData()->PassData(outPD);
+    this->ClippedOutput->Squeeze();
+    }
+
+  output->SetPoints(newPoints);
+  newPoints->Delete();
 
   this->Locator->Initialize();//release any extra memory
   output->Squeeze();
@@ -327,5 +310,8 @@ void vtkClipPolyData::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Locator: (none)\n";
     }
+
   os << indent << "Generate Clip Scalars: " << (this->GenerateClipScalars ? "On\n" : "Off\n");
+
+  os << indent << "Generate Clipped Output: " << (this->GenerateClippedOutput ? "On\n" : "Off\n");
 }

@@ -57,11 +57,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // .SECTION Caveats
 // In order to cut all types of cells and datasets, vtkClipper
-// triangulates each cell, and then cuts the resulting simplices
+// may triangulate a cell, and then clip the resulting simplices
 // (i.e., points, lines, triangles, and tetrahedra). The resulting
 // output of this filter is thus an unstructured grid, and the contents of
-// the output dataset consists of various combinations of simplices.
-// 
+// the output dataset consists of various types of cells (possibly different
+// than the input types).
 
 // .SECTION See Also
 // vtkPolyClipper vtkExtractGeometry vtkCutter vtkImplicitFunction
@@ -107,6 +107,15 @@ public:
   vtkGetMacro(GenerateClipScalars,int);
   vtkBooleanMacro(GenerateClipScalars,int);
 
+  // Description:
+  // Control whether second output is generated. The second output
+  // contains the cell data that's been clipped away.
+  vtkSetMacro(GenerateClippedOutput,int);
+  vtkGetMacro(GenerateClippedOutput,int);
+  vtkBooleanMacro(GenerateClippedOutput,int);
+
+  vtkUnstructuredGrid *GetClippedOutput() {return this->ClippedOutput;};
+
   void SetLocator(vtkPointLocator *locator);
   void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
   vtkGetObjectMacro(Locator,vtkPointLocator);
@@ -128,6 +137,8 @@ protected:
   float Value;
   int GenerateClipScalars;
 
+  int GenerateClippedOutput;
+  vtkUnstructuredGrid *ClippedOutput;
 };
 
 #endif
