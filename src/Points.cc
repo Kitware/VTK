@@ -70,6 +70,14 @@ float *vlPoints::GetBounds()
   return this->Bounds;
 }
 
+// Description:
+// Return the bounds of the points.
+void vlPoints::GetBounds(float bounds[6])
+{
+  this->ComputeBounds();
+  for (int i=0; i<6; i++) bounds[i] = this->Bounds[i];
+}
+
 void vlPoints::PrintSelf(ostream& os, vlIndent indent)
 {
   float *bounds;
