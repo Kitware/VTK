@@ -31,7 +31,7 @@ ADD_LIBRARY (vtkmyCommon Common_SRCS)
 
 IF (VTKMY_WRAP_TCL)
   VTK_WRAP_TCL (vtkmyCommonTCL CommonTCL_SRCS Common_SRCS)
-  ADD_LIBRARY (vtkmyCommonTCL CommonTCL_SRCS)
+  ADD_LIBRARY (vtkmyCommonTCL SHARED CommonTCL_SRCS)
   TARGET_LINK_LIBRARIES (vtkmyCommonTCL 
                          vtkCommonTCL 
                          ${TCL_LIBRARY})

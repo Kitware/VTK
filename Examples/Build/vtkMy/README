@@ -13,7 +13,6 @@ What you should do:
 - Fill the subdirs with your own classes. Remove the dummy classes. For each CMakeList.txt in the package dirs, add or remove the class(es) pertaining to this directory (SOURCE_FILES command).
 
 - Run CMake as usual.
-  set BUILD_SHARED to ON if you want Tcl DLLs.
 
 - Build 
 
