@@ -296,6 +296,7 @@ char *get_format_string()
       case 4:   result[currPos] = 'i'; currPos++; break;
       case 15:
       case 5:   result[currPos] = 'h'; currPos++; break;
+      case 16:
       case 6:   result[currPos] = 'l'; currPos++; break;
       case 3:   result[currPos] = 'c'; currPos++; break;
       case 13:   result[currPos] = 'b'; currPos++; break;
