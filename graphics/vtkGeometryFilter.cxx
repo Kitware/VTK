@@ -41,7 +41,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkGeometryFilter.h"
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
-
+#include "vtkUnstructuredGrid.h"
+#include "vtkTetra.h"
+#include "vtkHexahedron.h"
+#include "vtkVoxel.h"
+#include "vtkWedge.h"
+#include "vtkPyramid.h"
 
 
 //------------------------------------------------------------------------------
@@ -153,6 +158,12 @@ void vtkGeometryFilter::Execute()
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
   
+  if (input->GetDataObjectType() == VTK_UNSTRUCTURED_GRID)
+    {
+    this->UnstructuredGridExecute();
+    return;
+    }
+
   vtkDebugMacro(<<"Executing geometry filter");
 
   if ( (!this->CellClipping) && (!this->PointClipping) && 
@@ -389,3 +400,402 @@ unsigned long int vtkGeometryFilter::GetMTime()
   return mTime;
 }
 
+
+void vtkGeometryFilter::UnstructuredGridExecute()
+{
+  vtkUnstructuredGrid *input= (vtkUnstructuredGrid *)this->GetInput();
+  vtkCellArray *Connectivity = input->GetCells();
+  int i, cellId;
+  int allVisible;
+  int pt, npts, *pts;    
+  vtkPoints *p = input->GetPoints();
+  int numPts=input->GetNumberOfPoints();
+  int numCells=input->GetNumberOfCells();
+  vtkPointData *pd = input->GetPointData();
+  vtkCellData *cd = input->GetCellData();
+  vtkPolyData *output = this->GetOutput();
+  vtkPointData *outputPD = output->GetPointData();
+  vtkCellData *outputCD = output->GetCellData();
+  vtkCellArray *Verts, *Lines, *Polys, *Strips;
+  vtkIdList *cellIds = vtkIdList::New();
+  vtkIdList *faceIds = vtkIdList::New();
+  char *cellVis;
+  int newCellId, faceId, *faceVerts, numFacePts;
+  vtkPoints *newPts;
+  float *x;
+  
+  vtkDebugMacro(<<"Executing geometry filter for unstructured grid input");
+
+  if ( (!this->CellClipping) && (!this->PointClipping) &&
+       (!this->ExtentClipping) )
+    {
+    allVisible = 1;
+    cellVis = NULL;
+    }
+  else
+    {
+    allVisible = 0;
+    cellVis = new char[numCells];
+    }
+
+  //
+  // Allocate
+  //
+  newPts = vtkPoints::New();
+  newPts->Allocate(numPts,numPts/2);
+  outputPD->CopyAllocate(pd,numPts,numPts/2);
+  outputCD->CopyAllocate(cd,numCells,numCells/2);
+
+  Verts = vtkCellArray::New();
+  Lines = vtkCellArray::New();
+  Polys = vtkCellArray::New();
+  Strips = vtkCellArray::New();
+  
+  if ( this->Merging )
+    {
+    if ( this->Locator == NULL )
+      {
+      this->CreateDefaultLocator();
+      }
+    this->Locator->InitPointInsertion (newPts, input->GetBounds());
+    }
+
+  cellId = 0;
+  for (Connectivity->InitTraversal(); 
+       Connectivity->GetNextCell(npts,pts); 
+       cellId++)
+    {
+    if (!allVisible)
+      {
+      cellVis[cellId] = 1;
+      if ( this->CellClipping && cellId < this->CellMinimum ||
+           cellId > this->CellMaximum )
+        {
+        cellVis[cellId] = 0;
+        }
+      else
+        {
+        for (i=0; i < npts; i++) 
+          {
+          x = p->GetPoint(pts[i]);
+          
+          if ( (this->PointClipping && (pts[i] < this->PointMinimum ||
+                                        pts[i] > this->PointMaximum) ) ||
+               (this->ExtentClipping && 
+                (x[0] < this->Extent[0] || x[0] > this->Extent[1] ||
+                 x[1] < this->Extent[2] || x[1] > this->Extent[3] ||
+                 x[2] < this->Extent[4] || x[2] > this->Extent[5] )) )
+            {
+            cellVis[cellId] = 0;
+            break;
+            }
+          }
+        }
+      }
+
+    // now if visible extract geometry
+    if (allVisible || cellVis[cellId])
+      {
+      switch (input->GetCellType(cellId))
+        {
+        case VTK_VERTEX:
+        case VTK_POLY_VERTEX:
+          newCellId = Verts->InsertNextCell(npts);
+          for ( i=0; i < npts; i++)
+            {
+            x = input->GetPoint(pts[i]);
+
+            if (this->Merging && this->Locator->InsertUniquePoint(x, pt))
+              {
+              outputPD->CopyData(pd,pts[i],pt);
+              }
+            else if (!this->Merging)
+              {
+              pt = newPts->InsertNextPoint(x);
+              outputPD->CopyData(pd,pts[i],pt);
+              }
+            Verts->InsertCellPoint(pt);
+            }
+          outputCD->CopyData(cd,cellId,newCellId);
+          break;
+          
+        case VTK_LINE: 
+        case VTK_POLY_LINE:
+          newCellId = Lines->InsertNextCell(npts);
+          for ( i=0; i < npts; i++)
+            {
+            x = input->GetPoint(pts[i]);
+
+            if (this->Merging && this->Locator->InsertUniquePoint(x, pt))
+              {
+              outputPD->CopyData(pd,pts[i],pt);
+              }
+            else if (!this->Merging)
+              {
+              pt = newPts->InsertNextPoint(x);
+              outputPD->CopyData(pd,pts[i],pt);
+              }
+            Lines->InsertCellPoint(pt);
+            }
+          outputCD->CopyData(cd,cellId,newCellId);
+          break;
+          
+        case VTK_TRIANGLE:
+        case VTK_PIXEL:
+        case VTK_QUAD:
+        case VTK_POLYGON:
+          newCellId = Polys->InsertNextCell(npts);
+          for ( i=0; i < npts; i++)
+            {
+            x = input->GetPoint(pts[i]);
+
+            if (this->Merging && this->Locator->InsertUniquePoint(x, pt))
+              {
+              outputPD->CopyData(pd,pts[i],pt);
+              }
+            else if (!this->Merging)
+              {
+              pt = newPts->InsertNextPoint(x);
+              outputPD->CopyData(pd,pts[i],pt);
+              }
+            Polys->InsertCellPoint(pt);
+            }
+          outputCD->CopyData(cd,cellId,newCellId);
+          break;
+          
+        case VTK_TRIANGLE_STRIP:
+          newCellId = Strips->InsertNextCell(npts);
+          for ( i=0; i < npts; i++)
+            {
+            x = input->GetPoint(pts[i]);
+
+            if (this->Merging && this->Locator->InsertUniquePoint(x, pt))
+              {
+              outputPD->CopyData(pd,pts[i],pt);
+              }
+            else if (!this->Merging)
+              {
+              pt = newPts->InsertNextPoint(x);
+              outputPD->CopyData(pd,pts[i],pt);
+              }
+            Strips->InsertCellPoint(pt);
+            }
+          outputCD->CopyData(cd,cellId,newCellId);
+          break;
+          
+        case VTK_TETRA:
+          for (faceId = 0; faceId < 4; faceId++)
+            {
+            faceIds->Reset();
+            faceVerts = vtkTetra::GetFaceArray(faceId);
+            faceIds->InsertNextId(pts[faceVerts[0]]);
+            faceIds->InsertNextId(pts[faceVerts[1]]);
+            faceIds->InsertNextId(pts[faceVerts[2]]);
+            numFacePts = 3;
+            input->GetCellNeighbors(cellId, faceIds, cellIds);
+            if ( cellIds->GetNumberOfIds() <= 0 || 
+                 (!allVisible && !cellVis[cellIds->GetId(0)]) )
+              {
+              newCellId = Polys->InsertNextCell(numFacePts);
+              for ( i=0; i < numFacePts; i++)
+                {
+                x = input->GetPoint(pts[faceVerts[i]]);
+                
+                if (this->Merging && this->Locator->InsertUniquePoint(x, pt))
+                  {
+                  outputPD->CopyData(pd,pts[i],pt);
+                  }
+                else if (!this->Merging)
+                  {
+                  pt = newPts->InsertNextPoint(x);
+                  outputPD->CopyData(pd,pts[i],pt);
+                  }
+                Polys->InsertCellPoint(pt);
+                }
+              outputCD->CopyData(cd,cellId,newCellId);
+              }
+            }
+          break;
+          
+        case VTK_VOXEL:
+          for (faceId = 0; faceId < 6; faceId++)
+            {
+            faceIds->Reset();
+            faceVerts = vtkVoxel::GetFaceArray(faceId);
+            faceIds->InsertNextId(pts[faceVerts[0]]);
+            faceIds->InsertNextId(pts[faceVerts[1]]);
+            faceIds->InsertNextId(pts[faceVerts[2]]);
+            faceIds->InsertNextId(pts[faceVerts[3]]);
+            numFacePts = 4;
+            input->GetCellNeighbors(cellId, faceIds, cellIds);
+            if ( cellIds->GetNumberOfIds() <= 0 || 
+                 (!allVisible && !cellVis[cellIds->GetId(0)]) )
+              {
+              newCellId = Polys->InsertNextCell(numFacePts);
+              for ( i=0; i < numFacePts; i++)
+                {
+                x = input->GetPoint(pts[faceVerts[i]]);
+                
+                if (this->Merging && this->Locator->InsertUniquePoint(x, pt))
+                  {
+                  outputPD->CopyData(pd,pts[i],pt);
+                  }
+                else if (!this->Merging)
+                  {
+                  pt = newPts->InsertNextPoint(x);
+                  outputPD->CopyData(pd,pts[i],pt);
+                  }
+                Polys->InsertCellPoint(pt);
+                }
+              outputCD->CopyData(cd,cellId,newCellId);
+              }
+            }
+          break;
+
+        case VTK_HEXAHEDRON:
+          for (faceId = 0; faceId < 6; faceId++)
+            {
+            faceIds->Reset();
+            faceVerts = vtkHexahedron::GetFaceArray(faceId);
+            faceIds->InsertNextId(pts[faceVerts[0]]);
+            faceIds->InsertNextId(pts[faceVerts[1]]);
+            faceIds->InsertNextId(pts[faceVerts[2]]);
+            faceIds->InsertNextId(pts[faceVerts[3]]);
+            numFacePts = 4;
+            input->GetCellNeighbors(cellId, faceIds, cellIds);
+            if ( cellIds->GetNumberOfIds() <= 0 || 
+                 (!allVisible && !cellVis[cellIds->GetId(0)]) )
+              {
+              newCellId = Polys->InsertNextCell(numFacePts);
+              for ( i=0; i < numFacePts; i++)
+                {
+                x = input->GetPoint(pts[faceVerts[i]]);
+                
+                if (this->Merging && this->Locator->InsertUniquePoint(x, pt))
+                  {
+                  outputPD->CopyData(pd,pts[i],pt);
+                  }
+                else if (!this->Merging)
+                  {
+                  pt = newPts->InsertNextPoint(x);
+                  outputPD->CopyData(pd,pts[i],pt);
+                  }
+                Polys->InsertCellPoint(pt);
+                }
+              outputCD->CopyData(cd,cellId,newCellId);
+              }
+            }
+          break;
+          
+        case VTK_WEDGE:
+          for (faceId = 0; faceId < 5; faceId++)
+            {
+            faceIds->Reset();
+            faceVerts = vtkPyramid::GetFaceArray(faceId);
+            faceIds->InsertNextId(pts[faceVerts[0]]);
+            faceIds->InsertNextId(pts[faceVerts[1]]);
+            faceIds->InsertNextId(pts[faceVerts[2]]);
+            numFacePts = 3;
+            if (faceVerts[3] >= 0)
+              {
+              faceIds->InsertNextId(pts[faceVerts[3]]);
+              numFacePts = 4;
+              }
+            input->GetCellNeighbors(cellId, faceIds, cellIds);
+            if ( cellIds->GetNumberOfIds() <= 0 || 
+                 (!allVisible && !cellVis[cellIds->GetId(0)]) )
+              {
+              newCellId = Polys->InsertNextCell(numFacePts);
+              for ( i=0; i < numFacePts; i++)
+                {
+                x = input->GetPoint(pts[faceVerts[i]]);
+                
+                if (this->Merging && this->Locator->InsertUniquePoint(x, pt))
+                  {
+                  outputPD->CopyData(pd,pts[i],pt);
+                  }
+                else if (!this->Merging)
+                  {
+                  pt = newPts->InsertNextPoint(x);
+                  outputPD->CopyData(pd,pts[i],pt);
+                  }
+                Polys->InsertCellPoint(pt);
+                }
+              outputCD->CopyData(cd,cellId,newCellId);
+              }
+            }
+          break;
+          
+        case VTK_PYRAMID:
+          for (faceId = 0; faceId < 5; faceId++)
+            {
+            faceIds->Reset();
+            faceVerts = vtkPyramid::GetFaceArray(faceId);
+            faceIds->InsertNextId(pts[faceVerts[0]]);
+            faceIds->InsertNextId(pts[faceVerts[1]]);
+            faceIds->InsertNextId(pts[faceVerts[2]]);
+            numFacePts = 3;
+            if (faceVerts[3] >= 0)
+              {
+              faceIds->InsertNextId(pts[faceVerts[3]]);
+              numFacePts = 4;
+              }
+            input->GetCellNeighbors(cellId, faceIds, cellIds);
+            if ( cellIds->GetNumberOfIds() <= 0 || 
+                 (!allVisible && !cellVis[cellIds->GetId(0)]) )
+              {
+              newCellId = Polys->InsertNextCell(numFacePts);
+              for ( i=0; i < numFacePts; i++)
+                {
+                x = input->GetPoint(pts[faceVerts[i]]);
+                
+                if (this->Merging && this->Locator->InsertUniquePoint(x, pt))
+                  {
+                  outputPD->CopyData(pd,pts[i],pt);
+                  }
+                else if (!this->Merging)
+                  {
+                  pt = newPts->InsertNextPoint(x);
+                  outputPD->CopyData(pd,pts[i],pt);
+                  }
+                Polys->InsertCellPoint(pt);
+                }
+              outputCD->CopyData(cd,cellId,newCellId);
+              }
+            }
+          break;
+        } //switch
+      } //if visible
+    } //for all cells
+  
+  //
+  // Update ourselves and release memory
+  //
+  output->SetPoints(newPts);
+  newPts->Delete();
+  
+  output->SetVerts(Verts);
+  Verts->Delete();
+  output->SetLines(Lines);
+  Lines->Delete();
+  output->SetPolys(Polys);
+  Polys->Delete();
+  output->SetStrips(Strips);
+  Strips->Delete();
+  
+  //free storage
+  if (!this->Merging && this->Locator)
+    {
+    this->Locator->Initialize(); 
+    }
+  output->Squeeze();
+
+  vtkDebugMacro(<<"Extracted " << newPts->GetNumberOfPoints() << " points,"
+  << output->GetNumberOfCells() << " cells.");
+
+  cellIds->Delete();
+  if ( cellVis )
+    {
+    delete [] cellVis;
+    }
+}

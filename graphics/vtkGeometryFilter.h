@@ -160,8 +160,9 @@ protected:
   void operator=(const vtkGeometryFilter&) {};
 
   void Execute();
-  int PointMinimum;
+  void UnstructuredGridExecute();
   int PointMaximum;
+  int PointMinimum;
   int CellMinimum;
   int CellMaximum;
   float Extent[6];
