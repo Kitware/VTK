@@ -112,6 +112,7 @@ vtkActor contourActor
 
 
 ren1 AddProp contourActor
+
 [ren1 GetActiveCamera] Azimuth   10
 [ren1 GetActiveCamera] Elevation 30
 
@@ -142,6 +143,10 @@ vtkActor a
 a SetMapper m
 
 ren1 AddProp a
+contourActor VisibilityOff
+
+ren1 SetBackground .1 .2 .4
+
 renWin Render
 
 #renWin SetFileName "contoursToSurface.tcl.ppm"
