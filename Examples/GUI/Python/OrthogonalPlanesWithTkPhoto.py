@@ -24,18 +24,18 @@ class SampleViewer:
         reader.SetDataSpacing ( 3.2, 3.2, 1.5 )
         reader.Update ()
 
+        self.cast = cast = vtkImageCast()
+        cast.SetInput ( reader.GetOutput() )
+        cast.SetOutputScalarType ( reader.GetOutput().GetScalarType() )
+        cast.ClampOverflowOn()
+
         # Make the image a little bigger
-        resample = vtkImageResample ()
-        resample.SetInput ( reader.GetOutput() )
+        self.resample = resample = vtkImageResample ()
+        resample.SetInput ( cast.GetOutput() )
         resample.SetAxisMagnificationFactor ( 0, 2 )
         resample.SetAxisMagnificationFactor ( 1, 2 )
         resample.SetAxisMagnificationFactor ( 2, 1 )
 
-        self.cast = cast = vtkImageShiftScale ()
-        cast.SetInput ( resample.GetOutput() )
-        cast.SetOutputScalarTypeToUnsignedChar( )
-        cast.ClampOverflowOn ()
-        cast.Update ()
         l,h = reader.GetOutput().GetScalarRange()
 
         # Create the three orthogonal views
@@ -45,15 +45,28 @@ class SampleViewer:
         sphoto = self.sphoto = vtkTkPhotoImage ();
         self.Position = [0, 0, 0]
 
+        # Create a popup menu
+        v = IntVar()
+        self.popup = popup = Menu ( Tk, tearoff=0 )
+        popup.add_radiobutton ( label='unsigned char', command=self.CastToUnsignedChar, variable=v, value=-1 )
+        popup.add_radiobutton ( label='unsigned short', command=self.CastToUnsignedShort, variable=v, value=0 )
+        popup.add_radiobutton ( label='unsigned int', command=self.CastToFloat, variable=v, value=1 )
+        popup.add_radiobutton ( label='float', command=self.CastToFloat, variable=v, value=2 )
+
+        v.set ( 0 )
+        
         w = self.TransverseLabelWidget = Label ( Tk, image = tphoto )
         w.grid ( row = 0, column = 0 )
         w.bind ( "<Button1-Motion>", lambda e, i=tphoto, o='transverse', s=self: s.Motion ( e, i, o ) )
+        w.bind ( "<Button-3>", self.DoPopup )
         w = Label ( Tk, image = cphoto )
         w.grid ( row = 1, column = 0 )
         w.bind ( "<Button1-Motion>", lambda e, i=cphoto, o='coronal', s=self: s.Motion ( e, i, o ) )
+        w.bind ( "<Button-3>", self.DoPopup )
         w = Label ( Tk, image = sphoto )
         w.grid ( row = 0, column = 1 )
         w.bind ( "<Button1-Motion>", lambda e, i=sphoto, o='sagittal', s=self: s.Motion ( e, i, o ) )
+        w.bind ( "<Button-3>", self.DoPopup )
         w = self.WindowWidget = Scale ( Tk, label='Window', orient='horizontal', from_=1, to=(h-l)/2, command = self.SetWindowLevel )
         w = self.LevelWidget = Scale ( Tk, label='Level', orient='horizontal', from_=l, to=h, command=self.SetWindowLevel )
         self.WindowWidget.grid ( row=2, columnspan=2, sticky='ew' )
@@ -63,6 +76,23 @@ class SampleViewer:
 
         w = self.LabelWidget = Label ( Tk, bd=2, relief='raised' )
         w.grid ( row=4, columnspan=2, sticky='ew' )
+
+        
+    def DoPopup ( self, event ):
+        self.popup.post ( event.x_root, event.y_root )
+
+    def CastToUnsignedChar ( self ):
+        self.cast.SetOutputScalarTypeToUnsignedChar()
+        self.SetImages()
+    def CastToUnsignedShort ( self ):
+        self.cast.SetOutputScalarTypeToUnsignedShort()
+        self.SetImages()
+    def CastToUnsignedInt ( self ):
+        self.cast.SetOutputScalarTypeToUnsignedInt()
+        self.SetImages()
+    def CastToFloat ( self ):
+        self.cast.SetOutputScalarTypeToFloat()
+        self.SetImages()
 
 
     def Motion ( self, event, image, orientation ):
@@ -81,16 +111,27 @@ class SampleViewer:
         self.SetImages()
 
     def SetWindowLevel ( self, event ):
-        Window = self.WindowWidget.get()
-        Level = self.LevelWidget.get()
-        self.cast.SetScale ( 255.0 / Window )
-        self.cast.SetShift ( Window / 2.0 - Level )
         self.SetImages()
         
     def SetImages ( self ):
-        self.tphoto.PutImageSlice ( self.cast.GetOutput(), self.Position[2], 'transverse' )
-        self.sphoto.PutImageSlice ( self.cast.GetOutput(), self.Position[0], 'sagittal' )
-        self.cphoto.PutImageSlice ( self.cast.GetOutput(), self.Position[1], 'coronal' )
+        Window = self.WindowWidget.get()
+        Level = self.LevelWidget.get()
+        image = self.resample.GetOutput()
+        self.tphoto.PutImageSlice ( image,
+                                    self.Position[2],
+                                    'transverse',
+                                    Window,
+                                    Level )
+        self.sphoto.PutImageSlice ( image,
+                                    self.Position[0],
+                                    'sagittal',
+                                    Window,
+                                    Level )
+        self.cphoto.PutImageSlice ( image,
+                                    self.Position[1],
+                                    'coronal',
+                                    Window,
+                                    Level )
 
 
 

@@ -43,6 +43,7 @@ set classExceptions {
     vtkTkImageViewerWidget
     vtkTkImageWindowWidget
     vtkTkRenderWidget
+    vtkImageDataToTkPhoto
     vtkJPEGReader
     vtkWin32VideoSource
 }

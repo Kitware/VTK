@@ -65,6 +65,7 @@ set classExceptions {
    vtkTkImageViewerWidget
    vtkTkImageWindowWidget
    vtkTkRenderWidget
+   vtkImageDataToTkPhoto
    vtkViewRays
    vtkWin32OutputWindow
    vtkXMLFileOutputWindow
