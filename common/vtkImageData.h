@@ -154,6 +154,7 @@ public:
   vtkBooleanMacro(PrintScalars,int);
   
   void CopyData(vtkImageData *data);
+  void CopyData(vtkImageData *data, int *bounds);
   
 
 protected:

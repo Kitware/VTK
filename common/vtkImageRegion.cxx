@@ -149,27 +149,28 @@ void vtkImageRegion::MakeWritable()
 // Description:
 // Copies data from a region into this region (converting data type).
 // It is a simple cast, and will not deal with float to unsigned char
-// inteligently.
+// inteligently.  The the regions do not have the same bounds,
+// the intersection is copied.
 void vtkImageRegion::CopyRegionData(vtkImageRegion *region)
 {
+  int overlap[VTK_IMAGE_BOUNDS_DIMENSIONS];
   int *inBounds, *outBounds;
-  int origin[VTK_IMAGE_DIMENSIONS];
+  int inTemp, outTemp;
   int idx;
   
-  // Make sure our bounds are contained in the new region.
+  // Compute intersection of bounds
   inBounds = region->GetBounds();
   outBounds = this->GetBounds();
   for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
-    if (outBounds[2*idx] < inBounds[2*idx] ||
-	outBounds[2*idx+1] > inBounds[2*idx+1])
-      {
-      vtkErrorMacro(<< "CopyRegionData: Bounds mismatch.");
-      return;
-      }
-    origin[idx] = outBounds[2*idx];
+    inTemp = inBounds[2*idx];
+    outTemp = outBounds[2*idx];
+    overlap[2*idx] = (inTemp > outTemp) ? inTemp : outTemp;  // Max
+    inTemp = inBounds[2*idx + 1];
+    outTemp = outBounds[2*idx + 1];
+    overlap[2*idx + 1] = (inTemp < outTemp) ? inTemp : outTemp;  // Min
     }
-
+  
   // If the data type is not set, default to same as input.
   if (this->GetDataType() == VTK_IMAGE_VOID)
     {
@@ -188,7 +189,7 @@ void vtkImageRegion::CopyRegionData(vtkImageRegion *region)
     }
 
   // Copy data
-  this->Data->CopyData(region->GetData());
+  this->Data->CopyData(region->GetData(), overlap);
 }
 
 

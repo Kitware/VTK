@@ -539,10 +539,9 @@ void *vtkImageData::GetVoidPointer()
 // The fifth dimension should be colapsed, but I havent completely
 // adopted this protocall yet, so ....
 template <class IT, class OT>
-void vtkImageDataCopyData(vtkImageData *outData, OT *outPtr,
-			  vtkImageData *inData, IT *inPtr)
+void vtkImageDataCopyData2(vtkImageData *outData, OT *outPtr,
+			   vtkImageData *inData, IT *inPtr, int *b)
 {
-  int *p;
   IT *inPtr0, *inPtr1, *inPtr2, *inPtr3, *inPtr4;
   OT *outPtr0, *outPtr1, *outPtr2, *outPtr3, *outPtr4;
   int inInc0, inInc1, inInc2, inInc3, inInc4;
@@ -552,13 +551,12 @@ void vtkImageDataCopyData(vtkImageData *outData, OT *outPtr,
   int idx0, idx1, idx2, idx3, idx4;
 
   // Get information to loop through data.
-  p = inData->GetIncrements();
-  inInc0 = p[0]; inInc1 = p[1]; inInc2 = p[2]; inInc3 = p[3]; inInc4 = p[4];
-  p = outData->GetIncrements();
-  outInc0= p[0]; outInc1= p[1]; outInc2= p[2]; outInc3= p[3]; outInc4= p[4];
-  p = outData->GetBounds();
-  outMin0= p[0]; outMin1= p[2]; outMin2= p[4]; outMin3= p[6]; outMin4= p[8]; 
-  outMax0= p[1]; outMax1= p[3]; outMax2= p[5]; outMax3= p[7]; outMax4= p[9]; 
+  outMin0= b[0]; outMin1= b[2]; outMin2= b[4]; outMin3= b[6]; outMin4= b[8]; 
+  outMax0= b[1]; outMax1= b[3]; outMax2= b[5]; outMax3= b[7]; outMax4= b[9]; 
+  b = inData->GetIncrements();
+  inInc0 = b[0]; inInc1 = b[1]; inInc2 = b[2]; inInc3 = b[3]; inInc4 = b[4];
+  b = outData->GetIncrements();
+  outInc0= b[0]; outInc1= b[1]; outInc2= b[2]; outInc3= b[3]; outInc4= b[4];
   
   inPtr4 = inPtr;
   outPtr4 = outPtr;
@@ -603,28 +601,27 @@ void vtkImageDataCopyData(vtkImageData *outData, OT *outPtr,
 //----------------------------------------------------------------------------
 // First templated function for copying.
 template <class T>
-void vtkImageDataCopyData(vtkImageData *self, vtkImageData *inData, T *inPtr)
+void vtkImageDataCopyData(vtkImageData *self, void *outPtr, 
+			  vtkImageData *inData, T *inPtr, int *bounds)
 {
-  void *outPtr;
-  
-  outPtr = self->GetVoidPointer();
-  
   switch (self->GetType())
     {
     case VTK_IMAGE_FLOAT:
-      vtkImageDataCopyData(self, (float *)(outPtr), inData, inPtr);
+      vtkImageDataCopyData2(self, (float *)(outPtr), inData, inPtr, bounds);
       break;
     case VTK_IMAGE_INT:
-      vtkImageDataCopyData(self, (int *)(outPtr), inData, inPtr);
+      vtkImageDataCopyData2(self, (int *)(outPtr), inData, inPtr, bounds);
       break;
     case VTK_IMAGE_SHORT:
-      vtkImageDataCopyData(self, (short *)(outPtr), inData, inPtr);
+      vtkImageDataCopyData2(self, (short *)(outPtr), inData, inPtr, bounds);
       break;
     case VTK_IMAGE_UNSIGNED_SHORT:
-      vtkImageDataCopyData(self, (unsigned short *)(outPtr), inData, inPtr);
+      vtkImageDataCopyData2(self, (unsigned short *)(outPtr), inData, inPtr, 
+			   bounds);
       break;
     case VTK_IMAGE_UNSIGNED_CHAR:
-      vtkImageDataCopyData(self, (unsigned char *)(outPtr), inData, inPtr);
+      vtkImageDataCopyData2(self, (unsigned char *)(outPtr), inData, inPtr, 
+			   bounds);
       break;
     default:
       cerr << "vtkImageDataCopyData: Cannot handle DataType.\n\n";
@@ -636,26 +633,41 @@ void vtkImageDataCopyData(vtkImageData *self, vtkImageData *inData, T *inPtr)
 // Copies data into this object.  If Type is not set, the default type
 // is set to the incoming type.  Otherwise, the dat is converted
 // with a simple type cast.  It will not deal with reducing precision
-// intelligently.
-void vtkImageData::CopyData(vtkImageData *data)
+// intelligently.  Bounds specify the data to copy and must be contained
+// in both data objects.
+void vtkImageData::CopyData(vtkImageData *data, int *bounds)
 {
-  void *inPtr;
+  void *inPtr, *outPtr;
   int *inBounds, *outBounds;
+  int inTemp, outTemp, temp;
   int origin[VTK_IMAGE_DIMENSIONS];
   int idx;
   
-  // Make sure our bounds are containedin the incoming data.
+  // Make sure our bounds are contained in the data objects.
   inBounds = data->GetBounds();
   outBounds = this->GetBounds();
   for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
-    if (outBounds[2*idx] < inBounds[2*idx] ||
-	outBounds[2*idx+1] > inBounds[2*idx+1])
+    // Check min first
+    inTemp = inBounds[idx*2];
+    outTemp = outBounds[idx*2];
+    temp = bounds[idx*2];
+    if (temp < inTemp || temp < outTemp)
       {
       vtkErrorMacro(<< "CopyData: Bounds mismatch.");
       return;
       }
-    origin[idx] = outBounds[2*idx];
+    // Save the offset
+    origin[idx] = temp;
+    // Check max
+    inTemp = inBounds[idx*2 + 1];
+    outTemp = outBounds[idx*2 + 1];
+    temp = bounds[idx*2 + 1];
+    if (temp > inTemp || temp > outTemp)
+      {
+      vtkErrorMacro(<< "CopyData: Bounds mismatch.");
+      return;
+      }    
     }
 
   // If the data type is not set, default to same as input.
@@ -676,23 +688,24 @@ void vtkImageData::CopyData(vtkImageData *data)
     }
   
   inPtr = data->GetVoidPointer(origin);
+  outPtr = this->GetVoidPointer(origin);
   
   switch (data->GetType())
     {
     case VTK_IMAGE_FLOAT:
-      vtkImageDataCopyData(this, data, (float *)(inPtr));
+      vtkImageDataCopyData(this,outPtr, data,(float *)(inPtr), bounds);
       break;
     case VTK_IMAGE_INT:
-      vtkImageDataCopyData(this, data, (int *)(inPtr));
+      vtkImageDataCopyData(this,outPtr, data,(int *)(inPtr), bounds);
       break;
     case VTK_IMAGE_SHORT:
-      vtkImageDataCopyData(this, data, (short *)(inPtr));
+      vtkImageDataCopyData(this,outPtr, data,(short *)(inPtr), bounds);
       break;
     case VTK_IMAGE_UNSIGNED_SHORT:
-      vtkImageDataCopyData(this, data, (unsigned short *)(inPtr));
+      vtkImageDataCopyData(this,outPtr, data,(unsigned short *)(inPtr),bounds);
       break;
     case VTK_IMAGE_UNSIGNED_CHAR:
-      vtkImageDataCopyData(this, data, (unsigned char *)(inPtr));
+      vtkImageDataCopyData(this,outPtr, data,(unsigned char *)(inPtr), bounds);
       break;
     default:
       vtkErrorMacro(<< "CopyData: Cannot handle Type.");
@@ -700,8 +713,35 @@ void vtkImageData::CopyData(vtkImageData *data)
 }
 
 
-
-
+//----------------------------------------------------------------------------
+// Description:
+// Copies data into this object.  If Type is not set, the default type
+// is set to the incoming type.  Otherwise, the dat is converted
+// with a simple type cast.  It will not deal with reducing precision
+// intelligently.  The data copied is the overlapping portion of the 
+// two data objects.
+void vtkImageData::CopyData(vtkImageData *data)
+{
+  int overlap[VTK_IMAGE_BOUNDS_DIMENSIONS];
+  int *inBounds, *outBounds;
+  int inTemp, outTemp;
+  int idx;
+  
+  // Compute intersection of bounds
+  inBounds = data->GetBounds();
+  outBounds = this->GetBounds();
+  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    inTemp = inBounds[2*idx];
+    outTemp = outBounds[2*idx];
+    overlap[2*idx] = (inTemp > outTemp) ? inTemp : outTemp;  // Max
+    inTemp = inBounds[2*idx + 1];
+    outTemp = outBounds[2*idx + 1];
+    overlap[2*idx + 1] = (inTemp < outTemp) ? inTemp : outTemp;  // Min
+    }
+  
+  this->CopyData(data, overlap);
+}
 
 
 
