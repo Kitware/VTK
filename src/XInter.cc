@@ -69,7 +69,6 @@ void  vlXInteractiveRenderer::Start()
 void vlXInteractiveRenderer::Initialize()
 {
   Display *display;
-  Window      window;
   static int any_initialized = 0;
   static XtAppContext app;
   vlXRenderWindow *ren;
