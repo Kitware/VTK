@@ -108,6 +108,7 @@ static inline int checkForError(int id, int maxId)
 template <class T>
 static int SendMessage(T* data, int length, int tag, int sock)
 {
+
   // Need to check the return value of these
   send(sock, (char *)&tag, sizeof(int), 0);
 
@@ -141,6 +142,8 @@ int vtkSocketCommunicator::Send(int *data, int length, int remoteProcessId,
     return 0;
     }
 
+  vtkDebugMacro("Sending a message of length " << length*sizeof(int) 
+		<< " bytes.");
   return SendMessage(data, length, tag, this->Socket);
 }
 
@@ -153,6 +156,8 @@ int vtkSocketCommunicator::Send(unsigned long *data, int length,
     return 0;
     }
 
+  vtkDebugMacro("Sending a message of length " << length*sizeof(unsigned long) 
+		<< " bytes.");
   return SendMessage(data, length, tag, this->Socket);
 }
 //----------------------------------------------------------------------------
@@ -164,6 +169,8 @@ int vtkSocketCommunicator::Send(char *data, int length,
     return 0;
     }
 
+  vtkDebugMacro("Sending a message of length " << length*sizeof(char) 
+		<< " bytes.");
   return SendMessage(data, length, tag, this->Socket);
 }
 
@@ -176,6 +183,8 @@ int vtkSocketCommunicator::Send(unsigned char *data, int length,
     return 0;
     }
 
+  vtkDebugMacro("Sending a message of length " << length*sizeof(unsigned char) 
+		<< " bytes.");
   return SendMessage(data, length, tag, this->Socket);
 }
 
@@ -188,6 +197,8 @@ int vtkSocketCommunicator::Send(float *data, int length,
     return 0;
     }
 
+  vtkDebugMacro("Sending a message of length " << length*sizeof(float) 
+		<< " bytes.");
   return SendMessage(data, length, tag, this->Socket);
 }
 
@@ -200,6 +211,8 @@ int vtkSocketCommunicator::Send(double *data, int length,
     return 0;
     }
 
+  vtkDebugMacro("Sending a message of length " << length*sizeof(double) 
+		<< " bytes.");
   return SendMessage(data, length, tag, this->Socket);
 }
 
@@ -212,6 +225,8 @@ int vtkSocketCommunicator::Send(vtkIdType *data, int length,
     return 0;
     }
 
+  vtkDebugMacro("Sending a message of length " << length*sizeof(vtkIdType) 
+		<< " bytes.");
   return SendMessage(data, length, tag, this->Socket);
 }
 
@@ -219,6 +234,8 @@ int vtkSocketCommunicator::Send(vtkIdType *data, int length,
 int vtkSocketCommunicator::ReceiveMessage( char *data, int size, int length,
                                            int tag )
 {
+  vtkDebugMacro("Receiving a message of length " << size*length << " bytes.");
+
   int recvTag=-1;
 
   // Need to check the return value of these
@@ -362,7 +379,7 @@ int vtkSocketCommunicator::Receive(vtkIdType *data, int length,
   return ReceiveMessage( (char *)data, sizeof(vtkIdType), length, tag);
 }
 
-int vtkSocketCommunicator::WaitForConnection(int port, int timeout)
+int vtkSocketCommunicator::WaitForConnection(int port)
 {
 
   if ( this->IsConnected )

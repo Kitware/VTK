@@ -302,6 +302,9 @@ protected:
 
   vtkOutputWindow* OutputWindow;
 
+  // Note that since the communicators can be created differently
+  // depending on the type of controller, the subclasses are
+  // responsible of deleting them.
   vtkCommunicator* Communicator;
 
   // Communicator which is a copy of the current user
@@ -309,6 +312,9 @@ protected:
   // are the same, the RMI messages will not interfere with user 
   // level messages. (This only works with MPI. When using threads,
   // the tags have to be unique.)
+  // Note that since the communicators can be created differently
+  // depending on the type of controller, the subclasses are
+  // responsible of deleting them.
   vtkCommunicator* RMICommunicator;
 
 };

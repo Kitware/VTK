@@ -103,6 +103,24 @@ void vtkSocketController::SetNumberOfProcesses(int num)
   return;
 }
 
+void vtkSocketController::SetCommunicator(vtkSocketCommunicator* comm)
+{
+  if (comm == this->Communicator)
+    {
+    return;
+    }
+  if (this->Communicator)
+    {
+    this->Communicator->UnRegister(this);
+    }
+  this->Communicator = comm;
+  this->RMICommunicator = comm;
+  if (comm)
+    {
+    comm->Register(this);
+    }
+}
+
 //----------------------------------------------------------------------------
 void vtkSocketController::PrintSelf(ostream& os, vtkIndent indent)
 {

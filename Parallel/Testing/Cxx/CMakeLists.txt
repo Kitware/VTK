@@ -15,6 +15,9 @@ IF (VTK_USE_HYBRID)
     TARGET_LINK_LIBRARIES(ParallelIsoTest  vtkHybrid)
 ENDIF (VTK_USE_HYBRID)
 
+ADD_EXECUTABLE(SocketServer SocketServer)
+ADD_EXECUTABLE(SocketClient SocketClient)
+
 LINK_LIBRARIES ( ${OPENGL_LIBRARY} )
 IF (VTK_MANGLE_MESA)
   LINK_LIBRARIES( ${MESA_LIBRARY})
@@ -40,6 +43,7 @@ ENDIF (VTK_USE_MPI)
 #
 # Add tests, with the data
 #
+
 IF (VTK_DATA_ROOT)
   IF (VTK_USE_HYBRID)
     IF (VTK_USE_MPI)

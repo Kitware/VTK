@@ -99,10 +99,10 @@ public:
   // Description:
   // Wait for connection on a given port, forwarded
   // to the communicator
-  virtual int WaitForConnection(int port, int timeout)
+  virtual int WaitForConnection(int port)
     { 
     return vtkSocketCommunicator::SafeDownCast(this->Communicator)->
-      WaitForConnection(port,timeout); 
+      WaitForConnection(port); 
     }
 
   // Description:
@@ -129,7 +129,9 @@ public:
       GetSwapBytesInReceivedData();
     }
 
-
+  // Description:
+  // Set the communicator used in normal and rmi communications.
+  void SetCommunicator(vtkSocketCommunicator* comm);
 
 //BTX
 

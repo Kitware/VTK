@@ -79,7 +79,7 @@ public:
 
   // Description:
   // Wait for connection on a given port
-  virtual int WaitForConnection(int port, int timeout);
+  virtual int WaitForConnection(int port);
 
   // Description:
   // Close a connection

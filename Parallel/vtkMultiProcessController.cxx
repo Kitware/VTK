@@ -152,7 +152,6 @@ vtkMultiProcessController::~vtkMultiProcessController()
 
   this->RMIs->Delete();
   this->RMIs = NULL;
-  // deletes string
 }
 
   
