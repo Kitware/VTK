@@ -154,3 +154,4 @@ ENDIF (WIN32)
 
 INSTALL_TARGETS(/lib/vtk vtkHybrid)
 INSTALL_FILES(/include/vtk .h ${Hybrid_SRCS})
+INSTALL_FILES(/include/vtk .h vtk3DS)
