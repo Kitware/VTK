@@ -250,7 +250,11 @@
       __dont__ include it again.;
 #    endif
 #  endif /* __linux__ */
-
+#if defined(__sgi) && !defined(__GNUC__)
+#  if   (_COMPILER_VERSION >= 730)
+#  pragma set woff 3505
+#  endif
+#endif
    /* include setjmp.h for error handling */
 #  include <setjmp.h>
 
