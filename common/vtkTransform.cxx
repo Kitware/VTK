@@ -878,7 +878,7 @@ vtkTransform::~vtkTransform ()
 
 void vtkTransform::PrintSelf (ostream& os, vtkIndent indent)
 {
-  vtkGeneralTransform::PrintSelf(os, indent);
+  vtkLinearTransform::PrintSelf(os, indent);
 
   os << indent << (this->PreMultiplyFlag ? "PreMultiply\n" : "PostMultiply\n");
 
