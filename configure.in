@@ -101,10 +101,12 @@ fi
 ##			##
 ##########################
 # check for mesa
-use_mesa_renderer=no
+use_mesa=no
 AC_ARG_WITH(mesa,
          [  --with-mesa           create the mesa specific renderer],
-	 [use_mesa=yes])
+	 if test "$withval" = yes; then
+	 use_mesa=yes
+	 fi,)
 
 #
 # if mesa was included then don't use opengl unless explicitly specified
