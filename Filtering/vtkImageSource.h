@@ -35,7 +35,6 @@ class VTK_FILTERING_EXPORT vtkImageSource : public vtkSource
 {
 public:
   vtkTypeRevisionMacro(vtkImageSource,vtkSource);
-  static vtkImageSource *New();
 
   // Description:
   // Get the output of this source.

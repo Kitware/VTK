@@ -31,7 +31,6 @@
 class VTK_FILTERING_EXPORT vtkImageTwoInputFilter : public vtkImageMultipleInputFilter
 {
 public:
-  static vtkImageTwoInputFilter *New();
   vtkTypeRevisionMacro(vtkImageTwoInputFilter,vtkImageMultipleInputFilter);
   
   // Description:

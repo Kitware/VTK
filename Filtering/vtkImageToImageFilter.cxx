@@ -18,8 +18,7 @@
 #include "vtkImageToImageFilter.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageToImageFilter, "1.44");
-vtkStandardNewMacro(vtkImageToImageFilter);
+vtkCxxRevisionMacro(vtkImageToImageFilter, "1.45");
 
 //----------------------------------------------------------------------------
 vtkImageToImageFilter::vtkImageToImageFilter()

@@ -18,8 +18,7 @@
 #include "vtkImageMultipleInputFilter.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageMultipleInputFilter, "1.56");
-vtkStandardNewMacro(vtkImageMultipleInputFilter);
+vtkCxxRevisionMacro(vtkImageMultipleInputFilter, "1.57");
 
 //----------------------------------------------------------------------------
 vtkImageMultipleInputFilter::vtkImageMultipleInputFilter()

@@ -18,8 +18,7 @@
 #include "vtkImageSource.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageSource, "1.53");
-vtkStandardNewMacro(vtkImageSource);
+vtkCxxRevisionMacro(vtkImageSource, "1.54");
 
 //----------------------------------------------------------------------------
 vtkImageSource::vtkImageSource()
