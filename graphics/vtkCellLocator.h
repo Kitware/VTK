@@ -132,7 +132,7 @@ protected:
   void ClearCellHasBeenVisited();
   void ClearCellHasBeenVisited(int id);
 
-  float Distance2ToBucket(float x[3], int ijk[3], int nei[3]);
+  float Distance2ToBucket(float x[3], int nei[3]);
   float Distance2ToBounds(float x[3], float bounds[6]);
   
   int NumberOfCellsPerBucket; // cells per octant

@@ -420,7 +420,7 @@ void vtkCellLocator::FindClosestPoint(float x[3], float closestPoint[3],
       if ( (cellIds = this->Tree[cno]) != NULL )
         {
 	// do we still need to test this bucket?
-	distance2ToBucket = this->Distance2ToBucket(x, ijk, nei);
+	distance2ToBucket = this->Distance2ToBucket(x, nei);
 	
 	if (distance2ToBucket < refinedRadius2)
 	  {
@@ -494,7 +494,7 @@ void vtkCellLocator::FindClosestPoint(float x[3], float closestPoint[3],
       if ( (cellIds = this->Tree[cno]) != NULL )
         {
 	// do we still need to test this bucket?
-	distance2ToBucket = this->Distance2ToBucket(x, ijk, nei);
+	distance2ToBucket = this->Distance2ToBucket(x, nei);
 	
 	if (distance2ToBucket < refinedRadius2)
 	  {
@@ -747,7 +747,7 @@ vtkCellLocator::FindClosestPointWithinRadius(float x[3], float radius,
       if ( (cellIds = this->Tree[cno]) != NULL )
 	{
 	// do we still need to test this bucket?
-	distance2ToBucket = this->Distance2ToBucket(x, ijk, nei);
+	distance2ToBucket = this->Distance2ToBucket(x, nei);
 
 	if (distance2ToBucket < refinedRadius2)
 	  {
@@ -1333,114 +1333,29 @@ void vtkCellLocator::ClearCellHasBeenVisited(int id)
 }
 
 
-// Calculate the distance between the point x in bucket ijk
-// to the bucket "nei".
-float vtkCellLocator::Distance2ToBucket(float x[3], int ijk[3], int nei[3])
+// Calculate the distance between the point x to the bucket "nei".
+//
+// WARNING!!!!! Be very careful altering this routine.  Simple changes to this
+// routine can make is 25% slower!!!!
+//
+float vtkCellLocator::Distance2ToBucket(float x[3], int nei[3])
 {
-  int dn[3];
-  float distance = VTK_LARGE_FLOAT;
-  float delta, deltas[3];
-  float xo[3];
-
-  deltas[0] = deltas[1] = deltas[2] = 0.0;
+  float bounds[6];
   
-  xo[0] = x[0]-this->Bounds[0];
-  xo[1] = x[1]-this->Bounds[2];
-  xo[2] = x[2]-this->Bounds[4];
+  bounds[0] =     nei[0]*this->H[0] + this->Bounds[0];
+  bounds[1] = (nei[0]+1)*this->H[0] + this->Bounds[0];
+  bounds[2] =     nei[1]*this->H[1] + this->Bounds[2];
+  bounds[3] = (nei[1]+1)*this->H[1] + this->Bounds[2];
+  bounds[4] =     nei[2]*this->H[2] + this->Bounds[4];
+  bounds[5] = (nei[2]+1)*this->H[2] + this->Bounds[4];
 
-  dn[0] = nei[0]-ijk[0];  dn[1] = nei[1]-ijk[1];  dn[2] = nei[2]-ijk[2];
-
-  // if we are in the same bucket, return 0
-  if (dn[0] == 0 && dn[1] == 0 && dn[2] == 0)
-    {
-    return 0.0;
-    }
-
-  //
-  // dx
-  //
-  delta = xo[0] - nei[0]*this->H[0];
-  if (delta < 0.0)
-    {
-    delta = -delta;
-    }
-  deltas[0] = delta;
-  
-  delta = xo[0] - (nei[0]+1)*this->H[0];
-  if (delta < 0.0)
-    {
-    delta = -delta;
-    }
-  deltas[0] = (delta < deltas[0] ? delta : deltas[0]);
-
-  //
-  // dy
-  //
-  delta = xo[1] - nei[1]*this->H[1];
-  if (delta < 0.0)
-    {
-    delta = -delta;
-    }
-  deltas[1] = delta;
-  
-  delta = xo[1] - (nei[1]+1)*this->H[1];
-  if (delta < 0.0)
-    {
-    delta = -delta;
-    }
-  deltas[1] = (delta < deltas[1] ? delta : deltas[1]);
-
-  //
-  // dz
-  //
-  delta = xo[2] - nei[2]*this->H[2];
-  if (delta < 0.0)
-    {
-    delta = -delta;
-    }
-  deltas[2] = delta;
-  
-  delta = xo[2] - (nei[2]+1)*this->H[2];
-  if (delta < 0.0)
-    {
-    delta = -delta;
-    }
-  deltas[2] = (delta < deltas[2] ? delta : deltas[2]);
-
-  //
-  // deltas[] give the dx, dy, dz to the closest vertex of the bucket.
-  // However, a face or edge of the bucket may be closer than a vertex
-  //
-  if (dn[0] == 0 && dn[1] == 0) // same row, same column
-    {
-    return deltas[2]*deltas[2];
-    }
-  else if (dn[0] == 0 && dn[2] == 0) // same column, same slice
-    {
-    return deltas[1]*deltas[1];
-    }
-  else if (dn[1] == 0 && dn[2] == 0) // same row, same slice
-    {
-    return deltas[0]*deltas[0];
-    }
-  else if (dn[0] == 0)
-    {
-    deltas[0] = 0.0;
-    }
-  else if (dn[1] == 0)
-    {
-    deltas[1] = 0.0;
-    }
-  else if (dn[2] == 0)
-    {
-    deltas[2] = 0.0;
-    }
-    
-  distance = vtkMath::Dot(deltas, deltas);
-  return distance;
+  return this->Distance2ToBounds(x, bounds);
 }
 
 // Calculate the distance between the point x and the specified bounds
+//
+// WARNING!!!!! Be very careful altering this routine.  Simple changes to this
+// routine can make is 25% slower!!!!
 float vtkCellLocator::Distance2ToBounds(float x[3], float bounds[6])
 {
   float distance = VTK_LARGE_FLOAT;
@@ -1493,23 +1408,6 @@ float vtkCellLocator::Distance2ToBounds(float x[3], float bounds[6])
     }
 
 
-  //
-  // deltas[] give the dx, dy, dz to the closest vertex of the bounds.
-  // However, a face or edge of the bounds may be closer than a vertex
-  //
-  if (deltas[0] == 0.0 && deltas[1] == 0.0)
-    {
-    return deltas[2]*deltas[2];
-    }
-  else if (deltas[0] == 0.0 && deltas[2] == 0.0) 
-    {
-    return deltas[1]*deltas[1];
-    }
-  else if (deltas[1] == 0.0 && deltas[2] == 0.0) 
-    {
-    return deltas[0]*deltas[0];
-    }
-    
   distance = vtkMath::Dot(deltas, deltas);
   return distance;
 }
