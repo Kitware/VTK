@@ -64,7 +64,8 @@ libVTK${ME}Tcl.a: tcl/${ME}Init.o ${KIT_LIBS} ${KIT_TCL_OBJ}
 	${AR} cr libVTK${ME}Tcl.a tcl/${ME}Init.o ${KIT_LIBS} ${KIT_TCL_OBJ}
 	${RANLIB} libVTK$(ME)Tcl.a
 
-libVTK$(ME)Tcl$(SHLIB_SUFFIX): tcl/${ME}Init.o ${KIT_LIBS} ${KIT_TCL_OBJ}
+libVTK$(ME)Tcl$(SHLIB_SUFFIX): tcl/${ME}Init.o ${KIT_LIBS} ${KIT_TCL_OBJ} \
+	libVTK$(ME)$(SHLIB_SUFFIX)
 	rm -f libVTK$(ME)Tcl$(SHLIB_SUFFIX)
 	$(CXX) ${CXX_FLAGS} ${VTK_SHLIB_BUILD_FLAGS} -o \
 	libVTK$(ME)Tcl$(SHLIB_SUFFIX) \
