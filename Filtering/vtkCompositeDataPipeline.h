@@ -23,28 +23,28 @@
 // all dataset types contained in the composite dataset. The pipeline
 // execution can be summarized as follows: 
 //
-// * REQUEST_COMPOSITE_INFORMATION: Similar to REQUEST_INFORMATION. The
-// producers have to provide information about the contents of the
-// composite dataset in this pass. This is accomplished by creating and
-// populating a vtkHierarchicalDataInformation and setting it using the
-// COMPOSITE_DATA_INFORMATION() key in the output information vector.
-// An UPDATE_COST() should be set for each block in the composite dataset.
-// A cost of 0 implies that the dataset can be produced easily (for example
-// without accessing a remote disk) whereas a cost of 1 implies that the
-// dataset cannot be produced by the current process.
+// * REQUEST_INFORMATION: The producers have to provide information about
+// the contents of the composite dataset in this pass. This is accomplished
+// by creating and populating a vtkHierarchicalDataInformation and setting
+// it using the COMPOSITE_DATA_INFORMATION() key in the output information
+// vector.  An UPDATE_COST() should be set for each block in the composite
+// dataset.  A cost of 0 implies that the dataset can be produced easily
+// (for example without accessing a remote disk) whereas a cost of 1
+// implies that the dataset cannot be produced by the current process.
+// Sources that can produce more than one piece (note that a piece is
+// different than a block; each piece consistes of 0 or more blocks) should
+// set MAXIMUM_NUMBER_OF_PIECES to -1.
 //
-// TODO : Fix this documentation. MARKED_FOR_UPDATE() is provided by
-// the source ----->
-// * REQUEST_COMPOSITE_UPDATE_EXTENT: Similar to REQUEST_UPDATE_EXTENT.
-// The consumers have to provide information about the extent (update blocks)
-// they require. This accomplished by adding a MARKED_FOR_UPDATE() key
-// to the appropriate blocks in COMPOSITE_DATA_INFORMATION() 
-// (vtkHierarchicalDataInformation).
+// * REQUEST_UPDATE_EXTENT: This pass is identical to the one implemented
+// in vtkStreamingDemandDrivenPipeline except the source has to perform
+// the "extent translation". This is the process by which the piece request
+// is converted to a block request. This is done by adding a MARKED_FOR_UPDATE()
+// key to the appropriate blocks in COMPOSITE_DATA_INFORMATION().
 //
-// * REQUEST_COMPOSITE_DATA: Similar to REQUEST_DATA. This is where the
-// algorithms execute. If a composite data algorithm is consuming the output
-// of a simple data algorithm, the executive will execute the streaming demand
-// driven pipeline passes for each block:
+// * REQUEST_DATA: This is where the algorithms execute. If a composite
+// data algorithm is consuming the output of a simple data algorithm, the
+// executive will execute the streaming demand driven pipeline passes for
+// each block:
 // @verbatim
 // for each block
 //    REQUEST_PIPELINE_MODIFIED_TIME()
@@ -53,12 +53,17 @@
 //    REQUEST_DATA()
 // @endverbatim
 // The request passed to these passes will contain a LEVEL() and INDEX() key
-// of each block to be updated.
+// of each block to be updated. 
 // Shallow copies of individual blocks are added to the composite input
 // of the algorithm. Finally, the request is passed to the algorithm.
-//
+// If the algorithm it points to is simple, the executive will also call
+// it on each block and collect the results as the output.
+// Furthermore, if the vtkCompositeDataPipeline is assigned to a simple filter, 
+// it will invoke the  vtkStreamingDemandDrivenPipeline passes in a loop, 
+// passing a different block each time and will collect the results in a 
+// composite dataset (vtkHierarchicalDataSet).
 // .SECTION See also
-//  vtkHierarchicalDataInformation vtkCompositeDataSet
+//  vtkHierarchicalDataInformation vtkCompositeDataSet vtkHierarchicalDataSet
 
 #ifndef __vtkCompositeDataPipeline_h
 #define __vtkCompositeDataPipeline_h
