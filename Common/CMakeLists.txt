@@ -20,6 +20,7 @@ vtkCollection.cxx
 vtkCommand.cxx
 vtkContainer.cxx
 vtkContourValues.cxx
+vtkConvexPointSet.cxx
 vtkCoordinate.cxx
 vtkCriticalSection.cxx
 vtkCylindricalTransform.cxx
@@ -107,6 +108,10 @@ vtkProperty2D.cxx
 vtkPyramid.cxx
 vtkQuad.cxx
 vtkQuadraticEdge.cxx
+vtkQuadraticTriangle.cxx
+vtkQuadraticQuad.cxx
+vtkQuadraticTetra.cxx
+vtkQuadraticHexahedron.cxx
 vtkQuadric.cxx
 vtkRectilinearGrid.cxx
 vtkReferenceCount.cxx
