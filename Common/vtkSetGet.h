@@ -196,7 +196,7 @@ virtual type Get##name##MaxValue () \
 // reference counting methodology. Creates method 
 // Set"name"() (e.g., SetPoints()).
 //
-#define vtkSetObjectMacroBody(name,type,args)                   \
+#define vtkSetObjectBodyMacro(name,type,args)                   \
   {                                                             \
   vtkDebugMacro(<< this->GetClassName() << " (" << this         \
                 << "): setting " << #name " to " << args );     \
@@ -217,7 +217,7 @@ virtual type Get##name##MaxValue () \
 #define vtkSetObjectMacro(name,type)            \
 virtual void Set##name (type* _arg)             \
   {                                             \
-  vtkSetObjectMacroBody(name,type,_arg);        \
+  vtkSetObjectBodyMacro(name,type,_arg);        \
   }
 
 //
@@ -227,10 +227,10 @@ virtual void Set##name (type* _arg)             \
 // prototype in the header file. The prototype should look like this:
 // virtual void Set"name"("type" *);
 //
-#define vtkSetObjectMacroImplementation(class,name,type)        \
+#define vtkSetObjectImplementationMacro(class,name,type)        \
 void class::Set##name (type* _arg)                              \
   {                                                             \
-  vtkSetObjectMacroBody(name,type,_arg);                        \
+  vtkSetObjectBodyMacro(name,type,_arg);                        \
   }
 
 //
