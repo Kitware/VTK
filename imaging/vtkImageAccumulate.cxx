@@ -128,9 +128,9 @@ void vtkImageAccumulate::GetComponentExtent(int extent[6])
 //----------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 template <class T>
-static void vtkImageAccumulateExecute(vtkImageAccumulate *self,
-				      vtkImageData *inData, T *inPtr,
-				      vtkImageData *outData, int *outPtr)
+void vtkImageAccumulateExecute(vtkImageAccumulate *self,
+			       vtkImageData *inData, T *inPtr,
+			       vtkImageData *outData, int *outPtr)
 {
   int min0, max0, min1, max1, min2, max2;
   int idx0, idx1, idx2, idxC;

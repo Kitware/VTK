@@ -267,6 +267,7 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
   int min, max, mid;
   vtkImageData *data;
   int fileOpenedHere = 0;
+  int *ext;
   
   // if we need to open another slice, do it
   if (!file && (axis + 1) == this->FileDimensionality)
@@ -305,6 +306,10 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
   // if so the just get the data and write it out
   if (cache->GetEstimatedUpdateMemorySize() < cache->GetMemoryLimit())
     {
+    ext = cache->GetUpdateExtent();
+    vtkDebugMacro("Getting input extent: " << ext[0] << ", " << 
+		  ext[1] << ", " << ext[2] << ", " << ext[3] << ", " << 
+		  ext[4] << ", " << ext[5] << endl);
     cache->Update();
     data = cache;
     this->RecursiveWrite(axis,cache,data,file);
@@ -321,6 +326,11 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
   // if the current request did not fit into memory
   // the we will split the current axis
   this->GetInput()->GetAxisUpdateExtent(axis, min, max);
+  
+  //vtkDebugMacro("Axes: " << axis << "(" << min << ", " << max 
+  //	<< "), UpdateMemory: " << cache->GetEstimatedUpdateMemorySize() 
+  //	<< ", Limit: " << cache->GetMemoryLimit() << endl);
+  
   if (min == max)
     {
     if (axis > 0)
@@ -342,9 +352,6 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
     }
   
   mid = (min + max) / 2;
-  vtkDebugMacro ("Split axis " << axis << " ("
-		 << min << "->" << mid << ") and (" << mid+1 << "->"
-		 << max << ")");
 
   // if it is the y axis then flip by default
   if (axis == 1 && !this->FileLowerLeft)
