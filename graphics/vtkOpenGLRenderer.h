@@ -90,8 +90,7 @@ protected:
   virtual float GetPickedZ();
   //ETX
   // Ivars used in picking
-  unsigned int* PickBuffer;
-  unsigned int PickedID;
+  class vtkGLPickInfo* PickInfo;
   float PickedZ;
 };
 

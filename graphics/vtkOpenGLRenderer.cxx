@@ -48,8 +48,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCuller.h"
 #include <GL/gl.h>
 #include "vtkObjectFactory.h"
-#include "vtkOutputWindow.h"
 
+class vtkGLPickInfo
+{
+public:
+  GLuint* PickBuffer;
+  GLuint PickedID;
+};
 
 
 //------------------------------------------------------------------------------
@@ -73,8 +78,9 @@ vtkOpenGLRenderer* vtkOpenGLRenderer::New()
 
 vtkOpenGLRenderer::vtkOpenGLRenderer()
 {
+  this->PickInfo = new vtkGLPickInfo;
   this->NumberOfLightsBound = 0;
-  this->PickBuffer = 0;
+  this->PickInfo->PickBuffer = 0;
 }
 
 // Internal method temporarily removes lights before reloading them
@@ -276,6 +282,9 @@ void vtkOpenGLRenderer::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Number Of Lights Bound: " << 
     this->NumberOfLightsBound << "\n";
+  os << indent << "PickBuffer " << this->PickInfo->PickBuffer << "\n";
+  os << indent << "PickedID " << this->PickInfo->PickedID << "\n";
+  os << indent << "PickedZ " << this->PickedZ << "\n";
 }
 
 
@@ -293,8 +302,8 @@ void vtkOpenGLRenderer::Clear(void)
 void vtkOpenGLRenderer::StartPick(unsigned int pickFromSize)
 {
   int bufferSize = pickFromSize * 4;
-  this->PickBuffer = new unsigned int[bufferSize];
-  glSelectBuffer(bufferSize, this->PickBuffer);
+  this->PickInfo->PickBuffer = new GLuint[bufferSize];
+  glSelectBuffer(bufferSize, this->PickInfo->PickBuffer);
   // change to selection mode
   (void)glRenderMode(GL_SELECT);
   // initialize the pick names and add a 0 name, for no pick
@@ -411,8 +420,8 @@ void vtkOpenGLRenderer::DonePick()
   glFlush();
   GLuint hits = glRenderMode(GL_RENDER); 
   unsigned int depth = (unsigned int)-1;
-  unsigned int* ptr = this->PickBuffer;
-  this->PickedID = 0;
+  unsigned int* ptr = this->PickInfo->PickBuffer;
+  this->PickInfo->PickedID = 0;
   for(unsigned int k =0; k < hits; k++)
     {
     int num_names = *ptr;
@@ -431,13 +440,13 @@ void vtkOpenGLRenderer::DonePick()
     ptr++;
     if(save)
       {
-      this->PickedID = *ptr;
+      this->PickInfo->PickedID = *ptr;
       }
     // skip additonal names
     ptr += num_names;
     }
   // If there was a pick, then get the Z value
-  if(this->PickedID)
+  if(this->PickInfo->PickedID)
     {
     // convert from pick depth described as:
     // Returned depth values are mapped such that the largest unsigned 
@@ -450,7 +459,7 @@ void vtkOpenGLRenderer::DonePick()
     this->PickedZ = (this->PickedZ < 0.0) ? 0.0 : this->PickedZ;
     this->PickedZ = (this->PickedZ > 1.0) ? 1.0: this->PickedZ;
     }
-  delete [] this->PickBuffer;
+  delete [] this->PickInfo->PickBuffer;
 }
 
 
@@ -462,11 +471,12 @@ float vtkOpenGLRenderer::GetPickedZ()
 
 unsigned int vtkOpenGLRenderer::GetPickedID()
 {
-  return this->PickedID;
+  return (unsigned int)this->PickInfo->PickedID;
 }
 
 vtkOpenGLRenderer::~vtkOpenGLRenderer()
 {
-  delete [] this->PickBuffer;
+  delete [] this->PickInfo->PickBuffer;
+  delete this->PickInfo;
 }
 
