@@ -54,7 +54,7 @@ void vtkProbeFilter::Execute()
   int numPts, subId;
   vtkDataSet *source=this->Source, *input=this->Input;
   vtkDataSet *output=this->Output;
-  float pcoords[3], *weights=new float[input->GetMaxCellSize()];
+  float pcoords[3], *weights=new float[source->GetMaxCellSize()];
 
   vtkDebugMacro(<<"Probing data");
 
