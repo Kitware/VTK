@@ -33,7 +33,7 @@ void ComparatorCommand(ostream& strm) {
 void Test(ostream& strm)
 {
   // actual test
-  int i, j;
+  int i, j, k;
   strm << "text test matrix4x4 begin" << endl;
 
   strm << "initialize mat1" << endl;
@@ -47,11 +47,13 @@ void Test(ostream& strm)
   strm << *mat2;
   
   strm << "setting mat1" << endl;
+  
+  k = 0;
   for (i = 0; i < 4; i++) 
     {
     for (j = 0; j < 4; j++) 
       {
-      mat1->SetElement(i, j, (double)(i * j + 1));
+      mat1->SetElement(i, j, (double)(k++));
       }
     }
   strm << "mat1 " << endl;
@@ -62,8 +64,8 @@ void Test(ostream& strm)
   strm << "mat1 " << endl;
   strm << *mat1;
   
-  strm << "deep copy mat1 into mat2" << endl;
-  mat2->DeepCopy(mat1);
+  strm << "mat2 = 5.6" << endl;
+  *mat2 = 5.6;
   strm << "mat2 " << endl;
   strm << *mat2;
   
@@ -72,8 +74,19 @@ void Test(ostream& strm)
   strm << "mat2 " << endl;
   strm << *mat2;
   
+
+  strm << "deep copy array into mat1" << endl;
+  double array[16];
+  array[0]  = .75;   array[1]  = -.4;  array[2]  = .5;  array[3] = 1;
+  array[4]  = .65;   array[5]  = .625; array[6]  = -.4; array[7] = 2;
+  array[8]  = -.125; array[9]  = .65;  array[10] = .75; array[11] = 3;
+  array[12] = 0;     array[13] = 0;    array[14] = 0;   array[15] = 1;
+  mat1->DeepCopy(array);
+  strm << "mat1 " << endl;
+  strm << *mat1;
+
   strm << "determinant of mat1" << endl;
-  strm << "  " << mat1->Determinant(mat1);
+  strm << "  " << mat1->Determinant(mat1) << endl;
 
   strm << "adjoint of mat1, put in mat2" << endl;
   mat1->Adjoint(mat1, mat2);
@@ -84,9 +97,9 @@ void Test(ostream& strm)
   strm << *mat2;
   
   strm << "inverse of mat1" << endl;
-  mat1->Invert();
-  strm << "mat1 " << endl;
-  strm << *mat1;
+  mat1->Invert(mat1,mat2);
+  strm << "mat2 " << endl;
+  strm << *mat2;
 
   double in[4];
   double out[4];
