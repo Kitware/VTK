@@ -39,6 +39,33 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkPointSetToPointSetFilter.h"
+#include "vtkPolyData.h"
+#include "vtkStructuredGrid.h"
+#include "vtkUnstructuredGrid.h"
+
+// Description:
+// Construct object.
+vtkPointSetToPointSetFilter::vtkPointSetToPointSetFilter()
+{
+  this->PolyData = vtkPolyData::New();
+  this->PolyData->SetSource(this);
+  
+  this->StructuredGrid = vtkStructuredGrid::New();
+  this->StructuredGrid->SetSource(this);
+  
+  this->UnstructuredGrid = vtkUnstructuredGrid::New();
+  this->UnstructuredGrid->SetSource(this);
+  
+  this->Output = NULL;
+}
+
+vtkPointSetToPointSetFilter::~vtkPointSetToPointSetFilter()
+{
+  this->PolyData->Delete();
+  this->StructuredGrid->Delete();
+  this->UnstructuredGrid->Delete();
+  this->Output = NULL;
+}
 
 // Description:
 // Specify the input data or filter.
@@ -52,20 +79,24 @@ void vtkPointSetToPointSetFilter::SetInput(vtkPointSet *input)
 
     if ( this->Input == NULL ) return;
 
-    if ( ! this->Output )
+    if ( ! strcmp(this->Input->GetDataType(),"vtkPolyData") )
       {
-      this->Output = this->Input->MakeObject();
-      this->Output->SetSource(this);
-      return;
+      this->Output = this->PolyData;
       }
 
-    // since the input has changed we might need to create a new output
-    if (strcmp(this->Output->GetClassName(),this->Input->GetClassName()))
+    else if ( ! strcmp(this->Input->GetDataType(),"vtkStructuredGrid") )
       {
-      this->Output->Delete();
-      this->Output = this->Input->MakeObject();
-      this->Output->SetSource(this);
-      vtkWarningMacro(<<" a new output had to be created since the input type changed.");
+      this->Output = this->StructuredGrid;
+      }
+
+    else if ( ! strcmp(this->Input->GetDataType(),"vtkUnstructuredGrid") )
+      {
+      this->Output = this->UnstructuredGrid;
+      }
+
+    else
+      {
+      vtkErrorMacro(<<"Mismatch in data type");
       }
     }
 }
@@ -122,7 +153,6 @@ void vtkPointSetToPointSetFilter::Update()
 // Description:
 // Get the output of this filter. If output is NULL, then input hasn't been
 // set, which is necessary for abstract filter objects.
-
 vtkPointSet *vtkPointSetToPointSetFilter::GetOutput()
 {
   if ( this->Output == NULL )
@@ -130,5 +160,26 @@ vtkPointSet *vtkPointSetToPointSetFilter::GetOutput()
     vtkErrorMacro(<<"Abstract filters require input to be set before output can be retrieved");
     }
   return (vtkPointSet *)this->Output;
+}
+
+// Description:
+// Get the output as vtkPolyData. Performs run-time checking.
+vtkPolyData *vtkPointSetToPointSetFilter::GetPolyDataOutput() 
+{
+  return this->PolyData;
+}
+
+// Description:
+// Get the output as vtkStructuredGrid. Performs run-time checking.
+vtkStructuredGrid *vtkPointSetToPointSetFilter::GetStructuredGridOutput()
+{
+  return this->StructuredGrid;
+}
+
+// Description:
+// Get the output as vtkUnstructuredGrid. Performs run-time checking.
+vtkUnstructuredGrid *vtkPointSetToPointSetFilter::GetUnstructuredGridOutput()
+{
+  return this->UnstructuredGrid;
 }
 

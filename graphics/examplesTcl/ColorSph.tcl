@@ -1,5 +1,6 @@
 catch {load vtktcl}
-# Example demonstrates use of vtkCastToConcrete
+# Example demonstrates use of abstract vtkDataSetToDataSetFilter
+# (i.e., vtkElevationFilter - an abstract filter)
 #
 source ../../examplesTcl/vtkInt.tcl
 
@@ -12,11 +13,8 @@ vtkElevationFilter colorIt
   colorIt SetLowPoint 0 0 -1
   colorIt SetHighPoint 0 0 1
 
-vtkCastToConcrete cast
-  cast SetInput [colorIt GetOutput]
-
 vtkPolyDataMapper mapper
-  mapper SetInput [cast GetPolyDataOutput] 
+  mapper SetInput [colorIt GetPolyDataOutput] 
 
 vtkActor actor
   actor SetMapper mapper

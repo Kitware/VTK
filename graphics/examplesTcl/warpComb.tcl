@@ -36,10 +36,8 @@ vtkWarpScalar warp
     warp UseNormalOn
     warp SetNormal 1.0 0.0 0.0
     warp SetScaleFactor 2.5
-vtkCastToConcrete caster
-    caster SetInput [warp GetOutput]
 vtkPolyDataNormals normals
-    normals SetInput [caster GetPolyDataOutput]
+    normals SetInput [warp GetPolyDataOutput]
     normals SetFeatureAngle 60
 vtkPolyDataMapper planeMapper
     planeMapper SetInput [normals GetOutput]

@@ -35,10 +35,8 @@ vtkAppendPolyData appendF
 vtkWarpVector warp
     warp SetInput [appendF GetOutput]
     warp SetScaleFactor 0.005
-vtkCastToConcrete caster
-    caster SetInput [warp GetOutput]
 vtkPolyDataNormals normals
-    normals SetInput [caster GetPolyDataOutput]
+    normals SetInput [warp GetPolyDataOutput]
     normals SetFeatureAngle 60
 vtkDataSetMapper planeMapper
     planeMapper SetInput [normals GetOutput]

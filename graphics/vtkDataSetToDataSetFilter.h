@@ -40,15 +40,26 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkDataSetToDataSetFilter - abstract filter class
 // .SECTION Description
-// vtkDataSetToDataSetFilter is an abstract filter class. Subclasses of 
-// vtkDataSetToDataSetFilter take a dataset as input and create a dataset 
-// as output. The form of the input geometry is not changed in these 
-// filters, only the point attributes (e.g. scalars, vectors, etc.).
+// vtkDataSetToDataSetFilter is an abstract filter class. Subclasses of
+// vtkDataSetToDataSetFilter take a dataset as input and create a dataset as
+// output. The form of the input geometry is not changed in these filters,
+// only the point attributes (e.g. scalars, vectors, etc.).
+//
+// This is an abstract filter type. What that means is that the output of the
+// filter is an abstract type (i.e., vtkDataSet), no matter what the input of
+// the filter is. This can cause problems connecting together filters due to
+// the change in dataset type. (For example, in a series of filters
+// processing vtkPolyData, when a vtkDataSetToDataSetFilter or subclass is
+// introduced into the pipeline, if the filter downstream of it takes
+// vtkPolyData as input, the pipeline connection cannot be made.) To get
+// around this problem, use one of the convenience methods to return a
+// concrete type (e.g., vtkGetPolyDataOutput(), GetStructuredPointsOutput(),
+// etc.).
 
 // .SECTION See Also
 // vtkBrownianPoints vtkProbeFilter vtkThresholdTextureCoords vtkDicer
-// vtkElevationFilter vtkImplicitTextureCoords vtkTextureMapToBox vtkTextureMapToPlane
-// vtkVectorDot vtkVectorNorm
+// vtkElevationFilter vtkImplicitTextureCoords vtkTextureMapToBox 
+// vtkTextureMapToPlane vtkVectorDot vtkVectorNorm
 
 #ifndef __vtkDataSetToDataSetFilter_h
 #define __vtkDataSetToDataSetFilter_h
@@ -57,13 +68,20 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkDataSet.h"
 #include "vtkImageCache.h"
 
+class vtkPolyData;
+class vtkStructuredPoints;
+class vtkStructuredGrid;
+class vtkUnstructuredGrid;
+class vtkRectilinearGrid;
+
 class VTK_EXPORT vtkDataSetToDataSetFilter : public vtkDataSetFilter
 {
 
 public:
+  vtkDataSetToDataSetFilter();
+  ~vtkDataSetToDataSetFilter();
   static vtkDataSetToDataSetFilter *New() {return new vtkDataSetToDataSetFilter;};
   const char *GetClassName() {return "vtkDataSetToDataSetFilter";};
-  vtkDataSetToDataSetFilter() {this->Output = NULL;};
 
   void SetInput(vtkDataSet *input);
   void SetInput(vtkImageCache *cache)
@@ -72,7 +90,25 @@ public:
   // filter interface (need to overload because of abstract interface)
   void Update();
 
+  // get the output as a dataset - requires setting input first
   vtkDataSet *GetOutput();
+
+  // get the output in different forms - does run-time checking
+  vtkPolyData *GetPolyDataOutput();
+  vtkStructuredPoints *GetStructuredPointsOutput();
+  vtkStructuredGrid *GetStructuredGridOutput();
+  vtkUnstructuredGrid *GetUnstructuredGridOutput();
+  vtkRectilinearGrid *GetRectilinearGridOutput();
+  
+  
+protected:
+  // objects used to support the retrieval of output
+  vtkPolyData *PolyData;
+  vtkStructuredPoints *StructuredPoints;
+  vtkStructuredGrid *StructuredGrid;
+  vtkUnstructuredGrid *UnstructuredGrid;
+  vtkRectilinearGrid *RectilinearGrid;
+  
 };
 
 #endif

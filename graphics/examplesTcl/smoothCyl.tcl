@@ -27,18 +27,12 @@ vtkRotationalExtrusionFilter lineSweeper
 vtkBrownianPoints bump
   bump SetInput [lineSweeper GetOutput]
 
-vtkCastToConcrete cast
-  cast SetInput [bump GetOutput]
-
 vtkWarpVector warp
-  warp SetInput [cast GetPolyDataOutput]
+  warp SetInput [bump GetPolyDataOutput]
   warp SetScaleFactor .2
 
-vtkCastToConcrete cast2
-  cast2 SetInput [warp GetOutput]
-
 vtkSmoothPolyDataFilter smooth
-    smooth SetInput [cast2 GetPolyDataOutput]
+    smooth SetInput [warp GetPolyDataOutput]
     smooth SetNumberOfIterations 50
     smooth BoundarySmoothingOn
     smooth SetFeatureAngle 120
@@ -58,7 +52,7 @@ vtkActor cylActor
     eval [cylActor GetProperty] SetColor $beige
 
 vtkPolyDataMapper originalMapper
-    originalMapper SetInput [cast2 GetPolyDataOutput]
+    originalMapper SetInput [bump GetPolyDataOutput]
 
 vtkActor originalActor
     originalActor SetMapper originalMapper
@@ -86,7 +80,7 @@ iren SetUserMethod {wm deiconify .vtkInteract}
 
 iren Initialize
 renWin SetFileName "valid/smoothCyl.tcl.ppm"
-renWin SaveImageAsPPM
+#renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

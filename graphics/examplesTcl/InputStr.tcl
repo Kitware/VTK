@@ -1300,10 +1300,8 @@ plate SetVectorsName "mode8"
 vtkWarpVector warp
     warp SetInput [plate GetOutput]
     warp SetScaleFactor 0.5
-vtkCastToConcrete caster
-    caster SetInput [warp GetOutput]
 vtkPolyDataNormals normals
-    normals SetInput [caster GetPolyDataOutput]
+    normals SetInput [warp GetPolyDataOutput]
 vtkVectorDot color
     color SetInput [normals GetOutput]
 vtkLookupTable lut

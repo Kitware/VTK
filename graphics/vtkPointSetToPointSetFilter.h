@@ -41,11 +41,21 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkPointSetToPointSetFilter - abstract filter class 
 // .SECTION Description
 // vtkPointSetToPointSetFilter is an abstract filter class whose subclasses
-// take as input a point set and generates a point set on output.
-// At a minimum, the concrete subclasses of vtkPointSetToPointSetFilter
-// modify their point coordinates. They never modify their topological 
-// form, however.
-
+// take as input a point set and generates a point set on output.  At a
+// minimum, the concrete subclasses of vtkPointSetToPointSetFilter modify
+// their point coordinates. They never modify their topological form,
+// however.
+//
+// This is an abstract filter type. What that means is that the output of the
+// filter is an abstract type (i.e., vtkPointSet), no matter what the input
+// of the filter is. This can cause problems connecting together filters due
+// to the change in dataset type. (For example, in a series of filters
+// processing vtkPolyData, when a vtkPointSetToPointSetFilter or subclass is
+// introduced into the pipeline, if the filter downstream of it takes
+// vtkPolyData as input, the pipeline connection cannot be made.) To get
+// around this problem, use one of the convenience methods to return a
+// concrete type (e.g., vtkGetPolyDataOutput(), GetStructuredGridOutput(),
+// etc.).
 // .SECTION See Also
 // vtkTransformFilter vtkWarpScalar vtkWarpTo vtkWarpVector
 
@@ -55,19 +65,37 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPointSetFilter.h"
 #include "vtkPointSet.h"
 
+class vtkPolyData;
+class vtkStructuredGrid;
+class vtkUnstructuredGrid;
+
 class VTK_EXPORT vtkPointSetToPointSetFilter : public vtkPointSetFilter
 {
 public:
+  vtkPointSetToPointSetFilter();
+  ~vtkPointSetToPointSetFilter();
   static vtkPointSetToPointSetFilter *New() {return new vtkPointSetToPointSetFilter;};
   const char *GetClassName() {return "vtkPointSetToPointSetFilter";};
-  vtkPointSetToPointSetFilter() {this->Output = NULL;};
   
   void SetInput(vtkPointSet *input);
 
   // filter interface (need to overload because of abstract interface)
   void Update();
 
+  // get the output as a dataset - requires setting input first
   vtkPointSet *GetOutput();
+
+  // get the output in different forms suitable to vtkPointSet - run-time checking
+  vtkPolyData *GetPolyDataOutput();
+  vtkStructuredGrid *GetStructuredGridOutput();
+  vtkUnstructuredGrid *GetUnstructuredGridOutput();
+
+protected:
+  // objects used to support the retrieval of output
+  vtkPolyData *PolyData;
+  vtkStructuredGrid *StructuredGrid;
+  vtkUnstructuredGrid *UnstructuredGrid;
+
 };
 
 #endif

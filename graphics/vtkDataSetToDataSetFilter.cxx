@@ -39,6 +39,43 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkDataSetToDataSetFilter.h"
+#include "vtkPolyData.h"
+#include "vtkStructuredGrid.h"
+#include "vtkStructuredPoints.h"
+#include "vtkUnstructuredGrid.h"
+#include "vtkRectilinearGrid.h"
+
+// Description:
+// Construct object.
+vtkDataSetToDataSetFilter::vtkDataSetToDataSetFilter()
+{
+  this->PolyData = vtkPolyData::New();
+  this->PolyData->SetSource(this);
+  
+  this->StructuredPoints = vtkStructuredPoints::New();
+  this->StructuredPoints->SetSource(this);
+  
+  this->StructuredGrid = vtkStructuredGrid::New();
+  this->StructuredGrid->SetSource(this);
+  
+  this->UnstructuredGrid = vtkUnstructuredGrid::New();
+  this->UnstructuredGrid->SetSource(this);
+  
+  this->RectilinearGrid = vtkRectilinearGrid::New();
+  this->RectilinearGrid->SetSource(this);
+
+  this->Output = NULL;
+}
+
+vtkDataSetToDataSetFilter::~vtkDataSetToDataSetFilter()
+{
+  this->PolyData->Delete();
+  this->StructuredPoints->Delete();
+  this->StructuredGrid->Delete();
+  this->UnstructuredGrid->Delete();
+  this->RectilinearGrid->Delete();
+  this->Output = NULL;
+}
 
 // Description:
 // Specify the input data or filter.
@@ -52,20 +89,34 @@ void vtkDataSetToDataSetFilter::SetInput(vtkDataSet *input)
 
     if ( this->Input == NULL ) return;
 
-    if ( ! this->Output )
+    if ( ! strcmp(this->Input->GetDataType(),"vtkPolyData") )
       {
-      this->Output = this->Input->MakeObject();
-      this->Output->SetSource(this);
-      return;
+      this->Output = this->PolyData;
       }
 
-    // since the input has changed we might need to create a new output
-    if (strcmp(this->Output->GetClassName(),this->Input->GetClassName()))
+    else if ( ! strcmp(this->Input->GetDataType(),"vtkStructuredPoints") )
       {
-      this->Output->Delete();
-      this->Output = this->Input->MakeObject();
-      this->Output->SetSource(this);
-      vtkWarningMacro(<<" a new output had to be created since the input type changed.");
+      this->Output = this->StructuredPoints;
+      }
+
+    else if ( ! strcmp(this->Input->GetDataType(),"vtkStructuredGrid") )
+      {
+      this->Output = this->StructuredGrid;
+      }
+
+    else if ( ! strcmp(this->Input->GetDataType(),"vtkUnstructuredGrid") )
+      {
+      this->Output = this->UnstructuredGrid;
+      }
+
+    else if ( ! strcmp(this->Input->GetDataType(),"vtkRectilinearGrid") )
+      {
+      this->Output = this->RectilinearGrid;
+      }
+
+    else
+      {
+      vtkErrorMacro(<<"Mismatch in data type");
       }
     }
 }
@@ -121,7 +172,6 @@ void vtkDataSetToDataSetFilter::Update()
 // Description:
 // Get the output of this filter. If output is NULL then input hasn't been set
 // which is necessary for abstract objects.
-
 vtkDataSet *vtkDataSetToDataSetFilter::GetOutput()
 {
   if ( this->Output == NULL )
@@ -129,5 +179,40 @@ vtkDataSet *vtkDataSetToDataSetFilter::GetOutput()
     vtkErrorMacro(<<"Abstract filters require input to be set before output can be retrieved");
     }
   return this->Output;
+}
+
+// Description:
+// Get the output as vtkPolyData.
+vtkPolyData *vtkDataSetToDataSetFilter::GetPolyDataOutput() 
+{
+  return this->PolyData;
+}
+
+// Description:
+// Get the output as vtkStructuredPoints.
+vtkStructuredPoints *vtkDataSetToDataSetFilter::GetStructuredPointsOutput() 
+{
+  return this->StructuredPoints;
+}
+
+// Description:
+// Get the output as vtkStructuredGrid.
+vtkStructuredGrid *vtkDataSetToDataSetFilter::GetStructuredGridOutput()
+{
+  return this->StructuredGrid;
+}
+
+// Description:
+// Get the output as vtkUnstructuredGrid.
+vtkUnstructuredGrid *vtkDataSetToDataSetFilter::GetUnstructuredGridOutput()
+{
+  return this->UnstructuredGrid;
+}
+
+// Description:
+// Get the output as vtkRectilinearGrid. 
+vtkRectilinearGrid *vtkDataSetToDataSetFilter::GetRectilinearGridOutput()
+{
+  return this->RectilinearGrid;
 }
 

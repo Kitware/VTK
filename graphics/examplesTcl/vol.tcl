@@ -387,11 +387,8 @@ vtkProbeFilter probe1
     probe1 SetInput [transpd1 GetOutput]
     probe1 SetSource [reader GetOutput]
 
-vtkCastToConcrete cast1
-    cast1 SetInput [probe1 GetOutput]
-
 vtkTriangleFilter tf1
-    tf1 SetInput [cast1 GetPolyDataOutput]
+    tf1 SetInput [probe1 GetPolyDataOutput]
 
 vtkStripper strip1
     strip1 SetInput [tf1 GetOutput]
@@ -436,11 +433,8 @@ vtkProbeFilter probe2
     probe2 SetInput [transpd2 GetOutput]
     probe2 SetSource [reader GetOutput]
 
-vtkCastToConcrete cast2
-    cast2 SetInput [probe2 GetOutput]
-
 vtkTriangleFilter tf2
-    tf2 SetInput [cast2 GetPolyDataOutput]
+    tf2 SetInput [probe2 GetPolyDataOutput]
 
 vtkStripper strip2
     strip2 SetInput [tf2 GetOutput]
@@ -486,11 +480,8 @@ vtkProbeFilter probe3
     probe3 SetInput [transpd3 GetOutput]
     probe3 SetSource [reader GetOutput]
 
-vtkCastToConcrete cast3
-    cast3 SetInput [probe3 GetOutput]
-
 vtkTriangleFilter tf3
-    tf3 SetInput [cast3 GetPolyDataOutput]
+    tf3 SetInput [probe3 GetPolyDataOutput]
 
 vtkStripper strip3
     strip3 SetInput [tf3 GetOutput]
