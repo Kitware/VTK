@@ -29,7 +29,7 @@
 #include "vtkRenderer.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLVolumeRayCastMapper, "1.14");
+vtkCxxRevisionMacro(vtkOpenGLVolumeRayCastMapper, "1.15");
 vtkStandardNewMacro(vtkOpenGLVolumeRayCastMapper);
 #endif
 
@@ -135,7 +135,13 @@ void vtkOpenGLVolumeRayCastMapper::RenderTexture( vtkVolume *vol,
 
   // Turn texturing on so that we can draw the textured hexagon
   glEnable( GL_TEXTURE_2D );
-
+  
+#ifdef GL_VERSION_1_1
+  GLuint tempIndex;
+  glGenTextures(1, &tempIndex);
+  glBindTexture(GL_TEXTURE_2D, tempIndex);
+#endif
+  
   // Don't write into the Zbuffer - just use it for comparisons
   glDepthMask( 0 );
   
@@ -330,6 +336,9 @@ void vtkOpenGLVolumeRayCastMapper::RenderTexture( vtkVolume *vol,
     
     // Turn lighting back on
     glEnable( GL_LIGHTING );  
+
+    glFlush();
+    glDeleteTextures(1, &tempIndex);  
     
     return;
     }
@@ -370,6 +379,11 @@ void vtkOpenGLVolumeRayCastMapper::RenderTexture( vtkVolume *vol,
   glDepthMask( 1 );
 
   // Turn lighting back on
-  glEnable( GL_LIGHTING );  
+  glEnable( GL_LIGHTING ); 
+  
+#ifdef GL_VERSION_1_1
+  glFlush();
+  glDeleteTextures(1, &tempIndex);
+#endif
 }
 
