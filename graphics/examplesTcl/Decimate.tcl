@@ -142,11 +142,13 @@ $RenWin AddRenderer Renderer
 
 # Procedure to set particular views
 proc UpdateView {x y z vx vy vz} {
+    global RenWin
+
     set camera [Renderer GetActiveCamera]
     $camera SetViewPlaneNormal $x $y $z
     $camera SetViewUp $vx $vy $vz
     Renderer ResetCamera
-    Render
+    Render $RenWin
 }
 
 # Procedure opens file and resets view
@@ -798,13 +800,15 @@ proc SetColor {value} {
 }
 
 proc ApplyBackground {} {
+    global RenWin
+
     Renderer SetBackground [expr [.back.f1.l.r get]/255.0] \
 	    [expr [.back.f1.l.g get]/255.0] \
 	    [expr [.back.f1.l.b get]/255.0]
     CompareRenderer SetBackground [expr [.back.f1.l.r get]/255.0] \
 	    [expr [.back.f1.l.g get]/255.0] \
 	    [expr [.back.f1.l.b get]/255.0]
-    Render
+    Render $RenWin
 }
 
 ############################ Set surface properties
@@ -883,6 +887,8 @@ proc SetSurfaceColor {value} {
 }
 
 proc ApplyProperties {} {
+    global RenWin
+
     property SetColor [expr [.prop.f1.l.r get]/255.0] \
 	    [expr [.prop.f1.l.g get]/255.0] \
 	    [expr [.prop.f1.l.b get]/255.0]
@@ -890,7 +896,7 @@ proc ApplyProperties {} {
     property SetDiffuse [.prop.sliders.diff get]
     property SetSpecular [.prop.sliders.spec get]
     property SetSpecularPower [.prop.sliders.power get]
-    Render
+    Render $RenWin
 }
 
 #------------------------Procedures for ProgressWidget----------------------
