@@ -66,21 +66,11 @@ unsigned long int vlPointSet::GetMTime()
     if ( this->Points->GetMTime() > dsTime ) dsTime = this->Points->GetMTime();
     }
 
-  if ( this->Locator )
-    {
-    if ( this->Locator->GetMTime() > dsTime ) dsTime = this->Locator->GetMTime();
-    }
+  // don't get locator's mtime because its an internal object that cannot be 
+  // modified directly from outside. Causes problems due to FindCell() 
+  // SetPoints() method.
 
   return dsTime;
-}
-
-void vlPointSet::PrintSelf(ostream& os, vlIndent indent)
-{
-  vlDataSet::PrintSelf(os,indent);
-
-  os << indent << "Number Of Points: " << this->GetNumberOfPoints() << "\n";
-  os << indent << "Point Data: " << this->Points << "\n";
-  os << indent << "Locator: " << this->Locator << "\n";
 }
 
 int vlPointSet::FindCell(float x[3], vlCell *cell, float tol2, int& subId,
@@ -137,3 +127,13 @@ void vlPointSet::Squeeze()
   if ( this->Points ) this->Points->Squeeze();
   vlDataSet::Squeeze();
 }
+
+void vlPointSet::PrintSelf(ostream& os, vlIndent indent)
+{
+  vlDataSet::PrintSelf(os,indent);
+
+  os << indent << "Number Of Points: " << this->GetNumberOfPoints() << "\n";
+  os << indent << "Point Data: " << this->Points << "\n";
+  os << indent << "Locator: " << this->Locator << "\n";
+}
+
