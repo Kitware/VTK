@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkOpenGLPolyDataMapper.h
+  Module:    vtkOpenGLPolyMapper.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,30 +38,31 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkOpenGLPolyDataMapper - a PolyDataMapper for the OpenGL library
+// .NAME vtkOpenGLPolyMapper - a PolyMapper for the OpenGL library
 // .SECTION Description
-// vtkOpenGLPolyDataMapper is a subclass of vtkPolyDataMapperDevice. 
-// vtkOpenGLPolyDataMapper is a geometric PolyDataMapper for the OpenGL 
+// vtkOpenGLPolyMapper is a subclass of vtkPolyMapperDevice. 
+// vtkOpenGLPolyMapper is a geometric PolyMapper for the OpenGL 
 // rendering library.
 
-#ifndef __vtkOpenGLPolyDataMapper_h
-#define __vtkOpenGLPolyDataMapper_h
+#ifndef __vtkOpenGLPolyMapper_h
+#define __vtkOpenGLPolyMapper_h
 
-#include "vtkPolyDataMapper.h"
 #include <stdlib.h>
+
+#include "vtkPolyMapper.h"
 #include <GL/gl.h>
 
 
 class vtkOpenGLRenderer;
 class vtkProperty;
 
-class VTK_EXPORT vtkOpenGLPolyDataMapper : public vtkPolyDataMapper
+class VTK_EXPORT vtkOpenGLPolyMapper : public vtkPolyMapper
 {
  public:
-  vtkOpenGLPolyDataMapper();
-  ~vtkOpenGLPolyDataMapper();
-  static vtkOpenGLPolyDataMapper *New() {return new vtkOpenGLPolyDataMapper;};
-  char *GetClassName() {return "vtkOpenGLPolyDataMapper";};
+  vtkOpenGLPolyMapper();
+  ~vtkOpenGLPolyMapper();
+  static vtkOpenGLPolyMapper *New() {return new vtkOpenGLPolyMapper;};
+  char *GetClassName() {return "vtkOpenGLPolyMapper";};
 
   void Render(vtkRenderer *ren, vtkActor *a);
 

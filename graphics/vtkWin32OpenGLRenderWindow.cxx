@@ -42,7 +42,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
-#include <afxwin.h>				// hsr
 #include <GL/glaux.h>
 #include "vtkWin32OpenGLRenderWindow.h"
 #include "vtkWin32RenderWindowInteractor.h"

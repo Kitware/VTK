@@ -44,7 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
  
-#include "vtkWin32OglrRenderWindow.h"
+#include "vtkWin32OpenGLRenderWindow.h"
 #include "vtkWin32MappedInteractor.h"
 #include "vtkActor.h" 
 #include <gl\gl.h>

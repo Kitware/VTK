@@ -40,10 +40,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <stdlib.h>
-#include <tcl.h>
-#include <tk.h>
 
 #include "vtkTkRenderWidget.h"
+#include <tcl.h>
+#include <tk.h>
 
 #ifdef _WIN32
 #include "vtkWin32OpenGLRenderWindow.h"

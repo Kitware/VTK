@@ -41,9 +41,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLProperty.h"
-#ifdef _WIN32
-#include <afxwin.h>
-#endif
 #include <GL/gl.h>
 
 // Description:

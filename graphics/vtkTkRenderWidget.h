@@ -59,8 +59,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkTkRenderWidget_h
 #define __vtkTkRenderWidget_h
 
-#include "vtkTclUtil.h"
 #include "vtkRenderWindow.h"
+#include "vtkTclUtil.h"
 
 struct vtkTkRenderWidget
 {
