@@ -64,15 +64,12 @@ void vlProbeFilter::Execute()
 
 void vlProbeFilter::Initialize()
 {
+  this->Modified();
   if ( this->Source )
     {
     if (this->DataSet) delete this->DataSet;
     // copies SOURCE geometry to internal data set
     this->DataSet = this->Source->MakeObject(); 
-    }
-  else
-    {
-    return;
     }
 }
 
