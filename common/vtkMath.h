@@ -196,8 +196,7 @@ public:
 			  double out[3]);
   
   // Description:
-  // Mutltiply one 3x3 matrix by another according to C = BA (if the order
-  // seems odd, it is simply consistent with vtkMatrix4x4::Multiply4x4()).
+  // Mutltiply one 3x3 matrix by another according to C = AB.
   static void Multiply3x3(const float A[3][3], const float B[3][3], 
 			  float C[3][3]);
   static void Multiply3x3(const double A[3][3], const double B[3][3], 
