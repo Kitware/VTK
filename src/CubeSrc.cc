@@ -56,13 +56,13 @@ void vlCubeSource::Execute()
 //
   numPts = 0;
 
-  for (x[0]=(Center[0]-this->XLength)/2.0, n[0]=(-1.0), n[1]=n[2]=0.0, i=0; 
+  for (x[0]=Center[0]-this->XLength/2.0, n[0]=(-1.0), n[1]=n[2]=0.0, i=0; 
   i<2; i++, x[0]+=this->XLength, n[0]+=2.0)
     {
-    for (x[1]=(Center[1]-this->YLength/2.0), j=0; j<2; 
+    for (x[1]=Center[1]-this->YLength/2.0, j=0; j<2; 
     j++, x[1]+=this->YLength)
       {
-      for (x[2]=(Center[2]-this->ZLength/2.0), k=0; k<2; 
+      for (x[2]=Center[2]-this->ZLength/2.0, k=0; k<2; 
       k++, x[2]+=this->ZLength)
         {
         newPoints->InsertNextPoint(x);
@@ -75,13 +75,13 @@ void vlCubeSource::Execute()
   pts[0] += 4; pts[1] +=4; pts[2] +=4; pts[3] += 4; 
   newPolys->InsertNextCell(4,pts);
 
-  for (x[1]=(Center[1]-this->YLength)/2.0, n[1]=(-1.0), n[0]=n[2]=0.0, i=0; 
+  for (x[1]=Center[1]-this->YLength/2.0, n[1]=(-1.0), n[0]=n[2]=0.0, i=0; 
   i<2; i++, x[1]+=this->YLength, n[1]+=2.0)
     {
-    for (x[0]=(Center[0]-this->XLength/2.0), j=0; j<2; 
+    for (x[0]=Center[0]-this->XLength/2.0, j=0; j<2; 
     j++, x[0]+=this->XLength)
       {
-      for (x[2]=(Center[2]-this->ZLength/2.0), k=0; k<2; 
+      for (x[2]=Center[2]-this->ZLength/2.0, k=0; k<2; 
       k++, x[2]+=this->ZLength)
         {
         newPoints->InsertNextPoint(x);
@@ -94,13 +94,13 @@ void vlCubeSource::Execute()
   pts[0] += 4; pts[1] +=4; pts[2] +=4; pts[3] += 4; 
   newPolys->InsertNextCell(4,pts);
 
-  for (x[2]=(Center[2]-this->ZLength)/2.0, n[2]=(-1.0), n[0]=n[1]=0.0, i=0; 
+  for (x[2]=Center[2]-this->ZLength/2.0, n[2]=(-1.0), n[0]=n[1]=0.0, i=0; 
   i<2; i++, x[2]+=this->ZLength, n[2]+=2.0)
     {
-    for (x[1]=(Center[1]-this->YLength/2.0), j=0; j<2; 
+    for (x[1]=Center[1]-this->YLength/2.0, j=0; j<2; 
     j++, x[1]+=this->YLength)
       {
-      for (x[0]=(Center[0]-this->XLength/2.0), k=0; k<2; 
+      for (x[0]=Center[0]-this->XLength/2.0, k=0; k<2; 
       k++, x[0]+=this->XLength)
         {
         newPoints->InsertNextPoint(x);
