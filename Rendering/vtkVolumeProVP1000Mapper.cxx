@@ -52,15 +52,19 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeProVP1000Mapper, "1.9");
+vtkCxxRevisionMacro(vtkVolumeProVP1000Mapper, "1.10");
 
 vtkVolumeProVP1000Mapper::vtkVolumeProVP1000Mapper()
 {
   VLIStatus         status;
   VLIConfiguration  *config;
 
-    // Establish a connection with vli
+  this->ImageBuffer = NULL;
+  this->DepthBuffer = NULL;
+
+  // Establish a connection with vli
   status = VLIOpen();
+  
   if ( status != kVLIOK )
     {
     vtkDebugMacro( << "VLIOpen failed!" );
@@ -111,9 +115,6 @@ vtkVolumeProVP1000Mapper::vtkVolumeProVP1000Mapper()
     vtkErrorMacro( << "Cut plane could not be created!" );
     return;    
     }
-  
-  this->ImageBuffer = NULL;
-  this->DepthBuffer = NULL;
 }
 
 
