@@ -99,5 +99,5 @@ void vtkIdList::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
 
-  os << indent << "Number of Ids: " << this->Ia->GetMaxId+1 << "\n";
+  os << indent << "Number of Ids: " << this->Ia->GetMaxId()+1 << "\n";
 }
