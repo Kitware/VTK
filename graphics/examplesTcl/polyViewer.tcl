@@ -1,4 +1,4 @@
-## Create a little app for loading and viewing stereo-lithography files
+## Create a little app for loading and viewing polygonal files
 ##
 source TkInteractor.tcl
 
