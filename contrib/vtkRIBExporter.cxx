@@ -46,6 +46,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPolygon.h"
 #include "vtkTIFFWriter.h"
 #include "vtkImageConstantPad.h"
+#include "vtkImageExtractComponents.h"
+#include "vtkImageAppendComponents.h"
 
 typedef float RtColor[3];
 typedef float RtPoint[3];
@@ -985,32 +987,81 @@ void vtkRIBExporter::WriteTexture (vtkTexture *aTexture)
     }
 
   vtkTIFFWriter *aWriter = vtkTIFFWriter::New();
-  vtkImageConstantPad *icp;
+  vtkImageConstantPad *icp = NULL;
+  vtkImageExtractComponents *iec = NULL;
+  vtkImageAppendComponents *iac1 = NULL;
+  vtkImageAppendComponents *iac2 = NULL;
+
   vtkStructuredPoints *anImage = vtkStructuredPoints::New();
   anImage->SetDimensions (xsize, ysize, 1);
   anImage->GetPointData()->SetScalars (mappedScalars);
   int bpp = mappedScalars->GetNumberOfComponents();
-  // renderman and bmrt seem to require an alpha in all their
-  // texture maps. So if out tmap doesn't have alpha we pad it 
-  if (bpp == 1 || bpp == 3)
+  // renderman and bmrt seem to require r,g,b and alpha in all their
+  // texture maps. So if our tmap doesn't have the right components
+  // we add them
+   if (bpp == 1) // needs intensity intensity and alpha
+    {
+    iac1 = vtkImageAppendComponents::New();
+    iac2 = vtkImageAppendComponents::New();
+    icp = vtkImageConstantPad::New();
+
+    iac1->SetInput1( anImage);
+    iac1->SetInput2( anImage);
+    iac2->SetInput1(iac2->GetOutput ());
+    iac2->SetInput2( anImage);
+    icp->SetInput( iac2->GetOutput ());
+    icp->SetConstant(255);
+    icp->SetOutputNumberOfScalarComponents(4);
+
+    aWriter->SetInput (icp->GetOutput());
+    }
+  else if (bpp == 2) // needs intensity intensity
+    {
+    iec = vtkImageExtractComponents::New();
+    iac1 = vtkImageAppendComponents::New();
+    iac2 = vtkImageAppendComponents::New();
+
+    iec->SetInput( anImage);
+    iec->SetComponents (0);
+    iac1->SetInput1( iec->GetOutput ());
+    iac1->SetInput2( anImage);
+    iac2->SetInput1( iec->GetOutput ());
+    iac2->SetInput2( iac1->GetOutput ());
+
+    aWriter->SetInput (iac2->GetOutput());
+    }
+  else if (bpp == 3) // needs alpha
     {
     icp = vtkImageConstantPad::New();
     icp->SetInput( anImage);
     icp->SetConstant(255);
-    icp->SetOutputNumberOfScalarComponents(bpp+1);
+    icp->SetOutputNumberOfScalarComponents(4);
     aWriter->SetInput (icp->GetOutput());
     }
-  else
+  else // needs nothing
     {
     aWriter->SetInput (anImage);
     }
   aWriter->SetFileName (GetTIFFName (aTexture));
   aWriter->Write ();
 
-  if (bpp == 1 || bpp == 3)
+   if (bpp == 1)
     {
-    icp->Delete();
+    iac1->Delete ();
+    iac2->Delete ();
+    icp->Delete ();
     }
+  else if (bpp == 2)
+    {
+    iec->Delete ();
+    iac1->Delete ();
+    iac2->Delete ();
+    }
+  else if (bpp == 3)
+    {
+    icp->Delete ();
+    }
+
   aWriter->Delete();
   anImage->Delete();
 }
