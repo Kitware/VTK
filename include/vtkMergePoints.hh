@@ -59,7 +59,7 @@ public:
   char *GetClassName() {return "vtkMergePoints";};
 
   int *MergePoints();
-  int InsertPoint(float x[3]);
+  int IsInsertedPoint(float x[3]);
 };
 
 #endif

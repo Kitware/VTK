@@ -156,6 +156,8 @@ protected:
   int BoundingTriangulation;
   float Offset;
 
+  vtkPointLocator Locator; //help locate points faster
+
 };
 
 #endif

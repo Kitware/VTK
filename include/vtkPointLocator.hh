@@ -45,6 +45,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // array of "rectangular" buckets, and then keeping a list of points that 
 // lie in each bucket. Typical operation involves giving a position in 3D 
 // and finding the closest point.
+//
+// vtkPointLocator has two distinct methods of interaction. In the first
+// method, you suppy it with a dataset, and it operates on the points in 
+// the dataset. In the second method, you supply it with an array of points,
+// and the object operates on the array.
+
 // .SECTION Caveats
 // Many other types of spatial locators have been developed such as 
 // octrees and kd-trees. These are often more efficient for the 
@@ -74,11 +80,16 @@ public:
   vtkSetClampMacro(NumberOfPointsPerBucket,int,1,VTK_LARGE_INTEGER);
   vtkGetMacro(NumberOfPointsPerBucket,int);
 
-  // Methods that all point locators must supply.
+  // these operate with specified dataset
   virtual int FindClosestPoint(float x[3]);
   virtual int *MergePoints();
+
+  // these all operate on array of points from InitPointInsertion()
   virtual int InitPointInsertion(vtkPoints *newPts, float bounds[6]);
-  virtual int InsertPoint(float x[3]);
+  virtual void InsertPoint(int ptId, float x[3]);
+  virtual int InsertNextPoint(float x[3]);
+  virtual int IsInsertedPoint(float x[3]);
+  virtual int FindClosestInsertedPoint(float x[3]);
   
   // satisfy vtkLocator abstract interface
   void Initialize();
