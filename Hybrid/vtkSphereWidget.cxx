@@ -33,7 +33,7 @@
 #include "vtkSphere.h"
 #include "vtkSphereSource.h"
 
-vtkCxxRevisionMacro(vtkSphereWidget, "1.19");
+vtkCxxRevisionMacro(vtkSphereWidget, "1.20");
 vtkStandardNewMacro(vtkSphereWidget);
 
 vtkSphereWidget::vtkSphereWidget()
@@ -84,11 +84,11 @@ vtkSphereWidget::vtkSphereWidget()
   this->PlaceWidget(bounds);
 
   //Manage the picking stuff
-  this->SpherePicker = vtkCellPicker::New();
-  this->SpherePicker->SetTolerance(0.005); //need some fluff
-  this->SpherePicker->AddPickList(this->SphereActor);
-  this->SpherePicker->AddPickList(this->HandleActor);
-  this->SpherePicker->PickFromListOn();
+  this->Picker = vtkCellPicker::New();
+  this->Picker->SetTolerance(0.005); //need some fluff
+  this->Picker->AddPickList(this->SphereActor);
+  this->Picker->AddPickList(this->HandleActor);
+  this->Picker->PickFromListOn();
   
   // Set up the initial properties
   this->SphereProperty = NULL;
@@ -104,7 +104,7 @@ vtkSphereWidget::~vtkSphereWidget()
   this->SphereMapper->Delete();
   this->SphereSource->Delete();
 
-  this->SpherePicker->Delete();
+  this->Picker->Delete();
 
   this->HandleSource->Delete();
   this->HandleMapper->Delete();
@@ -175,6 +175,7 @@ void vtkSphereWidget::SetEnabled(int enabling)
     this->CurrentRenderer->AddActor(this->HandleActor);
     this->HandleActor->SetProperty(this->HandleProperty);
     this->SelectRepresentation();
+    this->SizeHandles();
 
     this->InvokeEvent(vtkCommand::EnableEvent,NULL);
     }
@@ -346,6 +347,8 @@ void vtkSphereWidget::HighlightSphere(int highlight)
 {
   if ( highlight )
     {
+    this->ValidPick = 1;
+    this->Picker->GetPickPosition(this->LastPickPosition);
     this->SphereActor->SetProperty(this->SelectedSphereProperty);
     }
   else
@@ -358,6 +361,8 @@ void vtkSphereWidget::HighlightHandle(int highlight)
 {
   if ( highlight )
     {
+    this->ValidPick = 1;
+    this->Picker->GetPickPosition(this->LastPickPosition);
     this->HandleActor->SetProperty(this->SelectedHandleProperty);
     }
   else
@@ -375,8 +380,8 @@ void vtkSphereWidget::OnLeftButtonDown()
   // if no handles picked, then try to pick the sphere.
   vtkAssemblyPath *path;
   this->Interactor->FindPokedRenderer(X,Y);
-  this->SpherePicker->Pick(X,Y,0.0,this->CurrentRenderer);
-  path = this->SpherePicker->GetPath();
+  this->Picker->Pick(X,Y,0.0,this->CurrentRenderer);
+  path = this->Picker->GetPath();
   if ( path == NULL )
     {
     this->State = vtkSphereWidget::Outside;
@@ -464,6 +469,7 @@ void vtkSphereWidget::OnLeftButtonUp()
   this->State = vtkSphereWidget::Start;
   this->HighlightSphere(0);
   this->HighlightHandle(0);
+  this->SizeHandles();
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
@@ -482,8 +488,8 @@ void vtkSphereWidget::OnRightButtonDown()
   // if no handles picked, then pick the bounding box.
   vtkAssemblyPath *path;
   this->Interactor->FindPokedRenderer(X,Y);
-  this->SpherePicker->Pick(X,Y,0.0,this->CurrentRenderer);
-  path = this->SpherePicker->GetPath();
+  this->Picker->Pick(X,Y,0.0,this->CurrentRenderer);
+  path = this->Picker->GetPath();
   if ( path == NULL )
     {
     this->State = vtkSphereWidget::Outside;
@@ -511,6 +517,7 @@ void vtkSphereWidget::OnRightButtonUp()
   this->State = vtkSphereWidget::Start;
   this->HighlightSphere(0);
   this->HighlightHandle(0);
+  this->SizeHandles();
   
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
@@ -666,7 +673,7 @@ void vtkSphereWidget::PlaceWidget(float bds[6])
                              (bounds[3]-bounds[2])*(bounds[3]-bounds[2]) +
                              (bounds[5]-bounds[4])*(bounds[5]-bounds[4]));
 
-  this->HandleSource->SetRadius(0.0075*this->InitialLength);
+  this->SizeHandles();
 }
 
 void vtkSphereWidget::PlaceHandle(float *center, float radius)
@@ -678,6 +685,13 @@ void vtkSphereWidget::PlaceHandle(float *center, float radius)
   this->HandlePosition[2] = center[2] + sf*this->HandleDirection[2];
   this->HandleSource->SetCenter(this->HandlePosition);
 }
+
+void vtkSphereWidget::SizeHandles()
+{
+  float radius = this->vtk3DWidget::SizeHandles(1.25);
+  this->HandleSource->SetRadius(radius);
+}
+
 
 void vtkSphereWidget::GetPolyData(vtkPolyData *pd)
 { 

@@ -245,7 +245,7 @@ protected:
   int Representation;
 
   // Do the picking
-  vtkCellPicker *SpherePicker;
+  vtkCellPicker *Picker;
   
   // Methods to manipulate the sphere widget
   int Translation;
@@ -271,6 +271,7 @@ protected:
   int HandleVisibility;
   float HandleDirection[3];
   float HandlePosition[3];
+  virtual void SizeHandles();
 
 private:
   vtkSphereWidget(const vtkSphereWidget&);  //Not implemented
