@@ -528,9 +528,10 @@ long vtkImageCache::GetUpdateExtentMemorySize()
     }  
 
   // In case the extent is set improperly
+  // Now Improperly might mean the filter will update no memory,
+  // (multiple input filters) so do not give an error.
   if (size < 0)
     {
-    vtkErrorMacro("GetExtentMemorySize: Computed value negative: " << size);
     return 0;
     }
   
