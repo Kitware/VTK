@@ -1070,7 +1070,7 @@ void vtkCompositeManager::PrintSelf(ostream& os, vtkIndent indent)
     }
   
   os << indent << "SetBuffersTime: " << this->SetBuffersTime << "\n";
-  os << indent << "GetBuffersTime: " << this->GetBuffersTime << "\n";
+  os << indent << "GetBuffersTime: " << this->GetGetBuffersTime() << "\n";
   os << indent << "CompositeTime: " << this->CompositeTime << "\n";
   os << indent << "MaxRenderTime: " << this->MaxRenderTime << "\n";
   if (this->UseCompositing)
