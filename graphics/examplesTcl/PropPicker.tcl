@@ -117,6 +117,7 @@ vtkActor outlineActor
 vtkRenderer ren1
 vtkRenderWindow renWin
     renWin AddRenderer ren1
+
 vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
     iren SetPicker picker
@@ -215,13 +216,19 @@ proc annotatePick {} {
 # Create multiple output strings
 
 renWin Render
+renWin Render
 renWin EraseOff
     picker PickProp  10 370 ren1
+renWin Render
     picker PickProp 263 294 ren1
+renWin Render
     picker PickProp 225 137 ren1
-#    picker PickProp 239 170 ren1
-    picker PickProp 117 306 ren1
+renWin Render
+    picker PickProp 24 306 ren1
+renWin Render
     picker PickProp 290  38 ren1
+renWin Render
     picker PickProp  16  85 ren1
+renWin Render
 
 
