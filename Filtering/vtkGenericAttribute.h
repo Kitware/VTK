@@ -30,6 +30,7 @@
 #include "vtkObject.h"
 
 class vtkGenericCellIterator;
+class vtkGenericAdaptorCell;
 class vtkGenericPointIterator;
 
 enum
@@ -53,18 +54,34 @@ class VTK_FILTERING_EXPORT vtkGenericAttribute : public vtkObject
   // Description:
   // Dimension of the attribute. (1 for scalar, 3 for velocity)
   // \post positive_result: result>=0
+  // \post GetType()==VTK_SCALARS implies result==1
+  // \post (GetType()==VTK_VECTORS||(GetType()==VTK_NORMALS)||(GetType()==VTK_TCOORDS) implies result==3
+  // \post GetType()==VTK_TENSORS implies result==6
   virtual int GetNumberOfComponents() = 0;
 
   // Description:
   // Is the attribute centered either on points, cells or boundaries?
-  // \post valid_result: (result==vtkPointCentered) ||
-  //            (result==vtkCellCentered) || (result==vtkBoundaryCentered)
+  // \post valid_result: (result==vtkPointCentered)||(result==vtkCellCentered)
   virtual int GetCentering() = 0;
   
   // Description:
-  // Type of the attribute: int, float, double
-  // \post valid_result: (result==VTK_INT)||(result==VTK_FLOAT)
-  virtual int GetType() = 0;
+  // Type of the attribute: scalar, vector, normal, texture coordinate, tensor
+  // \post valid_result: (result==vtkDataSetAttributes::SCALARS)
+  //                   ||(result==vtkDataSetAttributes::VECTORS)
+  //                   ||(result==vtkDataSetAttributes::NORMALS)
+  //                   ||(result==vtkDataSetAttributes::TCOORDS)
+  //                   ||(result==vtkDataSetAttributes::TENSORS)
+  virtual int GetType()=0;
+  
+  // Description:
+  // Type of the components of the attribute: int, float, double
+  // \post valid_result: (result==VTK_BIT)           ||(result==VTK_CHAR)
+  //                   ||(result==VTK_UNSIGNED_CHAR) ||(result==VTK_SHORT)
+  //                   ||(result==VTK_UNSIGNED_SHORT)||(result==VTK_INT)
+  //                   ||(result==VTK_UNSIGNED_INT)  ||(result==VTK_LONG)
+  //                   ||(result==VTK_UNSIGNED_LONG) ||(result==VTK_FLOAT)
+  //                   ||(result==VTK_DOUBLE)        ||(result==VTK_ID_TYPE)
+  virtual int GetComponentType() = 0;
 
   // Description:
   // Number of tuples.
@@ -96,6 +113,22 @@ class VTK_FILTERING_EXPORT vtkGenericAttribute : public vtkObject
   // Return the maximum euclidean norm for the tuples.
   // \post positive_result: result>=0
   virtual double GetMaxNorm()=0;
+  
+  // Description:
+  // Attribute at all points of cell `c'.
+  // \pre c_exists: c!=0
+  // \pre c_valid: !c->IsAtEnd()
+  // \post result_exists: result!=0
+  // \post valid_result: sizeof(result)==GetNumberOfComponents()*c->GetCell()->GetNumberOfPoints()
+  virtual double *GetTuple(vtkGenericAdaptorCell *c) = 0;
+  
+  // Description:
+  // Put attribute at all points of cell `c' in `tuple'.
+  // \pre c_exists: c!=0
+  // \pre c_valid: !c->IsAtEnd()
+  // \pre tuple_exists: tuple!=0
+  // \pre valid_tuple: sizeof(tuple)>=GetNumberOfComponents()*c->GetCell()->GetNumberOfPoints()
+  virtual void GetTuple(vtkGenericAdaptorCell *c, double *tuple) = 0;
   
   // Description:
   // Attribute at all points of cell `c'.
@@ -156,7 +189,7 @@ class VTK_FILTERING_EXPORT vtkGenericAttribute : public vtkObject
   // \pre other_exists: other!=0
   // \pre not_self: other!=this
   virtual void ShallowCopy(vtkGenericAttribute *other) = 0;
-
+  
 protected:
   vtkGenericAttribute();
   ~vtkGenericAttribute();
