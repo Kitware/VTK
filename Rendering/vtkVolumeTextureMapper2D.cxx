@@ -239,7 +239,7 @@ VolumeTextureMapper2D_TraverseVolume( T *data_ptr,
 
   cropping       = me->GetCropping();
   croppingFlags  = me->GetCroppingRegionFlags();
-  croppingBounds = me->GetCroppingRegionPlanes();
+  croppingBounds = me->GetVoxelCroppingRegionPlanes();
 
   if ( !cropping )
     {

@@ -228,6 +228,9 @@ void vtkVolumeTextureMapper::InitializeRender( vtkRenderer *ren,
 
   this->GetInput()->GetOrigin( this->DataOrigin );
   this->GetInput()->GetSpacing( this->DataSpacing );
+  
+  this->ConvertCroppingRegionPlanesToVoxels();
+  
 }
 
 float vtkVolumeTextureMapper::GetGradientMagnitudeScale()

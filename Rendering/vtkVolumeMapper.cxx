@@ -81,6 +81,27 @@ void vtkVolumeMapper::Update()
     }
 }
 
+void vtkVolumeMapper::ConvertCroppingRegionPlanesToVoxels()
+{
+  float *spacing    = this->GetInput()->GetSpacing();
+  float *origin     = this->GetInput()->GetOrigin();
+  int   *dimensions = this->GetInput()->GetDimensions();
+  
+  for ( int i = 0; i < 6; i++ )
+    {
+    this->VoxelCroppingRegionPlanes[i] =
+      (this->CroppingRegionPlanes[i] - origin[i/2]) / spacing[i/2];
+    
+    this->VoxelCroppingRegionPlanes[i] = 
+      ( this->VoxelCroppingRegionPlanes[i] < 0 ) ?
+      ( 0 ) : ( this->VoxelCroppingRegionPlanes[i] );
+
+    this->VoxelCroppingRegionPlanes[i] = 
+      ( this->VoxelCroppingRegionPlanes[i] > dimensions[i/2]-1 ) ?
+      ( dimensions[i/2]-1 ) : ( this->VoxelCroppingRegionPlanes[i] );
+    }
+}
+
 // Get the bounds for the input of this mapper as 
 // (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
 float *vtkVolumeMapper::GetBounds()

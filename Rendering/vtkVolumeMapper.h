@@ -91,9 +91,16 @@ public:
 
   // Description:
   // Set/Get the Cropping Region Planes ( xmin, xmax, ymin, ymax, zmin, zmax )
+  // These planes are defined in volume coordinates - spacing and origin are
+  // considered.
   vtkSetVector6Macro( CroppingRegionPlanes, float );
   vtkGetVectorMacro(  CroppingRegionPlanes, float, 6 );
 
+  // Description:
+  // Get the cropping region planes in voxels. Only valid during the 
+  // rendering process
+  vtkGetVectorMacro( VoxelCroppingRegionPlanes, float, 6 );
+  
   // Description:
   // Set the flags for the cropping regions. The clipping planes divide the
   // volume into 27 regions - there is one bit for each region. The regions 
@@ -158,8 +165,12 @@ protected:
 
   int                  Cropping;
   float                CroppingRegionPlanes[6];
+  float                VoxelCroppingRegionPlanes[6];
   int                  CroppingRegionFlags;
   vtkTimeStamp         BuildTime;
+  
+  void ConvertCroppingRegionPlanesToVoxels();
+  
 private:
   vtkVolumeMapper(const vtkVolumeMapper&);  // Not implemented.
   void operator=(const vtkVolumeMapper&);  // Not implemented.

@@ -318,6 +318,8 @@ void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
   // input data in the times
   this->Timer->StartTimer();
   
+  this->ConvertCroppingRegionPlanesToVoxels();
+  
   this->UpdateShadingTables( ren, vol );
 
   // This is the input of this mapper
@@ -620,12 +622,12 @@ VTK_THREAD_RETURN_TYPE VolumeRayCastMapper_CastRays( void *arg )
   // If we have a simple crop box then we can tighten the bounds
   if ( me->Cropping && me->CroppingRegionFlags == 0x2000 )
     {
-    bounds[0] = me->CroppingRegionPlanes[0];
-    bounds[1] = me->CroppingRegionPlanes[1];
-    bounds[2] = me->CroppingRegionPlanes[2];
-    bounds[3] = me->CroppingRegionPlanes[3];
-    bounds[4] = me->CroppingRegionPlanes[4];
-    bounds[5] = me->CroppingRegionPlanes[5];
+    bounds[0] = me->VoxelCroppingRegionPlanes[0];
+    bounds[1] = me->VoxelCroppingRegionPlanes[1];
+    bounds[2] = me->VoxelCroppingRegionPlanes[2];
+    bounds[3] = me->VoxelCroppingRegionPlanes[3];
+    bounds[4] = me->VoxelCroppingRegionPlanes[4];
+    bounds[5] = me->VoxelCroppingRegionPlanes[5];
     }
 
   bounds[0] = (bounds[0] < 0)?(0):(bounds[0]);
@@ -877,14 +879,14 @@ VTK_THREAD_RETURN_TYPE VolumeRayCastMapper_CastRays( void *arg )
             {
             case 0:
               bounds[0] = 0;
-              bounds[1] = me->CroppingRegionPlanes[0];
+              bounds[1] = me->VoxelCroppingRegionPlanes[0];
               break;
             case 1:
-              bounds[0] = me->CroppingRegionPlanes[0];
-              bounds[1] = me->CroppingRegionPlanes[1];
+              bounds[0] = me->VoxelCroppingRegionPlanes[0];
+              bounds[1] = me->VoxelCroppingRegionPlanes[1];
               break;
             case 2:
-              bounds[0] = me->CroppingRegionPlanes[1];
+              bounds[0] = me->VoxelCroppingRegionPlanes[1];
               bounds[1] = staticInfo->DataSize[0] - 1;
               break;
             }
@@ -895,14 +897,14 @@ VTK_THREAD_RETURN_TYPE VolumeRayCastMapper_CastRays( void *arg )
             {
             case 0:
               bounds[2] = 0;
-              bounds[3] = me->CroppingRegionPlanes[2];
+              bounds[3] = me->VoxelCroppingRegionPlanes[2];
               break;
             case 1:
-              bounds[2] = me->CroppingRegionPlanes[2];
-              bounds[3] = me->CroppingRegionPlanes[3];
+              bounds[2] = me->VoxelCroppingRegionPlanes[2];
+              bounds[3] = me->VoxelCroppingRegionPlanes[3];
               break;
             case 2:
-              bounds[2] = me->CroppingRegionPlanes[3];
+              bounds[2] = me->VoxelCroppingRegionPlanes[3];
               bounds[3] = staticInfo->DataSize[1] - 1;
               break;
             }
@@ -913,14 +915,14 @@ VTK_THREAD_RETURN_TYPE VolumeRayCastMapper_CastRays( void *arg )
             {
             case 0:
               bounds[4] = 0;
-              bounds[5] = me->CroppingRegionPlanes[4];
+              bounds[5] = me->VoxelCroppingRegionPlanes[4];
               break;
             case 1:
-              bounds[4] = me->CroppingRegionPlanes[4];
-              bounds[5] = me->CroppingRegionPlanes[5];
+              bounds[4] = me->VoxelCroppingRegionPlanes[4];
+              bounds[5] = me->VoxelCroppingRegionPlanes[5];
               break;
             case 2:
-              bounds[4] = me->CroppingRegionPlanes[5];
+              bounds[4] = me->VoxelCroppingRegionPlanes[5];
               bounds[5] = staticInfo->DataSize[2] - 1;
               break;
             }
@@ -1008,8 +1010,8 @@ VTK_THREAD_RETURN_TYPE VolumeRayCastMapper_CastRays( void *arg )
               // start and use this to sort the ray segments
               for ( k = 0; k < 3; k++ )
                 {
-                if ( rayStep[k] >= rayStep[(k+1)%3] && 
-                     rayStep[k] >= rayStep[(k+2)%3] )
+                if ( absStep[k] >= absStep[(k+1)%3] && 
+                     absStep[k] >= absStep[(k+2)%3] )
                   {
                   distanceArray[arrayCount] = 
                     (rayStart[k] - fullRayStart[k]) / rayStep[k];
@@ -1219,12 +1221,12 @@ int vtkVolumeRayCastMapper::ComputeRowBounds(vtkVolume   *vol,
   // If we have a simple crop box then we can tighten the bounds
   if ( this->Cropping && this->CroppingRegionFlags == 0x2000 )
     {
-    bounds[0] = this->CroppingRegionPlanes[0];
-    bounds[1] = this->CroppingRegionPlanes[1];
-    bounds[2] = this->CroppingRegionPlanes[2];
-    bounds[3] = this->CroppingRegionPlanes[3];
-    bounds[4] = this->CroppingRegionPlanes[4];
-    bounds[5] = this->CroppingRegionPlanes[5];
+    bounds[0] = this->VoxelCroppingRegionPlanes[0];
+    bounds[1] = this->VoxelCroppingRegionPlanes[1];
+    bounds[2] = this->VoxelCroppingRegionPlanes[2];
+    bounds[3] = this->VoxelCroppingRegionPlanes[3];
+    bounds[4] = this->VoxelCroppingRegionPlanes[4];
+    bounds[5] = this->VoxelCroppingRegionPlanes[5];
     }
   
   
