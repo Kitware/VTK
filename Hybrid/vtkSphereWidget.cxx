@@ -30,7 +30,7 @@
 #include "vtkSphere.h"
 #include "vtkSphereSource.h"
 
-vtkCxxRevisionMacro(vtkSphereWidget, "1.13");
+vtkCxxRevisionMacro(vtkSphereWidget, "1.14");
 vtkStandardNewMacro(vtkSphereWidget);
 
 vtkSphereWidget::vtkSphereWidget()
@@ -204,26 +204,24 @@ void vtkSphereWidget::ProcessEvents(vtkObject* object, unsigned long event,
                                   void* clientdata, void* vtkNotUsed(calldata))
 {
   vtkSphereWidget* self = reinterpret_cast<vtkSphereWidget *>( clientdata );
-  vtkRenderWindowInteractor* rwi = static_cast<vtkRenderWindowInteractor *>( object );
-  int* XY = rwi->GetEventPosition();
 
   //okay, let's do the right thing
   switch(event)
     {
     case vtkCommand::LeftButtonPressEvent:
-      self->OnLeftButtonDown(rwi->GetControlKey(), rwi->GetShiftKey(), XY[0], XY[1]);
+      self->OnLeftButtonDown();
       break;
     case vtkCommand::LeftButtonReleaseEvent:
-      self->OnLeftButtonUp(rwi->GetControlKey(), rwi->GetShiftKey(), XY[0], XY[1]);
+      self->OnLeftButtonUp();
       break;
     case vtkCommand::RightButtonPressEvent:
-      self->OnRightButtonDown(rwi->GetControlKey(), rwi->GetShiftKey(), XY[0], XY[1]);
+      self->OnRightButtonDown();
       break;
     case vtkCommand::RightButtonReleaseEvent:
-      self->OnRightButtonUp(rwi->GetControlKey(), rwi->GetShiftKey(), XY[0], XY[1]);
+      self->OnRightButtonUp();
       break;
     case vtkCommand::MouseMoveEvent:
-      self->OnMouseMove(rwi->GetControlKey(), rwi->GetShiftKey(), XY[0], XY[1]);
+      self->OnMouseMove();
       break;
     }
 }
@@ -363,10 +361,11 @@ void vtkSphereWidget::HighlightHandle(int highlight)
     }
 }
 
-void vtkSphereWidget::OnLeftButtonDown (int vtkNotUsed(ctrl), 
-                                        int vtkNotUsed(shift), 
-                                        int X, int Y)
+void vtkSphereWidget::OnLeftButtonDown()
 {
+  int X = this->Interactor->GetEventPosition()[0];
+  int Y = this->Interactor->GetEventPosition()[1];
+
   // Okay, we can process this. Try to pick handles first;
   // if no handles picked, then try to pick the sphere.
   vtkAssemblyPath *path;
@@ -390,12 +389,12 @@ void vtkSphereWidget::OnLeftButtonDown (int vtkNotUsed(ctrl),
     }
   
   this->EventCallbackCommand->SetAbortFlag(1);
+  this->StartInteraction();
   this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
   this->Interactor->Render();
 }
 
-void vtkSphereWidget::OnMouseMove (int vtkNotUsed(ctrl), 
-                                   int vtkNotUsed(shift), int X, int Y)
+void vtkSphereWidget::OnMouseMove()
 {
   // See whether we're active
   if ( this->State == vtkSphereWidget::Outside || 
@@ -404,6 +403,9 @@ void vtkSphereWidget::OnMouseMove (int vtkNotUsed(ctrl),
     return;
     }
   
+  int X = this->Interactor->GetEventPosition()[0];
+  int Y = this->Interactor->GetEventPosition()[1];
+
   // Do different things depending on state
   // Calculations everybody does
   double focalPoint[4], pickPoint[4], prevPickPoint[4];
@@ -444,13 +446,10 @@ void vtkSphereWidget::OnMouseMove (int vtkNotUsed(ctrl),
   // Interact, if desired
   this->EventCallbackCommand->SetAbortFlag(1);
   this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
-  
   this->Interactor->Render();
 }
 
-void vtkSphereWidget::OnLeftButtonUp (int vtkNotUsed(ctrl), 
-                                    int vtkNotUsed(shift), 
-                                    int vtkNotUsed(X), int vtkNotUsed(Y))
+void vtkSphereWidget::OnLeftButtonUp()
 {
   if ( this->State == vtkSphereWidget::Outside )
     {
@@ -462,14 +461,17 @@ void vtkSphereWidget::OnLeftButtonUp (int vtkNotUsed(ctrl),
   this->HighlightHandle(0);
 
   this->EventCallbackCommand->SetAbortFlag(1);
+  this->EndInteraction();
   this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
   this->Interactor->Render();
 }
 
-void vtkSphereWidget::OnRightButtonDown (int vtkNotUsed(ctrl), 
-                                       int vtkNotUsed(shift), int X, int Y)
+void vtkSphereWidget::OnRightButtonDown()
 {
   this->State = vtkSphereWidget::Scaling;
+
+  int X = this->Interactor->GetEventPosition()[0];
+  int Y = this->Interactor->GetEventPosition()[1];
 
   // Okay, we can process this. Try to pick handles first;
   // if no handles picked, then pick the bounding box.
@@ -489,13 +491,12 @@ void vtkSphereWidget::OnRightButtonDown (int vtkNotUsed(ctrl),
     }
   
   this->EventCallbackCommand->SetAbortFlag(1);
+  this->StartInteraction();
   this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
   this->Interactor->Render();
 }
 
-void vtkSphereWidget::OnRightButtonUp (int vtkNotUsed(ctrl), 
-                                     int vtkNotUsed(shift), 
-                                     int vtkNotUsed(X), int vtkNotUsed(Y))
+void vtkSphereWidget::OnRightButtonUp()
 {
   if ( this->State == vtkSphereWidget::Outside )
     {
@@ -507,6 +508,7 @@ void vtkSphereWidget::OnRightButtonUp (int vtkNotUsed(ctrl),
   this->HighlightHandle(0);
   
   this->EventCallbackCommand->SetAbortFlag(1);
+  this->EndInteraction();
   this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
   this->Interactor->Render();
 }

@@ -32,7 +32,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSphereSource.h"
 
-vtkCxxRevisionMacro(vtkLineWidget, "1.13");
+vtkCxxRevisionMacro(vtkLineWidget, "1.14");
 vtkStandardNewMacro(vtkLineWidget);
 
 vtkLineWidget::vtkLineWidget()
@@ -232,32 +232,30 @@ void vtkLineWidget::ProcessEvents(vtkObject* object, unsigned long event,
                                   void* clientdata, void* vtkNotUsed(calldata))
 {
   vtkLineWidget* self = reinterpret_cast<vtkLineWidget *>( clientdata );
-  vtkRenderWindowInteractor* rwi = static_cast<vtkRenderWindowInteractor *>( object );
-  int* XY = rwi->GetEventPosition();
 
   //okay, let's do the right thing
   switch(event)
     {
     case vtkCommand::LeftButtonPressEvent:
-      self->OnLeftButtonDown(rwi->GetControlKey(), rwi->GetShiftKey(), XY[0], XY[1]);
+      self->OnLeftButtonDown();
       break;
     case vtkCommand::LeftButtonReleaseEvent:
-      self->OnLeftButtonUp(rwi->GetControlKey(), rwi->GetShiftKey(), XY[0], XY[1]);
+      self->OnLeftButtonUp();
       break;
     case vtkCommand::MiddleButtonPressEvent:
-      self->OnMiddleButtonDown(rwi->GetControlKey(), rwi->GetShiftKey(), XY[0], XY[1]);
+      self->OnMiddleButtonDown();
       break;
     case vtkCommand::MiddleButtonReleaseEvent:
-      self->OnMiddleButtonUp(rwi->GetControlKey(), rwi->GetShiftKey(), XY[0], XY[1]);
+      self->OnMiddleButtonUp();
       break;
     case vtkCommand::RightButtonPressEvent:
-      self->OnRightButtonDown(rwi->GetControlKey(), rwi->GetShiftKey(), XY[0], XY[1]);
+      self->OnRightButtonDown();
       break;
     case vtkCommand::RightButtonReleaseEvent:
-      self->OnRightButtonUp(rwi->GetControlKey(), rwi->GetShiftKey(), XY[0], XY[1]);
+      self->OnRightButtonUp();
       break;
     case vtkCommand::MouseMoveEvent:
-      self->OnMouseMove(rwi->GetControlKey(), rwi->GetShiftKey(), XY[0], XY[1]);
+      self->OnMouseMove();
       break;
     }
 }
@@ -369,12 +367,13 @@ void vtkLineWidget::HighlightLine(int highlight)
     }
 }
 
-void vtkLineWidget::OnLeftButtonDown (int vtkNotUsed(ctrl), 
-                                      int vtkNotUsed(shift), 
-                                      int X, int Y)
+void vtkLineWidget::OnLeftButtonDown()
 {
   // We're only here is we are enabled
   this->State = vtkLineWidget::Moving;
+
+  int X = this->Interactor->GetEventPosition()[0];
+  int Y = this->Interactor->GetEventPosition()[1];
 
   // Okay, we can process this. Try to pick handles first;
   // if no handles picked, then try to pick the line.
@@ -403,12 +402,12 @@ void vtkLineWidget::OnLeftButtonDown (int vtkNotUsed(ctrl),
     }
   
   this->EventCallbackCommand->SetAbortFlag(1);
+  this->StartInteraction();
   this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
   this->Interactor->Render();
 }
 
-void vtkLineWidget::OnMouseMove (int vtkNotUsed(ctrl), 
-                                 int vtkNotUsed(shift), int X, int Y)
+void vtkLineWidget::OnMouseMove()
 {
   // See whether we're active
   if ( this->State == vtkLineWidget::Outside || 
@@ -417,6 +416,9 @@ void vtkLineWidget::OnMouseMove (int vtkNotUsed(ctrl),
     return;
     }
   
+  int X = this->Interactor->GetEventPosition()[0];
+  int Y = this->Interactor->GetEventPosition()[1];
+
   // Do different things depending on state
   // Calculations everybody does
   double focalPoint[4], pickPoint[4], prevPickPoint[4];
@@ -467,13 +469,10 @@ void vtkLineWidget::OnMouseMove (int vtkNotUsed(ctrl),
   // Interact, if desired
   this->EventCallbackCommand->SetAbortFlag(1);
   this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
-  
   this->Interactor->Render();
 }
 
-void vtkLineWidget::OnLeftButtonUp (int vtkNotUsed(ctrl), 
-                                    int vtkNotUsed(shift), 
-                                    int vtkNotUsed(X), int vtkNotUsed(Y))
+void vtkLineWidget::OnLeftButtonUp()
 {
   if ( this->State == vtkLineWidget::Outside )
     {
@@ -485,15 +484,18 @@ void vtkLineWidget::OnLeftButtonUp (int vtkNotUsed(ctrl),
   this->HighlightLine(0);
 
   this->EventCallbackCommand->SetAbortFlag(1);
+  this->EndInteraction();
   this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
   this->Interactor->Render();
 }
 
-void vtkLineWidget::OnMiddleButtonDown (int vtkNotUsed(ctrl), 
-                                        int vtkNotUsed(shift), int X, int Y)
+void vtkLineWidget::OnMiddleButtonDown()
 {
   this->State = vtkLineWidget::Moving;
 
+  int X = this->Interactor->GetEventPosition()[0];
+  int Y = this->Interactor->GetEventPosition()[1];
+
   // Okay, we can process this. Try to pick handles first;
   // if no handles picked, then pick the bounding box.
   vtkAssemblyPath *path;
@@ -517,13 +519,12 @@ void vtkLineWidget::OnMiddleButtonDown (int vtkNotUsed(ctrl),
     }
   
   this->EventCallbackCommand->SetAbortFlag(1);
+  this->StartInteraction();
   this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
   this->Interactor->Render();
 }
 
-void vtkLineWidget::OnMiddleButtonUp (int vtkNotUsed(ctrl), 
-                                      int vtkNotUsed(shift), 
-                                      int vtkNotUsed(X), int vtkNotUsed(Y))
+void vtkLineWidget::OnMiddleButtonUp()
 {
   if ( this->State == vtkLineWidget::Outside )
     {
@@ -534,14 +535,17 @@ void vtkLineWidget::OnMiddleButtonUp (int vtkNotUsed(ctrl),
   this->HighlightLine(0);
   
   this->EventCallbackCommand->SetAbortFlag(1);
+  this->EndInteraction();
   this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
   this->Interactor->Render();
 }
 
-void vtkLineWidget::OnRightButtonDown (int vtkNotUsed(ctrl), 
-                                       int vtkNotUsed(shift), int X, int Y)
+void vtkLineWidget::OnRightButtonDown()
 {
   this->State = vtkLineWidget::Scaling;
+
+  int X = this->Interactor->GetEventPosition()[0];
+  int Y = this->Interactor->GetEventPosition()[1];
 
   // Okay, we can process this. Try to pick handles first;
   // if no handles picked, then pick the bounding box.
@@ -566,13 +570,12 @@ void vtkLineWidget::OnRightButtonDown (int vtkNotUsed(ctrl),
     }
   
   this->EventCallbackCommand->SetAbortFlag(1);
+  this->StartInteraction();
   this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
   this->Interactor->Render();
 }
 
-void vtkLineWidget::OnRightButtonUp (int vtkNotUsed(ctrl), 
-                                     int vtkNotUsed(shift), 
-                                     int vtkNotUsed(X), int vtkNotUsed(Y))
+void vtkLineWidget::OnRightButtonUp()
 {
   if ( this->State == vtkLineWidget::Outside )
     {
@@ -583,6 +586,7 @@ void vtkLineWidget::OnRightButtonUp (int vtkNotUsed(ctrl),
   this->HighlightLine(0);
   
   this->EventCallbackCommand->SetAbortFlag(1);
+  this->EndInteraction();
   this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
   this->Interactor->Render();
 }

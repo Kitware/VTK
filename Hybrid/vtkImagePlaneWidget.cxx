@@ -38,7 +38,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.22");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.23");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty,vtkProperty);
@@ -259,40 +259,30 @@ void vtkImagePlaneWidget::ProcessEvents(vtkObject* object, unsigned long event,
 {
   vtkImagePlaneWidget* self = 
     reinterpret_cast<vtkImagePlaneWidget *>( clientdata );
-  vtkRenderWindowInteractor* rwi = 
-    static_cast<vtkRenderWindowInteractor *>( object );
-  int* XY = rwi->GetEventPosition();
 
   //okay, let's do the right thing
   switch ( event )
     {
     case vtkCommand::LeftButtonPressEvent:
-      self->OnLeftButtonDown(rwi->GetControlKey(), rwi->GetShiftKey(), 
-                             XY[0], XY[1]);
+      self->OnLeftButtonDown();
       break;
     case vtkCommand::LeftButtonReleaseEvent:
-      self->OnLeftButtonUp(rwi->GetControlKey(), rwi->GetShiftKey(), 
-                           XY[0], XY[1]);
+      self->OnLeftButtonUp();
       break;
     case vtkCommand::MiddleButtonPressEvent:
-      self->OnMiddleButtonDown(rwi->GetControlKey(), rwi->GetShiftKey(), 
-                               XY[0], XY[1]);
+      self->OnMiddleButtonDown();
       break;
     case vtkCommand::MiddleButtonReleaseEvent:
-      self->OnMiddleButtonUp(rwi->GetControlKey(), rwi->GetShiftKey(), 
-                             XY[0], XY[1]);
+      self->OnMiddleButtonUp();
       break;
     case vtkCommand::RightButtonPressEvent:
-      self->OnRightButtonDown(rwi->GetControlKey(), rwi->GetShiftKey(), 
-                              XY[0], XY[1]);
+      self->OnRightButtonDown();
       break;
     case vtkCommand::RightButtonReleaseEvent:
-      self->OnRightButtonUp(rwi->GetControlKey(), rwi->GetShiftKey(), 
-                            XY[0], XY[1]);
+      self->OnRightButtonUp();
       break;
     case vtkCommand::MouseMoveEvent:
-      self->OnMouseMove(rwi->GetControlKey(), rwi->GetShiftKey(), 
-                        XY[0], XY[1]);
+      self->OnMouseMove();
       break;
     }
 }
@@ -388,10 +378,12 @@ void vtkImagePlaneWidget::HighlightPlane(int highlight)
     }
 }
 
-void vtkImagePlaneWidget::OnLeftButtonDown (int vtkNotUsed(ctrl),
-                                            int vtkNotUsed(shift), int X, int Y)
+void vtkImagePlaneWidget::OnLeftButtonDown()
 {
   this->State = vtkImagePlaneWidget::Pushing;
+
+  int X = this->Interactor->GetEventPosition()[0];
+  int Y = this->Interactor->GetEventPosition()[1];
 
   // Okay, we can process this. If anything is picked, then we
   // can start pushing the plane.
@@ -427,12 +419,12 @@ void vtkImagePlaneWidget::OnLeftButtonDown (int vtkNotUsed(ctrl),
   this->HighlightPlane(1);
 
   this->EventCallbackCommand->SetAbortFlag(1);
+  this->StartInteraction();
   this->InvokeEvent(vtkCommand::StartInteractionEvent,0);
   this->Interactor->Render();
 }
 
-void vtkImagePlaneWidget::OnLeftButtonUp (int vtkNotUsed(ctrl), int vtkNotUsed(shift),
-                                          int vtkNotUsed(X), int vtkNotUsed(Y))
+void vtkImagePlaneWidget::OnLeftButtonUp()
 {
   if ( this->State == vtkImagePlaneWidget::Outside )
     {
@@ -443,14 +435,17 @@ void vtkImagePlaneWidget::OnLeftButtonUp (int vtkNotUsed(ctrl), int vtkNotUsed(s
   this->HighlightPlane(0);
 
   this->EventCallbackCommand->SetAbortFlag(1);
+  this->EndInteraction();
   this->InvokeEvent(vtkCommand::EndInteractionEvent,0);
   this->Interactor->Render();
 }
 
-void vtkImagePlaneWidget::OnMiddleButtonDown (int vtkNotUsed(ctrl),
-                                              int vtkNotUsed(shift), int X, int Y)
+void vtkImagePlaneWidget::OnMiddleButtonDown()
 {
   this->State = vtkImagePlaneWidget::Pushing;
+
+  int X = this->Interactor->GetEventPosition()[0];
+  int Y = this->Interactor->GetEventPosition()[1];
 
   // Okay, we can process this. If anything is picked, then we
   // can start pushing the plane.
@@ -486,12 +481,13 @@ void vtkImagePlaneWidget::OnMiddleButtonDown (int vtkNotUsed(ctrl),
   this->HighlightPlane(1);
 
   this->EventCallbackCommand->SetAbortFlag(1);
+  this->StartInteraction();
+  this->EndInteraction();
   this->InvokeEvent(vtkCommand::StartInteractionEvent,0);
   this->Interactor->Render();
 }
 
-void vtkImagePlaneWidget::OnMiddleButtonUp (int vtkNotUsed(ctrl), int vtkNotUsed(shift),
-                                            int vtkNotUsed(X), int vtkNotUsed(Y))
+void vtkImagePlaneWidget::OnMiddleButtonUp()
 {
   if ( this->State == vtkImagePlaneWidget::Outside )
     {
@@ -502,15 +498,18 @@ void vtkImagePlaneWidget::OnMiddleButtonUp (int vtkNotUsed(ctrl), int vtkNotUsed
   this->HighlightPlane(0);
 
   this->EventCallbackCommand->SetAbortFlag(1);
+  this->EndInteraction();
   this->InvokeEvent(vtkCommand::EndInteractionEvent,0);
   this->Interactor->Render();
 }
 
-void vtkImagePlaneWidget::OnRightButtonDown (int vtkNotUsed(ctrl),
-                                             int vtkNotUsed(shift), int X, int Y)
+void vtkImagePlaneWidget::OnRightButtonDown()
 {
   this->State = vtkImagePlaneWidget::WindowLevelling;
 
+  int X = this->Interactor->GetEventPosition()[0];
+  int Y = this->Interactor->GetEventPosition()[1];
+
   // Okay, we can process this. If anything is picked, then we
   // can start pushing the plane.
   vtkAssemblyPath *path;
@@ -545,12 +544,12 @@ void vtkImagePlaneWidget::OnRightButtonDown (int vtkNotUsed(ctrl),
   this->HighlightPlane(1);
 
   this->EventCallbackCommand->SetAbortFlag(1);
+  this->StartInteraction();
   this->InvokeEvent(vtkCommand::StartInteractionEvent,0);
   this->Interactor->Render();
 }
 
-void vtkImagePlaneWidget::OnRightButtonUp (int vtkNotUsed(ctrl), int vtkNotUsed(shift),
-                                           int vtkNotUsed(X), int vtkNotUsed(Y))
+void vtkImagePlaneWidget::OnRightButtonUp()
 {
   if ( this->State == vtkImagePlaneWidget::Outside )
     {
@@ -561,13 +560,13 @@ void vtkImagePlaneWidget::OnRightButtonUp (int vtkNotUsed(ctrl), int vtkNotUsed(
   this->HighlightPlane(0);
 
   this->EventCallbackCommand->SetAbortFlag(1);
+  this->EndInteraction();
   this->InvokeEvent(vtkCommand::EndInteractionEvent,0);
   this->Interactor->Render();
 }
 
 
-void vtkImagePlaneWidget::OnMouseMove (int vtkNotUsed(ctrl),
-                                       int vtkNotUsed(shift), int X, int Y)
+void vtkImagePlaneWidget::OnMouseMove()
 {
   // See whether we're active
   if ( this->State == vtkImagePlaneWidget::Outside ||
@@ -575,6 +574,9 @@ void vtkImagePlaneWidget::OnMouseMove (int vtkNotUsed(ctrl),
     {
     return;
     }
+
+  int X = this->Interactor->GetEventPosition()[0];
+  int Y = this->Interactor->GetEventPosition()[1];
 
   // Do different things depending on state
   // Calculations everybody does
@@ -611,7 +613,6 @@ void vtkImagePlaneWidget::OnMouseMove (int vtkNotUsed(ctrl),
   // Interact, if desired
   this->EventCallbackCommand->SetAbortFlag(1);
   this->InvokeEvent(vtkCommand::InteractionEvent,0);
-
   this->Interactor->Render();
 }
 
