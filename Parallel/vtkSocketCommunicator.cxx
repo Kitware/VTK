@@ -24,12 +24,12 @@ PURPOSE.  See the above copyright notice for more information.
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <unistd.h>
 #endif
 
-#include <netinet/tcp.h>
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
 #define WSA_VERSION MAKEWORD(1,1)
@@ -38,7 +38,7 @@ PURPOSE.  See the above copyright notice for more information.
 #define vtkCloseSocketMacro(sock) (close(sock))
 #endif
 
-vtkCxxRevisionMacro(vtkSocketCommunicator, "1.40.2.2");
+vtkCxxRevisionMacro(vtkSocketCommunicator, "1.40.2.3");
 vtkStandardNewMacro(vtkSocketCommunicator);
 
 //----------------------------------------------------------------------------
