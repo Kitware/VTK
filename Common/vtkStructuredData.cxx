@@ -17,7 +17,7 @@
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkStructuredData, "1.58");
+vtkCxxRevisionMacro(vtkStructuredData, "1.58.4.1");
 
 // Return the topological dimension of the data (e.g., 0, 1, 2, or 3D).
 int vtkStructuredData::GetDataDimension(int dataDescription)
@@ -317,7 +317,7 @@ void vtkStructuredData::GetPointCells(vtkIdType ptId, vtkIdList *cellIds,
   return;
 }
 
-void vtkStructuredData::GetCellNeigbors(vtkIdType cellId, vtkIdList *ptIds, 
+void vtkStructuredData::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds, 
                                         vtkIdList *cellIds, int dim[3])
 {
   int j, seedLoc[3], ptLoc[3], cellLoc[3], cellDim[3];

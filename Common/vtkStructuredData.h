@@ -67,7 +67,7 @@ public:
   // Description:
   // Get the cells using the points ptIds, exclusive of the cell cellId. 
   // (See vtkDataSet for more info.)
-  static void GetCellNeigbors(vtkIdType cellId, vtkIdList *ptIds, 
+  static void GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds, 
                               vtkIdList *cellIds, int dim[3]);
 
   // Description:
