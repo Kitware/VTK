@@ -64,6 +64,14 @@ public:
   // Copy the key/value pair associated with the given key in the
   // given information object.
   void CopyEntry(vtkInformation* from, vtkInformationKey* key);
+  void CopyEntry(vtkInformation* from, vtkInformationDataObjectKey* key);
+  void CopyEntry(vtkInformation* from, vtkInformationDoubleVectorKey* key);
+  void CopyEntry(vtkInformation* from, vtkInformationExecutiveKey* key);
+  void CopyEntry(vtkInformation* from, vtkInformationInformationKey* key);
+  void CopyEntry(vtkInformation* from, vtkInformationInformationVectorKey* key);
+  void CopyEntry(vtkInformation* from, vtkInformationIntegerKey* key);
+  void CopyEntry(vtkInformation* from, vtkInformationIntegerVectorKey* key);
+  void CopyEntry(vtkInformation* from, vtkInformationStringKey* key);
 
   // Description:
   // Use the given key to lookup a list of other keys in the given
@@ -152,15 +160,15 @@ public:
 
   // Description:
   // Upcast the given key instance.
-  vtkInformationKey* GetKey(vtkInformationDataObjectKey* key);
-  vtkInformationKey* GetKey(vtkInformationDoubleVectorKey* key);
-  vtkInformationKey* GetKey(vtkInformationExecutiveKey* key);
-  vtkInformationKey* GetKey(vtkInformationInformationKey* key);
-  vtkInformationKey* GetKey(vtkInformationInformationVectorKey* key);
-  vtkInformationKey* GetKey(vtkInformationIntegerKey* key);
-  vtkInformationKey* GetKey(vtkInformationIntegerVectorKey* key);
-  vtkInformationKey* GetKey(vtkInformationStringKey* key);
-  vtkInformationKey* GetKey(vtkInformationKey* key);
+  static vtkInformationKey* GetKey(vtkInformationDataObjectKey* key);
+  static vtkInformationKey* GetKey(vtkInformationDoubleVectorKey* key);
+  static vtkInformationKey* GetKey(vtkInformationExecutiveKey* key);
+  static vtkInformationKey* GetKey(vtkInformationInformationKey* key);
+  static vtkInformationKey* GetKey(vtkInformationInformationVectorKey* key);
+  static vtkInformationKey* GetKey(vtkInformationIntegerKey* key);
+  static vtkInformationKey* GetKey(vtkInformationIntegerVectorKey* key);
+  static vtkInformationKey* GetKey(vtkInformationStringKey* key);
+  static vtkInformationKey* GetKey(vtkInformationKey* key);
 
   // Description:
   // Initiate garbage collection when a reference is removed.
