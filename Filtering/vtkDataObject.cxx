@@ -1,15 +1,15 @@
 /*=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    vtkDataObject.cxx
+Program:   Visualization Toolkit
+Module:    vtkDataObject.cxx
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+All rights reserved.
+See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+This software is distributed WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 #include "vtkDataObject.h"
@@ -29,7 +29,7 @@
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationStringKey.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.8");
+vtkCxxRevisionMacro(vtkDataObject, "1.9");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -121,11 +121,11 @@ void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Release Data: "
        << (this->GetReleaseDataFlag() ? "On\n" : "Off\n");
     if(pInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED()))
-    {
+      {
       os << indent << "UpdateExtent: Initialized\n";
-    }
+      }
     else
-    {
+      {
       os << indent << "UpdateExtent: Not Initialized\n";
       }
     if(pInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()))
@@ -142,9 +142,9 @@ void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
       os << indent << "Update Number Of Pieces: "
          << pInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES())
          << endl;
-    }
+      }
     if(pInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()))
-    {
+      {
       os << indent << "Update Piece: "
          << pInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER())
          << endl;
@@ -156,34 +156,34 @@ void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
          << endl;
       }
     if(pInfo->Has(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()))
-    {
+      {
       int wholeExtent[6] = {0,-1,0,-1,0,-1};
       this->GetWholeExtent(wholeExtent);
       os << indent << "WholeExtent: " << wholeExtent[0] << ", "
          << wholeExtent[1] << ", " << wholeExtent[2] << ", "
          << wholeExtent[3] << ", " << wholeExtent[4] << ", "
          << wholeExtent[5] << endl;
-    }
+      }
     if(pInfo->Has(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES()))
-    {
+      {
       os << indent << "MaximumNumberOfPieces: "
          << pInfo->Get(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES())
          << endl;
-    }
+      }
     if(pInfo->Has(vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR()))
-    {
+      {
       os << indent << "ExtentTranslator: ("
          << pInfo->Get(vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR())
          << ")\n";
-    }
+      }
     if(pInfo->Get(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT()))
-    {
-    os << indent << "RequestExactExtent: On\n ";
-    }
-  else
-    {
-    os << indent << "RequestExactExtent: Off\n ";
-    }
+      {
+      os << indent << "RequestExactExtent: On\n ";
+      }
+    else
+      {
+      os << indent << "RequestExactExtent: Off\n ";
+      }
     }
 
   os << indent << "Field Data:\n";
@@ -197,40 +197,40 @@ void vtkDataObject::SetPipelineInformation(vtkInformation* newInfo)
   if(newInfo != oldInfo)
     {
     if(newInfo)
-    {
+      {
       // Reference the new information.
       newInfo->Register(this);
 
       // Detach the output that used to be held by the new information.
       if(vtkDataObject* oldData = newInfo->Get(vtkDataObject::DATA_OBJECT()))
-    {
+        {
         oldData->SetPipelineInformation(0);
-    }
+        }
   
       // Tell the new information about this object.
       newInfo->Set(vtkDataObject::DATA_OBJECT(), this);
-    }
+      }
 
     // Save the pointer to the new information.
     this->PipelineInformation = newInfo;
 
     if(oldInfo)
-    {
+      {
       // Remove the old information's reference to us.
       oldInfo->Set(vtkDataObject::DATA_OBJECT(), 0);
 
       // Remove our reference to the old information.
       oldInfo->UnRegister(this);
-    }
-
+      }
+    
     // Set the Source ivar for backwards compatibility.
     this->Source = 0;
     if(vtkExecutive* executive = this->GetExecutive())
       {
       if(vtkAlgorithmOutput* producerPort = executive->GetProducerPort(this))
-    {
+        {
         this->Source = vtkSource::SafeDownCast(producerPort->GetProducer());
-    }
+        }
       }
     }
 }
@@ -360,7 +360,7 @@ void vtkDataObject::SetSource(vtkSource* newSource)
   else
     {
     this->SetPipelineInformation(0);
-      }
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -402,9 +402,9 @@ vtkExecutive* vtkDataObject::GetExecutive()
 int vtkDataObject::GetPortNumber()
 {
   if(this->PipelineInformation)
-        {
+    {
     return this->PipelineInformation->Get(vtkExecutive::PORT_NUMBER());
-        }
+    }
   return 0;
 }
 
@@ -413,19 +413,19 @@ vtkStreamingDemandDrivenPipeline* vtkDataObject::TrySDDP(const char* method)
 {
   // Make sure there is an executive.
   if(!this->GetExecutive())
-        {
+    {
     vtkTrivialProducer* tp = vtkTrivialProducer::New();
     tp->SetOutput(this);
     tp->Delete();
-        }
+    }
 
   // Try downcasting the executive to the proper type.
   if(SDDP* sddp = SDDP::SafeDownCast(this->GetExecutive()))
-        {
+    {
     return sddp;
-        }
+    }
   else if(method)
-        {
+    {
     vtkErrorMacro("Method " << method << " cannot be called unless the "
                   "data object is managed by a "
                   "vtkStreamingDemandDrivenPipeline.");
@@ -622,9 +622,9 @@ void vtkDataObject::SetUpdateExtentToWholeExtent()
   if(SDDP* sddp = this->TrySDDP("SetUpdateExtentToWholeExtent"))
     {
     if(sddp->SetUpdateExtentToWholeExtent(this->GetPortNumber()))
-    {
+      {
       this->Modified();
-    }
+      }
     }
 }
 
@@ -634,7 +634,7 @@ void vtkDataObject::SetMaximumNumberOfPieces(int n)
   if(SDDP* sddp = this->TrySDDP("SetMaximumNumberOfPieces"))
     {
     if(sddp->SetMaximumNumberOfPieces(this->GetPortNumber(), n))
-    {
+      {
       this->Modified();
       }
     }
@@ -664,7 +664,7 @@ void vtkDataObject::SetWholeExtent(int extent[6])
   if(SDDP* sddp = this->TrySDDP("SetWholeExtent"))
     {
     if(sddp->SetWholeExtent(this->GetPortNumber(), extent))
-    {
+      {
       this->Modified();
       }
     }
@@ -721,7 +721,7 @@ void vtkDataObject::SetWholeBoundingBox(double bb[6])
   if(SDDP* sddp = this->TrySDDP("SetWholeBoundingBox"))
     {
     if(sddp->SetWholeBoundingBox(this->GetPortNumber(), bb))
-    {
+      {
       this->Modified();
       }
     }
@@ -766,7 +766,7 @@ void vtkDataObject::GetWholeBoundingBox(double extent[6])
 
 //----------------------------------------------------------------------------
 void vtkDataObject::SetUpdateExtent(int x0, int x1, int y0, int y1,
-                                   int z0, int z1)
+                                    int z0, int z1)
 {
   int extent[6] = {x0, x1, y0, y1, z0, z1};
   this->SetUpdateExtent(extent);
@@ -800,7 +800,7 @@ int* vtkDataObject::GetUpdateExtent()
 
 //----------------------------------------------------------------------------
 void vtkDataObject::GetUpdateExtent(int& x0, int& x1, int& y0, int& y1,
-                                   int& z0, int& z1)
+                                    int& z0, int& z1)
 {
   int extent[6];
   this->GetUpdateExtent(extent);
@@ -827,7 +827,7 @@ void vtkDataObject::SetUpdatePiece(int piece)
   if(SDDP* sddp = this->TrySDDP("SetUpdatePiece"))
     {
     if(sddp->SetUpdatePiece(this->GetPortNumber(), piece))
-    {
+      {
       this->Modified();
       }
     }
@@ -849,7 +849,7 @@ void vtkDataObject::SetUpdateNumberOfPieces(int n)
   if(SDDP* sddp = this->TrySDDP("SetUpdateNumberOfPieces"))
     {
     if(sddp->SetUpdateNumberOfPieces(this->GetPortNumber(), n))
-    {
+      {
       this->Modified();
       }
     }
@@ -915,7 +915,7 @@ void vtkDataObject::SetReleaseDataFlag(int value)
   if(SDDP* sddp = this->TrySDDP("SetReleaseDataFlag"))
     {
     if(sddp->SetReleaseDataFlag(this->GetPortNumber(), value))
-    {
+      {
       this->Modified();
       }
     }
