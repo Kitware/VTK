@@ -251,10 +251,10 @@ int main( int argc, char* argv[] )
   // is configured, vtkThreadedController otherwise.
   controller = vtkMultiProcessController::New();
 
-  controller->Initialize(&argc, &argv);
-
   vtkDebugLeaks::PromptUserOff();
-
+  controller->Initialize(&argc, &argv);
+  vtkDebugLeaks::PromptUserOff();
+ 
   // Added for regression test.
   // ----------------------------------------------
   int retVal;
