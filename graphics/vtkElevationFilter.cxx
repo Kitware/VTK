@@ -84,7 +84,7 @@ void vtkElevationFilter::Execute()
 // Allocate
 //
   newScalars = vtkScalars::New();
-  newScalars->Allocate(numPts);
+  newScalars->SetNumberOfScalars(numPts);
 //
 // Set up 1D parametric system
 //
@@ -107,7 +107,7 @@ void vtkElevationFilter::Execute()
     for (j=0; j<3; j++) v[j] = x[j] - this->LowPoint[j];
     s = vtkMath::Dot(v,diffVector) / l;
     s = (s < 0.0 ? 0.0 : s > 1.0 ? 1.0 : s);
-    newScalars->InsertScalar(i,this->ScalarRange[0]+s*diffScalar);
+    newScalars->SetScalar(i,this->ScalarRange[0]+s*diffScalar);
     }
 //
 // Update self
