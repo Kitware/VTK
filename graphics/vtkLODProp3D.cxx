@@ -300,30 +300,48 @@ float vtkLODProp3D::GetLODIndexEstimatedRenderTime( int index )
   return this->LODs[index].EstimatedTime;
 }
 
-// Convenience method to set an actor LOD without a texture.
-// Needed from tcl (for example) where null pointers are not possible
+// Convenience method to set an actor LOD without a texture, or a 
+// backface property.  Needed from tcl (for example) where null pointers 
+// are not possible
 int vtkLODProp3D::AddLOD( vtkMapper *m, vtkProperty *p, float time )
 {
-  return this->AddLOD( m, p, (vtkTexture *)NULL, time );
+  return this->AddLOD( m, p, (vtkProperty *) NULL, (vtkTexture *)NULL, time );
+}
+
+// Convenience method to set an actor LOD without a texture.
+// Needed from tcl (for example) where null pointers are not possible
+int vtkLODProp3D::AddLOD( vtkMapper *m, vtkProperty *p, 
+                         vtkProperty *back, float time )
+{
+  return this->AddLOD( m, p, back, (vtkTexture *)NULL, time );
+}
+
+// Convenience method to set an actor LOD without a backface property.
+// Needed from tcl (for example) where null pointers are not possible
+int vtkLODProp3D::AddLOD( vtkMapper *m, vtkProperty *p, 
+                         vtkTexture *t, float time )
+{
+  return this->AddLOD( m, p, (vtkProperty *)NULL, t, time );
 }
 
 // Convenience method to set an actor LOD without a property.
 // Needed from tcl (for example) where null pointers are not possible
-int vtkLODProp3D::AddLOD( vtkMapper *m, vtkTexture *vtkNotUsed(t), float time )
+int vtkLODProp3D::AddLOD( vtkMapper *m, vtkTexture *t, float time )
 {
-  return this->AddLOD( m, (vtkProperty *)NULL, time );
+  return this->AddLOD( m, (vtkProperty *)NULL, (vtkProperty *)NULL, t, time );
 }
 
 // Convenience method to set an actor LOD without a texture or a property.
 // Needed from tcl (for example) where null pointers are not possible
 int vtkLODProp3D::AddLOD( vtkMapper *m, float time )
 {
-  return this->AddLOD( m, (vtkProperty *)NULL, (vtkTexture *)NULL, time );
+  return this->AddLOD( m, (vtkProperty *)NULL, (vtkProperty *)NULL, 
+      (vtkTexture *)NULL, time );
 } 
 
 // The real method for adding an actor LOD.
 int vtkLODProp3D::AddLOD( vtkMapper *m, vtkProperty *p, 
-			  vtkTexture *t, float time )
+			  vtkProperty *back, vtkTexture *t, float time )
 {
   int          index;
   vtkActor     *actor;
@@ -340,6 +358,11 @@ int vtkLODProp3D::AddLOD( vtkMapper *m, vtkProperty *p,
   if ( p ) 
     {
     actor->SetProperty( p );
+    }
+
+  if ( back )
+    {
+    actor->SetBackfaceProperty(back);
     }
 
   if ( t )
@@ -619,6 +642,44 @@ void vtkLODProp3D::GetLODTexture( int id, vtkTexture **t )
     }
 
   *t = ((vtkActor *)this->LODs[index].Prop3D)->GetTexture();
+}
+
+// Set the backface property for an LOD that is an actor
+void vtkLODProp3D::SetLODBackfaceProperty( int id, vtkProperty *t )
+{
+  int index = this->ConvertIDToIndex( id );
+
+  if ( index == VTK_INVALID_LOD_INDEX )
+    {
+    return;
+    }
+
+  if ( this->LODs[index].Prop3DType != VTK_LOD_ACTOR_TYPE )
+    {
+    vtkErrorMacro( << "Error: Cannot set an actor backface property on a non-actor!");
+    return;
+    }
+
+  ((vtkActor *)this->LODs[index].Prop3D)->SetBackfaceProperty( t );
+}
+
+// Get the backface property for an LOD that is an actor
+void vtkLODProp3D::GetLODBackfaceProperty( int id, vtkProperty **t )
+{
+  int index = this->ConvertIDToIndex( id );
+
+  if ( index == VTK_INVALID_LOD_INDEX )
+    {
+    return;
+    }
+
+  if ( this->LODs[index].Prop3DType != VTK_LOD_ACTOR_TYPE )
+    {
+    vtkErrorMacro( << "Error: Cannot get an actor backface property on a non-actor!");
+    return;
+    }
+
+  *t = ((vtkActor *)this->LODs[index].Prop3D)->GetBackfaceProperty();
 }
 
 void vtkLODProp3D::EnableLOD( int id )

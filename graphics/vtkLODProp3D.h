@@ -99,14 +99,16 @@ public:
   int RequiresRenderingIntoImage();
  
   // Description:
-  // Add a level of detail with a given mapper, property, texture, and
-  // guess of rendering time.  The property and texture fields can be set
-  // to NULL (the other methods are included for script access where null
+  // Add a level of detail with a given mapper, property, backface property, 
+  // texture, and guess of rendering time.  The property and texture fields 
+  // can be set to NULL (the other methods are included for script access where null
   // variables are not allowed). The time field can be set to 0.0 indicating
   // that no initial guess for rendering time is being supplied.
   // The returned integer value is an ID that can be used later to delete
   // this LOD, or set it as the selected LOD.
+  int AddLOD( vtkMapper *m, vtkProperty *p, vtkProperty *back, vtkTexture *t, float time );
   int AddLOD( vtkMapper *m, vtkProperty *p, vtkTexture *t, float time );
+  int AddLOD( vtkMapper *m, vtkProperty *p, vtkProperty *back, float time );
   int AddLOD( vtkMapper *m, vtkProperty *p, float time );
   int AddLOD( vtkMapper *m, vtkTexture *t, float time );
   int AddLOD( vtkMapper *m, float time );
@@ -142,6 +144,12 @@ public:
   // Get the LODMapper as an vtkAbstractMapper3D.  It is the user's respondibility
   // to safe down cast this to a vtkMapper or vtkVolumeMapper as appropriate.
   vtkAbstractMapper3D *GetLODMapper(int id);
+
+  // Description:
+  // Methods to set / get the backface property of an LOD. This method is only
+  // valid for LOD ids that are Actors (not Volumes)
+  void SetLODBackfaceProperty( int id, vtkProperty *t );
+  void GetLODBackfaceProperty( int id, vtkProperty **t );
 
   // Description:
   // Methods to set / get the texture of an LOD. This method is only
