@@ -15,7 +15,7 @@
 // .NAME vtkPolyDataToImageStencil - clip an image with polydata
 // .SECTION Description
 // vtkPolyDataToImageStencil will convert a vtkPolyData into an image
-// that can be used with vtkImageStecil or other vtk classes that apply
+// that can be used with vtkImageStencil or other vtk classes that apply
 // a stencil to an image.
 // .SECTION see also
 // vtkPolyData vtkImageStencil vtkImplicitFunctionToImageStencil

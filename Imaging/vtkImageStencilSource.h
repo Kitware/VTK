@@ -24,7 +24,7 @@
 // than building a mask.  This class can be subclassed to allow clipping
 // with objects other than vtkImplicitFunction.
 // .SECTION see also
-// vtkImplicitFunction vtkImageStencil vtkImagePolyDataStencilSource
+// vtkImplicitFunction vtkImageStencil vtkPolyDataToImageStencil
 
 #ifndef __vtkImageStencilSource_h
 #define __vtkImageStencilSource_h
