@@ -29,7 +29,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkFieldData.h"
 
-vtkCxxRevisionMacro(vtkRIBExporter, "1.40");
+vtkCxxRevisionMacro(vtkRIBExporter, "1.41");
 vtkStandardNewMacro(vtkRIBExporter);
 
 typedef float RtColor[3];
@@ -1373,6 +1373,7 @@ void vtkRIBExporter::ModifyArrayName(char *newname, const char* name)
   if ( !name )
     {
     *newname = 0;
+    return;
     }
   int cc = 0;
   for ( cc =0; name[cc]; cc++ )
