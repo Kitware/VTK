@@ -450,7 +450,7 @@ void vlVolumeRenderer::TraceOneRay(float p1World[4],float p2World[4],
 	  {
 	  pcoords[i] = (hitPosition[i] - index[i]);
 	  }
-	cell.ShapeFunctions(pcoords,sf);
+	cell.InterpolationFunctions(pcoords,sf);
 
 	sf[0] = 
 	  sf[0]*scalars->GetScalar(index[0] + index[1]*dimensions[0] + 
