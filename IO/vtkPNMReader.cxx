@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkPNMReader.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPNMReader, "1.28");
+vtkCxxRevisionMacro(vtkPNMReader, "1.29");
 vtkStandardNewMacro(vtkPNMReader);
 
 char vtkPNMReaderGetChar(FILE *fp)

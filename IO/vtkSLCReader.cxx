@@ -16,11 +16,13 @@
 
 =========================================================================*/
 #include "vtkSLCReader.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkSLCReader, "1.43");
+vtkCxxRevisionMacro(vtkSLCReader, "1.44");
 vtkStandardNewMacro(vtkSLCReader);
 
 // Constructor for a vtkSLCReader.

@@ -16,10 +16,12 @@
 
 =========================================================================*/
 #include "vtkBMPReader.h"
+
 #include "vtkByteSwap.h"
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkBMPReader, "1.35");
+vtkCxxRevisionMacro(vtkBMPReader, "1.36");
 vtkStandardNewMacro(vtkBMPReader);
 
 #ifdef read

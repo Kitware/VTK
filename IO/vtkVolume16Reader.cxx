@@ -17,11 +17,12 @@
 =========================================================================*/
 #include "vtkVolume16Reader.h"
 
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkTransform.h"
 #include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkVolume16Reader, "1.47");
+vtkCxxRevisionMacro(vtkVolume16Reader, "1.48");
 vtkStandardNewMacro(vtkVolume16Reader);
 
 vtkCxxSetObjectMacro(vtkVolume16Reader,Transform,vtkTransform);

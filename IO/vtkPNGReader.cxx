@@ -16,11 +16,13 @@
 
 =========================================================================*/
 #include "vtkPNGReader.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
 #include <png.h>
 
-vtkCxxRevisionMacro(vtkPNGReader, "1.14");
+vtkCxxRevisionMacro(vtkPNGReader, "1.15");
 vtkStandardNewMacro(vtkPNGReader);
 
 void vtkPNGReader::ExecuteInformation()

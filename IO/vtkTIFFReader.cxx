@@ -40,7 +40,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 #include "vtkTIFFReader.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
+
 #include <sys/stat.h>
 
 extern "C" {
@@ -49,7 +52,7 @@ extern "C" {
 
 //-------------------------------------------------------------------------
 vtkStandardNewMacro(vtkTIFFReader);
-vtkCxxRevisionMacro(vtkTIFFReader, "1.36");
+vtkCxxRevisionMacro(vtkTIFFReader, "1.37");
 
 class vtkTIFFReaderInternal
 {
