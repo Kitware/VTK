@@ -51,7 +51,6 @@ public:
   void SetSize(int,int);
 
   vtkGetMacro(Fd,int);
-  virtual void SaveImageAsPPM();
 
   // stereo rendering stuff
   virtual void StereoUpdate();
