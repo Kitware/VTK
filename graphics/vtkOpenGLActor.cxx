@@ -66,7 +66,6 @@ vtkOpenGLActor* vtkOpenGLActor::New()
 // Actual actor render method.
 void vtkOpenGLActor::Render(vtkRenderer *ren, vtkMapper *mapper)
 {
-  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
   float opacity;
 
   // get opacity
@@ -81,13 +80,29 @@ void vtkOpenGLActor::Render(vtkRenderer *ren, vtkMapper *mapper)
     }
 
   // build transformation 
-  this->GetMatrix(matrix);
-  matrix->Transpose();
-
+  double *mat = this->GetMatrixPointer()->Element[0];
+  double mat2[16];
+  mat2[0] = mat[0];
+  mat2[1] = mat[4];
+  mat2[2] = mat[8];
+  mat2[3] = mat[12];
+  mat2[4] = mat[1];
+  mat2[5] = mat[5];
+  mat2[6] = mat[9];
+  mat2[7] = mat[13];
+  mat2[8] = mat[2];
+  mat2[9] = mat[6];
+  mat2[10] = mat[10];
+  mat2[11] = mat[14];
+  mat2[12] = mat[3];
+  mat2[13] = mat[7];
+  mat2[14] = mat[11];
+  mat2[15] = mat[15];
+  
   // insert model transformation 
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
-  glMultMatrixd(matrix->Element[0]);
+  glMultMatrixd(mat2);
 
   // send a render to the mapper; update pipeline
   mapper->Render(ren,this);
@@ -100,6 +115,5 @@ void vtkOpenGLActor::Render(vtkRenderer *ren, vtkMapper *mapper)
     {
     glDepthMask (GL_TRUE);
     }
-  matrix->Delete();
 }
 

@@ -76,6 +76,7 @@ vtkOpenGLPolyDataMapper* vtkOpenGLPolyDataMapper::New()
 vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
 {
   this->ListId = 0;
+  this->Timer = vtkTimerLog::New();
 }
 
 // Destructor (don't call ReleaseGraphicsResources() since it is virtual
@@ -85,6 +86,7 @@ vtkOpenGLPolyDataMapper::~vtkOpenGLPolyDataMapper()
     {
     this->ReleaseGraphicsResources(this->LastWindow);
     }  
+  this->Timer->Delete();
 }
 
 // Release the graphics resources used by this mapper.  In this case, release
@@ -124,7 +126,6 @@ void vtkOpenGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
 {
   int numPts;
   vtkPolyData *input= this->GetInput();
-  vtkTimerLog *timer;
   vtkPlaneCollection *clipPlanes;
   vtkPlane *plane;
   int i,numClipPlanes;
@@ -190,8 +191,6 @@ void vtkOpenGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
   ((vtkOpenGLRenderWindow *)(ren->GetRenderWindow()))->MakeCurrent();
 #endif
 
-  timer = vtkTimerLog::New();
-
   clipPlanes = this->ClippingPlanes;
 
   if (clipPlanes == NULL)
@@ -248,9 +247,9 @@ void vtkOpenGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
       glNewList(this->ListId,GL_COMPILE_AND_EXECUTE);
 
       // Time the actual drawing
-      timer->StartTimer();
+      this->Timer->StartTimer();
       this->Draw(ren,act);
-      timer->StopTimer();      
+      this->Timer->StopTimer();      
 
       glEndList();
       }
@@ -268,9 +267,9 @@ void vtkOpenGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
         !this->GetGlobalImmediateModeRendering())
       {
       // Time the actual drawing
-      timer->StartTimer();
+      this->Timer->StartTimer();
       glCallList(this->ListId);
-      timer->StopTimer();      
+      this->Timer->StopTimer();      
       }
     }
    
@@ -281,12 +280,12 @@ void vtkOpenGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
     {
     this->GetColors();
     // Time the actual drawing
-    timer->StartTimer();
+    this->Timer->StartTimer();
     this->Draw(ren,act);
-    timer->StopTimer();      
+    this->Timer->StopTimer();      
     }
 
-  this->TimeToDraw = (float)timer->GetElapsedTime();
+  this->TimeToDraw = (float)this->Timer->GetElapsedTime();
 
   // If the timer is not accurate enough, set it to a small
   // time so that it is not zero
@@ -299,8 +298,6 @@ void vtkOpenGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
     {
     glDisable((GLenum)(GL_CLIP_PLANE0+i));
     }
-
-  timer->Delete();
 }
 
 

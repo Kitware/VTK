@@ -61,6 +61,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class vtkProperty;
 class vtkRenderWindow;
 class vtkMesaRenderer;
+class vtkTimerLog;
 
 class VTK_EXPORT vtkMesaPolyDataMapper : public vtkPolyDataMapper
 {
@@ -100,6 +101,7 @@ protected:
 
   int ListId;
   vtkRenderWindow *RenderWindow;   // RenderWindow used for the previous render
+  vtkTimerLog *Timer;
 };
 
 #endif
