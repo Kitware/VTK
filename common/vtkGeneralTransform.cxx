@@ -72,6 +72,8 @@ vtkGeneralTransform::vtkGeneralTransform()
 //----------------------------------------------------------------------------
 vtkGeneralTransform::~vtkGeneralTransform()
 {
+  this->SetInput(NULL);
+
   if (this->Concatenation)
     {
     this->Concatenation->Delete();

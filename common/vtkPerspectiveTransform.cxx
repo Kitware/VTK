@@ -72,6 +72,8 @@ vtkPerspectiveTransform::vtkPerspectiveTransform()
 //----------------------------------------------------------------------------
 vtkPerspectiveTransform::~vtkPerspectiveTransform()
 {
+  this->SetInput(NULL);
+
   if (this->Concatenation)
     {
     this->Concatenation->Delete();
