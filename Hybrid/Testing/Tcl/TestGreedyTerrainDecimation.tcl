@@ -1,7 +1,6 @@
 package require vtk
 package require vtkinteraction
 
-set Scale 5
 vtkLookupTable lut
   lut SetHueRange 0.6 0
   lut SetSaturationRange 1.0 0
@@ -12,27 +11,26 @@ vtkDEMReader demReader
   demReader SetFileName $VTK_DATA_ROOT/Data/SainteHelens.dem
   demReader Update
 
-set lo [expr $Scale * [lindex [demReader GetElevationBounds] 0]]
-set hi [expr $Scale * [lindex [demReader GetElevationBounds] 1]]
+set lo [lindex [[demReader GetOutput] GetScalarRange] 0]
+set hi [lindex [[demReader GetOutput] GetScalarRange] 1]
 
 # Decimate the terrain
 vtkGreedyTerrainDecimation deci
   deci SetInput [demReader GetOutput]
   deci BoundaryVertexDeletionOn
+#  deci SetErrorMeasureToSpecifiedReduction
+#  deci SetReduction 0.95
   deci SetErrorMeasureToNumberOfTriangles
-  deci SetNumberOfTriangles 100
-
-# Color the results
-vtkElevationFilter elevation
-  elevation SetInput [deci GetOutput]
-  elevation SetLowPoint 0 0 $lo
-  elevation SetHighPoint 0 0 $hi
-  eval elevation SetScalarRange $lo $hi
+  deci SetNumberOfTriangles 5000
+#  deci SetErrorMeasureToAbsoluteError
+#  deci SetAbsoluteError 25.0
+#  deci SetErrorMeasureToRelativeError
+#  deci SetAbsoluteError 0.01
 
 vtkPolyDataNormals normals
-  normals SetInput [elevation GetPolyDataOutput]
+  normals SetInput [deci GetOutput]
   normals SetFeatureAngle 60
-  normals ConsistencyOff
+  normals ConsistencyOn
   normals SplittingOff
 
 vtkPolyDataMapper demMapper

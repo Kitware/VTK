@@ -24,6 +24,7 @@ vtkCaptionActor2D.cxx
 vtkCubeAxesActor2D.cxx
 vtkDepthSortPolyData.cxx
 vtkEarthSource.cxx
+vtkGreedyTerrainDecimation.cxx
 vtkGridTransform.cxx
 vtkImagePlaneWidget.cxx
 vtkImageToPolyDataFilter.cxx
