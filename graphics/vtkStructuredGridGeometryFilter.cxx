@@ -55,7 +55,7 @@ void vtkStructuredGridGeometryFilter::Execute()
 {
   int *dims, dimension, dir[3], diff[3];
   int i, j, k, extent[6];
-  int ptIds[4], idx, startIdx;
+  int ptIds[4], idx, startIdx, startCellIdx;
   int cellId;
   vtkPoints *newPts=0;
   vtkCellArray *newVerts=0;
@@ -104,7 +104,16 @@ void vtkStructuredGridGeometryFilter::Execute()
 //
 // Now create polygonal data based on dimension of data
 //
+// First compute starting index of the point and cell
   startIdx = extent[0] + extent[2]*dims[0] + extent[4]*dims[0]*dims[1];
+
+// The cell index is a bit more complicated at the boundaries
+  startCellIdx =  (extent[0] < dims[0] - 1) ? extent[0]
+                                            : extent[0]-1;
+  startCellIdx += (extent[2] < dims[1] - 1) ? extent[2]*(dims[0]-1)
+                                            : (extent[2]-1)*(dims[0]-1);
+  startCellIdx += (extent[4] < dims[2] - 1) ? extent[4]*(dims[0]-1)*(dims[1]-1)
+                                            : (extent[4]-1)*(dims[0]-1)*(dims[1]-1);
 
   switch (dimension) 
     {
@@ -273,7 +282,7 @@ void vtkStructuredGridGeometryFilter::Execute()
 	  }
         }
 
-      for (pos=startIdx, j=0; j < diff[dir[1]]; j++) 
+      for (pos=startCellIdx, j=0; j < diff[dir[1]]; j++) 
         {
         for (i=0; i < diff[dir[0]]; i++) 
           {
