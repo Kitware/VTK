@@ -9,6 +9,13 @@ set types {
     {UnstructuredGrid vtu}
 }
 
+# We intentionally cause vtkErrorMacro calls to be made below.  Dump
+# errors to a file to prevent a window from coming up.
+vtkFileOutputWindow fow
+fow SetFileName "TestEmptyXMLErrors.txt"
+fow SetFlush 0
+fow SetInstance fow
+
 # Prepare some test files.
 file delete -force "junkFile.vtk"
 file delete -force "emptyFile.vtk"
@@ -33,7 +40,7 @@ foreach pair $types {
 
     vtkXML${type}Reader reader
     reader SetFileName "empty${type}.${ext}"
-    puts "Attempting read from file with empty ${type}."    
+    puts "Attempting read from file with empty ${type}."
     reader Update
 
     vtkXMLP${type}Writer pwriter
@@ -44,10 +51,10 @@ foreach pair $types {
     puts "Attempting P${type} write with empty input."
     pwriter SetInput input
     pwriter Write
-    
+
     vtkXMLP${type}Reader preader
     preader SetFileName "emptyP${type}.p${ext}"
-    puts "Attempting read from file with empty P${type}."    
+    puts "Attempting read from file with empty P${type}."
     preader Update
 
     reader SetFileName "emptyFile.vtk"
@@ -65,7 +72,7 @@ foreach pair $types {
     reader Update
     puts "Attempting read P${type} from junk file."
     preader Update
-    
+
     input Delete
     writer Delete
     reader Delete
@@ -101,6 +108,10 @@ foreach pair $types {
     writer Delete
 }
 
+# Done with file output window.
+fow SetInstance {}
+fow Delete
+
 # Delete the test files.
 foreach pair $types {
     set type [lindex $pair 0]
@@ -114,5 +125,6 @@ foreach pair $types {
 }
 file delete -force "junkFile.vtk"
 file delete -force "emptyFile.vtk"
+file delete -force "TestEmptyXMLErrors.txt"
 
 exit
