@@ -1473,7 +1473,7 @@ void vtkXYPlotActor::ClipPlotData(int *pos, int *pos2, vtkPolyData *pd)
           n = this->ClipPlanes->GetNormals()->GetNormal(j);
           if ( vtkPlane::IntersectWithLine(x1,x2,n,px,t,xint) && t >= 0 && t <= 1.0 )
             {
-            newPts[1] = newPoints->InsertNextPoint(x1);
+            newPts[1] = newPoints->InsertNextPoint(xint);
             break;
             }
           }
