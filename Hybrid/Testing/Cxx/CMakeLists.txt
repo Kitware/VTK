@@ -1,51 +1,34 @@
-IF (VTK_USE_RENDERING)
-  #
-  # Add all the executables that require rendering
-  #
-  ADD_EXECUTABLE(BoxWidget BoxWidget.cxx)
-  ADD_EXECUTABLE(ImagePlaneWidget ImagePlaneWidget.cxx)
-  ADD_EXECUTABLE(AmoebaMinimizer AmoebaMinimizer.cxx)
-  ADD_EXECUTABLE(TestPointWidget TestPointWidget.cxx)
-  ADD_EXECUTABLE(TestImplicitPlaneWidget TestImplicitPlaneWidget.cxx)
-  ADD_EXECUTABLE(TestPlaneWidget TestPlaneWidget.cxx)
+SET(KIT Hybrid)
+# add tests that do not require data
+SET(MyTests     
+  BoxWidget.cxx
+  ImagePlaneWidget.cxx
+  AmoebaMinimizer.cxx  
+  TestImplicitPlaneWidget.cxx
+  TestPlaneWidget.cxx
+  )
+IF (VTK_DATA_ROOT)
+  # add tests that require data
+  SET(MyTests ${MyTests}     
+    volProt.cxx
+    )
+ENDIF (VTK_DATA_ROOT)
+CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests})
 
-  TARGET_LINK_LIBRARIES(BoxWidget vtkHybrid)
-  TARGET_LINK_LIBRARIES(ImagePlaneWidget vtkHybrid)
-  TARGET_LINK_LIBRARIES(AmoebaMinimizer vtkHybrid)
-  TARGET_LINK_LIBRARIES(TestPointWidget vtkHybrid)
-  TARGET_LINK_LIBRARIES(TestImplicitPlaneWidget vtkHybrid)
-  TARGET_LINK_LIBRARIES(TestPlaneWidget vtkHybrid)
+ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
+TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkHybrid)
+SET (TestsToRun ${Tests})
+REMOVE (TestsToRun ${KIT}CxxTests.cxx)
 
-  #
-  # Add tests, with the data
-  #
+#
+# Add all the executables 
+FOREACH (test ${TestsToRun})
+  GET_FILENAME_COMPONENT(TName ${test} NAME_WE)
   IF (VTK_DATA_ROOT)
-    ADD_TEST(BoxWidget-image ${CXX_TEST_PATH}/BoxWidget
-                -D ${VTK_DATA_ROOT}
-                -V Baseline/Hybrid/BoxWidget.png)
-    ADD_TEST(ImagePlaneWidget-image ${CXX_TEST_PATH}/ImagePlaneWidget
-                -D ${VTK_DATA_ROOT}
-                -V Baseline/Hybrid/ImagePlaneWidget.png)
-    ADD_TEST(AmoebaMinimizer ${CXX_TEST_PATH}/AmoebaMinimizer)
-    ADD_TEST(TestPointWidget-image 
-             ${CXX_TEST_PATH}/TestPointWidget
-             -D ${VTK_DATA_ROOT}
-             -V Baseline/Hybrid/TestPointWidget.png)
-    ADD_TEST(TestImplicitPlaneWidget-image 
-             ${CXX_TEST_PATH}/TestImplicitPlaneWidget
-             -D ${VTK_DATA_ROOT}
-             -V Baseline/Hybrid/TestImplicitPlaneWidget.png)
-    ADD_TEST(TestPlaneWidget-image 
-             ${CXX_TEST_PATH}/TestPlaneWidget
-             -D ${VTK_DATA_ROOT}
-             -V Baseline/Hybrid/TestPlaneWidget.png)
+    ADD_TEST(${TName} ${CXX_TEST_PATH}/${KIT}CxxTests ${TName}
+        -D ${VTK_DATA_ROOT}
+        -V Baseline/${KIT}/${TName}.png)
   ELSE (VTK_DATA_ROOT)
-    ADD_TEST(BoxWidget ${CXX_TEST_PATH}/BoxWidget)
-    ADD_TEST(ImagePlaneWidget ${CXX_TEST_PATH}/ImagePlaneWidget)
-    ADD_TEST(AmoebaMinimizer ${CXX_TEST_PATH}/AmoebaMinimizer)
-    ADD_TEST(TestPointWidget ${CXX_TEST_PATH}/TestPointWidget)
-    ADD_TEST(TestImplicitPlaneWidget ${CXX_TEST_PATH}/TestImplicitPlaneWidget)
-    ADD_TEST(TestPlaneWidget ${CXX_TEST_PATH}/TestPlaneWidget)
+    ADD_TEST(${TName} ${CXX_TEST_PATH}/${KIT}CxxTests ${TName})
   ENDIF (VTK_DATA_ROOT)
-
-ENDIF (VTK_USE_RENDERING)
+ENDFOREACH (test) 

@@ -49,7 +49,7 @@ public:
 };
 
 
-int main( int argc, char *argv[] )
+int BoxWidget( int argc, char *argv[] )
 {
   vtkDebugLeaks::PromptUserOff();
 

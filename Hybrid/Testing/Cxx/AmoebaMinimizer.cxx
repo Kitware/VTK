@@ -33,7 +33,7 @@ static void vtkFunctionToMinimize(void *arg)
   minimizer->SetFunctionValue(r);
 }
 
-int main(int argc, char** vtkNotUsed(argv))
+int AmoebaMinimizer(int argc, char*[])
 {
   vtkAmoebaMinimizer *minimizer = vtkAmoebaMinimizer::New();
 
@@ -63,7 +63,7 @@ int main(int argc, char** vtkNotUsed(argv))
 
   // check parameters to make sure that they converged to the
   // correct values
-  if (argc > 1 ||
+  if (argc > 10 ||
       fabs(x - 5.0) > 1e-4 ||
       fabs(y + 2.0) > 1e-4 ||
       fabs(z - 0.0) > 1e-4 ||

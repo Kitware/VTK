@@ -436,7 +436,7 @@ public:
 
 };
 
-int main( int argc, char *argv[] )
+int TestImplicitPlaneWidget( int argc, char *argv[] )
 {
   // Create a mace out of filters.
   //
