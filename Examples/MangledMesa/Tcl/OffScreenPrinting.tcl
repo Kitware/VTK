@@ -23,6 +23,14 @@ rw AddRenderer ren
 # Mesa
 vtkMesaRenderer mren
 mrw AddRenderer mren
+# The light and the camera have to be created and set
+# because otherwise, during the first render, VTK will 
+# use the graphics factory to create them and end up
+# with OpenGL objects (instead of Mesa)
+vtkMesaLight mlight
+mren AddLight mlight
+vtkMesaCamera mcamera
+mren SetActiveCamera mcamera
 
 vtkConeSource cone
 
@@ -37,8 +45,14 @@ mmap SetInput [cone GetOutput]
 vtkActor actor
 actor SetMapper map
 # Mesa
-vtkActor mactor
+vtkMesaActor mactor
 mactor SetMapper mmap
+# The property has to be created and set
+# because otherwise, during the first render, VTK will 
+# use the graphics factory to create it and end up
+# with vtkOpenGLProperty object (instead of Mesa)
+vtkMesaProperty mprop
+mactor SetProperty mprop
 
 # Add the actor to the renderer
 ren AddActor actor
@@ -57,18 +71,31 @@ set openGLCamera [ren GetActiveCamera]
 
 proc PrintWithMesa {} {
     global mesaCamera openGLCamera
+
+    set mesaLights [mren GetLights]
+    eval $mesaLights InitTraversal
+    set mesaLight [$mesaLights GetNextItem]
+    set openGLLights [ren GetLights]
+    eval $openGLLights InitTraversal
+    set openGLLight [$openGLLights GetNextItem]
+
     eval $mesaCamera SetPosition [$openGLCamera GetPosition]
     eval $mesaCamera SetFocalPoint [$openGLCamera GetFocalPoint]
     eval $mesaCamera SetViewUp [$openGLCamera GetViewUp]
     eval $mesaCamera SetClippingRange [$openGLCamera GetClippingRange]
 
+    eval $mesaLight DeepCopy $openGLLight
+
     mrw Render
-    
+
+    # This is here to force the window to image filter to
+    # update it's image. Required.
+    w2if Modified
+
     writer Write
 }
 
 # ------------------- Create the UI ---------------------
-# prevent the tk window from showing up then start the event loop
 wm withdraw .
 
 # Create the toplevel window
