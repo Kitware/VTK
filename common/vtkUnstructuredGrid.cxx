@@ -165,7 +165,7 @@ vtkCell *vtkUnstructuredGrid::GetCell(int cellId)
      break;
 
     case VTK_POLY_VERTEX:
-     pvertex.PointIds.Reset(); //reset number of points
+     pvertex.Points.Reset(); pvertex.PointIds.Reset(); //reset number of points
      cell = &pvertex;
      break;
 
@@ -174,7 +174,7 @@ vtkCell *vtkUnstructuredGrid::GetCell(int cellId)
       break;
 
     case VTK_POLY_LINE:
-      pline.PointIds.Reset(); //reset number of points
+      pline.Points.Reset(); pline.PointIds.Reset(); //reset number of points
       cell = &pline;
       break;
 
@@ -183,7 +183,7 @@ vtkCell *vtkUnstructuredGrid::GetCell(int cellId)
       break;
 
     case VTK_TRIANGLE_STRIP:
-      strip.PointIds.Reset(); //reset number of points
+      strip.Points.Reset(); strip.PointIds.Reset(); //reset number of points
       cell = &strip;
       break;
 
@@ -196,7 +196,7 @@ vtkCell *vtkUnstructuredGrid::GetCell(int cellId)
       break;
 
     case VTK_POLYGON:
-      poly.PointIds.Reset(); //reset number of points
+      poly.Points.Reset(); poly.PointIds.Reset(); //reset number of points
       cell = &poly;
       break;
 
@@ -218,8 +218,8 @@ vtkCell *vtkUnstructuredGrid::GetCell(int cellId)
 
   for (i=0; i<numPts; i++)
     {
-    cell->PointIds.SetId(i,pts[i]);
-    cell->Points.SetPoint(i,this->Points->GetPoint(pts[i]));
+    cell->PointIds.InsertId(i,pts[i]);
+    cell->Points.InsertPoint(i,this->Points->GetPoint(pts[i]));
     }
 
   return cell;
