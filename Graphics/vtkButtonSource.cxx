@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkButtonSource, "1.2");
+vtkCxxRevisionMacro(vtkButtonSource, "1.3");
 vtkStandardNewMacro(vtkButtonSource);
 
 // Construct 
@@ -301,6 +301,7 @@ void vtkButtonSource::Execute()
 
   newPts->Delete();
   tcoords->Delete();
+  normals->Delete();
   newPolys->Delete();
 }
 
