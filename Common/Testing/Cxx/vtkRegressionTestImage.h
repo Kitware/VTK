@@ -54,6 +54,7 @@ int vtkRegressionTestImage2(int argc, char *argv[], vtkWindow *rw )
     rt_id->Delete(); 
     return 0;
     }
+  return 2;
 }
 
 #define vtkRegressionTestImage(rw) \
