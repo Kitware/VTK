@@ -109,6 +109,7 @@ IF (VTK_USE_RENDERING)
       TestGraphLayoutFilter
       testQuadricDecimation
       TestQuadricClustering
+      testReflect
       TestRuledSurface
       TestSpherePuzzle
       TestSpherePuzzleArrows
