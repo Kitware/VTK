@@ -102,4 +102,4 @@ puzzle MoveVertical 2 100 0
 puzzle MoveVertical 1 100 0
 
 
-
+renWin Render
