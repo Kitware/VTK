@@ -39,20 +39,20 @@ proc TestOne {cname} {
    set len [llength $methods]
    for {set i 0} {$i < $len} {incr i} {
       if {[regsub {^Get([A-za-z0-9]*)} [lindex $methods $i] {\1} name]} {
-         if {$i < $len - 1 && [lindex $methods [expr $i + 1]] != "with"} {
+         if {($i == $len - 1) || ($i < $len - 1 && [lindex $methods [expr $i + 1]] != "with")} {
             if {[lsearch $exceptions "$cname-[lindex $methods $i]"] == -1} {
                # invoke the GetMethod
-	       puts "  Invoking Get$name"
+	       #puts "  Invoking Get$name"
                set tmp [b Get$name]
                # find matching set method
                for {set j 0} {$j < $len} {incr j} {
                   if {[regexp "^Set$name" [lindex $methods $j]]} {
                      if {$j < $len - 3 && [lindex $methods [expr $j + 2]] == "1"} {
-                        puts "    Invoking Set$name"
+                        #puts "    Invoking Set$name"
                         catch {b Set$name $tmp}
                      }
                      if {$j < $len - 3 && [lindex $methods [expr $j + 2]] > 1} {
-                        puts "    Invoking Set$name"
+                        #puts "    Invoking Set$name"
                         catch {eval b Set$name $tmp}
                      }
                   }
@@ -87,7 +87,7 @@ proc rtSetGetTest { fileid } {
    foreach a $all {
       if {[lsearch $classExceptions $a] == -1} {
          # test some set get methods
-         puts "Testing -- $a"
+         #puts "Testing -- $a"
          TestOne $a
       }
    }
