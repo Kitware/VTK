@@ -130,7 +130,6 @@ proc check_header_file { filename } {
 
         set class_list($class_name.p) 1
       }
-
       if { [string match "*protected:*" $data] == 1 } {
         set protected_not_found 0
       }
@@ -161,6 +160,10 @@ proc check_header_file { filename } {
 
         if { $verbose >= 2 } {
           puts "    Class Name: $class_name"
+        }
+
+        if { [string compare $class_name ""] == 0 } {
+          puts "Problem with class definition in file $filename"
         }
 
         set first [string first "public" $data]
