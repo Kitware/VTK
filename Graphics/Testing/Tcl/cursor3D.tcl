@@ -11,7 +11,7 @@ vtkRenderWindowInteractor iren
 vtkPLOT3DReader reader
   reader SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
   reader SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"
-  reader SetScalarFunctionNumber 210
+  reader SetScalarFunctionNumber 110
   reader Update
 
   # create outline
