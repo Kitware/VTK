@@ -9,7 +9,7 @@ set sliceNumber 22
 # Image pipeline
 
 vtkImageSeriesReader reader
-reader SetFileTypeLittleEndian
+reader SetFileByteOrderToLittleEndian
 reader SetDataDimensions 256 256 93
 reader SetFilePrefix "../../../data/fullHead/headsq"
 reader SetPixelMask 0x7fff

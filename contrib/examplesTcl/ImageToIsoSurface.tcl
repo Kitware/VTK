@@ -19,7 +19,7 @@ vtkLight lgt
 vtkImageSeriesReader v16
     v16 SetDataDimensions 128 128 
     v16 SetDataOrigin 0.0 0.0 0.0
-    v16 SetFileTypeLittleEndian
+    v16 SetFileByteOrderToLittleEndian
     v16 SetFilePrefix "../../../data/headsq/half"
     v16 SetImageRange 1 90
     v16 SetDataAspectRatio 1.6 1.6 1.5

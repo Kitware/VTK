@@ -22,7 +22,7 @@ set prefix "/home/alyassin2/database/gems/CTangio/CW1/original/i7903CTGE"
 vtkImageSeriesReader reader
 #reader DebugOn
 	reader ReleaseDataFlagOff
-	reader SetFileTypeBigEndian
+	reader SetFileByteOrderToBigEndian
 	reader SetDataDimensions 512 512 $numslices 1
 	reader SetFilePrefix $prefix
 	reader SetPixelMask 0x7fff

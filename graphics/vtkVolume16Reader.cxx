@@ -54,7 +54,7 @@ vtkVolume16Reader::vtkVolume16Reader()
   this->Transform = NULL;
 }
 
-void vtkVolume16Reader::SetFileTypeBigEndian()
+void vtkVolume16Reader::SetFileByteOrderToBigEndian()
 {
 #ifndef WORDS_BIGENDIAN
   this->SwapBytesOn();
@@ -63,12 +63,50 @@ void vtkVolume16Reader::SetFileTypeBigEndian()
 #endif
 }
 
-void vtkVolume16Reader::SetFileTypeLittleEndian()
+void vtkVolume16Reader::SetFileByteOrderToLittleEndian()
 {
 #ifdef WORDS_BIGENDIAN
   this->SwapBytesOn();
 #else
   this->SwapBytesOff();
+#endif
+}
+
+void vtkVolume16Reader::SetFileByteOrder(int byteOrder)
+{
+  if ( byteOrder == VTK_FILE_BYTE_ORDER_BIG_ENDIAN )
+    this->SetFileByteOrderToBigEndian();
+  else
+    this->SetFileByteOrderToLittleEndian();
+}
+
+int vtkVolume16Reader::GetFileByteOrder()
+{
+#ifdef WORDS_BIGENDIAN
+  if ( this->SwapBytes )
+    return VTK_FILE_BYTE_ORDER_LITTLE_ENDIAN;
+  else
+    return VTK_FILE_BYTE_ORDER_BIG_ENDIAN;
+#else
+  if ( this->SwapBytes )
+    return VTK_FILE_BYTE_ORDER_BIG_ENDIAN;
+  else
+    return VTK_FILE_BYTE_ORDER_LITTLE_ENDIAN;
+#endif
+}
+
+char *vtkVolume16Reader::GetFileByteOrderAsString()
+{
+#ifdef WORDS_BIGENDIAN
+  if ( this->SwapBytes )
+    return "LittleEndian";
+  else
+    return "BigEndian";
+#else
+  if ( this->SwapBytes )
+    return "BigEndian";
+  else
+    return "LittleEndian";
 #endif
 }
 
@@ -494,9 +532,9 @@ void vtkVolume16Reader::TransformSlice (short *slice, short *pixels, int k, int 
         {
         ijk[0] = i;
         this->Transform->MultiplyPoint (ijk, transformedIjk);
-	xyz[0] = transformedIjk[0] - bounds[0];
-	xyz[1] = transformedIjk[1] - bounds[2];
-	xyz[2] = transformedIjk[2] - bounds[4];
+	xyz[0] = (int) ((float)transformedIjk[0] - bounds[0]);
+	xyz[1] = (int) ((float)transformedIjk[1] - bounds[2]);
+	xyz[2] = (int) ((float)transformedIjk[2] - bounds[4]);
         index = xyz[0] +
                 xyz[1] * xSize +
                 xyz[2] * xySize;
