@@ -22,7 +22,7 @@ void vlStructuredGridOutlineFilter::Execute()
   int i, j, k;
   int idx, gridIdx;
   vlPointData *pd;
-  int *dim, *pts;
+  int *dim, pts[2];
   vlFloatPoints *newPts;
   vlCellArray *newLines;
 
