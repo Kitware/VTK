@@ -44,7 +44,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkWindow.h"
 #include "vtkViewport.h"
 #include "vtkActor2D.h"
-#include <GL/gl.h>
+#ifdef VTK_USE_QUARTZ
+ #include <OpenGL/gl.h>
+#else
+ #include <GL/gl.h>
+#endif
 #include <limits.h>
 #include "vtkObjectFactory.h"
 #include "vtkgluPickMatrix.h"
