@@ -62,6 +62,7 @@ vtkImageToStructuredPoints::vtkImageToStructuredPoints()
     }
 
   this->Input = NULL;
+  this->VectorInput = NULL;
 }
 
 
