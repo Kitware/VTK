@@ -16,12 +16,13 @@
 
 #include "vtkEncodedGradientShader.h"
 #include "vtkFiniteDifferenceGradientEstimator.h"
+#include "vtkGarbageCollector.h"
 #include "vtkImageData.h"
 #include "vtkRenderer.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
-vtkCxxRevisionMacro(vtkVolumeTextureMapper, "1.28");
+vtkCxxRevisionMacro(vtkVolumeTextureMapper, "1.29");
 
 vtkVolumeTextureMapper::vtkVolumeTextureMapper()
 {
@@ -261,4 +262,28 @@ void vtkVolumeTextureMapper::PrintSelf(ostream& os, vtkIndent indent)
   // this->RenderWindow is a temporary variable that should not be printed
   // this->DataSpacing is a temporary variable that should not be printed
   // this->DataOrigin is a temporary variable that should not be printed
+}
+
+//----------------------------------------------------------------------------
+void vtkVolumeTextureMapper::ReportReferences(vtkGarbageCollector* collector)
+{
+  this->Superclass::ReportReferences(collector);
+#ifdef VTK_USE_EXECUTIVES
+  // These filters share our input and are therefore involved in a
+  // reference loop.
+  collector->ReportReference(this->GradientEstimator, "GradientEstimator");
+#endif
+}
+
+//----------------------------------------------------------------------------
+void vtkVolumeTextureMapper::RemoveReferences()
+{
+#ifdef VTK_USE_EXECUTIVES
+  if(this->GradientEstimator)
+    {
+    this->GradientEstimator->Delete();
+    this->GradientEstimator = 0;
+    }
+#endif
+  this->Superclass::RemoveReferences();
 }

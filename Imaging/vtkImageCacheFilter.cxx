@@ -19,7 +19,7 @@
 #include "vtkPointData.h"
 #include "vtkCachedStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageCacheFilter, "1.22");
+vtkCxxRevisionMacro(vtkImageCacheFilter, "1.23");
 vtkStandardNewMacro(vtkImageCacheFilter);
 
 //----------------------------------------------------------------------------
@@ -29,15 +29,19 @@ vtkImageCacheFilter::vtkImageCacheFilter()
   this->Data = NULL;
   this->Times = NULL;
   
+  vtkExecutive *exec = this->CreateDefaultExecutive();
+  this->SetExecutive(exec);
+  exec->Delete();
+
   this->SetCacheSize(10);
-  this->SetExecutive(this->CreateDefaultExecutive());
-  this->vtkSource::SetNthOutput(0,vtkImageData::New());
 }
 
 //----------------------------------------------------------------------------
 vtkImageCacheFilter::~vtkImageCacheFilter()
 {
+#ifndef VTK_USE_EXECUTIVES
   this->SetCacheSize(0);
+#endif
 }
 
 //----------------------------------------------------------------------------
@@ -128,7 +132,7 @@ void vtkImageCacheFilter::SetCacheSize(int size)
 #ifdef VTK_USE_EXECUTIVES
 //----------------------------------------------------------------------------
 // This method simply copies by reference the input data to the output.
-void vtkImageCacheFilter::ExecuteData(vtkDataObject *outObject)
+void vtkImageCacheFilter::ExecuteData(vtkDataObject *)
 {
 }
 #else

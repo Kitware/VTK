@@ -169,6 +169,9 @@ protected:
   vtkEncodedGradientEstimator();
   ~vtkEncodedGradientEstimator();
 
+  virtual void ReportReferences(vtkGarbageCollector*);
+  virtual void RemoveReferences();
+
   // The number of threads to use when encoding normals
   int                        NumberOfThreads;
 

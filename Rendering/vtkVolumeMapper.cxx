@@ -14,11 +14,12 @@
 =========================================================================*/
 #include "vtkVolumeMapper.h"
 
+#include "vtkGarbageCollector.h"
 #include "vtkImageClip.h"
 #include "vtkImageData.h"
 #include "vtkDataSet.h"
 
-vtkCxxRevisionMacro(vtkVolumeMapper, "1.52");
+vtkCxxRevisionMacro(vtkVolumeMapper, "1.53");
 
 // Construct a vtkVolumeMapper with empty scalar input and clipping off.
 vtkVolumeMapper::vtkVolumeMapper()
@@ -42,7 +43,11 @@ vtkVolumeMapper::vtkVolumeMapper()
 
 vtkVolumeMapper::~vtkVolumeMapper()
 {  
-  this->ImageClipper->Delete();
+  if (this->ImageClipper)
+    {
+    this->ImageClipper->Delete();
+    this->ImageClipper = 0;
+    }
 }
 
 void vtkVolumeMapper::ConvertCroppingRegionPlanesToVoxels()
@@ -157,3 +162,29 @@ void vtkVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
      << (this->UseImageClipper ? "On\n" : "Off\n");
 }
 
+//----------------------------------------------------------------------------
+void vtkVolumeMapper::ReportReferences(vtkGarbageCollector* collector)
+{
+  this->Superclass::ReportReferences(collector);
+#ifdef VTK_USE_EXECUTIVES
+  // These filters share our input and are therefore involved in a
+  // reference loop.
+  if (this->UseImageClipper)
+    {
+    collector->ReportReference(this->ImageClipper, "ImageClipper");
+    }
+#endif
+}
+
+//----------------------------------------------------------------------------
+void vtkVolumeMapper::RemoveReferences()
+{
+#ifdef VTK_USE_EXECUTIVES
+  if(this->ImageClipper)
+    {
+    this->ImageClipper->Delete();
+    this->ImageClipper = 0;
+    }
+#endif
+  this->Superclass::RemoveReferences();
+}

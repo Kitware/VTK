@@ -14,14 +14,15 @@
 =========================================================================*/
 #include "vtkEncodedGradientEstimator.h"
 
+#include "vtkGarbageCollector.h"
+#include "vtkImageData.h"
 #include "vtkMultiThreader.h"
 #include "vtkRecursiveSphereDirectionEncoder.h"
 #include "vtkTimerLog.h"
-#include "vtkImageData.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkEncodedGradientEstimator, "1.34");
+vtkCxxRevisionMacro(vtkEncodedGradientEstimator, "1.35");
 
 vtkCxxSetObjectMacro(vtkEncodedGradientEstimator, Input, vtkImageData );
 
@@ -367,4 +368,27 @@ void vtkEncodedGradientEstimator::PrintSelf(ostream& os, vtkIndent indent)
   // os << indent << " Input Aspect Clip: " 
   //    << this->InputAspect << endl;
   
+}
+
+//----------------------------------------------------------------------------
+void vtkEncodedGradientEstimator::ReportReferences(
+  vtkGarbageCollector* collector)
+{
+  this->Superclass::ReportReferences(collector);
+#ifdef VTK_USE_EXECUTIVES
+  collector->ReportReference(this->Input, "Input");
+#endif
+}
+
+//----------------------------------------------------------------------------
+void vtkEncodedGradientEstimator::RemoveReferences()
+{
+#ifdef VTK_USE_EXECUTIVES
+  if(this->Input)
+    {
+    this->Input->Delete();
+    this->Input = 0;
+    }
+#endif
+  this->Superclass::RemoveReferences();
 }

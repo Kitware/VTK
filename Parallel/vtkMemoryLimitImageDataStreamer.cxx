@@ -24,7 +24,7 @@
 #include "vtkPipelineSize.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkMemoryLimitImageDataStreamer, "1.9");
+vtkCxxRevisionMacro(vtkMemoryLimitImageDataStreamer, "1.10");
 vtkStandardNewMacro(vtkMemoryLimitImageDataStreamer);
 
 //----------------------------------------------------------------------------
@@ -200,6 +200,7 @@ int vtkMemoryLimitImageDataStreamer::ProcessUpstreamRequest(
       
       // undo the last *2
       this->NumberOfStreamDivisions = this->NumberOfStreamDivisions/2;
+      sizer->Delete();
       }    
     return
       this->Superclass::ProcessUpstreamRequest(request,
