@@ -63,6 +63,13 @@ float *vlScalars::GetRange()
   return this->Range;
 }
 
+void vlScalars::GetRange(float range[2])
+{
+  this->ComputeRange();
+  range[0] = this->Range[0];
+  range[1] = this->Range[1];
+}
+
 void vlScalars::PrintSelf(ostream& os, vlIndent indent)
 {
   float *range;

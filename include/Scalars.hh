@@ -68,6 +68,7 @@ public:
   void GetScalars(vlIdList& ptId, vlFloatScalars& fs);
   virtual void ComputeRange();
   float *GetRange();
+  void GetRange(float range[2]);
 
 protected:
   float Range[2];
