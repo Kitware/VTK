@@ -46,12 +46,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 template<class DType>
 class vtkAbstractList : public vtkContainer
 {
+public:
   // Description:
   // This is a prototype for a compare function. It has to
   // return true if objects are the same and false if not.
   typedef int (*CompareFunction)(DType item1, DType item2);
 
-public:
   // Description:
   // Append an Item to the end of the list
   virtual unsigned long AppendItem(DType a) = 0;
