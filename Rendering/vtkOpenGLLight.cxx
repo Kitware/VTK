@@ -108,6 +108,10 @@ void vtkOpenGLLight::Render(vtkRenderer *vtkNotUsed(ren),int light_index)
     Info[1]  = -dy;
     Info[2]  = -dz;
     Info[3]  = 0.0;
+
+    glLightf((GLenum)light_index, GL_SPOT_EXPONENT, 0);
+    glLightf((GLenum)light_index, GL_SPOT_CUTOFF, 180);
+
     glLightfv((GLenum)light_index, GL_POSITION, Info );
     }
   else
