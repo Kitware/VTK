@@ -152,12 +152,27 @@ protected:
   
   // The stream position at which appended data starts.
   unsigned long AppendedDataPosition;
+
+  //BTX
+  // We need a 32 bit unsigned integer type for platform-independent
+  // binary headers.  Note that this is duplicated in
+  // vtkXMLDataParser.h.
+#if VTK_SIZEOF_SHORT == 4
+  typedef unsigned short HeaderType;
+#elif VTK_SIZEOF_INT == 4
+  typedef unsigned int HeaderType;
+#elif VTK_SIZEOF_LONG == 4
+  typedef unsigned long HeaderType;
+#else
+# error "No native data type can represent an unsigned 32-bit integer."
+#endif
+  //ETX
   
   // Compression information.
   vtkDataCompressor* Compressor;
   unsigned int   BlockSize;  
   unsigned long  CompressionBlockNumber;
-  unsigned int*  CompressionHeader;
+  HeaderType*    CompressionHeader;
   unsigned int   CompressionHeaderLength;
   unsigned long  CompressionHeaderPosition;
   

@@ -27,7 +27,7 @@
 #include "vtkPoints.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.15");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.16");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 
 //----------------------------------------------------------------------------
@@ -533,11 +533,11 @@ int vtkXMLWriter::WriteBinaryDataInternal(void* data, unsigned long size)
   else
     {
     // No data compression.  Just write it.  Store the length first.
-    unsigned int length = size;
+    HeaderType length = size;
     unsigned char* p = reinterpret_cast<unsigned char*>(&length);
-    this->PerformByteSwap(p, 1, sizeof(unsigned int));
+    this->PerformByteSwap(p, 1, sizeof(HeaderType));
     if(!this->DataStream->StartWriting()) { return 0; }
-    if(!this->DataStream->Write(p, sizeof(unsigned int))) { return 0; }
+    if(!this->DataStream->Write(p, sizeof(HeaderType))) { return 0; }
     return (this->DataStream->Write(dataBuffer, size) &&
             this->DataStream->EndWriting());
     }
@@ -549,10 +549,10 @@ int vtkXMLWriter::CreateCompressionHeader(unsigned long size)
   // Allocate and initialize the compression header.
   // The format is this:
   //  struct header {
-  //    unsigned int number_of_blocks;
-  //    unsigned int uncompressed_block_size;
-  //    unsigned int uncompressed_last_block_size;
-  //    unsigned int compressed_block_sizes[number_of_blocks]; 
+  //    HeaderType number_of_blocks;
+  //    HeaderType uncompressed_block_size;
+  //    HeaderType uncompressed_last_block_size;
+  //    HeaderType compressed_block_sizes[number_of_blocks]; 
   //  }
  
   // Find the size and number of blocks.
@@ -563,7 +563,7 @@ int vtkXMLWriter::CreateCompressionHeader(unsigned long size)
   unsigned int headerLength = numBlocks+3;
   this->CompressionHeaderLength = headerLength;
   
-  this->CompressionHeader = new unsigned int[headerLength];
+  this->CompressionHeader = new HeaderType[headerLength];
   
   // Write out dummy header data.
   unsigned int i;
@@ -572,7 +572,7 @@ int vtkXMLWriter::CreateCompressionHeader(unsigned long size)
   this->CompressionHeaderPosition = this->Stream->tellp();
   unsigned char* ch =
     reinterpret_cast<unsigned char*>(this->CompressionHeader);
-  unsigned int chSize = this->CompressionHeaderLength*sizeof(unsigned int);
+  unsigned int chSize = (this->CompressionHeaderLength*sizeof(HeaderType));
   
   int result = (this->DataStream->StartWriting() &&
                 this->DataStream->Write(ch, chSize) &&
@@ -596,7 +596,7 @@ int vtkXMLWriter::WriteCompressionBlock(unsigned char* data,
   // Compress the data.
   vtkUnsignedCharArray* outputArray = this->Compressor->Compress(data, size);
   
-  unsigned long outputSize = outputArray->GetNumberOfTuples();
+  HeaderType outputSize = outputArray->GetNumberOfTuples();
   unsigned char* outputPointer = outputArray->GetPointer(0);
   
   // Write the compressed data.
@@ -618,12 +618,12 @@ int vtkXMLWriter::WriteCompressionHeader()
   
   // Need to byte-swap header.
   this->PerformByteSwap(this->CompressionHeader, this->CompressionHeaderLength,
-                        sizeof(unsigned int));
+                        sizeof(HeaderType));
   
   if(!this->Stream->seekp(this->CompressionHeaderPosition)) { return 0; }
   unsigned char* ch =
     reinterpret_cast<unsigned char*>(this->CompressionHeader);
-  unsigned int chSize = this->CompressionHeaderLength*sizeof(unsigned int);
+  unsigned int chSize = (this->CompressionHeaderLength*sizeof(HeaderType));
   int result = (this->DataStream->StartWriting() &&
                 this->DataStream->Write(ch, chSize) &&
                 this->DataStream->EndWriting());

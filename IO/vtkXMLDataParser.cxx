@@ -16,14 +16,15 @@
 
 =========================================================================*/
 #include "vtkXMLDataParser.h"
+
+#include "vtkBase64InputStream.h"
+#include "vtkByteSwap.h"
+#include "vtkDataCompressor.h"
+#include "vtkInputStream.h"
 #include "vtkObjectFactory.h"
 #include "vtkXMLDataElement.h"
-#include "vtkByteSwap.h"
-#include "vtkInputStream.h"
-#include "vtkBase64InputStream.h"
-#include "vtkDataCompressor.h"
 
-vtkCxxRevisionMacro(vtkXMLDataParser, "1.9");
+vtkCxxRevisionMacro(vtkXMLDataParser, "1.10");
 vtkStandardNewMacro(vtkXMLDataParser);
 vtkCxxSetObjectMacro(vtkXMLDataParser, Compressor, vtkDataCompressor);
 
@@ -404,7 +405,7 @@ void vtkXMLDataParser::PerformByteSwap(void* data, int numWords, int wordSize)
 //----------------------------------------------------------------------------
 void vtkXMLDataParser::ReadCompressionHeader()
 {  
-  unsigned int headerBuffer[3];
+  HeaderType headerBuffer[3];
   const int headerSize = sizeof(headerBuffer);
   unsigned char* buffer = reinterpret_cast<unsigned char*>(&headerBuffer[0]);
   
@@ -420,7 +421,7 @@ void vtkXMLDataParser::ReadCompressionHeader()
     }
   
   // Byte swap the header to make sure the values are correct.
-  this->PerformByteSwap(headerBuffer, 3, sizeof(unsigned int));
+  this->PerformByteSwap(headerBuffer, 3, sizeof(HeaderType));
   
   // Get the standard values.
   this->NumberOfBlocks = headerBuffer[0];
@@ -440,13 +441,13 @@ void vtkXMLDataParser::ReadCompressionHeader()
     }
   if(this->NumberOfBlocks > 0)
     {
-    this->BlockCompressedSizes = new unsigned int[this->NumberOfBlocks];
+    this->BlockCompressedSizes = new HeaderType[this->NumberOfBlocks];
     this->BlockStartOffsets = new unsigned long[this->NumberOfBlocks];
     
     buffer = reinterpret_cast<unsigned char*>(&this->BlockCompressedSizes[0]);
   
     // Read the compressed block sizes.
-    unsigned long len = this->NumberOfBlocks*sizeof(unsigned int);
+    unsigned long len = this->NumberOfBlocks*sizeof(HeaderType);
     if(this->DataStream->Read(buffer, len) < len)
       {
       vtkErrorMacro("Error reading compression header.");
@@ -454,7 +455,7 @@ void vtkXMLDataParser::ReadCompressionHeader()
       }
     
     // Byte swap the sizes to make sure the values are correct.
-    this->PerformByteSwap(buffer, this->NumberOfBlocks, sizeof(unsigned int));
+    this->PerformByteSwap(buffer, this->NumberOfBlocks, sizeof(HeaderType));
     }
   
   this->DataStream->EndReading();
@@ -521,8 +522,8 @@ unsigned long vtkXMLDataParser::ReadUncompressedData(unsigned char* data,
                                                      unsigned long length)
 {
   // First read the length of the data.
-  unsigned int size;
-  const unsigned long len = sizeof(unsigned int);
+  HeaderType size;
+  const unsigned long len = sizeof(HeaderType);
   unsigned char* p = reinterpret_cast<unsigned char*>(&size);
   if(this->DataStream->Read(p, len) < len) { return 0; }
   this->PerformByteSwap(&size, 1, len);
