@@ -75,7 +75,7 @@ typedef int vtkMutexType;
 
 //ETX
 
-class VTK_EXPORT vtkMutexLock
+class VTK_EXPORT vtkMutexLock : public vtkObject
 {
 public:
   vtkMutexLock();

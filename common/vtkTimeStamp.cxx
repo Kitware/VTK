@@ -46,12 +46,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 void vtkTimeStamp::Modified()
 {
-  static vtkMutexLock lock;
+  static vtkMutexLock *lock = vtkMutex::New();
   static unsigned long vtkTimeStampTime = 0; 
 
-  lock.Lock();
+  lock->Lock();
   this->ModifiedTime = ++vtkTimeStampTime;
-  lock.Unlock();
+  lock->Unlock();
 }
 
 

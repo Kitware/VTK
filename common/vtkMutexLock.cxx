@@ -108,4 +108,5 @@ void vtkMutexLock::Unlock()
 // Print method for vtkMutexLock
 void vtkMutexLock::PrintSelf(ostream& os, vtkIndent indent)
 {
+  vtkObject::PrintSelf(os,indent);  
 }
