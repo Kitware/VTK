@@ -1,5 +1,5 @@
 # A simple test for a vtkTkRenderWidget.  Run it like so:
-# python TestTkRenderWidget.py -B $VTK_DATA_ROOT/Baseline/
+# python TestTkRenderWidget.py -B $VTK_DATA_ROOT/Baseline/Rendering
 
 import os
 
@@ -43,7 +43,7 @@ class TestTkRenderWidget(Testing.vtkTest):
     def testvtkTkRenderWidget(self):
         "Test if vtkTkRenderWidget works."
         self.rw.Render()
-        img_file = os.path.join("Graphics", "Cone.png")
+        img_file = "TestTkRenderWidget.png"
         Testing.compareImage(self.rw, Testing.getAbsImagePath(img_file))
         Testing.interact()
 

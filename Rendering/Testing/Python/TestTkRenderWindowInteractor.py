@@ -1,5 +1,5 @@
 # A simple test for a vtkTkRenderWidget. Run it like so:
-# python TestTkRenderWindowInteractor.py -B $VTK_DATA_ROOT/Baseline/
+# python TestTkRenderWindowInteractor.py -B $VTK_DATA_ROOT/Baseline/Rendering
 
 import os
 import vtk
@@ -44,7 +44,7 @@ class TestTkRenderWindowInteractor(Testing.vtkTest):
         "Test if vtkTkRenderWindowInteractor works."
         self.tkrw.Start()
         self.tkrw.Render()
-        img_file = os.path.join("Graphics", "Cone.png")
+        img_file = "TestTkRenderWindowInteractor.png"
         Testing.compareImage(self.rw, Testing.getAbsImagePath(img_file))
         Testing.interact()
 
