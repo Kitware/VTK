@@ -37,7 +37,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.8");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.9");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 //----------------------------------------------------------------------------
@@ -333,7 +333,7 @@ int vtkDemandDrivenPipeline::UpdateData(int outputPort)
 
   // Make sure our outputs are up-to-date.
   int result = 1;
-  if(this->PipelineMTime > this->DataTime.GetMTime())
+  if(this->NeedToExecuteData(outputPort))
     {
     // Make sure inputs are valid before algorithm does anything.
     if(!this->InputCountIsValid() || !this->InputTypeIsValid() ||
@@ -898,4 +898,30 @@ void vtkDemandDrivenPipeline::RemoveReferences()
     this->GetOutputInformation(i)->Remove(vtkInformation::DATA_OBJECT());
     }
   this->Superclass::RemoveReferences();
+}
+
+//----------------------------------------------------------------------------
+int vtkDemandDrivenPipeline::NeedToExecuteData(int outputPort)
+{
+  // If the data are out of date, we need to execute.
+  if(this->PipelineMTime > this->DataTime.GetMTime())
+    {
+    return 1;
+    }
+
+  // If no port is specified, check all ports.  Subclass
+  // implementations might use the port number.
+  if(outputPort < 0)
+    {
+    for(int i=0; i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
+      {
+      if(this->NeedToExecuteData(i))
+        {
+        return 1;
+        }
+      }
+    }
+
+  // We do not need to execute.
+  return 0;
 }

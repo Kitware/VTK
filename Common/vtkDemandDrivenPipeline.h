@@ -94,7 +94,7 @@ protected:
   int DataSetAttributeExists(vtkDataSetAttributes* dsa, vtkInformation* field);
   int FieldArrayExists(vtkFieldData* data, vtkInformation* field);
   int ArrayIsValid(vtkDataArray* array, vtkInformation* field);
-  
+
   // Input port information checkers.
   int InputIsOptional(int port);
   int InputIsRepeatable(int port);
@@ -104,6 +104,9 @@ protected:
   // Support garbage collection.
   virtual void ReportReferences(vtkGarbageCollector*);
   virtual void RemoveReferences();
+
+  // Decide whether the output data need to be generated.
+  virtual int NeedToExecuteData(int outputPort);
 
   // Largest MTime of any algorithm on this executive or preceding
   // executives.

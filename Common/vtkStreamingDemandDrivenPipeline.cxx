@@ -24,7 +24,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.7");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.8");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 //----------------------------------------------------------------------------
@@ -182,7 +182,7 @@ int vtkStreamingDemandDrivenPipeline::PropagateUpdateExtent(int outputPort)
 
   // If we need to update data, propagate the update extent.
   int result = 1;
-  if(this->PipelineMTime > this->DataTime.GetMTime())
+  if(this->NeedToExecuteData(outputPort))
     {
     // Make sure input types are valid before algorithm does anything.
     if(!this->InputCountIsValid() || !this->InputTypeIsValid())
@@ -233,7 +233,7 @@ int vtkStreamingDemandDrivenPipeline::PropagateUpdateExtent(int outputPort)
 //----------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline::VerifyUpdateExtent(int outputPort)
 {
-  // Check all ports if index is below 0.
+  // If no port is specified, check all ports.
   if(outputPort < 0)
     {
     for(int i=0; i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
@@ -254,4 +254,47 @@ int vtkStreamingDemandDrivenPipeline::VerifyUpdateExtent(int outputPort)
     }
 #endif
   return 1;
+}
+
+
+//----------------------------------------------------------------------------
+int vtkStreamingDemandDrivenPipeline::NeedToExecuteData(int outputPort)
+{
+  // Does the superclass want to execute?
+  if(this->Superclass::NeedToExecuteData(outputPort))
+    {
+    return 1;
+    }
+
+  // If the update extent is outside of the extent, we need to execute.
+  if(outputPort >= 0)
+    {
+    vtkInformation* info = this->GetOutputInformation(outputPort);
+    if(!info->Has(vtkInformation::DATA_EXTENT()))
+      {
+      return 1;
+      }
+    if(info->Has(UPDATE_EXTENT()) && info->Has(vtkInformation::EXTENT_TYPE()))
+      {
+      if(info->Get(vtkInformation::EXTENT_TYPE()) == VTK_3D_EXTENT)
+        {
+        int dataExtent[6];
+        int updateExtent[6];
+        info->Get(vtkInformation::DATA_EXTENT(), dataExtent);
+        info->Get(UPDATE_EXTENT(), updateExtent);
+        if(updateExtent[0] < dataExtent[0] ||
+           updateExtent[1] > dataExtent[1] ||
+           updateExtent[2] < dataExtent[2] ||
+           updateExtent[3] > dataExtent[3] ||
+           updateExtent[4] < dataExtent[4] ||
+           updateExtent[5] > dataExtent[5])
+          {
+          return 1;
+          }
+        }
+      }
+    }
+
+  // We do not need to execute.
+  return 0;
 }
