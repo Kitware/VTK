@@ -591,11 +591,11 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
       vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereVTK,vals->m_WhereVTK);
     }
   fprintf(fp," /D \"_WINDLL\" /D \"_MBCS\" /D \"_USRDLL\" /D \"VTKDLL\"\\\n");
-  fprintf(fp," /Fo\"$(OUTDIR)/\" /c %s\\vtkdll\\StdAfx.cpp \\\n",
+  fprintf(fp," /Fo\"$(OUTDIR)/\" /c \"%s\\vtkdll\\StdAfx.cpp\" \\\n",
 	  vals->m_WhereVTK);
   fprintf(fp,"	\n");
   fprintf(fp,"\n");
-  fprintf(fp,"\"$(OUTDIR)\\StdAfx.obj\" : %s\\vtkdll\\StdAfx.cpp \"$(OUTDIR)\"\n",
+  fprintf(fp,"\"$(OUTDIR)\\StdAfx.obj\" : \"%s\\vtkdll\\StdAfx.cpp\" \"$(OUTDIR)\"\n",
 	  vals->m_WhereVTK);
   fprintf(fp,"   $(BuildCmds)\n");
   fprintf(fp,"\n");
@@ -604,18 +604,18 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
   vals->m_Progress.OffsetPos(1);
   fprintf(fp,"\"$(OUTDIR)\\vtkPCForce.obj\" : vtkPCForce.cxx $(DEPENDS) \"$(OUTDIR)\"\n");
   fprintf(fp,"  $(CPP) $(CPP_PROJ) vtkPCForce.cxx\n\n");
-  fprintf(fp,"\"$(OUTDIR)\\vtkdll.obj\" : %s\\vtkdll\\vtkdll.cpp \"$(OUTDIR)\"\n",
+  fprintf(fp,"\"$(OUTDIR)\\vtkdll.obj\" : \"%s\\vtkdll\\vtkdll.cpp\" \"$(OUTDIR)\"\n",
 	    vals->m_WhereVTK);
-  fprintf(fp,"  $(CPP) $(CPP_PROJ) %s\\vtkdll\\vtkdll.cpp\n\n",vals->m_WhereVTK);
+  fprintf(fp,"  $(CPP) $(CPP_PROJ) \"%s\\vtkdll\\vtkdll.cpp\"\n\n",vals->m_WhereVTK);
 
   for (i = 0; i < num_abstract; i++)
   {
     sprintf(file,"%s\\%s\\%s.cxx",vals->m_WhereVTK,abstract_lib[i],abstract[i]);
     OutputDepends(file,fp,vals->m_WhereVTK);
     vals->m_Progress.OffsetPos(1);
-    fprintf(fp,"\"$(OUTDIR)\\%s.obj\" : %s\\%s\\%s.cxx $(DEPENDS) \"$(OUTDIR)\"\n",
+    fprintf(fp,"\"$(OUTDIR)\\%s.obj\" : \"%s\\%s\\%s.cxx\" $(DEPENDS) \"$(OUTDIR)\"\n",
 	    abstract[i],vals->m_WhereVTK,abstract_lib[i],abstract[i]);
-    fprintf(fp,"  $(CPP) $(CPP_PROJ) %s\\%s\\%s.cxx\n\n",
+    fprintf(fp,"  $(CPP) $(CPP_PROJ) \"%s\\%s\\%s.cxx\"\n\n",
 		vals->m_WhereVTK,abstract_lib[i],abstract[i]);
   }
   for (i = 0; i < num_concrete; i++)
@@ -623,9 +623,9 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
     sprintf(file,"%s\\%s\\%s.cxx",vals->m_WhereVTK,concrete_lib[i],concrete[i]);
     OutputDepends(file,fp,vals->m_WhereVTK);
     vals->m_Progress.OffsetPos(1);
-    fprintf(fp,"\"$(OUTDIR)\\%s.obj\" : %s\\%s\\%s.cxx $(DEPENDS) \"$(OUTDIR)\"\n",
+    fprintf(fp,"\"$(OUTDIR)\\%s.obj\" : \"%s\\%s\\%s.cxx\" $(DEPENDS) \"$(OUTDIR)\"\n",
 	    concrete[i],vals->m_WhereVTK,concrete_lib[i],concrete[i]);
-    fprintf(fp,"  $(CPP) $(CPP_PROJ) %s\\%s\\%s.cxx\n\n",
+    fprintf(fp,"  $(CPP) $(CPP_PROJ) \"%s\\%s\\%s.cxx\"\n\n",
 	    vals->m_WhereVTK,concrete_lib[i],concrete[i]);
   }
   fprintf(fp,"################################################################################\n");
@@ -799,7 +799,10 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
   char file [256];
 
   fprintf(fp,"# VTK Generic makefile\n");
-  fprintf(fp,"CPP=cl.exe\n\n");
+  fprintf(fp,"CPP=cl.exe\n");
+  fprintf(fp,"PATH=$(PATH);\"%s\\pcmaker\\cpp_parse\\Debug\"\n",
+		vals->m_WhereVTK);
+  fprintf(fp,"CPP_PARSE=cpp_parse.exe\n");
   fprintf(fp,"OUTDIR=obj\n\n");
   fprintf(fp,"ALL : \"$(OUTDIR)\\vtktcl.dll\"\n\n");
 
@@ -894,14 +897,14 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
   fprintf(fp,"\n");
   fprintf(fp,"################################################################################\n");
   fprintf(fp,"\n");
-  fprintf(fp,"\"$(OUTDIR)\\vtkTclUtil.obj\" : %s\\common\\vtkTclUtil.cxx \"$(OUTDIR)\"\n",
+  fprintf(fp,"\"$(OUTDIR)\\vtkTclUtil.obj\" : \"%s\\common\\vtkTclUtil.cxx\" \"$(OUTDIR)\"\n",
 	  vals->m_WhereVTK);
   fprintf(fp,"  $(CPP) $(CPP_PROJ) \"%s\\common\\vtkTclUtil.cxx\"\n\n",vals->m_WhereVTK);
   if (vals->m_Graphics)
     {
     sprintf(file,"%s\\graphics\\vtkTkRenderWidget.cxx",vals->m_WhereVTK);
     OutputDepends(file,fp,vals->m_WhereVTK);
-    fprintf(fp,"\"$(OUTDIR)\\vtkTkRenderWidget.obj\" : %s\\graphics\\vtkTkRenderWidget.cxx $(DEPENDS) \"$(OUTDIR)\"\n",
+    fprintf(fp,"\"$(OUTDIR)\\vtkTkRenderWidget.obj\" : \"%s\\graphics\\vtkTkRenderWidget.cxx\" $(DEPENDS) \"$(OUTDIR)\"\n",
 	    vals->m_WhereVTK);
     fprintf(fp,"  $(CPP) $(CPP_PROJ) \"%s\\graphics\\vtkTkRenderWidget.cxx\"\n\n",vals->m_WhereVTK);
     }
@@ -917,9 +920,9 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
     vals->m_Progress.OffsetPos(1);
     fprintf(fp,"\"src\\%sTcl.cxx\" : \"%s\\%s\\%s.h\" \"%s\\common\\vtkTclUtil.h\" \"%s\\tcl\\cpp_parse.y\" \"$(OUTDIR)\"\n",
 		abstract[i],vals->m_WhereVTK,abstract_lib[i],abstract[i],vals->m_WhereVTK,vals->m_WhereVTK);
-    fprintf(fp,"   %s\\pcmaker\\cpp_parse\\Debug\\cpp_parse %s\\%s\\%s.h\\\n",
-		vals->m_WhereVTK, vals->m_WhereVTK, abstract_lib[i], abstract[i]);
-    fprintf(fp,"  %s\\tcl\\hints 0 > src\\%sTcl.cxx\n\n",
+    fprintf(fp," $(CPP_PARSE)  \"%s\\%s\\%s.h\"\\\n",
+		vals->m_WhereVTK, abstract_lib[i], abstract[i]);
+    fprintf(fp,"  \"%s\\tcl\\hints\" 0 > src\\%sTcl.cxx\n\n",
 		vals->m_WhereVTK, abstract[i]);
     fprintf(fp,"\"$(OUTDIR)\\%sTcl.obj\" : src\\%sTcl.cxx $(DEPENDS) \"$(OUTDIR)\"\n",
 		abstract[i],abstract[i]);
@@ -931,11 +934,11 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
     sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,concrete_lib[i],concrete[i]);
     OutputDepends(file,fp,vals->m_WhereVTK);
     vals->m_Progress.OffsetPos(1);
-    fprintf(fp,"\"src\\%sTcl.cxx\" : %s\\%s\\%s.h \"%s\\common\\vtkTclUtil.h\" \"%s\\tcl\\cpp_parse.y\" \"$(OUTDIR)\"\n",
+    fprintf(fp,"\"src\\%sTcl.cxx\" : \"%s\\%s\\%s.h\" \"%s\\common\\vtkTclUtil.h\" \"%s\\tcl\\cpp_parse.y\" \"$(OUTDIR)\"\n",
 		concrete[i],vals->m_WhereVTK,concrete_lib[i],concrete[i],vals->m_WhereVTK,vals->m_WhereVTK);
-    fprintf(fp,"   %s\\pcmaker\\cpp_parse\\Debug\\cpp_parse %s\\%s\\%s.h\\\n",
-		vals->m_WhereVTK, vals->m_WhereVTK, concrete_lib[i], concrete[i]);
-    fprintf(fp,"  %s\\tcl\\hints 1 > src\\%sTcl.cxx\n\n",
+    fprintf(fp," $(CPP_PARSE) \"%s\\%s\\%s.h\"\\\n",
+		vals->m_WhereVTK, concrete_lib[i], concrete[i]);
+    fprintf(fp,"  \"%s\\tcl\\hints\" 1 > src\\%sTcl.cxx\n\n",
 		vals->m_WhereVTK, concrete[i]);
     fprintf(fp,"\"$(OUTDIR)\\%sTcl.obj\" : src\\%sTcl.cxx $(DEPENDS) \"$(OUTDIR)\"\n",
 		concrete[i],concrete[i]);
@@ -947,11 +950,11 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
     sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,abstract_h_lib[i],abstract_h[i]);
     OutputDepends(file,fp,vals->m_WhereVTK);
     vals->m_Progress.OffsetPos(1);
-    fprintf(fp,"\"src\\%sTcl.cxx\" : %s\\%s\\%s.h \"%s\\common\\vtkTclUtil.h\" \"%s\\tcl\\cpp_parse.y\" \"$(OUTDIR)\"\n",
+    fprintf(fp,"\"src\\%sTcl.cxx\" : \"%s\\%s\\%s.h\" \"%s\\common\\vtkTclUtil.h\" \"%s\\tcl\\cpp_parse.y\" \"$(OUTDIR)\"\n",
 		abstract_h[i],vals->m_WhereVTK,abstract_h_lib[i],abstract_h[i],vals->m_WhereVTK,vals->m_WhereVTK);
-    fprintf(fp,"   %s\\pcmaker\\cpp_parse\\Debug\\cpp_parse %s\\%s\\%s.h\\\n",
-		vals->m_WhereVTK, vals->m_WhereVTK, abstract_h_lib[i], abstract_h[i]);
-    fprintf(fp,"  %s\\tcl\\hints 0 > src\\%sTcl.cxx\n\n",
+    fprintf(fp," $(CPP_PARSE) \"%s\\%s\\%s.h\"\\\n",
+		vals->m_WhereVTK, abstract_h_lib[i], abstract_h[i]);
+    fprintf(fp,"  \"%s\\tcl\\hints\" 0 > src\\%sTcl.cxx\n\n",
 		vals->m_WhereVTK, abstract_h[i]);
     fprintf(fp,"\"$(OUTDIR)\\%sTcl.obj\" : src\\%sTcl.cxx $(DEPENDS) \"$(OUTDIR)\"\n",
 		abstract_h[i],abstract_h[i]);
@@ -963,11 +966,11 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
     sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,concrete_h_lib[i],concrete_h[i]);
     OutputDepends(file,fp,vals->m_WhereVTK);
     vals->m_Progress.OffsetPos(1);
-    fprintf(fp,"\"src\\%sTcl.cxx\" : %s\\%s\\%s.h \"%s\\common\\vtkTclUtil.h\" \"%s\\tcl\\cpp_parse.y\" \"$(OUTDIR)\"\n",
+    fprintf(fp,"\"src\\%sTcl.cxx\" : \"%s\\%s\\%s.h\" \"%s\\common\\vtkTclUtil.h\" \"%s\\tcl\\cpp_parse.y\" \"$(OUTDIR)\"\n",
 		concrete_h[i],vals->m_WhereVTK,concrete_h_lib[i],concrete_h[i],vals->m_WhereVTK,vals->m_WhereVTK);
-    fprintf(fp,"   %s\\pcmaker\\cpp_parse\\Debug\\cpp_parse %s\\%s\\%s.h\\\n",
-		vals->m_WhereVTK, vals->m_WhereVTK, concrete_h_lib[i], concrete_h[i]);
-    fprintf(fp,"  %s\\tcl\\hints 1 > src\\%sTcl.cxx\n\n",
+    fprintf(fp," $(CPP_PARSE) \"%s\\%s\\%s.h\"\\\n",
+		vals->m_WhereVTK, concrete_h_lib[i], concrete_h[i]);
+    fprintf(fp,"  \"%s\\tcl\\hints\" 1 > src\\%sTcl.cxx\n\n",
 		vals->m_WhereVTK, concrete_h[i]);
     fprintf(fp,"\"$(OUTDIR)\\%sTcl.obj\" : src\\%sTcl.cxx $(DEPENDS) \"$(OUTDIR)\"\n",
 		concrete_h[i],concrete_h[i]);
