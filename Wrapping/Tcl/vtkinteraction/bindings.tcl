@@ -154,7 +154,7 @@ namespace eval ::vtk {
         # [tk windowingsystem] can be x11, win32, classic, aqua
         # Unfortunately this call only appear recently
         # so for now remove it
-        # if {[tk windowingsystem] == "x11"} {
+        # if {[tk windowingsystem] == "x11"} 
         if {$tcl_platform(platform) == "unix"} {
             bind $vtkw <Button-4> \
                     "::vtk::cb_vtkw_wheel_motion_binding $vtkw $renwin 1"
