@@ -1170,13 +1170,14 @@ int vtkVolumeRayCastMapper::ComputeRowBounds(vtkVolume   *vol,
   float viewPoint[8][4];
   int i, j, k;
   unsigned char *ucptr;
-  float minX, minY, maxX, maxY, minZ;
+  float minX, minY, maxX, maxY, minZ, maxZ;
 
   minX =  1.0;
   minY =  1.0;
   maxX = -1.0;
   maxY = -1.0;
   minZ =  1.0;
+  maxZ =  0.0;
   
   float bounds[6];
   int dim[3];
@@ -1236,6 +1237,7 @@ int vtkVolumeRayCastMapper::ComputeRowBounds(vtkVolume   *vol,
     minY = -1.0;
     maxY =  1.0;
     minZ =  0.001;
+    maxZ =  0.001;
     }
   else
     {
@@ -1256,13 +1258,24 @@ int vtkVolumeRayCastMapper::ComputeRowBounds(vtkVolume   *vol,
           maxX = (viewPoint[idx][0]>maxX)?(viewPoint[idx][0]):(maxX);
           maxY = (viewPoint[idx][1]>maxY)?(viewPoint[idx][1]):(maxY);
           minZ = (viewPoint[idx][2]<minZ)?(viewPoint[idx][2]):(minZ);
+          maxZ = (viewPoint[idx][2]>maxZ)?(viewPoint[idx][2]):(maxZ);
           idx++;
           }
         }
       }
     }
   
-  this->MinimumViewDistance = (minZ<0.001)?(0.001):((minZ>0.999)?(0.999):(minZ));
+  if ( minZ < 0.001 || maxZ > 0.9999 )
+    {
+    minX = -1.0;
+    maxX =  1.0;
+    minY = -1.0;
+    maxY =  1.0;
+    insideFlag = 1;
+    }
+  
+  this->MinimumViewDistance = 
+    (minZ<0.001)?(0.001):((minZ>0.999)?(0.999):(minZ));
   
   // We have min/max values from -1.0 to 1.0 now - we want to convert 
   // these to pixel locations. Give a couple of pixels of breathing room
