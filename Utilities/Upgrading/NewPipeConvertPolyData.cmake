@@ -59,7 +59,7 @@ IF ("${CXX_CONTENTS}" MATCHES ".*vtkInformation.*")
   IF (NOT "${CXX_CONTENTS}" MATCHES ".*vtkInformation.h.*")
     STRING (REGEX REPLACE  
       "vtkObjectFactory.h"
-      "vtkInformation.h\"\n#include \"vtkInformationVector.h\"\n#include \"vtkObjectFactory.h\"\n#include \"vtkStreamingDemandDrivenPipeline.h"
+      "vtkInformation.h\"\n#include \"vtkInformationVector.h\"\n#include \"vtkObjectFactory.h"
       CXX_CONTENTS "${CXX_CONTENTS}")
   ENDIF (NOT "${CXX_CONTENTS}" MATCHES ".*vtkInformation.h.*")
 ENDIF ("${CXX_CONTENTS}" MATCHES ".*vtkInformation.*")
