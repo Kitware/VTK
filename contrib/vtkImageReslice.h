@@ -49,7 +49,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // perspective, or warp transformation to a volume.
 // <p>This class is the swiss-army-knife of image geometry filters:  
 // It can permute, flip, rotate, scale, resample, and pad image data 
-// in any combination at close to the efficiency of the specialized
+// in any combination at similar efficiency to the specialized
 // image filters that do the same things.
 // .SECTION Caveats
 // This filter is very inefficient if the output X dimension is 1.
@@ -80,18 +80,23 @@ public:
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Use this method, in conjunction with SetResliceOrigin(), 
-  // SetResliceSpacing() and SetResliceExtent(), to set up a
+  // Use this method, in conjunction with SetOutputOrigin(), 
+  // SetOutputSpacing() and SetOutputExtent(), to set up a
   // grid of points at which to resample the input.  
   // <p>The Axes specify the axes of the resampling grid, 
-  // the ResliceSpacing specifies the grid spacing,
-  // the ResliceOrigin() specifies the location of the origin of 
+  // the OutputSpacing specifies the grid spacing,
+  // the OutputOrigin specifies the location of the origin of 
   // the grid (i.e the coordinates of voxel index (0,0,0) 
   // in the coordinate system specified by
-  // the Axes), and the ResliceExtent() specifies the size of
+  // the Axes), and the OutputExtent specifies the size of
   // resampling grid i.e. the ranges of the (i,j,k) indices.
-  // <p>The matrix can specify a perspective transformation, but
-  // the matrix must be invertible.
+  // <p>The first column of the matrix specifies the x-axis 
+  // vector (set the fourth element to zero), the second
+  // column specifies the y-axis, and the third column the
+  // z-axis.  The fourth column specifies the origin of the
+  // axes (set the fourth element to one).  The matrix can be used
+  // to specify a perspective transformation (i.e. non-zero fourth
+  // elements for the axes), but the matrix must be invertible.  
   vtkSetObjectMacro(ResliceAxes,vtkMatrix4x4);
   vtkGetObjectMacro(ResliceAxes,vtkMatrix4x4);
 
