@@ -21,7 +21,7 @@
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkSplineFilter, "1.4");
+vtkCxxRevisionMacro(vtkSplineFilter, "1.5");
 vtkStandardNewMacro(vtkSplineFilter);
 
 vtkSplineFilter::vtkSplineFilter()
@@ -343,6 +343,8 @@ const char *vtkSplineFilter::GetGenerateTCoordsAsString(void)
 
 void vtkSplineFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
+  this->Superclass::PrintSelf(os,indent);
+
   os << indent << "Subdivide: :" << this->GetSubdivideAsString() << "\n";
   os << indent << "Maximum Number of Subdivisions: "
      << this->MaximumNumberOfSubdivisions << "\n";
