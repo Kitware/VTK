@@ -85,6 +85,7 @@ public:
 		   int tag);
   virtual int Send(char* data, int length, int remoteThreadId, int tag);
   virtual int Send(float* data, int length, int remoteThreadId, int tag);
+  virtual int Send(double* data, int length, int remoteThreadId, int tag);
   virtual int Send(vtkDataObject* data, int remoteThreadId, int tag);
 
   // Description:
@@ -99,11 +100,13 @@ public:
 		      int tag);
   virtual int Receive(float* data, int length, int remoteThreadId, 
 		      int tag);
+  virtual int Receive(double* data, int length, int remoteThreadId, 
+		      int tag);
   virtual int Receive(vtkDataObject *data, int remoteThreadId, int tag);
 
 //BTX
 
-  friend vtkThreadedController;
+  friend class vtkThreadedController;
 
 //ETX
 
