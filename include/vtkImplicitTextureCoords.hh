@@ -42,10 +42,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkImplicitTextureCoords is a filter to generate 1D, 2D, or 3D texture 
 // coordinates from one, two, or three implicit functions, respectively. 
-// In combinations with a vtkBooleanTexture map, the texture coordinates 
-// can be used to highlight (via color or intensity) or cut (via 
-// transparency) dataset geometry without any complex geometric processing. 
-// (Note: the texture coordinates are referred to as r-s-t coordinates.)
+// In combinations with a vtkBooleanTexture map (or another texture map of
+// your own creation), the texture coordinates can be used to highlight
+//(via color or intensity) or cut (via transparency) dataset geometry without
+// any complex geometric processing. (Note: the texture coordinates are 
+// referred to as r-s-t coordinates.)
 //
 // The texture coordinates are automatically normalized to lie between (0,1). 
 // Thus, no matter what the implicit functions evaluate to, the resulting 
@@ -64,8 +65,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // orient, translate, and scale the implicit functions. Also, the dimension of 
 // the texture coordinates is implicitly defined by the number of implicit 
 // functions defined.
+
 // .SECTION See Also
-// vtkImplicitFunction vtkTexture vtkBooleanTexture
+// vtkImplicitFunction vtkTexture vtkBooleanTexture vtkTransformTexture
 
 #ifndef __vtkImplicitTextureCoords_h
 #define __vtkImplicitTextureCoords_h
@@ -96,7 +98,8 @@ public:
   vtkGetObjectMacro(TFunction,vtkImplicitFunction);
 
   // Description:
-  // Specify an implicit function to compute the t texture coordinate.
+  // If enabled, this will flip the sense of inside and outside the implicit
+  // function (i.e., a rotation around the r-s-t=0.5 axis).
   vtkSetMacro(FlipTexture,int);
   vtkGetMacro(FlipTexture,int);
   vtkBooleanMacro(FlipTexture,int);
