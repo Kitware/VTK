@@ -841,7 +841,7 @@ void vtkAppendPolyData::AppendData(vtkDataArray *dest, vtkDataArray *src,
 void vtkAppendPolyData::AppendDifferentPoints(vtkDataArray *dest, vtkDataArray *src,
                                                         int offset)
 {
-  float  *fSrc, *fDest;
+  float  *fSrc;
   double *dSrc, *dDest;
   int p;
 
