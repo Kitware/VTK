@@ -62,31 +62,31 @@ public:
   // Retrieve the key from the iterator. For lists, the key is the
   // index of the element.
   // This method returns VTK_OK if key was retrieved correctly.
-  virtual int GetKey(KeyType&) = 0;
+  //virtual int GetKey(KeyType&) = 0;
   
   // Description:
   // Retrieve the data from the iterator. 
   // This method returns VTK_OK if key was retrieved correctly.
-  virtual int GetData(DataType&) = 0;
+  //virtual int GetData(DataType&) = 0;
 
   // Description:
   // Set the container for this iterator.
-  virtual void SetContainer(vtkContainer*);
+  void SetContainer(vtkContainer*);
 
   // Description:
   // Initialize the traversal of the container. 
   // Set the iterator to the "beginning" of the container.
-  virtual void InitTraversal()=0;
+  //virtual void InitTraversal()=0;
 
   // Description:
   // Check if the iterator is at the end of the container. Return 
   // VTK_OK if it is.
-  virtual int IsDoneWithTraversal()=0;
+  //virtual int IsDoneWithTraversal()=0;
 
   // Description:
   // Increment the iterator to the next location.
   // Return VTK_OK if everything is ok.
-  virtual int GoToNextItem() = 0;
+  //virtual int GoToNextItem() = 0;
 
 protected:
   vtkAbstractIterator();

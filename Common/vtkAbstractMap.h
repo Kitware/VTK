@@ -80,7 +80,7 @@ public:
   // Description:
   // Return an iterator to the list. This iterator is allocated using
   // New, so the developer is responsible for deleating it.
-  virtual vtkAbstractIterator<KeyType,DataType> *NewIterator() = 0;
+  //virtual vtkAbstractIterator<KeyType,DataType> *NewIterator() = 0;
 
   typedef vtkContainer Superclass; 
   virtual const char *GetClassName() 
@@ -102,23 +102,23 @@ public:
   // Sets the item at with specific key to data.
   // It overwrites the old item.
   // It returns VTK_OK if successfull.
-  virtual int SetItem(const KeyType& key, const DataType& data) = 0;
+  //virtual int SetItem(const KeyType& key, const DataType& data) = 0;
   
   // Description:
   // Remove an Item with the key from the map.
   // It returns VTK_OK if successfull.
-  virtual int RemoveItem(const KeyType& key) = 0;
+  //virtual int RemoveItem(const KeyType& key) = 0;
   
   // Description:
   // Return the data asociated with the key.
   // It returns VTK_OK if successfull.
-  virtual int GetItem(const KeyType& key, DataType& data) = 0;
+  //virtual int GetItem(const KeyType& key, DataType& data) = 0;
   
   // Description:
   // Return the number of items currently held in this container. This
   // different from GetSize which is provided for some containers. GetSize
   // will return how many items the container can currently hold.
-  virtual vtkIdType GetNumberOfItems() = 0;  
+  //virtual vtkIdType GetNumberOfItems() = 0;  
 
 protected:
   vtkAbstractMap();

@@ -77,68 +77,68 @@ public:
   // Description:
   // Append an Item to the end of the list.
   // It returns VTK_OK if successfull.
-  virtual int AppendItem(DType a) = 0;
+  //virtual int AppendItem(DType a) = 0;
   
   // Description:
   // Insert an Item to the front of the list.
   // It returns VTK_OK if successfull.
-  virtual int PrependItem(DType a) = 0;
+  //virtual int PrependItem(DType a) = 0;
   
   // Description:
   // Insert an Item to the specific location in the list.
   // It returns VTK_OK if successfull.
-  virtual int InsertItem(vtkIdType loc, DType a) = 0;
+  //virtual int InsertItem(vtkIdType loc, DType a) = 0;
   
   // Description:
   // Sets the Item at the specific location in the list to a new value.
   // It also checks if the item can be set.
   // It returns VTK_OK if successfull.
-  virtual int SetItem(vtkIdType loc, DType a) = 0;
+  //virtual int SetItem(vtkIdType loc, DType a) = 0;
   
   // Description:
   // Sets the Item at the specific location in the list to a new value.
   // This method does not perform any error checking.
-  virtual void SetItemNoCheck(vtkIdType loc, DType a) = 0;
+  //virtual void SetItemNoCheck(vtkIdType loc, DType a) = 0;
 
   // Description:
   // Remove an Item from the list
   // It returns VTK_OK if successfull.
-  virtual int RemoveItem(vtkIdType id) = 0;
+  //virtual int RemoveItem(vtkIdType id) = 0;
   
   // Description:
   // Return an item that was previously added to this list. 
   // It returns VTK_OK if successfull.
-  virtual int GetItem(vtkIdType id, DType& ret) = 0;
+  //virtual int GetItem(vtkIdType id, DType& ret) = 0;
       
   // Description:
   // Find an item in the list. Return one if it was found, zero if it was
   // not found. The location of the item is returned in res.
   // It returns VTK_OK if successfull.
-  virtual int FindItem(DType a, vtkIdType &res) = 0;
+  //virtual int FindItem(DType a, vtkIdType &res) = 0;
 
   // Description:
   // Find an item in the list using a comparison routine. 
   // Return one if it was found, zero if it was
   // not found. The location of the item is returned in res.
   // It returns VTK_OK if successfull.
-  virtual int FindItem(DType a, CompareFunctionType compare, 
-                       vtkIdType &res) = 0;
+  //virtual int FindItem(DType a, CompareFunctionType compare, 
+  //                     vtkIdType &res) = 0;
 
   // Description:
   // Set the capacity of the list.
   // It returns VTK_OK if successfull.
-  virtual int SetSize(vtkIdType size) = 0;
+  //virtual int SetSize(vtkIdType size) = 0;
   
   // Description:
   // Return the number of items currently held in this container. This
   // different from GetSize which is provided for some containers. GetSize
   // will return how many items the container can currently hold.
-  virtual vtkIdType GetNumberOfItems() = 0;
+  //virtual vtkIdType GetNumberOfItems() = 0;
   
   // Description:
   // Returns the number of items the container can currently hold.
   // This is the capacity of the container.
-  virtual vtkIdType GetSize() = 0;
+  //virtual vtkIdType GetSize() = 0;
 
 protected:
   vtkAbstractList();

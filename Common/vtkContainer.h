@@ -84,11 +84,11 @@ public:
   // Return the number of items currently held in this container. This
   // different from GetSize which is provided for some containers. GetSize
   // will return how many items the container can currently hold.
-  virtual vtkIdType GetNumberOfItems() = 0;
+  //virtual vtkIdType GetNumberOfItems() = 0;
   
   // Description:
   // Removes all items from the container.
-  virtual void RemoveAllItems() = 0;
+  //virtual void RemoveAllItems() = 0;
   
   // Description:
   // The counterpart to New(), Delete simply calls UnRegister to lower the
