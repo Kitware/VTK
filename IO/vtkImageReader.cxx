@@ -23,7 +23,7 @@
 #include <ctype.h>
 #include <string.h>
 
-vtkCxxRevisionMacro(vtkImageReader, "1.95");
+vtkCxxRevisionMacro(vtkImageReader, "1.96");
 vtkStandardNewMacro(vtkImageReader);
 
 #ifdef read
@@ -377,10 +377,6 @@ void vtkImageReader::ExecuteData(vtkDataObject *output)
   void *ptr = NULL;
   int *ext;
 
-  void *ptrFileName = this->FileName;
-  void *ptrFilePattern = this->FilePattern;
-
-  
   if (!this->FileName && !this->FilePattern)
     {
     vtkErrorMacro("Either a valid FileName or FilePattern must be specified.");
