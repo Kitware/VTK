@@ -16,6 +16,7 @@ vtkRenderWindowInteractor iren
   iren SetRenderWindow renWin
 
 # create a scene with one of each cell type
+# Voxel
 
 vtkPoints voxelPoints
   voxelPoints SetNumberOfPoints 8
@@ -75,6 +76,8 @@ vtkActor aVoxelActor
 vtkActor aVoxelContourActor
   aVoxelContourActor SetMapper aVoxelContourMapper
   [aVoxelContourActor GetProperty] BackfaceCullingOn
+
+# Hexahedron
 
 vtkPoints hexahedronPoints
   hexahedronPoints SetNumberOfPoints 8
@@ -136,6 +139,7 @@ vtkActor aHexahedronContourActor
   aHexahedronContourActor SetMapper aHexahedronContourMapper
   [aHexahedronContourActor GetProperty] BackfaceCullingOn
 
+# Tetra
 
 vtkPoints tetraPoints
   tetraPoints SetNumberOfPoints 4
@@ -182,6 +186,7 @@ vtkActor aTetraActor
   aTetraActor SetMapper aTetraMapper
   [aTetraActor GetProperty] SetRepresentationToWireframe
 
+# Wedge
 
 vtkPoints wedgePoints
   wedgePoints SetNumberOfPoints 6
@@ -235,6 +240,7 @@ vtkActor aWedgeActor
   aWedgeActor SetMapper aWedgeMapper
   [aWedgeActor GetProperty] SetRepresentationToWireframe
 
+# Pyramid
 
 vtkPoints pyramidPoints
   pyramidPoints SetNumberOfPoints 5
@@ -285,6 +291,7 @@ vtkActor aPyramidActor
   aPyramidActor SetMapper aPyramidMapper
   [aPyramidActor GetProperty] SetRepresentationToWireframe
 
+# Pixel
 
 vtkPoints pixelPoints
   pixelPoints SetNumberOfPoints 4
@@ -332,6 +339,7 @@ vtkActor aPixelActor
   [aPixelActor GetProperty] BackfaceCullingOn
   [aPixelActor GetProperty] SetRepresentationToWireframe
 
+# Quad
 
 vtkPoints quadPoints
   quadPoints SetNumberOfPoints 4
@@ -379,6 +387,7 @@ vtkActor aQuadActor
   [aQuadActor GetProperty] BackfaceCullingOn
   [aQuadActor GetProperty] SetRepresentationToWireframe
 
+# Triangle
 
 vtkPoints trianglePoints
   trianglePoints SetNumberOfPoints 3
@@ -423,6 +432,7 @@ vtkActor aTriangleActor
   [aTriangleActor GetProperty] BackfaceCullingOn
   [aTriangleActor GetProperty] SetRepresentationToWireframe
 
+# Polygon
 
 vtkPoints polygonPoints
   polygonPoints SetNumberOfPoints 4
@@ -471,6 +481,7 @@ vtkActor aPolygonActor
   [aPolygonActor GetProperty] BackfaceCullingOn
   [aPolygonActor GetProperty] SetRepresentationToWireframe
 
+# Triangle strip
 
 vtkPoints triangleStripPoints
   triangleStripPoints SetNumberOfPoints 5
@@ -522,6 +533,8 @@ vtkActor aTriangleStripActor
   [aTriangleStripActor GetProperty] BackfaceCullingOn
   [aTriangleStripActor GetProperty] SetRepresentationToWireframe
 
+# Line
+
 vtkPoints linePoints
   linePoints SetNumberOfPoints 2
   linePoints InsertPoint 0 0 0 0
@@ -562,6 +575,7 @@ vtkActor aLineActor
   [aLineActor GetProperty] BackfaceCullingOn
   [aLineActor GetProperty] SetRepresentationToWireframe
 
+# Polyline
 
 vtkPoints polyLinePoints
   polyLinePoints SetNumberOfPoints 3
@@ -607,6 +621,7 @@ vtkActor aPolyLineActor
   [aPolyLineActor GetProperty] BackfaceCullingOn
   [aPolyLineActor GetProperty] SetRepresentationToWireframe
 
+# Vertex
 
 vtkPoints vertexPoints
   vertexPoints SetNumberOfPoints 1
@@ -645,6 +660,7 @@ vtkActor aVertexActor
   aVertexActor SetMapper aVertexMapper
   [aVertexActor GetProperty] BackfaceCullingOn
 
+# Poly Vertex
 
 vtkPoints polyVertexPoints
   polyVertexPoints SetNumberOfPoints 3
@@ -689,6 +705,150 @@ vtkDataSetMapper aPolyVertexMapper
 vtkActor aPolyVertexActor
   aPolyVertexActor SetMapper aPolyVertexMapper
 
+# Pentagonal prism
+
+vtkPoints pentaPoints
+  pentaPoints SetNumberOfPoints 10
+  pentaPoints InsertPoint 0 0.25 0.0 0.0  
+  pentaPoints InsertPoint 1 0.75 0.0 0.0 
+  pentaPoints InsertPoint 2 1.0  0.5 0.0  
+  pentaPoints InsertPoint 3 0.5  1.0 0.0 
+  pentaPoints InsertPoint 4 0.0  0.5 0.0  
+  pentaPoints InsertPoint 5 0.25 0.0 1.0  
+  pentaPoints InsertPoint 6 0.75 0.0 1.0  
+  pentaPoints InsertPoint 7 1.0  0.5 1.0  
+  pentaPoints InsertPoint 8 0.5  1.0 1.0 
+  pentaPoints InsertPoint 9 0.0  0.5 1.0 
+
+vtkFloatArray pentaScalars
+  pentaScalars SetNumberOfTuples 10
+  pentaScalars InsertValue 0 0
+  pentaScalars InsertValue 1 0
+  pentaScalars InsertValue 2 0
+  pentaScalars InsertValue 3 0
+  pentaScalars InsertValue 4 0
+  pentaScalars InsertValue 5 1
+  pentaScalars InsertValue 6 1
+  pentaScalars InsertValue 7 1
+  pentaScalars InsertValue 8 1
+  pentaScalars InsertValue 9 1
+
+vtkPentagonalPrism aPenta
+  [aPenta GetPointIds] SetId 0 0
+  [aPenta GetPointIds] SetId 1 1
+  [aPenta GetPointIds] SetId 2 2
+  [aPenta GetPointIds] SetId 3 3
+  [aPenta GetPointIds] SetId 4 4
+  [aPenta GetPointIds] SetId 5 5
+  [aPenta GetPointIds] SetId 6 6
+  [aPenta GetPointIds] SetId 7 7
+  [aPenta GetPointIds] SetId 8 8
+  [aPenta GetPointIds] SetId 9 9
+
+  
+vtkUnstructuredGrid aPentaGrid
+  aPentaGrid Allocate 1 1
+  aPentaGrid InsertNextCell [aPenta GetCellType] [aPenta GetPointIds]
+  aPentaGrid SetPoints pentaPoints
+  [aPentaGrid GetPointData] SetScalars pentaScalars
+
+vtkContourFilter pentaContours
+  pentaContours SetInput aPentaGrid
+  pentaContours SetValue 0 .5
+
+vtkDataSetMapper aPentaContourMapper
+  aPentaContourMapper SetInput [pentaContours GetOutput]
+  aPentaContourMapper ScalarVisibilityOff
+
+vtkDataSetMapper aPentaMapper
+  aPentaMapper SetInput aPentaGrid
+  aPentaMapper ScalarVisibilityOff
+
+vtkActor aPentaActor
+  aPentaActor SetMapper aPentaMapper
+  [aPentaActor GetProperty] BackfaceCullingOn
+  [aPentaActor GetProperty] SetRepresentationToWireframe
+
+vtkActor aPentaContourActor
+  aPentaContourActor SetMapper aPentaContourMapper
+  [aPentaContourActor GetProperty] BackfaceCullingOn
+
+
+# Hexagonal prism
+
+vtkPoints hexaPoints
+  hexaPoints SetNumberOfPoints 12
+  hexaPoints InsertPoint 0 0.0 0.0 0.0  
+  hexaPoints InsertPoint 1 0.5 0.0 0.0 
+  hexaPoints InsertPoint 2 1.0 0.5 0.0  
+  hexaPoints InsertPoint 3 1.0 1.0 0.0 
+  hexaPoints InsertPoint 4 0.5 1.0 0.0  
+  hexaPoints InsertPoint 5 0.0 0.5 0.0 
+  hexaPoints InsertPoint 6 0.0 0.0 1.0  
+  hexaPoints InsertPoint 7 0.5 0.0 1.0 
+  hexaPoints InsertPoint 8 1.0 0.5 1.0  
+  hexaPoints InsertPoint 9 1.0 1.0 1.0 
+  hexaPoints InsertPoint 10 0.5 1.0 1.0  
+  hexaPoints InsertPoint 11 0.0 0.5 1.0
+                         
+vtkFloatArray hexaScalars
+  hexaScalars SetNumberOfTuples 12
+  hexaScalars InsertValue 0 0
+  hexaScalars InsertValue 1 0
+  hexaScalars InsertValue 2 0
+  hexaScalars InsertValue 3 0
+  hexaScalars InsertValue 4 0
+  hexaScalars InsertValue 5 0
+  hexaScalars InsertValue 6 1
+  hexaScalars InsertValue 7 1
+  hexaScalars InsertValue 8 1
+  hexaScalars InsertValue 9 1
+  hexaScalars InsertValue 10 1
+  hexaScalars InsertValue 11 1
+
+vtkHexagonalPrism aHexa
+  [aHexa GetPointIds] SetId 0 0
+  [aHexa GetPointIds] SetId 1 1
+  [aHexa GetPointIds] SetId 2 2
+  [aHexa GetPointIds] SetId 3 3
+  [aHexa GetPointIds] SetId 4 4
+  [aHexa GetPointIds] SetId 5 5
+  [aHexa GetPointIds] SetId 6 6
+  [aHexa GetPointIds] SetId 7 7
+  [aHexa GetPointIds] SetId 8 8
+  [aHexa GetPointIds] SetId 9 9
+  [aHexa GetPointIds] SetId 10 10
+  [aHexa GetPointIds] SetId 11 11
+
+  
+vtkUnstructuredGrid aHexaGrid
+  aHexaGrid Allocate 1 1
+  aHexaGrid InsertNextCell [aHexa GetCellType] [aHexa GetPointIds]
+  aHexaGrid SetPoints hexaPoints
+  [aHexaGrid GetPointData] SetScalars hexaScalars
+
+vtkContourFilter hexaContours
+  hexaContours SetInput aHexaGrid
+  hexaContours SetValue 0 .5
+
+vtkDataSetMapper aHexaContourMapper
+  aHexaContourMapper SetInput [hexaContours GetOutput]
+  aHexaContourMapper ScalarVisibilityOff
+
+vtkDataSetMapper aHexaMapper
+  aHexaMapper SetInput aHexaGrid
+  aHexaMapper ScalarVisibilityOff
+
+vtkActor aHexaActor
+  aHexaActor SetMapper aHexaMapper
+  [aHexaActor GetProperty] BackfaceCullingOn
+  [aHexaActor GetProperty] SetRepresentationToWireframe
+
+vtkActor aHexaContourActor
+  aHexaContourActor SetMapper aHexaContourMapper
+  [aHexaContourActor GetProperty] BackfaceCullingOn
+
+
 
 ren1 SetBackground .1 .2 .3
 renWin SetSize 400 400
@@ -729,11 +889,17 @@ ren1 AddActor aLineContourActor; [aLineContourActor GetProperty] SetDiffuseColor
 ren1 AddActor aPolyLineActor; [aPolyLineActor GetProperty] SetDiffuseColor 1 1 1
 ren1 AddActor aPolyLineContourActor; [aPolyLineContourActor GetProperty] SetDiffuseColor 1 1 1
 
-ren1 AddActor aVertexContourActor; [aVertexContourActor GetProperty] SetDiffuseColor 1 1 1
 ren1 AddActor aVertexActor; [aVertexActor GetProperty] SetDiffuseColor 1 1 1
+ren1 AddActor aVertexContourActor; [aVertexContourActor GetProperty] SetDiffuseColor 1 1 1
 
-ren1 AddActor aPolyVertexContourActor; [aPolyVertexContourActor GetProperty] SetDiffuseColor 1 1 1
 ren1 AddActor aPolyVertexActor; [aPolyVertexActor GetProperty] SetDiffuseColor 1 1 1
+ren1 AddActor aPolyVertexContourActor; [aPolyVertexContourActor GetProperty] SetDiffuseColor 1 1 1
+
+ren1 AddActor aPentaActor; [aPentaActor GetProperty] SetDiffuseColor .2 .4 .7
+ren1 AddActor aPentaContourActor; [aPentaContourActor GetProperty] SetDiffuseColor .2 .4 .7
+
+ren1 AddActor aHexaActor; [aHexaActor GetProperty] SetDiffuseColor .7 .5 1
+ren1 AddActor aHexaContourActor; [aHexaContourActor GetProperty] SetDiffuseColor .7 .5 1
 
 # places everyone!!
 aVoxelContourActor AddPosition 0 0 0
@@ -777,10 +943,17 @@ aPolyLineActor AddPosition 2 8 0
 aVertexContourActor AddPosition 0 12 0
 aVertexContourActor AddPosition 0 2 0
 aVertexActor AddPosition 0 12 0
-
 aPolyVertexContourActor AddPosition 2 12 0
 aPolyVertexContourActor AddPosition 0 2 0
 aPolyVertexActor AddPosition 2 12 0
+
+aPentaContourActor AddPosition 4 8 0
+aPentaContourActor AddPosition 0 2 0
+aPentaActor AddPosition 4 8 0
+aHexaContourActor AddPosition 6 8 0
+aHexaContourActor AddPosition 0 2 0
+aHexaActor AddPosition 6 8 0
+
 
 BuildBackdrop -1 11 -1 16 -1 2 .1
 

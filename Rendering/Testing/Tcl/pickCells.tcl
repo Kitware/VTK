@@ -10,6 +10,8 @@ vtkRenderWindowInteractor iren
 
 # create a scene with one of each cell type
 
+# Voxel
+
 vtkPoints voxelPoints
   voxelPoints SetNumberOfPoints 8
   voxelPoints InsertPoint 0 0 0 0
@@ -43,6 +45,8 @@ aVoxelMapper SetInput aVoxelGrid
 vtkActor aVoxelActor
   aVoxelActor SetMapper aVoxelMapper
   [aVoxelActor GetProperty] BackfaceCullingOn
+
+# Hexahedron
 
 vtkPoints hexahedronPoints
   hexahedronPoints SetNumberOfPoints 8
@@ -79,6 +83,7 @@ vtkActor aHexahedronActor
   aHexahedronActor AddPosition 2 0 0
   [aHexahedronActor GetProperty] BackfaceCullingOn
 
+# Tetra
 
 vtkPoints tetraPoints
   tetraPoints SetNumberOfPoints 4
@@ -106,6 +111,7 @@ vtkActor aTetraActor
   aTetraActor AddPosition 4 0 0
   [aTetraActor GetProperty] BackfaceCullingOn
 
+# Wedge
 
 vtkPoints wedgePoints
   wedgePoints SetNumberOfPoints 6
@@ -138,6 +144,7 @@ vtkActor aWedgeActor
   aWedgeActor AddPosition 6 0 0
   [aWedgeActor GetProperty] BackfaceCullingOn
 
+# Pyramid
 
 vtkPoints pyramidPoints
   pyramidPoints SetNumberOfPoints 5
@@ -168,6 +175,7 @@ vtkActor aPyramidActor
   aPyramidActor AddPosition 8 0 0
   [aPyramidActor GetProperty] BackfaceCullingOn
 
+# Pixel
 
 vtkPoints pixelPoints
   pixelPoints SetNumberOfPoints 4
@@ -195,6 +203,7 @@ vtkActor aPixelActor
   aPixelActor AddPosition 0 0 2
   [aPixelActor GetProperty] BackfaceCullingOn
 
+# Quad
 
 vtkPoints quadPoints
   quadPoints SetNumberOfPoints 4
@@ -222,6 +231,7 @@ vtkActor aQuadActor
   aQuadActor AddPosition 2 0 2
   [aQuadActor GetProperty] BackfaceCullingOn
 
+# Triangle
 
 vtkPoints trianglePoints
   trianglePoints SetNumberOfPoints 3
@@ -247,6 +257,7 @@ vtkActor aTriangleActor
   aTriangleActor AddPosition 4 0 2
   [aTriangleActor GetProperty] BackfaceCullingOn
 
+# Polygon
 
 vtkPoints polygonPoints
   polygonPoints SetNumberOfPoints 4
@@ -275,6 +286,7 @@ vtkActor aPolygonActor
   aPolygonActor AddPosition 6 0 2
   [aPolygonActor GetProperty] BackfaceCullingOn
 
+# Triangle Strip
 
 vtkPoints triangleStripPoints
   triangleStripPoints SetNumberOfPoints 5
@@ -305,6 +317,7 @@ vtkActor aTriangleStripActor
   aTriangleStripActor AddPosition 8 0 2
   [aTriangleStripActor GetProperty] BackfaceCullingOn
 
+# Line
 
 vtkPoints linePoints
   linePoints SetNumberOfPoints 2
@@ -328,6 +341,7 @@ vtkActor aLineActor
   aLineActor AddPosition 0 0 4
   [aLineActor GetProperty] BackfaceCullingOn
 
+# Poly line
 
 vtkPoints polyLinePoints
   polyLinePoints SetNumberOfPoints 3
@@ -354,6 +368,7 @@ vtkActor aPolyLineActor
   aPolyLineActor AddPosition 2 0 4
   [aPolyLineActor GetProperty] BackfaceCullingOn
 
+# Vertex
 
 vtkPoints vertexPoints
   vertexPoints SetNumberOfPoints 1
@@ -375,6 +390,7 @@ vtkActor aVertexActor
   aVertexActor AddPosition 0 0 6
   [aVertexActor GetProperty] BackfaceCullingOn
 
+# Poly Vertex
 
 vtkPoints polyVertexPoints
   polyVertexPoints SetNumberOfPoints 3
@@ -401,6 +417,91 @@ vtkActor aPolyVertexActor
   aPolyVertexActor AddPosition 2 0 6
   [aPolyVertexActor GetProperty] BackfaceCullingOn
 
+# Pentagonal prism
+
+vtkPoints pentaPoints
+  pentaPoints SetNumberOfPoints 10
+  pentaPoints InsertPoint 0 0.25 0.0 0.0  
+  pentaPoints InsertPoint 1 0.75 0.0 0.0 
+  pentaPoints InsertPoint 2 1.0  0.5 0.0  
+  pentaPoints InsertPoint 3 0.5  1.0 0.0 
+  pentaPoints InsertPoint 4 0.0  0.5 0.0  
+  pentaPoints InsertPoint 5 0.25 0.0 1.0  
+  pentaPoints InsertPoint 6 0.75 0.0 1.0  
+  pentaPoints InsertPoint 7 1.0  0.5 1.0  
+  pentaPoints InsertPoint 8 0.5  1.0 1.0 
+  pentaPoints InsertPoint 9 0.0  0.5 1.0 
+
+vtkPentagonalPrism aPenta
+  [aPenta GetPointIds] SetId 0 0
+  [aPenta GetPointIds] SetId 1 1
+  [aPenta GetPointIds] SetId 2 2
+  [aPenta GetPointIds] SetId 3 3
+  [aPenta GetPointIds] SetId 4 4
+  [aPenta GetPointIds] SetId 5 5
+  [aPenta GetPointIds] SetId 6 6
+  [aPenta GetPointIds] SetId 7 7
+  [aPenta GetPointIds] SetId 8 8
+  [aPenta GetPointIds] SetId 9 9
+
+vtkUnstructuredGrid aPentaGrid
+  aPentaGrid Allocate 1 1
+  aPentaGrid InsertNextCell [aPenta GetCellType] [aPenta GetPointIds]
+  aPentaGrid SetPoints pentaPoints
+
+vtkDataSetMapper aPentaMapper
+  aPentaMapper SetInput aPentaGrid
+
+vtkActor aPentaActor
+  aPentaActor SetMapper aPentaMapper
+  aPentaActor AddPosition 10 0 0
+  [aPentaActor GetProperty] BackfaceCullingOn
+
+# Hexagonal prism
+
+vtkPoints hexaPoints
+  hexaPoints SetNumberOfPoints 12
+  hexaPoints InsertPoint 0 0.0 0.0 0.0  
+  hexaPoints InsertPoint 1 0.5 0.0 0.0 
+  hexaPoints InsertPoint 2 1.0 0.5 0.0  
+  hexaPoints InsertPoint 3 1.0 1.0 0.0 
+  hexaPoints InsertPoint 4 0.5 1.0 0.0  
+  hexaPoints InsertPoint 5 0.0 0.5 0.0 
+  hexaPoints InsertPoint 6 0.0 0.0 1.0  
+  hexaPoints InsertPoint 7 0.5 0.0 1.0 
+  hexaPoints InsertPoint 8 1.0 0.5 1.0  
+  hexaPoints InsertPoint 9 1.0 1.0 1.0 
+  hexaPoints InsertPoint 10 0.5 1.0 1.0  
+  hexaPoints InsertPoint 11 0.0 0.5 1.0
+                         
+vtkHexagonalPrism aHexa
+  [aHexa GetPointIds] SetId 0 0
+  [aHexa GetPointIds] SetId 1 1
+  [aHexa GetPointIds] SetId 2 2
+  [aHexa GetPointIds] SetId 3 3
+  [aHexa GetPointIds] SetId 4 4
+  [aHexa GetPointIds] SetId 5 5
+  [aHexa GetPointIds] SetId 6 6
+  [aHexa GetPointIds] SetId 7 7
+  [aHexa GetPointIds] SetId 8 8
+  [aHexa GetPointIds] SetId 9 9
+  [aHexa GetPointIds] SetId 10 10
+  [aHexa GetPointIds] SetId 11 11
+
+vtkUnstructuredGrid aHexaGrid
+  aHexaGrid Allocate 1 1
+  aHexaGrid InsertNextCell [aHexa GetCellType] [aHexa GetPointIds]
+  aHexaGrid SetPoints hexaPoints
+
+vtkDataSetMapper aHexaMapper
+  aHexaMapper SetInput aHexaGrid
+
+vtkActor aHexaActor
+  aHexaActor SetMapper aHexaMapper
+  aHexaActor AddPosition 12 0 0
+  [aHexaActor GetProperty] BackfaceCullingOn
+
+
 
 ren1 SetBackground .1 .2 .4
 
@@ -418,6 +519,8 @@ ren1 AddActor aLineActor; [aLineActor GetProperty] SetDiffuseColor .2 1 1
 ren1 AddActor aPolyLineActor; [aPolyLineActor GetProperty] SetDiffuseColor 1 1 1
 ren1 AddActor aVertexActor; [aVertexActor GetProperty] SetDiffuseColor 1 1 1
 ren1 AddActor aPolyVertexActor; [aPolyVertexActor GetProperty] SetDiffuseColor 1 1 1
+ren1 AddActor aPentaActor; [aPentaActor GetProperty] SetDiffuseColor .2 .4 .7
+ren1 AddActor aHexaActor; [aHexaActor GetProperty] SetDiffuseColor .7 .5 1
 
 [ren1 GetActiveCamera] Azimuth 30
 [ren1 GetActiveCamera] Elevation 20
