@@ -1,0 +1,10 @@
+config.log
+config.status
+Makefile
+vtkParseJava
+vtkWrapJava
+vtkWrapPython
+vtkWrapPythonInit
+vtkWrapTcl
+vtkWrapTclInit
+vtkPrint
