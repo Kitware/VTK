@@ -517,7 +517,6 @@ void vtkInteractorStyleUnicam::GetRightVandUpV(float *p, vtkCamera *cam,
   vtkMath::Normalize(atV);
   double l = -vtkMath::Dot(vec, atV);
 
-  float trans[3];
   double view_angle = cam->GetViewAngle() * vtkMath::Pi() / 180.0;
   float w = Interactor->GetRenderWindow()->GetSize()[0];
   float h = Interactor->GetRenderWindow()->GetSize()[1];
