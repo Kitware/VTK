@@ -369,7 +369,9 @@ int vtkPolygon::ParameterizePolygon(float *p0, float *p10, float& l10,
 // Determine whether point is inside polygon. Function uses ray-casting
 // to determine if point is inside polygon. Works for arbitrary polygon shape
 // (e.g., non-convex). Returns 0 if point is not in polygon; 1 if it is.
-// Can also return -1 to indicate degenerate polygon.
+// Can also return -1 to indicate degenerate polygon. Note: a point in
+// bounding box check is NOT performed prior to in/out check. You may want
+// to do this to improve performance.
 int vtkPolygon::PointInPolygon (float x[3], int numPts, float *pts, 
                                 float bounds[6], float *n)
 {
@@ -379,6 +381,7 @@ int vtkPolygon::PointInPolygon (float x[3], int numPts, float *pts,
   int iterNumber;
   int maxComp, comps[2];
   int deltaVotes;
+
   //
   //  Define a ray to fire.  The ray is a random ray normal to the
   //  normal of the face.  The length of the ray is a function of the
@@ -426,7 +429,7 @@ int vtkPolygon::PointInPolygon (float x[3], int numPts, float *pts,
       comps[1] = 1;
       }
     }
-  //
+
   //  Check that max component is non-zero
   //
   if ( n[maxComp] == 0.0 )
@@ -514,7 +517,7 @@ int vtkPolygon::PointInPolygon (float x[3], int numPts, float *pts,
 	}
       }
     } //try another ray
-  //
+
   //   If the number of intersections is odd, the point is in the polygon.
   //
   if ( deltaVotes < 0 )
@@ -526,10 +529,6 @@ int vtkPolygon::PointInPolygon (float x[3], int numPts, float *pts,
     return VTK_POLYGON_INSIDE;
     }
 }
-//
-// Following is used in a number of routines.  Made static to avoid 
-// constructor / destructor calls.
-//
 
 #define VTK_POLYGON_TOLERANCE 1.0e-06
 
@@ -1027,22 +1026,19 @@ int vtkPolygon::IntersectWithLine(float p1[3], float p2[3], float tol,float& t,
 
   subId = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
-  //
-  // Get normal for triangle
+
+  // Define a plane to intersect with
   //
   pt1 = this->Points->GetPoint(1);
-  pt2 = this->Points->GetPoint(2);
-  pt3 = this->Points->GetPoint(0);
-
   this->ComputeNormal (this->Points,n);
-  //
+ 
   // Intersect plane of triangle with line
   //
   if ( ! vtkPlane::IntersectWithLine(p1,p2,n,pt1,t,x) )
     {
     return 0;
     }
-  //
+
   // Evaluate position
   //
   weights = new float[npts];
