@@ -65,6 +65,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class vtkRenderer;
 class vtkActorDevice;
+class vtkProperty;
+class vtkMapper;
 
 class vtkActor : public vtkObject
 {
