@@ -1,5 +1,5 @@
 //
-// marching cubes case table for generating iso-surfaces
+// marching cubes case table for generating isosurfaces
 //
 typedef int EDGE_LIST;
 typedef struct {

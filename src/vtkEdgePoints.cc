@@ -96,7 +96,7 @@ void vtkEdgePoints::Execute()
     cell = this->Input->GetCell(cellId);
     inScalars->GetScalars(cell->PointIds,cellScalars);
 
-    // loop over cell points to check if cell straddles iso-surface value
+    // loop over cell points to check if cell straddles isosurface value
     for ( above=below=0, ptId=0; ptId < cell->GetNumberOfPoints(); ptId++ )
       {
       if ( cellScalars.GetScalar(ptId) >= this->Value )

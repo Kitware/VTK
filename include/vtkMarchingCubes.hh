@@ -38,11 +38,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkMarchingCubes - generate iso-surface(s) from volume
+// .NAME vtkMarchingCubes - generate isosurface(s) from volume
 // .SECTION Description
 // vtkMarchingCubes is a filter that takes as input a volume (e.g., 3D
-// structured point set) and generates on output one or more iso-surfaces.
-// One or more contour values must be specified to generate the iso-surfaces.
+// structured point set) and generates on output one or more isosurfaces.
+// One or more contour values must be specified to generate the isosurfaces.
 // Alternatively, you can specify a min/max scalar range and the number of
 // contours to generate a series of evenly spaced contour values. The current
 // implementation requires that the scalar data is defined with "short int"

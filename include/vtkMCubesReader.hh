@@ -41,7 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkMCubesReader - read binary marching cubes file
 // .SECTION Description
 // vtkMCubesReader is a source object that reads binary marching cubes
-// files. (Marching cubes is an iso-surfacing technique that generates 
+// files. (Marching cubes is an isosurfacing technique that generates 
 // many triangles). The binary format is supported by B. Lorensen's
 // marching cubes program. The format repeats point coordinates, so
 // this object will merge the points with a vtkLocator object. You can 

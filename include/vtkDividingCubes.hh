@@ -38,10 +38,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkDividingCubes - create points lying on iso-surface
+// .NAME vtkDividingCubes - create points lying on isosurface
 // .SECTION Description
 // vtkDividingCubes is a filter that generates points lying on a surface
-// of constant scalar value (i.e., an iso-surface). Dense point clouds (i.e.,
+// of constant scalar value (i.e., an isosurface). Dense point clouds (i.e.,
 // at screen resolution) will appear as a surface. Less dense clouds can be 
 // used as a source to generate streamlines or to generate "transparent"
 // surfaces. This filter is based on the generate program written by
@@ -60,7 +60,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set iso-surface value.
+  // Set isosurface value.
   vtkSetMacro(Value,float);
   vtkGetMacro(Value,float);
 

@@ -38,14 +38,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkContourFilter - generate iso-surfaces/iso-lines from scalar values
+// .NAME vtkContourFilter - generate isosurfaces/isolines from scalar values
 // .SECTION Description
 // vtkContourFilter is a filter that takes as input any dataset and 
-// generates on output iso-surfaces and/or iso-lines. The exact form 
+// generates on output isosurfaces and/or isolines. The exact form 
 // of the output depends upon the dimensionality of the input data. 
-// Data consisting of 3D cells will generate iso-surfaces, data 
-// consisting of 2D cells will generate iso-lines, and data with 1D 
-// or 0D cells will generate iso-points. Combinations of output type 
+// Data consisting of 3D cells will generate isosurfaces, data 
+// consisting of 2D cells will generate isolines, and data with 1D 
+// or 0D cells will generate isopoints. Combinations of output type 
 // is possible if the input dimension is mixed.
 //
 // If the input type is volume (e.g., 3D structured point dataset), 
@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkContourFilter uses variations of marching cubes to generate output
 // primitives. The output primitives are disjoint - that is, points may
 // be generated that are coincident but distinct. You may want to use
-// vtkCleanPolyData to remove the coincident points. Also, the iso-surface
+// vtkCleanPolyData to remove the coincident points. Also, the isosurface
 // is not generated with surface normals. Use vtkPolyNormals to create them,
 // if desired.
 

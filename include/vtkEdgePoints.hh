@@ -38,10 +38,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkEdgePoints - generate points on iso-surface
+// .NAME vtkEdgePoints - generate points on isosurface
 // .SECTION Description
 // vtkEdgePoints is a filter that takes as input any dataset and 
-// generates for output a set of points that lie on an iso-surface. The 
+// generates for output a set of points that lie on an isosurface. The 
 // points are created by interpolation along cells edges whose end-points are 
 // below and above the contour value.
 // .SECTION Caveats
