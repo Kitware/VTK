@@ -84,9 +84,10 @@ public:
   virtual void Tesselate(vtkIdType cellId, 
                          vtkDataSet *input, vtkPolyData *output, 
                          vtkPointLocator *locator=NULL);
-  virtual void Tesselate(vtkIdType cellId, 
-                         vtkDataSet *input, vtkUnstructuredGrid *output, 
-                         vtkPointLocator *locator=NULL);
+  virtual void Tesselate(vtkIdType vtkNotUsed(cellId), 
+                         vtkDataSet* vtkNotUsed(input), 
+                         vtkUnstructuredGrid* vtkNotUsed(output), 
+                         vtkPointLocator* vtkNotUsed(locator)=NULL);
   
   
   // Description:

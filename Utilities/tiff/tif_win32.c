@@ -28,6 +28,10 @@
  * TIFF Library Win32-specific Routines.  Adapted from tif_unix.c 4/5/95 by
  * Scott Wagner (wagner@itek.com), Itek Graphix, Rochester, NY USA
  */
+#if defined ( _MSC_VER )
+#pragma warning ( disable : 4115 )
+#endif
+
 #include <windows.h>
 #include "tiffiop.h"
 

@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkPerlinNoise, "1.3");
+vtkCxxRevisionMacro(vtkPerlinNoise, "1.4");
 vtkStandardNewMacro(vtkPerlinNoise);
 
 // These functions are from Greg Ward's recursive implementation in 
@@ -121,7 +121,8 @@ float vtkPerlinNoise::EvaluateFunction(float x[3])
 }
 
 // Evaluate PerlinNoise gradient.
-void vtkPerlinNoise::EvaluateGradient(float x[3], float n[3])
+void vtkPerlinNoise::EvaluateGradient(float* vtkNotUsed(x), // Was x[3]
+                                      float n[3])
 {
   // contrary to the paper, the vector computed as a byproduct of
   // the Perlin Noise computation isn't a gradient;  it's a tangent.

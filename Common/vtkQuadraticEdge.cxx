@@ -22,7 +22,7 @@
 #include "vtkLine.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticEdge, "1.4");
+vtkCxxRevisionMacro(vtkQuadraticEdge, "1.5");
 vtkStandardNewMacro(vtkQuadraticEdge);
 
 // Construct the line with two points.
@@ -63,9 +63,11 @@ vtkCell *vtkQuadraticEdge::MakeObject()
   return (vtkCell *)cell;
 }
 
-int vtkQuadraticEdge::EvaluatePosition(float x[3], float* closestPoint, 
+int vtkQuadraticEdge::EvaluatePosition(float* vtkNotUsed(x), // this was x[3]
+                                       float* closestPoint, 
                                        int& subId, float pcoords[3],
-                                       float& dist2, float *weights)
+                                       float& vtkNotUsed(dist2), 
+                                       float *weights)
 {
   float *a1, *a2;
 
@@ -145,13 +147,17 @@ int vtkQuadraticEdge::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
     }
 }
 
-void vtkQuadraticEdge::Contour(float value, vtkDataArray *cellScalars, 
-                               vtkPointLocator *locator, vtkCellArray *verts, 
-                               vtkCellArray *vtkNotUsed(lines), 
-                               vtkCellArray *vtkNotUsed(polys), 
-                               vtkPointData *inPd, vtkPointData *outPd,
-                               vtkCellData *inCd, vtkIdType cellId, 
-                               vtkCellData *outCd)
+void vtkQuadraticEdge::Contour(float vtkNotUsed(value), 
+                               vtkDataArray* vtkNotUsed(cellScalars), 
+                               vtkPointLocator* vtkNotUsed(locator), 
+                               vtkCellArray *vtkNotUsed(verts), 
+                               vtkCellArray* vtkNotUsed(lines), 
+                               vtkCellArray* vtkNotUsed(polys), 
+                               vtkPointData* vtkNotUsed(inPd), 
+                               vtkPointData* vtkNotUsed(outPd),
+                               vtkCellData* vtkNotUsed(inCd), 
+                               vtkIdType vtkNotUsed(cellId), 
+                               vtkCellData* vtkNotUsed(outCd))
 {
 }
 
@@ -261,7 +267,7 @@ void vtkQuadraticEdge::Tesselate(vtkIdType cellId,
   
   //the error divided by the maximum permissable error is an approximation to
   //the number of subdivisions.
-  int numDivs = int(ceil( d2/(l2*e2) ));
+  int numDivs = static_cast<int>(ceil( d2/(l2*e2) ));
   int numPts = numDivs + 1;
   
   //add new points to the output

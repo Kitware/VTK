@@ -18,7 +18,7 @@
 #include "vtkStripper.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkStripper, "1.58");
+vtkCxxRevisionMacro(vtkStripper, "1.59");
 vtkStandardNewMacro(vtkStripper);
 
 // Construct object with MaximumLength set to 1000.
@@ -33,7 +33,7 @@ void vtkStripper::Execute()
   int longestStrip, longestLine, j, numPts;
   vtkIdType numLines, numStrips, nei;
   vtkCellArray *newStrips=NULL, *inStrips, *newLines=NULL, *inLines, *inPolys;
-  vtkCellArray *newPolys;
+  vtkCellArray *newPolys=0;
   vtkIdType numLinePts;
   vtkIdList *cellIds;
   int foundOne;
