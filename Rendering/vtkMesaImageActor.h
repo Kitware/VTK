@@ -51,7 +51,8 @@ protected:
   vtkMesaImageActor();
   ~vtkMesaImageActor();
 
-  unsigned char *MakeDataSuitable(int &xsize, int &ysize, int &release);
+  unsigned char *MakeDataSuitable(int &xsize, int &ysize,
+                                  int &release, int &reuseTexture);
 
   vtkTimeStamp   LoadTime;
   long          Index;
