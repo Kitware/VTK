@@ -500,6 +500,14 @@ void vtkTetra::TetraCenter(float p1[3], float p2[3], float p3[3],
   center[2] = (p1[2]+p2[2]+p3[2]+p4[2]) / 4.0;
 }
 
+double vtkTetra::ComputeVolume(double  p1[3], double p2[3], double p3[3], 
+                               double p4[3])
+{
+  return (vtkMath::Determinant3x3(p2[0]-p1[0], p3[0]-p1[0], p4[0]-p1[0],
+                                  p2[1]-p1[1], p3[1]-p1[1], p4[1]-p1[1],
+                                  p2[2]-p1[2], p3[2]-p1[2], p4[2]-p1[2])/6.0);
+}
+                               
 // Compute the circumcenter (center[3]) and radius (method return value) of
 // a tetrahedron defined by the four points x1, x2, x3, and x4.
 double vtkTetra::Circumsphere(double  x1[3], double x2[3], double x3[3], 
