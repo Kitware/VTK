@@ -143,6 +143,12 @@ public:
   // Shallow copy of a text property.
   void ShallowCopy(vtkTextProperty *tprop);
   
+  // Description:
+  // Specify a face file name (unsupported feature). A face filename will
+  // override the font family as well as the bold and italic attributes.
+  void SetFaceFileName(const char *);
+  vtkGetStringMacro(FaceFileName);
+
 protected:
   vtkTextProperty();
   ~vtkTextProperty();
@@ -159,6 +165,7 @@ protected:
   int   VerticalJustification;
   float LineOffset;
   float LineSpacing;
+  char  *FaceFileName;
   
 private:
   vtkTextProperty(const vtkTextProperty&);  // Not implemented.
