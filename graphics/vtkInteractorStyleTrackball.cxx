@@ -44,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPropPicker.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkObjectFactory.h"
-
+#include "vtkCommand.h"
 
 //---------------------------------------------------------------------------
 vtkInteractorStyleTrackball* vtkInteractorStyleTrackball::New()
@@ -1246,9 +1246,9 @@ void vtkInteractorStyleTrackball::OnLeftButtonDown(int ctrl, int shift,
 
   this->FindPokedCamera(X, Y);
   this->Preprocess = 1;
-  if (this->LeftButtonPressMethod) 
+  if (this->HasObserver(vtkCommand::LeftButtonPressEvent)) 
     {
-    (*this->LeftButtonPressMethod)(this->LeftButtonPressMethodArg);
+    this->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
     }
   else 
     {
@@ -1287,9 +1287,9 @@ void vtkInteractorStyleTrackball::OnLeftButtonUp(int ctrl, int shift, int X, int
   //
  this->UpdateInternalState(ctrl, shift, X, Y);
   //
-  if (this->LeftButtonReleaseMethod) 
+  if (this->HasObserver(vtkCommand::LeftButtonReleaseEvent)) 
     {
-    (*this->LeftButtonReleaseMethod)(this->LeftButtonReleaseMethodArg);
+    this->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
     }
   else 
     {
@@ -1332,9 +1332,9 @@ void vtkInteractorStyleTrackball::OnMiddleButtonDown(int ctrl, int shift,
   this->Preprocess = 1;
   this->FindPokedCamera(X, Y);
   //
-  if (this->MiddleButtonPressMethod) 
+  if (this->HasObserver(vtkCommand::MiddleButtonPressEvent)) 
     {
-    (*this->MiddleButtonPressMethod)(this->MiddleButtonPressMethodArg);
+    this->InvokeEvent(vtkCommand::MiddleButtonPressEvent,NULL);
     }
   else 
     {
@@ -1360,9 +1360,9 @@ void vtkInteractorStyleTrackball::OnMiddleButtonUp(int ctrl, int shift,
   //
  this->UpdateInternalState(ctrl, shift, X, Y);
   //
-  if (this->MiddleButtonReleaseMethod) 
+  if (this->HasObserver(vtkCommand::MiddleButtonReleaseEvent)) 
     {
-    (*this->MiddleButtonReleaseMethod)(this->MiddleButtonReleaseMethodArg);
+    this->InvokeEvent(vtkCommand::MiddleButtonReleaseEvent,NULL);
     }
   else 
     {
@@ -1397,9 +1397,9 @@ void vtkInteractorStyleTrackball::OnRightButtonDown(int ctrl, int shift,
   this->UpdateInternalState(ctrl, shift, X, Y);
   this->FindPokedCamera(X, Y);
   this->Preprocess = 1;
-  if (this->RightButtonPressMethod) 
+  if (this->HasObserver(vtkCommand::RightButtonPressEvent)) 
     {
-    (*this->RightButtonPressMethod)(this->RightButtonPressMethodArg);
+    this->InvokeEvent(vtkCommand::RightButtonPressEvent,NULL);
     }
   else 
     {
@@ -1421,9 +1421,9 @@ void vtkInteractorStyleTrackball::OnRightButtonUp(int ctrl, int shift,
   //
  this->UpdateInternalState(ctrl, shift, X, Y);
   //
-  if (this->RightButtonReleaseMethod) 
+  if (this->HasObserver(vtkCommand::RightButtonReleaseEvent)) 
     {
-    (*this->RightButtonReleaseMethod)(this->RightButtonReleaseMethodArg);
+    this->InvokeEvent(vtkCommand::RightButtonReleaseEvent,NULL);
     }
   else 
     {

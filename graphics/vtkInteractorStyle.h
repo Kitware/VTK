@@ -285,26 +285,12 @@ protected:
   float              PickColor[3];        // support 2D picking
   vtkActor2D         *PickedActor2D;
 
-  void (*LeftButtonPressMethod)(void *);
-  void (*LeftButtonPressMethodArgDelete)(void *);
-  void *LeftButtonPressMethodArg;
-  void (*LeftButtonReleaseMethod)(void *);
-  void (*LeftButtonReleaseMethodArgDelete)(void *);
-  void *LeftButtonReleaseMethodArg;
-
-  void (*MiddleButtonPressMethod)(void *);
-  void (*MiddleButtonPressMethodArgDelete)(void *);
-  void *MiddleButtonPressMethodArg;
-  void (*MiddleButtonReleaseMethod)(void *);
-  void (*MiddleButtonReleaseMethodArgDelete)(void *);
-  void *MiddleButtonReleaseMethodArg;
-
-  void (*RightButtonPressMethod)(void *);
-  void (*RightButtonPressMethodArgDelete)(void *);
-  void *RightButtonPressMethodArg;
-  void (*RightButtonReleaseMethod)(void *);
-  void (*RightButtonReleaseMethodArgDelete)(void *);
-  void *RightButtonReleaseMethodArg;
+  unsigned long LeftButtonPressTag;
+  unsigned long LeftButtonReleaseTag;
+  unsigned long MiddleButtonPressTag;
+  unsigned long MiddleButtonReleaseTag;
+  unsigned long RightButtonPressTag;
+  unsigned long RightButtonReleaseTag;
 };
 
 #endif

@@ -45,6 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h" 
 #include "vtkCellPicker.h"
 #include "vtkAssemblyNode.h"
+#include "vtkCommand.h"
 
 //----------------------------------------------------------------------------
 vtkInteractorStyle *vtkInteractorStyle::New() 
@@ -76,26 +77,12 @@ vtkInteractorStyle::vtkInteractorStyle()
   this->CtrlKey  = 0;
   this->ShiftKey = 1;
 
-  this->LeftButtonPressMethod = NULL;
-  this->LeftButtonPressMethodArgDelete = NULL;
-  this->LeftButtonPressMethodArg = NULL;
-  this->LeftButtonReleaseMethod = NULL;
-  this->LeftButtonReleaseMethodArgDelete = NULL;
-  this->LeftButtonReleaseMethodArg = NULL;
-
-  this->MiddleButtonPressMethod = NULL;
-  this->MiddleButtonPressMethodArgDelete = NULL;
-  this->MiddleButtonPressMethodArg = NULL;
-  this->MiddleButtonReleaseMethod = NULL;
-  this->MiddleButtonReleaseMethodArgDelete = NULL;
-  this->MiddleButtonReleaseMethodArg = NULL;
-
-  this->RightButtonPressMethod = NULL;
-  this->RightButtonPressMethodArgDelete = NULL;
-  this->RightButtonPressMethodArg = NULL;
-  this->RightButtonReleaseMethod = NULL;
-  this->RightButtonReleaseMethodArgDelete = NULL;
-  this->RightButtonReleaseMethodArg = NULL;
+  this->LeftButtonPressTag = 0;
+  this->LeftButtonReleaseTag = 0;
+  this->MiddleButtonPressTag = 0;
+  this->MiddleButtonReleaseTag = 0;
+  this->RightButtonPressTag = 0;
+  this->RightButtonReleaseTag = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -124,66 +111,26 @@ vtkInteractorStyle::~vtkInteractorStyle()
     this->CurrentRenderer = NULL;
     }
 
-  if ((this->LeftButtonPressMethodArg)&&(this->LeftButtonPressMethodArgDelete))
-    {
-    (*this->LeftButtonPressMethodArgDelete)(this->LeftButtonPressMethodArg);
-    }
-  if ((this->LeftButtonReleaseMethodArg)&&
-      (this->LeftButtonReleaseMethodArgDelete))
-    {
-    (*this->LeftButtonReleaseMethodArgDelete)
-      (this->LeftButtonReleaseMethodArg);
-    }
-  if ((this->MiddleButtonPressMethodArg)&&
-      (this->MiddleButtonPressMethodArgDelete))
-    {
-    (*this->MiddleButtonPressMethodArgDelete)
-      (this->MiddleButtonPressMethodArg);
-    }
-  if ((this->MiddleButtonReleaseMethodArg)&&
-      (this->MiddleButtonReleaseMethodArgDelete))
-    {
-    (*this->MiddleButtonReleaseMethodArgDelete)
-      (this->MiddleButtonReleaseMethodArg);
-    }
-  if ((this->RightButtonPressMethodArg)&&
-      (this->RightButtonPressMethodArgDelete))
-    {
-    (*this->RightButtonPressMethodArgDelete)(this->RightButtonPressMethodArg);
-    }
-  if ((this->RightButtonReleaseMethodArg)&&
-      (this->RightButtonReleaseMethodArgDelete))
-    {
-    (*this->RightButtonReleaseMethodArgDelete)
-      (this->RightButtonReleaseMethodArg);
-    }
 }
 
 // Set the left button pressed method. This method is invoked on a left mouse button press.
 void vtkInteractorStyle::SetLeftButtonPressMethod(void (*f)(void *), void *arg)
 {
-  if ( f != this->LeftButtonPressMethod || 
-       arg != this->LeftButtonPressMethodArg )
-    {
-    // delete the current arg if there is one and a delete meth
-    if ((this->LeftButtonPressMethodArg)&&
-        (this->LeftButtonPressMethodArgDelete))
-      {
-      (*this->LeftButtonPressMethodArgDelete)(this->LeftButtonPressMethodArg);
-      }
-    this->LeftButtonPressMethod = f;
-    this->LeftButtonPressMethodArg = arg;
-    this->Modified();
-    }
+  vtkOldStyleCallbackCommand *cbc = new vtkOldStyleCallbackCommand;
+  cbc->Callback = f;
+  cbc->ClientData = arg;
+  this->RemoveObserver(this->LeftButtonPressTag);
+  this->LeftButtonPressTag = this->AddObserver(vtkCommand::LeftButtonPressEvent,cbc);
 }
 
 // Called when a void* argument is being discarded.  Lets the user free it.
 void vtkInteractorStyle::SetLeftButtonPressMethodArgDelete(void (*f)(void *))
 {
-  if ( f != this->LeftButtonPressMethodArgDelete)
+  vtkOldStyleCallbackCommand *cmd = 
+    (vtkOldStyleCallbackCommand *)this->GetCommand(this->LeftButtonPressTag);
+  if (cmd)
     {
-    this->LeftButtonPressMethodArgDelete = f;
-    this->Modified();
+    cmd->SetClientDataDeleteCallback(f);
     }
 }
 
@@ -191,28 +138,21 @@ void vtkInteractorStyle::SetLeftButtonPressMethodArgDelete(void (*f)(void *))
 void vtkInteractorStyle::SetLeftButtonReleaseMethod(void (*f)(void *), 
                                                     void *arg)
 {
-  if ( f != this->LeftButtonReleaseMethod || arg != 
-       this->LeftButtonReleaseMethodArg )
-    {
-    // delete the current arg if there is one and a delete meth
-    if ((this->LeftButtonReleaseMethodArg)&&
-        (this->LeftButtonReleaseMethodArgDelete))
-      {
-      (*this->LeftButtonReleaseMethodArgDelete)(this->LeftButtonReleaseMethodArg);
-      }
-    this->LeftButtonReleaseMethod = f;
-    this->LeftButtonReleaseMethodArg = arg;
-    this->Modified();
-    }
+  vtkOldStyleCallbackCommand *cbc = new vtkOldStyleCallbackCommand;
+  cbc->Callback = f;
+  cbc->ClientData = arg;
+  this->RemoveObserver(this->LeftButtonReleaseTag);
+  this->LeftButtonReleaseTag = this->AddObserver(vtkCommand::LeftButtonReleaseEvent,cbc);
 }
 
 // Called when a void* argument is being discarded.  Lets the user free it.
 void vtkInteractorStyle::SetLeftButtonReleaseMethodArgDelete(void (*f)(void *))
 {
-  if ( f != this->LeftButtonReleaseMethodArgDelete)
+  vtkOldStyleCallbackCommand *cmd = 
+    (vtkOldStyleCallbackCommand *)this->GetCommand(this->LeftButtonReleaseTag);
+  if (cmd)
     {
-    this->LeftButtonReleaseMethodArgDelete = f;
-    this->Modified();
+    cmd->SetClientDataDeleteCallback(f);
     }
 }
 
@@ -220,28 +160,21 @@ void vtkInteractorStyle::SetLeftButtonReleaseMethodArgDelete(void (*f)(void *))
 void vtkInteractorStyle::SetMiddleButtonPressMethod(void (*f)(void *), 
                                                     void *arg)
 {
-  if ( f != this->MiddleButtonPressMethod || 
-       arg != this->MiddleButtonPressMethodArg )
-    {
-    // delete the current arg if there is one and a delete meth
-    if ((this->MiddleButtonPressMethodArg)&&
-        (this->MiddleButtonPressMethodArgDelete))
-      {
-      (*this->MiddleButtonPressMethodArgDelete)(this->MiddleButtonPressMethodArg);
-      }
-    this->MiddleButtonPressMethod = f;
-    this->MiddleButtonPressMethodArg = arg;
-    this->Modified();
-    }
+  vtkOldStyleCallbackCommand *cbc = new vtkOldStyleCallbackCommand;
+  cbc->Callback = f;
+  cbc->ClientData = arg;
+  this->RemoveObserver(this->MiddleButtonPressTag);
+  this->MiddleButtonPressTag = this->AddObserver(vtkCommand::MiddleButtonPressEvent,cbc);
 }
 
 // Called when a void* argument is being discarded.  Lets the user free it.
 void vtkInteractorStyle::SetMiddleButtonPressMethodArgDelete(void (*f)(void *))
 {
-  if ( f != this->MiddleButtonPressMethodArgDelete)
+  vtkOldStyleCallbackCommand *cmd = 
+    (vtkOldStyleCallbackCommand *)this->GetCommand(this->MiddleButtonPressTag);
+  if (cmd)
     {
-    this->MiddleButtonPressMethodArgDelete = f;
-    this->Modified();
+    cmd->SetClientDataDeleteCallback(f);
     }
 }
 
@@ -249,28 +182,21 @@ void vtkInteractorStyle::SetMiddleButtonPressMethodArgDelete(void (*f)(void *))
 void vtkInteractorStyle::SetMiddleButtonReleaseMethod(void (*f)(void *), 
                                                       void *arg)
 {
-  if ( f != this->MiddleButtonReleaseMethod || 
-       arg != this->MiddleButtonReleaseMethodArg )
-    {
-    // delete the current arg if there is one and a delete meth
-    if ((this->MiddleButtonReleaseMethodArg)&&
-        (this->MiddleButtonReleaseMethodArgDelete))
-      {
-      (*this->MiddleButtonReleaseMethodArgDelete)(this->MiddleButtonReleaseMethodArg);
-      }
-    this->MiddleButtonReleaseMethod = f;
-    this->MiddleButtonReleaseMethodArg = arg;
-    this->Modified();
-    }
+  vtkOldStyleCallbackCommand *cbc = new vtkOldStyleCallbackCommand;
+  cbc->Callback = f;
+  cbc->ClientData = arg;
+  this->RemoveObserver(this->MiddleButtonReleaseTag);
+  this->MiddleButtonPressTag = this->AddObserver(vtkCommand::MiddleButtonReleaseEvent,cbc);
 }
 
 // Called when a void* argument is being discarded.  Lets the user free it.
 void vtkInteractorStyle::SetMiddleButtonReleaseMethodArgDelete(void (*f)(void *))
 {
-  if ( f != this->MiddleButtonReleaseMethodArgDelete)
+  vtkOldStyleCallbackCommand *cmd = 
+    (vtkOldStyleCallbackCommand *)this->GetCommand(this->MiddleButtonReleaseTag);
+  if (cmd)
     {
-    this->MiddleButtonReleaseMethodArgDelete = f;
-    this->Modified();
+    cmd->SetClientDataDeleteCallback(f);
     }
 }
 
@@ -278,28 +204,21 @@ void vtkInteractorStyle::SetMiddleButtonReleaseMethodArgDelete(void (*f)(void *)
 void vtkInteractorStyle::SetRightButtonPressMethod(void (*f)(void *), 
                                                    void *arg)
 {
-  if ( f != this->RightButtonPressMethod || 
-       arg != this->RightButtonPressMethodArg )
-    {
-    // delete the current arg if there is one and a delete meth
-    if ((this->RightButtonPressMethodArg)&&
-        (this->RightButtonPressMethodArgDelete))
-      {
-      (*this->RightButtonPressMethodArgDelete)(this->RightButtonPressMethodArg);
-      }
-    this->RightButtonPressMethod = f;
-    this->RightButtonPressMethodArg = arg;
-    this->Modified();
-    }
+  vtkOldStyleCallbackCommand *cbc = new vtkOldStyleCallbackCommand;
+  cbc->Callback = f;
+  cbc->ClientData = arg;
+  this->RemoveObserver(this->RightButtonPressTag);
+  this->RightButtonPressTag = this->AddObserver(vtkCommand::RightButtonPressEvent,cbc);
 }
 
 // Called when a void* argument is being discarded.  Lets the user free it.
 void vtkInteractorStyle::SetRightButtonPressMethodArgDelete(void (*f)(void *))
 {
-  if ( f != this->RightButtonPressMethodArgDelete)
+  vtkOldStyleCallbackCommand *cmd = 
+    (vtkOldStyleCallbackCommand *)this->GetCommand(this->RightButtonPressTag);
+  if (cmd)
     {
-    this->RightButtonPressMethodArgDelete = f;
-    this->Modified();
+    cmd->SetClientDataDeleteCallback(f);
     }
 }
 
@@ -307,28 +226,21 @@ void vtkInteractorStyle::SetRightButtonPressMethodArgDelete(void (*f)(void *))
 void vtkInteractorStyle::SetRightButtonReleaseMethod(void (*f)(void *), 
                                                      void *arg)
 {
-  if ( f != this->RightButtonReleaseMethod || 
-       arg != this->RightButtonReleaseMethodArg )
-    {
-    // delete the current arg if there is one and a delete meth
-    if ((this->RightButtonReleaseMethodArg)&&
-        (this->RightButtonReleaseMethodArgDelete))
-      {
-      (*this->RightButtonReleaseMethodArgDelete)(this->RightButtonReleaseMethodArg);
-      }
-    this->RightButtonReleaseMethod = f;
-    this->RightButtonReleaseMethodArg = arg;
-    this->Modified();
-    }
+  vtkOldStyleCallbackCommand *cbc = new vtkOldStyleCallbackCommand;
+  cbc->Callback = f;
+  cbc->ClientData = arg;
+  this->RemoveObserver(this->RightButtonReleaseTag);
+  this->RightButtonReleaseTag = this->AddObserver(vtkCommand::RightButtonReleaseEvent,cbc);
 }
 
 // Called when a void* argument is being discarded.  Lets the user free it.
 void vtkInteractorStyle::SetRightButtonReleaseMethodArgDelete(void (*f)(void *))
 {
-  if ( f != this->RightButtonReleaseMethodArgDelete)
+  vtkOldStyleCallbackCommand *cmd = 
+    (vtkOldStyleCallbackCommand *)this->GetCommand(this->RightButtonReleaseTag);
+  if (cmd)
     {
-    this->RightButtonReleaseMethodArgDelete = f;
-    this->Modified();
+    cmd->SetClientDataDeleteCallback(f);
     }
 }
 
@@ -974,9 +886,9 @@ void vtkInteractorStyle::OnLeftButtonDown(int ctrl, int shift,
  this->UpdateInternalState(ctrl, shift, X, Y);
   //
   this->FindPokedCamera(X, Y);
-  if (this->LeftButtonPressMethod) 
+  if (this->HasObserver(vtkCommand::LeftButtonPressEvent)) 
     {
-    (*this->LeftButtonPressMethod)(this->LeftButtonPressMethodArg);
+    this->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
     }
   else 
     {
@@ -1011,9 +923,9 @@ void vtkInteractorStyle::OnLeftButtonUp(int ctrl, int shift, int X, int Y)
   //
  this->UpdateInternalState(ctrl, shift, X, Y);
   //
-  if (this->LeftButtonReleaseMethod) 
+  if (this->HasObserver(vtkCommand::LeftButtonReleaseEvent)) 
     {
-    (*this->LeftButtonReleaseMethod)(this->LeftButtonReleaseMethodArg);
+    this->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
     }
   else 
     {
@@ -1051,9 +963,9 @@ void vtkInteractorStyle::OnMiddleButtonDown(int ctrl, int shift,
   //
   this->FindPokedCamera(X, Y);
   //
-  if (this->MiddleButtonPressMethod) 
+  if (this->HasObserver(vtkCommand::MiddleButtonPressEvent)) 
     {
-    (*this->MiddleButtonPressMethod)(this->MiddleButtonPressMethodArg);
+    this->InvokeEvent(vtkCommand::MiddleButtonPressEvent,NULL);
     }
   else 
     {
@@ -1074,9 +986,9 @@ void vtkInteractorStyle::OnMiddleButtonUp(int ctrl, int shift,
   //
  this->UpdateInternalState(ctrl, shift, X, Y);
   //
-  if (this->MiddleButtonReleaseMethod) 
+  if (this->HasObserver(vtkCommand::MiddleButtonReleaseEvent)) 
     {
-    (*this->MiddleButtonReleaseMethod)(this->MiddleButtonReleaseMethodArg);
+    this->InvokeEvent(vtkCommand::MiddleButtonReleaseEvent,NULL);
     }
   else 
     {
@@ -1098,9 +1010,9 @@ void vtkInteractorStyle::OnRightButtonDown(int ctrl, int shift, int X, int Y)
  this->UpdateInternalState(ctrl, shift, X, Y);
   //
  this->FindPokedCamera(X, Y);
-  if (this->RightButtonPressMethod) 
+  if (this->HasObserver(vtkCommand::RightButtonPressEvent)) 
     {
-    (*this->RightButtonPressMethod)(this->RightButtonPressMethodArg);
+    this->InvokeEvent(vtkCommand::RightButtonPressEvent,NULL);
     }
   else 
     {
@@ -1113,9 +1025,9 @@ void vtkInteractorStyle::OnRightButtonUp(int ctrl, int shift, int X, int Y)
   //
  this->UpdateInternalState(ctrl, shift, X, Y);
   //
-  if (this->RightButtonReleaseMethod) 
+  if (this->HasObserver(vtkCommand::RightButtonReleaseEvent)) 
     {
-    (*this->RightButtonReleaseMethod)(this->RightButtonReleaseMethodArg);
+    this->InvokeEvent(vtkCommand::RightButtonReleaseEvent,NULL);
     }
   else 
     {
@@ -1357,29 +1269,29 @@ void vtkInteractorStyle::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Prop Picked: " <<
     (this->PropPicked ? "Yes\n" : "No\n");
   
-  if (this->LeftButtonPressMethod)
+  if (this->LeftButtonPressTag)
     {
     os << indent << "LeftButtonPressMethod: Defined\n";
     }
-  if (this->LeftButtonReleaseMethod)
+  if (this->LeftButtonReleaseTag)
     {
     os << indent << "LeftButtonReleaseMethod: Defined\n";
     }
   
-  if (this->MiddleButtonPressMethod)
+  if (this->MiddleButtonPressTag)
     {
     os << indent << "MiddleButtonPressMethod: Defined\n";
     }
-  if (this->MiddleButtonReleaseMethod)
+  if (this->MiddleButtonReleaseTag)
     {
     os << indent << "MiddleButtonReleaseMethod: Defined\n";
     }
   
-  if (this->RightButtonPressMethod)
+  if (this->RightButtonPressTag)
     {
     os << indent << "RightButtonPressMethod: Defined\n";
     }
-  if (this->RightButtonReleaseMethod)
+  if (this->RightButtonReleaseTag)
     {
     os << indent << "RightButtonReleaseMethod: Defined\n";
     }

@@ -229,41 +229,19 @@ protected:
   char *KeySym;
   int Button;
 
-  void (*MouseMoveMethod)(void *);
-  void (*MouseMoveMethodArgDelete)(void *);
-  void *MouseMoveMethodArg;
+  unsigned long MouseMoveTag;
+  unsigned long KeyPressTag;
+  unsigned long KeyReleaseTag;
+  unsigned long CharTag;
+  unsigned long EnterTag;
+  unsigned long LeaveTag;
+  unsigned long ConfigureTag;
+  unsigned long TimerTag;
+  unsigned long UserTag;
 
-  void (*KeyPressMethod)(void *);
-  void (*KeyPressMethodArgDelete)(void *);
-  void *KeyPressMethodArg;
-
-  void (*KeyReleaseMethod)(void *);
-  void (*KeyReleaseMethodArgDelete)(void *);
-  void *KeyReleaseMethodArg;  
-
-  void (*CharMethod)(void *);
-  void (*CharMethodArgDelete)(void *);
-  void *CharMethodArg;
-
-  void (*EnterMethod)(void *);
-  void (*EnterMethodArgDelete)(void *);
-  void *EnterMethodArg;
-
-  void (*LeaveMethod)(void *);
-  void (*LeaveMethodArgDelete)(void *);
-  void *LeaveMethodArg;
-
-  void (*ConfigureMethod)(void *);
-  void (*ConfigureMethodArgDelete)(void *);
-  void *ConfigureMethodArg;
-
-  void (*TimerMethod)(void *);
-  void (*TimerMethodArgDelete)(void *);
-  void *TimerMethodArg;
-
-  void (*UserInteractionMethod)(void *);
-  void (*UserInteractionMethodArgDelete)(void *);
-  void *UserInteractionMethodArg;
+  void vtkSetOldCallback(unsigned long &tag, unsigned long event, 
+                         void (*f)(void *), void *arg);
+  void vtkSetOldDelete(unsigned long tag, void (*f)(void *));
 };
 
 #endif

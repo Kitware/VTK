@@ -44,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkCellPicker.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkObjectFactory.h"
-
+#include "vtkCommand.h"
 
 
 //----------------------------------------------------------------------------
@@ -63,33 +63,15 @@ vtkInteractorStyleUser* vtkInteractorStyleUser::New()
 //----------------------------------------------------------------------------
 vtkInteractorStyleUser::vtkInteractorStyleUser()
 {
-  this->MouseMoveMethod = NULL;
-  this->MouseMoveMethodArgDelete = NULL;
-  this->MouseMoveMethodArg = NULL;
-  this->KeyPressMethod = NULL;
-  this->KeyPressMethodArgDelete = NULL;
-  this->KeyPressMethodArg = NULL;
-  this->KeyReleaseMethod = NULL;
-  this->KeyReleaseMethodArgDelete = NULL;
-  this->KeyReleaseMethodArg = NULL;
-  this->EnterMethod = NULL;
-  this->EnterMethodArgDelete = NULL;
-  this->EnterMethodArg = NULL;
-  this->LeaveMethod = NULL;
-  this->LeaveMethodArgDelete = NULL;
-  this->LeaveMethodArg = NULL;
-  this->ConfigureMethod = NULL;
-  this->ConfigureMethodArgDelete = NULL;
-  this->ConfigureMethodArg = NULL;
-  this->CharMethod = NULL;
-  this->CharMethodArgDelete = NULL;
-  this->CharMethodArg = NULL;
-  this->TimerMethod = NULL;
-  this->TimerMethodArgDelete = NULL;
-  this->TimerMethodArg = NULL;
-  this->UserInteractionMethod = NULL;
-  this->UserInteractionMethodArgDelete = NULL;
-  this->UserInteractionMethodArg = NULL;
+  this->MouseMoveTag = 0;
+  this->KeyPressTag = 0;
+  this->KeyReleaseTag = 0;
+  this->CharTag = 0;
+  this->EnterTag = 0;
+  this->LeaveTag = 0;
+  this->ConfigureTag = 0;
+  this->TimerTag = 0;
+  this->UserTag = 0;
 
   this->LastPos[0] = this->LastPos[1] = 0;
   this->OldPos[0] = this->OldPos[1] = 0;
@@ -101,11 +83,6 @@ vtkInteractorStyleUser::vtkInteractorStyleUser()
 //----------------------------------------------------------------------------
 vtkInteractorStyleUser::~vtkInteractorStyleUser() 
 {
-  if ((this->UserInteractionMethodArg)&&
-      (this->UserInteractionMethodArgDelete))
-    {
-    (*this->UserInteractionMethodArgDelete)(this->UserInteractionMethodArg);
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -124,34 +101,39 @@ void vtkInteractorStyleUser::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Button: " << this->Button << "\n";
 }
 
+void vtkInteractorStyleUser::vtkSetOldCallback(unsigned long &tag, unsigned long event, 
+                                               void (*f)(void *), void *arg)
+{
+  vtkOldStyleCallbackCommand *cbc = new vtkOldStyleCallbackCommand;
+  cbc->Callback = f;
+  cbc->ClientData = arg;
+  this->RemoveObserver(tag);
+  tag = this->AddObserver(event,cbc);
+}
+
+void vtkInteractorStyleUser::vtkSetOldDelete(unsigned long tag, void (*f)(void *))
+{
+  vtkOldStyleCallbackCommand *cmd = 
+    (vtkOldStyleCallbackCommand *)this->GetCommand(tag);
+  if (cmd)
+    {
+    cmd->SetClientDataDeleteCallback(f);
+    }
+}
+
 //----------------------------------------------------------------------------
 void vtkInteractorStyleUser::SetMouseMoveMethod(void (*f)(void *), 
 						      void *arg)
 {
-  if ( f != this->MouseMoveMethod || 
-       arg != this->MouseMoveMethodArg )
-    {
-    // delete the current arg if there is one and a delete meth
-    if ((this->MouseMoveMethodArg)&&
-        (this->MouseMoveMethodArgDelete))
-      {
-      (*this->MouseMoveMethodArgDelete)(this->MouseMoveMethodArg);
-      }
-    this->MouseMoveMethod = f;
-    this->MouseMoveMethodArg = arg;
-    this->Modified();
-    }
+  this->vtkSetOldCallback(this->MouseMoveTag,
+                    vtkCommand::MouseMoveEvent,f,arg);
 }
 
 //----------------------------------------------------------------------------
 // Called when a void* argument is being discarded.  Lets the user free it.
 void vtkInteractorStyleUser::SetMouseMoveMethodArgDelete(void (*f)(void *))
 {
-  if ( f != this->MouseMoveMethodArgDelete)
-    {
-    this->MouseMoveMethodArgDelete = f;
-    this->Modified();
-    }
+  this->vtkSetOldDelete(this->MouseMoveTag, f);
 }
 
 //----------------------------------------------------------------------------
@@ -193,239 +175,114 @@ void vtkInteractorStyleUser::SetButtonReleaseMethodArgDelete(void (*f)(void *))
 //----------------------------------------------------------------------------
 void vtkInteractorStyleUser::SetKeyPressMethod(void (*f)(void *), void *arg)
 {
-  if ( f != this->KeyPressMethod || 
-       arg != this->KeyPressMethodArg )
-    {
-    // delete the current arg if there is one and a delete meth
-    if ((this->KeyPressMethodArg)&&
-        (this->KeyPressMethodArgDelete))
-      {
-      (*this->KeyPressMethodArgDelete)(this->KeyPressMethodArg);
-      }
-    this->KeyPressMethod = f;
-    this->KeyPressMethodArg = arg;
-    this->Modified();
-    }
+  this->vtkSetOldCallback(this->KeyPressTag,
+                    vtkCommand::KeyPressEvent,f,arg);
 }
 
 //----------------------------------------------------------------------------
 // Called when a void* argument is being discarded.  Lets the user free it.
 void vtkInteractorStyleUser::SetKeyPressMethodArgDelete(void (*f)(void *))
 {
-  if ( f != this->KeyPressMethodArgDelete)
-    {
-    this->KeyPressMethodArgDelete = f;
-    this->Modified();
-    }
+  this->vtkSetOldDelete(this->KeyPressTag, f);
 }
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleUser::SetKeyReleaseMethod(void (*f)(void *), void *arg)
 {
-  if ( f != this->KeyReleaseMethod || 
-       arg != this->KeyReleaseMethodArg )
-    {
-    // delete the current arg if there is one and a delete meth
-    if ((this->KeyReleaseMethodArg)&&
-        (this->KeyReleaseMethodArgDelete))
-      {
-      (*this->KeyReleaseMethodArgDelete)(this->KeyReleaseMethodArg);
-      }
-    this->KeyReleaseMethod = f;
-    this->KeyReleaseMethodArg = arg;
-    this->Modified();
-    }
+  this->vtkSetOldCallback(this->KeyReleaseTag,
+                    vtkCommand::KeyReleaseEvent,f,arg);
 }
 
 //----------------------------------------------------------------------------
 // Called when a void* argument is being discarded.  Lets the user free it.
 void vtkInteractorStyleUser::SetKeyReleaseMethodArgDelete(void (*f)(void *))
 {
-  if ( f != this->KeyReleaseMethodArgDelete)
-    {
-    this->KeyReleaseMethodArgDelete = f;
-    this->Modified();
-    }
+  this->vtkSetOldDelete(this->KeyReleaseTag, f);
 }
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleUser::SetEnterMethod(void (*f)(void *), void *arg)
 {
-  if ( f != this->EnterMethod || 
-       arg != this->EnterMethodArg )
-    {
-    // delete the current arg if there is one and a delete meth
-    if ((this->EnterMethodArg)&&
-        (this->EnterMethodArgDelete))
-      {
-      (*this->EnterMethodArgDelete)(this->EnterMethodArg);
-      }
-    this->EnterMethod = f;
-    this->EnterMethodArg = arg;
-    this->Modified();
-    }
+  this->vtkSetOldCallback(this->EnterTag,
+                    vtkCommand::EnterEvent,f,arg);
 }
 
 //----------------------------------------------------------------------------
 // Called when a void* argument is being discarded.  Lets the user free it.
 void vtkInteractorStyleUser::SetEnterMethodArgDelete(void (*f)(void *))
 {
-  if ( f != this->EnterMethodArgDelete)
-    {
-    this->EnterMethodArgDelete = f;
-    this->Modified();
-    }
+  this->vtkSetOldDelete(this->EnterTag, f);
 }
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleUser::SetLeaveMethod(void (*f)(void *), void *arg)
 {
-  if ( f != this->LeaveMethod || 
-       arg != this->LeaveMethodArg )
-    {
-    // delete the current arg if there is one and a delete meth
-    if ((this->LeaveMethodArg)&&
-        (this->LeaveMethodArgDelete))
-      {
-      (*this->LeaveMethodArgDelete)(this->LeaveMethodArg);
-      }
-    this->LeaveMethod = f;
-    this->LeaveMethodArg = arg;
-    this->Modified();
-    }
+  this->vtkSetOldCallback(this->LeaveTag,
+                    vtkCommand::LeaveEvent,f,arg);
 }
 
 //----------------------------------------------------------------------------
 // Called when a void* argument is being discarded.  Lets the user free it.
 void vtkInteractorStyleUser::SetLeaveMethodArgDelete(void (*f)(void *))
 {
-  if ( f != this->LeaveMethodArgDelete)
-    {
-    this->LeaveMethodArgDelete = f;
-    this->Modified();
-    }
+  this->vtkSetOldDelete(this->LeaveTag, f);
 }
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleUser::SetConfigureMethod(void (*f)(void *), void *arg)
 {
-  if ( f != this->ConfigureMethod || 
-       arg != this->ConfigureMethodArg )
-    {
-    // delete the current arg if there is one and a delete meth
-    if ((this->ConfigureMethodArg)&&
-        (this->ConfigureMethodArgDelete))
-      {
-      (*this->ConfigureMethodArgDelete)(this->ConfigureMethodArg);
-      }
-    this->ConfigureMethod = f;
-    this->ConfigureMethodArg = arg;
-    this->Modified();
-    }
+  this->vtkSetOldCallback(this->ConfigureTag,
+                    vtkCommand::ConfigureEvent,f,arg);
 }
 
 //----------------------------------------------------------------------------
 // Called when a void* argument is being discarded.  Lets the user free it.
 void vtkInteractorStyleUser::SetConfigureMethodArgDelete(void (*f)(void *))
 {
-  if ( f != this->ConfigureMethodArgDelete)
-    {
-    this->ConfigureMethodArgDelete = f;
-    this->Modified();
-    }
+  this->vtkSetOldDelete(this->ConfigureTag, f);
 }
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleUser::SetCharMethod(void (*f)(void *), void *arg)
 {
-  if ( f != this->CharMethod || 
-       arg != this->CharMethodArg )
-    {
-    // delete the current arg if there is one and a delete meth
-    if ((this->CharMethodArg)&&
-        (this->CharMethodArgDelete))
-      {
-      (*this->CharMethodArgDelete)(this->CharMethodArg);
-      }
-    this->CharMethod = f;
-    this->CharMethodArg = arg;
-    this->Modified();
-    }
+  this->vtkSetOldCallback(this->CharTag,
+                    vtkCommand::CharEvent,f,arg);
 }
 
 //----------------------------------------------------------------------------
 // Called when a void* argument is being discarded.  Lets the user free it.
 void vtkInteractorStyleUser::SetCharMethodArgDelete(void (*f)(void *))
 {
-  if ( f != this->CharMethodArgDelete)
-    {
-    this->CharMethodArgDelete = f;
-    this->Modified();
-    }
+  this->vtkSetOldDelete(this->CharTag, f);
 }
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleUser::SetTimerMethod(void (*f)(void *), void *arg)
 {
-  if ( f != this->TimerMethod || 
-       arg != this->TimerMethodArg )
-    {
-    // delete the current arg if there is one and a delete meth
-    if ((this->TimerMethodArg)&&
-        (this->TimerMethodArgDelete))
-      {
-      (*this->TimerMethodArgDelete)(this->TimerMethodArg);
-      }
-    this->TimerMethod = f;
-    this->TimerMethodArg = arg;
-    this->Modified();
-
-    if (this->Interactor->GetInitialized() && f)
-      {
-      this->StartState(this->State);
-      }
-    }
+  this->vtkSetOldCallback(this->TimerTag,
+                    vtkCommand::TimerEvent,f,arg);
 }
 
 //----------------------------------------------------------------------------
 // Called when a void* argument is being discarded.  Lets the user free it.
 void vtkInteractorStyleUser::SetTimerMethodArgDelete(void (*f)(void *))
 {
-  if ( f != this->TimerMethodArgDelete)
-    {
-    this->TimerMethodArgDelete = f;
-    this->Modified();
-    }
+  this->vtkSetOldDelete(this->TimerTag, f);
 }
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleUser::SetUserInteractionMethod(void (*f)(void *), 
 						      void *arg)
 {
-  if ( f != this->UserInteractionMethod || 
-       arg != this->UserInteractionMethodArg )
-    {
-    // delete the current arg if there is one and a delete meth
-    if ((this->UserInteractionMethodArg)&&
-        (this->UserInteractionMethodArgDelete))
-      {
-      (*this->UserInteractionMethodArgDelete)(this->UserInteractionMethodArg);
-      }
-    this->UserInteractionMethod = f;
-    this->UserInteractionMethodArg = arg;
-    this->Modified();
-    }
+  this->vtkSetOldCallback(this->UserTag,
+                    vtkCommand::UserEvent,f,arg);
 }
 
 //----------------------------------------------------------------------------
 // Called when a void* argument is being discarded.  Lets the user free it.
 void vtkInteractorStyleUser::SetUserInteractionMethodArgDelete(void (*f)(void *))
 {
-  if ( f != this->UserInteractionMethodArgDelete)
-    {
-    this->UserInteractionMethodArgDelete = f;
-    this->Modified();
-    }
+  this->vtkSetOldDelete(this->UserTag, f);
 }
 
 //----------------------------------------------------------------------------
@@ -452,30 +309,30 @@ void  vtkInteractorStyleUser::EndUserInteraction()
 // checks for USERINTERACTION state, then defers to the superclass modes
 void vtkInteractorStyleUser::OnTimer(void) 
 {
-  if (this->TimerMethod)
+  if (this->HasObserver(vtkCommand::TimerEvent)) 
     {
-    (*this->TimerMethod)(this->TimerMethodArg);
+    this->InvokeEvent(vtkCommand::TimerEvent,NULL);
     }
 
   if (this->State == VTKIS_USERINTERACTION)
     {
-    if (this->UserInteractionMethod)
+    if (this->HasObserver(vtkCommand::UserEvent)) 
       {
-      (*this->UserInteractionMethod)(this->UserInteractionMethodArg);
+      this->InvokeEvent(vtkCommand::UserEvent,NULL);
       this->OldPos[0] = this->LastPos[0];
       this->OldPos[1] = this->LastPos[1];
       this->Interactor->CreateTimer(VTKI_TIMER_UPDATE);
       }
     }
-  else if (!(this->MouseMoveMethod && 
+  else if (!(this->HasObserver(vtkCommand::MouseMoveEvent) && 
 	     (this->Button == 0 ||
-	      (this->LeftButtonPressMethod && this->Button == 1) ||
-	      (this->MiddleButtonPressMethod && this->Button == 2) ||
-	      (this->RightButtonPressMethod && this->Button == 3))))
+	      (this->HasObserver(vtkCommand::LeftButtonPressEvent) && this->Button == 1) ||
+	      (this->HasObserver(vtkCommand::MiddleButtonPressEvent) && this->Button == 2) ||
+	      (this->HasObserver(vtkCommand::RightButtonPressEvent) && this->Button == 3))))
     {
     this->vtkInteractorStyleSwitch::OnTimer();
     }
-  else if (this->TimerMethod)
+  else if (this->HasObserver(vtkCommand::TimerEvent))
     {
     this->Interactor->CreateTimer(VTKI_TIMER_UPDATE);
     }
@@ -486,14 +343,13 @@ void vtkInteractorStyleUser::OnKeyPress(int ctrl, int shift,
 					char keycode, char *keysym, 
 					int vtkNotUsed(repeatcount))
 {
-  if (this->KeyPressMethod)
+  if (this->HasObserver(vtkCommand::KeyPressEvent)) 
     {
     this->ShiftKey = shift;
     this->CtrlKey = ctrl;
     this->KeySym = keysym;
     this->Char = keycode;  
-
-    (*this->KeyPressMethod)(this->KeyPressMethodArg);
+    this->InvokeEvent(vtkCommand::KeyPressEvent, NULL);
     }
 }
 
@@ -502,14 +358,14 @@ void vtkInteractorStyleUser::OnKeyRelease(int ctrl, int shift,
 					  char keycode, char *keysym, 
 					  int vtkNotUsed(repeatcount))
 {
-  if (this->KeyReleaseMethod)
+  if (this->HasObserver(vtkCommand::KeyReleaseEvent)) 
     {
     this->ShiftKey = shift;
     this->CtrlKey = ctrl;
     this->KeySym = keysym;
     this->Char = keycode;  
 
-    (*this->KeyReleaseMethod)(this->KeyReleaseMethodArg);
+    this->InvokeEvent(vtkCommand::KeyReleaseEvent,NULL);
     }
 }
 
@@ -519,13 +375,13 @@ void vtkInteractorStyleUser::OnChar(int ctrl, int shift, char keycode,
 {
   // do nothing if a KeyPressMethod has been set,
   // otherwise pass the OnChar to the vtkInteractorStyleSwitch.
-  if (this->CharMethod)
+  if (this->HasObserver(vtkCommand::CharEvent)) 
     {
     this->ShiftKey = shift;
     this->CtrlKey = ctrl;
     this->Char = keycode;  
-
-    (*this->CharMethod)(this->CharMethodArg);    
+    
+    this->InvokeEvent(vtkCommand::CharEvent,NULL);
     }
   else
     {
@@ -538,7 +394,7 @@ void vtkInteractorStyleUser::OnRightButtonDown(int ctrl, int shift, int x, int y
 {
   this->Button = 3;
 
-  if (this->RightButtonPressMethod) 
+  if (this->HasObserver(vtkCommand::RightButtonPressEvent)) 
     {
     this->CtrlKey  = ctrl;
     this->ShiftKey = shift;
@@ -547,7 +403,7 @@ void vtkInteractorStyleUser::OnRightButtonDown(int ctrl, int shift, int x, int y
     // this last one is for backwards compatibility
     this->Interactor->SetEventPosition(x, y);
 
-    (*this->RightButtonPressMethod)(this->RightButtonPressMethodArg);
+    this->InvokeEvent(vtkCommand::RightButtonPressEvent,NULL);
 
     this->OldPos[0] = x;
     this->OldPos[1] = y;
@@ -560,7 +416,7 @@ void vtkInteractorStyleUser::OnRightButtonDown(int ctrl, int shift, int x, int y
 //----------------------------------------------------------------------------
 void vtkInteractorStyleUser::OnRightButtonUp(int ctrl, int shift, int x, int y) 
 {
-  if (this->RightButtonReleaseMethod) 
+  if (this->HasObserver(vtkCommand::RightButtonReleaseEvent)) 
     {
     this->CtrlKey  = ctrl;
     this->ShiftKey = shift;
@@ -569,7 +425,7 @@ void vtkInteractorStyleUser::OnRightButtonUp(int ctrl, int shift, int x, int y)
     // this last one is for backwards compatibility
     this->Interactor->SetEventPosition(x, y);
 
-    (*this->RightButtonReleaseMethod)(this->RightButtonReleaseMethodArg);
+    this->InvokeEvent(vtkCommand::RightButtonReleaseEvent,NULL);
 
     this->OldPos[0] = x;
     this->OldPos[1] = y;
@@ -590,7 +446,7 @@ void vtkInteractorStyleUser::OnMiddleButtonDown(int ctrl,int shift,int x,int y)
 {
   this->Button = 2;
 
-  if (this->MiddleButtonPressMethod) 
+  if (this->HasObserver(vtkCommand::MiddleButtonPressEvent)) 
     {
     this->CtrlKey  = ctrl;
     this->ShiftKey = shift;
@@ -599,7 +455,7 @@ void vtkInteractorStyleUser::OnMiddleButtonDown(int ctrl,int shift,int x,int y)
     // this last one is for backwards compatibility
     this->Interactor->SetEventPosition(x, y);
 
-    (*this->MiddleButtonPressMethod)(this->MiddleButtonPressMethodArg);
+    this->InvokeEvent(vtkCommand::MiddleButtonPressEvent,NULL);
 
     this->OldPos[0] = x;
     this->OldPos[1] = y;
@@ -612,7 +468,7 @@ void vtkInteractorStyleUser::OnMiddleButtonDown(int ctrl,int shift,int x,int y)
 //----------------------------------------------------------------------------
 void vtkInteractorStyleUser::OnMiddleButtonUp(int ctrl,int shift,int x,int y) 
 {
-  if (this->MiddleButtonReleaseMethod) 
+  if (this->HasObserver(vtkCommand::MiddleButtonReleaseEvent)) 
     {
     this->CtrlKey  = ctrl;
     this->ShiftKey = shift;
@@ -621,7 +477,7 @@ void vtkInteractorStyleUser::OnMiddleButtonUp(int ctrl,int shift,int x,int y)
     // this last one is for backwards compatibility
     this->Interactor->SetEventPosition(x, y);
 
-    (*this->MiddleButtonReleaseMethod)(this->MiddleButtonReleaseMethodArg);
+    this->InvokeEvent(vtkCommand::MiddleButtonReleaseEvent,NULL);
 
     this->OldPos[0] = x;
     this->OldPos[1] = y;
@@ -642,7 +498,7 @@ void vtkInteractorStyleUser::OnLeftButtonDown(int ctrl,int shift,int x,int y)
 {
   this->Button = 1;
 
-  if (this->LeftButtonPressMethod) 
+  if (this->HasObserver(vtkCommand::LeftButtonPressEvent)) 
     {
     this->CtrlKey  = ctrl;
     this->ShiftKey = shift;
@@ -651,7 +507,7 @@ void vtkInteractorStyleUser::OnLeftButtonDown(int ctrl,int shift,int x,int y)
     // this last one is for backwards compatibility
     this->Interactor->SetEventPosition(x, y);
 
-    (*this->LeftButtonPressMethod)(this->LeftButtonPressMethodArg);
+    this->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
 
     this->OldPos[0] = x;
     this->OldPos[1] = y;
@@ -664,7 +520,7 @@ void vtkInteractorStyleUser::OnLeftButtonDown(int ctrl,int shift,int x,int y)
 //----------------------------------------------------------------------------
 void vtkInteractorStyleUser::OnLeftButtonUp(int ctrl, int shift, int x, int y) 
 {
-  if (this->LeftButtonReleaseMethod) 
+  if (this->HasObserver(vtkCommand::LeftButtonReleaseEvent)) 
     {
     this->CtrlKey  = ctrl;
     this->ShiftKey = shift;
@@ -673,7 +529,7 @@ void vtkInteractorStyleUser::OnLeftButtonUp(int ctrl, int shift, int x, int y)
     // this last one is for backwards compatibility
     this->Interactor->SetEventPosition(x, y);
 
-    (*this->LeftButtonReleaseMethod)(this->LeftButtonReleaseMethodArg);
+    this->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
 
     this->OldPos[0] = x;
     this->OldPos[1] = y;
@@ -700,9 +556,9 @@ void vtkInteractorStyleUser::OnMouseMove(int ctrl, int shift, int x, int y)
   this->ShiftKey = shift;
   this->CtrlKey = ctrl;
 
-  if (this->MouseMoveMethod) 
+  if (this->HasObserver(vtkCommand::MouseMoveEvent)) 
     {
-    (*this->MouseMoveMethod)(this->MouseMoveMethodArg);
+    this->InvokeEvent(vtkCommand::MouseMoveEvent,NULL);
 
     this->OldPos[0] = x;
     this->OldPos[1] = y;
@@ -713,37 +569,37 @@ void vtkInteractorStyleUser::OnMouseMove(int ctrl, int shift, int x, int y)
 void vtkInteractorStyleUser::OnConfigure(int vtkNotUsed(width), 
 					 int vtkNotUsed(height)) 
 {
-  if (this->ConfigureMethod)
+  if (this->HasObserver(vtkCommand::ConfigureEvent)) 
     {
-    (*this->ConfigureMethod)(this->ConfigureMethodArg);
+    this->InvokeEvent(vtkCommand::ConfigureEvent,NULL);
     }
 }
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleUser::OnEnter(int ctrl, int shift, int x, int y)
 {
-  if (this->EnterMethod)
+  if (this->HasObserver(vtkCommand::EnterEvent)) 
     {
     this->ShiftKey = shift;
     this->CtrlKey = ctrl;
     this->LastPos[0] = x;
     this->LastPos[1] = y;
 
-    (*this->EnterMethod)(this->EnterMethodArg);
+    this->InvokeEvent(vtkCommand::EnterEvent,NULL);
     }
 }
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleUser::OnLeave(int ctrl, int shift, int x, int y)
 {
-  if (this->LeaveMethod)
+  if (this->HasObserver(vtkCommand::LeaveEvent)) 
     {
     this->ShiftKey = shift;
     this->CtrlKey = ctrl;
     this->LastPos[0] = x;
     this->LastPos[1] = y;
 
-    (*this->LeaveMethod)(this->LeaveMethodArg);
+    this->InvokeEvent(vtkCommand::LeaveEvent,NULL);
     }
 }
 
