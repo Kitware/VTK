@@ -10,13 +10,17 @@ source $VTK_TCL/vtkInt.tcl
 
 
 vtkSphereSource sphere
-  sphere SetThetaResolution 4
-  sphere SetPhiResolution 3
+  sphere SetThetaResolution 6
+  sphere SetPhiResolution 5
+  sphere Update
 
-
+# get rid of the normals (deci does not handle normals properly yet).
+vtkPolyData noNorms
+  noNorms ShallowCopy [sphere GetOutput]
+  [noNorms GetPointData] SetNormals {}
 
 vtkQuadricDecimation deci
-  deci SetInput [sphere GetOutput]
+  deci SetInput noNorms
 # max cost set to large number to ensure that we reach the maximum number of
 # collapsed edges we set
   deci SetMaximumCost 1000000
@@ -30,9 +34,10 @@ vtkExtractEdges edges
 vtkTubeFilter tuber1
   tuber1 SetInput [edges GetOutput]
   tuber1 SetNumberOfSides 8
-  tuber1 SetRadius 0.01
+  tuber1 SetRadius 0.005
 
 vtkPolyDataMapper tubeMapper1
+  tubeMapper1 ImmediateModeRenderingOn
   tubeMapper1 SetInput [tuber1 GetOutput]
   
 vtkActor tubeActor1
@@ -44,9 +49,10 @@ vtkActor tubeActor1
 vtkTubeFilter tuber
   tuber SetInput [deci GetTestOutput]
   tuber SetNumberOfSides 8
-  tuber SetRadius 0.02
+  tuber SetRadius 0.01
 
 vtkPolyDataMapper tubeMapper
+  tubeMapper ImmediateModeRenderingOn
   tubeMapper SetInput [tuber GetOutput]
   
 vtkActor tubeActor
@@ -88,7 +94,7 @@ scale .top.f2.s1 -label " Phi Resolution: " -orient horizontal \
 scale .top.f2.s2 -label " ThetaResolution: " -orient horizontal \
 	-length 200 -from 3 -to 50 -variable ThetaRes 
 scale .top.f2.s3 -label " EdgeCollapsed: " -orient horizontal \
-	-length 200 -from 0 -to 19 -variable MaxCollapsedEdges
+	-length 200 -from 0 -to 100 -variable MaxCollapsedEdges
 
 pack .top.f2.s1 .top.f2.s2 .top.f2.s3 -side top -expand 1 -fill both
 
@@ -97,12 +103,29 @@ pack .top.f2.b1  -expand 1 -fill x
 
 bind .top.f2.s1 <ButtonRelease> {
    sphere SetPhiResolution $PhiRes
+
+   # get rid of the normals (deci does not handle normals properly yet).
+   sphere Update
+   noNorms ShallowCopy [sphere GetOutput]
+   [noNorms GetPointData] SetNormals {}
+
    renWin Render
+
+   set num [[deci GetInput] GetNumberOfCells]
+   .top.f2.s3 configure -to $num
 }
 
 bind .top.f2.s2 <ButtonRelease> { 
    sphere SetThetaResolution $ThetaRes
+
+   # get rid of the normals (deci does not handle normals properly yet).
+   sphere Update
+   noNorms ShallowCopy [sphere GetOutput]
+   [noNorms GetPointData] SetNormals {}
+
    renWin Render
+   set num [[deci GetInput] GetNumberOfCells]
+   .top.f2.s3 configure -to $num
 }
 
 bind .top.f2.s3 <ButtonRelease> {
@@ -112,6 +135,7 @@ bind .top.f2.s3 <ButtonRelease> {
 
 
 vtkPolyDataMapper mapper
+  mapper ImmediateModeRenderingOn
   mapper SetInput [deci GetOutput]
 vtkActor actor
   actor SetMapper mapper
