@@ -48,7 +48,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct empty object.
 vtkStarbasePolyDataMapper::vtkStarbasePolyDataMapper()
 {
-  this->Data = NULL; 
   this->Colors = NULL; 
   this->Prim = NULL;
 }
@@ -117,12 +116,12 @@ void vtkStarbasePolyDataMapper::Build(vtkPolyData *data, vtkColorScalars *c)
   vtkNormals *normals;
   vtkTCoords *t;
   int maxSize;
+  vtkPolyData *input= (vtkPolyData *)this->Input;
 
-  this->Data = data;
   this->Colors = c;
 
-  normals = this->Data->GetPointData()->GetNormals();
-  t = this->Data->GetPointData()->GetTCoords();
+  normals = input->GetPointData()->GetNormals();
+  t = input->GetPointData()->GetTCoords();
 
   this->DataFlag = 0;
   if (this->Colors)
@@ -177,6 +176,7 @@ void vtkStarbasePolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
   float clr[3];
   vtkTCoords *t;
   int vflags = 0;
+  vtkPolyData *input= (vtkPolyData *)this->Input;
 
   // get the fd
   fd = ren->GetFd();
@@ -191,15 +191,15 @@ void vtkStarbasePolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
   if (tran <= 0.0) return;
 
   // and draw the display list
-  p = this->Data->GetPoints();
+  p = input->GetPoints();
   c = this->Colors;
-  n = this->Data->GetPointData()->GetNormals();
-  prims[0] = this->Data->GetVerts();
-  prims[1] = this->Data->GetLines();
-  prims[2] = this->Data->GetStrips();
-  prims[3] = this->Data->GetPolys();
+  n = input->GetPointData()->GetNormals();
+  prims[0] = input->GetVerts();
+  prims[1] = input->GetLines();
+  prims[2] = input->GetStrips();
+  prims[3] = input->GetPolys();
 
-  t = this->Data->GetPointData()->GetTCoords();
+  t = input->GetPointData()->GetTCoords();
   if ( t ) 
     {
     if (t->GetDimension() != 2)
