@@ -26,7 +26,7 @@ int vlCharArray::Allocate(const int sz, const int ext)
   if ( this->Array != NULL ) delete [] this->Array;
 
   this->Size = ( sz > 0 ? sz : 1);
-  if ( (this->Array = new char[sz]) == NULL ) return 0;
+  if ( (this->Array = new unsigned char[sz]) == NULL ) return 0;
   this->Extend = ( ext > 0 ? ext : 1);
   this->MaxId = -1;
 
@@ -51,7 +51,7 @@ void vlCharArray::Initialize()
 vlCharArray::vlCharArray(const int sz, const int ext)
 {
   this->Size = ( sz > 0 ? sz : 1);
-  this->Array = new char[sz];
+  this->Array = new unsigned char[sz];
   this->Extend = ( ext > 0 ? ext : 1);
   this->MaxId = -1;
 }
@@ -71,7 +71,7 @@ vlCharArray::vlCharArray(const vlCharArray& ia)
   this->Size = ia.Size;
   this->Extend = ia.Extend;
 
-  this->Array = new char[this->Size];
+  this->Array = new unsigned char[this->Size];
   for (i=0; i<this->MaxId; i++)
     this->Array[i] = ia.Array[i];
 
@@ -91,7 +91,7 @@ vlCharArray& vlCharArray::operator=(const vlCharArray& ia)
     this->Size = ia.Size;
     this->Extend = ia.Extend;
 
-    this->Array = new char[this->Size];
+    this->Array = new unsigned char[this->Size];
     for (i=0; i<=this->MaxId; i++)
       this->Array[i] = ia.Array[i];
     }
@@ -126,16 +126,16 @@ void vlCharArray::PrintSelf(ostream& os, vlIndent indent)
 //
 // Private function does "reallocate"
 //
-char *vlCharArray::Resize(const int sz)
+unsigned char *vlCharArray::Resize(const int sz)
 {
-  char *newArray;
+  unsigned char *newArray;
   int newSize;
 
   if ( sz >= this->Size ) newSize = this->Size + 
     this->Extend*(((sz-this->Size)/this->Extend)+1);
   else newSize = sz;
 
-  if ( (newArray = new char[newSize]) == NULL )
+  if ( (newArray = new unsigned char[newSize]) == NULL )
     {
     vlErrorMacro(<< "Cannot allocate memory\n");
     return 0;
