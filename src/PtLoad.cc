@@ -152,8 +152,7 @@ void vtkPointLoad::Execute()
       for (i=0; i<this->Dimensions[0]; i++)
         {
         x = (this->Origin[0] + i*this->AspectRatio[0]) - xP[0];
-        rho = sqrt((x-xP[0])*(x-xP[0]) + (y-xP[1])*(y-xP[1]) + 
-                   (z-xP[2])*(z-xP[2]));
+        rho = sqrt(x*x + y*y + z*z);//in local coordinates
         if ( rho < 1.0e-10 )
           {
           vtkWarningMacro(<<"Attempting to set singularity, resetting");
