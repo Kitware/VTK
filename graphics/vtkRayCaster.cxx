@@ -200,6 +200,7 @@ vtkRayCaster::vtkRayCaster()
   this->ImageRenderTime[0]           = 0.0;
   this->ImageRenderTime[1]           = 0.0;
   this->StableImageScaleCounter      = 10;
+  this->PreviousAllocatedTime        = 0.0;
   scale = 1.0;
   for ( i = 0; i < VTK_MAX_VIEW_RAYS_LEVEL; i++ )
     {
@@ -460,6 +461,12 @@ float vtkRayCaster::GetViewportScaleFactor( vtkRenderer *ren )
   time_to_render = ren->GetAllocatedRenderTime();
   if ( time_to_render == 0.0 ) 
     time_to_render = 10000.0;
+
+  if ( ( time_to_render - this->PreviousAllocatedTime ) >  0.05 ||
+       ( time_to_render - this->PreviousAllocatedTime ) < -0.05 )
+    this->StableImageScaleCounter = 10;
+
+  this->PreviousAllocatedTime = time_to_render;
 
   // First test the full res level - is that ok?
   selected_level = 0;

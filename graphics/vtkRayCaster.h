@@ -127,6 +127,7 @@ protected:
   int		BilinearImageZoom;
   int           SelectedImageScaleIndex;
   int           StableImageScaleCounter;
+  float         PreviousAllocatedTime;
   int           AutomaticScaleAdjustment;
   float         AutomaticScaleLowerLimit;
   float         ImageRenderTime[2];
