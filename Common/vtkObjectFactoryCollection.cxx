@@ -17,7 +17,9 @@
 =========================================================================*/
 #include "vtkObjectFactoryCollection.h"
 
-vtkCxxRevisionMacro(vtkObjectFactoryCollection, "1.3");
+#include "vtkDebugLeaks.h"
+
+vtkCxxRevisionMacro(vtkObjectFactoryCollection, "1.4");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
