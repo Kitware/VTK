@@ -230,8 +230,7 @@ void outputFunction(FILE *fp, FileInfo *data)
   int args_ok = 1;
  
   /* some functions will not get wrapped no matter what else */
-  if (currentFunction->IsPureVirtual ||
-      currentFunction->IsOperator || 
+  if (currentFunction->IsOperator || 
       currentFunction->ArrayFailure ||
       !currentFunction->IsPublic ||
       !currentFunction->Name) 

@@ -457,8 +457,7 @@ void outputFunction(FILE *fp, FileInfo *data)
   CurrentData = data;
 
   /* some functions will not get wrapped no matter what else */
-  if (currentFunction->IsPureVirtual ||
-      currentFunction->IsOperator || 
+  if (currentFunction->IsOperator || 
       currentFunction->ArrayFailure ||
       !currentFunction->IsPublic ||
       !currentFunction->Name) 
