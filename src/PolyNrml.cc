@@ -51,6 +51,7 @@ void vlPolyNormals::Execute()
   int replacementPoint, numPolys;
   int cellId, numPts;
   vlPoints *inPts;
+  vlCellArray *inPolys;
   vlPolygon poly;
   vlMath math;
   vlFloatPoints *newPts;
@@ -71,19 +72,23 @@ void vlPolyNormals::Execute()
     return;
     }
 //
-// Load data into cell structure.  We need two copies: one is a non-writable
-// mesh used to perform topological queries.  The other is used to write into
-// and modify the connectivity of the mesh.
+// Load data into cell structure.  We need two copies: one is a 
+// non-writable mesh used to perform topological queries.  The other 
+// is used to write into and modify the connectivity of the mesh.
 //
+  inPts = this->Input->GetPoints();
+  inPolys = this->Input->GetPolys();
+
   OldMesh = new vlPolyData;
-  OldMesh->SetPolys(this->Input->GetPolys());
+  OldMesh->SetPoints(inPts);
+  OldMesh->SetPolys(inPolys);
   
   pd = this->Input->GetPointData();
     
   NewMesh = new vlPolyData;
-  NewMesh->SetPoints(this->Input->GetPoints());
+  NewMesh->SetPoints(inPts);
   // create a copy because we're modifying it
-  newPolys = new vlCellArray(*(this->Input->GetPolys()));
+  newPolys = new vlCellArray(*(inPolys));
   NewMesh->SetPolys(newPolys);
 //
 // The visited array keeps track of which polygons have been visited.
@@ -182,7 +187,7 @@ void vlPolyNormals::Execute()
 //  Now need to map values of old points into new points.
 //
     this->PointData.CopyNormalsOff();
-    this->PointData.CopyAllocate(pd);
+    this->PointData.CopyAllocate(pd,numNewPts);
 
     newPts = new vlFloatPoints(numNewPts);
     for (ptId=0; ptId < numNewPts; ptId++)
@@ -224,7 +229,7 @@ void vlPolyNormals::Execute()
 
   for (i=0; i < numNewPts; i++) 
     {
-    vertNormal = newNormals->GetNormal(pts[i]);
+    vertNormal = newNormals->GetNormal(i);
     length = math.Norm(vertNormal);
     if (length != 0.0) 
       {
@@ -254,8 +259,8 @@ void vlPolyNormals::Execute()
 
   delete OldMesh;
   delete NewMesh;
-
 }
+
 //
 //  Mark current polygon as visited, make sure that all neighboring
 //  polygons are ordered consistent with this one.

@@ -16,6 +16,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "ContourF.hh"
 #include "FScalars.hh"
 #include "Cell.hh"
+#include "MergePts.hh"
 
 // Description:
 // Construct object with initial range (0,1) and single contour value
@@ -26,6 +27,10 @@ vlContourFilter::vlContourFilter()
   this->NumberOfContours = 1;
   this->Range[0] = 0.0;
   this->Range[1] = 1.0;
+}
+
+vlContourFilter::~vlContourFilter()
+{
 }
 
 // Description:
@@ -77,7 +82,7 @@ void vlContourFilter::Execute()
   float *range, value;
   vlFloatScalars *newScalars;
   vlCellArray *newVerts, *newLines, *newPolys;
-  vlFloatPoints *newPoints;
+  vlFloatPoints *newPts;
 
   vlDebugMacro(<< "Executing contour filter");
 //
@@ -94,13 +99,14 @@ void vlContourFilter::Execute()
 //
 // Create objects to hold output of contour operation
 //
-  newPoints = new vlFloatPoints(1000,1000);
-  newVerts = new vlCellArray(1000,1000);
+  newPts = new vlFloatPoints(1000,10000);
+  newVerts = new vlCellArray(1000,10000);
   newLines = new vlCellArray(1000,10000);
   newPolys = new vlCellArray(1000,10000);
   newScalars = new vlFloatScalars(3000,30000);
 //
-// Loop over all contour values.  For each contour value, loop over all cells.
+// Loop over all contour values.  Then for each contour value, 
+// loop over all cells.
 //
   for (i=0; i<this->NumberOfContours; i++)
     {
@@ -111,43 +117,37 @@ void vlContourFilter::Execute()
       cellPts = cell->GetPointIds();
       inScalars->GetScalars(*cellPts,cellScalars);
 
-      cell->Contour(value, &cellScalars, newPoints, newVerts, newLines, newPolys, newScalars);
+      cell->Contour(value, &cellScalars, newPts, newVerts, newLines, newPolys, newScalars);
 
       } // for all cells
     } // for all contour values
+
+  vlDebugMacro(<<"Created: " 
+               << newPts->GetNumberOfPoints() << " points, " 
+               << newVerts->GetNumberOfCells() << " verts, " 
+               << newLines->GetNumberOfCells() << " lines, " 
+               << newPolys->GetNumberOfCells() << " triangles");
 //
-// Update ourselves.  Because we don't know upfront how many verts, lines,
+// Update ourselves.  Because we don't know up front how many verts, lines,
 // polys we've created, take care to reclaim memory. 
 //
-  this->SetPoints(newPoints);
+  this->SetPoints(newPts);
   this->PointData.SetScalars(newScalars);
 
   if (newVerts->GetNumberOfCells()) 
-    {
     this->SetVerts(newVerts);
-    }
   else
-    {
     delete newVerts;
-    }
 
   if (newLines->GetNumberOfCells()) 
-    {
     this->SetLines(newLines);
-    }
   else
-    {
     delete newLines;
-    }
 
   if (newPolys->GetNumberOfCells()) 
-    {
     this->SetPolys(newPolys);
-    }
   else
-    {
     delete newPolys;
-    }
 
   this->Squeeze();
 }

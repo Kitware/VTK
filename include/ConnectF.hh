@@ -58,8 +58,8 @@ public:
   // Description:
   // Extraction algorithm works recursively. In some systems the stack depth
   // is limited. This methods specifies the maximum recursion depth.
-  vlSetClampMacro(RecursionDepth,int,10,LARGE_INTEGER);
-  vlGetMacro(RecursionDepth,int);
+  vlSetClampMacro(MaxRecursionDepth,int,10,LARGE_INTEGER);
+  vlGetMacro(MaxRecursionDepth,int);
 
   // Description:
   // Turn on/off the coloring of connected regions.
@@ -74,7 +74,7 @@ protected:
   int ColorRegions; //boolean turns on/off scalar generation for separate regions
   int ExtractionMode; //how to extract regions
   vlIdList Seeds; //id's of points or cells used to seed regions
-  int RecursionDepth; //prevent excessive recursion
+  int MaxRecursionDepth; //prevent excessive recursion
   vlIdList SpecifiedRegionIds; //regions specified for extraction
   vlIntArray RegionSizes; //size (in cells) of each region extracted
   int NumberOfRegionsToExtract;
