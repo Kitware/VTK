@@ -207,8 +207,10 @@ protected:
   void InitializeRenderBuffers( vtkRenderer *ren );
   void InitializeRayCasting( vtkRenderer *ren );
 
+//BTX
   void ComputeRowBounds( vtkRenderer *ren,
 			 struct VolumeRayCastVolumeInfoStruct *volumeInfo );
+//ETX
 
   friend VTK_THREAD_RETURN_TYPE RayCast_RenderImage( void *arg );
 
