@@ -57,7 +57,7 @@ void  vlLookupTable::SetTableRange(float min, float max)
 
 void vlLookupTable::Build()
 {
-  int i, hueCase, indx;
+  int i, hueCase;
   float hue, sat, val, lx, ly, lz, frac, hinc, sinc, vinc;
   float rgb[3];
 
@@ -136,7 +136,7 @@ float *vlLookupTable::MapValue(float v)
 {
   int indx;
 
-  indx = (v-this->TableRange[0])/(this->TableRange[1]-this->TableRange[0]) * this->NumberOfColors;
+  indx = (int)((v-this->TableRange[0])/(this->TableRange[1]-this->TableRange[0]) * this->NumberOfColors);
   indx = (indx < 0 ? 0 : (indx >= this->NumberOfColors ? this->NumberOfColors-1 : indx));
 
   return this->Table.GetColor(indx);
