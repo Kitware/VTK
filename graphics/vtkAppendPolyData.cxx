@@ -387,11 +387,12 @@ int vtkAppendPolyData::ComputeInputUpdateExtents(vtkDataObject *data)
       {
       if (this->ParallelStreaming)
         {
-        this->Inputs[idx]->SetUpdateExtent(piece+idx, numPieces);
+        this->Inputs[idx]->SetUpdateExtent(piece + idx, 
+				numPieces * this->NumberOfInputs);
         }
       else
         {
-        this->Inputs[idx]->SetUpdateExtent(piece, this->NumberOfInputs);
+        this->Inputs[idx]->SetUpdateExtent(piece, numPieces);
         }
       }
     }
