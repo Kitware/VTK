@@ -16,11 +16,13 @@
 
 #include "vtkCellArray.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkOBJReader, "1.26");
+vtkCxxRevisionMacro(vtkOBJReader, "1.27");
 vtkStandardNewMacro(vtkOBJReader);
 
 // Description:
@@ -28,6 +30,8 @@ vtkStandardNewMacro(vtkOBJReader);
 vtkOBJReader::vtkOBJReader()
 {
   this->FileName = NULL;
+
+  this->SetNumberOfInputPorts(0);
 }
 
 vtkOBJReader::~vtkOBJReader()
@@ -89,12 +93,22 @@ int is_whitespace(char c)
     return 0;
 }
 
-void vtkOBJReader::Execute()
+int vtkOBJReader::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the ouptut
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   if (!this->FileName) 
     {
     vtkErrorMacro(<< "A FileName must be specified.");
-    return;
+    return 0;
     }
     
   FILE *in = fopen(this->FileName,"r");
@@ -102,11 +116,11 @@ void vtkOBJReader::Execute()
   if (in == NULL) 
     {
     vtkErrorMacro(<< "File " << this->FileName << " not found");
-    return;
+    return 0;
     }
-    
+
   vtkDebugMacro(<<"Reading file");
-    
+
   // intialise some structures to store the file contents in
   vtkPoints *points = vtkPoints::New(); 
   vtkFloatArray *tcoords = vtkFloatArray::New();
@@ -120,7 +134,7 @@ void vtkOBJReader::Execute()
   vtkCellArray *normal_polys = vtkCellArray::New();
   int hasNormals=0; // (false)
   int normals_same_as_verts=1; // (true)
-    
+
   int everything_ok = 1; // (true)   (use of this flag avoids early return and associated memory leak)
 
   // -- work through the file line by line, assigning into the above six structures as appropriate --
@@ -237,10 +251,11 @@ void vtkOBJReader::Execute()
             }
           // skip over what we just read
           // (find the first whitespace character)
-          while (!is_whitespace(*pChar) && pChar<pEnd) { pChar++; }
-
+          while (!is_whitespace(*pChar) && pChar<pEnd)
+            {
+            pChar++;
+            }
           }
-
         }
 
       // count of tcoords and normals must be equal to number of vertices or zero
@@ -281,20 +296,21 @@ void vtkOBJReader::Execute()
       {
       vtkDebugMacro(<<"Copying file data into the output directly");
 
-      this->GetOutput()->SetPoints(points);
-      this->GetOutput()->SetPolys(polys);
+      output->SetPoints(points);
+      output->SetPolys(polys);
 
       // if there is an exact correspondence between tcoords and vertices then can simply
       // assign the tcoords points as point data
       if (hasTCoords && tcoords_same_as_verts)
-        this->GetOutput()->GetPointData()->SetTCoords(tcoords);
+        output->GetPointData()->SetTCoords(tcoords);
 
       // if there is an exact correspondence between normals and vertices then can simply
       // assign the normals as point data
       if (hasNormals && normals_same_as_verts)
-        this->GetOutput()->GetPointData()->SetNormals(normals);
-
-      this->GetOutput()->Squeeze();
+        {
+        output->GetPointData()->SetNormals(normals);
+        }
+      output->Squeeze();
       }
     // otherwise we can duplicate the vertices as necessary (a bit slower)
     else 
@@ -342,10 +358,14 @@ void vtkOBJReader::Execute()
             {
             // copy the tcoord for this point across (if there is one)
             if (n_tcoord_pts>0)
+              {
               new_tcoords->InsertNextTuple(tcoords->GetTuple(tcoord_pts[j]));
+              }
             // copy the normal for this point across (if there is one)
             if (n_normal_pts>0)
+              {
               new_normals->InsertNextTuple(normals->GetTuple(normal_pts[j]));
+              }
             // copy the vertex into the new structure and update
             // the vertex index in the polys structure (pts is a pointer into it)
             pts[j] = new_points->InsertNextPoint(points->GetPoint(pts[j]));
@@ -356,13 +376,17 @@ void vtkOBJReader::Execute()
         }
 
       // use the new structures for the output
-      this->GetOutput()->SetPoints(new_points);
-      this->GetOutput()->SetPolys(new_polys);
+      output->SetPoints(new_points);
+      output->SetPolys(new_polys);
       if (hasTCoords)
-        this->GetOutput()->GetPointData()->SetTCoords(new_tcoords);
+        {
+        output->GetPointData()->SetTCoords(new_tcoords);
+        }
       if (hasNormals)
-        this->GetOutput()->GetPointData()->SetNormals(new_normals);
-      this->GetOutput()->Squeeze();
+        {
+        output->GetPointData()->SetNormals(new_normals);
+        }
+      output->Squeeze();
 
       new_points->Delete();
       new_polys->Delete();
@@ -377,6 +401,8 @@ void vtkOBJReader::Execute()
   polys->Delete();
   tcoord_polys->Delete();
   normal_polys->Delete();
+
+  return 1;
 }
 
 void vtkOBJReader::PrintSelf(ostream& os, vtkIndent indent)
@@ -387,4 +413,3 @@ void vtkOBJReader::PrintSelf(ostream& os, vtkIndent indent)
      << (this->FileName ? this->FileName : "(none)") << "\n";
 
 }
-
