@@ -343,6 +343,15 @@ static void vtkTkImageViewerWidget_EventProc(ClientData clientData,
     case MapNotify:
       break;
     case DestroyNotify:
+#if _WIN32
+    if (self->ImageViewer->GetRenderWindow()->GetGenericWindowId())
+      {
+      SetWindowLong((HWND)self->ImageViewer->GetRenderWindow()->GetGenericWindowId(),
+                    GWL_USERDATA,(LONG)((TkWindow *)self->TkWin)->window);
+      SetWindowLong((HWND)self->ImageViewer->GetRenderWindow()->GetGenericWindowId(),
+                    GWL_WNDPROC,(LONG)TkWinChildProc);
+      }
+#endif
       Tcl_EventuallyFree( (ClientData) self, vtkTkImageViewerWidget_Destroy );
       break;
     default:
