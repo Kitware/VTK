@@ -698,7 +698,7 @@ int TestWithPointsAndCells(ostream &strm)
   i=0;
   count=ds->GetNumberOfCells(-1);
   
-  vtkGenericAdaptorCell *cab2=0;
+  vtkGenericAdaptorCell *cab2;
   
   while(i<count)
     {
