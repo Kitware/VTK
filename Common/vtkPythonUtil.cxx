@@ -18,9 +18,9 @@
 
 // This include allows VTK to build on some platforms with broken Python
 // header files.
-#include "vtkSystemIncludes.h"
-
 #include "vtkPythonUtil.h"
+
+#include "vtkSystemIncludes.h"
 
 #include "vtkObject.h"
 #include "vtkObjectFactory.h"
