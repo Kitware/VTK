@@ -19,7 +19,7 @@
 
 #include <time.h>
 
-vtkCxxRevisionMacro(vtkParametricRandomHills, "1.1");
+vtkCxxRevisionMacro(vtkParametricRandomHills, "1.2");
 vtkStandardNewMacro(vtkParametricRandomHills);
 
 vtkParametricRandomHills::vtkParametricRandomHills() :
@@ -72,13 +72,14 @@ double vtkParametricRandomHills::Rand ( void )
 
 void vtkParametricRandomHills::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
 {
+  int i;
   double u = uvw[0];
   double v = uvw[1];
   double *Du = Duvw;
   double *Dv = Duvw + 3;
 
   // Zero out the point and derivatives.
-  for ( int i = 0; i < 3; ++i )
+  for ( i = 0; i < 3; ++i )
     Pt[i] = Du[i] = Dv[i] = 0;
 
   // The point
@@ -87,7 +88,7 @@ void vtkParametricRandomHills::Evaluate(double uvw[3], double Pt[3], double Duvw
   Pt[0] = u;
   Pt[1] = this->MaximumV - v; // Texturing is oriented OK if we do this.
   double hillTuple[5]; // 0: mX, 1: mY, 2: VarX, 3: VarY, 4: Amplitude
-  for ( int i = 0; i < NumberOfHills; ++i )
+  for ( i = 0; i < NumberOfHills; ++i )
   {
     this->hillData->GetTuple(i,hillTuple);
     double x = (Pt[0] - hillTuple[0])/hillTuple[2];
