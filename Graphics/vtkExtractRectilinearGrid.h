@@ -26,19 +26,14 @@
 #ifndef __vtkExtractRectilinearGrid_h
 #define __vtkExtractRectilinearGrid_h
 
-#include "vtkRectilinearGridSource.h"
+#include "vtkRectilinearGridAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkExtractRectilinearGrid : public vtkRectilinearGridSource
+class VTK_GRAPHICS_EXPORT vtkExtractRectilinearGrid : public vtkRectilinearGridAlgorithm
 {
 public:
   static vtkExtractRectilinearGrid *New();
-  vtkTypeRevisionMacro(vtkExtractRectilinearGrid,vtkRectilinearGridSource);
+  vtkTypeRevisionMacro(vtkExtractRectilinearGrid,vtkRectilinearGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-
-  // Description:
-  // Set / get the input Grid or filter.
-  void SetInput(vtkRectilinearGrid *input);
-  vtkRectilinearGrid *GetInput();
 
   // Description:
   // Specify i-j-k (min,max) pairs to extract. The resulting structured grid
@@ -70,15 +65,14 @@ protected:
   vtkExtractRectilinearGrid();
   ~vtkExtractRectilinearGrid() {};
 
-  void Execute();
-  void ExecuteInformation();
-  void ComputeInputUpdateExtents(vtkDataObject *out);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   
   int VOI[6];
   int SampleRate[3];
   int IncludeBoundary;
   
-  virtual int FillInputPortInformation(int, vtkInformation*);
 private:
   vtkExtractRectilinearGrid(const vtkExtractRectilinearGrid&);  // Not implemented.
   void operator=(const vtkExtractRectilinearGrid&);  // Not implemented.

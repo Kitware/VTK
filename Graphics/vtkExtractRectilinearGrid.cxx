@@ -17,18 +17,18 @@
 #include "vtkCellData.h"
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkRectilinearGrid.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkExtractRectilinearGrid, "1.10");
+vtkCxxRevisionMacro(vtkExtractRectilinearGrid, "1.11");
 vtkStandardNewMacro(vtkExtractRectilinearGrid);
 
 // Construct object to extract all of the input data.
 vtkExtractRectilinearGrid::vtkExtractRectilinearGrid()
 {
-  this->NumberOfRequiredInputs = 1;
-  this->SetNumberOfInputPorts(1);
   this->VOI[0] = this->VOI[2] = this->VOI[4] = 0;
   this->VOI[1] = this->VOI[3] = this->VOI[5] = VTK_LARGE_INTEGER;
 
@@ -37,39 +37,23 @@ vtkExtractRectilinearGrid::vtkExtractRectilinearGrid()
   this->IncludeBoundary = 0;
 }
 
-
 //----------------------------------------------------------------------------
-// Specify the input data or filter.
-void vtkExtractRectilinearGrid::SetInput(vtkRectilinearGrid *input)
+int vtkExtractRectilinearGrid::RequestUpdateExtent(
+  vtkInformation *,
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  this->vtkProcessObject::SetNthInput(0, input);
-}
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-//----------------------------------------------------------------------------
-// Specify the input data or filter.
-vtkRectilinearGrid *vtkExtractRectilinearGrid::GetInput()
-{
-  if (this->NumberOfInputs < 1)
-    {
-    return NULL;
-    }
-  
-  return (vtkRectilinearGrid *)(this->Inputs[0]);
-}
-
-//----------------------------------------------------------------------------
-void vtkExtractRectilinearGrid::ComputeInputUpdateExtents(vtkDataObject *vtkNotUsed(out))
-{
-  vtkRectilinearGrid *input = this->GetInput();
-  vtkRectilinearGrid *output = this->GetOutput();
   int i, ext[6], voi[6];
   int *inWholeExt, *outWholeExt, *updateExt;
   int rate[3];
 
 
-  inWholeExt = input->GetWholeExtent();
-  outWholeExt = output->GetWholeExtent();
-  updateExt = output->GetUpdateExtent();
+  inWholeExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  outWholeExt = outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  updateExt = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
 
   for (i = 0; i < 3; ++i)
     {
@@ -114,7 +98,6 @@ void vtkExtractRectilinearGrid::ComputeInputUpdateExtents(vtkDataObject *vtkNotU
     ext[5] = voi[5];
     }
   
-  
   // I do not think we need this extra check, but it cannot hurt.
   if (ext[0] < inWholeExt[0])
     {
@@ -142,31 +125,29 @@ void vtkExtractRectilinearGrid::ComputeInputUpdateExtents(vtkDataObject *vtkNotU
     {
     ext[5] = inWholeExt[5];
     }  
-  
-  input->SetUpdateExtent(ext);
+
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ext, 6);
   // We can handle anything.
-  input->SetRequestExactExtent(0);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 0);
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkExtractRectilinearGrid::ExecuteInformation()
+int vtkExtractRectilinearGrid::RequestInformation(
+  vtkInformation *,
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkRectilinearGrid *input= this->GetInput();
-  vtkRectilinearGrid *output= this->GetOutput();
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
   int i, outDims[3], voi[6];
   int inWholeExtent[6], outWholeExtent[6];
   int mins[3];
   int rate[3];
 
-  if (this->GetInput() == NULL)
-    {
-    vtkErrorMacro("Missing input");
-    return;
-    }
-
-  this->vtkRectilinearGridSource::ExecuteInformation();
-
-  input->GetWholeExtent(inWholeExtent);
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), inWholeExtent);
 
   // Copy because we need to take union of voi and whole extent.
   for ( i=0; i < 6; i++ )
@@ -180,8 +161,9 @@ void vtkExtractRectilinearGrid::ExecuteInformation()
     if (voi[2*i+1] < voi[2*i] || voi[2*i+1] < inWholeExtent[2*i] || 
         voi[2*i] > inWholeExtent[2*i+1])
       {
-      output->SetWholeExtent(0,-1,0,-1,0,-1);
-      return;
+      outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+                   0,-1,0,-1,0,-1);
+      return 1;
       }
 
     // Make sure VOI is in the whole extent.
@@ -240,16 +222,27 @@ void vtkExtractRectilinearGrid::ExecuteInformation()
   outWholeExtent[4] = mins[2];
   outWholeExtent[5] = mins[2] + outDims[2] - 1;
 
-  output->SetWholeExtent(outWholeExtent);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+               outWholeExtent, 6);
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkExtractRectilinearGrid::Execute()
+int vtkExtractRectilinearGrid::RequestData(
+  vtkInformation *,
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkRectilinearGrid *input= this->GetInput();
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  vtkRectilinearGrid *input= vtkRectilinearGrid::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPointData *pd=input->GetPointData();
   vtkCellData *cd=input->GetCellData();
-  vtkRectilinearGrid *output= this->GetOutput();
+  vtkRectilinearGrid *output= vtkRectilinearGrid::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPointData *outPD=output->GetPointData();
   vtkCellData *outCD=output->GetCellData();
   int uExt[6], voi[6];
@@ -263,9 +256,9 @@ void vtkExtractRectilinearGrid::Execute()
 
   vtkDebugMacro(<< "Extracting Grid");
 
-  inWholeExt = input->GetWholeExtent();
-  outWholeExt = output->GetWholeExtent();
-  output->GetUpdateExtent(uExt);
+  inWholeExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  outWholeExt = outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), uExt);
   inExt = input->GetExtent();
   inInc1 = (inExt[1]-inExt[0]+1);
   inInc2 = inInc1*(inExt[3]-inExt[2]+1);
@@ -307,7 +300,7 @@ void vtkExtractRectilinearGrid::Execute()
     output->GetPointData()->PassData(input->GetPointData());
     output->GetCellData()->PassData(input->GetCellData());
     vtkDebugMacro(<<"Passed data through bacause input and output are the same");
-    return;
+    return 1;
     }
 
   // Allocate necessary objects
@@ -411,7 +404,6 @@ void vtkExtractRectilinearGrid::Execute()
         idx = (iIn-inExt[0]) + jOffset + kOffset;
         //newPts->SetPoint(newIdx,inPts->GetPoint(idx));
         outPD->CopyData(pd, idx, newIdx++);
-
         }
       }
     }
@@ -452,17 +444,7 @@ void vtkExtractRectilinearGrid::Execute()
         }
       }
     }
-}
 
-//----------------------------------------------------------------------------
-int vtkExtractRectilinearGrid::FillInputPortInformation(int port,
-                                                        vtkInformation* info)
-{
-  if(!this->Superclass::FillInputPortInformation(port, info))
-    {
-    return 0;
-    }
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkRectilinearGrid");
   return 1;
 }
 
@@ -486,5 +468,3 @@ void vtkExtractRectilinearGrid::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Include Boundary: " 
      << (this->IncludeBoundary ? "On\n" : "Off\n");
 }
-
-
