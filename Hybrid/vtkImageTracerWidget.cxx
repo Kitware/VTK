@@ -37,7 +37,7 @@
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImageTracerWidget, "1.6");
+vtkCxxRevisionMacro(vtkImageTracerWidget, "1.7");
 vtkStandardNewMacro(vtkImageTracerWidget);
 
 vtkCxxSetObjectMacro(vtkImageTracerWidget, HandleProperty, vtkProperty);
@@ -957,7 +957,7 @@ void vtkImageTracerWidget::InitializeHandles(vtkPoints* points)
   if (npts > 1)
     {
     this->BuildLinesFromHandles();
-    if (this->AutoClose)
+    if (this->AutoClose && !this->IsClosed)
       {
       this->ClosePath();
       }
