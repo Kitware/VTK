@@ -20,21 +20,15 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageSpatialFilter, "1.47");
+vtkCxxRevisionMacro(vtkImageSpatialFilter, "1.48");
 vtkStandardNewMacro(vtkImageSpatialFilter);
 
 //----------------------------------------------------------------------------
 // Construct an instance of vtkImageSpatialFilter fitler.
 vtkImageSpatialFilter::vtkImageSpatialFilter()
 {
-  int idx;
-  
-  for (idx = 0; idx < 3; ++idx)
-    {
-    this->KernelSize[idx] = 1;
-    this->KernelMiddle[idx] = 0;
-    }
-  
+  this->KernelSize[0] = this->KernelSize[1] = this->KernelSize[2] = 1;
+  this->KernelMiddle[0] = this->KernelMiddle[1] = this->KernelMiddle[2] = 0;
   this->HandleBoundaries = 1;
 }
 
