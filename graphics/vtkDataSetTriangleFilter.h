@@ -68,8 +68,8 @@ public:
 protected:
   vtkDataSetTriangleFilter():Triangulator(NULL) {}
   ~vtkDataSetTriangleFilter();
-  vtkDataSetTriangleFilter(const vtkDataSetTriangleFilter&) {}
-  void operator=(const vtkDataSetTriangleFilter&) {}
+  vtkDataSetTriangleFilter(const vtkDataSetTriangleFilter&);
+  void operator=(const vtkDataSetTriangleFilter&);
 
   // Usual data generation method
   void Execute();

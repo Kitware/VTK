@@ -99,8 +99,8 @@ public:
 protected:
   vtkBlankStructuredGrid();
   ~vtkBlankStructuredGrid();
-  vtkBlankStructuredGrid(const vtkBlankStructuredGrid&) {}
-  void operator=(const vtkBlankStructuredGrid&) {}
+  vtkBlankStructuredGrid(const vtkBlankStructuredGrid&);
+  void operator=(const vtkBlankStructuredGrid&);
 
   void Execute();
   

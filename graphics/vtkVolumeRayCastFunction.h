@@ -92,8 +92,8 @@ public:
 protected:
   vtkVolumeRayCastFunction() {};
   ~vtkVolumeRayCastFunction() {};
-  vtkVolumeRayCastFunction(const vtkVolumeRayCastFunction &) {};
-  void operator=(const vtkVolumeRayCastFunction &) {};
+  vtkVolumeRayCastFunction(const vtkVolumeRayCastFunction &);
+  void operator=(const vtkVolumeRayCastFunction &);
 
   // Description:
   // This method gives the subclass a chance to do any special

@@ -88,8 +88,8 @@ public:
 protected:
   vtkDirectionEncoder() {};
   ~vtkDirectionEncoder() {};
-  vtkDirectionEncoder(const vtkDirectionEncoder &) {};
-  void operator=(const vtkDirectionEncoder &) {};
+  vtkDirectionEncoder(const vtkDirectionEncoder &);
+  void operator=(const vtkDirectionEncoder &);
 }; 
 
 
