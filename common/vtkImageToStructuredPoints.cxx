@@ -313,7 +313,7 @@ void vtkImageToStructuredPoints::ExecuteInformation()
 }
 
 //----------------------------------------------------------------------------
-int vtkImageToStructuredPoints::ComputeInputUpdateExtents(vtkDataObject *data)
+void vtkImageToStructuredPoints::ComputeInputUpdateExtents(vtkDataObject *data)
 {
   vtkStructuredPoints *output = (vtkStructuredPoints*)data;
   int ext[6];
@@ -338,8 +338,6 @@ int vtkImageToStructuredPoints::ComputeInputUpdateExtents(vtkDataObject *data)
     {
     input->SetUpdateExtent(ext);
     }
-  
-  return 1;
 }
 
 

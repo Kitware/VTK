@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkSource.h"
 #include "vtkDataObject.h"
-#include "vtkDataInformation.h"
 #include "vtkObjectFactory.h"
 
 
@@ -133,6 +132,18 @@ void vtkSource::SetReleaseDataFlag(int i)
 
 
 //----------------------------------------------------------------------------
+void vtkSource::UpdateWholeExtent()
+{
+  this->UpdateInformation();
+
+  if (this->GetOutput(0))
+    {
+    this->GetOutput(0)->SetUpdateExtentToWholeExtent();
+    this->GetOutput(0)->Update();
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkSource::Update()
 {
   if (this->GetOutput(0))
@@ -141,13 +152,392 @@ void vtkSource::Update()
     }
 }
 
-typedef vtkDataObject *vtkDataObjectPointer;
 //----------------------------------------------------------------------------
+
+void vtkSource::UpdateInformation()
+{
+  unsigned long t1, t2;
+  int idx;
+  vtkDataObject *input;
+  vtkDataObject *output;
+
+  // Watch out for loops in the pipeline
+  if ( this->Updating )
+    {
+    return;
+    }
+
+  // The MTime of this source will be used in determine the PipelineMTime
+  // for the outputs
+  t1 = this->GetMTime();
+
+  // Loop through the inputs
+  for (idx = 0; idx < this->NumberOfInputs; ++idx)
+    {
+    if (this->Inputs[idx] != NULL)
+      {
+      input = this->Inputs[idx];
+
+      // Propagate the UpdateInformation call
+      this->Updating = 1;
+      input->UpdateInformation();
+      this->Updating = 0;
+      
+      // What is the PipelineMTime of this input? Compare this against
+      // our current computation to find the largest one.
+      t2 = input->GetPipelineMTime();
+      if (t2 > t1)
+        {
+        t1 = t2;
+        }
+
+      // Pipeline MTime of the input does not include the MTime of the 
+      // data object itself. Factor these mtimes into the next PipelineMTime
+      t2 = input->GetMTime();
+      if (t2 > t1)
+        {
+        t1 = t2;
+        }
+      }
+    }
+
+  
+  // Call ExecuteInformation for subclass specific information.
+  // Since UpdateInformation propagates all the way up the pipeline,
+  // we need to be careful here to call ExecuteInformation only if necessary.
+  // Otherwise, we may cause this source to be modified which will cause it
+  // to execute again on the next update.
+  if (t1 > this->InformationTime.GetMTime())
+    {
+    for (idx = 0; idx < this->NumberOfOutputs; ++idx)
+      {
+      output = this->GetOutput(idx);
+      if (output)
+        {
+        output->SetPipelineMTime(t1);
+        }  
+      }
+    
+    this->ExecuteInformation();
+    }
+}
+
+//----------------------------------------------------------------------------
+
+void vtkSource::PropagateUpdateExtent(vtkDataObject *output)
+{
+  // check flag to avoid executing forever if there is a loop
+  if (this->Updating)
+    {
+    return;
+    }
+
+  // Give the subclass a chance to indicate that it will provide
+  // more data then require for the output. This can happen, for
+  // example, when a source can only produce the whole output.
+  // Although this is being called for a specific output, the source
+  // may need to enlarge all outputs.
+  this->EnlargeOutputUpdateExtents( output );
+
+  // Give the subclass a chance to request a larger extent on 
+  // the inputs. This is necessary when, for example, a filter
+  // requires more data at the "internal" boundaries to 
+  // produce the boundary values - such as an image filter that
+  // derives a new pixel value by applying some operation to a 
+  // neighborhood of surrounding original values. 
+  this->ComputeInputUpdateExtents( output );
+
+  // Now that we know the input update extent, propogate this
+  // through all the inputs.
+  this->Updating = 1;
+  for (int idx = 0; idx < this->NumberOfInputs; ++idx)
+    {
+    if (this->Inputs[idx] != NULL)
+      {
+      this->Inputs[idx]->PropagateUpdateExtent();
+      }
+    }
+  this->Updating = 0;
+}
+
+//----------------------------------------------------------------------------
+
+// By default we require all the input to produce the output. This is
+// overridden in the subclasses since we can often produce the output with
+// just a portion of the input data.
+
+void vtkSource::ComputeInputUpdateExtents( vtkDataObject *vtkNotUsed(output) )
+{
+  for (int idx = 0; idx < this->NumberOfInputs; ++idx)
+    {
+    if (this->Inputs[idx] != NULL)
+      {
+      this->Inputs[idx]->SetUpdateExtentToWholeExtent();
+      }
+    }  
+}
+
+//----------------------------------------------------------------------------
+
+void vtkSource::TriggerAsynchronousUpdate()
+{
+  // check flag to avoid executing forever if there is a loop
+  if (this->Updating)
+    {
+    return;
+    }
+
+  // Propagate the trigger to all the inputs
+  this->Updating = 1;
+  for (int idx = 0; idx < this->NumberOfInputs; ++idx)
+    {
+    if (this->Inputs[idx] != NULL)
+      {
+      this->Inputs[idx]->TriggerAsynchronousUpdate();
+      }
+    }
+  this->Updating = 0;
+}
+
+//----------------------------------------------------------------------------
+
+void vtkSource::UpdateData(vtkDataObject *output)
+{
+  int idx;
+
+  // prevent chasing our tail
+  if (this->Updating)
+    {
+    return;
+    }
+
+  // Propagate the update call - make sure everything we
+  // might rely on is up-to-date
+  // Must call PropagateUpdateExtent before UpdateData if multiple 
+  // inputs since they may lead back to the same data object.
+  this->Updating = 1;
+  if ( this->NumberOfInputs == 1 )
+    {
+    if (this->Inputs[0] != NULL)
+      {
+      this->Inputs[0]->UpdateData();
+      }
+    }
+  else
+    {
+    for (idx = 0; idx < this->NumberOfInputs; ++idx)
+      {
+      if (this->Inputs[idx] != NULL)
+	{
+	this->Inputs[idx]->PropagateUpdateExtent();
+	this->Inputs[idx]->UpdateData();
+	}
+      }
+    }
+  this->Updating = 0;	  
+    
+  // Initialize all the outputs
+  for (idx = 0; idx < this->NumberOfOutputs; idx++)
+    {
+    if (this->Outputs[idx])
+      {
+      this->Outputs[idx]->Initialize(); 
+      }
+    }
+ 
+  // If there is a start method, call it
+  if ( this->StartMethod )
+    {
+    (*this->StartMethod)(this->StartMethodArg);
+    }
+
+  // Execute this object - we have not aborted yet, and our progress
+  // before we start to execute is 0.0.
+  this->AbortExecute = 0;
+  this->Progress = 0.0;
+  this->Execute();
+
+  // If we ended due to aborting, push the progress up to 1.0 (since
+  // it probably didn't end there)
+  if ( !this->AbortExecute )
+    {
+    this->UpdateProgress(1.0);
+    }
+
+  // Call the end method, if there is one
+  if ( this->EndMethod )
+    {
+    (*this->EndMethod)(this->EndMethodArg);
+    }
+    
+  // Now we have to mark the data as up to data.
+  for (idx = 0; idx < this->NumberOfOutputs; ++idx)
+    {
+    if (this->Outputs[idx])
+      {
+      this->Outputs[idx]->DataHasBeenGenerated();
+      }
+    }
+  
+  // Release any inputs if marked for release
+  for (idx = 0; idx < this->NumberOfInputs; ++idx)
+    {
+    if (this->Inputs[idx] != NULL)
+      {
+      if ( this->Inputs[idx]->ShouldIReleaseData() )
+	{
+	this->Inputs[idx]->ReleaseData();
+	}
+      }  
+    }
+  
+  // Information gets invalidated as soon as Update is called,
+  // so validate it again here.
+  this->InformationTime.Modified();
+}
+
+//----------------------------------------------------------------------------
+
+void vtkSource::ComputeEstimatedPipelineMemorySize( vtkDataObject *output,
+						    unsigned long size[3] )
+{
+  unsigned long outputSize[2];
+  unsigned long inputPipelineSize[3];
+  unsigned long mySize = 0;
+  unsigned long maxSize = 0;
+  unsigned long goingDownstreamSize = 0;
+  unsigned long *inputSize = NULL;
+  int idx;
+
+  vtkErrorMacro( << "Computing the size of this source" );
+
+  // We need some space to store the input sizes if there are any inputs
+  if ( this->NumberOfInputs > 0 )
+    {
+    inputSize = new unsigned long[this->NumberOfInputs];
+    }
+
+  // Get the pipeline size propagated down each input. Keep track of max
+  // pipeline size, how much memory will be required downstream from here,
+  // the size of each input, and the memory required by this filter when
+  // it executes.
+  for (idx = 0; idx < this->NumberOfInputs; ++idx)
+    {
+    if (this->Inputs[idx])
+      {
+
+      // Get the upstream size of the pipeline, the estimated size of this
+      // input, and the maximum size seen upstream from here.
+      this->Inputs[idx]->ComputeEstimatedPipelineMemorySize(inputPipelineSize);
+
+      // Save this input size to possibly be used when estimating output size
+      inputSize[idx] = inputPipelineSize[1];
+
+      // Is the max returned bigger than the max we've seen so far?
+      if ( inputPipelineSize[2] > maxSize )
+	{
+	maxSize = inputPipelineSize[2];
+	}
+
+      // If we are going to release this input, then its size won't matter
+      // downstream from here.
+      if ( this->Inputs[idx]->ShouldIReleaseData() )
+	{
+	goingDownstreamSize += inputPipelineSize[0] - inputPipelineSize[1];
+	}
+      else
+	{
+	goingDownstreamSize += inputPipelineSize[0];
+	}
+
+      // During execution this filter will need all the input data 
+      mySize += inputPipelineSize[0];
+
+      vtkErrorMacro( << "Adding " << inputPipelineSize[0] << " due to input" );
+      }
+
+    // The input was null, so it has no size
+    else
+      {
+      inputSize[idx] = 0;
+      }
+    }
+
+  // Now the we know the size of all input, compute the output size
+  this->ComputeEstimatedOutputMemorySize( output, inputSize, outputSize );
+
+  // This filter will produce all output so it needs all that memory.
+  // Also, all this data will flow downstream to the next source (if it is
+  // the requested output) or will still exist with no chance of being
+  // released (if it is the non-requested output)
+  mySize += outputSize[1];
+  goingDownstreamSize += outputSize[1];
+  vtkErrorMacro( << "Adding " << outputSize[1] << " due to output" );
+
+  // Is the state of the pipeline during this filter's execution the
+  // largest that it has been so far?
+  if ( mySize > maxSize )
+    {
+    maxSize = mySize;
+    }
+
+  // The first size is the memory going downstream from here - which is all
+  // the memory coming in minus any data realeased. The second size is the
+  // size of the specified output (which can be used by the downstream 
+  // filter when determining how much data it might release). The final size
+  // is the maximum pipeline size encountered here and upstream from here.
+  size[0] = goingDownstreamSize;
+  size[1] = outputSize[0];
+  size[2] = maxSize;
+
+  // Delete the space we may have created
+  if ( inputSize )
+    {
+    delete [] inputSize;
+    }
+}
+
+//----------------------------------------------------------------------------
+
+// This default implementation can be used by any source that will produce
+// only structured output. This method should be overridden by anything
+// that will produce vtkPolyData or vtkUnstructuredGrid data since the
+// output itself cannot estimate its own size.
+void vtkSource::ComputeEstimatedOutputMemorySize( vtkDataObject *output,
+						  unsigned long *inputSize,
+						  unsigned long size[2] )
+{
+  int idx;
+  int tmp;
+
+  size[0] = 0;
+  size[1] = 0;
+
+  // loop through all the outputs asking them how big they are given the
+  // information that they have on their update extent. Keep track of 
+  // the size of the specified output in size[0], and the sum of all
+  // output size in size[1]. Ignore input sizes in this default implementation.
+  for (idx = 0; idx < this->NumberOfOutputs; ++idx)
+    {
+    if (this->Outputs[idx])
+      {
+      tmp = this->Outputs[idx]->GetEstimatedMemorySize();
+      if ( this->Outputs[idx] == output )
+	{
+	size[0] = tmp;
+	}
+      size[1] += tmp;
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+
 // Called by constructor to set up output array.
 void vtkSource::SetNumberOfOutputs(int num)
 {
   int idx;
-  vtkDataObjectPointer *outputs;
+  vtkDataObject **outputs;
 
   // in case nothing has changed.
   if (num == this->NumberOfOutputs)
@@ -156,7 +546,7 @@ void vtkSource::SetNumberOfOutputs(int num)
     }
   
   // Allocate new arrays.
-  outputs = new vtkDataObjectPointer[num];
+  outputs = new vtkDataObject *[num];
 
   // Initialize with NULLs.
   for (idx = 0; idx < num; ++idx)
@@ -306,304 +696,32 @@ void vtkSource::SetNthOutput(int idx, vtkDataObject *newOutput)
 }
 
 //----------------------------------------------------------------------------
-// Update input to this filter and the filter itself.
-// This is a streaming version of the update method.
-void vtkSource::InternalUpdate(vtkDataObject *output)
-{
-  int idx;
-  int numDivisions, division;
 
-  // prevent chasing our tail
-  if (this->Updating)
-    {
-    return;
-    }
-
-  // Determine how many pieces we are going to process.
-  numDivisions = this->GetNumberOfStreamDivisions();
-  for (division = 0; division < numDivisions; ++division)
-    {
-    // Compute the update extent for all of the inputs.
-    if (this->ComputeDivisionExtents(output, division, numDivisions))
-      {
-      // Preupdate: Needed for ports. (like a non-blocking  update)
-      // (Only need to be called for inputs with locality != 0.)
-      this->Updating = 1;
-      for (idx = 0; idx < this->NumberOfInputs; ++idx)
-        {
-        if (this->Inputs[idx] != NULL)
-          {
-          this->Inputs[idx]->PreUpdate();
-          }
-        }
-      this->Updating = 0;
-      
-      // Update the inputs (these should be sorted by Locality)
-      for (idx = 0; idx < this->NumberOfInputs; ++idx)
-        {
-        if (this->Inputs[idx] != NULL)
-          {
-	  this->Updating = 1;
-          this->Inputs[idx]->InternalUpdate();
-	  this->Updating = 0;	  
-          }
-        }
-      
-      // Let the source initialize the data for streaming.
-      // This allocates memory, so should be after input update,
-      // but should be done only once per execute.
-      if (division == 0)
-	{
-	this->StreamExecuteStart();
-	}
-      
-      // Execute
-      if ( this->StartMethod )
-	{
-	(*this->StartMethod)(this->StartMethodArg);
-	}
-      // reset Abort flag
-      this->AbortExecute = 0;
-      this->Progress = 0.0;
-      this->Execute();
-      if ( !this->AbortExecute )
-	{
-	this->UpdateProgress(1.0);
-	}
-      if ( this->EndMethod )
-	{
-	(*this->EndMethod)(this->EndMethodArg);
-	}
-      }
-    }
-  
-  // Let the source clean up after streaming.
-  this->StreamExecuteEnd();
-  
-  // Now we have to mark the data as up to data.
-  for (idx = 0; idx < this->NumberOfOutputs; ++idx)
-    {
-    if (this->Outputs[idx])
-      {
-      this->Outputs[idx]->DataHasBeenGenerated();
-      }
-    }
-  
-  for (idx = 0; idx < this->NumberOfInputs; ++idx)
-    {
-    if (this->Inputs[idx] != NULL)
-      {
-      if ( this->Inputs[idx]->ShouldIReleaseData() )
-	{
-	this->Inputs[idx]->ReleaseData();
-	}
-      }  
-    }
-  
-  // Information gets invalidated as soon as Update is called,
-  // so validate it again here.
-  this->InformationTime.Modified();
-}
-
-//----------------------------------------------------------------------------
-void vtkSource::PreUpdate(vtkDataObject *output)
-{
-  int idx;
-  int numDivisions;
-
-  // prevent chasing our tail
-  if (this->Updating)
-    {
-    return;
-    }
-
-  // Determine how many pieces we are going to process.
-  numDivisions = this->GetNumberOfStreamDivisions();
-  // Compute the update extent for all of the inputs (for the first piece)
-  if (this->ComputeDivisionExtents(output, 0, numDivisions))
-    {
-    // Preupdate: Needed for ports. (like a non-blocking  update)
-    this->Updating = 1;
-    for (idx = 0; idx < this->NumberOfInputs; ++idx)
-      {
-      if (this->Inputs[idx] != NULL)
-        {
-        this->Inputs[idx]->PreUpdate();
-        }
-      }
-    this->Updating = 0;
-    }
-}
-
-//----------------------------------------------------------------------------
-// To facilitate a single Update method, we are putting data initialization
-// in this method.
-void vtkSource::StreamExecuteStart()
-{
-  int idx;
-  
-  // clear output (why isn't this ReleaseData.  Does it allocate data too?)
-  // Should it be done if StreamExecuteStart?
-  for (idx = 0; idx < this->NumberOfOutputs; idx++)
-    {
-    if (this->Outputs[idx])
-      {
-      this->Outputs[idx]->Initialize(); 
-      }
-    }
-}
-
-
-
-//----------------------------------------------------------------------------
-int vtkSource::ComputeDivisionExtents(vtkDataObject *output,
-                                      int idx, int numDivisions)
-{
-  // If only one division is requested (filter is no initiating streaming),
-  // then call the non-streaming convenience method.
-  if (idx == 0 && numDivisions == 1)
-    {
-    return this->ComputeInputUpdateExtents(output);
-    }
-  
-  
-  if (this->NumberOfInputs > 0)
-    {
-    vtkErrorMacro("Source did not implement ComputeDivisionExtents");
-    return 0;
-    }
-  
-  return 1;
-}
-
-
-//----------------------------------------------------------------------------
-int vtkSource::ComputeInputUpdateExtents(vtkDataObject *vtkNotUsed(output))
-{
-  if (this->NumberOfInputs > 0)
-    {
-    vtkErrorMacro("Subclass did not implement ComputeInputUpdateExtents");
-    }
-  return 1;
-}
-
-
-
-//----------------------------------------------------------------------------
-void vtkSource::UpdateInformation()
-{
-  unsigned long t1, t2, size;
-  float locality, l2;
-  int idx;
-  vtkDataObject *pd;
-  vtkDataObject *output;
-
-  if (this->Outputs[0] == NULL)
-    {
-    return;
-    }
-  
-  if (this->Updating)
-    {
-    // We are in a pipeline loop.
-    // Force an update
-    this->GetOutput(0)->Modified();
-    return;
-    }
-  
-  // Update information on the input and
-  // compute information that is general to vtkDataObject.
-  t1 = this->GetMTime();
-  size = 0;
-  locality = 0;
-
-  for (idx = 0; idx < this->NumberOfInputs; ++idx)
-    {
-    if (this->Inputs[idx] != NULL)
-      {
-      pd = this->Inputs[idx];
-
-      this->Updating = 1;
-      pd->UpdateInformation();
-      this->Updating = 0;
-      
-      // for MPI port stuff
-      l2 = pd->GetDataInformation()->GetLocality();
-      if (l2 > locality)
-        {
-        locality = l2;
-        }
-      
-      // Pipeline MTime stuff
-      t2 = pd->GetPipelineMTime();
-      if (t2 > t1)
-        {
-        t1 = t2;
-        }
-      // Pipeline MTime does not include the MTime of the data object itself.
-      // Factor these mtimes into the next PipelineMTime
-      t2 = pd->GetMTime();
-      if (t2 > t1)
-        {
-        t1 = t2;
-        }
-      
-      // Default estimated size is just the sum of the sizes of the inputs.
-      size += pd->GetEstimatedWholeMemorySize();
-      }
-    }
-
-  // for copying information
-  if (this->Inputs && this->Inputs[0])
-    {
-    pd = this->Inputs[0];
-    }
-  else
-    {
-    pd = NULL;
-    }
-  
-  // Call ExecuteInformation for subclass specific information.
-  // Some sources (readers) have an expensive ExecuteInformation method.
-  if (t1 > this->InformationTime.GetMTime())
-    {
-    // Here is where we set up defaults.
-    // I feel funny about setting the PipelineMTime inside the conditional,
-    // but it should work.
-    for (idx = 0; idx < this->NumberOfOutputs; ++idx)
-      {
-      output = this->GetOutput(idx);
-      if (output)
-        {
-        output->SetPipelineMTime(t1);
-        output->GetDataInformation()->SetLocality(locality * 0.5);
-        output->SetEstimatedWholeMemorySize(size);
-        // By default, copy information from first input.
-        if (pd)
-          {
-          output->CopyInformation(pd);
-          }
-        }  
-      }
-    
-    this->ExecuteInformation();
-    // This call to modify is almost useless.  Update invalidates this time.
-    // InformationTime is modified at the end of InternalUpdate too.
-    // Keep this modified in case we have multiple calls to UpdateInformation.
-    this->InformationTime.Modified();
-    }
-}
-
-//----------------------------------------------------------------------------
 void vtkSource::Execute()
 {
   vtkErrorMacro(<< "Definition of Execute() method should be in subclass");
 }
 
 //----------------------------------------------------------------------------
+
+// Default implementation - copy information from first input to all outputs
 void vtkSource::ExecuteInformation()
 {
-  //vtkErrorMacro(<< "Subclass did not implement ExecuteInformation");
+  vtkDataObject *input, *output;
+
+  if (this->Inputs && this->Inputs[0])
+    {
+    input = this->Inputs[0];
+
+    for (int idx = 0; idx < this->NumberOfOutputs; ++idx)
+      {
+      output = this->GetOutput(idx);
+      if (output)
+        {
+        output->CopyInformation(input);
+        }  
+      }
+    }
 }
 
 //----------------------------------------------------------------------------

@@ -43,8 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkLine.h"
 #include "vtkQuad.h"
 #include "vtkHexahedron.h"
-#include "vtkStructuredExtent.h"
-#include "vtkStructuredInformation.h"
 #include "vtkObjectFactory.h"
 
 
@@ -85,17 +83,9 @@ vtkStructuredGrid::vtkStructuredGrid()
   this->Blanking = 0;
   this->PointVisibility = NULL;
 
-
   this->Extent[0] = this->Extent[2] = this->Extent[4] = 0;
   this->Extent[1] = this->Extent[3] = this->Extent[5] = 0;
   
-  // Delete the default object created by the superclass, and
-  // create data specific objects.
-  this->Information->Delete();
-  this->Information = vtkStructuredInformation::New();
-
-  this->UpdateExtent->Delete();
-  this->UpdateExtent = vtkStructuredExtent::New();
 }
 
 //----------------------------------------------------------------------------
@@ -170,6 +160,7 @@ void vtkStructuredGrid::CopyStructure(vtkDataSet *ds)
 }
 
 //----------------------------------------------------------------------------
+
 void vtkStructuredGrid::Initialize()
 {
   vtkPointSet::Initialize(); 
@@ -179,6 +170,22 @@ void vtkStructuredGrid::Initialize()
     }
   this->PointVisibility = NULL;
   this->Blanking = 0;
+}
+
+//----------------------------------------------------------------------------
+
+void vtkStructuredGrid::ModifyExtentForUpdateExtent()
+{
+  if ( this->UpdateExtent[0] < this->Extent[0] ||
+       this->UpdateExtent[1] > this->Extent[1] ||
+       this->UpdateExtent[2] < this->Extent[2] ||
+       this->UpdateExtent[3] > this->Extent[3] ||
+       this->UpdateExtent[4] < this->Extent[4] ||
+       this->UpdateExtent[5] > this->Extent[5] )
+    {
+    this->ReleaseData();
+    this->SetExtent( this->UpdateExtent );
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -740,168 +747,6 @@ void vtkStructuredGrid::GetCellPoints(int cellId, vtkIdList *ptIds)
       break;
     }
 }
-//============================= streaming stuff ==============================
-
-
-
-//----------------------------------------------------------------------------
-void vtkStructuredGrid::SetExtent(int extent[6])
-{
-  int description;
-
-  description = vtkStructuredData::SetExtent(extent, this->Extent);
-  if ( description < 0 ) //improperly specified
-    {
-    vtkErrorMacro (<< "Bad Extent, retaining previous values");
-    }
-  
-  if (description == VTK_UNCHANGED)
-    {
-    return;
-    }
-  
-  this->DataDescription = description;
-  
-  this->Modified();
-  this->Dimensions[0] = extent[1] - extent[0] + 1;
-  this->Dimensions[1] = extent[3] - extent[2] + 1;
-  this->Dimensions[2] = extent[5] - extent[4] + 1;
-}
-
-//----------------------------------------------------------------------------
-void vtkStructuredGrid::SetExtent(int xMin, int xMax, int yMin, int yMax,
-				                          int zMin, int zMax)
-{
-  int extent[6];
-
-  extent[0] = xMin; extent[1] = xMax;
-  extent[2] = yMin; extent[3] = yMax;
-  extent[4] = zMin; extent[5] = zMax;
-  
-  this->SetExtent(extent);
-}
-
-//----------------------------------------------------------------------------
-int *vtkStructuredGrid::GetExtent()
-{
-  return this->Extent;
-}
-
-//----------------------------------------------------------------------------
-void vtkStructuredGrid::SetUpdateExtent(int extent[6])
-{
-  this->GetStructuredUpdateExtent()->SetExtent(extent);
-}
-
-//----------------------------------------------------------------------------
-void vtkStructuredGrid::SetUpdateExtent(int xMin, int xMax, int yMin, int yMax,
-				    int zMin, int zMax)
-{
-  int extent[6];
-
-  extent[0] = xMin; extent[1] = xMax;
-  extent[2] = yMin; extent[3] = yMax;
-  extent[4] = zMin; extent[5] = zMax;
-  
-  this->SetUpdateExtent(extent);
-}
-
-//----------------------------------------------------------------------------
-int *vtkStructuredGrid::GetUpdateExtent()
-{
-  return this->GetStructuredUpdateExtent()->GetExtent();
-}
-
-//----------------------------------------------------------------------------
-void vtkStructuredGrid::GetUpdateExtent(int ext[6])
-{
-  int *tmp = this->GetStructuredUpdateExtent()->GetExtent();
-  
-  ext[0] = tmp[0];
-  ext[1] = tmp[1];
-  ext[2] = tmp[2];
-  ext[3] = tmp[3];
-  ext[4] = tmp[4];
-  ext[5] = tmp[5];
-}
-
-//----------------------------------------------------------------------------
-void vtkStructuredGrid::SetUpdateExtentToWholeExtent()
-{
-  vtkStructuredInformation *info = this->GetStructuredInformation();
-  
-  this->UpdateInformation();
-  this->SetUpdateExtent(info->GetWholeExtent());
-}
-
-
-//----------------------------------------------------------------------------
-int vtkStructuredGrid::ClipUpdateExtentWithWholeExtent()
-{
-  int *wholeExt = this->GetStructuredInformation()->GetWholeExtent();
-  int valid = 1;
-  int idx, minIdx, maxIdx;
-  int uExt[6];
-  
-  this->GetStructuredUpdateExtent()->GetExtent(uExt);
-  
-  for (idx = 0; idx < 3; ++idx)
-    {
-    minIdx = 2*idx;
-    maxIdx = 2*idx + 1;
-    
-    // make sure there is overlap!
-    if (uExt[minIdx] > wholeExt[maxIdx])
-      {
-      valid = 0;
-      vtkErrorMacro("UpdateExtent " << uExt[minIdx] 
-		      << " -> " << uExt[maxIdx]  
-		      << " does not overlap with WholeExtent "
-		      << wholeExt[minIdx] << " -> "
-		      << wholeExt[maxIdx]);
-      uExt[minIdx] = wholeExt[maxIdx];
-      }
-    if (uExt[maxIdx] < wholeExt[minIdx])
-      {
-      valid = 0;
-      vtkErrorMacro("UpdateExtent " << uExt[minIdx] 
-		      << " -> " << uExt[maxIdx]  
-		      << " does not overlap with WholeExtent "
-		      << wholeExt[minIdx] << " -> "
-		      << wholeExt[maxIdx]);
-      uExt[maxIdx] = wholeExt[minIdx];
-      }
-    
-    // typical intersection shift min up to whole min
-    if (uExt[minIdx] < wholeExt[minIdx])
-      {
-      uExt[minIdx] = wholeExt[minIdx];
-      }
-    // typical intersection shift max down to whole max
-    if (uExt[maxIdx] >= wholeExt[maxIdx])
-      {
-      uExt[maxIdx] = wholeExt[maxIdx];
-      }
-    }
-  
-  // Now check to see if the UpdateExtent is in the current Extent.
-  
-  // If the requested extent is not completely in the data structure already,
-  // release the data to cause the source to execute.
-  if (this->Extent[0] > uExt[0] || 
-      this->Extent[1] < uExt[1] || 
-      this->Extent[2] > uExt[2] || 
-      this->Extent[3] < uExt[3] ||
-      this->Extent[4] > uExt[4] ||
-      this->Extent[5] < uExt[5])
-    {
-    this->ReleaseData();
-    }
-  
-  this->GetStructuredUpdateExtent()->SetExtent(uExt);
-  
-  return valid;
-}
 
 //----------------------------------------------------------------------------
 // Should we split up cells, or just points.  It does not matter for now.
@@ -936,137 +781,48 @@ void vtkStructuredGrid::SetUpdateExtent(int piece, int numPieces)
 }
 
 //----------------------------------------------------------------------------
-void vtkStructuredGrid::SetWholeExtent(int extent[6])
+
+void vtkStructuredGrid::SetExtent(int extent[6])
 {
-  this->GetStructuredInformation()->SetWholeExtent(extent);
+  int description;
+
+  description = vtkStructuredData::SetExtent(extent, this->Extent);
+
+  if ( description < 0 ) //improperly specified
+    {
+    vtkErrorMacro (<< "Bad Extent, retaining previous values");
+    }
+  
+  if (description == VTK_UNCHANGED)
+    {
+    return;
+    }
+  
+  this->DataDescription = description;
+  
+  this->Modified();
+  this->Dimensions[0] = extent[1] - extent[0] + 1;
+  this->Dimensions[1] = extent[3] - extent[2] + 1;
+  this->Dimensions[2] = extent[5] - extent[4] + 1;
 }
+
 //----------------------------------------------------------------------------
-void vtkStructuredGrid::SetWholeExtent(int xMin, int xMax,
-				   int yMin, int yMax, int zMin, int zMax)
+
+void vtkStructuredGrid::SetExtent(int xMin, int xMax, 
+				  int yMin, int yMax,
+				  int zMin, int zMax)
 {
   int extent[6];
 
   extent[0] = xMin; extent[1] = xMax;
   extent[2] = yMin; extent[3] = yMax;
   extent[4] = zMin; extent[5] = zMax;
-  this->SetWholeExtent(extent);
-}
-
-//----------------------------------------------------------------------------
-int *vtkStructuredGrid::GetWholeExtent() 
-{
-  return this->GetStructuredInformation()->GetWholeExtent();
-}
-
-//----------------------------------------------------------------------------
-void vtkStructuredGrid::GetWholeExtent(int extent[6])
-{
-  int *ext = this->GetStructuredInformation()->GetWholeExtent();
-  int idx;
   
-  for (idx = 0; idx < 6; ++idx)
-    {
-    extent[idx] = ext[idx];
-    }
-}
-//----------------------------------------------------------------------------
-void vtkStructuredGrid::GetWholeExtent(int &xMin, int &xMax, 
-				       int &yMin, int &yMax,
-				       int &zMin, int &zMax)
-{
-  int *ext = this->GetStructuredInformation()->GetWholeExtent();
-
-  xMin = ext[0];  xMax = ext[1];
-  yMin = ext[2];  yMax = ext[3];
-  zMin = ext[4];  zMax = ext[5];
-}
-
-
-//----------------------------------------------------------------------------
-unsigned long vtkStructuredGrid::GetEstimatedUpdateMemorySize()
-{
-  int *wExt = this->GetStructuredInformation()->GetWholeExtent();
-  int idx, *uExt = this->GetStructuredUpdateExtent()->GetExtent();
-  unsigned long wholeSize, updateSize;
-  
-  // Compute the sizes
-  wholeSize = updateSize = 1;
-  for (idx = 0; idx < 3; ++idx)
-    {
-    wholeSize *= (wExt[idx*2+1] - wExt[idx*2] + 1);
-    updateSize *= (uExt[idx*2+1] - uExt[idx*2] +1);
-    }
-
-  updateSize = updateSize * this->Information->GetEstimatedWholeMemorySize() 
-    / wholeSize;
-  if (updateSize < 1)
-    {
-    return 1;
-    }
-  return updateSize;
+  this->SetExtent(extent);
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkStructuredGrid::GetActualMemorySize()
-{
-  return this->vtkPointSet::GetActualMemorySize();
-}
 
-
-//----------------------------------------------------------------------------
-void vtkStructuredGrid::ClipWithUpdateExtent()
-{
-  int *uExt, *ext;
-
-  uExt = this->GetUpdateExtent();
-  ext = this->GetExtent();
-  if (uExt[0] > ext[0] || uExt[1] < ext[1] || uExt[2] > ext[2] || 
-      uExt[3] < ext[3] || uExt[4] > ext[4] || uExt[5] < ext[5])
-    {
-    // vtkWarningMacro("Extent does not match UpdateExtent.");
-    // clip the grid
-    vtkPointData *inPd = this->GetPointData();
-    vtkPointData *newPd = vtkPointData::New();
-    int i, j, k, idx, newIdx, yInc, zInc;
-    int newSize, jOffset, kOffset;
-    vtkPoints *newPts, *inPts;
-
-    inPts = this->GetPoints();
-
-    yInc = (ext[1]-ext[0]+1);
-    zInc = yInc * (ext[3]-ext[2]+1) ;
-    newSize = (uExt[1]-uExt[0]+1)*(uExt[3]-uExt[2]+1)*(uExt[5]-uExt[4]+1);
-    newPts = (vtkPoints *) inPts->MakeObject(); newPts->SetNumberOfPoints(newSize);
-    newPd->CopyAllocate(inPd,newSize,newSize);
-
-    //
-    // Traverse input data and copy point attributes to newPd
-    //
-    newIdx = 0;
-    for ( k=uExt[4]; k <= uExt[5]; ++k )
-      {
-      kOffset = k * zInc;
-      for ( j=uExt[2]; j <= uExt[3]; ++j )
-        {
-        jOffset = j * yInc;
-        for ( i=uExt[0]; i <= uExt[1]; ++i )
-          {
-          idx = i + jOffset + kOffset;
-          newPts->SetPoint(newIdx,inPts->GetPoint(idx));
-          newPd->CopyData(inPd, idx, newIdx++);
-          }
-        }
-      }
-
-    this->SetExtent(uExt);
-    this->SetPoints(newPts);
-    newPts->Delete();
-    this->PointData->Delete();
-    this->PointData = newPd;
-    }
-}
-
-//----------------------------------------------------------------------------
 void vtkStructuredGrid::GetCellNeighbors(int cellId, vtkIdList *ptIds,
                                          vtkIdList *cellIds)
 {
@@ -1090,6 +846,14 @@ void vtkStructuredGrid::GetCellNeighbors(int cellId, vtkIdList *ptIds,
 }
 
 //----------------------------------------------------------------------------
+
+unsigned long vtkStructuredGrid::GetActualMemorySize()
+{
+  return this->vtkPointSet::GetActualMemorySize();
+}
+
+//----------------------------------------------------------------------------
+
 void vtkStructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPointSet::PrintSelf(os,indent);
@@ -1104,8 +868,6 @@ void vtkStructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
      << this->Extent[1] << ", " << this->Extent[2] << ", "
      << this->Extent[3] << ", " << this->Extent[4] << ", "
      << this->Extent[5] << endl;
-
-  os << indent << "MemoryLimit: " << this->MemoryLimit << endl;
 
   os << ")\n";
 }

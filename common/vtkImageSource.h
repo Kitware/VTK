@@ -68,10 +68,6 @@ public:
     {return (vtkImageData *) this->vtkSource::GetOutput(idx); };
   
   // Description:
-  // Legacy.  Sets the UpdateExtent to the WholeExtent, and Updates.
-  void UpdateWholeExtent();
-  
-  // Description:
   // For streaming.  ExecuteExtent is set to the extent
   // of the output that is currently being generated. 
   // Note: Threaded execution might break this up further.
@@ -83,13 +79,7 @@ public:
   int LegacyHack;
     
   // Description:
-  // This method is called by the data object as part of the update chain
-  // of events.  It provides a mechanism to start a non-blocking update
-  // in upstream ports.  A side effect of this method is that the 
-  // UpdateExtents are propagated upstream.  This call also calls 
-  // ModifyOutputUpdateExtents to allow subclasses to generate more
-  // that the requested structured extent.
-  virtual void PreUpdate(vtkDataObject *output);
+  virtual void PropagateUpdateExtent(vtkDataObject *output);
   
 protected:
   vtkImageSource();
@@ -98,20 +88,14 @@ protected:
   void operator=(const vtkImageSource&) {};
 
   // Used by streaming: The extent of the output being processed
-  // by the execute method. Set in the ComputeInputUpdateExtent method.
+  // by the execute method. Set in the ComputeInputUpdateExtents method.
   int ExecuteExtent[6];
   
   void Execute();
   virtual void Execute(vtkImageData *data);
-  // scalars are allocated here.   
-  void StreamExecuteStart(); 
 
-  // Description:
-  // By default, this method is called by StreamExecuteStart before output
-  // scalars are allocated.
-  virtual void ModifyOutputUpdateExtent() {};
-
-
+  void ComputeRequiredInputUpdateExtent( int in[6], int out[6] ) 
+    { vtkErrorMacro( << "Obsolete method: Use ComputeInputUpdateExtent" ); };
 };
 
 

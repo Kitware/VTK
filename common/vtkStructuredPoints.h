@@ -69,21 +69,16 @@ public:
   // To simplify filter superclasses,
   int GetDataObjectType() {return VTK_STRUCTURED_POINTS;}
 
-  void InternalUpdate();
+  // Description:
+  // The update extent is set to the whole extent, since this is required by
+  // vtkStructuredPoints data object.
+  virtual void ModifyExtentForUpdateExtent();
 
 protected:
   vtkStructuredPoints();
   ~vtkStructuredPoints() {};
   vtkStructuredPoints(const vtkStructuredPoints&) {};
   void operator=(const vtkStructuredPoints&) {};
-
-  // Description:
-  // This is an experiment.  When a structured points UpdateExtent
-  // gets clipped, then the UpdateExtent is set to the WholeExtent.
-  // structured points source will always produce all of their output!.
-  int ClipUpdateExtentWithWholeExtent();
-  
-
 };
 
 #endif

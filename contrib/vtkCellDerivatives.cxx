@@ -83,6 +83,9 @@ void vtkCellDerivatives::Execute()
   // Initialize
   vtkDebugMacro(<<"Computing cell derivatives");
 
+  // First, copy the input to the output as a starting point
+  output->CopyStructure( input );
+
   // Check input
   if ( numCells < 1 )
     {

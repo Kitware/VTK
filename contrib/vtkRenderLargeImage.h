@@ -70,8 +70,6 @@ public:
   // Returns which renderer is being used as the source for the pixel data.
   vtkGetObjectMacro(Input,vtkRenderer);
 
-  void UpdateInformation();
-  
 protected:
   vtkRenderLargeImage();
   ~vtkRenderLargeImage();
@@ -82,6 +80,7 @@ protected:
   vtkRenderer *Input;
   void Execute(vtkImageData *data);
   void Execute() { this->vtkImageSource::Execute(); };
+  void ExecuteInformation();  
 };
 
 #endif

@@ -50,7 +50,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkObject.h"
 #include "vtkIdList.h"
-#include "vtkDataSet.h"
 
 #define VTK_UNCHANGED 0
 #define VTK_SINGLE_POINT 1

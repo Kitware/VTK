@@ -100,7 +100,7 @@ void vtkRenderLargeImage::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 // Description:
 // This method returns the largest region that can be generated.
-void vtkRenderLargeImage::UpdateInformation()
+void vtkRenderLargeImage::ExecuteInformation()
 {
   if (this->Input == NULL )
     {
@@ -110,12 +110,12 @@ void vtkRenderLargeImage::UpdateInformation()
 
   // set the extent, if the VOI has not been set then default to
   this->GetOutput()->SetWholeExtent(0, 
-			       this->Magnification*
-			       this->Input->GetRenderWindow()->GetSize()[0] - 1,
-			       0, 
-			       this->Magnification*
-			       this->Input->GetRenderWindow()->GetSize()[1] - 1,
-			       0, 0);
+		       this->Magnification*
+		       this->Input->GetRenderWindow()->GetSize()[0] - 1,
+		       0, 
+		       this->Magnification*
+		       this->Input->GetRenderWindow()->GetSize()[1] - 1,
+		       0, 0);
 
   // set the spacing
   this->GetOutput()->SetSpacing(1.0, 1.0, 1.0);
@@ -154,6 +154,7 @@ void vtkRenderLargeImage::Execute(vtkImageData *data)
   
   // Get the requested extents.
   this->GetOutput()->GetUpdateExtent(inExtent);
+
   // get and transform the increments
   data->GetIncrements(inIncr);
   
@@ -182,6 +183,7 @@ void vtkRenderLargeImage::Execute(vtkImageData *data)
       this->Input->GetRenderWindow()->Render();
       pixels = this->Input->GetRenderWindow()->GetPixelData(0,0,size[0] - 1,
 							    size[1] - 1, 1);
+
       // now stuff the pixels into the data row by row
       colStart = inExtent[0] - x*size[0];
       if (colStart < 0)

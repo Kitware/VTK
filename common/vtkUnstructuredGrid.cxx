@@ -38,10 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkUnstructuredInformation.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkExtent.h"
-#include "vtkUnstructuredExtent.h"
 #include "vtkVertex.h"
 #include "vtkPolyVertex.h"
 #include "vtkLine.h"
@@ -98,14 +95,9 @@ vtkUnstructuredGrid::vtkUnstructuredGrid ()
   this->Allocate(1000,1000);
   this->Links = NULL;
 
-  this->Extent = vtkUnstructuredExtent::New();
-
-  // delete the default information created by the superclass.
-  this->Information->Delete();
-  this->Information = vtkUnstructuredInformation::New();
-
-  this->UpdateExtent->Delete();
-  this->UpdateExtent = vtkUnstructuredExtent::New();
+  // We are using the pieces / number of pieces interface for streaming.
+  // By default, there is 1 piece.
+  this->MaximumNumberOfPieces = 1;
 }
 
 // Allocate memory space for data insertion. Execute this method before
@@ -181,9 +173,6 @@ vtkUnstructuredGrid::~vtkUnstructuredGrid()
   this->Hexahedron->Delete();
   this->Wedge->Delete();
   this->Pyramid->Delete();
-
-  this->Extent->Delete();
-  this->Extent = NULL;
 }
 
 // Copy the geometric and topological structure of an input unstructured grid.
@@ -584,99 +573,19 @@ int vtkUnstructuredGrid::InsertNextLinkedCell(int type, int npts, int *pts)
   return id;
 }
 
-//============================= streaming stuff ==============================
-
-
-//----------------------------------------------------------------------------
-int vtkUnstructuredGrid::ClipUpdateExtentWithWholeExtent()
-{
-  int valid = 1;
-  int piece = this->GetUnstructuredUpdateExtent()->GetPiece();
-  int numPieces = this->GetUnstructuredUpdateExtent()->GetNumberOfPieces();
-  unsigned long maxPieces;
-  
-  // Check to see if upstream filters can break up the data into the
-  // requested number of pieces.
-  maxPieces = this->GetUnstructuredInformation()->GetMaximumNumberOfPieces();
-  if (numPieces > maxPieces)
-    {
-    numPieces = (int) maxPieces;
-    }
-  
-  if (numPieces <= 0 || piece < 0 || piece >= numPieces)
-    {
-    // Well what should we set the UpdateExtent/Extent to?
-    piece = numPieces = 0;
-    valid = 0;
-    }
-  
-  this->GetUnstructuredUpdateExtent()->SetExtent(piece, numPieces);
-  
-  // This check has nothing to do with whole extent, 
-  // but is here by convenience.  Release the data if the UpdateExtent
-  // request cannot be filled by current extent.
-  if (piece != this->Extent->GetPiece() ||
-      numPieces != this->Extent->GetNumberOfPieces())
-    {
-    this->ReleaseData();
-    }
-  
-  // We might as well set the Extent here.
-  // To Be worked out later.
-  this->Extent->Copy(this->UpdateExtent);
-  
-  return valid;
-}
-
-//----------------------------------------------------------------------------
-int vtkUnstructuredGrid::GetUpdateNumberOfPieces()
-{
-  return this->GetUnstructuredUpdateExtent()->GetNumberOfPieces();
-}
-
-
-//----------------------------------------------------------------------------
-int vtkUnstructuredGrid::GetUpdatePiece() 
-{
-  return this->GetUnstructuredUpdateExtent()->GetPiece();
-}
-
-
 //----------------------------------------------------------------------------
 void vtkUnstructuredGrid::SetUpdateExtent(int piece, int numPieces)
 {
-  this->GetUnstructuredUpdateExtent()->SetExtent(piece, numPieces);
+  this->UpdatePiece = piece;
+  this->UpdateNumberOfPieces = numPieces;
 }
 
 //----------------------------------------------------------------------------
 void vtkUnstructuredGrid::GetUpdateExtent(int &piece, int &numPieces)
 {
-  piece = this->GetUnstructuredUpdateExtent()->GetPiece();
-  numPieces = this->GetUnstructuredUpdateExtent()->GetNumberOfPieces();
+  piece = this->UpdatePiece;
+  numPieces = this->UpdateNumberOfPieces;
 }
-
-//----------------------------------------------------------------------------
-unsigned long vtkUnstructuredGrid::GetEstimatedUpdateMemorySize()
-{
-  unsigned long size;
-  
-  size = this->Information->GetEstimatedWholeMemorySize();
-
-  if (this->GetUnstructuredUpdateExtent()->GetNumberOfPieces() <= 0)
-    {
-    // should not happen (trying to make this robust)
-    return size;
-    }
-  
-  size = size / this->GetUnstructuredUpdateExtent()->GetNumberOfPieces();
-  
-  if (size < 1)
-    {
-    return 1;
-    }
-  return size;
-}
-
 
 //----------------------------------------------------------------------------
 unsigned long vtkUnstructuredGrid::GetActualMemorySize()
@@ -703,9 +612,6 @@ unsigned long vtkUnstructuredGrid::GetActualMemorySize()
 void vtkUnstructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSet::PrintSelf(os,indent);
-
-  os << indent << "Extent: \n";
-  this->Extent->PrintSelf(os, indent.GetNextIndent());
   
 }
 

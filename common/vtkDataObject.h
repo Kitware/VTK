@@ -62,8 +62,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkFieldData.h"
 
 class vtkSource;
-class vtkExtent;
-class vtkDataInformation;
+
+#define VTK_PIECES_EXTENT   0
+#define VTK_3D_EXTENT       1
 
 class VTK_EXPORT vtkDataObject : public vtkObject
 {
@@ -99,14 +100,6 @@ public:
   // data object.
   void ReleaseData();
 
-  // Description:
-  // This method is called by the source when it executes to generate data.
-  // It is sort of the opposite of ReleaseData.
-  // It sets the DataReleased flag to 0, and sets a new UpdateTime.
-  // The source has to have control of these values because with Pipeline 
-  // Parallelism Update can be called withoput producing valid data.
-  void DataHasBeenGenerated();
-  
   // Description:
   // Return flag indicating whether data should be released after use  
   // by a filter.
@@ -145,27 +138,76 @@ public:
   // registration to properly free the objects.
   virtual int GetNetReferenceCount() {return this->ReferenceCount;};
 
-
-  //------------- streaming stuff ------------------
-
   // Description:
   // Provides opportunity for the data object to insure internal 
   // consistency before access. Also causes owning source/filter 
-  // (if any) to update itself.
+  // (if any) to update itself. The Update() method is composed of 
+  // UpdateInformation(), PropagateUpdateExtent(), 
+  // TriggerAsynchronousUpdate(), and UpdateData().
   virtual void Update();
 
   // Description:
-  // This is the same as Update, but it assumes that the "Information" 
-  // (including the PipelineMTime) is up to date.  
-  virtual void InternalUpdate();
+  // WARNING: INTERNAL METHOD - NOT FOR GENERAL USE. 
+  // THIS METHOD IS PART OF THE PIPELINE UPDATE FUNCTIONALITY.
+  // Update all the "easy to update" information about the object such
+  // as the extent which will be used to control the update.
+  // This propagates all the way up then back down the pipeline.
+  // As a by-product the PipelineMTime is updated.
+  virtual void UpdateInformation();
 
   // Description:
-  // This makes sure all "Information" associated with this data object
-  // is up to date.  Information is defined as any thing that is needed
-  // before the input is updated (like PipelineMTime for the execution check
-  // and EstimatedWholeMemorySize for streaming).
-  virtual void UpdateInformation();
-  
+  // WARNING: INTERNAL METHOD - NOT FOR GENERAL USE. 
+  // THIS METHOD IS PART OF THE PIPELINE UPDATE FUNCTIONALITY.
+  // The update extent for this object is propagated up the pipeline.
+  // This propagation may early terminate based on the PipelineMTime.
+  virtual void PropagateUpdateExtent();
+
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT FOR GENERAL USE. 
+  // THIS METHOD IS PART OF THE PIPELINE UPDATE FUNCTIONALITY.
+  // Propagate back up the pipeline for ports and trigger the update on the
+  // other side of the port to allow for asynchronous parallel processing in
+  // the pipeline.
+  // This propagation may early terminate based on the PipelineMTime.
+  virtual void TriggerAsynchronousUpdate();
+
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT FOR GENERAL USE. 
+  // THIS METHOD IS PART OF THE PIPELINE UPDATE FUNCTIONALITY.
+  // Propagate the update back up the pipeline, and perform the actual 
+  // work of updating on the way down. When the propagate arrives at a
+  // port, block and wait for the asynchronous update to finish on the
+  // other side.
+  // This propagation may early terminate based on the PipelineMTime.
+  virtual void UpdateData();
+
+  // Description:
+  // Get the maximum size of the pipeline. Should only be called after
+  // UpdateInformation() and PropagateUpdateExtent() have both been called.
+  // The size is returned in kilobytes.
+  unsigned long GetEstimatedPipelineMemorySize();
+
+  // Description:
+  // Get the estimated size of this data object itself. Should be called
+  // after UpdateInformation() and PropagateUpdateExtent() have both been 
+  // called. Should be overridden in a subclass - otherwise the default
+  // is to assume that this data object requires no memory.
+  // The size is returned in kilobytes.
+  virtual unsigned long GetEstimatedMemorySize();
+
+  // Description:
+  // Propogate the computation of the maximum size of the pipeline.
+  // The first size returned is the size of the pipeline after the source
+  // has executed (and has therefore had a chance to release any of its
+  // input data). The second size returned is the estimated size of this
+  // data object according to the source. If this is structured data, then
+  // the source likely asked this object for its estimated size. If it
+  // is unstructured data, then the source should have made its own
+  // prediction as to its output size. The third size returned is the
+  // maximum pipeline size encounted upstream during this propagation.
+  // All sizes are in kilobytes.
+  void ComputeEstimatedPipelineMemorySize( unsigned long sizes[3] );
+
   // Description:
   // A generic way of specifying an update extent.  Subclasses
   // must decide what a piece is.
@@ -173,67 +215,15 @@ public:
     { vtkErrorMacro("Subclass did not implement 'SetUpdateExtent'");}
   
   // Description:
-  // Set/Get memory limit.  Make this smaller to stream.
-  // Setting value does not alter MTime.
-  void SetMemoryLimit(unsigned long v) {this->MemoryLimit = v;}
-  unsigned long GetMemoryLimit() {return this->MemoryLimit;}
-
-  // Description:
-  // One of the variables set when UpdateInformation is called.
-  // It is the estimated size of the data (in kilobytes) after 
-  // the whole extent is updated.
-  void SetEstimatedWholeMemorySize(unsigned long v);
-  virtual unsigned long GetEstimatedWholeMemorySize();
-  
-  // Description:
-  // Convience method: Uses the EstimatedWholeMemorySize to compute
-  // the estimated memory size of the update extent.
-  virtual unsigned long GetEstimatedUpdateMemorySize()
-    { vtkErrorMacro(
-      "Subclass did not implement 'GetEstimatedUpdateMemorySize'");
-    return 0;}
-  
-  // Description:
-  // Return the actual size of the data in kilobytes. This number
-  // is valid only after the pipeline has updated. The memory size
-  // returned is guaranteed to be greater than or equal to the
-  // memory required to represent the data (e.g., extra space in
-  // arrays, etc. are not included in the return value).
-  virtual unsigned long GetActualMemorySize();
-  
-  // Description:
-  // PipelineMTime is the maximum of all the upstream source object mtimes.
-  // It does not include mtimes of the data objects.
-  // UpdateInformation must be called for the PipelineMTime to be correct.
-  // Only the source should set the PipelineMTime.
-  void SetPipelineMTime(unsigned long t);
-  unsigned long GetPipelineMTime();
-  
-  // Description:
-  // Copies the UpdateExtent from another dataset of the same type.
-  // Used by a filter during UpdateInformation to copy requested 
-  // piece from output to input.  
-  void CopyUpdateExtent(vtkDataObject *data); 
-
-  // Description:
-  // Warning: This is still in develoment.  DataSetToDataSetFilters use
-  // CopyUpdateExtent to pass the update extents up the pipeline.
-  // In order to pass a generic update extent through a port we are going 
-  // to need these methods (which should eventually replace the 
-  // CopyUpdateExtent method).
-  virtual vtkExtent *GetGenericUpdateExtent() { return this->UpdateExtent; }
-  virtual void CopyGenericUpdateExtent(vtkExtent *vtkNotUsed(ext))
-    {vtkErrorMacro("Subclass did not implent CopyGenericUpdateExtent");}  
-  
-  // Description:
-  // Warning: This is still in develoment.  
-  // Eventually we should be able to eliminate the CopyInformationMethod
-  vtkDataInformation *GetDataInformation() {return this->Information;}
-  
-  // Description:
-  // Copies "Information" (ie WholeDimensions) from another dataset 
-  // of the same type.  Used by a filter during UpdateInformation. 
-  void CopyInformation(vtkDataObject *data); 
+  // Set the update extent for data objects that use 3D extents. Using this
+  // method on data objects that set extents as pieces (such as vtkPolyData or
+  // vtkUnstructuredGrid) has no real effect.
+  // Don't use the set macro to set the update extent
+  // since we don't want this object to be modified just due to
+  // a change in update extent.
+  virtual void SetUpdateExtent(int x1, int x2, int y1, int y2, int z1, int z2);
+  virtual void SetUpdateExtent( int ext[6] );
+  vtkGetVector6Macro( UpdateExtent, int );
 
   // Description:
   // Return class name of data type. This is one of VTK_STRUCTURED_GRID, 
@@ -247,11 +237,56 @@ public:
   // asynchronous update (still in development).
   unsigned long GetUpdateTime();
 
-  // Dscription:
-  // A non-blocking InternalUpdate for ports. This method has a side effect
-  // of propagating the UpdateExtents up the pipeline.
-  void PreUpdate();
+  // Description:
+  // If the whole input extent is required to generate the requested output
+  // extent, this method can be called to set the input update extent to the
+  // whole input extent. This method assumes that the whole extent is known
+  // (that UpdateInformation has been called)
+  void SetUpdateExtentToWholeExtent();
+
+  void SetPipelineMTime(unsigned long time) {this->PipelineMTime = time; }
+  vtkGetMacro(PipelineMTime, unsigned long);
+
+  // Description:
+  // Return the actual size of the data in kilobytes. This number
+  // is valid only after the pipeline has updated. The memory size
+  // returned is guaranteed to be greater than or equal to the
+  // memory required to represent the data (e.g., extra space in
+  // arrays, etc. are not included in the return value).
+  virtual unsigned long GetActualMemorySize();
+
+  // Description:
+  // Copy the generic information (WholeExtent or MaximumNumberOfPieces)
+  void CopyInformation( vtkDataObject *data );
+
+  // Description:
+  // By default, there is no type specific information
+  virtual void CopyTypeSpecificInformation( vtkDataObject *data ) 
+    {this->CopyInformation( data );};
   
+  // Description:
+  // Set / Get the update piece and the update number of pieces. Similar
+  // to update extent in 3D.
+  vtkSetMacro( UpdatePiece, int );
+  vtkGetMacro( UpdatePiece, int );
+  vtkSetMacro( UpdateNumberOfPieces, int );
+  vtkGetMacro( UpdateNumberOfPieces, int );
+
+  // Description:
+  // Get the maximum number of pieces this data can be broken into
+  vtkGetMacro( MaximumNumberOfPieces, int );
+
+  // Description:
+  // Get the whole extent of this data object
+  vtkGetVector6Macro( WholeExtent, int );
+
+  // Description:
+  // This method is called by the source when it executes to generate data.
+  // It is sort of the opposite of ReleaseData.
+  // It sets the DataReleased flag to 0, and sets a new UpdateTime.
+  void DataHasBeenGenerated();
+
+
 protected:
 
   vtkDataObject();
@@ -259,38 +294,82 @@ protected:
   vtkDataObject(const vtkDataObject&) {};
   void operator=(const vtkDataObject&) {};
 
+  // General field data associated with data object      
+  vtkFieldData  *FieldData;  
+
+  // Who generated this data as output?
+  vtkSource     *Source;     
+
+  // Keep track of data release during network execution
+  int DataReleased; 
+
   // Description:
-  // Method implemented in the subclasses to make sure the update extent
-  // is not bigger than the whole extent.  Should be pure virtual.
-  // If the UpdateExtent does not overlap with the WholeExtent, then
-  // the method returns 0, otherwise it returns 1.
-  // It also has the task of releasing the current data if it will not
-  // satisfy the UpdateExtent request.  This should really be somewhere
-  // else...
-  virtual int ClipUpdateExtentWithWholeExtent() {return 1;}  
-  
-  
-  vtkFieldData *FieldData; //General field data associated with data object  
-  vtkSource *Source;
+  // Default behavior is to make sure that the update extent lies within
+  // the whole extent. If it does not, an error condition occurs and this
+  // method returns 0. If it is ok, then 1 is returned. Since uninitialized
+  // extents are initialized to the whole extent during UpdateInformation()
+  // there should not be errors. If a data object subclass wants to try to 
+  // take care of errors silently, then this method should be overridden.
+  virtual int VerifyUpdateExtent();
 
-  int DataReleased; //keep track of data release during network execution
-  int ReleaseDataFlag; //data will release after use by a filter
-  vtkTimeStamp UpdateTime;
+  // Description:
+  // If the update extent does not lie within the extent, this method will
+  // release the data and set the extent to be the update extent.
+  // Otherwise, nothing changes. If a subclass wants another behavior, 
+  // then this method should be overridden (as it is in vtkStructuredPoints)
+  virtual void ModifyExtentForUpdateExtent();
 
-  // Between PreUpdate and InternalUpdate we are "WaitingForUpdate".
-  // This enforces the one to one corespondence between PreUpdate
-  // and InternalUpdate.
-  int WaitingForUpdate;
-  
-  // The input of a filter holds the memory limit that triggers streamining.
-  // Not all filters will respect this limit.
-  unsigned long MemoryLimit;
+  // The ExtentType will be left as VTK_PIECES_EXTENT for data objects 
+  // such as vtkPolyData and vtkUnstructuredGrid. The ExtentType will be 
+  // changed to VTK_3D_EXTENT for data objects with 3D structure such as 
+  // vtkImageData (and its subclass vtkStructuredPoints), vtkRectilinearGrid,
+  // and vtkStructuredGrid. The default is the have an extent in pieces,
+  // with only one piece (no streaming possible).
+  virtual int GetExtentType() { return VTK_PIECES_EXTENT; };
 
-  // All the information is containted in this object now.
-  vtkDataInformation *Information;
-  
-  // The UpdateExtent is stored here.
-  vtkExtent *UpdateExtent;
+  // If the ExtentType is VTK_3D_EXTENT, then these three extent variables
+  // represent the whole extent, the extent currently in memory, and the
+  // requested update extent. The extent is given as 3 min/max pairs.
+  int WholeExtent[6];
+  int Extent[6];
+  int UpdateExtent[6];
+
+  // If the ExtentType is VTK_PIECES_EXTENT, then these three variables 
+  // represent the maximum number of pieces that the data object can be
+  // broken into, which piece out of how many is currently in the extent,
+  // and the number of pieces and the specific piece requested for the 
+  // update. Data objects that do not support any division
+  // of the data (such as a vtkPiecewiseFunction) can simply leave the 
+  // MaximumNumberOfPieces as 1. The NumberOfPieces and Piece are similar
+  // to the Extent. The UpdateNumberOfPieces and UpdatePiece are similar to
+  // the UpdateExtent. The WholeExtent is always piece = 0 and number of 
+  // pieces = 1;
+  int MaximumNumberOfPieces;
+  int NumberOfPieces;
+  int Piece;
+  int UpdateNumberOfPieces;
+  int UpdatePiece;
+
+  // Data will release after use by a filter if this flag is set
+  int ReleaseDataFlag; 
+
+  // When was this data last generated?
+  vtkTimeStamp UpdateTime;  
+
+  // A guess at how much memory would be consumed by the data object
+  // if the WholeExtent were updated.
+  unsigned long EstimatedWholeMemorySize;
+
+  // The Maximum MTime of all upstream filters and data objects.
+  // This does not include the MTime of this data object.
+  unsigned long PipelineMTime;
+
+  // How many upstream filters are local to the process.
+  // This will have to change to a float for Kens definition of locality.
+  float Locality;  
+
+  // Support for processing series of data sets.
+  int SeriesLength;
 };
 
 #endif

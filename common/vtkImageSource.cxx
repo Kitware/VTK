@@ -90,8 +90,7 @@ vtkImageData *vtkImageSource::GetOutput()
 
 
 //----------------------------------------------------------------------------
-// We might want to put this ModifyOutputUpdateExtents into vtkSource.
-void vtkImageSource::PreUpdate(vtkDataObject *out)
+void vtkImageSource::PropagateUpdateExtent(vtkDataObject *out)
 {
   vtkImageData *output = (vtkImageData*)out;
   
@@ -101,24 +100,18 @@ void vtkImageSource::PreUpdate(vtkDataObject *out)
   this->InterceptCacheUpdate();
   if (this->LegacyHack)
     {
-    vtkWarningMacro("Change your method InterceptCacheUpdate to the name ModifyOutputUpdateExtent.");
-    output->SetExtent(output->GetUpdateExtent());
-    output->AllocateScalars();
+    vtkErrorMacro( << "Change your method InterceptCacheUpdate " 
+                   << "to the name EnlargeOutputUpdateExtents.");
     return;
     }
-  // ----------------------------------------------
-  this->ModifyOutputUpdateExtent();
-  
-  this->vtkSource::PreUpdate(output);
+
+  this->vtkSource::PropagateUpdateExtent(output);
 }
 
 
-
 //----------------------------------------------------------------------------
-// vtkImageData has a legacy API.  The execute method does not allocate the 
-// scalars.  ModifyOutputUpdateExtent lets the subclass override the extent
-// allocated here.
-void vtkImageSource::StreamExecuteStart()
+// Convert to Imaging API
+void vtkImageSource::Execute()
 {
   vtkImageData *output = this->GetOutput();
 
@@ -126,12 +119,7 @@ void vtkImageSource::StreamExecuteStart()
   // in a subclass.  We cannot be sure all outputs are images.
   output->SetExtent(output->GetUpdateExtent());
   output->AllocateScalars();
-}
 
-//----------------------------------------------------------------------------
-// Convert to Imaging API
-void vtkImageSource::Execute()
-{
   this->Execute(this->GetOutput());
 }
 
@@ -141,14 +129,5 @@ void vtkImageSource::Execute()
 void vtkImageSource::Execute(vtkImageData *)
 {
   vtkErrorMacro(<< "Execute(): Method not defined.");
-}
-
-//----------------------------------------------------------------------------
-void vtkImageSource::UpdateWholeExtent()
-{
-  this->UpdateInformation();
-  this->GetOutput()->SetUpdateExtent(this->GetOutput()->GetWholeExtent());
-  this->GetOutput()->PreUpdate();
-  this->GetOutput()->InternalUpdate();
 }
 

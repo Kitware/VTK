@@ -110,7 +110,7 @@ void vtkDEMReader::UpdateInformation()
 }
 
 
-void vtkDEMReader::ModifyOutputUpdateExtent()
+void vtkDEMReader::EnlargeOutputUpdateExtents(vtkDataObject *vtkNotUsed(data))
 {
   this->GetOutput()->SetUpdateExtent(this->GetOutput()->GetWholeExtent());
 }

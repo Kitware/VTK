@@ -55,8 +55,6 @@ class vtkLine;
 class vtkPixel;
 class vtkVoxel;
 class vtkImageToStructuredPoints;
-class vtkStructuredExtent;
-class vtkImageInformation;
 
 
 class VTK_EXPORT vtkImageData : public vtkDataSet
@@ -75,12 +73,6 @@ public:
   // Copy the geometric and topological structure of an input image data
   // object.
   void CopyStructure(vtkDataSet *ds);
-
-  // Description:
-  // Returns the image specific information object.
-  // We should be able to eventually get rid of CopyInformation method.
-  vtkImageInformation *GetImageInformation()
-    {return (vtkImageInformation*)(this->Information);}
 
   // Description:
   // Return what type of dataset this is.
@@ -124,22 +116,6 @@ public:
   // Description:
   // Get dimensions of this structured points dataset.
   vtkGetVectorMacro(Dimensions,int,3);
-
-  // Description:
-  // Set the spacing (width,height,length) of the cubical cells that
-  // compose the structured point set.
-  void SetSpacing(float origin[3]);
-  void SetSpacing(float x, float y, float z);
-  float *GetSpacing();
-  void GetSpacing(float origin[3]);
-
-  // Description:
-  // Set the origin of the data. The origin plus spacing determine the
-  // position in space of the structured points.
-  void SetOrigin(float origin[3]);
-  void SetOrigin(float x, float y, float z);
-  float *GetOrigin();
-  void GetOrigin(float origin[3]);
 
   // Description:
   // Convenience function computes the structured coordinates for a point x[3].
@@ -189,42 +165,14 @@ public:
     {this->GetVoxelGradient(i, j, k, s, &g);}
 
   // Description:
-  // Set/Get the whole extent of the data.
-  void SetWholeExtent(int extent[6]);
-  void SetWholeExtent(int xMin, int xMax,
-		      int yMin, int yMax, int zMin, int zMax);
-  void GetWholeExtent(int extent[6]);
-  int *GetWholeExtent();
-  void GetWholeExtent(int &xMin, int &xMax,
-		      int &yMin, int &yMax, int &zMin, int &zMax);
+  // Set the whole extent of the data.
+  vtkSetVector6Macro( WholeExtent, int );
   
   // Description:
-  // This extent is used to request just a piece of the grid.
-  // If the UpdateExtent is set before Update is called, then
-  // the Update call may only generate the portion of the data 
-  // requested.  The source has the option of generating more 
-  // than the requested extent.  If it does, then it will
-  // modify the UpdateExtent value to reflect the actual extent
-  // in the data.
-  void SetUpdateExtent(int extent[6]);
-  void SetUpdateExtent(int xMin, int xMax,
-		       int yMin, int yMax, int zMin, int zMax);
-  void SetUpdateExtentToWholeExtent();
+  // Set / Get the extent on just one axis
   void SetAxisUpdateExtent(int axis, int min, int max);
-  int *GetUpdateExtent();
-  void GetUpdateExtent(int ext[6]);
-  void GetUpdateExtent(int &x1, int &x2, int &y1, int &y2, int &z1, int &z2);
   void GetAxisUpdateExtent(int axis, int &min, int &max);
 
-  // Description:
-  // Warning: This is still in develoment.  DataSetToDataSetFilters use
-  // CopyUpdateExtent to pass the update extents up the pipeline.
-  // In order to pass a generic update extent through a port we are going 
-  // to need these methods (which should eventually replace the 
-  // CopyUpdateExtent method).
-  vtkStructuredExtent *GetStructuredUpdateExtent() 
-    {return (vtkStructuredExtent*)this->UpdateExtent;}
-  
   // Description:
   // Required for the lowest common denominator for setting the UpdateExtent
   // (i.e. vtkDataSetToStructuredPointsFilter).  This assumes that WholeExtent
@@ -232,18 +180,26 @@ public:
   void SetUpdateExtent(int piece, int numPieces);
   
   // Description:
+  // Call superclass method to avoid hiding
+  void SetUpdateExtent( int x1, int x2, int y1, int y2, int z1, int z2 )
+    { this->vtkDataSet::SetUpdateExtent( x1, x2, y1, y2, z1, z2 ); };
+  void SetUpdateExtent( int ext[6] )
+    { this->vtkDataSet::SetUpdateExtent( ext ); };
+
+  // Description:
   // Different ways to set the extent of the data array.  The extent
   // should be set before the "Scalars" are set or allocated.
   // The Extent is stored  in the order (X, Y, Z).
-  void SetExtent(int *extent);
+  void SetExtent(int extent[6]);
   void SetExtent(int x1, int x2, int y1, int y2, int z1, int z2);
-  vtkGetVectorMacro(Extent,int,6);
-  void GetExtent(int &x1, int &x2, int &y1, int &y2, int &z1, int &z2);
+  vtkGetVector6Macro(Extent,int);
 
   // Description:
-  // Set/Get the data scalar type of the regions created by this cache.
-  void SetScalarType(int type);
-  int GetScalarType();
+  // Get the estimated size of this data object itself. Should be called
+  // after UpdateInformation() and PropagateUpdateExtent() have both been 
+  // called. This estimate should be fairly accurate since this is structured
+  // data.
+  virtual unsigned long GetEstimatedMemorySize();
 
   // Description:
   // These returns the minimum and maximum values the ScalarType can hold
@@ -287,11 +243,6 @@ public:
   void AllocateScalars();
   
   // Description:
-  // Set/Get the number of scalar components
-  void SetNumberOfScalarComponents(int num);
-  int GetNumberOfScalarComponents();
-  
-  // Description:
   // This method is passed a input and output region, and executes the filter
   // algorithm to fill the output from the input.
   // It just executes a switch statement to call the correct function for
@@ -304,15 +255,6 @@ public:
   vtkImageToStructuredPoints *MakeImageToStructuredPoints();
 
   // Description:
-  // This class has a special UpdateInformation method
-  // that automatically computes EstimatedWholeMemorySize.
-  void UpdateInformation();
-
-  // Description:
-  // Return the amount of memory for the update piece.
-  unsigned long GetEstimatedUpdateMemorySize();
-  
-  // Description:
   // Return the actual size of the data in kilobytes. This number
   // is valid only after the pipeline has updated. The memory size
   // returned is guaranteed to be greater than or equal to the
@@ -322,14 +264,6 @@ public:
   unsigned long GetActualMemorySize();
   
   // Description:
-  // Legacy.  Replaced with GetEstimatedUpdateMemorySize.
-  unsigned long GetUpdateExtentMemorySize() 
-    {
-      vtkWarningMacro("Change GetUpdateExtentMemorySize to GetEstimatedUpdateMemorySize");
-      return this->GetEstimatedUpdateMemorySize();
-    }
-
-  // Description:
   // Legacy.  With no cache, this method is no longer needed.
   vtkImageData *UpdateAndReturnData() 
     {
@@ -337,8 +271,42 @@ public:
       this->Update();
       return this;
     }
+
+  // Description:
+  // Set the spacing (width,height,length) of the cubical cells that
+  // compose the data set.
+  vtkSetVector3Macro(Spacing,float);
+  vtkGetVector3Macro(Spacing,float);
   
+  // Description:
+  // Set the origin of the data. The origin plus spacing determine the
+  // position in space of the points.
+  vtkSetVector3Macro(Origin,float);
+  vtkGetVector3Macro(Origin,float);
   
+  // Description:
+  // Set/Get the data scalar type (i.e VTK_FLOAT).
+  vtkSetMacro(ScalarType, int);
+  int GetScalarType();
+
+  // Description:
+  // Set/Get the number of scalar components for points.
+  void SetNumberOfScalarComponents( int n );
+  vtkGetMacro(NumberOfScalarComponents,int);
+
+  // Must only be called with vtkImageData (or subclass) as input
+  void CopyTypeSpecificInformation( vtkDataObject *image );
+
+  // Description:
+  // Needs to be overridden from vtkDataObject so that we can call
+  // the correct version of SetExtent rather than just doing a memcpy.
+  virtual void ModifyExtentForUpdateExtent();
+
+  void SetMemoryLimit( int x ) 
+    { vtkErrorMacro( << "Memory limit no longer supported - use streamer" ); };
+
+  int GetMemoryLimit() { return 0; };
+
 protected:
   vtkImageData();
   ~vtkImageData();
@@ -352,25 +320,21 @@ protected:
   vtkLine *Line;
   vtkPixel *Pixel;
   vtkVoxel *Voxel;
-  
+
+  // The extent type is a 3D extent
+  int GetExtentType() { return VTK_3D_EXTENT; };
+
   // The extent of what is currently in the structured grid.
-  int Extent[6];
   int Dimensions[3];
   int DataDescription;
   int Increments[3];
 
+  float Origin[3];
+  float Spacing[3];
+  int ScalarType;
+  int NumberOfScalarComponents;
+
   void ComputeIncrements();
-
-  // Computes the estimated memory size from the Update extent,
-  // ScalarType, and NumberOfComponents
-  void ComputeEstimatedWholeMemorySize();
-
-  // Description:
-  // Called by superclass to limit UpdateExtent to be less than or equal
-  // to the WholeExtent.  It assumes that UpdateInformation has been 
-  // called.
-  int ClipUpdateExtentWithWholeExtent();
-
 };
 
 inline void vtkImageData::GetPoint(int id, float x[3])

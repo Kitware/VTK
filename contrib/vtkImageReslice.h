@@ -193,10 +193,10 @@ protected:
 
   void ExecuteInformation(vtkImageData *input, vtkImageData *output);
   void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
-  void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
+  void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
 		       int ext[6], int id);
-  void OptimizedComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
+  void OptimizedComputeInputUpdateExtent(int inExt[6], int outExt[6]);
   void OptimizedThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
 				int ext[6], int id);  
 };

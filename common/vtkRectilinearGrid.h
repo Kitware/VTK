@@ -65,9 +65,6 @@ class vtkVertex;
 class vtkLine;
 class vtkPixel;
 class vtkVoxel;
-class vtkExtent;
-class vtkStructuredExtent;
-class vtkStructuredInformation;
 
 class VTK_EXPORT vtkRectilinearGrid : public vtkDataSet
 {
@@ -133,15 +130,6 @@ public:
   vtkGetVectorMacro(Dimensions,int,3);
 
   // Description:
-  // This extent reflects what is in the structured grid currently.
-  // it is up to the source to set this during its update.
-  // These also set the dimensions.
-  void SetExtent(int extent[6]);
-  void SetExtent(int xMin, int xMax,
-		 int yMin, int yMax, int zMin, int zMax);
-  int *GetExtent();  
-  
-  // Description:
   // Return the dimensionality of the data.
   int GetDataDimension();
 
@@ -182,57 +170,31 @@ public:
   void GetPointCells(int ptId, vtkIdList &cellIds)
     {this->GetPointCells(ptId, &cellIds);}
   
-  // ----------- Stuff for streaming ---------------
-
   // Description:
-  // Set/Get the whole extent of the data.
-  void SetWholeExtent(int extent[6]);
-  void SetWholeExtent(int xMin, int xMax,
-		      int yMin, int yMax, int zMin, int zMax);
-  void GetWholeExtent(int extent[6]);
-  int *GetWholeExtent();
-  void GetWholeExtent(int &xMin, int &xMax,
-		      int &yMin, int &yMax, int &zMin, int &zMax);
-
-  // Description:
-  // This extent is used to request just a piece of the grid.
-  // If the UpdateExtent is set before Update is called, then
-  // the Update call may only generate the portion of the data 
-  // requested.  The source has the option of generating more 
-  // than the requested extent.  If it does, then it will
-  // modify the UpdateExtent value to reflect the actual extent
-  // in the data.
-  void SetUpdateExtent(int extent[6]);
-  void SetUpdateExtent(int xMin, int xMax,
-		       int yMin, int yMax, int zMin, int zMax);
-  void SetUpdateExtentToWholeExtent();
-  int *GetUpdateExtent();
-  void GetUpdateExtent(int ext[6]);
-
-  // Description:
-  // The generic way of specifying the update extent.
-  // it blocks up the request. (taken from vtkGridSynchronizedTemplates)
-  void SetUpdateExtent(int idx, int numPieces);
-
-  // Description:
-  // Warning: This is still in develoment.  DataSetToDataSetFilters use
-  // CopyUpdateExtent to pass the update extents up the pipeline.
-  // In order to pass a generic update extent through a port we are going 
-  // to need these methods (which should eventually replace the 
-  // CopyUpdateExtent method).
-  vtkStructuredExtent *GetStructuredUpdateExtent() 
-    {return (vtkStructuredExtent*)this->UpdateExtent;}
-
-  // Description:
-  // Returns the structured grid specific information object.
-  // We should be able to eventually get rid of CopyInformation method.
-  vtkStructuredInformation *GetStructuredInformation()
-    {return (vtkStructuredInformation*)(this->Information);}
-
-  // Description:
-  // Return the amount of memory for the update piece.
-  unsigned long GetEstimatedUpdateMemorySize();
+  // Set the whole extent of the data.
+  vtkSetVector6Macro( WholeExtent, int );
   
+  // Description:
+  // Required for the lowest common denominator for setting the UpdateExtent
+  // (i.e. vtkDataSetToStructuredPointsFilter).  This assumes that WholeExtent
+  // is valid (UpdateInformation has been called).
+  void SetUpdateExtent(int piece, int numPieces);
+
+  // Description:
+  // Call superclasses method to avoid hiding
+  void SetUpdateExtent( int x1, int x2, int y1, int y2, int z1, int z2 )
+    { this->vtkDataSet::SetUpdateExtent( x1, x2, y1, y2, z1, z2 ); };
+  void SetUpdateExtent( int ext[6] )
+    { this->vtkDataSet::SetUpdateExtent( ext ); };
+
+  // Description:
+  // Different ways to set the extent of the data array.  The extent
+  // should be set before the "Scalars" are set or allocated.
+  // The Extent is stored  in the order (X, Y, Z).
+  void SetExtent(int extent[6]);
+  void SetExtent(int x1, int x2, int y1, int y2, int z1, int z2);
+  vtkGetVector6Macro(Extent,int);
+
   // Description:
   // Return the actual size of the data in kilobytes. This number
   // is valid only after the pipeline has updated. The memory size
@@ -254,6 +216,9 @@ protected:
   vtkPixel *Pixel;
   vtkVoxel *Voxel;
   
+  // The extent type is a 3D extent
+  int GetExtentType() { return VTK_3D_EXTENT; };
+
   int Dimensions[3];
   int DataDescription;
 
@@ -263,16 +228,6 @@ protected:
 
   // Hang on to some space for returning points when GetPoint(id) is called.
   float PointReturn[3];
-
-  // -------- stuff for streaming ------------
-
-  // The extent of what is currently in the structured grid.
-  int Extent[6];
-
-  // Called by superclass to limit UpdateExtent to be less than or equal
-  // to the WholeExtent.  It assumes that UpdateInformation has been 
-  // called.
-  int ClipUpdateExtentWithWholeExtent();
 
 private:
   // Description:

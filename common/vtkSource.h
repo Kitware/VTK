@@ -85,17 +85,58 @@ public:
   virtual void Update();
 
   // Description:
-  // Same as Update, except this method assumes that UpdateInformation
-  // has already been called, and assumes the output is out of date.
-  virtual void InternalUpdate(vtkDataObject *output);
+  // Like update, but make sure the update extent is the whole extent in
+  // the output.
+  virtual void UpdateWholeExtent();
 
   // Description:
-  // This method is called by the data object as part of the update chain
-  // of events.  It provides a mechanism to start a non-blocking update
-  // in upstream ports.  A side effect of this method is that the 
-  // UpdateExtents are propagated upstream.
-  virtual void PreUpdate(vtkDataObject *output);
+  // Updates any global information about the data 
+  // (like spacing for images)
+  virtual void UpdateInformation();
+
+  // Description:
+  virtual void PropagateUpdateExtent(vtkDataObject *output);
+
+  // Description:
+  virtual void TriggerAsynchronousUpdate();
+
+  // Description:
+  virtual void UpdateData(vtkDataObject *output);
+
+  // Description:
+  // Propagate the computation of the size of the pipeline. The first
+  // size is the size of the pipeline after this source has finished
+  // executing (and potentially freeing some input data). The second
+  // size is the size of the specified output. The third size is the
+  // maximum pipeline size encountered so far during this propagation.
+  // All sizes are in kilobytes.
+  void ComputeEstimatedPipelineMemorySize( vtkDataObject *output,
+					   unsigned long size[3] );
+
+  // Description:
+  // The estimated size of the specified output after execution of
+  // this source is stored in the first size entry. The second size
+  // is the sum of all estimated output memory. The size of all inputs
+  // is given to help this filter in the estimation.
+  // All sizes are in kilobytes.
+  virtual void ComputeEstimatedOutputMemorySize( vtkDataObject *output,
+						 unsigned long *inputSize,
+						 unsigned long size[2] );
+
+  // Description:
+  // Give the source a chance to say that it will produce more output
+  // than it was asked to produce. For example, FFT always produces the
+  // whole thing, and many imaging filters must produce the output in
+  // whole slices (whole extent in two dimensions). By default we do not
+  // modify the output update extent.
+  virtual void EnlargeOutputUpdateExtents(vtkDataObject *vtkNotUsed(output)){};
   
+  // Description:
+  // What is the input update extent that is required to produce the
+  // desired output? By default, the whole input is always required but
+  // this is overridden in many subclasses. 
+  virtual void ComputeInputUpdateExtents( vtkDataObject *output );
+
   // Description:
   // Turn on/off flag to control whether this object's data is released
   // after being used by a source.
@@ -110,11 +151,6 @@ public:
   // Description:
   // Test to see if this object is in a reference counting loop.
   virtual int InRegisterLoop(vtkObject *);
-
-  // Description:
-  // Updates any global information about the data 
-  // (like spacing for images)
-  virtual void UpdateInformation();
 
   // Description:
   // Return an array with all the inputs of this process object.
@@ -134,27 +170,6 @@ protected:
   // By default, UpdateInformation calls this method to copy information
   // unmodified from the input to the output.
   virtual void ExecuteInformation();
-  
-  // ------------ streaming stuff --------------
-  // Default (old) behavior. NumberOfPieces = 1 
-  // and every thing done in Execute.  
-  // If a filter acts as a collector
-  // (i.e. initiates streaming), then it should initialize its output
-  // (and itself) in the StreamExecuteStart method which is called once.
-  // Execute is called multiple times.
-  virtual void StreamExecuteStart();
-  virtual void StreamExecuteEnd() {}
-  virtual int GetNumberOfStreamDivisions() {return 1;}
-
-  // Given the update extent of the passed in output and the
-  // stream divisions, this method set the ExecuteExtents in the 
-  // subclasses, and the UpdateExtents of all of the inputs.
-  // If no execution is necessary, this method returns 0 (1 otherwise).
-  virtual int ComputeDivisionExtents(vtkDataObject *output, 
-				     int division, int numDivisions);
-  // This is a convenience method that does the same as 
-  // ComputeDivisionExtents with no stream divisions.
-  virtual int ComputeInputUpdateExtents(vtkDataObject *output);
 
   // Called to allocate the input array.  Copies old inputs.
   void SetNumberOfOutputs(int num);

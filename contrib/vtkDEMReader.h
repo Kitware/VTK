@@ -170,7 +170,7 @@ protected:
   // Description:
   // This method is call by the superclass before an update.  It sets
   // the UpdateExtent to the WholeExtent.
-  void ModifyOutputUpdateExtent();
+  void EnlargeOutputUpdateExtents( vtkDataObject *data );
 };
 
 #endif

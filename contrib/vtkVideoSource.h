@@ -217,7 +217,6 @@ public:
 
   // Description:
   // This method returns the largest data that can be generated.
-  void ExecuteInformation();
   void UpdateInformation();
 
 protected:
@@ -225,6 +224,7 @@ protected:
   ~vtkVideoSource();
   vtkVideoSource(const vtkVideoSource&) {};
   void operator=(const vtkVideoSource&) {};
+  void ExecuteInformation();
 
   int Initialized;
 

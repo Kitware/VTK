@@ -224,12 +224,12 @@ vtkMatrix4x4 *vtkImageReslice::GetIndexMatrix()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageReslice::ComputeRequiredInputUpdateExtent(int inExt[6], 
-					               int outExt[6])
+void vtkImageReslice::ComputeInputUpdateExtent(int inExt[6], 
+					       int outExt[6])
 {
   if (this->GetOptimization())
     {
-    this->OptimizedComputeRequiredInputUpdateExtent(inExt,outExt);
+    this->OptimizedComputeInputUpdateExtent(inExt,outExt);
     return;
     }
 
@@ -1377,8 +1377,8 @@ void vtkImageReslice::ThreadedExecute(vtkImageData *inData,
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 
-void vtkImageReslice::OptimizedComputeRequiredInputUpdateExtent(int inExt[6], 
-								int outExt[6])
+void vtkImageReslice::OptimizedComputeInputUpdateExtent(int inExt[6], 
+							int outExt[6])
 {
   int i,j,k;
   int idX,idY,idZ;

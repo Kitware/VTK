@@ -91,7 +91,7 @@ protected:
   
   void Execute();
   void ExecuteInformation();
-  int ComputeInputUpdateExtents(vtkDataObject *data);
+  void ComputeInputUpdateExtents(vtkDataObject *data);
 
   
 };

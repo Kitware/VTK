@@ -53,8 +53,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCellArray.h"
 #include "vtkCellTypes.h"
 #include "vtkCellLinks.h"
-class vtkUnstructuredInformation;
-class vtkUnstructuredExtent;
 class vtkVertex;
 class vtkPolyVertex;
 class vtkLine;
@@ -129,26 +127,26 @@ public:
   // The source of this poly data has to return exactly this piece.
   void SetUpdateExtent(int piece, int numPieces);
   void GetUpdateExtent(int &piece, int &numPieces);
-  int GetUpdateNumberOfPieces();
-  int GetUpdatePiece();
 
   // Description:
-  // Warning: This is still in develoment.  DataSetToDataSetFilters use
-  // CopyUpdateExtent to pass the update extents up the pipeline.
-  // In order to pass a generic update extent through a port we are going 
-  // to need these methods (which should eventually replace the 
-  // CopyUpdateExtent method).
-  vtkUnstructuredExtent *GetUnstructuredUpdateExtent() 
-    {return (vtkUnstructuredExtent*)this->UpdateExtent;}
-  
-  // Description:
-  // Return the amount of memory for the update piece.
-  unsigned long GetEstimatedUpdateMemorySize();
+  // Call superclass method to avoid hiding
+  // Since this data type does not use 3D extents, this set method
+  // is useless but necessary since vtkDataSetToDataSetFilter does not
+  // know what type of data it is working on.
+  void SetUpdateExtent( int x1, int x2, int y1, int y2, int z1, int z2 )
+    { this->vtkPointSet::SetUpdateExtent( x1, x2, y1, y2, z1, z2 ); };
+  void SetUpdateExtent( int ext[6] )
+    { this->vtkPointSet::SetUpdateExtent( ext ); };
+
 
   // Description:
-  // Returns the unstructured grid specific information object.
-  vtkUnstructuredInformation *GetUnstructuredInformation()
-    {return (vtkUnstructuredInformation*)(this->Information);}
+  // Set / Get the piece and the number of pieces. Similar to extent in 3D.
+  vtkGetMacro( Piece, int );
+  vtkGetMacro( NumberOfPieces, int );
+
+  // Description:
+  // Set the maximum number of pieces. Similar to WholeExtent in 3D.
+  vtkSetMacro( MaximumNumberOfPieces, int );
 
   // Description:
   // Return the actual size of the data in kilobytes. This number
@@ -186,13 +184,6 @@ protected:
   vtkCellTypes *Cells;
   vtkCellArray *Connectivity;
   vtkCellLinks *Links;
-
-  // ----- streaming stuff -----------
-  vtkUnstructuredExtent *Extent;
-  
-  // Returns 0 if upstream filter cannot generate the UpdateExtent.
-  // This also releases the data if a different piece is requested.
-  int ClipUpdateExtentWithWholeExtent();
 
  private:
   // Hide these from the user and the compiler.

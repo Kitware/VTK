@@ -43,8 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPixel.h"
 #include "vtkVoxel.h"
 #include "vtkImageToStructuredPoints.h"
-#include "vtkStructuredExtent.h"
-#include "vtkImageInformation.h"
 #include "vtkObjectFactory.h"
 
 
@@ -76,7 +74,7 @@ vtkImageData::vtkImageData()
   this->Voxel = vtkVoxel::New();
   
   // I do not like defaulting to one pixel, but it avoids
-  // alot of special case checking.
+  // a lot of special case checking.
   this->Dimensions[0] = 1;
   this->Dimensions[1] = 1;
   this->Dimensions[2] = 1;
@@ -87,42 +85,30 @@ vtkImageData::vtkImageData()
     this->Extent[idx*2] = 0;
     this->Extent[idx*2+1] = 0;    
     this->Increments[idx] = 0;
+    this->Origin[idx] = 0.0;
+    this->Spacing[idx] = 1.0;
     }
-  
+
+  this->NumberOfScalarComponents = 1;
+
+  this->ScalarType = VTK_VOID;
+
   // for automatic conversion
   this->ImageToStructuredPoints = NULL;
 
-  // Delete the generic information object created by the superclass.
-  this->Information->Delete();
-  this->Information = vtkImageInformation::New();
-
-  this->UpdateExtent->Delete();
-  this->UpdateExtent = vtkStructuredExtent::New();  
 }
 
 //----------------------------------------------------------------------------
 vtkImageData::vtkImageData(const vtkImageData& v) :
 vtkDataSet(v)
 {
-  vtkImageInformation *vInfo;
-  
-  vInfo = (vtkImageInformation *)(v.Information);
-  
-  this->Dimensions[0] = v.Dimensions[0];
-  this->Dimensions[1] = v.Dimensions[1];
-  this->Dimensions[2] = v.Dimensions[2];
-
-  this->Extent[0] = v.Extent[0];
-  this->Extent[1] = v.Extent[1];
-  this->Extent[2] = v.Extent[2];
-  this->Extent[3] = v.Extent[3];
-  this->Extent[4] = v.Extent[4];
-  this->Extent[5] = v.Extent[5];
+  memcpy( this->Dimensions, v.Dimensions, 3*sizeof(int) );
+  memcpy( this->Extent,     v.Extent,     6*sizeof(int) );
+  memcpy( this->Spacing,    v.Spacing,    3*sizeof(float) );
+  memcpy( this->Origin,     v.Origin,     3*sizeof(float) );
 
   this->DataDescription = v.DataDescription;
-  
-  this->SetSpacing(vInfo->GetSpacing());
-  this->SetOrigin(vInfo->GetOrigin());
+
 }
 
 //----------------------------------------------------------------------------
@@ -152,8 +138,95 @@ void vtkImageData::CopyStructure(vtkDataSet *ds)
   this->CopyInformation(sPts);
 }
 
+//----------------------------------------------------------------------------
+
+// The input data object must be of type vtkImageData or a subclass!
+void vtkImageData::CopyTypeSpecificInformation( vtkDataObject *data )
+{
+  vtkImageData *image = (vtkImageData *)data;
+
+  // Copy the generic stuff
+  this->CopyInformation( data );
+  
+  // Now do the specific stuff
+  this->SetOrigin( image->GetOrigin() );
+  this->SetSpacing( image->GetSpacing() );
+  this->SetScalarType( image->GetScalarType() );
+  this->SetNumberOfScalarComponents( image->GetNumberOfScalarComponents() );
+}
 
 //----------------------------------------------------------------------------
+
+unsigned long vtkImageData::GetEstimatedMemorySize()
+{
+  double          size; 
+  int             idx;
+  int             *uExt; 
+  unsigned long   lsize;
+
+  // Start with the number of scalar components
+  size = (float)(this->GetNumberOfScalarComponents());
+
+  // Multiply by the number of bytes per scalar
+  switch (this->GetScalarType())
+    {
+    case VTK_FLOAT:
+      size *= sizeof(float);
+      break;
+    case VTK_DOUBLE:
+      size *= sizeof(double);
+      break;
+    case VTK_INT:
+      size *= sizeof(int);
+      break;
+    case VTK_UNSIGNED_INT:
+      size *= sizeof(unsigned int);
+      break;
+    case VTK_LONG:
+      size *= sizeof(long);
+      break;
+    case VTK_UNSIGNED_LONG:
+      size *= sizeof(unsigned long);
+      break;
+    case VTK_SHORT:
+      size *= sizeof(short);
+      break;
+    case VTK_UNSIGNED_SHORT:
+      size *= sizeof(unsigned short);
+      break;
+    case VTK_UNSIGNED_CHAR:
+      size *= sizeof(unsigned char);
+      break;
+    case VTK_CHAR:
+      size *= sizeof(char);
+      break;
+    case VTK_BIT:
+      size = size / 8;
+      break;
+    default:
+      vtkWarningMacro(<< "GetExtentMemorySize: "
+        << "Cannot determine input scalar type");
+    }  
+
+
+  // Multiply by the number of scalars.
+  uExt = this->GetUpdateExtent();
+  for (idx = 0; idx < 3; ++idx)
+    {
+    size = size*(uExt[idx*2+1] - uExt[idx*2] + 1);
+    }
+
+  // In case the extent is set improperly, set the size to 0
+  size = (size < 0)?(0):size;
+
+  // Convert from double bytes to unsigned long kilobytes
+  lsize = (long)(size / 1000.0);
+  
+  return lsize;
+}
+
+//----------------------------------------------------------------------------
+
 vtkCell *vtkImageData::GetCell(int cellId)
 {
   vtkCell *cell = NULL;
@@ -246,75 +319,6 @@ vtkCell *vtkImageData::GetCell(int cellId)
     }
 
   return cell;
-}
-
-
-
-
-
-//----------------------------------------------------------------------------
-int vtkImageData::ClipUpdateExtentWithWholeExtent()
-{
-  int valid = 1;
-  int idx, minIdx, maxIdx;
-  int uExt[6];
-  int *wExt = this->GetImageInformation()->GetWholeExtent();
-  
-  this->GetStructuredUpdateExtent()->GetExtent(uExt);
-  
-  for (idx = 0; idx < 3; ++idx)
-    {
-    minIdx = 2*idx;
-    maxIdx = 2*idx + 1;
-    // make sure there is overlap!
-    if (uExt[minIdx] > wExt[maxIdx])
-      {
-      valid = 0;
-      vtkErrorMacro("UpdateExtent " << uExt[minIdx] 
-		      << " -> " << uExt[maxIdx]  
-		      << " does not overlap with WholeExtent "
-		      << wExt[minIdx] << " -> " << wExt[maxIdx]);
-      uExt[minIdx] = wExt[maxIdx];
-      }
-    if (uExt[maxIdx] < wExt[minIdx])
-      {
-      valid = 0;
-      vtkErrorMacro("UpdateExtent " << uExt[minIdx] 
-		      << " -> " << uExt[maxIdx]  
-		      << " does not overlap with WholeExtent "
-		      << wExt[minIdx] << " -> " << wExt[maxIdx]);
-      uExt[maxIdx] = wExt[minIdx];
-      }
-    
-    // typical intersection shift min up to whole min
-    if (uExt[minIdx] < wExt[minIdx])
-      {
-      uExt[minIdx] = wExt[minIdx];
-      }
-    // typical intersection shift max down to whole max
-    if (uExt[maxIdx] >= wExt[maxIdx])
-      {
-      uExt[maxIdx] = wExt[maxIdx];
-      }
-    }
-  
-  // Now check to see if the UpdateExtent is in the current Extent.
-  
-  // If the requested extent is not completely in the data structure already,
-  // release the data to cause the source to execute.
-  if (this->Extent[0] > uExt[0] || 
-      this->Extent[1] < uExt[1] || 
-      this->Extent[2] > uExt[2] || 
-      this->Extent[3] < uExt[3] ||
-      this->Extent[4] > uExt[4] ||
-      this->Extent[5] < uExt[5])
-    {
-    this->ReleaseData();
-    }
-  
-  this->GetStructuredUpdateExtent()->SetExtent(uExt);
-  
-  return valid;
 }
 
 //----------------------------------------------------------------------------
@@ -980,110 +984,6 @@ void vtkImageData::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageData::SetSpacing(float spacing[3])
-{
-  this->GetImageInformation()->SetSpacing(spacing);
-}
-//----------------------------------------------------------------------------
-void vtkImageData::SetSpacing(float x, float y, float z)
-{
-  this->GetImageInformation()->SetSpacing(x, y, z);
-}
-//----------------------------------------------------------------------------
-float *vtkImageData::GetSpacing()
-{
-  return this->GetImageInformation()->GetSpacing();
-}
-//----------------------------------------------------------------------------
-void vtkImageData::GetSpacing(float spacing[3])
-{
-  this->GetImageInformation()->GetSpacing(spacing);
-}
-
-//----------------------------------------------------------------------------
-void vtkImageData::SetOrigin(float origin[3])
-{
-  this->GetImageInformation()->SetOrigin(origin);
-}
-//----------------------------------------------------------------------------
-void vtkImageData::SetOrigin(float x, float y, float z)
-{
-  this->GetImageInformation()->SetOrigin(x, y, z);
-}
-//----------------------------------------------------------------------------
-float *vtkImageData::GetOrigin()
-{
-  return this->GetImageInformation()->GetOrigin();
-}
-//----------------------------------------------------------------------------
-void vtkImageData::GetOrigin(float origin[3])
-{
-  this->GetImageInformation()->GetOrigin(origin);
-}
-
-
-
-//----------------------------------------------------------------------------
-void vtkImageData::SetWholeExtent(int extent[6])
-{
-  this->GetImageInformation()->SetWholeExtent(extent);
-}
-//----------------------------------------------------------------------------
-void vtkImageData::SetWholeExtent(int xMin, int xMax,
-				  int yMin, int yMax, int zMin, int zMax)
-{
-  int extent[6];
-
-  extent[0] = xMin; extent[1] = xMax;
-  extent[2] = yMin; extent[3] = yMax;
-  extent[4] = zMin; extent[5] = zMax;
-  this->SetWholeExtent(extent);
-}
-
-//----------------------------------------------------------------------------
-int *vtkImageData::GetWholeExtent()
-{
-  return this->GetImageInformation()->GetWholeExtent();
-}
-//----------------------------------------------------------------------------
-void vtkImageData::GetWholeExtent(int extent[6])
-{
-  this->GetImageInformation()->GetWholeExtent(extent);
-}
-//----------------------------------------------------------------------------
-void vtkImageData::GetWholeExtent(int &xMin, int &xMax, int &yMin, int &yMax,
-				  int &zMin, int &zMax)
-{
-  int *ext = this->GetImageInformation()->GetWholeExtent();
-  
-  xMin = ext[0];
-  xMax = ext[1];
-  yMin = ext[2];
-  yMax = ext[3];
-  zMin = ext[4];
-  zMax = ext[5];
-}
-
-//----------------------------------------------------------------------------
-void vtkImageData::SetUpdateExtent(int extent[6])
-{
-  this->GetStructuredUpdateExtent()->SetExtent(extent);
-}
-
-//----------------------------------------------------------------------------
-void vtkImageData::SetUpdateExtent(int xMin, int xMax, int yMin, int yMax,
-				   int zMin, int zMax)
-{
-  int extent[6];
-
-  extent[0] = xMin; extent[1] = xMax;
-  extent[2] = yMin; extent[3] = yMax;
-  extent[4] = zMin; extent[5] = zMax;
-  
-  this->SetUpdateExtent(extent);
-}
-
-//----------------------------------------------------------------------------
 // Should we split up cells, or just points.  It does not matter for now.
 // Extent of structured data assumes points.
 void vtkImageData::SetUpdateExtent(int piece, int numPieces)
@@ -1115,117 +1015,13 @@ void vtkImageData::SetUpdateExtent(int piece, int numPieces)
   this->SetUpdateExtent(ext);
 }
 
-
-
 //----------------------------------------------------------------------------
-int *vtkImageData::GetUpdateExtent()
-{
-  return this->GetStructuredUpdateExtent()->GetExtent();
-}
 
-//----------------------------------------------------------------------------
-void vtkImageData::GetUpdateExtent(int ext[6])
-{
-  int *tmp = this->GetStructuredUpdateExtent()->GetExtent();
-  
-  ext[0] = tmp[0];
-  ext[1] = tmp[1];
-  ext[2] = tmp[2];
-  ext[3] = tmp[3];
-  ext[4] = tmp[4];
-  ext[5] = tmp[5];
-}
-
-//----------------------------------------------------------------------------
-void vtkImageData::SetUpdateExtentToWholeExtent()
-{
-  this->UpdateInformation();
-  this->SetUpdateExtent(this->GetWholeExtent());
-}
-
-//----------------------------------------------------------------------------
-void vtkImageData::GetUpdateExtent(int &x1, int &x2, int &y1, int &y2, 
-				   int &z1, int &z2)
-{
-  int *ext;
-  ext = this->GetUpdateExtent();
-  x1 = ext[0];
-  x2 = ext[1];
-  y1 = ext[2];
-  y2 = ext[3];
-  z1 = ext[4];
-  z2 = ext[5];
-}
-
-//----------------------------------------------------------------------------
-void vtkImageData::GetExtent(int &x1, int &x2, int &y1, int &y2, 
-			     int &z1, int &z2)
-{
-  int *ext;
-  ext = this->GetExtent();
-  x1 = ext[0];
-  x2 = ext[1];
-  y1 = ext[2];
-  y2 = ext[3];
-  z1 = ext[4];
-  z2 = ext[5];
-}
-
-//----------------------------------------------------------------------------
-void vtkImageData::SetExtent(int x1, int x2, int y1, int y2, int z1, int z2)
-{
-  int ext[6];
-  ext[0] = x1;
-  ext[1] = x2;
-  ext[2] = y1;
-  ext[3] = y2;
-  ext[4] = z1;
-  ext[5] = z2;
-  this->SetExtent(ext);
-}
-
-//----------------------------------------------------------------------------
-void vtkImageData::SetExtent(int *extent)
-{
-  int description;
-
-  description = vtkStructuredData::SetExtent(extent, this->Extent);
-  if ( description < 0 ) //improperly specified
-    {
-    vtkErrorMacro (<< "Bad Extent, retaining previous values");
-    }
-  
-  if (description == VTK_UNCHANGED)
-    {
-    return;
-    }
-
-  this->DataDescription = description;
-  
-  this->Modified();
-  this->Dimensions[0] = extent[1] - extent[0] + 1;
-  this->Dimensions[1] = extent[3] - extent[2] + 1;
-  this->Dimensions[2] = extent[5] - extent[4] + 1;
-  this->ComputeIncrements();
-  // previously, we released data here, but vtkStructuredPoints
-  // sources can setup the scalars before Dimensions are set ...
-}
-
-//----------------------------------------------------------------------------
 void vtkImageData::SetNumberOfScalarComponents(int num)
 {
-  // What should we do if the number of scalar components do not match ...
-  this->GetImageInformation()->SetNumberOfScalarComponents(num);
+  this->NumberOfScalarComponents = num;
   this->ComputeIncrements();
 }
-
-
-//----------------------------------------------------------------------------
-int vtkImageData::GetNumberOfScalarComponents()
-{
-  return this->GetImageInformation()->GetNumberOfScalarComponents();
-}
-
 
 int *vtkImageData::GetIncrements()
 {
@@ -1332,7 +1128,7 @@ float vtkImageData::GetScalarComponentAsFloat(int x, int y, int z, int comp)
     return 0.0;
     }
   
-  switch (this->GetScalarType())
+  switch (this->ScalarType)
     {
     case VTK_FLOAT:
       return *(((float *)ptr) + comp);
@@ -1447,7 +1243,7 @@ void *vtkImageData::GetScalarPointer()
 int vtkImageData::GetScalarType()
 {
   vtkScalars *tmp;
-  int type = this->GetImageInformation()->GetScalarType();
+  int type = this->ScalarType;
   
   // if we have scalars make sure the type matches our ivar
   tmp = this->GetPointData()->GetScalars();
@@ -1462,29 +1258,12 @@ int vtkImageData::GetScalarType()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageData::SetScalarType(int t)
-{
-  vtkScalars *tmp;
-
-  // if we have scalars make sure they match
-  tmp = this->GetPointData()->GetScalars();
-  if (tmp && tmp->GetDataType() != t)
-    {
-    // This happens during setup of default information
-    //vtkWarningMacro("Setting ScalarType: Existing scalars do not match.");
-    }
-  
-  this->GetImageInformation()->SetScalarType(t);
-}
-
-
-//----------------------------------------------------------------------------
 void vtkImageData::AllocateScalars()
 {
   vtkScalars *scalars;
   
   // if the scalar type has not been set then we have a problem
-  if (this->GetScalarType() == VTK_VOID)
+  if (this->ScalarType == VTK_VOID)
     {
     vtkErrorMacro("Attempt to allocate scalars before scalar type was set!.");
     return;
@@ -1492,7 +1271,7 @@ void vtkImageData::AllocateScalars()
 
   // if we currently have scalars then just adjust the size
   scalars = this->PointData->GetScalars();
-  if (scalars && scalars->GetDataType() == this->GetScalarType()) 
+  if (scalars && scalars->GetDataType() == this->ScalarType) 
     {
     scalars->SetNumberOfComponents(this->GetNumberOfScalarComponents());
     scalars->SetNumberOfScalars((this->Extent[1] - this->Extent[0] + 1)*
@@ -1506,7 +1285,7 @@ void vtkImageData::AllocateScalars()
   
   // allocate the new scalars
   scalars = vtkScalars::New();
-  scalars->SetDataType(this->GetScalarType());
+  scalars->SetDataType(this->ScalarType);
   scalars->SetNumberOfComponents(this->GetNumberOfScalarComponents());
   this->PointData->SetScalars(scalars);
   scalars->Delete();
@@ -1523,7 +1302,7 @@ void vtkImageData::AllocateScalars()
 int vtkImageData::GetScalarSize()
 {
   // allocate the new scalars
-  switch (this->GetScalarType())
+  switch (this->ScalarType)
     {
     case VTK_FLOAT:
       return sizeof(float);
@@ -1658,7 +1437,7 @@ void vtkImageData::CopyAndCastFrom(vtkImageData *inData, int extent[6])
 {
   void *inPtr = inData->GetScalarPointerForExtent(extent);
   
-  switch (inData->GetScalarType())
+  switch (inData->ScalarType)
     {
     case VTK_DOUBLE:
       vtkImageDataCastExecute(inData, (double *)(inPtr), 
@@ -1712,7 +1491,7 @@ void vtkImageData::CopyAndCastFrom(vtkImageData *inData, int extent[6])
 //----------------------------------------------------------------------------
 double vtkImageData::GetScalarTypeMin()
 {
-  switch (this->GetScalarType())
+  switch (this->ScalarType)
     {
     case VTK_DOUBLE:
       return (double)(VTK_DOUBLE_MIN);
@@ -1735,7 +1514,7 @@ double vtkImageData::GetScalarTypeMin()
     case VTK_UNSIGNED_CHAR:
       return (double)(0.0);
     default:
-      vtkErrorMacro("Cannot handle scalar type " << this->GetScalarType());
+      vtkErrorMacro("Cannot handle scalar type " << this->ScalarType);
       return 0.0;
     }
 }
@@ -1744,7 +1523,7 @@ double vtkImageData::GetScalarTypeMin()
 //----------------------------------------------------------------------------
 double vtkImageData::GetScalarTypeMax()
 {
-  switch (this->GetScalarType())
+  switch (this->ScalarType)
     {
     case VTK_DOUBLE:
       return (double)(VTK_DOUBLE_MAX);
@@ -1767,18 +1546,70 @@ double vtkImageData::GetScalarTypeMax()
     case VTK_UNSIGNED_CHAR:
       return (double)(VTK_UNSIGNED_CHAR_MAX);
     default:
-      vtkErrorMacro("Cannot handle scalar type " << this->GetScalarType());
+      vtkErrorMacro("Cannot handle scalar type " << this->ScalarType);
       return 0.0;
     }
 }
 
 //----------------------------------------------------------------------------
+void vtkImageData::SetExtent(int x1, int x2, int y1, int y2, int z1, int z2)
+{
+  int ext[6];
+  ext[0] = x1;
+  ext[1] = x2;
+  ext[2] = y1;
+  ext[3] = y2;
+  ext[4] = z1;
+  ext[5] = z2;
+  this->SetExtent(ext);
+}
+
+//----------------------------------------------------------------------------
+void vtkImageData::SetExtent(int *extent)
+{
+  int description;
+
+  description = vtkStructuredData::SetExtent(extent, this->Extent);
+  if ( description < 0 ) //improperly specified
+    {
+    vtkErrorMacro (<< "Bad Extent, retaining previous values");
+    }
+  
+  if (description == VTK_UNCHANGED)
+    {
+    return;
+    }
+
+  this->DataDescription = description;
+  
+  this->Modified();
+  this->Dimensions[0] = extent[1] - extent[0] + 1;
+  this->Dimensions[1] = extent[3] - extent[2] + 1;
+  this->Dimensions[2] = extent[5] - extent[4] + 1;
+  this->ComputeIncrements();
+}
+
+//----------------------------------------------------------------------------
+
+void vtkImageData::ModifyExtentForUpdateExtent()
+{
+  if ( this->UpdateExtent[0] < this->Extent[0] ||
+       this->UpdateExtent[1] > this->Extent[1] ||
+       this->UpdateExtent[2] < this->Extent[2] ||
+       this->UpdateExtent[3] > this->Extent[3] ||
+       this->UpdateExtent[4] < this->Extent[4] ||
+       this->UpdateExtent[5] > this->Extent[5] )
+    {
+    this->ReleaseData();
+    this->SetExtent( this->UpdateExtent );
+    }
+}
+
+//----------------------------------------------------------------------------
+
 void vtkImageData::SetAxisUpdateExtent(int idx, int min, int max)
 {
   int modified = 0;
-  int ext[6];
-  
-  this->GetStructuredUpdateExtent()->GetExtent(ext);
   
   if (idx > 2)
     {
@@ -1786,145 +1617,38 @@ void vtkImageData::SetAxisUpdateExtent(int idx, int min, int max)
     return;
     }
   
-  if (ext[idx*2] != min)
+  if (this->UpdateExtent[idx*2] != min)
     {
     modified = 1;
-    ext[idx*2] = min;
+    this->UpdateExtent[idx*2] = min;
     }
-  if (ext[idx*2+1] != max)
+  if (this->UpdateExtent[idx*2+1] != max)
     {
     modified = 1;
-    ext[idx*2+1] = max;
+    this->UpdateExtent[idx*2+1] = max;
     }
 
   if (modified)
     {
     this->Modified();
     }
-  
-  this->GetStructuredUpdateExtent()->SetExtent(ext);
 }
 
 //----------------------------------------------------------------------------
 void vtkImageData::GetAxisUpdateExtent(int idx, int &min, int &max)
 {
-  int *ext = this->GetStructuredUpdateExtent()->GetExtent();
-  
   if (idx > 2)
     {
     vtkWarningMacro("illegal axis!");
     return;
     }
 
-  min = ext[idx*2];
-  max = ext[idx*2+1];
+  min = this->UpdateExtent[idx*2];
+  max = this->UpdateExtent[idx*2+1];
 }
 
 //----------------------------------------------------------------------------
-void vtkImageData::UpdateInformation()
-{
-  if (this->Source)
-    {
-    this->Source->UpdateInformation();
-    // It is important the this not change our modify time.
-    this->ComputeEstimatedWholeMemorySize();
-    }
-}
-
-//----------------------------------------------------------------------------
-// Estimated memory size is implicit in the other image information.
-// It is computed automatically (superclass) during UpdateInformation.
-void vtkImageData::ComputeEstimatedWholeMemorySize()
-{
-  double size = (float)(this->GetNumberOfScalarComponents());
-  int idx;
-  int *wExt = this->GetWholeExtent();
-  
-  switch (this->GetScalarType())
-    {
-    case VTK_FLOAT:
-      size *= sizeof(float);
-      break;
-    case VTK_DOUBLE:
-      size *= sizeof(double);
-      break;
-    case VTK_INT:
-      size *= sizeof(int);
-      break;
-    case VTK_UNSIGNED_INT:
-      size *= sizeof(unsigned int);
-      break;
-    case VTK_LONG:
-      size *= sizeof(long);
-      break;
-    case VTK_UNSIGNED_LONG:
-      size *= sizeof(unsigned long);
-      break;
-    case VTK_SHORT:
-      size *= sizeof(short);
-      break;
-    case VTK_UNSIGNED_SHORT:
-      size *= sizeof(unsigned short);
-      break;
-    case VTK_UNSIGNED_CHAR:
-      size *= sizeof(unsigned char);
-      break;
-    case VTK_CHAR:
-      size *= sizeof(char);
-      break;
-    case VTK_BIT:
-      size = size / 8;
-      break;
-    default:
-      vtkWarningMacro(<< "GetExtentMemorySize: "
-        << "Cannot determine input scalar type");
-    }  
-
-  // Compute the number of scalars.
-  for (idx = 0; idx < 3; ++idx)
-    {
-    size = size*(wExt[idx*2+1] - wExt[idx*2] + 1);
-    }
-
-  // In case the extent is set improperly
-  // Now Improperly might mean the filter will update no memory,
-  // (multiple input filters) so do not give an error.
-  if (size < 0)
-    {
-    this->Information->SetEstimatedWholeMemorySize((unsigned long)(0));
-    }
-
-  long lsize = (long)(size / 1000.0);
-  
-  this->Information->SetEstimatedWholeMemorySize(lsize);
-}
-
-//----------------------------------------------------------------------------
-unsigned long vtkImageData::GetEstimatedUpdateMemorySize()
-{
-  int idx, *uExt = this->GetStructuredUpdateExtent()->GetExtent();
-  int *wExt = this->GetWholeExtent();
-  unsigned long wholeSize, updateSize;
-  
-  // Compute the sizes
-  wholeSize = updateSize = 1;
-  for (idx = 0; idx < 3; ++idx)
-    {
-    wholeSize *= (wExt[idx*2+1] - wExt[idx*2] + 1);
-    updateSize *= (uExt[idx*2+1] - uExt[idx*2] +1);
-    }
-
-  updateSize = updateSize * this->Information->GetEstimatedWholeMemorySize() 
-    / wholeSize;
-  if (updateSize < 1)
-    {
-    return 1;
-    }
-  return updateSize;
-}
-
-//----------------------------------------------------------------------------
-// This method is used translparently by the "SetInput(vtkImageCache *)"
+// This method is used transparently by the "SetInput(vtkImageCache *)"
 // method to connect the image pipeline to the visualization pipeline.
 vtkImageToStructuredPoints *vtkImageData::MakeImageToStructuredPoints()
 {

@@ -10,8 +10,8 @@ ME = Contrib
 srcdir        = @srcdir@
 VPATH         = @srcdir@
 
-MPI_OBJ = \
-vtkMPIController
+#MPI_OBJ = \
+#vtkMPIController
 
 
 ABSTRACT_H = 
@@ -28,7 +28,6 @@ vtkImageReslice \
 vtkIVWriter \
 vtkMassProperties \
 vtkOBJReader \
-vtkPolyDataCollector \
 vtkProjectedTexture \
 vtkRenderLargeImage \
 vtkRIBExporter \
@@ -43,7 +42,13 @@ vtkSurfaceReconstructionFilter \
 vtkVideoSource \
 vtkVolumeProMapper \
 vtkThinPlateSplineMeshWarp \
- ${CONTROLLER_API_OBJ}
+${CONTROLLER_API_OBJ}
+
+#vtkOutputPort \
+#vtkInputPort \
+#vtkMultiProcessController \
+#vtkPolyDataCollector \
+#vtkThreadedController \
 
 
 #------------------------------------------------------------------------------

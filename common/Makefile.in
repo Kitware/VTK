@@ -22,7 +22,6 @@ vtkAttributeData \
 vtkCell \
 vtkDataArray \
 vtkDataSet \
-vtkExtent \
 vtkImplicitFunction \
 vtkLocator \
 vtkObjectFactory \
@@ -45,7 +44,6 @@ vtkCharArray \
 vtkCollection \
 vtkContourValues \
 vtkCoordinate \
-vtkDataInformation \
 vtkDataObject \
 vtkDataSetAttributes \
 vtkDataSetCollection \
@@ -66,7 +64,6 @@ vtkGenericCell \
 vtkHexahedron \
 vtkIdList \
 vtkImageData \
-vtkImageInformation \
 vtkImageSource \
 vtkImageToStructuredPoints \
 vtkImplicitFunctionCollection \
@@ -111,9 +108,7 @@ vtkShortArray \
 vtkSource \
 vtkStack \
 vtkStructuredData \
-vtkStructuredExtent \
 vtkStructuredGrid \
-vtkStructuredInformation \
 vtkStructuredPoints \
 vtkTCoords \
 vtkTensor \
@@ -129,8 +124,6 @@ vtkUnsignedCharArray \
 vtkUnsignedIntArray \
 vtkUnsignedLongArray \
 vtkUnsignedShortArray \
-vtkUnstructuredExtent \
-vtkUnstructuredInformation \
 vtkUnstructuredGrid \
 vtkVectors \
 vtkVersion \
