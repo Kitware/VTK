@@ -50,7 +50,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkIdList.h"
 #ifndef VTK_IMPLEMENT_MESA_CXX
 #include "GL/gl.h"
-#include "GL/glu.h"
 #endif
 #include "vtkObjectFactory.h"
 

@@ -42,7 +42,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkOpenGLImageWindow.h"
 #include "vtkOpenGLImager.h"
 #include "GL/gl.h"
-#include "GL/glu.h"
 #include "vtkObjectFactory.h"
 
 
