@@ -20,7 +20,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 vtkRefCount::vtkRefCount()
 {
   this->RefCount = 1;
-  this->ReferenceCounting = 0;
+  this->ReferenceCounting = 1;
 }
 
 // Description:
