@@ -72,6 +72,10 @@ foreach operator $mathematics {
     if { $column > 6 } {set column 1; incr row}
 }
 
+# make the last oerator finish the row
+set vp [imager${operator} GetViewport]
+imager${operator} SetViewport [lindex $vp 0] [lindex $vp 1] 1 1 
+
 imgWin SetSize 600 300
 imgWin Render
 
