@@ -80,6 +80,14 @@ public:
   void SetPointArrayStatus(const char* name, int status);  
   void SetCellArrayStatus(const char* name, int status);  
   
+  //BTX
+  // Description:
+  // Get/Set the input stream from which to read the data.  This
+  // overrides use of FileName.
+  vtkGetMacro(Stream, istream*);
+  vtkSetMacro(Stream, istream*);
+  //ETX
+  
 protected:
   vtkXMLReader();
   ~vtkXMLReader();
@@ -160,8 +168,8 @@ protected:
   // The input file's name.
   char* FileName;
   
-  // The file stream used to read the input file.
-  ifstream* FileStream;
+  // The stream used to read the input.
+  istream* Stream;
   
   // The array selections.
   vtkDataArraySelection* PointDataArraySelection;
@@ -188,6 +196,10 @@ protected:
   virtual void SetProgressRange(float* range, int curStep, float* fractions);
   virtual void UpdateProgressDiscrete(float progress);
   float ProgressRange[2];
+
+private:
+  // The stream used to read the input if it is in a file.
+  ifstream* FileStream;  
   
 private:
   vtkXMLReader(const vtkXMLReader&);  // Not implemented.

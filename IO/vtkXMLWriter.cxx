@@ -28,7 +28,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkZLibDataCompressor.h"
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.20");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.21");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 
 //----------------------------------------------------------------------------
@@ -226,7 +226,7 @@ int vtkXMLWriter::Write()
     }
   
   // Make sure we have a file to write.
-  if(!this->FileName)
+  if(!this->Stream && !this->FileName)
     {
     vtkErrorMacro("Write() called with no FileName set.");
     return 0;
@@ -252,21 +252,30 @@ int vtkXMLWriter::Write()
 
 //----------------------------------------------------------------------------
 int vtkXMLWriter::WriteInternal()
-{  
-  // Try to open the output file for writing.
-#ifdef _WIN32
-  ofstream outFile(this->FileName, ios::out | ios::binary);
-#else
-  ofstream outFile(this->FileName, ios::out);
-#endif
-  if(!outFile)
+{
+  ofstream* outFile = 0;
+  if(this->Stream)
     {
-    vtkErrorMacro("Error opening output file \"" << this->FileName << "\"");
-    return 0;
+    // Rewind stream to the beginning.
+    this->Stream->seekp(0);
+    }
+  else
+    {
+    // Try to open the output file for writing.
+#ifdef _WIN32
+    outFile = new ofstream(this->FileName, ios::out | ios::binary);
+#else
+    outFile = new ofstream(this->FileName, ios::out);
+#endif
+    if(!outFile || !*outFile)
+      {
+      vtkErrorMacro("Error opening output file \"" << this->FileName << "\"");
+      return 0;
+      }
+    this->Stream = outFile;
     }
   
   // Setup the output streams.
-  this->Stream = &outFile;
   this->DataStream->SetStream(this->Stream);
   
   // Tell the subclass to write the data.
@@ -274,7 +283,13 @@ int vtkXMLWriter::WriteInternal()
   
   // Cleanup the output streams.
   this->DataStream->SetStream(0);
-  this->Stream = 0;
+  
+  if(outFile)
+    {
+    // We opened a file.  Close it.
+    delete outFile;
+    this->Stream = 0;
+    }
   
   return result;
 }

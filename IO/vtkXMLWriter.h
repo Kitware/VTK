@@ -128,6 +128,14 @@ public:
   // Invoke the writer.  Returns 1 for success, 0 for failure.
   int Write();
   
+  //BTX
+  // Description:
+  // Get/Set the output stream to which to write the data.  This
+  // overrides use of FileName.
+  vtkGetMacro(Stream, ostream*);
+  vtkSetMacro(Stream, ostream*);
+  //ETX
+  
 protected:
   vtkXMLWriter();
   ~vtkXMLWriter();

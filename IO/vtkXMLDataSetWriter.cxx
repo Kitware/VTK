@@ -31,7 +31,7 @@
 #include "vtkXMLStructuredGridWriter.h"
 #include "vtkXMLUnstructuredGridWriter.h"
 
-vtkCxxRevisionMacro(vtkXMLDataSetWriter, "1.3");
+vtkCxxRevisionMacro(vtkXMLDataSetWriter, "1.4");
 vtkStandardNewMacro(vtkXMLDataSetWriter);
 
 //----------------------------------------------------------------------------
@@ -125,6 +125,7 @@ int vtkXMLDataSetWriter::WriteInternal()
   // Copy the settings to the writer.
   writer->SetDebug(this->GetDebug());
   writer->SetFileName(this->GetFileName());
+  writer->SetStream(this->GetStream());
   writer->SetByteOrder(this->GetByteOrder());
   writer->SetCompressor(this->GetCompressor());
   writer->SetBlockSize(this->GetBlockSize());

@@ -32,12 +32,13 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.14");
+vtkCxxRevisionMacro(vtkXMLReader, "1.15");
 
 //----------------------------------------------------------------------------
 vtkXMLReader::vtkXMLReader()
 {
   this->FileName = 0;
+  this->Stream = 0;
   this->FileStream = 0;
   this->XMLParser = 0;
   this->PointDataArraySelection = vtkDataArraySelection::New();
@@ -113,15 +114,21 @@ int vtkXMLReader::OpenVTKFile()
     vtkErrorMacro("File already open.");
     return 1;
     }
-
-  if (!this->FileName)
+  
+  if(!this->Stream && !this->FileName)
     {
     vtkErrorMacro("File name not specified");
     return 0;
     }
   
-  // First make sure the file exists.  This prevents an empty file
-  // from being created on older compilers.
+  if(this->Stream)
+    {
+    // Use user-provided stream.
+    return 1;
+    }
+  
+  // Need to open a file.  First make sure it exists.  This prevents
+  // an empty file from being created on older compilers.
   struct stat fs;
   if(stat(this->FileName, &fs) != 0)
     {
@@ -129,35 +136,45 @@ int vtkXMLReader::OpenVTKFile()
     return 0;
     }
   
-  this->FileStream = new ifstream;
-  
 #ifdef _WIN32
-  this->FileStream->open(this->FileName, ios::binary | ios::in);
+  this->FileStream = new ifstream(this->FileName, ios::binary | ios::in);
 #else
-  this->FileStream->open(this->FileName, ios::in);
+  this->FileStream = new ifstream(this->FileName, ios::in);
 #endif
   
-  if(!(*this->FileStream))
+  if(!this->FileStream || !(*this->FileStream))
     {
     vtkErrorMacro("Error opening file " << this->FileName);
-    delete this->FileStream;
-    this->FileStream = 0;
+    if(this->FileStream)
+      {
+      delete this->FileStream;
+      this->FileStream = 0;
+      }
     return 0;
     }
+  
+  // Use the file stream.
+  this->Stream = this->FileStream;
+  
   return 1;
 }
 
 //----------------------------------------------------------------------------
 void vtkXMLReader::CloseVTKFile()
 {
-  if(!this->FileStream)
+  if(!this->Stream)
     {
     vtkErrorMacro("File not open.");
     return;
     }
-  this->FileStream->close();
-  delete this->FileStream;
-  this->FileStream = 0;
+  if(this->Stream == this->FileStream)
+    {
+    // We opened the file.  Close it.
+    this->FileStream->close();
+    delete this->FileStream;
+    this->FileStream = 0;
+    this->Stream = 0;
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -232,7 +249,7 @@ void vtkXMLReader::ExecuteInformation()
   this->CreateXMLParser();
   
   // Configure the parser for this file.
-  this->XMLParser->SetStream(this->FileStream);
+  this->XMLParser->SetStream(this->Stream);
   
   // Parse the input file.
   if(this->XMLParser->Parse())
@@ -287,7 +304,7 @@ void vtkXMLReader::ExecuteData(vtkDataObject* output)
   
   // Give the vtkXMLParser instance its file back so that data section
   // reads will work.
-  this->XMLParser->SetStream(this->FileStream);
+  this->XMLParser->SetStream(this->Stream);
   
   // We are just starting to read.  Do not call UpdateProgressDiscrete
   // because we want a 0 progress callback the first time.
