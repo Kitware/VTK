@@ -326,6 +326,10 @@ void vtkRenderer::Render(void)
       {
       this->LastRenderTimeInSeconds = 0.0001;
       }
+    if (totalEstimate < 0.0001)
+      {
+      totalEstimate = 0.0001;
+      }
     this->TimeFactor = totalEstimate / this->LastRenderTimeInSeconds;
     //this->TimeFactor = 1.0;
     }
