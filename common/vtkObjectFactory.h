@@ -153,10 +153,12 @@ public:
   // Description:
   // This returns the path to a dynamically loaded factory.
   vtkGetStringMacro(LibraryPath);
-  
-protected:
+
   //BTX
   typedef vtkObject* (*CreateFunction)();
+  //ETX
+protected:
+  //BTX
 
   // Description:
   // Register object creation information with the factory.
