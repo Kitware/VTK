@@ -35,7 +35,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkBitArray.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.139");
+vtkCxxRevisionMacro(vtkImageData, "1.139.4.1");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -813,6 +813,14 @@ void vtkImageData::ComputeBounds()
   float *origin = this->GetOrigin();
   float *spacing = this->GetSpacing();
   
+  if ( this->Extent[0] > this->Extent[1] || 
+       this->Extent[2] > this->Extent[3] ||
+       this->Extent[4] > this->Extent[5] )
+    {
+    this->Bounds[0] = this->Bounds[2] = this->Bounds[4] =  VTK_LARGE_FLOAT;
+    this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_LARGE_FLOAT;
+    return;
+    }
   this->Bounds[0] = origin[0] + (this->Extent[0] * spacing[0]);
   this->Bounds[2] = origin[1] + (this->Extent[2] * spacing[1]);
   this->Bounds[4] = origin[2] + (this->Extent[4] * spacing[2]);

@@ -24,7 +24,7 @@
 #include "vtkFloatArray.h"
 #include "vtkExtentTranslator.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGrid, "1.55");
+vtkCxxRevisionMacro(vtkRectilinearGrid, "1.55.4.1");
 vtkStandardNewMacro(vtkRectilinearGrid);
 
 vtkCxxSetObjectMacro(vtkRectilinearGrid,XCoordinates,vtkDataArray);
@@ -666,11 +666,20 @@ void vtkRectilinearGrid::ComputeBounds()
   if (this->XCoordinates == NULL || this->YCoordinates == NULL || 
       this->ZCoordinates == NULL)
     {
-    this->Bounds[0] = this->Bounds[1] = this->Bounds[2] = this->Bounds[3]
-      = this->Bounds[4] = this->Bounds[5] = 0.0;
+    this->Bounds[0] = this->Bounds[2] = this->Bounds[4] =  VTK_LARGE_FLOAT;
+    this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_LARGE_FLOAT;
     return;
     }
-  
+
+  if ( this->XCoordinates->GetNumberOfTuples() == 0 || 
+       this->YCoordinates->GetNumberOfTuples() == 0 || 
+       this->ZCoordinates->GetNumberOfTuples() == 0 )
+    {
+    this->Bounds[0] = this->Bounds[2] = this->Bounds[4] =  VTK_LARGE_FLOAT;
+    this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_LARGE_FLOAT;
+    return;
+    }
+
   this->Bounds[0] = this->XCoordinates->GetComponent(0, 0);
   this->Bounds[2] = this->YCoordinates->GetComponent(0, 0);
   this->Bounds[4] = this->ZCoordinates->GetComponent(0, 0);
