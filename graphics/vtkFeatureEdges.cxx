@@ -52,6 +52,7 @@ vtkFeatureEdges::vtkFeatureEdges()
   this->BoundaryEdges = 1;
   this->FeatureEdges = 1;
   this->NonManifoldEdges = 1;
+  this->ManifoldEdges = 0;
   this->Coloring = 1;
 }
 
@@ -65,7 +66,7 @@ void vtkFeatureEdges::Execute()
   vtkCellArray *newLines;
   vtkPolyData Mesh;
   int i, j, numNei, cellId;
-  int numBEdges, numNonManifoldEdges, numFedges;
+  int numBEdges, numNonManifoldEdges, numFedges, numManifoldEdges;
   float scalar, n[3], *x1, *x2;
   float cosAngle = 0;
   int lineIds[2];
@@ -90,7 +91,8 @@ void vtkFeatureEdges::Execute()
     return;
     }
 
-  if ( !this->BoundaryEdges && !this->NonManifoldEdges && !this->FeatureEdges) 
+  if ( !this->BoundaryEdges && !this->NonManifoldEdges && 
+  !this->FeatureEdges && !this->ManifoldEdges )
     {
     vtkWarningMacro(<<"All edge types turned off!");
     return;
@@ -123,7 +125,7 @@ void vtkFeatureEdges::Execute()
     cosAngle = cos ((double) vtkMath::DegreesToRadians() * this->FeatureAngle);
     }
 
-  numBEdges = numNonManifoldEdges = numFedges = 0;
+  numBEdges = numNonManifoldEdges = numFedges = numManifoldEdges = 0;
   for (cellId=0, inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); 
   cellId++)
     {
@@ -150,7 +152,7 @@ void vtkFeatureEdges::Execute()
         if ( j >= numNei )
           {
           numNonManifoldEdges++;
-          scalar = 0.33333;
+          scalar = 0.222222;
           }
         else continue;
         }
@@ -161,11 +163,16 @@ void vtkFeatureEdges::Execute()
         if ( vtkMath::Dot(polyNormals->GetNormal(nei),polyNormals->GetNormal(cellId)) <= cosAngle ) 
           {
           numFedges++;
-          scalar = 0.66667;
+          scalar = 0.444444;
           }
         else continue;
         }
 
+      else if ( this->ManifoldEdges )
+        {
+        numManifoldEdges++;
+        scalar = 0.666667;
+        }
       else continue;
 
       // Add edge to output
@@ -182,9 +189,10 @@ void vtkFeatureEdges::Execute()
       }
     }
 
-  vtkDebugMacro(<<"Created " << numBEdges << " boundary edges, " <<
-               numNonManifoldEdges << " non-manifold edges, " <<
-               numFedges << " feature edges");
+  vtkDebugMacro(<<"Created " << numBEdges << " boundary edges, "
+                << numNonManifoldEdges << " non-manifold edges, "
+                << numFedges << " feature edges, "
+                << numManifoldEdges << " manifold edges");
 
 //
 //  Update ourselves.
@@ -209,6 +217,7 @@ void vtkFeatureEdges::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Boundary Edges: " << (this->BoundaryEdges ? "On\n" : "Off\n");
   os << indent << "Feature Edges: " << (this->FeatureEdges ? "On\n" : "Off\n"); 
   os << indent << "Non-Manifold Edges: " << (this->NonManifoldEdges ? "On\n" : "Off\n");
+  os << indent << "Manifold Edges: " << (this->ManifoldEdges ? "On\n" : "Off\n");
   os << indent << "Coloring: " << (this->Coloring ? "On\n" : "Off\n");
 }
 

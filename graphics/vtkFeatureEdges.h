@@ -43,8 +43,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkFeatureEdges is a filter to extract special types of edges from
 // input polygonal data. These edges are either 1) boundary (used by 
 // one polygon) or a line cell; 2) non-manifold (used by three or more 
-// polygons); or 3) feature edges (edges used by two triangles and whose
-// dihedral angle > FeatureAngle). These edges may be extracted in any
+// polygons); 3) feature edges (edges used by two triangles and whose
+// dihedral angle > FeatureAngle); or 4) manifold edges (edges used by
+// exactly two polygons). These edges may be extracted in any
 // combination. Edges may also be "colored" (i.e., scalar values assigned)
 // based on edge type.
 // .SECTION See Also
@@ -86,6 +87,12 @@ public:
   vtkBooleanMacro(NonManifoldEdges,int);
 
   // Description:
+  // Turn on/off the extraction of manifold edges.
+  vtkSetMacro(ManifoldEdges,int);
+  vtkGetMacro(ManifoldEdges,int);
+  vtkBooleanMacro(ManifoldEdges,int);
+
+  // Description:
   // Turn on/off the coloring of edges by type.
   vtkSetMacro(Coloring,int);
   vtkGetMacro(Coloring,int);
@@ -99,6 +106,7 @@ protected:
   int BoundaryEdges;
   int FeatureEdges;
   int NonManifoldEdges;
+  int ManifoldEdges;
   int Coloring;
 };
 
