@@ -81,35 +81,6 @@ package ifneeded vtktcl 3.3 {
         if {$vtkDataFound == 0} {set VTK_DATA_ROOT "../../../../VTKData" }
     }
     
-    if {$ok} {
-        package provide vtktcl 3.3
-    }
-}
-
-package ifneeded vtktcl_widgets 1.0 {
-
-    package require vtktcl
-
-    set widgetObjectFound 0
-    foreach dir $auto_path {
-	set fname $dir/WidgetObject.tcl
-	if {[file exists $fname]} {
-	    set widgetObjectFound 1
-	    source $fname
-            break
-	}
-    }
-
-    if {$widgetObjectFound} {
-	foreach dir $auto_path {
-	    set fname $dir/TkInteractor.tcl
-	    if {[file exists $fname]} {
-		source $fname
-                break
-	    }
-	}
-    }
-
     # a generic interactor for tcl and vtk
     #
     catch {unset vtkInteract.bold}
@@ -210,6 +181,37 @@ package ifneeded vtktcl_widgets 1.0 {
     }
 
     vtkInteract
+
+    if {$ok} {
+        package provide vtktcl 3.3
+    }
+}
+
+package ifneeded vtktcl_widgets 1.0 {
+
+    package require vtktcl
+
+
+    set widgetObjectFound 0
+    foreach dir $auto_path {
+	set fname $dir/WidgetObject.tcl
+	if {[file exists $fname]} {
+	    set widgetObjectFound 1
+	    source $fname
+            break
+	}
+    }
+
+    if {$widgetObjectFound} {
+	foreach dir $auto_path {
+	    set fname $dir/TkInteractor.tcl
+	    if {[file exists $fname]} {
+		source $fname
+                break
+	    }
+	}
+    }
+
 
     package provide vtktcl_widgets 1.0
 }
