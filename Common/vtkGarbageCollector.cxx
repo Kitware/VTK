@@ -25,7 +25,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGarbageCollector, "1.19");
+vtkCxxRevisionMacro(vtkGarbageCollector, "1.20");
 
 class vtkGarbageCollectorSingleton;
 
@@ -850,7 +850,7 @@ void vtkGarbageCollector::DeferredCollectionPush()
   // Forward the call to the singleton.
   if(vtkGarbageCollectorSingletonInstance)
     {
-    return vtkGarbageCollectorSingletonInstance->DeferredCollectionPush();
+    vtkGarbageCollectorSingletonInstance->DeferredCollectionPush();
     }
 }
 
