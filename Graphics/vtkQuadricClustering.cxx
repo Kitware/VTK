@@ -24,7 +24,7 @@
 #include "vtkTimerLog.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadricClustering, "1.60");
+vtkCxxRevisionMacro(vtkQuadricClustering, "1.61");
 vtkStandardNewMacro(vtkQuadricClustering);
 
 //----------------------------------------------------------------------------
@@ -944,11 +944,11 @@ void vtkQuadricClustering::ComputeRepresentativePoint(double quadric[9],
 }
 
 //----------------------------------------------------------------------------
-void vtkQuadricClustering::SetNumberOfDivisions(int div[3])
+void vtkQuadricClustering::SetNumberOfDivisions(int div0, int div1, int div2)
 {
-  this->SetNumberOfXDivisions(div[0]);
-  this->SetNumberOfYDivisions(div[1]);
-  this->SetNumberOfZDivisions(div[2]);
+  this->SetNumberOfXDivisions(div0);
+  this->SetNumberOfYDivisions(div1);
+  this->SetNumberOfZDivisions(div2);
 }
 
 //----------------------------------------------------------------------------

@@ -99,7 +99,9 @@ public:
   vtkGetMacro(NumberOfXDivisions, int);
   vtkGetMacro(NumberOfYDivisions, int);
   vtkGetMacro(NumberOfZDivisions, int);
-  void SetNumberOfDivisions(int div[3]);
+  void SetNumberOfDivisions(int div[3])
+    { this->SetNumberOfDivisions(div[0], div[1], div[2]); }
+  void SetNumberOfDivisions(int div0, int div1, int div2);
   int *GetNumberOfDivisions();
   void GetNumberOfDivisions(int div[3]);
 
