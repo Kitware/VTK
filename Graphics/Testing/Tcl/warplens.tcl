@@ -38,6 +38,7 @@ tf SetInput [wl GetPolyDataOutput]
 
 vtkStripper strip
 strip SetInput [tf GetOutput]
+strip SetMaximumLength 250
 
 vtkPolyDataMapper dsm
 dsm SetInput [strip GetOutput]
