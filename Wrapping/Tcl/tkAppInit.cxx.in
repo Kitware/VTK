@@ -16,6 +16,10 @@
 #include "vtkSystemIncludes.h"
 #include "vtkToolkits.h"
 
+#ifdef VTK_COMPILED_USING_MPI
+#include "vtkMPIController.h"
+#endif // VTK_COMPILED_USING_MPI
+
 #cmakedefine VTK_MAKE_INSTANTIATOR
 #ifdef VTK_MAKE_INSTANTIATOR
 /*
@@ -64,11 +68,23 @@ int
 main(int argc, char **argv)
 {
   ios::sync_with_stdio();
+
+#ifdef VTK_COMPILED_USING_MPI
+  vtkMPIController* controller = vtkMPIController::New();
+  controller->Initialize(&argc, &argv);
+  vtkMultiProcessController::SetGlobalController(controller);
+#endif // VTK_COMPILED_USING_MPI
+
 #ifdef VTK_USE_RENDERING
   Tk_Main(argc, argv, Tcl_AppInit);
 #else
   Tcl_Main(argc, argv, Tcl_AppInit);
 #endif
+
+#ifdef VTK_COMPILED_USING_MPI
+  controller->Delete();
+#endif // VTK_COMPILED_USING_MPI
+
   return 0;                  /* Needed only to prevent compiler warning. */
 }
 
