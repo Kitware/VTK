@@ -50,6 +50,10 @@ public:
   // Description:
   // Get the data type.
   int GetDataType() {return VTK_UNSIGNED_LONG;};
+
+  // Description:
+  // Return the size of the data type.
+  int GetDataTypeSize() { return sizeof(unsigned long); }
   
   // Description:
   // Set the number of n-tuples in the array.

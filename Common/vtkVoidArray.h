@@ -52,6 +52,10 @@ public:
   int GetDataType() {return VTK_VOID;};
   
   // Description:
+  // Return the size of the data type.
+  int GetDataTypeSize() { return sizeof(void*); }
+  
+  // Description:
   // Set the number of n-tuples in the array.
   void SetNumberOfTuples(const vtkIdType number);
 

@@ -52,6 +52,10 @@ public:
   int GetDataType() {return VTK_UNSIGNED_CHAR;};
 
   // Description:
+  // Return the size of the data type.
+  int GetDataTypeSize() { return sizeof(unsigned char); }
+
+  // Description:
   // Set the number of n-tuples in the array.
   void SetNumberOfTuples(const vtkIdType number);
 

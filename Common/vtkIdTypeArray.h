@@ -51,6 +51,10 @@ public:
   // Get the data type.
   int GetDataType() 
     {return VTK_ID_TYPE;}
+  
+  // Description:
+  // Return the size of the data type.
+  int GetDataTypeSize() { return sizeof(vtkIdType); }
 
   // Description:
   // Resize object to just fit data requirement. Reclaims extra memory.

@@ -76,6 +76,10 @@ public:
   virtual int GetDataType() = 0;
 
   // Description:
+  // Return the size of the underlying data type.  For a bit, 0 is returned.
+  virtual int GetDataTypeSize() = 0;
+
+  // Description:
   // Set/Get the dimension (n) of the components. Must be >= 1. Make sure that
   // this is set before allocation.
   vtkSetClampMacro(NumberOfComponents,int,1,VTK_LARGE_INTEGER);

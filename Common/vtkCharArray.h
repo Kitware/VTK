@@ -50,6 +50,10 @@ public:
   // Description:
   // Get the data type.
   int GetDataType() {return VTK_CHAR;};
+  
+  // Description:
+  // Return the size of the data type.
+  int GetDataTypeSize() { return sizeof(char); }
 
   // Description:
   // Set the number of tuples in the array. Note that this allocates space

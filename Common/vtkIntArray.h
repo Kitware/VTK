@@ -53,6 +53,10 @@ public:
     {return VTK_INT;}
 
   // Description:
+  // Return the size of the data type.
+  int GetDataTypeSize() { return sizeof(int); }
+
+  // Description:
   // Resize object to just fit data requirement. Reclaims extra memory.
   void Squeeze() 
     {this->ResizeAndExtend (this->MaxId+1);}

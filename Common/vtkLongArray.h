@@ -60,6 +60,10 @@ public:
   int GetDataType() {return VTK_LONG;};
   
   // Description:
+  // Return the size of the data type.
+  int GetDataTypeSize() { return sizeof(long); }
+  
+  // Description:
   // Set the number of n-tuples in the array.
   void SetNumberOfTuples(const vtkIdType number);
   
