@@ -711,31 +711,49 @@ void vtkRayCaster::ComputeRowBounds( vtkRenderer *ren, vtkProp *prop, int index 
   renWinSize      = ren->GetRenderWindow()->GetSize();
   viewport        = ren->GetViewport();
 
-  indx = 0;
-  pointIn[3] = 1.0;
-  for ( k = 0; k < 2; k++ )
+  float camPos[3];
+  ren->GetActiveCamera()->GetPosition(camPos);
+  int inside = 0;
+  
+  // Find out if we are inside the volume - row bounds are all full then
+  if ( camPos[0] >= bounds[0] &&
+       camPos[0] <= bounds[1] &&
+       camPos[1] >= bounds[2] &&
+       camPos[1] <= bounds[3] &&
+       camPos[2] >= bounds[4] &&
+       camPos[2] <= bounds[5] )
     {
-    pointIn[2] = bounds[4+k];
-    for ( j = 0; j < 2; j++ )
+    inside = 1;
+    }
+  
+  if ( !inside )
+    {
+    indx = 0;
+    pointIn[3] = 1.0;
+    for ( k = 0; k < 2; k++ )
       {
-      pointIn[1] = bounds[2+j];
-      for ( i = 0; i < 2; i++ )
-	{
-	pointIn[0] = bounds[i];
-	ren->SetWorldPoint( pointIn );
-	ren->WorldToDisplay();
-	ren->GetDisplayPoint( screenBounds[indx] );
-	screenBounds[indx][0] = 
-	  ( (screenBounds[indx][0] - viewport[0]*(float)(renWinSize[0])) / 
-	    this->FullImageSize[0] ) * this->ImageSize[0];
-	screenBounds[indx][1] = 
-	  ( (screenBounds[indx][1] - viewport[1]*(float)(renWinSize[1])) / 
-	    this->FullImageSize[1] ) * this->ImageSize[1];
-	indx++;
-	}
+      pointIn[2] = bounds[4+k];
+      for ( j = 0; j < 2; j++ )
+        {
+        pointIn[1] = bounds[2+j];
+        for ( i = 0; i < 2; i++ )
+          {
+          pointIn[0] = bounds[i];
+          ren->SetWorldPoint( pointIn );
+          ren->WorldToDisplay();
+          ren->GetDisplayPoint( screenBounds[indx] );
+          screenBounds[indx][0] = 
+            ( (screenBounds[indx][0] - viewport[0]*(float)(renWinSize[0])) / 
+              this->FullImageSize[0] ) * this->ImageSize[0];
+          screenBounds[indx][1] = 
+            ( (screenBounds[indx][1] - viewport[1]*(float)(renWinSize[1])) / 
+              this->FullImageSize[1] ) * this->ImageSize[1];
+          indx++;
+          }
+        }
       }
     }
-
+  
   if ( this->RowBoundsSize[index] != this->ImageSize[1] )
     {
     if ( this->RowBounds[index] )
@@ -746,77 +764,87 @@ void vtkRayCaster::ComputeRowBounds( vtkRenderer *ren, vtkProp *prop, int index 
     this->RowBoundsSize[index] = this->ImageSize[1];
     }
 
-  for ( i = 0; i < this->ImageSize[1]; i++ )
+  if ( inside )
     {
-    this->RowBounds[index][i*2+0] = this->ImageSize[0] + 1;
-    this->RowBounds[index][i*2+1]  = -1;
+    for ( i = 0; i < this->ImageSize[1]; i++ )
+      {
+      this->RowBounds[index][i*2+0] = 0;
+      this->RowBounds[index][i*2+1] = this->ImageSize[0]-1;
+      }
     }
-
-  for ( i = 0; i < 12; i++ )
+  else
     {
-    x1 = screenBounds[edges[i][0]][0];  
-    y1 = screenBounds[edges[i][0]][1];  
-    x2 = screenBounds[edges[i][1]][0];  
-    y2 = screenBounds[edges[i][1]][1];  
+    for ( i = 0; i < this->ImageSize[1]; i++ )
+      {
+      this->RowBounds[index][i*2+0] = this->ImageSize[0] + 1;
+      this->RowBounds[index][i*2+1]  = -1;
+      }
     
-    if ( y2 < y1 ) 
+    for ( i = 0; i < 12; i++ )
       {
-      low = (int)(y2);
-      high = (int)(y1);
-      }
-    else
-      {
-      low = (int)(y1);
-      high = (int)(y2);
-      }
-
-    if ( low < 0 )
-      {
-      low = 0;
-      }
-
-    if ( high > (this->ImageSize[1] - 1) )
-      {
-      high = this->ImageSize[1] - 1;
-      }
-
-    dx = x1-x2;
-    dy = y1-y2;
-    if ( dy )
-      {
-      if ( dx )
-	{
-	slope = dy/dx;
-	for ( j = low; j <= high; j++ )
-	  {
-	  x = x1 - (y1-j)/slope;
-	  if ( ((int)x - 1) < this->RowBounds[index][2*j+0] )
-	    {
-	    this->RowBounds[index][2*j+0] = (int)x - 1;
-	    }
-	  if ( ((int)x + 1) > this->RowBounds[index][2*j+1] )
-	    {
-	    this->RowBounds[index][2*j+1] = (int)x + 1;
-	    }
-	  }
-	}
+      x1 = screenBounds[edges[i][0]][0];  
+      y1 = screenBounds[edges[i][0]][1];  
+      x2 = screenBounds[edges[i][1]][0];  
+      y2 = screenBounds[edges[i][1]][1];  
+      
+      if ( y2 < y1 ) 
+        {
+        low = (int)(y2);
+        high = (int)(y1);
+        }
       else
-	{
-	for ( j = low; j <= high; j++ )
-	  {
-	  if ( ((int)x1 - 1) < this->RowBounds[index][2*j+0] )
-	    {
-	    this->RowBounds[index][2*j+0] = (int)x1 - 1;
-	    }
-	  if ( ((int)x1 + 1) > this->RowBounds[index][2*j+1] )
-	    {
-	    this->RowBounds[index][2*j+1] = (int)x1 + 1;
-	    }
-	  }
-	}
+        {
+        low = (int)(y1);
+        high = (int)(y2);
+        }
+      
+      if ( low < 0 )
+        {
+        low = 0;
+        }
+      
+      if ( high > (this->ImageSize[1] - 1) )
+        {
+        high = this->ImageSize[1] - 1;
+        }
+      
+      dx = x1-x2;
+      dy = y1-y2;
+      if ( dy )
+        {
+        if ( dx )
+          {
+          slope = dy/dx;
+          for ( j = low; j <= high; j++ )
+            {
+            x = x1 - (y1-j)/slope;
+            if ( ((int)x - 1) < this->RowBounds[index][2*j+0] )
+              {
+              this->RowBounds[index][2*j+0] = (int)x - 1;
+              }
+            if ( ((int)x + 1) > this->RowBounds[index][2*j+1] )
+              {
+              this->RowBounds[index][2*j+1] = (int)x + 1;
+              }
+            }
+          }
+        else
+          {
+          for ( j = low; j <= high; j++ )
+            {
+            if ( ((int)x1 - 1) < this->RowBounds[index][2*j+0] )
+              {
+              this->RowBounds[index][2*j+0] = (int)x1 - 1;
+              }
+            if ( ((int)x1 + 1) > this->RowBounds[index][2*j+1] )
+              {
+              this->RowBounds[index][2*j+1] = (int)x1 + 1;
+              }
+            }
+          }
+        }
       }
     }
-  
 }
 
 
