@@ -95,6 +95,17 @@ public:
   // Specify the planes via a camera frustrum definition.
   void SetFrustumPlanes(float aspect, vtkCamera *camera);
 
+  // Description:
+  // Return the number of planes in the set of planes.
+  int GetNumberOfPlanes();
+  
+  // Description:
+  // Create and return a pointer to a vtkPlane object at the ith
+  // position. It is your responsibility to delete the vtkPlane
+  // when done with it. Asking for a plane outside the allowable
+  // range returns NULL.
+  vtkPlane *GetPlane(int i);
+
 protected:
   vtkPlanes();
   ~vtkPlanes();

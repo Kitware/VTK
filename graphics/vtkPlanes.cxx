@@ -30,7 +30,7 @@ modification, are permitted provided that the following conditions are met:
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE FOR
+ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
 DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
 SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
@@ -45,9 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkCamera.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 vtkPlanes* vtkPlanes::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -59,9 +57,6 @@ vtkPlanes* vtkPlanes::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkPlanes;
 }
-
-
-
 
 vtkPlanes::vtkPlanes()
 {
@@ -109,7 +104,7 @@ float vtkPlanes::EvaluateFunction(float x[3])
   for (maxVal=-VTK_LARGE_FLOAT, i=0; i < numPlanes; i++)
     {
     val = this->Plane->Evaluate(this->Normals->GetNormal(i),
-			 this->Points->GetPoint(i), x);
+                         this->Points->GetPoint(i), x);
     if (val > maxVal )
       {
       maxVal = val;
@@ -205,6 +200,35 @@ void vtkPlanes::SetFrustumPlanes(float aspect, vtkCamera *camera)
   
   pts->Delete(); //ok reference counting
   normals->Delete();
+}
+
+int vtkPlanes::GetNumberOfPlanes()
+{
+  if ( this->Points && this->Normals )
+    {
+    int npts = this->Points->GetNumberOfPoints();
+    int nnormals = this->Normals->GetNumberOfNormals();
+    return ( npts <= nnormals ? npts : nnormals );
+    }
+  else
+    {
+    return 0;
+    }
+}
+  
+vtkPlane *vtkPlanes::GetPlane(int i)
+{
+  if ( i >= 0 && i < this->GetNumberOfPlanes() )
+    {
+    vtkPlane *plane = vtkPlane::New();
+    plane->SetNormal(this->Normals->GetNormal(i));
+    plane->SetOrigin(this->Points->GetPoint(i));
+    return plane;
+    }
+  else
+    {
+    return NULL;
+    }
 }
 
 void vtkPlanes::PrintSelf(ostream& os, vtkIndent indent)

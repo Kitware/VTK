@@ -41,6 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkAbstractMapper3D.h"
 #include "vtkDataSet.h"
+#include "vtkPlanes.h"
 
 // Construct with initial range (0,1).
 vtkAbstractMapper3D::vtkAbstractMapper3D()
@@ -80,6 +81,14 @@ void vtkAbstractMapper3D::RemoveClippingPlane(vtkPlane *plane)
   this->ClippingPlanes->RemoveItem(plane);
 }
 
+void vtkAbstractMapper3D::RemoveAllClippingPlanes()
+{
+  if ( this->ClippingPlanes )
+    {
+    this->ClippingPlanes->RemoveAllItems();
+    }
+}
+
 // Get the bounds for this Prop as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
 void vtkAbstractMapper3D::GetBounds(float bounds[6])
 {
@@ -113,6 +122,19 @@ float vtkAbstractMapper3D::GetLength()
     }
  
   return (float)sqrt(l);
+}
+
+void vtkAbstractMapper3D::SetClippingPlanes(vtkPlanes *planes)
+{
+  vtkPlane *plane;
+  int numPlanes = planes->GetNumberOfPlanes();
+
+  this->RemoveAllClippingPlanes();
+  for (int i=0; i<numPlanes && i<6; i++)
+    {
+    plane = planes->GetPlane(i);
+    this->AddClippingPlane(plane);
+    }
 }
 
 void vtkAbstractMapper3D::PrintSelf(ostream& os, vtkIndent indent)
