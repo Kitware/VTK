@@ -83,6 +83,9 @@ public:
   int Triangulate(int index, vtkFloatPoints &pts);
   void Derivatives(int subId, float pcoords[3], float *values, 
                    int dim, float *derivs);
+
+  // triangle strip specific
+  void DecomposeStrips(vtkCellArray *strips, vtkCellArray *polys);
 };
 
 #endif
