@@ -39,7 +39,7 @@ public:
     }
 };
 
-vtkCxxRevisionMacro(vtkPushImageFilterSample, "1.1");
+vtkCxxRevisionMacro(vtkPushImageFilterSample, "1.2");
 vtkStandardNewMacro(vtkPushImageFilterSample);
 
 vtkPushImageFilterSample::vtkPushImageFilterSample()
@@ -65,14 +65,12 @@ void vtkPushImageFilterSample::ExecuteInformation(vtkImageData **vtkNotUsed(inDa
 // This templated function executes the filter for any type of data.
 // Handles the two input operations
 template <class T>
-static void vtkPushImageFilterSampleExecute(vtkPushImageFilterSample *self,
-                                      vtkImageData *in1Data, 
-                                      T *in1Ptr,
-                                      vtkImageData *in2Data, 
-                                      T *in2Ptr,
-                                      vtkImageData *outData, 
-                                      T *outPtr,
-                                      int outExt[6], int id)
+void vtkPushImageFilterSampleExecute(vtkPushImageFilterSample *self,
+                                     vtkImageData *in1Data, T *in1Ptr,
+                                     vtkImageData *in2Data, T *in2Ptr,
+                                     vtkImageData *outData, 
+                                     T *outPtr,
+                                     int outExt[6], int id)
 {
   int idxC, idxX, idxY, idxZ;
   int maxC, maxX, maxY, maxZ;
