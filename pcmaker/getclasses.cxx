@@ -993,7 +993,7 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     {
     fprintf(fp," \"_WINDOWS\" /D \"_WINDLL\" /D \"_MBCS\" /D \"VTKDLL\"\\\n");
     }
-  if (vals->m_Lean)
+  if (!debugFlag && vals->m_Lean)
     {
     fprintf(fp,"/W2 /D \"VTK_LEAN_AND_MEAN\"  /Fo$(OBJDIR)\\ /c\n");
     }
@@ -1635,7 +1635,7 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue, int debugFlag)
     }
   if (doAddedValue) fprintf(fp," /I \"%s\\working\" /I \"%s\\gemsio\" /I \"%s\\gemsip\" /I \"%s\\gemsvolume\" /I \"%s\\geae\" \\\n",
     vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
-  if (vals->m_Lean)
+  if (!debugFlag && vals->m_Lean)
     {
     fprintf(fp," /D \"VTK_LEAN_AND_MEAN\" /Fo$(OUTDIR)\\ /c \n");
     }
@@ -1665,7 +1665,7 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue, int debugFlag)
     }
   if (doAddedValue) fprintf(fp," /I \"%s\\working\" /I \"%s\\gemsio\" /I \"%s\\gemsip\" /I \"%s\\gemsvolume\" /I \"%s\\geae\" \\\n",
     vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
-  if (vals->m_Lean)
+  if (!debugFlag && vals->m_Lean)
     {
     fprintf(fp," /D \"VTK_LEAN_AND_MEAN\" /Fo\"$(OUTDIR)/\" /c \n");
     }
