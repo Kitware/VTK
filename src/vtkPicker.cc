@@ -112,7 +112,7 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
   vtkActor *actor;
   vtkCamera *camera;
   vtkMapper *mapper;
-  float p1World[4], p2World[4], p1Mapper[4], p2Mapper[4];
+  float p1World[4], p2World[4], p1Mapper[3], p2Mapper[3];
   static vtkVertex cell; // use to take advantage of Hitbbox() method
   int picked=0;
   int *winSize;
@@ -149,8 +149,8 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
 // coordinates. We need a depth value for z-buffer.
 //
   camera = renderer->GetActiveCamera();
-  camera->GetPosition(cameraPos); cameraPos[3] = 1.0;
-  camera->GetFocalPoint(cameraFP); cameraFP[3] = 1.0;
+  camera->GetPosition((float *)cameraPos); cameraPos[3] = 1.0;
+  camera->GetFocalPoint((float *)cameraFP); cameraFP[3] = 1.0;
 
   renderer->SetWorldPoint(cameraFP);
   renderer->WorldToDisplay();
