@@ -27,7 +27,7 @@
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageReslice, "1.56");
+vtkCxxRevisionMacro(vtkImageReslice, "1.57");
 vtkStandardNewMacro(vtkImageReslice);
 vtkCxxSetObjectMacro(vtkImageReslice, InformationInput, vtkImageData);
 vtkCxxSetObjectMacro(vtkImageReslice,ResliceAxes,vtkMatrix4x4);
@@ -159,6 +159,7 @@ vtkImageReslice::~vtkImageReslice()
     {
     this->OptimizedTransform->Delete();
     }
+  this->SetInformationInput(NULL);
 }
 
 //----------------------------------------------------------------------------
