@@ -1260,21 +1260,20 @@ int vtkDataSetAttributes::SetActiveAttribute(const char* name,
 {
   int index; 
   this->GetArray(name, index);
-  if (index != -1)
-    {
-    this->SetActiveAttribute(index, attributeType);
-    return index;
-    }
-  else
-    {
-    return -1;
-    }
+  return this->SetActiveAttribute(index, attributeType);
 }
 
-void vtkDataSetAttributes::SetActiveAttribute(int index, int attributeType)
+int vtkDataSetAttributes::SetActiveAttribute(int index, int attributeType)
 {
   if ( (index >= 0) && (index < this->GetNumberOfArrays()))
     {
+    if (!this->CheckNumberOfComponents(this->Data[index], attributeType))
+      {
+      vtkWarningMacro("Can not set attribute " 
+		      << vtkDataSetAttributes::AttributeNames[attributeType]
+		      << ". Incorrect number of components.");
+      return -1;
+      }
     this->AttributeIndices[attributeType] = index;
 
     // UnRegister the exiting vtkAttributeData and set it to NULL
@@ -1284,6 +1283,59 @@ void vtkDataSetAttributes::SetActiveAttribute(int index, int attributeType)
       }
     this->Attributes[attributeType] = 0;
     this->Modified();
+    return index;
+    }
+  else
+    {
+    return -1;
+    }
+}
+
+int vtkDataSetAttributes::NumberOfAttributeComponents[NUM_ATTRIBUTES] = { 4, 
+									  3, 
+									  3, 
+									  3, 
+									  9};
+int vtkDataSetAttributes::AttributeLimits[NUM_ATTRIBUTES] = { MAX, 
+							      EXACT, 
+							      EXACT, 
+							      MAX,
+							      EXACT };
+
+char vtkDataSetAttributes::AttributeNames[NUM_ATTRIBUTES][10] = { "Scalars",
+								  "Vectors",
+								  "Normals",
+								  "TCoords",
+								  "Tensors" };
+ 
+int vtkDataSetAttributes::CheckNumberOfComponents(vtkDataArray* da,
+						  int attributeType)
+{
+  int numComp = da->GetNumberOfComponents();
+  
+  if ( vtkDataSetAttributes::AttributeLimits[attributeType] == MAX )
+    {
+    if ( numComp > 
+	 vtkDataSetAttributes::NumberOfAttributeComponents[attributeType] )
+      {
+      return 0;
+      }
+    else
+      {
+      return 1;
+      }
+    }
+  else
+    {
+    if ( numComp != 
+	 vtkDataSetAttributes::NumberOfAttributeComponents[attributeType] )
+      {
+      return 0;
+      }
+    else
+      {
+      return 1;
+      }
     }
 }
 
@@ -1305,6 +1357,14 @@ vtkDataArray* vtkDataSetAttributes::GetActiveAttribute(int attributeType)
 // which is an enum defined vtkDataSetAttributes)
 int vtkDataSetAttributes::SetAttribute(vtkDataArray* da, int attributeType)
 {
+  if (!this->CheckNumberOfComponents(da, attributeType))
+    {
+    vtkWarningMacro("Can not set attribute " 
+		    << vtkDataSetAttributes::AttributeNames[attributeType]
+		    << ". Incorrect number of components.");
+    return -1;
+    }
+
   int currentAttribute = this->AttributeIndices[attributeType];
 
   // If there is an existing attribute, replace it
