@@ -27,7 +27,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.16");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.17");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -743,10 +743,6 @@ int vtkStreamingDemandDrivenPipeline::SetUpdateExtentToWholeExtent(int port)
     }
   vtkInformation* info = this->GetOutputInformation(port);
 
-  // Make sure the update extent will remain the whole extent until
-  // the update extent is explicitly set by the caller.
-  info->Set(UPDATE_EXTENT_INITIALIZED(), 0);
-
   // Request all data.
   int modified = 0;
   if(vtkDataObject* data = info->Get(vtkDataObject::DATA_OBJECT()))
@@ -769,6 +765,11 @@ int vtkStreamingDemandDrivenPipeline::SetUpdateExtentToWholeExtent(int port)
     vtkErrorMacro("SetUpdateExtentToWholeExtent called with no data object on port "
                   << port << ".");
     }
+
+  // Make sure the update extent will remain the whole extent until
+  // the update extent is explicitly set by the caller.
+  info->Set(UPDATE_EXTENT_INITIALIZED(), 0);
+
   return modified;
 }
 
