@@ -71,11 +71,7 @@ public:
   // Specify the Box with which to perform the clipping. 
   // If the box is not parallel to axis, you need to especify  
   // normal vector of each plane and a point on the plane. 
-  
-  void SetBoxClip(float xmin,float xmax,float ymin,float ymax,float zmin,float zmax);
   void SetBoxClip(double xmin,double xmax,double ymin,double ymax,double zmin,double zmax);
-
-  void SetBoxClip(float *n0,float *o0,float *n1,float *o1,float *n2,float *o2,float *n3,float *o3,float *n4,float *o4,float *n5,float *o5);
   void SetBoxClip(double *n0,double *o0,double *n1,double *o1,double *n2,double *o2,double *n3,double *o3,double *n4,double *o4,double *n5,double *o5);
   
 
@@ -126,50 +122,50 @@ public:
   // By default this in NULL and the filter will use the active scalar array.
   vtkGetStringMacro(InputScalarsSelection);
   void SelectInputScalars(const char *fieldName) 
-    {this->SetInputScalarsSelection(fieldName);}
+    { this->SetInputScalarsSelection(fieldName); };
 
-  void SetOrientation(unsigned int i)
-          {Orientation = i; };
-
-  unsigned int GetOrientation()
-          {return  Orientation;};
-  void MinEdgeF(unsigned int *id_v, vtkIdType *cellIds,unsigned int *edgF );
-  void PyramidToTetra(vtkIdType *pyramId, vtkIdType *cellIds,vtkCellArray *newCellArray);
-  void WedgeToTetra(vtkIdType *wedgeId, vtkIdType *cellIds,vtkCellArray *newCellArray);
-  void CellGrid(vtkIdType typeobj, vtkIdType npts, vtkIdType *cellIds,vtkCellArray *newCellArray);
-  void CreateTetra(vtkIdType npts,vtkIdType *cellIds,vtkCellArray *newCellArray);
+  vtkGetMacro(Orientation,unsigned int);
+  vtkSetMacro(Orientation,unsigned int);
+  
+  void MinEdgeF(unsigned int *id_v, vtkIdType *cellIds, unsigned int *edgF );
+  void PyramidToTetra(vtkIdType *pyramId, vtkIdType *cellIds, vtkCellArray *newCellArray);
+  void WedgeToTetra(vtkIdType *wedgeId, vtkIdType *cellIds, vtkCellArray *newCellArray);
+  void CellGrid(vtkIdType typeobj, vtkIdType npts, vtkIdType *cellIds, vtkCellArray *newCellArray);
+  void CreateTetra(vtkIdType npts, vtkIdType *cellIds, vtkCellArray *newCellArray);
   void ClipBox(vtkPoints *newPoints,vtkGenericCell *cell, 
                vtkPointLocator *locator, vtkCellArray *tets,vtkPointData *inPD, 
                vtkPointData *outPD,vtkCellData *inCD,vtkIdType cellId,
                vtkCellData *outCD);
-  void ClipHexahedron(vtkPoints *newPoints,vtkGenericCell *cell,
-      vtkPointLocator *locator, vtkCellArray *tets,vtkPointData *inPD, 
-      vtkPointData *outPD,vtkCellData *inCD,vtkIdType cellId,
-      vtkCellData *outCD);
-  void ClipBoxInOut(vtkPoints *newPoints,vtkGenericCell *cell, 
-           vtkPointLocator *locator, vtkCellArray **tets,vtkPointData *inPD, 
-           vtkPointData *outPD,vtkCellData *inCD,vtkIdType cellId,
-           vtkCellData **outCD);
+  void ClipHexahedron(vtkPoints *newPoints, vtkGenericCell *cell,
+                      vtkPointLocator *locator, vtkCellArray *tets,
+                      vtkPointData *inPD, vtkPointData *outPD,
+                      vtkCellData *inCD, vtkIdType cellId, vtkCellData *outCD);
+  void ClipBoxInOut(vtkPoints *newPoints, vtkGenericCell *cell, 
+                    vtkPointLocator *locator, vtkCellArray **tets,
+                    vtkPointData *inPD, vtkPointData *outPD,
+                    vtkCellData *inCD, vtkIdType cellId, vtkCellData **outCD);
   void ClipHexahedronInOut(vtkPoints *newPoints,vtkGenericCell *cell,
-           vtkPointLocator *locator, vtkCellArray **tets,vtkPointData *inPD, 
-           vtkPointData *outPD,vtkCellData *inCD,vtkIdType cellId,
-           vtkCellData **outCD);
-  void ClipBox2D(vtkPoints *newPoints,vtkGenericCell *cell, 
-           vtkPointLocator *locator, vtkCellArray *tets,vtkPointData *inPD, 
-           vtkPointData *outPD,vtkCellData *inCD,vtkIdType cellId,
-           vtkCellData *outCD);
+                           vtkPointLocator *locator, vtkCellArray **tets,
+                           vtkPointData *inPD, vtkPointData *outPD,
+                           vtkCellData *inCD, vtkIdType cellId, 
+                           vtkCellData **outCD);
+  void ClipBox2D(vtkPoints *newPoints, vtkGenericCell *cell, 
+                 vtkPointLocator *locator, vtkCellArray *tets, 
+                 vtkPointData *inPD, vtkPointData *outPD, vtkCellData *inCD,
+                 vtkIdType cellId, vtkCellData *outCD);
   void ClipBoxInOut2D(vtkPoints *newPoints,vtkGenericCell *cell, 
-              vtkPointLocator *locator, vtkCellArray **tets,vtkPointData *inPD, 
-              vtkPointData *outPD,vtkCellData *inCD,vtkIdType cellId,
-              vtkCellData **outCD);
+                      vtkPointLocator *locator, vtkCellArray **tets,
+                      vtkPointData *inPD, vtkPointData *outPD, 
+                      vtkCellData *inCD, vtkIdType cellId, vtkCellData **outCD);
   void ClipHexahedron2D(vtkPoints *newPoints,vtkGenericCell *cell,
-         vtkPointLocator *locator, vtkCellArray *tets,vtkPointData *inPD, 
-         vtkPointData *outPD,vtkCellData *inCD,vtkIdType cellId,
-         vtkCellData *outCD);
-  void ClipHexahedronInOut2D(vtkPoints *newPoints,vtkGenericCell *cell,
-         vtkPointLocator *locator, vtkCellArray **tets,vtkPointData *inPD, 
-         vtkPointData *outPD,vtkCellData *inCD,vtkIdType cellId,
-         vtkCellData **outCD);
+                        vtkPointLocator *locator, vtkCellArray *tets,
+                        vtkPointData *inPD, vtkPointData *outPD,
+                        vtkCellData *inCD, vtkIdType cellId, vtkCellData *outCD);
+  void ClipHexahedronInOut2D(vtkPoints *newPoints, vtkGenericCell *cell,
+                             vtkPointLocator *locator, vtkCellArray **tets,
+                             vtkPointData *inPD, vtkPointData *outPD,
+                             vtkCellData *inCD,vtkIdType cellId,
+                             vtkCellData **outCD);
 protected:
   vtkBoxClipDataSet();
   ~vtkBoxClipDataSet();
