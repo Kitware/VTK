@@ -15,12 +15,14 @@ IF (VTK_USE_RENDERING)
     ENDIF (VTK_MANGLE_MESA)
 
     FOREACH ( tfile
+      camera
       Canny
       clipArt
       createBFont
       cylMap
       dataSetSurfaceFilter
       Delaunay2D
+      Delaunay2DTransform
       dicer
       EnSight6Elements
       EnSightGoldElements
@@ -30,8 +32,10 @@ IF (VTK_USE_RENDERING)
       KlineBottle
       nacaBinary
       OBBTree
+      OBBCylinder
       PolyDataMapperAllPolygons
       PolyDataMapperAllWireframe
+      PolyDataNormals
       probeComb
       reconstructSurface
       quadricCut
@@ -51,6 +55,7 @@ IF (VTK_USE_RENDERING)
       ugFacet
       volTestClipRegions
       warpComb
+      warplens
       )
       ADD_TEST(${tfile}-image ${VTK_EXECUTABLE}
         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
