@@ -240,9 +240,9 @@ class VrmlNodeType {
       return vrmlPointerList::AllocateMemory(n);
     }
   
-    void operator delete(void *vtkNotUsed(ptr)) {}
+  void operator delete(void *vtkNotUsed(ptr)) {}
 
-  typedef struct {
+  struct NameTypeRec {
     char *name;
     int type;
     
@@ -253,7 +253,7 @@ class VrmlNodeType {
     
     void operator delete(void *vtkNotUsed(ptr)) {}
     
-  } NameTypeRec;
+  };
         
   // Node types are stored in this data structure:
   static VectorType<VrmlNodeType*> typeList;
@@ -298,19 +298,19 @@ VrmlNodeType::~VrmlNodeType()
   for (i = 0;i < eventIns.Count(); i++) 
     {
     NameTypeRec *r = eventIns[i];
-    free(r->name);
+//    free(r->name);
     delete r;
     }
   for (i = 0;i < eventOuts.Count(); i++) 
     {
     NameTypeRec *r = eventOuts[i];
-    free(r->name);
+//    free(r->name);
     delete r;
     }
   for (i = 0;i < fields.Count(); i++) 
     {
     NameTypeRec *r = fields[i];
-    free(r->name);
+//    free(r->name);
     delete r;
     }
 }
@@ -405,7 +405,7 @@ void
 VrmlNodeType::add(VectorType<NameTypeRec*> &recs, const char *nodeName, int type)
 {
   NameTypeRec *r = new NameTypeRec;
-  r->name = strdup(nodeName);
+  r->name = vrmlPointerList::StrDup(nodeName); //strdup(nodeName);
   r->type = type;
   recs += r;
 }
@@ -864,19 +864,14 @@ extern void yyerror();
 #pragma alloca
 #else /* not MSDOS, __TURBOC__, or _AIX */
 #ifdef __hpux
-#ifdef __cplusplus
-extern "C" {
-  void *alloca (unsigned int);
-};
-#else /* not __cplusplus */
-void *alloca ();
-#endif /* not __cplusplus */
+#include <alloca.h>
 #endif /* __hpux */
 #endif /* not _AIX */
 #endif /* not MSDOS, or __TURBOC__ */
 #endif /* not sparc.  */
 #endif /* not GNU C.  */
 #endif /* alloca not defined.  */
+
 
 /* This is the parser code that is written into each bison parser
   when the %semantic_parser declaration is not specified in the grammar.
@@ -5523,6 +5518,7 @@ void vtkVRMLImporter::ImportEnd ()
   vrmlPointerList::CleanUp();
   VrmlNodeType::typeList.Init();
   useList.Init();
+  currentField.Init();
   vtkDebugMacro(<<"Closing import file");
   if ( this->FileFD != NULL )
     {
@@ -6018,7 +6014,8 @@ vtkVRMLImporter::exitField()
       {
       if (yylval.mfint32->GetValue(i) == -1) 
         {
-        cells->InsertNextCell(cnt, yylval.mfint32->GetPointer(index));
+        cells->InsertNextCell(cnt,
+                              (int*)yylval.mfint32->GetPointer(index));
         index = i+1;
         cnt = 0;
         }
@@ -6116,7 +6113,8 @@ vtkVRMLImporter::exitField()
   else if (strcmp(fr->fieldName, "colorIndex") == 0) 
     {
     vtkCellArray *cells;
-    int npts, *pts, index, j;
+    int index, j;
+    int *pts, npts;
     vtkPolyData *pd = (vtkPolyData *)this->CurrentMapper->GetInput();
     if (pd->GetNumberOfPolys() > 0)
       cells = pd->GetPolys();
