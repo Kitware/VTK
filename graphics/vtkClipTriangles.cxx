@@ -86,6 +86,7 @@ void vtkClipTriangles::Execute()
   float value, *x, s;
   vtkPolyData *output = this->GetOutput();
   int estimatedSize, numCells=this->Input->GetNumberOfCells();
+  int beenWarned = 0;
   
   vtkDebugMacro(<< "Executing Clipper");
   cellScalars.ReferenceCountingOff();
@@ -125,6 +126,15 @@ void vtkClipTriangles::Execute()
     cell = Input->GetCell(cellId);
     cellPts = cell->GetPoints();
     int numberOfPoints = cellPts->GetNumberOfPoints();
+    if (numberOfPoints != 3)
+      {
+      if (!beenWarned)
+	{
+	vtkWarningMacro(<< "only triangles can be clipped!!");
+        beenWarned = 1;
+	}
+	continue;
+      }
     for (i=0; i<numberOfPoints; i++)
       {
       x = cellPts->GetPoint(i);
