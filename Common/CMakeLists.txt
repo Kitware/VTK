@@ -94,6 +94,7 @@ vtkOldStyleCallbackCommand.cxx
 vtkOutputWindow.cxx
 vtkOverrideInformation.cxx
 vtkOverrideInformationCollection.cxx
+vtkParametricBoy.cxx
 vtkParametricConicSpiral.cxx
 vtkParametricFigure8Klein.cxx
 vtkParametricFunction.cxx
