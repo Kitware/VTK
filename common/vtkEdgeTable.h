@@ -74,7 +74,7 @@ public:
   // required by the data structure to store an integer id per each
   // edge.  This method is used in conjunction with one of the two
   // InsertEdge() methods described below (don't mix the InsertEdge()
-  // methods).
+  // methods). 
   int InitEdgeInsertion(int numPoints, int storeAttributes=0);
 
   // Description:
@@ -131,6 +131,11 @@ public:
   // non-zero otherwise. The value of p1 is guaranteed to be <= p2.
   int GetNextEdge(int &p1, int &p2);
 
+  // Description:
+  // Reset the object and prepare for reinsertion of edges. Does not delete
+  // memory like the Initialize() method.
+  void Reset();
+
 protected:
   vtkEdgeTable();
   ~vtkEdgeTable();
@@ -140,7 +145,8 @@ protected:
   vtkIdList **Table;
   vtkIdList **Attributes;
   int StoreAttributes;
-  int TableSize;
+  int TableMaxId; //maximum point id inserted
+  int TableSize;  //allocated size of table
   int Position[2];
   int Extend;
   int NumberOfEdges;

@@ -48,7 +48,9 @@ vtkEdgeTable::vtkEdgeTable()
   this->Attributes = NULL;
   this->Points = NULL;
 
+  this->TableMaxId = -1;
   this->TableSize = 0;
+
   this->Position[0] = 0;
   this->Position[1] = -1;
   this->NumberOfEdges = 0;
@@ -68,6 +70,8 @@ void vtkEdgeTable::Initialize()
       }
     delete [] this->Table;
     this->Table = NULL;
+    this->TableMaxId = -1;
+    this->TableSize = 0;
 
     if ( this->StoreAttributes )
       {
@@ -88,7 +92,45 @@ void vtkEdgeTable::Initialize()
     this->Points->Delete();
     this->Points = NULL;
     }
+    
+  this->NumberOfEdges = 0;
+  this->StoreAttributes = 0;
+}
 
+// Free memory and return to instantiated state.
+void vtkEdgeTable::Reset()
+{
+  int i;
+
+  if ( this->Table )
+    {
+    for (i=0; i < this->TableSize; i++)
+      {
+      if ( this->Table[i] )
+        {
+        this->Table[i]->Reset();
+        }
+      }
+
+    if ( this->StoreAttributes )
+      {
+      for (i=0; i < this->TableSize; i++)
+        {
+        if ( this->Attributes[i] )
+          {
+          this->Attributes[i]->Reset();
+          }
+        }
+      }
+    }//if table defined
+
+  this->TableMaxId = -1;
+
+  if ( this->Points )
+    {
+    this->Points->Reset();
+    }
+    
   this->NumberOfEdges = 0;
   this->StoreAttributes = 0;
 }
@@ -100,30 +142,41 @@ vtkEdgeTable::~vtkEdgeTable()
 
 int vtkEdgeTable::InitEdgeInsertion(int numPoints, int storeAttributes)
 {
-  this->Initialize();
-  this->StoreAttributes = storeAttributes;
-
   if ( numPoints < 1 )
     {
     numPoints = 1;
     }
 
-  this->Table = new vtkIdList *[numPoints];
-  for (int i=0; i < numPoints; i++)
+  // Discard old memory if not enough has benn previously allocated
+  if ( numPoints > this->TableSize )
     {
-    this->Table[i] = NULL;
-    }
-
-  if ( this->StoreAttributes )
-    {
-    this->Attributes = new vtkIdList *[numPoints];
+    this->Initialize();
+    this->Table = new vtkIdList *[numPoints];
     for (int i=0; i < numPoints; i++)
       {
-      this->Attributes[i] = NULL;
+      this->Table[i] = NULL;
       }
-    }
 
-  this->TableSize = numPoints;
+    this->StoreAttributes = storeAttributes;
+    if ( this->StoreAttributes )
+      {
+      this->Attributes = new vtkIdList *[numPoints];
+      for (int i=0; i < numPoints; i++)
+        {
+        this->Attributes[i] = NULL;
+        }
+      }
+    this->TableMaxId = -1;
+    this->TableSize = numPoints;
+    }
+  
+  // Otherwise, reuse the old memory
+  else
+    {
+    this->Reset();
+    this->StoreAttributes = storeAttributes;
+    this->TableMaxId = -1;
+    }
 
   this->Position[0] = 0;
   this->Position[1] = -1;
@@ -195,6 +248,11 @@ int vtkEdgeTable::InsertEdge(int p1, int p2)
     {
     this->Resize(index+1);
     }
+  
+  if ( index > this->TableMaxId )
+    {
+    this->TableMaxId = index;
+    }
 
   if ( this->Table[index] == NULL ) 
     {
@@ -237,6 +295,11 @@ void vtkEdgeTable::InsertEdge(int p1, int p2, int attributeId)
     this->Resize(index+1);
     }
 
+  if ( index > this->TableMaxId )
+    {
+    this->TableMaxId = index;
+    }
+
   if ( this->Table[index] == NULL ) 
     {
     this->Table[index] = vtkIdList::New();
@@ -270,7 +333,7 @@ void vtkEdgeTable::InitTraversal()
 // is an id that can be used for accessing attributes.
 int vtkEdgeTable::GetNextEdge(int &p1, int &p2)
 {
-  for ( ; this->Position[0] < this->TableSize; 
+  for ( ; this->Position[0] <= this->TableMaxId; 
   this->Position[0]++, this->Position[1]=(-1) )
     {
     if ( this->Table[this->Position[0]] != NULL && 
