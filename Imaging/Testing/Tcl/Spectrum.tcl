@@ -25,11 +25,13 @@ vtkImageLogarithmicScale compress
 compress SetInput [center GetOutput]
 compress SetConstant 15
 
-vtkImageViewer viewer
+vtkImageViewer2 viewer
 viewer SetInput [compress GetOutput]
 viewer SetColorWindow 150
 viewer SetColorLevel 170
 
+vtkRenderWindowInteractor viewInt
+viewer SetupInteractor viewInt
 viewer Render
 
 
