@@ -295,16 +295,7 @@ long vtkDataObject::GetPipelineMTime()
 //----------------------------------------------------------------------------
 void vtkDataObject::PreUpdate() 
 {
-  // We only need to do anything if the UpdateExtent has been changed since 
-  // the last PreUpdate.
-  if (this->GetGenericUpdateExtent()->GetMTime() > this->PreUpdateTime)
-    {
-    if (this->Source)
-      {
-      this->Source->PreUpdate(this);
-      }
-    this->PreUpdateTime.Modified();
-    }
+  // For now does nothing
 }
 
 
