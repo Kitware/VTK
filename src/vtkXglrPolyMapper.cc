@@ -205,10 +205,10 @@ void vtkXglrPolyMapper::Build(vtkPolyData *data, vtkColorScalars *c)
   vtkTCoords *t;
   int npts;
   float polyNorm[3];
-  int i,j;
+  int i;
   int *pts;
   vtkPolygon polygon;
-  int tDim, adder, pointSize, pointSize2;
+  int tDim, pointSize, pointSize2;
   enum Xgl_pt_type ptType, ptType2;
   float *fTemp;
   int numDataVals;
