@@ -466,10 +466,12 @@ void vtkImageWriter::WriteFile(ofstream *file, vtkImageData *data,
   rowLength *= (extent[1] - extent[0] + 1);
 
   wExtent = this->Input->GetWholeExtent();
-  area = ((extent[5] - extent[4] + 1)*(extent[3] - extent[2] + 1)*
-	  (extent[1] - extent[0] + 1)) / 
-    ((wExtent[5] -wExtent[4] + 1)*(wExtent[3] -wExtent[2] + 1)*
-     (wExtent[1] -wExtent[0] + 1));
+  area = (float) ((extent[5] - extent[4] + 1)*
+		  (extent[3] - extent[2] + 1)*
+		  (extent[1] - extent[0] + 1)) / 
+         (float) ((wExtent[5] -wExtent[4] + 1)*
+		  (wExtent[3] -wExtent[2] + 1)*
+		  (wExtent[1] -wExtent[0] + 1));
     
   target = (unsigned long)((extent[5]-extent[4]+1)*
 			   (extent[3]-extent[2]+1)/(50.0*area));
