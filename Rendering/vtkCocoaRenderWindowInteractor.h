@@ -16,26 +16,17 @@
 // required by vtkRenderWindowInteractor.
 //
 // .SECTION Description
-// The interactor interfaces with vtkCocoaWindow.mm and vtkCocoaGLView.mm
+// The interactor interfaces with vtkCocoaRenderWindow and vtkCocoaGLView
 // to trap messages from the Cocoa window manager and send them to vtk.
-//
+
 #ifndef __vtkCocoaRenderWindowInteractor_h
 #define __vtkCocoaRenderWindowInteractor_h
 
 #include "vtkRenderWindowInteractor.h"
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#ifdef __cplusplus
-};
-#endif
-
-
-
-class VTK_RENDERING_EXPORT vtkCocoaRenderWindowInteractor : public vtkRenderWindowInteractor {
+class VTK_RENDERING_EXPORT vtkCocoaRenderWindowInteractor : public vtkRenderWindowInteractor
+{
 public:
   // Description:
   // Construct object so that light follows camera motion.
@@ -78,12 +69,12 @@ public:
   // Cocoa specific application terminate, calls ClassExitMethod then
   // calls PostQuitMessage(0) to terminate app. An application can Specify
   // ExitMethod for alternative behaviour (i.e. suppresion of keyboard exit)
-  void TerminateApp(void);
+  void TerminateApp();
 
   // Description:
   // Cocoa timer methods
   int CreateTimer(int timertype);
-  int DestroyTimer(void);
+  int DestroyTimer();
 
   // Description:
   // Methods to set the default exit method for the class. This method is

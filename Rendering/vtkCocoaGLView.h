@@ -12,6 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+// .NAME vtkCocoaGLView - Cocoa OpenGL rendering context
+//
+// .SECTION Description
+// This class onle takes care of allocating an NSOpenGLView which simply
+// providea rendering context. This class uses Objective-C++
+//
+// .SECTION See Also
+// vtkCocoaRenderWindow
 
 #import <Cocoa/Cocoa.h>
 #import <OpenGL/gl.h>

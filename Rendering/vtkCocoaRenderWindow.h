@@ -13,10 +13,14 @@
 
 =========================================================================*/
 // .NAME vtkCocoaRenderWindow - Cocoa OpenGL rendering window
+//
 // .SECTION Description
 // vtkCocoaRenderWindow is a concrete implementation of the abstract
 // class vtkOpenGLRenderWindow. vtkCocoaRenderWindow interfaces to the
 // OpenGL graphics library using the Cocoa API on Mac OSX.
+// It interacts with the OSX Window manager to display a window and create
+// its vtkCocoaGLView. These were separated to allow applications to do their
+// own window management and just use vtkCocoaGLView themselves.
 
 #ifndef __vtkCocoaRenderWindow_h
 #define __vtkCocoaRenderWindow_h

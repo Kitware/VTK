@@ -13,6 +13,7 @@
 
 =========================================================================*/
 // .NAME vtkCarbonRenderWindow - Carbon OpenGL rendering window
+//
 // .SECTION Description
 // vtkCarbonRenderWindow is a concrete implementation of the abstract
 // class vtkOpenGLRenderWindow. vtkCarbonRenderWindow interfaces to the
@@ -23,9 +24,7 @@
 
 #include "vtkOpenGLRenderWindow.h"
 
-
 #include <Carbon/Carbon.h> // Carbon and MAC specific
-#include <OpenGL/gl.h> // Carbon and MAC specific
 #include <AGL/agl.h> // Carbon and MAC specific
 
 class VTK_RENDERING_EXPORT vtkCarbonRenderWindow : public vtkOpenGLRenderWindow
