@@ -760,13 +760,13 @@ void vtkRayCaster::ComputeRowBounds( vtkRenderer *ren, vtkProp *prop, int index 
     
     if ( y2 < y1 ) 
       {
-      low = y2;
-      high = y1;
+      low = (int)(y2);
+      high = (int)(y1);
       }
     else
       {
-      low = y1;
-      high = y2;
+      low = (int)(y1);
+      high = (int)(y2);
       }
 
     if ( low < 0 )

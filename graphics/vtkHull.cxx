@@ -293,7 +293,7 @@ void vtkHull::AddRecursiveSpherePlanes( int level )
     return;
     }
 
-  numTriangles = 8*pow( 4.0, (double)level );
+  numTriangles = (int)(8*pow( 4.0, (double)level ));
 
   // Create room for the triangles and points
   // We will also need to keep track of which points are
@@ -349,24 +349,24 @@ void vtkHull::AddRecursiveSpherePlanes( int level )
       C = triangles[i*3 + 2];
 
       // Add the middle triangle in place of the one we just processed
-      triangles[i*3 + 0] = midindex[0];
-      triangles[i*3 + 1] = midindex[1];
-      triangles[i*3 + 2] = midindex[2];
+      triangles[i*3 + 0] = (int)(midindex[0]);
+      triangles[i*3 + 1] = (int)(midindex[1]);
+      triangles[i*3 + 2] = (int)(midindex[2]);
 
       // Now add the 3 outer triangles at the end of the triangle list
-      triangles[triCount*3 + 0] = midindex[0];
+      triangles[triCount*3 + 0] = (int)(midindex[0]);
       triangles[triCount*3 + 1] = B;
-      triangles[triCount*3 + 2] = midindex[1];
+      triangles[triCount*3 + 2] = (int)(midindex[1]);
       triCount++;
 
-      triangles[triCount*3 + 0] = midindex[1];
+      triangles[triCount*3 + 0] = (int)(midindex[1]);
       triangles[triCount*3 + 1] = C;
-      triangles[triCount*3 + 2] = midindex[2];
+      triangles[triCount*3 + 2] = (int)(midindex[2]);
       triCount++;
 
-      triangles[triCount*3 + 0] = midindex[2];
+      triangles[triCount*3 + 0] = (int)(midindex[2]);
       triangles[triCount*3 + 1] = A;
-      triangles[triCount*3 + 2] = midindex[0];
+      triangles[triCount*3 + 2] = (int)(midindex[0]);
       triCount++;
       }
     }
