@@ -2169,12 +2169,6 @@ fi
 # should use someday
 #AC_SUBST(VTK_LD_SEARCH_FLAGS)
 
-if test ! -r depend.make
-then
-    echo "Copying $srcdir/depend.make to build directory"
-    cp $srcdir/depend.make depend.make || exit 1
-fi
-
 trap '' 1 2 15
 cat > confcache <<\EOF
 # This file is a shell script that caches the results of configure
