@@ -767,7 +767,6 @@ vtkDataArray *vtkDataReader::ReadArray(char *dataType, int numTuples, int numCom
 // Read point coordinates. Return 0 if error.
 int vtkDataReader::ReadPoints(vtkPointSet *ps, int numPts)
 {
-  int i;
   char line[256];
   vtkDataArray *data;
 
@@ -807,7 +806,6 @@ int vtkDataReader::ReadPoints(vtkPointSet *ps, int numPts)
 int vtkDataReader::ReadCoordinates(vtkRectilinearGrid *rg, int axes, 
                                    int numCoords)
 {
-  int i;
   char line[256];
   vtkScalars *coords;
   vtkDataArray *data;
@@ -852,7 +850,7 @@ int vtkDataReader::ReadCoordinates(vtkRectilinearGrid *rg, int axes,
 int vtkDataReader::ReadScalarData(vtkDataSetAttributes *a, int numPts)
 {
   char line[256], name[256], key[256], tableName[256];
-  int i, skipScalar=0;
+  int skipScalar=0;
   vtkDataArray *data;
 
   if (!(this->ReadString(name) && this->ReadString(line) && 
@@ -907,7 +905,7 @@ int vtkDataReader::ReadScalarData(vtkDataSetAttributes *a, int numPts)
 // Read vector point attributes. Return 0 if error.
 int vtkDataReader::ReadVectorData(vtkDataSetAttributes *a, int numPts)
 {
-  int i, skipVector=0;
+  int skipVector=0;
   char line[256], name[256];
   vtkDataArray *data;
 
@@ -953,7 +951,7 @@ int vtkDataReader::ReadVectorData(vtkDataSetAttributes *a, int numPts)
 // Read normal point attributes. Return 0 if error.
 int vtkDataReader::ReadNormalData(vtkDataSetAttributes *a, int numPts)
 {
-  int i, skipNormal=0;
+  int skipNormal=0;
   char line[256], name[256];
   vtkDataArray *data;
 
@@ -999,7 +997,7 @@ int vtkDataReader::ReadNormalData(vtkDataSetAttributes *a, int numPts)
 // Read tensor point attributes. Return 0 if error.
 int vtkDataReader::ReadTensorData(vtkDataSetAttributes *a, int numPts)
 {
-  int i, skipTensor=0;
+  int skipTensor=0;
   char line[256], name[256];
   vtkDataArray *data;
 
@@ -1064,7 +1062,8 @@ int vtkDataReader::ReadCoScalarData(vtkDataSetAttributes *a, int numPts)
     skipScalar = 1;
     }
 
-  data = (vtkFloatArray *)this->ReadArray("float", numPts, numComp);
+  char type[6] = "float";
+  data = (vtkFloatArray *)this->ReadArray(type, numPts, numComp);
   if ( data != NULL )
     {
     if ( ! skipScalar ) 
@@ -1103,7 +1102,7 @@ int vtkDataReader::ReadCoScalarData(vtkDataSetAttributes *a, int numPts)
 // Read texture coordinates point attributes. Return 0 if error.
 int vtkDataReader::ReadTCoordsData(vtkDataSetAttributes *a, int numPts)
 {
-  int i, dim;
+  int dim;
   int skipTCoord = 0;
   char line[256], name[256];
   vtkDataArray *data;
@@ -1159,11 +1158,11 @@ int vtkDataReader::ReadTCoordsData(vtkDataSetAttributes *a, int numPts)
 // Read lookup table. Return 0 if error.
 int vtkDataReader::ReadLutData(vtkDataSetAttributes *a)
 {
-  int i, size, skipTable=0;
+  int i;
+  int size, skipTable=0;
   vtkLookupTable *lut;
   unsigned char *ptr;
   char line[256], name[256];
-  vtkDataArray *data;
 
   if (!(this->ReadString(name) && this->Read(&size)))
     {
@@ -1268,7 +1267,7 @@ int vtkDataReader::ReadCells(int size, int *data)
 
 vtkFieldData *vtkDataReader::ReadFieldData(int num)
 {
-  int numArrays, i, skipField=0;
+  int i, numArrays, skipField=0;
   vtkFieldData *f;
   char name[256], type[256];
   int numComp, numTuples;
