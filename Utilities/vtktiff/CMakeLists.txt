@@ -33,28 +33,18 @@ IF(NOT UNIX)
       ENDIF(NOT MINGW) 
    ENDIF(NOT BORLAND)
 ELSE (NOT UNIX)
-  IF (CMAKE_MAJOR_VERSION MATCHES [1-9][0-9]*)
-    IF (CMAKE_MINOR_VERSION MATCHES [2-9][0-9]*)
-      SET(TIFF_RIGHT_VERSION 1)
-    ENDIF (CMAKE_MINOR_VERSION MATCHES [2-9][0-9]*)
-  ENDIF (CMAKE_MAJOR_VERSION MATCHES [1-9][0-9]*)
-
-  IF(TIFF_RIGHT_VERSION)
-    SET(common_SRCS ${common_SRCS} tif_unix.c tif_fax3sm.c)
-    SET_SOURCE_FILES_PROPERTIES(tif_fax3sm.c GENERATED)
-    ADD_EXECUTABLE(mkg3states mkg3states.c)    
-    IF(CYGWIN)
-      SET(EXE_EXTENSION .exe)
-    ENDIF(CYGWIN)
-    ADD_CUSTOM_COMMAND(
-      SOURCE ${EXECUTABLE_OUTPUT_PATH}/mkg3states${EXE_EXTENSION}
-      COMMAND ${EXECUTABLE_OUTPUT_PATH}/mkg3states${EXE_EXTENSION}
-      ARGS -c const ${VTKTIFF_BINARY_DIR}/tif_fax3sm.c
-      TARGET mkg3states
-      OUTPUTS ${VTKTIFF_BINARY_DIR}/tif_fax3sm.c)
-  ELSE(TIFF_RIGHT_VERSION)
-      MESSAGE("The new TIFF reader requires CMake 1.2 or newer. Please get the new version of CMake from www.cmake.org.")
-  ENDIF(TIFF_RIGHT_VERSION)
+  SET(common_SRCS ${common_SRCS} tif_unix.c tif_fax3sm.c)
+  SET_SOURCE_FILES_PROPERTIES(tif_fax3sm.c GENERATED)
+  ADD_EXECUTABLE(mkg3states mkg3states.c)    
+  IF(CYGWIN)
+    SET(EXE_EXTENSION .exe)
+  ENDIF(CYGWIN)
+  ADD_CUSTOM_COMMAND(
+    SOURCE ${EXECUTABLE_OUTPUT_PATH}/mkg3states${EXE_EXTENSION}
+    COMMAND ${EXECUTABLE_OUTPUT_PATH}/mkg3states${EXE_EXTENSION}
+    ARGS -c const ${VTKTIFF_BINARY_DIR}/tif_fax3sm.c
+    TARGET mkg3states
+    OUTPUTS ${VTKTIFF_BINARY_DIR}/tif_fax3sm.c)
 ENDIF (NOT UNIX)
 
 CONFIGURE_FILE(${VTKTIFF_SOURCE_DIR}/.NoDartCoverage
