@@ -45,7 +45,7 @@
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.100");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.101");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper);
 #endif
 
@@ -1460,7 +1460,7 @@ void vtkOpenGLPolyDataMapperDrawTStripLines(int idx,
     default:
     {
     int j;
-    vtkIdType nPts;
+    vtkIdType nPts = 0;
     int count = 0;
     for (ca->InitTraversal(); noAbort && ca->GetNextCell(nPts,ptIds); 
          count++)
