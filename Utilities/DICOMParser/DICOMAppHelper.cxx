@@ -77,14 +77,14 @@ DICOMAppHelper::DICOMAppHelper()
   this->ByteSwapData = false;
   this->PixelSpacing[0] = this->PixelSpacing[1] = 1.0;
   this->Dimensions[0] = this->Dimensions[1] = 0;
-  this->PhotometricInterpretation = NULL;
-  this->TransferSyntaxUID = NULL;
+  this->PhotometricInterpretation = new dicom_stl::string();
+  this->TransferSyntaxUID = new dicom_stl::string();
   this->RescaleOffset = 0.0;
   this->RescaleSlope = 1.0;
   this->ImageData = NULL;
   this->ImageDataLengthInBytes = 0;
-  this->PatientName = NULL;
-  this->StudyUID = NULL;
+  this->PatientName = new dicom_stl::string();
+  this->StudyUID = new dicom_stl::string();
   this->GantryAngle = 0.0;
 
   this->SeriesUIDCB = new DICOMMemberCallback<DICOMAppHelper>;
