@@ -31,7 +31,7 @@
 #include "vtkTextProperty.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkAxesActor, "1.3");
+vtkCxxRevisionMacro(vtkAxesActor, "1.4");
 vtkStandardNewMacro(vtkAxesActor);
 
 vtkCxxSetObjectMacro( vtkAxesActor, UserDefinedTip, vtkPolyData );
@@ -209,9 +209,6 @@ void vtkAxesActor::GetActors(vtkPropCollection *ac)
   ac->AddItem( this->XAxisTip );
   ac->AddItem( this->YAxisTip );
   ac->AddItem( this->ZAxisTip );
-  ac->AddItem( this->XAxisLabel );
-  ac->AddItem( this->YAxisLabel );
-  ac->AddItem( this->ZAxisLabel );
 }
 
 int vtkAxesActor::RenderOpaqueGeometry(vtkViewport *vp)
