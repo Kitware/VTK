@@ -59,6 +59,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 // .SECTION See Also
 // vtkCleanPolyData
+
 #ifndef __vtkQuantizePolyDataPoints_h
 #define __vtkQuantizePolyDataPoints_h
 
@@ -70,22 +71,26 @@ public:
   static vtkQuantizePolyDataPoints *New();
   vtkTypeMacro(vtkQuantizePolyDataPoints,vtkCleanPolyData);
   void PrintSelf(ostream& os, vtkIndent indent);
+
   // Description:
   // Specify quantization grain size
   vtkSetClampMacro(QFactor,float,1E-5,VTK_LARGE_FLOAT);
   vtkGetMacro(QFactor,float);
+
   // Description:
   // Perform quantization on a point
   virtual void OperateOnPoint(float in[3], float out[3]);
+
   // Description:
   // Perform quantization on bounds
   virtual void OperateOnBounds(float in[6], float out[6]);
+
 protected:
   vtkQuantizePolyDataPoints();
   ~vtkQuantizePolyDataPoints() {};
   vtkQuantizePolyDataPoints(const vtkQuantizePolyDataPoints&);
   void operator=(const vtkQuantizePolyDataPoints&);
-  //
+
   float QFactor;
 };
 

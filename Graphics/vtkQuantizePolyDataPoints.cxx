@@ -44,32 +44,37 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkQuantizePolyDataPoints.h"
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
-//------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------
 vtkQuantizePolyDataPoints* vtkQuantizePolyDataPoints::New()
 {
   // First try to create the object from the vtkObjectFactory
   vtkObject* ret = vtkObjectFactory::CreateInstance("vtkQuantizePolyDataPoints");
-  if (ret) {
-      return (vtkQuantizePolyDataPoints*)ret;
-  }
+  if (ret) 
+    {
+    return (vtkQuantizePolyDataPoints*)ret;
+    }
   // If the factory was unable to create the object, then create it here.
   return new vtkQuantizePolyDataPoints;
 }
-//------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------
 // Construct object with initial QFactor of 0.25
 vtkQuantizePolyDataPoints::vtkQuantizePolyDataPoints()
 {
   this->QFactor   = 0.25;
   this->Tolerance = 0.0;
 }
-//------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------
 void vtkQuantizePolyDataPoints::OperateOnPoint(float in[3], float out[3])
 {
   out[0] = floor(in[0]/this->QFactor + 0.5)*this->QFactor;
   out[1] = floor(in[1]/this->QFactor + 0.5)*this->QFactor;
   out[2] = floor(in[2]/this->QFactor + 0.5)*this->QFactor;
 }
-//------------------------------------------------------------------------------
+
+//-------------------------------------------------------------------------
 void vtkQuantizePolyDataPoints::OperateOnBounds(float in[6], float out[6])
 {
   out[0] = floor(in[0]/this->QFactor + 0.5)*this->QFactor;
@@ -79,11 +84,12 @@ void vtkQuantizePolyDataPoints::OperateOnBounds(float in[6], float out[6])
   out[4] = floor(in[4]/this->QFactor + 0.5)*this->QFactor;
   out[5] = floor(in[5]/this->QFactor + 0.5)*this->QFactor;
 }
-//------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------
 void vtkQuantizePolyDataPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkCleanPolyData::PrintSelf(os,indent);
+
   os << indent << "QFactor: " << this->QFactor << "\n";
 }
-//------------------------------------------------------------------------------
 
