@@ -139,6 +139,9 @@ void vlPLOT3DReader::Execute()
 // output will not be released with the UnRegister() method since they are
 // registered more than once.
 //
+  delete [] this->TempStorage;
+  this->TempStorage = NULL;
+
   this->Grid->UnRegister(this);
   this->Grid = NULL;
 
@@ -366,9 +369,6 @@ int vlPLOT3DReader::ReadBinarySolution(FILE *fp)
 //
 // Register data for use by computation functions
 //
-  delete [] this->TempStorage;
-  this->TempStorage = NULL;
-
   this->Density = newDensity;
   this->Density->Register(this);
 
@@ -465,6 +465,41 @@ void vlPLOT3DReader::ComputeDensity()
 
 void vlPLOT3DReader::ComputeTemperature()
 {
+  float rr, u, v, w, v2, p, d, rrgas;
+  int i;
+  float *m, e;
+  vlFloatScalars *temperature;
+//
+//  Check that the required data is available
+//
+  if ( this->Density == NULL || this->Momentum == NULL || 
+  this->Energy == NULL )
+    {
+    vlErrorMacro(<<"Cannot compute temperature");
+    return;
+    }
+
+  temperature = new vlFloatScalars(this->NumPts);
+//
+//  Compute the temperature
+//
+  rrgas = 1.0 / this->R;
+  for (i=0; i < this->NumPts; i++) 
+    {
+    d = this->Density->GetScalar(i);
+    d = (d != 0.0 ? d : 1.0);
+    m = this->Momentum->GetVector(i);
+    e = this->Energy->GetScalar(i);
+    rr = 1.0 / d;
+    u = m[0] * rr;        
+    v = m[1] * rr;        
+    w = m[2] * rr;        
+    v2 = u*u + v*v + w*w;
+    p = (this->Gamma-1.) * (e - 0.5 * d * v2);
+    temperature->SetScalar(i, p*rr*rrgas);
+  }
+  this->PointData.SetScalars(temperature);
+  vlDebugMacro(<<"Created temperature scalar");
 }
 
 void vlPLOT3DReader::ComputePressure()
@@ -546,5 +581,21 @@ void vlPLOT3DReader::PrintSelf(ostream& os, vlIndent indent)
   os << indent << "XYZ Filename: " << this->XYZFilename << "\n";
   os << indent << "Q Filename: " << this->QFilename << "\n";
   os << indent << "Function Filename: " << this->FunctionFilename << "\n";
+
+  os << indent << "Grid Number: " << this->GridNumber << "\n";
+  os << indent << "Scalar Function Number: " << this->ScalarFunctionNumber << "\n";
+  os << indent << "Vector Function Number: " << this->VectorFunctionNumber << "\n";
+  os << indent << "Function Number: " << this->FunctionFileFunctionNumber << "\n";
+
+  os << indent << "Free Stream Mach Number: " << this->Fsmach << "\n";
+  os << indent << "Alpha: " << this->Alpha << "\n";
+  os << indent << "Reynolds Number " << this->Re << "\n";
+  os << indent << "Total Integration Time: " << this->Time << "\n";
+
+  os << indent << "R: " << this->R << "\n";
+  os << indent << "Gamma: " << this->Gamma << "\n";
+  os << indent << "UVinf: " << this->Uvinf << "\n";
+  os << indent << "VVinf: " << this->Vvinf << "\n";
+  os << indent << "WVinf: " << this->Wvinf << "\n";
 }
 

@@ -13,7 +13,6 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-#include <math.h>
 #include "Sphere.hh"
 
 // Description
@@ -28,13 +27,13 @@ vlSphere::vlSphere()
 }
 
 // Description
-// Evaluate sphere equation (x-x0)^2 + (y-y0)^2 + (z-z0)^2 - R^2 = 0.
+// Evaluate sphere equation R^2 - ((x-x0)^2 + (y-y0)^2 + (z-z0)^2) = 0.
 float vlSphere::Evaluate(float x, float y, float z)
 {
-  return ( sqrt ( this->Radius*this->Radius -
-                ((x - this->Origin[0]) * (x - this->Origin[0]) + 
-                 (y - this->Origin[1]) * (y - this->Origin[1]) + 
-                 (z - this->Origin[2]) * (z - this->Origin[2])) ) );
+  return ( this->Radius*this->Radius -
+          ((x - this->Origin[0]) * (x - this->Origin[0]) + 
+           (y - this->Origin[1]) * (y - this->Origin[1]) + 
+           (z - this->Origin[2]) * (z - this->Origin[2])) );
 }
 
 // Description
