@@ -23,7 +23,7 @@
 
 #include <algorithm>
 
-vtkCxxRevisionMacro(vtkSubGroup, "1.3");
+vtkCxxRevisionMacro(vtkSubGroup, "1.4");
 vtkStandardNewMacro(vtkSubGroup);
 
 vtkSubGroup::vtkSubGroup()
@@ -34,6 +34,7 @@ vtkSubGroup::vtkSubGroup()
   this->nmembers = 0;
   this->myLocalRank = -1;
   this->tag = 0;
+  this->nFrom = 0;
 }
 
 int vtkSubGroup::Initialize(int p0=0, int p1=0, int me=0, int itag=0, vtkCommunicator *c=NULL)
