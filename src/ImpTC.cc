@@ -15,8 +15,13 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "ImpTC.hh"
 
+// Description:
+// Create object with texture dimension=2; no r-s-t implicit functions defined;
+// clamping off; and the r-s-t range set to (-100,100).
 vlImplicitTextureCoords::vlImplicitTextureCoords()
 {
+  this->Dimension = 2;
+
   this->RFunction = NULL;
   this->SFunction = NULL;
   this->TFunction = NULL;
@@ -30,9 +35,6 @@ vlImplicitTextureCoords::vlImplicitTextureCoords()
   this->SRange[1] =  100.0;
   this->TRange[0] = -100.0;
   this->TRange[1] =  100.0;
-
-  this->Transform = NULL;
-  this->SelfCreatedTransform = 0;
 }
 
 void vlImplicitTextureCoords::Execute()
@@ -85,33 +87,11 @@ void vlImplicitTextureCoords::Execute()
   this->PointData.SetTCoords(newTCoords);
 }
 
-// Description:
-// Specify a transform to position implicit function.
-void vlImplicitTextureCoords::SetTransform(vlTransform *transform)
-{
-  if ( this->Transform != transform ) 
-    {
-    if ( this->SelfCreatedTransform ) delete this->Transform;
-    this->SelfCreatedTransform = 0;
-    this->Transform = transform;
-    this->Modified();
-    }
-}
-
-// Description:
-// Create default transform. Used to create one when none is specified.  
-// Default transform is identity matrix.
-void vlImplicitTextureCoords::CreateDefaultTransform()
-{
-  if ( this->SelfCreatedTransform ) delete this->Transform;
-  this->Transform = new vlTransform;
-  this->SelfCreatedTransform = 1;
-}
-
 void vlImplicitTextureCoords::PrintSelf(ostream& os, vlIndent indent)
 {
   vlDataSetToDataSetFilter::PrintSelf(os,indent);
 
+  os << indent << "Texture Dimension: " << this->Dimension << "\n";
   os << indent << "Clamp: " << (this->Clamp ? "On\n" : "Off\n");
 
   os << indent << "Scale Factor: " << this->ScaleFactor << "\n";

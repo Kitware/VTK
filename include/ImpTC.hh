@@ -22,9 +22,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // can be used to highlight (via color or intensity) or cut (via 
 // transparency) dataset geometry without any complex geometric processing. 
 // (Note: the texture coordinates are refered to as r-s-t coordinates).
-//    vlImplicitTextureCoords provides a mechanism to transform the implicit
-// function(s) via a transform object. This capability can be used to couple
-// the implicit function(s) to motion of the camera or some other object.
+//    Note: use the transformation capabilities of vlImplicitFunction to
+// orient, translate, and scale the implicit functions.
 
 #ifndef __vlImplicitTextureCoords_h
 #define __vlImplicitTextureCoords_h
@@ -41,7 +40,14 @@ public:
   void PrintSelf(ostream& os, vlIndent indent);
 
   // Description:
-  // Specify a quadric function to compute the s texture coordinate.
+  // Specify the dimension of the texture coordinates. Note: if the number of
+  // implicit functions is less than the specified dimension, then the extra
+  // coordinate values are set to zero.
+  vlSetClampMacro(Dimension,int,1,3);
+  vlGetMacro(Dimension,int);
+
+  // Description:
+  // Specify a quadric function to compute the r texture coordinate.
   vlSetObjectMacro(RFunction,vlImplicitFunction);
   vlGetObjectMacro(RFunction,vlImplicitFunction);
 
@@ -81,14 +87,10 @@ public:
   vlSetVector2Macro(TRange,float);
   vlGetVectorMacro(TRange,float,2);
 
-  void SetTransform(vlTransform *transform);
-  void SetTransform(vlTransform& transform) {this->SetTransform(&transform);};
-  vlGetObjectMacro(Transform,vlTransform);
-
-  void CreateDefaultTransform();
-
 protected:
   void Execute();
+
+  int Dimension;
 
   vlImplicitFunction *RFunction;
   vlImplicitFunction *SFunction;
@@ -100,9 +102,6 @@ protected:
   float RRange[2];
   float SRange[2];
   float TRange[2];
-
-  vlTransform *Transform;
-  int SelfCreatedTransform;
 };
 
 #endif

@@ -82,7 +82,7 @@ void vlExtractGeometry::Execute()
   for ( ptId=0; ptId < numPts; ptId++ )
     {
     x = this->Input->GetPoint(ptId);
-    if ( (this->ImplicitFunction->Evaluate(x[0],x[1],x[2])*multiplier) < 0.0 )
+    if ( (this->ImplicitFunction->FunctionValue(x)*multiplier) < 0.0 )
       {
       newId = newPts->InsertNextPoint(x);
       pointMap[ptId] = newId;
