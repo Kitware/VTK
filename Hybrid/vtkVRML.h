@@ -89,21 +89,9 @@ static void vrmlInitialize()
     vrmlHeap = vtkHeap::New();
     }
 }
-static void vrmlCleanUp()
-{
-  if ( vrmlHeap )
-    {
-    vrmlHeap->Delete();
-    vrmlHeap = NULL;
-    }
-}
 static void *vrmlAllocateMemory(size_t n)
 {
   return vrmlHeap->AllocateMemory(n);
-}
-static char *vrmlStrDup(const char *str)
-{
-  return vrmlHeap->StrDup(str);
 }
 
 template <class T> 

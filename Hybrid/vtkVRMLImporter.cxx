@@ -77,6 +77,21 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
+// Heap to manage memory leaks
+static void vrmlCleanUp()
+{
+  if ( vrmlHeap )
+    {
+    vrmlHeap->Delete();
+    vrmlHeap = NULL;
+    }
+}
+static char *vrmlStrDup(const char *str)
+{
+  return vrmlHeap->StrDup(str);
+}
+
+
 // Provide isatty prototype for Cygwin. 
 #ifdef __CYGWIN__
 #include <unistd.h>
