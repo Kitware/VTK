@@ -1278,7 +1278,7 @@ output_function()
 	    }
 	  }
 	fprintf(yyout,");\n");
-	if (arg_types[0] == 5000)
+	if (num_args == 1 && arg_types[0] == 5000)
 	  {
 	  fprintf(yyout,"  op->%sArgDelete(vtkJavaVoidFuncArgDelete);\n",
 		  func_name);

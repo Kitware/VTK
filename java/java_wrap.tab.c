@@ -91,9 +91,7 @@ typedef union
 #include <memory.h>
 #endif
 
-#ifndef _WIN32
 #include <values.h>
-#endif
 
 #ifdef __cplusplus
 
@@ -657,7 +655,7 @@ output_function()
 	    }
 	  }
 	fprintf(yyout,");\n");
-	if (arg_types[0] == 5000)
+	if (num_args == 1 && arg_types[0] == 5000)
 	  {
 	  fprintf(yyout,"  op->%sArgDelete(vtkJavaVoidFuncArgDelete);\n",
 		  func_name);
