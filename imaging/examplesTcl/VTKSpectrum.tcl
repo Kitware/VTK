@@ -27,10 +27,10 @@ viewer1 SetColorWindow 160
 viewer1 SetColorLevel 120
 
 
-vtkImageViewer viewer2
-viewer2 SetInput [compress GetOutput]
-viewer2 SetColorWindow 160
-viewer2 SetColorLevel 120
+vtkImageViewer viewer
+viewer SetInput [compress GetOutput]
+viewer SetColorWindow 160
+viewer SetColorLevel 120
 
 
 # Create the GUI
@@ -40,7 +40,7 @@ toplevel .top
 frame .top.f1 
 
 vtkTkImageViewerWidget .top.f1.r1 -width 320 -height 160 -iv viewer1
-vtkTkImageViewerWidget .top.f1.r2 -width 320 -height 160 -iv viewer2
+vtkTkImageViewerWidget .top.f1.r2 -width 320 -height 160 -iv viewer
 
 button .top.btn  -text Quit -command exit
 
