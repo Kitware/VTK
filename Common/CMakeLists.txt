@@ -76,6 +76,7 @@ vtkMath.cxx
 vtkMatrix4x4.cxx
 vtkMatrixToHomogeneousTransform.cxx
 vtkMatrixToLinearTransform.cxx
+vtkMultiPartExtentTranslator.cxx
 vtkMultiThreader.cxx
 vtkMutexLock.cxx
 vtkNonLinearCell.cxx
