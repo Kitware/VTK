@@ -178,6 +178,10 @@ public:
   virtual void OnChar   (int ctrl, int shift, char keycode, int repeatcount);
   virtual void OnKeyDown(int ctrl, int shift, char keycode, int repeatcount);
   virtual void OnKeyUp  (int ctrl, int shift, char keycode, int repeatcount);
+  virtual void OnKeyPress(int ctrl, int shift, char keycode, char *keysym, 
+			  int repeatcount);
+  virtual void OnKeyRelease(int ctrl, int shift, char keycode, char *keysym,
+			    int repeatcount);
 
   // Description:
   // OnTimer calls RotateCamera, RotateActor etc which should be overridden by

@@ -734,6 +734,18 @@ void vtkInteractorStyle::OnKeyUp  (int ctrl, int shift, char vtkNotUsed(keycode)
   this->ShiftKey = shift;
 }
 //----------------------------------------------------------------------------
+void vtkInteractorStyle::OnKeyPress(int ctrl, int shift, char vtkNotUsed(keycode), char *vtkNotUsed(keysym), int vtkNotUsed(repeatcount))
+{
+  this->CtrlKey  = ctrl;
+  this->ShiftKey = shift;
+}
+//----------------------------------------------------------------------------
+void vtkInteractorStyle::OnKeyRelease(int ctrl, int shift, char vtkNotUsed(keycode), char *vtkNotUsed(keysym), int vtkNotUsed(repeatcount)) 
+{
+  this->CtrlKey  = ctrl;
+  this->ShiftKey = shift;
+}
+//----------------------------------------------------------------------------
 void vtkInteractorStyle::OnChar(int ctrl, int shift, 
                                 char keycode, int vtkNotUsed(repeatcount)) 
 {

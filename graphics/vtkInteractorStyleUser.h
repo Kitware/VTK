@@ -44,8 +44,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
 // .SECTION Description
 // The most common way to customize user interaction is to write a subclass
-// of vtkInteractorStyle: vtkInteractorStyleUser allows user interaction to
-// be customized without subclassing.  
+// of vtkInteractorStyle: vtkInteractorStyleUser allows you to customize
+// the interaction to without subclassing vtkInteractorStyle.  This is
+// particularly useful for setting up custom interaction modes in
+// scripting languages such as Tcl and Python.
 
 #ifndef __vtkInteractorStyleUser_h
 #define __vtkInteractorStyleUser_h
@@ -63,30 +65,83 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description: 
-  // Hooks to set up a customized interaction mode
+  // Start/Stop user interaction mode.  While the UserInteraction mode
+  // is set, the UserInteraction method will be called every time the
+  // mouse moves.  You must not call these methods before you have
+  // Initialized the vtkRenderWindowInteractor.  
   void StartUserInteraction();
   void EndUserInteraction();
+
+  // Description:
+  // Set a method that will be called every time the mouse is
+  // moved while UserInteraction mode is on.  You can use
+  // GetLastPos() to determine the position of the cursor in
+  // display coordinates, and GetOldPos() to determine the
+  // previous position.
   void SetUserInteractionMethod(void (*f)(void *), void *arg);
   void SetUserInteractionMethodArgDelete(void (*f)(void *));
 
   // Description:
-  // Get the most recent mouse position
+  // Set a method that will be called every time a key is pressed.
+  // Use GetKeySym() to find out which key was pressed.  They keystroke
+  // is also converted into a character, which can be retrieved using
+  // GetChar().
+  void SetKeyPressMethod(void (*f)(void *), void *arg);
+  void SetKeyPressMethodArgDelete(void (*f)(void *));
+
+  // Description:
+  // Set a method that will be called every time a key is released.
+  // Use GetKeySym to find out which key was released.  They keystroke
+  // is also converted into a character, which can be retrieved using
+  // GetChar().
+  void SetKeyReleaseMethod(void (*f)(void *), void *arg);
+  void SetKeyReleaseMethodArgDelete(void (*f)(void *));
+
+  // Description:
+  // Set a method that will be called every time a character is
+  // received.  This is not the same as the KeyPress method, which
+  // is called when any key (including shift or control) is pressed.
+  // Use GetChar() to find out which char was received.
+  void SetCharMethod(void (*f)(void *), void *arg);
+  void SetCharMethodArgDelete(void (*f)(void *));
+
+  // Description:
+  // Get the most recent mouse position during mouse motion.  
+  // In your user interaction method, you must use this to track
+  // the mouse movement.  Do not use GetEventPosition(), which records
+  // the last position where a mouse button was pressed.
   vtkGetVector2Macro(LastPos,int);
 
   // Description:
-  // Get the previous mouse position
+  // Get the previous mouse position during mouse motion, or after
+  // a key press.  This can be used to calculate the relative 
+  // displacement of the mouse.
   vtkGetVector2Macro(OldPos,int);
 
   // Description:
-  // Test whether modifiers were held down when mouse button was pressed
+  // Test whether modifiers were held down when mouse button or key
+  // was pressed
   vtkGetMacro(ShiftKey,int);
   vtkGetMacro(CtrlKey,int);
 
   // Description:
-  // Other miscellaneous state variables:
+  // Get the character for a Char event.
+  vtkGetMacro(Char,int);
+
+  // Description:
+  // Get the KeySym (in the same format as Tk KeySyms) for a 
+  // KeyPress or KeyRelease method.
+  vtkGetStringMacro(KeySym);
+
+//BTX
+  // Description:
+  // Get information about which mode the Interactor is in.  You
+  // can use this information to modify the behaviour of your
+  // UserInteractionMethod.  Deprecated.
   vtkGetMacro(ActorMode,int);
   vtkGetMacro(TrackballMode,int);
   vtkGetMacro(ControlMode,int);
+//ETX
 
 protected:
   vtkInteractorStyleUser();
@@ -94,13 +149,36 @@ protected:
   vtkInteractorStyleUser(const vtkInteractorStyleUser&) {};
   void operator=(const vtkInteractorStyleUser&) {};
 
-  virtual void OnTimer(void);
+  void OnChar(int ctrl, int shift, char keycode, int repeatcount);
+  void OnKeyPress(int ctrl, int shift, char keycode, char *keysym,
+		  int repeatcount);
+  void OnKeyRelease(int ctrl, int shift, char keycode, char *keysym,
+		    int repeatcount);
+
+  void OnMouseMove(int ctrl, int shift, int X, int Y);
+
+  void OnTimer(void);
 
   int OldPos[2];
+
+  int Char;
+  char *KeySym;
 
   void (*UserInteractionMethod)(void *);
   void (*UserInteractionMethodArgDelete)(void *);
   void *UserInteractionMethodArg;
+
+  void (*KeyPressMethod)(void *);
+  void (*KeyPressMethodArgDelete)(void *);
+  void *KeyPressMethodArg;
+
+  void (*KeyReleaseMethod)(void *);
+  void (*KeyReleaseMethodArgDelete)(void *);
+  void *KeyReleaseMethodArg;  
+
+  void (*CharMethod)(void *);
+  void (*CharMethodArgDelete)(void *);
+  void *CharMethodArg;
 };
 
 #endif

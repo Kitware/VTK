@@ -47,7 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkInteractorStyleUser* vtkInteractorStyleUser::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -60,18 +60,27 @@ vtkInteractorStyleUser* vtkInteractorStyleUser::New()
   return new vtkInteractorStyleUser;
 }
 
-
-
-
+//----------------------------------------------------------------------------
 vtkInteractorStyleUser::vtkInteractorStyleUser()
 {
   this->UserInteractionMethod = NULL;
   this->UserInteractionMethodArgDelete = NULL;
   this->UserInteractionMethodArg = NULL;
+  this->KeyPressMethod = NULL;
+  this->KeyPressMethodArgDelete = NULL;
+  this->KeyPressMethodArg = NULL;
+  this->KeyReleaseMethod = NULL;
+  this->KeyReleaseMethodArgDelete = NULL;
+  this->KeyReleaseMethodArg = NULL;
+  this->CharMethodArgDelete = NULL;
+  this->CharMethod = NULL;
   this->LastPos[0] = this->LastPos[1] = 0;
   this->OldPos[0] = this->OldPos[1] = 0;
+  this->Char = '\0';
+  this->KeySym = "";
 }
 
+//----------------------------------------------------------------------------
 vtkInteractorStyleUser::~vtkInteractorStyleUser() 
 {
   if ((this->UserInteractionMethodArg)&&
@@ -81,6 +90,7 @@ vtkInteractorStyleUser::~vtkInteractorStyleUser()
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkInteractorStyleUser::PrintSelf(ostream& os, vtkIndent indent) 
 {
   this->vtkInteractorStyleTrackball::PrintSelf(os,indent);
@@ -91,11 +101,14 @@ void vtkInteractorStyleUser::PrintSelf(ostream& os, vtkIndent indent)
                               << this->OldPos[1] << ")\n";
   os << indent << "ShiftKey: " << this->ShiftKey << "\n";
   os << indent << "CtrlKey: " << this->CtrlKey << "\n";
+  os << indent << "Char: " << this->Char << "\n";
+  os << indent << "KeySym: " << this->KeySym << "\n";
   os << indent << "ActorMode: " << this->ActorMode << "\n";
   os << indent << "TrackballMode: " << this->TrackballMode << "\n";
   os << indent << "ControlMode: " << this->ControlMode << "\n";
 }
 
+//----------------------------------------------------------------------------
 void vtkInteractorStyleUser::SetUserInteractionMethod(void (*f)(void *), 
 						      void *arg)
 {
@@ -114,6 +127,7 @@ void vtkInteractorStyleUser::SetUserInteractionMethod(void (*f)(void *),
     }
 }
 
+//----------------------------------------------------------------------------
 // Called when a void* argument is being discarded.  Lets the user free it.
 void vtkInteractorStyleUser::SetUserInteractionMethodArgDelete(void (*f)(void *))
 {
@@ -124,6 +138,94 @@ void vtkInteractorStyleUser::SetUserInteractionMethodArgDelete(void (*f)(void *)
     }
 }
 
+//----------------------------------------------------------------------------
+void vtkInteractorStyleUser::SetKeyPressMethod(void (*f)(void *), void *arg)
+{
+  if ( f != this->KeyPressMethod || 
+       arg != this->KeyPressMethodArg )
+    {
+    // delete the current arg if there is one and a delete meth
+    if ((this->KeyPressMethodArg)&&
+        (this->KeyPressMethodArgDelete))
+      {
+      (*this->KeyPressMethodArgDelete)(this->KeyPressMethodArg);
+      }
+    this->KeyPressMethod = f;
+    this->KeyPressMethodArg = arg;
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+// Called when a void* argument is being discarded.  Lets the user free it.
+void vtkInteractorStyleUser::SetKeyPressMethodArgDelete(void (*f)(void *))
+{
+  if ( f != this->KeyPressMethodArgDelete)
+    {
+    this->KeyPressMethodArgDelete = f;
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleUser::SetKeyReleaseMethod(void (*f)(void *), void *arg)
+{
+  if ( f != this->KeyReleaseMethod || 
+       arg != this->KeyReleaseMethodArg )
+    {
+    // delete the current arg if there is one and a delete meth
+    if ((this->KeyReleaseMethodArg)&&
+        (this->KeyReleaseMethodArgDelete))
+      {
+      (*this->KeyReleaseMethodArgDelete)(this->KeyReleaseMethodArg);
+      }
+    this->KeyReleaseMethod = f;
+    this->KeyReleaseMethodArg = arg;
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+// Called when a void* argument is being discarded.  Lets the user free it.
+void vtkInteractorStyleUser::SetKeyReleaseMethodArgDelete(void (*f)(void *))
+{
+  if ( f != this->KeyReleaseMethodArgDelete)
+    {
+    this->KeyReleaseMethodArgDelete = f;
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleUser::SetCharMethod(void (*f)(void *), void *arg)
+{
+  if ( f != this->CharMethod || 
+       arg != this->CharMethodArg )
+    {
+    // delete the current arg if there is one and a delete meth
+    if ((this->CharMethodArg)&&
+        (this->CharMethodArgDelete))
+      {
+      (*this->CharMethodArgDelete)(this->CharMethodArg);
+      }
+    this->CharMethod = f;
+    this->CharMethodArg = arg;
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+// Called when a void* argument is being discarded.  Lets the user free it.
+void vtkInteractorStyleUser::SetCharMethodArgDelete(void (*f)(void *))
+{
+  if ( f != this->CharMethodArgDelete)
+    {
+    this->CharMethodArgDelete = f;
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
 void  vtkInteractorStyleUser::StartUserInteraction() 
 {
   if (this->State != VTKIS_START) 
@@ -133,6 +235,7 @@ void  vtkInteractorStyleUser::StartUserInteraction()
   this->StartState(VTKIS_USERINTERACTION);
 }
 
+//----------------------------------------------------------------------------
 void  vtkInteractorStyleUser::EndUserInteraction() 
 {
   if (this->State != VTKIS_USERINTERACTION) 
@@ -142,6 +245,7 @@ void  vtkInteractorStyleUser::EndUserInteraction()
   this->StopState();
 }
 
+//----------------------------------------------------------------------------
 // checks for USERINTERACTION state, then defers to the trackball modes
 void vtkInteractorStyleUser::OnTimer(void) 
 {
@@ -161,6 +265,76 @@ void vtkInteractorStyleUser::OnTimer(void)
   else
     {
     this->vtkInteractorStyleTrackball::OnTimer();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleUser::OnKeyPress(int ctrl, int shift, 
+					char keycode, char *keysym, 
+					int vtkNotUsed(repeatcount))
+{
+  this->ShiftKey = shift;
+  this->CtrlKey = ctrl;
+  this->KeySym = keysym;
+  this->Char = keycode;  
+
+  if (this->KeyPressMethod)
+    {
+    (*this->KeyPressMethod)(this->KeyPressMethodArg);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleUser::OnKeyRelease(int ctrl, int shift, 
+					  char keycode, char *keysym, 
+					  int vtkNotUsed(repeatcount))
+{
+  this->ShiftKey = shift;
+  this->CtrlKey = ctrl;
+  this->KeySym = keysym;
+  this->Char = keycode;  
+
+  if (this->KeyReleaseMethod)
+    {
+    (*this->KeyReleaseMethod)(this->KeyReleaseMethodArg);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleUser::OnChar(int ctrl, int shift, char keycode,
+				    int repeatcount) 
+{
+  this->ShiftKey = shift;
+  this->CtrlKey = ctrl;
+  this->Char = keycode;  
+
+  // do nothing if a KeyPressMethod has been set,
+  // otherwise pass the OnChar to the vtkInteractorStyleTrackball.
+  if (this->CharMethod)
+    {
+    (*this->CharMethod)(this->CharMethodArg);    
+    }
+  else
+    {
+    this->vtkInteractorStyleTrackball::OnChar(ctrl,shift,keycode,repeatcount);
+    }
+}
+
+//----------------------------------------------------------------------------
+// This should not be called if the UserInteractionMode is set, but it
+// seems like it is called on KeyRelease and KeyPress events (XWindows only).
+// So, we use this bug/feature to ensure that the most recent mouse position
+// is used for keystrokes.
+void vtkInteractorStyleUser::OnMouseMove(int ctrl, int shift, int x, int y) 
+{
+  if (this->State == VTKIS_USERINTERACTION)
+    {
+    this->LastPos[0] = x;
+    this->LastPos[1] = y;
+    }
+  else
+    {
+    this->vtkInteractorStyleTrackball::OnMouseMove(ctrl,shift,x,y);
     }
 }
 

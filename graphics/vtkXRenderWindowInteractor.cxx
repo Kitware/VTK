@@ -52,9 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <math.h>
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkXRenderWindowInteractor* vtkXRenderWindowInteractor::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -292,6 +290,12 @@ void vtkXRenderWindowInteractor::Initialize()
   this->Enable();
   this->Size[0] = size[0];
   this->Size[1] = size[1];
+
+  if (this->CursorHidden)
+    {
+    this->CursorHidden = 0;
+    this->HideCursor();
+    }
 }
 
 void vtkXRenderWindowInteractor::Enable()
@@ -309,9 +313,9 @@ void vtkXRenderWindowInteractor::Enable()
   // passed to XtAddEventHandler and XtRemoveEventHandler must MATCH
   // PERFECTLY
   XtAddEventHandler(this->top,
-		    KeyPressMask | ButtonPressMask | ExposureMask |
-		    StructureNotifyMask | ButtonReleaseMask | EnterWindowMask |
-                    PointerMotionHintMask | PointerMotionMask,
+		    KeyPressMask | KeyReleaseMask | ButtonPressMask | 
+		    ExposureMask | StructureNotifyMask | ButtonReleaseMask |
+		    EnterWindowMask | PointerMotionHintMask |PointerMotionMask,
 		    False,vtkXRenderWindowInteractorCallback,(XtPointer)this);
   this->Enabled = 1;
 
@@ -544,13 +548,45 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
         }
       KeySym ks;
       static char buffer[20];
+      int n;
+      buffer[0] = '\0';
+      n = XLookupString((XKeyEvent *)event,buffer,20,&ks,NULL);
+      xp = ((XKeyEvent*)event)->x;
+      yp = me->Size[1] - ((XKeyEvent*)event)->y - 1;
+      if (!me->Enabled) return;
+      me->InteractorStyle->OnMouseMove(0,0,xp,yp);
+      me->InteractorStyle->OnKeyPress(ctrl, shift, buffer[0], 
+				      XKeysymToString(ks), 1);
+      for (int i = 0; i < n && n > 0; i++)
+	{
+	me->InteractorStyle->OnChar(ctrl, shift, buffer[i], 1);
+	}
+      }
+      break;      
+      
+    case KeyRelease:
+      {
+      int ctrl = 0;
+      if (((XKeyEvent *)event)->state & ControlMask)
+        {
+	ctrl = 1;
+        }
+      int shift = 0;
+      if (((XKeyEvent *)event)->state & ShiftMask)
+        {
+	shift = 1;
+        }
+      KeySym ks;
+      static char buffer[20];
       buffer[0] = '\0';
       XLookupString((XKeyEvent *)event,buffer,20,&ks,NULL);
       xp = ((XKeyEvent*)event)->x;
       yp = me->Size[1] - ((XKeyEvent*)event)->y - 1;
       if (!me->Enabled) return;
       me->InteractorStyle->OnMouseMove(0,0,xp,yp);
-      me->InteractorStyle->OnChar(ctrl, shift, buffer[0], 1);
+      me->InteractorStyle->OnKeyRelease(ctrl, shift, buffer[0], 
+					XKeysymToString(ks), 1);
+      me->InteractorStyle->OnKeyUp(ctrl, shift, buffer[0], 1);
       }
       break;      
       
@@ -613,4 +649,51 @@ void vtkXRenderWindowInteractor::Callback(Widget w,
 {
   vtkXRenderWindowInteractorCallback(w, client_data, event, ctd);
 }
+
+//----------------------------------------------------------------------------
+void vtkXRenderWindowInteractor::HideCursor()
+{
+  static char blankBits[] = {
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+  
+  static XColor black = { 0, 0, 0, 0, 0, 0 };
+ 
+  if (!this->Initialized)
+    {
+    this->CursorHidden = 1;
+    }
+  else if (!this->CursorHidden)
+    {
+    Pixmap blankPixmap = XCreateBitmapFromData(this->DisplayId,
+					       this->WindowId,
+					       blankBits, 16, 16);
+    
+    Cursor blankCursor = XCreatePixmapCursor(this->DisplayId, blankPixmap,
+					     blankPixmap, &black, &black,
+					     7, 7);
+    
+    XDefineCursor(this->DisplayId, this->WindowId, blankCursor);
+    
+    XFreePixmap(this->DisplayId, blankPixmap);
+    
+    this->CursorHidden = 1;
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkXRenderWindowInteractor::ShowCursor()
+{
+  if (!this->Initialized)
+    {
+    this->CursorHidden = 0;
+    }
+  else if (this->CursorHidden)
+    {
+    XUndefineCursor(this->DisplayId, this->WindowId);
+    this->CursorHidden = 0;
+    }
+}				   
 
