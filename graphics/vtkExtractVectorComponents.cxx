@@ -62,6 +62,7 @@ vtkExtractVectorComponents* vtkExtractVectorComponents::New()
 
 vtkExtractVectorComponents::vtkExtractVectorComponents()
 {
+  this->ExtractToFieldData = 0;
 }
 
 vtkExtractVectorComponents::~vtkExtractVectorComponents()
@@ -173,59 +174,161 @@ void vtkExtractVectorComponents::SetInput(vtkDataSet *input)
     }
 }
 
+template <class T>
+static void ExtractComponents(int numVectors, T* vectors, T* vx, T* vy, T* vz)
+{
+  for (int i=0; i<numVectors; i++)
+    {
+    vx[i] = vectors[3*i];
+    vy[i] = vectors[3*i+1];
+    vz[i] = vectors[3*i+2];
+    }
+}
+
 void vtkExtractVectorComponents::Execute()
 {
-  int i, numVectors = 0;
-  float *v;
-  vtkVectors *vectors;
-  vtkScalars *vx, *vy, *vz;
+  int numVectors = 0, numVectorsc = 0;
+  vtkDataArray *vectors, *vectorsc;
+  vtkDataArray *vx, *vy, *vz;
+  vtkDataArray *vxc, *vyc, *vzc;
   vtkPointData *pd, *outVx, *outVy, *outVz;
+  vtkCellData *cd, *outVxc, *outVyc, *outVzc;
 
   vtkDebugMacro(<<"Extracting vector components...");
 
   // taken out of previous update method.
   this->GetOutput()->CopyStructure(this->GetInput());
-  this->GetVyComponent()->CopyStructure(this->GetInput());
-  this->GetVzComponent()->CopyStructure(this->GetInput());
+  if (!this->ExtractToFieldData)
+    {
+    this->GetVyComponent()->CopyStructure(this->GetInput());
+    this->GetVzComponent()->CopyStructure(this->GetInput());
+    }
   
   pd = this->GetInput()->GetPointData();
+  cd = this->GetInput()->GetCellData();
   outVx = this->GetOutput()->GetPointData();  
-  outVy = this->GetVyComponent()->GetPointData();  
-  outVz = this->GetVzComponent()->GetPointData();  
+  outVxc = this->GetOutput()->GetCellData();  
+  if (!this->ExtractToFieldData)
+    {
+    outVy = this->GetVyComponent()->GetPointData();  
+    outVz = this->GetVzComponent()->GetPointData();  
+    outVyc = this->GetVyComponent()->GetCellData();  
+    outVzc = this->GetVzComponent()->GetCellData();  
+    }
 
-  if ( (vectors = pd->GetVectors()) == NULL ||
-  (numVectors = vectors->GetNumberOfVectors()) < 1 )  
+  vectors = pd->GetActiveVectors();
+  vectorsc = cd->GetActiveVectors();
+  if ( (vectors == NULL ||
+	((numVectors = vectors->GetNumberOfTuples()) < 1) ) && 
+       (vectorsc == NULL ||
+	((numVectorsc = vectorsc->GetNumberOfTuples()) < 1)))  
     {
     vtkErrorMacro(<<"No vector data to extract!");
     return;
     }
 
-  vx = vtkScalars::New(); vx->SetNumberOfScalars(numVectors);
-  vy = vtkScalars::New(); vy->SetNumberOfScalars(numVectors);
-  vz = vtkScalars::New(); vz->SetNumberOfScalars(numVectors);
+  const char* name = vectors->GetName();
+  char* newName = new char[strlen(name)+10];
 
-  for (i=0; i<numVectors; i++)
+  if (vectors)
     {
-    v = vectors->GetVector(i);
-    vx->SetScalar(i,v[0]);
-    vy->SetScalar(i,v[1]);
-    vz->SetScalar(i,v[2]);
+    vx = vtkDataArray::CreateDataArray(vectors->GetDataType());
+    vx->SetNumberOfTuples(numVectors);
+    sprintf(newName, "%s-x", name);
+    vx->SetName(newName);
+    vy = vtkDataArray::CreateDataArray(vectors->GetDataType());
+    vy->SetNumberOfTuples(numVectors);
+    sprintf(newName, "%s-y", name);
+    vy->SetName(newName);
+    vz = vtkDataArray::CreateDataArray(vectors->GetDataType());
+    vz->SetNumberOfTuples(numVectors);
+    sprintf(newName, "%s-z", name);
+    vz->SetName(newName);
+
+    switch (vectors->GetDataType())
+      {
+      vtkTemplateMacro5(ExtractComponents, numVectors,
+			(VTK_TT *)vectors->GetVoidPointer(0),
+			(VTK_TT *)vx->GetVoidPointer(0),
+			(VTK_TT *)vy->GetVoidPointer(0),
+			(VTK_TT *)vz->GetVoidPointer(0));
+      }
+
+    outVx->CopyScalarsOff();
+    outVx->PassData(pd);
+    outVx->SetScalars(vx);
+    vx->Delete();
+    
+    if (this->ExtractToFieldData)
+      {
+      outVx->AddArray(vy);
+      outVx->AddArray(vz);
+      }
+    else
+      {
+      outVy->CopyScalarsOff();
+      outVy->PassData(pd);
+      outVy->SetScalars(vy);
+      
+      outVz->CopyScalarsOff();
+      outVz->PassData(pd);
+      outVz->SetScalars(vz);
+      }
+    vy->Delete();
+    vz->Delete();
     }
 
-  outVx->CopyScalarsOff();
-  outVx->PassData(pd);
-  outVx->SetScalars(vx);
-  vx->Delete();
+  if (vectorsc)
+    {
+    vxc = vtkDataArray::CreateDataArray(vectorsc->GetDataType());
+    vxc->SetNumberOfComponents(3);
+    vxc->SetNumberOfTuples(numVectorsc);
+    sprintf(newName, "%s-x", name);
+    vxc->SetName(newName);
+    vyc = vtkDataArray::CreateDataArray(vectorsc->GetDataType());
+    vyc->SetNumberOfComponents(3);
+    vyc->SetNumberOfTuples(numVectorsc);
+    sprintf(newName, "%s-y", name);
+    vyc->SetName(newName);
+    vzc = vtkDataArray::CreateDataArray(vectorsc->GetDataType());
+    vzc->SetNumberOfComponents(3);
+    vzc->SetNumberOfTuples(numVectors);
+    sprintf(newName, "%s-z", name);
+    vzc->SetName(newName);
+    delete[] newName;
 
-  outVy->CopyScalarsOff();
-  outVy->PassData(pd);
-  outVy->SetScalars(vy);
-  vy->Delete();
+    switch (vectorsc->GetDataType())
+      {
+      vtkTemplateMacro5(ExtractComponents, numVectorsc,
+			(VTK_TT *)vectorsc->GetVoidPointer(0),
+			(VTK_TT *)vxc->GetVoidPointer(0),
+			(VTK_TT *)vyc->GetVoidPointer(0),
+			(VTK_TT *)vzc->GetVoidPointer(0));
+      }
 
-  outVz->CopyScalarsOff();
-  outVz->PassData(pd);
-  outVz->SetScalars(vz);
-  vz->Delete();
+    outVxc->CopyScalarsOff();
+    outVxc->PassData(cd);
+    outVxc->SetScalars(vxc);
+    vxc->Delete();
+    
+    if (this->ExtractToFieldData)
+      {
+      outVxc->AddArray(vyc);
+      outVxc->AddArray(vzc);
+      }
+    else
+      {
+      outVyc->CopyScalarsOff();
+      outVyc->PassData(cd);
+      outVyc->SetScalars(vyc);
+      
+      outVzc->CopyScalarsOff();
+      outVzc->PassData(cd);
+      outVzc->SetScalars(vzc);
+      }
+    vyc->Delete();
+    vzc->Delete();
+    }
 }
 
 
