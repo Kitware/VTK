@@ -92,6 +92,8 @@ vtkRenderer::vtkRenderer()
   this->RayCastPropArray         = NULL;
   this->RenderIntoImagePropArray = NULL;   
 
+  this->TransparentRenderer      = 0;
+  this->Interactive              = 1;
   this->Cullers = vtkCullerCollection::New();  
   vtkFrustumCoverageCuller *cull = vtkFrustumCoverageCuller::New();
   this->Cullers->AddItem(cull);
