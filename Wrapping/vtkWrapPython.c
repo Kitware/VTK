@@ -821,7 +821,7 @@ void outputFunction2(FILE *fp, FileInfo *data)
     fprintf(fp,"  {\"AddObserver\",  (PyCFunction)Py%s_AddObserver, 1,\n   \"V.AddObserver(int, function) -> int\\n\\n Add an event callback function(vtkObject, int) for an event type.\\n Returns a handle that can be used with RemoveEvent(int).\"},\n", data->ClassName);
     }
   
-  fprintf(fp,"  {NULL,                       NULL}\n};\n\n");
+  fprintf(fp,"  {NULL,                       NULL, 0, NULL}\n};\n\n");
 }
 
 
