@@ -238,8 +238,6 @@ protected:
   int AutoAdjustCameraClippingRange;
   void ResetCameraClippingRange();
   
-  virtual void UpdateInternalState(int ctrl, int shift, int x, int y);
-
   // These methods for the different interactions in different modes
   // are overridden in subclasses to perform the correct motion. Since
   // they might be called from OnTimer, they do not have mouse coord parameters
@@ -283,9 +281,6 @@ protected:
   float Center[2];
   float DeltaAzimuth;
   float DeltaElevation;
-
-  int   CtrlKey;
-  int   ShiftKey;
 
   int   State;  
   int   AnimState;  

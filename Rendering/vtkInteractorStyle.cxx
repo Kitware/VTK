@@ -24,7 +24,7 @@
 #include "vtkOldStyleCallbackCommand.h"
 #include "vtkCallbackCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyle, "1.63");
+vtkCxxRevisionMacro(vtkInteractorStyle, "1.64");
 
 //----------------------------------------------------------------------------
 vtkInteractorStyle *vtkInteractorStyle::New() 
@@ -67,9 +67,6 @@ vtkInteractorStyle::vtkInteractorStyle()
 
   this->State               = VTKIS_NONE;
   this->AnimState           = VTKIS_ANIM_OFF; 
-
-  this->CtrlKey             = 0;
-  this->ShiftKey            = 1;
 
   this->HandleObservers     = 1;
   this->UseTimers           = 1;
@@ -577,17 +574,6 @@ void vtkInteractorStyle::HighlightActor2D(vtkActor2D *actor2D)
     }
   
   this->PickedActor2D = actor2D;
-}
-
-//----------------------------------------------------------------------------
-void vtkInteractorStyle::UpdateInternalState(int ctrl, 
-                                             int shift, 
-                                             int x, 
-                                             int y) 
-{
-  this->CtrlKey  = ctrl;
-  this->ShiftKey = shift;
-  this->Interactor->SetEventPosition(x, y);
 }
 
 //----------------------------------------------------------------------------
@@ -1386,8 +1372,6 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* object,
       break;
 
     case vtkCommand::MouseMoveEvent: 
-      self->UpdateInternalState(rwi->GetControlKey(), rwi->GetShiftKey(), 
-                                XY[0], XY[1]);
       if (self->HandleObservers && 
           self->HasObserver(vtkCommand::MouseMoveEvent)) 
         {
@@ -1401,8 +1385,6 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* object,
       break;
 
     case vtkCommand::LeftButtonPressEvent: 
-      self->UpdateInternalState(rwi->GetControlKey(), rwi->GetShiftKey(), 
-                                XY[0], XY[1]);
       self->FindPokedCamera(XY[0], XY[1]);
       if (self->HandleObservers && 
           self->HasObserver(vtkCommand::LeftButtonPressEvent)) 
@@ -1417,8 +1399,6 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* object,
       break;
 
     case vtkCommand::LeftButtonReleaseEvent:
-      self->UpdateInternalState(rwi->GetControlKey(), rwi->GetShiftKey(), 
-                                XY[0], XY[1]);
       if (self->HandleObservers && 
           self->HasObserver(vtkCommand::LeftButtonReleaseEvent)) 
         {
@@ -1432,8 +1412,6 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* object,
       break;
 
     case vtkCommand::MiddleButtonPressEvent:
-      self->UpdateInternalState(rwi->GetControlKey(), rwi->GetShiftKey(), 
-                                XY[0], XY[1]);
       self->FindPokedCamera(XY[0], XY[1]);
       if (self->HandleObservers && 
           self->HasObserver(vtkCommand::MiddleButtonPressEvent)) 
@@ -1448,8 +1426,6 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* object,
       break;
 
     case vtkCommand::MiddleButtonReleaseEvent:
-      self->UpdateInternalState(rwi->GetControlKey(), rwi->GetShiftKey(), 
-                                XY[0], XY[1]);
       if (self->HandleObservers && 
           self->HasObserver(vtkCommand::MiddleButtonReleaseEvent)) 
         {
@@ -1463,8 +1439,6 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* object,
       break;
 
     case vtkCommand::RightButtonPressEvent:
-      self->UpdateInternalState(rwi->GetControlKey(), rwi->GetShiftKey(), 
-                                XY[0], XY[1]);
       self->FindPokedCamera(XY[0], XY[1]);
       if (self->HandleObservers && 
           self->HasObserver(vtkCommand::RightButtonPressEvent)) 
@@ -1479,8 +1453,6 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* object,
       break;
 
     case vtkCommand::RightButtonReleaseEvent: 
-      self->UpdateInternalState(rwi->GetControlKey(), rwi->GetShiftKey(), 
-                                XY[0], XY[1]);
       if (self->HandleObservers && 
           self->HasObserver(vtkCommand::RightButtonReleaseEvent)) 
         {
@@ -1494,8 +1466,6 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* object,
       break;
 
     case vtkCommand::KeyPressEvent:
-      self->CtrlKey  = rwi->GetControlKey();
-      self->ShiftKey = rwi->GetShiftKey();
       if (self->HandleObservers && 
           self->HasObserver(vtkCommand::KeyPressEvent)) 
         {
@@ -1514,8 +1484,6 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* object,
       break;
 
     case vtkCommand::KeyReleaseEvent: 
-      self->CtrlKey  = rwi->GetControlKey();
-      self->ShiftKey = rwi->GetShiftKey();
       if (self->HandleObservers && 
           self->HasObserver(vtkCommand::KeyReleaseEvent)) 
         {
@@ -1534,8 +1502,6 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* object,
       break;
 
     case vtkCommand::CharEvent:  
-      self->CtrlKey  = rwi->GetControlKey();
-      self->ShiftKey = rwi->GetShiftKey();
       if (self->HandleObservers && 
           self->HasObserver(vtkCommand::CharEvent)) 
         {

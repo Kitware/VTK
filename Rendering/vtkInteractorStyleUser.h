@@ -215,6 +215,8 @@ protected:
   int LastPos[2];
   int OldPos[2];
 
+  int ShiftKey;
+  int CtrlKey;
   int Char;
   char *KeySym;
   int Button;

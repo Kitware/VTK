@@ -21,7 +21,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleFlight, "1.19");
+vtkCxxRevisionMacro(vtkInteractorStyleFlight, "1.20");
 vtkStandardNewMacro(vtkInteractorStyleFlight);
 
 //---------------------------------------------------------------------------
@@ -380,10 +380,10 @@ void vtkInteractorStyleFlight::AzimuthScan(void)
 //---------------------------------------------------------------------------
 void vtkInteractorStyleFlight::UpdateMouseSteering(int x, int y) 
 {
-  double aspeed = this->AngleStepSize*(this->ShiftKey ? this->AngleAccelerationFactor : 1.0);
+  vtkRenderWindowInteractor *rwi = this->Interactor;
+  double aspeed = this->AngleStepSize*(rwi->GetShiftKey() ? this->AngleAccelerationFactor : 1.0);
   //
   // we want to steer by an amount proportional to window viewangle and size
-  vtkRenderWindowInteractor *rwi = this->Interactor;
   int *size = rwi->GetSize();
   double scalefactor = 5.0*this->CurrentCamera->GetViewAngle()/(double)size[0];
   double dx = - (x - this->LastPos[0])*scalefactor;
@@ -454,14 +454,14 @@ void vtkInteractorStyleFlight::FlyByMouse(void)
 {
   double a_vector[3];
   double speed  = this->DiagonalLength * this->MotionStepSize * this->MotionUserScale;
-  speed = speed * ( this->ShiftKey ? this->MotionAccelerationFactor : 1.0);
+  speed = speed * ( this->Interactor->GetShiftKey() ? this->MotionAccelerationFactor : 1.0);
   if (this->DisableMotion) 
     {
     speed = 0;
     }
   // Sidestep (convert steering angles to left right movement :
   // only because I added this after doing the angles earlier
-  if (this->CtrlKey) 
+  if (this->Interactor->GetControlKey()) 
     {
     if (this->YawAngle!=0.0) 
       {
@@ -484,7 +484,7 @@ void vtkInteractorStyleFlight::FlyByMouse(void)
   this->YawAngle   = 0;
   this->PitchAngle = 0;
   //
-  if (!this->CtrlKey) 
+  if (!this->Interactor->GetControlKey()) 
     {
     this->CurrentCamera->GetViewPlaneNormal(a_vector);
     if (this->Flying) 
@@ -503,16 +503,16 @@ void vtkInteractorStyleFlight::FlyByKey(void)
 {
 
   double speed  = this->DiagonalLength * this->MotionStepSize * this->MotionUserScale;
-  speed = speed * ( this->ShiftKey ? this->MotionAccelerationFactor : 1.0);
+  speed = speed * ( this->Interactor->GetShiftKey() ? this->MotionAccelerationFactor : 1.0);
   if (this->DisableMotion) 
     {
     speed = 0;
     }
   //
-  double aspeed = this->AngleStepSize* (this->ShiftKey ? this->AngleAccelerationFactor : 1.0);
+  double aspeed = this->AngleStepSize* (this->Interactor->GetShiftKey() ? this->AngleAccelerationFactor : 1.0);
   double a_vector[3];
   // Left and right
-  if (this->CtrlKey) 
+  if (this->Interactor->GetControlKey()) 
     { // Sidestep
     this->ComputeLRVector(a_vector);
     if (this->KeysDown & 1) 
@@ -537,7 +537,7 @@ void vtkInteractorStyleFlight::FlyByKey(void)
     }
 
   // Up and Down
-  if (this->CtrlKey) 
+  if (this->Interactor->GetControlKey()) 
     { // Sidestep
     this->CurrentCamera->GetViewUp(a_vector);
     if (this->KeysDown & 4) 
