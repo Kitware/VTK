@@ -25,7 +25,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGarbageCollector, "1.21");
+vtkCxxRevisionMacro(vtkGarbageCollector, "1.22");
 
 class vtkGarbageCollectorSingleton;
 
@@ -461,7 +461,7 @@ vtkGarbageCollectorImpl::Entry*
 vtkGarbageCollectorImpl::MaybeVisit(vtkObjectBase* obj)
 {
   // Check for an existing entry.
-  assert(obj);
+  assert(obj != 0);
   Entry e(obj);
   VisitedType::iterator i = this->Visited.find(&e);
   if(i == this->Visited.end())
@@ -546,7 +546,7 @@ void vtkGarbageCollectorImpl::Report(vtkObjectBase* obj, void* ptr,
                                      const char*)
 {
   // All calls should be given the pointer.
-  assert(ptr);
+  assert(ptr != 0);
 
   // Forward call to the internal implementation.
   if(obj)
@@ -559,7 +559,7 @@ void vtkGarbageCollectorImpl::Report(vtkObjectBase* obj, void* ptr,
                                      const char* desc)
 {
   // All calls should be given the pointer.
-  assert(ptr);
+  assert(ptr != 0);
 
   if(obj)
     {
@@ -739,7 +739,7 @@ void vtkGarbageCollectorImpl::SubtractExternalReferences(ComponentType* c)
 void vtkGarbageCollectorImpl::SubtractReference(Entry* e)
 {
   // The component should not be leaked before we get here.
-  assert(e->Component);
+  assert(e->Component != 0);
   assert(e->Component->NetCount > 0);
 
   vtkDebugMacro("Subtracting reference to object "
