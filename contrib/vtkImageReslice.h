@@ -75,7 +75,7 @@ class VTK_EXPORT vtkImageReslice : public vtkImageToImageFilter
 {
 public:
   static vtkImageReslice *New();
-  vtkTypeMacro(vtkImageReslice,vtkImageToImageFilter);
+  vtkTypeMacro(vtkImageReslice, vtkImageToImageFilter);
 
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -97,8 +97,8 @@ public:
   // axes (set the fourth element to one).  The matrix can be used
   // to specify a perspective transformation (i.e. non-zero fourth
   // elements for the axes), but the matrix must be invertible.  
-  vtkSetObjectMacro(ResliceAxes,vtkMatrix4x4);
-  vtkGetObjectMacro(ResliceAxes,vtkMatrix4x4);
+  vtkSetObjectMacro(ResliceAxes, vtkMatrix4x4);
+  vtkGetObjectMacro(ResliceAxes, vtkMatrix4x4);
 
   // Description:
   // Set a transform to be applied to the resampling grid that was
@@ -107,40 +107,40 @@ public:
   // equivalent to applying the inverse of the same transform to
   // the image before resampling it.  Nonlinear transforms can be
   // used here.
-  vtkSetObjectMacro(ResliceTransform,vtkAbstractTransform);
-  vtkGetObjectMacro(ResliceTransform,vtkAbstractTransform);
+  vtkSetObjectMacro(ResliceTransform, vtkAbstractTransform);
+  vtkGetObjectMacro(ResliceTransform, vtkAbstractTransform);
 
   // Description:
   // Turn on wrap-pad feature (default: off). 
-  vtkSetMacro(Wrap,int);
-  vtkGetMacro(Wrap,int);
-  vtkBooleanMacro(Wrap,int);
+  vtkSetMacro(Wrap, int);
+  vtkGetMacro(Wrap, int);
+  vtkBooleanMacro(Wrap, int);
 
   // Description:
   // Turn on mirror-pad feature (default: off). 
   // This will override the wrap-pad, if set.
-  vtkSetMacro(Mirror,int);
-  vtkGetMacro(Mirror,int);
-  vtkBooleanMacro(Mirror,int);
+  vtkSetMacro(Mirror, int);
+  vtkGetMacro(Mirror, int);
+  vtkBooleanMacro(Mirror, int);
 
   // Description:
   // Set interpolation mode (default: nearest neighbor). 
-  vtkSetMacro(InterpolationMode,int);
-  vtkGetMacro(InterpolationMode,int);
-  void SetInterpolationModeToNearestNeighbor()
-    { this->SetInterpolationMode(VTK_RESLICE_NEAREST); };
-  void SetInterpolationModeToLinear()
-    { this->SetInterpolationMode(VTK_RESLICE_LINEAR); };
-  void SetInterpolationModeToCubic()
-    { this->SetInterpolationMode(VTK_RESLICE_CUBIC); };
+  vtkSetMacro(InterpolationMode, int);
+  vtkGetMacro(InterpolationMode, int);
+  void SetInterpolationModeToNearestNeighbor() {
+    this->SetInterpolationMode(VTK_RESLICE_NEAREST); };
+  void SetInterpolationModeToLinear() {
+    this->SetInterpolationMode(VTK_RESLICE_LINEAR); };
+  void SetInterpolationModeToCubic() {
+    this->SetInterpolationMode(VTK_RESLICE_CUBIC); };
   const char *GetInterpolationModeAsString();
 
   // Description:
   // Turn on and off optimizations (default on, they should only be
   // turned off for testing purposes). 
-  vtkSetMacro(Optimization,int);
-  vtkGetMacro(Optimization,int);
-  vtkBooleanMacro(Optimization,int);
+  vtkSetMacro(Optimization, int);
+  vtkGetMacro(Optimization, int);
+  vtkBooleanMacro(Optimization, int);
 
   // Description:
   // Set the background color (for multi-component images).
@@ -149,7 +149,7 @@ public:
 
   // Description:
   // Set background grey level (for single-component images).
-  void SetBackgroundLevel(float v) {this->SetBackgroundColor(v,v,v,v);};
+  void SetBackgroundLevel(float v) { this->SetBackgroundColor(v,v,v,v); };
   float GetBackgroundLevel() { return this->GetBackgroundColor()[0]; };
 
   // Description:
@@ -157,45 +157,54 @@ public:
   // The OutputSpacing default is (1,1,1), and the 
   // default OutputOrigin and OutputExtent are set to cover the entire
   // transformed input extent.
-  //
-  // NOTE: The OutputOrigin and OutputExtent values are only used if
-  // OutputAlwaysCenteredOnInputOff. Otherwise, they are automatically computed.
   vtkSetVector3Macro(OutputSpacing, float);
   vtkGetVector3Macro(OutputSpacing, float);
   vtkSetVector3Macro(OutputOrigin, float);
   vtkGetVector3Macro(OutputOrigin, float);
   vtkSetVector6Macro(OutputExtent, int);
   vtkGetVector6Macro(OutputExtent, int);
-  vtkSetClampMacro( OutputAlwaysCenteredOnInput, int, 0, 1 );
-  vtkGetMacro( OutputAlwaysCenteredOnInput, int );
-  vtkBooleanMacro( OutputAlwaysCenteredOnInput, int );
   
   // Description:
   // When determining the modified time of the filter, 
   // this check the modified time of the transform and matrix.
   unsigned long int GetMTime();
 
+  // Description:
+  // Convenient methods for switching between nearest-neighbor and linear
+  // interpolation.  
+  // InterpolateOn() is equivalent to SetInterpolationModeToLinear() and
+  // InterpolateOff() is equivalent to SetInterpolationModeToNearestNeighbor().
+  // You should not use these methods if you use the SetInterpolationMode
+  // methods.
+  void SetInterpolate(int t) {
+    this->SetInterpolationMode((t ? VTK_RESLICE_LINEAR : 
+				    VTK_RESLICE_NEAREST)); };
+  void InterpolateOn() {
+    if (!this->GetInterpolate()) { this->SetInterpolationModeToLinear(); } };
+  void InterpolateOff() {
+    this->SetInterpolationModeToNearestNeighbor(); };
+  int GetInterpolate() {
+    return (this->GetInterpolationMode() != VTK_RESLICE_NEAREST); };
+
+  // Description:
+  // These methods will be removed in a future version of VTK.  Do not
+  // use them.
+#ifndef VTK_REMOVE_LEGACY_CODE
+  void SetOutputAlwaysCenteredOnInput(int yesno) {
+    vtkWarningMacro("method will be eliminated in a future version of VTK");
+    this->OutputAlwaysCenteredOnInput = 1; };
+  vtkGetMacro(OutputAlwaysCenteredOnInput, int);
+  vtkBooleanMacro(OutputAlwaysCenteredOnInput, int);
+#endif  
+
 //BTX
   // Description:
   // Helper functions not meant to be used outside this class. 
   vtkMatrix4x4 *GetIndexMatrix();
   int FindExtent(int& r1, int& r2, float *point, float *xAxis,
-		      int *inMin, int *inMax, int *outExt);
+		 int *inMin, int *inMax, int *outExt);
 //ETX
 
-  // Description:
-  // Convenient methods for switching between nearest-neighbor and linear
-  // interpolation (default: off). 
-  void SetInterpolate(int t) {
-    this->SetInterpolationMode((t ? VTK_RESLICE_LINEAR : 
-				    VTK_RESLICE_NEAREST)); };
-  void InterpolateOn() {
-    this->SetInterpolationModeToLinear(); };
-  void InterpolateOff() {
-    this->SetInterpolationModeToNearestNeighbor(); };
-  int GetInterpolate() {
-    return (this->GetInterpolationMode() != VTK_RESLICE_NEAREST); };
-  
 protected:
   vtkImageReslice();
   ~vtkImageReslice();
@@ -216,7 +225,8 @@ protected:
   int OutputAlwaysCenteredOnInput;
   
   void ExecuteInformation(vtkImageData *input, vtkImageData *output);
-  void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
+  void ExecuteInformation() {
+    this->vtkImageToImageFilter::ExecuteInformation(); };
   void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
 		       int ext[6], int id);
