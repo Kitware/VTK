@@ -63,6 +63,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class vtkIdList;
 class vtkFloatScalars;
+class vtkShortScalars;
 class vtkLookupTable;
 
 class vtkScalars : public vtkRefCount 
@@ -120,6 +121,10 @@ public:
   // Description:
   // Get the scalar values for the point ids specified.
   virtual void GetScalars(vtkIdList& ptIds, vtkFloatScalars& fs);
+
+  // Description:
+  // Return all the scalar values as a short scalar
+  virtual vtkShortScalars *GetAllShortScalars();
 
   virtual void ComputeRange();
   float *GetRange();

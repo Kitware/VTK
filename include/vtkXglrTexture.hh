@@ -55,6 +55,7 @@ class vtkXglrTexture : public vtkTextureDevice
 {
 public:
   vtkXglrTexture();
+  ~vtkXglrTexture();
   char *GetClassName() {return "vtkXglrTexture";};
   
   void Load(vtkTexture *txt, vtkRenderer *ren);

@@ -71,7 +71,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkSliceCubes_h
 
 #include "vtkObject.hh"
-#include "vtkVolume16Reader.hh"
+#include "vtkVolumeReader.hh"
 #include "vtkMCubesReader.hh"
 
 class vtkSliceCubes : public vtkObject
@@ -87,8 +87,8 @@ public:
 
   // Description:
   // Set/get object to read slices.
-  vtkSetObjectMacro(Reader,vtkVolume16Reader);
-  vtkGetObjectMacro(Reader,vtkVolume16Reader);
+  vtkSetObjectMacro(Reader,vtkVolumeReader);
+  vtkGetObjectMacro(Reader,vtkVolumeReader);
 
   // Description:
   // Specify file name of marching cubes output file.
@@ -109,7 +109,7 @@ public:
 protected:
   void Execute();
 
-  vtkVolume16Reader *Reader;
+  vtkVolumeReader *Reader;
   char *Filename;  
   short Value;
   char *LimitsFilename;

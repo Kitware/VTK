@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkVolume16Reader.hh
+  Module:    vtkVolumeReader.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,11 +38,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkVolume16Reader - read 16 bit image files
+// .NAME vtkVolumeReader - read image files
 // .SECTION Description
-// vtkVolume16Reader is a source object that reads 16 bit image files.
+// vtkVolumeReader is a source object that reads image files.
 //
-// Volume16Reader creates structured point datasets. The dimension of the 
+// VolumeReader creates structured point datasets. The dimension of the 
 // dataset depends upon the number of files read. Reading a single file 
 // results in a 2D image, while reading more than one file results in a 
 // 3D volume.
@@ -63,56 +63,53 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION See Also
 // vtkSliceCubes vtkMarchingCubes
 
-#ifndef __vtkVolume16Reader_h
-#define __vtkVolume16Reader_h
+#ifndef __vtkVolumeReader_h
+#define __vtkVolumeReader_h
 
 #include <stdio.h>
-#include "vtkVolumeReader.hh"
+#include "vtkStructuredPointsSource.hh"
 
-class vtkVolume16Reader : public vtkVolumeReader
+class vtkVolumeReader : public vtkStructuredPointsSource
 {
 public:
-  vtkVolume16Reader();
-  char *GetClassName() {return "vtkVolume16Reader";};
+  vtkVolumeReader();
+  char *GetClassName() {return "vtkVolumeReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Specify the dimensions for the data.
-  vtkSetVector2Macro(DataDimensions,int);
-  vtkGetVectorMacro(DataDimensions,int,2);
+  // Specify file prefix for the image file(s).
+  vtkSetStringMacro(FilePrefix);
+  vtkGetStringMacro(FilePrefix);
 
   // Description:
-  // Specify a mask used to eliminate data in the data file (e.g.,
-  // connectivity bits).
-  vtkSetMacro(DataMask,short);
-  vtkGetMacro(DataMask,short);
+  // The sprintf format used to build filename from FilePrefix and number.
+  vtkSetStringMacro(FilePattern);
+  vtkGetStringMacro(FilePattern);
 
   // Description:
-  // Specify the number of bytes to seek over at start of image.
-  vtkSetMacro(HeaderSize,int);
-  vtkGetMacro(HeaderSize,int);
+  // Set the range of files to read.
+  vtkSetVector2Macro(ImageRange,int);
+  vtkGetVectorMacro(ImageRange,int,2);
 
   // Description:
-  // Turn on/off byte swapping.
-  vtkSetMacro(SwapBytes,int);
-  vtkGetMacro(SwapBytes,int);
-  vtkBooleanMacro(SwapBytes,int);
+  // Specify an aspect ratio for the data.
+  vtkSetVector3Macro(DataAspectRatio,float);
+  vtkGetVectorMacro(DataAspectRatio,float,3);
+
+  // Description:
+  // Specify the origin for the data.
+  vtkSetVector3Macro(DataOrigin,float);
+  vtkGetVectorMacro(DataOrigin,float,3);
 
   // Other objects make use of these methods
-  vtkStructuredPoints *GetImage(int ImageNumber);
+  virtual vtkStructuredPoints *GetImage(int ImageNumber) = 0;
 
 protected:
-  void Execute();
-  int   DataDimensions[2];
-  short DataMask;
-  int   SwapBytes;
-  int   HeaderSize;
-
-  vtkScalars *ReadImage(int ImageNumber);
-  vtkScalars *ReadVolume(int FirstImage, int LastImage);
-  int Read16BitImage(FILE *fp, short *pixels, int xsize, int ysize, 
-		     int skip, int swapBytes);
-
+  char *FilePrefix;
+  char *FilePattern;
+  int ImageRange[2];
+  float DataAspectRatio[3];
+  float DataOrigin[3];
 };
 
 #endif

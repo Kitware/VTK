@@ -63,12 +63,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkPNMReader_h
 
 #include <stdio.h>
-#include "vtkStructuredPointsSource.hh"
+#include "vtkVolumeReader.hh"
 #include "vtkPixmap.hh"
 #include "vtkGraymap.hh"
 #include "vtkBitmap.hh"
 
-class vtkPNMReader : public vtkStructuredPointsSource
+class vtkPNMReader : public vtkVolumeReader
 {
 public:
   vtkPNMReader();
@@ -80,27 +80,11 @@ public:
   vtkSetStringMacro(Filename);
   vtkGetStringMacro(Filename);
 
-  // Description:
-  // Set the range of files to read.
-  vtkSetVector2Macro(ImageRange,int);
-  vtkGetVectorMacro(ImageRange,int,2);
-
-  // Description:
-  // Specify an aspect ratio for the data.
-  vtkSetVector3Macro(DataAspectRatio,float);
-  vtkGetVectorMacro(DataAspectRatio,float,3);
-
-  // Description:
-  // Specify the origin for the data.
-  vtkSetVector3Macro(DataOrigin,float);
-  vtkGetVectorMacro(DataOrigin,float,3);
-
+  vtkStructuredPoints *GetImage(int ImageNum);
+  
 protected:
   void Execute();
   char *Filename;
-  int ImageRange[2];
-  float DataAspectRatio[3];
-  float DataOrigin[3];
 
   vtkColorScalars *ReadImage(int dim[3]);
   vtkColorScalars *ReadVolume(int dim[3]);
