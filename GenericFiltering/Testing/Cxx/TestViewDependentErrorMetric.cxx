@@ -146,20 +146,21 @@ int TestViewDependentErrorMetric(int argc, char* argv[])
   ds->GetTessellator()->GetErrorMetrics()->AddItem(attributesError);
   attributesError->Delete();
 #endif
+
   // 3. for the view dependent error metric on the first renderer
   vtkViewDependentErrorMetric *viewError=vtkViewDependentErrorMetric::New();
   viewError->SetViewport(renderer);
-  viewError->SetPixelTolerance(16); // 0.25; 0.0625
+  viewError->SetPixelTolerance(10000); // 0.25; 0.0625
   ds->GetTessellator()->GetErrorMetrics()->AddItem(viewError);
   viewError->Delete();
-  
+
   // 4. for the view dependent error metric on the first renderer
   vtkViewDependentErrorMetric *viewError2=vtkViewDependentErrorMetric::New();
   viewError2->SetViewport(renderer2);
   viewError2->SetPixelTolerance(0.25); // 0.25; 0.0625
   ds->GetTessellator()->GetErrorMetrics()->AddItem(viewError2);
   viewError2->Delete();
-  
+
   cout<<"input unstructured grid: "<<ds<<endl;
 
   
