@@ -92,6 +92,17 @@
 
 /* Test inclusion of some stl headers.  */
 #include <vector>
+#ifndef VTK_NO_STD_NAMESPACE
+# define vtkstd std
+#else
+# define vtkstd
+#endif
+
+void UsingStdVector()
+{
+  using vtkstd::vector;
+  vector<int>();
+}
 
 //----------------------------------------------------------------------------
 
