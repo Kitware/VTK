@@ -44,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkPlanes.h"
 
-vtkCxxRevisionMacro(vtkAbstractMapper, "1.22");
+vtkCxxRevisionMacro(vtkAbstractMapper, "1.23");
 
 // Construct object.
 vtkAbstractMapper::vtkAbstractMapper()
@@ -112,6 +112,11 @@ void vtkAbstractMapper::RemoveAllClippingPlanes()
 void vtkAbstractMapper::SetClippingPlanes(vtkPlanes *planes)
 {
   vtkPlane *plane;
+  if (!planes)
+    {
+    return;
+    }
+
   int numPlanes = planes->GetNumberOfPlanes();
 
   this->RemoveAllClippingPlanes();
