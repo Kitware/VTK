@@ -18,10 +18,9 @@
 // essentially a serial algorithm: only one process is active at one
 // time and it is not more efficient than a single process integration.
 // It is useful when the data is too large to be on one process and
-// has to be kept distributed. See vtkMPIStreamTracer for a distributed
-// parallel implementation. 
+// has to be kept distributed.
 // .SECTION See Also
-// vtkStreamTracer vtkPStreamTracer vtkMPIStreamTracer
+// vtkStreamTracer vtkPStreamTracer
 
 #ifndef __vtkDistributedStreamTracer_h
 #define __vtkDistributedStreamTracer_h
