@@ -35,7 +35,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkGeometryFilter, "1.99");
+vtkCxxRevisionMacro(vtkGeometryFilter, "1.100");
 vtkStandardNewMacro(vtkGeometryFilter);
 
 // Construct with all types of clipping turned off.
@@ -279,65 +279,68 @@ int vtkGeometryFilter::RequestData(
     if ( allVisible || cellVis[cellId] )
       {
       input->GetCell(cellId,cell);
-      switch (cell->GetCellDimension())
+      if (cell->GetCellType() != VTK_EMPTY_CELL)
         {
-        // create new points and then cell
-        case 0: case 1: case 2:
-          
-          npts = cell->GetNumberOfPoints();
-          pts->Reset();
-          for ( i=0; i < npts; i++)
-            {
-            ptId = cell->GetPointId(i);
-            input->GetPoint(ptId, x);
-
-            if ( this->Merging && this->Locator->InsertUniquePoint(x, pt) )
+        switch (cell->GetCellDimension())
+          {
+          // create new points and then cell
+          case 0: case 1: case 2:
+            
+            npts = cell->GetNumberOfPoints();
+            pts->Reset();
+            for ( i=0; i < npts; i++)
               {
-              outputPD->CopyData(pd,ptId,pt);
-              }
-            else if (!this->Merging)
-              {
-              pt = newPts->InsertNextPoint(x);
-              outputPD->CopyData(pd,ptId,pt);
-              }
-            pts->InsertId(i,pt);
-            }
-          newCellId = output->InsertNextCell(cell->GetCellType(), pts);
-          outputCD->CopyData(cd,cellId,newCellId);
-          break;
-
-        case 3:
-          int numFaces = cell->GetNumberOfFaces();
-          for (j=0; j < numFaces; j++)
-            {
-            face = cell->GetFace(j);
-            input->GetCellNeighbors(cellId, face->PointIds, cellIds);
-            if ( cellIds->GetNumberOfIds() <= 0 || 
-            (!allVisible && !cellVis[cellIds->GetId(0)]) )
-              {
-              npts = face->GetNumberOfPoints();
-              pts->Reset();
-              for ( i=0; i < npts; i++)
+              ptId = cell->GetPointId(i);
+              input->GetPoint(ptId, x);
+              
+              if ( this->Merging && this->Locator->InsertUniquePoint(x, pt) )
                 {
-                ptId = face->GetPointId(i);
-                input->GetPoint(ptId, x);
-                if (this->Merging && this->Locator->InsertUniquePoint(x, pt) )
-                  {
-                  outputPD->CopyData(pd,ptId,pt);
-                  }
-                else if (!this->Merging)
-                  {
-                  pt = newPts->InsertNextPoint(x);
-                  outputPD->CopyData(pd,ptId,pt);
-                  }
-                pts->InsertId(i,pt);
+                outputPD->CopyData(pd,ptId,pt);
                 }
-              newCellId = output->InsertNextCell(face->GetCellType(), pts);
-              outputCD->CopyData(cd,cellId,newCellId);
+              else if (!this->Merging)
+                {
+                pt = newPts->InsertNextPoint(x);
+                outputPD->CopyData(pd,ptId,pt);
+                }
+              pts->InsertId(i,pt);
               }
-            }
-          break;
-        } //switch
+            newCellId = output->InsertNextCell(cell->GetCellType(), pts);
+            outputCD->CopyData(cd,cellId,newCellId);
+            break;
+            
+          case 3:
+            int numFaces = cell->GetNumberOfFaces();
+            for (j=0; j < numFaces; j++)
+              {
+              face = cell->GetFace(j);
+              input->GetCellNeighbors(cellId, face->PointIds, cellIds);
+              if ( cellIds->GetNumberOfIds() <= 0 || 
+                   (!allVisible && !cellVis[cellIds->GetId(0)]) )
+                {
+                npts = face->GetNumberOfPoints();
+                pts->Reset();
+                for ( i=0; i < npts; i++)
+                  {
+                  ptId = face->GetPointId(i);
+                  input->GetPoint(ptId, x);
+                  if (this->Merging && this->Locator->InsertUniquePoint(x, pt) )
+                    {
+                    outputPD->CopyData(pd,ptId,pt);
+                    }
+                  else if (!this->Merging)
+                    {
+                    pt = newPts->InsertNextPoint(x);
+                    outputPD->CopyData(pd,ptId,pt);
+                    }
+                  pts->InsertId(i,pt);
+                  }
+                newCellId = output->InsertNextCell(face->GetCellType(), pts);
+                outputCD->CopyData(cd,cellId,newCellId);
+                }
+              }
+            break;
+          } //switch
+        }
       } //if visible
     } //for all cells
 
