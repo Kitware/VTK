@@ -214,8 +214,14 @@ void vtkMapper::ShallowCopy(vtkAbstractMapper *mapper)
     this->SetScalarMode(m->GetScalarMode());
     this->SetImmediateModeRendering(m->GetImmediateModeRendering());
     this->SetUseLookupTableScalarRange(m->GetUseLookupTableScalarRange());
-    this->ColorByArrayComponent(m->GetArrayName(),m->GetArrayComponent());
-    this->ColorByArrayComponent(m->GetArrayId(),m->GetArrayComponent());
+    if ( m->GetArrayAccessMode() == VTK_GET_ARRAY_BY_ID )
+      {
+      this->ColorByArrayComponent(m->GetArrayId(),m->GetArrayComponent());
+      }
+    else
+      {
+      this->ColorByArrayComponent(m->GetArrayName(),m->GetArrayComponent());
+      }
     }
 
   // Now do superclass
