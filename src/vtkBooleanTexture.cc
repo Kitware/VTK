@@ -89,23 +89,23 @@ void vtkBooleanTexture::Execute()
     for (i = 0; i < this->XSize; i++) 
       {
       if (i < midILower && j < midJLower) 
-        newScalars->InsertNextColor(this->InIn);
+        newScalars->InsertNextColor((unsigned char *)this->InIn);
       else if (i > midIUpper && j < midJLower) 
-        newScalars->InsertNextColor(this->OutIn);
+        newScalars->InsertNextColor((unsigned char *)this->OutIn);
       else if (i < midILower && j > midJUpper) 
-        newScalars->InsertNextColor(this->InOut);
+        newScalars->InsertNextColor((unsigned char *)this->InOut);
       else if (i > midIUpper && j > midJUpper) 
-        newScalars->InsertNextColor(this->OutOut);
+        newScalars->InsertNextColor((unsigned char *)this->OutOut);
       else if ((i >= midILower && i <= midIUpper) && (j >= midJLower && j <= midJUpper)) 
-        newScalars->InsertNextColor(this->OnOn);
+        newScalars->InsertNextColor((unsigned char *)this->OnOn);
       else if ((i >= midILower && i <= midIUpper) && j < midJLower) 
-        newScalars->InsertNextColor(this->OnIn);
+        newScalars->InsertNextColor((unsigned char *)this->OnIn);
       else if ((i >= midILower && i <= midIUpper) && j > midJUpper) 
-        newScalars->InsertNextColor(this->OnOut);
+        newScalars->InsertNextColor((unsigned char *)this->OnOut);
       else if (i < midILower && (j >= midJLower && j <= midJUpper)) 
-        newScalars->InsertNextColor(this->InOn);
+        newScalars->InsertNextColor((unsigned char *)this->InOn);
       else if (i > midIUpper && (j >= midJLower && j <= midJUpper)) 
-        newScalars->InsertNextColor(this->OutOn);
+        newScalars->InsertNextColor((unsigned char *)this->OutOn);
       }
     }
 
