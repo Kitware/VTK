@@ -231,15 +231,27 @@ JNIEXPORT void vtkJavaSetId(JNIEnv *env,jobject obj, int newVal)
   env->SetIntField(obj,id,jNewVal);
 }
 
+JNIEXPORT void vtkJavaRegisterCastFunction(JNIEnv *env, jobject obj, int id, void *tcFunc) 
+{
+  VTK_GET_MUTEX();
+#ifdef VTKJAVADEBUG
+  if (id == 0) {
+    vtkGenericWarningMacro("RegisterCastFunction: Try to add a CastFuction to a unregistered function");
+  }
+#endif 
+  vtkTypecastLookup->AddHashEntry((void *)id,tcFunc);
+  VTK_RELEASE_MUTEX();
+}
+
 // add an object to the hash table
-JNIEXPORT void vtkJavaAddObjectToHash(JNIEnv *env, jobject obj, void *ptr,
-				      void *tcFunc)
+JNIEXPORT int vtkJavaRegisterNewObject(JNIEnv *env, jobject obj, void *ptr)
 { 
-  if (!vtkInstanceLookup)
+  if (!vtkInstanceLookup) // first call ?
     {
-    vtkInstanceLookup = new vtkHashTable;
-    vtkTypecastLookup = new vtkHashTable;
-    vtkPointerLookup = new vtkHashTable;
+    vtkInstanceLookup = new vtkHashTable();
+    vtkPointerLookup = new vtkHashTable();
+    vtkTypecastLookup = new vtkHashTable();
+    
 #ifdef _WIN32
     vtkGlobalMutex = CreateMutex(NULL, FALSE, NULL);
 #endif
@@ -248,16 +260,17 @@ JNIEXPORT void vtkJavaAddObjectToHash(JNIEnv *env, jobject obj, void *ptr,
 VTK_GET_MUTEX();
 
 #ifdef VTKJAVADEBUG
-  vtkGenericWarningMacro("Adding an object to hash ptr = " << ptr);
+  vtkGenericWarningMacro("RegisterNewObject: Adding an object to hash ptr = " << ptr);
 #endif  
   // lets make sure it isn't already there
-  if (vtkJavaGetId(env,obj))
+  int id= 0;
+  if (id= vtkJavaGetId(env,obj))
     {
 #ifdef VTKJAVADEBUG
-    vtkGenericWarningMacro("Attempt to add an object to the hash when one already exists!!!");
+    vtkGenericWarningMacro("RegisterNewObject: Attempt to add an object to the hash when one already exists!!!");
 #endif
     VTK_RELEASE_MUTEX();
-    return;
+    return id;
     }
 
   // get a unique id for this object
@@ -268,18 +281,18 @@ VTK_GET_MUTEX();
     vtkJavaIdCount++;
     if (vtkJavaIdCount > 268435456) vtkJavaIdCount = 1;
     }
-
+  id= vtkJavaIdCount;
   vtkInstanceLookup->AddHashEntry((void *)vtkJavaIdCount,ptr);
-  vtkTypecastLookup->AddHashEntry((void *)vtkJavaIdCount,tcFunc);
   vtkPointerLookup->AddHashEntry(ptr,(void *)env->NewGlobalRef(obj));
 
   vtkJavaSetId(env,obj,vtkJavaIdCount);
   
 #ifdef VTKJAVADEBUG
-  vtkGenericWarningMacro("Added object to hash id= " << vtkJavaIdCount << " " << ptr);
+  vtkGenericWarningMacro("RegisterNewObject: Added object to hash id= " << vtkJavaIdCount << " " << ptr);
 #endif  
   vtkJavaIdCount++;
   VTK_RELEASE_MUTEX();
+  return id;
 }
 
 // should we delete this object
@@ -290,7 +303,7 @@ JNIEXPORT void vtkJavaDeleteObject(JNIEnv *env,jobject obj)
   VTK_GET_MUTEX();
 
 #ifdef VTKJAVADEBUG
-  vtkGenericWarningMacro("Deleting id = " << id);
+  vtkGenericWarningMacro("DeleteObject: Deleting id = " << id);
 #endif
   vtkJavaDeleteObjectFromHash(env, id);
   VTK_RELEASE_MUTEX();
@@ -309,7 +322,7 @@ JNIEXPORT void vtkJavaDeleteObjectFromHash(JNIEnv *env, int id)
   if (!ptr) 
     {
 #ifdef VTKJAVADEBUG
-    vtkGenericWarningMacro("Attempt to delete an object that doesn't exist!");
+    vtkGenericWarningMacro("DeleteObjectFromHash: Attempt to delete an object that doesn't exist!");
 #endif  
     return;
     }
@@ -325,11 +338,11 @@ JNIEXPORT jobject vtkJavaGetObjectFromPointer(void *ptr)
   jobject obj;
 
 #ifdef VTKJAVADEBUG
-  vtkGenericWarningMacro("Checking into pointer " << ptr);
+  vtkGenericWarningMacro("GetObjectFromPointer: Checking into pointer " << ptr);
 #endif  
   obj = (jobject)vtkPointerLookup->GetHashTableValue((jobject *)ptr);
 #ifdef VTKJAVADEBUG
-  vtkGenericWarningMacro("Checking into pointer " << ptr << " obj = " << obj);
+  vtkGenericWarningMacro("GetObjectFromPointer: Checking into pointer " << ptr << " obj = " << obj);
 #endif  
   return obj;
 }
@@ -347,7 +360,7 @@ JNIEXPORT void *vtkJavaGetPointerFromObject(JNIEnv *env, jobject obj, char *resu
   VTK_RELEASE_MUTEX();
 
 #ifdef VTKJAVADEBUG
-  vtkGenericWarningMacro("Checking into id " << id << " ptr = " << ptr);
+  vtkGenericWarningMacro("GetPointerFromObject: Checking into id " << id << " ptr = " << ptr);
 #endif  
 
   if (!ptr)
@@ -355,19 +368,45 @@ JNIEXPORT void *vtkJavaGetPointerFromObject(JNIEnv *env, jobject obj, char *resu
     return NULL;
     }
   
-  if (command(ptr,result_type))
+  void* res;
+  if (res= command(ptr,result_type))
     {
 #ifdef VTKJAVADEBUG
-    vtkGenericWarningMacro("Got id= " << id << " ptr= " << ptr << " " << result_type);
+    vtkGenericWarningMacro("GetPointerFromObject: Got id= " << id << " ptr= " << ptr << " " << result_type);
 #endif  
-    return command(ptr,result_type);
+    return res;
     }
   else
     {
-    vtkGenericWarningMacro("vtk bad argument, type conversion failed.");
+    vtkGenericWarningMacro("GetPointerFromObject: vtk bad argument, type conversion failed.");
     return NULL;
     }
 }
+
+JNIEXPORT jobject vtkJavaCreateNewJavaStubForObject(JNIEnv *env, vtkObject* obj)
+{
+  char fullname[512];
+  const char* classname= obj->GetClassName();
+  fullname[0]= 'v';
+  fullname[1]= 't';
+  fullname[2]= 'k';
+  fullname[3]= '/';      
+  strcpy(&fullname[4], classname);
+  return vtkJavaCreateNewJavaStub(env, fullname, (void*)obj);
+}
+
+
+JNIEXPORT jobject vtkJavaCreateNewJavaStub(JNIEnv *env, const char* fullclassname, void* obj)
+{
+  jclass cl= env->FindClass(fullclassname);
+  if (!cl) { return NULL; }
+  
+  jobject stub= env->AllocObject(cl);
+  vtkJavaRegisterNewObject(env, stub, obj);
+  env->CallVoidMethod(stub, env->GetMethodID(cl, "VTKCastInit", "()V"));
+  return stub;
+}
+
 
 JNIEXPORT jarray vtkJavaMakeJArrayOfDoubleFromDouble(JNIEnv *env, double *ptr, int size)
 {
@@ -444,7 +483,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromInt(JNIEnv *env, int *ptr, int size)
   return ret;
 }
 
-JNIEXPORT char *vtkJavaUTFToChar(JNIEnv *env,jstring in)
+JNIEXPORT char *vtkJavaUTFToChar(JNIEnv *env, jstring in)
 {
   char *result;
   const char *inBytes;
@@ -476,34 +515,11 @@ JNIEXPORT char *vtkJavaUTFToChar(JNIEnv *env,jstring in)
 
 JNIEXPORT jstring vtkJavaMakeJavaString(JNIEnv *env, const char *in)
 {
-  jstring result;
-  char *utf;
-  int inLength, utfLength, i;
-  
-  if (!in)
-    {
-    utf = new char [2];
-    utf[0] = 0xC0;
-    utf[1] = 0x80;
-    result = env->NewStringUTF(utf);
-    return result;
-    }
-  
-  inLength = strlen(in);
-  utfLength = inLength + 2;
-  utf = new char [utfLength];
-  
-  for (i = 0; i < inLength; i++)
-    {
-    utf[i] = in[i];
-    }
-  utf[inLength] = 0xC0;
-  utf[inLength+1] = 0x80;
-  result = env->NewStringUTF(utf);
-
-  // do we need to free utf here ? Does JNI make a copy ?
-  
-  return result;
+  if (!in) {
+    return env->NewStringUTF("");
+  } else {
+    return env->NewStringUTF(in);
+  }
 }
 
 //**jcp this is the callback inteface stub for Java. no user parms are passed
@@ -534,10 +550,10 @@ JNIEXPORT void vtkJavaVoidFuncArgDelete(void* arg)
 
 jobject vtkJavaExportedGetObjectFromPointer(void *ptr)
 {
-	return vtkJavaGetObjectFromPointer(ptr);
+  return vtkJavaGetObjectFromPointer(ptr);
 }
 
 void* vtkJavaExportedGetPointerFromObject(JNIEnv *env,jobject obj, char *result_type)
 {
-	return vtkJavaGetPointerFromObject(env, obj, result_type);
+  return vtkJavaGetPointerFromObject(env, obj, result_type);
 }

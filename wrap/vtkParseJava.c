@@ -40,6 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 
 #include <stdio.h>
+#include <string.h>
 #include "vtkParse.h"
 
 int numberOfWrappedFunctions = 0;
@@ -128,46 +129,46 @@ int DoneOne()
     {
     fi = wrappedFunctions[i];
     if ((!strcmp(fi->Name,currentFunction->Name))
-	&&(fi->NumberOfArguments == currentFunction->NumberOfArguments))
+  &&(fi->NumberOfArguments == currentFunction->NumberOfArguments))
       {
       match = 1;
       for (j = 0; j < fi->NumberOfArguments; j++)
-	{
-	if ((fi->ArgTypes[j] != currentFunction->ArgTypes[j]) &&
-	    !(((fi->ArgTypes[j] == 309)&&
-	       (currentFunction->ArgTypes[j] == 109)) ||
-	      ((fi->ArgTypes[j] == 109)&&
-	       (currentFunction->ArgTypes[j] == 309))))
-	  {
-	  match = 0;
-	  }
-	else
-	  {
-	  if (fi->ArgTypes[j] == 309 || fi->ArgTypes[j] == 109)
-	    {
-	    if (strcmp(fi->ArgClasses[j],currentFunction->ArgClasses[j]))
-	      {
-	      match = 0;
-	      }
-	    }
-	  }
-	}
+  {
+  if ((fi->ArgTypes[j] != currentFunction->ArgTypes[j]) &&
+      !(((fi->ArgTypes[j] == 309)&&
+         (currentFunction->ArgTypes[j] == 109)) ||
+        ((fi->ArgTypes[j] == 109)&&
+         (currentFunction->ArgTypes[j] == 309))))
+    {
+    match = 0;
+    }
+  else
+    {
+    if (fi->ArgTypes[j] == 309 || fi->ArgTypes[j] == 109)
+      {
+      if (strcmp(fi->ArgClasses[j],currentFunction->ArgClasses[j]))
+        {
+        match = 0;
+        }
+      }
+    }
+  }
       if ((fi->ReturnType != currentFunction->ReturnType) &&
-	  !(((fi->ReturnType == 309)&&(currentFunction->ReturnType == 109)) ||
-	    ((fi->ReturnType == 109)&&(currentFunction->ReturnType == 309))))
-	{
-	match = 0;
-	}
+    !(((fi->ReturnType == 309)&&(currentFunction->ReturnType == 109)) ||
+      ((fi->ReturnType == 109)&&(currentFunction->ReturnType == 309))))
+  {
+  match = 0;
+  }
       else
-	{
-	if (fi->ReturnType == 309 || fi->ReturnType == 109)
-	  {
-	  if (strcmp(fi->ReturnClass,currentFunction->ReturnClass))
-	    {
-	    match = 0;
-	    }
-	  }
-	}
+  {
+  if (fi->ReturnType == 309 || fi->ReturnType == 109)
+    {
+    if (strcmp(fi->ReturnClass,currentFunction->ReturnClass))
+      {
+      match = 0;
+      }
+    }
+  }
       if (match) return 1;
       }
     }
@@ -195,8 +196,8 @@ void outputFunction(FILE *fp, FileInfo *data)
     if (currentFunction->ArgTypes[i] == 9) args_ok = 0;
     if ((currentFunction->ArgTypes[i]%10) == 8) args_ok = 0;
     if (((currentFunction->ArgTypes[i]%1000)/100 != 3)&&
-	(currentFunction->ArgTypes[i]%1000 != 109)&&
-	((currentFunction->ArgTypes[i]%1000)/100)) args_ok = 0;
+  (currentFunction->ArgTypes[i]%1000 != 109)&&
+  ((currentFunction->ArgTypes[i]%1000)/100)) args_ok = 0;
     if (currentFunction->ArgTypes[i] == 313) args_ok = 0;
     if (currentFunction->ArgTypes[i] == 314) args_ok = 0;
     if (currentFunction->ArgTypes[i] == 315) args_ok = 0;
@@ -223,9 +224,9 @@ void outputFunction(FILE *fp, FileInfo *data)
   for (i = 0; i < currentFunction->NumberOfArguments; i++)
     {
     if (((currentFunction->ArgTypes[i]%1000)/100 == 3)&&
-	(currentFunction->ArgCounts[i] <= 0)&&
-	(currentFunction->ArgTypes[i] != 309)&&
-	(currentFunction->ArgTypes[i] != 303)) args_ok = 0;
+  (currentFunction->ArgCounts[i] <= 0)&&
+  (currentFunction->ArgTypes[i] != 309)&&
+  (currentFunction->ArgTypes[i] != 303)) args_ok = 0;
     }
 
   /* if we need a return type hint make sure we have one */
@@ -256,47 +257,47 @@ void outputFunction(FILE *fp, FileInfo *data)
       fprintf(fp,"%s_%i(",currentFunction->Name,numberOfWrappedFunctions);
       
       for (i = 0; i < currentFunction->NumberOfArguments; i++)
-	{
-	if (i)
-	  {
-	  fprintf(fp,",");
-	  }
-	output_temp(fp,i);
-	}
+  {
+  if (i)
+    {
+    fprintf(fp,",");
+    }
+  output_temp(fp,i);
+  }
       fprintf(fp,");\n");
       fprintf(fp,"  public ");
       return_result(fp);
       fprintf(fp,"%s(",currentFunction->Name);
       
       for (i = 0; i < currentFunction->NumberOfArguments; i++)
-	{
-	if (i)
-	  {
-	  fprintf(fp,",");
-	  }
-	output_temp(fp,i);
-	}
+  {
+  if (i)
+    {
+    fprintf(fp,",");
+    }
+  output_temp(fp,i);
+  }
       /* if not void then need return otherwise none */
       if (currentFunction->ReturnType%1000 == 2)
-	{
-	fprintf(fp,")\n    { %s_%i(",currentFunction->Name,
-		numberOfWrappedFunctions);
-	}
+  {
+  fprintf(fp,")\n    { %s_%i(",currentFunction->Name,
+    numberOfWrappedFunctions);
+  }
       else
-	{
-	fprintf(fp,")\n    { return %s_%i(",currentFunction->Name,
-		numberOfWrappedFunctions);
-	}
+  {
+  fprintf(fp,")\n    { return %s_%i(",currentFunction->Name,
+    numberOfWrappedFunctions);
+  }
       for (i = 0; i < currentFunction->NumberOfArguments; i++)
-	{
-	if (i)
-	  {
-	  fprintf(fp,",");
-	  }
-	fprintf(fp,"id%i",i);
-	}
+  {
+  if (i)
+    {
+    fprintf(fp,",");
+    }
+  fprintf(fp,"id%i",i);
+  }
       if ((currentFunction->NumberOfArguments == 1) && 
-	  (currentFunction->ArgTypes[0] == 5000)) fprintf(fp,",id1");
+    (currentFunction->ArgTypes[0] == 5000)) fprintf(fp,",id1");
       fprintf(fp,"); }\n");
       
       wrappedFunctions[numberOfWrappedFunctions] = currentFunction;
@@ -353,11 +354,12 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"  public native void   VTKInit();\n");
     }
 
+  fprintf(fp,"  public native void   VTKCastInit();\n");
+
   if (!strcmp("vtkObject",data->ClassName))
     {
     fprintf(fp,"  public native String Print();\n");
     }
-  
-  fprintf(fp,"}\n");
+  fprintf(fp,"\n}\n");
 }
 

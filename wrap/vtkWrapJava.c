@@ -40,6 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 
 #include <stdio.h>
+#include <string.h>
 #include "vtkParse.h"
 
 int numberOfWrappedFunctions = 0;
@@ -298,13 +299,16 @@ void do_return(FILE *fp)
     case 109:
     case 309:  
       {
-      fprintf(fp,"  tempH = vtkJavaGetObjectFromPointer((void *)temp%i);\n",
-	      MAX_ARGS);
+      fprintf(fp,"  if (temp%i == NULL) { return NULL; }\n", MAX_ARGS);
+      fprintf(fp,"  tempH = vtkJavaGetObjectFromPointer((void *)temp%i);\n", MAX_ARGS);
       fprintf(fp,"  if (!tempH)\n    {\n");
-      fprintf(fp,"    vtk_%s_NoCPP();\n",currentFunction->ReturnClass);
-      fprintf(fp,"    tempH = env->NewObject(env->FindClass(\"vtk/%s\"),env->GetMethodID(env->FindClass(\"vtk/%s\"),\"<init>\",\"()V\"));\n",currentFunction->ReturnClass,currentFunction->ReturnClass);
-      fprintf(fp,"    vtkJavaAddObjectToHash(env, tempH,(void *)temp%i,(void *)%s_Typecast);\n",MAX_ARGS, currentFunction->ReturnClass);
-      fprintf(fp,"    }\n");
+      fprintf(fp,"    tempH = vtkJavaCreateNewJavaStubForObject(env, (vtkObject *)temp%i);\n", MAX_ARGS);
+      fprintf(fp,"    if (!tempH)\n      {\n");
+	  fprintf(fp,"      // no java stub for this class exists? Use function return type\n");
+	  fprintf(fp,"      tempH = vtkJavaCreateNewJavaStub(env, \"vtk/%s\", (void *)temp%i);\n",
+		  currentFunction->ReturnClass, MAX_ARGS);
+      fprintf(fp,"      }\n");
+      fprintf(fp,"    }\n");      
       fprintf(fp,"  return tempH;\n");
       break;
       }
@@ -317,13 +321,6 @@ void do_return(FILE *fp)
       break;
     default: fprintf(fp,"  return temp%i;\n", MAX_ARGS); break;
     }
-}
-
-void handle_vtkobj_return(FILE *fp)
-{
-  fprintf(fp,"extern JNIEXPORT void *%s_Typecast(void *,char *);\n",
-	  currentFunction->ReturnClass);
-  fprintf(fp,"extern JNIEXPORT void vtk_%s_NoCPP();\n",currentFunction->ReturnClass);
 }
 
 /* have we done one of these yet */
@@ -458,95 +455,90 @@ void outputFunction(FILE *fp, FileInfo *data)
   if (currentFunction->IsPublic && args_ok && 
       strcmp(data->ClassName,currentFunction->Name) &&
       strcmp(data->ClassName, currentFunction->Name + 1))
-    {
+  {
     /* make sure we haven't already done one of these */
     if (!DoneOne())
-      {
+    {
       fprintf(fp,"\n");
       
-      /* does this return a vtkObject if so must do special stuff */
-      if ((currentFunction->ReturnType%1000 == 309)||(currentFunction->ReturnType%1000 == 109))
-	{
-	handle_vtkobj_return(fp);
-	}
       fprintf(fp,"extern \"C\" JNIEXPORT ");
       return_result(fp);
       fprintf(fp," JNICALL Java_vtk_%s_%s_1%i(JNIEnv *env, jobject obj",
 	      data->ClassName,currentFunction->Name, numberOfWrappedFunctions);
       
       for (i = 0; i < currentFunction->NumberOfArguments; i++)
-	{
-	fprintf(fp,",");
-	output_proto_vars(fp, i);
-	}
+	  {
+	    fprintf(fp,",");
+	    output_proto_vars(fp, i);
+	  }
       fprintf(fp,")\n{\n");
       
       /* get the object pointer */
       fprintf(fp,"  %s *op;\n",data->ClassName);
       /* process the args */
       for (i = 0; i < currentFunction->NumberOfArguments; i++)
-	{
-	output_temp(fp, i, currentFunction->ArgTypes[i],
+	  {
+	    output_temp(fp, i, currentFunction->ArgTypes[i],
 		    currentFunction->ArgClasses[i],
 		    currentFunction->ArgCounts[i]);
-	}
+	  }
       output_temp(fp, MAX_ARGS,currentFunction->ReturnType,
 		  currentFunction->ReturnClass,0);
       
       /* now get the required args from the stack */
       for (i = 0; i < currentFunction->NumberOfArguments; i++)
-	{
-	get_args(fp, i);
-	}
+	  {
+	    get_args(fp, i);
+	  }
       
       fprintf(fp,"\n  op = (%s *)vtkJavaGetPointerFromObject(env,obj,\"%s\");\n",
 	      data->ClassName,data->ClassName);
       
       
       switch (currentFunction->ReturnType%1000)
-	{
-	case 2:
-	  fprintf(fp,"  op->%s(",currentFunction->Name);
+	  {
+	    case 2:
+	    fprintf(fp,"  op->%s(",currentFunction->Name);
 	  break;
-	case 109:
-	  fprintf(fp,"  temp%i = &(op)->%s(",MAX_ARGS, currentFunction->Name);
+	    case 109:
+	    fprintf(fp,"  temp%i = &(op)->%s(",MAX_ARGS, currentFunction->Name);
 	  break;
-	default:
-	  fprintf(fp,"  temp%i = (op)->%s(",MAX_ARGS, currentFunction->Name);
-	}
+	  default:
+	     fprintf(fp,"  temp%i = (op)->%s(",MAX_ARGS, currentFunction->Name);
+	  }
       for (i = 0; i < currentFunction->NumberOfArguments; i++)
-	{
-	if (i)
 	  {
-	  fprintf(fp,",");
-	  }
-	if (currentFunction->ArgTypes[i] == 109)
-	  {
-	  fprintf(fp,"*(temp%i)",i);
-	  }
-	else if (currentFunction->ArgTypes[i] == 5000)
-	  {
-	  fprintf(fp,"vtkJavaVoidFunc,(void *)temp%i",i);
-	  }
-	else
-	  {
-	  fprintf(fp,"temp%i",i);
-	  }
-	}
+	    if (i)
+		{
+	      fprintf(fp,",");
+		}
+	    if (currentFunction->ArgTypes[i] == 109)
+		{
+	      fprintf(fp,"*(temp%i)",i);
+		}
+	    else if (currentFunction->ArgTypes[i] == 5000)
+		{
+	      fprintf(fp,"vtkJavaVoidFunc,(void *)temp%i",i);
+		}
+	    else
+		{
+	      fprintf(fp,"temp%i",i);
+		}
+	  } //for
       fprintf(fp,");\n");
       if (currentFunction->NumberOfArguments == 1 && currentFunction->ArgTypes[0] == 5000)
-	{
-	fprintf(fp,"  op->%sArgDelete(vtkJavaVoidFuncArgDelete);\n",
-		currentFunction->Name);
-	}
+	  {
+	    fprintf(fp,"  op->%sArgDelete(vtkJavaVoidFuncArgDelete);\n",
+		  currentFunction->Name);
+	  }
       
       do_return(fp);
       fprintf(fp,"}\n");
       
       wrappedFunctions[numberOfWrappedFunctions] = currentFunction;
       numberOfWrappedFunctions++;
-      }
-    }
+    } //isDone()
+  } //isAbstract
 }
 
 /* print the parsed structures */
@@ -560,24 +552,22 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   
   for (i = 0; i < data->NumberOfSuperClasses; i++)
     {
-    fprintf(fp,"extern JNIEXPORT void *%s_Typecast(void *op,char *dType);\n",
+    fprintf(fp,"extern void *%s_Typecast(void *op,char *dType);\n",
 	    data->SuperClasses[i]);
     }
   
-  fprintf(fp,"\nJNIEXPORT void *%s_Typecast(void *me,char *dType)\n{\n",data->ClassName);
-  fprintf(fp,"  if (!strcmp(\"%s\",dType))\n    {\n", data->ClassName);
-  fprintf(fp,"    return me;\n    }\n  else\n    {\n");
-  
+  fprintf(fp,"\nvoid *%s_Typecast(void *me,char *dType)\n{\n",data->ClassName);
+  fprintf(fp,"  void* res;\n");
+  fprintf(fp,"  if (!strcmp(\"%s\",dType)) { return me; }\n", data->ClassName);
   /* check our superclasses */
   for (i = 0; i < data->NumberOfSuperClasses; i++)
     {
-    fprintf(fp,"    if (%s_Typecast(((void *)((%s *)me)),dType) != NULL)\n",
+    fprintf(fp,"  if ((res= %s_Typecast(me,dType)) != NULL)",
 	    data->SuperClasses[i],data->SuperClasses[i]);
-    fprintf(fp,"      {\n");
-    fprintf(fp,"      return %s_Typecast(((void *)((%s *)me)),dType);\n      }\n",data->SuperClasses[i],data->SuperClasses[i]);
-    
+    fprintf(fp," { return res; }\n");
     }
-  fprintf(fp,"    }\n  return NULL;\n}\n\n");
+  fprintf(fp,"  return NULL;\n");
+  fprintf(fp,"}\n\n");
 
   /* insert function handling code here */
   for (i = 0; i < data->NumberOfFunctions; i++)
@@ -602,26 +592,25 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
       strcmp(data->ClassName,"vtkPointSet") &&
       strcmp(data->ClassName,"vtkDataSetSource"))
     {
-    fprintf(fp,"static int vtk_%s_NoCreate = 0;\n",data->ClassName);
-    fprintf(fp,"JNIEXPORT void vtk_%s_NoCPP()\n",data->ClassName);
-    fprintf(fp,"{\n  vtk_%s_NoCreate = 1;\n}\n\n",data->ClassName);
-    fprintf(fp,"\nextern \"C\" JNIEXPORT void JNICALL Java_vtk_%s_VTKInit(JNIEnv *env, jobject obj)\n",
+    fprintf(fp,"\nextern \"C\" JNIEXPORT void JNICALL Java_vtk_%s_VTKInit(JNIEnv *env, jobject obj)",
 	    data->ClassName);
-    fprintf(fp,"{\n  if (!vtk_%s_NoCreate)\n",data->ClassName);
-    fprintf(fp,"    {\n    %s *aNewOne = %s::New();\n",data->ClassName,
-	    data->ClassName);
-    fprintf(fp,"    vtkJavaAddObjectToHash(env,obj,(void *)aNewOne,(void *)%s_Typecast);\n",data->ClassName);
-    fprintf(fp,"    }\n  vtk_%s_NoCreate = 0;\n}\n",data->ClassName);
-    }
-  else
+    fprintf(fp,"\n{");
+    fprintf(fp,"\n  %s *aNewOne = %s::New();",data->ClassName, data->ClassName);
+    fprintf(fp,"\n  int id= vtkJavaRegisterNewObject(env,obj,(void *)aNewOne);");
+    fprintf(fp,"\n  vtkJavaRegisterCastFunction(env,obj,id,(void *)%s_Typecast);", data->ClassName);
+    fprintf(fp,"\n}\n");  
+    } 
+	else
     {
-    if (data->NumberOfSuperClasses)
-      {
-      fprintf(fp,"extern JNIEXPORT void vtk_%s_NoCPP();\n",data->SuperClasses[0]);
-      fprintf(fp,"JNIEXPORT void vtk_%s_NoCPP()\n",data->ClassName);
-      fprintf(fp,"{\n  vtk_%s_NoCPP();\n}\n\n",data->SuperClasses[0]);
-      }
     }
+
+  fprintf(fp,"\nextern \"C\" JNIEXPORT void JNICALL Java_vtk_%s_VTKCastInit(JNIEnv *env, jobject obj)",
+		data->ClassName);
+  fprintf(fp,"\n{");
+  fprintf(fp,"\n  int id= vtkJavaGetId(env,obj);");
+  fprintf(fp,"\n  vtkJavaRegisterCastFunction(env,obj,id,(void *)%s_Typecast);", 
+	    data->ClassName);
+  fprintf(fp,"\n}\n");
 
   if (!strcmp("vtkObject",data->ClassName))
     {
@@ -632,12 +621,13 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     
     fprintf(fp,"  ostrstream buf;\n");
     fprintf(fp,"  op->Print(buf);\n");
-    fprintf(fp,"  buf.put('\\0');\n");
-    fprintf(fp,"  tmp = vtkJavaMakeJavaString(env,buf.str());\n");
+    fprintf(fp,"  buf.put('\\0');\n");  
+	fprintf(fp,"  tmp = vtkJavaMakeJavaString(env,buf.str());\n");
     fprintf(fp,"  delete buf.str();\n");
 
     fprintf(fp,"  return tmp;\n");
     fprintf(fp,"}\n");
-    }
+
+   }
 }
 

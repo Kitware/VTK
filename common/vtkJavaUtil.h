@@ -39,14 +39,21 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 
+#ifndef __vtkJavaUtil_h
+#define __vtkJavaUtil_h
+
 #include <string.h>
 #include <jni.h>
 
-extern JNIEXPORT void vtkJavaAddObjectToHash(JNIEnv *env,jobject obj,
-					     void *anInstance,
-					     void *tcFunc);
+class vtkObject;
+
+extern JNIEXPORT int vtkJavaGetId(JNIEnv *env,jobject obj);
+
+extern JNIEXPORT int vtkJavaRegisterNewObject(JNIEnv *env, jobject obj, void *ptr);
+extern JNIEXPORT void vtkJavaRegisterCastFunction(JNIEnv *env, jobject obj, int id, void *tcFunc);               
+          
 extern JNIEXPORT void *vtkJavaGetPointerFromObject(JNIEnv *env,jobject obj, 
-					 char *result_type);
+           char *result_type);
 extern JNIEXPORT void vtkJavaDeleteObjectFromHash(JNIEnv *env, int id);
 extern JNIEXPORT jobject vtkJavaGetObjectFromPointer(void *ptr);
 extern JNIEXPORT int  vtkJavaShouldIDeleteObject(JNIEnv *env,jobject obj);
@@ -54,10 +61,14 @@ extern JNIEXPORT char *vtkJavaUTFToChar(JNIEnv *env, jstring in);
 extern JNIEXPORT jstring vtkJavaMakeJavaString(JNIEnv *env, const char *in);
 
 extern JNIEXPORT jarray vtkJavaMakeJArrayOfDoubleFromFloat(JNIEnv *env,
-						 float *arr, int size);
+             float *arr, int size);
 extern JNIEXPORT jarray vtkJavaMakeJArrayOfDoubleFromDouble(JNIEnv *env, 
-						  double *arr, int size);
+              double *arr, int size);
 extern JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromInt(JNIEnv *env, int *arr, int size);
+
+extern JNIEXPORT jobject vtkJavaCreateNewJavaStubForObject(JNIEnv *env, vtkObject* obj);
+extern JNIEXPORT jobject vtkJavaCreateNewJavaStub(JNIEnv *env,
+              const char* fullclassname, void* obj);
 
 // this is the void pointer parm passed to the vtk callback routines on
 // behalf of the Java interface for callbacks.
@@ -70,3 +81,5 @@ struct vtkJavaVoidFuncArg
 
 extern JNIEXPORT void vtkJavaVoidFunc(void *);
 extern JNIEXPORT void vtkJavaVoidFuncArgDelete(void *);
+
+#endif
