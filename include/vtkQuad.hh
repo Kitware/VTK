@@ -81,7 +81,7 @@ public:
 
   // quad specific
   void InterpolationFunctions(float pcoords[3], float sf[4]);
-  void InterpolationDerivs(float pcoords[3], float derivs[12]);
+  void InterpolationDerivs(float pcoords[3], float derivs[8]);
 
 };
 

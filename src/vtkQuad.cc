@@ -72,7 +72,7 @@ int vtkQuad::EvaluatePosition(float x[3], float closestPoint[3],
   int idx, indices[2];
   int iteration, converged;
   float  params[2];
-  float  fcol[2], rcol[3], scol[3];
+  float  fcol[2], rcol[2], scol[2];
   float derivs[8];
 
   subId = 0;
