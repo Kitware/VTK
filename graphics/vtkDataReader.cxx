@@ -1058,7 +1058,7 @@ int vtkDataReader::ReadCoScalarData(vtkDataSetAttributes *a, int numPts)
   // See whether scalar has been already read or scalar name (if specified) 
   // matches name in file. 
   //
-  if ( a->GetScalars() != NULL |
+  if ( a->GetScalars() != NULL ||
   (this->ScalarsName && strcmp(name,this->ScalarsName)) )
     {
     skipScalar = 1;
