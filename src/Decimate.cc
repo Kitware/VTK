@@ -21,13 +21,13 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // maximum iterions of 6.
 vlDecimate::vlDecimate()
 {
-  this->FeatureAngle = 30;
+  this->InitialFeatureAngle = 30;
   this->FeatureAngleIncrement = 0.0;
   this->MaximumFeatureAngle = 60;
   this->PreserveEdges = 1;
   this->BoundaryVertexDeletion = 1;
 
-  this->Error = 0.0;
+  this->InitialError = 0.0;
   this->ErrorIncrement = 0.005;
   this->MaximumError = 0.1;
 
@@ -38,7 +38,7 @@ vlDecimate::vlDecimate()
 
   this->AspectRatio = 25.0;
 
-  this->Degree = MAX_CELL_SIZE;
+  this->Degree = 25;
 
   this->GenerateErrorScalars = 0;
 }
@@ -94,10 +94,10 @@ void vlDecimate::Execute()
            (bounds[2*i+1]-bounds[2*i]) : max);
 
   Tolerance = max * TOLERANCE;
-  error = this->Error;
-  Distance = this->Error * max;
-  Angle = this->FeatureAngle;
-  CosAngle = cos ((double) math.DegreesToRadians() * this->FeatureAngle);
+  error = this->InitialError;
+  Distance = error * max;
+  Angle = this->InitialFeatureAngle;
+  CosAngle = cos ((double) math.DegreesToRadians() * Angle);
   AspectRatio2 = 1.0 / (this->AspectRatio * this->AspectRatio);
   Squawks = 0;
 
@@ -106,7 +106,7 @@ void vlDecimate::Execute()
                << "\tIterations= " << this->MaximumIterations << "\n"
                << "\tSub-iterations= " << this->MaximumSubIterations << "\n"
                << "\tLength= " << max << "\n"
-               << "\tError= " << this->Error << "\n"
+               << "\tError= " << this->InitialError << "\n"
                << "\tDistance= " << Distance << "\n"
                << "\tAspect ratio= " << this->AspectRatio << "\n"
                << "\tMaximum vertex degree= " << this->Degree);
@@ -152,9 +152,9 @@ void vlDecimate::Execute()
         if ( ! (ptId % 5000) ) vlDebugMacro(<<"vertex #" << ptId);
 
         // compute allowable error for this vertex
-        X = Mesh->GetPoint(ptId);
-        Error = Distance - VertexError[i];
-        MinEdgeError  = 1.0e29;
+        Mesh->GetPoint(ptId,X);
+        Error = Distance - VertexError[ptId];
+        MinEdgeError = LARGE_FLOAT;
 
         Mesh->GetPointCells(ptId,ncells,cells);
         if ( ncells > 1 && 
@@ -194,7 +194,7 @@ void vlDecimate::Execute()
             } 
           else if ((vtype == INTERIOR_EDGE_VERTEX || 
           vtype == BOUNDARY_VERTEX) && this->BoundaryVertexDeletion &&
-          line.DistanceToLine(X, Mesh->GetPoint(fedges[0]->id), Mesh->GetPoint(fedges[1]->id)) <= (Error*Error) &&
+          line.DistanceToLine(X,fedges[0]->x,fedges[1]->x) <= (Error*Error) &&
           this->CanSplitLoop (fedges,numVerts,verts,n1,l1,n2,l2,ar) )
             {
             this->Triangulate (n1, l1);
@@ -263,11 +263,11 @@ void vlDecimate::Execute()
       } //********************* sub iteration ******************************
 
     iteration++;
-    error = this->Error +  iteration*this->ErrorIncrement;
+    error = this->InitialError +  iteration*this->ErrorIncrement;
     error = ((error > this->MaximumError &&
     this->MaximumError > 0.0) ? this->MaximumError : error);
     Distance = max * error;
-    Angle = this->FeatureAngle + iteration*this->FeatureAngleIncrement;
+    Angle = this->InitialFeatureAngle + iteration*this->FeatureAngleIncrement;
     Angle = ((Angle > this->MaximumFeatureAngle && 
               this->MaximumFeatureAngle > 0.0) ? this->MaximumFeatureAngle : Angle);
     CosAngle = cos ((double) math.DegreesToRadians() * Angle);
@@ -399,6 +399,7 @@ int vlDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
   Mesh->GetCellPoints(*tris,numVerts,verts); // get starting point
   for (i=0; i<3; i++) if (verts[i] == ptId) break;
   sn.id = startVertex = verts[(i+1)%3];
+  Mesh->GetPoint(sn.id, sn.x); //grab coordinates here to save GetPoint() calls
 
   V.InsertNextVertex(sn);
 
@@ -427,6 +428,7 @@ int vlDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
         }
       }
     sn.id = nextVertex;
+    Mesh->GetPoint(sn.id, sn.x);
     V.InsertNextVertex(sn);
 
     Mesh->GetCellEdgeNeighbors(t.id, ptId, nextVertex, nei);
@@ -488,6 +490,7 @@ int vlDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
     T.Reset();
 
     startVertex = sn.id = nextVertex;
+    Mesh->GetPoint(sn.id, sn.x);
     V.InsertNextVertex(sn);
 
     nextVertex = -1;
@@ -514,6 +517,7 @@ int vlDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
         }
 
       sn.id = nextVertex;
+      Mesh->GetPoint(sn.id, sn.x);
       V.InsertNextVertex(sn);
 
       Mesh->GetCellEdgeNeighbors(t.id, ptId, nextVertex, nei);
@@ -535,6 +539,12 @@ int vlDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
         sn.id = V.Array[i].id;
         V.Array[i].id = V.Array[numVerts-i-1].id;
         V.Array[numVerts-i-1].id = sn.id;
+        for (j=0; j<3; j++)
+          {
+          sn.x[j] = V.Array[i].x[j];
+          V.Array[i].x[j] = V.Array[numVerts-i-1].x[j];
+          V.Array[numVerts-i-1].x[j] = sn.x[j];
+          }
         }
 
       numTris = T.GetNumberOfTriangles();
@@ -580,7 +590,7 @@ void vlDecimate::EvaluateLoop (int ptId, int& vtype, int& numFEdeges,
 //
 //  Traverse all polygons and generate normals and areas
 //
-  x2 = Mesh->GetPoint(V.Array[0].id);
+  x2 =  V.Array[0].x;
   for (i=0; i<3; i++) v2[i] = x2[i] - X[i];
 
   loopArea=0.0;
@@ -592,7 +602,7 @@ void vlDecimate::EvaluateLoop (int ptId, int& vtype, int& numFEdeges,
     {
     normal = T.Array[i].n;
     x1 = x2;
-    x2 = Mesh->GetPoint(V.Array[i+1].id);
+    x2 = V.Array[i+1].x;
 
     for (j=0; j<3; j++) 
       {
@@ -712,9 +722,11 @@ int vlDecimate::CanSplitLoop (vlLocalVertexPtr fedges[2], int numVerts,
 //  Create splitting plane.  Splitting plane is parallel to the loop
 //  plane normal and contains the splitting vertices fedges[0] and fedges[1].
 //
-  Mesh->GetPoint(fedges[0]->id, sPt);
-  Mesh->GetPoint(fedges[1]->id, v21);
-  for (i=0; i<3; i++) v21[i] = v21[i] - sPt[i];
+  for (i=0; i<3; i++) 
+    {
+    sPt[i] = fedges[0]->x[i];
+    v21[i] = fedges[1]->x[i] - sPt[i];
+    }
 
   math.Cross (v21,Normal,sN);
   if ( math.Normalize(sN) == 0.0 ) return 0;
@@ -727,7 +739,7 @@ int vlDecimate::CanSplitLoop (vlLocalVertexPtr fedges[2], int numVerts,
     {
     if ( !(l1[i] == fedges[0] || l1[i] == fedges[1]) ) 
       {
-      x = Mesh->GetPoint(l1[i]->id);
+      x = l1[i]->x;
       val = plane.Evaluate(sN,sPt,x);
       absVal = (float) fabs((double)val);
       dist = (absVal < dist ? absVal : dist);
@@ -743,7 +755,7 @@ int vlDecimate::CanSplitLoop (vlLocalVertexPtr fedges[2], int numVerts,
     {
     if ( !(l2[i] == fedges[0] || l2[i] == fedges[1]) ) 
       {
-      x = Mesh->GetPoint(l2[i]->id);
+      x = l2[i]->x;
       val = plane.Evaluate(sN,sPt,x);
       absVal = (float) fabs((double)val);
       dist = (absVal < dist ? absVal : dist);
@@ -883,8 +895,7 @@ void vlDecimate::Triangulate(int numVerts, vlLocalVertexPtr verts[])
         this->Triangulate (n2, l2);
 
         // Compute minimum edge error
-        edgeError = line.DistanceToLine(X, Mesh->GetPoint(fedges[0]->id), 
-                                        Mesh->GetPoint(fedges[1]->id));
+        edgeError = line.DistanceToLine(X, fedges[0]->x, fedges[1]->x);
 
         if ( edgeError < MinEdgeError ) MinEdgeError = edgeError;
 
@@ -952,14 +963,14 @@ void vlDecimate::PrintSelf(ostream& os, vlIndent indent)
   vlPolyToPolyFilter::PrintSelf(os,indent);
 
   os << indent << "Target Reduction: " << this->TargetReduction << "\n";
-  os << indent << "Error: " << this->Error << "\n";
+  os << indent << "Initial Error: " << this->InitialError << "\n";
   os << indent << "Error Increment: " << this->ErrorIncrement << "\n";
   os << indent << "Maximum Error: " << this->MaximumError << "\n";
   os << indent << "Maximum Iterations: " << this->MaximumIterations << "\n";
   os << indent << "Maximum Sub Iterations: " << this->MaximumSubIterations << "\n";
   os << indent << "Aspect Ratio: " << this->AspectRatio << "\n";
   os << indent << "Preserve Edges: " << (this->PreserveEdges ? "On\n" : "Off\n");
-  os << indent << "Feature Angle: " << this->FeatureAngle << "\n";
+  os << indent << "Initial Feature Angle: " << this->InitialFeatureAngle << "\n";
   os << indent << "Feature Angle Increment: " << this->FeatureAngleIncrement << "\n";
   os << indent << "Maximum Feature Angle: " << this->MaximumFeatureAngle << "\n";
   os << indent << "Generate Error Scalars: " << (this->GenerateErrorScalars ? "On\n" : "Off\n");

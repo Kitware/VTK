@@ -24,26 +24,27 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // list is evaluated for local planarity (i.e., the triangles using
 // the vertex are gathered and compared to an "average" plane). If the
 // region is locally planar, that is if the target vertex is within a
-// certain distance of the average plane (i.e., the criterion), and
+// certain distance of the average plane (i.e., the error), and
 // there are no edges radiating from the vertex that have a dihedral angle
 // greater than a user-specified edge angle (i.e., feature angle), and
 // topology is not altered, then that vertex is deleted. The resulting
-// hole is then patched by retriangulation. The process creates over
+// hole is then patched by re-triangulation. The process creates over
 // the entire vertex list (this constitutes an iteration). Iterations
 // proceed until a target reduction is reached or a maximum iteration
 // count is exceeded.
 //    There are a number of additional parameters you can set to control the 
-// decimation algorithm. The criterion may be increased over each iteration 
-// with a criterion increment. Edge preservation may be disabled or enabled.
+// decimation algorithm. The error may be increased over each iteration 
+// with the error increment. Edge preservation may be disabled or enabled.
 // You can turn on/off edge vertex deletion. (Edge vertices are vertices that
 // lie along boundaries of meshes). Sub iterations are iterations that are 
-// performed without changing the decimation criterion. The aspect ration 
-// controls the shape of the triangles that are created, and is 
-// the ratio of maximum edge length to minimum edge length. The degree 
-// is the number of triangles using a single vertex. Vertices of high degree
-// are considered "complex" and are never deleted.
+// performed without changing the decimation criterion. The aspect ratio
+// controls the shape of the triangles that are created, and is the ratio 
+// of maximum edge length to minimum edge length. The degree is the number 
+// of triangles using a single vertex. Vertices of high degree are considered
+// "complex" and are never deleted.
 //    This implementation has been adapted for a global error bound decimation
-// criterion.
+// criterion. That is, the error is a global bounds on distance to original
+// surface.
 
 #ifndef __vlDecimate_h
 #define __vlDecimate_h
@@ -80,6 +81,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 typedef struct _vlLocalVertex 
   {
   int     id;
+  float   x[3];
   float   FAngle;
   int     deRefs; //monitor memory requirements; new only when necessary
   int     newRefs;
@@ -148,7 +150,7 @@ static float AspectRatio2; // Allowable aspect ratio
 static int ContinueTriangulating; // Stops recursive tri. if necessary 
 static int Squawks; // Control output 
 
-static float *X; //coordinates of current point
+static float X[3]; //coordinates of current point
 static float *VertexError, Error, MinEdgeError; //support error omputation
 
 // temporary working arrays
@@ -165,10 +167,10 @@ public:
   void PrintSelf(ostream& os, vlIndent indent);
 
   // Description:
-  // Set the decimation error bounds. Expressed as a fraction of the diagonal
-  // of the input data's bounding box.
-  vlSetClampMacro(Error,float,0.0,1.0);
-  vlGetMacro(Error,float);
+  // Set the decimation error bounds. Expressed as a fraction of the longest
+  // side of the input data's bounding box.
+  vlSetClampMacro(InitialError,float,0.0,1.0);
+  vlGetMacro(InitialError,float);
 
   // Description:
   // Set the value of the increment by which to increase the decimation
@@ -202,8 +204,8 @@ public:
   
   // Description:
   // Specify the mesh feature angles.
-  vlSetClampMacro(FeatureAngle,float,0.0,180.0);
-  vlGetMacro(FeatureAngle,float);
+  vlSetClampMacro(InitialFeatureAngle,float,0.0,180.0);
+  vlGetMacro(InitialFeatureAngle,float);
 
   // Description:
   // Increment by which to increase feature angle over each iteration.
@@ -242,12 +244,12 @@ public:
 protected:
   void Execute();
 
-  float FeatureAngle; // dihedral angle constraint
+  float InitialFeatureAngle; // dihedral angle constraint
   float FeatureAngleIncrement;
   float MaximumFeatureAngle;
   int PreserveEdges; // do/don't worry about feature edges
   int BoundaryVertexDeletion;  
-  float Error; // decimation error in fraction of bounding box
+  float InitialError; // decimation error in fraction of bounding box
   float ErrorIncrement; // each iteration will bump error this amount
   float MaximumError; // maximum error
   float TargetReduction; //target reduction of mesh (fraction)
