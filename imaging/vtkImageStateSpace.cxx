@@ -40,7 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 #include <stdlib.h>
 #include "vtkImageStateSpace.h"
-#include "vtkImageDraw.h"
+#include "vtkImagePaint.h"
 #include "vtkImageWrapPad.h"
 
 
@@ -321,8 +321,7 @@ void vtkImageStateSpace::SampleCallBack(vtkClaw *planner)
   int x2, y2;
   int count;
   
-  printf("SampleCallBack\n");
-  fflush(stdout);
+  vtkDebugMacro(<< "SampleCallBack\n");
   this->Planner = planner;
   
   if (this->StateDimensionality != 2)
@@ -359,8 +358,7 @@ void vtkImageStateSpace::SampleCallBack(vtkClaw *planner)
     list = list->Next;
     }
   
-  printf("%d Spheres\n", count);
-  fflush(stdout);
+  vtkDebugMacro(<< count << "Spheres");
 
   // Draw all of the collision.
   list = planner->GetCollisionSpheres();
@@ -377,8 +375,7 @@ void vtkImageStateSpace::SampleCallBack(vtkClaw *planner)
     list = list->Next;
     }
   
-  printf("%d Collisions\n", count);
-  fflush(stdout);
+  vtkDebugMacro(<< count << "Collisions");
 
   this->Viewer->Render();
 }
@@ -405,9 +402,6 @@ void vtkImageStateSpace::CollisionCallBack(float *collision)
     {
     return;
     }
-  
-  printf("CollisionCallBack\n");
-  fflush(stdout);
   
   if (this->StateDimensionality != 2)
     {
@@ -443,9 +437,6 @@ void vtkImageStateSpace::CollisionCallBack(float *collision)
     list = list->Next;
     }
   
-  printf("%d Spheres\n", count);
-  fflush(stdout);
-
   // Draw all of the collision.
   list = this->Planner->GetCollisionSpheres();
   count = 0;
@@ -461,9 +452,6 @@ void vtkImageStateSpace::CollisionCallBack(float *collision)
     list = list->Next;
     }
   
-  printf("%d Collisions\n", count);
-  fflush(stdout);
-
   // Draw the newest collision as a cross
   x = (int)(floor(collision[0] + 0.5));
   y = (int)(floor(collision[1] + 0.5));
@@ -473,9 +461,8 @@ void vtkImageStateSpace::CollisionCallBack(float *collision)
   this->Canvas->DrawSegment(x+5, y-5, x-5, y+5);
   
   this->Viewer->Render();
-  printf("Collision: %d, %d \n", x, y);
-  printf("Pause:");
-  getchar();
+  // printf("Pause:");
+  // getchar();
   
 }
 
