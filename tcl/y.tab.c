@@ -381,7 +381,8 @@ get_args(int i)
       fprintf(yyout,"    if (temp%i == NULL)\n      {  error = 1;  }\n",i);
       break;
     case 2:    
-    case 9: 
+    case 9:
+      break;
     }
 }
 
