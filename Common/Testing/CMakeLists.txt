@@ -53,6 +53,7 @@ IF(PYTHON_EXECUTABLE)
            vtkSetGet.h
            vtkSmartPointer.h
            vtkSmartPointerBase.h
+           vtkStdString.h
            vtkSystemIncludes.h
            vtkTclUtil.h
            vtkTimeStamp.h
