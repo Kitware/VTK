@@ -51,7 +51,7 @@
 #include <algorithm>
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkKdTree, "1.11");
+vtkCxxRevisionMacro(vtkKdTree, "1.12");
 
 // methods for vtkKdNode -------------------------------------------
 
@@ -2840,36 +2840,41 @@ vtkIdType vtkKdTree::FindClosestPoint(float x, float y, float z, float &dist2)
     float pt[3];
     this->Top->GetDistance2ToBoundary(x, y, z, pt, 1);
 
+    double dpt[3];
+    dpt[0] = pt[0];
+    dpt[1] = pt[1];
+    dpt[2] = pt[2];
+
     // GetDistance2ToBoundary will sometimes return a point *just*
     // *barely* outside the bounds of the region.  Move that point to
     // just barely *inside* instead.
 
-    if (pt[0] <= this->Top->Min[0]) 
+    if (dpt[0] <= this->Top->Min[0]) 
       {
-      pt[0] = this->Top->Min[0] + this->FudgeFactor;
+      dpt[0] = this->Top->Min[0] + this->FudgeFactor;
       }
-    if (pt[1] <= this->Top->Min[1]) 
+    if (dpt[1] <= this->Top->Min[1]) 
       {
-      pt[1] = this->Top->Min[1] + this->FudgeFactor;
+      dpt[1] = this->Top->Min[1] + this->FudgeFactor;
       }
-    if (pt[2] <= this->Top->Min[2]) 
+    if (dpt[2] <= this->Top->Min[2]) 
       {
-      pt[2] = this->Top->Min[2] + this->FudgeFactor;
+      dpt[2] = this->Top->Min[2] + this->FudgeFactor;
       }
-    if (pt[0] >= this->Top->Max[0]) 
+    if (dpt[0] >= this->Top->Max[0]) 
       {
-      pt[0] = this->Top->Max[0] - this->FudgeFactor;
+      dpt[0] = this->Top->Max[0] - this->FudgeFactor;
       }
-    if (pt[1] >= this->Top->Max[1])
+    if (dpt[1] >= this->Top->Max[1])
       {
-      pt[1] = this->Top->Max[1] - this->FudgeFactor;
+      dpt[1] = this->Top->Max[1] - this->FudgeFactor;
       }
-    if (pt[2] >= this->Top->Max[2]) 
+    if (dpt[2] >= this->Top->Max[2]) 
       {
-      pt[2] = this->Top->Max[2] - this->FudgeFactor;
+      dpt[2] = this->Top->Max[2] - this->FudgeFactor;
       }
 
-    regionId = this->GetRegionContainingPoint(pt[0], pt[1], pt[2]);
+    regionId = this->GetRegionContainingPoint(dpt[0], dpt[1], dpt[2]);
 
     float proxyDistance; 
 
