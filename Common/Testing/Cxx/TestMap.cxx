@@ -92,6 +92,10 @@ public:
         }
       }
     nit->Delete();
+    
+    // Try printing the map.
+    am->Print(cout);
+    
     am->Delete();
     return error;
     }
@@ -163,6 +167,9 @@ public:
         }
       }
  
+    // Try printing the map.
+    sam->Print(cout);
+    
     sam->Delete();
     return error;
     }
@@ -212,6 +219,9 @@ public:
     
       actor->Delete();
       }
+    
+    // Try printing the map.
+    soam->Print(cout);
     
     soam->Delete();
     return error;
