@@ -25,7 +25,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGenericAttributeCollection,"1.5");
+vtkCxxRevisionMacro(vtkGenericAttributeCollection,"1.6");
 vtkStandardNewMacro(vtkGenericAttributeCollection);
 
 class vtkGenericAttributeInternalVector
@@ -64,17 +64,26 @@ void vtkGenericAttributeCollection::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
+  int i;
   int c = this->GetNumberOfAttributes();
 
   os << indent << "Number Of Attributes: " << this->GetNumberOfAttributes() << "\n";
-  for(int i=0; i<c; ++i)
+  for(i=0; i<c; ++i)
     {
     os << indent << "Attribute #"<<i<<":\n";
     this->GetAttribute(i)->PrintSelf(os,indent.GetNextIndent());
     }
-  os << indent << "Number Of Attributes to interpolate: " << this->GetNumberOfAttributesToInterpolate() << endl;
   
-  os << indent << "Attributes to interpolate: " << this->AttributesToInterpolate << endl;
+  c=this->GetNumberOfAttributesToInterpolate();
+  os << indent << "Number Of Attributes to interpolate: " << c << endl;
+  
+  os << indent << "Attributes to interpolate:";
+  
+  for(i=0; i<c; ++i)
+    {
+    os << ' ' << this->AttributesToInterpolate[i];
+    }
+  os << endl;
   
   os << indent << "Active Attribute: " << this->ActiveAttribute << endl;
   
@@ -350,6 +359,23 @@ void vtkGenericAttributeCollection::SetActiveAttribute(int attribute,
   this->ActiveComponent = component;
   
   assert("post: is_set" && (this->GetActiveAttribute()==attribute) && (this->GetActiveComponent()==component));
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// Indices of attributes to interpolate.
+// \pre not_empty: !IsEmpty()
+// \post valid_result: GetNumberOfAttributesToInterpolate()>0 implies
+//                       result!=0
+int *vtkGenericAttributeCollection::GetAttributesToInterpolate()
+{
+  assert("pre: not_empty" && !IsEmpty());
+  
+  assert("post: valid_result" && ((!this->NumberOfAttributesToInterpolate>0)
+                                  || this->AttributesToInterpolate!=0));
+  // A=>B !A||B
+         
+  return this->AttributesToInterpolate;
 }
 
 //----------------------------------------------------------------------------

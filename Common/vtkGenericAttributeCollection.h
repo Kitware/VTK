@@ -165,9 +165,9 @@ public:
   // Description:
   // Indices of attributes to interpolate.
   // \pre not_empty: !IsEmpty()
-  // \post valid_result: GetNumberOfattributesToInterpolate>0 implies
+  // \post valid_result: GetNumberOfAttributesToInterpolate()>0 implies
   //                       result!=0
-  vtkGetMacro(AttributesToInterpolate, int*);
+  int *GetAttributesToInterpolate();
   //ETX
   
   // Description
