@@ -373,6 +373,10 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   
   virtual vtkTransform *GetViewTransformObject() {return this->ViewTransform;};
   
+  // Description:
+  // Set the Left Eye setting
+  vtkSetMacro(LeftEye,int);
+
 protected:
   vtkCamera();
   ~vtkCamera();
