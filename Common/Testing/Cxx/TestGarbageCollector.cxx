@@ -100,7 +100,7 @@ int TestGarbageCollector(int,char *[])
   // should not be collected yet.
   obj = vtkTestReferenceLoop::New();
   obj->AddObserver(vtkCommand::DeleteEvent, cc);
-  vtkGarbageCollector::SetDeferredCollectionLimit(-1);
+  vtkGarbageCollector::DeferredCollectionPush();
   called = 0;
   obj->Delete();
   if(called)
@@ -110,7 +110,7 @@ int TestGarbageCollector(int,char *[])
     }
 
   // Disable deferred collection.  The object should be deleted now.
-  vtkGarbageCollector::SetDeferredCollectionLimit(0);
+  vtkGarbageCollector::DeferredCollectionPop();
   if(!called)
     {
     cerr << "Deferred collection did not collect object." << endl;

@@ -25,7 +25,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGarbageCollector, "1.17");
+vtkCxxRevisionMacro(vtkGarbageCollector, "1.18");
 
 class vtkGarbageCollectorSingleton;
 
@@ -157,14 +157,9 @@ public:
   // Internal implementation of vtkGarbageCollector::TakeReference.
   int TakeReference(vtkObjectBase* obj);
 
-  // Get/Set the maximum number of references that can be stored without a
-  // check.
-  int GetDeferredCollectionLimit();
-  void SetDeferredCollectionLimit(int limit);
-
-  // Method called by GiveReference to decide whether the reference
-  // will be accepted.
-  int CheckAccept();
+  // Push/Pop deferred collection.
+  void DeferredCollectionPush();
+  void DeferredCollectionPop();
 
   // Map from object to number of stored references.
   typedef vtkstd::map<vtkObjectBase*, int> ReferencesType;
@@ -173,8 +168,9 @@ public:
   // The number of references stored in the map.
   int TotalNumberOfReferences;
 
-  // The maximum number of references stored in the map without collection.
-  int DeferredCollectionLimit;
+  // The number of times DeferredCollectionPush has been called not
+  // matched by a DeferredCollectionPop.
+  int DeferredCollectionCount;
 };
 
 //----------------------------------------------------------------------------
@@ -840,33 +836,28 @@ void vtkGarbageCollector::Collect(vtkObjectBase* root)
 }
 
 //----------------------------------------------------------------------------
-int vtkGarbageCollector::GetDeferredCollectionLimit()
+void vtkGarbageCollector::DeferredCollectionPush()
 {
   // This must be called only from the main thread.
   assert(vtkGarbageCollectorIsMainThread());
 
+  // Forward the call to the singleton.
   if(vtkGarbageCollectorSingletonInstance)
     {
-    // Get the limit from the singleton.
-    return vtkGarbageCollectorSingletonInstance->GetDeferredCollectionLimit();
-    }
-  else
-    {
-    // No singleton means no deferred collection.
-    return 0;
+    return vtkGarbageCollectorSingletonInstance->DeferredCollectionPush();
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkGarbageCollector::SetDeferredCollectionLimit(int limit)
+void vtkGarbageCollector::DeferredCollectionPop()
 {
   // This must be called only from the main thread.
   assert(vtkGarbageCollectorIsMainThread());
 
-  // Set the limit on the singleton.
+  // Forward the call to the singleton.
   if(vtkGarbageCollectorSingletonInstance)
     {
-    vtkGarbageCollectorSingletonInstance->SetDeferredCollectionLimit(limit);
+    vtkGarbageCollectorSingletonInstance->DeferredCollectionPop();
     }
 }
 
@@ -908,7 +899,7 @@ int vtkGarbageCollector::TakeReference(vtkObjectBase* obj)
 vtkGarbageCollectorSingleton::vtkGarbageCollectorSingleton()
 {
   this->TotalNumberOfReferences = 0;
-  this->DeferredCollectionLimit = 0;
+  this->DeferredCollectionCount = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -922,7 +913,7 @@ vtkGarbageCollectorSingleton::~vtkGarbageCollectorSingleton()
 int vtkGarbageCollectorSingleton::GiveReference(vtkObjectBase* obj)
 {
   // Check if we can store a reference to the object in the map.
-  if(this->CheckAccept())
+  if(this->DeferredCollectionCount > 0)
     {
     // Create a reference to the object.
     ReferencesType::iterator i = this->References.find(obj);
@@ -966,44 +957,22 @@ int vtkGarbageCollectorSingleton::TakeReference(vtkObjectBase* obj)
 }
 
 //----------------------------------------------------------------------------
-int vtkGarbageCollectorSingleton::GetDeferredCollectionLimit()
+void vtkGarbageCollectorSingleton::DeferredCollectionPush()
 {
-  return this->DeferredCollectionLimit;
-}
-
-//----------------------------------------------------------------------------
-void vtkGarbageCollectorSingleton::SetDeferredCollectionLimit(int limit)
-{
-  if(limit < 0)
+  if(++this->DeferredCollectionCount <= 0)
     {
-    // Limit has been increased to infinity.
-    this->DeferredCollectionLimit = -1;
-    }
-  else
-    {
-    // Store the new limit.
-    this->DeferredCollectionLimit = limit;
-
-    if(limit < this->TotalNumberOfReferences)
-      {
-      // The limit has been decreased.  Collect immediately.
-      vtkGarbageCollector::Collect();
-      }
+    // Deferred collection is disabled.  Collect immediately.
+    vtkGarbageCollector::Collect();
     }
 }
 
 //----------------------------------------------------------------------------
-int vtkGarbageCollectorSingleton::CheckAccept()
+void vtkGarbageCollectorSingleton::DeferredCollectionPop()
 {
-  if(this->DeferredCollectionLimit < 0)
+  if(--this->DeferredCollectionCount <= 0)
     {
-    // Store an unlimited number of references.
-    return 1;
-    }
-  else
-    {
-    // Store up to a fixed number of references.
-    return this->TotalNumberOfReferences < this->DeferredCollectionLimit;
+    // Deferred collection is disabled.  Collect immediately.
+    vtkGarbageCollector::Collect();
     }
 }
 

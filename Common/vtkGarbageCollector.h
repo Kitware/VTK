@@ -102,15 +102,12 @@ public:
   static void Collect(vtkObjectBase* root);
 
   // Description:
-  // Get/Set the maximum number of deferred collection checks.  The
-  // default is zero, which means collection always occurs immediately
-  // when a reference is removed from an object.  Decreasing the
-  // number may result in an immediate collection if the number of
-  // deferred checks is larger than the new value.  Setting to a
-  // negative number will allow an unlimited number of checks to be
-  // deferred.
-  static int GetDeferredCollectionLimit();
-  static void SetDeferredCollectionLimit(int limit);
+  // Push/Pop whether to do deferred collection.  Whenever the total
+  // number of pushes exceeds the total number of pops collection will
+  // be deferred.  Code can call the Collect method directly to force
+  // collection.
+  static void DeferredCollectionPush();
+  static void DeferredCollectionPop();
 
   // Description:
   // Called by UnRegister method of an object that supports garbage
