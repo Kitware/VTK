@@ -62,6 +62,7 @@ class VTK_EXPORT vtkExtent : public vtkObject
 {
 public:
   vtkExtent();
+  static vtkExtent *New() {return new vtkExtent;};
   const char *GetClassName() {return "vtkExtent";}
   void PrintSelf(ostream& os, vtkIndent indent);
 
