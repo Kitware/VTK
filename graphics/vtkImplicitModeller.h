@@ -66,7 +66,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // This filter has one other unusual capability: it is possible to append
 // data in a sequence of operations to generate a single output. This is
 // useful when you have multiple datasets and want to create a
-// conglomeration of all the data.
+// conglomeration of all the data.  However, the user must be careful to
+// either specify the ModelBounds or specify the first item such that its
+// bounds completely contain all other items.  This is because the 
+// rectangular region of the output can not be changed after the 1st Append.
 //
 // The ProcessMode ivar controls the method used within the Append function
 // (where the actual work is done regardless if the Append function is
@@ -79,6 +82,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // many times, the cell mode will probably be better because each voxel will be
 // visited each Append.  Append the data before input if possible when using
 // the voxel mode.
+//
+// Further performance improvement is now possible using the PerVoxel process
+// mode on multi-processor machines (the mode is now multithreaded).  Each
+// thread processes a different "slab" of the output.  Also, if the input is 
+// vtkPolyData, it is appropriately clipped for each thread; that is, each 
+// thread only considers the input which could affect its slab of the output.
 
 // .SECTION See Also
 // vtkSampleFunction vtkContourFilter
@@ -90,6 +99,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #define VTK_VOXEL_MODE   0
 #define VTK_CELL_MODE    1
+
+class vtkMultiThreader;
+class vtkExtractGeometry;
 
 class VTK_EXPORT vtkImplicitModeller : public vtkDataSetToStructuredPointsFilter 
 {
@@ -174,6 +186,11 @@ public:
   vtkGetMacro(LocatorMaxLevel,int);
 
   // Description:
+  // Set / Get the number of threads used during Per-Voxel processing mode
+  vtkSetMacro( NumberOfThreads, int );
+  vtkGetMacro( NumberOfThreads, int );
+
+  // Description:
   // Special update methods handles possibility of appending data.
   void Update();
 
@@ -200,6 +217,9 @@ protected:
   void Execute();
   void Cap(vtkScalars *s);
 
+  vtkMultiThreader *Threader;
+  int              NumberOfThreads;
+
   int SampleDimensions[3];
   float MaximumDistance;
   float ModelBounds[6];
@@ -210,6 +230,9 @@ protected:
   float AdjustDistance;
   int ProcessMode;
   int LocatorMaxLevel;
+
+  int BoundsComputed; // flag to limit to one ComputeModelBounds per StartAppend
+  float InternalMaxDistance; // the max distance computed during that one call
 };
 
 #endif
