@@ -218,6 +218,24 @@ void vtkLookupTable::Build()
   }
 }
 
+// get the color for a scalar value
+void vtkLookupTable::GetColor(float v, float rgb[3])
+{
+  unsigned char *rgb8 = this->MapValue(v);
+
+  rgb[0] = rgb8[0]/255.0;
+  rgb[1] = rgb8[1]/255.0;
+  rgb[2] = rgb8[2]/255.0;
+}
+
+// get the opacity (alpha) for a scalar value
+float vtkLookupTable::GetOpacity(float v)
+{
+  unsigned char *rgb8 = this->MapValue(v);
+
+  return rgb8[3]/255.0;
+}
+
 // Given a scalar value v, return an rgba color value from lookup table.
 unsigned char *vtkLookupTable::MapValue(float v)
 {
@@ -309,7 +327,7 @@ static void vtkLookupTableMapData(vtkLookupTable *self, T *input,
 	findx = maxIndex;
 	}
       cptr = &table[4*(int)findx];
-      *output++ = cptr[0];
+      *output++ = (cptr[0]*77 + cptr[1]*151 + cptr[2]*28) >> 8;
       *output++ = cptr[3];
       input += inIncr;
       }
@@ -328,7 +346,7 @@ static void vtkLookupTableMapData(vtkLookupTable *self, T *input,
 	findx = maxIndex;
 	}
       cptr = &table[4*(int)findx];
-      *output++ = *cptr;
+      *output++ = (cptr[0]*77 + cptr[1]*151 + cptr[2]*28) >> 8;
       input += inIncr;
       }
     }

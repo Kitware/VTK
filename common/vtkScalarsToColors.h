@@ -83,6 +83,32 @@ public:
   virtual unsigned char *MapValue(float v) = 0;
 
   // Description:
+  // Map one value through the lookup table and return the color as
+  // an RGB array of floats between 0 and 1.
+  virtual void GetColor(float v, float rgb[3]) = 0;
+
+  // Description:
+  // Map one value through the lookup table and return the color as
+  // an RGB array of floats between 0 and 1.
+  float *GetColor(float v) {
+    this->GetColor(v,this->RGB);
+    return this->RGB; }
+
+  // Description:
+  // Map one value through the lookup table and return the alpha value
+  // (the opacity) as a float between 0 and 1.
+  virtual float GetOpacity(float v) { return 1.0; };
+
+  // Description:
+  // Map one value through the lookup table and return the luminance
+  // 0.3*red + 0.59*green + 0.11*blue as a float between 0 and 1.
+  // Returns the luminance value for the specified scalar value.
+  float GetLuminance(float x) {
+    float rgb[3];
+    this->GetColor(x,rgb);
+    return rgb[0]*0.30 + rgb[1]*0.59 + rgb[2]*0.11; };
+
+  // Description:
   // Map a set of scalars through the lookup table in a single operation. 
   // The output format can be set to VTK_RGBA (4 components), 
   // VTK_RGB (3 components), VTK_LUMINANCE (1 component, greyscale),
@@ -109,6 +135,8 @@ protected:
   vtkScalarsToColors(const vtkScalarsToColors &) {};
   void operator=(const vtkScalarsToColors &) {};
 
+private:
+  float RGB[3];
 };
 
 #endif

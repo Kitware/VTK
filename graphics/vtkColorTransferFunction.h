@@ -91,8 +91,14 @@ public:
   void RemoveAllPoints();
 
   // Description:
-  // Returns an RGB color at the specified location.
-  float *GetValue( float x );
+  // Returns an RGB color for the specified scalar value (from
+  // vtkScalarsToColors)
+  float *GetColor(float x) { 
+    return vtkScalarsToColors::GetColor(x); }
+  void GetColor(float x, float rgb[3]);
+
+  // Description:
+  // Get the color components individually.
   float GetRedValue( float x );
   float GetGreenValue( float x );
   float GetBlueValue( float x );
@@ -149,6 +155,11 @@ public:
   // **********************************************************
   // **********************************************************
   
+  // Description:
+  // Deprecated method, use GetColor() instead.
+  float *GetValue( float x )
+    {VTK_LEGACY_METHOD(GetValue,"3.2"); return this->GetColor(x); }
+
   // Description:
   // Deprecated functions (after VTK 3.1.2) Don't use.
   // Get GetSize() instead;
@@ -220,8 +231,7 @@ protected:
   void RGBToHSV( float r, float g, float b, float &h, float &s, float &v );
   void HSVToRGB( float h, float s, float v, float &r, float &g, float &b );
   
-  // An evaluated color (as 0.0 to 1.0 RGB or 0 to 255 RGBA A=255)
-  float         FloatRGBValue[3];
+  // An evaluated color (0 to 255 RGBA A=255)
   unsigned char UnsignedCharRGBAValue[4];
 
   // The min and max point locations for all three transfer functions

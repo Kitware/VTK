@@ -65,10 +65,6 @@ vtkColorTransferFunction::vtkColorTransferFunction()
   this->Green = vtkPiecewiseFunction::New();
   this->Blue = vtkPiecewiseFunction::New();
   
-  this->FloatRGBValue[0] = 0.0;
-  this->FloatRGBValue[1] = 0.0;
-  this->FloatRGBValue[2] = 0.0;
-
   this->UnsignedCharRGBAValue[0] = 0;
   this->UnsignedCharRGBAValue[1] = 0;
   this->UnsignedCharRGBAValue[2] = 0;
@@ -431,45 +427,47 @@ void vtkColorTransferFunction::AddHSVSegment( float x1, float h1,
 // Returns the RGBA color evaluated at the specified location
 unsigned char *vtkColorTransferFunction::MapValue( float x )
 {
-  float *c = this->GetValue(x);
+  float rgb[3];
+  this->GetColor( x, rgb );
   
-  this->UnsignedCharRGBAValue[0] = (unsigned char) (255.0*c[0]);
-  this->UnsignedCharRGBAValue[1] = (unsigned char) (255.0*c[1]);
-  this->UnsignedCharRGBAValue[2] = (unsigned char) (255.0*c[2]);
+  this->UnsignedCharRGBAValue[0] = (unsigned char) (255.0*rgb[0]);
+  this->UnsignedCharRGBAValue[1] = (unsigned char) (255.0*rgb[1]);
+  this->UnsignedCharRGBAValue[2] = (unsigned char) (255.0*rgb[2]);
   this->UnsignedCharRGBAValue[3] = 255;
   return( this->UnsignedCharRGBAValue );
 }
 
 // Returns the RGB color evaluated at the specified location
-float *vtkColorTransferFunction::GetValue( float x )
+void vtkColorTransferFunction::GetColor(float x, float rgb[3])
 {
-  this->GetTable( x, x, 1, this->FloatRGBValue );
-  
-  return this->FloatRGBValue;
+  this->GetTable( x, x, 1, rgb );
 }
 
 // Returns the red color evaluated at the specified location
 float vtkColorTransferFunction::GetRedValue( float x )
 {
-  this->GetTable( x, x, 1, this->FloatRGBValue );
-  
-  return this->FloatRGBValue[0];
+  float rgb[3];
+  this->GetColor( x, rgb );
+
+  return rgb[0];
 }
 
 // Returns the green color evaluated at the specified location
 float vtkColorTransferFunction::GetGreenValue( float x )
 {
-  this->GetTable( x, x, 1, this->FloatRGBValue );
-  
-  return this->FloatRGBValue[1];
+  float rgb[3];
+  this->GetColor( x, rgb );
+
+  return rgb[1];
 }
 
 // Returns the blue color evaluated at the specified location
 float vtkColorTransferFunction::GetBlueValue( float x )
 {
-  this->GetTable( x, x, 1, this->FloatRGBValue );
-  
-  return this->FloatRGBValue[2];
+  float rgb[3];
+  this->GetColor( x, rgb );
+
+  return rgb[2];
 }
 
 // Returns a table of RGB colors at regular intervals along the function
@@ -886,13 +884,17 @@ vtkColorTransferFunctionMapData(vtkColorTransferFunction *self,
   while (--i >= 0) 
     {
     x = (float) *iptr;
-    rgb = self->GetValue(x);
-    *(optr++) = (unsigned char)(rgb[0]*255.0);
+    rgb = self->GetColor(x);
     
     if (outFormat == VTK_RGB || outFormat == VTK_RGBA)
       {
+      *(optr++) = (unsigned char)(rgb[0]*255.0);
       *(optr++) = (unsigned char)(rgb[1]*255.0);
       *(optr++) = (unsigned char)(rgb[2]*255.0);
+      }
+    else // LUMINANCE  use coeffs of (0.30  0.59  0.11)*255.0
+      {
+      *(optr++) = (unsigned char)(rgb[0]*76.5 + rgb[1]*150.45 + rgb[2]*28.05); 
       }
     
     if (outFormat == VTK_RGBA || outFormat == VTK_LUMINANCE_ALPHA)
@@ -1165,7 +1167,8 @@ void vtkColorTransferFunction::AddRedPoint( float x, float r )
 {
   vtkWarningMacro( "AddRedPoint() is a depricated method." << endl << 
                    "Please use AddRGBPoint() instead." );
-  float *rgb = this->GetValue( x );
+  float rgb[3];
+  this->GetColor( x, rgb );
   this->AddRGBPoint( x, r, rgb[1], rgb[2] );
 }
 
@@ -1174,7 +1177,8 @@ void vtkColorTransferFunction::AddGreenPoint( float x, float g )
 {
   vtkWarningMacro( "AddGreenPoint() is a depricated method." << endl << 
                    "Please use AddRGBPoint() instead." );
-  float *rgb = this->GetValue( x );
+  float rgb[3];
+  this->GetColor( x, rgb );
   this->AddRGBPoint( x, rgb[0], g, rgb[2] );
 }
 
@@ -1183,7 +1187,8 @@ void vtkColorTransferFunction::AddBluePoint( float x, float b )
 {
   vtkWarningMacro( "AddBluePoint() is a depricated method." << endl << 
                    "Please use AddRGBPoint() instead." );
-  float *rgb = this->GetValue( x );
+  float rgb[3];
+  this->GetColor( x, rgb );
   this->AddRGBPoint( x, rgb[0], rgb[1], b );
 }
 
@@ -1225,8 +1230,9 @@ void vtkColorTransferFunction::AddRedSegment( float x1, float r1,
 {
   vtkWarningMacro( "AddRedSegment() is a depricated method." << endl << 
                    "Please use AddRGBSegment() instead." );
-  float *rgb1 = this->GetValue( x1 );
-  float *rgb2 = this->GetValue( x2 );
+  float rgb1[3], rgb2[3];
+  this->GetColor( x1, rgb1 );
+  this->GetColor( x2, rgb2 );
   this->AddRGBSegment( x1, r1, rgb1[1], rgb1[2], x2, r2, rgb2[1], rgb2[2] );
 }
 
@@ -1236,8 +1242,9 @@ void vtkColorTransferFunction::AddGreenSegment( float x1, float g1,
 {
   vtkWarningMacro( "AddGreenSegment() is a depricated method." << endl << 
                    "Please use AddRGBSegment() instead." );
-  float *rgb1 = this->GetValue( x1 );
-  float *rgb2 = this->GetValue( x2 );
+  float rgb1[3], rgb2[3];
+  this->GetColor( x1, rgb1 );
+  this->GetColor( x2, rgb2 );
   this->AddRGBSegment( x1, rgb1[0], g1, rgb1[2], x2, rgb2[0], g2, rgb2[2] );
 }
 
@@ -1247,8 +1254,9 @@ void vtkColorTransferFunction::AddBlueSegment( float x1, float b1,
 {
   vtkWarningMacro( "AddBlueSegment() is a depricated method." << endl << 
                    "Please use AddRGBSegment() instead." );
-  float *rgb1 = this->GetValue( x1 );
-  float *rgb2 = this->GetValue( x2 );
+  float rgb1[3], rgb2[3];
+  this->GetColor( x1, rgb1 );
+  this->GetColor( x2, rgb2 );
   this->AddRGBSegment( x1, rgb1[0], rgb1[1], b1, x2, rgb2[0], rgb2[1], b2 );
 }
 

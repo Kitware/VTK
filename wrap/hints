@@ -7,6 +7,7 @@ vtkCamera               GetViewPlaneNormal      307 3
 vtkCell  		GetBounds	301 6
 vtkColorTransferFunction GetRange	301 2
 vtkColorTransferFunction GetValue	301 3
+vtkColorTransferFunction GetColor	301 3
 vtkCoordinate           GetComputedDisplayValue 304 2
 vtkCoordinate           GetComputedViewportValue 304 2
 vtkCoordinate           GetComputedLocalDisplayValue 304 2
@@ -54,6 +55,7 @@ vtkImageSpatialFilter	GetKernelSize   304 3
 vtkIntPoints		GetPoint	301 3
 vtkLODProp3D		GetBounds	301 6
 vtkLookupTable		GetTableValue	301 4
+vtkLookupTable 		GetColor	301 3
 vtkLight		GetTransformedFocalPoint 301 3
 vtkLight		GetTransformedPosition   301 3
 vtkAbstractMapper3D 	GetBounds	301 6
@@ -95,7 +97,7 @@ vtkStructuredGrid       GetUpdateExtent 304 6
 vtkStructuredGrid       GetWholeExtent  304 6
 vtkStructuredPointsGeometryFilter	GetExtent	301 6
 vtkScalars 		GetRange	301 2
-vtkScalarsToColors	GetColor	301 4
+vtkScalarsToColors	GetColor	301 3
 vtkScalarBarActor 	GetPosition2	301 2
 vtkStructuredData	GetDimensions	304 3
 vtkStructuredPoints	GetPoint	301 3

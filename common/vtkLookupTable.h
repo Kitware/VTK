@@ -128,14 +128,27 @@ public:
 
   // Description:
   // Map one value through the lookup table.
-  virtual unsigned char *MapValue(float v);
+  unsigned char *MapValue(float v);
 
   // Description:
   // map a set of scalars through the lookup table
-  virtual void MapScalarsThroughTable2(void *input, unsigned char *output,
-				      int inputDataType, int numberOfValues,
-				      int inputIncrement, int outputIncrement);
+  void MapScalarsThroughTable2(void *input, unsigned char *output,
+			       int inputDataType, int numberOfValues,
+			       int inputIncrement, int outputIncrement);
     
+
+  // Description:
+  // Map one value through the lookup table and return the color as
+  // an RGB array of floats between 0 and 1.
+  float *GetColor(float x) { 
+    return vtkScalarsToColors::GetColor(x); }
+  void GetColor(float x, float rgb[3]);
+
+  // Description:
+  // Map one value through the lookup table and return the alpha value
+  // (the opacity) as a float between 0 and 1.
+  float GetOpacity(float v);  
+
   // Description:
   // Specify the number of values (i.e., colors) in the lookup
   // table. This method simply allocates memory and prepares the table
@@ -146,7 +159,8 @@ public:
   // Description:
   // Directly load color into lookup table. Use [0,1] float values for color
   // component specification. Make sure that you've either used the
-  // Build() method or used SetNumberOfTableValues() prior to using this method.
+  // Build() method or used SetNumberOfTableValues() prior to using this
+  // method.
   void SetTableValue (int indx, float rgba[4]);
 
   // Description:
@@ -177,8 +191,8 @@ public:
 
   // Description:
   // Sets/Gets the range of scalars which will be mapped.
-  virtual float *GetRange() {return this->GetTableRange();};
-  virtual void SetRange(float min, float max) {this->SetTableRange(min,max);};
+  float *GetRange() {return this->GetTableRange();};
+  void SetRange(float min, float max) {this->SetTableRange(min,max);};
   void SetRange(float rng[2]) {this->SetRange(rng[0],rng[1]);};
 
 protected:
