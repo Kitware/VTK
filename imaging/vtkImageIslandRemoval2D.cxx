@@ -517,6 +517,8 @@ static void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
 	inPtr1 += inInc1;
 	outPtr1 += outInc1;
 	}
+      inPtr2 += inInc2;
+      outPtr2 += outInc2;
       }
     }
 }
