@@ -101,7 +101,7 @@ class VTK_EXPORT vtkMatrixToLinearTransform : public vtkLinearTransform
 protected:
   vtkMatrixToLinearTransform();
   ~vtkMatrixToLinearTransform();
-  vtkMatrixToLinearTransform(const vtkMatrixToLinearTransform& t) {};
+  vtkMatrixToLinearTransform(const vtkMatrixToLinearTransform&) {};
   void operator=(const vtkMatrixToLinearTransform&) {};
 };
 

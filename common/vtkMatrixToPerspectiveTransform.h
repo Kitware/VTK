@@ -103,7 +103,7 @@ class VTK_EXPORT vtkMatrixToPerspectiveTransform :
 protected:
   vtkMatrixToPerspectiveTransform();
   ~vtkMatrixToPerspectiveTransform();
-  vtkMatrixToPerspectiveTransform(const vtkMatrixToPerspectiveTransform& t) {};
+  vtkMatrixToPerspectiveTransform(const vtkMatrixToPerspectiveTransform&) {};
   void operator=(const vtkMatrixToPerspectiveTransform&) {};
 };
 
