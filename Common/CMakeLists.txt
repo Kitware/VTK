@@ -321,23 +321,33 @@ ENDIF(LOCALUSERMACRODEFINED)
 
 INSTALL_FILES(/include/vtk .h
   vtkCellType
-  vtkSetGet
-  vtkSystemIncludes
-  vtkWin32Header
-  vtkSmartPointer
   vtkIOStream
   vtkIOStreamFwd
+  vtkSetGet
+  vtkSmartPointer
+  vtkSystemIncludes
+  vtkWin32Header
 )
 
 IF(VTK_WRAP_TCL)
   INSTALL_FILES(/include/vtk .h
+    vtkTcl
     vtkTclUtil
+    vtkTk
   )
 ENDIF(VTK_WRAP_TCL)
 IF(VTK_WRAP_PYTHON)
   INSTALL_FILES(/include/vtk .h
     vtkPythonUtil
   )
+  IF (TK_LIBRARY)
+	IF(NOT VTK_USE_COCOA)
+      INSTALL_FILES(/include/vtk .h
+        vtkTcl
+        vtkTk
+       )
+    ENDIF(NOT VTK_USE_COCOA)
+  ENDIF (TK_LIBRARY)
 ENDIF(VTK_WRAP_PYTHON)
 IF(VTK_WRAP_JAVA)
   INSTALL_FILES(/include/vtk .h
