@@ -135,8 +135,11 @@ public:
   { vtkByteSwap::Swap4BERange((char *)i,num); };
   static void Swap4BERange(unsigned long *i,int num) 
   { vtkByteSwap::Swap4BERange((char *)i,num); };
+
+#ifdef VTK_USE_64BIT_IDS
   static void Swap4BERange(vtkIdType *i,int num) 
   { vtkByteSwap::Swap4BERange((char *)i,num); };
+#endif
 
   // Description:
   // Swap bunch of bytes to be BE. Num is the number of eight byte words to swap.
@@ -163,9 +166,10 @@ public:
   { vtkByteSwap::SwapWrite4BERange((char *)i,num,fp);};
   static void SwapWrite4BERange(unsigned long *i,int num, FILE *fp) 
   { vtkByteSwap::SwapWrite4BERange((char *)i,num,fp);};
+#ifdef VTK_USE_64BIT_IDS
   static void SwapWrite4BERange(vtkIdType *i,int num, FILE *fp) 
   { vtkByteSwap::SwapWrite4BERange((char *)i,num,fp);};
-
+#endif
   // Description:
   // Swap bunch of bytes to BE. Num is the number of eight byte words to swap.
   // The results are written out to file to prevent having to keep the swapped
@@ -193,9 +197,10 @@ public:
   { vtkByteSwap::SwapWrite4BERange((char *)i,num,fp);};
   static void SwapWrite4BERange(unsigned long *i,int num, ostream *fp) 
   { vtkByteSwap::SwapWrite4BERange((char *)i,num,fp);};
+#ifdef VTK_USE_64BIT_IDS
   static void SwapWrite4BERange(vtkIdType *i,int num, ostream *fp) 
   { vtkByteSwap::SwapWrite4BERange((char *)i,num,fp);};
-
+#endif
   // Description:
   // Swap bunch of bytes to BE. Num is the number of eight byte words to swap.
   // The results are written out to stream to prevent having to keep the swapped

@@ -95,8 +95,10 @@ public:
 		   int tag) = 0;
   virtual int Send(double* data, int length, int remoteHandle, 
 		   int tag) = 0;
+#ifdef VTK_USE_64BIT_IDS
   virtual int Send(vtkIdType* data, int length, int remoteHandle, 
 		   int tag) = 0;
+#endif
 
 
   // Description:
@@ -123,8 +125,10 @@ public:
 		      int tag) = 0;
   virtual int Receive(double* data, int length, int remoteHandle, 
 		      int tag) = 0;
+#ifdef VTK_USE_64BIT_IDS
   virtual int Receive(vtkIdType* data, int length, int remoteHandle, 
 		      int tag) = 0;
+#endif
 
 protected:
 

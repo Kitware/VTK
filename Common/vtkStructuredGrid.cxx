@@ -1033,8 +1033,8 @@ void vtkStructuredGrid::InternalStructuredGridCopy(vtkStructuredGrid *src)
 // Override this method because of blanking
 void vtkStructuredGrid::GetScalarRange(float range[2])
 {
-  vtkScalars *ptScalars = this->PointData->GetScalars();
-  vtkScalars *cellScalars = this->CellData->GetScalars();
+  vtkDataArray *ptScalars = this->PointData->GetScalars();
+  vtkDataArray *cellScalars = this->CellData->GetScalars();
   float ptRange[2];
   float cellRange[2];
   float s;
@@ -1049,7 +1049,7 @@ void vtkStructuredGrid::GetScalarRange(float range[2])
       {
       if ( this->IsPointVisible(id) )
         {
-        s = ptScalars->GetScalar(id);
+        s = ptScalars->GetComponent(id,0);
         if ( s < ptRange[0] )
           {
           ptRange[0] = s;
@@ -1071,7 +1071,7 @@ void vtkStructuredGrid::GetScalarRange(float range[2])
       {
       if ( this->IsCellVisible(id) )
         {
-        s = cellScalars->GetScalar(id);
+        s = cellScalars->GetComponent(id,0);
         if ( s < cellRange[0] )
           {
           cellRange[0] = s;

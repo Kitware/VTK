@@ -155,35 +155,16 @@ public:
   // Description:
   // Apply the transformation to a series of normals, and append the
   // results to outNms.  
-  virtual void TransformNormals(vtkNormals *inNms, vtkNormals *outNms)
-    { 
-      this->TransformNormals(inNms->GetData(), outNms->GetData());
-    }
   virtual void TransformNormals(vtkDataArray *inNms, vtkDataArray *outNms);
 
   // Description:
   // Apply the transformation to a series of vectors, and append the
   // results to outVrs.  
-  virtual void TransformVectors(vtkVectors *inVrs, vtkVectors *outVrs)
-    {
-      this->TransformVectors(inVrs->GetData(), outVrs->GetData());
-    }
   virtual void TransformVectors(vtkDataArray *inVrs, vtkDataArray *outVrs);
 
   // Description:
   // Apply the transformation to a combination of points, normals
   // and vectors.  
-  void TransformPointsNormalsVectors(vtkPoints *inPts, 
-				     vtkPoints *outPts, 
-				     vtkNormals *inNms, 
-				     vtkNormals *outNms,
-				     vtkVectors *inVrs, 
-				     vtkVectors *outVrs)
-    {
-      this->TransformPointsNormalsVectors(inPts, outPts,
-					  inNms->GetData(), outNms->GetData(),
-					  inVrs->GetData(), outVrs->GetData());
-    }
   void TransformPointsNormalsVectors(vtkPoints *inPts, 
 				     vtkPoints *outPts, 
 				     vtkDataArray *inNms, 

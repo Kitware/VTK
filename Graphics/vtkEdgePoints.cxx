@@ -101,7 +101,7 @@ void vtkEdgePoints::Execute()
 
   // Initialize and check input
   //
-  if ( ! (inScalars = input->GetPointData()->GetActiveScalars()) )
+  if ( ! (inScalars = input->GetPointData()->GetScalars()) )
     {
     vtkErrorMacro(<<"No scalar data to contour");
     return;

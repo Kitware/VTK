@@ -41,6 +41,19 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkPoints.h"
 #include "vtkObjectFactory.h"
+#include "vtkBitArray.h"
+#include "vtkCharArray.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkShortArray.h"
+#include "vtkUnsignedShortArray.h"
+#include "vtkIntArray.h"
+#include "vtkUnsignedIntArray.h"
+#include "vtkLongArray.h"
+#include "vtkUnsignedLongArray.h"
+#include "vtkFloatArray.h"
+#include "vtkDoubleArray.h"
+#include "vtkIdTypeArray.h"
+
 
 //----------------------------------------------------------------------------
 vtkPoints* vtkPoints::New(int dataType)
@@ -60,20 +73,30 @@ vtkPoints* vtkPoints::New()
   return vtkPoints::New(VTK_FLOAT);
 }
 
-vtkAttributeData *vtkPoints::MakeObject()
-{
-  vtkPoints *p = vtkPoints::New();
-  p->SetDataType(this->GetDataType());
-  return p;
-}
-
 // Construct object with an initial data array of type float.
-vtkPoints::vtkPoints(int dataType) : vtkAttributeData(dataType)
+vtkPoints::vtkPoints(int dataType)
 {
+  this->Data = vtkFloatArray::New();
+  this->Data->Register(this);
+  this->Data->Delete();
+  this->SetDataType(dataType);
+
   this->Data->SetNumberOfComponents(3);
 
   this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = 0.0;
   this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = 1.0;
+}
+
+vtkPoints::~vtkPoints()
+{
+  this->Data->UnRegister(this);
+}
+
+vtkPoints *vtkPoints::MakeObject()
+{
+  vtkPoints *p = vtkPoints::New();
+  p->SetDataType(this->GetDataType());
+  return p;
 }
 
 // Given a list of pt ids, return an array of points.
@@ -135,11 +158,168 @@ void vtkPoints::GetBounds(float bounds[6])
     }
 }
 
+int vtkPoints::Allocate(const vtkIdType sz, const vtkIdType ext)
+{
+  int numComp=this->Data->GetNumberOfComponents();
+  return this->Data->Allocate(sz*numComp,ext*numComp);
+}
+
+void vtkPoints::Initialize()
+{
+  this->Data->Initialize();
+}
+
+int vtkPoints::GetDataType()
+{
+  return this->Data->GetDataType();
+}
+
+// Specify the underlying data type of the object.
+void vtkPoints::SetDataType(int dataType)
+{
+  if ( dataType == this->Data->GetDataType() )
+    {
+    return;
+    }
+  
+  this->Modified();
+  
+  switch (dataType)
+    {
+    case VTK_BIT:
+      this->Data->Delete();
+      this->Data = vtkBitArray::New();
+      break;
+
+    case VTK_CHAR:
+      this->Data->Delete();
+      this->Data = vtkCharArray::New();
+      break;
+
+    case VTK_UNSIGNED_CHAR:
+      this->Data->Delete();
+      this->Data = vtkUnsignedCharArray::New();
+      break;
+
+    case VTK_SHORT:
+      this->Data->Delete();
+      this->Data = vtkShortArray::New();
+      break;
+
+    case VTK_UNSIGNED_SHORT:
+      this->Data->Delete();
+      this->Data = vtkUnsignedShortArray::New();
+      break;
+
+    case VTK_INT:
+      this->Data->Delete();
+      this->Data = vtkIntArray::New();
+      break;
+
+    case VTK_UNSIGNED_INT:
+      this->Data->Delete();
+      this->Data = vtkUnsignedIntArray::New();
+      break;
+
+    case VTK_LONG:
+      this->Data->Delete();
+      this->Data = vtkLongArray::New();
+      break;
+
+    case VTK_UNSIGNED_LONG:
+      this->Data->Delete();
+      this->Data = vtkUnsignedLongArray::New();
+      break;
+
+    case VTK_FLOAT:
+      this->Data->Delete();
+      this->Data = vtkFloatArray::New();
+      break;
+
+    case VTK_DOUBLE:
+      this->Data->Delete();
+      this->Data = vtkDoubleArray::New();
+      break;
+
+    case VTK_ID_TYPE:
+      this->Data->Delete();
+      this->Data = vtkIdTypeArray::New();
+      break;
+
+    default:
+      vtkErrorMacro(<<"Unsupported data type! Setting to VTK_FLOAT");
+      this->SetDataType(VTK_FLOAT);
+    }
+}
+
+// Set the data for this object. The tuple dimension must be consistent with
+// the object.
+void vtkPoints::SetData(vtkDataArray *data)
+{
+  if ( data != this->Data && data != NULL )
+    {
+    if (data->GetNumberOfComponents() != this->Data->GetNumberOfComponents() )
+      {
+      vtkErrorMacro(<<"Number of components is different...can't set data");
+      return;
+      }
+    this->Data->UnRegister(this);
+    this->Data = data;
+    this->Data->Register(this);
+    this->Modified();
+    }
+}
+
+// Deep copy of data. Checks consistency to make sure this operation
+// makes sense.
+void vtkPoints::DeepCopy(vtkPoints *da)
+{
+  if (da == NULL)
+    {
+    return;
+    }
+  if ( da->Data != this->Data && da->Data != NULL )
+    {
+    if (da->Data->GetNumberOfComponents() != this->Data->GetNumberOfComponents() )
+      {
+      vtkErrorMacro(<<"Number of components is different...can't copy");
+      return;
+      }
+    this->Data->DeepCopy(da->Data);
+    this->Modified();
+    }
+}
+
+// Shallow copy of data (i.e. via reference counting). Checks 
+// consistency to make sure this operation makes sense.
+void vtkPoints::ShallowCopy(vtkPoints *da)
+{
+  this->SetData(da->GetData());
+}
+
+unsigned long vtkPoints::GetActualMemorySize()
+{
+  return this->Data->GetActualMemorySize();
+}
+
 void vtkPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
   float *bounds;
 
   vtkObject::PrintSelf(os,indent);
+
+  os << indent << "Data: " << this->Data << "\n";
+  if ( this->Data )
+    {
+    if ( this->Data->GetName() )
+      {
+      os << indent << "Data Array Name: " << this->Data->GetName() << "\n";
+      }
+    else
+      {
+      os << indent << "Data Array Name: (none)\n";
+      }
+    }
 
   os << indent << "Number Of Points: " << this->GetNumberOfPoints() << "\n";
   bounds = this->GetBounds();

@@ -259,7 +259,7 @@ void vtkSplitField::Execute()
       vtkErrorMacro("Sanity check failed, returning.");
       return;
       }
-    inputArray = dsa->GetActiveAttribute(this->AttributeType);
+    inputArray = dsa->GetAttribute(this->AttributeType);
     }
 
   if (!inputArray)

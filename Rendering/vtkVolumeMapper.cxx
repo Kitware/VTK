@@ -119,7 +119,7 @@ vtkImageData *vtkVolumeMapper::GetInput()
 void vtkVolumeMapper::SetRGBTextureInput( vtkImageData *rgbTexture )
 {
   vtkPointData    *pd;
-  vtkScalars      *scalars;
+  vtkDataArray    *scalars;
 
   if ( rgbTexture )
     {

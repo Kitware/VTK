@@ -74,8 +74,6 @@ protected:
   void WriteData();
   void WriteALight(vtkLight *aLight, FILE *fp);
   void WriteAnActor(vtkActor *anActor, FILE *fp, int count);
-  void WritePointData(vtkPoints *points, vtkNormals *normals, 
-                      vtkTCoords *tcoords, vtkScalars *colors, FILE *fp);
   char *FileName;
 
 private:

@@ -95,11 +95,11 @@ proc ExecuteDot {} {
    set vectors0 [[$input0 GetPointData] GetVectors]
    set vectors1 [[$input1 GetPointData] GetVectors]
 
-   vtkScalars scalars
+   vtkFloatArray scalars
 
    for {set i 0} {$i < $numPts} {incr i} {
-       set v0 [$vectors0 GetVector $i]
-       set v1 [$vectors1 GetVector $i]
+       set v0 [$vectors0 GetTuple3 $i]
+       set v1 [$vectors1 GetTuple3 $i]
        
        set v0x [lindex $v0 0]
        set v0y [lindex $v0 1]
@@ -124,7 +124,7 @@ proc ExecuteDot {} {
 	   set d 0.0
        }
 
-       scalars InsertScalar $i $d
+       scalars InsertValue $i $d
     }
 
     [[dotProduct GetOutput] GetPointData] SetScalars scalars

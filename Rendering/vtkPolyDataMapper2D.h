@@ -190,20 +190,12 @@ public:
   // Make a shallow copy of this mapper.
   void ShallowCopy(vtkAbstractMapper *m);
 
-  // Description:
-  // Calculate and return the colors for the input. After invoking this
-  // method, use GetColor() on the scalar to get the scalar values. This
-  // method may return NULL if no color information is available. (This
-  // method is obsolete; use MapScalars() instead.)
-  vtkScalars *GetColors();
-
 protected:
   vtkPolyDataMapper2D();
   ~vtkPolyDataMapper2D();
 
   vtkPolyData* Input;
 
-  vtkScalars *Scalars;
   vtkUnsignedCharArray *Colors;
 
   vtkScalarsToColors *LookupTable;

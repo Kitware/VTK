@@ -41,7 +41,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include <math.h>
 #include "vtkLookupTable.h"
-#include "vtkScalars.h"
 #include "vtkBitArray.h"
 #include "vtkObjectFactory.h"
 

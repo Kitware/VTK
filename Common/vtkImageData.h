@@ -139,8 +139,6 @@ public:
   // volume where forward difference is used). The scalars s are the scalars
   // from which the gradient is to be computed. This method will treat 
   // only 3D structured point datasets (i.e., volumes).
-  void GetVoxelGradient(int i,int j,int k, vtkScalars *s, vtkVectors *g)
-    { this->GetVoxelGradient(i, j, k, s->GetData(), g->GetData()); }
   void GetVoxelGradient(int i,int j,int k, vtkDataArray *s, vtkDataArray *g);
 
   // Description:
@@ -148,8 +146,6 @@ public:
   // dataset, compute the gradient vector from the scalar data at that point. 
   // The scalars s are the scalars from which the gradient is to be computed.
   // This method will treat structured point datasets of any dimension.
-  void GetPointGradient(int i, int j, int k, vtkScalars *s, float g[3])
-    { this->GetPointGradient(i, j, k, s->GetData(), g); }
   void GetPointGradient(int i, int j, int k, vtkDataArray *s, float g[3]);
 
   // Description:

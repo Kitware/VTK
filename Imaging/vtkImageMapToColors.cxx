@@ -115,7 +115,7 @@ void vtkImageMapToColors::ExecuteData(vtkDataObject *output)
     {
     if (this->DataWasPassed)
       {
-      outData->GetPointData()->SetScalars((vtkScalars*)NULL);
+      outData->GetPointData()->SetScalars(NULL);
       this->DataWasPassed = 0;
       }
     

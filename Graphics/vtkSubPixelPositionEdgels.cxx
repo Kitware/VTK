@@ -97,9 +97,9 @@ void vtkSubPixelPositionEdgels::Execute()
   dimensions = this->GetGradMaps()->GetDimensions();
   spacing = this->GetGradMaps()->GetSpacing();
   origin = this->GetGradMaps()->GetOrigin();
-  MapData = ((vtkFloatArray *)(this->GetGradMaps()->GetPointData())
-	     ->GetScalars()->GetData())->GetPointer(0);
-  inVectors = this->GetGradMaps()->GetPointData()->GetActiveVectors();
+  MapData = static_cast<vtkFloatArray *>(this->GetGradMaps()->GetPointData()
+	     ->GetScalars())->GetPointer(0);
+  inVectors = this->GetGradMaps()->GetPointData()->GetVectors();
 
   //
   // Loop over all points, adjusting locations

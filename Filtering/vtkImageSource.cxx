@@ -100,7 +100,7 @@ void vtkImageSource::Execute()
   // in a subclass.  We cannot be sure all outputs are images.
   output->SetExtent(output->GetUpdateExtent());
   output->AllocateScalars();
-  output->GetPointData()->GetScalars()->GetData()->SetName("Scalars");
+  output->GetPointData()->GetScalars()->SetName("Scalars");
   
   this->Execute(this->GetOutput());
 }

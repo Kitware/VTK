@@ -325,7 +325,7 @@ void vtkWeightedTransformFilter::Execute()
   pdComponents = 0;
   if(this->WeightArray != NULL && this->WeightArray[0] != '\0') 
     {
-    fd = pd->GetFieldData();
+    fd = pd;
     if(fd != NULL) {
     pdArray = fd->GetArray(this->WeightArray);
     }
@@ -355,7 +355,7 @@ void vtkWeightedTransformFilter::Execute()
   if(this->CellDataWeightArray != NULL &&
      this->CellDataWeightArray[0] != '\0') 
     {
-    fd = cd->GetFieldData();
+    fd = cd;
     if(fd != NULL)
       {
       cdArray = fd->GetArray(this->CellDataWeightArray);
@@ -381,10 +381,10 @@ void vtkWeightedTransformFilter::Execute()
     }
 
   inPts = input->GetPoints();
-  inVectors = pd->GetActiveVectors();
-  inNormals = pd->GetActiveNormals();
-  inCellVectors = cd->GetActiveVectors();
-  inCellNormals = cd->GetActiveNormals();
+  inVectors = pd->GetVectors();
+  inNormals = pd->GetNormals();
+  inCellVectors = cd->GetVectors();
+  inCellNormals = cd->GetNormals();
 
   if ( !inPts )
     {

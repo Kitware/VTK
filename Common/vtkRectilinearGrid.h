@@ -49,7 +49,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // To define a vtkRectilinearGrid, you must specify the dimensions of the
 // data and provide three arrays of values specifying the coordinates 
 // along the x-y-z axes. The coordinate arrays are specified using three 
-// vtkScalars objects (one for x, one for y, one for z).
+// vtkDataArray objects (one for x, one for y, one for z).
 
 // .SECTION Caveats
 // Make sure that the dimensions of the grid match the number of coordinates

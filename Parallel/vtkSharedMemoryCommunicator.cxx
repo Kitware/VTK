@@ -552,12 +552,14 @@ int vtkSharedMemoryCommunicator::Send(double* data, int length,
 }
 
 //----------------------------------------------------------------------------
+#ifdef VTK_USE_64BIT_IDS
 int vtkSharedMemoryCommunicator::Send(vtkIdType* data, int length, 
 				      int remoteThreadId, int tag)
 {
   length = length * sizeof(vtkIdType);
   return this->Send(NULL, (void*)data, length, remoteThreadId, tag);
 }
+#endif
 
 //----------------------------------------------------------------------------
 int vtkSharedMemoryCommunicator::Receive(int* data, int length, 
@@ -609,12 +611,14 @@ int vtkSharedMemoryCommunicator::Receive(double* data, int length,
 }
 
 //----------------------------------------------------------------------------
+#ifdef VTK_USE_64BIT_IDS
 int vtkSharedMemoryCommunicator::Receive(vtkIdType* data, int length, 
 					 int remoteThreadId, int tag)
 {
   length = length * sizeof(vtkIdType);
   return this->Receive(NULL, (void*)data, length, remoteThreadId, tag);
 }
+#endif
 
 //----------------------------------------------------------------------------
 int vtkSharedMemoryCommunicator::Send(vtkDataObject* data, 

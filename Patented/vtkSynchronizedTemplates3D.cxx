@@ -286,9 +286,9 @@ static void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
 
   newPts = output->GetPoints();
   newPolys = output->GetPolys();
-  newScalars = output->GetPointData()->GetActiveScalars();
-  newNormals = output->GetPointData()->GetActiveNormals();
-  newGradients = output->GetPointData()->GetActiveVectors();  
+  newScalars = output->GetPointData()->GetScalars();
+  newNormals = output->GetPointData()->GetNormals();
+  newGradients = output->GetPointData()->GetVectors();  
   
   // this is an exploded execute extent.
   xMin = exExt[0];

@@ -335,6 +335,7 @@ public:
       this->ComputeRange(comp);
       return this->Range;
     }
+
   virtual void ComputeRange(int comp);
   // Description:
   // Return the range of the array values for the 0th component. 
@@ -343,6 +344,10 @@ public:
     {
       this->ComputeRange(0);
       return this->Range;
+    }
+  void GetRange(float range[2])
+    {
+      this->GetRange(range,0);
     }
 
   // Description:

@@ -197,7 +197,7 @@ void vtkBYUWriter::WriteDisplacementFile(int numPts)
   vtkPolyData *input= this->GetInput();
 
   if ( this->WriteDisplacement && this->DisplacementFileName &&
-  (inVectors = input->GetPointData()->GetActiveVectors()) != NULL )
+  (inVectors = input->GetPointData()->GetVectors()) != NULL )
     {
     if ( !(dispFp = fopen(this->DisplacementFileName, "w")) )
       {
@@ -235,7 +235,7 @@ void vtkBYUWriter::WriteScalarFile(int numPts)
   vtkPolyData *input= this->GetInput();
 
   if ( this->WriteScalar && this->ScalarFileName &&
-  (inScalars = input->GetPointData()->GetActiveScalars()) != NULL )
+  (inScalars = input->GetPointData()->GetScalars()) != NULL )
     {
     if ( !(scalarFp = fopen(this->ScalarFileName, "w")) )
       {
@@ -273,7 +273,7 @@ void vtkBYUWriter::WriteTextureFile(int numPts)
   vtkPolyData *input= this->GetInput();
 
   if ( this->WriteTexture && this->TextureFileName &&
-  (inTCoords = input->GetPointData()->GetActiveTCoords()) != NULL )
+  (inTCoords = input->GetPointData()->GetTCoords()) != NULL )
     {
     if ( !(textureFp = fopen(this->TextureFileName, "w")) )
       {

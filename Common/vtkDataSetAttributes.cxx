@@ -84,7 +84,6 @@ vtkDataSetAttributes::vtkDataSetAttributes()
     {
     this->AttributeIndices[attributeType] = -1;
     this->CopyAttributeFlags[attributeType] = 1;
-    this->Attributes[attributeType] = 0;
     }
   this->TargetIndices=0;
 }
@@ -197,12 +196,6 @@ void vtkDataSetAttributes::ShallowCopy(vtkFieldData *fd)
 	// If this array is an attribute in the source, make it so
 	// in the target as well.
 	this->SetActiveAttribute(i, attributeType);
-	// Copy the attribute data too
-        this->Attributes[attributeType] = dsa->Attributes[attributeType];
-        if (this->Attributes[attributeType])
-          {
-          this->Attributes[attributeType]->Register(this);
-          }
 	}
       }
     // Copy the copy flags
@@ -235,11 +228,6 @@ void vtkDataSetAttributes::Initialize()
 //
   for(int attributeType=0; attributeType<NUM_ATTRIBUTES; attributeType++)
     {
-    if (this->Attributes[attributeType])
-      {
-      this->Attributes[attributeType]->UnRegister(this);
-      this->Attributes[attributeType] = 0;
-      }
     this->AttributeIndices[attributeType] = -1;
     }
 }
@@ -372,12 +360,6 @@ void vtkDataSetAttributes::PassData(vtkFieldData* fd)
 	   this->CopyAttributeFlags[attributeType] )
 	{
 	this->SetActiveAttribute(arrayIndex, attributeType);
-	// Also pass the attribute data
-	this->Attributes[attributeType] = dsa->Attributes[attributeType];
-	if (this->Attributes[attributeType])
-	  {
-	  this->Attributes[attributeType]->Register(this);
-	  }
 	}
       }
     }
@@ -480,12 +462,6 @@ void vtkDataSetAttributes::RemoveArray(int index)
     if (this->AttributeIndices[attributeType] == index)
       {
       this->AttributeIndices[attributeType] = -1;
-      // UnRegister the exiting vtkAttributeData and set it to NULL
-      if (this->Attributes[attributeType])
-        {
-        this->Attributes[attributeType]->UnRegister(this);
-        }
-      this->Attributes[attributeType] = 0;
       }
     else if (this->AttributeIndices[attributeType] > index)
       {
@@ -562,9 +538,9 @@ void vtkDataSetAttributes::InterpolateTime(vtkDataSetAttributes *from1,
     // If this attribute is to be copied
     if (this->CopyAttributeFlags[attributeType])
       {
-      this->InterpolateTuple(from1->GetActiveAttribute(attributeType), 
-                             from2->GetActiveAttribute(attributeType),
-                             this->GetActiveAttribute(attributeType), id, t);
+      this->InterpolateTuple(from1->GetAttribute(attributeType), 
+                             from2->GetAttribute(attributeType),
+                             this->GetAttribute(attributeType), id, t);
       }
     }
 }
@@ -1267,11 +1243,6 @@ int vtkDataSetAttributes::SetScalars(vtkDataArray* da)
   return this->SetAttribute(da, SCALARS); 
 }
 
-void vtkDataSetAttributes::SetScalars(vtkScalars* scalars)
-{ 
-  this->SetAttributeData(scalars, SCALARS); 
-}
-
 int vtkDataSetAttributes::SetActiveScalars(const char* name)
 { 
   return this->SetActiveAttribute(name, SCALARS); 
@@ -1285,9 +1256,9 @@ int vtkDataSetAttributes::SetActiveAttribute(const char* name,
   return this->SetActiveAttribute(index, attributeType);
 }
 
-vtkDataArray* vtkDataSetAttributes::GetActiveScalars() 
+vtkDataArray* vtkDataSetAttributes::GetScalars() 
 { 
-  return this->GetActiveAttribute(SCALARS); 
+  return this->GetAttribute(SCALARS); 
 }
 
 int vtkDataSetAttributes::SetVectors(vtkDataArray* da) 
@@ -1295,19 +1266,14 @@ int vtkDataSetAttributes::SetVectors(vtkDataArray* da)
 return this->SetAttribute(da, VECTORS); 
 }
 
-void vtkDataSetAttributes::SetVectors(vtkVectors* vectors)
-{ 
-  this->SetAttributeData(vectors, VECTORS); 
-}
-
 int vtkDataSetAttributes::SetActiveVectors(const char* name)
 { 
   return this->SetActiveAttribute(name, VECTORS); 
 }
 
-vtkDataArray* vtkDataSetAttributes::GetActiveVectors() 
+vtkDataArray* vtkDataSetAttributes::GetVectors() 
 { 
-  return this->GetActiveAttribute(VECTORS); 
+  return this->GetAttribute(VECTORS); 
 }
 
 int vtkDataSetAttributes::SetNormals(vtkDataArray* da) 
@@ -1315,19 +1281,14 @@ int vtkDataSetAttributes::SetNormals(vtkDataArray* da)
   return this->SetAttribute(da, NORMALS); 
 }
 
-void vtkDataSetAttributes::SetNormals(vtkNormals* normals)
-{ 
-  this->SetAttributeData(normals, NORMALS); 
-}
-
 int vtkDataSetAttributes::SetActiveNormals(const char* name)
 { 
   return this->SetActiveAttribute(name, NORMALS); 
 }
 
-vtkDataArray* vtkDataSetAttributes::GetActiveNormals() 
+vtkDataArray* vtkDataSetAttributes::GetNormals() 
 { 
-  return this->GetActiveAttribute(NORMALS); 
+  return this->GetAttribute(NORMALS); 
 }
 
 int vtkDataSetAttributes::SetTCoords(vtkDataArray* da) 
@@ -1335,18 +1296,13 @@ int vtkDataSetAttributes::SetTCoords(vtkDataArray* da)
   return this->SetAttribute(da, TCOORDS); 
 }
 
-void vtkDataSetAttributes::SetTCoords(vtkTCoords* tcoords)
-{ 
-  this->SetAttributeData(tcoords, TCOORDS); 
-}
-
 int vtkDataSetAttributes::SetActiveTCoords(const char* name)
 { 
   return this->SetActiveAttribute(name, TCOORDS); 
 }
-vtkDataArray* vtkDataSetAttributes::GetActiveTCoords() 
+vtkDataArray* vtkDataSetAttributes::GetTCoords() 
 { 
-  return this->GetActiveAttribute(TCOORDS); 
+  return this->GetAttribute(TCOORDS); 
 }
 
 int vtkDataSetAttributes::SetTensors(vtkDataArray* da) 
@@ -1354,19 +1310,14 @@ int vtkDataSetAttributes::SetTensors(vtkDataArray* da)
   return this->SetAttribute(da, TENSORS); 
 }
 
-void vtkDataSetAttributes::SetTensors(vtkTensors* Tensors)
-{ 
-  this->SetAttributeData(Tensors, TENSORS); 
-}
-
 int vtkDataSetAttributes::SetActiveTensors(const char* name)
 { 
   return this->SetActiveAttribute(name, TENSORS); 
 }
 
-vtkDataArray* vtkDataSetAttributes::GetActiveTensors() 
+vtkDataArray* vtkDataSetAttributes::GetTensors() 
 { 
-  return this->GetActiveAttribute(TENSORS); 
+  return this->GetAttribute(TENSORS); 
 }
 
 int vtkDataSetAttributes::SetActiveAttribute(int index, int attributeType)
@@ -1381,13 +1332,6 @@ int vtkDataSetAttributes::SetActiveAttribute(int index, int attributeType)
       return -1;
       }
     this->AttributeIndices[attributeType] = index;
-
-    // UnRegister the exiting vtkAttributeData and set it to NULL
-    if (this->Attributes[attributeType])
-      {
-      this->Attributes[attributeType]->UnRegister(this);
-      }
-    this->Attributes[attributeType] = 0;
     this->Modified();
     return index;
     }
@@ -1451,7 +1395,7 @@ int vtkDataSetAttributes::CheckNumberOfComponents(vtkDataArray* da,
     }
 }
 
-vtkDataArray* vtkDataSetAttributes::GetActiveAttribute(int attributeType)
+vtkDataArray* vtkDataSetAttributes::GetAttribute(int attributeType)
 {
   int index = this->AttributeIndices[attributeType];
   if (index == -1)
@@ -1500,141 +1444,9 @@ int vtkDataSetAttributes::SetAttribute(vtkDataArray* da, int attributeType)
     {
     this->AttributeIndices[attributeType] = -1; //attribute of this type doesn't exist
     }
-  
-  // UnRegister the exiting vtkAttributeData and set it to NULL
-  if (this->Attributes[attributeType])
-    {
-    this->Attributes[attributeType]->UnRegister(this);
-    }
-  this->Attributes[attributeType] = 0;
-
   this->Modified();
   return this->AttributeIndices[attributeType];
 }
-
-// This method does two things: 1> Get the data array inside
-// the attribute data and add it to the list of arrays and
-// make it correspond to the attribute (i.e. scalars, vectors etc)
-// given by attribute type, 2> keep a pointer to the attribute
-// data in the pointer array Attributes[]
-void vtkDataSetAttributes::SetAttributeData(vtkAttributeData* newAtt,
-                                            int attributeType)
-{
-  if ( newAtt != this->Attributes[attributeType] )
-    {
-    if(newAtt)
-      {
-      this->SetAttribute(newAtt->GetData(), attributeType);
-      this->Attributes[attributeType] = newAtt;
-      if (newAtt)
-        {
-        newAtt->Register(this);
-        }
-      }
-    else
-      {
-      this->SetAttribute(0, attributeType);
-      }
-    }
-}
-
-vtkAttributeData* vtkDataSetAttributes::GetAttributeData(int attributeType)
-{
-  if (this->Attributes[attributeType])
-    {
-    return this->Attributes[attributeType];
-    }
-  else
-    {
-    return 0;
-    }
-}
-
-vtkScalars* vtkDataSetAttributes::GetScalars()
-{
-  vtkScalars* retVal=0;
-
-  if (this->Attributes[SCALARS] || (this->AttributeIndices[SCALARS] == -1))
-    {
-    retVal = (vtkScalars*)this->GetAttributeData(SCALARS);
-    }
-  else
-    {
-    vtkScalars *s = vtkScalars::New();
-    this->Attributes[SCALARS] = s;
-    s->Register(this);
-    s->Delete();
-    this->Attributes[SCALARS]->SetData(this->GetActiveScalars());
-    retVal = (vtkScalars*)this->Attributes[SCALARS];
-    }
-
-  return retVal;
-}
-
-vtkVectors* vtkDataSetAttributes::GetVectors()
-{
-  if (this->Attributes[VECTORS] || (this->AttributeIndices[VECTORS] == -1))
-    {
-    return (vtkVectors*)this->GetAttributeData(VECTORS);
-    }
-  else
-    {
-    this->Attributes[VECTORS] = vtkVectors::New();
-    this->Attributes[VECTORS]->Register(this);
-    this->Attributes[VECTORS]->Delete();
-    this->Attributes[VECTORS]->SetData(this->GetActiveVectors());
-    return (vtkVectors*)this->Attributes[VECTORS];
-    }
-}
-
-vtkNormals* vtkDataSetAttributes::GetNormals()
-{
-  if (this->Attributes[NORMALS] || (this->AttributeIndices[NORMALS] == -1))
-    {
-    return (vtkNormals*)this->GetAttributeData(NORMALS);
-    }
-  else
-    {
-    this->Attributes[NORMALS] = vtkNormals::New();
-    this->Attributes[NORMALS]->Register(this);
-    this->Attributes[NORMALS]->Delete();
-    this->Attributes[NORMALS]->SetData(this->GetActiveNormals());
-    return (vtkNormals*)this->Attributes[NORMALS];
-    }
-}
-
-vtkTCoords* vtkDataSetAttributes::GetTCoords()
-{
-  if (this->Attributes[TCOORDS] || (this->AttributeIndices[TCOORDS] == -1))
-    {
-    return (vtkTCoords*)this->GetAttributeData(TCOORDS);
-    }
-  else
-    {
-    this->Attributes[TCOORDS] = vtkTCoords::New();
-    this->Attributes[TCOORDS]->Register(this);
-    this->Attributes[TCOORDS]->Delete();
-    this->Attributes[TCOORDS]->SetData(this->GetActiveTCoords());
-    return (vtkTCoords*)this->Attributes[TCOORDS];
-    }
-}
-
-vtkTensors* vtkDataSetAttributes::GetTensors()
-{
-  if (this->Attributes[TENSORS] || (this->AttributeIndices[TENSORS] == -1))
-    {
-    return (vtkTensors*)this->GetAttributeData(TENSORS);
-    }
-  else
-    {
-    this->Attributes[TENSORS] = vtkTensors::New();
-    this->Attributes[TENSORS]->Register(this);
-    this->Attributes[TENSORS]->Delete();
-    this->Attributes[TENSORS]->SetData(this->GetActiveTensors());
-    return (vtkTensors*)this->Attributes[TENSORS];
-    }
-}
-
 
 void vtkDataSetAttributes::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -1655,7 +1467,7 @@ void vtkDataSetAttributes::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << vtkDataSetAttributes::AttributeNames[attributeType]
        << ": ";
-    if ( (da=this->GetActiveAttribute(attributeType)) )
+    if ( (da=this->GetAttribute(attributeType)) )
       {
       cout << endl;
       da->PrintSelf(os, indent.GetNextIndent());
@@ -1942,7 +1754,7 @@ void vtkDataSetAttributes::FieldList::IntersectFieldList(vtkDataSetAttributes* d
     {
     if ( this->FieldIndices[i] >= 0 )
       {
-      da = dsa->GetActiveAttribute(i);
+      da = dsa->GetAttribute(i);
       if ((da) && (da->GetDataType() == this->FieldTypes[i]) && 
           (da->GetNumberOfComponents() == this->FieldComponents[i]))
         {

@@ -417,14 +417,14 @@ void vtkHyperStreamline::Execute()
   vtkDebugMacro(<<"Generating hyperstreamline(s)");
   this->NumberOfStreamers = 0;
 
-  if ( ! (inTensors=pd->GetActiveTensors()) )
+  if ( ! (inTensors=pd->GetTensors()) )
     {
     vtkErrorMacro(<<"No tensor data defined!");
     return;
     }
 
 
-  inScalars = pd->GetActiveScalars();
+  inScalars = pd->GetScalars();
 
   cellTensors = vtkDataArray::CreateDataArray(inTensors->GetDataType());
   cellScalars = vtkDataArray::CreateDataArray(inScalars->GetDataType());

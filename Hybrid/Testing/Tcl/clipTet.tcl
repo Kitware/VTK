@@ -3,11 +3,11 @@ package require vtkinteraction
 package require vtktesting
 
 #define a Single Cube
-vtkScalars Scalars
-    Scalars InsertNextScalar 1.0
-    Scalars InsertNextScalar 0.0
-    Scalars InsertNextScalar 0.0
-    Scalars InsertNextScalar 1.0
+vtkFloatArray Scalars
+    Scalars InsertNextValue 1.0
+    Scalars InsertNextValue 0.0
+    Scalars InsertNextValue 0.0
+    Scalars InsertNextValue 1.0
 
 vtkPoints Points
     Points InsertNextPoint 0 0 0
@@ -163,9 +163,9 @@ proc cases {id} {
     for {set i 0} {$i < 4} {incr i} {
 	set m [lindex $mask $i]
 	if {[expr $m & $id] == 0} {
-	    Scalars SetScalar $i 0
+	    Scalars SetValue $i 0
 	} else {
-	    Scalars SetScalar $i 1
+	    Scalars SetValue $i 1
 	}
     caseLabel SetText "Case $id"
     }

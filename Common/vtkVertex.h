@@ -71,16 +71,6 @@ public:
             vtkPointData *inPd, vtkPointData *outPd,
             vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
             int insideOut);
-  virtual void Clip(float value, vtkScalars *cellScalars, 
-                    vtkPointLocator *locator, vtkCellArray *connectivity,
-                    vtkPointData *inPd, vtkPointData *outPd,
-                    vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd, 
-                    int insideOut)
-    {
-      vtkWarningMacro("The use of this method has been deprecated.You should use vtkGenericCell::Clip(float, vtkDataArray*, vtkPointLocator*, vtkCellArray*, vtkPointData*, vtkPointData*, vtkCellData*, vtkIdType, vtkCellData*, int) instead.");
-      this->Clip(value, cellScalars->GetData(), locator, connectivity, 
-		 inPd, outPd, inCd, cellId, outCd, insideOut);
-    }
   int EvaluatePosition(float x[3], float* closestPoint, 
                        int& subId, float pcoords[3], 
                        float& dist2, float *weights);
@@ -105,17 +95,6 @@ public:
                vtkCellArray *lines, vtkCellArray *verts2, 
                vtkPointData *inPd, vtkPointData *outPd,
                vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd);
-  virtual void Contour(float value, vtkScalars *cellScalars, 
-                       vtkPointLocator *locator, vtkCellArray *verts, 
-                       vtkCellArray *lines, vtkCellArray *polys, 
-                       vtkPointData *inPd, vtkPointData *outPd,
-                       vtkCellData *inCd, vtkIdType cellId,
-                       vtkCellData *outCd)
-    {
-      VTK_LEGACY_METHOD("Contour", "4.0");
-      this->Contour(value, cellScalars->GetData(), locator, verts, 
-		    lines, polys, inPd, outPd, inCd, cellId, outCd);
-    }
 
   // Description:
   // Intersect with a ray. Return parametric coordinates (both line and cell)

@@ -213,7 +213,7 @@ void vtkClipPolyData::Execute()
     }
   else //using input scalars
     {
-    clipScalars = inPD->GetActiveScalars();
+    clipScalars = inPD->GetScalars();
     if ( !clipScalars )
       {
       vtkErrorMacro(<<"Cannot clip without clip function or input scalars");

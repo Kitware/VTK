@@ -15,12 +15,13 @@ vtkRenderWindowInteractor iren
 
 vtkMath math
 vtkPoints points
-vtkVectors vectors
+vtkFloatArray vectors
+vectors SetNumberOfComponents 3
 for {set i 0} {$i<100} {incr i 1} {
     set theta [math Random 0.31415 2.8]
     set phi [math Random 0.31415 2.8]
     eval points InsertPoint $i [expr cos($theta)*sin($phi)] [expr sin($theta)*sin($phi)] [expr cos($phi)]
-    eval vectors InsertVector $i [expr cos($theta)*sin($phi)] [expr sin($theta)*sin($phi)] [expr cos($phi)]
+    eval vectors InsertTuple3 $i [expr cos($theta)*sin($phi)] [expr sin($theta)*sin($phi)] [expr cos($phi)]
 }
 
 vtkPolyData profile

@@ -97,7 +97,7 @@ void vtkStructuredPointsSource::ExecuteInformation()
   vtkDataArray *scalars;
 
   output->UpdateData();
-  scalars = output->GetPointData()->GetActiveScalars();
+  scalars = output->GetPointData()->GetScalars();
 
   if (scalars)
     {

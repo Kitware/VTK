@@ -104,7 +104,7 @@ void vtkRecursiveDividingCubes::Execute()
   this->Count = 0;
 
   // make sure we have scalar data
-  if ( ! (inScalars = input->GetPointData()->GetActiveScalars()) )
+  if ( ! (inScalars = input->GetPointData()->GetScalars()) )
     {
     vtkErrorMacro(<<"No scalar data to contour");
     return;

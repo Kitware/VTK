@@ -158,13 +158,13 @@ static vtkDataSet *ReadFinancialData(const char *x, const char *y, const char *z
     }
 
   vtkPoints *newPts = vtkPoints::New();
-  vtkScalars *newScalars = vtkScalars::New();
+  vtkFloatArray *newScalars = vtkFloatArray::New();
 
   for (i=0; i<npts; i++)
     {
     xyz[0] = xV[i]; xyz[1] = yV[i]; xyz[2] = zV[i]; 
     newPts->InsertPoint(i, xyz);
-    newScalars->InsertScalar(i, sV[i]);
+    newScalars->InsertValue(i, sV[i]);
     }
 
   dataSet->SetPoints(newPts);

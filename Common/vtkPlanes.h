@@ -51,7 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // inside the convex region.
 //
 // There are several methods to define the set of planes. The most general is
-// to supply an instance of vtkPoints and an instance of vtkNormals. (The 
+// to supply an instance of vtkPoints and an instance of vtkDataArray. (The 
 // points define a point on the plane, and the normals corresponding plane 
 // normals.) Two other specialized ways are to 1) supply six planes defining 
 // the view frustrum of a camera, and 2) provide a bounding box.
@@ -93,8 +93,6 @@ public:
   // correspondence between plane points and plane normals.
   void SetNormals(vtkDataArray* normals);
   vtkGetObjectMacro(Normals,vtkDataArray);
-  void SetNormals(vtkNormals* normals)
-    { this->SetNormals(normals->GetData()); }
 
   // Description:
   // An alternative method to specify six planes defined by the camera view 

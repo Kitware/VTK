@@ -95,10 +95,10 @@ void vtkTransformFilter::Execute()
     }
 
   inPts = input->GetPoints();
-  inVectors = pd->GetActiveVectors();
-  inNormals = pd->GetActiveNormals();
-  inCellVectors = cd->GetActiveVectors();
-  inCellNormals = cd->GetActiveNormals();
+  inVectors = pd->GetVectors();
+  inNormals = pd->GetNormals();
+  inCellVectors = cd->GetVectors();
+  inCellNormals = cd->GetNormals();
 
   if ( !inPts )
     {

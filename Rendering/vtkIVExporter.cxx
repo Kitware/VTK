@@ -46,6 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 #include "vtkAssemblyNode.h"
 #include "vtkObjectFactory.h"
+#include "vtkUnsignedCharArray.h"
 
 //----------------------------------------------------------------------------
 vtkIVExporter* vtkIVExporter::New()
@@ -267,8 +268,8 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   vtkGeometryFilter *gf = NULL;
   vtkPointData *pntData;
   vtkPoints *points = NULL;
-  vtkNormals *normals = NULL;
-  vtkTCoords *tcoords = NULL;
+  vtkDataArray *normals = NULL;
+  vtkDataArray *tcoords = NULL;
   int i;
   vtkProperty *prop;
   float *tempf;
@@ -366,8 +367,8 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
     {
     vtkTexture *aTexture = anActor->GetTexture();
     int *size, xsize, ysize, bpp;
-    vtkScalars *scalars;
-    vtkScalars *mappedScalars;
+    vtkDataArray *scalars;
+    vtkUnsignedCharArray *mappedScalars;
     unsigned char *txtrData;
     int totalValues;
     
@@ -379,7 +380,7 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
       }
     aTexture->GetInput()->Update();
     size = aTexture->GetInput()->GetDimensions();
-    scalars = (aTexture->GetInput()->GetPointData())->GetScalars();
+    scalars = aTexture->GetInput()->GetPointData()->GetScalars();
 
     // make sure scalars are non null
     if (!scalars) 
@@ -390,13 +391,13 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
 
     // make sure using unsigned char data of color scalars type
     if (aTexture->GetMapColorScalarsThroughLookupTable () ||
-    (scalars->GetDataType() != VTK_UNSIGNED_CHAR) )
+	(scalars->GetDataType() != VTK_UNSIGNED_CHAR) )
       {
       mappedScalars = aTexture->GetMappedScalars ();
       }
     else
       {
-      mappedScalars = scalars;
+      mappedScalars = static_cast<vtkUnsignedCharArray*>(scalars);
       }
 
     // we only support 2d texture maps right now
@@ -429,7 +430,7 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
     bpp = mappedScalars->GetNumberOfComponents();
     fprintf(fp, "%simage %d %d %d\n", indent, xsize, ysize, bpp);
     VTK_INDENT_MORE;
-    txtrData = ((vtkUnsignedCharArray *)mappedScalars->GetData())->GetPointer(0);
+    txtrData = static_cast<vtkUnsignedCharArray *>(mappedScalars)->GetPointer(0);
     totalValues = xsize*ysize;
     fprintf(fp,"%s",indent);
     for (i = 0; i < totalValues; i++)
@@ -626,8 +627,8 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   pm->Delete();
 }
 
-void vtkIVExporter::WritePointData(vtkPoints *points, vtkNormals *normals,
-                                   vtkTCoords *tcoords, 
+void vtkIVExporter::WritePointData(vtkPoints *points, vtkDataArray *normals,
+                                   vtkDataArray *tcoords, 
                                    vtkUnsignedCharArray *colors, FILE *fp)
 {
   float *p;
@@ -656,9 +657,9 @@ void vtkIVExporter::WritePointData(vtkPoints *points, vtkNormals *normals,
 	VTK_INDENT_MORE;
     fprintf(fp,"%svector [\n", indent);
 	VTK_INDENT_MORE;
-    for (i = 0; i < normals->GetNumberOfNormals(); i++)
+    for (i = 0; i < normals->GetNumberOfTuples(); i++)
       {
-      p = normals->GetNormal(i);
+      p = normals->GetTuple(i);
       fprintf (fp,"%s%g %g %g,\n", indent, p[0], p[1], p[2]);
       }
     fprintf(fp,"%s]\n", indent);
@@ -677,9 +678,9 @@ void vtkIVExporter::WritePointData(vtkPoints *points, vtkNormals *normals,
 	fprintf(fp,"%s}\n",indent);
 	fprintf(fp,"%sTextureCoordinate2 {\n", indent);
     fprintf(fp,"%spoint [\n", indent);
-    for (i = 0; i < tcoords->GetNumberOfTCoords(); i++)
+    for (i = 0; i < tcoords->GetNumberOfTuples(); i++)
       {
-      p = tcoords->GetTCoord(i);
+      p = tcoords->GetTuple(i);
       fprintf (fp,"%s%g %g,\n", indent, p[0], p[1]);
       }
     fprintf(fp,"%s]\n", indent);

@@ -179,7 +179,7 @@ void vtkProbeFilter::Execute()
   if (output->IsA("vtkImageData"))
     {
     vtkImageData *out = (vtkImageData*)output;
-    vtkDataArray *s = outPD->GetActiveScalars();
+    vtkDataArray *s = outPD->GetScalars();
     out->SetScalarType(s->GetDataType());
     out->SetNumberOfScalarComponents(s->GetNumberOfComponents());
     }

@@ -416,7 +416,7 @@ void vtkSynchronizedTemplates2D::Execute()
   vtkPointData  *pd = input->GetPointData();
   vtkPoints     *newPts;
   vtkCellArray  *newLines;
-  vtkDataArray  *inScalars = pd->GetActiveScalars();
+  vtkDataArray  *inScalars = pd->GetScalars();
   vtkDataArray  *newScalars = NULL;
   vtkPolyData   *output = this->GetOutput();
   int           *ext = input->GetUpdateExtent();

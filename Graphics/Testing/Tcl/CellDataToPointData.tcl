@@ -24,11 +24,11 @@ vtkPoints points
   points InsertNextPoint     0 -1  0
   points InsertNextPoint     1 -1  0
 
-vtkScalars faceColors
-  faceColors InsertNextScalar 0
-  faceColors InsertNextScalar 1
-  faceColors InsertNextScalar 1
-  faceColors InsertNextScalar 2
+vtkFloatArray faceColors
+  faceColors InsertNextValue 0
+  faceColors InsertNextValue 1
+  faceColors InsertNextValue 1
+  faceColors InsertNextValue 2
 
 vtkStructuredGrid sgrid
   sgrid SetDimensions 3 3 1

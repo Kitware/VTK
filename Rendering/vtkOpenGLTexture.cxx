@@ -133,7 +133,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
     {
     int bytesPerPixel;
     int *size;
-    vtkScalars *scalars;
+    vtkDataArray *scalars;
     unsigned char *dataPtr;
     int rowLength;
     unsigned char *resultData=NULL;
@@ -143,7 +143,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
 
     // get some info
     size = input->GetDimensions();
-    scalars = (input->GetPointData())->GetScalars();
+    scalars = input->GetPointData()->GetScalars();
 
     // make sure scalars are non null
     if (!scalars) 
@@ -163,7 +163,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
       }
     else
       {
-      dataPtr = ((vtkUnsignedCharArray *)scalars->GetData())->GetPointer(0);
+      dataPtr = static_cast<vtkUnsignedCharArray *>(scalars)->GetPointer(0);
       }
 
     // we only support 2d texture maps right now

@@ -104,8 +104,10 @@ public:
 		   int tag);
   virtual int Send(double* data, int length, int remoteProcessId, 
 		   int tag);
+#ifdef VTK_USE_64BIT_IDS
   virtual int Send(vtkIdType* data, int length, int remoteProcessId, 
 		   int tag);
+#endif
   virtual int Send(vtkDataObject* data, int remoteProcessId, int tag)
     { return this->vtkCommunicator::Send(data, remoteProcessId, tag); }
   virtual int Send(vtkDataArray* data, int remoteProcessId, int tag)
@@ -154,8 +156,10 @@ public:
 		      int tag);
   virtual int Receive(double* data, int length, int remoteProcessId, 
 		      int tag);
+#ifdef VTK_USE_64BIT_IDS
   virtual int Receive(vtkIdType* data, int length, int remoteProcessId, 
 		      int tag);
+#endif
   virtual int Receive(vtkDataObject* data, int remoteProcessId, int tag)
     { return this->vtkCommunicator::Receive(data, remoteProcessId, tag); }
   virtual int Receive(vtkDataArray* data, int remoteProcessId, int tag)

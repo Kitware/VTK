@@ -90,12 +90,12 @@ void vtkVectorDot::Execute()
     vtkErrorMacro(<< "No points!");
     return;
     }
-  if ( (inVectors=pd->GetActiveVectors()) == NULL )
+  if ( (inVectors=pd->GetVectors()) == NULL )
     {
     vtkErrorMacro(<< "No vectors defined!");
     return;
     }
-  if ( (inNormals=pd->GetActiveNormals()) == NULL )
+  if ( (inNormals=pd->GetNormals()) == NULL )
     {
     vtkErrorMacro(<< "No normals defined!");
     return;

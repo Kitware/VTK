@@ -92,7 +92,7 @@ void vtkTransformTextureCoords::Execute()
 {
   vtkDataSet *input = this->GetInput();
   vtkDataSet *output = this->GetOutput();
-  vtkDataArray *inTCoords=input->GetPointData()->GetActiveTCoords();
+  vtkDataArray *inTCoords=input->GetPointData()->GetTCoords();
   vtkDataArray *newTCoords;
   vtkIdType numPts=input->GetNumberOfPoints(), ptId;
   int i, j, texDim;

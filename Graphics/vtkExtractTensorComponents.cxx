@@ -113,7 +113,7 @@ void vtkExtractTensorComponents::Execute()
   // First, copy the input to the output as a starting point
   this->GetOutput()->CopyStructure( input );
 
-  inTensors = pd->GetActiveTensors();
+  inTensors = pd->GetTensors();
   numPts = input->GetNumberOfPoints();
 
   if ( !inTensors || numPts < 1 )

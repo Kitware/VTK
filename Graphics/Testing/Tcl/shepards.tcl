@@ -17,9 +17,9 @@ for {set i 0} {$i<50} {incr i 1} {
     eval points InsertPoint $i [math Random 0 1] [math Random 0 1] [math Random 0 1]
 }
 
-vtkScalars scalars
+vtkFloatArray scalars
 for {set i 0} {$i<50} {incr i 1} {
-    eval scalars InsertScalar $i [math Random 0 1]
+    eval scalars InsertValue $i [math Random 0 1]
 }
 
 vtkPolyData profile

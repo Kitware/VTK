@@ -52,11 +52,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkDataSetAttributes_h
 
 #include "vtkObject.h"
-#include "vtkScalars.h"
-#include "vtkVectors.h"
-#include "vtkNormals.h"
-#include "vtkTCoords.h"
-#include "vtkTensors.h"
 #include "vtkFieldData.h"
 
 class VTK_COMMON_EXPORT vtkDataSetAttributes : public vtkFieldData
@@ -156,42 +151,32 @@ public:
   // Description:
   // Set/Get the scalar data.
   int SetScalars(vtkDataArray* da);
-  void SetScalars(vtkScalars* scalars);
   int SetActiveScalars(const char* name);
-  vtkScalars* GetScalars();
-  vtkDataArray* GetActiveScalars();
+  vtkDataArray* GetScalars();
 
   // Description:
   // Set/Get the vector data.
   int SetVectors(vtkDataArray* da);
-  void SetVectors(vtkVectors* vectors);
   int SetActiveVectors(const char* name);
-  vtkVectors* GetVectors();
-  vtkDataArray* GetActiveVectors();
+  vtkDataArray* GetVectors();
 
   // Description:
   // Set/get the normal data.
   int SetNormals(vtkDataArray* da);
-  void SetNormals(vtkNormals* normals);
   int SetActiveNormals(const char* name);
-  vtkNormals* GetNormals();
-  vtkDataArray* GetActiveNormals();
+  vtkDataArray* GetNormals();
 
   // Description:
   // Set/Get the texture coordinate data.
   int SetTCoords(vtkDataArray* da);
-  void SetTCoords(vtkTCoords* tcoords);
   int SetActiveTCoords(const char* name);
-  vtkTCoords* GetTCoords();
-  vtkDataArray* GetActiveTCoords();
+  vtkDataArray* GetTCoords();
 
   // Description:
   // Set/Get the tensor data.
   int SetTensors(vtkDataArray* da);
-  void SetTensors(vtkTensors* Tensors);
   int SetActiveTensors(const char* name);
-  vtkTensors* GetTensors();
-  vtkDataArray* GetActiveTensors();
+  vtkDataArray* GetTensors();
 
   // Description:
   // Make the array with the given name the active attribute.
@@ -208,10 +193,6 @@ public:
   // Description:
   // Make the array with the given index the active attribute.
   int SetActiveAttribute(int index, int attributeType);
-
-  // Description:
-  // Get the field data.
-  vtkFieldData* GetFieldData() { return this; }
 
   // Description:
   // Specify whether to copy the data attribute referred to by index i.
@@ -334,7 +315,7 @@ public:
   // Description:
   // Return an attribute given the attribute type
   // (see vtkDataSetAttributes::AttributeTypes).
-  vtkDataArray* GetActiveAttribute(int attributeType);
+  vtkDataArray* GetAttribute(int attributeType);
 
   // Description:
   // Remove an array (with the given name) from the list of arrays.
@@ -438,8 +419,6 @@ protected:
   void InterpolateTuple(vtkDataArray *fromData1, vtkDataArray *fromData2, 
                         vtkDataArray *toData, vtkIdType id, float t);
 
-  // Manage data arrays as the  attributes scalars, vectors, tensors, etc...
-  vtkAttributeData* Attributes[NUM_ATTRIBUTES]; //pointer to attributes arrays
   int AttributeIndices[NUM_ATTRIBUTES]; //index to attribute array in field data
   int CopyAttributeFlags[NUM_ATTRIBUTES]; //copy flag for attribute data
 
@@ -457,8 +436,6 @@ protected:
 
 private:
   int SetAttribute(vtkDataArray* da, int attributeType);
-  void SetAttributeData(vtkAttributeData* newAtt, int attributeType);
-  vtkAttributeData* GetAttributeData(int attributeType);
   static int CheckNumberOfComponents(vtkDataArray* da, int attributeType);
 
 //BTX

@@ -326,7 +326,7 @@ void vtkVoxelModeller::Write(char *fname)
   // update the data
   this->Update();
   
-  newScalars = output->GetPointData()->GetActiveScalars();
+  newScalars = output->GetPointData()->GetScalars();
 
   output->SetDimensions(this->GetSampleDimensions());
   this->ComputeModelBounds(origin,spacing);

@@ -191,7 +191,7 @@ void vtkRearrangeFields::ApplyOperation(Operation* op, vtkDataSet* input,
       vtkWarningMacro("Can not apply operation " << op->Id
 		      << ": Input has to be vtkDataSetAttributes.");
       }
-    outputFD->AddArray(dsa->GetActiveAttribute(op->AttributeType));
+    outputFD->AddArray(dsa->GetAttribute(op->AttributeType));
     // If moving the array, make sure that it is not copied
     // with PassData()
     if ( op->OperationType == vtkRearrangeFields::MOVE )

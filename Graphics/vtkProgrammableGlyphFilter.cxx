@@ -154,12 +154,12 @@ void vtkProgrammableGlyphFilter::Execute()
   // figure out how to color the data and setup
   if ( this->ColorMode == VTK_COLOR_BY_INPUT )
     {
-    if ( (inPtScalars = inputPD->GetActiveScalars()) )
+    if ( (inPtScalars = inputPD->GetScalars()) )
       {
       ptScalars = vtkFloatArray::New();
       ptScalars->Allocate(numSourcePts*numPts);
       }
-    if ( (inCellScalars = inputCD->GetActiveScalars()) )
+    if ( (inCellScalars = inputCD->GetScalars()) )
       {
       cellScalars = vtkFloatArray::New();
       cellScalars->Allocate(numSourcePts*numPts);
@@ -168,12 +168,12 @@ void vtkProgrammableGlyphFilter::Execute()
 
   else
     {
-    if ( sourcePD->GetActiveScalars() )
+    if ( sourcePD->GetScalars() )
       {
       ptScalars = vtkFloatArray::New();
       ptScalars->Allocate(numSourcePts*numPts);
       }
-    if ( sourceCD->GetActiveScalars() )
+    if ( sourceCD->GetScalars() )
       {
       cellScalars = vtkFloatArray::New();
       cellScalars->Allocate(numSourcePts*numPts);
@@ -215,8 +215,8 @@ void vtkProgrammableGlyphFilter::Execute()
 
       if ( this->ColorMode == VTK_COLOR_BY_SOURCE )
         {
-        inPtScalars = sourcePD->GetActiveScalars();
-        inCellScalars = sourceCD->GetActiveScalars();
+        inPtScalars = sourcePD->GetScalars();
+        inCellScalars = sourceCD->GetScalars();
         }
 
       // Copy all data from source to output.

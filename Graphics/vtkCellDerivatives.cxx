@@ -43,7 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkCellDerivatives.h"
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
-
+#include "vtkTensor.h"
 
 
 //------------------------------------------------------------------------------
@@ -74,8 +74,8 @@ void vtkCellDerivatives::Execute()
   vtkDataSet *output = this->GetOutput();
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
-  vtkDataArray *inScalars=pd->GetActiveScalars();
-  vtkDataArray *inVectors=pd->GetActiveVectors();
+  vtkDataArray *inScalars=pd->GetScalars();
+  vtkDataArray *inVectors=pd->GetVectors();
   vtkFloatArray *outVectors=NULL;
   vtkFloatArray *outTensors=NULL;
   vtkIdType numCells=input->GetNumberOfCells();

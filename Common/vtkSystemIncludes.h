@@ -111,7 +111,7 @@ inline ostream& __cdecl operator<<(ostream& _O, __int64 i64Val)
 typedef long long vtkIdType;
 #endif
 #else
-typedef long vtkIdType;
+typedef int vtkIdType;
 #endif
 
 #endif

@@ -125,8 +125,6 @@ public:
   // you'll get erratic behavior.
   vtkCell *GetNextCell(vtkIdType &cellId, vtkIdList* &ptIds,
                        vtkDataArray *cellScalars);
-  vtkCell *GetNextCell(vtkIdType &cellId, vtkIdList* &ptIds,
-                       vtkScalars *cellScalars);
 
 protected:
   vtkScalarTree();

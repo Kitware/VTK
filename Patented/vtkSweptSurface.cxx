@@ -191,7 +191,7 @@ void vtkSweptSurface::Execute()
   pd = input->GetPointData();
   outPD = output->GetPointData();
   
-  inScalars = pd->GetActiveScalars();
+  inScalars = pd->GetScalars();
   if ( input->GetNumberOfPoints() < 1 ||
   inScalars == NULL )
     {

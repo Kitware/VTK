@@ -67,8 +67,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObject.h"
 #include "vtkMatrix4x4.h"
 #include "vtkPoints.h"
-#include "vtkNormals.h"
-#include "vtkVectors.h"
 
 class vtkSimpleMutexLock;
 
@@ -196,19 +194,6 @@ public:
   // Description:
   // Apply the transformation to a combination of points, normals
   // and vectors.  
-  virtual void TransformPointsNormalsVectors(vtkPoints *inPts, 
-					     vtkPoints *outPts, 
-					     vtkNormals *inNms, 
-					     vtkNormals *outNms,
-					     vtkVectors *inVrs, 
-					     vtkVectors *outVrs)
-    { 
-      this->TransformPointsNormalsVectors(inPts, outPts,
-					  inNms->GetData(),
-					  outNms->GetData(),
-					  inVrs->GetData(),
-					  outVrs->GetData());
-    }
   virtual void TransformPointsNormalsVectors(vtkPoints *inPts, 
 					     vtkPoints *outPts, 
 					     vtkDataArray *inNms, 

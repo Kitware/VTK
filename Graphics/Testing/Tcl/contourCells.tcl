@@ -28,16 +28,16 @@ vtkPoints voxelPoints
   voxelPoints InsertPoint 6 0 1 1
   voxelPoints InsertPoint 7 1 1 1
 
-vtkScalars voxelScalars
-  voxelScalars SetNumberOfScalars 8
-  voxelScalars InsertScalar 0 0
-  voxelScalars InsertScalar 1 1
-  voxelScalars InsertScalar 2 0
-  voxelScalars InsertScalar 3 0
-  voxelScalars InsertScalar 4 0
-  voxelScalars InsertScalar 5 0
-  voxelScalars InsertScalar 6 0
-  voxelScalars InsertScalar 7 0
+vtkFloatArray voxelScalars
+  voxelScalars SetNumberOfTuples 8
+  voxelScalars InsertValue 0 0
+  voxelScalars InsertValue 1 1
+  voxelScalars InsertValue 2 0
+  voxelScalars InsertValue 3 0
+  voxelScalars InsertValue 4 0
+  voxelScalars InsertValue 5 0
+  voxelScalars InsertValue 6 0
+  voxelScalars InsertValue 7 0
 
 vtkVoxel aVoxel
   [aVoxel GetPointIds] SetId 0 0
@@ -87,16 +87,16 @@ vtkPoints hexahedronPoints
   hexahedronPoints InsertPoint 6 1 1 1
   hexahedronPoints InsertPoint 7 0 1 1
   
-vtkScalars hexahedronScalars
-  hexahedronScalars SetNumberOfScalars 8
-  hexahedronScalars InsertScalar 0 0
-  hexahedronScalars InsertScalar 1 1
-  hexahedronScalars InsertScalar 2 0
-  hexahedronScalars InsertScalar 3 0
-  hexahedronScalars InsertScalar 4 0
-  hexahedronScalars InsertScalar 5 0
-  hexahedronScalars InsertScalar 6 0
-  hexahedronScalars InsertScalar 7 0
+vtkFloatArray hexahedronScalars
+  hexahedronScalars SetNumberOfTuples 8
+  hexahedronScalars InsertValue 0 0
+  hexahedronScalars InsertValue 1 1
+  hexahedronScalars InsertValue 2 0
+  hexahedronScalars InsertValue 3 0
+  hexahedronScalars InsertValue 4 0
+  hexahedronScalars InsertValue 5 0
+  hexahedronScalars InsertValue 6 0
+  hexahedronScalars InsertValue 7 0
 
 vtkHexahedron aHexahedron
   [aHexahedron GetPointIds] SetId 0 0
@@ -144,12 +144,12 @@ vtkPoints tetraPoints
   tetraPoints InsertPoint 2 .5 1 0
   tetraPoints InsertPoint 3 .5 .5 1
 
-vtkScalars tetraScalars
-  tetraScalars SetNumberOfScalars 4
-  tetraScalars InsertScalar 0 1
-  tetraScalars InsertScalar 1 0
-  tetraScalars InsertScalar 2 0
-  tetraScalars InsertScalar 3 0
+vtkFloatArray tetraScalars
+  tetraScalars SetNumberOfTuples 4
+  tetraScalars InsertValue 0 1
+  tetraScalars InsertValue 1 0
+  tetraScalars InsertValue 2 0
+  tetraScalars InsertValue 3 0
 
 vtkTetra aTetra
   [aTetra GetPointIds] SetId 0 0
@@ -192,14 +192,14 @@ vtkPoints wedgePoints
   wedgePoints InsertPoint 4 1 0 0
   wedgePoints InsertPoint 5 1 .5 .5
 
-vtkScalars wedgeScalars
-  wedgeScalars SetNumberOfScalars 6
-  wedgeScalars InsertScalar 0 1
-  wedgeScalars InsertScalar 1 1
-  wedgeScalars InsertScalar 2 0
-  wedgeScalars InsertScalar 3 1
-  wedgeScalars InsertScalar 4 1
-  wedgeScalars InsertScalar 5 0
+vtkFloatArray wedgeScalars
+  wedgeScalars SetNumberOfTuples 6
+  wedgeScalars InsertValue 0 1
+  wedgeScalars InsertValue 1 1
+  wedgeScalars InsertValue 2 0
+  wedgeScalars InsertValue 3 1
+  wedgeScalars InsertValue 4 1
+  wedgeScalars InsertValue 5 0
 
 vtkWedge aWedge
   [aWedge GetPointIds] SetId 0 0
@@ -244,13 +244,13 @@ vtkPoints pyramidPoints
   pyramidPoints InsertPoint 3 0 1 0
   pyramidPoints InsertPoint 4 .5 .5 1
 
-vtkScalars pyramidScalars
-  pyramidScalars SetNumberOfScalars 5
-  pyramidScalars InsertScalar 0 1
-  pyramidScalars InsertScalar 1 1
-  pyramidScalars InsertScalar 2 1
-  pyramidScalars InsertScalar 3 1
-  pyramidScalars InsertScalar 4 0
+vtkFloatArray pyramidScalars
+  pyramidScalars SetNumberOfTuples 5
+  pyramidScalars InsertValue 0 1
+  pyramidScalars InsertValue 1 1
+  pyramidScalars InsertValue 2 1
+  pyramidScalars InsertValue 3 1
+  pyramidScalars InsertValue 4 0
 
 vtkPyramid aPyramid
   [aPyramid GetPointIds] SetId 0 0
@@ -293,12 +293,12 @@ vtkPoints pixelPoints
   pixelPoints InsertPoint 2 0 1 0
   pixelPoints InsertPoint 3 1 1 0
 
-vtkScalars pixelScalars
-  pixelScalars SetNumberOfScalars 4
-  pixelScalars InsertScalar 0 1
-  pixelScalars InsertScalar 1 0
-  pixelScalars InsertScalar 2 0
-  pixelScalars InsertScalar 3 0
+vtkFloatArray pixelScalars
+  pixelScalars SetNumberOfTuples 4
+  pixelScalars InsertValue 0 1
+  pixelScalars InsertValue 1 0
+  pixelScalars InsertValue 2 0
+  pixelScalars InsertValue 3 0
 
 vtkPixel aPixel
   [aPixel GetPointIds] SetId 0 0
@@ -340,12 +340,12 @@ vtkPoints quadPoints
   quadPoints InsertPoint 2 1 1 0
   quadPoints InsertPoint 3 0 1 0
 
-vtkScalars quadScalars
-  quadScalars SetNumberOfScalars 4
-  quadScalars InsertScalar 0 1
-  quadScalars InsertScalar 1 0
-  quadScalars InsertScalar 2 0
-  quadScalars InsertScalar 3 0
+vtkFloatArray quadScalars
+  quadScalars SetNumberOfTuples 4
+  quadScalars InsertValue 0 1
+  quadScalars InsertValue 1 0
+  quadScalars InsertValue 2 0
+  quadScalars InsertValue 3 0
 
 vtkQuad aQuad
   [aQuad GetPointIds] SetId 0 0
@@ -386,11 +386,11 @@ vtkPoints trianglePoints
   trianglePoints InsertPoint 1 1 0 0
   trianglePoints InsertPoint 2 .5 .5 0
 
-vtkScalars triangleScalars
-  triangleScalars SetNumberOfScalars 3
-  triangleScalars InsertScalar 0 1
-  triangleScalars InsertScalar 1 0
-  triangleScalars InsertScalar 2 0
+vtkFloatArray triangleScalars
+  triangleScalars SetNumberOfTuples 3
+  triangleScalars InsertValue 0 1
+  triangleScalars InsertValue 1 0
+  triangleScalars InsertValue 2 0
 
 vtkTriangle aTriangle
   [aTriangle GetPointIds] SetId 0 0
@@ -431,12 +431,12 @@ vtkPoints polygonPoints
   polygonPoints InsertPoint 2 1 1 0
   polygonPoints InsertPoint 3 0 1 0
 
-vtkScalars polygonScalars
-  polygonScalars SetNumberOfScalars 4
-  polygonScalars InsertScalar 0 1
-  polygonScalars InsertScalar 1 0
-  polygonScalars InsertScalar 2 0
-  polygonScalars InsertScalar 3 0
+vtkFloatArray polygonScalars
+  polygonScalars SetNumberOfTuples 4
+  polygonScalars InsertValue 0 1
+  polygonScalars InsertValue 1 0
+  polygonScalars InsertValue 2 0
+  polygonScalars InsertValue 3 0
 
 vtkPolygon aPolygon
   [aPolygon GetPointIds] SetNumberOfIds 4
@@ -480,13 +480,13 @@ vtkPoints triangleStripPoints
   triangleStripPoints InsertPoint 3 1 0 0
   triangleStripPoints InsertPoint 4 2 1 0
 
-vtkScalars triangleStripScalars
-  triangleStripScalars SetNumberOfScalars 5
-  triangleStripScalars InsertScalar 0 1
-  triangleStripScalars InsertScalar 1 0
-  triangleStripScalars InsertScalar 2 0
-  triangleStripScalars InsertScalar 3 0
-  triangleStripScalars InsertScalar 4 0
+vtkFloatArray triangleStripScalars
+  triangleStripScalars SetNumberOfTuples 5
+  triangleStripScalars InsertValue 0 1
+  triangleStripScalars InsertValue 1 0
+  triangleStripScalars InsertValue 2 0
+  triangleStripScalars InsertValue 3 0
+  triangleStripScalars InsertValue 4 0
 
 vtkTriangleStrip aTriangleStrip
   [aTriangleStrip GetPointIds] SetNumberOfIds 5
@@ -527,10 +527,10 @@ vtkPoints linePoints
   linePoints InsertPoint 0 0 0 0
   linePoints InsertPoint 1 1 1 0
 
-vtkScalars lineScalars
-  lineScalars SetNumberOfScalars 2
-  lineScalars InsertScalar 0 1
-  lineScalars InsertScalar 1 0
+vtkFloatArray lineScalars
+  lineScalars SetNumberOfTuples 2
+  lineScalars InsertValue 0 1
+  lineScalars InsertValue 1 0
 
 vtkLine aLine
   [aLine GetPointIds] SetId 0 0
@@ -569,11 +569,11 @@ vtkPoints polyLinePoints
   polyLinePoints InsertPoint 1 1 1 0
   polyLinePoints InsertPoint 2 1 0 0
 
-vtkScalars polyLineScalars
-  polyLineScalars SetNumberOfScalars 3
-  polyLineScalars InsertScalar 0 1
-  polyLineScalars InsertScalar 1 0
-  polyLineScalars InsertScalar 2 0
+vtkFloatArray polyLineScalars
+  polyLineScalars SetNumberOfTuples 3
+  polyLineScalars InsertValue 0 1
+  polyLineScalars InsertValue 1 0
+  polyLineScalars InsertValue 2 0
 
 vtkPolyLine aPolyLine
   [aPolyLine GetPointIds] SetNumberOfIds 3
@@ -612,9 +612,9 @@ vtkPoints vertexPoints
   vertexPoints SetNumberOfPoints 1
   vertexPoints InsertPoint 0 0 0 0
 
-vtkScalars vertexScalars
-  vertexScalars SetNumberOfScalars 1
-  vertexScalars InsertScalar 0 1
+vtkFloatArray vertexScalars
+  vertexScalars SetNumberOfTuples 1
+  vertexScalars InsertValue 0 1
 
 vtkVertex aVertex
   [aVertex GetPointIds] SetId 0 0
@@ -652,11 +652,11 @@ vtkPoints polyVertexPoints
   polyVertexPoints InsertPoint 1 1 0 0
   polyVertexPoints InsertPoint 2 1 1 0
 
-vtkScalars polyVertexScalars
-  polyVertexScalars SetNumberOfScalars 3
-  polyVertexScalars InsertScalar 0 1
-  polyVertexScalars InsertScalar 1 0
-  polyVertexScalars InsertScalar 2 0
+vtkFloatArray polyVertexScalars
+  polyVertexScalars SetNumberOfTuples 3
+  polyVertexScalars InsertValue 0 1
+  polyVertexScalars InsertValue 1 0
+  polyVertexScalars InsertValue 2 0
 
 vtkPolyVertex aPolyVertex
   [aPolyVertex GetPointIds] SetNumberOfIds 3

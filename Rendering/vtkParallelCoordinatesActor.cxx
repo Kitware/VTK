@@ -374,16 +374,13 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUse
   vtkPoints *pts = vtkPoints::New();
   pts->Allocate(numRows*numColumns);
   vtkCellArray *lines = vtkCellArray::New();
-  vtkScalars *lineColors = vtkScalars::New();
   this->PlotData->SetPoints(pts);
   this->PlotData->SetLines(lines);
-//  this->PlotData->GetCellData()->SetScalars(lineColors);
   
   float x[3]; x[2] = 0.0;
   if ( this->IndependentVariables == VTK_IV_COLUMN )
     {
     lines->Allocate(lines->EstimateSize(numRows,numColumns));
-    lineColors->Allocate(numRows);
     for (j=0; j<numRows; j++)
       {
       lines->InsertNextCell(numColumns);
@@ -409,7 +406,6 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUse
   else //row
     {
     lines->Allocate(lines->EstimateSize(numColumns,numRows));
-    lineColors->Allocate(numColumns);
     for (j=0; j<numColumns; j++)
       {
       lines->InsertNextCell(numColumns);
@@ -435,7 +431,6 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUse
 
   pts->Delete();
   lines->Delete();
-  lineColors->Delete();
 
   return 1;
 }

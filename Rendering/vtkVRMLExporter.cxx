@@ -259,8 +259,8 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   vtkGeometryFilter *gf = NULL;
   vtkPointData *pntData;
   vtkPoints *points = NULL;
-  vtkNormals *normals = NULL;
-  vtkTCoords *tcoords = NULL;
+  vtkDataArray *normals = NULL;
+  vtkDataArray *tcoords = NULL;
   int i, i1, i2;
   vtkProperty *prop;
   float *tempf;
@@ -360,8 +360,8 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
     {
     vtkTexture *aTexture = anActor->GetTexture();
     int *size, xsize, ysize, bpp;
-    vtkScalars *scalars;
-    vtkScalars *mappedScalars;
+    vtkDataArray *scalars;
+    vtkDataArray *mappedScalars;
     unsigned char *txtrData;
     
     // make sure it is updated and then get some info
@@ -372,7 +372,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
       }
     aTexture->GetInput()->Update();
     size = aTexture->GetInput()->GetDimensions();
-    scalars = (aTexture->GetInput()->GetPointData())->GetScalars();
+    scalars = aTexture->GetInput()->GetPointData()->GetScalars();
 
     // make sure scalars are non null
     if (!scalars) 
@@ -420,7 +420,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
     fprintf(fp,"            texture PixelTexture {\n");
     bpp = mappedScalars->GetNumberOfComponents();
     fprintf(fp,"              image %i %i %i\n", xsize, ysize, bpp);
-    txtrData = ((vtkUnsignedCharArray *)mappedScalars->GetData())->GetPointer(0);
+    txtrData = static_cast<vtkUnsignedCharArray*>(mappedScalars)->GetPointer(0);
     totalValues = xsize*ysize;
     for (i = 0; i < totalValues; i++)
       {
@@ -639,8 +639,8 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   pm->Delete();
 }
 
-void vtkVRMLExporter::WritePointData(vtkPoints *points, vtkNormals *normals,
-				     vtkTCoords *tcoords, 
+void vtkVRMLExporter::WritePointData(vtkPoints *points, vtkDataArray *normals,
+				     vtkDataArray *tcoords, 
 				     vtkUnsignedCharArray *colors, FILE *fp)
 {
   float *p;
@@ -663,9 +663,9 @@ void vtkVRMLExporter::WritePointData(vtkPoints *points, vtkNormals *normals,
     {
     fprintf(fp,"            normal DEF VTKnormals Normal {\n");
     fprintf(fp,"              vector [\n");
-    for (i = 0; i < normals->GetNumberOfNormals(); i++)
+    for (i = 0; i < normals->GetNumberOfTuples(); i++)
       {
-      p = normals->GetNormal(i);
+      p = normals->GetTuple(i);
       fprintf (fp,"           %g %g %g,\n", p[0], p[1], p[2]);
       }
     fprintf(fp,"            ]\n");
@@ -677,9 +677,9 @@ void vtkVRMLExporter::WritePointData(vtkPoints *points, vtkNormals *normals,
     {
     fprintf(fp,"            texCoord DEF VTKtcoords TextureCoordinate {\n");
     fprintf(fp,"              point [\n");
-    for (i = 0; i < tcoords->GetNumberOfTCoords(); i++)
+    for (i = 0; i < tcoords->GetNumberOfTuples(); i++)
       {
-      p = tcoords->GetTCoord(i);
+      p = tcoords->GetTuple(i);
       fprintf (fp,"           %g %g,\n", p[0], p[1]);
       }
     fprintf(fp,"            ]\n");

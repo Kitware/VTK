@@ -1,7 +1,6 @@
 SOURCE_FILES( Common_SRCS
 vtkAbstractMapper 
 vtkAbstractTransform 
-vtkAttributeData 
 vtkCell 
 vtkCell3D
 vtkCommand 
@@ -77,7 +76,6 @@ vtkMatrixToHomogeneousTransform
 vtkMatrixToLinearTransform 
 vtkMultiThreader 
 vtkMutexLock 
-vtkNormals 
 vtkObject 
 vtkOrderedTriangulator
 vtkOutputWindow 
@@ -104,15 +102,12 @@ vtkQuad
 vtkQuadric 
 vtkRectilinearGrid 
 vtkReferenceCount 
-vtkScalars 
 vtkShortArray 
 vtkSource 
 vtkStructuredData 
 vtkStructuredGrid 
 vtkStructuredPoints 
-vtkTCoords 
 vtkTensor 
-vtkTensors 
 vtkTetra 
 vtkTimeStamp 
 vtkTimerLog 
@@ -125,7 +120,6 @@ vtkUnsignedIntArray
 vtkUnsignedLongArray 
 vtkUnsignedShortArray 
 vtkUnstructuredGrid 
-vtkVectors 
 vtkVersion 
 vtkVertex 
 vtkVoidArray 

@@ -55,8 +55,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkScalarsToColors.h"
 
-class vtkScalars;
-
 #define VTK_RAMP_LINEAR 0
 #define VTK_RAMP_SCURVE 1
 #define VTK_SCALE_LINEAR 0

@@ -156,7 +156,7 @@ void vtkShepardMethod::Execute()
     return;
     }
 
-  if ( (inScalars = input->GetPointData()->GetActiveScalars()) == NULL )
+  if ( (inScalars = input->GetPointData()->GetScalars()) == NULL )
     {
     vtkErrorMacro(<<"Scalars must be defined!");
     return;

@@ -107,7 +107,7 @@ float vtkImplicitDataSet::EvaluateFunction(float x[3])
 
   // See if a dataset has been specified
   if ( !this->DataSet || 
-       !(scalars = this->DataSet->GetPointData()->GetActiveScalars()) )
+       !(scalars = this->DataSet->GetPointData()->GetScalars()) )
     {
     vtkErrorMacro(<<"Can't evaluate dataset!");
     return this->OutValue;
@@ -169,7 +169,7 @@ void vtkImplicitDataSet::EvaluateGradient(float x[3], float n[3])
 
   // See if a dataset has been specified
   if ( !this->DataSet || 
-       !(scalars = this->DataSet->GetPointData()->GetActiveScalars()) )
+       !(scalars = this->DataSet->GetPointData()->GetScalars()) )
     {
     vtkErrorMacro(<<"Can't evaluate gradient!");
     for ( i=0; i < 3; i++ )

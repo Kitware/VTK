@@ -93,16 +93,6 @@ public:
                     vtkPointData *inPd, vtkPointData *outPd,
                     vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd, 
                     int insideOut);
-  virtual void Clip(float value, vtkScalars *cellScalars, 
-                    vtkPointLocator *locator, vtkCellArray *connectivity,
-                    vtkPointData *inPd, vtkPointData *outPd,
-                    vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd, 
-                    int insideOut)
-    {
-      vtkWarningMacro("The use of this method has been deprecated.You should use vtkGenericCell::Clip(float, vtkDataArray*, vtkPointLocator*, vtkCellArray*, vtkPointData*, vtkPointData*, vtkCellData*, vtkIdType, vtkCellData*, int) instead.");
-      this->Clip(value, cellScalars->GetData(), locator, connectivity, 
-		 inPd, outPd, inCd, cellId, outCd, insideOut);
-    }
 
   // Description:
   // The topological dimension of the cell. (Satisfies vtkCell API.)

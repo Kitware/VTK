@@ -201,7 +201,7 @@ void vtkImageBlend::ExecuteData(vtkDataObject *output)
     {
     if (this->DataWasPassed)
       {
-      ((vtkImageData *)output)->GetPointData()->SetScalars((vtkScalars*)NULL);
+      ((vtkImageData *)output)->GetPointData()->SetScalars(NULL);
       this->DataWasPassed = 0;
       }
     

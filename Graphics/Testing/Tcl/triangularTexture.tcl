@@ -26,13 +26,14 @@ vtkPoints points
     points InsertPoint 4 0.0 0.0 0.0
     points InsertPoint 5 .5 -1.0 .5
 
-vtkTCoords tCoords
-    tCoords InsertTCoord 0 0.0 0.0 0.0
-    tCoords InsertTCoord 1 1.0 0.0 0.0
-    tCoords InsertTCoord 2 .5 .86602540378443864676 0.0
-    tCoords InsertTCoord 3 0.0 0.0 0.0
-    tCoords InsertTCoord 4 1.0 0.0 0.0
-    tCoords InsertTCoord 5 .5 .86602540378443864676 0.0
+vtkFloatArray tCoords
+    tCoords SetNumberOfComponents 2
+    tCoords InsertTuple2 0 0.0 0.0
+    tCoords InsertTuple2 1 1.0 0.0
+    tCoords InsertTuple2 2 .5 .86602540378443864676
+    tCoords InsertTuple2 3 0.0 0.0
+    tCoords InsertTuple2 4 1.0 0.0
+    tCoords InsertTuple2 5 .5 .86602540378443864676
 
 vtkPointData pointData
     pointData SetTCoords tCoords

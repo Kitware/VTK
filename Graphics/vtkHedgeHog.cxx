@@ -82,7 +82,7 @@ void vtkHedgeHog::Execute()
   //
   numPts = input->GetNumberOfPoints();
   pd = input->GetPointData();
-  inVectors = pd->GetActiveVectors();
+  inVectors = pd->GetVectors();
   if ( numPts < 1 )
     {
     vtkErrorMacro(<<"No input data");
@@ -94,7 +94,7 @@ void vtkHedgeHog::Execute()
     return;
     }
 
-  inNormals = pd->GetActiveNormals();
+  inNormals = pd->GetNormals();
   if ( !inNormals && this->VectorMode == VTK_USE_NORMAL)
     {
     vtkErrorMacro(<<"No normals in input data");

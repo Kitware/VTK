@@ -124,7 +124,7 @@ void vtkThresholdTextureCoords::Execute()
   // First, copy the input to the output as a starting point
   output->CopyStructure( input );
 
-  if ( ! (inScalars = input->GetPointData()->GetActiveScalars()) )
+  if ( ! (inScalars = input->GetPointData()->GetScalars()) )
     {
     vtkErrorMacro(<<"No scalar data to texture threshold");
     return;

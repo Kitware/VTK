@@ -477,6 +477,7 @@ int vtkMPICommunicator::Send(double* data, int length,
 }
 
 //----------------------------------------------------------------------------
+#ifdef VTK_USE_64BIT_IDS
 int vtkMPICommunicator::Send(vtkIdType* data, int length, 
 			     int remoteProcessId, int tag)
 {
@@ -485,6 +486,7 @@ int vtkMPICommunicator::Send(vtkIdType* data, int length,
 				   getMPIType(data), this->Handle));
 
 }
+#endif
 
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::NoBlockSend(int* data, int length, 
@@ -584,6 +586,7 @@ int vtkMPICommunicator::Receive(double* data, int length,
 }
 
 //----------------------------------------------------------------------------
+#ifdef VTK_USE_64BIT_IDS
 int vtkMPICommunicator::Receive(vtkIdType* data, int length, 
 				int remoteProcessId, int tag)
 {
@@ -591,6 +594,7 @@ int vtkMPICommunicator::Receive(vtkIdType* data, int length,
   return CheckForMPIError(ReceiveData(data, length, remoteProcessId, tag, 
 				      getMPIType(data), this->Handle));
 }
+#endif
 
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::NoBlockReceive(int* data, int length, 

@@ -316,7 +316,7 @@ void vtkContourGrid::Execute()
     }
 
   numCells = input->GetNumberOfCells();
-  inScalars = input->GetPointData()->GetActiveScalars();
+  inScalars = input->GetPointData()->GetScalars();
   if ( ! inScalars || numCells < 1 )
     {
     vtkErrorMacro(<<"No data to contour");

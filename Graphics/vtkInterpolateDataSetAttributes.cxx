@@ -192,10 +192,10 @@ void vtkInterpolateDataSetAttributes::Execute()
     outputPD->CopyTensorsOn();
     }
   // *TODO* Fix
-  if ( inputPD->GetFieldData() && input2PD->GetFieldData() )
-    {
-    // outputPD->CopyFieldDataOn();
-    }
+  // if ( inputPD->GetFieldData() && input2PD->GetFieldData() )
+  //{
+  // outputPD->CopyFieldDataOn();
+  //}
   outputPD->InterpolateAllocate(inputPD);
 
   outputCD->CopyAllOff();
@@ -220,10 +220,10 @@ void vtkInterpolateDataSetAttributes::Execute()
     outputCD->CopyTensorsOn();
     }
   // *TODO* Fix
-  if ( inputCD->GetFieldData() && input2CD->GetFieldData() )
-    {
-    // outputCD->CopyFieldDataOn();
-    }
+  //if ( inputCD->GetFieldData() && input2CD->GetFieldData() )
+  //{
+  // outputCD->CopyFieldDataOn();
+  //  }
   outputCD->InterpolateAllocate(inputCD);
 
  

@@ -155,10 +155,10 @@ void vtkLinearExtrusionFilter::Execute()
     this->ExtrudePoint = &vtkLinearExtrusionFilter::ViaPoint;
     }
   else if ( this->ExtrusionType == VTK_NORMAL_EXTRUSION  &&
-	    (inNormals = pd->GetActiveNormals()) != NULL )
+	    (inNormals = pd->GetNormals()) != NULL )
     {
     this->ExtrudePoint = &vtkLinearExtrusionFilter::ViaNormal;
-    inNormals = pd->GetActiveNormals();
+    inNormals = pd->GetNormals();
     }
   else // VTK_VECTOR_EXTRUSION
     {

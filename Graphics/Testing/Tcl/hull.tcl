@@ -13,7 +13,8 @@ package require vtkinteraction
 #
 vtkMath math
 vtkPoints points
-vtkNormals normals
+vtkFloatArray normals
+normals SetNumberOfComponents 3
 for {set i 0} {$i<100} {incr i 1} {
     set radius 1.0
     set theta  [math Random 0 360]
@@ -24,7 +25,7 @@ for {set i 0} {$i<100} {incr i 1} {
     set z [expr $radius*cos($phi)]
 
     eval points InsertPoint $i $x $y $z
-    eval normals InsertNormal $i $x $y $z
+    eval normals InsertTuple3 $i $x $y $z
 }
 
 vtkPlanes planes

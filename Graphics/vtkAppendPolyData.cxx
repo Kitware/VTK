@@ -297,36 +297,36 @@ void vtkAppendPolyData::Execute()
   if ( ptList.IsAttributePresent(vtkDataSetAttributes::SCALARS) > -1 )
     {
     outputPD->CopyScalarsOff();
-    newPtScalars = inPD->GetActiveScalars()->MakeObject();
-    newPtScalars->SetName(inPD->GetActiveScalars()->GetName());
+    newPtScalars = inPD->GetScalars()->MakeObject();
+    newPtScalars->SetName(inPD->GetScalars()->GetName());
     newPtScalars->SetNumberOfTuples(numPts);
     }
   if ( ptList.IsAttributePresent(vtkDataSetAttributes::VECTORS) > -1 )
     {
     outputPD->CopyVectorsOff();
-    newPtVectors = inPD->GetActiveVectors()->MakeObject();
-    newPtVectors->SetName(inPD->GetActiveVectors()->GetName());
+    newPtVectors = inPD->GetVectors()->MakeObject();
+    newPtVectors->SetName(inPD->GetVectors()->GetName());
     newPtVectors->SetNumberOfTuples(numPts);
     }
   if ( ptList.IsAttributePresent(vtkDataSetAttributes::TENSORS) > -1 )
     {
     outputPD->CopyTensorsOff();
-    newPtTensors = inPD->GetActiveTensors()->MakeObject();
-    newPtTensors->SetName(inPD->GetActiveTensors()->GetName());
+    newPtTensors = inPD->GetTensors()->MakeObject();
+    newPtTensors->SetName(inPD->GetTensors()->GetName());
     newPtTensors->SetNumberOfTuples(numPts);
     }
   if ( ptList.IsAttributePresent(vtkDataSetAttributes::NORMALS) > -1 )
     {
     outputPD->CopyNormalsOff();
-    newPtNormals = inPD->GetActiveNormals()->MakeObject();
-    newPtNormals->SetName(inPD->GetActiveNormals()->GetName());
+    newPtNormals = inPD->GetNormals()->MakeObject();
+    newPtNormals->SetName(inPD->GetNormals()->GetName());
     newPtNormals->SetNumberOfTuples(numPts);
     }
   if ( ptList.IsAttributePresent(vtkDataSetAttributes::TCOORDS) > -1 )
     {
     outputPD->CopyTCoordsOff();
-    newPtTCoords = inPD->GetActiveTCoords()->MakeObject();
-    newPtTCoords->SetName(inPD->GetActiveTCoords()->GetName());
+    newPtTCoords = inPD->GetTCoords()->MakeObject();
+    newPtTCoords->SetName(inPD->GetTCoords()->GetName());
     newPtTCoords->SetNumberOfTuples(numPts);
     }
 
@@ -377,27 +377,27 @@ void vtkAppendPolyData::Execute()
         // copy scalars directly
         if (newPtScalars)
           {
-          this->AppendData(newPtScalars,inPD->GetActiveScalars(), ptOffset);
+          this->AppendData(newPtScalars,inPD->GetScalars(), ptOffset);
           }
         // copy normals directly
         if (newPtNormals)
           {
-          this->AppendData(newPtNormals, inPD->GetActiveNormals(), ptOffset);
+          this->AppendData(newPtNormals, inPD->GetNormals(), ptOffset);
           }
         // copy vectors directly
         if (newPtVectors)
           {
-          this->AppendData(newPtVectors, inPD->GetActiveVectors(), ptOffset);
+          this->AppendData(newPtVectors, inPD->GetVectors(), ptOffset);
           }
         // copy tcoords directly
         if (newPtTCoords)
           {
-          this->AppendData(newPtTCoords, inPD->GetActiveTCoords() , ptOffset);
+          this->AppendData(newPtTCoords, inPD->GetTCoords() , ptOffset);
           }
         // copy tensors directly
         if (newPtTensors)
           {
-          this->AppendData(newPtTensors, inPD->GetActiveTensors(), ptOffset);
+          this->AppendData(newPtTensors, inPD->GetTensors(), ptOffset);
           }
         // append the remainder of the field data
         for (ptId=0; ptId < numPts; ptId++)

@@ -3,15 +3,15 @@ package require vtkinteraction
 package require vtktesting
 
 #define a Single Cube
-vtkScalars Scalars
-    Scalars InsertNextScalar 1.0
-    Scalars InsertNextScalar 1.0
-    Scalars InsertNextScalar 0.0
-    Scalars InsertNextScalar 0.0
-    Scalars InsertNextScalar 0.0
-    Scalars InsertNextScalar 0.0
-    Scalars InsertNextScalar 0.0
-    Scalars InsertNextScalar 0.0
+vtkFloatArray Scalars
+    Scalars InsertNextValue 1.0
+    Scalars InsertNextValue 1.0
+    Scalars InsertNextValue 0.0
+    Scalars InsertNextValue 0.0
+    Scalars InsertNextValue 0.0
+    Scalars InsertNextValue 0.0
+    Scalars InsertNextValue 0.0
+    Scalars InsertNextValue 0.0
 
 vtkPoints Points
     Points InsertNextPoint 0 0 0

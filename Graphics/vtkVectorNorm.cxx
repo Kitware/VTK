@@ -82,8 +82,8 @@ void vtkVectorNorm::Execute()
   // First, copy the input to the output as a starting point
   output->CopyStructure( input );
 
-  ptVectors = pd->GetActiveVectors();
-  cellVectors = cd->GetActiveVectors();
+  ptVectors = pd->GetVectors();
+  cellVectors = cd->GetVectors();
   if (!ptVectors || this->AttributeMode == VTK_ATTRIBUTE_MODE_USE_CELL_DATA)
     {
     computePtScalars = 0;

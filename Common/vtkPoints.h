@@ -47,12 +47,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkPoints_h
 #define __vtkPoints_h
 
-#include "vtkAttributeData.h"
+#include "vtkObject.h"
+#include "vtkDataArray.h"
 
 class vtkIdList;
 class vtkPoints;
 
-class VTK_COMMON_EXPORT vtkPoints : public vtkAttributeData
+class VTK_COMMON_EXPORT vtkPoints : public vtkObject
 {
 public:
 //BTX
@@ -60,12 +61,79 @@ public:
 //ETX
   static vtkPoints *New();
 
-  vtkTypeMacro(vtkPoints,vtkAttributeData);
+  vtkTypeMacro(vtkPoints,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Create a copy of this object.
-  vtkAttributeData *MakeObject();
+  // Allocate initial memory size.
+  virtual int Allocate(const vtkIdType sz, const vtkIdType ext=1000);
+  
+  // Description:
+  // Return object to instantiated state.
+  virtual void Initialize();
+
+  // Description:
+  // Creates object of same type as this object.
+  vtkPoints *MakeObject();
+
+  // Description:
+  // Set/Get the underlying data array. This function must be implemented
+  // in a concrete subclass to check for consistency. (The tuple size must
+  // match the type of data. For example, 3-tuple data array can be assigned to
+  // a vector, normal, or points object, but not a tensor object, which has a 
+  // tuple dimension of 9. Scalars, on the other hand, can have tuple dimension
+  //  from 1-4, depending on the type of scalar.)
+  virtual void SetData(vtkDataArray *);
+  vtkDataArray *GetData() {return this->Data;};
+
+  // Description:
+  // Return the underlying data type. An integer indicating data type is 
+  // returned as specified in vtkSetGet.h.
+  virtual int GetDataType();
+
+  // Description:
+  // Specify the underlying data type of the object.
+  virtual void SetDataType(int dataType);
+  void SetDataTypeToBit() {this->SetDataType(VTK_BIT);};
+  void SetDataTypeToChar() {this->SetDataType(VTK_CHAR);};
+  void SetDataTypeToUnsignedChar() {this->SetDataType(VTK_UNSIGNED_CHAR);};
+  void SetDataTypeToShort() {this->SetDataType(VTK_SHORT);};
+  void SetDataTypeToUnsignedShort() {this->SetDataType(VTK_UNSIGNED_SHORT);};
+  void SetDataTypeToInt() {this->SetDataType(VTK_INT);};
+  void SetDataTypeToUnsignedInt() {this->SetDataType(VTK_UNSIGNED_INT);};
+  void SetDataTypeToLong() {this->SetDataType(VTK_LONG);};
+  void SetDataTypeToUnsignedLong() {this->SetDataType(VTK_UNSIGNED_LONG);};
+  void SetDataTypeToFloat() {this->SetDataType(VTK_FLOAT);};
+  void SetDataTypeToDouble() {this->SetDataType(VTK_DOUBLE);};
+
+  // Description:
+  // Return a void pointer. For image pipeline interface and other 
+  // special pointer manipulation.
+  void *GetVoidPointer(const int id) {return this->Data->GetVoidPointer(id);};
+
+  // Description:
+  // Reclaim any extra memory.
+  virtual void Squeeze() {this->Data->Squeeze();};
+
+  // Description:
+  // Make object look empty but do not delete memory.  
+  virtual void Reset() {this->Data->Reset();};
+
+  // Description:
+  // Different ways to copy data. Shallow copy does reference count (i.e.,
+  // assigns pointers and updates reference count); deep copy runs through
+  // entire data array assigning values.
+  virtual void DeepCopy(vtkPoints *ad);
+  virtual void ShallowCopy(vtkPoints *ad);
+
+  // Description:
+  // Return the memory in kilobytes consumed by this attribute data. 
+  // Used to support streaming and reading/writing data. The value 
+  // returned is guaranteed to be greater than or equal to the 
+  // memory required to actually represent the data represented 
+  // by this object. The information returned is valid only after
+  // the pipeline has been updated.
+  unsigned long GetActualMemorySize();
 
   // Description:
   // Return number of points in array.
@@ -130,10 +198,11 @@ public:
 
 protected:
   vtkPoints(int dataType=VTK_FLOAT);
-  ~vtkPoints() {};
+  ~vtkPoints();
 
   float Bounds[6];
   vtkTimeStamp ComputeTime; // Time at which bounds computed
+  vtkDataArray *Data;  // Array which represents data
 
 private:
   vtkPoints(const vtkPoints&);  // Not implemented.

@@ -88,7 +88,7 @@ void vtkMCubesWriter::WriteData()
     return;
     }
 
-  normals = input->GetPointData()->GetActiveNormals();
+  normals = input->GetPointData()->GetNormals();
   if (normals == NULL )
     {
     vtkErrorMacro(<<"No normals to write!: use vtkPolyDataNormals to generate them");

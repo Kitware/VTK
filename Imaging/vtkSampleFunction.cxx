@@ -42,7 +42,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkSampleFunction.h"
 #include "vtkMath.h"
 #include "vtkFloatArray.h"
-#include "vtkNormals.h"
 #include "vtkObjectFactory.h"
 
 
@@ -156,7 +155,7 @@ void vtkSampleFunction::ExecuteInformation()
 void vtkSampleFunction::Execute()
 {
   vtkIdType ptId;
-  vtkNormals *newNormals=NULL;
+  vtkFloatArray *newNormals=NULL;
   vtkIdType numPts;
   float *p, s;
   vtkStructuredPoints *output = this->GetOutput();
@@ -200,8 +199,9 @@ void vtkSampleFunction::Execute()
   if ( this->ComputeNormals )
     {
     float n[3];
-    newNormals = vtkNormals::New(); 
-    newNormals->SetNumberOfNormals(numPts);
+    newNormals = vtkFloatArray::New(); 
+    newNormals->SetNumberOfComponents(3);
+    newNormals->SetNumberOfTuples(numPts);
     for (ptId=0; ptId < numPts; ptId++ )
       {
       p = output->GetPoint(ptId);
@@ -210,7 +210,7 @@ void vtkSampleFunction::Execute()
       n[1] *= -1;
       n[2] *= -1;
       vtkMath::Normalize(n);
-      newNormals->SetNormal(ptId,n);
+      newNormals->SetTuple(ptId,n);
       }
     }
   //

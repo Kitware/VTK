@@ -13,7 +13,6 @@
 // this program tests vtkStructuredGrid
 
 #include "vtkStructuredGrid.h"
-#include "vtkScalars.h"
 #include "vtkFloatArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkLongArray.h"
@@ -118,8 +117,6 @@ void Test(ostream& strm)
   vtkShortArray *shortScalars3D = vtkShortArray::New();
   shortScalars3D->SetNumberOfComponents(3);
   shortScalars3D->SetNumberOfTuples(20*20*20);
-  vtkScalars *scalars3D = vtkScalars::New(); 
-  scalars3D->SetData(shortScalars3D);
   
   int l = 0;
   for (k = 0; k < 20; k++)
@@ -139,8 +136,6 @@ void Test(ostream& strm)
   vtkShortArray *shortScalars2D = vtkShortArray::New();
   shortScalars2D->SetNumberOfComponents(2);
   shortScalars2D->SetNumberOfTuples(20*20);
-  vtkScalars *scalars2D = vtkScalars::New(); 
-  scalars2D->SetData(shortScalars2D);
   
   l = 0;
   for (j = 0; j < 20; j++)
@@ -156,8 +151,6 @@ void Test(ostream& strm)
   vtkShortArray *shortScalars1D = vtkShortArray::New();
   shortScalars1D->SetNumberOfComponents(1);
   shortScalars1D->SetNumberOfTuples(20);
-  vtkScalars *scalars1D = vtkScalars::New(); 
-  scalars1D->SetData(shortScalars1D);
   
   l = 0;
   for (i = 0; i < 20; i++)
@@ -169,20 +162,18 @@ void Test(ostream& strm)
   vtkShortArray *shortScalars0D = vtkShortArray::New();
   shortScalars0D->SetNumberOfComponents(1);
   shortScalars0D->SetNumberOfTuples(1);
-  vtkScalars *scalars0D = vtkScalars::New(); 
-  scalars0D->SetData(shortScalars0D);
 
   l = 0;
   shortScalars0D->InsertComponent(l,0,0);
   
-  sg3D->GetPointData()->SetScalars(scalars3D);
-  sg2Dxy->GetPointData()->SetScalars(scalars2D);
-  sg2Dxz->GetPointData()->SetScalars(scalars2D);
-  sg2Dyz->GetPointData()->SetScalars(scalars2D);
-  sg1Dx->GetPointData()->SetScalars(scalars1D);
-  sg1Dy->GetPointData()->SetScalars(scalars1D);
-  sg1Dz->GetPointData()->SetScalars(scalars1D);
-  sg0D->GetPointData()->SetScalars(scalars0D);
+  sg3D->GetPointData()->SetScalars(shortScalars3D);
+  sg2Dxy->GetPointData()->SetScalars(shortScalars2D);
+  sg2Dxz->GetPointData()->SetScalars(shortScalars2D);
+  sg2Dyz->GetPointData()->SetScalars(shortScalars2D);
+  sg1Dx->GetPointData()->SetScalars(shortScalars1D);
+  sg1Dy->GetPointData()->SetScalars(shortScalars1D);
+  sg1Dz->GetPointData()->SetScalars(shortScalars1D);
+  sg0D->GetPointData()->SetScalars(shortScalars3D);
   
   strm << "sg3D:" << *sg3D;
   
@@ -613,13 +604,9 @@ void Test(ostream& strm)
   sg2Dyz->Delete();
   sg3D->Delete();
   shortScalars3D->Delete();
-  scalars3D->Delete();
   shortScalars2D->Delete();
-  scalars2D->Delete();
   shortScalars1D->Delete();
-  scalars1D->Delete();
   shortScalars0D->Delete();
-  scalars0D->Delete();
   scsg3D->Delete();
   dcsg3D->Delete();
   ids->Delete();

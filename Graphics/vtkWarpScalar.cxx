@@ -103,8 +103,8 @@ void vtkWarpScalar::Execute()
 
   inPts = input->GetPoints();
   pd = input->GetPointData();
-  inNormals = pd->GetActiveNormals();
-  inScalars = pd->GetActiveScalars();
+  inNormals = pd->GetNormals();
+  inScalars = pd->GetScalars();
 
   if ( !inPts || !inScalars )
     {

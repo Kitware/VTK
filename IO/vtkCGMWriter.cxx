@@ -518,7 +518,7 @@ void vtkCGMWriter::WriteData()
   vtkPolyData *input=this->GetInput();
   vtkPoints *inPts=input->GetPoints(), *pts;
   vtkGenericCell *cell=vtkGenericCell::New();
-  vtkDataArray *inScalars=input->GetCellData()->GetActiveScalars();
+  vtkDataArray *inScalars=input->GetCellData()->GetScalars();
   vtkIdType numCells=input->GetNumberOfCells(), cellId;
   vtkIdType numPts=input->GetNumberOfPoints();
   int i, id, type, npts, size[2], *p;

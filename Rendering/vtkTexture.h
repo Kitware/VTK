@@ -71,10 +71,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkProcessObject.h"
 #include "vtkImageData.h"
 #include "vtkLookupTable.h"
-#include "vtkScalars.h"
 
 class vtkRenderer;
 class vtkWindow;
+class vtkUnsignedCharArray;
 
 #define VTK_TEXTURE_QUALITY_DEFAULT 0
 #define VTK_TEXTURE_QUALITY_16BIT   16
@@ -150,11 +150,11 @@ public:
 
   // Description:
   // Get Mapped Scalars
-  vtkGetObjectMacro(MappedScalars,vtkScalars);
+  vtkGetObjectMacro(MappedScalars,vtkUnsignedCharArray);
 
   // Description:
   // Map scalar values into color scalars.
-  unsigned char *MapScalarsToColors (vtkScalars *scalars);
+  unsigned char *MapScalarsToColors (vtkDataArray *scalars);
 
 protected:
   vtkTexture();
@@ -165,7 +165,7 @@ protected:
   int   Quality;
   int   MapColorScalarsThroughLookupTable;
   vtkLookupTable *LookupTable;
-  vtkScalars *MappedScalars;
+  vtkUnsignedCharArray *MappedScalars;
   
   // this is to duplicated the previous behavior of SelfCreatedLookUpTable
   int SelfAdjustingTableRange;

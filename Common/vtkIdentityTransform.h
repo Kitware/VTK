@@ -69,16 +69,12 @@ public:
   // Description:
   // Apply the transformation to a series of normals, and append the
   // results to outNms.  
-  void TransformNormals(vtkNormals *inNms, vtkNormals *outNms)
-    { this->TransformNormals(inNms->GetData(), outNms->GetData()); }
   void TransformNormals(vtkDataArray *inNms, vtkDataArray *outNms);
 
   // Description:
   // Apply the transformation to a series of vectors, and append the
   // results to outVrs.  
   void TransformVectors(vtkDataArray *inVrs, vtkDataArray *outVrs);
-  void TransformVectors(vtkVectors *inVrs, vtkVectors *outVrs)
-    { this->TransformVectors(inVrs->GetData(), outVrs->GetData()); }
 
   // Description:
   // Apply the transformation to a combination of points, normals
@@ -89,17 +85,6 @@ public:
 				     vtkDataArray *outNms,
 				     vtkDataArray *inVrs, 
 				     vtkDataArray *outVrs);
-  void TransformPointsNormalsVectors(vtkPoints *inPts, 
-				     vtkPoints *outPts, 
-				     vtkNormals *inNms, 
-				     vtkNormals *outNms,
-				     vtkVectors *inVrs, 
-				     vtkVectors *outVrs)
-    { 
-      this->TransformPointsNormalsVectors(inPts, outPts,
-					  inNms->GetData(), outNms->GetData(),
-					  inVrs->GetData(), outVrs->GetData());
-    }
 
   // Invert the transformation.  This doesn't do anything to the 
   // identity transformation.

@@ -15,7 +15,7 @@ vtkImageGaussianSource gauss
   gauss SetStandardDeviation 10.0
   gauss Update
 
-set a [[[gauss GetOutput] GetPointData] GetActiveScalars]
+set a [[[gauss GetOutput] GetPointData] GetScalars]
 $a SetName "Gauss"
 [data GetCellData] SetScalars $a
 
@@ -32,7 +32,7 @@ vtkImageEllipsoidSource ellipse
   ellipse SetOutputScalarTypeToInt
   ellipse Update
 
-set m [[[ellipse GetOutput] GetPointData] GetActiveScalars]
+set m [[[ellipse GetOutput] GetPointData] GetScalars]
 $m SetName "Material"
 [data GetCellData] AddArray $m
 

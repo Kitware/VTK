@@ -94,9 +94,9 @@ void vtkGlyph2D::Execute()
 
   pd = input->GetPointData();
 
-  inScalars = pd->GetActiveScalars();
-  inVectors = pd->GetActiveVectors();
-  inNormals = pd->GetActiveNormals();
+  inScalars = pd->GetScalars();
+  inVectors = pd->GetVectors();
+  inNormals = pd->GetNormals();
 
   vtkDataArray* temp = 0;
   if (pd)
@@ -171,7 +171,7 @@ void vtkGlyph2D::Execute()
         {
         numSourcePts += this->GetSource(i)->GetNumberOfPoints();
         numSourceCells += this->GetSource(i)->GetNumberOfCells();
-        sourceNormals = this->GetSource(i)->GetPointData()->GetActiveNormals();
+        sourceNormals = this->GetSource(i)->GetPointData()->GetNormals();
         if ( !sourceNormals )
           {
           haveNormals = 0;
@@ -185,7 +185,7 @@ void vtkGlyph2D::Execute()
     numSourcePts = sourcePts->GetNumberOfPoints();
     numSourceCells = this->GetSource(0)->GetNumberOfCells();
 
-    sourceNormals = this->GetSource(0)->GetPointData()->GetActiveNormals();
+    sourceNormals = this->GetSource(0)->GetPointData()->GetNormals();
     if ( sourceNormals )
       {
       haveNormals = 1;
@@ -327,7 +327,7 @@ void vtkGlyph2D::Execute()
       if ( this->GetSource(index) != NULL )
         {
         sourcePts = this->GetSource(index)->GetPoints();
-        sourceNormals = this->GetSource(index)->GetPointData()->GetActiveNormals();
+        sourceNormals = this->GetSource(index)->GetPointData()->GetNormals();
         numSourcePts = sourcePts->GetNumberOfPoints();
         numSourceCells = this->GetSource(index)->GetNumberOfCells();
         }

@@ -377,7 +377,7 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
     pts->SetPoint(1, w2);
     this->HeadPolyData->GetPoints()->SetPoint(0,w1);
     this->HeadPolyData->GetPointData()->
-      GetVectors()->SetVector(0,w1[0]-w2[0],w1[1]-w2[1],w1[2]-w2[2]);
+      GetVectors()->SetTuple3(0,w1[0]-w2[0],w1[1]-w2[1],w1[2]-w2[2]);
 
     pts->Modified();
     this->HeadPolyData->Modified();

@@ -252,9 +252,9 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
     pts->SetNumberOfPoints(numPts);
     vtkCellArray *polys = vtkCellArray::New();
     polys->Allocate(polys->EstimateSize(numColors,4));
-    vtkScalars *colors = vtkScalars::New(VTK_UNSIGNED_CHAR,3);
-    colors->SetNumberOfScalars(numColors);
-    vtkUnsignedCharArray *colorData = (vtkUnsignedCharArray *)colors->GetData();
+    vtkUnsignedCharArray *colors = vtkUnsignedCharArray::New();
+    colors->SetNumberOfComponents(3);
+    colors->SetNumberOfTuples(numColors);
 
     this->ScalarBarActor->SetProperty(this->GetProperty());
     this->ScalarBar->Initialize();
@@ -346,7 +346,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
 
       rgba = lut->MapValue(range[0] + (range[1] - range[0])*
                            ((float)i /(numColors-1.0)));
-      rgb = colorData->GetPointer(3*i); //write into array directly
+      rgb = colors->GetPointer(3*i); //write into array directly
       rgb[0] = rgba[0];
       rgb[1] = rgba[1];
       rgb[2] = rgba[2];

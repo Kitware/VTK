@@ -78,10 +78,6 @@ public:
   // object.  vtkSampleFunction() will allocate space (as necessary)
   // in the scalar object.
   vtkSetObjectMacro(Scalars,vtkDataArray);
-  void SetScalars(vtkScalars* scalars)
-    {
-      this->SetScalars(scalars->GetData());
-    }
 
   // Description:
   // Specify the dimensions of the data on which to sample.

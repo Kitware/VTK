@@ -131,7 +131,7 @@ void vtkRibbonFilter::Execute()
   outCD->CopyAllocate(cd, inLines->GetNumberOfCells());
   int inCellId, outCellId;
 
-  if ( !(inNormals=pd->GetActiveNormals()) || this->UseDefaultNormal )
+  if ( !(inNormals=pd->GetNormals()) || this->UseDefaultNormal )
     {
     vtkPolyLine *lineNormalGenerator = vtkPolyLine::New();
     deleteNormals = 1;
@@ -161,7 +161,7 @@ void vtkRibbonFilter::Execute()
 
   // If varying width, get appropriate info.
   //
-  if ( this->VaryWidth && (inScalars=pd->GetActiveScalars()) )
+  if ( this->VaryWidth && (inScalars=pd->GetScalars()) )
     {
     inScalars->GetRange(range,0);
     }

@@ -338,8 +338,6 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
   vtkGeometryFilter *gf = NULL;
   vtkPointData *pntData;
   vtkPoints *points = NULL;
-  vtkNormals *normals = NULL;
-  vtkTCoords *tcoords = NULL;
   int i;
   vtkProperty *prop;
   static float defcolor[3] = {  1.0f, 1.0f, 1.0f };
@@ -349,11 +347,7 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
   vtkIdType *indx;
   float tempf2;
   vtkPolyDataMapper *pm;
-#if VTK_MAJOR_VERSION >= 4
   vtkUnsignedCharArray *colors;
-#else
-  vtkScalars *colors;
-#endif
    
   float p[3];
   unsigned char *c;
@@ -399,15 +393,9 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
 
   points = pd->GetPoints();
   pntData = pd->GetPointData();
-  normals = pntData->GetNormals();
-  tcoords = pntData->GetTCoords();
 
   // usage of GetColors() has been deprecated in VTK 4.0
-  #if VTK_MAJOR_VERSION >= 4 
   colors  = pm->MapScalars(1.0);
-  #else
-  colors  = pm->GetColors();
-  #endif 
    
   // Get the material properties
   prop = anActor->GetProperty();
@@ -417,8 +405,8 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
     {
     vtkTexture *aTexture = anActor->GetTexture();
     int *size, xsize, ysize, bpp;
-    vtkScalars *scalars;
-    vtkScalars *mappedScalars;
+    vtkDataArray *scalars;
+    vtkUnsignedCharArray *mappedScalars;
     unsigned char *txtrData;
     int totalValues;
     
@@ -430,7 +418,7 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
       }
     aTexture->GetInput()->Update();
     size = aTexture->GetInput()->GetDimensions();
-    scalars = (aTexture->GetInput()->GetPointData())->GetScalars();
+    scalars = aTexture->GetInput()->GetPointData()->GetScalars();
 
     // make sure scalars are non null
     if (!scalars) 
@@ -441,13 +429,13 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
 
     // make sure using unsigned char data of color scalars type
     if (aTexture->GetMapColorScalarsThroughLookupTable () ||
-    (scalars->GetDataType() != VTK_UNSIGNED_CHAR) )
+	(scalars->GetDataType() != VTK_UNSIGNED_CHAR) )
       {
       mappedScalars = aTexture->GetMappedScalars ();
       }
     else
       {
-      mappedScalars = scalars;
+      mappedScalars = static_cast<vtkUnsignedCharArray*>(scalars);
       }
 
     // we only support 2d texture maps right now
@@ -480,8 +468,7 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
     bpp = mappedScalars->GetNumberOfComponents();
     fprintf(fp, "%simage %d %d %d\n", indent, xsize, ysize, bpp);
     VTK_INDENT_MORE;
-    txtrData = \
-      ((vtkUnsignedCharArray *)mappedScalars->GetData())->GetPointer(0);
+    txtrData =  static_cast<vtkUnsignedCharArray *>(mappedScalars)->GetPointer(0);
     totalValues = xsize*ysize;
     fprintf(fp,"%s",indent);
     for (i = 0; i < totalValues; i++)
@@ -613,11 +600,7 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
         for (i = 0; i < points->GetNumberOfPoints(); i++)
           {
           float *p = points->GetPoint(i);
-#if VTK_MAJOR_VERSION >= 4
 	  c = (unsigned char *)colors->GetPointer(4*i);
-#else	     
-          c = (unsigned char *)colors->GetColor(i);
-#endif	     
            
           fprintf (fp,"%s%g %g %g %g %g %g %g\n", indent,
                    p[0], p[1], p[2],
@@ -784,15 +767,6 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
   pm->Delete();
 }
 
-
-void vtkOOGLExporter::WritePointData(vtkPoints *points, vtkNormals *normals,
-                                     vtkTCoords *tcoords, vtkScalars *colors,
-                                     FILE *fp)
-{
-/*  float *p;
-  int i;
-  unsigned char *c;*/
-}
 
 
 void vtkOOGLExporter::PrintSelf(ostream& os, vtkIndent ind)

@@ -147,9 +147,9 @@ void vtkImageMagnitude::ThreadedExecute(vtkImageData *inData,
   
   // This is really meta data and should be set in ExecuteInformation,
   // but there are some issues to solve first.
-  if (id == 0 && outData->GetPointData()->GetActiveScalars())
+  if (id == 0 && outData->GetPointData()->GetScalars())
     {
-    outData->GetPointData()->GetActiveScalars()->SetName("Magnitude");
+    outData->GetPointData()->GetScalars()->SetName("Magnitude");
     }
   vtkDebugMacro(<< "Execute: inData = " << inData 
   << ", outData = " << outData);

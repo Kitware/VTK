@@ -366,9 +366,9 @@ static void ContourGrid(vtkGridSynchronizedTemplates3D *self,
 
   newPts = output->GetPoints();
   newPolys = output->GetPolys();
-  newScalars = output->GetPointData()->GetActiveScalars();
-  newNormals = output->GetPointData()->GetActiveNormals();
-  newGradients = output->GetPointData()->GetActiveVectors();
+  newScalars = output->GetPointData()->GetScalars();
+  newNormals = output->GetPointData()->GetNormals();
+  newGradients = output->GetPointData()->GetVectors();
 
   // this is an exploded execute extent.
   XMin = exExt[0];
@@ -678,7 +678,7 @@ void vtkGridSynchronizedTemplates3D::ThreadedExecute(int *exExt, int threadId)
 {
   vtkStructuredGrid *input= this->GetInput();
   vtkPointData *pd = input->GetPointData();
-  vtkDataArray *inScalars = pd->GetActiveScalars();
+  vtkDataArray *inScalars = pd->GetScalars();
   vtkPolyData *output = this->GetOutput();
   long dataSize;
   

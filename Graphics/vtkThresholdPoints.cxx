@@ -112,7 +112,7 @@ void vtkThresholdPoints::Execute()
 
   vtkDebugMacro(<< "Executing threshold points filter");
 
-  if ( ! (inScalars = input->GetPointData()->GetActiveScalars()) )
+  if ( ! (inScalars = input->GetPointData()->GetScalars()) )
     {
     vtkErrorMacro(<<"No scalar data to threshold");
     return;

@@ -18,11 +18,11 @@ proc colorCells {} {
     set input [randomColors GetInput]
     set output [randomColors GetOutput]
     set numCells [$input GetNumberOfCells]
-    vtkScalars colors
-	colors SetNumberOfScalars $numCells
+    vtkFloatArray colors
+	colors SetNumberOfTuples $numCells
 
     for {set i 0} {$i < $numCells} {incr i} {
-        colors SetScalar $i [randomColorGenerator Random 0 1]
+        colors SetValue $i [randomColorGenerator Random 0 1]
     }
 
     [$output GetCellData] CopyScalarsOff

@@ -291,13 +291,13 @@ void vtkMergeFilter::Execute()
   if ( this->GetScalars() ) 
     {
     pd = this->GetScalars()->GetPointData();
-    scalars = pd->GetActiveScalars();
+    scalars = pd->GetScalars();
     if ( scalars != NULL )
       {
       numScalars = scalars->GetNumberOfTuples();
       }
     cd = this->GetScalars()->GetCellData();
-    cellScalars = cd->GetActiveScalars();
+    cellScalars = cd->GetScalars();
     if ( cellScalars != NULL )
       {
       numCellScalars = cellScalars->GetNumberOfTuples();
@@ -307,13 +307,13 @@ void vtkMergeFilter::Execute()
   if ( this->GetVectors() ) 
     {
     pd = this->GetVectors()->GetPointData();
-    vectors = pd->GetActiveVectors();
+    vectors = pd->GetVectors();
     if ( vectors != NULL )
       {
       numVectors= vectors->GetNumberOfTuples();
       }
     cd = this->GetVectors()->GetCellData();
-    cellVectors = cd->GetActiveVectors();
+    cellVectors = cd->GetVectors();
     if ( cellVectors != NULL )
       {
       numCellVectors = cellVectors->GetNumberOfTuples();
@@ -323,13 +323,13 @@ void vtkMergeFilter::Execute()
   if ( this->GetNormals() ) 
     {
     pd = this->GetNormals()->GetPointData();
-    normals = pd->GetActiveNormals();
+    normals = pd->GetNormals();
     if ( normals != NULL )
       {
       numNormals= normals->GetNumberOfTuples();
       }
     cd = this->GetNormals()->GetCellData();
-    cellNormals = cd->GetActiveNormals();
+    cellNormals = cd->GetNormals();
     if ( cellNormals != NULL )
       {
       numCellNormals = cellNormals->GetNumberOfTuples();
@@ -339,13 +339,13 @@ void vtkMergeFilter::Execute()
   if ( this->GetTCoords() ) 
     {
     pd = this->GetTCoords()->GetPointData();
-    tcoords = pd->GetActiveTCoords();
+    tcoords = pd->GetTCoords();
     if ( tcoords != NULL )
       {
       numTCoords= tcoords->GetNumberOfTuples();
       }
     cd = this->GetTCoords()->GetCellData();
-    cellTCoords = cd->GetActiveTCoords();
+    cellTCoords = cd->GetTCoords();
     if ( cellTCoords != NULL )
       {
       numCellTCoords = cellTCoords->GetNumberOfTuples();
@@ -355,13 +355,13 @@ void vtkMergeFilter::Execute()
   if ( this->GetTensors() ) 
     {
     pd = this->GetTensors()->GetPointData();
-    tensors = pd->GetActiveTensors();
+    tensors = pd->GetTensors();
     if ( tensors != NULL )
       {
       numTensors = tensors->GetNumberOfTuples();
       }
     cd = this->GetTensors()->GetCellData();
-    cellTensors = cd->GetActiveTensors();
+    cellTensors = cd->GetTensors();
     if ( cellTensors != NULL )
       {
       numCellTensors = cellTensors->GetNumberOfTuples();

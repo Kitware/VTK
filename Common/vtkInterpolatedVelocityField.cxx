@@ -121,7 +121,7 @@ void vtkInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent indent)
 int vtkInterpolatedVelocityField::FunctionValues(float* x, float* f)
 {
   int i, j, subId , numPts, id;
-  vtkVectors* vectors;
+  vtkDataArray* vectors;
   float vec[3];
   float dist2;
   int ret;
@@ -193,7 +193,7 @@ int vtkInterpolatedVelocityField::FunctionValues(float* x, float* f)
     for (j=0; j < numPts; j++)
       {
       id = this->GenCell->PointIds->GetId(j);
-      vectors->GetVector(id, vec);
+      vectors->GetTuple(id, vec);
       for (i=0; i < 3; i++)
 	{
 	f[i] +=  vec[i] * this->Weights[j];

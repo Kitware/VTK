@@ -247,7 +247,7 @@ void vtkImageImport::ExecuteData(vtkDataObject *output)
     this->NumberOfScalarComponents;    
 
   data->SetExtent(this->DataExtent);
-  data->GetPointData()->GetScalars()->GetData()->SetVoidArray(ptr,size,1);
+  data->GetPointData()->GetScalars()->SetVoidArray(ptr,size,1);
 }
 
 //----------------------------------------------------------------------------

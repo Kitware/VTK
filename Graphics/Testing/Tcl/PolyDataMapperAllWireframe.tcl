@@ -20,37 +20,40 @@ vtkPoints triangleStripPoints
   triangleStripPoints InsertPoint 3 1 0 .6
   triangleStripPoints InsertPoint 4 2 1 .1
 
-vtkTCoords triangleStripTCoords
-  triangleStripTCoords SetNumberOfTCoords 5
-  triangleStripTCoords InsertTCoord 0 0 1 0
-  triangleStripTCoords InsertTCoord 1 0 0 0
-  triangleStripTCoords InsertTCoord 2 .5 1 0
-  triangleStripTCoords InsertTCoord 3 .5 0 0
-  triangleStripTCoords InsertTCoord 4 1 1 0
+vtkFloatArray triangleStripTCoords
+  triangleStripTCoords SetNumberOfComponents 2
+  triangleStripTCoords SetNumberOfTuples 5
+  triangleStripTCoords InsertTuple2 0 0 1 
+  triangleStripTCoords InsertTuple2 1 0 0 
+  triangleStripTCoords InsertTuple2 2 .5 1 
+  triangleStripTCoords InsertTuple2 3 .5 0 
+  triangleStripTCoords InsertTuple2 4 1 1 
 
-vtkScalars triangleStripPointScalars
-  triangleStripPointScalars SetNumberOfScalars 5
-  triangleStripPointScalars InsertScalar 0 1
-  triangleStripPointScalars InsertScalar 1 0
-  triangleStripPointScalars InsertScalar 2 0
-  triangleStripPointScalars InsertScalar 3 0
-  triangleStripPointScalars InsertScalar 4 0
+vtkFloatArray triangleStripPointScalars
+  triangleStripPointScalars SetNumberOfTuples 5
+  triangleStripPointScalars InsertValue 0 1
+  triangleStripPointScalars InsertValue 1 0
+  triangleStripPointScalars InsertValue 2 0
+  triangleStripPointScalars InsertValue 3 0
+  triangleStripPointScalars InsertValue 4 0
 
-vtkScalars triangleStripCellScalars
-  triangleStripCellScalars SetNumberOfScalars 1
-  triangleStripCellScalars InsertScalar 0 1
+vtkFloatArray triangleStripCellScalars
+  triangleStripCellScalars SetNumberOfTuples 1
+  triangleStripCellScalars InsertValue 0 1
 
-vtkNormals triangleStripPointNormals
-  triangleStripPointNormals SetNumberOfNormals 5
-  triangleStripPointNormals InsertNormal 0 0 0 1
-  triangleStripPointNormals InsertNormal 1 0 1 0
-  triangleStripPointNormals InsertNormal 2 0 1 1
-  triangleStripPointNormals InsertNormal 3 1 0 0
-  triangleStripPointNormals InsertNormal 4 1 0 1
+vtkFloatArray triangleStripPointNormals
+  triangleStripPointNormals SetNumberOfComponents 3
+  triangleStripPointNormals SetNumberOfTuples 5
+  triangleStripPointNormals InsertTuple3 0 0 0 1
+  triangleStripPointNormals InsertTuple3 1 0 1 0
+  triangleStripPointNormals InsertTuple3 2 0 1 1
+  triangleStripPointNormals InsertTuple3 3 1 0 0
+  triangleStripPointNormals InsertTuple3 4 1 0 1
 
-vtkNormals triangleStripCellNormals
-  triangleStripCellNormals SetNumberOfNormals 1
-  triangleStripCellNormals InsertNormal 0 1 1 1
+vtkFloatArray triangleStripCellNormals
+  triangleStripCellNormals SetNumberOfComponents 3
+  triangleStripCellNormals SetNumberOfTuples 1
+  triangleStripCellNormals InsertTuple3 0 1 1 1
 
 vtkTriangleStrip aTriangleStrip
   [aTriangleStrip GetPointIds] SetNumberOfIds 5

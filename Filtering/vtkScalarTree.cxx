@@ -121,7 +121,7 @@ void vtkScalarTree::BuildTree()
 
   vtkDebugMacro( << "Building scalar tree..." );
 
-  this->Scalars = this->DataSet->GetPointData()->GetActiveScalars();
+  this->Scalars = this->DataSet->GetPointData()->GetScalars();
   if ( ! this->Scalars )
     {
     vtkErrorMacro( << "No scalar data to build trees with");
@@ -370,24 +370,6 @@ vtkCell *vtkScalarTree::GetNextCell(vtkIdType& cellId, vtkIdList* &cellPts,
 
   return NULL;
 }
-vtkCell *vtkScalarTree::GetNextCell(vtkIdType& cellId, vtkIdList* &cellPts,
-                                    vtkScalars *cellScalars)
-{
-  VTK_LEGACY_METHOD("Clip", "4.0");
-  vtkFloatArray* array = vtkFloatArray::SafeDownCast(cellScalars->GetData());
-  if (array)
-    {
-    return this->GetNextCell(cellId, cellPts, array);
-    }
-  else
-    {
-    vtkErrorMacro("Expected a float array in scalars, got an array of type:"
-		  << cellScalars->GetDataType());
-    return 0;
-    }
-
-}
-
 
 void vtkScalarTree::PrintSelf(ostream& os, vtkIndent indent)
 {

@@ -315,18 +315,10 @@ public:
   // Update the input to the Mapper.
   virtual void Update();
 
-  // Description:
-  // Calculate and return the colors for the input. After invoking this
-  // method, use GetColor() on the scalar to get the scalar values. This
-  // method may return NULL if no color information is available. (This
-  // method is obsolete, use MapScalars() instead.)
-  vtkScalars *GetColors();
-  
 protected:
   vtkMapper();
   ~vtkMapper();
 
-  vtkScalars *Scalars;
   vtkUnsignedCharArray *Colors;
 
   vtkScalarsToColors *LookupTable;

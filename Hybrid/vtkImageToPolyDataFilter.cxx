@@ -81,7 +81,7 @@ void vtkImageToPolyDataFilter::Execute()
   vtkPolyData *tmpInput=vtkPolyData::New();
   vtkAppendPolyData *append = vtkAppendPolyData::New();
   vtkPolyData *appendOutput;
-  vtkDataArray *inScalars = input->GetPointData()->GetActiveScalars();
+  vtkDataArray *inScalars = input->GetPointData()->GetScalars();
   vtkIdType numPixels=input->GetNumberOfPoints();
   int dims[3], numComp=inScalars->GetNumberOfComponents();
   float origin[3], spacing[3];

@@ -179,31 +179,31 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
       case VTK_LABEL_SCALARS:
 	if ( pd->GetScalars() )
 	  {
-	  data = pd->GetScalars()->GetData();
+	  data = pd->GetScalars();
 	  }
 	break;
       case VTK_LABEL_VECTORS:   
 	if ( pd->GetVectors() )
 	  {
-	  data = pd->GetVectors()->GetData();
+	  data = pd->GetVectors();
 	  }
 	break;
       case VTK_LABEL_NORMALS:    
 	if ( pd->GetNormals() )
 	  {
-	  data = pd->GetNormals()->GetData();
+	  data = pd->GetNormals();
 	  }
 	break;
       case VTK_LABEL_TCOORDS:    
 	if ( pd->GetTCoords() )
 	  {
-	  data = pd->GetTCoords()->GetData();
+	  data = pd->GetTCoords();
 	  }
 	break;
       case VTK_LABEL_TENSORS:    
 	if ( pd->GetTensors() )
 	  {
-	  data = pd->GetTensors()->GetData();
+	  data = pd->GetTensors();
 	  }
 	break;
       case VTK_LABEL_FIELD_DATA:

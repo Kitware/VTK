@@ -140,19 +140,19 @@ vtkDataArray *vtkAbstractMapper::GetScalars(vtkDataSet *input,
   // get and scalar data according to scalar mode
   if ( scalarMode == VTK_SCALAR_MODE_DEFAULT )
     {
-    scalars = input->GetPointData()->GetActiveScalars();
+    scalars = input->GetPointData()->GetScalars();
     if (!scalars)
       {
-      scalars = input->GetCellData()->GetActiveScalars();
+      scalars = input->GetCellData()->GetScalars();
       }
     }
   else if ( scalarMode == VTK_SCALAR_MODE_USE_POINT_DATA )
     {
-    scalars = input->GetPointData()->GetActiveScalars();
+    scalars = input->GetPointData()->GetScalars();
     }
   else if ( scalarMode == VTK_SCALAR_MODE_USE_CELL_DATA )
     {
-    scalars = input->GetCellData()->GetActiveScalars();
+    scalars = input->GetCellData()->GetScalars();
     }
   else if ( scalarMode == VTK_SCALAR_MODE_USE_POINT_FIELD_DATA )
     {

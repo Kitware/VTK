@@ -247,7 +247,9 @@ public:
   int Send(unsigned char* data, int length, int remoteProcessId, int tag);
   int Send(float* data, int length, int remoteProcessId, int tag);
   int Send(double* data, int length, int remoteProcessId, int tag);
+#ifdef VTK_USE_64BIT_IDS
   int Send(vtkIdType* data, int length, int remoteProcessId, int tag);
+#endif
   int Send(vtkDataObject *data, int remoteId, int tag);
   int Send(vtkDataArray *data, int remoteId, int tag);
 
@@ -262,7 +264,9 @@ public:
   int Receive(unsigned char* data, int length, int remoteProcessId, int tag);
   int Receive(float* data, int length, int remoteProcessId, int tag);
   int Receive(double* data, int length, int remoteProcessId, int tag);
+#ifdef VTK_USE_64BIT_IDS
   int Receive(vtkIdType* data, int length, int remoteProcessId, int tag);
+#endif
   int Receive(vtkDataObject* data, int remoteId, int tag);
   int Receive(vtkDataArray* data, int remoteId, int tag);
 
@@ -426,6 +430,7 @@ inline int vtkMultiProcessController::Send(double* data, int length,
     }
 }
 
+#ifdef VTK_USE_64BIT_IDS
 inline int vtkMultiProcessController::Send(vtkIdType* data, int length, 
 					   int remoteThreadId, int tag)
 {
@@ -438,6 +443,7 @@ inline int vtkMultiProcessController::Send(vtkIdType* data, int length,
     return 0;
     }
 }
+#endif
 
 inline int vtkMultiProcessController::Receive(vtkDataObject* data, 
 					      int remoteThreadId, int tag)
@@ -544,6 +550,7 @@ inline int vtkMultiProcessController::Receive(double* data, int length,
     }
 }
 
+#ifdef VTK_USE_64BIT_IDS
 inline int vtkMultiProcessController::Receive(vtkIdType* data, int length, 
 					      int remoteThreadId, int tag)
 {
@@ -556,5 +563,6 @@ inline int vtkMultiProcessController::Receive(vtkIdType* data, int length,
     return 0;
     }
 }
+#endif
 
 #endif

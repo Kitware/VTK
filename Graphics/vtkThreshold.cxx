@@ -140,8 +140,8 @@ void vtkThreshold::Execute()
     }
   else
     {
-    pointScalars=pd->GetActiveScalars();
-    cellScalars=cd->GetActiveScalars();
+    pointScalars=pd->GetScalars();
+    cellScalars=cd->GetScalars();
     }
 
   outPD->CopyAllocate(pd);

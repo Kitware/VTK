@@ -90,8 +90,8 @@ void vtkLinkEdgels::Execute()
 
   pd = input->GetPointData();
   dimensions = input->GetDimensions();
-  inScalars = vtkFloatArray::SafeDownCast(pd->GetActiveScalars());
-  inVectors = pd->GetActiveVectors();
+  inScalars = vtkFloatArray::SafeDownCast(pd->GetScalars());
+  inVectors = pd->GetVectors();
   if ((input->GetNumberOfPoints()) < 2 || inScalars == NULL)
     {
     vtkErrorMacro(<<"No data to transform (or wrong data type)!");

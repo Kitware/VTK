@@ -9,7 +9,7 @@
 #include "vtkTransform.h"
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkPoints.h"
-#include "vtkScalars.h"
+#include "vtkFloatArray.h"
 #include "vtkWarpScalar.h"
 #include "vtkDataSetMapper.h"
 #include "vtkPolyData.h"
@@ -28,35 +28,39 @@ int main( int argc, char *argv[] )
 
   vtkRenderer *ren = vtkRenderer::New();
   vtkRenderWindow *renWin = vtkRenderWindow::New();
-    renWin->AddRenderer(ren);
+  renWin->AddRenderer(ren);
+
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
-    iren->SetRenderWindow(renWin);
+  iren->SetRenderWindow(renWin);
   
   // create plane to warp
   vtkPlaneSource *plane = vtkPlaneSource::New();
-    plane->SetResolution (300,300);
+  plane->SetResolution (300,300);
 
   vtkTransform *transform = vtkTransform::New();
-     transform->Scale(10.0,10.0,1.0);
+  transform->Scale(10.0,10.0,1.0);
 
   vtkTransformPolyDataFilter *transF = vtkTransformPolyDataFilter::New();
-     transF->SetInput(plane->GetOutput());
-     transF->SetTransform(transform);
-     transF->Update();
-
+  transF->SetInput(plane->GetOutput());
+  transF->SetTransform(transform);
+  transF->Update();
+  
   // compute Bessel function and derivatives. This portion could be 
   // encapsulated into source or filter object.
   //
   vtkPolyData *input = transF->GetOutput();
   numPts = input->GetNumberOfPoints();
+  
   vtkPoints *newPts = vtkPoints::New();
-    newPts->SetNumberOfPoints(numPts);
-  vtkScalars *derivs = vtkScalars::New();
-    derivs->SetNumberOfScalars(numPts);
+  newPts->SetNumberOfPoints(numPts);
+
+  vtkFloatArray *derivs = vtkFloatArray::New();
+  derivs->SetNumberOfTuples(numPts);
+
   vtkPolyData *bessel = vtkPolyData::New();
-    bessel->CopyStructure(input);
-    bessel->SetPoints(newPts);
-    bessel->GetPointData()->SetScalars(derivs);
+  bessel->CopyStructure(input);
+  bessel->SetPoints(newPts);
+  bessel->GetPointData()->SetScalars(derivs);
 
   for (i=0; i<numPts; i++)
     {
@@ -65,24 +69,24 @@ int main( int argc, char *argv[] )
     x[2] = exp(-r) * cos (10.0*r);
     newPts->SetPoint(i,x);
     deriv = -exp(-r) * (cos(10.0*r) + 10.0*sin(10.0*r));
-    derivs->SetScalar(i,deriv);
+    derivs->SetValue(i,deriv);
     }
   newPts->Delete(); //reference counting - it's ok
   derivs->Delete();
   
   // warp plane
   vtkWarpScalar *warp = vtkWarpScalar::New();
-    warp->SetInput(bessel);
-    warp->XYPlaneOn();
-    warp->SetScaleFactor(0.5);
-
+  warp->SetInput(bessel);
+  warp->XYPlaneOn();
+  warp->SetScaleFactor(0.5);
+  
   // mapper and actor
   vtkDataSetMapper *mapper = vtkDataSetMapper::New();
-    mapper->SetInput(warp->GetOutput());
-    mapper->SetScalarRange(bessel->GetScalarRange());
-
+  mapper->SetInput(warp->GetOutput());
+  mapper->SetScalarRange(bessel->GetScalarRange());
+  
   vtkActor *carpet = vtkActor::New();
-    carpet->SetMapper(mapper);
+  carpet->SetMapper(mapper);
 
   // assign our actor to the renderer
   ren->AddActor(carpet);

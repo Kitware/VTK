@@ -328,7 +328,7 @@ void vtkMarchingSquares::Execute()
     vtkErrorMacro(<<"PointData is NULL");
     return;
     }
-  inScalars=pd->GetActiveScalars();
+  inScalars=pd->GetScalars();
   if ( inScalars == NULL )
     {
     vtkErrorMacro(<<"Scalars must be defined for contouring");

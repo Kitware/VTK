@@ -257,7 +257,7 @@ void vtkImageGradient::ThreadedExecute(vtkImageData *inData,
 
   if (!id)
     {
-    outData->GetPointData()->GetActiveScalars()->SetName("Gradient");
+    outData->GetPointData()->GetScalars()->SetName("Gradient");
     }
 
   // this filter expects that input is the same type as output.

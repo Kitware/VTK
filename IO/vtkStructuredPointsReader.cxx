@@ -105,7 +105,7 @@ void vtkStructuredPointsReader::ExecuteInformation()
   output->vtkDataObject::UpdateData();
   output->SetRequestExactExtent(saveRequestFlag);
   
-  scalars = output->GetPointData()->GetActiveScalars();
+  scalars = output->GetPointData()->GetScalars();
   if (scalars)
     {
     output->SetScalarType(scalars->GetDataType());

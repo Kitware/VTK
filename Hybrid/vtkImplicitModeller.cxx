@@ -212,7 +212,7 @@ static VTK_THREAD_RETURN_TYPE vtkImplicitModeller_ThreadedAppend( void *arg )
   origin = output->GetOrigin();
 
   int *sampleDimensions = userData->Modeller->GetSampleDimensions();
-  if (!(newScalars = output->GetPointData()->GetActiveScalars()))
+  if (!(newScalars = output->GetPointData()->GetScalars()))
     {
     vtkGenericWarningMacro("Sanity check failed.");
     return VTK_THREAD_RETURN_VALUE;
@@ -418,7 +418,7 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
     float *weights=new float[input->GetMaxCellSize()];
     float maxDistance2;
     // Get the output scalars
-    if (!(newScalars = output->GetPointData()->GetActiveScalars()))
+    if (!(newScalars = output->GetPointData()->GetScalars()))
       {
       vtkErrorMacro("Sanity check failed.");
       return;
@@ -690,7 +690,7 @@ void vtkImplicitModeller::EndAppend()
 
   vtkDebugMacro(<< "End append");
   
-  if (!(newScalars =this->GetOutput()->GetPointData()->GetActiveScalars()))
+  if (!(newScalars =this->GetOutput()->GetPointData()->GetScalars()))
     {
     vtkErrorMacro("Sanity check failed.");
     return;

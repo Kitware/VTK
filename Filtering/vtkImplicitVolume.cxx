@@ -97,7 +97,7 @@ float vtkImplicitVolume::EvaluateFunction(float x[3])
 
   // See if a volume is defined
   if ( !this->Volume ||
-  !(scalars = this->Volume->GetPointData()->GetActiveScalars()) )
+  !(scalars = this->Volume->GetPointData()->GetScalars()) )
     {
     vtkErrorMacro(<<"Can't evaluate volume!");
     return this->OutValue;
@@ -156,7 +156,7 @@ void vtkImplicitVolume::EvaluateGradient(float x[3], float n[3])
 
   // See if a volume is defined
   if ( !this->Volume ||
-  !(scalars = this->Volume->GetPointData()->GetActiveScalars()) )
+  !(scalars = this->Volume->GetPointData()->GetScalars()) )
     {
     vtkErrorMacro(<<"Can't evaluate volume!");
     return;

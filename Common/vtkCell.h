@@ -66,7 +66,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkObject.h"
 #include "vtkPoints.h"
-#include "vtkScalars.h"
 #include "vtkIdList.h"
 
 // Include vtkCellType to include the defined cell types
@@ -201,17 +200,6 @@ public:
                        vtkPointData *inPd, vtkPointData *outPd,
                        vtkCellData *inCd, vtkIdType cellId,
                        vtkCellData *outCd) = 0;
-  virtual void Contour(float value, vtkScalars *cellScalars, 
-                       vtkPointLocator *locator, vtkCellArray *verts, 
-                       vtkCellArray *lines, vtkCellArray *polys, 
-                       vtkPointData *inPd, vtkPointData *outPd,
-                       vtkCellData *inCd, vtkIdType cellId,
-                       vtkCellData *outCd)
-    {
-      VTK_LEGACY_METHOD("Contour", "4.0");
-      this->Contour(value, cellScalars->GetData(), locator, verts, 
-		    lines, polys, inPd, outPd, inCd, cellId, outCd);
-    }
 
   // Description:
   // Cut (or clip) the cell based on the input cellScalars and the
@@ -229,16 +217,6 @@ public:
                     vtkPointData *inPd, vtkPointData *outPd,
                     vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd, 
                     int insideOut) = 0;
-  virtual void Clip(float value, vtkScalars *cellScalars, 
-                    vtkPointLocator *locator, vtkCellArray *connectivity,
-                    vtkPointData *inPd, vtkPointData *outPd,
-                    vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd, 
-                    int insideOut)
-    {
-      VTK_LEGACY_METHOD("Clip", "4.0");
-      this->Clip(value, cellScalars->GetData(), locator, connectivity, 
-		 inPd, outPd, inCd, cellId, outCd, insideOut);
-    }
 
   // Description:
   // Intersect with a ray. Return parametric coordinates (both line and cell)

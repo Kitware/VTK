@@ -59,6 +59,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPolygon.h"
 #include "vtkTriangle.h"
 #include "vtkPlane.h"
+#include "vtkDataArray.h"
 
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
@@ -401,8 +402,8 @@ static void vtkOpenGLBeginPolyTriangleOrQuad(GLenum aGlFunction,
 }
 
 static void vtkOpenGLDraw01(vtkCellArray *aPrim, GLenum aGlFunction,
-                            vtkIdType &, vtkPoints *p, vtkNormals *, 
-                            vtkUnsignedCharArray *, vtkTCoords *, 
+                            vtkIdType &, vtkPoints *p, vtkDataArray *, 
+                            vtkUnsignedCharArray *, vtkDataArray *, 
                             vtkOpenGLRenderer *ren, int &noAbort)
 {
   int j;
@@ -447,8 +448,8 @@ static void vtkOpenGLDraw01(vtkCellArray *aPrim, GLenum aGlFunction,
 }
 
 static void vtkOpenGLDrawN013(vtkCellArray *aPrim, GLenum aGlFunction,
-                              vtkIdType &, vtkPoints *p, vtkNormals *n, 
-                              vtkUnsignedCharArray *, vtkTCoords *, 
+                              vtkIdType &, vtkPoints *p, vtkDataArray *n, 
+                              vtkUnsignedCharArray *, vtkDataArray *, 
                               vtkOpenGLRenderer *ren, int &noAbort)
 {
   int j;
@@ -464,7 +465,7 @@ static void vtkOpenGLDrawN013(vtkCellArray *aPrim, GLenum aGlFunction,
     
     for (j = 0; j < npts; j++) 
       {
-      glNormal3fv(n->GetNormal(pts[j]));
+      glNormal3fv(n->GetTuple(pts[j]));
       glVertex3fv(p->GetPoint(pts[j]));
       }
 
@@ -495,8 +496,8 @@ static void vtkOpenGLDrawN013(vtkCellArray *aPrim, GLenum aGlFunction,
 
 static void vtkOpenGLDrawCN013(vtkCellArray *aPrim, GLenum aGlFunction,
                                vtkIdType &cellNum, vtkPoints *p, 
-                               vtkNormals *n, vtkUnsignedCharArray *, 
-                               vtkTCoords *, vtkOpenGLRenderer *ren, 
+                               vtkDataArray *n, vtkUnsignedCharArray *, 
+                               vtkDataArray *, vtkOpenGLRenderer *ren, 
                                int &noAbort)
 {
   int j;
@@ -510,7 +511,7 @@ static void vtkOpenGLDrawCN013(vtkCellArray *aPrim, GLenum aGlFunction,
     { 
     vtkOpenGLBeginPolyTriangleOrQuad( aGlFunction, previousGlFunction, npts );
     
-    glNormal3fv(n->GetNormal(cellNum));
+    glNormal3fv(n->GetTuple(cellNum));
     
     for (j = 0; j < npts; j++) 
       {
@@ -543,8 +544,8 @@ static void vtkOpenGLDrawCN013(vtkCellArray *aPrim, GLenum aGlFunction,
 }
 
 static void vtkOpenGLDrawS01(vtkCellArray *aPrim, GLenum aGlFunction,
-                             vtkIdType &, vtkPoints *p, vtkNormals *, 
-                             vtkUnsignedCharArray *c, vtkTCoords *, 
+                             vtkIdType &, vtkPoints *p, vtkDataArray *, 
+                             vtkUnsignedCharArray *c, vtkDataArray *, 
                              vtkOpenGLRenderer *ren, int &noAbort)
 {
   int j;
@@ -590,8 +591,8 @@ static void vtkOpenGLDrawS01(vtkCellArray *aPrim, GLenum aGlFunction,
 }
 
 static void vtkOpenGLDrawNS013(vtkCellArray *aPrim, GLenum aGlFunction,
-                               vtkIdType &, vtkPoints *p, vtkNormals *n, 
-                               vtkUnsignedCharArray *c, vtkTCoords *, 
+                               vtkIdType &, vtkPoints *p, vtkDataArray *n, 
+                               vtkUnsignedCharArray *c, vtkDataArray *, 
                                vtkOpenGLRenderer *ren, int &noAbort)
 {
   int j;
@@ -608,7 +609,7 @@ static void vtkOpenGLDrawNS013(vtkCellArray *aPrim, GLenum aGlFunction,
     for (j = 0; j < npts; j++) 
       {
       glColor4ubv(c->GetPointer(4*pts[j]));
-      glNormal3fv(n->GetNormal(pts[j]));
+      glNormal3fv(n->GetTuple(pts[j]));
       glVertex3fv(p->GetPoint(pts[j]));
       }
 
@@ -639,8 +640,8 @@ static void vtkOpenGLDrawNS013(vtkCellArray *aPrim, GLenum aGlFunction,
 
 static void vtkOpenGLDrawCNS013(vtkCellArray *aPrim, GLenum aGlFunction,
                                 vtkIdType &cellNum, vtkPoints *p, 
-                                vtkNormals *n, vtkUnsignedCharArray *c, 
-                                vtkTCoords *, vtkOpenGLRenderer *ren, 
+                                vtkDataArray *n, vtkUnsignedCharArray *c, 
+                                vtkDataArray *, vtkOpenGLRenderer *ren, 
                                 int &noAbort)
 {
   int j;
@@ -654,7 +655,7 @@ static void vtkOpenGLDrawCNS013(vtkCellArray *aPrim, GLenum aGlFunction,
     { 
     vtkOpenGLBeginPolyTriangleOrQuad( aGlFunction, previousGlFunction, npts );
     
-    glNormal3fv(n->GetNormal(cellNum));
+    glNormal3fv(n->GetTuple(cellNum));
     
     for (j = 0; j < npts; j++) 
       {
@@ -688,8 +689,8 @@ static void vtkOpenGLDrawCNS013(vtkCellArray *aPrim, GLenum aGlFunction,
 }
 
 static void vtkOpenGLDrawT01(vtkCellArray *aPrim, GLenum aGlFunction,
-                             vtkIdType &, vtkPoints *p, vtkNormals *, 
-                             vtkUnsignedCharArray *, vtkTCoords *t, 
+                             vtkIdType &, vtkPoints *p, vtkDataArray *, 
+                             vtkUnsignedCharArray *, vtkDataArray *t, 
                              vtkOpenGLRenderer *ren, int &noAbort)
 {
   int j;
@@ -705,7 +706,7 @@ static void vtkOpenGLDrawT01(vtkCellArray *aPrim, GLenum aGlFunction,
     
     for (j = 0; j < npts; j++) 
       {
-      glTexCoord2fv(t->GetTCoord(pts[j]));
+      glTexCoord2fv(t->GetTuple(pts[j]));
       glVertex3fv(p->GetPoint(pts[j]));
       }
 
@@ -735,8 +736,8 @@ static void vtkOpenGLDrawT01(vtkCellArray *aPrim, GLenum aGlFunction,
 }
 
 static void vtkOpenGLDrawNT013(vtkCellArray *aPrim, GLenum aGlFunction,
-                               vtkIdType &, vtkPoints *p, vtkNormals *n, 
-                               vtkUnsignedCharArray *, vtkTCoords *t, 
+                               vtkIdType &, vtkPoints *p, vtkDataArray *n, 
+                               vtkUnsignedCharArray *, vtkDataArray *t, 
                                vtkOpenGLRenderer *ren, int &noAbort)
 {
   int j;
@@ -752,8 +753,8 @@ static void vtkOpenGLDrawNT013(vtkCellArray *aPrim, GLenum aGlFunction,
     
     for (j = 0; j < npts; j++) 
       {
-      glTexCoord2fv(t->GetTCoord(pts[j]));
-      glNormal3fv(n->GetNormal(pts[j]));
+      glTexCoord2fv(t->GetTuple(pts[j]));
+      glNormal3fv(n->GetTuple(pts[j]));
       glVertex3fv(p->GetPoint(pts[j]));
       }
 
@@ -783,8 +784,8 @@ static void vtkOpenGLDrawNT013(vtkCellArray *aPrim, GLenum aGlFunction,
 
 static void vtkOpenGLDrawCNT013(vtkCellArray *aPrim, GLenum aGlFunction,
                                 vtkIdType &cellNum, vtkPoints *p, 
-                                vtkNormals *n, vtkUnsignedCharArray *, 
-                                vtkTCoords *t, vtkOpenGLRenderer *ren, 
+                                vtkDataArray *n, vtkUnsignedCharArray *, 
+                                vtkDataArray *t, vtkOpenGLRenderer *ren, 
                                 int &noAbort)
 {
   int j;
@@ -798,11 +799,11 @@ static void vtkOpenGLDrawCNT013(vtkCellArray *aPrim, GLenum aGlFunction,
     { 
     vtkOpenGLBeginPolyTriangleOrQuad( aGlFunction, previousGlFunction, npts );
     
-    glNormal3fv(n->GetNormal(cellNum));
+    glNormal3fv(n->GetTuple(cellNum));
     
     for (j = 0; j < npts; j++) 
       {
-      glTexCoord2fv(t->GetTCoord(pts[j]));
+      glTexCoord2fv(t->GetTuple(pts[j]));
       glVertex3fv(p->GetPoint(pts[j]));
       }
 
@@ -831,8 +832,8 @@ static void vtkOpenGLDrawCNT013(vtkCellArray *aPrim, GLenum aGlFunction,
 }
 
 static void vtkOpenGLDrawST01(vtkCellArray *aPrim, GLenum aGlFunction,
-                              vtkIdType &, vtkPoints *p, vtkNormals *, 
-                              vtkUnsignedCharArray *c, vtkTCoords *t, 
+                              vtkIdType &, vtkPoints *p, vtkDataArray *, 
+                              vtkUnsignedCharArray *c, vtkDataArray *t, 
                               vtkOpenGLRenderer *ren, int &noAbort)
 {
   int j;
@@ -849,7 +850,7 @@ static void vtkOpenGLDrawST01(vtkCellArray *aPrim, GLenum aGlFunction,
     for (j = 0; j < npts; j++) 
       {
       glColor4ubv(c->GetPointer(4*pts[j]));
-      glTexCoord2fv(t->GetTCoord(pts[j]));
+      glTexCoord2fv(t->GetTuple(pts[j]));
       glVertex3fv(p->GetPoint(pts[j]));
       }
 
@@ -879,8 +880,8 @@ static void vtkOpenGLDrawST01(vtkCellArray *aPrim, GLenum aGlFunction,
 }
 
 static void vtkOpenGLDrawNST013(vtkCellArray *aPrim, GLenum aGlFunction,
-                                vtkIdType &, vtkPoints *p, vtkNormals *n, 
-                                vtkUnsignedCharArray *c, vtkTCoords *t, 
+                                vtkIdType &, vtkPoints *p, vtkDataArray *n, 
+                                vtkUnsignedCharArray *c, vtkDataArray *t, 
                                 vtkOpenGLRenderer *ren, int &noAbort)
 {
   int j;
@@ -897,8 +898,8 @@ static void vtkOpenGLDrawNST013(vtkCellArray *aPrim, GLenum aGlFunction,
     for (j = 0; j < npts; j++) 
       {
       glColor4ubv(c->GetPointer(4*pts[j]));
-      glTexCoord2fv(t->GetTCoord(pts[j]));
-      glNormal3fv(n->GetNormal(pts[j]));
+      glTexCoord2fv(t->GetTuple(pts[j]));
+      glNormal3fv(n->GetTuple(pts[j]));
       glVertex3fv(p->GetPoint(pts[j]));
       }
 
@@ -929,8 +930,8 @@ static void vtkOpenGLDrawNST013(vtkCellArray *aPrim, GLenum aGlFunction,
 
 static void vtkOpenGLDrawCNST013(vtkCellArray *aPrim, GLenum aGlFunction,
                                  vtkIdType &cellNum, vtkPoints *p, 
-                                 vtkNormals *n, vtkUnsignedCharArray *c, 
-                                 vtkTCoords *t, vtkOpenGLRenderer *ren,
+                                 vtkDataArray *n, vtkUnsignedCharArray *c, 
+                                 vtkDataArray *t, vtkOpenGLRenderer *ren,
                                  int &noAbort)
 {
   int j;
@@ -944,12 +945,12 @@ static void vtkOpenGLDrawCNST013(vtkCellArray *aPrim, GLenum aGlFunction,
     {
     vtkOpenGLBeginPolyTriangleOrQuad( aGlFunction, previousGlFunction, npts );
     
-    glNormal3fv(n->GetNormal(cellNum));
+    glNormal3fv(n->GetTuple(cellNum));
     
     for (j = 0; j < npts; j++) 
       {
       glColor4ubv(c->GetPointer(4*pts[j]));
-      glTexCoord2fv(t->GetTCoord(pts[j]));
+      glTexCoord2fv(t->GetTuple(pts[j]));
       glVertex3fv(p->GetPoint(pts[j]));
       }
 
@@ -979,8 +980,8 @@ static void vtkOpenGLDrawCNST013(vtkCellArray *aPrim, GLenum aGlFunction,
 }
 
 static void vtkOpenGLDrawCS01(vtkCellArray *aPrim, GLenum aGlFunction,
-                              vtkIdType &cellNum, vtkPoints *p, vtkNormals *, 
-                              vtkUnsignedCharArray *c, vtkTCoords *, 
+                              vtkIdType &cellNum, vtkPoints *p, vtkDataArray *, 
+                              vtkUnsignedCharArray *c, vtkDataArray *, 
                               vtkOpenGLRenderer *ren, int &noAbort)
 {
   int j;
@@ -1027,8 +1028,8 @@ static void vtkOpenGLDrawCS01(vtkCellArray *aPrim, GLenum aGlFunction,
 
 static void vtkOpenGLDrawNCS013(vtkCellArray *aPrim, GLenum aGlFunction,
                                 vtkIdType &cellNum, vtkPoints *p, 
-                                vtkNormals *n, vtkUnsignedCharArray *c, 
-                                vtkTCoords *, vtkOpenGLRenderer *ren,
+                                vtkDataArray *n, vtkUnsignedCharArray *c, 
+                                vtkDataArray *, vtkOpenGLRenderer *ren,
                                 int &noAbort)
 {
   int j;
@@ -1046,7 +1047,7 @@ static void vtkOpenGLDrawNCS013(vtkCellArray *aPrim, GLenum aGlFunction,
     
     for (j = 0; j < npts; j++) 
       {
-      glNormal3fv(n->GetNormal(pts[j]));
+      glNormal3fv(n->GetTuple(pts[j]));
       glVertex3fv(p->GetPoint(pts[j]));
       }
 
@@ -1077,8 +1078,8 @@ static void vtkOpenGLDrawNCS013(vtkCellArray *aPrim, GLenum aGlFunction,
 
 static void vtkOpenGLDrawCNCS013(vtkCellArray *aPrim, GLenum aGlFunction,
                                  vtkIdType &cellNum, vtkPoints *p, 
-                                 vtkNormals *n, vtkUnsignedCharArray *c, 
-                                 vtkTCoords *, vtkOpenGLRenderer *ren,
+                                 vtkDataArray *n, vtkUnsignedCharArray *c, 
+                                 vtkDataArray *, vtkOpenGLRenderer *ren,
                                  int &noAbort)
 {
   int j;
@@ -1093,7 +1094,7 @@ static void vtkOpenGLDrawCNCS013(vtkCellArray *aPrim, GLenum aGlFunction,
     vtkOpenGLBeginPolyTriangleOrQuad( aGlFunction, previousGlFunction, npts );
     
     glColor4ubv(c->GetPointer(4*cellNum));
-    glNormal3fv(n->GetNormal(cellNum));
+    glNormal3fv(n->GetTuple(cellNum));
     
     for (j = 0; j < npts; j++) 
       {
@@ -1126,8 +1127,8 @@ static void vtkOpenGLDrawCNCS013(vtkCellArray *aPrim, GLenum aGlFunction,
 }
 
 static void vtkOpenGLDrawCST01(vtkCellArray *aPrim, GLenum aGlFunction,
-                               vtkIdType &cellNum, vtkPoints *p, vtkNormals *, 
-                               vtkUnsignedCharArray *c, vtkTCoords *t, 
+                               vtkIdType &cellNum, vtkPoints *p, vtkDataArray *, 
+                               vtkUnsignedCharArray *c, vtkDataArray *t, 
                                vtkOpenGLRenderer *ren, int &noAbort)
 {
   int j;
@@ -1144,7 +1145,7 @@ static void vtkOpenGLDrawCST01(vtkCellArray *aPrim, GLenum aGlFunction,
     for (j = 0; j < npts; j++) 
       {
       glColor4ubv(c->GetPointer(4*cellNum));
-      glTexCoord2fv(t->GetTCoord(pts[j]));
+      glTexCoord2fv(t->GetTuple(pts[j]));
       glVertex3fv(p->GetPoint(pts[j]));
       }
 
@@ -1175,8 +1176,8 @@ static void vtkOpenGLDrawCST01(vtkCellArray *aPrim, GLenum aGlFunction,
 
 static void vtkOpenGLDrawNCST013(vtkCellArray *aPrim, GLenum aGlFunction,
                                  vtkIdType &cellNum, vtkPoints *p, 
-                                 vtkNormals *n, vtkUnsignedCharArray *c, 
-                                 vtkTCoords *t, vtkOpenGLRenderer *ren,
+                                 vtkDataArray *n, vtkUnsignedCharArray *c, 
+                                 vtkDataArray *t, vtkOpenGLRenderer *ren,
                                  int &noAbort)
 {
   int j;
@@ -1193,8 +1194,8 @@ static void vtkOpenGLDrawNCST013(vtkCellArray *aPrim, GLenum aGlFunction,
     for (j = 0; j < npts; j++) 
       {
       glColor4ubv(c->GetPointer(4*cellNum));
-      glTexCoord2fv(t->GetTCoord(pts[j]));
-      glNormal3fv(n->GetNormal(pts[j]));
+      glTexCoord2fv(t->GetTuple(pts[j]));
+      glNormal3fv(n->GetTuple(pts[j]));
       glVertex3fv(p->GetPoint(pts[j]));
       }
 
@@ -1225,8 +1226,8 @@ static void vtkOpenGLDrawNCST013(vtkCellArray *aPrim, GLenum aGlFunction,
 
 static void vtkOpenGLDrawCNCST013(vtkCellArray *aPrim, GLenum aGlFunction,
                                   vtkIdType &cellNum, vtkPoints *p, 
-                                  vtkNormals *n, vtkUnsignedCharArray *c, 
-                                  vtkTCoords *t, vtkOpenGLRenderer *ren, 
+                                  vtkDataArray *n, vtkUnsignedCharArray *c, 
+                                  vtkDataArray *t, vtkOpenGLRenderer *ren, 
                                   int &noAbort)
 {
   int j;
@@ -1241,11 +1242,11 @@ static void vtkOpenGLDrawCNCST013(vtkCellArray *aPrim, GLenum aGlFunction,
     vtkOpenGLBeginPolyTriangleOrQuad( aGlFunction, previousGlFunction, npts );
     
     glColor4ubv(c->GetPointer(4*cellNum));
-    glNormal3fv(n->GetNormal(cellNum));
+    glNormal3fv(n->GetTuple(cellNum));
       
     for (j = 0; j < npts; j++) 
       {
-      glTexCoord2fv(t->GetTCoord(pts[j]));
+      glTexCoord2fv(t->GetTuple(pts[j]));
       glVertex3fv(p->GetPoint(pts[j]));
       }
 
@@ -1276,8 +1277,8 @@ static void vtkOpenGLDrawCNCST013(vtkCellArray *aPrim, GLenum aGlFunction,
 
 
 static void vtkOpenGLDraw3(vtkCellArray *aPrim, GLenum aGlFunction,
-                           vtkIdType &, vtkPoints *p, vtkNormals *, 
-                           vtkUnsignedCharArray *, vtkTCoords *, 
+                           vtkIdType &, vtkPoints *p, vtkDataArray *, 
+                           vtkUnsignedCharArray *, vtkDataArray *, 
                            vtkOpenGLRenderer *ren, int &noAbort)
 {
   int j;
@@ -1326,8 +1327,8 @@ static void vtkOpenGLDraw3(vtkCellArray *aPrim, GLenum aGlFunction,
 }
 
 static void vtkOpenGLDrawS3(vtkCellArray *aPrim, GLenum aGlFunction,
-                            vtkIdType &, vtkPoints *p, vtkNormals *, 
-                            vtkUnsignedCharArray *c, vtkTCoords *, 
+                            vtkIdType &, vtkPoints *p, vtkDataArray *, 
+                            vtkUnsignedCharArray *c, vtkDataArray *, 
                             vtkOpenGLRenderer *ren, int &noAbort)
 {
   int j;
@@ -1377,8 +1378,8 @@ static void vtkOpenGLDrawS3(vtkCellArray *aPrim, GLenum aGlFunction,
 }
 
 static void vtkOpenGLDrawT3(vtkCellArray *aPrim, GLenum aGlFunction,
-                            vtkIdType &, vtkPoints *p, vtkNormals *, 
-                            vtkUnsignedCharArray *, vtkTCoords *t, 
+                            vtkIdType &, vtkPoints *p, vtkDataArray *, 
+                            vtkUnsignedCharArray *, vtkDataArray *t, 
                             vtkOpenGLRenderer *ren, int &noAbort)
 {
   int j;
@@ -1397,7 +1398,7 @@ static void vtkOpenGLDrawT3(vtkCellArray *aPrim, GLenum aGlFunction,
     
     for (j = 0; j < npts; j++) 
       {
-      glTexCoord2fv(t->GetTCoord(pts[j]));
+      glTexCoord2fv(t->GetTuple(pts[j]));
       glNormal3fv(polyNorm);
       glVertex3fv(p->GetPoint(pts[j]));
       }
@@ -1428,8 +1429,8 @@ static void vtkOpenGLDrawT3(vtkCellArray *aPrim, GLenum aGlFunction,
 }
 
 static void vtkOpenGLDrawST3(vtkCellArray *aPrim, GLenum aGlFunction,
-                             vtkIdType &, vtkPoints *p, vtkNormals *, 
-                             vtkUnsignedCharArray *c, vtkTCoords *t, 
+                             vtkIdType &, vtkPoints *p, vtkDataArray *, 
+                             vtkUnsignedCharArray *c, vtkDataArray *t, 
                              vtkOpenGLRenderer *ren, int &noAbort)
 {
   int j;
@@ -1449,7 +1450,7 @@ static void vtkOpenGLDrawST3(vtkCellArray *aPrim, GLenum aGlFunction,
     for (j = 0; j < npts; j++) 
       {
       glColor4ubv(c->GetPointer(4*pts[j]));
-      glTexCoord2fv(t->GetTCoord(pts[j]));
+      glTexCoord2fv(t->GetTuple(pts[j]));
       glNormal3fv(polyNorm);
       glVertex3fv(p->GetPoint(pts[j]));
       }
@@ -1480,8 +1481,8 @@ static void vtkOpenGLDrawST3(vtkCellArray *aPrim, GLenum aGlFunction,
 }
 
 static void vtkOpenGLDrawCS3(vtkCellArray *aPrim, GLenum aGlFunction,
-                             vtkIdType &cellNum, vtkPoints *p, vtkNormals *, 
-                             vtkUnsignedCharArray *c, vtkTCoords *, 
+                             vtkIdType &cellNum, vtkPoints *p, vtkDataArray *, 
+                             vtkUnsignedCharArray *c, vtkDataArray *, 
                              vtkOpenGLRenderer *ren, int &noAbort)
 {
   int j;
@@ -1531,8 +1532,8 @@ static void vtkOpenGLDrawCS3(vtkCellArray *aPrim, GLenum aGlFunction,
 }
 
 static void vtkOpenGLDrawCST3(vtkCellArray *aPrim, GLenum aGlFunction,
-                              vtkIdType &cellNum, vtkPoints *p, vtkNormals *, 
-                              vtkUnsignedCharArray *c, vtkTCoords *t, 
+                              vtkIdType &cellNum, vtkPoints *p, vtkDataArray *, 
+                              vtkUnsignedCharArray *c, vtkDataArray *t, 
                               vtkOpenGLRenderer *ren, int &noAbort)
 {
   int j;
@@ -1552,7 +1553,7 @@ static void vtkOpenGLDrawCST3(vtkCellArray *aPrim, GLenum aGlFunction,
     for (j = 0; j < npts; j++) 
       {
       glColor4ubv(c->GetPointer(4*cellNum));
-      glTexCoord2fv(t->GetTCoord(pts[j]));
+      glTexCoord2fv(t->GetTuple(pts[j]));
       glNormal3fv(polyNorm);
       glVertex3fv(p->GetPoint(pts[j]));
       }
@@ -1583,8 +1584,8 @@ static void vtkOpenGLDrawCST3(vtkCellArray *aPrim, GLenum aGlFunction,
 }
   
 static void vtkOpenGLDraw2(vtkCellArray *aPrim, GLenum aGlFunction,
-                           vtkIdType &, vtkPoints *p, vtkNormals *, 
-                           vtkUnsignedCharArray *, vtkTCoords *, 
+                           vtkIdType &, vtkPoints *p, vtkDataArray *, 
+                           vtkUnsignedCharArray *, vtkDataArray *, 
                            vtkOpenGLRenderer *ren, int &noAbort)
 {
   int j;
@@ -1651,8 +1652,8 @@ static void vtkOpenGLDraw2(vtkCellArray *aPrim, GLenum aGlFunction,
 }
 
 static void vtkOpenGLDrawS2(vtkCellArray *aPrim, GLenum aGlFunction,
-                            vtkIdType &, vtkPoints *p, vtkNormals *, 
-                            vtkUnsignedCharArray *c, vtkTCoords *, 
+                            vtkIdType &, vtkPoints *p, vtkDataArray *, 
+                            vtkUnsignedCharArray *c, vtkDataArray *, 
                             vtkOpenGLRenderer *ren, int &noAbort)
 {
   int j;
@@ -1720,8 +1721,8 @@ static void vtkOpenGLDrawS2(vtkCellArray *aPrim, GLenum aGlFunction,
 }
 
 static void vtkOpenGLDrawT2(vtkCellArray *aPrim, GLenum aGlFunction,
-                            vtkIdType &, vtkPoints *p, vtkNormals *, 
-                            vtkUnsignedCharArray *, vtkTCoords *t, 
+                            vtkIdType &, vtkPoints *p, vtkDataArray *, 
+                            vtkUnsignedCharArray *, vtkDataArray *t, 
                             vtkOpenGLRenderer *ren, int &noAbort)
 {
   int j;
@@ -1740,7 +1741,7 @@ static void vtkOpenGLDrawT2(vtkCellArray *aPrim, GLenum aGlFunction,
     
     for (j = 0; j < npts; j++) 
       {
-      glTexCoord2fv(t->GetTCoord(pts[j]));
+      glTexCoord2fv(t->GetTuple(pts[j]));
       if ( j > 2)
         {
         if (j % 2)
@@ -1788,8 +1789,8 @@ static void vtkOpenGLDrawT2(vtkCellArray *aPrim, GLenum aGlFunction,
 }
 
 static void vtkOpenGLDrawST2(vtkCellArray *aPrim, GLenum aGlFunction,
-                             vtkIdType &, vtkPoints *p, vtkNormals *, 
-                             vtkUnsignedCharArray *c, vtkTCoords *t, 
+                             vtkIdType &, vtkPoints *p, vtkDataArray *, 
+                             vtkUnsignedCharArray *c, vtkDataArray *t, 
                              vtkOpenGLRenderer *ren, int &noAbort)
 {
   int j;
@@ -1809,7 +1810,7 @@ static void vtkOpenGLDrawST2(vtkCellArray *aPrim, GLenum aGlFunction,
     for (j = 0; j < npts; j++) 
       {
       glColor4ubv(c->GetPointer(4*pts[j]));
-      glTexCoord2fv(t->GetTCoord(pts[j]));
+      glTexCoord2fv(t->GetTuple(pts[j]));
       if ( j > 2)
         {
         if (j % 2)
@@ -1857,8 +1858,8 @@ static void vtkOpenGLDrawST2(vtkCellArray *aPrim, GLenum aGlFunction,
 }
 
 static void vtkOpenGLDrawCS2(vtkCellArray *aPrim, GLenum aGlFunction,
-                             vtkIdType &cellNum, vtkPoints *p, vtkNormals *, 
-                             vtkUnsignedCharArray *c, vtkTCoords *, 
+                             vtkIdType &cellNum, vtkPoints *p, vtkDataArray *, 
+                             vtkUnsignedCharArray *c, vtkDataArray *, 
                              vtkOpenGLRenderer *ren, int &noAbort)
 {
   int j;
@@ -1925,8 +1926,8 @@ static void vtkOpenGLDrawCS2(vtkCellArray *aPrim, GLenum aGlFunction,
 }
 
 static void vtkOpenGLDrawCST2(vtkCellArray *aPrim, GLenum aGlFunction,
-                              vtkIdType &cellNum, vtkPoints *p, vtkNormals *, 
-                              vtkUnsignedCharArray *c, vtkTCoords *t, 
+                              vtkIdType &cellNum, vtkPoints *p, vtkDataArray *, 
+                              vtkUnsignedCharArray *c, vtkDataArray *t, 
                               vtkOpenGLRenderer *ren, int &noAbort)
 {
   int j;
@@ -1946,7 +1947,7 @@ static void vtkOpenGLDrawCST2(vtkCellArray *aPrim, GLenum aGlFunction,
     for (j = 0; j < npts; j++) 
       {
       glColor4ubv(c->GetPointer(4*cellNum));
-      glTexCoord2fv(t->GetTCoord(pts[j]));
+      glTexCoord2fv(t->GetTuple(pts[j]));
       if ( j > 2)
         {
         if (j % 2)
@@ -1994,8 +1995,8 @@ static void vtkOpenGLDrawCST2(vtkCellArray *aPrim, GLenum aGlFunction,
 } 
   
 static void vtkOpenGLDrawW(vtkCellArray *aPrim, GLenum,
-                           vtkIdType &, vtkPoints *p, vtkNormals *, 
-                           vtkUnsignedCharArray *, vtkTCoords *, 
+                           vtkIdType &, vtkPoints *p, vtkDataArray *, 
+                           vtkUnsignedCharArray *, vtkDataArray *, 
                            vtkOpenGLRenderer *ren, int &noAbort)
 {
   int j;
@@ -2055,8 +2056,8 @@ static void vtkOpenGLDrawW(vtkCellArray *aPrim, GLenum,
 }
 
 static void vtkOpenGLDrawNW(vtkCellArray *aPrim, GLenum,
-                            vtkIdType &, vtkPoints *p, vtkNormals *n, 
-                            vtkUnsignedCharArray *, vtkTCoords *, 
+                            vtkIdType &, vtkPoints *p, vtkDataArray *n, 
+                            vtkUnsignedCharArray *, vtkDataArray *, 
                             vtkOpenGLRenderer *ren, int &noAbort)
 {
   int j;
@@ -2070,7 +2071,7 @@ static void vtkOpenGLDrawNW(vtkCellArray *aPrim, GLenum,
     glBegin(GL_LINE_STRIP);
     for (j = 0; j < npts; j += 2) 
       {
-      glNormal3fv(n->GetNormal(pts[j]));
+      glNormal3fv(n->GetTuple(pts[j]));
       glVertex3fv(p->GetPoint(pts[j]));
       }
     glEnd();
@@ -2079,7 +2080,7 @@ static void vtkOpenGLDrawNW(vtkCellArray *aPrim, GLenum,
     glBegin(GL_LINE_STRIP);
     for (j = 1; j < npts; j += 2) 
       {
-      glNormal3fv(n->GetNormal(pts[j]));
+      glNormal3fv(n->GetTuple(pts[j]));
       glVertex3fv(p->GetPoint(pts[j]));
       }
     glEnd();
@@ -2097,8 +2098,8 @@ static void vtkOpenGLDrawNW(vtkCellArray *aPrim, GLenum,
 }
 
 static void vtkOpenGLDrawSW(vtkCellArray *aPrim, GLenum,
-                            vtkIdType &, vtkPoints *p, vtkNormals *, 
-                            vtkUnsignedCharArray *c, vtkTCoords *, 
+                            vtkIdType &, vtkPoints *p, vtkDataArray *, 
+                            vtkUnsignedCharArray *c, vtkDataArray *, 
                             vtkOpenGLRenderer *ren, int &noAbort)
 {
   int j;
@@ -2160,8 +2161,8 @@ static void vtkOpenGLDrawSW(vtkCellArray *aPrim, GLenum,
 }
 
 static void vtkOpenGLDrawNSW(vtkCellArray *aPrim, GLenum,
-                             vtkIdType &, vtkPoints *p, vtkNormals *n, 
-                             vtkUnsignedCharArray *c, vtkTCoords *, 
+                             vtkIdType &, vtkPoints *p, vtkDataArray *n, 
+                             vtkUnsignedCharArray *c, vtkDataArray *, 
                              vtkOpenGLRenderer *ren, int &noAbort)
 {
   int j;
@@ -2176,7 +2177,7 @@ static void vtkOpenGLDrawNSW(vtkCellArray *aPrim, GLenum,
     for (j = 0; j < npts; j += 2) 
       {
       glColor4ubv(c->GetPointer(4*pts[j]));
-      glNormal3fv(n->GetNormal(pts[j]));
+      glNormal3fv(n->GetTuple(pts[j]));
       glVertex3fv(p->GetPoint(pts[j]));
       }
     glEnd();
@@ -2186,7 +2187,7 @@ static void vtkOpenGLDrawNSW(vtkCellArray *aPrim, GLenum,
     for (j = 1; j < npts; j += 2) 
       {
       glColor4ubv(c->GetPointer(4*pts[j]));
-      glNormal3fv(n->GetNormal(pts[j]));
+      glNormal3fv(n->GetTuple(pts[j]));
       glVertex3fv(p->GetPoint(pts[j]));
       }
     glEnd();
@@ -2204,8 +2205,8 @@ static void vtkOpenGLDrawNSW(vtkCellArray *aPrim, GLenum,
 }
 
 static void vtkOpenGLDrawTW(vtkCellArray *aPrim, GLenum,
-                            vtkIdType &, vtkPoints *p, vtkNormals *, 
-                            vtkUnsignedCharArray *, vtkTCoords *t, 
+                            vtkIdType &, vtkPoints *p, vtkDataArray *, 
+                            vtkUnsignedCharArray *, vtkDataArray *t, 
                             vtkOpenGLRenderer *ren, int &noAbort)
 {
   int j;
@@ -2230,7 +2231,7 @@ static void vtkOpenGLDrawTW(vtkCellArray *aPrim, GLenum,
         vtkTriangle::ComputeNormal(p, 3, idx, polyNorm);
         }
       glNormal3fv(polyNorm);
-      glTexCoord2fv(t->GetTCoord(pts[j]));
+      glTexCoord2fv(t->GetTuple(pts[j]));
       glVertex3fv(p->GetPoint(pts[j]));
       }
     glEnd();
@@ -2249,7 +2250,7 @@ static void vtkOpenGLDrawTW(vtkCellArray *aPrim, GLenum,
         vtkTriangle::ComputeNormal(p, 3, idx, polyNorm);
         }
       glNormal3fv(polyNorm);
-      glTexCoord2fv(t->GetTCoord(pts[j]));
+      glTexCoord2fv(t->GetTuple(pts[j]));
       glVertex3fv(p->GetPoint(pts[j]));
       }
     glEnd();
@@ -2267,8 +2268,8 @@ static void vtkOpenGLDrawTW(vtkCellArray *aPrim, GLenum,
 }
 
 static void vtkOpenGLDrawNTW(vtkCellArray *aPrim, GLenum,
-                             vtkIdType &, vtkPoints *p, vtkNormals *n, 
-                             vtkUnsignedCharArray *, vtkTCoords *t, 
+                             vtkIdType &, vtkPoints *p, vtkDataArray *n, 
+                             vtkUnsignedCharArray *, vtkDataArray *t, 
                              vtkOpenGLRenderer *ren, int &noAbort)
 {
   int j;
@@ -2281,8 +2282,8 @@ static void vtkOpenGLDrawNTW(vtkCellArray *aPrim, GLenum,
     glBegin(GL_LINE_STRIP);
     for (j = 0; j < npts; j += 2) 
       {
-      glNormal3fv(n->GetNormal(pts[j]));
-      glTexCoord2fv(t->GetTCoord(pts[j]));
+      glNormal3fv(n->GetTuple(pts[j]));
+      glTexCoord2fv(t->GetTuple(pts[j]));
       glVertex3fv(p->GetPoint(pts[j]));
       }
     glEnd();
@@ -2291,8 +2292,8 @@ static void vtkOpenGLDrawNTW(vtkCellArray *aPrim, GLenum,
     glBegin(GL_LINE_STRIP);
     for (j = 1; j < npts; j += 2) 
       {
-      glNormal3fv(n->GetNormal(pts[j]));
-      glTexCoord2fv(t->GetTCoord(pts[j]));
+      glNormal3fv(n->GetTuple(pts[j]));
+      glTexCoord2fv(t->GetTuple(pts[j]));
       glVertex3fv(p->GetPoint(pts[j]));
       }
     glEnd();
@@ -2310,8 +2311,8 @@ static void vtkOpenGLDrawNTW(vtkCellArray *aPrim, GLenum,
 }
 
 static void vtkOpenGLDrawSTW(vtkCellArray *aPrim, GLenum,
-                             vtkIdType &, vtkPoints *p, vtkNormals *, 
-                             vtkUnsignedCharArray *c, vtkTCoords *t, 
+                             vtkIdType &, vtkPoints *p, vtkDataArray *, 
+                             vtkUnsignedCharArray *c, vtkDataArray *t, 
                              vtkOpenGLRenderer *ren, int &noAbort)
 {
   int j;
@@ -2337,7 +2338,7 @@ static void vtkOpenGLDrawSTW(vtkCellArray *aPrim, GLenum,
         vtkTriangle::ComputeNormal(p, 3, idx, polyNorm);
         }
       glNormal3fv(polyNorm);
-      glTexCoord2fv(t->GetTCoord(pts[j]));
+      glTexCoord2fv(t->GetTuple(pts[j]));
       glVertex3fv(p->GetPoint(pts[j]));
       }
     glEnd();
@@ -2357,7 +2358,7 @@ static void vtkOpenGLDrawSTW(vtkCellArray *aPrim, GLenum,
         vtkTriangle::ComputeNormal(p, 3, idx, polyNorm);
         }
       glNormal3fv(polyNorm);
-      glTexCoord2fv(t->GetTCoord(pts[j]));
+      glTexCoord2fv(t->GetTuple(pts[j]));
       glVertex3fv(p->GetPoint(pts[j]));
       }
     glEnd();
@@ -2375,8 +2376,8 @@ static void vtkOpenGLDrawSTW(vtkCellArray *aPrim, GLenum,
 }
 
 static void vtkOpenGLDrawNSTW(vtkCellArray *aPrim, GLenum,
-                              vtkIdType &, vtkPoints *p, vtkNormals *n, 
-                              vtkUnsignedCharArray *c, vtkTCoords *t, 
+                              vtkIdType &, vtkPoints *p, vtkDataArray *n, 
+                              vtkUnsignedCharArray *c, vtkDataArray *t, 
                               vtkOpenGLRenderer *ren, int &noAbort)
 {
   int j;
@@ -2391,8 +2392,8 @@ static void vtkOpenGLDrawNSTW(vtkCellArray *aPrim, GLenum,
     for (j = 0; j < npts; j += 2) 
       {
       glColor4ubv(c->GetPointer(4*pts[j]));
-      glNormal3fv(n->GetNormal(pts[j]));
-      glTexCoord2fv(t->GetTCoord(pts[j]));
+      glNormal3fv(n->GetTuple(pts[j]));
+      glTexCoord2fv(t->GetTuple(pts[j]));
       glVertex3fv(p->GetPoint(pts[j]));
       }
     glEnd();
@@ -2402,8 +2403,8 @@ static void vtkOpenGLDrawNSTW(vtkCellArray *aPrim, GLenum,
     for (j = 1; j < npts; j += 2) 
       {
       glColor4ubv(c->GetPointer(4*pts[j]));
-      glNormal3fv(n->GetNormal(pts[j]));
-      glTexCoord2fv(t->GetTCoord(pts[j]));
+      glNormal3fv(n->GetTuple(pts[j]));
+      glTexCoord2fv(t->GetTuple(pts[j]));
       glVertex3fv(p->GetPoint(pts[j]));
       }
     glEnd();
@@ -2431,8 +2432,8 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
   vtkPoints *p;
   vtkCellArray *prims[4], *aPrim;
   vtkUnsignedCharArray *c=NULL;
-  vtkNormals *n;
-  vtkTCoords *t;
+  vtkDataArray *n;
+  vtkDataArray *t;
   int tDim;
   int noAbort = 1;
   vtkPolyData *input = this->GetInput();
@@ -2545,8 +2546,9 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
     }
   
   // how do we draw points
-  void (*draw0)(vtkCellArray *, GLenum, vtkIdType &, vtkPoints *, vtkNormals *,
-                vtkUnsignedCharArray *, vtkTCoords *, vtkOpenGLRenderer *, 
+  void (*draw0)(vtkCellArray *, GLenum, vtkIdType &, vtkPoints *, 
+		vtkDataArray *,
+                vtkUnsignedCharArray *, vtkDataArray *, vtkOpenGLRenderer *, 
                 int &);
 
   int idx;
@@ -2602,8 +2604,8 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
     }
 
   // how do we draw lines
-  void (*draw1)(vtkCellArray *, GLenum, vtkIdType &, vtkPoints *, vtkNormals *,
-                vtkUnsignedCharArray *, vtkTCoords *, vtkOpenGLRenderer *, 
+  void (*draw1)(vtkCellArray *, GLenum, vtkIdType &, vtkPoints *, vtkDataArray *,
+                vtkUnsignedCharArray *, vtkDataArray *, vtkOpenGLRenderer *, 
                 int &);
   switch (idx) 
     {
@@ -2631,11 +2633,12 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
     }
 
   // how do we draw tstrips
-  void (*draw2)(vtkCellArray *, GLenum, vtkIdType &, vtkPoints *, vtkNormals *,
-                vtkUnsignedCharArray *, vtkTCoords *, vtkOpenGLRenderer *, 
+  void (*draw2)(vtkCellArray *, GLenum, vtkIdType &, vtkPoints *, 
+		vtkDataArray *,
+                vtkUnsignedCharArray *, vtkDataArray *, vtkOpenGLRenderer *, 
                 int &);
   void (*draw2W)(vtkCellArray *, GLenum, vtkIdType &, vtkPoints *,
-                 vtkNormals *, vtkUnsignedCharArray *, vtkTCoords *, 
+                 vtkDataArray *, vtkUnsignedCharArray *, vtkDataArray *, 
                  vtkOpenGLRenderer *, int &);
   switch (idx) 
     {
@@ -2687,8 +2690,8 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
     }
   
   // how do we draw polys
-  void (*draw3)(vtkCellArray *, GLenum, vtkIdType &, vtkPoints *, vtkNormals *,
-                vtkUnsignedCharArray *, vtkTCoords *, 
+  void (*draw3)(vtkCellArray *, GLenum, vtkIdType &, vtkPoints *, vtkDataArray *,
+                vtkUnsignedCharArray *, vtkDataArray *, 
                 vtkOpenGLRenderer *, int &);
   switch (idx) 
     {

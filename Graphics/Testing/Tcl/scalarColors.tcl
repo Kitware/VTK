@@ -29,9 +29,6 @@ vtkUnsignedCharArray chars
   chars InsertComponent 2 2 87
 
 
-vtkScalars scalars
-  scalars SetData chars
-
 vtkPoints polyVertexPoints
   polyVertexPoints SetNumberOfPoints 3
   polyVertexPoints InsertPoint 0 0 0 0
@@ -48,7 +45,7 @@ vtkUnstructuredGrid aPolyVertexGrid
   aPolyVertexGrid Allocate 1 1
   aPolyVertexGrid InsertNextCell [aPolyVertex GetCellType] [aPolyVertex GetPointIds]
   aPolyVertexGrid SetPoints polyVertexPoints
-  [aPolyVertexGrid GetPointData] SetScalars scalars
+  [aPolyVertexGrid GetPointData] SetScalars chars
 
 vtkSphereSource sphere
   sphere SetRadius .1

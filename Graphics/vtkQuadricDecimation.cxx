@@ -457,51 +457,47 @@ void vtkQuadricDecimation::ComputeQuadric(vtkIdType pointId)
       b[3] = 0;
       if (scalars < this->AttributeComponents[0])
         {
-        pd->GetScalars()->SetActiveComponent(scalars);
-        b[0] = pd->GetScalars()->GetScalar(cellPtIds[0]);
-        b[1] = pd->GetScalars()->GetScalar(cellPtIds[1]);
-        b[2] = pd->GetScalars()->GetScalar(cellPtIds[2]);
+        b[0] = pd->GetScalars()->GetComponent(cellPtIds[0],scalars);
+        b[1] = pd->GetScalars()->GetComponent(cellPtIds[1],scalars);
+        b[2] = pd->GetScalars()->GetComponent(cellPtIds[2],scalars);
         scalars++;
         }
       else if (vectors < this->AttributeComponents[1])
         {
-        b[0] = pd->GetVectors()->GetVector(cellPtIds[0])[vectors];
-        b[1] = pd->GetVectors()->GetVector(cellPtIds[1])[vectors];
-        b[2] = pd->GetVectors()->GetVector(cellPtIds[2])[vectors];
+        b[0] = pd->GetVectors()->GetTuple(cellPtIds[0])[vectors];
+        b[1] = pd->GetVectors()->GetTuple(cellPtIds[1])[vectors];
+        b[2] = pd->GetVectors()->GetTuple(cellPtIds[2])[vectors];
         vectors++;
         }
       else if (normals < this->AttributeComponents[2])
         {
-        b[0] = pd->GetNormals()->GetNormal(cellPtIds[0])[normals];
-        b[1] = pd->GetNormals()->GetNormal(cellPtIds[1])[normals];
-        b[2] = pd->GetNormals()->GetNormal(cellPtIds[2])[normals];
+        b[0] = pd->GetNormals()->GetTuple(cellPtIds[0])[normals];
+        b[1] = pd->GetNormals()->GetTuple(cellPtIds[1])[normals];
+        b[2] = pd->GetNormals()->GetTuple(cellPtIds[2])[normals];
         normals++;
         }
       else if (tcoords < this->AttributeComponents[3])
         {
-        b[0] = pd->GetTCoords()->GetTCoord(cellPtIds[0])[tcoords];
-        b[1] = pd->GetTCoords()->GetTCoord(cellPtIds[1])[tcoords];
-        b[2] = pd->GetTCoords()->GetTCoord(cellPtIds[2])[tcoords];
+        b[0] = pd->GetTCoords()->GetTuple(cellPtIds[0])[tcoords];
+        b[1] = pd->GetTCoords()->GetTuple(cellPtIds[1])[tcoords];
+        b[2] = pd->GetTCoords()->GetTuple(cellPtIds[2])[tcoords];
         tcoords++;
         }
       else if (tensors < this->AttributeComponents[4])
         {
         b[0] =
-          pd->GetTensors()->GetTensor(cellPtIds[0])->GetComponent(tensors/3,
-                                                                  tensors%3);
+          pd->GetTensors()->GetTuple(cellPtIds[0])[tensors/3+3*(tensors%3)];
         b[1] =
-          pd->GetTensors()->GetTensor(cellPtIds[1])->GetComponent(tensors/3,
-                                                                  tensors%3);
+          pd->GetTensors()->GetTuple(cellPtIds[1])[tensors/3+3*(tensors%3)];
         b[2] =
-          pd->GetTensors()->GetTensor(cellPtIds[2])->GetComponent(tensors/3,
-                                                                  tensors%3);
+          pd->GetTensors()->GetTuple(cellPtIds[2])[tensors/3+3*(tensors%3)];
         tensors++;
         }
       else if (fieldData < this->AttributeComponents[5])
         {
-        b[0] = pd->GetFieldData()->GetComponent(cellPtIds[0], fieldData);
-        b[1] = pd->GetFieldData()->GetComponent(cellPtIds[1], fieldData);
-        b[2] = pd->GetFieldData()->GetComponent(cellPtIds[2], fieldData);
+        b[0] = pd->GetComponent(cellPtIds[0], fieldData);
+        b[1] = pd->GetComponent(cellPtIds[1], fieldData);
+        b[2] = pd->GetComponent(cellPtIds[2], fieldData);
         fieldData++;
         }
       vtkMath::SolveLinearSystem(A, b, 4);
@@ -629,15 +625,15 @@ float vtkQuadricDecimation::ComputeCost(vtkIdType edgeId, float x[3],
     {
     for (i = 0; i < this->AttributeComponents[0]; i++)
       {
-      pd->GetScalars()->SetActiveComponent(components);
-      pd->GetScalars()->InsertScalar(edgeId, newPoint[3 + components]);
+      pd->GetScalars()->InsertComponent(edgeId, components,
+					newPoint[3 + components]);
       components++;
       }
     }
   // vectors
   if (this->AttributeComponents[1] > 0)
     {
-    pd->GetVectors()->InsertVector(edgeId, newPoint[3 + components],
+    pd->GetVectors()->InsertTuple3(edgeId, newPoint[3 + components],
                                    newPoint[3 + components+1],
                                    newPoint[3 + components+2]);
     components += 3;
@@ -652,7 +648,7 @@ float vtkQuadricDecimation::ComputeCost(vtkIdType edgeId, float x[3],
     newPoint[3 + components] = normal[0];
     newPoint[3 + components+1] = normal[1];
     newPoint[3 + components+2] = normal[2];
-    pd->GetNormals()->InsertNormal(edgeId, normal);
+    pd->GetNormals()->InsertTuple(edgeId, normal);
     components += 3;
     }
   // texture coordinates
@@ -663,13 +659,13 @@ float vtkQuadricDecimation::ComputeCost(vtkIdType edgeId, float x[3],
       tcoord[i] = newPoint[3 + components];
       components++;
       }
-    pd->GetTCoords()->InsertTCoord(edgeId, tcoord);
+    pd->GetTCoords()->InsertTuple(edgeId, tcoord);
     }
   // tensors
   if (this->AttributeComponents[4] > 0)
     {
-    pd->GetTensors()->InsertTensor(edgeId, newPoint[3 + components],
-                                   newPoint[3 + components+1],
+    pd->GetTensors()->InsertTuple9(edgeId, newPoint[3 + components],
+				   newPoint[3 + components+1],
                                    newPoint[3 + components+2],
                                    newPoint[3 + components+3],
                                    newPoint[3 + components+4],
@@ -684,10 +680,9 @@ float vtkQuadricDecimation::ComputeCost(vtkIdType edgeId, float x[3],
     {
     for (i = 0; i < this->AttributeComponents[5]; i++)
       {
-      pd->GetFieldData()->InsertComponent(edgeId, this->AttributeComponents[5]
-                                          - (this->NumberOfComponents -
-                                             components),
-                                          newPoint[3 + components]);
+      pd->InsertComponent(edgeId, this->AttributeComponents[5]
+			  - (this->NumberOfComponents - components),
+			  newPoint[3 + components]);
       components++;
       }
     }
@@ -868,9 +863,9 @@ void vtkQuadricDecimation::GetAttributeComponents()
     this->NumberOfComponents += 9;
     vtkDebugMacro("tensors");
     }
-  if (0 && pd->GetFieldData() != NULL)
+  if (0)
     {
-    this->AttributeComponents[5] = pd->GetFieldData()->GetNumberOfComponents();
+    this->AttributeComponents[5] = pd->GetNumberOfComponents();
     this->NumberOfComponents += this->AttributeComponents[5];
     vtkDebugMacro("field data");
     }

@@ -50,13 +50,14 @@ vtkPoints points
   points InsertPoint 4 0 0 -1
   points InsertPoint 5 0 0 1
  
-vtkNormals normals
-  normals InsertNormal 0 -1 0 0
-  normals InsertNormal 1 1 0 0
-  normals InsertNormal 2 0 -1 0
-  normals InsertNormal 3 0 1 0
-  normals InsertNormal 4 0 0 -1
-  normals InsertNormal 5 0 0 1
+vtkFloatArray normals
+  normals SetNumberOfComponents 3
+  normals InsertTuple3 0 -1 0 0
+  normals InsertTuple3 1 1 0 0
+  normals InsertTuple3 2 0 -1 0
+  normals InsertTuple3 3 0 1 0
+  normals InsertTuple3 4 0 0 -1
+  normals InsertTuple3 5 0 0 1
  
 vtkPlanes partImp
   partImp SetPoints points

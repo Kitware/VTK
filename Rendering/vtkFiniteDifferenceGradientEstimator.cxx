@@ -361,7 +361,7 @@ static VTK_THREAD_RETURN_TYPE vtkSwitchOnDataType( void *arg )
   thread_count = ((ThreadInfoStruct *)(arg))->NumberOfThreads;
   estimator = (vtkFiniteDifferenceGradientEstimator *)
     (((ThreadInfoStruct *)(arg))->UserData);
-  scalars = estimator->Input->GetPointData()->GetActiveScalars();
+  scalars = estimator->Input->GetPointData()->GetScalars();
 
   if (scalars == NULL)
     {

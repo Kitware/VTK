@@ -5,8 +5,10 @@ package require vtkinteraction
 #
 vtkPolyData pd
 vtkPoints pts
-vtkScalars scalars
-vtkVectors vectors
+vtkFloatArray scalars
+vtkFloatArray vectors
+vectors SetNumberOfComponents 3
+
 pd SetPoints pts
   [pd GetPointData] SetScalars scalars
   [pd GetPointData] SetVectors vectors
@@ -16,8 +18,8 @@ set size 500
 for {set i 0} {$i < 100} {incr i} {
   pts InsertNextPoint [math Random 0 [expr $size - 1]] \
                       [math Random 0 [expr $size - 1]] 0.0
-  scalars InsertNextScalar [math Random 0.0 5]
-  vectors InsertNextVector [math Random -1 1] [math Random -1 1] 0.0
+  scalars InsertNextValue [math Random 0.0 5]
+    vectors InsertNextTuple3 [math Random -1 1] [math Random -1 1] 0.0
 }
 
 vtkGlyphSource2D gs

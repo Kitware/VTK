@@ -104,8 +104,7 @@ public:
   // Description:
   // Control whether the filter operates on point data or cell data.
   // By default (AttributeModeToDefault), the filter uses point
-  // data, and if no point data is available, then cell data is
-  // used. Alternatively you can explicitly set the filter to use point data
+  // data. Alternatively you can explicitly set the filter to use point data
   // (AttributeModeToUsePointData) or cell data (AttributeModeToUseCellData).
   vtkSetMacro(AttributeMode,int);
   vtkGetMacro(AttributeMode,int);

@@ -246,7 +246,7 @@ static int vtkSliceCubesContour(T *slice, S *scalars, int imageRange[2], int dim
     }
     
   sp = reader->GetImage(imageRange[0]+1);
-  slice3scalars = (S *) sp->GetPointData()->GetScalars()->GetData();
+  slice3scalars = (S *) sp->GetPointData()->GetScalars();
   slice3scalars->Register(NULL);
   sp->Delete();
 
@@ -287,7 +287,7 @@ static int vtkSliceCubesContour(T *slice, S *scalars, int imageRange[2], int dim
       {
       if (debug)  vtkGenericWarningMacro(<< "  Slice# " << imageRange[0]+k+2);
       sp = reader->GetImage(imageRange[0]+k+2);
-      slice3scalars = (S *) sp->GetPointData()->GetScalars()->GetData();
+      slice3scalars = (S *) sp->GetPointData()->GetScalars();
       if ( slice3scalars == NULL )
         {
         vtkGenericWarningMacro(<< "Can't read all the requested slices");
@@ -495,7 +495,7 @@ void vtkSliceCubes::Execute()
   xmin[0]=xmin[1]=xmin[2] = VTK_LARGE_FLOAT;
   xmax[0]=xmax[1]=xmax[2] = -VTK_LARGE_FLOAT;
 
-  inScalars = tempStructPts->GetPointData()->GetActiveScalars();
+  inScalars = tempStructPts->GetPointData()->GetScalars();
   if ( inScalars == NULL )
     {
     vtkErrorMacro(<<"Must have scalars to generate isosurface");

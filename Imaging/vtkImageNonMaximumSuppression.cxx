@@ -321,9 +321,9 @@ void vtkImageNonMaximumSuppression::ThreadedExecute(vtkImageData **inData,
 
   if (id == 0)
     {
-    if (outData && outData->GetPointData()->GetActiveScalars())
+    if (outData && outData->GetPointData()->GetScalars())
       {
-      outData->GetPointData()->GetActiveScalars()->SetName("SuppressedMaximum");
+      outData->GetPointData()->GetScalars()->SetName("SuppressedMaximum");
       }
     }
 

@@ -311,7 +311,7 @@ void vtkPOPReader::Execute()
       image = wrap->GetOutput();
       image->SetUpdateExtent(ext);
       image->Update();
-      array = image->GetPointData()->GetScalars()->GetData();
+      array = image->GetPointData()->GetScalars();
       array->SetName(this->ArrayNames[i]);
       
       output->GetPointData()->AddArray(array);
@@ -923,7 +923,7 @@ void vtkPOPReader::ReadFlow()
   uImage->Delete();
   vImage->Delete();
 
-  array = fImage->GetPointData()->GetScalars()->GetData();
+  array = fImage->GetPointData()->GetScalars();
   array->SetName("Flow");
       
   output->GetPointData()->AddArray(array);

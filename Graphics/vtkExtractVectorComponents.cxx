@@ -219,8 +219,8 @@ void vtkExtractVectorComponents::Execute()
     outVzc = this->GetVzComponent()->GetCellData();  
     }
 
-  vectors = pd->GetActiveVectors();
-  vectorsc = cd->GetActiveVectors();
+  vectors = pd->GetVectors();
+  vectorsc = cd->GetVectors();
   if ( (vectors == NULL ||
 	((numVectors = vectors->GetNumberOfTuples()) < 1) ) && 
        (vectorsc == NULL ||

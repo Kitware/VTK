@@ -227,7 +227,7 @@ void vtkImageToStructuredPoints::Execute()
 	wExtent[2] == uExtent[2] && wExtent[3] == uExtent[3] &&
 	wExtent[4] == uExtent[4] && wExtent[5] == uExtent[5])
       {
-      output->GetPointData()->SetVectors(vData->GetPointData()->GetActiveScalars());
+      output->GetPointData()->SetVectors(vData->GetPointData()->GetScalars());
       }
     else
       {

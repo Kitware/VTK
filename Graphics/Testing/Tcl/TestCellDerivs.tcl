@@ -238,11 +238,12 @@ vtkPoints trianglePoints
   trianglePoints InsertPoint 1 1 0 0
   trianglePoints InsertPoint 2 .5 .5 0
 
-vtkTCoords triangleTCoords
-  triangleTCoords SetNumberOfTCoords 3
-  triangleTCoords InsertTCoord 0 1 1 1
-  triangleTCoords InsertTCoord 1 2 2 2
-  triangleTCoords InsertTCoord 2 3 3 3
+vtkFloatArray triangleTCoords
+  triangleTCoords SetNumberOfComponents 2
+  triangleTCoords SetNumberOfTuples 3
+  triangleTCoords InsertTuple2 0 1 1 
+  triangleTCoords InsertTuple2 1 2 2 
+  triangleTCoords InsertTuple2 2 3 3 
 
 vtkTriangle aTriangle
   [aTriangle GetPointIds] SetId 0 0
@@ -301,13 +302,14 @@ vtkPoints triangleStripPoints
   triangleStripPoints InsertPoint 3 1 0 0
   triangleStripPoints InsertPoint 4 2 1 0
 
-vtkTCoords triangleStripTCoords
-  triangleStripTCoords SetNumberOfTCoords 3
-  triangleStripTCoords InsertTCoord 0 1 1 1
-  triangleStripTCoords InsertTCoord 1 2 2 2
-  triangleStripTCoords InsertTCoord 2 3 3 3
-  triangleStripTCoords InsertTCoord 3 4 4 4
-  triangleStripTCoords InsertTCoord 4 5 5 5
+vtkFloatArray triangleStripTCoords
+  triangleStripTCoords SetNumberOfComponents 2
+  triangleStripTCoords SetNumberOfTuples 3
+  triangleStripTCoords InsertTuple2 0 1 1 
+  triangleStripTCoords InsertTuple2 1 2 2 
+  triangleStripTCoords InsertTuple2 2 3 3 
+  triangleStripTCoords InsertTuple2 3 4 4 
+  triangleStripTCoords InsertTuple2 4 5 5 
 
 vtkTriangleStrip aTriangleStrip
   [aTriangleStrip GetPointIds] SetNumberOfIds 5
@@ -458,14 +460,14 @@ vtkSphereSource ball
 
 foreach cell "aVoxel aHexahedron aWedge aPyramid aTetra aPixel aQuad aTriangle aPolygon
 aTriangleStrip aLine aPolyLine aVertex aPolyVertex" {
-  vtkScalars ${cell}Scalars
+  vtkFloatArray ${cell}Scalars
    set N [${cell}Grid GetNumberOfPoints  ]   
-  vtkScalars ${cell}Scalar
-   ${cell}Scalar SetNumberOfScalars $N
+  vtkFloatArray ${cell}Scalar
+   ${cell}Scalar SetNumberOfTuples $N
    ${cell}Scalar SetNumberOfComponents 1
   for {set i 0} {$i < $N} {incr i 1} {
-   ${cell}Scalar SetScalar $i 0}
-   ${cell}Scalar SetScalar 0 4
+   ${cell}Scalar SetValue $i 0}
+   ${cell}Scalar SetValue 0 4
  
   [${cell}Grid GetPointData] SetScalars ${cell}Scalar 
  

@@ -116,7 +116,7 @@ void vtkConnectivityFilter::Execute()
 
   // See whether to consider scalar connectivity
   //
-  this->InScalars = input->GetPointData()->GetActiveScalars();
+  this->InScalars = input->GetPointData()->GetScalars();
   if ( !this->ScalarConnectivity ) 
     {
     this->InScalars = NULL;
