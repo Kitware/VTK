@@ -113,7 +113,6 @@ vtkSubdivideTetra
 vtkSuperquadricSource 
 vtkTensorGlyph
 vtkTextSource
-vtkTextureMapToBox
 vtkTextureMapToCylinder
 vtkTextureMapToPlane
 vtkTextureMapToSphere
