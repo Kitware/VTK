@@ -135,7 +135,12 @@ void vtkObjectFactory::LoadDynamicFactories()
 #else
   char PathSeparator = ':';
 #endif
-  char* LoadPath = getenv("VTK_AUTOLOAD_PATH");
+
+  char* LoadPath = 0;
+
+#ifndef _WIN32_WCE
+  LoadPath = getenv("VTK_AUTOLOAD_PATH");
+#endif
   if(LoadPath == 0)
     {
     return;

@@ -122,7 +122,11 @@ char* vtkHeap::vtkStrDup(const char* str)
   this->NumberOfAllocations++;
 
   vtkHeapNode* node = new vtkHeapNode;
+#ifdef _WIN32_WCE
+  node->Ptr = _strdup(str);
+#else
   node->Ptr = strdup(str);
+#endif
   this->Add(node);
   return static_cast<char*>(node->Ptr);
 }
