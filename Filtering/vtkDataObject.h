@@ -194,9 +194,14 @@ public:
   vtkGetVector6Macro( UpdateExtent, int );
 
   // Description:
-  // Return class name of data type. This is one of VTK_STRUCTURED_GRID, 
-  // VTK_STRUCTURED_POINTS, VTK_UNSTRUCTURED_GRID, VTK_POLY_DATA, or
-  // VTK_RECTILINEAR_GRID (see vtkSetGet.h for definitions).
+  // Return class name of data type. This is one of VTK_POLY_DATA,
+  // VTK_STRUCTURED_POINTS, VTK_STRUCTURED_GRID, VTK_RECTILINEAR_GRID,
+  // VTK_UNSTRUCTURED_GRID, VTK_PIECEWISE_FUNCTION, VTK_IMAGE_DATA,
+  // VTK_DATA_OBJECT, VTK_DATA_SET, VTK_POINT_SET, VTK_UNIFORM_GRID,
+  // VTK_COMPOSITE_DATA_SET, VTK_HIERARCHICAL_DATA_SET,
+  // VTK_MULTI_BLOCK_DATA_SET, VTK_HIERARCHICAL_BOX_DATA_SET,
+  // VTK_GENERIC_DATA_SET
+  // (see vtkSystemIncludes.h for definitions).
   // THIS METHOD IS THREAD SAFE
   virtual int GetDataObjectType() {return VTK_DATA_OBJECT;}
   
