@@ -1288,21 +1288,25 @@ static int vtkTricubicInterpolation(float *point, T *inPtr, T *outPtr,
     do
       {
       val = 0;
-      for (j = jl; j < jm; j++)
-	{
-	inPtr1 = inPtr + factZ[j];
-	vZ = 0;
-	for (k = kl; k < km; k++)
-	  {
+      j = jl;
+      do
+        {
+        inPtr1 = inPtr + factZ[j];
+        vZ = 0;
+        k = kl;
+        do
+          {
 	  inPtr2 = inPtr1 + factY[k];
 	  vY = *(inPtr2+factX[0]) * fX[0] +
 	       *(inPtr2+factX[1]) * fX[1] +
 	       *(inPtr2+factX[2]) * fX[2] +
 	       *(inPtr2+factX[3]) * fX[3];
 	  vZ += vY*fY[k]; 
-	  }
-	val += vZ*fZ[j];
-	}
+          }
+        while (++k < km);
+        val += vZ*fZ[j];
+        }
+      while (++j < jm);
       vtkResliceClamp(val,*outPtr++); // clamp to limits of type
       inPtr++;
       }
@@ -1365,28 +1369,32 @@ static int vtkTricubicInterpolationRepeat(float *point, T *inPtr, T *outPtr,
   do
     {
     val = 0;
-    for (j = jl; j < jm; j++)
+    j = jl;
+    do
       {
       inPtr1 = inPtr + factZ[j];
       vZ = 0;
-      for (k = kl; k < km; k++)
-	{
-	inPtr2 = inPtr1 + factY[k];
-	vY = *(inPtr2+factX[0]) * fX[0] +
-	     *(inPtr2+factX[1]) * fX[1] +
-	     *(inPtr2+factX[2]) * fX[2] +
-	     *(inPtr2+factX[3]) * fX[3];
-	vZ += vY*fY[k]; 
-	}
+      k = kl;
+      do
+        {
+        inPtr2 = inPtr1 + factY[k];
+        vY = *(inPtr2+factX[0]) * fX[0] +
+             *(inPtr2+factX[1]) * fX[1] +
+             *(inPtr2+factX[2]) * fX[2] +
+             *(inPtr2+factX[3]) * fX[3];
+        vZ += vY*fY[k]; 
+        }
+      while (++k < km);
       val += vZ*fZ[j];
       }
+    while (++j < jm);
     vtkResliceClamp(val,*outPtr++); // clamp to limits of type
     inPtr++;
     }
   while (--numscalars);
 
   return 1;
-}		  
+}
 
 //----------------------------------------------------------------------------
 // Some helper functions
@@ -2900,14 +2908,8 @@ static void vtkOptimizedPermuteExecuteCubic(vtkImageReslice *self,
       for (idX = r1; idX <= r2; idX++)
 	{
 	int idX0 = idX*4;
-	float fX[4];
-	int iX[4];
-
-	for (i = 0; i < 4; i++)
-	  {
-	  fX[i] = constants[0][idX0+i];
-	  iX[i] = traversal[0][idX0+i];
-	  }
+	float *fX = &constants[0][idX0];
+	int *iX = &traversal[0][idX0];
 	
 	T *inPtr0 = inPtr;
 	T *inPtr1,*inPtr2;
@@ -2917,11 +2919,13 @@ static void vtkOptimizedPermuteExecuteCubic(vtkImageReslice *self,
 	do
 	  {
 	  val = 0;
-	  for (k = lz; k < hz; k++)
+	  k = lz;
+	  do 
 	    {
 	    inPtr1 = inPtr0 + iZ[k];
 	    vZ = 0;
-	    for (j = ly; j < hy; j++)
+	    j = ly;
+	    do
 	      {
 	      inPtr2 = inPtr1 + iY[j];
 	      vY = *(inPtr2+iX[0]) * fX[0] +
@@ -2930,8 +2934,10 @@ static void vtkOptimizedPermuteExecuteCubic(vtkImageReslice *self,
 		   *(inPtr2+iX[3]) * fX[3];
 	      vZ += vY*fY[j]; 
 	      }
+	    while (++j < hy);
 	    val += vZ*fZ[k];
 	    }
+	  while (++k < hz);
 	  vtkResliceClamp(val,*outPtr++); // clamp to limits of type
 	  inPtr0++;
 	  }
