@@ -452,7 +452,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   fname = data->OutputFileName;
   dir = (char*)malloc(strlen(fname) + strlen(javaDone) + 2);
   sprintf(dir, "%s", fname);
-  len = strlen(dir); 
+  len = (int)strlen(dir); 
   for ( cc = len-1; cc > 0; cc -- )
     {
     if ( dir[cc] == '/' || dir[cc] == '\\' )
