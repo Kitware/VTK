@@ -181,7 +181,7 @@ public:
   // Description:
   // Specify the maximum number of iterations to attempt. If decimation target
   // is reached first, this value will not be reached.
-  vtkSetClampMacro(MaximumIterations,int,1,VTK_LARGE_INTEGER);
+  vtkSetClampMacro(MaximumIterations,int,0,VTK_LARGE_INTEGER);
   vtkGetMacro(MaximumIterations,int);
 
   // Description:
