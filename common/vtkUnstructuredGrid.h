@@ -95,7 +95,6 @@ public:
   virtual void GetCellBounds(int cellId, float bounds[6]);
   virtual void GetCellPoints(int cellId, vtkIdList *ptIds);
   void GetPointCells(int ptId, vtkIdList *cellIds);
-  virtual void GetCellTypes(vtkCellTypes *types);
 
   int GetCellType(int cellId);
   void Squeeze();
@@ -163,6 +162,30 @@ public:
   // Shallow and Deep copy.
   virtual void ShallowCopy(vtkDataObject *src);  
   virtual void DeepCopy(vtkDataObject *src);
+
+  // Description:
+  // Fill vtkUnsignedCharArray container with list of unique cell types.  This
+  // method traverses all cells and, for each unique cell type it encounters,
+  // inserts the type into the container.
+  void GetListOfUniqueCellTypes(vtkUnsignedCharArray *uniqueTypes);
+
+  // Description:
+  // Fill vtkCellTypes container with list of unique cell types (uses vtkDataSet interface).
+  // This method traverses all cells and, for each unique cell type it encounters,
+  // inserts the type into the container.  Memory is allocated for the container prior
+  // to calling vtkDataSet::GetCellTypes
+  virtual void GetCellTypes(vtkCellTypes *types);
+
+  // Description:
+  // Fill vtkIntArray container with list of cell Ids.  This
+  // method traverses all cells and, for a particular cell type,
+  // inserts the cell Id into the container.
+  void GetIdsOfCellsOfType(int type, vtkIntArray *array);
+
+  // Description:
+  // Traverse cells and determine if cells are all of the same type.
+  bool IsHomogeneous();
+
 
 #ifndef VTK_REMOVE_LEGACY_CODE
   // Description:

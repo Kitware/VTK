@@ -80,7 +80,7 @@ void vtkSubdivideTetra::Execute()
   vtkPointData *outputPD = output->GetPointData();
   vtkPoints *newPts;
   int ptId;
-  vtkCellTypes *types=vtkCellTypes::New();
+
   float weights[4], x0[3], x1[3], x2[3], x3[3], x[3];
   int p0, p1, p2, p3, center;
   int e01, e02, e03, e12, e13, e23;
@@ -88,15 +88,13 @@ void vtkSubdivideTetra::Execute()
   
   vtkDebugMacro(<<"Executing mesh subdivide");
 
-  input->GetCellTypes(types);
-  if ( types->GetNumberOfTypes() != 1 || 
-  types->GetCellType(0) != VTK_TETRA )
+  if (!input->IsHomogeneous() ||
+      input->GetCellType(0) != VTK_TETRA)
     {
-    vtkErrorMacro(<<"Must be tetrahedra");
-    types->Delete();
-    return;
+      vtkErrorMacro(<<"all cells must be tetrahedra.");
+      return;
     }
-  input->GetCells();
+  
   
   // Copy original points and point data
   newPts = vtkPoints::New();
@@ -119,6 +117,7 @@ void vtkSubdivideTetra::Execute()
   // done by introducing mid-edge nodes and a single mid-tetra node.
   for(cellId=0; cellId < numCells; cellId++)
     {
+
     cell = input->GetCell(cellId);
 
     // get tetra points
@@ -256,7 +255,6 @@ void vtkSubdivideTetra::Execute()
   vtkDebugMacro(<<"Subdivided " << numCells << " cells");
 
   locator->Delete();
-  types->Delete();
   newPts->Delete();
   output->Squeeze();
 }

@@ -885,10 +885,75 @@ void vtkUnstructuredGrid::GetCellNeighbors(int cellId, vtkIdList *ptIds,
     }//for all candidate cells attached to point
 }
 
+// fills types with list of unique cell types
 void vtkUnstructuredGrid::GetCellTypes(vtkCellTypes *types)
 {
 
   types->Allocate(this->GetNumberOfCells(),1000);
   vtkDataSet::GetCellTypes(types);
+
+}
+
+// Fills uniqueTypes with list of unique cell types (same as above).
+void vtkUnstructuredGrid::GetListOfUniqueCellTypes(vtkUnsignedCharArray *uniqueTypes)
+{
+
+  unsigned char type;
+
+  if (this->Types)
+    {
+
+      type = Types->GetValue(0);
+      uniqueTypes->InsertNextValue(type);
+
+      for (int cellId = 0; cellId < this->GetNumberOfCells(); cellId++)
+	{
+	  type = Types->GetValue(cellId);
+	  for (int i = 0; i < uniqueTypes->GetMaxId()+1; i++) 
+	    {
+	      if (type != uniqueTypes->GetValue(i))
+		{
+		  uniqueTypes->InsertNextValue(type);
+		}
+	      else
+		{
+		  break; //cell is not unique, return control to outer loop
+		}
+	    }
+	}
+
+    }
+}
+
+bool vtkUnstructuredGrid::IsHomogeneous() {
+
+  unsigned char type;
+  if (this->Types)
+    {
+      type = Types->GetValue(0);
+      for (int cellId = 0; cellId < this->GetNumberOfCells(); cellId++)
+	{
+	  if (this->Types->GetValue(cellId) != type)
+	    {
+	      return false;
+	    }
+	}
+      return true;
+    }
+  return false;
+
+}
+
+// Fill container with indices of cells which match given type.
+void vtkUnstructuredGrid::GetIdsOfCellsOfType(int type, vtkIntArray *array)
+{
+
+  for (int cellId = 0; cellId < this->GetNumberOfCells(); cellId++)
+    {
+      if ((int)Types->GetValue(cellId) == type)
+      {
+	array->InsertNextValue(cellId);
+      }
+    }
 
 }
