@@ -79,22 +79,22 @@ foreach afile $files {
 
    if {[catch {set channel [open "valid/$afile.ppm"]}] != 0 } {
       puts "\nWARNING: Creating a valid image for $afile"
-      vtkPNMWriter pnmw
-      pnmw SetInput [w2if GetOutput]
-      pnmw SetFileName "valid/$afile.ppm"
-      pnmw Write
+      vtkPNMWriter rtpnmw
+      rtpnmw SetInput [w2if GetOutput]
+      rtpnmw SetFileName "valid/$afile.ppm"
+      rtpnmw Write
       vtkCommand DeleteAllObjects
       catch {destroy .top}
       continue
    }
    close $channel
    
-   vtkPNMReader pnm
-   pnm SetFileName "valid/$afile.ppm"
+   vtkPNMReader rtpnm
+   rtpnm SetFileName "valid/$afile.ppm"
    
    vtkImageDifference imgDiff
    imgDiff SetInput [w2if GetOutput]
-   imgDiff SetImage [pnm GetOutput]
+   imgDiff SetImage [rtpnm GetOutput]
    imgDiff Update
 
    # a test has to be off by at least ten pixels for us to care   
@@ -102,14 +102,14 @@ foreach afile $files {
        puts "and Passed"
    } else {
        puts "but failed with an error of [imgDiff GetThresholdedError]"
-         vtkPNMWriter pnmw
-         pnmw SetInput [imgDiff GetOutput]
-         pnmw SetFileName "$afile.error.ppm"
-         pnmw Write
-         vtkPNMWriter pnmw2
-         pnmw2 SetInput [w2if GetOutput]
-         pnmw2 SetFileName "$afile.test.ppm"
-         pnmw2 Write
+         vtkPNMWriter rtpnmw
+         rtpnmw SetInput [imgDiff GetOutput]
+         rtpnmw SetFileName "$afile.error.ppm"
+         rtpnmw Write
+         vtkPNMWriter rtpnmw2
+         rtpnmw2 SetInput [w2if GetOutput]
+         rtpnmw2 SetFileName "$afile.test.ppm"
+         rtpnmw2 Write
    }
    
    vtkCommand DeleteAllObjects
