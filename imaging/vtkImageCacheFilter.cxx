@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageCache.cxx
+  Module:    vtkImageCacheFilter.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -39,11 +39,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 
-#include "vtkImageCache.h"
+#include "vtkImageCacheFilter.h"
 #include "vtkExtent.h"
 
 //----------------------------------------------------------------------------
-vtkImageCache::vtkImageCache()
+vtkImageCacheFilter::vtkImageCacheFilter()
 {
   int idx;
 
@@ -55,7 +55,7 @@ vtkImageCache::vtkImageCache()
 }
 
 //----------------------------------------------------------------------------
-vtkImageCache::~vtkImageCache()
+vtkImageCacheFilter::~vtkImageCacheFilter()
 {
   int idx;
 
@@ -70,22 +70,28 @@ vtkImageCache::~vtkImageCache()
 
 
 //----------------------------------------------------------------------------
-void vtkImageCache::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImageCacheFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  int idx;
-  vtkIndent *i2 = i.GetNextIndent();
+  int idx, *ext;
+  vtkIndent i2 = indent.GetNextIndent();
   
   vtkImageToImageFilter::PrintSelf(os,indent);
 
   os << indent << "Caches: \n";
   for (idx = 0; idx < VTK_CACHE_NUMBER; ++idx)
     {
+    if (this->Data[idx])
+      {
+      ext = this->Data[idx]->GetExtent();
+      cerr << i2 << ext[0] << ", " << ext[1] << ", " << ext[2] << ", " 
+	   << ext[3] << ", " << ext[4] << ", " << ext[5] << endl;
+      }
     }
 }
   
 //----------------------------------------------------------------------------
 // This method simply copies by reference the input data to the output.
-void vtkImageCache::InternalUpdate(vtkDataObject *outObject)
+void vtkImageCacheFilter::InternalUpdate(vtkDataObject *outObject)
 {
   unsigned long pmt;
   int *uExt, *ext;

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageCache.h
+  Module:    vtkImageCacheFilter.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,35 +38,35 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageCache - Caches multiple vtkImageData objects.
+// .NAME vtkImageCacheFilter - Caches multiple vtkImageData objects.
 // .SECTION Description
-// vtkImageCache keep a number of vtkImageDataObjects from previous updates
+// vtkImageCacheFilter keep a number of vtkImageDataObjects from previous updates
 // to satisfy future updates without needing to update the input.
 
 
 
-#ifndef __vtkImageCache_h
-#define __vtkImageCache_h
+#ifndef __vtkImageCacheFilter_h
+#define __vtkImageCacheFilter_h
 
 #include "vtkImageToImageFilter.h"
 
 // defined statically for now.
 #define VTK_CACHE_NUMBER 16
 
-class VTK_EXPORT vtkImageCache : public vtkImageToImageFilter
+class VTK_EXPORT vtkImageCacheFilter : public vtkImageToImageFilter
 {
 public:
-  static vtkImageCache *New() {return new vtkImageCache;};
-  const char *GetClassName() {return "vtkImageCache";};
+  static vtkImageCacheFilter *New() {return new vtkImageCacheFilter;};
+  const char *GetClassName() {return "vtkImageCacheFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void InternalUpdate(vtkDataObject *outData);
 
 protected:
-  vtkImageCache();
-  ~vtkImageCache();
-  vtkImageCache(const vtkImageCache&) {};
-  void operator=(const vtkImageCache&) {};
+  vtkImageCacheFilter();
+  ~vtkImageCacheFilter();
+  vtkImageCacheFilter(const vtkImageCacheFilter&) {};
+  void operator=(const vtkImageCacheFilter&) {};
 
   vtkImageData *Data[VTK_CACHE_NUMBER];
   // I do not have write acces to UpdateTime.
