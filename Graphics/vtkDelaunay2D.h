@@ -120,7 +120,7 @@
 #ifndef __vtkDelaunay2D_h
 #define __vtkDelaunay2D_h
 
-#include "vtkPolyDataSource.h"
+#include "vtkPolyDataAlgorithm.h"
 
 class vtkAbstractTransform;
 class vtkCellArray;
@@ -131,10 +131,10 @@ class vtkPointSet;
 #define VTK_SET_TRANSFORM_PLANE 1
 #define VTK_BEST_FITTING_PLANE 2
 
-class VTK_GRAPHICS_EXPORT vtkDelaunay2D : public vtkPolyDataSource
+class VTK_GRAPHICS_EXPORT vtkDelaunay2D : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkDelaunay2D,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkDelaunay2D,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -182,11 +182,6 @@ public:
   vtkBooleanMacro(BoundingTriangulation,int);
 
   // Description:
-  // Set / get the input data or filter.
-  virtual void SetInput(vtkPointSet *input);
-  vtkPointSet *GetInput();
-
-  // Description:
   // Set / get the transform which is applied to points to generate a
   // 2D problem.  This maps a 3D dataset into a 2D dataset where
   // triangulation can be done on the XY plane.  The points are
@@ -208,9 +203,9 @@ protected:
   vtkDelaunay2D();
   ~vtkDelaunay2D();
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
-  vtkAbstractTransform * ComputeBestFittingPlane();
+  vtkAbstractTransform * ComputeBestFittingPlane(vtkPointSet *input);
 
   double Alpha;
   double Tolerance;
@@ -241,7 +236,7 @@ private:
   int NumberOfDuplicatePoints;
   int NumberOfDegeneracies;
 
-  int *RecoverBoundary();
+  int *RecoverBoundary(vtkPolyData *source);
   int RecoverEdge(vtkIdType p1, vtkIdType p2);
   void FillPolygons(vtkCellArray *polys, int *triUse);
 
@@ -259,5 +254,3 @@ private:
 };
 
 #endif
-
-

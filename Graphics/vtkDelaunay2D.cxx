@@ -18,16 +18,18 @@
 #include "vtkCellArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolygon.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTriangle.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkDelaunay2D, "1.63");
+vtkCxxRevisionMacro(vtkDelaunay2D, "1.64");
 vtkStandardNewMacro(vtkDelaunay2D);
 vtkCxxSetObjectMacro(vtkDelaunay2D,Transform,vtkAbstractTransform);
 
@@ -35,14 +37,15 @@ vtkCxxSetObjectMacro(vtkDelaunay2D,Transform,vtkAbstractTransform);
 // BoundingTriangulation turned off.
 vtkDelaunay2D::vtkDelaunay2D()
 {
-  this->NumberOfRequiredInputs = 1;
-  this->SetNumberOfInputPorts(1);
   this->Alpha = 0.0;
   this->Tolerance = 0.00001;
   this->BoundingTriangulation = 0;
   this->Offset = 1.0;
   this->Transform = NULL;
   this->ProjectionPlaneMode = VTK_XY_PLANE;
+
+  // optional 2nd input
+  this->SetNumberOfInputPorts(2);
 }
 
 vtkDelaunay2D::~vtkDelaunay2D()
@@ -55,40 +58,21 @@ vtkDelaunay2D::~vtkDelaunay2D()
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.
-void vtkDelaunay2D::SetInput(vtkPointSet *input)
-{
-  this->vtkProcessObject::SetNthInput(0, input);
-}
-
-//----------------------------------------------------------------------------
-// Specify the input data or filter.
-vtkPointSet *vtkDelaunay2D::GetInput()
-{
-  if (this->NumberOfInputs < 1)
-    {
-    return NULL;
-    }
-  
-  return (vtkPointSet *)(this->Inputs[0]);
-}
-
-//----------------------------------------------------------------------------
-// Specify the input data or filter.
 void vtkDelaunay2D::SetSource(vtkPolyData *input)
 {
-  this->vtkProcessObject::SetNthInput(1, input);
+  this->Superclass::SetInput(1, input);
 }
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.
 vtkPolyData *vtkDelaunay2D::GetSource()
 {
-  if (this->NumberOfInputs < 2)
+  if (this->GetNumberOfInputConnections(1) < 1)
     {
     return NULL;
     }
-  
-  return (vtkPolyData *)(this->Inputs[1]);
+  return vtkPolyData::SafeDownCast(
+    this->GetExecutive()->GetInputData(1, 0));
 }
 
 // Determine whether point x is inside of circumcircle of triangle
@@ -286,8 +270,28 @@ void vtkDelaunay2D::CheckEdge(vtkIdType ptId, double x[3], vtkIdType p1,
 //   4. Recursively evaluate Delaunay criterion for each edge neighbor
 //   5. If criterion not satisfied; swap diagonal
 // 
-void vtkDelaunay2D::Execute()
+int vtkDelaunay2D::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkPointSet *input = vtkPointSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *source = 0;
+  if (sourceInfo)
+    {
+    source =
+      vtkPolyData::SafeDownCast(sourceInfo->Get(vtkDataObject::DATA_OBJECT()));
+    }
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkIdType numPoints, i;
   vtkIdType numTriangles = 0;
   vtkIdType ptId, tri[4], nei[3];
@@ -297,8 +301,6 @@ void vtkDelaunay2D::Execute()
   vtkPoints *points;
   vtkPoints *tPoints = NULL;
   vtkCellArray *triangles;
-  vtkPointSet *input= this->GetInput();
-  vtkPolyData *output= this->GetOutput();
   int ncells;
   vtkIdType nodes[4][3], *neiPts;
   vtkIdType *triPts = 0;
@@ -327,13 +329,13 @@ void vtkDelaunay2D::Execute()
   if ( (inPoints=input->GetPoints()) == NULL )
     {
     vtkErrorMacro("<<Cannot triangulate; no input points");
-    return;
+    return 0;
     }
 
   if ( (numPoints=inPoints->GetNumberOfPoints()) <= 2 )
     {
     vtkErrorMacro("<<Cannot triangulate; need at least 3 input points");
-    return;
+    return 0;
     }
   
   neighbors = vtkIdList::New(); neighbors->Allocate(2);
@@ -367,7 +369,7 @@ void vtkDelaunay2D::Execute()
     // map the input points into that plane.
     if(this->ProjectionPlaneMode == VTK_BEST_FITTING_PLANE)
       {
-      this->SetTransform( this->ComputeBestFittingPlane() );
+      this->SetTransform( this->ComputeBestFittingPlane(input) );
       tPoints = vtkPoints::New();
       this->Transform->TransformPoints(inPoints, tPoints);
       }
@@ -544,12 +546,12 @@ void vtkDelaunay2D::Execute()
 
   // Finish up by recovering the boundary, or deleting all triangles connected 
   // to the bounding triangulation points or not satisfying alpha criterion,
-  if ( !this->BoundingTriangulation || this->Alpha > 0.0 || this->GetSource() )
+  if ( !this->BoundingTriangulation || this->Alpha > 0.0 || source )
     {
     numTriangles = this->Mesh->GetNumberOfCells();
-    if ( this->GetSource() ) 
+    if ( source ) 
       {
-      triUse = this->RecoverBoundary();
+      triUse = this->RecoverBoundary(source);
       }
     else
       {
@@ -718,7 +720,7 @@ void vtkDelaunay2D::Execute()
     output->GetPointData()->PassData(input->GetPointData());
     }
 
-  if ( this->Alpha <= 0.0 && this->BoundingTriangulation && !this->GetSource() )
+  if ( this->Alpha <= 0.0 && this->BoundingTriangulation && !source )
     {
     output->SetPolys(triangles);
     }
@@ -759,6 +761,8 @@ void vtkDelaunay2D::Execute()
     }
 
   output->Squeeze();
+
+  return 1;
 }
 
 // Methods used to recover edges. Uses lines and polygons to determine boundary
@@ -769,9 +773,8 @@ void vtkDelaunay2D::Execute()
 // in the input. So, when an input transform is used, only the input points
 // are transformed.  We do not bother with transforming the Source points
 // since they are never referenced.
-int *vtkDelaunay2D::RecoverBoundary()
+int *vtkDelaunay2D::RecoverBoundary(vtkPolyData *source)
 {
-  vtkPolyData *source=this->GetSource();
   vtkCellArray *lines=source->GetLines();
   vtkCellArray *polys=source->GetPolys();
   vtkIdType *pts = 0;
@@ -1146,18 +1149,22 @@ void vtkDelaunay2D::FillPolygons(vtkCellArray *polys, int *triUse)
 //----------------------------------------------------------------------------
 int vtkDelaunay2D::FillInputPortInformation(int port, vtkInformation* info)
 {
-  if(!this->Superclass::FillInputPortInformation(port, info))
+  if (port == 0)
     {
-    return 0;
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
     }
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
+  else if (port == 1)
+    {
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
+    info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
+    }
   return 1;
 }
 
 //----------------------------------------------------------------------------
-vtkAbstractTransform * vtkDelaunay2D::ComputeBestFittingPlane()
+vtkAbstractTransform * vtkDelaunay2D::ComputeBestFittingPlane(
+  vtkPointSet *input)
 {
-  vtkPointSet *input= this->GetInput();
   vtkIdType numPts=input->GetNumberOfPoints();
   double m[9], v[3], x[3];
   vtkIdType ptId;
