@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageCacheFilter, "1.20");
+vtkCxxRevisionMacro(vtkImageCacheFilter, "1.21");
 vtkStandardNewMacro(vtkImageCacheFilter);
 
 //----------------------------------------------------------------------------
@@ -60,6 +60,7 @@ void vtkImageCacheFilter::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkImageCacheFilter::SetCacheSize(int size)
 {
   int idx;
@@ -133,6 +134,7 @@ void vtkImageCacheFilter::UpdateData(vtkDataObject *outObject)
     if (this->Data[i] && this->Times[i] < pmt)
       {
       this->Data[i]->Delete();
+      this->Data[i] = NULL;
       this->Times[i] = 0;
       }
     }
