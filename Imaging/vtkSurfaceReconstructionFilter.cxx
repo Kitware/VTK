@@ -26,7 +26,7 @@
 #include "vtkPointLocator.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkSurfaceReconstructionFilter, "1.30");
+vtkCxxRevisionMacro(vtkSurfaceReconstructionFilter, "1.31");
 vtkStandardNewMacro(vtkSurfaceReconstructionFilter);
 
 vtkSurfaceReconstructionFilter::vtkSurfaceReconstructionFilter()
@@ -110,7 +110,7 @@ void vtkSRMultiply(double **m,double f,long nrl, long nrh, long ncl, long nch)
 
 //----------------------------------------------------------------------------
 int vtkSurfaceReconstructionFilter::FillInputPortInformation(
-  int port, vtkInformation* info)
+  int vtkNotUsed( port ), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
