@@ -33,7 +33,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkSplineWidget, "1.26");
+vtkCxxRevisionMacro(vtkSplineWidget, "1.27");
 vtkStandardNewMacro(vtkSplineWidget);
 
 vtkCxxSetObjectMacro(vtkSplineWidget, HandleProperty, vtkProperty);
@@ -767,7 +767,7 @@ void vtkSplineWidget::OnRightButtonDown()
     {
     this->State = vtkSplineWidget::Inserting;
     }
-  else if ( this->Interactor->GetControlKey() && this->NumberOfHandles > 2)
+  else if ( this->Interactor->GetControlKey() )
     {
     this->State = vtkSplineWidget::Erasing;
     }
@@ -776,35 +776,46 @@ void vtkSplineWidget::OnRightButtonDown()
     this->State = vtkSplineWidget::Scaling;
     }
 
-  // Okay, we can process this. Try to pick handles first
   vtkAssemblyPath *path;
   this->HandlePicker->Pick(X,Y,0.0,this->CurrentRenderer);
   path = this->HandlePicker->GetPath();
-  if ( path == NULL )
-    {   // if no handles picked, then force a pick of the line
-    this->LinePicker->Pick(X,Y,0.0,this->CurrentRenderer);
-    path = this->LinePicker->GetPath();
-    if ( path == NULL )
+  
+  if ( path != NULL )
+    {
+    switch ( this->State )
       {
-      this->State = vtkSplineWidget::Outside;
-      this->HighlightLine(0);
-      return;
-      }
-    else
-      {
-      this->HighlightLine(1);
+      // deny insertion over existing handles
+      case vtkSplineWidget::Inserting:
+        this->State = vtkSplineWidget::Outside;
+        return;
+      case vtkSplineWidget::Erasing:
+        this->CurrentHandleIndex = \
+        this->HighlightHandle(path->GetFirstNode()->GetViewProp());
+        break;
+      case vtkSplineWidget::Scaling:
+        this->HighlightLine(1);
+        break;
       }
     }
   else
     {
+    // trying to erase handle but nothing picked
     if ( this->State == vtkSplineWidget::Erasing )
       {
-      this->CurrentHandleIndex = this->HighlightHandle(path->GetFirstNode()->GetViewProp());
+      this->State = vtkSplineWidget::Outside;
+      return;
       }
-    else // picked a handle but make it look like the line is picked
+    // try to insert or scale so pick the line
+    this->LinePicker->Pick(X,Y,0.0,this->CurrentRenderer);
+    path = this->LinePicker->GetPath();
+    if ( path != NULL )
       {
-      this->State = vtkSplineWidget::Scaling;
       this->HighlightLine(1);
+      }
+    else
+      {
+      this->State = vtkSplineWidget::Outside;
+      return;
       }
     }
 
