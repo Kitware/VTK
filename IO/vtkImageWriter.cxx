@@ -28,7 +28,7 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkImageWriter, "1.55");
+vtkCxxRevisionMacro(vtkImageWriter, "1.56");
 vtkStandardNewMacro(vtkImageWriter);
 
 #ifdef write
@@ -255,7 +255,9 @@ void vtkImageWriter::Write()
 {
   // we always write, even if nothing has changed, so send a modified
   this->Modified();
+  this->UpdateInformation();
   this->GetInput()->SetUpdateExtent(this->GetInput()->GetWholeExtent());
+  this->Update();
 }
 
 //----------------------------------------------------------------------------
