@@ -25,7 +25,7 @@
 //
 // .SECTION Background
 // This work is documented in the technical paper: W.J. Schroeder, B. Geveci,
-// M. Malaterre. Compatible Triangulations of Spatial Decompostions. In
+// M. Malaterre. Compatible Triangulations of Spatial Decompositions. In
 // Proceedings of Visualization 2004, IEEE Press October 2004.
 //
 // Delaunay triangulations are unique assuming a random distribution of input
