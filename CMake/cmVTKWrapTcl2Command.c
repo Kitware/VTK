@@ -46,6 +46,8 @@ static void CreateInitFile(cmLoadedCommandInfo *info,
     }
   
   fprintf(fout,"#include \"vtkTclUtil.h\"\n");
+  fprintf(fout,"#define VTK_TCL_TO_STRING(x) VTK_TCL_TO_STRING0(x)\n");
+  fprintf(fout,"#define VTK_TCL_TO_STRING0(x) #x\n");
   fprintf(fout,
           "extern \"C\"\n"
           "{\n"
@@ -147,6 +149,9 @@ static void CreateInitFile(cmLoadedCommandInfo *info,
     fprintf(fout,"                  %sCommand);\n",concrete[i]);
     }
   
+  fprintf(fout,"  Tcl_PkgProvide(interp, \"%s\", "
+               "VTK_TCL_TO_STRING(VTK_MAJOR_VERSION) \".\" "
+               "VTK_TCL_TO_STRING(VTK_MINOR_VERSION));\n", libName);
   fprintf(fout,"  return TCL_OK;\n}\n");
   fclose(fout);
 
