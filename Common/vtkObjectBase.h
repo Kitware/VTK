@@ -120,7 +120,7 @@ private:
   friend VTK_COMMON_EXPORT ostream& operator<<(ostream& os, vtkObjectBase& o);
   //ETX
 
-private:
+protected:
 //BTX
   vtkObjectBase(const vtkObjectBase&) {}
   void operator=(const vtkObjectBase&) {}

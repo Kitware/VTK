@@ -163,7 +163,7 @@ protected:
 
   friend class vtkSubjectHelper;
 //BTX
-  vtkCommand(const vtkCommand&) {}
+  vtkCommand(const vtkCommand& c) : vtkObjectBase(c) {}
   void operator=(const vtkCommand&) {}
 //ETX
 };
