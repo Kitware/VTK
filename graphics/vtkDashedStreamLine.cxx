@@ -59,7 +59,10 @@ void vtkDashedStreamLine::Execute()
   vtkPolyData *output = this->GetOutput();
   
   this->vtkStreamer::Integrate();
-  if ( this->NumberOfStreamers <= 0 ) return;
+  if ( this->NumberOfStreamers <= 0 )
+    {
+    return;
+    }
 //
 //  Convert streamer into lines. Lines may be dashed.
 //
@@ -79,7 +82,10 @@ void vtkDashedStreamLine::Execute()
 //
   for (ptId=0; ptId < this->NumberOfStreamers; ptId++)
     {
-    if ( this->Streamers[ptId].GetNumberOfPoints() < 2 ) continue;
+    if ( this->Streamers[ptId].GetNumberOfPoints() < 2 )
+      {
+      continue;
+      }
     sPrev = this->Streamers[ptId].GetStreamPoint(0);
     sPtr = this->Streamers[ptId].GetStreamPoint(1);
     for (j=0; j<3; j++)
@@ -90,7 +96,9 @@ void vtkDashedStreamLine::Execute()
     scalarPrev = sPrev->s;
 
     if ( this->Streamers[ptId].GetNumberOfPoints() == 2 && sPtr->cellId < 0 ) 
+      {
       continue;
+      }
 
     tOffset = sPrev->t;
 
@@ -135,8 +143,10 @@ void vtkDashedStreamLine::Execute()
           xPrev[j] = x[j];
           vPrev[j] = v[j];
           }
-        if ( newScalars ) scalarPrev = s;
-
+        if ( newScalars )
+	  {
+	  scalarPrev = s;
+	  }
         tOffset += this->StepLength;
 
         } // while

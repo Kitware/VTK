@@ -50,8 +50,14 @@ vtkDataSetMapper::vtkDataSetMapper()
 vtkDataSetMapper::~vtkDataSetMapper()
 {
   // delete internally created objects.
-  if ( this->GeometryExtractor ) this->GeometryExtractor->Delete();
-  if ( this->PolyDataMapper ) this->PolyDataMapper->Delete();
+  if ( this->GeometryExtractor )
+    {
+    this->GeometryExtractor->Delete();
+    }
+  if ( this->PolyDataMapper )
+    {
+    this->PolyDataMapper->Delete();
+    }
 }
 
 void vtkDataSetMapper::SetInput(vtkDataSet *in)
@@ -71,7 +77,9 @@ float *vtkDataSetMapper::GetBounds()
   static float bounds[] = {-1.0,1.0, -1.0,1.0, -1.0,1.0};
 
   if ( ! this->Input ) 
+    {
     return bounds;
+    }
   else
     {
     this->Input->Update();
@@ -94,7 +102,10 @@ void vtkDataSetMapper::Render(vtkRenderer *ren, vtkActor *act)
 //
 // Need a lookup table
 //
-  if ( this->LookupTable == NULL ) this->CreateDefaultLookupTable();
+  if ( this->LookupTable == NULL )
+    {
+    this->CreateDefaultLookupTable();
+    }
   this->LookupTable->Build();
 //
 // Now can create appropriate mapper

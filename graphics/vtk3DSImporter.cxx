@@ -169,7 +169,7 @@ void vtk3DSImporter::ImportActors (vtkRenderer *renderer)
       continue;
       }
 
-    polyData = GeneratePolyData (mesh);
+    polyData = this->GeneratePolyData (mesh);
     mesh->aMapper = polyMapper = vtkPolyDataMapper::New ();
     mesh->aStripper = polyStripper = vtkStripper::New ();
 
@@ -304,16 +304,23 @@ void vtk3DSImporter::ImportProperties (vtkRenderer *vtkNotUsed(renderer))
       ambient = m->ambient;
       }
 
-      if (m->reflection > 0.0) spec = (m->specular.red + m->specular.green + m->specular.blue)/3.0;
-
-      phong_size = 0.7*m->shininess;
-      if (phong_size < 1.0) phong_size = 1.0;
-
-      if (phong_size > 30.0)
-  	phong = 1.0;
-      else
-  	phong = phong_size/30.0;
-
+    if (m->reflection > 0.0)
+      {
+      spec = (m->specular.red + m->specular.green + m->specular.blue)/3.0;
+      }
+    phong_size = 0.7*m->shininess;
+    if (phong_size < 1.0)
+      {
+      phong_size = 1.0;
+      }
+    if (phong_size > 30.0)
+      {
+      phong = 1.0;
+      }
+    else
+      {
+      phong = phong_size/30.0;
+      }
   property = m->aProperty;
   property->SetAmbientColor (m->ambient.red, m->ambient.green, m->ambient.blue);
   property->SetAmbient (amb);
@@ -342,10 +349,13 @@ static void list_insert (List **root, List *new_node)
 static void *list_find (List **root, char *name)
 {
     List *p;
-    for (p = *root; p != (List *) NULL; p = (List *) p->next) {
-	if (strcmp (p->name, name) == 0)
-	    break;
-    }
+    for (p = *root; p != (List *) NULL; p = (List *) p->next)
+      {
+      if (strcmp (p->name, name) == 0)
+	{
+	break;
+	}
+      }
     return (void *)p;
 }
 
@@ -368,14 +378,13 @@ static Material *update_materials (vtk3DSImporter *importer, char *new_material,
 
     p = (Material *) LIST_FIND (importer->MaterialList, new_material);
 
-    if (p == NULL) {
-	p = (Material *) malloc (sizeof (*p));
-	strcpy (p->name, new_material);
-	p->external = ext;
-
-	LIST_INSERT (importer->MaterialList, p);
-    }
-
+    if (p == NULL)
+      {
+      p = (Material *) malloc (sizeof (*p));
+      strcpy (p->name, new_material);
+      p->external = ext;
+      LIST_INSERT (importer->MaterialList, p);
+      }
     return p;
 }
 
@@ -416,21 +425,26 @@ static Mesh *create_mesh (char *name, int vertices, int faces)
     new_mesh->vertices = vertices;
 
     if (vertices <= 0)
-	new_mesh->vertex = NULL;
-    else {
-	new_mesh->vertex = (Vector *) malloc (vertices * sizeof(*new_mesh->vertex));
-    }
+      {
+      new_mesh->vertex = NULL;
+      }
+    else
+      {
+      new_mesh->vertex = (Vector *) malloc (vertices * sizeof(*new_mesh->vertex));
+      }
 
     new_mesh->faces = faces;
 
-    if (faces <= 0) {
-	new_mesh->face = NULL;
-	new_mesh->mtl = NULL;
-    }
-    else {
-	new_mesh->face = (Face *) malloc (faces * sizeof(*new_mesh->face));
-	new_mesh->mtl = (Material **) malloc (faces * sizeof(*new_mesh->mtl));
-    }
+    if (faces <= 0)
+      {
+      new_mesh->face = NULL;
+      new_mesh->mtl = NULL;
+      }
+    else
+      {
+      new_mesh->face = (Face *) malloc (faces * sizeof(*new_mesh->face));
+      new_mesh->mtl = (Material **) malloc (faces * sizeof(*new_mesh->mtl));
+      }
 
     new_mesh->hidden = 0;
     new_mesh->shadow = 1;
@@ -453,7 +467,9 @@ static int parse_3ds_file(vtk3DSImporter *importer)
     start_chunk(importer, &chunk);
 
     if (chunk.tag == 0x4D4D)
-	parse_3ds (importer, &chunk);
+      {
+      parse_3ds (importer, &chunk);
+      }
     else
       {
 	vtkGenericWarningMacro(<< "Error: Input file is not .3DS format\n");
@@ -471,13 +487,14 @@ static void parse_3ds (vtk3DSImporter *importer, Chunk *mainchunk)
     do  {
 	start_chunk (importer, &chunk);
 
-	if (chunk.end <= mainchunk->end) {
-	    switch (chunk.tag) {
-		case 0x3D3D: parse_mdata (importer, &chunk);
-			     break;
+	if (chunk.end <= mainchunk->end)
+	  {
+	  switch (chunk.tag)
+	    {
+	    case 0x3D3D: parse_mdata (importer, &chunk);
+		         break;
 	    }
-	}
-
+	  }
 	end_chunk (importer, &chunk);
     } while (chunk.end <= mainchunk->end);
 }
@@ -583,7 +600,9 @@ static void parse_mat_entry (vtk3DSImporter *importer, Chunk *mainchunk)
 			     break;
 
 		case 0xA310: if (mprop->reflection == 0.0)
-				 mprop->reflection = 1.0;
+	                       {
+			       mprop->reflection = 1.0;
+			       }
 			     break;
 
 		case 0xA200: mprop->tex_strength = parse_percentage(importer);
@@ -645,9 +664,15 @@ static void parse_named_object (vtk3DSImporter *importer, Chunk *mainchunk)
 			     break;
 		case 0x4700: parse_n_camera(importer);
 			     break;
-		case 0x4010: if (mesh != NULL) mesh->hidden = 1;
-			     break;
-		case 0x4012: if (mesh != NULL) mesh->shadow = 0;
+		case 0x4010: if (mesh != NULL)
+		               {
+			       mesh->hidden = 1;
+			       }
+ 			       break;
+		case 0x4012: if (mesh != NULL)
+		               {
+		               mesh->shadow = 0;
+		               }
 			     break;
 	    }
 	}
@@ -691,7 +716,9 @@ static void parse_point_array(vtk3DSImporter *importer, Mesh *mesh)
     mesh->vertices = read_word(importer);
     mesh->vertex = (Vector *) malloc (mesh->vertices * sizeof(*(mesh->vertex)));
     for (i = 0; i < mesh->vertices; i++)
-	read_point (importer, mesh->vertex[i]);
+      {
+      read_point (importer, mesh->vertex[i]);
+      }
 }
 
 static void parse_face_array (vtk3DSImporter *importer, Mesh *mesh, Chunk *mainchunk)
@@ -726,11 +753,13 @@ static void parse_face_array (vtk3DSImporter *importer, Mesh *mesh, Chunk *mainc
 	end_chunk (importer, &chunk);
     } while (chunk.end <= mainchunk->end);
 
-    for (i = 0; i < mesh->faces; i++) {
-	if (mesh->mtl[i] == (Material *) NULL)
-	    mesh->mtl[i] = update_materials (importer, "Default", 0);
-    }
-
+    for (i = 0; i < mesh->faces; i++)
+      {
+      if (mesh->mtl[i] == (Material *) NULL)
+	{
+	mesh->mtl[i] = update_materials (importer, "Default", 0);
+	}
+      }
 }
 
 
@@ -792,60 +821,67 @@ static void parse_n_direct_light (vtk3DSImporter *importer, Chunk *mainchunk)
 	end_chunk (importer, &chunk);
     } while (chunk.end <= mainchunk->end);
 
-    if (!spot_flag) {
-	    o = (OmniLight *) LIST_FIND (importer->OmniList, obj_name);
+    if (!spot_flag)
+      {
+      o = (OmniLight *) LIST_FIND (importer->OmniList, obj_name);
 
-	    if (o != NULL) {
-		pos[X] = o->pos[X];
-		pos[Y] = o->pos[Y];
-		pos[Z] = o->pos[Z];
-		col    = o->col;
-	    }
-	    else {
-		o = (OmniLight *) malloc (sizeof (*o));
-		o->pos[X] = pos[X];
-		o->pos[Y] = pos[Y];
-		o->pos[Z] = pos[Z];
-		o->col = col   ;
-		strcpy (o->name, obj_name);
-		LIST_INSERT (importer->OmniList, o);
- 	    }
-    }
-    else {
-	    s = (SpotLight *) LIST_FIND (importer->SpotLightList, obj_name);
+      if (o != NULL)
+	{
+	pos[X] = o->pos[X];
+	pos[Y] = o->pos[Y];
+	pos[Z] = o->pos[Z];
+	col    = o->col;
+	}
+	else
+	  {
+	  o = (OmniLight *) malloc (sizeof (*o));
+	  o->pos[X] = pos[X];
+	  o->pos[Y] = pos[Y];
+	  o->pos[Z] = pos[Z];
+	  o->col = col   ;
+	  strcpy (o->name, obj_name);
+	  LIST_INSERT (importer->OmniList, o);
+ 	  }
+      }
+    else
+      {
+      s = (SpotLight *) LIST_FIND (importer->SpotLightList, obj_name);
 
-	    if (s != NULL) {
-		pos[X]    = s->pos[X];
-		pos[Y]    = s->pos[Y];
-		pos[Z]    = s->pos[Z];
-		target[X] = s->target[X];
-		target[Y] = s->target[Y];
-		target[Z] = s->target[Z];
-		col       = s->col;
-		hotspot   = s->hotspot;
-		falloff   = s->falloff;
-	    }
-	    else {
-	if (falloff <= 0.0)
-	    falloff = 180.0;
-
-	if (hotspot <= 0.0)
-	    hotspot = 0.7*falloff;
-
-		s = (SpotLight *) malloc (sizeof (*s));
-		s->pos[X] = pos[X];
-		s->pos[Y] = pos[Y];
-		s->pos[Z] = pos[Z];
-		s->target[X] = target[X];
-		s->target[Y] = target[Y];
-		s->target[Z] = target[Z];
-		s->col = col   ;
-		s->hotspot = hotspot;
-		s->falloff = falloff;
-		strcpy (s->name, obj_name);
-		LIST_INSERT (importer->SpotLightList, s);
-	    }
-
+      if (s != NULL)
+	{
+	pos[X]    = s->pos[X];
+	pos[Y]    = s->pos[Y];
+	pos[Z]    = s->pos[Z];
+	target[X] = s->target[X];
+	target[Y] = s->target[Y];
+	target[Z] = s->target[Z];
+	col       = s->col;
+	hotspot   = s->hotspot;
+	falloff   = s->falloff;
+	}
+    else
+      {
+      if (falloff <= 0.0)
+	{
+	falloff = 180.0;
+	}
+      if (hotspot <= 0.0)
+	{
+	hotspot = 0.7*falloff;
+	}
+      s = (SpotLight *) malloc (sizeof (*s));
+      s->pos[X] = pos[X];
+      s->pos[Y] = pos[Y];
+      s->pos[Z] = pos[Z];
+      s->target[X] = target[X];
+      s->target[Y] = target[Y];
+      s->target[Z] = target[Z];
+      s->col = col   ;
+      s->hotspot = hotspot;
+      s->falloff = falloff;
+      strcpy (s->name, obj_name);
+      LIST_INSERT (importer->SpotLightList, s);
+      }
     }
 }
 
@@ -967,8 +1003,10 @@ static void start_chunk (vtk3DSImporter *importer, Chunk *chunk)
     chunk->start  = ftell(importer->GetFileFD());
     chunk->tag    = read_word(importer);
     chunk->length = read_dword(importer);
-    if (chunk->length == 0) chunk->length = 1;
-
+    if (chunk->length == 0)
+      {
+      chunk->length = 1;
+      }
     chunk->end    = chunk->start + chunk->length;
 }
 
@@ -1040,12 +1078,15 @@ static char *read_string(vtk3DSImporter *importer)
     static char string[80];
     int i;
 
-    for (i = 0; i < 80; i++) {
-	string[i] = read_byte(importer);
+    for (i = 0; i < 80; i++)
+      {
+      string[i] = read_byte(importer);
 
-	if (string[i] == '\0')
-	    break;
-    }
+      if (string[i] == '\0')
+        {
+        break;
+        }
+      }
 
     return string;
 }
@@ -1060,33 +1101,44 @@ static void cleanup_name (char *name)
     /* Remove any leading blanks or quotes */
     i = 0;
     while ((name[i] == ' ' || name[i] == '"') && name[i] != '\0')
-	i++;
-
+      {
+      i++;
+      }
     strcpy (tmp, &name[i]);
 
     /* Remove any trailing blanks or quotes */
-    for (i = strlen(tmp)-1; i >= 0; i--) {
+    for (i = strlen(tmp)-1; i >= 0; i--)
+      {
 	if (isprint(tmp[i]) && !isspace(tmp[i]) && tmp[i] != '"')
-	    break;
+	  {
+	  break;
+	  }
 	else
-	    tmp[i] = '\0';
-    }
+	  {
+	  tmp[i] = '\0';
+	  }
+      }
 
     strcpy (name, tmp);
 
     /* Prefix the letter 'N' to materials that begin with a digit */
     if (!isdigit (name[0]))
-       strcpy (tmp, name);
+      {
+      strcpy (tmp, name);
+      }
     else {
        tmp[0] = 'N';
        strcpy (&tmp[1], name);
     }
 
     /* Replace all illegal charaters in name with underscores */
-    for (i = 0; tmp[i] != '\0'; i++) {
+    for (i = 0; tmp[i] != '\0'; i++)
+      {
        if (!isalnum(tmp[i]))
-	   tmp[i] = '_';
-    }
+	 {
+	 tmp[i] = '_';
+	 }
+      }
 
     strcpy (name, tmp);
 
@@ -1116,16 +1168,46 @@ vtk3DSImporter::~vtk3DSImporter()
   Mesh *mesh;
   for (mesh = this->MeshList; mesh != (Mesh *) NULL; mesh = (Mesh *) mesh->next)
     {
-    if (mesh->anActor != NULL) mesh->anActor->Delete ();
-    if (mesh->aMapper != NULL) mesh->aMapper->Delete ();
-    if (mesh->aNormals != NULL) mesh->aNormals->Delete ();
-    if (mesh->aStripper != NULL) mesh->aStripper->Delete ();
-    if (mesh->aPoints != NULL) mesh->aPoints->Delete ();
-    if (mesh->aCellArray != NULL) mesh->aCellArray->Delete ();
-    if (mesh->aPolyData != NULL) mesh->aPolyData->Delete ();
-    if (mesh->vertex) free (mesh->vertex);
-    if (mesh->face) free (mesh->face);
-    if (mesh->mtl) free (mesh->mtl);  
+    if (mesh->anActor != NULL)
+      {
+      mesh->anActor->Delete ();
+      }
+    if (mesh->aMapper != NULL)
+      {
+      mesh->aMapper->Delete ();
+      }
+    if (mesh->aNormals != NULL)
+      {
+      mesh->aNormals->Delete ();
+      }
+    if (mesh->aStripper != NULL)
+      {
+      mesh->aStripper->Delete ();
+      }
+    if (mesh->aPoints != NULL)
+      {
+      mesh->aPoints->Delete ();
+      }
+    if (mesh->aCellArray != NULL)
+      {
+      mesh->aCellArray->Delete ();
+      }
+    if (mesh->aPolyData != NULL)
+      {
+      mesh->aPolyData->Delete ();
+      }
+    if (mesh->vertex)
+      {
+      free (mesh->vertex);
+      }
+    if (mesh->face)
+      {
+      free (mesh->face);
+      }
+    if (mesh->mtl)
+      {
+      free (mesh->mtl);  
+      }
     }
 
   // then delete the list structure

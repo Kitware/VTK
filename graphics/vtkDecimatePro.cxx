@@ -141,7 +141,7 @@ void vtkDecimatePro::Execute()
   vtkPointData *outputPD=output->GetPointData();
   vtkPointData *inPD=input->GetPointData();
   int *map, numNewPts, totalPts, newCellPts[3];
-  int abort=0;
+  int abortExecute=0;
 
   // do it this way because some compilers can't handle construction of
   // static objects in file scope.
@@ -226,7 +226,7 @@ void vtkDecimatePro::Execute()
   // Then evaluate the local error for the vertex. The vertex is then
   // inserted into the priority queue.
   npts = Mesh->GetNumberOfPoints();
-  for ( ptId=0; ptId < npts && !abort ; ptId++ )
+  for ( ptId=0; ptId < npts && !abortExecute ; ptId++ )
     {
     if ( ! (ptId % 10000) ) 
       {
@@ -234,7 +234,7 @@ void vtkDecimatePro::Execute()
       this->UpdateProgress (0.25*ptId/npts);//25% spent inserting
       if (this->GetAbortExecute())
         {
-        abort = 1;
+        abortExecute = 1;
         break;
         }
       }
@@ -249,7 +249,7 @@ void vtkDecimatePro::Execute()
   // (While this is happening we keep track of operations on the data - 
   // this forms the core of the progressive mesh representation.)
   for ( totalEliminated=0, reduction=0.0, numRecycles=0, numPops=0;
-  reduction < this->TargetReduction && (ptId = this->Pop(error)) >= 0 && !abort; 
+  reduction < this->TargetReduction && (ptId = this->Pop(error)) >= 0 && !abortExecute; 
   numPops++)
     {
     if ( numPops && !(numPops % 5000) )
@@ -258,7 +258,7 @@ void vtkDecimatePro::Execute()
       this->UpdateProgress (0.25 + 0.75*(reduction/this->TargetReduction));
       if (this->GetAbortExecute())
         {
-        abort = 1;
+        abortExecute = 1;
         break;
         }
       }
@@ -268,17 +268,17 @@ void vtkDecimatePro::Execute()
 
     if ( ncells > 0 )
       {
-      type = EvaluateVertex(ptId, ncells, cells, fedges);
+      type = this->EvaluateVertex(ptId, ncells, cells, fedges);
 
       // FindSplit finds the edge to collapse - and if it fails, we
       // split the vertex.
-      collapseId = FindSplit (type, fedges, pt1, pt2, CollapseTris);
+      collapseId = this->FindSplit (type, fedges, pt1, pt2, CollapseTris);
 
       if ( collapseId >= 0 )
         {
         if ( this->AccumulateError ) this->DistributeError(error);
 
-        totalEliminated += CollapseEdge(type, ptId, collapseId, pt1, pt2, 
+        totalEliminated += this->CollapseEdge(type, ptId, collapseId, pt1, pt2, 
                                         CollapseTris);
 
         reduction = (float) totalEliminated / numTris;
@@ -955,7 +955,7 @@ int vtkDecimatePro::FindSplit (int type, int fedges[2], int& pt1, int& pt2,
       // See whether the collapse is okay
       while ( (maxI = EdgeLengths.Pop(dist2)) >= 0 )
         {
-        if ( IsValidSplit(maxI) ) break;
+        if ( this->IsValidSplit(maxI) ) break;
         }
 
       if ( maxI >= 0 )
@@ -988,13 +988,13 @@ int vtkDecimatePro::FindSplit (int type, int fedges[2], int& pt1, int& pt2,
       maxI = -1;
       if ( dist2 <= e2dist2 )
         {
-        if ( IsValidSplit(0) ) maxI = 0;
-        else if ( IsValidSplit(V->MaxId) ) maxI = V->MaxId;
+        if ( this->IsValidSplit(0) ) maxI = 0;
+        else if ( this->IsValidSplit(V->MaxId) ) maxI = V->MaxId;
         }
       else
         {
-        if ( IsValidSplit(V->MaxId) ) maxI = V->MaxId;
-        else if ( IsValidSplit(0) ) maxI = 0;
+        if ( this->IsValidSplit(V->MaxId) ) maxI = V->MaxId;
+        else if ( this->IsValidSplit(0) ) maxI = 0;
         }
 
       if ( maxI >= 0 )
@@ -1017,7 +1017,7 @@ int vtkDecimatePro::FindSplit (int type, int fedges[2], int& pt1, int& pt2,
 
     case VTK_CRACK_TIP_VERTEX: //-------------------------------------------
       V->MaxId--;
-      if ( IsValidSplit(0) )
+      if ( this->IsValidSplit(0) )
         {
         CollapseTris.SetId(0,T->Array[0].id);
         pt1 = V->Array[1].id;
@@ -1073,7 +1073,7 @@ int vtkDecimatePro::IsValidSplit(int index)
   for ( j=0; j < (nverts-3); j++ )
     {
     fedges[1] = (index + 2 + j) % nverts;
-    SplitLoop (fedges, n1, l1, n2, l2);
+    this->SplitLoop (fedges, n1, l1, n2, l2);
 
     //  Create splitting plane.  Splitting plane is parallel to the loop
     //  plane normal and contains the splitting vertices fedges[0] and fedges[1].
@@ -1341,7 +1341,7 @@ void vtkDecimatePro::Insert(int ptId, float error)
     if ( ncells > 0 )
       {
       simpleType = 0;
-      type = EvaluateVertex(ptId, ncells, cells, fedges);
+      type = this->EvaluateVertex(ptId, ncells, cells, fedges);
 
       // Compute error for simple types - split vertex handles others
       if ( type == VTK_SIMPLE_VERTEX || type == VTK_EDGE_END_VERTEX ||
@@ -1373,7 +1373,7 @@ void vtkDecimatePro::Insert(int ptId, float error)
       // new vertices into queue.
       else if ( SplitState == VTK_STATE_SPLIT )
         {
-        SplitVertex(ptId, type, ncells, cells, 1);
+        this->SplitVertex(ptId, type, ncells, cells, 1);
         } //not a simple type
 
       } //if cells attached to vertex
@@ -1389,8 +1389,8 @@ void vtkDecimatePro::Insert(int ptId, float error)
       Mesh->GetPointCells(ptId,ncells,cells);
       if ( ncells > 0 ) 
         {
-        type = EvaluateVertex(ptId, ncells, cells, fedges);
-        SplitVertex(ptId, type, ncells, cells, 1);
+        type = this->EvaluateVertex(ptId, ncells, cells, fedges);
+        this->SplitVertex(ptId, type, ncells, cells, 1);
         }
       }
     }
