@@ -391,13 +391,9 @@ void outputFunction2(FILE *fp, FileInfo *data)
 	    }
 	  output_temp(fp, MAX_ARGS,currentFunction->ReturnType,
 		      currentFunction->ReturnClass,0);
-	  /* don't clear error first time around */
-	  if (occ != fnum)
-	    {
-	    fprintf(fp,"  PyErr_Clear();\n");
-	    }
 	  if (is_static)
 	    {
+	    fprintf(fp,"  PyErr_Clear();\n");
             fprintf(fp,"  if ((PyArg_ParseTuple(args, \"%s\"",
 		    get_format_string());
 	    }

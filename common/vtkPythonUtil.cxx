@@ -218,10 +218,8 @@ static PyObject *PyVTKObject_PyGetAttr(PyObject *self, char *name)
 //--------------------------------------------------------------------
 static void PyVTKObject_PyDelete(PyObject *self)
 {
-  vtkObject *ptr = (vtkObject *)((PyVTKObject *)self)->vtk_ptr;
-
   vtkPythonDeleteObjectFromHash(self);
-  ptr->Delete();
+  ((vtkObject *)((PyVTKObject *)self)->vtk_ptr)->Delete();
   Py_DECREF((PyObject *)((PyVTKObject *)self)->vtk_class);
   PyMem_DEL(self);
 }
@@ -490,6 +488,9 @@ vtkObject *PyArg_VTKParseTuple(PyObject *self, PyObject *args,
   vtkObject *obj = NULL;
   va_list va;
   va_start(va, format);
+
+  /* clear in case set from the previous overload of this method */
+  PyErr_Clear();
 
   /* check if this was called as an unbound method */
   if (self->ob_type == &PyVTKClassType)
@@ -794,63 +795,3 @@ void vtkPythonVoidFuncArgDelete(void *arg)
 }
   
 //--------------------------------------------------------------------
-vtkPythonCommand::vtkPythonCommand()
-{ 
-  this->obj = NULL;
-}
-
-vtkPythonCommand::~vtkPythonCommand()
-{ 
-  if (this->obj)
-    {
-    Py_DECREF(this->obj);
-    }
-  this->obj = NULL;
-}
-
-void vtkPythonCommand::SetObject(PyObject *o)
-{ 
-  this->obj = o; 
-}
-
-void vtkPythonCommand::Execute(vtkObject *ptr, unsigned long eventtype, 
-			       void *)
-{
-  PyObject *arglist, *result, *obj2;
-  const char *eventname;
-
-  if (ptr && ptr->GetReferenceCount() > 0)
-    {
-    obj2 = vtkPythonGetObjectFromPointer(ptr);
-    }
-  else
-    {
-    obj2 = Py_None;
-    Py_XINCREF(Py_None);
-    }
-
-  eventname = this->GetStringFromEventId(eventtype);
-  
-  arglist = Py_BuildValue("(Ns)",obj2,eventname);
-  
-  result = PyEval_CallObject(this->obj, arglist);
-  Py_DECREF(arglist);
-  
-  if (result)
-    {
-    Py_XDECREF(result);
-    }
-  else
-    {
-    if (PyErr_ExceptionMatches(PyExc_KeyboardInterrupt))
-      {
-      cerr << "Caught a Ctrl-C within python, exiting program.\n";
-      Py_Exit(1);
-      }
-    PyErr_Print();
-    }
-}
-//--------------------------------------------------------------------
-
-
-
