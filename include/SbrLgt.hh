@@ -17,7 +17,6 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #define __vlSbrLight_hh
 
 #include "Light.hh"
-#include "kgl.h"
 
 class vlSbrRenderer;
 
