@@ -70,34 +70,6 @@ FT_VECTOR_CLASS_NAME::FT_VECTOR_CLASS_NAME()
 
 
 inline 
-FT_VECTOR_CLASS_NAME::~FT_VECTOR_CLASS_NAME()
-{
-  this->clear();
-}
-
-
-inline 
-FT_VECTOR_CLASS_NAME& FT_VECTOR_CLASS_NAME::operator =(const FT_VECTOR_CLASS_NAME& v)
-{
-  // Warning: the vector is not cleared and resized to v capacity for
-  // efficiency reasons.
-  // this->clear();
-  this->reserve(v.capacity());
-  
-  iterator ptr = this->begin();
-  const_iterator vbegin = v.begin();
-  const_iterator vend = v.end();
-
-  while (vbegin != vend)
-    {
-    *ptr++ = *vbegin++;
-    }
-  this->Size = v.size();
-  return *this;
-}
-
-
-inline 
 FT_VECTOR_CLASS_NAME::size_type FT_VECTOR_CLASS_NAME::size() const 
 { 
   return this->Size; 
@@ -119,13 +91,6 @@ FT_VECTOR_CLASS_NAME::iterator FT_VECTOR_CLASS_NAME::begin()
 
 
 inline 
-FT_VECTOR_CLASS_NAME::iterator FT_VECTOR_CLASS_NAME::end() 
-{ 
-  return this->begin() + this->size(); 
-}
-
-
-inline 
 FT_VECTOR_CLASS_NAME::const_iterator FT_VECTOR_CLASS_NAME::begin() const 
 { 
   return this->Items; 
@@ -133,38 +98,16 @@ FT_VECTOR_CLASS_NAME::const_iterator FT_VECTOR_CLASS_NAME::begin() const
 
 
 inline 
-FT_VECTOR_CLASS_NAME::const_iterator FT_VECTOR_CLASS_NAME::end() const 
+FT_VECTOR_CLASS_NAME::iterator FT_VECTOR_CLASS_NAME::end() 
 { 
   return this->begin() + this->size(); 
 }
 
 
 inline 
-bool FT_VECTOR_CLASS_NAME::empty() const 
+FT_VECTOR_CLASS_NAME::const_iterator FT_VECTOR_CLASS_NAME::end() const 
 { 
-  return this->size() == 0; 
-}
-
-
-inline 
-FT_VECTOR_CLASS_NAME::reference FT_VECTOR_CLASS_NAME::operator [](FT_VECTOR_CLASS_NAME::size_type pos) 
-{ 
-#if FT_VECTOR_CLASS_DEBUG    
-  printf("FT_VECTOR_CLASS_NAME:        []() (%d / %d) pos: %d\n", 
-         this->size(), this->capacity(), pos);
-#endif
-  return (*(begin() + pos)); 
-}
-
-
-inline 
-FT_VECTOR_CLASS_NAME::const_reference FT_VECTOR_CLASS_NAME::operator [](FT_VECTOR_CLASS_NAME::size_type pos) const 
-{ 
-#if FT_VECTOR_CLASS_DEBUG    
-  printf("FT_VECTOR_CLASS_NAME:        []() (%d / %d) pos: %d\n", 
-         this->size(), this->capacity(), pos);
-#endif
-  return (*(begin() + pos)); 
+  return this->begin() + this->size(); 
 }
 
 
@@ -181,6 +124,13 @@ void FT_VECTOR_CLASS_NAME::clear()
     this->Capacity = this->Size = 0;
     this->Items = 0;
     }
+}
+
+
+inline 
+FT_VECTOR_CLASS_NAME::~FT_VECTOR_CLASS_NAME()
+{
+  this->clear();
 }
 
 
@@ -237,6 +187,56 @@ void FT_VECTOR_CLASS_NAME::reserve(size_type n)
     {
     this->expand(n);
     }
+}
+
+
+inline 
+FT_VECTOR_CLASS_NAME& FT_VECTOR_CLASS_NAME::operator =(const FT_VECTOR_CLASS_NAME& v)
+{
+  // Warning: the vector is not cleared and resized to v capacity for
+  // efficiency reasons.
+  // this->clear();
+  this->reserve(v.capacity());
+  
+  iterator ptr = this->begin();
+  const_iterator vbegin = v.begin();
+  const_iterator vend = v.end();
+
+  while (vbegin != vend)
+    {
+    *ptr++ = *vbegin++;
+    }
+  this->Size = v.size();
+  return *this;
+}
+
+
+inline 
+bool FT_VECTOR_CLASS_NAME::empty() const 
+{ 
+  return this->size() == 0; 
+}
+
+
+inline 
+FT_VECTOR_CLASS_NAME::reference FT_VECTOR_CLASS_NAME::operator [](FT_VECTOR_CLASS_NAME::size_type pos) 
+{ 
+#if FT_VECTOR_CLASS_DEBUG    
+  printf("FT_VECTOR_CLASS_NAME:        []() (%d / %d) pos: %d\n", 
+         this->size(), this->capacity(), pos);
+#endif
+  return (*(begin() + pos)); 
+}
+
+
+inline 
+FT_VECTOR_CLASS_NAME::const_reference FT_VECTOR_CLASS_NAME::operator [](FT_VECTOR_CLASS_NAME::size_type pos) const 
+{ 
+#if FT_VECTOR_CLASS_DEBUG    
+  printf("FT_VECTOR_CLASS_NAME:        []() (%d / %d) pos: %d\n", 
+         this->size(), this->capacity(), pos);
+#endif
+  return (*(begin() + pos)); 
 }
 
 

@@ -59,21 +59,6 @@ inline FTCharToGlyphIndexMap::FTCharToGlyphIndexMap()
 }
 
 
-inline FTCharToGlyphIndexMap::~FTCharToGlyphIndexMap()
-{
-  if (this->Indices)
-    {
-    // Free all buckets
-
-    this->clear();
-
-    // Free main structure
-
-    delete [] this->Indices;
-    this->Indices = 0;
-    }
-}
-
 // Free all buckets
 
 inline void FTCharToGlyphIndexMap::clear()
@@ -88,6 +73,21 @@ inline void FTCharToGlyphIndexMap::clear()
         this->Indices[i] = 0;
         }
       }
+    }
+}
+
+inline FTCharToGlyphIndexMap::~FTCharToGlyphIndexMap()
+{
+  if (this->Indices)
+    {
+    // Free all buckets
+
+    this->clear();
+
+    // Free main structure
+
+    delete [] this->Indices;
+    this->Indices = 0;
     }
 }
 
