@@ -58,6 +58,7 @@ vtkRegressionTester::Test(argc, argv, rw, 10)
 vtkRegressionTester::Test(argc, argv, rw, t)
 
 
+inline
 int vtkRegressionTester::Test(int argc, char *argv[], vtkRenderWindow *rw, 
                               float thresh ) 
 {
@@ -283,6 +284,7 @@ int vtkRegressionTester::Test(int argc, char *argv[], vtkRenderWindow *rw,
   return NOT_RUN;
 }
 
+inline
 char* vtkRegressionTester::IncrementFileName(const char* fname, 
                                                     int count)
 {
@@ -313,6 +315,7 @@ char* vtkRegressionTester::IncrementFileName(const char* fname,
   return newFileName;
 }
 
+inline
 int vtkRegressionTester::LookForFile(const char* newFileName)
 {
   if (!newFileName)
