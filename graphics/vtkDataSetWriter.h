@@ -49,6 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkDataWriter.h"
 #include "vtkImageSource.h"
+#include "vtkImageToStructuredPoints.h"
 
 class VTK_EXPORT vtkDataSetWriter : public vtkDataWriter
 {
