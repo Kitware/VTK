@@ -317,7 +317,9 @@ void vtkDelaunay2D::Execute()
 //
   for (ptId=0; ptId < numPoints; ptId++)
     {
-    points->GetPoint(ptId,x);
+    points->GetPoint(ptId,x); 
+    nei[0] = (-1); //where we are coming from...nowhere initially
+
     if ( (tri[0] = FindTriangle(x,pts,tri[0],Mesh,points,tol,nei)) >= 0 )
       {
       if ( nei[0] < 0 ) //in triangle

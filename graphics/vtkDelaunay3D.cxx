@@ -73,11 +73,14 @@ static int InSphere (float x[3], float x1[3], float x2[3], float x3[3],
           (x[1]-center[1]) * (x[1]-center[1]) +
           (x[2]-center[2]) * (x[2]-center[2]);
 
-  if ( dist2 < (0.9999*radius2) ) return 1;
+  if ( dist2 < (0.99999*radius2) ) return 1;
   else return 0;
 }
 
+#define VTK_DEL3D_TOLERANCE 1.0e-06
+
 static int NumberOfDuplicatePoints;
+static int NumberOfDegeneracies;
 
 // Recursive method to locate tetrahedron containing point. Starts with
 // arbitrary tetrahedron (tetra) and "walks" towards it. Influenced by 
@@ -85,9 +88,9 @@ static int NumberOfDuplicatePoints;
 // if no tetrahedron found.
 static int FindTetra(float x[3], int ptIds[4], float p[4][3], 
                      int tetra, vtkUnstructuredGrid *Mesh, 
-                     vtkFloatPoints *points, float tol)
+                     vtkFloatPoints *points, float tol, int nei)
 {
-  int i, j, inside, i2, i3, i4;
+  int i, j, inside, i2, i3, i4, newNei;
   vtkIdList pts(4), facePts(3);
   vtkIdList neighbors(2);
   float v12[3], vp[3], vx[3], v32[3], n[3], valx, valp, maxValx;
@@ -122,12 +125,17 @@ static int FindTetra(float x[3], int ptIds[4], float p[4][3],
       return -1;
       }
 
-    if ( vtkMath::Normalize(vp) <= 1.0e-04 ) continue; //maybe on face
+    if ( vtkMath::Normalize(vp) <=  VTK_DEL3D_TOLERANCE ) //degenerate tetra
+      {
+      NumberOfDegeneracies++;
+      return -1;
+      }
+
     vtkMath::Cross(v32,v12,n); vtkMath::Normalize(n);//face normal
 
     //see whether point and tetra vertex are on same side of tetra face
     valp = vtkMath::Dot(n,vp);
-    if ( fabs(valx = vtkMath::Dot(n,vx)) <= 1.0e-04 ) return tetra;
+    if ( fabs(valx = vtkMath::Dot(n,vx)) <= VTK_DEL3D_TOLERANCE ) return tetra;
 
     if ( (valx < 0.0 && valp > 0.0) || (valx > 0.0 && valp < 0.0)  )
       {
@@ -146,13 +154,22 @@ static int FindTetra(float x[3], int ptIds[4], float p[4][3],
   if ( !inside ) 
     {
     Mesh->GetCellNeighbors(tetra, facePts, neighbors);
-    return FindTetra(x,ptIds,p,neighbors.GetId(0),Mesh,points,tol);
+    if ( (newNei=neighbors.GetId(0)) == nei )
+      {
+      NumberOfDegeneracies++;
+      return -1;
+      }
+    else
+      {
+      return FindTetra(x,ptIds,p,newNei,Mesh,points,tol,tetra);
+      }
     }
   else 
     {
     return tetra;
     }
 }
+#undef VTK_DEL3D_TOLERANCE
 
 // Find all faces that enclose a point. (Enclosure means not satifying 
 // Delaunay criterion.) This method works in two distinct parts. First, the
@@ -200,17 +217,17 @@ static int FindEnclosingFaces(float x[3], int tetra, vtkUnstructuredGrid *Mesh,
     tetraCell = (vtkTetra *) Mesh->GetCell(tetraId);
     if ( tetraCell->EvaluatePosition(x,closest,subId,pcoords,dist2,weights) == 1 )
       {
-      for ( i=0; i < 4; i++ ) 
+      for ( j=0; j < 4; j++ ) 
         {
-        tetraCell->Points.GetPoint(i,p[i]);
-        ptIds[i] = tetraCell->PointIds.GetId(i);
+        tetraCell->Points.GetPoint(j,p[j]);
+        ptIds[j] = tetraCell->PointIds.GetId(j);
         }
       break;
       }
     }
   if ( i >= checkedTetras.GetNumberOfIds() ) //keep looking for enclosing tetra
     {
-    tetraId = FindTetra(x,ptIds,p,tetra,Mesh,points,tol);
+    tetraId = FindTetra(x,ptIds,p,tetra,Mesh,points,tol,(-1));
     if ( tetraId < 0 ) return 0; 
     tetraCell = (vtkTetra *) Mesh->GetCell(tetraId);
     }
@@ -261,7 +278,7 @@ static int FindEnclosingFaces(float x[3], int tetra, vtkUnstructuredGrid *Mesh,
 
     }//if non-degenerate tetra
 
-  // Okay, check face neighbors for Delaunay criterion. Purpose is to find 
+  // Okay, check neighbors for Delaunay criterion. Purpose is to find 
   // list of enclosing faces and deleted tetras.
   numTetras = tetras.GetNumberOfIds();
   for (checkedTetras.Reset(), i=0; i < numTetras; i++) 
@@ -360,7 +377,7 @@ void vtkDelaunay3D::Execute()
   vtkUnstructuredGrid *output=(vtkUnstructuredGrid *)this->Output;
   float x[3];
   int nodes[4], pts[4], npts, *tetraPts;
-  vtkIdList neighbors(2), cells(64), tetras(5), faces(15);
+  vtkIdList neighbors(2), cells(64), tetras(5), faces(15), holeTetras(12);
   float center[3], length, tol;
   char *tetraUse;
   float bounds[6];
@@ -377,6 +394,7 @@ void vtkDelaunay3D::Execute()
 
   numPoints = inPoints->GetNumberOfPoints();
   NumberOfDuplicatePoints = 0;
+  NumberOfDegeneracies = 0;
 //
 // Create initial bounding triangulation. Have to create bounding points.
 // Initialize mesh structure.
@@ -386,7 +404,6 @@ void vtkDelaunay3D::Execute()
   input->GetCenter(center);
   tol = input->GetLength();
   if ( (length = this->Offset * tol) <= 0.0 ) length = 1.0;
-  tol *= this->Tolerance;
 
   bounds[0] = center[0] - length; bounds[1] = center[0] + length; 
   bounds[2] = center[1] - length; bounds[3] = center[1] + length; 
@@ -447,8 +464,8 @@ void vtkDelaunay3D::Execute()
   Mesh->BuildLinks();
 //
 // For each point; find faces containing point. (Faces are found by deleting
-// one or more tetrahedra "containing" point. Tetrahedron contain point when 
-// they do not satisfy Delaunay criterion. (More than one tetra may contain
+// one or more tetrahedra "containing" point.) Tetrahedron contain point when 
+// they satisfy Delaunay criterion. (More than one tetra may contain
 // a point if the point is on or near an edge or face.) For each face, create 
 // a tetrahedron. (The locator helps speed search of points in tetras.)
   
@@ -460,17 +477,19 @@ void vtkDelaunay3D::Execute()
     points,this->Tolerance,tetras,faces,this->Locator)) > 0 )
       {
       this->Locator.InsertPoint(ptId,x); //point is part of mesh now
+      numTetras = tetras.GetNumberOfIds();
 
+      // create new tetra for each face
       for (tetraNum=0; tetraNum < numFaces; tetraNum++)
         {
-        //create tetrahedron
+        //define tetrahedron
         nodes[0] = ptId;
         nodes[1] = faces.GetId(3*tetraNum);
         nodes[2] = faces.GetId(3*tetraNum+1);
         nodes[3] = faces.GetId(3*tetraNum+2);
 
         //either replace previously deleted tetra or create new one
-        if ( tetraNum < tetras.GetNumberOfIds() )
+        if ( tetraNum < numTetras )
           {
           tetraId = tetras.GetId(tetraNum);
           Mesh->ReplaceCell(tetraId, 4, nodes);
@@ -486,11 +505,28 @@ void vtkDelaunay3D::Execute()
           }
 
         }//for each face
+
+      // Sometimes there are more tetras deleted than created. These
+      // have to be accounted for because they leave a "hole" in the
+      // data structure. Keep track of them here...mark them deleted later.
+      for (tetraNum = numFaces; tetraNum < numTetras; tetraNum++ )
+        {
+        holeTetras.InsertNextId(tetras.GetId(tetraNum));
+        }
+
       }//if enclosing faces found
+
+    if ( ! (ptId % 100) ) vtkDebugMacro(<<"point #" << ptId);
     }//for all points
 
   vtkDebugMacro(<<"Triangulated " << numPoints <<" points, " 
                 << NumberOfDuplicatePoints << " of which were duplicates");
+
+  if ( NumberOfDegeneracies > 0 )
+    {
+    vtkWarningMacro(<< NumberOfDegeneracies 
+                    << " degenerate triangles encountered, mesh quality suspect");
+    }
 //
 // Send appropriate portions of triangulation to output
 //
@@ -498,6 +534,10 @@ void vtkDelaunay3D::Execute()
   numTetras = Mesh->GetNumberOfCells();
   tetraUse = new char[numTetras];
   for (i=0; i < numTetras; i++) tetraUse[i] = 1;
+  for (i=0; i < holeTetras.GetNumberOfIds(); i++)
+    {
+    tetraUse[holeTetras.GetId(i)] = 0;
+    }
 
   //if boundary triangulation not desired, delete tetras connected to 
   // boundary points

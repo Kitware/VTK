@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkDelaunay3D - create 3D Delaunay triangulation of input points
 // .SECTION Description
-
 // vtkDelaunay3D is a filter that constructs a 3D Delaunay
 // triangulation from a list of input points. These points may be
 // represented by any dataset of type vtkPointSet and subclasses. The
@@ -65,6 +64,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // from unorganized (or unstructured) points. The input to this filter
 // is a list of points specified in 3D. (If you wish to create 2D 
 // triangulations see vtkDelaunay2D.) The output is an unstructured grid.
+// 
+// The Delaunay triangulation can be numerically sensitive. To prevent
+// problems, try to avoid injecting points that will result in
+// triangles with bad aspect ratios (1000:1 or greater). In practice
+// this means inserting points that are "widely dispersed", and
+// enables smooth transition of triangle sizes throughout the
+// mesh. (You may even want to add extra points to create a better
+// point distribution.) If numerical problems are present, you will
+// see a warning message to this effect at the end of the
+// triangulation process.
 
 // .SECTION Caveats
 // Points arranged on a regular lattice (termed degenerate cases) can be 
@@ -93,10 +102,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // point is found, and then the connected tetrahedra are searched to find
 // the containing one. (In 2D, a "walk" towards the enclosing triangle is
 // performed.) If the triangulation is Delaunay, then an 
-
-// .SECTION Bugs
-// Current implementation (vtk1.1) can break down due to numerical degeneracy. Also is 
-// slower than it should be. 
 
 // .SECTION See Also
 // vtkDelaunay2D vtkGaussianSplatter vtkUnstructuredGrid
