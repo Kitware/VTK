@@ -62,9 +62,8 @@ vtkGenericCellIterator.cxx
 vtkGenericCellTessellator.cxx
 vtkSimpleCellTessellator.cxx
 vtkGenericDataSet.cxx
+vtkGenericDataSetAlgorithm.cxx
 vtkGenericDataSetSource.cxx
-vtkGenericDataSetToPolyDataFilter.cxx
-vtkGenericDataSetToUnstructuredGridFilter.cxx
 vtkGenericEdgeTable.cxx
 vtkGenericPointIterator.cxx
 vtkGenericSubdivisionErrorMetric.cxx
@@ -157,6 +156,7 @@ vtkRectilinearGridToPolyDataFilter.cxx
 vtkScalarTree.cxx
 vtkSimpleImageToImageFilter.cxx
 vtkSimpleScalarTree.cxx
+#vtkSmoothErrorMetric.cxx
 vtkSphere.cxx
 vtkSource.cxx
 vtkSpline.cxx
@@ -215,9 +215,8 @@ vtkGenericAttribute
 vtkGenericCellIterator
 vtkGenericCellTessellator
 vtkGenericDataSet
+vtkGenericDataSetAlgorithm
 vtkGenericDataSetSource
-vtkGenericDataSetToUnstructuredGridFilter
-vtkGenericDataSetToPolyDataFilter
 vtkGenericPointIterator
 vtkGenericSubdivisionErrorMetric
 vtkHierarchicalDataSetAlgorithm
