@@ -142,6 +142,45 @@ void vtkVoxel::InterpolationFunctions(float pcoords[3], float sf[8])
   sf[7] = pcoords[0] * pcoords[1] * pcoords[2];
 }
 
+void vtkVoxel::InterpolationDerivs(float pcoords[3], float derivs[24])
+{
+  double rm, sm, tm;
+
+  rm = 1. - pcoords[0];
+  sm = 1. - pcoords[1];
+  tm = 1. - pcoords[2];
+
+  // r derivatives
+  derivs[0] = -sm*tm;
+  derivs[1] = sm*tm;
+  derivs[2] = -pcoords[1]*tm;
+  derivs[3] = pcoords[1]*tm;
+  derivs[4] = -sm*pcoords[2];
+  derivs[5] = sm*pcoords[2];
+  derivs[6] = -pcoords[1]*pcoords[2];
+  derivs[7] = pcoords[1]*pcoords[2];
+
+  // s derivatives
+  derivs[8] = -rm*tm;
+  derivs[9] = -pcoords[0]*tm;
+  derivs[10] = rm*tm;
+  derivs[11] = pcoords[0]*tm;
+  derivs[12] = -rm*pcoords[2];
+  derivs[13] = -pcoords[0]*pcoords[2];
+  derivs[14] = rm*pcoords[2];
+  derivs[15] = pcoords[0]*pcoords[2];
+
+  // t derivatives
+  derivs[16] = -rm*sm;
+  derivs[17] = -pcoords[0]*sm;
+  derivs[18] = -rm*pcoords[1];
+  derivs[19] = -pcoords[0]*pcoords[1];
+  derivs[20] = rm*sm;
+  derivs[21] = pcoords[0]*sm;
+  derivs[22] = rm*pcoords[1];
+  derivs[23] = pcoords[0]*pcoords[1];
+}
+
 int vtkVoxel::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
 			   vtkIdList& pts)
 {
@@ -301,8 +340,8 @@ vtkCell *vtkVoxel::GetFace(int faceId)
 // 
 // Intersect voxel with line using "bounding box" intersection.
 //
-int vtkVoxel::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
-                               float x[3], float pcoords[3], int& subId)
+int vtkVoxel::IntersectWithLine(float p1[3], float p2[3], float vtkNotUsed(tol), 
+                               float& t, float x[3], float pcoords[3], int& subId)
 {
   float *minPt, *maxPt;
   float bounds[6], p21[3];
@@ -396,9 +435,38 @@ int vtkVoxel::Triangulate(int index, vtkFloatPoints &pts)
   return 1;
 }
 
-void vtkVoxel::Derivatives(int subId, float pcoords[3], float *values, 
-                           int dim, float *derivs)
+void vtkVoxel::Derivatives(int vtkNotUsed(subId), float pcoords[3], 
+                           float *values, int dim, float *derivs)
 {
+  float functionDerivs[24], sum;
+  int i, j, k;
+  float *x0, *x1, *x2, *x4, ar[3];
 
+  x0 = this->Points.GetPoint(0);
+  x1 = this->Points.GetPoint(1);
+  ar[0] = x1[0] - x0[0];
+
+  x2 = this->Points.GetPoint(2);
+  ar[1] = x2[1] - x0[1];
+
+  x4 = this->Points.GetPoint(4);
+  ar[2] = x4[2] - x0[2];
+
+  // get derivatives in r-s-t directions
+  this->InterpolationDerivs(pcoords, functionDerivs);
+
+  // since the x-y-z axes are aligned with r-s-t axes, only need to scale
+  // the derivative values by aspect ratio (ar).
+  for (k=0; k < dim; k++) //loop over values per vertex
+    {
+    for (j=0; j < 3; j++) //loop over derivative directions
+      {
+      for (sum=0.0, i=0; i < 8; i++) //loop over interp. function derivatives
+        {
+        sum += functionDerivs[8*j + i] * values[3*i + k];
+        }
+      derivs[3*k + j] = sum / ar[j];
+      }
+    }
 }
 
