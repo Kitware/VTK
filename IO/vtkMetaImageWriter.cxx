@@ -23,7 +23,7 @@
 #include <sys/stat.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMetaImageWriter, "1.1");
+vtkCxxRevisionMacro(vtkMetaImageWriter, "1.2");
 vtkStandardNewMacro(vtkMetaImageWriter);
 
 //----------------------------------------------------------------------------
@@ -95,7 +95,6 @@ void vtkMetaImageWriter::Write()
       strcat(rfname, ".raw");
       }
     this->SetRAWFileName(rfname);
-    cout << "Raw file name: " << rfname << endl;
     delete [] rfname;
     }
 
@@ -144,6 +143,24 @@ void vtkMetaImageWriter::Write()
   origin[1] += ext[2];
   origin[2] += ext[4];
 
+  const char* data_file = this->GetRAWFileName();
+  int pos = 0;
+  int cc;
+  for ( cc = 0; data_file[cc]; cc ++ )
+    {
+    if ( data_file[cc] == '/' || data_file[cc] == '\\' )
+      {
+      pos = cc;
+      }
+    }
+  if ( pos > 0 )
+    {
+    if ( strncmp(data_file, this->GetFileName(), pos) == 0 )
+      {
+      data_file = this->GetRAWFileName() + pos + 1;
+      }
+    }
+
   ofs 
     << "ObjectType = Image" << endl
     << "NDims = " << ndims << endl
@@ -158,7 +175,7 @@ void vtkMetaImageWriter::Write()
     << "Position = " << origin[0] << " " << origin[1] << " " << origin[2] << endl
     << "ElementNumberOfChannels = " << id->GetNumberOfScalarComponents() << endl
     << "ElementType = " << scalar_type << (id->GetNumberOfScalarComponents() > 1?"_ARRAY":"") << endl
-    << "ElementDataFile = " << this->GetRAWFileName() << endl;
+    << "ElementDataFile = " << data_file << endl;
   this->SetFileDimensionality(ndims);
   this->Superclass::Write();
 }
