@@ -76,7 +76,7 @@ strip SetInput [spe GetOutput]
 
 vtkPolyDataMapper dsm
 dsm SetInput [strip GetOutput]
-dsm SetScalarRange 0 70
+dsm ScalarVisibilityOff
 
 vtkActor planeActor
 planeActor SetMapper dsm
