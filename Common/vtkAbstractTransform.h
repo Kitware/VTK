@@ -242,7 +242,7 @@ public:
   // Description:
   // Needs a special UnRegister() implementation to avoid
   // circular references.
-  void UnRegister(vtkObject *O);
+  virtual void UnRegister(vtkObjectBase *O);
 
   // Description:
   // This method is deprecated in the base class.  It is still valid

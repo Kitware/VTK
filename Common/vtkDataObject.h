@@ -108,7 +108,7 @@ public:
   vtkGetObjectMacro(FieldData,vtkFieldData);
   
   // Handle the source/data loop.
-  void UnRegister(vtkObject *o);
+  virtual void UnRegister(vtkObjectBase *o);
 
   // Description:
   // Get the net reference count. That is the count minus

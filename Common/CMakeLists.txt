@@ -79,6 +79,7 @@ vtkMultiThreader.cxx
 vtkMutexLock.cxx
 vtkNonLinearCell.cxx
 vtkObject.cxx
+vtkObjectBase.cxx
 vtkObjectFactory.cxx
 vtkObjectFactoryCollection.cxx
 vtkOldStyleCallbackCommand.cxx
@@ -152,6 +153,8 @@ vtkWindowLevelLookupTable.cxx
 vtkXMLFileOutputWindow.cxx
 )
 
+
+# vtkObjectBase is marked ABSTRACT so that instantiators are happy.
 ABSTRACT_FILES(
 vtkAbstractMapper
 vtkAbstractTransform
@@ -170,6 +173,7 @@ vtkInitialValueProblemSolver
 vtkLinearTransform
 vtkLocator
 vtkNonLinearCell
+vtkObjectBase
 vtkObjectFactory
 vtkOldStyleCallbackCommand
 vtkOverrideInformation

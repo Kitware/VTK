@@ -43,18 +43,19 @@
 #include "vtkIndent.h"
 #include "vtkTimeStamp.h"
 #include "vtkSetGet.h"
+#include "vtkObjectBase.h"
 
 class vtkSubjectHelper;
 class vtkCommand;
 
-class VTK_COMMON_EXPORT vtkObject 
+class VTK_COMMON_EXPORT vtkObject : public vtkObjectBase
 {
 public:
   // Description:
   // Return the class name as a string. This method is defined
   // in all subclasses of vtkObject with the vtkTypeRevisionMacro found
   // in vtkSetGet.h.
-  virtual const char *GetClassName() {return "vtkObject";};
+  virtual const char *GetClassName() const {return "vtkObject";};
 
   // Description:
   // Return 1 if this class type is the same type of (or a subclass of)
@@ -71,21 +72,20 @@ public:
   // Description:
   // Will cast the supplied object to vtkObject* is this is a safe operation
   // (i.e., a safe downcast); otherwise NULL is returned. This method is
-  // defined in all subclasses of vtkObject with the vtkTypeRevisionMacro found in
-  // vtkSetGet.h.
+  // defined in all subclasses of vtkObject with the vtkTypeRevisionMacro 
+  // found in vtkSetGet.h.
   static vtkObject *SafeDownCast(vtkObject *o);
 
   // Description:
   // Delete a VTK object.  This method should always be used to delete
   // an object when the New() method was used to create it. Using the
   // C++ delete method will not work with reference counting.
-  virtual void Delete();
+  //virtual void Delete();
 
   // Description:
   // Create an object with Debug turned off, modified time initialized 
   // to zero, and reference counting on.
-  static vtkObject *New() 
-    {return new vtkObject;}
+  static vtkObject *New();
 
 #ifdef _WIN32
   // avoid dll boundary problems
@@ -150,13 +150,13 @@ public:
   
   // Description:
   // Increase the reference count (mark as used by another object).
-  void Register(vtkObject* o);
+  //virtual void Register(vtkObjectBase* o);
 
   // Description:
   // Decrease the reference count (release by another object). This has
   // the same effect as invoking Delete() (i.e., it reduces the reference
   // count by 1).
-  virtual void UnRegister(vtkObject* o);
+  virtual void UnRegister(vtkObjectBase* o);
 
   // Description:
   // Return the current reference count of this object.
@@ -202,7 +202,6 @@ protected:
   
   unsigned char Debug;     // Enable debug messages
   vtkTimeStamp MTime;      // Keep track of modification time
-  int ReferenceCount;      // Number of uses of this object by other objects
   vtkSubjectHelper *SubjectHelper;
 
 private:

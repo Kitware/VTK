@@ -32,13 +32,13 @@
 // .SECTION See Also
 // vtkAbstractIterator, vtkAbstractList, vtkAbstractMap
 
-#include "vtkObject.h"
+#include "vtkObjectBase.h"
 #include "vtkString.h"
 
 #ifndef __vtkContainer_h
 #define __vtkContainer_h
 
-class VTK_COMMON_EXPORT vtkContainer
+class VTK_COMMON_EXPORT vtkContainer : public vtkObjectBase
 {
 public:
   // Description:
@@ -58,22 +58,22 @@ public:
   // Description:
   // The counterpart to New(), Delete simply calls UnRegister to lower the
   // reference count by one. It is no different than calling UnRegister.
-  void Delete() { this->UnRegister(); }
+  //void Delete() { this->UnRegister(); }
   
   // Description:
   // Increase the reference count of this container.
-  void Register();
-  void Register(vtkObject *) { this->Register(); }
+  //void Register();
+  //void Register(vtkObject *) { this->Register(); }
   
   // Description:
   // Decrease the reference count (release by another object). This has
   // the same effect as invoking Delete() (i.e., it reduces the reference
   // count by 1).
-  void UnRegister();
-  void UnRegister(vtkObject *) { this->UnRegister(); }
+  //void UnRegister();
+  //void UnRegister(vtkObject *) { this->UnRegister(); }
 
 protected:
-  vtkIdType ReferenceCount;   
+  //vtkIdType ReferenceCount;   
   vtkContainer();
   virtual ~vtkContainer();
 
@@ -88,7 +88,7 @@ int vtkContainerDefaultCompare(DType& k1, DType& k2)
   return ( k1 < k2 ) ? ( -1 ) : ( ( k1 == k2 ) ? ( 0 ) : ( 1 ) );
 }
 
-static inline int vtkContainerCompareMethod(vtkObject* d1, vtkObject* d2)
+static inline int vtkContainerCompareMethod(vtkObjectBase* d1, vtkObjectBase* d2)
 { return vtkContainerDefaultCompare(d1,d2); }
 static inline int vtkContainerCompareMethod(char d1, char d2) 
 { return vtkContainerDefaultCompare(d1,d2); }
@@ -120,7 +120,7 @@ static inline int vtkContainerCompareMethod(void* d1, void* d2)
 template<class DType>
 DType vtkContainerDefaultCreate(DType k2) { return k2; }
 
-static inline vtkObject* vtkContainerCreateMethod(vtkObject* d1)
+static inline vtkObjectBase* vtkContainerCreateMethod(vtkObjectBase* d1)
 { if ( d1) { d1->Register(0); } return d1; }
 static inline char vtkContainerCreateMethod(char d1) 
 { return vtkContainerDefaultCreate(d1); }
@@ -149,7 +149,7 @@ static inline char* vtkContainerCreateMethod(char* d1)
 static inline void* vtkContainerCreateMethod(void* d1)
 { return vtkContainerDefaultCreate(d1); }
 
-static inline void vtkContainerDeleteMethod(vtkObject* d1) 
+static inline void vtkContainerDeleteMethod(vtkObjectBase* d1) 
 { if ( d1 ) { d1->UnRegister(0); } /* cout << "UR(d1)" << endl; */ }
 static inline void vtkContainerDeleteMethod(char) {}
 static inline void vtkContainerDeleteMethod(short) {}

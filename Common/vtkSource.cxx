@@ -23,7 +23,7 @@
 #include "vtkFieldData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSource, "1.96");
+vtkCxxRevisionMacro(vtkSource, "1.97");
 
 #ifndef NULL
 #define NULL 0
@@ -714,7 +714,7 @@ int vtkSource::InRegisterLoop(vtkObject *o)
   return 0;
 }
                            
-void vtkSource::UnRegister(vtkObject *o)
+void vtkSource::UnRegister(vtkObjectBase *o)
 {
   int idx;
   int done = 0;

@@ -1115,7 +1115,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"                        \"%s\",modulename,%sDoc,0);\n}\n\n",
             data->ClassName, data->ClassName);
     }
-  else if (!data->IsAbstract)
+  else if (!data->IsAbstract && strcmp(data->ClassName,"vtkObjectBase"))
     {
     fprintf(fp,"PyObject *PyVTKObject_%sNew(PyObject *vtkNotUsed(self), PyObject *args)\n{\n",data->ClassName);
     fprintf(fp,"  if (!(PyArg_ParseTuple(args, \"\")))\n    {\n");

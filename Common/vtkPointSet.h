@@ -79,7 +79,7 @@ public:
 
   // Description:
   // Detect reference loop PointSet <-> locator.
-  void UnRegister(vtkObject *o);
+  virtual void UnRegister(vtkObjectBase *o);
   
   // Description:
   // Get the net reference count. That is the count minus

@@ -43,22 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkContainer.h"
 #include "vtkDebugLeaks.h"
 
-void vtkContainer::Register()
-{
-  this->ReferenceCount++;
-}
-
-void vtkContainer::UnRegister()
-{
-  if (--this->ReferenceCount <= 0)
-    {
-    delete this;
-    }
-}
-
 vtkContainer::vtkContainer() 
 { 
-  this->ReferenceCount = 1;
 }
 
 vtkContainer::~vtkContainer() 

@@ -22,7 +22,7 @@
 #include "vtkDebugLeaks.h"
 #include "vtkCriticalSection.h"
 
-vtkCxxRevisionMacro(vtkAbstractTransform, "1.21");
+vtkCxxRevisionMacro(vtkAbstractTransform, "1.22");
 
 //----------------------------------------------------------------------------
 vtkAbstractTransform::vtkAbstractTransform()
@@ -331,7 +331,7 @@ unsigned long vtkAbstractTransform::GetMTime()
 //----------------------------------------------------------------------------
 // We need to handle the circular reference between a transform and its
 // inverse.
-void vtkAbstractTransform::UnRegister(vtkObject *o)
+void vtkAbstractTransform::UnRegister(vtkObjectBase *o)
 {
   if (this->InUnRegister)
     { // we don't want to go into infinite recursion...
@@ -380,7 +380,7 @@ protected:
   void operator=(const vtkSimpleTransform&);
 };
 
-vtkCxxRevisionMacro(vtkSimpleTransform, "1.21");
+vtkCxxRevisionMacro(vtkSimpleTransform, "1.22");
 
 //----------------------------------------------------------------------------
 vtkTransformConcatenation::vtkTransformConcatenation()

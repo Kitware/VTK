@@ -744,7 +744,10 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
 
     fprintf(fp,"  return tmp;\n");
     fprintf(fp,"}\n");
+    }
 
+  if (!strcmp("vtkObject",data->ClassName))
+    {
     fprintf(fp,"\nextern \"C\" JNIEXPORT jint JNICALL Java_vtk_vtkObject_AddObserver(JNIEnv *env,jobject obj, jstring id0, jobject id1, jstring id2)\n");
     fprintf(fp,"{\n  vtkObject *op;\n");
 

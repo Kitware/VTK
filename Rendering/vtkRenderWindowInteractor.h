@@ -65,7 +65,7 @@ public:
   // Description:
   // This Method detects loops of RenderWindow-Interactor,
   // so objects are freed properly.
-  void UnRegister(vtkObject *o);
+  virtual void UnRegister(vtkObjectBase *o);
 
   // Description:
   // Start the event loop. This is provided so that you do not have to

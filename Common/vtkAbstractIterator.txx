@@ -44,22 +44,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkAbstractIterator_txx
 
 #include "vtkAbstractIterator.h"
+
 #include "vtkDebugLeaks.h"
-
-template<class KeyType, class DataType>
-void vtkAbstractIterator<KeyType,DataType>::Register()
-{
-  this->ReferenceCount++;
-}
-
-template<class KeyType, class DataType>
-void vtkAbstractIterator<KeyType,DataType>::UnRegister()
-{
-  if (--this->ReferenceCount <= 0)
-    {
-    delete this;
-    }
-}
+#include "vtkContainer.h"
 
 template<class KeyType, class DataType>
 vtkAbstractIterator<KeyType,DataType>::vtkAbstractIterator() 

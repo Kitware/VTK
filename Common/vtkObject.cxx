@@ -105,12 +105,20 @@ ostream& operator<<(ostream& os, vtkObject& o)
   return os;
 }
 
+vtkObject *vtkObject::New() 
+{
+#ifdef VTK_DEBUG_LEAKS
+  vtkDebugLeaks::ConstructClass("vtkObject");
+#endif
+  return new vtkObject;
+}
+
+
 // Create an object with Debug turned off and modified time initialized 
 // to zero.
 vtkObject::vtkObject()
 {
   this->Debug = 0;
-  this->ReferenceCount = 1;
   this->SubjectHelper = NULL;
   this->Modified(); // Insures modified time > than any other time
   // initial reference count = 1 and reference counting on.
@@ -133,10 +141,10 @@ vtkObject::~vtkObject()
 // Delete a vtk object. This method should always be used to delete an object 
 // when the new operator was used to create it. Using the C++ delete method
 // will not work with reference counting.
-void vtkObject::Delete() 
-{
-  this->UnRegister((vtkObject *)NULL);
-}
+//void vtkObject::Delete() 
+//{
+//  this->UnRegister((vtkObject *)NULL);
+//}
 
 // Return the modification for this object.
 unsigned long int vtkObject::GetMTime() 
@@ -221,39 +229,39 @@ void vtkObject::SetReferenceCount(int ref)
 
 // Description:
 // Increase the reference count (mark as used by another object).
-void vtkObject::Register(vtkObject* o)
-{
-  this->ReferenceCount++;
-  if ( o )
-    {
-    vtkDebugMacro(<< "Registered by " << o->GetClassName() << " (" << o 
-                  << "), ReferenceCount = " << this->ReferenceCount);
-    }
-  else
-    {
-    vtkDebugMacro(<< "Registered by NULL, ReferenceCount = " 
-                  << this->ReferenceCount);
-    }               
-  if (this->ReferenceCount <= 0)
-    {
-    delete this;
-    }
-}
+// void vtkObject::Register(vtkObjectBase* o)
+// {
+//   this->ReferenceCount++;
+//   if ( o )
+//     {
+//     vtkDebugMacro(<< "Registered by " << o->GetClassName() << " (" << o 
+//                   << "), ReferenceCount = " << this->ReferenceCount);
+//     }
+//   else
+//     {
+//     vtkDebugMacro(<< "Registered by NULL, ReferenceCount = " 
+//                   << this->ReferenceCount);
+//     }               
+//   if (this->ReferenceCount <= 0)
+//     {
+//     delete this;
+//     }
+// }
 
 // Description:
 // Decrease the reference count (release by another object).
-void vtkObject::UnRegister(vtkObject* o)
+void vtkObject::UnRegister(vtkObjectBase* o)
 {
   if (o)
     {
     vtkDebugMacro(<< "UnRegistered by "
-      << o->GetClassName() << " (" << o << "), ReferenceCount = "
-      << (this->ReferenceCount-1));
+                  << o->GetClassName() << " (" << o << "), ReferenceCount = "
+                  << (this->ReferenceCount-1));
     }
   else
     {
     vtkDebugMacro(<< "UnRegistered by NULL, ReferenceCount = "
-     << (this->ReferenceCount-1));
+                  << (this->ReferenceCount-1));
     }
 
   if (--this->ReferenceCount <= 0)
@@ -288,7 +296,7 @@ vtkObject *vtkObject::SafeDownCast(vtkObject *o)
 
 void vtkObject::CollectRevisions(ostream& os)
 {
-  os << "vtkObject 1.75\n";
+  os << "vtkObject 1.76\n";
 }
 
 //----------------------------------Command/Observer stuff-------------------
@@ -296,7 +304,7 @@ void vtkObject::CollectRevisions(ostream& os)
 
 vtkObserver::~vtkObserver()
 {
-  this->Command->UnRegister();
+  this->Command->UnRegister(0);
 }
 
 vtkSubjectHelper::~vtkSubjectHelper()
@@ -324,7 +332,7 @@ AddObserver(unsigned long event, vtkCommand *cmd, float p)
   elem->Next = NULL;
   elem->Event = event;
   elem->Command = cmd;
-  cmd->Register();
+  cmd->Register(0);
   elem->Tag = this->Count;
   this->Count++;
 

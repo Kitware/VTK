@@ -360,15 +360,17 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   fprintf(fp,"// java wrapper for %s object\n//\n",data->ClassName);
   fprintf(fp,"\npackage vtk;\n");
 
-  if (strcmp("vtkObject",data->ClassName))
+  if (strcmp("vtkObjectBase",data->ClassName))
     {
     fprintf(fp,"import vtk.*;\n");
     }
   fprintf(fp,"\npublic class %s",data->ClassName);
-  if (strcmp("vtkObject",data->ClassName))
+  if (strcmp("vtkObjectBase",data->ClassName))
     {
     if (data->NumberOfSuperClasses) 
+      {
       fprintf(fp," extends %s",data->SuperClasses[0]);
+      }
     }
   fprintf(fp,"\n{\n");
 
@@ -412,6 +414,10 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   if (!strcmp("vtkObject",data->ClassName))
     {
     fprintf(fp,"  public native String Print();\n");
+    }
+
+  if (!strcmp("vtkObject",data->ClassName))
+    {
     fprintf(fp,"  public native int AddObserver(String id0, Object id1, String id2);\n");
     }
   fprintf(fp,"\n}\n");

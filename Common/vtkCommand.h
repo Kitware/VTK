@@ -47,6 +47,7 @@
 
 #include "vtkWin32Header.h"
 
+class vtkObjectBase;
 class vtkObject;
 
 // The superclass that all commands should be subclasses of
@@ -63,7 +64,7 @@ public:
   // Description:
   // Increase the reference count (mark as used by another object).
   void Register();
-  void Register(vtkObject *) 
+  void Register(vtkObjectBase *) 
     { this->Register(); }
   
   // Description:
@@ -71,7 +72,7 @@ public:
   // the same effect as invoking Delete() (i.e., it reduces the reference
   // count by 1).
   void UnRegister();
-  void UnRegister(vtkObject *) 
+  void UnRegister(vtkObjectBase *) 
     { this->UnRegister(); }
   
   // Description:

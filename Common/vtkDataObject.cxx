@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSource.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.85");
+vtkCxxRevisionMacro(vtkDataObject, "1.86");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,FieldData,vtkFieldData);
@@ -458,7 +458,7 @@ void vtkDataObject::SetSource(vtkSource *arg)
 
 
 //----------------------------------------------------------------------------
-void vtkDataObject::UnRegister(vtkObject *o)
+void vtkDataObject::UnRegister(vtkObjectBase *o)
 {
   // detect the circular loop source <-> data
   // If we have two references and one of them is my data
