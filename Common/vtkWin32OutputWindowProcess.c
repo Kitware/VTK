@@ -12,6 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#ifdef _MSC_VER
+// Handle MSVC compiler warning messages, etc.
+#pragma warning ( disable : 4115 )
+#endif
+
 #include <windows.h>
 
 #undef _T
