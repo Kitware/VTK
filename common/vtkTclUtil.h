@@ -55,6 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 extern VTKTCL_EXPORT void vtkTclDeleteObjectFromHash(vtkObject *,
+						     unsigned long eventId,
                                                      void *, void *);
 extern VTKTCL_EXPORT void vtkTclGenericDeleteObject(ClientData cd);
 

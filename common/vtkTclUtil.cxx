@@ -67,7 +67,7 @@ VTKTCL_EXPORT int vtkTclInDelete(Tcl_Interp *interp)
 
 
 // just another way into DeleteCommand
-VTKTCL_EXPORT void vtkTclDeleteObjectFromHash(vtkObject *obj, void *cd, void *)
+VTKTCL_EXPORT void vtkTclDeleteObjectFromHash(vtkObject *obj, unsigned long vtkNotUsed(eventId), void *cd, void *)
 {
   vtkTclCommandArgStruct *as = (vtkTclCommandArgStruct *)cd;
   char temps[80];
