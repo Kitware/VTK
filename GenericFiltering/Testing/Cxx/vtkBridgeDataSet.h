@@ -131,13 +131,6 @@ public:
   // Compute the geometry bounding box.
   void ComputeBounds();
   
-  // Description:
-  // Return the id in the tessellated data of the point of the datasetfor the
-  // given point
-  // \pre valid_range: inputPointId>=0 && inputPointId<GetNumberOfPoints()
-  vtkIdType GetOutputPointId(int inputPointId);
-
-  
 protected:
   // Constructor with default bounds (0,1, 0,1, 0,1).
   vtkBridgeDataSet();
@@ -163,10 +156,6 @@ protected:
   vtkIdType NumberOf3DCells;
   vtkCellTypes *Types;
   vtkTimeStamp ComputeNumberOfCellsTime; // for number of cells and cell types
-
-  vtkIdType *TranslationTable; // translate dataset point id into
-  // point id in the tessellated dataset
-  vtkIdType TranslationTableCapacity;
 
 private:
   vtkBridgeDataSet(const vtkBridgeDataSet&);  // Not implemented.

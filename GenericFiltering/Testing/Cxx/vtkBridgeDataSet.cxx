@@ -36,8 +36,9 @@
 #include "vtkBridgeAttribute.h"
 #include "vtkGenericCellTessellator.h"
 #include "vtkGenericEdgeTable.h"
+#include "vtkSimpleCellTessellator.h"
 
-vtkCxxRevisionMacro(vtkBridgeDataSet, "1.2");
+vtkCxxRevisionMacro(vtkBridgeDataSet, "1.3");
 vtkStandardNewMacro(vtkBridgeDataSet);
 
 //----------------------------------------------------------------------------
@@ -46,8 +47,7 @@ vtkBridgeDataSet::vtkBridgeDataSet(  )
 {
   this->Implementation = 0;
   this->Types=vtkCellTypes::New();
-  this->TranslationTableCapacity=0;
-  this->TranslationTable=0;
+  this->Tessellator=vtkSimpleCellTessellator::New();
 }
 
 //----------------------------------------------------------------------------
@@ -58,10 +58,6 @@ vtkBridgeDataSet::~vtkBridgeDataSet(  )
     this->Implementation->Delete();
     }
   this->Types->Delete();
-  if(this->TranslationTable!=0)
-    {
-    delete [] this->TranslationTable;
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -120,61 +116,9 @@ void vtkBridgeDataSet::SetDataSet(vtkDataSet *ds)
       this->Attributes->InsertNextAttribute(a);
       ++i;
       }
-//    this->Tessellator->Initialize( this->GetNumberOfPoints() );
-    this->Tessellator->Initialize( 0 );
-    if(this->TranslationTableCapacity<this->GetNumberOfPoints())
-      {
-      if(this->TranslationTable!=0)
-        {
-        delete [] this->TranslationTable;
-        }
-      this->TranslationTableCapacity=this->GetNumberOfPoints();
-      this->TranslationTable=new vtkIdType[this->TranslationTableCapacity];
-      }
-    if(this->TranslationTableCapacity>0)
-      {
-      // Fill in the table with -1.
-      i=0;
-      c=this->TranslationTableCapacity;
-      while(i<c)
-        {
-        this->TranslationTable[i]=-1;
-        ++i;
-        }
-      }
+    this->Tessellator->Initialize(this);
     }
   this->Modified();
-}
-
-//----------------------------------------------------------------------------
-// Description:
-// Return the id in the tessellated data of the point of the datasetfor the given point
-// \pre valid_range: inputPointId>=0 && inputPointId<GetNumberOfPoints()
-vtkIdType vtkBridgeDataSet::GetOutputPointId(int inputPointId)
-{
-  assert("valid_range" && inputPointId>=0 && inputPointId<this->GetNumberOfPoints());
-  
-  vtkIdType result=this->TranslationTable[inputPointId];
-  
-  if(result==-1)
-    {
-    result=this->Tessellator->GetEdgeTable()->GetLastPointId();
-    this->Tessellator->GetEdgeTable()->IncrementLastPointId();
-    this->TranslationTable[inputPointId]=result;
-    }
-//#define DEBUG_TABLE
-#ifdef DEBUG_TABLE
-  int i=0;
-  int c=this->TranslationTableCapacity;
-  while(i<c)
-    {
-    cout<<this->TranslationTable[i]<<',';
-    ++i;
-    }
-  cout<<endl;
-#endif
-  
-  return result;
 }
 
 //----------------------------------------------------------------------------
