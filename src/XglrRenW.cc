@@ -771,7 +771,9 @@ void vtkXglrRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
   this->vtkXRenderWindow::PrintSelf(os,indent);
 }
 
-unsigned char *vtkXglrRenderWindow::GetPixelData(int x1, int y1, int x2, int y2)
+unsigned char *vtkXglrRenderWindow::GetPixelData(int x1, int y1, 
+						 int x2, int y2,
+						 int front)
 {
   long     xloop,yloop;
   int     y_low, y_hi;
@@ -805,6 +807,19 @@ unsigned char *vtkXglrRenderWindow::GetPixelData(int x1, int y1, int x2, int y2)
     x_hi  = x1;
     }
 
+  
+  if (this->DoubleBuffer)
+    {
+    if (front)
+      {
+      xgl_object_set(this->WindowRaster, XGL_RAS_SOURCE_BUFFER, 0, 0); 
+      }
+    else
+      {
+      xgl_object_set(this->WindowRaster, XGL_RAS_SOURCE_BUFFER, 1, 0); 
+      }
+    }
+
   /* now write the binary info one row at a time */
   p_data = data;
   for (yloop = y_low; yloop <= y_hi; yloop++)
@@ -824,7 +839,7 @@ unsigned char *vtkXglrRenderWindow::GetPixelData(int x1, int y1, int x2, int y2)
 }
 
 void vtkXglrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
-				     unsigned char *data)
+				     unsigned char *data, int front)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
@@ -855,6 +870,20 @@ void vtkXglrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
     x_hi  = x1;
     }
   
+  if (this->DoubleBuffer)
+    {
+    if (front)
+      {
+      xgl_object_set(this->Context, XGL_CTX_RENDER_BUFFER, 
+		     XGL_RENDER_DISPLAY_BUFFER, 0); 
+      }
+    else
+      {
+      xgl_object_set(this->Context, XGL_CTX_RENDER_BUFFER, 
+		     XGL_RENDER_DRAW_BUFFER, 0); 
+      }
+    }
+
   col.rgb.r = 0;
   col.rgb.g = 0;
   col.rgb.b = 0;
@@ -889,7 +918,7 @@ void vtkXglrRenderWindow::CopyResultFrame(void)
     // get the size
     size = this->GetSize();
 
-    this->SetPixelData(0,0,size[0]-1,size[1]-1,this->ResultFrame);
+    this->SetPixelData(0,0,size[0]-1,size[1]-1,this->ResultFrame,0);
     delete this->ResultFrame;
     this->ResultFrame = NULL;
     }
