@@ -147,7 +147,7 @@ type Get##name () { \
 // (e.g., SetFilename(char *));
 //
 #define vtkSetStringMacro(name) \
-void Set##name (char* _arg) \
+void Set##name (const char* _arg) \
   { \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting " << #name " to " << _arg ); \
   if ( this->name && _arg && (!strcmp(this->name,_arg))) { return;} \
