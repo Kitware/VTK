@@ -107,7 +107,8 @@ public:
   // Set the mode by which to create the ruled surface. (Dramatically
   // different results are possible depending on the chosen mode.) The
   // resample mode evenly resamples the polylines (based on length) and 
-  // generates triangle strips. The
+  // generates triangle strips. The point walk mode uses the existing
+  // points and walks around the polyline using existing points.
   vtkSetClampMacro(RuledMode,int,
                    VTK_RULED_MODE_RESAMPLE,VTK_RULED_MODE_POINT_WALK);
   vtkGetMacro(RuledMode,int);
