@@ -214,7 +214,7 @@ void vtkPolyNormals::Execute()
 //  Splitting will create new points.  Have to create index array to map
 //  new points into old points.
 //
-    Map = new vtkIdList(numPts,numPts);
+    Map = new vtkIdList(numPts,numPts/2);
     for (i=0; i < numPts; i++) Map->SetId(i,i);
 
     for (ptId=0; ptId < OldMesh->GetNumberOfPoints(); ptId++)
@@ -326,7 +326,7 @@ void vtkPolyNormals::TraverseAndOrder (int cellId)
   int p1, p2;
   int j, k, l, numNei;
   int npts, *pts;
-  vtkIdList cellIds(VTK_CELL_SIZE);
+  vtkIdList cellIds(5,10);
   int numNeiPts, *neiPts, neighbor;
 
   Visited[cellId] = Mark; //means that it's been ordered properly
@@ -391,7 +391,7 @@ void vtkPolyNormals::MarkAndReplace (int cellId, int n, int replacementPoint)
   float *thisNormal, *neiNormal;
   int numOldPts, *oldPts;
   int numNewPts, *newPts;
-  vtkIdList cellIds(VTK_CELL_SIZE);
+  vtkIdList cellIds(5,10);
   vtkMath math;
 
   Visited[cellId] = Mark;
