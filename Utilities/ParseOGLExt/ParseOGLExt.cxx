@@ -684,6 +684,7 @@ static void WriteCode(ostream &hfile, ostream &cxxfile)
   hfile << "  typedef XID GLXPbuffer;" << endl;
   hfile << "  typedef XID GLXWindow;" << endl;
   hfile << "  typedef XID GLXFBConfigID;" << endl;
+  hfile << "  typedef struct __GLXFBConfigRec *GLXFBConfig;" << endl;
   hfile << "  typedef int int32_t;" << endl;
   hfile << "  typedef long long int64_t;" << endl;
   ConstantsAlreadyWritten.clear();
