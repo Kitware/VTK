@@ -15,12 +15,12 @@ IF (BUILD_DOC)
   INCLUDE(${CMAKE_ROOT}/Modules/FindWget.cmake)
 
   IF (HHC)
-    OPTION(BUILD_DOC_HTML_HELP "Build the HTML Help file (CHM)." OFF)
+    OPTION(DOC_HTML_HELP "Build the HTML Help file (CHM)." OFF)
   ELSE (HHC)
-    SET(BUILD_DOC_HTML_HELP OFF)
+    SET(DOC_HTML_HELP OFF)
   ENDIF (HHC)
 
-  OPTION(BUILD_DOC_HTML_TARZ 
+  OPTION(DOC_HTML_TARZ 
 	 "Build a compressed tar archive of the HTML doc." OFF)
 
   FIND_PROGRAM(BASH bash)

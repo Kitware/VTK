@@ -1,6 +1,6 @@
 # -------------------------------------------------------------------------
 # Doxygen documentation batch
-# modified by S. Barre (Time-stamp: <2001-10-24 22:21:44 barre>
+# modified by S. Barre (Time-stamp: <2001-10-25 08:58:25 barre>
 # -------------------------------------------------------------------------
 
 # Path to several tools (_PROG to avoid the typical GZIP env var pb)
@@ -111,10 +111,10 @@ export ALLOW_ERASE_OUTPUT_DIRECTORY=ON
 #       (using GENERATE_HTML = YES, GENERATE_HTMLHELP = YES)
 # Example: 
 #   COMPILE_HTML_HELP=ON
-#   COMPILE_HTML_HELP=@BUILD_DOC_HTML_HELP@
+#   COMPILE_HTML_HELP=@DOC_HTML_HELP@
 #   RESULTING_HTML_HELP_FILE=$DOXTEMP/vtk4.chm
 #
-export COMPILE_HTML_HELP=@BUILD_DOC_HTML_HELP@
+export COMPILE_HTML_HELP=@DOC_HTML_HELP@
 export RESULTING_HTML_HELP_FILE=$DOXTEMP/vtk4.chm
 
 # CREATE_HTML_TARZ_ARCHIVE RESULTING_HTML_TARZ_ARCHIVE_FILE:
@@ -127,10 +127,10 @@ export RESULTING_HTML_HELP_FILE=$DOXTEMP/vtk4.chm
 #       (using GENERATE_HTML = YES)
 # Example: 
 #   CREATE_HTML_TARZ_ARCHIVE=ON
-#   CREATE_HTML_TARZ_ARCHIVE=@BUILD_DOC_HTML_TARZ@
+#   CREATE_HTML_TARZ_ARCHIVE=@DOC_HTML_TARZ@
 #   RESULTING_HTML_TARZ_ARCHIVE_FILE=$DOXTEMP/vtk4-html.tar.gz
 #
-export CREATE_HTML_TARZ_ARCHIVE=@BUILD_DOC_HTML_TARZ@
+export CREATE_HTML_TARZ_ARCHIVE=@DOC_HTML_TARZ@
 export RESULTING_HTML_TARZ_ARCHIVE_FILE=$DOXTEMP/vtk4-html.tar.gz
 
 # DOWNLOAD_VTK_TAGFILE VTK_TAGFILE VTK_TAGFILE_REMOTE_DIR VTK_TAGFILE_DEST_DIR:
