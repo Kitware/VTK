@@ -63,12 +63,14 @@ int vtkVoxel::EvaluatePosition(float x[3], float closestPoint[3],
     }
   else
     {
+    float pc[3], w[8];
     for (i=0; i<3; i++)
       {
-      if (pcoords[i] < 0.0) pcoords[i] = 0.0;
-      if (pcoords[i] > 1.0) pcoords[i] = 1.0;
+      if (pcoords[i] < 0.0) pc[i] = 0.0;
+      else if (pcoords[i] > 1.0) pc[i] = 1.0;
+      else pc[i] = pcoords[i];
       }
-    this->EvaluateLocation(subId, pcoords, closestPoint, weights);
+    this->EvaluateLocation(subId, pc, closestPoint, w);
     dist2 = math.Distance2BetweenPoints(closestPoint,x);
     return 0;
     }
@@ -301,3 +303,75 @@ int vtkVoxel::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
 
   return 1;
 }
+
+int vtkVoxel::Triangulate(int index, vtkFloatPoints &pts)
+{
+  pts.Reset();
+//
+// Create five tetrahedron. Triangulation varies depending upon index. This
+// is necessary to insure compatible voxel triangulations.
+//
+  if ( index % 2 )
+    {
+    pts.InsertNextPoint(this->Points.GetPoint(0));
+    pts.InsertNextPoint(this->Points.GetPoint(1));
+    pts.InsertNextPoint(this->Points.GetPoint(4));
+    pts.InsertNextPoint(this->Points.GetPoint(2));
+
+    pts.InsertNextPoint(this->Points.GetPoint(1));
+    pts.InsertNextPoint(this->Points.GetPoint(4));
+    pts.InsertNextPoint(this->Points.GetPoint(7));
+    pts.InsertNextPoint(this->Points.GetPoint(5));
+
+    pts.InsertNextPoint(this->Points.GetPoint(1));
+    pts.InsertNextPoint(this->Points.GetPoint(4));
+    pts.InsertNextPoint(this->Points.GetPoint(2));
+    pts.InsertNextPoint(this->Points.GetPoint(7));
+
+    pts.InsertNextPoint(this->Points.GetPoint(1));
+    pts.InsertNextPoint(this->Points.GetPoint(2));
+    pts.InsertNextPoint(this->Points.GetPoint(3));
+    pts.InsertNextPoint(this->Points.GetPoint(7));
+
+    pts.InsertNextPoint(this->Points.GetPoint(2));
+    pts.InsertNextPoint(this->Points.GetPoint(7));
+    pts.InsertNextPoint(this->Points.GetPoint(4));
+    pts.InsertNextPoint(this->Points.GetPoint(6));
+    }
+  else
+    {
+    pts.InsertNextPoint(this->Points.GetPoint(3));
+    pts.InsertNextPoint(this->Points.GetPoint(1));
+    pts.InsertNextPoint(this->Points.GetPoint(0));
+    pts.InsertNextPoint(this->Points.GetPoint(5));
+
+    pts.InsertNextPoint(this->Points.GetPoint(0));
+    pts.InsertNextPoint(this->Points.GetPoint(3));
+    pts.InsertNextPoint(this->Points.GetPoint(6));
+    pts.InsertNextPoint(this->Points.GetPoint(2));
+
+    pts.InsertNextPoint(this->Points.GetPoint(3));
+    pts.InsertNextPoint(this->Points.GetPoint(5));
+    pts.InsertNextPoint(this->Points.GetPoint(6));
+    pts.InsertNextPoint(this->Points.GetPoint(7));
+
+    pts.InsertNextPoint(this->Points.GetPoint(0));
+    pts.InsertNextPoint(this->Points.GetPoint(6));
+    pts.InsertNextPoint(this->Points.GetPoint(5));
+    pts.InsertNextPoint(this->Points.GetPoint(4));
+
+    pts.InsertNextPoint(this->Points.GetPoint(1));
+    pts.InsertNextPoint(this->Points.GetPoint(3));
+    pts.InsertNextPoint(this->Points.GetPoint(5));
+    pts.InsertNextPoint(this->Points.GetPoint(6));
+    }
+
+  return 1;
+}
+
+void vtkVoxel::Derivatives(int subId, float pcoords[3], float *values, 
+                           int dim, float *derivs)
+{
+
+}
+

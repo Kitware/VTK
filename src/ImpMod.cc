@@ -148,9 +148,10 @@ void vtkImplicitModeller::Execute()
           x[0] = this->AspectRatio[0] * i + this->Origin[0];
           idx = jkFactor*k + this->SampleDimensions[0]*j + i;
           prevDistance2 = newScalars->GetScalar(idx);
-          cell->EvaluatePosition(x, closestPoint, subId, pcoords, 
-                                 distance2, weights);
-          if (distance2 < prevDistance2)
+
+          // union combination of distances
+          if ( cell->EvaluatePosition(x, closestPoint, subId, pcoords, 
+          distance2, weights) != -1 && distance2 < prevDistance2 )
             newScalars->SetScalar(idx,distance2);
           }
         }

@@ -168,3 +168,26 @@ float vtkCell::GetLength2 ()
  
   return l;
 }
+
+void vtkCell::PrintSelf(ostream& os, vtkIndent indent)
+{
+  float *bounds;
+  int i;
+
+  vtkObject::PrintSelf(os,indent);
+
+  os << indent << "Number Of Points: " << this->PointIds.GetNumberOfIds() << "\n";
+  bounds = this->GetBounds();
+  os << indent << "Bounds: \n";
+  os << indent << "  Xmin,Xmax: (" << bounds[0] << ", " << bounds[1] << ")\n";
+  os << indent << "  Ymin,Ymax: (" << bounds[2] << ", " << bounds[3] << ")\n";
+  os << indent << "  Zmin,Zmax: (" << bounds[4] << ", " << bounds[5] << ")\n";
+
+  os << indent << "  Point ids are: ";
+  for (i=0; this->PointIds.GetNumberOfIds(); i++)
+    {
+    os << ", " << this->PointIds.GetId(i);
+    if ( i && !(i % 12) ) os << "\n\t";
+    }
+  os << indent << "\n";
+}

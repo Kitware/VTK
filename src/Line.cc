@@ -17,7 +17,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "vtkMath.hh"
 #include "CellArr.hh"
 
-static vtkMath math;
+static vtkMath math; //avoid lots of construction
 
 // Description:
 // Deep copy of cell.
@@ -35,60 +35,22 @@ int vtkLine::EvaluatePosition(float x[3], float closestPoint[3],
                              int& subId, float pcoords[3],
                              float& dist2, float weights[MAX_CELL_SIZE])
 {
-  float *a1, *a2, a21[3], denom, num;
-  int i, return_status;
-  float *closest;
+  float *a1, *a2;
+  int i;
 
   subId = 0;
   pcoords[1] = pcoords[2] = 0.0;
 
   a1 = this->Points.GetPoint(0);
   a2 = this->Points.GetPoint(1);
-//
-//   Determine appropriate vectors
-// 
-  for (i=0; i<3; i++) a21[i] = a2[i] - a1[i];
-//
-//   Get parametric location
-//
-  num = a21[0]*(x[0]-a1[0]) + a21[1]*(x[1]-a1[1]) + a21[2]*(x[2]-a1[2]);
-  denom = math.Dot(a21,a21);
 
-  if ( (denom = math.Dot(a21,a21)) < fabs(TOL*num) )
-    {
-    dist2 = LARGE_FLOAT;
-    }
-  else 
-    {
-    pcoords[0] = num / denom;
-    }
-//
-// If parametric coordinate is within 0<=p<=1, then the point is closest to
-// the line.  Otherwise, it's closest to a point at the end of the line.
-//
-  if ( pcoords[0] < 0.0 )
-    {
-    closest = a1;
-    return_status = 0;
-    }
-  else if ( pcoords[0] > 1.0 )
-    {
-    closest = a2;
-    return_status = 0;
-    }
-  else
-    {
-    closest = a21;
-    for (i=0; i<3; i++) a21[i] = a1[i] + pcoords[0]*a21[i];
-    return_status = 1;
-    }
+  dist2 = this->DistanceToLine(x,a1,a2,pcoords[0],closestPoint);
 
-  dist2 = math.Distance2BetweenPoints(closest,x);
-  closestPoint[0] = closest[0]; closestPoint[1] = closest[1]; closestPoint[2] = closest[2]; 
   weights[0] = pcoords[0];
   weights[1] = 1.0 - pcoords[0];
 
-  return return_status;
+  if ( pcoords[0] < 0.0 || pcoords[0] > 1.0 ) return 0;
+  else return 1;
 }
 
 void vtkLine::EvaluateLocation(int& subId, float pcoords[3], float x[3],
@@ -234,9 +196,58 @@ void vtkLine::Contour(float value, vtkFloatScalars *cellScalars,
     }
 }
 
+// Description:
+// Compute distance to finite line.
+float vtkLine::DistanceToLine(float x[3], float p1[3], float p2[3], 
+                              float &t, float closestPoint[3])
+{
+  int i;
+  float p21[3], denom, num;
+  float *closest;
 //
-//  Determine the distance of the current vertex to the edge defined by
-//  the vertices provided.  Returns distance squared.
+//   Determine appropriate vectors
+// 
+  for (i=0; i<3; i++) p21[i] = p2[i] - p1[i];
+//
+//   Get parametric location
+//
+  num = p21[0]*(x[0]-p1[0]) + p21[1]*(x[1]-p1[1]) + p21[2]*(x[2]-p1[2]);
+  denom = math.Dot(p21,p21);
+
+  if ( (denom = math.Dot(p21,p21)) < fabs(TOL*num) ) //numerically bad!
+    {
+    closest = p1; //arbitrary, point is (numerically) far away
+    }
+//
+// If parametric coordinate is within 0<=p<=1, then the point is closest to
+// the line.  Otherwise, it's closest to a point at the end of the line.
+//
+  else if ( (t=num/denom) < 0.0 )
+    {
+    closest = p1;
+    }
+  else if ( t > 1.0 )
+    {
+    closest = p2;
+    }
+  else
+    {
+    closest = p21;
+    for (i=0; i<3; i++) p21[i] = p1[i] + t*p21[i];
+    }
+
+  closestPoint[0] = closest[0]; 
+  closestPoint[1] = closest[1]; 
+  closestPoint[2] = closest[2]; 
+
+  return math.Distance2BetweenPoints(closest,x);
+}
+
+//
+// Description:
+// Determine the distance of the current vertex to the edge defined by
+// the vertices provided.  Returns distance squared. Note: line is assumed
+// infinite in extent.
 //
 float vtkLine::DistanceToLine (float x[3], float p1[3], float p2[3])
 {
@@ -294,3 +305,19 @@ int vtkLine::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
       return 0;
     }
 }
+
+int vtkLine::Triangulate(int index, vtkFloatPoints &pts)
+{
+  pts.Reset();
+  pts.InsertPoint(0,this->Points.GetPoint(0));
+  pts.InsertPoint(1,this->Points.GetPoint(1));
+
+  return 1;
+}
+
+void vtkLine::Derivatives(int subId, float pcoords[3], float *values, 
+                          int dim, float *derivs)
+{
+
+}
+

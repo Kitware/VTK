@@ -155,11 +155,11 @@ void vtkVoxelModeller::Execute()
 	  if (!(newScalars->GetScalar(idx)))
 	    {
 	    x[0] = this->AspectRatio[0] * i + this->Origin[0];
-	    cell->EvaluatePosition(x, closestPoint, subId, pcoords, 
-                                   distance2, weights);
-	    if ((fabs(closestPoint[0] - x[0]) <= voxelHalfWidth[0]) &&
-		(fabs(closestPoint[1] - x[1]) <= voxelHalfWidth[1]) &&
-		(fabs(closestPoint[2] - x[2]) <= voxelHalfWidth[2]))
+
+	    if ( cell->EvaluatePosition(x, closestPoint, subId, pcoords, distance2, weights) != -1 &&
+	    ((fabs(closestPoint[0] - x[0]) <= voxelHalfWidth[0]) &&
+            (fabs(closestPoint[1] - x[1]) <= voxelHalfWidth[1]) &&
+	    (fabs(closestPoint[2] - x[2]) <= voxelHalfWidth[2])) )
 	      {
 	      newScalars->SetScalar(idx,1);
 	      }

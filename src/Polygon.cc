@@ -181,25 +181,27 @@ int vtkPolygon::EvaluatePosition(float x[3], float closestPoint[3],
 //
 // If here, point is outside of polygon, so need to find distance to boundary
 //
-  float pc[3], dist2;
-  int ignoreId, numPts;
-  float closest[3];
-  float dummyWeights[MAX_CELL_SIZE];
-
-  numPts = this->Points.GetNumberOfPoints();
-  for (minDist2=LARGE_FLOAT,i=0; i<numPts - 1; i++)
+  else
     {
-    line.Points.SetPoint(0,this->Points.GetPoint(i));
-    line.Points.SetPoint(1,this->Points.GetPoint(i+1));
-    line.EvaluatePosition(x, closest, ignoreId, pc, dist2, dummyWeights);
-    if ( dist2 < minDist2 )
-      {
-      closestPoint[0] = closest[0]; closestPoint[1] = closest[1]; closestPoint[2] = closest[2];
-      minDist2 = dist2;
-      }
-    }
+    float t, dist2;
+    int numPts;
+    float closest[3];
 
-  return 0;
+    numPts = this->Points.GetNumberOfPoints();
+    for (minDist2=LARGE_FLOAT,i=0; i<numPts - 1; i++)
+      {
+      dist2 = line.DistanceToLine(x,this->Points.GetPoint(i),
+                                  this->Points.GetPoint(i+1),t,closest);
+      if ( dist2 < minDist2 )
+        {
+        closestPoint[0] = closest[0]; 
+        closestPoint[1] = closest[1]; 
+        closestPoint[2] = closest[2];
+        minDist2 = dist2;
+        }
+      }
+    return 0;
+    }
 }
 
 void vtkPolygon::EvaluateLocation(int& subId, float pcoords[3], float x[3],
@@ -729,7 +731,8 @@ vtkCell *vtkPolygon::GetEdge(int edgeId)
 }
 
 //
-// Compute interpolation weights using 1/(1-r**2) normalized sum.
+// Description:
+// Compute interpolation weights using 1/r**2 normalized sum.
 //
 void vtkPolygon::ComputeWeights(float x[3], float weights[MAX_CELL_SIZE])
 {
@@ -737,20 +740,28 @@ void vtkPolygon::ComputeWeights(float x[3], float weights[MAX_CELL_SIZE])
   int numPts=this->Points.GetNumberOfPoints();
   float maxDist2, sum, *pt;
 
-  for (maxDist2=0.0, i=0; i<numPts; i++)
+  for (sum=0.0, maxDist2=0.0, i=0; i<numPts; i++)
     {
     pt = this->Points.GetPoint(i);
     weights[i] = math.Distance2BetweenPoints(x,pt);
-    if ( weights[i] > maxDist2 ) maxDist2 = weights[i];
+    if ( weights[i] == 0.0 ) //exact hit
+      {
+      for (int j=0; j<numPts; j++) weights[j] = 0.0;
+      weights[i] = 1.0;
+      return;
+      }
+    else
+      {
+      weights[i] = 1.0 / (weights[i]*weights[i]);
+      sum += weights[i];
+      }
     }
-
-  for (sum=0.0, i=0; i<numPts; i++) sum += 1.0 / (1.0 - weights[i]/maxDist2);
 
   for (i=0; i<numPts; i++) weights[i] /= sum;
 }
 
-// 
-// Intersect plane; see whether point is inside.
+//
+// Intersect this plane with finite line defined by p1 & p2 with tolerance tol.
 //
 int vtkPolygon::IntersectWithLine(float p1[3], float p2[3], float tol,float& t,
                                  float x[3], float pcoords[3], int& subId)
@@ -783,3 +794,47 @@ int vtkPolygon::IntersectWithLine(float p1[3], float p2[3], float tol,float& t,
   return 0;
 
 }
+
+int vtkPolygon::Triangulate(int index, vtkFloatPoints &pts)
+{
+  int i, success;
+  float *bounds, d;
+  int verts[MAX_CELL_SIZE];
+  int numVerts=this->PointIds.GetNumberOfIds();
+  static vtkIdList Tris((MAX_CELL_SIZE-2)*3);
+
+  pts.Reset();
+
+  bounds = this->GetBounds();
+  d = sqrt((bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
+           (bounds[3]-bounds[2])*(bounds[3]-bounds[2]) +
+           (bounds[5]-bounds[4])*(bounds[5]-bounds[4]));
+  Tolerance = TOLERANCE * d;
+  SuccessfulTriangulation = 1;
+  this->ComputeNormal(&this->Points, Normal);
+
+  for (i=0; i<numVerts; i++) verts[i] = i;
+  Tris.Reset();
+
+  success = this->FastTriangulate(numVerts, verts, Tris);
+
+  if ( !success ) // Use slower but always successful technique.
+    {
+    vtkErrorMacro(<<"Couldn't triangulate");
+    }
+  else // Copy the point id's into the supplied Id array
+    {
+    for (i=0; i<Tris.GetNumberOfIds(); i++)
+      {
+      pts.InsertPoint(i,this->Points.GetPoint(Tris.GetId(i)));
+      }
+    }
+  return success;
+}
+
+void vtkPolygon::Derivatives(int subId, float pcoords[3], float *values, 
+                             int dim, float *derivs)
+{
+
+}
+

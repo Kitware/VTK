@@ -84,11 +84,7 @@ int vtkHexahedron::EvaluatePosition(float x[3], float closestPoint[3],
 //
 //  compute determinants and generate improvements
 //
-    if ( (d=math.Determinant3x3(rcol,scol,tcol)) == 0.0 )
-      {
-      dist2 = LARGE_FLOAT;
-      return 0;
-      }
+    if ( (d=math.Determinant3x3(rcol,scol,tcol)) == 0.0 ) return -1;
 
     pcoords[0] = params[0] - math.Determinant3x3 (fcol,scol,tcol) / d;
     pcoords[1] = params[1] - math.Determinant3x3 (rcol,fcol,tcol) / d;
@@ -116,33 +112,30 @@ int vtkHexahedron::EvaluatePosition(float x[3], float closestPoint[3],
 //  if not converged, set the parametric coordinates to arbitrary values
 //  outside of element
 //
-  if ( !converged )
+  if ( !converged ) return -1;
+
+  this->InterpolationFunctions(pcoords, weights);
+
+  if ( pcoords[0] >= -0.001 && pcoords[0] <= 1.001 &&
+  pcoords[1] >= -0.001 && pcoords[1] <= 1.001 &&
+  pcoords[2] >= -0.001 && pcoords[2] <= 1.001 )
     {
-    pcoords[0] = pcoords[1] =  pcoords[2] = 10.0;
-    dist2 = LARGE_FLOAT;
-    return 0;
+    closestPoint[0] = x[0]; closestPoint[1] = x[1]; closestPoint[2] = x[2];
+    dist2 = 0.0; //inside hexahedron
+    return 1;
     }
   else
     {
-    if ( pcoords[0] >= -0.001 && pcoords[0] <= 1.001 &&
-    pcoords[1] >= -0.001 && pcoords[1] <= 1.001 &&
-    pcoords[2] >= -0.001 && pcoords[2] <= 1.001 )
+    float pc[3], w[8];
+    for (i=0; i<3; i++) //only approximate, not really true for warped hexa
       {
-      closestPoint[0] = x[0]; closestPoint[1] = x[1]; closestPoint[2] = x[2];
-      dist2 = 0.0; // inside hexahedron
-      return 1;
+      if (pcoords[i] < 0.0) pc[i] = 0.0;
+      else if (pcoords[i] > 1.0) pc[i] = 1.0;
+      else pc[i] = pcoords[i];
       }
-    else
-      {
-      for (i=0; i<3; i++)
-        {
-        if (pcoords[i] < 0.0) pcoords[i] = 0.0;
-        if (pcoords[i] > 1.0) pcoords[i] = 1.0;
-        }
-      this->EvaluateLocation(subId, pcoords, closestPoint, weights);
-      dist2 = math.Distance2BetweenPoints(closestPoint,x);
-      return 0;
-      }
+    this->EvaluateLocation(subId, pc, closestPoint, w);
+    dist2 = math.Distance2BetweenPoints(closestPoint,x);
+    return 0;
     }
 }
 //
@@ -434,3 +427,75 @@ int vtkHexahedron::IntersectWithLine(float p1[3], float p2[3], float tol,
     }
   return intersection;
 }
+
+int vtkHexahedron::Triangulate(int index, vtkFloatPoints &pts)
+{
+  pts.Reset();
+//
+// Create five tetrahedron. Triangulation varies depending upon index. This
+// is necessary to insure compatible voxel triangulations.
+//
+  if ( index % 2 )
+    {
+    pts.InsertNextPoint(this->Points.GetPoint(0));
+    pts.InsertNextPoint(this->Points.GetPoint(1));
+    pts.InsertNextPoint(this->Points.GetPoint(4));
+    pts.InsertNextPoint(this->Points.GetPoint(3));
+
+    pts.InsertNextPoint(this->Points.GetPoint(1));
+    pts.InsertNextPoint(this->Points.GetPoint(4));
+    pts.InsertNextPoint(this->Points.GetPoint(7));
+    pts.InsertNextPoint(this->Points.GetPoint(5));
+
+    pts.InsertNextPoint(this->Points.GetPoint(1));
+    pts.InsertNextPoint(this->Points.GetPoint(4));
+    pts.InsertNextPoint(this->Points.GetPoint(3));
+    pts.InsertNextPoint(this->Points.GetPoint(6));
+
+    pts.InsertNextPoint(this->Points.GetPoint(1));
+    pts.InsertNextPoint(this->Points.GetPoint(3));
+    pts.InsertNextPoint(this->Points.GetPoint(2));
+    pts.InsertNextPoint(this->Points.GetPoint(6));
+
+    pts.InsertNextPoint(this->Points.GetPoint(3));
+    pts.InsertNextPoint(this->Points.GetPoint(6));
+    pts.InsertNextPoint(this->Points.GetPoint(4));
+    pts.InsertNextPoint(this->Points.GetPoint(7));
+    }
+  else
+    {
+    pts.InsertNextPoint(this->Points.GetPoint(2));
+    pts.InsertNextPoint(this->Points.GetPoint(1));
+    pts.InsertNextPoint(this->Points.GetPoint(0));
+    pts.InsertNextPoint(this->Points.GetPoint(5));
+
+    pts.InsertNextPoint(this->Points.GetPoint(0));
+    pts.InsertNextPoint(this->Points.GetPoint(2));
+    pts.InsertNextPoint(this->Points.GetPoint(7));
+    pts.InsertNextPoint(this->Points.GetPoint(3));
+
+    pts.InsertNextPoint(this->Points.GetPoint(2));
+    pts.InsertNextPoint(this->Points.GetPoint(5));
+    pts.InsertNextPoint(this->Points.GetPoint(7));
+    pts.InsertNextPoint(this->Points.GetPoint(6));
+
+    pts.InsertNextPoint(this->Points.GetPoint(0));
+    pts.InsertNextPoint(this->Points.GetPoint(7));
+    pts.InsertNextPoint(this->Points.GetPoint(5));
+    pts.InsertNextPoint(this->Points.GetPoint(4));
+
+    pts.InsertNextPoint(this->Points.GetPoint(1));
+    pts.InsertNextPoint(this->Points.GetPoint(2));
+    pts.InsertNextPoint(this->Points.GetPoint(5));
+    pts.InsertNextPoint(this->Points.GetPoint(7));
+    }
+
+  return 1;
+}
+
+void vtkHexahedron::Derivatives(int subId, float pcoords[3], float *values, 
+                                int dim, float *derivs)
+{
+
+}
+

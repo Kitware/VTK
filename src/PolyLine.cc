@@ -356,7 +356,7 @@ int vtkPolyLine::EvaluatePosition(float x[3], float closestPoint[3],
     line.Points.SetPoint(0,this->Points.GetPoint(i));
     line.Points.SetPoint(1,this->Points.GetPoint(i+1));
     status = line.EvaluatePosition(x,closest,ignoreId,pc,dist2,lineWeights);
-    if ( dist2 < minDist2 )
+    if ( status != -1 && dist2 < minDist2 )
       {
       return_status = status;
       closestPoint[0] = closest[0]; closestPoint[1] = closest[1]; closestPoint[2] = closest[2]; 
@@ -446,3 +446,22 @@ int vtkPolyLine::IntersectWithLine(float p1[3], float p2[3],float tol,float& t,
 
   return 0;
 }
+
+int vtkPolyLine::Triangulate(int index, vtkFloatPoints &pts)
+{
+  pts.Reset();
+  for (int subId=0; subId<this->Points.GetNumberOfPoints()-1; subId++)
+    {
+    pts.InsertPoint(subId,this->Points.GetPoint(subId));
+    pts.InsertPoint(subId+1,this->Points.GetPoint(subId+1));
+    }
+
+  return 1;
+}
+
+void vtkPolyLine::Derivatives(int subId, float pcoords[3], float *values, 
+                              int dim, float *derivs)
+{
+
+}
+

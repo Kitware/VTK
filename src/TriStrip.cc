@@ -50,7 +50,7 @@ int vtkTriangleStrip::EvaluatePosition(float x[3], float closestPoint[3],
     tri.Points.SetPoint(1,this->Points.GetPoint(i+1));
     tri.Points.SetPoint(2,this->Points.GetPoint(i+2));
     status = tri.EvaluatePosition(x,closest,ignoreId,pc,dist2,tempWeights);
-    if ( dist2 < minDist2 )
+    if ( status != -1 && dist2 < minDist2 )
       {
       return_status = status;
       closestPoint[0] = closest[0]; closestPoint[1] = closest[1]; closestPoint[2] = closest[2];
@@ -170,3 +170,23 @@ int vtkTriangleStrip::IntersectWithLine(float p1[3], float p2[3], float tol,
 
   return 0;
 }
+
+int vtkTriangleStrip::Triangulate(int index, vtkFloatPoints &pts)
+{
+  pts.Reset();
+  for (int subId=0; subId<this->Points.GetNumberOfPoints()-2; subId++)
+    {
+    pts.InsertNextPoint(this->Points.GetPoint(subId));
+    pts.InsertNextPoint(this->Points.GetPoint(subId+1));
+    pts.InsertNextPoint(this->Points.GetPoint(subId+2));
+    }
+
+  return 1;
+}
+
+void vtkTriangleStrip::Derivatives(int subId, float pcoords[3], float *values, 
+                                   int dim, float *derivs)
+{
+
+}
+

@@ -31,7 +31,7 @@ vtkTetra::vtkTetra(const vtkTetra& t)
 
 int vtkTetra::EvaluatePosition(float x[3], float closestPoint[3],
                               int& subId, float pcoords[3], 
-                              float& dist2, float weights[MAX_CELL_SIZE])
+                              float& minDist2, float weights[MAX_CELL_SIZE])
 {
   float *pt1, *pt2, *pt3, *pt4;
   int i;
@@ -54,44 +54,47 @@ int vtkTetra::EvaluatePosition(float x[3], float closestPoint[3],
     c3[i] = pt3[i] - pt4[i];
     }
 
-  if ( (det = math.Determinant3x3(c1,c2,c3)) == 0.0 )
-    {
-    dist2 = LARGE_FLOAT;
-    return 0;
-    }
+  if ( (det = math.Determinant3x3(c1,c2,c3)) == 0.0 ) return -1;
 
   pcoords[0] = math.Determinant3x3 (rhs,c2,c3) / det;
   pcoords[1] = math.Determinant3x3 (c1,rhs,c3) / det;
   pcoords[2] = math.Determinant3x3 (c1,c2,rhs) / det;
   p4 = 1.0 - pcoords[0] - pcoords[1] - pcoords[2];
 
+  weights[0] = p4;
+  weights[1] = pcoords[0];
+  weights[2] = pcoords[1];
+  weights[3] = pcoords[2];
+
   if ( pcoords[0] >= 0.0 && pcoords[1] <= 1.0 &&
   pcoords[1] >= 0.0 && pcoords[1] <= 1.0 &&
   pcoords[2] >= 0.0 && pcoords[2] <= 1.0 && p4 >= 0.0 && p4 <= 1.0 )
     {
-    closestPoint[0] = x[0]; closestPoint[1] = x[1]; closestPoint[2] = x[2];
-    dist2 = 0.0;
-    weights[0] = p4;
-    weights[1] = pcoords[0];
-    weights[2] = pcoords[1];
-    weights[3] = pcoords[2];
-    return 1; // inside tetra
+    closestPoint[0] = x[0]; 
+    closestPoint[1] = x[1]; 
+    closestPoint[2] = x[2];
+    minDist2 = 0.0; //inside tetra
+    return 1; 
     }
   else
-    {
-    for (i=0; i<3; i++)
+    { //could easily be sped up using parametric localization - next release
+    float t, dist2, w[3], closest[3], pc[3];
+    int sub;
+    vtkTriangle *triangle;
+
+    for (minDist2=LARGE_FLOAT,i=0; i<4; i++)
       {
-      if (pcoords[i] < 0.0) pcoords[i] = 0.0;
-      if (pcoords[i] > 1.0) pcoords[i] = 1.0;
+      triangle = (vtkTriangle *) this->GetFace (i);
+      triangle->EvaluatePosition(x,closest,sub,pc,dist2,w);
+
+      if ( dist2 < minDist2 )
+        {
+        closestPoint[0] = closest[0]; 
+        closestPoint[1] = closest[1]; 
+        closestPoint[2] = closest[2];
+        minDist2 = dist2;
+        }
       }
-    if ( (1.0 - pcoords[0] - pcoords[1] - pcoords[2]) < 0.0 )
-      // the point is hovering above face opposite tetra origin
-      {
-      float ratio = 1.0 / (pcoords[0] + pcoords[1] + pcoords[2]);
-      for (i=0; i < 3; i++) pcoords[i] *= ratio;
-      }
-    this->EvaluateLocation(subId, pcoords, closestPoint, weights);
-    dist2 = math.Distance2BetweenPoints(closestPoint,x);
     return 0;
     }
 }
@@ -332,3 +335,21 @@ int vtkTetra::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
     }
   return intersection;
 }
+
+int vtkTetra::Triangulate(int index, vtkFloatPoints &pts)
+{
+  pts.Reset();
+  pts.InsertPoint(0,this->Points.GetPoint(0));
+  pts.InsertPoint(1,this->Points.GetPoint(1));
+  pts.InsertPoint(2,this->Points.GetPoint(2));
+  pts.InsertPoint(3,this->Points.GetPoint(3));
+
+  return 1;
+}
+
+void vtkTetra::Derivatives(int subId, float pcoords[3], float *values, 
+                           int dim, float *derivs)
+{
+
+}
+

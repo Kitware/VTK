@@ -36,7 +36,6 @@ int vtkTriangle::EvaluatePosition(float x[3], float closestPoint[3],
                                  int& subId, float pcoords[3], 
                                  float& dist2, float weights[MAX_CELL_SIZE])
 {
-  vtkLine *aLine;
   int i, j;
   float *pt1, *pt2, *pt3, n[3];
   float rhs[2], c1[2], c2[2];
@@ -84,8 +83,7 @@ int vtkTriangle::EvaluatePosition(float x[3], float closestPoint[3],
     c2[i] = pt2[indices[i]] - pt3[indices[i]];
     }
 
-  if ( (det = math.Determinant2x2(c1,c2)) == 0.0 )
-    return 0;
+  if ( (det = math.Determinant2x2(c1,c2)) == 0.0 ) return -1;
 
   pcoords[0] = math.Determinant2x2 (rhs,c2) / det;
   pcoords[1] = math.Determinant2x2 (c1,rhs) / det;
@@ -93,25 +91,46 @@ int vtkTriangle::EvaluatePosition(float x[3], float closestPoint[3],
 //
 // Okay, now find closest point to element
 //
+  weights[0] = pcoords[2];
+  weights[1] = pcoords[0];
+  weights[2] = pcoords[1];
+
   if ( pcoords[0] >= 0.0 && pcoords[0] <= 1.0 &&
   pcoords[1] >= 0.0 && pcoords[1] <= 1.0 &&
   pcoords[2] >= 0.0 && pcoords[2] <= 1.0 )
     {
     dist2 = math.Distance2BetweenPoints(closestPoint,x); //projection distance
-    weights[0] = pcoords[2];
-    weights[1] = pcoords[0];
-    weights[2] = pcoords[1];
     return 1;
     }
   else
     {
-    if ( (1.0 - pcoords[0] - pcoords[1]) < 0.0 ) edge = 1;
-    else if ( pcoords[0] < 0.0)	edge = 2;
-    else if (pcoords[1] < 0.0)	edge = 0;
+    static vtkLine line;
+    float t;
 
-    // find distance to edge
-    aLine = (vtkLine *) this->GetEdge (edge);
-    aLine->EvaluatePosition (x, closestPoint, subId, pcoords, dist2, weights);
+    if ( pcoords[0] < 0.0 && pcoords[1] < 0.0 )
+      {
+      dist2 = math.Distance2BetweenPoints(x,pt3);
+      }
+    else if ( pcoords[1] < 0.0 && pcoords[2] < 0.0 )
+      {
+      dist2 = math.Distance2BetweenPoints(x,pt1);
+      }
+    else if ( pcoords[0] < 0.0 && pcoords[2] < 0.0 )
+      {
+      dist2 = math.Distance2BetweenPoints(x,pt2);
+      }
+    else if ( pcoords[0] < 0.0 )
+      {
+      dist2 = line.DistanceToLine(x,pt2,pt3,t,closestPoint);
+      }
+    else if ( pcoords[1] < 0.0 )
+      {
+      dist2 = line.DistanceToLine(x,pt1,pt3,t,closestPoint);
+      }
+    else if ( pcoords[2] < 0.0 )
+      {
+      dist2 = line.DistanceToLine(x,pt1,pt2,t,closestPoint);
+      }
     return 0;
     }
 }
@@ -283,5 +302,21 @@ int vtkTriangle::IntersectWithLine(float p1[3], float p2[3], float tol,
     if ( dist2 <= tol2 ) return 1;
 
   return 0;
+}
+
+int vtkTriangle::Triangulate(int index, vtkFloatPoints &pts)
+{
+  pts.Reset();
+  pts.InsertPoint(0,this->Points.GetPoint(0));
+  pts.InsertPoint(1,this->Points.GetPoint(1));
+  pts.InsertPoint(2,this->Points.GetPoint(2));
+
+  return 1;
+}
+
+void vtkTriangle::Derivatives(int subId, float pcoords[3], float *values, 
+                              int dim, float *derivs)
+{
+
 }
 

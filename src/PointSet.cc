@@ -108,8 +108,8 @@ int vtkPointSet::FindCell(float x[3], vtkCell *cell, float tol2, int& subId,
       {
       cellId = cellIds.GetId(i);
       cell = this->GetCell(cellId);
-      cell->EvaluatePosition(x,closestPoint,sId,pc,dist2,w);
-      if ( dist2 <= tol2 && dist2 < minDist2 )
+      if ( cell->EvaluatePosition(x,closestPoint,sId,pc,dist2,w) != -1 &&
+      dist2 <= tol2 && dist2 < minDist2 )
         {
         minDist2 = dist2;
         closestCell = cellId;

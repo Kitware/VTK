@@ -21,6 +21,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Line.hh"
 
 static vtkMath math;
+static vtkLine line;
 static vtkPolygon poly;
 static vtkPlane plane;
 
@@ -115,11 +116,7 @@ int vtkQuad::EvaluatePosition(float x[3], float closestPoint[3],
 //
 //  compute determinants and generate improvements
 //
-    if ( (det=math.Determinant2x2(rcol,scol)) == 0.0 )
-      {
-	cout << "Determinant is zero\n";
-      return 0;
-      }
+    if ( (det=math.Determinant2x2(rcol,scol)) == 0.0 ) return -1;
 
     pcoords[0] = params[0] - math.Determinant2x2 (fcol,scol) / det;
     pcoords[1] = params[1] - math.Determinant2x2 (rcol,fcol) / det;
@@ -144,35 +141,54 @@ int vtkQuad::EvaluatePosition(float x[3], float closestPoint[3],
 //  if not converged, set the parametric coordinates to arbitrary values
 //  outside of element
 //
-  if ( !converged )
+  if ( !converged ) return -1;
+
+  this->InterpolationFunctions(pcoords, weights);
+
+  if ( pcoords[0] >= 0.0 && pcoords[0] <= 1.0 &&
+       pcoords[1] >= 0.0 && pcoords[1] <= 1.0 )
     {
-    pcoords[0] = pcoords[1] = 10.0;
-    dist2 = LARGE_FLOAT;
-    cout << "Failed to converge\n";
-    return 0;
+    dist2 = math.Distance2BetweenPoints(closestPoint,x); //projection distance
+    return 1;
     }
   else
     {
-    if ( pcoords[0] >= 0.0 && pcoords[0] <= 1.0 &&
-         pcoords[1] >= 0.0 && pcoords[1] <= 1.0 )
+    float t;
+    float *pt4 = this->Points.GetPoint(3);
+
+    if ( pcoords[0] < 0.0 && pcoords[1] < 0.0 )
       {
-      dist2 = math.Distance2BetweenPoints(closestPoint,x); //projection distance
-      return 1;
+      dist2 = math.Distance2BetweenPoints(x,pt1);
       }
-    else
+    else if ( pcoords[0] > 0.0 && pcoords[1] < 0.0 )
       {
-
-// find closest edge, then distance to that edge
-
-      if      (pcoords[0] < 0.0) edge = 3;
-      else if (pcoords[0] > 1.0) edge = 1;
-      else if (pcoords[1] < 0.0) edge = 0;
-      else if (pcoords[1] > 1.0) edge = 2;
-
-      aLine = (vtkLine *) this->GetEdge (edge);
-      aLine->EvaluatePosition (x, closestPoint, subId, pcoords, dist2, weights);
-      return 0;
+      dist2 = math.Distance2BetweenPoints(x,pt2);
       }
+    else if ( pcoords[0] > 0.0 && pcoords[1] > 0.0 )
+      {
+      dist2 = math.Distance2BetweenPoints(x,pt3);
+      }
+    else if ( pcoords[0] < 0.0 && pcoords[1] > 0.0 )
+      {
+      dist2 = math.Distance2BetweenPoints(x,pt4);
+      }
+    else if ( pcoords[0] < 0.0 )
+      {
+      dist2 = line.DistanceToLine(x,pt1,pt4,t,closestPoint);
+      }
+    else if ( pcoords[0] > 1.0 )
+      {
+      dist2 = line.DistanceToLine(x,pt2,pt3,t,closestPoint);
+      }
+    else if ( pcoords[1] < 0.0 )
+      {
+      dist2 = line.DistanceToLine(x,pt1,pt2,t,closestPoint);
+      }
+    else if ( pcoords[1] > 0.0 )
+      {
+      dist2 = line.DistanceToLine(x,pt3,pt4,t,closestPoint);
+      }
+    return 0;
     }
 }
 
@@ -386,3 +402,46 @@ int vtkQuad::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
 
   return 0;
 }
+
+int vtkQuad::Triangulate(int index, vtkFloatPoints &pts)
+{
+  float d1, d2;
+
+  pts.Reset();
+
+  // use minimum diagonal (Delaunay triangles)
+  d1 = math.Distance2BetweenPoints(this->Points.GetPoint(0), 
+                                   this->Points.GetPoint(2));
+  d2 = math.Distance2BetweenPoints(this->Points.GetPoint(1), 
+                                   this->Points.GetPoint(3));
+
+  if ( d1 < d2 )
+    {
+    pts.InsertPoint(0,this->Points.GetPoint(0));
+    pts.InsertPoint(1,this->Points.GetPoint(1));
+    pts.InsertPoint(2,this->Points.GetPoint(2));
+
+    pts.InsertPoint(3,this->Points.GetPoint(0));
+    pts.InsertPoint(4,this->Points.GetPoint(2));
+    pts.InsertPoint(5,this->Points.GetPoint(3));
+    }
+  else
+    {
+    pts.InsertPoint(0,this->Points.GetPoint(0));
+    pts.InsertPoint(1,this->Points.GetPoint(1));
+    pts.InsertPoint(2,this->Points.GetPoint(3));
+
+    pts.InsertPoint(3,this->Points.GetPoint(1));
+    pts.InsertPoint(4,this->Points.GetPoint(2));
+    pts.InsertPoint(5,this->Points.GetPoint(3));
+    }
+
+  return 1;
+}
+
+void vtkQuad::Derivatives(int subId, float pcoords[3], float *values, 
+                          int dim, float *derivs)
+{
+
+}
+

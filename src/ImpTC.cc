@@ -100,16 +100,16 @@ void vtkImplicitTextureCoords::Execute()
     scale[i] = 1.0;
     if ( max[i] > 0.0 && min[i] < 0.0 ) //have positive & negative numbers
       {
-      if ( max[i] > (-min[i]) ) scale[i] = 0.5 / max[i]; //scale into 0.5->1
-      else scale[i] = -0.5 / min[i]; //scale into 0->0.5
+      if ( max[i] > (-min[i]) ) scale[i] = 0.499 / max[i]; //scale into 0.5->1
+      else scale[i] = -0.499 / min[i]; //scale into 0->0.5
       }
     else if ( max[i] > 0.0 ) //have positive numbers only
       {
-      scale[i] = 0.5 / max[i]; //scale into 0.5->1.0
+      scale[i] = 0.499 / max[i]; //scale into 0.5->1.0
       }
     else if ( min[i] < 0.0 ) //have negative numbers only
       {
-      scale[i] = -0.5 / min[i]; //scale into 0.0->0.5
+      scale[i] = -0.499 / min[i]; //scale into 0.0->0.5
       }
     }
 
