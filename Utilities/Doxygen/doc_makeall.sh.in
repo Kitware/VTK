@@ -277,7 +277,7 @@ if test "x$PERL_PROG" != "xNOTFOUND" ; then
 fi
 
 if test "x$GNUPLOT_PROG" != "xNOTFOUND" ; then
-    $GNUPLOT_PROG $DOXTEMP/contrib/history.plt
+    $GNUPLOT_PROG "$DOXTEMP/contrib/history.plt"
 fi
 
 # ----------------------------------------------------------------------------
