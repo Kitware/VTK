@@ -220,7 +220,7 @@ void return_result(FILE *fp)
     /* this is done by looking them up in a hint file */
     case 301: case 307:
     case 304: case 305: case 306:
-    case 314: case 315: case 316:      
+    case 313: case 314: case 315: case 316:      
       use_hints(fp);
       break;
     default:
@@ -418,6 +418,7 @@ void outputFunction(FILE *fp, FileInfo *data)
     {
     case 301: case 307:
     case 304: case 305: case 306:
+    case 313: case 314: case 315: case 316:
       args_ok = currentFunction->HaveHint;
       break;
     }
