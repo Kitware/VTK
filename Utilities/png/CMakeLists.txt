@@ -1,3 +1,5 @@
+PROJECT(PNG)
+
 # source files for png
 SOURCE_FILES(PNG_SRCS
 pngget.c    pngrio.c    pngwrite.c
@@ -7,8 +9,8 @@ pnggccrd.c  pngread.c   pngset.c   pngwio.c
 )
 
 CONFIGURE_FILE(
-${VTK_SOURCE_DIR}/Utilities/png/.NoDartCoverage 
-${VTK_BINARY_DIR}/Utilities/png/.NoDartCoverage)
+${PNG_SOURCE_DIR}/.NoDartCoverage 
+${PNG_BINARY_DIR}/.NoDartCoverage)
 
 IF(WIN32)
   IF(BUILD_SHARED_LIBS)
