@@ -82,7 +82,7 @@ void vtkVRMLAllocator::CleanUp()
 }
 char* vtkVRMLAllocator::StrDup(const char *str)
 {
-  return Heap->vtkStrDup(str);
+  return Heap->StringDup(str);
 }
 
 
@@ -4233,7 +4233,7 @@ YY_MALLOC_DECL
 #define YY_BREAK break;
 #endif
 
-vtkCxxRevisionMacro(vtkVRMLImporter, "1.52");
+vtkCxxRevisionMacro(vtkVRMLImporter, "1.53");
 vtkStandardNewMacro(vtkVRMLImporter);
 
 vtkPoints* vtkVRMLImporter::PointsNew()

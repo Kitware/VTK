@@ -18,7 +18,7 @@
 #include "vtkHeap.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkHeap, "1.6");
+vtkCxxRevisionMacro(vtkHeap, "1.7");
 vtkStandardNewMacro(vtkHeap);
 
 vtkHeap::vtkHeap()
@@ -83,7 +83,7 @@ void* vtkHeap::AllocateMemory(size_t n)
   return node->Ptr;
 }
 
-char* vtkHeap::vtkStrDup(const char* str)
+char* vtkHeap::StringDup(const char* str)
 {
   this->NumberOfAllocations++;
 
