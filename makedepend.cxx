@@ -242,7 +242,7 @@ extern void OutputUNIXDepends(char *file, FILE *fp, const char *vtkHome)
   // now output the results
   for (i = 0; i < num; i++)
   {
-    fprintf(fp,"  %s/%s\\\n",vtkHome,depends[i]);
+    fprintf(fp," \\\n  %s/%s",vtkHome,depends[i]);
   }
   fprintf(fp,"\n");
 }

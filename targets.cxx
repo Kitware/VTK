@@ -62,17 +62,19 @@ int main (int argc, char *argv[])
     {
     for (i = concrete_start; i <= concrete_end; i++)
       {
-      fprintf(fp,"%s.o : %s/%s.cxx %s/%s.h \\\n",argv[i],vtkLocal,
+      fprintf(fp,"%s.o : %s/%s.cxx %s/%s.h ",argv[i],vtkLocal,
 	      argv[i],vtkLocal,argv[i]);
       sprintf(filename,"%s/%s.cxx",vtkLocal,argv[i]);
       OutputUNIXDepends(filename,fp,vtkHome);
+      fprintf(fp,"\n");
       }
     for (i = abstract_start; i <= abstract_end; i++)
       {
-      fprintf(fp,"%s.o : %s/%s.cxx %s/%s.h \\\n",argv[i],vtkLocal,
+      fprintf(fp,"%s.o : %s/%s.cxx %s/%s.h ",argv[i],vtkLocal,
 	      argv[i],vtkLocal,argv[i]);
       sprintf(filename,"%s/%s.cxx",vtkLocal,argv[i]);
       OutputUNIXDepends(filename,fp,vtkHome);
+      fprintf(fp,"\n");
       }
     fprintf(fp,"\n\n");
     }
@@ -83,10 +85,11 @@ int main (int argc, char *argv[])
     if (strcmp(argv[i],"concrete")&&strcmp(argv[i],"abstract")&&
 	strcmp(argv[i],"concrete_h")&&strcmp(argv[i],"abstract_h"))
       {
-      fprintf(fp,"tcl/%sTcl.cxx : %s/%s.h %s/common/vtkTclUtil.h %s/tcl/cpp_parse.y\\\n",
+      fprintf(fp,"tcl/%sTcl.cxx : %s/%s.h %s/common/vtkTclUtil.h %s/tcl/cpp_parse.y ",
 	      argv[i],vtkLocal,argv[i],vtkHome,vtkHome);
       sprintf(filename,"%s/%s.h",vtkLocal,argv[i]);
       OutputUNIXDepends(filename,fp,vtkHome);
+      fprintf(fp,"\n");
       }
     }
   fprintf(fp,"\n\n");
