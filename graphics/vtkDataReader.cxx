@@ -210,10 +210,13 @@ int vtkDataReader::OpenVTKFile()
       {
       vtkErrorMacro(<< "No file specified!");
       return 0;
-       }
-    if (!(this->IS = new ifstream(this->Filename, ios::in)))
+      }
+    this->IS = new ifstream(this->Filename, ios::in);
+    if (this->IS->fail())
       {
       vtkErrorMacro(<< "Unable to open file: "<< this->Filename);
+      delete this->IS;
+      this->IS = NULL;
       return 0;
       }
     return 1;
@@ -276,12 +279,15 @@ int vtkDataReader::ReadHeader()
     vtkDebugMacro(<< "Opening vtk file as binary");
     delete this->IS;
 #ifdef _WIN32
-    if (!(this->IS = new ifstream(this->Filename, ios::in | ios::binary)))
+    this->IS = new ifstream(this->Filename, ios::in | ios::binary);
 #else
-    if (!(this->IS = new ifstream(this->Filename, ios::in)))
+    this->IS = new ifstream(this->Filename, ios::in);
 #endif
+    if (this->IS->fail())
       {
       vtkErrorMacro(<< "Unable to open file: "<< this->Filename);
+      delete this->IS;
+      this->IS = NULL;
       return 0;
       }
     // read up to the same point in the file
