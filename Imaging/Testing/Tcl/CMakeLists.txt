@@ -50,6 +50,7 @@ IF (VTK_USE_RENDERING)
         TestHSVToRGB
         TestHybridMedian2D
         TestIdealLowPass
+        TestImageCanvas
         TestInPlaceFilter
         TestIslandRemoval2D
         TestMapToRGBABlockStreaming

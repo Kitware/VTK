@@ -85,6 +85,14 @@ public:
     this->DrawSegment3D(p1, p2);}
 
   // Description:
+  // Draw subimage of the input image in the canvas at position x0 and
+  // y0. The subimage is defined with sx, sy, width, and height.
+  void DrawImage(int x0, int y0, vtkImageData* i)
+    { this->DrawImage(x0, y0, i, -1, -1, -1, -1); }
+  void DrawImage(int x0, int y0, vtkImageData*, int sx, int sy,
+                 int width, int height);
+
+  // Description:
   // Fill a colored area with another color. (like connectivity)
   // All pixels connected (and with the same value) to pixel (x, y) 
   // get replaced by the current "DrawColor".

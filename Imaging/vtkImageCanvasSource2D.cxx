@@ -16,11 +16,14 @@
 
 =========================================================================*/
 #include "vtkImageCanvasSource2D.h"
+
+#include "vtkImageCast.h"
+#include "vtkImageClip.h"
 #include "vtkObjectFactory.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageCanvasSource2D, "1.34");
+vtkCxxRevisionMacro(vtkImageCanvasSource2D, "1.35");
 vtkStandardNewMacro(vtkImageCanvasSource2D);
 
 //----------------------------------------------------------------------------
@@ -100,6 +103,158 @@ void vtkImageCanvasSource2D::SetImageData(vtkImageData *image)
   
 }
 
+#define vtkMAX(x, y) (((x)>(y))?(x):(y))
+#define vtkMIN(x, y) (((x)<(y))?(x):(y))
+
+//----------------------------------------------------------------------------
+// Draw a data.  Only implentented for 2D extents.
+template <class T>
+void vtkImageCanvasSource2DDrawImage(vtkImageData *image, vtkImageData *simage,
+                                     T *ptr, T *sptr,
+                                     int min0, int max0, int min1, int max1)
+{
+  T *ptr0, *ptr1, *ptrV;
+  T *sptr0, *sptr1, *sptrV;
+  int idx0, idx1, idxV;
+  int inc0, inc1, inc2;
+  int sinc0, sinc1, sinc2;
+  int maxV;
+  
+  image->GetIncrements(inc0, inc1, inc2);
+  simage->GetIncrements(sinc0, sinc1, sinc2);
+
+  maxV = image->GetNumberOfScalarComponents() - 1;
+
+  ptr1 = ptr;
+  sptr1 = sptr;
+  for (idx1 = min1; idx1 <= max1; ++idx1)
+    {
+    ptr0 = ptr1;
+    sptr0 = sptr1;
+    for (idx0 = min0; idx0 <= max0; ++idx0)
+      {
+      ptrV = ptr0;
+      sptrV = sptr0;
+      
+      // Assign color to pixel.
+      for (idxV = 0; idxV <= maxV; ++idxV)
+        {
+        *ptrV = *sptrV;
+        ptrV++;
+        sptrV++;
+        }
+      
+      ptr0 += inc0;
+      sptr0 += sinc0;
+      }
+    ptr1 += inc1;
+    sptr1 += sinc1;
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageCanvasSource2D::DrawImage(int x0, int y0, 
+                                       vtkImageData* image, int sx, int sy,
+                                       int width, int height)
+{
+  if ( !image )
+    {
+    return;
+    }
+
+  vtkImageClip* clip = vtkImageClip::New();
+  clip->SetInput(image);
+
+  int *extent;
+  int ext[6];
+  int z = this->DefaultZ;
+  image->GetWholeExtent(ext);
+  int text[6];
+  this->GetOutput()->GetWholeExtent(text);
+  if ( sx < 0 ) 
+    {
+    sx = ext[0];
+    }
+  if ( sy < 0 )
+    {
+    sy = ext[2];
+    }
+  if ( width < 0 )
+    {
+    width = ext[1] - ext[0] + 1;
+    }
+  else
+    {
+    width = vtkMIN(width, ext[1] - ext[0] + 1);
+    }
+  if ( height < 0 )
+    {
+    height = ext[3] - ext[2] + 1;
+    }
+  else
+    {
+    height = vtkMIN(height, ext[3] - ext[2] + 1);
+    }
+  ext[0] = vtkMAX(sx, ext[0]);
+  ext[1] = vtkMAX(sx+width-1, ext[1]);
+  ext[2] = vtkMAX(sy, ext[2]);
+  ext[3] = vtkMAX(sy+height-1, ext[3]);
+  clip->SetOutputWholeExtent(ext);
+    
+  vtkImageCast* ic = vtkImageCast::New();
+  ic->SetInput(image);
+  ic->SetOutputScalarType(this->GetScalarType());
+  ic->Update();
+  int min0, max0, min1, max1;
+  min0 = x0;
+  min1 = y0;
+
+  max0 = x0 + width -1;
+  max1 = y0 + height -1;
+
+  // Pre-multiply coords if needed
+  if (this->Ratio[0] != 1.0) 
+    {
+    min0 = int(float(min0) * this->Ratio[0]);
+    max0 = int(float(max0) * this->Ratio[0]);
+    }
+  if (this->Ratio[1] != 1.0) 
+    {
+    min1 = int(float(min1) * this->Ratio[1]);
+    max1 = int(float(max1) * this->Ratio[1]);
+    }
+  if (this->Ratio[2] != 1.0) 
+    {
+    z = int(float(z) * this->Ratio[2]);
+    }
+  // Clip the data to keep in in bounds
+  extent = this->ImageData->GetExtent();
+  min0 = (min0 < extent[0]) ? extent[0] : min0;
+  max0 = (max0 < extent[0]) ? extent[0] : max0;
+  min0 = (min0 > extent[1]) ? extent[1] : min0;
+  max0 = (max0 > extent[1]) ? extent[1] : max0;
+  min1 = (min1 < extent[2]) ? extent[2] : min1;
+  max1 = (max1 < extent[2]) ? extent[2] : max1;
+  min1 = (min1 > extent[3]) ? extent[3] : min1;
+  max1 = (max1 > extent[3]) ? extent[3] : max1;   
+  z = (z < extent[4]) ? extent[4] : z;
+  z = (z > extent[5]) ? extent[5] : z;
+  void *ptr;
+  void *sptr;
+  ptr = this->ImageData->GetScalarPointer(min0, min1, 0);
+  sptr = ic->GetOutput()->GetScalarPointer(ext[0], ext[2], 0);
+  switch (this->ImageData->GetScalarType())
+    {
+    vtkTemplateMacro8(vtkImageCanvasSource2DDrawImage, this->ImageData, 
+                      ic->GetOutput(),
+                      (VTK_TT *)(ptr), (VTK_TT *)(sptr),
+                      min0,max0, min1,max1);
+    default:
+      vtkErrorMacro(<< "FillBox: Cannot handle ScalarType.");
+    }
+  ic->Delete();
+  clip->Delete();
+}
 
 //----------------------------------------------------------------------------
 // Draw a data.  Only implentented for 2D extents.
