@@ -211,8 +211,6 @@ VTK_THREAD_RETURN_TYPE vtkThreadedControllerStart( void *arg )
   int threadIdx = info->ThreadID;
   vtkThreadedController *self = (vtkThreadedController*)(info->UserData);
 
-  cerr << "Start: " << threadIdx << endl;
-
   self->Start(threadIdx);
   return VTK_THREAD_RETURN_VALUE;
 }
@@ -226,8 +224,6 @@ void vtkThreadedController::Start(int threadIdx)
 #ifdef VTK_USE_SPROC
   this->ThreadIds[threadIdx] = PRDA->sys_prda.prda_sys.t_pid;
 #endif
-
-  cerr << threadIdx << " -> " << this->ThreadIds[threadIdx] << endl;
 
   if (this->MultipleMethodFlag)
     {
@@ -264,10 +260,6 @@ void vtkThreadedController::SingleMethodExecute()
 				       (void*)this);
   this->MultiThreader->SetNumberOfThreads(this->NumberOfProcesses);
 
-  cerr << "Single: " << this->MultiThreader->GetNumberOfThreads()
-       << ", max = " << vtkMultiThreader::GetGlobalMaximumNumberOfThreads()
-       << endl;
-
   this->MultiThreader->SingleMethodExecute();
   this->DeleteThreadInfoObjects();
 }
@@ -281,10 +273,6 @@ void vtkThreadedController::MultipleMethodExecute()
   this->MultiThreader->SetSingleMethod(vtkThreadedControllerStart, 
 				       (void*)this);
   this->MultiThreader->SetNumberOfThreads(this->NumberOfProcesses);
-
-  cerr << "Multiple: " << this->MultiThreader->GetNumberOfThreads()
-       << ", max = " << vtkMultiThreader::GetGlobalMaximumNumberOfThreads()
-       << endl;
 
   this->MultiThreader->SingleMethodExecute();
   this->DeleteThreadInfoObjects();
