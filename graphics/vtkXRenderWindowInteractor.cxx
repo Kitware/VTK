@@ -174,6 +174,7 @@ void vtkXRenderWindowInteractor::Start()
     this->Initialize();
     }
   this->SetExitMethod(BreakXtLoop, this);
+  this->BreakLoopFlag = 0;
   do 
     {
     XEvent event;
