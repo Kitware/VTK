@@ -28,7 +28,6 @@ static int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
   double tuple3[SIZE/100];
   float *tuple2;
   int i;
-  vtkIdType maxId;
   
   strm << "\tResize(0)...";
   ptr->Resize(0); 
@@ -72,6 +71,9 @@ static int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
     strm << "FAILED" << endl;
     }
 
+  strm << "CreateDefaultLookupTable" << endl;
+  ptr2->CreateDefaultLookupTable();
+
   strm << "\tGetTuple(i)...";
   tuple2 = ptr->GetTuple (2);
   int passed = 1;
@@ -81,10 +83,10 @@ static int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
       {
       strm << *(tuple2 + i) << " ";
       if (*(tuple2 + i) != (20 + i))
-	{
-	passed = 0;
-	break;
-	}
+        {
+        passed = 0;
+        break;
+        }
       }
     }
   if (passed) strm << "OK" << endl;
@@ -145,9 +147,14 @@ static int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
   if (ptr->GetValue (500) == value) strm << "OK" << endl;
   else strm << "FAILED" << endl;
 
-  strm << "\tInsertNextValue(i, value)...";
-  maxId = ptr->InsertNextValue (value);
-  if (ptr->GetValue (maxId) == value) strm << "OK" << endl;
+  strm << "\tInsertValue(i, value)...";
+  ptr->InsertValue (500, value);
+  if (ptr->GetValue (500) == value) strm << "OK" << endl;
+  else strm << "FAILED" << endl;
+
+  strm << "\tInsertComponent(i, j, 5.0)...";
+  ptr->InsertComponent (500, 10, 5.0);
+  if (ptr->GetComponent (500, 10) == 5.0) strm << "OK" << endl;
   else strm << "FAILED" << endl;
 
   strm << "\tSetTuple(i, float *tuple)...";
@@ -253,15 +260,15 @@ static int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
   else strm << "FAILED" << endl;
 
   strm << "\tInsertNextTuple(float *tuple)...";
-  ptr->InsertNextTuple (tuple1);
-  for (i=0; i < 10; i++) tuple1[i] = 0;
-  ptr->GetTuple (101, tuple1);
+  for (i=0; i < 10; i++) tuple1[i] = 30 + i;
+  ptr->GetTuple (ptr->InsertNextTuple (tuple1) - 1, tuple1);
   passed = 1;
   for (i = 0; i < 10; i++)
     {
     strm << tuple1[i] << " ";
     if (tuple1[i] != (30 + i))
       {
+      strm << "Expected " << 30 + 1;
       passed = 0;
       break;
       }
@@ -270,15 +277,15 @@ static int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
   else strm << "FAILED" << endl;
 
   strm << "\tInsertNextTuple(double *tuple)...";
-  ptr->InsertNextTuple (tuple3);
-  for (i=0; i < 10; i++) tuple3[i] = 0;
-  ptr->GetTuple (102, tuple3);
+  for (i=0; i < 10; i++) tuple3[i] = 40 + i;
+  ptr->GetTuple (ptr->InsertNextTuple (tuple3) - 1, tuple3);
   passed = 1;
   for (i = 0; i < 10; i++)
     {
     strm << tuple3[i] << " ";
     if (tuple3[i] != (40 + i))
       {
+      strm << "Expected " << 40 + 1;
       passed = 0;
       break;
       }
@@ -287,15 +294,15 @@ static int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
   else strm << "FAILED" << endl;
 
   strm << "\tvtkDataArray::InsertNextTuple(double *tuple)...";
-  ptr->vtkDataArray::InsertNextTuple (tuple3);
-  for (i=0; i < 10; i++) tuple3[i] = 0;
-  ptr->GetTuple (102, tuple3);
+  for (i=0; i < 10; i++) tuple3[i] = 40 + i;
+  ptr->GetTuple (ptr->vtkDataArray::InsertNextTuple (tuple3) - 1, tuple3);
   passed = 1;
   for (i = 0; i < 10; i++)
     {
     strm << tuple3[i] << " ";
     if (tuple3[i] != (40 + i))
       {
+      strm << "Expected " << 40 + 1;
       passed = 0;
       break;
       }
@@ -319,7 +326,99 @@ static int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
     }
   if (passed) strm << "OK" << endl;
   else strm << "FAILED" << endl;
+
+
+  farray->SetNumberOfComponents(1);
+  farray->SetNumberOfTuples(100);
+  farray->SetTuple1(50,10.0);
+  if (farray->GetTuple1(50) == 10.0) strm << "OK" << endl;
+  else strm << "FAILED" << endl;
+
+  farray->SetNumberOfComponents(2);
+  farray->SetNumberOfTuples(100);
+  farray->SetTuple2(50,10.0,20.0);
+  if (farray->GetTuple2(50)[0] == 10.0 &&
+      farray->GetTuple2(50)[1] == 20.0) strm << "OK" << endl;
+  else strm << "FAILED" << endl;
+
+  farray->SetNumberOfComponents(3);
+  farray->SetNumberOfTuples(100);
+  farray->SetTuple3(50,10.0,20.0,30.0);
+  if (farray->GetTuple3(50)[0] == 10.0 &&
+      farray->GetTuple3(50)[1] == 20.0 &&
+      farray->GetTuple3(50)[2] == 30.0) strm << "OK" << endl;
+  else strm << "FAILED" << endl;
+
+  farray->SetNumberOfComponents(4);
+  farray->SetNumberOfTuples(100);
+  farray->SetTuple4(50,10.0,20.0,30.0,40.0);
+  if (farray->GetTuple4(50)[0] == 10.0 &&
+      farray->GetTuple4(50)[1] == 20.0 &&
+      farray->GetTuple4(50)[2] == 30.0 &&
+      farray->GetTuple4(50)[3] == 40.0) strm << "OK" << endl;
+  else strm << "FAILED" << endl;
+
+  farray->SetNumberOfComponents(9);
+  farray->SetNumberOfTuples(100);
+  farray->SetTuple9(50,10.0,20.0,30.0,40.0,50.0,60.0,70.0,80.0,90.0);
+  if (farray->GetTuple9(50)[0] == 10.0 &&
+      farray->GetTuple9(50)[1] == 20.0 &&
+      farray->GetTuple9(50)[2] == 30.0 &&
+      farray->GetTuple9(50)[3] == 40.0 &&
+      farray->GetTuple9(50)[4] == 50.0 &&
+      farray->GetTuple9(50)[5] == 60.0 &&
+      farray->GetTuple9(50)[6] == 70.0 &&
+      farray->GetTuple9(50)[7] == 80.0 &&
+      farray->GetTuple9(50)[8] == 90.0) strm << "OK" << endl;
+  else strm << "FAILED" << endl;
+
+  farray->SetNumberOfComponents(1);
+  farray->SetNumberOfTuples(100);
+  farray->InsertTuple1(502,10.0);
+  if (farray->GetTuple1(502) == 10.0) strm << "OK" << endl;
+  else strm << "FAILED" << endl;
+
+  farray->SetNumberOfComponents(2);
+  farray->SetNumberOfTuples(100);
+  farray->InsertTuple2(502,10.0,20.0);
+  if (farray->GetTuple2(502)[0] == 10.0 &&
+      farray->GetTuple2(502)[1] == 20.0) strm << "OK" << endl;
+  else strm << "FAILED" << endl;
+
+  farray->SetNumberOfComponents(3);
+  farray->SetNumberOfTuples(100);
+  farray->InsertTuple3(502,10.0,20.0,30.0);
+  if (farray->GetTuple3(502)[0] == 10.0 &&
+      farray->GetTuple3(502)[1] == 20.0 &&
+      farray->GetTuple3(502)[2] == 30.0) strm << "OK" << endl;
+  else strm << "FAILED" << endl;
+
+  farray->SetNumberOfComponents(4);
+  farray->SetNumberOfTuples(100);
+  farray->InsertTuple4(502,10.0,20.0,30.0,40.0);
+  if (farray->GetTuple4(502)[0] == 10.0 &&
+      farray->GetTuple4(502)[1] == 20.0 &&
+      farray->GetTuple4(502)[2] == 30.0 &&
+      farray->GetTuple4(502)[3] == 40.0) strm << "OK" << endl;
+  else strm << "FAILED" << endl;
+
+  farray->SetNumberOfComponents(9);
+  farray->SetNumberOfTuples(100);
+  farray->InsertTuple9(502,10.0,20.0,30.0,40.0,50.0,60.0,70.0,80.0,90.0);
+  if (farray->GetTuple9(502)[0] == 10.0 &&
+      farray->GetTuple9(502)[1] == 20.0 &&
+      farray->GetTuple9(502)[2] == 30.0 &&
+      farray->GetTuple9(502)[3] == 40.0 &&
+      farray->GetTuple9(502)[4] == 50.0 &&
+      farray->GetTuple9(502)[5] == 60.0 &&
+      farray->GetTuple9(502)[6] == 70.0 &&
+      farray->GetTuple9(502)[7] == 80.0 &&
+      farray->GetTuple9(502)[8] == 90.0) strm << "OK" << endl;
+  else strm << "FAILED" << endl;
+
+
   farray->Delete();
+  
   
   strm << "PrintSelf..." << endl;
   strm << *ptr;
