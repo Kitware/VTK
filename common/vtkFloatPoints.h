@@ -80,6 +80,9 @@ protected:
   vtkFloatPoints(const vtkFloatPoints&) {};
   void operator=(const vtkFloatPoints&) {};
 
+private:
+  static vtkFloatPoints *New(int) { return (vtkFloatPoints *) vtkPoints::New();};
+
 };
 
 inline float *vtkFloatPoints::GetPointer(const int id)
