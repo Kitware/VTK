@@ -216,7 +216,6 @@ void vtkUnstructuredGridReader::Execute()
         if ( !this->Reader.ReadCells(fp, size, cells->WritePtr(ncells,size)) ) return;
         cells->WrotePtr();
         if ( cells && types ) output->SetCells(types, cells);
-        cells->Delete();
         }
 
       else if ( ! strncmp(line,"cell_types",5) )
@@ -299,9 +298,15 @@ void vtkUnstructuredGridReader::Execute()
 //
 // Clean-up and get out
 //
-  if ( types ) delete [] types;
+  if (types) delete [] types;
+  if (cells)
+    {
+    cells->Delete();
+    }
 
   vtkDebugMacro(<<"Read " <<output->GetNumberOfPoints() <<" points," <<output->GetNumberOfCells() <<" cells.\n");
+  
+
   return;
 }
 
