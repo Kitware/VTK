@@ -53,6 +53,9 @@ vtkEncodedGradientEstimator::vtkEncodedGradientEstimator()
 {
   this->Input                      = NULL;
   this->EncodedNormals             = NULL;
+  this->EncodedNormalsSize[0]      = 0;
+  this->EncodedNormalsSize[1]      = 0;
+  this->EncodedNormalsSize[2]      = 0;
   this->GradientMagnitudes         = NULL;
   this->GradientMagnitudeScale     = 1.0;
   this->GradientMagnitudeBias      = 0.0;
