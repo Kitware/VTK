@@ -32,7 +32,7 @@ viewer SetColorLevel 0
 
 
 viewer Render
-$reader Delete
+$reader UnRegister viewer
 
 
 
