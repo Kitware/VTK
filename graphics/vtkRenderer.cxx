@@ -296,8 +296,6 @@ int vtkRenderer::UpdateVolumes()
 	  break;
 	case VTK_FRAMEBUFFER_VOLUME_MAPPER:
 	  visibleFrameBufferVolumeCount++; 
-	  ((vtkVolume *)aProp)->GetVolumeMapper()->
-	   Render( (vtkRenderer *)this, ((vtkVolume *)aProp) );
 	  break;
 	}
       }
