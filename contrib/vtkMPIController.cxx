@@ -105,7 +105,7 @@ void vtkMPIController::MultipleMethodExecute()
     {
     if (this->MultipleMethod[i])
       {
-      (this->MultipleMethod[i])((void *)(this->MultipleData[1]) );
+      (this->MultipleMethod[i])((void *)(this->MultipleData[i]) );
       }
     else
       {

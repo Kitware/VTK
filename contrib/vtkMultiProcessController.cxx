@@ -43,8 +43,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMPIController.h"
 
 #include "vtkCollection.h"
-#include "vtkPolyDataReader.h"
-#include "vtkPolyDataWriter.h"
+#include "vtkDataSetReader.h"
+#include "vtkDataSetWriter.h"
 #include "vtkStructuredPointsReader.h"
 #include "vtkStructuredPointsWriter.h"
 #include "vtkImageClip.h"
@@ -95,8 +95,8 @@ vtkMultiProcessController::vtkMultiProcessController()
     this->MultipleData[i] = NULL;
     }
 
-  this->PolyDataWriteTime = 0.0;
-  this->PolyDataReadTime = 0.0;
+  this->WriteTime = 0.0;
+  this->ReadTime = 0.0;
 
   this->SendTime = 0.0;
   this->SendWaitTime = 0.0;
@@ -273,6 +273,7 @@ int vtkMultiProcessController::Receive(vtkObject *data,
   // First receive the data length.
   log->StartTimer();
   this->Receive( &dataLength, 1, remoteProcessId, tag);
+  
   log->StopTimer();
   this->ReceiveWaitTime = log->GetElapsedTime();
 
@@ -380,7 +381,7 @@ void vtkMultiProcessController::ProcessRMIs()
 void vtkMultiProcessController::DeleteAndSetMarshalString(char *str, 
 							  int strLength)
 {
-  // delete any previous srting
+  // delete any previous string
   if (this->MarshalString)
     {
     delete [] this->MarshalString;
@@ -398,14 +399,19 @@ void vtkMultiProcessController::DeleteAndSetMarshalString(char *str,
 //----------------------------------------------------------------------------
 int vtkMultiProcessController::WriteObject(vtkObject *data)
 {
-  if (strcmp(data->GetClassName(), "vtkPolyData") == 0)
+  if (strcmp(data->GetClassName(), "vtkPolyData") == 0          ||
+      strcmp(data->GetClassName(), "vtkUnstructuredGrid") == 0  ||
+      strcmp(data->GetClassName(), "vtkStructuredGrid") == 0    ||
+      strcmp(data->GetClassName(), "vtkRectilinearGrid") == 0   ||
+      strcmp(data->GetClassName(), "vtkStructuredPoints") == 0)
     {
-    return this->WritePolyData((vtkPolyData*)data);
+    return this->WriteDataSet((vtkDataSet*)data);
     }  
   if (strcmp(data->GetClassName(), "vtkImageData") == 0)
     {
     return this->WriteImageData((vtkImageData*)data);
-    }  
+    }
+  
   if (strcmp(data->GetClassName(), "vtkExtent") == 0 ||
       strcmp(data->GetClassName(), "vtkStructuredExtent") == 0 ||
       strcmp(data->GetClassName(), "vtkUnstructuredExtent") == 0)
@@ -428,14 +434,19 @@ int vtkMultiProcessController::WriteObject(vtkObject *data)
 //----------------------------------------------------------------------------
 int vtkMultiProcessController::ReadObject(vtkObject *data)
 {
-  if (strcmp(data->GetClassName(), "vtkPolyData") == 0)
+  if (strcmp(data->GetClassName(), "vtkPolyData") == 0          ||
+      strcmp(data->GetClassName(), "vtkUnstructuredGrid") == 0  ||
+      strcmp(data->GetClassName(), "vtkStructuredGrid") == 0    ||
+      strcmp(data->GetClassName(), "vtkRectilinearGrid") == 0   ||
+      strcmp(data->GetClassName(), "vtkStructuredPoints") == 0)
     {
-    return this->ReadPolyData((vtkPolyData*)data);
-    }
+    return this->ReadDataSet((vtkDataSet*)data);
+    }  
   if (strcmp(data->GetClassName(), "vtkImageData") == 0)
     {
     return this->ReadImageData((vtkImageData*)data);
     }
+  
   if (strcmp(data->GetClassName(), "vtkExtent") == 0 || 
       strcmp(data->GetClassName(), "vtkStructuredExtent") == 0 ||
       strcmp(data->GetClassName(), "vtkUnstructuredExtent") == 0)
@@ -464,8 +475,7 @@ int vtkMultiProcessController::WriteImageData(vtkImageData *data)
   char *str;
   vtkImageClip *clip;
   vtkStructuredPointsWriter *writer;
-  int *ext;
-  unsigned long size;
+  int *ext, size;
   
   clip = vtkImageClip::New();
   clip->SetInput(data);
@@ -474,50 +484,16 @@ int vtkMultiProcessController::WriteImageData(vtkImageData *data)
   writer->SetFileTypeToBinary();
   writer->WriteToOutputStringOn();
   writer->SetInput(clip->GetOutput());
-  
-  // Compute the size
-  // headers and stuff
-  size = 200;
-  // scalars
-  ext = data->GetExtent();
-  size += data->GetScalarSize() * data->GetNumberOfScalarComponents() 
-    * (ext[1]-ext[0]+1) * (ext[3]-ext[2]+1) * (ext[5]-ext[4]+1);
-
-  // use the previous string if it is long enough.
-  if (this->MarshalStringLength < size)
-    {
-    // otherwise allocate a new string
-    str = new char[size];
-    this->DeleteAndSetMarshalString(str, size);
-    str = NULL;
-    }
-  
-  writer->SetOutputString(this->MarshalString, this->MarshalStringLength);
   writer->Write();
   size = writer->GetOutputStringLength();
-
-  // we need to put this logic in the Writer.
-  while (size == this->MarshalStringLength)
-    { // Write took all of string. Assume write was truncated.
-    size = size * 2;
-    str = new char[size];
-    this->DeleteAndSetMarshalString(str, size);
-    writer->SetOutputString(str, size);
-    str = NULL;
-
-    vtkWarningMacro("Expanding string length to " << size);
-    writer->Write();
-    size = writer->GetOutputStringLength();
-    }  
   
-  // save the actual length of the data string.
+  this->DeleteAndSetMarshalString(writer->RegisterAndGetOutputString(), size);
   this->MarshalDataLength = size;
   clip->Delete();
   writer->Delete();
   
   return 1;
 }
-
 //----------------------------------------------------------------------------
 int vtkMultiProcessController::ReadImageData(vtkImageData *object)
 {
@@ -541,7 +517,6 @@ int vtkMultiProcessController::ReadImageData(vtkImageData *object)
 
   return 1;
 }
-
 //----------------------------------------------------------------------------
 void vtkMultiProcessController::CopyImageData(vtkImageData *src, 
 					      vtkImageData *dest)
@@ -553,114 +528,42 @@ void vtkMultiProcessController::CopyImageData(vtkImageData *src,
 }
 
 
+
 //----------------------------------------------------------------------------
-int vtkMultiProcessController::WritePolyData(vtkPolyData *data)
+int vtkMultiProcessController::WriteDataSet(vtkDataSet *data)
 {
-  int numPts, numCells;
   unsigned long size;
   char *str;
-  vtkCellArray *ca;
-  vtkPolyDataWriter *writer = vtkPolyDataWriter::New();
-  vtkPointData *pd;
+  vtkDataSetWriter *writer = vtkDataSetWriter::New();
   vtkTimerLog *log = vtkTimerLog::New();
-  
+
   log->StartTimer();
 
-  numCells = data->GetNumberOfCells();
-  if (numCells > 0)
+  // There is a problem with binary files with no data.
+  if (data->GetNumberOfCells() > 0)
     {
     writer->SetFileTypeToBinary();
     }
   writer->WriteToOutputStringOn();
   writer->SetInput(data);  
   
-  // Compute the size
-  pd = data->GetPointData();
-  numPts = data->GetNumberOfPoints();
-
-  // headers and stuff
-  size = 200;
-  // points
-  size += numPts * 3 * sizeof(float);
-  
-  // Cells
-  ca = data->GetPolys();
-  if (ca)
-    {
-    size += ca->GetSize() * sizeof(int);
-    }
-  ca = data->GetStrips();
-  if (ca)
-    {
-    size += ca->GetSize() * sizeof(int);
-    }
-  ca = data->GetLines();
-  if (ca)
-    {
-    size += ca->GetSize() * sizeof(int);
-    }
-  ca = data->GetVerts();
-  if (ca)
-    {
-    size += ca->GetSize() * sizeof(int);
-    }
-
-  // point data
-  if (pd->GetScalars())
-    {
-    size += pd->GetScalars()->GetNumberOfScalars() * sizeof(float);
-    }
-  if (pd->GetVectors())
-    {
-    size += pd->GetVectors()->GetNumberOfVectors() * 3 * sizeof(float);
-    }
-  if (pd->GetNormals())
-    {
-    size += pd->GetNormals()->GetNumberOfNormals() * 3 * sizeof(float);
-    }
-
-  // use the previous string if it is long enough.
-  if (this->MarshalStringLength < size)
-    {
-    // otherwise allocate a new string
-    str = new char[size];
-    this->DeleteAndSetMarshalString(str, size);
-    str = NULL;
-    }
-  
-  writer->SetOutputString(this->MarshalString, this->MarshalStringLength);
   writer->Write();
   size = writer->GetOutputStringLength();
-
-  // we need to put this logic in the Writer.
-  while (size == this->MarshalStringLength)
-    { // Write took all of string. Assume write was truncated.
-    size = size * 2;
-    str = new char[size];
-    this->DeleteAndSetMarshalString(str, size);
-    writer->SetOutputString(str, size);
-    str = NULL;
-
-    vtkWarningMacro("Expanding string length to " << size);
-    writer->Write();
-    size = writer->GetOutputStringLength();
-    }  
-  
-  // save the actual length of the data string.
+  this->DeleteAndSetMarshalString(writer->RegisterAndGetOutputString(), size);
   this->MarshalDataLength = size;
   writer->Delete();
   
   log->StopTimer();
-  this->PolyDataWriteTime = log->GetElapsedTime();
+  this->WriteTime = log->GetElapsedTime();
   log->Delete();
-
+  
   return 1;
 }
-
 //----------------------------------------------------------------------------
-int vtkMultiProcessController::ReadPolyData(vtkPolyData *object)
+int vtkMultiProcessController::ReadDataSet(vtkDataSet *object)
 {
-  vtkPolyDataReader *reader = vtkPolyDataReader::New();
+  vtkDataSet *output;
+  vtkDataSetReader *reader = vtkDataSetReader::New();
   vtkTimerLog *log;
 
   if (this->MarshalString == NULL || this->MarshalStringLength <= 0)
@@ -672,31 +575,26 @@ int vtkMultiProcessController::ReadPolyData(vtkPolyData *object)
   log->StartTimer();
   reader->ReadFromInputStringOn();
   reader->SetInputString(this->MarshalString, this->MarshalDataLength);
-  reader->GetOutput()->PreUpdate();
-  reader->GetOutput()->InternalUpdate();
+  output = reader->GetOutput();
+  output->PreUpdate();
+  output->InternalUpdate();
   
-  this->CopyPolyData(reader->GetOutput(), object);
+  this->CopyDataSet(output, object);
   reader->Delete();
 
   log->StopTimer();
-  this->PolyDataReadTime = log->GetElapsedTime();
+  this->ReadTime = log->GetElapsedTime();
   log->Delete();
 
   return 1;
 }
-
 //----------------------------------------------------------------------------
-void vtkMultiProcessController::CopyPolyData(vtkPolyData *src, vtkPolyData *dest)
+void vtkMultiProcessController::CopyDataSet(vtkDataSet *src, vtkDataSet *dest)
 {
   dest->CopyStructure(src);
-  
   dest->GetPointData()->ShallowCopy(src->GetPointData());  
   dest->GetCellData()->ShallowCopy(src->GetCellData());  
 }
-
-
-
-
 
 
 

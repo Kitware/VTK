@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkObject.h"
 #include "vtkMultiThreader.h"
-class vtkPolyData;
+class vtkDataSet;
 class vtkImageData;
 class vtkCollection;
 class vtkExtent;
@@ -174,8 +174,8 @@ public:
   // Description:
   // For perfomance monitoring, reading and writing polydata to strings
   // are timed.  Access to these times is provided by these methods.
-  vtkGetMacro(PolyDataWriteTime, float);
-  vtkGetMacro(PolyDataReadTime, float);
+  vtkGetMacro(WriteTime, float);
+  vtkGetMacro(ReadTime, float);
   vtkGetMacro(SendWaitTime, float);
   vtkGetMacro(SendTime, float);
   vtkGetMacro(ReceiveWaitTime, float);
@@ -213,9 +213,9 @@ protected:
   int WriteObject(vtkObject *object);
   int ReadObject(vtkObject *object);
   
-  int WritePolyData(vtkPolyData *object);
-  int ReadPolyData(vtkPolyData *object);
-  void CopyPolyData(vtkPolyData *src, vtkPolyData *dest);
+  int WriteDataSet(vtkDataSet *object);
+  int ReadDataSet(vtkDataSet *object);
+  void CopyDataSet(vtkDataSet *src, vtkDataSet *dest);
 
   int WriteImageData(vtkImageData *object);
   int ReadImageData(vtkImageData *object);
@@ -227,8 +227,8 @@ protected:
   int WriteDataInformation(vtkDataInformation *info);
   int ReadDataInformation(vtkDataInformation *info);
 
-  float PolyDataReadTime;
-  float PolyDataWriteTime;
+  float ReadTime;
+  float WriteTime;
 
   float SendWaitTime;
   float SendTime;

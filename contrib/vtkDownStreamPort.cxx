@@ -41,6 +41,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkUpStreamPort.h"
 #include "vtkMultiProcessController.h"
 #include "vtkPolyData.h"
+#include "vtkUnstructuredGrid.h"
+#include "vtkStructuredGrid.h"
+#include "vtkRectilinearGrid.h"
+#include "vtkStructuredPoints.h"
 #include "vtkImageData.h"
 #include "vtkDataInformation.h"
 #include "vtkExtent.h"
@@ -111,6 +115,125 @@ vtkPolyData *vtkDownStreamPort::GetPolyDataOutput()
   output = vtkPolyData::New();
   this->vtkSource::SetOutput(0, output);
   return (vtkPolyData*)(output);
+}
+
+
+//----------------------------------------------------------------------------
+// Maybe we can come up with a way to check the type of the upstream port's
+// input here.  While we are at it, we could automatically generate a tag.
+vtkUnstructuredGrid *vtkDownStreamPort::GetUnstructuredGridOutput()
+{
+  vtkDataObject *output = NULL;
+  
+  // If there is already an output, I hope it is a vtkPolyData.
+  if (this->Outputs)
+    {
+    output = this->Outputs[0];
+    }
+  if (output)
+    {
+    if (output->GetDataObjectType() == VTK_UNSTRUCTURED_GRID)
+      {
+      return (vtkUnstructuredGrid*)(output);
+      }
+    else
+      {
+      vtkWarningMacro("vtkDownStreamPort: Changing data type of output.");
+      }
+    }
+  
+  output = vtkUnstructuredGrid::New();
+  this->vtkSource::SetOutput(0, output);
+  return (vtkUnstructuredGrid*)(output);
+}
+
+//----------------------------------------------------------------------------
+// Maybe we can come up with a way to check the type of the upstream port's
+// input here.  While we are at it, we could automatically generate a tag.
+vtkStructuredGrid *vtkDownStreamPort::GetStructuredGridOutput()
+{
+  vtkDataObject *output = NULL;
+  
+  // If there is already an output, I hope it is a vtkPolyData.
+  if (this->Outputs)
+    {
+    output = this->Outputs[0];
+    }
+  if (output)
+    {
+    if (output->GetDataObjectType() == VTK_STRUCTURED_GRID)
+      {
+      return (vtkStructuredGrid*)(output);
+      }
+    else
+      {
+      vtkWarningMacro("vtkDownStreamPort: Changing data type of output.");
+      }
+    }
+  
+  output = vtkStructuredGrid::New();
+  this->vtkSource::SetOutput(0, output);
+  return (vtkStructuredGrid*)(output);
+}
+
+
+//----------------------------------------------------------------------------
+// Maybe we can come up with a way to check the type of the upstream port's
+// input here.  While we are at it, we could automatically generate a tag.
+vtkRectilinearGrid *vtkDownStreamPort::GetRectilinearGridOutput()
+{
+  vtkDataObject *output = NULL;
+  
+  // If there is already an output, I hope it is a vtkPolyData.
+  if (this->Outputs)
+    {
+    output = this->Outputs[0];
+    }
+  if (output)
+    {
+    if (output->GetDataObjectType() == VTK_RECTILINEAR_GRID)
+      {
+      return (vtkRectilinearGrid*)(output);
+      }
+    else
+      {
+      vtkWarningMacro("vtkDownStreamPort: Changing data type of output.");
+      }
+    }
+  
+  output = vtkRectilinearGrid::New();
+  this->vtkSource::SetOutput(0, output);
+  return (vtkRectilinearGrid*)(output);
+}
+
+
+//----------------------------------------------------------------------------
+// Maybe we can come up with a way to check the type of the upstream port's
+// input here.  While we are at it, we could automatically generate a tag.
+vtkStructuredPoints *vtkDownStreamPort::GetStructuredPointsOutput()
+{
+  vtkDataObject *output = NULL;
+  
+  // If there is already an output, I hope it is a vtkPolyData.
+  if (this->Outputs)
+    {
+    output = this->Outputs[0];
+    }
+  if (output)
+    {
+    if (output->GetDataObjectType() == VTK_STRUCTURED_POINTS)
+      {
+      return (vtkStructuredPoints*)(output);
+      }
+    else
+      {
+      vtkWarningMacro("vtkDownStreamPort: Changing data type of output.");
+      }
+    }
+  
+  output = vtkStructuredPoints::New();
+  this->vtkSource::SetOutput(0, output);
+  return (vtkStructuredPoints*)(output);
 }
 
 

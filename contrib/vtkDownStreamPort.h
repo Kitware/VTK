@@ -51,6 +51,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkSource.h"
 #include "vtkMultiProcessController.h"
 class vtkPolyData;
+class vtkUnstructuredGrid;
+class vtkStructuredGrid;
+class vtkRectilinearGrid;
+class vtkStructuredPoints;
 class vtkImageData;
 
 // Arbitrary tags used by the ports for communication.
@@ -75,6 +79,10 @@ public:
   // We have to live with the fact that the error will not occur until
   // an update is called.
   vtkPolyData *GetPolyDataOutput();
+  vtkUnstructuredGrid *GetUnstructuredGridOutput();
+  vtkStructuredGrid *GetStructuredGridOutput();
+  vtkRectilinearGrid *GetRectilinearGridOutput();
+  vtkStructuredPoints *GetStructuredPointsOutput();
   vtkImageData *GetImageDataOutput();
   
   // Description:
