@@ -29,7 +29,7 @@
 #include <vtkstd/stack>
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.72");
+vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.73");
 vtkStandardNewMacro(vtkOrderedTriangulator);
 
 #ifdef _WIN32_WCE
@@ -125,7 +125,7 @@ struct OTFace //used during tetra construction
   double   Normal[3];
   double   N2;
 
-  void ComputePsuedoNormal()
+  void ComputePseudoNormal()
     {
       double v20[3], v10[3];
       v20[0] = this->Points[2]->P[0] - this->Points[0]->P[0];
@@ -601,7 +601,7 @@ void OTTetra::GetFacePoints(int i, OTFace *face)
       face->Points[2] = this->Points[2];
       break;
     }
-  face->ComputePsuedoNormal();
+  face->ComputePseudoNormal();
 }
 
 //------------------------------------------------------------------------

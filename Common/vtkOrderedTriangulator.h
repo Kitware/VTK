@@ -23,7 +23,8 @@
 // robust triangulation methods use vtkPolygon::Triangulate(), vtkDelaunay2D,
 // or vtkDelaunay3D.
 //
-// Background: Delaunay triangulations are unique assuming a random
+// .SECTION Background
+// Delaunay triangulations are unique assuming a random
 // distribution of input points. The 3D Delaunay criterion is as follows:
 // the circumsphere of each tetrahedron contains no other points of the
 // triangulation except for the four points defining the tetrahedron.
@@ -42,7 +43,7 @@
 // a N-dimensional Delaunay triangulation, points lying on a (N-1) dimensional
 // plane also form a (N-1) Delaunay triangulation. This means for example,
 // that if a 3D cell is defined by a set of (2D) planar faces, then the
-// face triangulations are Delaunay. Combinaing this with the method to
+// face triangulations are Delaunay. Combining this with the method to
 // generate unique triangulations described previously, the triangulations
 // on the face are guaranteed unique. This fact can be used to triangulate
 // 3D objects in such a way to guarantee compatible face triangulations.
@@ -60,7 +61,7 @@
 // .SECTION Caveats
 // Duplicate vertices will be ignored, i.e., if two points have the same
 // coordinates the second one is discarded. The implications are that the
-// user of this class most prevent duplicate points. Because the precision
+// user of this class must prevent duplicate points. Because the precision
 // of this algorithm is double, it's also a good idea to merge points
 // that are within some epsilon of one another.
 
