@@ -46,7 +46,9 @@ int main(int argc, char *argv[])
   // The actor is a grouping mechanism: besides the geometry (mapper), it
   // also has a property, transformation matrix, and/or texture map.
   // In this example we create eight different spheres (two rows of four
-  // spheres) and set the specular lighting coefficients.
+  // spheres) and set the specular lighting coefficients. A little ambient
+  // is turned on so the sphere is not completely black on the back side.
+  //
   vtkActor *sphere1 = vtkActor::New();
   sphere1->SetMapper(sphereMapper);
   sphere1->GetProperty()->SetColor(1,0,0);
@@ -129,7 +131,7 @@ int main(int argc, char *argv[])
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
 
-  // Add the actors to the renderer, set the background and size
+  // Add the actors to the renderer, set the background and size.
   //
   ren1->AddActor(sphere1);
   ren1->AddActor(sphere2);
@@ -149,21 +151,25 @@ int main(int argc, char *argv[])
   light->SetPosition(-0.875,1.6125,1);
   ren1->AddLight(light);
 
-  // We'll zoom in a little by accessing the camera and invoking a "Zoom"
-  // method on it.
+  // We want to eliminate perspective effects on the apparent lighting.
+  // Parallel camera projection will be used. To zoom in parallel projection
+  // mode, the ParallelScale is set.
+  //
   ren1->GetActiveCamera()->SetFocalPoint(0,0,0);
   ren1->GetActiveCamera()->SetPosition(0,0,1);
   ren1->GetActiveCamera()->SetViewUp(0,1,0);
   ren1->GetActiveCamera()->ParallelProjectionOn();
   ren1->ResetCamera();
   ren1->GetActiveCamera()->SetParallelScale(1.5);
-  renWin->Render();
   
-  // This starts the event loop and as a side effect causes an initial render.
+  // This starts the event loop and invokes an initial render.
+  //
+  iren->Initialize();
   iren->Start();
 
   // Exiting from here, we have to delete all the instances that
   // have been created.
+  //
   sphere->Delete();
   sphereMapper->Delete();
   sphere1->Delete();
