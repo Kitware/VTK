@@ -313,7 +313,6 @@ protected:
   vtkProperty *SelectedPlaneProperty;
   void CreateDefaultProperties();
 
-  void GeneratePlane();
   void UpdateNormal();
   void UpdateOrigin();
   void GenerateTexturePlane();
