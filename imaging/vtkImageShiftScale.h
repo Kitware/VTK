@@ -55,7 +55,7 @@ class VTK_EXPORT vtkImageShiftScale : public vtkImageFilter
 public:
   vtkImageShiftScale();
   static vtkImageShiftScale *New() {return new vtkImageShiftScale;};
-  char *GetClassName() {return "vtkImageShiftScale";};
+  const char *GetClassName() {return "vtkImageShiftScale";};
 
   // Description:
   // Set/Get the Shift

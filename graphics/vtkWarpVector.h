@@ -54,7 +54,7 @@ class VTK_EXPORT vtkWarpVector : public vtkPointSetToPointSetFilter
 public:
   vtkWarpVector() : ScaleFactor(1.0) {};
   static vtkWarpVector *New() {return new vtkWarpVector;};
-  char *GetClassName() {return "vtkWarpVector";};
+  const char *GetClassName() {return "vtkWarpVector";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

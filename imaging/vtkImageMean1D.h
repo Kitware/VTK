@@ -61,7 +61,7 @@ class VTK_EXPORT vtkImageMean1D : public vtkImageFilter
 public:
   vtkImageMean1D();
   static vtkImageMean1D *New() {return new vtkImageMean1D;};
-  char *GetClassName() {return "vtkImageMean1D";};
+  const char *GetClassName() {return "vtkImageMean1D";};
 
   // Description:
   // Set/Get the stride which will reduce the resolution of the output.

@@ -55,7 +55,7 @@ class VTK_EXPORT vtkImageMirrorPad : public vtkImagePadFilter
 public:
   vtkImageMirrorPad();
   static vtkImageMirrorPad *New() {return new vtkImageMirrorPad;};
-  char *GetClassName() {return "vtkImageMirrorPad";};
+  const char *GetClassName() {return "vtkImageMirrorPad";};
 
 protected:
   void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion,

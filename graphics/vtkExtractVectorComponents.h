@@ -65,7 +65,7 @@ class VTK_EXPORT vtkExtractVectorComponents : public vtkFilter
 public:
   vtkExtractVectorComponents();
   static vtkExtractVectorComponents *New() {return new vtkExtractVectorComponents;};
-  char *GetClassName() {return "vtkExtractVectorComponents";};
+  const char *GetClassName() {return "vtkExtractVectorComponents";};
 
   // filter interface (need to overload because of multiple output
   void Update();

@@ -64,7 +64,7 @@ class VTK_EXPORT vtkWarpScalar : public vtkPointSetToPointSetFilter
 public:
   vtkWarpScalar();
   static vtkWarpScalar *New() {return new vtkWarpScalar;};
-  char *GetClassName() {return "vtkWarpScalar";};
+  const char *GetClassName() {return "vtkWarpScalar";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

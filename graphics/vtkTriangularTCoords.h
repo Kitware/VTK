@@ -61,7 +61,7 @@ class VTK_EXPORT vtkTriangularTCoords : public vtkPolyDataToPolyDataFilter
 {
 public:
   static vtkTriangularTCoords *New() {return new vtkTriangularTCoords;};
-  char *GetClassName() {return "vtkTriangularTCoords";};
+  const char *GetClassName() {return "vtkTriangularTCoords";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:

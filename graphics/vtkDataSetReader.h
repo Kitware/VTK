@@ -59,7 +59,7 @@ class VTK_EXPORT vtkDataSetReader : public vtkSource
 public:
   vtkDataSetReader();
   static vtkDataSetReader *New() {return new vtkDataSetReader;};
-  char *GetClassName() {return "vtkDataSetReader";};
+  const char *GetClassName() {return "vtkDataSetReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void SetFileName(char *name);

@@ -87,7 +87,7 @@ public:
   vtkContourFilter();
   static vtkContourFilter *New() {return new vtkContourFilter;};
   ~vtkContourFilter();
-  char *GetClassName() {return "vtkContourFilter";};
+  const char *GetClassName() {return "vtkContourFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Methods to set contour values

@@ -54,7 +54,7 @@ class VTK_EXPORT vtkTextSource : public vtkPolyDataSource
 public:
   vtkTextSource();
   static vtkTextSource *New() {return new vtkTextSource;};
-  char *GetClassName() {return "vtkTextSource";};
+  const char *GetClassName() {return "vtkTextSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

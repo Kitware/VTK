@@ -64,7 +64,7 @@ public:
   vtkDataReader();
   ~vtkDataReader();
   static vtkDataReader *New() {return new vtkDataReader;};
-  char *GetClassName() {return "vtkDataReader";};
+  const char *GetClassName() {return "vtkDataReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

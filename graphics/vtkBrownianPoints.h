@@ -54,7 +54,7 @@ class VTK_EXPORT vtkBrownianPoints : public vtkDataSetToDataSetFilter
 public:
   vtkBrownianPoints();
   static vtkBrownianPoints *New() {return new vtkBrownianPoints;};
-  char *GetClassName() {return "vtkBrownianPoints";};
+  const char *GetClassName() {return "vtkBrownianPoints";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

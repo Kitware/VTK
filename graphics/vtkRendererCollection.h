@@ -57,7 +57,7 @@ class VTK_EXPORT vtkRendererCollection : public vtkCollection
 {
  public:
   static vtkRendererCollection *New() {return new vtkRendererCollection;};
-  char *GetClassName() {return "vtkRendererCollection";};
+  const char *GetClassName() {return "vtkRendererCollection";};
 
   void AddItem(vtkRenderer *a);
   void RemoveItem(vtkRenderer *a);

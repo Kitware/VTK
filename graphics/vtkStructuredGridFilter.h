@@ -56,7 +56,7 @@ class VTK_EXPORT vtkStructuredGridFilter : public vtkFilter
 {
 public:
   static vtkStructuredGridFilter *New() {return new vtkStructuredGridFilter;};
-  char *GetClassName() {return "vtkStructuredGridFilter";};
+  const char *GetClassName() {return "vtkStructuredGridFilter";};
 
   void SetInput(vtkStructuredGrid *input);
   void SetInput(vtkStructuredGrid &input) {this->SetInput(&input);};

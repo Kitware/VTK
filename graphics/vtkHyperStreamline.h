@@ -128,7 +128,7 @@ public:
   vtkHyperStreamline();
   ~vtkHyperStreamline();
   static vtkHyperStreamline *New() {return new vtkHyperStreamline;};
-  char *GetClassName() {return "vtkHyperStreamline";};
+  const char *GetClassName() {return "vtkHyperStreamline";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void SetStartLocation(int cellId, int subId, float pcoords[3]);

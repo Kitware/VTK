@@ -79,7 +79,7 @@ class VTK_EXPORT vtkSliceCubes : public vtkObject
 public:
   vtkSliceCubes();
   static vtkSliceCubes *New() {return new vtkSliceCubes;};
-  char *GetClassName() {return "vtkSliceCubes";};
+  const char *GetClassName() {return "vtkSliceCubes";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // methods to make it look like a filter

@@ -58,7 +58,7 @@ public:
   vtkImageConvolution1D();
   ~vtkImageConvolution1D();
   static vtkImageConvolution1D *New() {return new vtkImageConvolution1D;};
-  char *GetClassName() {return "vtkImageConvolution1D";};
+  const char *GetClassName() {return "vtkImageConvolution1D";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
   void SetKernel(float *kernel, int size);

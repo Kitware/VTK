@@ -59,7 +59,7 @@ public:
   vtkStarbasePolyDataMapper();
   virtual ~vtkStarbasePolyDataMapper();
   static vtkStarbasePolyDataMapper *New() {return new vtkStarbasePolyDataMapper;};
-  char *GetClassName() {return "vtkStarbasePolyDataMapper";};
+  const char *GetClassName() {return "vtkStarbasePolyDataMapper";};
 
   virtual void Render(vtkRenderer *ren, vtkActor *a);
   void Build(vtkPolyData *, vtkColorScalars *);

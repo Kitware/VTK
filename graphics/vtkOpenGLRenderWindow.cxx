@@ -87,11 +87,12 @@ XVisualInfo *vtkOpenGLRenderWindow::GetDesiredVisualInfo()
     {
     attributes[index++] = GLX_DOUBLEBUFFER;
     }
+#ifdef sparc
   // also try for STEREO
-  // attributes[index++] = GLX_STEREO;
+  attributes[index++] = GLX_STEREO;
+#endif
   
   // not all OpenGL implementations support MultiSamples
-
 #ifdef GLX_SAMPLE_BUFFERS_SGIS
   if (this->MultiSamples > 1 )
     {
@@ -108,6 +109,7 @@ XVisualInfo *vtkOpenGLRenderWindow::GetDesiredVisualInfo()
   // if that failed, ditch the multi samples and try again
   if ((!v) && (this->MultiSamples > 1))
     {
+#ifdef GLX_SAMPLE_BUFFERS_SGIS
     while ((ms > 1)&&(!v))
       {
       ms--;
@@ -116,17 +118,16 @@ XVisualInfo *vtkOpenGLRenderWindow::GetDesiredVisualInfo()
 	{
 	attributes[index++] = GLX_DOUBLEBUFFER;
 	}
-#ifdef GLX_SAMPLE_BUFFERS_SGIS
       attributes[index++] = GLX_SAMPLE_BUFFERS_SGIS;
       attributes[index++] = 1;
       attributes[index++] = GLX_SAMPLES_SGIS;
       attributes[index++] = ms;
-#endif
       attributes[index++] = None;
     
       v = glXChooseVisual(this->DisplayId, DefaultScreen(this->DisplayId), 
 			  attributes);
       }
+#endif
     if (v)
       {
       vtkDebugMacro(<< "managed to get " << ms << " multisamples\n");

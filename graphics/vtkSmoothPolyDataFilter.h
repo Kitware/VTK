@@ -116,7 +116,7 @@ class VTK_EXPORT vtkSmoothPolyDataFilter : public vtkPolyDataToPolyDataFilter
 public:
   vtkSmoothPolyDataFilter();
   static vtkSmoothPolyDataFilter *New() {return new vtkSmoothPolyDataFilter;};
-  char *GetClassName() {return "vtkSmoothPolyDataFilter";};
+  const char *GetClassName() {return "vtkSmoothPolyDataFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -53,7 +53,7 @@ class VTK_EXPORT vtkOutlineFilter : public vtkDataSetToPolyDataFilter
 {
 public:
   static vtkOutlineFilter *New() {return new vtkOutlineFilter;};
-  char *GetClassName() {return "vtkOutlineFilter";};
+  const char *GetClassName() {return "vtkOutlineFilter";};
 
 protected:
   void Execute();

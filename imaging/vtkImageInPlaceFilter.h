@@ -62,7 +62,7 @@ class VTK_EXPORT vtkImageInPlaceFilter : public vtkImageCachedSource
 public:
   vtkImageInPlaceFilter();
   static vtkImageInPlaceFilter *New() {return new vtkImageInPlaceFilter;};
-  char *GetClassName() {return "vtkImageInPlaceFilter";};
+  const char *GetClassName() {return "vtkImageInPlaceFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   virtual void SetInput(vtkImageCache *input);

@@ -60,7 +60,7 @@ class VTK_EXPORT vtkDataSetToPolyDataFilter : public vtkDataSetFilter
 public:
   vtkDataSetToPolyDataFilter();
   static vtkDataSetToPolyDataFilter *New() {return new vtkDataSetToPolyDataFilter;};
-  char *GetClassName() {return "vtkDataSetToPolyDataFilter";};
+  const char *GetClassName() {return "vtkDataSetToPolyDataFilter";};
 
   // Description:
   // Get the output of this filter.

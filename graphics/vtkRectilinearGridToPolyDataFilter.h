@@ -57,7 +57,7 @@ class VTK_EXPORT vtkRectilinearGridToPolyDataFilter : public vtkRectilinearGridF
 public:
   vtkRectilinearGridToPolyDataFilter();
   static vtkRectilinearGridToPolyDataFilter *New() {return new vtkRectilinearGridToPolyDataFilter;};
-  char *GetClassName() {return "vtkRectilinearGridToPolyDataFilter";};
+  const char *GetClassName() {return "vtkRectilinearGridToPolyDataFilter";};
 
   // Description:
   // Get the output of this filter.

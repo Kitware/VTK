@@ -66,7 +66,7 @@ class VTK_EXPORT vtkTransformFilter : public vtkPointSetToPointSetFilter
 public:
   vtkTransformFilter() : Transform(NULL) {};
   static vtkTransformFilter *New() {return new vtkTransformFilter;};
-  char *GetClassName() {return "vtkTransformFilter";};
+  const char *GetClassName() {return "vtkTransformFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   unsigned long int GetMTime();

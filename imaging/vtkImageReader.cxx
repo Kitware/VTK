@@ -569,9 +569,8 @@ static void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageRegion *region,
   // error checking
   if (streamStart < 0 || streamStart > self->FileSize)
     {
-    cerr << "streamStart: " << streamStart << ", headerSize: "
-	 << self->HeaderSize << "\n";
-    cerr << "vtkImageReader GenerateData: bad offset \n";
+    vtkGenericWarningMacro("streamStart: " << streamStart << ", headerSize: "
+	 << self->HeaderSize << "vtkImageReader GenerateData: bad offset");
     return;
     }
     
@@ -579,7 +578,7 @@ static void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageRegion *region,
   self->File->seekg(streamStart, ios::beg);
   if (self->File->fail())
     {
-    cerr << "File operation failed.\n";
+    vtkGenericWarningMacro("File operation failed.");
     return;
     }
   
@@ -601,13 +600,13 @@ static void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageRegion *region,
 	// read the row.
 	if ( ! self->File->read((char *)buf, streamRead))
 	  {
-	  cerr << "File operation failed. row = " << idx1
+	  vtkGenericWarningMacro("File operation failed. row = " << idx1
 	       << ", Read = " << streamRead
 	       << ", Start = " << streamStart
 	       << ", Skip0 = " << streamSkip0
 	       << ", Skip1 = " << streamSkip1
 	       << ", Skip2 = " << streamSkip2
-	       << ", FilePos = " << self->File->tellg() << "\n";
+	       << ", FilePos = " << self->File->tellg());
 	  return;
 	  }
 	

@@ -59,7 +59,7 @@ class VTK_EXPORT vtkImageMagnitude : public vtkImageFilter
 public:
   vtkImageMagnitude();
   static vtkImageMagnitude *New() {return new vtkImageMagnitude;};
-  char *GetClassName() {return "vtkImageMagnitude";};
+  const char *GetClassName() {return "vtkImageMagnitude";};
 
   // Description:
   // We only allow one axis to be compressed.

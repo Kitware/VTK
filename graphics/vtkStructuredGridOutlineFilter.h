@@ -53,7 +53,7 @@ class VTK_EXPORT vtkStructuredGridOutlineFilter : public vtkStructuredGridToPoly
 {
 public:
   static vtkStructuredGridOutlineFilter *New() {return new vtkStructuredGridOutlineFilter;};
-  char *GetClassName() {return "vtkStructuredGridOutlineFilter";};
+  const char *GetClassName() {return "vtkStructuredGridOutlineFilter";};
 
 protected:
   void Execute();

@@ -54,7 +54,7 @@ class VTK_EXPORT vtkOpenGLCamera : public vtkCamera
 {
  public:
   static vtkOpenGLCamera *New() {return new vtkOpenGLCamera;};
-  char *GetClassName() {return "vtkOpenGLCamera";};
+  const char *GetClassName() {return "vtkOpenGLCamera";};
 
   void Render(vtkRenderer *ren);
 };

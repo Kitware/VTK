@@ -56,7 +56,7 @@ public:
   vtkImageFileReader();
   ~vtkImageFileReader();
   static vtkImageFileReader *New() {return new vtkImageFileReader;};
-  char *GetClassName() {return "vtkImageFileReader";};
+  const char *GetClassName() {return "vtkImageFileReader";};
   void PrintSelf(ostream& os, vtkIndent indent);   
 
   // Description:

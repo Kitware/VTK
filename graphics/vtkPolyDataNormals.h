@@ -68,7 +68,7 @@ class VTK_EXPORT vtkPolyDataNormals : public vtkPolyDataToPolyDataFilter
 public:
   vtkPolyDataNormals();
   static vtkPolyDataNormals *New() {return new vtkPolyDataNormals;};
-  char *GetClassName() {return "vtkPolyDataNormals";};
+  const char *GetClassName() {return "vtkPolyDataNormals";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

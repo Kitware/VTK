@@ -56,7 +56,7 @@ class VTK_EXPORT vtkDataSetWriter : public vtkDataWriter
 public:
   vtkDataSetWriter() {};
   static vtkDataSetWriter *New() {return new vtkDataSetWriter;};
-  char *GetClassName() {return "vtkDataSetWriter";};
+  const char *GetClassName() {return "vtkDataSetWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void SetInput(vtkDataSet *input);

@@ -62,7 +62,7 @@ class VTK_EXPORT vtkVolumeRenderer : public vtkObject
 public:
   vtkVolumeRenderer();
   static vtkVolumeRenderer *New() {return new vtkVolumeRenderer;};
-  char *GetClassName() {return "vtkVolumeRenderer";};
+  const char *GetClassName() {return "vtkVolumeRenderer";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void AddVolume(vtkVolume *);

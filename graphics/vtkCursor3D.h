@@ -61,7 +61,7 @@ public:
   vtkCursor3D();
   ~vtkCursor3D();
   static vtkCursor3D *New() {return new vtkCursor3D;};
-  char *GetClassName() {return "vtkCursor3D";};
+  const char *GetClassName() {return "vtkCursor3D";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void SetModelBounds(float *bounds);

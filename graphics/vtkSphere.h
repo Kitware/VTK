@@ -53,7 +53,7 @@ class VTK_EXPORT vtkSphere : public vtkImplicitFunction
 public:
   vtkSphere();
   static vtkSphere *New() {return new vtkSphere;};
-  char *GetClassName() {return "vtkSphere";};
+  const char *GetClassName() {return "vtkSphere";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // ImplicitFunction interface

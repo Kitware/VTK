@@ -62,7 +62,7 @@ public:
   vtkImageXViewer();
   ~vtkImageXViewer();
   static vtkImageXViewer *New() {return new vtkImageXViewer;};
-  char *GetClassName() {return "vtkImageXViewer";};
+  const char *GetClassName() {return "vtkImageXViewer";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // output to the viewer.

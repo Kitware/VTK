@@ -86,7 +86,7 @@ class VTK_EXPORT vtkRotationalExtrusionFilter : public vtkPolyDataToPolyDataFilt
 public:
   vtkRotationalExtrusionFilter();
   static vtkRotationalExtrusionFilter *New() {return new vtkRotationalExtrusionFilter;};
-  char *GetClassName() {return "vtkRotationalExtrusionFilter";};
+  const char *GetClassName() {return "vtkRotationalExtrusionFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

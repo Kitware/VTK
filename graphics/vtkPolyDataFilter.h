@@ -56,7 +56,7 @@ class VTK_EXPORT vtkPolyDataFilter : public vtkFilter
 {
 public:
   static vtkPolyDataFilter *New() {return new vtkPolyDataFilter;};
-  char *GetClassName() {return "vtkPolyDataFilter";};
+  const char *GetClassName() {return "vtkPolyDataFilter";};
 
   virtual void SetInput(vtkPolyData *input);
   void SetInput(vtkPolyData &input) {this->SetInput(&input);};

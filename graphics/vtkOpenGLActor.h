@@ -56,7 +56,7 @@ protected:
   
 public:
   static vtkOpenGLActor *New() {return new vtkOpenGLActor;};
-  char *GetClassName() {return "vtkOpenGLActor";};
+  const char *GetClassName() {return "vtkOpenGLActor";};
 
   void Render(vtkRenderer *ren, vtkMapper *mapper);
 };

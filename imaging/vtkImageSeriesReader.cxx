@@ -75,6 +75,13 @@ vtkImageSeriesReader::~vtkImageSeriesReader()
 }
 
 //----------------------------------------------------------------------------
+void vtkImageSeriesReader::SetFileName(char *name)
+{
+  this->SetFilePrefix(name);
+  this->SetFilePattern("%s");
+}
+
+//----------------------------------------------------------------------------
 void vtkImageSeriesReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageReader::PrintSelf(os,indent);

@@ -73,7 +73,7 @@ public:
   vtkScalarTree();
   ~vtkScalarTree();
   static vtkScalarTree *New() {return new vtkScalarTree;};
-  char *GetClassName() {return "vtkScalarTree";};
+  const char *GetClassName() {return "vtkScalarTree";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

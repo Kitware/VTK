@@ -59,7 +59,7 @@ class VTK_EXPORT vtkPointSetToPointSetFilter : public vtkPointSetFilter
 {
 public:
   static vtkPointSetToPointSetFilter *New() {return new vtkPointSetToPointSetFilter;};
-  char *GetClassName() {return "vtkPointSetToPointSetFilter";};
+  const char *GetClassName() {return "vtkPointSetToPointSetFilter";};
   vtkPointSetToPointSetFilter() {this->Output = NULL;};
   
   void SetInput(vtkPointSet *input);

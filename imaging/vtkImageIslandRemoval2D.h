@@ -67,7 +67,7 @@ class VTK_EXPORT vtkImageIslandRemoval2D : public vtkImageFilter
 public:
   vtkImageIslandRemoval2D();
   static vtkImageIslandRemoval2D *New() {return new vtkImageIslandRemoval2D;};
-  char *GetClassName() {return "vtkImageIslandRemoval2D";};
+  const char *GetClassName() {return "vtkImageIslandRemoval2D";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
   void InterceptCacheUpdate(vtkImageRegion *region);

@@ -55,7 +55,7 @@ class VTK_EXPORT vtkDataSetToStructuredGridFilter : public vtkDataSetFilter
 public:
   vtkDataSetToStructuredGridFilter();
   static vtkDataSetToStructuredGridFilter *New() {return new vtkDataSetToStructuredGridFilter;};
-  char *GetClassName() {return "vtkDataSetToStructuredGridFilter";};
+  const char *GetClassName() {return "vtkDataSetToStructuredGridFilter";};
 
   // Description:
   // Get the output of this filter.

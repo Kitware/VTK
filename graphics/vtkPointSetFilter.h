@@ -58,7 +58,7 @@ public:
   vtkPointSetFilter() {};
   ~vtkPointSetFilter();
   static vtkPointSetFilter *New() {return new vtkPointSetFilter;};
-  char *GetClassName() {return "vtkPointSetFilter";};
+  const char *GetClassName() {return "vtkPointSetFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   virtual void SetInput(vtkPointSet *input);

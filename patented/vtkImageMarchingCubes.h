@@ -71,7 +71,7 @@ public:
   vtkImageMarchingCubes();
   static vtkImageMarchingCubes *New() {return new vtkImageMarchingCubes;};
   ~vtkImageMarchingCubes();
-  char *GetClassName() {return "vtkImageMarchingCubes";};
+  const char *GetClassName() {return "vtkImageMarchingCubes";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

@@ -77,7 +77,7 @@ class VTK_EXPORT vtkStreamLine : public vtkStreamer
 public:
   vtkStreamLine();
   static vtkStreamLine *New() {return new vtkStreamLine;};
-  char *GetClassName() {return "vtkStreamLine";};
+  const char *GetClassName() {return "vtkStreamLine";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

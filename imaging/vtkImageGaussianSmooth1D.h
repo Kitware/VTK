@@ -55,7 +55,7 @@ class VTK_EXPORT vtkImageGaussianSmooth1D : public vtkImageConvolution1D
 public:
   vtkImageGaussianSmooth1D();
   static vtkImageGaussianSmooth1D *New() {return new vtkImageGaussianSmooth1D;};
-  char *GetClassName() {return "vtkImageGaussianSmooth1D";};
+  const char *GetClassName() {return "vtkImageGaussianSmooth1D";};
 
   // Description:
   // Set/Get the standard deviation of the Gaussian.

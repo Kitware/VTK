@@ -65,7 +65,7 @@ public:
   vtkImplicitWindowFunction();
   ~vtkImplicitWindowFunction();
   static vtkImplicitWindowFunction *New() {return new vtkImplicitWindowFunction;};
-  char *GetClassName() {return "vtkImplicitWindowFunction";};
+  const char *GetClassName() {return "vtkImplicitWindowFunction";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // implicit function interface

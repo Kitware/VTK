@@ -55,7 +55,7 @@ class VTK_EXPORT vtkExtractEdges : public vtkDataSetToPolyDataFilter
 public:
   vtkExtractEdges();
   static vtkExtractEdges *New() {return new vtkExtractEdges;};
-  char *GetClassName() {return "vtkExtractEdges";};
+  const char *GetClassName() {return "vtkExtractEdges";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:

@@ -80,7 +80,7 @@ public:
   vtkConnectivityFilter();
   ~vtkConnectivityFilter();
   static vtkConnectivityFilter *New() {return new vtkConnectivityFilter;};
-  char *GetClassName() {return "vtkConnectivityFilter";};
+  const char *GetClassName() {return "vtkConnectivityFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

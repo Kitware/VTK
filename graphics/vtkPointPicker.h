@@ -57,7 +57,7 @@ class VTK_EXPORT vtkPointPicker : public vtkPicker
 public:
   vtkPointPicker();
   static vtkPointPicker *New() {return new vtkPointPicker;};
-  char *GetClassName() {return "vtkPointPicker";};
+  const char *GetClassName() {return "vtkPointPicker";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

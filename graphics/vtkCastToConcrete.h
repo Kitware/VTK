@@ -78,7 +78,7 @@ public:
   vtkCastToConcrete();
   ~vtkCastToConcrete();
   static vtkCastToConcrete *New() {return new vtkCastToConcrete;};
-  char *GetClassName() {return "vtkCastToConcrete";};
+  const char *GetClassName() {return "vtkCastToConcrete";};
 
   // filter interface (special pass-thru)
   void Update();

@@ -77,7 +77,7 @@ public:
   vtkXRenderWindowInteractor();
   ~vtkXRenderWindowInteractor();
   static vtkXRenderWindowInteractor *New() {return new vtkXRenderWindowInteractor;};
-  char *GetClassName() {return "vtkXRenderWindowInteractor";};
+  const char *GetClassName() {return "vtkXRenderWindowInteractor";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   virtual void Initialize();

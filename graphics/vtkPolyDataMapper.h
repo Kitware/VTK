@@ -56,7 +56,7 @@ class VTK_EXPORT vtkPolyDataMapper : public vtkMapper
 {
 public:
   static vtkPolyDataMapper *New();
-  char *GetClassName() {return "vtkPolyDataMapper";};
+  const char *GetClassName() {return "vtkPolyDataMapper";};
 
   virtual void Render(vtkRenderer *, vtkActor *) {};
   float *GetBounds();

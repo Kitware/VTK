@@ -80,7 +80,7 @@ public:
   vtkPolyDataConnectivityFilter();
   ~vtkPolyDataConnectivityFilter();
   static vtkPolyDataConnectivityFilter *New() {return new vtkPolyDataConnectivityFilter;};
-  char *GetClassName() {return "vtkPolyDataConnectivityFilter";};
+  const char *GetClassName() {return "vtkPolyDataConnectivityFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

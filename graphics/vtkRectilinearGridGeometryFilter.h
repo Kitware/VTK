@@ -66,7 +66,7 @@ class VTK_EXPORT vtkRectilinearGridGeometryFilter : public vtkRectilinearGridToP
 public:
   vtkRectilinearGridGeometryFilter();
   static vtkRectilinearGridGeometryFilter *New() {return new vtkRectilinearGridGeometryFilter;};
-  char *GetClassName() {return "vtkRectilinearGridGeometryFilter";};
+  const char *GetClassName() {return "vtkRectilinearGridGeometryFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -63,7 +63,7 @@ public:
   vtkDataSetMapper();
   ~vtkDataSetMapper();
   static vtkDataSetMapper *New() {return new vtkDataSetMapper;};
-  char *GetClassName() {return "vtkDataSetMapper";};
+  const char *GetClassName() {return "vtkDataSetMapper";};
   void PrintSelf(ostream& os, vtkIndent indent);
   void Render(vtkRenderer *ren, vtkActor *act);
   float *GetBounds();

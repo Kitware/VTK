@@ -63,7 +63,7 @@ class VTK_EXPORT vtkXRenderWindow : public vtkRenderWindow
 public:
   vtkXRenderWindow();
   ~vtkXRenderWindow();
-  char *GetClassName() {return "vtkXRenderWindow";};
+  const char *GetClassName() {return "vtkXRenderWindow";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Xwindow get set functions

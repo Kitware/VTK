@@ -66,7 +66,7 @@ public:
   vtkPlanes();
   ~vtkPlanes();
   static vtkPlanes *New() {return new vtkPlanes;};
-  char *GetClassName() {return "vtkPlanes";};
+  const char *GetClassName() {return "vtkPlanes";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   float EvaluateFunction(float x[3]);

@@ -56,7 +56,7 @@ class VTK_EXPORT vtkImageDilateErode : public vtkImageSpatialFilter
 public:
   vtkImageDilateErode();
   static vtkImageDilateErode *New() {return new vtkImageDilateErode;};
-  char *GetClassName() {return "vtkImageDilateErode";};
+  const char *GetClassName() {return "vtkImageDilateErode";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Set/Get the size of the neighood.

@@ -91,7 +91,7 @@ public:
   vtkSpatialRepresentationFilter();
   ~vtkSpatialRepresentationFilter();
   static vtkSpatialRepresentationFilter *New() {return new vtkSpatialRepresentationFilter;};
-  char *GetClassName() {return "vtkSpatialRepresentationFilter";};
+  const char *GetClassName() {return "vtkSpatialRepresentationFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

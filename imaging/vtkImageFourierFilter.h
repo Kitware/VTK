@@ -113,7 +113,7 @@ class VTK_EXPORT vtkImageFourierFilter : public vtkImageFilter
 {
 public:
   static vtkImageFourierFilter *New() {return new vtkImageFourierFilter;};
-  char *GetClassName() {return "vtkImageFourierFilter";};
+  const char *GetClassName() {return "vtkImageFourierFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // public for templated functions of this object

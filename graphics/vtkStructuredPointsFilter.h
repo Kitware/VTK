@@ -58,7 +58,7 @@ class VTK_EXPORT vtkStructuredPointsFilter : public vtkFilter
 {
 public:
   static vtkStructuredPointsFilter *New() {return new vtkStructuredPointsFilter;};
-  char *GetClassName() {return "vtkStructuredPointsFilter";};
+  const char *GetClassName() {return "vtkStructuredPointsFilter";};
 
   void SetInput(vtkStructuredPoints *input);
   void SetInput(vtkStructuredPoints &input) {this->SetInput(&input);};

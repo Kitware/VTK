@@ -59,7 +59,7 @@ class VTK_EXPORT vtkPolyDataSource : public vtkSource
 public:
   vtkPolyDataSource();
   static vtkPolyDataSource *New() {return new vtkPolyDataSource;};
-  char *GetClassName() {return "vtkPolyDataSource";};
+  const char *GetClassName() {return "vtkPolyDataSource";};
 
   // Description:
   // Get the output of this source.

@@ -63,7 +63,7 @@ class VTK_EXPORT vtkImageArithmetic : public vtkImageTwoInputFilter
 public:
   vtkImageArithmetic();
   static vtkImageArithmetic *New() {return new vtkImageArithmetic;};
-  char *GetClassName() {return "vtkImageArithmetic";};
+  const char *GetClassName() {return "vtkImageArithmetic";};
 
   // Description:
   // Set/Get the operator to perform.

@@ -56,7 +56,7 @@ class VTK_EXPORT vtkImageConstantPad : public vtkImagePadFilter
 public:
   vtkImageConstantPad();
   static vtkImageConstantPad *New() {return new vtkImageConstantPad;};
-  char *GetClassName() {return "vtkImageConstantPad";};
+  const char *GetClassName() {return "vtkImageConstantPad";};
 
   // Set/Get the pad value.
   vtkSetMacro(Constant, float);

@@ -60,7 +60,7 @@ class VTK_EXPORT vtkCone : public vtkImplicitFunction
 public:
   vtkCone();
   static vtkCone *New() {return new vtkCone;};
-  char *GetClassName() {return "vtkCone";};
+  const char *GetClassName() {return "vtkCone";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // ImplicitFunction interface

@@ -57,7 +57,7 @@ class VTK_EXPORT vtkImageFFT1D : public vtkImageFourierFilter
 public:
   vtkImageFFT1D();
   static vtkImageFFT1D *New() {return new vtkImageFFT1D;};
-  char *GetClassName() {return "vtkImageFFT1D";};
+  const char *GetClassName() {return "vtkImageFFT1D";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
   void SetAxes(int axis);

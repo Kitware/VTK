@@ -55,7 +55,7 @@ public:
   vtkCyberReader();
   ~vtkCyberReader();
   static vtkCyberReader *New() {return new vtkCyberReader;};
-  char *GetClassName() {return "vtkCyberReader";};
+  const char *GetClassName() {return "vtkCyberReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

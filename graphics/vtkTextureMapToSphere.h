@@ -73,7 +73,7 @@ class VTK_EXPORT vtkTextureMapToSphere : public vtkDataSetToDataSetFilter
 public:
   vtkTextureMapToSphere();
   static vtkTextureMapToSphere *New() {return new vtkTextureMapToSphere;};
-  char *GetClassName() {return "vtkTextureMapToSphere";};
+  const char *GetClassName() {return "vtkTextureMapToSphere";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

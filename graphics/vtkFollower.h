@@ -64,7 +64,7 @@ class VTK_EXPORT vtkFollower : public vtkActor
   vtkFollower();
   ~vtkFollower();
   static vtkFollower *New() {return new vtkFollower;};
-  char *GetClassName() {return "vtkFollower";};
+  const char *GetClassName() {return "vtkFollower";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   virtual void Render(vtkRenderer *ren);

@@ -65,7 +65,7 @@ class VTK_EXPORT vtkMapper : public vtkObject
 public:
   vtkMapper();
   ~vtkMapper();
-  char *GetClassName() {return "vtkMapper";};
+  const char *GetClassName() {return "vtkMapper";};
   void PrintSelf(ostream& os, vtkIndent indent);
   void operator=(const vtkMapper& m);
 

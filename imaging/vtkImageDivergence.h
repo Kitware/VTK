@@ -57,7 +57,7 @@ class VTK_EXPORT vtkImageDivergence : public vtkImageFilter
 public:
   vtkImageDivergence();
   static vtkImageDivergence *New() {return new vtkImageDivergence;};
-  char *GetClassName() {return "vtkImageDivergence";};
+  const char *GetClassName() {return "vtkImageDivergence";};
   
 protected:
   void ComputeOutputImageInformation(vtkImageRegion *inRegion,

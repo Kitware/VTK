@@ -61,7 +61,7 @@ public:
   vtkSampleFunction();
   ~vtkSampleFunction();
   static vtkSampleFunction *New() {return new vtkSampleFunction;};
-  char *GetClassName() {return "vtkSampleFunction";};
+  const char *GetClassName() {return "vtkSampleFunction";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

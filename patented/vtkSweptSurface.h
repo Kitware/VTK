@@ -71,7 +71,7 @@ class VTK_EXPORT vtkSweptSurface : public vtkStructuredPointsToStructuredPointsF
 public:
   vtkSweptSurface();
   static vtkSweptSurface *New() {return new vtkSweptSurface;};
-  char *GetClassName() {return "vtkSweptSurface";};
+  const char *GetClassName() {return "vtkSweptSurface";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

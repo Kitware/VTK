@@ -82,7 +82,7 @@ public:
   vtkMCubesReader();
   ~vtkMCubesReader();
   static vtkMCubesReader *New() {return new vtkMCubesReader;};
-  char *GetClassName() {return "vtkMCubesReader";};
+  const char *GetClassName() {return "vtkMCubesReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -57,7 +57,7 @@ class VTK_EXPORT vtkGaussianSplatter : public vtkDataSetToStructuredPointsFilter
 public:
   vtkGaussianSplatter();
   static vtkGaussianSplatter *New() {return new vtkGaussianSplatter;};
-  char *GetClassName() {return "vtkGaussianSplatter";};
+  const char *GetClassName() {return "vtkGaussianSplatter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void ComputeModelBounds();

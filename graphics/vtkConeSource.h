@@ -59,7 +59,7 @@ class VTK_EXPORT vtkConeSource : public vtkPolyDataSource
 public:
   vtkConeSource(int res=6);
   static vtkConeSource *New() {return new vtkConeSource;};
-  char *GetClassName() {return "vtkConeSource";};
+  const char *GetClassName() {return "vtkConeSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

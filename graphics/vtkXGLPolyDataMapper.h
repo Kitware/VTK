@@ -60,7 +60,7 @@ public:
   vtkXGLPolyDataMapper();
   virtual ~vtkXGLPolyDataMapper();
   static vtkXGLPolyDataMapper *New() {return new vtkXGLPolyDataMapper;};
-  char *GetClassName() {return "vtkXGLPolyDataMapper";};
+  const char *GetClassName() {return "vtkXGLPolyDataMapper";};
 
   virtual void Render(vtkRenderer *ren, vtkActor *a);
   void Build(vtkPolyData *data, vtkColorScalars *c);

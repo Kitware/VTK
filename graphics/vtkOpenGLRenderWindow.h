@@ -63,7 +63,7 @@ public:
   vtkOpenGLRenderWindow();
   ~vtkOpenGLRenderWindow();
   static vtkOpenGLRenderWindow *New() {return new vtkOpenGLRenderWindow;};
-  char *GetClassName() {return "vtkOpenGLRenderWindow";};
+  const char *GetClassName() {return "vtkOpenGLRenderWindow";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
   void Start(void);

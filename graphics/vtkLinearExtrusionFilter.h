@@ -83,7 +83,7 @@ class VTK_EXPORT vtkLinearExtrusionFilter : public vtkPolyDataToPolyDataFilter
 public:
   vtkLinearExtrusionFilter();
   static vtkLinearExtrusionFilter *New() {return new vtkLinearExtrusionFilter;};
-  char *GetClassName() {return "vtkLinearExtrusionFilter";};
+  const char *GetClassName() {return "vtkLinearExtrusionFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

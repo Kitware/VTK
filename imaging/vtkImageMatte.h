@@ -56,7 +56,7 @@ class VTK_EXPORT vtkImageMatte : public vtkImageInPlaceFilter
 public:
   vtkImageMatte();
   static vtkImageMatte *New() {return new vtkImageMatte;};
-  char *GetClassName() {return "vtkImageMatte";};
+  const char *GetClassName() {return "vtkImageMatte";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

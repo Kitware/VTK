@@ -57,7 +57,7 @@ class VTK_EXPORT vtkImageFourierBandPass : public vtkImageFilter
 public:
   vtkImageFourierBandPass();
   static vtkImageFourierBandPass *New() {return new vtkImageFourierBandPass;};
-  char *GetClassName() {return "vtkImageFourierBandPass";};
+  const char *GetClassName() {return "vtkImageFourierBandPass";};
 
   // Description:
   // Setting the Axes specifies the dimensionality of the bandpass.

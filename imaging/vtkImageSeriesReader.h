@@ -56,7 +56,7 @@ public:
   static vtkImageSeriesReader *New() {
     cerr << "Please use vtkImageVolume16Reader instead of vtkImageSeriesReader.  The methods are the same, so a simple script change should do.";
     return new vtkImageSeriesReader;};
-  char *GetClassName() {return "vtkImageSeriesReader";};
+  const char *GetClassName() {return "vtkImageSeriesReader";};
   void PrintSelf(ostream& os, vtkIndent indent);   
 
   void SetFilePrefix(char *filePrefix);
@@ -68,8 +68,19 @@ public:
   vtkSetMacro(First,int);
   vtkGetMacro(First,int);
   
-  void SetImageRange(int start, int end);
+  // Description:
+  // Sets the range of the file image extensions.
+  virtual void SetImageRange(int start, int end);
 
+  // Description:
+  // Set/Get the name of the file to read. Some readers can read
+  // a series of images or just one. When reading just one image
+  // many people rely on SetFileName instead of FilePrefix. These
+  // methods actually are just a convieniance and modify FilePrefix
+  // and FilePattern.
+  void SetFileName(char *name);
+  char *GetFileName() {return this->FilePrefix;};
+  
   // Description:
   // This variable indicates how many dimensions are stored in a single file.
   // In most cases, 2D images are stored in a file, but color can add

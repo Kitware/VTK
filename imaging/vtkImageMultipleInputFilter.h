@@ -65,7 +65,7 @@ public:
   vtkImageMultipleInputFilter();
   ~vtkImageMultipleInputFilter();
   static vtkImageMultipleInputFilter *New() {return new vtkImageMultipleInputFilter;};
-  char *GetClassName() {return "vtkImageMultipleInputFilter";};
+  const char *GetClassName() {return "vtkImageMultipleInputFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   virtual void SetInput(int num, vtkImageCache *input);

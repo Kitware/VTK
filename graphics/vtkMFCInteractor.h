@@ -75,7 +75,7 @@ public:
   vtkMFCInteractor();
   ~vtkMFCInteractor();
   static vtkMFCInteractor *New() {return new vtkMFCInteractor;};
-  char *GetClassName() {return "vtkMFCInteractor";};
+  const char *GetClassName() {return "vtkMFCInteractor";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
   virtual void Initialize();

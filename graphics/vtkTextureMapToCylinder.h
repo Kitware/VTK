@@ -76,7 +76,7 @@ class VTK_EXPORT vtkTextureMapToCylinder : public vtkDataSetToDataSetFilter
 public:
   vtkTextureMapToCylinder();
   static vtkTextureMapToCylinder *New() {return new vtkTextureMapToCylinder;};
-  char *GetClassName() {return "vtkTextureMapToCylinder";};
+  const char *GetClassName() {return "vtkTextureMapToCylinder";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

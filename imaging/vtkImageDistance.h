@@ -56,7 +56,7 @@ class VTK_EXPORT vtkImageDistance : public vtkImageDecomposedFilter
 public:
   vtkImageDistance();
   static vtkImageDistance *New() {return new vtkImageDistance;};
-  char *GetClassName() {return "vtkImageDistance";};
+  const char *GetClassName() {return "vtkImageDistance";};
   
   void SetDimensionality(int num);
   

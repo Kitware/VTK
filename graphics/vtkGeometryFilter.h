@@ -78,7 +78,7 @@ public:
   vtkGeometryFilter();
   ~vtkGeometryFilter();
   static vtkGeometryFilter *New() {return new vtkGeometryFilter;};
-  char *GetClassName() {return "vtkGeometryFilter";};
+  const char *GetClassName() {return "vtkGeometryFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

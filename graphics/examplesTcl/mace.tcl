@@ -39,6 +39,7 @@ ren1 AddActor sphereActor
 ren1 AddActor spikeActor
 ren1 SetBackground 0.1 0.2 0.4
 renWin SetSize 300 300
+renWin DebugOn
 
 # render the image
 #

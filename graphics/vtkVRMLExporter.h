@@ -60,7 +60,7 @@ public:
   vtkVRMLExporter();
   ~vtkVRMLExporter();
   static vtkVRMLExporter *New() {return new vtkVRMLExporter;};
-  char *GetClassName() {return "vtkVRMLExporter";};
+  const char *GetClassName() {return "vtkVRMLExporter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

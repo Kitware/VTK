@@ -54,7 +54,7 @@ class VTK_EXPORT vtkGLProperty : public vtkProperty
 {
  public:
   static vtkGLProperty *New() {return new vtkGLProperty;};
-  char *GetClassName() {return "vtkGLProperty";};
+  const char *GetClassName() {return "vtkGLProperty";};
 
   void Render(vtkActor *a, vtkRenderer *ren);
 };

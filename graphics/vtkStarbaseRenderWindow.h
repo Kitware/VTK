@@ -59,7 +59,7 @@ public:
   vtkStarbaseRenderWindow();
   ~vtkStarbaseRenderWindow();
   static vtkStarbaseRenderWindow *New() {return new vtkStarbaseRenderWindow;};
-  char *GetClassName() {return "vtkStarbaseRenderWindow";};
+  const char *GetClassName() {return "vtkStarbaseRenderWindow";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
   void Start(void);

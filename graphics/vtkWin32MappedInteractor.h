@@ -74,7 +74,7 @@ public:
   vtkWin32MappedInteractor();
   ~vtkWin32MappedInteractor();
   static vtkWin32MappedInteractor *New() {return new vtkWin32MappedInteractor;};
-  char *GetClassName() {return "vtkWin32MappedInteractor";};
+  const char *GetClassName() {return "vtkWin32MappedInteractor";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
   virtual void Initialize();

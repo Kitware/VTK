@@ -71,7 +71,7 @@ public:
   vtkImplicitBoolean();
   ~vtkImplicitBoolean();
   static vtkImplicitBoolean *New() {return new vtkImplicitBoolean;};
-  char *GetClassName() {return "vtkImplicitBoolean";};
+  const char *GetClassName() {return "vtkImplicitBoolean";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // ImplicitFunction interface

@@ -56,7 +56,7 @@ protected:
   
 public:
   static vtkStarbaseLight *New() {return new vtkStarbaseLight;};
-  char *GetClassName() {return "vtkStarbaseLight";};
+  const char *GetClassName() {return "vtkStarbaseLight";};
 
   void Render(vtkRenderer *ren,int light_index);
 };

@@ -16,7 +16,7 @@
 class VTK_EXPORT vtkRayBounder : public vtkObject
 {
 public:
-  char *GetClassName() {return "vtkRayBounder";};
+  const char *GetClassName() {return "vtkRayBounder";};
 
   virtual float *GetRayBounds( vtkRenderer *ren )=0;
 

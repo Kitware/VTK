@@ -60,7 +60,7 @@ public:
   vtkBYUWriter();
   ~vtkBYUWriter();
   static vtkBYUWriter *New() {return new vtkBYUWriter;};
-  char *GetClassName() {return "vtkBYUWriter";};
+  const char *GetClassName() {return "vtkBYUWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

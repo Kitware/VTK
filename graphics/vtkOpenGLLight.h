@@ -56,7 +56,7 @@ protected:
   
 public:
   static vtkOpenGLLight *New() {return new vtkOpenGLLight;};
-  char *GetClassName() {return "vtkOpenGLLight";};
+  const char *GetClassName() {return "vtkOpenGLLight";};
 
   void Render(vtkRenderer *ren,int light_index);
 };

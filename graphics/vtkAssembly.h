@@ -88,7 +88,7 @@ public:
   vtkAssembly();
   ~vtkAssembly();
   static vtkAssembly *New() {return new vtkAssembly;};
-  char *GetClassName() {return "vtkAssembly";};
+  const char *GetClassName() {return "vtkAssembly";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   vtkAssembly &operator=(const vtkAssembly& assembly);

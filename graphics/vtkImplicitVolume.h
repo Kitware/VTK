@@ -70,7 +70,7 @@ class VTK_EXPORT vtkImplicitVolume : public vtkImplicitFunction
 public:
   vtkImplicitVolume();
   static vtkImplicitVolume *New() {return new vtkImplicitVolume;};
-  char *GetClassName() {return "vtkImplicitVolume";};
+  const char *GetClassName() {return "vtkImplicitVolume";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   unsigned long int GetMTime();

@@ -69,7 +69,7 @@ public:
   vtkRenderer();
   ~vtkRenderer();
   static vtkRenderer *New();
-  char *GetClassName() {return "vtkRenderer";};
+  const char *GetClassName() {return "vtkRenderer";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void AddLight(vtkLight *);

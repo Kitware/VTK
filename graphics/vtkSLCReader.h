@@ -18,7 +18,7 @@ public:
   vtkSLCReader();
   ~vtkSLCReader() {if (this->FileName) delete [] this->FileName;};
   static vtkSLCReader *New() {return new vtkSLCReader;};
-  char *GetClassName() {return "vtkSLCReader";};
+  const char *GetClassName() {return "vtkSLCReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

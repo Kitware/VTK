@@ -67,7 +67,7 @@ class VTK_EXPORT vtkStructuredPointsGeometryFilter : public vtkStructuredPointsT
 public:
   vtkStructuredPointsGeometryFilter();
   static vtkStructuredPointsGeometryFilter *New() {return new vtkStructuredPointsGeometryFilter;};
-  char *GetClassName() {return "vtkStructuredPointsGeometryFilter";};
+  const char *GetClassName() {return "vtkStructuredPointsGeometryFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void SetExtent(int iMin, int iMax, int jMin, int jMax, int kMin, int kMax);

@@ -75,7 +75,7 @@ public:
   vtkPlaneSource();
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkPlaneSource *New() {return new vtkPlaneSource;};
-  char *GetClassName() {return "vtkPlaneSource";};
+  const char *GetClassName() {return "vtkPlaneSource";};
 
   // Description:
   // Specify the resolution of the plane along the first axes.

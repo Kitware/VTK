@@ -57,7 +57,7 @@ public:
   vtkPNMWriter();
   ~vtkPNMWriter();
   static vtkPNMWriter *New() {return new vtkPNMWriter;};
-  char *GetClassName() {return "vtkPNMWriter";};
+  const char *GetClassName() {return "vtkPNMWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void SetInput(vtkStructuredPoints *input);

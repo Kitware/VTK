@@ -67,7 +67,7 @@ class VTK_EXPORT vtkFeatureVertices : public vtkPolyDataToPolyDataFilter
 public:
   vtkFeatureVertices();
   static vtkFeatureVertices *New() {return new vtkFeatureVertices;};
-  char *GetClassName() {return "vtkFeatureVertices";};
+  const char *GetClassName() {return "vtkFeatureVertices";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

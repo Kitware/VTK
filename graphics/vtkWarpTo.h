@@ -54,7 +54,7 @@ public:
   vtkWarpTo() {this->ScaleFactor = 0.5; this->Absolute = 0;
 	       this->Position[0] = this->Position[1] = this->Position[2] = 0.0;};
   static vtkWarpTo *New() {return new vtkWarpTo;};
-  char *GetClassName() {return "vtkWarpTo";};
+  const char *GetClassName() {return "vtkWarpTo";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -69,7 +69,7 @@ class VTK_EXPORT vtkExporter : public vtkObject
 {
 public:
   vtkExporter();
-  char *GetClassName() {return "vtkExporter";};
+  const char *GetClassName() {return "vtkExporter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   virtual void Write();

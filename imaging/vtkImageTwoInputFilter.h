@@ -58,7 +58,7 @@ class VTK_EXPORT vtkImageTwoInputFilter : public vtkImageCachedSource
 public:
   vtkImageTwoInputFilter();
   static vtkImageTwoInputFilter *New() {return new vtkImageTwoInputFilter;};
-  char *GetClassName() {return "vtkImageTwoInputFilter";};
+  const char *GetClassName() {return "vtkImageTwoInputFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   virtual void SetInput1(vtkImageCache *input);

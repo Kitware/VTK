@@ -53,7 +53,7 @@ class VTK_EXPORT vtkDataSetCollection : public vtkCollection
 {
 public:
   static vtkDataSetCollection *New() {return new vtkDataSetCollection;};
-  char *GetClassName() {return "vtkDataSetCollection";};
+  const char *GetClassName() {return "vtkDataSetCollection";};
 
   void AddItem(vtkDataSet *);
   void RemoveItem(vtkDataSet *);

@@ -57,7 +57,7 @@ public:
   vtkBYUReader();
   ~vtkBYUReader();
   static vtkBYUReader *New() {return new vtkBYUReader;};
-  char *GetClassName() {return "vtkBYUReader";};
+  const char *GetClassName() {return "vtkBYUReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

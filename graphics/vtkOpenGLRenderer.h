@@ -59,7 +59,7 @@ class VTK_EXPORT vtkOpenGLRenderer : public vtkRenderer
 
   void Render(void); // overides base 
   static vtkOpenGLRenderer *New() {return new vtkOpenGLRenderer;};
-  char *GetClassName() {return "vtkOpenGLRenderer";};
+  const char *GetClassName() {return "vtkOpenGLRenderer";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void ClearLights(void);

@@ -53,7 +53,7 @@ class VTK_EXPORT vtkStructuredPointsCollection : public vtkCollection
 {
 public:
   static vtkStructuredPointsCollection *New() {return new vtkStructuredPointsCollection;};
-  char *GetClassName() {return "vtkStructuredPointsCollection";};
+  const char *GetClassName() {return "vtkStructuredPointsCollection";};
 
   void AddItem(vtkStructuredPoints *);
   void RemoveItem(vtkStructuredPoints *);

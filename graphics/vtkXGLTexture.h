@@ -56,7 +56,7 @@ public:
   vtkXGLTexture();
   ~vtkXGLTexture();
   static vtkXGLTexture *New() {return new vtkXGLTexture;};
-  char *GetClassName() {return "vtkXGLTexture";};
+  const char *GetClassName() {return "vtkXGLTexture";};
   
   void Load(vtkRenderer *ren);
   

@@ -53,7 +53,7 @@ class VTK_EXPORT vtkOutlineSource : public vtkPolyDataSource
 public:
   vtkOutlineSource();
   static vtkOutlineSource *New() {return new vtkOutlineSource;};
-  char *GetClassName() {return "vtkOutlineSource";};
+  const char *GetClassName() {return "vtkOutlineSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

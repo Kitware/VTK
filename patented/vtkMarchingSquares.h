@@ -71,7 +71,7 @@ public:
   vtkMarchingSquares();
   static vtkMarchingSquares *New() {return new vtkMarchingSquares;};
   ~vtkMarchingSquares();
-  char *GetClassName() {return "vtkMarchingSquares";};
+  const char *GetClassName() {return "vtkMarchingSquares";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

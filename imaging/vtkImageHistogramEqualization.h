@@ -55,7 +55,7 @@ class VTK_EXPORT vtkImageHistogramEqualization : public vtkImageFilter
 public:
   vtkImageHistogramEqualization();
   static vtkImageHistogramEqualization *New() {return new vtkImageHistogramEqualization;};
-  char *GetClassName() {return "vtkImageHistogramEqualization";};
+  const char *GetClassName() {return "vtkImageHistogramEqualization";};
   void PrintSelf(ostream& os, vtkIndent indent);
   void InterceptCacheUpdate(vtkImageRegion *region);
 

@@ -68,7 +68,7 @@ public:
   vtkSTLReader();
   ~vtkSTLReader();
   static vtkSTLReader *New() {return new vtkSTLReader;};
-  char *GetClassName() {return "vtkSTLReader";};
+  const char *GetClassName() {return "vtkSTLReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

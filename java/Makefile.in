@@ -55,10 +55,10 @@ java_wrap: $(srcdir)/java_wrap.tab.c $(srcdir)/lex.yy.c
 #------------------------------------------------------------------------------
 # build the vtk java library
 #
-vtk: libvtkJava$(SHLIB_SUFFIX)$(SHLIB_VERSION)
+vtk: libvtkJava$(SHLIB_SUFFIX)
 
-libvtkJava$(SHLIB_SUFFIX)$(SHLIB_VERSION): 
-	$(SHLIB_LD) -o libvtkJava$(SHLIB_SUFFIX)$(SHLIB_VERSION) -L. \
+libvtkJava$(SHLIB_SUFFIX): 
+	$(SHLIB_LD) -o libvtkJava$(SHLIB_SUFFIX) -L. \
 	${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} ${JAVA_CXX_LIB}
 

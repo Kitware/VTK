@@ -72,7 +72,7 @@ class VTK_EXPORT vtkTubeFilter : public vtkPolyDataToPolyDataFilter
 public:
   vtkTubeFilter();
   static vtkTubeFilter *New() {return new vtkTubeFilter;};
-  char *GetClassName() {return "vtkTubeFilter";};
+  const char *GetClassName() {return "vtkTubeFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -70,7 +70,7 @@ class VTK_EXPORT vtkExtractGrid : public vtkStructuredGridToStructuredGridFilter
 public:
   vtkExtractGrid();
   static vtkExtractGrid *New() {return new vtkExtractGrid;};
-  char *GetClassName() {return "vtkExtractGrid";};
+  const char *GetClassName() {return "vtkExtractGrid";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

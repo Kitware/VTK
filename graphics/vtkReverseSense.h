@@ -59,7 +59,7 @@ class VTK_EXPORT vtkReverseSense : public vtkPolyDataToPolyDataFilter
 public:
   vtkReverseSense();
   static vtkReverseSense *New() {return new vtkReverseSense;};
-  char *GetClassName() {return "vtkReverseSense";};
+  const char *GetClassName() {return "vtkReverseSense";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

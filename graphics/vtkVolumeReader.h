@@ -75,7 +75,7 @@ class VTK_EXPORT vtkVolumeReader : public vtkStructuredPointsSource
 {
 public:
   vtkVolumeReader();
-  char *GetClassName() {return "vtkVolumeReader";};
+  const char *GetClassName() {return "vtkVolumeReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -84,7 +84,7 @@ class VTK_EXPORT vtkSphereTree : public vtkPolyDataToPolyDataFilter
 public:
   vtkSphereTree();
   static vtkSphereTree *New() {return new vtkSphereTree;};
-  char *GetClassName() {return "vtkSphereTree";};
+  const char *GetClassName() {return "vtkSphereTree";};
 
   void Execute();
 

@@ -59,7 +59,7 @@ public:
   vtkTIFFWriter();
   ~vtkTIFFWriter();
   static vtkTIFFWriter *New() {return new vtkTIFFWriter;};
-  char *GetClassName() {return "vtkTIFFWriter";};
+  const char *GetClassName() {return "vtkTIFFWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void SetInput(vtkStructuredPoints *input);

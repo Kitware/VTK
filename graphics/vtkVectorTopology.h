@@ -69,7 +69,7 @@ class VTK_EXPORT vtkVectorTopology : public vtkDataSetToPolyDataFilter
 public:
   vtkVectorTopology();
   static vtkVectorTopology *New() {return new vtkVectorTopology;};
-  char *GetClassName() {return "vtkVectorTopology";};
+  const char *GetClassName() {return "vtkVectorTopology";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

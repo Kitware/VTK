@@ -65,7 +65,7 @@ class VTK_EXPORT vtkBooleanStructuredPoints : public vtkFilter
 public:
   vtkBooleanStructuredPoints();
   static vtkBooleanStructuredPoints *New() {return new vtkBooleanStructuredPoints;};
-  char *GetClassName() {return "vtkBooleanStructuredPoints";};
+  const char *GetClassName() {return "vtkBooleanStructuredPoints";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void AddInput(vtkStructuredPoints *in);

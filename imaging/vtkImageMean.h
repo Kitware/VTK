@@ -58,7 +58,7 @@ class VTK_EXPORT vtkImageMean : public vtkImageDecomposedFilter
 public:
   vtkImageMean();
   static vtkImageMean *New() {return new vtkImageMean;};
-  char *GetClassName() {return "vtkImageMean";};
+  const char *GetClassName() {return "vtkImageMean";};
 
   void SetDimensionality(int num);
 

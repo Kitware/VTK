@@ -57,7 +57,7 @@ public:
   vtkImageContinuousDilate1D();
   static vtkImageContinuousDilate1D *New()
     {return new vtkImageContinuousDilate1D;};
-  char *GetClassName() {return "vtkImageContinuousDilate1D";};
+  const char *GetClassName() {return "vtkImageContinuousDilate1D";};
   void SetKernelSize(int size);
   void SetStride(int stride);
   

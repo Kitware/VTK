@@ -72,7 +72,7 @@ public:
   vtkImplicitDataSet();
   ~vtkImplicitDataSet();
   static vtkImplicitDataSet *New() {return new vtkImplicitDataSet;};
-  char *GetClassName() {return "vtkImplicitDataSet";};
+  const char *GetClassName() {return "vtkImplicitDataSet";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   unsigned long int GetMTime();

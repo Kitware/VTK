@@ -58,7 +58,7 @@ class VTK_EXPORT vtkImageMagnify : public vtkImageDecomposedFilter
 public:
   vtkImageMagnify();
   static vtkImageMagnify *New() {return new vtkImageMagnify;};
-  char *GetClassName() {return "vtkImageMagnify";};
+  const char *GetClassName() {return "vtkImageMagnify";};
 
   // Description:
   // Set/Get Magnification factors

@@ -56,7 +56,7 @@ class VTK_EXPORT vtkAxes : public vtkPolyDataSource
 public:
   vtkAxes();
   static vtkAxes *New() {return new vtkAxes;};
-  char *GetClassName() {return "vtkAxes";};
+  const char *GetClassName() {return "vtkAxes";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

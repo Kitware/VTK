@@ -62,7 +62,7 @@ public:
   vtkRIBProperty();
   ~vtkRIBProperty();
   static vtkRIBProperty *New() {return new vtkRIBProperty;};
-  char *GetClassName() {return "vtkRIBProperty";};
+  const char *GetClassName() {return "vtkRIBProperty";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

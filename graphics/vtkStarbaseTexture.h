@@ -55,7 +55,7 @@ class VTK_EXPORT vtkStarbaseTexture : public vtkTexture
 public:
   vtkStarbaseTexture();
   static vtkStarbaseTexture *New() {return new vtkStarbaseTexture;};
-  char *GetClassName() {return "vtkStarbaseTexture";};
+  const char *GetClassName() {return "vtkStarbaseTexture";};
   
   void Load(vtkRenderer *ren);
   

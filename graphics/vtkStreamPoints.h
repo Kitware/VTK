@@ -57,7 +57,7 @@ class VTK_EXPORT vtkStreamPoints : public vtkStreamer
 public:
   vtkStreamPoints();
   static vtkStreamPoints *New() {return new vtkStreamPoints;};
-  char *GetClassName() {return "vtkStreamPoints";};
+  const char *GetClassName() {return "vtkStreamPoints";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

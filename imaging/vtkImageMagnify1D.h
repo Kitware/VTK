@@ -56,7 +56,7 @@ class VTK_EXPORT vtkImageMagnify1D : public vtkImageFilter
 public:
   vtkImageMagnify1D();
   static vtkImageMagnify1D *New() {return new vtkImageMagnify1D;};
-  char *GetClassName() {return "vtkImageMagnify1D";};
+  const char *GetClassName() {return "vtkImageMagnify1D";};
 
   // Description:
   // Set/Get the convolution axis.

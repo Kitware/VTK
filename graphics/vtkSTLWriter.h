@@ -59,7 +59,7 @@ public:
   vtkSTLWriter();
   ~vtkSTLWriter();
   static vtkSTLWriter *New() {return new vtkSTLWriter;};
-  char *GetClassName() {return "vtkSTLWriter";};
+  const char *GetClassName() {return "vtkSTLWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

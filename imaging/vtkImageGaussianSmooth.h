@@ -57,7 +57,7 @@ public:
   vtkImageGaussianSmooth();
   static vtkImageGaussianSmooth *New() {return new vtkImageGaussianSmooth;};
   void PrintSelf(ostream& os, vtkIndent indent);
-  char *GetClassName() {return "vtkImageGaussianSmooth";};
+  const char *GetClassName() {return "vtkImageGaussianSmooth";};
 
   void SetDimensionality(int num);
   void SetRadiusFactor(float factor);

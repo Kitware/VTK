@@ -57,7 +57,7 @@ class VTK_EXPORT vtkImageFFT : public vtkImageDecomposedFilter
 public:
   vtkImageFFT();
   static vtkImageFFT *New() {return new vtkImageFFT;};
-  char *GetClassName() {return "vtkImageFFT";};
+  const char *GetClassName() {return "vtkImageFFT";};
 
   void SetDimensionality(int num);
 

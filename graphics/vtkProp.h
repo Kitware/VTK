@@ -65,7 +65,7 @@ class VTK_EXPORT vtkProp : public vtkObject
 {
  public:
   vtkProp();
-  char *GetClassName() {return "vtkProp";};
+  const char *GetClassName() {return "vtkProp";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   virtual void Render(vtkRenderer *ren) = 0;

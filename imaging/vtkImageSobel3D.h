@@ -57,7 +57,7 @@ class VTK_EXPORT vtkImageSobel3D : public vtkImageFilter
 public:
   vtkImageSobel3D();
   static vtkImageSobel3D *New() {return new vtkImageSobel3D;};
-  char *GetClassName() {return "vtkImageSobel3D";};
+  const char *GetClassName() {return "vtkImageSobel3D";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
   void InterceptCacheUpdate(vtkImageRegion *region);

@@ -57,7 +57,7 @@ class VTK_EXPORT vtkMergePoints : public vtkPointLocator
 public:
   vtkMergePoints() {};
   static vtkMergePoints *New() {return new vtkMergePoints;};
-  char *GetClassName() {return "vtkMergePoints";};
+  const char *GetClassName() {return "vtkMergePoints";};
 
   int *MergePoints();
   int IsInsertedPoint(float x[3]);

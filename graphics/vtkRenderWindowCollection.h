@@ -57,7 +57,7 @@ class VTK_EXPORT vtkRenderWindowCollection : public vtkCollection
 {
  public:
   static vtkRenderWindowCollection *New() {return new vtkRenderWindowCollection;};
-  char *GetClassName() {return "vtkRenderWindowCollection";};
+  const char *GetClassName() {return "vtkRenderWindowCollection";};
 
   void AddItem(vtkRenderWindow *a);
   void RemoveItem(vtkRenderWindow *a);

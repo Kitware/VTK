@@ -76,7 +76,7 @@ public:
   vtkImagePaint();
   ~vtkImagePaint();
   static vtkImagePaint *New() {return new vtkImagePaint;};
-  char *GetClassName() {return "vtkImagePaint";};
+  const char *GetClassName() {return "vtkImagePaint";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

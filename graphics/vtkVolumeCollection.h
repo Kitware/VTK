@@ -20,7 +20,7 @@ class VTK_EXPORT vtkVolumeCollection : public vtkCollection
 {
  public:
   static vtkVolumeCollection *New() {return new vtkVolumeCollection;};
-  char *GetClassName() {return "vtkVolumeCollection";};
+  const char *GetClassName() {return "vtkVolumeCollection";};
 
   void AddItem(vtkVolume *a);
   void RemoveItem(vtkVolume *a);

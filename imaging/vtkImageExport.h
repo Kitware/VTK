@@ -60,7 +60,7 @@ public:
   vtkImageExport();
   ~vtkImageExport();
   static vtkImageExport *New() {return new vtkImageExport;};
-  char *GetClassName() {return "vtkImageExport";};
+  const char *GetClassName() {return "vtkImageExport";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

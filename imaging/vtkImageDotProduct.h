@@ -58,7 +58,7 @@ class VTK_EXPORT vtkImageDotProduct : public vtkImageTwoInputFilter
 public:
   vtkImageDotProduct();
   static vtkImageDotProduct *New() {return new vtkImageDotProduct;};
-  char *GetClassName() {return "vtkImageDotProduct";};
+  const char *GetClassName() {return "vtkImageDotProduct";};
 
 protected:
   void ComputeOutputImageInformation(vtkImageRegion *inRegion1,

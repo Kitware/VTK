@@ -19,7 +19,7 @@ public:
   vtkColorTransferFunction();
   ~vtkColorTransferFunction();
   static vtkColorTransferFunction *New() {return new vtkColorTransferFunction;};
-  char *GetClassName() {return "vtkColorTransferFunction";};
+  const char *GetClassName() {return "vtkColorTransferFunction";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -61,7 +61,7 @@ class VTK_EXPORT vtkTriangularTexture : public vtkStructuredPointsSource
 public:
   vtkTriangularTexture();
   static vtkTriangularTexture *New() {return new vtkTriangularTexture;};
-  char *GetClassName() {return "vtkTriangularTexture";};
+  const char *GetClassName() {return "vtkTriangularTexture";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

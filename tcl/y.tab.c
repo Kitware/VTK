@@ -145,13 +145,19 @@ output_temp(int i)
     return;
     }
 
-  if ((arg_types[i]%100)/10 == 1)
+  /* for const * return types prototype with const */
+  if ((i == 10)&&(arg_types[10]%2000 >= 1000))
     {
-    fprintf(yyout,"    unsigned ");
+    fprintf(yyout,"    const ");
     }
   else
     {
     fprintf(yyout,"    ");
+    }
+
+  if ((arg_types[i]%100)/10 == 1)
+    {
+    fprintf(yyout,"unsigned ");
     }
 
   switch (arg_types[i]%10)

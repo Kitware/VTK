@@ -58,7 +58,7 @@ class VTK_EXPORT vtkStarbaseRenderer : public vtkRenderer
 public:
   vtkStarbaseRenderer();
   static vtkStarbaseRenderer *New() {return new vtkStarbaseRenderer;};
-  char *GetClassName() {return "vtkStarbaseRenderer";};
+  const char *GetClassName() {return "vtkStarbaseRenderer";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void Render(void);

@@ -62,7 +62,7 @@ public:
   vtkImageOpenClose();
   ~vtkImageOpenClose();
   static vtkImageOpenClose *New() {return new vtkImageOpenClose;};
-  char *GetClassName() {return "vtkImageOpenClose";};
+  const char *GetClassName() {return "vtkImageOpenClose";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Forward Object messages to filter0 and fitler1

@@ -57,7 +57,7 @@ class VTK_EXPORT vtkImageWrapPad : public vtkImagePadFilter
 public:
   vtkImageWrapPad();
   static vtkImageWrapPad *New() {return new vtkImageWrapPad;};
-  char *GetClassName() {return "vtkImageWrapPad";};
+  const char *GetClassName() {return "vtkImageWrapPad";};
 
 protected:
   void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion,

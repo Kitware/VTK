@@ -67,7 +67,7 @@ class VTK_EXPORT vtkWriter : public vtkObject
 {
 public:
   vtkWriter();
-  char *GetClassName() {return "vtkWriter";};
+  const char *GetClassName() {return "vtkWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   virtual void Write();

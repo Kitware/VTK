@@ -56,7 +56,7 @@ class VTK_EXPORT vtkVectorDot : public vtkDataSetToDataSetFilter
 public:
   vtkVectorDot();
   static vtkVectorDot *New() {return new vtkVectorDot;};
-  char *GetClassName() {return "vtkVectorDot";};
+  const char *GetClassName() {return "vtkVectorDot";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

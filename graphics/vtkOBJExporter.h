@@ -62,7 +62,7 @@ public:
   vtkOBJExporter();
   ~vtkOBJExporter();
   static vtkOBJExporter *New() {return new vtkOBJExporter;};
-  char *GetClassName() {return "vtkOBJExporter";};
+  const char *GetClassName() {return "vtkOBJExporter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

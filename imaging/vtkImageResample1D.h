@@ -54,7 +54,7 @@ class VTK_EXPORT vtkImageResample1D : public vtkImageFilter
 public:
   vtkImageResample1D();
   static vtkImageResample1D *New() {return new vtkImageResample1D;};
-  char *GetClassName() {return "vtkImageResample1D";};
+  const char *GetClassName() {return "vtkImageResample1D";};
 
   // Description:
   // Set/Get the magnification resulting from resampling.

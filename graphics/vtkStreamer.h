@@ -129,7 +129,7 @@ public:
   vtkStreamer();
   ~vtkStreamer();
   static vtkStreamer *New() {return new vtkStreamer;};
-  char *GetClassName() {return "vtkStreamer";};
+  const char *GetClassName() {return "vtkStreamer";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void SetStartLocation(int cellId, int subId, float pcoords[3]);

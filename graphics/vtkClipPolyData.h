@@ -80,7 +80,7 @@ public:
   vtkClipPolyData(vtkImplicitFunction *cf=NULL);
   ~vtkClipPolyData();
   static vtkClipPolyData *New() {return new vtkClipPolyData;};
-  char *GetClassName() {return "vtkClipPolyData";};
+  const char *GetClassName() {return "vtkClipPolyData";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -60,7 +60,7 @@ class VTK_EXPORT vtkAppendFilter : public vtkDataSetToUnstructuredGridFilter
 public:
   vtkAppendFilter();
   static vtkAppendFilter *New() {return new vtkAppendFilter;};
-  char *GetClassName() {return "vtkAppendFilter";};
+  const char *GetClassName() {return "vtkAppendFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void AddInput(vtkDataSet *in);

@@ -55,7 +55,7 @@ class VTK_EXPORT vtkStarbaseCamera : public vtkCamera
 {
  public:
   static vtkStarbaseCamera *New() {return new vtkStarbaseCamera;};
-  char *GetClassName() {return "vtkStarbaseCamera";};
+  const char *GetClassName() {return "vtkStarbaseCamera";};
 
   void Render(vtkRenderer *ren);
 };

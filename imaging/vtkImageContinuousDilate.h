@@ -56,7 +56,7 @@ class VTK_EXPORT vtkImageContinuousDilate : public vtkImageDecomposedFilter
 public:
   vtkImageContinuousDilate();
   static vtkImageContinuousDilate *New(){return new vtkImageContinuousDilate;};
-  char *GetClassName() {return "vtkImageContinuousDilate";};
+  const char *GetClassName() {return "vtkImageContinuousDilate";};
 
   void SetDimensionality(int num);
 

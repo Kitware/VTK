@@ -62,7 +62,7 @@ class VTK_EXPORT vtkTextureMapToBox : public vtkDataSetToDataSetFilter
 public:
   vtkTextureMapToBox();
   static vtkTextureMapToBox *New() {return new vtkTextureMapToBox;};
-  char *GetClassName() {return "vtkTextureMapToBox";};
+  const char *GetClassName() {return "vtkTextureMapToBox";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void SetBox(float *box);

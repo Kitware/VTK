@@ -60,7 +60,7 @@ public:
   vtkImageWin32Viewer();
   ~vtkImageWin32Viewer();
   static vtkImageWin32Viewer *New() {return new vtkImageWin32Viewer;};
-  char *GetClassName() {return "vtkImageWin32Viewer";};
+  const char *GetClassName() {return "vtkImageWin32Viewer";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // output to the viewer.

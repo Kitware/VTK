@@ -56,7 +56,7 @@ protected:
   
 public:
   static vtkStarbaseActor *New() {return new vtkStarbaseActor;};
-  char *GetClassName() {return "vtkStarbaseActor";};
+  const char *GetClassName() {return "vtkStarbaseActor";};
 
   void Render(vtkRenderer *ren, vtkMapper *mapper);
 };

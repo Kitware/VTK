@@ -55,7 +55,7 @@ class VTK_EXPORT vtkMergeFilter : public vtkFilter
 public:
   vtkMergeFilter();
   static vtkMergeFilter *New() {return new vtkMergeFilter;};
-  char *GetClassName() {return "vtkMergeFilter";};
+  const char *GetClassName() {return "vtkMergeFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Filter interface

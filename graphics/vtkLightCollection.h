@@ -57,7 +57,7 @@ class VTK_EXPORT vtkLightCollection : public vtkCollection
 {
  public:
   static vtkLightCollection *New() {return new vtkLightCollection;};
-  char *GetClassName() {return "vtkLightCollection";};
+  const char *GetClassName() {return "vtkLightCollection";};
 
   void AddItem(vtkLight *a);
   void RemoveItem(vtkLight *a);

@@ -63,7 +63,7 @@ class VTK_EXPORT vtkLight : public vtkObject
 public:
   vtkLight();
   static vtkLight *New();
-  char *GetClassName() {return "vtkLight";};
+  const char *GetClassName() {return "vtkLight";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

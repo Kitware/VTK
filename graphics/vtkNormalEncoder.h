@@ -32,7 +32,7 @@ public:
   vtkNormalEncoder();
   ~vtkNormalEncoder();
   static vtkNormalEncoder *New() {return new vtkNormalEncoder;};
-  char *GetClassName() {return "vtkNormalEncoder";};
+  const char *GetClassName() {return "vtkNormalEncoder";};
   void PrintSelf( ostream& os, vtkIndent index );
 
   // Description:

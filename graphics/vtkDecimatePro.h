@@ -165,7 +165,7 @@ public:
   vtkDecimatePro();
   ~vtkDecimatePro();
   static vtkDecimatePro *New() {return new vtkDecimatePro;};
-  char *GetClassName() {return "vtkDecimatePro";};
+  const char *GetClassName() {return "vtkDecimatePro";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -70,7 +70,7 @@ class VTK_EXPORT vtkTextureMapToPlane : public vtkDataSetToDataSetFilter
 public:
   vtkTextureMapToPlane();
   static vtkTextureMapToPlane *New() {return new vtkTextureMapToPlane;};
-  char *GetClassName() {return "vtkTextureMapToPlane";};
+  const char *GetClassName() {return "vtkTextureMapToPlane";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

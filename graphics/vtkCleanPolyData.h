@@ -64,7 +64,7 @@ public:
   vtkCleanPolyData();
   ~vtkCleanPolyData();
   static vtkCleanPolyData *New() {return new vtkCleanPolyData;};
-  char *GetClassName() {return "vtkCleanPolyData";};
+  const char *GetClassName() {return "vtkCleanPolyData";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

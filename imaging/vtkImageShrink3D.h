@@ -57,7 +57,7 @@ class VTK_EXPORT vtkImageShrink3D : public vtkImageFilter
 public:
   vtkImageShrink3D();
   static vtkImageShrink3D *New() {return new vtkImageShrink3D;};
-  char *GetClassName() {return "vtkImageShrink3D";};
+  const char *GetClassName() {return "vtkImageShrink3D";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

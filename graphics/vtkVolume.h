@@ -29,7 +29,7 @@ class VTK_EXPORT vtkVolume : public vtkProp
   vtkVolume();
   ~vtkVolume();
   static vtkVolume *New() {return new vtkVolume;};
-  char *GetClassName() {return "vtkVolume";};
+  const char *GetClassName() {return "vtkVolume";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   vtkVolume &operator=(const vtkVolume& volume);

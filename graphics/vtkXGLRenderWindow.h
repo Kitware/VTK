@@ -59,7 +59,7 @@ public:
   vtkXGLRenderWindow();
   ~vtkXGLRenderWindow();
   static vtkXGLRenderWindow *New() {return new vtkXGLRenderWindow;};
-  char *GetClassName() {return "vtkXGLRenderWindow";};
+  const char *GetClassName() {return "vtkXGLRenderWindow";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
   void Start(void);

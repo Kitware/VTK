@@ -12,8 +12,6 @@ ac_help=
 ac_default_prefix=/usr/local
 # Any additions from configure.in:
 ac_help="$ac_help
-  --with-shared               create shared libraries"
-ac_help="$ac_help
   --with-patented           include the patented classes"
 
 # Initialize some variables set by options.
@@ -523,35 +521,47 @@ fi
 
 
 
-
-#
-# use shared libs
-#
-# Check whether --with-shared or --without-shared was given.
-if test "${with_shared+set}" = set; then
-  withval="$with_shared"
-  vtk_shared_ok=yes
-else
-  vtk_shared_ok=no
-fi
-
-if test "$vtk_shared_ok" = "yes" -a "${SHLIB_SUFFIX}" != "" ; then
-    VTK_LIB_FILE="../libVTKGraphics${SHLIB_SUFFIX}${SHLIB_VERSION} ../../common/libVTKCommon${SHLIB_SUFFIX}${SHLIB_VERSION}"
-else
-    VTK_LIB_FILE="../libVTKGraphics.a ../../common/libVTKCommon.a"
-fi
+VTK_LIB_FILE="../libVTKGraphics\${VTK_LIB_EXT} ../../common/libVTKCommon\${VTK_LIB_EXT}"
 
 # if using patents we also need patents library
 # Check whether --with-patented or --without-patented was given.
 if test "${with_patented+set}" = set; then
   withval="$with_patented"
-  if test "$vtk_shared_ok" = "yes" -a "${SHLIB_SUFFIX}" != "" ; then
-     VTK_LIB_FILE="../../patented/libVTKPatented${SHLIB_SUFFIX}${SHLIB_VERSION} ../libVTKGraphics${SHLIB_SUFFIX}${SHLIB_VERSION} ../../patented/libVTKPatented${SHLIB_SUFFIX}${SHLIB_VERSION} ../../common/libVTKCommon${SHLIB_SUFFIX}${SHLIB_VERSION}"
-  else
-    VTK_LIB_FILE="../../patented/libVTKPatented.a ../libVTKGraphics.a ../../patented/libVTKPatented.a ../../common/libVTKCommon.a"
-  fi
+  VTK_LIB_FILE="../../patented/libVTKPatented\${VTK_LIB_EXT} ../libVTKGraphics\${VTK_LIB_EXT} ../../common/libVTKCommon\${VTK_LIB_EXT}"
   
 fi
+
+
+
+
+#------------------------------------------------------------------------------
+#       Some make programs require includes to be 
+#         .include "file"
+#     others...
+#         include file
+#------------------------------------------------------------------------------
+
+echo $ac_n "checking how make handles includes""... $ac_c" 1>&6
+echo "configure:546: checking how make handles includes" >&5
+cat > confmakeinc <<EOF
+
+EOF
+  cat > confmakefile <<EOF
+include confmakeinc
+
+all:
+EOF
+
+if make -f confmakefile >/dev/null 2>/dev/null; then
+    MAKEINCLUDE="include"
+    MAKEQUOTE=''
+    echo "$ac_t""common make include syntax" 1>&6
+else
+    MAKEINCLUDE=".include"
+    MAKEQUOTE='"'
+    echo "$ac_t""BSD make include syntax" 1>&6
+fi
+rm confmakefile confmakeinc
 
 
 
@@ -699,6 +709,8 @@ s%@oldincludedir@%$oldincludedir%g
 s%@infodir@%$infodir%g
 s%@mandir@%$mandir%g
 s%@VTK_LIB_FILE@%$VTK_LIB_FILE%g
+s%@MAKEINCLUDE@%$MAKEINCLUDE%g
+s%@MAKEQUOTE@%$MAKEQUOTE%g
 
 CEOF
 EOF

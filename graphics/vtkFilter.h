@@ -64,7 +64,7 @@ public:
   vtkFilter();
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkFilter *New() {return new vtkFilter;};
-  char *GetClassName() {return "vtkFilter";};
+  const char *GetClassName() {return "vtkFilter";};
 
   // Description:
   // All filters must provide a method to update the visualization 

@@ -56,7 +56,7 @@ class VTK_EXPORT vtkImageFlip : public vtkImageFilter
 public:
   vtkImageFlip();
   static vtkImageFlip *New() {return new vtkImageFlip;};
-  char *GetClassName() {return "vtkImageFlip";};
+  const char *GetClassName() {return "vtkImageFlip";};
 
   // Description:
   // If PreseveImageExtent is off, then extent of axis0 is simply

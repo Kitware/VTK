@@ -61,7 +61,7 @@ class VTK_EXPORT vtkOpenGLPolyDataMapper : public vtkPolyDataMapper
   vtkOpenGLPolyDataMapper();
   ~vtkOpenGLPolyDataMapper();
   static vtkOpenGLPolyDataMapper *New() {return new vtkOpenGLPolyDataMapper;};
-  char *GetClassName() {return "vtkOpenGLPolyDataMapper";};
+  const char *GetClassName() {return "vtkOpenGLPolyDataMapper";};
 
   void Render(vtkRenderer *ren, vtkActor *a);
 

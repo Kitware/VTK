@@ -32,7 +32,6 @@ LDLIBS =  \
 	${USE_GEMSIO_LIBS}	\
 	${USE_GEMSVOLUME_LIBS}	\
 	${USE_VOLUME_LIBS}	\
-	${USE_GRAPHICS_LIBS}	\
 	${USE_PATENTED_LIBS}	\
 	${USE_IMAGING_LIBS}	\
 	${USE_GRAPHICS_LIBS}	\
@@ -74,7 +73,7 @@ vtk: 	Makefile tkAppInit.o ${TOOLKIT_DEPENDS}
 	${XLIBS} -lXext ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 
 vtktcl: Makefile vtktcl.o ${COMMON_DEPENDS}
-	${SHLIB_LD} -o libvtktcl$(SHLIB_SUFFIX)$(SHLIB_VERSION) vtktcl.o \
+	${SHLIB_LD} -o libvtktcl$(SHLIB_SUFFIX) vtktcl.o \
 	-L. ${VTK_SHLIB_LINK_FLAGS} ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm ${JAVA_CXX_LIB}
 

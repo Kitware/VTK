@@ -57,7 +57,7 @@ class VTK_EXPORT vtkImageRFFT1D : public vtkImageFourierFilter
 public:
   vtkImageRFFT1D();
   static vtkImageRFFT1D *New() {return new vtkImageRFFT1D;};
-  char *GetClassName() {return "vtkImageRFFT1D";};
+  const char *GetClassName() {return "vtkImageRFFT1D";};
 
   void SetAxes(int axis);
   void InterceptCacheUpdate(vtkImageRegion *region);

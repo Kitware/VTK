@@ -82,7 +82,7 @@ public:
   vtkImageVolume16Reader();
   ~vtkImageVolume16Reader();
   static vtkImageVolume16Reader *New() {return new vtkImageVolume16Reader;};
-  char *GetClassName() {return "vtkImageVolume16Reader";};
+  const char *GetClassName() {return "vtkImageVolume16Reader";};
   void PrintSelf(ostream& os, vtkIndent indent);   
 
   // Description:

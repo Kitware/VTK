@@ -69,7 +69,7 @@ class VTK_EXPORT vtkImageDifference : public vtkStructuredPointsToStructuredPoin
 public:
   vtkImageDifference();
   static vtkImageDifference *New() {return new vtkImageDifference;};
-  char *GetClassName() {return "vtkImageDifference";};
+  const char *GetClassName() {return "vtkImageDifference";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void Update();

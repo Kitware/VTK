@@ -56,7 +56,7 @@ class VTK_EXPORT vtkRectilinearGridFilter : public vtkFilter
 {
 public:
   static vtkRectilinearGridFilter *New() {return new vtkRectilinearGridFilter;};
-  char *GetClassName() {return "vtkRectilinearGridFilter";};
+  const char *GetClassName() {return "vtkRectilinearGridFilter";};
 
   void SetInput(vtkRectilinearGrid *input);
   void SetInput(vtkRectilinearGrid &input) {this->SetInput(&input);};

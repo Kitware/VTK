@@ -58,7 +58,7 @@ class VTK_EXPORT vtkImageNonMaximumSuppression : public vtkImageTwoInputFilter
 public:
   vtkImageNonMaximumSuppression();
   static vtkImageNonMaximumSuppression *New() {return new vtkImageNonMaximumSuppression;};
-  char *GetClassName() {return "vtkImageNonMaximumSuppression";};
+  const char *GetClassName() {return "vtkImageNonMaximumSuppression";};
   
   // Description:
   // These method add VTK_IMAGE_COMPONENT_AXIS as the last axis.

@@ -3,30 +3,46 @@
 #
 AC_INIT(VisQuad.cxx)
 
-
-#
-# use shared libs
-#
-AC_ARG_WITH(shared,
-         [  --with-shared               create shared libraries],
-    [vtk_shared_ok=yes], [vtk_shared_ok=no])
-if test "$vtk_shared_ok" = "yes" -a "${SHLIB_SUFFIX}" != "" ; then
-    VTK_LIB_FILE="../libVTKGraphics${SHLIB_SUFFIX}${SHLIB_VERSION} ../../common/libVTKCommon${SHLIB_SUFFIX}${SHLIB_VERSION}"
-else
-    VTK_LIB_FILE="../libVTKGraphics.a ../../common/libVTKCommon.a"
-fi
+VTK_LIB_FILE="../libVTKGraphics\${VTK_LIB_EXT} ../../common/libVTKCommon\${VTK_LIB_EXT}"
 
 # if using patents we also need patents library
 AC_ARG_WITH(patented,
    [  --with-patented           include the patented classes],
-   if test "$vtk_shared_ok" = "yes" -a "${SHLIB_SUFFIX}" != "" ; then
-     VTK_LIB_FILE="../../patented/libVTKPatented${SHLIB_SUFFIX}${SHLIB_VERSION} ../libVTKGraphics${SHLIB_SUFFIX}${SHLIB_VERSION} ../../patented/libVTKPatented${SHLIB_SUFFIX}${SHLIB_VERSION} ../../common/libVTKCommon${SHLIB_SUFFIX}${SHLIB_VERSION}"
-  else
-    VTK_LIB_FILE="../../patented/libVTKPatented.a ../libVTKGraphics.a ../../patented/libVTKPatented.a ../../common/libVTKCommon.a"
-  fi
+     VTK_LIB_FILE="../../patented/libVTKPatented\${VTK_LIB_EXT} ../libVTKGraphics\${VTK_LIB_EXT} ../../common/libVTKCommon\${VTK_LIB_EXT}"
   ,)
 
 AC_SUBST(VTK_LIB_FILE)
+
+#------------------------------------------------------------------------------
+#       Some make programs require includes to be 
+#         .include "file"
+#     others...
+#         include file
+#------------------------------------------------------------------------------
+
+AC_MSG_CHECKING(how make handles includes)
+cat > confmakeinc <<EOF
+
+EOF
+  cat > confmakefile <<EOF
+include confmakeinc
+
+all:
+EOF
+
+if make -f confmakefile >/dev/null 2>/dev/null; then
+    MAKEINCLUDE="include"
+    MAKEQUOTE=''
+    AC_MSG_RESULT(common make include syntax)
+else
+    MAKEINCLUDE=".include"
+    MAKEQUOTE='"'
+    AC_MSG_RESULT(BSD make include syntax)
+fi
+rm confmakefile confmakeinc
+
+AC_SUBST(MAKEINCLUDE)
+AC_SUBST(MAKEQUOTE)
 
 dnl Checks for library functions.
 AC_OUTPUT(Makefile)

@@ -57,7 +57,7 @@ class VTK_EXPORT vtkImagePadFilter : public vtkImageFilter
 public:
   vtkImagePadFilter();
   static vtkImagePadFilter *New() {return new vtkImagePadFilter;};
-  char *GetClassName() {return "vtkImagePadFilter";};
+  const char *GetClassName() {return "vtkImagePadFilter";};
 
   // Description:
   // The image extent of the output has to be set explicitely.

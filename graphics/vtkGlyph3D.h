@@ -110,7 +110,7 @@ public:
   vtkGlyph3D();
   ~vtkGlyph3D();
   static vtkGlyph3D *New() {return new vtkGlyph3D;};
-  char *GetClassName() {return "vtkGlyph3D";};
+  const char *GetClassName() {return "vtkGlyph3D";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void Update();

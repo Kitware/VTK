@@ -36,7 +36,7 @@ public:
   vtkVolumeProperty();
   ~vtkVolumeProperty();
   static vtkVolumeProperty *New() {return new vtkVolumeProperty;};
-  char *GetClassName() {return "vtkVolumeProperty";};
+  const char *GetClassName() {return "vtkVolumeProperty";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

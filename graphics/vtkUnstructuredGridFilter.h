@@ -53,7 +53,7 @@ class VTK_EXPORT vtkUnstructuredGridFilter : public vtkFilter
 {
 public:
   static vtkUnstructuredGridFilter *New() {return new vtkUnstructuredGridFilter;};
-  char *GetClassName() {return "vtkUnstructuredGridFilter";};
+  const char *GetClassName() {return "vtkUnstructuredGridFilter";};
 
   void SetInput(vtkUnstructuredGrid *input);
   void SetInput(vtkUnstructuredGrid &input) {this->SetInput(&input);};

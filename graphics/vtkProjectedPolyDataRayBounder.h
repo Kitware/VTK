@@ -68,7 +68,7 @@ public:
   vtkProjectedPolyDataRayBounder();
   ~vtkProjectedPolyDataRayBounder();
   static vtkProjectedPolyDataRayBounder *New();
-  char *GetClassName() {return "vtkProjectedPolyDataRayBounder";};
+  const char *GetClassName() {return "vtkProjectedPolyDataRayBounder";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

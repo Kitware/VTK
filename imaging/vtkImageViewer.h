@@ -66,7 +66,7 @@ class VTK_EXPORT vtkImageViewer : public vtkObject {
 public:
   vtkImageViewer();
   ~vtkImageViewer();
-  char *GetClassName() {return "vtkImageViewer";};
+  const char *GetClassName() {return "vtkImageViewer";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -54,7 +54,7 @@ class VTK_EXPORT vtkVectorNorm : public vtkDataSetToDataSetFilter
 public:
   vtkVectorNorm();
   static vtkVectorNorm *New() {return new vtkVectorNorm;};
-  char *GetClassName() {return "vtkVectorNorm";};
+  const char *GetClassName() {return "vtkVectorNorm";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

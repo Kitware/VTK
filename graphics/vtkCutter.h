@@ -64,7 +64,7 @@ public:
   vtkCutter(vtkImplicitFunction *cf=NULL);
   ~vtkCutter();
   static vtkCutter *New() {return new vtkCutter;};
-  char *GetClassName() {return "vtkCutter";};
+  const char *GetClassName() {return "vtkCutter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Methods to set contour values

@@ -54,7 +54,7 @@ class VTK_EXPORT vtkCubeSource : public vtkPolyDataSource
 public:
   vtkCubeSource(float xL=1.0, float yL=1.0, float zL=1.0);
   static vtkCubeSource *New() {return new vtkCubeSource;};
-  char *GetClassName() {return "vtkCubeSource";};
+  const char *GetClassName() {return "vtkCubeSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

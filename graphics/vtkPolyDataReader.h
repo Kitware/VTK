@@ -56,7 +56,7 @@ class VTK_EXPORT vtkPolyDataReader : public vtkPolyDataSource
 public:
   vtkPolyDataReader();
   static vtkPolyDataReader *New() {return new vtkPolyDataReader;};
-  char *GetClassName() {return "vtkPolyDataReader";};
+  const char *GetClassName() {return "vtkPolyDataReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // overload because of vtkDataReader ivar

@@ -67,7 +67,7 @@ class VTK_EXPORT vtkShepardMethod : public vtkDataSetToStructuredPointsFilter
 public:
   vtkShepardMethod();
   static vtkShepardMethod *New() {return new vtkShepardMethod;};
-  char *GetClassName() {return "vtkShepardMethod";};
+  const char *GetClassName() {return "vtkShepardMethod";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   float ComputeModelBounds(float origin[3], float ar[3]);

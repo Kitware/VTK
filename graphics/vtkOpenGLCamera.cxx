@@ -68,12 +68,13 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
   right = (int)(vport[2]*(size[0] - 1));
 
   // if were on a stereo renderer draw to special parts of screen
+#ifndef sparc
   if (this->Stereo)
     {
     switch ((ren->GetRenderWindow())->GetStereoType())
       {
       case VTK_STEREO_CRYSTAL_EYES:
-	if (this->GetLeftEye()) 
+	if (this->LeftEye) 
 	  {
 	  bottom = (int)(532 + (1023-532)*vport[1]);
 	  top = (int)(532 + (1023-532)*vport[3]);
@@ -94,6 +95,29 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
     bottom = (int)(vport[1]*(size[1] -1));
     top = (int)(vport[3]*(size[1] - 1));
     }
+#else
+  if (this->Stereo)
+    {
+    switch ((ren->GetRenderWindow())->GetStereoType())
+      {
+      case VTK_STEREO_CRYSTAL_EYES:
+        if (this->LeftEye)
+          {
+          glDrawBuffer(GL_BACK_LEFT);
+          }
+        else
+          {
+          glDrawBuffer(GL_BACK_RIGHT);
+          }
+        break;
+      default:
+        break;
+      }
+    }
+  // we will set this for all modes on the sparc
+  bottom = (int)(vport[1]*(size[1] -1));
+  top = (int)(vport[3]*(size[1] - 1));
+#endif
   
   glViewport(left,bottom,(right-left+1),(top-bottom+1));
   glEnable( GL_SCISSOR_TEST );
@@ -105,7 +129,11 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
     switch ((ren->GetRenderWindow())->GetStereoType())
       {
       case VTK_STEREO_CRYSTAL_EYES:
+#ifndef sparc
 	aspect[0] = (float)(right-left+1)/(float)(2.0*(top-bottom+1));
+#else
+	aspect[0] = (float)(right-left+1)/(float)(top-bottom+1);
+#endif
 	aspect[1] = 1.0;
 	break;
       default:

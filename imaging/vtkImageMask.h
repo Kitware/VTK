@@ -60,7 +60,7 @@ class VTK_EXPORT vtkImageMask : public vtkImageTwoInputFilter
 public:
   vtkImageMask();
   static vtkImageMask *New() {return new vtkImageMask;};
-  char *GetClassName() {return "vtkImageMask";};
+  const char *GetClassName() {return "vtkImageMask";};
 
   // Description:
   // SetGet the MaskedValue.  This is the value of the output

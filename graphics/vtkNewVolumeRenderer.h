@@ -17,7 +17,7 @@ public:
   vtkNewVolumeRenderer();
   ~vtkNewVolumeRenderer();
   static vtkNewVolumeRenderer *New() {return new vtkNewVolumeRenderer;};
-  char *GetClassName() {return "vtkNewVolumeRenderer";};
+  const char *GetClassName() {return "vtkNewVolumeRenderer";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
 //  void AddVolume(vtkNewVolume *);

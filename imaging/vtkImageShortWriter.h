@@ -63,7 +63,7 @@ public:
   vtkImageShortWriter();
   ~vtkImageShortWriter();
   static vtkImageShortWriter *New() {return new vtkImageShortWriter;};
-  char *GetClassName() {return "vtkImageShortWriter";};
+  const char *GetClassName() {return "vtkImageShortWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
   void SetFilePrefix(char *filePrefix);

@@ -59,7 +59,7 @@ class VTK_EXPORT vtkImageClip : public vtkImageInPlaceFilter
 public:
   vtkImageClip();
   static vtkImageClip *New() {return new vtkImageClip;};
-  char *GetClassName() {return "vtkImageClip";};
+  const char *GetClassName() {return "vtkImageClip";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

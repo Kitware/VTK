@@ -6,9 +6,8 @@ import java.applet.*;
 import java.lang.Math;
 
 public class vtkPanel extends Canvas {
-	vtkRenderMaster rm = new vtkRenderMaster();
-        vtkRenderWindow rw = null;	
-	vtkRenderer ren = null;
+        vtkRenderWindow rw = new vtkRenderWindow();	
+	vtkRenderer ren = new vtkRenderer();
 	vtkCamera cam = null;
 	vtkLight lgt = new vtkLight();
 	int lastX;
@@ -21,8 +20,7 @@ public class vtkPanel extends Canvas {
 
         public vtkPanel()
       	{
-	  rw = rm.MakeRenderWindow();
-	  ren = rw.MakeRenderer();
+	  ren.SetRenderWindow(rw);
 	}
 
 	public void resize(int x, int y)
@@ -43,9 +41,9 @@ public class vtkPanel extends Canvas {
 	    if (windowSet == 0)
               { 
 	      // set the window id and the active camera
-              this.setWindow(rw);
+              //this.setWindow(rw);
               cam = ren.GetActiveCamera();
-	      ren.AddLights(lgt);
+	      ren.AddLight(lgt);
               lgt.SetPosition(cam.GetPosition());
               lgt.SetFocalPoint(cam.GetFocalPoint());
               windowSet = 1;
@@ -63,9 +61,9 @@ public class vtkPanel extends Canvas {
 	    if (windowSet == 0)
               { 
 	      // set the window id and the active camera
-              this.setWindow(rw);
+              //this.setWindow(rw);
               cam = ren.GetActiveCamera();
-	      ren.AddLights(lgt);
+	      ren.AddLight(lgt);
               lgt.SetPosition(cam.GetPosition());
               lgt.SetFocalPoint(cam.GetFocalPoint());
               windowSet = 1;
@@ -76,7 +74,7 @@ public class vtkPanel extends Canvas {
             }
 	}
 
-	public native void setWindow(vtkRenderWindow renWin);
+	//public native void setWindow(vtkRenderWindow renWin);
 
 	public boolean mouseUp(Event e, int x, int y)
 	{
@@ -241,7 +239,7 @@ public class vtkPanel extends Canvas {
               for (j = 0; j < anActor.GetNumberOfParts(); j++)
                 { 
                 aPart = anActor.GetNextPart();
-                aPart.GetProperty().SetWireframe();
+                aPart.GetProperty().SetRepresentationToWireframe();
                 }
 	      }
 	    rw.Render();
@@ -262,7 +260,7 @@ public class vtkPanel extends Canvas {
               for (j = 0; j < anActor.GetNumberOfParts(); j++)
                 { 
                 aPart = anActor.GetNextPart();
-                aPart.GetProperty().SetSurface();
+                aPart.GetProperty().SetRepresentationToSurface();
                 }
 	      }
 	    rw.Render();

@@ -60,7 +60,7 @@ class VTK_EXPORT vtkCylinder : public vtkImplicitFunction
 public:
   vtkCylinder();
   static vtkCylinder *New() {return new vtkCylinder;};
-  char *GetClassName() {return "vtkCylinder";};
+  const char *GetClassName() {return "vtkCylinder";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // ImplicitFunction interface

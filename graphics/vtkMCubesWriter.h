@@ -64,7 +64,7 @@ public:
   vtkMCubesWriter();
   ~vtkMCubesWriter();
   static vtkMCubesWriter *New() {return new vtkMCubesWriter;};
-  char *GetClassName() {return "vtkMCubesWriter";};
+  const char *GetClassName() {return "vtkMCubesWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -57,7 +57,7 @@ public:
   vtkImageMedian();
   ~vtkImageMedian();
   static vtkImageMedian *New() {return new vtkImageMedian;};
-  char *GetClassName() {return "vtkImageMedian";};
+  const char *GetClassName() {return "vtkImageMedian";};
 
   // Set/Get the size of the neighood.
   void SetKernelSize(int num, int *size);

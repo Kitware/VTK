@@ -67,7 +67,7 @@ class VTK_EXPORT vtkStructuredGridGeometryFilter : public vtkStructuredGridToPol
 public:
   vtkStructuredGridGeometryFilter();
   static vtkStructuredGridGeometryFilter *New() {return new vtkStructuredGridGeometryFilter;};
-  char *GetClassName() {return "vtkStructuredGridGeometryFilter";};
+  const char *GetClassName() {return "vtkStructuredGridGeometryFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -72,7 +72,7 @@ class VTK_EXPORT vtkLODActor : public vtkActor
   vtkLODActor();
   ~vtkLODActor();
   static vtkLODActor *New() {return new vtkLODActor;};
-  char *GetClassName() {return "vtkLODActor";};
+  const char *GetClassName() {return "vtkLODActor";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   virtual void Render(vtkRenderer *ren);

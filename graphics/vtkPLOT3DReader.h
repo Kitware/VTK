@@ -111,7 +111,7 @@ public:
   vtkPLOT3DReader();
   ~vtkPLOT3DReader();
   static vtkPLOT3DReader *New() {return new vtkPLOT3DReader;};
-  char *GetClassName() {return "vtkPLOT3DReader";};
+  const char *GetClassName() {return "vtkPLOT3DReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

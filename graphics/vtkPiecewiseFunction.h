@@ -19,7 +19,7 @@ public:
   vtkPiecewiseFunction();
   ~vtkPiecewiseFunction();
   static vtkPiecewiseFunction *New() {return new vtkPiecewiseFunction;};
-  char *GetClassName() {return "vtkPiecewiseFunction";};
+  const char *GetClassName() {return "vtkPiecewiseFunction";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

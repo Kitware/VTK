@@ -57,7 +57,7 @@ class VTK_EXPORT vtkImageResample : public vtkImageDecomposedFilter
 public:
   vtkImageResample();
   static vtkImageResample *New() {return new vtkImageResample;};
-  char *GetClassName() {return "vtkImageResample";};
+  const char *GetClassName() {return "vtkImageResample";};
 
   // Description:
   // Set/Get Magnification factors.

@@ -55,7 +55,7 @@ class VTK_EXPORT vtkPolyDataCollection : public vtkCollection
 {
 public:
   static vtkPolyDataCollection *New() {return new vtkPolyDataCollection;};
-  char *GetClassName() {return "vtkPolyDataCollection";};
+  const char *GetClassName() {return "vtkPolyDataCollection";};
 
   void AddItem(vtkPolyData *);
   void RemoveItem(vtkPolyData *);

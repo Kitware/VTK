@@ -59,7 +59,7 @@ public:
   vtkImageReader();
   ~vtkImageReader();
   static vtkImageReader *New() {return new vtkImageReader;};
-  char *GetClassName() {return "vtkImageReader";};
+  const char *GetClassName() {return "vtkImageReader";};
   void PrintSelf(ostream& os, vtkIndent indent);   
 
   void SetDataScalarTypeToFloat(){this->SetDataScalarType(VTK_FLOAT);}

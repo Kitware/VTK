@@ -74,7 +74,7 @@ public:
   vtkRenderWindow();
   ~vtkRenderWindow();
   static vtkRenderWindow *New();
-  char *GetClassName() {return "vtkRenderWindow";};
+  const char *GetClassName() {return "vtkRenderWindow";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void AddRenderer(vtkRenderer *);

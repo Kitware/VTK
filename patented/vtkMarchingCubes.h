@@ -65,7 +65,7 @@ public:
   vtkMarchingCubes();
   static vtkMarchingCubes *New() {return new vtkMarchingCubes;};
   ~vtkMarchingCubes();
-  char *GetClassName() {return "vtkMarchingCubes";};
+  const char *GetClassName() {return "vtkMarchingCubes";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Methods to set contour values

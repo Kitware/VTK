@@ -55,7 +55,7 @@ class VTK_EXPORT vtkGLTexture : public vtkTexture
 public:
   vtkGLTexture();
   static vtkGLTexture *New() {return new vtkGLTexture;};
-  char *GetClassName() {return "vtkGLTexture";};
+  const char *GetClassName() {return "vtkGLTexture";};
   
   void Load(vtkRenderer *ren);
   

@@ -56,7 +56,7 @@ class VTK_EXPORT vtkElevationFilter : public vtkDataSetToDataSetFilter
 public:
   vtkElevationFilter();
   static vtkElevationFilter *New() {return new vtkElevationFilter;};
-  char *GetClassName() {return "vtkElevationFilter";};
+  const char *GetClassName() {return "vtkElevationFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

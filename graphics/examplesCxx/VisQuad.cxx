@@ -13,7 +13,7 @@ main ()
     quadric->SetCoefficients(.5,1,.2,0,.1,0,0,.2,0,0);
 
   vtkSampleFunction *sample = vtkSampleFunction::New();
-    sample->SetSampleDimensions(50,50,50);
+    sample->SetSampleDimensions(30,30,30);
     sample->SetImplicitFunction(quadric);
 
   // Create five surfaces F(x,y,z) = constant between range specified

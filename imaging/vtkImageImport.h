@@ -58,7 +58,7 @@ public:
   vtkImageImport();
   ~vtkImageImport();
   static vtkImageImport *New() {return new vtkImageImport;};
-  char *GetClassName() {return "vtkImageImport";};
+  const char *GetClassName() {return "vtkImageImport";};
   void PrintSelf(ostream& os, vtkIndent indent);   
   
   // Description:
