@@ -988,3 +988,4 @@ void vtkGeometryFilter::ExecuteInformation()
   //                    this->GetInput()->GetMaximumNumberOfPieces());
   this->GetOutput()->SetMaximumNumberOfPieces(1000);
 }
+
