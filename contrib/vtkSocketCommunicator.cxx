@@ -114,7 +114,7 @@ static int SendMessage(T* data, int length, int tag, int sock, int maxSize)
 
   int totalLength = length*sizeof(T);
   int sent;
-  sent = send(sock, data, totalLength, 0);
+  sent = send(sock, (char*)data, totalLength, 0);
   if (sent == -1)
     {
     vtkGenericWarningMacro("Could not send message.");
@@ -123,7 +123,7 @@ static int SendMessage(T* data, int length, int tag, int sock, int maxSize)
   cout << "Sent: " << sent << endl;
   while ( sent < totalLength )
     {
-    sent += send ( sock, &(data[sent]), totalLength-sent, 0 );
+    sent += send ( sock, (char*)data+sent, totalLength-sent, 0 );
     if (sent == -1)
       {
       vtkGenericWarningMacro("Could not send message.");
