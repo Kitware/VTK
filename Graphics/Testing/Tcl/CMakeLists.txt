@@ -55,7 +55,10 @@ IF (VTK_USE_RENDERING)
       ExtractTensors
       extractVectors
       extrudeCopyCD
+      fieldToPolyData
+      fieldToRGrid
       fieldToSGrid
+      fieldToUGrid
       geomFilter
       glyph2D
       hull
