@@ -149,8 +149,15 @@ vtkThreadedController::~vtkThreadedController()
 void vtkThreadedController::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkMultiProcessController::PrintSelf(os,indent);
-  os << indent << "MultiThreader:\n";
-  this->MultiThreader->PrintSelf(os, indent.GetNextIndent());
+  if (this->MultiThreader)
+    {
+    os << indent << "MultiThreader:\n";
+    this->MultiThreader->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "MultiThreader: (none)\n";
+    }
   os << indent << "LocalProcessId: " << this->LocalProcessId << endl;
   os << indent << "Barrier in progress: " 
      << (vtkThreadedController::IsBarrierInProgress ? "(yes)" : "(no)")
