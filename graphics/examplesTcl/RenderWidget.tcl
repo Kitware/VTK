@@ -1,4 +1,4 @@
-# This script uses a vtkRenderWidget to create a
+# This script uses a vtkTkRenderWidget to create a
 # Tk widget that is associated with a vtkRenderWindow.
 # It only works for X windows right now.
 
@@ -9,7 +9,7 @@ frame .top.f1
 
 
 
-vtkRenderWidget .top.f1.o1 -width 300 -height 300 
+vtkTkRenderWidget .top.f1.o1 -width 300 -height 300 
 button .top.btn  -text Quit -command exit
 bind .top.f1.o1 <Any-ButtonPress> {puts "button %b press (%x, %y)"}
 bind .top.f1.o1 <Any-ButtonRelease> {puts "button %b release (%x, %y)"}
