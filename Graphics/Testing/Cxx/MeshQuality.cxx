@@ -40,7 +40,6 @@ int MeshQuality( int argc, char* argv[] )
   vtkUnstructuredGridReader* mr = vtkUnstructuredGridReader::New();
   vtkUnstructuredGrid* ug;
   vtkMeshQuality* iq = vtkMeshQuality::New();
-  double avg;
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/uGridEx.vtk");
 
   mr->SetFileName( fname );
