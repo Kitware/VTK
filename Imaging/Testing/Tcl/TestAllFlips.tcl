@@ -15,20 +15,18 @@ vtkImageCast imageFloat
 
 vtkImageFlip flipX
   flipX SetInput [imageFloat GetOutput]
-  flipX SetFilteredAxes 0
+  flipX SetFilteredAxis 0
 
 vtkImageFlip flipY
   flipY SetInput [imageFloat GetOutput]
-  flipY SetFilteredAxes 1
+  flipY SetFilteredAxis 1
+  flipY FlipAboutOriginOn
 
 vtkImageAppend imageAppend
   imageAppend AddInput [imageFloat GetOutput]
   imageAppend AddInput [flipX GetOutput]
   imageAppend AddInput [flipY GetOutput]
   imageAppend SetAppendAxis 0
-
-#flip BypassOn
-#flip PreserveImageExtentOn
 
 vtkImageViewer viewer
 viewer SetInput [imageAppend GetOutput]

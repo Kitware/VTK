@@ -16,191 +16,98 @@
 
 =========================================================================*/
 #include "vtkImageFlip.h"
+#include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageFlip, "1.31");
+vtkCxxRevisionMacro(vtkImageFlip, "1.32");
 vtkStandardNewMacro(vtkImageFlip);
 
 //----------------------------------------------------------------------------
 vtkImageFlip::vtkImageFlip()
 {
   this->PreserveImageExtent = 1;
+  this->FlipAboutOrigin = 0;
   this->FilteredAxis = 0;
-}
 
-//----------------------------------------------------------------------------
-// Image extent is modified by this filter.
-void vtkImageFlip::ExecuteInformation(vtkImageData *inData, 
-                                      vtkImageData *outData)
-{
-  int extent[6];
-  int axis, temp;
-
-  if ( ! this->PreserveImageExtent)
+  if (!this->ResliceAxes)
     {
-    inData->GetWholeExtent(extent);
-    axis = this->FilteredAxis;
-    temp = extent[axis*2+1];
-    extent[axis*2+1] = -temp;
-    outData->SetWholeExtent(extent);
+    this->ResliceAxes = vtkMatrix4x4::New();
     }
 }
 
 //----------------------------------------------------------------------------
-// What input should be requested.
-void vtkImageFlip::ComputeInputUpdateExtent(int inExt[6], 
-                                            int outExt[6])
+void vtkImageFlip::ExecuteInformation(vtkImageData *input, 
+                                      vtkImageData *output) 
 {
-  int axis, sum;
-  int *wholeExtent;
-  
-  // copy out to in
-  memcpy((void *)inExt, (void *)outExt, 6 * sizeof(int));
-  
-  wholeExtent = this->GetOutput()->GetWholeExtent();
-  axis = this->FilteredAxis;
-  if (this->PreserveImageExtent)
+  float spacing[3];
+  float origin[3];
+  int wholeExt[6];
+   
+  input->GetWholeExtent(wholeExt);
+  input->GetSpacing(spacing);
+  input->GetOrigin(origin);
+
+  int iflip = this->FilteredAxis;
+
+  // changing the matrix elements directly is ugly, but if the matrix is
+  // Modified then the MTime of the filter also changes, which would screw
+  // up the pipeline
+  if (this->ResliceAxes)
     {
-    sum = wholeExtent[axis*2] + wholeExtent[axis*2+1];
-    inExt[axis*2] = -outExt[axis*2+1]+sum;
-    inExt[axis*2+1] = -outExt[axis*2]+sum;
+    // set to identity
+    for (int i = 0; i < 4; i++)
+      {
+      for (int j = 0; j < 4; j++)
+        {
+        this->ResliceAxes->Element[i][j] = 0.0;
+        }
+      this->ResliceAxes->Element[i][i] = 1.0;
+      }
+    // but with a iflip along one axis
+    this->ResliceAxes->Element[iflip][iflip] = -1.0;
+    }
+
+  if (!this->FlipAboutOrigin)
+    {
+    // set ResliceAxesOrigin so the flip occurs around the correct axis such that
+    // the Origin of the output data can be left the same as the Origin of the
+    // input data
+    if (this->ResliceAxes)
+      {
+      this->ResliceAxes->Element[iflip][3] = 2*origin[iflip] +
+        spacing[iflip]*(wholeExt[2*iflip] + wholeExt[2*iflip+1]);
+      }
     }
   else
     {
-    inExt[axis*2] = -outExt[axis*2+1];
-    inExt[axis*2+1] = -outExt[axis*2];
+    // set the output Origin such that when the image flips about its origin
+    // (meaning the real origin, not what vtkImageData calls "Origin") the
+    // transformed output bounds exactly overlay the input bounds. 
+    origin[iflip] = - origin[iflip]
+      - spacing[iflip]*(wholeExt[2*iflip] + wholeExt[2*iflip+1]);
+    }
+
+  output->SetWholeExtent(wholeExt);
+  output->SetSpacing(spacing);
+  output->SetOrigin(origin);
+  output->SetScalarType(input->GetScalarType());
+  output->SetNumberOfScalarComponents(input->GetNumberOfScalarComponents());
+
+  // update information related to clipping the data
+  vtkImageStencilData *stencil = this->GetStencil();
+  if (stencil)
+    {
+    stencil->SetSpacing(spacing);
+    stencil->SetOrigin(origin);
     }
 }
-
 
 //----------------------------------------------------------------------------
-// This templated function executes the filter for any type of data.
-template <class T>
-void vtkImageFlipExecute(vtkImageFlip *self, int id,
-                         vtkImageData *inData, int *inExt,
-                         vtkImageData *outData, int *outExt, T *outPtr)
-{
-  int idxX, idxY, idxZ;
-  int maxX, maxY, maxZ;
-  int inIncX, inIncY, inIncZ;
-  int outIncX, outSkipY, outSkipZ;
-  T *inPtrX, *inPtrY, *inPtrZ;
-  int scalarSize;
-  unsigned long count = 0;
-  unsigned long target;
-
-  // find the region to loop over
-  maxX = outExt[1] - outExt[0]; 
-  maxY = outExt[3] - outExt[2]; 
-  maxZ = outExt[5] - outExt[4];
-  // target is for progress ...
-  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
-  target++;
-
-  // Get increments to march through data 
-  inData->GetIncrements(inIncX, inIncY, inIncZ);
-  // outIncX is a place holder
-  outData->GetContinuousIncrements(outExt, outIncX, outSkipY, outSkipZ);
-  // for x, increment is used because all components are copied at once
-  outIncX = inData->GetNumberOfScalarComponents();
-  // for memcpy
-  scalarSize = sizeof(T)*outIncX;
-  
-  // Get the starting in pointer
-  inPtrZ = (T *)inData->GetScalarPointerForExtent(inExt);
-  // adjust the increments (and pointer) for the flip
-  switch (self->GetFilteredAxis())
-    {
-    case 0:
-      inPtrZ += maxX * inIncX;
-      inIncX = -inIncX;
-      break;
-    case 1:
-      inPtrZ += maxY * inIncY;
-      inIncY = -inIncY;
-      break;
-    case 2:
-      inPtrZ += maxZ * inIncZ;
-      inIncZ = -inIncZ;
-      break;
-    default:
-      vtkGenericWarningMacro("Bad axis " << self->GetFilteredAxis());
-      return;
-    }
-  
-  // Loop through ouput pixels
-  for (idxZ = 0; idxZ <= maxZ; idxZ++)
-    {
-    inPtrY = inPtrZ;
-    for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
-      {
-      // handle updating progress method
-      if (!id) 
-        {
-        if (!(count%target))
-          {
-          self->UpdateProgress(count/(50.0*target));
-          }
-        count++;
-        }
-      inPtrX = inPtrY;
-      for (idxX = 0; idxX <= maxX; idxX++)
-        {
-        // Pixel operation
-        memcpy((void *)outPtr, (void *)inPtrX, scalarSize);
-        outPtr += outIncX;
-        inPtrX += inIncX;
-        }
-      outPtr += outSkipY;
-      inPtrY += inIncY;
-      }
-    outPtr += outSkipZ;
-    inPtrZ += inIncZ;
-    }
-}
-
-
-
-//----------------------------------------------------------------------------
-// This method is passed a input and output region, and executes the filter
-// algorithm to fill the output from the input.
-// It just executes a switch statement to call the correct function for
-// the regions data types.
-void vtkImageFlip::ThreadedExecute(vtkImageData *inData, 
-                                   vtkImageData *outData,
-                                   int outExt[6], int id) 
-{
-  int inExt[6];
-  void *outPtr;
-  
-  outPtr = outData->GetScalarPointerForExtent(outExt);
-  this->ComputeInputUpdateExtent(inExt, outExt);
-
-  if (inData->GetScalarType() != outData->GetScalarType())
-    {
-    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
-               << ", must match out ScalarType " << outData->GetScalarType());
-    return;
-    }
-  
-  switch (outData->GetScalarType())
-    {
-    vtkTemplateMacro7(vtkImageFlipExecute, this, id, inData, inExt, 
-                      outData, outExt, (VTK_TT *)(outPtr));
-    default:
-      vtkErrorMacro(<< "Execute: Unknown input ScalarType");
-      return;
-    }
-}
-
 void vtkImageFlip::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "FilteredAxis: " << this->FilteredAxis << "\n";
-
+  os << indent << "FlipAboutOrigin: " << (this->FlipAboutOrigin ? "On\n" : "Off\n");
   os << indent << "PreserveImageExtent: " << (this->PreserveImageExtent ? "On\n" : "Off\n");
-
-
 }
-

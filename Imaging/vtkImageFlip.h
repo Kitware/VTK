@@ -17,41 +17,56 @@
 =========================================================================*/
 // .NAME vtkImageFlip - This flips an axis of an image. Right becomes left ...
 // .SECTION Description
-// vtkImageFlip will reflect the data along the filtered axis.
-// If PreserveImageExtent is "On", then the 
-// image is shifted so that it has the same image extent, and the origin is
-// shifted appropriately. When PreserveImageExtent is "off",
-// The Origin  is not changed, min and max of extent (of filtered axis) are
-// negated, and are swapped. The default preserves the extent of the input.
+// vtkImageFlip will reflect the data along the filtered axis.  This filter is
+// actually a thin wrapper around vtkImageReslice.
 
 #ifndef __vtkImageFlip_h
 #define __vtkImageFlip_h
 
 
-#include "vtkImageToImageFilter.h"
+#include "vtkImageReslice.h"
 
-class VTK_IMAGING_EXPORT vtkImageFlip : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImageFlip : public vtkImageReslice
 {
 public:
   static vtkImageFlip *New();
 
-  vtkTypeRevisionMacro(vtkImageFlip,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageFlip,vtkImageReslice);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Specify which axes will be flipped.
+  // Specify which axis will be flipped.  This must be an integer
+  // between 0 (for x) and 2 (for z).
   vtkSetMacro(FilteredAxis, int);
   vtkGetMacro(FilteredAxis, int);
 
   // Description:
-  // Specify which axes will be flipped.
-  // For compatibility with old scripts
-  void SetFilteredAxes(int axis) {this->SetFilteredAxis(axis);}
+  // By default the image will be flipped about its center, and the
+  // Origin, Spacing and Extent of the output will be identical to
+  // the input.  However, if you have a coordinate system associated
+  // with the image and you want to use the flip to convert +ve values
+  // along one axis to -ve values (and vice versa) then you actually
+  // want to flip the image about coordinate (0,0,0) instead of about
+  // the center of the image.  This method will adjust the Origin of
+  // the output such that the flip occurs about (0,0,0).  Note that
+  // this method only changes the Origin (and hence the coordinate system)
+  // the output data: the actual pixel values are the same whether or not
+  // this method is used.  Also note that the Origin in this method name
+  // refers to (0,0,0) in the coordinate system associated with the image,
+  // it does not refer to the Origin ivar that is associated with a 
+  // vtkImageData.
+  vtkSetMacro(FlipAboutOrigin, int);
+  vtkGetMacro(FlipAboutOrigin, int);
+  vtkBooleanMacro(FlipAboutOrigin, int);
+
+  // Description:
+  // For compatibility with old scripts.
+  void SetFilteredAxes(int axis) { this->SetFilteredAxis(axis); };
   
   // Description:
-  // If PreseveImageExtent is off, then extent of axis0 is simply
-  // multiplied by -1.  If it is on, then the new image min (-imageMax0)
-  // is shifted to old image min (imageMin0).
+  // PreserveImageExtentOff wasn't covered by test scripts and its
+  // implementation was broken.  It is deprecated now and it has
+  // no effect (i.e. the ImageExtent is always preserved).
   vtkSetMacro(PreserveImageExtent, int);
   vtkGetMacro(PreserveImageExtent, int);
   vtkBooleanMacro(PreserveImageExtent, int);
@@ -60,14 +75,14 @@ protected:
   vtkImageFlip();
   ~vtkImageFlip() {};
 
+  void ExecuteInformation(vtkImageData *input, vtkImageData *output);
+  void ExecuteInformation() {
+    this->vtkImageToImageFilter::ExecuteInformation(); };
+
   int FilteredAxis;
+  int FlipAboutOrigin;
   int PreserveImageExtent;
   
-  void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
-  void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
-  void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
-  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
-                       int outExt[6], int id);
 private:
   vtkImageFlip(const vtkImageFlip&);  // Not implemented.
   void operator=(const vtkImageFlip&);  // Not implemented.
