@@ -264,4 +264,7 @@ void vtkVolumeTextureMapper::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   // this->Shade is a temporary variable that should not be printed
+  // this->RenderWindow is a temporary variable that should not be printed
+  // this->DataSpacing is a temporary variable that should not be printed
+  // this->DataOrigin is a temporary variable that should not be printed
 }
