@@ -34,7 +34,7 @@ vtkPolyDataNormals normals
 
 ######################################## Create top-level GUI
 #
-wm title . "vtk Decimator"
+wm title . "vtk Decimator v1.0"
 frame .mbar -relief raised -bd 2
 pack .mbar -side top -fill x
 
@@ -97,6 +97,11 @@ vtkTkRenderWidget .window -width 300 -height 300
     BindTkRenderWidget .window
 pack .window -side top -anchor nw -padx 3 -pady 3 -fill both -expand 1
 
+# Status bar
+label .status -text "(No data)"
+pack .status -side top -anchor w -expand 1 -fill x
+
+# Graphics objects
 vtkCamera camera
 vtkLight light
 vtkRenderer Renderer
@@ -108,10 +113,6 @@ vtkRenderer CompareRenderer
     CompareRenderer AddLight light
 set RenWin [.window GetRenderWindow]
 $RenWin AddRenderer Renderer
-
-# Status bar
-label .status -text "(No data)"
-pack .status -side top -anchor w -expand 1 -fill x
 
 # Procedure to set particular views
 proc UpdateView {x y z vx vy vz} {
@@ -282,6 +283,7 @@ vtkActor FEdgesActor
     FEdgesActor SetMapper FEdgesMapper
 
 Renderer AddActor bannerActor
+Renderer ResetCamera
 [Renderer GetActiveCamera] Zoom 1.25
 
 
