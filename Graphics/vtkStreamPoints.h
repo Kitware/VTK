@@ -47,7 +47,7 @@ protected:
   ~vtkStreamPoints() {};
 
   // Convert streamer array into vtkPolyData
-  void Execute();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   // the separation of points
   double TimeIncrement;
@@ -58,5 +58,3 @@ private:
 };
 
 #endif
-
-

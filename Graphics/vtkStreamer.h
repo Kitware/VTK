@@ -50,7 +50,7 @@
 #ifndef __vtkStreamer_h
 #define __vtkStreamer_h
 
-#include "vtkDataSetToPolyDataFilter.h"
+#include "vtkDataSetToPolyDataAlgorithm.h"
 
 class vtkInitialValueProblemSolver;
 class vtkMultiThreader;
@@ -59,10 +59,10 @@ class vtkMultiThreader;
 #define VTK_INTEGRATE_BACKWARD 1
 #define VTK_INTEGRATE_BOTH_DIRECTIONS 2
 
-class VTK_GRAPHICS_EXPORT vtkStreamer : public vtkDataSetToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkStreamer : public vtkDataSetToPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkStreamer,vtkDataSetToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkStreamer,vtkDataSetToPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -182,7 +182,7 @@ protected:
   ~vtkStreamer();
 
   // Integrate data
-  void Integrate();
+  void Integrate(vtkDataSet *input, vtkDataSet *source);
 
   // Controls where streamlines start from (either position or location).
   int StartFrom;
@@ -294,6 +294,8 @@ protected:
   vtkMultiThreader           *Threader;
   int                        NumberOfThreads;
 
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
+
 private:
   vtkStreamer(const vtkStreamer&);  // Not implemented.
   void operator=(const vtkStreamer&);  // Not implemented.
@@ -318,5 +320,3 @@ inline const char *vtkStreamer::GetIntegrationDirectionAsString()
 }
 
 #endif
-
-

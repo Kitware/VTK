@@ -18,13 +18,15 @@
 #include "vtkDataSet.h"
 #include "vtkFloatArray.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyLine.h"
 
-vtkCxxRevisionMacro(vtkStreamLine, "1.58");
+vtkCxxRevisionMacro(vtkStreamLine, "1.59");
 vtkStandardNewMacro(vtkStreamLine);
 
 // Construct object with step size set to 1.0.
@@ -34,12 +36,24 @@ vtkStreamLine::vtkStreamLine()
   this->NumberOfStreamers = 0;
 }
 
-void vtkStreamLine::Execute()
+int vtkStreamLine::RequestData(
+  vtkInformation *,
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  if ( !this->GetInput() )
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
+
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet *source = 0;
+  if (sourceInfo)
     {
-    vtkErrorMacro("Input not set");
-    return;
+    source = vtkDataSet::SafeDownCast(
+      sourceInfo->Get(vtkDataObject::DATA_OBJECT()));
     }
 
   vtkStreamer::StreamPoint *sPrev, *sPtr;
@@ -55,11 +69,10 @@ void vtkStreamLine::Execute()
   vtkPolyLine* lineNormalGenerator = NULL;
   vtkFloatArray* normals = NULL;
   vtkFloatArray* rotation = 0;
-  vtkPolyData *output=this->GetOutput();
 
   this->SavePointInterval = this->StepLength;
-  this->vtkStreamer::Integrate();
-  if ( this->NumberOfStreamers <= 0 ) {return;}
+  this->vtkStreamer::Integrate(input, source);
+  if ( this->NumberOfStreamers <= 0 ) {return 1;}
 
   pts = vtkIdList::New();
   pts->Allocate(2500);
@@ -85,8 +98,8 @@ void vtkStreamLine::Execute()
     output->GetPointData()->AddArray(rotation);
     }
 
-  if ( this->GetInput()->GetPointData()->GetScalars() || this->SpeedScalars
-    || this->OrientationScalars)
+  if ( input->GetPointData()->GetScalars() || this->SpeedScalars
+       || this->OrientationScalars)
     {
     newScalars = vtkFloatArray::New();
     newScalars->Allocate(1000);
@@ -234,6 +247,8 @@ void vtkStreamLine::Execute()
   this->NumberOfStreamers = 0;
 
   output->Squeeze();
+
+  return 1;
 }
 
 void vtkStreamLine::PrintSelf(ostream& os, vtkIndent indent)
@@ -243,5 +258,3 @@ void vtkStreamLine::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Step Length: " << this->StepLength << "\n";
 
 }
-
-

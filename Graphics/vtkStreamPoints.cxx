@@ -18,12 +18,14 @@
 #include "vtkDataSet.h"
 #include "vtkFloatArray.h"
 #include "vtkIdList.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkStreamPoints, "1.41");
+vtkCxxRevisionMacro(vtkStreamPoints, "1.42");
 vtkStandardNewMacro(vtkStreamPoints);
 
 // Construct object with time increment set to 1.0.
@@ -33,8 +35,15 @@ vtkStreamPoints::vtkStreamPoints()
   this->NumberOfStreamers = 0;
 }
 
-void vtkStreamPoints::Execute()
+int vtkStreamPoints::RequestData(
+  vtkInformation *,
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
+
   vtkStreamer::StreamPoint *sPrev, *sPtr;
   vtkPoints *newPts;
   vtkFloatArray *newVectors;
@@ -43,17 +52,24 @@ void vtkStreamPoints::Execute()
   vtkIdType i, ptId, id;
   int j;
   double tOffset, x[3], v[3], s, r;
-  vtkPolyData *output = this->GetOutput();
-  vtkDataSet *input = this->GetInput();
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet *source = 0;
+  if (sourceInfo)
+    {
+    source = vtkDataSet::SafeDownCast(
+      sourceInfo->Get(vtkDataObject::DATA_OBJECT()));
+    }
   vtkIdList *pts;
 
   this->SavePointInterval = this->TimeIncrement;  
-  this->vtkStreamer::Integrate();
+  this->vtkStreamer::Integrate(input, source);
   if ( this->NumberOfStreamers <= 0 )
     {
-    return;
+    return 1;
     }
-  
 
   pts = vtkIdList::New();
   pts->Allocate(2500);
@@ -148,6 +164,8 @@ void vtkStreamPoints::Execute()
 
   output->Squeeze();
   pts->Delete();
+
+  return 1;
 }
 
 void vtkStreamPoints::PrintSelf(ostream& os, vtkIndent indent)
@@ -156,5 +174,3 @@ void vtkStreamPoints::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Time Increment: " << this->TimeIncrement << " <<\n";
 }
-
-

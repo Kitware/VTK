@@ -17,7 +17,9 @@
 #include "vtkCell.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
+#include "vtkExecutive.h"
 #include "vtkGenericCell.h"
+#include "vtkInformation.h"
 #include "vtkInterpolatedVelocityField.h"
 #include "vtkMath.h"
 #include "vtkMultiThreader.h"
@@ -25,11 +27,18 @@
 #include "vtkPointData.h"
 #include "vtkRungeKutta2.h"
 
-vtkCxxRevisionMacro(vtkStreamer, "1.91");
+vtkCxxRevisionMacro(vtkStreamer, "1.92");
 vtkCxxSetObjectMacro(vtkStreamer,Integrator,vtkInitialValueProblemSolver);
 
 #define VTK_START_FROM_POSITION 0
 #define VTK_START_FROM_LOCATION 1
+
+struct vtkStreamerThreadStruct
+{
+  vtkStreamer *Filter;
+  vtkDataSet *Input;
+  vtkDataSet *Source;
+};
 
 vtkStreamer::StreamArray::StreamArray()
 {
@@ -91,6 +100,8 @@ vtkStreamer::vtkStreamer()
   this->NumberOfThreads = this->Threader->GetNumberOfThreads();
   this->Integrator = vtkRungeKutta2::New();
   this->SavePointInterval = 0.00001;
+
+  this->SetNumberOfInputPorts(2);
 }
 
 vtkStreamer::~vtkStreamer()
@@ -109,16 +120,17 @@ vtkStreamer::~vtkStreamer()
 
 void vtkStreamer::SetSource(vtkDataSet *source)
 {
-  this->vtkProcessObject::SetNthInput(1, source);
+  this->SetInput(1, source);
 }
 
 vtkDataSet *vtkStreamer::GetSource()
 {
-  if (this->NumberOfInputs < 2)
+  if (this->GetNumberOfInputConnections(1) < 1)
     {
     return NULL;
     }
-  return (vtkDataSet *)(this->Inputs[1]);
+  return vtkDataSet::SafeDownCast(
+    this->GetExecutive()->GetInputData(1, 0));
 }
 
 // Specify the start of the streamline in the cell coordinate system. That is,
@@ -204,6 +216,7 @@ static const double VTK_EPSILON=1E-12;
 VTK_THREAD_RETURN_TYPE vtkStreamer::ThreadedIntegrate( void *arg )
 {
   vtkStreamer              *self;
+  vtkStreamerThreadStruct  *str;
   int                      thread_count;
   int                      thread_id;
   vtkStreamer::StreamArray *streamer;
@@ -230,9 +243,10 @@ VTK_THREAD_RETURN_TYPE vtkStreamer::ThreadedIntegrate( void *arg )
 
   thread_id = ((vtkMultiThreader::ThreadInfo *)(arg))->ThreadID;
   thread_count = ((vtkMultiThreader::ThreadInfo *)(arg))->NumberOfThreads;
-  self = (vtkStreamer *)(((vtkMultiThreader::ThreadInfo *)(arg))->UserData);
+  str = (vtkStreamerThreadStruct*)(((vtkMultiThreader::ThreadInfo *)(arg))->UserData);
+  self = str->Filter;
 
-  input     = self->GetInput();
+  input     = str->Input;
   pd        = input->GetPointData();
   inScalars = pd->GetScalars();
   inVectors = pd->GetVectors();
@@ -442,10 +456,8 @@ VTK_THREAD_RETURN_TYPE vtkStreamer::ThreadedIntegrate( void *arg )
   return VTK_THREAD_RETURN_VALUE;
 }
 
-void vtkStreamer::Integrate()
+void vtkStreamer::Integrate(vtkDataSet *input, vtkDataSet *source)
 {
-  vtkDataSet *input  = this->GetInput();
-  vtkDataSet *source = this->GetSource();
   vtkPointData *pd   = input->GetPointData();
   vtkDataArray *inScalars;
   vtkDataArray *inVectors;
@@ -497,7 +509,7 @@ void vtkStreamer::Integrate()
   // Create starting points
   //
   this->NumberOfStreamers = numSourcePts = offset = 1;
-  if ( this->GetSource() )
+  if ( source )
     {
     this->NumberOfStreamers = numSourcePts = source->GetNumberOfPoints();
     }
@@ -510,7 +522,7 @@ void vtkStreamer::Integrate()
 
   this->Streamers = new vtkStreamer::StreamArray[this->NumberOfStreamers];
 
-  if ( this->StartFrom == VTK_START_FROM_POSITION && !this->GetSource() )
+  if ( this->StartFrom == VTK_START_FROM_POSITION && !source )
     {
     idx = this->Streamers[0].InsertNextStreamPoint();
     sPtr = this->Streamers[0].GetStreamPoint(idx);
@@ -523,7 +535,7 @@ void vtkStreamer::Integrate()
                                    sPtr->subId, sPtr->p, w);
     }
 
-  else if ( this->StartFrom == VTK_START_FROM_LOCATION && !this->GetSource() )
+  else if ( this->StartFrom == VTK_START_FROM_LOCATION && !source )
     {
     idx = this->Streamers[0].InsertNextStreamPoint();
     sPtr = this->Streamers[0].GetStreamPoint(idx);
@@ -633,7 +645,11 @@ void vtkStreamer::Integrate()
   
   // Set up and execute the thread
   this->Threader->SetNumberOfThreads( this->NumberOfThreads );
-  this->Threader->SetSingleMethod( vtkStreamer::ThreadedIntegrate, (void *)this );
+  vtkStreamerThreadStruct str;
+  str.Filter = this;
+  str.Input = input;
+  str.Source = source;
+  this->Threader->SetSingleMethod( vtkStreamer::ThreadedIntegrate, &str );
   this->Threader->SingleMethodExecute();
 
   //
@@ -670,6 +686,16 @@ void vtkStreamer::Integrate()
     {
     cellScalars->Delete();
     }
+}
+
+int vtkStreamer::FillInputPortInformation(int port, vtkInformation *info)
+{
+  int retval = this->Superclass::FillInputPortInformation(port, info);
+  if (port == 1)
+    {
+    info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
+    }
+  return retval;
 }
 
 void vtkStreamer::PrintSelf(ostream& os, vtkIndent indent)
@@ -728,5 +754,3 @@ void vtkStreamer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number Of Streamers: " << this->NumberOfStreamers << "\n";
   os << indent << "Number Of Threads: " << this->NumberOfThreads << "\n";
 }
-
-

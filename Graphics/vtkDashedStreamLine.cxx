@@ -17,11 +17,13 @@
 #include "vtkCellArray.h"
 #include "vtkDataSet.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkDashedStreamLine, "1.43");
+vtkCxxRevisionMacro(vtkDashedStreamLine, "1.44");
 vtkStandardNewMacro(vtkDashedStreamLine);
 
 vtkDashedStreamLine::vtkDashedStreamLine()
@@ -29,13 +31,13 @@ vtkDashedStreamLine::vtkDashedStreamLine()
   this->DashFactor = 0.75;
 }
 
-void vtkDashedStreamLine::Execute()
+int vtkDashedStreamLine::RequestData(vtkInformation *,
+                                     vtkInformationVector **inputVector,
+                                     vtkInformationVector *outputVector)
 {
-  if ( !this->GetInput() )
-    {
-    vtkErrorMacro("Input not set");
-    return;
-    }
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
 
   vtkStreamer::StreamPoint *sPrev, *sPtr;
   vtkPoints *newPts;
@@ -47,14 +49,22 @@ void vtkDashedStreamLine::Execute()
   double tOffset, x[3], v[3], r, xPrev[3], vPrev[3], scalarPrev;
   double s = 0;
   double xEnd[3], vEnd[3], sEnd;
-  vtkDataSet *input = this->GetInput();
-  vtkPolyData *output = this->GetOutput();
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet *source = 0;
+  if (sourceInfo)
+    {
+    source = vtkDataSet::SafeDownCast(
+      sourceInfo->Get(vtkDataObject::DATA_OBJECT()));
+    }
 
   this->SavePointInterval = this->StepLength;
-  this->vtkStreamer::Integrate();
+  this->vtkStreamer::Integrate(input, source);
   if ( this->NumberOfStreamers <= 0 )
     {
-    return;
+    return 1;
     }
   //
   //  Convert streamer into lines. Lines may be dashed.
@@ -175,6 +185,8 @@ void vtkDashedStreamLine::Execute()
   this->NumberOfStreamers = 0;
 
   output->Squeeze();
+
+  return 1;
 }
 
 void vtkDashedStreamLine::PrintSelf(ostream& os, vtkIndent indent)
@@ -184,5 +196,3 @@ void vtkDashedStreamLine::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Dash Factor: " << this->DashFactor << " <<\n";
 
 }
-
-

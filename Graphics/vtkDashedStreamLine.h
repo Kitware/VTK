@@ -53,7 +53,7 @@ protected:
   ~vtkDashedStreamLine() {};
 
   // Convert streamer array into vtkPolyData
-  void Execute();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   // the fraction of on versus off in dash
   double DashFactor;

@@ -68,7 +68,7 @@ protected:
   ~vtkStreamLine() {};
 
   // Convert streamer array into vtkPolyData
-  void Execute();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   // the length of line primitives
   double StepLength;
@@ -79,5 +79,3 @@ private:
 };
 
 #endif
-
-
