@@ -67,6 +67,11 @@ public:
   void SetAxisMagnificationFactor(int axis, float factor);
   float GetAxisMagnificationFactor(int axis);
 
+  // Description:
+  // Here to test My six sigma project
+  void SetABogusVariable(int a);
+  
+  
 protected:
   float MagnificationFactors[3];
   float OutputSpacing[3];

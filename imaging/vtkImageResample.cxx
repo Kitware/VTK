@@ -80,6 +80,11 @@ void vtkImageResample::SetAxisOutputSpacing(int axis, float spacing)
     }
 }
 
+void vtkImageResample::SetABogusVariable(int a)
+{
+  this->Modified();
+}
+
 //----------------------------------------------------------------------------
 void vtkImageResample::SetAxisMagnificationFactor(int axis, float factor)
 {
@@ -208,10 +213,13 @@ static void vtkImageResampleExecute(vtkImageResample *self,
   int inMin0, inMax0, inMin1, inMax1, inMin2, inMax2;
   int outIdx0, outIdx1, outIdx2, inIdx0, temp; 
   int inInc0, inInc1, inInc2, outInc0, outInc1, outInc2;
-  T *inPtr1, *inPtr2, *outPtr1, *outPtr2;
+  T *inPtr1, *inPtr2, *outPtr1, *outPtr2, *inPtrC, *outPtrC;
   float magFactor, factor;
+  int idxC, numC;
 
   temp = 0;
+
+  numC = inData->GetNumberOfScalarComponents();
   
   // permute to make the filtered axis come first.
   self->PermuteExtent(inExt, inMin0, inMax0, 
@@ -237,38 +245,47 @@ static void vtkImageResampleExecute(vtkImageResample *self,
       }
     // compute the factor for this interpolation
     factor = ((float)(outIdx0) / magFactor) - (float)(inIdx0);
-
+    
     // loop through the other axes
-    outPtr1 = outPtr;
-    inPtr1 = inPtr;
-    for (outIdx1 = outMin1; outIdx1 <= outMax1; ++outIdx1)
+    outPtrC = outPtr;
+    inPtrC = inPtr;
+    for (idxC = 0; idxC < numC; ++idxC)
       {
-      outPtr2 = outPtr1;
-      inPtr2 = inPtr1;
-      for (outIdx2 = outMin2; outIdx2 <= outMax2; ++outIdx2)
+      inPtr1 = inPtrC;
+      outPtr1 = outPtrC;
+
+      for (outIdx1 = outMin1; outIdx1 <= outMax1; ++outIdx1)
 	{
-	// compute the interpolation
-	if (factor < 0.001)
-	  { // special case for one slice
-	  *outPtr2 = *inPtr2;
-	  }
-	else
+	outPtr2 = outPtr1;
+	inPtr2 = inPtr1;
+	for (outIdx2 = outMin2; outIdx2 <= outMax2; ++outIdx2)
 	  {
-	  *outPtr2 = (T)((float)(*inPtr2) 
-			 + (factor * (float)(inPtr2[inInc0] - *inPtr2)));
+	  // compute the interpolation
+	  if (factor < 0.001)
+	    { // special case for one slice
+	    *outPtr2 = *inPtr2;
+	    }
+	  else
+	    {
+	    *outPtr2 = (T)((float)(*inPtr2) 
+			   + (factor * (float)(inPtr2[inInc0] - *inPtr2)));
+	    }
+	  
+	  // increment
+	  inPtr2 += inInc2;
+	  outPtr2 += outInc2;
 	  }
-	
-	// increment
-	inPtr2 += inInc2;
-	outPtr2 += outInc2;
+	inPtr1 += inInc1;
+	outPtr1 += outInc1;
 	}
       // increment
-      inPtr1 += inInc1;
-      outPtr1 += outInc1;
+      ++inPtrC;
+      ++outPtrC;
       }
     // increment (input is handled at front of loop)
     outPtr += outInc0;
     }
+  
 }
 
     
