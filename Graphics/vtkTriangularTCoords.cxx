@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkTriangularTCoords, "1.29");
+vtkCxxRevisionMacro(vtkTriangularTCoords, "1.30");
 vtkStandardNewMacro(vtkTriangularTCoords);
 
 int vtkTriangularTCoords::RequestData(
@@ -142,7 +142,7 @@ int vtkTriangularTCoords::RequestData(
       newId = newPoints->InsertNextPoint(p1);
       newPolys->InsertCellPoint(newId);
       pointData->CopyData(pd,pts[j],newId);
-      newTCoords->SetTuple (newId,&tCoords[2*j]);
+      newTCoords->InsertNextTuple (&tCoords[2*j]);
       }
     }
 
@@ -165,15 +165,15 @@ int vtkTriangularTCoords::RequestData(
 
       newIds[0] = newPoints->InsertNextPoint(p1);
       pointData->CopyData(pd,pts[j],newIds[0]);
-      newTCoords->SetTuple (newIds[0],&tCoords[0]);
+      newTCoords->InsertNextTuple (&tCoords[0]);
 
       newIds[1] = newPoints->InsertNextPoint(p2);
       pointData->CopyData(pd,pts[j+1],newIds[1]);
-      newTCoords->SetTuple (newIds[1],&tCoords[2]);
+      newTCoords->InsertNextTuple (&tCoords[2]);
 
       newIds[2] = newPoints->InsertNextPoint(p3);
       pointData->CopyData(pd,pts[j+2],newIds[2]);
-      newTCoords->SetTuple (newIds[2],&tCoords[4]);
+      newTCoords->InsertNextTuple (&tCoords[4]);
 
       // flip orientation for odd tris
       if (j%2) 
