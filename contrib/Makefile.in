@@ -16,13 +16,6 @@ CONCRETE_H =
 
 ABSTRACT = 
 
-#vtkUpStreamPort \
-#vtkDownStreamPort \
-#vtkMultiProcessController \
-#vtkMPIController \
-#vtkAccumulatePoints \
-#vtkParticleReader \
-
 CONCRETE = \
 vtkAsynchronousBuffer \
 vtkDEMReader \
