@@ -323,11 +323,8 @@ PYTHON_LIBS = @USE_GRAPHICS_PATENTED_LIBS@ -L../common -lVTKCommonPython ${XLIBS
 # setting changes this needs to be recompiled
 vtkContourFilter.o : Makefile
 
-vtkTkRenderWidget: vtkTkRenderWidget.o libVTKGraphicsPython${SHLIB_SUFFIX}
-	rm -f vtkTkRenderWidget ; \
-	$(CXX) ${CXX_FLAGS} ${VTK_SHLIB_BUILD_FLAGS} \
-	-D VTK_PYTHON_BUILD vtkTkRenderWidget.cxx -o vtkTkRenderWidget \
-	-L. -lVTKGraphicsPython ${XLDFLAGS} ${PYTHON_LIBS} ${TCL_LIB} ${TK_LIB}
+vtkTkRenderWidget: 
+	@echo "skipping vtkTkRenderWidget for python"
 
 @USE_GRAPHICS_PATENTED_PYTHON_TARGET@
 @USE_GRAPHICS_PATENTED_TCL_TARGET@
