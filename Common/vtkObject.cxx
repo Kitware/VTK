@@ -77,6 +77,40 @@ int vtkObject::GetGlobalWarningDisplay()
   return vtkObjectGlobalWarningDisplay;
 }
 
+//----------------------------------Command/Observer stuff-------------------
+//
+class vtkObserver
+{
+ public:
+  vtkObserver():Command(0),Event(0),Tag(0),Next(0) {}
+  ~vtkObserver();
+
+  vtkCommand *Command;
+  unsigned long Event;
+  unsigned long Tag;
+  vtkObserver *Next;
+};
+
+class vtkSubjectHelper
+{
+public:
+  vtkSubjectHelper():Start(0),End(0),Count(1) {}
+  ~vtkSubjectHelper();
+  
+  unsigned long AddObserver(unsigned long event, vtkCommand *cmd);
+  void RemoveObserver(unsigned long tag);
+  void InvokeEvent(unsigned long event, void *callData, vtkObject *self);
+  vtkCommand *GetCommand(unsigned long tag);
+  int HasObserver(unsigned long event);
+  void PrintSelf(ostream& os, vtkIndent indent);
+  
+protected:
+  vtkObserver *Start;
+  vtkObserver *End;
+  unsigned long Count;
+};
+
+// ------------------------------------vtkObject----------------------
 // This operator allows all subclasses of vtkObject to be printed via <<.
 // It in turn invokes the Print method, which in turn will invoke the
 // PrintSelf method that all objects should define, if they have anything
@@ -96,6 +130,20 @@ vtkObject::vtkObject()
   this->SubjectHelper = NULL;
   this->Modified(); // Insures modified time > than any other time
   // initial reference count = 1 and reference counting on.
+}
+
+vtkObject::~vtkObject() 
+{
+  vtkDebugMacro(<< "Destructing!");
+
+  // warn user if reference counting is on and the object is being referenced
+  // by another object
+  if ( this->ReferenceCount > 0)
+    {
+    vtkErrorMacro(<< "Trying to delete object with non-zero reference count.");
+    }
+  delete this->SubjectHelper;
+  this->SubjectHelper = NULL;
 }
 
 // Delete a vtk object. This method should always be used to delete an object 
@@ -133,6 +181,14 @@ void vtkObject::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Debug: " << (this->Debug ? "On\n" : "Off\n");
   os << indent << "Modified Time: " << this->GetMTime() << "\n";
   os << indent << "Reference Count: " << this->ReferenceCount << "\n";
+  if ( this->SubjectHelper )
+    {
+    this->SubjectHelper->PrintSelf(os,indent);
+    }
+  else
+    {
+    os << indent << "Registered Events: (none)\n";
+    }
 }
 
 void vtkObject::PrintTrailer(ostream& os, vtkIndent indent)
@@ -246,45 +302,13 @@ vtkObject *vtkObject::SafeDownCast(vtkObject *o)
   return (vtkObject *)o;
 }
 
-
+//----------------------------------Command/Observer stuff-------------------
 //
-// define the SubjectHelper class and implement the Add/Remove methods
-//
-class vtkObserver
-{
- public:
-  vtkObserver()
-    {this->Event = 0; this->Next = NULL; this->Command = NULL; this->Tag = 0;};
-  ~vtkObserver();
-
-  vtkCommand *Command;
-  unsigned long Event;
-  unsigned long Tag;
-  vtkObserver *Next;
-};
 
 vtkObserver::~vtkObserver()
 {
   delete this->Command;
 }
-
-class vtkSubjectHelper
-{
-public:
-  vtkSubjectHelper() {this->Start = NULL; this->End = NULL; this->Count = 1;};
-  ~vtkSubjectHelper();
-  
-  unsigned long AddObserver(unsigned long event, vtkCommand *cmd);
-  void RemoveObserver(unsigned long tag);
-  void InvokeEvent(unsigned long event, void *callData, vtkObject *self);
-  vtkCommand *GetCommand(unsigned long tag);
-  int HasObserver(unsigned long event);
-  
-protected:
-  vtkObserver *Start;
-  vtkObserver *End;
-  unsigned long Count;
-};
 
 vtkSubjectHelper::~vtkSubjectHelper()
 {
@@ -408,6 +432,25 @@ vtkCommand *vtkSubjectHelper::GetCommand(unsigned long tag)
   return NULL;
 }
 
+void vtkSubjectHelper::PrintSelf(ostream& os, vtkIndent indent)
+{
+  os << indent << "Registered Events: ";
+  vtkObserver *elem = this->Start;
+  if ( !elem )
+    {
+    os << "(none)\n";
+    return;
+    }
+  
+  os << "( ";
+  for ( ; elem; elem=elem->Next )
+    {
+    os << vtkCommand::GetStringFromEventId(elem->Event) << " ";
+    }  
+  os << ")\n";
+}
+
+//--------------------------------vtkObject observer-----------------------
 unsigned long vtkObject::AddObserver(unsigned long event, vtkCommand *cmd)
 {
   if (!this->SubjectHelper)
@@ -466,16 +509,3 @@ int vtkObject::HasObserver(const char *event)
   return this->HasObserver(vtkCommand::GetEventIdFromString(event));
 }
 
-vtkObject::~vtkObject() 
-{
-  vtkDebugMacro(<< "Destructing!");
-
-  // warn user if reference counting is on and the object is being referenced
-  // by another object
-  if ( this->ReferenceCount > 0)
-    {
-    vtkErrorMacro(<< "Trying to delete object with non-zero reference count.");
-    }
-  delete this->SubjectHelper;
-  this->SubjectHelper = NULL;
-}
