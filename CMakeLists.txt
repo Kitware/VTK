@@ -16,9 +16,8 @@ SET(VTK_VERSION
 
 #-----------------------------------------------------------------------------
 # Output directories.
-SET(LIBRARY_OUTPUT_PATH ${VTK_BINARY_DIR}/bin CACHE PATH "Single output directory for building all libraries.")
-SET(EXECUTABLE_OUTPUT_PATH ${VTK_BINARY_DIR}/bin CACHE PATH "Single output directory for building all executables.")
-MARK_AS_ADVANCED(LIBRARY_OUTPUT_PATH EXECUTABLE_OUTPUT_PATH)
+SET(LIBRARY_OUTPUT_PATH ${VTK_BINARY_DIR}/bin CACHE INTERNAL "Single output directory for building all libraries.")
+SET(EXECUTABLE_OUTPUT_PATH ${VTK_BINARY_DIR}/bin CACHE INTERNAL "Single output directory for building all executables.")
 SET(VTK_LIBRARY_DIR ${LIBRARY_OUTPUT_PATH}/${CMAKE_CFG_INTDIR})
 SET(VTK_EXECUTABLE_DIR ${EXECUTABLE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR})
 SET(CXX_TEST_PATH ${EXECUTABLE_OUTPUT_PATH})
