@@ -42,6 +42,7 @@
 #include "vtkTIFFWriter.h"
 #include "vtkTimerLog.h"
 #include "vtkWindowToImageFilter.h"
+#include "vtkImageData.h"
 
 #include "vtkDebugLeaks.h"
 

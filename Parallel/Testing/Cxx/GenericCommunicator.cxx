@@ -31,6 +31,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkUnsignedLongArray.h"
+#include "vtkImageData.h"
 
 #include "vtkDebugLeaks.h"
 #include "vtkRegressionTestImage.h"

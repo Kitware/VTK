@@ -32,6 +32,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkVolume16Reader.h"
+#include "vtkImageData.h"
 
 #include "vtkRegressionTestImage.h"
 #include "vtkDebugLeaks.h"

@@ -93,6 +93,7 @@ vtkRendererSource.cxx
 vtkScalarBarActor.cxx
 vtkScaledTextActor.cxx
 vtkSelectVisiblePoints.cxx
+vtkTesting.cxx
 vtkTextActor.cxx
 vtkTextMapper.cxx
 vtkTextProperty.cxx
