@@ -242,7 +242,8 @@ public:
   //                     pcoords[1]<=1 && pcoords[2]>=0 && pcoords[2]<=1
   // \pre val_exists: val!=0
   // \pre valid_size: sizeof(val)==c->GetNumberOfComponents()
-  virtual void InterpolateTuple(vtkGenericAttributeCollection *c, double pcoords[3],
+  virtual void InterpolateTuple(vtkGenericAttributeCollection *c,
+                                double pcoords[3],
                                 double *val) = 0;
   
   // Description:
