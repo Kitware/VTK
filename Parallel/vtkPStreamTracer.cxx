@@ -28,7 +28,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkPStreamTracer, "1.15");
+vtkCxxRevisionMacro(vtkPStreamTracer, "1.16");
 
 vtkCxxSetObjectMacro(vtkPStreamTracer, Controller, vtkMultiProcessController);
 vtkCxxSetObjectMacro(vtkPStreamTracer, 
@@ -376,7 +376,7 @@ int vtkPStreamTracer::RequestData(
       append->AddInput(inp);
       }
     }
-  if (append->GetNumberOfInputs() > 0)
+  if (append->GetNumberOfInputConnections(0) > 0)
     {
     append->Update();
     vtkPolyData* appoutput = append->GetOutput();

@@ -28,19 +28,19 @@
 #ifndef __vtkAppendPolyData_h
 #define __vtkAppendPolyData_h
 
-#include "vtkPolyDataToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
 class vtkCellArray;
 class vtkDataArray;
 class vtkPoints;
 class vtkPolyData;
 
-class VTK_GRAPHICS_EXPORT vtkAppendPolyData : public vtkPolyDataToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkAppendPolyData : public vtkPolyDataAlgorithm
 {
 public:
   static vtkAppendPolyData *New();
 
-  vtkTypeRevisionMacro(vtkAppendPolyData,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkAppendPolyData,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -96,9 +96,10 @@ protected:
   int ParallelStreaming;
 
   // Usual data generation method
-  void Execute();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
-  void ComputeInputUpdateExtents(vtkDataObject *output);
+  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int FillInputPortInformation(int, vtkInformation *);
 
   // An efficient way to append data/cells.
   void AppendData(vtkDataArray *dest, vtkDataArray *src, vtkIdType offset);
@@ -111,10 +112,10 @@ protected:
   // hide the superclass' AddInput() from the user and the compiler
   void AddInput(vtkDataObject *)
     { vtkErrorMacro( << "AddInput() must be called with a vtkPolyData not a vtkDataObject."); };
-  void RemoveInput(vtkDataObject *input)
-    { this->vtkProcessObject::RemoveInput(input);
-    this->vtkProcessObject::SqueezeInputArray();};
+
   int UserManagedInputs;
+  int NumberOfInputs;
+
 private:
   vtkAppendPolyData(const vtkAppendPolyData&);  // Not implemented.
   void operator=(const vtkAppendPolyData&);  // Not implemented.

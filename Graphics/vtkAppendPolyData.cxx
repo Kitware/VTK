@@ -14,14 +14,18 @@
 =========================================================================*/
 #include "vtkAppendPolyData.h"
 
+#include "vtkAlgorithmOutput.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkAppendPolyData, "1.93");
+vtkCxxRevisionMacro(vtkAppendPolyData, "1.94");
 vtkStandardNewMacro(vtkAppendPolyData);
 
 //----------------------------------------------------------------------------
@@ -46,7 +50,7 @@ void vtkAppendPolyData::AddInput(vtkPolyData *ds)
       "AddInput is not supported if UserManagedInputs is true");
     return;
     }
-  this->vtkProcessObject::AddInput(ds);
+  this->Superclass::AddInput(ds);
 }
 
 //----------------------------------------------------------------------------
@@ -59,8 +63,14 @@ void vtkAppendPolyData::RemoveInput(vtkPolyData *ds)
       "RemoveInput is not supported if UserManagedInputs is true");
     return;
     }
-  this->vtkProcessObject::RemoveInput(ds);
-  this->vtkProcessObject::SqueezeInputArray();
+
+  vtkAlgorithmOutput *algOutput = 0;
+  if (ds)
+    {
+    algOutput = ds->GetProducerPort();
+    }
+
+  this->RemoveInputConnection(0, algOutput);
 }
 
 //----------------------------------------------------------------------------
@@ -77,35 +87,68 @@ void vtkAppendPolyData::SetNumberOfInputs(int num)
     }
   // if the user sets inputs to be less than we already have, we'd better
   // unregister the tailend ones that are being discarded
-  overlap = this->GetNumberOfInputs() - num;
+  overlap = this->NumberOfInputs - num;
   if (overlap>0)
     {
     for (int i=0; i<overlap; i++)
       {
-      this->SetNthInput(i+num,NULL);
+      this->RemoveInputConnection(0, this->GetInputConnection(0, i+num));
       }
     }
-  this->vtkProcessObject::SetNumberOfInputs(num);
+  this->NumberOfInputs = num;
 }
 
 //----------------------------------------------------------------------------
 // Set Nth input, should only be used when UserManagedInputs is true.
 void vtkAppendPolyData::SetInputByNumber(int num, vtkPolyData *input)
 {
-  if (!UserManagedInputs)
+  if (!this->UserManagedInputs)
     {
     vtkErrorMacro(<<
       "SetInputByNumber is not supported if UserManagedInputs is false");
     return;
     }
-  this->vtkProcessObject::SetNthInput(num, input);
+  
+  int numConnections = this->GetNumberOfInputConnections(0);
+  vtkAlgorithmOutput *algOutput = 0;
+  if (input)
+    {
+    algOutput = input->GetProducerPort();
+    }
+  else
+    {
+    vtkErrorMacro("Cannot set NULL input.");
+    return;
+    }
+
+  if (num < numConnections)
+    {
+    if (algOutput)
+      {
+      this->SetNthInputConnection(0, num, algOutput);
+      }
+    }
+  else if (num == this->GetNumberOfInputConnections(0) && algOutput)
+    {
+    this->AddInputConnection(0, algOutput);
+    }
 }
 
 //----------------------------------------------------------------------------
 // This method is much too long, and has to be broken up!
-// Append data sets into single unstructured grid
-void vtkAppendPolyData::Execute()
+// Append data sets into single polygonal data set.
+int vtkAppendPolyData::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the ouptut
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   int idx;
   vtkPolyData *ds;
   vtkPoints  *inPts;
@@ -118,7 +161,6 @@ void vtkAppendPolyData::Execute()
   vtkIdType numPts, numCells;
   vtkPointData *inPD = NULL;
   vtkCellData *inCD = NULL;
-  vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
   vtkDataArray *newPtScalars = NULL;
@@ -142,11 +184,15 @@ void vtkAppendPolyData::Execute()
   int countPD=0;
   int countCD=0;
 
+  int numInputs = this->GetNumberOfInputConnections(0);
+  vtkInformation *inInfo;
+
   // These Field lists are very picky.  Count the number of non empty inputs
   // so we can initialize them properly.
-  for (idx = 0; idx < this->NumberOfInputs; ++idx)
+  for (idx = 0; idx < numInputs; ++idx)
     {
-    ds = (vtkPolyData *)(this->Inputs[idx]);
+    inInfo = inputVector[0]->GetInformationObject(idx);
+    ds = vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
     if (ds != NULL)
       {
       if ( ds->GetNumberOfPoints() > 0)
@@ -165,9 +211,10 @@ void vtkAppendPolyData::Execute()
   vtkDataSetAttributes::FieldList cellList(countCD);  
   
   countPD = countCD = 0;
-  for (idx = 0; idx < this->NumberOfInputs; ++idx)
+  for (idx = 0; idx < numInputs; ++idx)
     {
-    ds = (vtkPolyData *)(this->Inputs[idx]);
+    inInfo = inputVector[0]->GetInformationObject(idx);
+    ds = vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
     if (ds != NULL)
       {
       // Skip points and cells if there are no points.  Empty inputs may have no arrays.
@@ -215,7 +262,7 @@ void vtkAppendPolyData::Execute()
   if ( numPts < 1 || numCells < 1 )
     {
     //vtkErrorMacro(<<"No data to append!");
-    return;
+    return 1;
     }
   this->UpdateProgress(0.10);
 
@@ -226,9 +273,10 @@ void vtkAppendPolyData::Execute()
   int pointtype = 0;
 
   // Keep track of types for fast point append
-  for (idx = 0; idx < this->NumberOfInputs; ++idx)
+  for (idx = 0; idx < numInputs; ++idx)
     {
-    ds = (vtkPolyData *)(this->Inputs[idx]);
+    inInfo = inputVector[0]->GetInformationObject(idx);
+    ds = vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
     if (ds != NULL && ds->GetNumberOfPoints()>0)
       {
       if ( firstType )
@@ -314,10 +362,11 @@ void vtkAppendPolyData::Execute()
   vtkIdType ptOffset = 0;
   vtkIdType cellOffset = 0;
   countPD = countCD = 0;
-  for (idx = 0; idx < this->NumberOfInputs; ++idx)
+  for (idx = 0; idx < numInputs; ++idx)
     {
-    this->UpdateProgress(0.2 + 0.8*idx/this->NumberOfInputs);
-    ds = (vtkPolyData *)(this->Inputs[idx]);
+    this->UpdateProgress(0.2 + 0.8*idx/numInputs);
+    inInfo = inputVector[0]->GetInformationObject(idx);
+    ds = vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
     // this check is not necessary, but I'll put it in anyway
     if (ds != NULL)
       {
@@ -488,59 +537,75 @@ void vtkAppendPolyData::Execute()
   // When all optimizations are complete, this squeeze will be unecessary.
   // (But it does not seem to cost much.)
   output->Squeeze();
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkAppendPolyData::ComputeInputUpdateExtents(vtkDataObject *data)
+int vtkAppendPolyData::RequestUpdateExtent(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the output info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
   int piece, numPieces, ghostLevel;
-  vtkPolyData *output = (vtkPolyData *)data;
   int idx;
 
-  output->GetUpdateExtent(piece, numPieces, ghostLevel);
+  piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  ghostLevel = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
   
   // make sure piece is valid
   if (piece < 0 || piece >= numPieces)
     {
-    return;
+    return 0;
     }
 
+  int numInputs = this->GetNumberOfInputConnections(0);
   if (this->ParallelStreaming)
     {
-    piece = piece * this->NumberOfInputs;
-    numPieces = numPieces * this->NumberOfInputs;
+    piece = piece * numInputs;
+    numPieces = numPieces * numInputs;
     }
  
+  vtkInformation *inInfo;
   // just copy the Update extent as default behavior.
-  for (idx = 0; idx < this->NumberOfInputs; ++idx)
+  for (idx = 0; idx < numInputs; ++idx)
     {
-    if (this->Inputs[idx])
+    inInfo = inputVector[0]->GetInformationObject(idx);
+    if (inInfo)
       {
       if (this->ParallelStreaming)
         {
-        this->Inputs[idx]->SetUpdateExtent(piece + idx, numPieces, ghostLevel);
+        inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
+                    piece + idx);
+        inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+                    numPieces);
+        inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+                    ghostLevel);
         }
       else
         {
-        this->Inputs[idx]->SetUpdateExtent(piece, numPieces, ghostLevel);
+        inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
+                    piece);
+        inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+                    numPieces);
+        inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+                    ghostLevel);
         }
       }
     }
   
-  // Save the piece so execute can use this information.
-  this->ExecutePiece = piece;
-  this->ExecuteNumberOfPieces = numPieces;
+  return 1;
 }
 
 //----------------------------------------------------------------------------
 vtkPolyData *vtkAppendPolyData::GetInput(int idx)
 {
-  if (idx >= this->NumberOfInputs || idx < 0)
-    {
-    return NULL;
-    }
-
-  return (vtkPolyData *)(this->Inputs[idx]);
+  return vtkPolyData::SafeDownCast(
+    this->GetExecutive()->GetInputData(0, idx));
 }
 
 //----------------------------------------------------------------------------
@@ -719,4 +784,14 @@ vtkIdType *vtkAppendPolyData::AppendCells(vtkIdType *pDest, vtkCellArray *src,
     }
   
   return pDest;
+}
+
+int vtkAppendPolyData::FillInputPortInformation(int port, vtkInformation *info)
+{
+  if (!this->Superclass::FillInputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkAlgorithm::INPUT_IS_REPEATABLE(), 1);
+  return 1;
 }
