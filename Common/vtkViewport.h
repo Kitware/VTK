@@ -86,7 +86,7 @@ public:
   // automatically and should not be set by the user.
   vtkSetVector2Macro(Aspect,float);
   vtkGetVectorMacro(Aspect,float,2);
-  void ComputeAspect();
+  virtual void ComputeAspect();
   
   // Description:
   // Set the aspect ratio of a pixel in the rendered image. 
