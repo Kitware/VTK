@@ -356,10 +356,10 @@ int TestLineWidget( int argc, char *argv[] )
     {
     iren->Start();
     }
-  iren->Start();
 
   myCallback->Delete();
   recorder->Delete();
+  seeds->Delete();
   lineWidget->Delete();
   pl3d->Delete();
   rk4->Delete();
