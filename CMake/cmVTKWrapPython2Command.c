@@ -132,13 +132,15 @@ int InitialPass(void *inf, void *mf, int argc, char *argv[])
     }
 
   /* keep the library name */
+  classes = (char **)malloc(sizeof(char *)*newArgc);
   cdata->LibraryName = strdup(newArgv[0]);
+  cdata->SourceFiles = (void **)malloc(sizeof(void *)*newArgc);
 
   /* was the list already populated */
   def = info->CAPI->GetDefinition(mf, newArgv[1]);
   sourceListValue = 
     (char *)malloc(info->CAPI->GetTotalArgumentSize(newArgc,newArgv)+
-                   newArgc*12 + (def ? strlen(def) : 1));  
+                   newArgc*14 + (def ? strlen(def) : 0) + 10);  
   if (def)
     {
     sprintf(sourceListValue,"%s;%sInit.cxx",def,newArgv[0]);
@@ -169,7 +171,7 @@ int InitialPass(void *inf, void *mf, int argc, char *argv[])
         }
       classes[numClasses] = strdup(srcName);
       numClasses++;
-      newName = (char *)malloc(strlen(srcName)+4);
+      newName = (char *)malloc(strlen(srcName)+7);
       sprintf(newName,"%sPython",srcName);
       info->CAPI->SourceFileSetName2(file, newName, 
                                      info->CAPI->GetCurrentOutputDirectory(mf),
@@ -241,7 +243,7 @@ void FinalPass(void *inf, void *mf)
     const char *srcName = info->CAPI->SourceFileGetSourceName(cdata->SourceFiles[i]);
     char *hname = (char *)malloc(strlen(cdir) + strlen(srcName) + 4);
     sprintf(hname,"%s/%s",cdir,srcName);
-    hname[strlen(hname)-3]= '\0';
+    hname[strlen(hname)-6]= '\0';
     strcat(hname,".h");
     args[0] = hname;
     numArgs = 1;
