@@ -48,7 +48,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkRectilinearGrid* vtkRectilinearGrid::New()
 {
   // First try to create the object from the vtkObjectFactory

@@ -58,7 +58,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkUnstructuredGrid* vtkUnstructuredGrid::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -579,6 +579,7 @@ void vtkUnstructuredGrid::SetUpdateExtent(int piece, int numPieces)
 {
   this->UpdatePiece = piece;
   this->UpdateNumberOfPieces = numPieces;
+  this->UpdateExtentInitialized = 1;
 }
 
 //----------------------------------------------------------------------------

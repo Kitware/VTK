@@ -1580,6 +1580,7 @@ void vtkImageData::SetAxisUpdateExtent(int idx, int min, int max)
     this->UpdateExtent[idx*2+1] = max;
     }
 
+  this->UpdateExtentInitialized = 1;
   if (modified)
     {
     this->Modified();
