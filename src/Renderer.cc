@@ -114,9 +114,9 @@ void vlRenderer::DisplayToView()
   sizey = size[1];
 
   vx = 2.0 * (this->DisplayPoint[0] - sizex*this->Viewport[0])/ 
-    (sizex*(this->Viewport[2]-this->Viewport[0])-1) - 1.0;
+    (sizex*(this->Viewport[2]-this->Viewport[0])) - 1.0;
   vy = 2.0 * (this->DisplayPoint[1] - sizey*this->Viewport[1])/ 
-    (sizey*(this->Viewport[3]-this->Viewport[1])-1) - 1.0;
+    (sizey*(this->Viewport[3]-this->Viewport[1])) - 1.0;
   vz = this->DisplayPoint[2];
 
   this->SetViewPoint(vx*this->Aspect[0],vy*this->Aspect[1],vz);
@@ -133,11 +133,11 @@ void vlRenderer::ViewToDisplay()
   sizex = size[0];
   sizey = size[1];
 
-  dx = (this->ViewPoint[0] + 1.0) * 
-    (sizex*(this->Viewport[2]-this->Viewport[0]) - 1) / 2.0 + 0.5 +
+  dx = (this->ViewPoint[0]/this->Aspect[0]) + 1.0) * 
+    (sizex*(this->Viewport[2]-this->Viewport[0])) / 2.0 + 0.5 +
       sizex*this->Viewport[0];
-  dy = (this->ViewPoint[1] + 1.0) * 
-    (sizey*(this->Viewport[3]-this->Viewport[1]) - 1) / 2.0 + 0.5 +
+  dy = (this->ViewPoint[1]/this->Aspect[1] + 1.0) * 
+    (sizey*(this->Viewport[3]-this->Viewport[1])) / 2.0 + 0.5 +
       sizey*this->Viewport[1];
 
   this->SetDisplayPoint(dx,dy,this->ViewPoint[2]);
