@@ -208,7 +208,7 @@ protected:
 
   // Description:
   // Perform any subclass-specific DeepCopy. 
-  virtual void InternalDeepCopy(vtkGeneralTransform *transform) {};
+  virtual void InternalDeepCopy(vtkGeneralTransform *) {};
 
   float InternalFloatPoint[3];
   double InternalDoublePoint[3];
