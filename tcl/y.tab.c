@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #define yyerror(a) fprintf(stderr,"%s\n",a)
 #define yywrap() 1
+#define MAX_ARGS 20
 FILE *fhint;
 char *class_name;
 char *file_name;
@@ -15,8 +16,8 @@ char *func_name;
 int is_virtual;
 int num_args = 0;
 /* the last entry is for the return type */
-int arg_types[11];
-char *arg_ids[11];
+int arg_types[MAX_ARGS + 1];
+char *arg_ids[MAX_ARGS + 1];
 int arg_failure;
 char temps[80];
 char *funcNames[1000];
@@ -25,7 +26,7 @@ int  numFuncs = 0;
 int is_concrete;
 #define YYMAXDEPTH 1000
 
-# line 28 "cpp_parse.y"
+# line 29 "cpp_parse.y"
 typedef union
 #ifdef __cplusplus
 	YYSTYPE
@@ -87,7 +88,7 @@ typedef union
 #include <memory.h>
 #endif
 
-#ifndef WIN32
+#ifndef _WIN32
 #include <values.h>
 #endif
 
@@ -127,7 +128,7 @@ YYSTYPE *yyv;
 static int yymaxdepth = YYMAXDEPTH;
 # define YYERRCODE 256
 
-# line 933 "cpp_parse.y"
+# line 934 "cpp_parse.y"
 
 #include "lex.yy.c"
 output_temp(int i)
@@ -146,7 +147,7 @@ output_temp(int i)
     }
 
   /* for const * return types prototype with const */
-  if ((i == 10)&&(arg_types[10]%2000 >= 1000))
+  if ((i == MAX_ARGS)&&(arg_types[MAX_ARGS]%2000 >= 1000))
     {
     fprintf(yyout,"    const ");
     }
@@ -210,7 +211,7 @@ use_hints()
   while (fscanf(fhint,"%s %s %i %i",h_cls,h_func,&h_type,&h_value) != EOF)
     {
     if ((!strcmp(h_cls,class_name))&&(!strcmp(h_func,func_name))&&
-	(h_type == arg_types[10]))
+	(h_type == arg_types[MAX_ARGS]))
       {
       /* use the hint */
       switch (h_type%1000)
@@ -224,7 +225,7 @@ use_hints()
 	  fprintf(yyout,"\"");
 	  for (i = 0; i < h_value; i++)
 	    {
-	    fprintf(yyout,",temp10[%i]",i);
+	    fprintf(yyout,",temp%i[%i]",MAX_ARGS,i);
 	    }
 	  fprintf(yyout,");\n");
 	  break;
@@ -237,7 +238,7 @@ use_hints()
 	  fprintf(yyout,"\"");
 	  for (i = 0; i < h_value; i++)
 	    {
-	    fprintf(yyout,",temp10[%i]",i);
+	    fprintf(yyout,",temp%i[%i]",MAX_ARGS,i);
 	    }
 	  fprintf(yyout,");\n");
 	  break;
@@ -261,7 +262,7 @@ int have_hints()
   while (fscanf(fhint,"%s %s %i %i",h_cls,h_func,&h_type,&h_value) != EOF)
     {
     if ((!strcmp(h_cls,class_name))&&(!strcmp(h_func,func_name))&&
-	(h_type == arg_types[10]))
+	(h_type == arg_types[MAX_ARGS]))
       {
       /* use the hint */
       return 1;
@@ -272,46 +273,55 @@ int have_hints()
 
 return_result()
 {
-  switch (arg_types[10]%1000)
+  switch (arg_types[MAX_ARGS]%1000)
     {
     case 2:
       fprintf(yyout,"      interp->result[0] = '\\0';\n"); 
       break;
     case 1: case 7:
-      fprintf(yyout,"      sprintf(interp->result,\"%%g\",temp10);\n"); 
+      fprintf(yyout,"      sprintf(interp->result,\"%%g\",temp%i);\n",
+	      MAX_ARGS); 
       break;
     case 4: 
-      fprintf(yyout,"      sprintf(interp->result,\"%%i\",temp10);\n"); 
+      fprintf(yyout,"      sprintf(interp->result,\"%%i\",temp%i);\n",
+	      MAX_ARGS); 
       break;
     case 5:
-      fprintf(yyout,"      sprintf(interp->result,\"%%hi\",temp10);\n"); 
+      fprintf(yyout,"      sprintf(interp->result,\"%%hi\",temp%i);\n",
+	      MAX_ARGS); 
       break;
     case 6:
-      fprintf(yyout,"      sprintf(interp->result,\"%%li\",temp10);\n"); 
+      fprintf(yyout,"      sprintf(interp->result,\"%%li\",temp%i);\n",
+	      MAX_ARGS); 
       break;
     case 14: 
-      fprintf(yyout,"      sprintf(interp->result,\"%%u\",temp10);\n"); 
+      fprintf(yyout,"      sprintf(interp->result,\"%%u\",temp%i);\n",
+	      MAX_ARGS); 
       break;
     case 15:
-      fprintf(yyout,"      sprintf(interp->result,\"%%hu\",temp10);\n"); 
+      fprintf(yyout,"      sprintf(interp->result,\"%%hu\",temp%i);\n",
+	      MAX_ARGS); 
       break;
     case 16:
-      fprintf(yyout,"      sprintf(interp->result,\"%%lu\",temp10);\n"); 
+      fprintf(yyout,"      sprintf(interp->result,\"%%lu\",temp%i);\n",
+	      MAX_ARGS); 
       break;
     case 13:
-      fprintf(yyout,"      sprintf(interp->result,\"%%hu\",temp10);\n"); 
+      fprintf(yyout,"      sprintf(interp->result,\"%%hu\",temp%i);\n",
+	      MAX_ARGS); 
       break;
     case 303:
-      fprintf(yyout,"      if (temp10)\n        {\n        sprintf(interp->result,\"%%s\",temp10);\n"); 
+      fprintf(yyout,"      if (temp%i)\n        {\n        sprintf(interp->result,\"%%s\",temp%i);\n",MAX_ARGS,MAX_ARGS); 
       fprintf(yyout,"        }\n      else\n        {\n");
       fprintf(yyout,"        interp->result[0] = '\\0';\n        }\n"); 
       break;
     case 3:
-      fprintf(yyout,"      sprintf(interp->result,\"%%c\",temp10);\n"); 
+      fprintf(yyout,"      sprintf(interp->result,\"%%c\",temp%i);\n",
+	      MAX_ARGS); 
       break;
     case 109:
     case 309:  
-      fprintf(yyout,"      vtkTclGetObjectFromPointer(interp,(void *)temp10,%sCommand);\n",arg_ids[10]);
+      fprintf(yyout,"      vtkTclGetObjectFromPointer(interp,(void *)temp%i,%sCommand);\n",MAX_ARGS,arg_ids[MAX_ARGS]);
       break;
 
     /* handle functions returning vectors */
@@ -328,11 +338,11 @@ return_result()
 
 handle_return_prototype()
 {
-  switch (arg_types[10]%1000)
+  switch (arg_types[MAX_ARGS]%1000)
     {
     case 109:
     case 309:  
-      fprintf(yyout,"    int %sCommand(ClientData, Tcl_Interp *, int, char *[]);\n",arg_ids[10]);
+      fprintf(yyout,"    int %sCommand(ClientData, Tcl_Interp *, int, char *[]);\n",arg_ids[MAX_ARGS]);
       break;
     }
 }
@@ -419,10 +429,10 @@ output_function()
     if ((arg_types[i]%100 >= 10)&&(arg_types[i] != 13)&&
 	(arg_types[i] != 14)&&(arg_types[i] != 15)) args_ok = 0;
     }
-  if ((arg_types[10]%10) == 8) args_ok = 0;
-  if (((arg_types[10]%1000)/100 != 3)&&
-      ((arg_types[10]%1000)/100 != 1)&&
-      ((arg_types[10]%1000)/100)) args_ok = 0;
+  if ((arg_types[MAX_ARGS]%10) == 8) args_ok = 0;
+  if (((arg_types[MAX_ARGS]%1000)/100 != 3)&&
+      ((arg_types[MAX_ARGS]%1000)/100 != 1)&&
+      ((arg_types[MAX_ARGS]%1000)/100)) args_ok = 0;
   if (num_args && (arg_types[0] == 5000)&&(num_args != 2)) args_ok = 0;
 
   /* look for VAR FUNCTIONS */
@@ -433,7 +443,7 @@ output_function()
     }
   
   /* watch out for functions that dont have enough info */
-  switch (arg_types[10]%1000)
+  switch (arg_types[MAX_ARGS]%1000)
     {
     case 301: case 307:
     case 304: case 305: case 306:
@@ -454,7 +464,7 @@ output_function()
 	{
 	output_temp(i);
 	}
-      output_temp(10);
+      output_temp(MAX_ARGS);
       handle_return_prototype();
       fprintf(yyout,"    error = 0;\n\n");
 
@@ -465,16 +475,16 @@ output_function()
 	}
       
       fprintf(yyout,"    if (!error)\n      {\n");
-      switch (arg_types[10]%1000)
+      switch (arg_types[MAX_ARGS]%1000)
 	{
 	case 2:
 	  fprintf(yyout,"      op->%s(",func_name);
 	  break;
 	case 109:
-	  fprintf(yyout,"      temp10 = &(op)->%s(",func_name);
+	  fprintf(yyout,"      temp%i = &(op)->%s(",MAX_ARGS,func_name);
 	  break;
 	default:
-	  fprintf(yyout,"      temp10 = (op)->%s(",func_name);
+	  fprintf(yyout,"      temp%i = (op)->%s(",MAX_ARGS,func_name);
 	}
       for (i = 0; i < num_args; i++)
 	{
@@ -1464,7 +1474,7 @@ int yyparse()
 	{
 		
 case 2:
-# line 89 "cpp_parse.y"
+# line 90 "cpp_parse.y"
 {
       class_name = strdup(yypvt[-0].str);
       fprintf(stderr,"Working on %s\n",class_name);
@@ -1484,7 +1494,7 @@ case 2:
 	}
       } break;
 case 3:
-# line 108 "cpp_parse.y"
+# line 109 "cpp_parse.y"
 {
       int i;
       for (i = 0; i < num_superclasses; i++)
@@ -1528,7 +1538,7 @@ case 3:
 
       } break;
 case 4:
-# line 151 "cpp_parse.y"
+# line 152 "cpp_parse.y"
 {
       int i;
 
@@ -1590,166 +1600,166 @@ case 4:
       fprintf(yyout,"  return TCL_ERROR;\n}\n");
       } break;
 case 9:
-# line 216 "cpp_parse.y"
-{ arg_failure = 0; num_args = 0; arg_types[10] = 2; arg_ids[10] = NULL;} break;
+# line 217 "cpp_parse.y"
+{ arg_failure = 0; num_args = 0; arg_types[MAX_ARGS] = 2; arg_ids[MAX_ARGS] = NULL;} break;
 case 10:
-# line 218 "cpp_parse.y"
-{ arg_failure = 0; num_args = 0; arg_types[10] = 2; arg_ids[10] = NULL;} break;
+# line 219 "cpp_parse.y"
+{ arg_failure = 0; num_args = 0; arg_types[MAX_ARGS] = 2; arg_ids[MAX_ARGS] = NULL;} break;
 case 11:
-# line 220 "cpp_parse.y"
-{ arg_failure = 0; num_args = 0; arg_types[10] = 2; arg_ids[10] = NULL;} break;
+# line 221 "cpp_parse.y"
+{ arg_failure = 0; num_args = 0; arg_types[MAX_ARGS] = 2; arg_ids[MAX_ARGS] = NULL;} break;
 case 12:
-# line 222 "cpp_parse.y"
-{ arg_failure = 0; num_args = 0; arg_types[10] = 2; arg_ids[10] = NULL;} break;
+# line 223 "cpp_parse.y"
+{ arg_failure = 0; num_args = 0; arg_types[MAX_ARGS] = 2; arg_ids[MAX_ARGS] = NULL;} break;
 case 15:
-# line 226 "cpp_parse.y"
+# line 227 "cpp_parse.y"
 {
          output_function();
 	 } break;
 case 16:
-# line 230 "cpp_parse.y"
+# line 231 "cpp_parse.y"
 {
-         arg_types[10] = yypvt[-1].integer;
+         arg_types[MAX_ARGS] = yypvt[-1].integer;
          output_function();
 	 } break;
 case 17:
-# line 235 "cpp_parse.y"
+# line 236 "cpp_parse.y"
 {
-         arg_types[10] = yypvt[-1].integer;
+         arg_types[MAX_ARGS] = yypvt[-1].integer;
          output_function();
 	 } break;
 case 18:
-# line 240 "cpp_parse.y"
+# line 241 "cpp_parse.y"
 {
          output_function();
 	 } break;
 case 19:
-# line 245 "cpp_parse.y"
+# line 246 "cpp_parse.y"
 { is_virtual = 0; func_name = yypvt[-4].str; 
        fprintf(stderr,"   Converted func %s\n",yypvt[-4].str); } break;
 case 20:
-# line 248 "cpp_parse.y"
+# line 249 "cpp_parse.y"
 { is_virtual = 1; fprintf(stderr,"   Converted operator\n"); } break;
 case 21:
-# line 250 "cpp_parse.y"
+# line 251 "cpp_parse.y"
 { is_virtual = 0; func_name = yypvt[-6].str;
        fprintf(stderr,"   Converted func %s\n",yypvt[-6].str);} break;
 case 30:
-# line 262 "cpp_parse.y"
+# line 263 "cpp_parse.y"
 { num_args++;} break;
 case 31:
-# line 262 "cpp_parse.y"
+# line 263 "cpp_parse.y"
 {num_args++;} break;
 case 33:
-# line 264 "cpp_parse.y"
+# line 265 "cpp_parse.y"
 {arg_types[num_args] = yypvt[-0].integer;} break;
 case 34:
-# line 265 "cpp_parse.y"
+# line 266 "cpp_parse.y"
 {arg_types[num_args] = yypvt[-1].integer; } break;
 case 36:
-# line 266 "cpp_parse.y"
+# line 267 "cpp_parse.y"
 {arg_types[num_args] = 5000;} break;
 case 43:
-# line 275 "cpp_parse.y"
-{ arg_failure = 1; } break;
-case 44:
 # line 276 "cpp_parse.y"
 { arg_failure = 1; } break;
+case 44:
+# line 277 "cpp_parse.y"
+{ arg_failure = 1; } break;
 case 45:
-# line 279 "cpp_parse.y"
+# line 280 "cpp_parse.y"
 {yyval.integer = 1000 + yypvt[-0].integer;} break;
 case 46:
-# line 280 "cpp_parse.y"
+# line 281 "cpp_parse.y"
 {yyval.integer = yypvt[-0].integer;} break;
 case 47:
-# line 281 "cpp_parse.y"
+# line 282 "cpp_parse.y"
 {yyval.integer = 2000 + yypvt[-0].integer;} break;
 case 48:
-# line 282 "cpp_parse.y"
+# line 283 "cpp_parse.y"
 {yyval.integer = 3000 + yypvt[-0].integer;} break;
 case 49:
-# line 284 "cpp_parse.y"
+# line 285 "cpp_parse.y"
 {yyval.integer = yypvt[-0].integer;} break;
 case 50:
-# line 286 "cpp_parse.y"
+# line 287 "cpp_parse.y"
 {yyval.integer = yypvt[-1].integer + yypvt[-0].integer;} break;
 case 51:
-# line 295 "cpp_parse.y"
+# line 296 "cpp_parse.y"
 { yyval.integer = 100;} break;
 case 52:
-# line 296 "cpp_parse.y"
+# line 297 "cpp_parse.y"
 { yyval.integer = 300;} break;
 case 53:
-# line 297 "cpp_parse.y"
+# line 298 "cpp_parse.y"
 { yyval.integer = 100 + yypvt[-0].integer;} break;
 case 54:
-# line 298 "cpp_parse.y"
+# line 299 "cpp_parse.y"
 { yyval.integer = 400 + yypvt[-0].integer;} break;
 case 55:
-# line 300 "cpp_parse.y"
+# line 301 "cpp_parse.y"
 { yyval.integer = 10 + yypvt[-0].integer;} break;
 case 56:
-# line 301 "cpp_parse.y"
+# line 302 "cpp_parse.y"
 { yyval.integer = yypvt[-0].integer;} break;
 case 57:
-# line 304 "cpp_parse.y"
+# line 305 "cpp_parse.y"
 { yyval.integer = 1;} break;
 case 58:
-# line 305 "cpp_parse.y"
+# line 306 "cpp_parse.y"
 { yyval.integer = 2;} break;
 case 59:
-# line 306 "cpp_parse.y"
+# line 307 "cpp_parse.y"
 { yyval.integer = 3;} break;
 case 60:
-# line 307 "cpp_parse.y"
+# line 308 "cpp_parse.y"
 { yyval.integer = 4;} break;
 case 61:
-# line 308 "cpp_parse.y"
+# line 309 "cpp_parse.y"
 { yyval.integer = 5;} break;
 case 62:
-# line 309 "cpp_parse.y"
+# line 310 "cpp_parse.y"
 { yyval.integer = 6;} break;
 case 63:
-# line 310 "cpp_parse.y"
+# line 311 "cpp_parse.y"
 { yyval.integer = 7;} break;
 case 64:
-# line 311 "cpp_parse.y"
+# line 312 "cpp_parse.y"
 { yyval.integer = 8;} break;
 case 65:
-# line 312 "cpp_parse.y"
+# line 313 "cpp_parse.y"
 { yyval.integer = 9; 
            arg_ids[num_args] = strdup(yypvt[-0].str); 
-           if ((!arg_ids[10])&&(!num_args))
+           if ((!arg_ids[MAX_ARGS])&&(!num_args))
              { 
-             arg_ids[10] = arg_ids[0];
+             arg_ids[MAX_ARGS] = arg_ids[0];
              }
          } break;
 case 68:
-# line 323 "cpp_parse.y"
+# line 324 "cpp_parse.y"
 { superclasses[num_superclasses] = strdup(yypvt[-0].str); num_superclasses++; } break;
 case 69:
-# line 325 "cpp_parse.y"
+# line 326 "cpp_parse.y"
 { superclasses[num_superclasses] = strdup(yypvt[-0].str); num_superclasses++; } break;
 case 71:
-# line 328 "cpp_parse.y"
+# line 329 "cpp_parse.y"
 {in_public = 1;} break;
 case 72:
-# line 328 "cpp_parse.y"
-{in_public = 0;} break;
-case 73:
 # line 329 "cpp_parse.y"
 {in_public = 0;} break;
+case 73:
+# line 330 "cpp_parse.y"
+{in_public = 0;} break;
 case 76:
-# line 333 "cpp_parse.y"
+# line 334 "cpp_parse.y"
 {yyval.integer = yypvt[-0].integer;} break;
 case 77:
-# line 334 "cpp_parse.y"
+# line 335 "cpp_parse.y"
 {yyval.integer = -1;} break;
 case 78:
-# line 334 "cpp_parse.y"
+# line 335 "cpp_parse.y"
 {yyval.integer = -1;} break;
 case 79:
-# line 338 "cpp_parse.y"
+# line 339 "cpp_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"Set%s",yypvt[-3].str); 
@@ -1759,17 +1769,17 @@ case 79:
    output_function();
    } break;
 case 80:
-# line 347 "cpp_parse.y"
+# line 348 "cpp_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"Get%s",yypvt[-3].str); 
    func_name = strdup(temps);
    num_args = 0;
-   arg_types[10] = yypvt[-1].integer;
+   arg_types[MAX_ARGS] = yypvt[-1].integer;
    output_function();
    } break;
 case 81:
-# line 356 "cpp_parse.y"
+# line 357 "cpp_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"Set%s",yypvt[-1].str); 
@@ -1779,17 +1789,17 @@ case 81:
    output_function();
    } break;
 case 82:
-# line 365 "cpp_parse.y"
+# line 366 "cpp_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"Get%s",yypvt[-1].str); 
    func_name = strdup(temps);
    num_args = 0;
-   arg_types[10] = 303;
+   arg_types[MAX_ARGS] = 303;
    output_function();
    } break;
 case 83:
-# line 374 "cpp_parse.y"
+# line 375 "cpp_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"Set%s",yypvt[-5].str); 
@@ -1799,7 +1809,7 @@ case 83:
    output_function();
    } break;
 case 84:
-# line 383 "cpp_parse.y"
+# line 384 "cpp_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"Set%s",yypvt[-3].str); 
@@ -1809,7 +1819,7 @@ case 84:
    output_function();
    } break;
 case 85:
-# line 392 "cpp_parse.y"
+# line 393 "cpp_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"Set%s",yypvt[-3].str); 
@@ -1819,17 +1829,17 @@ case 85:
    output_function();
    } break;
 case 86:
-# line 401 "cpp_parse.y"
+# line 402 "cpp_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"Get%s",yypvt[-3].str); 
    func_name = strdup(temps);
    num_args = 0;
-   arg_types[10] = 309;
+   arg_types[MAX_ARGS] = 309;
    output_function();
    } break;
 case 87:
-# line 410 "cpp_parse.y"
+# line 411 "cpp_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"%sOn",yypvt[-3].str); 
@@ -1843,7 +1853,7 @@ case 87:
    output_function();
    } break;
 case 88:
-# line 423 "cpp_parse.y"
+# line 424 "cpp_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"Set%s",yypvt[-3].str); 
@@ -1854,7 +1864,7 @@ case 88:
    output_function();
    } break;
 case 89:
-# line 433 "cpp_parse.y"
+# line 434 "cpp_parse.y"
 { 
    int i;
 
@@ -1930,7 +1940,7 @@ case 89:
     }
    } break;
 case 90:
-# line 508 "cpp_parse.y"
+# line 509 "cpp_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"Set%s",yypvt[-3].str); 
@@ -1942,7 +1952,7 @@ case 90:
    output_function();
    } break;
 case 91:
-# line 519 "cpp_parse.y"
+# line 520 "cpp_parse.y"
 { 
    int i;
 
@@ -2018,7 +2028,7 @@ case 91:
     }
    } break;
 case 92:
-# line 594 "cpp_parse.y"
+# line 595 "cpp_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"Set%s",yypvt[-3].str); 
@@ -2031,7 +2041,7 @@ case 92:
    output_function();
    } break;
 case 93:
-# line 606 "cpp_parse.y"
+# line 607 "cpp_parse.y"
 { 
    int i;
 
@@ -2107,7 +2117,7 @@ case 93:
      }
    } break;
 case 94:
-# line 681 "cpp_parse.y"
+# line 682 "cpp_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"Set%s",yypvt[-3].str); 
@@ -2152,7 +2162,7 @@ case 94:
    free(func_name);
    } break;
 case 95:
-# line 725 "cpp_parse.y"
+# line 726 "cpp_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"Set%s",yypvt[-1].str); 
@@ -2212,7 +2222,7 @@ case 95:
    free(func_name);
    } break;
 case 96:
-# line 784 "cpp_parse.y"
+# line 785 "cpp_parse.y"
 { 
    int i;
 
@@ -2269,7 +2279,7 @@ case 96:
     }
    } break;
 case 97:
-# line 840 "cpp_parse.y"
+# line 841 "cpp_parse.y"
 { 
    int i;
 

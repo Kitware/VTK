@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #define yyerror(a) fprintf(stderr,"%s\n",a)
 #define yywrap() 1
+#define MAX_ARGS 20
 FILE *fhint;
 char *class_name;
 char *file_name;
@@ -14,8 +15,8 @@ char *func_name;
 int is_virtual;
 int num_args = 0;
 /* the last entry is for the return type */
-int arg_types[11];
-char *arg_ids[11];
+int arg_types[MAX_ARGS + 1];
+char *arg_ids[MAX_ARGS + 1];
 int arg_failure;
 char temps[80];
 char *funcNames[1000];
@@ -213,13 +214,13 @@ class_def_body: class_def_item | class_def_item class_def_body;
 
 class_def_item: scope_type ':' | var 
    | function 
-     { arg_failure = 0; num_args = 0; arg_types[10] = 2; arg_ids[10] = NULL;} 
+     { arg_failure = 0; num_args = 0; arg_types[MAX_ARGS] = 2; arg_ids[MAX_ARGS] = NULL;} 
    | FRIEND function
-     { arg_failure = 0; num_args = 0; arg_types[10] = 2; arg_ids[10] = NULL;} 
+     { arg_failure = 0; num_args = 0; arg_types[MAX_ARGS] = 2; arg_ids[MAX_ARGS] = NULL;} 
    | macro ';' 
-     { arg_failure = 0; num_args = 0; arg_types[10] = 2; arg_ids[10] = NULL;} 
+     { arg_failure = 0; num_args = 0; arg_types[MAX_ARGS] = 2; arg_ids[MAX_ARGS] = NULL;} 
    | macro  
-     { arg_failure = 0; num_args = 0; arg_types[10] = 2; arg_ids[10] = NULL;};
+     { arg_failure = 0; num_args = 0; arg_types[MAX_ARGS] = 2; arg_ids[MAX_ARGS] = NULL;};
 
 function: '~' func | VIRTUAL '~' func 
       | func 
@@ -228,12 +229,12 @@ function: '~' func | VIRTUAL '~' func
 	 }
       | type func 
          {
-         arg_types[10] = $<integer>1;
+         arg_types[MAX_ARGS] = $<integer>1;
          output_function();
 	 } 
       | VIRTUAL type func 
          {
-         arg_types[10] = $<integer>2;
+         arg_types[MAX_ARGS] = $<integer>2;
          output_function();
 	 }
       | VIRTUAL func
@@ -311,9 +312,9 @@ type_primitive:
   ID     { $<integer>$ = 8;} |
   VTK_ID  { $<integer>$ = 9; 
            arg_ids[num_args] = strdup($1); 
-           if ((!arg_ids[10])&&(!num_args))
+           if ((!arg_ids[MAX_ARGS])&&(!num_args))
              { 
-             arg_ids[10] = arg_ids[0];
+             arg_ids[MAX_ARGS] = arg_ids[0];
              }
          };
 
@@ -349,7 +350,7 @@ macro:
    sprintf(temps,"Get%s",$<str>3); 
    func_name = strdup(temps);
    num_args = 0;
-   arg_types[10] = $<integer>5;
+   arg_types[MAX_ARGS] = $<integer>5;
    output_function();
    }
 | SetStringMacro '(' any_id ')'
@@ -367,7 +368,7 @@ macro:
    sprintf(temps,"Get%s",$<str>3); 
    func_name = strdup(temps);
    num_args = 0;
-   arg_types[10] = 303;
+   arg_types[MAX_ARGS] = 303;
    output_function();
    }
 | SetClampMacro  '(' any_id ',' type_red2 ',' maybe_other_no_semi ')'
@@ -403,7 +404,7 @@ macro:
    sprintf(temps,"Get%s",$<str>3); 
    func_name = strdup(temps);
    num_args = 0;
-   arg_types[10] = 309;
+   arg_types[MAX_ARGS] = 309;
    output_function();
    }
 | BooleanMacro   '(' any_id ',' type_red2 ')'
@@ -948,7 +949,7 @@ output_temp(int i)
     }
 
   /* for const * return types prototype with const */
-  if ((i == 10)&&(arg_types[10]%2000 >= 1000))
+  if ((i == MAX_ARGS)&&(arg_types[MAX_ARGS]%2000 >= 1000))
     {
     fprintf(yyout,"    const ");
     }
@@ -1012,7 +1013,7 @@ use_hints()
   while (fscanf(fhint,"%s %s %i %i",h_cls,h_func,&h_type,&h_value) != EOF)
     {
     if ((!strcmp(h_cls,class_name))&&(!strcmp(h_func,func_name))&&
-	(h_type == arg_types[10]))
+	(h_type == arg_types[MAX_ARGS]))
       {
       /* use the hint */
       switch (h_type%1000)
@@ -1026,7 +1027,7 @@ use_hints()
 	  fprintf(yyout,"\"");
 	  for (i = 0; i < h_value; i++)
 	    {
-	    fprintf(yyout,",temp10[%i]",i);
+	    fprintf(yyout,",temp%i[%i]",MAX_ARGS,i);
 	    }
 	  fprintf(yyout,");\n");
 	  break;
@@ -1039,7 +1040,7 @@ use_hints()
 	  fprintf(yyout,"\"");
 	  for (i = 0; i < h_value; i++)
 	    {
-	    fprintf(yyout,",temp10[%i]",i);
+	    fprintf(yyout,",temp%i[%i]",MAX_ARGS,i);
 	    }
 	  fprintf(yyout,");\n");
 	  break;
@@ -1063,7 +1064,7 @@ int have_hints()
   while (fscanf(fhint,"%s %s %i %i",h_cls,h_func,&h_type,&h_value) != EOF)
     {
     if ((!strcmp(h_cls,class_name))&&(!strcmp(h_func,func_name))&&
-	(h_type == arg_types[10]))
+	(h_type == arg_types[MAX_ARGS]))
       {
       /* use the hint */
       return 1;
@@ -1074,46 +1075,55 @@ int have_hints()
 
 return_result()
 {
-  switch (arg_types[10]%1000)
+  switch (arg_types[MAX_ARGS]%1000)
     {
     case 2:
       fprintf(yyout,"      interp->result[0] = '\\0';\n"); 
       break;
     case 1: case 7:
-      fprintf(yyout,"      sprintf(interp->result,\"%%g\",temp10);\n"); 
+      fprintf(yyout,"      sprintf(interp->result,\"%%g\",temp%i);\n",
+	      MAX_ARGS); 
       break;
     case 4: 
-      fprintf(yyout,"      sprintf(interp->result,\"%%i\",temp10);\n"); 
+      fprintf(yyout,"      sprintf(interp->result,\"%%i\",temp%i);\n",
+	      MAX_ARGS); 
       break;
     case 5:
-      fprintf(yyout,"      sprintf(interp->result,\"%%hi\",temp10);\n"); 
+      fprintf(yyout,"      sprintf(interp->result,\"%%hi\",temp%i);\n",
+	      MAX_ARGS); 
       break;
     case 6:
-      fprintf(yyout,"      sprintf(interp->result,\"%%li\",temp10);\n"); 
+      fprintf(yyout,"      sprintf(interp->result,\"%%li\",temp%i);\n",
+	      MAX_ARGS); 
       break;
     case 14: 
-      fprintf(yyout,"      sprintf(interp->result,\"%%u\",temp10);\n"); 
+      fprintf(yyout,"      sprintf(interp->result,\"%%u\",temp%i);\n",
+	      MAX_ARGS); 
       break;
     case 15:
-      fprintf(yyout,"      sprintf(interp->result,\"%%hu\",temp10);\n"); 
+      fprintf(yyout,"      sprintf(interp->result,\"%%hu\",temp%i);\n",
+	      MAX_ARGS); 
       break;
     case 16:
-      fprintf(yyout,"      sprintf(interp->result,\"%%lu\",temp10);\n"); 
+      fprintf(yyout,"      sprintf(interp->result,\"%%lu\",temp%i);\n",
+	      MAX_ARGS); 
       break;
     case 13:
-      fprintf(yyout,"      sprintf(interp->result,\"%%hu\",temp10);\n"); 
+      fprintf(yyout,"      sprintf(interp->result,\"%%hu\",temp%i);\n",
+	      MAX_ARGS); 
       break;
     case 303:
-      fprintf(yyout,"      if (temp10)\n        {\n        sprintf(interp->result,\"%%s\",temp10);\n"); 
+      fprintf(yyout,"      if (temp%i)\n        {\n        sprintf(interp->result,\"%%s\",temp%i);\n",MAX_ARGS,MAX_ARGS); 
       fprintf(yyout,"        }\n      else\n        {\n");
       fprintf(yyout,"        interp->result[0] = '\\0';\n        }\n"); 
       break;
     case 3:
-      fprintf(yyout,"      sprintf(interp->result,\"%%c\",temp10);\n"); 
+      fprintf(yyout,"      sprintf(interp->result,\"%%c\",temp%i);\n",
+	      MAX_ARGS); 
       break;
     case 109:
     case 309:  
-      fprintf(yyout,"      vtkTclGetObjectFromPointer(interp,(void *)temp10,%sCommand);\n",arg_ids[10]);
+      fprintf(yyout,"      vtkTclGetObjectFromPointer(interp,(void *)temp%i,%sCommand);\n",MAX_ARGS,arg_ids[MAX_ARGS]);
       break;
 
     /* handle functions returning vectors */
@@ -1130,11 +1140,11 @@ return_result()
 
 handle_return_prototype()
 {
-  switch (arg_types[10]%1000)
+  switch (arg_types[MAX_ARGS]%1000)
     {
     case 109:
     case 309:  
-      fprintf(yyout,"    int %sCommand(ClientData, Tcl_Interp *, int, char *[]);\n",arg_ids[10]);
+      fprintf(yyout,"    int %sCommand(ClientData, Tcl_Interp *, int, char *[]);\n",arg_ids[MAX_ARGS]);
       break;
     }
 }
@@ -1221,10 +1231,10 @@ output_function()
     if ((arg_types[i]%100 >= 10)&&(arg_types[i] != 13)&&
 	(arg_types[i] != 14)&&(arg_types[i] != 15)) args_ok = 0;
     }
-  if ((arg_types[10]%10) == 8) args_ok = 0;
-  if (((arg_types[10]%1000)/100 != 3)&&
-      ((arg_types[10]%1000)/100 != 1)&&
-      ((arg_types[10]%1000)/100)) args_ok = 0;
+  if ((arg_types[MAX_ARGS]%10) == 8) args_ok = 0;
+  if (((arg_types[MAX_ARGS]%1000)/100 != 3)&&
+      ((arg_types[MAX_ARGS]%1000)/100 != 1)&&
+      ((arg_types[MAX_ARGS]%1000)/100)) args_ok = 0;
   if (num_args && (arg_types[0] == 5000)&&(num_args != 2)) args_ok = 0;
 
   /* look for VAR FUNCTIONS */
@@ -1235,7 +1245,7 @@ output_function()
     }
   
   /* watch out for functions that dont have enough info */
-  switch (arg_types[10]%1000)
+  switch (arg_types[MAX_ARGS]%1000)
     {
     case 301: case 307:
     case 304: case 305: case 306:
@@ -1256,7 +1266,7 @@ output_function()
 	{
 	output_temp(i);
 	}
-      output_temp(10);
+      output_temp(MAX_ARGS);
       handle_return_prototype();
       fprintf(yyout,"    error = 0;\n\n");
 
@@ -1267,16 +1277,16 @@ output_function()
 	}
       
       fprintf(yyout,"    if (!error)\n      {\n");
-      switch (arg_types[10]%1000)
+      switch (arg_types[MAX_ARGS]%1000)
 	{
 	case 2:
 	  fprintf(yyout,"      op->%s(",func_name);
 	  break;
 	case 109:
-	  fprintf(yyout,"      temp10 = &(op)->%s(",func_name);
+	  fprintf(yyout,"      temp%i = &(op)->%s(",MAX_ARGS,func_name);
 	  break;
 	default:
-	  fprintf(yyout,"      temp10 = (op)->%s(",func_name);
+	  fprintf(yyout,"      temp%i = (op)->%s(",MAX_ARGS,func_name);
 	}
       for (i = 0; i < num_args; i++)
 	{
