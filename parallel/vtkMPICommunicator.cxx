@@ -709,3 +709,29 @@ int vtkMPICommunicator::Request::Test()
     return 0;
     }
 }
+
+void vtkMPICommunicator::Request::Wait()
+{
+  MPI_Status status;
+
+  int err = MPI_Wait(&this->Req, &status);
+  
+  if ( err != MPI_SUCCESS )
+    {
+    char *msg = vtkMPIController::ErrorString(err);
+    vtkGenericWarningMacro("MPI error occured: " << msg);
+    delete[] msg;
+    }
+}
+
+void vtkMPICommunicator::Request::Cancel()
+{
+  int err = MPI_Cancel(&this->Req);
+  
+  if ( err != MPI_SUCCESS )
+    {
+    char *msg = vtkMPIController::ErrorString(err);
+    vtkGenericWarningMacro("MPI error occured: " << msg);
+    delete[] msg;
+    }
+}
