@@ -44,10 +44,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // maps. It obtains its data from a StructuredPoints input. Multiple 
 // actors using the same texture map should share the same vtkTexture
 // object.  This reduces the amount of memory being used. Currently
-// only 2D etxture maps are supported event though the data pipeline
-// supports 1,2, and 3D texture coordinates.
+// only 2D texture maps are supported even though the data pipeline
+// supports 1,2, and 3D texture coordinates. Some renderers such as
+// OpenGL require that a texture map be a power of two so be warned.
+
 // .SECTION See Also
-// See vtkRenderer for definition of #define's.
+// vtkRenderer vtkTextureDevice
 
 #ifndef __vtkTexture_hh
 #define __vtkTexture_hh
@@ -72,9 +74,10 @@ public:
   virtual void Render(vtkRenderer *ren);
 
   // Description:
-  // Abstract interface to renderer. Each concrete subclass of vtkTexture
-  // will load its data into graphics system in response to this method
-  // invocation.
+  // Abstract interface to renderer. Each concrete subclass of 
+  // vtkTextureDevice will load its data into graphics system in response 
+  // to this method invocation. An instance of vtkTextureDevice will
+  // automatically be created.
   virtual void Load(vtkRenderer *ren);
 
   // Description:
@@ -91,7 +94,7 @@ public:
   vtkBooleanMacro(Interpolate,int);
 
   // Description:
-  // Specify 2D or 3D texture map.
+  // Specify the data for the texture map.
   vtkSetObjectMacro(Input,vtkStructuredPoints);
   vtkGetObjectMacro(Input,vtkStructuredPoints);
 

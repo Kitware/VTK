@@ -38,11 +38,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkDeviceObject - an object that requires hardware independence.
+// .NAME vtkTextureDevice - abstract definition of a hardware dependent Texture
 // .SECTION Description
-// vtkDeviceObject is the superclass that any device dependent object should
-// use.  It allows a device independent object to create a device dependent
-// object to execute hardware specific calls.
+// vtkTextureDevice is the superclass of the hardware dependent Textures
+// such as vtkOglrTexture and vtkSbrTexture. This object is typically created
+// automatically by a vtkTexture object when it renders. The user should
+// never see this class.
+
+// .SECTION see also
+// vtkTexture
 
 #ifndef __vtkTextureDevice_hh
 #define __vtkTextureDevice_hh
@@ -55,6 +59,9 @@ class vtkTextureDevice : public vtkObject
 {
 public:
   char *GetClassName() {return "vtkTextureDevice";};
+
+  // Description:
+  // This is the only method that the subclasses must supply.
   virtual void Load(vtkTexture *txt, vtkRenderer *ren) = 0;
 };
 

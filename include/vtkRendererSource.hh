@@ -38,23 +38,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkRendererSource - read pnm (i.e., portable anymap) files
+// .NAME vtkRendererSource - take a renderer into the pipeline
 // .SECTION Description
-// vtkRendererSource is a source object that reads pnm (portable anymap) files.
-// This includes .pbm (bitmap), .pgm (grayscale), and .ppm (pixmap) files.
-// (Currently this object only reads binary versions of these files).
-//    PNMSource creates structured point datasets. The dimension of the 
-// dataset depends upon the number of files read. Reading a single file 
-// results in a 2D image, while reading more than one file results in a 
-// 3D volume.
-//    To read a volume, files must be of the form "filename.<number>"
-// (e.g., foo.ppm.0, foo.ppm.1, ...). You must also specify the image 
-// range. This range specifies the beginning and ending files to read (range
-// can be any pair of non-negative numbers). 
-//    The default behavior is to read a single file. In this case, the form
-// of the file is simply "filename" (e.g., foo.bar, foo.ppm, foo.pnm). To 
-// differentiate between reading images and volumes, the image range is set
-// to  (-1,-1) to read a single image file.
+// vtkRendererSource is a source object that gets its input from a 
+// renderer and converts it to structured points. This can then be 
+// used in a visualization pipeline. You must explicitly send a 
+// Modify() to this object to get it to reload its data from the
+// renderer.
+
+// .SECTION see also
+// vtkRenderer vtkStructuredPoints
 
 #ifndef __vtkRendererSource_hh
 #define __vtkRendererSource_hh
