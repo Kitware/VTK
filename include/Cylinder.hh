@@ -15,8 +15,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 // .NAME vlCylinder - implicit function for a cylinder
 // .SECTION Description
-// vlCylinder computes the implicit function and surface normal for a cylinder.
-// vlCylinder is a concrete implementation of vlImplicitFunction.
+// vlCylinder computes the implicit function and function gradient for 
+// a cylinder. vlCylinder is a concrete implementation of vlImplicitFunction.
 
 #ifndef __vlCylinder_h
 #define __vlCylinder_h
@@ -32,7 +32,7 @@ public:
 
   // ImplicitFunction interface
   float Evaluate(float x, float y, float z);
-  void EvaluateNormal(float x, float y, float z, float n[3]);
+  void EvaluateGradient(float x, float y, float z, float g[3]);
 
   vlSetMacro(Radius,float);
   vlGetMacro(Radius,float);

@@ -33,7 +33,7 @@ public:
 
   // ImplicitFunction interface
   float Evaluate(float x, float y, float z);
-  void EvaluateNormal(float x, float y, float z, float n[3]);
+  void EvaluateGradient(float x, float y, float z, float g[3]);
 
   void SetCoefficients(float a[10]);
   void SetCoefficients(float a0, float a1, float a2, float a3, float a4, 

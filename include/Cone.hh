@@ -15,7 +15,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 // .NAME vlCone - implicit function for a cone
 // .SECTION Description
-// vlCone computes the implicit function and surface normal for a cone.
+// vlCone computes the implicit function and function gradient for a cone.
 // vlCone is a concrete implementation of vlImplicitFunction.
 
 #ifndef __vlCone_h
@@ -32,7 +32,7 @@ public:
 
   // ImplicitFunction interface
   float Evaluate(float x, float y, float z);
-  void EvaluateNormal(float x, float y, float z, float n[3]);
+  void EvaluateGradient(float x, float y, float z, float g[3]);
 
   vlSetVector3Macro(Apex,float);
   vlGetVectorMacro(Apex,float,3);

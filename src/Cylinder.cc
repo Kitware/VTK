@@ -38,8 +38,8 @@ float vlCylinder::Evaluate(float x, float y, float z)
 }
 
 // Description
-// Evaluate cylinder normal.
-void vlCylinder::EvaluateNormal(float x, float y, float z, float n[3])
+// Evaluate cylinder function gradient.
+void vlCylinder::EvaluateGradient(float x, float y, float z, float g[3])
 {
 }
 

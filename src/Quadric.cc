@@ -61,8 +61,8 @@ void vlQuadric::SetCoefficients(float a[10])
 }
 
 // Description
-// Evaluate the normal to the quadric equation.
-void vlQuadric::EvaluateNormal(float x, float y, float z, float n[3])
+// Evaluate the gradient to the quadric equation.
+void vlQuadric::EvaluateGradient(float x, float y, float z, float n[3])
 {
   float *a=this->Coefficients;
 

@@ -39,7 +39,7 @@ float vlCone::Evaluate(float x, float y, float z)
 
 // Description
 // Evaluate cone normal.
-void vlCone::EvaluateNormal(float x, float y, float z, float n[3])
+void vlCone::EvaluateGradient(float x, float y, float z, float g[3])
 {
 }
 
