@@ -53,6 +53,10 @@ long vtkMath::Seed = 1177; // One authors home address
 #define K_M 2147483647			/* Mersenne prime 2^31 -1 */
 #define K_Q 127773			/* K_M div K_A */
 #define K_R 2836			/* K_M mod K_A */
+//
+// Some useful macros
+//
+#define Sign(x)              (( (x) < 0 )?( -1 ):( 1 ))
 
 // Description:
 // Generate random numbers between 0.0 and 1.0.
@@ -490,3 +494,231 @@ double vtkMath::EstimateMatrixCondition(double **A, int size)
   else return (max/min);
 }
 
+// Description:
+// Solves A Cubic Equation 
+//     3       2                 
+// c0*t  + c1*t  + c2*t + c3 = 0 
+// When c0, c1, c2, and c3 are REAL.
+// Solution is Taken From Numerical Recipes In C 2nd Ed 
+// Return array contains number of roots (counting multiple roots as one)
+// followed by roots themselves.
+double* vtkMath::SolveCubic( double c0, double c1, double c2, double c3) 
+{
+  static double roots[4];
+  roots[0] = 0.0;
+  roots[1] = 0.0;
+  roots[2] = 0.0;
+  roots[3] = 0.0;
+  int        i;
+
+  vtkMath::SolveCubic( c0, c1, c2, c3, &roots[1], &roots[2], &roots[3], &i );
+  roots[0] = i;
+  return roots;
+}
+// Description:
+// Solves A Cubic Equation When c0, c1, c2, And c3 Are REAL
+// Solution Taken From Numerical Recipes In C 2nd Ed 
+// Roots and number of roots are stored in user provided variables
+// r1, r2, r3, and num_roots
+void vtkMath::SolveCubic( double c0, double c1, double c2, double c3, 
+		    double *r1, double *r2, double *r3, int *num_roots )
+{
+	double	Q, R;
+	double	R_squared;	/* R*R */
+	double	Q_cubed;	/* Q*Q*Q */
+	double	theta;
+	double	A, B;
+
+	/*************************************************/
+	/*                     3       2                 */
+	/* Cubic Equation: c0*t  + c1*t  + c2*t + c3 = 0 */
+	/*                                               */
+	/*   r1, r2, r3 are roots and num_roots is the   */
+	/*                                               */
+	/*   of real roots                               */
+	/*                                               */
+	/*************************************************/
+
+	/* Make Sure This Is A Bonafide Cubic Equation */
+	if( c0 != 0.0 )
+	{
+	   /* Put Coefficients In Right Form */
+	   c1 = c1/c0;
+	   c2 = c2/c0;
+	   c3 = c3/c0;
+
+	   Q = ((c1*c1) - 3*c2)/9.0;
+
+	   R = (2.0*(c1*c1*c1) - 9.0*(c1*c2) + 27.0*c3)/54.0;
+
+	   R_squared = R*R;
+	   Q_cubed   = Q*Q*Q;
+
+	   if( R_squared <= Q_cubed )
+	   {
+		if( Q_cubed == 0.0 )
+		{
+			*r1 = -c1/3.0;
+			*r2 = *r1;
+			*r3 = *r1;
+			*num_roots = 1;
+		} 
+		else
+		{
+		   theta = acos( R / (sqrt(Q_cubed) ) );
+
+		   *r1 = -2.0*sqrt(Q)*cos( theta/3.0 ) - c1/3.0;
+		   *r2 = -2.0*sqrt(Q)*cos( (theta + 2.0*M_PI)/3.0 ) - c1/3.0;
+		   *r3 = -2.0*sqrt(Q)*cos( (theta - 2.0*M_PI)/3.0 ) - c1/3.0;
+
+		   *num_roots = 3;
+
+		   /*********************************/
+		   /* Reduce Number Of Roots To Two */
+		   /*********************************/
+		   if( *r1 == *r2 )
+		   {
+			*num_roots = 2;
+			*r2 = *r3;
+		   }
+		   else if( *r1 == *r3 )
+		   {
+			*num_roots = 2;
+		   }
+
+		   if( (*r2 == *r3) && (*num_roots == 3) )
+		   {
+			*num_roots = 2;
+		   }
+
+		   /*********************************/
+		   /* Reduce Number Of Roots To One */
+		   /*********************************/
+		   if( (*r1 == *r2) )
+		   {
+			*num_roots = 1;
+		   }
+		}
+	   }
+	   else 
+	   {
+		A = -Sign(R) * cbrt(fabs(R) + sqrt(R_squared - Q_cubed));
+
+		if( A == 0.0 )
+			B = 0.0;
+		else
+			B = Q/A;
+
+		*r1 =  (A + B) - c1/3.0;
+		*r2 = *r1;
+		*r3 = *r1;
+
+		*num_roots = 1;
+	   }
+	}
+	else
+	{
+		/*********************************************/
+		/*                         2                 */
+		/* Quadratic Equation: c1*t  + c2*t + c3 = 0 */
+		/*                                           */
+		/*********************************************/
+
+		/* Okay This Was Not A Cubic - Lets Try Quadratic?? */
+		vtkMath::SolveQuadratic( c1, c2, c3, r1, r2, num_roots );
+	}
+}
+
+// Description:
+// Solves A Quadratic Equation 
+//     2                        
+// c1*t  + c2*t  + c3 = 0 
+// When c1, c2, and c3 are REAL.
+// Solution is Taken From Numerical Recipes In C 2nd Ed 
+// Return array contains number of roots (counting multiple roots as one)
+// followed by roots themselves.
+double* vtkMath::SolveQuadratic( double c1, double c2, double c3) 
+{
+  static double roots[3];
+  roots[0] = 0.0;
+  roots[1] = 0.0;
+  roots[2] = 0.0;
+  int        i;
+
+  vtkMath::SolveQuadratic( c1, c2, c3, &roots[1], &roots[2], &i );
+  roots[0] = i;
+  return roots;
+}
+
+// Description:
+// Solves A Quadratic Equation 
+//     2                        
+// c1*t  + c2*t  + c3 = 0 
+// When c1, c2, and c3 are REAL.
+// Solution is Taken From Numerical Recipes In C 2nd Ed 
+// Roots and number of roots are stored in user provided variables
+// r1, r2, num_roots
+void vtkMath::SolveQuadratic( double c1, double c2, double c3, 
+		        double *r1, double *r2, int *num_roots )
+{
+	double	Q;
+	double	determinant;
+
+	/*********************************************/
+	/*                         2                 */
+	/* Quadratic Equation: c1*t  + c2*t + c3 = 0 */
+	/*                                           */
+	/*********************************************/
+
+	/* Make Sure This Is A Bonafide Cubic Equation */
+	if( c1 != 0.0 )
+	{
+		determinant = c2*c2 - 4*c1*c3;
+
+		if( determinant >= 0.0 )
+		{
+			Q = -0.5 * (c2 + Sign(c2)*sqrt(determinant));
+
+			*r1 = Q / c1;
+
+			if( Q == 0.0 )
+				*r2 = 0.0;
+			else
+				*r2 = c3 / Q;
+
+			*num_roots = 2;
+
+			/*********************************/
+			/* Reduce Number Of Roots To One */
+			/*********************************/
+			if( *r1 == *r2 )
+			{
+				*num_roots = 1;
+			}
+		}
+		else	/* Equation Does Not Have Real Roots */
+		{
+			*num_roots = 0;
+		}
+	}
+	else
+	{
+		/**********************************/
+		/*                                */
+		/* Linear Equation: c2*t + c3 = 0 */
+		/*                                */
+		/**********************************/
+
+		/* Now This Had Better Be Linear */
+		if( c2 != 0.0 )
+		{
+			*r1 = -c3 / c2;
+
+			*num_roots = 1;
+		}
+		else
+		{
+			*num_roots = 0;
+		}
+	}
+}

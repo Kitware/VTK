@@ -98,6 +98,16 @@ public:
   // Eigenvalue/vector extraction for 3x3 matrices
   static int Jacobi(float **a, float *d, float **v);
 
+  // Roots of polinomial equations
+  // 
+  static double* SolveCubic( double c0, double c1, double c2, double c3 );
+  static double* SolveQuadratic( double c0, double c1, double c2 );
+
+  static void SolveCubic( double c0, double c1, double c2, double c3, 
+			   double *r1, double *r2, double *r3, int *num_roots );
+  static void SolveQuadratic( double c0, double c1, double c2, 
+		        double *r1, double *r2, int *num_roots );
+
 protected:
   static long Seed;
 };
