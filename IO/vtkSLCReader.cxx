@@ -20,7 +20,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkSLCReader, "1.41");
+vtkCxxRevisionMacro(vtkSLCReader, "1.42");
 vtkStandardNewMacro(vtkSLCReader);
 
 // Constructor for a vtkSLCReader.
@@ -31,12 +31,8 @@ vtkSLCReader::vtkSLCReader()
 }
 
 vtkSLCReader::~vtkSLCReader()
-  {
-  if (this->FileName)
-    {
-    delete [] this->FileName;
-    }
-  }
+{
+}
 
 // Decodes an array of eight bit run-length encoded data.
 unsigned char* vtkSLCReader::Decode8BitData( unsigned char *in_ptr, 
