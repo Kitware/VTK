@@ -38,8 +38,7 @@
 
 class vtkVoxel;
 
-class VTK_GRAPHICS_EXPORT vtkRecursiveDividingCubes : 
-  public vtkStructuredPointsToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkRecursiveDividingCubes : public vtkStructuredPointsToPolyDataFilter
 {
 public:
   static vtkRecursiveDividingCubes *New();
@@ -80,8 +79,7 @@ protected:
   // to replace a static
   vtkVoxel *Voxel;
 private:
-  vtkRecursiveDividingCubes(const vtkRecursiveDividingCubes&);  
-  // Not implemented.
+  vtkRecursiveDividingCubes(const vtkRecursiveDividingCubes&); // Not implemented.
   void operator=(const vtkRecursiveDividingCubes&);  // Not implemented.
 };
 
