@@ -328,6 +328,44 @@ void Get##name (type data[count]) \
   for (int i=0; i<count; i++) data[i] = name[i]; \
 }
 
+#ifdef _WIN32
+//
+// This macro is used for  debug statements in instance methods
+// vtkDebugMacro(<< "this is debug info" << this->SomeVariable);
+//
+#define vtkDebugMacro(x) \
+{ if (Debug) { char *vtkmsgbuff; ostrstream vtkmsg; \
+      vtkmsg << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << "\n\n "; \
+      vtkmsgbuff = vtkmsg.str(); \
+      vtkmsgbuff[vtkmsg.pcount()] = '\0'; \
+      MessageBox(NULL,vtkmsgbuff,"Debug Info",MB_ICONINFORMATION | MB_OK); \
+      delete vtkmsgbuff;}}
+
+//
+// This macro is used to print out warning messages.
+// vtkWarningMacro(<< "Warning message" << variable);
+//
+#define vtkWarningMacro(x) \
+      { char *vtkmsgbuff; ostrstream vtkmsg; \
+      vtkmsg << "Warning: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << "\n\n "; \
+      vtkmsgbuff = vtkmsg.str(); \
+      vtkmsgbuff[vtkmsg.pcount()] = '\0'; \
+      MessageBox(NULL,vtkmsgbuff,"Debug Info",MB_ICONWARNING | MB_OK); \
+      delete vtkmsgbuff;}
+
+//
+// This macro is used to print out errors
+// vtkErrorMacro(<< "Error message" << variable);
+//
+#define vtkErrorMacro(x) \
+      { char *vtkmsgbuff; ostrstream vtkmsg; \
+      vtkmsg << "ERROR: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << "\n\n "; \
+      vtkmsgbuff = vtkmsg.str(); \
+      vtkmsgbuff[vtkmsg.pcount()] = '\0'; \
+      MessageBox(NULL,vtkmsgbuff,"Debug Info",MB_ICONERROR | MB_OK); \
+      delete vtkmsgbuff;}
+
+#else
 //
 // This macro is used for  debug statements in instance methods
 // vtkDebugMacro(<< "this is debug info" << this->SomeVariable);
@@ -348,6 +386,7 @@ void Get##name (type data[count]) \
 //
 #define vtkErrorMacro(x) \
   cerr << "ERROR In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << "\n\n"
+#endif
 
 //
 // This macro is used to quiet compiler warnings about unused parameters

@@ -16,11 +16,26 @@ Copyright (c) Ken Martin 1995
 #include <iostream.h>
 #include <stdlib.h>
 #include <stdio.h>
+#ifdef _INTEGRAL_MAX_BITS
+#undef _INTEGRAL_MAX_BITS
+#endif
+#define _INTEGRAL_MAX_BITS 64
+
+#ifdef _WIN32
+#include "vtkWin32Header.h"
+HANDLE vtkGlobalMutex = NULL;
+#define VTK_GET_MUTEX() WaitForSingleObject(vtkGlobalMutex,INFINITE)
+#define VTK_RELEASE_MUTEX() ReleaseMutex(vtkGlobalMutex)
+#include <mapiform.h>
+#else
 #include <thread.h>
 #include <synch.h>
-#include "vtkJavaUtil.h"
-
 mutex_t vtkGlobalMutex;
+#define VTK_GET_MUTEX()  mutex_lock(&vtkGlobalMutex)
+#define VTK_RELEASE_MUTEX() mutex_unlock(&vtkGlobalMutex)
+#endif
+
+#include "vtkJavaUtil.h"
 
 int vtkJavaIdCount = 1;
 
@@ -149,7 +164,7 @@ int vtkJavaGetId(JNIEnv *env,jobject obj)
 void vtkJavaSetId(JNIEnv *env,jobject obj, int newVal)
 {
   jfieldID id;
-  jint jNewVal = newVal;
+  jint jNewVal = (jint)newVal;
     
   id = env->GetFieldID(env->GetObjectClass(obj),"vtkId","I");
   
@@ -159,16 +174,20 @@ void vtkJavaSetId(JNIEnv *env,jobject obj, int newVal)
 // add an object to the hash table
 void vtkJavaAddObjectToHash(JNIEnv *env, jobject obj, void *ptr,
 			    void *tcFunc,int deleteMe)
-{
-  mutex_lock(&vtkGlobalMutex);
-  
+{ 
   if (!vtkInstanceLookup)
     {
     vtkInstanceLookup = new vtkHashTable;
     vtkTypecastLookup = new vtkHashTable;
     vtkPointerLookup = new vtkHashTable;
     vtkDeleteLookup = new vtkHashTable;
+#ifdef _WIN32
+    vtkGlobalMutex = CreateMutex(NULL, FALSE, NULL);
+#endif
     }
+
+VTK_GET_MUTEX();
+
 #ifdef VTKJAVADEBUG
   cerr << "Adding an object to hash ptr = " << ptr << "\n";
 #endif  
@@ -178,7 +197,7 @@ void vtkJavaAddObjectToHash(JNIEnv *env, jobject obj, void *ptr,
 #ifdef VTKJAVADEBUG
     cerr << "Attempt to add an object to the hash when one already exists!!!\n";
 #endif
-    mutex_unlock(&vtkGlobalMutex);
+    VTK_RELEASE_MUTEX();
     return;
     }
 
@@ -202,7 +221,7 @@ void vtkJavaAddObjectToHash(JNIEnv *env, jobject obj, void *ptr,
   cerr << "Added object to hash id= " << vtkJavaIdCount << " " << ptr << "\n";
 #endif  
   vtkJavaIdCount++;
-  mutex_unlock(&vtkGlobalMutex);
+  VTK_RELEASE_MUTEX();
 }
 
 // should we delete this object
@@ -210,14 +229,14 @@ int vtkJavaShouldIDeleteObject(JNIEnv *env,jobject obj)
 {
   int id = vtkJavaGetId(env,obj);
   
-  mutex_lock(&vtkGlobalMutex);
+  VTK_GET_MUTEX();
   if ((int)(vtkDeleteLookup->GetHashTableValue((void *)id)))
     {
 #ifdef VTKJAVADEBUG
     cerr << "Decided to delete id = " << id << "\n";
 #endif
     vtkJavaDeleteObjectFromHash(env, id);
-    mutex_unlock(&vtkGlobalMutex);
+    VTK_RELEASE_MUTEX();
     return 1;
     }
 
@@ -225,7 +244,7 @@ int vtkJavaShouldIDeleteObject(JNIEnv *env,jobject obj)
   cerr << "Decided to NOT delete id = " << id << "\n";
 #endif
   vtkJavaDeleteObjectFromHash(env, id);
-  mutex_unlock(&vtkGlobalMutex);
+  VTK_RELEASE_MUTEX();
   return 0;
 }
 
@@ -247,7 +266,7 @@ void vtkJavaDeleteObjectFromHash(JNIEnv *env, int id)
   vtkInstanceLookup->DeleteHashEntry((void *)id);
   vtkTypecastLookup->DeleteHashEntry((void *)id);
   vptr = vtkPointerLookup->GetHashTableValue(ptr);
-  env->DeleteGlobalRef(&vptr);
+  env->DeleteGlobalRef((jobject)&vptr);
   vtkPointerLookup->DeleteHashEntry(ptr);
   vtkDeleteLookup->DeleteHashEntry((void *)id);
 }
@@ -259,7 +278,7 @@ jobject vtkJavaGetObjectFromPointer(void *ptr)
 #ifdef VTKJAVADEBUG
   cerr << "Checking into pointer " << ptr << "\n";
 #endif  
-  obj = vtkPointerLookup->GetHashTableValue(ptr);
+  obj = (jobject)vtkPointerLookup->GetHashTableValue((jobject *)ptr);
 #ifdef VTKJAVADEBUG
   cerr << "Checking into pointer " << ptr << " obj = " << obj << "\n";
 #endif  
@@ -303,7 +322,7 @@ void *vtkJavaGetPointerFromObject(JNIEnv *env, jobject obj, char *result_type)
 
 jarray vtkJavaMakeJArrayOfDoubleFromDouble(JNIEnv *env, double *ptr, int size)
 {
-  jarray ret;
+  jdoubleArray ret;
   int i;
   jdouble *array;
 
@@ -328,7 +347,7 @@ jarray vtkJavaMakeJArrayOfDoubleFromDouble(JNIEnv *env, double *ptr, int size)
 
 jarray vtkJavaMakeJArrayOfDoubleFromFloat(JNIEnv *env, float *ptr, int size)
 {
-  jarray ret;
+  jdoubleArray ret;
   int i;
   jdouble *array;
 
@@ -353,7 +372,7 @@ jarray vtkJavaMakeJArrayOfDoubleFromFloat(JNIEnv *env, float *ptr, int size)
 
 jarray vtkJavaMakeJArrayOfIntFromInt(JNIEnv *env, int *ptr, int size)
 {
-  jarray ret;
+  jintArray ret;
   int i;
   jint *array;
 
@@ -379,7 +398,7 @@ jarray vtkJavaMakeJArrayOfIntFromInt(JNIEnv *env, int *ptr, int size)
 char *vtkJavaUTFToChar(JNIEnv *env,jstring in)
 {
   char *result;
-  jbyte *inBytes;
+  const char *inBytes;
   int length, i;
   int resultLength = 1;
   
@@ -388,14 +407,14 @@ char *vtkJavaUTFToChar(JNIEnv *env,jstring in)
   
   for (i = 0; i < length; i++)
     {
-    if (inBytes[i] < 128) resultLength++;
+    if (inBytes[i] < 128 ) resultLength++;
     }
   result = new char [resultLength];
 
   resultLength = 0; // the 0 versus 1 up above is on purpose
   for (i = 0; i < length; i++)
     {
-    if (inBytes[i] < 128) 
+    if (inBytes[i] < 128 ) 
       {
       result[resultLength] = inBytes[i];
       resultLength++;
@@ -409,12 +428,12 @@ char *vtkJavaUTFToChar(JNIEnv *env,jstring in)
 jstring vtkJavaMakeJavaString(JNIEnv *env, char *in)
 {
   jstring result;
-  jbyte *utf;
+  char *utf;
   int inLength, utfLength, i;
   
   inLength = strlen(in);
   utfLength = inLength + 2;
-  utf = new jbyte [utfLength];
+  utf = new char [utfLength];
   
   for (i = 0; i < inLength; i++)
     {
@@ -422,7 +441,7 @@ jstring vtkJavaMakeJavaString(JNIEnv *env, char *in)
     }
   utf[inLength] = 0xC0;
   utf[inLength+1] = 0x80;
-  result = env->NewStringUTF(utf,utfLength);
+  result = env->NewStringUTF(utf);
 
   // do we need to free utf here ? Does JNI make a copy ?
   
