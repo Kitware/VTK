@@ -89,6 +89,11 @@ vtkEnSightReader::vtkEnSightReader()
   this->NumberOfComplexVectorsPerNode = 0;
   this->NumberOfComplexScalarsPerElement = 0;
   this->NumberOfComplexVectorsPerElement = 0;
+  
+  this->NumberOfGeometryParts = 0;
+
+  this->NumberOfMeasuredPoints = 0;
+  this->MeasuredNodeIds = vtkIdList::New();
 }
 
 //----------------------------------------------------------------------------
@@ -180,6 +185,10 @@ vtkEnSightReader::~vtkEnSightReader()
   
   this->UnstructuredPartIds->Delete();
   this->UnstructuredPartIds = NULL;
+  
+    
+  this->MeasuredNodeIds->Delete();
+  this->MeasuredNodeIds = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -190,10 +199,21 @@ void vtkEnSightReader::Execute()
     vtkErrorMacro("error reading case file");
     return;
     }
-  if (!this->ReadGeometryFile())
+  if (this->GeometryFileName)
     {
-    vtkErrorMacro("error reading geometry file");
-    return;
+    if (!this->ReadGeometryFile())
+      {
+      vtkErrorMacro("error reading geometry file");
+      return;
+      }
+    }
+  if (this->MeasuredFileName)
+    {
+    if (!this->ReadMeasuredGeometryFile())
+      {
+      vtkErrorMacro("error reading measured geometry file");
+      return;
+      }
     }
   if ((this->NumberOfVariables + this->NumberOfComplexVariables) > 0)
     {
@@ -321,7 +341,7 @@ int vtkEnSightReader::ReadCaseFile()
           vtkDebugMacro(<<this->GetGeometryFileName());
           }
         }
-      else if (strncmp(subLine, "measured:", 9) == 0)
+      else if (strncmp(line, "measured:", 9) == 0)
         {
         if (sscanf(line, " %*s %*d %*d %s", subLine) == 1)
           {
@@ -339,7 +359,7 @@ int vtkEnSightReader::ReadCaseFile()
           vtkDebugMacro(<< this->GetMeasuredFileName());
           }
         }
-      else if (strncmp(subLine, "match:", 6) == 0)
+      else if (strncmp(line, "match:", 6) == 0)
         {
         sscanf(line, " %*s %s", subLine);
         this->SetMatchFileName(subLine);
@@ -778,9 +798,17 @@ int vtkEnSightReader::ReadVariableFiles()
         this->ReadScalarsPerNode(this->VariableFileNames[i],
                                  this->VariableDescriptions[i]);
         break;
+      case VTK_SCALAR_PER_MEASURED_NODE:
+        this->ReadScalarsPerNode(this->VariableFileNames[i],
+                                 this->VariableDescriptions[i], 1);
+        break;
       case VTK_VECTOR_PER_NODE:
         this->ReadVectorsPerNode(this->VariableFileNames[i],
                                  this->VariableDescriptions[i]);
+        break;
+      case VTK_VECTOR_PER_MEASURED_NODE:
+        this->ReadVectorsPerNode(this->VariableFileNames[i],
+                                 this->VariableDescriptions[i], 1);
         break;
       case VTK_TENSOR_SYMM_PER_NODE:
         this->ReadTensorsPerNode(this->VariableFileNames[i],
@@ -806,9 +834,10 @@ int vtkEnSightReader::ReadVariableFiles()
       {
       case VTK_COMPLEX_SCALAR_PER_NODE:
         this->ReadScalarsPerNode(this->ComplexVariableFileNames[2*i],
-                                 this->ComplexVariableDescriptions[i], 2);
+                                 this->ComplexVariableDescriptions[i], 0, 2);
         this->ReadScalarsPerNode(this->ComplexVariableFileNames[2*i+1],
-                                 this->ComplexVariableDescriptions[i], 2, 1);
+                                 this->ComplexVariableDescriptions[i],
+                                 0, 2, 1);
         break;
       case VTK_COMPLEX_VECTOR_PER_NODE:
         strcpy(description, this->ComplexVariableDescriptions[i]);
