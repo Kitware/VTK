@@ -22,6 +22,10 @@
 
 #include "vtkConfigure.h"
 
+#define __VTK_SYSTEM_INCLUDES__INSIDE
+#include "vtkWin32Header.h" // For export macros.
+#undef __VTK_SYSTEM_INCLUDES__INSIDE
+
 #ifdef VTK_USE_ANSI_STDLIB
 
 #ifdef _MSC_VER
@@ -73,6 +77,41 @@ using std::fstream;
 #   include <strstream.h> // Include old-style strstream.
 #  endif
 #  include <fstream.h>    // Include old-style ifstream and ofstream.
+# endif
+#endif
+
+#if defined(VTK_IOSTREAM_NEED_OPERATORS_LL)
+VTK_COMMON_EXPORT istream& vtkIOStreamScan(istream&, vtkIOStreamSLL&);
+VTK_COMMON_EXPORT istream& vtkIOStreamScan(istream&, vtkIOStreamULL&);
+VTK_COMMON_EXPORT ostream& vtkIOStreamPrint(ostream&, vtkIOStreamSLL);
+VTK_COMMON_EXPORT ostream& vtkIOStreamPrint(ostream&, vtkIOStreamULL);
+
+# if !defined(VTK_DO_NOT_DEFINE_ISTREAM_SLL)
+inline istream& operator >> (istream& is, vtkIOStreamSLL& value)
+{
+  return vtkIOStreamScan(is, value);
+}
+# endif
+
+# if !defined(VTK_DO_NOT_DEFINE_ISTREAM_ULL)
+inline istream& operator >> (istream& is, vtkIOStreamULL& value)
+{
+  return vtkIOStreamScan(is, value);
+}
+# endif
+
+# if !defined(VTK_DO_NOT_DEFINE_OSTREAM_SLL)
+inline ostream& operator << (ostream& os, vtkIOStreamSLL value)
+{
+  return vtkIOStreamPrint(os, value);
+}
+# endif
+
+# if !defined(VTK_DO_NOT_DEFINE_OSTREAM_ULL)
+inline ostream& operator << (ostream& os, vtkIOStreamULL value)
+{
+  return vtkIOStreamPrint(os, value);
+}
 # endif
 #endif
 

@@ -11,7 +11,7 @@ ENDIF (VTK_WRAP_PYTHON)
 IF(PYTHON_EXECUTABLE)
   ADD_TEST(HeaderTesting-Common ${PYTHON_EXECUTABLE}
            ${VTK_SOURCE_DIR}/Common/Testing/HeaderTesting.py
-	   "${VTK_SOURCE_DIR}/Common"
+           "${VTK_SOURCE_DIR}/Common"
            vtkAbstractIterator.h
            vtkAbstractList.h
            vtkAbstractMap.h
@@ -31,7 +31,6 @@ IF(PYTHON_EXECUTABLE)
            vtkHierarchicalBoxDataSetInternal.h
            vtkIOStream.h
            vtkIOStreamFwd.h
-           vtkIdType.h
            vtkImageIterator.h
            vtkImageProgressIterator.h
            vtkIndent.h

@@ -79,9 +79,9 @@ vtkHierarchicalBoxVisitor.cxx
 vtkHierarchicalDataSet.cxx
 vtkHierarchicalDataIterator.cxx
 vtkHomogeneousTransform.cxx
+vtkIOStream.cxx
 vtkIdList.cxx
 vtkIdListCollection.cxx
-vtkIdType.cxx
 vtkIdTypeArray.cxx
 vtkIdentityTransform.cxx
 vtkImageData.cxx
@@ -266,7 +266,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkCommand.cxx
   vtkDebugLeaksManager.cxx
   vtkErrorCode.cxx
-  vtkIdType.cxx
+  vtkIOStream.cxx
   vtkImageIterator.cxx
   vtkImageProgressIterator.cxx
   vtkIndent.cxx
@@ -393,7 +393,7 @@ IF(VTK_WRAP_PYTHON)
     vtkPythonUtil
   )
   IF (TK_LIBRARY)
-	IF(NOT VTK_USE_COCOA)
+        IF(NOT VTK_USE_COCOA)
       INSTALL_FILES(/include/vtk .h
         vtkTcl
         vtkTk
