@@ -31,13 +31,14 @@
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredGridOutlineFilter.h"
 
-vtkCxxRevisionMacro(vtkPVGeometryFilter, "1.13");
+vtkCxxRevisionMacro(vtkPVGeometryFilter, "1.14");
 vtkStandardNewMacro(vtkPVGeometryFilter);
 
 //----------------------------------------------------------------------------
 vtkPVGeometryFilter::vtkPVGeometryFilter ()
 {
   this->OutlineFlag = 0;
+  this->NumberOfRequiredInputs = 0;
 }
 
 //----------------------------------------------------------------------------
