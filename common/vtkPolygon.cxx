@@ -603,7 +603,7 @@ typedef struct _vtkPolyVertex
   float   measure;
   _vtkPolyVertex*    next;
   _vtkPolyVertex*    previous;
-  } vtkPolyVertex;
+  } vtkLocalPolyVertex;
 
 class vtkPolyVertexList { //structure to support triangulation
 public:
@@ -611,13 +611,13 @@ public:
   ~vtkPolyVertexList();
   
   int ComputeNormal();
-  float ComputeMeasure(vtkPolyVertex *vtx);
+  float ComputeMeasure(vtkLocalPolyVertex *vtx);
   void RemoveVertex(int i, vtkIdList *, vtkPriorityQueue *);
   int CanRemoveVertex(int id, float tol);
   
   int NumberOfVerts;
-  vtkPolyVertex *Array;
-  vtkPolyVertex *Head;
+  vtkLocalPolyVertex *Array;
+  vtkLocalPolyVertex *Head;
   float Normal[3];
 };
     
@@ -627,7 +627,7 @@ vtkPolyVertexList::vtkPolyVertexList(vtkIdList *ptIds, vtkPoints *pts,
 {
   int numVerts = ptIds->GetNumberOfIds();
   this->NumberOfVerts = numVerts; 
-  this->Array = new vtkPolyVertex [numVerts];
+  this->Array = new vtkLocalPolyVertex [numVerts];
   int i;
 
   // now load the data into the array
@@ -652,7 +652,7 @@ vtkPolyVertexList::vtkPolyVertexList(vtkIdList *ptIds, vtkPoints *pts,
 
   // Make sure that there are no coincident vertices.
   // Beware of multiple coincident vertices.
-  vtkPolyVertex *vtx, *next;
+  vtkLocalPolyVertex *vtx, *next;
   this->Head = this->Array;
 
   for (vtx=this->Head, i=0; i<numVerts; i++)
@@ -722,7 +722,7 @@ void vtkPolyVertexList::RemoveVertex(int i, vtkIdList *tris,
 
 int vtkPolyVertexList::ComputeNormal()
 {
-  vtkPolyVertex *vtx=this->Head;
+  vtkLocalPolyVertex *vtx=this->Head;
   float v1[3], v2[3], n[3], *anchor=vtx->x;
 
   this->Normal[0] = this->Normal[1] = this->Normal[2] = 0.0;
@@ -753,7 +753,7 @@ int vtkPolyVertexList::ComputeNormal()
 // the sign of the measure is determined by dotting the local
 // vector with the normal (concave features return a negative
 // measure).
-float vtkPolyVertexList::ComputeMeasure(vtkPolyVertex *vtx)
+float vtkPolyVertexList::ComputeMeasure(vtkLocalPolyVertex *vtx)
 {
   float v1[3], v2[3], v3[3], v4[3], area, perimeter;
 
@@ -788,7 +788,7 @@ int vtkPolyVertexList::CanRemoveVertex(int id, float tolerance)
 {
   int i, sign, currentSign;
   float v[3], sN[3], *sPt, val, s, t;
-  vtkPolyVertex *currentVtx, *previous, *next, *vtx;
+  vtkLocalPolyVertex *currentVtx, *previous, *next, *vtx;
 
   // Check for simple case
   if ( this->NumberOfVerts <= 3 )
@@ -865,7 +865,7 @@ int vtkPolygon::EarCutTriangulation ()
 {
   vtkPolyVertexList poly(this->PointIds, this->Points, 
                          this->Tolerance*this->Tolerance);
-  vtkPolyVertex *vtx;
+  vtkLocalPolyVertex *vtx;
   int i, id;
 
   // First compute the polygon normal the correct way
