@@ -34,7 +34,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.35.2.2");
+vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.35.2.3");
 vtkStandardNewMacro(vtkEnSightGoldBinaryReader);
 
 //----------------------------------------------------------------------------
@@ -700,7 +700,6 @@ int vtkEnSightGoldBinaryReader::SkipRectilinearGrid(char line[256])
   int lineRead = 1;
   int iblanked = 0;
   int dimensions[3];
-  float *tempCoords;
   int numPts;
   
   if (sscanf(line, " %*s %*s %s", subLine) == 1)
@@ -1025,9 +1024,8 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(char* fileName,
     if (component == 0)
       {
       scalars = vtkFloatArray::New();
-      scalars->SetNumberOfTuples(numPts);
       scalars->SetNumberOfComponents(numberOfComponents);
-      scalars->Allocate(numPts * numberOfComponents);
+      scalars->SetNumberOfTuples(numPts);
       }
     else
       {
@@ -1077,7 +1075,7 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(char* fileName,
   char line[80]; 
   int partId, numPts, i;
   vtkFloatArray *vectors;
-  float tuple[3], vector[3];
+  float tuple[3];
   float *comp1, *comp2, *comp3;
   float *vectorsRead;
   vtkDataSet *output;
@@ -1298,9 +1296,8 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerNode(char* fileName,
     this->ReadLine(line); // "coordinates" or "block"
     output = this->GetOutput(partId);
     numPts = output->GetNumberOfPoints();
-    tensors->SetNumberOfTuples(numPts);
     tensors->SetNumberOfComponents(6);
-    tensors->Allocate(numPts*6);
+    tensors->SetNumberOfTuples(numPts);
     comp1 = new float[numPts];
     comp2 = new float[numPts];
     comp3 = new float[numPts];
@@ -1835,9 +1832,8 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerElement(char* fileName,
     output = this->GetOutput(partId);
     numCells = output->GetNumberOfCells();
     this->ReadLine(line); // element type or "block"
-    tensors->SetNumberOfTuples(numCells);
     tensors->SetNumberOfComponents(6);
-    tensors->Allocate(numCells*6);
+    tensors->SetNumberOfTuples(numCells);
     
     // need to find out from CellIds how many cells we have of this element
     // type (and what their ids are) -- IF THIS IS NOT A BLOCK SECTION
