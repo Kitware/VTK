@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPointLocator, "1.65");
+vtkCxxRevisionMacro(vtkPointLocator, "1.66");
 vtkStandardNewMacro(vtkPointLocator);
 
 static const int VTK_INITIAL_SIZE=1000;
@@ -1912,6 +1912,14 @@ void vtkPointLocator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number of Points Per Bucket: " << this->NumberOfPointsPerBucket << "\n";
   os << indent << "Divisions: (" << this->Divisions[0] << ", " 
      << this->Divisions[1] << ", " << this->Divisions[2] << ")\n";
-
+  if ( this->Points )
+    {
+    os << indent << "Points:\n";
+    this->Points->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Points: (none)\n";
+    }
 }
 
