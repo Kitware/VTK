@@ -19,7 +19,7 @@
 
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkSimpleImageToImageFilter, "1.9");
+vtkCxxRevisionMacro(vtkSimpleImageToImageFilter, "1.10");
 
 //----------------------------------------------------------------------------
 vtkSimpleImageToImageFilter::vtkSimpleImageToImageFilter()
@@ -90,6 +90,13 @@ void vtkSimpleImageToImageFilter::ExecuteData(vtkDataObject *vtkNotUsed(out))
   if (!input)
     {
     vtkErrorMacro("No input is specified!");
+    return;
+    }
+
+  // Too many filters have floating point exceptions to execute
+  // with empty input/ no request.
+  if (this->UpdateExtentIsEmpty(output))
+    {
     return;
     }
 

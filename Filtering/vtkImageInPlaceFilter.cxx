@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageInPlaceFilter, "1.37");
+vtkCxxRevisionMacro(vtkImageInPlaceFilter, "1.38");
 
 //----------------------------------------------------------------------------
 
@@ -30,6 +30,13 @@ void vtkImageInPlaceFilter::ExecuteData(vtkDataObject *vtkNotUsed(out))
   vtkImageData *output = this->GetOutput();
   int *inExt, *outExt;
   
+  // Too many filters have floating point exceptions to execute
+  // with empty input/ no request.
+  if (this->UpdateExtentIsEmpty(output))
+    {
+    return;
+    }
+
   inExt = this->GetInput()->GetUpdateExtent();
   outExt = this->GetOutput()->GetUpdateExtent();
 

@@ -21,7 +21,7 @@
 #include "vtkMultiThreader.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageMultipleInputOutputFilter, "1.11");
+vtkCxxRevisionMacro(vtkImageMultipleInputOutputFilter, "1.12");
 
 //----------------------------------------------------------------------------
 vtkImageMultipleInputOutputFilter::vtkImageMultipleInputOutputFilter()
@@ -181,6 +181,14 @@ void vtkImageMultipleInputOutputFilter::ExecuteData(vtkDataObject *out)
     vtkWarningMacro("ExecuteData called without ImageData output");
     return;
     }
+
+  // Too many filters have floating point exceptions to execute
+  // with empty input/ no request.
+  if (this->UpdateExtentIsEmpty(output))
+    {
+    return;
+    }
+
   output->SetExtent(output->GetUpdateExtent());
   output->AllocateScalars();
 
