@@ -52,6 +52,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkDecimate.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkDecimate* vtkDecimate::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkDecimate");
+  if(ret)
+    {
+    return (vtkDecimate*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkDecimate;
+}
+
+
+
 
 #define VTK_TOLERANCE 1.0e-05
 

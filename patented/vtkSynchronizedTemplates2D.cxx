@@ -63,6 +63,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkSynchronizedTemplates2D.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkSynchronizedTemplates2D* vtkSynchronizedTemplates2D::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkSynchronizedTemplates2D");
+  if(ret)
+    {
+    return (vtkSynchronizedTemplates2D*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkSynchronizedTemplates2D;
+}
+
+
+
 
 // Description:
 // Construct object with initial scalar range (0,1) and single contour value

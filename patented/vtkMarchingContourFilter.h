@@ -105,7 +105,7 @@ public:
   // Description:
   // Construct object with initial range (0,1) and single contour value
   // of 0.0.
-  static vtkMarchingContourFilter *New() {return new vtkMarchingContourFilter;};
+  static vtkMarchingContourFilter *New();
 
   // Description:
   // Methods to set / get contour values.

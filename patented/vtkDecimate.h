@@ -172,7 +172,7 @@ public:
 class VTK_EXPORT vtkDecimate : public vtkPolyDataToPolyDataFilter
 {
 public:
-  static vtkDecimate *New() {return new vtkDecimate;};
+  static vtkDecimate *New();
   const char *GetClassName() {return "vtkDecimate";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

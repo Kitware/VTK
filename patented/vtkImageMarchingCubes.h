@@ -81,7 +81,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageMarchingCubes : public vtkPolyDataSource
 {
 public:
-  static vtkImageMarchingCubes *New() {return new vtkImageMarchingCubes;};
+  static vtkImageMarchingCubes *New();
   const char *GetClassName() {return "vtkImageMarchingCubes";};
   void PrintSelf(ostream& os, vtkIndent indent);
   

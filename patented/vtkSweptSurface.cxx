@@ -54,6 +54,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkSweptSurface.h"
 #include "vtkVoxel.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkSweptSurface* vtkSweptSurface::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkSweptSurface");
+  if(ret)
+    {
+    return (vtkSweptSurface*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkSweptSurface;
+}
+
+
+
 
 // Description:
 // Construct object with SampleDimensions = (50,50,50), FillValue = 

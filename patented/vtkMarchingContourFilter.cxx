@@ -64,6 +64,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMarchingSquares.h"
 #include "vtkMarchingCubes.h"
 #include "vtkImageMarchingCubes.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkMarchingContourFilter* vtkMarchingContourFilter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMarchingContourFilter");
+  if(ret)
+    {
+    return (vtkMarchingContourFilter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkMarchingContourFilter;
+}
+
+
+
 
 // Construct object with initial range (0,1) and single contour value
 // of 0.0.

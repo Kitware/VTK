@@ -72,8 +72,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkSynchronizedTemplates2D : public vtkStructuredPointsToPolyDataFilter
 {
 public:
-  static vtkSynchronizedTemplates2D *New() {
-    return new vtkSynchronizedTemplates2D;};
+  static vtkSynchronizedTemplates2D *New();
   const char *GetClassName() {return "vtkSynchronizedTemplates2D";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -66,6 +66,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkGridSynchronizedTemplates3D.h"
 #include "vtkUnstructuredInformation.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkGridSynchronizedTemplates3D* vtkGridSynchronizedTemplates3D::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkGridSynchronizedTemplates3D");
+  if(ret)
+    {
+    return (vtkGridSynchronizedTemplates3D*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkGridSynchronizedTemplates3D;
+}
+
+
+
 
 
 

@@ -54,6 +54,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 #include "vtkMarchingCubesCases.h"
 #include "vtkImageMarchingCubes.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageMarchingCubes* vtkImageMarchingCubes::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageMarchingCubes");
+  if(ret)
+    {
+    return (vtkImageMarchingCubes*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageMarchingCubes;
+}
+
+
+
 
 //----------------------------------------------------------------------------
 // Description:

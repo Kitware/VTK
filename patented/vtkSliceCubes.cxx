@@ -67,6 +67,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkUnsignedLongArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkSliceCubes* vtkSliceCubes::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkSliceCubes");
+  if(ret)
+    {
+    return (vtkSliceCubes*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkSliceCubes;
+}
+
+
+
 
 // Description:
 // Construct with NULL reader, output FileName specification, and limits 

@@ -91,7 +91,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkSliceCubes : public vtkObject
 {
 public:
-  static vtkSliceCubes *New() {return new vtkSliceCubes;};
+  static vtkSliceCubes *New();
   const char *GetClassName() {return "vtkSliceCubes";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

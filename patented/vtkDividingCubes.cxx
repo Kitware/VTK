@@ -56,6 +56,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMath.h"
 #include "vtkVoxel.h"
 #include "vtkFloatArray.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkDividingCubes* vtkDividingCubes::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkDividingCubes");
+  if(ret)
+    {
+    return (vtkDividingCubes*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkDividingCubes;
+}
+
+
+
 
 // Description:
 // Construct object with Value=0.0, Distance=0.1, and Increment=1.
