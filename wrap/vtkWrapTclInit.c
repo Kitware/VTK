@@ -101,7 +101,7 @@ void stuffit()
     }
 
   fprintf(stdout,"  return TCL_OK;\n}\n");
-};
+}
 
 
 int main(int argc,char *argv[])
