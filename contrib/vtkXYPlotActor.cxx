@@ -1394,16 +1394,8 @@ void vtkXYPlotActor::ClipPlotData(int *pos, int *pos2, vtkPolyData *pd)
   float *x1, *x2, *px, *n, xint[3], t;
   float p1[2], p2[2];
 
-  if ( !this->ExchangeAxes )
-    {
-    p1[0] = (float)pos[0]; p1[1] = (float)pos[1];
-    p2[0] = (float)pos2[0]; p2[1] = (float)pos2[1];
-    }
-  else
-    {
-    p1[0] = (float)pos[0]; p1[1] = (float)pos[1];
-    p2[0] = (float)pos2[1]; p2[1] = (float)pos2[0];
-    }
+  p1[0] = (float)pos[0]; p1[1] = (float)pos[1];
+  p2[0] = (float)pos2[0]; p2[1] = (float)pos2[1];
   
   newPoints = vtkPoints::New();
   newPoints->Allocate(numPts);
