@@ -12,9 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGambitReader - reads a dataset in Fluent GAMBIT Neutral File format
+// .NAME vtkGAMBITReader - reads a dataset in Fluent GAMBIT Neutral File format
 // .SECTION Description
-// vtkGambitReader creates an unstructured grid dataset. It reads ASCII
+// vtkGAMBITReader creates an unstructured grid dataset. It reads ASCII
 // files stored in GAMBIT neutral format, with optional data stored at the nodes
 // or at the cells of the model. A cell-based fielddata stores the material
 // id.

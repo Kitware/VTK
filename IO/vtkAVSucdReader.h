@@ -25,7 +25,10 @@
 // Thanks to Isabelle Surin (isabelle.surin at cea.fr, CEA-DAM, France) who
 // supervised the internship of the first two authors. Thanks to Daniel
 // Aguilera (daniel.aguilera at cea.fr, CEA-DAM, France) who contributed code
-// und advice. Please address all comments to Jean Favre (jfavre at cscs.ch)
+// and advice. Please address all comments to Jean Favre (jfavre at cscs.ch)
+
+// .SECTION See Also
+// vtkGAMBITReader
 
 #ifndef __vtkAVSucdReader_h
 #define __vtkAVSucdReader_h
