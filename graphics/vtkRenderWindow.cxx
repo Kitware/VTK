@@ -279,7 +279,7 @@ void vtkRenderWindow::Render()
     {
     // check the current size 
     size = this->GetSize();
-    int bufferSize = 3*size[0]*size[1];
+    unsigned int bufferSize = 3*size[0]*size[1];
     // If there is not a buffer or the size is too small
     // re-allocate it
     if( !this->AccumulationBuffer 
