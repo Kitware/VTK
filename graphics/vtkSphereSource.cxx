@@ -257,5 +257,5 @@ void vtkSphereSource::ExecuteInformation()
   // convert to kilobytes
   size = (size / 1000) + 1;
   
-  this->GetOutput()->SetEstimatedMemorySize(size);
+  this->GetOutput()->SetEstimatedWholeMemorySize(size);
 }

@@ -349,7 +349,7 @@ void vtkStructuredGridOutlineFilter::UpdateInformation()
     {
     size = 1;
     }
-  output->SetEstimatedMemorySize(size);
+  output->SetEstimatedWholeMemorySize(size);
 }
 
 

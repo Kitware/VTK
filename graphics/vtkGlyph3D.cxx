@@ -446,7 +446,7 @@ void vtkGlyph3D::Execute()
 }
 
 //----------------------------------------------------------------------------
-// Since indexing determines size of outputs, EstimatedMemorySize is
+// Since indexing determines size of outputs, EstimatedWholeMemorySize is
 // truly an estimate.  Ignore Indexing (although for a best estimate we
 // should average the size of the sources instead of using 0).
 void vtkGlyph3D::ExecuteInformation()
@@ -461,12 +461,12 @@ void vtkGlyph3D::ExecuteInformation()
   
   // How many points in the input?
   // Assume 24 bytes per point
-  numPts = this->GetInput()->GetEstimatedMemorySize() * 1000 / 24;
+  numPts = this->GetInput()->GetEstimatedWholeMemorySize() * 1000 / 24;
 
   // size already in kilobytes
-  size = numPts * this->GetSource(0)->GetEstimatedMemorySize();
+  size = numPts * this->GetSource(0)->GetEstimatedWholeMemorySize();
   
-  this->GetOutput()->SetEstimatedMemorySize(size);
+  this->GetOutput()->SetEstimatedWholeMemorySize(size);
 }
 
 

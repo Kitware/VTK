@@ -253,7 +253,8 @@ int vtkImageToImageFilter::GetNumberOfStreamDivisions()
   fraction = (ext[1]-ext[0]+1)*(ext[3]-ext[2]+1)*(ext[5]-ext[4]+1) / fraction;
   
   // Estimated memory size is of the WholeExtent
-  num =(int)(fraction*input->GetEstimatedMemorySize()/input->GetMemoryLimit());
+  num =(int)(fraction *
+	     input->GetEstimatedWholeMemorySize() / input->GetMemoryLimit());
   
   if (num < 1)
     {

@@ -84,6 +84,6 @@ void vtkOutlineFilter::ExecuteInformation()
   //
 
   this->OutlineSource->UpdateInformation();
-  output->SetEstimatedMemorySize(
-    this->OutlineSource->GetOutput()->GetEstimatedMemorySize());
+  output->SetEstimatedWholeMemorySize(
+    this->OutlineSource->GetOutput()->GetEstimatedWholeMemorySize());
 }

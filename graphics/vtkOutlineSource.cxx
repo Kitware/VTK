@@ -129,7 +129,7 @@ void vtkOutlineSource::Execute()
 void vtkOutlineSource::ExecuteInformation()
 {
   // an outline is always less than 1k
-  this->GetOutput()->SetEstimatedMemorySize(1);
+  this->GetOutput()->SetEstimatedWholeMemorySize(1);
 }
 
 //----------------------------------------------------------------------------

@@ -101,7 +101,7 @@ void vtkPointSource::ExecuteInformation()
   // convert to KBytes
   size = 1 + size / 1000;
   
-  this->GetOutput()->SetEstimatedMemorySize(size);
+  this->GetOutput()->SetEstimatedWholeMemorySize(size);
 }
 
 
