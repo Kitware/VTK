@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkUnstructuredGridFilter - filter that takes unstructured grid as input
+// .NAME vtkUnstructuredGridFilter - filter that takes an unstructured grid as input
 // .SECTION Description
 // vtkUnstructuredGridFilter is a filter that takes a single unstructured grid
 // data object as input.

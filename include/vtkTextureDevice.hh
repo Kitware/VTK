@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkTextureDevice - abstract definition of a hardware dependent Texture
+// .NAME vtkTextureDevice - abstract definition of a hardware dependent texture
 // .SECTION Description
 // vtkTextureDevice is the superclass of the hardware dependent Textures
 // such as vtkOglrTexture and vtkSbrTexture. This object is typically created
