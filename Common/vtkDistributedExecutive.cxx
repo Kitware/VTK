@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSource.h"
 
-vtkCxxRevisionMacro(vtkDistributedExecutive, "1.8");
+vtkCxxRevisionMacro(vtkDistributedExecutive, "1.9");
 vtkStandardNewMacro(vtkDistributedExecutive);
 vtkCxxSetObjectMacro(vtkDistributedExecutive, Algorithm, vtkAlgorithm);
 
@@ -213,7 +213,7 @@ vtkDistributedExecutive::GetOutputDataInternal(vtkAlgorithm* algorithm,
                                                int port)
 {
   vtkDataObject* output;
-  output = this->Superclass::GetOutputDataInternal(algorithm, port)
+  output = this->Superclass::GetOutputDataInternal(algorithm, port);
   if(output)
     {
     return output;
