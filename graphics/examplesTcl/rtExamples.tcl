@@ -19,13 +19,12 @@ set noTest {
    Decimate.tcl assembly2.tcl connPineRoot.tcl deciHawa.tcl 
    deciPineRoot.tcl deleted.tcl mcTest.tcl viewMCubesFile.tcl vol.tcl
    volTkInteractor.tcl spikeColor.tcl tkwin.tcl 3dsToRIB.tcl backdrop.tcl
-
-   Close.tcl ContinuousClose.tcl HighPassComparison.tcl 
-   IdealHighPass.tcl ShotNoiseInclude.tcl 
+   Close.tcl ContinuousClose.tcl
+   ShotNoiseInclude.tcl 
    Spectrum.tcl TestContinuousDilate3D.tcl TestContinuousErode3D.tcl 
    TestDilateErode3D.tcl TestFeatureAnd.tcl TestHistogram.tcl 
-   TestHistogramEqualization.tcl TestIdealHighPass.tcl 
-   TestIdealLowPass.tcl TestLogarithmicScale.tcl TestMIPFilter.tcl
+   TestHistogramEqualization.tcl
+   TestLogarithmicScale.tcl TestMIPFilter.tcl
    TestOpenClose3D.tcl TestRange3D.tcl TestSkeleton2D.tcl
    TestSubsample3D.tcl TestVariance3D.tcl
    TestWriter.tcl Timing.tcl VTKSpectrum.tcl WindowLevelInterface.tcl
