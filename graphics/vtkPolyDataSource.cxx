@@ -44,6 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkPolyDataSource::vtkPolyDataSource()
 {
   this->vtkSource::SetOutput(0, vtkPolyData::New());
+  this->Outputs[0]->Delete();
   this->ExecutePiece = this->ExecuteNumberOfPieces = 0;
 }
 

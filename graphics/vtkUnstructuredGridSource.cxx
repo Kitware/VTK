@@ -44,6 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkUnstructuredGridSource::vtkUnstructuredGridSource()
 {
   this->vtkSource::SetOutput(0, vtkUnstructuredGrid::New());
+  this->Outputs[0]->Delete();
 }
 
 //----------------------------------------------------------------------------
