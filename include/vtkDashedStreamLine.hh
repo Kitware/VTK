@@ -45,7 +45,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // of which represents (approximately) a constant time increment. Thus in the
 // resulting visual representation, relatively long dashes represent areas of 
 // high velocity, and small dashes represent areas of low velocity.
-//   vtkDashedStreamLine introduces the instance variable DashFactor. 
+//
+// vtkDashedStreamLine introduces the instance variable DashFactor. 
 // DashFactor interacts with its superclass' instance variable StepLength to
 // create the dashes. DashFactor is the percentage of the StepLength line 
 // segment that is visible. Thus if DashFactor=0.75, the dashes will be 

@@ -42,7 +42,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkColorScalars is an abstract class whose subclasses represent scalar
 // data using a color specification such as rgb, grayscale, rgba, hsv, etc. 
-//    In order to be a vtkScalar subclass, vtkColorScalars must be able to 
+//
+// In order to be a vtkScalar subclass, vtkColorScalars must be able to 
 // return a single value given a point id. By default, this operation is 
 // performed by computing intensity as the single value. Concrete subclasses 
 // of vtkColorScalars may have additional methods to convert multi-dimensional
