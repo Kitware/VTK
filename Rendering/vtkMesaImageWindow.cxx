@@ -39,8 +39,8 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include "GL/gl_mangle.h"
-#include "GL/gl.h"
+#include "MangleMesaInclude/gl_mangle.h"
+#include "MangleMesaInclude/gl.h"
 
 #include "vtkMesaImageWindow.h"
 #include "vtkMesaImager.h"

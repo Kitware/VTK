@@ -41,8 +41,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 // Probably not needed for abstract classes without new methods.
 #define VTK_IMPLEMENT_MESA_CXX
-#include "GL/gl_mangle.h"
-#include "GL/gl.h"
+#include "MangleMesaInclude/gl_mangle.h"
+#include "MangleMesaInclude/gl.h"
 
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkXMesaRenderWindow.h"

@@ -42,8 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // This keeps the New method from being defined in included cxx file.
 #define VTK_IMPLEMENT_MESA_CXX
 
-#include "GL/gl_mangle.h"
-#include "GL/gl.h"
+#include "MangleMesaInclude/gl_mangle.h"
+#include "MangleMesaInclude/gl.h"
 
 #include <math.h>
 #include "vtkToolkits.h"

@@ -47,13 +47,17 @@ ENDIF (VTK_USE_PARALLEL)
 
 OPTION (VTK_MANGLE_MESA "Use mangled Mesa with OpenGL" OFF)
 IF (VTK_MANGLE_MESA)
+  FIND_PATH(MESA_MANGLE_PATH gl_mangle.h )
   FIND_LIBRARY(MESA_LIBRARY MesaGL
-  /usr/local/lib 
+     /usr/local/lib 
   )
   FIND_LIBRARY(MESA_OS_LIBRARY MesaOS
-  /usr/local/lib 
+     /usr/local/lib 
   )
-ENDIF (VTK_MANGLE_MESA)
+  IF(MESA_MANGLE_PATH)
+    USE_MANGLED_MESA(${MESA_MANGLE_PATH} ${VTK_BINARY_DIR}/MangleMesaInclude)
+  ENDIF(MESA_MANGLE_PATH)
+ENDIF(VTK_MANGLE_MESA)
 
 OPTION(VTK_WRAP_TCL "wrap classes into the TCL intepreted language")
 IF (VTK_WRAP_TCL)

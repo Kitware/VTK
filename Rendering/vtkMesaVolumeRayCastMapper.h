@@ -52,8 +52,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkMesaVolumeRayCastMapper_h
 #define __vtkMesaVolumeRayCastMapper_h
 
-#include "GL/gl_mangle.h"
-#include "GL/gl.h"
+#include "MangleMesaInclude/gl_mangle.h"
+#include "MangleMesaInclude/gl.h"
 
 #include "vtkVolumeRayCastMapper.h"
 #include <stdlib.h>

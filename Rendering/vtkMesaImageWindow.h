@@ -48,9 +48,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkMesaImageWindow_h
 #define __vtkMesaImageWindow_h
 
-#include "GL/glx_mangle.h"
-#include "GL/glx.h"
-#include "GL/osmesa.h"
+#include "MangleMesaInclude/glx_mangle.h"
+#include "MangleMesaInclude/glx.h"
+#include "MangleMesaInclude/osmesa.h"
 
 #include <stdlib.h>
 #include <X11/X.h>

@@ -42,8 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Make sure this is first, so any includes of gl.h can be stoped if needed
 #define VTK_IMPLEMENT_MESA_CXX
 
-#include "GL/gl_mangle.h"
-#include "GL/gl.h"
+#include "MangleMesaInclude/gl_mangle.h"
+#include "MangleMesaInclude/gl.h"
 
 #include <math.h>
 #include "vtkMesaVolumeRayCastMapper.h"

@@ -48,12 +48,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkMesaRenderWindow_h
 #define __vtkMesaRenderWindow_h
 
-#include "GL/gl_mangle.h"
-#ifdef __APPLE__
-#include <Mesa/gl.h>
-#else
-#include <GL/gl.h>
-#endif
+#include "MangleMesaInclude/gl_mangle.h"
+#include <MangleMesaInclude/gl.h>
 
 
 
