@@ -31,8 +31,8 @@ vtkRIBProperty \
 vtkSuperquadric \
 vtkSuperquadricSource \
 vtkSubdivideTetra \
-vtkCellDerivatives
-
+vtkCellDerivatives \
+vtkCubeAxesActor2D
 
 #------------------------------------------------------------------------------
 # Autoconfig defines that can be overridden in user.make
