@@ -89,10 +89,11 @@ set cam [ren1 GetActiveCamera]
 $cam Elevation -40
 update
 
-ButtonCallback 218 205
+puzzle MoveHorizontal 0 100 0
 ButtonCallback 261 272
 ButtonCallback 213 293
 ButtonCallback 203 238
 ButtonCallback 134 214
+
 
 
