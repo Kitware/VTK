@@ -97,12 +97,17 @@ float vtkImplicitVolume::EvaluateFunction(float x[3])
   float pcoords[3], weights[8], s;
 
   // See if a volume is defined
-  if ( !this->Volume ||
-  !(scalars = this->Volume->GetPointData()->GetScalars()) )
+  if ( !this->Volume )
     {
     vtkErrorMacro(<<"Can't evaluate volume!");
     return this->OutValue;
     }
+
+  this->Volume->RequestExactExtentOn();
+  this->Volume->SetUpdateExtentToWholeExtent();
+  this->Volume->Update();
+
+  scalars = this->Volume->GetPointData()->GetScalars();
 
   // Find the cell that contains xyz and get it
   if ( this->Volume->ComputeStructuredCoordinates(x,ijk,pcoords) )
@@ -111,7 +116,7 @@ float vtkImplicitVolume::EvaluateFunction(float x[3])
     vtkVoxel::InterpolationFunctions(pcoords,weights);
 
     numPts = this->PointIds->GetNumberOfIds ();
-    for (s=0.0, i=0; i < numPts; i++)
+    for (s=0.0, i=0; i < 8; i++)
       {
       s += scalars->GetScalar(this->PointIds->GetId(i)) * weights[i];
       }
@@ -131,7 +136,7 @@ unsigned long vtkImplicitVolume::GetMTime()
 
   if ( this->Volume != NULL )
     {
-    this->Volume->Update ();
+    this->Volume->UpdateInformation();
     volumeMTime = this->Volume->GetMTime();
     mTime = ( volumeMTime > mTime ? volumeMTime : mTime );
     }
@@ -152,12 +157,17 @@ void vtkImplicitVolume::EvaluateGradient(float x[3], float n[3])
   gradient->SetNumberOfVectors(8);
 
   // See if a volume is defined
-  if ( !this->Volume ||
-  !(scalars = this->Volume->GetPointData()->GetScalars()) )
+  if ( !this->Volume )
     {
     vtkErrorMacro(<<"Can't evaluate volume!");
     return;
     }
+
+  this->Volume->RequestExactExtentOn();
+  this->Volume->SetUpdateExtentToWholeExtent();
+  this->Volume->Update();
+
+  scalars = this->Volume->GetPointData()->GetScalars();
 
   // Find the cell that contains xyz and get it
   if ( this->Volume->ComputeStructuredCoordinates(x,ijk,pcoords) )
@@ -202,3 +212,5 @@ void vtkImplicitVolume::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Volume: (none)\n";
     }
 }
+
+
