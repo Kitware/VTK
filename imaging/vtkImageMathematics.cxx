@@ -201,7 +201,7 @@ static void vtkImageMathematicsExecute1(vtkImageMathematics *self,
 	    break;
 	  case VTK_CONJUGATE:
 	    outPtr[0] = in1Ptr[0];
-	    outPtr[1] = -in1Ptr[1];
+	    outPtr[1] = (T)(-1*in1Ptr[1]);
 	    // Why bother trtying to figure out the continuous increments.
 	    outPtr++;
 	    in1Ptr++;
