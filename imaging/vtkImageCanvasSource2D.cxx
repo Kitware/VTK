@@ -375,7 +375,7 @@ static void vtkImageCanvasSource2DFillTriangle(vtkImageData *image,
   int idx0, idx1, idxV;
   int min0, max0, min1, max1, min2, max2;
   int  maxV;
-  int z = this->DefaultZ;
+  int z = 0;
   float *pf;
   
   ptr = ptr;
@@ -523,7 +523,7 @@ static void vtkImageCanvasSource2DDrawPoint(vtkImageData *image,
   int min0, max0, min1, max1, min2, max2, maxV;
   int idxV;
   float *pf;
-  int z = this->DefaultZ;
+  int z = 0;
   
   image->GetExtent(min0, max0, min1, max1, min2, max2);
   z = (z < min2) ? min2 : z;
@@ -599,7 +599,7 @@ static void vtkImageCanvasSource2DDrawCircle(vtkImageData *image,
   double x, y, temp;
   int p0, p1;
   int idx;
-  int z = this->DefaultZ;
+  int z = 0;
 
   radius += 0.1;
   image->GetExtent(min0, max0, min1, max1, min2, max2);
