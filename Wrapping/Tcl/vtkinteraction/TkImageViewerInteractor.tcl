@@ -4,7 +4,7 @@ proc BindTkImageViewer {widget} {
    # to avoid queing up multple expose events.
    SetWidgetVariableValue $widget Rendering 0
 
-   set imager [[$widget GetImageViewer] GetImager]
+   set imager [[$widget GetImageViewer] GetRenderer]
 
    # stuff for window level text.
    set mapper [NewWidgetObject $widget vtkTextMapper Mapper1]
