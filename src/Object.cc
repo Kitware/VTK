@@ -16,6 +16,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 #include "Object.hh"
 
+// Description:
+// Operator allows all subclasses of vlObject to be printed via <<.
 ostream& operator<<(ostream& os, vlObject& o)
 {
   o.Print(os);
@@ -40,12 +42,16 @@ vlObject::~vlObject()
   vlDebugMacro(<< "Destructing!");
 }
 
+// Description:
+// Increase the reference count (mark as used by another object).
 void vlObject::Register(vlObject* o)
 {
   this->RefCount++;
   vlDebugMacro(<< "Registered by " << o->GetClassName() << " (" << o << ")");
 }
 
+// Description:
+// Decrease the reference count (release by another object).
 void vlObject::UnRegister(vlObject* o)
 {
   vlDebugMacro(<< "UnRegistered by " << o->GetClassName() << " (" << 0 << ")");
@@ -67,6 +73,9 @@ void vlObject::PrintHeader(ostream& os, vlIndent indent)
   os << indent << this->GetClassName() << " (" << this << ")\n";
 }
 
+// Description:
+// Chaining method to print object instance variables as well as
+// superclasses.
 void vlObject::PrintSelf(ostream& os, vlIndent indent)
 {
   if (this->ShouldIPrint(vlObject::GetClassName()))
@@ -82,16 +91,22 @@ void vlObject::PrintTrailer(ostream& os, vlIndent indent)
   os << indent << "\n";
 }
 
+// Description:
+// Turn debug printout on.
 void vlObject::DebugOn()
 {
   this->Debug = 1;
 }
 
+// Description:
+// Turn debug printout off.
 void vlObject::DebugOff()
 {
   this->Debug = 0;
 }
 
+// Description:
+// Get the value of the debug flag.
 int vlObject::GetDebug()
 {
   return this->Debug;
