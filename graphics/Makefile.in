@@ -194,6 +194,7 @@ vtkPolyDataWriter \
 vtkProbeFilter \
 vtkProgrammableAttributeDataFilter \
 vtkProgrammableFilter \
+vtkProgrammableGlyphFilter \
 vtkProgrammableSource \
 vtkProjectedPolyDataRayBounder \
 vtkProperty \
