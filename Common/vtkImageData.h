@@ -350,6 +350,9 @@ protected:
 
   void ComputeIncrements();
 
+  virtual void CopyDownstreamIVarsFromInformation(vtkInformation*);
+  virtual void CopyDownstreamIVarsToInformation(vtkInformation*);
+
 private:
   void InternalImageDataCopy(vtkImageData *src);
 private:
