@@ -1,11 +1,9 @@
 SOURCE_FILES( Filtering_SRCS
-vtkApproximatingSubdivisionFilter
 vtkCastToConcrete
 vtkCellLocator
 vtkColorTransferFunction
 vtkDataObjectSource
 vtkDataObjectToDataSetFilter
-vtkDataReader
 vtkDataSetSource
 vtkDataSetToDataObjectFilter
 vtkDataSetToDataSetFilter
@@ -13,34 +11,23 @@ vtkDataSetToPolyDataFilter
 vtkDataSetToStructuredGridFilter
 vtkDataSetToStructuredPointsFilter
 vtkDataSetToUnstructuredGridFilter
-vtkDataWriter
-vtkDicer
 vtkFieldDataToAttributeDataFilter
-vtkGeometryFilter
 vtkImageInPlaceFilter
 vtkImageMultipleInputFilter
 vtkImageSource 
 vtkImageToImageFilter
 vtkImageToStructuredPoints 
 vtkImageTwoInputFilter
-vtkInterpolatingSubdivisionFilter
-vtkMaskPoints
-vtkMergePoints
-vtkMergePoints2D 
-vtkOutlineFilter
-vtkOutlineSource
 vtkPiecewiseFunction
 vtkPointSetSource
 vtkPointSetToPointSetFilter
 vtkPolyDataCollection
-vtkPolyDataNormals
 vtkPolyDataSource 
 vtkPolyDataToPolyDataFilter
 vtkRectilinearGridSource
 vtkRectilinearGridToPolyDataFilter
 vtkSphereSource
 vtkSpline
-vtkStripper
 vtkStructuredGridSource
 vtkStructuredGridToPolyDataFilter
 vtkStructuredGridToStructuredGridFilter
@@ -49,23 +36,18 @@ vtkStructuredPointsSource
 vtkStructuredPointsToPolyDataFilter
 vtkStructuredPointsToStructuredPointsFilter
 vtkStructuredPointsToUnstructuredGridFilter
-vtkTransformPolyDataFilter
-vtkTriangleFilter
 vtkUnstructuredGridSource
 vtkUnstructuredGridToPolyDataFilter
 vtkUnstructuredGridToUnstructuredGridFilter
-vtkWriter
 )
 
 ABSTRACT_FILES(
-vtkApproximatingSubdivisionFilter
 vtkDataObjectToDataSetFilter
 vtkDataSetToDataSetFilter
 vtkDataSetToPolyDataFilter
 vtkDataSetToStructuredGridFilter
 vtkDataSetToStructuredPointsFilter
 vtkDataSetToUnstructuredGridFilter
-vtkDicer
 vtkInterpolatingSubdivisionFilter
 vtkPointSetToPointSetFilter
 vtkPolyDataToPolyDataFilter
@@ -79,7 +61,6 @@ vtkStructuredPointsToStructuredPointsFilter
 vtkStructuredPointsToUnstructuredGridFilter
 vtkUnstructuredGridToPolyDataFilter
 vtkUnstructuredGridToUnstructuredGridFilter
-vtkWriter
 )
 
 ADD_LIBRARY(vtkFiltering Filtering_SRCS)

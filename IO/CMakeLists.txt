@@ -5,8 +5,10 @@ vtkBYUReader
 vtkBYUWriter
 vtkDataObjectReader
 vtkDataObjectWriter
+vtkDataReader
 vtkDataSetReader
 vtkDataSetWriter
+vtkDataWriter
 vtkEnSight6BinaryReader
 vtkEnSight6Reader
 vtkEnSightGoldBinaryReader
@@ -41,11 +43,13 @@ vtkUnstructuredGridWriter
 vtkVectorText
 vtkVolume16Reader
 vtkVolumeReader
+vtkWriter
 )
 
 ABSTRACT_FILES(
 vtkEnSightReader
 vtkVolumeReader
+vtkWriter
 )
 
 

@@ -1,6 +1,7 @@
 SOURCE_FILES( Graphics_SRCS
 vtkAppendFilter
 vtkAppendPolyData
+vtkApproximatingSubdivisionFilter
 vtkArrayCalculator
 vtkAttributeDataToFieldDataFilter
 vtkAxes
@@ -26,6 +27,7 @@ vtkDataSetTriangleFilter
 vtkDecimatePro
 vtkDelaunay2D
 vtkDelaunay3D
+vtkDicer
 vtkDiskSource
 vtkEdgePoints
 vtkElevationFilter
@@ -39,6 +41,7 @@ vtkExtractVOI
 vtkExtractVectorComponents
 vtkFeatureEdges
 vtkGaussianSplatter
+vtkGeometryFilter
 vtkGlyph2D
 vtkGlyph3D
 vtkHedgeHog
@@ -46,22 +49,29 @@ vtkHyperStreamline
 vtkIdFilter
 vtkImplicitModeller
 vtkInterpolateDataSetAttributes
+vtkInterpolatingSubdivisionFilter
 vtkKochanekSpline
 vtkLineSource
 vtkLinearExtrusionFilter
 vtkLinearSubdivisionFilter
 vtkLinkEdgels
 vtkLoopSubdivisionFilter
+vtkMaskPoints
 vtkMaskPolyData
 vtkMergeDataObjectFilter
 vtkMergeFilter
+vtkMergePoints
+vtkMergePoints2D 
 vtkOBBDicer
 vtkOBBTree
+vtkOutlineFilter
+vtkOutlineSource
 vtkPlaneSource
 vtkPointDataToCellData
 vtkPointLoad
 vtkPointSource
 vtkPolyDataConnectivityFilter
+vtkPolyDataNormals
 vtkPolyDataStreamer
 vtkProbeFilter
 vtkProgrammableAttributeDataFilter
@@ -90,6 +100,7 @@ vtkSpatialRepresentationFilter
 vtkStreamLine
 vtkStreamPoints
 vtkStreamer
+vtkStripper
 vtkStructuredGridGeometryFilter
 vtkStructuredGridOutlineFilter
 vtkStructuredPointsGeometryFilter
@@ -104,7 +115,9 @@ vtkThreshold
 vtkThresholdPoints
 vtkThresholdTextureCoords
 vtkTransformFilter
+vtkTransformPolyDataFilter
 vtkTransformTextureCoords
+vtkTriangleFilter
 vtkTriangularTCoords
 vtkTriangularTexture
 vtkTubeFilter
@@ -119,6 +132,10 @@ vtkWarpVector
 vtkWindowedSincPolyDataFilter
 )
 
+ABSTRACT_FILES(
+vtkApproximatingSubdivisionFilter
+vtkDicer
+)
 
 ADD_LIBRARY(vtkGraphics Graphics_SRCS)
 
