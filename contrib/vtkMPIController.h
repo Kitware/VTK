@@ -94,7 +94,7 @@ public:
   int Send(unsigned long *data, int length, int remoteProcessId, int tag);
   int Send(char *data, int length, int remoteProcessId, int tag);
   int Send(float *data, int length, int remoteProcessId, int tag);
-  int Send(vtkObject *data, int remoteId, int tag)
+  int Send(vtkDataObject *data, int remoteId, int tag)
     {return this->vtkMultiProcessController::Send(data,remoteId,tag);}
 
   // Description:
@@ -105,7 +105,7 @@ public:
   int Receive(unsigned long *data, int length, int remoteProcessId, int tag);
   int Receive(char *data, int length, int remoteProcessId, int tag);
   int Receive(float *data, int length, int remoteProcessId, int tag);
-  int Receive(vtkObject *data, int remoteId, int tag)
+  int Receive(vtkDataObject *data, int remoteId, int tag)
     {return this->vtkMultiProcessController::Receive(data, remoteId, tag);}
 
 protected:

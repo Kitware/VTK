@@ -61,7 +61,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMultiProcessController.h"
 #include "vtkMultiThreader.h"
 
-class vtkThreadedControllerProcessInfo;
+
+class vtkThreadedControllerMessage;
 
 
 class VTK_EXPORT vtkThreadedController : public vtkMultiProcessController
@@ -76,6 +77,14 @@ public:
   void Initialize(int argc, char *arcv[]);
 
   // Description:
+  // Description:
+  // This method returns an integer from 0 to (NumberOfProcesses-1)
+  // indicating which process we are in.  
+  // Note: The correct controller is passed as an argument to
+  // the initial function (SingleMethod/MultipleMethod).
+  vtkGetMacro(LocalProcessId, int);
+
+  // Description:
   // Execute the SingleMethod (as define by SetSingleMethod) using
   // this->NumberOfProcesses processes.  You should not expect this to return.
   void SingleMethodExecute();
@@ -85,20 +94,13 @@ public:
   // for each of the required this->NumberOfProcesses methods) using
   // this->NumberOfProcesses processes.
   void MultipleMethodExecute();
-  
-  // Description:
-  // This method returns an integer from 0 to (NumberOfProcesses-1)
-  // indicating which process we are int.  It should not be called
-  // until ExecuteSingleMethod or ExecuteMultipleMethod has been
-  // called.
-  int GetLocalProcessId();
-  
+    
   //------------------ Communication --------------------
   
   // Description:
   // This method sends data to another process.  Tag eliminates ambiguity
   // when multiple sends ar receives exist in the same process.
-  int Send(vtkObject *data, int remoteProcessId, int tag);
+  int Send(vtkDataObject *data, int remoteProcessId, int tag);
   int Send(int *data, int length, int remoteProcessId, int tag);
   int Send(unsigned long *data, int length, int remoteProcessId, int tag);
   int Send(char *data, int length, int remoteProcessId, int tag);
@@ -108,7 +110,7 @@ public:
   // This method receives data from a corresponding send. It blocks
   // until the receive is finished.  It calls methods in "data"
   // to communicate the sending data.
-  int Receive(vtkObject *data, int remoteProcessId, int tag);
+  int Receive(vtkDataObject *data, int remoteProcessId, int tag);
   int Receive(int *data, int length, int remoteProcessId, int tag);
   int Receive(unsigned long *data, int length, int remoteProcessId, int tag);
   int Receive(char *data, int length, int remoteProcessId, int tag);
@@ -121,45 +123,52 @@ public:
   void Start(int threadIdx);
 
 protected:
-  
-  vtkMultiThreader *MultiThreader;
-  // Used internally to switch between mutliple and single method execution.
-  int MultipleMethodFlag;
-  
-#ifdef VTK_USE_PTHREADS
-  pthread_t ThreadIds[VTK_MP_CONTROLLER_MAX_PROCESSES];
-#endif
-#ifdef VTK_USE_SPROC
-  pid_t ThreadIds[VTK_MP_CONTROLLER_MAX_PROCESSES];  
-#endif
-
-  // Locks and pointers for communication.
-  vtkThreadedControllerProcessInfo *Processes[VTK_MP_CONTROLLER_MAX_PROCESSES];
-  
-  // It is not enough to block on the messages, we have to mutex 
-  // the whole send interaction.  I was trying to avoid a central 
-  // mutex (oh well).
-  vtkMutexLock *MessageLock;
-  
-  // Trying to track down lockups.
-  FILE *LogFile;
-  
   vtkThreadedController();
   ~vtkThreadedController();
   vtkThreadedController(const vtkThreadedController&) {};
   void operator=(const vtkThreadedController&) {};
-
-  // Initialize and clean up in main thread.
-  void CreateThreadInfoObjects();
-  void DeleteThreadInfoObjects();
   
-  int Send(vtkObject *object, void *data, int length, 
+  void CreateProcessControllers();
+  vtkThreadedControllerMessage *NewMessage(vtkDataObject *object,
+                                           void *data, int dataLength);
+  void DeleteMessage(vtkThreadedControllerMessage *message);
+  void AddMessage(vtkThreadedControllerMessage *message);
+  vtkThreadedControllerMessage *FindMessage(int sendId, int tag);
+
+  // Each Process/Thread has its own controller.
+  vtkThreadedController *Controllers[VTK_MP_CONTROLLER_MAX_PROCESSES];
+
+  // The id for this objects process.
+  int LocalProcessId;
+  int WaitingForId;
+
+  vtkMultiThreader *MultiThreader;
+  // Used internally to switch between mutliple and single method execution.
+  int MultipleMethodFlag;
+  
+  // It is not enough to block on the messages, we have to mutex 
+  // the whole send interaction.  I was trying to avoid a central 
+  // mutex (oh well).
+  vtkMutexLock *MessageListLock;
+
+  // This mutex is normally locked.  It is used to block the execution 
+  // of the receiving process when the send has not been called yet.
+  vtkMutexLock *Gate;
+
+  // Double linked list.
+  vtkThreadedControllerMessage *MessageListStart;
+  vtkThreadedControllerMessage *MessageListEnd;
+  
+  // Trying to track down lockups.
+  FILE *LogFile;
+  
+
+  // The generic send and receive methods.
+  int Send(vtkDataObject *object, void *data, int dataLength, 
 	   int remoteProcessId, int tag);
-  int Receive(vtkObject *object, void *data, int length, 
+  int Receive(vtkDataObject *object, void *data, int dataLength, 
 	      int remoteProcessId, int tag);
 
-  // For shallow copy on object sends / receives.
-  void CopyObject(vtkObject *src, vtkObject *dest);
 };
 
 

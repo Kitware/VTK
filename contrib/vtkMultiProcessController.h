@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .SECTION Description
 // vtkMultiProcessController supplies an API for sending and receiving
 // message between processes.  The controller also defines calls for
-// sending and receiving vtkObjects, and remote method invocations.
+// sending and receiving vtkDataObjects, and remote method invocations.
 
 // .SECTION see also
 // vtkMPIController vtkThreadedController
@@ -51,7 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkMultiProcessController_h
 
 #include "vtkObject.h"
-#include "vtkMultiThreader.h"
+#include "vtkDataObject.h"
 class vtkDataSet;
 class vtkImageData;
 class vtkCollection;
@@ -65,6 +65,22 @@ class vtkCollection;
 #define VTK_BREAK_RMI_TAG           239954
 
 
+class vtkMultiProcessController;
+
+
+//BTX
+// The type of function that gets called when new processes are initiated.
+typedef void (*vtkProcessFunctionType)(int id, int numProcs, 
+                                       vtkMultiProcessController *controller, 
+                                       void *userData);
+
+// The type of function that gets called when an RMI is triggered.
+typedef void (*vtkRMIFunctionType)(void *localArg, 
+                                   void *remoteArg, int remoteArgLength, 
+                                   int remoteProcessId);
+//ETX
+
+
 class VTK_EXPORT vtkMultiProcessController : public vtkObject
 {
 public:
@@ -72,11 +88,6 @@ public:
   vtkTypeMacro(vtkMultiProcessController,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // This method returns an controller which must be UnRegistered.
-  // If a global object already exists, it is registered and returned.
-  static vtkMultiProcessController *RegisterAndGetGlobalController(
-                                                          vtkObject *obj);
-  
   // Description:
   // This method is for setting up the processes.
   // If a subclass needs to initialize process communication (i.e. MPI)
@@ -90,22 +101,26 @@ public:
   virtual void SetNumberOfProcesses(int num);
   vtkGetMacro( NumberOfProcesses, int );
 
+  //BTX
   // Description:
   // Set the SingleMethod to f() and the UserData of the
   // for the method to be executed by all of the processes
   // when SingleMethodExecute is called.
-  void SetSingleMethod(vtkThreadFunctionType, void *data );
- 
+  void SetSingleMethod(vtkProcessFunctionType, void *data);
+  //ETX
+
   // Description:
   // Execute the SingleMethod (as define by SetSingleMethod) using
   // this->NumberOfProcesses processes.  You should not expect this to return.
   virtual void SingleMethodExecute() = 0;
   
+  //BTX
   // Description:
   // Set the MultipleMethod to f() and the UserData of the
   // for the method to be executed by the process index
   // when MultipleMethodExecute is called.
-  void SetMultipleMethod( int index, vtkThreadFunctionType, void *data ); 
+  void SetMultipleMethod(int index, vtkProcessFunctionType, void *data); 
+  //ETX
 
   // Description:
   // Execute the MultipleMethods (as define by calling SetMultipleMethod
@@ -122,7 +137,7 @@ public:
   // Description:
   // This method sends an object to another process.  Tag eliminates ambiguity
   // when multiple sends or receives exist in the same process.
-  virtual int Send(vtkObject *data, int remoteProcessId, int tag);
+  virtual int Send(vtkDataObject *data, int remoteProcessId, int tag);
   
   // Description:
   // Subclass have to supply these methods to send various arrays of data.
@@ -138,7 +153,7 @@ public:
   // This method receives data from a corresponding send. It blocks
   // until the receive is finished.  It calls methods in "data"
   // to communicate the sending data.
-  virtual int Receive(vtkObject *data, int remoteProcessId, int tag);
+  virtual int Receive(vtkDataObject *data, int remoteProcessId, int tag);
 
   // Description:
   // Subclass have to supply these methods to receive various arrays of data.
@@ -152,29 +167,62 @@ public:
   virtual int Receive(float *data, int length, 
 		      int remoteProcessId, int tag) = 0;
   
+  // Description:
+  // By default, sending objects use shallow copy whenever possible.
+  // This flag forces the controller to use deep copies instead.
+  // This is necessary when asyncronous processing occurs 
+  // (i.e. pipeline parallism). Right now, it is important that all the
+  // controllers in the different processes agree to force a deep copy.
+  // Deep copy is not implmented and just uses mashalling in the threaded
+  // controller.
+  vtkSetMacro(ForceDeepCopy, int);
+  vtkGetMacro(ForceDeepCopy, int);
+  vtkBooleanMacro(ForceDeepCopy, int);
+  
+  //------------------ RMIs --------------------
   //BTX
   // Description:
   // Register remote method invocation in the receiving process
   // which makes the call.  It must have a unique tag as an RMI id.
-  // The argument is a pointer local to the call.  Any arguments
-  // from the call ing process must be gotten through sens and receives.
-  void AddRMI(void (*f)(void *arg, int remoteProcessId), void *arg, int tag);
+  // The vtkRMIFunctionType has several arguments: localArg (same as passed in),
+  // remoteArg, remoteArgLength (memory passed by process triggering the RMI),
+  // remoteProcessId.
+  void AddRMI(vtkRMIFunctionType, void *localArg, int tag);
   
   // Description:
   // Take an RMI away.
-  void RemoveRMI(void (*f)(void *, int), void *arg, int tag)
+  void RemoveRMI(void (*f)(void *localArg, void *remoteArg, int remoteProcessId), 
+                 void *arg, int tag)
     {f = f; arg = arg; tag = tag; vtkErrorMacro("RemoveRMI Not Implemented Yet");};
   //ETX
   
   // Description:
   // A method to trigger a method invocation in another process.
-  void TriggerRMI(int remoteProcessId, int tag);
+  void TriggerRMI(int remoteProcessId, void *arg, int argLength, int tag);
+
+  // Description:
+  // Convenience method when the arg is a string. (Do we need a +1 for the length?)
+  void TriggerRMI(int remoteProcessId, char *arg, int tag) 
+    { this->TriggerRMI(remoteProcessId, (void*)arg, strlen(arg), tag); }
+
+  // Description:
+  // Convenience method when there is no argument.
+  void TriggerRMI(int remoteProcessId, int tag)
+    { this->TriggerRMI(remoteProcessId, NULL, 0, tag); }
 
   // Description:
   // Calling this method gives control to the controller to start
   // processing RMIs.
   void ProcessRMIs();
 
+  // Description:
+  // This will cause the ProcessRMIs loop to return.
+  // This also causes vtkUpStreamPorts to return from
+  // their WaitForUpdate loops.
+  vtkSetMacro(BreakFlag, int);
+  vtkGetMacro(BreakFlag, int);
+  
+  //------------------ Timing --------------------
   // Description:
   // For perfomance monitoring, reading and writing polydata to strings
   // are timed.  Access to these times is provided by these methods.
@@ -185,25 +233,6 @@ public:
   vtkGetMacro(ReceiveWaitTime, float);
   vtkGetMacro(ReceiveTime, float);
 
-  // Description:
-  // This will cause the ProcessRMIs loop to return.
-  // This also causes vtkUpStreamPorts to return from
-  // their WaitForUpdate loops.
-  vtkSetMacro(BreakFlag, int);
-  vtkGetMacro(BreakFlag, int);
-  
-  // Description:
-  // By default, sending objects use shallow copy whenever possible.
-  // This flag forces the controller to use deep copies instead.
-  // This is necessary when asyncronous processing occurs 
-  // (i.e. pipeline parallism). Right now, it is importatne that all the
-  // controllers in the different processes agree to force a deep copy.
-  // Deep copy is not implmented and just uses mashalling in the threaded
-  // controller.
-  vtkSetMacro(ForceDeepCopy, int);
-  vtkGetMacro(ForceDeepCopy, int);
-  vtkBooleanMacro(ForceDeepCopy, int);
-  
 protected:
   vtkMultiProcessController();
   ~vtkMultiProcessController();
@@ -216,9 +245,9 @@ protected:
   // maybe we should elimnated it from this superclass.
   int LocalProcessId;
   
-  vtkThreadFunctionType      SingleMethod;
+  vtkProcessFunctionType      SingleMethod;
   void                       *SingleData;
-  vtkThreadFunctionType      MultipleMethod[VTK_MP_CONTROLLER_MAX_PROCESSES];
+  vtkProcessFunctionType      MultipleMethod[VTK_MP_CONTROLLER_MAX_PROCESSES];
   void                       *MultipleData[VTK_MP_CONTROLLER_MAX_PROCESSES];  
   
   vtkCollection *RMIs;
@@ -237,18 +266,16 @@ protected:
   
   // Write and read from marshal string
   // return 1 success, 0 fail
-  int WriteObject(vtkObject *object);
-  int ReadObject(vtkObject *object);
+  int WriteObject(vtkDataObject *object);
+  int ReadObject(vtkDataObject *object);
   
   int WriteDataSet(vtkDataSet *object);
   int ReadDataSet(vtkDataSet *object);
-  void CopyDataSet(vtkDataSet *src, vtkDataSet *dest);
 
   int WriteImageData(vtkImageData *object);
   int ReadImageData(vtkImageData *object);
-  void CopyImageData(vtkImageData *src, vtkImageData *dest);
 
-  void ProcessRMI(int remoteProcessId, int rmiTag);
+  void ProcessRMI(int remoteProcessId, void *arg, int argLength, int rmiTag);
 
   float ReadTime;
   float WriteTime;

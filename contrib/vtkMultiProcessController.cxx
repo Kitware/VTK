@@ -40,7 +40,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 // This will be the default.
 #include "vtkMultiProcessController.h"
-#include "vtkMultiThreader.h"
 #include "vtkThreadedController.h"
 
 #ifdef VTK_USE_MPI
@@ -59,25 +58,34 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // The special tag used for RMI communication.
 #define VTK_MP_CONTROLLER_RMI_TAG 315167
+#define VTK_MP_CONTROLLER_RMI_ARG_TAG 315168
 
 
-// helper class.  A subclass of vtkObject so that I can keep them
-// in a collection
+// Helper class to contain the RMI information.  
+// A subclass of vtkObject so that I can keep them in a collection.
 class VTK_EXPORT vtkMultiProcessControllerRMI : public vtkObject
 {
 public:
-  static vtkMultiProcessControllerRMI *New() {return new vtkMultiProcessControllerRMI;}
-  const char *GetClassName() {return "vtkMultiProcessControllerRMI";};
+  static vtkMultiProcessControllerRMI *New() 
+    {return new vtkMultiProcessControllerRMI;}
+  const char *GetClassName() 
+    {return "vtkMultiProcessControllerRMI";};
   
   int Tag;
-  void (*Method)(void *arg, int remoteProcessId);
-  void *Argument;
+  vtkRMIFunctionType Function;
+  void *LocalArgument;
 };
 
 //----------------------------------------------------------------------------
-void vtkMultiProcessControllerBreakRMI(void *arg, int vtkNotUsed(id))
+// An RMI function that will break the "ProcessRMIs" loop.
+void vtkMultiProcessControllerBreakRMI(void *localArg, 
+                                       void *remoteArg, int remoteArgLength, 
+                                       int vtkNotUsed(remoteId))
 {
-  vtkMultiProcessController *controller = (vtkMultiProcessController*)(arg);
+  vtkMultiProcessController *controller;
+  remoteArg = remoteArg;
+  remoteArgLength = remoteArgLength;
+  controller = (vtkMultiProcessController*)(localArg);
   controller->SetBreakFlag(1);
 }
 
@@ -126,7 +134,8 @@ vtkMultiProcessController::vtkMultiProcessController()
 }
 
 //----------------------------------------------------------------------------
-// We need to have a "GetNetReferenceCount" to avoid memory leaks.
+// This is an old comment that I do not know is true:
+// (We need to have a "GetNetReferenceCount" to avoid memory leaks.)
 vtkMultiProcessController::~vtkMultiProcessController()
 {
   this->RMIs->Delete();
@@ -202,24 +211,6 @@ void vtkMultiProcessController::PrintSelf(ostream& os, vtkIndent indent)
 
 static vtkMultiProcessController *GLOBAL_VTK_MP_CONTROLLER = NULL;
 
-//----------------------------------------------------------------------------
-vtkMultiProcessController *
-vtkMultiProcessController::RegisterAndGetGlobalController(vtkObject *obj)
-{
-  if (GLOBAL_VTK_MP_CONTROLLER == NULL)
-    {
-    GLOBAL_VTK_MP_CONTROLLER = vtkMultiProcessController::New();
-    GLOBAL_VTK_MP_CONTROLLER->Register(obj);
-    GLOBAL_VTK_MP_CONTROLLER->Delete();
-    }
-  else
-    {
-    GLOBAL_VTK_MP_CONTROLLER->Register(obj);
-    }
-  
-  return GLOBAL_VTK_MP_CONTROLLER;
-}
-
 
 
 //----------------------------------------------------------------------------
@@ -246,7 +237,7 @@ void vtkMultiProcessController::SetNumberOfProcesses(int num)
 //----------------------------------------------------------------------------
 // Set the user defined method that will be run on NumberOfThreads threads
 // when SingleMethodExecute is called.
-void vtkMultiProcessController::SetSingleMethod( vtkThreadFunctionType f, 
+void vtkMultiProcessController::SetSingleMethod( vtkProcessFunctionType f, 
 						 void *data )
 {
   this->SingleMethod = f;
@@ -259,7 +250,7 @@ void vtkMultiProcessController::SetSingleMethod( vtkThreadFunctionType f,
 // called with index = 0, 1, ..,  NumberOfProcesses-1 to set up all the
 // required user defined methods
 void vtkMultiProcessController::SetMultipleMethod( int index,
-				 vtkThreadFunctionType f, void *data )
+				 vtkProcessFunctionType f, void *data )
 { 
   // You can only set the method for 0 through NumberOfProcesses-1
   if ( index >= this->NumberOfProcesses ) {
@@ -277,7 +268,7 @@ void vtkMultiProcessController::SetMultipleMethod( int index,
 
 
 //----------------------------------------------------------------------------
-int vtkMultiProcessController::Send(vtkObject *data, int remoteProcessId, 
+int vtkMultiProcessController::Send(vtkDataObject *data, int remoteProcessId, 
 				    int tag)
 {
   vtkTimerLog *log;
@@ -318,7 +309,7 @@ int vtkMultiProcessController::Send(vtkObject *data, int remoteProcessId,
 }
 
 //----------------------------------------------------------------------------
-int vtkMultiProcessController::Receive(vtkObject *data, 
+int vtkMultiProcessController::Receive(vtkDataObject *data, 
 				       int remoteProcessId, int tag)
 {
   int dataLength;
@@ -368,49 +359,71 @@ int vtkMultiProcessController::Receive(vtkObject *data,
 
 
 //----------------------------------------------------------------------------
-void vtkMultiProcessController::AddRMI(void (*f)(void *, int), void *arg, int tag)
+void vtkMultiProcessController::AddRMI(vtkRMIFunctionType f, 
+                                       void *localArg, int tag)
 {
   //vtkMultiProcessControllerRMI *rmi = vtkMultiProcessControllerRMI::New();
   vtkMultiProcessControllerRMI *rmi = new vtkMultiProcessControllerRMI;
 
   rmi->Tag = tag;
-  rmi->Method = f;
-  rmi->Argument = arg;
+  rmi->Function = f;
+  rmi->LocalArgument = localArg;
   this->RMIs->AddItem(rmi);
   rmi->Delete();
 }
 
 //----------------------------------------------------------------------------
-void vtkMultiProcessController::TriggerRMI(int remoteProcessId, int rmiTag)
+void vtkMultiProcessController::TriggerRMI(int remoteProcessId, 
+                                           void *arg, int argLength,
+                                           int rmiTag)
 {
-  int message[2];
-  
+  int triggerMessage[3];
+
   // Deal with sending RMI to ourself here for now.
   if (remoteProcessId == this->GetLocalProcessId())
     {
-    this->ProcessRMI(remoteProcessId, rmiTag);
+    this->ProcessRMI(remoteProcessId, arg, argLength, rmiTag);
     return;
     }
-
+  
+  triggerMessage[0] = rmiTag;
+  triggerMessage[1] = argLength;
   // It is important for the remote process to know what process invoked it.
   // Multiple processes might try to invoke the method at the same time.
   // The remote method will know where to get additional args.
-  message[0] = rmiTag;
-  message[1] = this->GetLocalProcessId();
+  triggerMessage[2] = this->GetLocalProcessId();
   
-  this->Send(message, 2, remoteProcessId, VTK_MP_CONTROLLER_RMI_TAG);
+  this->Send(triggerMessage, 3, remoteProcessId, VTK_MP_CONTROLLER_RMI_TAG);
+  if (argLength > 0)
+    {
+    this->Send((char*)arg, argLength, remoteProcessId,  
+               VTK_MP_CONTROLLER_RMI_ARG_TAG);
+    } 
 }
 
 //----------------------------------------------------------------------------
 void vtkMultiProcessController::ProcessRMIs()
 {
-  int message[2];
+  int triggerMessage[3];
+  unsigned char *arg = NULL;
   
   while (1)
     {
-    this->Receive(message, 2, 
+    this->Receive(triggerMessage, 3, 
 		  VTK_MP_CONTROLLER_ANY_SOURCE, VTK_MP_CONTROLLER_RMI_TAG);
-    this->ProcessRMI(message[1], message[0]);
+    if (triggerMessage[1] > 0)
+      {
+      arg = new unsigned char[triggerMessage[1]];
+      this->Receive((char*)(arg), triggerMessage[1], 
+		    triggerMessage[2], VTK_MP_CONTROLLER_RMI_ARG_TAG);
+      }
+    this->ProcessRMI(triggerMessage[2], arg, triggerMessage[1], 
+                     triggerMessage[0]);
+    if (arg)
+      {
+      delete [] arg;
+      arg = NULL;
+      }
     
     // check for break
     if (this->BreakFlag)
@@ -422,7 +435,9 @@ void vtkMultiProcessController::ProcessRMIs()
 }
 
 //----------------------------------------------------------------------------
-void vtkMultiProcessController::ProcessRMI(int remoteProcessId, int rmiTag)
+void vtkMultiProcessController::ProcessRMI(int remoteProcessId, 
+                                           void *arg, int argLength,
+                                           int rmiTag)
 {
   vtkMultiProcessControllerRMI *rmi;
   int found = 0;
@@ -445,9 +460,9 @@ void vtkMultiProcessController::ProcessRMI(int remoteProcessId, int rmiTag)
     }
   else
     {
-    if ( rmi->Method )
+    if ( rmi->Function )
       {
-      (*rmi->Method)(rmi->Argument, remoteProcessId);
+      (*rmi->Function)(rmi->LocalArgument, arg, argLength, remoteProcessId);
       }     
     }
 }
@@ -473,7 +488,7 @@ void vtkMultiProcessController::DeleteAndSetMarshalString(char *str,
 
   
 //----------------------------------------------------------------------------
-int vtkMultiProcessController::WriteObject(vtkObject *data)
+int vtkMultiProcessController::WriteObject(vtkDataObject *data)
 {
   if (strcmp(data->GetClassName(), "vtkPolyData") == 0          ||
       strcmp(data->GetClassName(), "vtkUnstructuredGrid") == 0  ||
@@ -494,7 +509,7 @@ int vtkMultiProcessController::WriteObject(vtkObject *data)
 }
 
 //----------------------------------------------------------------------------
-int vtkMultiProcessController::ReadObject(vtkObject *data)
+int vtkMultiProcessController::ReadObject(vtkDataObject *data)
 {
   if (strcmp(data->GetClassName(), "vtkPolyData") == 0          ||
       strcmp(data->GetClassName(), "vtkUnstructuredGrid") == 0  ||
@@ -526,7 +541,7 @@ int vtkMultiProcessController::WriteImageData(vtkImageData *data)
   
   // keep Update from propagating
   vtkImageData *tmp = vtkImageData::New();
-  this->CopyImageData(data, tmp);
+  tmp->ShallowCopy(data);
   
   clip = vtkImageClip::New();
   clip->SetInput(tmp);
@@ -566,13 +581,6 @@ int vtkMultiProcessController::ReadImageData(vtkImageData *object)
 
   return 1;
 }
-//----------------------------------------------------------------------------
-void vtkMultiProcessController::CopyImageData(vtkImageData *src, 
-					      vtkImageData *dest)
-{
-  dest->ShallowCopy(src);
-}
-
 
 
 //----------------------------------------------------------------------------
@@ -624,6 +632,7 @@ int vtkMultiProcessController::ReadDataSet(vtkDataSet *object)
   output->Update();
 
   object->ShallowCopy(output);
+  //object->DataHasBeenGenerated();
 
   reader->Delete();
 
@@ -632,12 +641,4 @@ int vtkMultiProcessController::ReadDataSet(vtkDataSet *object)
   log->Delete();
 
   return 1;
-}
-//----------------------------------------------------------------------------
-void vtkMultiProcessController::CopyDataSet(vtkDataSet *src, vtkDataSet *dest)
-{
-  dest->CopyStructure(src);
-  dest->GetPointData()->ShallowCopy(src->GetPointData());  
-  dest->GetCellData()->ShallowCopy(src->GetCellData());  
-  dest->DataHasBeenGenerated();
 }

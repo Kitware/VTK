@@ -69,13 +69,6 @@ vtkMPIController::vtkMPIController()
 //----------------------------------------------------------------------------
 vtkMPIController::~vtkMPIController()
 {
-  if (this->Initialized)
-    {
-    vtkWarningMacro(<< "Controller " << this->LocalProcessId 
-                    << " destructing");
-    MPI_Barrier (MPI_COMM_WORLD);
-    MPI_Finalize();
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -116,7 +109,8 @@ void vtkMPIController::SingleMethodExecute()
     {
     if (this->SingleMethod)
       {
-      (this->SingleMethod)((void *)(this->SingleData) );
+      (this->SingleMethod)(this->LocalProcessId, this->NumberOfProcesses,
+                           this, this->SingleData);
       }
     else
       {
@@ -126,8 +120,8 @@ void vtkMPIController::SingleMethodExecute()
   
   MPI_Barrier (MPI_COMM_WORLD);
   // since we expect to call the method only once.
-  if (this->Initialized && 0)
-    { // Let destructor do this.
+  if (this->Initialized)
+    { 
     MPI_Finalize();
     this->Initialized = 0;
     }  
@@ -144,7 +138,8 @@ void vtkMPIController::MultipleMethodExecute()
     {
     if (this->MultipleMethod[i])
       {
-      (this->MultipleMethod[i])((void *)(this->MultipleData[i]) );
+      (this->MultipleMethod[i])(this->LocalProcessId, this->NumberOfProcesses,
+                                this, this->MultipleData[i]);
       }
     else
       {
@@ -154,11 +149,11 @@ void vtkMPIController::MultipleMethodExecute()
   
   MPI_Barrier (MPI_COMM_WORLD);
   // since we expect to call the method only once.
-  if (this->Initialized && 0)
-    { // Let destructor do this.
+  if (this->Initialized)
+    {
     MPI_Finalize();
     this->Initialized = 0;
-    }  
+    }
 }
 
 
@@ -255,6 +250,13 @@ int vtkMPIController::Receive(float *data, int length,
   // we should really look at status to determine success
   return 1;
 }
+
+
+
+
+
+
+
 
 
 
