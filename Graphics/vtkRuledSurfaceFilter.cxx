@@ -21,7 +21,7 @@
 #include "vtkPolyData.h"
 #include "vtkPolyLine.h"
 
-vtkCxxRevisionMacro(vtkRuledSurfaceFilter, "1.21");
+vtkCxxRevisionMacro(vtkRuledSurfaceFilter, "1.22");
 vtkStandardNewMacro(vtkRuledSurfaceFilter);
 
 vtkRuledSurfaceFilter::vtkRuledSurfaceFilter()
@@ -237,7 +237,7 @@ void  vtkRuledSurfaceFilter::Resample(vtkPolyData *output, vtkPoints *inPts,
   deltaS = length / (double) (this->Resolution[0]);
   deltaT = length2 / (double) (this->Resolution[0]);
 
-  s = t = 0.0;
+  t = 0.0;
   d0 = d1 = 0.0;
   l0 = l1 = 0.0;
   i00 = 0;

@@ -21,7 +21,7 @@
 #include "vtkPointData.h"
 #include "vtkRectilinearGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractRectilinearGrid, "1.9");
+vtkCxxRevisionMacro(vtkExtractRectilinearGrid, "1.10");
 vtkStandardNewMacro(vtkExtractRectilinearGrid);
 
 // Construct object to extract all of the input data.
@@ -361,7 +361,6 @@ void vtkExtractRectilinearGrid::Execute()
     }
   output->SetYCoordinates(outCoords);
   outCoords->Delete();
-  outCoords = NULL;
   // Z
   inCoords = input->GetZCoordinates();
   if (inCoords->GetNumberOfComponents() > 1)
