@@ -9,8 +9,8 @@ source ../../examplesTcl/vtkInt.tcl
 #
 # create plane to warp
 vtkPlaneSource plane
-    plane SetXResolution 25
-    plane SetYResolution 25
+    plane SetXResolution 100
+    plane SetYResolution 100
 vtkTransform transform
    transform Scale 10 10 1
 vtkTransformPolyDataFilter transF
