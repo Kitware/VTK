@@ -43,6 +43,7 @@
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 #include "vtkRendererCollection.h"
+#include "vtkString.h"
 
 class vtkXOpenGLRenderWindow;
 class vtkRenderWindow;
@@ -80,7 +81,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.18");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.19");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -1090,8 +1091,9 @@ void vtkXOpenGLRenderWindow::SetParentId(void *arg)
 }
 
 
-void vtkXOpenGLRenderWindow::SetWindowName(const char * name)
+void vtkXOpenGLRenderWindow::SetWindowName(const char * cname)
 {
+  char *name = vtkString::Duplicate(cname);
   XTextProperty win_name_text_prop;
 
   vtkOpenGLRenderWindow::SetWindowName( name );
@@ -1102,6 +1104,7 @@ void vtkXOpenGLRenderWindow::SetWindowName(const char * name)
       {
       XFree (win_name_text_prop.value);
       vtkWarningMacro(<< "Can't rename window"); 
+      delete [] name;
       return;
       }
     
@@ -1109,6 +1112,7 @@ void vtkXOpenGLRenderWindow::SetWindowName(const char * name)
     XSetWMIconName( this->DisplayId, this->WindowId, &win_name_text_prop );
     XFree (win_name_text_prop.value);
     }
+  delete [] name;
 }
 
 
