@@ -403,9 +403,10 @@ int vtkRenderer::UpdateGeometry()
 {
   int        i;
 
+  this->NumberOfPropsRenderedAsGeometry = 0;
+
   if ( this->PropArrayCount == 0 ) 
     {
-    this->NumberOfPropsRenderedAsGeometry = 0;
     return 0;
     }
 
