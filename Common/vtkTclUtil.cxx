@@ -598,8 +598,11 @@ void vtkTclCommand::SetStringCommand(const char *arg)
 void vtkTclCommand::Execute(vtkObject *, unsigned long, void *)
 {
   int res;
+#if TCL_MAJOR_VERSION == 8 && TCL_MINOR_VERSION <= 2
+  res = Tcl_GlobalEval(this->Interp, this->StringCommand);
+#else
   res = Tcl_EvalEx(this->Interp, this->StringCommand, -1, TCL_EVAL_GLOBAL);
-  
+#endif  
   if (res == TCL_ERROR)
     {
     if (Tcl_GetVar(this->Interp,(char *) "errorInfo",0))
