@@ -160,6 +160,9 @@ protected:
   char *InputScalarsSelection;
   vtkSetStringMacro(InputScalarsSelection);
 
+  //helper functions
+  void ClipVolume();
+
 private:
   vtkClipDataSet(const vtkClipDataSet&);  // Not implemented.
   void operator=(const vtkClipDataSet&);  // Not implemented.
