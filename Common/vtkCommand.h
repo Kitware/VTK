@@ -117,6 +117,7 @@ public:
     PushDataStartEvent,
     EndOfDataEvent,
     ErrorEvent,
+    WarningEvent,
     UserEvent = 1000
   };
 //ETX
