@@ -1,5 +1,8 @@
 proc ReadCPUTimeTable { } {
     global CPUTimeTable
+    global env
+
+    if { [catch {set VTK_HISTORY_PATH $env(VTK_HISTORY_PATH)}] != 0} return
 
     set OUTPUT_FILE CPUTimeTable.tcl
 
@@ -7,6 +10,9 @@ proc ReadCPUTimeTable { } {
 }
 
 proc ComputeLimits { theList } {
+    global env
+
+    if { [catch {set VTK_HISTORY_PATH $env(VTK_HISTORY_PATH)}] != 0} return
     
     set sum 0
     set validCount 0
@@ -57,6 +63,9 @@ proc ComputeLimits { theList } {
 
 proc CheckTime { theTest currentTime } {
     global CPUTimeTable
+    global env
+
+    if { [catch {set VTK_HISTORY_PATH $env(VTK_HISTORY_PATH)}] != 0} return
 
     set validCount 0
     set totalCount 0
@@ -87,20 +96,23 @@ proc CheckTime { theTest currentTime } {
     set count 0
     while { $retCode == "" && $count < 5 } {
 	set testTime [lindex $timelist 0]
-	set timelist [lrange $timelist 1 end]
+        if { $testTime != -1 } {
 
-	set limits [ComputeLimits $timelist]
-	set low  [lindex $limits 0]
-	set high [lindex $limits 1]
+            set timelist [lrange $timelist 1 end]
 
-	if { $low == 0 && $high == 0 } {
-	    set retCode "Warning: Recently Added Test"
-	} elseif { $testTime < $low } {
-	    set retCode "Warning: Recent Time Decrease"
-	} elseif { $testTime > $high } {
-	    set retCode "Warning: Recent Time Increase"
-	} 	
-	incr count
+            set limits [ComputeLimits $timelist]
+            set low  [lindex $limits 0]
+            set high [lindex $limits 1]
+            
+            if { $low == 0 && $high == 0 } {
+                set retCode "Warning: Recently Added Test"
+            } elseif { $testTime < $low } {
+                set retCode "Warning: Recent Time Decrease"
+            } elseif { $testTime > $high } {
+                set retCode "Warning: Recent Time Increase"
+            } 	
+        }
+        incr count
     }
 
     return $retCode
@@ -108,6 +120,10 @@ proc CheckTime { theTest currentTime } {
 
 proc GeneratePlotFiles { theTest currentTime } {
     global CPUTimeTable
+    global env
+    global VTK_RESULTS_PATH
+
+    if { [catch {set VTK_HISTORY_PATH $env(VTK_HISTORY_PATH)}] != 0} return
 
     set theTest [file rootname $theTest]
 
@@ -116,7 +132,7 @@ proc GeneratePlotFiles { theTest currentTime } {
     
     if { $timelist == "" } { return }
 
-    set fd [open "$theTest.tcl.10day.dat" w]
+    set fd [open "${VTK_RESULTS_PATH}$theTest.tcl.10day.dat" w]
     if { $fd < 0 } { return }
 
     set limits [ComputeLimits $timelist] 
