@@ -23,7 +23,7 @@
 #include <sys/stat.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMetaImageWriter, "1.5");
+vtkCxxRevisionMacro(vtkMetaImageWriter, "1.6");
 vtkStandardNewMacro(vtkMetaImageWriter);
 
 //----------------------------------------------------------------------------
@@ -60,6 +60,7 @@ char* vtkMetaImageWriter::GetRAWFileName()
 void vtkMetaImageWriter::Write()
 {
   vtkImageData* id = this->GetInput();
+  id->Update();
   if ( !id )
     {
     vtkErrorMacro("Input not specified");
