@@ -1361,7 +1361,7 @@ vtkDataArray* vtkDataSetAttributes::GetActiveAttribute(int attributeType)
 // which is an enum defined vtkDataSetAttributes)
 int vtkDataSetAttributes::SetAttribute(vtkDataArray* da, int attributeType)
 {
-  if (!this->CheckNumberOfComponents(da, attributeType))
+  if (da && !this->CheckNumberOfComponents(da, attributeType))
     {
     vtkWarningMacro("Can not set attribute " 
 		    << vtkDataSetAttributes::AttributeNames[attributeType]
