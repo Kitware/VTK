@@ -64,7 +64,7 @@ vtkGlyph3D* vtkGlyph3D::New()
 
 
 
-// Construct object with scaling on, scaling mode is by scalar value, 
+// Construct object with scaling on, scaling mode is by scalar value,
 // scale factor = 1.0, the range is (0,1), orient geometry is on, and
 // orientation is by vector. Clamping and indexing are turned off. No
 // initial sources are defined.
@@ -107,12 +107,12 @@ void vtkGlyph3D::Execute()
   int npts;
   vtkIdList *pts;
   int haveVectors, haveNormals, ptIncr, cellId;
-  float scale, den;
+  float scalex,scaley,scalez, den;
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   vtkDataSet *input = this->GetInput();
   int numberOfSources = this->GetNumberOfSources();
-  
+
   vtkDebugMacro(<<"Generating glyphs");
 
   pts = vtkIdList::New();
@@ -153,7 +153,7 @@ void vtkGlyph3D::Execute()
     }
 
   if ( (this->IndexMode == VTK_INDEXING_BY_SCALAR && !inScalars) ||
-       (this->IndexMode == VTK_INDEXING_BY_VECTOR && 
+       (this->IndexMode == VTK_INDEXING_BY_VECTOR &&
        ((!inVectors && this->VectorMode == VTK_USE_VECTOR) ||
         (!inNormals && this->VectorMode == VTK_USE_NORMAL))) )
     {
@@ -169,7 +169,7 @@ void vtkGlyph3D::Execute()
       this->IndexMode = VTK_INDEXING_OFF;
       }
     }
-    
+
   // Allocate storage for output PolyData
   //
   outputPD->CopyScalarsOff();
@@ -246,15 +246,15 @@ void vtkGlyph3D::Execute()
 
   // Setting up for calls to PolyData::InsertNextCell()
   output->Allocate(3*numPts*numSourceCells,numPts*numSourceCells);
-    
+
   //
-  // Traverse all Input points, transforming Source points and copying 
+  // Traverse all Input points, transforming Source points and copying
   // point attributes.
   //
   for (ptIncr=0, inPtId=0; inPtId < numPts; inPtId++, ptIncr += numSourcePts)
     {
-    scale = 1.0;
-    if ( ! (inPtId % 10000) ) 
+    scalex = scaley = scalez = 1.0;
+    if ( ! (inPtId % 10000) )
       {
       this->UpdateProgress ((float)inPtId/numPts);
       if (this->GetAbortExecute())
@@ -264,13 +264,13 @@ void vtkGlyph3D::Execute()
       }
 
     // Get the scalar and vector data
-    if ( inScalars ) 
+    if ( inScalars )
       {
       s = inScalars->GetScalar(inPtId);
-      if ( this->ScaleMode == VTK_SCALE_BY_SCALAR || 
+      if ( this->ScaleMode == VTK_SCALE_BY_SCALAR ||
 	   this->ScaleMode == VTK_DATA_SCALING_OFF )
 	{
-        scale = s;
+        scalex = scaley = scalez = s;
         }
       }
 
@@ -285,18 +285,30 @@ void vtkGlyph3D::Execute()
         v = inVectors->GetVector(inPtId);
         }
       vMag = vtkMath::Norm(v);
-      if ( this->ScaleMode == VTK_SCALE_BY_VECTOR )
+      if ( this->ScaleMode == VTK_SCALE_BY_VECTORCOMPONENTS )
         {
-        scale = vMag;
+        scalex = v[0];
+        scaley = v[1];
+        scalez = v[2];
+        }
+      else if ( this->ScaleMode == VTK_SCALE_BY_VECTOR )
+        {
+        scalex = scaley = scalez = vMag;
         }
       }
 
     // Clamp data scale if enabled
     if ( this->Clamping )
       {
-      scale = (scale < this->Range[0] ? this->Range[0] :
-              (scale > this->Range[1] ? this->Range[1] : scale));
-      scale = (scale - this->Range[0]) / den;
+      scalex = (scalex < this->Range[0] ? this->Range[0] :
+               (scalex > this->Range[1] ? this->Range[1] : scalex));
+      scalex = (scalex - this->Range[0]) / den;
+      scaley = (scaley < this->Range[0] ? this->Range[0] :
+               (scaley > this->Range[1] ? this->Range[1] : scaley));
+      scaley = (scaley - this->Range[0]) / den;
+      scalez = (scalez < this->Range[0] ? this->Range[0] :
+               (scalez > this->Range[1] ? this->Range[1] : scalez));
+      scalez = (scalez - this->Range[0]) / den;
       }
 
     // Compute index into table of glyphs
@@ -362,7 +374,7 @@ void vtkGlyph3D::Execute()
         {
         newVectors->InsertVector(i+ptIncr, v);
         }
-      if (this->Orient && (vMag > 0.0)) 
+      if (this->Orient && (vMag > 0.0))
         {
         // if there is no y or z component
         if ( v[1] == 0.0 && v[2] == 0.0 )
@@ -390,7 +402,7 @@ void vtkGlyph3D::Execute()
         {
         for (i=0; i < numSourcePts; i++) 
           {
-          newScalars->InsertScalar(i+ptIncr, scale);
+          newScalars->InsertScalar(i+ptIncr, scalex); // = scaley = scalez
           }
         }
       else if (this->ColorMode == VTK_COLOR_BY_SCALAR)
@@ -414,18 +426,28 @@ void vtkGlyph3D::Execute()
       {
       if ( this->ScaleMode == VTK_DATA_SCALING_OFF )
         {
-        scale = this->ScaleFactor;
+        scalex = scaley = scalez = this->ScaleFactor;
         }
       else
         {
-        scale *= this->ScaleFactor;
+        scalex *= this->ScaleFactor;
+        scaley *= this->ScaleFactor;
+        scalez *= this->ScaleFactor;
         }
 
-      if ( scale == 0.0 )
+      if ( scalex == 0.0 )
         {
-        scale = 1.0e-10;
+        scalex = 1.0e-10;
         }
-      trans->Scale(scale,scale,scale);
+      if ( scaley == 0.0 )
+        {
+        scaley = 1.0e-10;
+        }
+      if ( scalez == 0.0 )
+        {
+        scalez = 1.0e-10;
+        }
+      trans->Scale(scalex,scaley,scalez);
       }
 
     // multiply points and normals by resulting matrix
