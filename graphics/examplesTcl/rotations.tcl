@@ -124,5 +124,5 @@ renWin EraseOff
 renWin SetFileName rotXY.ppm
 #renWin SaveImageAsPPM
 
-renWin SetFileName "rotations.tcl.ppm"
-renWin SaveImageAsPPM
+#renWin SetFileName "rotations.tcl.ppm"
+#renWin SaveImageAsPPM
