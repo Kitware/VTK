@@ -348,8 +348,6 @@ float *vtkAssembly::GetBounds()
   vtkActorCollection *path;
   int i,n;
   float *bounds, bbox[24], *fptr;
-  float *result;
-  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
   int actorVisible=0;
 
   this->UpdatePaths();
@@ -386,22 +384,14 @@ float *vtkAssembly::GetBounds()
       bbox[21] = bounds[0]; bbox[22] = bounds[3]; bbox[23] = bounds[4];
 
       // save the old transform
-      actor->GetMatrix(matrix);
       this->Transform->Push(); 
-      this->Transform->Identity();
-      this->Transform->Concatenate(matrix);
+      this->Transform->SetMatrix(actor->GetMatrixPointer());
 
       // and transform into actors coordinates
       fptr = bbox;
       for (n = 0; n < 8; n++) 
         {
-        this->Transform->SetPoint(fptr[0],fptr[1],fptr[2],1.0);
-
-        // now store the result
-        result = this->Transform->GetPoint();
-        fptr[0] = result[0] / result[3];
-        fptr[1] = result[1] / result[3];
-        fptr[2] = result[2] / result[3];
+        this->Transform->TransformPoint(fptr,fptr);
         fptr += 3;
         }
 
@@ -424,15 +414,12 @@ float *vtkAssembly::GetBounds()
       }//if mapper
     }//for each path
 
-  this->Transform->PreMultiply();  
-
   if ( ! actorVisible )
     {
     this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = -1.0;
     this->Bounds[1] = this->Bounds[3] = this->Bounds[5] =  1.0;
     }
 
-  matrix->Delete();
   return this->Bounds;
 }
 

@@ -298,16 +298,12 @@ float *vtkActor::GetBounds()
 {
   int i,n;
   float *bounds, bbox[24], *fptr;
-  float *result;
-  //vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
-  double matrix[16];
 
   vtkDebugMacro( << "Getting Bounds" );
 
   // get the bounds of the Mapper if we have one
   if (!this->Mapper)
     {
-      //matrix->Delete();
     return this->Bounds;
     }
 
@@ -344,27 +340,17 @@ float *vtkActor::GetBounds()
     bbox[21] = bounds[0]; bbox[22] = bounds[3]; bbox[23] = bounds[4];
   
     // save the old transform
-    this->GetMatrix(matrix);
     this->Transform->Push(); 
-    this->Transform->PostMultiply();
-    this->Transform->Identity();
-    this->Transform->Concatenate(matrix);
+    this->Transform->SetMatrix(this->GetMatrixPointer());
 
     // and transform into actors coordinates
     fptr = bbox;
     for (n = 0; n < 8; n++) 
       {
-      this->Transform->SetPoint(fptr[0],fptr[1],fptr[2],1.0);
-  
-      // now store the result
-      result = this->Transform->GetPoint();
-      fptr[0] = result[0] / result[3];
-      fptr[1] = result[1] / result[3];
-      fptr[2] = result[2] / result[3];
+      this->Transform->TransformPoint(fptr,fptr);
       fptr += 3;
       }
   
-    this->Transform->PreMultiply();
     this->Transform->Pop();  
   
     // now calc the new bounds
@@ -387,7 +373,6 @@ float *vtkActor::GetBounds()
     this->BoundsMTime.Modified();
     }
 
-  //matrix->Delete();
   return this->Bounds;
 }
 
