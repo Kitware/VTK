@@ -1,10 +1,11 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    
+  Module:    vtkSuperquadricSource.cxx
   Language:  C++
-  Date:      
-  Version:   
+  Date:      $Date$
+  Version:   $Revision$
+  Thanks:    Mike Halle, Brigham and Women's Hospital
 
 
 Copyright (c) 1993-1998 Ken Martin, Will Schroeder, Bill Lorensen.
