@@ -17,10 +17,13 @@
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageMedian3D, "1.40");
+vtkCxxRevisionMacro(vtkImageMedian3D, "1.41");
 vtkStandardNewMacro(vtkImageMedian3D);
 
 //-----------------------------------------------------------------------------
@@ -43,11 +46,6 @@ void vtkImageMedian3D::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "NumberOfElements: " << this->NumberOfElements << endl;
-  if (this->InputScalarsSelection)
-    {
-    os << indent << "InputScalarsSelection: " 
-       << this->InputScalarsSelection << endl;
-    }
 }
 
 //-----------------------------------------------------------------------------
@@ -61,7 +59,7 @@ void vtkImageMedian3D::SetKernelSize(int size0, int size1, int size2)
   if (this->KernelSize[0] == size0 && this->KernelSize[1] == size1 && 
       this->KernelSize[2] == size2)
     {
-        modified = 0;
+    modified = 0;
     }
   
   // Set the kernel size and middle
@@ -78,9 +76,9 @@ void vtkImageMedian3D::SetKernelSize(int size0, int size1, int size2)
 
   this->NumberOfElements = volume;
   if ( modified )
-  {
-          this->Modified();
-  }
+    {
+    this->Modified();
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -142,7 +140,6 @@ double *vtkImageMedian3DAccumulateMedian(int &UpNum, int &DownNum,
     return Median;
     }
 
-
   // Case: value is below median 
   // If we got here, val < *(Median)
 
@@ -181,26 +178,6 @@ double *vtkImageMedian3DAccumulateMedian(int &UpNum, int &DownNum,
 
   return Median;
 }
-
-
-//-----------------------------------------------------------------------------
-void vtkImageMedian3D::ExecuteInformation(vtkImageData *inData, 
-                                          vtkImageData *outData)
-{
-  vtkDataArray *inArray;
-
-  this->Superclass::ExecuteInformation(inData, outData);
-
-  // I would like to get rid of this type of information.
-  inArray = inData->GetPointData()->GetScalars(this->InputScalarsSelection);
-  if (inArray)
-    {
-    outData->SetScalarType(inArray->GetDataType());
-    outData->SetNumberOfScalarComponents(inArray->GetNumberOfComponents());
-    }
-}
-
-
 
 //-----------------------------------------------------------------------------
 // This method contains the second switch statement that calls the correct
@@ -368,7 +345,7 @@ void vtkImageMedian3DExecute(vtkImageMedian3D *self,
         ++hoodMax1;
         }
       outPtr += outIncY;
-    }
+      }
     // shift neighborhood considering boundaries
     if (outIdx2 >= middleMin2)
       {
@@ -383,148 +360,53 @@ void vtkImageMedian3DExecute(vtkImageMedian3D *self,
     }
 
   delete [] Sort;
-  
 }
-
-//----------------------------------------------------------------------------
-// Copydata at the end of the execute
-void vtkImageMedian3D::ExecuteData(vtkDataObject *out)
-{ 
-  vtkImageData *output = vtkImageData::SafeDownCast(out);
-  vtkImageData *input = this->GetInput();
-  int inExt[6];
-  int outExt[6];
-  vtkDataArray *inArray;
-  vtkDataArray *outArray;
-
-  // Avoid a floating point exception.
-  if (this->UpdateExtentIsEmpty(output))
-    {
-    return;
-    }
-
-  input->GetExtent(inExt);
-  output->SetExtent(output->GetUpdateExtent());
-  output->GetExtent(outExt);
-
-  // Do not copy the array we will be generating.
-  inArray = input->GetPointData()->GetScalars(this->InputScalarsSelection);
-  // Scalar copy flag trumps the array copy flag.
-  if (inArray == input->GetPointData()->GetScalars())
-    {
-    output->GetPointData()->CopyScalarsOff();
-    }
-  else
-    {
-    output->GetPointData()->CopyFieldOff(this->InputScalarsSelection);
-    }
-
-  // If the extents are the same, then pass the attribute data for efficiency.
-  if (inExt[0] == outExt[0] && inExt[1] == outExt[1] &&
-      inExt[2] == outExt[2] && inExt[3] == outExt[3] &&
-      inExt[4] == outExt[4] && inExt[5] == outExt[5])
-    {// Pass
-    output->GetPointData()->PassData(input->GetPointData());
-    output->GetCellData()->PassData(input->GetCellData());
-    }
-  else
-    {// Copy
-    // Copy the point data.
-    output->GetPointData()->CopyAllocate(input->GetPointData(), 
-                                         output->GetNumberOfPoints());
-    output->GetPointData()->CopyStructuredData(input->GetPointData(),
-                                               inExt, outExt);
-    // Now Copy The cell data.
-    output->GetCellData()->CopyAllocate(input->GetCellData(), 
-                                        output->GetNumberOfCells());
-    // Cell extent is one less than point extent.
-    // Conditional handle a colapsed axis (lower dimensional cells).
-    if (inExt[0] < inExt[1]) {--inExt[1];}
-    if (inExt[2] < inExt[3]) {--inExt[3];}
-    if (inExt[4] < inExt[5]) {--inExt[5];}
-    // Cell extent is one less than point extent.
-    if (outExt[0] < outExt[1]) {--outExt[1];}
-    if (outExt[2] < outExt[3]) {--outExt[3];}
-    if (outExt[4] < outExt[5]) {--outExt[5];}
-    output->GetCellData()->CopyStructuredData(input->GetCellData(),
-                                              inExt, outExt);
-    }
-
-  // Now create the scalars array that will hold the output data.
-  outArray = inArray->NewInstance();
-  outArray->SetNumberOfComponents(inArray->GetNumberOfComponents());
-  outArray->SetNumberOfTuples(output->GetNumberOfPoints());
-  outArray->SetName(inArray->GetName());
-  output->GetPointData()->SetScalars(outArray);
-  outArray->Delete();
-
-  this->MultiThread(this->GetInput(),output);
-}
-         
-
 
 //-----------------------------------------------------------------------------
 // This method contains the first switch statement that calls the correct
 // templated function for the input and output region types.
-void vtkImageMedian3D::ThreadedExecute(vtkImageData *inData, 
-                                       vtkImageData *outData,
-                                       int outExt[6], int id)
+void vtkImageMedian3D::ThreadedRequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *vtkNotUsed(outputVector),
+  vtkImageData ***inData,
+  vtkImageData **outData,
+  int outExt[6], int id)
 {
   vtkDataArray *inArray;
   void *inPtr;
-  void *outPtr = outData->GetScalarPointerForExtent(outExt);
+  void *outPtr = outData[0]->GetScalarPointerForExtent(outExt);
   int *inIncs;
 
-  vtkDebugMacro(<< "Execute: inData = " << inData 
-  << ", outData = " << outData);
-  
-  inArray = inData->GetPointData()->GetScalars(this->InputScalarsSelection);
+  inArray =
+    inData[0][0]->GetPointData()->GetScalars(this->InputScalarsSelection);
   if (id == 0)
     {
-    outData->GetPointData()->GetScalars()->SetName(inArray->GetName());
+    outData[0]->GetPointData()->GetScalars()->SetName(inArray->GetName());
     }
 
-  inIncs = inData->GetIncrements();
+  inIncs = inData[0][0]->GetIncrements();
   inPtr = inArray->GetVoidPointer(outExt[0]*inIncs[0] +
                                   outExt[2]*inIncs[1] +
                                   outExt[4]*inIncs[2]); 
 
   // this filter expects that input is the same type as output.
-  if (inArray->GetDataType() != outData->GetScalarType())
+  if (inArray->GetDataType() != outData[0]->GetScalarType())
     {
     vtkErrorMacro(<< "Execute: input data type, " << inArray->GetDataType()
-                << ", must match out ScalarType " << outData->GetScalarType());
+                << ", must match out ScalarType "
+                  << outData[0]->GetScalarType());
     return;
     }
   
   switch (inArray->GetDataType())
     {
-    vtkTemplateMacro8(vtkImageMedian3DExecute, this,inData, (VTK_TT *)(inPtr), 
-                      outData, (VTK_TT *)(outPtr),outExt, id,
+    vtkTemplateMacro8(vtkImageMedian3DExecute, this,inData[0][0],
+                      (VTK_TT *)(inPtr), 
+                      outData[0], (VTK_TT *)(outPtr),outExt, id,
                       this->InputScalarsSelection);
     default:
       vtkErrorMacro(<< "Execute: Unknown input ScalarType");
       return;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

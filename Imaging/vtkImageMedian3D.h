@@ -25,13 +25,13 @@
 #define __vtkImageMedian3D_h
 
 
-#include "vtkImageSpatialFilter.h"
+#include "vtkImageSpatialAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageMedian3D : public vtkImageSpatialFilter
+class VTK_IMAGING_EXPORT vtkImageMedian3D : public vtkImageSpatialAlgorithm
 {
 public:
   static vtkImageMedian3D *New();
-  vtkTypeRevisionMacro(vtkImageMedian3D,vtkImageSpatialFilter);
+  vtkTypeRevisionMacro(vtkImageMedian3D,vtkImageSpatialAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -43,28 +43,17 @@ public:
   // Return the number of elements in the median mask
   vtkGetMacro(NumberOfElements,int);
 
-  // Description:
-  // If you want the neighborhood median of an arbitrary point 
-  // scalar array, then set its name here.
-  // By default this in NULL and the filter will use the active scalar array.
-  vtkGetStringMacro(InputScalarsSelection);
-  void SelectInputScalars(const char *fieldName) 
-    {this->SetInputScalarsSelection(fieldName);}  
-
 protected:
   vtkImageMedian3D();
   ~vtkImageMedian3D();
 
   int NumberOfElements;
 
-  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
-                       int extent[6], int id);
-
-  void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
-  // Called by the superclass
-  void ExecuteInformation() { this->Superclass::ExecuteInformation(); }
-
-  void ExecuteData(vtkDataObject *out);
+  void ThreadedRequestData(vtkInformation *request,
+                           vtkInformationVector **inputVector,
+                           vtkInformationVector *outputVector,
+                           vtkImageData ***inData, vtkImageData **outData, 
+                           int extent[6], int id);
 
 private:
   vtkImageMedian3D(const vtkImageMedian3D&);  // Not implemented.
@@ -72,6 +61,3 @@ private:
 };
 
 #endif
-
-
-
