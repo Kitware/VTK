@@ -61,13 +61,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkTransform_h
 #define __vtkTransform_h
 
-#include "vtkObject.h"
+#include "vtkGeneralTransform.h"
 #include "vtkMatrix4x4.h"
 #include "vtkPoints.h"
 #include "vtkNormals.h"
 #include "vtkVectors.h"
 
-class VTK_EXPORT vtkTransform : public vtkObject
+class VTK_EXPORT vtkTransform : public vtkGeneralTransform
 {
  public:
   // Description:
@@ -76,8 +76,25 @@ class VTK_EXPORT vtkTransform : public vtkObject
   // creates an identity matrix as the top matrix on the stack.
   static vtkTransform *New();
 
-  vtkTypeMacro(vtkTransform,vtkObject);
+  vtkTypeMacro(vtkTransform,vtkGeneralTransform);
   void PrintSelf (ostream& os, vtkIndent indent);
+
+  // Description:
+  // Linear transformations (the perspective portion of
+  // the 4x4 matrix is ignored).
+//BTX
+  void TransformPoint(const float in[3], float out[3]);
+  void TransformPoint(const double in[3], double out[3]);
+//ETX
+  void TransformPoints(vtkPoints *inPts, vtkPoints *outPts);
+  void TransformNormals(vtkPoints *inPts, vtkPoints *outPts,
+			vtkNormals *inNms, vtkNormals *outNms);
+  void TransformVectors(vtkPoints *inPts, vtkPoints *outPts,
+			vtkVectors *inVrs, vtkVectors *outVrs);
+
+  // Description:
+  // Make a new transform of the same type.
+  vtkGeneralTransform *MakeTransform();
 
   // Description:
   // Creates an identity matrix and makes it the current transformation matrix.
@@ -152,6 +169,11 @@ class VTK_EXPORT vtkTransform : public vtkObject
   // Description:
   // Invert the current transformation matrix.
   void Inverse();
+
+  // Return an inverse transform which will always update itself
+  // to match this transform.
+  vtkGeneralTransform *GetInverse() { 
+    return vtkGeneralTransform::GetInverse(); }
 
   // Description:
   // Return the inverse of the current transformation matrix.
@@ -266,8 +288,8 @@ class VTK_EXPORT vtkTransform : public vtkObject
   vtkSetVector4Macro(DoublePoint,double);
 
   // Description:
-  // Make a copy of this transform.
-  void DeepCopy(vtkTransform *t);
+  // Make this transform a copy of the specified transform.
+  void DeepCopy(vtkGeneralTransform *t);
 
   // Description:
   // For legacy compatibility. Do not use.

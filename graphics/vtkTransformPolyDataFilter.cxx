@@ -135,31 +135,78 @@ void vtkTransformPolyDataFilter::Execute()
 
   // Loop over all points, updating position
   //
-  this->Transform->MultiplyPoints(inPts,newPts);
-  this->UpdateProgress (.25);
+  this->Transform->TransformPoints(inPts,newPts);
+  this->UpdateProgress (.2);
 
   // Ditto for vectors and normals
   //
   if ( inVectors )
     {
-    this->Transform->MultiplyVectors(inVectors,newVectors);
-    }
-  if ( inCellVectors )
-    {
-    this->Transform->MultiplyVectors(inCellVectors,newCellVectors);
+    this->Transform->TransformVectors(inPts,newPts,
+				      inVectors,newVectors);
     }
 
-  this->UpdateProgress (.5);
+  this->UpdateProgress (.4);
 
   if ( inNormals )
     {
-    this->Transform->MultiplyNormals(inNormals,newNormals);
+    this->Transform->TransformNormals(inPts,newPts,
+				      inNormals,newNormals);
     }
-  if ( inCellNormals )
+
+  this->UpdateProgress (.6);
+
+  if ( (inCellVectors || inCellNormals) )
     {
-    this->Transform->MultiplyNormals(inCellNormals,newCellNormals);
+    vtkPoints *inCellPts = NULL;
+    vtkPoints *outCellPts = NULL;
+
+    // We have to create a set of cell points (consisting of the
+    // first point in each cell) to calculate the transformation 
+    // for the normals if the transform is nonlinear.
+    
+    // This treatment is accurate for perspective transformations,
+    // and a fair approximation for other nonlinear transformations.
+
+    if ( this->Transform->GetTransformType() & VTK_LINEAR_TRANSFORM
+	!= VTK_LINEAR_TRANSFORM )
+      {
+      inCellPts = vtkPoints::New();
+      inCellPts->Allocate(numCells);
+      outCellPts = vtkPoints::New();
+      outCellPts->Allocate(numCells);
+
+      int i, pointId;
+      for (i = 0; i < numCells; i++)
+	{
+	pointId = input->GetCell(i)->GetPointId(0);
+	inCellPts->SetPoint(i,inPts->GetPoint(pointId));
+	outCellPts->SetPoint(i,newPts->GetPoint(pointId));
+	}
+      }
+
+    if ( inCellVectors )
+      {
+      this->Transform->TransformVectors(inCellPts,outCellPts,
+					inCellVectors,newCellVectors);
+      }
+
+    this->UpdateProgress (.7);
+
+    if ( inCellNormals )
+      {
+      this->Transform->TransformNormals(inCellPts,outCellPts,
+					inCellNormals,newCellNormals);
+      }
+
+    if (inCellPts)
+      {
+      inCellPts->Delete();
+      outCellPts->Delete();
+      }
     }
-  this->UpdateProgress (.75);
+
+  this->UpdateProgress (.8);
 
   // Update ourselves and release memory
   //

@@ -40,6 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <stdlib.h>
 #include "vtkTransform.h"
+#include "vtkGeneralTransformInverse.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
@@ -66,6 +67,10 @@ vtkTransform* vtkTransform::New()
 // creates an identity matrix as the top matrix on the stack.
 vtkTransform::vtkTransform ()
 {
+  // we call this a matrix4x3 transform because the bottom
+  // row of the 4x4 matrix is ignored
+  this->TransformType = VTK_MATRIX4X3_TRANSFORM;
+
   this->PreMultiplyFlag = 1;
   this->StackSize = 10;
   this->Stack = new vtkMatrix4x4 *[this->StackSize];
@@ -89,7 +94,8 @@ vtkTransform::vtkTransform (const vtkTransform& t)
   this->StackBottom = new vtkMatrix4x4 *[this->StackSize];
 
   // now copy each matrix in the stack
-  for ( n=t.Stack-t.StackBottom+1, i=0; i < n; i++ )
+  n = t.Stack-t.StackBottom+1;
+  for (i = 0; i < n; i++)
     {
     this->StackBottom[i] = vtkMatrix4x4::New();
     (this->StackBottom[i])->DeepCopy(t.Stack[i]);
@@ -98,8 +104,81 @@ vtkTransform::vtkTransform (const vtkTransform& t)
   this->Stack = this->StackBottom + (n - 1);
 }
 
-void vtkTransform::DeepCopy(vtkTransform *t)
+// support for the vtkGeneralTransform superclass
+void vtkTransform::TransformPoints(vtkPoints *inPts, vtkPoints *outPts)
 {
+  this->MultiplyPoints(inPts,outPts);
+}
+
+// support for the vtkGeneralTransform superclass
+void vtkTransform::TransformNormals(vtkPoints *vtkNotUsed(inPts), 
+				    vtkPoints *vtkNotUsed(outPts),
+				    vtkNormals *inNms, vtkNormals *outNms)
+{
+  this->MultiplyNormals(inNms,outNms);
+}
+
+// support for the vtkGeneralTransform superclass
+void vtkTransform::TransformVectors(vtkPoints *vtkNotUsed(inPts), 
+				    vtkPoints *vtkNotUsed(outPts),
+				    vtkVectors *inVrs, vtkVectors *outVrs)
+{
+  this->MultiplyVectors(inVrs,outVrs);
+}
+
+// support for the vtkGeneralTransform superclass
+void vtkTransform::TransformPoint(const double in[3], double out[3])
+{
+  double x = in[0];
+  double y = in[1];
+  double z = in[2];
+
+  double (*matrix)[4] = (**this->Stack).Element;
+
+  out[0] = matrix[0][0]*x + matrix[0][1]*y + matrix[0][2]*z + matrix[0][3];
+  out[1] = matrix[1][0]*x + matrix[1][1]*y + matrix[1][2]*z + matrix[1][3];
+  out[2] = matrix[2][0]*x + matrix[2][1]*y + matrix[2][2]*z + matrix[2][3];
+}
+
+// support for the vtkGeneralTransform superclass
+void vtkTransform::TransformPoint(const float in[3], float out[3])
+{
+  float x = in[0];
+  float y = in[1];
+  float z = in[2];
+
+  double (*matrix)[4] = (**this->Stack).Element;
+
+  out[0] = matrix[0][0]*x + matrix[0][1]*y + matrix[0][2]*z + matrix[0][3];
+  out[1] = matrix[1][0]*x + matrix[1][1]*y + matrix[1][2]*z + matrix[1][3];
+  out[2] = matrix[2][0]*x + matrix[2][1]*y + matrix[2][2]*z + matrix[2][3];
+}
+
+// support for the vtkGeneralTransform superclass
+vtkGeneralTransform *vtkTransform::MakeTransform()
+{
+  return vtkTransform::New();
+}
+
+// support for the vtkGeneralTransform superclass
+void vtkTransform::DeepCopy(vtkGeneralTransform *transform)
+{
+  if (transform->GetTransformType() & VTK_INVERSE_TRANSFORM)
+    {
+    transform = 
+      ((vtkGeneralTransformInverse *)transform)->GetInverseTransform(); 
+    }	
+  if (this->TransformType != transform->GetTransformType())
+    {
+    vtkErrorMacro(<< "DeepCopy: trying to copy a transform of different type");
+    }
+  vtkTransform *t = (vtkTransform *)transform;  
+
+  if (t == this)
+    {
+    return;
+    }
+
   int i, n;
 
   this->PreMultiplyFlag = t->PreMultiplyFlag;
@@ -922,7 +1001,7 @@ vtkTransform::~vtkTransform ()
 
 void vtkTransform::PrintSelf (ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os, indent);
+  vtkGeneralTransform::PrintSelf(os, indent);
 
   os << indent << (this->PreMultiplyFlag ? "PreMultiply\n" : "PostMultiply\n");
 

@@ -22,6 +22,7 @@ vtkAttributeData \
 vtkCell \
 vtkDataArray \
 vtkDataSet \
+vtkGeneralTransform \
 vtkImplicitFunction \
 vtkLocator \
 vtkObjectFactory \
@@ -60,6 +61,8 @@ vtkFloatScalars \
 vtkFloatTCoords \
 vtkFloatTensors \
 vtkFloatVectors \
+vtkGeneralTransformConcatenation \
+vtkGeneralTransformInverse \
 vtkGenericCell \
 vtkHexahedron \
 vtkIdList \
@@ -114,8 +117,8 @@ vtkTCoords \
 vtkTensor \
 vtkTensors \
 vtkTetra \
-vtkTimerLog \
 vtkTimeStamp \
+vtkTimerLog \
 vtkTransform \
 vtkTransformCollection \
 vtkTriangle \
