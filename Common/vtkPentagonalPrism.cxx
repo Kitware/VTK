@@ -29,7 +29,7 @@
 #include "vtkMath.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkPentagonalPrism, "1.14");
+vtkCxxRevisionMacro(vtkPentagonalPrism, "1.15");
 vtkStandardNewMacro(vtkPentagonalPrism);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -38,22 +38,26 @@ static const double VTK_DIVERGED = 1.e6;
 // Construct the prism with ten points.
 vtkPentagonalPrism::vtkPentagonalPrism()
 {
+  int i;
   this->Points->SetNumberOfPoints(10);
   this->PointIds->SetNumberOfIds(10);
 
-  for (int i = 0; i < 10; i++)
+  for (i = 0; i < 10; i++)
     {
     this->Points->SetPoint(i, 0.0, 0.0, 0.0);
     this->PointIds->SetId(i,0);
     }
-  this->Points->SetNumberOfPoints(10);
-  this->PointIds->SetNumberOfIds(10);
 
   this->Line = vtkLine::New();
   this->Quad = vtkQuad::New();
   this->Polygon = vtkPolygon::New();
   this->Polygon->PointIds->SetNumberOfIds(5);
   this->Polygon->Points->SetNumberOfPoints(5);
+
+  for (i = 0; i < 5; i++)
+    {
+    this->Polygon->Points->SetPoint(i, 0.0, 0.0, 0.0);
+    }
 }
 
 //----------------------------------------------------------------------------

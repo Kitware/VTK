@@ -29,7 +29,7 @@
 #include "vtkMath.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkHexagonalPrism, "1.16");
+vtkCxxRevisionMacro(vtkHexagonalPrism, "1.17");
 vtkStandardNewMacro(vtkHexagonalPrism);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -38,10 +38,11 @@ static const double VTK_DIVERGED = 1.e6;
 // Construct the prism with twelve points.
 vtkHexagonalPrism::vtkHexagonalPrism()
 {
+  int i;
   this->Points->SetNumberOfPoints(12);
   this->PointIds->SetNumberOfIds(12);
 
-  for (int i = 0; i < 12; i++)
+  for (i = 0; i < 12; i++)
     {
     this->Points->SetPoint(i, 0.0, 0.0, 0.0);
     this->PointIds->SetId(i,0);
@@ -52,6 +53,11 @@ vtkHexagonalPrism::vtkHexagonalPrism()
   this->Polygon = vtkPolygon::New();
   this->Polygon->PointIds->SetNumberOfIds(6);
   this->Polygon->Points->SetNumberOfPoints(6);
+
+  for (i = 0; i < 6; i++)
+    {
+    this->Polygon->Points->SetPoint(i, 0.0, 0.0, 0.0);
+    }
 }
 
 //----------------------------------------------------------------------------
