@@ -724,31 +724,24 @@ int vtkFunctionParser::IsElementaryOperator(int op)
 void vtkFunctionParser::SetScalarVariableValue(const char* variableName,
                                                double value)
 {
-  int i, variableIndex = -1;
+  int i;
   double *tempValues;
   char** tempNames;
   
   for (i = 0; i < this->NumberOfScalarVariables; i++)
     {
-    if (strncmp(variableName, this->ScalarVariableNames[i], strlen(variableName)) == 0)
+    if (strcmp(variableName, this->ScalarVariableNames[i]) == 0)
       {
-      if (variableIndex == -1 ||
-          (strlen(this->ScalarVariableNames[i]) >
-           strlen(this->ScalarVariableNames[variableIndex])))
-        {
-        variableIndex = i;
-        }
+      if (this->ScalarVariableValues[i] != value)
+	{
+	this->ScalarVariableValues[i] = value;
+	this->VariableMTime.Modified();
+	this->Modified();
+	}
+      return;
       }
     }
-  
-  if (variableIndex >= 0)
-    {
-    this->ScalarVariableValues[i] = value;
-    this->VariableMTime.Modified();
-    this->Modified();
-    return;
-    }
-  
+
   tempValues = new double [this->NumberOfScalarVariables];
   tempNames = new char *[this->NumberOfScalarVariables];
   for (i = 0; i < this->NumberOfScalarVariables; i++)
@@ -797,13 +790,16 @@ void vtkFunctionParser::SetScalarVariableValue(const char* variableName,
 
 void vtkFunctionParser::SetScalarVariableValue(int i, double value)
 {
-  if (i >= this->NumberOfScalarVariables)
+  if (i < 0 || i >= this->NumberOfScalarVariables)
     {
     return;
     }
 
-  this->ScalarVariableValues[i] = value;
-  this->VariableMTime.Modified();
+  if (this->ScalarVariableValues[i] != value)
+    {
+    this->ScalarVariableValues[i] = value;
+    this->VariableMTime.Modified();
+    }
   this->Modified();
 }
 
@@ -847,11 +843,16 @@ void vtkFunctionParser::SetVectorVariableValue(const char* variableName,
     {
     if (strcmp(variableName, this->VectorVariableNames[i]) == 0)
       {
-      this->VectorVariableValues[i][0] = xValue;
-      this->VectorVariableValues[i][1] = yValue;
-      this->VectorVariableValues[i][2] = zValue;
-      this->VariableMTime.Modified();
-      this->Modified();
+      if (this->VectorVariableValues[i][0] != xValue ||
+	  this->VectorVariableValues[i][1] != yValue ||
+	  this->VectorVariableValues[i][2] != zValue)
+	{
+	this->VectorVariableValues[i][0] = xValue;
+	this->VectorVariableValues[i][1] = yValue;
+	this->VectorVariableValues[i][2] = zValue;
+	this->VariableMTime.Modified();
+	this->Modified();
+	}
       return;
       }
     }
@@ -918,15 +919,20 @@ void vtkFunctionParser::SetVectorVariableValue(const char* variableName,
 void vtkFunctionParser::SetVectorVariableValue(int i, double xValue,
 					       double yValue, double zValue)
 {
-  if (i >= this->NumberOfVectorVariables)
+  if (i < 0 || i >= this->NumberOfVectorVariables)
     {
     return;
     }
-  this->VectorVariableValues[i][0] = xValue;
-  this->VectorVariableValues[i][1] = yValue;
-  this->VectorVariableValues[i][2] = zValue;
-  this->VariableMTime.Modified();
-  this->Modified();
+  if (this->VectorVariableValues[i][0] != xValue ||
+      this->VectorVariableValues[i][1] != yValue ||
+      this->VectorVariableValues[i][2] != zValue)
+    {
+    this->VectorVariableValues[i][0] = xValue;
+    this->VectorVariableValues[i][1] = yValue;
+    this->VectorVariableValues[i][2] = zValue;
+    this->VariableMTime.Modified();
+    this->Modified();
+    }
 }
 
 double* vtkFunctionParser::GetVectorVariableValue(const char* variableName)
