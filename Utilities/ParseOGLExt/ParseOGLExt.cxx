@@ -374,7 +374,7 @@ bool Function::isFunction(char *line)
     sreturnType += " *";
     sentry = t.GetNextToken();
     }
-  else if (sentry[0] == '*')
+  else if (sentry.size() && sentry[0] == '*')
     {
     sreturnType += " *";
     sentry = sentry.substr(1);
