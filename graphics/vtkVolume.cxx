@@ -214,13 +214,7 @@ float *vtkVolume::GetBounds()
   fptr = bbox;
   for (n = 0; n < 8; n++) 
     {
-    this->Transform->SetPoint(fptr[0],fptr[1],fptr[2],1.0);
-  
-    // now store the result
-    result = this->Transform->GetPoint();
-    fptr[0] = result[0] / result[3];
-    fptr[1] = result[1] / result[3];
-    fptr[2] = result[2] / result[3];
+    this->Transform->TransformPoint(fptr,fptr);
     fptr += 3;
     }
   

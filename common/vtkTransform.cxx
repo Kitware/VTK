@@ -802,7 +802,7 @@ void vtkTransform::SetMatrix(vtkMatrix4x4 *m)
 }
 
 // Set the current matrix directly.
-void vtkTransform::SetMatrix(double Elements[16])
+void vtkTransform::SetMatrix(const double Elements[16])
 {
   this->Matrix->DeepCopy(Elements);
   this->Modified();
@@ -832,7 +832,7 @@ void vtkTransform::Concatenate (vtkMatrix4x4 *matrix)
   this->Modified();
 }
 
-void vtkTransform::Concatenate(double Elements[16])
+void vtkTransform::Concatenate(const double Elements[16])
 {
   if (this->PreMultiplyFlag) 
     {
@@ -890,13 +890,14 @@ void vtkTransform::PrintSelf (ostream& os, vtkIndent indent)
 
 // Returns the result of multiplying the currently set Point by the current 
 // transformation matrix. Point is expressed in homogeneous coordinates.
-// The setting of the PreMultiplyFlag will determine if the Point is
-// Pre or Post multiplied.
 float *vtkTransform::GetPoint()
 {
   if (this->PreMultiplyFlag)
     {
-    this->Matrix->PointMultiply(this->Point,this->Point);
+    double matrix[16];
+    vtkMatrix4x4::DeepCopy(matrix,this->Matrix);
+    vtkMatrix4x4::Transpose(matrix,matrix);
+    vtkMatrix4x4::MultiplyPoint(matrix,this->Point,this->Point);
     }
   else
     {
@@ -909,7 +910,10 @@ double *vtkTransform::GetDoublePoint()
 {
   if (this->PreMultiplyFlag)
     {
-    this->Matrix->PointMultiply(this->DoublePoint,this->DoublePoint);
+    double matrix[16];
+    vtkMatrix4x4::DeepCopy(matrix,this->Matrix);
+    vtkMatrix4x4::Transpose(matrix,matrix);
+    vtkMatrix4x4::MultiplyPoint(matrix,this->Point,this->Point);
     }
   else
     {

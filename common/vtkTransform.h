@@ -209,7 +209,7 @@ class VTK_EXPORT vtkTransform : public vtkLinearTransform
 
   // Description:
   // Set the current matrix directly (copies Elements).
-  void SetMatrix(double Elements[16]);
+  void SetMatrix(const double Elements[16]);
 
   // Description:
   // Concatenates the input matrix with the current transformation matrix.
@@ -217,14 +217,23 @@ class VTK_EXPORT vtkTransform : public vtkLinearTransform
   // The setting of the PreMultiply flag determines whether the matrix
   // is PreConcatenated or PostConcatenated.
   void Concatenate(vtkMatrix4x4 *matrix);
-  void Concatenate(double Elements[16]);
+  void Concatenate(const double Elements[16]);
 
   // Description:
-  // Multiply a (x,y,z,w) point by the transform and store the result in out.
-  // If you want to transform an (x,y,z) point, use TransformPoint instead. 
-  void MultiplyPoint (float in[4],float out[4]) {
+  // Make this transform a copy of the specified transform.
+  void DeepCopy(vtkGeneralTransform *t);
+
+  // Description:
+  // Returns the current transformation matrix.
+  void GetMatrix(vtkMatrix4x4 *m);
+
+  // Description:
+  // Use this method only if you wish to compute the transformation in
+  // homogenous (x,y,z,w) coordinates, otherwise use TransformPoint().
+  // This method calls this->Matrix->MultiplyPoint().
+  void MultiplyPoint (const float in[4],float out[4]) {
     this->Matrix->MultiplyPoint(in,out);};
-  void MultiplyPoint (double in[4],double out[4]) {      
+  void MultiplyPoint (const double in[4],double out[4]) {      
     this->Matrix->MultiplyPoint(in,out);};
 
   // Description:
@@ -243,27 +252,18 @@ class VTK_EXPORT vtkTransform : public vtkLinearTransform
     this->TransformNormals(inNormals,outNormals); };
 
   // Description:
-  // Returns the result of multiplying the currently set Point by the current 
-  // transformation matrix. Point is expressed in homogeneous coordinates.
-  // The setting of the PreMultiplyFlag will determine if the Point is
-  // Pre or Post multiplied.  In most cases, you should use 
-  // TransformFloatPoint or TransformDoublePoint instead.
+  // Do not use these functions -- they are here only to provide
+  // combatibility with legacy code.  Use TransformPoint() or 
+  // GetMatrixPointer()->MultiplyPoint() instead.
+  // <p>Returns the result of multiplying the currently set Point by the 
+  // current transformation matrix. Point is expressed in homogeneous 
+  // coordinates.  The setting of the PreMultiplyFlag will determine if 
+  // the Point is Pre or Post multiplied.  
+  vtkSetVector4Macro(Point,float);
+  vtkSetVector4Macro(DoublePoint,double);
   float *GetPoint();
   double *GetDoublePoint();
   void GetPoint(float p[4]);
-
-  // Description:
-  // Set the point to use in the GetPoint calculations.
-  vtkSetVector4Macro(Point,float);
-  vtkSetVector4Macro(DoublePoint,double);
-
-  // Description:
-  // Make this transform a copy of the specified transform.
-  void DeepCopy(vtkGeneralTransform *t);
-
-  // Description:
-  // Returns the current transformation matrix.
-  void GetMatrix(vtkMatrix4x4 *m);
 
   // Description:
   // For legacy compatibility. Do not use.

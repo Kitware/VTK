@@ -874,8 +874,7 @@ void vtkRenderer::ViewToWorld()
   result[2] = this->ViewPoint[2];
   result[3] = 1.0;
 
-  mat->Transpose();
-  mat->PointMultiply(result,result);
+  mat->MultiplyPoint(result,result);
   
   // Get the transformed vector & set WorldPoint 
   // while we are at it try to keep w at one
@@ -909,8 +908,7 @@ void vtkRenderer::ViewToWorld(float &x, float &y, float &z)
   result[2] = z;
   result[3] = 1.0;
 
-  mat->Transpose();
-  mat->PointMultiply(result,result);
+  mat->MultiplyPoint(result,result);
   
   // Get the transformed vector & set WorldPoint 
   // while we are at it try to keep w at one

@@ -850,14 +850,11 @@ void vtkSweptSurface::PrintSelf(ostream& os, vtkIndent indent)
 void vtkSweptSurface::GetRelativePosition(vtkTransform &t,float *origin,
 					  float *position)
 {
-  t.PostMultiply();
   // get position relative to the origin (of the geometry)
-  t.SetPoint( origin[0], origin[1], origin[2], 1.0f);
-  t.GetPoint( position );
+  t.TransformPoint(origin,position);
   position[0] -= origin[0];
   position[1] -= origin[1];
   position[2] -= origin[2];
-  t.PreMultiply();
 }
 
 

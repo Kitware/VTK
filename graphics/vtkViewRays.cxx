@@ -210,9 +210,6 @@ void vtkViewRays::ComputePerspectiveInfo(float *vr_ptr,int size[2])
   // camera space
   mat->Invert();
 
-  // Transpose it for easier use
-  mat->Transpose();
-  
   // This is the increment between pixel locations in screen space
   xinc = 2.0/(float)(size[0]);
   yinc = 2.0/(float)(size[1]);
@@ -236,7 +233,7 @@ void vtkViewRays::ComputePerspectiveInfo(float *vr_ptr,int size[2])
       // Convert this location into camera space - this becomes our
       // view ray direction because we start the ray at (0,0,0) in
       // camera space and go in the direction of this result
-      mat->PointMultiply(result,result);
+      mat->MultiplyPoint(result,result);
       
       // Normalize view ray
       mag = sqrt( (double)(result[0]*result[0] +

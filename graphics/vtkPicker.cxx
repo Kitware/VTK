@@ -132,31 +132,15 @@ vtkPicker::~vtkPicker()
 void vtkPicker::MarkPicked(vtkActor *assem, vtkActor *actor, vtkMapper *mapper,
                            float tMin, float mapperPos[3])
 {
-  int i;
-  float mapperHPosition[4];
-  float *worldHPosition;
-
   this->Assembly = assem;
   this->Actor = actor;
   this->Mapper = mapper;
   this->DataSet = mapper->GetInput();
   this->GlobalTMin = tMin;
-  for (i=0; i < 3; i++) 
-    {
-    this->MapperPosition[i] = mapperPos[i];
-    mapperHPosition[i] = mapperPos[i];
-    }
-  mapperHPosition[3] = 1.0;
 
   // The point has to be transformed back into world coordinates.
   // Note: it is assumed that the transform is in the correct state.
-  this->Transform->SetPoint(mapperHPosition);
-  worldHPosition = this->Transform->GetPoint();
-
-  for (i=0; i < 3; i++)
-    {
-    this->PickPosition[i] = worldHPosition[i];
-    }
+  this->Transform->TransformPoint(mapperPos,this->PickPosition);
   
   // Invoke pick method if one defined - actor goes first
   actor->Pick();
@@ -342,20 +326,15 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
       //  coordinates. 
       if (pickable && (mapper = part->GetMapper()) != NULL )
         {
-        this->Transform->SetMatrix(*(part->vtkProp3D::GetMatrixPointer()));
+        this->Transform->SetMatrix(part->vtkProp3D::GetMatrixPointer());
         this->Transform->Push();
         this->Transform->Inverse();
 
-        this->Transform->SetPoint(p1World);
-        this->Transform->GetPoint(p1Mapper);
-
-        this->Transform->SetPoint(p2World);
-        this->Transform->GetPoint(p2Mapper);
+        this->Transform->TransformPoint(p1World,p1Mapper);
+        this->Transform->TransformPoint(p2World,p2Mapper);
 
         for (i=0; i<3; i++) 
           {
-          p1Mapper[i] /= p1Mapper[3];
-          p2Mapper[i] /= p2Mapper[3];
           ray[i] = p2Mapper[i] - p1Mapper[i];
           }
 

@@ -84,7 +84,7 @@ class VTK_EXPORT vtkMatrix4x4 : public vtkObject
 
   // Description:
   // Non-static member function. Assigns *from* elements array
-  void DeepCopy(double Elements[16]);
+  void DeepCopy(const double Elements[16]);
 
   // Description:
   // Set all of the elements to zero.
@@ -107,7 +107,7 @@ class VTK_EXPORT vtkMatrix4x4 : public vtkObject
   void Invert(vtkMatrix4x4 *in,vtkMatrix4x4 *out);
   void Invert(void) { this->Invert(this,this);};
 //BTX
-  static void Invert(double inElements[16], double outElements[16]);
+  static void Invert(const double inElements[16], double outElements[16]);
 //ETX
 
 
@@ -116,50 +116,52 @@ class VTK_EXPORT vtkMatrix4x4 : public vtkObject
   void Transpose(vtkMatrix4x4 *in,vtkMatrix4x4 *out);
   void Transpose(void) { this->Transpose(this,this);};
 //BTX
-  static void Transpose(double inElements[16], double outElements[16]);
+  static void Transpose(const double inElements[16], double outElements[16]);
 //ETX
 
   // Description:
-  // Multiply this matrix by a point (in homogeneous coordinates). 
-  // and return the result in result. The in[4] and out[4] 
-  // arrays must both be allocated but they can be the same array.
-  void MultiplyPoint(float in[4], float out[4]);
-  void MultiplyPoint(double in[4], double out[4]);
+  // Multiply a homogenous coordinate by this matrix, i.e. out = A*in.
+  // The in[4] and out[4] can be the same array.
+  void MultiplyPoint(const float in[4], float out[4]);
+  void MultiplyPoint(const double in[4], double out[4]);
+
 //BTX
-  static void MultiplyPoint(double Elements[16], float in[4], float out[4]);
-  static void MultiplyPoint(double Elements[16], double in[4], double out[4]);
+  static void MultiplyPoint(const double Elements[16], 
+			    const float in[4], float out[4]);
+  static void MultiplyPoint(const double Elements[16], 
+			    const double in[4], double out[4]);
 //ETX
 
   // Description:
-  // Multiply a point (in homogeneous coordinates) by this matrix,
-  // and return the result in result. The in[4] and out[4] 
-  // arrays must both be allocated, but they can be the same array.
-  void PointMultiply(float in[4], float out[4]);
-  void PointMultiply(double in[4], double out[4]);
-//BTX
-  static void PointMultiply(double Elements[16], float in[4], float out[4]);
-  static void PointMultiply(double Elements[16], double in[4], double out[4]);
-//ETX
+  // For use in Java, Python or Tcl.  The default MultiplyPoint() uses
+  // a single-precision point.
+  float *MultiplyPoint(const float in[4]) {
+    return this->MultiplyFloatPoint(in); };
+  float *MultiplyFloatPoint(const float in[4]) {
+    this->MultiplyPoint(in,this->FloatPoint); return this->FloatPoint; } 
+  double *MultiplyDoublePoint(const double in[4]) {
+    this->MultiplyPoint(in,this->DoublePoint); return this->DoublePoint; } 
 
   // Description:
   // Multiplies matrices a and b and stores the result in c.
   static void Multiply4x4(vtkMatrix4x4 *a, vtkMatrix4x4 *b, vtkMatrix4x4 *c);
 //BTX
-  static void Multiply4x4(double a[16], double b[16], double c[16]);
+  static void Multiply4x4(const double a[16], const double b[16], 
+			  double c[16]);
 //ETX
 
   // Description:
   // Compute adjoint of the matrix and put it into out.
   void Adjoint(vtkMatrix4x4 *in,vtkMatrix4x4 *out);
 //BTX
-  static void Adjoint(double inElements[16], double outElements[16]);
+  static void Adjoint(const double inElements[16], double outElements[16]);
 //ETX
 
   // Description:
   // Compute the determinant of the matrix and return it.
   float Determinant(vtkMatrix4x4 *in);
 //BTX
-  static float Determinant(double Elements[16]);
+  static float Determinant(const double Elements[16]);
 //ETX
 
   // Description:
@@ -191,6 +193,8 @@ protected:
   vtkMatrix4x4(const vtkMatrix4x4&);
   void operator= (const vtkMatrix4x4& source);
   
+  float FloatPoint[4];
+  double DoublePoint[4];
 };
 
 inline void vtkMatrix4x4::SetElement (int i, int j, float value)
