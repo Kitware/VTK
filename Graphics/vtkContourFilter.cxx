@@ -31,7 +31,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkContourFilter, "1.102");
+vtkCxxRevisionMacro(vtkContourFilter, "1.103");
 vtkStandardNewMacro(vtkContourFilter);
 vtkCxxSetObjectMacro(vtkContourFilter,ScalarTree,vtkScalarTree);
 
@@ -344,22 +344,18 @@ void vtkContourFilter::PrintSelf(ostream& os, vtkIndent indent)
 void vtkContourFilter::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
-#ifdef VTK_USE_EXECUTIVES
   // These filters share our input and are therefore involved in a
   // reference loop.
   collector->ReportReference(this->ScalarTree, "ScalarTree");
-#endif
 }
 
 //----------------------------------------------------------------------------
 void vtkContourFilter::RemoveReferences()
 {
-#ifdef VTK_USE_EXECUTIVES
   if(this->ScalarTree)
     {
     this->ScalarTree->Delete();
     this->ScalarTree = 0;
     }
-#endif
   this->Superclass::RemoveReferences();
 }
