@@ -274,6 +274,16 @@ void vtkXTextMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
   vtkDebugMacro(<<"vtkXTextMapper::Render - Font specifier: " << fontname);
 
   // Set the font
+  int cnt;
+  char **fn = XListFonts(displayId, fontname, 1, &cnt);
+  if (fn)
+    {
+    XFreeFontNames(fn);
+    }
+  if (!cnt)
+    {
+    sprintf(fontname,"9x15");
+    }
   Font font = XLoadFont(displayId,  fontname );
   XSetFont(displayId, gc, font);
 

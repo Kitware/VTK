@@ -233,6 +233,7 @@ vtkXImageWindow::vtkXImageWindow()
   this->OwnDisplay = 0;
   this->PixmapWidth = 0;
   this->PixmapHeight = 0;
+  this->NumberOfColors = 150;
 }
 
 
@@ -369,15 +370,12 @@ vtkWarningMacro ("EraseWindow");
 // Get this RenderWindow's X window id.
 Window vtkXImageWindow::GetWindowId()
 {
-//  vtkDebugMacro(<< "vtkXImageWindow::GetWindowID ");
-
   return this->WindowId;
 }
 
 // Get this RenderWindow's parent X window id.
 Window vtkXImageWindow::GetParentId()
 {
-//  vtkDebugMacro(<< "vtkXImageWindow::GetParentID ");
   return this->ParentId;
 }
 
@@ -389,9 +387,6 @@ void vtkXImageWindow::SetParentId(Window arg)
     vtkErrorMacro("ParentId is already set.");
     return;
     }
-  
-//  vtkDebugMacro(<< "vtkXImageWindow::SetParentId ");
-
   this->ParentId = arg;
 }
 
@@ -461,8 +456,6 @@ void vtkXImageWindow::SetPosition(int x, int y)
 
 void vtkXImageWindow::SetSize(int x, int y)
 {
-//  vtkDebugMacro (<< "vtkXImageWindow::SetSize");
-
   // If the values have changed, change the ivars
   if ((this->Size[0] != x) || (this->Size[1] != y))
     {
@@ -487,9 +480,6 @@ void vtkXImageWindow::SetSize(int x, int y)
    XFlush(this->DisplayId);
    
    XSync(this->DisplayId, False); 
-
-   //this->Render();
-
 }
 
 
@@ -646,14 +636,18 @@ void vtkXImageWindow::MakeDefaultWindow()
  
   //####
   if (this->ColorMap == None) 
-           vtkDebugMacro(<<"vtkXImageWindow::MakeDefaultWindow - No colormap!");
+    {
+    vtkDebugMacro(<<"vtkXImageWindow::MakeDefaultWindow - No colormap!");
+    }
+  
   if (attributes.map_installed == False) 
-           vtkDebugMacro(<<"vtkXImageWindow::MakeDefaultWindow - Colormap not installed!");
-
+    {
+    vtkDebugMacro(<<"vtkXImageWindow::MakeDefaultWindow - Colormap not installed!");
+    }
+  
   // Get the visual class
   templ.visualid = this->VisualId->visualid;
-  visuals = XGetVisualInfo(this->DisplayId,
-                           VisualIDMask,
+  visuals = XGetVisualInfo(this->DisplayId, VisualIDMask,
                            &templ, &nvisuals);
   if (nvisuals == 0)
     {
@@ -690,16 +684,11 @@ void vtkXImageWindow::GetDefaultVisualInfo(XVisualInfo *info)
   int nvisuals;
   int i, rate, bestRate = 100;
   
-//  vtkDebugMacro (<< "vtkImageWindow::GetDefaultVisualInfo" );
-
   screen = DefaultScreen(this->DisplayId);  
   templ.screen = screen;
-  //templ.depth = 24;
-  //templ.c_class = DirectColor;
 
   // Get a list of all the possible visuals for this screen.
   visuals = XGetVisualInfo(this->DisplayId,
-			   // VisualScreenMask | VisualClassMask,
 			   VisualScreenMask,
 			   &templ, &nvisuals);
   
@@ -710,21 +699,6 @@ void vtkXImageWindow::GetDefaultVisualInfo(XVisualInfo *info)
   
   for (v = visuals, i = 0; i < nvisuals; v++, i++)
     {
-    // which are available
-
-#if 0
-    if (this->Debug)
-      {
-      if (v->c_class == TrueColor)
-	vtkDebugMacro(<< "Available: " << v->depth << " bit TrueColor");
-      if (v->c_class == DirectColor)
-	vtkDebugMacro(<< "Available: " << v->depth << " bit DirectColor");
-      if (v->c_class == PseudoColor)
-	vtkDebugMacro(<< "Available: " << v->depth << " bit PseudoColor");
-      }
-#endif 
-
-
     // We only handle three types of visuals now.
     // Rate the visual
     if (v->depth == 24 && v->c_class == TrueColor)
@@ -735,9 +709,19 @@ void vtkXImageWindow::GetDefaultVisualInfo(XVisualInfo *info)
       {
       rate = 2;
       }
-    else if (v->depth == 8 && v->c_class == PseudoColor)
+    /*
+    else if (v->depth == 16 && v->c_class == TrueColor)
       {
       rate = 3;
+      }
+    else if (v->depth == 15 && v->c_class == TrueColor)
+      {
+      rate = 4;
+      }
+    */
+    else if (v->depth == 8 && v->c_class == PseudoColor)
+      {
+      rate = 5;
       }
     else
       {
@@ -756,19 +740,6 @@ void vtkXImageWindow::GetDefaultVisualInfo(XVisualInfo *info)
     vtkWarningMacro("Could not find a visual I like");
     }
  
-#if 0 
-  if (this->Debug)
-    {
-    if (best->c_class == TrueColor)
-      vtkDebugMacro(<< "Chose: " << best->depth << " bit TrueColor");
-    if (best->c_class == DirectColor)
-      vtkDebugMacro(<< "Chose: " << best->depth << " bit DirectColor");
-    if (best->c_class == PseudoColor)
-      vtkDebugMacro(<< "Chose: " << best->depth << " bit PseudoColor");
-    }
-#endif
-
-  
   // Copy visual
   *info = *best;
   
@@ -778,8 +749,6 @@ void vtkXImageWindow::GetDefaultVisualInfo(XVisualInfo *info)
 int vtkXImageWindow::GetDesiredDepth()
 {
   XVisualInfo v;
-
-//  vtkDebugMacro (<< "vtkXImageWindow::GetDesiredDepth");
 
   // get the default visual to use 
   this->GetDefaultVisualInfo(&v);
@@ -792,8 +761,6 @@ Visual *vtkXImageWindow::GetDesiredVisual ()
 {
   XVisualInfo v;
 
-//  vtkDebugMacro (<< "vtkXImageWindow::GetDesiredVisual");
-
   // get the default visual to use 
   this->GetDefaultVisualInfo(&v);
 
@@ -805,8 +772,6 @@ Visual *vtkXImageWindow::GetDesiredVisual ()
 Colormap vtkXImageWindow::GetDesiredColormap ()
 {
   XVisualInfo v;
-
-//  vtkDebugMacro (<< "vtkXImageWindow::GetDesiredColorMap");
 
   if (this->ColorMap) return this->ColorMap;
   
@@ -830,8 +795,6 @@ Colormap vtkXImageWindow::GetDesiredColormap ()
 
 void vtkXImageWindow::SetWindowId(void *arg)
 {
-//  vtkDebugMacro (<< "vtkXImageWindow::SetWindowId");
-
   this->SetWindowId((Window)arg);
 }
 
@@ -845,14 +808,11 @@ void vtkXImageWindow::SetWindowId(Window arg)
 // X display id.
 void vtkXImageWindow::SetDisplayId(Display  *arg)
 {
-//  vtkDebugMacro(<< "Setting DisplayId to " << (void *)arg << "\n"); 
-
   this->DisplayId = arg;
   this->OwnDisplay = 0;
 }
 void vtkXImageWindow::SetDisplayId(void *arg)
 {
-//  vtkDebugMacro(<< "Setting DisplayId to " << (void *)arg << "\n"); 
   this->SetDisplayId((Display *)arg);
   this->OwnDisplay = 0;
 }
@@ -861,15 +821,13 @@ void vtkXImageWindow::SetDisplayId(void *arg)
 
 Display *vtkXImageWindow::GetDisplayId()
 {
-//  vtkDebugMacro(<< "vtkXImageWindow::GetDisplayId\n"); 
   return(this->DisplayId);
 }
 GC vtkXImageWindow::GetGC()
 {
-//  vtkDebugMacro(<< "vtkXImageWindow::GetGC\n"); 
   return(this->Gc);
 }
-//----------------------------------------------------------------------------
+
 Colormap vtkXImageWindow::MakeColorMap(Visual *visual) 
 {
   int idx;
@@ -879,85 +837,54 @@ Colormap vtkXImageWindow::MakeColorMap(Visual *visual)
   Colormap  defaultMap, newMap;
   XColor    defccells[256];
   
-//  vtkDebugMacro(<< "vtkXImageWindow::MakeColorMap\n"); 
-  
-  this->Offset = 0;
+  this->Offset = 50;
 
   screen = DefaultScreen(this->DisplayId);
   defaultMap = DefaultColormap(this->DisplayId, screen);
-  
-  if ( !XAllocColorCells(this->DisplayId, defaultMap, 0, &planeMask, 0, 
-			 pval, (unsigned int) this->NumberOfColors))
-    {
-    // can't allocate NUM_COLORS from Def ColorMap
-    // create new ColorMap ... but first cp some def ColorMap
+  // allways use a private colormap
     
-    newMap = XCreateColormap(this->DisplayId, 
-			     RootWindow(this->DisplayId, screen),
-			     visual, AllocNone);
-    this->Offset = 100;
-    if (! XAllocColorCells(this->DisplayId, newMap, 1, &planeMask, 0, pval,
-			   (unsigned int)256))
-      {
+  newMap = XCreateColormap(this->DisplayId, 
+			   RootWindow(this->DisplayId, screen),
+			   visual, AllocNone);
+  if (! XAllocColorCells(this->DisplayId, newMap, 1, &planeMask, 0, pval,
+			 (unsigned int)this->NumberOfColors+this->Offset))
+    {
       vtkErrorMacro(<< "Sorry cann't allocate any more Colors");
       return (Colormap)(NULL);
-      }
-    
-    for ( idx = 0 ; idx < 256; idx++) 
-      {
+    }
+  
+  for ( idx = 0 ; idx < this->Offset; idx++) 
+    {
       defccells[idx].pixel = idx; 
-      }
-    XQueryColors(this->DisplayId, defaultMap, defccells, 256);
-    
-    for (idx = 0 ; idx < 256; idx++)
-      {
+    }
+  XQueryColors(this->DisplayId, defaultMap, defccells, this->Offset);
+  
+  for (idx = 0 ; idx < this->Offset+this->NumberOfColors; idx++)
+    {
       // Value should range between ? and ?
-      value = 1000 + (int)(60000.0 * (float)(idx - this->Offset) / (float)(this->NumberOfColors));
-    
+      value = (int)(65000.0 * (float)(idx - this->Offset) / (float)(this->NumberOfColors-1));
+      
       if ( (idx < this->Offset)) 
 	{
-	this->Colors[idx].pixel = defccells[idx].pixel;
-	this->Colors[idx].red   = defccells[idx].red ;
-	this->Colors[idx].green = defccells[idx].green ;
-	this->Colors[idx].blue  = defccells[idx].blue ;
-	this->Colors[idx].flags = DoRed | DoGreen | DoBlue ;
-	XStoreColor(this->DisplayId, newMap, &(this->Colors[idx]));
+	  this->Colors[idx].pixel = defccells[idx].pixel;
+	  this->Colors[idx].red   = defccells[idx].red ;
+	  this->Colors[idx].green = defccells[idx].green ;
+	  this->Colors[idx].blue  = defccells[idx].blue ;
+	  this->Colors[idx].flags = DoRed | DoGreen | DoBlue ;
+	  XStoreColor(this->DisplayId, newMap, &(this->Colors[idx]));
 	}
       else 
 	{
-	this->Colors[idx].pixel = pval[idx];
-	this->Colors[idx].red   = value ;
-	this->Colors[idx].green = value ; 
-	this->Colors[idx].blue  = value ;
-	this->Colors[idx].flags = DoRed | DoGreen | DoBlue ;
-	XStoreColor(this->DisplayId, newMap, &(this->Colors[idx]));
+	  this->Colors[idx].pixel = idx;
+	  this->Colors[idx].red   = value ;
+	  this->Colors[idx].green = value ; 
+	  this->Colors[idx].blue  = value ;
+	  this->Colors[idx].flags = DoRed | DoGreen | DoBlue ;
+	  XStoreColor(this->DisplayId, newMap, &(this->Colors[idx]));
 	}
-      }
-    XInstallColormap(this->DisplayId, newMap);
-    return newMap;
     }
-  else
-    {
-    for (idx = 0 ; idx < this->NumberOfColors ; idx++)
-      {
-      if (idx) 
-	{
-	value = (((192 * idx)/(this->NumberOfColors -1)) << 8)  + 16000;
-	}
-      else 
-	{
-	value = 0;
-	}
-      this->Colors[idx].pixel = pval[idx];
-      this->Colors[idx].red   = value ;
-      this->Colors[idx].green = value ;
-      this->Colors[idx].blue  = value ;
-      this->Colors[idx].flags = DoRed | DoGreen | DoBlue ;
-      XStoreColor(this->DisplayId, defaultMap, &(this->Colors[idx]));
-      }
-
-    return defaultMap;
-    } 
+  XInstallColormap(this->DisplayId, newMap);
+  return newMap;
 }
 
 

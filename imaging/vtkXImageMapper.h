@@ -91,8 +91,8 @@ public:
   int GetXWindowVisualClass(vtkWindow* window);
  
   // Description:
-  // Returns the color map used by the window
-  void GetXWindowColors(vtkWindow* window, XColor colors[], int ncolors);
+  // Returns a pseudo color mapping from 0 255 to 50 199
+  void GetXColors(int colors[]);
 
   // Description:
   // Returns the color masks used by the window.

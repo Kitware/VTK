@@ -8,6 +8,9 @@ vtkXImageMapper::vtkXImageMapper()
   this->Image = (XImage*) NULL;
   this->DataOut = NULL;
   this->DataOutSize = 0;
+  // this is a bad hack and should be removed. 
+  // But then 8bit visuals should be removed as well.
+  // The following value must match the setting in vtkXImageWindow
   this->NumberOfColors = 150;
 }
 
@@ -232,26 +235,17 @@ void vtkXImageMapper::GetXWindowColorMasks(vtkWindow *window, unsigned long *rma
   return;
 
 }
-void vtkXImageMapper::GetXWindowColors(vtkWindow* window, XColor colors[], int ncolors)
+void vtkXImageMapper::GetXColors(int colors[])
 {
   int idx = 0;
 
-  Window windowID = (Window) window->GetGenericWindowId();
-  Display* displayID = (Display*) window->GetGenericDisplayId();
-
-  XWindowAttributes winAttribs;
-  XGetWindowAttributes(displayID, windowID, &winAttribs);
-  Colormap colorMap = winAttribs.colormap;
-
   // Get the colors in the current color map.
-  for (idx = 0 ; idx < ncolors; idx++) 
+  for (idx = 0 ; idx < 256; idx++) 
     {
-    colors[idx].pixel = idx;
+    colors[idx] = (int)(idx*149/255.0+50);
     }
 
-  XQueryColors(displayID, colorMap, colors, ncolors);
   vtkDebugMacro(<<"Got colors.");
-
 }
 
 
@@ -282,9 +276,9 @@ static void vtkXImageMapperRenderGray(vtkXImageMapper *mapper,
   visualClass = mapper->GetXWindowVisualClass(window);
   visualDepth = mapper->GetXWindowDepth(window);
 
-  XColor *colors = new XColor[256];
+  int colors[256];
 
-  mapper->GetXWindowColors(window, colors, 256);
+  mapper->GetXColors(colors);
 
   shift = mapper->GetColorShift();
   scale = mapper->GetColorScale();
@@ -348,8 +342,8 @@ static void vtkXImageMapperRenderGray(vtkXImageMapper *mapper,
   else 
     {
     colorsMax = mapper->GetNumberOfColors() - 1;
-    upperPixel = (unsigned char)(colors[upper_val].pixel);
-    lowerPixel = (unsigned char)(colors[lower_val].pixel);
+    upperPixel = (unsigned char)(colors[upper_val]);
+    lowerPixel = (unsigned char)(colors[lower_val]);
     }  
 
   inInc1 = -inInc1;
@@ -435,15 +429,13 @@ static void vtkXImageMapperRenderGray(vtkXImageMapper *mapper,
 	else
 	  {
 	  colorIdx = (int)((*inPtr0 + shift) * scale);
-	  *outPtr++ = (unsigned char)(colors[colorIdx].pixel);
+	  *outPtr++ = (unsigned char)(colors[colorIdx]);
 	  }
 	inPtr0 += inInc0;
 	}
       }
     inPtr1 += inInc1;
     }
-
-   delete[] colors;
 
 }
 
@@ -468,9 +460,15 @@ static void vtkXImageMapperRenderColor(vtkXImageMapper *mapper,
   T *bluePtr;
   T lower, upper;
   unsigned char lower_val, upper_val;
-  
+  int colors[256];
+  unsigned char lowerPixel, upperPixel;
+  int colorIdx;
+  int visualClass;
+
+  mapper->GetXColors(colors);
   
   vtkWindow*  window = viewport->GetVTKWindow();
+  visualClass = mapper->GetXWindowVisualClass(window);
     
   shift = mapper->GetColorShift();
   scale = mapper->GetColorScale();
@@ -527,6 +525,13 @@ static void vtkXImageMapperRenderColor(vtkXImageMapper *mapper,
 
   inInc1 = -inInc1;
 
+  // compute colorsMax, lower and upper pixels.
+  if (visualClass == PseudoColor)
+    {
+    upperPixel = (unsigned char)(colors[upper_val]);
+    lowerPixel = (unsigned char)(colors[lower_val]);
+    }  
+
   // Loop through in regions pixels
   redPtr1 = redPtr;
   greenPtr1 = greenPtr;
@@ -536,6 +541,9 @@ static void vtkXImageMapperRenderColor(vtkXImageMapper *mapper,
     redPtr0 = redPtr1;
     greenPtr0 = greenPtr1;
     bluePtr0 = bluePtr1;
+
+    if (visualClass == TrueColor)
+      {
     for (idx0 = inMin0; idx0 <= inMax0; idx0++)
       {
       if (*redPtr0 <= lower) red = lower_val;
@@ -559,6 +567,33 @@ static void vtkXImageMapperRenderColor(vtkXImageMapper *mapper,
       redPtr0 += inInc0;
       greenPtr0 += inInc0;
       bluePtr0 += inInc0;
+      }
+      }
+    else if (visualClass == PseudoColor)
+      {
+    for (idx0 = inMin0; idx0 <= inMax0; idx0++)
+      {
+      if (*redPtr0 <= lower) red = lower_val;
+      else if (*redPtr0 >= upper) red = upper_val;
+      else red = (unsigned char)(((float)(*redPtr0) + shift) * scale);
+
+      if (*redPtr0 <= lower) 
+	{
+	  *outPtr++ = lowerPixel;
+	}
+      else if (*redPtr0 >= upper)
+	{
+	  *outPtr++ = upperPixel;
+	}
+      else
+	{
+	  colorIdx = (int)((*redPtr0 + shift) * scale);
+	  *outPtr++ = (unsigned char)(colors[colorIdx]);
+	}
+      redPtr0 += inInc0;
+      greenPtr0 += inInc0;
+      bluePtr0 += inInc0;
+      }
       }
     redPtr1 += inInc1;
     greenPtr1 += inInc1;
