@@ -56,6 +56,7 @@ void vtkStructuredPointsGeometryFilter::Execute()
   int *dims, dimension, dir[3], diff[3];
   int i, j, k, extent[6];
   int ptIds[4], idx, startIdx;
+  int cellId;
   vtkPoints *newPts=0;
   vtkCellArray *newVerts=0;
   vtkCellArray *newLines=0;
@@ -64,6 +65,7 @@ void vtkStructuredPointsGeometryFilter::Execute()
   int offset[3], pos;
   float *x;
   vtkPointData *pd, *outPD;
+  vtkCellData *cd, *outCD;
   vtkStructuredPoints *input=(vtkStructuredPoints *)this->Input;
   vtkPolyData *output=(vtkPolyData *)this->Output;
 
@@ -71,6 +73,8 @@ void vtkStructuredPointsGeometryFilter::Execute()
 
   pd = input->GetPointData();
   outPD = output->GetPointData();
+  cd = input->GetCellData();
+  outCD = output->GetCellData();
 //  this->PointData.CopyNormalsOff();
   dims = input->GetDimensions();
 //
@@ -102,10 +106,13 @@ void vtkStructuredPointsGeometryFilter::Execute()
       newVerts = vtkCellArray::New();
       newVerts->Allocate(newVerts->EstimateSize(1,1));
       outPD->CopyAllocate(pd,1);
+      outCD->CopyAllocate(cd,1);
 
       ptIds[0] = newPts->InsertNextPoint(input->GetPoint(startIdx));
       outPD->CopyData(pd,startIdx,ptIds[0]);
-      newVerts->InsertNextCell(1,ptIds);
+
+      cellId = newVerts->InsertNextCell(1,ptIds);
+      outCD->CopyData(cd,startIdx,ptIds[0]);
       break;
 
     case 1: // --------------------- build line -----------------------
@@ -124,6 +131,7 @@ void vtkStructuredPointsGeometryFilter::Execute()
       newLines = vtkCellArray::New();
       newLines->Allocate(newLines->EstimateSize(totPoints-1,2));
       outPD->CopyAllocate(pd,totPoints);
+      outCD->CopyAllocate(cd,totPoints - 1);
 //
 //  Load data
 //
@@ -142,11 +150,20 @@ void vtkStructuredPointsGeometryFilter::Execute()
         outPD->CopyData(pd,idx,ptIds[0]);
         }
 
-      for (idx=0,i=0; i<(totPoints-1); i++) 
+      if ( dir[0] == 0 ) 
+        offset[0] = 1;
+      else if (dir[0] == 1)
+        offset[0] = dims[0] - 1;
+      else
+        offset[0] = (dims[0] - 1) * (dims[1] - 1);
+
+      for (i=0; i<(totPoints-1); i++) 
         {
+        idx = startIdx + i*offset[0];
         ptIds[0] = i;
         ptIds[1] = i + 1;
-        newLines->InsertNextCell(2,ptIds);
+        cellId = newLines->InsertNextCell(2,ptIds);
+        outCD->CopyData(cd,idx,cellId);
         }
       break;
 
@@ -170,8 +187,9 @@ void vtkStructuredPointsGeometryFilter::Execute()
       newPolys = vtkCellArray::New();
       newPolys->Allocate(newLines->EstimateSize(numPolys,4));
       outPD->CopyAllocate(pd,totPoints);
+      outCD->CopyAllocate(cd,numPolys);
 //
-//  Create polygons
+//  Create vertices
 //
       for (i=0; i<2; i++) 
         {
@@ -195,15 +213,30 @@ void vtkStructuredPointsGeometryFilter::Execute()
         pos += offset[1];
         }
 
+//
+//  Create cells
+//
+      for (i=0; i<2; i++) 
+        {
+        if ( dir[i] == 0 )
+          offset[i] = 1;
+        else if ( dir[i] == 1 )
+          offset[i] = (dims[0] - 1);
+        else if ( dir[i] == 2 )
+          offset[i] = (dims[0] - 1) * (dims[1] - 1);
+        }
+
       for (pos=startIdx, j=0; j < diff[dir[1]]; j++) 
         {
         for (i=0; i < diff[dir[0]]; i++) 
           {
+          idx = pos + i*offset[0];
           ptIds[0] = i + j*(diff[dir[0]]+1);
           ptIds[1] = ptIds[0] + 1;
           ptIds[2] = ptIds[1] + diff[dir[0]] + 1;
           ptIds[3] = ptIds[2] - 1;
-          newPolys->InsertNextCell(4,ptIds);
+          cellId = newPolys->InsertNextCell(4,ptIds);
+          outCD->CopyData(cd,idx,cellId);
           }
         pos += offset[1];
         }
@@ -223,8 +256,9 @@ void vtkStructuredPointsGeometryFilter::Execute()
       newVerts = vtkCellArray::New();
       newVerts->Allocate(newVerts->EstimateSize(totPoints,1));
       outPD->CopyAllocate(pd,totPoints);
+      outCD->CopyAllocate(cd,totPoints);
 //
-// Create vertices
+// Create vertices and cells
 //
       offset[0] = dims[0];
       offset[1] = dims[0]*dims[1];
@@ -239,7 +273,8 @@ void vtkStructuredPointsGeometryFilter::Execute()
             x = input->GetPoint(pos+i);
             ptIds[0] = newPts->InsertNextPoint(x);
             outPD->CopyData(pd,pos+i,ptIds[0]);
-            newVerts->InsertNextCell(1,ptIds);
+            cellId = newVerts->InsertNextCell(1,ptIds);
+            outCD->CopyData(cd,pos+i,cellId);
             }
           }
         }
