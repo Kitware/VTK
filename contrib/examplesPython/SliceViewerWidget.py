@@ -11,7 +11,7 @@ class SliceViewerWidget(vtkTkImageWindowWidget):
 
         self.__ImageReslice = vtkImageReslice()
         self.__ImageReslice.SetInterpolationModeToCubic()
-        
+        self.__ImageReslice.SetOptimization(2)        
         self.__ImageViewer.SetInput(self.__ImageReslice.GetOutput())
 
         self.BindSliceViewerWidget()
