@@ -70,7 +70,7 @@ public:
   // Description:
   // Set/Get the color type.  GetColorTypeAsString() returns one
   // of the following strings: "TransferFunction" or "Single".
-  vtkSetClampMacro(ColorType,int,VTK_TRANSFER_FUNCTION,VTK_SINGLE_COLOR);
+  vtkSetClampMacro(ColorType,int,VTK_SINGLE_COLOR, VTK_TRANSFER_FUNCTION);
   vtkGetMacro(ColorType,int);
   void SetColorTypeToSingleColor(void) 
     {this->SetColorType(VTK_SINGLE_COLOR);};
