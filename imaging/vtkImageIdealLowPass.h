@@ -1,11 +1,11 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMIPFilter.h
+  Module:    vtkImageIdealLowPass.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
-  Thanks:    Thanks to Abdalmajeid M. Alyassin who developed this class.
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -38,65 +38,47 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMIPFilter - Maximum Intensity Projections of pixel values
+// .NAME vtkImageIdealLowPass - Simple frequency domain band pass.
 // .SECTION Description
-// vtkImageMIPFilter is a filter that takes the maximum or minimum intensity 
-// projections along any orthogonal plane (x-y, x-z, or y-z).
+// vtkImageIdealLowPass just sets a portion of the image to zero.
+// Input and Output must be floats.  Dimensionality is set when the
+// axes are set.  Defaults to 2D on X and Y axes.
 
 
-#ifndef __vtkImageMIPFilter_h
-#define __vtkImageMIPFilter_h
+
+#ifndef __vtkImageIdealLowPass_h
+#define __vtkImageIdealLowPass_h
 
 
 #include "vtkImageFilter.h"
 
-class VTK_EXPORT vtkImageMIPFilter : public vtkImageFilter
+class VTK_EXPORT vtkImageIdealLowPass : public vtkImageFilter
 {
 public:
-  vtkImageMIPFilter();
-  static vtkImageMIPFilter *New() {return new vtkImageMIPFilter;};
-  const char *GetClassName() {return "vtkImageMIPFilter";};
-  void PrintSelf(ostream& os, vtkIndent indent);
-
-  void SetFilteredAxes(int axis0, int axis1, int axis2);
+  vtkImageIdealLowPass();
+  static vtkImageIdealLowPass *New() 
+    {return new vtkImageIdealLowPass;};
+  const char *GetClassName() {return "vtkImageIdealLowPass";};
 
   // Description:
-  // Set/Get the range of slices for MIPs
-  vtkSetVector2Macro(ProjectionRange,int);
-  vtkGetVector2Macro(ProjectionRange,int);
-  
-  // Description:
-  // Set/Get Min Intensity Projection = 0 or Max Intensity Projection = 1
-  vtkSetMacro(MinMaxIP,int);
-  vtkGetMacro(MinMaxIP,int);
-  
-  // Description:
-  // Select MIP parallel to x-y plane.
-  vtkSetMacro(MIPZ,int);
-  vtkGetMacro(MIPZ,int);
-  vtkBooleanMacro(MIPZ,int);
-
-  // Description:
-  // Select MIP parallel to x-z plane.
-  vtkSetMacro(MIPY,int);
-  vtkGetMacro(MIPY,int);
-  vtkBooleanMacro(MIPY,int);
-
-  // Description:
-  // Select MIP parallel to y-z plane.
-  vtkSetMacro(MIPX,int);
-  vtkGetMacro(MIPX,int);
-  vtkBooleanMacro(MIPX,int);
+  // Set/Get the cutoff frequency for each axis.
+  // The values are specified in the order X, Y, Z, Time.
+  // Units: Cycles per world unit (as defined by the data spacing).
+  vtkSetVector4Macro(CutOff,float);
+  void SetCutOff(float v) {this->SetCutOff(v, v, v, v);}
+  void SetXCutOff(float v);
+  void SetYCutOff(float v);
+  void SetZCutOff(float v);
+  void SetTimeCutOff(float v);
+  vtkGetVector4Macro(CutOff,float);
+  float GetXCutOff() {return this->CutOff[0];}
+  float GetYCutOff() {return this->CutOff[1];}
+  float GetZCutOff() {return this->CutOff[2];}
+  float GetTimeCutOff() {return this->CutOff[3];}
 
 protected:
-  int ProjectionRange[2];
-  int MinMaxIP;
-  int MIPX;
-  int MIPY;
-  int MIPZ;
-
-  void ExecuteImageInformation(vtkImageCache *in, vtkImageCache *out);
-  void ComputeRequiredInputUpdateExtent(vtkImageCache *out, vtkImageCache *in);
+  float CutOff[4];
+  
   void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };
 

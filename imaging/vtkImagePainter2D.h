@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageContinuousErode.h
+  Module:    vtkImagePainter2D.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,53 +38,78 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageContinuousErode - Minimum of neighborhood.
+// .NAME vtkImagePainter2D - An object that directly amnipulates regions.
 // .SECTION Description
-// vtkImageContinuousErode implements a continous erosion by replacing
-// a pixel with the minimum of its neighborhood.  This filter is implemented 
-// as a decomposible neighborhood, so the neighborhood is rectagle for 2D
-// or a box for 3D.
+// vtkImagePainter2D is not a pipeline object. It is meant to be used by 
+// other objects and not directly.  It draws into regions with a set
+// of primatives.
 
 
+#ifndef __vtkImagePainter2D_h
+#define __vtkImagePainter2D_h
 
-#ifndef __vtkImageContinuousErode_h
-#define __vtkImageContinuousErode_h
+#include <math.h>
+#include "vtkImageRegion.h"
+
+//
+// Special classes for manipulating data
+//
+//BTX - begin tcl exclude
+//
+// For the fill functionality
+class vtkImagePainter2DPixel { //;prevent man page generation
+public:
+  int X;
+  int Y;
+  void *Pointer;
+  vtkImagePainter2DPixel *Next;
+};
+//ETX - end tcl exclude
+//
 
 
-#include "vtkImageDecomposedFilter.h"
-
-class VTK_EXPORT vtkImageContinuousErode : public vtkImageDecomposedFilter
+class VTK_EXPORT vtkImagePainter2D : public vtkImageRegion
 {
 public:
-  vtkImageContinuousErode();
-  static vtkImageContinuousErode *New(){return new vtkImageContinuousErode;};
-  const char *GetClassName() {return "vtkImageContinuousErode";};
+  vtkImagePainter2D();
+  ~vtkImagePainter2D();
+  static vtkImagePainter2D *New() {return new vtkImagePainter2D;};
+  const char *GetClassName() {return "vtkImagePainter2D";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // The Kernel size can be specified for each axis individually
-  void SetKernelSize(int sx, int sy, int sz, int st);
-  void SetKernelSize(int s) {this->SetKernelSize(s, s, s, s);}
-  void SetXKernelSize(int s);
-  void SetYKernelSize(int s);
-  void SetZKernelSize(int s);
-  void SetTimeKernelSize(int s);
+  // To drawing into a different image, set it with this method.
+  vtkSetObjectMacro(ImageRegion, vtkImageRegion);
+  vtkGetObjectMacro(ImageRegion, vtkImageRegion);
   
   // Description:
-  // Each axis can have a stride to shrink the image.
-  void SetStrides(int sx, int sy, int sz, int st);
-  void SetStride(int s) {this->SetStrides(s, s, s, s);}
-  void SetXStride(int s);
-  void SetYStride(int s);
-  void SetZStride(int s);
-  void SetTimeStride(int s);
+  // Set/Get DrawValue.  This is the value that is used when filling regions
+  // or drawing lines.
+  void SetDrawColor(int dim, float *color);
+  void GetDrawColor(int dim, float *color);
+  float *GetDrawColor() {return this->DrawColor;}
+  vtkImageSetMacro(DrawColor, float);
+  vtkImageGetMacro(DrawColor, float);
   
+  void FillBox(int min0, int max0, int min1, int max1);
+  void FillTube(int x0, int y0, int x1, int y1, float radius);
+  void FillTriangle(int x0, int y0, int x1, int y1, int x2, int y2);
+  void DrawCircle(int c0, int c1, float radius);
+  void DrawPoint(int p0, int p1);
+  void DrawSegment(int x0, int y0, int x1, int y1);
+  void DrawSegment3D(float *p0, float *p1);
+
+  void FillPixel(int x, int y);
   
 protected:
-  int KernelSize[VTK_IMAGE_DIMENSIONS];
-  int Strides[VTK_IMAGE_DIMENSIONS];
+  vtkImageRegion *ImageRegion;
+  float DrawColor[VTK_IMAGE_DIMENSIONS];
+  
+  int ClipSegment(int &a0, int &a1, int &b0, int &b1);
 };
 
-#endif
 
+
+#endif
 
 

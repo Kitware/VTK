@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageContinuousDilate.h
+  Module:    vtkImageElipsoidSource.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,53 +38,70 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageContinuousDilate - Maximum of neighborhood.
-// .SECTION Description
-// vtkImageContinuousDilate implements a continous dilation by replacing
-// a pixel with the maximum of its neighborhood.  This filter is implemented 
-// as a decomposible neighborhood, so the neighborhood is rectagle for 2D
-// or a box for 3D.
+// .NAME vtkImageElipsoidSource - Create a binary image of a elipsoid.
+// ElipsoidSource creates a binary image of a elipsoid.  It was created
+// as an example of a simple source, and to test the mask filter.
 
 
-#ifndef __vtkImageContinuousDilate_h
-#define __vtkImageContinuousDilate_h
 
+#ifndef __vtkImageElipsoidSource_h
+#define __vtkImageElipsoidSource_h
 
-#include "vtkImageDecomposedFilter.h"
-#include "vtkImageContinuousDilate1D.h"
+#include "vtkImageSource.h"
 
-class VTK_EXPORT vtkImageContinuousDilate : public vtkImageDecomposedFilter
+class VTK_EXPORT vtkImageElipsoidSource : public vtkImageSource
 {
 public:
-  vtkImageContinuousDilate();
-  static vtkImageContinuousDilate *New(){return new vtkImageContinuousDilate;};
-  const char *GetClassName() {return "vtkImageContinuousDilate";};
+  vtkImageElipsoidSource();
+  ~vtkImageElipsoidSource();
+  static vtkImageElipsoidSource *New() {return new vtkImageElipsoidSource;};
+  const char *GetClassName() {return "vtkImageElipsoidSource";};
+  void PrintSelf(ostream& os, vtkIndent indent);   
+  
+  // Description:
+  // Set/Get the extent of the whole output image.
+  void SetWholeExtent(int dim, int *extent);
+  vtkImageSetExtentMacro(WholeExtent);
+  void GetWholeExtent(int dim, int *extent);
+  vtkImageGetExtentMacro(WholeExtent);
+  
+  // Description:
+  // Set/Get the center of the elipsoid.
+  void SetCenter(int dim, float *center);
+  vtkImageSetMacro(Center, float);
+  void GetCenter(int dim, float *center);
+  vtkImageGetMacro(Center, float);
+  
+  // Description:
+  // Set/Get the radius of the elipsoid.
+  void SetRadius(int dim, float *radius);
+  vtkImageSetMacro(Radius, float);
+  void GetRadius(int dim, float *canter);
+  vtkImageGetMacro(Radius, float);
 
   // Description:
-  // The Kernel size can be specified for each axis individually
-  void SetKernelSize(int sx, int sy, int sz, int st);
-  void SetKernelSize(int s) {this->SetKernelSize(s, s, s, s);}
-  void SetXKernelSize(int s);
-  void SetYKernelSize(int s);
-  void SetZKernelSize(int s);
-  void SetTimeKernelSize(int s);
-  
+  // Set/Get the inside pixel values.
+  vtkSetMacro(InValue,float);
+  vtkGetMacro(InValue,float);
+
   // Description:
-  // Each axis can have a stride to shrink the image.
-  void SetStrides(int sx, int sy, int sz, int st);
-  void SetStride(int s) {this->SetStrides(s, s, s, s);}
-  void SetXStride(int s);
-  void SetYStride(int s);
-  void SetZStride(int s);
-  void SetTimeStride(int s);
+  // Set/Get the outside pixel values.
+  vtkSetMacro(OutValue,float);
+  vtkGetMacro(OutValue,float);
   
-  
+  void UpdateImageInformation();
+
 protected:
-  int KernelSize[VTK_IMAGE_DIMENSIONS];
-  int Strides[VTK_IMAGE_DIMENSIONS];
+  int WholeExtent[8];
+  float Center[4];
+  float Radius[4];
+  float InValue;
+  float OutValue;
+
+  void Execute(vtkImageRegion *outRegion);
 };
 
-#endif
 
+#endif
 
 

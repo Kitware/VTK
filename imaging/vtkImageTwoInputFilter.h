@@ -100,6 +100,7 @@ protected:
   vtkImageCache *Input1;     // One of the inputs to the filter
   vtkImageCache *Input2;     // One of the inputs to the filter
   int Bypass;
+  int Updating;
 
   virtual void SetFilteredAxes(int num, int *axes);
   virtual void ExecuteImageInformation(vtkImageCache *in1, vtkImageCache *in2,

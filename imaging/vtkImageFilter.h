@@ -116,6 +116,7 @@ protected:
   int SplitOrder[VTK_IMAGE_DIMENSIONS];
   int NumberOfSplitAxes;
   long InputMemoryLimit;
+  int Updating;
   
   virtual void SetFilteredAxes(int num, int *axes);
   virtual void ExecuteImageInformation(vtkImageCache *in,

@@ -53,6 +53,8 @@ vtkImageTwoOutputFilter::vtkImageTwoOutputFilter()
   this->Input = NULL;
   this->Output2 = NULL;
   this->Bypass = 0;
+  this->Updating = 0;
+  
   // invalid settings
   this->NumberOfExecutionAxes = -1;
 }
@@ -163,26 +165,6 @@ void vtkImageTwoOutputFilter::SetInput(vtkImageCache *input)
   
   this->Input = input;
   this->Modified();
-
-  // Should we use the data type from the input?
-  this->CheckCache();      // make sure a cache exists
-  this->CheckCache2();      // make sure a cache exists
-  if (this->Output->GetScalarType() == VTK_VOID)
-    {
-    this->Output->SetScalarType(input->GetScalarType());
-    if (this->Output->GetScalarType() == VTK_VOID)
-      {
-      vtkErrorMacro(<< "SetInput: Cannot determine ScalarType of input.");
-      }
-    }
-  if (this->Output2->GetScalarType() == VTK_VOID)
-    {
-    this->Output2->SetScalarType(input->GetScalarType());
-    if (this->Output2->GetScalarType() == VTK_VOID)
-      {
-      vtkErrorMacro(<< "SetInput: Cannot determine ScalarType of input.");
-      }
-    }
 }
 
 
@@ -195,6 +177,13 @@ void vtkImageTwoOutputFilter::Update()
   vtkImageRegion *outRegion1;
   vtkImageRegion *outRegion2;
 
+  // prevent infinite update loops.
+  if (this->Updating)
+    {
+    return;
+    }
+  this->Updating = 1;
+  
   // Make sure the Input has been set.
   if ( ! this->Input)
     {
@@ -293,6 +282,8 @@ void vtkImageTwoOutputFilter::Update()
   // Delete the container for the data (not the data).
   outRegion1->Delete();
   outRegion2->Delete();
+  
+  this->Updating = 0;
 }
 
 
@@ -371,7 +362,10 @@ void vtkImageTwoOutputFilter::UpdateImageInformation()
     vtkErrorMacro(<< "UpdateImageInformation: Input is not set.");
     return;
     }
-  
+  // make sure we have outputs
+  this->CheckCache();
+  this->CheckCache2();
+    
   this->Input->UpdateImageInformation();
   // Set the defaults from input
   this->Output->SetWholeExtent(this->Input->GetWholeExtent());
@@ -384,6 +378,17 @@ void vtkImageTwoOutputFilter::UpdateImageInformation()
     {
     // Let the subclass modify the default.
     this->ExecuteImageInformation(this->Input, this->Output, this->Output2);
+    }
+
+  // If the ScalarType of the outputs have not been set yet,
+  // set them to be the same as input.
+  if (this->Output->GetScalarType() == VTK_VOID)
+    {
+    this->Output->SetScalarType(this->Input->GetScalarType());
+    }
+  if (this->Output2->GetScalarType() == VTK_VOID)
+    {
+    this->Output2->SetScalarType(this->Input->GetScalarType());
     }
 }
 

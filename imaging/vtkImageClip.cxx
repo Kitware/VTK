@@ -119,9 +119,6 @@ void vtkImageClip::SetOutputWholeExtent(int dim, int *extent)
 //----------------------------------------------------------------------------
 void vtkImageClip::SetOutputAxisWholeExtent(int axis, int min, int max)
 {
-  int idx;
-  int modified = 0;
-  
   if (axis < 0 || axis > 3)
     {
     vtkErrorMacro("SetOutputAxisWholeExtent: bad axis " << axis);

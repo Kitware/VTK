@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageFourierIdealLowPass.cxx
+  Module:    vtkImageIdealLowPass.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -40,17 +40,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include "vtkImageRegion.h"
-#include "vtkImageFourierIdealLowPass.h"
+#include "vtkImageIdealLowPass.h"
 
 
 
 //----------------------------------------------------------------------------
-vtkImageFourierIdealLowPass::vtkImageFourierIdealLowPass()
+vtkImageIdealLowPass::vtkImageIdealLowPass()
 {
   int idx;
   
   this->SetOutputScalarType(VTK_FLOAT);
-  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+  for (idx = 0; idx < 4; ++idx)
     {
     this->CutOff[idx] = VTK_LARGE_FLOAT;
     }
@@ -61,7 +61,7 @@ vtkImageFourierIdealLowPass::vtkImageFourierIdealLowPass()
 
 
 //----------------------------------------------------------------------------
-void vtkImageFourierIdealLowPass::SetXCutOff(float cutOff)
+void vtkImageIdealLowPass::SetXCutOff(float cutOff)
 {
   if (cutOff == this->CutOff[0])
     {
@@ -71,7 +71,7 @@ void vtkImageFourierIdealLowPass::SetXCutOff(float cutOff)
   this->Modified();
 }
 //----------------------------------------------------------------------------
-void vtkImageFourierIdealLowPass::SetYCutOff(float cutOff)
+void vtkImageIdealLowPass::SetYCutOff(float cutOff)
 {
   if (cutOff == this->CutOff[1])
     {
@@ -81,7 +81,7 @@ void vtkImageFourierIdealLowPass::SetYCutOff(float cutOff)
   this->Modified();
 }
 //----------------------------------------------------------------------------
-void vtkImageFourierIdealLowPass::SetZCutOff(float cutOff)
+void vtkImageIdealLowPass::SetZCutOff(float cutOff)
 {
   if (cutOff == this->CutOff[2])
     {
@@ -91,7 +91,7 @@ void vtkImageFourierIdealLowPass::SetZCutOff(float cutOff)
   this->Modified();
 }
 //----------------------------------------------------------------------------
-void vtkImageFourierIdealLowPass::SetTimeCutOff(float cutOff)
+void vtkImageIdealLowPass::SetTimeCutOff(float cutOff)
 {
   if (cutOff == this->CutOff[3])
     {
@@ -107,7 +107,7 @@ void vtkImageFourierIdealLowPass::SetTimeCutOff(float cutOff)
 // Description:
 // This function zeros a portion of the image.  Zero is assumed
 // to be the origin. (1d easy but slow)
-void vtkImageFourierIdealLowPass::Execute(vtkImageRegion *inRegion, 
+void vtkImageIdealLowPass::Execute(vtkImageRegion *inRegion, 
 					  vtkImageRegion *outRegion)
 {
   int idx;
@@ -161,16 +161,14 @@ void vtkImageFourierIdealLowPass::Execute(vtkImageRegion *inRegion,
       if (temp > 0)
 	{
 	temp = freq / temp;
+	sum += temp * temp;
 	}
       else
 	{
-	temp = VTK_LARGE_FLOAT;
+	sum = VTK_LARGE_FLOAT;
 	}
-      sum += temp * temp;
       }
     }
-  
-  sum = sqrt(sum);
   
   inRegion->GetIncrements(inInc);
   outRegion->GetIncrements(outInc);

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageContinuousErode1D.h
+  Module:    vtkImageRange3D.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,44 +38,43 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageContinuousErode1D - Continous erosion (Min of neighborhood)
+// .NAME vtkImageRange3D - Dilate implemented as a minimum.
 // .SECTION Description
-// vtkImageContinuousErode1D implements a 1d continous dilation by replacing
-// a pixel with the minimum of its neighborhood.
-// It is meant to decompose 2 or 3d dilation so they will be faster.
+// vtkImageRange3D replaces a pixel with the minimum over
+// an elipsiodal neighborhood.  If KernelSize of an axis is 1, no processing
+// is done on that axis.  This filter can do 2D or 1D dilation also.
 
 
-#ifndef __vtkImageContinuousErode1D_h
-#define __vtkImageContinuousErode1D_h
+#ifndef __vtkImageRange3D_h
+#define __vtkImageRange3D_h
 
 
 #include "vtkImageSpatialFilter.h"
 
-class VTK_EXPORT vtkImageContinuousErode1D : public vtkImageFilter
+class VTK_EXPORT vtkImageRange3D : public vtkImageSpatialFilter
 {
 public:
-  vtkImageContinuousErode1D();
-  static vtkImageContinuousErode1D *New()
-   {return new vtkImageContinuousErode1D;};
-  const char *GetClassName() {return "vtkImageContinuousErode1D";};
+  vtkImageRange3D();
+  static vtkImageRange3D *New() 
+    {return new vtkImageRange3D;};
+  const char *GetClassName() {return "vtkImageRange3D";};
+  void PrintSelf(ostream& os, vtkIndent indent);
   
-  vtkSetMacro(KernelSize, int);
-  vtkGetMacro(KernelSize, int);
+  void SetFilteredAxes(int axis0, int axis1, int axis2);
 
-  vtkSetMacro(Stride, int);
-  vtkGetMacro(Stride, int);
+  // Set/Get the size of the neighood.
+  void SetKernelSize(int size0, int size1, int size2);
   
-  void SetFilteredAxis(int axis);
-  vtkGetMacro(FilteredAxis, int);
-
+  // Description:
+  // Get the Mask used as a footprint.
+  vtkGetObjectMacro(Mask, vtkImageRegion);
+  
 protected:
-  int FilteredAxis;
-  int KernelSize;
-  int Stride;
-
+  vtkImageRegion *Mask;
+    
+  void ExecuteCenter(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
   void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-  void ExecuteImageInformation(vtkImageCache *in, vtkImageCache *out);
-  void ComputeRequiredInputUpdateExtent(vtkImageCache *out, vtkImageCache *in);
+  void ComputeMask();
 };
 
 #endif

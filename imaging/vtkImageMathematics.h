@@ -1,11 +1,11 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMIPFilter.h
+  Module:    vtkImageMathematics.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
-  Thanks:    Thanks to Abdalmajeid M. Alyassin who developed this class.
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -38,69 +38,73 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMIPFilter - Maximum Intensity Projections of pixel values
+// .NAME vtkImageMathematics - Add, subtract, multiply, divide, invert,
+// sin, cos, exp, log.
 // .SECTION Description
-// vtkImageMIPFilter is a filter that takes the maximum or minimum intensity 
-// projections along any orthogonal plane (x-y, x-z, or y-z).
+// vtkImageMathematics implents basic mathematic operations 
+// SetOperation is used to select the filteres behavior.
+// The filter can take two or one input.
 
 
-#ifndef __vtkImageMIPFilter_h
-#define __vtkImageMIPFilter_h
+#ifndef __vtkImageMathematics_h
+#define __vtkImageMathematics_h
 
 
-#include "vtkImageFilter.h"
+// Operation options.
+#define VTK_ADD          0
+#define VTK_SUBTRACT     1
+#define VTK_MULTIPLY     2
+#define VTK_DIVIDE       3
+#define VTK_INVERT       4
+#define VTK_SIN          5
+#define VTK_COS          6
+#define VTK_EXP          7
+#define VTK_LOG          8
 
-class VTK_EXPORT vtkImageMIPFilter : public vtkImageFilter
+
+#include "vtkImageTwoInputFilter.h"
+
+class VTK_EXPORT vtkImageMathematics : public vtkImageTwoInputFilter
 {
 public:
-  vtkImageMIPFilter();
-  static vtkImageMIPFilter *New() {return new vtkImageMIPFilter;};
-  const char *GetClassName() {return "vtkImageMIPFilter";};
-  void PrintSelf(ostream& os, vtkIndent indent);
-
-  void SetFilteredAxes(int axis0, int axis1, int axis2);
+  vtkImageMathematics();
+  static vtkImageMathematics *New() {return new vtkImageMathematics;};
+  const char *GetClassName() {return "vtkImageMathematics";};
 
   // Description:
-  // Set/Get the range of slices for MIPs
-  vtkSetVector2Macro(ProjectionRange,int);
-  vtkGetVector2Macro(ProjectionRange,int);
+  // Set/Get the Operation to perform.
+  vtkSetMacro(Operation,int);
+  vtkGetMacro(Operation,int);
+  void SetOperationToAdd() {this->SetOperation(VTK_ADD);};
+  void SetOperationToSubtract() {this->SetOperation(VTK_SUBTRACT);};
+  void SetOperationToMultiply() {this->SetOperation(VTK_MULTIPLY);};
+  void SetOperationToDivide() {this->SetOperation(VTK_DIVIDE);};
+  void SetOperationToInvert() {this->SetOperation(VTK_INVERT);};
+  void SetOperationToSin() {this->SetOperation(VTK_SIN);};
+  void SetOperationToCos() {this->SetOperation(VTK_COS);};
+  void SetOperationToExp() {this->SetOperation(VTK_EXP);};
+  void SetOperationToLog() {this->SetOperation(VTK_LOG);};
+
   
-  // Description:
-  // Set/Get Min Intensity Projection = 0 or Max Intensity Projection = 1
-  vtkSetMacro(MinMaxIP,int);
-  vtkGetMacro(MinMaxIP,int);
-  
-  // Description:
-  // Select MIP parallel to x-y plane.
-  vtkSetMacro(MIPZ,int);
-  vtkGetMacro(MIPZ,int);
-  vtkBooleanMacro(MIPZ,int);
-
-  // Description:
-  // Select MIP parallel to x-z plane.
-  vtkSetMacro(MIPY,int);
-  vtkGetMacro(MIPY,int);
-  vtkBooleanMacro(MIPY,int);
-
-  // Description:
-  // Select MIP parallel to y-z plane.
-  vtkSetMacro(MIPX,int);
-  vtkGetMacro(MIPX,int);
-  vtkBooleanMacro(MIPX,int);
-
 protected:
-  int ProjectionRange[2];
-  int MinMaxIP;
-  int MIPX;
-  int MIPY;
-  int MIPZ;
-
-  void ExecuteImageInformation(vtkImageCache *in, vtkImageCache *out);
-  void ComputeRequiredInputUpdateExtent(vtkImageCache *out, vtkImageCache *in);
-  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  int Operation;
+  
+  void Execute(vtkImageRegion *inRegion1, 
+	       vtkImageRegion *inRegion2, 
+	       vtkImageRegion *outRegion);
 };
 
 #endif
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -109,6 +109,7 @@ protected:
   // Ouput1 is the same as Output
   vtkImageCache *Output2;
   int Bypass;
+  int Updating;
   
   void SetReleaseDataFlag(int value);
   

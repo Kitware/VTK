@@ -1,6 +1,6 @@
-catch {load vtktcl}
-# Divergence measures rate of change of gradient.
+# Min of sphere around every pixel.
 
+catch {load vtktcl}
 source vtkImageInclude.tcl
 
 # Image pipeline
@@ -11,12 +11,11 @@ reader SetDataByteOrderToLittleEndian
 reader SetDataDimensions 256 256 93
 reader SetFilePrefix "../../../data/fullHead/headsq"
 reader SetDataMask 0x7fff
-reader DebugOn
+#reader DebugOn
 
-vtkImageContinuousDilate1D dilate
+vtkImageContinuousDilate3D dilate
 dilate SetInput [reader GetOutput]
-dilate SetKernelSize 11
-dilate SetFilteredAxis $VTK_IMAGE_Y_AXIS
+dilate SetKernelSize 5 5 5
 
 vtkImageViewer viewer
 viewer SetInput [dilate GetOutput]

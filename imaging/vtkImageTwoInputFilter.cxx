@@ -54,7 +54,8 @@ vtkImageTwoInputFilter::vtkImageTwoInputFilter()
   this->Input1 = NULL;
   this->Input2 = NULL;
   this->Bypass = 0;
-
+  this->Updating = 0;
+  
   // Invalid
   this->NumberOfExecutionAxes = -1;
 }
@@ -151,7 +152,6 @@ unsigned long int vtkImageTwoInputFilter::GetPipelineMTime()
 
   if ( ! this->Input2 )
     {
-    vtkWarningMacro(<< "GetPipelineMTime: Input2 not set.");
     return time1;
     }
   time2 = this->Input2->GetPipelineMTime();
@@ -181,17 +181,6 @@ void vtkImageTwoInputFilter::SetInput1(vtkImageCache *input)
   
   this->Input1 = input;
   this->Modified();
-
-  // Should we use the data type from the input?
-  this->CheckCache();      // make sure a cache exists
-  if (this->Output->GetScalarType() == VTK_VOID)
-    {
-    this->Output->SetScalarType(input->GetScalarType());
-    if (this->Output->GetScalarType() == VTK_VOID)
-      {
-      vtkErrorMacro(<< "SetInput1: Cannot determine ScalarType of input.");
-      }
-    }
 }
 
 
@@ -224,6 +213,13 @@ void vtkImageTwoInputFilter::SetInput2(vtkImageCache *input)
 void vtkImageTwoInputFilter::Update()
 {
   vtkImageRegion *inRegion1, *inRegion2, *outRegion;
+  
+  // prevent infinite update loops.
+  if (this->Updating)
+    {
+    return;
+    }
+  this->Updating = 1;
   
   // Make sure the Input has been set.
   if ( ! this->Input1)
@@ -262,13 +258,6 @@ void vtkImageTwoInputFilter::Update()
     return;
     }
 
-  // Make sure the Input has been set.
-  if ( ! this->Input2)
-    {
-    vtkErrorMacro(<< "Update: Input2 has not been set.");
-    return;
-    }
-  
   // Get the output region.
   // Note: outRegion does not allocate until first "GetScalarPointer" call
   outRegion = this->Output->GetScalarRegion();
@@ -284,7 +273,10 @@ void vtkImageTwoInputFilter::Update()
   // Compute the required input region extents.
   // Copy to fill in extent of extra dimensions.
   this->Input1->SetUpdateExtent(this->Output->GetUpdateExtent());
-  this->Input2->SetUpdateExtent(this->Output->GetUpdateExtent());
+  if (this->Input2)
+    {
+    this->Input2->SetUpdateExtent(this->Output->GetUpdateExtent());
+    }
   this->ComputeRequiredInputUpdateExtent(this->Output, this->Input1, 
 					 this->Input2);
 
@@ -294,18 +286,33 @@ void vtkImageTwoInputFilter::Update()
   this->Input1->Update();
   inRegion1 = this->Input1->GetScalarRegion();
   inRegion1->SetAxes(5, this->ExecutionAxes);
-  this->Input2->Update();
-  inRegion2 = this->Input2->GetScalarRegion();
-  inRegion2->SetAxes(5, this->ExecutionAxes);
-  // Make sure we got the input2.
-  if ( ! inRegion1->AreScalarsAllocated() || !inRegion2->AreScalarsAllocated())
+  if ( ! inRegion1->AreScalarsAllocated())
     {
-    vtkErrorMacro("Update: Could not get input");
+    vtkErrorMacro("Update: Could not get input1");
     inRegion1->Delete();
-    inRegion2->Delete();
     outRegion->Delete();
     return;
     }   
+
+  if (this->Input2)
+    {
+    this->Input2->Update();
+    inRegion2 = this->Input2->GetScalarRegion();
+    inRegion2->SetAxes(5, this->ExecutionAxes);
+    // Make sure we got the input2.
+    if ( ! inRegion2->AreScalarsAllocated())
+      {
+      vtkErrorMacro("Update: Could not get input2");
+      inRegion1->Delete();
+      inRegion2->Delete();
+      outRegion->Delete();
+      return;
+      }   
+    }
+  else
+    {
+    inRegion2 = NULL;
+    }
 
   // The StartMethod call is placed here to be after updating the input.
   if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
@@ -316,20 +323,25 @@ void vtkImageTwoInputFilter::Update()
   
   // inRegion is just a handle to the data.
   inRegion1->Delete();
-  inRegion2->Delete();
+  if (inRegion2)
+    {
+    inRegion2->Delete();
+    }
   
   // Like the graphics pipeline this source releases inputs data.
   if (this->Input1->ShouldIReleaseData())
     {
     this->Input1->ReleaseData();
     }
-  if (this->Input2->ShouldIReleaseData())
+  if (this->Input2 && this->Input2->ShouldIReleaseData())
     {
     this->Input2->ReleaseData();
     }
   
   // Delete the container for the data (not the data).
   outRegion->Delete();
+  
+  this->Updating = 1;
 }
 
 
@@ -339,14 +351,20 @@ void vtkImageTwoInputFilter::Update()
 void vtkImageTwoInputFilter::UpdateImageInformation()
 {
   // Make sure the Input has been set.
-  if ( ! this->Input1 || ! this->Input2)
+  if ( ! this->Input1)
     {
-    vtkErrorMacro(<< "UpdateImageInformation: An input is not set.");
+    vtkErrorMacro(<< "UpdateImageInformation: Input1 is not set.");
     return;
     }
-
+  // make sure we have an output
+  this->CheckCache();
+  
   this->Input1->UpdateImageInformation();
-  this->Input2->UpdateImageInformation();
+  if (this->Input2)
+    {
+    this->Input2->UpdateImageInformation();
+    }
+  
   // Set the defaults from input1
   this->Output->SetWholeExtent(this->Input1->GetWholeExtent());
   this->Output->SetSpacing(this->Input1->GetSpacing());
@@ -355,6 +373,13 @@ void vtkImageTwoInputFilter::UpdateImageInformation()
     {
     // Let the subclass modify the default.
     this->ExecuteImageInformation(this->Input1, this->Input2, this->Output);
+    }
+  
+  // If the ScalarType of the output has not been set yet,
+  // set it to be the same as input.
+  if (this->Output->GetScalarType() == VTK_VOID)
+    {
+    this->Output->SetScalarType(this->Input1->GetScalarType());
     }
 }
 
@@ -392,8 +417,8 @@ void vtkImageTwoInputFilter::ComputeRequiredInputUpdateExtent(
 					      vtkImageCache *in1,
 					      vtkImageCache *in2)
 {
-  in1->SetUpdateExtent(out->GetUpdateExtent());
-  in2->SetUpdateExtent(out->GetUpdateExtent());
+  in1 = in1;
+  in2 = in2;
 }
 
 
@@ -423,13 +448,16 @@ void vtkImageTwoInputFilter::RecursiveLoopExecute(int dim,
     // Get the extent of the forth dimension to be eliminated.
     axis = this->ExecutionAxes[dim - 1];
     inRegion1->GetAxisExtent(axis, inMin1, inMax1);
-    inRegion2->GetAxisExtent(axis, inMin2, inMax2);
     outRegion->GetAxisExtent(axis, outMin, outMax);
     
-    if (inMin2 != inMin1 || inMax2 != inMax1)
+    if (inRegion2)
       {
-      vtkErrorMacro(<< "Execute: Extra axis can not be eliminated. (inputs)");
-      return;
+      inRegion2->GetAxisExtent(axis, inMin2, inMax2);
+      if (inMin2 != inMin1 || inMax2 != inMax1)
+	{
+	vtkErrorMacro(<< "Execute: Extra axis can not be eliminated.(inputs)");
+	return;
+	}
       }
     
     // Extra axis of in and out must have the same extent
@@ -444,13 +472,19 @@ void vtkImageTwoInputFilter::RecursiveLoopExecute(int dim,
       {
       // set up the lower dimensional regions.
       inRegion1->SetAxisExtent(axis, coordinate, coordinate);
-      inRegion2->SetAxisExtent(axis, coordinate, coordinate);
+      if (inRegion2)
+	{
+	inRegion2->SetAxisExtent(axis, coordinate, coordinate);
+	}
       outRegion->SetAxisExtent(axis, coordinate, coordinate);
       this->RecursiveLoopExecute(dim - 1, inRegion1, inRegion2, outRegion);
       }
     // restore the original extent
     inRegion1->SetAxisExtent(axis, inMin1, inMax1);
-    inRegion2->SetAxisExtent(axis, inMin2, inMax2);
+    if (inRegion2)
+      {
+      inRegion2->SetAxisExtent(axis, inMin2, inMax2);
+      }
     outRegion->SetAxisExtent(axis, outMin, outMax);
     }
 }

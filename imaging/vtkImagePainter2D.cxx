@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImagePaint.cxx
+  Module:    vtkImagePainter2D.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -39,12 +39,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkImagePaint.h"
+#include "vtkImagePainter2D.h"
 
 //----------------------------------------------------------------------------
 // Description:
-// Construct an instance of vtkImagePaint with no data.
-vtkImagePaint::vtkImagePaint()
+// Construct an instance of vtkImagePainter2D with no data.
+vtkImagePainter2D::vtkImagePainter2D()
 {
   int idx;
 
@@ -58,17 +58,17 @@ vtkImagePaint::vtkImagePaint()
 
 //----------------------------------------------------------------------------
 // Description:
-// Destructor: Deleting a vtkImagePaint automatically deletes the associated
+// Destructor: Deleting a vtkImagePainter2D automatically deletes the associated
 // vtkImageData.  However, since the data is reference counted, it may not 
 // actually be deleted.
-vtkImagePaint::~vtkImagePaint()
+vtkImagePainter2D::~vtkImagePainter2D()
 {
   this->ReleaseData();
 }
 
 
 //----------------------------------------------------------------------------
-void vtkImagePaint::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImagePainter2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   int idx, num, min, max;
   
@@ -87,7 +87,7 @@ void vtkImagePaint::PrintSelf(ostream& os, vtkIndent indent)
 
 
 //----------------------------------------------------------------------------
-void vtkImagePaint::SetDrawColor(int num, float *color)
+void vtkImagePainter2D::SetDrawColor(int num, float *color)
 {
   int idx, min, max;
   
@@ -112,7 +112,7 @@ void vtkImagePaint::SetDrawColor(int num, float *color)
 }
 
 //----------------------------------------------------------------------------
-void vtkImagePaint::GetDrawColor(int num, float *color)
+void vtkImagePainter2D::GetDrawColor(int num, float *color)
 {
   int idx, min, max;
   
@@ -140,7 +140,7 @@ void vtkImagePaint::GetDrawColor(int num, float *color)
 //----------------------------------------------------------------------------
 // Draw a region.  Only implentented for 2D extents.
 template <class T>
-static void vtkImagePaintFillBox(vtkImageRegion *image, 
+static void vtkImagePainter2DFillBox(vtkImageRegion *image, 
 				 float *drawColor, T *ptr, 
 				 int min0, int max0, int min1, int max1)
 {
@@ -178,7 +178,7 @@ static void vtkImagePaintFillBox(vtkImageRegion *image,
 //----------------------------------------------------------------------------
 // Description:
 // Draw a region.  Only implentented for 2D extents.
-void vtkImagePaint::FillBox(int min0, int max0, int min1, int max1)
+void vtkImagePainter2D::FillBox(int min0, int max0, int min1, int max1)
 {
   int *extent;
   void *ptr;
@@ -198,23 +198,23 @@ void vtkImagePaint::FillBox(int min0, int max0, int min1, int max1)
   switch (this->ImageRegion->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImagePaintFillBox(this->ImageRegion, this->DrawColor, 
+      vtkImagePainter2DFillBox(this->ImageRegion, this->DrawColor, 
 			   (float *)(ptr), min0,max0, min1,max1);
       break;
     case VTK_INT:
-      vtkImagePaintFillBox(this->ImageRegion, this->DrawColor, 
+      vtkImagePainter2DFillBox(this->ImageRegion, this->DrawColor, 
 			   (int *)(ptr), min0,max0, min1,max1);
       break;
     case VTK_SHORT:
-      vtkImagePaintFillBox(this->ImageRegion, this->DrawColor, 
+      vtkImagePainter2DFillBox(this->ImageRegion, this->DrawColor, 
 			   (short *)(ptr), min0,max0, min1,max1);
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImagePaintFillBox(this->ImageRegion, this->DrawColor, 
+      vtkImagePainter2DFillBox(this->ImageRegion, this->DrawColor, 
 			   (unsigned short *)(ptr), min0,max0, min1,max1);
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImagePaintFillBox(this->ImageRegion, this->DrawColor, 
+      vtkImagePainter2DFillBox(this->ImageRegion, this->DrawColor, 
 			   (unsigned char *)(ptr), min0,max0, min1,max1);
       break;
     default:
@@ -227,7 +227,7 @@ void vtkImagePaint::FillBox(int min0, int max0, int min1, int max1)
 //----------------------------------------------------------------------------
 // Fill a tube (thick line for initial 2D implementation.
 template <class T>
-static void vtkImagePaintFillTube(vtkImageRegion *image, 
+static void vtkImagePainter2DFillTube(vtkImageRegion *image, 
 				  float *drawColor, T *ptr, 
 				  int a0, int a1, int b0, int b1, float radius)
 {
@@ -303,7 +303,7 @@ static void vtkImagePaintFillTube(vtkImageRegion *image,
 //----------------------------------------------------------------------------
 // Description:
 // Fill a tube (thick line for initial 2D implementation).
-void vtkImagePaint::FillTube(int a0, int a1, int b0, int b1, float radius)
+void vtkImagePainter2D::FillTube(int a0, int a1, int b0, int b1, float radius)
 {
   void *ptr;
   
@@ -311,23 +311,23 @@ void vtkImagePaint::FillTube(int a0, int a1, int b0, int b1, float radius)
   switch (this->ImageRegion->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImagePaintFillTube(this->ImageRegion, this->DrawColor, 
+      vtkImagePainter2DFillTube(this->ImageRegion, this->DrawColor, 
 			    (float *)(ptr), a0,a1, b0,b1, radius);
       break;
     case VTK_INT:
-      vtkImagePaintFillTube(this->ImageRegion, this->DrawColor, 
+      vtkImagePainter2DFillTube(this->ImageRegion, this->DrawColor, 
 			    (int *)(ptr), a0,a1, b0,b1, radius);
       break;
     case VTK_SHORT:
-      vtkImagePaintFillTube(this->ImageRegion, this->DrawColor,
+      vtkImagePainter2DFillTube(this->ImageRegion, this->DrawColor,
 			    (short *)(ptr), a0,a1, b0,b1, radius);
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImagePaintFillTube(this->ImageRegion, this->DrawColor, 
+      vtkImagePainter2DFillTube(this->ImageRegion, this->DrawColor, 
 			    (unsigned short *)(ptr), a0,a1, b0,b1, radius);
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImagePaintFillTube(this->ImageRegion, this->DrawColor,
+      vtkImagePainter2DFillTube(this->ImageRegion, this->DrawColor,
 			    (unsigned char *)(ptr), a0,a1, b0,b1, radius);
       break;
     default:
@@ -342,7 +342,7 @@ void vtkImagePaint::FillTube(int a0, int a1, int b0, int b1, float radius)
 //----------------------------------------------------------------------------
 // Fill a triangle (rasterize)
 template <class T>
-static void vtkImagePaintFillTriangle(vtkImageRegion *image, 
+static void vtkImagePainter2DFillTriangle(vtkImageRegion *image, 
 				      float *drawColor, T *ptr, int a0, int a1,
 				      int b0, int b1, int c0, int c1)
 {
@@ -452,7 +452,7 @@ static void vtkImagePaintFillTriangle(vtkImageRegion *image,
 //----------------------------------------------------------------------------
 // Description:
 // Fill a tube (thick line for initial 2D implementation).
-void vtkImagePaint::FillTriangle(int a0,int a1, int b0,int b1, int c0,int c1)
+void vtkImagePainter2D::FillTriangle(int a0,int a1, int b0,int b1, int c0,int c1)
 {
   void *ptr;
   
@@ -460,24 +460,24 @@ void vtkImagePaint::FillTriangle(int a0,int a1, int b0,int b1, int c0,int c1)
   switch (this->ImageRegion->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImagePaintFillTriangle(this->ImageRegion, this->DrawColor, 
+      vtkImagePainter2DFillTriangle(this->ImageRegion, this->DrawColor, 
 				(float *)(ptr), a0,a1, b0,b1, c0,c1);
       break;
     case VTK_INT:
-      vtkImagePaintFillTriangle(this->ImageRegion, this->DrawColor, 
+      vtkImagePainter2DFillTriangle(this->ImageRegion, this->DrawColor, 
 				(int *)(ptr), a0,a1, b0,b1, c0,c1);
       break;
     case VTK_SHORT:
-      vtkImagePaintFillTriangle(this->ImageRegion, this->DrawColor, 
+      vtkImagePainter2DFillTriangle(this->ImageRegion, this->DrawColor, 
 				(short *)(ptr), a0,a1, b0,b1, c0,c1);
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImagePaintFillTriangle(this->ImageRegion, this->DrawColor, 
+      vtkImagePainter2DFillTriangle(this->ImageRegion, this->DrawColor, 
 				(unsigned short *)(ptr),
 			       a0,a1, b0,b1, c0,c1);
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImagePaintFillTriangle(this->ImageRegion, this->DrawColor, 
+      vtkImagePainter2DFillTriangle(this->ImageRegion, this->DrawColor, 
 				(unsigned char *)(ptr), a0,a1, b0,b1, c0,c1);
       break;
     default:
@@ -492,7 +492,7 @@ void vtkImagePaint::FillTriangle(int a0,int a1, int b0,int b1, int c0,int c1)
 //----------------------------------------------------------------------------
 // Draw a point.  Only implentented for 2D images.
 template <class T>
-static void vtkImagePaintDrawPoint(vtkImageRegion *image, 
+static void vtkImagePainter2DDrawPoint(vtkImageRegion *image, 
 				   float *drawColor, T *ptr, 
 				   int p0, int p1)
 {
@@ -524,7 +524,7 @@ static void vtkImagePaintDrawPoint(vtkImageRegion *image,
 //----------------------------------------------------------------------------
 // Description:
 // Draw a circle
-void vtkImagePaint::DrawPoint(int p0, int p1)
+void vtkImagePainter2D::DrawPoint(int p0, int p1)
 {
   void *ptr = NULL;
   
@@ -533,23 +533,23 @@ void vtkImagePaint::DrawPoint(int p0, int p1)
   switch (this->ImageRegion->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImagePaintDrawPoint(this->ImageRegion, this->DrawColor, 
+      vtkImagePainter2DDrawPoint(this->ImageRegion, this->DrawColor, 
 			     (float *)(ptr), p0, p1);
       break;
     case VTK_INT:
-      vtkImagePaintDrawPoint(this->ImageRegion, this->DrawColor, 
+      vtkImagePainter2DDrawPoint(this->ImageRegion, this->DrawColor, 
 			     (int *)(ptr), p0, p1);
       break;
     case VTK_SHORT:
-      vtkImagePaintDrawPoint(this->ImageRegion, this->DrawColor, 
+      vtkImagePainter2DDrawPoint(this->ImageRegion, this->DrawColor, 
 			     (short *)(ptr), p0, p1);
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImagePaintDrawPoint(this->ImageRegion, this->DrawColor, 
+      vtkImagePainter2DDrawPoint(this->ImageRegion, this->DrawColor, 
 			     (unsigned short *)(ptr), p0, p1);
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImagePaintDrawPoint(this->ImageRegion, this->DrawColor, 
+      vtkImagePainter2DDrawPoint(this->ImageRegion, this->DrawColor, 
 			     (unsigned char *)(ptr), p0, p1);
       break;
     default:
@@ -562,7 +562,7 @@ void vtkImagePaint::DrawPoint(int p0, int p1)
 //----------------------------------------------------------------------------
 // Draw a circle.  Only implentented for 2D images.
 template <class T>
-static void vtkImagePaintDrawCircle(vtkImageRegion *image, 
+static void vtkImagePainter2DDrawCircle(vtkImageRegion *image, 
 				    float *drawColor, T *ptr, 
 				    int c0, int c1, float radius)
 {
@@ -615,7 +615,7 @@ static void vtkImagePaintDrawCircle(vtkImageRegion *image,
 //----------------------------------------------------------------------------
 // Description:
 // Draw a circle
-void vtkImagePaint::DrawCircle(int c0, int c1, float radius)
+void vtkImagePainter2D::DrawCircle(int c0, int c1, float radius)
 {
   void *ptr = NULL;
   
@@ -625,23 +625,23 @@ void vtkImagePaint::DrawCircle(int c0, int c1, float radius)
   switch (this->ImageRegion->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImagePaintDrawCircle(this->ImageRegion, this->DrawColor, 
+      vtkImagePainter2DDrawCircle(this->ImageRegion, this->DrawColor, 
 			      (float *)(ptr), c0, c1, radius);
       break;
     case VTK_INT:
-      vtkImagePaintDrawCircle(this->ImageRegion, this->DrawColor, 
+      vtkImagePainter2DDrawCircle(this->ImageRegion, this->DrawColor, 
 			      (int *)(ptr), c0, c1, radius);
       break;
     case VTK_SHORT:
-      vtkImagePaintDrawCircle(this->ImageRegion, this->DrawColor, 
+      vtkImagePainter2DDrawCircle(this->ImageRegion, this->DrawColor, 
 			      (short *)(ptr), c0, c1, radius);
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImagePaintDrawCircle(this->ImageRegion, this->DrawColor, 
+      vtkImagePainter2DDrawCircle(this->ImageRegion, this->DrawColor, 
 			      (unsigned short *)(ptr), c0, c1, radius);
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImagePaintDrawCircle(this->ImageRegion, this->DrawColor, 
+      vtkImagePainter2DDrawCircle(this->ImageRegion, this->DrawColor, 
 			      (unsigned char *)(ptr), c0, c1, radius);
       break;
     default:
@@ -655,7 +655,7 @@ void vtkImagePaint::DrawCircle(int c0, int c1, float radius)
 // Draw a line.  Only implentented for 2D images.
 // First point is already shifted to origin.
 template <class T>
-static void vtkImagePaintDrawSegment(vtkImageRegion *image, 
+static void vtkImagePainter2DDrawSegment(vtkImageRegion *image, 
 				     float *drawColor, T *ptr, 
 				     int p0, int p1)
 {
@@ -744,7 +744,7 @@ static void vtkImagePaintDrawSegment(vtkImageRegion *image,
 //----------------------------------------------------------------------------
 // Description:
 // Draw a Segment from point a to point b.
-void vtkImagePaint::DrawSegment(int a0, int a1, int b0, int b1)
+void vtkImagePainter2D::DrawSegment(int a0, int a1, int b0, int b1)
 {
   int *extent;
   void *ptr;
@@ -770,23 +770,23 @@ void vtkImagePaint::DrawSegment(int a0, int a1, int b0, int b1)
   switch (this->ImageRegion->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImagePaintDrawSegment(this->ImageRegion, this->DrawColor, 
+      vtkImagePainter2DDrawSegment(this->ImageRegion, this->DrawColor, 
 			       (float *)(ptr), a0, a1);
       break;
     case VTK_INT:
-      vtkImagePaintDrawSegment(this->ImageRegion, this->DrawColor, 
+      vtkImagePainter2DDrawSegment(this->ImageRegion, this->DrawColor, 
 			       (int *)(ptr), a0, a1);
       break;
     case VTK_SHORT:
-      vtkImagePaintDrawSegment(this->ImageRegion, this->DrawColor, 
+      vtkImagePainter2DDrawSegment(this->ImageRegion, this->DrawColor, 
 			       (short *)(ptr), a0, a1);
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImagePaintDrawSegment(this->ImageRegion, this->DrawColor, 
+      vtkImagePainter2DDrawSegment(this->ImageRegion, this->DrawColor, 
 			       (unsigned short *)(ptr), a0, a1);
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImagePaintDrawSegment(this->ImageRegion, this->DrawColor, 
+      vtkImagePainter2DDrawSegment(this->ImageRegion, this->DrawColor, 
 			       (unsigned char *)(ptr), a0, a1);
       break;
     default:
@@ -800,7 +800,7 @@ void vtkImagePaint::DrawSegment(int a0, int a1, int b0, int b1)
 // Description:
 // Clips a line segment so it will be in bounds.
 // If the entire segment is out of bounds, the method returns 0.
-int vtkImagePaint::ClipSegment(int &a0, int &a1, int &b0, int &b1)
+int vtkImagePainter2D::ClipSegment(int &a0, int &a1, int &b0, int &b1)
 {
   int min0, max0, min1, max1;
   float fract;
@@ -915,7 +915,7 @@ int vtkImagePaint::ClipSegment(int &a0, int &a1, int &b0, int &b1)
 // Draw a line.  Only implentented for 3D images.
 // First point is already shifted to origin.
 template <class T>
-static void vtkImagePaintDrawSegment3D(vtkImageRegion *image, 
+static void vtkImagePainter2DDrawSegment3D(vtkImageRegion *image, 
 				       float *drawColor, 
 				       T *ptr, int p0, int p1, int p2)
 {
@@ -1007,7 +1007,7 @@ static void vtkImagePaintDrawSegment3D(vtkImageRegion *image,
 // Description:
 // Draw a Segment from point a to point b.
 // No clipping or bounds checking.
-void vtkImagePaint::DrawSegment3D(float *a, float *b)
+void vtkImagePainter2D::DrawSegment3D(float *a, float *b)
 {
   void *ptr;
   int a0, a1, a2;
@@ -1021,23 +1021,23 @@ void vtkImagePaint::DrawSegment3D(float *a, float *b)
   switch (this->ImageRegion->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImagePaintDrawSegment3D(this->ImageRegion, this->DrawColor, 
+      vtkImagePainter2DDrawSegment3D(this->ImageRegion, this->DrawColor, 
 				 (float *)(ptr), a0, a1, a2);
       break;
     case VTK_INT:
-      vtkImagePaintDrawSegment3D(this->ImageRegion, this->DrawColor, 
+      vtkImagePainter2DDrawSegment3D(this->ImageRegion, this->DrawColor, 
 				 (int *)(ptr), a0, a1, a2);
       break;
     case VTK_SHORT:
-      vtkImagePaintDrawSegment3D(this->ImageRegion, this->DrawColor, 
+      vtkImagePainter2DDrawSegment3D(this->ImageRegion, this->DrawColor, 
 				 (short *)(ptr), a0, a1, a2);
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImagePaintDrawSegment3D(this->ImageRegion, this->DrawColor, 
+      vtkImagePainter2DDrawSegment3D(this->ImageRegion, this->DrawColor, 
 				 (unsigned short *)(ptr), a0, a1, a2);
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImagePaintDrawSegment3D(this->ImageRegion, this->DrawColor, 
+      vtkImagePainter2DDrawSegment3D(this->ImageRegion, this->DrawColor, 
 				 (unsigned char *)(ptr), a0, a1, a2);
       break;
     default:
@@ -1049,12 +1049,12 @@ void vtkImagePaint::DrawSegment3D(float *a, float *b)
 
 //----------------------------------------------------------------------------
 template <class T>
-static void vtkImagePaintFill(vtkImageRegion *image, float *color, 
+static void vtkImagePainter2DFill(vtkImageRegion *image, float *color, 
 			      T *ptr, int x, int y)
 {
-  vtkImagePaintPixel *pixel;
-  vtkImagePaintPixel *first, *last;
-  vtkImagePaintPixel *heap = NULL;
+  vtkImagePainter2DPixel *pixel;
+  vtkImagePainter2DPixel *first, *last;
+  vtkImagePainter2DPixel *heap = NULL;
   int min0, max0, min1, max1, minV, maxV;
   int idxV;
   int inc0, inc1, incV;
@@ -1095,7 +1095,7 @@ static void vtkImagePaintFill(vtkImageRegion *image, float *color,
     }
   
   // Create the seed
-  pixel = new vtkImagePaintPixel;
+  pixel = new vtkImagePainter2DPixel;
   pixel->X = x;
   pixel->Y = y;
   pixel->Pointer = (void *)(ptr);
@@ -1141,7 +1141,7 @@ static void vtkImagePaintFill(vtkImageRegion *image, float *color,
 	  }
 	else
 	  {
-	  pixel = new vtkImagePaintPixel;
+	  pixel = new vtkImagePainter2DPixel;
 	  }
 	pixel->X = first->X-1;
 	pixel->Y = first->Y;
@@ -1186,7 +1186,7 @@ static void vtkImagePaintFill(vtkImageRegion *image, float *color,
 	  }
 	else
 	  {
-	  pixel = new vtkImagePaintPixel;
+	  pixel = new vtkImagePainter2DPixel;
 	  }
 	pixel->X = first->X+1;
 	pixel->Y = first->Y;
@@ -1231,7 +1231,7 @@ static void vtkImagePaintFill(vtkImageRegion *image, float *color,
 	  }
 	else
 	  {
-	  pixel = new vtkImagePaintPixel;
+	  pixel = new vtkImagePainter2DPixel;
 	  }
 	pixel->X = first->X;
 	pixel->Y = first->Y-1;
@@ -1276,7 +1276,7 @@ static void vtkImagePaintFill(vtkImageRegion *image, float *color,
 	  }
 	else
 	  {
-	  pixel = new vtkImagePaintPixel;
+	  pixel = new vtkImagePainter2DPixel;
 	  }
 	pixel->X = first->X;
 	pixel->Y = first->Y+1;
@@ -1322,7 +1322,7 @@ static void vtkImagePaintFill(vtkImageRegion *image, float *color,
 // Description:
 // Fill a colored area with another color. (like connectivity)
 // All pixels connected to pixel (x, y) get replaced by draw color.
-void vtkImagePaint::FillPixel(int x, int y)
+void vtkImagePainter2D::FillPixel(int x, int y)
 {
   void *ptr;
   
@@ -1331,23 +1331,23 @@ void vtkImagePaint::FillPixel(int x, int y)
   switch (this->ImageRegion->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImagePaintFill(this->ImageRegion, this->DrawColor, 
+      vtkImagePainter2DFill(this->ImageRegion, this->DrawColor, 
 			(float *)(ptr), x, y);
       break;
     case VTK_INT:
-      vtkImagePaintFill(this->ImageRegion, this->DrawColor, 
+      vtkImagePainter2DFill(this->ImageRegion, this->DrawColor, 
 			(int *)(ptr), x, y);
       break;
     case VTK_SHORT:
-      vtkImagePaintFill(this->ImageRegion, this->DrawColor, 
+      vtkImagePainter2DFill(this->ImageRegion, this->DrawColor, 
 			(short *)(ptr), x, y);
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImagePaintFill(this->ImageRegion, this->DrawColor, 
+      vtkImagePainter2DFill(this->ImageRegion, this->DrawColor, 
 			(unsigned short *)(ptr), x, y);
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImagePaintFill(this->ImageRegion, this->DrawColor, 
+      vtkImagePainter2DFill(this->ImageRegion, this->DrawColor, 
 			(unsigned char *)(ptr), x, y);
       break;
     default:

@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkImageRegion.h"
+#include "vtkImageCache.h"
 #include "vtkImageMIPFilter.h"
 #include <math.h>
 #include <stdlib.h>
@@ -53,9 +54,7 @@ vtkImageMIPFilter::vtkImageMIPFilter()
   this->ProjectionRange[1] = 0;
   this->MinMaxIP = 1;
   this->MIPX = 0; this->MIPY = 0; this->MIPZ = 1;
-  this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS,VTK_IMAGE_Z_AXIS);
-
-  this->NumberOfExecutionAxes = 3;
+  this->SetFilteredAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS,VTK_IMAGE_Z_AXIS);
 }
 
 //----------------------------------------------------------------------------
@@ -420,17 +419,15 @@ void vtkImageMIPFilter::Execute(vtkImageRegion *inRegion,
 // This method is passed a region that holds the boundary of this filters
 // input, and changes the region to hold the boundary of this filters
 // output.
-void 
-vtkImageMIPFilter::ComputeOutputImageInformation(vtkImageRegion *inRegion,
-						 vtkImageRegion *outRegion)
+void vtkImageMIPFilter::ExecuteImageInformation(vtkImageCache *in, 
+						vtkImageCache *out)
 {
-  int extent[6];
-
+  int extent[8];
 
   // reduce extent from 3 to 2 D.
-  inRegion->GetImageExtent(3, extent);
+  in->GetWholeExtent(extent);
   extent[4] = 0; extent[5] =0;
-  outRegion->SetImageExtent(3, extent);
+  out->SetWholeExtent(extent);
 }
 
 
@@ -443,24 +440,32 @@ vtkImageMIPFilter::ComputeOutputImageInformation(vtkImageRegion *inRegion,
 // an output region.  Before this method is called "region" should have the 
 // extent of the output region.  After this method finishes, "region" should 
 // have the extent of the required input region.
-void vtkImageMIPFilter::ComputeRequiredInputRegionExtent(
-                                                    vtkImageRegion *outRegion, 
-			                            vtkImageRegion *inRegion)
+void vtkImageMIPFilter::ComputeRequiredInputUpdateExtent(vtkImageCache *out, 
+							 vtkImageCache *in)
 {
-  int extent[6];
-  int imageExtent[6];
+  int extent[8];
+  int imageExtent[8];
   
-  outRegion->GetExtent(3, extent);
+  out->GetUpdateExtent(extent);
   
-  inRegion->GetImageExtent(3, imageExtent);
+  in->GetWholeExtent(imageExtent);
 
   extent[4] = this->ProjectionRange[0];
   extent[5] = this->ProjectionRange[1];
 
-  inRegion->SetExtent(3, extent);
+  in->SetUpdateExtent(extent);
 }
 
+//----------------------------------------------------------------------------
+void vtkImageMIPFilter::SetFilteredAxes(int axis0, int axis1, int axis2)
+{
+  int axes[3];
 
+  axes[0] = axis0;
+  axes[1] = axis1;
+  axes[2] = axis2;
+  this->vtkImageFilter::SetFilteredAxes(3, axes);
+}
 
 
 

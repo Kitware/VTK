@@ -104,6 +104,7 @@ protected:
   vtkImageCache **Inputs;     // An Array of the inputs to the filter
   vtkImageRegion **Regions;   // We need an array for inputs.
   int Bypass;
+  int Updating;
   
   // Called to allocate the input array.  Copies old inputs.
   void SetNumberOfInputs(int num);

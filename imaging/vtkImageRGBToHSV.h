@@ -1,11 +1,11 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMIPFilter.h
+  Module:    vtkImageRGBToHSV.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
-  Thanks:    Thanks to Abdalmajeid M. Alyassin who developed this class.
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -38,65 +38,38 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMIPFilter - Maximum Intensity Projections of pixel values
+// .NAME vtkImageRGBToHSV - Converts RGB components to HSV.
 // .SECTION Description
-// vtkImageMIPFilter is a filter that takes the maximum or minimum intensity 
-// projections along any orthogonal plane (x-y, x-z, or y-z).
+// For each pixel with red, blue, and green compnents this
+// filter output the color coded as hue, saturation and value.
 
 
-#ifndef __vtkImageMIPFilter_h
-#define __vtkImageMIPFilter_h
+
+#ifndef __vtkImageRGBToHSV_h
+#define __vtkImageRGBToHSV_h
 
 
 #include "vtkImageFilter.h"
 
-class VTK_EXPORT vtkImageMIPFilter : public vtkImageFilter
+class VTK_EXPORT vtkImageRGBToHSV : public vtkImageFilter
 {
 public:
-  vtkImageMIPFilter();
-  static vtkImageMIPFilter *New() {return new vtkImageMIPFilter;};
-  const char *GetClassName() {return "vtkImageMIPFilter";};
-  void PrintSelf(ostream& os, vtkIndent indent);
-
-  void SetFilteredAxes(int axis0, int axis1, int axis2);
+  vtkImageRGBToHSV();
+  static vtkImageRGBToHSV *New() 
+    {return new vtkImageRGBToHSV;};
+  const char *GetClassName() {return "vtkImageRGBToHSV";};
 
   // Description:
-  // Set/Get the range of slices for MIPs
-  vtkSetVector2Macro(ProjectionRange,int);
-  vtkGetVector2Macro(ProjectionRange,int);
+  // Hue is an angle. Maximum specifies when it maps back to 0.
+  // HueMaximum defaults to 255 instead of 2PI, because unsigned char
+  // is expected as input.
+  // Output type must be the same as input type.
+  vtkSetMacro(HueMaximum,float);
+  vtkGetMacro(HueMaximum,float);
   
-  // Description:
-  // Set/Get Min Intensity Projection = 0 or Max Intensity Projection = 1
-  vtkSetMacro(MinMaxIP,int);
-  vtkGetMacro(MinMaxIP,int);
-  
-  // Description:
-  // Select MIP parallel to x-y plane.
-  vtkSetMacro(MIPZ,int);
-  vtkGetMacro(MIPZ,int);
-  vtkBooleanMacro(MIPZ,int);
-
-  // Description:
-  // Select MIP parallel to x-z plane.
-  vtkSetMacro(MIPY,int);
-  vtkGetMacro(MIPY,int);
-  vtkBooleanMacro(MIPY,int);
-
-  // Description:
-  // Select MIP parallel to y-z plane.
-  vtkSetMacro(MIPX,int);
-  vtkGetMacro(MIPX,int);
-  vtkBooleanMacro(MIPX,int);
-
 protected:
-  int ProjectionRange[2];
-  int MinMaxIP;
-  int MIPX;
-  int MIPY;
-  int MIPZ;
-
-  void ExecuteImageInformation(vtkImageCache *in, vtkImageCache *out);
-  void ComputeRequiredInputUpdateExtent(vtkImageCache *out, vtkImageCache *in);
+  float HueMaximum;
+  
   void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };
 

@@ -49,6 +49,8 @@ vtkImageMultipleInputFilter::vtkImageMultipleInputFilter()
   this->NumberOfInputs = 0;
   this->Inputs = NULL;
   this->Regions = NULL;
+  this->Bypass = 0;
+  this->Updating = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -267,17 +269,6 @@ void vtkImageMultipleInputFilter::SetInput(int num, vtkImageCache *input)
   
   this->Inputs[num] = input;
   this->Modified();
-
-  // Should we use the data type from the input?
-  this->CheckCache();      // make sure a cache exists
-  if (this->Output->GetScalarType() == VTK_VOID)
-    {
-    this->Output->SetScalarType(input->GetScalarType());
-    if (this->Output->GetScalarType() == VTK_VOID)
-      {
-      vtkWarningMacro(<< "SetInput1: Cannot determine ScalarType of input.");
-      }
-    }
 }
 
 
@@ -290,6 +281,13 @@ void vtkImageMultipleInputFilter::Update()
 {
   vtkImageRegion *outRegion;
   int idx, idx2;
+  
+  // prevent infinite update loops.
+  if (this->Updating)
+    {
+    return;
+    }
+  this->Updating = 1;
   
   // We could handle NULLs in our input list, but ...
   if ( ! this->Inputs || ! this->Inputs[0])
@@ -401,6 +399,8 @@ void vtkImageMultipleInputFilter::Update()
   
   // Delete the container for the data (not the data).
   outRegion->Delete();
+  
+  this->Updating = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -422,7 +422,9 @@ void vtkImageMultipleInputFilter::UpdateImageInformation()
       }
     this->Inputs[idx]->UpdateImageInformation();
     }
-
+  // make sure we have an output
+  this->CheckCache();
+  
   // Set the defaults from input1
   this->Output->SetWholeExtent(this->Inputs[0]->GetWholeExtent());
   this->Output->SetSpacing(this->Inputs[0]->GetSpacing());
@@ -431,6 +433,14 @@ void vtkImageMultipleInputFilter::UpdateImageInformation()
     {
     // Let the subclass modify the default.
     this->ExecuteImageInformation(this->Inputs, this->Output);
+    }
+  
+  
+  // If the ScalarType of the output has not been set yet,
+  // set it to be the same as input.
+  if (this->Output->GetScalarType() == VTK_VOID)
+    {
+    this->Output->SetScalarType(this->Inputs[0]->GetScalarType());
     }
 }
 

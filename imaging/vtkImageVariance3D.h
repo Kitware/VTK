@@ -1,11 +1,11 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMIPFilter.h
+  Module:    vtkImageVariance3D.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
-  Thanks:    Thanks to Abdalmajeid M. Alyassin who developed this class.
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -38,66 +38,46 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMIPFilter - Maximum Intensity Projections of pixel values
+// .NAME vtkImageVariance3D - Variance in a neighborhood..
 // .SECTION Description
-// vtkImageMIPFilter is a filter that takes the maximum or minimum intensity 
-// projections along any orthogonal plane (x-y, x-z, or y-z).
+// vtkImageVariance3D replaces each pixel with a measurement of 
+// pixel variance in a eliptical neighborhood centered on that pixel.
+// The value computed is not exactly the variance.
+// The difference between the neighbor values and center value is computed
+// and squared for each neighbor.  These values are summed and divided by
+// the total number of neighbors to produce the output value.
 
 
-#ifndef __vtkImageMIPFilter_h
-#define __vtkImageMIPFilter_h
+#ifndef __vtkImageVariance3D_h
+#define __vtkImageVariance3D_h
 
 
-#include "vtkImageFilter.h"
+#include "vtkImageSpatialFilter.h"
 
-class VTK_EXPORT vtkImageMIPFilter : public vtkImageFilter
+class VTK_EXPORT vtkImageVariance3D : public vtkImageSpatialFilter
 {
 public:
-  vtkImageMIPFilter();
-  static vtkImageMIPFilter *New() {return new vtkImageMIPFilter;};
-  const char *GetClassName() {return "vtkImageMIPFilter";};
+  vtkImageVariance3D();
+  static vtkImageVariance3D *New() 
+    {return new vtkImageVariance3D;};
+  const char *GetClassName() {return "vtkImageVariance3D";};
   void PrintSelf(ostream& os, vtkIndent indent);
-
+  
   void SetFilteredAxes(int axis0, int axis1, int axis2);
 
-  // Description:
-  // Set/Get the range of slices for MIPs
-  vtkSetVector2Macro(ProjectionRange,int);
-  vtkGetVector2Macro(ProjectionRange,int);
+  // Set/Get the size of the neighood.
+  void SetKernelSize(int size0, int size1, int size2);
   
   // Description:
-  // Set/Get Min Intensity Projection = 0 or Max Intensity Projection = 1
-  vtkSetMacro(MinMaxIP,int);
-  vtkGetMacro(MinMaxIP,int);
+  // Get the Mask used as a footprint.
+  vtkGetObjectMacro(Mask, vtkImageRegion);
   
-  // Description:
-  // Select MIP parallel to x-y plane.
-  vtkSetMacro(MIPZ,int);
-  vtkGetMacro(MIPZ,int);
-  vtkBooleanMacro(MIPZ,int);
-
-  // Description:
-  // Select MIP parallel to x-z plane.
-  vtkSetMacro(MIPY,int);
-  vtkGetMacro(MIPY,int);
-  vtkBooleanMacro(MIPY,int);
-
-  // Description:
-  // Select MIP parallel to y-z plane.
-  vtkSetMacro(MIPX,int);
-  vtkGetMacro(MIPX,int);
-  vtkBooleanMacro(MIPX,int);
-
 protected:
-  int ProjectionRange[2];
-  int MinMaxIP;
-  int MIPX;
-  int MIPY;
-  int MIPZ;
-
-  void ExecuteImageInformation(vtkImageCache *in, vtkImageCache *out);
-  void ComputeRequiredInputUpdateExtent(vtkImageCache *out, vtkImageCache *in);
+  vtkImageRegion *Mask;
+    
+  void ExecuteCenter(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
   void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  void ComputeMask();
 };
 
 #endif

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageFourierIdealLowPass.h
+  Module:    vtkImageLogic.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,51 +38,74 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageFourierIdealLowPass - Simple frequency domain band pass.
+// .NAME vtkImageLogic - And, or, xor, nand, nor, not.
 // .SECTION Description
-// vtkImageFourierIdealLowPass just sets a portion of the image to zero.
-// Input and Output must be floats.  Dimensionality is set when the
-// axes are set.  Defaults to 2D on X and Y axes.
+// vtkImageLogic implents basic logic operations.
+// SetOperation is used to select the filteres behavior.
+// The filter can take two or one input.  Output is always unsigned char,
+// Inputs must have the same type.
+
+
+#ifndef __vtkImageLogic_h
+#define __vtkImageLogic_h
+
+
+// Operation options.
+#define VTK_AND          0
+#define VTK_OR           1
+#define VTK_XOR          2
+#define VTK_NAND         3
+#define VTK_NOR          4
+#define VTK_NOT          5
+#define VTK_NOP          6
 
 
 
-#ifndef __vtkImageFourierIdealLowPass_h
-#define __vtkImageFourierIdealLowPass_h
+#include "vtkImageTwoInputFilter.h"
 
-
-#include "vtkImageFilter.h"
-
-class VTK_EXPORT vtkImageFourierIdealLowPass : public vtkImageFilter
+class VTK_EXPORT vtkImageLogic : public vtkImageTwoInputFilter
 {
 public:
-  vtkImageFourierIdealLowPass();
-  static vtkImageFourierIdealLowPass *New() 
-    {return new vtkImageFourierIdealLowPass;};
-  const char *GetClassName() {return "vtkImageFourierIdealLowPass";};
+  vtkImageLogic();
+  static vtkImageLogic *New() {return new vtkImageLogic;};
+  const char *GetClassName() {return "vtkImageLogic";};
 
   // Description:
-  // Set/Get the cutoff frequency for each axis.
-  // The values are specified in the order X, Y, Z, Time.
-  // Units: Cycles per world unit (as defined by the data spacing).
-  vtkSetVector4Macro(CutOff,float);
-  void SetCutOff(float v) {this->SetCutOff(v, v, v, v);}
-  void SetXCutOff(float v);
-  void SetYCutOff(float v);
-  void SetZCutOff(float v);
-  void SetTimeCutOff(float v);
-  vtkGetVector4Macro(CutOff,float);
-  float GetXCutOff() {return this->CutOff[0];}
-  float GetYCutOff() {return this->CutOff[1];}
-  float GetZCutOff() {return this->CutOff[2];}
-  float GetTimeCutOff() {return this->CutOff[3];}
+  // Set/Get the Operation to perform.
+  vtkSetMacro(Operation,int);
+  vtkGetMacro(Operation,int);
+  void SetOperationToAnd() {this->SetOperation(VTK_AND);};
+  void SetOperationToOr() {this->SetOperation(VTK_OR);};
+  void SetOperationToXor() {this->SetOperation(VTK_XOR);};
+  void SetOperationToNand() {this->SetOperation(VTK_NAND);};
+  void SetOperationToNor() {this->SetOperation(VTK_NOR);};
+  void SetOperationToNot() {this->SetOperation(VTK_NOT);};
 
-protected:
-  float CutOff[4];
+  // Description:
+  // Set the value to use for true in the output.
+  vtkSetMacro(OutputTrueValue, unsigned char);
+  vtkGetMacro(OutputTrueValue, unsigned char);
   
-  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+protected:
+  int Operation;
+  unsigned char OutputTrueValue;
+  
+  void Execute(vtkImageRegion *inRegion1, 
+	       vtkImageRegion *inRegion2, 
+	       vtkImageRegion *outRegion);
 };
 
 #endif
+
+
+
+
+
+
+
+
+
+
 
 
 
