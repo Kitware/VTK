@@ -50,16 +50,16 @@
 #ifndef __vtkProcrustesAlignmentFilter_h
 #define __vtkProcrustesAlignmentFilter_h
 
-#include "vtkSource.h"
+#include "vtkPointSetAlgorithm.h"
 
 class vtkLandmarkTransform;
 class vtkPointSet;
 class vtkPoints;
 
-class VTK_HYBRID_EXPORT vtkProcrustesAlignmentFilter : public vtkSource
+class VTK_HYBRID_EXPORT vtkProcrustesAlignmentFilter : public vtkPointSetAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkProcrustesAlignmentFilter,vtkSource);
+  vtkTypeRevisionMacro(vtkProcrustesAlignmentFilter,vtkPointSetAlgorithm);
 
   // Description:
   // Prints information about the state of the filter.
@@ -83,26 +83,15 @@ public:
   // Specify how many pointsets are going to be given as input.
   void SetNumberOfInputs(int n);
 
-  // Description:
-  // Specify the input pointset with index idx.
-  // Call SetNumberOfInputs before calling this function.
-  void SetInput(int idx,vtkPointSet* p);
-
-  // Description:
-  // Retrieve the output point set with index idx.
-  vtkPointSet* GetOutput(int idx);
-
-  // Description:
-  // Retrieve the input point set with index idx (usuall only for pipeline tracing).
-  vtkPointSet* GetInput(int idx);
-
 protected:
   vtkProcrustesAlignmentFilter();
   ~vtkProcrustesAlignmentFilter();
 
   // Description:
   // Usual data generation method.
-  void Execute();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
 
   vtkLandmarkTransform *LandmarkTransform;
 
