@@ -112,7 +112,7 @@ public:
   void Split(int component, const char* arrayName);
 
 //BTX
-  enum FieldLocation
+  enum FieldLocations
   {
     DATA_OBJECT=0,
     POINT_DATA=1,
@@ -144,7 +144,7 @@ public:
 protected:
 
 //BTX
-  enum FieldType
+  enum FieldTypes
   {
     NAME,
     ATTRIBUTE

@@ -104,7 +104,7 @@ public:
   vtkSetMacro(NumberOfComponents, int);
 
 //BTX
-  enum FieldLocation
+  enum FieldLocations
   {
     DATA_OBJECT=0,
     POINT_DATA=1,
