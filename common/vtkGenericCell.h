@@ -119,7 +119,12 @@ public:
   void SetCellTypeToWedge() {this->SetCellType(VTK_WEDGE);};
   void SetCellTypeToPyramid() {this->SetCellType(VTK_PYRAMID);};
 
-protected:
+  // Description:
+  // For legacy compatibility. Do not use.
+  void DeepCopy(vtkCell &c) {this->DeepCopy(&c);}
+  void ShallowCopy(vtkCell &c) {this->ShallowCopy(&c);}
+
+ protected:
   vtkGenericCell();
   ~vtkGenericCell();
   vtkGenericCell(const vtkGenericCell&) {};
