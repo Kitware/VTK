@@ -52,10 +52,21 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 typedef struct 
 {
-  // These are the input values that define the ray
+  // These are the input values that define the ray. Depending on
+  // whether we are casting a WorldRay or a ViewRay, these are in
+  // world coordinates or view coordinates.
   float Origin[3];
   float Direction[3];
+
+  // The pixel location for the ray that is being cast can be
+  // important, for example if hardware ray bounding is being used
+  // and the location in the depth buffer must be matched to this
+  // ray.
   int   Pixel[2];
+
+  // The world coordiante location of the camera is important for the
+  // ray caster to be able to return a Z value for the intersection
+  float CameraPosition[3];
 
   // This input value defines the size of the image
   int   ImageSize[2];

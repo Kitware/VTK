@@ -59,6 +59,7 @@ typedef struct
 
   // Matrices for switching from view to volume coordinate, and back
   float                        WorldToVolumeMatrix[16];
+  float                        VolumeToWorldMatrix[16];
   float                        ViewToVolumeMatrix[16];
 
   // The distance from the camera to the center of the volume
