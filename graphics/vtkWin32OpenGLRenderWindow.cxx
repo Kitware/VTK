@@ -224,10 +224,10 @@ void vtkWin32OpenGLRenderWindow::StereoUpdate(void)
 // Specify various window parameters.
 void vtkWin32OpenGLRenderWindow::WindowConfigure()
 {
-  // this is all handles by the desiredVisualInfo method
+  // this is all handled by the desiredVisualInfo method
 }
 
-void vtkWin32OpenGLSetupPixelFormat(HDC hDC)
+void vtkWin32OpenGLSetupPixelFormat(HDC hDC,int debug)
 {
     PIXELFORMATDESCRIPTOR pfd = {
         sizeof(PIXELFORMATDESCRIPTOR),  /* size */
@@ -261,7 +261,7 @@ void vtkWin32OpenGLSetupPixelFormat(HDC hDC)
     
     DescribePixelFormat(hDC, pixelFormat,sizeof(pfd), &pfd); 
  
-    if (!(pfd.dwFlags & PFD_STEREO))
+    if (!(pfd.dwFlags & PFD_STEREO) && debug)
       {
       vtkGenericWarningMacro("No Stereo Available!");
       }
@@ -274,8 +274,7 @@ void vtkWin32OpenGLSetupPixelFormat(HDC hDC)
 }
 
 vtkWin32OpenGLRenderWindow *vtkWin32OpenGLRenderWindowPtr = NULL;
-
-void vtkWin32OpenGLSetupPalette(HDC hDC, vtkWin32OpenGLRenderWindow *me)
+vtkWin32OpenGLSetupPalette(HDC hDC, vtkWin32OpenGLRenderWindow *me)
 {
     int pixelFormat = GetPixelFormat(hDC);
     PIXELFORMATDESCRIPTOR pfd;
@@ -352,7 +351,7 @@ LRESULT APIENTRY vtkWin32OpenGLWndProc(HWND hWnd, UINT message, WPARAM wParam, L
         SetWindowLong(hWnd,GWL_USERDATA,(LONG)me);
         me->DeviceContext = GetDC(hWnd);
 	me->Pen = CreatePen(PS_SOLID,0,me->PenColor);
-        vtkWin32OpenGLSetupPixelFormat(me->DeviceContext);
+        vtkWin32OpenGLSetupPixelFormat(me->DeviceContext,me->GetDebug());
         vtkWin32OpenGLSetupPalette(me->DeviceContext,me);
 		    me->ContextId = wglCreateContext(me->DeviceContext);
         wglMakeCurrent(me->DeviceContext, me->ContextId);
@@ -526,7 +525,7 @@ void vtkWin32OpenGLRenderWindow::WindowInitialize (void)
       this->DeviceContext = GetDC(this->WindowId);
       //DescribePixelFormat(this->DeviceContext, 
       //  PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER, 0, NULL);
-      vtkWin32OpenGLSetupPixelFormat(this->DeviceContext);
+      vtkWin32OpenGLSetupPixelFormat(this->DeviceContext,this->GetDebug());
       vtkWin32OpenGLSetupPalette(this->DeviceContext,this);
 		  this->ContextId = wglCreateContext(this->DeviceContext);
       wglMakeCurrent(this->DeviceContext, this->ContextId);
