@@ -19,7 +19,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Point.hh"
 #include "vlMath.hh"
 
-float vlPoint::EvaluatePosition(float x[3], int& subId, float pcoords[3])
+int vlPoint::EvaluatePosition(float x[3], int& subId, 
+                              float pcoords[3], float& dist2)
 {
   int numPts;
   float *X;
@@ -36,13 +37,13 @@ float vlPoint::EvaluatePosition(float x[3], int& subId, float pcoords[3])
   if (dist2 == 0.0)
     {
     pcoords[0] = 0.0;
+    return 1;
     }
   else
     {
     pcoords[0] = -10.0;
+    return 0;
     }
-
-  return dist2;
 }
 
 void vlPoint::EvaluateLocation(int& subId, float pcoords[3], float x[3])

@@ -23,7 +23,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // Note: the ordering of the Points and PointIds is important.  See text.
 //
 
-float vlBrick::EvaluatePosition(float x[3], int& subId, float pcoords[3])
+int vlBrick::EvaluatePosition(float x[3], int& subId, float pcoords[3], float& dist2)
 {
   float *pt1, *pt2, *pt3, *pt4;
   int i;
@@ -46,21 +46,23 @@ float vlBrick::EvaluatePosition(float x[3], int& subId, float pcoords[3])
   pcoords[1] = (x[1] - pt1[1]) / (pt3[1] - pt1[1]);
   pcoords[2] = (x[2] - pt1[2]) / (pt4[2] - pt1[2]);
 
-  if ( pcoords[0] >= -1.0 && pcoords[1] <= 1.0 &&
-  pcoords[1] >= -1.0 && pcoords[1] <= 1.0 &&
-  pcoords[2] >= -1.0 && pcoords[2] <= 1.0 )
+  if ( pcoords[0] >= 0.0 && pcoords[1] <= 1.0 &&
+  pcoords[1] >= 0.0 && pcoords[1] <= 1.0 &&
+  pcoords[2] >= 0.0 && pcoords[2] <= 1.0 )
     {
-    return 0.0; // inside brick
+    dist2 = 0.0; // inside brick
+    return 1;
     }
   else
     {
     for (i=0; i<3; i++)
       {
-      if (pcoords[i] < -1.0) pcoords[i] = -1.0;
+      if (pcoords[i] < 0.0) pcoords[i] = 0.0;
       if (pcoords[i] > 1.0) pcoords[i] = 1.0;
       }
     this->EvaluateLocation(subId, pcoords, closestPoint);
-    return math.Distance2BetweenPoints(closestPoint,x);
+    dist2 = math.Distance2BetweenPoints(closestPoint,x);
+    return 0;
     }
 }
 

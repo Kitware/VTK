@@ -27,14 +27,14 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 //
 //  Method to calculate parametric coordinates in an eight noded
 //  linear hexahedron element from global coordinates.  Note: the natural 
-//  formulation calls for r,s,t parametric coordinates to range range 
+//  formulation calls for r,s,t parametric coordinates to range
 //  from -1<=r,s,t<=1. We need to shift to 0<=r,s,t<=1.
 //  Uses Newton's method to solve the non-linear equations.
 //
 #define MAX_ITERATION 10
 #define CONVERGED 1.e-03
 
-float vlHexahedron::EvaluatePosition(float x[3], int& subId, float pcoords[3])
+int vlHexahedron::EvaluatePosition(float x[3], int& subId, float pcoords[3], float& dist2)
 {
   int iteration, converged;
   float  params[3];
@@ -85,7 +85,8 @@ float vlHexahedron::EvaluatePosition(float x[3], int& subId, float pcoords[3])
 //
     if ( (d=math.Determinate3x3(rcol,scol,tcol)) == 0.0 )
       {
-      return LARGE_FLOAT;
+      dist2 = LARGE_FLOAT;
+      return 0;
       }
 
     pcoords[0] = params[0] - math.Determinate3x3 (fcol,scol,tcol) / d;
@@ -117,7 +118,8 @@ float vlHexahedron::EvaluatePosition(float x[3], int& subId, float pcoords[3])
   if ( !converged )
     {
     pcoords[0] = pcoords[1] =  pcoords[2] = 10.0;
-    return LARGE_FLOAT;
+    dist2 = LARGE_FLOAT;
+    return 0;
     }
   else
     {
@@ -126,7 +128,8 @@ float vlHexahedron::EvaluatePosition(float x[3], int& subId, float pcoords[3])
     pcoords[2] >= -1.0 && pcoords[2] <= 1.0 )
       {
       for(i=0; i<3; i++) pcoords[i] = 0.5*(pcoords[i]+1.0); // shift to (0,1)
-      return 0.0; // inside hexahedron
+      dist2 = 0.0; // inside hexahedron
+      return 1;
       }
     else
       {
@@ -137,7 +140,8 @@ float vlHexahedron::EvaluatePosition(float x[3], int& subId, float pcoords[3])
         }
       this->EvaluateLocation(subId, pcoords, closestPoint);
       for(i=0; i<3; i++) pcoords[i] = 0.5*(pcoords[i]+1.0); // shift to (0,1)
-      return math.Distance2BetweenPoints(closestPoint,x);
+      dist2 = math.Distance2BetweenPoints(closestPoint,x);
+      return 0;
       }
     }
 }

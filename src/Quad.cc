@@ -29,7 +29,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #define MAX_ITERATION 10
 #define CONVERGED 1.e-03
 
-float vlQuad::EvaluatePosition(float x[3], int& subId, float pcoords[3])
+int vlQuad::EvaluatePosition(float x[3], int& subId, float pcoords[3], float& dist2)
 {
   int i, j;
   vlPolygon poly;
@@ -139,7 +139,8 @@ float vlQuad::EvaluatePosition(float x[3], int& subId, float pcoords[3])
   if ( !converged )
     {
     pcoords[0] = pcoords[1] =  pcoords[2] = 10.0;
-    return LARGE_FLOAT;
+    dist2 = LARGE_FLOAT;
+    return 0;
     }
   else
     {
@@ -147,7 +148,8 @@ float vlQuad::EvaluatePosition(float x[3], int& subId, float pcoords[3])
     pcoords[1] >= -1.0 && pcoords[1] <= 1.0 )
       {
       for(i=0; i<3; i++) pcoords[i] = 0.5*(pcoords[i]+1.0); // shift to (0,1)
-      return math.Distance2BetweenPoints(xProj,x); //projection distance
+      dist2 = math.Distance2BetweenPoints(xProj,x); //projection distance
+      return 1;
       }
     else
       {
@@ -158,7 +160,8 @@ float vlQuad::EvaluatePosition(float x[3], int& subId, float pcoords[3])
         }
       this->EvaluateLocation(subId, pcoords, closestPoint);
       for(i=0; i<2; i++) pcoords[i] = 0.5*(pcoords[i]+1.0); // shift to (0,1)
-      return math.Distance2BetweenPoints(closestPoint,x);
+      dist2 = math.Distance2BetweenPoints(closestPoint,x);
+      return 0;
       }
     }
 }

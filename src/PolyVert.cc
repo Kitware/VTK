@@ -18,11 +18,11 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "PolyPts.hh"
 #include "vlMath.hh"
 
-float vlPolyPoints::EvaluatePosition(float x[3], int& subId, float pcoords[3])
+int vlPolyPoints::EvaluatePosition(float x[3], int& subId, float pcoords[3], float& minDist2)
 {
   int numPts=this->Points.GetNumberOfPoints();
   float *X;
-  float dist2, minDist2;
+  float dist2;
   int i;
   vlMath math;
 
@@ -39,14 +39,14 @@ float vlPolyPoints::EvaluatePosition(float x[3], int& subId, float pcoords[3])
 
   if (minDist2 == 0.0)
     {
+    return 1;
     pcoords[0] = 0.0;
     }
   else
     {
+    return 0;
     pcoords[0] = -10.0;
     }
-
-  return minDist2;
 }
 
 void vlPolyPoints::EvaluateLocation(int& subId, float pcoords[3], float x[3])

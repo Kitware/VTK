@@ -20,7 +20,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Plane.hh"
 #include "vlMath.hh"
 
-float vlTriangle::EvaluatePosition(float x[3], int& subId, float pcoords[3])
+int vlTriangle::EvaluatePosition(float x[3], int& subId, float pcoords[3], float& dist2)
 {
   int i, j;
   vlPolygon poly;
@@ -37,9 +37,9 @@ float vlTriangle::EvaluatePosition(float x[3], int& subId, float pcoords[3])
 //
 // Get normal for triangle
 //
-  pt1 = this->Points.GetPoint(0);
-  pt2 = this->Points.GetPoint(1);
-  pt3 = this->Points.GetPoint(2);
+  pt1 = this->Points.GetPoint(1);
+  pt2 = this->Points.GetPoint(2);
+  pt3 = this->Points.GetPoint(0);
 
   poly.ComputeNormal (pt1, pt2, pt3, n);
 //
@@ -76,13 +76,16 @@ float vlTriangle::EvaluatePosition(float x[3], int& subId, float pcoords[3])
 
   pcoords[0] = math.Determinate2x2 (rhs,c2) / det;
   pcoords[1] = math.Determinate2x2 (c1,rhs) / det;
+  pcoords[2] = 1.0 - pcoords[0] - pcoords[1];
 //
 // Okay, now find closest point to element
 //
   if ( pcoords[0] >= 0.0 && pcoords[1] <= 1.0 &&
-  pcoords[1] >= 0.0 && pcoords[1] <= 1.0 )
+  pcoords[1] >= 0.0 && pcoords[1] <= 1.0 &&
+  pcoords[2] >= 0.0 && pcoords[2] <= 1.0 )
     {
-    return math.Distance2BetweenPoints(xProj,x); //projection distance
+    dist2 = math.Distance2BetweenPoints(xProj,x); //projection distance
+    return 1;
     }
   else
     {
@@ -92,7 +95,8 @@ float vlTriangle::EvaluatePosition(float x[3], int& subId, float pcoords[3])
       if (pcoords[i] > 1.0) pcoords[i] = 1.0;
       }
     this->EvaluateLocation(subId, pcoords, closestPoint);
-    return math.Distance2BetweenPoints(closestPoint,x);
+    dist2 = math.Distance2BetweenPoints(closestPoint,x);
+    return 0;
     }
 }
 
@@ -102,9 +106,9 @@ void vlTriangle::EvaluateLocation(int& subId, float pcoords[3], float x[3])
   float *pt1, *pt2, *pt3;
   int i;
 
-  pt1 = this->Points.GetPoint(0);
-  pt2 = this->Points.GetPoint(1);
-  pt3 = this->Points.GetPoint(2);
+  pt1 = this->Points.GetPoint(1);
+  pt2 = this->Points.GetPoint(2);
+  pt3 = this->Points.GetPoint(0);
 
   u3 = 1.0 - pcoords[0] - pcoords[1];
 

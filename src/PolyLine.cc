@@ -90,27 +90,29 @@ int vlPolyLine::GenerateNormals(vlPoints *pts, vlCellArray *lines, vlFloatNormal
 //
 static vlLine line;
 
-float vlPolyLine::EvaluatePosition(float x[3], int& subId, float pcoords[3])
+int vlPolyLine::EvaluatePosition(float x[3], int& subId, float pcoords[3], float& minDist2)
 {
-  float pc[3], dist2, minDist2;
-  int ignoreId, i;
+  float pc[3], dist2;
+  int ignoreId, i, return_status, status;
 
   pcoords[1] = pcoords[2] = 0.0;
 
+  return_status = 0;
   for (minDist2=LARGE_FLOAT,i=0; i<this->Points.GetNumberOfPoints()-1; i++)
     {
     line.Points.SetPoint(0,this->Points.GetPoint(i));
     line.Points.SetPoint(1,this->Points.GetPoint(i+1));
-    dist2 = line.EvaluatePosition(x, ignoreId, pc);
+    status = line.EvaluatePosition(x, ignoreId, pc, dist2);
     if ( dist2 < minDist2 )
       {
+      return_status = status;
       subId = i;
       pcoords[0] = pc[0];
       minDist2 = dist2;
       }
     }
 
-  return minDist2;
+  return return_status;
 }
 
 void vlPolyLine::EvaluateLocation(int& subId, float pcoords[3], float x[3])

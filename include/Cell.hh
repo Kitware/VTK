@@ -47,10 +47,11 @@ public:
   // Dimensionality of cell (0,1,2, or 3)
   virtual int CellDimension() = 0;
 
-  // return inside cell (!=0) if <= tolerance squared; evaluate parametric 
-  // coordinates, sub-cell id (if cell is composite), and distance squared 
-  // of point x[3] to cell.
-  virtual float EvaluatePosition(float x[3], int& subId, float pcoords[3]) = 0;
+  // given a point x[3] return inside(=1) or outside(=0) cell; evaluate 
+  // parametric coordinates, sub-cell id (!=0 only if cell is composite), and 
+  // distance squared  of point x[3] to cell (in particular, the sub-cell 
+  // indicated).
+  virtual int EvaluatePosition(float x[3], int& subId, float pcoords[3], float& dist2) = 0;
 
   // Determine global coordinate from subId and parametric coordinates
   virtual void EvaluateLocation(int& subId, float pcoords[3], float x[3]) = 0;

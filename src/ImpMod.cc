@@ -144,7 +144,7 @@ void vlImplicitModeller::Execute()
           x[0] = this->AspectRatio[0] * i + this->Origin[0];
           idx = jkFactor*k + this->Dimension[0]*j + i;
           prevDistance2 = newScalars->GetScalar(idx);
-          distance2 = cell->EvaluatePosition(x,subId,pcoords);
+          cell->EvaluatePosition(x, subId, pcoords, distance2);
           if (distance2 < prevDistance2)
             newScalars->SetScalar(idx,distance2);
           }

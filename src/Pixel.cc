@@ -25,7 +25,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // Note: the ordering of the Points and PointIds is important.  See text.
 //
 
-float vlRectangle::EvaluatePosition(float x[3], int& subId, float pcoords[3])
+int vlRectangle::EvaluatePosition(float x[3], int& subId, float pcoords[3], float& dist2)
 {
   float *pt1, *pt2, *pt3;
   vlPolygon poly;
@@ -60,23 +60,25 @@ float vlRectangle::EvaluatePosition(float x[3], int& subId, float pcoords[3])
   if ( (l21=math.Norm(p21)) == 0.0 ) l21 = 1.0;
   if ( (l31=math.Norm(p31)) == 0.0 ) l31 = 1.0;
 
-  pcoords[0] = math.Dot(p21,p) / l21;
-  pcoords[1] = math.Dot(p31,p) / l31;
+  pcoords[0] = math.Dot(p21,p) / (l21*l21);
+  pcoords[1] = math.Dot(p31,p) / (l31*l31);
 
-  if ( pcoords[0] >= -1.0 && pcoords[1] <= 1.0 &&
-  pcoords[1] >= -1.0 && pcoords[1] <= 1.0 )
+  if ( pcoords[0] >= 0.0 && pcoords[1] <= 1.0 &&
+  pcoords[1] >= 0.0 && pcoords[1] <= 1.0 )
     {
-    return math.Distance2BetweenPoints(xProj,x); //projection distance
+    dist2 = math.Distance2BetweenPoints(xProj,x); //projection distance
+    return 1;
     }
   else
     {
     for (i=0; i<2; i++)
       {
-      if (pcoords[i] < -1.0) pcoords[i] = -1.0;
+      if (pcoords[i] < 0.0) pcoords[i] = 0.0;
       if (pcoords[i] > 1.0) pcoords[i] = 1.0;
       }
     this->EvaluateLocation(subId, pcoords, closestPoint);
-    return math.Distance2BetweenPoints(closestPoint,x);
+    dist2 = math.Distance2BetweenPoints(closestPoint,x);
+    return 0;
     }
 }
 

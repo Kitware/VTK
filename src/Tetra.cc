@@ -18,7 +18,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Tetra.hh"
 #include "vlMath.hh"
 
-float vlTetra::EvaluatePosition(float x[3], int& subId, float pcoords[3])
+int vlTetra::EvaluatePosition(float x[3], int& subId, float pcoords[3], float& dist2)
 {
   float *pt1, *pt2, *pt3, *pt4;
   int i;
@@ -29,10 +29,10 @@ float vlTetra::EvaluatePosition(float x[3], int& subId, float pcoords[3])
   subId = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
 
-  pt1 = this->Points.GetPoint(0);
-  pt2 = this->Points.GetPoint(1);
-  pt3 = this->Points.GetPoint(2);
-  pt4 = this->Points.GetPoint(3);
+  pt1 = this->Points.GetPoint(1);
+  pt2 = this->Points.GetPoint(2);
+  pt3 = this->Points.GetPoint(3);
+  pt4 = this->Points.GetPoint(0);
 
   for (i=0; i<3; i++)
     {  
@@ -43,7 +43,10 @@ float vlTetra::EvaluatePosition(float x[3], int& subId, float pcoords[3])
     }
 
   if ( (det = math.Determinate3x3(c1,c2,c3)) == 0.0 )
-    return LARGE_FLOAT;
+    {
+    dist2 = LARGE_FLOAT;
+    return 0;
+    }
 
   pcoords[0] = math.Determinate3x3 (rhs,c2,c3) / det;
   pcoords[1] = math.Determinate3x3 (c1,rhs,c3) / det;
@@ -53,17 +56,19 @@ float vlTetra::EvaluatePosition(float x[3], int& subId, float pcoords[3])
   pcoords[1] >= 0.0 && pcoords[1] <= 1.0 &&
   pcoords[2] >= 0.0 && pcoords[2] <= 1.0 )
     {
-    return 0.0; // inside tetra
+    dist2 = 0.0;
+    return 1; // inside tetra
     }
   else
     {
     for (i=0; i<3; i++)
       {
-      if (pcoords[i] < -1.0) pcoords[i] = -1.0;
+      if (pcoords[i] < 0.0) pcoords[i] = 0.0;
       if (pcoords[i] > 1.0) pcoords[i] = 1.0;
       }
     this->EvaluateLocation(subId, pcoords, closestPoint);
-    return math.Distance2BetweenPoints(closestPoint,x);
+    dist2 = math.Distance2BetweenPoints(closestPoint,x);
+    return 0;
     }
 }
 
@@ -73,10 +78,10 @@ void vlTetra::EvaluateLocation(int& subId, float pcoords[3], float x[3])
   float *pt1, *pt2, *pt3, *pt4;
   int i;
 
-  pt1 = this->Points.GetPoint(0);
-  pt2 = this->Points.GetPoint(1);
-  pt3 = this->Points.GetPoint(2);
-  pt4 = this->Points.GetPoint(3);
+  pt1 = this->Points.GetPoint(1);
+  pt2 = this->Points.GetPoint(2);
+  pt3 = this->Points.GetPoint(3);
+  pt4 = this->Points.GetPoint(0);
 
   u4 = 1.0 - pcoords[0] - pcoords[1] - pcoords[2];
 

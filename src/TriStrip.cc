@@ -27,22 +27,24 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 //
 static vlTriangle tri;
 
-float vlTriangleStrip::EvaluatePosition(float x[3], int& subId, float pcoords[3])
+int vlTriangleStrip::EvaluatePosition(float x[3], int& subId, float pcoords[3], float& minDist2)
 {
   vlFloatPoints pts(3);
-  float pc[3], dist2, minDist2;
-  int ignoreId, i;
+  float pc[3], dist2;
+  int ignoreId, i, return_status, status;
 
   pcoords[2] = 0.0;
 
+  return_status = 0;
   for (minDist2=LARGE_FLOAT,i=0; i<this->Points.GetNumberOfPoints()-2; i++)
     {
     tri.Points.SetPoint(0,this->Points.GetPoint(i));
     tri.Points.SetPoint(1,this->Points.GetPoint(i+1));
     tri.Points.SetPoint(2,this->Points.GetPoint(i+2));
-    dist2 = tri.EvaluatePosition(x, ignoreId, pc);
+    status = tri.EvaluatePosition(x, ignoreId, pc, dist2);
     if ( dist2 < minDist2 )
       {
+      return_status = status;
       subId = i;
       pcoords[0] = pc[0];
       pcoords[1] = pc[1];
@@ -50,7 +52,7 @@ float vlTriangleStrip::EvaluatePosition(float x[3], int& subId, float pcoords[3]
       }
     }
 
-  return minDist2;
+  return return_status;
 }
 
 void vlTriangleStrip::EvaluateLocation(int& subId, float pcoords[3], float x[3])
