@@ -255,28 +255,33 @@ void vtkGlyph3D::Execute()
     {
     newScalars = (vtkScalars *) inScalars->MakeObject ();
     newScalars->Allocate(numPts*numSourcePts);
-    newScalarsData = newScalars->GetData ();
-    inScalarsData = inScalars->GetData ();
+    newScalarsData = newScalars->GetData();
+    inScalarsData = inScalars->GetData();
+    newScalarsData->SetName(inScalarsData->GetName());
     }
   else if ( (this->ColorMode == VTK_COLOR_BY_SCALE) && inScalars)
     {
     newScalars = vtkScalars::New();
     newScalars->Allocate(numPts*numSourcePts);
+    newScalars->GetData()->SetName("GlyphScale");
     }
   else if ( (this->ColorMode == VTK_COLOR_BY_VECTOR) && haveVectors)
     {
     newScalars = vtkScalars::New();
     newScalars->Allocate(numPts*numSourcePts);
+    newScalars->GetData()->SetName("VectorMagnitude");
     }
   if ( haveVectors )
     {
     newVectors = vtkVectors::New();
     newVectors->Allocate(numPts*numSourcePts);
+    newVectors->GetData()->SetName("GlyphVector");
     }
   if ( haveNormals )
     {
     newNormals = vtkNormals::New();
     newNormals->Allocate(numPts*numSourcePts);
+    newNormals->GetData()->SetName("Normals");
     }
 
   // Setting up for calls to PolyData::InsertNextCell()
