@@ -135,14 +135,14 @@ void vlGaussianSplatter::Execute()
 //
   pd = this->Input->GetPointData();
   if ( this->NormalWarping && (inNormals=pd->GetNormals()) != NULL )
-    Sample = this->Gaussian;
+    Sample = &vlGaussianSplatter::Gaussian;
   else
-    Sample = this->EccentricGaussian;
+    Sample = &vlGaussianSplatter::EccentricGaussian;
 
   if ( this->ScalarWarping && (inScalars=pd->GetScalars()) != NULL )
-    SampleFactor = this->ScalarSampling;
+    SampleFactor = &vlGaussianSplatter::ScalarSampling;
   else
-    SampleFactor = this->PositionSampling;
+    SampleFactor = &vlGaussianSplatter::PositionSampling;
 //
 // Traverse all points - injecting into volume.
 // For each input point, determine which cell it is in.  Then start
@@ -338,7 +338,7 @@ void vlGaussianSplatter::SplitIJK (int i, int idir, int j, int jdir,
   cx[1] = this->Origin[1] + this->AspectRatio[1]*j;
   cx[2] = this->Origin[2] + this->AspectRatio[2]*k;
 
-  if ( (dist2=Sample(cx)) <= Radius2 ) 
+  if ( (dist2= (this->*Sample)(cx)) <= Radius2 ) 
     {
 
     idx = i + j*this->SampleDimensions[0] + 
@@ -390,13 +390,12 @@ void vlGaussianSplatter::SplitIJ (int i, int idir, int j, int jdir, int k)
 {
   int     idx, ip, jp, kp;
   float   cx[3], dist2;
-  void    SplitI(), SplitJ();
 
   cx[0] = this->Origin[0] + this->AspectRatio[0]*i;
   cx[1] = this->Origin[1] + this->AspectRatio[1]*j;
   cx[2] = this->Origin[2] + this->AspectRatio[2]*k;
 
-  if ( (dist2=Sample(cx)) <= Radius2 ) 
+  if ( (dist2= (this->*Sample)(cx)) <= Radius2 ) 
     {
 
     idx = i + j*this->SampleDimensions[0] + 
@@ -429,13 +428,12 @@ void vlGaussianSplatter::SplitJK (int i, int j, int jdir, int k, int kdir)
 {
   int     idx, ip, jp, kp;
   float   cx[3], dist2;
-  void    SplitJ(), SplitK();
 
   cx[0] = this->Origin[0] + this->AspectRatio[0]*i;
   cx[1] = this->Origin[1] + this->AspectRatio[1]*j;
   cx[2] = this->Origin[2] + this->AspectRatio[2]*k;
 
-  if ( (dist2=Sample(cx)) <= Radius2 ) 
+  if ( (dist2= (this->*Sample)(cx)) <= Radius2 ) 
     {
 
     idx = i + j*this->SampleDimensions[0] + 
@@ -467,13 +465,12 @@ void vlGaussianSplatter::SplitIK (int i, int idir, int j, int k, int kdir)
 {
   int     idx, ip, jp, kp;
   float   cx[3], dist2;
-  void    SplitI(), SplitK();
 
   cx[0] = this->Origin[0] + this->AspectRatio[0]*i;
   cx[1] = this->Origin[1] + this->AspectRatio[1]*j;
   cx[2] = this->Origin[2] + this->AspectRatio[2]*k;
 
-  if ( (dist2=Sample(cx)) <= Radius2 ) 
+  if ( (dist2= (this->*Sample)(cx)) <= Radius2 ) 
     {
 
     idx = i + j*this->SampleDimensions[0] + 
@@ -509,7 +506,7 @@ void vlGaussianSplatter::SplitI (int i, int idir, int j, int k)
   cx[1] = this->Origin[1] + this->AspectRatio[1]*j;
   cx[2] = this->Origin[2] + this->AspectRatio[2]*k;
 
-  if ( (dist2=Sample(cx)) <= Radius2 ) 
+  if ( (dist2=(this->*Sample)(cx)) <= Radius2 ) 
     {
 
     idx = i + j*this->SampleDimensions[0] + 
@@ -533,7 +530,7 @@ void vlGaussianSplatter::SplitJ (int i, int j, int jdir, int k)
   cx[1] = this->Origin[1] + this->AspectRatio[1]*j;
   cx[2] = this->Origin[2] + this->AspectRatio[2]*k;
 
-  if ( (dist2=Sample(cx)) <= Radius2 ) 
+  if ( (dist2=(this->*Sample)(cx)) <= Radius2 ) 
     {
     idx = i + j*this->SampleDimensions[0] + 
           k*this->SampleDimensions[0]*this->SampleDimensions[1];
@@ -556,7 +553,7 @@ void vlGaussianSplatter::SplitK (int i, int j, int k, int kdir)
   cx[1] = this->Origin[1] + this->AspectRatio[1]*j;
   cx[2] = this->Origin[2] + this->AspectRatio[2]*k;
 
-  if ( (dist2=Sample(cx)) <= Radius2 ) 
+  if ( (dist2=(this->*Sample)(cx)) <= Radius2 ) 
     {
     idx = i + j*this->SampleDimensions[0] + 
           k*this->SampleDimensions[0]*this->SampleDimensions[1];
@@ -608,7 +605,7 @@ float vlGaussianSplatter::EccentricGaussian (float cx[3])
     
 void vlGaussianSplatter::SetScalar(int idx, float dist2)
 {
-  float v = SampleFactor(S) * exp((double)
+  float v = (this->*SampleFactor)(S) * exp((double)
             (this->ExponentFactor*(dist2)/(Radius2)));
 
   if ( Visited[idx] )
