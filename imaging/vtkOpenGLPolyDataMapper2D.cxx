@@ -183,13 +183,13 @@ void vtkOpenGLPolyDataMapper2D::RenderOpaqueGeometry(vtkViewport* viewport,
   if ( actor->GetProperty()->GetDisplayLocation() == 
        VTK_FOREGROUND_LOCATION )
     {
-    glOrtho(-actorPos[0],-actorPos[0] + size[0] - 1,
-            -actorPos[1], -actorPos[1] +size[1] -1, 0, 1);
+    glOrtho(-actorPos[0],-actorPos[0] + size[0],
+            -actorPos[1], -actorPos[1] +size[1], 0, 1);
     }  
   else
     {
-    glOrtho(-actorPos[0],-actorPos[0] + size[0] - 1,
-            -actorPos[1], -actorPos[1] +size[1] -1, -1, 0);
+    glOrtho(-actorPos[0],-actorPos[0] + size[0],
+            -actorPos[1], -actorPos[1] +size[1], -1, 0);
     }
     
   aPrim = input->GetPolys();

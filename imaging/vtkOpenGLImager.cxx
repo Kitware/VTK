@@ -69,23 +69,25 @@ int vtkOpenGLImager::RenderOpaqueGeometry()
   /* get physical window dimensions */
   size = this->VTKWindow->GetSize();
 
-  // determine the inclusive bounds of the viewport
-  // then find the corresponding pixel 
-  lowerLeft[0] = (int)(this->Viewport[0]*size[0] + 0.5);
-  lowerLeft[1] = (int)(this->Viewport[1]*size[1] + 0.5);
-  upperRight[0] = (int)(this->Viewport[2]*size[0] + 0.5);
-  upperRight[1] = (int)(this->Viewport[3]*size[1] + 0.5);
-  upperRight[0]--;
-  upperRight[1]--;
+  float *vport = this->GetViewport();
+
+  float vpu, vpv;
+  vpu = vport[0];
+  vpv = vport[1];  
+  this->NormalizedDisplayToDisplay(vpu,vpv);
+  lowerLeft[0] = (int)(vpu+0.5);
+  lowerLeft[1] = (int)(vpv+0.5);
+  float vpu2, vpv2;
+  vpu2 = vport[2];
+  vpv2 = vport[3];  
+  this->NormalizedDisplayToDisplay(vpu2,vpv2);
+  int usize = (int)(vpu2 + 0.5) - lowerLeft[0];
+  int vsize = (int)(vpv2 + 0.5) - lowerLeft[1];  
 
   // we will set this for all modes on the sparc
-  glViewport(lowerLeft[0],lowerLeft[1],
-	     (upperRight[0]-lowerLeft[0]+1),
-	     (upperRight[1]-lowerLeft[1]+1));
+  glViewport(lowerLeft[0],lowerLeft[1],usize, vsize);
   glEnable( GL_SCISSOR_TEST );
-  glScissor(lowerLeft[0],lowerLeft[1],
-	    (upperRight[0]-lowerLeft[0]+1),
-	    (upperRight[1]-lowerLeft[1]+1));
+  glScissor(lowerLeft[0],lowerLeft[1],usize,vsize);
   return vtkImager::RenderOpaqueGeometry();
 }
 
@@ -96,23 +98,25 @@ void vtkOpenGLImager::Erase()
   /* get physical window dimensions */
   size = this->VTKWindow->GetSize();
 
-  // determine the inclusive bounds of the viewport
-  // then find the corresponding pixel 
-  lowerLeft[0] = (int)(this->Viewport[0]*size[0] + 0.5);
-  lowerLeft[1] = (int)(this->Viewport[1]*size[1] + 0.5);
-  upperRight[0] = (int)(this->Viewport[2]*size[0] + 0.5);
-  upperRight[1] = (int)(this->Viewport[3]*size[1] + 0.5);
-  upperRight[0]--;
-  upperRight[1]--;
+  float *vport = this->GetViewport();
+
+  float vpu, vpv;
+  vpu = vport[0];
+  vpv = vport[1];  
+  this->NormalizedDisplayToDisplay(vpu,vpv);
+  lowerLeft[0] = (int)(vpu+0.5);
+  lowerLeft[1] = (int)(vpv+0.5);
+  float vpu2, vpv2;
+  vpu2 = vport[2];
+  vpv2 = vport[3];  
+  this->NormalizedDisplayToDisplay(vpu2,vpv2);
+  int usize = (int)(vpu2 + 0.5) - lowerLeft[0];
+  int vsize = (int)(vpv2 + 0.5) - lowerLeft[1];  
 
   // we will set this for all modes on the sparc
-  glViewport(lowerLeft[0],lowerLeft[1],
-	     (upperRight[0]-lowerLeft[0]+1),
-	     (upperRight[1]-lowerLeft[1]+1));
+  glViewport(lowerLeft[0],lowerLeft[1],usize, vsize);
   glEnable( GL_SCISSOR_TEST );
-  glScissor(lowerLeft[0],lowerLeft[1],
-	    (upperRight[0]-lowerLeft[0]+1),
-	    (upperRight[1]-lowerLeft[1]+1));
+  glScissor(lowerLeft[0],lowerLeft[1],usize,vsize);
 
   glClearColor( ((GLclampf)(this->Background[0])),
                 ((GLclampf)(this->Background[1])),

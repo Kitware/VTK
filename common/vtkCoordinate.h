@@ -139,6 +139,9 @@ public:
   int *GetComputedDisplayValue(vtkViewport *);
   int *GetComputedLocalDisplayValue(vtkViewport *);
 
+  float *GetComputedFloatViewportValue(vtkViewport *);
+  float *GetComputedFloatDisplayValue(vtkViewport *);
+
   // Description:
   // GetComputedValue() will return either World, Viewport or 
   // Display based on what has been set as the coordinate system.
@@ -160,6 +163,10 @@ protected:
   int   ComputedDisplayValue[2];
   int   ComputedViewportValue[2];
   int   Computing;
+
+  float ComputedFloatDisplayValue[2];
+  float ComputedFloatViewportValue[2];
+  
 };
 
 #endif
