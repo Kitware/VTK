@@ -42,6 +42,8 @@ all:  vtk
 # build the vtk java library
 #
 vtk: libvtkJava$(SHLIB_SUFFIX)
+	# Make a jar file
+	${JAR} -fc vtk.jar vtk/
 
 # special hack for sgi compilers, uncomment out the following target 
 # and comment out the normal one
@@ -61,6 +63,7 @@ libvtkJava$(SHLIB_SUFFIX):
 install:
 	@echo "Installing libvtkJava$(SHLIB_SUFFIX)"
 	${INSTALL} libvtkJava$(SHLIB_SUFFIX) $(LIB_INSTALL_DIR)/libvtkJava$(SHLIB_SUFFIX)
+	${INSTALL} vtk.jar $(LIB_INSTALL_DIR)/vtk.jar
 	@chmod 755 $(LIB_INSTALL_DIR)/libvtkJava$(SHLIB_SUFFIX)
 
 #------------------------------------------------------------------------------

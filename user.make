@@ -2,17 +2,20 @@
 # by configure in system.make.  At a minimum you should set
 # the following Tcl/Tk values if you are planning to use Tcl/Tk
 
-TCL_INCLUDE=-I/home/ausable/software/src/tcl7.6/tcl7.6/generic
-TCL_LIB=/common/software/tcl7.6/sun4/5.4/lib/libtcl7.6.a
+# The configure script should find TCL and TK properly, if not,
+# edit these lines to point to the proper places
+TCL_INCLUDE=
+TCL_LIB=-ltcl
 
-TK_INCLUDE=-I/home/ausable/software/src/tcl7.6/tk4.2/generic
-TK_LIB=/common/software/tk4.2/sun4/5.4/lib/libtk4.2.a
+TK_INCLUDE=
+TK_LIB=-ltk
 
-MESA_INCLUDE=-I/home/martink/storage/Mesa-1.2.6/include
-MESA_LIB=/home/martink/storage/Mesa-1.2.6/lib-sun4-solaris/libMesaGL.a
+# If Mesa is not installed in a default location, edit these lines.
+MESA_INCLUDE=
+MESA_LIB=-lMesaGL
 
-# for python you must set this 
-PYTHON_INCLUDES=-I/home/schroede/montnaro/Python-1.4/Include
+# for python you must set this, this is the default for Python 1.5
+PYTHON_INCLUDES=-I/usr/include/python1.5
 
 # Add additional CFLAGS and CXXFLAGS for compilation
 # uncomment the following two lines to set your own flags
@@ -24,10 +27,22 @@ PYTHON_INCLUDES=-I/home/schroede/montnaro/Python-1.4/Include
 #
 #JDKHOME=/home/calvin/content/ITL/java-packages/dev-kits/JDK/jdk1.1
 #JAVAC=${JDKHOME}/bin/javac
+#JAR=${JDKHOME}/bin/jar
 #JAVA_CLASS_HOME=/home/martink/java
 #JAVAH=${JDKHOME}/bin/javah
 #JAVA_INCLUDES=-I${JDKHOME}/include -I${JDKHOME}/include/solaris
 #JAVA_CXX_LIB=/common/software/g++-2.7.1/sun4/5.4/lib/libiberty.a /common/software/g++-2.7.1/sun4/5.4/lib/libstdc++.a /common/software/g++-2.7.1/sun4/5.4/lib/gcc-lib/sparc-sun-solaris2.4/2.7.1/libgcc.a
+
+# For newer versions of JDK, you can set things up like this:
+
+# JDKHOME=/usr/local/jdk1.2.2/
+# JAVABIN = ${JDKHOME}bin/
+# JAVAC = ${JAVABIN}javac
+# JAR = ${JAVABIN}jar
+# JAVA_CLASS_HOME=../java/ -classpath ../java/
+# JAVAH=${JDKHOME}/bin/javah
+# JAVA_INCLUDES=-I${JDKHOME}include -I${JDKHOME}include/linux
+# JAVA_CXX_LIB=
 
 
 
