@@ -1025,6 +1025,28 @@ void vtkStructuredGrid::GetWholeExtent(int &xMin, int &xMax,
 
 
 //----------------------------------------------------------------------------
+unsigned long vtkStructuredGrid::GetEstimatedUpdateExtentMemorySize()
+{
+  int idx;
+  unsigned long wholeSize, updateSize;
+  
+  // Compute the sizes
+  wholeSize = updateSize = 1;
+  for (idx = 0; idx < 3; ++idx)
+    {
+    wholeSize *= (this->WholeExtent[idx*2+1] - this->WholeExtent[idx*2] + 1);
+    updateSize *= (this->UpdateExtent[idx*2+1] - this->UpdateExtent[idx*2] +1);
+    }
+
+  updateSize = updateSize * this->EstimatedWholeMemorySize / wholeSize;
+  if (updateSize < 1)
+    {
+    return 1;
+    }
+  return updateSize;
+}
+
+//----------------------------------------------------------------------------
 void vtkStructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPointSet::PrintSelf(os,indent);
@@ -1046,7 +1068,8 @@ void vtkStructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
      << this->Extent[3] << ", " << this->Extent[4] << ", "
      << this->Extent[5] << endl;
 
-  os << indent << "EstimatedMemorySize: " << this->EstimatedMemorySize << endl;
+  os << indent << "EstimatedWholeMemorySize: " 
+     << this->EstimatedWholeMemorySize << endl;
   os << indent << "MemoryLimit: " << this->MemoryLimit << endl;
 
   os << indent << "WholeExtent: (" << this->WholeExtent[0];

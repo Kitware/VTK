@@ -468,7 +468,7 @@ void vtkSource::UpdateInformation()
 	}
       
       // Default estimated size is just the sum of the sizes of the inputs.
-      size += pd->GetEstimatedMemorySize();
+      size += pd->GetEstimatedWholeMemorySize();
       }
     }
  
@@ -477,7 +477,7 @@ void vtkSource::UpdateInformation()
     if (this->GetOutput(idx))
       {
       this->GetOutput(idx)->SetLocality(locality + 1);
-      this->GetOutput(idx)->SetEstimatedMemorySize(size);
+      this->GetOutput(idx)->SetEstimatedWholeMemorySize(size);
       this->GetOutput(idx)->SetPipelineMTime(t1);
       }  
     }

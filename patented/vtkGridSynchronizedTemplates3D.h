@@ -190,7 +190,7 @@ protected:
   void StreamExecuteStart();
   void StreamExecuteEnd();
   // Description:
-  // Updates output: EstimatedMemorySize
+  // Updates output: EstimatedWholeMemorySize
   void ExecuteInformation();
 
   // Description:

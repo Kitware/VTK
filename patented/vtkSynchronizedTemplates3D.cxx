@@ -632,7 +632,8 @@ void vtkSynchronizedTemplates3D::ExecuteInformation()
     {
     numPts = 1;
     }
-  this->GetOutput()->SetEstimatedMemorySize(numTris*sizeTri + numPts*sizePt);
+  this->GetOutput()->SetEstimatedWholeMemorySize(
+    numTris*sizeTri + numPts*sizePt);
 }
 
 //----------------------------------------------------------------------------

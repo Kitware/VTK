@@ -180,6 +180,10 @@ public:
   // Just copies the WholeExtent from another structured grid.
   void CopyInformation(vtkDataObject *structuredGrid);
 
+  // Description:
+  // Return the amount of memory for the update piece.
+  unsigned long GetEstimatedUpdateExtentMemorySize();  
+  
 protected:
   // for the GetCell method
   vtkVertex *Vertex;
