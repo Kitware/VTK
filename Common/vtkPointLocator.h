@@ -44,6 +44,7 @@
 
 class vtkIdList;
 class vtkNeighborPoints;
+class vtkCellArray;
 
 class VTK_COMMON_EXPORT vtkPointLocator : public vtkLocator
 {

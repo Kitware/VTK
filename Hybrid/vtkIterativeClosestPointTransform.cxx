@@ -15,15 +15,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
 #include "vtkIterativeClosestPointTransform.h"
-#include "vtkCellLocator.h"
-#include "vtkLandmarkTransform.h"
-#include "vtkTransform.h"
-#include "vtkObjectFactory.h"
-#include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkIterativeClosestPointTransform, "1.8");
+#include "vtkCellLocator.h"
+#include "vtkDataSet.h"
+#include "vtkLandmarkTransform.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkTransform.h"
+
+vtkCxxRevisionMacro(vtkIterativeClosestPointTransform, "1.9");
 vtkStandardNewMacro(vtkIterativeClosestPointTransform);
 
 //----------------------------------------------------------------------------

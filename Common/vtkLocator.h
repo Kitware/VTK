@@ -54,7 +54,8 @@
 #define __vtkLocator_h
 
 #include "vtkObject.h"
-#include "vtkDataSet.h"
+
+class vtkDataSet;
 class vtkPolyData;
 
 class VTK_COMMON_EXPORT vtkLocator : public vtkObject
@@ -65,7 +66,7 @@ public:
 
   // Description:
   // Build the locator from the points/cells defining this dataset.
-  vtkSetObjectMacro(DataSet,vtkDataSet);
+  virtual void SetDataSet(vtkDataSet*);
   vtkGetObjectMacro(DataSet,vtkDataSet);
 
   // Description:

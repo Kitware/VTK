@@ -16,6 +16,7 @@
 
 =========================================================================*/
 #include "vtkPixel.h"
+
 #include "vtkObjectFactory.h"
 #include "vtkQuad.h"
 #include "vtkTriangle.h"
@@ -24,8 +25,10 @@
 #include "vtkCellArray.h"
 #include "vtkLine.h"
 #include "vtkPointLocator.h"
+#include "vtkPointData.h"
+#include "vtkCellData.h"
 
-vtkCxxRevisionMacro(vtkPixel, "1.72");
+vtkCxxRevisionMacro(vtkPixel, "1.73");
 vtkStandardNewMacro(vtkPixel);
 
 // Construct the pixel with four points.

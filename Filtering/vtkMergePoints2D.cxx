@@ -16,9 +16,12 @@
 
 =========================================================================*/
 #include "vtkMergePoints2D.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMergePoints2D, "1.11");
+#include "vtkObjectFactory.h"
+#include "vtkIdList.h"
+#include "vtkPoints.h"
+
+vtkCxxRevisionMacro(vtkMergePoints2D, "1.12");
 
 vtkMergePoints2D* vtkMergePoints2D::New() 
 { 

@@ -19,9 +19,9 @@
 
 #include "vtkCellArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkDataSet.h"
 
-
-vtkCxxRevisionMacro(vtkExplicitCell, "1.3");
+vtkCxxRevisionMacro(vtkExplicitCell, "1.4");
 vtkCxxSetObjectMacro(vtkExplicitCell,DataSet,vtkDataSet);
 
 vtkExplicitCell::vtkExplicitCell()

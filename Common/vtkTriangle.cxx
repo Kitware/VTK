@@ -16,15 +16,18 @@
 
 =========================================================================*/
 #include "vtkTriangle.h"
-#include "vtkPolygon.h"
-#include "vtkPlane.h"
-#include "vtkMath.h"
-#include "vtkCellArray.h"
-#include "vtkLine.h"
-#include "vtkPointLocator.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTriangle, "1.89");
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkLine.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPlane.h"
+#include "vtkPointData.h"
+#include "vtkPointLocator.h"
+#include "vtkPolygon.h"
+
+vtkCxxRevisionMacro(vtkTriangle, "1.90");
 vtkStandardNewMacro(vtkTriangle);
 
 // Construct the triangle with three points.

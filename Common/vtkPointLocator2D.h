@@ -44,10 +44,10 @@
 
 #include "vtkLocator.h"
 
-class vtkPoints;
+class vtkCellArray;
 class vtkIdList;
-
 class vtkNeighborPoints2D;
+class vtkPoints;
 
 class VTK_COMMON_EXPORT vtkPointLocator2D : public vtkLocator
 {

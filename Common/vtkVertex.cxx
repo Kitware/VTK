@@ -16,12 +16,15 @@
 
 =========================================================================*/
 #include "vtkVertex.h"
+
 #include "vtkMath.h"
 #include "vtkCellArray.h"
 #include "vtkPointLocator.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkCellData.h"
 
-vtkCxxRevisionMacro(vtkVertex, "1.55");
+vtkCxxRevisionMacro(vtkVertex, "1.56");
 vtkStandardNewMacro(vtkVertex);
 
 // Construct the vertex with a single point.

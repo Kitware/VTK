@@ -16,14 +16,17 @@
 
 =========================================================================*/
 #include "vtkVoxel.h"
-#include "vtkObjectFactory.h"
-#include "vtkMath.h"
-#include "vtkLine.h"
-#include "vtkPixel.h"
+
 #include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkLine.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPixel.h"
+#include "vtkPointData.h"
 #include "vtkPointLocator.h"
 
-vtkCxxRevisionMacro(vtkVoxel, "1.72");
+vtkCxxRevisionMacro(vtkVoxel, "1.73");
 vtkStandardNewMacro(vtkVoxel);
 
 // Construct the voxel with eight points.

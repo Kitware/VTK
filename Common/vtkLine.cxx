@@ -16,12 +16,15 @@
 
 =========================================================================*/
 #include "vtkLine.h"
-#include "vtkMath.h"
-#include "vtkCellArray.h"
-#include "vtkPointLocator.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkLine, "1.74");
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPointLocator.h"
+
+vtkCxxRevisionMacro(vtkLine, "1.75");
 vtkStandardNewMacro(vtkLine);
 
 // Construct the line with two points.

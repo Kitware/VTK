@@ -16,15 +16,18 @@
 
 =========================================================================*/
 #include "vtkQuad.h"
-#include "vtkTriangle.h"
-#include "vtkPlane.h"
+
 #include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkLine.h"
-#include "vtkPointLocator.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPlane.h"
+#include "vtkPointData.h"
+#include "vtkPointLocator.h"
+#include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuad, "1.77");
+vtkCxxRevisionMacro(vtkQuad, "1.78");
 vtkStandardNewMacro(vtkQuad);
 
 static const float VTK_DIVERGED = 1.e6;

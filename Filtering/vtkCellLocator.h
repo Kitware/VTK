@@ -40,7 +40,11 @@
 
 #include "vtkLocator.h"
 
+class vtkCellArray;
+class vtkGenericCell;
+class vtkIdList;
 class vtkNeighborCells;
+class vtkPoints;
 
 class VTK_FILTERING_EXPORT vtkCellLocator : public vtkLocator
 {
