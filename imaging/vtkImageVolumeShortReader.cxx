@@ -62,6 +62,7 @@ vtkImageVolumeShortReader::vtkImageVolumeShortReader()
   this->Increments[2] = 512 * 512;
 
   this->SetAspectRatio(1.0, 1.0, 1.0);
+  this->SetOrigin(0.0, 0.0, 0.0);
   
   this->FileRoot[0] = '\0';
   this->HeaderSize = 0;

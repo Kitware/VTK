@@ -43,6 +43,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //----------------------------------------------------------------------------
 vtkImageXViewer::vtkImageXViewer()
 {
+  this->Input = NULL;
+  this->WholeImageOn();
+  this->Coordinate2 = 0;
+  this->Coordinate3 = 0;
+  
   this->ColorWindow = 255.0;
   this->ColorLevel = 127.0;
   this->NumberColors = 150;
@@ -61,27 +66,20 @@ vtkImageXViewer::~vtkImageXViewer()
 {
 }
 
-//----------------------------------------------------------------------------
-// Description:
-// Set the input to the viewer.
-// Set the default region to display as the whole image.  The input should
-// have already been connected to its final source to get this information,
-// otherwise an error will occur.
-void vtkImageXViewer::SetInput(vtkImageSource *input)
-{
-  int bounds[8];
-  
-  vtkDebugMacro(<< "SetInput: (" << input << ")");
-  this->Modified();
-  this->Input = input;
 
-  // Get the default region to display
-  input->UpdateImageInformation(&(this->Region));
-  this->Region.GetImageBounds4d(bounds);
-  this->SetBounds(bounds);
-  this->SetDefaultCoordinate2(bounds[4]);
-  this->SetDefaultCoordinate3(bounds[6]);
+//----------------------------------------------------------------------------
+void vtkImageXViewer::PrintSelf(ostream& os, vtkIndent indent)
+{
+  int *b;
+  
+  vtkObject::PrintSelf(os, indent);
+  b = this->Region.GetBounds2d();
+  os << indent << "Bounds: (" << b[0] << ", " << b[1] << ", " << b[2] 
+     << ", " << b[3] << ")\n";
+  os << indent << "Coordinate2: " << this->Coordinate2 << "\n";
+  os << indent << "Coordinate3: " << this->Coordinate3 << "\n";
 }
+
 
 
 //----------------------------------------------------------------------------
@@ -219,8 +217,23 @@ void vtkImageXViewer::Render(void)
   vtkImageRegion *region;
   void *ptr0, *ptr1, *ptr2;
   
+  if ( ! this->Input)
+    {
+    vtkErrorMacro(<< "View: Please Set the input.");
+    return;
+    }
+
   // determine the Bounds of the input region needed
-  this->Region.GetBounds4d(bounds);
+  if (this->WholeImage)
+    {
+    this->Input->UpdateImageInformation(&(this->Region));
+    this->Region.GetImageBounds2d(bounds);
+    }
+  else
+    {
+    this->Region.GetBounds2d(bounds);
+    }
+  
   if (this->ColorFlag)
     {
     bounds[4] = bounds[5] = this->Red;
@@ -231,16 +244,11 @@ void vtkImageXViewer::Render(void)
     }
   else
     {
-    bounds[4] = bounds[5] = this->Region.GetDefaultCoordinate2();
+    bounds[4] = bounds[5] = this->Coordinate2;
     }
-  bounds[6] = bounds[7] = this->Region.GetDefaultCoordinate3();
+  bounds[6] = bounds[7] = this->Coordinate3;
 
   // Get the region form the input
-  if ( ! this->Input)
-    {
-    vtkErrorMacro(<< "View: Please Set the input.");
-    return;
-    }
   region = new vtkImageRegion;
   region->SetAxes(this->Region.GetAxes());
   region->SetBounds4d(bounds);

@@ -49,18 +49,24 @@ vtkImage4dShortReader::vtkImage4dShortReader()
 {
   this->File = NULL;
 
+  this->PixelMask = 0xffff;
   this->Signed = 0;
   this->SwapBytes = 0;  
   this->First = 1;
   this->SetAxes4d(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS,
 		  VTK_IMAGE_Z_AXIS, VTK_IMAGE_COMPONENT_AXIS);
-  this->SetSize(256, 256, 1, 2);
+  this->SetDimensions(256, 256, 1, 2);
   this->PixelMax = -9e99;
   this->PixelMin = +9e99;
   this->SetAspectRatio(1.0, 1.0, 1.0, 1.0);
+  this->SetOrigin(0.0, 0.0, 0.0, 0.0);
   
+  this->SetFilePrefix("");
+  this->SetFilePattern(".%d");
   this->FileRoot[0] = '\0';
+
   this->HeaderSize = 0;
+  this->Initialized = 0;
 }
 
 
@@ -68,43 +74,57 @@ vtkImage4dShortReader::vtkImage4dShortReader()
 void vtkImage4dShortReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
-  
-  os << indent << "FileRoot: " << this->FileRoot << "\n";
-  os << indent << "HeaderSize: " << this->HeaderSize << "\n";
+
+  os << indent << "FilePrefix: " << this->FilePrefix << "\n";
+  os << indent << "FilePattern: " << this->FilePattern << "\n";
   os << indent << "Signed: " << this->Signed << "\n";
   os << indent << "SwapBytes: " << this->SwapBytes << "\n";
-  os << indent << "Size: (" << this->Size[0] << ", " << this->Size[1] << ", "
-     << this->Size[2] << ", " << this->Size[3] << ")\n";
+  os << indent << "Dimensions: (" << this->Dimensions[0] << ", " 
+     << this->Dimensions[1] << ", " << this->Dimensions[2] << ", " 
+     << this->Dimensions[3] << ")\n";
   os << indent << "AspectRatio: (" << this->AspectRatio[0] << ", " 
      << this->AspectRatio[1] << ", " << this->AspectRatio[2] << ", "
      << this->AspectRatio[3] << ")\n";
+
+  if ( ! this->Initialized)
+    {
+    os << indent << "Not initialized.\n";
+    }
+  else
+    {
+    os << indent << "HeaderSize: " << this->HeaderSize << "\n";
+    os << indent << "FileRoot: " << this->FileRoot << "\n";
+    }
 }
+
 
 
 
 //----------------------------------------------------------------------------
 // Description:
 // This sets the dimensions of the image in the file
-void vtkImage4dShortReader::SetSize(int size0, int size1, int size2, int size3)
+void
+vtkImage4dShortReader::SetDimensions(int size0,int size1,int size2,int size3)
 {
-  vtkDebugMacro(<< "SetSize: (" << size0 << ", " 
+  vtkDebugMacro(<< "SetDimensions: (" << size0 << ", " 
                 << size1 << ", " << size2 << ", " << size3 << ")");
 
-  this->Size[0] = size0;
-  this->Size[1] = size1;
-  this->Size[2] = size2;
-  this->Size[3] = size3;
+  this->Dimensions[0] = size0;
+  this->Dimensions[1] = size1;
+  this->Dimensions[2] = size2;
+  this->Dimensions[3] = size3;
 
   this->Increments[0] = 1;
   this->Increments[1] = size0;
   this->Increments[2] = size0 * size1;
   this->Increments[3] = this->Increments[2] * size2;
 
+  this->Initialized = 0;
   this->Modified();
 }
-void vtkImage4dShortReader::SetSize(int *size)
+void vtkImage4dShortReader::SetDimensions(int *size)
 {
-  this->SetSize(size[0], size[1], size[2], size[3]);
+  this->SetDimensions(size[0], size[1], size[2], size[3]);
 }
 
 
@@ -113,26 +133,25 @@ void vtkImage4dShortReader::SetSize(int *size)
 // This method returns the largest region that can be generated.
 void vtkImage4dShortReader::UpdateImageInformation(vtkImageRegion *region)
 {
-  region->SetImageBounds4d(0, this->Size[0]-1, 
-			   0, this->Size[1]-1, 
-			   0, this->Size[2]-1,
-			   0, this->Size[3]-1);
+  region->SetImageBounds4d(0, this->Dimensions[0]-1, 
+			   0, this->Dimensions[1]-1, 
+			   0, this->Dimensions[2]-1,
+			   0, this->Dimensions[3]-1);
   region->SetAspectRatio4d(this->AspectRatio);
+  region->SetOrigin4d(this->Origin);
 }
 
 
 
 //----------------------------------------------------------------------------
 // Description:
-// This function sets the name pattern for a set of files.  This pattern
-// will be used in a print statement to produce the correct file name
-// for a slice (ie "/path/file_root.%d").  The method opens the first
-// file to determine the header size.  SetSize should be called before
-// this method is called.
-void vtkImage4dShortReader::SetFileRoot(char *fileRoot)
+// This function opens the first file to determine the header size.
+void vtkImage4dShortReader::Initialize()
 {
-
-  strcpy(this->FileRoot, fileRoot);
+  if (this->Initialized)
+    {
+    return;
+    }
   
   // Close file from any previous image
   if (this->File)
@@ -142,6 +161,8 @@ void vtkImage4dShortReader::SetFileRoot(char *fileRoot)
     this->File = NULL;
     }
   
+  strncpy(this->FileRoot, this->FilePrefix, 300);
+  strncat(this->FileRoot, this->FilePattern, 300);
   sprintf(this->FileName, this->FileRoot, this->First);
   
   // Open the new file
@@ -166,6 +187,30 @@ void vtkImage4dShortReader::SetFileRoot(char *fileRoot)
   this->File->close();
   delete this->File;
   this->File = NULL;
+  this->Initialized;
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// This function sets the prefix of the file name. "image" would be the
+// name of a series: image.1, image.2 ...
+void vtkImage4dShortReader::SetFilePrefix(char *prefix)
+{
+  strncpy(this->FilePrefix, prefix, 200);
+  this->Initialized = 0;
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// This function sets the pattern of the file name which turn a prefix
+// into a file name. ".%3d" would be the
+// pattern of a series: image.001, image.002 ...
+void vtkImage4dShortReader::SetFilePattern(char *pattern)
+{
+  strncpy(this->FilePattern, pattern, 50);
+  this->Initialized = 0;
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -411,7 +456,14 @@ void vtkImage4dShortReader::UpdateRegion2d(vtkImageRegion *region)
   int image = region->GetDefaultCoordinate2();
   int component = region->GetDefaultCoordinate3();
   // Note: reverse the order of component axis and Z axis
-  int fileNumber = image * this->Size[3] + component + this->First;
+  int fileNumber = image * this->Dimensions[3] + component + this->First;
+
+
+  //  make sure we have the header information
+  if ( ! this->Initialized)
+    {
+    this->Initialize();
+    }
   
   // Get the region to fill from the cache
   if ( ! this->Output)

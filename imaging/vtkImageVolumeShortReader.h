@@ -94,6 +94,11 @@ public:
   vtkSetVector3Macro(AspectRatio, float);
   vtkGetVector3Macro(AspectRatio, float);
   
+  // Description:
+  // Set/Get Origin
+  vtkSetVector3Macro(Origin, float);
+  vtkGetVector3Macro(Origin, float);
+  
   // Templated function that reads into different data types.
   friend void vtkImageVolumeShortReaderGenerateData2d(
 			     vtkImageVolumeShortReader *self,
@@ -122,6 +127,7 @@ protected:
   int SwapBytes;
   int Size[3];
   float AspectRatio[3];
+  float Origin[3];
   int Increments[3];
   // The first image has this number
   int First;

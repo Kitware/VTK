@@ -61,15 +61,21 @@ public:
   char *GetClassName() {return "vtkImage4dShortReader";};
   void PrintSelf(ostream& os, vtkIndent indent);   
   
-  void SetSize(int size0, int size1, int size2, int size3);
-  void SetSize(int *size);
+  void SetDimensions(int size0, int size1, int size2, int size3);
+  void SetDimensions(int *size);
   
   // Description:
   // Set And get the aspect ratio of the data.
   vtkSetVector4Macro(AspectRatio, float);
   vtkGetVector4Macro(AspectRatio, float);
   
-  void SetFileRoot(char *fileRoot);
+  // Description:
+  // Set And get the origin of the data (location of point (0,0,0,0)).
+  vtkSetVector4Macro(Origin, float);
+  vtkGetVector4Macro(Origin, float);
+  
+  void SetFilePrefix(char *filePrefix);
+  void SetFilePattern(char *filePattern);
   void UpdateImageInformation(vtkImageRegion *region);
   vtkImageSource *GetOutput();
   
@@ -116,15 +122,19 @@ public:
 			     vtkImageRegion *region, unsigned char *ptr);
   
 protected:
-  char FileRoot[100];
-  char FileName[110];
+  int Initialized;
+  char FilePrefix[200];
+  char FilePattern[50];
+  char FileRoot[250];
+  char FileName[300];
   ifstream *File;
   int FileSize;
   int HeaderSize;
   int Signed;
   int SwapBytes;
-  int Size[4];
+  int Dimensions[4];
   float AspectRatio[4];
+  float Origin[4];
   
   // For seeking to the correct location in the files.
   int Increments[4];
@@ -137,6 +147,7 @@ protected:
   double PixelMin;
   double PixelMax;
 
+  void Initialize();
   void UpdateRegion2d(vtkImageRegion *outRegion);    
 };
 

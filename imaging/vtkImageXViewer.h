@@ -63,21 +63,36 @@ public:
   vtkImageXViewer();
   ~vtkImageXViewer();
   char *GetClassName() {return "vtkImageXViewer";};
-
+  void PrintSelf(ostream& os, vtkIndent indent);
+  
+  // Description:
+  // Set/Get the input to the viewer.
+  vtkSetObjectMacro(Input,vtkImageSource);
+  vtkGetObjectMacro(Input,vtkImageSource);
+  
+  // Description:
+  // Display the wole image or just the region specified by bounds.
+  vtkSetMacro(WholeImage,int);
+  vtkGetMacro(WholeImage,int);
+  vtkBooleanMacro(WholeImage,int);
+  
   // Description:
   // Messages that get forwarded to this viewers "Region".
   void SetBounds(int *bounds)
-  {this->Region.SetBounds2d(bounds); this->Modified();};
+  {this->Region.SetBounds2d(bounds); this->Modified(); this->WholeImageOff();};
   void SetBounds(int min0, int max0, int min1, int max1)
-  {this->Region.SetBounds2d(min0,max0, min1,max1); this->Modified();};
+  {this->Region.SetBounds2d(min0,max0, min1,max1); this->Modified();this->WholeImageOff();};
   int *GetBounds(){return this->Region.GetBounds2d();};
   void GetBounds(int *bounds){this->Region.GetBounds2d(bounds);};
   void GetBounds(int &min0,int &max0,int &min1,int &max1)
   {this->Region.GetBounds2d(min0,max0,min1,max1);};
-  void SetDefaultCoordinate2(int v)
-  {this->Region.SetDefaultCoordinate2(v); this->Modified();};
-  void SetDefaultCoordinate3(int v)
-  {this->Region.SetDefaultCoordinate3(v); this->Modified();};
+
+  // Description:
+  // Coordinate2 and Coordiante3 specify which 2d image to show.
+  vtkSetMacro(Coordinate2,int);
+  vtkGetMacro(Coordinate2,int);
+  vtkSetMacro(Coordinate3,int);
+  vtkGetMacro(Coordinate3,int);
   
   // Description:
   // Sets The coordinate system of the displayed region.  The first
@@ -104,11 +119,6 @@ public:
   XColor *GetColors();
   vtkGetMacro(NumberColors,int);
 
-  void SetInput(vtkImageSource *Input);
-  // Description:
-  // Get the input that will be supplying the image.
-  vtkGetObjectMacro(Input,vtkImageSource);
-  
   void Render(void);
   
   void SetWindow(Window win);
@@ -149,8 +159,11 @@ protected:
   
   
   vtkImageSource *Input;
+  int WholeImage;
   // Contains the bounds of the region to be displayed.
   vtkImageRegion Region;
+  int Coordinate2;
+  int Coordinate3;  
   // For converting image pixels to X pixels.
   float ColorWindow;
   float ColorLevel;
