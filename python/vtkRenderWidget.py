@@ -49,10 +49,7 @@ class vtkTkRenderWidget(Tkinter.Widget):
             pass
  
         kw['rw'] = self.__RenderWindow.GetAddressAsString("vtkRenderWindow")
-	try:  # is the widget installed as a Tk package?
-            Tkinter.tk.call('package','require','vtkTkRenderWidget')
-        except: # is the widget in the path somewhere?
-	    Tkinter.Widget.__init__(self, master, 'vtkTkRenderWidget', cnf, kw)
+        Tkinter.Widget.__init__(self, master, 'vtkTkRenderWidget', cnf, kw)
 
         # initialize some global variables        
         self.__InExpose = 0
