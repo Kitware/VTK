@@ -33,7 +33,7 @@
 #include "vtkIntArray.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkClipVolume, "1.58");
+vtkCxxRevisionMacro(vtkClipVolume, "1.59");
 vtkStandardNewMacro(vtkClipVolume);
 vtkCxxSetObjectMacro(vtkClipVolume,ClipFunction,vtkImplicitFunction);
 
@@ -435,7 +435,7 @@ void vtkClipVolume::ClipTets(float value, vtkTetra *clipTetra,
                              vtkIdType cellId, vtkCellData *outCD, 
                              vtkCellData *clippedCD, int insideOut)
 {
-  // Tesselate this cell as if it were inside
+  // Tessellate this cell as if it were inside
   vtkIdType ntetra = tetraPts->GetNumberOfPoints() / 4;
   int i, id, j, k, numNew;
   vtkIdType npts=0, *pts;
