@@ -20,7 +20,7 @@
 #include "vtkAbstractList.h"
 #include "vtkAbstractMap.h"
 
-int main(int vtkNotUsed(argc), char** vtkNotUsed(argv))
+int main(int argc, char** vtkNotUsed(argv))
 {
   // Let us for now just create pointers so that we see that
   // it can parse through the header file.
@@ -30,7 +30,7 @@ int main(int vtkNotUsed(argc), char** vtkNotUsed(argv))
 
   // This is here so that it does not complain about 
   // pointers not being used
-  if ( cnt && alist && amap )
+  if ( cnt && alist && amap || (argc > 1) )
     {
     return 1;
     }

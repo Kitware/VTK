@@ -27,7 +27,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkInputPort, "1.9");
+vtkCxxRevisionMacro(vtkInputPort, "1.10");
 vtkStandardNewMacro(vtkInputPort);
 
 //----------------------------------------------------------------------------
@@ -263,7 +263,7 @@ vtkImageData *vtkInputPort::GetImageDataOutput()
 void vtkInputPort::UpdateInformation()
 {
   vtkDataObject *output;
-  unsigned long pmt;
+  unsigned long pmt = 0;
   
   if (!this->DoUpdateInformation)
     {
@@ -291,7 +291,7 @@ void vtkInputPort::UpdateInformation()
   this->Controller->Receive( &pmt, 1, 
                              this->RemoteProcessId,
                              vtkInputPort::INFORMATION_TRANSFER_TAG);
-  int maxNumPieces;
+  int maxNumPieces = 0;
   this->Controller->Receive( &maxNumPieces, 1, 
                              this->RemoteProcessId,
                              vtkInputPort::INFORMATION_TRANSFER_TAG);
