@@ -876,6 +876,10 @@ void vtkInteractorStyle::OnMouseMove(int vtkNotUsed(ctrl), int vtkNotUsed(shift)
 {
   this->LastPos[0] = X;
   this->LastPos[1] = Y;
+  if (this->HasObserver(vtkCommand::MouseMoveEvent)) 
+    {
+    this->InvokeEvent(vtkCommand::MouseMoveEvent,NULL);
+    }
 }
 
 //----------------------------------------------------------------------------
