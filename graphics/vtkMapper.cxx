@@ -115,7 +115,12 @@ vtkScalars *vtkMapper::GetColors()
     
   // get point data and scalars
   scalars = this->Input->GetPointData()->GetScalars();
-
+  // if we don;t have point data scalars, try cell data
+  if (!scalars)
+    {
+    scalars = this->Input->GetCellData()->GetScalars();
+    }
+  
   // do we have any scalars ?
   if (scalars && this->ScalarVisibility)
     {

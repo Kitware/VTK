@@ -179,31 +179,1409 @@ void vtkOpenGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
     }
 }
 
+
+
+void vtkOpenGLDraw01(vtkCellArray *aPrim, GLenum aGlFunction,
+		     int &, vtkPoints *p, vtkNormals *, vtkScalars *, 
+		     vtkTCoords *, vtkOpenGLRenderer *ren, int &noAbort)
+{
+  int j, npts, *pts;
+  int idx[3];
+  int count = 0;
+  
+  for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
+       count++)
+    { 
+    glBegin(aGlFunction);
+    
+    for (j = 0; j < npts; j++) 
+      {
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+    
+    // check for abort condition
+    if (count == 100)
+      {
+      count = 0;
+      if (ren->GetRenderWindow()->CheckAbortStatus())
+	{
+	noAbort = 0;
+	}
+      }
+    }
+}
+
+void vtkOpenGLDrawN013(vtkCellArray *aPrim, GLenum aGlFunction,
+		       int &cellNum, vtkPoints *p, vtkNormals *n, 
+		       vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
+		       int &noAbort)
+{
+  int j, npts, *pts;
+  int idx[3];
+  int count = 0;
+  
+  for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
+       count++)
+    { 
+    glBegin(aGlFunction);
+    
+    for (j = 0; j < npts; j++) 
+      {
+      glNormal3fv(n->GetNormal(pts[j]));
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+    
+    // check for abort condition
+    if (count == 100)
+      {
+      count = 0;
+      if (ren->GetRenderWindow()->CheckAbortStatus())
+	{
+	noAbort = 0;
+	}
+      }
+    }
+}
+
+void vtkOpenGLDrawS01(vtkCellArray *aPrim, GLenum aGlFunction,
+		      int &, vtkPoints *p, vtkNormals *n, 
+		      vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
+		      int &noAbort)
+{
+  int j, npts, *pts;
+  int idx[3];
+  int count = 0;
+  
+  for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
+       count++)
+    { 
+    glBegin(aGlFunction);
+    for (j = 0; j < npts; j++) 
+      {
+      glColor4ubv(c->GetColor(pts[j]));
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+    
+    // check for abort condition
+    if (count == 100)
+      {
+      count = 0;
+      if (ren->GetRenderWindow()->CheckAbortStatus())
+	{
+	noAbort = 0;
+	}
+      }
+    }
+}
+
+void vtkOpenGLDrawNS013(vtkCellArray *aPrim, GLenum aGlFunction,
+			int &, vtkPoints *p, vtkNormals *n, 
+			vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
+			int &noAbort)
+{
+  int j, npts, *pts;
+  int idx[3];
+  int count = 0;
+  
+  for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
+       count++)
+    { 
+    glBegin(aGlFunction);
+    
+    for (j = 0; j < npts; j++) 
+      {
+      glColor4ubv(c->GetColor(pts[j]));
+      glNormal3fv(n->GetNormal(pts[j]));
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+    
+    // check for abort condition
+    if (count == 100)
+      {
+      count = 0;
+      if (ren->GetRenderWindow()->CheckAbortStatus())
+	{
+	noAbort = 0;
+	}
+      }
+    }
+}
+
+void vtkOpenGLDrawT01(vtkCellArray *aPrim, GLenum aGlFunction,
+		      int &, vtkPoints *p, vtkNormals *n, 
+		      vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
+		      int &noAbort)
+{
+  int j, npts, *pts;
+  int idx[3];
+  int count = 0;
+  
+  for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
+       count++)
+    { 
+    glBegin(aGlFunction);
+    
+    for (j = 0; j < npts; j++) 
+      {
+      glTexCoord2fv(t->GetTCoord(pts[j]));
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+    
+    // check for abort condition
+    if (count == 100)
+      {
+      count = 0;
+      if (ren->GetRenderWindow()->CheckAbortStatus())
+	{
+	noAbort = 0;
+	}
+      }
+    }
+}
+
+void vtkOpenGLDrawNT013(vtkCellArray *aPrim, GLenum aGlFunction,
+			int &, vtkPoints *p, vtkNormals *n, 
+			vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
+			int &noAbort)
+{
+  int j, npts, *pts;
+  int idx[3];
+  int count = 0;
+  
+  for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
+       count++)
+    { 
+    glBegin(aGlFunction);
+    
+    for (j = 0; j < npts; j++) 
+      {
+      glTexCoord2fv(t->GetTCoord(pts[j]));
+      glNormal3fv(n->GetNormal(pts[j]));
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+    
+    if (count == 100)
+      {
+      count = 0;
+      if (ren->GetRenderWindow()->CheckAbortStatus())
+	{
+	noAbort = 0;
+	}
+      }
+    }
+}
+
+void vtkOpenGLDrawST01(vtkCellArray *aPrim, GLenum aGlFunction,
+		       int &, vtkPoints *p, vtkNormals *n, 
+		       vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
+		       int &noAbort)
+{
+  int j, npts, *pts;
+  int idx[3];
+  int count = 0;
+  
+  for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
+       count++)
+    { 
+    glBegin(aGlFunction);
+    
+    for (j = 0; j < npts; j++) 
+      {
+      glColor4ubv(c->GetColor(pts[j]));
+      glTexCoord2fv(t->GetTCoord(pts[j]));
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+    
+    // check for abort condition
+    if (count == 100)
+      {
+      count = 0;
+      if (ren->GetRenderWindow()->CheckAbortStatus())
+	{
+	noAbort = 0;
+	}
+      }
+    }
+}
+
+void vtkOpenGLDrawNST013(vtkCellArray *aPrim, GLenum aGlFunction,
+			 int &, vtkPoints *p, vtkNormals *n, 
+			 vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
+			 int &noAbort)
+{
+  int j, npts, *pts;
+  int idx[3];
+  int count = 0;
+  
+  for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
+       count++)
+    { 
+    glBegin(aGlFunction);
+    
+    for (j = 0; j < npts; j++) 
+      {
+      glColor4ubv(c->GetColor(pts[j]));
+      glTexCoord2fv(t->GetTCoord(pts[j]));
+      glNormal3fv(n->GetNormal(pts[j]));
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+    
+    // check for abort condition
+    if (count == 100)
+      {
+      count = 0;
+      if (ren->GetRenderWindow()->CheckAbortStatus())
+	{
+	noAbort = 0;
+	}
+      }
+    }
+}
+
+void vtkOpenGLDrawCS01(vtkCellArray *aPrim, GLenum aGlFunction,
+		       int &cellNum, vtkPoints *p, vtkNormals *n, 
+		       vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
+		       int &noAbort)
+{
+  int j, npts, *pts;
+  int idx[3];
+  int count = 0;
+  
+  for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
+       count++, cellNum++)
+    { 
+    glBegin(aGlFunction);
+    
+    for (j = 0; j < npts; j++) 
+      {
+      glColor4ubv(c->GetColor(cellNum));
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+    
+    // check for abort condition
+    if (count == 100)
+      {
+      count = 0;
+      if (ren->GetRenderWindow()->CheckAbortStatus())
+	{
+	noAbort = 0;
+	}
+      }
+    }
+}
+
+void vtkOpenGLDrawNCS013(vtkCellArray *aPrim, GLenum aGlFunction,
+			 int &cellNum, vtkPoints *p, vtkNormals *n, 
+			 vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
+			 int &noAbort)
+{
+  int j, npts, *pts;
+  int idx[3];
+  int count = 0;
+  
+  for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
+       count++, cellNum++)
+    { 
+    glBegin(aGlFunction);
+    
+    for (j = 0; j < npts; j++) 
+      {
+      glColor4ubv(c->GetColor(cellNum));
+      glNormal3fv(n->GetNormal(pts[j]));
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+    
+    // check for abort condition
+    if (count == 100)
+      {
+      count = 0;
+      if (ren->GetRenderWindow()->CheckAbortStatus())
+	{
+	noAbort = 0;
+	}
+      }
+    }
+}
+
+void vtkOpenGLDrawCST01(vtkCellArray *aPrim, GLenum aGlFunction,
+			int &cellNum, vtkPoints *p, vtkNormals *n, 
+			vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
+			int &noAbort)
+{
+  int j, npts, *pts;
+  int idx[3];
+  int count = 0;
+  
+  for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
+       count++, cellNum++)
+    { 
+    glBegin(aGlFunction);
+    
+    for (j = 0; j < npts; j++) 
+      {
+      glColor4ubv(c->GetColor(cellNum));
+      glTexCoord2fv(t->GetTCoord(pts[j]));
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+    
+    // check for abort condition
+    if (count == 100)
+      {
+      count = 0;
+      if (ren->GetRenderWindow()->CheckAbortStatus())
+	{
+	noAbort = 0;
+	}
+      }
+    }
+}
+
+void vtkOpenGLDrawNCST013(vtkCellArray *aPrim, GLenum aGlFunction,
+			  int &cellNum, vtkPoints *p, vtkNormals *n, 
+			  vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
+			  int &noAbort)
+{
+  int j, npts, *pts;
+  int idx[3];
+  int count = 0;
+  
+  for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
+       count++, cellNum++)
+    { 
+    glBegin(aGlFunction);
+    
+    for (j = 0; j < npts; j++) 
+      {
+      glColor4ubv(c->GetColor(cellNum));
+      glTexCoord2fv(t->GetTCoord(pts[j]));
+      glNormal3fv(n->GetNormal(pts[j]));
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+    
+    // check for abort condition
+    if (count == 100)
+      {
+      count = 0;
+      if (ren->GetRenderWindow()->CheckAbortStatus())
+	{
+	noAbort = 0;
+	}
+      }
+    }
+}
+
+
+
+void vtkOpenGLDraw3(vtkCellArray *aPrim, GLenum aGlFunction,
+		    int &, vtkPoints *p, vtkNormals *, vtkScalars *, 
+		    vtkTCoords *, vtkOpenGLRenderer *ren, int &noAbort)
+{
+  int j, npts, *pts;
+  int idx[3];
+  int count = 0;
+  float polyNorm[3];
+  
+  for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
+       count++)
+    { 
+    glBegin(aGlFunction);
+    vtkPolygon::ComputeNormal(p,npts,pts,polyNorm);
+    
+    for (j = 0; j < npts; j++) 
+      {
+      glNormal3fv(polyNorm);
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+    
+    // check for abort condition
+    if (count == 100)
+      {
+      count = 0;
+      if (ren->GetRenderWindow()->CheckAbortStatus())
+	{
+	noAbort = 0;
+	}
+      }
+    }
+}
+
+void vtkOpenGLDrawS3(vtkCellArray *aPrim, GLenum aGlFunction,
+		    int &, vtkPoints *p, vtkNormals *n, 
+		     vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
+		     int &noAbort)
+{
+  int j, npts, *pts;
+  int idx[3];
+  int count = 0;
+  float polyNorm[3];
+  
+  for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
+       count++)
+    { 
+    glBegin(aGlFunction);
+    
+    vtkPolygon::ComputeNormal(p,npts,pts,polyNorm);
+
+    for (j = 0; j < npts; j++) 
+      {
+      glColor4ubv(c->GetColor(pts[j]));
+      glNormal3fv(polyNorm);
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+    
+    // check for abort condition
+    if (count == 100)
+      {
+      count = 0;
+      if (ren->GetRenderWindow()->CheckAbortStatus())
+	{
+	noAbort = 0;
+	}
+      }
+    }
+}
+
+void vtkOpenGLDrawT3(vtkCellArray *aPrim, GLenum aGlFunction,
+		     int &, vtkPoints *p, vtkNormals *n, 
+		     vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
+		     int &noAbort)
+{
+  int j, npts, *pts;
+  int idx[3];
+  int count = 0;
+  float polyNorm[3];
+  
+  for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
+       count++)
+    { 
+    glBegin(aGlFunction);
+    vtkPolygon::ComputeNormal(p,npts,pts,polyNorm);
+    
+    for (j = 0; j < npts; j++) 
+      {
+      glTexCoord2fv(t->GetTCoord(pts[j]));
+      glNormal3fv(polyNorm);
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+    
+    // check for abort condition
+    if (count == 100)
+      {
+      count = 0;
+      if (ren->GetRenderWindow()->CheckAbortStatus())
+	{
+	noAbort = 0;
+	}
+      }
+    }
+}
+
+void vtkOpenGLDrawST3(vtkCellArray *aPrim, GLenum aGlFunction,
+		      int &, vtkPoints *p, vtkNormals *n, 
+		      vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
+		      int &noAbort)
+{
+  int j, npts, *pts;
+  int idx[3];
+  int count = 0;
+  float polyNorm[3];
+  
+  for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
+       count++)
+    { 
+    glBegin(aGlFunction);
+    vtkPolygon::ComputeNormal(p,npts,pts,polyNorm);
+    
+    for (j = 0; j < npts; j++) 
+      {
+      glColor4ubv(c->GetColor(pts[j]));
+      glTexCoord2fv(t->GetTCoord(pts[j]));
+      glNormal3fv(polyNorm);
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+    
+    // check for abort condition
+    if (count == 100)
+      {
+      count = 0;
+      if (ren->GetRenderWindow()->CheckAbortStatus())
+	{
+	noAbort = 0;
+	}
+      }
+    }
+}
+
+void vtkOpenGLDrawCS3(vtkCellArray *aPrim, GLenum aGlFunction,
+		      int &cellNum, vtkPoints *p, vtkNormals *n, 
+		      vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
+		      int &noAbort)
+{
+  int j, npts, *pts;
+  int idx[3];
+  int count = 0;
+  float polyNorm[3];
+  
+  for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
+       count++, cellNum++)
+    { 
+    glBegin(aGlFunction);
+    vtkPolygon::ComputeNormal(p,npts,pts,polyNorm);
+
+    for (j = 0; j < npts; j++) 
+      {
+      glColor4ubv(c->GetColor(cellNum));
+      glNormal3fv(polyNorm);
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+    
+    // check for abort condition
+    if (count == 100)
+      {
+      count = 0;
+      if (ren->GetRenderWindow()->CheckAbortStatus())
+	{
+	noAbort = 0;
+	}
+      }
+    }
+}
+
+void vtkOpenGLDrawCST3(vtkCellArray *aPrim, GLenum aGlFunction,
+		       int &cellNum, vtkPoints *p, vtkNormals *n, 
+		       vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
+		       int &noAbort)
+{
+  int j, npts, *pts;
+  int idx[3];
+  int count = 0;
+  float polyNorm[3];
+  
+  for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
+       count++, cellNum++)
+    { 
+    glBegin(aGlFunction);
+    vtkPolygon::ComputeNormal(p,npts,pts,polyNorm);
+    
+    for (j = 0; j < npts; j++) 
+      {
+      glColor4ubv(c->GetColor(cellNum));
+      glTexCoord2fv(t->GetTCoord(pts[j]));
+      glNormal3fv(polyNorm);
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+    
+    // check for abort condition
+    if (count == 100)
+      {
+      count = 0;
+      if (ren->GetRenderWindow()->CheckAbortStatus())
+	{
+	noAbort = 0;
+	}
+      }
+    }
+}
+
+
+  
+void vtkOpenGLDraw2(vtkCellArray *aPrim, GLenum aGlFunction,
+		    int &, vtkPoints *p, vtkNormals *, vtkScalars *, 
+		    vtkTCoords *, vtkOpenGLRenderer *ren, int &noAbort)
+{
+  int j, npts, *pts;
+  int idx[3];
+  int count = 0;
+  float polyNorm[3];
+  
+  for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
+       count++)
+    { 
+    glBegin(aGlFunction);
+    vtkTriangle::ComputeNormal(p,3,pts,polyNorm);
+    
+    for (j = 0; j < npts; j++) 
+      {
+      if ( j > 2)
+	{
+	if (j % 2)
+	  {
+	  idx[0] = pts[j-2]; idx[1] = pts[j]; idx[2] = pts[j-1]; 
+	  vtkTriangle::ComputeNormal(p, 3, idx, polyNorm);
+	  }
+	else
+	  {
+	  idx[0] = pts[j-2]; idx[1] = pts[j-1]; idx[2] = pts[j]; 
+	  vtkTriangle::ComputeNormal(p, 3, idx, polyNorm);
+	  }
+	}
+      else if ( j == 0 )
+	{
+	vtkTriangle::ComputeNormal(p, 3, pts, polyNorm);
+	}
+      glNormal3fv(polyNorm);
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+    
+    // check for abort condition
+    if (count == 100)
+      {
+      count = 0;
+      if (ren->GetRenderWindow()->CheckAbortStatus())
+	{
+	noAbort = 0;
+	}
+      }
+    }
+}
+
+void vtkOpenGLDrawS2(vtkCellArray *aPrim, GLenum aGlFunction,
+		     int &, vtkPoints *p, vtkNormals *n, 
+		     vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
+		     int &noAbort)
+{
+  int j, npts, *pts;
+  int idx[3];
+  int count = 0;
+  float polyNorm[3];
+  
+  for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
+       count++)
+    { 
+    glBegin(aGlFunction);
+    vtkTriangle::ComputeNormal(p,3,pts,polyNorm);
+    
+    for (j = 0; j < npts; j++) 
+      {
+      glColor4ubv(c->GetColor(pts[j]));
+      if ( j > 2)
+	{
+	if (j % 2)
+	  {
+	  idx[0] = pts[j-2]; idx[1] = pts[j]; idx[2] = pts[j-1]; 
+	  vtkTriangle::ComputeNormal(p, 3, idx, polyNorm);
+	  }
+	else
+	  {
+	  idx[0] = pts[j-2]; idx[1] = pts[j-1]; idx[2] = pts[j]; 
+	  vtkTriangle::ComputeNormal(p, 3, idx, polyNorm);
+	  }
+	}
+      else if ( j == 0 )
+	{
+	vtkTriangle::ComputeNormal(p, 3, pts, polyNorm);
+	}
+      glNormal3fv(polyNorm);
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+    
+    // check for abort condition
+    if (count == 100)
+      {
+      count = 0;
+      if (ren->GetRenderWindow()->CheckAbortStatus())
+	{
+	noAbort = 0;
+	}
+      }
+    }
+}
+
+void vtkOpenGLDrawT2(vtkCellArray *aPrim, GLenum aGlFunction,
+		     int &, vtkPoints *p, vtkNormals *n, 
+		     vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
+		     int &noAbort)
+{
+  int j, npts, *pts;
+  int idx[3];
+  int count = 0;
+  float polyNorm[3];
+  
+  for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
+       count++)
+    { 
+    glBegin(aGlFunction);
+    vtkTriangle::ComputeNormal(p,3,pts,polyNorm);
+    
+    for (j = 0; j < npts; j++) 
+      {
+      glTexCoord2fv(t->GetTCoord(pts[j]));
+      if ( j > 2)
+	{
+	if (j % 2)
+	  {
+	  idx[0] = pts[j-2]; idx[1] = pts[j]; idx[2] = pts[j-1]; 
+	  vtkTriangle::ComputeNormal(p, 3, idx, polyNorm);
+	  }
+	else
+	  {
+	  idx[0] = pts[j-2]; idx[1] = pts[j-1]; idx[2] = pts[j]; 
+	  vtkTriangle::ComputeNormal(p, 3, idx, polyNorm);
+	  }
+	}
+      else if ( j == 0 )
+	{
+	vtkTriangle::ComputeNormal(p, 3, pts, polyNorm);
+	}
+      glNormal3fv(polyNorm);
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+    
+    // check for abort condition
+    if (count == 100)
+      {
+      count = 0;
+      if (ren->GetRenderWindow()->CheckAbortStatus())
+	{
+	noAbort = 0;
+	}
+      }
+    }
+}
+
+void vtkOpenGLDrawST2(vtkCellArray *aPrim, GLenum aGlFunction,
+		      int &, vtkPoints *p, vtkNormals *n, 
+		      vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
+		      int &noAbort)
+{
+  int j, npts, *pts;
+  int idx[3];
+  int count = 0;
+  float polyNorm[3];
+  
+  for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
+       count++)
+    { 
+    glBegin(aGlFunction);
+    vtkTriangle::ComputeNormal(p,3,pts,polyNorm);
+    
+    for (j = 0; j < npts; j++) 
+      {
+      glColor4ubv(c->GetColor(pts[j]));
+      glTexCoord2fv(t->GetTCoord(pts[j]));
+      if ( j > 2)
+	{
+	if (j % 2)
+	  {
+	  idx[0] = pts[j-2]; idx[1] = pts[j]; idx[2] = pts[j-1]; 
+	  vtkTriangle::ComputeNormal(p, 3, idx, polyNorm);
+	  }
+	else
+	  {
+	  idx[0] = pts[j-2]; idx[1] = pts[j-1]; idx[2] = pts[j]; 
+	  vtkTriangle::ComputeNormal(p, 3, idx, polyNorm);
+	  }
+	}
+      else if ( j == 0 )
+	{
+	vtkTriangle::ComputeNormal(p, 3, pts, polyNorm);
+	}
+      glNormal3fv(polyNorm);
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+    
+    // check for abort condition
+    if (count == 100)
+      {
+      count = 0;
+      if (ren->GetRenderWindow()->CheckAbortStatus())
+	{
+	noAbort = 0;
+	}
+      }
+    }
+}
+
+void vtkOpenGLDrawCS2(vtkCellArray *aPrim, GLenum aGlFunction,
+		      int &cellNum, vtkPoints *p, vtkNormals *n, 
+		      vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
+		      int &noAbort)
+{
+  int j, npts, *pts;
+  int idx[3];
+  int count = 0;
+  float polyNorm[3];
+  
+  for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
+       count++, cellNum++)
+    { 
+    glBegin(aGlFunction);
+    vtkTriangle::ComputeNormal(p,3,pts,polyNorm);
+    
+    for (j = 0; j < npts; j++) 
+      {
+      glColor4ubv(c->GetColor(cellNum));
+      if ( j > 2)
+	{
+	if (j % 2)
+	  {
+	  idx[0] = pts[j-2]; idx[1] = pts[j]; idx[2] = pts[j-1]; 
+	  vtkTriangle::ComputeNormal(p, 3, idx, polyNorm);
+	  }
+	else
+	  {
+	  idx[0] = pts[j-2]; idx[1] = pts[j-1]; idx[2] = pts[j]; 
+	  vtkTriangle::ComputeNormal(p, 3, idx, polyNorm);
+	  }
+	}
+      else if ( j == 0 )
+	{
+	vtkTriangle::ComputeNormal(p, 3, pts, polyNorm);
+	}
+      glNormal3fv(polyNorm);
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+    
+    // check for abort condition
+    if (count == 100)
+      {
+      count = 0;
+      if (ren->GetRenderWindow()->CheckAbortStatus())
+	{
+	noAbort = 0;
+	}
+      }
+    }
+}
+
+void vtkOpenGLDrawCST2(vtkCellArray *aPrim, GLenum aGlFunction,
+		      int &cellNum, vtkPoints *p, vtkNormals *n, 
+		      vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
+		      int &noAbort)
+{
+  int j, npts, *pts;
+  int idx[3];
+  int count = 0;
+  float polyNorm[3];
+  
+  for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
+       count++, cellNum++)
+    { 
+    glBegin(aGlFunction);
+    vtkTriangle::ComputeNormal(p,3,pts,polyNorm);
+
+    for (j = 0; j < npts; j++) 
+      {
+      glColor4ubv(c->GetColor(cellNum));
+      glTexCoord2fv(t->GetTCoord(pts[j]));
+      if ( j > 2)
+	{
+	if (j % 2)
+	  {
+	  idx[0] = pts[j-2]; idx[1] = pts[j]; idx[2] = pts[j-1]; 
+	  vtkTriangle::ComputeNormal(p, 3, idx, polyNorm);
+	  }
+	else
+	  {
+	  idx[0] = pts[j-2]; idx[1] = pts[j-1]; idx[2] = pts[j]; 
+	  vtkTriangle::ComputeNormal(p, 3, idx, polyNorm);
+	  }
+	}
+      else if ( j == 0 )
+	{
+	vtkTriangle::ComputeNormal(p, 3, pts, polyNorm);
+	}
+      glNormal3fv(polyNorm);
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+    
+    // check for abort condition
+    if (count == 100)
+      {
+      count = 0;
+      if (ren->GetRenderWindow()->CheckAbortStatus())
+	{
+	noAbort = 0;
+	}
+      }
+    }
+}
+
+
+  
+
+ 
+  
+void vtkOpenGLDrawW(vtkCellArray *aPrim, GLenum aGlFunction,
+		   int &, vtkPoints *p, vtkNormals *, vtkScalars *, 
+		   vtkTCoords *, vtkOpenGLRenderer *ren, int &noAbort)
+{
+  int j, npts, *pts;
+  int idx[3];
+  int count = 0;
+  float polyNorm[3];
+  
+  for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
+       count++)
+    { 
+    // draw first line
+    glBegin(GL_LINE_STRIP);
+    for (j = 0; j < npts; j += 2) 
+      {
+      if ( j == 0 )
+	{
+	vtkTriangle::ComputeNormal(p, 3, pts, polyNorm);
+	}
+      else
+	{
+	idx[0] = pts[j-2]; idx[1] = pts[j-1]; idx[2] = pts[j]; 
+	vtkTriangle::ComputeNormal(p, 3, idx, polyNorm);
+	}
+      glNormal3fv(polyNorm);
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+      
+    // draw second line
+    glBegin(GL_LINE_STRIP);
+    for (j = 1; j < npts; j += 2) 
+      {
+      if (j == 1)
+	{
+	vtkTriangle::ComputeNormal(p, 3, pts, polyNorm);
+	}
+      else
+	{
+	idx[0] = pts[j-2]; idx[1] = pts[j]; idx[2] = pts[j-1]; 
+	vtkTriangle::ComputeNormal(p, 3, idx, polyNorm);
+	}
+      glNormal3fv(polyNorm);
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+  
+    // check for abort condition
+    if (count == 100)
+      {
+      count = 0;
+      if (ren->GetRenderWindow()->CheckAbortStatus())
+	{
+	noAbort = 0;
+	}
+      }
+    }
+}
+
+void vtkOpenGLDrawNW(vtkCellArray *aPrim, GLenum aGlFunction,
+		     int &cellNum, vtkPoints *p, vtkNormals *n, 
+		     vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
+		     int &noAbort)
+{
+  int j, npts, *pts;
+  int idx[3];
+  int count = 0;
+  
+  for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
+       count++)
+    { 
+    // draw first line
+    glBegin(GL_LINE_STRIP);
+    for (j = 0; j < npts; j += 2) 
+      {
+      glNormal3fv(n->GetNormal(pts[j]));
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+    
+    // draw second line
+    glBegin(GL_LINE_STRIP);
+    for (j = 1; j < npts; j += 2) 
+      {
+      glNormal3fv(n->GetNormal(pts[j]));
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+    
+    // check for abort condition
+    if (count == 100)
+      {
+      count = 0;
+      if (ren->GetRenderWindow()->CheckAbortStatus())
+	{
+	noAbort = 0;
+	}
+      }
+    }
+}
+
+
+void vtkOpenGLDrawSW(vtkCellArray *aPrim, GLenum aGlFunction,
+		     int &, vtkPoints *p, vtkNormals *n, 
+		     vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
+		     int &noAbort)
+{
+  int j, npts, *pts;
+  int idx[3];
+  int count = 0;
+  float polyNorm[3];
+  
+  for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
+       count++)
+    { 
+    // draw first line
+    glBegin(GL_LINE_STRIP);
+    for (j = 0; j < npts; j += 2) 
+      {
+      glColor4ubv(c->GetColor(pts[j]));
+      if ( j == 0 )
+	{
+	vtkTriangle::ComputeNormal(p, 3, pts, polyNorm);
+	}
+      else
+	{
+	idx[0] = pts[j-2]; idx[1] = pts[j-1]; idx[2] = pts[j]; 
+	vtkTriangle::ComputeNormal(p, 3, idx, polyNorm);
+	}
+      glNormal3fv(polyNorm);
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+    
+    // draw second line
+    glBegin(GL_LINE_STRIP);
+    for (j = 1; j < npts; j += 2) 
+      {
+      glColor4ubv(c->GetColor(pts[j]));
+      if (j == 1)
+	{
+	vtkTriangle::ComputeNormal(p, 3, pts, polyNorm);
+	}
+      else
+	{
+	idx[0] = pts[j-2]; idx[1] = pts[j]; idx[2] = pts[j-1]; 
+	vtkTriangle::ComputeNormal(p, 3, idx, polyNorm);
+	}
+      glNormal3fv(polyNorm);
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+    
+    // check for abort condition
+    if (count == 100)
+      {
+      count = 0;
+      if (ren->GetRenderWindow()->CheckAbortStatus())
+	{
+	noAbort = 0;
+	}
+      }
+    }
+}
+
+void vtkOpenGLDrawNSW(vtkCellArray *aPrim, GLenum aGlFunction,
+		      int &, vtkPoints *p, vtkNormals *n, 
+		      vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
+		      int &noAbort)
+{
+  int j, npts, *pts;
+  int idx[3];
+  int count = 0;
+  
+  for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
+       count++)
+    { 
+    // draw first line
+    glBegin(GL_LINE_STRIP);
+    for (j = 0; j < npts; j += 2) 
+      {
+      glColor4ubv(c->GetColor(pts[j]));
+      glNormal3fv(n->GetNormal(pts[j]));
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+    
+    // draw second line
+    glBegin(GL_LINE_STRIP);
+    for (j = 1; j < npts; j += 2) 
+      {
+      glColor4ubv(c->GetColor(pts[j]));
+      glNormal3fv(n->GetNormal(pts[j]));
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+    
+    // check for abort condition
+    if (count == 100)
+      {
+      count = 0;
+      if (ren->GetRenderWindow()->CheckAbortStatus())
+	{
+	noAbort = 0;
+	}
+      }
+    }
+}
+
+void vtkOpenGLDrawTW(vtkCellArray *aPrim, GLenum aGlFunction,
+		     int &, vtkPoints *p, vtkNormals *n, 
+		     vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
+		     int &noAbort)
+{
+  int j, npts, *pts;
+  int idx[3];
+  int count = 0;
+  float polyNorm[3];
+  
+  for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
+       count++)
+    { 
+    // draw first line
+    glBegin(GL_LINE_STRIP);
+    for (j = 0; j < npts; j += 2) 
+      {
+      if ( j == 0 )
+	{
+	vtkTriangle::ComputeNormal(p, 3, pts, polyNorm);
+	}
+      else
+	{
+	idx[0] = pts[j-2]; idx[1] = pts[j-1]; idx[2] = pts[j]; 
+	vtkTriangle::ComputeNormal(p, 3, idx, polyNorm);
+	}
+      glNormal3fv(polyNorm);
+      glTexCoord2fv(t->GetTCoord(pts[j]));
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+    
+    // draw second line
+    glBegin(GL_LINE_STRIP);
+    for (j = 1; j < npts; j += 2) 
+      {
+      if (j == 1)
+	{
+	vtkTriangle::ComputeNormal(p, 3, pts, polyNorm);
+	}
+      else
+	{
+	idx[0] = pts[j-2]; idx[1] = pts[j]; idx[2] = pts[j-1]; 
+	vtkTriangle::ComputeNormal(p, 3, idx, polyNorm);
+	}
+      glNormal3fv(polyNorm);
+      glTexCoord2fv(t->GetTCoord(pts[j]));
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+    
+    // check for abort condition
+    if (count == 100)
+      {
+      count = 0;
+      if (ren->GetRenderWindow()->CheckAbortStatus())
+	{
+	noAbort = 0;
+	}
+      }
+    }
+}
+
+void vtkOpenGLDrawNTW(vtkCellArray *aPrim, GLenum aGlFunction,
+		      int &, vtkPoints *p, vtkNormals *n, 
+		      vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
+		      int &noAbort)
+{
+  int j, npts, *pts;
+  int idx[3];
+  int count = 0;
+  
+  for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
+       count++)
+    { 
+    glBegin(GL_LINE_STRIP);
+    for (j = 0; j < npts; j += 2) 
+      {
+      glNormal3fv(n->GetNormal(pts[j]));
+      glTexCoord2fv(t->GetTCoord(pts[j]));
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+    
+    // draw second line
+    glBegin(GL_LINE_STRIP);
+    for (j = 1; j < npts; j += 2) 
+      {
+      glNormal3fv(n->GetNormal(pts[j]));
+      glTexCoord2fv(t->GetTCoord(pts[j]));
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+    
+    // check for abort condition
+    if (count == 100)
+      {
+      count = 0;
+      if (ren->GetRenderWindow()->CheckAbortStatus())
+	{
+	noAbort = 0;
+	}
+      }
+    }
+}
+
+void vtkOpenGLDrawSTW(vtkCellArray *aPrim, GLenum aGlFunction,
+		     int &, vtkPoints *p, vtkNormals *n, 
+		     vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
+		     int &noAbort)
+{
+  int j, npts, *pts;
+  int idx[3];
+  int count = 0;
+  float polyNorm[3];
+  
+  for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
+       count++)
+    { 
+    // draw first line
+    glBegin(GL_LINE_STRIP);
+    for (j = 0; j < npts; j += 2) 
+      {
+      glColor4ubv(c->GetColor(pts[j]));
+      if ( j == 0 )
+	{
+	vtkTriangle::ComputeNormal(p, 3, pts, polyNorm);
+	}
+      else
+	{
+	idx[0] = pts[j-2]; idx[1] = pts[j-1]; idx[2] = pts[j]; 
+	vtkTriangle::ComputeNormal(p, 3, idx, polyNorm);
+	}
+      glNormal3fv(polyNorm);
+      glTexCoord2fv(t->GetTCoord(pts[j]));
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+      
+    // draw second line
+    glBegin(GL_LINE_STRIP);
+    for (j = 1; j < npts; j += 2) 
+      {
+      glColor4ubv(c->GetColor(pts[j]));
+      if (j == 1)
+	{
+	vtkTriangle::ComputeNormal(p, 3, pts, polyNorm);
+	}
+      else
+	{
+	idx[0] = pts[j-2]; idx[1] = pts[j]; idx[2] = pts[j-1]; 
+	vtkTriangle::ComputeNormal(p, 3, idx, polyNorm);
+	}
+      glNormal3fv(polyNorm);
+      glTexCoord2fv(t->GetTCoord(pts[j]));
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+    
+    // check for abort condition
+    if (count == 100)
+      {
+      count = 0;
+      if (ren->GetRenderWindow()->CheckAbortStatus())
+	{
+	noAbort = 0;
+	}
+      }
+    }
+}
+
+void vtkOpenGLDrawNSTW(vtkCellArray *aPrim, GLenum aGlFunction,
+		      int &, vtkPoints *p, vtkNormals *n, 
+		      vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
+		      int &noAbort)
+{
+  int j, npts, *pts;
+  int idx[3];
+  int count = 0;
+  
+  for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
+       count++)
+    { 
+    // draw first line
+    glBegin(GL_LINE_STRIP);
+    for (j = 0; j < npts; j += 2) 
+      {
+      glColor4ubv(c->GetColor(pts[j]));
+      glNormal3fv(n->GetNormal(pts[j]));
+      glTexCoord2fv(t->GetTCoord(pts[j]));
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+    
+    // draw second line
+    glBegin(GL_LINE_STRIP);
+    for (j = 1; j < npts; j += 2) 
+      {
+      glColor4ubv(c->GetColor(pts[j]));
+      glNormal3fv(n->GetNormal(pts[j]));
+      glTexCoord2fv(t->GetTCoord(pts[j]));
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+  
+    // check for abort condition
+    if (count == 100)
+      {
+      count = 0;
+      if (ren->GetRenderWindow()->CheckAbortStatus())
+	{
+	noAbort = 0;
+	}
+      }
+    }
+}
+
+
+
 // Description:
 // Draw method for OpenGL.
 void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
 {
   vtkOpenGLRenderer *ren = (vtkOpenGLRenderer *)aren;
-  int npts, rep, j, interpolation, idx[3];
-  float fclr[4], polyNorm[3], tran;
+  int rep, interpolation;
+  float fclr[4], tran;
   GLenum glFunction[4], aGlFunction;
   vtkProperty *prop;
   vtkPoints *p;
   vtkCellArray *prims[4], *aPrim;
   vtkScalars *c=NULL;
   vtkNormals *n;
-  int *pts;
   vtkTCoords *t;
-  int tDim, primType;
-  int count = 0;
+  int tDim;
   int noAbort = 1;
   vtkPolyData *input = (vtkPolyData *)this->Input;
+  float diff;
+  int cellScalars = 0;
+  int cellNum = 0;
   
   // get the property 
   prop = act->GetProperty();
 
   // get the transparency 
   tran = prop->GetOpacity();
+  diff = prop->GetDiffuse();
   
   // if the primitives are invisable then get out of here 
   if (tran <= 0.0) return;
@@ -245,10 +1623,16 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
 
   // and draw the display list
   p = input->GetPoints();
+  
+  // are they cell or point scalars
   if ( this->Colors )
     {
     c = this->Colors;
     c->InitColorTraversal(tran, this->LookupTable, this->ColorMode);
+    if (!input->GetPointData()->GetScalars())
+      {
+      cellScalars = 1;
+      }
     }
     
   prims[0] = input->GetVerts();
@@ -280,186 +1664,154 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
     glEnable( GL_COLOR_MATERIAL );
     }
   
-  for (primType = 0; primType < 4; primType++)
+  // how do we draw points
+  void (*draw0)(vtkCellArray *, GLenum, int &, vtkPoints *, vtkNormals *, 
+		vtkScalars *, vtkTCoords *, vtkOpenGLRenderer *, int &);
+  int idx;
+  if (n) idx = 1;
+  else idx = 0;
+  if (c) idx += 2;
+  if (t) idx += 4;
+  if (cellScalars) idx += 8;
+  switch (idx) 
     {
-    aPrim = prims[primType];
-    aGlFunction = glFunction[primType];
-    
-    // for lines or points
-    if (primType < 2)
-      {
-      if (!n)
-	{
-	glDisable( GL_LIGHTING);
-	if (!c)
-	  {
-	  float *bg_color;
-	  // if a line is being drawn without normals and with the  
-	  // ambient intensity set to zero, then lets pretend that  
-	  // the ambient intensity is 1.0 because otherwise the line
-	  // would either not show up or be screwed up              
-	  // get the color from the property and set it 
-	  bg_color = prop->GetColor();
-	  fclr[0] = bg_color[0]; 
-	  fclr[1] = bg_color[1]; 
-	  fclr[2] = bg_color[2];
-	  fclr[3]  = tran;
-	  glBegin( GL_POINTS );
-	  glColor4fv(fclr);
-	  glEnd();
-	  }
-	}
-      }
-    
-    for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
-	 count++)
-      { 
-      glBegin(aGlFunction);
-      
-      if ((primType > 1) && (!n))
-        {
-        if ( primType == 3 ) vtkPolygon::ComputeNormal(p,npts,pts,polyNorm);
-	else vtkTriangle::ComputeNormal(p,3,pts,polyNorm);
-        }
-      
-      for (j = 0; j < npts; j++) 
-	{
-	if (c) 
-	  {
-	  glColor4ubv(c->GetColor(pts[j]));
-	  }
-	
-	if (t)
-	  {
-	  glTexCoord2fv(t->GetTCoord(pts[j]));
-	  }
-	
-	if (n) 
-	  {
-	  glNormal3fv(n->GetNormal(pts[j]));
-	  }
-	else 
-	  {
-	  if (primType == 3) 
-	    {
-	    glNormal3fv(polyNorm);
-	    }
-	  if (primType == 2)
-	    {
-	    if ( j > 2)
-	      {
-	      if (j % 2)
-		{
-		idx[0] = pts[j-2]; idx[1] = pts[j]; idx[2] = pts[j-1]; 
-		vtkTriangle::ComputeNormal(p, 3, idx, polyNorm);
-		}
-	      else
-		{
-		idx[0] = pts[j-2]; idx[1] = pts[j-1]; idx[2] = pts[j]; 
-		vtkTriangle::ComputeNormal(p, 3, idx, polyNorm);
-		}
-	      }
-  	    else if ( j == 0 )
-	      {
-	      vtkTriangle::ComputeNormal(p, 3, pts, polyNorm);
-	      }
-	    glNormal3fv(polyNorm);
-	    }
-	  }
-	
-	glVertex3fv(p->GetPoint(pts[j]));
-	}
-      glEnd();
-      
-      // if its wireframe, then draw the top and bottom edges
-      // of any tstrips
-      if (primType == 2 && rep == VTK_WIREFRAME) 
-	{
-	// draw first line
-	glBegin(GL_LINE_STRIP);
-	for (j = 0; j < npts; j += 2) 
-	  {
-	  if (c) 
-	    {
-	    glColor4ubv(c->GetColor(pts[j]));
-	    }
-	  
-	  if (n) 
-	    {
-	    glNormal3fv(n->GetNormal(pts[j]));
-	    }
-	  else 
-	    {
-  	    if ( j == 0 )
-	      {
-	      vtkTriangle::ComputeNormal(p, 3, pts, polyNorm);
-	      }
-	    else
-	      {
-              idx[0] = pts[j-2]; idx[1] = pts[j-1]; idx[2] = pts[j]; 
-              vtkTriangle::ComputeNormal(p, 3, idx, polyNorm);
-	      }
-	    glNormal3fv(polyNorm);
-	    }
-	  
-	  if (t)
-	    {
-	    glTexCoord2fv(t->GetTCoord(pts[j]));
-	    }
-	  
-	  glVertex3fv(p->GetPoint(pts[j]));
-	  }
-	glEnd();
-	
-	// draw second line
-	glBegin(GL_LINE_STRIP);
-	for (j = 1; j < npts; j += 2) 
-	  {
-	  if (c) 
-	    {
-	    glColor4ubv(c->GetColor(pts[j]));
-	    }
-	  
-	  if (n) 
-	    {
-	    glNormal3fv(n->GetNormal(pts[j]));
-	    }
-	  else 
-	    {
-	    if (j == 1)
-	      {
-	      vtkTriangle::ComputeNormal(p, 3, pts, polyNorm);
-	      }
-	    else
-	      {
-              idx[0] = pts[j-2]; idx[1] = pts[j]; idx[2] = pts[j-1]; 
-              vtkTriangle::ComputeNormal(p, 3, idx, polyNorm);
-	      }
-	    glNormal3fv(polyNorm);
-	    }
-	  if (t)
-	    {
-	    glTexCoord2fv(t->GetTCoord(pts[j]));
-	    }
-	  glVertex3fv(p->GetPoint(pts[j]));
-	  }
-	glEnd();
-	}
+    case 0: draw0 = vtkOpenGLDraw01; break;
+    case 1: draw0 = vtkOpenGLDrawN013; break;
+    case 2: draw0 = vtkOpenGLDrawS01; break;
+    case 3: draw0 = vtkOpenGLDrawNS013; break;
+    case 4: draw0 = vtkOpenGLDrawT01; break;
+    case 5: draw0 = vtkOpenGLDrawNT013; break;
+    case 6: draw0 = vtkOpenGLDrawST01; break;
+    case 7: draw0 = vtkOpenGLDrawNST013; break;
+    case 10: draw0 = vtkOpenGLDrawCS01; break;
+    case 11: draw0 = vtkOpenGLDrawNCS013; break;
+    case 14: draw0 = vtkOpenGLDrawCST01; break;
+    case 15: draw0 = vtkOpenGLDrawNCST013; break;
+    }
+  
+  // how do we draw lines
+  void (*draw1)(vtkCellArray *, GLenum, int &, vtkPoints *, vtkNormals *, 
+		vtkScalars *, vtkTCoords *, vtkOpenGLRenderer *, int &);
+  switch (idx) 
+    {
+    case 0: draw1 = vtkOpenGLDraw01; break;
+    case 1: draw1 = vtkOpenGLDrawN013; break;
+    case 2: draw1 = vtkOpenGLDrawS01; break;
+    case 3: draw1 = vtkOpenGLDrawNS013; break;
+    case 4: draw1 = vtkOpenGLDrawT01; break;
+    case 5: draw1 = vtkOpenGLDrawNT013; break;
+    case 6: draw1 = vtkOpenGLDrawST01; break;
+    case 7: draw1 = vtkOpenGLDrawNST013; break;
+    case 10: draw1 = vtkOpenGLDrawCS01; break;
+    case 11: draw1 = vtkOpenGLDrawNCS013; break;
+    case 14: draw1 = vtkOpenGLDrawCST01; break;
+    case 15: draw1 = vtkOpenGLDrawNCST013; break;
+    }
 
-      // check for abort condition
-      if (count == 100)
-	{
-	count = 0;
-	if (ren->GetRenderWindow()->CheckAbortStatus())
-	  {
-	  noAbort = 0;
-	  }
-	}
-      }
-    if (primType < 2)
+  // how do we draw tstrips
+  void (*draw2)(vtkCellArray *, GLenum, int &, vtkPoints *, vtkNormals *, 
+		vtkScalars *, vtkTCoords *, vtkOpenGLRenderer *, int &);
+  void (*draw2W)(vtkCellArray *, GLenum, int &, vtkPoints *, vtkNormals *, 
+		 vtkScalars *, vtkTCoords *, vtkOpenGLRenderer *, int &);
+  switch (idx) 
+    {
+    case 0: draw2 = vtkOpenGLDraw2; break;
+    case 1: draw2 = vtkOpenGLDrawN013; break;
+    case 2: draw2 = vtkOpenGLDrawS2; break;
+    case 3: draw2 = vtkOpenGLDrawNS013; break;
+    case 4: draw2 = vtkOpenGLDrawT2; break;
+    case 5: draw2 = vtkOpenGLDrawNT013; break;
+    case 6: draw2 = vtkOpenGLDrawST2; break;
+    case 7: draw2 = vtkOpenGLDrawNST013; break;
+    case 10: draw2 = vtkOpenGLDrawCS2; break;
+    case 11: draw2 = vtkOpenGLDrawNCS013; break;
+    case 14: draw2 = vtkOpenGLDrawCST2; break;
+    case 15: draw2 = vtkOpenGLDrawNCST013; break;
+    }
+  switch (idx)
+    {
+    case 0: draw2W = vtkOpenGLDrawW; break;
+    case 1: draw2W = vtkOpenGLDrawNW; break;
+    case 2: draw2W = vtkOpenGLDrawSW; break;
+    case 3: draw2W = vtkOpenGLDrawNSW; break;
+    case 4: draw2W = vtkOpenGLDrawTW; break;
+    case 5: draw2W = vtkOpenGLDrawNTW; break;
+    case 6: draw2W = vtkOpenGLDrawSTW; break;
+    case 7: draw2W = vtkOpenGLDrawNSTW; break;
+    case 10: draw2W = vtkOpenGLDrawW; break;
+    case 11: draw2W = vtkOpenGLDrawNW; break;
+    case 14: draw2W = vtkOpenGLDrawTW; break;
+    case 15: draw2W = vtkOpenGLDrawNTW; break;
+    }
+  
+  // how do we draw polys
+  void (*draw3)(vtkCellArray *, GLenum, int &, vtkPoints *, vtkNormals *, 
+		vtkScalars *, vtkTCoords *, vtkOpenGLRenderer *, int &);
+  switch (idx) 
+    {
+    case 0: draw3 = vtkOpenGLDraw3; break;
+    case 1: draw3 = vtkOpenGLDrawN013; break;
+    case 2: draw3 = vtkOpenGLDrawS3; break;
+    case 3: draw3 = vtkOpenGLDrawNS013; break;
+    case 4: draw3 = vtkOpenGLDrawT3; break;
+    case 5: draw3 = vtkOpenGLDrawNT013; break;
+    case 6: draw3 = vtkOpenGLDrawST3; break;
+    case 7: draw3 = vtkOpenGLDrawNST013; break;
+    case 10: draw3 = vtkOpenGLDrawCS3; break;
+    case 11: draw3 = vtkOpenGLDrawNCS013; break;
+    case 14: draw3 = vtkOpenGLDrawCST3; break;
+    case 15: draw3 = vtkOpenGLDrawNCST013; break;
+    }
+
+  // do verts
+  aPrim = prims[0];
+  aGlFunction = glFunction[0];
+  if (!n)
+    {
+    glDisable( GL_LIGHTING);
+    if (!c)
       {
-      // reset the lighting if we turned it off
-      if (!n) glEnable( GL_LIGHTING);
+      float *bg_color;
+      // if a line is being drawn without normals and with the  
+      // ambient intensity set to zero, then lets pretend that  
+      // the ambient intensity is 1.0 because otherwise the line
+      // would either not show up or be screwed up              
+      // get the color from the property and set it 
+      bg_color = prop->GetColor();
+      fclr[0] = bg_color[0]; 
+      fclr[1] = bg_color[1]; 
+      fclr[2] = bg_color[2];
+      fclr[3]  = tran;
+      glBegin( GL_POINTS );
+      glColor4fv(fclr);
+      glEnd();
       }
     }
+  
+  // draw all the elements
+  draw0(aPrim, aGlFunction, cellNum, p, n, c, t, ren, noAbort);
+  
+  // do lines
+  aPrim = prims[1];
+  aGlFunction = glFunction[1];
+  
+  // draw all the elements
+  draw1(aPrim, aGlFunction, cellNum, p, n, c, t, ren, noAbort);
+  
+  // reset the lighting if we turned it off
+  if (!n) glEnable( GL_LIGHTING);
+
+  // do tstrips
+  aPrim = prims[2];
+  aGlFunction = glFunction[2];
+  draw2(aPrim, aGlFunction, cellNum, p, n, c, t, ren, noAbort);
+  if (rep == VTK_WIREFRAME)   
+    {
+    draw2W(aPrim, aGlFunction, cellNum, p, n, c, t, ren, noAbort);
+    }
+
+  // do polys
+  aPrim = prims[3];
+  aGlFunction = glFunction[3];
+  draw3(aPrim, aGlFunction, cellNum, p, n, c, t, ren, noAbort);
 }
