@@ -58,6 +58,8 @@ MACRO(VTK_WRAP_TCL3 TARGET SRC_LIST_NAME SOURCES COMMANDS)
           COMMAND ${VTK_WRAP_TCL_EXE}
           ARGS ${TMP_INPUT} ${VTK_WRAP_HINTS} ${TMP_CONCRETE} 
           ${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}Tcl.cxx
+          COMMENT
+          "Tcl Wrappings"
           )
         
       ENDIF (NOT TMP_WRAP_EXCLUDE)
@@ -87,6 +89,7 @@ MACRO(VTK_WRAP_TCL3 TARGET SRC_LIST_NAME SOURCES COMMANDS)
       COMMAND ${VTK_WRAP_TCL_INIT_EXE}
       ARGS ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.data
       ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.cxx
+      COMMENT "Tcl Wrapping Init"
       )
     
     # Create the Init File

@@ -54,6 +54,7 @@ MACRO(VTK_WRAP_JAVA3 TARGET SRC_LIST_NAME SOURCES)
           COMMAND ${VTK_PARSE_JAVA_EXE}
           ARGS ${TMP_INPUT} ${VTK_WRAP_HINTS} ${TMP_CONCRETE} 
           ${VTK_JAVA_HOME}/${TMP_FILENAME}.java
+          COMMENT "Java Wrappings"
           )
         
         # add custom command to output
@@ -63,6 +64,7 @@ MACRO(VTK_WRAP_JAVA3 TARGET SRC_LIST_NAME SOURCES)
           COMMAND ${VTK_WRAP_JAVA_EXE}
           ARGS ${TMP_INPUT} ${VTK_WRAP_HINTS} ${TMP_CONCRETE} 
           ${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}Java.cxx
+          COMMENT "Java Wrappings"
           )
 
         SET(VTK_JAVA_DEPENDENCIES ${VTK_JAVA_DEPENDENCIES} "${VTK_JAVA_HOME}/${TMP_FILENAME}.java")
