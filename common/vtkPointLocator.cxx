@@ -47,7 +47,7 @@ class vtkNeighborPoints
 {
 public:
   vtkNeighborPoints(const int sz, const int ext=1000)
-    {this->P = vtkIntArray::New(); this->P->Allocate(3*sz,3*ext);};
+     {this->P = vtkIntArray::New(); this->P->Allocate(3*sz,3*ext);};
   ~vtkNeighborPoints(){this->P->Delete();}; 
   int GetNumberOfNeighbors() {return (this->P->GetMaxId()+1)/3;};
   void Reset() {this->P->Reset();};
@@ -141,7 +141,7 @@ int vtkPointLocator::FindClosestPoint(float x[3])
 {
   int i, j;
   float minDist2, dist2;
-  float *pt;
+  float pt[3];
   int closest, level;
   int ptId, cno;
   vtkIdList *ptIds;
@@ -188,7 +188,7 @@ int vtkPointLocator::FindClosestPoint(float x[3])
         for (j=0; j < ptIds->GetNumberOfIds(); j++) 
           {
           ptId = ptIds->GetId(j);
-          pt = this->DataSet->GetPoint(ptId);
+          this->DataSet->GetPoint(ptId, pt);
           if ( (dist2 = vtkMath::Distance2BetweenPoints(x,pt)) < minDist2 ) 
             {
             closest = ptId;
@@ -218,7 +218,7 @@ int vtkPointLocator::FindClosestPoint(float x[3])
         for (j=0; j < ptIds->GetNumberOfIds(); j++) 
           {
           ptId = ptIds->GetId(j);
-          pt = this->DataSet->GetPoint(ptId);
+          this->DataSet->GetPoint(ptId, pt);
           if ( (dist2 = vtkMath::Distance2BetweenPoints(x,pt)) < minDist2 ) 
             {
             closest = ptId;

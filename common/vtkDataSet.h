@@ -85,39 +85,49 @@ public:
   // Copy the geometric and topological structure of an object. Note that
   // the invoking object and the object pointed to by the parameter ds must
   // be of the same type.
+  // THIS METHOD IS NOT THREAD SAFE.
   virtual void CopyStructure(vtkDataSet *ds) = 0;
 
   // Description:
   // Return class name of data type. This is one of VTK_STRUCTURED_GRID, 
   // VTK_STRUCTURED_POINTS, VTK_UNSTRUCTURED_GRID, VTK_POLY_DATA, or
   // VTK_RECTILINEAR_GRID (see vtkSetGet.h for definitions).
+  // THIS METHOD IS THREAD SAFE
   virtual int GetDataSetType() = 0;
 
   // Description:
   // Determine the number of points composing the dataset.
+  // THIS METHOD IS THREAD SAFE
   virtual int GetNumberOfPoints() = 0;
 
   // Description:
   // Determine the number of cells composing the dataset.
+  // THIS METHOD IS THREAD SAFE
   virtual int GetNumberOfCells() = 0;
 
   // Description:
   // Get point coordinates with ptId such that: 0 <= ptId < NumberOfPoints.
+  // THIS METHOD IS NOT THREAD SAFE.
   virtual float *GetPoint(int ptId) = 0;
 
   // Description:
   // Copy point coordinates into user provided array x[3] for specified
   // point id.
+  // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
+  // THE DATASET IS NOT MODIFIED
   virtual void GetPoint(int id, float x[3]);
 
   // Description:
   // Get cell with cellId such that: 0 <= cellId < NumberOfCells.
+  // THIS METHOD IS NOT THREAD SAFE.
   virtual vtkCell *GetCell(int cellId) = 0;
 
   // Description:
   // Get cell with cellId such that: 0 <= cellId < NumberOfCells. 
   // This is a thread-safe alternative to the previous GetCell()
   // method.
+  // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
+  // THE DATASET IS NOT MODIFIED
   virtual void GetCell(int cellId, vtkGenericCell *cell) = 0;
 
   // Description:
@@ -128,10 +138,14 @@ public:
   // that actually uses a GetCell() call.  This is to ensure the method
   // is available to all datasets.  Subclasses should override this method
   // to provide an efficient implementation.
+  // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
+  // THE DATASET IS NOT MODIFIED
   virtual void GetCellBounds(int cellId, float bounds[6]);
   
   // Description:
   // Get type of cell with cellId such that: 0 <= cellId < NumberOfCells.
+  // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
+  // THE DATASET IS NOT MODIFIED
   virtual int GetCellType(int cellId) = 0;
 
   // Description:
@@ -140,19 +154,27 @@ public:
   // For example a dataset 5 triangles, 3 lines, and 100 hexahedra would
   // result a list of three entries, corresponding to the types VTK_TRIANGLE,
   // VTK_LINE, and VTK_HEXAHEDRON.
+  // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
+  // THE DATASET IS NOT MODIFIED
   virtual void GetCellTypes(vtkCellTypes *types);
 
   // Description:
   // Topological inquiry to get points defining cell.
+  // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
+  // THE DATASET IS NOT MODIFIED
   virtual void GetCellPoints(int cellId, vtkIdList *ptIds) = 0;
 
   // Description:
   // Topological inquiry to get cells using point.
+  // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
+  // THE DATASET IS NOT MODIFIED
   virtual void GetPointCells(int ptId, vtkIdList *cellIds) = 0;
 
   // Description:
   // Topological inquiry to get all cells using list of points exclusive of
   // cell specified (e.g., cellId).
+  // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
+  // THE DATASET IS NOT MODIFIED
   virtual void GetCellNeighbors(int cellId, vtkIdList *ptIds, 
 				vtkIdList *cellIds);
 
@@ -160,6 +182,8 @@ public:
   // Locate the closest point to the global coordinate x. Return the
   // point id. If point id < 0; then no point found. (This may arise
   // when point is outside of dataset.)
+  // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
+  // THE DATASET IS NOT MODIFIED
   int FindPoint(float x, float y, float z)
     {
     float xyz[3];
@@ -177,6 +201,7 @@ public:
   // weights[]. (The number of weights is equal to the number of
   // points in the found cell). Tolerance is used to control how close
   // the point is to be considered "in" the cell.
+  // THIS METHOD IS NOT THREAD SAFE.
   virtual int FindCell(float x[3], vtkCell *cell, int cellId, float tol2, 
                        int& subId, float pcoords[3], float *weights) = 0;
 
@@ -186,47 +211,69 @@ public:
   // interpolation. This method combines the derived class methods
   // int FindCell and vtkCell *GetCell. Derived classes may provide a more 
   // efficient implementation. See for example vtkStructuredPoints.
+  // THIS METHOD IS NOT THREAD SAFE.
   virtual vtkCell *FindAndGetCell(float x[3], vtkCell *cell, int cellId, 
 				  float tol2, int& subId, float pcoords[3], 
 				  float *weights);
 
   // Description:
   // Datasets are composite objects and need to check each part for MTime
+  // THIS METHOD IS THREAD SAFE
   unsigned long int GetMTime();
 
   // Description:
   // return pointer to this dataset's point data
+  // THIS METHOD IS THREAD SAFE
   vtkCellData *GetCellData() {return this->CellData;};
 
   // Description:
   // return pointer to this dataset's point data
+  // THIS METHOD IS THREAD SAFE
   vtkPointData *GetPointData() {return this->PointData;};
 
   // Description:
   // Reclaim any extra memory used to store data.
+  // THIS METHOD IS NOT THREAD SAFE.
   virtual void Squeeze();
 
   // Description:
   // Compute the data bounding box from data points.
+  // THIS METHOD IS NOT THREAD SAFE.
   virtual void ComputeBounds();
 
   // Description:
   // Return a pointer to the geometry bounding box in the form
   // (xmin,xmax, ymin,ymax, zmin,zmax).
+  // THIS METHOD IS NOT THREAD SAFE.
   float *GetBounds();
+
+  // Description:
+  // Return a pointer to the geometry bounding box in the form
+  // (xmin,xmax, ymin,ymax, zmin,zmax).
+  // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
+  // THE DATASET IS NOT MODIFIED
   void GetBounds(float bounds[6]);
 
   // Description:
   // Get the center of the bounding box.
+  // THIS METHOD IS NOT THREAD SAFE.
   float *GetCenter();
+
+  // Description:
+  // Get the center of the bounding box.
+  // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
+  // THE DATASET IS NOT MODIFIED
   void GetCenter(float center[3]);
   
   // Description:
   // Return the length of the diagonal of the bounding box.
+  // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
+  // THE DATASET IS NOT MODIFIED
   float GetLength();
 
   // Description:
   // Restore data object to initial state,
+  // THIS METHOD IS NOT THREAD SAFE.
   void Initialize();
 
   // Description:
@@ -234,12 +281,20 @@ public:
   // scalar data). Returns the (min/max) range of combined point and cell data.
   // If there are no point or cell scalars the method will return (0,1).
   // Note: Update needs to be called to create the scalars.
+  // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
+  // THE DATASET IS NOT MODIFIED
   void GetScalarRange(float range[2]);
+
+  // Description:
+  // Convenience method to get the range of the scalar data (if there is any 
+  // scalar data). 
+  // THIS METHOD IS NOT THREAD SAFE.
   float *GetScalarRange();
   
   // Description:
   // Convenience method returns largest cell size in dataset. This is generally
   // used to allocate memory for supporting data structures.
+  // THIS METHOD IS THREAD SAFE
   virtual int GetMaxCellSize() = 0;
 
   // Description:

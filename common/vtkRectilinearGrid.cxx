@@ -62,6 +62,10 @@ vtkRectilinearGrid::vtkRectilinearGrid()
   this->YCoordinates = fs; fs->Register(this);
   this->ZCoordinates = fs; fs->Register(this);
   fs->Delete();
+
+  this->PointReturn[0] = 0.0;
+  this->PointReturn[1] = 0.0;
+  this->PointReturn[2] = 0.0;
 }
 
 vtkRectilinearGrid::~vtkRectilinearGrid()
@@ -430,7 +434,63 @@ void vtkRectilinearGrid::GetCellBounds(int cellId, float bounds[6])
 
 float *vtkRectilinearGrid::GetPoint(int ptId)
 {
-  static float x[3];
+  int loc[3];
+  
+  switch (this->DataDescription)
+    {
+    case VTK_SINGLE_POINT: 
+      loc[0] = loc[1] = loc[2] = 0;
+      break;
+
+    case VTK_X_LINE:
+      loc[1] = loc[2] = 0;
+      loc[0] = ptId;
+      break;
+
+    case VTK_Y_LINE:
+      loc[0] = loc[2] = 0;
+      loc[1] = ptId;
+      break;
+
+    case VTK_Z_LINE:
+      loc[0] = loc[1] = 0;
+      loc[2] = ptId;
+      break;
+
+    case VTK_XY_PLANE:
+      loc[2] = 0;
+      loc[0] = ptId % this->Dimensions[0];
+      loc[1] = ptId / this->Dimensions[0];
+      break;
+
+    case VTK_YZ_PLANE:
+      loc[0] = 0;
+      loc[1] = ptId % this->Dimensions[1];
+      loc[2] = ptId / this->Dimensions[1];
+      break;
+
+    case VTK_XZ_PLANE:
+      loc[1] = 0;
+      loc[0] = ptId % this->Dimensions[0];
+      loc[2] = ptId / this->Dimensions[0];
+      break;
+
+    case VTK_XYZ_GRID:
+      loc[0] = ptId % this->Dimensions[0];
+      loc[1] = (ptId / this->Dimensions[0]) % this->Dimensions[1];
+      loc[2] = ptId / (this->Dimensions[0]*this->Dimensions[1]);
+      break;
+    }
+
+  this->PointReturn[0] = this->XCoordinates->GetScalar(loc[0]);
+  this->PointReturn[1] = this->YCoordinates->GetScalar(loc[1]);
+  this->PointReturn[2] = this->ZCoordinates->GetScalar(loc[2]);
+
+  return this->PointReturn;
+}
+
+void vtkRectilinearGrid::GetPoint(int ptId, float x[3])
+{
   int loc[3];
   
   switch (this->DataDescription)
@@ -483,7 +543,6 @@ float *vtkRectilinearGrid::GetPoint(int ptId)
   x[1] = this->YCoordinates->GetScalar(loc[1]);
   x[2] = this->ZCoordinates->GetScalar(loc[2]);
 
-  return x;
 }
 
 int vtkRectilinearGrid::FindPoint(float x[3])

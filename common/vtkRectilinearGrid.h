@@ -176,13 +176,10 @@ protected:
   vtkScalars *XCoordinates;
   vtkScalars *YCoordinates;
   vtkScalars *ZCoordinates;
-};
 
-inline void vtkRectilinearGrid::GetPoint(int id, float x[3])
-{
-  float *p=this->GetPoint(id);
-  x[0] = p[0]; x[1] = p[1]; x[2] = p[2];
-}
+  // Hang on to some space for returning points when GetPoint(id) is called.
+  float PointReturn[3];
+};
 
 inline int vtkRectilinearGrid::GetNumberOfCells() 
 {

@@ -71,8 +71,9 @@ vtkUnstructuredGrid::vtkUnstructuredGrid ()
   this->Wedge = vtkWedge::New();
   this->Pyramid = vtkPyramid::New();
 
-  this->Connectivity = NULL;
   this->Cells = NULL;
+  this->Connectivity = NULL;
+  this->Allocate(1000,1000);
   this->Links = NULL;
 }
 
@@ -89,11 +90,19 @@ void vtkUnstructuredGrid::Allocate (int numCells, int extSize)
     extSize = 1000;
     }
 
+  if ( this->Connectivity )
+    {
+    this->Connectivity->UnRegister(this);
+    }
   this->Connectivity = vtkCellArray::New();
   this->Connectivity->Allocate(numCells,4*extSize);
   this->Connectivity->Register(this);
   this->Connectivity->Delete();
 
+  if ( this->Cells )
+    {
+    this->Cells->UnRegister(this);
+    }
   this->Cells = new vtkCellTypes(numCells,extSize);
   this->Cells->Register(this);
   this->Cells->Delete();
@@ -278,7 +287,8 @@ vtkCell *vtkUnstructuredGrid::GetCell(int cellId)
 
 void vtkUnstructuredGrid::GetCell(int cellId, vtkGenericCell *cell)
 {
-  int i, loc, numPts, *pts;
+  int    i, loc, numPts, *pts;
+  float  x[3];
 
   cell->SetCellType(this->Cells->GetCellType(cellId));
 
@@ -291,7 +301,8 @@ void vtkUnstructuredGrid::GetCell(int cellId, vtkGenericCell *cell)
   for (i=0; i<numPts; i++)
     {
     cell->PointIds->SetId(i,pts[i]);
-    cell->Points->SetPoint(i,this->Points->GetPoint(pts[i]));
+    this->Points->GetPoint(pts[i], x);
+    cell->Points->SetPoint(i, x);
     }
 }
 
@@ -301,7 +312,7 @@ void vtkUnstructuredGrid::GetCell(int cellId, vtkGenericCell *cell)
 void vtkUnstructuredGrid::GetCellBounds(int cellId, float bounds[6])
 {
   int i, loc, numPts, *pts;
-  float *x;
+  float x[3];
   
   loc = this->Cells->GetCellLocation(cellId);
   this->Connectivity->GetCell(loc,numPts,pts); 
@@ -311,7 +322,7 @@ void vtkUnstructuredGrid::GetCellBounds(int cellId, float bounds[6])
 
   for (i=0; i < numPts; i++)
     {
-    x = this->Points->GetPoint( pts[i] );
+    this->Points->GetPoint( pts[i], x );
 
     bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
     bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);

@@ -44,6 +44,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkQuad.h"
 #include "vtkHexahedron.h"
 
+#define vtkAdjustBoundsMacro( A, B ) \
+  A[0] = (B[0] < A[0] ? B[0] : A[0]);   A[1] = (B[0] > A[1] ? B[0] : A[1]); \
+  A[2] = (B[1] < A[2] ? B[1] : A[2]);   A[3] = (B[1] > A[3] ? B[1] : A[3]); \
+  A[4] = (B[2] < A[4] ? B[2] : A[4]);   A[5] = (B[2] > A[5] ? B[2] : A[5])
+
 vtkStructuredGrid::vtkStructuredGrid()
 {
   this->Vertex = vtkVertex::New();
@@ -271,9 +276,10 @@ vtkCell *vtkStructuredGrid::GetCell(int cellId)
 
 void vtkStructuredGrid::GetCell(int cellId, vtkGenericCell *cell)
 {
-  int idx;
-  int i, j, k;
-  int d01, offset1, offset2;
+  int   idx;
+  int   i, j, k;
+  int   d01, offset1, offset2;
+  float x[3];
  
   // Make sure data is defined
   if ( ! this->Points )
@@ -376,7 +382,8 @@ void vtkStructuredGrid::GetCell(int cellId, vtkGenericCell *cell)
   for (i=0; i<NumberOfIds; i++)
     {
     idx = cell->PointIds->GetId(i);
-    cell->Points->SetPoint(i,this->Points->GetPoint(idx));
+    this->Points->GetPoint(idx, x);
+    cell->Points->SetPoint(i, x);
     }
 }
 
@@ -388,7 +395,7 @@ void vtkStructuredGrid::GetCellBounds(int cellId, float bounds[6])
   int idx;
   int i, j, k;
   int d01, offset1, offset2;
-  float *x;
+  float x[3];
   
   bounds[0] = bounds[2] = bounds[4] =  VTK_LARGE_FLOAT;
   bounds[1] = bounds[3] = bounds[5] = -VTK_LARGE_FLOAT;
@@ -403,7 +410,7 @@ void vtkStructuredGrid::GetCellBounds(int cellId, float bounds[6])
   switch (this->DataDescription)
     {
     case VTK_SINGLE_POINT: // cellId can only be = 0
-      x = this->Points->GetPoint( 0 );
+      this->Points->GetPoint( 0, x );
       bounds[0] = bounds[1] = x[0];
       bounds[2] = bounds[3] = x[1];
       bounds[4] = bounds[5] = x[2];
@@ -412,18 +419,13 @@ void vtkStructuredGrid::GetCellBounds(int cellId, float bounds[6])
     case VTK_X_LINE:
     case VTK_Y_LINE:
     case VTK_Z_LINE:
-      x = this->Points->GetPoint( cellId );
+      this->Points->GetPoint( cellId, x );
       bounds[0] = bounds[1] = x[0];
       bounds[2] = bounds[3] = x[1];
       bounds[4] = bounds[5] = x[2];
 
-      x = this->Points->GetPoint( cellId +1 );
-      bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
-      bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
-      bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
-      bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
-      bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
-      bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
+      this->Points->GetPoint( cellId +1, x );
+      vtkAdjustBoundsMacro( bounds, x );
       break;
 
     case VTK_XY_PLANE:
@@ -454,34 +456,20 @@ void vtkStructuredGrid::GetCellBounds(int cellId, float bounds[6])
 	offset2 = this->Dimensions[0];
 	}
 
-      x = this->Points->GetPoint(idx);
+      this->Points->GetPoint(idx, x);
       bounds[0] = bounds[1] = x[0];
       bounds[2] = bounds[3] = x[1];
       bounds[4] = bounds[5] = x[2];
 
-      x = this->Points->GetPoint( idx+offset1);
-      bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
-      bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
-      bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
-      bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
-      bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
-      bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
+      this->Points->GetPoint( idx+offset1, x);
+      vtkAdjustBoundsMacro( bounds, x );
 
-      x = this->Points->GetPoint( idx+offset1+offset2);
-      bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
-      bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
-      bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
-      bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
-      bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
-      bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
+      this->Points->GetPoint( idx+offset1+offset2, x);
+      vtkAdjustBoundsMacro( bounds, x );
 
-      x = this->Points->GetPoint( idx+offset2);
-      bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
-      bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
-      bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
-      bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
-      bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
-      bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
+      this->Points->GetPoint( idx+offset2, x);
+      vtkAdjustBoundsMacro( bounds, x );
+
       break;
 
     case VTK_XYZ_GRID:
@@ -493,68 +481,33 @@ void vtkStructuredGrid::GetCellBounds(int cellId, float bounds[6])
       offset1 = 1;
       offset2 = this->Dimensions[0];
 
-      x = this->Points->GetPoint(idx);
+      this->Points->GetPoint(idx, x);
       bounds[0] = bounds[1] = x[0];
       bounds[2] = bounds[3] = x[1];
       bounds[4] = bounds[5] = x[2];
 
-      x = this->Points->GetPoint( idx+offset1);
-      bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
-      bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
-      bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
-      bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
-      bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
-      bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
+      this->Points->GetPoint( idx+offset1, x);
+      vtkAdjustBoundsMacro( bounds, x );
 
-      x = this->Points->GetPoint( idx+offset1+offset2);
-      bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
-      bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
-      bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
-      bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
-      bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
-      bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
+      this->Points->GetPoint( idx+offset1+offset2, x);
+      vtkAdjustBoundsMacro( bounds, x );
 
-      x = this->Points->GetPoint( idx+offset2);
-      bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
-      bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
-      bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
-      bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
-      bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
-      bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
+      this->Points->GetPoint( idx+offset2, x);
+      vtkAdjustBoundsMacro( bounds, x );
 
       idx += d01;
 
-      x = this->Points->GetPoint(idx);
-      bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
-      bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
-      bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
-      bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
-      bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
-      bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
+      this->Points->GetPoint(idx, x);
+      vtkAdjustBoundsMacro( bounds, x );
 
-      x = this->Points->GetPoint( idx+offset1);
-      bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
-      bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
-      bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
-      bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
-      bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
-      bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
+      this->Points->GetPoint( idx+offset1, x);
+      vtkAdjustBoundsMacro( bounds, x );
 
-      x = this->Points->GetPoint( idx+offset1+offset2);
-      bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
-      bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
-      bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
-      bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
-      bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
-      bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
+      this->Points->GetPoint( idx+offset1+offset2, x);
+      vtkAdjustBoundsMacro( bounds, x );
 
-      x = this->Points->GetPoint( idx+offset2);
-      bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
-      bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
-      bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
-      bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
-      bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
-      bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
+      this->Points->GetPoint( idx+offset2, x);
+      vtkAdjustBoundsMacro( bounds, x );
 
       break;
     }

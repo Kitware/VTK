@@ -182,10 +182,10 @@ float *vtkDataSet::GetCenter()
 
 void vtkDataSet::GetCenter(float center[3])
 {
-  float *c=this->GetCenter();
+  this->ComputeBounds();
   for (int i=0; i<3; i++)
     {
-    center[i] = c[i];
+    center[i] = (this->Bounds[2*i+1] + this->Bounds[2*i]) / 2.0;
     }
 }
   
