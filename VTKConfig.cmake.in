@@ -17,6 +17,7 @@
 # VTK_DEFINITIONS     - Preprocessor macros needed for including VTK headers.
 #
 # VTK_TCL_EXE         - Location of Tcl wrapper executable (vtk).
+# VTK_TCL_HOME        - Location of vtk tcl package directory.
 # VTK_PYTHON_EXE      - Location of Python wrapper executable (vtkpython).
 # VTK_JAVA_HOME       - Location of Java wrapper class directory.
 # VTK_PARSE_JAVA_EXE  - Location of vtkParseJava executable.
@@ -211,6 +212,7 @@ SET(VTK_WRAP_TCL "@VTK_WRAP_TCL@")
 
 # The VTK executable locations.
 SET(VTK_TCL_EXE "@VTK_TCL_EXE_CONFIG@")
+SET(VTK_TCL_HOME "@VTK_TCL_HOME_CONFIG@")
 SET(VTK_PYTHON_EXE "@VTK_PYTHON_EXE_CONFIG@")
 SET(VTK_JAVA_HOME "@VTK_JAVA_HOME_CONFIG@")
 SET(VTK_PARSE_JAVA_EXE "@VTK_PARSE_JAVA_EXE_CONFIG@")
