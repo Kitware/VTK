@@ -124,6 +124,7 @@ perl $PATH_TO_VTK_DOX_SCRIPTS/doc_class2example.pl \
 # Build the full-text index.
 
 perl $PATH_TO_VTK_DOX_SCRIPTS/doc_index.pl \
+        --project $PROJECT_NAME \
         --stop  $PATH_TO_VTK_DOX_SCRIPTS/doc_index.stop \
         --store "doc_""$PROJECT_NAME""_index.dox" \
         --to $INTERMEDIATE_DOX_DIR \
@@ -178,6 +179,7 @@ fi
 
 if test "x$RESULTING_CHM_FILE" != "x" ; then
 #    rm -fr $RESULTING_DOC_DIR
+    true
 fi
 
 
