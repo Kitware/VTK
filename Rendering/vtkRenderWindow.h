@@ -352,6 +352,9 @@ public:
   // Description:
   // Get the interactor associated with this render window
   vtkGetObjectMacro(Interactor,vtkRenderWindowInteractor);
+
+  // Description:
+  // Set the interactor to the render window
   void SetInteractor(vtkRenderWindowInteractor *);
 
   // Description:
