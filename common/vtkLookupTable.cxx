@@ -241,20 +241,30 @@ void vtkLookupTable::Build()
 
       if (this->Ramp == VTK_RAMP_SCURVE)
 	{
+	c_rgba[0] = (unsigned char) 
+	  ((float)127.5*(1.0+(float)cos((1.0-(double)rgba[0])*3.141593)));
+	c_rgba[1] = (unsigned char) 
+	  ((float)127.5*(1.0+(float)cos((1.0-(double)rgba[1])*3.141593)));
+	c_rgba[2] = (unsigned char) 
+	  ((float)127.5*(1.0+(float)cos((1.0-(double)rgba[2])*3.141593)));
+	c_rgba[3] = (unsigned char) (alpha*255.0);
+	/* same code, but with rounding 
         c_rgba[0] = (unsigned char) 
-          (127.5f*(1.0f + cos(double((1.0f - rgba[0])*3.141593f))));
+          (127.5f*(1.0f + (float)cos(double((1.0f-rgba[0])*3.141593f)))+0.5f);
         c_rgba[1] = (unsigned char) 
-          (127.5f*(1.0f + cos(double((1.0f - rgba[1])*3.141593f))));
+          (127.5f*(1.0f + (float)cos(double((1.0f-rgba[1])*3.141593f)))+0.5f);
         c_rgba[2] = (unsigned char) 
-          (127.5f*(1.0f + cos(double((1.0f - rgba[2])*3.141593f))));
+          (127.5f*(1.0f + (float)cos(double((1.0f-rgba[2])*3.141593f)))+0.5f);
+	c_rgba[3] = (unsigned char)(rgba[3]*255.0f + 0.5f);
+	*/
 	}
       else
 	{
 	c_rgba[0] = (unsigned char)(rgba[0]*255.0f + 0.5f);
 	c_rgba[1] = (unsigned char)(rgba[1]*255.0f + 0.5f);
 	c_rgba[2] = (unsigned char)(rgba[2]*255.0f + 0.5f);
+	c_rgba[3] = (unsigned char)(rgba[3]*255.0f + 0.5f);
 	}
-      c_rgba[3] = (unsigned char)(rgba[3]*255.0f + 0.5f);
     }
     this->BuildTime.Modified();
   }
@@ -368,6 +378,9 @@ static inline unsigned char *vtkLinearLookup(float v,
     findx = maxIndex;
     }
   return &table[4*(int)(findx)];
+  /* round
+  return &table[4*(int)(findx + 0.5f)];
+  */
 }
 
 // Given a scalar value v, return an rgba color value from lookup table.
@@ -381,13 +394,19 @@ unsigned char *vtkLookupTable::MapValue(float v)
     float logRange[2];
     vtkLookupTableLogRange(this->TableRange, logRange);
     shift = -logRange[0];
-    scale = maxIndex/(logRange[1] - logRange[0]);    
+    scale = (maxIndex + 1)/(logRange[1] - logRange[0]);
+    /* correct scale
+    scale = maxIndex/(logRange[1] - logRange[0]);
+    */
     v = vtkApplyLogScale(v, this->TableRange, logRange);
     }
   else
     {   // plain old linear
     shift = -this->TableRange[0];
+    scale = (maxIndex + 1)/(this->TableRange[1] - this->TableRange[0]);
+    /* correct scale
     scale = maxIndex/(this->TableRange[1] - this->TableRange[0]);
+    */
     }
 
   // this is the same for log or linear
@@ -415,8 +434,10 @@ static void vtkLookupTableMapData(vtkLookupTable *self, T *input,
     float logRange[2];
     vtkLookupTableLogRange(range, logRange);
     shift = -logRange[0];
+    scale = (maxIndex + 1)/(logRange[1] - logRange[0]);
+    /* correct scale
     scale = maxIndex/(logRange[1] - logRange[0]);
-
+    */
     if (outFormat == VTK_RGBA)
       {
       while (--i >= 0) 
@@ -469,7 +490,10 @@ static void vtkLookupTableMapData(vtkLookupTable *self, T *input,
   else
     {
     shift = -range[0];
+    scale = (maxIndex + 1)/(range[1] - range[0]);
+    /* correct scale
     scale = maxIndex/(range[1] - range[0]);
+    */
 
     if (outFormat == VTK_RGBA)
       {
