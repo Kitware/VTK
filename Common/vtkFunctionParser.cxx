@@ -17,7 +17,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkFunctionParser, "1.25");
+vtkCxxRevisionMacro(vtkFunctionParser, "1.26");
 vtkStandardNewMacro(vtkFunctionParser);
 
 static double vtkParserVectorErrorResult[3] = { VTK_PARSER_ERROR_RESULT, 
@@ -1346,20 +1346,6 @@ void vtkFunctionParser::BuildInternalSubstringStructure(int beginIndex,
         return;
         }
       }
-    else
-      {
-      mathConstantNum = this->GetMathConstantNumber(beginIndex);
-      if(mathConstantNum > 0)
-        {
-        this->AddInternalByte(mathConstantNum);
-        this->StackPointer++;
-        if (this->StackPointer > this->StackSize)
-          {
-          this->StackSize++;
-          }
-        return;
-        }
-      }
     }
 
   for (opNum = 0; opNum < 6; opNum++)
@@ -1713,6 +1699,19 @@ int vtkFunctionParser::GetOperandNumber(int currentIndex)
     this->ImmediatesSize++;
     delete [] tempImmediates;
     return VTK_PARSER_IMMEDIATE;
+    }
+
+  if (!strncmp(&this->Function[currentIndex], "iHat", 4))
+    {
+    return VTK_PARSER_IHAT;
+    }
+  if (!strncmp(&this->Function[currentIndex], "jHat", 4))
+    {
+    return VTK_PARSER_JHAT;
+    }
+  if (!strncmp(&this->Function[currentIndex], "kHat", 4))
+    {
+    return VTK_PARSER_KHAT;
     }
   
   for (i = 0; i < this->NumberOfScalarVariables; i++)
