@@ -1988,4 +1988,5 @@ void vtkEnSightReader::PrintSelf(ostream& os, vtkIndent indent)
      << this->NumberOfScalarsPerNode << endl;
   os << indent << "NumberOfVectorsPerNode: "
      << this->NumberOfVectorsPerNode << endl;
+  os << indent << "TimeValue: " << this->TimeValue << endl;
 }
