@@ -86,6 +86,9 @@ int  numFuncs = 0;
 %token SetVector2Macro
 %token SetVector3Macro
 %token SetVector4Macro
+%token GetVector2Macro
+%token GetVector3Macro
+%token GetVector4Macro
 %token SetVectorMacro
 %token GetVectorMacro
 %token ImageSetMacro
@@ -388,6 +391,16 @@ macro:
    arg_counts[0] = 2;
    output_function();
    }
+| GetVector2Macro  '(' any_id ',' type_red2 ')'
+   { 
+   is_virtual = 0;
+   sprintf(temps,"Get%s",$<str>3); 
+   func_name = strdup(temps);
+   num_args = 0;
+   arg_types[10] = 300 + $<integer>5;
+   have_hint = 1;
+   output_function();
+   }
 | SetVector3Macro '(' any_id ',' type_red2 ')'
    { 
    is_virtual = 0;
@@ -406,6 +419,16 @@ macro:
    num_args = 1;
    arg_types[0] = 300 + $<integer>5;
    arg_counts[0] = 3;
+   output_function();
+   }
+| GetVector3Macro  '(' any_id ',' type_red2 ')'
+   { 
+   is_virtual = 0;
+   sprintf(temps,"Get%s",$<str>3); 
+   func_name = strdup(temps);
+   num_args = 0;
+   arg_types[10] = 300 + $<integer>5;
+   have_hint = 1;
    output_function();
    }
 | SetVector4Macro '(' any_id ',' type_red2 ')'
@@ -428,6 +451,16 @@ macro:
    num_args = 1;
    arg_types[0] = 300 + $<integer>5;
    arg_counts[0] = 4;
+   output_function();
+   }
+| GetVector4Macro  '(' any_id ',' type_red2 ')'
+   { 
+   is_virtual = 0;
+   sprintf(temps,"Get%s",$<str>3); 
+   func_name = strdup(temps);
+   num_args = 0;
+   arg_types[10] = 300 + $<integer>5;
+   have_hint = 1;
    output_function();
    }
 | SetVectorMacro  '(' any_id ',' type_red2 ',' float_num ')'

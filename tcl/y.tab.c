@@ -71,10 +71,13 @@ typedef union
 # define SetVector2Macro 291
 # define SetVector3Macro 292
 # define SetVector4Macro 293
-# define SetVectorMacro 294
-# define GetVectorMacro 295
-# define ImageSetMacro 296
-# define ImageSetExtentMacro 297
+# define GetVector2Macro 294
+# define GetVector3Macro 295
+# define GetVector4Macro 296
+# define SetVectorMacro 297
+# define GetVectorMacro 298
+# define ImageSetMacro 299
+# define ImageSetExtentMacro 300
 
 #ifdef __STDC__
 #include <stdlib.h>
@@ -84,7 +87,7 @@ typedef union
 #include <memory.h>
 #endif
 
-#ifndef _WIN32
+#ifndef __WIN32
 #include <values.h>
 #endif
 
@@ -124,7 +127,7 @@ YYSTYPE *yyv;
 static int yymaxdepth = YYMAXDEPTH;
 # define YYERRCODE 256
 
-# line 707 "cpp_parse.y"
+# line 935 "cpp_parse.y"
 
 #include "lex.yy.c"
 output_temp(int i)
@@ -379,7 +382,7 @@ get_args(int i)
       break;
     case 109:
     case 309:
-      fprintf(yyout,"    temp%i = (%s *)(vtkTclGetPointerFromObject(argv[%i],\"%s\"));\n",i,arg_ids[i],i+2,arg_ids[i]);
+      fprintf(yyout,"    temp%i = (%s *)(vtkTclGetPointerFromObject(argv[%i],\"%s\",interp));\n",i,arg_ids[i],i+2,arg_ids[i]);
       fprintf(yyout,"    if (temp%i == NULL)\n      {  error = 1;  }\n",i);
       break;
     case 2:    
@@ -520,6 +523,23 @@ handle_special()
     fprintf(yyout,"      }\n");
     fprintf(yyout,"    }\n");
     }
+  if (!strcmp(class_name,"vtkImageViewer"))
+    {
+    fprintf(yyout,"  if ((!strcmp(\"SetTkWindow\",argv[1]))&&(argc == 3))\n");
+    fprintf(yyout,"    {\n");
+    fprintf(yyout,"    error = 0;\n\n");
+    fprintf(yyout,"    if (!error)\n");
+    fprintf(yyout,"      {\n");
+    fprintf(yyout,"      Tk_Window awin;\n\n");
+    fprintf(yyout,"      awin = Tk_NameToWindow(interp,argv[2],Tk_MainWindow(interp));\n");
+    fprintf(yyout,"      Tk_MakeWindowExist(awin);\n");
+    fprintf(yyout,"      op->SetDisplayId((void *)Tk_Display(awin));\n");
+    fprintf(yyout,"      op->SetWindowId((void *)Tk_WindowId(awin));\n");
+    fprintf(yyout,"      interp->result[0] = '\\0';\n");
+    fprintf(yyout,"      return TCL_OK;\n");
+    fprintf(yyout,"      }\n");
+    fprintf(yyout,"    }\n");
+    }
 }
 
 main(int argc,char *argv[])
@@ -563,105 +583,104 @@ yytabelem yyexca[] ={
 -1, 62,
 	44, 69,
 	-2, 68,
--1, 97,
+-1, 100,
 	40, 22,
 	-2, 65,
--1, 98,
+-1, 101,
 	40, 23,
 	-2, 64,
--1, 167,
+-1, 176,
 	44, 31,
 	-2, 30,
 	};
-# define YYNPROD 124
-# define YYLAST 502
+# define YYNPROD 127
+# define YYLAST 473
 yytabelem yyact[]={
 
-    72,    18,    62,    27,    48,     9,   110,    12,    22,    13,
-   145,    41,    38,    34,    31,    35,    36,    37,    32,    33,
-   109,    11,     4,    18,    10,    27,    39,     9,   110,    12,
-    22,    13,   242,   110,   255,   232,   135,    72,   241,    95,
-   239,   107,   109,    11,    61,   166,    10,   109,    70,   240,
-    58,    59,    60,   113,    30,    38,    34,    31,    35,    36,
-    37,    32,    33,   246,   100,    91,    56,    28,    49,    39,
-    93,   169,   143,   138,   197,    51,    30,    67,    38,    34,
-    31,    35,    36,    37,    32,    33,    26,   145,   134,    23,
-    28,   237,    39,    38,    34,    31,    35,    36,    37,    32,
-    33,   254,   247,   245,   170,    28,   142,    39,    26,   111,
-   105,    23,   102,    54,   252,   231,   230,   104,   215,   213,
-   221,   212,   114,   216,   192,   191,   189,   188,   187,   186,
-   185,   184,    58,    59,    60,    73,   183,   136,    98,    34,
-    31,    35,    36,    37,    32,    33,   103,    57,    91,    95,
-    28,    68,    97,    93,    71,    63,    75,    76,    77,    78,
-    79,    80,    81,    82,    83,    84,    85,    86,    89,    90,
-    87,    88,    73,   182,    94,    98,    34,    31,    35,    36,
-    37,    32,    33,   214,   168,    91,    95,    28,     5,    97,
-    93,    98,    34,    31,    35,    36,    37,    32,    33,   181,
-   144,    91,    95,    28,   178,    97,    93,   177,   174,    65,
-   195,   141,    65,   172,   173,    92,   253,   175,   139,   250,
-   101,   135,   140,   249,   229,    14,    16,    38,    34,    31,
+    72,    18,   141,    27,   151,     9,   113,    12,    22,    13,
+    62,    48,    38,    34,    31,    35,    36,    37,    32,    33,
+   112,    11,     4,    18,    10,    27,    39,     9,   113,    12,
+    22,    13,   260,   113,   273,   250,    58,    59,    60,    98,
+    72,   259,   112,    11,    41,   110,    10,   112,   257,    56,
+   264,   103,   144,   151,    30,    38,    34,    31,    35,    36,
+    37,    32,    33,   116,   175,    94,    49,    28,   258,    39,
+    96,   178,    61,   209,    51,   255,    30,    67,    38,    34,
+    31,    35,    36,    37,    32,    33,    26,     2,   140,    23,
+    28,    42,    39,    38,    34,    31,    35,    36,    37,    32,
+    33,   272,   265,   263,   179,    28,   148,    39,    26,   114,
+   108,    23,    63,   105,    43,    44,    54,   270,    46,   249,
+   248,   236,   230,   228,    95,   227,   231,   204,    47,   203,
+   201,   200,    58,    59,    60,    73,   199,   149,   101,    34,
+    31,    35,    36,    37,    32,    33,   106,    97,    94,    98,
+    28,    68,   100,    96,    71,   142,    75,    76,    77,    78,
+    79,    80,    81,    82,    83,    84,    86,    88,    85,    87,
+    89,    92,    93,    90,    91,    73,   198,   104,   101,    34,
+    31,    35,    36,    37,    32,    33,   197,   229,    94,    98,
+    28,   196,   100,    96,   150,   195,   194,   183,   181,   182,
+   193,   101,    34,    31,    35,    36,    37,    32,    33,   192,
+   191,    94,    98,    28,   190,   100,    96,     5,   111,   138,
+    70,   139,   187,   207,   186,    14,    16,    38,    34,    31,
     35,    36,    37,    32,    33,    17,     6,    20,    21,    28,
-   228,    39,    24,   227,    25,   108,    15,    14,    16,    38,
+    15,    39,    24,   150,    25,   147,    57,    14,    16,    38,
     34,    31,    35,    36,    37,    32,    33,    17,     6,    20,
-    21,    28,   235,    39,    24,   168,    25,   242,   110,   226,
-   218,    74,   244,   225,   224,   171,   223,   144,   248,   251,
-   222,   220,   109,   176,   137,   219,     2,   193,   190,   180,
-    42,   148,   149,   150,   151,   152,   153,   154,   155,   156,
-   157,   158,   159,   160,   161,   162,   163,   132,    96,   133,
-   179,    96,    50,    43,    44,    96,   131,    46,   130,   129,
-    96,   128,   127,   126,   125,   124,   137,    47,   123,   122,
-   121,   120,   119,   118,   137,   117,   116,    29,    96,    19,
-    96,     8,   106,   196,   112,   115,     7,     3,    99,   236,
-   164,   217,   194,   234,   167,   211,   165,    69,    66,   238,
-    64,    55,    53,    52,    40,     1,    45,     0,     0,     0,
-     0,     0,     0,     0,     0,     0,   106,     0,     0,     0,
-     0,    96,    96,     0,     0,   146,   147,     0,     0,     0,
+    21,    28,   271,    39,    24,   173,    25,   154,   155,   156,
+   157,   158,   159,   160,   161,   162,   163,   164,   165,   166,
+   167,   168,   169,   170,   171,   172,   260,   113,   184,   107,
+   268,   145,    74,   267,   117,   146,   253,   247,   262,   180,
+   269,   112,    99,   246,   266,    99,   245,   185,    65,    99,
+   244,    65,   243,   242,    99,   241,   143,   251,   240,   239,
+   238,   237,   235,   234,   205,   208,   202,   189,   188,    50,
+   141,   137,   136,   135,   134,    99,   133,    99,   132,   131,
+   130,   129,   128,   127,   126,   125,   124,   233,   123,   122,
+   121,   120,   119,    19,    29,     8,     7,     3,   102,   254,
+   232,   143,   177,   109,   206,   115,   118,   176,   226,   143,
+   174,    69,    66,    64,    55,    53,    52,    40,     1,     0,
+     0,    99,    99,    45,     0,     0,   252,     0,     0,     0,
+     0,     0,   256,     0,     0,     0,   261,   261,     0,     0,
+   109,     0,     0,   261,     0,     0,   261,     0,     0,   152,
+   153,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+     0,     0,     0,     0,     0,     0,     0,   210,   211,     0,
+     0,   212,   213,   214,   215,   216,   217,   218,   219,   220,
+   221,   222,   223,     0,   224,   225,     0,     0,   143,     0,
+     0,     0,   177,     0,   143,     0,     0,     0,     0,     0,
      0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-     0,     0,     0,     0,   137,   243,   243,     0,     0,     0,
-   137,     0,   243,     0,     0,   243,     0,     0,     0,     0,
-     0,     0,     0,     0,   198,   199,     0,     0,   200,   201,
-   202,   203,   204,   205,   206,   207,   208,     0,   209,   210,
-     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-     0,     0,     0,    96,     0,     0,     0,     0,     0,     0,
-     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-     0,   233 };
+     0,     0,    99 };
 yytabelem yypact[]={
 
-   -37,-10000000,  -246,   -37,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,
+   -37,-10000000,  -213,   -37,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,
 -10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,
 -10000000,-10000000,-10000000,-10000000,-10000000,-10000000,   -37,   -37,  -252,-10000000,
    -37,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,
-   -37,  -274,-10000000,   -57,   271,-10000000,   -18,-10000000,-10000000,-10000000,
--10000000,-10000000,    55,-10000000,  -208,   -79,-10000000,  -276,-10000000,-10000000,
--10000000,  -126,-10000000,   -61,  -126,    54,-10000000,-10000000,   -89,    51,
-  -236,    50,  -236,   -73,-10000000,   296,   295,   293,   292,   291,
-   290,   289,   288,   285,   284,   283,   282,   281,   279,   278,
-   276,  -171,-10000000,  -186,   181,   -15,   180,-10000000,-10000000,   167,
--10000000,-10000000,-10000000,-10000000,  -236,-10000000,-10000000,    47,    -4,-10000000,
--10000000,-10000000,-10000000,  -236,  -236,-10000000,  -258,  -258,  -258,  -258,
+   -37,  -267,-10000000,   -59,   288,-10000000,   -19,-10000000,-10000000,-10000000,
+-10000000,-10000000,    58,-10000000,  -222,   -51,-10000000,  -268,-10000000,-10000000,
+-10000000,  -126,-10000000,   -74,  -126,    55,-10000000,-10000000,   -86,    51,
+  -236,    50,  -236,   -63,-10000000,   312,   311,   310,   309,   308,
+   306,   305,   304,   303,   302,   301,   300,   299,   298,   296,
+   294,   293,   292,   291,  -171,-10000000,  -186,   290,   -15,   253,
+-10000000,-10000000,   201,-10000000,-10000000,-10000000,-10000000,  -236,-10000000,-10000000,
+    47,   -38,-10000000,-10000000,-10000000,-10000000,  -236,  -236,-10000000,  -258,
   -258,  -258,  -258,  -258,  -258,  -258,  -258,  -258,  -258,  -258,
-  -258,  -258,-10000000,-10000000,  -171,  -209,    45,   -15,-10000000,   180,
-   180,  -208,-10000000,-10000000,   -81,   -15,-10000000,-10000000,   163,   160,
-   269,   248,   155,   129,    92,    87,    86,    85,    84,    83,
-    82,   247,    81,    80,-10000000,   246,-10000000,-10000000,  -258,-10000000,
--10000000,-10000000,-10000000,-10000000,-10000000,-10000000,   -19,  -171,  -171,-10000000,
--10000000,  -171,  -171,  -171,  -171,  -171,  -171,  -171,  -171,  -171,
--10000000,  -171,  -171,    60,    79,-10000000,   -81,   -81,   244,   240,
-    76,   239,   235,   233,   232,   228,   202,   199,   183,    72,
-    71,-10000000,  -228,-10000000,   -37,   -15,  -209,    30,-10000000,-10000000,
--10000000,   -15,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,
-     4,     4,    44,   -62,    43,-10000000,-10000000,     4,   182,   178,
-  -231,-10000000,    68,-10000000,   175,-10000000,    42,-10000000,-10000000,-10000000,
--10000000,-10000000,  -229,-10000000,-10000000,-10000000 };
+  -258,  -258,  -258,  -258,  -258,  -258,  -258,  -258,-10000000,-10000000,
+  -171,  -209,    45,   -15,-10000000,   253,   253,  -222,-10000000,-10000000,
+   -87,   -15,-10000000,-10000000,   180,   178,   287,   286,   170,   166,
+   165,   156,   152,   151,   147,   142,   132,    92,    87,    86,
+   285,    85,    83,-10000000,   283,-10000000,-10000000,  -258,-10000000,-10000000,
+-10000000,-10000000,-10000000,-10000000,-10000000,   -20,  -171,  -171,-10000000,-10000000,
+  -171,  -171,  -171,  -171,  -171,  -171,  -171,  -171,  -171,  -171,
+  -171,  -171,-10000000,  -171,  -171,    64,    82,-10000000,   -87,   -87,
+   282,   281,    77,   280,   279,   278,   277,   274,   272,   271,
+   269,   265,   262,   256,    76,    75,-10000000,  -228,-10000000,   -37,
+   -15,  -209,    14,-10000000,-10000000,-10000000,   -15,-10000000,-10000000,-10000000,
+-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,    23,    23,
+    44,   -75,    43,-10000000,-10000000,    23,   252,   249,  -231,-10000000,
+    71,-10000000,   221,-10000000,    42,-10000000,-10000000,-10000000,-10000000,-10000000,
+  -229,-10000000,-10000000,-10000000 };
 yytabelem yypgo[]={
 
-     0,   365,   286,   364,   363,   362,   361,   155,   360,   147,
-   358,    77,   357,   271,    48,   174,   356,   355,   137,    45,
-   354,   352,    41,   351,   349,    40,    72,   215,   246,    73,
-   337,    66,   348,    38,   347,   188,   346,   341,   339 };
+     0,   378,    87,   377,   376,   375,   374,   112,   373,   246,
+   372,    77,   371,   292,   220,   147,   370,   368,   155,    64,
+   367,   364,    45,   360,   359,    48,   137,   124,   240,    52,
+   354,    49,   358,    41,   357,   217,   356,   355,   353 };
 yytabelem yyr1[]={
 
      0,     1,     4,     6,     3,     7,     7,     8,     8,     8,
@@ -673,10 +692,10 @@ yytabelem yyr1[]={
     30,    30,    30,    30,    30,    30,     5,     5,    31,    32,
     31,     9,     9,     9,    25,    25,    33,    33,    33,    12,
     12,    12,    12,    12,    12,    12,    12,    12,    12,    12,
-    12,    12,    12,    12,    12,     2,     2,    18,    18,    34,
-    34,    35,    35,    35,    35,    35,    35,    35,    35,    35,
+    12,    12,    12,    12,    12,    12,    12,    12,     2,     2,
+    18,    18,    34,    34,    35,    35,    35,    35,    35,    35,
     35,    35,    35,    35,    35,    35,    35,    35,    35,    35,
-    35,    36,    37,    38 };
+    35,    35,    35,    35,    36,    37,    38 };
 yytabelem yyr2[]={
 
      0,     6,     1,     1,    17,     2,     4,     4,     2,     3,
@@ -688,10 +707,10 @@ yytabelem yyr2[]={
      3,     3,     3,     3,     3,     3,     0,     4,     5,     1,
     10,     3,     3,     3,     4,     2,     3,     7,     3,    13,
     13,     9,     9,    17,    13,    13,    13,    13,    13,    13,
-    13,    13,     9,    17,    17,     0,     4,     0,     4,     2,
+    13,    13,    13,    13,    13,     9,    17,    17,     0,     4,
+     0,     4,     2,     2,     2,     2,     2,     2,     2,     2,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-     2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-     2,     6,     6,     6 };
+     2,     2,     2,     2,     6,     6,     6 };
 yytabelem yychk[]={
 
 -10000000,    -1,    -2,   -34,    59,   -35,   273,   -36,   -37,    42,
@@ -702,52 +721,56 @@ yytabelem yychk[]={
     41,    93,    -4,    -5,    58,    -6,   -31,    -9,   258,   259,
    260,   123,   278,    -7,    -8,    -9,   -10,   -11,   277,   -12,
    -14,   280,   126,   261,   -13,   282,   283,   284,   285,   286,
-   287,   288,   289,   290,   291,   292,   293,   296,   297,   294,
-   295,   274,   -27,   279,   -15,   275,   -28,   278,   264,   -32,
-   125,    -7,    58,   -11,   -14,    59,   -13,   -22,   -15,   278,
-   264,    59,   -13,   126,   -14,   -13,    40,    40,    40,    40,
+   287,   288,   289,   290,   291,   294,   292,   295,   293,   296,
+   299,   300,   297,   298,   274,   -27,   279,   -15,   275,   -28,
+   278,   264,   -32,   125,    -7,    58,   -11,   -14,    59,   -13,
+   -22,   -15,   278,   264,    59,   -13,   126,   -14,   -13,    40,
     40,    40,    40,    40,    40,    40,    40,    40,    40,    40,
-    40,    40,   -27,   -27,   274,    40,   -18,   -35,   -29,    38,
-    42,    44,    59,   -26,   281,    91,   -13,   -13,   -15,   -15,
+    40,    40,    40,    40,    40,    40,    40,    40,   -27,   -27,
+   274,    40,   -18,   -35,   -29,    38,    42,    44,    59,   -26,
+   281,    91,   -13,   -13,   -15,   -15,   -15,   -15,   -15,   -15,
    -15,   -15,   -15,   -15,   -15,   -15,   -15,   -15,   -15,   -15,
-   -15,   -15,   -15,   -15,   -27,   -16,   -19,   -20,   -14,   280,
-    59,   -18,   -29,   -29,   -31,   -26,   -18,    44,    44,    41,
-    41,    44,    44,    44,    44,    44,    44,    44,    44,    44,
-    41,    44,    44,    41,   -21,   -22,   -15,    93,   -28,   -28,
+   -15,   -15,   -15,   -27,   -16,   -19,   -20,   -14,   280,    59,
+   -18,   -29,   -29,   -31,   -26,   -18,    44,    44,    41,    41,
+    44,    44,    44,    44,    44,    44,    44,    44,    44,    44,
+    44,    44,    41,    44,    44,    41,   -21,   -22,   -15,    93,
    -28,   -28,   -28,   -28,   -28,   -28,   -28,   -28,   -28,   -28,
-   -28,   -17,    61,    59,   123,    58,    44,   -23,   -26,    41,
-    41,    44,    41,    41,    41,    41,    41,    41,    41,    41,
-    44,    44,   263,    -2,   -18,   -19,   -24,    61,   -18,   -25,
-    45,   -33,   263,   -15,   -25,    59,   125,    59,   -25,    41,
-    41,   -33,    46,    41,    59,   263 };
+   -28,   -28,   -28,   -28,   -28,   -28,   -17,    61,    59,   123,
+    58,    44,   -23,   -26,    41,    41,    44,    41,    41,    41,
+    41,    41,    41,    41,    41,    41,    41,    41,    44,    44,
+   263,    -2,   -18,   -19,   -24,    61,   -18,   -25,    45,   -33,
+   263,   -15,   -25,    59,   125,    59,   -25,    41,    41,   -33,
+    46,    41,    59,   263 };
 yytabelem yydef[]={
 
-    95,    -2,     0,    95,    99,   100,   101,   102,   103,   104,
-   105,   106,   107,   108,   109,   110,   111,   112,   113,   114,
-   115,   116,   117,   118,   119,   120,    95,    95,     0,    56,
-    95,    57,    58,    59,    60,    61,    62,    63,    64,    65,
-    95,     0,    96,     0,     0,    55,     0,     1,     2,   121,
-   122,   123,    66,     3,     0,     0,    67,     0,    71,    72,
+    98,    -2,     0,    98,   102,   103,   104,   105,   106,   107,
+   108,   109,   110,   111,   112,   113,   114,   115,   116,   117,
+   118,   119,   120,   121,   122,   123,    98,    98,     0,    56,
+    98,    57,    58,    59,    60,    61,    62,    63,    64,    65,
+    98,     0,    99,     0,     0,    55,     0,     1,     2,   124,
+   125,   126,    66,     3,     0,     0,    67,     0,    71,    72,
     73,     0,    -2,     0,     5,     0,     8,     9,     0,    12,
      0,     0,     0,     0,    15,     0,     0,     0,     0,     0,
      0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-     0,     0,    46,     0,     0,    97,    49,    -2,    -2,     0,
-     4,     6,     7,    10,     0,    11,    16,     0,    42,    22,
-    23,    40,    13,     0,     0,    18,     0,     0,     0,     0,
+     0,     0,     0,     0,     0,    46,     0,     0,   100,    49,
+    -2,    -2,     0,     4,     6,     7,    10,     0,    11,    16,
+     0,    42,    22,    23,    40,    13,     0,     0,    18,     0,
      0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-     0,     0,    45,    47,     0,    28,     0,    97,    50,    51,
-    52,     0,    39,    41,    42,    97,    14,    17,     0,     0,
+     0,     0,     0,     0,     0,     0,     0,     0,    45,    47,
+     0,    28,     0,   100,    50,    51,    52,     0,    39,    41,
+    42,   100,    14,    17,     0,     0,     0,     0,     0,     0,
      0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-     0,     0,     0,     0,    48,     0,    29,    -2,    33,    36,
-    20,    98,    53,    54,    70,    43,     0,     0,     0,    81,
-    82,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-    92,     0,     0,     0,     0,    34,    42,    42,     0,     0,
+     0,     0,     0,    48,     0,    29,    -2,    33,    36,    20,
+   101,    53,    54,    70,    43,     0,     0,     0,    81,    82,
      0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-     0,    19,     0,    24,    95,    97,     0,    37,    44,    79,
-    80,    97,    84,    85,    86,    87,    88,    89,    90,    91,
-     0,     0,     0,     0,     0,    32,    35,     0,     0,     0,
-     0,    75,    76,    78,     0,    21,    26,    27,    38,    83,
-    93,    74,     0,    94,    25,    77 };
+     0,     0,    95,     0,     0,     0,     0,    34,    42,    42,
+     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+     0,     0,     0,     0,     0,     0,    19,     0,    24,    98,
+   100,     0,    37,    44,    79,    80,   100,    84,    85,    86,
+    87,    88,    89,    90,    91,    92,    93,    94,     0,     0,
+     0,     0,     0,    32,    35,     0,     0,     0,     0,    75,
+    76,    78,     0,    21,    26,    27,    38,    83,    96,    74,
+     0,    97,    25,    77 };
 typedef struct
 #ifdef __cplusplus
 	yytoktype
@@ -798,10 +821,13 @@ yytoktype yytoks[] =
 	"SetVector2Macro",	291,
 	"SetVector3Macro",	292,
 	"SetVector4Macro",	293,
-	"SetVectorMacro",	294,
-	"GetVectorMacro",	295,
-	"ImageSetMacro",	296,
-	"ImageSetExtentMacro",	297,
+	"GetVector2Macro",	294,
+	"GetVector3Macro",	295,
+	"GetVector4Macro",	296,
+	"SetVectorMacro",	297,
+	"GetVectorMacro",	298,
+	"ImageSetMacro",	299,
+	"ImageSetExtentMacro",	300,
 	"-unknown-",	-1	/* ends search */
 };
 
@@ -896,8 +922,11 @@ char * yyreds[] =
 	"macro : GetObjectMacro '(' any_id ',' type_red2 ')'",
 	"macro : BooleanMacro '(' any_id ',' type_red2 ')'",
 	"macro : SetVector2Macro '(' any_id ',' type_red2 ')'",
+	"macro : GetVector2Macro '(' any_id ',' type_red2 ')'",
 	"macro : SetVector3Macro '(' any_id ',' type_red2 ')'",
+	"macro : GetVector3Macro '(' any_id ',' type_red2 ')'",
 	"macro : SetVector4Macro '(' any_id ',' type_red2 ')'",
+	"macro : GetVector4Macro '(' any_id ',' type_red2 ')'",
 	"macro : ImageSetMacro '(' any_id ',' type_red2 ')'",
 	"macro : ImageSetExtentMacro '(' any_id ')'",
 	"macro : SetVectorMacro '(' any_id ',' type_red2 ',' float_num ')'",
@@ -1466,7 +1495,7 @@ int yyparse()
 	{
 		
 case 2:
-# line 86 "cpp_parse.y"
+# line 89 "cpp_parse.y"
 {
       class_name = strdup(yypvt[-0].str);
       fprintf(stderr,"Working on %s\n",class_name);
@@ -1486,7 +1515,7 @@ case 2:
 	}
       } break;
 case 3:
-# line 105 "cpp_parse.y"
+# line 108 "cpp_parse.y"
 {
       int i;
       for (i = 0; i < num_superclasses; i++)
@@ -1528,7 +1557,7 @@ case 3:
 
       } break;
 case 4:
-# line 146 "cpp_parse.y"
+# line 149 "cpp_parse.y"
 {
       int i;
 
@@ -1588,139 +1617,139 @@ case 4:
 	fprintf(yyout,"    delete buf.str();\n");
 	fprintf(yyout,"    return TCL_OK;\n    }\n");
 	}
-      fprintf(yyout,"\n  if (argc >= 2)\n    {\n");
-      fprintf(yyout,"    sprintf(interp->result,\"Object named: %%s, could not find requested method: %%s\",argv[0],argv[1]);\n    }\n  else\n    {\n");
+      fprintf(yyout,"\n  if ((argc >= 2)&&(!strstr(interp->result,\"Object named:\")))\n    {\n");
+      fprintf(yyout,"    char temps2[256];\n    sprintf(temps2,\"Object named: %%s, could not find requested method: %%s\nor the method was called with incorrect arguments.\n\",argv[0],argv[1]);\n    Tcl_AppendResult(interp,temps2,NULL);    }\n  else\n    {\n");
       fprintf(yyout,"    sprintf(interp->result,\"Could not find requested method.\");\n    }\n");
       fprintf(yyout,"  return TCL_ERROR;\n}\n");
       } break;
 case 9:
-# line 215 "cpp_parse.y"
+# line 218 "cpp_parse.y"
 { arg_failure = 0; num_args = 0; arg_types[10] = 2; arg_ids[10] = NULL;} break;
 case 10:
-# line 217 "cpp_parse.y"
+# line 220 "cpp_parse.y"
 { arg_failure = 0; num_args = 0; arg_types[10] = 2; arg_ids[10] = NULL;} break;
 case 11:
-# line 219 "cpp_parse.y"
+# line 222 "cpp_parse.y"
 { arg_failure = 0; num_args = 0; arg_types[10] = 2; arg_ids[10] = NULL;} break;
 case 12:
-# line 221 "cpp_parse.y"
+# line 224 "cpp_parse.y"
 { arg_failure = 0; num_args = 0; arg_types[10] = 2; arg_ids[10] = NULL;} break;
 case 15:
-# line 225 "cpp_parse.y"
+# line 228 "cpp_parse.y"
 {
          output_function();
 	 } break;
 case 16:
-# line 229 "cpp_parse.y"
+# line 232 "cpp_parse.y"
 {
          arg_types[10] = yypvt[-1].integer;
          output_function();
 	 } break;
 case 17:
-# line 234 "cpp_parse.y"
+# line 237 "cpp_parse.y"
 {
          arg_types[10] = yypvt[-1].integer;
          output_function();
 	 } break;
 case 18:
-# line 239 "cpp_parse.y"
+# line 242 "cpp_parse.y"
 {
          output_function();
 	 } break;
 case 19:
-# line 244 "cpp_parse.y"
+# line 247 "cpp_parse.y"
 { is_virtual = 0; func_name = yypvt[-4].str; 
        fprintf(stderr,"   Converted func %s\n",yypvt[-4].str); } break;
 case 20:
-# line 247 "cpp_parse.y"
+# line 250 "cpp_parse.y"
 { is_virtual = 1; fprintf(stderr,"   Converted operator\n"); } break;
 case 21:
-# line 249 "cpp_parse.y"
+# line 252 "cpp_parse.y"
 { is_virtual = 0; func_name = yypvt[-6].str;
        fprintf(stderr,"   Converted func %s\n",yypvt[-6].str);} break;
 case 30:
-# line 261 "cpp_parse.y"
+# line 264 "cpp_parse.y"
 { num_args++;} break;
 case 31:
-# line 261 "cpp_parse.y"
+# line 264 "cpp_parse.y"
 {num_args++;} break;
 case 33:
-# line 263 "cpp_parse.y"
+# line 266 "cpp_parse.y"
 {arg_types[num_args] = yypvt[-0].integer;} break;
 case 34:
-# line 264 "cpp_parse.y"
+# line 267 "cpp_parse.y"
 {arg_types[num_args] = yypvt[-1].integer; } break;
 case 36:
-# line 265 "cpp_parse.y"
+# line 268 "cpp_parse.y"
 {arg_types[num_args] = 5000;} break;
 case 43:
-# line 274 "cpp_parse.y"
+# line 277 "cpp_parse.y"
 { arg_failure = 1; } break;
 case 44:
-# line 275 "cpp_parse.y"
+# line 278 "cpp_parse.y"
 { arg_failure = 1; } break;
 case 45:
-# line 278 "cpp_parse.y"
+# line 281 "cpp_parse.y"
 {yyval.integer = 1000 + yypvt[-0].integer;} break;
 case 46:
-# line 279 "cpp_parse.y"
+# line 282 "cpp_parse.y"
 {yyval.integer = yypvt[-0].integer;} break;
 case 47:
-# line 280 "cpp_parse.y"
+# line 283 "cpp_parse.y"
 {yyval.integer = 2000 + yypvt[-0].integer;} break;
 case 48:
-# line 281 "cpp_parse.y"
+# line 284 "cpp_parse.y"
 {yyval.integer = 3000 + yypvt[-0].integer;} break;
 case 49:
-# line 283 "cpp_parse.y"
+# line 286 "cpp_parse.y"
 {yyval.integer = yypvt[-0].integer;} break;
 case 50:
-# line 285 "cpp_parse.y"
+# line 288 "cpp_parse.y"
 {yyval.integer = yypvt[-1].integer + yypvt[-0].integer;} break;
 case 51:
-# line 294 "cpp_parse.y"
+# line 297 "cpp_parse.y"
 { yyval.integer = 100;} break;
 case 52:
-# line 295 "cpp_parse.y"
+# line 298 "cpp_parse.y"
 { yyval.integer = 300;} break;
 case 53:
-# line 296 "cpp_parse.y"
+# line 299 "cpp_parse.y"
 { yyval.integer = 100 + yypvt[-0].integer;} break;
 case 54:
-# line 297 "cpp_parse.y"
+# line 300 "cpp_parse.y"
 { yyval.integer = 400 + yypvt[-0].integer;} break;
 case 55:
-# line 299 "cpp_parse.y"
+# line 302 "cpp_parse.y"
 { yyval.integer = 10 + yypvt[-0].integer;} break;
 case 56:
-# line 300 "cpp_parse.y"
+# line 303 "cpp_parse.y"
 { yyval.integer = yypvt[-0].integer;} break;
 case 57:
-# line 303 "cpp_parse.y"
+# line 306 "cpp_parse.y"
 { yyval.integer = 1;} break;
 case 58:
-# line 304 "cpp_parse.y"
+# line 307 "cpp_parse.y"
 { yyval.integer = 2;} break;
 case 59:
-# line 305 "cpp_parse.y"
+# line 308 "cpp_parse.y"
 { yyval.integer = 3;} break;
 case 60:
-# line 306 "cpp_parse.y"
+# line 309 "cpp_parse.y"
 { yyval.integer = 4;} break;
 case 61:
-# line 307 "cpp_parse.y"
+# line 310 "cpp_parse.y"
 { yyval.integer = 5;} break;
 case 62:
-# line 308 "cpp_parse.y"
+# line 311 "cpp_parse.y"
 { yyval.integer = 6;} break;
 case 63:
-# line 309 "cpp_parse.y"
+# line 312 "cpp_parse.y"
 { yyval.integer = 7;} break;
 case 64:
-# line 310 "cpp_parse.y"
+# line 313 "cpp_parse.y"
 { yyval.integer = 8;} break;
 case 65:
-# line 311 "cpp_parse.y"
+# line 314 "cpp_parse.y"
 { yyval.integer = 9; 
            arg_ids[num_args] = strdup(yypvt[-0].str); 
            if ((!arg_ids[10])&&(!num_args))
@@ -1729,31 +1758,31 @@ case 65:
              }
          } break;
 case 68:
-# line 322 "cpp_parse.y"
+# line 325 "cpp_parse.y"
 { superclasses[num_superclasses] = strdup(yypvt[-0].str); num_superclasses++; } break;
 case 69:
-# line 324 "cpp_parse.y"
+# line 327 "cpp_parse.y"
 { superclasses[num_superclasses] = strdup(yypvt[-0].str); num_superclasses++; } break;
 case 71:
-# line 327 "cpp_parse.y"
+# line 330 "cpp_parse.y"
 {in_public = 1;} break;
 case 72:
-# line 327 "cpp_parse.y"
+# line 330 "cpp_parse.y"
 {in_public = 0;} break;
 case 73:
-# line 328 "cpp_parse.y"
+# line 331 "cpp_parse.y"
 {in_public = 0;} break;
 case 76:
-# line 332 "cpp_parse.y"
+# line 335 "cpp_parse.y"
 {yyval.integer = yypvt[-0].integer;} break;
 case 77:
-# line 333 "cpp_parse.y"
+# line 336 "cpp_parse.y"
 {yyval.integer = -1;} break;
 case 78:
-# line 333 "cpp_parse.y"
+# line 336 "cpp_parse.y"
 {yyval.integer = -1;} break;
 case 79:
-# line 337 "cpp_parse.y"
+# line 340 "cpp_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"Set%s",yypvt[-3].str); 
@@ -1763,7 +1792,7 @@ case 79:
    output_function();
    } break;
 case 80:
-# line 346 "cpp_parse.y"
+# line 349 "cpp_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"Get%s",yypvt[-3].str); 
@@ -1773,7 +1802,7 @@ case 80:
    output_function();
    } break;
 case 81:
-# line 355 "cpp_parse.y"
+# line 358 "cpp_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"Set%s",yypvt[-1].str); 
@@ -1783,7 +1812,7 @@ case 81:
    output_function();
    } break;
 case 82:
-# line 364 "cpp_parse.y"
+# line 367 "cpp_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"Get%s",yypvt[-1].str); 
@@ -1793,7 +1822,7 @@ case 82:
    output_function();
    } break;
 case 83:
-# line 373 "cpp_parse.y"
+# line 376 "cpp_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"Set%s",yypvt[-5].str); 
@@ -1803,7 +1832,7 @@ case 83:
    output_function();
    } break;
 case 84:
-# line 382 "cpp_parse.y"
+# line 385 "cpp_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"Set%s",yypvt[-3].str); 
@@ -1813,7 +1842,7 @@ case 84:
    output_function();
    } break;
 case 85:
-# line 391 "cpp_parse.y"
+# line 394 "cpp_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"Set%s",yypvt[-3].str); 
@@ -1823,7 +1852,7 @@ case 85:
    output_function();
    } break;
 case 86:
-# line 400 "cpp_parse.y"
+# line 403 "cpp_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"Get%s",yypvt[-3].str); 
@@ -1833,7 +1862,7 @@ case 86:
    output_function();
    } break;
 case 87:
-# line 409 "cpp_parse.y"
+# line 412 "cpp_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"%sOn",yypvt[-3].str); 
@@ -1847,7 +1876,7 @@ case 87:
    output_function();
    } break;
 case 88:
-# line 422 "cpp_parse.y"
+# line 425 "cpp_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"Set%s",yypvt[-3].str); 
@@ -1858,7 +1887,83 @@ case 88:
    output_function();
    } break;
 case 89:
-# line 432 "cpp_parse.y"
+# line 435 "cpp_parse.y"
+{ 
+   int i;
+
+   is_virtual = 0;
+   sprintf(temps,"Get%s",yypvt[-3].str); 
+
+   /* check to see if we can handle the args */
+   if ((yypvt[-1].integer != 2) &&
+       ((yypvt[-1].integer < 8) ||
+        (yypvt[-1].integer == 13) ||
+        (yypvt[-1].integer == 14) ||
+        (yypvt[-1].integer == 15))) 
+      {
+      fprintf(yyout,"  if ((!strcmp(\"%s\",argv[1]))&&(argc == 2))\n    {\n",
+	      temps);
+
+    /* process the args */
+    switch (yypvt[-1].integer)
+      {
+      case 1:   fprintf(yyout,"    float  "); break;
+      case 7:   fprintf(yyout,"    double "); break;
+      case 4:   fprintf(yyout,"    int    "); break;
+      case 5:   fprintf(yyout,"    short  "); break;
+      case 6:   fprintf(yyout,"    long   "); break;
+      case 3:   fprintf(yyout,"    char   "); break;
+      case 13:   fprintf(yyout,"    unsigned char  "); break;
+      case 14:   fprintf(yyout,"    unsigned int   "); break;
+      case 15:   fprintf(yyout,"    unsigned short "); break;
+      }
+    fprintf(yyout,"*temp;\n\n");
+
+    /* invoke the function */
+    fprintf(yyout,"    temp = op->%s();\n",temps);
+
+    /* now return the args on the stack */
+    fprintf(yyout,"    interp->result[0] = '\\0';\n"); 
+    for (i = 0; i < 2; i++)
+      {
+      switch (yypvt[-1].integer)
+	{
+	case 1: case 7:  
+	  fprintf(yyout,"    sprintf(temps,\"%%g\",temp[%i]);\n",i); 
+	  break;
+	case 4: 
+	  fprintf(yyout,"    sprintf(temps,\"%%i\",temp[%i]);\n",i); 
+	  break;
+	case 5: 
+	  fprintf(yyout,"    sprintf(temps,\"%%hi\",temp[%i]);\n",i); 
+	  break;
+	case 6: 
+	  fprintf(yyout,"    sprintf(temps,\"%%li\",temp[%i]);\n",i); 
+	  break;
+	case 3:
+	  fprintf(yyout,"    sprintf(temps,\"%%c\",temp[%i]);\n",i); 
+	  break;
+	case 14: 
+	  fprintf(yyout,"    sprintf(temps,\"%%u\",temp[%i]);\n",i); 
+	  break;
+	case 15: 
+	  fprintf(yyout,"    sprintf(temps,\"%%hu\",temp[%i]);\n",i); 
+	  break;
+	case 13: 
+	  fprintf(yyout,"    sprintf(temps,\"%%u\",(int)temp[%i]);\n",i); 
+	  break;
+	}
+      fprintf(yyout,"    Tcl_AppendElement(interp,temps);\n");
+      }
+      
+    fprintf(yyout,"    return TCL_OK;\n    }\n");
+    funcNames[numFuncs] = strdup(temps);
+    funcArgs[numFuncs] = 0;
+    numFuncs++;
+    }
+   } break;
+case 90:
+# line 510 "cpp_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"Set%s",yypvt[-3].str); 
@@ -1869,8 +1974,84 @@ case 89:
    arg_types[2] = yypvt[-1].integer;
    output_function();
    } break;
-case 90:
-# line 443 "cpp_parse.y"
+case 91:
+# line 521 "cpp_parse.y"
+{ 
+   int i;
+
+   is_virtual = 0;
+   sprintf(temps,"Get%s",yypvt[-3].str); 
+
+   /* check to see if we can handle the args */
+   if ((yypvt[-1].integer != 2) &&
+       ((yypvt[-1].integer < 8) ||
+        (yypvt[-1].integer == 13) ||
+        (yypvt[-1].integer == 14) ||
+        (yypvt[-1].integer == 15))) 
+      {
+      fprintf(yyout,"  if ((!strcmp(\"%s\",argv[1]))&&(argc == 2))\n    {\n",
+	      temps);
+
+    /* process the args */
+    switch (yypvt[-1].integer)
+      {
+      case 1:   fprintf(yyout,"    float  "); break;
+      case 7:   fprintf(yyout,"    double "); break;
+      case 4:   fprintf(yyout,"    int    "); break;
+      case 5:   fprintf(yyout,"    short  "); break;
+      case 6:   fprintf(yyout,"    long   "); break;
+      case 3:   fprintf(yyout,"    char   "); break;
+      case 13:   fprintf(yyout,"    unsigned char  "); break;
+      case 14:   fprintf(yyout,"    unsigned int   "); break;
+      case 15:   fprintf(yyout,"    unsigned short "); break;
+      }
+    fprintf(yyout,"*temp;\n\n");
+
+    /* invoke the function */
+    fprintf(yyout,"    temp = op->%s();\n",temps);
+
+    /* now return the args on the stack */
+    fprintf(yyout,"    interp->result[0] = '\\0';\n"); 
+    for (i = 0; i < 3; i++)
+      {
+      switch (yypvt[-1].integer)
+	{
+	case 1: case 7:  
+	  fprintf(yyout,"    sprintf(temps,\"%%g\",temp[%i]);\n",i); 
+	  break;
+	case 4: 
+	  fprintf(yyout,"    sprintf(temps,\"%%i\",temp[%i]);\n",i); 
+	  break;
+	case 5: 
+	  fprintf(yyout,"    sprintf(temps,\"%%hi\",temp[%i]);\n",i); 
+	  break;
+	case 6: 
+	  fprintf(yyout,"    sprintf(temps,\"%%li\",temp[%i]);\n",i); 
+	  break;
+	case 3:
+	  fprintf(yyout,"    sprintf(temps,\"%%c\",temp[%i]);\n",i); 
+	  break;
+	case 14: 
+	  fprintf(yyout,"    sprintf(temps,\"%%u\",temp[%i]);\n",i); 
+	  break;
+	case 15: 
+	  fprintf(yyout,"    sprintf(temps,\"%%hu\",temp[%i]);\n",i); 
+	  break;
+	case 13: 
+	  fprintf(yyout,"    sprintf(temps,\"%%u\",(int)temp[%i]);\n",i); 
+	  break;
+	}
+      fprintf(yyout,"    Tcl_AppendElement(interp,temps);\n");
+      }
+      
+    fprintf(yyout,"    return TCL_OK;\n    }\n");
+    funcNames[numFuncs] = strdup(temps);
+    funcArgs[numFuncs] = 0;
+    numFuncs++;
+    }
+   } break;
+case 92:
+# line 596 "cpp_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"Set%s",yypvt[-3].str); 
@@ -1882,8 +2063,84 @@ case 90:
    arg_types[3] = yypvt[-1].integer;
    output_function();
    } break;
-case 91:
-# line 455 "cpp_parse.y"
+case 93:
+# line 608 "cpp_parse.y"
+{ 
+   int i;
+
+   is_virtual = 0;
+   sprintf(temps,"Get%s",yypvt[-3].str); 
+
+   /* check to see if we can handle the args */
+   if ((yypvt[-1].integer != 2) &&
+       ((yypvt[-1].integer < 8) ||
+        (yypvt[-1].integer == 13) ||
+        (yypvt[-1].integer == 14) ||
+        (yypvt[-1].integer == 15))) 
+      {
+      fprintf(yyout,"  if ((!strcmp(\"%s\",argv[1]))&&(argc == 2))\n    {\n",
+	      temps);
+
+    /* process the args */
+    switch (yypvt[-1].integer)
+      {
+      case 1:   fprintf(yyout,"    float  "); break;
+      case 7:   fprintf(yyout,"    double "); break;
+      case 4:   fprintf(yyout,"    int    "); break;
+      case 5:   fprintf(yyout,"    short  "); break;
+      case 6:   fprintf(yyout,"    long   "); break;
+      case 3:   fprintf(yyout,"    char   "); break;
+      case 13:   fprintf(yyout,"    unsigned char  "); break;
+      case 14:   fprintf(yyout,"    unsigned int   "); break;
+      case 15:   fprintf(yyout,"    unsigned short "); break;
+      }
+    fprintf(yyout,"*temp;\n\n");
+
+    /* invoke the function */
+    fprintf(yyout,"    temp = op->%s();\n",temps);
+
+    /* now return the args on the stack */
+    fprintf(yyout,"    interp->result[0] = '\\0';\n"); 
+    for (i = 0; i < 4; i++)
+      {
+      switch (yypvt[-1].integer)
+	{
+	case 1: case 7:  
+	  fprintf(yyout,"    sprintf(temps,\"%%g\",temp[%i]);\n",i); 
+	  break;
+	case 4: 
+	  fprintf(yyout,"    sprintf(temps,\"%%i\",temp[%i]);\n",i); 
+	  break;
+	case 5: 
+	  fprintf(yyout,"    sprintf(temps,\"%%hi\",temp[%i]);\n",i); 
+	  break;
+	case 6: 
+	  fprintf(yyout,"    sprintf(temps,\"%%li\",temp[%i]);\n",i); 
+	  break;
+	case 3:
+	  fprintf(yyout,"    sprintf(temps,\"%%c\",temp[%i]);\n",i); 
+	  break;
+	case 14: 
+	  fprintf(yyout,"    sprintf(temps,\"%%u\",temp[%i]);\n",i); 
+	  break;
+	case 15: 
+	  fprintf(yyout,"    sprintf(temps,\"%%hu\",temp[%i]);\n",i); 
+	  break;
+	case 13: 
+	  fprintf(yyout,"    sprintf(temps,\"%%u\",(int)temp[%i]);\n",i); 
+	  break;
+	}
+      fprintf(yyout,"    Tcl_AppendElement(interp,temps);\n");
+      }
+      
+     fprintf(yyout,"    return TCL_OK;\n    }\n");
+     funcNames[numFuncs] = strdup(temps);
+     funcArgs[numFuncs] = 0;
+     numFuncs++;
+     }
+   } break;
+case 94:
+# line 683 "cpp_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"Set%s",yypvt[-3].str); 
@@ -1927,8 +2184,8 @@ case 91:
    output_function();
    free(func_name);
    } break;
-case 92:
-# line 499 "cpp_parse.y"
+case 95:
+# line 727 "cpp_parse.y"
 { 
    is_virtual = 0;
    sprintf(temps,"Set%s",yypvt[-1].str); 
@@ -1987,8 +2244,8 @@ case 92:
    output_function();
    free(func_name);
    } break;
-case 93:
-# line 558 "cpp_parse.y"
+case 96:
+# line 786 "cpp_parse.y"
 { 
    int i;
 
@@ -2044,8 +2301,8 @@ case 93:
     numFuncs++;
     }
    } break;
-case 94:
-# line 614 "cpp_parse.y"
+case 97:
+# line 842 "cpp_parse.y"
 { 
    int i;
 

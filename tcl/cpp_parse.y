@@ -69,6 +69,9 @@ int is_concrete;
 %token SetVector2Macro
 %token SetVector3Macro
 %token SetVector4Macro
+%token GetVector2Macro
+%token GetVector3Macro
+%token GetVector4Macro
 %token SetVectorMacro
 %token GetVectorMacro
 %token ImageSetMacro
@@ -202,8 +205,8 @@ class_def : CLASS VTK_ID
 	fprintf(yyout,"    delete buf.str();\n");
 	fprintf(yyout,"    return TCL_OK;\n    }\n");
 	}
-      fprintf(yyout,"\n  if (argc >= 2)\n    {\n");
-      fprintf(yyout,"    sprintf(interp->result,\"Object named: %%s, could not find requested method: %%s\",argv[0],argv[1]);\n    }\n  else\n    {\n");
+      fprintf(yyout,"\n  if ((argc >= 2)&&(!strstr(interp->result,\"Object named:\")))\n    {\n");
+      fprintf(yyout,"    char temps2[256];\n    sprintf(temps2,\"Object named: %%s, could not find requested method: %%s\nor the method was called with incorrect arguments.\n\",argv[0],argv[1]);\n    Tcl_AppendResult(interp,temps2,NULL);    }\n  else\n    {\n");
       fprintf(yyout,"    sprintf(interp->result,\"Could not find requested method.\");\n    }\n");
       fprintf(yyout,"  return TCL_ERROR;\n}\n");
       };
@@ -428,6 +431,81 @@ macro:
    arg_types[1] = $<integer>5;
    output_function();
    }
+| GetVector2Macro  '(' any_id ',' type_red2 ')'
+   { 
+   int i;
+
+   is_virtual = 0;
+   sprintf(temps,"Get%s",$<str>3); 
+
+   /* check to see if we can handle the args */
+   if (($<integer>5 != 2) &&
+       (($<integer>5 < 8) ||
+        ($<integer>5 == 13) ||
+        ($<integer>5 == 14) ||
+        ($<integer>5 == 15))) 
+      {
+      fprintf(yyout,"  if ((!strcmp(\"%s\",argv[1]))&&(argc == 2))\n    {\n",
+	      temps);
+
+    /* process the args */
+    switch ($<integer>5)
+      {
+      case 1:   fprintf(yyout,"    float  "); break;
+      case 7:   fprintf(yyout,"    double "); break;
+      case 4:   fprintf(yyout,"    int    "); break;
+      case 5:   fprintf(yyout,"    short  "); break;
+      case 6:   fprintf(yyout,"    long   "); break;
+      case 3:   fprintf(yyout,"    char   "); break;
+      case 13:   fprintf(yyout,"    unsigned char  "); break;
+      case 14:   fprintf(yyout,"    unsigned int   "); break;
+      case 15:   fprintf(yyout,"    unsigned short "); break;
+      }
+    fprintf(yyout,"*temp;\n\n");
+
+    /* invoke the function */
+    fprintf(yyout,"    temp = op->%s();\n",temps);
+
+    /* now return the args on the stack */
+    fprintf(yyout,"    interp->result[0] = '\\0';\n"); 
+    for (i = 0; i < 2; i++)
+      {
+      switch ($<integer>5)
+	{
+	case 1: case 7:  
+	  fprintf(yyout,"    sprintf(temps,\"%%g\",temp[%i]);\n",i); 
+	  break;
+	case 4: 
+	  fprintf(yyout,"    sprintf(temps,\"%%i\",temp[%i]);\n",i); 
+	  break;
+	case 5: 
+	  fprintf(yyout,"    sprintf(temps,\"%%hi\",temp[%i]);\n",i); 
+	  break;
+	case 6: 
+	  fprintf(yyout,"    sprintf(temps,\"%%li\",temp[%i]);\n",i); 
+	  break;
+	case 3:
+	  fprintf(yyout,"    sprintf(temps,\"%%c\",temp[%i]);\n",i); 
+	  break;
+	case 14: 
+	  fprintf(yyout,"    sprintf(temps,\"%%u\",temp[%i]);\n",i); 
+	  break;
+	case 15: 
+	  fprintf(yyout,"    sprintf(temps,\"%%hu\",temp[%i]);\n",i); 
+	  break;
+	case 13: 
+	  fprintf(yyout,"    sprintf(temps,\"%%u\",(int)temp[%i]);\n",i); 
+	  break;
+	}
+      fprintf(yyout,"    Tcl_AppendElement(interp,temps);\n");
+      }
+      
+    fprintf(yyout,"    return TCL_OK;\n    }\n");
+    funcNames[numFuncs] = strdup(temps);
+    funcArgs[numFuncs] = 0;
+    numFuncs++;
+    }
+   }
 | SetVector3Macro '(' any_id ',' type_red2 ')'
    { 
    is_virtual = 0;
@@ -438,6 +516,81 @@ macro:
    arg_types[1] = $<integer>5;
    arg_types[2] = $<integer>5;
    output_function();
+   }
+| GetVector3Macro  '(' any_id ',' type_red2 ')'
+   { 
+   int i;
+
+   is_virtual = 0;
+   sprintf(temps,"Get%s",$<str>3); 
+
+   /* check to see if we can handle the args */
+   if (($<integer>5 != 2) &&
+       (($<integer>5 < 8) ||
+        ($<integer>5 == 13) ||
+        ($<integer>5 == 14) ||
+        ($<integer>5 == 15))) 
+      {
+      fprintf(yyout,"  if ((!strcmp(\"%s\",argv[1]))&&(argc == 2))\n    {\n",
+	      temps);
+
+    /* process the args */
+    switch ($<integer>5)
+      {
+      case 1:   fprintf(yyout,"    float  "); break;
+      case 7:   fprintf(yyout,"    double "); break;
+      case 4:   fprintf(yyout,"    int    "); break;
+      case 5:   fprintf(yyout,"    short  "); break;
+      case 6:   fprintf(yyout,"    long   "); break;
+      case 3:   fprintf(yyout,"    char   "); break;
+      case 13:   fprintf(yyout,"    unsigned char  "); break;
+      case 14:   fprintf(yyout,"    unsigned int   "); break;
+      case 15:   fprintf(yyout,"    unsigned short "); break;
+      }
+    fprintf(yyout,"*temp;\n\n");
+
+    /* invoke the function */
+    fprintf(yyout,"    temp = op->%s();\n",temps);
+
+    /* now return the args on the stack */
+    fprintf(yyout,"    interp->result[0] = '\\0';\n"); 
+    for (i = 0; i < 3; i++)
+      {
+      switch ($<integer>5)
+	{
+	case 1: case 7:  
+	  fprintf(yyout,"    sprintf(temps,\"%%g\",temp[%i]);\n",i); 
+	  break;
+	case 4: 
+	  fprintf(yyout,"    sprintf(temps,\"%%i\",temp[%i]);\n",i); 
+	  break;
+	case 5: 
+	  fprintf(yyout,"    sprintf(temps,\"%%hi\",temp[%i]);\n",i); 
+	  break;
+	case 6: 
+	  fprintf(yyout,"    sprintf(temps,\"%%li\",temp[%i]);\n",i); 
+	  break;
+	case 3:
+	  fprintf(yyout,"    sprintf(temps,\"%%c\",temp[%i]);\n",i); 
+	  break;
+	case 14: 
+	  fprintf(yyout,"    sprintf(temps,\"%%u\",temp[%i]);\n",i); 
+	  break;
+	case 15: 
+	  fprintf(yyout,"    sprintf(temps,\"%%hu\",temp[%i]);\n",i); 
+	  break;
+	case 13: 
+	  fprintf(yyout,"    sprintf(temps,\"%%u\",(int)temp[%i]);\n",i); 
+	  break;
+	}
+      fprintf(yyout,"    Tcl_AppendElement(interp,temps);\n");
+      }
+      
+    fprintf(yyout,"    return TCL_OK;\n    }\n");
+    funcNames[numFuncs] = strdup(temps);
+    funcArgs[numFuncs] = 0;
+    numFuncs++;
+    }
    }
 | SetVector4Macro '(' any_id ',' type_red2 ')'
    { 
@@ -450,6 +603,81 @@ macro:
    arg_types[2] = $<integer>5;
    arg_types[3] = $<integer>5;
    output_function();
+   }
+| GetVector4Macro  '(' any_id ',' type_red2 ')'
+   { 
+   int i;
+
+   is_virtual = 0;
+   sprintf(temps,"Get%s",$<str>3); 
+
+   /* check to see if we can handle the args */
+   if (($<integer>5 != 2) &&
+       (($<integer>5 < 8) ||
+        ($<integer>5 == 13) ||
+        ($<integer>5 == 14) ||
+        ($<integer>5 == 15))) 
+      {
+      fprintf(yyout,"  if ((!strcmp(\"%s\",argv[1]))&&(argc == 2))\n    {\n",
+	      temps);
+
+    /* process the args */
+    switch ($<integer>5)
+      {
+      case 1:   fprintf(yyout,"    float  "); break;
+      case 7:   fprintf(yyout,"    double "); break;
+      case 4:   fprintf(yyout,"    int    "); break;
+      case 5:   fprintf(yyout,"    short  "); break;
+      case 6:   fprintf(yyout,"    long   "); break;
+      case 3:   fprintf(yyout,"    char   "); break;
+      case 13:   fprintf(yyout,"    unsigned char  "); break;
+      case 14:   fprintf(yyout,"    unsigned int   "); break;
+      case 15:   fprintf(yyout,"    unsigned short "); break;
+      }
+    fprintf(yyout,"*temp;\n\n");
+
+    /* invoke the function */
+    fprintf(yyout,"    temp = op->%s();\n",temps);
+
+    /* now return the args on the stack */
+    fprintf(yyout,"    interp->result[0] = '\\0';\n"); 
+    for (i = 0; i < 4; i++)
+      {
+      switch ($<integer>5)
+	{
+	case 1: case 7:  
+	  fprintf(yyout,"    sprintf(temps,\"%%g\",temp[%i]);\n",i); 
+	  break;
+	case 4: 
+	  fprintf(yyout,"    sprintf(temps,\"%%i\",temp[%i]);\n",i); 
+	  break;
+	case 5: 
+	  fprintf(yyout,"    sprintf(temps,\"%%hi\",temp[%i]);\n",i); 
+	  break;
+	case 6: 
+	  fprintf(yyout,"    sprintf(temps,\"%%li\",temp[%i]);\n",i); 
+	  break;
+	case 3:
+	  fprintf(yyout,"    sprintf(temps,\"%%c\",temp[%i]);\n",i); 
+	  break;
+	case 14: 
+	  fprintf(yyout,"    sprintf(temps,\"%%u\",temp[%i]);\n",i); 
+	  break;
+	case 15: 
+	  fprintf(yyout,"    sprintf(temps,\"%%hu\",temp[%i]);\n",i); 
+	  break;
+	case 13: 
+	  fprintf(yyout,"    sprintf(temps,\"%%u\",(int)temp[%i]);\n",i); 
+	  break;
+	}
+      fprintf(yyout,"    Tcl_AppendElement(interp,temps);\n");
+      }
+      
+     fprintf(yyout,"    return TCL_OK;\n    }\n");
+     funcNames[numFuncs] = strdup(temps);
+     funcArgs[numFuncs] = 0;
+     numFuncs++;
+     }
    }
 | ImageSetMacro '(' any_id ',' type_red2 ')'
    { 
@@ -958,7 +1186,7 @@ get_args(int i)
       break;
     case 109:
     case 309:
-      fprintf(yyout,"    temp%i = (%s *)(vtkTclGetPointerFromObject(argv[%i],\"%s\"));\n",i,arg_ids[i],i+2,arg_ids[i]);
+      fprintf(yyout,"    temp%i = (%s *)(vtkTclGetPointerFromObject(argv[%i],\"%s\",interp));\n",i,arg_ids[i],i+2,arg_ids[i]);
       fprintf(yyout,"    if (temp%i == NULL)\n      {  error = 1;  }\n",i);
       break;
     case 2:    
