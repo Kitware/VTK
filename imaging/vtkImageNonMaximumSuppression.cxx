@@ -256,7 +256,7 @@ void vtkImageNonMaximumSuppression::Execute(vtkImageRegion *inRegion1,
 		{
 		neighborA += *incs;
 		}
-	      if (outIdx2 > *imageExtent)  // min
+	      if (*idxs > *imageExtent)  // min
 		{
 		neighborB -= *incs;
 		}
@@ -268,7 +268,7 @@ void vtkImageNonMaximumSuppression::Execute(vtkImageRegion *inRegion1,
 		{
 		neighborB += *incs;
 		}
-	      if (outIdx2 > *imageExtent)  //min
+	      if (*idxs > *imageExtent)  //min
 		{
 		neighborA -= *incs;
 		}
