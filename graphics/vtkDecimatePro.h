@@ -73,7 +73,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // To use this object, at a minimum you need to specify the ivar
 // TargetReduction. The algorithm is guaranteed to generate a reduced mesh
 // at this level as long as the following four conditions are met: 1)
-// topology modification is allowed (i.e., the ivar PreserveTopology is on);
+// topology modification is allowed (i.e., the ivar PreserveTopology is off);
 // 2) mesh splitting is enabled (i.e., the ivar Splitting is on); 3) the
 // algorithm is allowed to modify the boundary of the mesh (i.e., the ivar
 // BoundaryVertexDeletion is on); and 4) the maximum allowable error (i.e.,
