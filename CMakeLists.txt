@@ -57,7 +57,7 @@ VTK_DEPENDENT_OPTION(VTK_USE_HYBRID "Build the vtkHybrid kit." OFF
 VTK_DEPENDENT_OPTION(VTK_USE_PARALLEL "Build the vtkParallel kit." OFF
                      "VTK_USE_RENDERING" OFF)
 
-SET(VTK_KITS COMMON FILTERING IO GENERIC_FILTERING GRAPHICS IMAGING)
+SET(VTK_KITS COMMON FILTERING IO GRAPHICS GENERIC_FILTERING IMAGING)
 IF(VTK_USE_RENDERING)
   SET(VTK_KITS ${VTK_KITS} RENDERING)
 ENDIF(VTK_USE_RENDERING)
@@ -372,7 +372,7 @@ ENDIF(VTK_WRAP_JAVA)
 SUBDIRS(Wrapping Utilities)
 
 # Kits.
-SUBDIRS(Common Filtering Imaging GenericFiltering Graphics IO)
+SUBDIRS(Common Filtering Imaging Graphics GenericFiltering IO)
 IF(VTK_USE_RENDERING)
   SUBDIRS(Rendering)
 ENDIF(VTK_USE_RENDERING)
@@ -400,7 +400,7 @@ ENDIF(VTK_WRAP_JAVA)
 # Testing.
 IF(BUILD_TESTING)
   MAKE_DIRECTORY(${VTK_BINARY_DIR}/Testing/Temporary)
-  SUBDIRS(Common/Testing Filtering/Testing GenericFiltering/Testing Graphics/Testing Imaging/Testing
+  SUBDIRS(Common/Testing Filtering/Testing Graphics/Testing GenericFiltering/Testing Imaging/Testing
           IO/Testing)
   IF(VTK_USE_RENDERING)
     SUBDIRS(Rendering/Testing)
@@ -911,7 +911,7 @@ INCLUDE_DIRECTORIES(
 
 # Install the instantiator headers.
 INSTALL_FILES(/include/vtk .h vtkCommonInstantiator vtkFilteringInstantiator
-              vtkIOInstantiator vtkImagingInstantiator vtkGenericFilteringInstantiator vtkGraphicsInstantiator)
+              vtkIOInstantiator vtkImagingInstantiator  vtkGraphicsInstantiator vtkGenericFilteringInstantiator)
 IF(VTK_USE_RENDERING)
   INSTALL_FILES(/include/vtk .h vtkRenderingInstantiator)
 ENDIF(VTK_USE_RENDERING)
