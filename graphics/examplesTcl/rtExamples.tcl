@@ -3,9 +3,9 @@ catch {load vtktcl}
 # This is a regression test script for VTK.
 #
 
-#vtkCommand DebugOn
+# first find all the examples. they can be defined on command line or in
+# current directory
 
-# first find all the examples
 if { $argv != ""} {
   set files $argv
   } else {
@@ -95,7 +95,7 @@ if {[set pos [lsearch $files "3dsToRIB.tcl"]] != -1} {
 # now do the tests
 foreach afile $files {
     #
-    # check for a valid image
+    # only tcl scripts with valid/ images are tested
     if {[catch {set channel [open "valid/$afile.ppm"]}] != 0 } {
      puts "WARNING: There is no valid image for $afile"
      continue
@@ -105,7 +105,8 @@ foreach afile $files {
    vtkMath rtExMath
    rtExMath RandomSeed 6
 
-   source "$afile"
+   puts -nonewline "$afile took "
+   puts -nonewline "[expr [lindex [time {source $afile} 1] 0] / 1000000.0] seconds "
 
    vtkRendererSource renSrc
    renSrc WholeWindowOn
@@ -120,9 +121,9 @@ foreach afile $files {
 
 # a test has to be off by at least ten pixels for us to care   
    if {[imgDiff GetThresholdedError] < 10.0} {
-       puts "Passed Test for $afile"
+       puts "and Passed"
    } else {
-       puts "Failed Test for $afile with an error of [imgDiff GetThresholdedError]"
+       puts "but failed with an error of [imgDiff GetThresholdedError] in "
          vtkPNMWriter pnmw
          pnmw SetInput [imgDiff GetOutput]
          pnmw SetFileName "$afile.error.ppm"
