@@ -32,7 +32,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkFacetReader, "1.1");
+vtkCxxRevisionMacro(vtkFacetReader, "1.2");
 vtkStandardNewMacro(vtkFacetReader);
 
 //------------------------------------------------------------------------------
@@ -272,9 +272,9 @@ void vtkFacetReader::Execute()
         }
 
       // Read specified number of points from cell information
-      if ( stringBuffer.size() < line.size() )
+      if ( stringBuffer.size() < line.size()+1 )
         {
-        stringBuffer.resize(line.size());
+        stringBuffer.resize(line.size()+1);
         }
       char* strPtr = &(*stringBuffer.begin());
       strcpy(strPtr, line.c_str());
