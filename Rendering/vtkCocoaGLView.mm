@@ -81,7 +81,7 @@
   
   // Set proper viewport
   //glViewport((long int)visibleRect.origin.x, (long int)visibleRect.origin.y, 
-	//     (long int)visibleRect.size.width, (long int)visibleRect.size.height);
+  //     (long int)visibleRect.size.width, (long int)visibleRect.size.height);
   if ( myVTKRenderWindow->GetMapped() )
     {
     myVTKRenderWindow->Render();
@@ -114,8 +114,7 @@
   NSPoint mouseLoc = [self convertPoint:[theEvent locationInWindow] fromView:nil];
   int shiftDown = ([theEvent modifierFlags] & NSShiftKeyMask);
   int controlDown = ([theEvent modifierFlags] & NSControlKeyMask);
-  myVTKRenderWindowInteractor->SetEventInformation((int)mouseLoc.x, (int)mouseLoc.y,
-						   controlDown, shiftDown,
+  myVTKRenderWindowInteractor->SetEventInformation((int)mouseLoc.x, (int)mouseLoc.y, controlDown, shiftDown,
     (unsigned short int)[[theEvent characters] cString][0], 1, [[theEvent characters] cString]);
   myVTKRenderWindowInteractor->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
   myVTKRenderWindowInteractor->InvokeEvent(vtkCommand::KeyPressEvent, NULL);
@@ -125,8 +124,7 @@
   NSPoint mouseLoc = [self convertPoint:[theEvent locationInWindow] fromView:nil];
   int shiftDown = ([theEvent modifierFlags] & NSShiftKeyMask);
   int controlDown = ([theEvent modifierFlags] & NSControlKeyMask);
-  myVTKRenderWindowInteractor->SetEventInformation((int)mouseLoc.x, (int)mouseLoc.y,
-						   controlDown, shiftDown,
+  myVTKRenderWindowInteractor->SetEventInformation((int)mouseLoc.x, (int)mouseLoc.y,controlDown, shiftDown,
     (unsigned short int)[[theEvent characters] cString][0], 1, [[theEvent characters] cString]);
   myVTKRenderWindowInteractor->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
   myVTKRenderWindowInteractor->InvokeEvent(vtkCommand::KeyReleaseEvent, NULL);
@@ -134,12 +132,11 @@
 
 
 - (void)mouseMoved:(NSEvent *)theEvent {
-    NSPoint mouseLoc = [self convertPoint:[theEvent locationInWindow] fromView:nil];
+    NSPoint mouseLoc = [self convertPoint:[[self window] convertScreenToBase:[theEvent locationInWindow]] fromView:nil];
     int shiftDown = ([theEvent modifierFlags] & NSShiftKeyMask);
     int controlDown = ([theEvent modifierFlags] & NSControlKeyMask);
 
-    myVTKRenderWindowInteractor->SetEventInformation((int)mouseLoc.x, (int)mouseLoc.y, 
-					             controlDown, shiftDown);
+    myVTKRenderWindowInteractor->SetEventInformation((int)mouseLoc.x, (int)mouseLoc.y, controlDown, shiftDown);
     myVTKRenderWindowInteractor->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
 }
 
@@ -150,7 +147,7 @@
     int controlDown = ([theEvent modifierFlags] & NSControlKeyMask);
 
     myVTKRenderWindowInteractor->SetEventInformation((int)mouseLoc.x, (int)mouseLoc.y, 
-					             controlDown, shiftDown);
+                  controlDown, shiftDown);
     if( [theEvent deltaY] > 0)
       {
       myVTKRenderWindowInteractor->InvokeEvent(vtkCommand::MouseWheelForwardEvent, NULL);
@@ -177,7 +174,7 @@
         theEvent = [[self window] nextEventMatchingMask: NSLeftMouseUpMask | NSLeftMouseDraggedMask | NSPeriodicMask];
         mouseLoc = [self convertPoint:[theEvent locationInWindow] fromView:nil];
         myVTKRenderWindowInteractor->SetEventInformation((int)mouseLoc.x, (int)mouseLoc.y, 
-							 controlDown, shiftDown);
+        controlDown, shiftDown);
         switch ([theEvent type]) {
         case NSLeftMouseDragged:
             myVTKRenderWindowInteractor->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
@@ -204,14 +201,14 @@
 
     mouseLoc = [self convertPoint:[theEvent locationInWindow] fromView:nil];
     myVTKRenderWindowInteractor->SetEventInformation((int)mouseLoc.x, (int)mouseLoc.y, 
-						     controlDown, shiftDown);
+           controlDown, shiftDown);
     myVTKRenderWindowInteractor->InvokeEvent(vtkCommand::RightButtonPressEvent,NULL);
 
     do {
         theEvent = [[self window] nextEventMatchingMask: NSRightMouseUpMask | NSRightMouseDraggedMask | NSPeriodicMask];
         mouseLoc = [self convertPoint:[theEvent locationInWindow] fromView:nil];
         myVTKRenderWindowInteractor->SetEventInformation((int)mouseLoc.x, (int)mouseLoc.y, 
-							 controlDown, shiftDown);
+        controlDown, shiftDown);
         switch ([theEvent type]) {
         case NSRightMouseDragged:
             myVTKRenderWindowInteractor->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
@@ -239,14 +236,14 @@
 
     mouseLoc = [self convertPoint:[theEvent locationInWindow] fromView:nil];
     myVTKRenderWindowInteractor->SetEventInformation((int)mouseLoc.x, (int)mouseLoc.y, 
-						     controlDown, shiftDown);
+           controlDown, shiftDown);
     myVTKRenderWindowInteractor->InvokeEvent(vtkCommand::MiddleButtonPressEvent,NULL);
     
     do {
         theEvent = [[self window] nextEventMatchingMask: NSOtherMouseUpMask | NSOtherMouseDraggedMask | NSPeriodicMask];
         mouseLoc = [self convertPoint:[theEvent locationInWindow] fromView:nil];
         myVTKRenderWindowInteractor->SetEventInformation((int)mouseLoc.x, (int)mouseLoc.y, 
-							 controlDown, shiftDown);
+        controlDown, shiftDown);
         switch ([theEvent type]) {
         case NSOtherMouseDragged:
             myVTKRenderWindowInteractor->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
