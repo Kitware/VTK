@@ -38,7 +38,7 @@ package ifneeded vtktcl 3.3 {
                 return $errormsg
             }
         }
-        return "$name could not be found!"
+        return "::vtktcl::load_component: $name could not be found!"
     }
 
     # I won't 'rename ::vtktcl::load_component ""' because it will be 
@@ -59,7 +59,7 @@ package ifneeded vtktcl 3.3 {
                 return 1
             }
         }
-        puts "::vtktcl::load_script: $name not found!"
+        puts "::vtktcl::load_script: $name could not be found!"
         return 0
     }
 
