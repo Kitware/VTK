@@ -113,6 +113,11 @@ vtkEnSight6Reader::~vtkEnSight6Reader()
 {
   int i, j;
   
+  if (this->FilePath)
+    {
+    delete [] this->FilePath;
+    this->FilePath = NULL;
+    }
   if (this->CaseFileName)
     {
     delete [] this->CaseFileName;
