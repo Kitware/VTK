@@ -18,7 +18,7 @@
 #include "vtkMapper.h"
 #include "vtkLookupTable.h"
 
-vtkCxxRevisionMacro(vtkMapper, "1.97");
+vtkCxxRevisionMacro(vtkMapper, "1.98");
 
 // Initialize static member that controls global immediate mode rendering
 static int vtkMapperGlobalImmediateModeRendering = 0;
@@ -271,9 +271,10 @@ void vtkMapper::ColorByArrayComponent(int arrayNum, int component)
 
 void vtkMapper::ColorByArrayComponent(const char* arrayName, int component)
 {
-  if (arrayName || strcmp(this->ArrayName, arrayName) == 0 &&
-      component == this->ArrayComponent &&
-      this->ArrayAccessMode == VTK_GET_ARRAY_BY_ID)
+  if (!arrayName || 
+      ( strcmp(this->ArrayName, arrayName) == 0 &&
+        component == this->ArrayComponent &&
+        this->ArrayAccessMode == VTK_GET_ARRAY_BY_ID ))
     {
     return;
     }
