@@ -60,11 +60,10 @@ void process(vtkMultiProcessController *controller, void *arg )
   vtkPolyDataMapper *mapper;
   vtkActor *actor;
   vtkCamera *cam;
-  int myid, numProcs;
+  int numProcs;
   float val;
   
   
-  myid = controller->GetLocalProcessId();
   numProcs = controller->GetNumberOfProcesses();
     
   // Compute a different color for each process.
@@ -81,7 +80,7 @@ void process(vtkMultiProcessController *controller, void *arg )
 
   mapper = vtkPolyDataMapper::New();
   mapper->SetInput(color->GetOutput());
-  mapper->SetScalarRange(0, 3);
+  mapper->SetScalarRange(0, numProcs-0.9);
   
   actor = vtkActor::New();
   actor->SetMapper(mapper);
