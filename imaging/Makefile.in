@@ -23,7 +23,6 @@ vtkImageInPlaceFilter \
 vtkImageMedianFilter \
 vtkImageMultipleInputFilter \
 vtkImagePadFilter \
-vtkImageReader \
 vtkImageSpatialFilter \
 vtkImageTwoInputFilter \
 vtkImageTwoOutputFilter
@@ -57,7 +56,6 @@ vtkImageFFT \
 vtkImageFFT1D \
 vtkImageFeatureAnd \
 vtkImageFlip \
-vtkImageFileReader \
 vtkImageFourierCenter \
 vtkImageFourierCenter1D \
 vtkImageGaussianSmooth \
@@ -90,10 +88,10 @@ vtkImageRFFT \
 vtkImageRFFT1D \
 vtkImageRGBToHSV \
 vtkImageRange3D \
+vtkImageReader \
 vtkImageResample \
 vtkImageResample1D \
 vtkImageSeedConnectivity \
-vtkImageSeriesReader \
 vtkImageShiftScale \
 vtkImageShortWriter \
 vtkImageShrink3D \
@@ -105,9 +103,9 @@ vtkImageSubsample3D \
 vtkImageThreshold \
 vtkImageVariance3D \
 vtkImageViewer \
-vtkImageVolume16Reader \
 vtkImageWrapPad \
-vtkImageXViewer 
+vtkImageXViewer \
+vtkPNMReader 
 
 
 #------------------------------------------------------------------------------

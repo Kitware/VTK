@@ -49,6 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <iostream.h>
 #include <fstream.h>
 #include "vtkImageSource.h"
+#include "vtkTransform.h"
 
 #define VTK_FILE_BYTE_ORDER_BIG_ENDIAN 0
 #define VTK_FILE_BYTE_ORDER_LITTLE_ENDIAN 1
@@ -61,6 +62,25 @@ public:
   static vtkImageReader *New() {return new vtkImageReader;};
   const char *GetClassName() {return "vtkImageReader";};
   void PrintSelf(ostream& os, vtkIndent indent);   
+
+  // Description:
+  // Specify file name for the image file. You should specify either
+  // a FileName or a FilePrefix. Use FilePrefix if the data is stored 
+  // in multiple files.
+  void SetFileName(char *);
+  vtkGetStringMacro(FileName);
+
+  // Description:
+  // Specify file prefix for the image file(s).You should specify either
+  // a FileName or FilePrefix. Use FilePrefix if the data is stored
+  // in multiple files.
+  void SetFilePrefix(char *);
+  vtkGetStringMacro(FilePrefix);
+
+  // Description:
+  // The sprintf format used to build filename from FilePrefix and number.
+  vtkSetStringMacro(FilePattern);
+  vtkGetStringMacro(FilePattern);
 
   void SetDataScalarTypeToFloat(){this->SetDataScalarType(VTK_FLOAT);}
   void SetDataScalarTypeToInt(){this->SetDataScalarType(VTK_INT);}
@@ -75,25 +95,29 @@ public:
   vtkGetMacro(DataScalarType, int);
   
   // Description:
-  // Get/Set the image extent.  This is an alternative way of setting
-  // the dimensions.  It is more compatable with the imaging pipelines.
+  // Get/Set the extent of the data on disk.  
   void SetDataExtent(int num, int *extent);
   vtkImageSetExtentMacro(DataExtent);
   void GetDataExtent(int num, int *extent);
   vtkImageGetExtentMacro(DataExtent);
   
   // Description:
-  // Set the image dimensions.  This also computes the increments.
-  // Dimensions have to be set manually because, the header is ignored.
-  void SetDataDimensions(int num, int *size);
-  vtkImageSetMacro(DataDimensions,int);
+  // Set/get the data VOI. You can limit the reader to only
+  // read a subset of the data. 
+  void SetDataVOI(int num, int *extent);
+  vtkImageSetExtentMacro(DataVOI);
+  void GetDataVOI(int num, int *extent);
+  vtkImageGetExtentMacro(DataVOI);
+  
   // Description:
-  // Get the image dimensions. Note that the dimensions are different (+1)
-  // than the max values of the image extent.  This is here for compatability
-  // with the vtkVolume16 reader.
-  void GetDataDimensions(int num, int *size);
-  vtkImageGetMacro(DataDimensions,int);
-  int *GetDataDimensions() {return this->DataDimensions;};  
+  // The number of scalar components refers to the number of scalars
+  // per pixel to store color information.
+  vtkSetMacro(NumberOfScalarComponents,int);
+  vtkGetMacro(NumberOfScalarComponents,int);
+
+  // Description:
+  // The number of dimensions stored in a file. This defaults to two.
+  virtual GetFileDimensions();
   
   // Description:
   // Set/Get the spacing of the data in the file.
@@ -111,32 +135,30 @@ public:
   vtkImageGetMacro(DataOrigin,float);
   float *GetDataOrigin() {return this->DataOrigin;};  
   
-  // Set/Get the memory organization in the file.  The first axis is
-  // the most colocated in memory.  This order is also used as the 
-  // coordinate system of the instance variables: DataOrigin, DataExtent, ...
-  virtual void SetDataMemoryOrder(int dim, int *order);
-  vtkImageSetMacro(DataMemoryOrder,int);
-  void GetDataMemoryOrder(int dim, int *order);
-  vtkImageGetMacro(DataMemoryOrder,int);
-  int *GetDataMemoryOrder() {return this->DataMemoryOrder;};
-  
   void UpdateImageInformation();
   vtkImageCache *GetOutput();
   
   // Description:
   // Get the size of the header computed by this object.
-  vtkGetMacro(HeaderSize, int);
+  int GetHeaderSize();
   // Description:
   // If there is a tail on the file, you want to explicitly set the
   // header size.
   void SetHeaderSize(int size);
   
   // Description:
-  // Set/Get the Data mask. The mask is for legacy compatablilty.
+  // Set/Get the Data mask.
   vtkGetMacro(DataMask,unsigned short);
   void SetDataMask(int val) 
   {this->DataMask = ((unsigned short)(val)); this->Modified();};
   
+  // Description:
+  // Set/Get transformation matrix to transform the data from slice space
+  // into world space. This matirx must be a permutation matrix. To qualify,
+  // the sums of the rows must be + or - 1.
+  vtkSetObjectMacro(Transform,vtkTransform);
+  vtkGetObjectMacro(Transform,vtkTransform);
+
   // Description:
   // These methods should be used instead of the SwapBytes methods.
   // They indicate the byte ordering of the file you are trying
@@ -161,44 +183,48 @@ public:
   vtkGetMacro(SwapBytes,int);
   vtkBooleanMacro(SwapBytes,int);
 
-  // Description:
-  // These allow the the min and the max of the extent to be switched.
-  // Because the aspect ratio cannot be negative, a new output 
-  // origin is computed.
-  void SetFlips(int num, int *flip);
-  vtkImageSetMacro(Flips, int);
-  void GetFlips(int num, int *flip);
-  vtkImageGetMacro(Flips, int);
-  
+  // Warning !!!
   // following should only be used by methods or template helpers, not users
-  int DataScalarType;
   ifstream *File;
-  int FileSize;
-  int HeaderSize;
-  // For seeking to the correct location in the files.
-  // (should really be called DataIncrements instead of FileIncrements ...)
-  int FileIncrements[VTK_IMAGE_DIMENSIONS];
-  int FileExtent[VTK_IMAGE_EXTENT_DIMENSIONS];
+  int DataIncrements[VTK_IMAGE_DIMENSIONS];
+  int DataExtent[VTK_IMAGE_EXTENT_DIMENSIONS];
   unsigned short DataMask;  // Mask each pixel with ...
   int SwapBytes;
-  // Flips are flags for each axis specifying whether "reflect" the data.
-  int Flips[VTK_IMAGE_DIMENSIONS];
+  void ComputeInverseTransformedExtent(int inExtent[8],
+				       int outExtent[8]);
+  void ComputeInverseTransformedIncrements(int inIncr[4],
+					   int outIncr[4]);
+
+  void OpenFile();
+  void OpenAndSeekFile(int extent[8], int slice);
+  char *InternalFileName;
+  char *FileName;
+  char *FilePrefix;
+  char *FilePattern;
+  int NumberOfScalarComponents;
+  int FileLowerLeft;
   
 protected:
+  int HeaderSize;
+  int DataScalarType;
   int ManualHeaderSize;
   int Initialized;
-  char *FileName;
+  vtkTransform *Transform;
 
-  int DataMemoryOrder[VTK_IMAGE_DIMENSIONS];
+  void ComputeTransformedSpacing (float Spacing[4]);
+  void ComputeTransformedOrigin (float origin[4]);
+  void ComputeTransformedExtent(int inExtent[8],
+				int outExtent[8]);
+  void ComputeTransformedIncrements(int inIncr[4],
+				    int outIncr[4]);
+
   int DataDimensions[VTK_IMAGE_DIMENSIONS];
   float DataSpacing[VTK_IMAGE_DIMENSIONS];
   float DataOrigin[VTK_IMAGE_DIMENSIONS];
-  int DataExtent[VTK_IMAGE_EXTENT_DIMENSIONS];
-  
-  virtual void Initialize();
-  void UpdateFromFile(vtkImageRegion *region);
+  int DataVOI[VTK_IMAGE_EXTENT_DIMENSIONS];
+
+  void Execute(vtkImageRegion *region);
+  virtual void ComputeDataIncrements();
 };
 
 #endif
-
-

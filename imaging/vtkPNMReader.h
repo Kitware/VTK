@@ -1,13 +1,13 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageFileReader.h
+  Module:    vtkPNMReader.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
-  Thanks:    Thanks to C. Charles Law who developed this class.
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+
+Copyright (c) 1993-1998 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -38,34 +38,41 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageFileReader - Reads images from a single binary file.
+// .NAME vtkPNMReader - read pnm (i.e., portable anymap) files
 // .SECTION Description
-// vtkImageFileReader will read an image saved as a binary file 
-// of any data type.
-// This reader assumes the whole image extent is save in one file.
+// vtkPNMReader is a source object that reads pnm (portable anymap) files.
+// This includes .pbm (bitmap), .pgm (grayscale), and .ppm (pixmap) files.
+// (Currently this object only reads binary versions of these files.)
+//
+// PNMReader creates structured point datasets. The dimension of the 
+// dataset depends upon the number of files read. Reading a single file 
+// results in a 2D image, while reading more than one file results in a 
+// 3D volume.
+//
+// To read a volume, files must be of the form "FileName.<number>"
+// (e.g., foo.ppm.0, foo.ppm.1, ...). You must also specify the image 
+// range. This range specifies the beginning and ending files to read (range
+// can be any pair of non-negative numbers). 
+//
+// The default behavior is to read a single file. In this case, the form
+// of the file is simply "FileName" (e.g., foo.bar, foo.ppm, foo.pnm). To 
+// differentiate between reading images and volumes, the image range is set
+// to  (-1,-1) to read a single image file.
 
+#ifndef __vtkPNMReader_h
+#define __vtkPNMReader_h
 
-#ifndef __vtkImageFileReader_h
-#define __vtkImageFileReader_h
-
+#include <stdio.h>
 #include "vtkImageReader.h"
 
-class VTK_EXPORT vtkImageFileReader : public vtkImageReader
+class VTK_EXPORT vtkPNMReader : public vtkImageReader
 {
 public:
-  vtkImageFileReader();
-  ~vtkImageFileReader();
-  static vtkImageFileReader *New() {return new vtkImageFileReader;};
-  const char *GetClassName() {return "vtkImageFileReader";};
-  void PrintSelf(ostream& os, vtkIndent indent);   
-
-  // Description:
-  // Set the name of the file to be read.
-  void SetFileName(char *fileName);
+  static vtkPNMReader *New() {return new vtkPNMReader;};
+  const char *GetClassName() {return "vtkPNMReader";};
   
 protected:
-  void Initialize();
-  void Execute(vtkImageRegion *outRegion);    
+  void UpdateImageInformation();
 };
 
 #endif
