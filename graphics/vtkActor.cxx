@@ -274,7 +274,9 @@ vtkProperty *vtkActor::GetProperty()
 {
   if ( this->Property == NULL )
     {
-    this->Property = vtkProperty::New();
+    vtkProperty *p = vtkProperty::New();
+    this->SetProperty(p);
+    p->Delete();
     }
   return this->Property;
 }

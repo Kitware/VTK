@@ -557,7 +557,9 @@ vtkCamera *vtkRenderer::GetActiveCamera()
 {
   if ( this->ActiveCamera == NULL )
     {
-    this->ActiveCamera = vtkCamera::New();
+    vtkCamera *cam = vtkCamera::New();
+    this->SetActiveCamera(cam);
+    cam->Delete();
     this->ResetCamera();
     }
 
@@ -628,8 +630,12 @@ void vtkRenderer::CreateLight(void)
     this->CreatedLight = NULL;
     }
 
-  this->CreatedLight = vtkLight::New();
+  // I do not see why UnRegister is used on CreatedLight, but lets be consistent. 
+  vtkLight *l = vtkLight::New();
+  this->CreatedLight = l;
   this->AddLight(this->CreatedLight);
+  l->Delete();
+  l = NULL;
 
   this->CreatedLight->SetLightTypeToHeadlight();
 
