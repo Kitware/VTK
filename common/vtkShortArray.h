@@ -85,7 +85,7 @@ public:
   short *GetPointer(const int id) {return this->Array + id;}
   short *WritePointer(const int id, const int number);
   void *GetVoidPointer(const int id) {return (void *)this->GetPointer(id);};
-  void DeepCopy(vtkShortArray& ia);
+  void DeepCopy(vtkDataArray &da);
 
 private:
   short *Array;   // pointer to data

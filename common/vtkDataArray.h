@@ -170,9 +170,10 @@ public:
 
   // special operators
   virtual void Squeeze() = 0;
-  void Reset() {this->MaxId = -1;};
-  int GetSize() {return this->Size;};
-  int GetMaxId() {return this->MaxId;};
+  void Reset() {this->MaxId = -1;}
+  int GetSize() {return this->Size;}
+  int GetMaxId() {return this->MaxId;}
+  int GetExtend() {return this->Extend;}
 
 protected:
   int Size;      // allocated size of data
@@ -180,7 +181,5 @@ protected:
   int Extend;    // grow array by this amount
   int NumberOfComponents; // the number of components per tuple
 };
-
-#include "vtkFloatArray.h"
 
 #endif

@@ -89,21 +89,25 @@ void vtkShortArray::Initialize()
 
 // Description:
 // Deep copy of another short array.
-void vtkShortArray::DeepCopy(vtkShortArray& sa)
+void vtkShortArray::DeepCopy(vtkDataArray& sa)
 {
-  int i;
-
+  if ( sa.GetDataType() != VTK_SHORT )
+    {
+    vtkDataArray::DeepCopy(sa);
+    return;
+    }
+  
   if ( this != &sa )
     {
-    delete [] this->Array;
+    if (this->Array) delete [] this->Array;
 
-    this->NumberOfComponents = sa.NumberOfComponents;
-    this->MaxId = sa.MaxId;
-    this->Size = sa.Size;
-    this->Extend = sa.Extend;
+    this->NumberOfComponents = sa.GetNumberOfComponents();
+    this->MaxId = sa.GetMaxId();
+    this->Size = sa.GetSize();
+    this->Extend = sa.GetExtend();
 
     this->Array = new short[this->Size];
-    for (i=0; i<=this->MaxId; i++) this->Array[i] = sa.Array[i];
+    memcpy(this->Array, (short *)sa.GetVoidPointer(0), this->Size*sizeof(short));
     }
 }
 

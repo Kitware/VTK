@@ -80,7 +80,7 @@ public:
   unsigned long *GetPointer(const int id) {return this->Array + id;}
   unsigned long *WritePointer(const int id, const int number);
   void *GetVoidPointer(const int id) {return (void *)this->GetPointer(id);};
-  void DeepCopy(vtkUnsignedLongArray& ia);
+  void DeepCopy(vtkDataArray &da);
 
 private:
   unsigned long *Array;   // pointer to data

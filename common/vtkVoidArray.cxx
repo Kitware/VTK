@@ -90,20 +90,24 @@ void vtkVoidArray::Initialize()
 
 // Description:
 // Deep copy of another void array.
-void vtkVoidArray::DeepCopy(vtkVoidArray& fa)
+void vtkVoidArray::DeepCopy(vtkDataArray& da)
 {
-  int i;
+  if ( da.GetDataType() != VTK_VOID )
+    {
+    vtkDataArray::DeepCopy(da);
+    return;
+    }
 
-  if ( this != &fa )
+  if ( this != &da )
     {
     delete [] this->Array;
 
-    this->MaxId = fa.MaxId;
-    this->Size = fa.Size;
-    this->Extend = fa.Extend;
+    this->MaxId = da.GetMaxId();
+    this->Size = da.GetSize();
+    this->Extend = da.GetExtend();
 
     this->Array = new voidPtr[this->Size];
-    for (i=0; i<=this->MaxId; i++) this->Array[i] = fa.Array[i];
+    memcpy(this->Array, da.GetVoidPointer(0), this->Size*sizeof(void *));
     }
 }
 

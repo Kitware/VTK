@@ -86,7 +86,7 @@ public:
 
   char *WritePointer(const int id, const int number);
   void *GetVoidPointer(const int id) {return (void *)this->GetPointer(id);};
-  void DeepCopy(vtkCharArray& ia);
+  void DeepCopy(vtkDataArray &da);
 
 private:
   char *Array;    // pointer to data

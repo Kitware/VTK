@@ -89,21 +89,26 @@ void vtkUnsignedCharArray::Initialize()
 
 // Description:
 // Deep copy of another unsigned char array.
-void vtkUnsignedCharArray::DeepCopy(vtkUnsignedCharArray& ia)
+void vtkUnsignedCharArray::DeepCopy(vtkDataArray& ia)
 {
-  int i;
+  if ( ia.GetDataType() != VTK_UNSIGNED_CHAR )
+    {
+    vtkDataArray::DeepCopy(ia);
+    return;
+    }
 
   if ( this != &ia )
     {
-    delete [] this->Array;
+    if (this->Array) delete [] this->Array;
 
-    this->NumberOfComponents = ia.NumberOfComponents;
-    this->MaxId = ia.MaxId;
-    this->Size = ia.Size;
-    this->Extend = ia.Extend;
+    this->NumberOfComponents = ia.GetNumberOfComponents();
+    this->MaxId = ia.GetMaxId();
+    this->Size = ia.GetSize();
+    this->Extend = ia.GetExtend();
 
     this->Array = new unsigned char[this->Size];
-    for (i=0; i<=this->MaxId; i++) this->Array[i] = ia.Array[i];
+    memcpy(this->Array, (unsigned char *)ia.GetVoidPointer(0), 
+	   this->Size*sizeof(unsigned char));
     }
 }
 

@@ -80,7 +80,7 @@ public:
   double *GetPointer(const int id) {return this->Array + id;}
   double *WritePointer(const int id, const int number);
   void *GetVoidPointer(const int id) {return (void *)this->GetPointer(id);};
-  void DeepCopy(vtkDoubleArray& fa);
+  void DeepCopy(vtkDataArray &da);
 
 private:
   double *Array;   // pointer to data

@@ -89,21 +89,26 @@ void vtkUnsignedIntArray::Initialize()
 
 // Description:
 // Deep copy of another unsigned int array.
-void vtkUnsignedIntArray::DeepCopy(vtkUnsignedIntArray& sa)
+void vtkUnsignedIntArray::DeepCopy(vtkDataArray& ia)
 {
-  int i;
-
-  if ( this != &sa )
+  if ( ia.GetDataType() != VTK_UNSIGNED_INT )
     {
-    delete [] this->Array;
+    vtkDataArray::DeepCopy(ia);
+    return;
+    }
+  
+  if ( this != &ia )
+    {
+    if (this->Array) delete [] this->Array;
 
-    this->NumberOfComponents = sa.NumberOfComponents;
-    this->MaxId = sa.MaxId;
-    this->Size = sa.Size;
-    this->Extend = sa.Extend;
+    this->NumberOfComponents = ia.GetNumberOfComponents();
+    this->MaxId = ia.GetMaxId();
+    this->Size = ia.GetSize();
+    this->Extend = ia.GetExtend();
 
     this->Array = new unsigned int[this->Size];
-    for (i=0; i<=this->MaxId; i++) this->Array[i] = sa.Array[i];
+    memcpy(this->Array, (unsigned int *)ia.GetVoidPointer(0), 
+	   this->Size*sizeof(unsigned int));
     }
 }
 
