@@ -29,20 +29,22 @@
 // To use this object, just invoke SetInteractor() with the argument of the
 // method a vtkRenderWindowInteractor.  You may also wish to invoke
 // "PlaceWidget()" to initially position the widget. The interactor will act
-// normally until the "i" key (for "interactor") is pressed, at which point the
-// vtkLineWidget will appear. (See superclass documentation for information
-// about changing this behavior.) By grabbing the one of the two end point
-// handles (use the left mouse button), the line can be oriented and
-// stretched (the other end point remains fixed). By grabbing the line
-// itself, the entire line can be translated. (Translation can also be
-// employed by using the "shift-left-mouse-button" combination inside of the
-// widget.) Scaling (about the center of the line) is achieved by using the
-// right mouse button. By moving the mouse "up" the render window the line
-// will be made bigger; by moving "down" the render window the widget will be
-// made smaller. Events that occur outside of the widget (i.e., no part of
-// the widget is picked) are propagated to any other registered obsevers
-// (such as the interaction style).  Turn off the widget by pressing the "i"
-// key again (or invoke the Off() method).
+// normally until the "i" key (for "interactor") is pressed, at which point
+// the vtkLineWidget will appear. (See superclass documentation for
+// information about changing this behavior.) By grabbing the one of the two
+// end point handles (use the left mouse button), the line can be oriented
+// and stretched (the other end point remains fixed). By grabbing the line
+// itself, or using the middle mouse button, the entire line can be
+// translated.  Scaling (about the center of the line) is achieved by using
+// the right mouse button. By moving the mouse "up" the render window the
+// line will be made bigger; by moving "down" the render window the widget
+// will be made smaller. Events that occur outside of the widget (i.e., no
+// part of the widget is picked) are propagated to any other registered
+// obsevers (such as the interaction style).  Turn off the widget by pressing
+// the "i" key again (or invoke the Off() method). (Note: picking the line or
+// either one of the two end point handles causes a vtkPointWidget to appear.
+// This widget has the ability to constrain motion to an axis by pressing the
+// "shift" key while moving the mouse.)
 //
 // The vtkLineWidget has several methods that can be used in conjunction with
 // other VTK objects. The Set/GetResolution() methods control the number of
@@ -260,7 +262,7 @@ protected:
   vtkPointWidget *CurrentPointWidget;
   void EnablePointWidget();
   void DisablePointWidget();
-  void ForwardEvent(unsigned long event);
+  int ForwardEvent(unsigned long event);
   
 private:
   vtkLineWidget(const vtkLineWidget&);  //Not implemented

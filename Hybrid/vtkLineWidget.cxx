@@ -35,7 +35,7 @@
 #include "vtkPointWidget.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkLineWidget, "1.28");
+vtkCxxRevisionMacro(vtkLineWidget, "1.29");
 vtkStandardNewMacro(vtkLineWidget);
 
 // This class is used to coordinate the interaction between the point widget
@@ -469,15 +469,17 @@ int vtkLineWidget::HighlightHandle(vtkProp *prop)
     }
 }
 
-void vtkLineWidget::ForwardEvent(unsigned long event)
+int vtkLineWidget::ForwardEvent(unsigned long event)
 {
   if ( ! this->CurrentPointWidget )
     {
-    return;
+    return 0;
     }
   
   this->CurrentPointWidget->ProcessEvents(this,event,
                                           this->CurrentPointWidget,NULL);
+  
+  return 1;
 }
 
 // assumed current handle is set
@@ -563,6 +565,8 @@ void vtkLineWidget::HighlightLine(int highlight)
 
 void vtkLineWidget::OnLeftButtonDown()
 {
+  int forward=0;
+
   int X = this->Interactor->GetEventPosition()[0];
   int Y = this->Interactor->GetEventPosition()[1];
 
@@ -577,7 +581,7 @@ void vtkLineWidget::OnLeftButtonDown()
     this->State = vtkLineWidget::MovingHandle;
     this->HighlightHandle(path->GetFirstNode()->GetProp());
     this->EnablePointWidget();
-    this->ForwardEvent(vtkCommand::LeftButtonPressEvent);
+    forward = this->ForwardEvent(vtkCommand::LeftButtonPressEvent);
     }
   else
     {
@@ -588,7 +592,7 @@ void vtkLineWidget::OnLeftButtonDown()
       this->State = vtkLineWidget::MovingLine;
       this->HighlightLine(1);
       this->EnablePointWidget();
-      this->ForwardEvent(vtkCommand::LeftButtonPressEvent);
+      forward = this->ForwardEvent(vtkCommand::LeftButtonPressEvent);
       }
     else
       {
@@ -601,7 +605,10 @@ void vtkLineWidget::OnLeftButtonDown()
   this->EventCallbackCommand->SetAbortFlag(1);
   this->StartInteraction();
   this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
-  this->Interactor->Render();
+  if ( ! forward )
+    {
+    this->Interactor->Render();
+    }
 }
 
 void vtkLineWidget::OnLeftButtonUp()
@@ -612,22 +619,26 @@ void vtkLineWidget::OnLeftButtonUp()
     return;
     }
 
-  this->ForwardEvent(vtkCommand::LeftButtonReleaseEvent);
-  this->DisablePointWidget();
-  
   this->State = vtkLineWidget::Start;
   this->HighlightHandle(NULL);
   this->HighlightLine(0);
 
+  int forward = this->ForwardEvent(vtkCommand::LeftButtonReleaseEvent);
+  this->DisablePointWidget();
+  
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
   this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
-
-  this->Interactor->Render();
+  if ( ! forward )
+    {
+    this->Interactor->Render();
+    }
 }
 
 void vtkLineWidget::OnMiddleButtonDown()
 {
+  int forward=0;
+
   int X = this->Interactor->GetEventPosition()[0];
   int Y = this->Interactor->GetEventPosition()[1];
 
@@ -668,7 +679,10 @@ void vtkLineWidget::OnMiddleButtonDown()
   this->EventCallbackCommand->SetAbortFlag(1);
   this->StartInteraction();
   this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
-  this->Interactor->Render();
+  if ( ! forward )
+    {
+    this->Interactor->Render();
+    }
 }
 
 void vtkLineWidget::OnMiddleButtonUp()
@@ -679,17 +693,20 @@ void vtkLineWidget::OnMiddleButtonUp()
     return;
     }
 
-  this->ForwardEvent(vtkCommand::LeftButtonReleaseEvent);
-  this->DisablePointWidget();
-
   this->State = vtkLineWidget::Start;
   this->HighlightLine(0);
   this->HighlightHandles(0);
   
+  int forward = this->ForwardEvent(vtkCommand::LeftButtonReleaseEvent);
+  this->DisablePointWidget();
+
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
   this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
-  this->Interactor->Render();
+  if ( ! forward )
+    {
+    this->Interactor->Render();
+    }
 }
 
 void vtkLineWidget::OnRightButtonDown()
@@ -785,13 +802,14 @@ void vtkLineWidget::OnMouseMove()
   this->ComputeDisplayToWorld(double(X), double(Y), z, pickPoint);
 
   // Process the motion
+  int forward=0;
   if ( this->State == vtkLineWidget::MovingHandle )
     {
-    this->ForwardEvent(vtkCommand::MouseMoveEvent);
+    forward = this->ForwardEvent(vtkCommand::MouseMoveEvent);
     }
   else if ( this->State == vtkLineWidget::MovingLine )
     {
-    this->ForwardEvent(vtkCommand::MouseMoveEvent);
+    forward = this->ForwardEvent(vtkCommand::MouseMoveEvent);
     }
   else if ( this->State == vtkLineWidget::Scaling )
     {
@@ -801,7 +819,10 @@ void vtkLineWidget::OnMouseMove()
   // Interact, if desired
   this->EventCallbackCommand->SetAbortFlag(1);
   this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
-  this->Interactor->Render();
+  if ( ! forward )
+    {
+    this->Interactor->Render();
+    }
 }
 
 void vtkLineWidget::Scale(double *p1, double *p2, int vtkNotUsed(X), int Y)

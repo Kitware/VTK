@@ -28,7 +28,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPointWidget, "1.7");
+vtkCxxRevisionMacro(vtkPointWidget, "1.8");
 vtkStandardNewMacro(vtkPointWidget);
 
 vtkPointWidget::vtkPointWidget()
@@ -486,11 +486,17 @@ void vtkPointWidget::OnMouseMove()
         this->DetermineConstraintAxis(this->ConstraintAxis,pickPoint);
       this->MoveFocus(prevPickPoint, pickPoint);
       }
+    else
+      {
+      return; //avoid the extra render
+      }
     }
+
   else if ( this->State == vtkPointWidget::Scaling )
     {
     this->Scale(prevPickPoint, pickPoint, X, Y);
     }
+
   else if ( this->State == vtkPointWidget::Translating )
     {
     if ( !this->WaitingForMotion || this->WaitCount++ > 3 )
@@ -498,6 +504,10 @@ void vtkPointWidget::OnMouseMove()
       this->ConstraintAxis = 
         this->DetermineConstraintAxis(this->ConstraintAxis,pickPoint);
       this->Translate(prevPickPoint, pickPoint);
+      }
+    else
+      {
+      return; //avoid the extra render
       }
     }
 
