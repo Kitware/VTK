@@ -83,7 +83,7 @@ vtkClaw::vtkClaw()
   this->StateSpace = NULL;
   this->Candidates = NULL;
 
-  this->Viewer = NULL;
+  //this->Viewer = NULL;
   
   this->FreeSpheres = NULL;
   this->Collisions = NULL;
@@ -232,10 +232,10 @@ void vtkClaw::GeneratePath()
   int strategyIdx;
   //vtkImageRobotSpace2D *rSpace; // ...
   
-  if (this->Viewer)
-    {
-    this->Viewer->Delete();
-    }
+  //if (this->Viewer)
+  //  {
+  //  this->Viewer->Delete();
+  //  }
   //this->Viewer = new vtkImageXViewer; // ...
   
   //rSpace = (vtkImageRobotSpace2D *)(this->StateSpace); // ...
