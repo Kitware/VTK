@@ -28,7 +28,7 @@
 #include "vtkQuadraticEdge.h"
 #include "vtkQuadraticQuad.h"
 
-vtkCxxRevisionMacro(vtkQuadraticHexahedron, "1.14");
+vtkCxxRevisionMacro(vtkQuadraticHexahedron, "1.15");
 vtkStandardNewMacro(vtkQuadraticHexahedron);
 
 // Construct the hex with 20 points + 7 extra points for internal
@@ -620,7 +620,7 @@ void vtkQuadraticHexahedron::InterpolationDerivs(float pcoords[3],
   derivs[27] =  0.125*(rm*tp + 2.0*s*rm*tp - r*rm*tp + t*rm*tp - 2.0*rm*tp); 
   derivs[28] = -0.25*(tm - r*r*tm);
   derivs[29] = -0.5*s*rp*tm;
-  derivs[20] =  0.25*(tm - r*r*tm);
+  derivs[30] =  0.25*(tm - r*r*tm);
   derivs[31] = -0.5*s*rm*tm;
   derivs[32] = -0.25*(tp - r*r*tp);
   derivs[33] = -0.5*s*rp*tp;
