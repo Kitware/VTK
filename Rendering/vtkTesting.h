@@ -24,6 +24,7 @@
 #include <vtkstd/string> // used for argv
 
 class vtkRenderWindow;
+class vtkImageData;
 
 //BTX
 struct VTK_RENDERING_EXPORT vtkTestUtilities
@@ -69,6 +70,10 @@ public:
   // Perform the test and return result. At the same time the output will be
   // written cout and also placed into LastResultText
   virtual int RegressionTest(double thresh);
+
+  // Description:
+  // Compare the image with the valid image.
+  virtual int RegressionTest(vtkImageData* image, double thresh);
 
   // Description:
   // Set and get the render window that will be used for regression testing.
@@ -122,6 +127,7 @@ protected:
   static char* IncrementFileName(const char* fname, int count);
   static int LookForFile(const char* newFileName);
   virtual int RegressionTest(double thresh,ostream &os);
+  virtual int RegressionTest(vtkImageData* image, double thresh, ostream& os);
 
   int FrontBuffer;
   vtkRenderWindow* RenderWindow;

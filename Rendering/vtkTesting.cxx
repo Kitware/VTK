@@ -29,7 +29,7 @@
 #include <sys/stat.h>
 
 vtkStandardNewMacro(vtkTesting);
-vtkCxxRevisionMacro(vtkTesting, "1.8");
+vtkCxxRevisionMacro(vtkTesting, "1.9");
 vtkCxxSetObjectMacro(vtkTesting, RenderWindow, vtkRenderWindow);
 
 // Function returning either a command line argument, an environment variable
@@ -342,6 +342,20 @@ int vtkTesting::LookForFile(const char* newFileName)
     }
 }
 
+int vtkTesting::RegressionTest(vtkImageData* image, double thresh)
+{
+  int result = this->RegressionTest(image, thresh, cout);
+
+  cout << "<DartMeasurement name=\"WallTime\" type=\"numeric/double\">";
+  cout << vtkTimerLog::GetCurrentTime() - this->StartWallTime;
+  cout << "</DartMeasurement>\n";
+  cout << "<DartMeasurement name=\"CPUTime\" type=\"numeric/double\">";
+  cout << vtkTimerLog::GetCPUTime() - this->StartCPUTime;
+  cout << "</DartMeasurement>\n";
+
+  return result;
+}
+
 int vtkTesting::RegressionTest(double thresh)
 {
 #if 0
@@ -383,10 +397,6 @@ int vtkTesting::RegressionTest(double thresh)
 
 int vtkTesting::RegressionTest(double thresh, ostream &os)
 {
-  // do a get to compute the real value
-  this->GetValidImageFileName();
-  const char * tmpDir = this->GetTempDirectory();
-  
   vtkWindowToImageFilter *rt_w2if = vtkWindowToImageFilter::New(); 
   rt_w2if->SetInput(this->RenderWindow);
   // perform and extra render to make sure it is displayed
@@ -401,7 +411,7 @@ int vtkTesting::RegressionTest(double thresh, ostream &os)
     // read the front buffer
     rt_w2if->ReadFrontBufferOn();
     }
-
+  this->GetValidImageFileName();
   FILE *rt_fin = fopen(this->ValidImageFileName,"r"); 
   if (rt_fin) 
     { 
@@ -428,13 +438,23 @@ int vtkTesting::RegressionTest(double thresh, ostream &os)
       }
     }
 
+  int res = this->RegressionTest(rt_w2if->GetOutput(), thresh, os);
+  rt_w2if->Delete(); 
+  return res;
+}
+
+int vtkTesting::RegressionTest(vtkImageData* image, double thresh, ostream& os)
+{
+  // do a get to compute the real value
+  this->GetValidImageFileName();
+  const char * tmpDir = this->GetTempDirectory();
+  
   vtkPNGReader *rt_png = vtkPNGReader::New(); 
   rt_png->SetFileName(this->ValidImageFileName); 
   vtkImageDifference *rt_id = vtkImageDifference::New(); 
-  rt_id->SetInput(rt_w2if->GetOutput()); 
+  rt_id->SetInput(image); 
   rt_id->SetImage(rt_png->GetOutput()); 
   rt_id->Update(); 
-  rt_w2if->Delete(); 
   rt_png->Delete(); 
 
   double minError = rt_id->GetThresholdedError();
