@@ -107,6 +107,7 @@ class VTK_EXPORT vtkImplicitModeller : public vtkDataSetToStructuredPointsFilter
 {
 public:
   vtkImplicitModeller();
+  ~vtkImplicitModeller();
   const char *GetClassName() {return "vtkImplicitModeller";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
