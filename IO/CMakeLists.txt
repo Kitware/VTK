@@ -89,10 +89,14 @@ ENDIF (VTK_WRAP_TCL)
 #
 IF (VTK_WRAP_PYTHON)
   VTK_WRAP_PYTHON(vtkIOPython IOPython_SRCS IO_SRCS)
-  ADD_LIBRARY(vtkIOPython SHARED IOPython_SRCS)
-  TARGET_LINK_LIBRARIES (vtkIOPython 
-                         vtkFilteringPython 
-                         vtkCommonPython)
+  IF (APPLE)
+    ADD_LIBRARY(vtkIOPython MODULE IOPython_SRCS)
+  ELSE (APPLE)
+    ADD_LIBRARY(vtkIOPython SHARED IOPython_SRCS)
+    TARGET_LINK_LIBRARIES (vtkIOPython 
+                           vtkFilteringPython 
+                           vtkCommonPython)
+  ENDIF (APPLE)
   TARGET_LINK_LIBRARIES (vtkIOPython 
                          debug ${PYTHON_DEBUG_LIBRARY} 
                          optimized ${PYTHON_LIBRARY})

@@ -88,6 +88,7 @@ vtkVolumeTextureMapper2D
 vtkWorldPointPicker
 )
 
+
 IF (VTK_USE_VOLUMEPRO)
   SOURCE_FILES ( Rendering_SRCS
     vtkVolumeProVG500Mapper
@@ -136,10 +137,12 @@ vtkVolumeTextureMapper
 
 IF(UNIX)
   IF(NOT WIN32)
-    SOURCE_FILES ( Rendering_SRCS
-                 vtkXImageWindow
-                 vtkXRenderWindowInteractor
-                 vtkXTextMapper)
+    IF(NOT APPLE)
+      SOURCE_FILES ( Rendering_SRCS
+                   vtkXImageWindow
+                   vtkXRenderWindowInteractor
+                   vtkXTextMapper)
+    ENDIF(NOT APPLE)
   ENDIF(NOT WIN32)
 ENDIF(UNIX)
 
@@ -154,20 +157,39 @@ IF (WIN32)
 
   LINK_LIBRARIES ( ${OPENGL_LIBRARY} )
 ELSE (WIN32)
-  IF (OPENGL_LIBRARY)
+  IF (APPLE)
     SET(HAVE_OPENGL_SRCS ON)
     SOURCE_FILES(RenderingOpenGL_SRCS 
-               vtkOpenGLImageWindow
-               vtkXOpenGLRenderWindow
-               vtkXOpenGLTextMapper)
-    ABSTRACT_FILES(
-              vtkXImageWindow
-              vtkXTextMapper)
+		 vtkQuartzImageWindow
+                 vtkQuartzTextMapper
+                 vtkQuartzRenderWindowInteractor
+                 vtkQuartzRenderWindow
+                 vtkQuartzWindow
+                 vtkQuartzGLView
+                 vtkQuartzWindowController
+                 vtkQuartzBridge)
+    WRAP_EXCLUDE_FILES(vtkQuartzBridge
+	      	       vtkQuartzGLView
+		       vtkQuartzWindow
+		       vtkQuartzWindowController)
     LINK_LIBRARIES (${OPENGL_LIBRARY})
-  ENDIF (OPENGL_LIBRARY)
-  IF (OPENGL_INCLUDE_PATH)
-    INCLUDE_DIRECTORIES(${OPENGL_INCLUDE_PATH})
-  ENDIF(OPENGL_INCLUDE_PATH)     
+    ADD_LIBRARY(vtkRendering Rendering_SRCS RenderingOpenGL_SRCS)
+  ELSE (APPLE)
+    IF (OPENGL_LIBRARY)
+      SET(HAVE_OPENGL_SRCS ON)
+      SOURCE_FILES(RenderingOpenGL_SRCS 
+                   vtkOpenGLImageWindow
+                   vtkXOpenGLRenderWindow
+                   vtkXOpenGLTextMapper)
+      ABSTRACT_FILES(
+                     vtkXImageWindow
+                     vtkXTextMapper)
+      LINK_LIBRARIES (${OPENGL_LIBRARY})
+    ENDIF (OPENGL_LIBRARY)
+    IF (OPENGL_INCLUDE_PATH)
+      INCLUDE_DIRECTORIES(${OPENGL_INCLUDE_PATH})
+    ENDIF(OPENGL_INCLUDE_PATH)     
+  ENDIF (APPLE)
 ENDIF (WIN32)
 
 IF (VTK_MANGLE_MESA)
@@ -209,6 +231,9 @@ ENDIF (HAVE_OPENGL_SRCS)
 # Allow the user to customize their build with some local options
 #
 INCLUDE (LocalUserOptions.cmake OPTIONAL)
+
+
+
 
 IF (VTK_WRAP_TCL)
   SOURCE_FILES(RenderingTCL_SRCS 
@@ -293,12 +318,17 @@ IF (VTK_WRAP_PYTHON)
                  Rendering_SRCS)
   ENDIF (HAVE_OPENGL_SRCS)
   
-  ADD_LIBRARY(vtkRenderingPython SHARED RenderingPython_SRCS)
-  TARGET_LINK_LIBRARIES (vtkRenderingPython 
-                         vtkGraphicsPython
-                         vtkImagingPython
-                         vtkFilteringPython
-                         vtkCommonPython)
+  IF (APPLE)  
+    ADD_LIBRARY(vtkRenderingPython MODULE RenderingPython_SRCS)
+  ELSE (APPLE)
+    ADD_LIBRARY(vtkRenderingPython SHARED RenderingPython_SRCS)
+    TARGET_LINK_LIBRARIES (vtkRenderingPython 
+                           vtkGraphicsPython
+                           vtkImagingPython
+                           vtkFilteringPython
+                           vtkCommonPython)
+  ENDIF (APPLE)
+
   TARGET_LINK_LIBRARIES (vtkRenderingPython 
                          debug ${PYTHON_DEBUG_LIBRARY} 
                          optimized ${PYTHON_LIBRARY})
@@ -347,11 +377,11 @@ vtkGraphics
 vtkRendering
 )
 
-IF(CMAKE_HAS_X)
+IF(VTK_USE_X)
 LINK_LIBRARIES(-lXt)
 LINK_LIBRARIES(${CMAKE_X_LIBS})
 ADD_DEFINITIONS(${CMAKE_X_CFLAGS})
-ENDIF(CMAKE_HAS_X)
+ENDIF(VTK_USE_X)
 
 INSTALL_TARGETS(/lib vtkRendering)
 INSTALL_FILES(/include/vtk .h Rendering_SRCS)

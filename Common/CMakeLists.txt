@@ -190,7 +190,11 @@ ENDIF (VTK_WRAP_TCL)
 #
 IF (VTK_WRAP_PYTHON)
   VTK_WRAP_PYTHON(vtkCommonPython CommonPython_SRCS Common_SRCS)
-  ADD_LIBRARY(vtkCommonPython SHARED CommonPython_SRCS vtkPythonUtil)
+  IF (APPLE)
+    ADD_LIBRARY(vtkCommonPython MODULE CommonPython_SRCS vtkPythonUtil)
+  ELSE (APPLE)
+    ADD_LIBRARY(vtkCommonPython SHARED CommonPython_SRCS vtkPythonUtil)
+  ENDIF(APPLE)
   TARGET_LINK_LIBRARIES (vtkCommonPython 
                          debug ${PYTHON_DEBUG_LIBRARY} 
                          optimized ${PYTHON_LIBRARY})

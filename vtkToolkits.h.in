@@ -22,6 +22,9 @@
 #endif
 
 #cmakedefine VTK_USE_QUARTZ
+#ifdef VTK_USE_QUARTZ
+ #undef VTK_USE_OGLR
+#endif
 
 /* use MPI */
 #cmakedefine VTK_USE_MPI

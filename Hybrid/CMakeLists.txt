@@ -55,7 +55,11 @@ ENDIF (VTK_WRAP_TCL)
 #
 IF (VTK_WRAP_PYTHON)
   VTK_WRAP_PYTHON(vtkHybridPython HybridPython_SRCS Hybrid_SRCS)
-  ADD_LIBRARY(vtkHybridPython SHARED HybridPython_SRCS)
+  IF (APPLE)
+    ADD_LIBRARY(vtkHybridPython MODULE HybridPython_SRCS)
+  ELSE (APPLE)
+    ADD_LIBRARY(vtkHybridPython SHARED HybridPython_SRCS)
+  ENDIF (APPLE)
   TARGET_LINK_LIBRARIES (vtkHybridPython 
                          vtkRenderingPython
                          vtkIOPython

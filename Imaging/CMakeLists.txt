@@ -143,13 +143,19 @@ ENDIF (VTK_WRAP_TCL)
 #
 IF (VTK_WRAP_PYTHON)
   VTK_WRAP_PYTHON(vtkImagingPython ImagingPython_SRCS Imaging_SRCS)
-  ADD_LIBRARY(vtkImagingPython SHARED ImagingPython_SRCS)
-  TARGET_LINK_LIBRARIES (vtkImagingPython 
-                         vtkFilteringPython 
-                         vtkCommonPython )
+  IF (APPLE)
+    ADD_LIBRARY(vtkImagingPython MODULE ImagingPython_SRCS)
+  ELSE (APPLE)
+    ADD_LIBRARY(vtkImagingPython SHARED ImagingPython_SRCS)
+    TARGET_LINK_LIBRARIES (vtkImagingPython 
+                           vtkFilteringPython 
+                           vtkCommonPython)
+  ENDIF (APPLE)
+
   TARGET_LINK_LIBRARIES (vtkImagingPython 
                          debug ${PYTHON_DEBUG_LIBRARY} 
                          optimized ${PYTHON_LIBRARY})
+
   INSTALL_TARGETS(/lib vtkImagingPython)
 ENDIF (VTK_WRAP_PYTHON)
 

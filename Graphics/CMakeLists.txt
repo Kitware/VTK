@@ -165,11 +165,15 @@ ENDIF (VTK_WRAP_TCL)
 #
 IF (VTK_WRAP_PYTHON)
   VTK_WRAP_PYTHON(vtkGraphicsPython GraphicsPython_SRCS Graphics_SRCS)
-  ADD_LIBRARY(vtkGraphicsPython SHARED GraphicsPython_SRCS)
-  TARGET_LINK_LIBRARIES (vtkGraphicsPython vtkFilteringPython vtkCommonPython )
-  TARGET_LINK_LIBRARIES (vtkGraphicsPython 
-                         debug ${PYTHON_DEBUG_LIBRARY} 
-                         optimized ${PYTHON_LIBRARY})
+  IF (APPLE)
+    ADD_LIBRARY(vtkGraphicsPython MODULE GraphicsPython_SRCS)
+  ELSE (APPLE)
+    ADD_LIBRARY(vtkGraphicsPython SHARED GraphicsPython_SRCS)
+    TARGET_LINK_LIBRARIES (vtkGraphicsPython vtkFilteringPython vtkCommonPython )
+    TARGET_LINK_LIBRARIES (vtkGraphicsPython 
+                           debug ${PYTHON_DEBUG_LIBRARY} 
+                           optimized ${PYTHON_LIBRARY})
+  ENDIF (APPLE)
   INSTALL_TARGETS(/lib vtkGraphicsPython)
 ENDIF (VTK_WRAP_PYTHON)
 
