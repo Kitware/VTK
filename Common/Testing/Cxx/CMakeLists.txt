@@ -15,6 +15,7 @@ ADD_EXECUTABLE(otherCellPosition otherCellPosition)
 ADD_EXECUTABLE(otherStructuredGrid otherStructuredGrid)
 ADD_EXECUTABLE(otherTimerLog otherTimerLog)
 ADD_EXECUTABLE(otherLookupTable otherLookupTable)
+ADD_EXECUTABLE(otherByteSwap otherByteSwap)
 
 
 ADD_TEST(ObjectFactory ${CXX_TEST_PATH}/ObjectFactory)
@@ -27,4 +28,5 @@ ADD_TEST(otherCellPosition ${CXX_TEST_PATH}/otherCellPosition)
 ADD_TEST(otherStructuredGrid ${CXX_TEST_PATH}/otherStructuredGrid)
 ADD_TEST(otherTimerLog ${CXX_TEST_PATH}/otherTimerLog)
 ADD_TEST(otherLookupTable ${CXX_TEST_PATH}/otherLookupTable)
+ADD_TEST(otherByteSwap ${CXX_TEST_PATH}/otherByteSwap)
 
