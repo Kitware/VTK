@@ -35,7 +35,7 @@
 #include "vtkRungeKutta4.h"
 #include "vtkRungeKutta45.h"
 
-vtkCxxRevisionMacro(vtkStreamTracer, "1.18");
+vtkCxxRevisionMacro(vtkStreamTracer, "1.19");
 vtkStandardNewMacro(vtkStreamTracer);
 vtkCxxSetObjectMacro(vtkStreamTracer,Integrator,vtkInitialValueProblemSolver);
 
@@ -1086,6 +1086,8 @@ void vtkStreamTracer::SimpleIntegrate(float seed[3],
   float point1[3], point2[3];
   float velocity[3];
   float speed;
+
+  (void)seed; // Seed is not used
 
   memcpy(point1, lastPoint, 3*sizeof(float));
 
