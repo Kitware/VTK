@@ -29,7 +29,8 @@
 #include "vtkWin32Header.h"
 class vtkImageData;
 
-template<class DType> class VTK_COMMON_EXPORT vtkImageIterator 
+template<class DType>
+class vtkImageIterator 
 {
 public:        
   typedef DType *SpanIterator;
@@ -58,7 +59,7 @@ public:
     
   // Description:
   // tets if the end of the extent has been reached
-  bool IsAtEnd()
+  int IsAtEnd()
     {
     return (this->Pointer >= this->EndPointer);
     }
