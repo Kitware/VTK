@@ -246,13 +246,15 @@ float *vtkOpenGLProjectedPolyDataRayBounder::Draw( vtkRenderer *ren,
     // of the matrix are important, and which are zero.
     transform->GetMatrix( *matrix );
     
-    // Just checking that our assumptions are correct.  This code should
-    // be removed after the debugging phase is complete
-    if (  matrix->Element[3][0] || matrix->Element[3][1]  ||
-	  matrix->Element[3][2] || (matrix->Element[3][3] != 1.0) )
+    // Just checking that our assumptions are correct.
+    if( this->Debug )
       {
-      vtkErrorMacro( << "Oh no! They aren't 0 like they're supposed to be!");
-      cout << *transform;
+      if (  matrix->Element[3][0] || matrix->Element[3][1]  ||
+	    matrix->Element[3][2] || (matrix->Element[3][3] != 1.0) )
+        {
+        vtkErrorMacro( << "Oh no! They aren't 0 like they're supposed to be!");
+        cout << *transform;
+        }
       }
     
     // These are the important elements of the matrix.  We will decode
