@@ -35,7 +35,7 @@ IF (VTK_WRAP_PYTHON)
                          vtkFilteringPython
                          vtkCommonPython)
   TARGET_LINK_LIBRARIES (vtkPatentedPython 
-                         debug python21_d optimized python21)
+                         debug ${PY_DEBUG_LIB_PATH} optimized ${PY_LIB_PATH})
 ENDIF (VTK_WRAP_PYTHON)
 
 # if we are wrapping into Java then add the library and extra 

@@ -97,7 +97,8 @@ IF (VTK_WRAP_PYTHON)
   ADD_LIBRARY(vtkFilteringPython FilteringPython_SRCS)
   TARGET_LINK_LIBRARIES (vtkFilteringPython vtkCommonPython )
   TARGET_LINK_LIBRARIES (vtkFilteringPython 
-                         debug python21_d optimized python21)
+                         debug ${PY_DEBUG_LIB_PATH} 
+                         optimized ${PY_LIB_PATH})
 ENDIF (VTK_WRAP_PYTHON)
 
 # if we are wrapping into Java then add the library and extra 

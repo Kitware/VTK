@@ -138,7 +138,8 @@ IF (VTK_WRAP_PYTHON)
   VTK_WRAP_PYTHON(vtkGraphicsPython GraphicsPython_SRCS Graphics_SRCS)
   ADD_LIBRARY(vtkGraphicsPython GraphicsPython_SRCS)
   TARGET_LINK_LIBRARIES (vtkGraphicsPython vtkFilteringPython vtkCommonPython )
-  TARGET_LINK_LIBRARIES (vtkGraphicsPython debug python21_d optimized python21)
+  TARGET_LINK_LIBRARIES (vtkGraphicsPython debug ${PY_DEBUG_LIB_PATH} 
+                         optimized ${PY_LIB_PATH})
 ENDIF (VTK_WRAP_PYTHON)
 
 # if we are wrapping into Java then add the library and extra 
