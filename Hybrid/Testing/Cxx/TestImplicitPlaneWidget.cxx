@@ -530,6 +530,8 @@ int main( int argc, char *argv[] )
     iren->Start();
     }
 
+  myCallback->Delete();
+  recorder->Delete();
   sphere->Delete();
   cone->Delete();
   glyph->Delete();
@@ -544,7 +546,6 @@ int main( int argc, char *argv[] )
   iren->Delete();
   renWin->Delete();
   ren1->Delete();
-  myCallback->Delete();
   
   return !retVal;
 }
