@@ -34,7 +34,7 @@
 #include "vtkTriangleStrip.h"
 #include "vtkVertex.h"
 
-vtkCxxRevisionMacro(vtkPolyData, "1.149");
+vtkCxxRevisionMacro(vtkPolyData, "1.150");
 vtkStandardNewMacro(vtkPolyData);
 
 //----------------------------------------------------------------------------
@@ -1866,7 +1866,14 @@ void vtkPolyData::RemoveGhostCells(int level)
   // Save the results.
   this->CellData->ShallowCopy(newCellData);
   newCellData->Delete();
-  
+
+  // If there are no more ghost levels, then remove all arrays.
+  if (level <= 1)
+    {
+    this->CellData->RemoveArray("vtkGhostLevels");
+    this->PointData->RemoveArray("vtkGhostLevels");
+    }
+
   this->Squeeze();
 }
 
