@@ -421,9 +421,9 @@ void vtkGlyphSource2D::CreateArrow(vtkPoints *pts, vtkCellArray *lines,
     colors->InsertNextValue(this->RGB[2]);
 
     //arrow head
-    ptIds[0] = pts->InsertNextPoint( 0.375, -0.1, 0.0);
-    ptIds[1] = pts->InsertNextPoint( 0.5,    0.0, 0.0);
-    ptIds[2] = pts->InsertNextPoint( 0.375,  0.1, 0.0);
+    ptIds[0] = pts->InsertNextPoint( 0.2, -0.1, 0.0);
+    ptIds[1] = pts->InsertNextPoint( 0.5,  0.0, 0.0);
+    ptIds[2] = pts->InsertNextPoint( 0.2,  0.1, 0.0);
     lines->InsertNextCell(3,ptIds);
     colors->InsertNextValue(this->RGB[0]);
     colors->InsertNextValue(this->RGB[1]);
@@ -436,13 +436,13 @@ void vtkGlyphSource2D::CreateThickArrow(vtkPoints *pts, vtkCellArray *lines,
 {
   int ptIds[8];
 
-  ptIds[0] = pts->InsertNextPoint( -0.5,   -0.1, 0.0);
-  ptIds[1] = pts->InsertNextPoint(  0.375, -0.1, 0.0);
-  ptIds[2] = pts->InsertNextPoint(  0.375, -0.2, 0.0);
-  ptIds[3] = pts->InsertNextPoint(  0.5,    0.0, 0.0);
-  ptIds[4] = pts->InsertNextPoint(  0.375,  0.2, 0.0);
-  ptIds[5] = pts->InsertNextPoint(  0.375,  0.1, 0.0);
-  ptIds[6] = pts->InsertNextPoint( -0.5,    0.1, 0.0);
+  ptIds[0] = pts->InsertNextPoint( -0.5, -0.1, 0.0);
+  ptIds[1] = pts->InsertNextPoint(  0.1, -0.1, 0.0);
+  ptIds[2] = pts->InsertNextPoint(  0.1, -0.2, 0.0);
+  ptIds[3] = pts->InsertNextPoint(  0.5,  0.0, 0.0);
+  ptIds[4] = pts->InsertNextPoint(  0.1,  0.2, 0.0);
+  ptIds[5] = pts->InsertNextPoint(  0.1,  0.1, 0.0);
+  ptIds[6] = pts->InsertNextPoint( -0.5,  0.1, 0.0);
 
   if ( this->Filled ) //create two convex polygons
     {
@@ -477,18 +477,18 @@ void vtkGlyphSource2D::CreateHookedArrow(vtkPoints *pts, vtkCellArray *lines,
     {
     //create two convex polygons
     int ptIds[4];
-    ptIds[0] = pts->InsertNextPoint( -0.5, -0.1, 0.0);
-    ptIds[1] = pts->InsertNextPoint( 0.25, -0.1, 0.0);
-    ptIds[2] = pts->InsertNextPoint( 0.25,  0.1, 0.0);
-    ptIds[3] = pts->InsertNextPoint( -0.5,   0.1, 0.0);
+    ptIds[0] = pts->InsertNextPoint( -0.5,   -0.1, 0.0);
+    ptIds[1] = pts->InsertNextPoint(  0.1,   -0.1, 0.0);
+    ptIds[2] = pts->InsertNextPoint(  0.1,  0.075, 0.0);
+    ptIds[3] = pts->InsertNextPoint( -0.5,  0.075, 0.0);
     polys->InsertNextCell(4,ptIds);
     colors->InsertNextValue(this->RGB[0]);
     colors->InsertNextValue(this->RGB[1]);
     colors->InsertNextValue(this->RGB[2]);
 
-    ptIds[0] = pts->InsertNextPoint( 0.25, -0.1, 0.0);
-    ptIds[1] = pts->InsertNextPoint( 0.5,   -0.1, 0.0);
-    ptIds[2] = pts->InsertNextPoint( 0.25,  0.2, 0.0);
+    ptIds[0] = pts->InsertNextPoint( 0.1, -0.1, 0.0);
+    ptIds[1] = pts->InsertNextPoint( 0.5, -0.1, 0.0);
+    ptIds[2] = pts->InsertNextPoint( 0.1,  0.2, 0.0);
     polys->InsertNextCell(3,ptIds);
     colors->InsertNextValue(this->RGB[0]);
     colors->InsertNextValue(this->RGB[1]);
@@ -498,8 +498,8 @@ void vtkGlyphSource2D::CreateHookedArrow(vtkPoints *pts, vtkCellArray *lines,
     {
     int ptIds[3];
     ptIds[0] = pts->InsertNextPoint( -0.5, 0.0, 0.0);
-    ptIds[1] = pts->InsertNextPoint( 0.5,  0.0, 0.0);
-    ptIds[2] = pts->InsertNextPoint( 0.375,0.1, 0.0);
+    ptIds[1] = pts->InsertNextPoint(  0.5, 0.0, 0.0);
+    ptIds[2] = pts->InsertNextPoint(  0.2, 0.1, 0.0);
     lines->InsertNextCell(3,ptIds);
     colors->InsertNextValue(this->RGB[0]);
     colors->InsertNextValue(this->RGB[1]);
