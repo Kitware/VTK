@@ -65,10 +65,10 @@ void vtkCubeSource::Execute()
   vtkCellArray *newPolys;
   vtkPolyData *output = this->GetOutput();
   
-  //
-  // Set things up; allocate memory
-  //
-
+  vtkDebugMacro(<<"Creating polygonal cube");
+//
+// Set things up; allocate memory
+//
   newPoints = new vtkFloatPoints(numPts);
   newNormals = new vtkFloatNormals(numPts);
 
