@@ -225,10 +225,15 @@ void vlUnstructuredGrid::SetCells(int *types, vlCellArray *cells)
   this->Connectivity = cells;
   if ( this->Connectivity ) this->Connectivity->Register(this);
 
+  // see whether there are cell types available
+  if ( this->Cells ) this->Cells->UnRegister(this);
+  this->Cells = new vlCellList(cells->GetNumberOfCells(),1000);
+  this->Cells->Register(this);
+
   // build types
   for (i=0, cells->InitTraversal(); cells->GetNextCell(npts,pts); i++)
     {
-    this->Cells->InsertNextCell(types[i],this->Connectivity->GetLocation(npts));
+    this->Cells->InsertNextCell(types[i],cells->GetLocation(npts));
     }
 }
 
