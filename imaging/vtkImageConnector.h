@@ -64,6 +64,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // For the breadth first search
 class vtkImageConnectorSeed { //;prevent man page generation
 public:
+  static vtkImageConnectorSeed *New() {return new vtkImageConnectorSeed;};
   void *Pointer;
   int  Index[3];
   vtkImageConnectorSeed *Next;

@@ -47,7 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImageLogic::vtkImageLogic()
 {
   this->Operation = VTK_AND;
-  this->OutputTrueValue = 0;
+  this->OutputTrueValue = 255;
 }
 
 

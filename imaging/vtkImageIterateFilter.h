@@ -74,6 +74,7 @@ public:
   // Get which iteration is current being performed. Normally the
   // user will not access this method.
   vtkGetMacro(Iteration,int);
+  vtkGetMacro(NumberOfIterations,int);
   
 protected:
   virtual void RecursiveStreamUpdate(vtkImageData *outData);

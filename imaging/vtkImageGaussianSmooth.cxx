@@ -407,7 +407,7 @@ void vtkImageGaussianSmooth::ThreadedExecute(vtkImageData *inData,
     total = this->Dimensionality * (outExt[1] - outExt[0] + 1) 
       * (outExt[3] - outExt[2] + 1) * (outExt[5] - outExt[4] + 1)
       * this->Input->GetNumberOfScalarComponents();
-    // pixels per update (50 of them)
+    // pixels per update (50 updates)
     target = total / 50;
     }
   

@@ -26,6 +26,7 @@ my_close SetOpenValue 0
 my_close SetCloseValue 255
 my_close SetKernelSize 5 5 3
 my_close ReleaseDataFlagOff
+#my_close SetProgressMethod {set pro [my_close GetProgress]; puts "Completed $pro"; flush stdout}
 
 vtkImageViewer viewer
 viewer SetInput [my_close GetOutput]

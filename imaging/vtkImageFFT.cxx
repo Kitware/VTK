@@ -72,7 +72,8 @@ void vtkImageFFT::ComputeRequiredInputUpdateExtent(int inExt[6],
 template <class T>
 static void vtkImageFFTExecute(vtkImageFFT *self,
 			 vtkImageData *inData, int inExt[6], T *inPtr,
-			 vtkImageData *outData, int outExt[6], float *outPtr)
+			 vtkImageData *outData, int outExt[6], float *outPtr,
+			 int id)
 {
   vtkImageComplex *inComplex;
   vtkImageComplex *outComplex;
@@ -87,7 +88,12 @@ static void vtkImageFFTExecute(vtkImageFFT *self,
   float *outPtr0, *outPtr1, *outPtr2;
   //
   int idx0, idx1, idx2, inSize0, numberOfComponents;
-  
+  unsigned long count = 0;
+  unsigned long target;
+  float startProgress;
+
+  startProgress = self->GetIteration()/(float)(self->GetNumberOfIterations());
+
   // Reorder axes (The outs here are just placeholdes
   self->PermuteExtent(inExt, inMin0, inMax0, outMin1,outMax1,outMin2,outMax2);
   self->PermuteExtent(outExt, outMin0,outMax0,outMin1,outMax1,outMin2,outMax2);
@@ -108,6 +114,10 @@ static void vtkImageFFTExecute(vtkImageFFT *self,
   inComplex = new vtkImageComplex[inSize0];
   outComplex = new vtkImageComplex[inSize0];
 
+  target = (unsigned long)((outMax2-outMin2+1)*(outMax1-outMin1+1)
+			   * self->GetNumberOfIterations() / 50.0);
+  target++;
+
   // loop over other axes
   inPtr2 = inPtr;
   outPtr2 = outPtr;
@@ -115,8 +125,16 @@ static void vtkImageFFTExecute(vtkImageFFT *self,
     {
     inPtr1 = inPtr2;
     outPtr1 = outPtr2;
-    for (idx1 = outMin1; idx1 <= outMax1; ++idx1)
+    for (idx1 = outMin1; !self->AbortExecute && idx1 <= outMax1; ++idx1)
       {
+      if (!id) 
+	{
+	if (!(count%target))
+	  {
+	  self->UpdateProgress(count/(50.0*target) + startProgress);
+	  }
+	count++;
+	}
       // copy into complex numbers
       inPtr0 = inPtr1;
       pComplex = inComplex;
@@ -193,23 +211,23 @@ void vtkImageFFT::ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
     {
     case VTK_FLOAT:
       vtkImageFFTExecute(this, inData, inExt, (float *)(inPtr), 
-			 outData, outExt, (float *)(outPtr));
+			 outData, outExt, (float *)(outPtr), threadId);
       break;
     case VTK_INT:
       vtkImageFFTExecute(this, inData, inExt, (int *)(inPtr),
-			 outData, outExt, (float *)(outPtr));
+			 outData, outExt, (float *)(outPtr), threadId);
       break;
     case VTK_SHORT:
       vtkImageFFTExecute(this, inData, inExt, (short *)(inPtr),
-			 outData, outExt, (float *)(outPtr));
+			 outData, outExt, (float *)(outPtr), threadId);
       break;
     case VTK_UNSIGNED_SHORT:
       vtkImageFFTExecute(this, inData, inExt, (unsigned short *)(inPtr), 
-			 outData, outExt, (float *)(outPtr));
+			 outData, outExt, (float *)(outPtr), threadId);
       break;
     case VTK_UNSIGNED_CHAR:
       vtkImageFFTExecute(this, inData, inExt, (unsigned char *)(inPtr),
-			 outData, outExt, (float *)(outPtr));
+			 outData, outExt, (float *)(outPtr), threadId);
       break;
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");

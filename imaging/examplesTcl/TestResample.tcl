@@ -22,6 +22,7 @@ magnify SetAxisOutputSpacing $VTK_IMAGE_X_AXIS 0.25
 magnify SetAxisOutputSpacing $VTK_IMAGE_Y_AXIS 2.2
 magnify SetAxisOutputSpacing $VTK_IMAGE_Z_AXIS 0.8
 magnify ReleaseDataFlagOff
+#magnify SetProgressMethod {set pro [magnify GetProgress]; puts "Completed $pro"; flush stdout}
 
 
 vtkImageViewer viewer

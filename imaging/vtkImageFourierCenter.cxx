@@ -81,8 +81,11 @@ void vtkImageFourierCenter::ThreadedExecute(vtkImageData *inData,
   int min0, max0, min1, max1, min2, max2;
   int numberOfComponents;
   int inCoords[3];
-  
-  threadId = threadId;
+  unsigned long count = 0;
+  unsigned long target;
+  float startProgress;
+
+  startProgress = this->GetIteration()/(float)(this->GetNumberOfIterations());
   
   // this filter expects that the input be floats.
   if (inData->GetScalarType() != VTK_FLOAT)
@@ -123,6 +126,10 @@ void vtkImageFourierCenter::ThreadedExecute(vtkImageData *inData,
   inCoords[1] = outExt[2];
   inCoords[2] = outExt[4];
   
+  target = (unsigned long)((max2-min2+1)*(max0-min0+1)
+			   * this->GetNumberOfIterations() / 50.0);
+  target++;
+
   // loop over the filtered axis first
   for (outIdx0 = min0; outIdx0 <= max0; ++outIdx0)
     {
@@ -138,8 +145,16 @@ void vtkImageFourierCenter::ThreadedExecute(vtkImageData *inData,
     // loop over other axes
     inPtr2 = inPtr0;
     outPtr2 = outPtr0;
-    for (idx2 = min2; idx2 <= max2; ++idx2)
+    for (idx2 = min2; !this->AbortExecute && idx2 <= max2; ++idx2)
       {
+      if (!threadId) 
+	{
+	if (!(count%target))
+	  {
+	  this->UpdateProgress(count/(50.0*target) + startProgress);
+	  }
+	count++;
+	}
       inPtr1 = inPtr2;
       outPtr1 = outPtr2;
       for (idx1 = min1; idx1 <= max1; ++idx1)

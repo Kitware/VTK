@@ -17,7 +17,7 @@ vtkImageGaussianSmooth smooth
 smooth SetInput [reader GetOutput]
 smooth SetDimensionality 2
 smooth SetStandardDeviations 2 10
-#smooth SetStrides 2 2  # not converted yet.
+#smooth SetProgressMethod {set pro [smooth GetProgress]; puts "Completed $pro"; flush stdout}
 
 vtkImageViewer viewer
 #viewer DebugOn

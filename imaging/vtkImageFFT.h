@@ -43,12 +43,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkImageFFT implements a  fast Fourier transform.  The input
 // can have real or imaginary data in any components and data types, but
 // the output is always float with real values in component0, and
-// imaginary values in component1.  The filter is faster for images that
-// have power of two sizes.  The one dimension filter exists in case
-// the user wants to decompose higher dimensional FFTs themself.
-// (For Streaming or threaded execution) 
-// (However, for these to work properly, we need control over how
-// the output is broken up (avoid filtered axis))
+// imaginary values in component1.  The filter is fastest for images that
+// have power of two sizes.  Multi dimensional FFT's are decomposed so
+// that each axis executes in series.
 
 
 #ifndef __vtkImageFFT_h
@@ -64,13 +61,14 @@ public:
   const char *GetClassName() {return "vtkImageFFT";};
 
 
-// Description:
-// For streaming and threads.  Splits output update extent into num pieces.
-// This method needs to be called num times.  Results must not overlap for
-// consistent starting extent.  Subclass can override this method.
-// This method returns the number of peices resulting from a successful split.
-// This can be from 1 to "total".  
-// If 1 is returned, the extent cannot be split.
+  // Description:
+  // Used internally for streaming and threads.  
+  // Splits output update extent into num pieces.
+  // This method needs to be called num times.  Results must not overlap for
+  // consistent starting extent.  Subclass can override this method.
+  // This method returns the number of peices resulting from a
+  // successful split.  This can be from 1 to "total".  
+  // If 1 is returned, the extent cannot be split.
   int SplitExtent(int splitExt[6], int startExt[6], 
 		  int num, int total);
 

@@ -43,17 +43,38 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageCache.h"
 #include "vtkImageOpenClose3D.h"
 
+
+
+//----------------------------------------------------------------------------
+// functions to convert progress calls.
+void vtkImageOpenClose3DUpdateProgress0(void *arg)
+{
+  vtkImageOpenClose3D *self = (vtkImageOpenClose3D *)(arg);
+  // fprintf(stderr, "progress0: %f\n",(0.5 * self->GetFilter0()->GetProgress()));
+  self->UpdateProgress(0.5 * self->GetFilter0()->GetProgress());
+}
+
+void vtkImageOpenClose3DUpdateProgress1(void *arg)
+{
+  vtkImageOpenClose3D *self = (vtkImageOpenClose3D *)(arg);
+  self->UpdateProgress(0.5 * self->GetFilter1()->GetProgress() + 0.5);
+}
+
+
 //----------------------------------------------------------------------------
 vtkImageOpenClose3D::vtkImageOpenClose3D()
 {
   // create the filter chain 
   this->Filter0 = vtkImageDilateErode3D::New();
+  this->Filter0->SetProgressMethod(vtkImageOpenClose3DUpdateProgress0,
+				   (void *)this);
   this->Filter1 = vtkImageDilateErode3D::New();
+  this->Filter1->SetProgressMethod(vtkImageOpenClose3DUpdateProgress1, 
+				   (void *)this); 
   this->SetOpenValue(0.0);
   this->SetCloseValue(255.0);
 
-  // This dummy filter does not have an execute function, but
-  // what is its dimensionality (that is not used)?
+  // This dummy filter does not have an execute function.
 }
 
 
@@ -358,7 +379,6 @@ float vtkImageOpenClose3D::GetOpenValue()
   return this->Filter0->GetErodeValue();
 }
 
-  
 
 
 

@@ -203,9 +203,9 @@ void vtkImageResample::ExecuteImageInformation()
 // Note: Slight misalignment (pixel replication is not nearest neighbor).
 template <class T>
 static void vtkImageResampleExecute(vtkImageResample *self,
-				    vtkImageData *inData, T *inPtr, 
-				    int inExt[6], vtkImageData *outData, 
-				    T *outPtr, int outExt[6], int id)
+			    vtkImageData *inData, T *inPtr, int inExt[6],
+			    vtkImageData *outData, T *outPtr, int outExt[6],
+			    int id)
 {
   int outMin0, outMax0, outMin1, outMax1, outMin2, outMax2;
   int inMin0, inMax0, inMin1, inMax1, inMin2, inMax2;
@@ -214,6 +214,11 @@ static void vtkImageResampleExecute(vtkImageResample *self,
   T *inPtr1, *inPtr2, *outPtr1, *outPtr2, *inPtrC, *outPtrC;
   float magFactor, factor;
   int idxC, numC;
+  unsigned long count = 0;
+  unsigned long target;
+  float startProgress;
+
+  startProgress = self->GetIteration()/(float)(self->GetNumberOfIterations());
 
   temp = 0;
 
@@ -230,6 +235,10 @@ static void vtkImageResampleExecute(vtkImageResample *self,
   // interpolation stuff
   magFactor = self->GetAxisMagnificationFactor(self->GetIteration());
   
+  target = (unsigned long)((outMax0-outMin0+1)*(numC)
+			   * self->GetNumberOfIterations() / 50.0);
+  target++;
+
   // Loop through filteredAxisFirst
   inIdx0 = inMin0;
   for (outIdx0 = outMin0; outIdx0 <= outMax0; ++outIdx0)
@@ -247,8 +256,16 @@ static void vtkImageResampleExecute(vtkImageResample *self,
     // loop through the other axes
     outPtrC = outPtr;
     inPtrC = inPtr;
-    for (idxC = 0; idxC < numC; ++idxC)
+    for (idxC = 0; !self->AbortExecute && idxC < numC; ++idxC)
       {
+      if (!id) 
+	{
+	if (!(count%target))
+	  {
+	  self->UpdateProgress(count/(50.0*target) + startProgress);
+	  }
+	count++;
+	}
       inPtr1 = inPtrC;
       outPtr1 = outPtrC;
 

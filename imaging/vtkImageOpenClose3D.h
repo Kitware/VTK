@@ -47,8 +47,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // images Opening and closing behaves as expected.
 // Close value is first dilated, and then eroded.
 // Open value is first eroded, and then dilated.
-// Two dimesional opening/closing can be achieved by seting the
-// KernelSize of an axis to 1.
+// Degenerate two dimesional opening/closing can be achieved by seting the
+// one axis the 3D KernelSize to 1.
+// Values other than open value and close value are not touched.
+// This enables the filter to processes segemented images containing more than
+// two tags.
 
 
 #ifndef __vtkImageOpenClose3D_h
@@ -61,83 +64,89 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageOpenClose3D : public vtkImageFilter
 {
 public:
+  // Description:
+  // Default open value is 0, and default close value is 255.
   vtkImageOpenClose3D();
 
-// Description:
-// Destructor: Delete the sub filters.
   ~vtkImageOpenClose3D();
-
   static vtkImageOpenClose3D *New() {return new vtkImageOpenClose3D;};
   const char *GetClassName() {return "vtkImageOpenClose3D";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
 
-// Description:
-// This method considers the sub filters MTimes when computing this objects
-// MTime
+  // Description:
+  // This method considers the sub filters MTimes when computing this objects
+  // modified time.
   unsigned long int GetMTime();
 
   
-  // Forward Object messages to filter0 and fitler1
-
-// Description:
-// Turn debugging output on. (in sub filters also)
+  // Description:
+  // Turn debugging output on. (in sub filters also)
   void DebugOn();
 
 
-// Description:
-// Pass modified message to sub filters.
+  // Description:
+  // Pass modified message to sub filters.
   void Modified();
 
   
   // Foward Source messages to filter1
 
-// Description:
-// This method sets the cache object of the filter.
-// It justs feeds the request to the sub filter.
+  // Description:
+  // This method sets the cache object of the filter.
+  // It justs feeds the request to the sub filter.
   void SetCache(vtkImageCache *cache);
 
-
-// Description:
-// This method returns the l;ast cache of the internal pipline.
+  
+  // Description:
+  // This method returns the l;ast cache of the internal pipline.
   vtkImageCache *GetCache();
 
-
-// Description:
-// This method returns the cache to make a connection
-// It justs feeds the request to the sub filter.
+  
+  // Description:
+  // This method returns the cache to make a connection
+  // It justs feeds the request to the sub filter.
   vtkImageCache *GetOutput();
 
+  // Description:
+  // A method used internally, which is part of the vtkImageFilter API.
+  // Return the maximum MTime of this filter, and all of the previous filters
+  // in the pipline.
   unsigned long GetPipelineMTime();
+
   // Foward filter messages
 
-// Description:
-// Set the Input of the filter.
+  // Description:
+  // Set the Input of the filter.
   void SetInput(vtkImageCache *Input);
-
   void SetInput(vtkStructuredPoints *spts)
     {this->SetInput(spts->GetStructuredPointsToImage()->GetOutput());}
 
   // Forward dilateErode messages to both filters.
 
-// Description:
-// Selects the size of gaps or objects removed.
+  // Description:
+  // Selects the size of gaps or objects removed.
   void SetKernelSize(int size0, int size1, int size2);
 
 
-// Description:
-// Determines the value that will opened.  
-// Open value is first eroded, and then dilated.
+  // Description:
+  // Determines the value that will opened.  
+  // Open value is first eroded, and then dilated.
   void SetOpenValue(float value);
-
-
-// Description:
-// Determines the value that will closed.
-// Close value is first dilated, and then eroded
-  void SetCloseValue(float value);
-
   float GetOpenValue();
+
+
+  // Description:
+  // Determines the value that will closed.
+  // Close value is first dilated, and then eroded
+  void SetCloseValue(float value);
   float GetCloseValue();
+  
+  // Description:
+  // Needed for Progress functions
+  vtkGetObjectMacro(Filter0, vtkImageDilateErode3D);
+  vtkGetObjectMacro(Filter1, vtkImageDilateErode3D);
+
 
 protected:
   

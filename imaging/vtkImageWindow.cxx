@@ -61,7 +61,17 @@ vtkImageWindow::vtkImageWindow()
   this->GrayScaleHint = 0;
   this->FileName = (char*) NULL;
   this->PPMImageFilePtr = (FILE*) NULL;
+  this->Imagers = vtkImagerCollection::New();
 }
+
+
+vtkImageWindow::~vtkImageWindow()
+{
+  vtkDebugMacro(<<"~vtkImageWindow");
+  this->Imagers->Delete();
+  this->Imagers = NULL;
+}
+
 
 void vtkImageWindow::SaveImageAsPPM()
 {
@@ -142,11 +152,6 @@ void vtkImageWindow::GetSize(int *x, int *y)
   *y = tmp[1];
 }
   
-vtkImageWindow::~vtkImageWindow()
-{
-  vtkDebugMacro(<<"~vtkImageWindow");
-}
-
 vtkImageWindow* vtkImageWindow::New()
 {
 #ifdef _WIN32
@@ -189,7 +194,7 @@ void vtkImageWindow::Render()
     this->WindowCreated = 1;
     }
  
-  int numImagers = this->Imagers.GetNumberOfItems();
+  int numImagers = this->Imagers->GetNumberOfItems();
 
   if (numImagers == 0)
     {
@@ -208,8 +213,8 @@ void vtkImageWindow::Render()
     }
 
   // tell each of the imagers to render
-  for (this->Imagers.InitTraversal(); 
-       (tempImager = this->Imagers.GetNextItem());)
+  for (this->Imagers->InitTraversal(); 
+       (tempImager = this->Imagers->GetNextItem());)
     {
     tempImager->Render(); 
     }
@@ -228,8 +233,8 @@ void vtkImageWindow::EraseWindow()
   vtkImager* tempImager;
 
   // tell each of the imagers to erase
-  for (this->Imagers.InitTraversal(); 
-       (tempImager = this->Imagers.GetNextItem());)
+  for (this->Imagers->InitTraversal(); 
+       (tempImager = this->Imagers->GetNextItem());)
     {
     tempImager->Erase(); 
     }
@@ -242,7 +247,7 @@ void vtkImageWindow::AddImager(vtkImager* imager)
   imager->SetVTKWindow(this);
 
   // Add the imager to the collection
-  this->Imagers.AddItem(imager);
+  this->Imagers->AddItem(imager);
 
   // Window will need to update 
   this->Modified();
@@ -250,7 +255,7 @@ void vtkImageWindow::AddImager(vtkImager* imager)
 
 void vtkImageWindow::RemoveImager(vtkImager* imager)
 {
-  this->Imagers.RemoveItem(imager);
+  this->Imagers->RemoveItem(imager);
 
   // Window will need to update
   this->Modified();

@@ -157,7 +157,7 @@ public:
   vtkGetStringMacro(FileName);
 
 protected:
-  vtkImagerCollection Imagers;
+  vtkImagerCollection *Imagers;
   int WindowCreated;
   int GrayScaleHint;
   virtual void MakeDefaultWindow() = 0;

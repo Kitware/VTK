@@ -59,6 +59,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // For the fill functionality (use connector ??)
 class vtkImageCanvasSource2DPixel { //;prevent man page generation
 public:
+  static vtkImageCanvasSource2DPixel *New() 
+    {return new vtkImageCanvasSource2DPixel;};
   int X;
   int Y;
   void *Pointer;

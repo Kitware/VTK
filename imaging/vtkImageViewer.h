@@ -57,6 +57,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdlib.h>
 #include <iostream.h>
 
+#include "vtkObject.h"
 #include "vtkImageWindow.h"
 #include "vtkStructuredPoints.h"
 #include "vtkStructuredPointsToImage.h"

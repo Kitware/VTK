@@ -1021,7 +1021,7 @@ static void vtkImageCanvasSource2DFill(vtkImageData *image, float *color,
     }
   
   // Create the seed
-  pixel = new vtkImageCanvasSource2DPixel;
+  pixel = vtkImageCanvasSource2DPixel::New();
   pixel->X = x;
   pixel->Y = y;
   pixel->Pointer = (void *)(ptr);
@@ -1067,7 +1067,7 @@ static void vtkImageCanvasSource2DFill(vtkImageData *image, float *color,
 	  }
 	else
 	  {
-	  pixel = new vtkImageCanvasSource2DPixel;
+	  pixel = vtkImageCanvasSource2DPixel::New();
 	  }
 	pixel->X = first->X-1;
 	pixel->Y = first->Y;
@@ -1112,7 +1112,7 @@ static void vtkImageCanvasSource2DFill(vtkImageData *image, float *color,
 	  }
 	else
 	  {
-	  pixel = new vtkImageCanvasSource2DPixel;
+	  pixel = vtkImageCanvasSource2DPixel::New();
 	  }
 	pixel->X = first->X+1;
 	pixel->Y = first->Y;
@@ -1157,7 +1157,7 @@ static void vtkImageCanvasSource2DFill(vtkImageData *image, float *color,
 	  }
 	else
 	  {
-	  pixel = new vtkImageCanvasSource2DPixel;
+	  pixel = vtkImageCanvasSource2DPixel::New();
 	  }
 	pixel->X = first->X;
 	pixel->Y = first->Y-1;
@@ -1202,7 +1202,7 @@ static void vtkImageCanvasSource2DFill(vtkImageData *image, float *color,
 	  }
 	else
 	  {
-	  pixel = new vtkImageCanvasSource2DPixel;
+	  pixel = vtkImageCanvasSource2DPixel::New();
 	  }
 	pixel->X = first->X;
 	pixel->Y = first->Y+1;

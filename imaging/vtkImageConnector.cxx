@@ -74,7 +74,7 @@ void vtkImageConnector::RemoveAllSeeds()
 //----------------------------------------------------------------------------
 vtkImageConnectorSeed *vtkImageConnector::NewSeed(int index[3], void *ptr)
 {
-  vtkImageConnectorSeed *seed = new vtkImageConnectorSeed;
+  vtkImageConnectorSeed *seed = vtkImageConnectorSeed::New();
   int idx;
 
   for (idx = 0; idx < 3; ++idx)

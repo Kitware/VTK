@@ -96,7 +96,7 @@ void vtkImageButterworthLowPass::ThreadedExecute(vtkImageData *inData,
   int min0, max0;
   float *inPtr;
   float *outPtr;
-  int *extent, *wholeExtent;
+  int *wholeExtent;
   float *spacing;
   int inInc0, inInc1, inInc2;
   int outInc0, outInc1, outInc2;

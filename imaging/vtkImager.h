@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkImager_h
 #define __vtkImager_h
 
-#include "vtkReferenceCount.h"
+#include "vtkObject.h"
 #include "vtkActor2DCollection.h"
 #include "vtkActor2D.h"
 #include "vtkViewport.h"
