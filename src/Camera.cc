@@ -864,6 +864,7 @@ void vlCamera::PrintSelf(ostream& os, vlIndent indent)
     << this->ClippingRange[2] << ")\n";
   os << indent << "Distance: " << this->Distance << "\n";
   os << indent << "Eye Angle: " << this->EyeAngle << "\n";
+  os << indent << "Focal Disk: " << this->FocalDisk << "\n";
   os << indent << "Focal Point: (" << this->FocalPoint[0] << ", " 
     << this->FocalPoint[1] << ", " << this->FocalPoint[2] << ")\n";
   os << indent << "Left Eye: " << this->LeftEye << "\n";
