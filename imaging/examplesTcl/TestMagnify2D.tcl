@@ -1,4 +1,4 @@
-# Simple viewer for images.
+# Doubles the size of the image in the X and Y dimensions.
 
 
 set sliceNumber 22
@@ -22,16 +22,21 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 
 vtkImage4dShortReader reader;
 #reader DebugOn
-reader ReleaseDataFlagOff;
 reader SwapBytesOn;
 reader SetSize 256 256 94 1;
 reader SetFileRoot "../../data/fullHead/headsq.%d";
 reader SetPixelMask 0x7fff;
 
+vtkImage2dMagnifyFilter magnify;
+magnify SetInput [reader GetOutput];
+magnify SetMagnificationFactors 2 2;
+magnify InterpolateOn;
+magnify ReleaseDataFlagOff;
+
 vtkImageXViewer viewer;
 #viewer DebugOn;
 viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS;
-viewer SetInput [reader GetOutput];
+viewer SetInput [magnify GetOutput];
 viewer SetDefaultCoordinate2 $sliceNumber;
 viewer SetColorWindow 3000
 viewer SetColorLevel 1500

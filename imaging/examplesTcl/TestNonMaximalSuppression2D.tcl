@@ -1,6 +1,5 @@
 # This script is for testing the 2dNonMaximalSuppressionFilter.
-# The filter works exclusively on the output of the gradient filter,
-# because it expects a phase (in radians) in the second component.
+# The filter works exclusively on the output of the gradient filter.
 # The effect is to pick the peaks of the gradient creating thin lines.
 
 

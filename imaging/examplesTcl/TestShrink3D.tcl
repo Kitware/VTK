@@ -1,7 +1,7 @@
-# Simple viewer for images.
+# Halves the size of the image in the x, Y and Z dimensions.
 
 
-set sliceNumber 22
+set sliceNumber 11
 
 set VTK_IMAGE_FLOAT              1
 set VTK_IMAGE_INT                2
@@ -22,16 +22,21 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 
 vtkImage4dShortReader reader;
 #reader DebugOn
-reader ReleaseDataFlagOff;
 reader SwapBytesOn;
 reader SetSize 256 256 94 1;
 reader SetFileRoot "../../data/fullHead/headsq.%d";
 reader SetPixelMask 0x7fff;
 
+vtkImage3dShrinkFilter shrink;
+shrink SetInput [reader GetOutput];
+shrink SetShrinkFactors 2 2 2;
+shrink AveragingOn;
+shrink ReleaseDataFlagOff;
+
 vtkImageXViewer viewer;
 #viewer DebugOn;
 viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS;
-viewer SetInput [reader GetOutput];
+viewer SetInput [shrink GetOutput];
 viewer SetDefaultCoordinate2 $sliceNumber;
 viewer SetColorWindow 3000
 viewer SetColorLevel 1500
@@ -68,7 +73,7 @@ pack .wl.f2.levelLabel .wl.f2.level -side left
 
 proc SliceUp {} {
    global sliceNumber viewer
-   if {$sliceNumber < 93} {set sliceNumber [expr $sliceNumber + 1]}
+   if {$sliceNumber < 46} {set sliceNumber [expr $sliceNumber + 1]}
    puts $sliceNumber
    viewer SetDefaultCoordinate2 $sliceNumber;
    viewer Render;
