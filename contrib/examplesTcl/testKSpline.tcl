@@ -15,7 +15,7 @@ vtkRenderWindowInteractor iren
 
 
 vtkMath math
-set numberOfInputPoints 10
+set numberOfInputPoints 30
 
 vtkKochanekSpline aSplineX
 vtkKochanekSpline aSplineY
