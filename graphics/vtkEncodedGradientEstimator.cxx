@@ -41,6 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 #include "vtkEncodedGradientEstimator.h"
 #include "vtkRecursiveSphereDirectionEncoder.h"
+#include "vtkTimerLog.h"
 
 // Construct a vtkEncodedGradientEstimator with initial values of NULL for
 // the ScalarInput, EncodedNormal, and GradientMagnitude. Also,
@@ -50,14 +51,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // when magnitude of gradient opacities are included
 vtkEncodedGradientEstimator::vtkEncodedGradientEstimator()
 {
-  this->ScalarInput                = NULL;
-  this->EncodedNormals             = NULL;
-  this->GradientMagnitudes         = NULL;
-  this->GradientMagnitudeScale     = 1.0;
-  this->GradientMagnitudeBias      = 0.0;
-  this->Threader = vtkMultiThreader::New();
-  this->NumberOfThreads            = this->Threader->GetNumberOfThreads();
-  this->DirectionEncoder           = vtkRecursiveSphereDirectionEncoder::New();
+  this->ScalarInput                    = NULL;
+  this->EncodedNormals                 = NULL;
+  this->GradientMagnitudes             = NULL;
+  this->GradientMagnitudeScale         = 1.0;
+  this->GradientMagnitudeBias          = 0.0;
+  this->Threader                       = vtkMultiThreader::New();
+  this->NumberOfThreads                = this->Threader->GetNumberOfThreads();
+  this->DirectionEncoder               = vtkRecursiveSphereDirectionEncoder::New();
+  this->LastUpdateTimeInSeconds        = -1.0;
+  this->LastUpdateTimeInCPUSeconds     = -1.0;
+
 }
 
 // Destruct a vtkEncodedGradientEstimator - free up any memory used
@@ -149,6 +153,8 @@ void vtkEncodedGradientEstimator::Update( )
 {
   int                scalar_input_size[3];
   float              scalar_input_aspect[3];
+  double             startSeconds, endSeconds;
+  double             startCPUSeconds, endCPUSeconds;
 
   if ( this->GetMTime() > this->BuildTime || 
        this->DirectionEncoder->GetMTime() > this->BuildTime ||
@@ -156,6 +162,9 @@ void vtkEncodedGradientEstimator::Update( )
        !this->EncodedNormals )
     {
 
+    startSeconds = vtkTimerLog::GetCurrentTime();
+    startCPUSeconds = vtkTimerLog::GetCPUTime();
+    
     // Get the dimensions of the data and its aspect ratio
     this->ScalarInput->GetDimensions( scalar_input_size );
     this->ScalarInput->GetSpacing( scalar_input_aspect );
@@ -195,6 +204,12 @@ void vtkEncodedGradientEstimator::Update( )
     this->UpdateNormals();
 
     this->BuildTime.Modified();
+
+    endSeconds = vtkTimerLog::GetCurrentTime();
+    endCPUSeconds = vtkTimerLog::GetCPUTime();
+  
+    this->LastUpdateTimeInSeconds    = (float)(endSeconds    - startSeconds);
+    this->LastUpdateTimeInCPUSeconds = (float)(endCPUSeconds - startCPUSeconds);
     }
 }
 
