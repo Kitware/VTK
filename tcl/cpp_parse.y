@@ -206,7 +206,7 @@ class_def : CLASS VTK_ID
 	fprintf(yyout,"    return TCL_OK;\n    }\n");
 	}
       fprintf(yyout,"\n  if ((argc >= 2)&&(!strstr(interp->result,\"Object named:\")))\n    {\n");
-      fprintf(yyout,"    char temps2[256];\n    sprintf(temps2,\"Object named: %%s, could not find requested method: %%s\nor the method was called with incorrect arguments.\n\",argv[0],argv[1]);\n    Tcl_AppendResult(interp,temps2,NULL);    }\n  else\n    {\n");
+      fprintf(yyout,"    char temps2[256];\n    sprintf(temps2,\"Object named: %%s, could not find requested method: %%s\nor the method was called with incorrect arguments.\n\",argv[0],argv[1]);\n    Tcl_AppendResult(interp,temps2,NULL);    }\n  if (argc < 2)\n    {\n");
       fprintf(yyout,"    sprintf(interp->result,\"Could not find requested method.\");\n    }\n");
       fprintf(yyout,"  return TCL_ERROR;\n}\n");
       };
