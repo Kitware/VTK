@@ -52,14 +52,21 @@ vtkConnectivityFilter::vtkConnectivityFilter()
   this->ScalarConnectivity = 0;
   this->ScalarRange[0] = 0.0;
   this->ScalarRange[1] = 1.0;
+
+  this->CellScalars = vtkFloatScalars::New(); 
+  this->CellScalars->Allocate(8);
+
+  this->NeighborCellPointIds = vtkIdList::New();
+  this->NeighborCellPointIds->Allocate(8);
 }
 
 
 vtkConnectivityFilter::~vtkConnectivityFilter()
 {
   this->RegionSizes->Delete();
+  this->CellScalars->Delete();
+  this->NeighborCellPointIds->Delete();
 }
-
 
 
 static int NumExceededMaxDepth;
@@ -341,16 +348,14 @@ void vtkConnectivityFilter::TraverseAndMark (int cellId)
           {
           int numScalars, ii;
           float s, range[2];
-          static vtkFloatScalars cellScalars(8,VTK_CELL_SIZE);
-          static vtkIdList neiCellPointIds(8,VTK_CELL_SIZE);
 
-          this->Input->GetCellPoints(cellId,neiCellPointIds);
-          InScalars->GetScalars(neiCellPointIds,cellScalars);
-          numScalars = cellScalars.GetNumberOfScalars();
+          this->Input->GetCellPoints(cellId,*this->NeighborCellPointIds);
+          InScalars->GetScalars(*this->NeighborCellPointIds,*this->CellScalars);
+          numScalars = this->CellScalars->GetNumberOfScalars();
           range[0] = VTK_LARGE_FLOAT; range[1] = -VTK_LARGE_FLOAT;
           for (ii=0; ii < numScalars;  ii++)
             {
-            s = cellScalars.GetScalar(ii);
+            s = this->CellScalars->GetScalar(ii);
             if ( s < range[0] ) range[0] = s;
             if ( s > range[1] ) range[1] = s;
             }

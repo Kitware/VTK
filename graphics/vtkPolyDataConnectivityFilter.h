@@ -151,6 +151,11 @@ protected:
   float ScalarRange[2];
 
   void TraverseAndMark(int cellId);
+
+private:
+  vtkFloatScalars *CellScalars;
+  vtkIdList *NeighborCellPointIds;
+
 };
 
 // Description:
