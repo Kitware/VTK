@@ -61,7 +61,7 @@
 #include "vtkMPIController.h"
 #endif
 
-vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.9")
+vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.10")
 
 vtkStandardNewMacro(vtkDistributedDataFilter)
 
@@ -705,7 +705,8 @@ vtkUnstructuredGrid *
 
   for (int localPtId = 0; localPtId < numPoints; localPtId++)
     {
-    globalToLocalMap.insert(vtkstd::pair<int, int>(gnids[localPtId], localPtId));
+    const int id = gnids[localPtId];
+    globalToLocalMap.insert(vtkstd::pair<const int, int>(id, localPtId));
     }
 
   vtkUnstructuredGrid *expandedGrid= NULL;
@@ -3477,8 +3478,8 @@ vtkDistributedDataFilter::AddGhostCellsUniqueCellAssignment(
           for (j=0; j<size; j+=2)
             {
             // map global point id to process ids
-            insidePointMap.insert(
-              vtkstd::pair<int, int>(insideIds[i]->GetValue(j), i));
+            const int id = insideIds[i]->GetValue(j);
+            insidePointMap.insert(vtkstd::pair<const int, int>(id, i));
             }
           }
         }
