@@ -10,12 +10,6 @@ Based on vtkTkRenderWindget.py
 """
 
 """
-Under UNIX, the GTK erase occurs after the
-the VTK render and this makes this widget unusable.
-On Windows there are no known problems.
-"""
-
-"""
 Please see the example at the end of this file.
 
 ----------------------------------------
@@ -60,7 +54,7 @@ OnSetFocus(event)
 OnKillFocus(event)
 
 OnSize(event)
-OnMove(event)        default: Render()
+OnMove(event)
 
 OnPaint(event)       default: Render()
 
@@ -102,6 +96,9 @@ except NameError:
         WX_USE_X_CAPTURE = 1
     else:
         WX_USE_X_CAPTURE = 0
+
+# end of configuration items
+
 
 if WX_USE_GLCANVAS:
     from wxPython.glcanvas import *
@@ -205,10 +202,9 @@ class wxVTKRenderWindow(baseClass):
 
         self.__Created = 0
         # Tell the RenderWindow to render inside the wxWindow.
-        if wxPlatform == '__WXMSW__':
+        if self.GetHandle():
             self.__Created = 1
             self._RenderWindow.SetWindowInfo(str(self.GetHandle()))
-        # if this is wxGTK, delay SetWindowInfo until first Paint
 
         # refresh window by doing a Render
         EVT_PAINT(self, self.OnPaint)
@@ -250,10 +246,11 @@ class wxVTKRenderWindow(baseClass):
                 height = event.GetSize().height
             self._RenderWindow.SetSize(width, height)
         self.OnSize(event)
-
-    def OnSize(self, event):
         if self.__Created:
             self._RenderWindow.Render()
+
+    def OnSize(self, event):
+        pass
 
     def OnMove(self,event):
         pass
@@ -409,15 +406,17 @@ class wxVTKRenderWindow(baseClass):
         return self._Picker
 
     def Render(self):
-        if (self._CurrentLight):
+        if self._CurrentLight:
             light = self._CurrentLight
             light.SetPosition(self._CurrentCamera.GetPosition())
             light.SetFocalPoint(self._CurrentCamera.GetFocalPoint())
 
-        if not self.__Created:
-            self.__Created = 1
+        if self.__Created:
+            self._RenderWindow.Render()
+        elif self.GetHandle():
             self._RenderWindow.SetWindowInfo(str(self.GetHandle()))
-        self._RenderWindow.Render()
+            self.__Created = 1
+            self._RenderWindow.Render()
 
     def UpdateRenderer(self,event):
         """
