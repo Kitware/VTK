@@ -44,9 +44,9 @@ protected:
   virtual int RequestInformation(vtkInformation*, 
                                  vtkInformationVector**, 
                                  vtkInformationVector*);
-  virtual int RequestUpdateExtent(vtkInformation*, 
-                                  vtkInformationVector**, 
-                                  vtkInformationVector*);
+  virtual int SetUpdateBlocks(vtkInformation*, 
+                              vtkInformationVector**, 
+                              vtkInformationVector*);
 
   char* FileName;
 

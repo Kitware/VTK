@@ -1,31 +1,34 @@
 /*=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    vtkTestHierarchicalDataReader.cxx
+Program:   Visualization Toolkit
+Module:    vtkTestHierarchicalDataReader.cxx
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+All rights reserved.
+See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+This software is distributed WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 #include "vtkTestHierarchicalDataReader.h"
 
 #include "vtkAMRBox.h"
 #include "vtkCompositeDataPipeline.h"
+#include "vtkExecutive.h"
 #include "vtkHierarchicalBoxDataSet.h"
 #include "vtkHierarchicalDataInformation.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
+#include "vtkInformationIntegerVectorKey.h"
+#include "vtkInformationDoubleVectorKey.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkUniformGrid.h"
 #include "vtkXMLImageDataReader.h"
 
-vtkCxxRevisionMacro(vtkTestHierarchicalDataReader, "1.4");
+vtkCxxRevisionMacro(vtkTestHierarchicalDataReader, "1.5");
 vtkStandardNewMacro(vtkTestHierarchicalDataReader);
 
 vtkTestHierarchicalDataReader::vtkTestHierarchicalDataReader()
@@ -40,6 +43,10 @@ vtkTestHierarchicalDataReader::~vtkTestHierarchicalDataReader()
   this->SetFileName(0);
 }
 
+// Provide information about the dataset:
+// * Number of levels
+// * Number of boxes / level
+// * AMRBox (extent) of each box
 int vtkTestHierarchicalDataReader::RequestInformation(
   vtkInformation* request, 
   vtkInformationVector** inputVector, 
@@ -61,109 +68,26 @@ int vtkTestHierarchicalDataReader::RequestInformation(
     {
     compInfo->SetNumberOfDataSets(i, numBlocks[i]);
     }
-  for (i=0; i<numLevels; i++)
-    {
-    for (int j=0; j<numBlocks[i]; j++)
-      {
-      vtkInformation* subInfo = compInfo->GetInformation(i, j);
-      subInfo->Set(vtkCompositeDataPipeline::UPDATE_COST(), (double)0.0);
-      }
-    }
 
   vtkInformation* info = outputVector->GetInformationObject(0);
   info->Set(
     vtkCompositeDataPipeline::COMPOSITE_DATA_INFORMATION(), compInfo);
-  compInfo->Delete();
 
-  return 1;
-}
+  info->Set(
+    vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1);
 
-int vtkTestHierarchicalDataReader::RequestUpdateExtent(
-  vtkInformation*, 
-  vtkInformationVector**, 
-  vtkInformationVector* outputVector)
-{
-  vtkInformation* info = outputVector->GetInformationObject(0);
-
-  vtkHierarchicalDataInformation* compInfo = 
-    vtkHierarchicalDataInformation::SafeDownCast(info->Get(
-      vtkCompositeDataPipeline::COMPOSITE_DATA_INFORMATION()));
-
-  if (!compInfo || 
-      !info->Has(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) ||
-      !info->Has(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()))
-    {
-    vtkErrorMacro("Expected information not found. "
-                  "Cannot provide update extent.");
-    return 0;
-    }
-
-  int updatePiece = 
-    info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-
-  unsigned int numLevels = compInfo->GetNumberOfLevels();
-  for (unsigned int j=0; j<numLevels; j++)
-    {
-    unsigned int numBlocks = compInfo->GetNumberOfDataSets(j);
-    for (unsigned int i=0; i<numBlocks; i++)
-      {
-      if (updatePiece == 0)
-        {
-        vtkInformation* blockInfo = compInfo->GetInformation(j, i);
-        blockInfo->Set(vtkCompositeDataPipeline::MARKED_FOR_UPDATE(), 1);
-        }
-      }
-    }
-  return 1;
-}
-
-int vtkTestHierarchicalDataReader::RequestData(
-  vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
-{
-  vtkInformation* info = outputVector->GetInformationObject(0);
-
-  vtkDataObject* doOutput = 
-    info->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET());
-  vtkHierarchicalBoxDataSet* hb = 
-    vtkHierarchicalBoxDataSet::SafeDownCast(doOutput);
-  if (!hb)
-    {
-    return 0;
-    }
-
-  if (!this->FileName)
-    {
-    vtkErrorMacro("No filename has been specified. Cannot execute");
-    return 0;
-    }
-
-  // Since there is no AMR reader avaible yet, we will load a
-  // collection of VTK files and create our own vtkHierarchicalBoxDataSet.
-  // To create the files, I loaded a Chombo file with an experimental
-  // Chombo reader and wrote the datasets separately.
-  int i;
   vtkXMLImageDataReader* reader = vtkXMLImageDataReader::New();
 
   for (i=0; i<16; i++)
     {
     // Here we load the 16 separate files (each containing
     // an image dataset -uniform rectilinear grid-)
-    char* fstr = new char [strlen(this->FileName) + 
-                           strlen(".vti") + 10];
-    sprintf(fstr,"%s_%i.vti",this->FileName, i);
+    char* fstr = this->GetBlockFileName(i);
     reader->SetFileName(fstr);
-    // We have to update since we are working without a VTK pipeline.
-    // This will read the file and the output of the reader will be
-    // a valid image data.
-    reader->Update();
+
+    reader->UpdateInformation();
+
     delete[] fstr;
-    
-    // We now create a vtkUniformGrid. This is essentially a simple
-    // vtkImageData (not a sub-class though) with blanking. Since
-    // VTK readers do not know vtkUniformGrid, we simply create our
-    // own by copying from the image data.
-    vtkUniformGrid* ug = vtkUniformGrid::New();
-    ug->ShallowCopy(reader->GetOutput());
 
     // Each sub-dataset in a vtkHierarchicalBoxDataSet has an associated
     // vtkAMRBox. This is similar to extent but is stored externally
@@ -179,9 +103,11 @@ int vtkTestHierarchicalDataReader::RequestData(
     int extent[6];
     double spacing[3];
     double origin[3];
-    ug->GetExtent(extent);
-    ug->GetSpacing(spacing);
-    ug->GetOrigin(origin);
+
+    vtkInformation* outInfo = reader->GetExecutive()->GetOutputInformation(0);
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent);
+    outInfo->Get(vtkDataObject::SPACING(), spacing);
+    outInfo->Get(vtkDataObject::ORIGIN(), origin);
 
     int j;
     for (j=0; j<3; j++)
@@ -190,34 +116,148 @@ int vtkTestHierarchicalDataReader::RequestData(
       box.LoCorner[j] = num + extent[2*j];
       box.HiCorner[j] = num + extent[2*j+1] - 1;
       }
-
-    // Similarly, the level of each sub-dataset is normally 
-    // available in the file. Since this is not the case, I
-    // hard-coded this into the example program.
-    // Level 0 = { 0 }, Level 1 = { 1 }, 
-    // Level 2 = { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 }
+  
     int level;
     int dsindex;
-    if (i == 0)
+
+    this->GetBlockIdx(i, level, dsindex);
+
+    vtkInformation* subInfo = compInfo->GetInformation(level, dsindex);
+    subInfo->Set(vtkHierarchicalBoxDataSet::BOX(), 
+                 box.LoCorner[0], box.LoCorner[1], box.LoCorner[2],
+                 box.HiCorner[0], box.HiCorner[1], box.HiCorner[2]);
+    }
+
+  reader->Delete();
+  compInfo->Delete();
+
+  return 1;
+}
+
+int vtkTestHierarchicalDataReader::SetUpdateBlocks(
+  vtkInformation*, 
+  vtkInformationVector**, 
+  vtkInformationVector* outputVector)
+{
+  vtkInformation* info = outputVector->GetInformationObject(0);
+
+  if (!info->Has(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) ||
+      !info->Has(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()))
+    {
+    vtkErrorMacro("Expected information not found. "
+                  "Cannot provide update extent.");
+    return 0;
+    }
+
+  vtkHierarchicalDataInformation* compInfo = 
+    vtkHierarchicalDataInformation::SafeDownCast(
+      info->Get(vtkCompositeDataPipeline::COMPOSITE_DATA_INFORMATION()));
+
+  if (!compInfo)
+    {
+    vtkErrorMacro("Expected information not found. "
+                  "Cannot provide update extent.");
+    return 0;
+    }
+
+  vtkHierarchicalDataInformation* updateInfo = 
+    vtkHierarchicalDataInformation::New();
+  info->Set(
+    vtkCompositeDataPipeline::UPDATE_BLOCKS(), updateInfo);
+  updateInfo->SetNumberOfLevels(compInfo->GetNumberOfLevels());
+
+  unsigned int updatePiece = static_cast<unsigned int>(
+    info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
+  unsigned int updateNumPieces =  static_cast<unsigned int>(
+    info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
+
+  unsigned int numLevels = updateInfo->GetNumberOfLevels();
+  for (unsigned int j=0; j<numLevels; j++)
+    {
+    updateInfo->SetNumberOfDataSets(j, compInfo->GetNumberOfDataSets(j));
+    unsigned int numBlocks = updateInfo->GetNumberOfDataSets(j);
+    unsigned int numBlocksPerPiece = 1;
+    if (updateNumPieces < numBlocks)
       {
-      level = 0;
-      dsindex = 0;
+      numBlocksPerPiece = numBlocks / updateNumPieces;
       }
-    else if (i == 1)
+    unsigned int minBlock = numBlocksPerPiece*updatePiece;
+    unsigned int maxBlock = numBlocksPerPiece*(updatePiece+1);
+    if (updatePiece == updateNumPieces - 1)
       {
-      level = 1;
-      dsindex = 0;
+      maxBlock = numBlocks;
       }
-    else
+    for (unsigned int i=minBlock; i<maxBlock; i++)
       {
-      level = 2;
-      dsindex = i-2;
+      vtkInformation* info = updateInfo->GetInformation(j, i);
+      info->Set(vtkCompositeDataPipeline::MARKED_FOR_UPDATE(), 1);
       }
-    // -- end hack
+    }
+  updateInfo->Delete();
+  return 1;
+}
+
+int vtkTestHierarchicalDataReader::RequestData(
+  vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
+{
+  int i;
+
+  if (!this->FileName)
+    {
+    return 0;
+    }
+
+  vtkInformation* info = outputVector->GetInformationObject(0);
+
+  vtkDataObject* doOutput = 
+    info->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET());
+  vtkHierarchicalBoxDataSet* hb = 
+    vtkHierarchicalBoxDataSet::SafeDownCast(doOutput);
+  if (!hb)
+    {
+    return 0;
+    }
+
+  vtkHierarchicalDataInformation* compInfo = 
+    vtkHierarchicalDataInformation::SafeDownCast(
+      info->Get(vtkCompositeDataPipeline::COMPOSITE_DATA_INFORMATION()));
+
+  hb->SetHierarchicalDataInformation(compInfo);
+
+  // Since there is no AMR reader avaible yet, we will load a
+  // collection of VTK files and create our own vtkHierarchicalBoxDataSet.
+  // To create the files, I loaded a Chombo file with an experimental
+  // Chombo reader and wrote the datasets separately.
+  vtkXMLImageDataReader* reader = vtkXMLImageDataReader::New();
+
+  for (i=0; i<16; i++)
+    {
+    // Here we load the 16 separate files (each containing
+    // an image dataset -uniform rectilinear grid-)
+    char* fstr = this->GetBlockFileName(i);
+    reader->SetFileName(fstr);
+
+    // We have to update since we are working without a VTK pipeline.
+    // This will read the file and the output of the reader will be
+    // a valid image data.
+    reader->Update();
+    delete[] fstr;
+    
+    // We now create a vtkUniformGrid. This is essentially a simple
+    // vtkImageData (not a sub-class though) with blanking. Since
+    // VTK readers do not know vtkUniformGrid, we simply create our
+    // own by copying from the image data.
+    vtkUniformGrid* ug = vtkUniformGrid::New();
+    ug->ShallowCopy(reader->GetOutput());
+
+    int level;
+    int dsindex;
+
+    this->GetBlockIdx(i, level, dsindex);
 
     // Given the level, index and box, add the sub-dataset to
     // hierarchical dataset.
-    hb->SetDataSet(level, dsindex, box, ug);
+    hb->SetDataSet(level, dsindex, ug);
 
     ug->Delete();
     }
@@ -236,6 +276,57 @@ int vtkTestHierarchicalDataReader::RequestData(
   hb->GenerateVisibilityArrays();
   
   return 1;
+}
+
+void vtkTestHierarchicalDataReader::GetBlockIdx(
+  int blockId, int& level, int& dsindex)
+{
+  // Similarly, the level of each sub-dataset is normally 
+  // available in the file. Since this is not the case, I
+  // hard-coded this into the example program.
+  // Level 0 = { 0 }, Level 1 = { 1 }, 
+  // Level 2 = { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 }
+  if (blockId == 0)
+    {
+    level = 0;
+    dsindex = 0;
+    }
+  else if (blockId == 1)
+    {
+    level = 1;
+    dsindex = 0;
+    }
+  else
+    {
+    level = 2;
+    dsindex = blockId-2;
+    }
+}
+
+char* vtkTestHierarchicalDataReader::GetBlockFileName(int blockId)
+{
+  size_t len = strlen(this->FileName);
+  size_t pos;
+  for (pos=0; pos<len; pos++)
+    {
+    if (this->FileName[pos] == '.')
+      {
+      break;
+      }
+    }
+
+  char* fname = new char[pos+1];
+  strncpy(fname, this->FileName, pos);
+  fname[pos] = '\0';
+
+  // Here we load the 16 separate files (each containing
+  // an image dataset -uniform rectilinear grid-)
+  char* fstr = new char [strlen(fname) + 
+                         strlen(".vti") + 10];
+  sprintf(fstr,"%s_%i.vti",fname, blockId);
+  delete[] fname;
+
+  return fstr;
 }
 
 int vtkTestHierarchicalDataReader::FillOutputPortInformation(

@@ -23,7 +23,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkXMLStructuredGridReader.h"
 
-vtkCxxRevisionMacro(vtkTestMultiBlockDataReader, "1.3");
+vtkCxxRevisionMacro(vtkTestMultiBlockDataReader, "1.4");
 vtkStandardNewMacro(vtkTestMultiBlockDataReader);
 
 vtkTestMultiBlockDataReader::vtkTestMultiBlockDataReader()
@@ -59,14 +59,6 @@ int vtkTestMultiBlockDataReader::RequestInformation(
     {
     compInfo->SetNumberOfDataSets(i, numBlocks[i]);
     }
-  for (i=0; i<numLevels; i++)
-    {
-    for (int j=0; j<numBlocks[i]; j++)
-      {
-      vtkInformation* subInfo = compInfo->GetInformation(i, j);
-      subInfo->Set(vtkCompositeDataPipeline::UPDATE_COST(), (double)0.0);
-      }
-    }
 
   vtkInformation* info = outputVector->GetInformationObject(0);
   info->Set(
@@ -76,7 +68,7 @@ int vtkTestMultiBlockDataReader::RequestInformation(
   return 1;
 }
 
-int vtkTestMultiBlockDataReader::RequestUpdateExtent(
+int vtkTestMultiBlockDataReader::SetUpdateBlocks(
   vtkInformation*, 
   vtkInformationVector**, 
   vtkInformationVector* outputVector)
@@ -86,6 +78,12 @@ int vtkTestMultiBlockDataReader::RequestUpdateExtent(
   vtkHierarchicalDataInformation* compInfo = 
     vtkHierarchicalDataInformation::SafeDownCast(info->Get(
       vtkCompositeDataPipeline::COMPOSITE_DATA_INFORMATION()));
+  if (!compInfo)
+    {
+    vtkErrorMacro("Expected information not found. "
+                  "Cannot provide update extent.");
+    return 0;
+    }
 
   if (!compInfo || 
       !info->Has(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) ||
@@ -93,21 +91,43 @@ int vtkTestMultiBlockDataReader::RequestUpdateExtent(
     {
     vtkErrorMacro("Expected information not found. "
                   "Cannot provide update extent.");
-    //return 0;
+    return 0;
     }
 
-  //int updatePiece = 
-  //info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  vtkHierarchicalDataInformation* updateInfo = 
+    vtkHierarchicalDataInformation::New();
+  info->Set(
+    vtkCompositeDataPipeline::UPDATE_BLOCKS(), updateInfo);
+  updateInfo->SetNumberOfLevels(compInfo->GetNumberOfLevels());
 
-  unsigned int numBlocks = compInfo->GetNumberOfDataSets(0);
-  for (unsigned int i=0; i<numBlocks; i++)
+  unsigned int updatePiece = static_cast<unsigned int>(
+    info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
+  unsigned int updateNumPieces =  static_cast<unsigned int>(
+    info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
+
+  unsigned int numLevels = updateInfo->GetNumberOfLevels();
+  for (unsigned int j=0; j<numLevels; j++)
     {
-    //if (updatePiece == 0)
+    updateInfo->SetNumberOfDataSets(j, compInfo->GetNumberOfDataSets(j));
+    unsigned int numBlocks = updateInfo->GetNumberOfDataSets(j);
+    unsigned int numBlocksPerPiece = 1;
+    if (updateNumPieces < numBlocks)
       {
-      vtkInformation* blockInfo = compInfo->GetInformation(0, i);
-      blockInfo->Set(vtkCompositeDataPipeline::MARKED_FOR_UPDATE(), 1);
+      numBlocksPerPiece = numBlocks / updateNumPieces;
+      }
+    unsigned int minBlock = numBlocksPerPiece*updatePiece;
+    unsigned int maxBlock = numBlocksPerPiece*(updatePiece+1);
+    if (updatePiece == updateNumPieces - 1)
+      {
+      maxBlock = numBlocks;
+      }
+    for (unsigned int i=minBlock; i<maxBlock; i++)
+      {
+      vtkInformation* info = updateInfo->GetInformation(j, i);
+      info->Set(vtkCompositeDataPipeline::MARKED_FOR_UPDATE(), 1);
       }
     }
+  updateInfo->Delete();
 
   return 1;
 }
