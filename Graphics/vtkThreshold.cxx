@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkThreshold, "1.60");
+vtkCxxRevisionMacro(vtkThreshold, "1.61");
 vtkStandardNewMacro(vtkThreshold);
 
 // Construct with lower threshold=0, upper threshold=1, and threshold 
@@ -210,8 +210,9 @@ void vtkThreshold::Execute()
       keepCell = (this->*(this->ThresholdFunction))(cellScalars->GetComponent(cellId,0));
       }
     
-    if ( keepCell ) // satisfied thresholding
+    if (  numCellPts > 0 && keepCell )
       {
+      // satisfied thresholding (also non-empty cell, i.e. not VTK_EMPTY_CELL)
       for (i=0; i < numCellPts; i++)
         {
         ptId = cellPts->GetId(i);
