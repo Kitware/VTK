@@ -67,17 +67,17 @@
 #ifndef __vtkMarchingContourFilter_h
 #define __vtkMarchingContourFilter_h
 
-#include "vtkDataSetToPolyDataFilter.h"
+#include "vtkDataSetToPolyDataAlgorithm.h"
 
 #include "vtkContourValues.h" // Needed for direct access to ContourValues
 
 class vtkPointLocator;
 class vtkScalarTree;
 
-class VTK_PATENTED_EXPORT vtkMarchingContourFilter : public vtkDataSetToPolyDataFilter
+class VTK_PATENTED_EXPORT vtkMarchingContourFilter : public vtkDataSetToPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkMarchingContourFilter,vtkDataSetToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkMarchingContourFilter,vtkDataSetToPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -147,7 +147,7 @@ protected:
   vtkMarchingContourFilter();
   ~vtkMarchingContourFilter();
 
-  void Execute();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   vtkContourValues *ContourValues;
   int ComputeNormals;
@@ -158,11 +158,11 @@ protected:
   vtkScalarTree *ScalarTree;
   
   //special contouring for structured points
-  void StructuredPointsContour(int dim); 
+  void StructuredPointsContour(int dim, vtkDataSet *input, vtkPolyData *output); 
   //special contouring for image data
-  void ImageContour(int dim);
+  void ImageContour(int dim, vtkDataSet *input, vtkPolyData *output);
   //default if not structured data
-  void DataSetContour();
+  void DataSetContour(vtkDataSet *input, vtkPolyData *output);
 private:
   vtkMarchingContourFilter(const vtkMarchingContourFilter&);  // Not implemented.
   void operator=(const vtkMarchingContourFilter&);  // Not implemented.

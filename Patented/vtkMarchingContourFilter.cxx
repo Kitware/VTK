@@ -34,6 +34,8 @@
 #include "vtkContourFilter.h"
 #include "vtkContourValues.h"
 #include "vtkImageMarchingCubes.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMarchingCubes.h"
 #include "vtkMarchingSquares.h"
 #include "vtkMergePoints.h"
@@ -45,7 +47,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkMarchingContourFilter, "1.27");
+vtkCxxRevisionMacro(vtkMarchingContourFilter, "1.28");
 vtkStandardNewMacro(vtkMarchingContourFilter);
 
 // Construct object with initial range (0,1) and single contour value
@@ -82,7 +84,7 @@ vtkMarchingContourFilter::~vtkMarchingContourFilter()
 // then this object is modified as well.
 unsigned long vtkMarchingContourFilter::GetMTime()
 {
-  unsigned long mTime=this->vtkDataSetToPolyDataFilter::GetMTime();
+  unsigned long mTime=this->Superclass::GetMTime();
   unsigned long time;
 
   if (this->ContourValues)
@@ -102,26 +104,32 @@ unsigned long vtkMarchingContourFilter::GetMTime()
 //
 // General contouring filter.  Handles arbitrary input.
 //
-void vtkMarchingContourFilter::Execute()
+int vtkMarchingContourFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkDataArray *inScalars;
-  vtkDataSet *input=this->GetInput();
   vtkIdType numCells;
   
   vtkDebugMacro(<< "Executing marching contour filter");
-
-  if (input == NULL)
-    {
-      vtkErrorMacro(<<"Input is NULL");
-      return;
-    }
 
   numCells = input->GetNumberOfCells();
   inScalars = input->GetPointData()->GetScalars();
   if ( ! inScalars || numCells < 1 )
     {
     vtkErrorMacro(<<"No data to contour");
-    return;
+    return 1;
     }
 
   // If structured points, use more efficient algorithms
@@ -134,8 +142,8 @@ void vtkMarchingContourFilter::Execute()
       if ( input->GetCell(0)->GetCellDimension() >= 2 ) 
         {
         vtkDebugMacro(<< "Structured Points");
-        this->StructuredPointsContour(dim);
-        return;
+        this->StructuredPointsContour(dim, input, output);
+        return 1;
         }
       }
     }
@@ -149,20 +157,23 @@ void vtkMarchingContourFilter::Execute()
       if ( input->GetCell(0)->GetCellDimension() >= 2 ) 
         {
         vtkDebugMacro(<< "Image");
-        this->ImageContour(dim);
-        return;
+        this->ImageContour(dim, input, output);
+        return 1;
         }
       }
     }
   
   vtkDebugMacro(<< "Unoptimized");
-  this->DataSetContour();
+  this->DataSetContour(input, output);
+
+  return 1;
 }
 
-void vtkMarchingContourFilter::StructuredPointsContour(int dim)
+void vtkMarchingContourFilter::StructuredPointsContour(int dim,
+                                                       vtkDataSet *input,
+                                                       vtkPolyData *thisOutput)
 {
   vtkPolyData *output;
-  vtkPolyData *thisOutput = this->GetOutput();
   int numContours=this->ContourValues->GetNumberOfContours();
   double *values=this->ContourValues->GetValues();
 
@@ -172,7 +183,7 @@ void vtkMarchingContourFilter::StructuredPointsContour(int dim)
     int i;
     
     msquares = vtkMarchingSquares::New();
-    msquares->SetInput((vtkImageData *)this->GetInput());
+    msquares->SetInput((vtkImageData *)input);
     msquares->SetDebug(this->Debug);
     msquares->SetNumberOfContours(numContours);
     for (i=0; i < numContours; i++)
@@ -192,7 +203,7 @@ void vtkMarchingContourFilter::StructuredPointsContour(int dim)
     int i;
     
     mcubes = vtkMarchingCubes::New();
-    mcubes->SetInput((vtkImageData *)this->GetInput());
+    mcubes->SetInput((vtkImageData *)input);
     mcubes->SetComputeNormals (this->ComputeNormals);
     mcubes->SetComputeGradients (this->ComputeGradients);
     mcubes->SetComputeScalars (this->ComputeScalars);
@@ -214,14 +225,14 @@ void vtkMarchingContourFilter::StructuredPointsContour(int dim)
   output->UnRegister(this);
 }
 
-void vtkMarchingContourFilter::DataSetContour()
+void vtkMarchingContourFilter::DataSetContour(vtkDataSet *input,
+                                              vtkPolyData *output)
 {
-  vtkPolyData *output = this->GetOutput();
   int numContours=this->ContourValues->GetNumberOfContours();
   double *values=this->ContourValues->GetValues();
 
   vtkContourFilter *contour = vtkContourFilter::New();
-  contour->SetInput((vtkImageData *)this->GetInput());
+  contour->SetInput((vtkImageData *)input);
   contour->SetComputeNormals (this->ComputeNormals);
   contour->SetComputeGradients (this->ComputeGradients);
   contour->SetComputeScalars (this->ComputeScalars);
@@ -238,9 +249,9 @@ void vtkMarchingContourFilter::DataSetContour()
   contour->Delete();
 }
 
-void vtkMarchingContourFilter::ImageContour(int dim)
+void vtkMarchingContourFilter::ImageContour(int dim, vtkDataSet *input,
+                                            vtkPolyData *output)
 {
-  vtkPolyData *output = this->GetOutput();
   int numContours=this->ContourValues->GetNumberOfContours();
   double *values=this->ContourValues->GetValues();
 
@@ -250,7 +261,7 @@ void vtkMarchingContourFilter::ImageContour(int dim)
     int i;
     
     msquares = vtkMarchingSquares::New();
-    msquares->SetInput((vtkImageData *)this->GetInput());
+    msquares->SetInput((vtkImageData *)input);
     msquares->SetOutput(output);
     msquares->SetDebug(this->Debug);
     msquares->SetNumberOfContours(numContours);
@@ -270,7 +281,7 @@ void vtkMarchingContourFilter::ImageContour(int dim)
     int i;
     
     mcubes = vtkImageMarchingCubes::New();
-    mcubes->SetInput((vtkImageData *)this->GetInput());
+    mcubes->SetInput((vtkImageData *)input);
     mcubes->SetOutput(output);
     mcubes->SetComputeNormals (this->ComputeNormals);
     mcubes->SetComputeGradients (this->ComputeGradients);
