@@ -22,7 +22,7 @@
 #include "vtkPolyData.h"
 #include "vtkStructuredPoints.h"
 
-vtkCxxRevisionMacro(vtkVoxelContoursToSurfaceFilter, "1.23");
+vtkCxxRevisionMacro(vtkVoxelContoursToSurfaceFilter, "1.24");
 vtkStandardNewMacro(vtkVoxelContoursToSurfaceFilter);
 
 vtkVoxelContoursToSurfaceFilter::vtkVoxelContoursToSurfaceFilter()
@@ -637,8 +637,8 @@ void vtkVoxelContoursToSurfaceFilter::Execute()
     contourOutput = vtkPolyData::New();
     contourFilter->SetOutput( contourOutput );
     contourFilter->Update();
-    appendFilter->AddInput( contourFilter->GetOutput() );
     contourFilter->SetOutput( NULL );
+    appendFilter->AddInput( contourOutput );
     contourOutput->Delete();
 
 
