@@ -52,6 +52,7 @@ vtkContourValues \
 vtkCoordinate \
 vtkCriticalSection \
 vtkDataObject \
+vtkDataObjectCollection \
 vtkDataSetAttributes \
 vtkDataSetCollection \
 vtkDirectory \
