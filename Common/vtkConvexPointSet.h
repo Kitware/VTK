@@ -67,11 +67,6 @@ public:
   virtual vtkCell *GetFace(int faceId);
 
   // Description:
-  // Convex point sets require triangulation for processing. Therefore this
-  // cell is considered nonlinear. See the vtkCell API for more information.
-  virtual int IsLinear() {return 0;}
-  
-  // Description:
   // Satisfy the vtkCell API. This method contours by triangulating the
   // cell and then contouring the resulting tetrahedra.
   virtual void Contour(float value, vtkDataArray *cellScalars, 
