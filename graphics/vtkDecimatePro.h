@@ -88,7 +88,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Caveats
 // To guarantee a given level of reduction, the ivar PreserveTopology must
 // be off; the ivar Splitting is on; the ivar BoundaryVertexDeletion is on;
-// and the ivar MaximumError is set to vTK_LARGE_FLOAT.
+// and the ivar MaximumError is set to VTK_LARGE_FLOAT.
 //
 // If PreserveTopology is off, and SplitEdges is off; the mesh topology may
 // be modified by closing holes.
