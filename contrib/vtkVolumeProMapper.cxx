@@ -98,6 +98,8 @@ vtkVolumeProMapper::vtkVolumeProMapper()
   this->WrongVLIVersion   = 0;
   this->DisplayedMessage  = 0;
 
+  this->Cut = NULL;
+  
   // Establish a connection with vli
   status = VLIOpen();
   if ( status != kVLIOK )
