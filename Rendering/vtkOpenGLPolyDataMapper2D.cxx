@@ -41,7 +41,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper2D, "1.45");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper2D, "1.46");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper2D);
 #endif
 
@@ -282,12 +282,18 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   if (actor->GetProperty()->GetLineStipplePattern() != 0xFFFF)
     {
     glEnable (GL_LINE_STIPPLE);
+#ifdef VTK_USE_GL2PS
+    gl2psEnable(GL2PS_LINE_STIPPLE);
+#endif // VTK_USE_GL2PS
     glLineStipple (actor->GetProperty()->GetLineStippleRepeatFactor(), 
                    actor->GetProperty()->GetLineStipplePattern());
     }
   else
     {
     glDisable (GL_LINE_STIPPLE);
+#ifdef VTK_USE_GL2PS
+    gl2psDisable(GL2PS_LINE_STIPPLE);
+#endif // VTK_USE_GL2PS
     }
 
   aPrim = input->GetLines();

@@ -38,7 +38,7 @@
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLProperty, "1.26");
+vtkCxxRevisionMacro(vtkOpenGLProperty, "1.27");
 vtkStandardNewMacro(vtkOpenGLProperty);
 #endif
 
@@ -145,11 +145,17 @@ void vtkOpenGLProperty::Render(vtkActor *vtkNotUsed(anActor),
   if (this->LineStipplePattern != 0xFFFF)
     {
     glEnable (GL_LINE_STIPPLE);
+#ifdef VTK_USE_GL2PS
+    gl2psEnable(GL2PS_LINE_STIPPLE);
+#endif // VTK_USE_GL2PS
     glLineStipple (this->LineStippleRepeatFactor, this->LineStipplePattern);
     }
   else
     {
     glDisable (GL_LINE_STIPPLE);
+#ifdef VTK_USE_GL2PS
+    gl2psDisable(GL2PS_LINE_STIPPLE);
+#endif // VTK_USE_GL2PS
     }
 }
 
