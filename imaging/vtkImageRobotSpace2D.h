@@ -45,6 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkImageRobotSpace2D_h
 #define __vtkImageRobotSpace2D_h
 
+#include <stdio.h>
 #include <stdlib.h>
 #include "vtkStateSpace.h"
 #include "vtkRobotTransform2D.h"
