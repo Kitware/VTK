@@ -54,11 +54,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkObject.h"
 
-#define VTK_VERSION "2.2.2"
+#define VTK_VERSION "2.3.0"
 #define VTK_MAJOR_VERSION 2
-#define VTK_MINOR_VERSION 2
-#define VTK_BUILD_VERSION 2
-#define VTK_SOURCE_VERSION "vtk version " VTK_VERSION ", vtk source $Revision: 1.144 $, $Date: 1999-04-13 01:03:53 $ (GMT)"
+#define VTK_MINOR_VERSION 3
+#define VTK_BUILD_VERSION 0
+#define VTK_SOURCE_VERSION "vtk version " VTK_VERSION ", vtk source $Revision: 1.145 $, $Date: 1999-04-13 12:49:13 $ (GMT)"
 
 
 class VTK_EXPORT vtkVersion : public vtkObject {
