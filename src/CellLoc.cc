@@ -209,7 +209,7 @@ void vlCellLocator::SubDivide()
   this->SubDivideTime.Modified();
 }
 
-void MarkParents(void* a, int i, int j, int k)
+void vlCellLocator::MarkParents(void* a, int i, int j, int k)
 {
   // will's code
 }
