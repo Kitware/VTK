@@ -102,6 +102,7 @@ vtkPerspectiveTransform \
 vtkPixel \
 vtkPlane \
 vtkPlaneCollection \
+vtkPlanes \
 vtkPointData \
 vtkPointLocator \
 vtkPointLocator2D \

@@ -220,7 +220,6 @@ vtkPLOT3DReader \
 vtkPicker \
 vtkPiecewiseFunction \
 vtkPlaneSource \
-vtkPlanes \
 vtkPointDataToCellData \
 vtkPointLoad \
 vtkPointPicker \
