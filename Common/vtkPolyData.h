@@ -239,6 +239,9 @@ public:
 
   // Description:
   // Determine whether two points form an edge. If they do, return non-zero.
+  // By definition PolyVertex and PolyLine have no edges since 1-dimensional 
+  // edges are only found on cells 2D and higher. 
+  // Edges are defined as 1-D boundary entities to cells.
   // Make sure BuildLinks() has been called first.
   int IsEdge(vtkIdType p1, vtkIdType p2);
 
