@@ -29,7 +29,7 @@ class vtkMultiThreader;
 class vtkRenderer;
 class vtkTimerLog;
 class vtkVolume;
-class vtkUnstructuredGridVolumeRayCastFunction;
+class vtkUnstructuredGridBunykRayCastFunction;
 class vtkRayCastImageDisplayHelper;
 
 class VTK_RENDERING_EXPORT vtkUnstructuredGridVolumeRayCastMapper : public vtkUnstructuredGridVolumeMapper
@@ -79,11 +79,6 @@ public:
   vtkSetClampMacro( IntermixIntersectingGeometry, int, 0, 1 );
   vtkGetMacro( IntermixIntersectingGeometry, int );
   vtkBooleanMacro( IntermixIntersectingGeometry, int );
-
-  // Description:
-  // Set/Get the helper class for casting rays.
-  virtual void SetRayCastFunction(vtkUnstructuredGridVolumeRayCastFunction *f);
-  vtkGetObjectMacro(RayCastFunction, vtkUnstructuredGridVolumeRayCastFunction);
   
 //BTX
   // Description:
@@ -165,7 +160,7 @@ protected:
   double         GetMinimumBoundsDepth( vtkRenderer *ren,
                                        vtkVolume   *vol );
   
-  vtkUnstructuredGridVolumeRayCastFunction *RayCastFunction;
+  vtkUnstructuredGridBunykRayCastFunction *BunykFunction;
 
   vtkVolume     *CurrentVolume;
   vtkRenderer   *CurrentRenderer;

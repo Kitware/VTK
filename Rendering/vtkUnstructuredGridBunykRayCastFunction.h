@@ -66,9 +66,6 @@ class vtkMatrix4x4;
 class vtkPiecewiseFunction;
 class vtkColorTransferFunction;
 class vtkUnstructuredGrid;
-class vtkIdList;
-class vtkDoubleArray;
-class vtkDataArray;
 
 // We manage the memory for the list of intersections ourself - this is the
 // storage used. We keep 10,000 elements in each array, and we can have up to 
@@ -91,29 +88,6 @@ public:
   // Description:
   // Called by the ray cast mapper at the end of rendering
   virtual void Finalize();
-
-  // Description:
-  // Initialize the traversal of a ray.
-  virtual void InitializeRay(int x, int y, double nearClipZ);
-
-  // Description:
-  // Get the intersections of the next \c maxNumIntersections cells.  The
-  // cell ids are stored in \c intersectedCells and the length of each ray
-  // segment within the cell is stored in \c intersectionLengths.  The
-  // point scalars \c scalars are interpolated and stored in \c
-  // nearIntersections and \c farIntersections.  \c intersectedCells, \c
-  // intersectionLengths, or \c scalars may be \c NULL to supress passing
-  // the associated information.  The ray will terminate when \c farClipZ
-  // is reached.  The number of intersections actually encountered is
-  // returned.  0 is returned if and only if no more intersections are
-  // to be found.
-  virtual vtkIdType GetNextIntersections(vtkIdType maxNumIntersections,
-                                         vtkIdList *intersectedCells,
-                                         vtkDoubleArray *intersectionLengths,
-                                         vtkDataArray *scalars,
-                                         vtkDataArray *nearIntersections,
-                                         vtkDataArray *farIntersections,
-                                         double farClipZ);
   
   // Description:
   // Called by the ray cast mapper once per ray
@@ -123,8 +97,8 @@ public:
   // templated function
   class Triangle {
   public:
-    vtkIdType PointIndex[3];
-    vtkIdType ReferredByTetra[2];
+    int       PointIndex[3];
+    int       ReferredByTetra[2];
     double    P1X, P1Y;
     double    P2X, P2Y;
     double    Denominator;
@@ -189,7 +163,8 @@ protected:
   vtkRenderer                             *Renderer;
   vtkVolume                               *Volume;
   vtkUnstructuredGridVolumeRayCastMapper  *Mapper;
-  vtkDataArray                            *Scalars;
+  void                                    *Scalars;
+  int                                      ScalarType;
   int                                      NumberOfComponents;
   
   // Computed during the initialize method - if something is
@@ -267,24 +242,12 @@ protected:
   // (transformed into view space) - these are the Points. 
   Triangle **TetraTriangles;
   Triangle  *TriangleList;
-
-  // This is state that is stored between calls to GetNextIntersections.
-  int RayX;
-  int RayY;
-  Intersection *IntersectionPtr;
-  Triangle *CurrentTriangle;
-  vtkIdType CurrentTetra;
-
-  // Used by CastRay method.
-  vtkDoubleArray *IntersectionLengths;
-  vtkDataArray *NearIntersections;
-  vtkDataArray *FarIntersections;
   
   // Compute whether a boundary triangle is front facing by
   // looking at the fourth point in the tetra to see if it is
   // in front (triangle is backfacing) or behind (triangle is
   // front facing) the plane containing the triangle.
-  int  IsTriangleFrontFacing( Triangle *triPtr, vtkIdType tetraIndex );
+  int  IsTriangleFrontFacing( Triangle *triPtr, int tetraIndex );
   
   // The image contains lists of intersections per pixel - we
   // need to clear this during the initialization phase for each
@@ -329,7 +292,7 @@ protected:
   // This method is used during the initialization process to
   // update the arrays holding the mapping from scalar value
   // to color/opacity
-  virtual void  UpdateColorTable();
+  void          UpdateColorTable();
 
   // This method is used to change the number of components
   // for which information is being cached. This will delete

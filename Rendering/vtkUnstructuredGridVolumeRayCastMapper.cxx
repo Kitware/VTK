@@ -37,11 +37,9 @@
 VTK_THREAD_RETURN_TYPE UnstructuredGridVolumeRayCastMapper_CastRays( void *arg );
 
 
-vtkCxxRevisionMacro(vtkUnstructuredGridVolumeRayCastMapper, "1.11");
+vtkCxxRevisionMacro(vtkUnstructuredGridVolumeRayCastMapper, "1.12");
 vtkStandardNewMacro(vtkUnstructuredGridVolumeRayCastMapper);
 
-vtkCxxSetObjectMacro(vtkUnstructuredGridVolumeRayCastMapper, RayCastFunction,
-                     vtkUnstructuredGridVolumeRayCastFunction);
 
 // Construct a new vtkUnstructuredGridVolumeRayCastMapper with default values
 vtkUnstructuredGridVolumeRayCastMapper::vtkUnstructuredGridVolumeRayCastMapper()
@@ -75,7 +73,7 @@ vtkUnstructuredGridVolumeRayCastMapper::vtkUnstructuredGridVolumeRayCastMapper()
 
   this->ImageDisplayHelper     = vtkRayCastImageDisplayHelper::New();
   
-  this->RayCastFunction = vtkUnstructuredGridBunykRayCastFunction::New();
+  this->BunykFunction = vtkUnstructuredGridBunykRayCastFunction::New();
   
 }
 
@@ -97,8 +95,8 @@ vtkUnstructuredGridVolumeRayCastMapper::~vtkUnstructuredGridVolumeRayCastMapper(
     }
   
   this->ImageDisplayHelper->Delete();
-
-  this->SetRayCastFunction(NULL);
+  
+  this->BunykFunction->Delete();
 }
 
 float vtkUnstructuredGridVolumeRayCastMapper::RetrieveRenderTime( vtkRenderer *ren, 
@@ -334,7 +332,7 @@ void vtkUnstructuredGridVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume
     this->ZBuffer = ren->GetRenderWindow()->GetZbufferData(x1,y1,x2,y2);
     }
       
-  this->RayCastFunction->Initialize( ren, vol );
+  this->BunykFunction->Initialize( ren, vol );
   
   // Save the volume and mapper temporarily so that they can be accessed later
   this->CurrentVolume   = vol;
@@ -449,7 +447,7 @@ void vtkUnstructuredGridVolumeRayCastMapper::CastRays( int threadID, int threadC
         bounds[1] = this->GetZBufferValue( x, y );
         }
       
-      this->RayCastFunction->CastRay( x, y, bounds, color );
+      this->BunykFunction->CastRay( x, y, bounds, color );
       
       if ( color[3] > 0.0 )
         {
