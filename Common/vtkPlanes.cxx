@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkPlanes, "1.9");
+vtkCxxRevisionMacro(vtkPlanes, "1.10");
 vtkStandardNewMacro(vtkPlanes);
 vtkCxxSetObjectMacro(vtkPlanes,Points,vtkPoints);
 
@@ -64,7 +64,7 @@ void vtkPlanes::SetNormals(vtkDataArray* normals)
   vtkDebugMacro(<< this->GetClassName() << " (" << this
                 << "): setting Normals to " << normals ); 
 
-  if (normals->GetNumberOfComponents() != 3)
+  if (normals && normals->GetNumberOfComponents() != 3)
     {
     vtkWarningMacro("This array does not have 3 components. Ignoring normals.");
     return;
