@@ -22,6 +22,7 @@ vtkAssemblyNode.cxx
 vtkAssemblyPath.cxx
 vtkAssemblyPaths.cxx
 vtkBitArray.cxx
+vtkBox.cxx
 vtkByteSwap.cxx
 vtkCallbackCommand.cxx
 vtkCell.cxx
