@@ -61,6 +61,7 @@ EXAMPLES = VisQuad \
 	expCos \
 	fly \
 	finance \
+	layers \
 	medical1 \
 	medical2 \
 	medical3 \
@@ -213,6 +214,9 @@ finance: finance.o ${VTKLIB}
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 fly: fly.o ${VTKLIB}
 	${CXX} -o fly ${CXX_FLAGS} fly.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+layers: layers.o ${VTKLIB}
+	${CXX} -o layers ${CXX_FLAGS} layers.o ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 medical1: medical1.o ${VTKLIB}
 	${CXX} -o medical1 ${CXX_FLAGS} medical1.o ${XLDFLAGS} ${LDLIBS} \
