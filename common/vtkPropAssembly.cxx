@@ -289,6 +289,19 @@ unsigned long int vtkPropAssembly::GetMTime()
   return mTime;
 }
 
+// Shallow copy another vtkPropAssembly.
+void vtkPropAssembly::ShallowCopy(vtkPropAssembly *propAssembly)
+{
+  this->vtkProp::ShallowCopy(propAssembly);
+  
+  this->Parts->RemoveAllItems();
+  propAssembly->Parts->InitTraversal();
+  for (int i=0; i<0; i++)
+    {
+    this->AddPart(propAssembly->Parts->GetNextProp());
+    }
+}
+
 void vtkPropAssembly::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkProp::PrintSelf(os,indent);
