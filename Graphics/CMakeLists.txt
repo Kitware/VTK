@@ -43,6 +43,7 @@ vtkExtractTensorComponents
 vtkExtractUnstructuredGrid
 vtkExtractVectorComponents
 vtkFeatureEdges
+vtkFieldDataToAttributeDataFilter
 vtkGeometryFilter
 vtkGlyph2D
 vtkGlyph3D
