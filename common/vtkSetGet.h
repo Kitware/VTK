@@ -254,9 +254,9 @@ virtual void Set##name (type _arg1, type _arg2) \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting " << #name " to (" << _arg1 << "," << _arg2 << ")"); \
   if ((this->name[0] != _arg1)||(this->name[1] != _arg2)) \
     { \
-    this->Modified(); \
     this->name[0] = _arg1; \
     this->name[1] = _arg2; \
+    this->Modified(); \
     } \
   }; \
 void Set##name (type _arg[2]) \
@@ -287,10 +287,10 @@ virtual void Set##name (type _arg1, type _arg2, type _arg3) \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting " << #name " to (" << _arg1 << "," << _arg2 << "," << _arg3 << ")"); \
   if ((this->name[0] != _arg1)||(this->name[1] != _arg2)||(this->name[2] != _arg3)) \
     { \
-    this->Modified(); \
     this->name[0] = _arg1; \
     this->name[1] = _arg2; \
     this->name[2] = _arg3; \
+    this->Modified(); \
     } \
   }; \
 virtual void Set##name (type _arg[3]) \
@@ -322,11 +322,11 @@ virtual void Set##name (type _arg1, type _arg2, type _arg3, type _arg4) \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting " << #name " to (" << _arg1 << "," << _arg2 << "," << _arg3 << "," << _arg4 << ")"); \
   if ((this->name[0] != _arg1)||(this->name[1] != _arg2)||(this->name[2] != _arg3)||(this->name[3] != _arg4)) \
     { \
-    this->Modified(); \
     this->name[0] = _arg1; \
     this->name[1] = _arg2; \
     this->name[2] = _arg3; \
     this->name[3] = _arg4; \
+    this->Modified(); \
     } \
   }; \
 virtual void Set##name (type _arg[4]) \
@@ -360,13 +360,13 @@ virtual void Set##name (type _arg1, type _arg2, type _arg3, type _arg4, type _ar
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting " << #name " to (" << _arg1 << "," << _arg2 << "," << _arg3 << "," << _arg4 << "," << _arg5 << "," << _arg6 << ")"); \
   if ((this->name[0] != _arg1)||(this->name[1] != _arg2)||(this->name[2] != _arg3)||(this->name[3] != _arg4)||(this->name[4] != _arg5)||(this->name[5] != _arg6)) \
     { \
-    this->Modified(); \
     this->name[0] = _arg1; \
     this->name[1] = _arg2; \
     this->name[2] = _arg3; \
     this->name[3] = _arg4; \
     this->name[4] = _arg5; \
     this->name[5] = _arg6; \
+    this->Modified(); \
     } \
   }; \
 virtual void Set##name (type _arg[6]) \
@@ -407,8 +407,8 @@ virtual void Set##name(type data[]) \
   for (i=0; i<count; i++) { if ( data[i] != this->name[i] ) { break; }} \
   if ( i < count ) \
     { \
-    this->Modified(); \
     for (i=0; i<count; i++) { this->name[i] = data[i]; }\
+    this->Modified(); \
     } \
 }
 

@@ -73,6 +73,7 @@ static const char *vtkCommandEventStrings[] = {
   "MouseMoveEvent",
   "ResetCameraEvent",
   "ResetCameraClippingRangeEvent",
+  "ModifiedEvent",
   NULL
 };
 

@@ -99,6 +99,7 @@ public:
     MouseMoveEvent,
     ResetCameraEvent,
     ResetCameraClippingRangeEvent,
+    ModifiedEvent,
     UserEvent = 1000
   };
 //ETX

@@ -92,10 +92,10 @@ ostream& operator<<(ostream& os, vtkObject& o)
 vtkObject::vtkObject()
 {
   this->Debug = 0;
-  this->Modified(); // Insures modified time > than any other time
-  // initial reference count = 1 and reference counting on.
   this->ReferenceCount = 1;
   this->SubjectHelper = NULL;
+  this->Modified(); // Insures modified time > than any other time
+  // initial reference count = 1 and reference counting on.
 }
 
 // Delete a vtk object. This method should always be used to delete an object 
