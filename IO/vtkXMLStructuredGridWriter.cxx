@@ -17,12 +17,11 @@
 #include "vtkCellData.h"
 #include "vtkErrorCode.h"
 #include "vtkExtentTranslator.h"
-#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkStructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkXMLStructuredGridWriter, "1.6");
+vtkCxxRevisionMacro(vtkXMLStructuredGridWriter, "1.7");
 vtkStandardNewMacro(vtkXMLStructuredGridWriter);
 
 //----------------------------------------------------------------------------
@@ -43,9 +42,20 @@ void vtkXMLStructuredGridWriter::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
+void vtkXMLStructuredGridWriter::SetInput(vtkStructuredGrid* input)
+{
+  this->vtkProcessObject::SetNthInput(0, input);
+}
+
+//----------------------------------------------------------------------------
 vtkStructuredGrid* vtkXMLStructuredGridWriter::GetInput()
 {
-  return static_cast<vtkStructuredGrid*>(this->Superclass::GetInput());
+  if(this->NumberOfInputs < 1)
+    {
+    return 0;
+    }
+  
+  return static_cast<vtkStructuredGrid*>(this->Inputs[0]);
 }
 
 //----------------------------------------------------------------------------
@@ -169,11 +179,4 @@ void vtkXMLStructuredGridWriter::CalculateSuperclassFraction(float* fractions)
   fractions[0] = 0;
   fractions[1] = fractions[0] + float(superclassPieceSize)/totalPieceSize;
   fractions[2] = 1;
-}
-
-int vtkXMLStructuredGridWriter::FillInputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
-{
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkStructuredGrid");
-  return 1;
 }

@@ -81,7 +81,7 @@ protected:
   static void ProgressCallbackFunction(vtkObject*, unsigned long, void*,
                                        void*);
   // Progress callback from internal writer.
-  virtual void ProgressCallback(vtkAlgorithm* w);
+  virtual void ProgressCallback(vtkProcessObject* w);
   
   int StartPiece;
   int EndPiece;

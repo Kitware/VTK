@@ -13,14 +13,12 @@
 
 =========================================================================*/
 #include "vtkXMLPRectilinearGridWriter.h"
-
-#include "vtkErrorCode.h"
-#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
-#include "vtkRectilinearGrid.h"
 #include "vtkXMLRectilinearGridWriter.h"
+#include "vtkErrorCode.h"
+#include "vtkRectilinearGrid.h"
 
-vtkCxxRevisionMacro(vtkXMLPRectilinearGridWriter, "1.5");
+vtkCxxRevisionMacro(vtkXMLPRectilinearGridWriter, "1.6");
 vtkStandardNewMacro(vtkXMLPRectilinearGridWriter);
 
 //----------------------------------------------------------------------------
@@ -40,9 +38,20 @@ void vtkXMLPRectilinearGridWriter::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
+void vtkXMLPRectilinearGridWriter::SetInput(vtkRectilinearGrid* input)
+{
+  this->vtkProcessObject::SetNthInput(0, input);
+}
+
+//----------------------------------------------------------------------------
 vtkRectilinearGrid* vtkXMLPRectilinearGridWriter::GetInput()
 {
-  return static_cast<vtkRectilinearGrid*>(this->Superclass::GetInput());
+  if(this->NumberOfInputs < 1)
+    {
+    return 0;
+    }
+  
+  return static_cast<vtkRectilinearGrid*>(this->Inputs[0]);
 }
 
 //----------------------------------------------------------------------------
@@ -79,11 +88,4 @@ void vtkXMLPRectilinearGridWriter::WritePData(vtkIndent indent)
   vtkRectilinearGrid* input = this->GetInput();
   this->WritePCoordinates(input->GetXCoordinates(), input->GetYCoordinates(),
                           input->GetZCoordinates(), indent);
-}
-
-int vtkXMLPRectilinearGridWriter::FillInputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
-{
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkRectilinearGrid");
-  return 1;
 }

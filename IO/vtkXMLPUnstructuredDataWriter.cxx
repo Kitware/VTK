@@ -17,7 +17,7 @@
 #include "vtkErrorCode.h"
 #include "vtkPointSet.h"
 
-vtkCxxRevisionMacro(vtkXMLPUnstructuredDataWriter, "1.4");
+vtkCxxRevisionMacro(vtkXMLPUnstructuredDataWriter, "1.5");
 
 //----------------------------------------------------------------------------
 vtkXMLPUnstructuredDataWriter::vtkXMLPUnstructuredDataWriter()
@@ -38,7 +38,12 @@ void vtkXMLPUnstructuredDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 vtkPointSet* vtkXMLPUnstructuredDataWriter::GetInputAsPointSet()
 {
-  return static_cast<vtkPointSet*>(this->GetInput());
+  if(this->NumberOfInputs < 1)
+    {
+    return 0;
+    }
+  
+  return static_cast<vtkPointSet*>(this->Inputs[0]);
 }
 
 //----------------------------------------------------------------------------

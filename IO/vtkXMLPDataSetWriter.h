@@ -35,11 +35,10 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLPDataSetWriter* New();
   
-  //BTX
   // Description:
   // Get/Set the writer's input.
+  void SetInput(vtkDataSet* input);
   vtkDataSet* GetInput();
-  //ETX
   
 protected:
   vtkXMLPDataSetWriter();

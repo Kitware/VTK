@@ -13,13 +13,11 @@
 
 =========================================================================*/
 #include "vtkXMLPUnstructuredGridWriter.h"
-
-#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
-#include "vtkUnstructuredGrid.h"
 #include "vtkXMLUnstructuredGridWriter.h"
+#include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkXMLPUnstructuredGridWriter, "1.3");
+vtkCxxRevisionMacro(vtkXMLPUnstructuredGridWriter, "1.4");
 vtkStandardNewMacro(vtkXMLPUnstructuredGridWriter);
 
 //----------------------------------------------------------------------------
@@ -39,9 +37,20 @@ void vtkXMLPUnstructuredGridWriter::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
+void vtkXMLPUnstructuredGridWriter::SetInput(vtkUnstructuredGrid* input)
+{
+  this->vtkProcessObject::SetNthInput(0, input);
+}
+
+//----------------------------------------------------------------------------
 vtkUnstructuredGrid* vtkXMLPUnstructuredGridWriter::GetInput()
 {
-  return static_cast<vtkUnstructuredGrid*>(this->Superclass::GetInput());
+  if(this->NumberOfInputs < 1)
+    {
+    return 0;
+    }
+  
+  return static_cast<vtkUnstructuredGrid*>(this->Inputs[0]);
 }
 
 //----------------------------------------------------------------------------
@@ -64,11 +73,4 @@ vtkXMLPUnstructuredGridWriter::CreateUnstructuredPieceWriter()
   vtkXMLUnstructuredGridWriter* pWriter = vtkXMLUnstructuredGridWriter::New();
   pWriter->SetInput(this->GetInput());
   return pWriter;
-}
-
-int vtkXMLPUnstructuredGridWriter::FillInputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
-{
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
-  return 1;
 }

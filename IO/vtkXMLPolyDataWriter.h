@@ -37,12 +37,11 @@ public:
   vtkTypeRevisionMacro(vtkXMLPolyDataWriter,vtkXMLUnstructuredDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLPolyDataWriter* New();
-
-  //BTX
+  
   // Description:
   // Get/Set the writer's input.
+  void SetInput(vtkPolyData* input);
   vtkPolyData* GetInput();
-  //ETX
   
   // Description:
   // Get the default file extension for files written by this writer.
@@ -51,9 +50,6 @@ public:
 protected:
   vtkXMLPolyDataWriter();
   ~vtkXMLPolyDataWriter();  
-
-  // see algorithm for more info
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
 
   const char* GetDataSetName();
   void SetInputUpdateExtent(int piece, int numPieces, int ghostLevel);

@@ -18,12 +18,11 @@
 #include "vtkErrorCode.h"
 #include "vtkExtentTranslator.h"
 #include "vtkFloatArray.h"
-#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkRectilinearGrid.h"
 
-vtkCxxRevisionMacro(vtkXMLRectilinearGridWriter, "1.7");
+vtkCxxRevisionMacro(vtkXMLRectilinearGridWriter, "1.8");
 vtkStandardNewMacro(vtkXMLRectilinearGridWriter);
 
 //----------------------------------------------------------------------------
@@ -43,9 +42,20 @@ void vtkXMLRectilinearGridWriter::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
+void vtkXMLRectilinearGridWriter::SetInput(vtkRectilinearGrid* input)
+{
+  this->vtkProcessObject::SetNthInput(0, input);
+}
+
+//----------------------------------------------------------------------------
 vtkRectilinearGrid* vtkXMLRectilinearGridWriter::GetInput()
 {
-  return static_cast<vtkRectilinearGrid*>(this->Superclass::GetInput());
+  if(this->NumberOfInputs < 1)
+    {
+    return 0;
+    }
+  
+  return static_cast<vtkRectilinearGrid*>(this->Inputs[0]);
 }
 
 //----------------------------------------------------------------------------
@@ -230,11 +240,4 @@ void vtkXMLRectilinearGridWriter::CalculateSuperclassFraction(float* fractions)
   fractions[0] = 0;
   fractions[1] = fractions[0] + float(superclassPieceSize)/totalPieceSize;
   fractions[2] = 1;
-}
-
-int vtkXMLRectilinearGridWriter::FillInputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
-{
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkRectilinearGrid");
-  return 1;
 }

@@ -13,14 +13,12 @@
 
 =========================================================================*/
 #include "vtkXMLPStructuredGridWriter.h"
-
-#include "vtkErrorCode.h"
-#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
-#include "vtkStructuredGrid.h"
 #include "vtkXMLStructuredGridWriter.h"
+#include "vtkErrorCode.h"
+#include "vtkStructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkXMLPStructuredGridWriter, "1.5");
+vtkCxxRevisionMacro(vtkXMLPStructuredGridWriter, "1.6");
 vtkStandardNewMacro(vtkXMLPStructuredGridWriter);
 
 //----------------------------------------------------------------------------
@@ -39,11 +37,21 @@ void vtkXMLPStructuredGridWriter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 }
 
+//----------------------------------------------------------------------------
+void vtkXMLPStructuredGridWriter::SetInput(vtkStructuredGrid* input)
+{
+  this->vtkProcessObject::SetNthInput(0, input);
+}
 
 //----------------------------------------------------------------------------
 vtkStructuredGrid* vtkXMLPStructuredGridWriter::GetInput()
 {
-  return static_cast<vtkStructuredGrid*>(this->Superclass::GetInput());
+  if(this->NumberOfInputs < 1)
+    {
+    return 0;
+    }
+  
+  return static_cast<vtkStructuredGrid*>(this->Inputs[0]);
 }
 
 //----------------------------------------------------------------------------
@@ -78,11 +86,4 @@ void vtkXMLPStructuredGridWriter::WritePData(vtkIndent indent)
     }
   vtkStructuredGrid* input = this->GetInput();  
   this->WritePPoints(input->GetPoints(), indent);
-}
-
-int vtkXMLPStructuredGridWriter::FillInputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
-{
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkStructuredGrid");
-  return 1;
 }
