@@ -816,6 +816,7 @@ SOURCE=.\getclasses.cxx
 !IF  "$(CFG)" == "pcmaker - Win32 Release"
 
 DEP_CPP_GETCL=\
+	".\advanced.h"\
 	".\pcmaker.h"\
 	".\pcmakerDlg.h"\
 	".\StdAfx.h"\
@@ -973,9 +974,6 @@ DEP_CPP_ADVAN=\
 # Begin Source File
 
 SOURCE=..\tcl\y.tab.c
-
-!IF  "$(CFG)" == "cpp_parse - Win32 Release"
-
 DEP_CPP_Y_TAB=\
 	"..\tcl\lex.yy.c"\
 	
@@ -983,18 +981,6 @@ DEP_CPP_Y_TAB=\
 "$(INTDIR)\y.tab.obj" : $(SOURCE) $(DEP_CPP_Y_TAB) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF  "$(CFG)" == "cpp_parse - Win32 Debug"
-
-DEP_CPP_Y_TAB=\
-	"..\tcl\lex.yy.c"\
-	
-
-"$(INTDIR)\y.tab.obj" : $(SOURCE) $(DEP_CPP_Y_TAB) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF 
 
 # End Source File
 # End Target

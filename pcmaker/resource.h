@@ -33,36 +33,11 @@
 #define IDC_EDIT1                       1027
 #define IDC_ADVANCED                    1027
 #define IDC_INCREMENTAL                 1028
-#define IDC_LINKFLAG_Common             1028
 #define IDC_GEAE                        1029
-#define IDC_LINKLIB_Common              1029
 #define IDC_DFA                         1030
-#define IDC_LINKFLAG_Graphics           1030
 #define IDC_WHERETCL                    1031
-#define IDC_LINKLIB_Graphics            1031
-#define IDC_CFLAG_Common                1032
-#define IDC_CFLAG_Graphics              1033
-#define IDC_CFLAG_Imaging               1034
-#define IDC_LINKFLAG_Imaging            1035
-#define IDC_LINKLIB_Imaging             1036
-#define IDC_CFLAG_Contrib               1037
-#define IDC_LINKFLAG_Contrib            1038
-#define IDC_LINKLIB_Contrib             1039
-#define IDC_CFLAG_GEAE                  1040
-#define IDC_LINKFLAG_GEAE               1041
-#define IDC_LINKLIB_GEAE                1042
-#define IDC_CFLAG_GEMSVol               1043
-#define IDC_LINKFLAG_GEMSVol            1044
-#define IDC_LINKLIB_GEMSVol             1045
-#define IDC_CFLAG_GEMSIP                1046
-#define IDC_LINKFLAG_GEMSIP             1047
-#define IDC_LINKLIB_GEMSIP              1048
-#define IDC_CFLAG_GEMSIO                1052
-#define IDC_LINKFLAG_GEMSIO             1053
-#define IDC_LINKLIB_GEMSIO              1054
-#define IDC_CFLAG_Working               1055
-#define IDC_LINKFLAG_Working            1056
-#define IDC_LINKLIB_Working             1057
+#define IDC_EXTRA_CFLAGS                1032
+#define IDC_EXTRA_LINK_FLAGS            1033
 
 // Next default values for new objects
 // 

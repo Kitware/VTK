@@ -124,33 +124,8 @@ int ReadRegistry(CPcmakerDlg &dlg)
       "C:\\Program Files\\DevStudio\\vc");
 
     // read the advanced options
-    ReadAValue(hKey, &(dlg.adlg.m_CFLAG_Common),"CFLAG_Common","");
-    ReadAValue(hKey, &(dlg.adlg.m_CFLAG_Contrib),"CFLAG_Contrib","");
-    ReadAValue(hKey, &(dlg.adlg.m_CFLAG_GEAE),"CFLAG_GEAE","");
-    ReadAValue(hKey, &(dlg.adlg.m_CFLAG_GEMSIO),"CFLAG_GEMSIO","");
-    ReadAValue(hKey, &(dlg.adlg.m_CFLAG_GEMSIP),"CFLAG_GEMSIP","");
-    ReadAValue(hKey, &(dlg.adlg.m_CFLAG_GEMSVol),"CFLAG_GEMSVol","");
-    ReadAValue(hKey, &(dlg.adlg.m_CFLAG_Graphics),"CFLAG_Graphics","");
-    ReadAValue(hKey, &(dlg.adlg.m_CFLAG_Imaging),"CFLAG_Imaging","");
-    ReadAValue(hKey, &(dlg.adlg.m_CFLAG_Working),"CFLAG_Working","");
-    ReadAValue(hKey, &(dlg.adlg.m_LINKF_Common),"LINKF_Common","");
-    ReadAValue(hKey, &(dlg.adlg.m_LINKF_Contrib),"LINKF_Contrib","");
-    ReadAValue(hKey, &(dlg.adlg.m_LINKF_GEAE),"LINKF_GEAE","");
-    ReadAValue(hKey, &(dlg.adlg.m_LINKF_GEMSIO),"LINKF_GEMSIO","");
-    ReadAValue(hKey, &(dlg.adlg.m_LINKF_GEMSIP),"LINKF_GEMSIP","");
-    ReadAValue(hKey, &(dlg.adlg.m_LINKF_GEMSVol),"LINKF_GEMSVol","");
-    ReadAValue(hKey, &(dlg.adlg.m_LINKF_Graphics),"LINKF_Graphics","");
-    ReadAValue(hKey, &(dlg.adlg.m_LINKF_Imaging),"LINKF_Imaging","");
-    ReadAValue(hKey, &(dlg.adlg.m_LINKF_Working),"LINKF_Working","");
-    ReadAValue(hKey, &(dlg.adlg.m_LINKL_Common),"LINKL_Common","");
-    ReadAValue(hKey, &(dlg.adlg.m_LINKL_Contrib),"LINKL_Contrib","");
-    ReadAValue(hKey, &(dlg.adlg.m_LINKL_GEAE),"LINKL_GEAE","");
-    ReadAValue(hKey, &(dlg.adlg.m_LINKL_GEMSIO),"LINKL_GEMSIO","");
-    ReadAValue(hKey, &(dlg.adlg.m_LINKL_GEMSIP),"LINKL_GEMSIP","");
-    ReadAValue(hKey, &(dlg.adlg.m_LINKL_GEMSVol),"LINKL_GEMSVol","");
-    ReadAValue(hKey, &(dlg.adlg.m_LINKL_Graphics),"LINKL_Graphics","");
-    ReadAValue(hKey, &(dlg.adlg.m_LINKL_Imaging),"LINKL_Imaging","");
-    ReadAValue(hKey, &(dlg.adlg.m_LINKL_Working),"LINKL_Working","");
+    ReadAValue(hKey, &(dlg.adlg.m_EXTRA_CFLAGS),"EXTRA_CFLAGS","");
+    ReadAValue(hKey, &(dlg.adlg.m_EXTRA_LINK_FLAGS),"EXTRA_LINK_FLAGS","");
 
     // save which compiler
     dwType = REG_DWORD;
@@ -236,89 +211,12 @@ void WriteRegistry(CPcmakerDlg &dlg)
 		  dlg.m_WhereCompiler.GetLength());
 
     // save the advanced settings
-    RegSetValueEx(hKey, _T("CFLAG_Common"), 0, REG_SZ, 
-		  (CONST BYTE *)(const char *)dlg.adlg.m_CFLAG_Common, 
-		  dlg.adlg.m_CFLAG_Common.GetLength());
-    RegSetValueEx(hKey, _T("CFLAG_Contrib"), 0, REG_SZ, 
-		  (CONST BYTE *)(const char *)dlg.adlg.m_CFLAG_Contrib, 
-		  dlg.adlg.m_CFLAG_Contrib.GetLength());
-    RegSetValueEx(hKey, _T("CFLAG_GEAE"), 0, REG_SZ, 
-		  (CONST BYTE *)(const char *)dlg.adlg.m_CFLAG_GEAE, 
-		  dlg.adlg.m_CFLAG_GEAE.GetLength());
-    RegSetValueEx(hKey, _T("CFLAG_GEMSIO"), 0, REG_SZ, 
-		  (CONST BYTE *)(const char *)dlg.adlg.m_CFLAG_GEMSIO, 
-		  dlg.adlg.m_CFLAG_GEMSIO.GetLength());
-    RegSetValueEx(hKey, _T("CFLAG_GEMSIP"), 0, REG_SZ, 
-		  (CONST BYTE *)(const char *)dlg.adlg.m_CFLAG_GEMSIP, 
-		  dlg.adlg.m_CFLAG_GEMSIP.GetLength());
-    RegSetValueEx(hKey, _T("CFLAG_GEMSVol"), 0, REG_SZ, 
-		  (CONST BYTE *)(const char *)dlg.adlg.m_CFLAG_GEMSVol, 
-		  dlg.adlg.m_CFLAG_GEMSVol.GetLength());
-    RegSetValueEx(hKey, _T("CFLAG_Graphics"), 0, REG_SZ, 
-		  (CONST BYTE *)(const char *)dlg.adlg.m_CFLAG_Graphics, 
-		  dlg.adlg.m_CFLAG_Graphics.GetLength());
-    RegSetValueEx(hKey, _T("CFLAG_Imaging"), 0, REG_SZ, 
-		  (CONST BYTE *)(const char *)dlg.adlg.m_CFLAG_Imaging, 
-		  dlg.adlg.m_CFLAG_Imaging.GetLength());
-    RegSetValueEx(hKey, _T("CFLAG_Working"), 0, REG_SZ, 
-		  (CONST BYTE *)(const char *)dlg.adlg.m_CFLAG_Working, 
-		  dlg.adlg.m_CFLAG_Working.GetLength());
-
-    RegSetValueEx(hKey, _T("LINKF_Common"), 0, REG_SZ, 
-		  (CONST BYTE *)(const char *)dlg.adlg.m_LINKF_Common, 
-		  dlg.adlg.m_LINKF_Common.GetLength());
-    RegSetValueEx(hKey, _T("LINKF_Contrib"), 0, REG_SZ, 
-		  (CONST BYTE *)(const char *)dlg.adlg.m_LINKF_Contrib, 
-		  dlg.adlg.m_LINKF_Contrib.GetLength());
-    RegSetValueEx(hKey, _T("LINKF_GEAE"), 0, REG_SZ, 
-		  (CONST BYTE *)(const char *)dlg.adlg.m_LINKF_GEAE, 
-		  dlg.adlg.m_LINKF_GEAE.GetLength());
-    RegSetValueEx(hKey, _T("LINKF_GEMSIO"), 0, REG_SZ, 
-		  (CONST BYTE *)(const char *)dlg.adlg.m_LINKF_GEMSIO, 
-		  dlg.adlg.m_LINKF_GEMSIO.GetLength());
-    RegSetValueEx(hKey, _T("LINKF_GEMSIP"), 0, REG_SZ, 
-		  (CONST BYTE *)(const char *)dlg.adlg.m_LINKF_GEMSIP, 
-		  dlg.adlg.m_LINKF_GEMSIP.GetLength());
-    RegSetValueEx(hKey, _T("LINKF_GEMSVol"), 0, REG_SZ, 
-		  (CONST BYTE *)(const char *)dlg.adlg.m_LINKF_GEMSVol, 
-		  dlg.adlg.m_LINKF_GEMSVol.GetLength());
-    RegSetValueEx(hKey, _T("LINKF_Graphics"), 0, REG_SZ, 
-		  (CONST BYTE *)(const char *)dlg.adlg.m_LINKF_Graphics, 
-		  dlg.adlg.m_LINKF_Graphics.GetLength());
-    RegSetValueEx(hKey, _T("LINKF_Imaging"), 0, REG_SZ, 
-		  (CONST BYTE *)(const char *)dlg.adlg.m_LINKF_Imaging, 
-		  dlg.adlg.m_LINKF_Imaging.GetLength());
-    RegSetValueEx(hKey, _T("LINKF_Working"), 0, REG_SZ, 
-		  (CONST BYTE *)(const char *)dlg.adlg.m_LINKF_Working, 
-		  dlg.adlg.m_LINKF_Working.GetLength());
-
-        RegSetValueEx(hKey, _T("LINKL_Common"), 0, REG_SZ, 
-		  (CONST BYTE *)(const char *)dlg.adlg.m_LINKL_Common, 
-		  dlg.adlg.m_LINKL_Common.GetLength());
-    RegSetValueEx(hKey, _T("LINKL_Contrib"), 0, REG_SZ, 
-		  (CONST BYTE *)(const char *)dlg.adlg.m_LINKL_Contrib, 
-		  dlg.adlg.m_LINKL_Contrib.GetLength());
-    RegSetValueEx(hKey, _T("LINKL_GEAE"), 0, REG_SZ, 
-		  (CONST BYTE *)(const char *)dlg.adlg.m_LINKL_GEAE, 
-		  dlg.adlg.m_LINKL_GEAE.GetLength());
-    RegSetValueEx(hKey, _T("LINKL_GEMSIO"), 0, REG_SZ, 
-		  (CONST BYTE *)(const char *)dlg.adlg.m_LINKL_GEMSIO, 
-		  dlg.adlg.m_LINKL_GEMSIO.GetLength());
-    RegSetValueEx(hKey, _T("LINKL_GEMSIP"), 0, REG_SZ, 
-		  (CONST BYTE *)(const char *)dlg.adlg.m_LINKL_GEMSIP, 
-		  dlg.adlg.m_LINKL_GEMSIP.GetLength());
-    RegSetValueEx(hKey, _T("LINKL_GEMSVol"), 0, REG_SZ, 
-		  (CONST BYTE *)(const char *)dlg.adlg.m_LINKL_GEMSVol, 
-		  dlg.adlg.m_LINKL_GEMSVol.GetLength());
-    RegSetValueEx(hKey, _T("LINKL_Graphics"), 0, REG_SZ, 
-		  (CONST BYTE *)(const char *)dlg.adlg.m_LINKL_Graphics, 
-		  dlg.adlg.m_LINKL_Graphics.GetLength());
-    RegSetValueEx(hKey, _T("LINKL_Imaging"), 0, REG_SZ, 
-		  (CONST BYTE *)(const char *)dlg.adlg.m_LINKL_Imaging, 
-		  dlg.adlg.m_LINKL_Imaging.GetLength());
-    RegSetValueEx(hKey, _T("LINKL_Working"), 0, REG_SZ, 
-		  (CONST BYTE *)(const char *)dlg.adlg.m_LINKL_Working, 
-		  dlg.adlg.m_LINKL_Working.GetLength());
+    RegSetValueEx(hKey, _T("EXTRA_CFLAGS"), 0, REG_SZ, 
+		  (CONST BYTE *)(const char *)dlg.adlg.m_EXTRA_CFLAGS, 
+		  dlg.adlg.m_EXTRA_CFLAGS.GetLength());
+    RegSetValueEx(hKey, _T("EXTRA_LINK_FLAGS"), 0, REG_SZ, 
+		  (CONST BYTE *)(const char *)dlg.adlg.m_EXTRA_LINK_FLAGS, 
+		  dlg.adlg.m_EXTRA_LINK_FLAGS.GetLength());
 
     dwData = 0;
     dwData |= (dlg.m_MSComp)?1:0;

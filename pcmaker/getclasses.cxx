@@ -921,7 +921,8 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
   if (vals->m_GEMSIP) fprintf(fp," /D \"VTK_USE_GEMSIP\" /I \"%s\\gemsip\" /D \"VTK_USE_GEMSIO\" /I \"%s\\gemsio\" \\\n",
     vals->m_WhereVTK, vals->m_WhereVTK);
 
-  fprintf(fp," /D \"_WINDOWS\" /D \"_WINDLL\" /D \"_MBCS\" /D \"VTKDLL\"\\\n");
+  fprintf(fp," %s /D \"_WINDOWS\" /D \"_WINDLL\" /D \"_MBCS\" /D \"VTKDLL\"\\\n",
+    vals->adlg.m_EXTRA_CFLAGS);
 
   if (!debugFlag && vals->m_Lean)
     {
@@ -935,19 +936,19 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
 	fprintf(fp,"LINK32=link.exe\n");
   if (debugFlag)
     {
-    fprintf(fp,"LINK32_FLAGS=/debug /libpath:\"%s\\lib\" \"%s\\lib\\opengl32.lib\" \"%s\\lib\\glaux.lib\" \"%s\\lib\\gdi32.lib\" \"%s\\lib\\user32.lib\" /nologo /version:1.3 /subsystem:windows\n",
-		  vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler);
+    fprintf(fp,"LINK32_FLAGS= %s /debug /libpath:\"%s\\lib\" \"%s\\lib\\opengl32.lib\" \"%s\\lib\\glaux.lib\" \"%s\\lib\\gdi32.lib\" \"%s\\lib\\user32.lib\" /nologo /version:1.3 /subsystem:windows\n",
+		  vals->adlg.m_EXTRA_LINK_FLAGS, vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler);
     }
   else
     {
-    fprintf(fp,"LINK32_FLAGS=/libpath:\"%s\\lib\" \"%s\\lib\\opengl32.lib\" \"%s\\lib\\glaux.lib\" \"%s\\lib\\gdi32.lib\" \"%s\\lib\\user32.lib\" /nologo /version:1.3 /subsystem:windows\n",
-    vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler);
+    fprintf(fp,"LINK32_FLAGS= %s /libpath:\"%s\\lib\" \"%s\\lib\\opengl32.lib\" \"%s\\lib\\glaux.lib\" \"%s\\lib\\gdi32.lib\" \"%s\\lib\\user32.lib\" /nologo /version:1.3 /subsystem:windows\n",
+      vals->adlg.m_EXTRA_LINK_FLAGS, vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler);
     }
 
   fprintf(fp,"ALL_FLAGS= /dll /incremental:no /machine:I386\\\n");
   fprintf(fp," /out:vtkdll.dll /implib:vtkdll.lib \n\n");
 
-  fprintf(fp,"COMMON_FLAGS= %s /dll /incremental:yes /machine:I386\\\n",vals->adlg.m_LINKF_Common);
+  fprintf(fp,"COMMON_FLAGS= /dll /incremental:yes /machine:I386\\\n");
   fprintf(fp," /out:\"$(LIBDIR)/vtkCommon.dll\" /implib:\"$(LIBDIR)/vtkCommon.lib\" \n");
 
   fprintf(fp,"COMMON_OBJS= \\\n");
