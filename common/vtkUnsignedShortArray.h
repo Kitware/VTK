@@ -133,7 +133,7 @@ inline unsigned short *vtkUnsignedShortArray::WritePtr(const int id, const int n
 // Insert data at a specified position in the array.
 inline vtkUnsignedShortArray& vtkUnsignedShortArray::InsertValue(const int id, const unsigned short i)
 {
-  if ( id >= this->Size ) this->Resize(id);
+  if ( id >= this->Size ) this->Resize(id+1);
   this->Array[id] = i;
   if ( id > this->MaxId ) this->MaxId = id;
   return *this;

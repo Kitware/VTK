@@ -132,7 +132,7 @@ inline void** vtkVoidArray::WritePtr(const int id, const int number)
 // Insert data at a specified position in the array.
 inline vtkVoidArray& vtkVoidArray::InsertValue(const int id, void* p)
 {
-  if ( id >= this->Size ) this->Resize(id);
+  if ( id >= this->Size ) this->Resize(id+1);
   this->Array[id] = p;
   if ( id > this->MaxId ) this->MaxId = id;
   return *this;

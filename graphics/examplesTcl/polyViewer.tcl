@@ -1,5 +1,7 @@
 ## Create a little app for loading and viewing polygonal files
 ##
+catch {load vtktcl}
+
 source TkInteractor.tcl
 
 # Create gui

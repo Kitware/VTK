@@ -133,7 +133,7 @@ inline void vtkBitArray::SetValue(const int id, const int value)
 // Insert data at a specified position in the array.
 inline vtkBitArray& vtkBitArray::InsertValue(const int id, const int i)
 {
-  if ( id >= this->Size ) this->Resize(id);
+  if ( id >= this->Size ) this->Resize(id+1);
   if (i) this->Array[id/8] |= (0x80 >> id%8);
   else this->Array[id/8] &= (~(0x80 >> id%8));
   if ( id > this->MaxId ) this->MaxId = id;
