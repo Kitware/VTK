@@ -566,7 +566,7 @@ static void vtkLookupTableMapData(vtkLookupTable *self, T *input,
           *output++ = *cptr++;
           *output++ = *cptr++;
           *output++ = *cptr++;
-          *output++ = cptr[3]*alpha;
+          *output++ = (*cptr)*alpha; cptr++;
           input += inIncr;
           }
         }
