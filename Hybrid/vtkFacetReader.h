@@ -38,7 +38,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkPolyDataSource.h"
 
-class VTK_EXPORT vtkFacetReader : public vtkPolyDataSource
+class VTK_HYBRID_EXPORT vtkFacetReader : public vtkPolyDataSource
 {
 public:
   static vtkFacetReader *New();
