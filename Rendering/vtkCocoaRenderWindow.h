@@ -238,7 +238,6 @@ protected:
   int       OwnWindow;
   int       ScreenSize[2];
   int       MultiSamples;
-  vtkIdList *TextureResourceIds;
 
   // the following is used to support rendering into memory
 //  void *MemoryDataHeader;

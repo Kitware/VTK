@@ -28,8 +28,6 @@
 #include <OpenGL/gl.h> // Carbon and MAC specific
 #include <AGL/agl.h> // Carbon and MAC specific
 
-class vtkIdList;
-
 class VTK_RENDERING_EXPORT vtkCarbonRenderWindow : public vtkOpenGLRenderWindow
 {
 public:
@@ -111,7 +109,7 @@ public:
 
   void SetNextWindowInfo(char *)
      {
-        vtkWarningMacro("SetNextWindowInfo not implemented (WindowRemap not implemented).");
+      vtkWarningMacro("SetNextWindowInfo not implemented (WindowRemap not implemented).");
      }
 
   //BTX

@@ -31,7 +31,7 @@
 #define id Id // since id is a reserved token in ObjC and is used a _lot_ in vtk
 
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.21");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.22");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 
@@ -47,7 +47,6 @@ vtkCocoaRenderWindow::vtkCocoaRenderWindow()
   this->DeviceContext = 0;    // hsr
   this->StereoType = 0;  
   this->SetWindowName("Visualization Toolkit - Cocoa");
-  this->TextureResourceIds = vtkIdList::New();
   this->CursorHidden = 0;
   this->ForceMakeCurrent = 0;
   this->Capabilities = 0;
