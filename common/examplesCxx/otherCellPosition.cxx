@@ -35,7 +35,7 @@
 #include "rtOtherTestBase.h"
 
 void SelectorCommand(ostream& strm) {
-  strm << "cat";
+  strm << "sed -e s/-0/0/";
 }
 
 void ComparatorCommand(ostream& strm) {
@@ -124,7 +124,7 @@ void Test(ostream& strm)
     }
 
   vtkPolyLine *polyLine = vtkPolyLine::New();
-  float polyLineCoords[3], polyLineWeights[1];
+  float polyLineCoords[3], polyLineWeights[3];
   float polyLinePoint[4][3] = {{10.0, 20.0, 30.0}, {10.0, 30.0, 30.0}, {10.0, 30.0, 40.0}, {0, 0, 0}};
   float polyLineClosest[3];
 
@@ -181,7 +181,7 @@ void Test(ostream& strm)
 
   
   vtkTriangleStrip *triangleStrip = vtkTriangleStrip::New();
-  float triangleStripCoords[3], triangleStripWeights[3], triangleStripPosition[3];
+  float triangleStripCoords[3], triangleStripWeights[4], triangleStripPosition[3];
   float triangleStripPoint[5][3] = {{10.0, 10.0, 10.0}, {12.0, 10.0, 10.0}, {11.0, 12.0, 10.0}, {13, 10, 10}, {11, 11, 10}};
   float triangleStripClosest[3];
 
