@@ -22,14 +22,14 @@
 #ifndef __vtkBYUReader_h
 #define __vtkBYUReader_h
 
-#include "vtkPolyDataSource.h"
+#include "vtkPolyDataAlgorithm.h"
 
-class VTK_IO_EXPORT vtkBYUReader : public vtkPolyDataSource 
+class VTK_IO_EXPORT vtkBYUReader : public vtkPolyDataAlgorithm 
 {
 public:
   static vtkBYUReader *New();
 
-  vtkTypeRevisionMacro(vtkBYUReader,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkBYUReader,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -85,7 +85,7 @@ protected:
   vtkBYUReader();
   ~vtkBYUReader();
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   // This source does not know how to generate pieces yet.
   int ComputeDivisionExtents(vtkDataObject *output, 
                              int idx, int numDivisions);
@@ -99,15 +99,13 @@ protected:
   int ReadTexture;
   int PartNumber;
 
-  void ReadGeometryFile(FILE *fp, int &numPts);
-  void ReadDisplacementFile(int numPts);
-  void ReadScalarFile(int numPts);
-  void ReadTextureFile(int numPts);
+  void ReadGeometryFile(FILE *fp, int &numPts, vtkInformation *outInfo);
+  void ReadDisplacementFile(int numPts, vtkInformation *outInfo);
+  void ReadScalarFile(int numPts, vtkInformation *outInfo);
+  void ReadTextureFile(int numPts, vtkInformation *outInfo);
 private:
   vtkBYUReader(const vtkBYUReader&);  // Not implemented.
   void operator=(const vtkBYUReader&);  // Not implemented.
 };
 
 #endif
-
-

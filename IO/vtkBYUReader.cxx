@@ -18,12 +18,14 @@
 #include "vtkCellArray.h"
 #include "vtkFloatArray.h"
 #include "vtkIdList.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkBYUReader, "1.50");
+vtkCxxRevisionMacro(vtkBYUReader, "1.51");
 vtkStandardNewMacro(vtkBYUReader);
 
 vtkBYUReader::vtkBYUReader()
@@ -38,6 +40,8 @@ vtkBYUReader::vtkBYUReader()
   this->ReadTexture = 1;
 
   this->PartNumber = 0;
+
+  this->SetNumberOfInputPorts(0);
 }
 
 vtkBYUReader::~vtkBYUReader()
@@ -60,34 +64,43 @@ vtkBYUReader::~vtkBYUReader()
     }
 }
 
-void vtkBYUReader::Execute()
+int vtkBYUReader::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
   FILE *geomFp;
   int numPts;
 
   if (this->GeometryFileName == NULL || this->GeometryFileName == '\0')
     {
     vtkErrorMacro(<< "No GeometryFileName specified!");
-    return;
+    return 0;
     }
   if ((geomFp = fopen(this->GeometryFileName, "r")) == NULL)
     {
     vtkErrorMacro(<< "Geometry file: " << this->GeometryFileName << " not found");
-    return;
+    return 0;
     }
   else
     {
-    this->ReadGeometryFile(geomFp,numPts);
+    this->ReadGeometryFile(geomFp,numPts,outInfo);
     fclose(geomFp);
     }
 
-  this->ReadDisplacementFile(numPts);
-  this->ReadScalarFile(numPts);
-  this->ReadTextureFile(numPts);
+  this->ReadDisplacementFile(numPts, outInfo);
+  this->ReadScalarFile(numPts, outInfo);
+  this->ReadTextureFile(numPts, outInfo);
   this->UpdateProgress(1.0);
+
+  return 1;
 }
 
-void vtkBYUReader::ReadGeometryFile(FILE *geomFile, int &numPts)
+void vtkBYUReader::ReadGeometryFile(FILE *geomFile, int &numPts,
+                                    vtkInformation *outInfo)
 {
   int numParts, numPolys, numEdges;
   int partStart, partEnd;
@@ -97,7 +110,8 @@ void vtkBYUReader::ReadGeometryFile(FILE *geomFile, int &numPts)
   float x[3];
   vtkIdList *pts;
   int polyId, pt;
-  vtkPolyData *output = this->GetOutput();
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
   
   pts = vtkIdList::New();
   pts->Allocate(VTK_CELL_SIZE);
@@ -190,13 +204,14 @@ void vtkBYUReader::ReadGeometryFile(FILE *geomFile, int &numPts)
   pts->Delete();
 }
 
-void vtkBYUReader::ReadDisplacementFile(int numPts)
+void vtkBYUReader::ReadDisplacementFile(int numPts, vtkInformation *outInfo)
 {
   FILE *dispFp;
   int i;
   float v[3];
   vtkFloatArray *newVectors;
-  vtkPolyData *output = this->GetOutput();
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
   
   if ( this->ReadDisplacement && this->DisplacementFileName )
     {
@@ -230,13 +245,14 @@ void vtkBYUReader::ReadDisplacementFile(int numPts)
   newVectors->Delete();
 }
 
-void vtkBYUReader::ReadScalarFile(int numPts)
+void vtkBYUReader::ReadScalarFile(int numPts, vtkInformation *outInfo)
 {
   FILE *scalarFp;
   int i;
   float s;
   vtkFloatArray *newScalars;
-  vtkPolyData *output = this->GetOutput();
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
   
   if ( this->ReadScalar && this->ScalarFileName )
     {
@@ -269,13 +285,14 @@ void vtkBYUReader::ReadScalarFile(int numPts)
   newScalars->Delete();
 }
 
-void vtkBYUReader::ReadTextureFile(int numPts)
+void vtkBYUReader::ReadTextureFile(int numPts, vtkInformation *outInfo)
 {
   FILE *textureFp;
   int i;
   float t[2];
   vtkFloatArray *newTCoords;
-  vtkPolyData *output = this->GetOutput();
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   if ( this->ReadTexture && this->TextureFileName )
     {
@@ -343,4 +360,3 @@ void vtkBYUReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Texture File Name: " 
      << (this->TextureFileName ? this->TextureFileName : "(none)") << "\n";
 }
-
