@@ -435,6 +435,10 @@ ENDIF(LOCALUSERMACRODEFINED)
 # End of common section
 # -----------------------------------------------------------------
 
+INSTALL_FILES(/include/vtk .h
+  vtkOpenGL
+)
+
 IF (VTK_WRAP_PYTHON)
   IF (TK_LIBRARY)
      IF(NOT VTK_USE_COCOA)
