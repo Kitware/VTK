@@ -425,7 +425,25 @@ public:
   // then post multiplied to X to get Y
   static int SolveLeastSquares(int numberOfSamples, double **xt, int xOrder,
                                double **yt, int yOrder, double **mt);
-  
+
+  // Description:
+  // Convert color in RGB format (Red, Green, Blue) to HSV format
+  // (Hue, Saturation, Value). The input color is not modified.
+  static void RGBToHSV(float rgb[3], float hsv[3])
+    { 
+    RGBToHSV(rgb[0], rgb[1], rgb[2], hsv, hsv+1, hsv+2);
+    }
+  static void RGBToHSV(float r, float g, float b, float *h, float *s, float *v);
+
+  // Description:
+  // Convert color in HSV format (Hue, Saturation, Value) to RGB
+  // format (Red, Green, Blue). The input color is not modified.
+  static void HSVToRGB(float hsv[3], float rgb[3])
+    { 
+    HSVToRGB(hsv[0], hsv[1], hsv[2], rgb, rgb+1, rgb+2);
+    }
+  static void HSVToRGB(float h, float s, float v, float *r, float *g, float *b);
+
 protected:
   vtkMath() {};
   ~vtkMath() {};

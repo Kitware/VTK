@@ -18,7 +18,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMath, "1.73");
+vtkCxxRevisionMacro(vtkMath, "1.74");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
@@ -2060,5 +2060,140 @@ void vtkMath::SingularValueDecomposition3x3(const double A[3][3],
   vtkSingularValueDecomposition3x3(A,U,w,VT);
 }
 
+//----------------------------------------------------------------------------
+void vtkMath::RGBToHSV(float r, float g, float b, float *h, float *s, float *v)
+{
+  float hue = 0;
+  float sat = 0;
+  float val = 0;
+  float lx, ly, lz;
 
+  if (r <= 0.0 && g <= 0.0 && b <= 0.0)
+    {
+    *h = 0.0;
+    *s = 0.0;
+    *v = 0.0;
+    return;
+    }
+  if (r >= g && g >= b)
+    { // case 0
+    val = r;
+    lz = g;
+    lx = b;
+    sat = 1.0 - (lx/val);
+    hue = (0.0 + (1.0 - ((1.0 - (lz/val))/sat)))/6.0;
+    }
+  else if (g >= r && r >= b)
+    { // case 1
+    ly = r;
+    val = g;
+    lx = b;
+    sat = 1.0 - (lx/val);
+    hue = (1.0 + ((1.0 - (ly/val))/sat))/6.0;
+    }
+  else if (g >= b && b >= r)
+    { // case 2
+    lx = r;
+    val = g;
+    lz = b;
+    sat = 1.0 - (lx/val);
+    hue = (2.0 + (1.0 - ((1.0 - (lz/val))/sat)))/6.0;
+    }
+  else if (b >= g && g >= r)
+    { // case 3
+    lx = r;
+    ly = g;
+    val = b;
+    sat = 1.0 - (lx/val);
+    hue = (3.0 + ((1.0 - (ly/val))/sat))/6.0;
+    }
+  else if (b >= r && r >= g)
+    { // case 4
+    lz = r;
+    lx = g;
+    val = b;
+    sat = 1.0 - (lx/val);
+    hue = (4.0 + (1.0 - ((1.0 - (lz/val))/sat)))/6.0;
+    }
+  else if (r >= b && b >= g)
+    { // case 5
+    val = r;
+    lx = g;
+    ly = b;
+    sat = 1.0 - (lx/val);
+    hue = (5.0 + ((1.0 - (ly/val))/sat))/6.0;
+    }
+  *h = hue;
+  *s = sat;
+  *v = val;
+}
 
+//----------------------------------------------------------------------------
+void vtkMath::HSVToRGB(float h, float s, float v, float *r, float *g, float *b)
+{
+  float R, G, B;
+  float max = 1.0;
+  float third = max / 3.0;
+  float temp;
+
+  // compute rgb assuming S = 1.0;
+  if (h >= 0.0 && h <= third) // red -> green
+    {
+    G = h/third;
+    R = 1.0 - G;
+    B = 0.0;
+    }
+  else if (h >= third && h <= 2.0*third) // green -> blue
+    {
+    B = (h - third)/third;
+    G = 1.0 - B;
+    R = 0.0;
+    }
+  else // blue -> red
+    {
+    R = (h - 2.0 * third)/third;
+    B = 1.0 - R;
+    G = 0.0;
+    }
+        
+  // add Saturation to the equation.
+  s = s / max;
+  //R = S + (1.0 - S)*R;
+  //G = S + (1.0 - S)*G;
+  //B = S + (1.0 - S)*B;
+  // what happend to this?
+  R = s*R + (1.0 - s);
+  G = s*G + (1.0 - s);
+  B = s*B + (1.0 - s);
+      
+  // Use value to get actual RGB 
+  // normalize RGB first then apply value
+  temp = R + G + B; 
+  //V = 3 * V / (temp * max);
+  // and what happend to this?
+  v = 3 * v / (temp);
+  R = R * v;
+  G = G * v;
+  B = B * v;
+      
+  // clip below 255
+  //if (R > 255.0) R = max;
+  //if (G > 255.0) G = max;
+  //if (B > 255.0) B = max;
+  // mixed constant 255 and max ?????
+  if (R > max)
+    {
+    R = max;
+    }
+  if (G > max)
+    {
+    G = max;
+    }
+  if (B > max)
+    {
+    B = max;
+    }
+  *r = R;
+  *g = G;
+  *b = B;
+}
