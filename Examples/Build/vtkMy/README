@@ -1,0 +1,22 @@
+This directory demonstrates how to organize a local build dir where local classes can be compiled and wrapped into C++/Tcl/Java/Python libraries without interferring with the main VTK source or build dirs.
+
+It might be good thing to sort classes into different 'package' directories  like VTK does (Common, Rendering, Filtering, Imaging, IO, etc.). It prevents numerous dependencies problems and provides a better overview of the class hierarchy. 
+
+This example enforces this 'package' structure by referring to a vtkBar class into the Common directory and a vtkImageFoo class into the Imaging directory (the later uses an instance of vtkBar to work, thus demonstrating how CMake resolves dependencies between both directories).
+
+If you do not care about this ordering, you might put your classes into the Unsorted directory, like the vtkBar2 class for example. By default, members of the Unsorted package will depend on all other packages and will be linked against all VTK packages too.
+
+
+What you should do:
+-------------------
+
+- Fill the subdirs with your own classes. Remove the dummy classes. For each CMakeList.txt in the package dirs, add or remove the class(es) pertaining to this directory (SOURCE_FILES command).
+
+- Run CMake as usual.
+  set BUILD_SHARED to ON if you want Tcl DLLs.
+
+- Build 
+
+- Add the path to your build *BuildType*/bin directory to your PATH environment variable.
+
+- Add the path to the Wrapping/Tcl directory to your TCLLIBPATH  environment variable.
