@@ -75,7 +75,7 @@ vtkImplicitModeller arrowIM
 arrowIM SetInput pd
 arrowIM SetSampleDimensions 50 20 8
 
-vtkMarchingContourFilter arrowCF
+vtkContourFilter arrowCF
 arrowCF SetInput [arrowIM GetOutput]
 arrowCF SetValue 0 0.2
 
