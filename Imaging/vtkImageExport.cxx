@@ -65,8 +65,9 @@ vtkImageExport::vtkImageExport()
 {
   this->ImageLowerLeft = 1;
   this->ExportVoidPointer = 0;
-  this->DataDimensions[0] = this->DataDimensions[1] = \
+  this->DataDimensions[0] = this->DataDimensions[1] =
     this->DataDimensions[2] = 0;
+  this->LastPipelineMTime = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -205,10 +206,230 @@ void *vtkImageExport::GetPointerToData()
 
   return input->GetScalarPointer();
 }
+
+//----------------------------------------------------------------------------
+void* vtkImageExport::GetCallbackUserData()
+{
+  return this;
+}
+
+vtkImageExport::UpdateInformationCallbackType
+vtkImageExport::GetUpdateInformationCallback() const
+{
+  return &vtkImageExport::UpdateInformationCallbackFunction;
+}
+
+vtkImageExport::PipelineModifiedCallbackType
+vtkImageExport::GetPipelineModifiedCallback() const
+{
+  return &vtkImageExport::PipelineModifiedCallbackFunction;
+}
+
+vtkImageExport::WholeExtentCallbackType
+vtkImageExport::GetWholeExtentCallback() const
+{
+  return &vtkImageExport::WholeExtentCallbackFunction;
+}
+
+vtkImageExport::SpacingCallbackType
+vtkImageExport::GetSpacingCallback() const
+{
+  return &vtkImageExport::SpacingCallbackFunction;
+}
+
+vtkImageExport::OriginCallbackType
+vtkImageExport::GetOriginCallback() const
+{
+  return &vtkImageExport::OriginCallbackFunction;
+}
+
+vtkImageExport::ScalarTypeCallbackType
+vtkImageExport::GetScalarTypeCallback() const
+{
+  return &vtkImageExport::ScalarTypeCallbackFunction;
+}
+
+vtkImageExport::NumberOfComponentsCallbackType
+vtkImageExport::GetNumberOfComponentsCallback() const
+{
+  return &vtkImageExport::NumberOfComponentsCallbackFunction;
+}
+
+vtkImageExport::PropagateUpdateExtentCallbackType
+vtkImageExport::GetPropagateUpdateExtentCallback() const
+{
+  return &vtkImageExport::PropagateUpdateExtentCallbackFunction;
+}
+
+vtkImageExport::UpdateDataCallbackType
+vtkImageExport::GetUpdateDataCallback() const
+{
+  return &vtkImageExport::UpdateDataCallbackFunction;
+}
+
+vtkImageExport::DataExtentCallbackType
+vtkImageExport::GetDataExtentCallback() const
+{
+  return &vtkImageExport::DataExtentCallbackFunction;
+}
+
+vtkImageExport::BufferPointerCallbackType
+vtkImageExport::GetBufferPointerCallback() const
+{
+  return &vtkImageExport::BufferPointerCallbackFunction;
+}
+
+//----------------------------------------------------------------------------
+void vtkImageExport::UpdateInformationCallbackFunction(void* userData)
+{
+  static_cast<vtkImageExport*>(userData)->
+    UpdateInformationCallback();
+}
+
+int vtkImageExport::PipelineModifiedCallbackFunction(void* userData)
+{
+  return static_cast<vtkImageExport*>(userData)->
+    PipelineModifiedCallback();
+}
+
+int* vtkImageExport::WholeExtentCallbackFunction(void* userData)
+{
+  return static_cast<vtkImageExport*>(userData)->
+    WholeExtentCallback();
+}
+
+float* vtkImageExport::SpacingCallbackFunction(void* userData)
+{
+  return static_cast<vtkImageExport*>(userData)->
+    SpacingCallback();
+}
+
+float* vtkImageExport::OriginCallbackFunction(void* userData)
+{
+  return static_cast<vtkImageExport*>(userData)->
+    OriginCallback();
+}
+
+const char* vtkImageExport::ScalarTypeCallbackFunction(void* userData)
+{
+  return static_cast<vtkImageExport*>(userData)->
+    ScalarTypeCallback();
+}
+ 
+int vtkImageExport::NumberOfComponentsCallbackFunction(void* userData)
+{
+  return static_cast<vtkImageExport*>(userData)->
+    NumberOfComponentsCallback();
+}
+
+void vtkImageExport::PropagateUpdateExtentCallbackFunction(void* userData,
+                                                               int* extent)
+{
+  static_cast<vtkImageExport*>(userData)->
+    PropagateUpdateExtentCallback(extent);
+}
+
+void vtkImageExport::UpdateDataCallbackFunction(void* userData)
+{
+  static_cast<vtkImageExport*>(userData)->
+    UpdateDataCallback();
+}
+
+int* vtkImageExport::DataExtentCallbackFunction(void* userData)
+{
+  return static_cast<vtkImageExport*>(userData)->
+    DataExtentCallback();
+}
+
+void* vtkImageExport::BufferPointerCallbackFunction(void* userData)
+{
+  return static_cast<vtkImageExport*>(userData)->
+    BufferPointerCallback();
+}
+
+
+//----------------------------------------------------------------------------
+void vtkImageExport::UpdateInformationCallback()
+{
+  this->GetInput()->UpdateInformation();
+}
+
+int vtkImageExport::PipelineModifiedCallback()
+{
+  unsigned long mtime = this->GetInput()->GetPipelineMTime();
+  if(mtime > this->LastPipelineMTime)
+    {
+    this->LastPipelineMTime = mtime;
+    return 1;
+    }
+  return 0;
+}
+
+int* vtkImageExport::WholeExtentCallback()
+{
+  return this->GetInput()->GetWholeExtent();
+}
+
+float* vtkImageExport::SpacingCallback()
+{
+  return this->GetInput()->GetSpacing();
+}
+
+float* vtkImageExport::OriginCallback()
+{
+  return this->GetInput()->GetOrigin();
+}
+
+const char* vtkImageExport::ScalarTypeCallback()
+{
+  switch (this->GetInput()->GetScalarType())
+    {
+    case VTK_DOUBLE:
+      { return "double"; } break;
+    case VTK_FLOAT:
+      { return "float"; } break;
+    case VTK_LONG:
+      { return "long"; } break;
+    case VTK_UNSIGNED_LONG:
+      { return "unsigned long"; } break;
+    case VTK_INT:
+      { return "int"; } break;
+    case VTK_UNSIGNED_INT:
+      { return "unsigned int"; } break;
+    case VTK_SHORT:
+      { return "short"; } break;
+    case VTK_UNSIGNED_SHORT:
+      { return "unsigned short"; } break;
+    case VTK_CHAR:
+      { return "char"; } break;
+    case VTK_UNSIGNED_CHAR:
+      { return "unsigned char"; } break;
+    default:
+      { return "<unsupported>"; } break;
+    }
+}
   
-  
+int vtkImageExport::NumberOfComponentsCallback()
+{
+  return this->GetInput()->GetNumberOfScalarComponents();
+}
 
+void vtkImageExport::PropagateUpdateExtentCallback(int* extent)
+{
+  this->GetInput()->SetUpdateExtent(extent);
+}
 
+void vtkImageExport::UpdateDataCallback()
+{
+  this->GetInput()->Update();
+}
 
+int* vtkImageExport::DataExtentCallback()
+{
+  return this->GetInput()->GetExtent();
+}
 
-
+void* vtkImageExport::BufferPointerCallback()
+{
+  return this->GetInput()->GetScalarPointer();
+}

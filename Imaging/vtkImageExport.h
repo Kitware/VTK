@@ -40,13 +40,13 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkImageExport - Writes images to files.
+// .NAME vtkImageExport - Export VTK images to third-party systems.
 // .SECTION Description
-// vtkImageExport writes images to files with any data type. The data type of
-// the file is the same scalar type as the input.  The dimensionality
-// determines whether the data will be written in one or multiple files.
-// This class is used as the superclass of most image writing classes 
-// such as vtkBMPExport etc. It supports streaming.
+// vtkImageExport provides a way of exporting image data at the end
+// of a pipeline to a third-party system.  Applications can use this
+// to get direct access to the image data in memory.  A callback interface
+// is provided to allow connection to a third-party pipeline.  This
+// interface conforms to that specified by vtkImageImport.
 
 #ifndef __vtkImageExport_h
 #define __vtkImageExport_h
@@ -79,7 +79,7 @@ public:
     if (this->GetInput() == NULL) { return 1; }
     this->GetInput()->UpdateInformation();
     return this->GetInput()->GetNumberOfScalarComponents(); };
-
+  
   // Description: 
   // Get misc. information about the data
   int *GetDataExtent() {
@@ -146,14 +146,74 @@ public:
   // (the pointer might be different each time this is called).
   // WARNING: This method ignores the ImageLowerLeft flag.
   void *GetPointerToData();
+
+  // Description:
+  // Get the user data that should be passed to the callback functions.
+  void* GetCallbackUserData();
   
+  //BTX
+  // Description:
+  // These are function pointer types for the pipeline connection
+  // callbacks.  See furhter documentation in vtkImageImport.h.
+  typedef void (*UpdateInformationCallbackType)(void*);
+  typedef int (*PipelineModifiedCallbackType)(void*);
+  typedef int* (*WholeExtentCallbackType)(void*);
+  typedef float* (*SpacingCallbackType)(void*);
+  typedef float* (*OriginCallbackType)(void*);
+  typedef const char* (*ScalarTypeCallbackType)(void*); 
+  typedef int (*NumberOfComponentsCallbackType)(void*);
+  typedef void (*PropagateUpdateExtentCallbackType)(void*, int*);
+  typedef void (*UpdateDataCallbackType)(void*);
+  typedef int* (*DataExtentCallbackType)(void*);
+  typedef void* (*BufferPointerCallbackType)(void*);
+  
+  // Description:
+  // Get pointers to the pipeline interface callbacks.
+  UpdateInformationCallbackType     GetUpdateInformationCallback() const;
+  PipelineModifiedCallbackType      GetPipelineModifiedCallback() const;
+  WholeExtentCallbackType           GetWholeExtentCallback() const;
+  SpacingCallbackType               GetSpacingCallback() const;
+  OriginCallbackType                GetOriginCallback() const;
+  ScalarTypeCallbackType            GetScalarTypeCallback() const;
+  NumberOfComponentsCallbackType    GetNumberOfComponentsCallback() const;
+  PropagateUpdateExtentCallbackType GetPropagateUpdateExtentCallback() const;
+  UpdateDataCallbackType            GetUpdateDataCallback() const;
+  DataExtentCallbackType            GetDataExtentCallback() const;
+  BufferPointerCallbackType         GetBufferPointerCallback() const;
+  //ETX
 protected:
   vtkImageExport();
   ~vtkImageExport();
+  
+  virtual void UpdateInformationCallback();
+  virtual int PipelineModifiedCallback();
+  virtual void UpdateDataCallback();  
+  virtual int* WholeExtentCallback();
+  virtual float* SpacingCallback();
+  virtual float* OriginCallback();
+  virtual const char* ScalarTypeCallback();
+  virtual int NumberOfComponentsCallback();
+  virtual void PropagateUpdateExtentCallback(int*);
+  virtual int* DataExtentCallback();
+  virtual void* BufferPointerCallback();
 
   int ImageLowerLeft;
   int DataDimensions[3];
   void *ExportVoidPointer;
+  
+  unsigned long LastPipelineMTime;
+private:  
+  static void UpdateInformationCallbackFunction(void*);
+  static int PipelineModifiedCallbackFunction(void*);
+  static int* WholeExtentCallbackFunction(void*);
+  static float* SpacingCallbackFunction(void*);
+  static float* OriginCallbackFunction(void*);
+  static const char* ScalarTypeCallbackFunction(void*); 
+  static int NumberOfComponentsCallbackFunction(void*);
+  static void PropagateUpdateExtentCallbackFunction(void*, int*);
+  static void UpdateDataCallbackFunction(void*);
+  static int* DataExtentCallbackFunction(void*);
+  static void* BufferPointerCallbackFunction(void*);
 private:
   vtkImageExport(const vtkImageExport&);  // Not implemented.
   void operator=(const vtkImageExport&);  // Not implemented.
