@@ -27,6 +27,8 @@ public:
   // Render its volumes to create a composite image.
   virtual int Render(vtkRenderer *);
 
+  virtual float *GetCurrentColorBuffer();
+  virtual float *GetCurrentZBuffer();
 protected:
 
 //  vtkNewVolumeCollection Volumes;
