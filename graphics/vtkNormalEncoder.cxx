@@ -84,9 +84,9 @@ void ComputeGradients( vtkNormalEncoder *encoder,
 	// Take care of the aspect ratio of the data
 	// Scaling in the vtkVolume is isotropic, so this is the
 	// only place we have to worry about non-isotropic scaling.
-	nx *= scalar_input_aspect[0];
-	ny *= scalar_input_aspect[1];
-	nz *= scalar_input_aspect[2];
+	nx *= scalar_input_aspect[1] * scalar_input_aspect[2];
+	ny *= scalar_input_aspect[0] * scalar_input_aspect[2];
+	nz *= scalar_input_aspect[0] * scalar_input_aspect[1];
 
 	// Compute the gradient magnitude
 	t = sqrt( (double)( nx*nx + ny*ny + nz*nz ) ) / 2.0;
