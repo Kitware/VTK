@@ -197,10 +197,14 @@ int vtkDelaunay3D::FindTetra(float x[3], int ptIds[4], float p[4][3],
     return -1;
     }
 
-  pts = new vtkIdList(4);
-  facePts = new vtkIdList(3); 
+  pts = vtkIdList::New();
+  pts->SetNumberOfIds(4);
+
+  facePts = vtkIdList::New();
   facePts->SetNumberOfIds(3);
-  neighbors = new vtkIdList(2);
+
+  neighbors = vtkIdList::New();
+  neighbors->SetNumberOfIds(2);
 
   // get local tetrahedron info
   Mesh->GetCellPoints(tetra,pts);
@@ -275,8 +279,9 @@ int vtkDelaunay3D::FindTetra(float x[3], int ptIds[4], float p[4][3],
     Mesh->GetCellNeighbors(tetra, facePts, neighbors);
     pts->Delete();
     facePts->Delete();
+    tetra = neighbors->GetId(0),
     neighbors->Delete();
-    return this->FindTetra(x, ptIds, p, neighbors->GetId(0),
+    return this->FindTetra(x, ptIds, p, tetra,
                            Mesh, points, tol, depth);
     }
   else 
@@ -306,7 +311,7 @@ int vtkDelaunay3D::FindEnclosingFaces(float x[3], int tetra,
   vtkTetra *tetraCell=NULL;
   int ptIds[4];
   float p[4][3];
-  int tetraId=(-1), verts[4], onCount, i, j, numTetras;
+  int tetraId=(-1), i, j, numTetras;
   vtkIdList *boundaryPts, *checkedTetras, *neiTetras;
   int p1, p2, p3, insertFace;
   int npts, *tetraPts, nei;
@@ -326,7 +331,6 @@ int vtkDelaunay3D::FindEnclosingFaces(float x[3], int tetra,
   tetras->Reset();
   faces->Reset();
   boundaryPts->Reset();
-  onCount = verts[0] = verts[1] = verts[2] = verts[3] = 0;
 
   closestPoint = Locator->FindClosestInsertedPoint(x);
   Mesh->GetPointCells(closestPoint, checkedTetras);
@@ -548,7 +552,7 @@ void vtkDelaunay3D::Execute()
     vtkEdgeTable *edges;
     char *pointUse = new char[numPoints+6];
     int p1, p2, p3, nei, j, k, numNei;
-    float x1[3], x2[3], x3[3], v1[2], v2[2], v3[2];
+    float x1[3], x2[3], x3[3];
     vtkDelaunaySphere *sphere;
     static int edge[6][2] = {{0,1},{1,2},{2,0},{0,3},{1,3},{2,3}};
     vtkIdList *boundaryPts, *neiTetras;
@@ -612,7 +616,7 @@ void vtkDelaunay3D::Execute()
             Mesh->GetCellNeighbors(tetraId, boundaryPts, neiTetras);
             numNei = neiTetras->GetNumberOfIds();
 
-            if ( neiTetras->GetNumberOfIds() < 1  ||
+            if ( numNei < 1  ||
             ( (nei = neiTetras->GetId(0)) > i && !tetraUse[nei] ) )
               {
               double dx1[3], dx2[3], dx3[3], dv1[3], dv2[3], dv3[3], dcenter[3];
@@ -1062,7 +1066,4 @@ unsigned long int vtkDelaunay3D::GetMTime()
     }
   return mTime;
 }
-
-
-
 
