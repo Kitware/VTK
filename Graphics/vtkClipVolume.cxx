@@ -46,7 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkClipVolume, "1.45");
+vtkCxxRevisionMacro(vtkClipVolume, "1.46");
 vtkStandardNewMacro(vtkClipVolume);
 
 // Construct with user-specified implicit function; InsideOut turned off; value
@@ -162,15 +162,6 @@ void vtkClipVolume::Execute()
   input->GetOrigin(origin);
   input->GetSpacing(spacing);
   
-  int extent[6];
-  input->GetExtent(extent);
-
-  int wextent[6];
-  input->GetWholeExtent(wextent);
-
-  int dims2[3];
-  input->GetDimensions(dims2);
-
   for (dimension=3, i=0; i<3; i++)
     {
     if ( dims[0] <= 1 )
@@ -360,9 +351,8 @@ void vtkClipVolume::Execute()
         
         else if (above == below ) // clipped voxel, have to triangulate 
           {
-          this->ClipVoxel(value, cellScalars, flip, origin, spacing, extent,
-                          wextent, dims2,
-                          cellIds, cellPts, inPD, outPD, inCD, cellId, 
+          this->ClipVoxel(value, cellScalars, flip, origin, spacing,
+			  cellIds, cellPts, inPD, outPD, inCD, cellId, 
                           outCD, clippedCD);
           }
           
@@ -415,10 +405,9 @@ void vtkClipVolume::Execute()
 // Delaunay problems.
 void vtkClipVolume::ClipVoxel(float value, vtkDataArray *cellScalars, 
                               int flip, float vtkNotUsed(origin)[3],
-                              float spacing[3], int extent[6],
-                              int wextent[6], int dims[3],
-                              vtkIdList *cellIds, vtkPoints *cellPts,
-                              vtkPointData *inPD, vtkPointData *outPD,
+                              float spacing[3], vtkIdList *cellIds, 
+			      vtkPoints *cellPts,vtkPointData *inPD, 
+			      vtkPointData *outPD,
                               vtkCellData *vtkNotUsed(inCD),
                               vtkIdType vtkNotUsed(cellId), 
                               vtkCellData *vtkNotUsed(outCD),
