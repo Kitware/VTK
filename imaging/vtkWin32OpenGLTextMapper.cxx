@@ -61,7 +61,7 @@ void vtkWin32OpenGLTextMapper::RenderOpaqueGeometry(vtkViewport* viewport,
   // Get the position of the text actor
   POINT ptDestOff;
   int* actorPos = 
-    actor->GetPositionCoordinate()->GetComputedDisplayValue(viewport);
+    actor->GetPositionCoordinate()->GetComputedViewportValue(viewport);
   ptDestOff.x = actorPos[0];
   ptDestOff.y = actorPos[1];
 

@@ -51,7 +51,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOpaqueGeometry(vtkViewport* viewport,
   int npts, idx[3], rep, j;
   float fclr[4];
   short clr[4];
-  vtkPoints *p;
+  vtkPoints *p, *displayPts;
   vtkCellArray *aPrim;
   vtkScalars *c=NULL;
   unsigned char *rgba;
@@ -102,7 +102,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOpaqueGeometry(vtkViewport* viewport,
   // Get the position of the actor
   int *size = viewport->GetSize();
   int* actorPos = 
-    actor->GetPositionCoordinate()->GetComputedDisplayValue(viewport);
+    actor->GetPositionCoordinate()->GetComputedViewportValue(viewport);
 
   // Set up the font color from the text actor
   float*  actorColor = actor->GetProperty()->GetColor();
@@ -111,9 +111,23 @@ void vtkOpenGLPolyDataMapper2D::RenderOpaqueGeometry(vtkViewport* viewport,
   color[2] = (unsigned char) (actorColor[2] * 255.0);
   color[3] = (unsigned char) (255.0*actor->GetProperty()->GetOpacity());
 
-  // Calculate the size of the bounding rectangle
-  // and draw the display list
+  // Transform the points, if necessary
   p = input->GetPoints();
+  if ( this->TransformCoordinate )
+    {
+    int *itmp, numPts = p->GetNumberOfPoints();
+    displayPts = vtkPoints::New();
+    displayPts->SetNumberOfPoints(numPts);
+    for ( j=0; j < numPts; j++ )
+      {
+      this->TransformCoordinate->SetValue(p->GetPoint(j));
+      itmp = this->TransformCoordinate->GetComputedViewportValue(viewport);
+      displayPts->SetPoint(j,itmp[0], itmp[1], itmp[2]);
+      }
+    p = displayPts;
+    }
+
+  // Set up the coloring
   if ( this->Colors )
     {
     c = this->Colors;
