@@ -166,6 +166,9 @@ void vtkCell3D::PrintSelf(ostream& os, vtkIndent indent)
   vtkCell::PrintSelf(os,indent);
 }
 
+// Note: the following code is placed here to deal with cross-library
+// symbol export and import on Microsoft compilers.
+
 //
 // Edges to intersect.  Three at a time form a triangle. Comments at 
 // end of line indicate case number (0->255) and base case number (0->15).

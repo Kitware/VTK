@@ -300,6 +300,8 @@ void vtkCell::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
+// Note: the following code is placed here to deal with cross-library
+// symbol export and import on Microsoft compilers.
 static VTK_LINE_CASES VTK_MARCHING_SQUARES_LINECASES[] = { 
   {{-1, -1, -1, -1, -1}},
   {{0, 3, -1, -1, -1}},
