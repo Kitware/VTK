@@ -63,6 +63,11 @@ VTK_DEPENDENT_OPTION(VTK_USE_HYBRID "Build the vtkHybrid kit." OFF
 VTK_DEPENDENT_OPTION(VTK_USE_PARALLEL "Build the vtkParallel kit." OFF
                      "VTK_USE_RENDERING" OFF)
 
+# Determine GUI Support.
+VTK_DEPENDENT_OPTION(VTK_USE_GUISUPPORT "Build GUI Support" OFF
+                     "VTK_USE_RENDERING" OFF)
+
+
 SET(VTK_KITS COMMON FILTERING IO GRAPHICS GENERIC_FILTERING IMAGING)
 IF(VTK_USE_RENDERING)
   SET(VTK_KITS ${VTK_KITS} RENDERING)
@@ -76,6 +81,9 @@ ENDIF(VTK_USE_PARALLEL)
 IF(VTK_USE_PATENTED)
   SET(VTK_KITS ${VTK_KITS} PATENTED)
 ENDIF(VTK_USE_PATENTED)
+IF(VTK_USE_GUISUPPORT)
+  SET(VTK_KITS ${VTK_KITS} GUISUPPORT)
+ENDIF(VTK_USE_GUISUPPORT)
 
 #-----------------------------------------------------------------------------
 # Determine GUI.
@@ -108,6 +116,7 @@ IF(VTK_USE_CARBON AND VTK_USE_COCOA)
   SET(VTK_USE_COCOA 0)
 ENDIF(VTK_USE_CARBON AND VTK_USE_COCOA)
 
+#-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
 # VTK requires special compiler flags on some platforms.
 SET(VTK_REQUIRED_C_FLAGS)
@@ -404,6 +413,9 @@ ENDIF(VTK_USE_HYBRID)
 IF(VTK_USE_PARALLEL)
   SUBDIRS(Parallel)
 ENDIF(VTK_USE_PARALLEL)
+IF(VTK_USE_GUISUPPORT)
+  SUBDIRS(GUISupport)
+ENDIF(VTK_USE_GUISUPPORT)
 
 # Wrapping.
 IF(VTK_WRAP_TCL)
