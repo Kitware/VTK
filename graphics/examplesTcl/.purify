@@ -70,6 +70,20 @@ suppress umc __glMipsCopyDispatch
 suppress umc vtkOpenGLRenderWindow::GetPixelData(int,int,int,int,int)
 suppress umr _bcmp; addTexTableUsage
 suppress umc memcpy; vtkRendererSource::Execute(void)
+suppress mlk _malloc; Tcl_CreateFileHandler
+suppress mlk _malloc; _calloc; _X11TransSocketOpen
+suppress mlk _malloc; _calloc; XOpenDisplay
+suppress mlk _malloc; _calloc; _XInternAtom
+suppress mlk _malloc; _calloc; XkbUseExtension
+suppress mlk _malloc; XOpenDisplay
+suppress mlk _malloc; _X11TransSocketINETGetAddr
+suppress mlk _malloc; _X11TransSocketINETGetPeerAddr
+suppress mlk _malloc; _XUpdateAtomCache
+suppress mlk _malloc; TkBindInit
+suppress mlk _malloc; XCreateGC
+suppress mlk _malloc; XInitExtension
+suppress mlk _malloc; _X11TransConnectDisplay
+suppress mlk _malloc; _X11TransParseAddress
 suppress mlk _malloc; __glXInitThread
 suppress mlk _malloc; __glXMalloc; __glven_InitPixelState
 suppress mlk _malloc; Tcl_GetFile; DisplaySetupProc
