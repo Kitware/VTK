@@ -38,67 +38,163 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageCache - Caches are used by vtkImageCachedSource.
+// .NAME vtkImageCache - Caches are used by vtkImageSource.
 // .SECTION Description
-// vtkImageCache is the super class of all filter caches.  
+// vtkImageCache is the super class of all image caches.  
 // If the cached source descides to generate in pieces, the caches 
 // collects all of the pieces into a single vtkImageRegion object.
 // The cache can also save vtkImageData objects between UpdateRegion
 // messages, to avoid regeneration of data.  Since regions
 // can be any size or location, caching strategies can be
-// numerous and complex.  Some predefined generic subclasses have been 
-// defined, but specific applications may need to implement subclasses
-// with their own stratgies tailored to the pattern of regions generated.
+// numerous and complex.  Applications can create caches that fit
+// their special needs.
+// The caches access methods do not make any internal checks to make
+// sure the data is up to date.  Update has to be called explicitly.
+// to ensure the information retrieved is valid.
 
 
 #ifndef __vtkImageCache_h
 #define __vtkImageCache_h
-#include "vtkImageSource.h"
-#include "vtkImageCachedSource.h"
-#include "vtkImageData.h"
+class vtkImageToStructuredPoints;
+class vtkImageSource;
 class vtkImageRegion;
+#include "vtkImageData.h"
+#include "vtkObject.h"
 
-class VTK_EXPORT vtkImageCache : public vtkImageSource
+class VTK_EXPORT vtkImageCache : public vtkObject
 {
 public:
   vtkImageCache();
   ~vtkImageCache();
+  static vtkImageCache *New() {return new vtkImageCache;};
   const char *GetClassName() {return "vtkImageCache";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
-  unsigned long int GetPipelineMTime();
-  void UpdateImageInformation(vtkImageRegion *region);
-  void Update(vtkImageRegion *region);
-  vtkImageRegion *UpdateRegion();
-  void Update();
-  void UpdateImageInformation();
+  // Description:
+  // This method sets the instance variable "UpdateExtent" which specifies
+  // the extent of the image that will be updated. Extent is specified and
+  // a (min,max) value for each axis (in the order X, Y, Z, Time).
+  // All the "Components" of vectors and scalars are generated all the time.
+  // If "UpdateExtent" has not been set by the first update, it defaults
+  // to the "WholeExtent".  If the UpdateExtent is larger than the 
+  // "WholeExtent" then "UpdateExtent" will be reduced, 
+  // and a waring message will occur.
+  void SetUpdateExtent(int extent[8]);
+  void SetUpdateExtent(int xMin, int xMax, int yMin, int yMax,
+		       int zMin, int zMax, int tMin, int tMax);
+  void SetAxesUpdateExtent(int num, int *axes, int *extent);
+  vtkImageSetExtentAxesMacro(UpdateExtent, int);
+  void SetUpdateExtentToWholeExtent();
+  
+  void GetUpdateExtent(int extent[8]);
+  int *GetUpdateExtent() {return this->UpdateExtent;}
+  void GetUpdateExtent(int &xMin, int &xMax, int &yMin, int &yMax,
+		       int &zMin, int &zMax, int &tMin, int &tMax);
+  void GetAxesUpdateExtent(int num, int *axes, int *extent);
+  vtkImageGetExtentAxesMacro(UpdateExtent, int);
+  void ClipUpdateExtentWithWholeExtent();
+  
+  virtual void Update();
+  virtual void UpdateImageInformation();
+  virtual unsigned long GetPipelineMTime();
+  
+  vtkImageRegion *GetScalarRegion();
+  vtkImageRegion *GetVectorRegion();
+
+  void SetWholeUpdateExtent(int *extent);
+    
+  // Description:
+  // These methods give access to the cached image information.
+  // "UpdateImageInformation", or "Update" should be called before 
+  //  the get methods are called..  The set methods are used by
+  // the source to update the values.
+  void SetSpacing(float spacing[4]);
+  void SetSpacing(float x, float y, float z, float t);
+  void SetAxesSpacing(int num, int *axes, float *spacing);
+  vtkImageSetAxesMacro(Spacing,float);
+  void GetSpacing(float spacing[4]);
+  float *GetSpacing() {return this->Spacing;}
+  void GetSpacing(float &x, float &y, float &z, float &time);
+  void GetAxesSpacing(int num, int *axes, float *spacing);
+  vtkImageGetAxesMacro(Spacing,float);
+  void SetOrigin(float origin[4]);
+  void SetOrigin(float x, float y, float z, float t);
+  void SetAxesOrigin(int num, int *axes, float *origin);
+  vtkImageSetAxesMacro(Origin, float);
+  void GetOrigin(float origin[4]);
+  float *GetOrigin() {return this->Origin;}
+  void GetOrigin(float &x, float &y, float &z, float &time);
+  void GetAxesOrigin(int num, int *axes, float *origin);
+  vtkImageGetAxesMacro(Origin, float);
+  void SetWholeExtent(int extent[8]);
+  void SetWholeExtent(int xMin, int xMax, int yMin, int yMax,
+		      int zMin, int zMax, int tMin, int tMax);
+  void SetAxesWholeExtent(int num, int *axes, int *extent);
+  vtkImageSetExtentAxesMacro(WholeExtent,int);
+  void GetWholeExtent(int extent[8]);
+  int *GetWholeExtent() {return this->WholeExtent;}
+  void GetWholeExtent(int &xMin, int &xMax, int &yMin, int &yMax,
+		      int &zMin, int &zMax, int &tMin, int &tMax);
+  void GetAxesWholeExtent(int num, int *axis, int *extent);
+  vtkImageGetExtentAxesMacro(WholeExtent,int);
+  
+  // Description:
+  // These duplicate the above and also provide compatability 
+  // with vtkImageStructuredPoints.  Note: The result of these calls
+  // depends on the coordinate system!  Note:  These methods provide 
+  // image information, not the data in the cache.
+  void GetDimensions(int dimensions[4]);
+  int *GetDimensions() {return this->Dimensions;}
+  void GetDimensions(int &x, int &y, int &z, int &time);
+  void GetAxesDimensions(int num, int *axes, int *dimensions);
+  vtkImageGetAxesMacro(Dimensions,int);
+  
+  void GetCenter(float center[4]);
+  float *GetCenter() {return this->Center;}
+  void GetCenter(float &x, float &y, float &z, float &time);
+  void GetAxesCenter(int num, int *axes, float *center);
+  vtkImageGetAxesMacro(Center,float);
+
+  void GetBounds(float bounds[8]);
+  float *GetBounds() {return this->Bounds;}
+  void GetBounds(float &xMin, float &xMax, float &yMin, float &yMax,
+		 float &zMin, float &zMax, float &tMin, float &tMax);
+  void GetAxesBounds(int num, int *axes, float *bounds);
+  vtkImageGetExtentAxesMacro(Bounds,float);
   
   // Description:
   // Set/Get the source associated with this cache
-  vtkSetObjectMacro(Source,vtkImageCachedSource);
-  vtkGetObjectMacro(Source,vtkImageCachedSource);
+  vtkSetObjectMacro(Source,vtkImageSource);
+  vtkGetObjectMacro(Source,vtkImageSource);
 
   // Description:
-  // Turn the save data option on or off
+  // Turn the caching of data on or off.  When this flag is off,
+  // The cache releases the data imediately after the region is returned
+  // by the methods "GetScalarRegion", and "GetVectorRegion".
+  // The default value of "ReleaseDataFlag" is on.
   void SetReleaseDataFlag(int value);
   vtkGetMacro(ReleaseDataFlag,int);
   vtkBooleanMacro(ReleaseDataFlag,int);
 
   // Description:
   // Turn on/off flag to control whether every object releases its data
-  // after being used by a filter.
+  // after being used by a filter.  These methods do nothing for now.
   void SetGlobalReleaseDataFlag(int val);
   void GlobalReleaseDataFlagOn() {this->SetGlobalReleaseDataFlag(1);};
   void GlobalReleaseDataFlagOff() {this->SetGlobalReleaseDataFlag(0);};
   int  GetGlobalReleaseDataFlag(); 
   
-  // Description:
-  // Subclass implements this method to delete any cached data.
-  virtual void ReleaseData() = 0;
+  virtual void ReleaseData();
 
   // Description:
-  // This method saves a region in the cache for later reference.
-  virtual void CacheRegion(vtkImageRegion *region) = 0;
+  // Return flag indicating whether data should be released after use  
+  // by a filter.
+  int ShouldIReleaseData();  
+  
+  // Description:
+  // Keep track of when data was released for pipeline execution test.
+  vtkSetMacro(DataReleased,int);
+  vtkGetMacro(DataReleased,int); 
   
   // Description:
   // Set/Get the data scalar type of the regions created by this cache.
@@ -110,84 +206,55 @@ public:
   vtkSetMacro(ScalarType,int);
   vtkGetMacro(ScalarType,int);
 
-  // Description:
-  // Set/Get the memory order of regions stored and returned by this cache.
-  // The data along the first axis is colocated in memory.  NOTE: THIS WILL 
-  // NOT AFFECT THE BEHAVIOR OF THE PIPELINE, ONLY THE SPEED OF PROCESSING.
-  // Unless you are trying to tune your application, you will not need this 
-  // method.  The underlying memory order is abstracted and hidden by
-  // vtkImageRegion.
-  void SetMemoryOrder(int num, int *axes);
-  vtkImageSetMacro(MemoryOrder, int);
-  void GetMemoryOrder(int num, int *axes);
-  vtkImageGetMacro(MemoryOrder, int);
+  long GetUpdateExtentMemorySize();
 
   // Description:
-  // These methods allow direct access to the cached image information.
-  void GetSpacing(int num, float *spacing);
-  vtkImageGetMacro(Spacing, float);
-  float *GetSpacing() {return this->Spacing;}
-  void GetOrigin(int num, float *origin);
-  vtkImageGetMacro(Origin, float);
-  float *GetOrigin() {return this->Origin;}
-  void GetImageExtent(int num, int *extent);
-  vtkImageGetExtentMacro(ImageExtent);
+  // The number of scalar components refers to the number of scalars
+  // per pixel to store color information.
+  vtkSetMacro(NumberOfScalarComponents,int);
+  vtkGetMacro(NumberOfScalarComponents,int);
+  
   // Description:
-  // These duplicate the above and also provide compatability 
-  // with vtkImageStructuredPoints.  Note: The result of these calls
-  // depends on the coordinate system!  Note:  These methods provide 
-  // image information, not the data in the cache.
-  void GetDimensions(int num, int *dimensions);
-  vtkImageGetMacro(Dimensions, int);
-  int *GetDimensions() {return this->Dimensions;}
-  void GetCenter(int num, float *center);
-  vtkImageGetMacro(Center, float);
-  float *GetCenter() {return this->Center;}
-  void GetBounds(int num, float *bounds);
-  vtkGetVector3Macro(Bounds, float);
-
-  void SetSpacing(int num, float *spacing);
-  vtkImageSetMacro(Spacing, float);
-  void SetOrigin(int num, float *origin);
-  vtkImageSetMacro(Origin, float);
+  // Here for Bypass functionality
+  vtkSetReferenceCountedObjectMacro(ScalarData, vtkImageData);
+  vtkGetObjectMacro(ScalarData, vtkImageData);
 
   vtkImageToStructuredPoints *GetImageToStructuredPoints();
-
-protected:
-  vtkImageCachedSource *Source;
-  vtkImageToStructuredPoints *ImageToStructuredPoints;
-
-  // Spacing, Dimensions, ... are accessed in this fixed (0, 1, 2, 3, 4)
-  // coordinate system.  Should we allow the user to change the caches axes?
-  int Axes[VTK_IMAGE_DIMENSIONS];
   
-  //  to tell the cache to save data or not.
+  
+protected:
+  int UpdateExtent[8];
+  // Save stuff to figure whether we need to execute.
+  int ExecuteExtent[8];
+  vtkTimeStamp ExecuteTime;
+  vtkTimeStamp ExecuteImageInformationTime;
+  
+  vtkImageSource *Source;
+  vtkImageToStructuredPoints *ImageToStructuredPoints;
   int ReleaseDataFlag;
+  int DataReleased;
 
-  // Cache the ImageExtent, to avoid recomputing the ImageExtent on each pass.
-  vtkTimeStamp ImageInformationTime;
-  float Spacing[VTK_IMAGE_DIMENSIONS];
-  float Origin[VTK_IMAGE_DIMENSIONS];
-  int ImageExtent[VTK_IMAGE_EXTENT_DIMENSIONS];
+  // ImageInformation
+  float Spacing[4];
+  float Origin[4];
+  int WholeExtent[8];
+  int NumberOfScalarComponents;
+  int NumberOfVectorComponents;
   // This is for vtkStructuredPoints compatability.  
   // These variables are redundant.
-  int Dimensions[VTK_IMAGE_DIMENSIONS];
-  float Center[VTK_IMAGE_DIMENSIONS];
-  float Bounds[VTK_IMAGE_EXTENT_DIMENSIONS];
-
+  int Dimensions[4];
+  float Center[4];
+  float Bounds[8];
+  unsigned long PipelineMTime;
   // The cache manipulates (and returns) regions with this data type.
   int ScalarType;
-
-  // The cache returns Regions with this underlying memoyy order.
-  int MemoryOrder[VTK_IMAGE_DIMENSIONS];
+  // Cached data (may have different extents)
+  vtkImageData *ScalarData;
+  vtkImageData *VectorData;
   
-  void GenerateUnCachedRegionData(vtkImageRegion *region);
-  // Description:
-  // This method is used by a subclass to first look to cached 
-  // data.  It can also return null if the method
-  // fails for any reason.
-  virtual void GenerateCachedRegionData(vtkImageRegion *region) = 0;
-  
+  void UpdateImageInformation(unsigned long pipelineMTime);
+  void ComputeBounds();
+  vtkTimeStamp ComputeBoundsTime;
 };
 
 #endif

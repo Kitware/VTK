@@ -44,7 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // pipeline.  The axes cannot be reordered as in vtkImageRegion.  All
 // the ivars are accessed as if the Axes were set to (0,1,2,3,4).
 // The extent represetns the actual dimensions of the underlying memory.
-//  The actual memory is stored in objects (vtkPointData,vtkScalars,vtkArray)
+// The actual memory is stored in objects (vtkPointData,vtkScalars,vtkArray)
 // used in the visualization pipline, so transfer of data is efficient.
 // Cuurently, only the only contents of PointData used are the Scalars,
 // and vtkColorScalars are excluded.  The underlying memory can be any data 
@@ -115,47 +115,46 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set/Get the Order/Axes (which axes loop first) data.  
-  // Data along "axes[0]" are co-located in memory (i.e. inner most loop).
-  // Axes must be set BEFORE the extent is set, and before the data has 
-  // been allocated.  
-  void SetAxes(int num, int *axes);
-  vtkImageSetMacro(Axes, int);
+  // Different ways to set the extent of the data array.  The extent
+  // should be set before the "Scalars" are set or allocated.
+  // The Extent is stored  in the order (X, Y, Z, Time, Components).
+  void SetExtent(int num, int *extent);
+  void SetAxisExtent(int axis, int min, int max);
+  int *GetExtent() {return this->Extent;}
+  void GetAxisExtent(int axis, int &min, int &max);
+  
+  // Description:
+  // The Axes instance variable is fixed to (X, Y, Z, Time, Components).  
+  // The access method is supplied for compatablilty.
   void GetAxes(int num, int *axes);
   vtkImageGetMacro(Axes, int);
   int *GetAxes(){return this->Axes;}
   
+  // Description:
+  // The MemoryOrder instance variable specifies how the axes are arranged
+  // in memory.  It is currently fixed to (COMPONENTS X, Y, Z, Time),
+  // but might be arbitrary in the future.
+  void GetMemoryOrder(int num, int *axes);
+  int *GetMemoryOrder(){return this->MemoryOrder;}
+  
+  // Description:
+  // The ScalarType determines the contents of the underlying memory.
+  // The ScalarType cannot be changed after the data has been allocated.
   void SetScalarType(int type);
   void SetScalarTypeToFloat(){this->SetScalarType(VTK_FLOAT);}
   void SetScalarTypeToInt(){this->SetScalarType(VTK_INT);}
   void SetScalarTypeToShort(){this->SetScalarType(VTK_SHORT);}
   void SetScalarTypeToUnsignedShort(){this->SetScalarType(VTK_UNSIGNED_SHORT);}
   void SetScalarTypeToUnsignedChar(){this->SetScalarType(VTK_UNSIGNED_CHAR);}
-  // Description:
-  // Get the scalar type of the underlying data.
   vtkGetMacro(ScalarType,int);
 
   // Description:
-  // Different ways to set the extent of the data array.  The extent
-  // should be set before the "Scalars" are set or allocated.
-  // The Extent is stored relative to the axes, so the "Axes"
-  // has to be set before the extent.
-  // Extent of unspecified axes are set to 0,0.
-  void SetExtent(int dim, int *extent);
-  vtkImageSetExtentMacro(Extent);
-  // Description:
-  // Different ways to get the extent of the data array.
-  void GetExtent(int dim, int *extent);
-  vtkImageGetExtentMacro(Extent);
-
-  void Translate(int vector[VTK_IMAGE_DIMENSIONS]);
-  
-  // Description:
   // Different ways to get the increments for moving around the data.
+  // They are store (X, Y, Z, Time, Components).
   void GetIncrements(int dim, int *incs);
-  vtkImageGetMacro(Increments, int);
+  void GetAxisIncrement(int axis, int &inc);
   int *GetIncrements(){return this->Increments;}
-
+  
   int AreScalarsAllocated();
   void MakeScalarsWritable();
   void SetScalars(vtkScalars *scalars);
@@ -163,9 +162,6 @@ public:
   void *GetScalarPointer();
   vtkScalars *GetScalars(){return this->PointData.GetScalars();};
   
-  // return pointer to this dataset's point data
-  vtkPointData *GetPointData() {return &this->PointData;};
-
   // Description:
   // A flag that determines wheter to print the data or not.
   vtkSetMacro(PrintScalars,int);
@@ -175,17 +171,19 @@ public:
 
 protected:
   vtkPointData PointData;
-  // The organization of memory. Axes[0] is the inner loop.
+  // The order of the dimesnions for access method (GetExtent ...)
+  // Constant (X, Y, Z, Time, Components).
   int Axes[VTK_IMAGE_DIMENSIONS];
+  // The underlying data is stored in this order (MemoryOrder[0] is colocated).
+  int MemoryOrder[VTK_IMAGE_DIMENSIONS];
   // The underlying data is stored in one of: float, int ...
   int ScalarType;
   // Extent stored absolutely for each axis (as if Axes = {0, 1, 2, 3, 4}).
   int Extent[VTK_IMAGE_EXTENT_DIMENSIONS];
   // Increments  stored absolutely for each axis (as if Axes = {0, 1, 2, 3, 4})
   int Increments[VTK_IMAGE_DIMENSIONS];
-  // The total number of pixels in the array.
-  int Volume;
 
+  int NumberOfScalars;
   int ScalarsAllocated;
   // For debuging
   int PrintScalars;   

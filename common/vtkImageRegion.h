@@ -61,10 +61,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageSetGet.h"
 #include "vtkImageData.h"
-#include "vtkImageCachedSource.h"
+#include "vtkImageSource.h"
 
 
-class VTK_EXPORT vtkImageRegion : public vtkImageCachedSource
+class VTK_EXPORT vtkImageRegion : public vtkImageSource
 {
 public:
   vtkImageRegion();
@@ -91,6 +91,8 @@ public:
   // The 2d and 1d functions do not modify extent of the higher dimensions.
   void SetExtent(int dim, int *extent);
   vtkImageSetExtentMacro(Extent);
+  void SetAxisExtent(int axis, int min, int max);
+  void GetAxisExtent(int axis, int &min, int &max);
 
   // Description:
   // Different methods for getting the extent.
@@ -107,19 +109,9 @@ public:
   void SetScalarType(int type);
   vtkGetMacro(ScalarType,int);
   
-  // Description:
-  // Set/Get the data order of the region.
-  // The data along the first axis is colocated in memory.
-  void SetMemoryOrder(int num, int *axes);
-  vtkImageSetMacro(MemoryOrder, int);
-  void GetMemoryOrder(int num, int *axes);
-  vtkImageGetMacro(MemoryOrder, int);
-  int *GetMemoryOrder() {return this->MemoryOrder;}
-  
-  
   // Stuff to use region as an vtkImageSource.
-  void Update(vtkImageRegion *region); 
-  void UpdateImageInformation(vtkImageRegion *region);
+  void Update(); 
+  void UpdateImageInformation();
   unsigned long GetPipelineMTime();
 
   
@@ -134,12 +126,17 @@ public:
   // Used by filters.
   
   // Description:
-  // Returns pointer increments that can be used to step around the data.
+  // "Increments" allows the user to efficiently 
+  // march through the memory using pointer arithmetic, while keeping the
+  // actual dimensions of the memory array hidden.  
   // Increments do not include size of data type, so should be used after
   // pointers have been casted to their actual type.
   void GetIncrements(int dim, int *increments);
   vtkImageGetMacro(Increments, int);
   int *GetIncrements() {return this->Increments;};
+  void GetAxesIncrements(int num, int *axes, int *incs);
+  void GetAxisIncrements(int axis, int &inc);
+  //vtkImageGetAxesMacro(Increments, int);
 
   // Description:
   // Returns a pointer for reading the scalar point data.
@@ -161,17 +158,18 @@ public:
   // Image information
   
   // Description:
-  // Different methods for setting the ImageExtent.
-  // The 2d and 1d functions do not modify ImageExtent of the higher
+  // Different methods for setting the WholeExtent.
+  // The 2d and 1d functions do not modify WholeExtent of the higher
   // dimensions.  The image extent is the largest region that can be 
   // requested from the pipeline.
-  void SetImageExtent(int dim, int *extent);
-  vtkImageSetExtentMacro(ImageExtent);
+  void SetWholeExtent(int dim, int *extent);
+  vtkImageSetExtentMacro(WholeExtent);
+  void SetAxisWholeExtent(int axis, int min, int max);
 
   // Description:
-  // Different methods for getting the ImageExtent.
-  void GetImageExtent(int dim, int *extent);
-  vtkImageGetExtentMacro(ImageExtent);
+  // Different methods for getting the WholeExtent.
+  void GetWholeExtent(int dim, int *extent);
+  vtkImageGetExtentMacro(WholeExtent);
 
   // Description:
   // Different methods for setting the data spacing.
@@ -220,25 +218,6 @@ public:
 
   void AllocateScalars();
   
-  //------------------------------------------------------------------
-  // This should really be handled by one of the macros, 
-  // but Set is not in the name.
-  // Description:
-  // These functions will change the "origin" of the region.
-  // The extent change, but the data does not.
-  void Translate(int dim, int *vector);
-  void Translate (int *vector) { this->Translate(5,vector);};
-  void Translate(int v0,int v1,int v2, int v3,int v4) 
-  {int v[5];  v[0]=v0;v[1]=v1;v[2]=v2;v[3]=v3;v[4]=v4; this->Translate(5,v);};
-  void Translate(int v0,int v1,int v2, int v3) 
-  {int v[4];  v[0]=v0;v[1]=v1;v[2]=v2;v[3]=v3; this->Translate(4,v);};
-  void Translate(int v0,int v1,int v2) 
-  {int v[3];  v[0]=v0;v[1]=v1;v[2]=v2; this->Translate(3,v);};
-  void Translate(int v0,int v1)
-  {int v[2];  v[0]=v0;v[1]=v1; this->Translate(2,v);}; 
-  void Translate(int v0) 
-  {int v[1];  v[0]=v0; this->Translate(1,v);};
-
   // These methods are used by vtkImageRegions and vtkImageData to
   // reorder their axes and corresponding ivars.
   static void ChangeVectorCoordinateSystem(int *vectIn, int *axesIn,
@@ -252,7 +231,6 @@ public:
 protected:
   vtkImageData *Data;   // Data is stored in this object.
   int ScalarType;         // Remember the pixel type of this region.
-  int MemoryOrder[VTK_IMAGE_DIMENSIONS]; 
 
   // Defines the relative coordinate system
   int Axes[VTK_IMAGE_DIMENSIONS]; // Coordinate system of this region.
@@ -262,8 +240,8 @@ protected:
   // Increments in relative coordinate system
   int Increments[VTK_IMAGE_DIMENSIONS];
 
-  // Possibly make a new object to hold global information like ImageExtent.
-  int ImageExtent[VTK_IMAGE_EXTENT_DIMENSIONS];
+  // Possibly make a new object to hold global information like WholeExtent.
+  int WholeExtent[VTK_IMAGE_EXTENT_DIMENSIONS];
   float Spacing[VTK_IMAGE_DIMENSIONS];
   float Origin[VTK_IMAGE_DIMENSIONS];
 

@@ -53,8 +53,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageToStructuredPoints_h
 
 #include "vtkStructuredPointsSource.h"
-#include "vtkGraymap.h"
-#include "vtkImageRegion.h"
+#include "vtkImageSetGet.h"
+class vtkImageRegion;
 class vtkImageCache;
 class vtkColorScalars;
 
@@ -63,43 +63,21 @@ class VTK_EXPORT vtkImageToStructuredPoints : public vtkStructuredPointsSource
 public:
   vtkImageToStructuredPoints();
   ~vtkImageToStructuredPoints();
-  static vtkImageToStructuredPoints *New() {return new vtkImageToStructuredPoints;};
+  static vtkImageToStructuredPoints *New() 
+    {return new vtkImageToStructuredPoints;};
   const char *GetClassName() {return "vtkImageToStructuredPoints";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
-  // Set/Get the scalar input object from the image pipeline.
-  vtkSetObjectMacro(ScalarInput,vtkImageCache);
-  vtkGetObjectMacro(ScalarInput,vtkImageCache);
-  void SetInput(vtkImageCache *input) {this->SetScalarInput(input);} 
-  vtkImageCache *GetInput() {return this->GetScalarInput();} 
-
-  // Description:
-  // Set/Get the vector input object from the image pipeline.
-  vtkSetObjectMacro(VectorInput,vtkImageCache);
-  vtkGetObjectMacro(VectorInput,vtkImageCache);
-
-  // Description:
-  // Set/Get the flag that tells the object to convert the whole image or not.
-  vtkSetMacro(WholeImage,int);
-  vtkGetMacro(WholeImage,int);
-  vtkBooleanMacro(WholeImage,int);
+  // Set/Get the input object from the image pipeline.
+  vtkSetObjectMacro(Input,vtkImageCache);
+  vtkGetObjectMacro(Input,vtkImageCache);
 
   // Set/Get the extent to translate explicitely.
   void SetExtent(int dim, int *extent);
   vtkImageSetExtentMacro(Extent);
   void GetExtent(int dim, int *extent);
   vtkImageGetExtentMacro(Extent);
-
-
-  // Description:
-  // Set/Get the coordinate system which determines how extent are interpreted.
-  // Note: This does not yet change the order of the structured points!
-  void SetAxes(int dim, int *axes);
-  vtkImageSetMacro(Axes,int);
-  void GetAxes(int dim, int *axes);
-  vtkImageGetMacro(Axes,int);
-  int *GetAxes() {return this->Axes;};  
 
   // Description:
   // Set/Get the order of the axes to split while streaming.
@@ -116,29 +94,24 @@ public:
 
   // Description:
   // Which coordinate to use for the fourth dimension. (slice)
-  vtkSetMacro(Coordinate3,int);
-  vtkGetMacro(Coordinate3,int);
+  vtkSetMacro(TimeSlice,int);
+  vtkGetMacro(TimeSlice,int);
   
   void Update();
   
 protected:
-  vtkImageCache *ScalarInput;
-  vtkImageCache *VectorInput;
-  int WholeImage;
-  int Coordinate3;
-  int Extent[VTK_IMAGE_EXTENT_DIMENSIONS];
-  int Axes[VTK_IMAGE_DIMENSIONS];
+  vtkImageCache *Input;
+  int TimeSlice;
+  int Extent[6];
   int NumberOfSplitAxes;
-  int SplitOrder[VTK_IMAGE_DIMENSIONS];
+  int SplitOrder[4];
   int InputMemoryLimit;
 
   void Execute();
-  vtkScalars *ScalarExecute(vtkImageRegion *region);
-  int ScalarSplitExecute(vtkImageRegion *outRegion);
-  vtkVectors *VectorExecute(vtkImageRegion *region);
-  vtkColorScalars *CreateColorScalars(vtkScalars *scalars, int dim);
-  
+  vtkScalars *GetScalarsFromRegion(vtkImageRegion *region);
+  void InputSplitUpdate(int splitAxisIdx);
   vtkScalars *ReformatRegionData(vtkImageRegion *region, int flag);
+  vtkColorScalars *CreateColorScalars(vtkScalars *scalars, int dim);
 };
 
 

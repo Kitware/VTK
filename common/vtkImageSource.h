@@ -38,27 +38,26 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageSource - Source of vtkImageRegion in an image pipeline.
+// .NAME vtkImageSource - Source of data for pipeline.
 // .SECTION Description
-// vtkImageSource objects can be used as Input to a consumer in an
-// image pipeline.  Right now, the class structure is arranged for maximum
-// flexability.  The subclass vtkImageCachedSource primarily used 
-// for pipeline objects and is a more structured class.  If for some reason
-// the application designer wants to create a uniqued tailored pipeline
-// object, it can be created as a subclass vtkImageSource.  The new
-// filter/source is interchangable with any other vtkImageCachedSource,
-// but must handle its own data management.
+// vtkImageSource is the supperclass for all sources and filters.
+// The method Update, called by the cache, is the major interface
+// to the source.
+
+// .SECTION See Also
+// vtkImageCache vtkImageRegion
 
 
 #ifndef __vtkImageSource_h
 #define __vtkImageSource_h
 
 #include "vtkObject.h"
-class vtkImageToStructuredPoints;
+#include "vtkImageData.h"
 class vtkImageRegion;
+class vtkImageCache;
 
 
-class VTK_EXPORT vtkImageSource : public vtkObject 
+class VTK_EXPORT vtkImageSource : public vtkObject
 {
 public:
   vtkImageSource();
@@ -66,34 +65,71 @@ public:
   const char *GetClassName() {return "vtkImageSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  virtual vtkImageRegion *UpdateRegion();
-  
-  // Description:
-  // This method should the allocate and generate the Region's data, or
-  // if the data could not be generated set the split factor.
-  virtual void Update(vtkImageRegion *region) = 0; 
-  virtual vtkImageSource *GetOutput();
-  // Description:
-  // This method fills the regions extent with the largest region that can
-  // be generated from the source.  The regions data is ignored.
-  virtual void UpdateImageInformation(vtkImageRegion *region) = 0;
-  virtual unsigned long GetPipelineMTime();
-  // Description:
-  // This method returns the data type of the region that will be returned by
-  // the Update method.  This method is used to automatically set
-  // the ScalarTypes of elements in the pipline.  
-  // When this source is set as an 
-  // input, the consumer may call this function and use the returned ScalarType
-  // as a default.
-  virtual int GetScalarType() = 0;
+  virtual void InterceptCacheUpdate(vtkImageCache *cache);
+  virtual void Update();
+  virtual void UpdateWholeExtent();
+  virtual void UpdateImageInformation() = 0;
 
+  virtual unsigned long GetPipelineMTime();
+  vtkImageCache *GetOutput();
+
+  virtual void SetCache(vtkImageCache *cache);
+  vtkImageCache *GetCache();
+
+  virtual void SetReleaseDataFlag(int value);
+  int  GetReleaseDataFlag();
+  vtkBooleanMacro(ReleaseDataFlag, int);
+  
+  void SetOutputScalarTypeToFloat(){this->SetOutputScalarType(VTK_FLOAT);}
+  void SetOutputScalarTypeToInt(){this->SetOutputScalarType(VTK_INT);}
+  void SetOutputScalarTypeToShort(){this->SetOutputScalarType(VTK_SHORT);}
+  void SetOutputScalarTypeToUnsignedShort()
+    {this->SetOutputScalarType(VTK_UNSIGNED_SHORT);}
+  void SetOutputScalarTypeToUnsignedChar()
+    {this->SetOutputScalarType(VTK_UNSIGNED_CHAR);}
+  void SetOutputScalarType(int type);
+  int  GetOutputScalarType();
+  
+  virtual void SetStartMethod(void (*f)(void *), void *arg);
+  virtual void SetEndMethod(void (*f)(void *), void *arg);
+  virtual void SetStartMethodArgDelete(void (*f)(void *));
+  virtual void SetEndMethodArgDelete(void (*f)(void *));
+  
 protected:
+  vtkImageCache *Output;
+  // The number of dimensions expected/handled by the execute method
+  // It helps determine which axes the supper classes should loop over.
+  // It should be set in the constructor, (and propbably should not change).
+  int NumberOfExecutionAxes; 
+  int ExecutionAxes[5]; 
+
+  int ExecuteScalars;
+  int ExecuteVectors;
+
+  void (*StartMethod)(void *);
+  void (*StartMethodArgDelete)(void *);
+  void *StartMethodArg;
+  void (*EndMethod)(void *);
+  void (*EndMethodArgDelete)(void *);
+  void *EndMethodArg;
+  
+  virtual void RecursiveLoopUpdate(int dim, vtkImageRegion *region); 
+  virtual void Execute(vtkImageRegion *region); 
+  virtual void CheckCache();
+
+  // ExecutionAxes define the subspace handled by the subclasses
+  // execute method.  For now, the array also indicates the superclass
+  // loop axes stored in array above the "NumberOfExecutionAxes" index.
+  virtual void SetExecutionAxes(int dim, int *axes);
+  virtual void SetExecutionAxes(int axis);
+  virtual void SetExecutionAxes(int axis0, int axis1);
+  virtual void SetExecutionAxes(int axis0, int axis1, int axis2);
+  virtual void SetExecutionAxes(int axis0, int axis1, int axis2, int axis3);
+  virtual void GetExecutionAxes(int dim, int *axes);
+  virtual int *GetExecutionAxes() {return this->ExecutionAxes;};
 };
 
 
-
-
 #endif
-
 
 

@@ -22,8 +22,6 @@ vtkCell \
 vtkColorScalars \
 vtkDataSet \
 vtkImplicitFunction \
-vtkImageCache \
-vtkImageCachedSource \
 vtkImageSource \
 vtkLocator \
 vtkNormals \
@@ -61,9 +59,9 @@ vtkFloatVectors \
 vtkGraymap \
 vtkHexahedron \
 vtkIdList \
+vtkImageCache \
 vtkImageData \
 vtkImageRegion \
-vtkImageSimpleCache \
 vtkImageToStructuredPoints \
 vtkIndent \
 vtkIntArray \

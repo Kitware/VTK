@@ -51,11 +51,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <iostream.h>
 #include <fstream.h>
-#include "vtkImageCachedSource.h"
+#include "vtkImageSource.h"
 class vtkStructuredPoints;
 
 
-class VTK_EXPORT vtkStructuredPointsToImage : public vtkImageCachedSource
+class VTK_EXPORT vtkStructuredPointsToImage : public vtkImageSource
 {
 public:
   vtkStructuredPointsToImage();
@@ -64,8 +64,8 @@ public:
   const char *GetClassName() {return "vtkStructuredPointsToImage";};
   void PrintSelf(ostream& os, vtkIndent indent);   
   
-  void Update(vtkImageRegion *region);
-  void UpdateImageInformation(vtkImageRegion *region);
+  void Update();
+  void UpdateImageInformation();
   unsigned long GetPipelineMTime();
   int GetScalarType();
   
@@ -79,12 +79,9 @@ protected:
   vtkStructuredPoints *Input;
   
   void UpdateInput();
-  void Execute(vtkImageRegion *region);
-  void ComputeImageInformation(vtkImageRegion *region);
+  void Execute();
   int ComputeDataType();
 };
-
-#include "vtkStructuredPoints.h"
 
 #endif
 

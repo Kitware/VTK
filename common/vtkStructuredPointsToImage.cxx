@@ -38,10 +38,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <string.h>
-#include "vtkStructuredPointsToImage.h"
 #include "vtkColorScalars.h"
 #include "vtkImageRegion.h"
 #include "vtkImageCache.h"
+#include "vtkStructuredPoints.h"
+#include "vtkStructuredPointsToImage.h"
 
 //----------------------------------------------------------------------------
 vtkStructuredPointsToImage::vtkStructuredPointsToImage()
@@ -61,7 +62,7 @@ vtkStructuredPointsToImage::~vtkStructuredPointsToImage()
 //----------------------------------------------------------------------------
 void vtkStructuredPointsToImage::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageCachedSource::PrintSelf(os,indent);
+  vtkImageSource::PrintSelf(os,indent);
   os << indent << "Input: (" << this->Input << ")\n";
 }
 
@@ -89,17 +90,16 @@ void vtkStructuredPointsToImage::UpdateInput()
 
 
 //----------------------------------------------------------------------------
-void vtkStructuredPointsToImage::Update(vtkImageRegion *region)
+void vtkStructuredPointsToImage::Update()
 {
+  // Make sure we have an output
+  this->CheckCache();
+  
   // Make sure input is up to date
   this->UpdateInput();
   
-  // Make sure image information is update
-  this->ComputeImageInformation(region);
-  
   // Create the data for the region.
-  this->Execute(region);
-  this->Output->CacheRegion(region);
+  this->Execute();
 
   // Release the inputs data, if that is what it wants.
   if ( this->Input->ShouldIReleaseData() ) this->Input->ReleaseData();
@@ -107,16 +107,53 @@ void vtkStructuredPointsToImage::Update(vtkImageRegion *region)
 
 
 //----------------------------------------------------------------------------
-void vtkStructuredPointsToImage::UpdateImageInformation(vtkImageRegion *region)
+void vtkStructuredPointsToImage::UpdateImageInformation()
 {
+  int size[4];
+  float spacing[4];
+  float origin[4];
+  vtkScalars *scalars;
+
+  if ( ! this->Input)
+    {
+    vtkErrorMacro("Input not set.");
+    return;
+    }
+  
   // Make sure input is up to date
   this->UpdateInput();
   
-  // Make sure image information is update
-  this->ComputeImageInformation(region);
+  this->Input->GetDimensions(size);
+  size[3] = 1;
+  this->Input->GetSpacing(spacing);
+  spacing[3] = 1.0;
+  this->Input->GetOrigin(origin);
+  origin[3] = 0.0;
   
-  // Release the inputs data, if that is what it wants.
-  if ( this->Input->ShouldIReleaseData() ) this->Input->ReleaseData();
+  this->Output->SetSpacing(spacing);
+  this->Output->SetOrigin(origin);
+  if (this->Output->GetScalarType() == VTK_VOID)
+    {
+    this->Output->SetScalarType(this->ComputeDataType());
+    }
+  
+  this->Output->SetWholeExtent(0, size[0]-1, 0, size[1]-1, 0, size[2]-1, 0, 0);
+  
+  // Get scalars to find out if we need to add components
+  scalars = this->Input->GetPointData()->GetScalars();
+  if (strcmp(scalars->GetScalarType(), "ColorScalar") == 0)
+    {
+    int bpp;
+    bpp = ((vtkColorScalars *)scalars)->GetNumberOfValuesPerScalar();
+    this->Output->SetNumberOfScalarComponents(bpp);
+    }
+  else
+    {
+    this->Output->SetNumberOfScalarComponents(1);
+    }
+  
+  // Releasing data here would be inefficient because cache calls
+  // UpdateImageInformation and then Update.
 }
 
 
@@ -156,7 +193,7 @@ int vtkStructuredPointsToImage::GetScalarType()
   type = this->ComputeDataType();
   
   // Release the inputs data, if that is what it wants.
-  if ( this->Input->ShouldIReleaseData() ) this->Input->ReleaseData();
+  // if ( this->Input->ShouldIReleaseData() ) this->Input->ReleaseData();
 
   return type;
 }
@@ -208,14 +245,12 @@ int vtkStructuredPointsToImage::ComputeDataType()
 }
 
 //----------------------------------------------------------------------------
-void vtkStructuredPointsToImage::Execute(vtkImageRegion *region)
+void vtkStructuredPointsToImage::Execute()
 {
   char *type;
   int *size;
-  int dataExtent[8];
+  int dataExtent[10];
   vtkImageData *data;
-  int dataAxes[5] = {VTK_IMAGE_COMPONENT_AXIS, VTK_IMAGE_X_AXIS,
-		     VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS, VTK_IMAGE_TIME_AXIS};
   vtkScalars *scalars;
   
   if ( ! this->Input)
@@ -234,23 +269,23 @@ void vtkStructuredPointsToImage::Execute(vtkImageRegion *region)
   
   // Determine the extent of the data
   size = this->Input->GetDimensions();
-  dataExtent[0] = dataExtent[2] = dataExtent[4] = dataExtent[6] = 0;
-  dataExtent[3] = size[0] - 1;
-  dataExtent[5] = size[1] - 1;
-  dataExtent[7] = size[2] - 1;
+  dataExtent[0] = dataExtent[2] = dataExtent[4] = 0;
+  dataExtent[1] = size[0] - 1;
+  dataExtent[3] = size[1] - 1;
+  dataExtent[5] = size[2] - 1;
+  dataExtent[6] = dataExtent[7] = dataExtent[8] = 0;
   if (strcmp(scalars->GetScalarType(), "ColorScalar") == 0)
     {
-    dataExtent[1]=((vtkColorScalars *)scalars)->GetNumberOfValuesPerScalar()-1;
+    dataExtent[9]=((vtkColorScalars *)scalars)->GetNumberOfValuesPerScalar()-1;
     }
   else
     {
-    dataExtent[1] = 0;
+    dataExtent[9] = 0;
     }
 
   // Convert the scalars array into vtkImageData
   data = vtkImageData::New();
-  data->SetAxes(dataAxes);
-  data->SetExtent(4, dataExtent);
+  data->SetExtent(5, dataExtent);
   type = scalars->GetDataType();
   if (strcmp(type, "unsigned char") == 0)
     {
@@ -292,55 +327,10 @@ void vtkStructuredPointsToImage::Execute(vtkImageRegion *region)
     data->SetScalars(scalars);
     }
   
-  region->SetData(data);
+  this->Output->SetScalarData(data);
   // Get rid of our ref count.
   data->Delete();
 }
-
-
-//----------------------------------------------------------------------------
-void
-vtkStructuredPointsToImage::ComputeImageInformation(vtkImageRegion *region)
-{
-  vtkStructuredPoints *input;
-  int size[3];
-  float Spacing[3];
-  float origin[3];
-  vtkScalars *scalars;
-  
-  if ( ! this->Input)
-    {
-    vtkErrorMacro("Input not set.");
-    return;
-    }
-  
-  input = this->Input;
-  input->GetDimensions(size);
-  input->GetSpacing(Spacing);
-  input->GetOrigin(origin);
-  
-  region->SetSpacing(3, Spacing);
-  region->SetOrigin(3, origin);
-  if (region->GetScalarType() == VTK_VOID)
-    {
-    region->SetScalarType(this->ComputeDataType());
-    }
-  
-  region->SetImageExtent(0, size[0]-1, 0, size[1]-1, 0, size[2]-1);
-  
-  // Get scalars to find out if we need to add components
-  scalars = input->GetPointData()->GetScalars();
-  if (strcmp(scalars->GetScalarType(), "ColorScalar") == 0 &&
-      scalars->GetNumberOfValuesPerScalar () != 1)
-    {
-    int bpp;
-    bpp = ((vtkColorScalars *)scalars)->GetNumberOfValuesPerScalar();
-    region->SetAxisImageExtent(VTK_IMAGE_COMPONENT_AXIS, 0, bpp-1);
-    }
-}
-
-
-
 
 
 

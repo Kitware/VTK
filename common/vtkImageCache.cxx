@@ -1,4 +1,4 @@
-/*=========================================================================
+ /*=========================================================================
 
   Program:   Visualization Toolkit
   Module:    vtkImageCache.cxx
@@ -39,60 +39,65 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkImageToStructuredPoints.h"
 #include "vtkImageRegion.h"
+#include "vtkImageSource.h"
 #include "vtkImageCache.h"
 
 //----------------------------------------------------------------------------
 // Description:
 // Constructor:  By default caches ReleaseDataFlags are turned off. However,
-// the vtkImageCachedSource method CheckCache, which create a default cache, 
+// the vtkImageSource method CheckCache, which create a default cache, 
 // turns this flag on.  If a cache is created and set explicitely, by 
 // default it saves its data between generates.  But if the cache is created
-// automatically by the vtkImageCachedSource, it does not.
+// automatically by the vtkImageSource, it does not.
 vtkImageCache::vtkImageCache()
 {
   int idx;
   
   for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
+    this->UpdateExtent[idx*2] = -VTK_LARGE_INTEGER;
+    this->UpdateExtent[idx*2+1] = VTK_LARGE_INTEGER;
     this->Spacing[idx] = 1.0;
     this->Origin[idx] = 0.0;
-    this->ImageExtent[idx*2] = this->ImageExtent[idx*2+1] = 0;
+    this->ExecuteExtent[idx*2] = this->ExecuteExtent[idx*2+1] = 0;
+    this->WholeExtent[idx*2] = this->WholeExtent[idx*2+1] = 0;
     this->Dimensions[idx] = 1;
     this->Center[idx] = 0.0;
     this->Bounds[idx*2] = this->Bounds[idx*2+1] = 0.0;
-    this->Axes[idx] = idx;
     }
 
-  // Default memory organization
-  this->MemoryOrder[0] = VTK_IMAGE_COMPONENT_AXIS;
-  this->MemoryOrder[1] = VTK_IMAGE_X_AXIS;
-  this->MemoryOrder[2] = VTK_IMAGE_Y_AXIS;
-  this->MemoryOrder[3] = VTK_IMAGE_Z_AXIS;
-  this->MemoryOrder[4] = VTK_IMAGE_TIME_AXIS;
+  this->NumberOfScalarComponents = 1;
+  this->NumberOfVectorComponents = 1;
   
   this->Source = NULL;
+  
+  // for automatic conversion
+  this->ImageToStructuredPoints = NULL;
+
+  // default is to save data,
+  // (But caches automatically created by sources set ReleaseDataFlag to 1)
+  this->ReleaseDataFlag = 0;
+  this->DataReleased = 1;
   
   // Invalid data type
   // This will be changed when the filter gets an input or
   // the ScalarType is set explicitly
   this->ScalarType = VTK_VOID;
-  
-  // default is to save data,
-  // (But caches automatically created by sources set ReleaseDataFlag to 1)
-  this->ReleaseDataFlag = 0;
 
-  // for automatic conversion
-  this->ImageToStructuredPoints = NULL;
+  this->ScalarData = NULL;
+  this->VectorData = NULL;
 }
 
 
 //----------------------------------------------------------------------------
 vtkImageCache::~vtkImageCache()
 {
+
   if (this->ImageToStructuredPoints)
     {
     this->ImageToStructuredPoints->Delete();
     }
+  this->ReleaseData();
 }
 
 //----------------------------------------------------------------------------
@@ -100,7 +105,7 @@ void vtkImageCache::PrintSelf(ostream& os, vtkIndent indent)
 {
   int idx;
   
-  vtkImageSource::PrintSelf(os,indent);
+  vtkObject::PrintSelf(os,indent);
 
   os << indent << "Source: (" << this->Source << ").\n";
   os << indent << "ReleaseDataFlag: " << this->ReleaseDataFlag << "\n";
@@ -110,191 +115,852 @@ void vtkImageCache::PrintSelf(ostream& os, vtkIndent indent)
      << this->ImageToStructuredPoints << ")\n";
   
   os << indent << "Spacing: (" << this->Spacing[0];
-  for (idx = 1; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+  for (idx = 1; idx < 4; ++idx)
     {
     os << ", " << this->Spacing[idx];
     }
   os << ")\n";
   
   os << indent << "Origin: (" << this->Origin[0];
-  for (idx = 1; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+  for (idx = 1; idx < 4; ++idx)
     {
     os << ", " << this->Origin[idx];
     }
   os << ")\n";
   
   os << indent << "Center: (" << this->Center[0];
-  for (idx = 1; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+  for (idx = 1; idx < 4; ++idx)
     {
     os << ", " << this->Center[idx];
     }
   os << ")\n";
   
-  os << indent << "ImageExtent: (" << this->ImageExtent[0];
-  for (idx = 1; idx < VTK_IMAGE_DIMENSIONS*2; ++idx)
+  os << indent << "WholeExtent: (" << this->WholeExtent[0];
+  for (idx = 1; idx < 8; ++idx)
     {
-    os << ", " << this->ImageExtent[idx];
+    os << ", " << this->WholeExtent[idx];
     }
   os << ")\n";
+
+  os << indent << "UpdateExtent: (" << this->UpdateExtent[0];
+  for (idx = 1; idx < 8; ++idx)
+    {
+    os << ", " << this->UpdateExtent[idx];
+    }
+  os << ")\n";
+
+  os << indent << "ExecuteTime: " << this->ExecuteTime.GetMTime() << "\n";
   
   os << indent << "Bounds: (" << this->Bounds[0];
-  for (idx = 1; idx < VTK_IMAGE_DIMENSIONS*2; ++idx)
+  for (idx = 1; idx < 8; ++idx)
     {
     os << ", " << this->Bounds[idx];
     }
   os << ")\n";
 
-  os << indent << "MemoryOrder: (" 
-     << vtkImageAxisNameMacro(this->MemoryOrder[0]);
-  for (idx = 1; idx < VTK_IMAGE_DIMENSIONS; ++idx)
-    {
-    os << ", " << vtkImageAxisNameMacro(this->MemoryOrder[idx]);
-    }
-  os << ")\n";
+  os << indent << "ScalarData: (" << this->ScalarData << ")\n";
+  os << indent << "VectorData: (" << this->VectorData << ")\n";
   
 }
   
     
 
-
 //----------------------------------------------------------------------------
-void vtkImageCache::GetMemoryOrder(int num, int *axes)
+void vtkImageCache::SetUpdateExtent(int extent[8])
 {
-  int idx;
+  int idx, modified = 0;
   
-  if (num > VTK_IMAGE_DIMENSIONS)
+  for (idx = 0; idx < 8; ++idx)
     {
-    vtkWarningMacro("GetMemoryOrder: " << num << " dimensions is too many");
-    num = VTK_IMAGE_DIMENSIONS;
+    if (this->UpdateExtent[idx] != extent[idx])
+      {
+      modified = 1;
+      this->UpdateExtent[idx] = extent[idx];
+      }
+    }
+  if (modified)
+    {
+    this->Modified();
+    }
+}
+//----------------------------------------------------------------------------
+void vtkImageCache::SetUpdateExtent(int xMin, int xMax, int yMin, int yMax,
+				    int zMin, int zMax, int tMin, int tMax)
+{
+  int extent[8];
+
+  extent[0] = xMin; extent[1] = xMax;
+  extent[2] = yMin; extent[3] = yMax;
+  extent[4] = zMin; extent[5] = zMax;
+  extent[6] = tMin; extent[7] = tMax;
+}
+//----------------------------------------------------------------------------
+void vtkImageCache::SetAxesUpdateExtent(int num, int *axes, int *extent)
+{
+  int idx, axis, modified = 0;
+  
+  if (num > 4)
+    {
+    vtkWarningMacro("SetAxesUpdateExtent: " << num 
+		    << " is too many axes");
+    num = 4;
     }
   for (idx = 0; idx < num; ++idx)
     {
-    axes[idx] = this->MemoryOrder[idx];
+    axis = axes[idx];
+    if (this->UpdateExtent[axis*2] != extent[idx*2])
+      {
+      modified = 1;
+      this->UpdateExtent[axis*2] = extent[idx*2];
+      }
+    if (this->UpdateExtent[axis*2+1] != extent[idx*2+1])
+      {
+      modified = 1;
+      this->UpdateExtent[axis*2+1] = extent[idx*2+1];
+      }
+    }
+  if (modified)
+    {
+    this->Modified();
+    }
+}
+//----------------------------------------------------------------------------
+void vtkImageCache::SetUpdateExtentToWholeExtent()
+{
+  this->UpdateImageInformation();
+  this->SetUpdateExtent(this->WholeExtent);
+}
+
+
+//----------------------------------------------------------------------------
+void vtkImageCache::GetUpdateExtent(int extent[8])
+{
+  int idx;
+  
+  for (idx = 0; idx < 8; ++idx)
+    {
+    extent[idx] = this->UpdateExtent[idx];
+    }
+}
+//----------------------------------------------------------------------------
+void vtkImageCache::GetUpdateExtent(int &xMin, int &xMax, int &yMin, int &yMax,
+				    int &zMin, int &zMax, int &tMin, int &tMax)
+{
+  xMin = this->UpdateExtent[0]; xMax = this->UpdateExtent[1];
+  yMin = this->UpdateExtent[2]; yMax = this->UpdateExtent[2];
+  zMin = this->UpdateExtent[4]; zMax = this->UpdateExtent[4];
+  tMin = this->UpdateExtent[6]; tMax = this->UpdateExtent[6];
+}
+//----------------------------------------------------------------------------
+void vtkImageCache::GetAxesUpdateExtent(int num, int *axes, int *extent)
+{
+  int idx, axis;
+  
+  if (num > 4)
+    {
+    vtkWarningMacro("GetAxesUpdateExtent: " << num 
+		    << " is too many axes");
+    num = 4;
+    }
+  for (idx = 0; idx < num; ++idx)
+    {
+    axis = axes[idx];
+    extent[idx*2] = this->UpdateExtent[axis*2];
+    extent[idx*2+1] = this->UpdateExtent[axis*2+1];
+    }
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// This method updates the region specified by "UpdateExtent".  
+void vtkImageCache::Update()
+{
+  unsigned long pipelineMTime = this->GetPipelineMTime();
+
+  // Make sure image information is upto date
+  this->UpdateImageInformation(pipelineMTime);
+  this->ClipUpdateExtentWithWholeExtent();
+  
+  this->Source->InterceptCacheUpdate(this);
+  
+  // if cache doesn't have the necessary data.
+  if (pipelineMTime > this->ExecuteTime || this->DataReleased ||
+      (this->ExecuteExtent[0] > this->UpdateExtent[0] ||
+       this->ExecuteExtent[1] < this->UpdateExtent[1] ||
+       this->ExecuteExtent[2] > this->UpdateExtent[2] ||
+       this->ExecuteExtent[3] < this->UpdateExtent[3] ||
+       this->ExecuteExtent[4] > this->UpdateExtent[4] ||
+       this->ExecuteExtent[5] < this->UpdateExtent[5] ||
+       this->ExecuteExtent[6] > this->UpdateExtent[6] ||
+       this->ExecuteExtent[7] < this->UpdateExtent[7]))
+    {
+    if (this->Source)
+      {
+      vtkDebugMacro("Update: We have to update the source.");
+      this->Source->Update();
+      // save the time and extent of the update for test "cache has data?"
+      this->ExecuteTime.Modified();
+      this->GetUpdateExtent(this->ExecuteExtent);
+      this->DataReleased = 0;
+      }
+    }
+  else
+    {
+    vtkDebugMacro("Update: UpdateRegion already in cache.");
     }
 }
 
 
 //----------------------------------------------------------------------------
-void vtkImageCache::SetMemoryOrder(int num, int *axes)
+// Description:
+// This method updates the instance variables "WholeExtent", "Spacing", 
+// "Origin", "Bounds" etc.
+// It needs to be separate from "Update" because the image information
+// may be needed to compute the required UpdateExtent of the input
+// (see "vtkImageFilter").
+void vtkImageCache::UpdateImageInformation()
 {
-  vtkImageRegion::CompleteUnspecifiedAxes(num, axes, this->MemoryOrder);
-  this->Modified();
-  this->ReleaseData();
+  this->UpdateImageInformation(this->GetPipelineMTime());
 }
-
-
-
 
 //----------------------------------------------------------------------------
 // Description:
-// This Method returns the MTime of the pipeline before this cache.
-// It considers both the source and the cache.
-unsigned long int vtkImageCache::GetPipelineMTime()
+// Make this a separate method to avoid another GetPipelineMTime call.
+void vtkImageCache::UpdateImageInformation(unsigned long pipelineMTime)
 {
-  unsigned long int time1, time2;
-
-  // This objects MTime
-  time1 = this->GetMTime();
-  if ( ! this->Source){
-    vtkWarningMacro(<< "GetPipelineMTime: Source not set.");
-    return time1;
-  }
-
-  // Pipeline mtime
-  time2 = this->Source->GetPipelineMTime();
-  
-  // Return the larger of the two
-  if (time2 > time1)
-    time1 = time2;
-
-  return time1;
-}
-
-
-//----------------------------------------------------------------------------
-// Description:
-// This method computes and returns the bounding box of the whole image.
-// Any data associated with "region" is ignored.
-void vtkImageCache::UpdateImageInformation(vtkImageRegion *region)
-{
-  int saveAxes[VTK_IMAGE_DIMENSIONS];
-  int idx;
-
-  // Save the old coordinate system
-  region->GetAxes(VTK_IMAGE_DIMENSIONS, saveAxes);
-
-  if (this->ImageInformationTime.GetMTime() < this->GetPipelineMTime())
+  if ((pipelineMTime > this->ExecuteImageInformationTime) && this->Source)
     {
-    // pipeline has been modified, we have to get the ImageInformation again.
-    vtkDebugMacro(<< "UpdateImageInformation: Pipeline modified, "
-                  << "recompute ImageInformation");
-    if ( ! this->Source)
+    this->Source->UpdateImageInformation();
+    this->ExecuteImageInformationTime.Modified();
+    }
+
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// Clip updateExtent so it will nopt be larger than WHoleExtent
+void vtkImageCache::ClipUpdateExtentWithWholeExtent()
+{
+  int idx;
+  
+  // Clip the UpdateExtent with the WholeExtent
+  for (idx = 0; idx < 4; ++idx)
+    {
+    // min
+    if (this->UpdateExtent[idx*2] < this->WholeExtent[idx*2])
       {
-      vtkErrorMacro(<< "UpdateImageInformation: No source");
+      this->UpdateExtent[idx*2] = this->WholeExtent[idx*2];
+      }
+    if (this->UpdateExtent[idx*2] > this->WholeExtent[idx*2+1])
+      {
+      this->UpdateExtent[idx*2] = this->WholeExtent[idx*2+1];
+      }
+    // max
+    if (this->UpdateExtent[idx*2+1] < this->WholeExtent[idx*2])
+      {
+      this->UpdateExtent[idx*2+1] = this->WholeExtent[idx*2];
+      }
+    if (this->UpdateExtent[idx*2+1] > this->WholeExtent[idx*2+1])
+      {
+      this->UpdateExtent[idx*2+1] = this->WholeExtent[idx*2+1];
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// Make this a separate method to avoid another GetPipelineMTime call.
+unsigned long vtkImageCache::GetPipelineMTime()
+{
+  if (this->Source)
+    {
+    // We do not tak this objects MTime into consideration, 
+    // but maybe we should.
+    return this->Source->GetPipelineMTime();
+    }
+  return this->GetMTime();
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// This method returns a "vtkImageRegion" that holds the scalar data
+// of the cache.  Source must delete the region when finished with it.
+// It assumes that the UpdateExtent has already been cliped.
+// (i.e. This method is called after an update)
+vtkImageRegion *vtkImageCache::GetScalarRegion()
+{
+  vtkImageRegion *region;
+  
+  if ( this->ScalarData)
+    {
+    int min, max;
+    int *dataExtent, *extent;
+    // If data extent is large enough, we should reuse the data.
+    dataExtent = this->ScalarData->GetExtent();
+    this->ScalarData->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, min, max);
+    extent = this->UpdateExtent;
+    if (extent[0] < dataExtent[0] || extent[1] > dataExtent[1] ||
+	extent[2] < dataExtent[2] || extent[3] > dataExtent[3] ||
+	extent[4] < dataExtent[4] || extent[5] > dataExtent[5] ||
+	extent[6] < dataExtent[6] || extent[7] > dataExtent[7] ||
+	this->NumberOfScalarComponents > (max-min+1))
+      {
+      // Data is not valid. Get rid of it.
+      this->ScalarData->Delete();
+      this->ScalarData = NULL;
+      }
+    }
+  
+  if ( ! this->ScalarData)
+    {
+    this->ScalarData = vtkImageData::New();
+    this->ScalarData->SetExtent(4, this->UpdateExtent);
+    this->ScalarData->SetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, 
+				    0, this->NumberOfScalarComponents-1);
+    this->ScalarData->SetScalarType(this->ScalarType);
+    }
+  
+  region = vtkImageRegion::New();
+  region->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS,
+		  VTK_IMAGE_TIME_AXIS);
+  region->SetExtent(4, this->UpdateExtent);
+  region->SetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, 
+			0, this->NumberOfScalarComponents - 1);
+  region->SetWholeExtent(4, this->WholeExtent);
+  region->SetAxisWholeExtent(VTK_IMAGE_COMPONENT_AXIS, 
+			     0, this->NumberOfScalarComponents - 1);
+  region->SetOrigin(4, this->Origin);
+  region->SetSpacing(4, this->Spacing);  
+  region->SetData(this->ScalarData);
+  
+  return region;
+}
+
+
+
+//----------------------------------------------------------------------------
+// Description:
+// This method is here for vtkImageToStructuredPoints.
+// It allows the converter to stream.  It fixes the update extent,
+// and then updates with tiled smaller extents. The cache allocates
+// one big extent, and sub extents update into the larger piece of memory.
+void vtkImageCache::SetWholeUpdateExtent(int *extent)
+{
+  this->SetUpdateExtent(extent);
+  this->UpdateImageInformation();
+  this->ClipUpdateExtentWithWholeExtent();
+  extent = this->UpdateExtent;
+  
+  // similar logic to GetScalarData.
+  // Because it creates a scalar data.
+  if ( this->ScalarData)
+    {
+    int min, max;
+    int *dataExtent;
+    // If data extent is large enough, we should reuse the data.
+    dataExtent = this->ScalarData->GetExtent();
+    this->ScalarData->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, min, max);
+    if (extent[0] < dataExtent[0] || extent[1] > dataExtent[1] ||
+	extent[2] < dataExtent[2] || extent[3] > dataExtent[3] ||
+	extent[4] < dataExtent[4] || extent[5] > dataExtent[5] ||
+	extent[6] < dataExtent[6] || extent[7] > dataExtent[7] ||
+	this->NumberOfScalarComponents > (max-min+1))
+      {
+      // Data is not valid. Get rid of it.
+      this->ScalarData->Delete();
+      this->ScalarData = NULL;
+      }
+    }
+  
+  if ( ! this->ScalarData)
+    {
+    this->ScalarData = vtkImageData::New();
+    this->ScalarData->SetExtent(4, this->UpdateExtent);
+    this->ScalarData->SetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, 
+				    0, this->NumberOfScalarComponents-1);
+    this->ScalarData->SetScalarType(this->ScalarType);
+    }
+}
+
+
+
+//----------------------------------------------------------------------------
+// Description:
+// This method returns a "vtkImageRegion" that holds the vector data
+// of the cache.  Source must delete the region when finished with it.
+vtkImageRegion *vtkImageCache::GetVectorRegion()
+{
+  vtkImageRegion *region;
+  
+  if ( this->VectorData)
+    {
+    int min, max;
+    int *dataExtent, *extent;
+    // If data extent is large enough, we should reuse the data.
+    dataExtent = this->VectorData->GetExtent();
+    this->VectorData->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, min, max);
+    extent = this->UpdateExtent;
+    if (extent[0] < dataExtent[0] || extent[1] > dataExtent[1] ||
+	extent[2] < dataExtent[2] || extent[3] > dataExtent[3] ||
+	extent[4] < dataExtent[4] || extent[5] > dataExtent[5] ||
+	extent[6] < dataExtent[6] || extent[7] > dataExtent[7] ||
+	this->NumberOfVectorComponents > (max-min+1))
+      {
+      // Data is not valid. Get rid of it.
+      this->VectorData->Delete();
+      this->VectorData = NULL;
+      }
+    }
+  
+  if ( ! this->VectorData)
+    {
+    this->VectorData = vtkImageData::New();
+    this->VectorData->SetExtent(4, this->UpdateExtent);
+    this->VectorData->SetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, 
+				    0, this->NumberOfVectorComponents-1);
+    this->VectorData->SetScalarType(this->ScalarType);
+    }
+  
+  region = vtkImageRegion::New();
+  region->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS,
+		  VTK_IMAGE_TIME_AXIS);
+  region->SetExtent(4, this->UpdateExtent);
+  region->SetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, 
+			0, this->NumberOfVectorComponents - 1);
+  region->SetWholeExtent(4, this->WholeExtent);
+  region->SetAxisWholeExtent(VTK_IMAGE_COMPONENT_AXIS, 
+			     0, this->NumberOfVectorComponents - 1);
+  region->SetOrigin(4, this->Origin);
+  region->SetSpacing(4, this->Spacing);  
+  region->SetData(this->ScalarData);
+  
+  return region;
+}
+
+
+
+
+//----------------------------------------------------------------------------
+void vtkImageCache::SetSpacing(float spacing[4])
+{
+  int idx, modified = 0;
+  
+  for (idx = 0; idx < 4; ++idx)
+    {
+    if (this->Spacing[idx] != spacing[idx])
+      {
+      modified = 1;
+      this->Spacing[idx] = spacing[idx];
+      }
+    }
+  if (modified)
+    {
+    this->Modified();
+    }
+}
+//----------------------------------------------------------------------------
+void vtkImageCache::SetSpacing(float x, float y, float z, float t)
+{
+  float spacing[4];
+
+  spacing[0] = x;
+  spacing[1] = y;
+  spacing[2] = z;
+  spacing[3] = t;
+  this->SetSpacing(spacing);
+}
+//----------------------------------------------------------------------------
+void vtkImageCache::SetAxesSpacing(int num, int *axes, float *spacing)
+{
+  int idx, axis, modified = 0;
+  
+  if (num > 4)
+    {
+    vtkWarningMacro("SetAxesSpacing: " << num 
+		    << " is too many axes");
+    num = 4;
+    }
+  for (idx = 0; idx < num; ++idx)
+    {
+    axis = axes[idx];
+    if (this->Spacing[axis] != spacing[idx])
+      {
+      modified = 1;
+      this->Spacing[axis] = spacing[idx];
+      }
+    }
+  if (modified)
+    {
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageCache::GetSpacing(float spacing[4])
+{
+  int idx;
+  
+  for (idx = 0; idx < 4; ++idx)
+    {
+    spacing[idx] = this->Spacing[idx];
+    }
+}
+//----------------------------------------------------------------------------
+void vtkImageCache::GetSpacing(float &x, float &y, float &z, float &t)
+{
+  x = this->Spacing[0];
+  y = this->Spacing[1];
+  z = this->Spacing[2];
+  t = this->Spacing[3];
+}
+//----------------------------------------------------------------------------
+void vtkImageCache::GetAxesSpacing(int num, int *axes, float *spacing)
+{
+  int idx, axis;
+  
+  if (num > 4)
+    {
+    vtkWarningMacro("GetAxesSpacing: " << num 
+		    << " is too many axes");
+    num = 4;
+    }
+  for (idx = 0; idx < num; ++idx)
+    {
+    axis = axes[idx];
+    if (axis < 0 || axis > 3)
+      {
+      vtkErrorMacro("GetAxesSpacing: Axis " << axis << " is invalid");
       return;
       }
-
-    // Translate region into the sources coordinate system. (save old)
-    region->SetAxes(this->Source->GetAxes());
-    // Get the ImageExtent
-    this->Source->UpdateImageInformation(region);
-    // Save the ImageExtent to satisfy later calls.
-    // Choose some constant coordinate system.
-    region->SetAxes(VTK_IMAGE_DIMENSIONS, this->Axes);
-    region->GetImageExtent(this->ImageExtent);
-    region->GetSpacing(this->Spacing);
-    region->GetOrigin(this->Origin);
-    this->ImageInformationTime.Modified();
-
-    // Compute Bounds ... and other redundant variables.
-    for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
-      {
-      this->Dimensions[idx] = this->ImageExtent[idx*2+1] 
-	- this->ImageExtent[idx*2] + 1;
-      this->Bounds[idx*2] = this->Origin[idx] 
-	+ this->Spacing[idx] * this->ImageExtent[idx*2];
-      this->Bounds[idx*2+1] = this->Origin[idx] 
-	+ this->Spacing[idx] * this->ImageExtent[idx*2+1];
-      this->Center[idx] = (this->Bounds[idx*2] + this->Bounds[idx*2+1]) * 0.5;
-      }
-    
-    // Leave the region in the original (before this method) coordinate system.
-    region->SetAxes(saveAxes);
- 
-    // The cache will change the data type if it has to
-    if (this->ScalarType != VTK_VOID)
-      {
-      region->SetScalarType(this->ScalarType);
-      }
-    
-    return;
+    spacing[idx] = this->Spacing[axis];
     }
-  
-  // No modifications have been made, so return our own copy.
-  vtkDebugMacro(<< "UpdateImageInformation: Using own copy of ImageInfo");
-  // Image extent Are saved in some constant coordinate system.
-  region->SetAxes(VTK_IMAGE_DIMENSIONS, this->Axes);
-  region->SetImageExtent(this->ImageExtent);
-  region->SetSpacing(this->Spacing);
-  region->SetOrigin(this->Origin);
-
-  // The cache will change the data type if it has to
-  if (this->ScalarType != VTK_VOID)
-    {
-    region->SetScalarType(this->ScalarType);
-    }
-  
-  // Leave the region in the original (before this method) coordinate system.
-  region->SetAxes(saveAxes);
 }
+
+
+//----------------------------------------------------------------------------
+void vtkImageCache::SetOrigin(float origin[4])
+{
+  int idx, modified = 0;
+  
+  for (idx = 0; idx < 4; ++idx)
+    {
+    if (this->Origin[idx] != origin[idx])
+      {
+      modified = 1;
+      this->Origin[idx] = origin[idx];
+      }
+    }
+  if (modified)
+    {
+    this->Modified();
+    }
+}
+//----------------------------------------------------------------------------
+void vtkImageCache::SetOrigin(float x, float y, float z, float t)
+{
+  float origin[4];
+
+  origin[0] = x;
+  origin[1] = y;
+  origin[2] = z;
+  origin[3] = t;
+  this->SetOrigin(origin);
+}
+//----------------------------------------------------------------------------
+void vtkImageCache::SetAxesOrigin(int num, int *axes, float *origin)
+{
+  int idx, axis, modified = 0;
+  
+  if (num > 4)
+    {
+    vtkWarningMacro("SetAxesOrigin: " << num 
+		    << " is too many axes");
+    num = 4;
+    }
+  for (idx = 0; idx < num; ++idx)
+    {
+    axis = axes[idx];
+    if (this->Origin[axis] != origin[idx])
+      {
+      modified = 1;
+      this->Origin[axis] = origin[idx];
+      }
+    }
+  if (modified)
+    {
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageCache::GetOrigin(float origin[4])
+{
+  int idx;
+  
+  for (idx = 0; idx < 4; ++idx)
+    {
+    origin[idx] = this->Origin[idx];
+    }
+}
+//----------------------------------------------------------------------------
+void vtkImageCache::GetOrigin(float &x, float &y, float &z, float &t)
+{
+  x = this->Origin[0];
+  y = this->Origin[1];
+  z = this->Origin[2];
+  t = this->Origin[3];
+}
+//----------------------------------------------------------------------------
+void vtkImageCache::GetAxesOrigin(int num, int *axes, float *origin)
+{
+  int idx, axis;
+  
+  if (num > 4)
+    {
+    vtkWarningMacro("GetAxesOrigin: " << num 
+		    << " is too many axes");
+    num = 4;
+    }
+  for (idx = 0; idx < num; ++idx)
+    {
+    axis = axes[idx];
+    origin[idx] = this->Origin[axis];
+    }
+}
+
+
+//----------------------------------------------------------------------------
+void vtkImageCache::SetWholeExtent(int extent[8])
+{
+  int idx, modified = 0;
+  
+  for (idx = 0; idx < 8; ++idx)
+    {
+    if (this->WholeExtent[idx] != extent[idx])
+      {
+      modified = 1;
+      this->WholeExtent[idx] = extent[idx];
+      }
+    }
+  if (modified)
+    {
+    this->Modified();
+    }
+}
+//----------------------------------------------------------------------------
+void vtkImageCache::SetWholeExtent(int xMin, int xMax, int yMin, int yMax,
+				   int zMin, int zMax, int tMin, int tMax)
+{
+  int extent[8];
+
+  extent[0] = xMin; extent[1] = xMax;
+  extent[2] = yMin; extent[3] = yMax;
+  extent[4] = zMin; extent[5] = zMax;
+  extent[6] = tMin; extent[7] = tMax;
+  this->SetWholeExtent(extent);
+}
+//----------------------------------------------------------------------------
+void vtkImageCache::SetAxesWholeExtent(int num, int *axes, int *extent)
+{
+  int idx, axis, modified = 0;
+  
+  if (num > 4)
+    {
+    vtkWarningMacro("SetAxesWholeExtent: " << num 
+		    << " is too many axes");
+    num = 4;
+    }
+  for (idx = 0; idx < num; ++idx)
+    {
+    axis = axes[idx];
+    if (this->WholeExtent[axis*2] != extent[idx*2])
+      {
+      modified = 1;
+      this->WholeExtent[axis*2] = extent[idx*2];
+      }
+    if (this->WholeExtent[axis*2+1] != extent[idx*2+1])
+      {
+      modified = 1;
+      this->WholeExtent[axis*2+1] = extent[idx*2+1];
+      }
+    }
+  if (modified)
+    {
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageCache::GetWholeExtent(int extent[8])
+{
+  int idx;
+  
+  for (idx = 0; idx < 8; ++idx)
+    {
+    extent[idx] = this->WholeExtent[idx];
+    }
+}
+//----------------------------------------------------------------------------
+void vtkImageCache::GetWholeExtent(int &xMin, int &xMax, int &yMin, int &yMax,
+				   int &zMin, int &zMax, int &tMin, int &tMax)
+{
+  xMin = this->WholeExtent[0]; xMax = this->WholeExtent[1];
+  yMin = this->WholeExtent[2]; yMax = this->WholeExtent[2];
+  zMin = this->WholeExtent[4]; zMax = this->WholeExtent[4];
+  tMin = this->WholeExtent[6]; tMax = this->WholeExtent[6];
+}
+//----------------------------------------------------------------------------
+void vtkImageCache::GetAxesWholeExtent(int num, int *axes, int *extent)
+{
+  int idx, axis;
+  
+  if (num > 4)
+    {
+    vtkWarningMacro("GetAxesWholeExtent: " << num 
+		    << " is too many axes");
+    num = 4;
+    }
+  for (idx = 0; idx < num; ++idx)
+    {
+    axis = axes[idx];
+    extent[idx*2] = this->WholeExtent[axis*2];
+    extent[idx*2+1] = this->WholeExtent[axis*2+1];
+    }
+}
+
+
+
+//----------------------------------------------------------------------------
+void vtkImageCache::GetDimensions(int dimensions[4])
+{
+  int idx;
+  
+  for (idx = 0; idx < 4; ++idx)
+    {
+    dimensions[idx] = this->Dimensions[idx];
+    }
+}
+//----------------------------------------------------------------------------
+void vtkImageCache::GetDimensions(int &x, int &y, int &z, int &t)
+{
+  this->ComputeBounds();
+  x = this->Dimensions[0];
+  y = this->Dimensions[1];
+  z = this->Dimensions[2];
+  t = this->Dimensions[3];
+}
+//----------------------------------------------------------------------------
+void vtkImageCache::GetAxesDimensions(int num, int *axes, int *dimensions)
+{
+  int idx, axis;
+  
+  this->ComputeBounds();
+  if (num > 4)
+    {
+    vtkWarningMacro("GetAxesDimensions: " << num 
+		    << " is too many axes");
+    num = 4;
+    }
+  for (idx = 0; idx < num; ++idx)
+    {
+    axis = axes[idx];
+    dimensions[idx] = this->Dimensions[axis];
+    }
+}
+
+
+//----------------------------------------------------------------------------
+void vtkImageCache::GetCenter(float center[4])
+{
+  int idx;
+  
+  for (idx = 0; idx < 4; ++idx)
+    {
+    center[idx] = this->Center[idx];
+    }
+}
+//----------------------------------------------------------------------------
+void vtkImageCache::GetCenter(float &x, float &y, float &z, float &t)
+{
+  this->ComputeBounds();
+  x = this->Center[0];
+  y = this->Center[1];
+  z = this->Center[2];
+  t = this->Center[3];
+}
+//----------------------------------------------------------------------------
+void vtkImageCache::GetAxesCenter(int num, int *axes, float *center)
+{
+  int idx, axis;
+  
+  this->ComputeBounds();
+  if (num > 4)
+    {
+    vtkWarningMacro("GetAxesCenter: " << num 
+		    << " is too many axes");
+    num = 4;
+    }
+  for (idx = 0; idx < num; ++idx)
+    {
+    axis = axes[idx];
+    center[idx] = this->Center[axis];
+    }
+}
+
+
+//----------------------------------------------------------------------------
+void vtkImageCache::GetBounds(float bounds[8])
+{
+  int idx;
+  
+  for (idx = 0; idx < 8; ++idx)
+    {
+    bounds[idx] = this->Bounds[idx];
+    }
+}
+//----------------------------------------------------------------------------
+void 
+vtkImageCache::GetBounds(float &xMin, float &xMax, float &yMin, float &yMax,
+			 float &zMin, float &zMax, float &tMin, float &tMax)
+{
+  xMin = this->Bounds[0]; xMax = this->Bounds[1];
+  yMin = this->Bounds[2]; yMax = this->Bounds[2];
+  zMin = this->Bounds[4]; zMax = this->Bounds[4];
+  tMin = this->Bounds[6]; tMax = this->Bounds[6];
+}
+//----------------------------------------------------------------------------
+void vtkImageCache::GetAxesBounds(int num, int *axes, float *bounds)
+{
+  int idx, axis;
+  
+  if (num > 4)
+    {
+    vtkWarningMacro("GetAxesBounds: " << num 
+		    << " is too many axes");
+    num = 4;
+    }
+  for (idx = 0; idx < num; ++idx)
+    {
+    axis = axes[idx];
+    bounds[idx*2] = this->Bounds[axis*2];
+    bounds[idx*2+1] = this->Bounds[axis*2+1];
+    }
+}
+
 
 
 //----------------------------------------------------------------------------
 // Description:
 // This Method sets the value of "ReleaseDataFlag" which turns cache on or off.
-// When cache is off, memory is freed after a generate has been completed.
+// When cache is off, memory will be freed by the consumer.
 void vtkImageCache::SetReleaseDataFlag(int value)
 {
+  if (value == this->ReleaseDataFlag)
+    {
+    return;
+    }
+  
+  this->Modified();
   this->ReleaseDataFlag = value;
 
   if ( value == 1)
@@ -304,339 +970,6 @@ void vtkImageCache::SetReleaseDataFlag(int value)
     }
 }
 
-
-//----------------------------------------------------------------------------
-// Description:
-// This Method handles external calls to generate data.
-// It Allocates and fills the passed region.
-// If the method cannot complete, the region is not allocated.
-// "region" should not have data when this method is called.
-void vtkImageCache::Update(vtkImageRegion *region)
-{
-  int saveAxes[VTK_IMAGE_DIMENSIONS];
-  int saveExtent[VTK_IMAGE_EXTENT_DIMENSIONS];
-  int saveScalarType;
-  int *imageExtent, idx;
-  
-
-  // First Update the Image information 
-  this->UpdateImageInformation(region);
-
-  // Releasing data changes this.
-  saveScalarType = region->GetScalarType();
-
-  // We do not support writting into regions that already have data.
-  // What if the cache already had the region? we would have to copy.
-  region->ReleaseData();
-  
-  // Like ScalarType, this should by dynamic and not fixed.
-  region->SetMemoryOrder(VTK_IMAGE_DIMENSIONS, this->MemoryOrder);
-  
-  // If the extent has no "volume", just return.
-  if (region->IsEmpty())
-    {
-    return;
-    }
-  // Must have a source to generate the data
-  if ( ! this->Source)
-    {
-    vtkErrorMacro(<< "Update: Can not generate data with no Source");
-    return;
-    }
-  
-  // Save stuff from the region to restore later.
-  region->GetExtent(VTK_IMAGE_DIMENSIONS, saveExtent);
-  region->GetAxes(VTK_IMAGE_DIMENSIONS, saveAxes);
-  
-  // Check too make sure the requested region is in the image.
-  imageExtent = region->GetImageExtent();
-  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
-    {
-    if ((saveExtent[idx*2] < imageExtent[idx*2]) ||
-	(saveExtent[idx*2+1] > imageExtent[idx*2+1]))
-      {
-      int *axes = region->GetAxes();
-      vtkErrorMacro(<< "Update: extent of " 
-          << vtkImageAxisNameMacro(axes[idx]) << " [" << saveExtent[idx*2] 
-          << "->" << saveExtent[idx*2+1] << "] is out of image extent ["
-          << imageExtent[idx*2] << "->" << imageExtent[idx*2+1] << "]");
-      return;
-      }
-    }
-  
-  // Translate region into the sources coordinate system.
-  region->SetAxes(VTK_IMAGE_DIMENSIONS, this->Source->GetAxes());
-  // Set the expected scalar type
-  region->SetScalarType(this->ScalarType);
-  
-  // Allow the source to modify the extent of the region  
-  // (Now that source caches the regions, is this needed?)
-  this->Source->InterceptCacheUpdate(region);
-
-  // look to subclass the generate the data.
-  this->GenerateCachedRegionData(region);
-
-  // Release the cached data if needed.
-  if (this->ReleaseDataFlag)
-    {
-    this->ReleaseData();
-    }
-
-  // Leave the region in the original (before this method) coordinate system.
-  region->SetAxes(VTK_IMAGE_DIMENSIONS, saveAxes);
-  region->SetExtent(VTK_IMAGE_DIMENSIONS, saveExtent);
-  // If the scalar type is different, we must copy the data.
-  if ((saveScalarType != VTK_VOID) && (saveScalarType != this->ScalarType))
-    {
-    vtkImageRegion *tempRegion = vtkImageRegion::New();
-    tempRegion->SetAxes(VTK_IMAGE_DIMENSIONS, region->GetAxes());
-    tempRegion->SetExtent(VTK_IMAGE_DIMENSIONS, region->GetExtent());
-    tempRegion->SetScalarType(saveScalarType);
-    tempRegion->SetMemoryOrder(this->MemoryOrder);
-    vtkWarningMacro(<< "Update: Have to copy data from type "
-        << vtkImageScalarTypeNameMacro(this->ScalarType) << " to type "
-        << vtkImageScalarTypeNameMacro(saveScalarType));
-    
-    tempRegion->CopyRegionData(region);
-    // Put the new data in the region.
-    region->ReleaseData();
-    region->SetScalarType(saveScalarType);
-    region->SetData(tempRegion->GetData());
-    // we must delete the data because it is reference counted.
-    tempRegion->Delete();
-    }
-}
-
-//----------------------------------------------------------------------------
-// Description:
-// This method uses the source to generate a whole region.  
-// It is called by Update when ReleaseDataFlag is on, or
-// by the subclass GenerateUnCachedRegionData method when the region data
-// is not in cache.  The method returns the region (or NULL if a something 
-// failed).  The subclass method which calls this function is responsible for
-// getting the data from the region and saving it if it wants to.
-// outBBox is not modified or deleted.
-void vtkImageCache::GenerateUnCachedRegionData(vtkImageRegion *region)
-{
-  vtkDebugMacro(<< "GenerateUnCachedRegionData: ");
-  
-  // Create the data object for this region, to fix its size.
-  // Memory allocation is delayed as long as possible.
-  region->GetData();
-  
-  
-  // Tell the filter to generate the data for this region
-  // IMPORTANT: Region is just to communicate extent, and does not
-  // necessarily return any infomation!  Data is really returned
-  // when source calls CacheRegion.
-  this->Source->Update(region);
-}
-
-
-//----------------------------------------------------------------------------
-// Description: Returns the largest region possible.
-// The user assumes owner ship of the region and must delete it.
-vtkImageRegion *vtkImageCache::UpdateRegion()
-{
-  vtkImageRegion *region = vtkImageRegion::New();
-  this->UpdateImageInformation(region);
-  region->SetExtent(VTK_IMAGE_DIMENSIONS, region->GetImageExtent());
-  this->Update(region);
-  
-  return region;
-}
-
-//----------------------------------------------------------------------------
-// Description:
-// This method updates the cache with the whole image.  The
-// image is not released even if ReleaseDataFlag is on.
-// Nothing is returned.
-void vtkImageCache::Update()
-{
-  vtkImageRegion *region;
-  int saveFlag;
-  
-  saveFlag = this->ReleaseDataFlag;
-  this->ReleaseDataFlag = 0;
-  region = this->UpdateRegion();
-  this->ReleaseDataFlag = saveFlag;
-  
-  vtkDebugMacro("Update: " << *region);
-  region->Delete();
-}
-
-
-//----------------------------------------------------------------------------
-// Description:
-// Causes the image information stored in cache to be up to date.
-// This method should be called before GetBounds, GetCenter, GetSpacing ...
-void vtkImageCache::UpdateImageInformation()
-{
-  vtkImageRegion *region = vtkImageRegion::New();
-  this->UpdateImageInformation(region);
-  region->Delete();
-}
-
-//----------------------------------------------------------------------------
-// Description:
-// This method allows the user to manually override the computed Spacing.
-// It does not change this objects modified time.  Any action (i.e. this or
-// previous object modified) will cause Spacing to be recomputed from input.
-// This method is meant for debugging and compatablility with 
-// vtkStructuredPoints.
-void vtkImageCache::SetSpacing(int num, float *spacing)
-{
-  int idx;
-  
-  if (num > VTK_IMAGE_DIMENSIONS)
-    {
-    vtkWarningMacro("SetSpacing: " << num << " is too many dimensions");
-    num = VTK_IMAGE_DIMENSIONS;
-    }
-  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
-    {
-    this->Spacing[idx] = spacing[idx];
-    }
-}
-
-
-//----------------------------------------------------------------------------
-// Description:
-// This method allows the user to manually override the computed Origin.
-// It does not change this objects modified time.  Any action (i.e. this or
-// previous object modified) will cause Origin to be recomputed from input.
-// This method is meant for debugging and compatablility with 
-// vtkStructuredPoints.
-void vtkImageCache::SetOrigin(int num, float *origin)
-{
-  int idx;
-  
-  if (num > VTK_IMAGE_DIMENSIONS)
-    {
-    vtkWarningMacro("SetOrigin: " << num << " is too many dimensions");
-    num = VTK_IMAGE_DIMENSIONS;
-    }
-  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
-    {
-    this->Origin[idx] = origin[idx];
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkImageCache::GetSpacing(int num, float *spacing)
-{
-  int idx;
-  
-  if (num > VTK_IMAGE_DIMENSIONS)
-    {
-    vtkWarningMacro("GetSpacing: " << num << " is too many");
-    num = VTK_IMAGE_DIMENSIONS;
-    }
-  
-  for (idx = 0; idx < num; ++idx)
-    {
-    spacing[idx] = this->Spacing[idx];
-    }
-
-  return;
-}
-
-//----------------------------------------------------------------------------
-void vtkImageCache::GetOrigin(int num, float *origin)
-{
-  int idx;
-  
-  if (num > VTK_IMAGE_DIMENSIONS)
-    {
-    vtkWarningMacro("GetOrigin: " << num << " is too many");
-    num = VTK_IMAGE_DIMENSIONS;
-    }
-  
-  for (idx = 0; idx < num; ++idx)
-    {
-    origin[idx] = this->Origin[idx];
-    }
-
-  return;
-}
-
-//----------------------------------------------------------------------------
-void vtkImageCache::GetImageExtent(int num, int *extent)
-{
-  int idx;
-  
-  if (num > VTK_IMAGE_DIMENSIONS)
-    {
-    vtkWarningMacro("GetImageExtent: " << num << " is too many");
-    num = VTK_IMAGE_DIMENSIONS;
-    }
-  
-  for (idx = 0; idx < num; ++idx)
-    {
-    extent[idx*2] = this->ImageExtent[idx*2];
-    extent[idx*2+1] = this->ImageExtent[idx*2+1];
-    }
-
-  return;
-}
-
-//----------------------------------------------------------------------------
-void vtkImageCache::GetDimensions(int num, int *dimensions)
-{
-  int idx;
-  
-  if (num > VTK_IMAGE_DIMENSIONS)
-    {
-    vtkWarningMacro("GetDimensions: " << num << " is too many");
-    num = VTK_IMAGE_DIMENSIONS;
-    }
-  
-  for (idx = 0; idx < num; ++idx)
-    {
-    dimensions[idx] = this->Dimensions[idx];
-    }
-
-  return;
-}
-
-//----------------------------------------------------------------------------
-void vtkImageCache::GetCenter(int num, float *center)
-{
-  int idx;
-  
-  if (num > VTK_IMAGE_DIMENSIONS)
-    {
-    vtkWarningMacro("GetCenter: " << num << " is too many");
-    num = VTK_IMAGE_DIMENSIONS;
-    }
-  
-  for (idx = 0; idx < num; ++idx)
-    {
-    center[idx] = this->Center[idx];
-    }
-
-  return;
-}
-
-//----------------------------------------------------------------------------
-void vtkImageCache::GetBounds(int num, float *bounds)
-{
-  int idx;
-  
-  if (num > VTK_IMAGE_DIMENSIONS)
-    {
-    vtkWarningMacro("GetBounds: " << num << " is too many");
-    num = VTK_IMAGE_DIMENSIONS;
-    }
-  
-  for (idx = 0; idx < num; ++idx)
-    {
-    bounds[idx*2] = this->Bounds[idx*2];
-    bounds[idx*2+1] = this->Bounds[idx*2+1];
-    }
-
-  return;
-}
 
 //----------------------------------------------------------------------------
 void vtkImageCache::SetGlobalReleaseDataFlag(int val)
@@ -651,21 +984,135 @@ int  vtkImageCache::GetGlobalReleaseDataFlag()
   return 0;
 }
 
+
+
 //----------------------------------------------------------------------------
 // Description:  
-// This method is used translparently by the "SetInput(vtkImageSource *)"
+// This method causes the cache to release its data, however it 
+// does not affect image infomation.
+void vtkImageCache::ReleaseData()
+{
+  if (this->ScalarData)
+    {
+    this->ScalarData->Delete();
+    this->ScalarData = NULL;
+    }
+  if (this->VectorData)
+    {
+    this->VectorData->Delete();
+    this->VectorData = NULL;
+    }
+  this->DataReleased = 1;
+}
+
+
+//----------------------------------------------------------------------------
+// Description:
+// Return flag indicating whether data should be released after use  
+// by a filter.  For now, it does not look at the global release data flag.
+int vtkImageCache::ShouldIReleaseData()
+{
+  if (this->ReleaseDataFlag ) 
+    {
+    return 1;
+    }
+  else 
+    {
+    return 0;
+    }
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// This method returns the memory that would be required for scalars on update.
+// The returned value is in units KBytes.
+// This method is used for determining when to stream.
+long vtkImageCache::GetUpdateExtentMemorySize()
+{
+  long size = 1;
+  int idx;
+  
+  // Compute the number of scalars.
+  for (idx = 0; idx < 4; ++idx)
+    {
+    size *= (this->UpdateExtent[idx*2+1] - this->UpdateExtent[idx*2] + 1);
+    }
+  // Consider components
+  size *= this->NumberOfScalarComponents;
+  
+  // Consider the size of each scalar.
+  switch (this->ScalarType)
+    {
+    case VTK_FLOAT:
+      size *= sizeof(float);
+      break;
+    case VTK_INT:
+      size *= sizeof(int);
+      break;
+    case VTK_SHORT:
+      size *= sizeof(short);
+      break;
+    case VTK_UNSIGNED_SHORT:
+      size *= sizeof(unsigned short);
+      break;
+    case VTK_UNSIGNED_CHAR:
+      size *= sizeof(unsigned char);
+      break;
+    default:
+      vtkWarningMacro(<< "GetExtentMemorySize: "
+        << "Cannot determine input scalar type");
+    }  
+
+  // In case the extent is set improperly
+  if (size < 0)
+    {
+    vtkErrorMacro("GetExtentMemorySize: Computed value negative: " << size);
+    return 0;
+    }
+  
+  return size / 1000;
+}
+
+
+//----------------------------------------------------------------------------
+// Description:  
+// This method is used translparently by the "SetInput(vtkImageCache *)"
 // method to connect the image pipeline to the visualization pipeline.
 vtkImageToStructuredPoints *vtkImageCache::GetImageToStructuredPoints()
 {
   if ( ! this->ImageToStructuredPoints)
     {
     this->ImageToStructuredPoints = vtkImageToStructuredPoints::New();
-    this->ImageToStructuredPoints->SetScalarInput(this);
+    this->ImageToStructuredPoints->SetInput(this);
     }
   
   return this->ImageToStructuredPoints;
 }
 
+//----------------------------------------------------------------------------
+// Description:  
+// This method uses "Spacing" and "WholeExtent" to compute Dimesions,
+// Center, and Bounds.
+void vtkImageCache::ComputeBounds()
+{
+  if (this->ComputeBoundsTime < this->GetMTime())
+    {
+    int idx;
+    for (idx = 0; idx < 4; ++idx)
+      {
+      this->Dimensions[idx] = 
+	this->WholeExtent[idx*2+1] - this->WholeExtent[idx*2] + 1;
+      this->Bounds[idx*2] = this->Origin[idx] + 
+	(float)(this->WholeExtent[idx*2]) * this->Spacing[idx];
+      this->Bounds[idx*2+1] = this->Origin[idx] + 
+	(float)(this->WholeExtent[idx*2+1]) * this->Spacing[idx];
+      this->Center[idx] = 0.5 * (this->Bounds[idx*2] + this->Bounds[idx*2+1]);
+      }
+    this->ComputeBoundsTime.Modified();
+    }
+}
+
+  
 
 
 

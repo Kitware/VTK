@@ -59,80 +59,136 @@ vtkImageData::vtkImageData()
     this->Extent[idx*2] = 0;
     this->Extent[idx*2 + 1] = 0;
     }
+  this->MemoryOrder[0] = VTK_IMAGE_COMPONENT_AXIS;
+  this->MemoryOrder[1] = VTK_IMAGE_X_AXIS;
+  this->MemoryOrder[2] = VTK_IMAGE_Y_AXIS;
+  this->MemoryOrder[3] = VTK_IMAGE_Z_AXIS;
+  this->MemoryOrder[4] = VTK_IMAGE_TIME_AXIS;
+  this->NumberOfScalars = 0;
 }
 
 
 //----------------------------------------------------------------------------
-// A templated function to print different types of pointData.
+// A templated function to print a single pixel.
+template <class T>
+static void vtkImageDataPrintPixel(vtkImageData *self, T *ptr, ostream& os)
+{
+  int idx;
+  int inc;
+  int min, max;
+
+  self->GetAxisIncrement(VTK_IMAGE_COMPONENT_AXIS, inc);
+  self->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, min, max);
+
+  if (min == max)
+    { // one component, just print it.
+    os << *ptr;
+    return;
+    }
+  
+  os << "(" << *ptr;
+  for (idx = min+1; idx <= max; ++idx)
+    {
+    ptr += inc;
+    os << ", " << *ptr;
+    }
+  os << ")";
+  
+  return;
+}
+
+
+//----------------------------------------------------------------------------
+// A method that prints all the data.
+// If an axis has no data (colapsed: min == max), it is not printed.
 template <class T>
 static void vtkImageDataPrintScalars(vtkImageData *self, T *ptr,
-				ostream& os, vtkIndent indent)
+				     ostream& os, vtkIndent indent)
 {
   int precisionSave = os.precision();
-  int *temp;
-  int idx0, idx1, idx2, idx3;
-  int inc0, inc1, inc2, inc3;
-  int min0, max0, min1, max1, min2, max2, min3, max3;
-  T *ptr0, *ptr1, *ptr2, *ptr3;
-  vtkIndent indent0, indent1, indent2, indent3;
+  int idxX, idxY, idxZ, idxT;
+  int incX, incY, incZ, incT;
+  int minX, maxX, minY, maxY, minZ, maxZ, minT, maxT;
+  T *ptrX, *ptrY, *ptrZ, *ptrT;
+  vtkIndent indentY, indentZ, indentT;
+  int numY, numZ, numT;
+  int numberOfAxes = 0;
 
   // Only print float values to 2 decimals
   os.precision(2);
   
-  self->GetIncrements(inc0, inc1, inc2, inc3);
-  self->GetExtent(min0, max0, min1, max1, min2, max2, min3, max3);
-  temp = self->GetAxes();
+  self->GetAxisIncrement(VTK_IMAGE_X_AXIS, incX);
+  self->GetAxisIncrement(VTK_IMAGE_Y_AXIS, incY);
+  self->GetAxisIncrement(VTK_IMAGE_Z_AXIS, incZ);
+  self->GetAxisIncrement(VTK_IMAGE_TIME_AXIS, incT);
+
+  self->GetAxisExtent(VTK_IMAGE_X_AXIS, minX, maxX);
+  if (maxX > minX) ++numberOfAxes;
+  self->GetAxisExtent(VTK_IMAGE_Y_AXIS, minY, maxY);
+  if (maxY > minY) ++numberOfAxes;
+  numY = numberOfAxes;
+  self->GetAxisExtent(VTK_IMAGE_Z_AXIS, minZ, maxZ);
+  if (maxZ > minZ) ++numberOfAxes;
+  numZ = numberOfAxes;
+  self->GetAxisExtent(VTK_IMAGE_TIME_AXIS, minT, maxT);
+  if (maxT > minT) ++numberOfAxes;
+  numT = numberOfAxes;
   
-  indent3 = indent;
-  ptr3 = ptr;
-  if (max3 > min3)
+  indentT = indent;
+  ptrT = ptr;
+  for (idxT = minT; idxT <= maxT; ++idxT)
     {
-    os << indent3 << vtkImageAxisNameMacro(temp[3]) 
-       << " range:(" << min3 << ", " << max3 << "), coordinant: (0, 0, 0, 0"
-       << ")###########################\n";
-    }
-  for (idx3 = min3; idx3 <= max3; ++idx3)
-    {
-    indent2 = indent3.GetNextIndent();
-    ptr2 = ptr3;
-    if (max2 > min2)
+    ptrZ = ptrT;
+    indentZ = indentT;
+    if (maxT > minT)
       {
-      os << indent2 << vtkImageAxisNameMacro(temp[2]) 
-	 << " range:(" << min2 << ", " << max2 << "), coordinant: (0, 0, 0, "
-	 << ", " << idx3 << ")===========================\n";
-      }
-    for (idx2 = min2; idx2 <= max2; ++idx2)
-      {
-      indent1 = indent2.GetNextIndent();
-      ptr1 = ptr2;
-      if (max1 > min1)
+      if (numT > 1)
 	{
-	os << indent1 << vtkImageAxisNameMacro(temp[1]) 
-	   << " range:(" << min1 << ", " << max1 << "), coordinant: (0, 0, "
-	   << idx2 << ", " << idx3 << ")---------------------------\n";
+	os << indentT << "T(" << idxT << "): ";
 	}
-      for (idx1 = min1; idx1 <= max1; ++idx1)
+      if (numT > 2)
 	{
-
-	indent0 = indent1.GetNextIndent();
-	ptr0 = ptr1;
-	os << indent0 << vtkImageAxisNameMacro(temp[0]) << ": " 
-	   << (float)(*ptr0);
-	ptr0 += inc0;
-	for (idx0 = min0+1; idx0 <= max0; ++idx0)
-	  {
-	  os << ", " << (float)(*ptr0);
-	  ptr0 += inc0;
-	  }
 	os << "\n";
-	
-	ptr1 += inc1;
 	}
-
-      ptr2 += inc2;
+      indentZ = indentT.GetNextIndent();
       }
-
-    ptr3 += inc3;
+    for (idxZ = minZ; idxZ <= maxZ; ++idxZ)
+      {
+      ptrY = ptrZ;
+      indentY = indentZ;
+      if (maxZ > minZ)
+	{
+	if (numZ > 1)
+	  {
+	  os << indentZ << "Z(" << idxZ << "): ";
+	  }
+	if (numZ > 2)
+	  {
+	  os << "\n";
+	  }
+	indentY = indentZ.GetNextIndent();
+	}
+      for (idxY = minY; idxY <= maxY; ++idxY)
+	{
+	ptrX = ptrY;
+	if (maxY > minY)
+	  {
+	  if (numY > 1)
+	    {
+	    os << indentY << "Y(" << idxY << "): ";
+	    }
+	  }
+	for (idxX = minX; idxX <= maxX; ++idxX)
+	  {
+	  vtkImageDataPrintPixel(self, ptrX, os);
+	  os << " ";
+	  ptrX += incX;
+	  }
+	ptrY += incY;
+	}
+      ptrZ += incZ;
+      }
+    ptrT += incT;
     }
   
   // Set the precision value back to its original value.
@@ -157,6 +213,14 @@ void vtkImageData::PrintSelf(ostream& os, vtkIndent indent)
   for (idx = 1; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
     os << ", " << vtkImageAxisNameMacro(this->Axes[idx]);
+    }
+  os << ")\n";
+  
+  os << indent << "MemoryOrder: (" 
+     << vtkImageAxisNameMacro(this->MemoryOrder[0]);
+  for (idx = 1; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    os << ", " << vtkImageAxisNameMacro(this->MemoryOrder[idx]);
     }
   os << ")\n";
   
@@ -208,16 +272,135 @@ void vtkImageData::PrintSelf(ostream& os, vtkIndent indent)
 	}         
       }
     }
-  
 }
 
 
 //----------------------------------------------------------------------------
-// Description:
-// This method tells the data object to handle a specific ScalarType.
-// The method should be called before the data object is allocated.
+void vtkImageData::SetExtent(int num, int *extent)
+{
+  int idx, modified = 0;
+  vtkDebugMacro(<< "SetExtent: ...");
+
+  if (this->GetReferenceCount() > 1)
+    {
+    vtkWarningMacro(<< "SetExtent: This object has more than one reference!");
+    }
+  if (this->ScalarsAllocated)
+    {
+    vtkErrorMacro(<< "SetExtent: Data object has already been allocated.");
+    return;
+    }
+
+  if (num > VTK_IMAGE_DIMENSIONS)
+    {
+    vtkWarningMacro("SetExtent: num = " << num << " is too large.");
+    num = VTK_IMAGE_DIMENSIONS;
+    }
+  
+  // Copy the input
+  for (idx = 0; idx < num; ++idx)
+    {
+    if (this->Extent[idx*2] != extent[idx*2])
+      {
+      this->Extent[idx*2] = extent[idx*2];
+      modified = 1;
+      }
+    if (this->Extent[idx*2 + 1] != extent[idx*2 + 1])
+      {
+      this->Extent[idx*2 + 1] = extent[idx*2 + 1];
+      modified = 1;
+      }
+    }
+
+  if (modified)
+    {
+    this->Modified();
+    this->ComputeIncrements();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageData::SetAxisExtent(int axis, int min, int max)
+{
+  int modified = 0;
+  
+  if (axis < 0 || axis > 4)
+    {
+    vtkErrorMacro("SetAxisExtent: Bad axis " << axis);
+    return;
+    }
+  if (this->Extent[axis*2] != min)
+    {
+    this->Extent[axis*2] = min;
+    modified = 1;
+    }
+  if (this->Extent[axis*2+1] != max)
+    {
+    this->Extent[axis*2+1] = max;
+    modified = 1;
+    }
+  if (modified)
+    {
+    this->Modified();
+    this->ComputeIncrements();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageData::GetAxisExtent(int axis, int &min, int &max)
+{
+  if (axis < 0 || axis > 4)
+    {
+    vtkErrorMacro("GetAxisExtent: Bad axis " << axis);
+    min = max = 0;
+    return;
+    }
+  min = this->Extent[axis*2];
+  max = this->Extent[axis*2+1];
+}
+
+//----------------------------------------------------------------------------
+void vtkImageData::GetAxes(int num, int *axes)
+{
+  int idx;
+
+  if (num > VTK_IMAGE_DIMENSIONS)
+    {
+    vtkWarningMacro("GetAxes: Too many axes requested " << num);
+    num = VTK_IMAGE_DIMENSIONS;
+    }
+  
+  for (idx = 0; idx < num; ++idx)
+    {
+    axes[idx] = this->Axes[idx];
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageData::GetMemoryOrder(int num, int *axes)
+{
+  int idx;
+
+  if (num > VTK_IMAGE_DIMENSIONS)
+    {
+    vtkWarningMacro("GetMemoryOrder: Too many axes requested " << num);
+    num = VTK_IMAGE_DIMENSIONS;
+    }
+  
+  for (idx = 0; idx < num; ++idx)
+    {
+    axes[idx] = this->MemoryOrder[idx];
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkImageData::SetScalarType(int type)
 {
+  if (type == this->ScalarType)
+    {
+    return;
+    }
+  
   if (this->GetReferenceCount() > 1)
     {
     vtkWarningMacro(<< "SetScalarType: " 
@@ -238,166 +421,6 @@ void vtkImageData::SetScalarType(int type)
 
 
 //----------------------------------------------------------------------------
-// This is the same as vtkImageRegion::SetAxes(int num, int *axes).  Should
-// we make a common supperclass?  Axes determine the data order.
-void vtkImageData::SetAxes(int num, int *axes)
-{
-  int idx, unusedAxis;
-  int usedAxes[VTK_IMAGE_DIMENSIONS];
-    
-  // Error checking
-  if (this->GetReferenceCount() > 1)
-    {
-    vtkWarningMacro(<< "SetAxes: This object has more than one reference!");
-    }
-  if (this->ScalarsAllocated)
-    {
-    vtkErrorMacro(<< "SetAxes: Data object has already been allocated.");
-    return;
-    }
-  if (num > VTK_IMAGE_DIMENSIONS)
-    {
-    vtkWarningMacro("SetAxes: Too many axes specified");
-    num = VTK_IMAGE_DIMENSIONS;
-    }
-  
-  
-  this->Modified();
-  // The usedAxes array will be used to determine of if an axis repeates,
-  // and to set the unspecified axes. There is an easier way to do this.
-  // swap axeses as they are being set.  However, the unspecified axes
-  // will not be sorted.
-  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
-    {
-    usedAxes[idx] = 0;
-    // Because we cannot shuffle extent/increments in vtkImageData yet.
-    this->Extent[idx*2] = this->Extent[idx*2+1] = 0;
-    this->Increments[idx] = 0;
-    }
-  // Copy the specified axes.
-  for (idx = 0; idx < num; ++idx)
-    {
-    // Check range
-    if (axes[idx] < 0 || axes[idx] >= VTK_IMAGE_DIMENSIONS)
-      {
-      vtkErrorMacro("SetAxes: Axis " << axes[idx] << " is out of range");
-      return;
-      }
-    // Check for repeated axes
-    if (usedAxes[axes[idx]])
-      {
-      vtkErrorMacro("SetAxes: Axis " << axes[idx] << " is repeated");
-      return;
-      }
-    // Set this specified axis
-    usedAxes[axes[idx]] = 1;
-    this->Axes[idx] = axes[idx];
-    }
-  // Set the unspecified axes.
-  unusedAxis = 0;
-  for (idx = num; idx < VTK_IMAGE_DIMENSIONS; ++idx)
-    {
-    // find the next unused axis.
-    while (usedAxes[unusedAxis] && unusedAxis < VTK_IMAGE_DIMENSIONS)
-      {
-      ++unusedAxis;
-      }
-    // sanity check
-    if (unusedAxis == VTK_IMAGE_DIMENSIONS)
-      {
-      vtkErrorMacro("SetAxis: Could not find an unused axis for " << idx);
-      return;
-      }
-    // Set this unspecified axis
-    usedAxes[unusedAxis] = 1;
-    this->Axes[idx] = unusedAxis;
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkImageData::GetAxes(int num, int *axes)
-{
-  int idx;
-
-  if (num > VTK_IMAGE_DIMENSIONS)
-    {
-    vtkWarningMacro("GetAxes: Too many axes requested");
-    num = VTK_IMAGE_DIMENSIONS;
-    }
-  
-  for (idx = 0; idx < num; ++idx)
-    {
-    axes[idx] = this->Axes[idx];
-    }
-}
-
-
-//----------------------------------------------------------------------------
-void vtkImageData::SetExtent(int dim, int *extent)
-{
-  int idx;
-  vtkDebugMacro(<< "SetExtent: ...");
-
-  this->Modified();
-  if (this->GetReferenceCount() > 1)
-    {
-    vtkWarningMacro(<< "SetExtent: This object has more than one reference!");
-    }
-  if (this->ScalarsAllocated)
-    {
-    vtkErrorMacro(<< "SetExtent: Data object has already been allocated.");
-    return;
-    }
-  
-  // Copy the input
-  for (idx = 0; idx < dim; ++idx)
-    {
-    this->Extent[idx*2] = extent[idx*2];
-    this->Extent[idx*2 + 1] = extent[idx*2 + 1];
-    }
-  
-  // Set the unspecified axes.
-  for (idx = dim; idx < VTK_IMAGE_DIMENSIONS; ++idx)
-    {
-    this->Extent[idx*2] = this->Extent[idx*2 + 1] = 0;
-    }
-  
-  // set up increments and volumes
-  this->ComputeIncrements();
-}
-
-
-//----------------------------------------------------------------------------
-void vtkImageData::GetExtent(int dim, int *extent)
-{
-  int idx;
-
-  for (idx = 0; idx < 2*dim; ++idx)
-    {
-    extent[idx] = this->Extent[idx];
-    }
-}
-
-
-//----------------------------------------------------------------------------
-// Description:
-// This method computes the increments and also computes the "Volume".
-void vtkImageData::ComputeIncrements()
-{
-  int idx;
-  int inc = 1;
-  
-  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
-    {
-    this->Increments[idx] = inc;
-    inc *= (this->Extent[idx*2+1] - this->Extent[idx*2] + 1);
-    }
-  
-  this->Volume = inc;
-}
-
-
-//----------------------------------------------------------------------------
 void vtkImageData::GetIncrements(int dim, int *increments)
 {
   int idx;
@@ -408,27 +431,55 @@ void vtkImageData::GetIncrements(int dim, int *increments)
     }
 }
 
+//----------------------------------------------------------------------------
+void vtkImageData::GetAxisIncrement(int axis, int &inc)
+{
+  if (axis < 0 || axis > 4)
+    {
+    vtkErrorMacro("GetAxisIncrement: Bad axis " << axis);
+    inc = 0;
+    return;
+    }
+  inc = this->Increments[axis];
+}
 
 //----------------------------------------------------------------------------
 // Description:
-// A convenience function that will translate the extent ot the data object,
-// without changing its dimensions.  It can be called after the data has been
-// allocated.
-void vtkImageData::Translate(int vector[VTK_IMAGE_DIMENSIONS])
+// This method computes the increments from the MemoryOrder and the extent.
+// It also computes "NumberOfScalars".
+void vtkImageData::ComputeIncrements()
 {
-  int idx;
-  
-  if (this->GetReferenceCount() > 1)
+  int idx, axis;
+  int inc = 1;
+
+  // initialize for test that memory order is 1 to 1.
+  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
-    vtkWarningMacro(<< "Translate: This object has more than one reference!");
+    this->Increments[idx] = 0;
     }
   
   for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
-    this->Extent[idx*2] += vector[idx];
-    this->Extent[1+idx*2] += vector[idx];
+    axis = this->MemoryOrder[idx];
+    if (axis < 0 || axis > 4)
+      {
+      vtkErrorMacro("ComputeIncrements: Bad MemoryOrder[" << idx 
+		    << "] axis " << axis);
+      return;
+      }
+    if (this->Increments[axis])
+      { // Axis repeated
+      vtkErrorMacro("ComputeIncrements: MemoryOrder[" << idx 
+		    << "] repeated axis " << axis);
+      return;
+      }
+    this->Increments[axis] = inc;
+    inc *= (this->Extent[axis*2+1] - this->Extent[axis*2] + 1);
     }
+  this->NumberOfScalars = inc;
 }
+
+
 
 //----------------------------------------------------------------------------
 // Description:
@@ -455,7 +506,7 @@ int vtkImageData::AllocateScalars()
   
 
   // special case zero length array
-  if (this->Volume <= 0)
+  if (this->NumberOfScalars <= 0)
     {
     this->PointData.SetScalars(NULL);
     return 1;
@@ -469,28 +520,30 @@ int vtkImageData::AllocateScalars()
       return 0;
     case VTK_FLOAT:
       scalars = vtkFloatScalars::New();
-      this->ScalarsAllocated = scalars->Allocate(this->Volume);
-      ((vtkFloatScalars *)(scalars))->WritePointer(0,this->Volume);
+      this->ScalarsAllocated = scalars->Allocate(this->NumberOfScalars);
+      ((vtkFloatScalars *)(scalars))->WritePointer(0,this->NumberOfScalars);
       break;
     case VTK_INT:
       scalars = vtkIntScalars::New();
-      this->ScalarsAllocated = scalars->Allocate(this->Volume);
-      ((vtkIntScalars *)(scalars))->WritePointer(0,this->Volume);
+      this->ScalarsAllocated = scalars->Allocate(this->NumberOfScalars);
+      ((vtkIntScalars *)(scalars))->WritePointer(0,this->NumberOfScalars);
       break;
     case VTK_SHORT:
       scalars = vtkShortScalars::New();
-      this->ScalarsAllocated =  scalars->Allocate(this->Volume);
-      ((vtkShortScalars *)(scalars))->WritePointer(0,this->Volume);
+      this->ScalarsAllocated =  scalars->Allocate(this->NumberOfScalars);
+      ((vtkShortScalars *)(scalars))->WritePointer(0,this->NumberOfScalars);
       break;
     case VTK_UNSIGNED_SHORT:
       scalars = vtkUnsignedShortScalars::New();
-      this->ScalarsAllocated = scalars->Allocate(this->Volume);
-      ((vtkUnsignedShortScalars *)(scalars))->WritePointer(0,this->Volume);
+      this->ScalarsAllocated = scalars->Allocate(this->NumberOfScalars);
+      ((vtkUnsignedShortScalars *)
+       (scalars))->WritePointer(0,this->NumberOfScalars);
       break;
     case VTK_UNSIGNED_CHAR:
       scalars = vtkUnsignedCharScalars::New();
-      this->ScalarsAllocated = scalars->Allocate(this->Volume);
-      ((vtkUnsignedCharScalars *)(scalars))->WritePointer(0,this->Volume);
+      this->ScalarsAllocated = scalars->Allocate(this->NumberOfScalars);
+      ((vtkUnsignedCharScalars *)
+       (scalars))->WritePointer(0,this->NumberOfScalars);
       break;
     }
   
@@ -516,7 +569,7 @@ void vtkImageData::MakeScalarsWritable()
   vtkScalars* scalars = this->PointData.GetScalars();
   
   // special case zero length array
-  if (this->Volume <= 0)
+  if (this->NumberOfScalars <= 0)
     {
     return;
     }
@@ -528,7 +581,7 @@ void vtkImageData::MakeScalarsWritable()
     scalars = this->PointData.GetScalars();
     }
   
-  // We should also make sure there are enough scalars for volume.
+  // We should also make sure there are enough scalars for NumberOfScalars.
   // ... switch ...
   
   // Make sure we have the only reference to the scalars.
@@ -621,11 +674,12 @@ void vtkImageData::SetScalars(vtkScalars *scalars)
     return;
     }
 
-  // Check to see if the number of scalar matches volume.
-  if (num != this->Volume)
+  // Check to see if the number of scalar matches NumberOfScalars.
+  if (num != this->NumberOfScalars)
     {
     vtkErrorMacro("SetScalars: The number of scalars " << num 
-		  << " does not match the volume " << this->Volume);
+		  << " does not match the NumberOfScalars " 
+		  << this->NumberOfScalars);
     }
   
   this->PointData.SetScalars(scalars);
@@ -694,6 +748,12 @@ void *vtkImageData::GetScalarPointer()
     }
   return this->PointData.GetScalars()->GetVoidPtr(0);
 }
+
+
+
+
+
+
 
 
 
