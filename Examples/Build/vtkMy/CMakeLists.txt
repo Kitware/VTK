@@ -17,7 +17,7 @@ SET (VTKMY_CAN_BUILD 1)
 # Load CMake commands that you probably should not modify.
 #
 
-INCLUDE (${VTKMY_SOURCE_DIR}/vtkMy.cmake)
+INCLUDE (${VTKMY_SOURCE_DIR}/CMakeOptions.cmake)
 
 #
 # If everything is OK, then go into the sub directories and build.
