@@ -42,9 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkThresholdPoints.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 vtkThresholdPoints* vtkThresholdPoints::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -56,9 +54,6 @@ vtkThresholdPoints* vtkThresholdPoints::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkThresholdPoints;
 }
-
-
-
 
 // Construct with lower threshold=0, upper threshold=1, and threshold 
 // function=upper.
@@ -133,8 +128,17 @@ void vtkThresholdPoints::Execute()
   verts->Allocate(verts->EstimateSize(numPts,1));
 
   // Check that the scalars of each point satisfy the threshold criterion
-  for (ptId=0; ptId < input->GetNumberOfPoints(); ptId++)
+  int abort=0;
+  int progressInterval = numPts/20+1;
+  
+  for (ptId=0; ptId < numPts && !abort; ptId++)
     {
+    if ( !(ptId % progressInterval) )
+      {
+      this->UpdateProgress((float)ptId/numPts);
+      abort = this->GetAbortExecute();
+      }
+
     if ( (this->*(this->ThresholdFunction))(inScalars->GetScalar(ptId)) ) 
       {
       x = input->GetPoint(ptId);
@@ -146,9 +150,9 @@ void vtkThresholdPoints::Execute()
 
   vtkDebugMacro(<< "Extracted " << output->GetNumberOfPoints() << " points.");
 
-//
-// Update ourselves and release memory
-//
+
+  // Update ourselves and release memory
+  //
   output->SetPoints(newPoints);
   newPoints->Delete();
 
