@@ -524,11 +524,12 @@ void vtkTransform::GetPosition (float & x,float & y,float & z)
   z = (**this->Stack).Element[2][3];
 }
 
-// Description:
-// Returns the orientation of the transform as a rotation W about the vector of
-// X,Y and Z.
+// vtkTransform::GetOrientationWXYZ 
 float *vtkTransform::GetOrientationWXYZ ()
 {
+  float	scaleX, scaleY, scaleZ;
+  vtkTransform *temp1 = new vtkTransform;
+  vtkMatrix4x4 temp;
   float cT, sT;
   float cP, sP;
   float cS, sS;
@@ -537,22 +538,50 @@ float *vtkTransform::GetOrientationWXYZ ()
   static float WXYZ[4];
   float mag;
   
-  // return the orientation of the transformation matrix
-  orient = this->GetOrientation();
+  // copy the matrix into local storage
+  temp1->SetMatrix(**this->Stack);
+
+  // get scale factors
+  this->GetScale (scaleX, scaleY, scaleZ);
+  temp1->Scale(1.0/scaleX,1.0/scaleY,1.0/scaleZ);
+  temp = **temp1->Stack;
+  temp1->Delete();
   
-  // calc the intermediate values for the quat 360.0 is on purpose
-  cS = cos(orient[0]*3.1415926/360.0);
-  sS = sin(orient[0]*3.1415926/360.0);
-  cT = cos(orient[1]*3.1415926/360.0);
-  sT = sin(orient[1]*3.1415926/360.0);
-  cP = cos(orient[2]*3.1415926/360.0);
-  sP = sin(orient[2]*3.1415926/360.0);
-  
-  // calc the quat
-  quat[0] = cS*cT*cP + sS*sT*sP;
-  quat[1] = sS*cT*cP - cS*sT*sP;
-  quat[2] = cS*sT*cP + sS*cT*sP;
-  quat[3] = cS*cT*sP - sS*sT*cP;
+  quat[0] = 0.25*(1.0 + temp[0][0] + temp[1][1] + temp[2][2]);
+
+  if (quat[0] > 0.0001)
+    {
+    quat[0] = sqrt(quat[0]);
+    quat[1] = (temp[2][1] - temp[1][2])/(4.0*quat[0]);
+    quat[2] = (temp[0][2] - temp[2][0])/(4.0*quat[0]);
+    quat[3] = (temp[1][0] - temp[0][1])/(4.0*quat[0]);
+    }
+  else
+    {
+    quat[0] = 0;
+    quat[1] = -0.5*(temp[1][1] + temp[2][2]);
+    if (quat[1] > 0.0001)
+      {
+      quat[1] = sqrt(quat[1]);
+      quat[2] = temp[1][0]/(2.0*quat[1]);
+      quat[3] = temp[2][0]/(2.0*quat[1]);
+      }
+    else
+      {
+      quat[1] = 0;
+      quat[2] = 0.5*(1.0 - temp[2][2]);
+      if (quat[2] > 0.0001)
+	{
+	quat[2] = sqrt(quat[2]);
+	quat[3] = temp[2][1]/(2.0*quat[2]);
+	}
+      else
+	{
+	quat[2] = 0;
+	quat[3] = 1;
+	}
+      }
+    }
   
   // calc the wxyz
   mag = sqrt(quat[1]*quat[1] + quat[2]*quat[2] + quat[3]*quat[3]);
