@@ -177,6 +177,10 @@ protected:
   vtkTimeStamp InformationTime;
   vtkTimeStamp DataTime;
 
+//BTX
+  friend class vtkCompositeDataPipeline;
+//ETX
+
 private:
   vtkDemandDrivenPipeline(const vtkDemandDrivenPipeline&);  // Not implemented.
   void operator=(const vtkDemandDrivenPipeline&);  // Not implemented.
