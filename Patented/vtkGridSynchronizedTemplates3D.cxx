@@ -110,6 +110,7 @@ vtkGridSynchronizedTemplates3D::vtkGridSynchronizedTemplates3D()
     {
     this->Threads[idx] = NULL;
     }
+  this->InputScalarsSelection = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -117,6 +118,7 @@ vtkGridSynchronizedTemplates3D::~vtkGridSynchronizedTemplates3D()
 {
   this->ContourValues->Delete();
   this->Threader->Delete();
+  this->SetInputScalarsSelection(NULL);
 }
 
 //----------------------------------------------------------------------------
@@ -678,7 +680,7 @@ void vtkGridSynchronizedTemplates3D::ThreadedExecute(int *exExt, int threadId)
 {
   vtkStructuredGrid *input= this->GetInput();
   vtkPointData *pd = input->GetPointData();
-  vtkDataArray *inScalars = pd->GetScalars();
+  vtkDataArray *inScalars = pd->GetScalars(this->InputScalarsSelection);
   vtkPolyData *output = this->GetOutput();
   long dataSize;
   

@@ -76,6 +76,7 @@ vtkContourGrid::vtkContourGrid()
 
   this->UseScalarTree = 0;
   this->ScalarTree = NULL;
+  this->InputScalarsSelection = NULL;
 }
 
 vtkContourGrid::~vtkContourGrid()
@@ -86,6 +87,7 @@ vtkContourGrid::~vtkContourGrid()
     this->Locator->UnRegister(this);
     this->Locator = NULL;
     }
+  this->SetInputScalarsSelection(NULL);
 }
 
 // Overload standard modified time function. If contour values are modified,
@@ -316,7 +318,7 @@ void vtkContourGrid::Execute()
     }
 
   numCells = input->GetNumberOfCells();
-  inScalars = input->GetPointData()->GetScalars();
+  inScalars = input->GetPointData()->GetScalars(this->InputScalarsSelection);
   if ( ! inScalars || numCells < 1 )
     {
     vtkErrorMacro(<<"No data to contour");

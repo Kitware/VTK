@@ -115,9 +115,10 @@ public:
   
   // Description:
   // If you want to threshold by an arbitrary array, then set its name here.
-  // By default this in NULL which implies use scalars.
-  vtkSetStringMacro(ArrayName);
-  vtkGetStringMacro(ArrayName);
+  // By default this in NULL and the filter will use the active scalar array.
+  vtkGetStringMacro(InputScalarsSelection);
+  void SelectInputScalars(const char *fieldName) 
+    {this->SetInputScalarsSelection(fieldName);}
   
 protected:
   vtkThreshold();
@@ -140,7 +141,9 @@ protected:
   int Between(float s) {return ( s >= this->LowerThreshold ? 
                                ( s <= this->UpperThreshold ? 1 : 0 ) : 0 );};
 
-  char *ArrayName;
+  char *InputScalarsSelection;
+  vtkSetStringMacro(InputScalarsSelection);
+
 private:
   vtkThreshold(const vtkThreshold&);  // Not implemented.
   void operator=(const vtkThreshold&);  // Not implemented.

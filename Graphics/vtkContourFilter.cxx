@@ -50,7 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkUnstructuredGrid.h"
 #include "vtkContourGrid.h"
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkContourFilter* vtkContourFilter::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -80,6 +80,7 @@ vtkContourFilter::vtkContourFilter()
 
   this->UseScalarTree = 0;
   this->ScalarTree = NULL;
+  this->InputScalarsSelection = NULL;
 }
 
 vtkContourFilter::~vtkContourFilter()
@@ -94,6 +95,7 @@ vtkContourFilter::~vtkContourFilter()
     {
     this->ScalarTree->Delete();
     }
+  this->SetInputScalarsSelection(NULL);
 }
 
 // Overload standard modified time function. If contour values are modified,
@@ -153,6 +155,7 @@ void vtkContourFilter::Execute()
     cgrid->GetOutput()->SetUpdateExtent(output->GetUpdatePiece(),
                                         output->GetUpdateNumberOfPieces(),
                                         output->GetUpdateGhostLevel());
+    cgrid->SelectInputScalars(this->InputScalarsSelection);
     cgrid->Update();
     output->ShallowCopy(cgrid->GetOutput());
     cgrid->Delete();
@@ -160,7 +163,7 @@ void vtkContourFilter::Execute()
   else
     {
     numCells = input->GetNumberOfCells();
-    inScalars = input->GetPointData()->GetScalars();
+    inScalars = input->GetPointData()->GetScalars(this->InputScalarsSelection);
     if ( ! inScalars || numCells < 1 )
       {
       vtkErrorMacro(<<"No data to contour");
@@ -346,5 +349,16 @@ void vtkContourFilter::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Locator: (none)\n";
     }
+
+  if (this->InputScalarsSelection)
+    {
+    os << indent << "InputScalarsSelection: "  
+       << this->InputScalarsSelection << endl;
+    }
+  else
+    {
+    os << indent << "InputScalarsSelection: Default Scalars\n";
+    }
+    
 }
 

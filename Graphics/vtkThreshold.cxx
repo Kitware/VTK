@@ -64,12 +64,13 @@ vtkThreshold::vtkThreshold()
   this->AllScalars = 1;
   this->AttributeMode = VTK_ATTRIBUTE_MODE_USE_POINT_DATA;
   this->ThresholdFunction = &vtkThreshold::Upper;
-  this->ArrayName = NULL;
+  this->InputScalarsSelection = NULL;
 }
 
 vtkThreshold::~vtkThreshold()
 {
-  this->SetArrayName(NULL);
+  // This frees the string
+  this->SetInputScalarsSelection(NULL);
 }
 
 // Criterion is cells whose scalars are less or equal to lower threshold.
@@ -134,10 +135,11 @@ void vtkThreshold::Execute()
 
   vtkDebugMacro(<< "Executing threshold filter");
   
-  if (this->ArrayName)
+  // I am explicitly checking to avoid a warning if the array is not found.
+  if (this->InputScalarsSelection)
     {
-    pointScalars=pd->GetArray(this->ArrayName);
-    cellScalars=cd->GetArray(this->ArrayName);
+    pointScalars=pd->GetArray(this->InputScalarsSelection);
+    cellScalars=cd->GetArray(this->InputScalarsSelection);
     }
   else
     {
@@ -291,10 +293,12 @@ void vtkThreshold::PrintSelf(ostream& os, vtkIndent indent)
   vtkDataSetToUnstructuredGridFilter::PrintSelf(os,indent);
 
   os << indent << "Attribute Mode: " << this->GetAttributeModeAsString() << endl;
-  os << indent << "Array Name: " 
-     << (this->ArrayName ? this->ArrayName : "(unspecified)") << "\n";
+  if (this->InputScalarsSelection)
+    {
+    os << indent << "InputScalarsSelection: " << this->InputScalarsSelection;
+    } 
 
-  os << indent << "All Scalars: " << this->AllScalars << "\n";;
+  os << indent << "All Scalars: " << this->AllScalars << "\n";
   if ( this->ThresholdFunction == &vtkThreshold::Upper )
     {
     os << indent << "Threshold By Upper\n";
@@ -310,6 +314,6 @@ void vtkThreshold::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Threshold Between\n";
     }
 
-  os << indent << "Lower Threshold: " << this->LowerThreshold << "\n";;
-  os << indent << "Upper Threshold: " << this->UpperThreshold << "\n";;
+  os << indent << "Lower Threshold: " << this->LowerThreshold << "\n";
+  os << indent << "Upper Threshold: " << this->UpperThreshold << "\n";
 }

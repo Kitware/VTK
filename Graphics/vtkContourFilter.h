@@ -150,6 +150,13 @@ public:
   // specified. The locator is used to merge coincident points.
   void CreateDefaultLocator();
 
+  // Description:
+  // If you want to contour by an arbitrary array, then set its name here.
+  // By default this in NULL and the filter will use the active scalar array.
+  //vtkGetStringMacro(InputScalarsSelection);
+  void SelectInputScalars(const char *fieldName) 
+    {this->SetInputScalarsSelection(fieldName);}
+  
 protected:
   vtkContourFilter();
   ~vtkContourFilter();
@@ -164,6 +171,9 @@ protected:
   int UseScalarTree;
   vtkScalarTree *ScalarTree;
   
+  char *InputScalarsSelection;
+  vtkSetStringMacro(InputScalarsSelection);
+
 private:
   vtkContourFilter(const vtkContourFilter&);  // Not implemented.
   void operator=(const vtkContourFilter&);  // Not implemented.

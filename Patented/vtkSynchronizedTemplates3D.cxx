@@ -111,6 +111,7 @@ vtkSynchronizedTemplates3D::vtkSynchronizedTemplates3D()
     {
     this->Threads[idx] = NULL;
     }
+  this->InputScalarsSelection = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -118,6 +119,7 @@ vtkSynchronizedTemplates3D::~vtkSynchronizedTemplates3D()
 {
   this->ContourValues->Delete();
   this->Threader->Delete();
+  this->SetInputScalarsSelection(NULL);
 }
 
 //----------------------------------------------------------------------------
@@ -298,8 +300,12 @@ static void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
   zMin = exExt[4];
   zMax = exExt[5];
   
-  // increments to move through scalars
-  data->GetIncrements(xInc, yInc, zInc);
+  // increments to move through scalars Compute these ourself because
+  // we may be contouring an array other than scalars.
+  xInc = 1;
+  yInc = (inExt[1]-inExt[0]+1);
+  zInc = yInc*(inExt[3]-inExt[2]+1);
+
   wholeExt = self->GetInput()->GetWholeExtent();
   
   // Kens increments, probably to do with edge array
@@ -531,7 +537,7 @@ void vtkSynchronizedTemplates3D::ThreadedExecute(vtkImageData *data,
 {
   void *ptr;
   vtkPolyData *output;
-  
+  vtkDataArray *inScalars;
 
   vtkDebugMacro(<< "Executing 3D structured contour");
   
@@ -557,10 +563,11 @@ void vtkSynchronizedTemplates3D::ThreadedExecute(vtkImageData *data,
   //
   // Check data type and execute appropriate function
   //
-  if (data->GetNumberOfScalarComponents() == 1 )
+  inScalars = data->GetPointData()->GetScalars(this->InputScalarsSelection);
+  if (inScalars->GetNumberOfComponents() == 1 )
     {
-    ptr = data->GetScalarPointerForExtent(exExt);
-    switch (data->GetScalarType())
+    ptr = data->GetArrayPointerForExtent(inScalars, exExt);
+    switch (inScalars->GetDataType())
       {
       vtkTemplateMacro6(ContourImage, this, exExt, data, output, 
                          (VTK_TT *)ptr, threadId);
