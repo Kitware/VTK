@@ -26,7 +26,7 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkScalarBarActor, "1.43");
+vtkCxxRevisionMacro(vtkScalarBarActor, "1.43.4.1");
 vtkStandardNewMacro(vtkScalarBarActor);
 
 vtkCxxSetObjectMacro(vtkScalarBarActor,LookupTable,vtkScalarsToColors);
@@ -195,6 +195,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
     }
 
   // Check to see whether we have to rebuild everything
+  int positionsHaveChanged = 0;
   if (viewport->GetMTime() > this->BuildTime || 
       (viewport->GetVTKWindow() && 
        viewport->GetVTKWindow()->GetMTime() > this->BuildTime))
@@ -214,12 +215,13 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
         this->LastOrigin[0] != barOrigin[0] || 
         this->LastOrigin[1] != barOrigin[1])
       {
-      this->Modified();
+      positionsHaveChanged = 1;
       }
     }
   
   // Check to see whether we have to rebuild everything
-  if (this->GetMTime() > this->BuildTime || 
+  if (positionsHaveChanged ||
+      this->GetMTime() > this->BuildTime || 
       this->LookupTable->GetMTime() > this->BuildTime ||
       this->LabelTextProperty->GetMTime() > this->BuildTime ||
       this->TitleTextProperty->GetMTime() > this->BuildTime)
