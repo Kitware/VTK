@@ -23,7 +23,7 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTerrain, "1.2");
+vtkCxxRevisionMacro(vtkInteractorStyleTerrain, "1.3");
 vtkStandardNewMacro(vtkInteractorStyleTerrain);
 
 vtkInteractorStyleTerrain::vtkInteractorStyleTerrain()
@@ -153,13 +153,30 @@ void vtkInteractorStyleTerrain::ProcessEvents(vtkObject* object,
       self->OnLeftButtonUp(rwi->GetControlKey(), rwi->GetShiftKey(), 
                            XY[0], XY[1]);
       break;
+    case vtkCommand::MiddleButtonPressEvent:
+      self->OnMiddleButtonDown(rwi->GetControlKey(), rwi->GetShiftKey(), 
+                             XY[0], XY[1]);
+      break;
+    case vtkCommand::MiddleButtonReleaseEvent:
+      self->OnMiddleButtonUp(rwi->GetControlKey(), rwi->GetShiftKey(), 
+                           XY[0], XY[1]);
+      break;
+    case vtkCommand::RightButtonPressEvent:
+      self->OnRightButtonDown(rwi->GetControlKey(), rwi->GetShiftKey(), 
+                             XY[0], XY[1]);
+      break;
+    case vtkCommand::RightButtonReleaseEvent:
+      self->OnRightButtonUp(rwi->GetControlKey(), rwi->GetShiftKey(), 
+                           XY[0], XY[1]);
+      break;
     case vtkCommand::MouseMoveEvent:
       self->OnMouseMove(rwi->GetControlKey(), rwi->GetShiftKey(), 
                         XY[0], XY[1]);
       break;
     case vtkCommand::CharEvent:
       self->OnChar(rwi->GetControlKey(), rwi->GetShiftKey(),
-                   rwi->GetKeyCode(), rwi->GetRepeatCount());
+                   rwi->GetKeyCode(), rwi->GetRepeatCount(),
+                   XY[0], XY[1]);
       break;
     case vtkCommand::DeleteEvent:
       self->Interactor = 0;
@@ -280,7 +297,8 @@ void vtkInteractorStyleTerrain::OnMouseMove (int vtkNotUsed(ctrl), int shift,
     }
 
   // Make sure that we have a camera
-  this->CurrentCamera = this->Interactor->FindPokedCamera(X,Y);
+  this->CurrentRenderer = this->Interactor->FindPokedRenderer(X,Y);
+  this->CurrentCamera = this->CurrentRenderer->GetActiveCamera();
   if ( !this->CurrentCamera )
     {
     return;
@@ -306,17 +324,58 @@ void vtkInteractorStyleTerrain::OnMouseMove (int vtkNotUsed(ctrl), int shift,
         a = 0.0;
         }
       }
-    // Move the camera
-    this->CurrentCamera->Elevation(e);
+    // Move the camera. 
+    // Make sure that we don't hit the north pole singularity.
     this->CurrentCamera->Azimuth(a);
+
+    double dop[3], vup[3];
+    this->CurrentCamera->GetDirectionOfProjection(dop);
+    vtkMath::Normalize(dop);
+    this->CurrentCamera->GetViewUp(vup);
+    vtkMath::Normalize(vup);
+    double angle = acos(vtkMath::Dot(dop,vup)) / vtkMath::DegreesToRadians();
+    if ( (angle+e) > 179.0f ) e = 0.0f;
+    else if ( (angle+e) < 1.0f ) e = 0.0f;
+    this->CurrentCamera->Elevation(e);
     }
 
   else if ( this->State == vtkInteractorStyleTerrain::Panning ) //middle mouse
     {
+    //Get the vector of motion
+    float z, fp[3], focalPoint[3], pos[3], v[3], p1[3], p2[3];
+    this->CurrentCamera->GetPosition(pos);
+    this->CurrentCamera->GetFocalPoint(fp);
+    this->ComputeWorldToDisplay(fp[0], fp[1], fp[2], focalPoint);
+    z = focalPoint[2];
+    this->ComputeDisplayToWorld(double(X), double(Y), z, p1);
+    this->ComputeDisplayToWorld(double(this->OldX),double(this->OldY), z, p2);
+
+    for (int i=0; i<3; i++)
+      {
+      v[i] = p2[i] - p1[i];
+      pos[i] += v[i];
+      fp[i] += v[i];
+      }
+    this->CurrentCamera->SetPosition(pos);
+    this->CurrentCamera->SetFocalPoint(fp);
     }
 
   else if ( this->State == vtkInteractorStyleTerrain::Zooming ) //right mouse
     {
+    double dyf = 10.0 * (double)(Y - this->OldY) /
+      (double)(this->CurrentRenderer->GetCenter()[1]);
+    double zoomFactor = pow((double)1.1, dyf);
+          
+    if (this->CurrentCamera->GetParallelProjection())
+      {
+      this->CurrentCamera->
+        SetParallelScale(this->CurrentCamera->GetParallelScale()/zoomFactor);
+      }
+    else
+      {
+      this->CurrentCamera->Dolly(zoomFactor);
+      this->CurrentRenderer->ResetCameraClippingRange();
+      }
     }
 
   // Interact, if desired
@@ -332,7 +391,8 @@ void vtkInteractorStyleTerrain::OnMouseMove (int vtkNotUsed(ctrl), int shift,
 void vtkInteractorStyleTerrain::OnChar(int vtkNotUsed(ctrl), 
                                        int vtkNotUsed(shift),
                                        char keycode, 
-                                       int vtkNotUsed(repeatcount))
+                                       int vtkNotUsed(repeatcount),
+                                       int X, int Y)
 {
   switch (keycode)
     {
@@ -350,8 +410,7 @@ void vtkInteractorStyleTerrain::OnChar(int vtkNotUsed(ctrl),
     //-----
     case 'r' :
     case 'R' :
-      this->CurrentRenderer = 
-        this->Interactor->FindPokedRenderer(this->OldX,this->OldY);
+      this->CurrentRenderer = this->Interactor->FindPokedRenderer(X,Y);
       this->CurrentRenderer->ResetCamera();
       this->Interactor->Render();
       break;
@@ -371,12 +430,23 @@ void vtkInteractorStyleTerrain::OnChar(int vtkNotUsed(ctrl),
 
     //-----
     case 'f' :
+      {
+      this->CurrentRenderer = 
+        this->Interactor->FindPokedRenderer(X,Y);
+      this->Picker->Pick(X,Y, 0.0, this->CurrentRenderer);
+      vtkAssemblyPath *path = this->Picker->GetPath();
+      if ( path != NULL )
+        {
+        this->Interactor->
+          FlyTo(this->CurrentRenderer,this->Picker->GetPickPosition());
+        }
+      }
       break;
 
     //-----
     case 'l' :
       this->CurrentRenderer = 
-        this->Interactor->FindPokedRenderer(this->OldX,this->OldY);
+        this->Interactor->FindPokedRenderer(X,Y);
       if ( this->LatLongLines ) 
         {
         this->LatLongLinesOff();
@@ -395,7 +465,6 @@ void vtkInteractorStyleTerrain::OnChar(int vtkNotUsed(ctrl),
         this->LatLongLinesOn();
         }
       this->SelectRepresentation();
-
       this->Interactor->Render();
       break;
     }

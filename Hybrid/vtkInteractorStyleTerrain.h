@@ -40,7 +40,7 @@
 // program. The "f" key sets a new camera focal point and flys towards that
 // point. The "u" key invokes the user event. The "3" key toggles between 
 // stereo and non-stero mode. The "l" key toggles on/off a latitude/longitude
-// sphere that can be used to indicate position.
+// markers that can be used to estimate/control position.
 // 
 
 // .SECTION See Also
@@ -106,7 +106,8 @@ protected:
   void OnRightButtonDown(int ctrl, int shift, int X, int Y);
   void OnRightButtonUp(int ctrl, int shift, int X, int Y);
   void OnMouseMove(int ctrl, int shift, int X, int Y);
-  void OnChar(int ctrl, int shift, char keycode, int repeatcount);
+  void OnChar(int ctrl, int shift, char keycode, int repeatcount, 
+              int X, int Y);
 
   // Internal helper attributes
   int LatLongLines;
