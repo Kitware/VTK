@@ -134,4 +134,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  #define VTK_EXPORT
 #endif
 
+// this is exclusively for the tcl Init functions
+#if defined(WIN32)
+ #define VTK_TK_EXPORT __declspec( dllexport )
+#else
+ #define VTK_TK_EXPORT
+#endif
+
 #endif

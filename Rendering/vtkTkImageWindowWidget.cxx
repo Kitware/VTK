@@ -310,7 +310,7 @@ static void vtkTkImageWindowWidget_EventProc(ClientData clientData,
 //----------------------------------------------------------------------------
 // vtkTkImageWindowWidget_Init
 // Called upon system startup to create vtkTkImageWindowWidget command.
-extern "C" {VTK_EXPORT int Vtktkimagewindowwidget_Init(Tcl_Interp *interp);}
+extern "C" {VTK_TK_EXPORT int Vtktkimagewindowwidget_Init(Tcl_Interp *interp);}
 int Vtktkimagewindowwidget_Init(Tcl_Interp *interp)
 {
   if (Tcl_PkgProvide(interp, (char *) "Vtktkimagewindowwidget", (char *) "1.2") != TCL_OK) 

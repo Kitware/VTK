@@ -48,10 +48,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifdef _WIN32
 #include "vtkWin32OpenGLRenderWindow.h"
-#define VTK_TK_EXPORT __declspec( dllexport ) 
 #else
 #include "vtkXOpenGLRenderWindow.h"
-#define VTK_TK_EXPORT
 #endif
 
 #define VTK_ALL_EVENTS_MASK \
