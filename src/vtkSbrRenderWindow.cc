@@ -438,13 +438,6 @@ Colormap vtkSbrRenderWindow::GetDesiredColormap ()
       }
     }
   
-  if (retVal != 1) 
-    {
-    fprintf(stderr,"Too many visuals match display+depth+class\n");
-    return 0;
-    }
-  
-
   /*
    * a ColorMap MUST be created
    */
