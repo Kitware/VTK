@@ -56,14 +56,14 @@ void vlVoxelReader::Execute()
   for (i=0; i<numPts;) 
     {
     uc = fgetc(fp);
-    newScalars->SetScalar(i++,uc&0x80);
-    newScalars->SetScalar(i++,uc&0x40);
-    newScalars->SetScalar(i++,uc&0x20);
-    newScalars->SetScalar(i++,uc&0x10);
-    newScalars->SetScalar(i++,uc&0x08);
-    newScalars->SetScalar(i++,uc&0x04);
-    newScalars->SetScalar(i++,uc&0x02);
-    newScalars->SetScalar(i++,uc&0x01);
+    newScalars->SetScalar(i++,(int)(uc&0x80));
+    newScalars->SetScalar(i++,(int)(uc&0x40));
+    newScalars->SetScalar(i++,(int)(uc&0x20));
+    newScalars->SetScalar(i++,(int)(uc&0x10));
+    newScalars->SetScalar(i++,(int)(uc&0x08));
+    newScalars->SetScalar(i++,(int)(uc&0x04));
+    newScalars->SetScalar(i++,(int)(uc&0x02));
+    newScalars->SetScalar(i++,(int)(uc&0x01));
     }
 
   vlDebugMacro(<< "Read " << numPts<< " points");
