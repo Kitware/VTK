@@ -30,7 +30,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkStructuredGridGeometryFilter.h"
 
-vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.19");
+vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.20");
 vtkStandardNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------
@@ -874,11 +874,11 @@ void vtkDataSetSurfaceFilter::UnstructuredGridExecute()
           }
         } // a linear cell type
 
-      else
-        {//nonlinear cell
-        cell->Triangulate(0,pts,coords);
+      else //process nonlinear cells via triangulation
+        {
         if ( cell->GetCellDimension() == 1 )
           {
+          cell->Triangulate(0,pts,coords);
           for (i=0; i < pts->GetNumberOfIds(); i+=2)
             {
             newLines->InsertNextCell(2);
@@ -892,6 +892,7 @@ void vtkDataSetSurfaceFilter::UnstructuredGridExecute()
           }
         else if ( cell->GetCellDimension() == 2 )
           {
+          cell->Triangulate(0,pts,coords);
           for (i=0; i < pts->GetNumberOfIds(); i+=3)
             {
             newPolys->InsertNextCell(3);
@@ -916,6 +917,20 @@ void vtkDataSetSurfaceFilter::UnstructuredGridExecute()
             if ( cellIds->GetNumberOfIds() <= 0)
               {
               ;
+              face->Triangulate(0,pts,coords);
+              for (i=0; i < pts->GetNumberOfIds(); i+=3)
+                {
+                newPolys->InsertNextCell(3);
+                inPtId = pts->GetId(i);
+                outPtId = this->GetOutputPointId(inPtId, input, newPts, outputPD); 
+                newPolys->InsertCellPoint(outPtId);
+                inPtId = pts->GetId(i+1);
+                outPtId = this->GetOutputPointId(inPtId, input, newPts, outputPD); 
+                newPolys->InsertCellPoint(outPtId);
+                inPtId = pts->GetId(i+2);
+                outPtId = this->GetOutputPointId(inPtId, input, newPts, outputPD); 
+                newPolys->InsertCellPoint(outPtId);
+                }
               }
             }
           cellIds->Delete();
