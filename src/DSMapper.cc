@@ -13,9 +13,6 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Methods to map abstract DataSet through concrete mappers.
-//
 #include "DSMapper.hh"
 #include "PolyMap.hh"
 
@@ -28,20 +25,9 @@ vlDataSetMapper::vlDataSetMapper()
 
 vlDataSetMapper::~vlDataSetMapper()
 {
-  if ( this->Input )
-    {
-    this->Input->UnRegister(this);
-    }
-
-  if ( this->GeometryExtractor )
-    {
-    this->GeometryExtractor->UnRegister(this);
-    }
-
-  if ( this->PolyMapper )
-    {
-    this->PolyMapper->UnRegister(this);
-    }
+  // delete internally created objects.
+  if ( this->GeometryExtractor ) delete this->GeometryExtractor;
+  if ( this->PolyMapper ) this->PolyMapper;
 }
 
 void vlDataSetMapper::SetInput(vlDataSet *in)
@@ -49,7 +35,6 @@ void vlDataSetMapper::SetInput(vlDataSet *in)
   if (in != this->Input )
     {
     this->Input = in;
-    this->Input->Register(this);
     this->Modified();
     }
 }
@@ -89,7 +74,7 @@ void vlDataSetMapper::Render(vlRenderer *ren)
 //
 // Need a lookup table
 //
-  if ( ! this->LookupTable ) this->SetLookupTable(new vlLookupTable);
+  if ( this->LookupTable == NULL ) this->CreateDefaultLookupTable();
   this->LookupTable->Build();
 //
 // Now can create appropriate mapper
@@ -101,10 +86,7 @@ void vlDataSetMapper::Render(vlRenderer *ren)
     pm->SetInput(gf);
 
     this->GeometryExtractor = gf;
-    this->GeometryExtractor->Register(this);
-
     this->PolyMapper = pm;
-    this->PolyMapper->Register(this);
     }
   
   // update ourselves in case something has changed
@@ -114,7 +96,6 @@ void vlDataSetMapper::Render(vlRenderer *ren)
 
   this->GeometryExtractor->SetInput(this->Input);
   this->PolyMapper->Render(ren);
-
 }
 
 void vlDataSetMapper::PrintSelf(ostream& os, vlIndent indent)

@@ -43,6 +43,7 @@ public:
   // Description:
   // Specify the input data to map.
   virtual void SetInput(vlDataSet *in);
+  void SetInput(vlDataSet& in) {this->SetInput(&in);};
   virtual vlDataSet* GetInput();
 
 protected:

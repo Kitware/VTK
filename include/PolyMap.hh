@@ -40,6 +40,7 @@ public:
   // Description:
   // Specify the input data to map.
   virtual void SetInput(vlPolyData *in);
+  void SetInput(vlPolyData& in) {this->SetInput(&in);};
   virtual vlPolyData* GetInput();
 
   // Description:
@@ -72,10 +73,14 @@ protected:
   vlGeometryPrimitive *Lines;
   vlGeometryPrimitive *Polys;
   vlGeometryPrimitive *Strips;
+
+  vlRGBArray *Colors;
+
   int VertsVisibility;
   int LinesVisibility;
   int PolysVisibility;
   int StripsVisibility;
+
 };
 
 #endif

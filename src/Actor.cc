@@ -55,7 +55,6 @@ vlActor::vlActor()
 
 vlActor::~vlActor()
 {
-  if ( this->Mapper ) this->Mapper->UnRegister(this);
 }
 
 // Description:

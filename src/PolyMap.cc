@@ -25,6 +25,8 @@ vlPolyMapper::vlPolyMapper()
   this->Lines = NULL;
   this->Polys = NULL;
   this->Strips = NULL;
+  this->Colors = NULL;
+
   this->VertsVisibility = 1;
   this->LinesVisibility = 1;
   this->PolysVisibility = 1;
@@ -33,10 +35,12 @@ vlPolyMapper::vlPolyMapper()
 
 vlPolyMapper::~vlPolyMapper()
 {
-  if ( this->Input != NULL )
-    {
-    this->Input->UnRegister(this);
-    }
+  //delete internally created objects
+  if ( this->Verts != NULL ) delete this->Verts;
+  if ( this->Lines != NULL ) delete this->Lines;
+  if ( this->Polys != NULL ) delete this->Polys;
+  if ( this->Strips != NULL ) delete this->Strips;
+  if ( this->Colors != NULL ) delete this->Colors;
 }
 
 void vlPolyMapper::SetInput(vlPolyData *in)
@@ -44,7 +48,6 @@ void vlPolyMapper::SetInput(vlPolyData *in)
   if (in != this->Input )
     {
     this->Input = in;
-    this->Input->Register(this);
     this->Modified();
     }
 }
@@ -74,7 +77,6 @@ float *vlPolyMapper::GetBounds()
 void vlPolyMapper::Render(vlRenderer *ren)
 {
   vlPointData *pd;
-  vlRGBArray *colors;
   vlScalars *scalars;
   int i;
   char forceBuild = 0;
@@ -89,9 +91,8 @@ void vlPolyMapper::Render(vlRenderer *ren)
   else
     this->Input->Update();
 
-  if ( ! this->LookupTable ) this->SetLookupTable(new vlLookupTable);
+  if ( this->LookupTable == NULL ) this->CreateDefaultLookupTable();
   this->LookupTable->Build();
-
 //
 // Now send data down to primitives and draw it
 //
@@ -104,39 +105,40 @@ void vlPolyMapper::Render(vlRenderer *ren)
     if ( this->ScalarsVisible && (pd=this->Input->GetPointData()) && 
     (scalars=pd->GetScalars()) )
       {
-      colors = new vlRGBArray;
-      colors->Allocate (this->Input->GetNumberOfPoints());
+      if ( this->Colors == NULL ) this->Colors = new vlRGBArray;
+      this->Colors->Allocate (this->Input->GetNumberOfPoints());
 
       this->LookupTable->SetTableRange(this->ScalarRange);
       for (i=0; i<this->Input->GetNumberOfPoints(); i++)
         {
-        colors->SetColor(i,this->LookupTable->MapValue(scalars->GetScalar(i)));
+        this->Colors->SetColor(i,this->LookupTable->MapValue(scalars->GetScalar(i)));
         }
       }
     else
       {
-      colors = NULL;
+      if ( this->Colors ) delete this->Colors;
+      this->Colors = NULL;
       }
 
     if (this->VertsVisibility && this->Input->GetNumberOfVerts())
       {
       if (!this->Verts) this->Verts = ren->GetPrimitive("points");
-      this->Verts->Build(this->Input,colors);
+      this->Verts->Build(this->Input,this->Colors);
       }
     if ( this->LinesVisibility && this->Input->GetNumberOfLines())
       {
       if (!this->Lines) this->Lines = ren->GetPrimitive("lines");
-      this->Lines->Build(this->Input,colors);
+      this->Lines->Build(this->Input,this->Colors);
       }
     if ( this->PolysVisibility && this->Input->GetNumberOfPolys())
       {
       if (!this->Polys) this->Polys = ren->GetPrimitive("polygons");
-      this->Polys->Build(this->Input,colors);
+      this->Polys->Build(this->Input,this->Colors);
       }
     if ( this->StripsVisibility && this->Input->GetNumberOfStrips())
       {
       if (!this->Strips) this->Strips = ren->GetPrimitive("triangle_strips");
-      this->Strips->Build(this->Input,colors);
+      this->Strips->Build(this->Input,this->Colors);
       }
 
     this->BuildTime.Modified();

@@ -50,16 +50,13 @@ public:
   // as each frame is rendered.
   virtual void Render(vlRenderer *) = 0;
 
-  // Description:
-  // Return bounding box of data in terms of (xmin,xmax, ymin,ymax, zmin,zmax).
-  // Used in the rendering process to automatically create a camera in the 
-  // proper initial configuration.
-  virtual float *GetBounds() = 0;
+  void SetLookupTable(vlLookupTable *lut);
+  vlGetObjectMacro(LookupTable,vlLookupTable);
 
   // Description:
-  // Specify a lookup table for the mapper to use.
-  vlSetObjectMacro(LookupTable,vlLookupTable);
-  vlGetObjectMacro(LookupTable,vlLookupTable);
+  // Create default lookup table. Generally used to create one when none
+  // is available.
+  virtual void CreateDefaultLookupTable();
 
   // Description:
   // Turn on/off flag to control whether scalar data is used to color objects.
@@ -73,6 +70,12 @@ public:
   vlSetVector2Macro(ScalarRange,float)
   vlGetVectorMacro(ScalarRange,float)
 
+  // Description:
+  // Return bounding box of data in terms of (xmin,xmax, ymin,ymax, zmin,zmax).
+  // Used in the rendering process to automatically create a camera in the 
+  // proper initial configuration.
+  virtual float *GetBounds() = 0;
+
 protected:
   void (*StartRender)(void *);
   void *StartRenderArg;
@@ -82,6 +85,7 @@ protected:
   int ScalarsVisible;
   vlTimeStamp BuildTime;
   float ScalarRange[2];
+  int SelfCreatedLookupTable;
 
 };
 

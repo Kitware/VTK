@@ -28,14 +28,14 @@ vlMapper::vlMapper()
 
   this->ScalarsVisible = 1;
   this->ScalarRange[0] = 0.0; this->ScalarRange[1] = 1.0;
+
+  this->SelfCreatedLookupTable = 0;
 }
 
 vlMapper::~vlMapper()
 {
-  if (this->LookupTable)
-    {
-    this->LookupTable->UnRegister(this);
-    }
+  if ( this->SelfCreatedLookupTable && this->LookupTable != NULL) 
+    delete this->LookupTable;
 }
 
 // Description:
@@ -90,6 +90,26 @@ void vlMapper::SetEndRender(void (*f)(void *), void *arg)
     this->EndRenderArg = arg;
     this->Modified();
     }
+}
+
+// Description:
+// Specify a lookup table for the mapper to use.
+void vlMapper::SetLookupTable(vlLookupTable *lut)
+{
+  if ( this->LookupTable != lut ) 
+    {
+    if ( this->SelfCreatedLookupTable ) delete this->LookupTable;
+    this->SelfCreatedLookupTable = 0;
+    this->LookupTable = lut;
+    this->Modified();
+    }
+}
+
+void vlMapper::CreateDefaultLookupTable()
+{
+  if ( this->SelfCreatedLookupTable ) delete this->LookupTable;
+  this->LookupTable = new vlLookupTable;
+  this->SelfCreatedLookupTable = 1;
 }
 
 void vlMapper::PrintSelf(ostream& os, vlIndent indent)
