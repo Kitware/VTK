@@ -38,7 +38,7 @@ INCLUDE (${CMAKE_ROOT}/Modules/Dart.cmake)
 # add some testing dependencies
 IF(BUILD_TESTING)
   IF (DART_ROOT)
-    SUBDIRS(Graphics/Testing)
+    SUBDIRS(Graphics/Testing )
   ENDIF (DART_ROOT)
 ENDIF(BUILD_TESTING)
 
