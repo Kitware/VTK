@@ -22,7 +22,8 @@ extern int vtkTclDeleteObjectFromHash(ClientData cd);
 extern void vtkTclGenericDeleteObject(ClientData cd);
 extern void vtkTclGetObjectFromPointer(Tcl_Interp *interp,void *temp,
 			  int command(ClientData, Tcl_Interp *,int, char *[]));
-extern void *vtkTclGetPointerFromObject(char *name,char *result_type);
+extern void *vtkTclGetPointerFromObject(char *name,char *result_type,
+					Tcl_Interp *interp);
 extern void vtkTclVoidFunc(void *);
 extern void vtkTclVoidFuncArgDelete(void *);
 extern void vtkTclListInstances(Tcl_Interp *interp, ClientData arg);

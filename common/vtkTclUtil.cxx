@@ -142,8 +142,17 @@ int vtkCommand(ClientData cd, Tcl_Interp *interp, int argc, char *argv[])
     vtkTclDebugOn = 0;
     return TCL_OK;
     }
+  if (!strcmp("ListMethods",argv[1]))
+    {
+    Tcl_AppendResult(interp,"Methods for vtkCommand:\n",NULL);
+    Tcl_AppendResult(interp,"  DebugOn\n",NULL);
+    Tcl_AppendResult(interp,"  DebugOff\n",NULL);
+    Tcl_AppendResult(interp,"  DeleteAllObjects\n",NULL);
+    return TCL_OK;
+    }
 
-  return TCL_OK;
+  Tcl_AppendResult(interp,"invalid method for vtkCommand\n",NULL);
+  return TCL_ERROR;
 }
 
 void vtkTclGetObjectFromPointer(Tcl_Interp *interp,void *temp,
@@ -186,13 +195,14 @@ void vtkTclGetObjectFromPointer(Tcl_Interp *interp,void *temp,
   sprintf(interp->result,"%s",name); 
 }
       
-void *vtkTclGetPointerFromObject(char *name,char *result_type)
+void *vtkTclGetPointerFromObject(char *name,char *result_type,
+				 Tcl_Interp *interp)
 {
   Tcl_HashEntry *entry;
   ClientData temp;
   int (*command)(ClientData, Tcl_Interp *,int, char *[]);
   char *args[3];
-
+  char temps[256];
 
   /* set up the args */
   args[0] = "DoTypecasting";
@@ -210,7 +220,8 @@ void *vtkTclGetPointerFromObject(char *name,char *result_type)
     }
   else
     {
-    fprintf(stderr,"vtk bad argument, could not find object named %s\n", name);
+    sprintf(temps,"vtk bad argument, could not find object named %s\n", name);
+    Tcl_AppendResult(interp,temps,NULL);
     return NULL;
     }
   
@@ -221,7 +232,8 @@ void *vtkTclGetPointerFromObject(char *name,char *result_type)
     }
   else
     {
-    fprintf(stderr,"vtk bad argument, could not find command process for %s.\n", name);
+    sprintf(temps,"vtk bad argument, could not find command process for %s.\n", name);
+    Tcl_AppendResult(interp,temps,NULL);
     return NULL;
     }
 
@@ -231,7 +243,8 @@ void *vtkTclGetPointerFromObject(char *name,char *result_type)
     }
   else
     {
-    fprintf(stderr,"vtk bad argument, type conversion failed for %s.\n", name);
+    sprintf(temps,"vtk bad argument, type conversion failed for object %s.\nCould not type convert %s to type %s.\n", name, name, result_type);
+    Tcl_AppendResult(interp,temps,NULL);
     return NULL;
     }
 
