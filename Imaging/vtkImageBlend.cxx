@@ -68,6 +68,7 @@ vtkImageBlend::vtkImageBlend()
     }
   this->BlendMode = VTK_IMAGE_BLEND_MODE_NORMAL;
   this->CompoundThreshold = 0.0;
+  this->DataWasPassed = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -173,13 +174,11 @@ void vtkImageBlend::ComputeInputUpdateExtent(int inExt[6],
 
 //----------------------------------------------------------------------------
 // This method checks to see if we can simply reference the input data
-void vtkImageBlend::UpdateData(vtkDataObject *outObject)
+void vtkImageBlend::ExecuteData(vtkDataObject *output)
 {
-  int idx,singleInput;
-
   // check to see if we have more than one input
-  singleInput = 1;
-  for (idx = 1; idx < this->NumberOfInputs; idx++)
+  int singleInput = 1;
+  for (int idx = 1; idx < this->NumberOfInputs; idx++)
     {
     if (this->GetInput(idx) != NULL)
       {
@@ -188,27 +187,24 @@ void vtkImageBlend::UpdateData(vtkDataObject *outObject)
     }
   if (singleInput)
     {
-    vtkDebugMacro("InternalUpdate: single input, passing data");
+    vtkDebugMacro("ExecuteData: single input, passing data");
 
-    vtkImageData *outData = (vtkImageData *)(outObject);
+    vtkImageData *outData = (vtkImageData *)(output);
     vtkImageData *inData = this->GetInput();
  
-    // Make sure the Input has been set.
-    if ( ! inData)
-      {
-      vtkErrorMacro(<< "Input is not set.");
-      return;
-      }
-
-    inData->SetUpdateExtent(outData->GetUpdateExtent());
-    inData->Update();
     outData->SetExtent(inData->GetExtent());
     outData->GetPointData()->PassData(inData->GetPointData());
-    outData->DataHasBeenGenerated();
+    this->DataWasPassed = 1;
     }
   else // multiple inputs
     {
-    this->vtkImageMultipleInputFilter::UpdateData(outObject);
+    if (this->DataWasPassed)
+      {
+      ((vtkImageData *)output)->GetPointData()->SetScalars((vtkScalars*)NULL);
+      this->DataWasPassed = 0;
+      }
+    
+    this->vtkImageMultipleInputFilter::ExecuteData(output);
     }
 }
 

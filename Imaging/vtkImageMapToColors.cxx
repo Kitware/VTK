@@ -96,39 +96,30 @@ unsigned long vtkImageMapToColors::GetMTime()
 
 //----------------------------------------------------------------------------
 // This method checks to see if we can simply reference the input data
-void vtkImageMapToColors::UpdateData(vtkDataObject *outObject)
+void vtkImageMapToColors::ExecuteData(vtkDataObject *output)
 {
-  vtkImageData *outData = (vtkImageData *)(outObject);
+  vtkImageData *outData = (vtkImageData *)(output);
   vtkImageData *inData = this->GetInput();
  
   // If LookupTable is null, just pass the data
   if (this->LookupTable == NULL)
     {
-    vtkDebugMacro("UpdateData: LookupTable not set, passing input to output.");
+    vtkDebugMacro("ExecuteData: LookupTable not set, "\
+		  "passing input to output.");
 
-    // Make sure the Input has been set.
-    if (inData == NULL)
-      {
-      vtkErrorMacro("UpdateData: Input is not set.");
-      return;
-      }
-
-    inData->SetUpdateExtent(outData->GetUpdateExtent());
-    inData->Update();
     outData->SetExtent(inData->GetExtent());
     outData->GetPointData()->PassData(inData->GetPointData());
-    outData->DataHasBeenGenerated();
     this->DataWasPassed = 1;
     }
   else // normal behaviour
     {
-    if ( this->DataWasPassed )
+    if (this->DataWasPassed)
       {
       outData->GetPointData()->SetScalars((vtkScalars*)NULL);
       this->DataWasPassed = 0;
       }
     
-    this->vtkImageToImageFilter::UpdateData(outObject);
+    this->vtkImageToImageFilter::ExecuteData(output);
     }
 }
 

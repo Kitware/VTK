@@ -65,8 +65,6 @@ public:
   vtkTypeMacro(vtkImageMapToWindowLevelColors,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  void UpdateData(vtkDataObject *output);
-
   // Description:
   // Set / Get the Window to use -> modulation will be performed on the 
   // color based on (S - (L - W/2))/W where S is the scalar value, L is
@@ -91,6 +89,7 @@ protected:
   void ExecuteInformation(){this->vtkImageMapToColors::ExecuteInformation();};
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
 		       int extent[6], int id);
+  void ExecuteData(vtkDataObject *output);
   
   float Window;
   float Level;

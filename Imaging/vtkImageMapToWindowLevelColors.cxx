@@ -72,40 +72,38 @@ vtkImageMapToWindowLevelColors::~vtkImageMapToWindowLevelColors()
 
 //----------------------------------------------------------------------------
 // This method checks to see if we can simply reference the input data
-void vtkImageMapToWindowLevelColors::UpdateData(vtkDataObject *outObject)
+void vtkImageMapToWindowLevelColors::ExecuteData(vtkDataObject *output)
 {
-  vtkImageData *outData = (vtkImageData *)(outObject);
+  vtkImageData *outData = (vtkImageData *)(output);
   vtkImageData *inData = this->GetInput();
-  
+ 
   // If LookupTable is null and window / level produces no change,
   // then just pass the data
-  if ( this->LookupTable == NULL &&
-       (inData->GetScalarType() == VTK_UNSIGNED_CHAR &&
-          this->Window == 255 && this->Level == 127.5) )
+  if (this->LookupTable == NULL &&
+      (inData->GetScalarType() == VTK_UNSIGNED_CHAR &&
+       this->Window == 255 && this->Level == 127.5))
     {
-    vtkDebugMacro("UpdateData: LookupTable not set " << 
-                  "Window / Level at default, passing input to output.");
+    vtkDebugMacro("ExecuteData: LookupTable not set, "\
+		  "Window / Level at default, "\
+		  "passing input to output.");
 
-    inData->SetUpdateExtent(outData->GetUpdateExtent());
-    inData->Update();
     outData->SetExtent(inData->GetExtent());
     outData->GetPointData()->PassData(inData->GetPointData());
-    outData->DataHasBeenGenerated();
     this->DataWasPassed = 1;
     }
-  else 
+  else
     // normal behaviour - skip up a level since we don't want to
-    // call the superclasses UpdateData - it would pass the data if there
+    // call the superclasses ExecuteData - it would pass the data if there
     // is no lookup table even if there is a window / level - wrong
     // behavior.
     {
-    if ( this->DataWasPassed )
+    if (this->DataWasPassed)
       {
       outData->GetPointData()->SetScalars((vtkScalars*)NULL);
       this->DataWasPassed = 0;
       }
     
-    this->vtkImageToImageFilter::UpdateData(outObject);
+    this->vtkImageToImageFilter::ExecuteData(output);
     }
 }
 
