@@ -1,4 +1,5 @@
 .git*            export-ignore
 
+*.bat           -crlf
 configure        crlf=input
 install-sh       crlf=input
