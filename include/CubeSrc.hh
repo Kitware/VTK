@@ -46,11 +46,19 @@ public:
   vlSetClampMacro(ZLength,float,0.0,LARGE_FLOAT);
   vlGetMacro(ZLength,float);
 
+  // Description:
+  // Set the center of the cube.
+  vlSetVector3Macro(Center,float);
+  vlGetVectorMacro(Center,float,3);
+
+  void SetBounds(float bounds[6]);
+
 protected:
   void Execute();
   float XLength;
   float YLength;
   float ZLength;
+  float Center[3];
 };
 
 #endif
