@@ -46,7 +46,7 @@ vtkImageScatterPlotFilter::vtkImageScatterPlotFilter()
 {
   this->SetAxes4d(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS, 
 		  VTK_IMAGE_Z_AXIS, VTK_IMAGE_COMPONENT_AXIS);
-  this->SetDataType(VTK_IMAGE_UNSIGNED_SHORT);
+  this->SetOutputDataType(VTK_IMAGE_UNSIGNED_SHORT);
   // set up for a 2d (256x256) image representing 0->256 in the components.
   this->ImageRegion.SetBounds2d(0, 255, 0, 255);
   this->AspectRatio = 1.0;

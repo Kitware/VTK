@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class vtkImageCache;
 
 
-class vtkImageCachedSource : public vtkImageSource
+class vtkImageCachedSource : public vtkObject
 {
 public:
   vtkImageCachedSource();
@@ -71,8 +71,8 @@ public:
   void SetReleaseDataFlag(int value);
   int  GetReleaseDataFlag();
 
-  void SetDataType(int type);
-  int  GetDataType();
+  void SetOutputDataType(int type);
+  int  GetOutputDataType();
   
   virtual void SetAxis1d(int axis0);
   virtual void SetAxes2d(int axis0,int axis1);

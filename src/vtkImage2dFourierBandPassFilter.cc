@@ -47,7 +47,7 @@ vtkImage2dFourierBandPassFilter::vtkImage2dFourierBandPassFilter()
 {
   this->SetAxes3d(VTK_IMAGE_COMPONENT_AXIS, 
 		  VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
-  this->SetDataType(VTK_IMAGE_FLOAT);
+  this->SetOutputDataType(VTK_IMAGE_FLOAT);
   this->SetLowPass(0.0);
   this->SetHighPass(1.5);
 }

@@ -469,7 +469,7 @@ int vtkImageCachedSource::GetReleaseDataFlag()
 //----------------------------------------------------------------------------
 // Description:
 // This method sets the value of the caches DataType.
-void vtkImageCachedSource::SetDataType(int value)
+void vtkImageCachedSource::SetOutputDataType(int value)
 {
   this->CheckCache();
   this->Output->SetDataType(value);
@@ -480,7 +480,7 @@ void vtkImageCachedSource::SetDataType(int value)
 //----------------------------------------------------------------------------
 // Description:
 // This method returns the caches DataType.
-int vtkImageCachedSource::GetDataType()
+int vtkImageCachedSource::GetOutputDataType()
 {
   this->CheckCache();
   return this->Output->GetDataType();

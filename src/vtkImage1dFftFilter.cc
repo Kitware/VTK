@@ -48,7 +48,7 @@ vtkImage1dFftFilter::vtkImage1dFftFilter()
 {
   this->SetAxes2d(VTK_IMAGE_COMPONENT_AXIS, VTK_IMAGE_X_AXIS);
   // Output is always floats.
-  this->SetDataType(VTK_IMAGE_FLOAT);
+  this->SetOutputDataType(VTK_IMAGE_FLOAT);
   this->InputRealComponent = 0;
   this->InputImaginaryComponent = 1;
 }
