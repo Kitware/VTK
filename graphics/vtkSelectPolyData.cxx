@@ -73,6 +73,7 @@ void vtkSelectPolyData::Execute()
   int numPts, numLoopPts;
   vtkPolyData *input=this->GetInput();
   vtkPolyData *output=this->GetOutput();
+  vtkPolyData *triMesh;
   vtkPointData *inPD, *outPD=output->GetPointData();
   vtkCellData *inCD, *outCD=output->GetCellData();
   int i, j, k, closest, numPolys;
@@ -112,15 +113,15 @@ void vtkSelectPolyData::Execute()
   tf->PassLinesOff();
   tf->PassVertsOff();
   tf->Update();
-  this->Mesh = tf->GetOutput();
-  this->Mesh->Register(this);
+  triMesh = tf->GetOutput();
+  triMesh->Register(this);
   tf->Delete();
-  inPD = this->Mesh->GetPointData();
-  inCD = this->Mesh->GetCellData();
+  inPD = triMesh->GetPointData();
+  inCD = triMesh->GetCellData();
 
-  numPts = this->Mesh->GetNumberOfPoints();
-  inPts = this->Mesh->GetPoints();
-  inPolys = this->Mesh->GetPolys();
+  numPts = triMesh->GetNumberOfPoints();
+  inPts = triMesh->GetPoints();
+  inPolys = triMesh->GetPolys();
   numPolys = inPolys->GetNumberOfCells();
   if ( numPolys < 1 )
     {
@@ -513,6 +514,7 @@ void vtkSelectPolyData::Execute()
     }
     
   // Clean up and update output
+  triMesh->UnRegister(this);
   this->Mesh->Delete();
   neighbors->Delete();
   edgeIds->Delete();
