@@ -151,6 +151,10 @@ public:
   // Values needed by the volume
   virtual float GetGradientMagnitudeScale();
   virtual float GetGradientMagnitudeBias();
+  virtual float GetGradientMagnitudeScale(int)
+    {return this->GetGradientMagnitudeScale();};
+  virtual float GetGradientMagnitudeBias(int)
+    {return this->GetGradientMagnitudeBias();};
   
 //ETX
 
