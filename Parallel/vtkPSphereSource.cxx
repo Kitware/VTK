@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <math.h>
 #include "vtkPSphereSource.h"
 #include "vtkPoints.h"
-#include "vtkNormals.h"
+#include "vtkFloatArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkLargeInteger.h"
@@ -67,7 +67,7 @@ void vtkPSphereSource::Execute()
   int jStart, jEnd;
   vtkIdType numPts, numPolys;
   vtkPoints *newPoints; 
-  vtkNormals *newNormals;
+  vtkFloatArray *newNormals;
   vtkCellArray *newPolys;
   float x[3], n[3], deltaPhi, deltaTheta, phi, theta, radius, norm;
   float startTheta, endTheta, startPhi, endPhi;
@@ -111,8 +111,9 @@ void vtkPSphereSource::Execute()
 
   newPoints = vtkPoints::New();
   newPoints->Allocate(numPts);
-  newNormals = vtkNormals::New();
-  newNormals->Allocate(numPts);
+  newNormals = vtkFloatArray::New();
+  newNormals->SetNumberOfComponents(3);
+  newNormals->Allocate(3*numPts);
   
   newPolys = vtkCellArray::New();
   newPolys->Allocate(newPolys->EstimateSize(numPolys, 3));
@@ -128,7 +129,7 @@ void vtkPSphereSource::Execute()
     newPoints->InsertPoint(numPoles,x);
 
     x[0] = x[1] = 0.0; x[2] = 1.0;
-    newNormals->InsertNormal(numPoles,x);
+    newNormals->InsertTuple(numPoles,x);
     numPoles++;
     }
 
@@ -141,7 +142,7 @@ void vtkPSphereSource::Execute()
     newPoints->InsertPoint(numPoles,x);
 
     x[0] = x[1] = 0.0; x[2] = -1.0;
-    newNormals->InsertNormal(numPoles,x);
+    newNormals->InsertTuple(numPoles,x);
     numPoles++;
     }
 
@@ -193,7 +194,7 @@ void vtkPSphereSource::Execute()
         norm = 1.0;
         }
       n[0] /= norm; n[1] /= norm; n[2] /= norm; 
-      newNormals->InsertNextNormal(n);
+      newNormals->InsertNextTuple(n);
       }
     }
 

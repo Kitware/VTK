@@ -371,7 +371,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructScalars(int num, vtkFieldData *
     normalizeAny |= normalize[i];
     }
   
-  vtkScalars *newScalars = vtkScalars::New();
+  vtkDataArray *newScalars = 0;
   for (i=1; i < numComp; i++) //see whether all the data is from the same array
     {
     if ( fieldArray[i] != fieldArray[i-1] )
@@ -384,17 +384,18 @@ void vtkFieldDataToAttributeDataFilter::ConstructScalars(int num, vtkFieldData *
   if ( i >= numComp && fieldArray[0]->GetNumberOfComponents() == numComp && 
        fieldArray[0]->GetNumberOfTuples() == num && !normalizeAny )
     {
-    newScalars->SetData(fieldArray[0]);
+    newScalars = fieldArray[0];
+    newScalars->Register(0);
     }
   else //have to copy data into created array
     {
-    newScalars->SetNumberOfComponents(numComp);
-    newScalars->SetDataType(this->GetComponentsType(numComp, fieldArray));
-    newScalars->SetNumberOfScalars(num);
+    newScalars = vtkDataArray::CreateDataArray(this->GetComponentsType(numComp,
+								       fieldArray));
+    newScalars->SetNumberOfTuples(num);
   
     for ( i=0; i < numComp; i++ )
       {
-      if ( this->ConstructArray(newScalars->GetData(), i, fieldArray[i], arrayComp[i],
+      if ( this->ConstructArray(newScalars, i, fieldArray[i], arrayComp[i],
                                 componentRange[i][0], componentRange[i][1],
                                 normalize[i]) == 0 )
         {
@@ -519,22 +520,24 @@ void vtkFieldDataToAttributeDataFilter::ConstructVectors(int num, vtkFieldData *
     return;
     }
   
-  vtkVectors *newVectors = vtkVectors::New();
+  vtkDataArray *newVectors = 0;
   if ( fieldArray[0]->GetNumberOfComponents() == 3 && 
        fieldArray[0] == fieldArray[1] && fieldArray[1] == fieldArray[2] &&
        fieldArray[0]->GetNumberOfTuples() == num &&
        !normalize[0] && !normalize[1] && !normalize[2] )
     {
-    newVectors->SetData(fieldArray[0]);
+    newVectors = fieldArray[0];
+    newVectors->Register(0);
     }
   else //have to copy data into created array
     {
-    newVectors->SetDataType(this->GetComponentsType(3, fieldArray));
-    newVectors->SetNumberOfVectors(num);
+    newVectors = vtkDataArray::CreateDataArray(this->GetComponentsType(3,fieldArray));
+    newVectors->SetNumberOfComponents(3);
+    newVectors->SetNumberOfTuples(num);
 
     for ( i=0; i < 3; i++ )
       {
-      if ( this->ConstructArray(newVectors->GetData(), i, fieldArray[i], arrayComp[i],
+      if ( this->ConstructArray(newVectors, i, fieldArray[i], arrayComp[i],
                                 componentRange[i][0], componentRange[i][1],
                                 normalize[i]) == 0 )
         {
@@ -659,23 +662,25 @@ void vtkFieldDataToAttributeDataFilter::ConstructNormals(int num, vtkFieldData *
     vtkErrorMacro(<<"Number of normals not consistent");
     return;
     }
-  
-  vtkNormals *newNormals = vtkNormals::New();
+
+  vtkDataArray *newNormals = 0;
   if ( fieldArray[0]->GetNumberOfComponents() == 3 && 
        fieldArray[0] == fieldArray[1] && fieldArray[1] == fieldArray[2] &&
        fieldArray[0]->GetNumberOfTuples() == num &&
        !normalize[0] && !normalize[1] && !normalize[2] )
     {
-    newNormals->SetData(fieldArray[0]);
+    newNormals = fieldArray[0];
+    newNormals->Register(0);
     }
   else //have to copy data into created array
     {
-    newNormals->SetDataType(this->GetComponentsType(3, fieldArray));
-    newNormals->SetNumberOfNormals(num);
+    newNormals = vtkDataArray::CreateDataArray(this->GetComponentsType(3, fieldArray));
+    newNormals->SetNumberOfComponents(3);
+    newNormals->SetNumberOfTuples(num);
 
     for ( i=0; i < 3; i++ )
       {
-      if ( this->ConstructArray(newNormals->GetData(), i, fieldArray[i], arrayComp[i],
+      if ( this->ConstructArray(newNormals, i, fieldArray[i], arrayComp[i],
                                 componentRange[i][0], componentRange[i][1],
                                 normalize[i]) == 0 )
         {
@@ -807,7 +812,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructTCoords(int num, vtkFieldData *
       }
     }
   
-  vtkTCoords *newTCoords = vtkTCoords::New();
+  vtkDataArray *newTCoords = 0;
   for (i=1; i < numComp; i++) //see whether all the data is from the same array
     {
     if ( fieldArray[i] != fieldArray[i-1] )
@@ -820,17 +825,18 @@ void vtkFieldDataToAttributeDataFilter::ConstructTCoords(int num, vtkFieldData *
   if ( i >= numComp && fieldArray[0]->GetNumberOfComponents() == numComp && 
        fieldArray[0]->GetNumberOfTuples() == num && !normalizeAny )
     {
-    newTCoords->SetData(fieldArray[0]);
+    newTCoords = fieldArray[0];
+    newTCoords->Register(0);
     }
   else //have to copy data into created array
     {
+    newTCoords = vtkDataArray::CreateDataArray(this->GetComponentsType(numComp, fieldArray));
     newTCoords->SetNumberOfComponents(numComp);
-    newTCoords->SetDataType(this->GetComponentsType(numComp, fieldArray));
-    newTCoords->SetNumberOfTCoords(num);
+    newTCoords->SetNumberOfTuples(num);
 
     for ( i=0; i < numComp; i++ )
       {
-      if ( this->ConstructArray(newTCoords->GetData(), i, fieldArray[i], arrayComp[i],
+      if ( this->ConstructArray(newTCoords, i, fieldArray[i], arrayComp[i],
                                 componentRange[i][0], componentRange[i][1],
                                 normalize[i]) == 0 )
         {
@@ -954,7 +960,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructTensors(int num, vtkFieldData *
     normalizeAny |= normalize[i];
     }
   
-  vtkTensors *newTensors = vtkTensors::New();
+  vtkDataArray *newTensors = 0;
   for (i=1; i < 9; i++) //see whether all the data is from the same array
     {
     if ( fieldArray[i] != fieldArray[i-1] )
@@ -967,16 +973,18 @@ void vtkFieldDataToAttributeDataFilter::ConstructTensors(int num, vtkFieldData *
   if ( i >= 9 && fieldArray[0]->GetNumberOfComponents() == 9 && 
        fieldArray[0]->GetNumberOfTuples() == num && !normalizeAny )
     {
-    newTensors->SetData(fieldArray[0]);
+    newTensors = fieldArray[0];
+    newTensors->Register(0);
     }
   else //have to copy data into created array
     {
-    newTensors->SetDataType(this->GetComponentsType(9, fieldArray));
-    newTensors->SetNumberOfTensors(num);
+    newTensors = vtkDataArray::CreateDataArray(this->GetComponentsType(9, fieldArray));
+    newTensors->SetNumberOfComponents(9);
+    newTensors->SetNumberOfTuples(num);
 
     for ( i=0; i < 9; i++ )
       {
-      if ( this->ConstructArray(newTensors->GetData(), i, fieldArray[i], arrayComp[i],
+      if ( this->ConstructArray(newTensors, i, fieldArray[i], arrayComp[i],
                                 componentRange[i][0], componentRange[i][1],
                                 normalize[i]) == 0 )
         {

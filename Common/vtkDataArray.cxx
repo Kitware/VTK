@@ -64,6 +64,10 @@ static vtkSimpleCriticalSection DataArrayCritSec;
 // Construct object with default tuple dimension (number of components) of 1.
 vtkDataArray::vtkDataArray(vtkIdType numComp)
 {
+  this->Range[0] = 0;
+  this->Range[1] = 1;
+  this->ComponentForLastRange = -1;
+
   this->Size = 0;
   this->MaxId = -1;
   this->LookupTable = NULL;
@@ -241,6 +245,45 @@ void vtkDataArray::GetTuple(const vtkIdType i, double * tuple)
   delete [] ftuple;
 }
 
+
+float* vtkDataArray::GetTupleN(const vtkIdType i, int n)
+{
+  int numComp = this->GetNumberOfComponents();
+  if (numComp != n)
+    {
+    vtkErrorMacro("The number of components do not match the number requested: "
+		  << numComp << " != " << n);
+    }
+  return this->GetTuple(i);
+}
+
+float vtkDataArray::GetTuple1(const vtkIdType i)
+{
+  int numComp = this->GetNumberOfComponents();
+  if (numComp != 1)
+    {
+    vtkErrorMacro("The number of components do not match the number requested: "
+		  << numComp << " != 1");
+    }
+  return *(this->GetTuple(i));
+}
+float* vtkDataArray::GetTuple2(const vtkIdType i)
+{
+  this->GetTupleN(i, 2);
+}
+float* vtkDataArray::GetTuple3(const vtkIdType i)
+{
+  this->GetTupleN(i, 3);
+}
+float* vtkDataArray::GetTuple4(const vtkIdType i)
+{
+  this->GetTupleN(i, 4);
+}
+float* vtkDataArray::GetTuple9(const vtkIdType i)
+{
+  this->GetTupleN(i, 9);
+}
+
 void vtkDataArray::SetTuple(const vtkIdType i, const double * tuple)
 {
   int c;
@@ -252,6 +295,83 @@ void vtkDataArray::SetTuple(const vtkIdType i, const double * tuple)
     }
   this->SetTuple(i,ftuple);
   delete [] ftuple;
+}
+
+void vtkDataArray::SetTuple1(const vtkIdType i, float value)
+{
+  int numComp = this->GetNumberOfComponents();
+  if (numComp != 1)
+    {
+    vtkErrorMacro("The number of components do not match the number requested: "
+		  << numComp << " != 1");
+    }
+  this->SetTuple(i, &value);
+}
+void vtkDataArray::SetTuple2(const vtkIdType i, float val0, float val1)
+{
+  float tuple[2];
+  int numComp = this->GetNumberOfComponents();
+  if (numComp != 2)
+    {
+    vtkErrorMacro("The number of components do not match the number requested: "
+		  << numComp << " != 2");
+    }
+  tuple[0] = val0;
+  tuple[1] = val0;
+  this->SetTuple(i, tuple);
+}
+void vtkDataArray::SetTuple3(const vtkIdType i, float val0, float val1, 
+			       float val2)
+{
+  float tuple[3];
+  int numComp = this->GetNumberOfComponents();
+  if (numComp != 3)
+    {
+    vtkErrorMacro("The number of components do not match the number requested: "
+		  << numComp << " != 3");
+    }
+  tuple[0] = val0;
+  tuple[1] = val1;
+  tuple[2] = val2;
+  this->SetTuple(i, tuple);
+}
+void vtkDataArray::SetTuple4(const vtkIdType i, float val0, float val1, 
+			     float val2, float val3)
+{
+  float tuple[4];
+  int numComp = this->GetNumberOfComponents();
+  if (numComp != 4)
+    {
+    vtkErrorMacro("The number of components do not match the number requested: "
+		  << numComp << " != 4");
+    }
+  tuple[0] = val0;
+  tuple[1] = val1;
+  tuple[2] = val2;
+  tuple[3] = val3;
+  this->SetTuple(i, tuple);
+}
+void vtkDataArray::SetTuple9(const vtkIdType i, float val0, float val1, 
+			     float val2,  float val3, float val4, 
+			     float val5, float val6,float val7, float val8)
+{
+  float tuple[9];
+  int numComp = this->GetNumberOfComponents();
+  if (numComp != 9)
+    {
+    vtkErrorMacro("The number of components do not match the number requested: "
+		  << numComp << " != 9");
+    }
+  tuple[0] = val0;
+  tuple[1] = val1;
+  tuple[2] = val2;
+  tuple[3] = val3;
+  tuple[4] = val4;
+  tuple[5] = val5;
+  tuple[6] = val6;
+  tuple[7] = val7;
+  tuple[8] = val8;
+  this->SetTuple(i, tuple);
 }
 
 void vtkDataArray::InsertTuple(const vtkIdType i, const double * tuple)
@@ -448,6 +568,66 @@ void vtkDataArray::GetTuples(vtkIdList *ptIds, vtkDataArray *da)
     }
 }
 
+template <class IT, class OT>
+static void CopyTuples(IT* input, OT* output, int nComp, 
+		       vtkIdType p1, vtkIdType p2)
+{
+  int i, j;
+  int num=p2-p1+1;
+  for (i=0; i<num; i++)
+    {
+    for (j=0; j<nComp; j++)
+      {
+      output[i*nComp+j] = static_cast<OT>(input[(p1+i)*nComp+j]);
+      }
+    }
+}
+
+template <class IT>
+static void CopyTuples1(IT* input, vtkDataArray* output, 
+			vtkIdType p1, vtkIdType p2)
+{
+  switch (output->GetDataType())
+    {
+    vtkTemplateMacro5(CopyTuples, input, (VTK_TT *)output->GetVoidPointer(0), 
+		      output->GetNumberOfComponents(), p1, p2 );
+
+    default:
+      vtkGenericWarningMacro(<<"Sanity check failed: Unsupported data type.");
+      return;
+    }
+}
+
+
+void vtkDataArray::GetTuples(vtkIdType p1, vtkIdType p2, vtkDataArray *da)
+{
+
+  if ((da->GetNumberOfComponents() != this->GetNumberOfComponents()))
+    {
+    vtkWarningMacro("Number of components for input and output do not match");
+    return;
+    }
+
+  switch (this->GetDataType())
+    {
+    vtkTemplateMacro4(CopyTuples1, (VTK_TT *)this->GetVoidPointer(0), da,
+		      p1, p2 );
+    // This is not supported by the template macro.
+    // Switch to using the float interface.
+    case VTK_BIT:
+      {
+      vtkIdType num=p2-p1+1;
+      for (vtkIdType i=0; i<num; i++)
+        {
+        da->SetTuple(i,this->GetTuple(p1+i));
+        }
+      }
+      break;
+    default:
+      vtkErrorMacro(<<"Sanity check failed: Unsupported data type.");
+      return;
+    }
+}
 
 void vtkDataArray::FillComponent(const int j, const float c)
 {
@@ -518,24 +698,32 @@ float vtkDataArray::GetMaxNorm()
   return maxNorm;
 }
 
-void vtkDataArray::GetRange(float range[2], int comp)
+void vtkDataArray::ComputeRange(int comp)
 {
   float s;
-  vtkIdType numTuples=this->GetNumberOfTuples();
+  vtkIdType numTuples;
 
-  range[0] =  VTK_LARGE_FLOAT;
-  range[1] =  -VTK_LARGE_FLOAT;
-  for (vtkIdType i=0; i<numTuples; i++)
+  if ( (this->GetMTime() > this->ComputeTimeForLastRange) ||
+       (comp != this->ComponentForLastRange))
     {
-    s = this->GetComponent(i,comp);
-    if ( s < range[0] )
+    numTuples=this->GetNumberOfTuples();
+    this->Range[0] =  VTK_LARGE_FLOAT;
+    this->Range[1] =  -VTK_LARGE_FLOAT;
+
+    for (vtkIdType i=0; i<numTuples; i++)
       {
-      range[0] = s;
+      s = this->GetComponent(i,comp);
+      if ( s < this->Range[0] )
+	{
+	this->Range[0] = s;
+	}
+      if ( s > this->Range[1] )
+	{
+	this->Range[1] = s;
+	}
       }
-    if ( s > range[1] )
-      {
-      range[1] = s;
-      }
+    this->ComputeTimeForLastRange.Modified();
+    this->ComponentForLastRange = comp;
     }
 
 }

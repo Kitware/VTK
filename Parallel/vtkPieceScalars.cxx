@@ -42,6 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPieceScalars.h"
 #include "vtkObjectFactory.h"
 #include "vtkIntArray.h"
+#include "vtkFloatArray.h"
 #include "vtkMath.h"
 
 //----------------------------------------------------------------------------
@@ -75,7 +76,7 @@ void vtkPieceScalars::Execute()
 {  
   vtkDataSet *input = this->GetInput();
   vtkDataSet *output = this->GetOutput();
-  vtkScalars *pieceColors;
+  vtkDataArray *pieceColors;
   vtkIdType num;
   
   if (this->CellScalarsFlag)
@@ -97,7 +98,7 @@ void vtkPieceScalars::Execute()
     }
     
   output->ShallowCopy(input);
-  pieceColors->GetData()->SetName("Piece");  
+  pieceColors->SetName("Piece");  
   if (this->CellScalarsFlag)
     {
     output->GetCellData()->SetScalars(pieceColors);
@@ -111,42 +112,39 @@ void vtkPieceScalars::Execute()
 }
 
 //----------------------------------------------------------------------------
-vtkScalars *vtkPieceScalars::MakePieceScalars(int piece, vtkIdType num)
+vtkIntArray *vtkPieceScalars::MakePieceScalars(int piece, vtkIdType num)
 {
   vtkIdType i;
-  vtkScalars *pieceColors = NULL;
+  vtkIntArray *pieceColors = NULL;
   vtkIntArray *ia;
 
-  pieceColors = vtkScalars::New(VTK_INT);
-  pieceColors->Allocate(num);
-  pieceColors->SetNumberOfScalars(num);
-  ia = (vtkIntArray *)(pieceColors->GetData());
+  pieceColors = vtkIntArray::New();
+  pieceColors->SetNumberOfTuples(num);
   
   for (i = 0; i < num; ++i)
     {
-    ia->SetValue(i, piece);
+    pieceColors->SetValue(i, piece);
     }
 
   return pieceColors;
 }
 
 //----------------------------------------------------------------------------
-vtkScalars *vtkPieceScalars::MakeRandomScalars(int piece, vtkIdType num)
+vtkFloatArray *vtkPieceScalars::MakeRandomScalars(int piece, vtkIdType num)
 {
   vtkIdType i;
-  vtkScalars *pieceColors = NULL;
+  vtkFloatArray *pieceColors = NULL;
   float randomValue;
   
   vtkMath::RandomSeed(piece);
   randomValue = vtkMath::Random();
   
-  pieceColors = vtkScalars::New();
-  pieceColors->Allocate(num);
-  pieceColors->SetNumberOfScalars(num);
+  pieceColors = vtkFloatArray::New();
+  pieceColors->SetNumberOfTuples(num);
   
   for (i = 0; i < num; ++i)
     {
-    pieceColors->SetScalar(i, randomValue);
+    pieceColors->SetValue(i, randomValue);
     }
 
   return pieceColors;

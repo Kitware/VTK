@@ -129,7 +129,26 @@ public:
   virtual void GetTuple(const vtkIdType i, double * tuple);
 
   // Description:
-  void GetTuples(vtkIdList *ptIds, vtkDataArray *da);
+  // These methods are included as convenience for the wrappers.
+  // GetTuple() and SetTuple() which return/take arrays can not be 
+  // used from wrapped languages. These methods can be used instead.
+  float GetTuple1(const vtkIdType i);
+  float* GetTuple2(const vtkIdType i);
+  float* GetTuple3(const vtkIdType i);
+  float* GetTuple4(const vtkIdType i);
+  float* GetTuple9(const vtkIdType i);
+
+  // Description:
+  // Given a list of point ids, return an array of tuples.
+  // You must insure that the output array has been previously 
+  // allocated with enough space to hold the data.
+  void GetTuples(vtkIdList *ptIds, vtkDataArray *output);
+
+  // Description:
+  // Get the tuples for the range of points ids specified 
+  // (i.e., p1->p2 inclusive). You must insure that the output array has 
+  // been previously allocated with enough space to hold the data.
+  void GetTuples(vtkIdType p1, vtkIdType p2, vtkDataArray *output);
 
   // Description:
   // Set the data tuple at ith location. Note that range checking or
@@ -137,6 +156,19 @@ public:
   // with SetNumberOfTuples() to allocate space.
   virtual void SetTuple(const vtkIdType i, const float * tuple) = 0;
   virtual void SetTuple(const vtkIdType i, const double * tuple);
+
+  // Description:
+  // These methods are included as convenience for the wrappers.
+  // GetTuple() and SetTuple() which return/take arrays can not be 
+  // used from wrapped languages. These methods can be used instead.
+  void SetTuple1(const vtkIdType i, float value);
+  void SetTuple2(const vtkIdType i, float val0, float val1);
+  void SetTuple3(const vtkIdType i, float val0, float val1, float val2);
+  void SetTuple4(const vtkIdType i, float val0, float val1, float val2,
+		 float val3);
+  void SetTuple9(const vtkIdType i, float val0, float val1, float val2,
+		 float val3, float val4, float val5, float val6,
+		 float val7, float val8);
 
   // Description:
   // Insert the data tuple at ith location. Note that memory allocation
@@ -268,7 +300,17 @@ public:
   // Return the range of the array values for the given component. 
   // Note that the range is computed every time GetRange() is called.
   // Range is copied into the array provided.
-  virtual void GetRange(float range[2], int comp);
+  void GetRange(float range[2], int comp)
+    {
+      this->ComputeRange(comp);
+      memcpy(range, this->Range, 2*sizeof(float));
+    }
+  const float* GetRange(int comp)
+    {
+      this->ComputeRange(comp);
+      return this->Range;
+    }
+  virtual void ComputeRange(int comp);
 
   // Description:
   // Return the maximum norm for the tuples.
@@ -299,6 +341,14 @@ protected:
 
   static unsigned long ArrayNamePostfix;
   char* Name;
+
+private:
+  float Range[2];
+  int ComponentForLastRange;
+  vtkTimeStamp ComputeTimeForLastRange;
+
+  float* GetTupleN(const vtkIdType i, int n);
+  
 };
 
 #endif

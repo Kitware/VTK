@@ -74,9 +74,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkConeSource.h"
 #include "vtkCylinderSource.h"
 #include "vtkPoints.h"
-#include "vtkNormals.h"
 #include "vtkSystemIncludes.h"
 #include "vtkObjectFactory.h"
+#include "vtkFloatArray.h"
 
 // Provide isatty prototype for Cygwin. 
 #ifdef __CYGWIN__
@@ -5735,7 +5735,7 @@ vtkVRMLImporter::enterNode(const char *nodeType)
       {
       this->CurrentScalars->Delete();
       }
-    this->CurrentScalars = vtkScalars::New();
+    this->CurrentScalars = vtkFloatArray::New();
     if (creatingDEF) 
       {
       useList += new vtkVRMLUseStruct(curDEFName, pmap);
@@ -5817,7 +5817,7 @@ vtkVRMLImporter::exitNode()
       }
     if (this->CurrentLut) 
       {
-      this->CurrentScalars->InsertNextScalar(this->CurrentLut->GetNumberOfColors());
+      this->CurrentScalars->InsertNextValue(this->CurrentLut->GetNumberOfColors());
       this->CurrentMapper->SetLookupTable(CurrentLut);
       this->CurrentMapper->SetScalarVisibility(1);
       // Set for PerVertex Coloring.
@@ -6055,7 +6055,7 @@ vtkVRMLImporter::exitField()
       this->CurrentScalars->Reset();
       for (int i=0;i < this->CurrentPoints->GetNumberOfPoints();i++) 
         {
-        this->CurrentScalars->InsertNextScalar(i);
+        this->CurrentScalars->InsertNextValue(i);
         }
       if (creatingDEF) 
         {
@@ -6158,8 +6158,8 @@ vtkVRMLImporter::exitField()
       else 
         {
         // Redirect color into scalar position
-        this->CurrentScalars->SetScalar(pts[j++],
-                                        yylval.mfint32->GetValue(index++));
+        this->CurrentScalars->SetComponent(pts[j++], 0,
+					   yylval.mfint32->GetValue(index++));
         }
       }
     }
@@ -6208,12 +6208,13 @@ vtkVRMLImporter::exitField()
       {
       this->CurrentNormals->Delete();
       }
-    this->CurrentNormals = vtkNormals::New();
-    this->CurrentNormals->SetNumberOfNormals(yylval.vec3f->GetNumberOfPoints());
+    this->CurrentNormals = vtkFloatArray::New();
+    this->CurrentNormals->SetNumberOfComponents(3);
+    this->CurrentNormals->SetNumberOfTuples(yylval.vec3f->GetNumberOfPoints());
     for (int i=0;i < yylval.vec3f->GetNumberOfPoints();i++) 
       {
       yylval.vec3f->GetPoint(i, vals3);
-      this->CurrentNormals->InsertNormal(i, vals3);
+      this->CurrentNormals->InsertTuple(i, vals3);
       }
     yylval.vec3f->Reset();this->DeleteObject(yylval.vec3f);
     }
@@ -6295,7 +6296,7 @@ vtkVRMLImporter::useNode(const char *name) {
       this->CurrentScalars->Reset();
       for (int i=0;i < this->CurrentPoints->GetNumberOfPoints();i++) 
         {
-        this->CurrentScalars->InsertNextScalar(i);
+        this->CurrentScalars->InsertNextValue(i);
         }
       }
     }

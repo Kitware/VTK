@@ -81,12 +81,12 @@ void vtkImageToPolyDataFilter::Execute()
   vtkPolyData *tmpInput=vtkPolyData::New();
   vtkAppendPolyData *append = vtkAppendPolyData::New();
   vtkPolyData *appendOutput;
-  vtkScalars *inScalars = input->GetPointData()->GetScalars();
+  vtkDataArray *inScalars = input->GetPointData()->GetActiveScalars();
   vtkIdType numPixels=input->GetNumberOfPoints();
-  int dims[3], numComp=inScalars->GetData()->GetNumberOfComponents();
+  int dims[3], numComp=inScalars->GetNumberOfComponents();
   float origin[3], spacing[3];
   vtkUnsignedCharArray *pixels;
-  int type=inScalars->GetData()->GetDataType();
+  int type=inScalars->GetDataType();
   int numPieces[2], extent[4];
   int i, j, newDims[3], totalPieces, pieceNum, abortExecute=0;
   float newOrigin[3];
@@ -210,7 +210,6 @@ void vtkImageToPolyDataFilter::PixelizeImage(vtkUnsignedCharArray *pixels,
   float x[3];
   vtkUnsignedCharArray *polyColors;
   unsigned char *ptr, *colors=pixels->GetPointer(0);
-  vtkScalars *polyScalars;
   
   // create the points - see whether to create or append
   numPts = (dims[0]+1) * (dims[1]+1);
@@ -240,8 +239,6 @@ void vtkImageToPolyDataFilter::PixelizeImage(vtkUnsignedCharArray *pixels,
   polyColors = vtkUnsignedCharArray::New();
   polyColors->SetNumberOfValues(3*numCells); //for rgb
   polyColors->SetNumberOfComponents(3);
-  polyScalars = vtkScalars::New();
-  polyScalars->SetData(polyColors);
 
   // loop over all pixels, creating a quad per pixel.
   // Note: copying point data (pixel values) to cell data (quad colors).
@@ -265,8 +262,7 @@ void vtkImageToPolyDataFilter::PixelizeImage(vtkUnsignedCharArray *pixels,
   output->SetPolys(newPolys);
   newPolys->Delete();
 
-  output->GetCellData()->SetScalars(polyScalars);
-  polyScalars->Delete();
+  output->GetCellData()->SetScalars(polyColors);
   polyColors->Delete();
 }
 
@@ -368,10 +364,7 @@ void vtkImageToPolyDataFilter::RunLengthImage(vtkUnsignedCharArray *pixels,
   output->SetPolys(newPolys);
   newPolys->Delete();
 
-  vtkScalars *polyScalars = vtkScalars::New();
-  polyScalars->SetData(polyColors);
-  output->GetCellData()->SetScalars(polyScalars);
-  polyScalars->Delete();
+  output->GetCellData()->SetScalars(polyColors);
   polyColors->Delete();
 }
 
@@ -456,7 +449,7 @@ void vtkImageToPolyDataFilter::PolygonalizeImage(vtkUnsignedCharArray *pixels,
 // The following are private helper functions----------------------------------
 //
 vtkUnsignedCharArray *vtkImageToPolyDataFilter::QuantizeImage(
-                          vtkScalars *inScalars, int numComp, int type,
+                          vtkDataArray *inScalars, int numComp, int type,
                           int dims[3], int extent[4])
 {
   int numPixels, i, j, idx, id;
@@ -482,7 +475,7 @@ vtkUnsignedCharArray *vtkImageToPolyDataFilter::QuantizeImage(
       }
     else
       {
-      inPixels = ((vtkUnsignedCharArray *)inScalars->GetData())->GetPointer(0);
+      inPixels = static_cast<vtkUnsignedCharArray *>(inScalars)->GetPointer(0);
       }
 
     // Generate a color table used to quantize the points
@@ -522,7 +515,7 @@ vtkUnsignedCharArray *vtkImageToPolyDataFilter::QuantizeImage(
       for (i=extent[0]; i <= extent[1]; i++)
         {
         idx = i + j*dims[0];
-        s = inScalars->GetScalar(idx);
+        s = inScalars->GetComponent(idx,0);
         color = this->LookupTable->MapValue(s);
         ptr2 = outPixels + 3*id;
         ptr2[0] = color[0];
@@ -824,10 +817,7 @@ void vtkImageToPolyDataFilter::GeneratePolygons(vtkPolyData *edges,
   output->SetPolys(newPolys);
   newPolys->Delete();
   
-  vtkScalars *polyScalars = vtkScalars::New();
-  polyScalars->SetData(polyColors);
-  output->GetCellData()->SetScalars(polyScalars);
-  polyScalars->Delete();
+  output->GetCellData()->SetScalars(polyColors);
 }
 
 // Uses clipping approach to build the polygon edges

@@ -42,6 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkArcPlotter.h"
 #include "vtkMath.h"
 #include "vtkPlane.h"
+#include "vtkFloatArray.h"
 
 vtkArcPlotter::vtkArcPlotter()
 {
@@ -91,7 +92,7 @@ void vtkArcPlotter::Execute()
   int id;
   vtkIdType *pts, npts;
   float *x1, *x2, x21[3], n[3];
-  vtkNormals *lineNormals;
+  vtkFloatArray *lineNormals;
   vtkPoints *newPts;
   vtkCellArray *newLines;
   float *range, offset;
@@ -158,19 +159,20 @@ void vtkArcPlotter::Execute()
   //
   newPts = vtkPoints::New();
   newPts->Allocate(numPts,numPts);
-  lineNormals = vtkNormals::New();
+  lineNormals = vtkFloatArray::New();
+  lineNormals->SetNumberOfComponents(3);
  
   newLines = vtkCellArray::New();
   newLines->Allocate(inLines->GetSize());
 
   for (inLines->InitTraversal(); inLines->GetNextCell(npts,pts); )
     {
-    lineNormals->SetNumberOfNormals(npts);
+    lineNormals->SetNumberOfTuples(npts);
     if ( !this->Camera || this->UseDefaultNormal )
       {//use default normal
       for (i=0; i < npts; i++)
         {
-        lineNormals->SetNormal(i,normal);
+        lineNormals->SetTuple(i,normal);
         }
       }
     else //generate normals
@@ -186,9 +188,9 @@ void vtkArcPlotter::Execute()
           }
         vtkMath::Cross(normal,x21,n);
         vtkMath::Normalize(n);
-        lineNormals->SetNormal(i,n);
+        lineNormals->SetTuple(i,n);
         }
-      lineNormals->SetNormal(npts-1,n);
+      lineNormals->SetTuple(npts-1,n);
       }
     
     // Now average the normal calculation to get smoother results
@@ -202,7 +204,7 @@ void vtkArcPlotter::Execute()
     aveNormal[0] = aveNormal[1] = aveNormal[2] = 0.0;
     for (i=0; i < npts && i < window; i++)
       {
-      lineNormals->GetNormal(i,n);
+      lineNormals->GetTuple(i,n);
       aveNormal[0] += n[0]; aveNormal[1] += n[1]; aveNormal[2] += n[2];
       }
 
@@ -210,17 +212,17 @@ void vtkArcPlotter::Execute()
       {
       if ( (i+window) < npts )
         {
-        lineNormals->GetNormal(i+window,n);
+        lineNormals->GetTuple(i+window,n);
         aveNormal[0] += n[0]; aveNormal[1] += n[1]; aveNormal[2] += n[2];
         }
       if ( (i-window) >= 0 )
         {
-        lineNormals->GetNormal(i-window,n);
+        lineNormals->GetTuple(i-window,n);
         aveNormal[0] -= n[0]; aveNormal[1] -= n[1]; aveNormal[2] -= n[2];
         }
       n[0] = aveNormal[0]; n[1] = aveNormal[1]; n[2] = aveNormal[2];
       vtkMath::Normalize(n);
-      lineNormals->SetNormal(i, n);
+      lineNormals->SetTuple(i, n);
       }
     this->UpdateProgress(0.50);
 
@@ -237,7 +239,7 @@ void vtkArcPlotter::Execute()
       for (i=0; i < npts; i++)
         {
         this->Data->GetTuple(pts[i], this->Tuple);
-        lineNormals->GetNormal(i,n);
+        lineNormals->GetTuple(i,n);
         id = this->OffsetPoint(pts[i], inPts, n, newPts, 
                                offset, range, this->Tuple[compNum]);
         newLines->InsertCellPoint(id);
@@ -270,42 +272,39 @@ int vtkArcPlotter::ProcessComponents(vtkIdType numPts, vtkPointData *pd)
   switch (this->PlotMode)
     {
     case VTK_PLOT_SCALARS:
-      if ( pd->GetScalars() )
+      if ( pd->GetActiveScalars() )
         {
-        this->Data = pd->GetScalars()->GetData();
+        this->Data = pd->GetActiveScalars();
         }
       break;
     case VTK_PLOT_VECTORS:   
-      if ( pd->GetVectors() )
+      if ( pd->GetActiveVectors() )
         {
-        this->Data = pd->GetVectors()->GetData();
+        this->Data = pd->GetActiveVectors();
         }
       break;
     case VTK_PLOT_NORMALS:    
-      if ( pd->GetNormals() )
+      if ( pd->GetActiveNormals() )
         {
-        this->Data = pd->GetNormals()->GetData();
+        this->Data = pd->GetActiveNormals();
         }
       break;
     case VTK_PLOT_TCOORDS:    
-      if ( pd->GetTCoords() )
+      if ( pd->GetActiveTCoords() )
         {
-        this->Data = pd->GetTCoords()->GetData();
+        this->Data = pd->GetActiveTCoords();
         }
       break;
     case VTK_PLOT_TENSORS:    
-      if ( pd->GetTensors() )
+      if ( pd->GetActiveTensors() )
         {
-        this->Data = pd->GetTensors()->GetData();
+        this->Data = pd->GetActiveTensors();
         }
       break;
     case VTK_PLOT_FIELD_DATA:
-      if ( (fd=pd->GetFieldData()) )
-        {
-        int arrayNum = (this->FieldDataArray < fd->GetNumberOfArrays() ?
-                    this->FieldDataArray : fd->GetNumberOfArrays() - 1);
-        this->Data = pd->GetFieldData()->GetArray(arrayNum);
-        }
+      int arrayNum = (this->FieldDataArray < fd->GetNumberOfArrays() ?
+		      this->FieldDataArray : fd->GetNumberOfArrays() - 1);
+      this->Data = pd->GetFieldData()->GetArray(arrayNum);
       break;
     }
 

@@ -835,8 +835,8 @@ void vtkImageData::ComputeBounds()
 // volume where forward difference is used). The scalars s are the scalars
 // from which the gradient is to be computed. This method will treat 
 // only 3D structured point datasets (i.e., volumes).
-void vtkImageData::GetVoxelGradient(int i, int j, int k, vtkScalars *s, 
-                                    vtkVectors *g)
+void vtkImageData::GetVoxelGradient(int i, int j, int k, vtkDataArray *s, 
+                                    vtkDataArray *g)
 {
   float gv[3];
   int ii, jj, kk, idx=0;
@@ -848,7 +848,7 @@ void vtkImageData::GetVoxelGradient(int i, int j, int k, vtkScalars *s,
       for ( ii=0; ii < 2; ii++)
         {
         this->GetPointGradient(i+ii, j+jj, k+kk, s, gv);
-        g->SetVector(idx++, gv);
+        g->SetTuple(idx++, gv);
         }
       } 
     }

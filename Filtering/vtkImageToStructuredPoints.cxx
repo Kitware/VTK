@@ -42,7 +42,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include <math.h>
 #include "vtkImageToStructuredPoints.h"
-#include "vtkScalars.h"
 #include "vtkStructuredPoints.h"
 #include "vtkObjectFactory.h"
 
@@ -228,17 +227,15 @@ void vtkImageToStructuredPoints::Execute()
 	wExtent[2] == uExtent[2] && wExtent[3] == uExtent[3] &&
 	wExtent[4] == uExtent[4] && wExtent[5] == uExtent[5])
       {
-      vtkVectors *fv = vtkVectors::New(vData->GetScalarType());
-      fv->SetData(vData->GetPointData()->GetScalars()->GetData());
-      output->GetPointData()->SetVectors(fv);
-      fv->Delete();
+      output->GetPointData()->SetVectors(vData->GetPointData()->GetActiveScalars());
       }
     else
       {
-      vtkVectors *fv = vtkVectors::New(vData->GetScalarType());
+      vtkDataArray *fv = vtkDataArray::CreateDataArray(vData->GetScalarType());
       float *inPtr2 = (float *)(vData->GetScalarPointerForExtent(uExtent));
       
-      fv->SetNumberOfVectors((maxZ+1)*(maxY+1)*(maxX+1));
+      fv->SetNumberOfComponents(3);
+      fv->SetNumberOfTuples((maxZ+1)*(maxY+1)*(maxX+1));
       vData->GetContinuousIncrements(uExtent, inIncX, inIncY, inIncZ);
       int numComp = vData->GetNumberOfScalarComponents();
       int idx = 0;
@@ -250,7 +247,7 @@ void vtkImageToStructuredPoints::Execute()
 	  {
 	  for (idxX = 0; idxX <= maxX; idxX++)
 	    {
-	    fv->SetVector(idx,inPtr2);
+	    fv->SetTuple(idx,inPtr2);
 	    inPtr2 += numComp;
 	    idx++;
 	    }

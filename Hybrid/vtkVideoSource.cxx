@@ -331,7 +331,7 @@ void vtkVideoSource::UpdateFrameBuffer()
 {
   int i, oldExt;
   int ext[3];
-  vtkScalars *buffer;
+  vtkDataArray *buffer;
 
   // clip the ClipRegion with the FrameSize
   for (i = 0; i < 3; i++)
@@ -367,14 +367,16 @@ void vtkVideoSource::UpdateFrameBuffer()
 
   while (--i >= 0)
     {
-    buffer = (vtkScalars *)this->FrameBuffer[i];
+    buffer = reinterpret_cast<vtkDataArray *>(this->FrameBuffer[i]);
     if (buffer->GetDataType() != VTK_UNSIGNED_CHAR ||
 	buffer->GetNumberOfComponents() != 1 ||
-	buffer->GetNumberOfScalars() != totalSize)
+	buffer->GetNumberOfTuples() != totalSize)
       {
-      buffer->SetDataTypeToUnsignedChar();
+      buffer->Delete();
+      buffer = vtkUnsignedCharArray::New();
+      this->FrameBuffer[i] = buffer;
       buffer->SetNumberOfComponents(1);
-      buffer->SetNumberOfScalars(totalSize);
+      buffer->SetNumberOfTuples(totalSize);
       }
     }
 }
@@ -514,8 +516,7 @@ void vtkVideoSource::InternalGrab()
   randNum = randsave;
 
   // copy 'noise' into the frame buffer
-  ptr = (unsigned char *)((vtkScalars *)this->\
-			  FrameBuffer[index])->GetVoidPointer(0);
+  ptr = reinterpret_cast<vtkUnsignedCharArray *>(this->FrameBuffer[index])->GetPointer(0);
 
   lptr = (int *)(((((long)ptr) + 3)/4)*4);
   i = totalSize/4;
@@ -840,7 +841,7 @@ void vtkVideoSource::SetOutputFormat(int format)
 //----------------------------------------------------------------------------
 // set or change the circular buffer size
 // you will have to override this if you want the buffers 
-// to be device-specific (i.e. something other than vtkScalars)
+// to be device-specific (i.e. something other than vtkDataArray)
 void vtkVideoSource::SetFrameBufferSize(int bufsize)
 {
   int i;
@@ -868,7 +869,7 @@ void vtkVideoSource::SetFrameBufferSize(int bufsize)
       this->FrameBufferTimeStamps = new double[bufsize];
       for (i = 0; i < bufsize; i++)
 	{
-	this->FrameBuffer[i] = (void *)vtkScalars::New();
+	this->FrameBuffer[i] = vtkUnsignedCharArray::New();
 	this->FrameBufferTimeStamps[i] = 0.0;
 	} 
       this->FrameBufferSize = bufsize;
@@ -891,7 +892,7 @@ void vtkVideoSource::SetFrameBufferSize(int bufsize)
     // create new image buffers if necessary
     for (i = 0; i < bufsize - this->FrameBufferSize; i++)
       {
-      framebuffer[i] = (void *)vtkScalars::New();
+      framebuffer[i] = vtkUnsignedCharArray::New();
       timestamps[i] = 0.0;
       }
     // copy over old image buffers
@@ -903,7 +904,7 @@ void vtkVideoSource::SetFrameBufferSize(int bufsize)
     // delete image buffers we no longer need
     for (i = 0; i < this->FrameBufferSize-bufsize; i++)
       {
-      ((vtkScalars *)this->FrameBuffer[i])->Delete();
+      reinterpret_cast<vtkDataArray *>(this->FrameBuffer[i])->Delete();
       }
 
     if (this->FrameBuffer)
@@ -1048,7 +1049,7 @@ void vtkVideoSource::UnpackRasterLine(char *outPtr, char *rowPtr,
 // The Execute method is fairly complex, so I would not recommend overriding
 // it unless you have to.  Override the UnpackRasterLine() method instead.
 // You should only have to override it if you are using something other 
-// than 8-bit vtkScalars for the frame buffer.
+// than 8-bit vtkUnsignedCharArray for the frame buffer.
 void vtkVideoSource::ExecuteData(vtkDataObject *output)
 {
   vtkImageData *data = this->AllocateOutputData(output);
@@ -1175,11 +1176,10 @@ void vtkVideoSource::ExecuteData(vtkDataObject *output)
       outputExtent[5] = finalOutputExtent5;
       } 
     
-    vtkScalars *frameBuffer = (vtkScalars *) \
-      this->FrameBuffer[(index + frame) % this->FrameBufferSize];
+    vtkDataArray *frameBuffer = reinterpret_cast<vtkDataArray *>(this->FrameBuffer[(index + frame) % this->FrameBufferSize]);
 
-    char *inPtr = (char *)frameBuffer->GetVoidPointer(0);
-    char *inPtrTmp;
+    char *inPtr = reinterpret_cast<char*>(frameBuffer->GetVoidPointer(0));
+    char *inPtrTmp ;
 
     extentZ = outputExtent[5]-outputExtent[4]+1;
     inPadZ = 0;

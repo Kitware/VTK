@@ -203,9 +203,9 @@ static void vtkMarchingCubesComputePointGradient(int i, int j, int k, T *s, int 
 template <class T>
 static void vtkMarchingCubesComputeGradient(vtkMarchingCubes *self,T *scalars, int dims[3], 
                           float origin[3], float Spacing[3],
-                          vtkPointLocator *locator, vtkScalars *newScalars, 
-                          vtkVectors *newGradients, 
-                          vtkNormals *newNormals, 
+                          vtkPointLocator *locator, vtkDataArray *newScalars, 
+                          vtkDataArray *newGradients, 
+                          vtkDataArray *newNormals, 
                           vtkCellArray *newPolys, float *values, int numValues)
 {
   float s[8], value;
@@ -376,16 +376,16 @@ static void vtkMarchingCubesComputeGradient(vtkMarchingCubes *self,T *scalars, i
                     }
                   if (ComputeScalars)
 		    {
-		    newScalars->InsertScalar(ptIds[ii],value);
+		    newScalars->InsertTuple(ptIds[ii],&value);
 		    }
                   if (ComputeGradients)
 		    {
-		    newGradients->InsertVector(ptIds[ii],n);
+		    newGradients->InsertTuple(ptIds[ii],n);
 		    }
                   if (ComputeNormals)
                     {
                     vtkMath::Normalize(n);
-                    newNormals->InsertNormal(ptIds[ii],n);
+                    newNormals->InsertTuple(ptIds[ii],n);
                     }   
                   }
               }
@@ -410,12 +410,12 @@ void vtkMarchingCubes::Execute()
 {
   vtkPoints *newPts;
   vtkCellArray *newPolys;
-  vtkScalars *newScalars;
-  vtkNormals *newNormals;
-  vtkVectors *newGradients;
+  vtkFloatArray *newScalars;
+  vtkFloatArray *newNormals;
+  vtkFloatArray *newGradients;
   vtkImageData *input = this->GetInput();
   vtkPointData *pd;
-  vtkScalars *inScalars;
+  vtkDataArray *inScalars;
   int dims[3];
   int estimatedSize;
   float Spacing[3], origin[3];
@@ -440,7 +440,7 @@ void vtkMarchingCubes::Execute()
     vtkErrorMacro(<<"PointData is NULL");
     return;
     }
-  inScalars=pd->GetScalars();
+  inScalars=pd->GetActiveScalars();
   if ( inScalars == NULL )
     {
     vtkErrorMacro(<<"Scalars must be defined for contouring");
@@ -479,8 +479,9 @@ void vtkMarchingCubes::Execute()
 
   if (this->ComputeNormals)
     {
-    newNormals = vtkNormals::New();
-    newNormals->Allocate(estimatedSize,estimatedSize/2);
+    newNormals = vtkFloatArray::New();
+    newNormals->SetNumberOfComponents(3);
+    newNormals->Allocate(3*estimatedSize,3*estimatedSize/2);
     }
   else
     {
@@ -489,8 +490,9 @@ void vtkMarchingCubes::Execute()
 
   if (this->ComputeGradients)
     {
-    newGradients = vtkVectors::New();
-    newGradients->Allocate(estimatedSize,estimatedSize/2);
+    newGradients = vtkFloatArray::New();
+    newGradients->SetNumberOfComponents(3);
+    newGradients->Allocate(3*estimatedSize,3*estimatedSize/2);
     }
   else
     {
@@ -502,7 +504,7 @@ void vtkMarchingCubes::Execute()
 
   if (this->ComputeScalars)
     {
-    newScalars = vtkScalars::New();
+    newScalars = vtkFloatArray::New();
     newScalars->Allocate(estimatedSize,estimatedSize/2);
     }
   else
@@ -516,7 +518,7 @@ void vtkMarchingCubes::Execute()
       {
       case VTK_CHAR:
         {
-        char *scalars = ((vtkCharArray *)inScalars->GetData())->GetPointer(0);
+        char *scalars = static_cast<vtkCharArray *>(inScalars)->GetPointer(0);
         vtkMarchingCubesComputeGradient(this,scalars,dims,origin,Spacing,this->Locator,
                       newScalars,newGradients,
                       newNormals,newPolys,values,numContours);
@@ -524,7 +526,7 @@ void vtkMarchingCubes::Execute()
       break;
       case VTK_UNSIGNED_CHAR:
         {
-        unsigned char *scalars = ((vtkUnsignedCharArray *)inScalars->GetData())->GetPointer(0);
+        unsigned char *scalars = static_cast<vtkUnsignedCharArray *>(inScalars)->GetPointer(0);
         vtkMarchingCubesComputeGradient(this,scalars,dims,origin,Spacing,this->Locator,
                       newScalars,newGradients,
                       newNormals,newPolys,values,numContours);
@@ -532,7 +534,7 @@ void vtkMarchingCubes::Execute()
         break;
       case VTK_SHORT:
         {
-        short *scalars = ((vtkShortArray *)inScalars->GetData())->GetPointer(0);
+        short *scalars = static_cast<vtkShortArray *>(inScalars)->GetPointer(0);
         vtkMarchingCubesComputeGradient(this,scalars,dims,origin,Spacing,this->Locator,
                       newScalars,newGradients,
                       newNormals,newPolys,values,numContours);
@@ -540,7 +542,7 @@ void vtkMarchingCubes::Execute()
       break;
       case VTK_UNSIGNED_SHORT:
         {
-        unsigned short *scalars = ((vtkUnsignedShortArray *)inScalars->GetData())->GetPointer(0);
+        unsigned short *scalars = static_cast<vtkUnsignedShortArray *>(inScalars)->GetPointer(0);
         vtkMarchingCubesComputeGradient(this,scalars,dims,origin,Spacing,this->Locator,
                       newScalars,newGradients,
                       newNormals,newPolys,values,numContours);
@@ -548,7 +550,7 @@ void vtkMarchingCubes::Execute()
       break;
       case VTK_INT:
         {
-        int *scalars = ((vtkIntArray *)inScalars->GetData())->GetPointer(0);
+        int *scalars = static_cast<vtkIntArray *>(inScalars)->GetPointer(0);
         vtkMarchingCubesComputeGradient(this,scalars,dims,origin,Spacing,this->Locator,
                       newScalars,newGradients,
                       newNormals,newPolys,values,numContours);
@@ -556,7 +558,7 @@ void vtkMarchingCubes::Execute()
       break;
       case VTK_UNSIGNED_INT:
         {
-        unsigned int *scalars = ((vtkUnsignedIntArray *)inScalars->GetData())->GetPointer(0);
+        unsigned int *scalars = static_cast<vtkUnsignedIntArray *>(inScalars)->GetPointer(0);
         vtkMarchingCubesComputeGradient(this,scalars,dims,origin,Spacing,this->Locator,
                       newScalars,newGradients,
                       newNormals,newPolys,values,numContours);
@@ -564,7 +566,7 @@ void vtkMarchingCubes::Execute()
       break;
       case VTK_LONG:
         {
-        long *scalars = ((vtkLongArray *)inScalars->GetData())->GetPointer(0);
+        long *scalars = static_cast<vtkLongArray *>(inScalars)->GetPointer(0);
         vtkMarchingCubesComputeGradient(this,scalars,dims,origin,Spacing,this->Locator,
                       newScalars,newGradients,
                       newNormals,newPolys,values,numContours);
@@ -572,7 +574,7 @@ void vtkMarchingCubes::Execute()
       break;
       case VTK_UNSIGNED_LONG:
         {
-        unsigned long *scalars = ((vtkUnsignedLongArray *)inScalars->GetData())->GetPointer(0);
+        unsigned long *scalars = static_cast<vtkUnsignedLongArray *>(inScalars)->GetPointer(0);
         vtkMarchingCubesComputeGradient(this,scalars,dims,origin,Spacing,this->Locator,
                       newScalars,newGradients,
                       newNormals,newPolys,values,numContours);
@@ -580,7 +582,7 @@ void vtkMarchingCubes::Execute()
       break;
       case VTK_FLOAT:
         {
-        float *scalars = ((vtkFloatArray *)inScalars->GetData())->GetPointer(0);
+        float *scalars = static_cast<vtkFloatArray *>(inScalars)->GetPointer(0);
         vtkMarchingCubesComputeGradient(this,scalars,dims,origin,Spacing,this->Locator,
                       newScalars,newGradients,
                       newNormals,newPolys,values,numContours);
@@ -588,7 +590,7 @@ void vtkMarchingCubes::Execute()
       break;
       case VTK_DOUBLE:
         {
-        double *scalars = ((vtkDoubleArray *)inScalars->GetData())->GetPointer(0);
+        double *scalars = static_cast<vtkDoubleArray *>(inScalars)->GetPointer(0);
         vtkMarchingCubesComputeGradient(this,scalars,dims,origin,Spacing,this->Locator,
                       newScalars,newGradients,
                       newNormals,newPolys,values,numContours);
@@ -600,10 +602,12 @@ void vtkMarchingCubes::Execute()
   else //multiple components - have to convert
     {
     int dataSize = dims[0] * dims[1] * dims[2];
-    vtkScalars *image=vtkScalars::New(VTK_FLOAT); image->Allocate(dataSize);
-    inScalars->GetScalars(0,dataSize,image);
+    vtkFloatArray *image=vtkFloatArray::New(); 
+    image->SetNumberOfComponents(inScalars->GetNumberOfComponents());
+    image->SetNumberOfTuples(image->GetNumberOfComponents()*dataSize);
+    inScalars->GetTuples(0,dataSize,image);
 
-    float *scalars = ((vtkFloatArray *)image->GetData())->GetPointer(0);
+    float *scalars = image->GetPointer(0);
     vtkMarchingCubesComputeGradient(this,scalars,dims,origin,Spacing,this->Locator,
                   newScalars,newGradients,
                   newNormals,newPolys,values,numContours);

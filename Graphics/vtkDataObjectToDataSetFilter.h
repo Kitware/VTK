@@ -83,7 +83,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .SECTION See Also
 // vtkDataObject vtkFieldData vtkDataSet vtkPolyData vtkStructuredPoints 
 // vtkStructuredGrid vtkUnstructuredGrid vtkRectilinearGrid
-// vtkDataSetAttributes vtkScalars vtkDataArray
+// vtkDataSetAttributes vtkDataArray
 
 #ifndef __vtkDataObjectToDataSetFilter_h
 #define __vtkDataObjectToDataSetFilter_h

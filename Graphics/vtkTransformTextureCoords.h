@@ -54,7 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // .SECTION See Also
 // vtkTextureMapToPlane vtkTextureMapToBox vtkTextureMapToCylinder 
-// vtkTextureMapToSphere vtkThresholdTextureCoords vtkTexture vtkTCoords
+// vtkTextureMapToSphere vtkThresholdTextureCoords vtkTexture
 
 #ifndef __vtkTransformTextureCoords_h
 #define __vtkTransformTextureCoords_h

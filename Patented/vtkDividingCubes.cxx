@@ -87,8 +87,11 @@ vtkDividingCubes::vtkDividingCubes()
   this->Count = 0;
   this->SubVoxelPts = vtkIdList::New(); this->SubVoxelPts->SetNumberOfIds(8);
   this->SubVoxel = vtkVoxel::New();
-  this->SubVoxelScalars = vtkScalars::New(); this->SubVoxelScalars->SetNumberOfScalars(8);
-  this->SubVoxelNormals = vtkNormals::New(); this->SubVoxelNormals->SetNumberOfNormals(8);
+  this->SubVoxelScalars = vtkFloatArray::New(); 
+  this->SubVoxelScalars->SetNumberOfTuples(8);
+  this->SubVoxelNormals = vtkFloatArray::New(); 
+  this->SubVoxelNormals->SetNumberOfComponents(3);
+  this->SubVoxelNormals->SetNumberOfTuples(8);
 }
 
 vtkDividingCubes::~vtkDividingCubes()
@@ -101,18 +104,18 @@ vtkDividingCubes::~vtkDividingCubes()
 
 static float Normals[8][3]; //voxel normals
 static vtkPoints *NewPts; //points being generated
-static vtkNormals *NewNormals; //points being generated
+static vtkFloatArray *NewNormals; //points being generated
 static vtkCellArray *NewVerts; //verts being generated
-static vtkNormals *SubNormals; //sub-volume normals
-static vtkScalars *SubScalars; //sub-volume scalars
+static vtkFloatArray *SubNormals; //sub-volume normals
+static vtkFloatArray *SubScalars; //sub-volume scalars
 static int SubSliceSize;
 
 void vtkDividingCubes::Execute()
 {
   int i, j, k, idx;
-  vtkScalars *inScalars;
+  vtkDataArray *inScalars;
   vtkIdList *voxelPts;
-  vtkScalars *voxelScalars;
+  vtkFloatArray *voxelScalars;
   float origin[3], x[3], ar[3], h[3];
   int dim[3], jOffset, kOffset, sliceSize;
   int above, below, vertNum, n[3];
@@ -133,7 +136,7 @@ void vtkDividingCubes::Execute()
   this->Count = 0;
 
   // make sure we have scalar data
-  if ( ! (inScalars = input->GetPointData()->GetScalars()) )
+  if ( ! (inScalars = input->GetPointData()->GetActiveScalars()) )
     {
     vtkErrorMacro(<<"No scalar data to contour");
     return;
@@ -151,9 +154,13 @@ void vtkDividingCubes::Execute()
 
   
   // creating points
-  NewPts = vtkPoints::New(); NewPts->Allocate(500000,500000);
-  NewNormals = vtkNormals::New(); NewNormals->Allocate(500000,500000);
-  NewVerts = vtkCellArray::New(); NewVerts->Allocate(500000,500000);
+  NewPts = vtkPoints::New(); 
+  NewPts->Allocate(500000,500000);
+  NewNormals = vtkFloatArray::New(); 
+  NewNormals->SetNumberOfComponents(3);
+  NewNormals->Allocate(1500000,1500000);
+  NewVerts = vtkCellArray::New(); 
+  NewVerts->Allocate(500000,500000);
   NewVerts->InsertNextCell(0); //temporary cell count
   //
   // Loop over all cells checking to see which straddle the specified value. Since
@@ -167,13 +174,14 @@ void vtkDividingCubes::Execute()
     }
 
   SubSliceSize = n[0] * n[1];
-  SubNormals = vtkNormals::New();
-  SubNormals->SetNumberOfNormals(SubSliceSize*n[2]);
+  SubNormals = vtkFloatArray::New();
+  SubNormals->SetNumberOfComponents(3);
+  SubNormals->SetNumberOfTuples(SubSliceSize*n[2]);
 
-  SubScalars = vtkScalars::New();
-  SubScalars->SetNumberOfScalars(SubSliceSize*n[2]);
+  SubScalars = vtkFloatArray::New();
+  SubScalars->SetNumberOfTuples(SubSliceSize*n[2]);
   voxelPts = vtkIdList::New(); voxelPts->SetNumberOfIds(8);
-  voxelScalars = vtkScalars::New(); voxelScalars->SetNumberOfScalars(8);
+  voxelScalars = vtkFloatArray::New(); voxelScalars->SetNumberOfTuples(8);
   
 
   for ( k=0; k < (dim[2]-1); k++)
@@ -202,16 +210,16 @@ void vtkDividingCubes::Execute()
         voxelPts->SetId(7, idx + sliceSize + dim[0] + 1);
 
         // get scalars of this voxel
-        inScalars->GetScalars(voxelPts,voxelScalars);
+        inScalars->GetTuples(voxelPts,voxelScalars);
 
         // loop over 8 points of voxel to check if cell straddles value
         for ( above=below=0, vertNum=0; vertNum < 8; vertNum++ )
           {
-          if ( voxelScalars->GetScalar(vertNum) >= this->Value )
+          if ( voxelScalars->GetComponent(vertNum,0) >= this->Value )
 	    {
             above = 1;
 	    }
-          else if ( voxelScalars->GetScalar(vertNum) < this->Value )
+          else if ( voxelScalars->GetComponent(vertNum,0) < this->Value )
 	    {
             below = 1;
 	    }
@@ -227,8 +235,7 @@ void vtkDividingCubes::Execute()
             input->GetPointGradient(i,j+1,k+1, inScalars, Normals[6]);
             input->GetPointGradient(i+1,j+1,k+1, inScalars, Normals[7]);
 
-            this->SubDivide(x, n, h, 
-			    ((vtkFloatArray *)voxelScalars->GetData())->GetPointer(0));
+            this->SubDivide(x, n, h, voxelScalars->GetPointer(0));
             }
           }
         }
@@ -267,9 +274,6 @@ void vtkDividingCubes::SubDivide(float origin[3], int dim[3], float h[3],
   int kOffset, jOffset, idx, above, below;
   float p[3], w[8], n[3], *normal, offset[3];
 
-  this->SubVoxelScalars->Reset();
-  this->SubVoxelNormals->Reset();
-
   // Compute normals and scalars on subvoxel array
   for (k=0; k < dim[2]; k++)
     {
@@ -293,8 +297,8 @@ void vtkDividingCubes::SubDivide(float origin[3], int dim[3], float h[3],
           n[1] += Normals[ii][1]*w[ii];
           n[2] += Normals[ii][2]*w[ii];
           }
-        SubScalars->SetScalar(idx,s);
-        SubNormals->SetNormal(idx,n);
+        SubScalars->SetComponent(idx,0,s);
+        SubNormals->SetTuple(idx,n);
         }
       }
     }
@@ -329,16 +333,16 @@ void vtkDividingCubes::SubDivide(float origin[3], int dim[3], float h[3],
         this->SubVoxelPts->SetId(7, idx + SubSliceSize + dim[0] + 1);
 
         // get scalars of this voxel
-        SubScalars->GetScalars(this->SubVoxelPts,this->SubVoxelScalars);
+        SubScalars->GetTuples(this->SubVoxelPts,this->SubVoxelScalars);
 
         // loop over 8 points of voxel to check if cell straddles value
         for ( above=below=0, vertNum=0; vertNum < 8; vertNum++ )
           {
-          if ( this->SubVoxelScalars->GetScalar(vertNum) >= this->Value )
+          if ( this->SubVoxelScalars->GetComponent(vertNum,0) >= this->Value )
 	    {
             above = 1;
 	    }
-          else if ( this->SubVoxelScalars->GetScalar(vertNum) < this->Value )
+          else if ( this->SubVoxelScalars->GetComponent(vertNum,0) < this->Value )
 	    {
             below = 1;
 	    }
@@ -346,10 +350,10 @@ void vtkDividingCubes::SubDivide(float origin[3], int dim[3], float h[3],
 
         if ( (above && below) && !(this->Count++ % this->Increment) )
           { //generate center point
-          SubNormals->GetNormals(this->SubVoxelPts,this->SubVoxelNormals);
+          SubNormals->GetTuples(this->SubVoxelPts,this->SubVoxelNormals);
           for (n[0]=n[1]=n[2]=0.0, vertNum=0; vertNum < 8; vertNum++)
             {
-            normal = this->SubVoxelNormals->GetNormal(vertNum);
+            normal = this->SubVoxelNormals->GetTuple(vertNum);
             n[0] += normal[0];
             n[1] += normal[1];
             n[2] += normal[2];
@@ -358,7 +362,7 @@ void vtkDividingCubes::SubDivide(float origin[3], int dim[3], float h[3],
 
           id = NewPts->InsertNextPoint(p);
           NewVerts->InsertCellPoint(id);
-          NewNormals->InsertNormal(id,n);
+          NewNormals->InsertTuple(id,n);
 
           if ( !(NewPts->GetNumberOfPoints() % VTK_POINTS_PER_POLY_VERTEX) )
             {

@@ -55,7 +55,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include <math.h>
 #include "vtkMarchingContourFilter.h"
-#include "vtkScalars.h"
 #include "vtkStructuredPoints.h"
 #include "vtkCell.h"
 #include "vtkMergePoints.h"
@@ -137,7 +136,7 @@ unsigned long vtkMarchingContourFilter::GetMTime()
 //
 void vtkMarchingContourFilter::Execute()
 {
-  vtkScalars *inScalars;
+  vtkDataArray *inScalars;
   vtkDataSet *input=this->GetInput();
   vtkIdType numCells;
   
@@ -150,7 +149,7 @@ void vtkMarchingContourFilter::Execute()
     }
 
   numCells = input->GetNumberOfCells();
-  inScalars = input->GetPointData()->GetScalars();
+  inScalars = input->GetPointData()->GetActiveScalars();
   if ( ! inScalars || numCells < 1 )
     {
     vtkErrorMacro(<<"No data to contour");

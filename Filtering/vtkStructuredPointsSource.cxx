@@ -94,10 +94,10 @@ vtkStructuredPoints *vtkStructuredPointsSource::GetOutput()
 void vtkStructuredPointsSource::ExecuteInformation()
 {
   vtkStructuredPoints *output = this->GetOutput();
-  vtkScalars *scalars;
+  vtkDataArray *scalars;
 
   output->UpdateData();
-  scalars = output->GetPointData()->GetScalars();
+  scalars = output->GetPointData()->GetActiveScalars();
 
   if (scalars)
     {

@@ -89,7 +89,7 @@ vtkImplicitDataSet::~vtkImplicitDataSet()
 // at x[3].
 float vtkImplicitDataSet::EvaluateFunction(float x[3])
 {
-  vtkScalars *scalars;
+  vtkDataArray *scalars;
   vtkCell *cell;
   vtkIdType id;
   int subId, i, numPts;
@@ -107,7 +107,7 @@ float vtkImplicitDataSet::EvaluateFunction(float x[3])
 
   // See if a dataset has been specified
   if ( !this->DataSet || 
-  !(scalars = this->DataSet->GetPointData()->GetScalars()) )
+       !(scalars = this->DataSet->GetPointData()->GetActiveScalars()) )
     {
     vtkErrorMacro(<<"Can't evaluate dataset!");
     return this->OutValue;
@@ -122,7 +122,7 @@ float vtkImplicitDataSet::EvaluateFunction(float x[3])
     for (s=0.0, i=0; i < numPts; i++)
       {
       id = cell->PointIds->GetId(i);
-      s += scalars->GetScalar(id) * this->Weights[i];
+      s += scalars->GetComponent(id,0) * this->Weights[i];
       }
     return s;
     }
@@ -151,7 +151,7 @@ unsigned long vtkImplicitDataSet::GetMTime()
 // Evaluate implicit function gradient.
 void vtkImplicitDataSet::EvaluateGradient(float x[3], float n[3])
 {
-  vtkScalars *scalars;
+  vtkDataArray *scalars;
   vtkCell *cell;
   vtkIdType id;
   int subId, i, numPts;
@@ -169,7 +169,7 @@ void vtkImplicitDataSet::EvaluateGradient(float x[3], float n[3])
 
   // See if a dataset has been specified
   if ( !this->DataSet || 
-       !(scalars = this->DataSet->GetPointData()->GetScalars()) )
+       !(scalars = this->DataSet->GetPointData()->GetActiveScalars()) )
     {
     vtkErrorMacro(<<"Can't evaluate gradient!");
     for ( i=0; i < 3; i++ )
@@ -189,7 +189,7 @@ void vtkImplicitDataSet::EvaluateGradient(float x[3], float n[3])
     for ( i=0; i < numPts; i++ ) //Weights used to hold scalar values
       {
       id = cell->PointIds->GetId(i);
-      this->Weights[i] = scalars->GetScalar(id);
+      this->Weights[i] = scalars->GetComponent(id,0);
       }
     cell->Derivatives(subId, pcoords, this->Weights, 1, n);
     }

@@ -57,7 +57,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 #include "vtkMarchingCubesCases.h"
-
+#include "vtkFloatArray.h"
 
 //------------------------------------------------------------------------------
 vtkImageMarchingCubes* vtkImageMarchingCubes::New()
@@ -230,18 +230,20 @@ void vtkImageMarchingCubes::Execute()
   this->Triangles->Allocate(estimatedSize,estimatedSize/2);
   if (this->ComputeScalars)
     {
-    this->Scalars = vtkScalars::New();
+    this->Scalars = vtkFloatArray::New();
     this->Scalars->Allocate(estimatedSize,estimatedSize/2);
     }
   if (this->ComputeNormals)
     {
-    this->Normals = vtkNormals::New();
-    this->Normals->Allocate(estimatedSize,estimatedSize/2);
+    this->Normals = vtkFloatArray::New();
+    this->Normals->SetNumberOfComponents(3);
+    this->Normals->Allocate(3*estimatedSize,3*estimatedSize/2);
     }
   if (this->ComputeGradients)
     {
-    this->Gradients = vtkVectors::New();
-    this->Gradients->Allocate(estimatedSize,estimatedSize/2);
+    this->Gradients = vtkFloatArray::New();
+    this->Gradients->SetNumberOfComponents(3);
+    this->Gradients->Allocate(3*estimatedSize,3*estimatedSize/2);
     }
 
   // Initialize the internal point locator (edge table for oen image of cubes).
@@ -491,7 +493,7 @@ static int vtkImageMarchingCubesMakeNewPoint(vtkImageMarchingCubes *self,
   // Save the scale if we are generating scalars
   if (self->ComputeScalars)
     {
-    self->Scalars->InsertNextScalar(value);
+    self->Scalars->InsertNextValue(value);
     }
   
   // Interpolate to find normal from vectors.
@@ -541,7 +543,7 @@ static int vtkImageMarchingCubesMakeNewPoint(vtkImageMarchingCubes *self,
     g[2] = (g[2] + temp * (gB[2] - g[2])) / spacing[2];
     if (self->ComputeGradients)
       {
-      self->Gradients->InsertNextVector(g);
+      self->Gradients->InsertNextTuple(g);
       }
     if (self->ComputeNormals)
       {
@@ -549,7 +551,7 @@ static int vtkImageMarchingCubesMakeNewPoint(vtkImageMarchingCubes *self,
       g[0] *= temp;
       g[1] *= temp;
       g[2] *= temp;
-      self->Normals->InsertNextNormal(g);
+      self->Normals->InsertNextTuple(g);
       }
     }
   

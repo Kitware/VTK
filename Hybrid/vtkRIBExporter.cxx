@@ -678,10 +678,10 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData, vtkScalars *s, vtkPro
   int tDim;
   unsigned char *colors;
   vtkCellArray *polys;
-  vtkNormals *n = NULL;
+  vtkDataArray *n = NULL;
   vtkPoints *p;
   vtkPolygon *polygon;
-  vtkTCoords *t;
+  vtkDataArray *t;
 
   // get the representation 
   rep = aProperty->GetRepresentation();
@@ -703,7 +703,7 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData, vtkScalars *s, vtkPro
   p = polyData->GetPoints();
   polys = polyData->GetPolys();
 
-  t = polyData->GetPointData()->GetTCoords();
+  t = polyData->GetPointData()->GetActiveTCoords();
   if ( t ) 
     {
     tDim = t->GetNumberOfComponents();
@@ -715,7 +715,7 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData, vtkScalars *s, vtkPro
     }
 
   if ( interpolation == VTK_FLAT || !(polyData->GetPointData()) || 
-       !(n=polyData->GetPointData()->GetNormals()) )
+       !(n=polyData->GetPointData()->GetActiveNormals()) )
     {
     n = 0;
     }
@@ -739,14 +739,14 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData, vtkScalars *s, vtkPro
         }
       if (t)
         {
-        TCoords = t->GetTCoord (pts[k]);
+        TCoords = t->GetTuple (pts[k]);
         vertexTCoords[k][0] = TCoords[0];
         // Renderman Textures have origin at upper left
         vertexTCoords[k][1] = 1.0 - TCoords[1];
         }
       if (n) 
         {
-        normals = n->GetNormal (pts[k]);
+        normals = n->GetTuple (pts[k]);
         vertexNormals[k][0] = normals[0];
         vertexNormals[k][1] = normals[1];
         vertexNormals[k][2] = normals[2];
@@ -823,9 +823,9 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData, vtkScalars *s, vtkPrope
   int tDim;
   unsigned char *colors;
   vtkCellArray *strips;
-  vtkNormals *n = NULL;
+  vtkDataArray *n = NULL;
   vtkPoints *p;
-  vtkTCoords *t;
+  vtkDataArray *t;
   vtkPolygon *polygon;
   vtkIdType idx[3];
 
@@ -849,7 +849,7 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData, vtkScalars *s, vtkPrope
   strips = polyData->GetStrips();
   polygon = vtkPolygon::New();
   
-  t = polyData->GetPointData()->GetTCoords();
+  t = polyData->GetPointData()->GetActiveTCoords();
   if ( t ) 
     {
     tDim = t->GetNumberOfComponents();
@@ -861,7 +861,7 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData, vtkScalars *s, vtkPrope
     }
 
   if ( interpolation == VTK_FLAT || !(polyData->GetPointData()) || 
-       !(n=polyData->GetPointData()->GetNormals()) )
+       !(n=polyData->GetPointData()->GetActiveNormals()) )
     {
     n = 0;
     }
@@ -906,14 +906,14 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData, vtkScalars *s, vtkPrope
           }
         if (t)
           {
-          TCoords = t->GetTCoord (idx[k]);
+          TCoords = t->GetTuple (idx[k]);
           vertexTCoords[k][0] = TCoords[0];
           // Renderman Textures have origin at upper left
           vertexTCoords[k][1] = 1.0 - TCoords[1];
           }
         if (n) 
           {
-          normals = n->GetNormal (idx[k]);
+          normals = n->GetTuple (idx[k]);
           vertexNormals[k][0] = normals[0];
           vertexNormals[k][1] = normals[1];
 

@@ -145,7 +145,7 @@ void vtkDepthSortPolyData::Execute()
   vtkIdType numCells=input->GetNumberOfCells();
   vtkCellData *inCD=input->GetCellData();
   vtkCellData *outCD=output->GetCellData();
-  vtkScalars *sortScalars = NULL;
+  vtkUnsignedIntArray *sortScalars = NULL;
   unsigned int *scalars = NULL;
   double x[3];
   float p[3], *bounds, *w = NULL, xf[3];
@@ -238,9 +238,9 @@ void vtkDepthSortPolyData::Execute()
   // Generate sorted output
   if ( this->SortScalars )
     {
-    sortScalars = vtkScalars::New(VTK_UNSIGNED_INT);
-    sortScalars->SetNumberOfScalars(numCells);
-    scalars = ((vtkUnsignedIntArray *)sortScalars->GetData())->GetPointer(0);
+    sortScalars = vtkUnsignedIntArray::New();
+    sortScalars->SetNumberOfTuples(numCells);
+    scalars = sortScalars->GetPointer(0);
     }
   outCD->CopyAllocate(inCD);
   output->Allocate(numCells);

@@ -55,8 +55,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkSource.h"
 #include "vtkStructuredPoints.h"
 
-class vtkVectors;
-
 class VTK_EXPORT vtkImageToStructuredPoints : public vtkSource
 {
 public:

@@ -54,6 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkDecimate.h"
 #include "vtkObjectFactory.h"
+#include "vtkFloatArray.h"
 
 //----------------------------------------------------------------------------
 vtkDecimate* vtkDecimate::New()
@@ -470,7 +471,7 @@ void vtkDecimate::CreateOutput(vtkIdType numPts, vtkIdType numTris,
   vtkIdType *pts, npts;
   vtkPoints *newPts;
   vtkCellArray *newPolys;
-  vtkScalars *newScalars = NULL;
+  vtkFloatArray *newScalars = NULL;
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   
@@ -515,13 +516,13 @@ void vtkDecimate::CreateOutput(vtkIdType numPts, vtkIdType numTris,
 
   if ( this->GenerateErrorScalars )
     {
-    newScalars = vtkScalars::New();
-    newScalars->SetNumberOfScalars(numNewPts);
+    newScalars = vtkFloatArray::New();
+    newScalars->SetNumberOfTuples(numNewPts);
     for (ptId=0; ptId < numPts; ptId++)
       {
       if ( map[ptId] > -1 )
 	{
-        newScalars->SetScalar(map[ptId],VertexError[ptId]);
+        newScalars->SetComponent(map[ptId],0,VertexError[ptId]);
 	}
       }
     }

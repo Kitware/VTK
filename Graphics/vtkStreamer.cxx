@@ -254,7 +254,7 @@ VTK_THREAD_RETURN_TYPE vtkStreamer::ThreadedIntegrate( void *arg )
   vtkDataArray             *inScalars;
   vtkDataArray             *inVectors;
   vtkFloatArray            *cellVectors;
-  vtkDataArray             *cellScalars;
+  vtkDataArray             *cellScalars=0;
   float tOffset, vort[3];
   int nSavePts = 0, counter=0;
 
@@ -271,8 +271,11 @@ VTK_THREAD_RETURN_TYPE vtkStreamer::ThreadedIntegrate( void *arg )
   cellVectors = vtkFloatArray::New();
   cellVectors->SetNumberOfComponents(3);
   cellVectors->Allocate(3*VTK_CELL_SIZE);
-  cellScalars = inScalars->MakeObject();
-  cellScalars->Allocate(inScalars->GetNumberOfComponents()*VTK_CELL_SIZE);
+  if (inScalars)
+    {
+    cellScalars = inScalars->MakeObject();
+    cellScalars->Allocate(inScalars->GetNumberOfComponents()*VTK_CELL_SIZE);
+    }
 
   w = new float[input->GetMaxCellSize()];
 
@@ -462,7 +465,10 @@ VTK_THREAD_RETURN_TYPE vtkStreamer::ThreadedIntegrate( void *arg )
 
   cell->Delete();
   cellVectors->Delete();
-  cellScalars->Delete();
+  if (cellScalars)
+    {
+    cellScalars->Delete();
+    }
   delete[] w;
 
   return VTK_THREAD_RETURN_VALUE;

@@ -101,9 +101,8 @@ class  vtkLight;
 class  vtkTransform;
 class  vtkSource;
 class  vtkLookupTable;
-class  vtkScalars;
+class  vtkFloatArray;
 class  vtkPolyDataMapper;
-class vtkNormals;
 class vtkPoints;
 
 class VTK_EXPORT vtkVRMLImporter : public vtkImporter
@@ -171,9 +170,9 @@ private:
   vtkTransform         *CurrentTransform;
   vtkSource            *CurrentSource;
   vtkPoints            *CurrentPoints;
-  vtkNormals           *CurrentNormals;
+  vtkFloatArray         *CurrentNormals;
   vtkLookupTable       *CurrentLut;
-  vtkScalars           *CurrentScalars;
+  vtkFloatArray        *CurrentScalars;
   vtkPolyDataMapper    *CurrentMapper;
 
   vtkPoints* PointsNew();

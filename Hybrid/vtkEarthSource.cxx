@@ -45,10 +45,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <math.h>
 #include "vtkEarthSource.h"
 #include "vtkPoints.h"
-#include "vtkNormals.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-
+#include "vtkFloatArray.h"
 
 
 //------------------------------------------------------------------------------
@@ -6858,7 +6857,7 @@ void vtkEarthSource::Execute()
   int maxPts;
   int maxPolys;
   vtkPoints *newPoints;
-  vtkNormals *newNormals;
+  vtkFloatArray *newNormals;
   vtkCellArray *newPolys;
   float x[3], base[3];
   vtkIdType Pts[4000];
@@ -6876,8 +6875,9 @@ void vtkEarthSource::Execute()
 
   newPoints = vtkPoints::New();
   newPoints->Allocate(maxPts);
-  newNormals = vtkNormals::New();
-  newNormals->Allocate(maxPts);
+  newNormals = vtkFloatArray::New();
+  newNormals->SetNumberOfComponents(3);
+  newNormals->Allocate(3*maxPts);
   newPolys = vtkCellArray::New();
   newPolys->Allocate(newPolys->EstimateSize(maxPolys,4000/this->OnRatio));
 
@@ -6917,7 +6917,7 @@ void vtkEarthSource::Execute()
 	  {
 	  newPoints->InsertNextPoint(x);
 	  vtkMath::Normalize(x);
-	  newNormals->InsertNextNormal(x);
+	  newNormals->InsertNextTuple(x);
 	  actualpts++;
 	  }
 	}

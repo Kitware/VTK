@@ -79,6 +79,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPolyDataSource.h"
 #include "vtkContourValues.h"
 
+class vtkFloatArray;
+
 class VTK_EXPORT vtkImageMarchingCubes : public vtkPolyDataSource
 {
 public:
@@ -135,10 +137,10 @@ public:
   int NeedGradients;
 
   vtkCellArray *Triangles;
-  vtkScalars *Scalars;
+  vtkFloatArray *Scalars;
   vtkPoints *Points;
-  vtkNormals *Normals;
-  vtkVectors *Gradients;
+  vtkFloatArray *Normals;
+  vtkFloatArray *Gradients;
   
   int GetLocatorPoint(int cellX, int cellY, int edge);
   void AddLocatorPoint(int cellX, int cellY, int edge, int ptId);

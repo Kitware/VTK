@@ -51,6 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPlanes.h"
 #include "vtkPlane.h"
 #include "vtkIntArray.h"
+#include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
 #define VTK_MAX_PLOTS 50
@@ -177,8 +178,9 @@ vtkXYPlotActor::vtkXYPlotActor()
   pts->SetNumberOfPoints(4);
   this->ClipPlanes->SetPoints(pts);
   pts->Delete();
-  vtkNormals *n = vtkNormals::New();
-  n->SetNumberOfNormals(4);
+  vtkFloatArray *n = vtkFloatArray::New();
+  n->SetNumberOfComponents(3);
+  n->SetNumberOfTuples(4);
   this->ClipPlanes->SetNormals(n);
   n->Delete();
 
@@ -835,7 +837,7 @@ void vtkXYPlotActor::ComputeXRange(float range[2], float *lengths)
 void vtkXYPlotActor::ComputeYRange(float range[2])
 {
   vtkDataSet *ds;
-  vtkScalars *scalars;
+  vtkDataArray *scalars;
   float sRange[2];
 
   range[0]=VTK_LARGE_FLOAT, range[1]=(-VTK_LARGE_FLOAT);
@@ -843,14 +845,14 @@ void vtkXYPlotActor::ComputeYRange(float range[2])
   for ( this->InputList->InitTraversal(); 
         (ds = this->InputList->GetNextItem()); )
     {
-    scalars = ds->GetPointData()->GetScalars();
+    scalars = ds->GetPointData()->GetActiveScalars();
     if ( !scalars)
       {
       vtkErrorMacro(<<"No scalar data to plot!");
       continue;
       }
     
-    scalars->GetRange(sRange);
+    scalars->GetRange(sRange,0);
     if ( sRange[0] < range[0] )
       {
       range[0] = sRange[0];
@@ -1016,7 +1018,7 @@ void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, float xRange[2],
   int i, numLinePts, dsNum, doNum, num;
   vtkIdType numPts, ptId, id;
   float length, x[3], xPrev[3];
-  vtkScalars *scalars;
+  vtkDataArray *scalars;
   vtkDataSet *ds;
   vtkCellArray *lines;
   vtkPoints *pts;
@@ -1092,7 +1094,7 @@ void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, float xRange[2],
       {
       clippingRequired = 0;
       numPts = ds->GetNumberOfPoints();
-      scalars = ds->GetPointData()->GetScalars();
+      scalars = ds->GetPointData()->GetActiveScalars();
       if ( !scalars)
         {
         continue;
@@ -1105,7 +1107,7 @@ void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, float xRange[2],
       ds->GetPoint(0, xPrev);
       for ( numLinePts=0, length=0.0, ptId=0; ptId < numPts; ptId++ )
         {
-        xyz[1] = scalars->GetScalar(ptId);
+        xyz[1] = scalars->GetComponent(ptId,0);
         ds->GetPoint(ptId, x);
         switch (this->XValues)
           {

@@ -113,8 +113,8 @@ protected:
 
   vtkIdList *SubVoxelPts;
   vtkVoxel *SubVoxel;
-  vtkScalars *SubVoxelScalars;
-  vtkNormals *SubVoxelNormals;
+  vtkFloatArray *SubVoxelScalars;
+  vtkFloatArray *SubVoxelNormals;
 };
 
 #endif
