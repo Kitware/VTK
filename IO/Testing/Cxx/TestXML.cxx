@@ -21,7 +21,7 @@ private:
 
 vtkStandardNewMacro(vtkMyXML);
 
-int main(int argc, char **argv)
+int TestXML(int argc, char *argv[])
 {
   int res = 0;
   vtkOutputWindow::GetInstance()->PromptUserOn();
