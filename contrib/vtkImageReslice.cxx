@@ -56,6 +56,7 @@ vtkImageReslice::vtkImageReslice()
   this->OutputExtent[0] = INT_MAX; // ditto
 
   this->Wrap = 0; // don't wrap
+  this->Mirror = 0; // don't mirror
   this->InterpolationMode = VTK_RESLICE_NEAREST; // no interpolation
   this->Optimization = 1; // optimizations seem to finally be stable...
 
@@ -64,13 +65,20 @@ vtkImageReslice::vtkImageReslice()
   this->BackgroundColor[2] = 0;
   this->BackgroundColor[3] = 0;
 
+  this->ResliceAxes = NULL;
   this->ResliceTransform = NULL;
+  this->IndexMatrix = NULL;
 }
 
 //----------------------------------------------------------------------------
 vtkImageReslice::~vtkImageReslice()
 {
   this->SetResliceTransform(NULL);
+  this->SetResliceAxes(NULL);
+  if (this->IndexMatrix)
+    {
+    this->IndexMatrix->Delete();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -78,9 +86,14 @@ void vtkImageReslice::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageFilter::PrintSelf(os,indent);
 
+  os << indent << "ResliceAxes: " << this->ResliceAxes << "\n";
+  if (this->ResliceAxes)
+    {
+    this->ResliceAxes->PrintSelf(os,indent.GetNextIndent());
+    }
+  os << indent << "ResliceTransform: " << this->ResliceTransform << "\n";
   if (this->ResliceTransform)
     {
-    os << indent << "ResliceTransform: " << this->ResliceTransform << "\n";
     this->ResliceTransform->PrintSelf(os,indent.GetNextIndent());
     }
   os << indent << "OutputSpacing: " << this->OutputSpacing[0] << " " <<
@@ -92,6 +105,7 @@ void vtkImageReslice::PrintSelf(ostream& os, vtkIndent indent)
     this->OutputExtent[3] << " " << this->OutputExtent[4] << " " <<
     this->OutputExtent[5] << "\n";
   os << indent << "Wrap: " << (this->Wrap ? "On\n":"Off\n");
+  os << indent << "Mirror: " << (this->Mirror ? "On\n":"Off\n");
   os << indent << "InterpolationMode: " 
      << this->GetInterpolationModeAsString() << "\n";
   os << indent << "Optimization: " << (this->Optimization ? "On\n":"Off\n");
@@ -101,13 +115,67 @@ void vtkImageReslice::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
+// Account for the MTime of the transform and its matrix when determinging
+// the MTime of the filter
+
+unsigned long int vtkImageReslice::GetMTime()
+{
+  unsigned long mTime=this->vtkObject::GetMTime();
+  unsigned long time;
+
+  if ( this->ResliceTransform != NULL )
+    {
+    time = this->ResliceTransform->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
+    time = this->ResliceTransform->GetMatrixPointer()->GetMTime();
+    mTime = ( time > mTime ? time : mTime );    
+    }
+  if ( this->ResliceAxes != NULL)
+    {
+    time = this->ResliceAxes->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
+    }
+
+  return mTime;
+}
+
+//----------------------------------------------------------------------------
 // The transform matrix supplied by the user converts output coordinates
 // to input coordinates.  
 // To speed up the pixel lookup, the following function provides a
 // matrix which converts output pixel indices to input pixel indices.
 
-void vtkImageReslice::ComputeIndexMatrix(vtkMatrix4x4 *matrix)
+vtkMatrix4x4 *vtkImageReslice::GetIndexMatrix()
 {
+  unsigned long mTime = 0;
+  unsigned long time;
+
+  // first verify that we have to update the matrix
+  if ( this->ResliceTransform != NULL)
+    {
+    time = this->ResliceTransform->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
+    time = this->ResliceTransform->GetMatrixPointer()->GetMTime();
+    mTime = ( time > mTime ? time : mTime );    
+    }
+  if ( this->ResliceAxes != NULL)
+    {
+    time = this->ResliceAxes->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
+    }
+
+  if (this->IndexMatrix)
+    {
+    if (mTime < this->IndexMatrix->GetMTime() && mTime != 0)
+      {
+      return this->IndexMatrix;
+      }
+    }
+  else
+    {
+    this->IndexMatrix = vtkMatrix4x4::New();
+    }
+
   int i;
   float inOrigin[3];
   float inSpacing[3];
@@ -123,9 +191,14 @@ void vtkImageReslice::ComputeIndexMatrix(vtkMatrix4x4 *matrix)
   vtkMatrix4x4 *inMatrix = vtkMatrix4x4::New();
   vtkMatrix4x4 *outMatrix = vtkMatrix4x4::New();
 
+  if (this->GetResliceAxes())
+    {
+    transform->SetMatrix(*this->GetResliceAxes());
+    }
   if (this->GetResliceTransform())
     {
-    transform->SetMatrix(*(this->GetResliceTransform()->GetMatrixPointer()));
+    transform->PostMultiply();
+    transform->Concatenate(this->GetResliceTransform()->GetMatrixPointer());
     }
   
   // the outMatrix takes OutputData indices to OutputData coordinates,
@@ -144,11 +217,13 @@ void vtkImageReslice::ComputeIndexMatrix(vtkMatrix4x4 *matrix)
   transform->PostMultiply();
   transform->Concatenate(inMatrix);
 
-  transform->GetMatrix(matrix);
+  transform->GetMatrix(this->IndexMatrix);
   
   transform->Delete();
   inMatrix->Delete();
   outMatrix->Delete();
+
+  return this->IndexMatrix;
 }
 
 //----------------------------------------------------------------------------
@@ -166,11 +241,10 @@ void vtkImageReslice::ComputeRequiredInputUpdateExtent(int inExt[6],
     }
 
   int i,j,k;
-  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
   float point[4];
 
   // convert matrix from world coordinates to pixel indices
-  this->ComputeIndexMatrix(matrix);
+  vtkMatrix4x4 *matrix = this->GetIndexMatrix();
 
   for (i = 0; i < 3; i++)
     {
@@ -229,7 +303,6 @@ void vtkImageReslice::ComputeRequiredInputUpdateExtent(int inExt[6],
 	}
       }
     }
-  matrix->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -240,46 +313,54 @@ void vtkImageReslice::ExecuteImageInformation()
   float inOrigin[3],maxOut[3],minOut[3],tmp;
   float *inSpacing;
 
-  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
   int *inExt;
 
   inExt = this->Input->GetWholeExtent();
   inSpacing = this->Input->GetSpacing();
   this->Input->GetOrigin(inOrigin);
   
-  if (this->ResliceTransform)
-    {  
-    this->ResliceTransform->GetMatrix(matrix);
+  vtkTransform *transform = vtkTransform::New();
 
-    // because vtkMatrix4x4::Inverse() doesn't cut it,
-    // use vtkMath::InvertMatrix()
-    double mat1data[4][4];
-    double mat2data[4][4];
-    double *mat1[4];
-    double *mat2[4];
+  if (this->GetResliceAxes())
+    {
+    transform->SetMatrix(*this->GetResliceAxes());
+    }
+  if (this->GetResliceTransform())
+    {
+    transform->PostMultiply();
+    transform->Concatenate(this->GetResliceTransform()->GetMatrixPointer());
+    }
+  
+  vtkMatrix4x4 *matrix = transform->GetMatrixPointer();
+
+  // because vtkMatrix4x4::Inverse() doesn't cut it,
+  // use vtkMath::InvertMatrix()
+  double mat1data[4][4];
+  double mat2data[4][4];
+  double *mat1[4];
+  double *mat2[4];
     
-    for (i = 0; i < 4; i++)
-      {
-      mat1[i] = mat1data[i];
-      mat2[i] = mat2data[i];
-      for (j = 0; j < 4; j++)
-	{  // InvertMatrix transposes the matrix (?)
-	mat1[i][j] = matrix->GetElement(i,j);
-	}
+  for (i = 0; i < 4; i++)
+    {
+    mat1[i] = mat1data[i];
+    mat2[i] = mat2data[i];
+    for (j = 0; j < 4; j++)
+      {  // InvertMatrix transposes the matrix (?)
+      mat1[i][j] = matrix->GetElement(i,j);
       }
+    }
  
-    if (vtkMath::InvertMatrix(mat1,mat2,4) == 0)
-      {
-      vtkErrorMacro(<< "ExecuteImageInformation: ResliceTransform not \
+  if (vtkMath::InvertMatrix(mat1,mat2,4) == 0)
+    {
+    vtkErrorMacro(<< "ExecuteImageInformation: ResliceTransform not \
 invertible");
-      }
+    }
 
-    for (i = 0; i < 4; i++)
+  for (i = 0; i < 4; i++)
+    {
+    for (j = 0; j < 4; j++)
       {
-      for (j = 0; j < 4; j++)
-	{
-	matrix->SetElement(i,j,mat2[j][i]);
-	}
+      matrix->SetElement(i,j,mat2[j][i]);
       }
     }
 
@@ -345,7 +426,8 @@ invertible");
   this->Output->SetWholeExtent(this->OutputExtent);
   this->Output->SetSpacing(this->OutputSpacing);
   this->Output->SetOrigin(this->OutputOrigin);
-  matrix->Delete();
+
+  transform->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -516,6 +598,24 @@ static inline int vtkInterpolateWrap(int num, int range)
 }
 
 //----------------------------------------------------------------------------
+// Perform a mirror to limit an index to [0,range).
+ 
+static inline int vtkInterpolateMirror(int num, int range)
+{
+  if (num < 0)
+    {
+    num = -num-1;
+    }
+  int count = num/range;
+  num %= range;
+  if (count & 0x1)
+    {
+    num = range-num-1;
+    }
+  return num;
+}
+
+//----------------------------------------------------------------------------
 // Do trilinear interpolation of the input data 'inPtr' of extent 'inExt'
 // at the 'point'.  The result is placed at 'outPtr'.  
 // If the lookup data is beyond the extent 'inExt', set 'outPtr' to
@@ -606,9 +706,9 @@ static int vtkTrilinearInterpolation(float *point, T *inPtr, T *outPtr,
 
 // trilinear interpolation with wrap-around behaviour
 template <class T>
-static int vtkTrilinearInterpolationWrap(float *point, T *inPtr, T *outPtr,
-					 T *background, int numscalars, 
-					 int inExt[6], int inInc[3])
+static int vtkTrilinearInterpolationRepeat(float *point, T *inPtr, T *outPtr,
+					   T *mirror, int numscalars, 
+					   int inExt[6], int inInc[3])
 {
   int i;
 
@@ -642,13 +742,29 @@ static int vtkTrilinearInterpolationWrap(float *point, T *inPtr, T *outPtr,
   int inExtY = inExt[3]-inExt[2]+1;
   int inExtZ = inExt[5]-inExt[4]+1;
 
-  int factX = vtkInterpolateWrap(inIdX,inExtX)*inInc[0];
-  int factY = vtkInterpolateWrap(inIdY,inExtY)*inInc[1];
-  int factZ = vtkInterpolateWrap(inIdZ,inExtZ)*inInc[2];
+  int factX, factY, factZ;
+  int factX1, factY1, factZ1;
 
-  int factX1 = vtkInterpolateWrap(inIdX+1,inExtX)*inInc[0];
-  int factY1 = vtkInterpolateWrap(inIdY+1,inExtY)*inInc[1];
-  int factZ1 = vtkInterpolateWrap(inIdZ+1,inExtZ)*inInc[2];
+  if (*mirror)
+    {
+    factX = vtkInterpolateMirror(inIdX,inExtX)*inInc[0];
+    factY = vtkInterpolateMirror(inIdY,inExtY)*inInc[1];
+    factZ = vtkInterpolateMirror(inIdZ,inExtZ)*inInc[2];
+
+    factX1 = vtkInterpolateMirror(inIdX+1,inExtX)*inInc[0];
+    factY1 = vtkInterpolateMirror(inIdY+1,inExtY)*inInc[1];
+    factZ1 = vtkInterpolateMirror(inIdZ+1,inExtZ)*inInc[2];
+    }
+  else
+    {
+    factX = vtkInterpolateWrap(inIdX,inExtX)*inInc[0];
+    factY = vtkInterpolateWrap(inIdY,inExtY)*inInc[1];
+    factZ = vtkInterpolateWrap(inIdZ,inExtZ)*inInc[2];
+
+    factX1 = vtkInterpolateWrap(inIdX+1,inExtX)*inInc[0];
+    factY1 = vtkInterpolateWrap(inIdY+1,inExtY)*inInc[1];
+    factZ1 = vtkInterpolateWrap(inIdZ+1,inExtZ)*inInc[2];
+    }
 
   int i000 = factX+factY+factZ;
   int i001 = factX+factY+factZ1;
@@ -722,10 +838,10 @@ static int vtkNearestNeighborInterpolation(float *point, T *inPtr, T *outPtr,
 
 // nearest-neighbor interpolation with wrap-around behaviour
 template <class T>
-static int vtkNearestNeighborInterpolationWrap(float *point, T *inPtr, 
-					       T *outPtr,
-					       T *background, int numscalars, 
-					       int inExt[6], int inInc[3])
+static int vtkNearestNeighborInterpolationRepeat(float *point, T *inPtr, 
+						 T *outPtr,
+						 T *mirror, int numscalars, 
+						 int inExt[6], int inInc[3])
 {
   int i;
 
@@ -751,12 +867,26 @@ static int vtkNearestNeighborInterpolationWrap(float *point, T *inPtr,
     floorZ--;
     }
 
-  int inIdX = vtkInterpolateWrap(floorX-inExt[0],
+  int inIdX, inIdY, inIdZ;
+
+  if (*mirror)
+    {
+      inIdX = vtkInterpolateMirror(floorX-inExt[0],
+				   inExt[1]-inExt[0]+1);
+      inIdY = vtkInterpolateMirror(floorY-inExt[2],
+				   inExt[3]-inExt[2]+1);
+      inIdZ = vtkInterpolateMirror(floorZ-inExt[4],
+				   inExt[5]-inExt[4]+1);
+    }
+  else
+    {
+      inIdX = vtkInterpolateWrap(floorX-inExt[0],
 				 inExt[1]-inExt[0]+1);
-  int inIdY = vtkInterpolateWrap(floorY-inExt[2],
+      inIdY = vtkInterpolateWrap(floorY-inExt[2],
 				 inExt[3]-inExt[2]+1);
-  int inIdZ = vtkInterpolateWrap(floorZ-inExt[4],
+      inIdZ = vtkInterpolateWrap(floorZ-inExt[4],
 				 inExt[5]-inExt[4]+1);
+    }
   
   inPtr += inIdX*inInc[0]+inIdY*inInc[1]+inIdZ*inInc[2];
   for (i = 0; i < numscalars; i++)
@@ -931,9 +1061,9 @@ static int vtkTricubicInterpolation(float *point, T *inPtr, T *outPtr,
 
 // tricubic interpolation with wrap-around behaviour
 template <class T>
-static int vtkTricubicInterpolationWrap(float *point, T *inPtr, T *outPtr,
-					T *background, int numscalars, 
-					int inExt[6], int inInc[3])
+static int vtkTricubicInterpolationRepeat(float *point, T *inPtr, T *outPtr,
+					  T *mirror, int numscalars, 
+					  int inExt[6], int inInc[3])
 {
   int i;
   int factX[4],factY[4],factZ[4];
@@ -973,11 +1103,23 @@ static int vtkTricubicInterpolationWrap(float *point, T *inPtr, T *outPtr,
   T *inPtr1, *inPtr2;
   int j,k,l;
 
-  for (i = 0; i < 4; i++)
+  if (*mirror)
     {
-    factX[i] = vtkInterpolateWrap(inIdX-1+i,inExtX)*inInc[0];
-    factY[i] = vtkInterpolateWrap(inIdY-1+i,inExtY)*inInc[1];
-    factZ[i] = vtkInterpolateWrap(inIdZ-1+i,inExtZ)*inInc[2];
+    for (i = 0; i < 4; i++)
+      {
+      factX[i] = vtkInterpolateMirror(inIdX-1+i,inExtX)*inInc[0];
+      factY[i] = vtkInterpolateMirror(inIdY-1+i,inExtY)*inInc[1];
+      factZ[i] = vtkInterpolateMirror(inIdZ-1+i,inExtZ)*inInc[2];
+      }
+    }
+  else
+    {
+    for (i = 0; i < 4; i++)
+      {
+      factX[i] = vtkInterpolateWrap(inIdX-1+i,inExtX)*inInc[0];
+      factY[i] = vtkInterpolateWrap(inIdY-1+i,inExtY)*inInc[1];
+      factZ[i] = vtkInterpolateWrap(inIdZ-1+i,inExtZ)*inInc[2];
+      }
     }
 
   vtkImageResliceSetInterpCoeffs(fX,&i,&i,fx,7);
@@ -1032,7 +1174,6 @@ static void vtkImageResliceExecute(vtkImageReslice *self,
   unsigned long target;
   float inPoint[4],outPoint[4];
   T *background;
-  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
   int (*interpolate)(float *point, T *inPtr, T *outPtr,
 		     T *background, int numscalars, 
 		     int inExt[6], int inInc[3]);
@@ -1051,7 +1192,7 @@ static void vtkImageResliceExecute(vtkImageReslice *self,
   
   // change transform matrix so that instead of taking 
   // input coords -> output coords it takes output indices -> input indices
-  self->ComputeIndexMatrix(matrix);
+  vtkMatrix4x4 *matrix = self->GetIndexMatrix();
   
   // Color for area outside of input volume extent  
   background = new T[numscalars];
@@ -1068,20 +1209,22 @@ static void vtkImageResliceExecute(vtkImageReslice *self,
     }
 
   // Set interpolation method
-  if (self->GetWrap())
+  if (self->GetWrap() || self->GetMirror())
     {
     switch (self->GetInterpolationMode())
       {
       case VTK_RESLICE_NEAREST:
-	interpolate = &vtkNearestNeighborInterpolationWrap;
+	interpolate = &vtkNearestNeighborInterpolationRepeat;
 	break;
       case VTK_RESLICE_LINEAR:
-	interpolate = &vtkTrilinearInterpolationWrap;
+	interpolate = &vtkTrilinearInterpolationRepeat;
 	break;
       case VTK_RESLICE_CUBIC:
-	interpolate = &vtkTricubicInterpolationWrap;
+	interpolate = &vtkTricubicInterpolationRepeat;
 	break;
       }
+    // kludge to differentiate between wrap and mirror
+    background[0] = self->GetMirror();
     }
   else
     {
@@ -1137,7 +1280,6 @@ static void vtkImageResliceExecute(vtkImageReslice *self,
     outPtr += outIncZ;
     }
   delete [] background;
-  matrix->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -1150,17 +1292,18 @@ static void ComputeRequiredInputUpdateExtentOptimized(vtkImageReslice *self,
 {
   int i,j,k;
   int idX,idY,idZ;
-  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
-  double *xAxis, *yAxis, *zAxis, *origin;
+  double xAxis[4], yAxis[4], zAxis[4], origin[4];
   double point[4],w;
 
   // convert matrix from world coordinates to pixel indices
-  self->ComputeIndexMatrix(matrix);
-  matrix->Transpose();
-  xAxis = matrix->Element[0];
-  yAxis = matrix->Element[1];
-  zAxis = matrix->Element[2];
-  origin = matrix->Element[3];
+  vtkMatrix4x4 *matrix = self->GetIndexMatrix();
+  for (i = 0; i < 4; i++)
+    {
+    xAxis[i] = matrix->GetElement(i,0);
+    yAxis[i] = matrix->GetElement(i,1);
+    zAxis[i] = matrix->GetElement(i,2);
+    origin[i] = matrix->GetElement(i,3);
+    }
 
   for (i = 0; i < 3; i++)
     {
@@ -1216,7 +1359,6 @@ static void ComputeRequiredInputUpdateExtentOptimized(vtkImageReslice *self,
 	}
       }
     }
-  matrix->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -1580,45 +1722,13 @@ static void vtkOptimizedExecute(vtkImageReslice *self,
   double inPoint0[4];
   double inPoint1[4];
   float inPoint[4];
-  double *xAxis, *yAxis, *zAxis, *origin;
-  T *background, *inPtr1;
-  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
+  double xAxis[4], yAxis[4], zAxis[4], origin[4];
+  T *inPtr1;
   double w;
+  T *background;
   int (*interpolate)(float *point, T *inPtr, T *outPtr,
 		     T *background, int numscalars, 
 		     int inExt[6], int inInc[3]);
-
-  // Set interpolation method
-  if (self->GetWrap())
-    {
-    switch (self->GetInterpolationMode())
-      {
-      case VTK_RESLICE_NEAREST:
-	interpolate = &vtkNearestNeighborInterpolationWrap;
-	break;
-      case VTK_RESLICE_LINEAR:
-	interpolate = &vtkTrilinearInterpolationWrap;
-	break;
-      case VTK_RESLICE_CUBIC:
-	interpolate = &vtkTricubicInterpolationWrap;
-	break;
-      }
-    }
-  else
-    {
-    switch (self->GetInterpolationMode())
-      {
-      case VTK_RESLICE_NEAREST:
-	interpolate = &vtkNearestNeighborInterpolation;
-	break;
-      case VTK_RESLICE_LINEAR:
-	interpolate = &vtkTrilinearInterpolation;
-	break;
-      case VTK_RESLICE_CUBIC:
-	interpolate = &vtkTricubicInterpolation;
-	break;
-      }
-    }    
 
   // find maximum input range
   self->GetInput()->GetWholeExtent(inExt);
@@ -1638,6 +1748,20 @@ static void vtkOptimizedExecute(vtkImageReslice *self,
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
   numscalars = inData->GetNumberOfScalarComponents();
 
+  // change transform matrix so that instead of taking 
+  // input coords -> output coords it takes output indices -> input indices
+  vtkMatrix4x4 *matrix = self->GetIndexMatrix();
+  
+  // break matrix into a set of axes plus an origin
+  // (this allows us to calculate the transform Incrementally)
+  for (i = 0; i < 4; i++)
+    {
+    xAxis[i] = matrix->GetElement(i,0);
+    yAxis[i] = matrix->GetElement(i,1);
+    zAxis[i] = matrix->GetElement(i,2);
+    origin[i] = matrix->GetElement(i,3);
+    }
+
   // set up background levels
   background = new T[numscalars];
   for (i = 0; i < numscalars; i++)
@@ -1652,18 +1776,40 @@ static void vtkOptimizedExecute(vtkImageReslice *self,
 	}
     }
 
-  // change transform matrix so that instead of taking 
-  // input coords -> output coords it takes output indices -> input indices
-  self->ComputeIndexMatrix(matrix);
-  
-  // break matrix into a set of axes plus an origin
-  // (this allows us to calculate the transform Incrementally)
-  matrix->Transpose();
-  xAxis = matrix->Element[0];
-  yAxis = matrix->Element[1];
-  zAxis = matrix->Element[2];
-  origin = matrix->Element[3];
-  
+  // Set interpolation method
+  if (self->GetWrap() || self->GetMirror())
+    {
+    switch (self->GetInterpolationMode())
+      {
+      case VTK_RESLICE_NEAREST:
+	interpolate = &vtkNearestNeighborInterpolationRepeat;
+	break;
+      case VTK_RESLICE_LINEAR:
+	interpolate = &vtkTrilinearInterpolationRepeat;
+	break;
+      case VTK_RESLICE_CUBIC:
+	interpolate = &vtkTricubicInterpolationRepeat;
+	break;
+      }
+    // kludge to differentiate between wrap and mirror
+    background[0] = self->GetMirror();
+    }
+  else
+    {
+    switch (self->GetInterpolationMode())
+      {
+      case VTK_RESLICE_NEAREST:
+	interpolate = &vtkNearestNeighborInterpolation;
+	break;
+      case VTK_RESLICE_LINEAR:
+	interpolate = &vtkTrilinearInterpolation;
+	break;
+      case VTK_RESLICE_CUBIC:
+	interpolate = &vtkTricubicInterpolation;
+	break;
+      }
+    }    
+
   // Loop through output pixels
   for (idZ = outExt[4]; idZ <= outExt[5]; idZ++)
     {
@@ -1688,7 +1834,7 @@ static void vtkOptimizedExecute(vtkImageReslice *self,
 	count++;
 	}
       
-      if (self->GetWrap())
+      if (self->GetWrap() || self->GetMirror())
 	{ // wrap-pad like behaviour
 	for (idX = outExt[0]; idX <= outExt[1]; idX++)
 	  {
@@ -1810,7 +1956,6 @@ static void vtkOptimizedExecute(vtkImageReslice *self,
       }
     outPtr += outIncZ;
     }
-  matrix->Delete();
   delete [] background;
 }
 

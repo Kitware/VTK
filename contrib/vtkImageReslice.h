@@ -41,8 +41,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkImageReslice - Reslices a volume along the axes specified.
 // .SECTION Description
 // vtkImageReslice will reslice a volume along the axes specified by
-// the reslicing transformation matrix.  The extent, origin, and sampling
-// density of the output data can also be set.
+// the reslicing matrix.  The extent, origin, and sampling
+// density of the output data can also be set.  This class is the
+// swiss-army-knife of image geometry filters:  It can permute, flip,
+// rotate, scale, resample, and pad image data in any combination.
 // .SECTION Caveats
 // The OptimizationOn() in conjunction with InterpolateOff()
 // may cause this filter to crash for compilers with poor floating 
@@ -77,16 +79,34 @@ public:
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set reslicing transform (describes the set of axis along which to reslice
-  // the input volume)
+  // Set the axes of the mesh along which the volume will be resliced. 
+  // The axes are extracted from the 4x4 matrix:  The x-axis is the 
+  // first column, the y-axis is the second column, the z-axis is the 
+  // third column, and the origin is the final column.  The bottom
+  // row of the matrix should always be (0,0,0,1).
+  // If you don't set the axes, the axes will default to 
+  // (1,0,0), (0,1,0), (0,0,1) and their origin will be (0,0,0)
+  vtkSetObjectMacro(ResliceAxes,vtkMatrix4x4);
+  vtkGetObjectMacro(ResliceAxes,vtkMatrix4x4);
+
+  // Description:
+  // Set a transform to be applied to the reslicing axes.
+  // If you don't set this, it will be treated as the identity transform.
   vtkSetObjectMacro(ResliceTransform,vtkTransform);
   vtkGetObjectMacro(ResliceTransform,vtkTransform);
 
   // Description:
-  // Turn on wrap-pad feature (default: off)
+  // Turn on wrap-pad feature (default: off) 
   vtkSetMacro(Wrap,int);
   vtkGetMacro(Wrap,int);
   vtkBooleanMacro(Wrap,int);
+
+  // Description:
+  // Turn on mirror-pad feature (default: off)
+  // This will override the wrap-pad, if set.
+  vtkSetMacro(Mirror,int);
+  vtkGetMacro(Mirror,int);
+  vtkBooleanMacro(Mirror,int);
 
   // Description:
   // Set interpolation mode, ignored unless InterpolateOn() has been set.
@@ -126,7 +146,7 @@ public:
   vtkGetVector4Macro(BackgroundColor, float);
 
   // Description:
-  // Allow user to set background grey level (for single-component images)
+  // Set background grey level (for single-component images)
   void SetBackgroundLevel(float v) {this->SetBackgroundColor(v,v,v,v);};
   float GetBackgroundLevel() { return this->GetBackgroundColor()[0]; };
 
@@ -143,13 +163,20 @@ public:
   vtkGetVector6Macro(OutputExtent, int);
 
   // Description:
+  // When determining the modified time of the filter, 
+  // check the modified time of the transform.
+  unsigned long int GetMTime();
+
+  // Description:
   // Helper functions not meant to be used outside this class
-  void ComputeIndexMatrix(vtkMatrix4x4 *matrix);
+  vtkMatrix4x4 *GetIndexMatrix();
   int FindExtent(int& r1, int& r2, double *point, double *xAxis,
 		      int *inMin, int *inMax, int *outExt);
 protected:
+  vtkMatrix4x4 *ResliceAxes;
   vtkTransform *ResliceTransform;
   int Wrap;
+  int Mirror;
   int InterpolationMode;
   int Optimization;
   float BackgroundColor[4];
@@ -160,6 +187,8 @@ protected:
   void ExecuteImageInformation();
   void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
   
+  vtkMatrix4x4 *IndexMatrix;
+
   // Description:
   // This method is passed a input and output region, and executes the filter
   // algorithm to fill the output from the input.
