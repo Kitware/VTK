@@ -64,12 +64,12 @@ VolumeTextureMapper2D_TraverseVolume( T *data_ptr,
   unsigned char    *texture;
   int              textureSize[2];
   int              xTile, yTile, xTotal, yTotal, tile, numTiles;
-  int              *zAxis, *yAxis, *xAxis;
-  int              loc, inc;
+  int              *zAxis=0, *yAxis=0, *xAxis=0;
+  int              loc, inc=0;
   int              saveTextures = me->GetSaveTextures();
-  int              textureOffset;
+  int              textureOffset=0;
   
-  int a0, a1, a2;
+  int a0=0, a1=0, a2=0;
   
   switch ( axis )
     {
@@ -462,7 +462,7 @@ VolumeTextureMapper2D_TraverseVolume( T *data_ptr,
 
 }
 
-vtkCxxRevisionMacro(vtkVolumeTextureMapper2D, "1.40");
+vtkCxxRevisionMacro(vtkVolumeTextureMapper2D, "1.41");
 
 vtkVolumeTextureMapper2D::vtkVolumeTextureMapper2D()
 {
@@ -502,11 +502,11 @@ void vtkVolumeTextureMapper2D::RenderSavedTexture()
   unsigned char    *texture;
   int              textureSize[2];
   int              xTile, yTile, xTotal, yTotal, tile, numTiles;
-  int              textureOffset;
-  int              axis, directionFlag;
+  int              textureOffset=0;
+  int              axis=0, directionFlag=0;
   int              size[3];
   
-  int a0, a1, a2;
+  int a0=0, a1=0, a2=0;
 
   this->GetInput()->GetDimensions( size );
 
@@ -987,7 +987,7 @@ void vtkVolumeTextureMapper2D::InitializeRender( vtkRenderer *ren,
 void vtkVolumeTextureMapper2D::ComputeAxisTextureSize( int axis, int *textureSize )
 { 
   int targetSize[2];
-  int a0, a1, a2;
+  int a0=0, a1=0, a2=0;
   
   switch ( axis )
     {

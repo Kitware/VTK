@@ -38,7 +38,7 @@ public:
   float *GetPerspectiveViewRays()
     {VTK_LEGACY_METHOD(GetPersepctiveViewRays,"4.0"); return NULL;};
   
-  void GetViewRaysSize( int size[2] )
+  void GetViewRaysSize( int* vtkNotUsed(size) ) // It is actually int size[2]
     {VTK_LEGACY_METHOD(GetViewRaysSize,"4.0");};
 
 
@@ -49,25 +49,26 @@ public:
     {VTK_LEGACY_METHOD(GetParallelIncrements,"4.0"); return NULL;};
 
   
-  void SetImageScale(int level, float scale)
+  void SetImageScale(int vtkNotUsed(level), float vtkNotUsed(scale))
     {VTK_LEGACY_METHOD(SetImageScale,"4.0");};
 
-  float GetImageScale(int level) 
+  float GetImageScale(int vtkNotUsed(level)) 
     {VTK_LEGACY_METHOD(GetImageScale,"4.0"); return 0.0;};
 
   int GetImageScaleCount( void ) 
     {VTK_LEGACY_METHOD(GetImageScaleCount,"4.0"); return 0;};
 
-  void SetSelectedImageScaleIndex(int level, float scale)
+  void SetSelectedImageScaleIndex(int vtkNotUsed(level), 
+                                  float vtkNotUsed(scale))
     {VTK_LEGACY_METHOD(SetSelectedImageScaleIndex,"4.0");};
   
-  float GetSelectedImageScaleIndex(int level)
+  float GetSelectedImageScaleIndex(int vtkNotUsed(level))
     {VTK_LEGACY_METHOD(GetSelectedImageScaleIndex,"4.0"); return 0.0;};
   
-  void SetViewRaysStepSize(int level, float scale)
+  void SetViewRaysStepSize(int vtkNotUsed(level), float vtkNotUsed(scale))
     {VTK_LEGACY_METHOD(SetViewRaysStepSize,"4.0");};
   
-  float GetViewRaysStepSize(int level)
+  float GetViewRaysStepSize(int vtkNotUsed(level))
     {VTK_LEGACY_METHOD(GetViewRaysStepSize,"4.0");return 0.0;};
 
   int GetAutomaticScaleAdjustment() 
@@ -79,13 +80,13 @@ public:
   void AutomaticScaleAdjustmentOff( void )
     {VTK_LEGACY_METHOD(AutomaticScaleAdjustmentOff,"4.0");};
 
-  void SetAutomaticScaleLowerLimit(float scale)
+  void SetAutomaticScaleLowerLimit(float vtkNotUsed(scale))
     {VTK_LEGACY_METHOD(SetAutomaticScaleLowerLimit,"4.0");};
 
   float GetAutomaticScaleLowerLimit()
     {VTK_LEGACY_METHOD(GetAutomaticScaleLowerLimit,"4.0"); return 0.0;};
 
-  void SetBilinearImageZoom(int val)
+  void SetBilinearImageZoom(int vtkNotUsed(val))
     {VTK_LEGACY_METHOD(SetBilinearImageZoom,"4.0");};
 
   int GetBilinearImageZoom()
@@ -100,7 +101,7 @@ public:
   float GetTotalRenderTime()
     {VTK_LEGACY_METHOD(GetTotalRenderTime,"4.0"); return 0.0;};
 
-  void SetNumberOfThreads(int val)
+  void SetNumberOfThreads(int vtkNotUsed(val))
     {VTK_LEGACY_METHOD(SetNumberOfThreads,"4.0");};
 
   int GetNumberOfThreads()

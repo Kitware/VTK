@@ -82,7 +82,7 @@ public:
   // appearance of gray scale images on some systems.
   int GetGrayScaleHint() 
     {vtkWarningMacro("GetGrayScaleHint deprecated, not required anymore"); return 0;};
-  void SetGrayScaleHint(int a) 
+  void SetGrayScaleHint(int vtkNotUsed(a)) 
     {vtkWarningMacro("SetGrayScaleHint deprecated, not required anymore");};
   void GrayScaleHintOn()
     {vtkWarningMacro("GrayScaleHintOn deprecated, not required anymore");};
