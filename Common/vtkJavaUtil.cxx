@@ -54,7 +54,7 @@ static void vtk_release_mutex() {
 }
 #define VTK_GET_MUTEX()  vtk_get_mutex()
 #define VTK_RELEASE_MUTEX() vtk_release_mutex()
-#elif defined(__FreeBSD__) || defined(__linux__) || defined(sgi)
+#elif defined(__FreeBSD__) || defined(__linux__) || defined(sgi) || defined(__MACH__)
 #include <pthread.h>
 pthread_mutex_t vtkGlobalMutex;
 static void vtk_get_mutex() {

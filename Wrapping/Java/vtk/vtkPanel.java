@@ -127,6 +127,10 @@ public class vtkPanel extends Canvas implements
   {
     this.Render();
   }
+
+  public void update(Graphics g) {
+    paint(g);
+  }
   
   public void LightFollowCameraOn()
   {
