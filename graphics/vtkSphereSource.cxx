@@ -318,6 +318,7 @@ void vtkSphereSource::Execute()
   output->SetPoints(newPoints);
   newPoints->Delete();
 
+  newNormals->Squeeze();
   output->GetPointData()->SetNormals(newNormals);
   newNormals->Delete();
 
