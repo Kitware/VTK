@@ -8,5 +8,6 @@ IF(PYTHON_EXECUTABLE)
   ADD_TEST(HeaderTesting-Filtering ${PYTHON_EXECUTABLE}
            ${VTK_SOURCE_DIR}/Common/Testing/HeaderTesting.py
 	   "${VTK_SOURCE_DIR}/Filtering"
+           vtkApplyFilterCommandInternal.h           
            )
 ENDIF(PYTHON_EXECUTABLE)

@@ -10,6 +10,7 @@ SET(KIT_JAVA_LIBS vtkCommonJava)
 SET(KIT_LIBS vtkCommon)
 
 SET( Kit_SRCS
+vtkApplyFilterCommand.cxx
 vtkCardinalSpline.cxx
 vtkCastToConcrete.cxx
 vtkCellLocator.cxx
@@ -24,6 +25,10 @@ vtkDataSetToPolyDataFilter.cxx
 vtkDataSetToStructuredGridFilter.cxx
 vtkDataSetToStructuredPointsFilter.cxx
 vtkDataSetToUnstructuredGridFilter.cxx
+vtkHierarchicalBoxApplyFilterCommand.cxx
+vtkHierarchicalBoxSource.cxx
+vtkHierarchicalBoxToHierarchicalBoxFilter.cxx
+vtkHierarchicalBoxToPolyDataFilter.cxx
 vtkImageInPlaceFilter.cxx
 vtkImageMultipleInputFilter.cxx
 vtkImageMultipleInputOutputFilter.cxx
@@ -39,6 +44,7 @@ vtkImplicitVolume.cxx
 vtkImplicitWindowFunction.cxx
 vtkKochanekSpline.cxx
 vtkMergePoints.cxx
+vtkMultiBlockApplyFilterCommand.cxx
 vtkPerlinNoise.cxx
 vtkPiecewiseFunction.cxx
 vtkPiecewiseFunctionShiftScale.cxx
@@ -71,6 +77,7 @@ vtkUnstructuredGridToUnstructuredGridFilter.cxx
 )
 
 SET_SOURCE_FILES_PROPERTIES(
+vtkApplyFilterCommand
 vtkDataObjectSource
 vtkDataSetSource
 vtkDataSetToDataSetFilter
@@ -79,6 +86,9 @@ vtkDataSetToPolyDataFilter
 vtkDataSetToStructuredGridFilter
 vtkDataSetToStructuredPointsFilter
 vtkDataSetToUnstructuredGridFilter
+vtkHierarchicalBoxSource
+vtkHierarchicalBoxToHierarchicalBoxFilter
+vtkHierarchicalBoxToPolyDataFilter
 vtkImageInPlaceFilter
 vtkImageMultipleInputFilter
 vtkImageMultipleInputOutputFilter

@@ -35,6 +35,10 @@ vtkCharArray.cxx
 vtkCollection.cxx
 vtkCollectionIterator.cxx
 vtkCommand.cxx
+vtkCompositeDataIterator.cxx
+vtkCompositeDataSet.cxx
+vtkCompositeDataVisitor.cxx
+vtkCompositeDataVisitorCommand.cxx
 vtkContourValues.cxx
 vtkConvexPointSet.cxx
 vtkCoordinate.cxx
@@ -69,6 +73,10 @@ vtkGeneralTransform.cxx
 vtkGenericCell.cxx
 vtkHeap.cxx
 vtkHexahedron.cxx
+vtkHierarchicalBoxDataSet.cxx
+vtkHierarchicalBoxVisitor.cxx
+vtkHierarchicalDataSet.cxx
+vtkHierarchicalDataIterator.cxx
 vtkHomogeneousTransform.cxx
 vtkIdList.cxx
 vtkIdListCollection.cxx
@@ -97,6 +105,9 @@ vtkMath.cxx
 vtkMatrix4x4.cxx
 vtkMatrixToHomogeneousTransform.cxx
 vtkMatrixToLinearTransform.cxx
+vtkMultiBlockDataIterator.cxx
+vtkMultiBlockDataSet.cxx
+vtkMultiBlockDataVisitor.cxx
 vtkMultiPartExtentTranslator.cxx
 vtkMultiThreader.cxx
 vtkMutexLock.cxx
@@ -162,6 +173,7 @@ vtkTransform.cxx
 vtkTransformCollection.cxx
 vtkTriangle.cxx
 vtkTriangleStrip.cxx
+vtkUniformGrid.cxx
 vtkUnsignedCharArray.cxx
 vtkUnsignedIntArray.cxx
 vtkUnsignedLongArray.cxx
@@ -193,10 +205,15 @@ vtkCallbackCommand
 vtkCell
 vtkCell3D
 vtkCommand
+vtkCompositeDataIterator
+vtkCompositeDataSet
+vtkCompositeDataVisitor
+vtkCompositeDataVisitorCommand
 vtkDataArray
 vtkDataSet
 vtkExplicitCell
 vtkFunctionSet
+vtkHierarchicalDataSet
 vtkHomogeneousTransform
 vtkImplicitFunction
 vtkInitialValueProblemSolver

@@ -11,6 +11,9 @@ IF (VTK_USE_RENDERING)
       PointLocator.cxx
       FrustumClip.cxx
       RGrid.cxx
+      TestHierarchicalBox.cxx
+      TestHierarchicalBoxPipeline.cxx
+      TestMultiBlock.cxx
       )
   ENDIF(VTK_USE_DISPLAY)
   IF (VTK_DATA_ROOT)

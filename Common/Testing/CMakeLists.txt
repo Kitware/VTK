@@ -15,6 +15,7 @@ IF(PYTHON_EXECUTABLE)
            vtkAbstractIterator.h
            vtkAbstractList.h
            vtkAbstractMap.h
+           vtkAMRBox.h
            vtkArrayMap.h
            vtkArrayMapIterator.h
            vtkCallbackCommand.h
@@ -26,6 +27,8 @@ IF(PYTHON_EXECUTABLE)
            vtkErrorCode.h
            vtkHashMap.h
            vtkHashMapIterator.h
+           vtkHierarchicalDataSetInternal.h
+           vtkHierarchicalBoxDataSetInternal.h
            vtkIOStream.h
            vtkIOStreamFwd.h
            vtkIdType.h
@@ -39,6 +42,7 @@ IF(PYTHON_EXECUTABLE)
            vtkLinkedListIterator.h
            vtkMarchingCubesCases.h
            vtkMarchingSquaresCases.h
+           vtkMultiBlockDataSetInternal.h
            vtkOStrStreamWrapper.h
            vtkOStreamWrapper.h
            vtkObject.h
