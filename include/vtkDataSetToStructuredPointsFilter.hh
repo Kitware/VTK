@@ -59,6 +59,7 @@ public:
   // Description:
   // Get the output of this filter.
   vtkStructuredPoints *GetOutput() {return (vtkStructuredPoints *)this->Output;};
+
 };
 
 #endif

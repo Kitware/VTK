@@ -59,6 +59,7 @@ public:
   // Description:
   // Get the output of this filter.
   vtkPolyData *GetOutput() {return (vtkPolyData *)this->Output;};
+
 };
 
 #endif
