@@ -173,7 +173,6 @@ INCLUDE (${CMAKE_ROOT}/Modules/Dart.cmake)
 
 # Add the testing directories
 IF(BUILD_TESTING)
-  IF (DART_ROOT)
     SUBDIRS(Common/Testing Filtering/Testing Graphics/Testing 
             Imaging/Testing IO/Testing)
 
@@ -200,9 +199,6 @@ IF(BUILD_TESTING)
       SUBDIRS(Patented/Testing)
       SUBDIR_DEPENDS(Patented/Testing Patented)
     ENDIF(VTK_USE_PATENTED)
-  ELSE (DART_ROOT)
-    MESSAGE("BUILD_TESTING requires DART_ROOT to be set!" "Error")
-  ENDIF (DART_ROOT)
 ENDIF(BUILD_TESTING)
 
 # Add the examples
