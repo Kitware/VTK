@@ -22,8 +22,9 @@
 
 #include "vtkLinkedList.h"
 
-#include "vtkLinkedListIterator.txx"
+#include "vtkAbstractList.txx"
 #include "vtkDebugLeaks.h"
+#include "vtkLinkedListIterator.txx"
 
 template <class DType>
 vtkLinkedList<DType> *vtkLinkedList<DType>::New()
