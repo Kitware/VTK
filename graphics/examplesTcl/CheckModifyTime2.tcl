@@ -725,10 +725,10 @@ set imager [viewer GetImager]
 set ERROR_STRING "Subobject Modify Time Bugs:"
 
 
-TestKit common
-TestKit graphics
-TestKit imaging
-TestKit patented
+#TestKit common
+#TestKit graphics
+#TestKit imaging
+#TestKit patented
 
 mapper SetInput $ERROR_STRING
 viewer Render

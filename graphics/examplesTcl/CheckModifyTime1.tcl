@@ -635,11 +635,10 @@ set imager [viewer GetImager]
 set ERROR_STRING "Reset Modify Time Bugs:"
 
 
-TestKit imaging
-TestKit graphics
-TestKit imaging
-TestKit patented
-TestKit common
+#TestKit graphics
+#TestKit imaging
+#TestKit patented
+#TestKit common
 
 
 

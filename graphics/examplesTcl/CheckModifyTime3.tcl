@@ -41,7 +41,7 @@ proc TestKit {kit} {
 
 proc TestObject {kit objectClass} {
 
-   #puts "    Object: $objectClass"
+   puts "    Object: $objectClass"
 
    if { [CheckSubclassRelationship "vtkImageSource" $objectClass $kit] == 0 \
 	&& [CheckSubclassRelationship "vtkSource" $objectClass $kit] == 0} {
@@ -86,7 +86,8 @@ proc TestObject {kit objectClass} {
       set str [lindex $methodList $idx]
    }
 
-   #$objectName Delete
+   puts "$objectName                  \t Delete Object"
+   $objectName Delete
 }
 
 
@@ -127,32 +128,34 @@ proc TestMethod {methodName numberOfArgs methodClass kit objectName} {
 
    # first call
    set argValues [GetArgValues $argTypes 0 $kit]
-
    set call1 "$objectName $methodName $argValues"
-   #puts "                    $call1"
+   puts "                    $call1"
    if { [catch {eval $call1}] != 0} {
       return
    }
+   DeleteArgValues $argValues $argTypes
    if {[catch {set modifyTime1 [$objectName GetMTime]}] != 0} {
       return
    }
    # second call
    set argValues [GetArgValues $argTypes 1 $kit]
    set call2 "$objectName $methodName $argValues"
-   #puts "                    $call2"
+   puts "                    $call2"
    if { [catch {eval $call2}] != 0} {
       return
    }
+   DeleteArgValues $argValues $argTypes
    if {[catch {set modifyTime2 [$objectName GetMTime]}] != 0} {
       return
    }
    # third call
    set argValues [GetArgValues $argTypes 2 $kit]
    set call3 "$objectName $methodName $argValues"
-   #puts "                    $call3"
+   puts "                    $call3"
    if { [catch {eval $call3}] != 0} {
       return
    }
+   DeleteArgValues $argValues $argTypes
    if {[catch {set modifyTime3 [$objectName GetMTime]}] != 0} {
       return
    }
@@ -237,6 +240,23 @@ proc GetArgValues {argTypes val kit} {
       }
    }
    return $argValues
+}
+
+proc DeleteArgValues {argValues argTypes} {
+
+
+   # create an empty list
+   set length [llength $argTypes]
+
+   for {set idx 0} {$idx < $length} {incr idx} {
+      set type [lindex $argTypes $idx]
+      if { [string range $type 0 2] == "vtk"} {
+	 # It is a vtk object. Delete it..
+	 set obj [lindex $argValues $idx]
+	 puts "$obj                       \t Delete argument"
+	 $obj Delete
+      }
+   }
 }
 
 
@@ -631,6 +651,8 @@ proc new {className} {
       return ""
    }
  
+   puts "$instanceName   \tCreate"
+
    return $instanceName
 }
 
@@ -717,7 +739,7 @@ set ERROR_STRING_CHANGE "Change Modify Time Bugs:"
 set ERROR_STRING_RESET "Reset Modify Time Bugs:"
 
 
-#TestObject graphics vtkPlaneSource
+#TestObject common vtkStructuredPointsToImage
 
 #TestKit graphics
 #TestKit imaging
