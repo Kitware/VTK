@@ -23,7 +23,7 @@
 
 #include <algorithm>
 
-vtkCxxRevisionMacro(vtkSubGroup, "1.6");
+vtkCxxRevisionMacro(vtkSubGroup, "1.7");
 vtkStandardNewMacro(vtkSubGroup);
 
 vtkSubGroup::vtkSubGroup()
@@ -34,7 +34,7 @@ vtkSubGroup::vtkSubGroup()
   this->nmembers = 0;
   this->myLocalRank = -1;
   this->tag = 0;
-  this->nFrom = 0;
+  this->nFrom = this->nTo = this->fanInTo = 0;
 }
 vtkSubGroup::vtkSubGroup(const vtkSubGroup &sg)
 {
