@@ -198,7 +198,6 @@ vtkVolumeRayCastCompositeFunction  compositeFunction
 
 vtkProjectedPolyDataRayBounder raybounder
   raybounder SetPolyData [ lensSource GetOutput]
-  raybounder DebugOn
 
 vtkVolumeRayCastMapper volumeMapper
   volumeMapper SetScalarInput [reader GetOutput]
