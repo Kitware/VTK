@@ -59,7 +59,7 @@
 #include "vtkMPIController.h"
 #endif
 
-vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.13")
+vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.14")
 
 vtkStandardNewMacro(vtkDistributedDataFilter)
 
@@ -3144,7 +3144,7 @@ vtkIntArray **vtkDistributedDataFilter::FindGlobalPointIds(
 
     for (ptId = 0; ptId < npoints; ptId++)
       {
-      localId = kd->FindPoint(pt);
+      localId = kd->FindPoint((double)pt[0], (double)pt[1], (double)pt[2]);
 
       if (localId >= 0)
         {
