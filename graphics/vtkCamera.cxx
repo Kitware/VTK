@@ -98,6 +98,7 @@ vtkCamera::~vtkCamera()
 {
   this->Transform->Delete();
   this->ViewTransform->Delete();
+  this->PerspectiveTransform->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -761,7 +762,9 @@ double *vtkCamera::GetViewPlaneNormal()
 }  
 
 //----------------------------------------------------------------------------
-void vtkCamera::SetViewPlaneNormal(double x, double y, double z)
+void vtkCamera::SetViewPlaneNormal(double vtkNotUsed(x), 
+                                   double vtkNotUsed(y),
+                                   double vtkNotUsed(z))
 {
   vtkWarningMacro(<< "SetViewPlaneNormal:  This method is deprecated, the direction of projection is set up automatically.");
 }
