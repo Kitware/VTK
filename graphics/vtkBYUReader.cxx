@@ -41,9 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkBYUReader.h"
 #include "vtkPoints.h"
-#include "vtkVectors.h"
-#include "vtkScalars.h"
-#include "vtkTCoords.h"
+#include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
 
@@ -233,7 +231,7 @@ void vtkBYUReader::ReadDisplacementFile(int numPts)
   FILE *dispFp;
   int i;
   float v[3];
-  vtkVectors *newVectors;
+  vtkFloatArray *newVectors;
   vtkPolyData *output = this->GetOutput();
   
   if ( this->ReadDisplacement && this->DisplacementFileName )
@@ -251,13 +249,14 @@ void vtkBYUReader::ReadDisplacementFile(int numPts)
   //
   // Allocate and read data
   //
-  newVectors = vtkVectors::New();
-  newVectors->SetNumberOfVectors(numPts);
+  newVectors = vtkFloatArray::New();
+  newVectors->SetNumberOfComponents(3);
+  newVectors->SetNumberOfTuples(numPts);
 
   for (i=0; i<numPts; i++)
     {
     fscanf(dispFp, "%e %e %e", v, v+1, v+2);
-    newVectors->SetVector(i,v);
+    newVectors->SetTuple(i,v);
     }
 
   fclose(dispFp);
@@ -272,7 +271,7 @@ void vtkBYUReader::ReadScalarFile(int numPts)
   FILE *scalarFp;
   int i;
   float s;
-  vtkScalars *newScalars;
+  vtkFloatArray *newScalars;
   vtkPolyData *output = this->GetOutput();
   
   if ( this->ReadScalar && this->ScalarFileName )
@@ -290,13 +289,13 @@ void vtkBYUReader::ReadScalarFile(int numPts)
   //
   // Allocate and read data
   //
-  newScalars = vtkScalars::New();
-  newScalars->SetNumberOfScalars(numPts);
+  newScalars = vtkFloatArray::New();
+  newScalars->SetNumberOfTuples(numPts);
 
   for (i=0; i<numPts; i++)
     {
     fscanf(scalarFp, "%e", &s);
-    newScalars->SetScalar(i,s);
+    newScalars->SetTuple(i,&s);
     }
 
   fclose(scalarFp);
@@ -311,7 +310,7 @@ void vtkBYUReader::ReadTextureFile(int numPts)
   FILE *textureFp;
   int i;
   float t[2];
-  vtkTCoords *newTCoords;
+  vtkFloatArray *newTCoords;
   vtkPolyData *output = this->GetOutput();
 
   if ( this->ReadTexture && this->TextureFileName )
@@ -329,13 +328,14 @@ void vtkBYUReader::ReadTextureFile(int numPts)
   //
   // Allocate and read data
   //
-  newTCoords = vtkTCoords::New();
-  newTCoords->SetNumberOfTCoords(numPts);
+  newTCoords = vtkFloatArray::New();
+  newTCoords->SetNumberOfComponents(3);
+  newTCoords->SetNumberOfTuples(numPts);
 
   for (i=0; i<numPts; i++)
     {
     fscanf(textureFp, "%e %e", t, t+1);
-    newTCoords->SetTCoord(i,t);
+    newTCoords->SetTuple(i,t);
     }
 
   fclose(textureFp);
