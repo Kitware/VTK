@@ -44,7 +44,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.66");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.67");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -1055,6 +1055,8 @@ void vtkImagePlaneWidget::PlaceWidget(float bds[6])
     }
   this->PlaneSource->Update();
   this->BuildRepresentation();
+  this->UpdateNormal();
+  this->UpdateOrigin();
 }
 
 void vtkImagePlaneWidget::SetPlaneOrientation(int i)
