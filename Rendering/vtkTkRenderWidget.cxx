@@ -94,7 +94,13 @@ int vtkTkRenderWidget_Configure(Tcl_Interp *interp,
 {
   // Let Tk handle generic configure options.
   if (Tk_ConfigureWidget(interp, self->TkWin, vtkTkRenderWidgetConfigSpecs,
-                         argc, argv, (char *)self, flags) == TCL_ERROR) 
+                         argc,
+#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4 && TCL_RELEASE_LEVEL >= TCL_FINAL_RELEASE)
+                         const_cast<CONST84 char **>(argv), 
+#else
+                         argv, 
+#endif
+                         (char *)self, flags) == TCL_ERROR) 
     {
     return(TCL_ERROR);
     }
@@ -116,7 +122,11 @@ int vtkTkRenderWidget_Configure(Tcl_Interp *interp,
 // evaluated in a Tcl script.  It will compare string parameters
 // to choose the appropriate method to invoke.
 int vtkTkRenderWidget_Widget(ClientData clientData, Tcl_Interp *interp,
-                           int argc, char *argv[]) 
+                             int argc,
+#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4 && TCL_RELEASE_LEVEL >= TCL_FINAL_RELEASE)
+                             CONST84
+#endif
+                             char **argv) 
 {
   struct vtkTkRenderWidget *self = (struct vtkTkRenderWidget *)clientData;
   int result = TCL_OK;
@@ -164,7 +174,12 @@ int vtkTkRenderWidget_Widget(ClientData clientData, Tcl_Interp *interp,
       {
       /* Execute a configuration change */
       result = vtkTkRenderWidget_Configure(interp, self, argc-2, 
-                                           argv+2, TK_CONFIG_ARGV_ONLY);
+#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4 && TCL_RELEASE_LEVEL >= TCL_FINAL_RELEASE)
+                                           const_cast<char **>(argv+2), 
+#else
+                                           argv+2, 
+#endif
+                                           TK_CONFIG_ARGV_ONLY);
       }
     }
   else if (!strcmp(argv[1], "GetRenderWindow"))
@@ -199,9 +214,15 @@ int vtkTkRenderWidget_Widget(ClientData clientData, Tcl_Interp *interp,
 //     * Creates an event handler for this window
 //     * Creates a command that handles this object
 //     * Configures this vtkTkRenderWidget for the given arguments
-int vtkTkRenderWidget_Cmd(ClientData clientData, Tcl_Interp *interp, 
-                          int argc, char **argv)
+int vtkTkRenderWidget_Cmd(ClientData clientData, Tcl_Interp *interp, int argc,
+#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4 && TCL_RELEASE_LEVEL >= TCL_FINAL_RELEASE)
+                          CONST84
+#endif
+                          char **argv)
 {
+#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4 && TCL_RELEASE_LEVEL >= TCL_FINAL_RELEASE)
+  CONST84
+#endif
   char *name;
   Tk_Window main = (Tk_Window)clientData;
   Tk_Window tkwin;
@@ -246,7 +267,13 @@ int vtkTkRenderWidget_Cmd(ClientData clientData, Tcl_Interp *interp,
                         vtkTkRenderWidget_EventProc, (ClientData)self);
   
   // Configure vtkTkRenderWidget widget
-  if (vtkTkRenderWidget_Configure(interp, self, argc-2, argv+2, 0) 
+  if (vtkTkRenderWidget_Configure(interp, self, argc-2,                                  
+#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4 && TCL_RELEASE_LEVEL >= TCL_FINAL_RELEASE)
+                                  const_cast<char **>(argv+2), 
+#else
+                                  argv+2, 
+#endif
+                                  0) 
       == TCL_ERROR) 
     {
     Tk_DestroyWindow(tkwin);
