@@ -26,7 +26,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkTextActor3D, "1.1");
+vtkCxxRevisionMacro(vtkTextActor3D, "1.2");
 vtkStandardNewMacro(vtkTextActor3D);
 
 vtkCxxSetObjectMacro(vtkTextActor3D, TextProperty, vtkTextProperty);
@@ -312,6 +312,8 @@ int vtkTextActor3D::UpdateImageActor()
 void vtkTextActor3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+
+  os << indent << "Input: " << (this->Input ? this->Input : "(none)") << "\n";
 
   if (this->TextProperty)
     {
