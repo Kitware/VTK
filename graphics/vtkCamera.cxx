@@ -1097,10 +1097,10 @@ void vtkCamera::GetFrustumPlanes( float aspect, float planes[24] )
 {
   vtkMatrix4x4 *m;
   vtkTransform *transform = vtkTransform::New();
-  float        in[4], out[8][4] ;
+  double       in[4], out[8][4] ;
   int          i, j, k, index;
   int          which_points[6][3];
-  float        v1[3], v2[3], A, B, C, D, t;
+  double       v1[3], v2[3], A, B, C, D, t;
 
   transform->SetMatrix(*(this->GetCompositePerspectiveTransformMatrix(aspect,0,1)));
   transform->Inverse();
@@ -1155,10 +1155,13 @@ void vtkCamera::GetFrustumPlanes( float aspect, float planes[24] )
     B = v1[2] * v2[0] - v2[2] * v1[0];
     C = v1[0] * v2[1] - v2[0] * v1[1];
 
-    t = sqrt( (double)( A*A + B*B + C*C ) );
-    A /= t;
-    B /= t;
-    C /= t;
+    t = sqrt( A*A + B*B + C*C  );
+    if ( t )
+      {
+      A /= t;
+      B /= t;
+      C /= t;
+      }
     D = -( A * out[which_points[index][0]][0] +
 	   B * out[which_points[index][0]][1] + 
 	   C * out[which_points[index][0]][2] );
