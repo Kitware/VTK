@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 1.4)
+CMAKE_MINIMUM_REQUIRED(VERSION 1.6)
 
 # Set the project/library name here.  Classes should be declared as
 # "class vtkLocal_EXPORT vtkFoo", where vtkLocal is the name of the
@@ -25,10 +25,9 @@ INCLUDE_DIRECTORIES(${PROJECT_BINARY_DIR})
 
 # Find and load VTK settings.
 INCLUDE(${CMAKE_ROOT}/Modules/FindVTK.cmake)
-IF(USE_VTK_FILE)
-  INCLUDE(${USE_VTK_FILE})
-  SET(VTK_FOUND 1)
-ENDIF(USE_VTK_FILE)
+IF(VTK_FOUND)
+  INCLUDE(${VTK_USE_FILE})
+ENDIF(VTK_FOUND)
 
 # Give user option of building shared or static libraries.  Default to
 # the choice made for VTK.
@@ -72,11 +71,11 @@ IF(VTK_FOUND)
 
   # Create the instantiator for these classes.
   SET(VTK_USE_INSTANTIATOR_NEW 1)
-  VTK_MAKE_INSTANTIATOR("${PROJECT_NAME}Instantiator" vtkLocalInstantiator_SRCS
-                        ${vtkLocal_SRCS}
-                        EXPORT_MACRO "VTK_${PROJECT_NAME}_EXPORT"
-                        HEADER_LOCATION ${PROJECT_BINARY_DIR}
-                        INCLUDES "${PROJECT_NAME}Configure.h")
+  VTK_MAKE_INSTANTIATOR2("${PROJECT_NAME}Instantiator" vtkLocalInstantiator_SRCS
+                         ${vtkLocal_SRCS}
+                         EXPORT_MACRO "VTK_${PROJECT_NAME}_EXPORT"
+                         HEADER_LOCATION ${PROJECT_BINARY_DIR}
+                         INCLUDES "${PROJECT_NAME}Configure.h")
 
   # Create the library.
   ADD_LIBRARY(${PROJECT_NAME} ${vtkLocal_SRCS} ${vtkLocalInstantiator_SRCS})
@@ -84,7 +83,7 @@ IF(VTK_FOUND)
 
   # Create Tcl wrappers if VTK is wrapped in Tcl.
   IF(VTK_WRAP_TCL)
-    VTK_WRAP_TCL(${PROJECT_NAME}TCL vtkLocalTCL_SRCS ${vtkLocal_SRCS})
+    VTK_WRAP_TCL2(${PROJECT_NAME}TCL vtkLocalTCL_SRCS ${vtkLocal_SRCS})
     ADD_LIBRARY(${PROJECT_NAME}TCL ${vtkLocalTCL_SRCS})
     TARGET_LINK_LIBRARIES(${PROJECT_NAME}TCL vtkCommonTCL ${PROJECT_NAME})
 
@@ -115,7 +114,7 @@ IF(VTK_FOUND)
 
   # Create Python wrappers if VTK is wrapped in Python.
   IF(VTK_WRAP_PYTHON)
-    VTK_WRAP_PYTHON(${PROJECT_NAME}Python vtkLocalPYTHON_SRCS ${vtkLocal_SRCS})
+    VTK_WRAP_PYTHON2(${PROJECT_NAME}Python vtkLocalPYTHON_SRCS ${vtkLocal_SRCS})
     ADD_LIBRARY(${PROJECT_NAME}Python MODULE ${vtkLocalPYTHON_SRCS})
     TARGET_LINK_LIBRARIES(${PROJECT_NAME}Python vtkCommonPython ${PROJECT_NAME})
   ENDIF(VTK_WRAP_PYTHON)
@@ -125,7 +124,7 @@ IF(VTK_FOUND)
     SET(VTK_WRAP_HINTS "${PROJECT_SOURCE_DIR}/hints")
     SET(VTK_JAVA_HOME ${PROJECT_BINARY_DIR}/java/${PROJECT_NAME})
     MAKE_DIRECTORY(${VTK_JAVA_HOME})
-    VTK_WRAP_JAVA(${PROJECT_NAME}Java vtkLocalJAVA_SRCS ${vtkLocal_SRCS})
+    VTK_WRAP_JAVA2(${PROJECT_NAME}Java vtkLocalJAVA_SRCS ${vtkLocal_SRCS})
     ADD_LIBRARY(${PROJECT_NAME}Java ${vtkLocalJAVA_SRCS})
     TARGET_LINK_LIBRARIES(${PROJECT_NAME}Java vtkCommonJava ${PROJECT_NAME})
   ENDIF(VTK_WRAP_JAVA)
