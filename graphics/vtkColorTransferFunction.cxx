@@ -44,7 +44,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 
 
-
 //------------------------------------------------------------------------------
 vtkColorTransferFunction* vtkColorTransferFunction::New()
 {
@@ -58,24 +57,32 @@ vtkColorTransferFunction* vtkColorTransferFunction::New()
   return new vtkColorTransferFunction;
 }
 
-
-
-
 // Construct a new vtkColorTransferFunction with default values
 vtkColorTransferFunction::vtkColorTransferFunction()
 {
+  // Remove these when old methods are removed
   this->Red = vtkPiecewiseFunction::New();
   this->Green = vtkPiecewiseFunction::New();
   this->Blue = vtkPiecewiseFunction::New();
   
-  this->ColorValue[0] = 0;
-  this->ColorValue[1] = 0;
-  this->ColorValue[2] = 0;
+  this->FloatRGBValue[0] = 0.0;
+  this->FloatRGBValue[1] = 0.0;
+  this->FloatRGBValue[2] = 0.0;
 
+  this->UnsignedCharRGBAValue[0] = 0;
+  this->UnsignedCharRGBAValue[1] = 0;
+  this->UnsignedCharRGBAValue[2] = 0;
+  this->UnsignedCharRGBAValue[3] = 0;
+  
   this->Range[0] = 0;
   this->Range[1] = 0;
 
   this->Clamping = 0;
+  this->ColorSpace = VTK_CTF_RGB;
+  
+  this->Function = NULL;
+  this->FunctionSize = 0;
+  this->NumberOfPoints = 0;
 }
 
 // Destruct a vtkColorTransferFunction
@@ -87,263 +94,520 @@ vtkColorTransferFunction::~vtkColorTransferFunction()
   this->Green = NULL;
   this->Blue->Delete();
   this->Blue = NULL;  
-}
-
-unsigned long int vtkColorTransferFunction::GetMTime()
-{
-  unsigned long mTime=this->vtkScalarsToColors::GetMTime();
-  unsigned long time;
-
-  if ( this->Red != NULL )
+  
+  if ( this->Function )
     {
-    time = this->Red->GetMTime();
-    mTime = ( time > mTime ? time : mTime );
+    delete [] this->Function;
     }
+}
 
-  if ( this->Green != NULL )
+
+void vtkColorTransferFunction::RGBToHSV(float R, float G, float B,
+                                        float &H, float &S, float &V)
+{
+  float cmax, cmin;
+  
+  cmax = R;
+  cmin = R;
+  if (G > cmax)
     {
-    time = this->Green->GetMTime();
-    mTime = ( time > mTime ? time : mTime );
+    cmax = G;
     }
-
-  if ( this->Blue != NULL )
+  else if (G < cmin)
     {
-    time = this->Blue->GetMTime();
-    mTime = ( time > mTime ? time : mTime );
+    cmin = G;
     }
+  if (B > cmax)
+    {
+    cmax = B;
+    }
+  else if (B < cmin)
+    {
+    cmin = B;
+    }
+  V = cmax;
 
-  return mTime;
+  if (V > 0.0)
+    {
+    S = (cmax - cmin)/cmax;
+    }
+  else 
+    {
+    S = 0.0;
+    }
+  if (S > 0)
+    {
+    if (R == cmax)
+      {
+      H = 0.17*(G - B)/(cmax - cmin);
+      }
+    else if (G == cmax)
+      {
+      H = 0.33 + 0.17*(B - R)/(cmax - cmin);
+      }
+    else
+      {
+      H = 0.67 + 0.17*(R - G)/(cmax - cmin);
+      }
+    if (H < 0.0)
+      {
+      H = H + 1.0;
+      }
+    }
+  else
+    {
+    H = 0.0;
+    }
 }
 
-// Returns the sum of the number of function points used to specify 
-// the three independent functions (R,G,B)
-int vtkColorTransferFunction::GetTotalSize()
+void vtkColorTransferFunction::HSVToRGB(float hue, float sat, float V,
+                                        float &R, float &G, float &B)
 {
-  int  size;
-
-  // Sum all three function sizes
-  size = this->Red->GetSize() +
-         this->Green->GetSize() +
-         this->Blue->GetSize();
-
-  return( size );
+  // compute RGB from HSV
+  if (hue > 0.17 && hue <= 0.33) // green/red
+    {
+    G = 1.0;
+    R = (0.33-hue)/0.16;
+    B = 0.0;
+    }
+  else if (hue > 0.33 && hue <= 0.5) // green/blue
+    {
+    G = 1.0;
+    B = (hue - 0.33)/0.17;
+    R = 0.0;
+    }
+  else if (hue > 0.5 && hue <= 0.67) // blue/green
+    {
+    B = 1.0;
+    G = (0.67 - hue)/0.17;
+    R = 0.0;
+    }
+  else if (hue > 0.67 && hue <= 0.83) // blue/red
+    {
+    B = 1.0;
+    R = (hue - 0.67)/0.16;
+    G = 0.0;
+    }
+  else if (hue > 0.83 && hue <= 1.0) // red/blue
+    {
+    R = 1.0;
+    B = (1.0-hue)/0.17;
+    G = 0.0;
+    }
+  else // red/green
+    {
+    R = 1.0;
+    G = hue/0.17;
+    B = 0.0;
+    }
+  
+  // add Saturation to the equation.
+  R = (sat*R + (1.0 - sat));
+  G = (sat*G + (1.0 - sat));
+  B = (sat*B + (1.0 - sat));
+  
+  R = R * V;
+  G = G * V;
+  B = B * V;
 }
 
-// Add a point to the red function
-void vtkColorTransferFunction::AddRedPoint( float x, float r )
-{
-  this->Red->AddPoint( x, r );
-
-  this->UpdateRange();
-}
-
-// Add a point to the green function
-void vtkColorTransferFunction::AddGreenPoint( float x, float g )
-{
-  this->Green->AddPoint( x, g );
-
-  this->UpdateRange();
-}
-
-// Add a point to the blue function
-void vtkColorTransferFunction::AddBluePoint( float x, float b )
-{
-  this->Blue->AddPoint( x, b );
-
-  this->UpdateRange();
-}
-
-// Add a point to all three functions (RGB)
+// Add a point defined in RGB
 void vtkColorTransferFunction::AddRGBPoint( float x, float r,
-     float g, float b )
+                                            float g, float b )
 {
-  this->Red->AddPoint( x, r );
-  this->Green->AddPoint( x, g );
-  this->Blue->AddPoint( x, b );
-
-  this->UpdateRange();
-}
-
-// Remove a point from the red function
-void vtkColorTransferFunction::RemoveRedPoint( float x )
-{
-  this->Red->RemovePoint( x );
-
-  this->UpdateRange();
-}
-
-// Remove a point from the green function
-void vtkColorTransferFunction::RemoveGreenPoint( float x )
-{
-  this->Green->RemovePoint( x );
-
-  this->UpdateRange();
-}
-
-// Remove a point from the blue function
-void vtkColorTransferFunction::RemoveBluePoint( float x )
-{
-  this->Blue->RemovePoint( x );
-
-  this->UpdateRange();
-}
-
-// Remove a point from all three functions (RGB)
-void vtkColorTransferFunction::RemoveRGBPoint( float x )
-{
-  this->Red->RemovePoint( x );
-  this->Green->RemovePoint( x );
-  this->Blue->RemovePoint( x );
-
-  this->UpdateRange();
-}
-
-// Remove all points from all three functions (RGB)
-void vtkColorTransferFunction::RemoveAllPoints()
-{
-  this->Red->RemoveAllPoints();
-  this->Green->RemoveAllPoints();
-  this->Blue->RemoveAllPoints();
-
-  this->UpdateRange();
-}
-
-// Add a line to the red function
-void vtkColorTransferFunction::AddRedSegment( float x1, float r1,
-     float x2, float r2 )
-{
-  this->Red->AddSegment( x1, r1, x2, r2 );
-
-  this->UpdateRange();
-}
-
-// Add a line to the green function
-void vtkColorTransferFunction::AddGreenSegment( float x1, float g1,
-     float x2, float g2 )
-{
-  this->Green->AddSegment( x1, g1, x2, g2 );
-
-  this->UpdateRange();
-}
-
-// Add a line to the blue function
-void vtkColorTransferFunction::AddBlueSegment( float x1, float b1,
-     float x2, float b2 )
-{
-  this->Blue->AddSegment( x1, b1, x2, b2 );
-
-  this->UpdateRange();
-}
-
-// Add a line to all three functions (RGB)
-void vtkColorTransferFunction::AddRGBSegment( float x1, float r1, 
-        float g1, float b1, float x2, float r2, float g2, float b2 )
-{
-  this->Red->AddSegment( x1, r1, x2, r2 );
-  this->Green->AddSegment( x1, g1, x2, g2 );
-  this->Blue->AddSegment( x1, b1, x2, b2 );
-
-  this->UpdateRange();
-}
-
-// Returns the RGB color evaluated at the specified location
-unsigned char *vtkColorTransferFunction::MapValue( float x )
-{
-  this->ColorValue2[0] = (unsigned char)
-    (255.0*this->Red->GetValue( x ));
-  this->ColorValue2[1] = (unsigned char)
-    (255.0*this->Green->GetValue( x ));
-  this->ColorValue2[2] = (unsigned char)
-    (255.0*this->Blue->GetValue( x ));
-  this->ColorValue2[3] = 1;
-  return( this->ColorValue2 );
-}
-
-// Returns the RGB color evaluated at the specified location
-float *vtkColorTransferFunction::GetValue( float x )
-{
-  this->ColorValue[0] = this->Red->GetValue( x );
-  this->ColorValue[1] = this->Green->GetValue( x );
-  this->ColorValue[2] = this->Blue->GetValue( x );
-
-  return( this->ColorValue );
-}
-
-// Updates the min/max range for all three functions (RGB)
-void vtkColorTransferFunction::UpdateRange()
-{
-  float *red_range, *green_range, *blue_range;
-
-  red_range   = this->Red->GetRange();
-  green_range = this->Green->GetRange();
-  blue_range  = this->Blue->GetRange();
-
-  if( red_range[0] < this->Range[0] )
+  float *fptr = this->Function;
+  int i;
+  
+  
+  for ( i = 0; i < this->NumberOfPoints; i++, fptr+=4 )
     {
-    this->Range[0] = red_range[0];
+    if ( x <= *fptr )
+      {
+      break;
+      }
     }
-
-  if( green_range[0] < this->Range[0] )
+  
+  // Do we have an exact match?
+  if ( i < this->NumberOfPoints && this->Function[4*i] == x )
     {
-    this->Range[0] = green_range[0];
+    this->Function[4*i  ] = x;
+    this->Function[4*i+1] = r;
+    this->Function[4*i+2] = g;
+    this->Function[4*i+3] = b;    
     }
-
-  if( blue_range[0] < this->Range[0] )
+  // otherwise we have to add it before the current location
+  else
     {
-    this->Range[0] = blue_range[0];
+    // We need more space
+    if ( this->NumberOfPoints == this->FunctionSize )
+      {
+      if ( this->FunctionSize )
+	{
+        this->FunctionSize *= 2;
+	}
+      else
+	{
+        this->FunctionSize = 100;
+	}
+
+      float *tmp = new float[this->FunctionSize*4];
+      if ( i > 0 )
+        {
+        memcpy( tmp, this->Function, i*sizeof(float)*4 );
+        }
+      if ( i < this->NumberOfPoints )
+        {
+        memcpy( tmp+i+1, this->Function+i, 
+                (this->NumberOfPoints-i)*sizeof(float)*4 );
+        }
+      if ( this->Function )
+	{
+	delete [] this->Function;
+	}
+      this->Function = tmp;
+      }
+    else
+      {
+      for ( int j = this->NumberOfPoints - 1; j >= i; j-- )
+        {
+        this->Function[4*(j+1)  ] = this->Function[4*j  ];
+        this->Function[4*(j+1)+1] = this->Function[4*j+1];
+        this->Function[4*(j+1)+2] = this->Function[4*j+2];
+        this->Function[4*(j+1)+3] = this->Function[4*j+3];
+        }
+      }
+    this->Function[i*4  ] = x;
+    this->Function[i*4+1] = r;
+    this->Function[i*4+2] = g;
+    this->Function[i*4+3] = b;
+    
+    this->NumberOfPoints++;
     }
+  
+  this->Range[0] = *this->Function;
+  this->Range[1] = *(this->Function + (this->NumberOfPoints-1)*4); 
+  
+  this->Modified();
+}
 
-  if( red_range[1] > this->Range[1] )
+// Add a point defined in HSV
+void vtkColorTransferFunction::AddHSVPoint( float x, float h,
+                                            float s, float v )
+{ 
+  float r, b, g;
+  
+  this->HSVToRGB( h, s, v, r, g, b );
+  this->AddRGBPoint( x, r, g, b );
+}
+
+// Remove a point
+void vtkColorTransferFunction::RemovePoint( float x )
+{
+  float *fptr = this->Function;
+  int i;
+  
+
+  // find the point to remove
+  for ( i = 0; i < this->NumberOfPoints; i++, fptr+=4 )
     {
-    this->Range[1] = red_range[1];
+    if ( x == *fptr )
+      {
+      break;
+      }
     }
-
-  if( green_range[1] > this->Range[1] )
+  
+  if ( i < this->NumberOfPoints )
     {
-    this->Range[1] = green_range[1];
+    this->NumberOfPoints--;
+    
+    for ( int j = i; j < this->NumberOfPoints; j++ )
+      {
+      this->Function[4*j  ] = this->Function[4*(j+1)  ];
+      this->Function[4*j+1] = this->Function[4*(j+1)+1];
+      this->Function[4*j+2] = this->Function[4*(j+1)+2];
+      this->Function[4*j+3] = this->Function[4*(j+1)+3];
+      }
     }
-
-  if( blue_range[1] > this->Range[1] )
+  
+  if ( this->NumberOfPoints )
     {
-    this->Range[1] = blue_range[1];
+    this->Range[0] = *this->Function;
+    this->Range[1] = *(this->Function + (this->NumberOfPoints-1)*4); 
+    }
+  else
+    {
+    this->Range[0] = 0.0;
+    this->Range[1] = 0.0;    
     }
   
   this->Modified();
 }
 
-// Returns the min/max range for all three functions
-float *vtkColorTransferFunction::GetRange()
+
+// Remove all points
+void vtkColorTransferFunction::RemoveAllPoints()
 {
-  return( this->Range );
+  this->NumberOfPoints = 0;
+  
+  this->Range[0] = 0;
+  this->Range[1] = 0;
+  
+  this->Modified();
+}
+
+// Add a line defined in RGB 
+void vtkColorTransferFunction::AddRGBSegment( float x1, float r1, 
+                                              float g1, float b1, 
+                                              float x2, float r2, 
+                                              float g2, float b2 )
+{
+  this->AddRGBPoint( x1, r1, g1, b1 );
+  this->AddRGBPoint( x2, r2, g2, b2 );
+
+  int i, j;
+  float *fptr = this->Function;
+  
+  // swap them if necessary
+  if ( x1 > x2 )
+    {
+    i = x1;
+    x1 = x2;
+    x2 = i;
+    }
+  
+  // find the first point
+  for ( i = 0; i < this->NumberOfPoints; i++, fptr+=4 )
+    {
+    if ( x1 == *fptr )
+      {
+      break;
+      }
+    }
+  
+  // find the next one
+  for ( j = i; j < this->NumberOfPoints; j++, fptr+=4 )
+    {
+    if ( x2 == *fptr )
+      {
+      break;
+      }
+    }
+  
+  int d = j-i-1;
+  
+  if ( j < this->NumberOfPoints && d )
+    {
+    this->NumberOfPoints -= d;
+    for ( int j = i+1; j < this->NumberOfPoints; j++ )
+      {
+      this->Function[4*j  ] = this->Function[4*(j+d)  ];
+      this->Function[4*j+1] = this->Function[4*(j+d)+1];
+      this->Function[4*j+2] = this->Function[4*(j+d)+2];
+      this->Function[4*j+3] = this->Function[4*(j+d)+3];
+      }    
+    }
+  
+  this->Range[0] = *this->Function;
+  this->Range[1] = *(this->Function + (this->NumberOfPoints-1)*4); 
+  
+  this->Modified();
+}
+
+// Add a line defined in HSV
+void vtkColorTransferFunction::AddHSVSegment( float x1, float h1, 
+                                              float s1, float v1, 
+                                              float x2, float h2, 
+                                              float s2, float v2 )
+{
+  float r1, r2, b1, b2, g1, g2;
+  
+  this->HSVToRGB( h1, s1, v1, r1, g1, b1 );
+  this->HSVToRGB( h2, s2, v2, r2, g2, b2 );
+  this->AddRGBSegment( x1, r1, g1, b1, x2, r2, g2, b2 );
+}
+
+// Returns the RGBA color evaluated at the specified location
+unsigned char *vtkColorTransferFunction::MapValue( float x )
+{
+  float *c = this->GetValue(x);
+  
+  this->UnsignedCharRGBAValue[0] = (unsigned char) (255.0*c[0]);
+  this->UnsignedCharRGBAValue[1] = (unsigned char) (255.0*c[1]);
+  this->UnsignedCharRGBAValue[2] = (unsigned char) (255.0*c[2]);
+  this->UnsignedCharRGBAValue[3] = 255;
+  return( this->UnsignedCharRGBAValue );
+}
+
+// Returns the RGB color evaluated at the specified location
+float *vtkColorTransferFunction::GetValue( float x )
+{
+  this->GetTable( x, x, 1, this->FloatRGBValue );
+  
+  return this->FloatRGBValue;
+}
+
+// Returns the red color evaluated at the specified location
+float vtkColorTransferFunction::GetRedValue( float x )
+{
+  this->GetTable( x, x, 1, this->FloatRGBValue );
+  
+  return this->FloatRGBValue[0];
+}
+
+// Returns the green color evaluated at the specified location
+float vtkColorTransferFunction::GetGreenValue( float x )
+{
+  this->GetTable( x, x, 1, this->FloatRGBValue );
+  
+  return this->FloatRGBValue[1];
+}
+
+// Returns the blue color evaluated at the specified location
+float vtkColorTransferFunction::GetBlueValue( float x )
+{
+  this->GetTable( x, x, 1, this->FloatRGBValue );
+  
+  return this->FloatRGBValue[2];
 }
 
 // Returns a table of RGB colors at regular intervals along the function
 void vtkColorTransferFunction::GetTable( float x1, float x2, 
 					 int size, float* table )
 {
-  if( x1 == x2 )
+  float x, xinc=0;
+  float *tptr = table;
+  float *fptr = this->Function;
+  int   loc;
+  int   i;
+  float weight;
+  
+  if ( this->NumberOfPoints == 0 )
     {
+    vtkErrorMacro( 
+      "Attempting to lookup a value with no points in the function");
     return;
     }
-
-  if (size > 0)
+  
+  if ( size > 1 )
     {
-    this->Red->GetTable(x1, x2, size, &(table[0]), 3);
-    this->Green->GetTable(x1, x2, size, &(table[1]), 3);
-    this->Blue->GetTable(x1, x2, size, &(table[2]), 3);
+    xinc = (x2 - x1) / (float)(size-1);
+    }
+  
+  loc  = 0;
+  
+  for ( i = 0, x = x1; i < size; i++, x += xinc )
+    {
+    while ( (loc < this->NumberOfPoints) && (x > *fptr) )
+      {
+      loc++;
+      fptr+=4;
+      }
+    
+    // Are we past the outside edge? if so, fill in according to Clamping
+    if ( loc == this->NumberOfPoints )
+      {
+      if ( this->Clamping )
+        {
+        *(tptr++) = *(fptr-3);
+        *(tptr++) = *(fptr-2);
+        *(tptr++) = *(fptr-1);        
+        }
+      else
+        {
+        *(tptr++) = 0.0;
+        *(tptr++) = 0.0;
+        *(tptr++) = 0.0;        
+        }      
+      }
+    else
+      {
+      // Do we have an exact match?
+      if ( x == *fptr )
+        {
+        *(tptr++) = *(fptr+1);
+        *(tptr++) = *(fptr+2);
+        *(tptr++) = *(fptr+3);
+        }
+      // Are we before the beginning?
+      else if ( loc == 0 )
+        {
+        if ( this->Clamping )
+          {
+          *(tptr++) = *(fptr+1);
+          *(tptr++) = *(fptr+2);
+          *(tptr++) = *(fptr+3);
+          }
+        else
+          {
+          *(tptr++) = 0.0;
+          *(tptr++) = 0.0;
+          *(tptr++) = 0.0;
+          }
+        }
+      // We are somewhere in the middle. Use the correct interpolation.
+      else
+        {
+        weight = (x - *(fptr-4)) / (*fptr - *(fptr-4));
+      
+        // RGB space
+        if ( this->ColorSpace == VTK_CTF_RGB )
+          {
+          *(tptr++) = (1.0-weight) * *(fptr-3) + weight * *(fptr+1);
+          *(tptr++) = (1.0-weight) * *(fptr-2) + weight * *(fptr+2);
+          *(tptr++) = (1.0-weight) * *(fptr-1) + weight * *(fptr+3);
+          }
+        // HSV space
+        else
+          {
+          float h1, h2, h3, s1, s2, s3, v1, v2, v3;
+          this->RGBToHSV(*(fptr-3), *(fptr-2), *(fptr-1), h1, s1, v1);
+          this->RGBToHSV(*(fptr+1), *(fptr+2), *(fptr+3), h2, s2, v2);
+          h3 = (1.0-weight)*h1 + weight*h2;
+          s3 = (1.0-weight)*s1 + weight*s2;
+          v3 = (1.0-weight)*v1 + weight*v2;
+          this->HSVToRGB(h3, s3, v3, *tptr, *(tptr+1), *(tptr+2) );
+          tptr += 3;
+          }
+        }
+      }
     }
 }
+
 
 void vtkColorTransferFunction::BuildFunctionFromTable( float x1, float x2,
 						       int size, float *table)
 {
-  this->Red->BuildFunctionFromTable(x1, x2, size, &(table[0]), 3);
-  this->Green->BuildFunctionFromTable(x1, x2, size, &(table[1]), 3);
-  this->Blue->BuildFunctionFromTable(x1, x2, size, &(table[2]), 3);
+  // We are assuming the table is in ascending order
 
-  this->Range[0] = x1;
-  this->Range[1] = x2;
+  float      *fptr;
+  float      *tptr = table;
+  float      x, xinc;
+  int        i;
+  
+  xinc = (x2 - x1) / (float)(size-1);
+  
+  this->RemoveAllPoints();
 
+  // Is it big enough?
+  if ( this->FunctionSize < size )
+    {
+    delete [] this->Function;
+    this->FunctionSize = size*2;
+    this->Function = new float [4*this->FunctionSize];
+    }
+  
+  fptr = this->Function;
+  
+  for (i = 0, x = x1; i < size; i++, x += xinc )
+    {
+    *(fptr++) = x;
+    *(fptr++) = *(tptr++);
+    *(fptr++) = *(tptr++);
+    *(fptr++) = *(tptr++);    
+    }
+  
+  this->NumberOfPoints = size;
+  
   this->Modified();
 }
 
@@ -353,388 +617,65 @@ void vtkColorTransferFunction::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkScalarsToColors::PrintSelf(os, indent);
 
-  os << indent << "Color Transfer Function Total Points: " << this->GetTotalSize() << "\n";
+  os << indent << "Size: " << this->NumberOfPoints;
+  if ( this->Clamping )
+    {
+    os << indent << "Clamping: On\n";
+    }
+  else
+    {
+    os << indent << "Clamping: Off\n";
+    }
 
-  os << indent << "Red Transfer Function: ";
-  os << this->Red << "\n";
-
-  os << indent << "Green Transfer Function: ";
-  os << this->Green << "\n";
-
-  os << indent << "Blue Transfer Function: ";
-  os << this->Blue << "\n";
+  if ( this->ColorSpace == VTK_CTF_RGB )
+    {
+    os << indent << "Color Space: RGB\n";
+    }
+  else
+    {
+    os << indent << "Color Space: HSV\n";
+    }
+  
+  if ( this->NumberOfPoints < 100 )
+    {
+    for ( int i = 0; i < this->NumberOfPoints; i++ )
+      {
+      os << indent << "  Point " << i << ": " << this->Function[i*4] << " maps to " 
+         << this->Function[i*4+1] << " " 
+         << this->Function[i*4+2] << " " 
+         << this->Function[i*4+3] << endl;
+      }
+    }
+  
+  // These are old
+  //  os << indent << "Color Transfer Function Total Points: " << this->GetTotalSize() << "\n";
+  //  os << indent << "Red Transfer Function: ";
+  //  os << this->Red << "\n";
+  //  os << indent << "Green Transfer Function: ";
+  //  os << this->Green << "\n";
+  //  os << indent << "Blue Transfer Function: ";
+  //  os << this->Blue << "\n";
 
 }
 
-// Sets the clamping for each of the R,G,B transfer functions
-void vtkColorTransferFunction::SetClamping(int val) {
-	this->Clamping = val;
-	this->Red->SetClamping(this->Clamping);
-	this->Green->SetClamping(this->Clamping);
-	this->Blue->SetClamping(this->Clamping);
-}
-
-// Gets the clamping value
-int vtkColorTransferFunction::GetClamping() {
-  return this->Clamping;
-}
 
 void vtkColorTransferFunction::DeepCopy( vtkColorTransferFunction *f )
 {
-  this->Red->DeepCopy(f->GetRedFunction());
-  this->Green->DeepCopy(f->GetGreenFunction());
-  this->Blue->DeepCopy(f->GetBlueFunction());
+  this->Clamping       = f->Clamping;
+  this->ColorSpace     = f->ColorSpace;
+  this->FunctionSize   = f->FunctionSize;
+  this->NumberOfPoints = f->NumberOfPoints;
   
-  this->Clamping     = f->Clamping;
-  this->UpdateRange();
-}
-
-// accelerate the mapping by copying the data in 32-bit chunks instead
-// of 8-bit chunks
-template<class T>
-static void 
-vtkColorTransferFunctionMapDataClamp(vtkColorTransferFunction *self, 
-				     T *input, 
-				     unsigned char *output, 
-				     int length, int inIncr, int outFormat)
-{
-  float findx;
-  int i = length;
-  vtkPiecewiseFunction *R, *G, *B;
-  R = self->GetRedFunction();
-  G = self->GetGreenFunction();
-  B = self->GetBlueFunction();
-  float *RRange = R->GetRange();
-  float *GRange = G->GetRange();
-  float *BRange = B->GetRange();
-  float *RFunc = R->GetDataPointer();
-  float *GFunc = G->GetDataPointer();
-  float *BFunc = B->GetDataPointer();
-  int RSize = R->GetSize();
-  int GSize = G->GetSize();
-  int BSize = B->GetSize();
+  if ( this->FunctionSize > 0 )
+    {
+    this->Function     = new float [4*this->FunctionSize];
+    memcpy(this->Function, f->Function, 4*sizeof(float)*this->FunctionSize);
+    }
+  else
+    {
+    this->Function = NULL;
+    }
   
-  int   i1, i2;
-  float x1, y1;	// Point before x
-  float x2, y2;	// Point after x
-
-  float slope;
-  float value;
-
-  R->Update();
-  G->Update();
-  B->Update();
-
-  if(RSize == 0  || GSize == 0 || BSize == 0)
-    {
-    vtkGenericWarningMacro("Transfer Function Has No Points!");
-    return;
-    }
-
-  while (--i >= 0) 
-    {
-    findx = (float) *input;
-
-    // do red
-    if( findx < RRange[0] ) 
-      {
-      *output = (unsigned char)(255*RFunc[0]);
-      }
-    else if( findx > RRange[1] )
-      {
-      *output = (unsigned char)(255*RFunc[(RSize-1)*2]);
-      }
-    else
-      {
-      i2 = 0;
-      x2 = RFunc[0];
-      y2 = RFunc[1];
-      
-      while( (x2 < findx) && (i2 < RSize) )
-        {
-        i2 += 1;
-        x2 = RFunc[(i2*2)];
-        y2 = RFunc[(i2*2+1)];
-        }
-      
-      // Check if we have found the exact point
-      if( x2 == findx )
-        {
-        *output++ = (unsigned char)(255*RFunc[(i2*2 + 1)]);
-        }
-      else
-        {
-        i1 = i2 - 1;
-        x1 = RFunc[(i1*2)];
-        y1 = RFunc[(i1*2 +1)];
-        slope = (y2-y1)/(x2-x1);
-        value = y1 + slope*(findx-x1);
-        
-        *output++ = (unsigned char)(255*value);
-        }
-      }
-    
-    if (outFormat == VTK_RGB || outFormat == VTK_RGBA)
-      {
-      // do green
-      if( findx < GRange[0] ) 
-        {
-        *output = (unsigned char)(255*GFunc[0]);
-        }
-      else if( findx > GRange[1] )
-        {
-        *output = (unsigned char)(255*GFunc[(GSize-1)*2]);
-        }
-      else
-        {
-        i2 = 0;
-        x2 = GFunc[0];
-        y2 = GFunc[1];
-      
-        while( (x2 < findx) && (i2 < GSize) )
-          {
-          i2 += 1;
-          x2 = GFunc[(i2*2)];
-          y2 = GFunc[(i2*2+1)];
-          }
-      
-        // Check if we have found the exact point
-        if( x2 == findx )
-          {
-          *output++ = (unsigned char)(255*GFunc[(i2*2 + 1)]);
-          }
-        else
-          {
-          i1 = i2 - 1;
-          x1 = GFunc[(i1*2)];
-          y1 = GFunc[(i1*2 +1)];
-          slope = (y2-y1)/(x2-x1);
-          value = y1 + slope*(findx-x1);
-          
-          *output++ = (unsigned char)(255*value);
-          }
-        }
-      
-      // do blue
-      if( findx < BRange[0] ) 
-        {
-        *output = (unsigned char)(255*BFunc[0]);
-        }
-      else if( findx > BRange[1] )
-        {
-        *output = (unsigned char)(255*BFunc[(BSize-1)*2]);
-        }
-      else
-        {
-        i2 = 0;
-        x2 = BFunc[0];
-        y2 = BFunc[1];
-      
-        while( (x2 < findx) && (i2 < BSize) )
-          {
-          i2 += 1;
-          x2 = BFunc[(i2*2)];
-          y2 = BFunc[(i2*2+1)];
-          }
-        
-        // Check if we have found the exact point
-        if( x2 == findx )
-          {
-          *output++ = (unsigned char)(255*BFunc[(i2*2 + 1)]);
-          }
-        else
-          {
-          i1 = i2 - 1;
-          x1 = BFunc[(i1*2)];
-          y1 = BFunc[(i1*2 +1)];
-          slope = (y2-y1)/(x2-x1);
-          value = y1 + slope*(findx-x1);
-          
-          *output++ = (unsigned char)(255*value);
-          }
-        }
-      }
-    
-    if (outFormat == VTK_RGBA || outFormat == VTK_LUMINANCE_ALPHA)
-      {
-      *output++ = 255;
-      }
-    input += inIncr;
-    }
-}
-
-// accelerate the mapping by copying the data in 32-bit chunks instead
-// of 8-bit chunks
-template<class T>
-static void 
-vtkColorTransferFunctionMapDataNoClamp(vtkColorTransferFunction *self, 
-				       T *input, 
-				       unsigned char *output, 
-				       int length, int inIncr, int outFormat)
-{
-  float findx;
-  int i = length;
-  vtkPiecewiseFunction *R, *G, *B;
-  R = self->GetRedFunction();
-  G = self->GetGreenFunction();
-  B = self->GetBlueFunction();
-  float *RRange = R->GetRange();
-  float *GRange = G->GetRange();
-  float *BRange = B->GetRange();
-  float *RFunc = R->GetDataPointer();
-  float *GFunc = G->GetDataPointer();
-  float *BFunc = B->GetDataPointer();
-  int RSize = R->GetSize();
-  int GSize = G->GetSize();
-  int BSize = B->GetSize();
-    
-  int   i1, i2;
-  float x1, y1;	// Point before x
-  float x2, y2;	// Point after x
-
-  float slope;
-  float value;
-
-  R->Update();
-  G->Update();
-  B->Update();
-
-  if(RSize == 0  || GSize == 0 || BSize == 0)
-    {
-    vtkGenericWarningMacro("Transfer Function Has No Points!");
-    return;
-    }
-
-  while (--i >= 0) 
-    {
-    findx = (float) *input;
-
-    // do red
-    if( findx < RRange[0] ) 
-      {
-      *output = 0;
-      }
-    else if( findx > RRange[1] )
-      {
-      *output = 0;
-      }
-    else
-      {
-      i2 = 0;
-      x2 = RFunc[0];
-      y2 = RFunc[1];
-      
-      while( (x2 < findx) && (i2 < RSize) )
-        {
-        i2 += 1;
-        x2 = RFunc[(i2*2)];
-        y2 = RFunc[(i2*2+1)];
-        }
-      
-      // Check if we have found the exact point
-      if( x2 == findx )
-        {
-        *output++ = (unsigned char)(255*RFunc[(i2*2 + 1)]);
-        }
-      else
-        {
-        i1 = i2 - 1;
-        x1 = RFunc[(i1*2)];
-        y1 = RFunc[(i1*2 +1)];
-        slope = (y2-y1)/(x2-x1);
-        value = y1 + slope*(findx-x1);
-        
-        *output++ = (unsigned char)(255*value);
-        }
-      }
-    
-    if (outFormat == VTK_RGBA || outFormat == VTK_RGB)
-      {
-      // do green
-      if( findx < GRange[0] ) 
-	{
-	*output = 0;
-	}
-      else if( findx > GRange[1] )
-	{
-	*output = 0;
-	}
-      else
-	{
-	i2 = 0;
-	x2 = GFunc[0];
-	y2 = GFunc[1];
-      
-	while( (x2 < findx) && (i2 < GSize) )
-	  {
-	  i2 += 1;
-	  x2 = GFunc[(i2*2)];
-	  y2 = GFunc[(i2*2+1)];
-	  }
-      
-	// Check if we have found the exact point
-	if( x2 == findx )
-	  {
-	  *output++ = (unsigned char)(255*GFunc[(i2*2 + 1)]);
-	  }
-	else
-	  {
-	  i1 = i2 - 1;
-	  x1 = GFunc[(i1*2)];
-	  y1 = GFunc[(i1*2 +1)];
-	  slope = (y2-y1)/(x2-x1);
-	  value = y1 + slope*(findx-x1);
-	  
-	  *output++ = (unsigned char)(255*value);
-	  }
-	}
-    
-      // do blue
-      if( findx < BRange[0] ) 
-	{
-	*output = 0;
-	}
-      else if( findx > BRange[1] )
-	{
-	*output = 0;
-	}
-      else
-	{
-	i2 = 0;
-	x2 = BFunc[0];
-	y2 = BFunc[1];
-      
-	while( (x2 < findx) && (i2 < BSize) )
-	  {
-	  i2 += 1;
-	  x2 = BFunc[(i2*2)];
-	  y2 = BFunc[(i2*2+1)];
-	  }
-      
-	// Check if we have found the exact point
-	if( x2 == findx )
-	  {
-	  *output++ = (unsigned char)(255*BFunc[(i2*2 + 1)]);
-	  }
-	else
-	  {
-	  i1 = i2 - 1;
-	  x1 = BFunc[(i1*2)];
-	  y1 = BFunc[(i1*2 +1)];
-	  slope = (y2-y1)/(x2-x1);
-	  value = y1 + slope*(findx-x1);
-        
-	  *output++ = (unsigned char)(255*value);
-	  }
-	}
-      }
-
-    if (outFormat == VTK_RGBA || outFormat == VTK_LUMINANCE_ALPHA)
-      {
-      *output++ = 255;
-      }
-    input += inIncr;
-    }
 }
 
 // accelerate the mapping by copying the data in 32-bit chunks instead
@@ -742,19 +683,39 @@ vtkColorTransferFunctionMapDataNoClamp(vtkColorTransferFunction *self,
 template<class T>
 static void 
 vtkColorTransferFunctionMapData(vtkColorTransferFunction *self, 
-				T *input, 
-				unsigned char *output, 
-				int length, int inIncr, int outFormat)
+                                T *input, 
+                                unsigned char *output, 
+                                int length, int inIncr, int outFormat)
 {
-  if (self->GetClamping())
+  float          x;
+  int            i = length;
+  float          *rgb;
+  unsigned char  *optr = output;
+  T              *iptr = input;
+  
+  if(self->GetSize() == 0)
     {
-    vtkColorTransferFunctionMapDataClamp(self,input,output,
-					 length,inIncr,outFormat);
+    vtkGenericWarningMacro("Transfer Function Has No Points!");
+    return;
     }
-  else
+
+  while (--i >= 0) 
     {
-    vtkColorTransferFunctionMapDataNoClamp(self,input,output,
-					   length,inIncr,outFormat);
+    x = (float) *iptr;
+    rgb = self->GetValue(x);
+    *(optr++) = (unsigned char)(rgb[0]*255.0);
+    
+    if (outFormat == VTK_RGB || outFormat == VTK_RGBA)
+      {
+      *(optr++) = (unsigned char)(rgb[1]*255.0);
+      *(optr++) = (unsigned char)(rgb[2]*255.0);
+      }
+    
+    if (outFormat == VTK_RGBA || outFormat == VTK_LUMINANCE_ALPHA)
+      {
+      *(optr++) = 255;
+      }
+    iptr += inIncr;
     }
 }
 
@@ -832,3 +793,151 @@ void vtkColorTransferFunction::MapScalarsThroughTable2(void *input,
       return;
     }
 }  
+
+
+
+
+// These are old methods which should be removed in 2 releases from VTK 3.1.2
+
+// Old method - don't use. (depricated after VTK 3.1.2)
+int vtkColorTransferFunction::GetTotalSize()
+{
+  vtkWarningMacro( "GetTotalSize() is a depricated method." << endl << 
+                   "Please use GetSize() instead" << endl <<
+                   "Since vtkColorTransferFunction does not" << endl <<
+                   "use 3 vtkPiecewiseFunctions anymore" << endl <<
+                   "there is no difference between size and total size" );
+  
+  return( this->GetSize() );
+}
+
+// Old method - don't use. (depricated after VTK 3.1.2)
+int vtkColorTransferFunction::GetRedSize()
+{
+  vtkWarningMacro( "GetRedSize() is a depricated method." << endl << 
+                   "Please use GetSize() instead" << endl <<
+                   "Since vtkColorTransferFunction does not" << endl <<
+                   "use 3 vtkPiecewiseFunctions anymore" << endl <<
+                   "there is no difference between size and red size" );
+  
+  return( this->GetSize() );
+}
+
+// Old method - don't use. (depricated after VTK 3.1.2)
+int vtkColorTransferFunction::GetGreenSize()
+{
+  vtkWarningMacro( "GetGreenSize() is a depricated method." << endl << 
+                   "Please use GetSize() instead" << endl <<
+                   "Since vtkColorTransferFunction does not" << endl <<
+                   "use 3 vtkPiecewiseFunctions anymore" << endl <<
+                   "there is no difference between size and green size" );
+  
+  return( this->GetSize() );
+}
+
+// Old method - don't use. (depricated after VTK 3.1.2)
+int vtkColorTransferFunction::GetBlueSize()
+{
+  vtkWarningMacro( "GetBlueSize() is a depricated method." << endl << 
+                   "Please use GetSize() instead" << endl <<
+                   "Since vtkColorTransferFunction does not" << endl <<
+                   "use 3 vtkPiecewiseFunctions anymore" << endl <<
+                   "there is no difference between size and blue size" );
+  
+  return( this->GetSize() );
+}
+
+// Add a point to the red function
+void vtkColorTransferFunction::AddRedPoint( float x, float r )
+{
+  vtkWarningMacro( "AddRedPoint() is a depricated method." << endl << 
+                   "Please use AddRGBPoint() instead." );
+  float *rgb = this->GetValue( x );
+  this->AddRGBPoint( x, r, rgb[1], rgb[2] );
+}
+
+// Add a point to the green function
+void vtkColorTransferFunction::AddGreenPoint( float x, float g )
+{
+  vtkWarningMacro( "AddGreenPoint() is a depricated method." << endl << 
+                   "Please use AddRGBPoint() instead." );
+  float *rgb = this->GetValue( x );
+  this->AddRGBPoint( x, rgb[0], g, rgb[2] );
+}
+
+// Add a point to the blue function
+void vtkColorTransferFunction::AddBluePoint( float x, float b )
+{
+  vtkWarningMacro( "AddBluePoint() is a depricated method." << endl << 
+                   "Please use AddRGBPoint() instead." );
+  float *rgb = this->GetValue( x );
+  this->AddRGBPoint( x, rgb[0], rgb[1], b );
+}
+
+// Remove a point from the red function
+void vtkColorTransferFunction::RemoveRedPoint( float x )
+{
+  vtkWarningMacro( "RemoveRedPoint() is a depricated method." << endl << 
+                   "Please use RemovePoint() instead." );
+  this->RemovePoint(x);
+}
+
+// Remove a point from the green function
+void vtkColorTransferFunction::RemoveGreenPoint( float x )
+{
+  vtkWarningMacro( "RemoveGreenPoint() is a depricated method." << endl << 
+                   "Please use RemovePoint() instead." );
+  this->RemovePoint(x);
+}
+
+// Remove a point from the blue function
+void vtkColorTransferFunction::RemoveBluePoint( float x )
+{
+  vtkWarningMacro( "RemoveBluePoint() is a depricated method." << endl << 
+                   "Please use RemovePoint() instead." );
+  this->RemovePoint(x);
+}
+
+// Remove a point from all three functions (RGB)
+void vtkColorTransferFunction::RemoveRGBPoint( float x )
+{
+  vtkWarningMacro( "RemoveRGBPoint() is a depricated method." << endl << 
+                   "Please use RemovePoint() instead." );
+  this->RemovePoint(x);
+}
+
+// Add a line to the red function
+void vtkColorTransferFunction::AddRedSegment( float x1, float r1,
+     float x2, float r2 )
+{
+  vtkWarningMacro( "AddRedSegment() is a depricated method." << endl << 
+                   "Please use AddRGBSegment() instead." );
+  float *rgb1 = this->GetValue( x1 );
+  float *rgb2 = this->GetValue( x2 );
+  this->AddRGBSegment( x1, r1, rgb1[1], rgb1[2], x2, r2, rgb2[1], rgb2[2] );
+}
+
+// Add a line to the green function
+void vtkColorTransferFunction::AddGreenSegment( float x1, float g1,
+     float x2, float g2 )
+{
+  vtkWarningMacro( "AddGreenSegment() is a depricated method." << endl << 
+                   "Please use AddRGBSegment() instead." );
+  float *rgb1 = this->GetValue( x1 );
+  float *rgb2 = this->GetValue( x2 );
+  this->AddRGBSegment( x1, rgb1[0], g1, rgb1[2], x2, rgb2[0], g2, rgb2[2] );
+}
+
+// Add a line to the blue function
+void vtkColorTransferFunction::AddBlueSegment( float x1, float b1,
+     float x2, float b2 )
+{
+  vtkWarningMacro( "AddBlueSegment() is a depricated method." << endl << 
+                   "Please use AddRGBSegment() instead." );
+  float *rgb1 = this->GetValue( x1 );
+  float *rgb2 = this->GetValue( x2 );
+  this->AddRGBSegment( x1, rgb1[0], rgb1[1], b1, x2, rgb2[0], rgb2[1], b2 );
+}
+
+
+

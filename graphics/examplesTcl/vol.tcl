@@ -505,12 +505,8 @@ bind $ww.iso.l5 <Button-1> {
     set g [expr $g / 255.0]
     set b [expr $b / 255.0]
     
-    const_ctfun AddRedPoint     0.0 $r
-    const_ctfun AddRedPoint   255.0 $r
-    const_ctfun AddGreenPoint   0.0 $g
-    const_ctfun AddGreenPoint 255.0 $g
-    const_ctfun AddBluePoint    0.0 $b
-    const_ctfun AddBluePoint  255.0 $b
+    const_ctfun AddRGBPoint     0.0 $r $g $b
+    const_ctfun AddRGBPoint   255.0 $r $g $b
 
     $renWin4 Render
 }
@@ -607,31 +603,19 @@ vtkPiecewiseFunction gtfun;
         gtfun AddPoint  255   1.0
 
 vtkColorTransferFunction ctfun
-        ctfun AddRedPoint      0.0 0.0
-        ctfun AddRedPoint     64.0 1.0
-        ctfun AddRedPoint    128.0 0.0
-        ctfun AddRedPoint    255.0 0.0
-        ctfun AddBluePoint    0.0 0.0
-        ctfun AddBluePoint   64.0 0.0
-        ctfun AddBluePoint  128.0 1.0
-        ctfun AddBluePoint  192.0 0.0
-        ctfun AddBluePoint  255.0 0.0
-        ctfun AddGreenPoint     0.0 0.0
-        ctfun AddGreenPoint   128.0 0.0
-        ctfun AddGreenPoint   192.0 1.0
-        ctfun AddGreenPoint   255.0 0.2
+    ctfun AddRGBPoint      0.0 0.0 0.0 0.0
+    ctfun AddRGBPoint     64.0 1.0 0.0 0.0
+    ctfun AddRGBPoint    128.0 0.0 0.0 1.0
+    ctfun AddRGBPoint    192.0 0.0 1.0 0.0
+    ctfun AddRGBPoint    255.0 0.0 0.2 0.0
 
 vtkPiecewiseFunction const_tfun
         const_tfun AddPoint  0    1.0
         const_tfun AddPoint  255  1.0
 
 vtkColorTransferFunction const_ctfun
-        const_ctfun AddRedPoint      0.0 1.0
-        const_ctfun AddRedPoint    255.0 1.0
-        const_ctfun AddGreenPoint    0.0 1.0
-        const_ctfun AddGreenPoint  255.0 1.0
-        const_ctfun AddBluePoint     0.0 1.0
-        const_ctfun AddBluePoint   255.0 1.0
+        const_ctfun AddRGBPoint      0.0 1.0 1.0 1.0 
+        const_ctfun AddRGBPoint    255.0 1.0 1.0 1.0
 
 vtkVolumeProperty mip_prop
         mip_prop SetColor gtfun

@@ -248,12 +248,8 @@ vtkColorTransferFunction *vtkVolumeProperty::GetRGBTransferFunction()
     this->RGBTransferFunction = vtkColorTransferFunction::New();
     this->RGBTransferFunction->Register(this);
     this->RGBTransferFunction->Delete();
-    this->RGBTransferFunction->AddRedPoint(      0, 0.0 );
-    this->RGBTransferFunction->AddRedPoint(   1024, 1.0 );
-    this->RGBTransferFunction->AddGreenPoint(    0, 0.0 );
-    this->RGBTransferFunction->AddGreenPoint( 1024, 1.0 );
-    this->RGBTransferFunction->AddBluePoint(     0, 0.0 );
-    this->RGBTransferFunction->AddBluePoint(  1024, 1.0 );
+    this->RGBTransferFunction->AddRGBPoint(      0, 0.0, 0.0, 0.0 );
+    this->RGBTransferFunction->AddRGBPoint(   1024, 1.0, 1.0, 1.0 );
     }
 
   return this->RGBTransferFunction;

@@ -186,17 +186,11 @@ vtkPiecewiseFunction tfun
   tfun AddPoint  4095.0  1.0
 
 vtkColorTransferFunction ctfun
-  ctfun AddRedPoint     0.0 0.5
-  ctfun AddRedPoint    600.0 1.0
-  ctfun AddRedPoint   4095.0 0.5
-
-  ctfun AddGreenPoint  600.0 0.5
-  ctfun AddGreenPoint 1280.0 .2
-  ctfun AddGreenPoint 4095.0 0.5
-
-  ctfun AddBluePoint  600.0 0.5
-  ctfun AddBluePoint  1960.0 .1
-  ctfun AddBluePoint  4095.0 0.5
+  ctfun AddRGBPoint      0.0 0.5  0.0  0.0
+  ctfun AddRGBPoint    600.0 1.0  0.5  0.5
+  ctfun AddRGBPoint   1280.0 0.9  0.2  0.3
+  ctfun AddRGBPoint   1960.0 0.81 0.27 0.1
+  ctfun AddRGBPoint   4095.0 0.5  0.5  0.5
 
 vtkVolumeRayCastCompositeFunction  compositeFunction
 

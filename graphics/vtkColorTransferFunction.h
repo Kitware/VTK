@@ -54,6 +54,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkScalarsToColors.h"
 #include "vtkPiecewiseFunction.h"
 
+#define VTK_CTF_RGB   0
+#define VTK_CTF_HSV   1
+
 class VTK_EXPORT vtkColorTransferFunction : public vtkScalarsToColors 
 {
 public:
@@ -66,58 +69,33 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Get the color transfer function mtime plus consider its three
-  // piecewise functions.
-  unsigned long int GetMTime();
+  // How many points are there defining this function?
+  int GetSize() {return this->NumberOfPoints;};
   
   // Description:
-  // Returns the sum of the number of function points used to specify 
-  // the three independent functions (R,G,B).
-  int  GetTotalSize();
-  int  GetRedSize() { return this->Red->GetSize(); }
-  int  GetGreenSize() { return this->Green->GetSize(); };
-  int  GetBlueSize() { return this->Blue->GetSize(); };
-
-  // Description:
-  // Methods to add points to the R, G, B functions
-  void AddRedPoint( float x, float r );
-  void AddGreenPoint( float x, float g );
-  void AddBluePoint( float x, float b );
-
-  // Description:
-  // Methods to remove points from the R, G, B functions
-  void RemoveRedPoint( float x );
-  void RemoveGreenPoint( float x );
-  void RemoveBluePoint( float x );
-
-  // Description:
-  // Methods to add lines to the R, G, B functions
-  void AddRedSegment( float x1, float r1, float x2, float r2 );
-  void AddGreenSegment( float x1, float g1, float x2, float g2 );
-  void AddBlueSegment( float x1, float b1, float x2, float b2 );
-
-  // Description:
-  // Convenience methods to add points and lines to all three
-  // independent functions (R, G, B) simultaneously.
+  // Add a point to the function defined in RGB or HSV
   void AddRGBPoint( float x, float r, float g, float b );
+  void AddHSVPoint( float x, float h, float s, float v );
+
+  // Description:
+  // Add two points to the function and remove all the points 
+  // between them
   void AddRGBSegment( float x1, float r1, float g1, float b1, 
-                           float x2, float r2, float g2, float b2 );
-
+                      float x2, float r2, float g2, float b2 );
+  void AddHSVSegment( float x1, float h1, float s1, float v1, 
+                      float x2, float h2, float s2, float v2 );
+  
   // Description:
-  // Convenience method to remove points from all three
-  // independent functions simultaneously.
-  void RemoveRGBPoint( float x );
-
-  // Description:
-  // Removes all points in all functions
+  // Remove a point / remove all points
+  void RemovePoint( float x );
   void RemoveAllPoints();
 
   // Description:
   // Returns an RGB color at the specified location.
   float *GetValue( float x );
-  float GetRedValue( float x ) { return this->Red->GetValue( x ); };
-  float GetGreenValue( float x ) { return this->Green->GetValue( x ); };
-  float GetBlueValue( float x ) { return this->Blue->GetValue( x ); };
+  float GetRedValue( float x );
+  float GetGreenValue( float x );
+  float GetBlueValue( float x );
 
   // Description:
   // Map one value through the lookup table.
@@ -125,10 +103,7 @@ public:
 
   // Description:
   // Returns min and max position of all function points.
-  // The set method does nothing.
-  float *GetRange();
-  virtual void SetRange(float, float) {};
-  void SetRange(float rng[2]) {this->SetRange(rng[0],rng[1]);};
+  vtkGetVector2Macro( Range, float );
 
   // Description:
   // Fills in a table of n function values between x1 and x2
@@ -136,28 +111,90 @@ public:
 
   // Description:
   // Construct a color transfer function from a table. Function range is
-  // is set to [x1, x2], each function size is set to size, and function points
-  // are regularly spaced between x1 and x2. Parameter "table" is assumed
-  // to be a block of memory of size [3*size]
+  // is set to [x1, x2], each function size is set to size, and function 
+  // points are regularly spaced between x1 and x2. Parameter "table" is 
+  // assumed to be a block of memory of size [3*size]
   void BuildFunctionFromTable( float x1, float x2, int size, float *table);
 
   // Description:
   // Sets and gets the clamping value for this transfer function.
-  void SetClamping(int val);
-  int  GetClamping();
-
+  vtkSetClampMacro( Clamping, int, 0, 1 );
+  vtkGetMacro( Clamping, int );
+  vtkBooleanMacro( Clamping, int );
+  
   // Description:
-  // Get the underlying Reg Green and Blue Piecewise Functions
-  vtkPiecewiseFunction *GetRedFunction(){return this->Red;};
-  vtkPiecewiseFunction *GetGreenFunction(){return this->Green;};
-  vtkPiecewiseFunction *GetBlueFunction(){return this->Blue;};
-
+  // How should we interpolate - in RGB, or HSV
+  vtkSetClampMacro( ColorSpace, int, VTK_CTF_RGB, VTK_CTF_HSV );
+  void SetColorSpaceToRGB(){this->SetColorSpace(VTK_CTF_RGB);};
+  void SetColorSpaceToHSV(){this->SetColorSpace(VTK_CTF_HSV);};
+  vtkGetMacro( ColorSpace, int );
+    
+  // Description:
+  // Returns a list of all nodes
+  float *GetDataPointer() {return this->Function;};
+  
   // Description:
   // map a set of scalars through the lookup table
   virtual void MapScalarsThroughTable2(void *input, unsigned char *output,
                                      int inputDataType, int numberOfValues,
                                      int inputIncrement, int outputIncrement);
+
+
   
+
+  // **********************************************************
+  // **********************************************************
+  // These are all depricated functions - do not use!
+  // **********************************************************
+  // **********************************************************
+  
+  // Description:
+  // Depricated functions (after VTK 3.1.2) Don't use.
+  // Get GetSize() instead;
+  int  GetTotalSize();
+  int  GetRedSize(); 
+  int  GetGreenSize();
+  int  GetBlueSize();
+
+  // Description:
+  // Depricated functions (after VTK 3.1.2) Don't use.
+  // Use AddRGBPoint() or AddHSVPoint instead
+  void AddRedPoint( float x, float r );
+  void AddGreenPoint( float x, float g );
+  void AddBluePoint( float x, float b );
+
+  // Description:
+  // Depricated functions (after VTK 3.1.2) Don't use.
+  // Use RemovePoint() instead
+  void RemoveRedPoint( float x );
+  void RemoveGreenPoint( float x );
+  void RemoveBluePoint( float x );
+  void RemoveRGBPoint( float x );
+
+  // Description:
+  // Depricated functions (after VTK 3.1.2) Don't use.
+  // Use AddSegment() instead
+  void AddRedSegment( float x1, float r1, float x2, float r2 );
+  void AddGreenSegment( float x1, float g1, float x2, float g2 );
+  void AddBlueSegment( float x1, float b1, float x2, float b2 );
+
+  // Description:
+  // Depricated functions (after VTK 3.1.2) Don't use.
+  // These methods never functioned. There are no
+  // alternative methods.
+  virtual void SetRange(float, float) {};
+  void SetRange(float rng[2]) {this->SetRange(rng[0],rng[1]);};
+
+  // Description:
+  // Depricated functions (after VTK 3.1.2) Don't use.
+  // The color transfer function is no longer stored as
+  // three independent piecewise functions. You can use GetFunction()
+  // to get the list of all nodes
+  vtkPiecewiseFunction *GetRedFunction(){return this->Red;};
+  vtkPiecewiseFunction *GetGreenFunction(){return this->Green;};
+  vtkPiecewiseFunction *GetBlueFunction(){return this->Blue;};
+
+
 protected:
   vtkColorTransferFunction();
   ~vtkColorTransferFunction();
@@ -165,29 +202,35 @@ protected:
   void operator=(const vtkColorTransferFunction&) {};
 
   // Determines the function value outside of defined points
-  // in each of the R,G,B transfer functions.
   // Zero = always return 0.0 outside of defined points
   // One  = clamp to the lowest value below defined points and
   //        highest value above defined points
   int Clamping;
 
-  // Transfer functions for each color component
-  vtkPiecewiseFunction	*Red;
-  vtkPiecewiseFunction	*Green;
-  vtkPiecewiseFunction	*Blue;
+  // The color space in which interpolation is performed
+  int ColorSpace;
+  
+  // The color function
+  float       *Function;
+  int         FunctionSize;
+  int         NumberOfPoints;
 
-  // An evaluated color
-  float  ColorValue[3];
-  unsigned char ColorValue2[4];
+  // conversion methods
+  void RGBToHSV( float r, float g, float b, float &h, float &s, float &v );
+  void HSVToRGB( float h, float s, float v, float &r, float &g, float &b );
+  
+  // An evaluated color (as 0.0 to 1.0 RGB or 0 to 255 RGBA A=255)
+  float         FloatRGBValue[3];
+  unsigned char UnsignedCharRGBAValue[4];
 
   // The min and max point locations for all three transfer functions
   float Range[2]; 
 
-  // Description:
-  // Calculates the min and max point locations for all three transfer
-  // functions
-  void UpdateRange();
-
+  // Transfer functions for each color component
+  // Remove after corresponding depricated methods are removed
+  vtkPiecewiseFunction	*Red;
+  vtkPiecewiseFunction	*Green;
+  vtkPiecewiseFunction	*Blue;
 };
 
 #endif
