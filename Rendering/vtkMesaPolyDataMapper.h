@@ -22,7 +22,10 @@
 #define __vtkMesaPolyDataMapper_h
 
 #include "vtkPolyDataMapper.h"
+#include "MangleMesaInclude/gl.h"  // Needed for GLenum
 
+class vtkCellArray;
+class vtkPoints;
 class vtkProperty;
 class vtkRenderWindow;
 class vtkMesaRenderer;
@@ -53,6 +56,49 @@ protected:
   vtkMesaPolyDataMapper();
   ~vtkMesaPolyDataMapper();
 
+  void DrawPoints(int idx,
+                  vtkPoints *p, 
+                  vtkDataArray *n,
+                  vtkUnsignedCharArray *c,
+                  vtkDataArray *t,
+                  vtkIdType &cellNum,
+                  int &noAbort,
+                  vtkCellArray *ca,
+                  vtkRenderer *ren);
+  
+  void DrawLines(int idx,
+                 vtkPoints *p, 
+                 vtkDataArray *n,
+                 vtkUnsignedCharArray *c,
+                 vtkDataArray *t,
+                 vtkIdType &cellNum,
+                 int &noAbort,
+                 vtkCellArray *ca,
+                 vtkRenderer *ren);
+
+  void DrawPolygons(int idx,
+                    vtkPoints *p, 
+                    vtkDataArray *n,
+                    vtkUnsignedCharArray *c,
+                    vtkDataArray *t,
+                    vtkIdType &cellNum,
+                    int &noAbort,
+                    GLenum rep,
+                    vtkCellArray *ca,
+                    vtkRenderer *ren);
+
+  void DrawTStrips(int idx,
+                   vtkPoints *p, 
+                   vtkDataArray *n,
+                   vtkUnsignedCharArray *c,
+                   vtkDataArray *t,
+                   vtkIdType &cellNum,
+                   int &noAbort,
+                   GLenum rep,
+                   vtkCellArray *ca,
+                   vtkRenderer *ren);
+
+  vtkIdType TotalCells;
   int ListId;
   vtkRenderWindow *RenderWindow;   // RenderWindow used for the previous render
 private:
