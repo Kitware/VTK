@@ -51,7 +51,7 @@ public:
   // Implement the vtkCell API. See the vtkCell API for descriptions 
   // of these methods.
   vtkCell *MakeObject();
-  int GetCellType() {return VTK_LINE;};
+  int GetCellType() {return VTK_QUADRATIC_HEXAHEDRON;}
   int GetCellDimension() {return 3;}
   int GetNumberOfEdges() {return 12;}
   int GetNumberOfFaces() {return 6;}
