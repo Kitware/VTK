@@ -24,12 +24,13 @@
 #include "vtkImageWrapPad.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkStructuredGrid.h"
 
 #include <ctype.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkPOPReader, "1.14");
+vtkCxxRevisionMacro(vtkPOPReader, "1.15");
 vtkStandardNewMacro(vtkPOPReader);
 
 //----------------------------------------------------------------------------

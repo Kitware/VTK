@@ -17,12 +17,17 @@
 =========================================================================*/
 #include "vtkExtractPolyDataPiece.h"
 
+#include "vtkCell.h"
+#include "vtkCellData.h"
+#include "vtkGenericCell.h"
+#include "vtkIdList.h"
 #include "vtkOBBDicer.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkExtractPolyDataPiece, "1.12");
+vtkCxxRevisionMacro(vtkExtractPolyDataPiece, "1.13");
 vtkStandardNewMacro(vtkExtractPolyDataPiece);
 
 vtkExtractPolyDataPiece::vtkExtractPolyDataPiece()

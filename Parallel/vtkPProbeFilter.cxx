@@ -17,11 +17,13 @@
 =========================================================================*/
 #include "vtkPProbeFilter.h"
 
+#include "vtkIdTypeArray.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPProbeFilter, "1.3");
+vtkCxxRevisionMacro(vtkPProbeFilter, "1.4");
 vtkStandardNewMacro(vtkPProbeFilter);
 
 vtkCxxSetObjectMacro(vtkPProbeFilter, Controller, vtkMultiProcessController);

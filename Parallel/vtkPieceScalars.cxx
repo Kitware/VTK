@@ -17,13 +17,15 @@
 =========================================================================*/
 #include "vtkPieceScalars.h"
 
+#include "vtkCellData.h"
 #include "vtkDataSet.h"
 #include "vtkFloatArray.h"
 #include "vtkIntArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkPieceScalars, "1.11");
+vtkCxxRevisionMacro(vtkPieceScalars, "1.12");
 vtkStandardNewMacro(vtkPieceScalars);
 
 //----------------------------------------------------------------------------

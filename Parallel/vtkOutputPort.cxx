@@ -16,13 +16,15 @@
 
 =========================================================================*/
 #include "vtkOutputPort.h"
+
+#include "vtkCommand.h"
+#include "vtkDataObject.h"
 #include "vtkInputPort.h"
 #include "vtkMultiProcessController.h"
-#include "vtkObjectFactory.h"
-#include "vtkCommand.h"
 #include "vtkMultiProcessController.h"
+#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkOutputPort, "1.6");
+vtkCxxRevisionMacro(vtkOutputPort, "1.7");
 vtkStandardNewMacro(vtkOutputPort);
 
 vtkCxxSetObjectMacro(vtkOutputPort,Controller,vtkMultiProcessController);

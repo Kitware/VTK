@@ -17,15 +17,18 @@
 =========================================================================*/
 #include "vtkCutMaterial.h"
 
+#include "vtkCell.h"
+#include "vtkCellData.h"
 #include "vtkCutter.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkThreshold.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkCutMaterial, "1.11");
+vtkCxxRevisionMacro(vtkCutMaterial, "1.12");
 vtkStandardNewMacro(vtkCutMaterial);
 
 // Instantiate object with no input and no defined output.
