@@ -137,8 +137,6 @@ OPTION(VTK_USE_ANSI_STDLIB "Use the ANSI standard iostream library", OFF)
 #
 # on windows we have it checked in
 
-OPTION(VTK_USE_PNGLIB "Link the PNG library", OFF)
-
 IF (WIN32)
   FIND_LIBRARY(PNG_LIBRARY libpng "${VTK_SOURCE_DIR}/IO/PNG")
   FIND_PATH(PNG_INCLUDE_PATH png.h "${VTK_SOURCE_DIR}/IO/PNG")
