@@ -46,8 +46,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //
 // If normals are not present in data, the Normal instance variable will
 // be used as the direction along which to warp the geometry. If normals are
-// present but you would like to use the Normals instance variable, set the 
-// UseNormals boolean to true.
+// present but you would like to use the Normal instance variable, set the 
+// UseNormal boolean to true.
 //
 // If XYPlane boolean is set true, then the z-value is considered to be 
 // a scalar value (still scaled by scale factor) and the displacement is
