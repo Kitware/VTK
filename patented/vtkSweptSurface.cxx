@@ -276,12 +276,14 @@ void vtkSweptSurface::SampleInput(vtkMatrix4x4 *m, int inDim[3],
   int i, j, k, ii;
   int inSliceSize=inDim[0]*inDim[1];
   int sliceSize=this->SampleDimensions[0]*this->SampleDimensions[1];
-  float x[4], loc[3], newScalar, scalar;
-  int skip;
+  float x[4], loc[4], newScalar, scalar;
   int kOffset, jOffset, ijk[3], idx;
-  float delta;
+  float delta[3];
   float xTrans[4], weights[8];
   float *origin, *spacing;
+  float locP1[4], locP2[4], dx, dy, dz, t[3];
+  float dxdi, dydi, dzdi, dxdj, dydj, dzdj, dxdk, dydk, dzdk;
+  vtkMatrix4x4 *matrix;
   int indicies[6];
   // Compute the index bounds of the workspace volume that will cover the
   // input volume
@@ -290,56 +292,85 @@ void vtkSweptSurface::SampleInput(vtkMatrix4x4 *m, int inDim[3],
 
   m->Invert(*m,*m);
   this->T->SetMatrix(*m);
+
+  // Now concatenate the shift and scale to convert from world to voxel coordinates
+  this->T->PostMultiply();
+  this->T->Translate (-inOrigin[0], -inOrigin[1], -inOrigin[2]);
+  this->T->Scale (1.0 / inSpacing[0], 1.0 / inSpacing[1], 1.0 / inSpacing[2]);
+  this->T->PreMultiply();
+  matrix = this->T->GetMatrixPointer();
+
+
   x[3] = 1.0; //homogeneous coordinates
 
   origin = ((vtkStructuredPoints *)this->Output)->GetOrigin();
   spacing = ((vtkStructuredPoints *)this->Output)->GetSpacing();
 
+  // Compute the change in voxel coordinates for each step change in world coordinates
+  x[0] = origin[0];
+  x[1] = origin[1];
+  x[2] = origin[2];
+  matrix->MultiplyPoint(x,locP1);
+
+  x[0] += spacing[0];
+  matrix->MultiplyPoint(x,locP2);
+
+  dxdi = locP2[0] - locP1[0];
+  dydi = locP2[1] - locP1[1];
+  dzdi = locP2[2] - locP1[2];
+
+  x[0] = origin[0];
+  x[1] += spacing[1];
+  matrix->MultiplyPoint(x,locP2);
+
+  dxdj = locP2[0] - locP1[0];
+  dydj = locP2[1] - locP1[1];
+  dzdj = locP2[2] - locP1[2];
+
+  x[1] = origin[1];
+  x[2] += spacing[2];
+  matrix->MultiplyPoint(x,locP2);
+
+  dxdk = locP2[0] - locP1[0];
+  dydk = locP2[1] - locP1[1];
+  dzdk = locP2[2] - locP1[2];
+
+  // Compute starting position that is one step before the first world coordinate
+  // of each row
+  x[0] = origin[0] - spacing[0];
+  x[1] = origin[1];
+  x[2] = origin[2];
+  matrix->MultiplyPoint(x,locP1);
+
   for (k=indicies[4]; k<indicies[5]; k++)
     {
     kOffset = k*sliceSize;
-    x[2] = origin[2] + k * spacing[2];
     for (j=indicies[2]; j<indicies[3]; j++)
       {
       jOffset = j*this->SampleDimensions[0];
-      x[1] = origin[1] + j * spacing[1];
+      loc[0] = locP1[0] + indicies[0]*dxdi + j*dxdj + k*dxdk;
+      loc[1] = locP1[1] + indicies[0]*dydi + j*dydj + k*dydk;
+      loc[2] = locP1[2] + indicies[0]*dzdi + j*dzdj + k*dzdk;
       for (i=indicies[0]; i<indicies[1]; i++)
         {
-        x[0] = origin[0] + i * spacing[0];
+	loc[0] += dxdi;
+	loc[1] += dydi;
+	loc[2] += dzdi;
 
-        // transform into local space
-        this->T->MultiplyPoint(x,xTrans);
-
-        // determine which voxel point falls in.
-
-       skip = 0;
-       for (ii=0; ii<3; ii++)
-          {
-	  if ((delta = xTrans[ii]-inOrigin[ii]) < 0.0)
-	    {
-	    skip = 1;
-	    break;
-	    }
-          loc[ii] = delta / inSpacing[ii];
-          }
-
-        if (skip)
+	if (loc[0] < 0 || loc[1] < 0 || loc[2] < 0)
 	  {
 	  continue;
 	  }
-
-	ijk[0] = (int)loc[0];
+        ijk[0] = (int)loc[0];
 	ijk[1] = (int)loc[1];
 	ijk[2] = (int)loc[2];
 
         //check and make sure point is inside
-        if ( (ijk[0] >= 0) && 
-	     (ijk[1] >= 0) && 
-	     (ijk[2] >= 0) &&
-	     (ijk[0] < inDim[0] - 1) && 
+        if ( (ijk[0] < inDim[0] - 1) && 
 	     (ijk[1] < inDim[1] - 1) && 
 	     (ijk[2] < inDim[2] - 1))
           {
+
           //get scalar values
           idx = ijk[0] + ijk[1]*inDim[0] + ijk[2]*inSliceSize;
           this->IdList->SetId(0,idx);
@@ -355,9 +386,9 @@ void vtkSweptSurface::SampleInput(vtkMatrix4x4 *m, int inDim[3],
 
           for (ii=0; ii<3; ii++)
 	    {
-	    loc[ii] = loc[ii] - ijk[ii];
+	    t[ii] = loc[ii] - ijk[ii];
 	    }
-          vtkVoxel::InterpolationFunctions(loc,weights);
+          vtkVoxel::InterpolationFunctions(t,weights);
 
           for (newScalar=0.0, ii=0; ii<8; ii++) 
 	    {
