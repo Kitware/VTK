@@ -828,7 +828,7 @@ void vlSbrRenderWindow::WindowInitialize (void)
   clear_control(this->Fd, CLEAR_DISPLAY_SURFACE | CLEAR_ZBUFFER);
   
   // set back faces of polygons to be rendered same as front 
-  bf_control(this->Fd, TRUE, FALSE);
+  bf_control(this->Fd, FALSE, TRUE);
   // make default polymarker a dot (pixel) 
   marker_type(this->Fd, 0);
 
