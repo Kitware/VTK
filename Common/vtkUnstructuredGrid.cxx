@@ -48,7 +48,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.119");
+vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.120");
 vtkStandardNewMacro(vtkUnstructuredGrid);
 
 vtkUnstructuredGrid::vtkUnstructuredGrid ()
@@ -449,9 +449,9 @@ vtkIdType vtkUnstructuredGrid::GetNumberOfCells()
 
 // Insert/create cell in object by type and list of point ids defining
 // cell topology.
-int vtkUnstructuredGrid::InsertNextCell(int type, vtkIdList *ptIds)
+vtkIdType vtkUnstructuredGrid::InsertNextCell(int type, vtkIdList *ptIds)
 {
-  int npts = ptIds->GetNumberOfIds();
+  vtkIdType npts = ptIds->GetNumberOfIds();
   // insert connectivity
   this->Connectivity->InsertNextCell(ptIds);
   // insert type and storage information   
@@ -464,7 +464,8 @@ int vtkUnstructuredGrid::InsertNextCell(int type, vtkIdList *ptIds)
 
 // Insert/create cell in object by type and list of point ids defining
 // cell topology.
-int vtkUnstructuredGrid::InsertNextCell(int type, int npts, vtkIdType *pts)
+vtkIdType vtkUnstructuredGrid::InsertNextCell(int type, vtkIdType npts,
+                                              vtkIdType *pts)
 {
   // insert connectivity
   this->Connectivity->InsertNextCell(npts,pts);
