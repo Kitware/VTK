@@ -96,6 +96,26 @@ public:
   void InternalTransformDerivative(const double in[3], double out[3],
 				   double derivative[3][3]);
 
+  //BTX
+  // Description:
+  // Do not use these functions.  They exists only as a work-around for
+  // internal templated functions.
+  void TemplateTransformPoint(const float in[3], float out[3]) {
+    this->ForwardTransformPoint(in,out); }; 
+  void TemplateTransformPoint(const double in[3], double out[3]) {
+    this->ForwardTransformPoint(in,out); }; 
+  void TemplateTransformPoint(const float in[3], float out[3],
+			      float derivative[3][3]) {
+    this->ForwardTransformDerivative(in,out,derivative); }; 
+  void TemplateTransformPoint(const double in[3], double out[3],
+			      double derivative[3][3]) {
+    this->ForwardTransformDerivative(in,out,derivative); }; 
+  void TemplateTransformInverse(const float in[3], float out[3]) {
+    this->InverseTransformPoint(in,out); }; 
+  void TemplateTransformInverse(const double in[3], double out[3]) {
+    this->InverseTransformPoint(in,out); }; 
+  //ETX
+
 protected:
   vtkWarpTransform();
   ~vtkWarpTransform();

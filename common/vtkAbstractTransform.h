@@ -101,14 +101,24 @@ public:
   // Description:
   // Apply the transformation to an (x,y,z) coordinate.
   // Use this if you are programming in python, tcl or Java.
-  float *TransformFloatPoint(float x, float y, float z);
+  float *TransformFloatPoint(float x, float y, float z) {
+      this->InternalFloatPoint[0] = x;
+      this->InternalFloatPoint[1] = y;
+      this->InternalFloatPoint[2] = z;
+      this->TransformPoint(this->InternalFloatPoint,this->InternalFloatPoint);
+      return this->InternalFloatPoint; };
   float *TransformFloatPoint(const float point[3]) {
     return this->TransformFloatPoint(point[0],point[1],point[2]); };
 
   // Description:
   // Apply the transformation to a double-precision (x,y,z) coordinate.
   // Use this if you are programming in python, tcl or Java.
-  double *TransformDoublePoint(double x, double y, double z);
+  double *TransformDoublePoint(double x, double y, double z) {
+    this->InternalDoublePoint[0] = x;
+    this->InternalDoublePoint[1] = y;
+    this->InternalDoublePoint[2] = z;
+    this->TransformPoint(this->InternalDoublePoint,this->InternalDoublePoint);
+    return this->InternalDoublePoint; };
   double *TransformDoublePoint(const double point[3]) {
     return this->TransformDoublePoint(point[0],point[1],point[2]); };
 

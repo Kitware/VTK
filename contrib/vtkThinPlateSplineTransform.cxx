@@ -543,11 +543,13 @@ void vtkThinPlateSplineTransform::InternalUpdate()
 // The matrix W was created by Update.  Not much has to be done to
 // apply the transform:  do an affine transformation, then do
 // perturbations based on the landmarks.
-void vtkThinPlateSplineTransform::ForwardTransformPoint(const double point[3],
-							double output[3])
+template<class T>
+static inline void vtkThinPlateSplineForwardTransformPoint(
+					   vtkThinPlateSplineTransform *self,
+					   double **W, int N,
+					   double (*phi)(double),
+					   const T point[3], T output[3])
 {
-  int N = this->NumberOfPoints;
-
   if (N == 0)
     {
     output[0] = point[0];
@@ -556,23 +558,22 @@ void vtkThinPlateSplineTransform::ForwardTransformPoint(const double point[3],
     return;
     }
 
-  double **W = this->MatrixW;
-  double *C = this->MatrixW[N]; 
-  double **A = &this->MatrixW[N+1];
+  double *C = W[N]; 
+  double **A = &W[N+1];
 
   double dx,dy,dz;
   double p[3];
   double U,r;
-  double invSigma = 1.0/this->Sigma;
-
-  double (*phi)(double) = this->BasisFunction;
+  double invSigma = 1.0/self->GetSigma();
 
   double x = 0, y = 0, z = 0; 
+
+  vtkPoints *sourceLandmarks = self->GetSourceLandmarks();
 
   // do the nonlinear stuff
   for(int i = 0; i < N; i++)
     {
-    this->SourceLandmarks->GetPoint(i,p);
+    sourceLandmarks->GetPoint(i,p);
     dx = point[0]-p[0]; dy = point[1]-p[1]; dz = point[2]-p[2];
     r = sqrt(dx*dx + dy*dy + dz*dz);
     U = phi(r*invSigma);
@@ -591,15 +592,34 @@ void vtkThinPlateSplineTransform::ForwardTransformPoint(const double point[3],
   output[2] = z;
 }
 
+void vtkThinPlateSplineTransform::ForwardTransformPoint(const double point[3], 
+							double output[3])
+{
+  vtkThinPlateSplineForwardTransformPoint(this, this->MatrixW, 
+					  this->NumberOfPoints, 
+					  this->BasisFunction,
+					  point, output);
+}
+
+void vtkThinPlateSplineTransform::ForwardTransformPoint(const float point[3], 
+							float output[3])
+{
+  vtkThinPlateSplineForwardTransformPoint(this, this->MatrixW, 
+					  this->NumberOfPoints,
+					  this->BasisFunction,
+					  point, output);
+}
+
 //----------------------------------------------------------------------------
 // calculate the thin plate spline as well as the jacobian
-void vtkThinPlateSplineTransform::ForwardTransformDerivative(
-						       const double point[3],
-						       double output[3],
-						       double derivative[3][3])
+template<class T>
+static inline void vtkThinPlateSplineForwardTransformDerivative(
+					   vtkThinPlateSplineTransform *self,
+					   double **W, int N,
+					   double (*phi)(double, double&),
+					   const T point[3], T output[3],
+					   T derivative[3][3])
 {
-  int N = this->NumberOfPoints;
-
   if (N == 0)
     {
     for (int i = 0; i < 3; i++)
@@ -611,26 +631,25 @@ void vtkThinPlateSplineTransform::ForwardTransformDerivative(
     return;
     }
 
-  double **W = this->MatrixW;
-  double *C = this->MatrixW[N]; 
-  double **A = &this->MatrixW[N+1];
+  double *C = W[N]; 
+  double **A = &W[N+1];
 
   double dx,dy,dz;
   double p[3];
   double r, U, f, Ux, Uy, Uz;
   double x = 0, y = 0, z = 0; 
-  double invSigma = 1.0/this->Sigma;
-
-  double (*phi)(double, double&) = this->BasisDerivative;
+  double invSigma = 1.0/self->GetSigma();
 
   derivative[0][0] = derivative[0][1] = derivative[0][2] = 0;
   derivative[1][0] = derivative[1][1] = derivative[1][2] = 0;
   derivative[2][0] = derivative[2][1] = derivative[2][2] = 0;
 
+  vtkPoints *sourceLandmarks = self->GetSourceLandmarks();
+
   // do the nonlinear stuff
   for(int i = 0; i < N; i++)
     {
-    this->SourceLandmarks->GetPoint(i,p);
+    sourceLandmarks->GetPoint(i,p);
     dx = point[0]-p[0]; dy = point[1]-p[1]; dz = point[2]-p[2];
     r = sqrt(dx*dx + dy*dy + dz*dz);
 
@@ -682,45 +701,26 @@ void vtkThinPlateSplineTransform::ForwardTransformDerivative(
   derivative[2][2] += A[2][2];
 }  
 
-//----------------------------------------------------------------------------
-// convert float to double and back again
-void vtkThinPlateSplineTransform::ForwardTransformPoint(const float point[3], 
-							float output[3])
+void vtkThinPlateSplineTransform::ForwardTransformDerivative(
+                                                  const double point[3],
+						  double output[3],
+						  double derivative[3][3])
 {
-  double dpoint[3];
-  dpoint[0] = point[0]; 
-  dpoint[1] = point[1]; 
-  dpoint[2] = point[2];
-
-  this->ForwardTransformPoint(dpoint,dpoint);
- 
-  output[0] = dpoint[0]; 
-  output[1] = dpoint[1]; 
-  output[2] = dpoint[2];
+  vtkThinPlateSplineForwardTransformDerivative(this, this->MatrixW, 
+					       this->NumberOfPoints,
+					       this->BasisDerivative,
+					       point, output, derivative);
 }
 
-//----------------------------------------------------------------------------
-// convert float to double and back again
 void vtkThinPlateSplineTransform::ForwardTransformDerivative(
                                                   const float point[3],
 						  float output[3],
 						  float derivative[3][3])
 {
-  double dpoint[3];
-  double dderivative[3][3];
-  for (int i = 0; i < 3; i++)
-    {
-    dderivative[i][0] = derivative[i][0];
-    dpoint[i] = point[i];
-    } 
-
-  this->ForwardTransformDerivative(dpoint,dpoint,dderivative);
- 
-  for (int j = 0; j < 3; j++)
-    {
-    derivative[j][0] = dderivative[j][0];
-    output[j] = dpoint[j];
-    } 
+  vtkThinPlateSplineForwardTransformDerivative(this, this->MatrixW, 
+					       this->NumberOfPoints,
+					       this->BasisDerivative,
+					       point, output, derivative);
 }
 
 //------------------------------------------------------------------------

@@ -69,28 +69,6 @@ void vtkAbstractTransform::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-// These two functions are definitely not thread safe, and should
-// really only be called from python or tcl.
-float *vtkAbstractTransform::TransformFloatPoint(float x, float y, float z)
-{
-  this->InternalFloatPoint[0] = x;
-  this->InternalFloatPoint[1] = y;
-  this->InternalFloatPoint[2] = z;
-  this->TransformPoint(this->InternalFloatPoint,this->InternalFloatPoint);
-  return this->InternalFloatPoint;
-}
-
-//----------------------------------------------------------------------------
-double *vtkAbstractTransform::TransformDoublePoint(double x,double y,double z)
-{
-  this->InternalDoublePoint[0] = x;
-  this->InternalDoublePoint[1] = y;
-  this->InternalDoublePoint[2] = z;
-  this->TransformPoint(this->InternalDoublePoint,this->InternalDoublePoint);
-  return this->InternalDoublePoint;
-}
-
-//----------------------------------------------------------------------------
 // Transform a series of points.
 void vtkAbstractTransform::TransformPoints(vtkPoints *in, vtkPoints *out)
 {
