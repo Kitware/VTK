@@ -22,7 +22,7 @@
 #include "vtkMath.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkPCAAnalysisFilter, "1.2");
+vtkCxxRevisionMacro(vtkPCAAnalysisFilter, "1.3");
 vtkStandardNewMacro(vtkPCAAnalysisFilter);
 
 //------------------------------------------------------------------------
@@ -419,7 +419,7 @@ void vtkPCAAnalysisFilter::SetInput(int idx,vtkPointSet* p)
 
 
 //----------------------------------------------------------------------------
-// protected
+// public
 vtkPointSet* vtkPCAAnalysisFilter::GetInput(int idx) 
 {
   if(idx<0 || idx>=this->vtkProcessObject::GetNumberOfInputs()) {
@@ -450,3 +450,27 @@ void vtkPCAAnalysisFilter::PrintSelf(ostream& os, vtkIndent indent)
   this->Evals->PrintSelf(os,indent);
 }
 
+//----------------------------------------------------------------------------
+// public
+int vtkPCAAnalysisFilter::GetModesRequiredFor(float proportion)
+{
+  int i;
+
+  float eigen_total = 0.0F;
+  for(i=0;i<this->Evals->GetNumberOfTuples();i++)
+    {
+    eigen_total += this->Evals->GetValue(i);
+    }
+
+  float running_total = 0.0F;
+  for(i=0;i<this->Evals->GetNumberOfTuples();i++)
+    {
+    running_total += this->Evals->GetValue(i)/eigen_total;
+    if(running_total>=proportion)
+      {
+      return i+1;
+      }
+    }
+    
+  return Evals->GetNumberOfTuples();
+}
