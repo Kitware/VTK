@@ -538,6 +538,44 @@ AC_SUBST(SHLIB_LD_LIBS)
 AC_SUBST(SHLIB_SUFFIX)
 AC_SUBST(SHLIB_VERSION)
 
+##########################
+##			##
+## Check thread support ##
+##			##
+##########################
+THREAD_LIBS=""
+THREAD_FLAGS=""
+use_sproc=no
+AC_CHECK_HEADERS(sys/prctl.h, [use_sproc=yes])
+if test "$use_sproc" = "yes"; then
+case $system in
+    IRIX*)
+	THREAD_FLAGS="-DVTK_USE_SPROC"
+	;;
+esac
+fi
+
+use_pthreads=no
+AC_CHECK_HEADERS(pthread.h, [use_pthreads=yes])
+if test "$use_pthreads" = "yes"; then
+  if test "$use_sproc" = "no"; then
+	THREAD_LIBS="-lpthread"
+	THREAD_FLAGS="-DVTK_USE_PTHREADS"
+  fi
+fi
+
+# on an HP with pthread we need to use -lcma
+if test "$use_pthreads" = "yes"; then
+case $system in
+    HP-UX-*.10.*)
+	THREAD_LIBS="-lcma"
+	;;
+esac
+fi
+
+AC_SUBST(THREAD_FLAGS)
+AC_SUBST(THREAD_LIBS)
+
 # on an HP unsing the native CC we need special +d flag for inlines
 VTK_INLINE_FLAGS=""
 if test $ac_cv_prog_gxx = no; then

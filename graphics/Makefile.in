@@ -327,7 +327,7 @@ KIT_TCL_OBJ = vtkXRenderTclWindowInteractor.o ${TCL_OBJ} ${SRC_OBJ}
 
 KIT_NEWS = ${TCL_NEWS} 
 
-KIT_FLAGS = @SBR_FLAGS@ @XGLR_FLAGS@ @GLR_FLAGS@ @OGLR_FLAGS@ @PATENTED_FLAGS@
+KIT_FLAGS = @SBR_FLAGS@ @XGLR_FLAGS@ @GLR_FLAGS@ @OGLR_FLAGS@ @PATENTED_FLAGS@ @THREAD_FLAGS@
 
 #------------------------------------------------------------------------------
 # Include user-editable defines.

@@ -151,6 +151,8 @@ CLEAN_TCL         = @CLEAN_TCL@
 BUILD_JAVA        = @BUILD_JAVA@
 CLEAN_JAVA        = @CLEAN_JAVA@
 
+KIT_FLAGS = @THREAD_FLAGS@
+
 #------------------------------------------------------------------------------
 # Include user-editable defines.
 
