@@ -33,6 +33,7 @@
 #include "vtkExtentTranslator.h"
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkLongArray.h"
 #include "vtkMath.h"
@@ -41,6 +42,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkShortArray.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredPoints.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
@@ -49,7 +51,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.87");
+vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.88");
 vtkStandardNewMacro(vtkSynchronizedTemplates3D);
 
 //----------------------------------------------------------------------------
@@ -60,8 +62,6 @@ vtkSynchronizedTemplates3D::vtkSynchronizedTemplates3D()
 {
   int idx;
 
-  this->NumberOfRequiredInputs = 1;
-  this->SetNumberOfInputPorts(1);
   this->ContourValues = vtkContourValues::New();
   this->ComputeNormals = 1;
   this->ComputeGradients = 0;
@@ -91,12 +91,20 @@ vtkSynchronizedTemplates3D::~vtkSynchronizedTemplates3D()
   this->SetInputScalarsSelection(NULL);
 }
 
+struct vtkSynchronizedTemplates3DThreadStruct
+{
+  vtkSynchronizedTemplates3D *Filter;
+  vtkInformationVector **InputVector;
+  vtkInformationVector *OutputVector;
+  vtkImageData *Input;
+};
+
 //----------------------------------------------------------------------------
 // Overload standard modified time function. If contour values are modified,
 // then this object is modified as well.
 unsigned long vtkSynchronizedTemplates3D::GetMTime()
 {
-  unsigned long mTime=this->vtkPolyDataSource::GetMTime();
+  unsigned long mTime=this->Superclass::GetMTime();
   unsigned long mTime2=this->ContourValues->GetMTime();
 
   mTime = ( mTime2 > mTime ? mTime2 : mTime );
@@ -275,10 +283,11 @@ if (ComputeScalars) \
 //
 template <class T>
 void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
+                  vtkInformation *inInfo,
                   vtkImageData *data, vtkPolyData *output, T *ptr, 
                   int threadId, const char* inputScalars)
 {
-  int *inExt = self->GetInput()->GetExtent();
+  int *inExt = data->GetExtent();
   int xdim = exExt[1] - exExt[0] + 1;
   int ydim = exExt[3] - exExt[2] + 1;
   double *values = self->GetValues();
@@ -309,8 +318,8 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
   int *wholeExt;
   // We need to know the edgePointId's for interpolating attributes.
   int edgePtId, inCellId, outCellId;
-  vtkPointData *inPD = self->GetInput()->GetPointData();
-  vtkCellData *inCD = self->GetInput()->GetCellData();
+  vtkPointData *inPD = data->GetPointData();
+  vtkCellData *inCD = data->GetCellData();
   vtkPointData *outPD = output->GetPointData();  
   vtkCellData *outCD = output->GetCellData();  
   // Use to be arguments
@@ -334,7 +343,7 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
     newGradients = vtkFloatArray::New();
     }
   vtkSynchronizedTemplates3DInitializeOutput(self, exExt, 
-                                             self->GetInput(), output, 
+                                             data, output, 
                                              newScalars, newNormals, 
                                              newGradients);
   newPts = output->GetPoints();
@@ -356,12 +365,12 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
     }
   else
     {
-    xInc = self->GetInput()->GetNumberOfScalarComponents();
+    xInc = data->GetNumberOfScalarComponents();
     }
   yInc = xInc*(inExt[1]-inExt[0]+1);
   zInc = yInc*(inExt[3]-inExt[2]+1);
 
-  wholeExt = self->GetInput()->GetWholeExtent();
+  wholeExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   
   // Kens increments, probably to do with edge array
   zstep = xdim*ydim;
@@ -617,6 +626,8 @@ unsigned long vtkSynchronizedTemplates3D::GetInputMemoryLimit()
 // Contouring filter specialized for images (or slices from images)
 //
 void vtkSynchronizedTemplates3D::ThreadedExecute(vtkImageData *data,
+                                                 vtkInformation *inInfo,
+                                                 vtkInformation *outInfo,
                                                  int *exExt, int threadId)
 {
   void *ptr;
@@ -627,7 +638,8 @@ void vtkSynchronizedTemplates3D::ThreadedExecute(vtkImageData *data,
   
   if (this->NumberOfThreads <= 1)
     { // Special case when only one thread (fast, no copy).
-    output = this->GetOutput();
+    output = vtkPolyData::SafeDownCast(
+      outInfo->Get(vtkDataObject::DATA_OBJECT()));
     }
   else
     { // For thread saftey, each writes into a separate output which are merged later.
@@ -662,78 +674,29 @@ void vtkSynchronizedTemplates3D::ThreadedExecute(vtkImageData *data,
   ptr = data->GetArrayPointerForExtent(inScalars, exExt);
   switch (inScalars->GetDataType())
     {
-    vtkTemplateMacro7(ContourImage, this, exExt, data, output, 
+    vtkTemplateMacro8(ContourImage, this, exExt, inInfo, data, output, 
                       (VTK_TT *)ptr, threadId, 
                       this->GetInputScalarsSelection());
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkSynchronizedTemplates3D::ExecuteInformation()
-{
-  // Most of this is to compute estimated whole size. Need to
-  // convert to update size, and move to another method. The last
-  // line which sets the maximum number of pieces of the output is
-  // the only necessary thing in here.
-
-  //  vtkImageData *input = this->GetInput();
-  //  int *ext, dims[3];
-  //  long numPts, numTris;
-  //  long sizePt, sizeTri;
-
-  //  // swag at the output memory size
-  //  // Outside surface.
-  //  ext = input->GetWholeExtent();
-  //  dims[0] = ext[1] - ext[0] + 1;
-  //  dims[1] = ext[3] - ext[2] + 1;
-  //  dims[2] = ext[5] - ext[4] + 1;
-  //  numPts = 2 * (dims[0]*dims[1] + dims[0]*dims[2] + dims[1]*dims[2]);
-  //  numTris = numPts * 2;
-  //  // Determine the memory for each point and triangle.
-  //  sizeTri = 4 * sizeof(int);
-  //  sizePt = 3 * sizeof(double);
-  //  if (this->ComputeNormals)
-  //    {
-  //    sizePt += 3 * sizeof(double);
-  //    }
-  //  if (this->ComputeGradients)
-  //    {
-  //    sizePt += 3 * sizeof(double);
-  //    }
-  //  if (this->ComputeScalars)
-  //    {
-  //    sizePt += sizeof(double);
-  //    }
-  //  // Set the whole output estimated memory size in kBytes.
-  //  // be careful not to overflow.
-  //  numTris = numTris / 1000;
-  //  if (numTris == 0)
-  //    {
-  //    numTris = 1;
-  //    }
-  //  numPts = numPts / 1000;
-  //  if (numPts == 0)
-  //    {
-  //    numPts = 1;
-  //    }
-  //  //  this->GetOutput()->SetEstimatedWholeMemorySize(
-  //  //    numTris*sizeTri + numPts*sizePt);
-}
-
-
-
-//----------------------------------------------------------------------------
 VTK_THREAD_RETURN_TYPE vtkSyncTempThreadedExecute( void *arg )
 {
+  vtkSynchronizedTemplates3DThreadStruct *str;
   vtkSynchronizedTemplates3D *self;
+  vtkInformation *inInfo, *outInfo;
   int threadId, threadCount;
   int ext[6], *tmp;
-  
+
   threadId = ((vtkMultiThreader::ThreadInfo *)(arg))->ThreadID;
   threadCount = ((vtkMultiThreader::ThreadInfo *)(arg))->NumberOfThreads;
-  self = (vtkSynchronizedTemplates3D *)
-            (((vtkMultiThreader::ThreadInfo *)(arg))->UserData);
 
+  str = (vtkSynchronizedTemplates3DThreadStruct *)
+    (((vtkMultiThreader::ThreadInfo *)(arg))->UserData);
+  self = str->Filter;
+  inInfo = str->InputVector[0]->GetInformationObject(0);
+  outInfo = str->OutputVector->GetInformationObject(0);
 
   // we need to breakup the ExecuteExtent based on the threadId/Count
   tmp = self->GetExecuteExtent();
@@ -744,13 +707,17 @@ VTK_THREAD_RETURN_TYPE vtkSyncTempThreadedExecute( void *arg )
   ext[4] = tmp[4];
   ext[5] = tmp[5];
   
-  vtkExtentTranslator *translator = self->GetInput()->GetExtentTranslator();
+  vtkExtentTranslator *translator = vtkExtentTranslator::SafeDownCast(
+    inInfo->Get(vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR()));
+  vtkImageData *input = vtkImageData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   if (translator == NULL)
     {
     // No translator means only do one thread.
     if (threadId == 0)
       {
-      self->ThreadedExecute(self->GetInput(), ext, threadId);
+      self->ThreadedExecute(input, inInfo, outInfo, ext, threadId);
       }
     }
   else
@@ -758,7 +725,7 @@ VTK_THREAD_RETURN_TYPE vtkSyncTempThreadedExecute( void *arg )
     if (translator->PieceToExtentThreadSafe(threadId, threadCount,0,tmp, ext, 
                                             translator->GetSplitMode(),0))
       {
-      self->ThreadedExecute(self->GetInput(), ext, threadId);
+      self->ThreadedExecute(input, inInfo, outInfo, ext, threadId);
       }
     }
   
@@ -766,12 +733,24 @@ VTK_THREAD_RETURN_TYPE vtkSyncTempThreadedExecute( void *arg )
 }
 
 //----------------------------------------------------------------------------
-void vtkSynchronizedTemplates3D::Execute()
+int vtkSynchronizedTemplates3D::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkImageData *input = vtkImageData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   int idx, inId, outId, offset, num, ptIdx, newIdx;
   vtkIdType numCellPts=0;
   vtkIdType newCellPts[3], *cellPts=0;
-  vtkPolyData *output = this->GetOutput();
   vtkPointData *outPD;
   vtkCellData *outCD;
   vtkPolyData *threadOut = 0;
@@ -783,7 +762,7 @@ void vtkSynchronizedTemplates3D::Execute()
   if (this->NumberOfThreads <= 1)
     {
     // Just call the threaded execute directly.
-    this->ThreadedExecute(this->GetInput(), this->ExecuteExtent, 0);
+    this->ThreadedExecute(input, inInfo, outInfo, this->ExecuteExtent, 0);
     }
   else
     {
@@ -793,7 +772,12 @@ void vtkSynchronizedTemplates3D::Execute()
     
     this->Threader->SetNumberOfThreads(this->NumberOfThreads);
     // Setup threading and the invoke threadedExecute
-    this->Threader->SetSingleMethod(vtkSyncTempThreadedExecute, this);
+    vtkSynchronizedTemplates3DThreadStruct str;
+    str.Filter = this;
+    str.InputVector = inputVector;
+    str.OutputVector = outputVector;
+    str.Input = input;
+    this->Threader->SetSingleMethod(vtkSyncTempThreadedExecute, &str);
     this->Threader->SingleMethodExecute();
 
     // Collect all the data into the output.  Now I cannot use append filter
@@ -915,32 +899,39 @@ void vtkSynchronizedTemplates3D::Execute()
     }
 
   output->Squeeze();
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkSynchronizedTemplates3D::ComputeInputUpdateExtents(vtkDataObject *out)
+int vtkSynchronizedTemplates3D::RequestUpdateExtent(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkImageData *input = this->GetInput();
-  vtkPolyData *output = (vtkPolyData *)out;
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
   int piece, numPieces, ghostLevel;
   int *wholeExt;
   int ext[6];
-  vtkExtentTranslator *translator;
 
-  if (input == NULL)
-    {
-    vtkErrorMacro("Input not set");
-    return;
-    }
-  translator = input->GetExtentTranslator();
-
-  wholeExt = input->GetWholeExtent();
+  vtkExtentTranslator *translator = vtkExtentTranslator::SafeDownCast(
+    inInfo->Get(vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR()));
+  wholeExt =
+    inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
 
   // Get request from output
-  output->GetUpdateExtent(piece, numPieces, ghostLevel);
+  piece =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  numPieces =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  ghostLevel =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
 
   // Start with the whole grid.
-  input->GetWholeExtent(ext);  
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), ext);
 
   // get the extent associated with the piece.
   if (translator == NULL)
@@ -1008,35 +999,8 @@ void vtkSynchronizedTemplates3D::ComputeInputUpdateExtents(vtkDataObject *out)
     }
 
   // Set the update extent of the input.
-  input->SetUpdateExtent(ext);
-}
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ext, 6);
 
-//----------------------------------------------------------------------------
-void vtkSynchronizedTemplates3D::SetInput(vtkImageData *input)
-{
-  this->vtkProcessObject::SetNthInput(0, input);
-}
-
-//----------------------------------------------------------------------------
-vtkImageData *vtkSynchronizedTemplates3D::GetInput()
-{
-  if (this->NumberOfInputs < 1)
-    {
-    return NULL;
-    }
-  
-  return (vtkImageData *)(this->Inputs[0]);
-}
-
-//----------------------------------------------------------------------------
-int vtkSynchronizedTemplates3D::FillInputPortInformation(int port,
-                                                         vtkInformation* info)
-{
-  if(!this->Superclass::FillInputPortInformation(port, info))
-    {
-    return 0;
-    }
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
   return 1;
 }
 

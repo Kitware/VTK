@@ -40,25 +40,20 @@
 #ifndef __vtkSynchronizedTemplates3D_h
 #define __vtkSynchronizedTemplates3D_h
 
-#include "vtkPolyDataSource.h"
+#include "vtkImageDataToPolyDataAlgorithm.h"
 #include "vtkContourValues.h" // Passes calls through
 
 class vtkImageData;
 class vtkKitwareContourFilter;
 class vtkMultiThreader;
 
-class VTK_PATENTED_EXPORT vtkSynchronizedTemplates3D : public vtkPolyDataSource
+class VTK_PATENTED_EXPORT vtkSynchronizedTemplates3D : public vtkImageDataToPolyDataAlgorithm
 {
 public:
   static vtkSynchronizedTemplates3D *New();
 
-  vtkTypeRevisionMacro(vtkSynchronizedTemplates3D,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkSynchronizedTemplates3D,vtkImageDataToPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
-  // Description:
-  // Set/Get the source for the scalar data to contour.
-  void SetInput(vtkImageData *input);
-  vtkImageData *GetInput();
   
   // Description:
   // Because we delegate to vtkContourValues
@@ -138,7 +133,9 @@ public:
   // Description:
   // Needed by templated functions.
   int *GetExecuteExtent() {return this->ExecuteExtent;}
-  void ThreadedExecute(vtkImageData *data, int *exExt, int threadId);
+  void ThreadedExecute(vtkImageData *data, vtkInformation *inInfo,
+                       vtkInformation *outInfo,
+                       int *exExt, int threadId);
 
   // Description:
   // Get/Set the number of threads to create when rendering
@@ -173,10 +170,8 @@ protected:
   int ComputeScalars;
   vtkContourValues *ContourValues;
 
-  void Execute();
-  void ExecuteInformation();
-
-  void ComputeInputUpdateExtents(vtkDataObject *output);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   
   int ExecuteExtent[6];
 
@@ -190,7 +185,6 @@ protected:
 
   int ArrayComponent;
 
-  virtual int FillInputPortInformation(int, vtkInformation*);
 private:
   //BTX
   friend class VTK_PATENTED_EXPORT vtkKitwareContourFilter;
