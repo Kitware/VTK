@@ -40,6 +40,54 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "PNMSrc.hh"
 
+char vtkPNMSourceGetChar(FILE *fp)
+{
+  char c;
+  int result;
+
+  if ((result = getc(fp)) == EOF )
+    {
+    return '\0';
+    }
+  
+  c = (char)result;
+  if (c == '#')
+    {
+    do
+      {
+      if ((result = getc(fp)) == EOF )
+	{
+	return '\0';
+	}
+      c = (char)result;
+      }
+    while (c != '\n');
+    }
+  
+  return c;
+}
+
+int vtkPNMSourceGetInt(FILE *fp)
+{
+  char c;
+  int result = 0;
+  
+  do
+    {
+    c = vtkPNMSourceGetChar(fp);
+    }
+  while ((c < '1')||(c > '9'));
+  do
+    {
+    result = result * 10 + (c - '0');
+    c = vtkPNMSourceGetChar(fp);
+    }
+  while ((c >= '0')&&(c <= '9'));
+
+  return result;
+}
+  
+
 vtkPNMSource::vtkPNMSource()
 {
   this->Filename = NULL;
@@ -87,7 +135,8 @@ vtkColorScalars *vtkPNMSource::ReadImage(int dim[3])
   vtkColorScalars *s=NULL;
   FILE *fp;
   int numPts;
-
+  char c;
+  
   dim[2] = 1;
 
   if ( !(fp = fopen(this->Filename,"r")) )
@@ -96,7 +145,19 @@ vtkColorScalars *vtkPNMSource::ReadImage(int dim[3])
     return NULL;
     }
 
-  fscanf(fp,"%s %d %d", magic, dim, dim+1);
+  // get the magic number
+  do
+    {
+    c = vtkPNMSourceGetChar(fp);
+    }
+  while (c != 'P');
+  magic[0] = c;
+  magic[1] = vtkPNMSourceGetChar(fp);
+  magic[2] = '\0';
+
+  // now get the dimensions
+  dim[0] = vtkPNMSourceGetInt(fp);
+  dim[1] = vtkPNMSourceGetInt(fp);
 
   // check input
   if ( (numPts = dim[0]*dim[1]) < 1 )
@@ -159,7 +220,8 @@ int vtkPNMSource::ReadBinaryPBM(FILE *fp, vtkBitmap* bitmap, int numPts,
   int max, j, packedXSize=xsize/8;
   unsigned char *cptr;
 
-  fscanf(fp, "%d", &max);
+  max = vtkPNMSourceGetInt(fp);
+
 //
 // Since pnm coordinate system is at upper left of image, need to convert
 // to lower rh corner origin by reading a row at a time.
@@ -183,7 +245,7 @@ int vtkPNMSource::ReadBinaryPGM(FILE *fp, vtkGraymap* graymap, int numPts,
   int max, j;
   unsigned char *cptr;
 
-  fscanf(fp, "%d", &max);
+  max = vtkPNMSourceGetInt(fp);
 //
 // Since pnm coordinate system is at upper left of image, need to convert
 // to lower rh corner origin by reading a row at a time.
@@ -207,7 +269,7 @@ int vtkPNMSource::ReadBinaryPPM(FILE *fp, vtkPixmap* pixmap, int numPts,
   int max, j;
   unsigned char *cptr;
 
-  fscanf(fp, "%d", &max);
+  max = vtkPNMSourceGetInt(fp);
 //
 // Since pnm coordinate system is at upper left of image, need to convert
 // to lower rh corner origin by reading a row at a time.
