@@ -116,7 +116,18 @@ void vtkUpStreamPort::TriggerUpdateInformation(int remoteProcessId)
     {
     input->UpdateInformation();
     }
-
+  
+  // The MTime of the input should also be considered.
+  // Important for pipeline parallelism.
+  // Include it in the information for efficiency.
+  unsigned long t1, t2;
+  t1 = input->GetMTime();
+  t2 = input->GetPipelineMTime();
+  if (t1 > t2)
+    {
+    input->SetPipelineMTime(t1);
+    }
+  
   // Now just send the information downstream.
   // PipelineMTime is part of information, so downstream
   // port will make the time comparison, and call Update if necessary.
@@ -146,7 +157,20 @@ void vtkUpStreamPort::TriggerUpdate(int remoteProcessId)
 			    remoteProcessId, 
 			    VTK_PORT_UPDATE_EXTENT_TAG);
   
+  // Note:  Receiving DataTime was the start of a more intelligent promotion
+  // for pipeline parallism.  Unfortunately there was no way (I knew of)
+  // for us to not promote on the first Update.  I backed off, and am 
+  // requiring either 1: Filters handle Update Not returning correct data,
+  // or 2: Pipeline parallelism must be primed with Updates on the UpStream
+  // ports (giving correct data).  This Receive can be removed.
   
+  // This is for pipeline parallism.
+  // This Upstream port may or may not promote our data (execute).
+  // We need the data time of the last transfer to compare to the mtime
+  // of our input to determine if it should send the data (execute).
+  this->Controller->Receive( &(downDataTime), 1, remoteProcessId,
+			     VTK_PORT_NEW_DATA_TIME_TAG);
+    
   // Postpone the update if we want pipeline parallism.
   // Handle no input gracefully. (Not true: Later we will send a NULL input.)
   if (this->PipelineFlag == 0)
@@ -158,19 +182,48 @@ void vtkUpStreamPort::TriggerUpdate(int remoteProcessId)
       }
     }
 
-  // This is to time the marshaling and transfer of data.
-  if ( this->StartMethod )
+  // Did the input change?
+  // If it did then we should execute (i.e. we should send the data).
+  // Note: We may need some logic to catch the case where the down port
+  // has released its data.
+  //if (downDataTime < input->GetMTime())
+  if (input->GetDataReleased() == 0)
     {
-    (*this->StartMethod)(this->StartMethodArg);
-    }   
+    if ( this->StartMethod )
+      {
+      (*this->StartMethod)(this->StartMethodArg);
+      }
+    // First transfer the new data.
+    this->Controller->Send( input, remoteProcessId,
+			    VTK_PORT_DATA_TRANSFER_TAG);
+    if ( this->EndMethod )
+      {
+      (*this->EndMethod)(this->EndMethodArg);
+      }
+    
+    // Since this time has to be local to downstream process
+    // and we have no data, we have to create a time here.
+    // (The output data usually does this.) 
+    this->UpdateTime.Modified();
   
-  // First transfer the new data.
-  this->Controller->Send( input, remoteProcessId,
-			  VTK_PORT_DATA_TRANSFER_TAG);
-
-  if ( this->EndMethod )
-    {
-    (*this->EndMethod)(this->EndMethodArg);
+    // Since this UpStreamPort can have multiple DownStreamPorts
+    // and the DownStreamPort makes the update-descision time comparison,
+    // the DownStreamPort has to store this time.
+    downDataTime = this->UpdateTime.GetMTime();
+    this->Controller->Send( &downDataTime, 1, remoteProcessId,
+			    VTK_PORT_NEW_DATA_TIME_TAG);
+    }
+  else
+    {  // Nothing to send.  We have to signal somehow.
+    vtkDebugMacro("Promoting NULL (" << input << ") to process " 
+		  << remoteProcessId);
+    this->Controller->Send( (vtkDataObject*)(NULL), remoteProcessId,
+			    VTK_PORT_DATA_TRANSFER_TAG);
+    
+    // Go through the motions of sending the data time,
+    // but just send the same data time back. (nothing changed).
+    this->Controller->Send( &downDataTime, 1, remoteProcessId,
+			    VTK_PORT_NEW_DATA_TIME_TAG);
     }
 
   // Postpone the update if we want pipeline parallism.
@@ -183,19 +236,6 @@ void vtkUpStreamPort::TriggerUpdate(int remoteProcessId)
       input->InternalUpdate();
       }
     }
-
-  // Since this time has to be local to downstream process
-  // and we have no data, we have to create a time here.
-  // (The output data usually does this.) 
-  this->UpdateTime.Modified();
-  
-  // Since this UpStreamPort can have multiple DownStreamPorts
-  // and the DownStreamPort makes the update-descision time comparison,
-  // the DownStreamPort has to store this time.
-  downDataTime = this->UpdateTime.GetMTime();
-  this->Controller->Send( &downDataTime, 1, remoteProcessId,
-			  VTK_PORT_NEW_DATA_TIME_TAG);
-  
 }
 
 

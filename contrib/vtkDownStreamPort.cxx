@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkDownStreamPort* vtkDownStreamPort::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -132,6 +132,7 @@ vtkPolyData *vtkDownStreamPort::GetPolyDataOutput()
     }
   
   output = vtkPolyData::New();
+  output->ReleaseData();
   this->vtkSource::SetOutput(0, output);
   return (vtkPolyData*)(output);
 }
@@ -162,6 +163,7 @@ vtkUnstructuredGrid *vtkDownStreamPort::GetUnstructuredGridOutput()
     }
   
   output = vtkUnstructuredGrid::New();
+  output->ReleaseData();
   this->vtkSource::SetOutput(0, output);
   return (vtkUnstructuredGrid*)(output);
 }
@@ -191,6 +193,7 @@ vtkStructuredGrid *vtkDownStreamPort::GetStructuredGridOutput()
     }
   
   output = vtkStructuredGrid::New();
+  output->ReleaseData();
   this->vtkSource::SetOutput(0, output);
   return (vtkStructuredGrid*)(output);
 }
@@ -221,6 +224,7 @@ vtkRectilinearGrid *vtkDownStreamPort::GetRectilinearGridOutput()
     }
   
   output = vtkRectilinearGrid::New();
+  output->ReleaseData();
   this->vtkSource::SetOutput(0, output);
   return (vtkRectilinearGrid*)(output);
 }
@@ -251,6 +255,7 @@ vtkStructuredPoints *vtkDownStreamPort::GetStructuredPointsOutput()
     }
   
   output = vtkStructuredPoints::New();
+  output->ReleaseData();
   this->vtkSource::SetOutput(0, output);
   return (vtkStructuredPoints*)(output);
 }
@@ -281,6 +286,7 @@ vtkImageData *vtkDownStreamPort::GetImageDataOutput()
     }
   
   output = vtkImageData::New();
+  output->ReleaseData();
   this->vtkSource::SetOutput(0, output);
   return (vtkImageData*)(output);
 }
@@ -327,6 +333,7 @@ void vtkDownStreamPort::UpdateInformation()
   output->SetPipelineMTime(this->GetMTime());
   // Locality has to be changed too.
   output->GetDataInformation()->SetLocality(1.0);
+  
 }
 
 
@@ -401,11 +408,13 @@ void vtkDownStreamPort::InternalUpdate(vtkDataObject *output)
   vtkDataInformation *info = output->GetDataInformation()->MakeObject();
   info->Copy(output->GetDataInformation());  
   // receive the data
+
   this->Controller->Receive(output, this->UpStreamProcessId,
 			    VTK_PORT_DATA_TRANSFER_TAG);
+
   output->GetDataInformation()->Copy(info);
   info->Delete();
-  
+
   if ( this->EndMethod )
     {
     (*this->EndMethod)(this->EndMethodArg);
@@ -415,7 +424,6 @@ void vtkDownStreamPort::InternalUpdate(vtkDataObject *output)
   this->Controller->Receive( &(this->DataTime), 1, this->UpStreamProcessId,
 			    VTK_PORT_NEW_DATA_TIME_TAG);
      
-      
   this->TransferNeeded = 0;
 }
 

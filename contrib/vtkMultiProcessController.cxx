@@ -560,7 +560,6 @@ int vtkMultiProcessController::ReadImageData(vtkImageData *object)
 {
   vtkStructuredPointsReader *reader = vtkStructuredPointsReader::New();
 
-
   if (this->MarshalString == NULL || this->MarshalStringLength <= 0)
     {
     return 0;
@@ -572,7 +571,8 @@ int vtkMultiProcessController::ReadImageData(vtkImageData *object)
   reader->GetOutput()->InternalUpdate();
   
   this->CopyImageData(reader->GetOutput(), object);
-
+  object->DataHasBeenGenerated();
+  
   reader->Delete();
 
 
@@ -652,6 +652,7 @@ int vtkMultiProcessController::ReadDataSet(vtkDataSet *object)
   output->InternalUpdate();
   
   this->CopyDataSet(output, object);
+  object->DataHasBeenGenerated();
   reader->Delete();
 
   log->StopTimer();
