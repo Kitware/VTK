@@ -165,4 +165,15 @@ void vtkImageSimpleCache::Update()
 
 
 
-
+//----------------------------------------------------------------------------
+// Description:
+// return the un filled data of the UpdateExtent in this cache.
+vtkImageData *vtkImageSimpleCache::GetData()
+{
+  if (! this->CachedData)
+    {
+    this->AllocateData();
+    }
+  
+  return this->CachedData;
+}

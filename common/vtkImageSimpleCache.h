@@ -65,7 +65,10 @@ public:
   vtkImageData *UpdateAndReturnData();
   void ReleaseData();
   void AllocateData();
-  
+
+  // Law: for vtkImageIterateFilter
+  vtkImageData *GetData(); 
+ 
 protected:
   vtkImageData *CachedData;
   vtkTimeStamp GenerateTime;

@@ -93,6 +93,11 @@ public:
   virtual vtkImageData *UpdateAndReturnData() = 0;
   virtual void ReleaseData() {};
 
+  // supplied by subclass: just return the data object associated with
+  // the UpdateExtent. (Law)
+  // I need this for vtkImageIterateFilter Ken.
+  virtual vtkImageData *GetData() = 0;  
+  
   // Description:
   // Return flag indicating whether data should be released after use  
   // by a filter.
