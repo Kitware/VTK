@@ -303,7 +303,7 @@ static void vtkImageMathematicsExecute2(vtkImageMathematics *self,
 		}
 	      else
 		{
-	        *outPtr =  (T)atan2(*in1Ptr,*in2Ptr);
+	        *outPtr =  (T)atan2((double)*in1Ptr,(double)*in2Ptr);
 		}
 	    break;
 	  }

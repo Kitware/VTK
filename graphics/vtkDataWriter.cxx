@@ -480,7 +480,7 @@ static void WriteDataArray(ostream *fp, T *data, int fileType, char *format, int
 	vtkByteSwap::SwapWrite4BERange((float *)data,num*numComp, fp);
 	break;
       default:
-	fp->write ((unsigned char *)data, ( sizeof(T))*( num*numComp));
+	fp->write((char *)data, ( sizeof(T))*( num*numComp));
 
       }
     }
@@ -519,7 +519,7 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkDataArray *data, cha
       else
 	{
         unsigned char *cptr=((vtkUnsignedCharArray *)data)->GetPointer(0);
-	fp->write ((unsigned char *)cptr, (sizeof(unsigned char))*((num-1)/8+1));
+	fp->write((char *)cptr, (sizeof(unsigned char))*((num-1)/8+1));
 
 	}
       *fp << "\n";
@@ -696,7 +696,7 @@ int vtkDataWriter::WriteScalarData(ostream *fp, vtkScalars *scalars, int num)
       }
     else // binary type
       {
-      fp->write ((unsigned char *)data, (sizeof(unsigned char))*(nvs*num));
+      fp->write((char *)data, (sizeof(unsigned char))*(nvs*num));
 
       }
 
@@ -719,7 +719,7 @@ int vtkDataWriter::WriteScalarData(ostream *fp, vtkScalars *scalars, int num)
     else
       {
       unsigned char *colors=lut->GetPointer(0);
-      fp->write((unsigned char *)colors, (sizeof(unsigned char)*4*size));
+      fp->write((char *)colors, (sizeof(unsigned char)*4*size));
       }
     *fp << "\n";
     }

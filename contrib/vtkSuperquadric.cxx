@@ -117,18 +117,18 @@ void vtkSuperquadric::SetPhiRoundness(float e)
 // Evaluate Superquadric equation
 float vtkSuperquadric::EvaluateFunction(float xyz[3])
 {
-  float e = this->ThetaRoundness;
-  float n = this->PhiRoundness;
-  float p[3], s[3];
-  float val;
+  double e = this->ThetaRoundness;
+  double n = this->PhiRoundness;
+  double p[3], s[3];
+  double val;
 
   s[0] = this->Scale[0] * this->Size;
   s[1] = this->Scale[1] * this->Size;
   s[2] = this->Scale[2] * this->Size;
 
   if(this->Toroidal) {
-    float tval;
-    float alpha;
+    double tval;
+    double alpha;
 
     alpha = (1.0 / this->Thickness);
     s[0] /= (alpha + 1.0);
@@ -158,7 +158,7 @@ float vtkSuperquadric::EvaluateFunction(float xyz[3])
     val = -MAX_FVAL;
   }
   
-  return(val);
+  return (float)(val);
 }
 
 // Description

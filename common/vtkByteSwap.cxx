@@ -132,11 +132,11 @@ void vtkByteSwap::SwapWrite4BERange(char *mem_ptr1,int num, ostream *fp)
     pos[2] = one_byte;
     pos = pos + 4;
     }
-  fp->write((unsigned char *)cpy, 4*num);
+  fp->write((char *)cpy, 4*num);
   delete [] cpy;
   
 #else
-  fp->write((unsigned char *)mem_ptr1, 4*num);
+  fp->write((char *)mem_ptr1, 4*num);
 #endif
 }
 
@@ -317,12 +317,12 @@ void vtkByteSwap::SwapWrite2BERange(char *mem_ptr1,int num, ostream *fp)
     pos[1] = one_byte;
     pos = pos + 2;
     }
-  fp->write((unsigned char *)cpy, 2*num);
+  fp->write((char *)cpy, 2*num);
 
   delete [] cpy;
   
 #else
-  fp->write((unsigned char *)mem_ptr1, 2*num);
+  fp->write((char *)mem_ptr1, 2*num);
 #endif
 }
 
