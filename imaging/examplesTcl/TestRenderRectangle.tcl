@@ -17,14 +17,16 @@ vtkImageMapper mapper2
   mapper2 SetZSlice 21
   mapper2 SetRenderToRectangle 1
   mapper2 SetUseCustomExtents 1
-  mapper2 SetCustomDisplayExtents 128 138 128 138
+  mapper2 SetCustomDisplayExtents 128 147 128 147
 
 vtkActor2D actor2
   actor2 SetMapper mapper2
-  [actor2 GetPositionCoordinate] SetCoordinateSystemToNormalizedViewport
-  [actor2 GetPositionCoordinate] SetValue 0.1 0.1
+  [actor2 GetPositionCoordinate] SetCoordinateSystemToNormalizedViewport 
+  [actor2 GetPositionCoordinate] SetValue 0.25 0.25
   [actor2 GetPosition2Coordinate] SetCoordinateSystemToNormalizedViewport
-  [actor2 GetPosition2Coordinate] SetValue 0.8 0.8
+  [actor2 GetPosition2Coordinate] SetValue 0.5 0.5
+# note that the topright corner is included in the image
+
 
 vtkImager imager1
   imager1 AddActor2D actor2 
@@ -32,6 +34,7 @@ vtkImager imager1
 vtkImageWindow imgWin
   imgWin AddImager imager1
   imgWin Render
+  imgWin SetSize 400 400
 
 vtkWindowToImageFilter windowToImage
   windowToImage SetInput imgWin
