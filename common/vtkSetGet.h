@@ -513,7 +513,6 @@ virtual vtkCoordinate *Get##name##Coordinate () \
 virtual void Set##name(float x[3]) {this->Set##name(x[0],x[1],x[2]);}; \
 virtual void Set##name(float x, float y, float z) \
 { \
-    this->name##Coordinate->SetCoordinateSystem(VTK_WORLD); \
     this->name##Coordinate->SetValue(x,y,z); \
 } \
 virtual float *Get##name() \
@@ -530,7 +529,6 @@ virtual vtkCoordinate *Get##name##Coordinate () \
 virtual void Set##name(float x[2]) {this->Set##name(x[0],x[1]);}; \
 virtual void Set##name(float x, float y) \
 { \
-    this->name##Coordinate->SetCoordinateSystem(VTK_VIEWPORT); \
     this->name##Coordinate->SetValue(x,y); \
 } \
 virtual float *Get##name() \
