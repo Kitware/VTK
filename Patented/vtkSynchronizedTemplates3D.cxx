@@ -825,14 +825,14 @@ void vtkSynchronizedTemplates3D::Execute()
     int firstPD=1;
     for (idx = 0; idx < this->NumberOfThreads; ++idx)
       {
-      threadPD = this->Threads[idx]->GetPointData();
-      
       if ( !this->Threads[idx] || 
            this->Threads[idx]->GetNumberOfPoints() <= 0 )
         {
         continue; //no input, just skip
         }
 
+      threadPD = this->Threads[idx]->GetPointData();
+      
       if ( firstPD )
         {
         ptList.InitializeFieldList(threadPD);
@@ -849,14 +849,14 @@ void vtkSynchronizedTemplates3D::Execute()
 
     for (idx = 0; idx < this->NumberOfThreads; ++idx)
       {
-      threadCD = this->Threads[idx]->GetCellData();
-      
       if ( !this->Threads[idx] || 
            this->Threads[idx]->GetNumberOfPoints() <= 0 )
         {
         continue; //no input, just skip
         }
 
+      threadCD = this->Threads[idx]->GetCellData();
+      
       if ( firstCD )
         {
         clList.InitializeFieldList(threadCD);
