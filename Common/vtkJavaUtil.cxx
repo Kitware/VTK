@@ -15,7 +15,7 @@
 
 // include stdmutex for borland
 #ifdef __BORLANDC__
-#include <stdmutex.h>
+#include <rw/stdmutex.h>
 #endif
 
 #ifdef _INTEGRAL_MAX_BITS
