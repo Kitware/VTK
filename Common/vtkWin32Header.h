@@ -31,7 +31,7 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
 
 //
 // Windows specific stuff------------------------------------------
-#if defined(_WIN32) || defined(WIN32)
+#if defined(_WIN32) || defined(WIN32) || defined(__CYGWIN__)
 
 // define strict header for windows
 #ifndef STRICT
