@@ -36,7 +36,7 @@
 #include "vtkTransform.h"
 #include "vtkMatrix4x4.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.4");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.5");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkImagePlaneWidget::vtkImagePlaneWidget()
@@ -342,11 +342,7 @@ void vtkImagePlaneWidget::PrintSelf(ostream& os, vtkIndent indent)
      << pt2[2] << ")\n";
 
   os << indent << "Plane Orientation: " << this->PlaneOrientation << "\n";
-  os << indent << "Reslice Interpolate: " 
-     << (this->ResliceInterpolate == VTK_NEAREST_RESLICE ? "Nearest Neighbour\n" : \
-         this->ResliceInterpolate == VTK_LINEAR_RESLICE ?  "Linear" : "Cubic\n") ;
-  os << indent << "Reslice Interpolate: " 
-     << (this->ResliceInterpolate ? "On\n" : "Off\n") ;
+  os << indent << "Reslice Interpolate: " << this->ResliceInterpolate << "\n";
   os << indent << "Texture Interpolate: " 
      << (this->TextureInterpolate ? "On\n" : "Off\n") ;
 }
