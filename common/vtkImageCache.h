@@ -156,6 +156,10 @@ public:
   vtkGetMacro(ScalarType,int);
   
   // Description:
+  // Return C type name of the data
+  char *GetScalarTypeAsString();
+
+  // Description:
   // Set/Get the number of scalar components
   vtkSetMacro(NumberOfScalarComponents,int);
   vtkGetMacro(NumberOfScalarComponents,int);
