@@ -41,7 +41,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkEdgeTable - keep track of edges (edge is pair of integer id's)
 // .SECTION Description
 // vtkEdgeTable is a general object for keeping track of lists of edges. An
-// edge is defined by the pair of point id's (p1,p2).
+// edge is defined by the pair of point id's (p1,p2). Methods are available
+// to insert edges, check if edges exist, and traverse the list of edges.
 
 #ifndef __vtkEdgeTable_hh
 #define __vtkEdgeTable_hh
@@ -56,12 +57,18 @@ public:
   ~vtkEdgeTable();
   char *GetClassName() {return "vtkEdgeTable";};
 
+  // Insert/check existence of edges
   int IsEdge(int p1, int p2);
   void InsertEdge(int p1, int p2);
+
+  // Traverse list of edges
+  void InitTraversal();
+  int GetNextEdge(int &p1, int &p2);
 
 protected:
   vtkIdList **Table;
   int TableSize;
+  int Position[2];
 
 };
 
