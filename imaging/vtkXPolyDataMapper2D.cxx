@@ -113,7 +113,10 @@ void vtkXPolyDataMapper2D::Render(vtkViewport* viewport, vtkActor2D* actor)
     return;
     }
   
-  if ( this->LookupTable == NULL ) this->CreateDefaultLookupTable();
+  if ( this->LookupTable == NULL )
+    {
+    this->CreateDefaultLookupTable();
+    }
 
   //
   // if something has changed regenrate colors and display lists

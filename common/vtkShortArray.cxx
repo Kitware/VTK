@@ -53,7 +53,10 @@ vtkShortArray::vtkShortArray(int numComp)
 
 vtkShortArray::~vtkShortArray()
 {
-  if ((this->Array) && (!this->SaveUserArray)) delete [] this->Array;
+  if ((this->Array) && (!this->SaveUserArray))
+    {
+    delete [] this->Array;
+    }
   delete [] this->Tuple;
 }
 
@@ -95,7 +98,10 @@ int vtkShortArray::Allocate(const int sz, const int ext)
       delete [] this->Array;
       }
     this->Size = ( sz > 0 ? sz : 1);
-    if ( (this->Array = new short[this->Size]) == NULL ) return 0;
+    if ( (this->Array = new short[this->Size]) == NULL )
+      {
+      return 0;
+      }
     this->SaveUserArray = 0;
     }
 
@@ -218,7 +224,10 @@ float *vtkShortArray::GetTuple(const int i)
     }
 
   short *t = this->Array + this->NumberOfComponents*i;
-  for (int j=0; j<this->NumberOfComponents; j++) this->Tuple[j] = (float)t[j];
+  for (int j=0; j<this->NumberOfComponents; j++)
+    {
+    this->Tuple[j] = (float)t[j];
+    }
   return this->Tuple;
 }
 
@@ -227,7 +236,10 @@ float *vtkShortArray::GetTuple(const int i)
 void vtkShortArray::GetTuple(const int i, float * tuple) 
 {
   short *t = this->Array + this->NumberOfComponents*i;
-  for (int j=0; j<this->NumberOfComponents; j++) tuple[j] = (float)t[j];
+  for (int j=0; j<this->NumberOfComponents; j++)
+    {
+    tuple[j] = (float)t[j];
+    }
 }
 
 // Description:
@@ -236,7 +248,9 @@ void vtkShortArray::SetTuple(const int i, const float * tuple)
 {
   int loc = i * this->NumberOfComponents; 
   for (int j=0; j<this->NumberOfComponents; j++) 
+    {
     this->Array[loc+j] = (short)tuple[j];
+    }
 }
 
 // Description:
@@ -244,9 +258,13 @@ void vtkShortArray::SetTuple(const int i, const float * tuple)
 // in the array.
 void vtkShortArray::InsertTuple(const int i, const float * tuple)
 {
-  short *t = this->WritePointer(i*this->NumberOfComponents,this->NumberOfComponents);
+  short *t
+    = this->WritePointer(i*this->NumberOfComponents,this->NumberOfComponents);
 
-  for (int j=0; j<this->NumberOfComponents; j++) *t++ = (short)*tuple++;
+  for (int j=0; j<this->NumberOfComponents; j++)
+    {
+    *t++ = (short)*tuple++;
+    }
 }
 
 // Description:
@@ -256,7 +274,10 @@ int vtkShortArray::InsertNextTuple(const float * tuple)
   int i = this->MaxId + 1;
   short *t = this->WritePointer(i,this->NumberOfComponents);
 
-  for (i=0; i<this->NumberOfComponents; i++) *t++ = (short)*tuple++;
+  for (i=0; i<this->NumberOfComponents; i++)
+    {
+    *t++ = (short)*tuple++;
+    }
 
   return this->MaxId / this->NumberOfComponents;
 }

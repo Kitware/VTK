@@ -77,8 +77,12 @@ protected:
 inline void vtkTensor::Initialize()
 {
   for (int j=0; j<3; j++)
+    {
     for (int i=0; i<3; i++)
+      {
       this->T[i+j*3] = 0.0;
+      }
+    }
 }
 
 // Description:
@@ -114,8 +118,12 @@ inline float *vtkTensor::GetColumn(int j)
 inline void vtkTensor::DeepCopy(vtkTensor &t)
 {
   for (int j=0; j < 3; j++)
+    {
     for (int i=0; i < 3; i++)
+      {
       this->T[i+3*j] = t.T[i+3*j];
+      }
+    }
 }
 
 #endif

@@ -58,9 +58,9 @@ vtkCell *vtkLine::MakeObject()
   return cell;
 }
 
-#define NO_INTERSECTION 0
-#define INTERSECTION 2
-#define ON_LINE 3
+#define VTK_NO_INTERSECTION 0
+#define VTK_INTERSECTION 2
+#define VTK_ON_LINE 3
 
 int vtkLine::EvaluatePosition(float x[3], float closestPoint[3], 
                              int& subId, float pcoords[3],
@@ -79,8 +79,14 @@ int vtkLine::EvaluatePosition(float x[3], float closestPoint[3],
   weights[0] = pcoords[0];
   weights[1] = 1.0 - pcoords[0];
 
-  if ( pcoords[0] < 0.0 || pcoords[0] > 1.0 ) return 0;
-  else return 1;
+  if ( pcoords[0] < 0.0 || pcoords[0] > 1.0 )
+    {
+    return 0;
+    }
+  else
+    {
+    return 1;
+    }
 }
 
 void vtkLine::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3], 
@@ -138,7 +144,7 @@ int vtkLine::Intersection (float a1[3], float a2[3], float b1[3], float b2[3],
   //  Solve the system of equations
   if ( vtkMath::SolveLinearSystem(A,c,2) == 0 )
     {
-    return ON_LINE;
+    return VTK_ON_LINE;
     }
   else 
     {
@@ -149,11 +155,11 @@ int vtkLine::Intersection (float a1[3], float a2[3], float b1[3], float b2[3],
   //  Check parametric coordinates for intersection.
   if ( (0.0 <= u) && (u <= 1.0) && (0.0 <= v) && (v <= 1.0) )
     {
-    return INTERSECTION;
+    return VTK_INTERSECTION;
     }
   else
     {
-    return NO_INTERSECTION;
+    return VTK_NO_INTERSECTION;
     }
 }
 
@@ -165,14 +171,26 @@ int vtkLine::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
   if ( pcoords[0] >= 0.5 )
     {
     pts.SetId(0,this->PointIds.GetId(1));
-    if ( pcoords[0] > 1.0 ) return 0;
-    else return 1;
+    if ( pcoords[0] > 1.0 )
+      {
+      return 0;
+      }
+    else
+      {
+      return 1;
+      }
     }
   else
     {
     pts.SetId(0,this->PointIds.GetId(0));
-    if ( pcoords[0] < 0.0 ) return 0;
-    else return 1;
+    if ( pcoords[0] < 0.0 )
+      {
+      return 0;
+      }
+    else
+      {
+      return 1;
+      }
     }
 }
 
@@ -205,12 +223,16 @@ void vtkLine::Contour(float value, vtkScalars *cellScalars,
   float t, x[3], *x1, *x2;
   int pts[1];
 
-//
-// Build the case table
-//
+  //
+  // Build the case table
+  //
   for ( i=0, index = 0; i < 2; i++)
+    {
     if (cellScalars->GetScalar(i) >= value) 
+      {
       index |= CASE_MASK[i];
+      }
+    }
 
   vertCase = vertCases + index;
   vert = vertCase->verts;
@@ -221,7 +243,10 @@ void vtkLine::Contour(float value, vtkScalars *cellScalars,
         (cellScalars->GetScalar(vert[1]) - cellScalars->GetScalar(vert[0]));
     x1 = this->Points.GetPoint(vert[0]);
     x2 = this->Points.GetPoint(vert[1]);
-    for (i=0; i<3; i++) x[i] = x1[i] + t * (x2[i] - x1[i]);
+    for (i=0; i<3; i++)
+      {
+      x[i] = x1[i] + t * (x2[i] - x1[i]);
+      }
 
     if ( (pts[0] = locator->IsInsertedPoint(x)) < 0 )
       {
@@ -247,23 +272,26 @@ float vtkLine::DistanceToLine(float x[3], float p1[3], float p2[3],
   int i;
   float p21[3], denom, num;
   float *closest;
-//
-//   Determine appropriate vectors
-// 
-  for (i=0; i<3; i++) p21[i] = p2[i] - p1[i];
-//
-//   Get parametric location
-//
+  //
+  //   Determine appropriate vectors
+  // 
+  for (i=0; i<3; i++)
+    {
+    p21[i] = p2[i] - p1[i];
+    }
+  //
+  //   Get parametric location
+  //
   num = p21[0]*(x[0]-p1[0]) + p21[1]*(x[1]-p1[1]) + p21[2]*(x[2]-p1[2]);
 
   if ( (denom = vtkMath::Dot(p21,p21)) < fabs(VTK_TOL*num) ) //numerically bad!
     {
     closest = p1; //arbitrary, point is (numerically) far away
     }
-//
-// If parametric coordinate is within 0<=p<=1, then the point is closest to
-// the line.  Otherwise, it's closest to a point at the end of the line.
-//
+  //
+  // If parametric coordinate is within 0<=p<=1, then the point is closest to
+  // the line.  Otherwise, it's closest to a point at the end of the line.
+  //
   else if ( (t=num/denom) < 0.0 )
     {
     closest = p1;
@@ -275,7 +303,10 @@ float vtkLine::DistanceToLine(float x[3], float p1[3], float p2[3],
   else
     {
     closest = p21;
-    for (i=0; i<3; i++) p21[i] = p1[i] + t*p21[i];
+    for (i=0; i<3; i++)
+      {
+      p21[i] = p1[i] + t*p21[i];
+      }
     }
 
   closestPoint[0] = closest[0]; 
@@ -302,10 +333,16 @@ float vtkLine::DistanceToLine (float x[3], float p1[3], float p2[3])
     }
 
   if ( (den=vtkMath::Norm(p1p2)) != 0.0 )
-      for (i=0; i<3; i++)
-          p1p2[i] /= den;
+    {
+    for (i=0; i<3; i++)
+      {
+      p1p2[i] /= den;
+      }
+    }
   else
-      return vtkMath::Dot(np1,np1);
+    {
+    return vtkMath::Dot(np1,np1);
+    }
 
   proj = vtkMath::Dot(np1,p1p2);
 
@@ -328,7 +365,7 @@ int vtkLine::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
   a1 = this->Points.GetPoint(0);
   a2 = this->Points.GetPoint(1);
 
-  if ( this->Intersection(p1, p2, a1, a2, t, pcoords[0]) == INTERSECTION )
+  if ( this->Intersection(p1, p2, a1, a2, t, pcoords[0]) == VTK_INTERSECTION )
     {
     // make sure we are withing tolerance
     for (i=0; i<3; i++)
@@ -337,9 +374,13 @@ int vtkLine::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
 	projXYZ[i] = p1[i] + t*(p2[i]-p1[i]);
       }
     if ( vtkMath::Distance2BetweenPoints(x,projXYZ) <= tol*tol )
+      {
       return 1;
+      }
     else
+      {
       return 0;
+      }
     }
 
   else //check to see if it lies within tolerance
@@ -348,26 +389,50 @@ int vtkLine::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
     if (t < 0.0)
       {
       t = 0.0;
-      if (vtkLine::DistanceToLine(p1,a1,a2,pcoords[0],x) <= tol*tol) return 1;
-      else return 0;
+      if (vtkLine::DistanceToLine(p1,a1,a2,pcoords[0],x) <= tol*tol)
+	{
+	return 1;
+	}
+      else
+	{
+	return 0;
+	}
       }
     if (t > 1.0)
       {
       t = 1.0;
-      if (vtkLine::DistanceToLine(p2,a1,a2,pcoords[0],x) <= tol*tol) return 1;
-      else return 0;
+      if (vtkLine::DistanceToLine(p2,a1,a2,pcoords[0],x) <= tol*tol)
+	{
+	return 1;
+	}
+      else
+	{
+	return 0;
+	}
       }
     if (pcoords[0] < 0.0)
       {
       pcoords[0] = 0.0;
-      if (vtkLine::DistanceToLine(a1,p1,p2,t,x) <= tol*tol) return 1;
-      else return 0;
+      if (vtkLine::DistanceToLine(a1,p1,p2,t,x) <= tol*tol)
+	{
+	return 1;
+	}
+      else
+	{
+	return 0;
+	}
       }
     if (pcoords[0] > 1.0)
       {
       pcoords[0] = 1.0;
-      if (vtkLine::DistanceToLine(a2,p1,p2,t,x) <= tol*tol) return 1;
-      else return 0;
+      if (vtkLine::DistanceToLine(a2,p1,p2,t,x) <= tol*tol)
+	{
+	return 1;
+	}
+      else
+	{
+	return 0;
+	}
       }
     }
   return 0;
@@ -398,7 +463,10 @@ void vtkLine::Derivatives(int vtkNotUsed(subId),
   x0 = this->Points.GetPoint(0);
   x1 = this->Points.GetPoint(1);
 
-  for (i=0; i<3; i++) deltaX[i] = x1[i] - x0[i];
+  for (i=0; i<3; i++)
+    {
+    deltaX[i] = x1[i] - x0[i];
+    }
   for (i=0; i<dim; i++) 
     {
     for (j=0; j<3; j++)
@@ -441,14 +509,22 @@ void vtkLine::Clip(float value, vtkScalars *cellScalars,
   if ( insideOut )
     {    
     for ( i=0, index = 0; i < 2; i++)
+      {
       if (cellScalars->GetScalar(i) <= value)
+	{
         index |= CASE_MASK[i];
+	}
+      }
     }    
   else
     {
     for ( i=0, index = 0; i < 2; i++)
+      {
       if (cellScalars->GetScalar(i) > value)
-        index |= CASE_MASK[i];
+	{
+	index |= CASE_MASK[i];
+	}
+      }
     }
 
   // Select the case based on the index and get the list of lines for this case
@@ -479,7 +555,10 @@ void vtkLine::Clip(float value, vtkScalars *cellScalars,
 
         this->Points.GetPoint(0, x1);
         this->Points.GetPoint(1, x2);
-        for (j=0; j<3; j++) x[j] = x1[j] + t * (x2[j] - x1[j]);
+        for (j=0; j<3; j++)
+	  {
+	  x[j] = x1[j] + t * (x2[j] - x1[j]);
+	  }
 
         if ( (pts[i] = locator->IsInsertedPoint(x)) < 0 )
           {

@@ -154,8 +154,14 @@ void vtkImageReader::ComputeInternalFileName(int slice)
 // This function sets the name of the file. 
 void vtkImageReader::SetFileName(char *name)
 {
-  if ( this->FileName && name && (!strcmp(this->FileName,name))) return; 
-  if (!name && !this->FileName) return;
+  if ( this->FileName && name && (!strcmp(this->FileName,name)))
+    {
+    return;
+    }
+  if (!name && !this->FileName)
+    {
+    return;
+    }
   if (this->FileName)
     {
     delete [] this->FileName;
@@ -176,8 +182,14 @@ void vtkImageReader::SetFileName(char *name)
 // name of a series: image.1, image.2 ...
 void vtkImageReader::SetFilePrefix(char *prefix)
 {
-  if ( this->FilePrefix && prefix && (!strcmp(this->FilePrefix,prefix))) return; 
-  if (!prefix && !this->FilePrefix) return;
+  if ( this->FilePrefix && prefix && (!strcmp(this->FilePrefix,prefix)))
+    {
+    return;
+    }
+  if (!prefix && !this->FilePrefix)
+    {
+    return;
+    }
   if (this->FilePrefix)
     {
     delete [] this->FilePrefix;
@@ -200,8 +212,14 @@ void vtkImageReader::SetFilePrefix(char *prefix)
 void vtkImageReader::SetFilePattern(char *pattern)
 {
   if ( this->FilePattern && pattern && 
-       (!strcmp(this->FilePattern,pattern))) return; 
-  if (!pattern && !this->FilePattern) return;
+       (!strcmp(this->FilePattern,pattern)))
+    {
+    return;
+    }
+  if (!pattern && !this->FilePattern)
+    {
+    return;
+    }
   if (this->FilePattern)
     {
     delete [] this->FilePattern;
@@ -237,23 +255,35 @@ void vtkImageReader::SetDataByteOrderToLittleEndian()
 void vtkImageReader::SetDataByteOrder(int byteOrder)
 {
   if ( byteOrder == VTK_FILE_BYTE_ORDER_BIG_ENDIAN )
+    {
     this->SetDataByteOrderToBigEndian();
+    }
   else
+    {
     this->SetDataByteOrderToLittleEndian();
+    }
 }
 
 int vtkImageReader::GetDataByteOrder()
 {
 #ifdef VTK_WORDS_BIGENDIAN
   if ( this->SwapBytes )
+    {
     return VTK_FILE_BYTE_ORDER_LITTLE_ENDIAN;
+    }
   else
+    {
     return VTK_FILE_BYTE_ORDER_BIG_ENDIAN;
+    }
 #else
   if ( this->SwapBytes )
+    {
     return VTK_FILE_BYTE_ORDER_BIG_ENDIAN;
+    }
   else
+    {
     return VTK_FILE_BYTE_ORDER_LITTLE_ENDIAN;
+    }
 #endif
 }
 
@@ -261,14 +291,22 @@ char *vtkImageReader::GetDataByteOrderAsString()
 {
 #ifdef VTK_WORDS_BIGENDIAN
   if ( this->SwapBytes )
+    {
     return "LittleEndian";
+    }
   else
+    {
     return "BigEndian";
+    }
 #else
   if ( this->SwapBytes )
+    {
     return "BigEndian";
+    }
   else
+    {
     return "LittleEndian";
+    }
 #endif
 }
 
@@ -588,11 +626,17 @@ static void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
   // compute outPtr2 
   outPtr2 = outPtr;
   if (outIncr[0] < 0) 
+    {
     outPtr2 = outPtr2 - outIncr[0]*(dataExtent[1] - dataExtent[0]);
+    }
   if (outIncr[1] < 0) 
+    {
     outPtr2 = outPtr2 - outIncr[1]*(dataExtent[3] - dataExtent[2]);
+    }
   if (outIncr[2] < 0) 
+    {
     outPtr2 = outPtr2 - outIncr[2]*(dataExtent[5] - dataExtent[4]);
+    }
 
   // length of a row, num pixels read at a time
   pixelRead = dataExtent[1] - dataExtent[0] + 1; 
@@ -809,7 +853,10 @@ void vtkImageReader::ComputeTransformedSpacing (float Spacing[3])
     transformedSpacing[3] = 0.0;
     this->Transform->MultiplyPoint (transformedSpacing, transformedSpacing);
 
-    for (int i = 0; i < 3; i++) Spacing[i] = fabs(transformedSpacing[i]);
+    for (int i = 0; i < 3; i++)
+      {
+      Spacing[i] = fabs(transformedSpacing[i]);
+      }
     vtkDebugMacro("Transformed Spacing " << Spacing[0] << ", " << Spacing[1] << ", " << Spacing[2]);
     }
 }

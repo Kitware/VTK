@@ -71,7 +71,10 @@ int vtkPolyVertex::EvaluatePosition(float x[3], float closestPoint[3],
       }
     }
 
-  for (i=0; i<numPts; i++) weights[i] = 0.0;
+  for (i=0; i<numPts; i++)
+    {
+    weights[i] = 0.0;
+    }
   weights[subId] = 1.0;
 
   if (minDist2 == 0.0)
@@ -96,7 +99,10 @@ void vtkPolyVertex::EvaluateLocation(int& subId,
   x[1] = X[1];
   x[2] = X[2];
 
-  for (i=0; i<this->GetNumberOfPoints(); i++) weights[i] = 0.0;
+  for (i=0; i<this->GetNumberOfPoints(); i++)
+    {
+    weights[i] = 0.0;
+    }
   weights[subId] = 1.0;
 }
 
@@ -105,8 +111,14 @@ int vtkPolyVertex::CellBoundary(int subId, float pcoords[3], vtkIdList& pts)
   pts.SetNumberOfIds(1);
   pts.SetId(0,this->PointIds.GetId(subId));
 
-  if ( pcoords[0] != 0.0 )  return 0;
-  else return 1;
+  if ( pcoords[0] != 0.0 )
+    {
+    return 0;
+    }
+  else
+    {
+    return 1;
+    }
 }
 
 void vtkPolyVertex::Contour(float value, vtkScalars *cellScalars, 
@@ -147,7 +159,9 @@ int vtkPolyVertex::IntersectWithLine(float p1[3], float p2[3],
     this->Vertex.Points.SetPoint(0,this->Points.GetPoint(subId));
 
     if ( this->Vertex.IntersectWithLine(p1, p2, tol, t, x, pcoords, subTest) )
+      {
       return 1;
+      }
     }
 
   return 0;

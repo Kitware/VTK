@@ -53,7 +53,10 @@ vtkLongArray::vtkLongArray(int numComp)
 
 vtkLongArray::~vtkLongArray()
 {
-  if ((this->Array) && (!this->SaveUserArray)) delete [] this->Array;
+  if ((this->Array) && (!this->SaveUserArray))
+    {
+    delete [] this->Array;
+    }
   delete [] this->Tuple;
 }
 
@@ -97,7 +100,10 @@ int vtkLongArray::Allocate(const int sz, const int ext)
       delete [] this->Array;
       }
     this->Size = ( sz > 0 ? sz : 1);
-    if ( (this->Array = new long[this->Size]) == NULL ) return 0;
+    if ( (this->Array = new long[this->Size]) == NULL )
+      {
+      return 0;
+      }
     this->SaveUserArray = 0;
     }
 
@@ -220,7 +226,10 @@ float *vtkLongArray::GetTuple(const int i)
     }
 
   long *t = this->Array + this->NumberOfComponents*i;
-  for (int j=0; j<this->NumberOfComponents; j++) this->Tuple[j] = (float)t[j];
+  for (int j=0; j<this->NumberOfComponents; j++)
+    {
+    this->Tuple[j] = (float)t[j];
+    }
   return this->Tuple;
 }
 
@@ -229,7 +238,10 @@ float *vtkLongArray::GetTuple(const int i)
 void vtkLongArray::GetTuple(const int i, float * tuple)
 {
   long *t = this->Array + this->NumberOfComponents*i;
-  for (int j=0; j<this->NumberOfComponents; j++) tuple[j] = (float)t[j];
+  for (int j=0; j<this->NumberOfComponents; j++)
+    {
+    tuple[j] = (float)t[j];
+    }
 }
 
 // Description:
@@ -238,7 +250,9 @@ void vtkLongArray::SetTuple(const int i, const float * tuple)
 {
   int loc = i * this->NumberOfComponents; 
   for (int j=0; j<this->NumberOfComponents; j++) 
+    {
     this->Array[loc+j] = (long)tuple[j];
+    }
 }
 
 // Description:
@@ -248,7 +262,10 @@ void vtkLongArray::InsertTuple(const int i, const float * tuple)
 {
   long *t = this->WritePointer(i*this->NumberOfComponents,this->NumberOfComponents);
 
-  for (int j=0; j<this->NumberOfComponents; j++) *t++ = (long)*tuple++;
+  for (int j=0; j<this->NumberOfComponents; j++)
+    {
+    *t++ = (long)*tuple++;
+    }
 }
 
 // Description:
@@ -258,7 +275,10 @@ int vtkLongArray::InsertNextTuple(const float * tuple)
   int i = this->MaxId + 1;
   long *t = this->WritePointer(i,this->NumberOfComponents);
 
-  for (i=0; i<this->NumberOfComponents; i++) *t++ = (long)*tuple++;
+  for (i=0; i<this->NumberOfComponents; i++)
+    {
+    *t++ = (long)*tuple++;
+    }
 
   return this->MaxId / this->NumberOfComponents;
 }

@@ -46,7 +46,11 @@ vtkTensor::vtkTensor()
 {
   this->T = this->Storage;
   for (int j=0; j<3; j++)
+    {
     for (int i=0; i<3; i++)
+      {
       this->T[i+j*3] = 0.0;
+      }
+    }
 }
 

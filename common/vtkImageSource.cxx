@@ -124,9 +124,15 @@ void vtkImageSource::Update()
 // This method is called by the cache.
 void vtkImageSource::InternalUpdate(vtkImageData *data)
 {
-  if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);  
+  if ( this->StartMethod )
+    {
+    (*this->StartMethod)(this->StartMethodArg);
+    }
   this->Execute(data);
-  if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);  
+  if ( this->EndMethod )
+    {
+    (*this->EndMethod)(this->EndMethodArg);
+    }
 }
 
 //----------------------------------------------------------------------------

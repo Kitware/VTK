@@ -99,8 +99,14 @@ inline vtkCuller *vtkCullerCollection::GetNextItem()
 // Get the last Culler in the list.
 inline vtkCuller *vtkCullerCollection::GetLastItem() 
 { 
-  if ( this->Bottom == NULL ) return NULL;
-  else return (vtkCuller *)(this->Bottom->Item);
+  if ( this->Bottom == NULL )
+    {
+    return NULL;
+    }
+  else
+    {
+    return (vtkCuller *)(this->Bottom->Item);
+    }
 }
 
 #endif

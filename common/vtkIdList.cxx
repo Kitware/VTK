@@ -84,8 +84,12 @@ void vtkIdList::DeleteId(int Id)
     {
     // first find id
     for ( ; i < numIds; i++)
-      if ( this->GetId(i) == Id ) 
+      {
+      if ( this->GetId(i) == Id )
+	{
         break;
+	}
+      }
 
     // if found; replace current id with last
     if ( i < numIds )
@@ -110,11 +114,17 @@ void vtkIdList::IntersectWith(vtkIdList& otherIds)
     int  thisIds[VTK_TMP_ARRAY_SIZE];
     int  i, id;
     
-    for (i=0; i < thisNumIds; i++) thisIds[i] = this->GetId(i);
+    for (i=0; i < thisNumIds; i++)
+      {
+      thisIds[i] = this->GetId(i);
+      }
     for (this->Reset(), i=0; i < thisNumIds; i++) 
       {
       id = thisIds[i];
-      if (otherIds.IsId(id)) this->InsertNextId(id);
+      if (otherIds.IsId(id))
+	{
+	this->InsertNextId(id);
+	}
       }
     } 
   else 
@@ -122,11 +132,17 @@ void vtkIdList::IntersectWith(vtkIdList& otherIds)
     int  *thisIds = new int [thisNumIds];
     int  i, id;
     
-    for (i=0; i < thisNumIds; i++) *(thisIds + i) = this->GetId(i);
+    for (i=0; i < thisNumIds; i++)
+      {
+      *(thisIds + i) = this->GetId(i);
+      }
     for (this->Reset(), i=0; i < thisNumIds; i++) 
       {
       id = *(thisIds + i);
-      if (otherIds.IsId(id)) this->InsertNextId(id);
+      if (otherIds.IsId(id))
+	{
+	this->InsertNextId(id);
+	}
       }
     delete [] thisIds;
     }

@@ -89,7 +89,7 @@ vtkCamera::vtkCamera()
   
   this->FocalDisk = 1.0;
   this->Stereo = 0;
-  this->VPN_dot_DOP = 0.0;
+  this->VPNDotDOP = 0.0;
 }
 
 #ifdef VTK_USE_OGLR
@@ -110,16 +110,28 @@ vtkCamera *vtkCamera::New()
   char *temp = vtkRenderWindow::GetRenderLibrary();
   
 #ifdef VTK_USE_SBR
-  if (!strcmp("Starbase",temp)) return vtkStarbaseCamera::New();
+  if (!strcmp("Starbase",temp))
+    {
+    return vtkStarbaseCamera::New();
+    }
 #endif
 #ifdef VTK_USE_OGLR
-  if (!strcmp("OpenGL",temp)) return vtkOpenGLCamera::New();
+  if (!strcmp("OpenGL",temp))
+    {
+    return vtkOpenGLCamera::New();
+    }
 #endif
 #ifdef _WIN32
-  if (!strcmp("Win32OpenGL",temp)) return vtkOpenGLCamera::New();
+  if (!strcmp("Win32OpenGL",temp))
+    {
+    return vtkOpenGLCamera::New();
+    }
 #endif
 #ifdef VTK_USE_XGLR
-  if (!strcmp("XGL",temp)) return vtkXGLCamera::New();
+  if (!strcmp("XGL",temp))
+    {
+    return vtkXGLCamera::New();
+    }
 #endif
   
   return new vtkCamera;
@@ -279,7 +291,10 @@ void vtkCamera::SetClippingRange(float a[2])
 // plus the thickness.
 void vtkCamera::SetThickness(float X)
 {
-  if (this->Thickness == X) return;
+  if (this->Thickness == X)
+    {
+    return;
+    }
 
   this->Thickness = X; 
 
@@ -304,7 +319,10 @@ void vtkCamera::SetThickness(float X)
 // modified accordingly. This should be positive.
 void vtkCamera::SetDistance(float X)
 {
-  if (this->Distance == X) return;
+  if (this->Distance == X)
+    {
+    return;
+    }
 
   this->Distance = X; 
 
@@ -758,7 +776,7 @@ vtkMatrix4x4 &vtkCamera::GetCompositePerspectiveTransform(float aspect,
   return this->PerspectiveTransform.GetMatrix();
 }
 
-#define SQ_MAG(x) ( (x)[0]*(x)[0] + (x)[1]*(x)[1] + (x)[2]*(x)[2] )
+#define VTK_SQ_MAG(x) ( (x)[0]*(x)[0] + (x)[1]*(x)[1] + (x)[2]*(x)[2] )
 
 // Description:
 // Recompute the view up vector so that it is perpendicular to the
@@ -772,9 +790,9 @@ void vtkCamera::OrthogonalizeViewUp()
   up=this->ViewUp;
   vtkMath::Cross(normal,up,temp);
 
-  temp_mag_sq = (SQ_MAG(up));
+  temp_mag_sq = (VTK_SQ_MAG(up));
   vtkMath::Cross(temp,normal,new_up);
-  new_mag_sq = (SQ_MAG(new_up));
+  new_mag_sq = (VTK_SQ_MAG(new_up));
   ratio = sqrt(new_mag_sq/temp_mag_sq);
   this->SetViewUp(new_up[0]*ratio,new_up[1]*ratio,new_up[2]*ratio);
 }
@@ -787,7 +805,10 @@ void vtkCamera::Dolly(float amount)
 {
   float	distance;
   
-  if (amount <= 0.0) return;
+  if (amount <= 0.0)
+    {
+    return;
+    }
   
   // zoom moves position along view plane normal by a specified ratio
   distance =  this->Distance / amount;
@@ -802,7 +823,10 @@ void vtkCamera::Dolly(float amount)
 // occupies the viewport. A value > 1 is a zoom-in. A value < 1 is a zoom-out.
 void vtkCamera::Zoom(float amount)
 {
-  if (amount <= 0.0) return;
+  if (amount <= 0.0)
+    {
+    return;
+    }
   
   this->ViewAngle = this->ViewAngle/amount;
 
@@ -1077,9 +1101,9 @@ void vtkCamera::SetViewPlaneNormal(float X,float Y,float Z)
 		dy*this->ViewPlaneNormal[1] +
 		dz*this->ViewPlaneNormal[2];
 
-  if( fabs((this->VPN_dot_DOP - dot_product)) > 0.001 )
+  if( fabs((this->VPNDotDOP - dot_product)) > 0.001 )
     {
-    this->VPN_dot_DOP = dot_product;
+    this->VPNDotDOP = dot_product;
     this->ViewingRaysModified();
     }
 
@@ -1112,7 +1136,9 @@ void vtkCamera::GetFrustumPlanes( float planes[24] )
   index = 0;
 
   for ( k = 0; k <= 1; k+=1 )
+    {
     for ( j = -1; j <= 1; j+=2 )
+      {
       for ( i = -1; i <= 1; i+=2 )
 	{
 	in[0] = i;
@@ -1127,10 +1153,12 @@ void vtkCamera::GetFrustumPlanes( float planes[24] )
 	  }
 	else
 	  {
-	  vtkErrorMacro( << "Invalid camera matrix - can't get frustum bounds!" );
+	  vtkErrorMacro(<<"Invalid camera matrix - can't get frustum bounds!");
 	  }
 	index++;
 	}
+      }
+    }
 
   which_points[0][0] = 0; which_points[0][1] = 4; which_points[0][2] = 6;
   which_points[1][0] = 1; which_points[1][1] = 3; which_points[1][2] = 7;

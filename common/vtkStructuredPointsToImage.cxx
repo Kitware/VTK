@@ -97,7 +97,10 @@ void vtkStructuredPointsToImage::InternalUpdate(vtkImageData *data)
   this->Execute(data);
 
   // Release the inputs data, if that is what it wants.
-  if ( this->Input->ShouldIReleaseData() ) this->Input->ReleaseData();
+  if ( this->Input->ShouldIReleaseData() )
+    {
+    this->Input->ReleaseData();
+    }
 }
 
 
@@ -150,7 +153,9 @@ unsigned long vtkStructuredPointsToImage::GetPipelineMTime()
     this->Input->Update();
     temp = this->Input->GetMTime();
     if (temp > time)
+      {
       time = temp;
+      }
     }
   
   return time;

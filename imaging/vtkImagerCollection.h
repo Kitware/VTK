@@ -102,8 +102,14 @@ inline vtkImager *vtkImagerCollection::GetNextItem()
 // Get the last imager in the list.
 inline vtkImager *vtkImagerCollection::GetLastItem() 
 { 
-  if ( this->Bottom == NULL ) return NULL;
-  else return (vtkImager *)(this->Bottom->Item);
+  if ( this->Bottom == NULL )
+    {
+    return NULL;
+    }
+  else
+    {
+    return (vtkImager *)(this->Bottom->Item);
+    }
 }
 
 #endif

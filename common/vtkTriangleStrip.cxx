@@ -231,8 +231,10 @@ int vtkTriangleStrip::IntersectWithLine(float p1[3], float p2[3], float tol,
     this->Triangle.Points.SetPoint(1,this->Points.GetPoint(subId+1));
     this->Triangle.Points.SetPoint(2,this->Points.GetPoint(subId+2));
 
-    if ( this->Triangle.IntersectWithLine(p1, p2, tol, t, x, pcoords, subTest) )
+    if (this->Triangle.IntersectWithLine(p1, p2, tol, t, x, pcoords, subTest) )
+      {
       return 1;
+      }
     }
 
   return 0;

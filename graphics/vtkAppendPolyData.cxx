@@ -81,7 +81,10 @@ void vtkAppendPolyData::Update()
     }
 
   // prevent chasing our tail
-  if (this->Updating) return;
+  if (this->Updating)
+    {
+    return;
+    }
 
   this->Updating = 1;
   for (mtime=0, this->InputList.InitTraversal(); 
@@ -89,7 +92,10 @@ void vtkAppendPolyData::Update()
     {
     pd->Update();
     pdMtime = pd->GetMTime();
-    if ( pdMtime > mtime ) mtime = pdMtime;
+    if ( pdMtime > mtime )
+      {
+      mtime = pdMtime;
+      }
     }
   this->Updating = 0;
 
@@ -97,23 +103,40 @@ void vtkAppendPolyData::Update()
     {
     for (this->InputList.InitTraversal();(pd=this->InputList.GetNextItem()); )
       {
-      if ( pd->GetDataReleased() ) pd->ForceUpdate();
+      if ( pd->GetDataReleased() )
+	{
+	pd->ForceUpdate();
+	}
       }
 
-    if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
+    if ( this->StartMethod )
+      {
+      (*this->StartMethod)(this->StartMethodArg);
+      }
     this->Output->Initialize(); //clear output
     // reset AbortExecute flag and Progress
     this->AbortExecute = 0;
     this->Progress = 0.0;
     this->Execute();
     this->ExecuteTime.Modified();
-    if ( !this->AbortExecute ) this->UpdateProgress(1.0);
+    if ( !this->AbortExecute )
+      {
+      this->UpdateProgress(1.0);
+      }
     this->SetDataReleased(0);
-    if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
+    if ( this->EndMethod )
+      {
+      (*this->EndMethod)(this->EndMethodArg);
+      }
     }
 
   for (this->InputList.InitTraversal(); (pd = this->InputList.GetNextItem()); )
-    if ( pd->ShouldIReleaseData() ) pd->ReleaseData();
+    {
+    if ( pd->ShouldIReleaseData() )
+      {
+      pd->ReleaseData();
+      }
+    }
 }
 
 // Append data sets into single unstructured grid
@@ -152,12 +175,30 @@ void vtkAppendPolyData::Execute()
     numPts += ds->GetNumberOfPoints();
     numCells += ds->GetNumberOfCells();
     pd = ds->GetPointData();
-    if ( pd->GetScalars() == NULL ) scalarsPresent &= 0;
-    if ( pd->GetVectors() == NULL ) vectorsPresent &= 0;
-    if ( pd->GetNormals() == NULL ) normalsPresent &= 0;
-    if ( pd->GetTCoords() == NULL ) tcoordsPresent &= 0;
-    if ( pd->GetTensors() == NULL ) tensorsPresent &= 0;
-    if ( pd->GetFieldData() == NULL ) fieldPresent &= 0;
+    if ( pd->GetScalars() == NULL )
+      {
+      scalarsPresent &= 0;
+      }
+    if ( pd->GetVectors() == NULL )
+      {
+      vectorsPresent &= 0;
+      }
+    if ( pd->GetNormals() == NULL )
+      {
+      normalsPresent &= 0;
+      }
+    if ( pd->GetTCoords() == NULL )
+      {
+      tcoordsPresent &= 0;
+      }
+    if ( pd->GetTensors() == NULL )
+      {
+      tensorsPresent &= 0;
+      }
+    if ( pd->GetFieldData() == NULL )
+      {
+      fieldPresent &= 0;
+      }
     }
 
   if ( numPts < 1 )
@@ -166,13 +207,31 @@ void vtkAppendPolyData::Execute()
     return;
     }
 
-// Now can allocate memory
-  if ( !scalarsPresent ) outputPD->CopyScalarsOff();
-  if ( !vectorsPresent ) outputPD->CopyVectorsOff();
-  if ( !normalsPresent ) outputPD->CopyNormalsOff();
-  if ( !tcoordsPresent ) outputPD->CopyTCoordsOff();
-  if ( !tensorsPresent ) outputPD->CopyTensorsOff();
-  if ( !fieldPresent ) outputPD->CopyFieldDataOff();
+  // Now can allocate memory
+  if ( !scalarsPresent )
+    {
+    outputPD->CopyScalarsOff();
+    }
+  if ( !vectorsPresent )
+    {
+    outputPD->CopyVectorsOff();
+    }
+  if ( !normalsPresent )
+    {
+    outputPD->CopyNormalsOff();
+    }
+  if ( !tcoordsPresent )
+    {
+    outputPD->CopyTCoordsOff();
+    }
+  if ( !tensorsPresent )
+    {
+    outputPD->CopyTensorsOff();
+    }
+  if ( !fieldPresent )
+    {
+    outputPD->CopyFieldDataOff();
+    }
   outputPD->CopyAllocate(pd,numPts);
 
   newPts = vtkPoints::New();
@@ -213,25 +272,37 @@ void vtkAppendPolyData::Execute()
     for (inVerts->InitTraversal(); inVerts->GetNextCell(npts,pts); )
       {
       newVerts->InsertNextCell(npts);
-      for (i=0; i < npts; i++) newVerts->InsertCellPoint(pts[i]+ptOffset);
+      for (i=0; i < npts; i++)
+	{
+	newVerts->InsertCellPoint(pts[i]+ptOffset);
+	}
       }
   
     for (inLines->InitTraversal(); inLines->GetNextCell(npts,pts); )
       {
       newLines->InsertNextCell(npts);
-      for (i=0; i < npts; i++) newLines->InsertCellPoint(pts[i]+ptOffset);
+      for (i=0; i < npts; i++)
+	{
+	newLines->InsertCellPoint(pts[i]+ptOffset);
+	}
       }
   
     for (inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); )
       {
       newPolys->InsertNextCell(npts);
-      for (i=0; i < npts; i++) newPolys->InsertCellPoint(pts[i]+ptOffset);
+      for (i=0; i < npts; i++)
+	{
+	newPolys->InsertCellPoint(pts[i]+ptOffset);
+	}
       }
   
     for (inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); )
       {
       newStrips->InsertNextCell(npts);
-      for (i=0; i < npts; i++) newStrips->InsertCellPoint(pts[i]+ptOffset);
+      for (i=0; i < npts; i++)
+	{
+	newStrips->InsertCellPoint(pts[i]+ptOffset);
+	}
       }
     }
 //
@@ -240,16 +311,28 @@ void vtkAppendPolyData::Execute()
   output->SetPoints(newPts);
   newPts->Delete();
 
-  if ( newVerts->GetNumberOfCells() > 0 ) output->SetVerts(newVerts);
+  if ( newVerts->GetNumberOfCells() > 0 )
+    {
+    output->SetVerts(newVerts);
+    }
   newVerts->Delete();
 
-  if ( newLines->GetNumberOfCells() > 0 ) output->SetLines(newLines);
+  if ( newLines->GetNumberOfCells() > 0 )
+    {
+    output->SetLines(newLines);
+    }
   newLines->Delete();
 
-  if ( newPolys->GetNumberOfCells() > 0 ) output->SetPolys(newPolys);
+  if ( newPolys->GetNumberOfCells() > 0 )
+    {
+    output->SetPolys(newPolys);
+    }
   newPolys->Delete();
 
-  if ( newStrips->GetNumberOfCells() > 0 ) output->SetStrips(newStrips);
+  if ( newStrips->GetNumberOfCells() > 0 )
+    {
+    output->SetStrips(newStrips);
+    }
   newStrips->Delete();
 
   output->Squeeze();

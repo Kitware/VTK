@@ -146,7 +146,8 @@ public:
   // Get the color value at a particular id. Returns a pointer to a 4-byte
   // array of rgba. Make sure you call InitColorTraversal() before
   // invoking this method.
-  unsigned char *GetColor(int id) {return (this->*(CurrentColorFunction))(id);};
+  unsigned char *GetColor(int id) {return
+				   (this->*(this->CurrentColorFunction))(id);};
 
 protected:
   float Range[8];

@@ -116,7 +116,10 @@ void vtkCleanPolyData::Execute()
           outputPD->CopyData(pd,pts[i],ptId);
           }
         }
-      if ( numNewPts > 0 ) newVerts->InsertNextCell(numNewPts,updatedPts);
+      if ( numNewPts > 0 )
+	{
+	newVerts->InsertNextCell(numNewPts,updatedPts);
+	}
       }
     newVerts->Squeeze();
     }
@@ -146,7 +149,10 @@ void vtkCleanPolyData::Execute()
           }
         }
 
-      if ( numNewPts > 1 ) newLines->InsertNextCell(numNewPts,updatedPts);
+      if ( numNewPts > 1 )
+	{
+	newLines->InsertNextCell(numNewPts,updatedPts);
+	}
       }
     newLines->Squeeze();
     vtkDebugMacro(<<"Removed " << inLines->GetNumberOfCells() -
@@ -178,8 +184,14 @@ void vtkCleanPolyData::Execute()
           }
         }//for points in polygon
       
-      if ( numNewPts > 2 && updatedPts[0] == updatedPts[numNewPts-1] ) numNewPts--;
-      if ( numNewPts > 2 ) newPolys->InsertNextCell(numNewPts,updatedPts);
+      if ( numNewPts > 2 && updatedPts[0] == updatedPts[numNewPts-1] )
+	{
+	numNewPts--;
+	}
+      if ( numNewPts > 2 )
+	{
+	newPolys->InsertNextCell(numNewPts,updatedPts);
+	}
       }
 
     newPolys->Squeeze();
@@ -212,7 +224,10 @@ void vtkCleanPolyData::Execute()
           }
         }
 
-      if ( numNewPts > 2 ) newStrips->InsertNextCell(numNewPts,updatedPts);
+      if ( numNewPts > 2 )
+	{
+	newStrips->InsertNextCell(numNewPts,updatedPts);
+	}
       }
 
     newStrips->Squeeze();

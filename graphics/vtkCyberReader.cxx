@@ -62,7 +62,10 @@ vtkCyberReader::vtkCyberReader()
 
 vtkCyberReader::~vtkCyberReader()
 {
-  if ( this->FileName ) delete [] this->FileName;
+  if ( this->FileName )
+    {
+    delete [] this->FileName;
+    }
 }
 
 //
@@ -278,10 +281,10 @@ static void gstovtx (GSPEC* gs, struct Vertex *vtx);
 #define SMALL_VOID 0.125
 
 #define CHECK_FOR_VOID(lt,lg,nlg,_i) \
-if (vtx->pnt[lg][lt][_i] == SMALL_VOID) continue;\
-if (vtx->pnt[(lg+1)%nlg][lt][_i] == SMALL_VOID) continue;\
-if (vtx->pnt[(lg+1)%nlg][lt+1][_i] == SMALL_VOID) continue;\
-if (vtx->pnt[lg][lt+1][_i] == SMALL_VOID) continue;
+if (vtx->pnt[lg][lt][_i] == SMALL_VOID) { continue; }\
+if (vtx->pnt[(lg+1)%nlg][lt][_i] == SMALL_VOID) { continue; }\
+if (vtx->pnt[(lg+1)%nlg][lt+1][_i] == SMALL_VOID) { continue; }\
+if (vtx->pnt[lg][lt+1][_i] == SMALL_VOID) { continue; }
 
 void vtkCyberReader::Execute()
 {
@@ -370,27 +373,35 @@ void vtkCyberReader::Execute()
       newTCoords->InsertNextTCoord(tc);
       }
     }
-//
-//  Build polygons.  Have no more than number of vertex polygons.
-//
+  //
+  //  Build polygons.  Have no more than number of vertex polygons.
+  //
   vtkDebugMacro(<<"Creating triangles...");
   newTris = vtkCellArray::New();
   newTris->Allocate(newTris->EstimateSize(2*nvertex,3));
 
   nlt = (vtx->ltmax - vtx->ltmin + 1) / vtx->ltresol;// verticies in y 
   nlg = (vtx->lgmax - vtx->lgmin + 1) / vtx->lgresol;// verticies in x 
-//
-//  Note: the seem is stitched together
-//
+  //
+  //  Note: the seem is stitched together
+  //
   if ( (nlg != vtx->nlg) || (vtx->gs->flags & FLAG_CARTESIAN) )
+    {
     lgPolys = nlg - 1;
+    }
   else
+    {
     lgPolys = nlg;
+    }
 
   if ( (vtx->gs->flags & FLAG_CARTESIAN) )
+    {
     voidLoc = LZ;
+    }
   else
+    {
     voidLoc = LY;
+    }
 
   for (lg=0; lg<lgPolys; ++lg) 
     {// for polys in x 
@@ -926,7 +937,10 @@ static int makegsheader(GSPEC* gs)
 
 	/* optional items */
 	if (getvalue("NAME", gs->name, NAMELEN) == -1) {
-		for (i = NAMELEN-1; i >= 0; --i) gs->name[i] = 0;
+	for (i = NAMELEN-1; i >= 0; --i)
+	  {
+	  gs->name[i] = 0;
+	  }
 	}
 	if (getvalue("LTMIN", string, STRINGLEN) == -1) {
 		gs->ltmin = 0;

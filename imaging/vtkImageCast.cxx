@@ -128,7 +128,10 @@ static void vtkImageCastExecute(vtkImageCast *self,
       {
       if (!id) 
 	{
-	if (!(count%target)) self->UpdateProgress(count/(50.0*target));
+	if (!(count%target))
+	  {
+	  self->UpdateProgress(count/(50.0*target));
+	  }
 	count++;
 	}
       // put the test for clamp to avoid the innermost loop

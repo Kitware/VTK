@@ -118,8 +118,12 @@ inline int vtkStructuredGrid::GetNumberOfCells()
   int i;
 
   for (i=0; i<3; i++)
+    {
     if (this->Dimensions[i] > 1)
+      {
       nCells *= (this->Dimensions[i]-1);
+      }
+    }
 
   return nCells;
 }
@@ -144,8 +148,14 @@ inline void vtkStructuredGrid::GetPointCells(int ptId, vtkIdList& cellIds)
 // Return non-zero value if specified point is visible.
 inline int vtkStructuredGrid::IsPointVisible(int ptId) 
 {
-  if (!this->Blanking) return 1; 
-  else return (int) this->PointVisibility->GetScalar(ptId);
+  if (!this->Blanking)
+    {
+    return 1;
+    }
+  else
+    {
+    return (int) this->PointVisibility->GetScalar(ptId);
+    }
 }
 
 #endif

@@ -72,7 +72,7 @@ public:
 
   // Description:
   // Return this object's Modified time.
-  unsigned long int GetMTime() {return ModifiedTime;};
+  unsigned long int GetMTime() {return this->ModifiedTime;};
 
   int operator>(vtkTimeStamp& ts) {return (this->ModifiedTime > ts.ModifiedTime);};
   int operator<(vtkTimeStamp& ts) {return (this->ModifiedTime < ts.ModifiedTime);};

@@ -95,7 +95,10 @@ static void vtkImageConstantPadExecute(vtkImageConstantPad *self,
       {
       if (!id) 
 	{
-	if (!(count%target)) self->UpdateProgress(count/(50.0*target));
+	if (!(count%target))
+	  {
+	  self->UpdateProgress(count/(50.0*target));
+	  }
 	count++;
 	}
       state2 = (state3 || idxY < inExt[2] || idxY > inExt[3]);
@@ -140,10 +143,16 @@ static void vtkImageConstantPadExecute(vtkImageConstantPad *self,
 	  }
 	}
       outPtr += outIncY;
-      if (!state2) inPtr += inIncY;
+      if (!state2)
+	{
+	inPtr += inIncY;
+	}
       }
     outPtr += outIncZ;
-    if (!state3) inPtr += inIncZ;
+    if (!state3)
+      {
+      inPtr += inIncZ;
+      }
     }
 }
 

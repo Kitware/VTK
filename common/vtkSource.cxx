@@ -98,16 +98,28 @@ void vtkSource::Update()
   // Make sure virtual getMTime method is called since subclasses will overload
   if ( this->GetMTime() > this->ExecuteTime )
     {
-    if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
-    if (this->Output) this->Output->Initialize(); //clear output
+    if ( this->StartMethod )
+      {
+      (*this->StartMethod)(this->StartMethodArg);
+      }
+    if (this->Output)
+      {
+      this->Output->Initialize(); //clear output
+      }
     // reset AbortExecute flag and Progress
     this->AbortExecute = 0;
     this->Progress = 0.0;
     this->Execute();
     this->ExecuteTime.Modified();
-    if ( !this->AbortExecute ) this->UpdateProgress(1.0);
+    if ( !this->AbortExecute )
+      {
+      this->UpdateProgress(1.0);
+      }
     this->SetDataReleased(0);
-    if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
+    if ( this->EndMethod )
+      {
+      (*this->EndMethod)(this->EndMethodArg);
+      }
     }
 }
 

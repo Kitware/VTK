@@ -125,7 +125,10 @@ static void vtkImageMathematicsExecute1(vtkImageMathematics *self,
       {
       if (!id) 
 	{
-	if (!(count%target)) self->UpdateProgress(count/(50.0*target));
+	if (!(count%target))
+	  {
+	  self->UpdateProgress(count/(50.0*target));
+	  }
 	count++;
 	}
       for (idxR = 0; idxR < rowLength; idxR++)
@@ -212,7 +215,10 @@ static void vtkImageMathematicsExecute2(vtkImageMathematics *self,
       {
       if (!id) 
 	{
-	if (!(count%target)) self->UpdateProgress(count/(50.0*target));
+	if (!(count%target))
+	  {
+	  self->UpdateProgress(count/(50.0*target));
+	  }
 	count++;
 	}
       for (idxR = 0; idxR < rowLength; idxR++)

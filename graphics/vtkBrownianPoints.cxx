@@ -81,13 +81,22 @@ void vtkBrownianPoints::Execute()
     speed = vtkMath::Random(this->MinimumSpeed,this->MaximumSpeed);
     if ( speed != 0.0 )
       {
-      for (j=0; j<3; j++) v[j] = vtkMath::Random(0,speed);
+      for (j=0; j<3; j++)
+	{
+	v[j] = vtkMath::Random(0,speed);
+	}
       norm = vtkMath::Norm(v);
-      for (j=0; j<3; j++) v[j] *= (speed / norm);
+      for (j=0; j<3; j++)
+	{
+	v[j] *= (speed / norm);
+	}
       }
     else
       {
-      for (j=0; j<3; j++) v[j] = 0.0;
+      for (j=0; j<3; j++)
+	{
+	v[j] = 0.0;
+	}
       }
 
     newVectors->InsertNextVector(v);

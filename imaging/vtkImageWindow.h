@@ -58,7 +58,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImagerCollection.h"
 #include "vtkWindow.h"
 
-#define TOP_LEFT_ORIGIN 0
 
 class VTK_EXPORT vtkImageWindow : public vtkWindow
 {

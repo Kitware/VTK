@@ -77,7 +77,10 @@ vtkContourFilter::~vtkContourFilter()
     this->Locator->UnRegister(this);
     this->Locator = NULL;
     }
-  if ( this->ScalarTree ) this->ScalarTree->Delete();
+  if ( this->ScalarTree )
+    {
+    this->ScalarTree->Delete();
+    }
 }
 
 // Description:
@@ -155,7 +158,10 @@ void vtkContourFilter::Execute()
   estimatedSize = (int) pow ((double) numCells, .75);
   estimatedSize *= numContours;
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
-  if (estimatedSize < 1024) estimatedSize = 1024;
+  if (estimatedSize < 1024)
+    {
+    estimatedSize = 1024;
+    }
 
   newPts = vtkPoints::New();
   newPts->Allocate(estimatedSize,estimatedSize);
@@ -167,8 +173,11 @@ void vtkContourFilter::Execute()
   newPolys->Allocate(estimatedSize,estimatedSize);
 
   // locator used to merge potentially duplicate points
-  if ( this->Locator == NULL ) this->CreateDefaultLocator();
-  this->Locator->InitPointInsertion (newPts, input->GetBounds(), estimatedSize);
+  if ( this->Locator == NULL )
+    {
+    this->CreateDefaultLocator();
+    }
+  this->Locator->InitPointInsertion (newPts, input->GetBounds(),estimatedSize);
 
   // interpolate data along edge
   outPd->InterpolateAllocate(inPd,estimatedSize,estimatedSize);
@@ -195,7 +204,10 @@ void vtkContourFilter::Execute()
     } //if using scalar tree
   else
     {
-    if ( this->ScalarTree == NULL ) this->ScalarTree = new vtkScalarTree;
+    if ( this->ScalarTree == NULL )
+      {
+      this->ScalarTree = new vtkScalarTree;
+      }
     this->ScalarTree->SetDataSet(input);
     //
     // Loop over all contour values.  Then for each contour value, 
@@ -226,13 +238,22 @@ void vtkContourFilter::Execute()
   output->SetPoints(newPts);
   newPts->Delete();
 
-  if (newVerts->GetNumberOfCells()) output->SetVerts(newVerts);
+  if (newVerts->GetNumberOfCells())
+    {
+    output->SetVerts(newVerts);
+    }
   newVerts->Delete();
 
-  if (newLines->GetNumberOfCells()) output->SetLines(newLines);
+  if (newLines->GetNumberOfCells())
+    {
+    output->SetLines(newLines);
+    }
   newLines->Delete();
 
-  if (newPolys->GetNumberOfCells()) output->SetPolys(newPolys);
+  if (newPolys->GetNumberOfCells())
+    {
+    output->SetPolys(newPolys);
+    }
   newPolys->Delete();
 
   this->Locator->Initialize();//releases leftover memory
@@ -261,7 +282,9 @@ void vtkContourFilter::StructuredPointsContour(int dim)
     msquares.SetDebug(this->Debug);
     msquares.SetNumberOfContours(numContours);
     for (i=0; i < numContours; i++)
+      {
       msquares.SetValue(i,values[i]);
+      }
          
     msquares.Update();
     output = msquares.GetOutput();
@@ -279,7 +302,9 @@ void vtkContourFilter::StructuredPointsContour(int dim)
     mcubes.SetDebug(this->Debug);
     mcubes.SetNumberOfContours(numContours);
     for (i=0; i < numContours; i++)
+      {
       mcubes.SetValue(i,values[i]);
+      }
 
     mcubes.Update();
     output = mcubes.GetOutput();

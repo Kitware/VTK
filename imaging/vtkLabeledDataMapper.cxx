@@ -65,7 +65,10 @@ vtkLabeledDataMapper::vtkLabeledDataMapper()
 
 vtkLabeledDataMapper::~vtkLabeledDataMapper()
 {
-  if (this->LabelFormat) delete [] this->LabelFormat;
+  if (this->LabelFormat)
+    {
+    delete [] this->LabelFormat;
+    }
 
   if (this->TextMappers != NULL )
     {
@@ -107,7 +110,7 @@ void vtkLabeledDataMapper::Render(vtkViewport *viewport, vtkActor2D *actor)
     // Delete previously constructed objects
     if (this->TextMappers != NULL )
       {
-      for (int i=0; i < this->NumberOfLabels; i++)
+      for (i=0; i < this->NumberOfLabels; i++)
 	{
 	this->TextMappers[i]->Delete();
 	}
@@ -123,19 +126,34 @@ void vtkLabeledDataMapper::Render(vtkViewport *viewport, vtkActor2D *actor)
 	pointIdLabels = 1;
 	break;
       case VTK_LABEL_SCALARS:
-	if ( pd->GetScalars() ) data = pd->GetScalars()->GetData();
+	if ( pd->GetScalars() )
+	  {
+	  data = pd->GetScalars()->GetData();
+	  }
 	break;
       case VTK_LABEL_VECTORS:   
-	if ( pd->GetVectors() ) data = pd->GetVectors()->GetData();
+	if ( pd->GetVectors() )
+	  {
+	  data = pd->GetVectors()->GetData();
+	  }
 	break;
       case VTK_LABEL_NORMALS:    
-	if ( pd->GetNormals() ) data = pd->GetNormals()->GetData();
+	if ( pd->GetNormals() )
+	  {
+	  data = pd->GetNormals()->GetData();
+	  }
 	break;
       case VTK_LABEL_TCOORDS:    
-	if ( pd->GetTCoords() ) data = pd->GetTCoords()->GetData();
+	if ( pd->GetTCoords() )
+	  {
+	  data = pd->GetTCoords()->GetData();
+	  }
 	break;
       case VTK_LABEL_TENSORS:    
-	if ( pd->GetTensors() ) data = pd->GetTensors()->GetData();
+	if ( pd->GetTensors() )
+	  {
+	  data = pd->GetTensors()->GetData();
+	  }
 	break;
       case VTK_LABEL_FIELD_DATA:
 	if ( (fd=pd->GetFieldData()) )
@@ -149,7 +167,9 @@ void vtkLabeledDataMapper::Render(vtkViewport *viewport, vtkActor2D *actor)
 
     // determine number of components and check input
     if ( pointIdLabels )
+      {
       ;
+      }
     else if ( data )
       {
       numComp = data->GetNumberOfComponents();
@@ -180,7 +200,10 @@ void vtkLabeledDataMapper::Render(vtkViewport *viewport, vtkActor2D *actor)
       else 
 	{
         data->GetTuple(i, tuple);
-	if ( numComp == 1) sprintf(string, this->LabelFormat, tuple[activeComp]);
+	if ( numComp == 1)
+	  {
+	  sprintf(string, this->LabelFormat, tuple[activeComp]);
+	  }
 	else
 	  {
 	  strcpy(format, "("); strcat(format, this->LabelFormat);
@@ -204,7 +227,10 @@ void vtkLabeledDataMapper::Render(vtkViewport *viewport, vtkActor2D *actor)
       this->TextMappers[i]->SetFontFamily(this->FontFamily);
       }
 
-    if ( data ) delete [] tuple;
+    if ( data )
+      {
+      delete [] tuple;
+      }
 
     this->BuildTime.Modified();
     }
@@ -232,18 +258,48 @@ void vtkLabeledDataMapper::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   os << indent << "Label Mode: ";
-  if ( this->LabelMode == VTK_LABEL_IDS ) os << "Label Ids\n";
-  else if ( this->LabelMode == VTK_LABEL_SCALARS ) os << "Label Scalars\n";
-  else if ( this->LabelMode == VTK_LABEL_VECTORS ) os << "Label Vectors\n";
-  else if ( this->LabelMode == VTK_LABEL_NORMALS ) os << "Label Normals\n";
-  else if ( this->LabelMode == VTK_LABEL_TCOORDS ) os << "Label TCoords\n";
-  else if ( this->LabelMode == VTK_LABEL_TENSORS ) os << "Label Tensors\n";
-  else os << "Label Field Data\n";
+  if ( this->LabelMode == VTK_LABEL_IDS )
+    {
+    os << "Label Ids\n";
+    }
+  else if ( this->LabelMode == VTK_LABEL_SCALARS )
+    {
+    os << "Label Scalars\n";
+    }
+  else if ( this->LabelMode == VTK_LABEL_VECTORS )
+    {
+    os << "Label Vectors\n";
+    }
+  else if ( this->LabelMode == VTK_LABEL_NORMALS )
+    {
+    os << "Label Normals\n";
+    }
+  else if ( this->LabelMode == VTK_LABEL_TCOORDS )
+    {
+    os << "Label TCoords\n";
+    }
+  else if ( this->LabelMode == VTK_LABEL_TENSORS )
+    {
+    os << "Label Tensors\n";
+    }
+  else
+    {
+    os << "Label Field Data\n";
+    }
 
   os << indent << "Font Family: ";
-  if ( this->FontFamily == VTK_ARIAL ) os << "Arial\n";
-  else if ( this->FontFamily == VTK_COURIER ) os << "Courier\n";
-  else os << "Times\n";
+  if ( this->FontFamily == VTK_ARIAL )
+    {
+    os << "Arial\n";
+    }
+  else if ( this->FontFamily == VTK_COURIER )
+    {
+    os << "Courier\n";
+    }
+  else
+    {
+    os << "Times\n";
+    }
 
   os << indent << "Font Size: " << this->FontSize << "\n";
   os << indent << "Bold: " << (this->Bold ? "On\n" : "Off\n");
@@ -252,8 +308,14 @@ void vtkLabeledDataMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Label Format: " << this->LabelFormat << "\n";
 
   os << indent << "Labeled Component: ";
-  if ( this->LabeledComponent < 0 ) os << "(All Components)\n";
-  else os << this->LabeledComponent << "\n";
+  if ( this->LabeledComponent < 0 )
+    {
+    os << "(All Components)\n";
+    }
+  else
+    {
+    os << this->LabeledComponent << "\n";
+    }
 
   os << indent << "Field Data Array: " << this->FieldDataArray << "\n";
 }

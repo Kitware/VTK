@@ -169,7 +169,10 @@ static void vtkImageExtractComponentsExecute(vtkImageExtractComponents *self,
       {
       if (!id) 
 	{
-	if (!(count%target)) self->UpdateProgress(count/(50.0*target));
+	if (!(count%target))
+	  {
+	  self->UpdateProgress(count/(50.0*target));
+	  }
 	count++;
 	}
       // handle inner loop based on number of components extracted

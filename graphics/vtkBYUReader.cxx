@@ -60,10 +60,22 @@ vtkBYUReader::vtkBYUReader()
 
 vtkBYUReader::~vtkBYUReader()
 {
-  if ( this->GeometryFileName ) delete [] this->GeometryFileName;
-  if ( this->DisplacementFileName ) delete [] this->DisplacementFileName;
-  if ( this->ScalarFileName ) delete [] this->ScalarFileName;
-  if ( this->TextureFileName ) delete [] this->TextureFileName;
+  if ( this->GeometryFileName )
+    {
+    delete [] this->GeometryFileName;
+    }
+  if ( this->DisplacementFileName )
+    {
+    delete [] this->DisplacementFileName;
+    }
+  if ( this->ScalarFileName )
+    {
+    delete [] this->ScalarFileName;
+    }
+  if ( this->TextureFileName )
+    {
+    delete [] this->TextureFileName;
+    }
 }
 
 void vtkBYUReader::Execute()
@@ -114,14 +126,23 @@ void vtkBYUReader::ReadGeometryFile(FILE *geomFile, int &numPts)
   if ( this->PartNumber > 0 ) // read just part specified
     {
     vtkDebugMacro(<<"Reading part number: " << this->PartNumber);
-    for (i=0; i < (this->PartNumber-1); i++) fscanf (geomFile, "%*d %*d");
+    for (i=0; i < (this->PartNumber-1); i++)
+      {
+      fscanf (geomFile, "%*d %*d");
+      }
     fscanf (geomFile, "%d %d", &partStart, &partEnd);
-    for (i=this->PartNumber; i < numParts; i++) fscanf (geomFile, "%*d %*d");
+    for (i=this->PartNumber; i < numParts; i++)
+      {
+      fscanf (geomFile, "%*d %*d");
+      }
     }
   else // read all parts
     {
     vtkDebugMacro(<<"Reading all parts.");
-    for (i=0; i < numParts; i++) fscanf (geomFile, "%*d %*d");
+    for (i=0; i < numParts; i++)
+      {
+      fscanf (geomFile, "%*d %*d");
+      }
     partStart = 1;
     partEnd = VTK_LARGE_INTEGER;
     }
@@ -193,10 +214,13 @@ void vtkBYUReader::ReadDisplacementFile(int numPts)
       return;
       }
     }
-  else return;
-//
-// Allocate and read data
-//
+  else
+    {
+    return;
+    }
+  //
+  // Allocate and read data
+  //
   newVectors = vtkVectors::New();
   newVectors->SetNumberOfVectors(numPts);
 
@@ -229,10 +253,13 @@ void vtkBYUReader::ReadScalarFile(int numPts)
       return;
       }
     }
-  else return;
-//
-// Allocate and read data
-//
+  else
+    {
+    return;
+    }
+  //
+  // Allocate and read data
+  //
   newScalars = vtkScalars::New();
   newScalars->SetNumberOfScalars(numPts);
 
@@ -265,10 +292,13 @@ void vtkBYUReader::ReadTextureFile(int numPts)
       return;
       }
     }
-  else return;
-//
-// Allocate and read data
-//
+  else
+    {
+    return;
+    }
+  //
+  // Allocate and read data
+  //
   newTCoords = vtkTCoords::New();
   newTCoords->SetNumberOfTCoords(numPts);
 

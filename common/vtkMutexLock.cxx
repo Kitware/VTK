@@ -49,7 +49,7 @@ vtkMutexLock::vtkMutexLock()
 #endif
 
 #ifdef _WIN32
-  MutexLock = CreateMutex( NULL, FALSE, NULL ); 
+  this->MutexLock = CreateMutex( NULL, FALSE, NULL ); 
 #endif
 }
 

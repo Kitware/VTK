@@ -59,7 +59,10 @@ vtkProp2D::vtkProp2D()
 // property, that property is deleted.
 vtkProp2D::~vtkProp2D()
 {
-  if (this->SelfCreatedProperty) this->Property->Delete();
+  if (this->SelfCreatedProperty)
+    {
+    this->Property->Delete();
+    }
   this->PositionCoordinate->Delete();
   this->PositionCoordinate = NULL;
 }
@@ -114,7 +117,10 @@ void vtkProp2D::PrintSelf(ostream& os, vtkIndent indent)
   this->PositionCoordinate->PrintSelf(os, indent.GetNextIndent());
   
   os << indent << "Property: " << this->Property << "\n";
-  if (this->Property) this->Property->PrintSelf(os, indent.GetNextIndent());
+  if (this->Property)
+    {
+    this->Property->PrintSelf(os, indent.GetNextIndent());
+    }
 }
 
 

@@ -123,8 +123,14 @@ inline void vtkIntArray::SetValue(const int id, const int value)
 inline int *vtkIntArray::WritePointer(const int id, const int number)
 {
   int newSize=id+number;
-  if ( newSize > this->Size ) this->Resize(newSize);
-  if ( (--newSize) > this->MaxId ) this->MaxId = newSize;
+  if ( newSize > this->Size )
+    {
+    this->Resize(newSize);
+    }
+  if ( (--newSize) > this->MaxId )
+    {
+    this->MaxId = newSize;
+    }
   return this->Array + id;
 }
 
@@ -132,9 +138,15 @@ inline int *vtkIntArray::WritePointer(const int id, const int number)
 // Insert data at a specified position in the array.
 inline void vtkIntArray::InsertValue(const int id, const int i)
 {
-  if ( id >= this->Size ) this->Resize(id+1);
+  if ( id >= this->Size )
+    {
+    this->Resize(id+1);
+    }
   this->Array[id] = i;
-  if ( id > this->MaxId ) this->MaxId = id;
+  if ( id > this->MaxId )
+    {
+    this->MaxId = id;
+    }
 }
 
 // Description:

@@ -64,8 +64,8 @@ vtkCell *vtkHexahedron::MakeObject()
 //  Method to calculate parametric coordinates in an eight noded
 //  linear hexahedron element from global coordinates.
 //
-#define MAX_ITERATION 10
-#define CONVERGED 1.e-03
+#define VTK_HEXAHEDRON_MAX_ITERATION 10
+#define VTK_HEXADRON_CONVERGED 1.e-03
 
 int vtkHexahedron::EvaluatePosition(float x[3], float closestPoint[3],
                                    int& subId, float pcoords[3], 
@@ -77,25 +77,27 @@ int vtkHexahedron::EvaluatePosition(float x[3], float closestPoint[3],
   int i, j;
   float  d, *pt;
   float derivs[24];
-//
-//  set initial position for Newton's method
-//
+
+  //
+  //  set initial position for Newton's method
+  //
   subId = 0;
-  pcoords[0] = pcoords[1] = pcoords[2] = params[0] = params[1] = params[2] = 0.5;
-//
-//  enter iteration loop
-///
-  for (iteration=converged=0; !converged && (iteration < MAX_ITERATION);
-  iteration++) 
+  pcoords[0] = pcoords[1] = pcoords[2] = params[0] = params[1] = params[2]=0.5;
+
+  //
+  //  enter iteration loop
+  ///
+  for (iteration=converged=0;
+       !converged && (iteration < VTK_HEXAHEDRON_MAX_ITERATION);  iteration++) 
     {
-//
-//  calculate element interpolation functions and derivatives
-//
+    //
+    //  calculate element interpolation functions and derivatives
+    //
     this->InterpolationFunctions(pcoords, weights);
     this->InterpolationDerivs(pcoords, derivs);
-//
-//  calculate newton functions
-//
+    //
+    //  calculate newton functions
+    //
     for (i=0; i<3; i++) 
       {
       fcol[i] = rcol[i] = scol[i] = tcol[i] = 0.0;
@@ -112,27 +114,35 @@ int vtkHexahedron::EvaluatePosition(float x[3], float closestPoint[3],
         }
       }
 
-    for (i=0; i<3; i++) fcol[i] -= x[i];
-//
-//  compute determinants and generate improvements
-//
-    if ( (d=vtkMath::Determinant3x3(rcol,scol,tcol)) == 0.0 ) return -1;
+    for (i=0; i<3; i++)
+      {
+      fcol[i] -= x[i];
+      }
+
+    //
+    //  compute determinants and generate improvements
+    //
+    if ( (d=vtkMath::Determinant3x3(rcol,scol,tcol)) == 0.0 )
+      {
+      return -1;
+      }
 
     pcoords[0] = params[0] - vtkMath::Determinant3x3 (fcol,scol,tcol) / d;
     pcoords[1] = params[1] - vtkMath::Determinant3x3 (rcol,fcol,tcol) / d;
     pcoords[2] = params[2] - vtkMath::Determinant3x3 (rcol,scol,fcol) / d;
-//
-//  check for convergence
-//
-    if ( ((fabs(pcoords[0]-params[0])) < CONVERGED) &&
-    ((fabs(pcoords[1]-params[1])) < CONVERGED) &&
-    ((fabs(pcoords[2]-params[2])) < CONVERGED) )
+
+    //
+    //  check for convergence
+    //
+    if ( ((fabs(pcoords[0]-params[0])) < VTK_HEXADRON_CONVERGED) &&
+    ((fabs(pcoords[1]-params[1])) < VTK_HEXADRON_CONVERGED) &&
+    ((fabs(pcoords[2]-params[2])) < VTK_HEXADRON_CONVERGED) )
       {
       converged = 1;
       }
-//
-//  if not converged, repeat
-//
+    //
+    //  if not converged, repeat
+    //
     else 
       {
       params[0] = pcoords[0];
@@ -140,11 +150,14 @@ int vtkHexahedron::EvaluatePosition(float x[3], float closestPoint[3],
       params[2] = pcoords[2];
       }
     }
-//
-//  if not converged, set the parametric coordinates to arbitrary values
-//  outside of element
-//
-  if ( !converged ) return -1;
+  //
+  //  if not converged, set the parametric coordinates to arbitrary values
+  //  outside of element
+  //
+  if ( !converged )
+    {
+    return -1;
+    }
 
   this->InterpolationFunctions(pcoords, weights);
 
@@ -161,9 +174,18 @@ int vtkHexahedron::EvaluatePosition(float x[3], float closestPoint[3],
     float pc[3], w[8];
     for (i=0; i<3; i++) //only approximate, not really true for warped hexa
       {
-      if (pcoords[i] < 0.0) pc[i] = 0.0;
-      else if (pcoords[i] > 1.0) pc[i] = 1.0;
-      else pc[i] = pcoords[i];
+      if (pcoords[i] < 0.0)
+	{
+	pc[i] = 0.0;
+	}
+      else if (pcoords[i] > 1.0)
+	{
+	pc[i] = 1.0;
+	}
+      else
+	{
+	pc[i] = pcoords[i];
+	}
       }
     this->EvaluateLocation(subId, pc, closestPoint, (float *)w);
     dist2 = vtkMath::Distance2BetweenPoints(closestPoint,x);
@@ -315,9 +337,13 @@ int vtkHexahedron::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
   if ( pcoords[0] < 0.0 || pcoords[0] > 1.0 ||
        pcoords[1] < 0.0 || pcoords[1] > 1.0 || 
        pcoords[2] < 0.0 || pcoords[2] > 1.0 )
+    {
     return 0;
+    }
   else
+    {
     return 1;
+    }
 }
 
 static int edges[12][2] = { {0,1}, {1,2}, {3,2}, {0,3},
@@ -349,8 +375,12 @@ void vtkHexahedron::Contour(float value, vtkScalars *cellScalars,
 
   // Build the case table
   for ( i=0, index = 0; i < 8; i++)
-      if (cellScalars->GetScalar(i) >= value)
-          index |= CASE_MASK[i];
+    {
+    if (cellScalars->GetScalar(i) >= value)
+      {
+      index |= CASE_MASK[i];
+      }
+    }
 
   triCase = triCases + index;
   edge = triCase->edges;
@@ -373,13 +403,22 @@ void vtkHexahedron::Contour(float value, vtkScalars *cellScalars,
         }
 
       // linear interpolation
-      if (deltaScalar == 0.0) t = 0.0;
-      else t = (value - cellScalars->GetScalar(e1)) / deltaScalar;
+      if (deltaScalar == 0.0)
+	{
+	t = 0.0;
+	}
+      else
+	{
+	t = (value - cellScalars->GetScalar(e1)) / deltaScalar;
+	}
 
       this->Points.GetPoint(e1, x1);
       this->Points.GetPoint(e2, x2);
 
-      for (j=0; j<3; j++) x[j] = x1[j] + t * (x2[j] - x1[j]);
+      for (j=0; j<3; j++)
+	{
+	x[j] = x1[j] + t * (x2[j] - x1[j]);
+	}
       if ( (pts[i] = locator->IsInsertedPoint(x)) < 0 )
         {
         pts[i] = locator->InsertNextPoint(x);
@@ -505,10 +544,10 @@ int vtkHexahedron::Triangulate(int index, vtkIdList &ptIds, vtkPoints &pts)
 
   ptIds.Reset();
   pts.Reset();
-//
-// Create five tetrahedron. Triangulation varies depending upon index. This
-// is necessary to insure compatible voxel triangulations.
-//
+  //
+  // Create five tetrahedron. Triangulation varies depending upon index. This
+  // is necessary to insure compatible voxel triangulations.
+  //
   if ( (index % 2) )
     {
     p[0] = 0; p[1] = 1; p[2] = 4; p[3] = 3;
@@ -663,9 +702,12 @@ void vtkHexahedron::Clip(float vtkNotUsed(value),
 			 vtkScalars *vtkNotUsed(cellScalars), 
                          vtkPointLocator *vtkNotUsed(locator), 
 			 vtkCellArray *vtkNotUsed(tetras),
-                         vtkPointData *vtkNotUsed(inPd), vtkPointData *vtkNotUsed(outPd),
-                         vtkCellData *vtkNotUsed(inCd), int vtkNotUsed(cellId), 
-			 vtkCellData *vtkNotUsed(outCd), int vtkNotUsed(insideOut))
+                         vtkPointData *vtkNotUsed(inPd),
+			 vtkPointData *vtkNotUsed(outPd),
+                         vtkCellData *vtkNotUsed(inCd),
+			 int vtkNotUsed(cellId), 
+			 vtkCellData *vtkNotUsed(outCd),
+			 int vtkNotUsed(insideOut))
 {
 
 }

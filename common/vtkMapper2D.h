@@ -55,11 +55,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkActor2D.h"
 // #include "vtkImager.h"
 
-#define XMIN 0
-#define YMIN 1
-#define XMAX 2
-#define YMAX 3
-
 class VTK_EXPORT vtkMapper2D : public vtkReferenceCount
 {
 public:

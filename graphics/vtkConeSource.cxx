@@ -69,7 +69,10 @@ void vtkConeSource::Execute()
   vtkCellArray *newPolys=0;
   vtkPolyData *output = this->GetOutput();
   
-  if ( this->Resolution ) angle = 2.0*3.141592654/this->Resolution;
+  if ( this->Resolution )
+    {
+    angle = 2.0*3.141592654/this->Resolution;
+    }
   //
   // Set things up; allocate memory
   //
@@ -156,18 +159,21 @@ void vtkConeSource::Execute()
       pts[2] = (pts[1] % this->Resolution) + 1;
       newPolys->InsertNextCell(3,pts);
       }
-//
-// If capping, create last polygon
-//
+    //
+    // If capping, create last polygon
+    //
     if ( this->Capping )
       {
-      for (i=0; i<this->Resolution; i++) pts[this->Resolution - i - 1] = i+1;
+      for (i=0; i<this->Resolution; i++)
+	{
+	pts[this->Resolution - i - 1] = i+1;
+	}
       newPolys->InsertNextCell(this->Resolution,pts);
       }
   } //switch
-//
-// Update ourselves
-//
+  //
+  // Update ourselves
+  //
   output->SetPoints(newPoints);
   newPoints->Delete();
 

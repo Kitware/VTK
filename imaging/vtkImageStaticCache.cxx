@@ -137,7 +137,10 @@ void vtkImageStaticCache::UpdateImageInformation()
 // Make this a separate method to avoid another GetPipelineMTime call.
 unsigned long vtkImageStaticCache::GetPipelineMTime()
 {
-  if (!this->CachedData) return 0;
+  if (!this->CachedData)
+    {
+    return 0;
+    }
   return this->CachedData->GetMTime();
 }
 

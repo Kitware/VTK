@@ -109,7 +109,10 @@ void vtkReferenceCount::UnRegister(vtkObject* o)
      << (this->ReferenceCount-1));
     }
 
-  if (--this->ReferenceCount <= 0) delete this;
+  if (--this->ReferenceCount <= 0)
+    {
+    delete this;
+    }
 }
 
 void vtkReferenceCount::PrintSelf(ostream& os, vtkIndent indent)

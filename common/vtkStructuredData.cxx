@@ -80,7 +80,10 @@ int vtkStructuredData::SetDimensions(int inDim[3], int dim[3])
     for (dataDim=0, i=0; i<3 ; i++)
       {
       dim[i] = inDim[i];
-      if (inDim[i] > 1) dataDim++;
+      if (inDim[i] > 1)
+	{
+	dataDim++;
+	}
       }
 
     if ( dataDim == 3 )
@@ -89,15 +92,33 @@ int vtkStructuredData::SetDimensions(int inDim[3], int dim[3])
       }
     else if ( dataDim == 2)
       {
-      if ( inDim[0] == 1 ) dataDescription = VTK_YZ_PLANE;
-      else if ( inDim[1] == 1 ) dataDescription = VTK_XZ_PLANE;
-      else dataDescription = VTK_XY_PLANE;
+      if ( inDim[0] == 1 )
+	{
+	dataDescription = VTK_YZ_PLANE;
+	}
+      else if ( inDim[1] == 1 )
+	{
+	dataDescription = VTK_XZ_PLANE;
+	}
+      else
+	{
+	dataDescription = VTK_XY_PLANE;
+	}
       }
     else if ( dataDim == 1 )
       {
-      if ( inDim[0] != 1 ) dataDescription = VTK_X_LINE;
-      else if ( inDim[1] != 1 ) dataDescription = VTK_Y_LINE;
-      else dataDescription = VTK_Z_LINE;
+      if ( inDim[0] != 1 )
+	{
+	dataDescription = VTK_X_LINE;
+	}
+      else if ( inDim[1] != 1 )
+	{
+	dataDescription = VTK_Y_LINE;
+	}
+      else
+	{
+	dataDescription = VTK_Z_LINE;
+	}
       }
     else
       {
@@ -218,7 +239,9 @@ void vtkStructuredData::GetPointCells(int ptId, vtkIdList& cellIds, int dim[3])
       {
       cellLoc[i] = ptLoc[i] + offset[j][i];
       if ( cellLoc[i] < 0 || cellLoc[i] >= cellDim[i] ) 
+	{
         break;
+	}
       }
     if ( i >= 3 ) //add cell
       {

@@ -160,7 +160,10 @@ static void vtkImageFlipExecute(vtkImageFlip *self, int id,
       // handle updating progress method
       if (!id) 
 	{
-	if (!(count%target)) self->UpdateProgress(count/(50.0*target));
+	if (!(count%target))
+	  {
+	  self->UpdateProgress(count/(50.0*target));
+	  }
 	count++;
 	}
       inPtrX = inPtrY;

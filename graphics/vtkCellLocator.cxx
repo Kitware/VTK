@@ -43,8 +43,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCellLocator.h"
 #include "vtkPolyData.h"
 
-#define OUTSIDE 0
-#define INSIDE 1
+#define VTK_CELL_OUTSIDE 0
+#define VTK_CELL_INSIDE 1
 
 typedef vtkIdList *vtkIdListPtr;
 
@@ -74,8 +74,14 @@ void vtkCellLocator::FreeSearchStructure()
     for (i=0; i<this->NumberOfOctants; i++)
       {
       cellIds = this->Tree[i];
-      if (cellIds == (void *)INSIDE) cellIds = 0;
-      if (cellIds) delete cellIds;
+      if (cellIds == (void *)VTK_CELL_INSIDE)
+	{
+	cellIds = 0;
+	}
+      if (cellIds)
+	{
+	delete cellIds;
+	}
       }
     delete [] this->Tree;
     this->Tree = NULL;
@@ -223,8 +229,14 @@ int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
 	  {
 	  npos[loop] = pos[loop] + 1;
 	  dist[loop] = (1.0 - hitPosition[loop] + pos[loop])/direction3[loop];
-	  if (dist[loop] == 0) dist[loop] = 1.0/direction3[loop];
-	  if (dist[loop] < 0) dist[loop] = 0;
+	  if (dist[loop] == 0)
+	    {
+	    dist[loop] = 1.0/direction3[loop];
+	    }
+	  if (dist[loop] < 0)
+	    {
+	    dist[loop] = 0;
+	    }
 	  if (dist[loop] < tMax)
 	    {
 	    bestDir = loop;
@@ -235,8 +247,14 @@ int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
 	  {
 	  npos[loop] = pos[loop] - 1;
 	  dist[loop] = (pos[loop] - hitPosition[loop])/direction3[loop];
-	  if (dist[loop] == 0) dist[loop] = -0.01/direction3[loop];
-	  if (dist[loop] < 0) dist[loop] = 0;
+	  if (dist[loop] == 0)
+	    {
+	    dist[loop] = -0.01/direction3[loop];
+	    }
+	  if (dist[loop] < 0)
+	    {
+	    dist[loop] = 0;
+	    }
 	  if (dist[loop] < tMax)
 	    {
 	    bestDir = loop;
@@ -310,7 +328,10 @@ void vtkCellLocator::BuildLocator()
   typedef vtkIdList *vtkIdListPtr;
   int prod, numOctants;
 
-  if ( this->Tree != NULL && this->BuildTime > this->MTime ) return;
+  if ( this->Tree != NULL && this->BuildTime > this->MTime )
+    {
+    return;
+    }
 
   vtkDebugMacro( << "Subdividing octree..." );
 
@@ -322,13 +343,19 @@ void vtkCellLocator::BuildLocator()
   //
   //  Make sure the appropriate data is available
   //
-  if ( this->Tree ) this->FreeSearchStructure();
+  if ( this->Tree )
+    {
+    this->FreeSearchStructure();
+    }
   //
   //  Size the root cell.  Initialize cell data structure, compute 
   //  level and divisions.
   //
   bounds = this->DataSet->GetBounds();
-  for (i=0; i<6; i++) this->Bounds[i] = bounds[i];
+  for (i=0; i<6; i++)
+    {
+    this->Bounds[i] = bounds[i];
+    }
 
   if ( this->Automatic ) 
     {
@@ -352,7 +379,10 @@ void vtkCellLocator::BuildLocator()
   //
   //  Compute width of leaf octant in three directions
   //
-  for (i=0; i<3; i++) this->H[i] = (bounds[2*i+1] - bounds[2*i]) / ndivs;
+  for (i=0; i<3; i++)
+    {
+    this->H[i] = (bounds[2*i+1] - bounds[2*i]) / ndivs;
+    }
   //
   //  Insert each cell into the appropriate octant.  Make sure cell
   //  falls within octant.
@@ -385,7 +415,7 @@ void vtkCellLocator::BuildLocator()
         for ( i = ijkMin[0]; i <= ijkMax[0]; i++ )
           {
           idx = parentOffset + i + j*ndivs + k*product;
-          this->MarkParents((void*)INSIDE,i,j,k,ndivs,this->Level);
+          this->MarkParents((void*)VTK_CELL_INSIDE,i,j,k,ndivs,this->Level);
           octant = this->Tree[idx];
           if ( ! octant )
             {
@@ -408,7 +438,10 @@ void vtkCellLocator::MarkParents(void* a, int i, int j, int k,
 {
   int offset, prod, ii, parentIdx;
 
-  if ( level <= 0  ) return;
+  if ( level <= 0  )
+    {
+    return;
+    }
 
   i /= 2;
   j /= 2;
@@ -425,7 +458,10 @@ void vtkCellLocator::MarkParents(void* a, int i, int j, int k,
   parentIdx = offset + i + j*ndivs + k*ndivs*ndivs;
 
   // if it already matches just return
-  if (a == this->Tree[parentIdx]) return;
+  if (a == this->Tree[parentIdx])
+    {
+    return;
+    }
   
   this->Tree[parentIdx] = (vtkIdList *)a;
   this->MarkParents(a, i, j, k, ndivs, level);
@@ -457,7 +493,10 @@ void vtkCellLocator::GenerateRepresentation(int level, vtkPolyData *pd)
   int parentIdx = 0;
   int numOctants = 1;
   
-  if ( level < 0 ) level = this->Level;
+  if ( level < 0 )
+    {
+    level = this->Level;
+    }
   for (l=0; l < level; l++)
     {
     numDivs *= 2;
@@ -492,7 +531,10 @@ void vtkCellLocator::GenerateRepresentation(int level, vtkPolyData *pd)
           {
           if ( boundary[ii] )
             {
-            if ( inside ) this->GenerateFace(ii,numDivs,i,j,k,pts,polys);
+            if ( inside )
+	      {
+	      this->GenerateFace(ii,numDivs,i,j,k,pts,polys);
+	      }
             }
           else
             {

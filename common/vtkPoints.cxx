@@ -78,8 +78,14 @@ void vtkPoints::ComputeBounds()
       x = this->GetPoint(i);
       for (j=0; j<3; j++)
         {
-        if ( x[j] < this->Bounds[2*j] ) this->Bounds[2*j] = x[j];
-        if ( x[j] > this->Bounds[2*j+1] ) this->Bounds[2*j+1] = x[j];
+        if ( x[j] < this->Bounds[2*j] )
+	  {
+	  this->Bounds[2*j] = x[j];
+	  }
+        if ( x[j] > this->Bounds[2*j+1] )
+	  {
+	  this->Bounds[2*j+1] = x[j];
+	  }
         }
       }
 
@@ -100,7 +106,10 @@ float *vtkPoints::GetBounds()
 void vtkPoints::GetBounds(float bounds[6])
 {
   this->ComputeBounds();
-  for (int i=0; i<6; i++) bounds[i] = this->Bounds[i];
+  for (int i=0; i<6; i++)
+    {
+    bounds[i] = this->Bounds[i];
+    }
 }
 
 void vtkPoints::PrintSelf(ostream& os, vtkIndent indent)

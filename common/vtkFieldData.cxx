@@ -56,7 +56,10 @@ vtkFieldData::vtkFieldData()
 vtkFieldData::~vtkFieldData()
 {
   this->Initialize();
-  if ( this->Tuple ) delete [] this->Tuple;
+  if ( this->Tuple )
+    {
+    delete [] this->Tuple;
+    }
 }
 
 // Description:
@@ -67,9 +70,12 @@ void vtkFieldData::Initialize()
 
   if (this->ArrayNames)
     {
-    for ( i=0; i<NumberOfArrays; i++ )
+    for ( i=0; i < this->NumberOfArrays; i++ )
       {
-      if (this->ArrayNames[i] != NULL) delete [] this->ArrayNames[i];
+      if (this->ArrayNames[i] != NULL)
+	{
+	delete [] this->ArrayNames[i];
+	}
       }
 
     delete [] this->ArrayNames;
@@ -103,7 +109,10 @@ int vtkFieldData::Allocate(const int sz, const int ext)
     {
     if ( this->Data[i] != NULL )
       {
-      if ( (status = this->Data[i]->Allocate(sz,ext)) == 0 ) break;
+      if ( (status = this->Data[i]->Allocate(sz,ext)) == 0 )
+	{
+	break;
+	}
       }
     }
 
@@ -141,10 +150,19 @@ void vtkFieldData::SetNumberOfArrays(int num)
 {
   int i;
   
-  if ( num < 0 ) num = 0;
+  if ( num < 0 )
+    {
+    num = 0;
+    }
 
-  if ( num == this->NumberOfArrays ) return;
-  else this->Modified();
+  if ( num == this->NumberOfArrays )
+    {
+    return;
+    }
+  else
+    {
+    this->Modified();
+    }
 
   if ( num == 0 ) 
     {
@@ -171,7 +189,10 @@ void vtkFieldData::SetNumberOfArrays(int num)
       {
       data[i] = NULL;
       }
-    if ( this->Data ) delete [] this->Data;
+    if ( this->Data )
+      {
+      delete [] this->Data;
+      }
     this->Data = data;
     this->NumberOfArrays = num;
     }
@@ -195,9 +216,15 @@ void vtkFieldData::SetArray(int i, vtkDataArray *data)
   if ( this->Data[i] != data )
     {
     this->Modified();
-    if ( this->Data[i] != NULL ) this->Data[i]->UnRegister(this);
+    if ( this->Data[i] != NULL )
+      {
+      this->Data[i]->UnRegister(this);
+      }
     this->Data[i] = data;
-    if ( this->Data[i] != NULL ) this->Data[i]->Register(this);
+    if ( this->Data[i] != NULL )
+      {
+      this->Data[i]->Register(this);
+      }
     }
   
   // adjust scratch tuple array
@@ -205,7 +232,10 @@ void vtkFieldData::SetArray(int i, vtkDataArray *data)
   if ( numComp != this->TupleSize )
     {
     this->TupleSize = numComp;
-    if ( this->Tuple ) delete [] this->Tuple;
+    if ( this->Tuple )
+      {
+      delete [] this->Tuple;
+      }
     this->Tuple = new float[this->TupleSize];
     }
 }
@@ -222,7 +252,10 @@ int vtkFieldData::GetNumberOfArrays()
 // if range.
 vtkDataArray *vtkFieldData::GetArray(int i)
 {
-  if ( i < 0 || i >= this->NumberOfArrays ) return NULL;
+  if ( i < 0 || i >= this->NumberOfArrays )
+    {
+    return NULL;
+    }
   return this->Data[i];
 }
 
@@ -301,7 +334,10 @@ float *vtkFieldData::GetTuple(const int i)
 void vtkFieldData::GetTuple(const int i, float * tuple)
 {
   this->GetTuple(i); //side effect fills in this->Tuple
-  for (int j=0; j<this->TupleSize; j++) tuple[j] = this->Tuple[j];
+  for (int j=0; j<this->TupleSize; j++)
+    {
+    tuple[j] = this->Tuple[j];
+    }
 }
 
 // Description:
@@ -472,7 +508,10 @@ void vtkFieldData::SetArrayName(int i, char *name)
       }
     }
   
-  if ( this->ArrayNames[i] != NULL ) delete [] this->ArrayNames[i];
+  if ( this->ArrayNames[i] != NULL )
+    {
+    delete [] this->ArrayNames[i];
+    }
   
   if (name != NULL)
     {

@@ -99,8 +99,14 @@ inline vtkActor *vtkActorCollection::GetNextItem()
 // Get the last actor in the list.
 inline vtkActor *vtkActorCollection::GetLastItem() 
 { 
-  if ( this->Bottom == NULL ) return NULL;
-  else return (vtkActor *)(this->Bottom->Item);
+  if ( this->Bottom == NULL )
+    {
+    return NULL;
+    }
+  else
+    {
+    return (vtkActor *)(this->Bottom->Item);
+    }
 }
 
 #endif

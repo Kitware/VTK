@@ -214,7 +214,7 @@ void vtkTIFFReader::UpdateImageInformation()
   // for now I'll skip it.
   for (i = 0; i < numTags; i++)
     {
-    ReadTag(&aTag,fp);
+    this->ReadTag(&aTag,fp);
     switch (aTag.TagId) 
       {
       case 256: 

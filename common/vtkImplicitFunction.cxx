@@ -65,7 +65,13 @@ float vtkImplicitFunction::FunctionValue(float x[3])
     pt[2] = x[2];
     pt[3] = 1.0;
     this->Transform->MultiplyPoint(pt,pt);
-    if (pt[3] != 1.0 ) for (i=0; i<3; i++) pt[i] /= pt[3];
+    if (pt[3] != 1.0 )
+      {
+      for (i=0; i<3; i++)
+	{
+	pt[i] /= pt[3];
+	}
+      }
 
     return this->EvaluateFunction((float *)pt);
     }
@@ -124,6 +130,8 @@ void vtkImplicitFunction::PrintSelf(ostream& os, vtkIndent indent)
     this->Transform->PrintSelf(os,indent.GetNextIndent());
     }
   else
+    {
     os << indent << "Transform: (None)\n";
+    }
 }
 

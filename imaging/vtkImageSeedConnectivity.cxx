@@ -212,8 +212,14 @@ void vtkImageSeedConnectivity::Execute(vtkImageData *inData,
     {
     temp = seed->Index[0];
     // make sure z value of seed is acceptable
-    if (seed->Index[2] < min2) seed->Index[2] = min2;
-    if (seed->Index[2] > max2) seed->Index[2] = max2;
+    if (seed->Index[2] < min2)
+      {
+      seed->Index[2] = min2;
+      }
+    if (seed->Index[2] > max2)
+      {
+      seed->Index[2] = max2;
+      }
     outPtr0 = (unsigned char *)(outData->GetScalarPointer(seed->Index));
     for (idx0 = temp; idx0 <= max0; ++idx0)
       {

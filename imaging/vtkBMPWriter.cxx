@@ -68,7 +68,10 @@ void vtkBMPWriter::WriteFileHeader(ofstream *file, vtkImageCache *cache)
   file->put((char)(temp%256));
   file->put((char)((temp%65536L)/256));
   file->put((char)(temp/65536L));
-  for (row = 0; row < 5; row++) file->put((char)0);
+  for (row = 0; row < 5; row++)
+    {
+    file->put((char)0);
+    }
   file->put((char)54);
   file->put((char)0);
   file->put((char)0);
@@ -93,7 +96,10 @@ void vtkBMPWriter::WriteFileHeader(ofstream *file, vtkImageCache *cache)
   file->put((char)1);
   file->put((char)0);
   file->put((char)24);
-  for (row = 0; row < 25; row++) file->put((char)0);
+  for (row = 0; row < 25; row++)
+    {
+    file->put((char)0);
+    }
 }
 
 
@@ -166,7 +172,10 @@ void vtkBMPWriter::WriteFile(ofstream *file, vtkImageData *data,
 	  file->put(ptr[i*4]);
 	  }
 	}
-      for (i = 0; i < rowAdder; i++) file->put((char)0);
+      for (i = 0; i < rowAdder; i++)
+	{
+	file->put((char)0);
+	}
       }
     }
 }

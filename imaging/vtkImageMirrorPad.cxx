@@ -162,7 +162,10 @@ static void vtkImageMirrorPadExecute(vtkImageMirrorPad *self,
       inInc[0] = inIncStart[0];
       if (!id) 
 	{
-	if (!(count%target)) self->UpdateProgress(count/(50.0*target));
+	if (!(count%target))
+	  {
+	  self->UpdateProgress(count/(50.0*target));
+	  }
 	count++;
 	}
 
@@ -191,8 +194,14 @@ static void vtkImageMirrorPadExecute(vtkImageMirrorPad *self,
 	  for (idxC = 0; idxC < maxC; idxC++)
 	    {
 	    // Pixel operation
-	    if (idxC < inMaxC) *outPtr = *(inPtrX + idxC);
-	    else *outPtr = *(inPtrX + idxC%inMaxC);
+	    if (idxC < inMaxC)
+	      {
+	      *outPtr = *(inPtrX + idxC);
+	      }
+	    else
+	      {
+	      *outPtr = *(inPtrX + idxC%inMaxC);
+	      }
 	    outPtr++;
 	    }
 	  inIdx[0] += inInc[0];

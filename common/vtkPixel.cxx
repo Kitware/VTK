@@ -93,8 +93,14 @@ int vtkPixel::EvaluatePosition(float x[3], float closestPoint[3],
     p[i] = x[i] - pt1[i];
     }
 
-  if ( (l21=vtkMath::Norm(p21)) == 0.0 ) l21 = 1.0;
-  if ( (l31=vtkMath::Norm(p31)) == 0.0 ) l31 = 1.0;
+  if ( (l21=vtkMath::Norm(p21)) == 0.0 )
+    {
+    l21 = 1.0;
+    }
+  if ( (l31=vtkMath::Norm(p31)) == 0.0 )
+    {
+    l31 = 1.0;
+    }
 
   pcoords[0] = vtkMath::Dot(p21,p) / (l21*l21);
   pcoords[1] = vtkMath::Dot(p31,p) / (l31*l31);
@@ -112,9 +118,18 @@ int vtkPixel::EvaluatePosition(float x[3], float closestPoint[3],
     float pc[3], w[4];
     for (i=0; i<2; i++)
       {
-      if (pcoords[i] < 0.0) pc[i] = 0.0;
-      else if (pcoords[i] > 1.0) pc[i] = 1.0;
-      else pc[i] = pcoords[i];
+      if (pcoords[i] < 0.0)
+	{
+	pc[i] = 0.0;
+	}
+      else if (pcoords[i] > 1.0)
+	{
+	pc[i] = 1.0;
+	}
+      else
+	{
+	pc[i] = pcoords[i];
+	}
       }
     this->EvaluateLocation(subId, pc, closestPoint, (float *)w);
     dist2 = vtkMath::Distance2BetweenPoints(closestPoint,x);
@@ -177,10 +192,14 @@ int vtkPixel::CellBoundary(int vtkNotUsed(subId), float pcoords[3], vtkIdList& p
     }
 
   if ( pcoords[0] < 0.0 || pcoords[0] > 1.0 ||
-  pcoords[1] < 0.0 || pcoords[1] > 1.0 )
+       pcoords[1] < 0.0 || pcoords[1] > 1.0 )
+    {
     return 0;
+    }
   else
+    {
     return 1;
+    }
 }
 
 //
@@ -207,8 +226,12 @@ void vtkPixel::Contour(float value, vtkScalars *cellScalars,
 
   // Build the case table
   for ( i=0, index = 0; i < 4; i++)
-      if (cellScalars->GetScalar(i) >= value)
-          index |= CASE_MASK[i];
+    {
+    if (cellScalars->GetScalar(i) >= value)
+      {
+      index |= CASE_MASK[i];
+      }
+    }
 
   lineCase = lineCases + index;
   edge = lineCase->edges;
@@ -222,7 +245,10 @@ void vtkPixel::Contour(float value, vtkScalars *cellScalars,
           (cellScalars->GetScalar(vert[1]) - cellScalars->GetScalar(vert[0]));
       x1 = this->Points.GetPoint(vert[0]);
       x2 = this->Points.GetPoint(vert[1]);
-      for (j=0; j<3; j++) x[j] = x1[j] + t * (x2[j] - x1[j]);
+      for (j=0; j<3; j++)
+	{
+	x[j] = x1[j] + t * (x2[j] - x1[j]);
+	}
       if ( (pts[i] = locator->IsInsertedPoint(x)) < 0 )
         {
         pts[i] = locator->InsertNextPoint(x);
@@ -330,15 +356,23 @@ int vtkPixel::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
       break;
       }
     }
-//
-// Intersect plane of pixel with line
-//
-  if ( ! vtkPlane::IntersectWithLine(p1,p2,n,pt1,t,x) ) return 0;
-//
-// Use evaluate position
-//
+  //
+  // Intersect plane of pixel with line
+  //
+  if ( ! vtkPlane::IntersectWithLine(p1,p2,n,pt1,t,x) )
+    {
+    return 0;
+    }
+  //
+  // Use evaluate position
+  //
   if (this->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights) )
-    if ( dist2 <= tol2 ) return 1;
+    {
+    if ( dist2 <= tol2 )
+      {
+      return 1;
+      }
+    }
 
   return 0;
 }
@@ -398,7 +432,10 @@ void vtkPixel::Derivatives(int vtkNotUsed(subId),
   x2 = this->Points.GetPoint(2);
 
   //figure which plane this pixel is in
-  for (i=0; i < 3; i++) spacing[i] = x2[i] - x0[i];
+  for (i=0; i < 3; i++)
+    {
+    spacing[i] = x2[i] - x0[i];
+    }
 
   if ( spacing[0] > spacing[2] && spacing[1] > spacing[2] ) // z-plane
     {

@@ -50,7 +50,10 @@ vtkPriorityQueue::vtkPriorityQueue()
   this->MaxId = -1;
 
   this->ItemLocation->Allocate(this->Size,this->Extend);
-  for (int i=0; i < this->Size; i++) this->ItemLocation->SetValue(i,-1);
+  for (int i=0; i < this->Size; i++)
+    {
+    this->ItemLocation->SetValue(i,-1);
+    }
 }
 
 // Description:
@@ -60,7 +63,10 @@ vtkPriorityQueue::vtkPriorityQueue(const int sz, const int ext)
 {
   this->ItemLocation = vtkIntArray::New();
   this->ItemLocation->Allocate(sz,ext);
-  for (int i=0; i < sz; i++) this->ItemLocation->SetValue(i,-1);
+  for (int i=0; i < sz; i++)
+    {
+    this->ItemLocation->SetValue(i,-1);
+    }
 
   this->Size = ( sz > 0 ? sz : 1);
   this->Array = new vtkPriorityItem[sz];
@@ -71,7 +77,10 @@ vtkPriorityQueue::vtkPriorityQueue(const int sz, const int ext)
 vtkPriorityQueue::~vtkPriorityQueue()
 {
   this->ItemLocation->Delete();
-  if ( this->Array != NULL ) delete [] this->Array;
+  if ( this->Array != NULL )
+    {
+    delete [] this->Array;
+    }
 }
 
 // Description:
@@ -83,11 +92,16 @@ void vtkPriorityQueue::Insert(float priority, int id)
 
   // check and make sure item hasn't been inserted before
   if ( id <= this->ItemLocation->GetMaxId() && 
-  this->ItemLocation->GetValue(id) != -1 ) 
+       this->ItemLocation->GetValue(id) != -1 )
+    {
     return;
+    }
 
   // start by placing new entry at bottom of tree
-  if ( ++this->MaxId >= this->Size ) this->Resize(this->MaxId);
+  if ( ++this->MaxId >= this->Size )
+    {
+    this->Resize(this->MaxId);
+    }
   this->Array[this->MaxId].priority = priority;
   this->Array[this->MaxId].id = id;
   if ( id >= this->ItemLocation->GetSize() ) //might have to resize and initialize
@@ -95,7 +109,9 @@ void vtkPriorityQueue::Insert(float priority, int id)
     int oldSize = this->ItemLocation->GetSize();
     this->ItemLocation->InsertValue(id,this->MaxId); 
     for (i=oldSize; i < this->ItemLocation->GetSize(); i++) 
+      {
       this->ItemLocation->SetValue(i, -1);
+      }
     this->ItemLocation->SetValue(id,this->MaxId);
     }
 
@@ -123,7 +139,10 @@ int vtkPriorityQueue::Pop(float &priority, int location)
   int id, i, j, idx;
   static vtkPriorityItem temp;
 
-  if ( this->MaxId < 0 ) return -1;
+  if ( this->MaxId < 0 )
+    {
+    return -1;
+    }
  
   id = this->Array[location].id;
   priority = this->Array[location].priority;
@@ -133,7 +152,10 @@ int vtkPriorityQueue::Pop(float &priority, int location)
   this->Array[location].priority = this->Array[this->MaxId].priority;
   this->ItemLocation->SetValue(this->Array[location].id,location);
 
-  if ( --this->MaxId <= 0 ) return id;
+  if ( --this->MaxId <= 0 )
+    {
+    return id;
+    }
   this->ItemLocation->SetValue(id,-1);
 
   // percolate into the tree
@@ -142,10 +164,14 @@ int vtkPriorityQueue::Pop(float &priority, int location)
     idx = 2*i + 1;
 
     if ( this->Array[idx].priority < this->Array[idx+1].priority || 
-    idx == this->MaxId )
-        j = idx;
+	 idx == this->MaxId )
+      {
+      j = idx;
+      }
     else
-        j = idx + 1;
+      {
+      j = idx + 1;
+      }
 
     if ( this->Array[i].priority > this->Array[j].priority )
       {
@@ -157,7 +183,10 @@ int vtkPriorityQueue::Pop(float &priority, int location)
       this->ItemLocation->SetValue(this->Array[j].id,i);
       this->Array[j] = temp;
       }
-    else break;
+    else
+      {
+      break;
+      }
     }
   
   return id;
@@ -169,9 +198,14 @@ vtkPriorityItem *vtkPriorityQueue::Resize(const int sz)
   vtkPriorityItem *newArray;
   int newSize;
 
-  if (sz >= this->Size) newSize = this->Size + 
-    this->Extend*(((sz-this->Size)/this->Extend)+1);
-  else newSize = sz;
+  if (sz >= this->Size)
+    {
+    newSize = this->Size + this->Extend*(((sz-this->Size)/this->Extend)+1);
+    }
+  else
+    {
+    newSize = sz;
+    }
 
   newArray = new vtkPriorityItem[newSize];
 
@@ -192,7 +226,9 @@ void vtkPriorityQueue::Reset()
 {
   this->MaxId = -1;
   for (int i=0; i <= this->ItemLocation->GetMaxId(); i++)
+    {
     this->ItemLocation->SetValue(i,-1);
+    }
   this->ItemLocation->Reset();
 }
 

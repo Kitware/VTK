@@ -50,7 +50,10 @@ vtkPointSet::vtkPointSet(const vtkPointSet& ps) :
 vtkDataSet(ps)
 {
   this->Points = ps.Points;
-  if (this->Points) this->Points->Register(this);
+  if (this->Points)
+    {
+    this->Points->Register(this);
+    }
 
   this->Locator = ps.Locator;
   if (this->Locator)
@@ -77,7 +80,10 @@ void vtkPointSet::CopyStructure(vtkDataSet *ds)
   this->Initialize();
 
   this->Points = ps->Points;
-  if (this->Points) this->Points->Register(this);
+  if (this->Points)
+    {
+    this->Points->Register(this);
+    }
 }
 
 
@@ -103,7 +109,10 @@ void vtkPointSet::ComputeBounds()
   if ( this->Points )
     {
     bounds = this->Points->GetBounds();
-    for (int i=0; i<6; i++) this->Bounds[i] = bounds[i];
+    for (int i=0; i<6; i++)
+      {
+      this->Bounds[i] = bounds[i];
+      }
     this->ComputeTime.Modified();
     }
 }
@@ -114,7 +123,10 @@ unsigned long int vtkPointSet::GetMTime()
 
   if ( this->Points ) 
     {
-    if ( this->Points->GetMTime() > dsTime ) dsTime = this->Points->GetMTime();
+    if ( this->Points->GetMTime() > dsTime )
+      {
+      dsTime = this->Points->GetMTime();
+      }
     }
 
   // don't get locator's mtime because its an internal object that cannot be 
@@ -126,7 +138,10 @@ unsigned long int vtkPointSet::GetMTime()
 
 int vtkPointSet::FindPoint(float x[3])
 {
-  if ( !this->Points ) return -1;
+  if ( !this->Points )
+    {
+    return -1;
+    }
 
   if ( !this->Locator )
     {
@@ -143,7 +158,7 @@ int vtkPointSet::FindPoint(float x[3])
 }
 
 //the furthest the walk can be - prevents aimless wandering
-#define MAX_WALK 12
+#define VTK_MAX_WALK 12
 
 int vtkPointSet::FindCell(float x[3], vtkCell *cell, int cellId, float tol2, 
                           int& subId, float pcoords[3], float *weights)
@@ -154,7 +169,10 @@ int vtkPointSet::FindCell(float x[3], vtkCell *cell, int cellId, float tol2,
   static vtkIdList cellIds(8,100), ptIds(8,100);
 
   // make sure everything is up to snuff
-  if ( !this->Points ) return -1;
+  if ( !this->Points )
+    {
+    return -1;
+    }
 
   if ( !this->Locator )
     {
@@ -173,7 +191,10 @@ int vtkPointSet::FindCell(float x[3], vtkCell *cell, int cellId, float tol2,
   if ( ! cell )
     {
     ptId = this->Locator->FindClosestPoint(x);
-    if ( ptId < 0 ) return (-1); //if point completely outside of data
+    if ( ptId < 0 )
+      {
+      return (-1); //if point completely outside of data
+      }
 
     this->GetPointCells(ptId, cellIds);
     if ( cellIds.GetNumberOfIds() > 0 )
@@ -196,7 +217,7 @@ int vtkPointSet::FindCell(float x[3], vtkCell *cell, int cellId, float tol2,
   // locate the cell that contains the point.
   if ( cell ) //we have a starting cell
     {
-    for ( walk=0; walk < MAX_WALK; walk++ )
+    for ( walk=0; walk < VTK_MAX_WALK; walk++ )
       {
       cell->CellBoundary(subId, pcoords, ptIds);
       this->GetCellNeighbors(cellId, ptIds, cellIds);
@@ -221,12 +242,15 @@ int vtkPointSet::FindCell(float x[3], vtkCell *cell, int cellId, float tol2,
 
   return -1;
 }
-#undef MAX_WALK
+#undef VTK_MAX_WALK
 
 
 void vtkPointSet::Squeeze()
 {
-  if ( this->Points ) this->Points->Squeeze();
+  if ( this->Points )
+    {
+    this->Points->Squeeze();
+    }
   vtkDataSet::Squeeze();
 }
 

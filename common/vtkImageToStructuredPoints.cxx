@@ -180,12 +180,18 @@ void vtkImageToStructuredPoints::Update()
     << ", scalar input MTime = " << sInputMTime
     << ", released = " << this->Output->GetDataReleased());
     
-    if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
+    if ( this->StartMethod )
+      {
+      (*this->StartMethod)(this->StartMethodArg);
+      }
     this->Output->Initialize(); //clear output
     this->Execute();
     this->ExecuteTime.Modified();
     this->SetDataReleased(0);
-    if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
+    if ( this->EndMethod )
+      {
+      (*this->EndMethod)(this->EndMethodArg);
+      }
     }
 
   if (this->Input->ShouldIReleaseData())

@@ -280,11 +280,20 @@ void vtkImageDifference::ThreadedExecute(vtkImageData **inData,
 	
 	this->Error = this->Error + (tr + tg + tb)/(3.0*255);
 	tr -= this->Threshold;
-	if (tr < 0) tr = 0;
+	if (tr < 0)
+	  {
+	  tr = 0;
+	  }
 	tg -= this->Threshold;
-	if (tg < 0) tg = 0;
+	if (tg < 0)
+	  {
+	  tg = 0;
+	  }
 	tb -= this->Threshold;
-	if (tb < 0) tb = 0;
+	if (tb < 0)
+	  {
+	  tb = 0;
+	  }
 	*outPtr0++ = (unsigned char)tr;
 	*outPtr0++ = (unsigned char)tg;
 	*outPtr0++ = (unsigned char)tb;

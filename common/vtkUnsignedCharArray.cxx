@@ -53,7 +53,10 @@ vtkUnsignedCharArray::vtkUnsignedCharArray(int numComp)
 
 vtkUnsignedCharArray::~vtkUnsignedCharArray()
 {
-  if ((this->Array) && (!this->SaveUserArray)) delete [] this->Array;
+  if ((this->Array) && (!this->SaveUserArray))
+    {
+    delete [] this->Array;
+    }
   delete [] this->Tuple;
 }
 
@@ -96,7 +99,10 @@ int vtkUnsignedCharArray::Allocate(const int sz, const int ext)
       delete [] this->Array;
       }
     this->Size = ( sz > 0 ? sz : 1);
-    if ( (this->Array = new unsigned char[this->Size]) == NULL ) return 0;
+    if ( (this->Array = new unsigned char[this->Size]) == NULL )
+      {
+      return 0;
+      }
     this->SaveUserArray = 0;
     }
 
@@ -222,7 +228,10 @@ float *vtkUnsignedCharArray::GetTuple(const int i)
     }
 
   unsigned char *t = this->Array + this->NumberOfComponents*i;
-  for (int j=0; j<this->NumberOfComponents; j++) this->Tuple[j] = (float)t[j];
+  for (int j=0; j<this->NumberOfComponents; j++)
+    {
+    this->Tuple[j] = (float)t[j];
+    }
   return this->Tuple;
 }
 
@@ -231,7 +240,10 @@ float *vtkUnsignedCharArray::GetTuple(const int i)
 void vtkUnsignedCharArray::GetTuple(const int i, float * tuple) 
 {
   unsigned char *t = this->Array + this->NumberOfComponents*i;
-  for (int j=0; j<this->NumberOfComponents; j++) tuple[j] = (float)t[j];
+  for (int j=0; j<this->NumberOfComponents; j++)
+    {
+    tuple[j] = (float)t[j];
+    }
 }
 
 // Description:
@@ -240,7 +252,9 @@ void vtkUnsignedCharArray::SetTuple(const int i, const float * tuple)
 {
   int loc = i * this->NumberOfComponents; 
   for (int j=0; j<this->NumberOfComponents; j++) 
+    {
     this->Array[loc+j] = (unsigned char)tuple[j];
+    }
 }
 
 // Description:
@@ -250,7 +264,10 @@ void vtkUnsignedCharArray::InsertTuple(const int i, const float * tuple)
 {
   unsigned char *t = this->WritePointer(i*this->NumberOfComponents,this->NumberOfComponents);
 
-  for (int j=0; j<this->NumberOfComponents; j++) *t++ = (unsigned char)*tuple++;
+  for (int j=0; j<this->NumberOfComponents; j++)
+    {
+    *t++ = (unsigned char)*tuple++;
+    }
 }
 
 // Description:
@@ -260,7 +277,10 @@ int vtkUnsignedCharArray::InsertNextTuple(const float * tuple)
   int i = this->MaxId + 1;
   unsigned char *t = this->WritePointer(i,this->NumberOfComponents);
 
-  for (i=0; i<this->NumberOfComponents; i++) *t++ = (unsigned char)*tuple++;
+  for (i=0; i<this->NumberOfComponents; i++)
+    {
+    *t++ = (unsigned char)*tuple++;
+    }
 
   return this->MaxId / this->NumberOfComponents;
 }

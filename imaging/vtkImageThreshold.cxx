@@ -176,7 +176,10 @@ static void vtkImageThresholdExecute(vtkImageThreshold *self,
       {
       if (!id) 
 	{
-	if (!(count%target)) self->UpdateProgress(count/(50.0*target));
+	if (!(count%target))
+	  {
+	  self->UpdateProgress(count/(50.0*target));
+	  }
 	count++;
 	}
       for (idxR = 0; idxR < rowLength; idxR++)

@@ -71,7 +71,10 @@ float vtkMath::Random()
   // Borrowed from: Fuat C. Baran, Columbia University, 1988.
   hi = vtkMath::Seed / K_Q;
   lo = vtkMath::Seed % K_Q;
-  if ((vtkMath::Seed = K_A * lo - K_R * hi) <= 0) Seed += K_M;
+  if ((vtkMath::Seed = K_A * lo - K_R * hi) <= 0)
+    {
+    Seed += K_M;
+    }
   return ((float) vtkMath::Seed / K_M);
 }
 
@@ -110,9 +113,9 @@ void vtkMath::Cross(float x[3], float y[3], float z[3])
 int vtkMath::SolveLinearSystem(double **A, double *x, int size)
 {
   static int *index = NULL, maxSize=0;
-//
-// Check on allocation of working vectors
-//
+  //
+  // Check on allocation of working vectors
+  //
   if ( index == NULL ) 
     {
     index = new int[size];
@@ -124,10 +127,13 @@ int vtkMath::SolveLinearSystem(double **A, double *x, int size)
     index = new int[size];
     maxSize = size;
     }
-//
-// Factor and solve matrix
-//
-  if ( vtkMath::LUFactorLinearSystem(A, index, size) == 0 ) return 0;
+  //
+  // Factor and solve matrix
+  //
+  if ( vtkMath::LUFactorLinearSystem(A, index, size) == 0 )
+    {
+    return 0;
+    }
   vtkMath::LUSolveLinearSystem(A,index,x,size);
 
   return 1;
@@ -142,9 +148,9 @@ int vtkMath::InvertMatrix(double **A, double **AI, int size)
   static int *index = NULL, maxSize=0;
   static double *column = NULL;
   int i, j;
-//
-// Check on allocation of working vectors
-//
+  //
+  // Check on allocation of working vectors
+  //
   if ( index == NULL ) 
     {
     index = new int[size];
@@ -158,19 +164,28 @@ int vtkMath::InvertMatrix(double **A, double **AI, int size)
     column = new double[size];
     maxSize = size;
     }
-//
-// Factor matrix; then begin solving for inverse one column at a time.
-//
-  if ( vtkMath::LUFactorLinearSystem(A, index, size) == 0 ) return 0;
+  //
+  // Factor matrix; then begin solving for inverse one column at a time.
+  //
+  if ( vtkMath::LUFactorLinearSystem(A, index, size) == 0 )
+    {
+    return 0;
+    }
   
   for ( i=0; i < size; i++ )
     {
-    for ( j=0; j < size; j++ ) column[j] = 0.0;
+    for ( j=0; j < size; j++ )
+      {
+      column[j] = 0.0;
+      }
     column[i] = 1.0;
 
     vtkMath::LUSolveLinearSystem(A,index,column,size);
 
-    for ( j=0; j < size; j++ ) AI[i][j] = column[j];
+    for ( j=0; j < size; j++ )
+      {
+      AI[i][j] = column[j];
+      }
     }
 
   return 1;
@@ -189,9 +204,9 @@ int vtkMath::LUFactorLinearSystem(double **A, int *index, int size)
   int i, j, k;
   int maxI = 0;
   double largest, temp1, temp2, sum;
-//
-// Check on allocation of working vectors
-//
+  //
+  // Check on allocation of working vectors
+  //
   if ( scale == NULL ) 
     {
     scale = new double[size];
@@ -203,37 +218,49 @@ int vtkMath::LUFactorLinearSystem(double **A, int *index, int size)
     scale = new double[size];
     maxSize = size;
     }
-//
-// Loop over rows to get implicit scaling information
-//
+  //
+  // Loop over rows to get implicit scaling information
+  //
   for ( i = 0; i < size; i++ ) 
     {
     for ( largest = 0.0, j = 0; j < size; j++ ) 
       {
-      if ( (temp2 = fabs(A[i][j])) > largest ) largest = temp2;
+      if ( (temp2 = fabs(A[i][j])) > largest )
+	{
+	largest = temp2;
+	}
       }
 
-      if ( largest == 0.0 ) return 0;
+    if ( largest == 0.0 )
+      {
+      return 0;
+      }
       scale[i] = 1.0 / largest;
     }
-//
-// Loop over all columns using Crout's method
-//
+  //
+  // Loop over all columns using Crout's method
+  //
   for ( j = 0; j < size; j++ ) 
     {
     for (i = 0; i < j; i++) 
       {
       sum = A[i][j];
-      for ( k = 0; k < i; k++ ) sum -= A[i][k] * A[k][j];
+      for ( k = 0; k < i; k++ )
+	{
+	sum -= A[i][k] * A[k][j];
+	}
       A[i][j] = sum;
       }
-//
-// Begin search for largest pivot element
-//
+    //
+    // Begin search for largest pivot element
+    //
     for ( largest = 0.0, i = j; i < size; i++ ) 
       {
       sum = A[i][j];
-      for ( k = 0; k < j; k++ ) sum -= A[i][k] * A[k][j];
+      for ( k = 0; k < j; k++ )
+	{
+	sum -= A[i][k] * A[k][j];
+	}
       A[i][j] = sum;
 
       if ( (temp1 = scale[i]*fabs(sum)) >= largest ) 
@@ -242,9 +269,9 @@ int vtkMath::LUFactorLinearSystem(double **A, int *index, int size)
         maxI = i;
         }
       }
-//
-// Check for row interchange
-//
+    //
+    // Check for row interchange
+    //
     if ( j != maxI ) 
       {
       for ( k = 0; k < size; k++ ) 
@@ -255,17 +282,23 @@ int vtkMath::LUFactorLinearSystem(double **A, int *index, int size)
         }
       scale[maxI] = scale[j];
       }
-//
-// Divide by pivot element and perform elimination
-//
+    //
+    // Divide by pivot element and perform elimination
+    //
     index[j] = maxI;
 
-    if ( fabs(A[j][j]) <= VTK_SMALL_NUMBER ) return 0;
+    if ( fabs(A[j][j]) <= VTK_SMALL_NUMBER )
+      {
+      return 0;
+      }
 
     if ( j != (size-1) ) 
       {
       temp1 = 1.0 / A[j][j];
-      for ( i = j + 1; i < size; i++ ) A[i][j] *= temp1;
+      for ( i = j + 1; i < size; i++ )
+	{
+	A[i][j] *= temp1;
+	}
       }
     }
 
@@ -296,7 +329,10 @@ void vtkMath::LUSolveLinearSystem(double **A, int *index, double *x, int size)
 
     if ( ii >= 0 )
       {
-      for ( j = ii; j <= (i-1); j++ ) sum -= A[i][j]*x[j];
+      for ( j = ii; j <= (i-1); j++ )
+	{
+	sum -= A[i][j]*x[j];
+	}
       }
     else if (sum)
       {
@@ -311,7 +347,10 @@ void vtkMath::LUSolveLinearSystem(double **A, int *index, double *x, int size)
   for ( i = size-1; i >= 0; i-- ) 
     {
     sum = x[i];
-    for ( j = i + 1; j < size; j++ ) sum -= A[i][j]*x[j];
+    for ( j = i + 1; j < size; j++ )
+      {
+      sum -= A[i][j]*x[j];
+      }
     x[i] = sum / A[i][i];
     }
 }
@@ -337,7 +376,10 @@ int vtkMath::Jacobi(float **a, float *w, float **v)
   // initialize
   for (ip=0; ip<3; ip++) 
     {
-    for (iq=0; iq<3; iq++) v[ip][iq] = 0.0;
+    for (iq=0; iq<3; iq++)
+      {
+      v[ip][iq] = 0.0;
+      }
     v[ip][ip] = 1.0;
     }
   for (ip=0; ip<3; ip++) 
@@ -352,12 +394,24 @@ int vtkMath::Jacobi(float **a, float *w, float **v)
     sm = 0.0;
     for (ip=0; ip<2; ip++) 
       {
-      for (iq=ip+1; iq<3; iq++) sm += fabs(a[ip][iq]);
+      for (iq=ip+1; iq<3; iq++)
+	{
+	sm += fabs(a[ip][iq]);
+	}
       }
-    if (sm == 0.0) break;
+    if (sm == 0.0)
+      {
+      break;
+      }
 
-    if (i < 4) tresh = 0.2*sm/(9);
-    else tresh = 0.0;
+    if (i < 4)
+      {
+      tresh = 0.2*sm/(9);
+      }
+    else
+      {
+      tresh = 0.0;
+      }
 
     for (ip=0; ip<2; ip++) 
       {
@@ -372,12 +426,18 @@ int vtkMath::Jacobi(float **a, float *w, float **v)
         else if (fabs(a[ip][iq]) > tresh) 
           {
           h = w[iq] - w[ip];
-          if ( (fabs(h)+g) == fabs(h)) t = (a[ip][iq]) / h;
+          if ( (fabs(h)+g) == fabs(h))
+	    {
+	    t = (a[ip][iq]) / h;
+	    }
           else 
             {
             theta = 0.5*h / (a[ip][iq]);
             t = 1.0 / (fabs(theta)+sqrt(1.0+theta*theta));
-            if (theta < 0.0) t = -t;
+            if (theta < 0.0)
+	      {
+	      t = -t;
+	      }
             }
           c = 1.0 / sqrt(1+t*t);
           s = t*c;
@@ -454,8 +514,20 @@ int vtkMath::Jacobi(float **a, float *w, float **v)
   // positive eigenvector.
   for (j=0; j<3; j++)
     {
-    for (numPos=0, i=0; i<3; i++) if ( v[i][j] >= 0.0 ) numPos++;
-    if ( numPos < 2 ) for(i=0; i<3; i++) v[i][j] *= -1.0;
+    for (numPos=0, i=0; i<3; i++)
+      {
+      if ( v[i][j] >= 0.0 )
+	{
+	numPos++;
+	}
+      }
+    if ( numPos < 2 )
+      {
+      for(i=0; i<3; i++)
+	{
+	v[i][j] *= -1.0;
+	}
+      }
     }
 
   return 1;
@@ -481,18 +553,30 @@ double vtkMath::EstimateMatrixCondition(double **A, int size)
     {
     for (j=i; j < size; j++)
       {
-      if ( fabs(A[i][j]) > max ) max = fabs(A[i][j]);
+      if ( fabs(A[i][j]) > max )
+	{
+	max = fabs(A[i][j]);
+	}
       }
     }
 
   // find the minimum diagonal value
   for (i=0; i < size; i++)
     {
-    if ( fabs(A[i][i]) < min ) min = fabs(A[i][j]);
+    if ( fabs(A[i][i]) < min )
+      {
+      min = fabs(A[i][j]);
+      }
     }
 
-  if ( min == 0.0 ) return VTK_LARGE_FLOAT;
-  else return (max/min);
+  if ( min == 0.0 )
+    {
+    return VTK_LARGE_FLOAT;
+    }
+  else
+    {
+    return (max/min);
+    }
 }
 
 // Description:
@@ -606,9 +690,13 @@ int vtkMath::SolveCubic( double c0, double c1, double c2, double c3,
       A = -Sign(R) * pow(fabs(R) + sqrt(R_squared - Q_cubed),0.33333333);
 
       if( A == 0.0 )
+	{
 	B = 0.0;
+	}
       else
+	{
 	B = Q/A;
+	}
 
       *r1 =  (A + B) - c1/3.0;
       *r2 = -0.5*(A + B) - c1/3.0;
@@ -673,14 +761,21 @@ int vtkMath::SolveQuadratic( double c1, double c2, double c3,
       *r1 = Q / c1;
 
       if( Q == 0.0 )
+	{
 	*r2 = 0.0;
+	}
       else
+	{
 	*r2 = c3 / Q;
+	}
 
       *num_roots = 2;
 
       // Reduce Number Of Roots To One 
-      if( *r1 == *r2 ) *num_roots = 1;
+      if( *r1 == *r2 )
+	{
+	*num_roots = 1;
+	}
       return *num_roots;
       }
     else	// Equation Does Not Have Real Roots 
@@ -729,7 +824,10 @@ int vtkMath::SolveLinear( double c2, double c3, double *r1, int *num_roots )
   else
     {
     *num_roots = 0;
-    if ( c3 == 0.0 ) return (-1);
+    if ( c3 == 0.0 )
+      {
+      return (-1);
+      }
     }
 
   return *num_roots;

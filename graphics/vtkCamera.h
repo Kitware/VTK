@@ -151,9 +151,9 @@ class VTK_EXPORT vtkCamera : public vtkReferenceCount
 //  vtkSetMacro(ParallelProjection,int);
   void SetParallelProjection( int flag )
   {
-    if ( ParallelProjection != flag )
+    if ( this->ParallelProjection != flag )
       {
-      ParallelProjection = flag;
+      this->ParallelProjection = flag;
       this->Modified();
       this->ViewingRaysModified();
       }
@@ -223,21 +223,21 @@ class VTK_EXPORT vtkCamera : public vtkReferenceCount
   // transformed to the camera's location and orientation. 
   vtkTimeStamp ViewingRaysMTime;
 
-  // VPN_dot_DOP stores the dot product between the view plane normal and
+  // VPNDotDOP stores the dot product between the view plane normal and
   // the direction of projection. If this dot product changes then the view
   // rays must be updated.
-  float        VPN_dot_DOP;
+  float        VPNDotDOP;
 
 };
 
 inline void vtkCamera::SetWindowCenter( float x, float y )
 {
-  if ((WindowCenter[0] != x)||(WindowCenter[1] != y))
+  if ((this->WindowCenter[0] != x)||(this->WindowCenter[1] != y))
     {
     this->Modified();
     this->ViewingRaysModified();
-    WindowCenter[0] = x;
-    WindowCenter[1] = y;
+    this->WindowCenter[0] = x;
+    this->WindowCenter[1] = y;
     }
 }
 
@@ -246,9 +246,9 @@ inline void vtkCamera::SetViewAngle( float angle )
   float min =   1.0;
   float max = 179.0;
 
-  if ( ViewAngle != angle )
+  if ( this->ViewAngle != angle )
     {
-    ViewAngle = (angle<min?min:(angle>max?max:angle));
+    this->ViewAngle = (angle<min?min:(angle>max?max:angle));
     this->Modified();
     this->ViewingRaysModified();
     }
@@ -256,9 +256,9 @@ inline void vtkCamera::SetViewAngle( float angle )
 
 inline void vtkCamera::SetParallelScale( float scale )
 {
-  if ( ParallelScale != scale )
+  if ( this->ParallelScale != scale )
     {
-    ParallelScale = scale;
+    this->ParallelScale = scale;
     this->Modified();
     this->ViewingRaysModified();
     }

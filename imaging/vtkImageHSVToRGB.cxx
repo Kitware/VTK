@@ -88,7 +88,10 @@ static void vtkImageHSVToRGBExecute(vtkImageHSVToRGB *self,
       {
       if (!id) 
 	{
-	if (!(count%target)) self->UpdateProgress(count/(50.0*target));
+	if (!(count%target))
+	  {
+	  self->UpdateProgress(count/(50.0*target));
+	  }
 	count++;
 	}
       for (idxX = 0; idxX <= maxX; idxX++)
@@ -143,9 +146,18 @@ static void vtkImageHSVToRGBExecute(vtkImageHSVToRGB *self,
 	//if (G > 255.0) G = max;
 	//if (B > 255.0) B = max;
 	// mixed constant 255 and max ?????
-	if (R > max) R = max;
-	if (G > max) G = max;
-	if (B > max) B = max;
+	if (R > max)
+	  {
+	  R = max;
+	  }
+	if (G > max)
+	  {
+	  G = max;
+	  }
+	if (B > max)
+	  {
+	  B = max;
+	  }
 	
 	// assign output.
 	*outPtr = (T)(R); outPtr++;

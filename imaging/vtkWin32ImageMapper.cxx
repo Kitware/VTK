@@ -270,10 +270,22 @@ static void vtkWin32ImageMapperRenderColor(vtkWin32ImageMapper *self,
   inInc0 = tempIncs[0];
   inInc1 = tempIncs[1];
   
-  if (bpp >= 2) greenPtr = redPtr + 1;
-  else greenPtr = redPtr;
-  if (bpp >= 3) bluePtr = redPtr + 2;
-  else bluePtr = redPtr;
+  if (bpp >= 2)
+    {
+    greenPtr = redPtr + 1;
+    }
+  else
+    {
+    greenPtr = redPtr;
+    }
+  if (bpp >= 3)
+    {
+    bluePtr = redPtr + 2;
+    }
+  else
+    {
+    bluePtr = redPtr;
+    }
 
   vtkWin32ImageMapperClamps ( data, self->GetColorWindow(), 
 			      self->GetColorLevel(), 
@@ -291,17 +303,44 @@ static void vtkWin32ImageMapperRenderColor(vtkWin32ImageMapper *self,
     bluePtr0 = bluePtr1;
     for (idx0 = inMin0; idx0 <= inMax0; idx0++)
       {
-      if (*redPtr0 <= lower) red = lower_val;
-      else if (*redPtr0 >= upper) red = upper_val;
-      else red = (unsigned char)(((float)(*redPtr0) + shift) * scale);
+      if (*redPtr0 <= lower)
+	{
+	red = lower_val;
+	}
+      else if (*redPtr0 >= upper)
+	{
+	red = upper_val;
+	}
+      else
+	{
+	red = (unsigned char)(((float)(*redPtr0) + shift) * scale);
+	}
 
-      if (*greenPtr0 <= lower) green = lower_val;
-      else if (*greenPtr0 >= upper) green = upper_val;
-      else green = (unsigned char)(((float)(*greenPtr0) + shift) * scale);
+      if (*greenPtr0 <= lower)
+	{
+	green = lower_val;
+	}
+      else if (*greenPtr0 >= upper)
+	{
+	green = upper_val;
+	}
+      else
+	{
+	green = (unsigned char)(((float)(*greenPtr0) + shift) * scale);
+	}
   
-      if (*bluePtr0 <= lower) blue = lower_val;
-      else if (*bluePtr0 >= upper) blue = upper_val;
-      else blue = (unsigned char)(((float)(*bluePtr0) + shift) * scale);
+      if (*bluePtr0 <= lower)
+	{
+	blue = lower_val;
+	}
+      else if (*bluePtr0 >= upper)
+	{
+	blue = upper_val;
+	}
+      else
+	{
+	blue = (unsigned char)(((float)(*bluePtr0) + shift) * scale);
+	}
       *outPtr++ = blue;
       *outPtr++ = green;
       *outPtr++ = red;

@@ -178,13 +178,25 @@ void vtkImageData::GetContinuousIncrements(int extent[6], int &incX,
   incX = 0;
 
   e0 = extent[0];
-  if (e0 < this->Extent[0]) e0 = this->Extent[0];
+  if (e0 < this->Extent[0])
+    {
+    e0 = this->Extent[0];
+    }
   e1 = extent[1];
-  if (e1 > this->Extent[1]) e1 = this->Extent[1];
+  if (e1 > this->Extent[1])
+    {
+    e1 = this->Extent[1];
+    }
   e2 = extent[2];
-  if (e2 < this->Extent[2]) e2 = this->Extent[2];
+  if (e2 < this->Extent[2])
+    {
+    e2 = this->Extent[2];
+    }
   e3 = extent[3];
-  if (e3 > this->Extent[3]) e3 = this->Extent[3];
+  if (e3 > this->Extent[3])
+    {
+    e3 = this->Extent[3];
+    }
   
   incY = this->Increments[1] - (e1 - e0 + 1)*this->Increments[0];
   incZ = this->Increments[2] - (e3 - e2 + 1)*this->Increments[1];

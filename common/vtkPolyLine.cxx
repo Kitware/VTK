@@ -61,15 +61,18 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines, vtk
   float p[3], pPrev[3], pNext[3];
   float c[3], f1, f2;
   int i, j, largeRotation;
-//
-//  Loop over all lines
-// 
+  //
+  //  Loop over all lines
+  // 
   for (lines->InitTraversal(); lines->GetNextCell(npts,linePts); )
     {
-//
-//  Determine initial starting normal
-// 
-    if ( npts <= 0 ) continue;
+    //
+    //  Determine initial starting normal
+    // 
+    if ( npts <= 0 )
+      {
+      continue;
+      }
 
     else if ( npts == 1 ) //return arbitrary
       {
@@ -80,10 +83,10 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines, vtk
 
     else //more than one point
       {
-//
-//  Compute first normal. All "new" normals try to point in the same 
-//  direction.
-//
+      //
+      //  Compute first normal. All "new" normals try to point in the same 
+      //  direction.
+      //
       for (j=0; j<npts; j++) 
         {
 
@@ -183,8 +186,14 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines, vtk
 	    }
 
           //see whether we rotate greater than 90 degrees.
-          if ( vtkMath::Dot(sPrev,sNext) < 0.0 ) largeRotation = 1;
-          else largeRotation = 0;
+          if ( vtkMath::Dot(sPrev,sNext) < 0.0 )
+	    {
+	    largeRotation = 1;
+	    }
+          else
+	    {
+	    largeRotation = 0;
+	    }
 
           //compute rotation of line segment
           vtkMath::Cross (sNext, sPrev, q);
@@ -195,12 +204,21 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines, vtk
             }
           if ( largeRotation )
             {
-            if ( theta > 0.0 ) theta = vtkMath::Pi() - theta;
-            else theta = -vtkMath::Pi() - theta;
+            if ( theta > 0.0 )
+	      {
+	      theta = vtkMath::Pi() - theta;
+	      }
+            else
+	      {
+	      theta = -vtkMath::Pi() - theta;
+	      }
             }
 
 	  // new method
-          for (i=0; i<3; i++) c[i] = sNext[i] + sPrev[i];
+          for (i=0; i<3; i++)
+	    {
+	    c[i] = sNext[i] + sPrev[i];
+	    }
 	  vtkMath::Normalize(c);
 	  f1 = vtkMath::Dot(q,normal);
 	  f2 = 1.0 - f1*f1;
@@ -218,7 +236,10 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines, vtk
 	    {
 	    f2 = -1.0*f2;
 	    }
-          for (i=0; i<3; i++) normal[i] = f1*q[i] + f2*w[i];
+          for (i=0; i<3; i++)
+	    {
+	    normal[i] = f1*q[i] + f2*w[i];
+	    }
 	  
           normals->InsertNormal(linePts[j],normal);
           }//for this point
@@ -290,14 +311,26 @@ int vtkPolyLine::CellBoundary(int subId, float pcoords[3], vtkIdList& pts)
   if ( pcoords[0] >= 0.5 )
     {
     pts.SetId(0,this->PointIds.GetId(subId+1));
-    if ( pcoords[0] > 1.0 ) return 0;
-    else return 1;
+    if ( pcoords[0] > 1.0 )
+      {
+      return 0;
+      }
+    else
+      {
+      return 1;
+      }
     }
   else
     {
     pts.SetId(0,this->PointIds.GetId(subId));
-    if ( pcoords[0] < 0.0 ) return 0;
-    else return 1;
+    if ( pcoords[0] < 0.0 )
+      {
+      return 0;
+      }
+    else
+      {
+      return 1;
+      }
     }
 }
 
@@ -345,7 +378,9 @@ int vtkPolyLine::IntersectWithLine(float p1[3], float p2[3],float tol,float& t,
     this->Line.Points.SetPoint(1,this->Points.GetPoint(subId+1));
 
     if ( this->Line.IntersectWithLine(p1, p2, tol, t, x, pcoords, subTest) )
+      {
       return 1;
+      }
     }
 
   return 0;

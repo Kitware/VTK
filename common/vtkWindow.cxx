@@ -60,7 +60,7 @@ vtkWindow::vtkWindow()
 
 vtkWindow::~vtkWindow()
 {
-  if( WindowName )
+  if( this->WindowName )
     {
     delete [] this->WindowName;
 	this->WindowName = NULL;
@@ -71,18 +71,24 @@ void vtkWindow::SetWindowName( char * _arg )
 {
   vtkDebugMacro("Debug: In " __FILE__ << ", line " << __LINE__ << "\n" 
          << this->GetClassName() << " (" << this << "): setting " 
-         << WindowName  << " to " << _arg << "\n\n");
+         << this->WindowName  << " to " << _arg << "\n\n");
 
-  if ( WindowName && _arg && (!strcmp(WindowName,_arg))) return;
-  if (WindowName) delete [] WindowName;
+  if ( this->WindowName && _arg && (!strcmp(this->WindowName,_arg)))
+    {
+    return;
+    }
+  if (this->WindowName)
+    {
+    delete [] this->WindowName;
+    }
   if( _arg )
     {
-    WindowName = new char[strlen(_arg)+1];
-    strcpy(WindowName,_arg);
+    this->WindowName = new char[strlen(_arg)+1];
+    strcpy(this->WindowName,_arg);
     }
   else
     {
-    WindowName = NULL;
+    this->WindowName = NULL;
     }
   this->Modified();
 }

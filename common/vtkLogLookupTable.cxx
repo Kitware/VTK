@@ -75,14 +75,20 @@ void  vtkLogLookupTable::SetTableRange(float min, float max)
     }
   else if ( max <= 0.0 ) // okay, all negative values
     {
-    if ( max == 0.0 ) max = 1.0e-06 * (min - max);
+    if ( max == 0.0 )
+      {
+      max = 1.0e-06 * (min - max);
+      }
     this->UseAbsoluteValue = 1;
     this->LogMinRange = log10((double)(-min));
     this->LogMaxRange = log10((double)(-max));
     }
   else 
     {
-    if ( min == 0.0 ) min = 1.0e-06 * (max - min);
+    if ( min == 0.0 )
+      {
+      min = 1.0e-06 * (max - min);
+      }
     this->UseAbsoluteValue = 0;
     this->LogMinRange = log10((double)min);
     this->LogMaxRange = log10((double)max);
@@ -97,8 +103,14 @@ unsigned char *vtkLogLookupTable::MapValue(float v)
 {
   int indx;
 
-  if ( v < this->TableRange[0] ) v = this->TableRange[0];
-  else if ( v > this->TableRange[1] ) v = this->TableRange[1];
+  if ( v < this->TableRange[0] )
+    {
+    v = this->TableRange[0];
+    }
+  else if ( v > this->TableRange[1] )
+    {
+    v = this->TableRange[1];
+    }
 
   if ( this->UseAbsoluteValue )
     {

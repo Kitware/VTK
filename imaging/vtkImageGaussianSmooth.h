@@ -61,17 +61,20 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   
   vtkSetVector3Macro(StandardDeviations, float);
-  void SetStandardDeviation(float std) {SetStandardDeviations(std,std,std);}
-  void SetStandardDeviations(float a,float b) {SetStandardDeviations(a,b,0.0);}
+  void SetStandardDeviation(float std)
+        {this->SetStandardDeviations(std,std,std);}
+  void SetStandardDeviations(float a,float b)
+        {this->SetStandardDeviations(a,b,0.0);}
   vtkGetVector3Macro(StandardDeviations, float);
   // for compatability with old scripts
-  void SetStandardDeviation(float a,float b) {SetStandardDeviations(a,b,0.0);}
+  void SetStandardDeviation(float a,float b)
+        {this->SetStandardDeviations(a,b,0.0);}
   void SetStandardDeviation(float a,float b,float c) 
-  {SetStandardDeviations(a,b,c);}
+        {this->SetStandardDeviations(a,b,c);}
 
   vtkSetVector3Macro(RadiusFactors, float);
-  void SetRadiusFactors(float f, float f2) {SetRadiusFactors(f,f2,1.5);}
-  void SetRadiusFactor(float f) {SetRadiusFactors(f, f, f);}
+  void SetRadiusFactors(float f, float f2) {this->SetRadiusFactors(f,f2,1.5);}
+  void SetRadiusFactor(float f) {this->SetRadiusFactors(f, f, f);}
   vtkGetVector3Macro(RadiusFactors, float);
 
   vtkSetMacro(Dimensionality, int);

@@ -86,7 +86,10 @@ int vtkTetra::EvaluatePosition(float x[3], float closestPoint[3],
     c3[i] = pt3[i] - pt4[i];
     }
 
-  if ( (det = vtkMath::Determinant3x3(c1,c2,c3)) == 0.0 ) return -1;
+  if ( (det = vtkMath::Determinant3x3(c1,c2,c3)) == 0.0 )
+    {
+    return -1;
+    }
 
   pcoords[0] = vtkMath::Determinant3x3 (rhs,c2,c3) / det;
   pcoords[1] = vtkMath::Determinant3x3 (c1,rhs,c3) / det;
@@ -205,11 +208,15 @@ int vtkTetra::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
     }
 
   if ( pcoords[0] < 0.0 || pcoords[1] < 0.0 || pcoords[2] < 0.0 ||
-  pcoords[0] > 1.0 || pcoords[1] > 1.0 || pcoords[2] > 1.0 ||
-  (1.0 - pcoords[0] - pcoords[1] - pcoords[2]) < 0.0 )
+       pcoords[0] > 1.0 || pcoords[1] > 1.0 || pcoords[2] > 1.0 ||
+       (1.0 - pcoords[0] - pcoords[1] - pcoords[2]) < 0.0 )
+    {
     return 0;
+    }
   else
+    {
     return 1;
+    }
 }
 
 //
@@ -260,8 +267,12 @@ void vtkTetra::Contour(float value, vtkScalars *cellScalars,
 
   // Build the case table
   for ( i=0, index = 0; i < 4; i++)
-      if (cellScalars->GetScalar(i) >= value)
-          index |= CASE_MASK[i];
+    {
+    if (cellScalars->GetScalar(i) >= value)
+      {
+      index |= CASE_MASK[i];
+      }
+    }
 
   triCase = triCases + index;
   edge = triCase->edges;
@@ -275,7 +286,10 @@ void vtkTetra::Contour(float value, vtkScalars *cellScalars,
           (cellScalars->GetScalar(vert[1]) - cellScalars->GetScalar(vert[0]));
       x1 = this->Points.GetPoint(vert[0]);
       x2 = this->Points.GetPoint(vert[1]);
-      for (j=0; j<3; j++) x[j] = x1[j] + t * (x2[j] - x1[j]);
+      for (j=0; j<3; j++)
+	{
+	x[j] = x1[j] + t * (x2[j] - x1[j]);
+	}
       if ( (pts[i] = locator->IsInsertedPoint(x)) < 0 )
         {
         pts[i] = locator->InsertNextPoint(x);
@@ -487,7 +501,10 @@ float vtkTetra::Circumsphere(float  x1[3], float x2[3], float x3[3],
     }
   else
     {
-    for (i=0; i<3; i++) center[i] = rhs[i];
+    for (i=0; i<3; i++)
+      {
+      center[i] = rhs[i];
+      }
     }
 
   //determine average value of radius squared
@@ -503,8 +520,14 @@ float vtkTetra::Circumsphere(float  x1[3], float x2[3], float x3[3],
     sum += diff*diff;
     }
 
-  if ( (sum /= 4.0) > VTK_LARGE_FLOAT ) return VTK_LARGE_FLOAT;
-  else return sum;
+  if ( (sum /= 4.0) > VTK_LARGE_FLOAT )
+    {
+    return VTK_LARGE_FLOAT;
+    }
+  else
+    {
+    return sum;
+    }
 }
 
 // Description:
@@ -543,7 +566,10 @@ int vtkTetra::BarycentricCoords(float x[3], float  x1[3], float x2[3],
 
   if ( vtkMath::SolveLinearSystem(A,p,4) )
     {
-    for (i=0; i<4; i++) bcoords[i] = (float) p[i];
+    for (i=0; i<4; i++)
+      {
+      bcoords[i] = (float) p[i];
+      }
     return 1;
     }
   else
@@ -679,14 +705,22 @@ void vtkTetra::Clip(float value, vtkScalars *cellScalars,
   if ( insideOut )
     {    
     for ( i=0, index = 0; i < 3; i++)
+      {
       if (cellScalars->GetScalar(i) <= value)
-        index |= CASE_MASK[i];
+	{
+	index |= CASE_MASK[i];
+	}
+      }
     }    
   else
     {
     for ( i=0, index = 0; i < 3; i++)
+      {
       if (cellScalars->GetScalar(i) > value)
+	{
         index |= CASE_MASK[i];
+	}
+      }
     }
 
   // Select the case based on the index and get the list of edges for this case
@@ -719,7 +753,10 @@ void vtkTetra::Clip(float value, vtkScalars *cellScalars,
 
         this->Points.GetPoint(vert[0], x1);
         this->Points.GetPoint(vert[1], x2);
-        for (j=0; j<3; j++) x[j] = x1[j] + t * (x2[j] - x1[j]);
+        for (j=0; j<3; j++)
+	  {
+	  x[j] = x1[j] + t * (x2[j] - x1[j]);
+	  }
 
         if ( (pts[i] = locator->IsInsertedPoint(x)) < 0 )
           {
@@ -732,7 +769,10 @@ void vtkTetra::Clip(float value, vtkScalars *cellScalars,
       }
     // check for degenerate tri's
     if ( pts[0] == pts[1] || pts[0] == pts[2] || pts[0] == pts[3] ||
-    pts[1] == pts[2] || pts[1] == pts[3] || pts[2] == pts[3] ) continue;
+	 pts[1] == pts[2] || pts[1] == pts[3] || pts[2] == pts[3] )
+      {
+      continue;
+      }
 
     newCellId = tetras->InsertNextCell(4,pts);
     outCd->CopyData(inCd,cellId,newCellId);

@@ -57,10 +57,22 @@ vtkBYUWriter::vtkBYUWriter()
 
 vtkBYUWriter::~vtkBYUWriter()
 {
-  if ( this->GeometryFileName ) delete [] this->GeometryFileName;
-  if ( this->DisplacementFileName ) delete [] this->DisplacementFileName;
-  if ( this->ScalarFileName ) delete [] this->ScalarFileName;
-  if ( this->TextureFileName ) delete [] this->TextureFileName;
+  if ( this->GeometryFileName )
+    {
+    delete [] this->GeometryFileName;
+    }
+  if ( this->DisplacementFileName )
+    {
+    delete [] this->DisplacementFileName;
+    }
+  if ( this->ScalarFileName )
+    {
+    delete [] this->ScalarFileName;
+    }
+  if ( this->TextureFileName )
+    {
+    delete [] this->TextureFileName;
+    }
 }
 
 // Description:
@@ -132,15 +144,24 @@ void vtkBYUWriter::WriteGeometryFile(FILE *geomFile, int numPts)
     {
     x = inPts->GetPoint(i);
     fprintf(geomFile, "%e %e %e ", x[0], x[1], x[2]);
-    if ( (i % 2) ) fprintf(geomFile, "\n");
+    if ( (i % 2) )
+      {
+      fprintf(geomFile, "\n");
+      }
     }
-  if ( (numPts % 2) ) fprintf(geomFile, "\n");
+  if ( (numPts % 2) )
+    {
+    fprintf(geomFile, "\n");
+    }
 
   // write poly data. Remember 1-offset.
   for (inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); )
     {
     // write this polygon
-    for (i=0; i < (npts-1); i++) fprintf (geomFile, "%d ", pts[i]+1);
+    for (i=0; i < (npts-1); i++)
+      {
+      fprintf (geomFile, "%d ", pts[i]+1);
+      }
     fprintf (geomFile, "%d\n", -(pts[npts-1]+1));
     }
 
@@ -164,15 +185,21 @@ void vtkBYUWriter::WriteDisplacementFile(int numPts)
       return;
       }
     }
-  else return;
-//
-// Write data
-//
+  else
+    {
+    return;
+    }
+  //
+  // Write data
+  //
   for (i=0; i < numPts; i++)
     {
     v = inVectors->GetVector(i);
     fprintf(dispFp, "%e %e %e", v[0], v[1], v[2]);
-    if ( (i % 2) ) fprintf (dispFp, "\n");
+    if ( (i % 2) )
+      {
+      fprintf (dispFp, "\n");
+      }
     }
 
   vtkDebugMacro(<<"Wrote " << numPts << " displacements");
@@ -196,15 +223,21 @@ void vtkBYUWriter::WriteScalarFile(int numPts)
       return;
       }
     }
-  else return;
-//
-// Write data
-//
+  else
+    {
+    return;
+    }
+  //
+  // Write data
+  //
   for (i=0; i < numPts; i++)
     {
     s = inScalars->GetScalar(i);
     fprintf(scalarFp, "%e ", s);
-    if ( i != 0 && !(i % 6) ) fprintf (scalarFp, "\n");
+    if ( i != 0 && !(i % 6) )
+      {
+      fprintf (scalarFp, "\n");
+      }
     }
 
   fclose (scalarFp);
@@ -228,13 +261,19 @@ void vtkBYUWriter::WriteTextureFile(int numPts)
       return;
       }
     }
-  else return;
-//
-// Write data
-//
+  else
+    {
+    return;
+    }
+  //
+  // Write data
+  //
   for (i=0; i < numPts; i++)
     {
-    if ( i != 0 && !(i % 3) ) fprintf (textureFp, "\n");
+    if ( i != 0 && !(i % 3) )
+      {
+      fprintf (textureFp, "\n");
+      }
     t = inTCoords->GetTCoord(i);
     fprintf(textureFp, "%e %e", t[0], t[1]);
     }

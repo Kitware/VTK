@@ -145,8 +145,12 @@ inline int vtkRectilinearGrid::GetNumberOfCells()
   int i;
 
   for (i=0; i<3; i++)
+    {
     if (this->Dimensions[i] > 1)
+      {
       nCells *= (this->Dimensions[i]-1);
+      }
+    }
 
   return nCells;
 }

@@ -319,7 +319,10 @@ void vtkImageMultipleInputFilter::RecursiveStreamUpdate(vtkImageData *outData)
 		     this->Output->GetUpdateExtent(),idx);
       // determine the amount of memory that will be used by the input region.
       memory = this->Inputs[idx]->GetUpdateExtentMemorySize();
-      if (memory > this->Inputs[idx]->GetMemoryLimit()) divide = 1;
+      if (memory > this->Inputs[idx]->GetMemoryLimit())
+	{
+	divide = 1;
+	}
       }
     }
   
@@ -367,10 +370,16 @@ void vtkImageMultipleInputFilter::RecursiveStreamUpdate(vtkImageData *outData)
     }
 
   // The StartMethod call is placed here to be after updating the input.
-  if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
+  if ( this->StartMethod )
+    {
+    (*this->StartMethod)(this->StartMethodArg);
+    }
   // fill the output region 
   this->Execute(inDatas, outData);
-  if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
+  if ( this->EndMethod )
+    {
+    (*this->EndMethod)(this->EndMethodArg);
+    }
   
   // Like the graphics pipeline this source releases inputs data.
   for (idx = 0; idx < this->NumberOfInputs; ++idx)

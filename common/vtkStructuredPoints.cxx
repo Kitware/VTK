@@ -254,7 +254,9 @@ float *vtkStructuredPoints::GetPoint(int ptId)
     }
 
   for (i=0; i<3; i++)
+    {
     x[i] = this->Origin[i] + loc[i] * this->Spacing[i];
+    }
 
   return x;
 }
@@ -582,7 +584,9 @@ void vtkStructuredPoints::SetDimensions(int dim[3])
     {
     this->DataDescription = returnStatus;
     if (returnStatus != VTK_UNCHANGED)
+      {
       this->Modified();
+      }
     }
    else if ( returnStatus < 0 ) //improperly specified
     {

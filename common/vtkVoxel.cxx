@@ -96,9 +96,18 @@ int vtkVoxel::EvaluatePosition(float x[3], float closestPoint[3],
     float pc[3], w[8];
     for (i=0; i<3; i++)
       {
-      if (pcoords[i] < 0.0) pc[i] = 0.0;
-      else if (pcoords[i] > 1.0) pc[i] = 1.0;
-      else pc[i] = pcoords[i];
+      if (pcoords[i] < 0.0)
+	{
+	pc[i] = 0.0;
+	}
+      else if (pcoords[i] > 1.0)
+	{
+	pc[i] = 1.0;
+	}
+      else
+	{
+	pc[i] = pcoords[i];
+	}
       }
     this->EvaluateLocation(subId, pc, closestPoint, (float *)w);
     dist2 = vtkMath::Distance2BetweenPoints(closestPoint,x);
@@ -252,10 +261,15 @@ int vtkVoxel::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
     }
 
   if ( pcoords[0] < 0.0 || pcoords[0] > 1.0 ||
-  pcoords[1] < 0.0 || pcoords[1] > 1.0 || pcoords[2] < 0.0 || pcoords[2] > 1.0 )
+       pcoords[1] < 0.0 || pcoords[1] > 1.0 ||
+       pcoords[2] < 0.0 || pcoords[2] > 1.0 )
+    {
     return 0;
+    }
   else
+    {
     return 1;
+    }
 }
 
 static int edges[12][2] = { {0,1}, {1,3}, {2,3}, {0,2},
@@ -289,9 +303,13 @@ void vtkVoxel::Contour(float value, vtkScalars *cellScalars,
 
   // Build the case table
   for ( i=0, index = 0; i < 8; i++)
-      if (cellScalars->GetScalar(vertMap[i]) >= value)
-          index |= CASE_MASK[i];
-
+    {
+    if (cellScalars->GetScalar(vertMap[i]) >= value)
+      {
+      index |= CASE_MASK[i];
+      }
+    }
+  
   triCase = triCases + index;
   edge = triCase->edges;
 
@@ -304,7 +322,10 @@ void vtkVoxel::Contour(float value, vtkScalars *cellScalars,
           (cellScalars->GetScalar(vert[1]) - cellScalars->GetScalar(vert[0]));
       x1 = this->Points.GetPoint(vert[0]);
       x2 = this->Points.GetPoint(vert[1]);
-      for (j=0; j<3; j++) x[j] = x1[j] + t * (x2[j] - x1[j]);
+      for (j=0; j<3; j++)
+	{
+	x[j] = x1[j] + t * (x2[j] - x1[j]);
+	}
       if ( (pts[i] = locator->IsInsertedPoint(x)) < 0 )
         {
         pts[i] = locator->InsertNextPoint(x);
@@ -383,12 +404,16 @@ int vtkVoxel::IntersectWithLine(float p1[3], float p2[3], float vtkNotUsed(tol),
     }
 
   if ( ! vtkCell::HitBBox(bounds, p1, p21, x, t) )
+    {
     return 0;
-//
-// Evaluate intersection
-//
+    }
+  //
+  // Evaluate intersection
+  //
   for (i=0; i<3; i++)
+    {
     pcoords[i] = (x[i] - minPt[i]) / (maxPt[i] - minPt[i]);
+    }
 
   return 1;
 }

@@ -156,22 +156,34 @@ static void vtkImageCorrelationExecute(vtkImageCorrelation *self,
     {
     // how much of kernel to use
     zKernMax = maxIZ - idxZ;
-    if (zKernMax > in2Extent[5]) zKernMax = in2Extent[5];
+    if (zKernMax > in2Extent[5])
+      {
+      zKernMax = in2Extent[5];
+      }
     for (idxY = 0; idxY <= maxY; idxY++)
       {
       if (!id) 
 	{
-	if (!(count%target)) self->UpdateProgress(count/(50.0*target));
+	if (!(count%target))
+	  {
+	  self->UpdateProgress(count/(50.0*target));
+	  }
 	count++;
 	}
       yKernMax = maxIY - idxY;
-      if (yKernMax > in2Extent[3]) yKernMax = in2Extent[3];
+      if (yKernMax > in2Extent[3])
+	{
+	yKernMax = in2Extent[3];
+	}
       for (idxX = 0; idxX <= maxX; idxX++)
 	{
 	// determine the extent of input 1 that contributes to this pixel
 	*outPtr = 0.0;
 	xKernMax = maxIX - idxX;
-	if (xKernMax > in2Extent[1]) xKernMax = in2Extent[1];
+	if (xKernMax > in2Extent[1])
+	  {
+	  xKernMax = in2Extent[1];
+	  }
 
 	// sumation
 	for (kIdxZ = 0; kIdxZ <= zKernMax; kIdxZ++)

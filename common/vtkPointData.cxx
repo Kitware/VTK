@@ -64,12 +64,12 @@ void vtkPointData::NullPoint (int ptId)
 
   if ( this->Tensors )
     {
-    this->Tensors->InsertTensor(ptId,&NullTensor);
+    this->Tensors->InsertTensor(ptId,&this->NullTensor);
     }
 
   if ( this->FieldData )
     {
-    this->FieldData->InsertTuple(ptId,NullTuple);
+    this->FieldData->InsertTuple(ptId,this->NullTuple);
     }
 }
 

@@ -108,20 +108,30 @@ void vtkConnectivityFilter::Execute()
   //
   InScalars = input->GetPointData()->GetScalars();
   if ( !this->ScalarConnectivity ) 
+    {
     InScalars = NULL;
+    }
   else
     {
     if ( this->ScalarRange[1] < this->ScalarRange[0] ) 
+      {
       this->ScalarRange[1] = this->ScalarRange[0];
+      }
     }
   //
   // Initialize.  Keep track of points and cells visited.
   //
   this->RegionSizes->Reset();
   Visited = new int[numCells];
-  for ( i=0; i < numCells; i++ ) Visited[i] = -1;
+  for ( i=0; i < numCells; i++ )
+    {
+    Visited[i] = -1;
+    }
   PointMap = new int[numPts];  
-  for ( i=0; i < numPts; i++ ) PointMap[i] = -1;
+  for ( i=0; i < numPts; i++ )
+    {
+    PointMap[i] = -1;
+    }
 
   NewScalars = vtkScalars::New();
   NewScalars->SetNumberOfScalars(numPts);
@@ -187,7 +197,9 @@ void vtkConnectivityFilter::Execute()
           {
           input->GetPointCells(pt,cellIds);
           for (j=0; j < cellIds.GetNumberOfIds(); j++) 
+	    {
             RecursionSeeds->InsertNextId(cellIds.GetId(j));
+	    }
           }
         }
       }
@@ -196,7 +208,10 @@ void vtkConnectivityFilter::Execute()
       for (i=0; i < this->Seeds.GetNumberOfIds(); i++) 
         {
         cellId = this->Seeds.GetId(i);
-        if ( cellId >= 0 ) RecursionSeeds->InsertNextId(cellId);
+        if ( cellId >= 0 )
+	  {
+	  RecursionSeeds->InsertNextId(cellId);
+	  }
         }
       }
     this->UpdateProgress (0.5);
@@ -221,7 +236,10 @@ void vtkConnectivityFilter::Execute()
 // everything that has been visited.
 //
   //Pass through point data that has been visited
-  if ( this->ColorRegions ) outputPD->CopyScalarsOff();
+  if ( this->ColorRegions )
+    {
+    outputPD->CopyScalarsOff();
+    }
   outputPD->CopyAllocate(pd);
   outputCD->CopyAllocate(cd);
 
@@ -235,7 +253,10 @@ void vtkConnectivityFilter::Execute()
     }
 
   // if coloring regions; send down new scalar data
-  if ( this->ColorRegions ) outputPD->SetScalars(NewScalars);
+  if ( this->ColorRegions )
+    {
+    outputPD->SetScalars(NewScalars);
+    }
   NewScalars->Delete();
 
   output->SetPoints(newPts);
@@ -378,18 +399,24 @@ void vtkConnectivityFilter::TraverseAndMark (int cellId)
           for (ii=0; ii < numScalars;  ii++)
             {
             s = this->CellScalars->GetScalar(ii);
-            if ( s < range[0] ) range[0] = s;
-            if ( s > range[1] ) range[1] = s;
+            if ( s < range[0] )
+	      {
+	      range[0] = s;
+	      }
+            if ( s > range[1] )
+	      {
+	      range[1] = s;
+	      }
             }
           if ( range[1] >= this->ScalarRange[0] && 
-          range[0] <= this->ScalarRange[1] )
+	       range[0] <= this->ScalarRange[1] )
             {
-            TraverseAndMark (cellId);
+            this->TraverseAndMark (cellId);
             }
           }
         else
           {
-          TraverseAndMark (cellId);
+          this->TraverseAndMark (cellId);
           }
         }
       }

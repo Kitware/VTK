@@ -82,22 +82,40 @@ vtkPolyData::vtkPolyData(const vtkPolyData& pd) :
 vtkPointSet(pd)
 {
   this->Verts = pd.Verts;
-  if (this->Verts) this->Verts->Register(this);
+  if (this->Verts)
+    {
+    this->Verts->Register(this);
+    }
 
   this->Lines = pd.Lines;
-  if (this->Lines) this->Lines->Register(this);
+  if (this->Lines)
+    {
+    this->Lines->Register(this);
+    }
 
   this->Polys = pd.Polys;
-  if (this->Polys) this->Polys->Register(this);
+  if (this->Polys)
+    {
+    this->Polys->Register(this);
+    }
 
   this->Strips = pd.Strips;
-  if (this->Strips) this->Strips->Register(this);
+  if (this->Strips)
+    {
+    this->Strips->Register(this);
+    }
  
   this->Cells = pd.Cells;
-  if (this->Cells) this->Cells->Register(this);
+  if (this->Cells)
+    {
+    this->Cells->Register(this);
+    }
 
   this->Links = pd.Links;
-  if (this->Links) this->Links->Register(this);
+  if (this->Links)
+    {
+    this->Links->Register(this);
+    }
 }
 
 vtkPolyData::~vtkPolyData()
@@ -113,21 +131,36 @@ void vtkPolyData::CopyStructure(vtkDataSet *ds)
   vtkPointSet::CopyStructure(ds);
 
   this->Verts = pd->Verts;
-  if (this->Verts) this->Verts->Register(this);
+  if (this->Verts)
+    {
+    this->Verts->Register(this);
+    }
 
   this->Lines = pd->Lines;
-  if (this->Lines) this->Lines->Register(this);
+  if (this->Lines)
+    {
+    this->Lines->Register(this);
+    }
 
   this->Polys = pd->Polys;
-  if (this->Polys) this->Polys->Register(this);
+  if (this->Polys)
+    {
+    this->Polys->Register(this);
+    }
 
   this->Strips = pd->Strips;
-  if (this->Strips) this->Strips->Register(this);
+  if (this->Strips)
+    {
+    this->Strips->Register(this);
+    }
 }
 
 int vtkPolyData::GetCellType(int cellId)
 {
-  if ( !this->Cells ) this->BuildCells();
+  if ( !this->Cells )
+    {
+    this->BuildCells();
+    }
   return this->Cells->GetCellType(cellId);
 }
 
@@ -146,7 +179,10 @@ vtkCell *vtkPolyData::GetCell(int cellId)
   vtkCell *cell = NULL;
   unsigned char type;
 
-  if ( !this->Cells ) this->BuildCells();
+  if ( !this->Cells )
+    {
+    this->BuildCells();
+    }
 
   type = this->Cells->GetCellType(cellId);
   loc = this->Cells->GetCellLocation(cellId);
@@ -221,9 +257,15 @@ void vtkPolyData::SetVerts (vtkCellArray* v)
 {
   if ( v != this->Verts && v != this->Dummy )
     {
-    if (this->Verts) this->Verts->UnRegister(this);
+    if (this->Verts)
+      {
+      this->Verts->UnRegister(this);
+      }
     this->Verts = v;
-    if (this->Verts) this->Verts->Register(this);
+    if (this->Verts)
+      {
+      this->Verts->Register(this);
+      }
     this->Modified();
     }
 }
@@ -233,8 +275,14 @@ void vtkPolyData::SetVerts (vtkCellArray* v)
 // empty array will be returned (convenience to simplify traversal).
 vtkCellArray* vtkPolyData::GetVerts()
 {
-  if ( !this->Verts ) return this->Dummy;
-  else return this->Verts;
+  if ( !this->Verts )
+    {
+    return this->Dummy;
+    }
+  else
+    {
+    return this->Verts;
+    }
 }
 
 // Description:
@@ -243,9 +291,15 @@ void vtkPolyData::SetLines (vtkCellArray* l)
 {
   if ( l != this->Lines && l != this->Dummy )
     {
-    if (this->Lines) this->Lines->UnRegister(this);
+    if (this->Lines)
+      {
+      this->Lines->UnRegister(this);
+      }
     this->Lines = l;
-    if (this->Lines) this->Lines->Register(this);
+    if (this->Lines)
+      {
+      this->Lines->Register(this);
+      }
     this->Modified();
     }
 }
@@ -255,8 +309,14 @@ void vtkPolyData::SetLines (vtkCellArray* l)
 // empty array will be returned (convenience to simplify traversal).
 vtkCellArray* vtkPolyData::GetLines()
 {
-  if ( !this->Lines ) return this->Dummy;
-  else return this->Lines;
+  if ( !this->Lines )
+    {
+    return this->Dummy;
+    }
+  else
+    {
+    return this->Lines;
+    }
 }
 
 // Description:
@@ -265,9 +325,15 @@ void vtkPolyData::SetPolys (vtkCellArray* p)
 {
   if ( p != this->Polys && p != this->Dummy )
     {
-    if (this->Polys) this->Polys->UnRegister(this);
+    if (this->Polys)
+      {
+      this->Polys->UnRegister(this);
+      }
     this->Polys = p;
-    if (this->Polys) this->Polys->Register(this);
+    if (this->Polys)
+      {
+      this->Polys->Register(this);
+      }
     this->Modified();
     }
 }
@@ -277,8 +343,14 @@ void vtkPolyData::SetPolys (vtkCellArray* p)
 // empty array will be returned (convenience to simplify traversal).
 vtkCellArray* vtkPolyData::GetPolys()
 {
-  if ( !this->Polys ) return this->Dummy;
-  else return this->Polys;
+  if ( !this->Polys )
+    {
+    return this->Dummy;
+    }
+  else
+    {
+    return this->Polys;
+    }
 }
 
 // Description:
@@ -287,9 +359,15 @@ void vtkPolyData::SetStrips (vtkCellArray* s)
 {
   if ( s != this->Strips && s != this->Dummy )
     {
-    if (this->Strips) this->Strips->UnRegister(this);
+    if (this->Strips)
+      {
+      this->Strips->UnRegister(this);
+      }
     this->Strips = s;
-    if (this->Strips) this->Strips->Register(this);
+    if (this->Strips)
+      {
+      this->Strips->Register(this);
+      }
     this->Modified();
     }
 }
@@ -300,8 +378,14 @@ void vtkPolyData::SetStrips (vtkCellArray* s)
 // simplify traversal).
 vtkCellArray* vtkPolyData::GetStrips()
 {
-  if ( !this->Strips ) return this->Dummy;
-  else return this->Strips;
+  if ( !this->Strips )
+    {
+    return this->Dummy;
+    }
+  else
+    {
+    return this->Strips;
+    }
 }
 
 // Description:
@@ -354,25 +438,37 @@ int vtkPolyData::GetMaxCellSize()
   if ( this->Verts ) 
     {
     cellSize = this->Verts->GetMaxCellSize();
-    if ( cellSize > maxCellSize ) maxCellSize = cellSize;
+    if ( cellSize > maxCellSize )
+      {
+      maxCellSize = cellSize;
+      }
     }
 
   if ( this->Lines ) 
     {
     cellSize = this->Lines->GetMaxCellSize();
-    if ( cellSize > maxCellSize ) maxCellSize = cellSize;
+    if ( cellSize > maxCellSize )
+      {
+      maxCellSize = cellSize;
+      }
     }
 
   if ( this->Polys ) 
     {
     cellSize = this->Polys->GetMaxCellSize();
-    if ( cellSize > maxCellSize ) maxCellSize = cellSize;
+    if ( cellSize > maxCellSize )
+      {
+      maxCellSize = cellSize;
+      }
     }
 
   if ( this->Strips ) 
     {
     cellSize = this->Strips->GetMaxCellSize();
-    if ( cellSize > maxCellSize ) maxCellSize = cellSize;
+    if ( cellSize > maxCellSize )
+      {
+      maxCellSize = cellSize;
+      }
     }
 
   return maxCellSize;
@@ -380,8 +476,8 @@ int vtkPolyData::GetMaxCellSize()
 
 int vtkPolyData::GetNumberOfCells() 
 {
-  return GetNumberOfVerts() + GetNumberOfLines() + 
-         GetNumberOfPolys() + GetNumberOfStrips();
+  return this->GetNumberOfVerts() + this->GetNumberOfLines() + 
+         this->GetNumberOfPolys() + this->GetNumberOfStrips();
 }
 
 int vtkPolyData::GetNumberOfVerts() 
@@ -432,27 +528,42 @@ void vtkPolyData::BuildCells()
   for (inVerts->InitTraversal(); inVerts->GetNextCell(npts,pts); )
     {
     if ( npts > 1 )
-      cells->InsertNextCell(VTK_POLY_VERTEX,inVerts->GetTraversalLocation(npts));
+      {
+      cells->InsertNextCell(VTK_POLY_VERTEX,
+			    inVerts->GetTraversalLocation(npts));
+      }
     else
+      {
       cells->InsertNextCell(VTK_VERTEX,inVerts->GetTraversalLocation(npts));
+      }
     }
 
   for (inLines->InitTraversal(); inLines->GetNextCell(npts,pts); )
     {
     if ( npts > 2 )
+      {
       cells->InsertNextCell(VTK_POLY_LINE,inLines->GetTraversalLocation(npts));
+      }
     else
+      {
       cells->InsertNextCell(VTK_LINE,inLines->GetTraversalLocation(npts));
+      } 
     }
 
   for (inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); )
     {
     if ( npts == 3 )
+      {
       cells->InsertNextCell(VTK_TRIANGLE,inPolys->GetTraversalLocation(npts));
+      }
     else if ( npts == 4 )
+      {
       cells->InsertNextCell(VTK_QUAD,inPolys->GetTraversalLocation(npts));
+      }
     else
+      {
       cells->InsertNextCell(VTK_POLYGON,inPolys->GetTraversalLocation(npts));
+      }
     }
 
   for (inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); )
@@ -466,7 +577,10 @@ void vtkPolyData::BuildCells()
 // topologically complex queries.
 void vtkPolyData::BuildLinks()
 {
-  if ( this->Cells == NULL ) this->BuildCells();
+  if ( this->Cells == NULL )
+    {
+    this->BuildCells();
+    }
   this->Links = new vtkCellLinks(this->GetNumberOfPoints());
   this->Links->Register(this);
   this->Links->Delete();
@@ -481,11 +595,17 @@ void vtkPolyData::GetCellPoints(int cellId, vtkIdList& ptIds)
   int i, npts, *pts;
 
   ptIds.Reset();
-  if ( this->Cells == NULL ) this->BuildCells();
+  if ( this->Cells == NULL )
+    {
+    this->BuildCells();
+    }
 
   this->vtkPolyData::GetCellPoints(cellId, npts, pts);
   ptIds.InsertId (npts-1,pts[npts-1]);
-  for (i=0; i<npts-1; i++) ptIds.SetId(i,pts[i]);
+  for (i=0; i<npts-1; i++)
+    {
+    ptIds.SetId(i,pts[i]);
+    }
 }
 
 // Description:
@@ -529,7 +649,10 @@ void vtkPolyData::GetPointCells(int ptId, vtkIdList& cellIds)
   int numCells;
   int i;
 
-  if ( ! this->Links ) this->BuildLinks();
+  if ( ! this->Links )
+    {
+    this->BuildLinks();
+    }
   cellIds.Reset();
 
   numCells = this->Links->GetNcells(ptId);
@@ -692,10 +815,22 @@ int vtkPolyData::InsertNextCell(int type, vtkIdList &pts)
 // lines, polygons, or triangle strips.
 void vtkPolyData::Squeeze()
 {
-  if ( this->Verts != NULL ) this->Verts->Squeeze();
-  if ( this->Lines != NULL ) this->Lines->Squeeze();
-  if ( this->Polys != NULL ) this->Polys->Squeeze();
-  if ( this->Strips != NULL ) this->Strips->Squeeze();
+  if ( this->Verts != NULL )
+    {
+    this->Verts->Squeeze();
+    }
+  if ( this->Lines != NULL )
+    {
+    this->Lines->Squeeze();
+    }
+  if ( this->Polys != NULL )
+    {
+    this->Polys->Squeeze();
+    }
+  if ( this->Strips != NULL )
+    {
+    this->Strips->Squeeze();
+    }
 
   vtkPointSet::Squeeze();
 }
@@ -705,10 +840,22 @@ void vtkPolyData::Squeeze()
 // objects are returned to their initial state.
 void vtkPolyData::Reset()
 {
-  if ( this->Verts != NULL ) this->Verts->Reset();
-  if ( this->Lines != NULL ) this->Lines->Reset();
-  if ( this->Polys != NULL ) this->Polys->Reset();
-  if ( this->Strips != NULL ) this->Strips->Reset();
+  if ( this->Verts != NULL )
+    {
+    this->Verts->Reset();
+    }
+  if ( this->Lines != NULL )
+    {
+    this->Lines->Reset();
+    }
+  if ( this->Polys != NULL )
+    {
+    this->Polys->Reset();
+    }
+  if ( this->Strips != NULL )
+    {
+    this->Strips->Reset();
+    }
 }
 
 // Description:
@@ -717,7 +864,10 @@ void vtkPolyData::ReverseCell(int cellId)
 {
   int loc, type;
 
-  if ( this->Cells == NULL ) this->BuildCells();
+  if ( this->Cells == NULL )
+    {
+    this->BuildCells();
+    }
   loc = this->Cells->GetCellLocation(cellId);
   type = this->Cells->GetCellType(cellId);
 
@@ -803,7 +953,10 @@ void vtkPolyData::ReplaceCell(int cellId, int npts, int *pts)
 {
   int loc, type;
 
-  if ( this->Cells == NULL ) this->BuildCells();
+  if ( this->Cells == NULL )
+    {
+    this->BuildCells();
+    }
   loc = this->Cells->GetCellLocation(cellId);
   type = this->Cells->GetCellType(cellId);
 
@@ -892,8 +1045,17 @@ void vtkPolyData::GetCellEdgeNeighbors(int cellId, int p1, int p2,
     if ( cells[i] != cellId )
       {
       this->GetCellPoints(cells[i],npts,pts);
-      for (j=0; j < npts; j++) if ( pts[j] == p2 ) break;
-      if ( j < npts ) cellIds.InsertNextId(cells[i]);
+      for (j=0; j < npts; j++)
+	{
+	if ( pts[j] == p2 )
+	  {
+	  break;
+	  }
+	}
+      if ( j < npts )
+	{
+	cellIds.InsertNextId(cells[i]);
+	}
       }
     }
 }

@@ -176,7 +176,10 @@ static void vtkImageShrink3DExecute(vtkImageShrink3D *self,
       {
       if (!id) 
 	{
-	if (!(count%target)) self->UpdateProgress(count/(50.0*target));
+	if (!(count%target))
+	  {
+	  self->UpdateProgress(count/(50.0*target));
+	  }
 	count++;
 	}
       tmpPtr0 = tmpPtr1;

@@ -92,7 +92,10 @@ ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6],
 
   wholeExtent = this->Inputs[0]->GetWholeExtent();
   memcpy(inExt,outExt,6*sizeof(int));
-  if (whichInput == 1) return;
+  if (whichInput == 1)
+    {
+    return;
+    }
   
   // grow input image extent for input 0
   for (idx = 0; idx < this->Dimensionality; ++idx)
@@ -176,7 +179,10 @@ static void vtkImageNonMaximumSuppressionExecute(vtkImageNonMaximumSuppression *
       useYMax = ((idxY + outExt[2]) >= wholeExtent[3]) ? 0 : inIncs[1];
       if (!id) 
 	{
-	if (!(count%target)) self->UpdateProgress(count/(50.0*target));
+	if (!(count%target))
+	  {
+	  self->UpdateProgress(count/(50.0*target));
+	  }
 	count++;
 	}
       for (idxX = 0; idxX <= maxX; idxX++)

@@ -135,9 +135,14 @@ inline int vtkIdList::InsertNextId(const int id)
 // list. Otherwise return just location in list.
 inline int vtkIdList::InsertUniqueId(const int id)
 {
-  for (int i=0; i<this->GetNumberOfIds(); i++) 
-    if (id == this->GetId(i)) return i;
-
+  for (int i=0; i<this->GetNumberOfIds(); i++)
+    {
+    if (id == this->GetId(i))
+      {
+      return i;
+      }
+    }
+  
   return this->Ia->InsertNextValue(id);
 }
 
@@ -158,8 +163,13 @@ inline int *vtkIdList::WritePointer(const int i, const int number)
 // Return 1 if id specified is contained in list; 0 otherwise.
 inline int vtkIdList::IsId(int id)
 {
-  for(int i=0; i<this->GetNumberOfIds(); i++) 
-    if(id == this->GetId(i)) return 1;
+  for(int i=0; i<this->GetNumberOfIds(); i++)
+    {
+    if(id == this->GetId(i))
+      {
+      return 1;
+      }
+    }
   return 0;
 }
 

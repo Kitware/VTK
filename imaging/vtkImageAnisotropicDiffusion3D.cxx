@@ -119,7 +119,10 @@ void vtkImageAnisotropicDiffusion3D::SetNumberOfIterations(int num)
 
   vtkDebugMacro(<< "SetNumberOfIterations: " << num);
   
-  if (this->NumberOfIterations == num) return;
+  if (this->NumberOfIterations == num)
+    {
+    return;
+    }
 
   this->Modified();
   temp = num*2 + 1;
@@ -179,8 +182,11 @@ void vtkImageAnisotropicDiffusion3D::ThreadedExecute(vtkImageData *inData,
   // (but never get smaller than output region).
   for (idx = this->NumberOfIterations - 1; idx >= 0; --idx)
     {
-    if (!id) this->UpdateProgress((float)(this->NumberOfIterations - idx)
-				  /this->NumberOfIterations);
+    if (!id)
+      {
+      this->UpdateProgress((float)(this->NumberOfIterations - idx)
+			   /this->NumberOfIterations);
+      }
     this->Iterate(in, out, ar[0], ar[1], ar[2], outExt, idx);
     temp = in;
     in = out;

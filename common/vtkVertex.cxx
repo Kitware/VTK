@@ -105,9 +105,13 @@ int vtkVertex::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
   pts.SetId(0,this->PointIds.GetId(0));
 
   if ( pcoords[0] != 0.0 )  
+    {
     return 0;
+    }
   else
+    {
     return 1;
+    }
 
 }
 
@@ -145,11 +149,17 @@ int vtkVertex::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
 
   X = this->Points.GetPoint(0);
 
-  for (i=0; i<3; i++) ray[i] = p2[i] - p1[i];
-  if (( rayFactor = vtkMath::Dot(ray,ray)) == 0.0 ) return 0;
-//
-//  Project each point onto ray. Determine whether point is within tolerance.
-//
+  for (i=0; i<3; i++)
+    {
+    ray[i] = p2[i] - p1[i];
+    }
+  if (( rayFactor = vtkMath::Dot(ray,ray)) == 0.0 )
+    {
+    return 0;
+    }
+  //
+  //  Project each point onto ray. Determine whether point is within tolerance.
+  //
   t = (ray[0]*(X[0]-p1[0]) + ray[1]*(X[1]-p1[1]) + ray[2]*(X[2]-p1[2]))
       / rayFactor;
 
@@ -158,7 +168,10 @@ int vtkVertex::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
     for (i=0; i<3; i++) 
       {
       projXYZ[i] = p1[i] + t*ray[i];
-      if ( fabs(X[i]-projXYZ[i]) > tol ) break;
+      if ( fabs(X[i]-projXYZ[i]) > tol )
+	{
+	break;
+	}
       }
 
     if ( i > 2 ) // within tolerance 

@@ -79,7 +79,10 @@ void vtkAppendFilter::Update()
     }
 
   // prevent chasing our tail
-  if (this->Updating) return;
+  if (this->Updating)
+    {
+    return;
+    }
 
   this->Updating = 1;
   for (mtime=0, this->InputList.InitTraversal(); 
@@ -87,7 +90,10 @@ void vtkAppendFilter::Update()
     {
     ds->Update();
     dsMtime = ds->GetMTime();
-    if ( dsMtime > mtime ) mtime = dsMtime;
+    if ( dsMtime > mtime )
+      {
+      mtime = dsMtime;
+      }
     }
   this->Updating = 0;
 
@@ -95,23 +101,40 @@ void vtkAppendFilter::Update()
     {
     for ( this->InputList.InitTraversal();(ds=this->InputList.GetNextItem());)
       {
-      if ( ds->GetDataReleased() ) ds->ForceUpdate();
+      if ( ds->GetDataReleased() )
+	{
+	ds->ForceUpdate();
+	}
       }
 
-    if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
+    if ( this->StartMethod )
+      {
+      (*this->StartMethod)(this->StartMethodArg);
+      }
     this->Output->Initialize(); //clear output
     // reset AbortExecute flag and Progress
     this->AbortExecute = 0;
     this->Progress = 0.0;
     this->Execute();
     this->ExecuteTime.Modified();
-    if ( !this->AbortExecute ) this->UpdateProgress(1.0);
+    if ( !this->AbortExecute )
+      {
+      this->UpdateProgress(1.0);
+      }
     this->SetDataReleased(0);
-    if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
+    if ( this->EndMethod )
+      {
+      (*this->EndMethod)(this->EndMethodArg);
+      }
     }
 
   for (this->InputList.InitTraversal(); (ds = this->InputList.GetNextItem()); )
-    if ( ds->ShouldIReleaseData() ) ds->ReleaseData();
+    {
+    if ( ds->ShouldIReleaseData() )
+      {
+      ds->ReleaseData();
+      }
+    }
 }
 
 // Append data sets into single unstructured grid
@@ -146,12 +169,30 @@ void vtkAppendFilter::Execute()
     numPts += ds->GetNumberOfPoints();
     numCells += ds->GetNumberOfCells();
     pd = ds->GetPointData();
-    if ( pd->GetScalars() == NULL ) scalarsPresent &= 0;
-    if ( pd->GetVectors() == NULL ) vectorsPresent &= 0;
-    if ( pd->GetNormals() == NULL ) normalsPresent &= 0;
-    if ( pd->GetTCoords() == NULL ) tcoordsPresent &= 0;
-    if ( pd->GetTensors() == NULL ) tensorsPresent &= 0;
-    if ( pd->GetFieldData() == NULL ) fieldPresent &= 0;
+    if ( pd->GetScalars() == NULL )
+      {
+      scalarsPresent &= 0;
+      }
+    if ( pd->GetVectors() == NULL )
+      {
+      vectorsPresent &= 0;
+      }
+    if ( pd->GetNormals() == NULL )
+      {
+      normalsPresent &= 0;
+      }
+    if ( pd->GetTCoords() == NULL )
+      {
+      tcoordsPresent &= 0;
+      }
+    if ( pd->GetTensors() == NULL )
+      {
+      tensorsPresent &= 0;
+      }
+    if ( pd->GetFieldData() == NULL )
+      {
+      fieldPresent &= 0;
+      }
     }
 
   if ( numPts < 1 || numCells < 1 )
@@ -162,12 +203,30 @@ void vtkAppendFilter::Execute()
   
   // Now can allocate memory
   output->Allocate(numCells); //allocate storage for geometry/topology
-  if ( !scalarsPresent ) outputPD->CopyScalarsOff();
-  if ( !vectorsPresent ) outputPD->CopyVectorsOff();
-  if ( !normalsPresent ) outputPD->CopyNormalsOff();
-  if ( !tcoordsPresent ) outputPD->CopyTCoordsOff();
-  if ( !tensorsPresent ) outputPD->CopyTensorsOff();
-  if ( !fieldPresent ) outputPD->CopyFieldDataOff();
+  if ( !scalarsPresent )
+    {
+    outputPD->CopyScalarsOff();
+    }
+  if ( !vectorsPresent )
+    {
+    outputPD->CopyVectorsOff();
+    }
+  if ( !normalsPresent )
+    {
+    outputPD->CopyNormalsOff();
+    }
+  if ( !tcoordsPresent )
+    {
+    outputPD->CopyTCoordsOff();
+    }
+  if ( !tensorsPresent )
+    {
+    outputPD->CopyTensorsOff();
+    }
+  if ( !fieldPresent )
+    {
+    outputPD->CopyFieldDataOff();
+    }
   outputPD->CopyAllocate(pd,numPts);
 
   newPts = vtkPoints::New();
@@ -193,7 +252,9 @@ void vtkAppendFilter::Execute()
       ds->GetCellPoints(cellId,ptIds);
       newPtIds.Reset ();
       for (i=0; i < ptIds.GetNumberOfIds(); i++)
+	{
         newPtIds.InsertId(i,ptIds.GetId(i)+ptOffset);
+	}
       output->InsertNextCell(ds->GetCellType(cellId),newPtIds);
       }
     }

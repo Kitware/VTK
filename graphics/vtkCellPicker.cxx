@@ -44,7 +44,10 @@ vtkCellPicker::vtkCellPicker()
 {
   this->CellId = -1;
   this->SubId = -1;
-  for (int i=0; i<3; i++) this->PCoords[i] = 0.0;
+  for (int i=0; i<3; i++)
+    {
+    this->PCoords[i] = 0.0;
+    }
 }
 
 float vtkCellPicker::IntersectWithLine(float p1[3], float p2[3], float tol, 
@@ -57,7 +60,10 @@ float vtkCellPicker::IntersectWithLine(float p1[3], float p2[3], float tol,
   vtkCell *cell;
   vtkDataSet *input=m->GetInput();
 
-  if ( (numCells = input->GetNumberOfCells()) < 1 ) return 2.0;
+  if ( (numCells = input->GetNumberOfCells()) < 1 )
+    {
+    return 2.0;
+    }
   //
   //  Intersect each cell with ray.  Keep track of one closest to 
   //  the eye (and within the clipping range).
@@ -89,7 +95,10 @@ float vtkCellPicker::IntersectWithLine(float p1[3], float p2[3], float tol,
     this->MarkPicked(assem, a, m, tMin, minXYZ);
     this->CellId = minCellId;
     this->SubId = minSubId;
-    for (i=0; i<3; i++) this->PCoords[i] = minPcoords[i];
+    for (i=0; i<3; i++)
+      {
+      this->PCoords[i] = minPcoords[i];
+      }
     vtkDebugMacro("Picked cell id= " << minCellId);
     }
   return tMin;
@@ -99,7 +108,10 @@ void vtkCellPicker::Initialize()
 {
   this->CellId = (-1);
   this->SubId = (-1);
-  for (int i=0; i<3; i++) this->PCoords[i] = 0.0;
+  for (int i=0; i<3; i++)
+    {
+    this->PCoords[i] = 0.0;
+    }
   this->vtkPicker::Initialize();
 }
 

@@ -132,7 +132,7 @@ void vtkScalarBarActor::Render(vtkViewport *viewport)
     //
     if (this->TextMappers != NULL )
       {
-      for (int i=0; i < this->NumberOfLabels; i++)
+      for (i=0; i < this->NumberOfLabels; i++)
 	{
 	this->TextMappers[i]->Delete();
 	this->TextActors[i]->Delete();
@@ -225,7 +225,10 @@ void vtkScalarBarActor::Render(vtkViewport *viewport)
 
     // Update all the composing objects
     //
-    if (this->Title == NULL ) this->TitleActor->VisibilityOff();
+    if (this->Title == NULL )
+      {
+      this->TitleActor->VisibilityOff();
+      }
     else
       {
       this->TitleActor->VisibilityOn();
@@ -242,7 +245,7 @@ void vtkScalarBarActor::Render(vtkViewport *viewport)
     this->TextActors = new vtkActor2D * [this->NumberOfLabels];
     char string[50];
     float val;
-    for (int i=0; i < this->NumberOfLabels; i++)
+    for (i=0; i < this->NumberOfLabels; i++)
       {
       this->TextMappers[i] = vtkTextMapper::New();
       val = range[0] + (float)i/(this->NumberOfLabels-1) * (range[1]-range[0]);
@@ -268,7 +271,7 @@ void vtkScalarBarActor::Render(vtkViewport *viewport)
       this->TitleActor->SetPosition(position[0] + barOrigin[0], 
             position[1] + barOrigin[1] + barHeight + this->FontSize*2);
 
-      for (int i=0; i < this->NumberOfLabels; i++)
+      for (i=0; i < this->NumberOfLabels; i++)
 	{
 	val = (float)i/(this->NumberOfLabels-1) * barHeight;
 	this->TextActors[i]->SetPosition(position[0] + barOrigin[0] + barWidth+3,
@@ -279,7 +282,7 @@ void vtkScalarBarActor::Render(vtkViewport *viewport)
       {
       this->TitleActor->SetPosition(position[0] + center[0], 
             position[1] + barOrigin[1] + barWidth + this->FontSize*2.75);
-      for (int i=0; i < this->NumberOfLabels; i++)
+      for (i=0; i < this->NumberOfLabels; i++)
 	{
 	val = (float)i/(this->NumberOfLabels-1) * barHeight;
 	this->TextActors[i]->SetPosition(position[0] + barOrigin[0] + val,
@@ -291,9 +294,15 @@ void vtkScalarBarActor::Render(vtkViewport *viewport)
     }
 
   // Everything is built, just have to render
-  if (this->Title != NULL) this->TitleActor->Render(viewport);
+  if (this->Title != NULL)
+    {
+    this->TitleActor->Render(viewport);
+    }
   this->ScalarBarActor->Render(viewport);
-  for (i=0; i<this->NumberOfLabels; i++) this->TextActors[i]->Render(viewport);
+  for (i=0; i<this->NumberOfLabels; i++)
+    {
+    this->TextActors[i]->Render(viewport);
+    }
 }
 
 void vtkScalarBarActor::PrintSelf(ostream& os, vtkIndent indent)
@@ -318,13 +327,28 @@ void vtkScalarBarActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number Of Labels: " << this->NumberOfLabels << "\n";
 
   os << indent << "Orientation: ";
-  if ( this->Orientation == VTK_ORIENT_HORIZONTAL ) os << "Horizontal\n";
-  else os << "Vertical\n";
+  if ( this->Orientation == VTK_ORIENT_HORIZONTAL )
+    {
+    os << "Horizontal\n";
+    }
+  else
+    {
+    os << "Vertical\n";
+    }
 
   os << indent << "Font Family: ";
-  if ( this->FontFamily == VTK_ARIAL ) os << "Arial\n";
-  else if ( this->FontFamily == VTK_COURIER ) os << "Courier\n";
-  else os << "Times\n";
+  if ( this->FontFamily == VTK_ARIAL )
+    {
+    os << "Arial\n";
+    }
+  else if ( this->FontFamily == VTK_COURIER )
+    {
+    os << "Courier\n";
+    }
+  else
+    {
+    os << "Times\n";
+    }
 
   os << indent << "Font Size: " << this->FontSize << "\n";
   os << indent << "Bold: " << (this->Bold ? "On\n" : "Off\n");

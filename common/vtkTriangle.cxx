@@ -103,7 +103,10 @@ int vtkTriangle::EvaluatePosition(float x[3], float closestPoint[3],
     }
   for (j=0, i=0; i<3; i++)  
     {
-    if ( i != idx ) indices[j++] = i;
+    if ( i != idx )
+      {
+      indices[j++] = i;
+      }
     }
   
   for (i=0; i<2; i++)
@@ -113,7 +116,10 @@ int vtkTriangle::EvaluatePosition(float x[3], float closestPoint[3],
     c2[i] = pt2[indices[i]] - pt3[indices[i]];
     }
 
-  if ( (det = vtkMath::Determinant2x2(c1,c2)) == 0.0 ) return -1;
+  if ( (det = vtkMath::Determinant2x2(c1,c2)) == 0.0 )
+    {
+    return -1;
+    }
 
   pcoords[0] = vtkMath::Determinant2x2 (rhs,c2) / det;
   pcoords[1] = vtkMath::Determinant2x2 (c1,rhs) / det;
@@ -156,7 +162,10 @@ int vtkTriangle::EvaluatePosition(float x[3], float closestPoint[3],
    	dist2 = dist2Line2;
 	closest = closestPoint2;
 	}
-      for (i=0; i<3; i++) closestPoint[i] = closest[i];
+      for (i=0; i<3; i++)
+	{
+	closestPoint[i] = closest[i];
+	}
       }
     else if ( pcoords[1] < 0.0 && pcoords[2] < 0.0 )
       {
@@ -178,7 +187,10 @@ int vtkTriangle::EvaluatePosition(float x[3], float closestPoint[3],
    	dist2 = dist2Line2;
 	closest = closestPoint2;
 	}
-      for (i=0; i<3; i++) closestPoint[i] = closest[i];
+      for (i=0; i<3; i++)
+	{
+	closestPoint[i] = closest[i];
+	}
       }
     else if ( pcoords[0] < 0.0 && pcoords[2] < 0.0 )
       {
@@ -200,7 +212,10 @@ int vtkTriangle::EvaluatePosition(float x[3], float closestPoint[3],
    	dist2 = dist2Line2;
 	closest = closestPoint2;
 	}
-      for (i=0; i<3; i++) closestPoint[i] = closest[i];
+      for (i=0; i<3; i++)
+	{
+	closestPoint[i] = closest[i];
+	}
       }
     else if ( pcoords[0] < 0.0 )
       {
@@ -271,10 +286,15 @@ int vtkTriangle::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
     }
 
   if ( pcoords[0] < 0.0 || pcoords[1] < 0.0 ||
-  pcoords[0] > 1.0 || pcoords[1] > 1.0 || (1.0 - pcoords[0] - pcoords[1]) < 0.0 )
+       pcoords[0] > 1.0 || pcoords[1] > 1.0 ||
+       (1.0 - pcoords[0] - pcoords[1]) < 0.0 )
+    {
     return 0;
+    }
   else
+    {
     return 1;
+    }
 
 }
 
@@ -317,8 +337,12 @@ void vtkTriangle::Contour(float value, vtkScalars *cellScalars,
 
   // Build the case table
   for ( i=0, index = 0; i < 3; i++)
-      if (cellScalars->GetScalar(i) >= value)
-          index |= CASE_MASK[i];
+    {
+    if (cellScalars->GetScalar(i) >= value)
+      {
+      index |= CASE_MASK[i];
+      }
+    }
 
   lineCase = lineCases + index;
   edge = lineCase->edges;
@@ -341,13 +365,22 @@ void vtkTriangle::Contour(float value, vtkScalars *cellScalars,
         }
       
       // linear interpolation
-      if (deltaScalar == 0.0) t = 0.0;
-      else t = (value - cellScalars->GetScalar(e1)) / deltaScalar;
+      if (deltaScalar == 0.0)
+	{
+	t = 0.0;
+	}
+      else
+	{
+	t = (value - cellScalars->GetScalar(e1)) / deltaScalar;
+	}
 
       this->Points.GetPoint(e1, x1);
       this->Points.GetPoint(e2, x2);
 
-      for (j=0; j<3; j++) x[j] = x1[j] + t * (x2[j] - x1[j]);
+      for (j=0; j<3; j++)
+	{
+	x[j] = x1[j] + t * (x2[j] - x1[j]);
+	}
       if ( (pts[i] = locator->IsInsertedPoint(x)) < 0 )
         {
         pts[i] = locator->InsertNextPoint(x);
@@ -372,7 +405,10 @@ vtkCell *vtkTriangle::GetEdge(int edgeId)
 {
   int edgeIdPlus1 = edgeId + 1;
 
-  if (edgeIdPlus1 > 2) edgeIdPlus1 = 0;
+  if (edgeIdPlus1 > 2)
+    {
+    edgeIdPlus1 = 0;
+    }
 
   // load point id's
   this->Line.PointIds.SetId(0,this->PointIds.GetId(edgeId));
@@ -399,25 +435,31 @@ int vtkTriangle::IntersectWithLine(float p1[3], float p2[3], float tol,
   
   subId = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
-//
-// Get normal for triangle
-//
+  //
+  // Get normal for triangle
+  //
   pt1 = this->Points.GetPoint(1);
   pt2 = this->Points.GetPoint(2);
   pt3 = this->Points.GetPoint(0);
 
   vtkTriangle::ComputeNormal (pt1, pt2, pt3, n);
-//
-// Intersect plane of triangle with line
-//
-  if ( ! vtkPlane::IntersectWithLine(p1,p2,n,pt1,t,x) ) return 0;
-//
-// Evaluate position
-//
+  //
+  // Intersect plane of triangle with line
+  //
+  if ( ! vtkPlane::IntersectWithLine(p1,p2,n,pt1,t,x) )
+    {
+    return 0;
+    }
+  //
+  // Evaluate position
+  //
   if (this->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights)
       >= 0)
     {
-    if ( dist2 <= tol2 ) return 1;
+    if ( dist2 <= tol2 )
+      {
+      return 1;
+      }
     }
   
   // so the easy test failed. The line is not intersecting the triangle.
@@ -491,11 +533,16 @@ void vtkTriangle::Derivatives(int vtkNotUsed(subId), float vtkNotUsed(pcoords)[3
 
   vtkMath::Cross(n,v10,v20); //creates local y' axis
 
-  if ( (lenX=vtkMath::Normalize(v10)) <= 0.0 || vtkMath::Normalize(v20) <= 0.0 ) //degenerate
+  if ( (lenX=vtkMath::Normalize(v10)) <= 0.0
+       || vtkMath::Normalize(v20) <= 0.0 ) //degenerate
     {
     for ( j=0; j < dim; j++ )
+      {
       for ( i=0; i < 3; i++ )
+	{
         derivs[j*dim + i] = 0.0;
+	}
+      }
     return;
     }
 
@@ -616,8 +663,14 @@ float vtkTriangle::Circumcircle(float  x1[2], float x2[2], float x3[2],
     sum += diff*diff;
     }
 
-  if ( (sum /= 3.0) > VTK_LARGE_FLOAT ) return VTK_LARGE_FLOAT;
-  else return sum;
+  if ( (sum /= 3.0) > VTK_LARGE_FLOAT )
+    {
+    return VTK_LARGE_FLOAT;
+    }
+  else
+    {
+    return sum;
+    }
 }
 
 // Description:
@@ -654,7 +707,10 @@ int vtkTriangle::BarycentricCoords(float x[2], float  x1[2], float x2[2],
 
   if ( vtkMath::SolveLinearSystem(A,p,3) )
     {
-    for (i=0; i<3; i++) bcoords[i] = (float) p[i];
+    for (i=0; i<3; i++)
+      {
+      bcoords[i] = (float) p[i];
+      }
     return 1;
     }
   else
@@ -680,7 +736,10 @@ int vtkTriangle::ProjectTo2D(float x1[3], float x2[3], float x3[3],
     v31[i] = x3[i] - x1[i];
     }
 
-  if ( (xLen=vtkMath::Normalize(v21)) <= 0.0 ) return 0;
+  if ( (xLen=vtkMath::Normalize(v21)) <= 0.0 )
+    {
+    return 0;
+    }
 
   // The first point is at (0,0); the next at (xLen,0); compute the other point relative 
   // to the first two.
@@ -734,14 +793,22 @@ void vtkTriangle::Clip(float value, vtkScalars *cellScalars,
   if ( insideOut )
     {    
     for ( i=0, index = 0; i < 3; i++)
+      {
       if (cellScalars->GetScalar(i) <= value)
-        index |= CASE_MASK[i];
+	{
+	index |= CASE_MASK[i];
+	}
+      }
     }    
   else
     {
     for ( i=0, index = 0; i < 3; i++)
+      {
       if (cellScalars->GetScalar(i) > value)
+	{
         index |= CASE_MASK[i];
+	}
+      }
     }
 
   // Select the case based on the index and get the list of edges for this case
@@ -782,13 +849,22 @@ void vtkTriangle::Clip(float value, vtkScalars *cellScalars,
           }
 
 	// linear interpolation
-        if (deltaScalar == 0.0) t = 0.0;
-        else t = (value - cellScalars->GetScalar(e1)) / deltaScalar;
+        if (deltaScalar == 0.0)
+	  {
+	  t = 0.0;
+	  }
+        else
+	  {
+	  t = (value - cellScalars->GetScalar(e1)) / deltaScalar;
+	  }
 
         this->Points.GetPoint(e1, x1);
         this->Points.GetPoint(e2, x2);
 
-        for (j=0; j<3; j++) x[j] = x1[j] + t * (x2[j] - x1[j]);
+        for (j=0; j<3; j++)
+	  {
+	  x[j] = x1[j] + t * (x2[j] - x1[j]);
+	  }
         if ( (pts[i] = locator->IsInsertedPoint(x)) < 0 )
           {
           pts[i] = locator->InsertNextPoint(x);
@@ -799,7 +875,10 @@ void vtkTriangle::Clip(float value, vtkScalars *cellScalars,
         }
       }
     // check for degenerate tri's
-    if (pts[0] == pts[1] || pts[0] == pts[2] || pts[1] == pts[2]) continue;
+    if (pts[0] == pts[1] || pts[0] == pts[2] || pts[1] == pts[2])
+      {
+      continue;
+      }
 
     newCellId = tris->InsertNextCell(3,pts);
     outCd->CopyData(inCd,cellId,newCellId);

@@ -226,22 +226,34 @@ void vtkColorTransferFunction::UpdateRange()
   blue_range  = this->Blue.GetRange();
 
   if( red_range[0] < this->Range[0] )
+    {
     this->Range[0] = red_range[0];
+    }
 
   if( green_range[0] < this->Range[0] )
+    {
     this->Range[0] = green_range[0];
+    }
 
   if( blue_range[0] < this->Range[0] )
+    {
     this->Range[0] = blue_range[0];
+    }
 
   if( red_range[1] > this->Range[1] )
+    {
     this->Range[1] = red_range[1];
+    }
 
   if( green_range[1] > this->Range[1] )
+    {
     this->Range[1] = green_range[1];
+    }
 
   if( blue_range[1] > this->Range[1] )
+    {
     this->Range[1] = blue_range[1];
+    }
   
   this->Modified();
 }
@@ -263,13 +275,19 @@ void vtkColorTransferFunction::GetTable( float x1, float x2,
   int   i;
 
   if( x1 == x2 )
+    {
     return;
+    }
 
   x = x1;
   if( size > 1 )
+    {
     inc = (x2-x1)/(float)(size-1);
+    }
   else
+    {
     inc = 0;
+    }
 
   for( i=0; i<size; i++ )
     {
@@ -302,14 +320,14 @@ void vtkColorTransferFunction::PrintSelf(ostream& os, vtkIndent indent)
 // Description:
 // Sets the clamping for each of the R,G,B transfer functions
 void vtkColorTransferFunction::SetClamping(int val) {
-	Clamping = val;
-	this->Red.SetClamping(Clamping);
-	this->Green.SetClamping(Clamping);
-	this->Blue.SetClamping(Clamping);
+	this->Clamping = val;
+	this->Red.SetClamping(this->Clamping);
+	this->Green.SetClamping(this->Clamping);
+	this->Blue.SetClamping(this->Clamping);
 }
 
 // Description:
 // Gets the clamping value
 int vtkColorTransferFunction::GetClamping() {
-	return Clamping;
+  return this->Clamping;
 }

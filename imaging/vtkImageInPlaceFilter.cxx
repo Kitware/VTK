@@ -117,10 +117,16 @@ void vtkImageInPlaceFilter::InternalUpdate(vtkImageData *outData)
     outData->GetPointData()->PassData(inData->GetPointData());
     
     // The StartMethod call is placed here to be after updating the input.
-    if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
+    if ( this->StartMethod )
+      {
+      (*this->StartMethod)(this->StartMethodArg);
+      }
     // fill the output region 
     this->Execute(inData, outData);
-    if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
+    if ( this->EndMethod )
+      {
+      (*this->EndMethod)(this->EndMethodArg);
+      }
     
     // Like the graphics pipeline this source releases inputs data.
     this->Input->ReleaseData();
@@ -193,12 +199,18 @@ void vtkImageInPlaceFilter::RecursiveStreamUpdate(vtkImageData *outData,
   inData = this->Input->UpdateAndReturnData();
 
   // The StartMethod call is placed here to be after updating the input.
-  if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
+  if ( this->StartMethod )
+    {
+    (*this->StartMethod)(this->StartMethodArg);
+    }
   // fill the output region 
   // copy the data first
   this->CopyData(inData,outData);
   this->Execute(inData, outData);
-  if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
+  if ( this->EndMethod )
+    {
+    (*this->EndMethod)(this->EndMethodArg);
+    }
   
   // Like the graphics pipeline this source releases inputs data.
   if (this->Input->ShouldIReleaseData())

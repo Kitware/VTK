@@ -144,7 +144,10 @@ static void vtkImagePermuteExecute(vtkImagePermute *self,
       {
       if (!id) 
 	{
-	if (!(count%target)) self->UpdateProgress(count/(50.0*target));
+	if (!(count%target))
+	  {
+	  self->UpdateProgress(count/(50.0*target));
+	  }
 	count++;
 	}
       inPtr0 = inPtr1;

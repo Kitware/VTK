@@ -117,11 +117,20 @@ static void vtkImageWrapPadExecute(vtkImageWrapPad *self,
   
   // initialize pointers to coresponding pixels.
   start0 = ((outExt[0] - imageMin0) % (imageMax0-imageMin0+1)) + imageMin0;
-  if (start0 < 0) start0 += (imageMax0-imageMin0+1);
+  if (start0 < 0)
+    {
+    start0 += (imageMax0-imageMin0+1);
+    }
   start1 = ((outExt[2] - imageMin1) % (imageMax1-imageMin1+1)) + imageMin1;
-  if (start1 < 0) start1 += (imageMax1-imageMin1+1);
+  if (start1 < 0)
+    {
+    start1 += (imageMax1-imageMin1+1);
+    }
   start2 = ((outExt[4] - imageMin2) % (imageMax2-imageMin2+1)) + imageMin2;
-  if (start2 < 0) start2 += (imageMax2-imageMin2+1);
+  if (start2 < 0)
+    {
+    start2 += (imageMax2-imageMin2+1);
+    }
   inPtr2 = (T *)(inData->GetScalarPointer(start0, start1, start2));
   
   min0 = outExt[0];
@@ -146,7 +155,10 @@ static void vtkImageWrapPadExecute(vtkImageWrapPad *self,
       {
       if (!id) 
 	{
-	if (!(count%target)) self->UpdateProgress(count/(50.0*target));
+	if (!(count%target))
+	  {
+	  self->UpdateProgress(count/(50.0*target));
+	  }
 	count++;
 	}
       if (inIdx1 > imageMax1) 

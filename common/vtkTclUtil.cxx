@@ -154,7 +154,10 @@ VTKTCL_EXPORT void vtkTclGenericDeleteObject(ClientData cd)
     vtkInDelete = 0;
     Tcl_DeleteInterp(i);
     }
-  if (temp) free(temp);
+  if (temp)
+    {
+    free(temp);
+    }
 }
 
 int vtkCommand(ClientData cd, Tcl_Interp *interp, int argc, char *argv[])
@@ -165,7 +168,10 @@ int vtkCommand(ClientData cd, Tcl_Interp *interp, int argc, char *argv[])
 
   cd = 0; // shut up the compiler
 
-  if (argc < 2) return TCL_OK;
+  if (argc < 2)
+    {
+    return TCL_OK;
+    }
   
   if (!strcmp(argv[1],"DeleteAllObjects"))
     {
@@ -174,8 +180,14 @@ int vtkCommand(ClientData cd, Tcl_Interp *interp, int argc, char *argv[])
 	 entry = Tcl_FirstHashEntry(&vtkPointerLookup,&search))
       {
       tmp = strdup((char *)Tcl_GetHashValue(entry));
-      if (tmp) Tcl_DeleteCommand(interp,tmp);
-	  if (tmp) free(tmp);
+      if (tmp)
+	{
+	Tcl_DeleteCommand(interp,tmp);
+	}
+      if (tmp)
+	{
+	free(tmp);
+	}
       }
     return TCL_OK;
     }
@@ -320,7 +332,10 @@ VTKTCL_EXPORT void *vtkTclGetPointerFromObject(char *name,char *result_type,
   char temps[256];
 
   /* check for empty string, empty string is the same as passing NULL */
-  if (name[0] == '\0') return NULL;
+  if (name[0] == '\0')
+    {
+    return NULL;
+    }
   
   /* set up the args */
   args[0] = "DoTypecasting";

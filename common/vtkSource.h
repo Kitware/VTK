@@ -75,7 +75,7 @@ class VTK_EXPORT vtkSource : public vtkProcessObject
 {
 public:
   vtkSource();
-  ~vtkSource() { if (this->Output) this->Output->Delete();};
+  ~vtkSource() { if (this->Output) { this->Output->Delete(); }};
   static vtkSource *New() {return new vtkSource;};
   const char *GetClassName() {return "vtkSource";};
   void PrintSelf(ostream& os, vtkIndent indent);

@@ -482,8 +482,14 @@ int  vtkImageCache::GetGlobalReleaseDataFlag()
 int vtkImageCache::ShouldIReleaseData()
 {
   if ( vtkDataSet::GetGlobalReleaseDataFlag() || 
-       this->ReleaseDataFlag ) return 1;
-  else return 0;
+       this->ReleaseDataFlag )
+    {
+    return 1;
+    }
+  else
+    {
+    return 0;
+    }
 }
 
 //----------------------------------------------------------------------------

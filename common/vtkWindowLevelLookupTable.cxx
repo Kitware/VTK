@@ -86,12 +86,24 @@ void vtkWindowLevelLookupTable::Build()
 
     // calculate table indices from values
     indxStartsAt = this->MapScalarToIndex (rampStartsAt);
-    if (indxStartsAt >= this->NumberOfColors) indxStartsAt = this->NumberOfColors - 1;
-    if (indxStartsAt < 1) indxStartsAt = 1;
+    if (indxStartsAt >= this->NumberOfColors)
+      {
+      indxStartsAt = this->NumberOfColors - 1;
+      }
+    if (indxStartsAt < 1)
+      {
+      indxStartsAt = 1;
+      }
 
     indxEndsAt = this->MapScalarToIndex (rampEndsAt);
-    if (indxEndsAt >= this->NumberOfColors) indxStartsAt = this->NumberOfColors - 1;
-    if (indxEndsAt < 1) indxEndsAt = 1;
+    if (indxEndsAt >= this->NumberOfColors)
+      {
+      indxStartsAt = this->NumberOfColors - 1;
+      }
+    if (indxEndsAt < 1)
+      {
+      indxEndsAt = 1;
+      }
 
     vtkDebugMacro (<< "Index starts at: " << indxStartsAt << "\n");
     vtkDebugMacro (<< "Index ends at: " << indxEndsAt << "\n");
@@ -115,7 +127,10 @@ void vtkWindowLevelLookupTable::Build()
     for (indx=0; indx < indxStartsAt; indx++)
       {
       rgba = this->Table.WritePointer(4*indx,4);
-      for (i=0; i < 4; i++) rgba[i] = minimum[i];
+      for (i=0; i < 4; i++)
+	{
+	rgba[i] = minimum[i];
+	}
       }
 
     // now do the ramp
@@ -131,7 +146,10 @@ void vtkWindowLevelLookupTable::Build()
     for (indx=indxEndsAt; indx < this->NumberOfColors; indx++)
       {
       rgba = this->Table.WritePointer(4*indx,4);
-      for (i=0; i < 4; i++) rgba[i] = maximum[i];
+      for (i=0; i < 4; i++)
+	{
+	rgba[i] = maximum[i];
+	}
       }
   }
   this->BuildTime.Modified();

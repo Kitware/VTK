@@ -129,7 +129,7 @@ void vtkClipPolyData::Execute()
     return;
     }
 
-  if ( !this->ClipFunction && GenerateClipScalars )
+  if ( !this->ClipFunction && this->GenerateClipScalars )
     {
     vtkErrorMacro(<<"Cannot generate clip scalars if no clip function defined");
     return;
@@ -139,7 +139,10 @@ void vtkClipPolyData::Execute()
   //
   estimatedSize = numCells;
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
-  if (estimatedSize < 1024) estimatedSize = 1024;
+  if (estimatedSize < 1024)
+    {
+    estimatedSize = 1024;
+    }
 
   newPoints = vtkPoints::New();
   newPoints->Allocate(numPts,numPts/2);
@@ -151,7 +154,10 @@ void vtkClipPolyData::Execute()
   newPolys->Allocate(estimatedSize,estimatedSize/2);
 
   // locator used to merge potentially duplicate points
-  if ( this->Locator == NULL ) this->CreateDefaultLocator();
+  if ( this->Locator == NULL )
+    {
+    this->CreateDefaultLocator();
+    }
   this->Locator->InitPointInsertion (newPoints, input->GetBounds());
 
   // Determine whether we're clipping with input scalars or a clip function
@@ -162,7 +168,10 @@ void vtkClipPolyData::Execute()
     tmpScalars->SetNumberOfScalars(numPts);
     inPD = vtkPointData::New();
     inPD->ShallowCopy(*(input->GetPointData()));//copies original
-    if ( this->GenerateClipScalars ) inPD->SetScalars(tmpScalars);
+    if ( this->GenerateClipScalars )
+      {
+      inPD->SetScalars(tmpScalars);
+      }
     for ( i=0; i < numPts; i++ )
       {
       s = this->ClipFunction->FunctionValue(inPts->GetPoint(i));
@@ -274,26 +283,44 @@ void vtkClipPolyData::Execute()
     inPD->Delete();
     }
 
-  if (newVerts->GetNumberOfCells()) output->SetVerts(newVerts);
+  if (newVerts->GetNumberOfCells())
+    {
+    output->SetVerts(newVerts);
+    }
   newVerts->Delete();
 
-  if (newLines->GetNumberOfCells()) output->SetLines(newLines);
+  if (newLines->GetNumberOfCells())
+    {
+    output->SetLines(newLines);
+    }
   newLines->Delete();
 
-  if (newPolys->GetNumberOfCells()) output->SetPolys(newPolys);
+  if (newPolys->GetNumberOfCells())
+    {
+    output->SetPolys(newPolys);
+    }
   newPolys->Delete();
 
   if ( this->GenerateClippedOutput )
     {
     this->ClippedOutput->SetPoints(newPoints);
 
-    if (clippedVerts->GetNumberOfCells()) this->ClippedOutput->SetVerts(clippedVerts);
+    if (clippedVerts->GetNumberOfCells())
+      {
+      this->ClippedOutput->SetVerts(clippedVerts);
+      }
     clippedVerts->Delete();
 
-    if (clippedLines->GetNumberOfCells()) this->ClippedOutput->SetLines(clippedLines);
+    if (clippedLines->GetNumberOfCells())
+      {
+      this->ClippedOutput->SetLines(clippedLines);
+      }
     clippedLines->Delete();
 
-    if (clippedPolys->GetNumberOfCells()) this->ClippedOutput->SetPolys(clippedPolys);
+    if (clippedPolys->GetNumberOfCells())
+      {
+      this->ClippedOutput->SetPolys(clippedPolys);
+      }
     clippedPolys->Delete();
     
     this->ClippedOutput->GetPointData()->PassData(outPD);

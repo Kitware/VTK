@@ -362,7 +362,10 @@ LRESULT APIENTRY vtkTkImageViewerWidgetProc(HWND hWnd, UINT message,
   struct vtkTkImageViewerWidget *self = 
     (struct vtkTkImageViewerWidget *)GetWindowLong(hWnd,GWL_USERDATA);
   
-  if (!self) return 0;
+  if (!self)
+    {
+    return 0;
+    }
 
   // forward message to Tk handler
   SetWindowLong(hWnd,GWL_USERDATA,(LONG)((TkWindow *)self->TkWin)->window);

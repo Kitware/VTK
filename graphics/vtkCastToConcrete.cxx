@@ -78,23 +78,35 @@ void vtkCastToConcrete::Update()
     }
 
   // prevent chasing our tail
-  if (this->Updating) return;
+  if (this->Updating)
+    {
+    return;
+    }
 
   this->Updating = 1;
   this->Input->Update();
   this->Updating = 0;
 
   if (this->Input->GetMTime() > this->ExecuteTime ||
-  this->GetMTime() > this->ExecuteTime )
+      this->GetMTime() > this->ExecuteTime )
     {
-    if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
+    if ( this->StartMethod )
+      {
+      (*this->StartMethod)(this->StartMethodArg);
+      }
     // reset AbortExecute flag and Progress
     this->AbortExecute = 0;
     this->Progress = 0.0;
     this->Execute();
     this->ExecuteTime.Modified();
-    if ( !this->AbortExecute ) this->UpdateProgress(1.0);
-    if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
+    if ( !this->AbortExecute )
+      {
+      this->UpdateProgress(1.0);
+      }
+    if ( this->EndMethod )
+      {
+      (*this->EndMethod)(this->EndMethodArg);
+      }
     }
 }
   

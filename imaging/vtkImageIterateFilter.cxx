@@ -118,10 +118,16 @@ void vtkImageIterateFilter::RecursiveStreamUpdate(vtkImageData *outData)
   inData = this->Input->UpdateAndReturnData();
 
   // The StartMethod call is placed here to be after updating the input.
-  if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
+  if ( this->StartMethod )
+    {
+    (*this->StartMethod)(this->StartMethodArg);
+    }
   // fill the output region 
   this->IterateExecute(inData, outData);
-  if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
+  if ( this->EndMethod )
+    {
+    (*this->EndMethod)(this->EndMethodArg);
+    }
   
 }
 

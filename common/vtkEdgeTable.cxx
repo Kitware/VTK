@@ -44,10 +44,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Instantiate object based on maximum point id.
 vtkEdgeTable::vtkEdgeTable(int numPoints)
 {
-  if ( numPoints < 1 ) numPoints = 1;
+  if ( numPoints < 1 )
+    {
+    numPoints = 1;
+    }
 
   this->Table = new vtkIdList *[numPoints];
-  for (int i=0; i < numPoints; i++) this->Table[i] = NULL;
+  for (int i=0; i < numPoints; i++)
+    {
+    this->Table[i] = NULL;
+    }
   this->TableSize = numPoints;
 
   this->Position[0] = 0;

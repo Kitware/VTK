@@ -54,8 +54,14 @@ vtkMatrix4x4::vtkMatrix4x4 ()
     {
     for (j = 0; j < 4; j++)
       {
-      if ( i == j ) this->Element[i][j] = 1.0;
-      else this->Element[i][j] = 0.0;
+      if ( i == j )
+	{
+	this->Element[i][j] = 1.0;
+	}
+      else
+	{
+	this->Element[i][j] = 0.0;
+	}
       }
     }
 }
@@ -168,8 +174,12 @@ void vtkMatrix4x4::Invert (vtkMatrix4x4 in,vtkMatrix4x4 & out)
 
   // scale the adjoint matrix to get the inverse
   for (i=0; i<4; i++)
+    {
     for(j=0; j<4; j++)
+      {
       out.Element[i][j] = out.Element[i][j] / det;
+      }
+    }
 }
 
 // Description:

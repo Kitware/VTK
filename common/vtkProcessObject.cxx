@@ -174,14 +174,32 @@ void vtkProcessObject::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
 
-  if ( this->StartMethod ) os << indent << "Start Method defined\n";
-  else os << indent <<"No Start Method\n";
+  if ( this->StartMethod )
+    {
+    os << indent << "Start Method defined\n";
+    }
+  else
+    {
+    os << indent <<"No Start Method\n";
+    }
 
-  if ( this->ProgressMethod ) os << indent << "Progress Method defined\n";
-  else os << indent << "No Progress Method\n";
+  if ( this->ProgressMethod )
+    {
+    os << indent << "Progress Method defined\n";
+    }
+  else
+    {
+    os << indent << "No Progress Method\n";
+    }
 
-  if ( this->EndMethod ) os << indent << "End Method defined\n";
-  else os << indent << "No End Method\n";
+  if ( this->EndMethod )
+    {
+    os << indent << "End Method defined\n";
+    }
+  else
+    {
+    os << indent << "No End Method\n";
+    }
 
   os << indent << "AbortExecute: " << (this->AbortExecute ? "On\n" : "Off\n");
   os << indent << "Progress: " << this->Progress << "\n";

@@ -78,7 +78,10 @@ tms     vtkTimerLog::CurrentCpuTicks;
 // Allocate timing table with MaxEntries elements.
 void vtkTimerLog::AllocateLog()
 {
-  if (vtkTimerLog::TimerLog != NULL) delete [] vtkTimerLog::TimerLog;
+  if (vtkTimerLog::TimerLog != NULL)
+    {
+    delete [] vtkTimerLog::TimerLog;
+    }
   vtkTimerLog::TimerLog = new vtkTimerLogEntry[vtkTimerLog::MaxEntries];
 }
 
@@ -119,7 +122,8 @@ void vtkTimerLog::MarkEvent(char *event)
   double time_diff;
   int ticks_diff;
 
-  strsize = (strlen(event)) > VTK_LOG_EVENT_LENGTH - 1 ? VTK_LOG_EVENT_LENGTH-1 : strlen(event);
+  strsize = (strlen(event)) > VTK_LOG_EVENT_LENGTH - 1
+    ? VTK_LOG_EVENT_LENGTH-1 : strlen(event);
 
   // If this the first event we're recording, allocate the
   // internal timing table and initialize WallTime and CpuTicks
@@ -138,11 +142,11 @@ void vtkTimerLog::MarkEvent(char *event)
     times(&FirstCpuTicks);
 #endif
     
-    TimerLog[0].WallTime = 0.0;
-    TimerLog[0].CpuTicks = 0;
-    strncpy(TimerLog[0].Event, event, strsize);
-    TimerLog[0].Event[strsize] = '\0';
-    NextEntry = 1;
+    vtkTimerLog::TimerLog[0].WallTime = 0.0;
+    vtkTimerLog::TimerLog[0].CpuTicks = 0;
+    strncpy(vtkTimerLog::TimerLog[0].Event, event, strsize);
+    vtkTimerLog::TimerLog[0].Event[strsize] = '\0';
+    vtkTimerLog::NextEntry = 1;
     return;
     }
   
@@ -151,30 +155,33 @@ void vtkTimerLog::MarkEvent(char *event)
   ::ftime( &(vtkTimerLog::CurrentWallTime) );
   time_diff  =  vtkTimerLog::CurrentWallTime.time - vtkTimerLog::FirstWallTime.time;
   time_diff += 
-    (vtkTimerLog::CurrentWallTime.millitm - vtkTimerLog::FirstWallTime.millitm) * scale;
+    (vtkTimerLog::CurrentWallTime.millitm
+     - vtkTimerLog::FirstWallTime.millitm) * scale;
   ticks_diff = 0;
 #else
   static double scale = 1.0/1000000.0;
   gettimeofday( &(vtkTimerLog::CurrentWallTime), NULL );
-  time_diff  =  vtkTimerLog::CurrentWallTime.tv_sec - vtkTimerLog::FirstWallTime.tv_sec;
+  time_diff  =  vtkTimerLog::CurrentWallTime.tv_sec
+    - vtkTimerLog::FirstWallTime.tv_sec;
   time_diff += 
-    (vtkTimerLog::CurrentWallTime.tv_usec - vtkTimerLog::FirstWallTime.tv_usec) * scale;
+    (vtkTimerLog::CurrentWallTime.tv_usec
+     - vtkTimerLog::FirstWallTime.tv_usec) * scale;
 
   times(&CurrentCpuTicks);
   ticks_diff = (CurrentCpuTicks.tms_utime + CurrentCpuTicks.tms_stime) -
                 (FirstCpuTicks.tms_utime + FirstCpuTicks.tms_stime);
 #endif
 
-  TimerLog[NextEntry].WallTime = (float)time_diff;
-  TimerLog[NextEntry].CpuTicks = ticks_diff;
-  strncpy(TimerLog[NextEntry].Event, event, strsize);
-  TimerLog[NextEntry].Event[strsize] = '\0';
+  vtkTimerLog::TimerLog[vtkTimerLog::NextEntry].WallTime = (float)time_diff;
+  vtkTimerLog::TimerLog[vtkTimerLog::NextEntry].CpuTicks = ticks_diff;
+  strncpy(vtkTimerLog::TimerLog[vtkTimerLog::NextEntry].Event, event, strsize);
+  vtkTimerLog::TimerLog[vtkTimerLog::NextEntry].Event[strsize] = '\0';
 
-  NextEntry++;
-  if (NextEntry == MaxEntries)
+  vtkTimerLog::NextEntry++;
+  if (vtkTimerLog::NextEntry == vtkTimerLog::MaxEntries)
     {
-    NextEntry = 0;
-    WrapFlag = 1;
+    vtkTimerLog::NextEntry = 0;
+    vtkTimerLog::WrapFlag = 1;
     }
 }
 
@@ -190,43 +197,57 @@ void vtkTimerLog::DumpLog(char *filename)
   os << " Entry   Wall Time (sec)  Delta   CPU Time (sec)  Delta  %CPU   Event\n";
   os << "----------------------------------------------------------------------\n";
   
-  if ( WrapFlag )
+  if ( vtkTimerLog::WrapFlag )
     {
-    DumpEntry(os, 0, TimerLog[NextEntry].WallTime, 0,
-              TimerLog[NextEntry].CpuTicks, 0, TimerLog[NextEntry].Event);
-    for (i=NextEntry+1; i<MaxEntries; i++)
+    vtkTimerLog::DumpEntry(os, 0,
+		    vtkTimerLog::TimerLog[vtkTimerLog::NextEntry].WallTime, 0,
+		    vtkTimerLog::TimerLog[vtkTimerLog::NextEntry].CpuTicks, 0,
+		    vtkTimerLog::TimerLog[vtkTimerLog::NextEntry].Event);
+    for (i=vtkTimerLog::NextEntry+1; i<vtkTimerLog::MaxEntries; i++)
       {
-      DumpEntry(os, i-NextEntry, TimerLog[i].WallTime,
-                TimerLog[i].WallTime - TimerLog[i-1].WallTime,
-                TimerLog[i].CpuTicks,
-                TimerLog[i].CpuTicks - TimerLog[i-1].CpuTicks,
-                TimerLog[i].Event);
+      vtkTimerLog::DumpEntry(os,
+		i-vtkTimerLog::NextEntry, vtkTimerLog::TimerLog[i].WallTime,
+		vtkTimerLog::TimerLog[i].WallTime
+		 - vtkTimerLog::TimerLog[i-1].WallTime,
+                vtkTimerLog::TimerLog[i].CpuTicks,
+		vtkTimerLog::TimerLog[i].CpuTicks
+		 - vtkTimerLog::TimerLog[i-1].CpuTicks,
+                vtkTimerLog::TimerLog[i].Event);
       }
-    DumpEntry(os, MaxEntries-NextEntry, TimerLog[0].WallTime,
-              TimerLog[0].WallTime - TimerLog[MaxEntries-1].WallTime,
-              TimerLog[0].CpuTicks,
-              TimerLog[0].CpuTicks - TimerLog[MaxEntries-1].CpuTicks,
-              TimerLog[0].Event);
-    for (i=1; i<NextEntry; i++)
+    vtkTimerLog::DumpEntry(os, vtkTimerLog::MaxEntries-vtkTimerLog::NextEntry,
+		    vtkTimerLog::TimerLog[0].WallTime,
+		    vtkTimerLog::TimerLog[0].WallTime
+	            -vtkTimerLog::TimerLog[vtkTimerLog::MaxEntries-1].WallTime,
+		    vtkTimerLog::TimerLog[0].CpuTicks,
+		    vtkTimerLog::TimerLog[0].CpuTicks
+		    -vtkTimerLog::TimerLog[vtkTimerLog::MaxEntries-1].CpuTicks,
+		    vtkTimerLog::TimerLog[0].Event);
+    for (i=1; i<vtkTimerLog::NextEntry; i++)
       {
-      DumpEntry(os, MaxEntries-NextEntry+i, TimerLog[i].WallTime,
-                TimerLog[i].WallTime - TimerLog[i-1].WallTime,
-                TimerLog[i].CpuTicks,
-                TimerLog[i].CpuTicks - TimerLog[i-1].CpuTicks,
-                TimerLog[i].Event);
+      vtkTimerLog::DumpEntry(os, vtkTimerLog::MaxEntries-vtkTimerLog::NextEntry+i,
+		      vtkTimerLog::TimerLog[i].WallTime,
+		      vtkTimerLog::TimerLog[i].WallTime
+		      - vtkTimerLog::TimerLog[i-1].WallTime,
+		      vtkTimerLog::TimerLog[i].CpuTicks,
+		      vtkTimerLog::TimerLog[i].CpuTicks
+		      - vtkTimerLog::TimerLog[i-1].CpuTicks,
+		      vtkTimerLog::TimerLog[i].Event);
       }
     }
   else
     {
-    DumpEntry(os, 0, TimerLog[0].WallTime, 0,
-              TimerLog[0].CpuTicks, 0, TimerLog[0].Event);
-    for (i=1; i<NextEntry; i++)
+    vtkTimerLog::DumpEntry(os, 0, vtkTimerLog::TimerLog[0].WallTime, 0,
+		    vtkTimerLog::TimerLog[0].CpuTicks, 0,
+		    vtkTimerLog::TimerLog[0].Event);
+    for (i=1; i<vtkTimerLog::NextEntry; i++)
       {
-      DumpEntry(os, i, TimerLog[i].WallTime,
-                TimerLog[i].WallTime - TimerLog[i-1].WallTime,
-                TimerLog[i].CpuTicks,
-                TimerLog[i].CpuTicks - TimerLog[i-1].CpuTicks,
-                TimerLog[i].Event);
+      vtkTimerLog::DumpEntry(os, i, vtkTimerLog::TimerLog[i].WallTime,
+		      vtkTimerLog::TimerLog[i].WallTime
+		      - vtkTimerLog::TimerLog[i-1].WallTime,
+		      vtkTimerLog::TimerLog[i].CpuTicks,
+		      vtkTimerLog::TimerLog[i].CpuTicks
+		      - vtkTimerLog::TimerLog[i-1].CpuTicks,
+		      vtkTimerLog::TimerLog[i].Event);
       }
     }
   
@@ -251,16 +272,16 @@ void vtkTimerLog::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Entry \tWall Time\tCpuTicks\tEvent\n";
   os << indent << "----------------------------------------------\n";
 
-  if ( WrapFlag )
+  if ( vtkTimerLog::WrapFlag )
     {
-    for (i=NextEntry; i<MaxEntries; i++)
+    for (i=vtkTimerLog::NextEntry; i<vtkTimerLog::MaxEntries; i++)
       {
       os << indent << i << "\t\t" << TimerLog[i].WallTime << "\t\t" << 
 	TimerLog[i].CpuTicks << "\t\t" << TimerLog[i].Event << "\n";
       }
     }
   
-  for (i=0; i<NextEntry; i++)
+  for (i=0; i<vtkTimerLog::NextEntry; i++)
     {
     os << indent << i << "\t\t" << TimerLog[i].WallTime << "\t\t" << 
       TimerLog[i].CpuTicks << "\t\t" << TimerLog[i].Event << "\n";
@@ -325,12 +346,16 @@ void vtkTimerLog::DumpEntry(ostream& os, int index, float time,
   os << index << "   "
      << time << "  "
      << deltatime << "   "
-     << (float)tick/TicksPerSecond << "  "
-     << (float)deltatick/TicksPerSecond << "  ";
+     << (float)tick/vtkTimerLog::TicksPerSecond << "  "
+     << (float)deltatick/vtkTimerLog::TicksPerSecond << "  ";
   if (deltatime == 0.0)
+    {
     os << "0.0   ";
+    }
   else
-    os << 100.0*deltatick/TicksPerSecond/deltatime << "   ";
+    {
+    os << 100.0*deltatick/vtkTimerLog::TicksPerSecond/deltatime << "   ";
+    }
   os << event << "\n";
 }
 

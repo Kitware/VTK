@@ -101,7 +101,10 @@ void vtkAssembly::Render(vtkRenderer *ren)
   for ( this->Paths->InitTraversal(); (path = this->Paths->GetNextItem()); )
     {
     actor = path->GetLastItem();
-    if ( actor->GetVisibility() ) actor->Render(ren);
+    if ( actor->GetVisibility() )
+      {
+      actor->Render(ren);
+      }
     }
 }
 
@@ -118,7 +121,7 @@ vtkActor *vtkAssembly::GetNextPart()
 {
   vtkActorCollection *path;
 
-  if ( (path = Paths->GetNextItem()) == NULL ) 
+  if ( (path = this->Paths->GetNextItem()) == NULL ) 
     {
     return NULL;
     }
@@ -225,7 +228,10 @@ void vtkAssembly::DeletePaths()
       {
       for ( path->InitTraversal(); (actor = path->GetNextItem()); )
         {
-        if ( actor->GetUserMatrix() ) actor->GetUserMatrix()->Delete();
+        if ( actor->GetUserMatrix() )
+	  {
+	  actor->GetUserMatrix()->Delete();
+	  }
         actor->Delete();
         }
       path->Delete();
@@ -322,8 +328,14 @@ float *vtkAssembly::GetBounds()
         {
         for (n = 0; n < 3; n++)
           {
-          if (bbox[i*3+n] < this->Bounds[n*2]) this->Bounds[n*2] = bbox[i*3+n];
-          if (bbox[i*3+n] > this->Bounds[n*2+1]) this->Bounds[n*2+1] = bbox[i*3+n];
+          if (bbox[i*3+n] < this->Bounds[n*2])
+	    {
+	    this->Bounds[n*2] = bbox[i*3+n];
+	    }
+          if (bbox[i*3+n] > this->Bounds[n*2+1])
+	    {
+	    this->Bounds[n*2+1] = bbox[i*3+n];
+	    }
           }
         }//for each point of box
       }//if mapper

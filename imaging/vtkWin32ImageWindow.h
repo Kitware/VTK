@@ -120,10 +120,10 @@ protected:
   // ###
   unsigned char *DIBPtr;	// the data in the DIBSection
   int SwapFlag;
-  HDC compatHdc;
-  HDC oldHdc;
+  HDC CompatHdc;
+  HDC OldHdc;
   HBITMAP BackBuffer;
-  BITMAPINFO dataHeader;
+  BITMAPINFO DataHeader;
 };
 
 #endif

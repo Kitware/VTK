@@ -137,16 +137,28 @@ vtkActor *vtkActor::New()
   char *temp = vtkRenderWindow::GetRenderLibrary();
   
 #ifdef VTK_USE_SBR
-  if (!strcmp("Starbase",temp)) return vtkStarbaseActor::New();
+  if (!strcmp("Starbase",temp))
+    {
+    return vtkStarbaseActor::New();
+    }
 #endif
 #ifdef VTK_USE_OGLR
-  if (!strcmp("OpenGL",temp)) return vtkOpenGLActor::New();
+  if (!strcmp("OpenGL",temp))
+    {
+    return vtkOpenGLActor::New();
+    }
 #endif
 #ifdef _WIN32
-  if (!strcmp("Win32OpenGL",temp)) return vtkOpenGLActor::New();
+  if (!strcmp("Win32OpenGL",temp))
+    {
+    return vtkOpenGLActor::New();
+    }
 #endif
 #ifdef VTK_USE_XGLR
-  if (!strcmp("XGL",temp)) return vtkXGLActor::New();
+  if (!strcmp("XGL",temp))
+    {
+    return vtkXGLActor::New();
+    }
 #endif
   
   return new vtkActor;
@@ -159,7 +171,10 @@ vtkActor *vtkActor::New()
 // side effect of this method is that the visualization network is updated.
 void vtkActor::Render(vtkRenderer *ren)
 {
-  if ( ! this->Mapper ) return;
+  if ( ! this->Mapper )
+    {
+    return;
+    }
 
   // render the property
   if (!this->Property)
@@ -176,7 +191,10 @@ void vtkActor::Render(vtkRenderer *ren)
     }
 
   // render the texture */
-  if (this->Texture) this->Texture->Render(ren);
+  if (this->Texture)
+    {
+    this->Texture->Render(ren);
+    }
 
   this->Render(ren,this->Mapper);
 }
@@ -354,9 +372,13 @@ float *vtkActor::GetBounds()
       for (n = 0; n < 3; n++)
 	{
 	if (bbox[i*3+n] < this->Bounds[n*2]) 
+	  {
 	  this->Bounds[n*2] = bbox[i*3+n];
+	  }
 	if (bbox[i*3+n] > this->Bounds[n*2+1]) 
+	  {
 	  this->Bounds[n*2+1] = bbox[i*3+n];
+	  }
 	}
       }
     this->BoundsMTime.Modified();
@@ -367,8 +389,14 @@ float *vtkActor::GetBounds()
 
 vtkActor *vtkActor::GetNextPart()
 {
-  if ( this->TraversalLocation++ == 0 ) return this;
-  else return NULL;
+  if ( this->TraversalLocation++ == 0 )
+    {
+    return this;
+    }
+  else
+    {
+    return NULL;
+    }
 }
 
 unsigned long int vtkActor::GetMTime()

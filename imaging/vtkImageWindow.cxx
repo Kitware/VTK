@@ -194,15 +194,18 @@ void vtkImageWindow::Render()
 
   if (numImagers == 0)
     {
-      vtkDebugMacro (<< "vtkImageWindow::Render - No imagers in collection");
-      return;
+    vtkDebugMacro (<< "vtkImageWindow::Render - No imagers in collection");
+    return;
     }
  
-  if (this->DoubleBuffer)  this->SwapBuffers();
+  if (this->DoubleBuffer)
+    {
+    this->SwapBuffers();
+    }
 
   if (this->Erase)
     {
-	this->EraseWindow();
+    this->EraseWindow();
     }
 
   // tell each of the imagers to render
@@ -212,7 +215,10 @@ void vtkImageWindow::Render()
     tempImager->Render(); 
     }
  
-  if (this->DoubleBuffer) this->SwapBuffers();
+  if (this->DoubleBuffer)
+    {
+    this->SwapBuffers();
+    }
 
   return;
 }

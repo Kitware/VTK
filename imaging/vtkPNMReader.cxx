@@ -134,7 +134,6 @@ void vtkPNMReader::UpdateImageInformation()
 
   // read max pixel value into comp for now
   comp = vtkPNMReaderGetInt(fp);
-
   // if file is ascii, any amount of whitespace may follow.
   // if file is binary, a single whitespace character will follow.
   // We only support binary ppm and pgm files right now.  So the next
@@ -155,7 +154,6 @@ void vtkPNMReader::UpdateImageInformation()
         }
      }
      
-  
   // Set the header size now that we have parsed it
   this->SetHeaderSize(ftell(fp));
 

@@ -95,8 +95,14 @@ protected:
 
 inline int vtkPointSet::GetNumberOfPoints()
 {
-  if (this->Points) return this->Points->GetNumberOfPoints();
-  else return 0;
+  if (this->Points)
+    {
+    return this->Points->GetNumberOfPoints();
+    }
+  else
+    {
+    return 0;
+    }
 }
 
 

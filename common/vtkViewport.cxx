@@ -300,7 +300,7 @@ void vtkViewport::SetEndRenderMethodArgDelete(void (*f)(void *))
 // Function will be called with argument provided.
 void vtkViewport::SetEndRenderMethod(void (*f)(void *), void *arg)
 {
-  if ( f != this->EndRenderMethod || arg != EndRenderMethodArg )
+  if ( f != this->EndRenderMethod || arg != this->EndRenderMethodArg )
     {
     // delete the current arg if there is one and a delete meth
     if ((this->EndRenderMethodArg)&&(this->EndRenderMethodArgDelete))

@@ -59,7 +59,10 @@ vtkScalars::vtkScalars(int dataType, int dim) : vtkAttributeData(dataType)
 
 vtkScalars::~vtkScalars()
 {
-  if ( this->LookupTable ) this->LookupTable->Delete();
+  if ( this->LookupTable )
+    {
+    this->LookupTable->Delete();
+    }
 }
 
 // Description:
@@ -122,8 +125,14 @@ void vtkScalars::ComputeRange()
     for (i=0; i<numScalars; i++)
       {
       s = this->GetScalar(i);
-      if ( s < this->Range[0] ) this->Range[0] = s;
-      if ( s > this->Range[1] ) this->Range[1] = s;
+      if ( s < this->Range[0] )
+	{
+	this->Range[0] = s;
+	}
+      if ( s > this->Range[1] )
+	{
+	this->Range[1] = s;
+	}
       }
 
     this->ComputeTime.Modified();
@@ -150,7 +159,10 @@ void vtkScalars::GetRange(float range[2])
 
 void vtkScalars::CreateDefaultLookupTable()
 {
-  if ( this->LookupTable ) this->LookupTable->UnRegister(this);
+  if ( this->LookupTable )
+    {
+    this->LookupTable->UnRegister(this);
+    }
   this->LookupTable = vtkLookupTable::New();
   // make sure it is built 
   // otherwise problems with InsertScalar trying to map through 
@@ -163,7 +175,10 @@ void vtkScalars::SetLookupTable(vtkLookupTable *lut)
 {
   if ( this->LookupTable != lut ) 
     {
-    if ( this->LookupTable ) this->LookupTable->UnRegister(this);
+    if ( this->LookupTable )
+      {
+      this->LookupTable->UnRegister(this);
+      }
     this->LookupTable = lut;
     this->LookupTable->Register(this);
     this->Modified();

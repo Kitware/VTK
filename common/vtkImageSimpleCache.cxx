@@ -136,7 +136,10 @@ void vtkImageSimpleCache::Update()
   this->GetUpdateExtent(updateExtentSave);
   this->Source->InterceptCacheUpdate();
   
-  if (this->CachedData) cachedExtent = this->CachedData->GetExtent();
+  if (this->CachedData)
+    {
+    cachedExtent = this->CachedData->GetExtent();
+    }
   
   // if cache doesn't have the necessary data.
   if (pipelineMTime > this->ExecuteTime || this->DataReleased ||

@@ -80,7 +80,10 @@ vtkClipVolume::~vtkClipVolume()
     this->Locator = NULL;
     }
   
-  if ( this->Mesh ) this->Mesh->Delete();
+  if ( this->Mesh )
+    {
+    this->Mesh->Delete();
+    }
   this->MeshLocator->UnRegister(this);
   this->Triangulator->Delete();
 }
@@ -146,14 +149,20 @@ void vtkClipVolume::Execute()
   input->GetOrigin(origin);
   input->GetSpacing(spacing);
   
-  for (dimension=3, i=0; i<3; i++) if ( dims[0] <= 1 ) dimension--;
+  for (dimension=3, i=0; i<3; i++)
+    {
+    if ( dims[0] <= 1 )
+      {
+      dimension--;
+      }
+    }
   if ( dimension < 3 )
     {
     vtkErrorMacro("This filter only clips 3D volume data");
     return;
     }
 
-  if ( !this->ClipFunction && GenerateClipScalars )
+  if ( !this->ClipFunction && this->GenerateClipScalars )
     {
     vtkErrorMacro(<<"Cannot generate clip scalars without clip function");
     return;
@@ -164,14 +173,20 @@ void vtkClipVolume::Execute()
   //
   estimatedSize = numCells;
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
-  if (estimatedSize < 1024) estimatedSize = 1024;
+  if (estimatedSize < 1024)
+    {
+    estimatedSize = 1024;
+    }
 
   newPoints = vtkPoints::New();
   newPoints->Allocate(estimatedSize/2,estimatedSize/2);
   output->Allocate(estimatedSize*2); //allocate storage for cells
 
   // locator used to merge potentially duplicate points
-  if ( this->Locator == NULL ) this->CreateDefaultLocator();
+  if ( this->Locator == NULL )
+    {
+    this->CreateDefaultLocator();
+    }
   this->Locator->InitPointInsertion (newPoints, input->GetBounds());
 
   // Determine whether we're clipping with input scalars or a clip function
@@ -183,7 +198,10 @@ void vtkClipVolume::Execute()
     inPD = vtkPointData::New();
     inPD->ShallowCopy(*(input->GetPointData()));
     //    inPD = new vtkPointData(*(input->GetPointData()));//copies original
-    if ( this->GenerateClipScalars ) inPD->SetScalars(tmpScalars);
+    if ( this->GenerateClipScalars )
+      {
+      inPD->SetScalars(tmpScalars);
+      }
     for ( i=0; i < numPts; i++ )
       {
       s = this->ClipFunction->FunctionValue(input->GetPoint(i));
@@ -231,13 +249,25 @@ void vtkClipVolume::Execute()
   // also controls the ordered Delaunay triangulation used in ClipVoxel().
   for ( iflip=0, k=0; k < numKCells; k++)
     {
-    if ( !(sliceSize % 2) && (k % 2) ) kflip = 1;
-    else kflip =0;
+    if ( !(sliceSize % 2) && (k % 2) )
+      {
+      kflip = 1;
+      }
+    else
+      {
+      kflip =0;
+      }
 
     for ( j=0; j < numJCells; j++)
       {
-      if ( !(numICells % 2) && (j % 2) ) jflip = 1;
-      else jflip =0;
+      if ( !(numICells % 2) && (j % 2) )
+	{
+	jflip = 1;
+	}
+      else
+	{
+	jflip =0;
+	}
       
       for ( i=0; i < numICells; i++, iflip = (iflip ? 0 : 1) )
         {
@@ -254,8 +284,14 @@ void vtkClipVolume::Execute()
           {
           s = clipScalars->GetScalar(cellIds->GetId(ii));
           cellScalars.SetScalar(ii, s);
-          if ( s >= value ) above = 1;
-          else if ( s < value ) below = 1;
+          if ( s >= value )
+	    {
+	    above = 1;
+	    }
+          else if ( s < value )
+	    {
+	    below = 1;
+	    }
           }
     
         // take into account inside/out flag
@@ -267,13 +303,19 @@ void vtkClipVolume::Execute()
         
         // see whether voxel is fully inside or outside
         if ( (above && !below) || 
-        (this->GenerateClippedOutput && (below && !above)) )
+	     (this->GenerateClippedOutput && (below && !above)) )
           {
           ((vtkVoxel *)cell)->Triangulate(flip, tetraIds, tetraPts);
           ntetra = tetraPts.GetNumberOfPoints() / 4;
 
-          if (above && !below) outputPtr = output;
-          else outputPtr = clippedOutput;
+          if (above && !below)
+	    {
+	    outputPtr = output;
+	    }
+          else
+	    {
+	    outputPtr = clippedOutput;
+	    }
 
           for (ii=0; ii<ntetra; ii++)
             {
@@ -444,9 +486,12 @@ void vtkClipVolume::ClipVoxel(float value, vtkScalars& cellScalars,
     }//for all edges
 
   // Begin classification of tetrahedra. First initialize in/out array.
-  numTetras = Mesh->GetNumberOfCells();
+  numTetras = this->Mesh->GetNumberOfCells();
   tetraUse = new char[numTetras];
-  for (i=0; i < numTetras; i++) tetraUse[i] = 1;
+  for (i=0; i < numTetras; i++)
+    {
+    tetraUse[i] = 1;
+    }
   for (i=0; i<holeTetras.GetNumberOfIds(); i++ )
     {
     tetraUse[holeTetras.GetId(i)] = 0;
@@ -455,7 +500,7 @@ void vtkClipVolume::ClipVoxel(float value, vtkScalars& cellScalars,
   // Delete tetras connected to Delaunay boundary points
   for (i=20; i < 26; i++)
     {
-    Mesh->GetPointCells(i, cells);
+    this->Mesh->GetPointCells(i, cells);
     numOutTetras = cells.GetNumberOfIds();
     for (j=0; j < numOutTetras; j++)
       {
@@ -483,21 +528,30 @@ void vtkClipVolume::ClipVoxel(float value, vtkScalars& cellScalars,
     {
     if ( tetraUse[i] ) //tetra not deleted
       {
-      Mesh->GetCellPoints(i, npts, pts);
+      this->Mesh->GetCellPoints(i, npts, pts);
 
       for (j=0; j<4; j++) //for each tetra point
         {
         if ( pts[j] < 8 ) //one of voxel corners
           {
           //when outside of contour value break out of loop
-          if ( cellScalars.GetScalar(pts[j]) < value ) break; 
+          if ( cellScalars.GetScalar(pts[j]) < value )
+	    {
+	    break;
+	    }
           }
         }
       
       if ( this->InsideOut )
         {
-        if (j >= 4) j = 0;
-        else j = 4;
+        if (j >= 4)
+	  {
+	  j = 0;
+	  }
+        else
+	  {
+	  j = 4;
+	  }
         }
       
       if ( j >= 4 || this->GenerateClippedOutput )

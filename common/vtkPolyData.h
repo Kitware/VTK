@@ -192,12 +192,14 @@ inline int vtkPolyData::IsTriangle(int v1, int v2, int v3)
       {
       this->GetCellPoints(cells[j], n2, tVerts2);
       if ( (tVerts[0] == tVerts2[0] || tVerts[0] == tVerts2[1] ||
-      tVerts[0] == tVerts2[2]) &&
-      (tVerts[1] == tVerts2[0] || tVerts[1] == tVerts2[1] ||
-      tVerts[1] == tVerts2[2]) &&
-      (tVerts[2] == tVerts2[0] || tVerts[2] == tVerts2[1] ||
-      tVerts[2] == tVerts2[2]) )
+	    tVerts[0] == tVerts2[2]) &&
+	   (tVerts[1] == tVerts2[0] || tVerts[1] == tVerts2[1] ||
+	    tVerts[1] == tVerts2[2]) &&
+	   (tVerts[2] == tVerts2[0] || tVerts[2] == tVerts2[1] ||
+	    tVerts[2] == tVerts2[2]) )
+	{
         return 1;
+	}
       }
     }
   return 0;
@@ -211,7 +213,12 @@ inline int vtkPolyData::IsPointUsedByCell(int ptId, int cellId)
   int npts, *pts;
   this->GetCellPoints(cellId, npts, pts);
   for (int i=0; i < npts; i++)
-    if ( pts[i] == ptId ) return 1;
+    {
+    if ( pts[i] == ptId )
+      {
+      return 1;
+      }
+    }
 
   return 0;
 }
@@ -226,7 +233,12 @@ inline int vtkPolyData::IsEdge(int p1, int p2)
 
   this->GetPointCells(p1,ncells,cells);
   for (i=0; i < ncells; i++)
-    if ( this->IsPointUsedByCell(p2,cells[i]) ) return 1;
+    {
+    if ( this->IsPointUsedByCell(p2,cells[i]) )
+      {
+      return 1;
+      }
+    }
 
   return 0;
 }
@@ -251,7 +263,9 @@ inline void vtkPolyData::RemoveCellReference(int cellId)
   int npts, *pts;
   this->GetCellPoints(cellId, npts, pts);
   for (int i=0; i<npts; i++)
-    this->Links->RemoveCellReference(cellId, pts[i]);  
+    {
+    this->Links->RemoveCellReference(cellId, pts[i]);
+    }
 }
 
 // Description:
@@ -264,7 +278,9 @@ inline void vtkPolyData::AddCellReference(int cellId)
   int npts, *pts;
   this->GetCellPoints(cellId, npts, pts);
   for (int i=0; i<npts; i++)
-    this->Links->AddCellReference(cellId, pts[i]);  
+    {
+    this->Links->AddCellReference(cellId, pts[i]);
+    }
 }
 
 // Description:

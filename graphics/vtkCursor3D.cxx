@@ -97,9 +97,9 @@ void vtkCursor3D::Execute()
     {
     for (i=0; i<3; i++)
       {
-      this->FocalPoint[i] = ModelBounds[2*i] + 
-             fmod((double)(this->FocalPoint[i]-ModelBounds[2*i]), 
-                  (double)(ModelBounds[2*i+1]-ModelBounds[2*i]));
+      this->FocalPoint[i] = this->ModelBounds[2*i] + 
+             fmod((double)(this->FocalPoint[i]-this->ModelBounds[2*i]), 
+                  (double)(this->ModelBounds[2*i+1]-this->ModelBounds[2*i]));
       }
     } 
   else 
@@ -107,9 +107,13 @@ void vtkCursor3D::Execute()
     for (i=0; i<3; i++)
       {
       if ( this->FocalPoint[i] < this->ModelBounds[2*i] )
+	{
         this->FocalPoint[i] = this->ModelBounds[2*i];
+	}
       if ( this->FocalPoint[i] > this->ModelBounds[2*i+1] )
+	{
         this->FocalPoint[i] = this->ModelBounds[2*i+1];
+	}
       }
     }
 //
@@ -152,10 +156,13 @@ void vtkCursor3D::Execute()
     newLines = new vtkCellArray;
     newLines->Allocate(newLines->EstimateSize(numLines,2));
     }
-  else return;
-//
-// Create axes
-//
+  else
+    {
+    return;
+    }
+  //
+  // Create axes
+  //
   if ( this->Axes ) 
     {
     x[0] = this->ModelBounds[0]; 
@@ -416,8 +423,12 @@ void vtkCursor3D::SetModelBounds(float xmin, float xmax, float ymin, float ymax,
     this->ModelBounds[4] = zmin; this->ModelBounds[5] = zmax; 
 
     for (int i=0; i<3; i++)
+      {
       if ( this->ModelBounds[2*i] > this->ModelBounds[2*i+1] )
-         this->ModelBounds[2*i] = this->ModelBounds[2*i+1];
+	{
+	this->ModelBounds[2*i] = this->ModelBounds[2*i+1];
+	}
+      }
     }
 }
 
@@ -431,22 +442,22 @@ void vtkCursor3D::SetModelBounds(float *bounds)
 // Turn every part of the 3D cursor on.
 void vtkCursor3D::AllOn()
 {
-  OutlineOn();
-  AxesOn();
-  XShadowsOn();
-  YShadowsOn();
-  ZShadowsOn();
+  this->OutlineOn();
+  this->AxesOn();
+  this->XShadowsOn();
+  this->YShadowsOn();
+  this->ZShadowsOn();
 }
 
 // Description:
 // Turn every part of the 3D cursor off.
 void vtkCursor3D::AllOff()
 {
-  OutlineOff();
-  AxesOff();
-  XShadowsOff();
-  YShadowsOff();
-  ZShadowsOff();
+  this->OutlineOff();
+  this->AxesOff();
+  this->XShadowsOff();
+  this->YShadowsOff();
+  this->ZShadowsOff();
 }
 
 void vtkCursor3D::PrintSelf(ostream& os, vtkIndent indent)

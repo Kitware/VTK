@@ -53,7 +53,10 @@ vtkVoidArray::vtkVoidArray()
 
 vtkVoidArray::~vtkVoidArray()
 {
-  if (this->Array) delete [] this->Array;
+  if (this->Array)
+    {
+    delete [] this->Array;
+    }
   delete [] this->Tuple;
 }
 
@@ -66,7 +69,10 @@ int vtkVoidArray::Allocate(const int sz, const int ext)
     delete [] this->Array;
 
     this->Size = ( sz > 0 ? sz : 1);
-    if ( (this->Array = new voidPtr[this->Size]) == NULL ) return 0;
+    if ( (this->Array = new voidPtr[this->Size]) == NULL )
+      {
+      return 0;
+      }
     }
 
   this->Extend = ( ext > 0 ? ext : 1);
@@ -125,11 +131,18 @@ void** vtkVoidArray::Resize(const int sz)
   void** newArray;
   int newSize;
 
-  if ( sz > this->Size ) newSize = this->Size + 
-    this->Extend*(((sz-this->Size)/this->Extend)+1);
+  if ( sz > this->Size )
+    {
+    newSize = this->Size + this->Extend*(((sz-this->Size)/this->Extend)+1);
+    }
   else if (sz == this->Size)
+    {
     return this->Array;
-  else newSize = sz;
+    }
+  else
+    {
+    newSize = sz;
+    }
 
   if ( (newArray = new voidPtr[newSize]) == NULL )
     { 

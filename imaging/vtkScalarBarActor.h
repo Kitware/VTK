@@ -134,14 +134,15 @@ public:
   
   // Description:
   // Control the orientation of the scalar bar.
-  vtkSetClampMacro(Orientation, int, VTK_ORIENT_HORIZONTAL, VTK_ORIENT_VERTICAL);
+  vtkSetClampMacro(Orientation,int,VTK_ORIENT_HORIZONTAL, VTK_ORIENT_VERTICAL);
   vtkGetMacro(Orientation, int);
-  void SetOrientationToHorizontal() {SetOrientation(VTK_ORIENT_HORIZONTAL);};
-  void SetOrientationToVertical() {SetOrientation(VTK_ORIENT_VERTICAL);};
+  void SetOrientationToHorizontal()
+       {this->SetOrientation(VTK_ORIENT_HORIZONTAL);};
+  void SetOrientationToVertical() {this->SetOrientation(VTK_ORIENT_VERTICAL);};
 
   // Description:
-  // Set/Get the suggested font size used to annotate the scalar bar. (Suggested
-  // because not all font sizes may be available.) Value is expressed in points.
+  // Set/Get suggested font size used to annotate the scalar bar. (Suggested
+  // because not all font sizes may be available.) Value is expressed in points
   vtkSetClampMacro(FontSize,int,0,VTK_LARGE_INTEGER);
   vtkGetMacro(FontSize,int);
 
@@ -170,9 +171,9 @@ public:
   // Times (VTK_TIMES).
   vtkSetMacro(FontFamily, int);
   vtkGetMacro(FontFamily, int);
-  void SetFontFamilyToArial() {SetFontFamily(VTK_ARIAL);};
-  void SetFontFamilyToCourier() {SetFontFamily(VTK_COURIER);};
-  void SetFontFamilyToTimes() {SetFontFamily(VTK_TIMES);};
+  void SetFontFamilyToArial() {this->SetFontFamily(VTK_ARIAL);};
+  void SetFontFamilyToCourier() {this->SetFontFamily(VTK_COURIER);};
+  void SetFontFamilyToTimes() {this->SetFontFamily(VTK_TIMES);};
 
   // Description:
   // Set/Get the format with which to print the labels on the scalar

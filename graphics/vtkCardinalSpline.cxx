@@ -65,17 +65,29 @@ float vtkCardinalSpline::Evaluate (float t)
   intervals = this->Intervals;
   coefficients = this->Coefficients;
 
-  if ( this->Closed ) size = size + 1;
+  if ( this->Closed )
+    {
+    size = size + 1;
+    }
 
   // clamp the function at both ends
-  if (t < intervals[0]) t = intervals[0];
-  if (t > intervals[size - 1]) t = intervals[size - 1];
+  if (t < intervals[0])
+    {
+    t = intervals[0];
+    }
+  if (t > intervals[size - 1])
+    {
+    t = intervals[size - 1];
+    }
 
   // find pointer to cubic spline coefficient
   for (i = 1; i < size; i++)
     {
     index = i - 1;
-    if (t < intervals[i]) break;
+    if (t < intervals[i])
+      {
+      break;
+      }
     }
 
   // calculate offset within interval
@@ -105,7 +117,10 @@ void vtkCardinalSpline::Compute ()
   // copy the independent variables. Note that if the spline
   // is closed the first and last point are assumed repeated -
   // so we add and extra point
-  if (this->Intervals) delete [] this->Intervals;
+  if (this->Intervals)
+    {
+    delete [] this->Intervals;
+    }
 
   if ( !this->Closed )
     {
@@ -120,7 +135,10 @@ void vtkCardinalSpline::Compute ()
     work = new float[size];
 
     // allocate memory for coefficients
-    if (this->Coefficients) delete [] this->Coefficients;
+    if (this->Coefficients)
+      {
+      delete [] this->Coefficients;
+      }
     this->Coefficients = new float [4 * size];
 
     // allocate memory for dependent variables
@@ -157,7 +175,10 @@ void vtkCardinalSpline::Compute ()
     work = new float[size];
 
     // allocate memory for coefficients
-    if (this->Coefficients) delete [] this->Coefficients;
+    if (this->Coefficients)
+      {
+      delete [] this->Coefficients;
+      }
     this->Coefficients = new float [4 * size];
 
     // allocate memory for dependent variables
