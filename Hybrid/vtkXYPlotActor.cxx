@@ -1439,15 +1439,15 @@ void vtkXYPlotActor::PlotToViewportCoordinate(vtkViewport *viewport,
 void vtkXYPlotActor::ViewportToPlotCoordinate(vtkViewport *viewport)
 {
   this->ViewportToPlotCoordinate(viewport, 
-                                 this->PlotCoordinate[0],
-                                 this->PlotCoordinate[1]);
+                                 this->ViewportCoordinate[0],
+                                 this->ViewportCoordinate[1]);
 }
 
 void vtkXYPlotActor::PlotToViewportCoordinate(vtkViewport *viewport)
 {
   this->PlotToViewportCoordinate(viewport, 
-                                 this->ViewportCoordinate[0],
-                                 this->ViewportCoordinate[1]);
+                                 this->PlotCoordinate[0],
+                                 this->PlotCoordinate[1]);
 }
 
 int vtkXYPlotActor::IsInPlot(vtkViewport *viewport, float u, float v)
