@@ -41,11 +41,14 @@
 
 
 // .NAME vtkTreeCompositer - Implements tree based compositing.
+//
 // .SECTION Description
 // vtkTreeCompositer operates in multiple processes.  Each compositer has 
-// a render window.  They use vtkMultiProcessControllers to comunicate 
+// a render window.  They use a vtkMultiProcessController to communicate 
 // the color and depth buffer to process 0's render window.
 // It will not handle transparency well.
+//
+// SECTION See Also
 // vtkCompositeManager.
 
 #ifndef __vtkTreeCompositer_h
