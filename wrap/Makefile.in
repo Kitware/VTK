@@ -62,6 +62,6 @@ vtkWrapJava: vtkParse.o $(srcdir)/vtkWrapJava.c
 
 #------------------------------------------------------------------------------
 clean: 
-	-rm -f *.o *.a vtkPrint vtkParseJava vtkWrapJava vtkWrapPython vtkWrapPythonInit vtkWrapTcl vtkWrapTclInit Makefile
+	-rm -f *.o *.a vtkPrint vtkParseJava vtkWrapJava vtkWrapPython vtkWrapPythonInit vtkWrapTcl vtkWrapTclInit
 
 
