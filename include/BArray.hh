@@ -39,21 +39,21 @@ public:
 
   // access/insertion methods
   int GetValue(const int id);
-  char *GetPtr(const int id);
+  unsigned char *GetPtr(const int id);
   vlBitArray &InsertValue(const int id, const int i);
   int InsertNextValue(const int i);
 
   // special operators
   vlBitArray &operator=(const vlBitArray& ia);
   vlBitArray &operator+=(const vlBitArray& ia);
-  void operator+=(const char i) {this->InsertNextValue(i);};
+  void operator+=(const char i);
   vlBitArray &SetValue(const int id, const int i);
 
   // miscellaneous methods
   void Squeeze();
   int GetSize();
   int GetMaxId();
-  char *GetArray();
+  unsigned char *GetArray();
   void Reset();
 
 private:
@@ -61,19 +61,12 @@ private:
   int Size;       // allocated size of data
   int MaxId;     // maximum index inserted thus iar
   int Extend;     // grow array by this point
-  char *Resize(const int sz);  // function to resize data
-};
-
-// Description:
-// Get the data at a particular index.
-inline int vlBitArray::GetValue(const int id) 
-{
-  if (this->Array[id/8]&(0x80 >> (id%8))) return 1; return 0;
+  unsigned char *Resize(const int sz);  // function to resize data
 };
 
 // Description:
 // Get the address of a particular data index.
-inline char *vlBitArray::GetPtr(const int id) 
+inline unsigned char *vlBitArray::GetPtr(const int id) 
 {
   return this->Array + id/8;
 };
@@ -107,6 +100,10 @@ inline int vlBitArray::InsertNextValue(const int i)
 {
   this->InsertValue (++this->MaxId,i); return this->MaxId;
 }
+void vlBitArray::operator+=(const char i) 
+{
+  this->InsertNextValue(i);
+}
 
 // Description:
 // Resize object to just fit data requirement. Reclaims extra memory.
@@ -123,7 +120,7 @@ inline int vlBitArray::GetMaxId() {return this->MaxId;}
 // Description:
 // Get the pointer to the array. Useful for interfacing to C or 
 // FORTRAN routines.
-inline char *vlBitArray::GetArray() {return this->Array;}
+inline unsigned char *vlBitArray::GetArray() {return this->Array;}
 
 // Description:
 // Reuse the memory allocated by this object. Objects appears like
