@@ -48,13 +48,25 @@ public:
                        vtkGenericDataSetToUnstructuredGridFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description
+  // Turn on/off generation of a cell centered attribute with ids of the
+  // original cells (as an input cell is tessellated into several linear
+  // cells).
+  // The name of the data array is "OriginalIds". It is true by default.
+  vtkSetMacro(KeepCellIds, int);
+  vtkGetMacro(KeepCellIds, int);
+  vtkBooleanMacro(KeepCellIds, int);
+  
 protected:
   vtkGenericDataSetTessellator();
   ~vtkGenericDataSetTessellator();
 
   void Execute();
   
-// Used internal by vtkGenericAdaptorCell::Tessellate()
+  // See Set/Get KeepCellIds() for explanations.
+  int KeepCellIds;
+  
+  // Used internal by vtkGenericAdaptorCell::Tessellate()
   vtkPointData *internalPD;
   
 private:

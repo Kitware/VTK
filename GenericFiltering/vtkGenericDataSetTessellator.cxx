@@ -31,7 +31,7 @@
 #include "vtkCellData.h"
 #include "vtkGenericCellTessellator.h"
 
-vtkCxxRevisionMacro(vtkGenericDataSetTessellator, "1.7");
+vtkCxxRevisionMacro(vtkGenericDataSetTessellator, "1.8");
 vtkStandardNewMacro(vtkGenericDataSetTessellator);
 
 //----------------------------------------------------------------------------
@@ -39,6 +39,7 @@ vtkStandardNewMacro(vtkGenericDataSetTessellator);
 vtkGenericDataSetTessellator::vtkGenericDataSetTessellator()
 {
   this->internalPD=vtkPointData::New();
+  this->KeepCellIds = 1;
 }
 
 //----------------------------------------------------------------------------
@@ -123,6 +124,14 @@ void vtkGenericDataSetTessellator::Execute()
     ++i;
     }
   
+  vtkIdTypeArray *cellIdArray;
+  
+  if(this->KeepCellIds)
+    {
+    cellIdArray=vtkIdTypeArray::New();
+    cellIdArray->SetName("OriginalIds");
+    }
+  
   vtkGenericCellIterator *cellIt = input->NewCellIterator();
   vtkIdType updateCount = numCells/20 + 1;  // update roughly every 5%
   vtkIdType count = 0;
@@ -136,18 +145,28 @@ void vtkGenericDataSetTessellator::Execute()
       this->UpdateProgress((double)count / numCells);
       abortExecute = this->GetAbortExecute();
       }
-
+      
     cell = cellIt->GetCell();
     cell->Tessellate(input->GetAttributes(), input->GetTessellator(),
-                     newPts, conn, this->internalPD, outputPD, outputCD);
-
+                     newPts, conn, this->internalPD, outputPD, outputCD);    
     numNew = conn->GetNumberOfCells() - numInserted;
     numInserted = conn->GetNumberOfCells();
+    
+    vtkIdType cellId=cell->GetId();
+    
+    if(this->KeepCellIds)
+      {
+      for(i=0;i<numNew;i++)
+        {
+        cellIdArray->InsertNextValue(cellId);
+        }
+      }
     
     for (i=0; i < numNew; i++) 
       {
       locs->InsertNextValue(conn->GetTraversalLocation());
       conn->GetNextCell(npts,pts); //side effect updates traversal location
+     
       switch (cell->GetDimension())
         {
         case 1:
@@ -167,6 +186,13 @@ void vtkGenericDataSetTessellator::Execute()
   cellIt->Delete();
   
   // Send to the output
+  if(this->KeepCellIds)
+    {
+    outputCD->AddArray(cellIdArray);
+    cellIdArray->Delete();
+    }
+  
+  
   output->SetPoints(newPts);
   output->SetCells(types, locs, conn);
 
@@ -188,4 +214,13 @@ void vtkGenericDataSetTessellator::Execute()
 void vtkGenericDataSetTessellator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << indent << "keep cells ids=";
+  if(this->KeepCellIds)
+    {
+    os << "true" << endl;
+    }
+  else
+    {
+    os << "false" << endl;
+    }
 }
