@@ -119,7 +119,7 @@ void vtkLinearExtrusionFilter::Execute()
   vtkPolyData *mesh;
   vtkPoints *inPts;
   vtkCellArray *inVerts, *inLines, *inPolys, *inStrips;
-  vtkIdType cellId;
+  vtkIdType inCellId, outCellId;
   int numEdges, dim;
   vtkIdType *pts, npts, ptId, ncells, p1, p2;
   int i, j;
@@ -130,7 +130,11 @@ void vtkLinearExtrusionFilter::Execute()
   vtkIdList *cellIds, *cellPts;
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
-  
+  // Here is a big pain about ordering of cells. (Copy CellData)
+  vtkIdList *lineIds;
+  vtkIdList *polyIds;
+  vtkIdList *stripIds;
+
   // Initialize / check input
   //
   vtkDebugMacro(<<"Linearly extruding data");
@@ -187,6 +191,10 @@ void vtkLinearExtrusionFilter::Execute()
   // is modified. Copy all points - this is the usual requirement and it makes
   // creation of skirt much easier.
   //
+  output->GetCellData()->CopyNormalsOff();
+  output->GetCellData()->CopyAllocate(input->GetCellData(),
+                                      3*input->GetNumberOfCells());
+
   outputPD->CopyNormalsOff();
   outputPD->CopyAllocate(pd,2*numPts);
   newPts = vtkPoints::New(); newPts->SetNumberOfPoints(2*numPts);
@@ -220,6 +228,25 @@ void vtkLinearExtrusionFilter::Execute()
     outputPD->CopyData(pd,ptId,ptId);
     outputPD->CopyData(pd,ptId,ptId+numPts);
     }
+  
+  // We need the cellid to copy cell data. Skip points and lines.
+  inCellId = outCellId =0;
+  if (input->GetVerts())
+    {
+    inCellId += input->GetVerts()->GetNumberOfCells();
+    }
+  if (input->GetLines())
+    {
+    inCellId += input->GetLines()->GetNumberOfCells();
+    }
+  // We need to keep track of input cell ids used to generate
+  // output cells so that we can copy cell data at the end.
+  // We do not know how many lines, polys and strips we will get
+  // before hand.
+  lineIds = vtkIdList::New();
+  polyIds = vtkIdList::New();
+  stripIds = vtkIdList::New();
+
 
   // If capping is on, copy 2D cells to output (plus create cap)
   //
@@ -232,11 +259,14 @@ void vtkLinearExtrusionFilter::Execute()
       for ( inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); )
         {
         newPolys->InsertNextCell(npts,pts);
+        polyIds->InsertNextId(inCellId);
         newPolys->InsertNextCell(npts);
         for (i=0; i < npts; i++)
 	  {
           newPolys->InsertCellPoint(pts[i] + numPts);
 	  }
+        polyIds->InsertNextId(inCellId);
+        ++inCellId;
         }
       }
     
@@ -245,11 +275,14 @@ void vtkLinearExtrusionFilter::Execute()
       for ( inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); )
         {
         newStrips->InsertNextCell(npts,pts);
+        stripIds->InsertNextId(inCellId);
         newStrips->InsertNextCell(npts);
         for (i=0; i < npts; i++)
 	  {
           newStrips->InsertCellPoint(pts[i] + numPts);
 	  }
+        stripIds->InsertNextId(inCellId);
+        ++inCellId;
         }
       }
     }
@@ -260,15 +293,15 @@ void vtkLinearExtrusionFilter::Execute()
   //
   progressInterval=numCells/10+1;
   vtkGenericCell *cell = vtkGenericCell::New();
-  for ( cellId=0; cellId < numCells && !abort; cellId++)
+  for ( inCellId=0; inCellId < numCells && !abort; inCellId++)
     {
-    if ( ! (cellId % progressInterval) ) //manage progress / early abort
+    if ( ! (inCellId % progressInterval) ) //manage progress / early abort
       {
-      this->UpdateProgress (0.4 + 0.6*cellId/numCells);
+      this->UpdateProgress (0.4 + 0.6*inCellId/numCells);
       abort = this->GetAbortExecute();
       }
 
-    mesh->GetCell(cellId,cell);
+    mesh->GetCell(inCellId,cell);
     cellPts = cell->GetPointIds();
 
     if ( (dim=cell->GetCellDimension()) == 0 ) //create lines from points
@@ -279,6 +312,7 @@ void vtkLinearExtrusionFilter::Execute()
         ptId = cellPts->GetId(i);
         newLines->InsertCellPoint(ptId);
         newLines->InsertCellPoint(ptId+numPts);
+        lineIds->InsertNextId(inCellId);
         }
       }
 
@@ -293,6 +327,7 @@ void vtkLinearExtrusionFilter::Execute()
         newStrips->InsertCellPoint(p2);
         newStrips->InsertCellPoint(p1+numPts);
         newStrips->InsertCellPoint(p2+numPts);
+        stripIds->InsertNextId(inCellId);
         }
       }
 
@@ -306,7 +341,7 @@ void vtkLinearExtrusionFilter::Execute()
           {
           p1 = edge->PointIds->GetId(j);
           p2 = edge->PointIds->GetId(j+1);
-          mesh->GetCellEdgeNeighbors(cellId, p1, p2, cellIds);
+          mesh->GetCellEdgeNeighbors(inCellId, p1, p2, cellIds);
 
           if ( cellIds->GetNumberOfIds() < 1 ) //generate strip
             {
@@ -315,12 +350,44 @@ void vtkLinearExtrusionFilter::Execute()
             newStrips->InsertCellPoint(p2);
             newStrips->InsertCellPoint(p1+numPts);
             newStrips->InsertCellPoint(p2+numPts);
+            stripIds->InsertNextId(inCellId);
             }
           } //for each sub-edge
         } //for each edge
       } //for each polygon or triangle strip
     } //for each cell
   cell->Delete();
+
+  // Now Copy cell data.
+  outCellId = 0;
+  j = lineIds->GetNumberOfIds();
+  for (i = 0; i < j; ++i)
+    {
+    output->GetCellData()->CopyData(input->GetCellData(),
+                                    lineIds->GetId(i),outCellId);
+    ++outCellId;
+    }
+  j = stripIds->GetNumberOfIds();
+  for (i = 0; i < j; ++i)
+    {
+    output->GetCellData()->CopyData(input->GetCellData(),
+                                    stripIds->GetId(i),outCellId);
+    ++outCellId;
+    }
+  j = polyIds->GetNumberOfIds();
+  for (i = 0; i < j; ++i)
+    {
+    output->GetCellData()->CopyData(input->GetCellData(),
+                                    polyIds->GetId(i),outCellId);
+    ++outCellId;
+    }
+  lineIds->Delete();
+  lineIds = NULL;
+  stripIds->Delete();
+  stripIds = NULL;
+  polyIds->Delete();
+  polyIds = NULL;
+
 
   // Send data to output and release memory
   //
