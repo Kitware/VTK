@@ -68,67 +68,6 @@ struct EmbeddedFontStruct
   unsigned char *ptr;
 };
 
-// Fonts, organized by [Family][Bold][Italic]
- 
-static EmbeddedFontStruct EmbeddedFonts[3][2][2] = 
-{
-  {
-    {
-      { // VTK_ARIAL: Bold [ ] Italic [ ]
-        
-        face_arial_buffer_length, face_arial_buffer
-      },
-      { // VTK_ARIAL: Bold [ ] Italic [x]
-        face_arial_italic_buffer_length, face_arial_italic_buffer
-      }
-    },
-    {
-      { // VTK_ARIAL: Bold [x] Italic [ ]
-        face_arial_bold_buffer_length, face_arial_bold_buffer
-      },
-      { // VTK_ARIAL: Bold [x] Italic [x]
-        face_arial_bold_italic_buffer_length, face_arial_bold_italic_buffer
-      }
-    }
-  },
-  {
-    {
-      { // VTK_COURIER: Bold [ ] Italic [ ]
-        face_courier_buffer_length, face_courier_buffer
-      },
-      { // VTK_COURIER: Bold [ ] Italic [x]
-        face_courier_italic_buffer_length, face_courier_italic_buffer
-      }
-    },
-    {
-      { // VTK_COURIER: Bold [x] Italic [ ]
-        face_courier_bold_buffer_length, face_courier_bold_buffer
-      },
-      { // VTK_COURIER: Bold [x] Italic [x]
-        face_courier_bold_italic_buffer_length, face_courier_bold_italic_buffer
-      }
-    }
-  },
-  {
-    {
-      { // VTK_TIMES: Bold [ ] Italic [ ]
-        face_times_buffer_length, face_times_buffer
-      },
-      { // VTK_TIMES: Bold [ ] Italic [x]
-        face_times_italic_buffer_length, face_times_italic_buffer
-      }
-    },
-    {
-      { // VTK_TIMES: Bold [x] Italic [ ]
-        face_times_bold_buffer_length, face_times_bold_buffer
-      },
-      { // VTK_TIMES: Bold [x] Italic [x]
-        face_times_bold_italic_buffer_length, face_times_bold_italic_buffer
-      }
-    }
-  }
-};
-
 //----------------------------------------------------------------------------
 // Is antialiasing requested by a text prop
 
@@ -304,16 +243,16 @@ void vtkFontCache::PrintEntry(int i, char *msg)
     return;
     }
 
-    printf("%s: [%2d] =", msg, i);
+  printf("%s: [%2d] =", msg, i);
 
-    printf(" [S: %2d]", this->Entries[i]->FontSize);
+  printf(" [S: %2d]", this->Entries[i]->FontSize);
 
 #if VTK_FTTM_CACHE_BY_RGBA
-    printf(" [RGBA: %2X/%2X/%2X (%2X)]", 
-           this->Entries[i]->Red, 
-           this->Entries[i]->Green, 
-           this->Entries[i]->Blue, 
-           this->Entries[i]->Alpha);
+  printf(" [RGBA: %2X/%2X/%2X (%2X)]", 
+         this->Entries[i]->Red, 
+         this->Entries[i]->Green, 
+         this->Entries[i]->Blue, 
+         this->Entries[i]->Alpha);
 #endif
 
   if (this->Entries[i]->FaceFileName)
@@ -524,8 +463,71 @@ vtkFontCache::Entry* vtkFontCache::GetFont(vtkTextProperty *tprop,
     }
   else
     {
+    // Fonts, organized by [Family][Bold][Italic]
+    
+    static EmbeddedFontStruct EmbeddedFonts[3][2][2] = 
+    {
+      {
+        {
+          { // VTK_ARIAL: Bold [ ] Italic [ ]
+        
+            face_arial_buffer_length, face_arial_buffer
+          },
+          { // VTK_ARIAL: Bold [ ] Italic [x]
+            face_arial_italic_buffer_length, face_arial_italic_buffer
+          }
+        },
+        {
+          { // VTK_ARIAL: Bold [x] Italic [ ]
+            face_arial_bold_buffer_length, face_arial_bold_buffer
+          },
+          { // VTK_ARIAL: Bold [x] Italic [x]
+            face_arial_bold_italic_buffer_length, face_arial_bold_italic_buffer
+          }
+        }
+      },
+      {
+        {
+          { // VTK_COURIER: Bold [ ] Italic [ ]
+            face_courier_buffer_length, face_courier_buffer
+          },
+          { // VTK_COURIER: Bold [ ] Italic [x]
+            face_courier_italic_buffer_length, face_courier_italic_buffer
+          }
+        },
+        {
+          { // VTK_COURIER: Bold [x] Italic [ ]
+            face_courier_bold_buffer_length, face_courier_bold_buffer
+          },
+          { // VTK_COURIER: Bold [x] Italic [x]
+            face_courier_bold_italic_buffer_length, 
+            face_courier_bold_italic_buffer
+          }
+        }
+      },
+      {
+        {
+          { // VTK_TIMES: Bold [ ] Italic [ ]
+            face_times_buffer_length, face_times_buffer
+          },
+          { // VTK_TIMES: Bold [ ] Italic [x]
+            face_times_italic_buffer_length, face_times_italic_buffer
+          }
+        },
+        {
+          { // VTK_TIMES: Bold [x] Italic [ ]
+            face_times_bold_buffer_length, face_times_bold_buffer
+          },
+          { // VTK_TIMES: Bold [x] Italic [x]
+            face_times_bold_italic_buffer_length, face_times_bold_italic_buffer
+          }
+        }
+      }
+    };
+    
     size_t length = EmbeddedFonts[tprop->GetFontFamily()][tprop->GetBold()][tprop->GetItalic()].length;
     unsigned char *ptr = EmbeddedFonts[tprop->GetFontFamily()][tprop->GetBold()][tprop->GetItalic()].ptr;
+
     if (!font->Open(ptr, length, false))
       {
       vtkErrorWithObjectMacro(tprop,<< "Unable to create font !" << " (family: " <<  tprop->GetFontFamily() << ", bold: " << tprop->GetBold() << ", italic: " << tprop->GetItalic() << ", length: " << length << ")");
@@ -612,7 +614,7 @@ vtkFontCache::Entry* vtkFontCache::GetFont(vtkTextProperty *tprop,
 }
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.20");
+vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.21");
 vtkStandardNewMacro(vtkOpenGLFreeTypeTextMapper);
 
 //----------------------------------------------------------------------------
