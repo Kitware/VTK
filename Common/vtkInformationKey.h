@@ -29,7 +29,7 @@
 #include "vtkObjectBase.h"
 #include "vtkObject.h" // Need vtkTypeRevisionMacro
 
-class VTK_EXPORT vtkInformationKey : public vtkObjectBase
+class VTK_COMMON_EXPORT vtkInformationKey : public vtkObjectBase
 {
 public:
   vtkTypeRevisionMacro(vtkInformationKey,vtkObjectBase);

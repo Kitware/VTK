@@ -29,7 +29,7 @@
 class vtkInformation;
 class vtkInformationVectorInternals;
 
-class VTK_EXPORT vtkInformationVector : public vtkObject
+class VTK_COMMON_EXPORT vtkInformationVector : public vtkObject
 {
 public:
   static vtkInformationVector *New();

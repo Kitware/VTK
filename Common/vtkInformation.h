@@ -40,7 +40,7 @@ class vtkInformationKeyVectorKey;
 class vtkInformationStringKey;
 class vtkInformationVector;
 
-class VTK_EXPORT vtkInformation : public vtkObject
+class VTK_COMMON_EXPORT vtkInformation : public vtkObject
 {
 public:
   static vtkInformation *New();

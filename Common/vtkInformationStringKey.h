@@ -22,7 +22,7 @@
 
 #include "vtkInformationKey.h"
 
-class VTK_EXPORT vtkInformationStringKey : public vtkInformationKey
+class VTK_COMMON_EXPORT vtkInformationStringKey : public vtkInformationKey
 {
 public:
   vtkTypeRevisionMacro(vtkInformationStringKey,vtkInformationKey);
