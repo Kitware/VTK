@@ -77,6 +77,7 @@ public:
   int InvertMatrix(double **A, double **AI, int size);
   int LUFactorLinearSystem(double **A, int *index, int size);
   void LUSolveLinearSystem(double **A, int *index, double *x, int size);
+  double EstimateMatrixCondition(double **A, int size);
 
   // Random number generation
   void RandomSeed(long s);  

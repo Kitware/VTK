@@ -42,6 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdlib.h>
 #include <iostream.h>
 #include "vtkMath.hh"
+#include "vtkSetGet.hh"
 
 long vtkMath::Seed = 1177; // One authors home address
 
@@ -96,7 +97,7 @@ void vtkMath::Cross(float x[3], float y[3], float z[3])
   z[0] = Zx; z[1] = Zy; z[2] = Zz; 
 }
 
-#define SMALL_NUMBER 1.0e-12
+#define VTK_SMALL_NUMBER 1.0e-12
 
 // Description:
 // Solve linear equations Ax = b using Crout's method. Input is square matrix A
@@ -254,7 +255,7 @@ int vtkMath::LUFactorLinearSystem(double **A, int *index, int size)
 //
     index[j] = maxI;
 
-    if ( fabs(A[j][j]) <= SMALL_NUMBER ) return 0;
+    if ( fabs(A[j][j]) <= VTK_SMALL_NUMBER ) return 0;
 
     if ( j != (size-1) ) 
       {
@@ -310,12 +311,12 @@ void vtkMath::LUSolveLinearSystem(double **A, int *index, double *x, int size)
     }
 }
 
-#undef SMALL_NUMBER
+#undef VTK_SMALL_NUMBER
 
-#define ROTATE(a,i,j,k,l) g=a[i][j];h=a[k][l];a[i][j]=g-s*(h+g*tau);\
+#define VTK_ROTATE(a,i,j,k,l) g=a[i][j];h=a[k][l];a[i][j]=g-s*(h+g*tau);\
         a[k][l]=h+s*(g-h*tau);
 
-#define MAX_ROTATIONS 20
+#define VTK_MAX_ROTATIONS 20
 
 // Description:
 // Jacobi iteration for the solution of eigenvectors/eigenvalues of a 3x3
@@ -341,7 +342,7 @@ int vtkMath::Jacobi(float **a, float *w, float **v)
     }
 
   // begin rotation sequence
-  for (i=0; i<MAX_ROTATIONS; i++) 
+  for (i=0; i<VTK_MAX_ROTATIONS; i++) 
     {
     sm = 0.0;
     for (ip=0; ip<2; ip++) 
@@ -384,19 +385,19 @@ int vtkMath::Jacobi(float **a, float *w, float **v)
           a[ip][iq]=0.0;
           for (j=0;j<ip-1;j++) 
             {
-            ROTATE(a,j,ip,j,iq)
+            VTK_ROTATE(a,j,ip,j,iq)
             }
           for (j=ip+1;j<iq-1;j++) 
             {
-            ROTATE(a,ip,j,j,iq)
+            VTK_ROTATE(a,ip,j,j,iq)
             }
           for (j=iq+1; j<3; j++) 
             {
-            ROTATE(a,ip,j,iq,j)
+            VTK_ROTATE(a,ip,j,iq,j)
             }
           for (j=0; j<3; j++) 
             {
-            ROTATE(v,j,ip,j,iq)
+            VTK_ROTATE(v,j,ip,j,iq)
             }
           }
         }
@@ -410,7 +411,7 @@ int vtkMath::Jacobi(float **a, float *w, float **v)
       }
     }
 
-  if ( i >= MAX_ROTATIONS )
+  if ( i >= VTK_MAX_ROTATIONS )
     {
     cerr << "vtkMath::Jacobi: Error extracting eigenfunctions\n";
     return 0;
@@ -453,5 +454,37 @@ int vtkMath::Jacobi(float **a, float *w, float **v)
 
   return 1;
 }
-#undef ROTATE
-#undef MAX_ROTATIONS
+#undef VTK_ROTATE
+#undef VTK_MAX_ROTATIONS
+
+// Description:
+// Estimate the condition number of a LU factored matrix. Used to judge the
+// accuracy of the solution. The matrix A must have been previously factored
+// using the method LUFactorLinearSystem. The condition number is the ratio
+// of the infinity matrix norm (i.e., maximum value of matrix component)
+// divided by the minimum diagonal value. (This works for triangular matrices
+// only: see Conte and de Boor, Elementary Numerical Analysis.)
+double vtkMath::EstimateMatrixCondition(double **A, int size)
+{
+  int i, j;
+  double min=VTK_LARGE_FLOAT, max=(-VTK_LARGE_FLOAT);
+
+  // find the maximum value
+  for (i=0; i < size; i++)
+    {
+    for (j=i; j < size; j++)
+      {
+      if ( fabs(A[i][j]) > max ) max = fabs(A[i][j]);
+      }
+    }
+
+  // find the minimum diagonal value
+  for (i=0; i < size; i++)
+    {
+    if ( fabs(A[i][i]) < min ) min = fabs(A[i][j]);
+    }
+
+  if ( min == 0.0 ) return VTK_LARGE_FLOAT;
+  else return (max/min);
+}
+
