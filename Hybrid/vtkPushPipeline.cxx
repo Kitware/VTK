@@ -103,7 +103,7 @@ public:
   vtkPushPipeline *PushPipeline;
 };
 
-vtkCxxRevisionMacro(vtkPushPipeline, "1.6");
+vtkCxxRevisionMacro(vtkPushPipeline, "1.7");
 vtkStandardNewMacro(vtkPushPipeline);
 
 vtkPushPipeline::vtkPushPipeline()
@@ -284,15 +284,12 @@ void vtkPushPipeline::Trace(vtkProcessObject *po)
     int numOut = src->GetNumberOfOutputs();
     vtkDataObject **outs = src->GetOutputs();
     int i;
-    if (numOut)
-      {
-      src->UpdateInformation();
-      outs[0]->SetUpdateExtent(outs[0]->GetWholeExtent());
-      }
+    src->UpdateInformation();
     for (i = 0; i < numOut; i++)
       {
       if (outs[i])
         {
+        outs[i]->SetUpdateExtent(outs[i]->GetWholeExtent());
         this->Trace(outs[i]);
         }
       }
