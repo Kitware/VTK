@@ -123,6 +123,8 @@ vtkImageData::~vtkImageData()
   this->Line->Delete();
   this->Pixel->Delete();
   this->Voxel->Delete();
+  
+  this->SetExtentTranslator(NULL);
 }
 
 //----------------------------------------------------------------------------
