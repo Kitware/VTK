@@ -73,9 +73,9 @@ public:
   // is required by all subclasses; the other methods are provided as
   // convenience methods.
   virtual void PlaceWidget(float bounds[6]) = 0;
-  void PlaceWidget();
-  void PlaceWidget(float xmin, float xmax, float ymin, float ymax, 
-                   float zmin, float zmax);
+  virtual void PlaceWidget();
+  virtual void PlaceWidget(float xmin, float xmax, float ymin, float ymax, 
+                           float zmin, float zmax);
 
   // Description:
   // Specify a vtkProp3D around which to place the widget. This 
