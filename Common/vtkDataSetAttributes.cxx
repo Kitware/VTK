@@ -29,7 +29,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataSetAttributes, "1.73");
+vtkCxxRevisionMacro(vtkDataSetAttributes, "1.74");
 vtkStandardNewMacro(vtkDataSetAttributes);
 
 //--------------------------------------------------------------------------
@@ -237,8 +237,9 @@ vtkFieldData::BasicIterator  vtkDataSetAttributes::ComputeRequiredArrays(
   for(int attributeType=0; attributeType<NUM_ATTRIBUTES; attributeType++)
     {
     index = pd->AttributeIndices[attributeType];
+    int flag = this->GetFlag(pd->GetArrayName(index));
     // If this attribute is to be copied
-    if (this->CopyAttributeFlags[attributeType])
+    if (this->CopyAttributeFlags[attributeType] && flag)
       {
       // Find out if it is also in the list of fields to be copied
       if (pd->GetArray(index))
