@@ -303,7 +303,7 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
       propCandidate = path->GetLastNode()->GetProp();
       if ( propCandidate->GetPickable() && propCandidate->GetVisibility() )
         {
-	pickable = 1;
+        pickable = 1;
         if ( (actor=vtkActor::SafeDownCast(propCandidate)) != NULL )
           {
           mapper = actor->GetMapper();
@@ -326,12 +326,12 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
       //  coordinates. 
       if ( pickable  &&  mapper != NULL )
         {
-	vtkMatrix4x4 *LastMatrix = path->GetLastNode()->GetMatrix();
-	if (LastMatrix == NULL)
-	  {
-	  vtkErrorMacro (<< "Pick: Null matrix.");
-	  return 0;
-	  }
+        vtkMatrix4x4 *LastMatrix = path->GetLastNode()->GetMatrix();
+        if (LastMatrix == NULL)
+          {
+          vtkErrorMacro (<< "Pick: Null matrix.");
+          return 0;
+          }
         this->Transform->SetMatrix(*LastMatrix);
         this->Transform->Push();
         this->Transform->Inverse();
@@ -370,11 +370,11 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
                (1.0 - t)*p1World[1] + t*p2World[1],
                (1.0 - t)*p1World[2] + t*p2World[2]);
 
-	    // backwards compatibility: also add to this->Actors
-	    if (actor)
-	      {
-	      this->Actors->AddItem(actor);
-	      }
+            // backwards compatibility: also add to this->Actors
+            if (actor)
+              {
+              this->Actors->AddItem(actor);
+              }
             }
           }
 
