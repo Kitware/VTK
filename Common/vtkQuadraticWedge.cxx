@@ -26,7 +26,7 @@
 #include "vtkQuadraticQuad.h"
 #include "vtkQuadraticTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadraticWedge, "1.6");
+vtkCxxRevisionMacro(vtkQuadraticWedge, "1.7");
 vtkStandardNewMacro(vtkQuadraticWedge);
 
 // Construct the wedge with 15 points + 3 extra points for internal
@@ -602,65 +602,65 @@ void vtkQuadraticWedge::InterpolationDerivs(double pcoords[3],
   double r = pcoords[0];
   double s = pcoords[1];
   double t = pcoords[2];
-  //r-derivatives
+  // r-derivatives
   // corners
-  derivs[0] = 2*(1-r-s)*(1-t)*(.5-r-s-t);
-  derivs[1] = 2*r*(1-t)*(r-t-0.5);
-  derivs[2] = 2*s*(1-t)*(s-t-0.5);
-  derivs[3] = 2*(1-r-s)*t*(t-r-s-0.5);
-  derivs[4] = 2*r*t*(r+t-1.5);
-  derivs[5] = 2*s*t*(s+t-1.5);
+  derivs[0] = 2*(1 - t)*(-1.5 + 2*r + 2*s + t);
+  derivs[1] = 2*(1 - t)*(-0.5 + 2*r - t);
+  derivs[2] = 0;
+  derivs[3] = 2*t*(-0.5 + 2*r + 2*s - t);
+  derivs[4] = 2*t*(-1.5 + 2*r + t);
+  derivs[5] = 0;
   // midsides of triangles
-  derivs[6]  = 4*r*(1-r-s)*(1-t);
-  derivs[7]  = 4*r*s*(1-t);
-  derivs[8]  = 4*(1-r-s)*s*(1-t);
-  derivs[9]  = 4*r*(1-r-s)*t;
-  derivs[10] = 4*r*s*t;
-  derivs[11] = 4*(1-r-s)*s*t;
+  derivs[6]  =  4*(1 - t)*(1 - 2*r - s);
+  derivs[7]  =  4*(1 - t)*s;
+  derivs[8]  = -derivs[7];
+  derivs[9]  =  4*t*(1 - 2*r - s);
+  derivs[10] =  4*s*t;
+  derivs[11] = -derivs[10];
   // midsides of rectangles
-  derivs[12] = 4*t*(1-r-s)*(1-t);
-  derivs[13] = 4*t*r*(1-t);
-  derivs[14] = 4*t*s*(1-t);
+  derivs[12] = -4*t*(1 - t);
+  derivs[13] = -derivs[12];
+  derivs[14] =  0;
 
-  //s-derivatives
+  // s-derivatives
   // corners
-  derivs[15] = 2*(1-r-s)*(1-t)*(.5-r-s-t);
-  derivs[16] = 2*r*(1-t)*(r-t-0.5);
-  derivs[17] = 2*s*(1-t)*(s-t-0.5);
-  derivs[18] = 2*(1-r-s)*t*(t-r-s-0.5);
-  derivs[19] = 2*r*t*(r+t-1.5);
-  derivs[20] = 2*s*t*(s+t-1.5);
+  derivs[15] = derivs[0];
+  derivs[16] = 0;
+  derivs[17] = 2*(1 - t)*(-0.5 + 2*s - t);
+  derivs[18] = derivs[3];
+  derivs[19] = 0;
+  derivs[20] = 2*t*(-1.5 + 2*s + t);
   // midsides of triangles
-  derivs[21]  = 4*r*(1-r-s)*(1-t);
-  derivs[22]  = 4*r*s*(1-t);
-  derivs[23]  = 4*(1-r-s)*s*(1-t);
-  derivs[24]  = 4*r*(1-r-s)*t;
-  derivs[25] = 4*r*s*t;
-  derivs[26] = 4*(1-r-s)*s*t;
+  derivs[21] = -4*(1 - t)*r;
+  derivs[22] = -derivs[21];
+  derivs[23] =  4*(1 - t)*(1 - r - 2*s);
+  derivs[24] = -4*r*t;
+  derivs[25] = -derivs[24];
+  derivs[26] =  4*t*(1 - r - 2*s);
   // midsides of rectangles
-  derivs[27] = 4*t*(1-r-s)*(1-t);
-  derivs[28] = 4*t*r*(1-t);
-  derivs[29] = 4*t*s*(1-t);
+  derivs[27] =  derivs[12];
+  derivs[28] =  0;
+  derivs[29] = -derivs[27];
 
-  //t-derivatives
+  // t-derivatives
   // corners
-  derivs[30] = 2*(1-r-s)*(1-t)*(.5-r-s-t);
-  derivs[31] = 2*r*(1-t)*(r-t-0.5);
-  derivs[32] = 2*s*(1-t)*(s-t-0.5);
-  derivs[33] = 2*(1-r-s)*t*(t-r-s-0.5);
-  derivs[34] = 2*r*t*(r+t-1.5);
-  derivs[35] = 2*s*t*(s+t-1.5);
+  derivs[30] = 2*(1 - r - s)*(-1.5 + r + s + 2*t);
+  derivs[31] = 2*r*(-0.5 - r + 2*t);
+  derivs[32] = 2*s*(-0.5 - s + 2*t);
+  derivs[33] = 2*(1 - r - s)*(-0.5 - r - s + 2*t);
+  derivs[34] = 2*r*(-1.5 + r + 2*t);
+  derivs[35] = 2*s*(-1.5 + s + 2*t);
   // midsides of triangles
-  derivs[36]  = 4*r*(1-r-s)*(1-t);
-  derivs[37]  = 4*r*s*(1-t);
-  derivs[38]  = 4*(1-r-s)*s*(1-t);
-  derivs[39]  = 4*r*(1-r-s)*t;
-  derivs[40] = 4*r*s*t;
-  derivs[41] = 4*(1-r-s)*s*t;
+  derivs[36] = -4*r*(1 - r - s);
+  derivs[37] = -4*r*s;
+  derivs[38] = -4*s*(1 - r - s);
+  derivs[39] = -derivs[36];
+  derivs[40] = -derivs[37];
+  derivs[41] = -derivs[38] ;
   // midsides of rectangles
-  derivs[42] = 4*t*(1-r-s)*(1-t);
-  derivs[43] = 4*t*r*(1-t);
-  derivs[44] = 4*t*s*(1-t);
+  derivs[42] = 4*(1 - 2*t)*(1 - r - s);
+  derivs[43] = 4*(1 - 2*t)*r;
+  derivs[44] = 4*(1 - 2*t)*s;
 }
 
 static double vtkQWedgeCellPCoords[45] = {0.0,0.0,0.0, 1.0,0.0,0.0, 0.0,1.0,0.0, 
