@@ -66,14 +66,14 @@ protected:
   // This effectively makes it an auto-ptr.
   class NoReference {};
   vtkSmartPointerBase(vtkObjectBase* r, const NoReference&);
-  
+
+  // Pointer to the actual object.
+  vtkObjectBase* Object;
+
+private:
   // Internal utility methods.
   void Swap(vtkSmartPointerBase& r);
   void Register();
-  void UnRegister();
-  
-  // Pointer to the actual object.
-  vtkObjectBase* Object;
 };
 
 //----------------------------------------------------------------------------
