@@ -28,7 +28,7 @@
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageReslice, "1.58");
+vtkCxxRevisionMacro(vtkImageReslice, "1.59");
 vtkStandardNewMacro(vtkImageReslice);
 vtkCxxSetObjectMacro(vtkImageReslice, InformationInput, vtkImageData);
 vtkCxxSetObjectMacro(vtkImageReslice,ResliceAxes,vtkMatrix4x4);
@@ -1992,14 +1992,22 @@ void vtkImageReslice::ThreadedRequestData(
   vtkImageData **outData,
   int outExt[6], int id)
 {
+  int inExt[6];
+  inData[0][0]->GetExtent(inExt);
+  // if the input extent is empty then exit
+  if (inExt[1] < inExt[0] ||
+      inExt[3] < inExt[2] ||
+      inExt[5] < inExt[4])
+    {
+    return;
+    }
+  
   if (this->Optimization)
     {
     this->OptimizedThreadedExecute(inData[0][0],outData[0],outExt,id);
     return;
     }
 
-  int inExt[6];
-  inData[0][0]->GetExtent(inExt);
   void *inPtr = 0;
   if (inExt[0] <= inExt[1] && inExt[2] <= inExt[3] && inExt[4] <= inExt[5])
     {

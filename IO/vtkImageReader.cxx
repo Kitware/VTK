@@ -23,7 +23,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImageReader, "1.118");
+vtkCxxRevisionMacro(vtkImageReader, "1.119");
 vtkStandardNewMacro(vtkImageReader);
 
 vtkCxxSetObjectMacro(vtkImageReader,Transform,vtkTransform);
@@ -431,6 +431,10 @@ void vtkImageReader::ExecuteData(vtkDataObject *output)
     }
 
   ext = data->GetExtent();
+  if (!data->GetPointData()->GetScalars())
+    {
+    return;
+    }
   data->GetPointData()->GetScalars()->SetName(this->ScalarArrayName);
 
   vtkDebugMacro("Reading extent: " << ext[0] << ", " << ext[1] << ", " 

@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageQuantizeRGBToIndex, "1.40");
+vtkCxxRevisionMacro(vtkImageQuantizeRGBToIndex, "1.41");
 vtkStandardNewMacro(vtkImageQuantizeRGBToIndex);
 
 class vtkColorQuantizeNode
@@ -585,6 +585,16 @@ int vtkImageQuantizeRGBToIndex::RequestData(
     outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
   outData->AllocateScalars();
 
+  int inExt[6];
+  inData->GetExtent(inExt);
+  // if the input extent is empty then exit
+  if (inExt[1] < inExt[0] ||
+      inExt[3] < inExt[2] ||
+      inExt[5] < inExt[4])
+    {
+    return 1;
+    }
+  
   inPtr = inData->GetScalarPointer();
   outPtr = outData->GetScalarPointer();
   
