@@ -85,23 +85,23 @@ int vtkColorScalars::InsertNextScalar(float s)
 void vtkColorScalars::InsertColor(int i, float R, float G, float B, float A)
 {
   unsigned char a[4];
-  a[0] = R*255.0;
-  a[1] = G*255.0;
-  a[2] = B*255.0;
-  a[3] = A*255.0;
+  a[0] = (unsigned char) (R*255.0);
+  a[1] = (unsigned char) (G*255.0);
+  a[2] = (unsigned char) (B*255.0);
+  a[3] = (unsigned char) (A*255.0);
 
   this->InsertColor(i,a);
 }
 
-void vtkColorScalars::InsertNextColor(float R, float G, float B, float A)
+int vtkColorScalars::InsertNextColor(float R, float G, float B, float A)
 {
   unsigned char a[4];
-  a[0] = R*255.0;
-  a[1] = G*255.0;
-  a[2] = B*255.0;
-  a[3] = A*255.0;
+  a[0] = (unsigned char) (R*255.0);
+  a[1] = (unsigned char) (G*255.0);
+  a[2] = (unsigned char) (B*255.0);
+  a[3] = (unsigned char) (A*255.0);
 
-  this->InsertNextColor(a);
+  return this->InsertNextColor(a);
 }
 
 // Description:

@@ -213,9 +213,9 @@ void vtkRibbonFilter::Execute()
 //
     newStrips->InsertNextCell(npts*2);
     for (i=0; i < npts; i++) 
-      {
-      newStrips->InsertCellPoint(ptOffset+2*i);
+      {//order important for consistent normals
       newStrips->InsertCellPoint(ptOffset+2*i+1);
+      newStrips->InsertCellPoint(ptOffset+2*i);
       }
     
     ptOffset += npts*2;
