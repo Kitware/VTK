@@ -143,6 +143,9 @@ suppress ipr StringCreate; Tcl_CreateCommand; Vtkcontribtcl_Init
 suppress ipr strlen; StringCreate; Tcl_CreateCommand; Vtkcontribtcl_Init
 suppress ipr strcpy; StringCreate; Tcl_CreateCommand; Vtkcontribtcl_Init
 
+suppress ipr strcmp; vtkVtkcontribtclNewInstanceCommand
+suppress ipr strcmp; vtkMassPropertiesCppCommand
+
 suppress mse *
 
 suppress mse _open
@@ -162,3 +165,5 @@ suppress mse strlen
 suppress mse strcpy
 suppress mse memcpy
 suppress mse strlen
+
+suppress zpr *
