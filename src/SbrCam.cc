@@ -101,7 +101,20 @@ void lookat(int fd, float vx,float vy,float vz,float px,float py,float pz,
   
   mag = sqrt((pz-vz)*(pz-vz) + (px-vx)*(px-vx));
   if (mag != 0)
+    {
     rotate(fd, (vz-pz)/mag, (px-vx)/mag, 'y');
+    }
+  else
+    {
+    if (py < vy)
+      {
+      rotate(fd, 1, 0, 'y');
+      }
+    else
+      {
+      rotate(fd, -1, 0, 'y');
+      }
+    }
 
   translate(fd,-vx,-vy,-vz);
 
