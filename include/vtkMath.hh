@@ -59,18 +59,21 @@ public:
   float Pi() {return 3.14159265358979;};
   float DegreesToRadians() {return 0.017453292;};
 
+  // some common operations
   float Dot(float x[3], float y[3]);
   void Cross(float x[3], float y[3], float z[3]);
   float Norm(float x[3]);
   float Normalize(float x[3]);
+  float Distance2BetweenPoints(float x[3], float y[3]);
 
+  // matrix stuff
   float Determinant2x2(float c1[2], float c2[2]);
   double Determinant2x2(double a, double b, double c, double d);
   float Determinant3x3(float c1[3], float c2[3], float c3[3]);
   double Determinant3x3(double a1, double a2, double a3, 
                         double b1, double b2, double b3, 
                         double c1, double c2, double c3);
-  float Distance2BetweenPoints(float x[3], float y[3]);
+  int SolveLinearSystem(double **A, double *x, int size);
 
   // Random number generation
   void RandomSeed(long s);  
