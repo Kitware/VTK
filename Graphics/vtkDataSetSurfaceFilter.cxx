@@ -36,7 +36,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.23");
+vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.24");
 vtkStandardNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------
@@ -646,7 +646,6 @@ void vtkDataSetSurfaceFilter::ComputeInputUpdateExtents(vtkDataObject *output)
   
   if (this->GetInput() == NULL)
     {
-    vtkErrorMacro("No Input");
     return;
     }
   piece = output->GetUpdatePiece();
