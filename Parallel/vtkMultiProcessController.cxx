@@ -47,10 +47,10 @@ protected:
   void operator=(const vtkMultiProcessControllerRMI&);
 };
 
-vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.9");
+vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.10");
 vtkStandardNewMacro(vtkMultiProcessControllerRMI);
 
-vtkCxxRevisionMacro(vtkMultiProcessController, "1.9");
+vtkCxxRevisionMacro(vtkMultiProcessController, "1.10");
 
 //----------------------------------------------------------------------------
 // An RMI function that will break the "ProcessRMIs" loop.
@@ -296,6 +296,24 @@ void vtkMultiProcessController::TriggerRMI(int remoteProcessId,
     this->RMICommunicator->Send((char*)arg, argLength, remoteProcessId,  
                                  RMI_ARG_TAG);
     } 
+}
+
+//----------------------------------------------------------------------------
+void vtkMultiProcessController::TriggerBreakRMIs()
+{
+  int idx, num;
+
+  if (this->GetLocalProcessId() != 0)
+    {
+    vtkErrorMacro("Break should be triggered from process 0.");
+    return;
+    }
+
+  num = this->GetNumberOfProcesses();
+  for (idx = 1; idx < num; ++idx)
+    {
+    this->TriggerRMI(idx, NULL, 0, BREAK_RMI_TAG);
+    }
 }
 
 //----------------------------------------------------------------------------

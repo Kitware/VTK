@@ -142,6 +142,17 @@ public:
   // Calculate the bounds by gather information from all processes
   virtual void ComputeVisiblePropBounds(vtkRenderer *ren, float bounds[6]);
 
+  // Description.
+  // This is for manually compositing.  By default Manual is off.
+  // When manual compositing is on, then the user must call 
+  // Render and Composite on each process.  The start and end render
+  // are not setup in manual mode. 
+  vtkSetMacro(Manual, int);
+  vtkGetMacro(Manual, int);
+  vtkBooleanMacro(Manual, int);
+  void Composite();
+
+
 protected:
   vtkCompositeManager();
   ~vtkCompositeManager();
@@ -153,7 +164,6 @@ protected:
                                void *pBuf, float *zBuf,
                                void *pTmp, float *zTmp) = 0;
 
-  void Composite();
   void SetRendererSize(int x, int y);
   float* MagnifyBuffer(float *localPdata, int windowSize[2]);
 
@@ -197,6 +207,9 @@ protected:
 
   // Needed to compute the MaxRenderTime.
   vtkTimerLog *Timer;
+
+  // For manual compositing.
+  int Manual;
 };
 
 #endif

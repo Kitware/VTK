@@ -169,6 +169,11 @@ public:
   void TriggerRMI(int remoteProcessId, void *arg, int argLength, int tag);
 
   // Description:
+  // A conveniance method.  Called on process 0 to break "ProcessRMIs" loop
+  // on all other processes.
+  void TriggerBreakRMIs();
+
+  // Description:
   // Convenience method when the arg is a string. 
   void TriggerRMI(int remoteProcessId, char *arg, int tag) 
     { this->TriggerRMI(remoteProcessId, (void*)arg, strlen(arg)+1, tag); }
