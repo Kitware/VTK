@@ -61,7 +61,10 @@ vtkImageSinusoidSource::vtkImageSinusoidSource()
   this->SetExecutionAxes(VTK_IMAGE_X_AXIS);
 }
 
-
+//----------------------------------------------------------------------------
+void vtkImageSinusoidSource::SetDirection(int num, float *v)
+{
+}
 //----------------------------------------------------------------------------
 void vtkImageSinusoidSource::SetWholeExtent(int dim, int *extent)
 {
@@ -113,16 +116,6 @@ void vtkImageSinusoidSource::Execute(vtkImageRegion *region)
   temp2 = 1.0 / (2.0 * this->StandardDeviation * this->StandardDeviation);
   for (idx = min; idx <= max; ++idx)
     {
-    //
-    sum = 0.0;
-    extent[0] = idx;
-    for (idx2 = 0; idx2 < 4; ++idx2)
-      {
-      temp = this->Center[idx2] - (float)(extent[idx2*2]);
-      sum += temp * temp;
-      }
-    *ptr = this->Maximum * exp(-sum * temp2);
-    ptr += inc;
     }
 }
 
