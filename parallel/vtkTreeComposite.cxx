@@ -122,7 +122,8 @@ vtkTreeComposite::vtkTreeComposite()
   this->PData = this->ZData = NULL;
   
   this->Lock = 0;
-
+  this->UseChar = 0;
+  
   this->ReductionFactor = 1;
 }
 
@@ -436,7 +437,7 @@ void vtkTreeComposite::RenderRMI()
   
   
   this->SetWindowSize(winInfo.Size[0], winInfo.Size[1]);
-  this->Composite(1);
+  this->Composite();
 }
 
 //-------------------------------------------------------------------------
@@ -587,7 +588,7 @@ void vtkTreeComposite::EndRender()
     {
     // It would be more efficient to save these arrays as ivars.
     this->SetWindowSize(windowSize[0], windowSize[1]);
-    this->Composite(1);
+    this->Composite();
     }
   
   // Force swap buffers here.
@@ -785,7 +786,7 @@ void vtkTreeComposite::SetWindowSize(int x, int y)
 
 
 void vtkTreeComposite::ReduceBuffer(float *localZdata, float *localPdata, 
-                                    int windowSize[2], int flag)
+                                    int windowSize[2])
 {
   float *pz1;
   float *pz2;
@@ -800,9 +801,26 @@ void vtkTreeComposite::ReduceBuffer(float *localZdata, float *localPdata,
   pp1 = pp2 = localPdata;
   xDim = windowSize[0] / this->ReductionFactor;
   yDim = windowSize[1] / this->ReductionFactor;
-  zIncY = pIncY = windowSize[0] - (xDim * this->ReductionFactor);
-
-  if (flag)
+  // Skip remainder and extra rows.
+  zIncY = pIncY = windowSize[0] - (xDim * this->ReductionFactor) 
+    + ((this->ReductionFactor-1)*windowSize[0]);
+    
+  if (this->UseChar)
+    {    
+    for (y = 0; y < yDim; y++)
+      {
+      for (x = 0; x < xDim; x++)
+        {
+        *pz1++ = *pz2;
+        *pp1++ = *pp2;
+        pz2 += this->ReductionFactor;
+        pp2 += this->ReductionFactor;
+        }
+      pz2 += zIncY;
+      pp2 += pIncY;
+      }
+    }
+  else
     {
     pIncY = pIncY * 4;
     pIncX = 4 * (this->ReductionFactor - 1);
@@ -822,56 +840,101 @@ void vtkTreeComposite::ReduceBuffer(float *localZdata, float *localPdata,
       pp2 += pIncY;
       }
     }
-  else
-    {
-    for (y = 0; y < yDim; y++)
-      {
-      for (x = 0; x < xDim; x++)
-        {
-        *pz1++ = *pz2;
-        *pp1++ = *pp2;
-        pz2 += this->ReductionFactor;
-        pp2 += this->ReductionFactor;
-        }
-      pz2 += zIncY;
-      pp2 += pIncY;
-      }
-    }
 
   windowSize[0] = xDim;
   windowSize[1] = yDim;
 }
   
-     
+// We have do do this backward so we can keep it inplace.     
+void vtkTreeComposite::MagnifyBuffer(float *localPdata, int windowSize[2])
+{
+  float *rowp, *subp;
+  float *pp1;
+  float *pp2;
+  int   x, y, xi, yi;
+  int   xInDim, yInDim;
+  int   xOutDim, yOutDim;
+  // Local increments for input.
+  int   pIncY; 
 
+  xInDim = windowSize[0];
+  yInDim = windowSize[1];
+  xOutDim = xInDim * this->ReductionFactor;
+  yOutDim = yInDim * this->ReductionFactor;
+  pIncY = xInDim;
+  
+  if (this->UseChar)
+    {
+    // Get the last pixel.
+    rowp = localPdata + ((xInDim*yInDim)-1);
+    pp2 = localPdata + ((xOutDim*yOutDim)-1);
+    for (y = 0; y < yInDim; y++)
+      {
+      // Duplicate the row rowp N times.
+      for (yi = 0; yi < this->ReductionFactor; ++yi)
+	{
+	pp1 = rowp;
+	for (x = 0; x < xInDim; x++)
+	  {
+	  // Duplicate the pixel p11 N times.
+	  for (xi = 0; xi < this->ReductionFactor; ++xi)
+	    {
+	    *pp2-- = *pp1;
+	    }
+	  --pp1;
+	  }
+	}
+      rowp -= pIncY;
+      }
+    }
+  else
+    {
+    // Get the last pixel.
+    pIncY *= 4;
+    rowp = localPdata + ((xInDim*yInDim*4)-1);
+    pp2 = localPdata + ((xOutDim*yOutDim*4)-1);
+    for (y = 0; y < yInDim; y++)
+      {
+      // Duplicate the row rowp N times.
+      for (yi = 0; yi < this->ReductionFactor; ++yi)
+	{
+	pp1 = rowp;
+	for (x = 0; x < xInDim; x++)
+	  {
+	  // Duplicate the pixel p11 N times.
+	  for (xi = 0; xi < this->ReductionFactor; ++xi)
+	    {
+	    subp = pp1;
+	    *pp2-- = *subp--;
+	    *pp2-- = *subp--;
+	    *pp2-- = *subp--;
+	    *pp2-- = *subp;
+	    }
+	  pp1 -= 4;
+	  }
+	}
+      rowp -= pIncY;
+      }
+    }
+  
+  windowSize[0] = xOutDim;
+  windowSize[1] = yOutDim;
+}
+  
+     
 //-------------------------------------------------------------------------
 // Jim's composite stuff
 //-------------------------------------------------------------------------
 // Results are put in the local data.
 void vtkCompositeImagePair(float *localZdata, float *localPdata, 
 			   float *remoteZdata, float *remotePdata, 
-			   int total_pixels, int flag) 
+			   int total_pixels, int useCharFlag) 
 {
   int i,j;
   int pixel_data_size;
   float *pEnd;
 
-  if (flag) 
-    {
-    pixel_data_size = 4;
-    for (i = 0; i < total_pixels; i++) 
-      {
-      if (remoteZdata[i] < localZdata[i]) 
-	{
-	localZdata[i] = remoteZdata[i];
-	for (j = 0; j < pixel_data_size; j++) 
-	  {
-	  localPdata[i*pixel_data_size+j] = remotePdata[i*pixel_data_size+j];
-	  }
-	}
-      }
-    } 
-  else 
+  if (useCharFlag) 
     {
     pEnd = remoteZdata + total_pixels;
     while(remoteZdata != pEnd) 
@@ -889,13 +952,28 @@ void vtkCompositeImagePair(float *localZdata, float *localPdata,
 	++remotePdata;
 	}
       }
+    } 
+  else 
+    {
+    pixel_data_size = 4;
+    for (i = 0; i < total_pixels; i++) 
+      {
+      if (remoteZdata[i] < localZdata[i]) 
+	{
+	localZdata[i] = remoteZdata[i];
+	for (j = 0; j < pixel_data_size; j++) 
+	  {
+	  localPdata[i*pixel_data_size+j] = remotePdata[i*pixel_data_size+j];
+	  }
+	}
+      }
     }
 }
 
 
 #define vtkTCPow2(j) (1 << (j))
 //----------------------------------------------------------------------------
-void vtkTreeComposite::Composite(int flag)
+void vtkTreeComposite::Composite()
 {
   float *localZdata = NULL;
   float *localPdata = NULL;
@@ -920,28 +998,28 @@ void vtkTreeComposite::Composite(int flag)
   zdata_size = total_pixels;
 
   // Get the pixel data.
-  if (flag) 
+  if (this->UseChar) 
     { 
-    localPdata = this->RenderWindow->GetRGBAPixelData(0,0,windowSize[0]-1, \
-						      windowSize[1]-1,0);
-    pdata_size = 4*total_pixels;
-    } 
-  else 
-    {
     // Condition is here until we fix the resize bug in vtkMesaRenderWindow.
     localPdata = (float*)this->RenderWindow->GetRGBACharPixelData(0,0,windowSize[0]-1,
 								  windowSize[1]-1,0);    
     pdata_size = total_pixels;
+    } 
+  else 
+    {
+    localPdata = this->RenderWindow->GetRGBAPixelData(0,0,windowSize[0]-1, \
+						      windowSize[1]-1,0);
+    pdata_size = 4*total_pixels;
     }
 
   // Handle reduction factor for process 0 here.
   if (this->ReductionFactor > 1)
     {
     // localZdata, localPdata and window size get modified.
-    this->ReduceBuffer(localZdata, localPdata, windowSize, flag);
+    this->ReduceBuffer(localZdata, localPdata, windowSize);
     // Recompute array sizes.
     pdata_size = total_pixels = windowSize[0] * windowSize[1];
-    if (flag)
+    if ( ! this->UseChar)
       {
       pdata_size *= 4;
       }
@@ -974,7 +1052,7 @@ void vtkTreeComposite::Composite(int flag)
 	  
 	  // notice the result is stored as the local data
 	  vtkCompositeImagePair(localZdata, localPdata, this->ZData, this->PData, 
-				total_pixels, flag);
+				total_pixels, this->UseChar);
 	  }
 	}
       else 
@@ -991,15 +1069,21 @@ void vtkTreeComposite::Composite(int flag)
 
   if (myId ==0) 
     {
-    if (flag) 
+    if (this->ReductionFactor > 1)
       {
-      this->RenderWindow->SetRGBAPixelData(0,0,windowSize[0]-1, 
-			       windowSize[1]-1,localPdata,0);
-      } 
-    else 
+      // localZdata, localPdata and window size get modified.
+      this->MagnifyBuffer(localPdata, windowSize);
+      }
+  
+  if (this->UseChar) 
       {
       this->RenderWindow->SetRGBACharPixelData(0,0, windowSize[0]-1, \
 			     windowSize[1]-1,(unsigned char*)localPdata,0);
+      } 
+    else 
+      {
+      this->RenderWindow->SetRGBAPixelData(0,0,windowSize[0]-1, 
+			       windowSize[1]-1,localPdata,0);
       }
     }
   
@@ -1020,7 +1104,15 @@ void vtkTreeComposite::PrintSelf(ostream& os, vtkIndent indent)
   this->vtkObject::PrintSelf(os, indent);
   
   os << indent << "ReductionFactor: " << this->ReductionFactor << endl;
-
+  if (this->UseChar)
+    {
+    os << indent << "UseChar: On\n";
+    }
+  else
+    {
+    os << indent << "UseChar: Off\n";
+    }  
+  
   if ( this->RenderWindow )
     {
     os << indent << "RenderWindow: " << this->RenderWindow << "\n";
