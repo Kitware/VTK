@@ -33,7 +33,7 @@
 #include "vtkSphere.h"
 #include "vtkSphereSource.h"
 
-vtkCxxRevisionMacro(vtkSphereWidget, "1.20");
+vtkCxxRevisionMacro(vtkSphereWidget, "1.21");
 vtkStandardNewMacro(vtkSphereWidget);
 
 vtkSphereWidget::vtkSphereWidget()
@@ -376,10 +376,17 @@ void vtkSphereWidget::OnLeftButtonDown()
   int X = this->Interactor->GetEventPosition()[0];
   int Y = this->Interactor->GetEventPosition()[1];
 
+  // Okay, make sure that the pick is in the current renderer
+  vtkRenderer *ren = this->Interactor->FindPokedRenderer(X,Y);
+  if ( ren != this->CurrentRenderer )
+    {
+    this->State = vtkSphereWidget::Outside;
+    return;
+    }
+  
   // Okay, we can process this. Try to pick handles first;
   // if no handles picked, then try to pick the sphere.
   vtkAssemblyPath *path;
-  this->Interactor->FindPokedRenderer(X,Y);
   this->Picker->Pick(X,Y,0.0,this->CurrentRenderer);
   path = this->Picker->GetPath();
   if ( path == NULL )
@@ -484,10 +491,17 @@ void vtkSphereWidget::OnRightButtonDown()
   int X = this->Interactor->GetEventPosition()[0];
   int Y = this->Interactor->GetEventPosition()[1];
 
+  // Okay, make sure that the pick is in the current renderer
+  vtkRenderer *ren = this->Interactor->FindPokedRenderer(X,Y);
+  if ( ren != this->CurrentRenderer )
+    {
+    this->State = vtkSphereWidget::Outside;
+    return;
+    }
+  
   // Okay, we can process this. Try to pick handles first;
   // if no handles picked, then pick the bounding box.
   vtkAssemblyPath *path;
-  this->Interactor->FindPokedRenderer(X,Y);
   this->Picker->Pick(X,Y,0.0,this->CurrentRenderer);
   path = this->Picker->GetPath();
   if ( path == NULL )
