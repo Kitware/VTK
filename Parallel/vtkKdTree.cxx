@@ -45,7 +45,7 @@
 #include <vtkstd/set>
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkKdTree, "1.25");
+vtkCxxRevisionMacro(vtkKdTree, "1.26");
 
 // Timing data ---------------------------------------------
 
@@ -3893,4 +3893,14 @@ void vtkKdTree::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "FudgeFactor: " << this->FudgeFactor << endl;
   os << indent << "MaxWidth: " << this->MaxWidth << endl;
+
+  os << indent << "Cuts: ";
+  if( this->Cuts )
+  {
+    this->Cuts->PrintSelf(os << endl, indent.GetNextIndent() );
+  }
+  else
+  {
+    os << "(none)" << endl;
+  }
 }
