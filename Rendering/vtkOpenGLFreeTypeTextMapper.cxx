@@ -614,7 +614,7 @@ vtkFontCache::Entry* vtkFontCache::GetFont(vtkTextProperty *tprop,
 }
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.21");
+vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.22");
 vtkStandardNewMacro(vtkOpenGLFreeTypeTextMapper);
 
 //----------------------------------------------------------------------------
@@ -842,9 +842,6 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
     {
     glOrtho(0, vsize[0] - 1, 0, vsize[1] - 1, -1, 0);
     }
-
-  int front = 
-    (actor->GetProperty()->GetDisplayLocation() == VTK_FOREGROUND_LOCATION);
 
   int *winSize = viewport->GetVTKWindow()->GetSize();
 
