@@ -45,7 +45,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkStarbaseLight.h"
 #include "vtkStarbaseRenderWindow.h"
 #include "vtkStarbaseRenderer.h"
-#include "vtkNewVolumeRenderer.h"
 
 #define MAX_LIGHTS 16
 
@@ -78,12 +77,6 @@ int vtkStarbaseRenderer::UpdateActors()
 int vtkStarbaseRenderer::UpdateVolumes()
 {
   int count = 0;
-
-  if (this->NewVolumeRenderer)
-    {
-    this->NewVolumeRenderer->Render((vtkRenderer *)this);
-    count++;
-    }
 
   return count;
 }

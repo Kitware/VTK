@@ -44,7 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkOpenGLProperty.h"
 #include "vtkOpenGLCamera.h"
 #include "vtkOpenGLLight.h"
-#include "vtkNewVolumeRenderer.h"
+#include "vtkRayCaster.h"
 #include <GL/gl.h>
 
 
@@ -84,12 +84,14 @@ int vtkOpenGLRenderer::UpdateVolumes()
 {
   int volume_count=0;    // Number of visible volumes
 
+  volume_count = this->VisibleVolumeCount();
+
   // Render the volumes
-  if (this->NewVolumeRenderer)
+  if ( volume_count > 0 )
     {
 
     // Render the volume
-    volume_count = this->NewVolumeRenderer->Render((vtkRenderer *)this);
+    this->RayCaster->Render((vtkRenderer *)this);
 
     }
 
@@ -228,14 +230,15 @@ void vtkOpenGLRenderer::Render(void)
     (*this->StartRenderMethod)(this->StartRenderMethodArg);
     }
 
+  volume_count = this->VisibleVolumeCount();
+
   // If there is a volume renderer, get it's desired viewport size
   // since it may want to render actors into a smaller area for multires
   // rendering during motion
-  if ( this->NewVolumeRenderer )
+  if ( volume_count > 0 )
     {
     // Get the scale factor 
-    scale_factor = this->NewVolumeRenderer->GetViewportScaleFactor( 
-      (vtkRenderer *)this );
+    scale_factor = this->RayCaster->GetViewportScaleFactor( (vtkRenderer *)this );
     
     // If the volume renderer wants a different resolution than this
     // renderer was going to produce we need to set up the viewport
@@ -274,7 +277,7 @@ void vtkOpenGLRenderer::Render(void)
   // erase variable in the render window to 0, and render the camera
   // again.  This will set our viewport back to the right size.
   // Finally, we restore the erase variable in the render window
-  if ( this->NewVolumeRenderer && scale_factor != 1.0 )
+  if ( volume_count > 0  && scale_factor != 1.0 )
     {
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();

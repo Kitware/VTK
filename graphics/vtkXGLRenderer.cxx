@@ -45,7 +45,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkXGLLight.h"
 #include "vtkXGLRenderWindow.h"
 #include "vtkXGLRenderer.h"
-#include "vtkNewVolumeRenderer.h"
 
 
 vtkXGLRenderer::vtkXGLRenderer()
@@ -78,11 +77,6 @@ int vtkXGLRenderer::UpdateVolumes()
 {
   int count = 0;
 
-  if (this->NewVolumeRenderer)
-    {
-    this->NewVolumeRenderer->Render((vtkRenderer *)this);
-    count++;
-    }
 
   return count;
 }

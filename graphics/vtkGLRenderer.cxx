@@ -45,7 +45,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkGLProperty.h"
 #include "vtkGLCamera.h"
 #include "vtkGLLight.h"
-#include "vtkNewVolumeRenderer.h"
 
 #define MAX_LIGHTS 8
 
@@ -81,33 +80,7 @@ int vtkGLRenderer::UpdateActors()
 int vtkGLRenderer::UpdateVolumes()
 {
   int count = 0;
-//  int *size;
 
-  float *zdata = NULL;
-  unsigned char *cdata = NULL;
-
-  // Get the physical window dimensions
-//  size = this->RenderWindow->GetSize();
-
-  // Store the color and zbuffer data if geometry was rendered
-/***
-  zdata = this->RenderWindow->GetZbufferData( 0, 0, size[0]-1, size[1]-1 );
-  cdata = this->RenderWindow->GetPixelData( 0, 0, size[1]-1, size[1]-1, 0 );
-
-printf("Z: %f\n", *(zdata + size[0]*(size[1]/2) + size[0]/2 ) );
-***/
-
-  if (this->NewVolumeRenderer)
-    {
-    this->NewVolumeRenderer->Render((vtkRenderer *)this);
-    count++;
-    }
-
-  // Clean Up 
-  if( zdata )
-    free( zdata );
-  if( cdata )
-    free( cdata );
 
   return count;
 }
