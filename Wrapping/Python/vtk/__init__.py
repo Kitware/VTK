@@ -43,6 +43,12 @@ except ImportError, exc:
     __helper.refine_import_err('rendering', exc)
 
 try:
+    from volumerendering import *
+    kits.append('volumerendering')
+except ImportError, exc:
+    __helper.refine_import_err('volumerendering', exc)
+
+try:
     from hybrid import *
     kits.append('hybrid')
 except ImportError, exc:

@@ -29,11 +29,7 @@ vtkCellPicker.cxx
 vtkCuller.cxx
 vtkCullerCollection.cxx
 vtkDataSetMapper.cxx
-vtkDirectionEncoder.cxx
-vtkEncodedGradientEstimator.cxx
-vtkEncodedGradientShader.cxx
 vtkExporter.cxx
-vtkFiniteDifferenceGradientEstimator.cxx
 vtkFollower.cxx
 vtkFrustumCoverageCuller.cxx
 vtkGenericRenderWindowInteractor.cxx
@@ -79,8 +75,6 @@ vtkProp3D.cxx
 vtkProp3DCollection.cxx
 vtkPropPicker.cxx
 vtkProperty.cxx
-vtkRayCastImageDisplayHelper.cxx
-vtkRecursiveSphereDirectionEncoder.cxx
 vtkRenderWindow.cxx
 vtkRenderWindowCollection.cxx
 vtkRenderWindowInteractor.cxx
@@ -97,29 +91,10 @@ vtkTextActor3D.cxx
 vtkTextMapper.cxx
 vtkTextProperty.cxx
 vtkTexture.cxx
-vtkUnstructuredGridBunykRayCastFunction.cxx
-vtkUnstructuredGridHomogeneousRayIntegrator.cxx
-vtkUnstructuredGridLinearRayIntegrator.cxx
-vtkUnstructuredGridPartialPreIntegration.cxx
-vtkUnstructuredGridPreIntegration.cxx
-vtkUnstructuredGridVolumeMapper.cxx
-vtkUnstructuredGridVolumeRayCastFunction.cxx
-vtkUnstructuredGridVolumeRayCastIterator.cxx
-vtkUnstructuredGridVolumeRayIntegrator.cxx
-vtkUnstructuredGridVolumeRayCastMapper.cxx
-vtkUnstructuredGridVolumeZSweepMapper.cxx
 vtkVRMLExporter.cxx
 vtkVolume.cxx
 vtkVolumeCollection.cxx
-vtkVolumeMapper.cxx
 vtkVolumeProperty.cxx
-vtkVolumeRayCastCompositeFunction.cxx
-vtkVolumeRayCastFunction.cxx
-vtkVolumeRayCastIsosurfaceFunction.cxx
-vtkVolumeRayCastMIPFunction.cxx
-vtkVolumeRayCastMapper.cxx
-vtkVolumeTextureMapper.cxx
-vtkVolumeTextureMapper2D.cxx
 vtkWindowToImageFilter.cxx
 vtkWorldPointPicker.cxx
 )
@@ -140,13 +115,11 @@ SET( KitOpenGL_SRCS
   vtkOpenGLPolyDataMapper.cxx
   vtkOpenGLPolyDataMapper2D.cxx
   vtkOpenGLProperty.cxx
-  vtkOpenGLRayCastImageDisplayHelper.cxx
   vtkOpenGLRenderWindow.cxx
   vtkOpenGLRenderer.cxx
   vtkOpenGLTexture.cxx
-  vtkOpenGLVolumeRayCastMapper.cxx
-  vtkOpenGLVolumeTextureMapper2D.cxx
   )
+
 
 SET_SOURCE_FILES_PROPERTIES(
 vtkAbstractMapper3D
@@ -154,22 +127,14 @@ vtkAbstractVolumeMapper
 vtkAbstractPicker
 vtkAbstractPropPicker
 vtkCuller
-vtkDirectionEncoder
-vtkEncodedGradientEstimator
 vtkExporter
 vtkImporter
 vtkInteractorObserver
 vtkMapper
 vtkOpenGLRenderWindow
 vtkProp3D
-vtkRayCastImageDisplayHelper
-vtkUnstructuredGridVolumeMapper
-vtkUnstructuredGridVolumeRayCastFunction
-vtkUnstructuredGridVolumeRayCastIterator
-vtkUnstructuredGridVolumeRayIntegrator
-vtkVolumeMapper
-vtkVolumeRayCastFunction
-vtkVolumeTextureMapper
+vtkKWVolumeMapper
+vtkKWVolumeRayCastHelper
 ABSTRACT
 )
 
@@ -268,12 +233,6 @@ CONFIGURE_FILE(
 
 # Build a list of libraries to link to vtkRendering.
 
-IF(VTK_USE_VOLUMEPRO)
-  IF(VTK_HAVE_VP1000)
-    SET(KIT_LIBS ${KIT_LIBS} ${VLI_LIBRARY_FOR_VP1000})
-  ENDIF(VTK_HAVE_VP1000)
-ENDIF(VTK_USE_VOLUMEPRO)
-
 IF(VTK_USE_GL2PS)
   SET(KIT_LIBS ${KIT_LIBS} ${VTK_ZLIB_LIBRARIES})
 ENDIF(VTK_USE_GL2PS)
@@ -335,12 +294,9 @@ IF (VTK_USE_MANGLED_MESA)
                  vtkMesaPolyDataMapper.cxx
                  vtkMesaPolyDataMapper2D.cxx
                  vtkMesaProperty.cxx
-                 vtkMesaRayCastImageDisplayHelper.cxx
                  vtkMesaRenderWindow.cxx
                  vtkMesaRenderer.cxx
                  vtkMesaTexture.cxx
-                 vtkMesaVolumeRayCastMapper.cxx
-                 vtkMesaVolumeTextureMapper2D.cxx
                  vtkXMesaRenderWindow.cxx
                 )
     SET(KitOpenGL_SRCS ${KitOpenGL_SRCS}

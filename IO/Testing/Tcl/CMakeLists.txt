@@ -17,7 +17,6 @@ IF (VTK_USE_RENDERING)
       Plot3DScalars
       Plot3DVectors
       ParticleReader
-      gaussian
       caffeine
       TestXYZMol
       TestMHD

@@ -18,15 +18,9 @@ IF (VTK_USE_RENDERING)
       rendererSource
       rotations
       ScalarBar
-      TestBunykRayCastFunction
       TestFlyTo
-      TestHomogeneousRayIntegration
-      TestLinearRayIntegration
-      TestLODProp3D
       TestOnePoint
       TestParallelCoordinates
-      TestPartialPreIntegration
-      TestPreIntegration
       TestStyleJoystickActor
       TestStyleJoystickCamera
       TestStyleRubberBandZoom
@@ -34,12 +28,6 @@ IF (VTK_USE_RENDERING)
       TestStyleTrackballActor
       TestStyleTrackballCamera
       TestTiling
-      TestZSweep
-      volRCClipPlanes
-      volRCCropRegions
-      volRCRotateClip
-      volTM2DCropRegions
-      volTM2DRotateClip
     )
       ADD_TEST(${tfile}-image ${VTK_EXECUTABLE}
         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 

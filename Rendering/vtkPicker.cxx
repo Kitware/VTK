@@ -32,11 +32,11 @@
 #include "vtkTransform.h"
 #include "vtkVertex.h"
 #include "vtkVolume.h"
-#include "vtkVolumeMapper.h"
+#include "vtkAbstractVolumeMapper.h"
 #include "vtkBox.h"
 #include "vtkImageActor.h"
 
-vtkCxxRevisionMacro(vtkPicker, "1.90");
+vtkCxxRevisionMacro(vtkPicker, "1.91");
 vtkStandardNewMacro(vtkPicker);
 
 // Construct object with initial tolerance of 1/40th of window. There are no
@@ -73,7 +73,7 @@ void vtkPicker::MarkPicked(vtkAssemblyPath *path, vtkProp3D *prop3D,
 {
   int i;
   vtkMapper *mapper;
-  vtkVolumeMapper *volumeMapper;
+  vtkAbstractVolumeMapper *volumeMapper;
 
   this->SetPath(path);
   this->GlobalTMin = tMin;
@@ -87,9 +87,9 @@ void vtkPicker::MarkPicked(vtkAssemblyPath *path, vtkProp3D *prop3D,
     this->DataSet = mapper->GetInput();
     this->Mapper = mapper;
     }
-  else if ( (volumeMapper=vtkVolumeMapper::SafeDownCast(m)) != NULL )
+  else if ( (volumeMapper=vtkAbstractVolumeMapper::SafeDownCast(m)) != NULL )
     {
-    this->DataSet = volumeMapper->GetInput();
+    this->DataSet = volumeMapper->GetDataSetInput();
     this->Mapper = volumeMapper;    }
   else
     {

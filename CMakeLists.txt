@@ -97,6 +97,8 @@ OPTION(VTK_USE_RENDERING "Build the vtkRendering kit.  Needed for displaying dat
 OPTION(VTK_USE_PATENTED
        "Build the vtkPatented kit.  These classes are patented and may require a license to use."
        OFF)
+VTK_DEPENDENT_OPTION(VTK_USE_VOLUMERENDERING "Build the vtkVolumeRendering kit." OFF
+                     "VTK_USE_RENDERING" OFF)
 VTK_DEPENDENT_OPTION(VTK_USE_HYBRID "Build the vtkHybrid kit." OFF
                      "VTK_USE_RENDERING" OFF)
 VTK_DEPENDENT_OPTION(VTK_USE_PARALLEL "Build the vtkParallel kit." OFF
@@ -111,6 +113,9 @@ SET(VTK_KITS COMMON FILTERING IO GRAPHICS GENERIC_FILTERING IMAGING)
 IF(VTK_USE_RENDERING)
   SET(VTK_KITS ${VTK_KITS} RENDERING)
 ENDIF(VTK_USE_RENDERING)
+IF(VTK_USE_VOLUMERENDERING)
+  SET(VTK_KITS ${VTK_KITS} VOLUMERENDERING)
+ENDIF(VTK_USE_VOLUMERENDERING)
 IF(VTK_USE_HYBRID)
   SET(VTK_KITS ${VTK_KITS} HYBRID)
 ENDIF(VTK_USE_HYBRID)
@@ -451,6 +456,9 @@ ENDIF(VTK_USE_RENDERING)
 IF(VTK_USE_PATENTED)
   SUBDIRS(Patented)
 ENDIF(VTK_USE_PATENTED)
+IF(VTK_USE_VOLUMERENDERING)
+  SUBDIRS(VolumeRendering)
+ENDIF(VTK_USE_VOLUMERENDERING)
 IF(VTK_USE_HYBRID)
   SUBDIRS(Hybrid)
 ENDIF(VTK_USE_HYBRID)
@@ -480,6 +488,9 @@ IF(BUILD_TESTING)
   IF(VTK_USE_RENDERING)
     SUBDIRS(Rendering/Testing)
   ENDIF(VTK_USE_RENDERING)
+  IF(VTK_USE_VOLUMERENDERING)
+    SUBDIRS(VolumeRendering/Testing)
+  ENDIF(VTK_USE_VOLUMERENDERING)
   IF(VTK_USE_HYBRID)
     SUBDIRS(Hybrid/Testing)
   ENDIF(VTK_USE_HYBRID)
@@ -626,8 +637,6 @@ VTK_DEPENDENT_OPTION(VTK_OPENGL_HAS_OSMESA
 VTK_DEPENDENT_OPTION(VTK_USE_MPI
                      "Use Message Passing Interface (MPI) library for parallel support." OFF
                      "VTK_USE_PARALLEL" OFF)
-VTK_DEPENDENT_OPTION(VTK_USE_VOLUMEPRO "Build VTK with VolumePro support." OFF
-                     "VTK_USE_RENDERING" OFF)
 VTK_DEPENDENT_OPTION(VTK_USE_MATROX_IMAGING
                      "Use Matrox Imaging Library for video input." OFF
                      "VTK_USE_HYBRID;WIN32" OFF)
@@ -642,8 +651,7 @@ MARK_AS_ADVANCED(VTK_OPENGL_HAS_OSMESA
                  VTK_USE_MANGLED_MESA
                  VTK_USE_MATROX_IMAGING
                  VTK_USE_MPI
-                 VTK_USE_VIDEO_FOR_WINDOWS
-                 VTK_USE_VOLUMEPRO)
+                 VTK_USE_VIDEO_FOR_WINDOWS)
 
 #-----------------------------------------------------------------------------
 # Provide options to use system versions of third-party libraries.
@@ -688,16 +696,6 @@ IF(VTK_OPENGL_HAS_OSMESA AND VTK_USE_MANGLED_MESA)
     "Off-Screen MESA cannot be used with Mangled MESA.  Turn off either "
     "VTK_OPENGL_HAS_OSMESA or VTK_USE_MANGLED_MESA.")
 ENDIF(VTK_OPENGL_HAS_OSMESA AND VTK_USE_MANGLED_MESA)
-
-#-----------------------------------------------------------------------------
-# Configure VolumePro support.
-IF(VTK_USE_VOLUMEPRO)
-  INCLUDE(${VTK_SOURCE_DIR}/CMake/FindVLI.cmake)
-  MARK_AS_ADVANCED(VLI_LIBRARY_FOR_VP1000 VLI_INCLUDE_PATH_FOR_VP1000)
-  IF(VLI_LIBRARY_FOR_VP1000 AND VLI_INCLUDE_PATH_FOR_VP1000)
-    SET(VTK_HAVE_VP1000 ON)
-  ENDIF(VLI_LIBRARY_FOR_VP1000 AND VLI_INCLUDE_PATH_FOR_VP1000)
-ENDIF(VTK_USE_VOLUMEPRO)
 
 #-----------------------------------------------------------------------------
 # Configure Matrox Imaging support.
@@ -1025,6 +1023,9 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   IF(VTK_USE_RENDERING)
     INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} .h vtkRenderingInstantiator)
   ENDIF(VTK_USE_RENDERING)
+  IF(VTK_USE_VOLUMERENDERING)
+    INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} .h vtkVolumeRenderingInstantiator)
+  ENDIF(VTK_USE_VOLUMERENDERING)
   IF(VTK_USE_HYBRID)
     INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} .h vtkHybridInstantiator)
   ENDIF(VTK_USE_HYBRID)

@@ -46,6 +46,10 @@
 #include "vtkRenderingInstantiator.h"
 #endif
 
+#ifdef VTK_USE_VOLUMERENDERING
+#include "vtkVolumeRenderingInstantiator.h"
+#endif
+
 #ifdef VTK_USE_PATENTED
 #include "vtkPatentedInstantiator.h"
 #endif

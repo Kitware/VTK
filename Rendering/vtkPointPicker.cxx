@@ -17,10 +17,10 @@
 #include "vtkImageData.h"
 #include "vtkMath.h"
 #include "vtkMapper.h"
-#include "vtkVolumeMapper.h"
+#include "vtkAbstractVolumeMapper.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPointPicker, "1.33");
+vtkCxxRevisionMacro(vtkPointPicker, "1.34");
 vtkStandardNewMacro(vtkPointPicker);
 
 vtkPointPicker::vtkPointPicker()
@@ -38,7 +38,7 @@ double vtkPointPicker::IntersectWithLine(double p1[3], double p2[3], double tol,
   double ray[3], rayFactor, tMin, x[3], t, projXYZ[3], minXYZ[3];
   vtkDataSet *input;
   vtkMapper *mapper;
-  vtkVolumeMapper *volumeMapper;
+  vtkAbstractVolumeMapper *volumeMapper;
 
   // Get the underlying dataset
   //
@@ -46,9 +46,9 @@ double vtkPointPicker::IntersectWithLine(double p1[3], double p2[3], double tol,
     {
     input = mapper->GetInput();
     }
-  else if ( (volumeMapper=vtkVolumeMapper::SafeDownCast(m)) != NULL )
+  else if ( (volumeMapper=vtkAbstractVolumeMapper::SafeDownCast(m)) != NULL )
     {
-    input = volumeMapper->GetInput();
+    input = volumeMapper->GetDataSetInput();
     }
   else
     {

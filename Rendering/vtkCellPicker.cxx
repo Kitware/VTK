@@ -18,9 +18,9 @@
 #include "vtkImageData.h"
 #include "vtkMapper.h"
 #include "vtkObjectFactory.h"
-#include "vtkVolumeMapper.h"
+#include "vtkAbstractVolumeMapper.h"
 
-vtkCxxRevisionMacro(vtkCellPicker, "1.35");
+vtkCxxRevisionMacro(vtkCellPicker, "1.36");
 vtkStandardNewMacro(vtkCellPicker);
 
 vtkCellPicker::vtkCellPicker()
@@ -49,16 +49,16 @@ double vtkCellPicker::IntersectWithLine(double p1[3], double p2[3], double tol,
   double x[3], tMin, t, pcoords[3], minXYZ[3], minPcoords[3];
   vtkDataSet *input;
   vtkMapper *mapper;
-  vtkVolumeMapper *volumeMapper;
+  vtkAbstractVolumeMapper *volumeMapper;
 
   // Get the underlying dataset
   if ( (mapper=vtkMapper::SafeDownCast(m)) != NULL )
     {
     input = mapper->GetInput();
     }
-  else if ( (volumeMapper=vtkVolumeMapper::SafeDownCast(m)) != NULL )
+  else if ( (volumeMapper=vtkAbstractVolumeMapper::SafeDownCast(m)) != NULL )
     {
-    input = volumeMapper->GetInput();
+    input = volumeMapper->GetDataSetInput();
     }
   else
     {

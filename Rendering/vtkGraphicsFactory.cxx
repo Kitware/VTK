@@ -28,9 +28,6 @@
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLTexture.h"
-#include "vtkOpenGLVolumeTextureMapper2D.h"
-#include "vtkOpenGLVolumeRayCastMapper.h"
-#include "vtkOpenGLRayCastImageDisplayHelper.h"
 #endif
 
 // Win32 specific stuff
@@ -72,8 +69,6 @@
 #include "vtkMesaRayCastImageDisplayHelper.h"
 #include "vtkMesaRenderer.h"
 #include "vtkMesaTexture.h"
-#include "vtkMesaVolumeTextureMapper2D.h"
-#include "vtkMesaVolumeRayCastMapper.h"
 #include "vtkXMesaRenderWindow.h"
 #endif
 
@@ -84,7 +79,7 @@
 static vtkSimpleCriticalSection vtkUseMesaClassesCriticalSection;
 int vtkGraphicsFactory::UseMesaClasses = 0;
 
-vtkCxxRevisionMacro(vtkGraphicsFactory, "1.35");
+vtkCxxRevisionMacro(vtkGraphicsFactory, "1.36");
 vtkStandardNewMacro(vtkGraphicsFactory);
 
 const char *vtkGraphicsFactory::GetRenderLibrary()
@@ -286,36 +281,6 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
         }
 #endif
       return vtkOpenGLTexture::New();
-      }
-    if(strcmp(vtkclassname, "vtkVolumeTextureMapper2D") == 0)
-      {
-#if defined(VTK_USE_MANGLED_MESA)
-      if ( vtkGraphicsFactory::UseMesaClasses )
-        {
-        return vtkMesaVolumeTextureMapper2D::New();
-        }
-#endif
-      return vtkOpenGLVolumeTextureMapper2D::New();
-      }
-    if(strcmp(vtkclassname, "vtkVolumeRayCastMapper") == 0)
-      {
-#if defined(VTK_USE_MANGLED_MESA)
-      if ( vtkGraphicsFactory::UseMesaClasses )
-        {
-        return vtkMesaVolumeRayCastMapper::New();
-        }
-#endif
-      return vtkOpenGLVolumeRayCastMapper::New();
-      }
-    if(strcmp(vtkclassname, "vtkRayCastImageDisplayHelper") == 0)
-      {
-#if defined(VTK_USE_MANGLED_MESA)
-      if ( vtkGraphicsFactory::UseMesaClasses )
-        {
-        return vtkMesaRayCastImageDisplayHelper::New();
-        }
-#endif
-      return vtkOpenGLRayCastImageDisplayHelper::New();
       }
     }
 #endif

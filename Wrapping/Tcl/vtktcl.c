@@ -35,6 +35,10 @@ extern int Vtktkimageviewerwidget_Init(Tcl_Interp *interp);
 #endif
 #endif
 
+#ifdef VTK_USE_VOLUMERENDERING
+extern int Vtkvolumerenderingtcl_Init(Tcl_Interp *interp);
+#endif
+
 #ifdef VTK_USE_PATENTED
 extern int Vtkpatentedtcl_Init(Tcl_Interp *interp);
 #endif
@@ -80,6 +84,13 @@ int Vtktcl_Init(Tcl_Interp *interp)
 
 #ifdef VTK_USE_RENDERING
   if (Vtkrenderingtcl_Init(interp) == TCL_ERROR) 
+    {
+    return TCL_ERROR;
+    }
+#endif
+
+#ifdef VTK_USE_VOLUMERENDERING
+  if (Vtkvolumerenderingtcl_Init(interp) == TCL_ERROR) 
     {
     return TCL_ERROR;
     }

@@ -69,6 +69,9 @@ IF(BORLAND)
   IF (VTK_USE_RENDERING)
     SET(KITS ${KITS} Rendering)
   ENDIF(VTK_USE_RENDERING)
+  IF (VTK_USE_VOLUMERENDERING)
+    SET(KITS ${KITS} VolumeRendering)
+  ENDIF(VTK_USE_VOLUMERENDERING)
   FOREACH(KIT ${KITS})
     WRITE_FILE(${LIBRARY_OUTPUT_PATH}/vtk${KIT}Python.def
                "EXPORTS\ninitvtk${KIT}Python=_initvtk${KIT}Python\n")
@@ -189,6 +192,7 @@ IF(PYTHON_EXECUTABLE)
     vtk/patented
     vtk/rendering
     vtk/required
+    vtk/volumerendering
     )
 
 # vtk.util package
