@@ -107,10 +107,7 @@ int vtkPropPicker::PickProp(float selectionX, float selectionY,
   this->SelectionPoint[2] = 0;
 
   // Invoke start pick method if defined
-  if ( this->StartPickMethod ) 
-    {
-    (*this->StartPickMethod)(this->StartPickMethodArg);
-    } 
+  this->InvokeEvent(vtkCommand::StartPickEvent,NULL);
 
   // Have the renderer do the hardware pick
   this->SetPath(
@@ -123,16 +120,10 @@ int vtkPropPicker::PickProp(float selectionX, float selectionY,
     this->WorldPointPicker->Pick(selectionX, selectionY, 0, renderer);
     this->WorldPointPicker->GetPickPosition(this->PickPosition);
     this->Path->GetLastNode()->GetProp()->Pick();
-    if ( this->PickMethod )
-      {
-      (*this->PickMethod)(this->PickMethodArg);
-      }
+    this->InvokeEvent(vtkCommand::PickEvent,NULL);
     } 
 
-  if ( this->EndPickMethod )
-    {
-    (*this->EndPickMethod)(this->EndPickMethodArg);
-    }
+  this->InvokeEvent(vtkCommand::EndPickEvent,NULL);
 
   // Call Pick on the Prop that was picked, and return 1 for success
   if ( this->Path )

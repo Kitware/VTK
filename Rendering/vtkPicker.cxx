@@ -125,10 +125,8 @@ void vtkPicker::MarkPicked(vtkAssemblyPath *path, vtkProp3D *prop3D,
   
   // Invoke pick method if one defined - actor goes first
   prop3D->Pick();
-  if ( this->PickMethod )
-    {
-    (*this->PickMethod)(this->PickMethodArg);
-    }
+  this->InvokeEvent(vtkCommand::PickEvent,NULL);
+
 }
 
 // Perform pick operation with selection point provided. Normally the 
@@ -166,10 +164,7 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
   this->SelectionPoint[2] = selectionZ;
 
   // Invoke start pick method if defined
-  if ( this->StartPickMethod ) 
-    {
-    (*this->StartPickMethod)(this->StartPickMethodArg);
-    }
+  this->InvokeEvent(vtkCommand::StartPickEvent,NULL);
 
   if ( renderer == NULL )
     {
@@ -403,10 +398,7 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
     }//for all actors
 
   // Invoke end pick method if defined
-  if ( this->EndPickMethod )
-    {
-    (*this->EndPickMethod)(this->EndPickMethodArg);
-    }
+  this->InvokeEvent(vtkCommand::EndPickEvent,NULL);
 
   return picked;
 }

@@ -56,15 +56,9 @@ vtkAbstractPicker::vtkAbstractPicker()
   this->PickPosition[1] = 0.0;
   this->PickPosition[2] = 0.0;
 
-  this->StartPickMethod = NULL;
-  this->StartPickMethodArgDelete = NULL;
-  this->StartPickMethodArg = NULL;
-  this->PickMethod = NULL;
-  this->PickMethodArgDelete = NULL;
-  this->PickMethodArg = NULL;
-  this->EndPickMethod = NULL;
-  this->EndPickMethodArgDelete = NULL;
-  this->EndPickMethodArg = NULL;
+  this->StartPickTag = 0;
+  this->PickTag = 0;
+  this->EndPickTag = 0;
 
   this->PickFromList = 0;
   this->PickList = vtkPropCollection::New();
@@ -72,18 +66,6 @@ vtkAbstractPicker::vtkAbstractPicker()
 
 vtkAbstractPicker::~vtkAbstractPicker()
 {
-  if ((this->StartPickMethodArg)&&(this->StartPickMethodArgDelete))
-    {
-    (*this->StartPickMethodArgDelete)(this->StartPickMethodArg);
-    }
-  if ((this->PickMethodArg)&&(this->PickMethodArgDelete))
-    {
-    (*this->PickMethodArgDelete)(this->PickMethodArg);
-    }
-  if ((this->EndPickMethodArg)&&(this->EndPickMethodArgDelete))
-    {
-    (*this->EndPickMethodArgDelete)(this->EndPickMethodArg);
-    }
   this->PickList->Delete();
 }
 
@@ -104,80 +86,65 @@ void vtkAbstractPicker::Initialize()
 // Specify function to be called as picking operation begins.
 void vtkAbstractPicker::SetStartPickMethod(void (*f)(void *), void *arg)
 {
-  if ( f != this->StartPickMethod || arg != this->StartPickMethodArg )
-    {
-    // delete the current arg if there is one and a delete meth
-    if ((this->StartPickMethodArg)&&(this->StartPickMethodArgDelete))
-      {
-      (*this->StartPickMethodArgDelete)(this->StartPickMethodArg);
-      }
-    this->StartPickMethod = f;
-    this->StartPickMethodArg = arg;
-    this->Modified();
-    }
+  vtkOldStyleCallbackCommand *cbc = new vtkOldStyleCallbackCommand;
+  cbc->Callback = f;
+  cbc->ClientData = arg;
+  this->RemoveObserver(this->StartPickTag);
+  this->StartPickTag = this->AddObserver(vtkCommand::StartPickEvent,cbc);
 }
 
 // Specify function to be called when something is picked.
 void vtkAbstractPicker::SetPickMethod(void (*f)(void *), void *arg)
 {
-  if ( f != this->PickMethod || arg != this->PickMethodArg )
-    {
-    // delete the current arg if there is one and a delete meth
-    if ((this->PickMethodArg)&&(this->PickMethodArgDelete))
-      {
-      (*this->PickMethodArgDelete)(this->PickMethodArg);
-      }
-    this->PickMethod = f;
-    this->PickMethodArg = arg;
-    this->Modified();
-    }
+  vtkOldStyleCallbackCommand *cbc = new vtkOldStyleCallbackCommand;
+  cbc->Callback = f;
+  cbc->ClientData = arg;
+  this->RemoveObserver(this->StartPickTag);
+  this->StartPickTag = this->AddObserver(vtkCommand::PickEvent,cbc);
 }
 
 // Specify function to be called after all picking operations have been
 // performed.
 void vtkAbstractPicker::SetEndPickMethod(void (*f)(void *), void *arg)
 {
-  if ( f != this->EndPickMethod || arg != this->EndPickMethodArg )
-    {
-    // delete the current arg if there is one and a delete meth
-    if ((this->EndPickMethodArg)&&(this->EndPickMethodArgDelete))
-      {
-      (*this->EndPickMethodArgDelete)(this->EndPickMethodArg);
-      }
-    this->EndPickMethod = f;
-    this->EndPickMethodArg = arg;
-    this->Modified();
-    }
+  vtkOldStyleCallbackCommand *cbc = new vtkOldStyleCallbackCommand;
+  cbc->Callback = f;
+  cbc->ClientData = arg;
+  this->RemoveObserver(this->StartPickTag);
+  this->StartPickTag = this->AddObserver(vtkCommand::EndPickEvent,cbc);
 }
 
 
 // Set a method to delete user arguments for StartPickMethod.
 void vtkAbstractPicker::SetStartPickMethodArgDelete(void (*f)(void *))
 {
-  if ( f != this->StartPickMethodArgDelete)
+  vtkOldStyleCallbackCommand *cmd = 
+    (vtkOldStyleCallbackCommand *)this->GetCommand(this->StartPickTag);
+  if (cmd)
     {
-    this->StartPickMethodArgDelete = f;
-    this->Modified();
+    cmd->SetClientDataDeleteCallback(f);
     }
 }
 
 // Set a method to delete user arguments for PickMethod.
 void vtkAbstractPicker::SetPickMethodArgDelete(void (*f)(void *))
 {
-  if ( f != this->PickMethodArgDelete)
+  vtkOldStyleCallbackCommand *cmd = 
+    (vtkOldStyleCallbackCommand *)this->GetCommand(this->PickTag);
+  if (cmd)
     {
-    this->PickMethodArgDelete = f;
-    this->Modified();
+    cmd->SetClientDataDeleteCallback(f);
     }
 }
 
 // Set a method to delete user arguments for EndPickMethod.
 void vtkAbstractPicker::SetEndPickMethodArgDelete(void (*f)(void *))
 {
-  if ( f != this->EndPickMethodArgDelete)
+  vtkOldStyleCallbackCommand *cmd = 
+    (vtkOldStyleCallbackCommand *)this->GetCommand(this->EndPickTag);
+  if (cmd)
     {
-    this->EndPickMethodArgDelete = f;
-    this->Modified();
+    cmd->SetClientDataDeleteCallback(f);
     }
 }
 
@@ -213,33 +180,6 @@ void vtkAbstractPicker::PrintSelf(ostream& os, vtkIndent indent)
   else
     {
     os << indent << "Picking from renderer's prop list\n";
-    }
-
-  if ( this->StartPickMethod )
-    {
-    os << indent << "Start PickMethod defined\n";
-    }
-  else
-    {
-    os << indent <<"No Start PickMethod\n";
-    }
-
-  if ( this->PickMethod )
-    {
-    os << indent << " PickMethod defined\n";
-    }
-  else
-    {
-    os << indent << "No  PickMethod\n";
-    }
-
-  if ( this->EndPickMethod )
-    {
-    os << indent << "End PickMethod defined\n";
-    }
-  else
-    {
-    os << indent << "No End PickMethod\n";
     }
 
   os << indent << "Renderer: " << this->Renderer << "\n";

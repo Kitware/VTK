@@ -177,15 +177,9 @@ protected:
   float PickPosition[3]; //selection point in world coordinates
   
   // the following are used to manage invocation of pick methods
-  void (*StartPickMethod)(void *);
-  void (*StartPickMethodArgDelete)(void *);
-  void *StartPickMethodArg;
-  void (*PickMethod)(void *);
-  void *PickMethodArg;
-  void (*PickMethodArgDelete)(void *);
-  void (*EndPickMethod)(void *);
-  void (*EndPickMethodArgDelete)(void *);
-  void *EndPickMethodArg;
+  unsigned long StartPickTag;
+  unsigned long PickTag;
+  unsigned long EndPickTag;
   
   // use the following to control picking from a list
   int PickFromList;
