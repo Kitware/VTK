@@ -125,7 +125,7 @@ void vtkStreamer::SetStartLocation(int cellId, int subId, float r, float s, floa
 }
 
 // Description:
-// Get the starting location of the streamline in the cell corrdinate system.
+// Get the starting location of the streamline in the cell coordinate system.
 int vtkStreamer::GetStartLocation(int& subId, float pcoords[3])
 {
   subId = this->StartSubId;
