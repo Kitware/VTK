@@ -42,7 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkImage4dShortReader will read an image saved as unsigned shorts.
 // The dimensions of the image has to be prespecified.
 // The header of the file is completely ignored.  
-// Images are stored in individual files: i.e. root.1, root.2 ...
+// Images are stored in individual files: i.e. prefix.1, prefix.2 ...
 // This class generate 4d regions.  It will just 
 // duplicate the 3d volume for each slice of the extra dimension.
 
@@ -58,6 +58,7 @@ class vtkImage4dShortReader : public vtkImageCachedSource
 {
 public:
   vtkImage4dShortReader();
+  ~vtkImage4dShortReader();
   char *GetClassName() {return "vtkImage4dShortReader";};
   void PrintSelf(ostream& os, vtkIndent indent);   
   
@@ -123,10 +124,9 @@ public:
   
 protected:
   int Initialized;
-  char FilePrefix[200];
-  char FilePattern[50];
-  char FileRoot[250];
-  char FileName[300];
+  char *FilePrefix;
+  char *FilePattern;
+  char *FileName;
   ifstream *File;
   int FileSize;
   int HeaderSize;

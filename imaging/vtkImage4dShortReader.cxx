@@ -43,8 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageCache.h"
 
 //----------------------------------------------------------------------------
-// Description:
-// Construct an instance of vtkImage4dShortReader fitler.
 vtkImage4dShortReader::vtkImage4dShortReader()
 {
   this->File = NULL;
@@ -60,14 +58,39 @@ vtkImage4dShortReader::vtkImage4dShortReader()
   this->PixelMin = +9e99;
   this->SetAspectRatio(1.0, 1.0, 1.0, 1.0);
   this->SetOrigin(0.0, 0.0, 0.0, 0.0);
+
+  this->FilePrefix = NULL;
+  this->FilePattern = NULL;
+  this->FileName = NULL;
   
   this->SetFilePrefix("");
-  this->SetFilePattern(".%d");
-  this->FileRoot[0] = '\0';
+  this->SetFilePattern("%s.%d");
 
   this->HeaderSize = 0;
   this->Initialized = 0;
 }
+
+
+//----------------------------------------------------------------------------
+vtkImage4dShortReader::~vtkImage4dShortReader()
+{ 
+  if (this->FilePrefix)
+    {
+    delete [] this->FilePrefix;
+    this->FilePrefix = NULL;
+    }
+  if (this->FilePattern)
+    {
+    delete [] this->FilePattern;
+    this->FilePattern = NULL;
+    }
+  if (this->FileName)
+    {
+    delete [] this->FileName;
+    this->FileName = NULL;
+    }
+}
+
 
 
 //----------------------------------------------------------------------------
@@ -93,7 +116,6 @@ void vtkImage4dShortReader::PrintSelf(ostream& os, vtkIndent indent)
   else
     {
     os << indent << "HeaderSize: " << this->HeaderSize << "\n";
-    os << indent << "FileRoot: " << this->FileRoot << "\n";
     }
 }
 
@@ -153,6 +175,21 @@ void vtkImage4dShortReader::Initialize()
     return;
     }
   
+  if ( ! this->FilePrefix || ! this->FilePattern)
+    {
+    vtkErrorMacro(<< "Initialize: Null string.");
+    return;
+    }
+  
+  // Allocate a large enough string for the file name.
+  if (this->FileName)
+    {
+    delete [] this->FileName;
+    }
+  this->FileName = new char[strlen(this->FilePrefix) +
+			    strlen(this->FilePattern) + 50];
+  
+  
   // Close file from any previous image
   if (this->File)
     {
@@ -161,9 +198,7 @@ void vtkImage4dShortReader::Initialize()
     this->File = NULL;
     }
   
-  strncpy(this->FileRoot, this->FilePrefix, 300);
-  strncat(this->FileRoot, this->FilePattern, 300);
-  sprintf(this->FileName, this->FileRoot, this->First);
+  sprintf(this->FileName, this->FilePattern, this->FilePrefix, this->First);
   
   // Open the new file
   vtkDebugMacro(<< "SetFileName: opening Short file " << this->FileName);
@@ -196,7 +231,12 @@ void vtkImage4dShortReader::Initialize()
 // name of a series: image.1, image.2 ...
 void vtkImage4dShortReader::SetFilePrefix(char *prefix)
 {
-  strncpy(this->FilePrefix, prefix, 200);
+  if (this->FilePrefix)
+    {
+    delete [] this->FilePrefix;
+    }
+  this->FilePrefix = new char[strlen(prefix) + 1];
+  strcpy(this->FilePrefix, prefix);
   this->Initialized = 0;
   this->Modified();
 }
@@ -204,11 +244,16 @@ void vtkImage4dShortReader::SetFilePrefix(char *prefix)
 //----------------------------------------------------------------------------
 // Description:
 // This function sets the pattern of the file name which turn a prefix
-// into a file name. ".%3d" would be the
+// into a file name. "%s.%3d" would be the
 // pattern of a series: image.001, image.002 ...
 void vtkImage4dShortReader::SetFilePattern(char *pattern)
 {
-  strncpy(this->FilePattern, pattern, 50);
+  if (this->FilePattern)
+    {
+    delete [] this->FilePattern;
+    }
+  this->FilePattern = new char[strlen(pattern) + 1];
+  strcpy(this->FilePattern, pattern);
   this->Initialized = 0;
   this->Modified();
 }
@@ -475,7 +520,7 @@ void vtkImage4dShortReader::UpdateRegion2d(vtkImageRegion *region)
   this->Output->AllocateRegion(region);
 
   // open the correct file for this slice
-  sprintf(this->FileName, this->FileRoot, fileNumber);
+  sprintf(this->FileName, this->FilePattern, this->FilePrefix, fileNumber);
   vtkDebugMacro(<< "UpdateRegion2d: opening file " << this->FileName);
   this->File = new ifstream(this->FileName, ios::in);
   if (! this->File)

@@ -48,15 +48,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageConvolution1d_h
 
 
-#include "vtkImageSpatial1d.h"
+#include "vtkImageSpatialFilter.h"
 #include "vtkImageRegion.h"
 
-class vtkImageConvolution1d : public vtkImageSpatial1d
+class vtkImageConvolution1d : public vtkImageSpatialFilter
 {
 public:
   vtkImageConvolution1d();
   ~vtkImageConvolution1d();
   char *GetClassName() {return "vtkImageConvolution1d";};
+  void PrintSelf(ostream& os, vtkIndent indent);
+  
   void SetKernel(float *kernel, int size);
   // Description:
   // Set/Get whether to rescale boundary-truncated kernel

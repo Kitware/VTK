@@ -50,6 +50,7 @@ vtkImageConvolution1d::vtkImageConvolution1d()
   this->BoundaryFactors = NULL;
   this->SetAxes1d(VTK_IMAGE_X_AXIS);
   this->BoundaryRescaleOn();
+  this->UseExecuteCenterOff();
   this->HandleBoundariesOn();
 }
 
@@ -65,7 +66,34 @@ vtkImageConvolution1d::~vtkImageConvolution1d()
     delete [] this->BoundaryFactors;
 }
 
-
+//----------------------------------------------------------------------------
+void vtkImageConvolution1d::PrintSelf(ostream& os, vtkIndent indent)
+{
+  int idx;
+  
+  this->vtkImageSpatialFilter::PrintSelf(os, indent);
+  os << indent << "BoundaryRescale: " << this->BoundaryRescale << "\n";
+  if (this->Kernel && this->KernelSize[0] > 0)
+    {
+    os << indent << "Kernel: (" << this->Kernel[0];
+    for (idx = 1; idx < this->KernelSize[0]; ++idx)
+      {
+      os << ", " << this->Kernel[idx];
+      }
+    os << ")\n";
+    }
+  
+  if (this->BoundaryFactors && this->KernelSize[0] > 0)
+    {
+    os << indent << "BoundaryFactors: (" << this->BoundaryFactors[0];
+    for (idx = 1; idx < this->KernelSize[0]; ++idx)
+      {
+      os << ", " << this->BoundaryFactors[idx];
+      }
+    os << ")\n";
+    }
+  
+}
 
 //----------------------------------------------------------------------------
 // Description:
@@ -107,8 +135,8 @@ void vtkImageConvolution1d::SetKernel(float *kernel, int size)
     {
     this->Kernel[idx] = kernel[idx];
     }
-  this->KernelSize = size;
-  mid = this->KernelMiddle = size / 2;
+  this->KernelSize[0] = size;
+  mid = this->KernelMiddle[0] = size / 2;
   
   // compute default BoundaryFactors factors
   temp = (float)(size-1)/2.0;
@@ -163,8 +191,8 @@ void vtkImageConvolution1dExecute1d(vtkImageConvolution1d *self,
   outRegion->GetImageBounds1d(outImageBoundsMin, outImageBoundsMax);
   if (self->HandleBoundaries)
     {
-    outImageBoundsMin += self->KernelMiddle;
-    outImageBoundsMax -= (self->KernelSize - 1) - self->KernelMiddle;
+    outImageBoundsMin += self->KernelMiddle[0];
+    outImageBoundsMax -= (self->KernelSize[0] - 1) - self->KernelMiddle[0];
     }
   else
     {
@@ -192,7 +220,7 @@ void vtkImageConvolution1dExecute1d(vtkImageConvolution1d *self,
     sum = 0.0;
     kernelPtr = self->Kernel + cut;
     tmpPtr = inPtr;
-    for (kernelIdx = cut; kernelIdx < self->KernelSize; ++kernelIdx)
+    for (kernelIdx = cut; kernelIdx < self->KernelSize[0]; ++kernelIdx)
       {
       sum += *kernelPtr * (float)(*tmpPtr);
       ++kernelPtr;
@@ -201,7 +229,7 @@ void vtkImageConvolution1dExecute1d(vtkImageConvolution1d *self,
     // Rescale
     if (self->BoundaryRescale)
       {
-      sum *= self->BoundaryFactors[self->KernelMiddle - cut];
+      sum *= self->BoundaryFactors[self->KernelMiddle[0] - cut];
       }
     // Set output pixel.
     *outPtr = (T)(sum);
@@ -217,7 +245,7 @@ void vtkImageConvolution1dExecute1d(vtkImageConvolution1d *self,
     sum = 0.0;
     kernelPtr = self->Kernel;
     tmpPtr = inPtr;
-    for (kernelIdx = 0; kernelIdx < self->KernelSize; ++kernelIdx)
+    for (kernelIdx = 0; kernelIdx < self->KernelSize[0]; ++kernelIdx)
       {
       sum += *kernelPtr * (float)(*tmpPtr);
       ++kernelPtr;
@@ -241,7 +269,7 @@ void vtkImageConvolution1dExecute1d(vtkImageConvolution1d *self,
     sum = 0.0;
     kernelPtr = self->Kernel;
     tmpPtr = inPtr;
-    for (kernelIdx = cut; kernelIdx < self->KernelSize; ++kernelIdx)
+    for (kernelIdx = cut; kernelIdx < self->KernelSize[0]; ++kernelIdx)
       {
       sum += *kernelPtr * (float)(*tmpPtr);
       ++kernelPtr;
@@ -250,7 +278,7 @@ void vtkImageConvolution1dExecute1d(vtkImageConvolution1d *self,
     // Normalize sum.
     if (self->BoundaryRescale)
       {
-      sum *= self->BoundaryFactors[self->KernelMiddle + cut];
+      sum *= self->BoundaryFactors[self->KernelMiddle[0] + cut];
       }
     // Set output pixel.
     *outPtr = (T)(sum);
