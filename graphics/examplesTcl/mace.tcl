@@ -8,6 +8,7 @@ source ../../examplesTcl/vtkInt.tcl
 vtkRenderer ren1
 vtkRenderWindow renWin
     renWin AddRenderer ren1
+    renWin SetWindowName "vtk - Mace"
 vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
