@@ -177,7 +177,7 @@ void vtkWin32OpenGLRenderWindow::Frame(void)
   glFlush();
   if (!this->AbortRender && this->DoubleBuffer)
     {
-    vtkWin32OpenGLSwapBuffers(wglGetCurrentDC());
+    vtkWin32OpenGLSwapBuffers(this->DeviceContext);
     vtkDebugMacro(<< " SwapBuffers\n");
     }
 }
