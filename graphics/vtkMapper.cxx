@@ -77,7 +77,6 @@ void vtkMapper::SetGlobalImmediateModeRendering(int val)
 {
   if (val == vtkMapperGlobalImmediateModeRendering) return;
   vtkMapperGlobalImmediateModeRendering = val;
-  vtkDebugMacro( << "setting GlobalImmediateModeRendering to " << val );
   this->Modified(); 
 }
 

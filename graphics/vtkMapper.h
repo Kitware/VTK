@@ -114,12 +114,12 @@ public:
   // The default value is immediate mode off. If you are 
   // having problems rendering a large dataset you might
   // want to consider using imediate more rendering.
-  void SetGlobalImmediateModeRendering(int val);
-  void GlobalImmediateModeRenderingOn() 
-  {this->SetGlobalImmediateModeRendering(1);};
-  void GlobalImmediateModeRenderingOff() 
-  {this->SetGlobalImmediateModeRendering(0);};
-  int  GetGlobalImmediateModeRendering();
+  static void SetGlobalImmediateModeRendering(int val);
+  static void GlobalImmediateModeRenderingOn() 
+  {vtkMapper::SetGlobalImmediateModeRendering(1);};
+  static void GlobalImmediateModeRenderingOff() 
+  {vtkMapper::SetGlobalImmediateModeRendering(0);};
+  static int  GetGlobalImmediateModeRendering();
 
   // Description:
   // Specify range in terms of scalar minimum and maximum (smin,smax). These
