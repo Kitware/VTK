@@ -15,6 +15,11 @@ proc BindTkRenderWidget {widget} {
     bind $widget <KeyPress-s> Surface
     bind $widget <Enter> {Enter %W %x %y}
     bind $widget <Leave> {focus $oldFocus}
+    bind $widget <Expose> {Expose %W}
+}
+
+proc Expose {widget} {
+   [$widget GetRenderWindow] Render
 }
 
 # Global variable keeps track of whether active renderer was found
@@ -70,7 +75,7 @@ proc UpdateRenderer {widget x y} {
     set CurrentCamera [$CurrentRenderer GetActiveCamera]
     set lights [$CurrentRenderer GetLights]
     $lights InitTraversal; set CurrentLight [$lights GetNextItem]
-
+   
     set LastX $x
     set LastY $y
 }
