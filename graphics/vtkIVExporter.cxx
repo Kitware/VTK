@@ -257,6 +257,12 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   unsigned char *c;
   vtkTransform *trans;
   
+  // see if the actor has a mapper. it could be an assembly
+  if (anActor->GetMapper() == NULL)
+    {
+    return;
+    }
+
   fprintf(fp,"%sSeparator {\n", indent);
   indent_more;
 

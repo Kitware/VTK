@@ -241,6 +241,12 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   vtkTransform *trans;
   int totalValues;
   
+  // see if the actor has a mapper. it could be an assembly
+  if (anActor->GetMapper() == NULL)
+    {
+    return;
+    }
+
   // first stuff out the transform
   trans = vtkTransform::New();
   trans->SetMatrix(*(anActor->vtkProp::GetMatrixPointer()));
