@@ -16,6 +16,8 @@ SUBDIR_DEPENDS(IO Filtering)
 SET (LIBRARY_OUTPUT_PATH ${VTK_BINARY_DIR}/bin/ CACHE PATH "Single output directory for building all libraries.")
 SET (EXECUTABLE_OUTPUT_PATH ${VTK_BINARY_DIR}/bin/ CACHE PATH "Single output directory for building all executables.")
 
+SET (VTK_LIBRARY_PATH ${LIBRARY_OUTPUT_PATH} CACHE INTERNAL "Where VTK libraries are. Used by projects which depend on VTK. Do not remove.")
+
 OPTION (VTK_USE_RENDERING "Build the rendering classes used for displaying" ON)
 OPTION (VTK_DEBUG_LEAKS "Build leak checking support into vtk." OFF)
 OPTION (VTK_USE_HYBRID "Build the hybrid directory classes")
