@@ -21,7 +21,7 @@ if {$tcl_platform(os) == "Windows NT"} {
 if { [catch {set VTK_PLATFORM ".$env(VTK_PLATFORM)"}] != 0} { set VTK_PLATFORM "" }
 
 # determine where the "valid" are kept
-if { [catch {set validPath $env(VTK_OTHER_VALID_PATH) }] != 0} {
+if { [catch {set validPath $env(VTK_VALID_OTHER_PATH) }] != 0} {
     set validPath valid
 } else {
     # are we in graphics or imaging or ?
