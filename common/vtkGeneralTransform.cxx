@@ -274,11 +274,23 @@ void vtkGeneralTransform::Update()
 // inverse
 void vtkGeneralTransform::UnRegister(vtkObject *o)
 {
-  if (this->ReferenceCount == 2 && this->MyInverse && 
-      this->MyInverse->GetOriginalTransform() == this)
+  if (this->InUnRegister)
     {
     this->ReferenceCount--;
+    return;
     }
+
+  // 'this' is reference by this->MyInverse
+  if (this->ReferenceCount == 2 && this->MyInverse &&
+      this->MyInverse->GetReferenceCount() == 1 &&
+      this->MyInverse->GetOriginalTransform() == this)
+    { // break the cycle
+    this->InUnRegister = 1;
+    this->MyInverse->Delete();
+    this->MyInverse = NULL;
+    this->InUnRegister = 0;
+    }
+
   this->vtkObject::UnRegister(o);
 }
 

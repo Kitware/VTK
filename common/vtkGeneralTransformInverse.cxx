@@ -309,23 +309,23 @@ unsigned long vtkGeneralTransformInverse::GetMTime()
 // need to handle the circular references
 void vtkGeneralTransformInverse::UnRegister(vtkObject *o)
 {
-  // 'this' is referenced by this->OriginalTransform
-  if (this->ReferenceCount == 2 &&
-      (this->OriginalTransform && 
-       this->OriginalTransform->GetInverse() == this))
+  if (this->InUnRegister)
     {
     this->ReferenceCount--;
+    return;
     }
-  // 'this' is referenced by this->OriginalTransform, and
-  // 'this' is also referenced by this->MyInverse
-  else if (this->ReferenceCount == 3 &&
-	   (this->OriginalTransform && 
-	    this->OriginalTransform->GetInverse() == this) &&
-	   (this->MyInverse &&
-	    this->MyInverse->GetOriginalTransform() == this))
-    {
-    this->ReferenceCount--;
+
+  // 'this' is referenced by this->OriginalTransform
+  if (this->ReferenceCount == 2 && this->OriginalTransform && 
+      this->OriginalTransform->GetReferenceCount() == 1 &&
+      this->OriginalTransform->GetInverse() == this)
+    { // break the cycle
+    this->InUnRegister = 1;
+    this->OriginalTransform->Delete();
+    this->OriginalTransform = NULL;
+    this->InUnRegister = 0;
     }
 
   this->vtkGeneralTransform::UnRegister(o);
 }
+

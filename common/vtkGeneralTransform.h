@@ -149,7 +149,8 @@ public:
 
 protected:
   vtkGeneralTransform() { this->AutoUpdate = 1; 
-                          this->MyInverse = NULL; };
+                          this->MyInverse = NULL; 
+                          this->InUnRegister = 0; };
 
   ~vtkGeneralTransform() {};
   vtkGeneralTransform(const vtkGeneralTransform&) {};
@@ -167,6 +168,8 @@ protected:
   
   float InternalFloatPoint[3];
   double InternalDoublePoint[3];
+
+  int InUnRegister;
 };
 
 #endif
