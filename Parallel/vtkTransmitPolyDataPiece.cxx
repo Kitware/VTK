@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkMultiProcessController.h"
 
-vtkCxxRevisionMacro(vtkTransmitPolyDataPiece, "1.9");
+vtkCxxRevisionMacro(vtkTransmitPolyDataPiece, "1.10");
 vtkStandardNewMacro(vtkTransmitPolyDataPiece);
 
 vtkCxxSetObjectMacro(vtkTransmitPolyDataPiece,Controller,
@@ -199,7 +199,7 @@ void vtkTransmitPolyDataPiece::RootExecute()
 }
 
 //----------------------------------------------------------------------------
-void vtkTransmitPolyDataPiece::SatelliteExecute(int procId)
+void vtkTransmitPolyDataPiece::SatelliteExecute(int)
 {
   vtkPolyData *tmp = vtkPolyData::New();
   vtkPolyData *output = this->GetOutput();

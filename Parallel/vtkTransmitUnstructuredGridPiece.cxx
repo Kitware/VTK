@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkMultiProcessController.h"
 
-vtkCxxRevisionMacro(vtkTransmitUnstructuredGridPiece, "1.9");
+vtkCxxRevisionMacro(vtkTransmitUnstructuredGridPiece, "1.10");
 vtkStandardNewMacro(vtkTransmitUnstructuredGridPiece);
 
 vtkCxxSetObjectMacro(vtkTransmitUnstructuredGridPiece,Controller,
@@ -164,7 +164,7 @@ void vtkTransmitUnstructuredGridPiece::RootExecute()
 }
 
 //----------------------------------------------------------------------------
-void vtkTransmitUnstructuredGridPiece::SatelliteExecute(int procId)
+void vtkTransmitUnstructuredGridPiece::SatelliteExecute(int)
 {
   vtkUnstructuredGrid *tmp = vtkUnstructuredGrid::New();
   vtkUnstructuredGrid *output = this->GetOutput();
