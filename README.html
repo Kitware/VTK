@@ -65,7 +65,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.<p>
 "The Visualization Toolkit, an Object-Oriented Approach to 3D Graphics" is
 the title of a new book published by Prentice Hall (ISBN 013199837-4).  <p>
 
-This is version 2.3. In this release there have been many bugs fixed and a
+This is version 3.1. In this release there have been many bugs fixed and a
 number of new classes. Depending on when you get this, there may be more
 recent versions out. For more information and a FAQ see our web page at
 <A HREF="http://www.kitware.com">http://www.kitware.com</A><p>
@@ -86,16 +86,15 @@ objects in vtk as well as a FAQ.<pre>
 <HR>
 <h1><A NAME="Installation">Installation</h1>
 
-The Visualization Toolkit can be built on both Unix and PC (Win95,
-WinNT) systems.<p>
+The Visualization Toolkit can be built on both Unix and PC (Win95, Win98,
+WinNT, Win2000) systems.<p>
 
 <h3><A NAME="Unix">Unix Installation</h3>
 The following instructions only apply to UNIX systems.  
 The windows source distribution will be released in a different file.<p>
 
 First we will give you the quick and dirty way to build vtk.
-If you have OpenGL, XGL (with header files), or Starbase
-do the following:<p>
+If you have OpenGL do the following:<p>
 
 If you will be using C++ as your development language:<pre>
 
@@ -126,11 +125,11 @@ env CXX=/your/C++/compiler CC=/your/c/compiler ./configure</pre>
 otherwise you must set CXX and CC in your environment and then
 run configure.<p>
 
-This release has some java support, you can use --with-java but
+This release has java support, you can use --with-java but
 I think it only works on Sun Solaris and Windows. But feel free 
 to experiment.<p>
 
-If you do not have OpenGL, Starbase or XGL the you will need to get and
+If you do not have OpenGL, you will need to get and
 compile Mesa, a wonderful free version of OpenGL. You will need to add
 --with-mesa to your configure line. If you want to try building shared
 libraries you can use the --with-shared option also.<p>
@@ -143,7 +142,7 @@ There are a couple of options in building the software that you need to
 decide on. First you need to decide if you are going to use the Mesa
 rendering library developed by Brian Paul.  This is a software renderer that
 vtk can use on Xwindows based workstations.  If your workstation doesn't
-support Starbase, XGL, OpenGL or GL then you will need Mesa because you have
+support OpenGL then you will need Mesa because you have
 no other choice :-) If you want to build the vtk interpreter then you will
 need to have Tcl7.4 and Tk4.0 or greater. <p>
 
@@ -205,9 +204,9 @@ architecture you wish to build.<p>
     dependencies and makefiles. Then you use the compiler make utility
     to compile as follows.<pre>
 
-    1. Install vtk2.1 distribution by unzipping in appropriate directory.
+    1. Install vtk3.1 distribution by unzipping in appropriate directory.
 
-    2. Execute vtk\pcmaker\Debug\pcmaker.exe. This will pop-up a little
+    2. Execute vtk\pcmaker\pcmaker.exe. This will pop-up a little
        GUI that allows you to tailor the build. It then starts
        building makefiles and dependencies. It will run for a couple
        minutes depending on your system. You'll have to tell pcamaker
