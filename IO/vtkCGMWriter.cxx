@@ -24,7 +24,7 @@
 #include "vtkCellData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCGMWriter, "1.17");
+vtkCxxRevisionMacro(vtkCGMWriter, "1.18");
 vtkStandardNewMacro(vtkCGMWriter);
 
 vtkCxxSetObjectMacro(vtkCGMWriter, Viewport, vtkViewport);
@@ -527,22 +527,10 @@ int vtkCGMqsortCompare(const void *val1, const void *val2)
 
 void vtkCGMWriter::WriteData()
 {
-  cgmImagePtr im;
   FILE *outf;
   vtkPolyData *input=this->GetInput();
-  vtkPoints *inPts=input->GetPoints(), *pts;
-  vtkGenericCell *cell=vtkGenericCell::New();
-  vtkDataArray *inScalars=input->GetCellData()->GetScalars();
   vtkIdType numCells=input->GetNumberOfCells(), cellId;
   vtkIdType numPts=input->GetNumberOfPoints();
-  int i, id, type, npts, size[2];
-  vtkIdType *p;
-  double bounds[6], xRange, yRange, x[3], factor[2];
-  int color, bpp=1, colorMode;
-  unsigned char *ptr, *colors=NULL;
-  int rgbColor[3], maxCellSize;
-  cgmPoint *points;
-  vtkSortValues *depth=NULL; //warnings
 
   // Check that there is something to write
   if ( numPts < 1 || numCells < 1 )
@@ -557,6 +545,19 @@ void vtkCGMWriter::WriteData()
     vtkErrorMacro(<<"Cannot open CGM file");
     return;
     }
+
+  cgmImagePtr im;
+  vtkPoints *inPts=input->GetPoints(), *pts;
+  vtkGenericCell *cell=vtkGenericCell::New();
+  vtkDataArray *inScalars=input->GetCellData()->GetScalars();
+  int i, id, type, npts, size[2];
+  vtkIdType *p;
+  double bounds[6], xRange, yRange, x[3], factor[2];
+  int color, bpp=1, colorMode;
+  unsigned char *ptr, *colors=NULL;
+  int rgbColor[3], maxCellSize;
+  cgmPoint *points;
+  vtkSortValues *depth=NULL; //warnings
 
   // Figure out the coordinate range of the data.
   // Generate the points that will be used for output.
