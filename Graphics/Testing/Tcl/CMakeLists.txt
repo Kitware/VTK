@@ -18,6 +18,7 @@ IF (VTK_USE_RENDERING)
       Canny
       capSphere
       clipArt
+      contourCells
       createBFont
       cylMap
       dataSetSurfaceFilter
