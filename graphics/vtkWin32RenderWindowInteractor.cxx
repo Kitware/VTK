@@ -231,7 +231,10 @@ int vtkWin32RenderWindowInteractor::DestroyTimer(void)
 void vtkWin32RenderWindowInteractor::OnMouseMove(HWND wnd, UINT nFlags, 
                                                  int X, int Y) 
 {
-  if (!this->Enabled) return;
+  if (!this->Enabled) 
+    {
+    return;
+    }
   InteractorStyle->OnMouseMove(nFlags & MK_CONTROL, nFlags & MK_SHIFT, 
                                X, this->Size[1] - Y - 1);
 }
@@ -239,60 +242,78 @@ void vtkWin32RenderWindowInteractor::OnMouseMove(HWND wnd, UINT nFlags,
 void vtkWin32RenderWindowInteractor::OnLButtonDown(HWND wnd,UINT nFlags, 
                                                    int X, int Y) 
 {
-  if (!this->Enabled) return;
+  if (!this->Enabled) 
+    {
+    return;
+    }
   SetCapture(wnd);
   this->InteractorStyle->OnLeftButtonDown(nFlags & MK_CONTROL, 
-					  nFlags & MK_SHIFT, 
-					  X, this->Size[1] - Y - 1);
+                                          nFlags & MK_SHIFT, 
+                                          X, this->Size[1] - Y - 1);
 }
 
 void vtkWin32RenderWindowInteractor::OnLButtonUp(HWND wnd,UINT nFlags, 
                                                  int X, int Y) 
 {
-  if (!this->Enabled) return;
+  if (!this->Enabled) 
+    {
+    return;
+    }
   this->InteractorStyle->OnLeftButtonUp(nFlags & MK_CONTROL, 
-					nFlags & MK_SHIFT, 
-					X, this->Size[1] - Y - 1);
+                                        nFlags & MK_SHIFT, 
+                                        X, this->Size[1] - Y - 1);
   ReleaseCapture( );
 }
 
 void vtkWin32RenderWindowInteractor::OnMButtonDown(HWND wnd,UINT nFlags, 
                                                    int X, int Y) 
 {
-  if (!this->Enabled) return;
+  if (!this->Enabled) 
+    {
+    return;
+    }
   SetCapture(wnd);
   this->InteractorStyle->OnMiddleButtonDown(nFlags & MK_CONTROL, 
-					    nFlags & MK_SHIFT, 
-					    X, this->Size[1] - Y - 1);
+                                            nFlags & MK_SHIFT, 
+                                            X, this->Size[1] - Y - 1);
 }
 
 void vtkWin32RenderWindowInteractor::OnMButtonUp(HWND wnd,UINT nFlags, 
                                                  int X, int Y) 
 {
-  if (!this->Enabled) return;
+  if (!this->Enabled) 
+    {
+    return;
+    }
   this->InteractorStyle->OnMiddleButtonUp(nFlags & MK_CONTROL, 
-					  nFlags & MK_SHIFT, 
-					  X, this->Size[1] - Y - 1);
+                                          nFlags & MK_SHIFT, 
+                                          X, this->Size[1] - Y - 1);
   ReleaseCapture( );
 }
 
 void vtkWin32RenderWindowInteractor::OnRButtonDown(HWND wnd,UINT nFlags, 
                                                    int X, int Y) 
 {
-  if (!this->Enabled) return;
+  if (!this->Enabled) 
+    {
+    return;
+    }
   SetCapture(wnd );
   this->InteractorStyle->OnRightButtonDown(nFlags & MK_CONTROL, 
-					   nFlags & MK_SHIFT, 
-					   X, this->Size[1] - Y - 1);
+                                           nFlags & MK_SHIFT, 
+                                           X, this->Size[1] - Y - 1);
 }
 
 void vtkWin32RenderWindowInteractor::OnRButtonUp(HWND wnd,UINT nFlags, 
                                                  int X, int Y) 
 {
-  if (!this->Enabled) return;
+  if (!this->Enabled) 
+    {
+    return;
+    }
   this->InteractorStyle->OnRightButtonUp(nFlags & MK_CONTROL, 
-					 nFlags & MK_SHIFT, 
-					 X, this->Size[1] - Y - 1);
+                                         nFlags & MK_SHIFT, 
+                                         X, this->Size[1] - Y - 1);
   ReleaseCapture( );
 }
 
@@ -302,14 +323,20 @@ void vtkWin32RenderWindowInteractor::OnSize(HWND wnd,UINT nType, int X, int Y) {
 
 void vtkWin32RenderWindowInteractor::OnTimer(HWND wnd,UINT nIDEvent) 
 {
-  if (!this->Enabled) return;
+  if (!this->Enabled) 
+    {
+    return;
+    }
   this->InteractorStyle->OnTimer();
 }
 
 void vtkWin32RenderWindowInteractor::OnChar(HWND wnd,UINT nChar, 
                                             UINT nRepCnt, UINT nFlags) 
 {
-  if (!this->Enabled) return;
+  if (!this->Enabled) 
+    {
+    return;
+    }
   bool ctrl  = GetKeyState(VK_CONTROL);
   bool shift = GetKeyState(VK_SHIFT);
   this->InteractorStyle->OnChar(ctrl, shift, (char)nChar, nRepCnt);
@@ -422,10 +449,10 @@ vtkWin32RenderWindowInteractor::SetClassExitMethod(void (*f)(void *),void *arg)
     {
     // delete the current arg if there is a delete method
     if ((vtkWin32RenderWindowInteractor::ClassExitMethodArg)
-	&& (vtkWin32RenderWindowInteractor::ClassExitMethodArgDelete))
+        && (vtkWin32RenderWindowInteractor::ClassExitMethodArgDelete))
       {
       (*vtkWin32RenderWindowInteractor::ClassExitMethodArgDelete)
-	(vtkWin32RenderWindowInteractor::ClassExitMethodArg);
+        (vtkWin32RenderWindowInteractor::ClassExitMethodArg);
       }
     vtkWin32RenderWindowInteractor::ClassExitMethod = f;
     vtkWin32RenderWindowInteractor::ClassExitMethodArg = arg;
