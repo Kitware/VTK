@@ -142,3 +142,46 @@ There are two backward-compatibility issues:
     been renamed to GetClassNameInternal.  Since user code is supposed
     to define this method by using vtkTypeMacro or
     vtkTypeRevisionMacro, this should not be a problem.
+
+Frequently Proposed Alternatives:
+
+Several people have proposed alternatives that they think solve the
+problem with less of a backward compatibility problem.  Here are some
+of the common proposals and the reasons they were rejected:
+
+1.) Use #undef to avoid the name mangling altogether.
+
+    If VTK includes windows.h and then does the #undef then user code
+    will not be able to access the windows API through the standard
+    means.  If VTK does not include windows.h and uses #undef just in
+    case the user included windows.h first then user code can still
+    include windows.h after the VTK header and then their calls to VTK
+    methods will be mangled and will not compile.
+
+2.) Do not include windows.h but instead provide the same mangled
+    names by defining the macros in VTK the same way windows.h does.
+
+    The idea behind this solution is that the compile time improvement
+    is achieved without breaking the previous mangling behavior.  This
+    solution does not address the problems when users build VTK
+    without UNICODE and then build their application with UNICODE.  It
+    defines macros in VTK that are supposed to be defined in a system
+    header.  This is always dangerous.  The solution used above does
+    not every actually change or redefine any macros defined by
+    windows.h.  It just temporarily defines extra macros.
+
+3.) Use the above solution but change VTK_INCLUDE_WINDOWS_H to a
+    VTK_DO_NOT_INCLUDE_WINDOWS_H so that the previous default behavior
+    of including windows.h is preserved for user applications.  VTK
+    can define VTK_DO_NOT_INCLUDE_WINDOWS_H when it is building
+    itself.
+
+    This help existing applications but will also allow new
+    applications to be written that do not include windows.h properly.
+    It will also prevent the compile-time improvements from
+    propagating to application code by default.  The policy we are
+    trying to achieve is that including a VTK header should not do
+    anything but define VTK... and vtk... symbols to avoid namespacing
+    violations.  We are willing to let users break this policy by
+    defining macros but we do not want to require users to define
+    macros to get this policy.
