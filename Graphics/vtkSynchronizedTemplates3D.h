@@ -186,11 +186,6 @@ protected:
   int ArrayComponent;
 
 private:
-  //BTX
-  //friend class VTK_PATENTED_EXPORT vtkKitwareContourFilter;
-  //ETX
-  
-private:
   vtkSynchronizedTemplates3D(const vtkSynchronizedTemplates3D&);  // Not implemented.
   void operator=(const vtkSynchronizedTemplates3D&);  // Not implemented.
 };

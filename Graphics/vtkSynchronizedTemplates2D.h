@@ -123,10 +123,6 @@ protected:
   vtkSetStringMacro(InputScalarsSelection);
 
 private:
-  //BTX
-  // friend class VTK_GRAPHICS_EXPORT vtkContourFilter;
-  //ETX
-private:
   vtkSynchronizedTemplates2D(const vtkSynchronizedTemplates2D&);  // Not implemented.
   void operator=(const vtkSynchronizedTemplates2D&);  // Not implemented.
 };
