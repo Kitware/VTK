@@ -59,36 +59,6 @@ private:
   void build_links();
 };
 
-int PolyData::numCells() 
-{
-  return numVerts() + numLines() + numPolys() + numStrips();
-}
-
-int PolyData::numPoints() 
-{
-  return (points ? points->numPoints() : 0);
-}
-
-int PolyData::numVerts() 
-{
-  return (verts ? verts->numCells() : 0);
-}
-
-int PolyData::numLines() 
-{
-  return (lines ? lines->numCells() : 0);
-}
-
-int PolyData::numPolys() 
-{
-  return (polys ? polys->numCells() : 0);
-}
-
-int PolyData::numStrips() 
-{
-  return (strips ? strips->numCells() : 0);
-}
-
 #endif
 
 

@@ -29,10 +29,10 @@ void ShrinkFilter::execute()
   for (i=0; i<input->numCells(); i++)
   {
     // get the center of the cell
-    PolyData::cellPoints(i,ptId);
+    cellPoints(i,ptId);
     if ( ptId.numIds() > 0 )
     {
-      PolyData::pointCoords(ptId, pt);
+      pointCoords(ptId, pt);
       for (center[0]=center[1]=center[2]=0.0, j=0; j<pt.numPoints(); j++)
       {
         p = pt[j];

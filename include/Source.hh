@@ -17,47 +17,11 @@ public:
   void setStartMethod(void (*f)());
   void setEndMethod(void (*f)());
 
-private:
+protected:
   void (*startMethod)();
   void (*endMethod)();
   TimeStamp executeTime;
 };
-
-void Source::execute()
-{
-  cout << "Executing Source\n";
-}
-
-void Source::update()
-{
-  // Make sure virtual getMtime method is called since subclasses will overload
-  if (getMtime() > executeTime.getMtime())
-  {
-    (*startMethod)();
-    execute();
-    executeTime.modified();
-    (*endMethod)();
-  }
-}
-
-void Source::setStartMethod(void (*f)())
-{
-  if ( f != startMethod )
-  {
-    startMethod = f;
-    modified();
-  }
-}
-
-void Source::setEndMethod(void (*f)())
-{
-  if ( f != endMethod )
-  {
-    endMethod = f;
-    modified();
-  }
-
-}
 
 #endif
 

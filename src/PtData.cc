@@ -1,7 +1,7 @@
 //
 // PointData methods
 //
-#include "PointData.h"
+#include "PtData.h"
 
 PointData::PointData (const PointData& pd)
 {
@@ -14,7 +14,7 @@ PointData::PointData (const PointData& pd)
   normals = pd.normals;
   normals->Register((void *)this);
 
-  tcoorpd = pd.tcoords;
+  tcoords = pd.tcoords;
   tcoords->Register((void *)this);
 }
 
@@ -70,8 +70,8 @@ void PointData::setTCoords (FloatTCoords* t)
 //
 // Copy the point data from one point to another
 //
-void PointData::copyData(const PointData* const from_pd, cont int from_id,
-                         const PointData* to_pd, const int to_id);
+void PointData::copyData(const PointData* const from_pd, const int from_id,
+                         const PointData* to_pd, const int to_id)
 {
   if ( from_pd->scalars && to_pd->scalars )
   {
@@ -107,6 +107,10 @@ void PointData::copyData(const PointData* const from_pd, cont int from_id,
 //
 void PointData::Initialize(PointData* const pd, const int sze, const int ext)
 {
+  FloatScalars *s;
+  FloatVectors *v;
+  FloatNormals *n;
+  FloatTCoords *t;
 //
 // First free up any memory
 //
@@ -142,7 +146,7 @@ void PointData::Initialize(PointData* const pd, const int sze, const int ext)
   {
     scalars = new FloatScalars;
     if ( sze > 1 ) scalars->Initialize(sze,ext);
-    else scalars = *s;
+    else scalars = s;
     setScalars(s);
   }
 
@@ -150,7 +154,7 @@ void PointData::Initialize(PointData* const pd, const int sze, const int ext)
   {
     vectors = new FloatVectors;
     if ( sze > 1 ) vectors->Initialize(sze,ext);
-    else vectors = *v;
+    else vectors = v;
     setVectors(v);
   }
 
@@ -158,7 +162,7 @@ void PointData::Initialize(PointData* const pd, const int sze, const int ext)
   {
     normals = new FloatNormals;
     if ( sze > 1 ) normals->Initialize(sze,ext);
-    else normals = *n;
+    else normals = n;
     setNormals(n);
   }
 
@@ -166,7 +170,7 @@ void PointData::Initialize(PointData* const pd, const int sze, const int ext)
   {
     tcoords = new FloatTCoords;
     if ( sze > 1 ) tcoords->Initialize(sze,ext);
-    else tcoords = *t;
+    else tcoords = t;
     setTCoords(t);
   }
 };

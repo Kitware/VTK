@@ -17,6 +17,7 @@ public:
   PointData() : scalars(0), vectors(0), normals(0), tcoords(0) {};
   void Initialize(PointData* const pd=0, const int sze=0, const int ext=1000);
   ~PointData();
+  PointData::PointData (const PointData& pd);
   virtual void update() {};
   void copyData(const PointData *const from_pd, const int from_id, 
                 const PointData* to_pd, const int to_id);

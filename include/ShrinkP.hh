@@ -5,14 +5,15 @@
 #define ShrinkPolyData_h
 
 #include "Params.h"
-#include "PolyF.h"
-#include "PolyData.h"
+#include "P2PF.h"
 
-class ShrinkPolyData : public PolyFilter, public PolyData {
+class ShrinkPolyData : public PolyToPolyFilter {
 public:
-  ShrinkPolyData(const float sf=0.5) {shrinkFactor = sf;};
+  ShrinkPolyData() {shrinkFactor = 0.5;};
   virtual ~ShrinkPolyData() {};
   virtual void execute();
+  void setShrinkFactor(float sf);
+  float getShrinkFactor();
 private:
   float shrinkFactor;
 };

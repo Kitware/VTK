@@ -3,6 +3,20 @@
 //
 #include "ShrinkP.h"
 
+void ShrinkPolyData::setShrinkFactor(float sf)
+{
+  if ( shrinkFactor != sf )
+  {
+    shrinkFactor = sf;
+    modified();
+  }
+}
+
+float ShrinkPolyData::getShrinkFactor()
+{
+  return shrinkFactor;
+}
+
 //
 // Shrink verts, lines, polygons, triangle strips towards their centroid.
 // Polylines and triangle strips are broken into pieces.
@@ -15,7 +29,7 @@ void ShrinkPolyData::execute()
   PointData *pd;
   CellArray *in_verts,*in_lines,*in_polys,*in_strips;
   int num_new_points, num_new_lines, num_new_polys, poly_alloc_size;
-  int npts, pts[MAX_CELL_SIZE];
+  int npts, *pts;
   FloatPoints *new_points;
   PointData *new_pointData;
   CellArray *new_verts, *new_lines, *new_polys;

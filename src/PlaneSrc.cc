@@ -81,8 +81,8 @@ void PlaneSource::execute()
     {
       pts[0] = j + i*(xRes+1);
       pts[1] = pts[0] + 1;
-      pts[2] = pts[0] + xRes + 1;
-      pts[3] = pts[0] + xRes;
+      pts[2] = pts[0] + xRes + 2;
+      pts[3] = pts[0] + xRes + 1;
       newPolys->insertNextCell(4,pts);
     }
   }

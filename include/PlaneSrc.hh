@@ -5,10 +5,9 @@
 #define PlaneSource_h
 
 #include "Params.h"
-#include "Source.h"
-#include "PolyData.h"
+#include "PolySrc.h"
 
-class PlaneSource : public PolyData {
+class PlaneSource : public PolySource {
 public:
   PlaneSource() : xRes(1), yRes(1) {};
   PlaneSource(const int xR, const int yR) {xRes=xR; yRes=yR;};
