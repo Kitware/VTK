@@ -44,33 +44,56 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 // Actually do the convolution
-static void ExecuteConvolve ( float* kernel, int kernelSize, float* image, float* outImage, int imageSize )
+void ExecuteConvolve ( float* kernel, int kernelSize, float* image, float* outImage, int imageSize )
 {
 
   // Consider the kernel to be centered at (int) ( (kernelSize - 1 ) / 2.0 )
   
   int center = (int) ( (kernelSize - 1 ) / 2.0 );
-  int i, j, kStart, iStart, iEnd, count;
+  int i, j, k, kStart, iStart, iEnd, count;
   
   for ( i = 0; i < imageSize; ++i )
     {
+    outImage[i] = 0.0;
+
     iStart = i - center;
     if ( iStart < 0 )
       {
       iStart = 0;
       }
+    
     iEnd = i + center;
     if ( iEnd > imageSize - 1 )
       {
       iEnd = imageSize - 1;
       }
+
+    // Handle padding
+    iStart = i - center;
+    k = kernelSize - 1;
+    while ( iStart < 0 )
+      {
+      outImage[i] += image[0] * kernel[k];
+      ++iStart;
+      --k;
+      }
+    
+    iEnd = i + center;
+    k = 0;
+    while ( iEnd > imageSize - 1 )
+      {
+      outImage[i] += image[imageSize - 1] * kernel[k];
+      ++k;
+      --iEnd;
+      }
+
+
     kStart = center + i;
     if ( kStart > kernelSize - 1 )
       {
       kStart = kernelSize - 1;
       }
     count = iEnd - iStart + 1;
-    outImage[i] = 0.0;
     for ( j = 0; j < count; ++j )
       {
       outImage[i] += image[j+iStart] * kernel[kStart-j];
@@ -316,12 +339,11 @@ void vtkImageSeparableConvolution::IterativeExecuteData(vtkImageData *inData,
   // choose which templated function to call.
   switch (inData->GetScalarType())
     {
-    vtkTemplateMacro4(vtkImageSeparableConvolutionExecute<VTK_TT>, this, inData, outData, 0 );
+    vtkTemplateMacro4(vtkImageSeparableConvolutionExecute, this, inData, outData, (VTK_TT) 0 );
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
     }
-
 }
 
 
