@@ -840,6 +840,7 @@ void vtkAppendPolyData::AppendDifferentPoints(vtkDataArray *dest, vtkDataArray *
 {
   float  *fSrc, *fDest;
   double *dSrc, *dDest;
+  int p;
 
   if (src->GetNumberOfTuples() + offset > dest->GetNumberOfTuples())
     {
@@ -863,20 +864,21 @@ void vtkAppendPolyData::AppendDifferentPoints(vtkDataArray *dest, vtkDataArray *
     //
     // Dest is DOUBLE - sources may be mixed float/double combinations
     //
+
     case VTK_DOUBLE:
       dDest = (double*)(dest->GetVoidPointer(offset*src->GetNumberOfComponents()));
       //
-      dSrc = (double*)(src->GetVoidPointer(0));
-      fSrc = (float*)(src->GetVoidPointer(0));
       switch (src->GetDataType())
         {
         case VTK_FLOAT:
-          for (int p=0; p<vals; p++)
+          fSrc = (float*)(src->GetVoidPointer(0));
+          for (p=0; p<vals; p++)
             {
               dDest[p] = (double) fSrc[p];
             }
           break;
         case VTK_DOUBLE:
+          dSrc = (double*)(src->GetVoidPointer(0));
           memcpy(dDest, dSrc, vals*sizeof(double));
           break;
         default:
