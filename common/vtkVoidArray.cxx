@@ -147,7 +147,7 @@ void vtkVoidArray::PrintSelf(ostream& os, vtkIndent indent)
 
 // Protected function does "reallocate"
 //
-void** vtkVoidArray::ResizeAndExtend(int sz)
+void** vtkVoidArray::ResizeAndExtend(const int sz)
 {
   void** newArray;
   int newSize;
