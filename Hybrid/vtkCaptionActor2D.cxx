@@ -362,8 +362,8 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
     this->LeaderGlyph->Update();
     float length = this->LeaderGlyph->GetLength();
     int *sze = viewport->GetSize();
-    int   numPixels = this->LeaderGlyphSize * 
-      sqrt(static_cast<float>(sze[0]*sze[0] + sze[1]*sze[1]));
+    int   numPixels = static_cast<int> (this->LeaderGlyphSize * 
+      sqrt(static_cast<float>(sze[0]*sze[0] + sze[1]*sze[1])));
 
     this->MapperCoordinate2D->SetValue(sze[0]/2,0,0);
     w1 = this->MapperCoordinate2D->GetComputedWorldValue(viewport);
