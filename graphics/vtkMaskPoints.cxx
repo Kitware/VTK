@@ -30,7 +30,7 @@ modification, are permitted provided that the following conditions are met:
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE FOR
+ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
 DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
 SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
@@ -43,9 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkMaskPoints* vtkMaskPoints::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -58,9 +56,6 @@ vtkMaskPoints* vtkMaskPoints::New()
   return new vtkMaskPoints;
 }
 
-
-
-
 //----------------------------------------------------------------------------
 vtkMaskPoints::vtkMaskPoints()
 {
@@ -68,6 +63,7 @@ vtkMaskPoints::vtkMaskPoints()
   this->Offset = 0;
   this->RandomMode = 0;
   this->MaximumNumberOfPoints = VTK_LARGE_INTEGER;
+  this->GenerateVertices = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -83,7 +79,6 @@ void vtkMaskPoints::Execute()
   vtkDataSet *input= this->GetInput();
   int numPts=input->GetNumberOfPoints();
   
-  //
   // Check input
   //
   vtkDebugMacro(<<"Masking points");
@@ -97,7 +92,6 @@ void vtkMaskPoints::Execute()
   pd = input->GetPointData();
   id = 0;
   
-  //
   // Allocate space
   //
   numNewPts = numPts / this->OnRatio;
@@ -108,7 +102,7 @@ void vtkMaskPoints::Execute()
   newPts = vtkPoints::New();
   newPts->Allocate(numNewPts);
   outputPD->CopyAllocate(pd);
-  //
+
   // Traverse points and copy
   //
   if ( this->RandomMode ) // retro mode
@@ -144,7 +138,22 @@ void vtkMaskPoints::Execute()
       outputPD->CopyData(pd,ptId,id);
       }
     }
+
+  // Generate vertices if requested
   //
+  if ( this->GenerateVertices )
+    {
+    vtkCellArray *verts = vtkCellArray::New();
+    verts->Allocate(verts->EstimateSize(1,id+1));
+    verts->InsertNextCell(id+1);
+    for ( ptId=0; ptId<(id+1); ptId++)
+      {
+      verts->InsertCellPoint(ptId);
+      }
+    output->SetVerts(verts);
+    verts->Delete();
+    }
+
   // Update ourselves
   //
   output->SetPoints(newPts);
@@ -152,7 +161,8 @@ void vtkMaskPoints::Execute()
   
   output->Squeeze();
 
-  vtkDebugMacro(<<"Masked " << numPts << " original points to " << id+1 << " points");
+  vtkDebugMacro(<<"Masked " << numPts << " original points to " 
+                << id+1 << " points");
 }
 
 
@@ -161,6 +171,8 @@ void vtkMaskPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
 
+  os << indent << "Generate Vertices: " 
+     << (this->GenerateVertices ? "On\n" : "Off\n");
   os << indent << "MaximumNumberOfPoints: " << 
     this->MaximumNumberOfPoints << "\n";
   os << indent << "On Ratio: " << this->OnRatio << "\n";

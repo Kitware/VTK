@@ -45,7 +45,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // from input dataset. (Other geometry is not passed through.) It is 
 // possible to mask every nth point, and to specify an initial offset
 // to begin masking from. A special random mode feature enables random 
-// selection of points.
+// selection of points. The filter can also generate vertices (topological
+// primitives) as well as points. This is useful because vertices are
+// rendered while points are not.
 
 #ifndef __vtkMaskPoints_h
 #define __vtkMaskPoints_h
@@ -81,6 +83,14 @@ public:
   vtkGetMacro(RandomMode,int);
   vtkBooleanMacro(RandomMode,int);
 
+  // Description:
+  // Generate output polydata vertices as well as points. A useful
+  // convenience method because vertices are drawn (they are topology) while
+  // points are not (they are geometry). By defulat this method is off.
+  vtkSetMacro(GenerateVertices,int);
+  vtkGetMacro(GenerateVertices,int);
+  vtkBooleanMacro(GenerateVertices,int);
+
 protected:
   vtkMaskPoints();
   ~vtkMaskPoints() {};
@@ -93,6 +103,7 @@ protected:
   int Offset;      // offset (or starting point id)
   int RandomMode;  // turn on/off randomization
   int MaximumNumberOfPoints;
+  int GenerateVertices; //generate polydata verts
 };
 
 #endif
