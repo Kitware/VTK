@@ -100,6 +100,15 @@ public:
   vtkInformation* GetInputPortInformation(int port);
 
   // Description:
+  // Get the information object associated with an input connection.  this is
+  // a convienience method that filters can use to reduce duplicated
+  // code. Basically it will look up in the inputVector passed in the port
+  // info and then lookup the conneciton info for the port and connection
+  // passed in.
+  vtkInformation* GetInputConnectionInformation(vtkInformationVector *inInfo,
+                                                int port, int connection);
+  
+  // Description:
   // Get the information object associated with an output port.  There
   // is one output port per output from the algorithm.  Each output
   // port tells executives what kind of upstream requests this

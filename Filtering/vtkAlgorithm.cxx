@@ -29,7 +29,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.1.2.1");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.1.2.2");
 vtkStandardNewMacro(vtkAlgorithm);
 
 vtkCxxSetObjectMacro(vtkAlgorithm,Information,vtkInformation);
@@ -532,6 +532,26 @@ vtkAlgorithmOutput* vtkAlgorithm::GetOutputPort(int port)
 
   // Return the proxy object instance.
   return this->AlgorithmInternal->Outputs[port].GetPointer();
+}
+
+vtkInformation* vtkAlgorithm::GetInputConnectionInformation(
+  vtkInformationVector *inInfo,
+  int port, int connection)
+{
+  vtkInformation* info = inInfo->GetInformationObject(port);
+  if (!info)
+    {
+    return 0;
+    }
+  
+  vtkInformationVector *inVec = 
+    info->Get(vtkAlgorithm::INPUT_CONNECTION_INFORMATION());
+  if (!inVec)
+    {
+    return 0;
+    }
+  
+  return inVec->GetInformationObject(connection);
 }
 
 //----------------------------------------------------------------------------
