@@ -9,6 +9,9 @@ IF (VTK_HAS_THREADS OR VTK_USE_MPI)
 
  ADD_EXECUTABLE(GenericCommunicator GenericCommunicator.cxx)
  TARGET_LINK_LIBRARIES(GenericCommunicator vtkParallel)
+
+ ADD_EXECUTABLE(TestPStream TestPStream.cxx)
+ TARGET_LINK_LIBRARIES(TestPStream vtkParallel)
 ENDIF (VTK_HAS_THREADS OR VTK_USE_MPI)
 
 IF (VTK_HAS_THREADS)
@@ -49,6 +52,11 @@ IF (VTK_DATA_ROOT)
                  ${CXX_TEST_PATH}/GenericCommunicator
                  -D ${VTK_DATA_ROOT}
                  -V Baseline/Parallel/GenericCommunicator.cxx.png
+                 ${MPI_POSTFLAGS})
+        ADD_TEST(TestPStreamMPI-image ${MPIRUN} ${MPI_PREFLAGS}
+                 ${CXX_TEST_PATH}/TestPStream
+                 -D ${VTK_DATA_ROOT}
+                 -V Baseline/Parallel/TestPStream.cxx.png
                  ${MPI_POSTFLAGS})
         IF (MPI_MAX_NUMPROCS)
           IF (MPI_MAX_NUMPROCS MATCHES "[1-9]*(0|[4-9])$")

@@ -20,9 +20,14 @@
 #include "vtkPImageWriter.h"
 #include "vtkPPolyDataNormals.h"
 #include "vtkPSphereSource.h"
+#include "vtkPOutlineCornerFilter.h"
+#include "vtkPOutlineFilter.h"
+#include "vtkPStreamTracer.h"
+#include "vtkPProbeFilter.h"
+#include "vtkPLinearExtrusionFilter.h"
 #include "vtkVersion.h"
 
-vtkCxxRevisionMacro(vtkParallelFactory, "1.8");
+vtkCxxRevisionMacro(vtkParallelFactory, "1.9");
 vtkStandardNewMacro(vtkParallelFactory);
 
 void vtkParallelFactory::PrintSelf(ostream& os, vtkIndent indent)
@@ -34,7 +39,11 @@ void vtkParallelFactory::PrintSelf(ostream& os, vtkIndent indent)
 VTK_CREATE_CREATE_FUNCTION(vtkPImageWriter);
 VTK_CREATE_CREATE_FUNCTION(vtkPPolyDataNormals);
 VTK_CREATE_CREATE_FUNCTION(vtkPSphereSource);
-
+VTK_CREATE_CREATE_FUNCTION(vtkPStreamTracer);
+VTK_CREATE_CREATE_FUNCTION(vtkPLinearExtrusionFilter);
+VTK_CREATE_CREATE_FUNCTION(vtkPOutlineCornerFilter);
+VTK_CREATE_CREATE_FUNCTION(vtkPOutlineFilter);
+VTK_CREATE_CREATE_FUNCTION(vtkPProbeFilter);
 
 vtkParallelFactory::vtkParallelFactory()
 {
@@ -53,6 +62,31 @@ vtkParallelFactory::vtkParallelFactory()
                          "Parallel",
                          1,
                          vtkObjectFactoryCreatevtkPSphereSource);
+  this->RegisterOverride("vtkStreamTracer",
+                         "vtkPStreamTracer",
+                         "Parallel",
+                         1,
+                         vtkObjectFactoryCreatevtkPStreamTracer);
+  this->RegisterOverride("vtkLinearExtrusionFilter",
+                         "vtkPLinearExtrusionFilter",
+                         "Parallel",
+                         1,
+                         vtkObjectFactoryCreatevtkPLinearExtrusionFilter);
+  this->RegisterOverride("vtkOutlineCornerFilter",
+                         "vtkPOutlineCornerFilter",
+                         "Parallel",
+                         1,
+                         vtkObjectFactoryCreatevtkPOutlineCornerFilter);
+  this->RegisterOverride("vtkOutlineFilter",
+                         "vtkPOutlineFilter",
+                         "Parallel",
+                         1,
+                         vtkObjectFactoryCreatevtkPOutlineFilter);
+  this->RegisterOverride("vtkProbeFilter",
+                         "vtkPProbeFilter",
+                         "Parallel",
+                         1,
+                         vtkObjectFactoryCreatevtkPProbeFilter);
 }
 
 const char* vtkParallelFactory::GetVTKSourceVersion()

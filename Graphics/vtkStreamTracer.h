@@ -266,9 +266,13 @@ protected:
   void Execute();
   void CalculateVorticity( vtkGenericCell* cell, float pcoords[3],
                            vtkFloatArray* cellVectors, float vorticity[3] );
-  void Integrate(vtkDataArray* seedSource, 
+  void Integrate(vtkPolyData* output,
+                 vtkDataArray* seedSource, 
                  vtkIdList* seedIds,
-                 vtkIntArray* integrationDirections);
+                 vtkIntArray* integrationDirections,
+                 float lastPoint[3]);
+  int CheckInputs(vtkInterpolatedVelocityField*& func,
+                  int* maxCellSize);
 
   vtkSetStringMacro(InputVectorsSelection);
   char *InputVectorsSelection;
@@ -307,7 +311,10 @@ protected:
                         int direction, float cellLength, float speed);
 //ETX
 
-
+  void InitializeSeeds(vtkDataArray*& seeds,
+                       vtkIdList*& seedIds,
+                       vtkIntArray*& integrationDirections);
+  
   int IntegrationDirection;
 
   // Prototype showing the integrator type to be set by the user.
@@ -318,6 +325,7 @@ protected:
 
   int ComputeVorticity;
   float RotationScale;
+
 private:
   vtkStreamTracer(const vtkStreamTracer&);  // Not implemented.
   void operator=(const vtkStreamTracer&);  // Not implemented.
