@@ -177,10 +177,10 @@ void vlTextSource::Execute()
 	    if (!drawing)
 	      {
 	      x[0] = pos*vlfont_width + col; 
-	      x[1] = row;
+	      x[1] = vlfont_height - row;
 	      newPoints->InsertNextPoint(x);
 	      x[0] = pos*vlfont_width + col + 1; 
-	      x[1] = row;
+	      x[1] = vlfont_height - row;
 	      newPoints->InsertNextPoint(x);
 	      drawing = 1;
 	      }
@@ -191,10 +191,10 @@ void vlTextSource::Execute()
 	    if (drawing)
 	      {
 	      x[0] = pos*vlfont_width + col + 1; 
-	      x[1] = row;
+	      x[1] = vlfont_height - row;
 	      newPoints->InsertNextPoint(x);
 	      x[0] = pos*vlfont_width + col; 
-	      x[1] = row;
+	      x[1] = vlfont_height - row;
 	      newPoints->InsertNextPoint(x);
 
 	      pts[0] = numPolys*4;
