@@ -76,6 +76,7 @@ void vtkImageMandelbrotSource::PrintSelf(ostream& os, vtkIndent indent)
      << this->WholeExtent[3] << ", " << this->WholeExtent[4] << ", " 
      << this->WholeExtent[5] << ")\n";
   os << "MaximumNumberOfIterations: " << this->MaximumNumberOfIterations << endl;
+  os << "JuliaSet: " << this->JuliaSet << endl;
 }
 
 //----------------------------------------------------------------------------
@@ -232,8 +233,8 @@ unsigned short vtkImageMandelbrotSource::EvaluateSet(double x, double y,
     {
     zReal = x;
     zImag = y;
-    cReal = z;
-    cImag = -1;
+    cReal = -0.75;
+    cImag = z;
     }
   else
     {
