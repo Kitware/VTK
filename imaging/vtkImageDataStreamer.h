@@ -49,13 +49,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkImageToImageFilter.h"
 
-// Don't change the numbers here - they are used in the code
-// to indicate array indices.
-#define VTK_IMAGE_DATA_STREAMER_X_SLAB_MODE 0
-#define VTK_IMAGE_DATA_STREAMER_Y_SLAB_MODE 1
-#define VTK_IMAGE_DATA_STREAMER_Z_SLAB_MODE 2
-#define VTK_IMAGE_DATA_STREAMER_BLOCK_MODE  3
-
 //BTX
 // Define a helper class to keep track of a stack of extents 
 class VTK_EXPORT vtkImageDataStreamerExtentStack
@@ -134,7 +127,11 @@ public:
   vtkSetClampMacro( IncrementalUpdate, int, 0, 1 );
   vtkGetMacro( IncrementalUpdate, int );
   vtkBooleanMacro( IncrementalUpdate, int );
-    
+
+// Don't change the numbers here - they are used in the code
+// to indicate array indices.
+
+
 protected:
   vtkImageDataStreamer();
   ~vtkImageDataStreamer() {};
@@ -148,6 +145,18 @@ protected:
   int            DataWasPassed;
     
   vtkImageDataStreamerExtentStack ExtentStack;
+
+//BTX
+
+  enum Modes {
+    VTK_IMAGE_DATA_STREAMER_X_SLAB_MODE=0,
+    VTK_IMAGE_DATA_STREAMER_Y_SLAB_MODE=1,
+    VTK_IMAGE_DATA_STREAMER_Z_SLAB_MODE=2,
+    VTK_IMAGE_DATA_STREAMER_BLOCK_MODE= 3
+  };
+
+//ETX
+
 };
 
 
