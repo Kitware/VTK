@@ -21,6 +21,10 @@ set FEdges 0
 set BEdges 0
 set NMEdges 0
 set Compare 0
+vtkDecimatePro deci
+vtkSmoothPolyDataFilter smooth
+vtkCleanPolyData cleaner
+vtkTriangleFilter tri
 
 ######################################## Create top-level GUI
 #
@@ -189,6 +193,8 @@ proc UpdateUndo {filter} {
     PolyData CopyStructure [$filter GetOutput]
     [PolyData GetPointData] PassData [[$filter GetOutput] GetPointData]
     PolyData Modified
+
+    ReleaseData
 }
 
 # Undo last edit
@@ -210,7 +216,16 @@ proc Undo {} {
     $RenWin Render
 }
 
-# Create pipeline
+### Procedure initializes filters so that they release their memory
+#
+proc ReleaseData {} {
+    [deci GetOutput] Initialize
+    [smooth GetOutput] Initialize
+    [cleaner GetOutput] Initialize
+    [tri GetOutput] Initialize
+}
+
+#### Create pipeline
 vtkPolyDataMapper   mapper
     mapper SetInput PolyData
 vtkActor actor
@@ -355,8 +370,6 @@ button .decimate.fb.cancel -text Cancel -command CloseDecimate
 pack .decimate.fb.apply .decimate.fb.cancel -side left -expand 1 -fill x
 pack .decimate.f1 .decimate.fb -side top -fill both -expand 1
 
-vtkDecimatePro deci
-
 proc UpdateDecimationGUI {} {
 
    set numPolys [PolyData GetNumberOfCells]
@@ -425,8 +438,6 @@ button .smooth.fb.cancel -text Cancel -command CloseSmooth
 pack .smooth.fb.apply .smooth.fb.cancel -side left -expand 1 -fill x
 pack .smooth.f1 .smooth.fb -side top -fill both -expand 1
 
-vtkSmoothPolyDataFilter smooth
-
 proc UpdateSmoothGUI {} {
 
    .smooth.f1.num set [smooth GetNumberOfIterations]
@@ -488,8 +499,6 @@ button .clean.fb.cancel -text Cancel -command CloseClean
 pack .clean.fb.apply .clean.fb.cancel -side left -expand 1 -fill x
 pack .clean.f1 .clean.fb -side top -fill both -expand 1
 
-vtkCleanPolyData cleaner
-
 proc UpdateCleanGUI {} {
     .clean.f1.s set [cleaner GetTolerance]
 }
@@ -529,8 +538,6 @@ button .tri.fb.apply -text Apply -command ApplyTri
 button .tri.fb.cancel -text Cancel -command CloseTri
 pack .tri.fb.apply .tri.fb.cancel -side left -expand 1 -fill x
 pack .tri.fb -side top -fill both -expand 1
-
-vtkTriangleFilter tri
 
 proc UpdateTriGUI {} {
 }
