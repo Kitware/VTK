@@ -44,6 +44,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifdef VTK_USE_OGLR
 #include "vtkOpenGLProjectedPolyDataRayBounder.h"
 #endif
+#ifdef _WIN32
+#include "vtkOpenGLProjectedPolyDataRayBounder.h"
+#endif
+
 
 // Description:
 // The constructor for the class. Initialize everything to NULL.
@@ -68,6 +72,10 @@ vtkProjectedPolyDataRayBounder *vtkProjectedPolyDataRayBounder::New()
   
 #ifdef VTK_USE_OGLR
   if (!strcmp("OpenGL",temp)) 
+    return vtkOpenGLProjectedPolyDataRayBounder::New();
+#endif
+#ifdef _WIN32
+  if (!strcmp("Win32OpenGL",temp)) 
     return vtkOpenGLProjectedPolyDataRayBounder::New();
 #endif
 
