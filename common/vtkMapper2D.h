@@ -53,7 +53,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 #include "vtkActor2D.h"
-// #include "vtkImager.h"
 
 class VTK_EXPORT vtkMapper2D : public vtkReferenceCount
 {

@@ -59,16 +59,13 @@ class vtkViewport;
 class VTK_EXPORT vtkCoordinate : public vtkReferenceCount
 {
 public:
-
-
-// Description:
-// Creates an Coordinate with the following defaults: 
-// value of  0, 0, 0 in world  coordinates
+  // Description:
+  // Creates an Coordinate with the following defaults: 
+  // value of  0, 0, 0 in world  coordinates
   vtkCoordinate();
 
-
-// Description:
-// Destroy a Coordinate.  
+  // Description:
+  // Destroy a Coordinate.  
   ~vtkCoordinate();
 
   static vtkCoordinate* New() {return new vtkCoordinate;};
@@ -96,7 +93,6 @@ public:
   // the position of this coordinate in its coordinate system.
   vtkSetVector3Macro(Value,float);
   vtkGetVector3Macro(Value,float);
-  
   void SetValue(float a, float b) { this->SetValue(a,b,0.0);}
   
   // Description:
@@ -113,6 +109,8 @@ public:
   vtkSetObjectMacro(Viewport,vtkViewport);
   vtkGetObjectMacro(Viewport,vtkViewport);
 
+  // Description:
+  // Return the computed value in a specified coordinate system.
   float *GetComputedWorldValue(vtkViewport *);
   int *GetComputedViewportValue(vtkViewport *);
   int *GetComputedDisplayValue(vtkViewport *);

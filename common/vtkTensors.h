@@ -56,65 +56,70 @@ class VTK_EXPORT vtkTensors : public vtkAttributeData
 {
 public:
   vtkTensors(int dataType=VTK_FLOAT);
-  static vtkTensors *New(int dataType=VTK_FLOAT) {return new vtkTensors(dataType);};
+  static vtkTensors *New(int dataType=VTK_FLOAT) {
+    return new vtkTensors(dataType);};
   const char *GetClassName() {return "vtkTensors";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // overload vtkAttributeData API
-  vtkAttributeData *MakeObject();
+  // Description:
+  // Create a copy of this object.
+  vtkAttributeData *MakeObject() {return new vtkTensors(this->GetDataType());};
 
-  // generic access to tensor data
-  int GetNumberOfTensors();
+  // Description:
+  // Return number of tensors in array.
+  int GetNumberOfTensors() {return this->Data->GetNumberOfTuples();};
+
+  // Description:
+  // Return a pointer to a float tensor for a specific id.
   vtkTensor *GetTensor(int id);
-  void GetTensor(int id, vtkTensor& t);
+
+  // Description:
+  // Specify the number of tensors for this object to hold. Does an
+  // allocation as well as setting the MaxId ivar. Used in conjunction with
+  // SetTensor() method for fast insertion.
   void SetNumberOfTensors(int number);
+
+  // Description:
+  // Return the Tensor requested in the tensor passed.
+  void GetTensor(int id, vtkTensor& t);
+
+  // Description:
+  // Insert a Tensor into an object. No range checking performed (fast!).
+  // Make sure you use SetNumberOfScalars() to allocate memory prior
+  // to using SetTensor().
   void SetTensor(int id, vtkTensor *t);
+
+  // Description:
+  // Insert a Tensor into object. Range checking performed and memory
+  // allocated as necessary.
   void InsertTensor(int id, vtkTensor *t);
   void InsertTensor(int id, float t11, float t12, float t13, 
                     float t21, float t22, float t23, 
                     float t31, float t32, float t33);
+
+  // Description:
+  // Insert a Tensor at end of array and return its location (id) in the array.
   int InsertNextTensor(vtkTensor *t);
   int InsertNextTensor(float t11, float t12, float t13, 
                        float t21, float t22, float t23, 
                        float t31, float t32, float t33);
 
-
-// Description:
-// Given a list of pt ids, return an array of tensors.
+  // Description:
+  // Given a list of pt ids, return an array of tensors.
   void GetTensors(vtkIdList& ptId, vtkTensors& fv);
-
 
 protected:
   vtkTensor T;
 
 };
 
-// Description:
-// Create a copy of this object.
-inline vtkAttributeData *vtkTensors::MakeObject()
-{
-  return new vtkTensors(this->GetDataType());
-}
 
-// Description:
-// Return number of tensors in array.
-inline int vtkTensors::GetNumberOfTensors()
-{
-  return this->Data->GetNumberOfTuples();
-}
-
-// Description:
-// Return a pointer to a float tensor for a specific id.
 inline vtkTensor *vtkTensors::GetTensor(int id)
 {
   this->T.T = this->Data->GetTuple(id);
   return &(this->T);
 }
 
-// Description:
-// Specify the number of tensors for this object to hold. Does an
-// allocation as well as setting the MaxId ivar. Used in conjunction with
-// SetTensor() method for fast insertion.
 inline void vtkTensors::SetNumberOfTensors(int number)
 {
   this->Data->SetNumberOfComponents(9);

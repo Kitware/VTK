@@ -50,6 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // pop any item in the queue given its id number. This allows you to delete
 // entries in the queue which can useful for reinserting an item into the
 // queue. 
+//
 // .SECTION Caveats
 // This implementation is a variation of the priority queue described in
 // "Data Structures & Algorithms" by Aho, Hopcroft, Ullman. It creates 
@@ -71,45 +72,45 @@ typedef struct _vtkPriorityItem
 class VTK_EXPORT vtkPriorityQueue : public vtkObject
 {
 public:
-
-// Description:
-// Instantiate priority queue with default size and extension size of 1000.
+  // Description:
+  // Instantiate priority queue with default size and extension size of 1000.
   vtkPriorityQueue();
 
-
-// Description:
-// Instantiate priority queue with specified size and amount to extend
-// queue (if reallocation required).
+  // Description:
+  // Instantiate priority queue with specified size and amount to extend
+  // queue (if reallocation required).
   vtkPriorityQueue(const int sz, const int ext=1000);
 
-
-// Description:
-// Desctructor for the vtkPriorityQueue class
   ~vtkPriorityQueue();
-
   static vtkPriorityQueue *New() {return new vtkPriorityQueue;};
   const char *GetClassName() {return "vtkPriorityQueue";};
-  
   void PrintSelf(ostream& os, vtkIndent indent);
 
-
-// Description:
-// Removes item at specified location from tree; then reorders and
-// balances tree. The location == 0 is the root of the tree.
+  // Description:
+  // Removes item at specified location from tree; then reorders and
+  // balances tree. The location == 0 is the root of the tree.
   int Pop(float &priority, int location=0);
-
+  
+  // Description:
+  // Delete entry in queue with specified id. Returns priority value
+  // associated with that id; or VTK_LARGE_FLOAT if not in queue.
   float DeleteId(int id);
+
+  // Description:
+  // Get the priority of an entry in the queue with specified id. Returns
+  // priority value of that id or VTK_LARGE_FLOAT if not in queue.
   float GetPriority(int id);
 
-// Description:
-// Insert id with priority specified.
+  // Description:
+  // Insert id with priority specified.
   void Insert(float priority, int id);
 
+  // Description:
+  // Return the number of items in this queue.
   int GetNumberOfItems() {return this->MaxId+1;};
 
-
-// Description:
-// Reset all of the entries in the queue so they don not have a priority
+  // Description:
+  // Reset all of the entries in the queue so they don not have a priority
   void Reset();
 
 
@@ -123,9 +124,6 @@ protected:
   int Extend;
 };
 
-// Description:
-// Delete entry in queue with specified id. Returns priority value
-// associated with that id; or VTK_LARGE_FLOAT if not in queue.
 inline float vtkPriorityQueue::DeleteId(int id)
 {
   float priority=VTK_LARGE_FLOAT;
@@ -139,9 +137,6 @@ inline float vtkPriorityQueue::DeleteId(int id)
   return priority;
 }
 
-// Description:
-// Get the priority of an entry in the queue with specified id. Returns priority
-// value of that id or VTK_LARGE_FLOAT if not in queue.
 inline float vtkPriorityQueue::GetPriority(int id)
 {
   int loc;

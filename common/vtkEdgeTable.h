@@ -53,39 +53,31 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkEdgeTable : public vtkObject
 {
 public:
-
-// Description:
-// Instantiate object based on maximum point id.
+  // Description:
+  // Instantiate object based on maximum point id.
   vtkEdgeTable(int numPoints=1);
 
   ~vtkEdgeTable();
   static vtkEdgeTable *New() {return new vtkEdgeTable;};
   const char *GetClassName() {return "vtkEdgeTable";};
 
-  // Insert/check existence of edges
-
-// Description:
-// Return non-zero if edge (p1,p2) is an edge; otherwise 0.
+  // Description:
+  // Return non-zero if edge (p1,p2) is an edge; otherwise 0.
   int IsEdge(int p1, int p2);
 
-
-// Description:
-// Insert the edge (p1,p2) into the table. It is the user's responsibility to
-// check if the edge has already been inserted.
+  // Description:
+  // Insert the edge (p1,p2) into the table. It is the user's responsibility to
+  // check if the edge has already been inserted.
   void InsertEdge(int p1, int p2);
 
-
-  // Traverse list of edges
-
-// Description:
-// Intialize traversal of edges in table.
+  // Description:
+  // Intialize traversal of edges in table.
   void InitTraversal();
 
-
-// Description:
-// Traverse list of edges in table. Return the edge as (p1,p2), where p1 and p2
-// are point id's. Method return value is zero if list is exhausted; non-zero
-// otherwise. The value of p1 is guaranteed to be <= p2.
+  // Description:
+  // Traverse list of edges in table. Return the edge as (p1,p2), where p1
+  // and p2 are point id's. Method return value is zero if list is exhausted;
+  // non-zero otherwise. The value of p1 is guaranteed to be <= p2.
   int GetNextEdge(int &p1, int &p2);
 
 

@@ -51,6 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // random access.  This functionality (when necessary) is accomplished by 
 // using the vtkCellTypes and vtkCellLinks objects to extend the definition of 
 // the data structure.
+//
 // .SECTION See Also
 // vtkCellTypes vtkCellLinks
 
@@ -67,55 +68,130 @@ public:
   vtkCellArray (const int sz, const int ext=1000);
   vtkCellArray(const vtkCellArray& ca);
   ~vtkCellArray();
-
-  int Allocate(const int sz, const int ext=1000) 
-    {return this->Ia->Allocate(sz,ext);};
-  void Initialize() {this->Ia->Initialize();};
   static vtkCellArray *New() {return new vtkCellArray;};
   const char *GetClassName() {return "vtkCellArray";};
 
-  int GetNumberOfCells();
+  // Description:
+  // Allocate memory and set the size to extend by.
+  int Allocate(const int sz, const int ext=1000) 
+    {return this->Ia->Allocate(sz,ext);};
 
-  // estimator for storage allocation
-  int EstimateSize(int numCells, int maxPtsPerCell);
+  // Description:
+  // Free any memory and reset to an empty state.
+  void Initialize() {this->Ia->Initialize();};
 
-  void InitTraversal();
+  // Description:
+  // Get the number of cells in the array.
+  int GetNumberOfCells() {return this->NumberOfCells;};
+
+  // Description:
+  // Utility routines help manage memory of cell array. EstimateSize()
+  // returns a value used to initialize and allocate memory for array based
+  // on number of cells and maximum number of points making up cell.  If 
+  // every cell is the same size (in terms of number of points), then the 
+  // memory estimate is guaranteed exact. (If not exact, use Squeeze() to
+  // reclaim any extra memory.)
+  int EstimateSize(int numCells, int maxPtsPerCell)
+  {return numCells*(1+maxPtsPerCell);};
+
+  // Description:
+  // A cell traversal methods that is more efficient than vtkDataSet traversal
+  // methods.  InitTraversal() initializes the traversal of the list of cells.
+  void InitTraversal() {this->TraversalLocation=0;};
+
+  // Description:
+  // A cell traversal methods that is more efficient than vtkDataSet traversal
+  // methods.  GetNextCell() gets the next cell in the list. If end of list
+  // is encountered, 0 is returned.
   int GetNextCell(int& npts, int* &pts);
 
-  int GetSize();
-  int GetNumberOfConnectivityEntries();
+  // Description:
+  // Get the size of the allocated connectivity array.
+  int GetSize() {return this->Ia->GetSize();};
+  
+  // Description:
+  // Get the total number of entries (i.e., data values) in the connectivity 
+  // array. This may be much less than the allocated size (i.e., return value 
+  // from GetSize().)
+  int GetNumberOfConnectivityEntries() {return this->Ia->GetMaxId()+1;};
+
+  // Description:
+  // Internal method used to retrieve a cell given an offset into
+  // the internal array.
   void GetCell(int loc, int &npts, int* &pts);
 
-  // methods to insert cells. Can be used in combination.
+  // Description:
+  // Insert a cell object. Return the cell id of the cell.
   int InsertNextCell(vtkCell *cell);
+
+  // Description:
+  // Create a cell by specifying the number of points and an array of point
+  // id's.  Return the cell id of the cell.
   int InsertNextCell(int npts, int* pts);
+
+  // Description:
+  // Create a cell by specifying a list of point ids. Return the cell id of
+  // the cell.
   int InsertNextCell(vtkIdList &pts);
 
-  // this and next two methods work together
+  // Description:
+  // Create cells by specifying count, and then adding points one at a time
+  // using method InsertCellPoint(). If you don't know the count initially,
+  // use the method UpdateCellCount() to complete the cell. Return the cell
+  // id of the cell.
   int InsertNextCell(int npts);
+
+  // Description:
+  // Used in conjunction with InsertNextCell(int npts) to add another point
+  // to the list of cells.
   void InsertCellPoint(int id);
+
+  // Description:
+  // Used in conjunction with InsertNextCell(int npts) and InsertCellPoint() to
+  // update the number of points defining the cell.
   void UpdateCellCount(int npts);
 
-  int GetInsertLocation(int npts);
-  int GetTraversalLocation(int npts);
+  // Description:
+  // Computes the current insertion location within the internal array. 
+  // Used in conjunction with GetCell(int loc,...).
+  int GetInsertLocation(int npts) {return (this->InsertLocation - npts - 1);};
   
+  // Description:
+  // Computes the current traversal location within the internal array. Used 
+  // in conjunction with GetCell(int loc,...).
+  int GetTraversalLocation(int npts) {return(this->TraversalLocation-npts-1);};
+  
+  // Description:
+  // Special method inverts ordering of current cell. Must be called
+  // carefully or the cell topology may be corrupted.
   void ReverseCell(int loc);
+
+  // Description:
+  // Replace the point ids of the cell with a different list of point ids.
   void ReplaceCell(int loc, int npts, int *pts);
 
-
-// Description:
-// Returns the size of the largest cell. The size is the number of points
-// defining the cell.
+  // Description:
+  // Returns the size of the largest cell. The size is the number of points
+  // defining the cell.
   int GetMaxCellSize();
 
+  // Description:
+  // Get pointer to array of cell data.
+  int *GetPointer() { return this->Ia->GetPointer(0);};
 
-  // miscellaneous pointer type operations (for fast read/write operations)
-  int *GetPointer();
+  // Description:
+  // Get pointer to data array for purpose of direct writes of data. Size is the
+  // total storage consumed by the cell array. ncells is the number of cells
+  // represented in the array.
   int *WritePointer(const int ncells, const int size);
 
-  // reuse memory
+  // Description:
+  // Reuse list. Reset to initial condition.
   void Reset();
-  void Squeeze();
+
+  // Description:
+  // Reclaim any extra memory.
+  void Squeeze() {this->Ia->Squeeze();}
 
 protected:
   int NumberOfCells;
@@ -124,13 +200,7 @@ protected:
   vtkIntArray *Ia;
 };
 
-// Description:
-// Get the number of cells in the array.
-inline int vtkCellArray::GetNumberOfCells() {return this->NumberOfCells;}
 
-// Description:
-// Create a cell by specifying the number of points and an array of point id's.
-// Return the cell id of the cell.
 inline int vtkCellArray::InsertNextCell(int npts, int* pts)
 {
   int i = this->Ia->GetMaxId() + 1;
@@ -147,8 +217,6 @@ inline int vtkCellArray::InsertNextCell(int npts, int* pts)
   return this->NumberOfCells - 1;
 }
 
-// Description:
-// Create a cell by specifying a list of point ids. Return the cell id of the cell.
 inline int vtkCellArray::InsertNextCell(vtkIdList &pts)
 {
   int npts = pts.GetNumberOfIds();
@@ -166,10 +234,6 @@ inline int vtkCellArray::InsertNextCell(vtkIdList &pts)
   return this->NumberOfCells - 1;
 }
 
-// Description:
-// Create cells by specifying count, and then adding points one at a time using
-// method InsertCellPoint(). If you don't know the count initially, use the
-// method UpdateCellCount() to complete the cell. Return the cell id of the cell.
 inline int vtkCellArray::InsertNextCell(int npts)
 {
   this->InsertLocation = this->Ia->InsertNextValue(npts) + 1;
@@ -178,24 +242,16 @@ inline int vtkCellArray::InsertNextCell(int npts)
   return this->NumberOfCells - 1;
 }
 
-// Description:
-// Used in conjunction with InsertNextCell(int npts) to add another point
-// to the list of cells.
 inline void vtkCellArray::InsertCellPoint(int id) 
 {
   this->Ia->InsertValue(this->InsertLocation++,id);
 }
 
-// Description:
-// Used in conjunction with InsertNextCell(int npts) and InsertCellPoint() to
-// update the number of points defining the cell.
 inline void vtkCellArray::UpdateCellCount(int npts) 
 {
   this->Ia->SetValue(this->InsertLocation-npts-1, npts);
 }
 
-// Description:
-// Insert a cell object. Return the cell id of the cell.
 inline int vtkCellArray::InsertNextCell(vtkCell *cell)
 {
   int npts = cell->GetNumberOfPoints();
@@ -213,20 +269,7 @@ inline int vtkCellArray::InsertNextCell(vtkCell *cell)
   return this->NumberOfCells - 1;
 }
 
-// Description:
-// Utility routines help manage memory of cell array. EstimateSize()
-// returns a value used to initialize and allocate memory for array based
-// on number of cells and maximum number of points making up cell.  If 
-// every cell is the same size (in terms of number of points), then the 
-// memory estimate is guaranteed exact. (If not exact, use Squeeze() to
-// reclaim any extra memory.)
-inline int vtkCellArray::EstimateSize(int numCells, int maxPtsPerCell) 
-{
-  return numCells*(1+maxPtsPerCell);
-}
 
-// Description:
-// Reuse list. Reset to initial condition.
 inline void vtkCellArray::Reset() 
 {
   this->NumberOfCells = 0;
@@ -235,19 +278,7 @@ inline void vtkCellArray::Reset()
   this->Ia->Reset();
 }
 
-// Description:
-// Reclaim any extra memory.
-inline void vtkCellArray::Squeeze() {this->Ia->Squeeze();}
 
-// Description:
-// A cell traversal methods that is more efficient than vtkDataSet traversal
-// methods.  InitTraversal() initializes the traversal of the list of cells.
-inline void vtkCellArray::InitTraversal() {this->TraversalLocation=0;}
-
-// Description:
-// A cell traversal methods that is more efficient than vtkDataSet traversal
-// methods.  GetNextCell() gets the next cell in the list. If end of list
-// is encountered, 0 is returned.
 inline int vtkCellArray::GetNextCell(int& npts, int* &pts)
 {
   if ( this->Ia->GetMaxId() >= 0 && 
@@ -264,44 +295,12 @@ inline int vtkCellArray::GetNextCell(int& npts, int* &pts)
     }
 }
 
-// Description:
-// Get the size of the allocated connectivity array.
-inline int vtkCellArray::GetSize() {return this->Ia->GetSize();}
-
-// Description:
-// Get the total number of entries (i.e., data values) in the connectivity 
-// array. This may be much less than the allocated size (i.e., return value 
-// from GetSize().)
-inline int vtkCellArray::GetNumberOfConnectivityEntries() 
-{
-  return this->Ia->GetMaxId()+1;
-}
-
-// Description:
-// Internal method used to retrieve a cell given an offset into
-// the internal array.
 inline void vtkCellArray::GetCell(int loc, int &npts, int* &pts)
 {
   npts=this->Ia->GetValue(loc++); pts=this->Ia->GetPointer(loc);
 }
 
-// Description:
-// Computes the current insertion location within the internal array. 
-// Used in conjunction with GetCell(int loc,...).
-inline int vtkCellArray::GetInsertLocation(int npts) {
-  return (this->InsertLocation - npts - 1);
-}
 
-// Description:
-// Computes the current traversal location within the internal array. Used 
-// in conjunction with GetCell(int loc,...).
-inline int vtkCellArray::GetTraversalLocation(int npts) {
-  return (this->TraversalLocation - npts - 1);
-}
-
-// Description:
-// Special method inverts ordering of current cell. Must be called carefully or
-// the cell topology may be corrupted.
 inline void vtkCellArray::ReverseCell(int loc)
 {
   int i, tmp;
@@ -315,8 +314,6 @@ inline void vtkCellArray::ReverseCell(int loc)
     }
 }
 
-// Description:
-// Replace the point ids of the cell with a different list of point ids.
 inline void vtkCellArray::ReplaceCell(int loc, int npts, int *pts)
 {
   int *oldPts=this->Ia->GetPointer(loc+1);
@@ -326,17 +323,6 @@ inline void vtkCellArray::ReplaceCell(int loc, int npts, int *pts)
     }
 }
 
-// Description:
-// Get pointer to array of cell data.
-inline int *vtkCellArray::GetPointer()
-{
-  return this->Ia->GetPointer(0);
-}
-
-// Description:
-// Get pointer to data array for purpose of direct writes of data. Size is the
-// total storage consumed by the cell array. ncells is the number of cells
-// represented in the array.
 inline int *vtkCellArray::WritePointer(const int ncells, const int size)
 {
   this->NumberOfCells = ncells;

@@ -60,96 +60,85 @@ class VTK_EXPORT vtkIdList : public vtkObject
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkIdList *New() {return new vtkIdList(8);};
 
-  int GetNumberOfIds();
-  int GetId(const int i);
-  void SetNumberOfIds(const int number);
-  void SetId(const int i, const int id);
-  void InsertId(const int i, const int id);
-  int InsertNextId(const int id);
+  // Description:
+  // Return the number of id's in the list.
+  int GetNumberOfIds() { return (this->Ia->GetMaxId() + 1);};
+  
+  // Description:
+  // Return the id at location i.
+  int GetId(const int i) { return this->Ia->GetValue(i);};
+  
+  // Description:
+  // Specify the number of ids for this object to hold. Does an
+  // allocation as well as setting the MaxId ivar. Used in conjunction 
+  // with SetValue() method for fast insertion.
+  void SetNumberOfIds(const int number) {this->Ia->SetNumberOfValues(number);};
+
+  // Description:
+  // Set the id at location i. Doesn't do range checking so it's a bit
+  // faster than InsertId. Make sure you use SetNumberOfIds() to allocate
+  // memory prior to using SetId().
+  void SetId(const int i, const int id) { this->Ia->SetValue(i, id);};
+
+  // Description:
+  // Set the id at location i. Does range checking and allocates memory
+  // as necessary.
+  void InsertId(const int i, const int id) { this->Ia->InsertValue(i,id);};
+
+  // Description:
+  // Add the id specified to the end of the list. Range checking is performed.
+  int InsertNextId(const int id) { return this->Ia->InsertNextValue(id);};
+
+  // Description:
+  // If id is not already in list, insert it and return location in
+  // list. Otherwise return just location in list.
   int InsertUniqueId(const int id);
-  int *GetPointer(const int id);
-  int *WritePointer(const int id, const int number);
+
+  // Description:
+  // Get a pointer to a particular data index.
+  int *GetPointer(const int i) {return this->Ia->GetPointer(i);};
+
+  // Description:
+  // Get a pointer to a particular data index. Make sure data is allocated
+  // for the number of items requested. Set MaxId according to the number of
+  // data values requested.
+  int *WritePointer(const int i, const int number){return this->Ia->WritePointer(i,number);};
+
+  // Description:
+  // Reset to an empty state but do not free any memory.
   void Reset() {this->Ia->Reset();};
+
+  // Description:
+  // Free any unused memory.
   void Squeeze() {this->Ia->Squeeze();};
 
-// Description:
-// Copy an id list by reference counting internal array.
+  // Description:
+  // Copy an id list by reference counting internal array.
   void ShallowCopy(vtkIdList& ids);
 
-
-// Description:
-// Copy an id list by explicitly copying the internal array.
+  // Description:
+  // Copy an id list by explicitly copying the internal array.
   void DeepCopy(vtkIdList& ids);
 
-
-  // special set operations
-
-// Description:
-// Delete specified id from list. Will replace all occurences of id in list.
+  // Description:
+  // Delete specified id from list. Will replace all occurences of id in list.
   void DeleteId(int Id);
 
-
-// Description:
-// Intersect this list with another vtkIdList. Updates current list according
-// to result of intersection operation.
+  // Description:
+  // Intersect this list with another vtkIdList. Updates current list according
+  // to result of intersection operation.
   void IntersectWith(vtkIdList& otherIds);
 
+  // Description:
+  // Return 1 if id specified is contained in list; 0 otherwise.
   int IsId(int id);
 
 protected:
   vtkIntArray *Ia;
 };
 
-// Description:
-// Return the number of id's in the list.
-inline int vtkIdList::GetNumberOfIds() 
-{
-  return (this->Ia->GetMaxId() + 1);
-}
 
-// Description:
-// Return the id at location i.
-inline int vtkIdList::GetId(const int i) 
-{
-  return this->Ia->GetValue(i);
-}
 
-// Description:
-// Specify the number of ids for this object to hold. Does an
-// allocation as well as setting the MaxId ivar. Used in conjunction 
-// with SetValue() method for fast insertion.
-inline void vtkIdList::SetNumberOfIds(const int number) 
-{
-  this->Ia->SetNumberOfValues(number);
-}
-
-// Description:
-// Set the id at location i. Doesn't do range checking so it's a bit
-// faster than InsertId. Make sure you use SetNumberOfIds() to allocate
-// memory prior to using SetId().
-inline void vtkIdList::SetId(const int i, const int id) 
-{
-  this->Ia->SetValue(i, id);
-}
-
-// Description:
-// Set the id at location i. Does range checking and allocates memory
-// as necessary.
-inline void vtkIdList::InsertId(const int i, const int id) 
-{
-  this->Ia->InsertValue(i,id);
-}
-
-// Description:
-// Add the id specified to the end of the list. Range checking is performed.
-inline int vtkIdList::InsertNextId(const int id) 
-{
-  return this->Ia->InsertNextValue(id);
-}
-
-// Description:
-// If id is not already in list, insert it and return location in
-// list. Otherwise return just location in list.
 inline int vtkIdList::InsertUniqueId(const int id)
 {
   for (int i=0; i<this->GetNumberOfIds(); i++)
@@ -163,21 +152,6 @@ inline int vtkIdList::InsertUniqueId(const int id)
   return this->Ia->InsertNextValue(id);
 }
 
-// Description:
-// Get a pointer to a particular data index.
-inline int *vtkIdList::GetPointer(const int i) {return this->Ia->GetPointer(i);}
-
-// Description:
-// Get a pointer to a particular data index. Make sure data is allocated
-// for the number of items requested. Set MaxId according to the number of
-// data values requested.
-inline int *vtkIdList::WritePointer(const int i, const int number)
-{
-  return this->Ia->WritePointer(i,number);
-}
-
-// Description:
-// Return 1 if id specified is contained in list; 0 otherwise.
 inline int vtkIdList::IsId(int id)
 {
   for(int i=0; i<this->GetNumberOfIds(); i++)

@@ -43,6 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkTensor is a floating point representation of an nxn tensor. vtkTensor 
 // provides methods for assignment and reference of tensor components. It 
 // does it in such a way as to minimize data copying.
+//
 // .SECTION Caveats
 // vtkTensor performs its operations using pointer reference. You are 
 // responsible for supplying data storage (if necessary) if local copies 
@@ -56,28 +57,44 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTensor : public vtkObject
 {
 public:
-
-// Description:
-// Construct tensor initially pointing to internal storage.
   vtkTensor();
-
   static vtkTensor *New() {return new vtkTensor;};
   const char *GetClassName() {return "vtkTensor";};
 
+  // Description:
+  // Initialize tensor components to 0.0.
   void Initialize();
-  float GetComponent(int i, int j);
-  void SetComponent(int i, int j, float v);
-  void AddComponent(int i, int j, float v);
-  float *GetColumn(int j);
+
+  // Description:
+  // Get the tensor component (i,j).
+  float GetComponent(int i, int j) {return this->T[i+3*j];};
+
+  // Description:
+  // Set the value of the tensor component (i,j).
+  void SetComponent(int i, int j, float v) {this->T[i+3*j] = v;};
+
+  // Description:
+  // Add to the value of the tensor component at location (i,j).
+  void AddComponent(int i, int j, float v) { this->T[i+3*j] += v;};
+
+  // Description:
+  // Return column vector from tensor. (Assumes 2D matrix form and 0-offset.)
+  float *GetColumn(int j) { return this->T + 3*j;};
+
+  // Description:
+  // Deep copy of one tensor to another tensor.
   void DeepCopy(vtkTensor &t);
+
+  // Description:
+  // Provide float * type conversion.
   operator float*() {return this->T;};
+
   float *T;
 
 protected: 
   float Storage[9];
 };
 
-// Initialize tensor components to 0.0.
 inline void vtkTensor::Initialize()
 {
   for (int j=0; j<3; j++)
@@ -89,36 +106,6 @@ inline void vtkTensor::Initialize()
     }
 }
 
-// Description:
-// Get the tensor component (i,j).
-inline float vtkTensor::GetComponent(int i, int j)
-{
-  return this->T[i+3*j];
-}
-
-// Description:
-// Set the value of the tensor component (i,j).
-inline void vtkTensor::SetComponent(int i, int j, float v)
-{
-  this->T[i+3*j] = v;
-}
-
-// Description:
-// Add to the value of the tensor component at location (i,j).
-inline void vtkTensor::AddComponent(int i, int j, float v)
-{
-  this->T[i+3*j] += v;
-}
-
-// Description:
-// Return column vector from tensor. (Assumes 2D matrix form and 0-offset.)
-inline float *vtkTensor::GetColumn(int j)
-{
-  return this->T + 3*j;
-}
-
-// Description:
-// Deep copy of one tensor to another tensor.
 inline void vtkTensor::DeepCopy(vtkTensor &t)
 {
   for (int j=0; j < 3; j++)

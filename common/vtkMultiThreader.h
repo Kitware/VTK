@@ -141,32 +141,16 @@ struct ThreadInfoStruct
 class VTK_EXPORT vtkMultiThreader : public vtkObject 
 {
 public:
-
-// Description:
-// Constructor. Default all the methods to NULL. Since the
-// ThreadInfoArray is static, the ThreadIDs can be initialized here
-// and will not change.
   vtkMultiThreader();
-
-
-// Description:
-// Destructor. Nothing allocated so nothing needs to be done here.
   ~vtkMultiThreader();
-
   static vtkMultiThreader *New() {return new vtkMultiThreader;};
   const char *GetClassName() {return "vtkMultiThreader";};
-
-// Description:
-// Print method for the multithreader
   void PrintSelf(ostream& os, vtkIndent indent);
 
-
-
   // Description:
-  // Get/Set the number of threads to create
-  // It will be clamped to the range 1 - VTK_MAX_THREADS, so the
-  // caller of this method should check that the requested number
-  // of threads was accepted.
+  // Get/Set the number of threads to create. It will be clamped to the range
+  // 1 - VTK_MAX_THREADS, so the caller of this method should check that the
+  // requested number of threads was accepted.
   vtkSetClampMacro( NumberOfThreads, int, 1, VTK_MAX_THREADS );
   vtkGetMacro( NumberOfThreads, int );
 
@@ -179,7 +163,7 @@ public:
 
   // These methods are excluded from Tcl wrapping 1) because the
   // wrapper barfs on them and 2) because they really shouldn't be
-  // called from a tcl script anyway.
+  // called from a script anyway.
   //BTX 
   
   // Description:
@@ -192,7 +176,7 @@ public:
   // for each of the required this->NumberOfThreads methods) using
   // this->NumberOfThreads threads.
   void MultipleMethodExecute();
-
+  
   // Description:
   // Set the SingleMethod to f() and the UserData field of the
   // ThreadInfoStruct that is passed to it will be data.
@@ -204,8 +188,7 @@ public:
   // Description:
   // Set the MultipleMethod at the given index to f() and the UserData 
   // field of the ThreadInfoStruct that is passed to it will be data.
-  void SetMultipleMethod( int index, vtkThreadFunctionType, 
-			  void *data ); 
+  void SetMultipleMethod( int index, vtkThreadFunctionType, void *data ); 
 
   // Description:
   // Create a new thread for the given function. Return a thread id

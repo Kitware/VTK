@@ -40,8 +40,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkUnsignedShortArray - dynamic, self-adjusting unsigned short integer array
 // .SECTION Description
-// vtkUnsignedShortArray is an array of unsigned short integer numbers. It provides methods
-// for insertion and retrieval of integer values, and will 
+// vtkUnsignedShortArray is an array of unsigned short integer numbers. It
+// provides methods for insertion and retrieval of integer values, and will
 // automatically resize itself to hold new data.
 
 #ifndef __vtkUnsignedShortArray_h
@@ -52,110 +52,124 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkUnsignedShortArray : public vtkDataArray 
 {
 public:
-
-// Description:
-// Instantiate object.
   vtkUnsignedShortArray(int numComp=1);
-
   ~vtkUnsignedShortArray();
-
-// Description:
-// Allocate memory for this array. Delete old storage only if necessary.
-  int Allocate(const int sz, const int ext=1000);
-
-
-// Description:
-// Release storage and reset array to initial state.
-  void Initialize();
-
   static vtkUnsignedShortArray *New() {return new vtkUnsignedShortArray;};
   const char *GetClassName() {return "vtkUnsignedShortArray";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // satisfy vtkDataArray API
-  vtkDataArray *MakeObject() {return new vtkUnsignedShortArray(this->NumberOfComponents);};
+  // Description:
+  // Allocate memory for this array. Delete old storage only if necessary.
+  int Allocate(const int sz, const int ext=1000);
+
+  // Description:
+  // Release storage and reset array to initial state.
+  void Initialize();
+
+  // Description:
+  // Create a similar type object
+  vtkDataArray *MakeObject() {
+    return new vtkUnsignedShortArray(this->NumberOfComponents);};
+
+  // Description:
+  // Get the data type.
   int GetDataType() {return VTK_UNSIGNED_SHORT;};
 
-// Description:
-// Set the number of n-tuples in the array.
+  // Description:
+  // Set the number of n-tuples in the array.
   void SetNumberOfTuples(const int number);
 
-
-// Description:
-// Get a pointer to a tuple at the ith location. This is a dangerous method
-// (it is not thread safe since a pointer is returned).
+  // Description:
+  // Get a pointer to a tuple at the ith location. This is a dangerous method
+  // (it is not thread safe since a pointer is returned).
   float *GetTuple(const int i);
 
-
-// Description:
-// Copy the tuple value into a user-provided array.
+  // Description:
+  // Copy the tuple value into a user-provided array.
   void GetTuple(const int i, float * tuple);
 
-
-// Description:
-// Set the tuple value at the ith location in the array.
+  // Description:
+  // Set the tuple value at the ith location in the array.
   void SetTuple(const int i, const float * tuple);
 
-
-// Description:
-// Insert (memory allocation performed) the tuple into the ith location
-// in the array.
+  // Description:
+  // Insert (memory allocation performed) the tuple into the ith location
+  // in the array.
   void InsertTuple(const int i, const float * tuple);
-
-
-// Description:
-// Insert (memory allocation performed) the tuple onto the end of the array.
+  
+  // Description:
+  // Insert (memory allocation performed) the tuple onto the end of the array.
   int InsertNextTuple(const float * tuple);
 
-  void Squeeze();
-
-  // overload vtkDataArray for efficiency
-
-// Description:
-// Return the data component at the ith tuple and jth component location.
-// Note that i<NumberOfTuples and j<NumberOfComponents.
+  // Description:
+  // Return the data component at the ith tuple and jth component location.
+  // Note that i<NumberOfTuples and j<NumberOfComponents.
   float GetComponent(const int i, const int j);
 
-
-// Description:
-// Set the data component at the ith tuple and jth component location.
-// Note that i<NumberOfTuples and j<NumberOfComponents. Make sure enough
-// memory has been allocated (use SetNumberOfTuples() and 
-// SetNumberOfComponents()).
+  // Description:
+  // Set the data component at the ith tuple and jth component location.
+  // Note that i<NumberOfTuples and j<NumberOfComponents. Make sure enough
+  // memory has been allocated (use SetNumberOfTuples() and 
+  // SetNumberOfComponents()).
   void SetComponent(const int i, const int j, const float c);
 
-
-// Description:
-// Insert the data component at ith tuple and jth component location. 
-// Note that memory allocation is performed as necessary to hold the data.
+  // Description:
+  // Insert the data component at ith tuple and jth component location. 
+  // Note that memory allocation is performed as necessary to hold the data.
   void InsertComponent(const int i, const int j, const float c);
 
+  // Description:
+  // Get the data at a particular index.
+  unsigned short GetValue(const int id) {return this->Array[id];};
 
-  // access/insertion methods
-  unsigned short GetValue(const int id);
+  // Description:
+  // Set the data at a particular index. Does not do range checking. Make sure
+  // you use the method SetNumberOfValues() before inserting data.
+  void SetValue(const int id, const unsigned short value) {
+    this->Array[id] = value;};
+  
+  // Description:
+  // Specify the number of values for this object to hold. Does an
+  // allocation as well as setting the MaxId ivar. Used in conjunction with
+  // SetValue() method for fast insertion.
   void SetNumberOfValues(const int number);
-  void SetValue(const int id, const unsigned short value);
+
+  // Description:
+  // Insert data at a specified position in the array.
   void InsertValue(const int id, const unsigned short i);
+
+  // Description:
+  // Insert data at the end of the array. Return its location in the array.
   int InsertNextValue(const unsigned short);
+
+  // Description:
+  // Get the address of a particular data index. Performs no checks
+  // to verify that the memory has been allocated etc.
   unsigned short *GetPointer(const int id) {return this->Array + id;}
-  unsigned short *WritePointer(const int id, const int number);
   void *GetVoidPointer(const int id) {return (void *)this->GetPointer(id);};
 
-// Description:
-// Deep copy of another unsigned short array.
+  // Description:
+  // Get the address of a particular data index. Make sure data is allocated
+  // for the number of items requested. Set MaxId according to the number of
+  // data values requested.
+  unsigned short *WritePointer(const int id, const int number);
+
+  // Description:
+  // Deep copy of another unsigned short array.
   void DeepCopy(vtkDataArray& ia);
 
-
-
-// Description:
-// This method lets the user specify data to be held by the array.  The 
-// array argument is a pointer to the data.  size is the size of 
-// the array supplied by the user.  Set save to 1 to keep the class
-// from deleting the array when it cleans up or reallocates memory.
-// The class uses the actual array provided; it does not copy the data 
-// from the suppled array.
+  // Description:
+  // This method lets the user specify data to be held by the array.  The 
+  // array argument is a pointer to the data.  size is the size of 
+  // the array supplied by the user.  Set save to 1 to keep the class
+  // from deleting the array when it cleans up or reallocates memory.
+  // The class uses the actual array provided; it does not copy the data 
+  // from the suppled array.
   void SetArray(unsigned short* array, int size, int save);
 
+  // Description:
+  // Resize object to just fit data requirement. Reclaims extra memory.
+  void Squeeze() {this->Resize (this->MaxId+1);};
 
 private:
   unsigned short *Array;   // pointer to data
@@ -167,32 +181,12 @@ private:
   int SaveUserArray;
 };
 
-// Description:
-// Get the data at a particular index.
-inline unsigned short vtkUnsignedShortArray::GetValue(const int id) {return this->Array[id];}
-
-// Description:
-// Specify the number of values for this object to hold. Does an
-// allocation as well as setting the MaxId ivar. Used in conjunction with
-// SetValue() method for fast insertion.
 inline void vtkUnsignedShortArray::SetNumberOfValues(const int number) 
 {
   this->Allocate(number);
   this->MaxId = number - 1;
 }
 
-// Description:
-// Set the data at a particular index. Does not do range checking. Make sure
-// you use the method SetNumberOfValues() before inserting data.
-inline void vtkUnsignedShortArray::SetValue(const int id, const unsigned short value) 
-{
-  this->Array[id] = value;
-}
-
-// Description:
-// Get the address of a particular data index. Make sure data is allocated
-// for the number of items requested. Set MaxId according to the number of
-// data values requested.
 inline unsigned short *vtkUnsignedShortArray::WritePointer(const int id, const int number) 
 {
   int newSize=id+number;
@@ -207,8 +201,6 @@ inline unsigned short *vtkUnsignedShortArray::WritePointer(const int id, const i
   return this->Array + id;
 }
 
-// Description:
-// Insert data at a specified position in the array.
 inline void vtkUnsignedShortArray::InsertValue(const int id, const unsigned short i)
 {
   if ( id >= this->Size )
@@ -222,17 +214,11 @@ inline void vtkUnsignedShortArray::InsertValue(const int id, const unsigned shor
     }
 }
 
-// Description:
-// Insert data at the end of the array. Return its location in the array.
 inline int vtkUnsignedShortArray::InsertNextValue(const unsigned short i)
 {
   this->InsertValue (++this->MaxId,i); 
   return this->MaxId;
 }
-
-// Description:
-// Resize object to just fit data requirement. Reclaims extra memory.
-inline void vtkUnsignedShortArray::Squeeze() {this->Resize (this->MaxId+1);}
 
 #endif
 

@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkSource - abstract class specifies interface for visualization network source (or objects that generate output data)
+// .NAME vtkSource - abstract class specifies interface for visualization network source
 // .SECTION Description
 // vtkSource is an abstract object that specifies behavior and interface
 // of source objects. Source objects are objects that begin visualization

@@ -48,6 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //
 // If non-positive ranges are encountered, then they are converted to 
 // positive values using absolute value.
+//
 // .SECTION See Also
 // vtkLookupTable
 
@@ -64,20 +65,18 @@ public:
   const char *GetClassName() {return "vtkLogLookupTable";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-
-// Description:
-// Set the minimum/maximum scalar values for scalar mapping. Scalar values
-// less than minimum range value are clamped to minimum range value.
-// Scalar values greater than maximum range value are clamped to maximum
-// range value. (The log base 10 of these values is taken and mapping is
-// performed in logarithmic space.)
+  // Description:
+  // Set the minimum/maximum scalar values for scalar mapping. Scalar values
+  // less than minimum range value are clamped to minimum range value.
+  // Scalar values greater than maximum range value are clamped to maximum
+  // range value. (The log base 10 of these values is taken and mapping is
+  // performed in logarithmic space.)
   void SetTableRange(float min, float max);
 
-
-// Description:
-// Given a scalar value v, return an rgba color value from lookup table. 
-// Mapping performed log base 10 (negative ranges are converted into positive
-// values).
+  // Description:
+  // Given a scalar value v, return an rgba color value from lookup table. 
+  // Mapping performed log base 10 (negative ranges are converted into positive
+  // values).
   unsigned char *MapValue(float v);
 
 

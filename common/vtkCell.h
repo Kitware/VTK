@@ -46,6 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // cases visualization datasets may explicitly represent cells (e.g., 
 // vtkPolyData, vtkUnstructuredGrid), and in some cases, the datasets are 
 // implicitly composed of cells (e.g., vtkStructuredPoints).
+//
 // .SECTION Caveats
 // The #define VTK_CELL_SIZE is a parameter used to construct cells and provide
 // a general guideline for controlling object execution. This parameter is 
@@ -55,6 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkHexahedron vtkLine vtkPixel vtkPolyLine vtkPolyVertex
 // vtkPolygon vtkQuad vtkTetra vtkTriangle 
 // vtkTriangleStrip vtkVertex vtkVoxel
+
 #ifndef __vtkCell_h
 #define __vtkCell_h
 
@@ -76,18 +78,14 @@ class vtkCellData;
 class VTK_EXPORT vtkCell : public vtkObject
 {
 public:
-
-// Description:
-// Construct cell.
   vtkCell();
-
   void Initialize(int npts, int *pts, vtkPoints *p);
   const char *GetClassName() {return "vtkCell";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Create concrete copy of this cell. Initially, the copy is made by performing
-  // a ShallowCopy() operation.
+  // Create concrete copy of this cell. Initially, the copy is made by
+  // performing a ShallowCopy() operation.
   virtual vtkCell *MakeObject() = 0;
 
   // Description:
@@ -230,60 +228,58 @@ public:
   virtual int Triangulate(int index, vtkIdList &ptIds, vtkPoints &pts) = 0;
 
   // Description:
-  // Compute derivatives given cell subId and parametric coordinates. The values
-  // array is a series of data value(s) at the cell points. There is a one-to-one
-  // correspondence between cell point and data value(s). Dim is the number of 
-  // data values per cell point. Derivs are derivatives in the x-y-z coordinate
-  // directions for each data value. Thus, if computing derivatives for a 
-  // scalar function in a hexahedron, dim=1, 8 values are supplied, and 3 deriv
-  // values are returned (i.e., derivatives in x-y-z directions). On the other 
-  // hand, if computing derivatives of velocity (vx,vy,vz) dim=3, 24 values are
-  // supplied ((vx,vy,vz)1, (vx,vy,vz)2, ....()8), and 9 deriv values are
-  // returned ((d(vx)/dx),(d(vx)/dy),(d(vx)/dz), (d(vy)/dx),(d(vy)/dy),
-  // (d(vy)/dz), (d(vz)/dx),(d(vz)/dy),(d(vz)/dz)).
+  // Compute derivatives given cell subId and parametric coordinates. The
+  // values array is a series of data value(s) at the cell points. There is a
+  // one-to-one correspondence between cell point and data value(s). Dim is
+  // the number of data values per cell point. Derivs are derivatives in the
+  // x-y-z coordinate directions for each data value. Thus, if computing
+  // derivatives for a scalar function in a hexahedron, dim=1, 8 values are
+  // supplied, and 3 deriv values are returned (i.e., derivatives in x-y-z
+  // directions). On the other hand, if computing derivatives of velocity
+  // (vx,vy,vz) dim=3, 24 values are supplied ((vx,vy,vz)1, (vx,vy,vz)2,
+  // ....()8), and 9 deriv values are returned
+  // ((d(vx)/dx),(d(vx)/dy),(d(vx)/dz), (d(vy)/dx),(d(vy)/dy), (d(vy)/dz),
+  // (d(vz)/dx),(d(vz)/dy),(d(vz)/dz)).
   virtual void Derivatives(int subId, float pcoords[3], float *values, 
                            int dim, float *derivs) = 0;
 
 
-// Description:
-// Compute cell bounding box (xmin,xmax,ymin,ymax,zmin,zmax). Copy result into
-// user provided array.
+  // Description:
+  // Compute cell bounding box (xmin,xmax,ymin,ymax,zmin,zmax). Copy result
+  // into user provided array.
   void GetBounds(float bounds[6]);
 
 
-// Description:
-// Compute cell bounding box (xmin,xmax,ymin,ymax,zmin,zmax). Return pointer
-// to array of six float values.
+  // Description:
+  // Compute cell bounding box (xmin,xmax,ymin,ymax,zmin,zmax). Return pointer
+  // to array of six float values.
   float *GetBounds();
 
 
-// Description:
-// Compute Length squared of cell (i.e., bounding box diagonal squared).
+  // Description:
+  // Compute Length squared of cell (i.e., bounding box diagonal squared).
   float GetLength2();
 
 
-// Description:
-// Return center of the cell in parametric coordinates.
-// Note that the parametric center is not always located 
-// at (0.5,0.5,0.5). The return value is the subId that
-// the center is in (if a composite cell). If you want the
-// center in x-y-z space, invoke the EvaluateLocation() method.
+  // Description:
+  // Return center of the cell in parametric coordinates.  Note that the
+  // parametric center is not always located at (0.5,0.5,0.5). The return
+  // value is the subId that the center is in (if a composite cell). If you
+  // want the center in x-y-z space, invoke the EvaluateLocation() method.
   virtual int GetParametricCenter(float pcoords[3]);
 
 
-  // Quick intersection of cell bounding box.  Returns != 0 for hit.
-
-// Description:
-// Bounding box intersection modified from Graphics Gems Vol I.
-// Note: the intersection ray is assumed normalized, such that
-// valid intersections can only occur between [0,1]. Method returns non-zero
-// value if bounding box is hit. Origin[3] starts the ray, dir[3] is the 
-// components of the ray in the x-y-z directions, coord[3] is the location 
-// of hit, and t is the parametric coordinate along line.
+  // Description:
+  // Bounding box intersection modified from Graphics Gems Vol I.  Note: the
+  // intersection ray is assumed normalized, such that valid intersections
+  // can only occur between [0,1]. Method returns non-zero value if bounding
+  // box is hit. Origin[3] starts the ray, dir[3] is the components of the
+  // ray in the x-y-z directions, coord[3] is the location of hit, and t is
+  // the parametric coordinate along line.
   static char HitBBox(float bounds[6], float origin[3], float dir[3], 
                       float coord[3], float& t);
 
-
+  
   // left public for quick computational access
   vtkPoints Points;
   vtkIdList PointIds;

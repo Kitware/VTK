@@ -85,12 +85,7 @@ typedef struct
 class VTK_EXPORT vtkTimerLog : public vtkObject 
 {
 public:
-  
-
-// Description:
-// Print method for vtkTimerLog.
   void PrintSelf(ostream& os, vtkIndent indent);
-
   static vtkTimerLog *New() {return new vtkTimerLog;};
   const char *GetClassName() {return "vtkTimerLog";};
 
@@ -100,57 +95,46 @@ public:
   static int  GetMaxEntries();
 
 //BTX
-
-// Description:
-// Record a timing event.  The event is represented by a formatted
-// string.
+  // Description:
+  // Record a timing event.  The event is represented by a formatted
+  // string.
   static void FormatAndMarkEvent(char *EventString, ...);
-
 //ETX
   
-
-// Description:
-// Write the timing table out to a file.  Calculate some helpful
-// statistics (deltas and  percentages) in the process.
+  // Description:
+  // Write the timing table out to a file.  Calculate some helpful
+  // statistics (deltas and  percentages) in the process.
   static void DumpLog(char *filename);
 
-
-// Description:
-// Record a timing event and capture walltime and cputicks.
+  // Description:
+  // Record a timing event and capture walltime and cputicks.
   static void MarkEvent(char *EventString);
 
-
-// Description:
-// Clear the timing table.  walltime and cputime will also be set
-// to zero when the first new event is recorded.
+  // Description:
+  // Clear the timing table.  walltime and cputime will also be set
+  // to zero when the first new event is recorded.
   static void ResetLog();
 
-
-// Description:
-// Allocate timing table with MaxEntries elements.
+  // Description:
+  // Allocate timing table with MaxEntries elements.
   static void AllocateLog();
 
-
-// Description:
-// Returns the elapsed number of seconds since January 1, 1970. This
-// is also called Universal Coordinated Time.
+  // Description:
+  // Returns the elapsed number of seconds since January 1, 1970. This
+  // is also called Universal Coordinated Time.
   static double GetCurrentTime();
 
-
-
-// Description:
-// Set the StartTime to the current time. Used with GetElapsedTime().
+  // Description:
+  // Set the StartTime to the current time. Used with GetElapsedTime().
   void StartTimer();
 
-
-// Description:
-// Sets EndTime to the current time. Used with GetElapsedTime().
+  // Description:
+  // Sets EndTime to the current time. Used with GetElapsedTime().
   void StopTimer();
 
-
-// Description:
-// Returns the difference between StartTime and EndTime as 
-// a floating point value indicating the elapsed time in seconds.
+  // Description:
+  // Returns the difference between StartTime and EndTime as 
+  // a floating point value indicating the elapsed time in seconds.
   double GetElapsedTime();
 
 
@@ -182,8 +166,6 @@ protected:
   //ETX
 
 };
-
-
 
 
 //

@@ -74,15 +74,21 @@ public:
   int GetDataSetType() {return VTK_RECTILINEAR_GRID;};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // dataset interface
+  // Description:
+  // Create a similar type object
   vtkDataObject *MakeObject() {return new vtkRectilinearGrid;};
 
-// Description:
-// Copy the geometric and topological structure of an input rectilinear grid
-// object.
+  // Description:
+  // Copy the geometric and topological structure of an input rectilinear grid
+  // object.
   void CopyStructure(vtkDataSet *ds);
 
+  // Description:
+  // Restore object to initial state. Release memory back to system.
   void Initialize();
+
+  // Description:
+  // Standard vtkDataSet API methods. See vtkDataSet for more information.
   int GetNumberOfCells();
   int GetNumberOfPoints();
   float *GetPoint(int ptId);
@@ -99,35 +105,33 @@ public:
   void ComputeBounds();
   int GetMaxCellSize() {return 8;}; //voxel is the largest
 
-  // following methods are specific to structured data
-
-// Description:
-// Set dimensions of rectilinear grid dataset.
+  // Description:
+  // Set dimensions of rectilinear grid dataset.
   void SetDimensions(int i, int j, int k);
-
-
-// Description:
-// Set dimensions of rectilinear grid dataset.
   void SetDimensions(int dim[3]);
-
 
   // Description:
   // Get dimensions of this rectilinear grid dataset.
   vtkGetVectorMacro(Dimensions,int,3);
 
+  // Description:
+  // Return the dimensionality of the data.
+  int GetDataDimension();
 
-// Description:
-// Convenience function computes the structured coordinates for a point x[3].
-// The cell is specified by the array ijk[3], and the parametric coordinates
-// in the cell are specified with pcoords[3]. The function returns a 0 if the
-// point x is outside of the grid, and a 1 if inside the grid.
+  // Description:
+  // Convenience function computes the structured coordinates for a point x[3].
+  // The cell is specified by the array ijk[3], and the parametric coordinates
+  // in the cell are specified with pcoords[3]. The function returns a 0 if the
+  // point x is outside of the grid, and a 1 if inside the grid.
   int ComputeStructuredCoordinates(float x[3], int ijk[3], float pcoords[3]);
 
-  int GetDataDimension();
+  // Description:
+  // Given a location in structured coordinates (i-j-k), return the point id.
   int ComputePointId(int ijk[3]);
-  int ComputeCellId(int ijk[3]);
 
-  // Methods specific to rectilinear grid
+  // Description:
+  // Given a location in structured coordinates (i-j-k), return the cell id.
+  int ComputeCellId(int ijk[3]);
 
   // Description:
   // Specify the grid coordinates in the x-direction.
@@ -196,15 +200,11 @@ inline void vtkRectilinearGrid::GetPointCells(int ptId, vtkIdList& cellIds)
   vtkStructuredData::GetPointCells(ptId,cellIds,this->Dimensions);
 }
 
-// Description:
-// Given a location in structured coordinates (i-j-k), return the point id.
 inline int vtkRectilinearGrid::ComputePointId(int ijk[3])
 {
   return vtkStructuredData::ComputePointId(this->Dimensions,ijk);
 }
 
-// Description:
-// Given a location in structured coordinates (i-j-k), return the cell id.
 inline int vtkRectilinearGrid::ComputeCellId(int ijk[3])
 {
   return vtkStructuredData::ComputeCellId(this->Dimensions,ijk);

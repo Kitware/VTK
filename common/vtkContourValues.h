@@ -57,9 +57,8 @@ class vtkFloatArray;
 class VTK_EXPORT vtkContourValues : public vtkObject
 {
 public:
-
-// Description:
-// Construct object with a single contour value at 0.0.
+  // Description:
+  // Construct object with a single contour value at 0.0.
   vtkContourValues();
 
   ~vtkContourValues();
@@ -67,53 +66,43 @@ public:
   const char *GetClassName() {return "vtkContourValues";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-
-// Description:
-// Set the ith contour value.
+  // Description:
+  // Set the ith contour value.
   void SetValue(int i, float value);
 
-
-// Description:
-// Get the ith contour value. The return value will be clamped if the
-// index i is out of range.
+  // Description:
+  // Get the ith contour value. The return value will be clamped if the
+  // index i is out of range.
   float GetValue(int i);
 
-
-// Description:
-// Return a pointer to a list of contour values. The contents of the
-// list will be garbage if the number of contours <= 0.
+  // Description:
+  // Return a pointer to a list of contour values. The contents of the
+  // list will be garbage if the number of contours <= 0.
   float *GetValues();
 
-
-// Description:
-// Fill a supplied list with contour values. Make sure you've
-// allocated memory of size GetNumberOfContours().
+  // Description:
+  // Fill a supplied list with contour values. Make sure you've
+  // allocated memory of size GetNumberOfContours().
   void GetValues(float *contourValues);
 
-
-
-// Description:
-// Set the number of contours to place into the list. You only really
-// need to use this method to reduce list size. The method SetValue()
-// will automatically increase list size as needed.
+  // Description:
+  // Set the number of contours to place into the list. You only really
+  // need to use this method to reduce list size. The method SetValue()
+  // will automatically increase list size as needed.
   void SetNumberOfContours(const int number);
 
-
-// Description:
-// Return the number of contours in the
+  // Description:
+  // Return the number of contours in the
   int GetNumberOfContours();
 
-
-
-// Description:
-// Generate numContours equally spaced contour values between specified
-// range. Contour values will include min/max range values.
+  // Description:
+  // Generate numContours equally spaced contour values between specified
+  // range. Contour values will include min/max range values.
   void GenerateValues(int numContours, float range[2]);
 
-
-// Description:
-// Generate numContours equally spaced contour values between specified
-// range. Contour values will include min/max range values.
+  // Description:
+  // Generate numContours equally spaced contour values between specified
+  // range. Contour values will include min/max range values.
   void GenerateValues(int numContours, float rangeStart, float rangeEnd);
 
 

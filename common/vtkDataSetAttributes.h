@@ -61,19 +61,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkDataSetAttributes : public vtkObject 
 {
 public:
-
-// Description:
-// Construct object with copying turned on for all data.
+  // Description:
+  // Construct object with copying turned on for all data.
   vtkDataSetAttributes();
-
-
-// Description:
-// Initialize all of the object's data to NULL
+  
+  // Description:
+  // Initialize all of the object's data to NULL
   void Initialize();
 
-
-// Description:
-// Destructor for the vtkDataSetAttributes objects.
+  // Description:
+  // Destructor for the vtkDataSetAttributes objects.
   ~vtkDataSetAttributes();
 
   static vtkDataSetAttributes *New() {return new vtkDataSetAttributes;};
@@ -81,109 +78,89 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   virtual void Update() {};
 
-  // pass thru all input data to output
-
-// Description:
-// Pass entire arrays of input data through to output. Obey the "copy"
-// flags.
+  // Description:
+  // Pass entire arrays of input data through to output. Obey the "copy"
+  // flags.
   void PassData(vtkDataSetAttributes* pd);
 
-
-  // pass thru all input data to output. Only attribute data that is not
-  // already set is passed.
-
-// Description:
-// Pass entire arrays of input data through to output. Obey the "copy"
-// flags. Only passes the data if the output attribute is NULL (i.e., not set).
+  // Description:
+  // Pass entire arrays of input data through to output. Obey the "copy"
+  // flags. Only passes the data if the output attribute is NULL (i.e., not
+  // set).
   void PassNoReplaceData(vtkDataSetAttributes* pd);
 
-
-  // use to copy data on a point by point basis
-
-// Description:
-// Allocates point data for point-by-point (or cell-by-cell) copy operation.  
-// If sze=0, then use the input DataSetAttributes to create (i.e., find 
-// initial size of) new objects; otherwise use the sze variable.
+  // Description:
+  // Allocates point data for point-by-point (or cell-by-cell) copy operation.  
+  // If sze=0, then use the input DataSetAttributes to create (i.e., find 
+  // initial size of) new objects; otherwise use the sze variable.
   void CopyAllocate(vtkDataSetAttributes* pd, int sze=0, int ext=1000);
 
-
-// Description:
-// Copy the attribute data from one id to another. Make sure CopyAllocate() has
-// been invoked before using this method.
+  // Description:
+  // Copy the attribute data from one id to another. Make sure CopyAllocate()
+  // has been invoked before using this method.
   void CopyData(vtkDataSetAttributes *fromPd, int fromId, int toId);
 
-
-  // use to interpolate data
-
-// Description:
-// Initialize point interpolation method.
+  // Description:
+  // Initialize point interpolation method.
   void InterpolateAllocate(vtkDataSetAttributes* pd, int sze=0, int ext=1000);
-
-  void InterpolatePoint(vtkDataSetAttributes *fromPd, int toId, vtkIdList *ptIds, 
-                        float *weights);
-
-// Description:
-// Interpolate data from the two points p1,p2 (forming an edge) and an 
-// interpolation factor, t, along the edge. The weight ranges from (0,1), 
-// with t=0 located at p1. Make sure that the method InterpolateAllocate() 
-// has been invoked before using this method.
+  
+  // Description:
+  // Interpolate a points attributes from other points.
+  void InterpolatePoint(vtkDataSetAttributes *fromPd, int toId, 
+			vtkIdList *ptIds, float *weights);
+  
+  // Description:
+  // Interpolate data from the two points p1,p2 (forming an edge) and an 
+  // interpolation factor, t, along the edge. The weight ranges from (0,1), 
+  // with t=0 located at p1. Make sure that the method InterpolateAllocate() 
+  // has been invoked before using this method.
   void InterpolateEdge(vtkDataSetAttributes *fromPd, int toId, int p1, int p2,
                         float t);
 
-
-  // Different ways of copying data
-
-// Description:
-// Deep copy of data (i.e., create new data arrays and
-// copy from input data).
+  // Description:
+  // Deep copy of data (i.e., create new data arrays and
+  // copy from input data).
   void DeepCopy(vtkDataSetAttributes& pd);
 
-
-// Description:
-// Shallow copy of data (i.e., use reference counting).
+  // Description:
+  // Shallow copy of data (i.e., use reference counting).
   void ShallowCopy(vtkDataSetAttributes& pd);
 
-
-  // Reclaim memory
-
-// Description:
-// Resize object to just fit data requirements. Reclaims extra memory.
+  // Description:
+  // Resize object to just fit data requirements. Reclaims extra memory.
   void Squeeze();
 
-
-  // Need to check component pieces for modified time
-
-// Description:
-// Check object's components for modified times.
+  // Description:
+  // Check object's components for modified times.
   unsigned long int GetMTime();
 
-
   // Description:
-  // Set scalar data.
+  // Set/Get the scalar data.
   vtkSetReferenceCountedObjectMacro(Scalars,vtkScalars);
   vtkGetObjectMacro(Scalars,vtkScalars);
 
   // Description:
-  // Set vector data.
+  // Set/Get the vector data.
   vtkSetReferenceCountedObjectMacro(Vectors,vtkVectors);
   vtkGetObjectMacro(Vectors,vtkVectors);
 
   // Description:
-  // Set normal data.
+  // Set/get the normal data.
   vtkSetReferenceCountedObjectMacro(Normals,vtkNormals);
   vtkGetObjectMacro(Normals,vtkNormals);
 
   // Description:
-  // Set texture coordinate data.
+  // Set/Get the texture coordinate data.
   vtkSetReferenceCountedObjectMacro(TCoords,vtkTCoords);
   vtkGetObjectMacro(TCoords,vtkTCoords);
 
   // Description:
-  // Set tensor data.
+  // Set/Get the tensor data.
   vtkSetReferenceCountedObjectMacro(Tensors,vtkTensors);
   vtkGetObjectMacro(Tensors,vtkTensors);
 
-  // Set field data.
+  // Description:
+  // Set/Get the field data.
   vtkSetReferenceCountedObjectMacro(FieldData,vtkFieldData);
   vtkGetObjectMacro(FieldData,vtkFieldData);
 
@@ -230,25 +207,21 @@ public:
   // CopyAllocate() or InterpolateAllocate() has been invoked.
   int GetAnyEnabled() {return this->AnyEnabled;}
 
-
-// Description:
-// Turn on copying of all data.
+  // Description:
+  // Turn on copying of all data.
   void CopyAllOn();
 
-
-// Description:
-// Turn off copying of all data.
+  // Description:
+  // Turn off copying of all data.
   void CopyAllOff();
 
-
-
-// Description:
-// Copy a tuple of data from one data array to another. This method (and following
-// ones) assume that the fromData and toData objects are of the same type, and have
-// the same number of components. This is true if you invoke CopyAllocate() or
-// InterpolateAllocate().
-  void CopyTuple(vtkDataArray *fromData, vtkDataArray *toData, int fromId, int toId);
-
+  // Description:
+  // Copy a tuple of data from one data array to another. This method (and
+  // following ones) assume that the fromData and toData objects are of the
+  // same type, and have the same number of components. This is true if you
+  // invoke CopyAllocate() or InterpolateAllocate().
+  void CopyTuple(vtkDataArray *fromData, vtkDataArray *toData, int fromId, 
+		 int toId);
 
 protected:
   // special methods to support managing data

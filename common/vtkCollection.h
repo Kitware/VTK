@@ -46,8 +46,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // of objects.
 
 // .SECTION See Also
-// vtkActorCollection vtkAssemblyPaths vtkDataSetCollection vtkImplicitFunctionCollection
-// vtkLightCollection vtkPolyDataCollection vtkRenderWindowCollection vtkRendererCollection
+// vtkActorCollection vtkAssemblyPaths vtkDataSetCollection
+// vtkImplicitFunctionCollection vtkLightCollection vtkPolyDataCollection
+// vtkRenderWindowCollection vtkRendererCollection
 // vtkStructuredPointsCollection vtkTransformCollection vtkVolumeCollection
 
 #ifndef __vtkCollection_h
@@ -68,71 +69,68 @@ class vtkCollectionElement //;prevents pick-up by man page generator
 class VTK_EXPORT vtkCollection : public vtkObject
 {
 public:
-
-// Description:
-// Construct with empty list.
+  // Description:
+  // Construct with empty list.
   vtkCollection();
 
-
-// Description:
-// Desctructor for the vtkCollection class. This removes all 
-// objects from the collection.
+  // Description:
+  // Desctructor for the vtkCollection class. This removes all 
+  // objects from the collection.
   virtual ~vtkCollection();
 
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkCollection *New() {return new vtkCollection;};
   const char *GetClassName() {return "vtkCollection";};
 
-
-// Description:
-// Add an object to the list. Does not prevent duplicate entries.
+  // Description:
+  // Add an object to the list. Does not prevent duplicate entries.
   void AddItem(vtkObject *);
 
-
-// Description:
-// Replace the i'th item in the collection with a
+  // Description:
+  // Replace the i'th item in the collection with a
   void ReplaceItem(int i, vtkObject *);
 
-
-// Description:
-// Remove the i'th item in the list.
-// Be careful if using this function during traversal of the list using 
-// GetNextItemAsObject (or GetNextItem in derived class).  The list WILL
-// be shortened if a valid index is given!  If this->Current is equal to the
-// element being removed, have it point to then next element in the list.
+  // Description:
+  // Remove the i'th item in the list.
+  // Be careful if using this function during traversal of the list using 
+  // GetNextItemAsObject (or GetNextItem in derived class).  The list WILL
+  // be shortened if a valid index is given!  If this->Current is equal to the
+  // element being removed, have it point to then next element in the list.
   virtual void RemoveItem(int i);  
 
-
-// Description:
-// Remove an object from the list. Removes the first object found, not
-// all occurrences. If no object found, list is unaffected.  See warning
-// in description of RemoveItem(int).
+  // Description:
+  // Remove an object from the list. Removes the first object found, not
+  // all occurrences. If no object found, list is unaffected.  See warning
+  // in description of RemoveItem(int).
   void RemoveItem(vtkObject *);
 
-
-// Description:
-// Remove all objects from the list.
+  // Description:
+  // Remove all objects from the list.
   void RemoveAllItems();
 
-
-// Description:
-// Search for an object and return location in list. If location == 0,
-// object was not found.
+  // Description:
+  // Search for an object and return location in list. If location == 0,
+  // object was not found.
   int  IsItemPresent(vtkObject *);
 
-
-// Description:
-// Return the number of objects in the list.
+  // Description:
+  // Return the number of objects in the list.
   int  GetNumberOfItems();
 
-  void InitTraversal();
+  // Description:
+  // Initialize the traversal of the collection. This means the data pointer
+  // is set at the beginning of the list.
+  void InitTraversal() { this->Current = this->Top;};
+
+  // Description:
+  // Get the next item in the collection. NULL is returned if the collection
+  // is exhausted.
   vtkObject *GetNextItemAsObject();  
 
-// Description:
-// Get the i'th item in the collection. NULL is returned if i is out
-// of range
+  // Description:
+  // Get the i'th item in the collection. NULL is returned if i is out
+  // of range
   vtkObject *GetItemAsObject(int i);
-
 
 protected:
   virtual void DeleteElement(vtkCollectionElement *); 
@@ -144,17 +142,6 @@ protected:
 };
 
 
-// Description:
-// Initialize the traversal of the collection. This means the data pointer
-// is set at the beginning of the list.
-inline void vtkCollection::InitTraversal()
-{
-  this->Current = this->Top;
-}
-
-// Description:
-// Get the next item in the collection. NULL is returned if the collection
-// is exhausted.
 inline vtkObject *vtkCollection::GetNextItemAsObject()
 {
   vtkCollectionElement *elem=this->Current;

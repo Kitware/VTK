@@ -54,15 +54,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkVoxel : public vtkCell
 {
 public:
-
-// Description:
-// Construct the voxel with eight points.
   vtkVoxel();
-
   static vtkVoxel *New() {return new vtkVoxel;};
   const char *GetClassName() {return "vtkVoxel";};
 
-  // cell methods
+  // Description:
+  // See the vtkCell API for descriptions of these methods.
   vtkCell *MakeObject();
   int GetCellType() {return VTK_VOXEL;};
   int GetCellDimension() {return 3;};
@@ -70,7 +67,6 @@ public:
   int GetNumberOfFaces() {return 6;};
   vtkCell *GetEdge(int edgeId);
   vtkCell *GetFace(int faceId);
-
   int CellBoundary(int subId, float pcoords[3], vtkIdList& pts);
   void Contour(float value, vtkScalars *cellScalars, 
                vtkPointLocator *locator, vtkCellArray *verts, 
@@ -92,6 +88,7 @@ public:
   void Derivatives(int subId, float pcoords[3], float *values, 
                    int dim, float *derivs);
 
+  // Description:
   // voxel specific
   static void InterpolationFunctions(float pcoords[3], float weights[8]);
   static void InterpolationDerivs(float pcoords[3], float derivs[24]);

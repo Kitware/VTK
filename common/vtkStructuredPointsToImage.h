@@ -62,6 +62,8 @@ public:
   const char *GetClassName() {return "vtkStructuredPointsToImage";};
   void PrintSelf(ostream& os, vtkIndent indent);   
   
+  // Description:
+  // Answer some required vtkImageSource methods.
   void InternalUpdate(vtkImageData *);
   void UpdateImageInformation();
   unsigned long GetPipelineMTime();

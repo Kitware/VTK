@@ -61,17 +61,23 @@ public:
   ~vtkStructuredPoints();
   static vtkStructuredPoints *New() {return new vtkStructuredPoints;};
   const char *GetClassName() {return "vtkStructuredPoints";};
-  int GetDataSetType() {return VTK_STRUCTURED_POINTS;};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // dataset interface
+  // Description:
+  // Create a similar type object
   vtkDataObject *MakeObject() {return new vtkStructuredPoints;};
 
-// Description:
-// Copy the geometric and topological structure of an input structured points 
-// object.
+  // Description:
+  // Copy the geometric and topological structure of an input rectilinear grid
+  // object.
   void CopyStructure(vtkDataSet *ds);
 
+  // Description:
+  // Return what type of dataset this is.
+  int GetDataSetType() {return VTK_STRUCTURED_POINTS;};
+
+  // Description:
+  // Standard vtkDataSet API methods. See vtkDataSet for more information.
   int GetNumberOfCells();
   int GetNumberOfPoints();
   float *GetPoint(int ptId);
@@ -88,18 +94,13 @@ public:
   void ComputeBounds();
   int GetMaxCellSize() {return 8;}; //voxel is the largest
 
-
-  // following methods are specific to structured data
-
-// Description:
-// Set dimensions of structured points dataset.
+  // Description:
+  // Set dimensions of structured points dataset.
   void SetDimensions(int i, int j, int k);
 
-
-// Description:
-// Set dimensions of structured points dataset.
+  // Description:
+  // Set dimensions of structured points dataset.
   void SetDimensions(int dim[3]);
-
 
   // Description:
   // Get dimensions of this structured points dataset.
@@ -117,37 +118,43 @@ public:
   vtkSetVector3Macro(Origin,float);
   vtkGetVectorMacro(Origin,float,3);
 
-
-// Description:
-// Convenience function computes the structured coordinates for a point x[3].
-// The voxel is specified by the array ijk[3], and the parametric coordinates
-// in the cell are specified with pcoords[3]. The function returns a 0 if the
-// point x is outside of the volume, and a 1 if inside the volume.
+  // Description:
+  // Convenience function computes the structured coordinates for a point x[3].
+  // The voxel is specified by the array ijk[3], and the parametric coordinates
+  // in the cell are specified with pcoords[3]. The function returns a 0 if the
+  // point x is outside of the volume, and a 1 if inside the volume.
   int ComputeStructuredCoordinates(float x[3], int ijk[3], float pcoords[3]);
-
-
-// Description:
-// Given structured coordinates (i,j,k) for a voxel cell, compute the eight 
-// gradient values for the voxel corners. The order in which the gradient
-// vectors are arranged corresponds to the ordering of the voxel points. 
-// Gradient vector is computed by central differences (except on edges of 
-// volume where forward difference is used). The scalars s are the scalars
-// from which the gradient is to be computed. This method will treat 
-// only 3D structured point datasets (i.e., volumes).
+  
+  // Description:
+  // Given structured coordinates (i,j,k) for a voxel cell, compute the eight 
+  // gradient values for the voxel corners. The order in which the gradient
+  // vectors are arranged corresponds to the ordering of the voxel points. 
+  // Gradient vector is computed by central differences (except on edges of 
+  // volume where forward difference is used). The scalars s are the scalars
+  // from which the gradient is to be computed. This method will treat 
+  // only 3D structured point datasets (i.e., volumes).
   void GetVoxelGradient(int i,int j,int k, vtkScalars *s, vtkVectors& g);
 
-
-// Description:
-// Given structured coordinates (i,j,k) for a point in a structured point 
-// dataset, compute the gradient vector from the scalar data at that point. 
-// The scalars s are the scalars from which the gradient is to be computed.
-// This method will treat structured point datasets of any dimension.
+  // Description:
+  // Given structured coordinates (i,j,k) for a point in a structured point 
+  // dataset, compute the gradient vector from the scalar data at that point. 
+  // The scalars s are the scalars from which the gradient is to be computed.
+  // This method will treat structured point datasets of any dimension.
   void GetPointGradient(int i, int j, int k, vtkScalars *s, float g[3]);
 
+  // Description:
+  // Return the dimensionality of the data.
   int GetDataDimension();
 
-  int ComputePointId(int ijk[3]);
-  int ComputeCellId(int ijk[3]);
+  // Description:
+  // Given a location in structured coordinates (i-j-k), return the point id.
+  int ComputePointId(int ijk[3]) {
+    return vtkStructuredData::ComputePointId(this->Dimensions,ijk);};
+
+  // Description:
+  // Given a location in structured coordinates (i-j-k), return the cell id.
+  int ComputeCellId(int ijk[3]) {
+    return vtkStructuredData::ComputeCellId(this->Dimensions,ijk);};
 
   // Description:  
   // This method is used translparently by the 
@@ -206,18 +213,5 @@ inline void vtkStructuredPoints::GetPointCells(int ptId, vtkIdList& cellIds)
   vtkStructuredData::GetPointCells(ptId,cellIds,this->Dimensions);
 }
 
-// Description:
-// Given a location in structured coordinates (i-j-k), return the point id.
-inline int vtkStructuredPoints::ComputePointId(int ijk[3])
-{
-  return vtkStructuredData::ComputePointId(this->Dimensions,ijk);
-}
-
-// Description:
-// Given a location in structured coordinates (i-j-k), return the cell id.
-inline int vtkStructuredPoints::ComputeCellId(int ijk[3])
-{
-  return vtkStructuredData::ComputeCellId(this->Dimensions,ijk);
-}
 
 #endif

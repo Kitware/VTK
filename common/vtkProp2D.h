@@ -46,6 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // draw into (vtkProp2D has a layer property which allows two
 // dimensional actors to be rendered on top of each other in a certain
 // order), and control its position on the screen.
+//
 // .SECTION See Also
 // vtkActor2D  vtkMapper2D
 
@@ -60,42 +61,41 @@ class vtkProperty2D;
 class VTK_EXPORT vtkProp2D : public vtkReferenceCount
 {
 public:
-
-// Description:
-// Creates an Prop2D with the following defaults: 
-// position -1, -1 (view coordinates), layer 0, and visibility on.
+  // Description:
+  // Creates an Prop2D with the following defaults: 
+  // position -1, -1 (view coordinates), layer 0, and visibility on.
   vtkProp2D();
 
-
-// Description:
-// Destroy an Prop2D.  If the Prop2D created it's own
-// property, that property is deleted.
+  // Description:
+  // Destroy an Prop2D.  If the Prop2D created it's own
+  // property, that property is deleted.
   ~vtkProp2D();
 
   void PrintSelf(ostream& os, vtkIndent indent);
   const char *GetClassName() {return "vtkProp2D";};
-
+  
   // Description:
   // All concrete subclasses must be able to render themselves.
   virtual void Render(vtkViewport *viewport) = 0;
-
+  
   // Description:
   // Set/Get the layer number in the overlay planes into which to render.
   vtkSetMacro(LayerNumber, int);
   vtkGetMacro(LayerNumber, int);
-
+  
   // Description:
   // Set/Get visibility of this vtkProp.
   vtkSetMacro(Visibility, int);
   vtkGetMacro(Visibility, int);
   vtkBooleanMacro(Visibility, int);
 
-
-// Description:
-// Returns an Prop2D's property2D.  Creates a property if one
-// doesn't already exist.
+  // Description:
+  // Returns an Prop2D's property2D.  Creates a property if one
+  // doesn't already exist.
   vtkProperty2D* GetProperty();
 
+  // Description:
+  // Set this vtkProp's vtkProperty2D.
   vtkSetObjectMacro(Property, vtkProperty2D);
 
   // Description:
@@ -103,13 +103,13 @@ public:
   // This is used for for complicated or relative positioning.
   vtkViewportCoordinateMacro(Position);
   
-
-// Description:
-// Set the Prop2D's position in display coordinates.  
+  // Description:
+  // Set the Prop2D's position in display coordinates.  
   void SetDisplayPosition(int,int);
-
   
-  unsigned long int GetMTime();//overload superclasses' implementation
+  // Description:
+  // Return this objects MTime.
+  unsigned long GetMTime();
 
 protected:
   int LayerNumber;

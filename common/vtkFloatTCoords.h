@@ -40,8 +40,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkFloatVectors - (obsolete)floating point representation of texture coordinates
 // .SECTION Description
-// vtkFloatTCoords is an (obsolete) concrete implementation of vtkTCoords. Texture
-// coordinates are represented using float values.
+// vtkFloatTCoords is an (obsolete) concrete implementation of
+// vtkTCoords. Texture coordinates are represented using float values.
 
 #ifndef __vtkFloatTCoords_h
 #define __vtkFloatTCoords_h
@@ -55,27 +55,32 @@ public:
   static vtkFloatTCoords *New() {return new vtkFloatTCoords;};
   vtkFloatTCoords():vtkTCoords(VTK_FLOAT) {};
   
-  // overload vtkAttributeData API
+  // Description:
+  // Set the data type for this object.
   void SetDataType(int dataType);
+
+  // Description:
+  // Set the data for this object. Only accepts VTK_FLOAT type.
   void SetData(vtkDataArray *);
 
+  // Description:
+  // Get pointer to array of data starting at data position "id".
   float *GetPointer(const int id);
+
+  // Description:
+  // Get pointer to data array. Useful for direct writes of data. MaxId is
+  // bumped by number (and memory allocated if necessary). Id is the
+  // location you wish to write into; number is the number of vectors to
+  // write.
   float *WritePointer(const int id, const int number);
 
 };
 
-// Description:
-// Get pointer to array of data starting at data position "id".
 inline float *vtkFloatTCoords::GetPointer(const int id)
 {
   return ((vtkFloatArray *)this->Data)->GetPointer(this->Data->GetNumberOfComponents()*id);
 } 
 
-// Description:
-// Get pointer to data array. Useful for direct writes of data. MaxId is
-// bumped by number (and memory allocated if necessary). Id is the
-// location you wish to write into; number is the number of vectors to
-// write.
 inline float *vtkFloatTCoords::WritePointer(const int id, const int number)
 {
   int num=this->Data->GetNumberOfComponents();
@@ -83,8 +88,6 @@ inline float *vtkFloatTCoords::WritePointer(const int id, const int number)
   return ((vtkFloatArray *)this->Data)->WritePointer(num*id,num*number);
 }
 
-// Description:
-// Set the data for this object. Only accepts VTK_FLOAT type.
 inline void vtkFloatTCoords::SetData(vtkDataArray *data)
 {
   if ( data->GetDataType() != VTK_FLOAT )
@@ -92,12 +95,9 @@ inline void vtkFloatTCoords::SetData(vtkDataArray *data)
     vtkErrorMacro(<<"Float tcoords only accepts float data type");
     return;
     }
-
   vtkTCoords::SetData(data);
 }
 
-// Description:
-// Set the data type for this object.
 inline void vtkFloatTCoords::SetDataType(int type)
 {
   if ( type != VTK_FLOAT )

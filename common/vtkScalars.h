@@ -56,6 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // also maintain an internal lookup table. If provided, this table is used 
 // to map scalars into colors, rather than the lookup table that the vtkMapper
 // objects are associated with.
+//
 // .SECTION See Also
 // vtkDataArray vtkAttributeData vtkPointData vtkCellData
 
@@ -83,21 +84,41 @@ public:
   const char *GetClassName() {return "vtkScalars";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // overload vtkAttributeData API
-
-// Description:
-// Set the data for this object. The tuple dimension must be consistent with
-// the object.
+  // Description:
+  // Set the data for this object. The tuple dimension must be consistent with
+  // the object.
   void SetData(vtkDataArray *);
 
+  // Description:
+  // Create a copy of this object.
   vtkAttributeData *MakeObject();
 
-  // generic access to scalar data
-  int GetNumberOfScalars();
+  // Description:
+  // Specify the number of scalars for this object to hold. Make sure
+  // that you set the number of components in texture first.
+  void SetNumberOfScalars(int number) {this->Data->SetNumberOfTuples(number);};
+
+  // Description:
+  // Return number of scalars in the array.
+  int GetNumberOfScalars() {return this->Data->GetNumberOfTuples();};
+
+  // Description:
+  // Return the scalar value as a float for a specific id.
   float GetScalar(int id);
-  void SetNumberOfScalars(int number);
+
+  // Description:
+  // Insert Scalar into object. No range checking performed (fast!).
+  // Make sure you use SetNumberOfScalars() to allocate memory prior
+  // to using SetScalar().
   void SetScalar(int id, float s);
+
+  // Description:
+  // Insert Scalar into object. Range checking performed and memory
+  // allocated as necessary.
   void InsertScalar(int id, float s);
+
+  // Description:
+  // Insert Scalar at end of array and return its location (id) in the array.
   int InsertNextScalar(float s);
 
   // Description:
@@ -112,23 +133,23 @@ public:
   vtkSetClampMacro(ActiveComponent,int,0,3);
   vtkGetMacro(ActiveComponent,int);
 
-  // Special computational methods.
-
-// Description:
-// Determine (rmin,rmax) range of scalar values.
+  // Description:
+  // Determine (rmin,rmax) range of scalar values.
   void ComputeRange();
 
-
-// Description:
-// Return the range of scalar values. Data returned as pointer to float array
-// of length 2.
+  // Description:
+  // Return the range of scalar values. Data returned as pointer to float array
+  // of length 2.
   float *GetRange();
 
-
-// Description:
-// Return the range of scalar values. Range copied into array provided.
+  // Description:
+  // Return the range of scalar values. Range copied into array provided.
   void GetRange(float range[2]);
 
+  // Description:
+  // These methods return the Min and Max possible range of the native
+  // data type. For example if a vtkScalars consists of unsigned char
+  // data these will return (0,255). 
   void GetDataTypeRange(double range[2]);
   double GetDataTypeMin();
   double GetDataTypeMax();
@@ -138,15 +159,14 @@ public:
   // is available.
   virtual void CreateDefaultLookupTable();
 
+  // Description:
+  // Set/get the lookup table associated with this scalar data, if any.
   void SetLookupTable(vtkLookupTable *lut);
   vtkGetObjectMacro(LookupTable,vtkLookupTable);
 
-  // Get a list of scalars for ids listed.
-
-// Description:
-// Given a list of point ids, return an array of scalar values.
+  // Description:
+  // Given a list of point ids, return an array of scalar values.
   void GetScalars(vtkIdList& ptIds, vtkScalars& fv);
-
 
   // Description:
   // Get the scalar values for the range of points ids specified 
@@ -168,8 +188,8 @@ public:
   // Get the color value at a particular id. Returns a pointer to a 4-byte
   // array of rgba. Make sure you call InitColorTraversal() before
   // invoking this method.
-  unsigned char *GetColor(int id) {return
-				   (this->*(this->CurrentColorFunction))(id);};
+  unsigned char *GetColor(int id) {
+    return (this->*(this->CurrentColorFunction))(id);};
 
 protected:
   float Range[8];
@@ -196,62 +216,32 @@ protected:
   //ETX
 };
 
-// Description:
-// Create a copy of this object.
 inline vtkAttributeData *vtkScalars::MakeObject()
 {
   return new vtkScalars(this->GetDataType(),this->GetNumberOfComponents());
 }
 
-// Description:
-// Specify the number of components in the scalar.
 inline void vtkScalars::SetNumberOfComponents(int num)
 {
   num = (num < 1 ? 1 : (num > 4 ? 4 : num));
   this->Data->SetNumberOfComponents(num);
 }
 
-// Description:
-// Specify the number of scalars for this object to hold. Make sure
-// that you set the number of components in texture first.
-inline void vtkScalars::SetNumberOfScalars(int number)
-{
-  this->Data->SetNumberOfTuples(number);
-}
-
-// Description:
-// Return number of scalars in the array.
-inline int vtkScalars::GetNumberOfScalars()
-{
-  return this->Data->GetNumberOfTuples();
-}
-
-// Description:
-// Return the scalar value as a float for a specific id.
 inline float vtkScalars::GetScalar(int id)
 {
   return this->Data->GetComponent(id,this->ActiveComponent);
 }
 
-// Description:
-// Insert Scalar into object. No range checking performed (fast!).
-// Make sure you use SetNumberOfScalars() to allocate memory prior
-// to using SetScalar().
 inline void vtkScalars::SetScalar(int id, float s)
 {
   this->Data->SetComponent(id,this->ActiveComponent,s);
 }
 
-// Description:
-// Insert Scalar into object. Range checking performed and memory
-// allocated as necessary.
 inline void vtkScalars::InsertScalar(int id, float s)
 {
   this->Data->InsertComponent(id,this->ActiveComponent,s);
 }
 
-// Description:
-// Insert Scalar at end of array and return its location (id) in the array.
 inline int vtkScalars::InsertNextScalar(float s)
 {
   int id=this->Data->GetMaxId()+1;

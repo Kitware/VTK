@@ -55,15 +55,12 @@ class vtkUnstructuredGrid;
 class VTK_EXPORT vtkTetra : public vtkCell
 {
 public:
-
-// Description:
-// Construct the tetra with four points.
   vtkTetra();
-
   static vtkTetra *New() {return new vtkTetra;};
   const char *GetClassName() {return "vtkTetra";};
 
-  // cell methods
+  // Description:
+  // See the vtkCell API for descriptions of these methods.
   vtkCell *MakeObject();
   int GetCellType() {return VTK_TETRA;};
   int GetCellDimension() {return 3;};
@@ -71,28 +68,11 @@ public:
   int GetNumberOfFaces() {return 4;};
   vtkCell *GetEdge(int edgeId);
   vtkCell *GetFace(int faceId);
-
-
-// Description:
-// Returns the set of points that are on the boundary of the tetrahedron that
-// are closest parametrically to the point specified. This may include faces,
-// edges, or vertices.
-  int CellBoundary(int subId, float pcoords[3], vtkIdList& pts);
-
   void Contour(float value, vtkScalars *cellScalars, 
                vtkPointLocator *locator, vtkCellArray *verts, 
                vtkCellArray *lines, vtkCellArray *polys,
                vtkPointData *inPd, vtkPointData *outPd,
                vtkCellData *inCd, int cellId, vtkCellData *outCd);
-
-// Description:
-// Clip this tetra using scalar value provided. Like contouring, except
-// that it cuts the tetra to produce other tetrahedra.
-  void Clip(float value, vtkScalars *cellScalars, 
-            vtkPointLocator *locator, vtkCellArray *tetras,
-            vtkPointData *inPd, vtkPointData *outPd,
-            vtkCellData *inCd, int cellId, vtkCellData *outCd, int insideOut);
-
   int EvaluatePosition(float x[3], float closestPoint[3],
                        int& subId, float pcoords[3],
                        float& dist2, float *weights);
@@ -103,47 +83,62 @@ public:
   int Triangulate(int index, vtkIdList &ptIds, vtkPoints &pts);
   void Derivatives(int subId, float pcoords[3], float *values, 
                    int dim, float *derivs);
+
+  // Description:
+  // Returns the set of points that are on the boundary of the tetrahedron that
+  // are closest parametrically to the point specified. This may include faces,
+  // edges, or vertices.
+  int CellBoundary(int subId, float pcoords[3], vtkIdList& pts);
+
+  
+  // Description:
+  // Clip this tetra using scalar value provided. Like contouring, except
+  // that it cuts the tetra to produce other tetrahedra.
+  void Clip(float value, vtkScalars *cellScalars, 
+            vtkPointLocator *locator, vtkCellArray *tetras,
+            vtkPointData *inPd, vtkPointData *outPd,
+            vtkCellData *inCd, int cellId, vtkCellData *outCd, int insideOut);
+
+
+  // Description:
+  // Return the center of the triangle in parametric coordinates.
   int GetParametricCenter(float pcoords[3]);
 
-  // tetrahedron specific
-
-// Description:
-// Compute the center of the tetrahedron,
+  // Description:
+  // Compute the center of the tetrahedron,
   static void TetraCenter(float p1[3], float p2[3], float p3[3], float p4[3], 
                           float center[3]);
 
-
-// Description:
-// Compute the circumcenter (center[3]) and radius (method return value) of
-// a tetrahedron defined by the four points x1, x2, x3, and x4.
+  // Description:
+  // Compute the circumcenter (center[3]) and radius (method return value) of
+  // a tetrahedron defined by the four points x1, x2, x3, and x4.
   static float Circumsphere(float  p1[3], float p2[3], float p3[3], 
                             float p4[3], float center[3]);
 
-
-// Description:
-// Given a 3D point x[3], determine the barycentric coordinates of the point.
-// Barycentric coordinates are a natural coordinate system for simplices that
-// express a position as a linear combination of the vertices. For a 
-// tetrahedron, there are four barycentric coordinates (because there are
-// four vertices), and the sum of the coordinates must equal 1. If a 
-// point x is inside a simplex, then all four coordinates will be strictly 
-// positive.  If three coordinates are zero (so the fourth =1), then the 
-// point x is on a vertex. If two coordinates are zero, the point x is on an 
-// edge (and so on). In this method, you must specify the vertex coordinates
-// x1->x4. Returns 0 if tetrahedron is degenerate.
+  // Description:
+  // Given a 3D point x[3], determine the barycentric coordinates of the point.
+  // Barycentric coordinates are a natural coordinate system for simplices that
+  // express a position as a linear combination of the vertices. For a 
+  // tetrahedron, there are four barycentric coordinates (because there are
+  // four vertices), and the sum of the coordinates must equal 1. If a 
+  // point x is inside a simplex, then all four coordinates will be strictly 
+  // positive.  If three coordinates are zero (so the fourth =1), then the 
+  // point x is on a vertex. If two coordinates are zero, the point x is on an 
+  // edge (and so on). In this method, you must specify the vertex coordinates
+  // x1->x4. Returns 0 if tetrahedron is degenerate.
   static int BarycentricCoords(float x[3], float  x1[3], float x2[3], 
                                float x3[3], float x4[3], float bcoords[4]);
-
   
-  static void InterpolationFunctions(float pcoords[3], float weights[4]);
-  static void InterpolationDerivs(float derivs[12]);
-
-// Description:
-// Given parametric coordinates compute inverse Jacobian transformation
-// matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
-// function derivatives. Returns 0 if no inverse exists.
+  // Description:
+  // Given parametric coordinates compute inverse Jacobian transformation
+  // matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
+  // function derivatives. Returns 0 if no inverse exists.
   int JacobianInverse(double **inverse, float derivs[12]);
 
+  // Description:
+  // Tetra specific methods.
+  static void InterpolationFunctions(float pcoords[3], float weights[4]);
+  static void InterpolationDerivs(float derivs[12]);
 
 protected:
   vtkLine Line;
@@ -151,8 +146,6 @@ protected:
 
 };
 
-// Description:
-// Return the center of the triangle in parametric coordinates.
 inline int vtkTetra::GetParametricCenter(float pcoords[3])
 {
   pcoords[0] = pcoords[1] = pcoords[2] = 0.25;

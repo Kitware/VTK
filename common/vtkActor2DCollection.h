@@ -58,33 +58,33 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkActor2DCollection : public vtkCollection
 {
  public:
-
-// Description:
-// Desctructor for the vtkActor2DCollection class. This removes all 
-// objects from the collection.
+  // Description:
+  // Desctructor for the vtkActor2DCollection class. This removes all 
+  // objects from the collection.
   ~vtkActor2DCollection();
 
   static vtkActor2DCollection *New() {return new vtkActor2DCollection;};
   const char *GetClassName() {return "vtkActor2DCollection";};
 
-// Description:
-// Sorts the vtkActor2DCollection by layer number.  Smaller layer
-// numbers are first.  Layer numbers can be any integer value.
+  // Description:
+  // Sorts the vtkActor2DCollection by layer number.  Smaller layer
+  // numbers are first.  Layer numbers can be any integer value.
   void Sort();
 
-
-// Description:
-// Add an actor to the list.  The new actor is 
-// inserted in the list according to it's layer
-// number.
+  
+  // Description:
+  // Add an actor to the list.  The new actor is inserted in the list
+  // according to it's layer number.
   void AddItem(vtkActor2D *a);
 
+  // Description:
+  // Standard Collection methods
   int IsItemPresent(vtkActor2D *a);
   vtkActor2D *GetNextItem();
   vtkActor2D *GetLastItem();
 
-// Description:
-// Sort and then render the collection of 2D actors.  
+  // Description:
+  // Sort and then render the collection of 2D actors.  
   void Render(vtkViewport* viewport);
 
 
@@ -92,23 +92,16 @@ protected:
   virtual void DeleteElement(vtkCollectionElement *); 
 };
 
-// Description:
-// Determine whether a particular actor is present. Returns its position
-// in the list.
 inline int vtkActor2DCollection::IsItemPresent(vtkActor2D *a) 
 {
   return this->vtkCollection::IsItemPresent((vtkObject *)a);
 }
 
-// Description:
-// Get the next actor in the list.
 inline vtkActor2D *vtkActor2DCollection::GetNextItem() 
 { 
   return (vtkActor2D *)(this->GetNextItemAsObject());
 }
 
-// Description:
-// Get the last actor in the list.
 inline vtkActor2D *vtkActor2DCollection::GetLastItem() 
 { 
   if ( this->Bottom == NULL )

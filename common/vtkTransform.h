@@ -53,8 +53,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // .SECTION Caveats
 // By default the initial matrix is the identity matrix.
-// .EXAMPLE XFormSph.cc
-// .SECTION see also
+
+// .SECTION See Also
 // vtkMatrix4x4 vtkTransformCollection vtkTransformFilter
 // vtkTransformPolyDataFilter
 
@@ -70,17 +70,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTransform : public vtkObject
 {
  public:
-
-// Description:
-// Constructs a transform and sets the following defaults
-// preMultiplyFlag = 1 stackSize = 10. It then
-// creates an identity matrix as the top matrix on the stack.
+  // Description:
+  // Constructs a transform and sets the following defaults
+  // preMultiplyFlag = 1 stackSize = 10. It then
+  // creates an identity matrix as the top matrix on the stack.
   vtkTransform ();
 
-
-// Description:
-// Copy constructor. Creates an instance of vtkTransform and then
-// copies its instance variables from the values in t. 
+  // Description:
+  // Copy constructor. Creates an instance of vtkTransform and then
+  // copies its instance variables from the values in t. 
   vtkTransform (const vtkTransform& t);
 
   ~vtkTransform ();
@@ -89,190 +87,168 @@ class VTK_EXPORT vtkTransform : public vtkObject
   void PrintSelf (ostream& os, vtkIndent indent);
   vtkTransform &operator=(const vtkTransform &t);
 
-
-// Description:
-// Creates an identity matrix and makes it the current transformation matrix.
+  // Description:
+  // Creates an identity matrix and makes it the current transformation matrix.
   void Identity ();
 
-
-// Description:
-// Deletes the transformation on the top of the stack and sets the top 
-// to the next transformation on the stack.
+  // Description:
+  // Deletes the transformation on the top of the stack and sets the top 
+  // to the next transformation on the stack.
   void Pop ();
 
-
-// Description:
-// Sets the internal state of the transform to
-// post multiply. All subsequent matrix
-// operations will occur after those already represented
-// in the current transformation matrix.
+  // Description:
+  // Sets the internal state of the transform to post multiply. All
+  // subsequent matrix operations will occur after those already represented
+  // in the current transformation matrix.
   void PostMultiply ();
 
-
-// Description:
-// Sets the internal state of the transform to
-// pre multiply. All subsequent matrix
-// operations will occur before those already represented
-// in the current transformation matrix.
+  // Description:
+  // Sets the internal state of the transform to pre multiply. All subsequent
+  // matrix operations will occur before those already represented in the
+  // current transformation matrix.
   void PreMultiply ();
 
-
-// Description:
-// Pushes the current transformation matrix onto the
-// transformation stack.
+  // Description:
+  // Pushes the current transformation matrix onto the transformation stack.
   void Push ();
 
-
-// Description:
-// Creates an x rotation matrix and concatenates it with 
-// the current transformation matrix. The angle is specified
-// in degrees.
+  // Description:
+  // Creates an x rotation matrix and concatenates it with the current
+  // transformation matrix. The angle is specified in degrees.
   void RotateX ( float angle);
 
-
-// Description:
-// Creates a y rotation matrix and concatenates it with
-// the current transformation matrix. The angle is specified
-// in degrees.
+  // Description:
+  // Creates a y rotation matrix and concatenates it with the current
+  // transformation matrix. The angle is specified in degrees.
   void RotateY ( float angle);
 
-
-// Description:
-// Creates a z rotation matrix and concatenates it with
-// the current transformation matrix. The angle is specified
-// in degrees.
+  // Description:
+  // Creates a z rotation matrix and concatenates it with the current
+  // transformation matrix. The angle is specified in degrees.
   void RotateZ (float angle);
 
-
-// Description:
-// Creates a matrix that rotates angle degrees about an axis
-// through the origin and x, y, z. It then concatenates
-// this matrix with the current transformation matrix.
+  // Description:
+  // Creates a matrix that rotates angle degrees about an axis through the
+  // origin and x, y, z. It then concatenates this matrix with the current
+  // transformation matrix.
   void RotateWXYZ ( float angle, float x, float y, float z);
 
-
-// Description:
-// Scales the current transformation matrix in the x, y and z directions.
-// A scale factor of zero will automatically be replaced with one.
+  // Description:
+  // Scales the current transformation matrix in the x, y and z directions.
+  // A scale factor of zero will automatically be replaced with one.
   void Scale ( float x, float y, float z);
 
-
-// Description:
-// Translate the current transformation matrix by the vector {x, y, z}.
+  // Description:
+  // Translate the current transformation matrix by the vector {x, y, z}.
   void Translate ( float x, float y, float z);
 
-
-// Description:
-// Transposes the current transformation matrix.
+  // Description:
+  // Transposes the current transformation matrix.
   void Transpose();
 
-
-// Description:
-// Obtain the transpose of the current transformation matrix.
+  // Description:
+  // Obtain the transpose of the current transformation matrix.
   void GetTranspose (vtkMatrix4x4& transpose);
 
-
-// Description:
-// Invert the current transformation matrix.
+  // Description:
+  // Invert the current transformation matrix.
   void Inverse();
 
-
-// Description:
-// Return the inverse of the current transformation matrix.
+  // Description:
+  // Return the inverse of the current transformation matrix.
   void GetInverse(vtkMatrix4x4& inverse);
 
-
-// Description:
-// Get the x, y, z orientation angles from the transformation matrix as an
-// array of three floating point values.
+  // Description:
+  // Get the x, y, z orientation angles from the transformation matrix as an
+  // array of three floating point values.
   float *GetOrientation();
 
-
-// Description:
-// Get the x, y, z orientation angles from the transformation matrix.
+  // Description:
+  // Get the x, y, z orientation angles from the transformation matrix.
   void GetOrientation(float& rx, float& ry, float& rz);
 
+  // Description:
+  // Return the wxyz quaternion representing the current orientation.
   float *GetOrientationWXYZ();  
 
-// Description:
-// Return the position from the current transformation matrix as an array
-// of three floating point numbers. This is simply returning the translation 
-// component of the 4x4 matrix.
+  // Description:
+  // Return the position from the current transformation matrix as an array
+  // of three floating point numbers. This is simply returning the translation 
+  // component of the 4x4 matrix.
   float *GetPosition();
 
-
-// Description:
-// Return the x, y, z positions from the current transformation matrix.
-// This is simply returning the translation component of the 4x4 matrix.
+  // Description:
+  // Return the x, y, z positions from the current transformation matrix.
+  // This is simply returning the translation component of the 4x4 matrix.
   void GetPosition (float& x, float& y, float& z);
 
-
-// Description:
-// Return the x, y, z scale factors of the current transformation matrix as 
-// an array of three float numbers.
+  // Description:
+  // Return the x, y, z scale factors of the current transformation matrix as 
+  // an array of three float numbers.
   float *GetScale();
 
-
-// Description:
-// Return the x, y, z scale factors of the current transformation matrix.
+  // Description:
+  // Return the x, y, z scale factors of the current transformation matrix.
   void GetScale (float& sx, float& sy, float& sz);
 
-
-// Description:
-// Set the current matrix directly.
+  // Description:
+  // Set the current matrix directly.
   void SetMatrix(vtkMatrix4x4& m);
 
-
-// Description:
-// Returns the current transformation matrix.
+  // Description:
+  // Returns the current transformation matrix.
   vtkMatrix4x4& GetMatrix();
-
-
-// Description:
-// Returns the current transformation matrix.
+  
+  // Description:
+  // Returns the current transformation matrix.
   void GetMatrix (vtkMatrix4x4& m);
 
-
-// Description:
-// Concatenates the input matrix with the current transformation matrix.
-// The resulting matrix becomes the new current transformation matrix.
-// The setting of the PreMultiply flag determines whether the matrix
-// is PreConcatenated or PostConcatenated.
+  // Description:
+  // Concatenates the input matrix with the current transformation matrix.
+  // The resulting matrix becomes the new current transformation matrix.
+  // The setting of the PreMultiply flag determines whether the matrix
+  // is PreConcatenated or PostConcatenated.
   void Concatenate (vtkMatrix4x4 & matrix);
 
-
-// Description:
-// Multiplies matrices a and b and stores the result in c.
+  // Description:
+  // Multiplies matrices a and b and stores the result in c.
   void Multiply4x4 ( vtkMatrix4x4 & a, vtkMatrix4x4 & b, vtkMatrix4x4 & c);
 
+  // Description:
+  // Multiply a xyzw point by the transform and store the result in out.
   void MultiplyPoint (float in[4],float out[4]);
 
-// Description:
-// Multiplies a list of points (inPts) by the current transformation matrix.
-// Transformed points are appended to the output list (outPts).
+  // Description:
+  // Multiplies a list of points (inPts) by the current transformation matrix.
+  // Transformed points are appended to the output list (outPts).
   void MultiplyPoints(vtkPoints *inPts, vtkPoints *outPts);
-
-
-// Description:
-// Multiplies a list of vectors (inVectors) by the current transformation 
-// matrix. The transformed vectors are appended to the output list 
-// (outVectors). This is a special multiplication, since these are vectors. 
-// It multiplies vectors by the transposed inverse of the matrix, ignoring 
-// the translational components.
+  
+  // Description:
+  // Multiplies a list of vectors (inVectors) by the current transformation 
+  // matrix. The transformed vectors are appended to the output list 
+  // (outVectors). This is a special multiplication, since these are vectors. 
+  // It multiplies vectors by the transposed inverse of the matrix, ignoring 
+  // the translational components.
   void MultiplyVectors(vtkVectors *inVectors, vtkVectors *outVectors);
 
+  // Description:
+  // Multiplies a list of normals (inNormals) by the current transformation 
+  // matrix. The transformed normals are appended to the output list 
+  // (outNormals). This is a special multiplication, since these are normals.
   void MultiplyNormals(vtkNormals *inNormals, vtkNormals *outNormals);
-  vtkSetVector4Macro(Point,float);
 
-// Description:
-// Returns the result of multiplying the currently set Point by the current 
-// transformation matrix. Point is expressed in homogeneous coordinates.
-// The setting of the PreMultiplyFlag will determine if the Point is
-// Pre or Post multiplied.
+  // Description:
+  // Returns the result of multiplying the currently set Point by the current 
+  // transformation matrix. Point is expressed in homogeneous coordinates.
+  // The setting of the PreMultiplyFlag will determine if the Point is
+  // Pre or Post multiplied.
   float *GetPoint();
-
   void GetPoint(float p[4]);
 
+  // Description:
+  // Set the point to use in the GetPoint calculations.
+  vtkSetVector4Macro(Point,float);
+  
  private:
   int PreMultiplyFlag;
   int StackSize;

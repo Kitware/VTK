@@ -60,24 +60,34 @@ public:
   ~vtkStructuredGrid();
   static vtkStructuredGrid *New() {return new vtkStructuredGrid;};
   const char *GetClassName() {return "vtkStructuredGrid";};
-  int GetDataSetType() {return VTK_STRUCTURED_GRID;};
   void PrintSelf(ostream& os, vtkIndent indent);
  
-  // dataset interface
+  // Description:
+  // Return what type of dataset this is.
+  int GetDataSetType() {return VTK_STRUCTURED_GRID;};
+
+  // Description:
+  // Create a similar type object
   vtkDataObject *MakeObject() {return new vtkStructuredGrid;};
+
+  // Description:
+  // Copy the geometric and topological structure of an input poly data object.
   void CopyStructure(vtkDataSet *ds);
+
+  // Description:
+  // Standard vtkDataSet API methods. See vtkDataSet for more information.
   int GetNumberOfPoints() {return vtkPointSet::GetNumberOfPoints();};
+  float *GetPoint(int ptId) {return this->vtkPointSet::GetPoint(ptId);};
+  void GetPoint(int ptId, float p[3]) {this->vtkPointSet::GetPoint(ptId,p);};
   vtkCell *GetCell(int cellId);
   int GetCellType(int cellId);
-  float *GetPoint(int ptId);
-  void GetPoint(int ptId, float p[3]);
-
   int GetNumberOfCells();
   void GetCellPoints(int cellId, vtkIdList& ptIds);
   void GetPointCells(int ptId, vtkIdList& cellIds);
   void Initialize();
   int GetMaxCellSize() {return 8;}; //hexahedron is the largest
 
+  // Description:
   // following methods are specific to structured grid
   void SetDimensions(int i, int j, int k);
   void SetDimensions(int dim[3]);
@@ -86,12 +96,20 @@ public:
   // Get dimensions of this structured points dataset.
   vtkGetVectorMacro(Dimensions,int,3);
 
+  // Description:
+  // Return the dimensionality of the data.
   int GetDataDimension();
+
+  // Description:
+  // Methods for supporting blanking of cells.
   void BlankingOn();
   void BlankingOff();
   int GetBlanking() {return this->Blanking;};
   void BlankPoint(int ptId);
   void UnBlankPoint(int ptId);
+  
+  // Description:
+  // Return non-zero value if specified point is visible.
   int IsPointVisible(int ptId);
 
 protected:
@@ -102,15 +120,6 @@ protected:
   void AllocatePointVisibility();
 };
 
-inline float *vtkStructuredGrid::GetPoint(int ptId) 
-{
-  return this->vtkPointSet::GetPoint(ptId);
-}
-
-inline void vtkStructuredGrid::GetPoint(int ptId, float p[3]) 
-{
-  this->vtkPointSet::GetPoint(ptId,p);
-}
 
 inline int vtkStructuredGrid::GetNumberOfCells() 
 {
@@ -144,8 +153,6 @@ inline void vtkStructuredGrid::GetPointCells(int ptId, vtkIdList& cellIds)
   vtkStructuredData::GetPointCells(ptId,cellIds,this->Dimensions);
 }
 
-// Description:
-// Return non-zero value if specified point is visible.
 inline int vtkStructuredGrid::IsPointVisible(int ptId) 
 {
   if (!this->Blanking)

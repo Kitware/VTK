@@ -52,86 +52,104 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkIntArray : public vtkDataArray
 {
 public:
-
-// Description:
-// Instantiate object.
   vtkIntArray(int numComp=1);
-
   ~vtkIntArray();
-
-// Description:
-// Allocate memory for this array. Delete old storage only if necessary.
-  int Allocate(const int sz, const int ext=1000);
-
-
-// Description:
-// Release storage and reset array to initial state.
-  void Initialize();
-
   static vtkIntArray *New() {return new vtkIntArray;};
   const char *GetClassName() {return "vtkIntArray";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // satisfy vtkDataArray API
+  // Description:
+  // Allocate memory for this array. Delete old storage only if necessary.
+  int Allocate(const int sz, const int ext=1000);
+  
+  // Description:
+  // Release storage and reset array to initial state.
+  void Initialize();
+
+  // Description:
+  // Create a similar type object
   vtkDataArray *MakeObject() {return new vtkIntArray(this->NumberOfComponents);};
+
+  // Description:
+  // Get the data type.
   int GetDataType() {return VTK_INT;};
 
-// Description:
-// Set the number of n-tuples in the array.
+  // Description:
+  // Resize object to just fit data requirement. Reclaims extra memory.
+  void Squeeze() {this->Resize (this->MaxId+1);};
+
+  // Description:
+  // Set the number of n-tuples in the array.
   void SetNumberOfTuples(const int number);
 
-
-// Description:
-// Get a pointer to a tuple at the ith location. This is a dangerous method
-// (it is not thread safe since a pointer is returned).
+  // Description:
+  // Get a pointer to a tuple at the ith location. This is a dangerous method
+  // (it is not thread safe since a pointer is returned).
   float *GetTuple(const int i);
-
-
-// Description:
-// Copy the tuple value into a user-provided array.
+  
+  // Description:
+  // Copy the tuple value into a user-provided array.
   void GetTuple(const int i, float * tuple);
 
-
-// Description:
-// Set the tuple value at the ith location in the array.
+  // Description:
+  // Set the tuple value at the ith location in the array.
   void SetTuple(const int i, const float * tuple);
 
-
-// Description:
-// Insert (memory allocation performed) the tuple into the ith location
-// in the array.
+  // Description:
+  // Insert (memory allocation performed) the tuple into the ith location
+  // in the array.
   void InsertTuple(const int i, const float * tuple);
 
-
-// Description:
-// Insert (memory allocation performed) the tuple onto the end of the array.
+  // Description:
+  // Insert (memory allocation performed) the tuple onto the end of the array.
   int InsertNextTuple(const float * tuple);
 
-  void Squeeze();
+  // Description:
+  // Get the data at a particular index.
+  int GetValue(const int id) {return this->Array[id];};
 
-  // native access/insertion methods
-  int GetValue(const int id);
+  // Description:
+  // Set the data at a particular index. Does not do range checking. Make sure
+  // you use the method SetNumberOfValues() before inserting data.
+  void SetValue(const int id, const int value) {this->Array[id] = value;};
+
+  // Description:
+  // Specify the number of values for this object to hold. Does an
+  // allocation as well as setting the MaxId ivar. Used in conjunction with
+  // SetValue() method for fast insertion.
   void SetNumberOfValues(const int number);
-  void SetValue(const int id, const int value);
+
+  // Description:
+  // Insert data at a specified position in the array.
   void InsertValue(const int id, const int i);
+
+  // Description:
+  // Insert data at the end of the array. Return its location in the array.
   int InsertNextValue(const int i);
+
+  // Description:
+  // Get the address of a particular data index. Performs no checks
+  // to verify that the memroy has been allocated etc.
   int *GetPointer(const int id) {return this->Array + id;}
-  int *WritePointer(const int id, const int number);
   void *GetVoidPointer(const int id) {return (void *)this->GetPointer(id);};
 
-// Description:
-// Deep copy of another integer array.
+  // Description:
+  // Get the address of a particular data index. Make sure data is allocated
+  // for the number of items requested. Set MaxId according to the number of
+  // data values requested.
+  int *WritePointer(const int id, const int number);
+
+  // Description:
+  // Deep copy of another integer array.
   void DeepCopy(vtkDataArray& ia);
 
-
-
-// Description:
-// This method lets the user specify data to be held by the array.  The 
-// array argument is a pointer to the data.  size is the size of 
-// the array supplied by the user.  Set save to 1 to keep the class
-// from deleting the array when it cleans up or reallocates memory.
-// The class uses the actual array provided; it does not copy the data 
-// from the suppled array.
+  // Description:
+  // This method lets the user specify data to be held by the array.  The 
+  // array argument is a pointer to the data.  size is the size of 
+  // the array supplied by the user.  Set save to 1 to keep the class
+  // from deleting the array when it cleans up or reallocates memory.
+  // The class uses the actual array provided; it does not copy the data 
+  // from the suppled array.
   void SetArray(int* array, int size, int save);
 
 
@@ -145,32 +163,13 @@ private:
   int SaveUserArray;
 };
 
-// Description:
-// Get the data at a particular index.
-inline int vtkIntArray::GetValue(const int id) {return this->Array[id];}
 
-// Description:
-// Specify the number of values for this object to hold. Does an
-// allocation as well as setting the MaxId ivar. Used in conjunction with
-// SetValue() method for fast insertion.
 inline void vtkIntArray::SetNumberOfValues(const int number) 
 {
   this->Allocate(number);
   this->MaxId = number - 1;
 }
 
-// Description:
-// Set the data at a particular index. Does not do range checking. Make sure
-// you use the method SetNumberOfValues() before inserting data.
-inline void vtkIntArray::SetValue(const int id, const int value) 
-{
-  this->Array[id] = value;
-}
-
-// Description:
-// Get the address of a particular data index. Make sure data is allocated
-// for the number of items requested. Set MaxId according to the number of
-// data values requested.
 inline int *vtkIntArray::WritePointer(const int id, const int number)
 {
   int newSize=id+number;
@@ -185,8 +184,6 @@ inline int *vtkIntArray::WritePointer(const int id, const int number)
   return this->Array + id;
 }
 
-// Description:
-// Insert data at a specified position in the array.
 inline void vtkIntArray::InsertValue(const int id, const int i)
 {
   if ( id >= this->Size )
@@ -200,16 +197,11 @@ inline void vtkIntArray::InsertValue(const int id, const int i)
     }
 }
 
-// Description:
-// Insert data at the end of the array. Return its location in the array.
 inline int vtkIntArray::InsertNextValue(const int i)
 {
   this->InsertValue (++this->MaxId,i); 
   return this->MaxId;
 }
 
-// Description:
-// Resize object to just fit data requirement. Reclaims extra memory.
-inline void vtkIntArray::Squeeze() {this->Resize (this->MaxId+1);}
 
 #endif

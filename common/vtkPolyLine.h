@@ -59,16 +59,15 @@ public:
   static vtkPolyLine *New() {return new vtkPolyLine;};
   const char *GetClassName() {return "vtkPolyLine";};
 
-
-// Description:
-// Given points and lines, compute normals to lines. These are not true 
-// normals, they are "orientation" normals used by classes like vtkTubeFilter
-// that control the rotation around the line. The normals try to stay pointing
-// in the same direction as much as possible (i.e., minimal rotation).
+  // Description:
+  // Given points and lines, compute normals to lines. These are not true 
+  // normals, they are "orientation" normals used by classes like vtkTubeFilter
+  // that control the rotation around the line. The normals try to stay pointing
+  // in the same direction as much as possible (i.e., minimal rotation).
   int GenerateSlidingNormals(vtkPoints *, vtkCellArray *, vtkNormals *);
 
-
-  // cell methods
+  // Description:
+  // See the vtkCell API for descriptions of these methods.
   vtkCell *MakeObject();
   int GetCellType() {return VTK_POLY_LINE;};
   int GetCellDimension() {return 1;};
@@ -76,7 +75,6 @@ public:
   int GetNumberOfFaces() {return 0;};
   vtkCell *GetEdge(int vtkNotUsed(edgeId)) {return 0;};
   vtkCell *GetFace(int vtkNotUsed(faceId)) {return 0;};
-
   int CellBoundary(int subId, float pcoords[3], vtkIdList& pts);
   void Contour(float value, vtkScalars *cellScalars, 
                vtkPointLocator *locator, vtkCellArray *verts, 
@@ -98,10 +96,9 @@ public:
   void Derivatives(int subId, float pcoords[3], float *values, 
                    int dim, float *derivs);
 
-// Description:
-// Return the center of the point cloud in parametric coordinates.
+  // Description:
+  // Return the center of the point cloud in parametric coordinates.
   int GetParametricCenter(float pcoords[3]);
-
 
 protected:
   vtkLine Line;

@@ -44,9 +44,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // toolkit. vtkObject provides methods for tracking modification times, 
 // debugging, and printing. Most objects created within the vtk 
 // framework should be a subclass of vtkObject or one of its children.
-// The few exceptions tend to be very small helper classes that usually
-// never get instantiated or situations where multiple inheritance
-// gets in the way. 
 
 #ifndef __vtkObject_h
 #define __vtkObject_h
@@ -60,22 +57,23 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkObject 
 {
 public:
+  vtkObject(); 
+  virtual ~vtkObject(); 
 
-// Description:
-// Create an object with Debug turned off and modified time initialized 
-// to zero.
-  vtkObject(); //create a vtk object
-
-
-// Description:
-// Delete a vtk object. This method should always be used to delete an object 
-// when the new operator was used to create it. Using the C++ delete method
-// will not work with reference counting.
-  virtual void Delete(); //delete a vtk object.
-
-  virtual ~vtkObject(); //use Delete() whenever possible
-  static vtkObject *New() {return new vtkObject;};
+  // Description:
+  // Return the class name as a string.
   virtual const char *GetClassName() {return "vtkObject";};
+
+  // Description:
+  // Delete a vtk object. This method should always be used to delete an object 
+  // when the new operator was used to create it. Using the C++ delete method
+  // will not work with reference counting.
+  virtual void Delete(); 
+
+  // Description:
+  // Create an object with Debug turned off and modified time initialized 
+  // to zero.
+  static vtkObject *New() {return new vtkObject;};
 
 #ifdef _WIN32
   // avoid dll boundary problems
@@ -84,49 +82,50 @@ public:
   void operator delete( void* p );
 #endif 
   
-  // debugging
-
-// Description:
-// Turn debugging output on.
+  // Description:
+  // Turn debugging output on.
   virtual void DebugOn();
 
-
-// Description:
-// Turn debugging output off.
+  // Description:
+  // Turn debugging output off.
   virtual void DebugOff();
 
-
-// Description:
-// Get the value of the debug flag.
+  // Description:
+  // Get the value of the debug flag.
   unsigned char GetDebug();
 
-
-// Description:
-// Set the value of the debug flag. A non-zero value turns debugging on.
+  // Description:
+  // Set the value of the debug flag. A non-zero value turns debugging on.
   void SetDebug(unsigned char debugFlag);
 
-
-  // modified time
+  // Description: 
+  // Return this objects modified time.
   virtual unsigned long GetMTime();
+
+  // Description:
+  // Update the modification time for this object. Many filters rely on
+  // the modification time to determine if they need to recompute their
+  // data.
   virtual void Modified();
-
-  // printing
-
-// Description:
-// Chaining method to print an object's instance variables, as well as
-// its superclasses.
+  
+  // Description:
+  // Chaining method to print an object's instance variables, as well as
+  // its superclasses.
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // Print an object to an ostream.
   void Print(ostream& os);
+
+  // Description:
+  // Support methods for the printing process.
   virtual void PrintHeader(ostream& os, vtkIndent indent);
   virtual void PrintTrailer(ostream& os, vtkIndent indent);
 
-
-// Description:
-// This method is called when vtkErrorMacro executes. It allows 
-// the debugger to break on error.
+  // Description:
+  // This method is called when vtkErrorMacro executes. It allows 
+  // the debugger to break on error.
   static void BreakOnError();
-
 
   // Description:
   // This is a global flag that controls whether any debug, warning
@@ -146,10 +145,6 @@ private:
   //ETX
 };
 
-// Description:
-// Update the modification time for this object. Many filters rely on
-// the modification time to determine if they need to recompute their
-// data.
 inline void vtkObject::Modified()
 {
   this->MTime.Modified();

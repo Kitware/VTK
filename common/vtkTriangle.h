@@ -53,132 +53,128 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTriangle : public vtkCell
 {
 public:
-
-// Description:
-// Construct the triangle with three points.
   vtkTriangle();
-
   static vtkTriangle *New() {return new vtkTriangle;};
   const char *GetClassName() {return "vtkTriangle";};
 
-  // cell methods
-
-// Description:
-// Create a new cell and copy this triangle's information into the cell. Returns a 
-// poiner to the new cell created.
+  // Description:
+  // Create a new cell and copy this triangle's information into the
+  // cell. Returns a poiner to the new cell created.
   vtkCell *MakeObject();
 
+  // Description:
+  // Get the edge specified by edgeId (range 0 to 2) and return that edge's
+  // coordinates.
+  vtkCell *GetEdge(int edgeId);
+
+  // Description:
+  // See the vtkCell API for descriptions of these methods.
   int GetCellType() {return VTK_TRIANGLE;};
   int GetCellDimension() {return 2;};
   int GetNumberOfEdges() {return 3;};
   int GetNumberOfFaces() {return 0;};
-
-// Description:
-// Get the edge specified by edgeId (range 0 to 2) and return that edge's coordinates.
-  vtkCell *GetEdge(int edgeId);
-
   vtkCell *GetFace(int) {return 0;};
-
   int CellBoundary(int subId, float pcoords[3], vtkIdList& pts);
   void Contour(float value, vtkScalars *cellScalars, 
                vtkPointLocator *locator, vtkCellArray *verts,
                vtkCellArray *lines, vtkCellArray *polys, 
                vtkPointData *inPd, vtkPointData *outPd,
                vtkCellData *inCd, int cellId, vtkCellData *outCd);
-
-// Description:
-// Clip this triangle using scalar value provided. Like contouring, except
-// that it cuts the triangle to produce other triangles.
-  void Clip(float value, vtkScalars *cellScalars, 
-            vtkPointLocator *locator, vtkCellArray *polys,
-            vtkPointData *inPd, vtkPointData *outPd,
-            vtkCellData *inCd, int cellId, vtkCellData *outCd, int insideOut);
-
   int EvaluatePosition(float x[3], float closestPoint[3],
                        int& subId, float pcoords[3],
                        float& dist2, float *weights);
   void EvaluateLocation(int& subId, float pcoords[3], float x[3],
                         float *weights);
-
-// Description:
-// Plane intersection plus in/out test on triangle. The in/out test is 
-// performed using tol as the tolerance.
-  int IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
-                        float x[3], float pcoords[3], int& subId);
-
   int Triangulate(int index, vtkIdList &ptIds, vtkPoints &pts);
   void Derivatives(int subId, float pcoords[3], float *values, 
                    int dim, float *derivs);
+
+  // Description:
+  // Clip this triangle using scalar value provided. Like contouring, except
+  // that it cuts the triangle to produce other triangles.
+  void Clip(float value, vtkScalars *cellScalars, 
+            vtkPointLocator *locator, vtkCellArray *polys,
+            vtkPointData *inPd, vtkPointData *outPd,
+            vtkCellData *inCd, int cellId, vtkCellData *outCd, int insideOut);
+
+  // Description:
+  // Plane intersection plus in/out test on triangle. The in/out test is 
+  // performed using tol as the tolerance.
+  int IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
+                        float x[3], float pcoords[3], int& subId);
+
+  // Description:
+  // Return the center of the triangle in parametric coordinates.
   int GetParametricCenter(float pcoords[3]);
 
-  // triangle specific
+  // Description:
+  // Compute the center of the triangle.
   static void TriangleCenter(float p1[3], float p2[3], float p3[3], 
                              float center[3]);
-  static float TriangleArea(float p1[3], float p2[3], float p3[3]);
 
-// Description:
-// Compute the circumcenter (center[3]) and radius (method return value) of
-// a triangle defined by the three points x1, x2, and x3. (Note that the
-// coordinates are 2D. 3D points can be used but the z-component will be
-// ignored.)
+  // Description:
+  // Compute the area of a triangle in 3D.
+  static float TriangleArea(float p1[3], float p2[3], float p3[3]);
+  
+  // Description:
+  // Compute the circumcenter (center[3]) and radius (method return value) of
+  // a triangle defined by the three points x1, x2, and x3. (Note that the
+  // coordinates are 2D. 3D points can be used but the z-component will be
+  // ignored.)
   static float Circumcircle(float  p1[2], float p2[2], float p3[2], 
                             float center[2]);
 
-
-// Description:
-// Given a 2D point x[2], determine the barycentric coordinates of the point.
-// Barycentric coordinates are a natural coordinate system for simplices that
-// express a position as a linear combination of the vertices. For a 
-// triangle, there are three barycentric coordinates (because there are
-// fourthree vertices), and the sum of the coordinates must equal 1. If a 
-// point x is inside a simplex, then all three coordinates will be strictly 
-// positive.  If two coordinates are zero (so the third =1), then the 
-// point x is on a vertex. If one coordinates are zero, the point x is on an 
-// edge. In this method, you must specify the vertex coordinates x1->x3. 
-// Returns 0 if triangle is degenerate.
+  // Description:
+  // Given a 2D point x[2], determine the barycentric coordinates of the point.
+  // Barycentric coordinates are a natural coordinate system for simplices that
+  // express a position as a linear combination of the vertices. For a 
+  // triangle, there are three barycentric coordinates (because there are
+  // fourthree vertices), and the sum of the coordinates must equal 1. If a 
+  // point x is inside a simplex, then all three coordinates will be strictly 
+  // positive.  If two coordinates are zero (so the third =1), then the 
+  // point x is on a vertex. If one coordinates are zero, the point x is on an 
+  // edge. In this method, you must specify the vertex coordinates x1->x3. 
+  // Returns 0 if triangle is degenerate.
   static int BarycentricCoords(float x[2], float  x1[2], float x2[2], 
                                float x3[2], float bcoords[3]);
-
-
-// Description:
-// Project triangle defined in 3D to 2D coordinates. Returns 0 if degenerate triangle;
-// non-zero value otherwise. Input points are x1->x3; output 2D points are v1->v3.
+  
+  
+  // Description:
+  // Project triangle defined in 3D to 2D coordinates. Returns 0 if
+  // degenerate triangle; non-zero value otherwise. Input points are x1->x3;
+  // output 2D points are v1->v3.
   static int ProjectTo2D(float x1[3], float x2[3], float x3[3],
                          float v1[2], float v2[2], float v3[2]);
 
-
-// Description:
-// Compute the triangle normal from a points list, and a list of point ids
-// that index into the points list.
+  // Description:
+  // Compute the triangle normal from a points list, and a list of point ids
+  // that index into the points list.
   static void ComputeNormal(vtkPoints *p, int numPts, int *pts, float n[3]);
 
+  // Description:
+  // Compute the triangle normal from three points.
   static void ComputeNormal(float v1[3], float v2[3], float v3[3], float n[3]);
-
-// Description:
-// Given a point x, determine whether it is inside (within the
-// tolerance squared, tol2) the triangle defined by the three 
-// coordinate values p1, p2, p3. Method is via comparing dot products.
-// (Note: in current implementation the tolerance only works in the
-// neighborhood of the three vertices of the triangle.
+  
+  // Description:
+  // Given a point x, determine whether it is inside (within the
+  // tolerance squared, tol2) the triangle defined by the three 
+  // coordinate values p1, p2, p3. Method is via comparing dot products.
+  // (Note: in current implementation the tolerance only works in the
+  // neighborhood of the three vertices of the triangle.
   static int PointInTriangle(float x[3], float x1[3], float x2[3], float x3[3], 
                              float tol2);
-
 
 protected:
   vtkLine Line;
 
 };
 
-// Description:
-// Return the center of the triangle in parametric coordinates.
 inline int vtkTriangle::GetParametricCenter(float pcoords[3])
 {
   pcoords[0] = pcoords[1] = 0.333; pcoords[2] = 0.0;
   return 0;
 }
 
-// Description:
-// Compute the triangle normal from three points.
 inline void vtkTriangle::ComputeNormal(float v1[3], float v2[3], 
                                        float v3[3], float n[3])
 {
@@ -200,8 +196,6 @@ inline void vtkTriangle::ComputeNormal(float v1[3], float v2[3],
     }
 }
 
-// Description:
-// Compute the center of the triangle.
 inline void vtkTriangle::TriangleCenter(float p1[3], float p2[3], float p3[3],
                                        float center[3])
 {
@@ -210,8 +204,6 @@ inline void vtkTriangle::TriangleCenter(float p1[3], float p2[3], float p3[3],
   center[2] = (p1[2]+p2[2]+p3[2]) / 3.0;
 }
 
-// Description:
-// Compute the area of a triangle in 3D.
 inline float vtkTriangle::TriangleArea(float p1[3], float p2[3], float p3[3])
 {
   float a,b,c;

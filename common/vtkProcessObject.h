@@ -39,31 +39,33 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 // .NAME vtkProcessObject - abstract class specifies interface for visualization filters
-// .SECTION Description
-// vtkProcessObject is an abstract object that specifies behavior and interface
-// of visualization network process objects (sources, filters, mappers). Source
-// objects are creators of visualization data; filters input, process, and output 
-// visualization data; and mappers transform data into another form (like rendering 
-// primitives or write data to a file).
 //
-// vtkProcessObject provides a mechanism for invoking the methods StartMethod() and
-// EndMethod() before and after object execution (via Execute()). These are
-// convenience methods you can use for any purpose (e.g., debugging info,
-// highlighting/notifying user interface, etc.) These methods accept a single
-// void* pointer that can be used to send data to the methods. It is also
-// possible to specify a function to delete the argument via 
-// StartMethodArgDelete and EndMethodArgDelete.
+// .SECTION Description
+// vtkProcessObject is an abstract object that specifies behavior and
+// interface of visualization network process objects (sources, filters,
+// mappers). Source objects are creators of visualization data; filters
+// input, process, and output visualization data; and mappers transform data
+// into another form (like rendering primitives or write data to a file).
+//
+// vtkProcessObject provides a mechanism for invoking the methods
+// StartMethod() and EndMethod() before and after object execution (via
+// Execute()). These are convenience methods you can use for any purpose
+// (e.g., debugging info, highlighting/notifying user interface, etc.) These
+// methods accept a single void* pointer that can be used to send data to the
+// methods. It is also possible to specify a function to delete the argument
+// via StartMethodArgDelete and EndMethodArgDelete.
 //
 // Another method, ProgressMethod() can be specified. Some filters invoke this 
 // method periodically during their execution. The use is similar to that of 
 // StartMethod() and EndMethod(). Filters may also check their AbortExecute
 // flag to determine whether to prematurally end their execution.
 //
-// An important feature of subclasses of vtkProcessObject is that it is possible 
-// to control the memory-management model (i.e., retain output versus delete
-// output data). If enabled the ReleaseDataFlag enables the deletion of the
-// output data once the downstream process object finishes processing the
-// data (please see text).
+// An important feature of subclasses of vtkProcessObject is that it is
+// possible to control the memory-management model (i.e., retain output
+// versus delete output data). If enabled the ReleaseDataFlag enables the
+// deletion of the output data once the downstream process object finishes
+// processing the data (please see text).  
+//
 // .SECTION See Also
 // vtkDataObject vtkSource vtkFilter vtkMapper vtkWriter
 
@@ -75,50 +77,38 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkProcessObject : public vtkObject
 {
 public:
-
-// Description:
-// Instantiate object with no start, end, or progress methods.
+  // Description:
+  // Instantiate object with no start, end, or progress methods.
   vtkProcessObject();
 
-
-// Description:
-// Destructor for the vtkProcessObject class
   ~vtkProcessObject();
-
   static vtkProcessObject *New() {return new vtkProcessObject;};
   const char *GetClassName() {return "vtkProcessObject";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-
-// Description:
-// Specify function to be called before object executes.
+  // Description:
+  // Specify function to be called before object executes.
   void SetStartMethod(void (*f)(void *), void *arg);
 
-
-// Description:
-// Specify function to be called to show progress of filter
+  // Description:
+  // Specify function to be called to show progress of filter
   void SetProgressMethod(void (*f)(void *), void *arg);
 
-
-// Description:
-// Specify function to be called after object executes.
+  // Description:
+  // Specify function to be called after object executes.
   void SetEndMethod(void (*f)(void *), void *arg);
 
-
-// Description:
-// Set the arg delete method. This is used to free user memory.
+  // Description:
+  // Set the arg delete method. This is used to free user memory.
   void SetStartMethodArgDelete(void (*f)(void *));
 
-
-// Description:
-// Set the arg delete method. This is used to free user memory.
+  // Description:
+  // Set the arg delete method. This is used to free user memory.
   void SetProgressMethodArgDelete(void (*f)(void *));
 
-
-// Description:
-// Set the arg delete method. This is used to free user memory.
+  // Description:
+  // Set the arg delete method. This is used to free user memory.
   void SetEndMethodArgDelete(void (*f)(void *));
-
 
   // Description:
   // Set/Get the AbortExecute flag for the process object. Process objects
@@ -133,8 +123,9 @@ public:
   vtkGetMacro(Progress,float);
 
   // Description:
-  // Update the progress of the process object. If a ProgressMethod exists, executes it. 
-  // Then set the Progress ivar to amount. The parameter amount should range between (0,1).
+  // Update the progress of the process object. If a ProgressMethod exists,
+  // executes it.  Then set the Progress ivar to amount. The parameter amount
+  // should range between (0,1).
   void UpdateProgress(float amount);
   
   // left public for performance since it is used in inner loops

@@ -63,100 +63,75 @@ public:
   const char *GetClassName() {return "vtkTCoords";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // overload vtkAttributeData API
-
-// Description:
-// Set the data for this object. The tuple dimension must be consistent with
-// the object.
+  // Description:
+  // Set the data for this object. The tuple dimension must be consistent with
+  // the object.
   void SetData(vtkDataArray *);
 
+  // Description:
+  // Create a copy of this object.
   vtkAttributeData *MakeObject();
+ 
+  // Description:
+  // Return number of texture coordinates in array.
+  int GetNumberOfTCoords() {return this->Data->GetNumberOfTuples();};
 
-  // generic access to TCoord data
-  int GetNumberOfTCoords();
-  float *GetTCoord(int id);
-  void GetTCoord(int id, float tc[3]);
-  void SetNumberOfTCoords(int number);
-  void SetTCoord(int id, float tc[3]);
-  void InsertTCoord(int id, float tc[3]);
+  // Description:
+  // Return a pointer to float texture coordinates tc[3] for a specific id.
+  float *GetTCoord(int id){return this->Data->GetTuple(id);};
+
+  // Description: 
+  // Copy texture coordinate components into user provided array tc[3] for
+  // specified id.
+  void GetTCoord(int id, float tc[3]) { this->Data->GetTuple(id,tc);};
+
+  // Description:
+  // Specify the number of texture coordinates for this object to hold. Make
+  // sure that you set the number of components in texture first.
+  void SetNumberOfTCoords(int number) {this->Data->SetNumberOfTuples(number);};
+
+  // Description:
+  // Insert TCoord into object. No range checking performed (fast!).
+  // Make sure you use SetNumberOfTCoords() to allocate memory prior
+  // to using SetTCoord().
+  void SetTCoord(int id, float tc[3]) {this->Data->SetTuple(id,tc);};
+
+  // Description:
+  // Insert TCoord into object. Range checking performed and memory
+  // allocated as necessary.
+  void InsertTCoord(int id, float tc[3]) {this->Data->InsertTuple(id,tc);};
+
+  // Description:
+  // Insert TCoord into position indicated.
   void InsertTCoord(int id, float tx, float ty, float tz);
-  int InsertNextTCoord(float tc[3]);
+
+  // Description:
+  // Insert TCoord at end of array and return its location (id) in the array.
+  int InsertNextTCoord(float tc[3]) {return this->Data->InsertNextTuple(tc);};
   int InsertNextTCoord(float tx, float ty, float tz);
 
   // Description:
-  // Specify/Get the dimension of the texture coordinates.
+  // Set/Get the number of components in texture. Should be 1<=n<=3.
   void SetNumberOfComponents(int num);
   int GetNumberOfComponents() {return this->Data->GetNumberOfComponents();}
 
+  // Description:
   // Get a list of texture coordinates
   void GetTCoords(vtkIdList& ptId, vtkTCoords& fv);
 
 };
 
-// Description:
-// Create a copy of this object.
 inline vtkAttributeData *vtkTCoords::MakeObject()
 {
   return new vtkTCoords(this->GetDataType(), this->GetNumberOfComponents());
 }
 
-// Description:
-// Specify the number of components in texture. Should be 1<=n<=3.
 inline void vtkTCoords::SetNumberOfComponents(int num)
 {
   num = (num < 1 ? 1 : (num > 3 ? 3 : num));
   this->Data->SetNumberOfComponents(num);
 }
 
-// Description:
-// Return number of texture coordinates in array.
-inline int vtkTCoords::GetNumberOfTCoords()
-{
-  return this->Data->GetNumberOfTuples();
-}
-
-// Description:
-// Return a pointer to float texture coordinates tc[3] for a specific id.
-inline float *vtkTCoords::GetTCoord(int id)
-{
-  return this->Data->GetTuple(id);
-}
-
-// Description:
-// Copy texture coordinate components into user provided array tc[3] for specified
-// id.
-inline void vtkTCoords::GetTCoord(int id, float tc[3])
-{
-  this->Data->GetTuple(id,tc);
-}
-
-// Description:
-// Specify the number of texture coordinates for this object to hold. Make sure
-// that you set the number of components in texture first.
-inline void vtkTCoords::SetNumberOfTCoords(int number)
-{
-  this->Data->SetNumberOfTuples(number);
-}
-
-// Description:
-// Insert TCoord into object. No range checking performed (fast!).
-// Make sure you use SetNumberOfTCoords() to allocate memory prior
-// to using SetTCoord().
-inline void vtkTCoords::SetTCoord(int id, float tc[3])
-{
-  this->Data->SetTuple(id,tc);
-}
-
-// Description:
-// Insert TCoord into object. Range checking performed and memory
-// allocated as necessary.
-inline void vtkTCoords::InsertTCoord(int id, float tc[3])
-{
-  this->Data->InsertTuple(id,tc);
-}
-
-// Description:
-// Insert TCoord into position indicated.
 inline void vtkTCoords::InsertTCoord(int id, float tx, float ty, float tz)
 {
   float tc[3];
@@ -167,8 +142,6 @@ inline void vtkTCoords::InsertTCoord(int id, float tx, float ty, float tz)
   this->Data->InsertTuple(id,tc);
 }
 
-// Description:
-// Insert TCoord at end of array and return its location (id) in the array.
 inline int vtkTCoords::InsertNextTCoord(float tx, float ty, float tz)
 {
   float tc[3];
@@ -179,12 +152,6 @@ inline int vtkTCoords::InsertNextTCoord(float tx, float ty, float tz)
   return this->Data->InsertNextTuple(tc);
 }
 
-// Description:
-// Insert TCoord into next available slot. Returns id of slot.
-inline int vtkTCoords::InsertNextTCoord(float tc[3])
-{
-  return this->Data->InsertNextTuple(tc);
-}
 
 // These include files are placed here so that if TCoords.h is included 
 // all other classes necessary for compilation are also included. 

@@ -56,26 +56,23 @@ public:
   static vtkByteSwap *New() {return new vtkByteSwap;};
   const char *GetClassName() {return "vtkByteSwap";};
 
-
-// Description:
-// Swap 2 byte word.
+  // Description:
+  // Swap 2 byte word to be LE.
   static void Swap2LE(short *s);
 
 
-// Description:
-// Swap four byte word.
+  // Description:
+  // Swap four byte word to be LE.
   static void Swap4LE(char *c);
-
   static void Swap4LE(float *p) { vtkByteSwap::Swap4LE((char *)p);};
   static void Swap4LE(int *i)   { vtkByteSwap::Swap4LE((char *)i);};
   static void Swap4LE(unsigned long *i) { vtkByteSwap::Swap4LE((char *)i);};
   static void Swap4LE(long *i) { vtkByteSwap::Swap4LE((char *)i);};
 
 
-// Description:
-// Swap bunch of bytes. Num is the number of four byte words to swap.
+  // Description:
+  // Swap bunch of bytes to be LE. Num is the number of four byte words to swap.
   static void Swap4LERange(char *c,int num);
-
   static void Swap4LERange(unsigned char *c,int num) 
   { vtkByteSwap::Swap4LERange((char *)c,num);};
   static void Swap4LERange(float *p,int num) 
@@ -86,19 +83,17 @@ public:
   { vtkByteSwap::Swap4LERange((char *)i,num);};
 
 
-// Description:
-// Swap four byte word.
+  // Description:
+  // Swap four byte word to be BE.
   static void Swap4BE(char *c);
-
   static void Swap4BE(float *p) { vtkByteSwap::Swap4BE((char *)p);};
   static void Swap4BE(int *i)   { vtkByteSwap::Swap4BE((char *)i);};
   static void Swap4BE(unsigned long *i) { vtkByteSwap::Swap4BE((char *)i);};
 
-
-// Description:
-// Swap bunch of bytes. Num is the number of four byte words to swap.
+  
+  // Description:
+  // Swap bunch of bytes to be BE. Num is the number of four byte words to swap.
   static void Swap4BERange(char *c,int num);
-
   static void Swap4BERange(float *p,int num) 
   { vtkByteSwap::Swap4BERange((char *)p,num); };
   static void Swap4BERange(int *i,int num) 
@@ -107,10 +102,11 @@ public:
   { vtkByteSwap::Swap4BERange((char *)i,num); };
 
 
-// Description:
-// Swap bunch of bytes. Num is the number of four byte words to swap.
+  // Description:
+  // Swap bunch of bytes to BE. Num is the number of four byte words to swap.
+  // The results are written out to prevent having to keep the swapped
+  // copy in memory.
   static void SwapWrite4BERange(char *c,int num,FILE *fp);
-
   static void SwapWrite4BERange(float *p,int num, FILE *fp) 
   { vtkByteSwap::SwapWrite4BERange((char *)p,num,fp);};
   static void SwapWrite4BERange(int *i,int num,FILE *fp) 
@@ -119,37 +115,34 @@ public:
   { vtkByteSwap::SwapWrite4BERange((char *)i,num,fp);};
 
 
-// Description:
-// Swap 2 byte word.
+  // Description:
+  // Swap 2 byte word to BE.
   static void Swap2BE(short *s);
 
-
-// Description:
-// Swap bunch of bytes. Num is the number of two byte words to swap.
+  // Description:
+  // Swap bunch of bytes to BE. Num is the number of two byte words to swap.
   static void Swap2BERange(char *c,int num);
-
-
-// Description:
-// Swap bunch of bytes. Num is the number of two byte words to swap.
-  static void Swap2LERange(char *c,int num);
-
   static void Swap2BERange(short *i,int num) 
   { vtkByteSwap::Swap2BERange((char *)i,num);};
+
+  // Description:
+  // Swap bunch of bytes to LE. Num is the number of two byte words to swap.
+  static void Swap2LERange(char *c,int num);
   static void Swap2LERange(short *i,int num) 
   { vtkByteSwap::Swap2LERange((char *)i,num);};
 
 
-// Description:
-// Swap bunch of bytes. Num is the number of four byte words to swap.
+  // Description:
+  // Swap bunch of bytes to BE. Num is the number of two byte words to swap.
+  // The results are written out to prevent having to keep the swapped
+  // copy in memory.
   static void SwapWrite2BERange(char *c,int num,FILE *fp);
-
   static void SwapWrite2BERange(short *i,int num, FILE *fp) 
   {vtkByteSwap::SwapWrite2BERange((char *)i,num,fp);};
 
-
-// Description:
-// Swaps the bytes of a buffer.  Uses an arbitrary word size, but
-// assumes the word size is divisible by two.
+  // Description:
+  // Swaps the bytes of a buffer.  Uses an arbitrary word size, but
+  // assumes the word size is divisible by two.
   static void SwapVoidRange(void *buffer, int numWords, int wordSize);
 
 };

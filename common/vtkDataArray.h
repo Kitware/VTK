@@ -46,19 +46,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // often have specialized more efficient methods for operating on this data 
 // (for example, getting pointers to data or getting/inserting data in native
 // form). 
-// 
+//
 // The logical structure of this class is an array of tuples, where each
-// tuple is made up of n-components (also called a component group), and n is the
-// number of component values in a tuple(n >= 1).  Another view of this class
-// is a mxn matrix, where m is the number of tuples, and n is the number of
-// components in a tuple. Thus vtkDataArray can be used to represent scalars
-// (1-4 components), 3D vectors (3 components), texture coordinates (1-3
-// components), tensors, (9 components) and so on.
+// tuple is made up of n-components (also called a component group), and n is
+// the number of component values in a tuple(n >= 1).  Another view of this
+// class is a mxn matrix, where m is the number of tuples, and n is the
+// number of components in a tuple. Thus vtkDataArray can be used to
+// represent scalars (1-4 components), 3D vectors (3 components), texture
+// coordinates (1-3 components), tensors, (9 components) and so on.
 // 
 // .SECTION See Also
-// vtkBitArray vtkCharArray vtkUnsignedCharArray vtkShortArray vtkUnsignedShortArray
-// vtkIntArray vtkUnsignedIntArray vtkLongArray vtkUnsignedLongArray
-// vtkFloatArray vtkDoubleArray vtkVoidArray
+// vtkBitArray vtkCharArray vtkUnsignedCharArray vtkShortArray
+// vtkUnsignedShortArray vtkIntArray vtkUnsignedIntArray vtkLongArray
+// vtkUnsignedLongArray vtkFloatArray vtkDoubleArray vtkVoidArray
 
 #ifndef __vtkDataArray_h
 #define __vtkDataArray_h
@@ -70,9 +70,8 @@ class vtkFloatArray;
 class VTK_EXPORT vtkDataArray : public vtkReferenceCount 
 {
 public:
-
-// Description:
-// Construct object with default tuple dimension (number of components) of 1.
+  // Description:
+  // Construct object with default tuple dimension (number of components) of 1.
   vtkDataArray(int numComp=1);
 
   virtual int Allocate(const int sz, const int ext=1000) = 0;
@@ -172,11 +171,25 @@ public:
   // special pointer manipulation.
   virtual void *GetVoidPointer(const int id) = 0;
 
-  // special operators
+  // Description:
+  // Free any unneccesary memory.
   virtual void Squeeze() = 0;
+  
+  // Description:
+  // Reset to an empty state, without freeing any memory.
   void Reset() {this->MaxId = -1;}
+
+  // Description:
+  // Return the size of the data.
   int GetSize() {return this->Size;}
+  
+  // Description:
+  // What is the maximum id currently in the array.
   int GetMaxId() {return this->MaxId;}
+
+  // Description:
+  // By how many elements should the array increase when more memory is 
+  // required.
   int GetExtend() {return this->Extend;}
 
 protected:

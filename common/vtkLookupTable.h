@@ -49,10 +49,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // This class is designed as a base class for derivation by other classes. 
 // The Build(), MapValue(), and SetTableRange() methods are virtual and may 
 // require overloading in subclasses.
+//
 // .SECTION Caveats
 // vtkLookupTable is a reference counted object. Therefore, you should 
 // always use operator "new" to construct new objects. This procedure will
 // avoid memory problems (see text).
+//
 // .SECTION See Also
 // vtkLogLookupTable vtkWindowLevelLookupTable
 
@@ -65,21 +67,18 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkLookupTable : public vtkReferenceCount
 {
 public:
-
-// Description:
-// Construct with range=(0,1); and hsv ranges set up for rainbow color table 
-// (from red to blue).
+  // Description:
+  // Construct with range=(0,1); and hsv ranges set up for rainbow color table 
+  // (from red to blue).
   vtkLookupTable(int sze=256, int ext=256);
 
-
-// Description:
-// Allocate a color table of specified size.
+  // Description:
+  // Allocate a color table of specified size.
   int Allocate(int sz=256, int ext=256);
-
-
-// Description:
-// Generate lookup table from hue, saturation, value, alpha min/max values. 
-// Table is built from linear ramp of each value.
+  
+  // Description:
+  // Generate lookup table from hue, saturation, value, alpha min/max values. 
+  // Table is built from linear ramp of each value.
   virtual void Build();
 
   static vtkLookupTable *New() {return new vtkLookupTable;};
@@ -93,22 +92,13 @@ public:
   vtkSetClampMacro(NumberOfColors,int,2, 65536);
   vtkGetMacro(NumberOfColors,int);
 
-
-// Description:
-// Set the minimum/maximum scalar values for scalar mapping. Scalar values
-// less than minimum range value are clamped to minimum range value.
-// Scalar values greater than maximum range value are clamped to maximum
-// range value.
-  void SetTableRange(float r[2]); // can't use macro 'cause don't want modified
-
-
-// Description:
-// Set the minimum/maximum scalar values for scalar mapping. Scalar values
-// less than minimum range value are clamped to minimum range value.
-// Scalar values greater than maximum range value are clamped to maximum
-// range value.
+  // Description:
+  // Set/Get the minimum/maximum scalar values for scalar mapping. Scalar
+  // values less than minimum range value are clamped to minimum range value.
+  // Scalar values greater than maximum range value are clamped to maximum
+  // range value.
+  void SetTableRange(float r[2]); 
   virtual void SetTableRange(float min, float max);
-
   vtkGetVectorMacro(TableRange,float,2);
 
   // Description:
@@ -135,44 +125,47 @@ public:
   vtkSetVector2Macro(AlphaRange,float);
   vtkGetVectorMacro(AlphaRange,float,2);
 
+  // Description:
+  // Map one value through the lookup table.
   virtual unsigned char *MapValue(float v);
 
-
-// Description:
-// Specify the number of values (i.e., colors) in the lookup
-// table. This method simply allocates memory and prepares the table
-// for use with SetTableValue(). It differs from Build() method in
-// that the allocated memory is not initialized according to HSVA ramps.
+  // Description:
+  // Specify the number of values (i.e., colors) in the lookup
+  // table. This method simply allocates memory and prepares the table
+  // for use with SetTableValue(). It differs from Build() method in
+  // that the allocated memory is not initialized according to HSVA ramps.
   void SetNumberOfTableValues(int number);
-
-
-// Description:
-// Directly load color into lookup table. Use [0,1] float values for color
-// component specification. Make sure that you've either used the
-// Build() method or used SetNumberOfTableValues() prior to using this method.
+  
+  // Description:
+  // Directly load color into lookup table. Use [0,1] float values for color
+  // component specification. Make sure that you've either used the
+  // Build() method or used SetNumberOfTableValues() prior to using this method.
   void SetTableValue (int indx, float rgba[4]);
 
-
-// Description:
-// Directly load color into lookup table. Use [0,1] float values for color 
-// component specification.
+  // Description:
+  // Directly load color into lookup table. Use [0,1] float values for color 
+  // component specification.
   void SetTableValue (int indx, float r, float g, float b, float a=1.0);
 
-
-
-// Description:
-// Return a rgba color value for the given index into the lookup table. Color
-// components are expressed as [0,1] float values.
+  // Description:
+  // Return a rgba color value for the given index into the lookup table. Color
+  // components are expressed as [0,1] float values.
   float *GetTableValue (int id);
 
-
-// Description:
-// Return a rgba color value for the given index into the lookup table. Color
-// components are expressed as [0,1] float values.
+  // Description:
+  // Return a rgba color value for the given index into the lookup table. Color
+  // components are expressed as [0,1] float values.
   void GetTableValue (int id, float rgba[4]);
 
+  // Description:
+  // Get pointer to color table data. Format is array of unsigned char
+  // r-g-b-a-r-g-b-a...
+  unsigned char *GetPointer(const int id){return this->Table.GetPointer(4*id);};
 
-  unsigned char *GetPointer(const int id);
+  // Description:
+  // Get pointer to data. Useful for direct writes into object. MaxId is bumped
+  // by number (and memory allocated if necessary). Id is the location you 
+  // wish to write into; number is the number of rgba values to write.
   unsigned char *WritePointer(const int id, const int number);
 
 protected:
@@ -188,18 +181,8 @@ protected:
   float RGBA[4]; //used during conversion process
 };
 
-// Description:
-// Get pointer to color table data. Format is array of unsigned char
-// r-g-b-a-r-g-b-a...
-inline unsigned char *vtkLookupTable::GetPointer(const int id)
-{
-  return this->Table.GetPointer(4*id);
-}
-// Description:
-// Get pointer to data. Useful for direct writes into object. MaxId is bumped
-// by number (and memory allocated if necessary). Id is the location you 
-// wish to write into; number is the number of rgba values to write.
-inline unsigned char *vtkLookupTable::WritePointer(const int id, const int number)
+inline unsigned char *vtkLookupTable::WritePointer(const int id, 
+						   const int number)
 {
  return this->Table.WritePointer(4*id,4*number);
 }

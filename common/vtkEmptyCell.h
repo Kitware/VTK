@@ -52,14 +52,15 @@ class VTK_EXPORT vtkEmptyCell : public vtkCell
 {
 public:
   vtkEmptyCell() {};
-
-// Description:
-// Deep copy of cell.
-  vtkEmptyCell(const vtkEmptyCell& p);
-
   static vtkEmptyCell *New() {return new vtkEmptyCell;};
   const char *GetClassName() {return "vtkEmptyCell";};
 
+  // Description:
+  // Deep copy of cell.
+  vtkEmptyCell(const vtkEmptyCell& p);
+
+  // Description:
+  // See the vtkCell API for descriptions of these methods.
   vtkCell *MakeObject() {return new vtkEmptyCell(*this);};
   int GetCellType() {return VTK_VERTEX;};
   int GetCellDimension() {return 0;};
@@ -68,7 +69,6 @@ public:
   vtkCell *GetEdge(int) {return 0;};
   vtkCell *GetFace(int) {return 0;};
   int CellBoundary(int subId, float pcoords[3], vtkIdList& pts);
-
   void Contour(float value, vtkScalars *cellScalars, 
                vtkPointLocator *locator, vtkCellArray *verts1, 
                vtkCellArray *lines, vtkCellArray *verts2, 

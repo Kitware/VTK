@@ -55,34 +55,37 @@ public:
   vtkFloatVectors():vtkVectors(VTK_FLOAT) {};
   static vtkFloatVectors *New() {return new vtkFloatVectors;};
   
-  // overload vtkAttributeData API
+  // Description:
+  // Set the data type for this object.
   void SetDataType(int dataType);
+
+  // Description:
+  // Set the data for this object. Only accepts VTK_FLOAT type.
   void SetData(vtkDataArray *);
 
+  // Description:
+  // Get pointer to array of data starting at data position "id".
   float *GetPointer(const int id);
+
+  // Description:
+  // Get pointer to data array. Useful for direct writes of data. MaxId is
+  // bumped by number (and memory allocated if necessary). Id is the
+  // location you wish to write into; number is the number of vectors to
+  // write.
   float *WritePointer(const int id, const int number);
 
 };
 
-// Description:
-// Get pointer to array of data starting at data position "id".
 inline float *vtkFloatVectors::GetPointer(const int id)
 {
   return ((vtkFloatArray *)this->Data)->GetPointer(3*id);
 } 
 
-// Description:
-// Get pointer to data array. Useful for direct writes of data. MaxId is
-// bumped by number (and memory allocated if necessary). Id is the
-// location you wish to write into; number is the number of vectors to
-// write.
 inline float *vtkFloatVectors::WritePointer(const int id, const int number)
 {
   return ((vtkFloatArray *)this->Data)->WritePointer(3*id,3*number);
 }
 
-// Description:
-// Set the data for this object. Only accepts VTK_FLOAT type.
 inline void vtkFloatVectors::SetData(vtkDataArray *data)
 {
   if ( data->GetDataType() != VTK_FLOAT )
@@ -90,12 +93,9 @@ inline void vtkFloatVectors::SetData(vtkDataArray *data)
     vtkErrorMacro(<<"Float vectors only accepts float data type");
     return;
     }
-
   vtkVectors::SetData(data);
 }
 
-// Description:
-// Set the data type for this object.
 inline void vtkFloatVectors::SetDataType(int type)
 {
   if ( type != VTK_FLOAT )

@@ -56,7 +56,8 @@ public:
   static vtkPolyVertex *New() {return new vtkPolyVertex;};
   const char *GetClassName() {return "vtkPolyVertex";};
 
-  // cell methods
+  // Description:
+  // See the vtkCell API for descriptions of these methods.
   vtkCell *MakeObject();
   int GetCellType() {return VTK_POLY_VERTEX;};
   int GetCellDimension() {return 0;};
@@ -64,7 +65,6 @@ public:
   int GetNumberOfFaces() {return 0;};
   vtkCell *GetEdge(int vtkNotUsed(edgeId)) {return 0;};
   vtkCell *GetFace(int vtkNotUsed(faceId)) {return 0;};
-
   int CellBoundary(int subId, float pcoords[3], vtkIdList& pts);
   void Contour(float value, vtkScalars *cellScalars, 
                vtkPointLocator *locator, vtkCellArray *verts, 
@@ -85,11 +85,10 @@ public:
   int Triangulate(int index, vtkIdList &ptIds, vtkPoints &pts);
   void Derivatives(int subId, float pcoords[3], float *values, 
                    int dim, float *derivs);
-
-// Description:
-// Return the center of the point cloud in parametric coordinates.
+  
+  // Description:
+  // Return the center of the point cloud in parametric coordinates.
   int GetParametricCenter(float pcoords[3]);
-
 
 protected:
   vtkVertex Vertex;

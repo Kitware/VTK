@@ -60,85 +60,65 @@ public:
   const char *GetClassName() {return "vtkNormals";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // overload vtkAttributeData API
-  vtkAttributeData *MakeObject();
+  // Description:
+  // Create a copy of this object.
+  vtkAttributeData *MakeObject(){return new vtkNormals(this->GetDataType());};
+  
+  // Description:
+  // Return number of normals in array.
+  int GetNumberOfNormals() {return this->Data->GetNumberOfTuples();};
 
-  // generic access to normal data
-  int GetNumberOfNormals();
-  float *GetNormal(int id);
-  void GetNormal(int id, float n[3]);
+  // Description:
+  // Return a pointer to a float normal n[3] for a specific id.
+  float *GetNormal(int id) {return this->Data->GetTuple(id);};
+  
+  // Description:
+  // Copy normal components into user provided array n[3] for specified
+  // id.
+  void GetNormal(int id, float n[3]){this->Data->GetTuple(id,n);};
+  
+  // Description:
+  // Insert normal into object. No range checking performed (fast!).
+  // Make sure you use SetNumberOfNormals() to allocate memory prior
+  // to using SetNormal().
+  void SetNormal(int id, float n[3]){this->Data->SetTuple(id,n);};
+
+  // Description:
+  // Insert normal into object. Range checking performed and memory
+  // allocated as necessary.
+  void InsertNormal(int id, float n[3]){this->Data->InsertTuple(id,n);};
+
+  // Description:
+  // Insert normal into next available slot. Returns id of slot.
+  int InsertNextNormal(float n[3]){return this->Data->InsertNextTuple(n);};
+
+  // Description:
+  // Specify the number of normals for this object to hold. Does an
+  // allocation as well as setting the MaxId ivar. Used in conjunction with
+  // SetNormal() method for fast insertion.
   void SetNumberOfNormals(int number);
-  void SetNormal(int id, float n[3]);
-  void InsertNormal(int id, float n[3]);
+
+  // Description:
+  // Insert normal into position indicated.
   void InsertNormal(int id, float nx, float ny, float nz);
-  int InsertNextNormal(float n[3]);
+
+  // Description:
+  // Insert normal at end of array and return its location (id) in the array.
   int InsertNextNormal(float nx, float ny, float nz);
 
-
-// Description:
-// Given a list of pt ids, return an array of normals.
+  // Description:
+  // Given a list of pt ids, return an array of normals.
   void GetNormals(vtkIdList& ptId, vtkNormals& fn);
 
 };
 
-// Description:
-// Create a copy of this object.
-inline vtkAttributeData *vtkNormals::MakeObject()
-{
-  return new vtkNormals(this->GetDataType());
-}
 
-// Description:
-// Return number of normals in array.
-inline int vtkNormals::GetNumberOfNormals()
-{
-  return this->Data->GetNumberOfTuples();
-}
-
-// Description:
-// Return a pointer to a float normal n[3] for a specific id.
-inline float *vtkNormals::GetNormal(int id)
-{
-  return this->Data->GetTuple(id);
-}
-
-// Description:
-// Copy normal components into user provided array n[3] for specified
-// id.
-inline void vtkNormals::GetNormal(int id, float n[3])
-{
-  this->Data->GetTuple(id,n);
-}
-
-// Description:
-// Specify the number of normals for this object to hold. Does an
-// allocation as well as setting the MaxId ivar. Used in conjunction with
-// SetNormal() method for fast insertion.
 inline void vtkNormals::SetNumberOfNormals(int number)
 {
   this->Data->SetNumberOfComponents(3);
   this->Data->SetNumberOfTuples(number);
 }
 
-// Description:
-// Insert normal into object. No range checking performed (fast!).
-// Make sure you use SetNumberOfNormals() to allocate memory prior
-// to using SetNormal().
-inline void vtkNormals::SetNormal(int id, float n[3])
-{
-  this->Data->SetTuple(id,n);
-}
-
-// Description:
-// Insert normal into object. Range checking performed and memory
-// allocated as necessary.
-inline void vtkNormals::InsertNormal(int id, float n[3])
-{
-  this->Data->InsertTuple(id,n);
-}
-
-// Description:
-// Insert normal into position indicated.
 inline void vtkNormals::InsertNormal(int id, float nx, float ny, float nz)
 {
   float n[3];
@@ -149,8 +129,6 @@ inline void vtkNormals::InsertNormal(int id, float nx, float ny, float nz)
   this->Data->InsertTuple(id,n);
 }
 
-// Description:
-// Insert normal at end of array and return its location (id) in the array.
 inline int vtkNormals::InsertNextNormal(float nx, float ny, float nz)
 {
   float n[3];
@@ -161,12 +139,6 @@ inline int vtkNormals::InsertNextNormal(float nx, float ny, float nz)
   return this->Data->InsertNextTuple(n);
 }
 
-// Description:
-// Insert normal into next available slot. Returns id of slot.
-inline int vtkNormals::InsertNextNormal(float n[3])
-{
-  return this->Data->InsertNextTuple(n);
-}
 
 // These include files are placed here so that if Normals.h is included 
 // all other classes necessary for compilation are also included. 

@@ -56,82 +56,75 @@ class VTK_EXPORT vtkMatrix4x4 : public vtkObject
 {
  public:
   float Element[4][4];
-  //  A 4 x 4 matrix.
-
-// Description:
-// Construct a 4x4 identity matrix.
-  vtkMatrix4x4 ();
-
-
-// Description:
-// Construct a 4x4 matrix with the values which are contained in the
-// argument m.
-  vtkMatrix4x4 (const vtkMatrix4x4& m);
-
   static vtkMatrix4x4 *New() {return new vtkMatrix4x4;};
   const char *GetClassName () {return "vtkMatrix4x4";};
   void PrintSelf (ostream& os, vtkIndent indent);
 
+  // Description:
+  // Construct a 4x4 identity matrix.
+  vtkMatrix4x4 ();
 
-// Description:
-// Set all the elements of the matrix to the given value.
+  // Description:
+  // Construct a 4x4 matrix with the values which are contained in the
+  // argument m.
+  vtkMatrix4x4 (const vtkMatrix4x4& m);
+
+  // Description:
+  // Set all the elements of the matrix to the given value.
   void operator= (float element);
-
-
-// Description:
-// Set the elements of the matrix to the same values as the elements
-// of the source Matrix.
+  
+  // Description:
+  // Set the elements of the matrix to the same values as the elements
+  // of the source Matrix.
   vtkMatrix4x4& operator= (const vtkMatrix4x4& source);
-
+  
+  // Description: 
+  // Provide standard [] access to elements.
   float *operator[](const unsigned int i) {return &(this->Element[i][0]);};
   const float *operator[](unsigned int i) const
-        { return &(this->Element[i][0]); }
+  { return &(this->Element[i][0]); }
 
-
-// Description:
-// Matrix Inversion (adapted from Richard Carling in "Graphics Gems," 
-// Academic Press, 1990).
+  // Description:
+  // Matrix Inversion (adapted from Richard Carling in "Graphics Gems," 
+  // Academic Press, 1990).
   void Invert (vtkMatrix4x4 in,vtkMatrix4x4 & out);
-
   void Invert (void) { this->Invert(*this,*this);};
-
-
-// Description:
-// Transpose the matrix and put it into out. 
+  
+  // Description:
+  // Transpose the matrix. 
   void Transpose (vtkMatrix4x4 in,vtkMatrix4x4 & out);
-
   void Transpose (void) { this->Transpose(*this,*this);};
 
-
-// Description:
-// Multiply this matrix by a point (in homogeneous coordinates). 
-// and return the result in result. The in[4] and result[4] 
-// arrays must both be allocated but they can be the same array.
+  // Description:
+  // Multiply this matrix by a point (in homogeneous coordinates). 
+  // and return the result in result. The in[4] and result[4] 
+  // arrays must both be allocated but they can be the same array.
   void MultiplyPoint(float in[4], float out[4]);
 
-
-// Description:
-// Multiply a point (in homogeneous coordinates) by this matrix,
-// and return the result in result. The in[4] and result[4] 
-// arrays must both be allocated, but they can be the same array.
+  // Description:
+  // Multiply a point (in homogeneous coordinates) by this matrix,
+  // and return the result in result. The in[4] and result[4] 
+  // arrays must both be allocated, but they can be the same array.
   void PointMultiply(float in[4], float out[4]);
 
-
-// Description:
-// Compute adjoint of the matrix and put it into out.
+  // Description:
+  // Compute adjoint of the matrix and put it into out.
   void Adjoint (vtkMatrix4x4 & in,vtkMatrix4x4 & out);
 
-
-// Description:
-// Compute the determinant of the matrix and return it.
+  // Description:
+  // Compute the determinant of the matrix and return it.
   float Determinant (vtkMatrix4x4 & in);
 
+  // Description:
+  // Sets the element i,j in the matrix.
   void SetElement(int i, int j, float value);
-  float GetElement(int i, int j) const;
+
+  // Description:
+  // Returns the element i,j from the matrix.
+  float GetElement (int i, int j) const {return this->Element[i][j];};
+
 };
 
-// Description:
-// Sets the element i,j in the matrix.
 inline void vtkMatrix4x4::SetElement (int i, int j, float value)
 {
   if (this->Element[i][j] != value)
@@ -141,11 +134,5 @@ inline void vtkMatrix4x4::SetElement (int i, int j, float value)
     }
 }
 
-// Description:
-// Returns the element i,j from the matrix.
-inline float vtkMatrix4x4::GetElement (int i, int j) const
-{
-  return this->Element[i][j];
-}
 #endif
 

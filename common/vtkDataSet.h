@@ -72,15 +72,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkDataSet : public vtkDataObject
 {
 public:
-
-// Description:
-// Constructor with default bounds (0,1, 0,1, 0,1).
+  // Description:
+  // Constructor with default bounds (0,1, 0,1, 0,1).
   vtkDataSet();
-
+  
   vtkDataSet(const vtkDataSet& ds);
   const char *GetClassName() {return "vtkDataSet";};
   void PrintSelf(ostream& os, vtkIndent indent);
-
+  
   // Description:
   // Copy the geometric and topological structure of an object. Note that
   // the invoking object and the object pointed to by the parameter ds must
@@ -94,11 +93,11 @@ public:
   virtual int GetDataSetType() = 0;
 
   // Description:
-  // Determine number of points composing dataset.
+  // Determine the number of points composing the dataset.
   virtual int GetNumberOfPoints() = 0;
 
   // Description:
-  // Determine number of cells composing dataset.
+  // Determine the number of cells composing the dataset.
   virtual int GetNumberOfCells() = 0;
 
   // Description:
@@ -137,7 +136,7 @@ public:
   // Description:
   // Topological inquiry to get all cells using list of points exclusive of
   // cell specified (e.g., cellId).
-  virtual void GetCellNeighbors(int cellId, vtkIdList& ptIds, vtkIdList& cellIds);
+  virtual void GetCellNeighbors(int cellId,vtkIdList& ptIds,vtkIdList& cellIds);
 
   // Description:
   // Locate the closest point to the global coordinate x. Return the
@@ -163,15 +162,19 @@ public:
   // interpolation. This method combines the derived class methods
   // int FindCell and vtkCell *GetCell. Derived classes may provide a more 
   // efficient implementation. See for example vtkStructuredPoints.
-  virtual vtkCell *FindAndGetCell(float x[3], vtkCell *cell, int cellId, float tol2,
-                                  int& subId, float pcoords[3], float *weights);
+  virtual vtkCell *FindAndGetCell(float x[3], vtkCell *cell, int cellId, 
+				  float tol2, int& subId, float pcoords[3], 
+				  float *weights);
 
+  // Description:
   // Datasets are composite objects and need to check each part for MTime
   unsigned long int GetMTime();
 
+  // Description:
   // return pointer to this dataset's point data
   vtkCellData *GetCellData() {return &this->CellData;};
 
+  // Description:
   // return pointer to this dataset's point data
   vtkPointData *GetPointData() {return &this->PointData;};
 
@@ -179,31 +182,26 @@ public:
   // Reclaim any extra memory used to store data.
   virtual void Squeeze();
 
-  // compute geometric bounds, center, longest side
-
-// Description:
-// Compute the data bounding box from data points.
+  // Description:
+  // Compute the data bounding box from data points.
   virtual void ComputeBounds();
 
-
-// Description:
-// Return a pointer to the geometry bounding box in the form
-// (xmin,xmax, ymin,ymax, zmin,zmax).
+  // Description:
+  // Return a pointer to the geometry bounding box in the form
+  // (xmin,xmax, ymin,ymax, zmin,zmax).
   float *GetBounds();
-
   void GetBounds(float bounds[6]);
 
-// Description:
-// Get the center of the bounding box.
+  // Description:
+  // Get the center of the bounding box.
   float *GetCenter();
-
   void GetCenter(float center[3]);
-
-// Description:
-// Return the length of the diagonal of the bounding box.
+  
+  // Description:
+  // Return the length of the diagonal of the bounding box.
   float GetLength();
 
-
+  // Description:
   // Restore data object to initial state,
   void Initialize();
 

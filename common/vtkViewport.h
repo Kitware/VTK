@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // rendering features such as two-sided lighting can also be controlled.
 
 // .SECTION See Also
-// vtkRenderWindow vtkActor vtkCamera vtkLight vtkVolume vtkRayCaster
+// vtkWindow vtkImager vtkRenderer
 
 #ifndef __vtkViewport_h
 #define __vtkViewport_h
@@ -64,10 +64,10 @@ class VTK_EXPORT vtkViewport : public vtkObject
 {
 public:
 
-// Description:
-// Create a vtkViewport with a black background, a white ambient light, 
-// two-sided lighting turned on, a viewport of (0,0,1,1), and backface culling
-// turned off.
+  // Description:
+  // Create a vtkViewport with a black background, a white ambient light, 
+  // two-sided lighting turned on, a viewport of (0,0,1,1), and backface culling
+  // turned off.
   vtkViewport();
 
   ~vtkViewport();
@@ -113,70 +113,70 @@ public:
   vtkSetVector4Macro(WorldPoint,float);
   vtkGetVectorMacro(WorldPoint,float,4);
 
-
+  // Description:
+  // Return the center of this viewport in display coordinates.
   virtual float *GetCenter();
 
-// Description:
-// Is a given display point in this Viewport's viewport.
-  virtual int    IsInViewport(int x,int y); 
+  // Description:
+  // Is a given display point in this Viewport's viewport.
+  virtual int IsInViewport(int x,int y); 
 
-
+  // Description:
+  // Return the vtkWindow that owns this vtkViewport.
   virtual vtkWindow *GetVTKWindow() = 0;
-  
 
-// Description:
-// Specify a function to be called before rendering process begins.
-// Function will be called with argument provided.
+  // Description:
+  // Specify a function to be called before rendering process begins.
+  // Function will be called with argument provided.
   void SetStartRenderMethod(void (*f)(void *), void *arg);
 
-
-// Description:
-// Specify a function to be called when rendering process completes.
-// Function will be called with argument provided.
+  // Description:
+  // Specify a function to be called when rendering process completes.
+  // Function will be called with argument provided.
   void SetEndRenderMethod(void (*f)(void *), void *arg);
 
-
-// Description:
-// Set the arg delete method. This is used to free user memory.
+  // Description:
+  // Set the arg delete method. This is used to free user memory.
   void SetStartRenderMethodArgDelete(void (*f)(void *));
 
-
-// Description:
-// Set the arg delete method. This is used to free user memory.
+  // Description:
+  // Set the arg delete method. This is used to free user memory.
   void SetEndRenderMethodArgDelete(void (*f)(void *));
 
-
-
-// Description:
-// Convert display coordinates to view coordinates.
+  // Description:
+  // Convert display coordinates to view coordinates.
   virtual void DisplayToView(); // these get modified in subclasses
 
-
-// Description:
-// Convert view coordinates to display coordinates.
+  // Description:
+  // Convert view coordinates to display coordinates.
   virtual void ViewToDisplay(); // to handle stereo rendering
 
-
-// Description:
-// Convert world point coordinates to view coordinates.
+  // Description:
+  // Convert world point coordinates to view coordinates.
   virtual void WorldToView();
 
-
-// Description:
-// Convert view point coordinates to world coordinates.
+  // Description:
+  // Convert view point coordinates to world coordinates.
   virtual void ViewToWorld();
 
-  virtual void DisplayToWorld();
-  virtual void WorldToDisplay();
+  // Description:
+  // Convert display (or screen) coordinates to world coordinates.
+  void DisplayToWorld() {this->DisplayToView(); this->ViewToWorld();};
 
-  // new coordinate systems
+  // Description:
+  // Convert world point coordinates to display (or screen) coordinates.
+  void WorldToDisplay() {this->WorldToView(); this->ViewToDisplay();};
+
+  // Description:
+  // These methods map from one coordinate system to another.
+  // They are primarily used by the vtkCoordinate object and
+  // are often strung together.
   virtual void LocalDisplayToDisplay(float &x, float &y);
   virtual void DisplayToNormalizedDisplay(float &u, float &v);
   virtual void NormalizedDisplayToViewport(float &x, float &y);
   virtual void ViewportToNormalizedViewport(float &u, float &v);
   virtual void NormalizedViewportToView(float &x, float &y, float &z);
   virtual void ViewToWorld(float &, float &, float &) {};
-  
   virtual void DisplayToLocalDisplay(float &x, float &y);
   virtual void NormalizedDisplayToDisplay(float &u, float &v);
   virtual void ViewportToNormalizedDisplay(float &x, float &y);
@@ -184,7 +184,8 @@ public:
   virtual void ViewToNormalizedViewport(float &x, float &y, float &z);
   virtual void WorldToView(float &, float &, float &) {};
   
-  
+  // Description:
+  // Add/Remove an Actor2D to this viewport.
   void AddActor2D(vtkActor2D* actor);
   void RemoveActor2D(vtkActor2D* actor);
 
@@ -215,16 +216,6 @@ protected:
 
 };
 
-
-// Description:
-// Convert display (or screen) coordinates to world coordinates.
-inline void vtkViewport::DisplayToWorld() {this->DisplayToView();
-         this->ViewToWorld();}
-
-// Description:
-// Convert world point coordinates to display (or screen) coordinates.
-inline void vtkViewport::WorldToDisplay() {this->WorldToView();
-         this->ViewToDisplay();}
 
 
 #endif

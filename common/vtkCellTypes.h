@@ -40,17 +40,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkCellTypes - object provides direct access to cells in vtkCellArray and type information
 // .SECTION Description
-// This class is a supplemental object to vtkCellArray to allow random
-// access into cells as well as representing cell type information.  The
-// "location" field is the location in the vtkCellArray list in terms of an
-// integer offset.  An integer offset was used instead of a pointer for easy
-// storage and inter-process communication. The type information is defined
-// in the file vtkCellType.h.
-// .SECTION Caveats 
+// This class is a supplemental object to vtkCellArray to allow random access
+// into cells as well as representing cell type information.  The "location"
+// field is the location in the vtkCellArray list in terms of an integer
+// offset.  An integer offset was used instead of a pointer for easy storage
+// and inter-process communication. The type information is defined in the
+// file vtkCellType.h.
+//
+// .SECTION Caveats
 // Sometimes this class is used to pass type information independent of the
 // random access (i.e., location) information. For example, see
 // vtkDataSet::GetCellTypes(). If you use the class in this way, you can use
 // a location value of -1.
+//
 // .SECTION See Also 
 // vtkCellArray vtkCellLinks
 
@@ -72,45 +74,55 @@ public:
   vtkCellTypes(int sz, int ext);
   ~vtkCellTypes();
   static vtkCellTypes *New() {return new vtkCellTypes;};
-
-// Description:
-// Allocate memory for this array. Delete old storage only if necessary.
-  int Allocate(int sz=512, int ext=1000);
-
   const char *GetClassName() {return "vtkCellTypes";};
 
+  // Description:
+  // Allocate memory for this array. Delete old storage only if necessary.
+  int Allocate(int sz=512, int ext=1000);
 
-// Description:
-// Add a cell at specified id.
+  // Description:
+  // Add a cell at specified id.
   void InsertCell(int id, unsigned char type, int loc);
-
-
-// Description:
-// Add a cell to the object in the next available slot.
+  
+  // Description:
+  // Add a cell to the object in the next available slot.
   int InsertNextCell(unsigned char type, int loc);
 
-  void DeleteCell(int cellId);
+  // Description:
+  // Return the location of the cell in the associated vtkCellArray.
+  int GetCellLocation(int cellId) { return this->Array[cellId].loc;};
 
-  //special operations to pass type information
-  int GetNumberOfTypes();
+  // Description:
+  // Delete cell by setting to NULL cell type.
+  void DeleteCell(int cellId) { this->Array[cellId].type = VTK_NULL_ELEMENT;};
+
+  // Description:
+  // Return the number of types in the list.
+  int GetNumberOfTypes() { return (this->MaxId + 1);};
+
+  // Description:
+  // Return 1 if type specified is contained in list; 0 otherwise.
   int IsType(unsigned char type);
-  int InsertNextType(unsigned char type);
-  unsigned char GetCellType(int id);
 
-  //special operations used for managing data location offsets
-  int GetCellLocation(int id);
-  _vtkCell_s &GetCell(int id);
+  // Description:
+  // Add the type specified to the end of the list. Range checking is performed.
+  int InsertNextType(unsigned char type){return this->InsertNextCell(type,-1);};
+  
+  // Description:
+  // Return a reference to a cell list structure.
+  _vtkCell_s &GetCell(int id) { return this->Array[id];};
 
+  // Description:
+  // Return the type of cell.
+  unsigned char GetCellType(int cellId) { return this->Array[cellId].type;};
 
-// Description:
-// Reclaim any extra memory.
+  // Description:
+  // Reclaim any extra memory.
   void Squeeze();
 
-
-// Description:
-// Initialize object without releasing memory.
+  // Description:
+  // Initialize object without releasing memory.
   void Reset();
-
 
 private:
   _vtkCell_s *Array;   // pointer to data
@@ -120,43 +132,8 @@ private:
   _vtkCell_s *Resize(int sz);  // function to resize data
 };
 
-// Description:
-// Return a reference to a cell list structure.
-inline _vtkCell_s &vtkCellTypes::GetCell(int id) 
-{
-  return this->Array[id];
-}
 
-// Description:
-// Return the type of cell.
-inline unsigned char vtkCellTypes::GetCellType(int cellId) 
-{
-  return this->Array[cellId].type;
-}
 
-// Description:
-// Return the location of the cell in the associated vtkCellArray.
-inline int vtkCellTypes::GetCellLocation(int cellId) 
-{
-  return this->Array[cellId].loc;
-}
-
-// Description:
-// Delete cell by setting to NULL cell type.
-inline void vtkCellTypes::DeleteCell(int cellId)
-{
-  this->Array[cellId].type = VTK_NULL_ELEMENT;
-}
-
-// Description:
-// Return the number of types in the list.
-inline int vtkCellTypes::GetNumberOfTypes() 
-{
-  return (this->MaxId + 1);
-}
-
-// Description:
-// Return 1 if type specified is contained in list; 0 otherwise.
 inline int vtkCellTypes::IsType(unsigned char type)
 {
   int numTypes=this->GetNumberOfTypes();
@@ -171,11 +148,5 @@ inline int vtkCellTypes::IsType(unsigned char type)
   return 0;
 }
 
-// Description:
-// Add the type specified to the end of the list. Range checking is performed.
-inline int vtkCellTypes::InsertNextType(unsigned char type) 
-{
-  return this->InsertNextCell(type,-1);
-}
 
 #endif

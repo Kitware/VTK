@@ -68,50 +68,39 @@ public:
   static vtkStructuredData *New() {return new vtkStructuredData;};
   const char *GetClassName() {return "vtkStructuredData";};
 
-// Description:
-// Specify the dimensions of a regular, rectangular dataset. The input is
-// the new dimensions (inDim) and the current dimensions (dim). The function 
-// returns the dimension of the dataset (0-3D). If the dimensions are 
-// improperly specified a -1 is returned. If the dimensions are unchanged, a
-// value of 100 is returned.
+  // Description:
+  // Specify the dimensions of a regular, rectangular dataset. The input is
+  // the new dimensions (inDim) and the current dimensions (dim). The function 
+  // returns the dimension of the dataset (0-3D). If the dimensions are 
+  // improperly specified a -1 is returned. If the dimensions are unchanged, a
+  // value of 100 is returned.
   static int SetDimensions(int inDim[3], int dim[3]);
 
-
-// Description:
-// Return the topological dimension of the data (e.g., 0, 1, 2, or 3D).
+  // Description:
+  // Return the topological dimension of the data (e.g., 0, 1, 2, or 3D).
   static int GetDataDimension(int dataDescription);
 
-
-
-// Description:
-// Get the points defining a cell. (See vtkDataSet for more info.)
+  // Description:
+  // Get the points defining a cell. (See vtkDataSet for more info.)
   static void GetCellPoints(int cellId, vtkIdList& ptIds, 
                      int dataDescription, int dim[3]);
 
-
-// Description:
-// Get the cells using a point. (See vtkDataSet for more info.)
+  // Description:
+  // Get the cells using a point. (See vtkDataSet for more info.)
   static void GetPointCells(int ptId, vtkIdList& cellIds, int dim[3]);
 
+  // Description:
+  // Given a location in structured coordinates (i-j-k), and the dimensions
+  // of the structured dataset, return the point id.
+  static int ComputePointId(int dim[3], int ijk[3]) {
+    return ijk[2]*dim[0]*dim[1] + ijk[1]*dim[0] + ijk[0];}
 
-  static int ComputePointId(int dim[3], int ijk[3]);
-  static int ComputeCellId(int dim[3], int ijk[3]);
+  // Description:
+  // Given a location in structured coordinates (i-j-k), and the dimensions
+  // of the structured dataset, return the cell id.
+  static int ComputeCellId(int dim[3], int ijk[3]) {
+    return ijk[2]*(dim[0]-1)*(dim[1]-1) + ijk[1]*(dim[0]-1) + ijk[0];};
 };
 
-// Description:
-// Given a location in structured coordinates (i-j-k), and the dimensions
-// of the structured dataset, return the point id.
-inline int vtkStructuredData::ComputePointId(int dim[3], int ijk[3])
-{
-  return ijk[2]*dim[0]*dim[1] + ijk[1]*dim[0] + ijk[0];
-}
-
-// Description:
-// Given a location in structured coordinates (i-j-k), and the dimensions
-// of the structured dataset, return the cell id.
-inline int vtkStructuredData::ComputeCellId(int dim[3], int ijk[3])
-{
-  return ijk[2]*(dim[0]-1)*(dim[1]-1) + ijk[1]*(dim[0]-1) + ijk[0];
-}
 
 #endif

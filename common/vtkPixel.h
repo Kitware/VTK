@@ -54,15 +54,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPixel : public vtkCell
 {
 public:
-
-// Description:
-// Construct the pixel with four points.
   vtkPixel();
-
   static vtkPixel *New() {return new vtkPixel;};
   const char *GetClassName() {return "vtkPixel";};
 
-  // cell methods
+  // Description:
+  // See the vtkCell API for descriptions of these methods.
   vtkCell *MakeObject();
   int GetCellType() {return VTK_PIXEL;};
   int GetCellDimension() {return 2;};
@@ -70,7 +67,6 @@ public:
   int GetNumberOfFaces() {return 0;};
   vtkCell *GetEdge(int edgeId);
   vtkCell *GetFace(int) {return 0;};
-
   int CellBoundary(int subId, float pcoords[3], vtkIdList& pts);
   void Contour(float value, vtkScalars *cellScalars, 
                vtkPointLocator *locator, vtkCellArray *verts, 
@@ -92,7 +88,8 @@ public:
   void Derivatives(int subId, float pcoords[3], float *values, 
                    int dim, float *derivs);
 
-  // pixel specific
+  // Description:
+  // Pixel specific methods.
   static void InterpolationFunctions(float pcoords[3], float weights[4]);
   static void InterpolationDerivs(float pcoords[3], float derivs[8]);
 

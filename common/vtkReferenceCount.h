@@ -43,20 +43,20 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkReferenceCount is the base class for objects that are reference counted. 
 // Objects that are reference counted exist as long as another object
 // uses them. Once the last reference to a reference counted object is 
-// removed, the object will spontaneously destruct. Typically only data
-// objects that are passed between objects are reference counted.
+// removed, the object will spontaneously destruct. 
 
 // .SECTION Caveats
 // Note: in vtk objects are generally created with combinations of 
-// new/Delete() methods. This works great until you want to allocate
+// New/Delete() methods. This works great until you want to allocate
 // objects off the stack (i.e., automatic objects). Automatic objects,
 // when automatically deleted (by exiting scope), will cause warnings to
 // occur. You can avoid this by turing reference counting off (i.e., use
-// the method ReferenceCountingOff()).
+// the method ReferenceCountingOff()), but we strongly encourage you
+// to not do this. Instead allocate your objects with New().
 
 // .SECTION See Also
-// vtkDataArray vtkLookupTable vtkTCoords vtkCellTypes vtkCellLinks vtkNormals vtkPoints
-// vtkScalars vtkTensors vtkField vtkVectors
+// vtkDataArray vtkLookupTable vtkTCoords vtkCellTypes vtkCellLinks
+// vtkNormals vtkPoints vtkScalars vtkTensors vtkField vtkVectors
 
 #ifndef __vtkReferenceCount_h
 #define __vtkReferenceCount_h
@@ -66,65 +66,58 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkReferenceCount : public vtkObject
 {
 public:
-
-// Description:
-// Construct with initial reference count = 1 and reference counting on.
+  // Description:
+  // Construct with initial reference count = 1 and reference counting on.
   vtkReferenceCount();
 
-
-// Description:
-// Overload vtkObject's Delete() method. For reference counted objects the
-// Delete() method simply unregisters the use of the object. This may or
-// may not result in the destruction of the object, depending upon whether 
-// another object is referencing it.
+  // Description:
+  // Overload vtkObject's Delete() method. For reference counted objects the
+  // Delete() method simply unregisters the use of the object. This may or
+  // may not result in the destruction of the object, depending upon whether 
+  // another object is referencing it.
   void Delete();
 
-
-// Description:
-// Destructor for reference counted objects. Reference counted objects should 
-// almost always use the combination of new/Delete() to create and delete 
-// objects. Automatic reference counted objects (i.e., creating them on the 
-// stack) are not encouraged. However, if you desire to do this, you will 
-// have to use the ReferenceCountingOff() method to avoid warning messages 
-// when the objects are automatically deleted upon scope termination.
+  // Description:
+  // Destructor for reference counted objects. Reference counted objects should 
+  // almost always use the combination of new/Delete() to create and delete 
+  // objects. Automatic reference counted objects (i.e., creating them on the 
+  // stack) are not encouraged. However, if you desire to do this, you will 
+  // have to use the ReferenceCountingOff() method to avoid warning messages 
+  // when the objects are automatically deleted upon scope termination.
   ~vtkReferenceCount();
 
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkReferenceCount *New() {return new vtkReferenceCount;};
   const char *GetClassName() {return "vtkReferenceCount";};
 
-
-// Description:
-// Increase the reference count (mark as used by another object).
+  // Description:
+  // Increase the reference count (mark as used by another object).
   void Register(vtkObject* o);
 
-
-// Description:
-// Decrease the reference count (release by another object).
+  // Description:
+  // Decrease the reference count (release by another object).
   virtual void UnRegister(vtkObject* o);
 
+  // Description:
+  // Return the current reference count of this object.
   int  GetReferenceCount() {return this->ReferenceCount;};
-  void ReferenceCountingOff();
 
-// Description:
-// Sets the reference count (use with care)
+  // Description:
+  // Turn off reference counting for this object. This allows you to create
+  // automatic reference counted objects and avoid warning messages when scope
+  // is existed. (Note: It is preferable to use the combination New/Delete() 
+  // to create and delete vtk objects.)
+  void ReferenceCountingOff() { this->ReferenceCounting = 0;};
+
+  // Description:
+  // Sets the reference count (use with care)
   void SetReferenceCount(int);
-
   
 private:
   int ReferenceCount;      // Number of uses of this object by other objects
   int ReferenceCounting; // Turn on/off reference counting mechanism
 };
 
-// Description:
-// Turn off reference counting for this object. This allows you to create
-// automatic reference counted objects and avoid warning messages when scope
-// is existed. (Note: It is preferable to use the combination new/Delete() 
-// to create and delete vtk objects.)
-inline void vtkReferenceCount::ReferenceCountingOff()
-{
-  this->ReferenceCounting = 0;
-}
 
 #endif
 

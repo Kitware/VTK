@@ -40,14 +40,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkImageData - Similar to structured points.
 // .SECTION Description
-// vtkImageData is the basic image data structure specific to the  image
-// pipeline.  The axes cannot be reordered as in vtkImageRegion.  All
-// the ivars are accessed as if the Axes were set to (0,1,2,3,4).
-// The extent represents the actual dimensions of the underlying memory.
-// The actual memory is stored in objects (vtkPointData,vtkScalars,vtkArray)
-// used in the visualization pipline, so transfer of data is efficient.
-// Currently, the only contents of PointData used are the Scalars.
-// The underlying memory can be any data type.
+// vtkImageData is the basic image data structure specific to the image
+// pipeline. The extent represents the actual dimensions of the underlying
+// memory.  The actual memory is stored in objects
+// (vtkPointData,vtkScalars,vtkArray) used in the visualization pipline, so
+// transfer of data is efficient.  Currently, the only contents of PointData
+// used are the Scalars.  The underlying memory can be any data type.
+// This class basically adds some extra methods to vtkStructuredPoints
+// to fascilitate image processing. At some point in the future it will
+// probably be moved into vtkStructuredPoints.
 
 #ifndef __vtkImageData_h
 #define __vtkImageData_h
@@ -58,11 +59,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageData : public vtkStructuredPoints
 {
 public:
-
-// Description:
-// Construct an instance of vtkImageData with no data.
   vtkImageData();
-
   static vtkImageData *New() {return new vtkImageData;};
   const char *GetClassName() {return "vtkImageData";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -77,7 +74,7 @@ public:
   void GetExtent(int &x1, int &x2, int &y1, int &y2, int &z1, int &z2);
   
   // Description:
-  // Set the data scalar type of the regions created by this cache.
+  // Set/Get the data scalar type of the regions created by this cache.
   void SetScalarType(int);
   int GetScalarType();
 
@@ -123,12 +120,11 @@ public:
   void SetNumberOfScalarComponents(int num);
   vtkGetMacro(NumberOfScalarComponents,int);
   
-
-// Description:
-// This method is passed a input and output region, and executes the filter
-// algorithm to fill the output from the input.
-// It just executes a switch statement to call the correct function for
-// the regions data types.
+  // Description:
+  // This method is passed a input and output region, and executes the filter
+  // algorithm to fill the output from the input.
+  // It just executes a switch statement to call the correct function for
+  // the regions data types.
   void CopyAndCastFrom(vtkImageData *inData, int extent[6]);
 
   

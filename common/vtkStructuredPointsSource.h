@@ -51,14 +51,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkStructuredPointsSource_h
 
 #include "vtkSource.h"
-class vtkStructuredPoints;
-
+#include "vtkStructuredPoints.h"
 
 class VTK_EXPORT vtkStructuredPointsSource : public vtkSource
 {
 public:
   vtkStructuredPointsSource();
-  static vtkStructuredPointsSource *New() {return new vtkStructuredPointsSource;};
+  static vtkStructuredPointsSource *New() {
+    return new vtkStructuredPointsSource;};
   const char *GetClassName() {return "vtkStructuredPointsSource";};
 
   // Description:
@@ -67,9 +67,6 @@ public:
     {return (vtkStructuredPoints *)this->Output;};
 
 };
-
-
-#include "vtkStructuredPoints.h"
 
 #endif
 

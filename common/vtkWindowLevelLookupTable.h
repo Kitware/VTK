@@ -46,10 +46,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // window and level. Window / Level is used in medical imaging to specify
 // a lienar greyscale ramp. The Level is the center of the ramp.  The
 // Window is the width of the ramp.
+
 // .SECTION Caveats
-// vtkWindowLevelLookupTable is a reference counted object. Therefore, you should 
-// always use operator "new" to construct new objects. This procedure will
-// avoid memory problems (see text).
+// vtkWindowLevelLookupTable is a reference counted object. Therefore, you
+// should always use operator "new" to construct new objects. This procedure
+// will avoid memory problems (see text).
+
 // .SECTION See Also
 // vtkLogLookupTable
 
@@ -63,26 +65,25 @@ class VTK_EXPORT vtkWindowLevelLookupTable : public vtkLookupTable
 {
 public:
   vtkWindowLevelLookupTable(int sze=256, int ext=256);
-
-// Description:
-// Generate lookup table from window and level.
-// Table is built as a linear ramp, centered at Level and of width Window.
-  void Build();
-
-  static vtkWindowLevelLookupTable *New() {return new vtkWindowLevelLookupTable;};
+  static vtkWindowLevelLookupTable *New() {
+    return new vtkWindowLevelLookupTable;};
   const char *GetClassName() {return "vtkWindowLevelLookupTable";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set the Window for the lookuptable. Window is the width of the lookuptable
-  // ramp.
+  // Generate lookup table from window and level.
+  // Table is built as a linear ramp, centered at Level and of width Window.
+  void Build();
+
+  // Description:
+  // Set the Window for the lookuptable. Window is the width of the
+  // lookuptable ramp.
   vtkSetClampMacro(Window,float,1.0,65536.0);
   vtkGetMacro(Window,float);
 
   // Description:
-  // Set the Level for the lookuptable. Level is the center of the ramp of the
-  // lookuptable.
-  // ramp.
+  // Set the Level for the lookuptable. Level is the center of the ramp of
+  // the lookuptable.  ramp.
   vtkSetMacro(Level,float);
   vtkGetMacro(Level,float);
 

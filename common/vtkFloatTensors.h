@@ -55,35 +55,38 @@ public:
   vtkFloatTensors():vtkTensors(VTK_FLOAT) {};
   static vtkFloatTensors *New() {return new vtkFloatTensors;};
   
-  // overload vtkAttributeData API
+  // Description:
+  // Set the data type for this object.
   void SetDataType(int dataType);
+  
+  // Description:
+  // Set the data for this object. Only accepts VTK_FLOAT type.
   void SetData(vtkDataArray *);
 
+  // Description:
+  // Get pointer to array of data starting at data position "id".
   float *GetPointer(const int id);
+
+  // Description:
+  // Get pointer to data array. Useful for direct writes of data. MaxId is
+  // bumped by number (and memory allocated if necessary). Id is the
+  // location you wish to write into; number is the number of tensors to
+  // write.
   float *WritePointer(const int id, const int number);
 
 };
 
-// Description:
-// Get pointer to array of data starting at data position "id".
+
 inline float *vtkFloatTensors::GetPointer(const int id)
 {
   return ((vtkFloatArray *)this->Data)->GetPointer(9*id);
 } 
 
-// Description:
-// Get pointer to data array. Useful for direct writes of data. MaxId is
-// bumped by number (and memory allocated if necessary). Id is the
-// location you wish to write into; number is the number of tensors to
-// write.
 inline float *vtkFloatTensors::WritePointer(const int id, const int number)
 {
   return ((vtkFloatArray *)this->Data)->WritePointer(9*id,9*number);
 }
 
-
-// Description:
-// Set the data for this object. Only accepts VTK_FLOAT type.
 inline void vtkFloatTensors::SetData(vtkDataArray *data)
 {
   if ( data->GetDataType() != VTK_FLOAT )
@@ -91,12 +94,9 @@ inline void vtkFloatTensors::SetData(vtkDataArray *data)
     vtkErrorMacro(<<"Float tensors only accepts float data type");
     return;
     }
-
   vtkTensors::SetData(data);
 }
 
-// Description:
-// Set the data type for this object.
 inline void vtkFloatTensors::SetDataType(int type)
 {
   if ( type != VTK_FLOAT )

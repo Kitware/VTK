@@ -40,17 +40,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkImageCache - Caches are used by vtkImageSource.
 // .SECTION Description
-// vtkImageCache is the super class of all image caches.  
-// If the cached source descides to generate in pieces, the caches 
-// collects all of the pieces into a single vtkImageRegion object.
-// The cache can also save vtkImageData objects between UpdateRegion
-// messages, to avoid regeneration of data.  Since regions
-// can be any size or location, caching strategies can be
-// numerous and complex.  Applications can create caches that fit
-// their special needs.
-// The caches access methods do not make any internal checks to make
-// sure the data is up to date.  Update has to be called explicitly.
-// to ensure the information retrieved is valid.
+// vtkImageCache is the super class of all image caches. Caches sit between
+// image filters and handle caching and storing the results.
 
 
 #ifndef __vtkImageCache_h
@@ -63,15 +54,7 @@ class vtkImageToStructuredPoints;
 class VTK_EXPORT vtkImageCache : public vtkReferenceCount
 {
 public:
-
-// Description:
-// Constructor:  By default caches ReleaseDataFlags are turned off. However,
-// the vtkImageSource method CheckCache, which create a default cache, 
-// turns this flag on.  If a cache is created and set explicitely, by 
-// default it saves its data between generates.  But if the cache is created
-// automatically by the vtkImageSource, it does not.
   vtkImageCache();
-
   ~vtkImageCache();
   const char *GetClassName() {return "vtkImageCache";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -90,25 +73,37 @@ public:
 		       int yMin, int yMax, int zMin, int zMax);
   void SetAxisUpdateExtent(int axis, int min, int max);
   void SetUpdateExtentToWholeExtent();
-  
+
+  // Description:
+  // Get the current update extent.
   void GetUpdateExtent(int extent[6]);
   int *GetUpdateExtent() {return this->UpdateExtent;}
   void GetUpdateExtent(int &xMin, int &xMax,
 		       int &yMin, int &yMax, int &zMin, int &zMax);
   void GetAxisUpdateExtent(int axis, int &min, int &max);
-
-// Description:
-// Clip updateExtent so it will nopt be larger than WHoleExtent
+  
+  // Description:
+  // Clip updateExtent so it will nopt be larger than WHoleExtent
   void ClipUpdateExtentWithWholeExtent();
 
-  
+  // Description:
+  // Update this cache so that it holds valid data for the
+  // current update extent.
   virtual void Update() = 0;
+  
+  // Description:
+  // This is the most common way to obtain data from a cache.
+  // After setting the update extent invoke this method and it
+  // will return an ImageData instance containing the requested data.
   virtual vtkImageData *UpdateAndReturnData() = 0;
+
+  // Description:
+  // Release the data held by this cache.
   virtual void ReleaseData() {};
 
+  // Description:
   // supplied by subclass: just return the data object associated with
-  // the UpdateExtent. (Law)
-  // I need this for vtkImageIterateFilter Ken.
+  // the UpdateExtent. 
   virtual vtkImageData *GetData() = 0;  
   
   // Description:
@@ -116,21 +111,18 @@ public:
   // by a filter.
   int ShouldIReleaseData();
 
-
-// Description:
-// This method updates the instance variables "WholeExtent", "Spacing", 
-// "Origin", "Bounds" etc.
-// It needs to be separate from "Update" because the image information
-// may be needed to compute the required UpdateExtent of the input
-// (see "vtkImageFilter").
+  // Description:
+  // This method updates the instance variables "WholeExtent", "Spacing", 
+  // "Origin", "Bounds" etc.
+  // It needs to be separate from "Update" because the image information
+  // may be needed to compute the required UpdateExtent of the input
+  // (see "vtkImageFilter").
   virtual void UpdateImageInformation();
 
-
-// Description:
-// Make this a separate method to avoid another GetPipelineMTime call.
+  // Description:
+  // Make this a separate method to avoid another GetPipelineMTime call.
   virtual unsigned long GetPipelineMTime();
 
-  
   // Description:
   // These methods give access to the cached image information.
   // "UpdateImageInformation", or "Update" should be called before 
@@ -156,10 +148,8 @@ public:
   // image information, not the data in the cache.
   void GetDimensions(int dimensions[3]);
   void GetDimensions(int &x, int &y, int &z);
-  
   void GetCenter(float center[3]);
   void GetCenter(float &x, float &y, float &z);
-
   void GetBounds(float bounds[6]);
   void GetBounds(float &xMin, float &xMax, float &yMin, float &yMax,
 		 float &zMin, float &zMax);
@@ -170,20 +160,16 @@ public:
   vtkSetObjectMacro(Source,vtkImageSource);
   vtkGetObjectMacro(Source,vtkImageSource);
 
-
-// Description:
-// This method returns the memory that would be required for scalars on update.
-// The returned value is in units KBytes.
-// This method is used for determining when to stream.
+  // Description:
+  // This method returns the memory that would be required for scalars on
+  // update.  The returned value is in units KBytes.  This method is used for
+  // determining when to stream.
   long GetUpdateExtentMemorySize();
 
-
-
-// Description:  
-// This method is used translparently by the "SetInput(vtkImageCache *)"
-// method to connect the image pipeline to the visualization pipeline.
+  // Description:  
+  // This method is used translparently by the "SetInput(vtkImageCache *)"
+  // method to connect the image pipeline to the visualization pipeline.
   vtkImageToStructuredPoints *GetImageToStructuredPoints();
-
   
   // Description:
   // Set the data scalar type of the regions created by this cache.

@@ -42,13 +42,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkDataObject is an general representation of visualization data. It serves
 // to encapsulate instance variables and methods for visualization network 
-// execution, as well as representing data consisting of a field,
+// execution, as well as representing data consisting of a field.
 //
 // vtkDataObjects are used to represent arbitrary repositories of data via the
 // vtkFieldData instance variable. These data must be eventually mapped into a
 // concrete subclass of vtkDataSet before they can actually be displayed.
+//
 // .SECTION See Also
-// vtkDataSet vtkFieldData vtkFieldDataSource vtkFieldDataFilter vtkFieldDataMapper
+// vtkDataSet vtkFieldData vtkFieldDataSource vtkFieldDataFilter
+// vtkFieldDataMapper
 
 #ifndef __vtkDataObject_h
 #define __vtkDataObject_h
@@ -81,6 +83,7 @@ public:
   // before access. Also causes owning source/filter (if any) to update itself.
   virtual void Update();
 
+  // Rescription:
   // Restore data object to initial state,
   virtual void Initialize();
 

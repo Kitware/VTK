@@ -69,10 +69,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPointLocator : public vtkLocator
 {
 public:
-
-// Description:
-// Construct with automatic computation of divisions, averaging
-// 25 points per bucket.
+  // Description:
+  // Construct with automatic computation of divisions, averaging
+  // 25 points per bucket.
   vtkPointLocator();
 
   ~vtkPointLocator();
@@ -90,65 +89,55 @@ public:
   vtkSetClampMacro(NumberOfPointsPerBucket,int,1,VTK_LARGE_INTEGER);
   vtkGetMacro(NumberOfPointsPerBucket,int);
 
-  // these operate with specified dataset
-
-// Description:
-// Given a position x, return the id of the point closest to it.
+  // Description:
+  // Given a position x, return the id of the point closest to it.
   virtual int FindClosestPoint(float x[3]);
 
-
-  // these all operate on array of points from InitPointInsertion()
-
-// Description:
-// Initialize the point insertion process. The newPts is an object representing
-// point coordinates into which incremental insertion methods place their 
-// data. Bounds are the box that the points lie in.
+  // Description:
+  // Initialize the point insertion process. The newPts is an object
+  // representing point coordinates into which incremental insertion methods
+  // place their data. Bounds are the box that the points lie in.
   virtual int InitPointInsertion(vtkPoints *newPts, float bounds[6]);
 
-
-// Description:
-// Initialize the point insertion process. The newPts is an object representing
-// point coordinates into which incremental insertion methods place their 
-// data. Bounds are the box that the points lie in.
+  // Description:
+  // Initialize the point insertion process. The newPts is an object
+  // representing point coordinates into which incremental insertion methods
+  // place their data. Bounds are the box that the points lie in.
   virtual int InitPointInsertion(vtkPoints *newPts, float bounds[6], 
 				 int estSize);
 
-
-// Description:
-// Incrementally insert a point into search structure with a particular
-// index value. You should use the method IsInsertedPoint() to see whether 
-// this point has already been inserted (that is, if you desire to prevent
-// dulicate points). Before using this method you must make sure that 
-// newPts have been supplied, the bounds has been set properly, and that 
-// divs are properly set. (See InitPointInsertion().)
+  // Description:
+  // Incrementally insert a point into search structure with a particular
+  // index value. You should use the method IsInsertedPoint() to see whether 
+  // this point has already been inserted (that is, if you desire to prevent
+  // dulicate points). Before using this method you must make sure that 
+  // newPts have been supplied, the bounds has been set properly, and that 
+  // divs are properly set. (See InitPointInsertion().)
   virtual void InsertPoint(int ptId, float x[3]);
 
-
-// Description:
-// Incrementally insert a point into search structure. The method returns
-// the insertion location (i.e., point id). You should use the method 
-// IsInsertedPoint() to see whether this point has already been
-// inserted (that is, if you desire to prevent dulicate points).
-// Before using this method you must make sure that newPts have been
-// supplied, the bounds has been set properly, and that divs are 
-// properly set. (See InitPointInsertion().)
+  // Description:
+  // Incrementally insert a point into search structure. The method returns
+  // the insertion location (i.e., point id). You should use the method 
+  // IsInsertedPoint() to see whether this point has already been
+  // inserted (that is, if you desire to prevent dulicate points).
+  // Before using this method you must make sure that newPts have been
+  // supplied, the bounds has been set properly, and that divs are 
+  // properly set. (See InitPointInsertion().)
   virtual int InsertNextPoint(float x[3]);
 
-
-// Description:
-// Determine whether point given by x[3] has been inserted into points list.
-// Return id of previously inserted point if this is true, otherwise return
-// -1.
+  // Description:
+  // Determine whether point given by x[3] has been inserted into points list.
+  // Return id of previously inserted point if this is true, otherwise return
+  // -1.
   virtual int IsInsertedPoint(float x[3]);
 
-
-// Description:
-// Given a position x, return the id of the point closest to it. This method
-// is used when performing incremental point insertion.
+  // Description:
+  // Given a position x, return the id of the point closest to it. This method
+  // is used when performing incremental point insertion.
   virtual int FindClosestInsertedPoint(float x[3]);
-
   
-  // satisfy vtkLocator abstract interface
+  // Description:
+  // See vtkLocator interface documentation.
   void Initialize();
   void FreeSearchStructure();
   void BuildLocator();

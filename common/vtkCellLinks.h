@@ -68,37 +68,71 @@ public:
   static vtkCellLinks *New() {return new vtkCellLinks;};
   const char *GetClassName() {return "vtkCellLinks";};
 
-  _vtkLink_s &GetLink(int ptId);
-  unsigned short GetNcells(int ptId);
+  // Description:
+  // Get a link structure given a point id.
+  _vtkLink_s &GetLink(int ptId) {return this->Array[ptId];};
 
-// Description:
-// Build the link list array.
+  // Description:
+  // Get the number of cells using the point specified by ptId.
+  unsigned short GetNcells(int ptId) { return this->Array[ptId].ncells;};
+
+  // Description:
+  // Build the link list array.
   void BuildLinks(vtkDataSet *data);
 
-  int *GetCells(int ptId);
+  // Description:
+  // Return a list of cell ids using the point.
+  int *GetCells(int ptId) {return this->Array[ptId].cells;};
 
-// Description:
-// Insert a new point into the cell-links data structure. The size parameter
-// is the initial size of the list.
+  // Description:
+  // Insert a new point into the cell-links data structure. The size parameter
+  // is the initial size of the list.
   int InsertNextPoint(int numLinks);
 
+  // Description:
+  // Insert a cell id into the list of cells (at the end) using the cell id 
+  // provided. (Make sure to extend the link list (if necessary) using the
+  // method ResizeCellList().)
   void InsertNextCellReference(int ptId, int cellId);
 
+  // Description:
+  // Delete point (and storage) by destroying links to using cells.
   void DeletePoint(int ptId);
+
+  // Description:
+  // Delete the reference to the cell (cellId) from the point (ptId). This
+  // removes the reference to the cellId from the cell list, but does not
+  // resize the list (recover memory with ResizeCellList(), if necessary).
   void RemoveCellReference(int cellId, int ptId);
+
+  // Description:
+  // Add the reference to the cell (cellId) from the point (ptId). This
+  // adds a reference to the cellId from the cell list, but does not resize
+  // the list (extend memory with ResizeCellList(), if necessary).
   void AddCellReference(int cellId, int ptId);
+
+  // Description:
+  // Change the length of a point's link list (i.e., list of cells using a
+  // point) by the size specified.
   void ResizeCellList(int ptId, int size);
 
-
-// Description:
-// Reclaim any unused memory.
+  // Description:
+  // Reclaim any unused memory.
   void Squeeze();
 
+  // Description:
+  // Reset to a state of no entries without freeing the memory.
   void Reset();
 
 private:
-  void IncrementLinkCount(int ptId);
+  // Description:
+  // Increment the count of the number of cells using the point.
+  void IncrementLinkCount(int ptId) { this->Array[ptId].ncells++;};
+
   void AllocateLinks(int n);
+
+  // Description:
+  // Insert a cell id into the list of cells using the point.
   void InsertCellReference(int ptId, unsigned short pos, int cellId);
 
   _vtkLink_s *Array;   // pointer to data
@@ -108,37 +142,12 @@ private:
   _vtkLink_s *Resize(int sz);  // function to resize data
 };
 
-// Description:
-// Get a link structure given a point id.
-inline _vtkLink_s &vtkCellLinks::GetLink(int ptId) {return this->Array[ptId];}
 
-// Description:
-// Get the number of cells using the point specified by ptId.
-inline unsigned short vtkCellLinks::GetNcells(int ptId) 
-{
-  return this->Array[ptId].ncells;
-}
-
-// Description:
-// Return a list of cell ids using the point.
-inline int *vtkCellLinks::GetCells(int ptId) {return this->Array[ptId].cells;}
-
-// Description:
-// Increment the count of the number of cells using the point.
-inline void vtkCellLinks::IncrementLinkCount(int ptId) 
-{
-  this->Array[ptId].ncells++;
-}
-
-// Description:
-// Insert a cell id into the list of cells using the point.
 inline void vtkCellLinks::InsertCellReference(int ptId, unsigned short pos, int cellId) 
 {
   this->Array[ptId].cells[pos] = cellId;
 }
 
-// Description:
-// Delete point (and storage) by destroying links to using cells.
 inline void vtkCellLinks::DeletePoint(int ptId)
 {
   this->Array[ptId].ncells = 0;
@@ -146,19 +155,11 @@ inline void vtkCellLinks::DeletePoint(int ptId)
   this->Array[ptId].cells = NULL;
 }
 
-// Description:
-// Insert a cell id into the list of cells (at the end) using the cell id 
-// provided. (Make sure to extend the link list (if necessary) using the
-// method ResizeCellList().)
 inline void vtkCellLinks::InsertNextCellReference(int ptId, int cellId) 
 {
   this->Array[ptId].cells[this->Array[ptId].ncells++] = cellId;
 }
 
-// Description:
-// Delete the reference to the cell (cellId) from the point (ptId). This
-// removes the reference to the cellId from the cell list, but does not resize
-// the list (recover memory with ResizeCellList(), if necessary).
 inline void vtkCellLinks::RemoveCellReference(int cellId, int ptId)
 {
   int *cells=this->Array[ptId].cells;
@@ -178,18 +179,11 @@ inline void vtkCellLinks::RemoveCellReference(int cellId, int ptId)
     }
 }
 
-// Description:
-// Add the reference to the cell (cellId) from the point (ptId). This
-// adds a reference to the cellId from the cell list, but does not resize
-// the list (extend memory with ResizeCellList(), if necessary).
 inline void vtkCellLinks::AddCellReference(int cellId, int ptId)
 {
   this->Array[ptId].cells[this->Array[ptId].ncells++] = cellId;
 }
 
-// Description:
-// Change the length of a point's link list (i.e., list of cells using a point)
-// by the size specified. 
 inline void vtkCellLinks::ResizeCellList(int ptId, int size)
 {
   int *cells, newSize;

@@ -41,10 +41,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkWindow - window superclass for ImageWindow and RenderWindow
 // .SECTION Description
 // vtkWindow is an abstract object to specify the behavior of a
-// rendering or imaging window. 
+// rendering or imaging window. It contains vtkViewports.
 
 // .SECTION see also
-// vtkImageWindow vtkRenderWindow
+// vtkImageWindow vtkRenderWindow vtkViewport
 
 #ifndef __vtkWindow_h
 #define __vtkWindow_h
@@ -55,21 +55,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkWindow : public vtkObject
 {
 public:
-
-// Description:
-// Construct an instance of  vtkRenderWindow with its screen size 
-// set to 300x300, borders turned on, positioned at (0,0), double 
-// buffering turned on.
   vtkWindow();
-
-
-// Description:
-// Destructor for the vtkWindow object.
   ~vtkWindow();
-
   const char *GetClassName() {return "vtkWindow";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // These are window system independent methods that are used
+  // to help interface vtkWindow to native windowing systems.
   virtual void SetDisplayId(void *) = 0;
   virtual void SetWindowId(void *)  = 0;
   virtual void SetParentId(void *)  = 0;
@@ -78,8 +71,6 @@ public:
   virtual void *GetGenericParentId()  = 0;
   virtual void *GetGenericContext()   = 0;
   virtual void *GetGenericDrawable()  = 0;  
-
-  // useful for scripting languages
   virtual void SetWindowInfo(char *) = 0;
 
   // Description:
@@ -129,8 +120,8 @@ public:
   // of the screen is in the lower left corner. The y axis increases as
   // you go up the screen. So the storage of pixels is from left to right
   // and from bottom to top.
-  virtual unsigned char *GetPixelData(int, int, int, int, int) 
-  {return (unsigned char *)NULL;};
+  virtual unsigned char *GetPixelData(int, int, int, int, int) {
+    return (unsigned char *)NULL;};
 
 protected:
   char *WindowName;

@@ -59,42 +59,67 @@ public:
   const char *GetClassName() {return "vtkPoints";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // overload vtkAttributeData API
-  vtkAttributeData *MakeObject();
+  // Description:
+  // Create a coy of this object.
+  vtkAttributeData *MakeObject() {return new vtkPoints(this->GetDataType());};
 
-  // generic access to point data
-  int GetNumberOfPoints();
-  float *GetPoint(int id);
-  void GetPoint(int id, float x[3]);
+  // Description:
+  // Return number of points in array.
+  int GetNumberOfPoints() { return this->Data->GetNumberOfTuples();};
+
+  // Description:
+  // Return a pointer to a float point x[3] for a specific id.
+  float *GetPoint(int id) { return this->Data->GetTuple(id);};
+
+  // Description:
+  // Coy point components into user provided array v[3] for specified
+  // id.
+  void GetPoint(int id, float x[3]) { this->Data->GetTuple(id,x);};
+
+  // Description:
+  // Insert point into object. No range checking performed (fast!).
+  // Make sure you use SetNumberOfPoints() to allocate memory prior
+  // to using SetPoint().
+  void SetPoint(int id, float x[3]) { this->Data->SetTuple(id,x);};
+
+  // Description:
+  // Insert point into object. Range checking performed and memory
+  // allocated as necessary.
+  void InsertPoint(int id, float x[3]) { this->Data->InsertTuple(id,x);};
+  
+  // Description:
+  // Insert point into next available slot. Returns id of slot.
+  int InsertNextPoint(float x[3]) { return this->Data->InsertNextTuple(x);};
+
+  // Description:
+  // Specify the number of points for this object to hold. Does an
+  // allocation as well as setting the MaxId ivar. Used in conjunction with
+  // SetPoint() method for fast insertion.
   void SetNumberOfPoints(int number);
-  void SetPoint(int id, float x[3]);
-  void InsertPoint(int id, float x[3]);
+
+  // Description:
+  // Insert point into position indicated.
   void InsertPoint(int id, float x, float y, float z);
-  int InsertNextPoint(float x[3]);
+
+  // Description:
+  // Insert point at end of array and return its location (id) in the array.
   int InsertNextPoint(float x, float y, float z);
 
-
-// Description:
-// Given a list of pt ids, return an array of points.
+  // Description:
+  // Given a list of pt ids, return an array of points.
   void GetPoints(vtkIdList& ptId, vtkPoints& fp);
 
-
-  // Compute point attributes
-
-// Description:
-// Determine (xmin,xmax, ymin,ymax, zmin,zmax) bounds of points.
+  // Description:
+  // Determine (xmin,xmax, ymin,ymax, zmin,zmax) bounds of points.
   virtual void ComputeBounds();
 
-
-// Description:
-// Return the bounds of the points.
+  // Description:
+  // Return the bounds of the points.
   float *GetBounds();
 
-
-// Description:
-// Return the bounds of the points.
+  // Description:
+  // Return the bounds of the points.
   void GetBounds(float bounds[6]);
-
 
 protected:
   float Bounds[6];
@@ -102,64 +127,13 @@ protected:
 
 };
 
-// Description:
-// Create a coy of this object.
-inline vtkAttributeData *vtkPoints::MakeObject()
-{
-  return new vtkPoints(this->GetDataType());
-}
-
-// Description:
-// Return number of points in array.
-inline int vtkPoints::GetNumberOfPoints()
-{
-  return this->Data->GetNumberOfTuples();
-}
-
-// Description:
-// Return a pointer to a float point x[3] for a specific id.
-inline float *vtkPoints::GetPoint(int id)
-{
-  return this->Data->GetTuple(id);
-}
-
-// Description:
-// Coy point components into user provided array v[3] for specified
-// id.
-inline void vtkPoints::GetPoint(int id, float x[3])
-{
-  this->Data->GetTuple(id,x);
-}
-
-// Description:
-// Specify the number of points for this object to hold. Does an
-// allocation as well as setting the MaxId ivar. Used in conjunction with
-// SetPoint() method for fast insertion.
 inline void vtkPoints::SetNumberOfPoints(int number)
 {
   this->Data->SetNumberOfComponents(3);
   this->Data->SetNumberOfTuples(number);
 }
 
-// Description:
-// Insert point into object. No range checking performed (fast!).
-// Make sure you use SetNumberOfPoints() to allocate memory prior
-// to using SetPoint().
-inline void vtkPoints::SetPoint(int id, float x[3])
-{
-  this->Data->SetTuple(id,x);
-}
 
-// Description:
-// Insert point into object. Range checking performed and memory
-// allocated as necessary.
-inline void vtkPoints::InsertPoint(int id, float x[3])
-{
-  this->Data->InsertTuple(id,x);
-}
-
-// Description:
-// Insert point into position indicated.
 inline void vtkPoints::InsertPoint(int id, float x, float y, float z)
 {
   float p[3];
@@ -170,8 +144,6 @@ inline void vtkPoints::InsertPoint(int id, float x, float y, float z)
   this->Data->InsertTuple(id,p);
 }
 
-// Description:
-// Insert point at end of array and return its location (id) in the array.
 inline int vtkPoints::InsertNextPoint(float x, float y, float z)
 {
   float p[3];
@@ -182,12 +154,6 @@ inline int vtkPoints::InsertNextPoint(float x, float y, float z)
   return this->Data->InsertNextTuple(p);
 }
 
-// Description:
-// Insert point into next available slot. Returns id of slot.
-inline int vtkPoints::InsertNextPoint(float x[3])
-{
-  return this->Data->InsertNextTuple(x);
-}
 
 // These include files are placed here so that if Points.h is included 
 // all other classes necessary for compilation are also included. 

@@ -40,11 +40,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkImageSimpleCache - Caches the last region generated.
 // .SECTION Description
-// vtkImageSimpleCache saves previously the last generated tile.
+// vtkImageSimpleCache saves previously the last generated region.
 // If a subsequent region is contained in the cached data, the
-// cached data is returned with no call to the filters Generate method.
+// cached data is returned with no call to the filters Update method.
 // If the new region is not completely contained in the cached data,
-// the cache is not used.
+// the cached data is not used.
 
 
 #ifndef __vtkImageSimpleCache_h
@@ -61,25 +61,27 @@ public:
   const char *GetClassName() {return "vtkImageSimpleCache";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-
-// Description:
-// This method updates the region specified by "UpdateExtent".  
+  // Description:
+  // This method updates the region specified by "UpdateExtent".  
   void Update();
 
+  // Description:
+  // This is the most common way to obtain data from a cache.
+  // After setting the update extent invoke this method and it
+  // will return an ImageData instance containing the requested data.
   vtkImageData *UpdateAndReturnData();
 
-// Description:
-// This Method deletes any data in cache.
+  // Description:
+  // This Method deletes any data in cache.
   void ReleaseData();
 
+  // Description:
+  // Allocates the scalar data required for the current update extent.
   void AllocateData();
 
-  // Law: for vtkImageIterateFilter
-
-// Description:
-// return the un filled data of the UpdateExtent in this cache.
+  // Description:
+  // return the un filled data of the UpdateExtent in this cache.
   vtkImageData *GetData(); 
-
 
   // Description:
   // Convenience method to get the range of the scalar data in the

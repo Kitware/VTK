@@ -41,7 +41,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkWindowToImageFilter provides methods needed to read the data in a 
 // vtkWindow and use it as input to the imaging pipeline. This is
-// useful for saving an image to a file for example.
+// useful for saving an image to a file for example. Use this filter to
+// convert RenderWindows or ImageWindows to an image format.
 
 
 #ifndef __vtkWindowToImageFilter_h
@@ -69,11 +70,9 @@ public:
   // Returns which renderer is being used as the source for the pixel data.
   vtkGetObjectMacro(Input,vtkWindow);
 
-
-// Description:
-// This method returns the largest region that can be generated.
+  // Description:
+  // This method returns the largest region that can be generated.
   void UpdateImageInformation();
-
   
 protected:
   vtkWindow *Input;

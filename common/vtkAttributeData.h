@@ -57,10 +57,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkAttributeData : public vtkReferenceCount 
 {
 public:
-
-// Description:
-// Construct object with an initial data array of type dataType (by default
-// dataType is VTK_FLOAT.
+  // Description:
+  // Construct object with an initial data array of type dataType (by default
+  // dataType is VTK_FLOAT.
   vtkAttributeData(int dataType=VTK_FLOAT);
 
   ~vtkAttributeData();
