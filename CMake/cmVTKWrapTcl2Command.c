@@ -257,14 +257,25 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
     {
     /* what is the current source dir */
     const char *cdir = info->CAPI->GetCurrentDirectory(mf);
+    int sourceListSize = 0;
     char *sourceListValue = 0;
     void *cfile = 0;
     char *newName;
 
     /* was the list already populated */
     const char *def = info->CAPI->GetDefinition(mf, sources[0]);
-    sourceListValue = 
-      (char *)malloc(info->CAPI->GetTotalArgumentSize(newArgc,newArgv)+numSources*12);  
+
+    /* Calculate size of source list.  */
+    /* Start with list of source files.  */
+    sourceListSize = info->CAPI->GetTotalArgumentSize(newArgc,newArgv);
+    /* Add enough to extend the name of each class. */
+    sourceListSize += numSources*strlen("Tcl.cxx");
+    /* Add enough to include the def and init file.  */
+    sourceListSize += def?strlen(def):0;
+    sourceListSize += strlen(";Init.cxx");
+
+    /* Allocate and initialize the source list.  */
+    sourceListValue = (char *)malloc(sourceListSize);
     if (def)
       {
       sprintf(sourceListValue,"%s;%sInit.cxx",def,argv[0]);
@@ -459,7 +470,3 @@ void CM_PLUGIN_EXPORT VTK_WRAP_TCL2Init(cmLoadedCommandInfo *info)
   info->GetFullDocumentation = GetFullDocumentation;  
   info->Name = "VTK_WRAP_TCL2";
 }
-
-
-
-

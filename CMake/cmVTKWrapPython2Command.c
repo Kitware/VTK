@@ -113,6 +113,7 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
     (cmVTKWrapPythonData *)malloc(sizeof(cmVTKWrapPythonData));
   const char *cdir = info->CAPI->GetCurrentDirectory(mf);
   const char *def = 0;
+  int sourceListSize = 0;
   char *sourceListValue = 0;
   char *newName;
   void *cfile = 0;
@@ -142,9 +143,18 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
 
   /* was the list already populated */
   def = info->CAPI->GetDefinition(mf, newArgv[1]);
-  sourceListValue = 
-    (char *)malloc(info->CAPI->GetTotalArgumentSize(newArgc,newArgv)+
-                   newArgc*14 + (def ? strlen(def) : 0) + 10);
+
+  /* Calculate size of source list.  */
+  /* Start with list of source files.  */
+  sourceListSize = info->CAPI->GetTotalArgumentSize(newArgc,newArgv);
+  /* Add enough to extend the name of each class. */
+  sourceListSize += newArgc*strlen("Python.cxx");
+  /* Add enough to include the def and init file.  */
+  sourceListSize += def?strlen(def):0;
+  sourceListSize += strlen(";Init.cxx");
+
+  /* Allocate and initialize the source list.  */
+  sourceListValue = (char *)malloc(sourceListSize);
   if (def)
     {
     sprintf(sourceListValue,"%s;%sInit.cxx",def,newArgv[0]);
@@ -332,7 +342,3 @@ void CM_PLUGIN_EXPORT VTK_WRAP_PYTHON2Init(cmLoadedCommandInfo *info)
   info->GetFullDocumentation = GetFullDocumentation;  
   info->Name = "VTK_WRAP_PYTHON2";
 }
-
-
-
-

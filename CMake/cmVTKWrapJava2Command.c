@@ -24,6 +24,7 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
     (cmVTKWrapJavaData *)malloc(sizeof(cmVTKWrapJavaData));
   const char *cdir = info->CAPI->GetCurrentDirectory(mf);
   const char *def = 0;
+  int sourceListSize = 0;
   char *sourceListValue = 0;
   char *newName;
   void *cfile = 0;
@@ -56,9 +57,17 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
 
   /* was the list already populated */
   def = info->CAPI->GetDefinition(mf, newArgv[1]);
-  sourceListValue = 
-    (char *)malloc(info->CAPI->GetTotalArgumentSize(newArgc,newArgv)+
-                   newArgc*12 + (def ? strlen(def) : 1));
+
+  /* Calculate size of source list.  */
+  /* Start with list of source files.  */
+  sourceListSize = info->CAPI->GetTotalArgumentSize(newArgc,newArgv);
+  /* Add enough to extend the name of each class. */
+  sourceListSize += newArgc*strlen("Java.cxx");
+  /* Add enough to include the def.  */
+  sourceListSize += def?strlen(def):0;
+
+  /* Allocate and initialize the source list.  */
+  sourceListValue = (char *)malloc(sourceListSize);
   sourceListValue[0] = 0;
   if (def)
     {
@@ -255,7 +264,3 @@ void CM_PLUGIN_EXPORT VTK_WRAP_JAVA2Init(cmLoadedCommandInfo *info)
   info->m_Inherited = 0;
   info->Name = "VTK_WRAP_JAVA2";
 }
-
-
-
-
