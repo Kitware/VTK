@@ -81,8 +81,8 @@ void vtkExtractPolyDataGeometry::Execute()
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
-  int ptId, numPts, numCells, i, cellId, newCellId;
-  int npts, *pts, allInside;
+  int ptId, numPts, numCells, i, cellId;
+  int npts, allInside;
   int newId, *pointMap, updateInterval;
   float multiplier, x[3];
   vtkPoints *newPts;
@@ -194,6 +194,7 @@ void vtkExtractPolyDataGeometry::Execute()
 
   // Update ourselves and release memory
   //
+  ptIds->Delete();
   delete [] pointMap;
   cell->Delete();
   output->SetPoints(newPts);
@@ -206,9 +207,15 @@ void vtkExtractPolyDataGeometry::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 
-  os << indent << "Implicit Function: " 
-     << (void *)this->ImplicitFunction << "\n";
-
+  if (this->ImplicitFunction)
+    {
+    os << indent << "Implicit Function: " 
+       << (void *)this->ImplicitFunction << "\n";
+    }
+  else
+    {
+    os << indent << "Implicit Function: (null)\n";      
+    }
   os << indent << "Extract Inside: " 
      << (this->ExtractInside ? "On\n" : "Off\n");
 }
