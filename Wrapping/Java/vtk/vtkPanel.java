@@ -31,9 +31,9 @@ public class vtkPanel extends Canvas implements
     System.loadLibrary("vtkRenderingJava"); 
   }
 
-  protected native String RenderCreate(vtkRenderWindow id0);
-  protected native void Lock();
-  protected native void UnLock();
+  protected native int RenderCreate(vtkRenderWindow id0);
+  protected native int Lock();
+  protected native int UnLock();
 
   public vtkPanel()
   {
