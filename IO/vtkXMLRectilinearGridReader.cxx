@@ -22,7 +22,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataParser.h"
 
-vtkCxxRevisionMacro(vtkXMLRectilinearGridReader, "1.3");
+vtkCxxRevisionMacro(vtkXMLRectilinearGridReader, "1.4");
 vtkStandardNewMacro(vtkXMLRectilinearGridReader);
 
 //----------------------------------------------------------------------------
@@ -115,7 +115,12 @@ int vtkXMLRectilinearGridReader::ReadPiece(vtkXMLDataElement* ePiece)
       }
     }
   
-  if(!this->CoordinateElements[this->Piece])
+  // If there is any volume, we require a Coordinates element.
+  int* piecePointDimensions = this->PiecePointDimensions + this->Piece*3;
+  if(!this->CoordinateElements[this->Piece] &&
+     (piecePointDimensions[0] > 0) &&
+     (piecePointDimensions[1] > 0) &&
+     (piecePointDimensions[2] > 0))
     {
     vtkErrorMacro("A piece is missing its Coordinates element.");
     return 0;
@@ -131,6 +136,11 @@ void vtkXMLRectilinearGridReader::SetupOutputInformation()
   vtkRectilinearGrid* output = this->GetOutput();
   
   // Use the configuration of the first piece since all are the same.
+  if(!this->CoordinateElements[0])
+    {
+    // Empty volume.
+    return;
+    }
   vtkXMLDataElement* xc = this->CoordinateElements[0]->GetNestedElement(0);
   vtkXMLDataElement* yc = this->CoordinateElements[0]->GetNestedElement(1);
   vtkXMLDataElement* zc = this->CoordinateElements[0]->GetNestedElement(2);

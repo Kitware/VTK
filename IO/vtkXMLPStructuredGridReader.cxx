@@ -23,7 +23,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLStructuredGridReader.h"
 
-vtkCxxRevisionMacro(vtkXMLPStructuredGridReader, "1.3");
+vtkCxxRevisionMacro(vtkXMLPStructuredGridReader, "1.4");
 vtkStandardNewMacro(vtkXMLPStructuredGridReader);
 
 //----------------------------------------------------------------------------
@@ -103,7 +103,8 @@ vtkXMLPStructuredGridReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
   for(i=0;i < numNested; ++i)
     {
     vtkXMLDataElement* eNested = ePrimary->GetNestedElement(i);
-    if(strcmp(eNested->GetName(), "PPoints") == 0)
+    if((strcmp(eNested->GetName(), "PPoints") == 0) &&
+       (eNested->GetNumberOfNestedElements() == 1))
       {
       this->PPointsElement = eNested;
       }
@@ -111,8 +112,14 @@ vtkXMLPStructuredGridReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
   
   if(!this->PPointsElement)
     {
-    vtkErrorMacro("Could not find PPoints element with 1 array.");
-    return 0;
+    int extent[6];
+    this->GetOutput()->GetWholeExtent(extent);
+    if((extent[0] <= extent[1]) && (extent[2] <= extent[3]) &&
+       (extent[4] <= extent[5]))
+      {
+      vtkErrorMacro("Could not find PPoints element with 1 array.");
+      return 0;
+      }
     }
   
   return 1;
@@ -127,9 +134,13 @@ void vtkXMLPStructuredGridReader::SetupOutputInformation()
   // Create the points array.
   vtkPoints* points = vtkPoints::New();
   vtkXMLDataElement* ePoints = this->PPointsElement;
-  vtkDataArray* a = this->CreateDataArray(ePoints->GetNestedElement(0));
-  points->SetData(a);
-  a->Delete();
+  if(ePoints)
+    {
+    // Non-zero volume.
+    vtkDataArray* a = this->CreateDataArray(ePoints->GetNestedElement(0));
+    points->SetData(a);
+    a->Delete();
+    }
   output->SetPoints(points);
   points->Delete();
 }

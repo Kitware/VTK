@@ -24,7 +24,7 @@
 #include "vtkCellArray.h"
 #include "vtkPointSet.h"
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredDataReader, "1.3");
+vtkCxxRevisionMacro(vtkXMLUnstructuredDataReader, "1.4");
 
 //----------------------------------------------------------------------------
 vtkXMLUnstructuredDataReader::vtkXMLUnstructuredDataReader()
@@ -239,9 +239,13 @@ void vtkXMLUnstructuredDataReader::SetupOutputInformation()
   
   // Use the configuration of the first piece since all are the same.
   vtkXMLDataElement* ePoints = this->PointElements[0];
-  vtkDataArray* a = this->CreateDataArray(ePoints->GetNestedElement(0));
-  points->SetData(a);
-  a->Delete();
+  if(ePoints)
+    {
+    // Non-zero volume.
+    vtkDataArray* a = this->CreateDataArray(ePoints->GetNestedElement(0));
+    points->SetData(a);
+    a->Delete();
+    }
   
   output->SetPoints(points);
   points->Delete();
@@ -284,9 +288,12 @@ int vtkXMLUnstructuredDataReader::ReadPiece(vtkXMLDataElement* ePiece)
       }
     }
   
-  if(!this->PointElements[this->Piece])
+  // If there are some points, we require a Points element.
+  if(!this->PointElements[this->Piece] &&
+     (this->NumberOfPoints[this->Piece] > 0))
     {
-    vtkErrorMacro("A piece is missing its Points element.");
+    vtkErrorMacro("A piece is missing its Points element "
+                  "or element does not have exactly 1 array.");
     return 0;
     }  
   
@@ -302,11 +309,14 @@ int vtkXMLUnstructuredDataReader::ReadPieceData()
   
   // Read the points array.
   vtkXMLDataElement* ePoints = this->PointElements[this->Piece];
-  if(!this->ReadArrayForPoints(ePoints->GetNestedElement(0),
-                               output->GetPoints()->GetData()))
+  if(ePoints)
     {
-    return 0;
-    }  
+    if(!this->ReadArrayForPoints(ePoints->GetNestedElement(0),
+                                 output->GetPoints()->GetData()))
+      {
+      return 0;
+      }
+    }
   
   return 1;
 }

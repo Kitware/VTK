@@ -170,6 +170,12 @@ protected:
   // modified.
   vtkCallbackCommand* SelectionObserver;
   
+  // Whether there was an error reading the file in ExecuteInformation.
+  int InformationError;
+  
+  // Whether there was an error reading the file in ExecuteData.
+  int DataError;
+  
 private:
   vtkXMLReader(const vtkXMLReader&);  // Not implemented.
   void operator=(const vtkXMLReader&);  // Not implemented.

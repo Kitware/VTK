@@ -22,7 +22,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataParser.h"
 
-vtkCxxRevisionMacro(vtkXMLStructuredGridReader, "1.3");
+vtkCxxRevisionMacro(vtkXMLStructuredGridReader, "1.4");
 vtkStandardNewMacro(vtkXMLStructuredGridReader);
 
 //----------------------------------------------------------------------------
@@ -114,9 +114,15 @@ int vtkXMLStructuredGridReader::ReadPiece(vtkXMLDataElement* ePiece)
       }
     }
   
-  if(!this->PointElements[this->Piece])
+  // If there is any volume, we require a Points element.
+  int* piecePointDimensions = this->PiecePointDimensions + this->Piece*3;
+  if(!this->PointElements[this->Piece] &&
+     (piecePointDimensions[0] > 0) &&
+     (piecePointDimensions[1] > 0) &&
+     (piecePointDimensions[2] > 0))
     {
-    vtkErrorMacro("A piece is missing its Points element.");
+    vtkErrorMacro("A piece is missing its Points element "
+                  "or element does not have exactly 1 array.");
     return 0;
     }
   
@@ -134,9 +140,13 @@ void vtkXMLStructuredGridReader::SetupOutputInformation()
   
   // Use the configuration of the first piece since all are the same.
   vtkXMLDataElement* ePoints = this->PointElements[0];
-  vtkDataArray* a = this->CreateDataArray(ePoints->GetNestedElement(0));
-  points->SetData(a);
-  a->Delete();
+  if(ePoints)
+    {
+    // Non-empty volume.
+    vtkDataArray* a = this->CreateDataArray(ePoints->GetNestedElement(0));
+    points->SetData(a);
+    a->Delete();
+    }
   
   output->SetPoints(points);
   points->Delete();
@@ -156,6 +166,12 @@ void vtkXMLStructuredGridReader::SetupOutputData()
 int vtkXMLStructuredGridReader::ReadPieceData()
 {
   if(!this->Superclass::ReadPieceData()) { return 0; }
+  
+  if(!this->PointElements[this->Piece])
+    {
+    // Empty volume.
+    return 1;
+    }
   
   // Read the points array.
   vtkStructuredGrid* output = this->GetOutput();

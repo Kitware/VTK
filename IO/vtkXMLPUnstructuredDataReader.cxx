@@ -21,7 +21,7 @@
 #include "vtkPointSet.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkXMLPUnstructuredDataReader, "1.3");
+vtkCxxRevisionMacro(vtkXMLPUnstructuredDataReader, "1.4");
 
 //----------------------------------------------------------------------------
 vtkXMLPUnstructuredDataReader::vtkXMLPUnstructuredDataReader()
@@ -117,9 +117,12 @@ void vtkXMLPUnstructuredDataReader::SetupOutputInformation()
   // Create the points array.
   vtkPoints* points = vtkPoints::New();
   vtkXMLDataElement* ePoints = this->PPointsElement;
-  vtkDataArray* a = this->CreateDataArray(ePoints->GetNestedElement(0));
-  points->SetData(a);
-  a->Delete();
+  if(ePoints)
+    {
+    vtkDataArray* a = this->CreateDataArray(ePoints->GetNestedElement(0));
+    points->SetData(a);
+    a->Delete();
+    }
   output->SetPoints(points);
   points->Delete();
 }
@@ -201,11 +204,9 @@ vtkXMLPUnstructuredDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
       }
     }
   
-  if(!this->PPointsElement)
-    {
-    vtkErrorMacro("Could not find PPoints element with 1 array.");
-    return 0;
-    }
+  // If PPoints element was not found, we must assume there are 0
+  // points.  If there are found to be points later, the error will be
+  // reported by ReadPieceData.
   
   return 1;
 }
@@ -241,7 +242,11 @@ void vtkXMLPUnstructuredDataReader::ReadXMLData()
   int i;
   for(i=this->StartPiece; i < this->EndPiece; ++i)
     {
-    this->Superclass::ReadPieceData(i);
+    if(!this->Superclass::ReadPieceData(i))
+      {
+      // An error occurred while reading the piece.
+      this->DataError = 1;
+      }
     this->SetupNextPiece();
     }
 }
@@ -255,6 +260,14 @@ int vtkXMLPUnstructuredDataReader::ReadPieceData()
   input->Update();
 
   vtkPointSet* output = this->GetOutputAsPointSet();
+  
+  // If there are some points, but no PPoints element, report the
+  // error.
+  if(!this->PPointsElement && (this->GetNumberOfPoints() > 0))
+    {
+    vtkErrorMacro("Could not find PPoints element with 1 array.");
+    return 0;
+    }
   
   // Copy the points array.
   this->CopyArrayForPoints(input->GetPoints()->GetData(),

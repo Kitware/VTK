@@ -27,7 +27,7 @@
 #include "vtkPoints.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.5");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.6");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 
 //----------------------------------------------------------------------------
@@ -55,7 +55,7 @@ vtkXMLWriter::vtkXMLWriter()
 
   // Initialize compression data.
   this->BlockSize = 32768;
-  this->Compressor = 0;  
+  this->Compressor = 0;
   this->CompressionHeader = 0;
   
   this->EncodeAppendedData = 1;
@@ -211,7 +211,7 @@ int vtkXMLWriter::Write()
   int result = this->WriteData();
   
   // Cleanup the output streams.
-  this->DataStream->SetStream(0);  
+  this->DataStream->SetStream(0);
   this->Stream = 0;
   
   return result;
@@ -374,7 +374,7 @@ unsigned long vtkXMLWriter::WriteAppendedDataOffset(unsigned long streamPos,
   // position, and returns the ending position.  If attr is 0, writes
   // only the double quotes.  In all cases, the final stream position
   // is left the same as before the call.
-  ostream& os = *(this->Stream);  
+  ostream& os = *(this->Stream);
   unsigned long returnPos = os.tellp();
   unsigned long offset = returnPos - this->AppendedDataPosition;
   os.seekp(streamPos);
@@ -775,7 +775,7 @@ int vtkXMLWriter::WriteWordTypeAttribute(const char* name, int dataType)
     return 0;
     }
   os << " " << name << "=\"" << value << "\"";
-  return (os? 1:0);  
+  return (os? 1:0);
 }
 
 //----------------------------------------------------------------------------
@@ -841,7 +841,7 @@ int vtkXMLWriteAsciiDataChar(ostream& os, char* data, int length,
       {
       os << " " << short(data[pos++]);
       }
-    os << "\n";    
+    os << "\n";  
     }
   return (os? 1:0);
 }
@@ -872,7 +872,7 @@ int vtkXMLWriteAsciiDataUnsignedChar(ostream& os, unsigned char* data,
       {
       os << " " << ushort(data[pos++]);
       }
-    os << "\n";    
+    os << "\n";  
     }
   return (os? 1:0);
 }
@@ -1017,7 +1017,7 @@ void vtkXMLWriter::WritePointDataInline(vtkPointData* pd, vtkIndent indent)
     a->Delete();
     }
   
-  os << indent << "</PointData>\n";  
+  os << indent << "</PointData>\n";
   
   this->DestroyStringArray(pd->GetNumberOfArrays(), names);
 }
@@ -1055,7 +1055,7 @@ unsigned long* vtkXMLWriter::WritePointDataAppended(vtkPointData* pd,
   
   os << indent << "<PointData";
   this->WriteAttributeIndices(pd, names);
-  os << ">\n";  
+  os << ">\n";
   
   int i;
   for(i=0; i < pd->GetNumberOfArrays(); ++i)
@@ -1096,7 +1096,7 @@ unsigned long* vtkXMLWriter::WriteCellDataAppended(vtkCellData* cd,
   
   os << indent << "<CellData";
   this->WriteAttributeIndices(cd, names);
-  os << ">\n";  
+  os << ">\n";
   
   int i;
   for(i=0; i < cd->GetNumberOfArrays(); ++i)
@@ -1159,10 +1159,17 @@ unsigned long
 vtkXMLWriter::WritePointsAppended(vtkPoints* points, vtkIndent indent)
 {
   ostream& os = *(this->Stream);
+  unsigned long pointsPosition = 0;
+  
+  // Only write points if they exist.
   os << indent << "<Points>\n";
-  unsigned long pointsPosition =
-    this->WriteDataArrayAppended(points->GetData(), indent.GetNextIndent());
+  if(points)
+    {
+    pointsPosition =
+      this->WriteDataArrayAppended(points->GetData(), indent.GetNextIndent());
+    }
   os << indent << "</Points>\n";
+  
   return pointsPosition;
 }
 
@@ -1170,40 +1177,53 @@ vtkXMLWriter::WritePointsAppended(vtkPoints* points, vtkIndent indent)
 void vtkXMLWriter::WritePointsAppendedData(vtkPoints* points,
                                            unsigned long pointsPosition)
 {
-  vtkDataArray* outPoints = this->CreateArrayForPoints(points->GetData());
-  this->WriteDataArrayAppendedData(outPoints, pointsPosition);
-  outPoints->Delete();
+  // Only write points if they exist.
+  if(points)
+    {
+    vtkDataArray* outPoints = this->CreateArrayForPoints(points->GetData());
+    this->WriteDataArrayAppendedData(outPoints, pointsPosition);
+    outPoints->Delete();
+    }
 }
 
 //----------------------------------------------------------------------------
 void vtkXMLWriter::WritePointsInline(vtkPoints* points, vtkIndent indent)
 {
   ostream& os = *(this->Stream);
-  vtkDataArray* outPoints = this->CreateArrayForPoints(points->GetData());
+  // Only write points if they exist.
   os << indent << "<Points>\n";
-  this->WriteDataArrayInline(outPoints, indent.GetNextIndent());
-  os << indent << "</Points>\n";  
-  outPoints->Delete();  
+  if(points)
+    {
+    vtkDataArray* outPoints = this->CreateArrayForPoints(points->GetData());
+    this->WriteDataArrayInline(outPoints, indent.GetNextIndent());
+    outPoints->Delete();
+    }
+  os << indent << "</Points>\n";
 }
 
 //----------------------------------------------------------------------------
 void vtkXMLWriter::WriteCoordinatesInline(vtkDataArray* xc, vtkDataArray* yc,
                                           vtkDataArray* zc, vtkIndent indent)
 {  
-  vtkDataArray* oxc = this->CreateExactCoordinates(xc, 0);
-  vtkDataArray* oyc = this->CreateExactCoordinates(yc, 1);
-  vtkDataArray* ozc = this->CreateExactCoordinates(zc, 2);
-  
   ostream& os = *(this->Stream);
-  os << indent << "<Coordinates>\n";
-  this->WriteDataArrayInline(oxc, indent.GetNextIndent());
-  this->WriteDataArrayInline(oyc, indent.GetNextIndent());
-  this->WriteDataArrayInline(ozc, indent.GetNextIndent());
-  os << indent << "</Coordinates>\n";
   
-  oxc->Delete();
-  oyc->Delete();
-  ozc->Delete();
+  // Only write coordinates if they exist.
+  os << indent << "<Coordinates>\n";
+  if(xc && yc && zc)
+    {
+    vtkDataArray* oxc = this->CreateExactCoordinates(xc, 0);
+    vtkDataArray* oyc = this->CreateExactCoordinates(yc, 1);
+    vtkDataArray* ozc = this->CreateExactCoordinates(zc, 2);
+    
+    this->WriteDataArrayInline(oxc, indent.GetNextIndent());
+    this->WriteDataArrayInline(oyc, indent.GetNextIndent());
+    this->WriteDataArrayInline(ozc, indent.GetNextIndent());
+    
+    oxc->Delete();
+    oyc->Delete();
+    ozc->Delete();
+    }
+  os << indent << "</Coordinates>\n";
 }
 
 //----------------------------------------------------------------------------
@@ -1213,11 +1233,17 @@ vtkXMLWriter::WriteCoordinatesAppended(vtkDataArray* xc, vtkDataArray* yc,
 {
   unsigned long* cPositions = new unsigned long[3];
   ostream& os = *(this->Stream);
+  
+  // Only write coordinates if they exist.
   os << indent << "<Coordinates>\n";
-  cPositions[0] = this->WriteDataArrayAppended(xc, indent.GetNextIndent());
-  cPositions[1] = this->WriteDataArrayAppended(yc, indent.GetNextIndent());
-  cPositions[2] = this->WriteDataArrayAppended(zc, indent.GetNextIndent());
+  if(xc && yc && zc)
+    {
+    cPositions[0] = this->WriteDataArrayAppended(xc, indent.GetNextIndent());
+    cPositions[1] = this->WriteDataArrayAppended(yc, indent.GetNextIndent());
+    cPositions[2] = this->WriteDataArrayAppended(zc, indent.GetNextIndent());
+    }
   os << indent << "</Coordinates>\n";
+  
   return cPositions;
 }
 
@@ -1227,23 +1253,30 @@ void vtkXMLWriter::WriteCoordinatesAppendedData(vtkDataArray* xc,
                                                 vtkDataArray* zc,
                                                 unsigned long* cPositions)
 {
-  vtkDataArray* oxc = this->CreateExactCoordinates(xc, 0);
-  vtkDataArray* oyc = this->CreateExactCoordinates(yc, 1);
-  vtkDataArray* ozc = this->CreateExactCoordinates(zc, 2);
-  
-  this->WriteDataArrayAppendedData(oxc, cPositions[0]);
-  this->WriteDataArrayAppendedData(oyc, cPositions[1]);
-  this->WriteDataArrayAppendedData(ozc, cPositions[2]);
-  
-  oxc->Delete();
-  oyc->Delete();
-  ozc->Delete();
+  // Only write coordinates if they exist.
+  if(xc && yc && zc)
+    {
+    vtkDataArray* oxc = this->CreateExactCoordinates(xc, 0);
+    vtkDataArray* oyc = this->CreateExactCoordinates(yc, 1);
+    vtkDataArray* ozc = this->CreateExactCoordinates(zc, 2);
+    
+    this->WriteDataArrayAppendedData(oxc, cPositions[0]);
+    this->WriteDataArrayAppendedData(oyc, cPositions[1]);
+    this->WriteDataArrayAppendedData(ozc, cPositions[2]);
+    
+    oxc->Delete();
+    oyc->Delete();
+    ozc->Delete();
+    }
   delete [] cPositions;
 }
 
 //----------------------------------------------------------------------------
 vtkDataArray* vtkXMLWriter::CreateArrayForPoints(vtkDataArray* inArray)
 {
+  // This method is just a dummy because we don't want a pure virtual.
+  // Subclasses that need it should define the real version.
+  vtkErrorMacro("vtkXMLWriter::CreateArrayForPoints should never be called.");
   inArray->Register(0);
   return inArray;
 }
@@ -1251,6 +1284,9 @@ vtkDataArray* vtkXMLWriter::CreateArrayForPoints(vtkDataArray* inArray)
 //----------------------------------------------------------------------------
 vtkDataArray* vtkXMLWriter::CreateArrayForCells(vtkDataArray* inArray)
 {
+  // This method is just a dummy because we don't want a pure virtual.
+  // Subclasses that need it should define the real version.
+  vtkErrorMacro("vtkXMLWriter::CreateArrayForCells should never be called.");
   inArray->Register(0);
   return inArray;
 }
@@ -1258,6 +1294,9 @@ vtkDataArray* vtkXMLWriter::CreateArrayForCells(vtkDataArray* inArray)
 //----------------------------------------------------------------------------
 vtkDataArray* vtkXMLWriter::CreateExactCoordinates(vtkDataArray* inArray, int)
 {
+  // This method is just a dummy because we don't want a pure virtual.
+  // Subclasses that need it should define the real version.
+  vtkErrorMacro("vtkXMLWriter::CreateExactCoordinates should never be called.");
   inArray->Register(0);
   return inArray;
 }
@@ -1316,10 +1355,12 @@ void vtkXMLWriter::WritePCellData(vtkCellData* cd, vtkIndent indent)
 void vtkXMLWriter::WritePPoints(vtkPoints* points, vtkIndent indent)
 {
   ostream& os = *(this->Stream);
+  // Only write points if they exist.
   os << indent << "<PPoints>\n";
-  
-  this->WritePDataArray(points->GetData(), indent.GetNextIndent());
-  
+  if(points)
+    {
+    this->WritePDataArray(points->GetData(), indent.GetNextIndent());
+    }
   os << indent << "</PPoints>\n";
 }
 
@@ -1352,13 +1393,16 @@ void vtkXMLWriter::WritePCoordinates(vtkDataArray* xc, vtkDataArray* yc,
                                      vtkDataArray* zc, vtkIndent indent)
 {
   ostream& os = *(this->Stream);
+  
+  // Only write coordinates if they exist.
   os << indent << "<PCoordinates>\n";
-  
-  this->WritePDataArray(xc, indent.GetNextIndent());
-  this->WritePDataArray(yc, indent.GetNextIndent());
-  this->WritePDataArray(zc, indent.GetNextIndent());
-  
-  os << indent << "</PCoordinates>\n";
+  if(xc && yc && zc)
+    {
+    this->WritePDataArray(xc, indent.GetNextIndent());
+    this->WritePDataArray(yc, indent.GetNextIndent());
+    this->WritePDataArray(zc, indent.GetNextIndent());
+    }
+  os << indent << "</PCoordinates>\n";  
 }
 
 //----------------------------------------------------------------------------

@@ -19,8 +19,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkExtentTranslator.h"
+#include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkXMLRectilinearGridWriter, "1.1");
+vtkCxxRevisionMacro(vtkXMLRectilinearGridWriter, "1.2");
 vtkStandardNewMacro(vtkXMLRectilinearGridWriter);
 
 //----------------------------------------------------------------------------
@@ -85,13 +86,21 @@ vtkXMLRectilinearGridWriter::CreateExactCoordinates(vtkDataArray* a, int xyz)
   int* inBounds = inExtent+xyz*2;
   int* outBounds = outExtent+xyz*2;
   
+  if(!a)
+    {
+    // There are no coordinates.  This can happen with empty input.
+    return vtkFloatArray::New();
+    }
+  
   if((inBounds[0] == outBounds[0]) && (inBounds[1] == outBounds[1]))
     {
+    // Use the entire coordinates array.
     a->Register(0);
     return a;
     }
   else
     {
+    // Create a subset of the coordinates array.
     int components = a->GetNumberOfComponents();
     int tupleSize = components*this->GetWordTypeSize(a->GetDataType());
     vtkDataArray* b = a->NewInstance();

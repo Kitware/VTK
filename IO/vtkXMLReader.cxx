@@ -31,7 +31,7 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.4");
+vtkCxxRevisionMacro(vtkXMLReader, "1.5");
 
 //----------------------------------------------------------------------------
 vtkXMLReader::vtkXMLReader()
@@ -41,6 +41,8 @@ vtkXMLReader::vtkXMLReader()
   this->XMLParser = 0;  
   this->PointDataArraySelection = vtkDataArraySelection::New();
   this->CellDataArraySelection = vtkDataArraySelection::New();
+  this->InformationError = 0;
+  this->DataError = 0;
   
   // Setup the selection callback to modify this object when an array
   // selection is changed.
@@ -226,6 +228,7 @@ void vtkXMLReader::ExecuteInformation()
     
     // The output should be empty to prevent the rest of the pipeline
     // from executing.
+    this->InformationError = 1;
     this->SetupEmptyOutput();
     }
   
@@ -251,8 +254,23 @@ void vtkXMLReader::ExecuteData(vtkDataObject* vtkNotUsed(output))
   // reads will work.
   this->XMLParser->SetStream(this->FileStream);
   
-  // Let the subclasses read the data they want.
-  this->ReadXMLData();
+  if(!this->InformationError)
+    {
+    // Let the subclasses read the data they want.
+    this->DataError = 0;
+    this->ReadXMLData();
+    
+    // If there was an error, provide empty output.
+    if(this->DataError)
+      {
+      this->SetupEmptyOutput();
+      }
+    }
+  else
+    {
+    // There was an error reading the file.  Provide empty output.
+    this->SetupEmptyOutput();
+    }
   
   // Close the file to prevent resource leaks.
   this->CloseVTKFile();
@@ -262,10 +280,20 @@ void vtkXMLReader::ExecuteData(vtkDataObject* vtkNotUsed(output))
 void vtkXMLReader::ReadXMLInformation()
 {
   // Read from the representation of the XML file.
-  this->ReadVTKFile(this->XMLParser->GetRootElement());
-  
-  // Setup the reader's output with information from the file.
-  this->SetupOutputInformation();
+  if(this->ReadVTKFile(this->XMLParser->GetRootElement()))
+    {
+    // No error reading the file.
+    this->InformationError = 0;
+    
+    // Setup the reader's output with information from the file.
+    this->SetupOutputInformation();
+    }
+  else
+    {
+    // There was an error reading the file.  Provide empty output.
+    this->InformationError = 1;
+    this->SetupEmptyOutput();
+    }
 }
 
 //----------------------------------------------------------------------------
