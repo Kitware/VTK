@@ -116,6 +116,24 @@ unsigned long int vtkPointSet::GetMTime()
   return dsTime;
 }
 
+int vtkPointSet::FindPoint(float x[3])
+{
+  if ( !this->Points ) return -1;
+
+  if ( !this->Locator )
+    {
+    this->Locator = new vtkLocator;
+    this->Locator->SetPoints(this->Points);
+    }
+
+  if ( this->Points->GetMTime() > this->Locator->GetMTime() )
+    {
+    this->Locator->SetPoints(this->Points);
+    }
+
+  return this->Locator->FindClosestPoint(x);
+}
+
 int vtkPointSet::FindCell(float x[3], vtkCell *cell, float tol2, int& subId,
                           float pcoords[3], float *weights)
 {

@@ -356,3 +356,63 @@ void vtkTriangle::Derivatives(int subId, float pcoords[3], float *values,
     }
 }
 
+// Special dot product definition for 2-vectors
+#define DOT(_x,_y) _x[0]*_y[0] + _x[1]*_y[1]
+
+// Description:
+// Compute the circumcenter (center[3]) and radius (method return value) of
+// a triangle defined by the three points x1, x2, and x3. (Note that the
+// coordinates are 2D. 3D points can be used but the z-component will be
+// ignored.)
+float vtkTriangle::Circumcircle(float  x1[2], float x2[2], float x3[2], 
+                                float center[2])
+{
+  float n12[2], n13[2], x12[2], x13[2];
+  float c1[2], c2[2], rhs[2], diff, sum, det;
+  int i;
+//
+//  calculate normals and intersection points of bisecting planes.  
+//
+  for (i=0; i<2; i++) 
+    {
+    n12[i] = x2[i] - x1[i];
+    n13[i] = x3[i] - x1[i];
+    x12[i] = (x2[i] + x1[i])/2.0;
+    x13[i] = (x3[i] + x1[i])/2.0;
+    }
+//
+//  Compute solutions to the intersection of two bisecting lines
+//  (2-eqns. in 2-unknowns) using Kramer's rule.
+//
+//  form system matrices
+//
+  c1[0] = n12[0]; c2[0] = n12[1]; 
+  c1[1] = n13[0]; c2[1] = n13[1];
+
+  rhs[0] = DOT(n12,x12);
+  rhs[1] = DOT(n13,x13);
+//
+// Solve system of equations
+//
+  if ( (det=math.Determinant2x2(c1,c2)) == 0.0 ||
+  fabs((center[0]=math.Determinant2x2(rhs,c2)/det)) > 1.0e04 || 
+  fabs((center[1]=math.Determinant2x2(c1,rhs)/det)) > 1.0e04 )
+    {
+    center[0] = center[1] = 0.0;
+    return VTK_LARGE_FLOAT;
+    }
+
+  //determine average value of radius squared
+  for (sum=0, i=0; i<2; i++) 
+    {
+    diff = x1[i] - center[i];
+    sum += diff*diff;
+    diff = x2[i] - center[i];
+    sum += diff*diff;
+    diff = x3[i] - center[i];
+    sum += diff*diff;
+    }
+
+  return (sum / 3.0);
+}
+#undef DOT

@@ -258,6 +258,33 @@ void vtkStructuredPoints::Initialize()
   this->SetOrigin(0,0,0);
 }
 
+int vtkStructuredPoints::FindPoint(float x[3])
+{
+  int i, loc[3];
+  float d;
+//
+//  Compute the ijk location
+//
+  for (i=0; i<3; i++) 
+    {
+    d = x[i] - this->Origin[i];
+    if ( d < 0.0 || d > ((this->Dimensions[i]-1)*this->AspectRatio[i]) ) 
+      {
+      return -1;
+      } 
+    else 
+      {
+      loc[i] = (int) ((d / this->AspectRatio[i]) + 0.5);
+      }
+    }
+//
+//  From this location get the point id
+//
+  return loc[2]*this->Dimensions[0]*this->Dimensions[1] +
+         loc[1]*this->Dimensions[0] + loc[0];
+  
+}
+
 int vtkStructuredPoints::FindCell(float x[3], vtkCell *cell, float tol2, 
                                  int& subId, float pcoords[3],
                                  float *weights)
@@ -284,7 +311,7 @@ int vtkStructuredPoints::FindCell(float x[3], vtkCell *cell, float tol2,
     }
   voxel.InterpolationFunctions(pcoords,weights);
 //
-//  From this location get the cell number
+//  From this location get the cell id
 //
   subId = 0;
   return loc[2] * (this->Dimensions[0]-1)*(this->Dimensions[1]-1) +

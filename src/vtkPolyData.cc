@@ -565,20 +565,28 @@ void vtkPolyData::Allocate(int numCells, int extSize)
 // Note: will also insert vtkPIXEL, but converts it to vtkQUAD.
 int vtkPolyData::InsertNextCell(int type, int npts, int *pts)
 {
-  int id = 0;
+  int id;
+
+  if ( !this->Cells ) 
+    {
+    this->Cells = new vtkCellList(5000,10000);
+    }
 
   switch (type)
     {
     case VTK_VERTEX: case VTK_POLY_VERTEX:
-      id = this->Verts->InsertNextCell(npts,pts);
+      this->Verts->InsertNextCell(npts,pts);
+      id = this->Cells->InsertNextCell(type, this->Verts->GetLocation(npts));
       break;
 
     case VTK_LINE: case VTK_POLY_LINE:
-      id = this->Lines->InsertNextCell(npts,pts);
+      this->Lines->InsertNextCell(npts,pts);
+      id = this->Cells->InsertNextCell(type, this->Lines->GetLocation(npts));
       break;
 
     case VTK_TRIANGLE: case VTK_QUAD: case VTK_POLYGON:
-      id = this->Polys->InsertNextCell(npts,pts);
+      this->Polys->InsertNextCell(npts,pts);
+      id = this->Cells->InsertNextCell(type, this->Polys->GetLocation(npts));
       break;
 
     case VTK_PIXEL: //need to rearrange vertices
@@ -588,15 +596,18 @@ int vtkPolyData::InsertNextCell(int type, int npts, int *pts)
       pixPts[1] = pts[1];
       pixPts[2] = pts[3];
       pixPts[3] = pts[2];
-      id = this->Polys->InsertNextCell(npts,pixPts);
+      this->Polys->InsertNextCell(npts,pixPts);
+      id = this->Cells->InsertNextCell(type, this->Polys->GetLocation(npts));
       break;
       }
 
     case VTK_TRIANGLE_STRIP:
-      id = this->Strips->InsertNextCell(npts,pts);
+      this->Strips->InsertNextCell(npts,pts);
+      id = this->Cells->InsertNextCell(type, this->Strips->GetLocation(npts));
       break;
 
     default:
+      id = -1;
       vtkErrorMacro(<<"Bad cell type! Can't insert!");
     }
   return id;
@@ -610,20 +621,29 @@ int vtkPolyData::InsertNextCell(int type, int npts, int *pts)
 // Note: will also insert VTK_PIXEL, but converts it to VTK_QUAD.
 int vtkPolyData::InsertNextCell(int type, vtkIdList &pts)
 {
-  int id = 0;
+  int id;
+  int npts=pts.GetNumberOfIds();
+
+  if ( !this->Cells ) 
+    {
+    this->Cells = new vtkCellList(5000,10000);
+    }
 
   switch (type)
     {
     case VTK_VERTEX: case VTK_POLY_VERTEX:
-      id = this->Verts->InsertNextCell(pts);
+      this->Verts->InsertNextCell(pts);
+      id = this->Cells->InsertNextCell(type, this->Verts->GetLocation(npts));
       break;
 
     case VTK_LINE: case VTK_POLY_LINE:
-      id = this->Lines->InsertNextCell(pts);
+      this->Lines->InsertNextCell(pts);
+      id = this->Cells->InsertNextCell(type, this->Lines->GetLocation(npts));
       break;
 
     case VTK_TRIANGLE: case VTK_QUAD: case VTK_POLYGON:
-      id = this->Polys->InsertNextCell(pts);
+      this->Polys->InsertNextCell(pts);
+      id = this->Cells->InsertNextCell(type, this->Polys->GetLocation(npts));
       break;
 
     case VTK_PIXEL: //need to rearrange vertices
@@ -633,17 +653,21 @@ int vtkPolyData::InsertNextCell(int type, vtkIdList &pts)
       pixPts[1] = pts.GetId(1);
       pixPts[2] = pts.GetId(3);
       pixPts[3] = pts.GetId(2);
-      id = this->Polys->InsertNextCell(4,pixPts);
+      this->Polys->InsertNextCell(4,pixPts);
+      id = this->Cells->InsertNextCell(type, this->Polys->GetLocation(npts));
       break;
       }
 
     case VTK_TRIANGLE_STRIP:
-      id = this->Strips->InsertNextCell(pts);
+      this->Strips->InsertNextCell(pts);
+      id = this->Cells->InsertNextCell(type, this->Strips->GetLocation(npts));
       break;
 
     default:
+      id = -1;
       vtkErrorMacro(<<"Bad cell type! Can't insert!");
     }
+
   return id;
 }
 
@@ -704,7 +728,49 @@ void vtkPolyData::ReverseCell(int cellId)
 }
 
 // Description:
-// Replace the points defining cell "cellId" with a new set of points.
+// Add a new cell to the cell data structure (after cell pointers have been
+// built). This method adds the cell and then updates the links from the points
+// to the cells. (Memory is allocated as necessary.)
+int vtkPolyData::InsertNextLinkedCell(int type, int npts, int *pts)
+{
+  int i, id;
+
+  id = this->InsertNextCell(type,npts,pts);
+
+  for (i=0; i<3; i++)
+    {
+    this->Links->ResizeCellList(pts[i],1);
+    this->Links->AddCellReference(id,pts[i]);  
+    }
+
+  return id;
+}
+
+// Description:
+// Remove a reference to a cell in a particular point's link list. You may also
+// consider using RemoveCellReference() to remove the references from all the 
+// cell's points to the cell. This operator does not reallocate memory; use the
+// operator ResizeCellList() to do this if necessary.
+void vtkPolyData::RemoveReferenceToCell(int ptId, int cellId)
+{
+  this->Links->RemoveCellReference(cellId, ptId);  
+}
+
+// Description:
+// Add a reference to a cell in a particular point's link list. (You may also
+// consider using AddCellReference() to add the references from all the 
+// cell's points to the cell.) This operator does not realloc memory; use the
+// operator ResizeCellList() to do this if necessary.
+void vtkPolyData::AddReferenceToCell(int ptId, int cellId)
+{
+  this->Links->AddCellReference(cellId, ptId);  
+}
+
+// Description:
+// Replace the points defining cell "cellId" with a new set of points. This
+// operator is (typically) used when links from points to cells have not been 
+// built (i.e., BuildLinks() has not been executed). Use the operator 
+// ReplaceLinkedCell() to replace a cell when cell structure has been built.
 void vtkPolyData::ReplaceCell(int cellId, int npts, int *pts)
 {
   int loc, type;
@@ -733,6 +799,13 @@ void vtkPolyData::ReplaceCell(int cellId, int npts, int *pts)
     }
 }
 
+// Description:
+// Replace one cell with another in cell structure. This operator updates the
+// connectivity list and the point's link list. It does not delete references
+// to the old cell in the point's link list. Use the operator 
+// RemoveCellReference() to delete all references from points to (old) cell.
+// You may also ant to consider using the operator ResizeCellList() if the 
+// link list is changing size.
 void vtkPolyData::ReplaceLinkedCell(int cellId, int npts, int *pts)
 {
   int loc = this->Cells->GetCellLocation(cellId);
