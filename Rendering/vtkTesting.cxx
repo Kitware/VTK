@@ -31,7 +31,7 @@
 #include <sys/stat.h>
 
 vtkStandardNewMacro(vtkTesting);
-vtkCxxRevisionMacro(vtkTesting, "1.17");
+vtkCxxRevisionMacro(vtkTesting, "1.18");
 vtkCxxSetObjectMacro(vtkTesting, RenderWindow, vtkRenderWindow);
 
 // Function returning either a command line argument, an environment variable
@@ -336,7 +336,7 @@ char* vtkTesting::IncrementFileName(const char* fname, int count)
     {
     newFileName[marker] = counts[i];
     }
-  strncpy( newFileName + marker, ".png", 4 );
+  strcpy( newFileName + marker, ".png" );
   
   return newFileName;
 }
