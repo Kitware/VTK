@@ -27,11 +27,12 @@
 #include "vtkMath.h"
 #include "vtkOutputWindow.h"
 #include "vtkPicker.h"
+#include "vtkProp3DCollection.h"
 #include "vtkRenderWindow.h"
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.184");
+vtkCxxRevisionMacro(vtkRenderer, "1.185");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
