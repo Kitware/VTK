@@ -82,7 +82,7 @@ public:
 
   // Description:
   // Add a renderer to the list of renderers.
-  void AddRenderer(vtkRenderer *);
+  virtual void AddRenderer(vtkRenderer *);
 
   // Description:
   // Remove a renderer from the list of renderers.
