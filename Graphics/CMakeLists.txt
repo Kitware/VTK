@@ -194,11 +194,7 @@ TARGET_LINK_LIBRARIES (vtkGraphics vtkFiltering)
 #
 IF (VTK_WRAP_TCL)
   VTK_WRAP_TCL(vtkGraphicsTCL GraphicsTCL_SRCS ${Graphics_SRCS})
-  IF (APPLE)
-   ADD_LIBRARY(vtkGraphicsTCL SHARED vtkOSXGraphicsTclInit.c ${GraphicsTCL_SRCS})
-  ELSE (APPLE)
-    ADD_LIBRARY(vtkGraphicsTCL ${GraphicsTCL_SRCS})
-  ENDIF (APPLE)
+  ADD_LIBRARY(vtkGraphicsTCL ${GraphicsTCL_SRCS})
   TARGET_LINK_LIBRARIES (vtkGraphicsTCL vtkFilteringTCL vtkGraphics
                          ${TCL_LIBRARY})
   INSTALL_TARGETS(/lib/vtk vtkGraphicsTCL)
