@@ -88,7 +88,7 @@ for {set i 0} {$i < 16} {incr i} {
             -selectcolor #000000 \
             -background #FFFFFF \
             -command setPatternFromPatternBits]
-    grid $but -row 0 -column $i -sticky news
+    grid $but -row 0 -column [expr 15 - $i] -sticky news
 }
 
 set presetsl [label $linef.presetsl \
