@@ -102,10 +102,11 @@ void vlCollection::RemoveItem(vlObject *a)
 // Remove all object from the list.
 void vlCollection::RemoveAllItems()
 {
-  vlCollectionElement *p;  
+  vlCollectionElement *p, *next;
 
-  for ( p=this->Top; p != NULL; p = p->Next )
+  for ( next=p=this->Top; next != NULL; p=next)
     {
+    next = p->Next;
     delete p;
     }
 
