@@ -206,7 +206,6 @@ void vtkXRenderWindowInteractor::Initialize()
 				   XtNinput, True,
 				   XtNmappedWhenManaged, 0,
 				   NULL);
-
     XtRealizeWidget(this->top);
     XSync(this->DisplayId,False);
     ren->SetWindowId(XtWindow(this->top));
@@ -227,7 +226,6 @@ void vtkXRenderWindowInteractor::Initialize()
     ren->SetSize(size[0], size[1]);
     }
 
-  /* add callback */
   this->WindowId = XtWindow(this->top);
   ren->Render();
   XtAddEventHandler(this->top,
