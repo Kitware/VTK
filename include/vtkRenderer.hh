@@ -122,7 +122,7 @@ public:
   // Description:
   // Get a device specific geometry representation. vtkMapper and its
   // subclasses need to get device specific GeometryPrimitives to
-  // render their polygons, lines, triangle strips and verticies.
+  // render their polygons, lines, triangle strips and vertices.
   // This method which must be supplied by subclasses of vtkRenderer
   // takes a string indicating what type of primitive to create.
   virtual vtkGeometryPrimitive *GetPrimitive(char *) = 0;
@@ -167,7 +167,7 @@ public:
 
   // Description:
   // Specify a point location in world coordinates. This method takes 
-  // homogeneus coordinates. 
+  // homogeneous coordinates. 
   vtkSetVector4Macro(WorldPoint,float);
   vtkGetVectorMacro(WorldPoint,float,4);
 
