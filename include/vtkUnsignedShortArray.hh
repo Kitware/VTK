@@ -64,7 +64,7 @@ public:
   // access/insertion methods
   unsigned short GetValue(const int id);
   vtkUnsignedShortArray &InsertValue(const int id, const unsigned short i);
-  int InsertNextValue(const int unsigned short);
+  int InsertNextValue(const unsigned short);
   unsigned short *GetPtr(const int id);
   unsigned short *WritePtr(const int id, const int number);
 
