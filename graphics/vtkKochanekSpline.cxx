@@ -60,6 +60,13 @@ float vtkKochanekSpline::Evaluate (float t)
   float *intervals;
   float *coefficients;
 
+  // make sure we have at least 2 points
+  if (size < 2)
+    {
+    vtkErrorMacro("Cannot evaluate a spline with less than 2 points. # of points is: " << size);
+    return 0.0;
+    }
+
   // check to see if we need to recompute the spline
   if (this->ComputeTime < this->GetMTime ())
     {
