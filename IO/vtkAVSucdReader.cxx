@@ -40,7 +40,7 @@
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkAVSucdReader, "1.2");
+vtkCxxRevisionMacro(vtkAVSucdReader, "1.3");
 vtkStandardNewMacro(vtkAVSucdReader);
 
 vtkAVSucdReader::vtkAVSucdReader()
@@ -390,7 +390,7 @@ void vtkAVSucdReader::ReadGeometry()
 
   if (this->BinaryFile)
     {
-    int *types = new int[this->NumberOfCells];
+    vtkIdType *types = new vtkIdType[this->NumberOfCells];
     if(types == NULL)
       {
       vtkErrorMacro(<< "Error allocating types memory\n");
@@ -498,7 +498,8 @@ void vtkAVSucdReader::ReadBinaryCellTopology(vtkIntArray *materials, int *types,
 
 void vtkAVSucdReader::ReadASCIICellTopology(vtkIntArray *materials, vtkUnstructuredGrid *output)
 {
-  int i, k, list[8];
+  int i, k;
+  vtkIdType list[8];
   int *mat = materials->GetPointer(0);
   char ctype[5];
 
