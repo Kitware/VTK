@@ -62,6 +62,54 @@ vtkStarbasePolyMapper::~vtkStarbasePolyMapper()
     }
 }
 
+//
+// Receives from Actor -> maps data to primitives
+//
+void vtkStarbasePolyMapper::Render(vtkRenderer *ren, vtkActor *act)
+{
+  int numPts;
+  vtkPolyData *input= (vtkPolyData *)this->Input;
+//
+// make sure that we've been properly initialized
+//
+  if ( input == NULL ) 
+    {
+    vtkErrorMacro(<< "No input!");
+    return;
+    }
+  else
+    {
+    input->Update();
+    numPts = input->GetNumberOfPoints();
+    } 
+
+  if (numPts == 0)
+    {
+    vtkDebugMacro(<< "No points!");
+    return;
+    }
+  
+  if ( this->LookupTable == NULL ) this->CreateDefaultLookupTable();
+
+  //
+  // if something has changed regenrate colors and display lists
+  // if required
+  //
+  if ( this->GetMTime() > this->BuildTime || 
+       input->GetMTime() > this->BuildTime || 
+       this->LookupTable->GetMTime() > this->BuildTime ||
+       act->GetProperty()->GetMTime() > this->BuildTime)
+    {
+    // sets this->Colors as side effect
+    this->GetColors();
+    this->Build(input,this->Colors);
+    this->BuildTime.Modified();
+    }
+
+  // want to draw the primitives here
+  this->Draw(ren,act);
+}
+
 // Description:
 // Build the data structure for the starbase polygon PolyMapper.
 void vtkStarbasePolyMapper::Build(vtkPolyData *data, vtkColorScalars *c)
@@ -130,11 +178,6 @@ void vtkStarbasePolyMapper::Draw(vtkRenderer *aren, vtkActor *act)
   vtkTCoords *t;
   int vflags = 0;
 
-  if ( ! this->Data || (npts=this->Data->GetNumberOfPoints()) < 1)
-    {
-    return;
-    }
-  
   // get the fd
   fd = ren->GetFd();
 

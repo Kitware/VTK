@@ -47,14 +47,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkGLPolyMapper.h"
 
 // Description:
-// Construct empty object.
-vtkGLPolyMapper::vtkGLPolyMapper()
-{
-  this->Data = NULL; 
-  this->Colors = NULL; 
-}
-
-// Description:
 // Get the lmcolor property, this is a pretty important little 
 // function.  It determines how vertex colors will be handled  
 // in gl.  When a primitive has vertex colors it will use this 
@@ -71,14 +63,51 @@ int vtkGLPolyMapper::GetLmcolorMode(vtkProperty *prop)
     }
 }
 
-// Description:
-// Build the data structure for the gl polygon primitive.
-void vtkGLPolyMapper::Build(vtkPolyData *data, vtkColorScalars *c)
+//
+// Receives from Actor -> maps data to primitives
+//
+void vtkGLPolyMapper::Render(vtkRenderer *ren, vtkActor *act)
 {
-  this->Data = data;
-  this->Colors = c;
+  int numPts;
+  vtkPolyData *input= (vtkPolyData *)this->Input;
+//
+// make sure that we've been properly initialized
+//
+  if ( input == NULL ) 
+    {
+    vtkErrorMacro(<< "No input!");
+    return;
+    }
+  else
+    {
+    input->Update();
+    numPts = input->GetNumberOfPoints();
+    } 
 
-  return;
+  if (numPts == 0)
+    {
+    vtkDebugMacro(<< "No points!");
+    return;
+    }
+  
+  if ( this->LookupTable == NULL ) this->CreateDefaultLookupTable();
+
+  //
+  // if something has changed regenrate colors and display lists
+  // if required
+  //
+  if ( this->GetMTime() > this->BuildTime || 
+       input->GetMTime() > this->BuildTime || 
+       this->LookupTable->GetMTime() > this->BuildTime ||
+       act->GetProperty()->GetMTime() > this->BuildTime)
+    {
+    // sets this->Colors as side effect
+    this->GetColors();
+    this->BuildTime.Modified();
+    }
+
+  // want to draw the primitives here
+  this->Draw(ren,act);
 }
 
 // Description:
@@ -99,10 +128,8 @@ void vtkGLPolyMapper::Draw(vtkRenderer *vtkNotUsed(aren), vtkActor *act)
   int *pts;
   vtkTCoords *t;
   int tDim, primType;
-
-  if ( ! this->Data || (npts=this->Data->GetNumberOfPoints()) < 1)
-    return;
-
+  vtkPolyData *input = (vtkPolyData *)this->Input;
+  
   // get the property 
   prop = act->GetProperty();
 
@@ -165,14 +192,14 @@ void vtkGLPolyMapper::Draw(vtkRenderer *vtkNotUsed(aren), vtkActor *act)
   interpolation = prop->GetInterpolation();
 
   // and draw the display list
-  p = this->Data->GetPoints();
+  p = input->GetPoints();
   c = this->Colors;
-  prims[0] = this->Data->GetVerts();
-  prims[1] = this->Data->GetLines();
-  prims[2] = this->Data->GetStrips();
-  prims[3] = this->Data->GetPolys();
+  prims[0] = input->GetVerts();
+  prims[1] = input->GetLines();
+  prims[2] = input->GetStrips();
+  prims[3] = input->GetPolys();
 
-  t = this->Data->GetPointData()->GetTCoords();
+  t = input->GetPointData()->GetTCoords();
   if ( t ) 
     {
     tDim = t->GetDimension();
@@ -183,7 +210,7 @@ void vtkGLPolyMapper::Draw(vtkRenderer *vtkNotUsed(aren), vtkActor *act)
       }
     }
 
-  n = this->Data->GetPointData()->GetNormals();
+  n = input->GetPointData()->GetNormals();
   if (interpolation == VTK_FLAT) n = 0;
 
   // if we are doing vertex colors then set lmcolor to adjust 

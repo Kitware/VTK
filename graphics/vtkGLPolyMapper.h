@@ -59,7 +59,7 @@ class VTK_EXPORT vtkGLPolyMapper : public vtkPolyMapper
   static vtkGLPolyMapper *New() {return new vtkGLPolyMapper;};
   char *GetClassName() {return "vtkGLPolyMapper";};
 
-  void Build(vtkPolyData *, vtkColorScalars *);
+  virtual void Render(vtkRenderer *ren, vtkActor *a);
   void Draw(vtkRenderer *ren, vtkActor *act);
 
   int GetLmcolorMode(vtkProperty *prop);
