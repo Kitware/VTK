@@ -213,7 +213,7 @@ vtkDataObject *vtkDataObjectToDataSetFilter::GetInput()
 //----------------------------------------------------------------------------
 void vtkDataObjectToDataSetFilter::Execute()
 {
-  int npts, ncells;
+  int npts;
   vtkDataObject *input = this->GetInput();
 
   vtkDebugMacro(<<"Generating dataset from field data");
@@ -223,7 +223,7 @@ void vtkDataObjectToDataSetFilter::Execute()
     case VTK_POLY_DATA:
       if ( (npts=this->ConstructPoints(this->GetPolyDataOutput())) ) 
         {
-        ncells = this->ConstructCells(this->GetPolyDataOutput());
+        this->ConstructCells(this->GetPolyDataOutput());
         }
       else
         {
@@ -981,7 +981,7 @@ int vtkDataObjectToDataSetFilter::GetCellConnectivityComponentMaxRange()
 //----------------------------------------------------------------------------
 int vtkDataObjectToDataSetFilter::ConstructCells(vtkPolyData *pd)
 {
-  int i, ncells=0;
+  int ncells=0;
   vtkDataArray *fieldArray[4];
   vtkFieldData *fd=this->GetInput()->GetFieldData();
 

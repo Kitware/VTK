@@ -52,7 +52,6 @@ void vtkWarpLens::Execute()
 {
   vtkPoints *inPts;
   vtkPoints *newPts;
-  vtkPointData *pd;
   int ptId, numPts;
   float *x, newX[3];
   vtkPointSet *input = this->GetInput();
@@ -67,7 +66,6 @@ void vtkWarpLens::Execute()
 
   inPts = input->GetPoints();  
   numPts = inPts->GetNumberOfPoints();
-  pd = input->GetPointData();
 
   if (!inPts )
     {

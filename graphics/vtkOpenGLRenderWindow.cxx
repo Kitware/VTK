@@ -1012,8 +1012,8 @@ void vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
 
 float *vtkOpenGLRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2  )
 {
-  int             y_low, y_hi;
-  int             x_low, x_hi;
+  int             y_low;
+  int             x_low;
   int             width, height;
   float           *z_data = NULL;
 
@@ -1023,23 +1023,19 @@ float *vtkOpenGLRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2  )
   if (y1 < y2)
     {
     y_low = y1; 
-    y_hi  = y2;
     }
   else
     {
     y_low = y2; 
-    y_hi  = y1;
     }
 
   if (x1 < x2)
     {
     x_low = x1; 
-    x_hi  = x2;
     }
   else
     {
     x_low = x2; 
-    x_hi  = x1;
     }
 
   width =  abs(x2 - x1)+1;
@@ -1058,8 +1054,8 @@ float *vtkOpenGLRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2  )
 void vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
 					  float *buffer )
 {
-  int             y_low, y_hi;
-  int             x_low, x_hi;
+  int             y_low;
+  int             x_low;
   int             width, height;
 
   // set the current window 
@@ -1068,23 +1064,19 @@ void vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
   if (y1 < y2)
     {
     y_low = y1; 
-    y_hi  = y2;
     }
   else
     {
     y_low = y2; 
-    y_hi  = y1;
     }
 
   if (x1 < x2)
     {
     x_low = x1; 
-    x_hi  = x2;
     }
   else
     {
     x_low = x2; 
-    x_hi  = x1;
     }
 
   width =  abs(x2 - x1)+1;
