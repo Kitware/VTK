@@ -185,43 +185,6 @@ void vtkImageRegion::ChangeExtentCoordinateSystem(int *extentIn, int *axesIn,
 
 //----------------------------------------------------------------------------
 // Description:
-// Returns the size of the bounded memory in KiloBytes.  
-// It is used to determine when to split while streaming.
-int vtkImageRegion::GetMemorySize()
-{
-  int size;
-  
-  switch (this->GetScalarType())
-    {
-    case VTK_FLOAT:
-      size = sizeof(float);
-      break;
-    case VTK_INT:
-      size = sizeof(int);
-      break;
-    case VTK_SHORT:
-      size = sizeof(short);
-      break;
-    case VTK_UNSIGNED_SHORT:
-      size = sizeof(unsigned short);
-      break;
-    case VTK_UNSIGNED_CHAR:
-      size = sizeof(char);
-      break;
-    case VTK_VOID:
-      size = sizeof(char);
-      break;
-    default:
-      vtkErrorMacro(<< "GetMemorySize: Cannot handle ScalarType.");
-    }   
-  
-  return size * this->GetVolume() / 1000;
-}
-
-
-
-//----------------------------------------------------------------------------
-// Description:
 // This function makes sure we are the only one referenceing the data.
 // The data object is copied if necessary.  It does not make the point
 // data writable.

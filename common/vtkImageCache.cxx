@@ -182,74 +182,91 @@ void vtkImageCache::SetReleaseDataFlag(int value)
 // "region" should not have data when this method is called.
 void vtkImageCache::UpdateRegion(vtkImageRegion *region)
 {
-  long memory;
   int saveAxes[VTK_IMAGE_DIMENSIONS];
   int saveExtent[VTK_IMAGE_EXTENT_DIMENSIONS];
+  int saveScalarType;
+  int *imageExtent, idx;
+  
 
   // First Update the Image information 
   this->UpdateImageInformation(region);
 
-  // Save the extent to restore later.
-  region->GetExtent(VTK_IMAGE_DIMENSIONS, saveExtent);
+  // We do not support writting into regions that already have data.
+  // All that would be needed is a check that the data contains the extent.
+  region->ReleaseData();
   
-  // Translate region into the sources coordinate system. (save old)
-  region->GetAxes(VTK_IMAGE_DIMENSIONS, saveAxes);
-  region->SetAxes(VTK_IMAGE_DIMENSIONS, this->Source->GetAxes());
-
-  // Set default data type.
-  if (region->GetScalarType() == VTK_VOID)
+  // If the extent has no "volume", just return.
+  if (region->GetVolume() <= 0)
     {
-    region->SetScalarType(this->GetScalarType());
-    }
-  else
-    {
-    // Do I really want this restriction?
-    if (region->GetScalarType() != this->GetScalarType())
-      {
-      vtkErrorMacro(<< "UpdateRegion: ScalarType does not match.");
-      }
-    }
-  
-  // Allow the source to modify the extent of the region  
-  this->Source->InterceptCacheUpdate(region);
-  
-  // Check if extent exceeds memory limit
-  memory = region->GetMemorySize();
-  // If the extent has no "volume", restore coordinate system and return.
-  if (memory <= 0)
-    {
-    region->SetAxes(VTK_IMAGE_DIMENSIONS, saveAxes);
     return;
     }
-  
   // Must have a source to generate the data
   if ( ! this->Source)
     {
     vtkErrorMacro(<< "UpdateRegion: Can not generate data with no Source");
-    region->SetAxes(saveAxes);
     return;
     }
+  
+  // Save stuff from the region to restore later.
+  region->GetExtent(VTK_IMAGE_DIMENSIONS, saveExtent);
+  region->GetAxes(VTK_IMAGE_DIMENSIONS, saveAxes);
+  saveScalarType = region->GetScalarType();
+  
+  // Check too make sure the requested region is in the image.
+  imageExtent = region->GetImageExtent();
+  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    if ((saveExtent[idx*2] < imageExtent[idx*2]) ||
+	(saveExtent[idx*2+1] > imageExtent[idx*2+1]))
+      {
+      int *axes = region->GetAxes();
+      vtkErrorMacro(<< "UpdateRegion: extent of " 
+          << vtkImageAxisNameMacro(axes[idx]) << " [" << saveExtent[idx*2] 
+          << "->" << saveExtent[idx*2+1] << "] is out of image extent ["
+          << imageExtent[idx*2] << "->" << imageExtent[idx*2+1] << "]");
+      return;
+      }
+    }
+  
+  // Translate region into the sources coordinate system.
+  region->SetAxes(VTK_IMAGE_DIMENSIONS, this->Source->GetAxes());
+  // Set the expected scalar type
+  region->SetScalarType(this->ScalarType);
+  
+  // Allow the source to modify the extent of the region  
+  // (Now that source caches the regions, is this needed?)
+  this->Source->InterceptCacheUpdate(region);
 
-  if (this->ReleaseDataFlag)
-    {
-    // Since SaveData is off, Data must be NULL.  Source should Generate.
-    this->GenerateUnCachedRegionData(region);
-    }
-  else
-    {
-    // look to cached data for update (subclass will handle the update)
-    this->GenerateCachedRegionData(region);
-    }
+  // look to subclass the generate the data.
+  this->GenerateCachedRegionData(region);
 
   // Release the cached data if needed.
   if (this->ReleaseDataFlag)
     {
     this->ReleaseData();
     }
-  
+
   // Leave the region in the original (before this method) coordinate system.
   region->SetAxes(VTK_IMAGE_DIMENSIONS, saveAxes);
   region->SetExtent(VTK_IMAGE_DIMENSIONS, saveExtent);
+  // If the scalar type is different, we must copy the data.
+  if ((saveScalarType != VTK_VOID) && (saveScalarType != this->ScalarType))
+    {
+    vtkImageData *newData = new vtkImageData;
+    vtkImageData *oldData = region->GetData();
+    newData->SetExtent(VTK_IMAGE_DIMENSIONS, oldData->GetExtent());
+    newData->SetScalarType(saveScalarType);
+    vtkWarningMacro(<< "UpdateRegion: Have to copy data from type "
+        << vtkImageScalarTypeNameMacro(this->ScalarType) << " to type "
+        << vtkImageScalarTypeNameMacro(saveScalarType));
+    newData->CopyData(oldData);
+    // Put the new data in the region.
+    region->ReleaseData();
+    region->SetScalarType(saveScalarType);
+    region->SetData(newData);
+    // we must delete the data because it is reference counted.
+    newData->Delete();
+    }
 }
 
 
@@ -265,30 +282,28 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
 // outBBox is not modified or deleted.
 void vtkImageCache::GenerateUnCachedRegionData(vtkImageRegion *region)
 {
-  int saveAxes[VTK_IMAGE_DIMENSIONS];
-  vtkImageData *data;
-
   vtkDebugMacro(<< "GenerateUnCachedRegionData: ");
   
-  // Save the axes just in case it is important to restore coordinate system.
-  // (Update region probably does not care but ...)
-  region->GetAxes(saveAxes);
-
-  // Create the data object for this region, but delay allocating the
-  // memory for as long as possible.
-  // Note: This step is simply to save the requested extent of the region.
-  data = new vtkImageData;
-  region->SetAxes(VTK_IMAGE_DIMENSIONS, data->GetAxes());
-  data->SetExtent(VTK_IMAGE_DIMENSIONS, region->GetExtent());
-  data->SetScalarType(this->ScalarType);
-  region->SetAxes(saveAxes);
-  region->SetData(data);
-  // Since region has registered data, we mst delet our reference
-  data->Delete();
+  // Create the data object for this region, to fix its size.
+  // Memory allocation is delayed as long as possible.
+  if ( ! region->GetData())
+    {
+    int saveAxes[VTK_IMAGE_DIMENSIONS];
+    vtkImageData *data = new vtkImageData;
+    region->GetAxes(VTK_IMAGE_DIMENSIONS, saveAxes);
+    region->SetAxes(VTK_IMAGE_DIMENSIONS, data->GetAxes());
+    data->SetExtent(VTK_IMAGE_DIMENSIONS, region->GetExtent());
+    data->SetScalarType(this->ScalarType);
+    region->SetAxes(saveAxes);
+    region->SetData(data);
+    // Since region has registered data, we mst delete our reference
+    data->Delete();
+    }
   
   // Tell the filter to generate the data for this region
   // IMPORTANT: Region is just to communicate extent, and does not
-  // return any infomation!
+  // necessarily return any infomation!  Data is really returned
+  // when source calls CacheRegion.
   this->Source->UpdatePointData(VTK_IMAGE_DIMENSIONS, region);
 }
 
