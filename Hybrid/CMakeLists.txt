@@ -1,7 +1,6 @@
 SOURCE_FILES ( Hybrid_SRCS
 vtkCellDerivatives 
 vtkCubeAxesActor2D 
-vtkDEMReader 
 vtkDepthSortPolyData 
 vtkEarthSource 
 vtkGridTransform 
@@ -12,7 +11,6 @@ vtkLandmarkTransform
 vtkLegendBoxActor 
 vtkLightKit 
 vtkMassProperties 
-vtkOBJReader 
 vtkOutlineCornerFilter 
 vtkOutlineCornerSource 
 vtkProjectedTexture 

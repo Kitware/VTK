@@ -9,6 +9,7 @@ vtkDataReader
 vtkDataSetReader
 vtkDataSetWriter
 vtkDataWriter
+vtkDEMReader 
 vtkEnSight6BinaryReader
 vtkEnSight6Reader
 vtkEnSightGoldBinaryReader
@@ -20,6 +21,7 @@ vtkImageReader2
 vtkImageWriter
 vtkMCubesReader
 vtkMCubesWriter
+vtkOBJReader 
 vtkPLOT3DReader
 vtkPNMReader
 vtkPNMWriter
