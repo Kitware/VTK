@@ -48,20 +48,6 @@ vlActor::~vlActor()
   if ( this->Mapper ) this->Mapper->UnRegister((void *)this);
 }
 
-void vlActor::SetVisibility(int flg)
-{
-  if ( this->Visibility != flg )
-    {
-    this->Visibility = flg;
-    this->Modified();
-    }
-}
-
-int vlActor::GetVisibility()
-{
-  return this->Visibility;
-}
-
 void vlActor::Render(vlRenderer *ren)
 {
   /* render the property */
