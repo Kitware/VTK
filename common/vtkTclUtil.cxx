@@ -314,9 +314,17 @@ void vtkTclVoidFunc(void *arg)
 
   if (res == TCL_ERROR)
     {
-    vtkGenericWarningMacro("Error returned from vtk/tcl callback:\n" <<
-			   Tcl_GetVar(arg2->interp,"errorInfo",0) <<
-			   " at line number " << arg2->interp->errorLine);
+    if (Tcl_GetVar(arg2->interp,"errorInfo",0))
+      {
+      vtkGenericWarningMacro("Error returned from vtk/tcl callback:\n" <<
+			     Tcl_GetVar(arg2->interp,"errorInfo",0) <<
+			     " at line number " << arg2->interp->errorLine);
+      }
+    else
+      {
+      vtkGenericWarningMacro("Error returned from vtk/tcl callback:\n" <<
+			     " at line number " << arg2->interp->errorLine);
+      }
     }
 }
 
