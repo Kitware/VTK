@@ -21,7 +21,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindowInteractor.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleJoystickCamera, "1.29");
+vtkCxxRevisionMacro(vtkInteractorStyleJoystickCamera, "1.30");
 vtkStandardNewMacro(vtkInteractorStyleJoystickCamera);
 
 //----------------------------------------------------------------------------
@@ -160,6 +160,38 @@ void vtkInteractorStyleJoystickCamera::OnRightButtonUp()
       this->EndDolly();
       break;
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleJoystickCamera::OnMouseWheelForward() 
+{
+  this->FindPokedRenderer(this->Interactor->GetEventPosition()[0], 
+                          this->Interactor->GetEventPosition()[1]);
+  if (this->CurrentRenderer == NULL)
+    {
+    return;
+    }
+  
+  this->StartDolly();
+  double factor = 10.0 * 0.2 * this->MouseWheelMotionFactor;
+  this->Dolly(pow((double)1.1, factor));
+  this->EndDolly();
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleJoystickCamera::OnMouseWheelBackward()
+{
+  this->FindPokedRenderer(this->Interactor->GetEventPosition()[0], 
+                          this->Interactor->GetEventPosition()[1]);
+  if (this->CurrentRenderer == NULL)
+    {
+    return;
+    }
+  
+  this->StartDolly();
+  double factor = 10.0 * -0.2 * this->MouseWheelMotionFactor;
+  this->Dolly(pow((double)1.1, factor));
+  this->EndDolly();
 }
 
 //----------------------------------------------------------------------------
@@ -303,38 +335,40 @@ void vtkInteractorStyleJoystickCamera::Dolly()
     }
   
   vtkRenderWindowInteractor *rwi = this->Interactor;
-
   double *center = this->CurrentRenderer->GetCenter();
-
   double dy = (double)rwi->GetEventPosition()[1] - (double)center[1];
   double dyf = 0.5 * dy / (double)center[1];
-  double zoomFactor = pow((double)1.1, dyf);
+  this->Dolly(pow((double)1.1, dyf));
+}
 
-  if (zoomFactor < 0.5 || zoomFactor > 1.5)
+//----------------------------------------------------------------------------
+void vtkInteractorStyleJoystickCamera::Dolly(double factor)
+{
+  if (this->CurrentRenderer == NULL)
     {
-    vtkErrorMacro("Bad zoom factor encountered");
+    return;
     }
-  
+
   vtkCamera* camera = this->CurrentRenderer->GetActiveCamera();
   if (camera->GetParallelProjection())
     {
-    camera->SetParallelScale(camera->GetParallelScale() / zoomFactor);
+    camera->SetParallelScale(camera->GetParallelScale() / factor);
     }
   else
     {
-    camera->Dolly(zoomFactor);
+    camera->Dolly(factor);
     if (this->AutoAdjustCameraClippingRange)
       {
       this->CurrentRenderer->ResetCameraClippingRange();
       }
     }
 
-  if (rwi->GetLightFollowCamera()) 
+  if (this->Interactor->GetLightFollowCamera()) 
     {
     this->CurrentRenderer->UpdateLightsGeometryToFollowCamera();
     }
 
-  rwi->Render();
+  this->Interactor->Render();
 }
 
 //----------------------------------------------------------------------------

@@ -32,7 +32,7 @@
 #include "vtkRenderer.h"
 #include "vtkTextProperty.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyle, "1.93");
+vtkCxxRevisionMacro(vtkInteractorStyle, "1.94");
 vtkStandardNewMacro(vtkInteractorStyle);
 
 //----------------------------------------------------------------------------
@@ -68,6 +68,8 @@ vtkInteractorStyle::vtkInteractorStyle()
   this->PickColor[1]        = 0.0; 
   this->PickColor[2]        = 0.0;
   this->PickedActor2D       = NULL;
+
+  this->MouseWheelMotionFactor = 1.0;
 }
 
 //----------------------------------------------------------------------------
@@ -192,6 +194,14 @@ void vtkInteractorStyle::SetInteractor(vtkRenderWindowInteractor *i)
                    this->Priority);
 
     i->AddObserver(vtkCommand::RightButtonReleaseEvent, 
+                   this->EventCallbackCommand, 
+                   this->Priority);
+
+    i->AddObserver(vtkCommand::MouseWheelForwardEvent, 
+                   this->EventCallbackCommand, 
+                   this->Priority);
+
+    i->AddObserver(vtkCommand::MouseWheelBackwardEvent, 
                    this->EventCallbackCommand, 
                    this->Priority);
 
@@ -851,6 +861,7 @@ void vtkInteractorStyle::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "State: " << this->State << endl;
   os << indent << "UseTimers: " << this->UseTimers << endl;
   os << indent << "HandleObservers: " << this->HandleObservers << endl;
+  os << indent << "MouseWheelMotionFactor: " << this->MouseWheelMotionFactor << endl;
 }
 
 //----------------------------------------------------------------------------
@@ -1005,6 +1016,30 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* vtkNotUsed(object),
       else 
         {
         self->OnRightButtonUp();
+        }
+      break;
+
+    case vtkCommand::MouseWheelForwardEvent:
+      if (self->HandleObservers && 
+          self->HasObserver(vtkCommand::MouseWheelForwardEvent)) 
+        {
+        self->InvokeEvent(vtkCommand::MouseWheelForwardEvent,NULL);
+        }
+      else 
+        {
+        self->OnMouseWheelForward();
+        }
+      break;
+
+    case vtkCommand::MouseWheelBackwardEvent: 
+      if (self->HandleObservers && 
+          self->HasObserver(vtkCommand::MouseWheelBackwardEvent)) 
+        {
+        self->InvokeEvent(vtkCommand::MouseWheelBackwardEvent,NULL);
+        }
+      else 
+        {
+        self->OnMouseWheelBackward();
         }
       break;
 

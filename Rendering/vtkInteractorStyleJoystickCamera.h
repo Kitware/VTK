@@ -52,6 +52,8 @@ public:
   virtual void OnMiddleButtonUp();
   virtual void OnRightButtonDown();
   virtual void OnRightButtonUp();
+  virtual void OnMouseWheelForward();
+  virtual void OnMouseWheelBackward();
 
   // These methods for the different interactions in different modes
   // are overridden in subclasses to perform the correct motion. Since
@@ -65,6 +67,8 @@ public:
 protected:
   vtkInteractorStyleJoystickCamera();
   ~vtkInteractorStyleJoystickCamera();
+
+  virtual void Dolly(double factor);
 
 private:
   vtkInteractorStyleJoystickCamera(const vtkInteractorStyleJoystickCamera&);  // Not implemented.

@@ -181,6 +181,8 @@ public:
   virtual void OnMiddleButtonUp() {};
   virtual void OnRightButtonDown() {};
   virtual void OnRightButtonUp() {};
+  virtual void OnMouseWheelForward() {};
+  virtual void OnMouseWheelBackward() {};
 
   // Description:
   // OnChar implements keyboard functions, but subclasses can override this 
@@ -254,6 +256,13 @@ public:
   vtkSetVector3Macro(PickColor,double);
   vtkGetVectorMacro(PickColor, double, 3);
 
+  // Description:
+  // Set/Get the mouse wheel motion factor. Default to 1.0. Set it to a 
+  // different value to emphasize or de-emphasize the action triggered by
+  // mouse wheel motion.
+  vtkSetMacro(MouseWheelMotionFactor, double);
+  vtkGetMacro(MouseWheelMotionFactor, double);
+
 protected:
   vtkInteractorStyle();
   ~vtkInteractorStyle();
@@ -287,6 +296,7 @@ protected:
   vtkActor2D         *PickedActor2D;
   int                PropPicked;      // bool: prop picked?
   double             PickColor[3];    // support 2D picking
+  double             MouseWheelMotionFactor;
 
 private:
   vtkInteractorStyle(const vtkInteractorStyle&);  // Not implemented.

@@ -22,7 +22,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTrackballCamera, "1.31");
+vtkCxxRevisionMacro(vtkInteractorStyleTrackballCamera, "1.32");
 vtkStandardNewMacro(vtkInteractorStyleTrackballCamera);
 
 //----------------------------------------------------------------------------
@@ -176,6 +176,38 @@ void vtkInteractorStyleTrackballCamera::OnRightButtonUp()
 }
 
 //----------------------------------------------------------------------------
+void vtkInteractorStyleTrackballCamera::OnMouseWheelForward() 
+{
+  this->FindPokedRenderer(this->Interactor->GetEventPosition()[0], 
+                          this->Interactor->GetEventPosition()[1]);
+  if (this->CurrentRenderer == NULL)
+    {
+    return;
+    }
+  
+  this->StartDolly();
+  double factor = this->MotionFactor * 0.2 * this->MouseWheelMotionFactor;
+  this->Dolly(pow((double)1.1, factor));
+  this->EndDolly();
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleTrackballCamera::OnMouseWheelBackward()
+{
+  this->FindPokedRenderer(this->Interactor->GetEventPosition()[0], 
+                          this->Interactor->GetEventPosition()[1]);
+  if (this->CurrentRenderer == NULL)
+    {
+    return;
+    }
+  
+  this->StartDolly();
+  double factor = this->MotionFactor * -0.2 * this->MouseWheelMotionFactor;
+  this->Dolly(pow((double)1.1, factor));
+  this->EndDolly();
+}
+
+//----------------------------------------------------------------------------
 void vtkInteractorStyleTrackballCamera::Rotate()
 {
   if (this->CurrentRenderer == NULL)
@@ -311,32 +343,40 @@ void vtkInteractorStyleTrackballCamera::Dolly()
     }
   
   vtkRenderWindowInteractor *rwi = this->Interactor;
-  vtkCamera *camera = this->CurrentRenderer->GetActiveCamera();
   double *center = this->CurrentRenderer->GetCenter();
-
   int dy = rwi->GetEventPosition()[1] - rwi->GetLastEventPosition()[1];
   double dyf = this->MotionFactor * (double)(dy) / (double)(center[1]);
-  double zoomFactor = pow((double)1.1, dyf);
+  this->Dolly(pow((double)1.1, dyf));
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleTrackballCamera::Dolly(double factor)
+{
+  if (this->CurrentRenderer == NULL)
+    {
+    return;
+    }
   
+  vtkCamera *camera = this->CurrentRenderer->GetActiveCamera();
   if (camera->GetParallelProjection())
     {
-    camera->SetParallelScale(camera->GetParallelScale()/zoomFactor);
+    camera->SetParallelScale(camera->GetParallelScale() / factor);
     }
   else
     {
-    camera->Dolly(zoomFactor);
+    camera->Dolly(factor);
     if (this->AutoAdjustCameraClippingRange)
       {
       this->CurrentRenderer->ResetCameraClippingRange();
       }
     }
   
-  if (rwi->GetLightFollowCamera()) 
+  if (this->Interactor->GetLightFollowCamera()) 
     {
     this->CurrentRenderer->UpdateLightsGeometryToFollowCamera();
     }
   
-  rwi->Render();
+  this->Interactor->Render();
 }
 
 //----------------------------------------------------------------------------
