@@ -184,10 +184,16 @@ extern "C" int Vtkiotcl_Init(Tcl_Interp *interp);
 
 #ifdef VTK_USE_RENDERING
 extern "C" int Vtkrenderingtcl_Init(Tcl_Interp *interp);
-#if defined(VTK_DISABLE_TK_INIT) && !defined(VTK_USE_COCOA)
+
+// if VTK_DISABLE_TK_INIT is defined, then those widgets were *not*
+// initialized by the Rendering kit, thus we need to do it here so
+// that we can use them from the vtk executable
+
+#if defined(VTK_DISABLE_TK_INIT)
 extern "C" int Vtktkrenderwidget_Init(Tcl_Interp *interp);
 extern "C" int Vtktkimageviewerwidget_Init(Tcl_Interp *interp);
 #endif
+
 #endif
 
 #ifdef VTK_USE_PATENTED
@@ -423,8 +429,11 @@ int Tcl_AppInit(Tcl_Interp *interp)
     {
     return TCL_ERROR;
     }
-#if defined(VTK_DISABLE_TK_INIT) && !defined(VTK_USE_COCOA)
-  // Need to init here because rendering did not when this option is on
+
+  // if VTK_DISABLE_TK_INIT is defined, then those widgets were *not*
+  // initialized by the Rendering kit, thus we need to do it here so
+  // that we can use them from the vtk executable
+#if defined(VTK_DISABLE_TK_INIT)
   if (Vtktkrenderwidget_Init(interp) == TCL_ERROR) 
     {
     return TCL_ERROR;

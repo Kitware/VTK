@@ -325,6 +325,10 @@ IF (VTK_WRAP_TCL)
     ENDIF (NOT APPLE)
   ENDIF (NOT WIN32) 
 
+  # if VTK_DISABLE_TK_INIT is not defined, then those widgets *will* be
+  # initialized by the Rendering kit. If *not* defined we need to do it
+  # manually when needed (for example, in vtkTkAppInit so that
+  # we can use them from the vtk executable
   IF (NOT VTK_DISABLE_TK_INIT)
    SET(Kit_TCL_EXTRA_CMDS 
      vtkTkRenderWidget 
