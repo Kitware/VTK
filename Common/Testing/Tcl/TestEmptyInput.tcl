@@ -43,16 +43,16 @@ proc TestOne {cname} {
 }
 
 set classExceptions {
-    vtkCommand
-    vtkIndent
-    vtkTimeStamp
-    vtkTkImageViewerWidget
-    vtkTkImageWindowWidget
-    vtkTkRenderWidget
-    vtkImageDataToTkPhoto
-    vtkJPEGReader
-    vtkWin32VideoSource
-
+   vtkCommand
+   vtkIndent
+   vtkTimeStamp
+   vtkTkImageViewerWidget
+   vtkTkImageWindowWidget
+   vtkTkRenderWidget
+   vtkImageDataToTkPhoto
+   vtkJPEGReader
+   vtkWin32VideoSource
+   vtkDistributedDataFilter
 }
 
 proc rtTestEmptyInputTest { fileid } { 
