@@ -67,7 +67,7 @@ void vtkImageSimpleCache::PrintSelf(ostream& os, vtkIndent indent)
 
   if ( ! this->CachedData)
     {
-    os << indent << "CachedData: None";
+    os << indent << "CachedData: None\n";
     }
   else
     {
