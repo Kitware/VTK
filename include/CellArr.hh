@@ -64,6 +64,11 @@ public:
   void ReverseCell(int loc);
   void ReplaceCell(int loc, int npts, int *pts);
 
+  // miscellaneous pointer type operations (for fast read/write operations)
+  int *GetPtr();
+  int *WritePtr(const int ncells, const int size);
+  void WrotePtr();
+
 protected:
   int NumberOfCells;
   int Location;
@@ -205,5 +210,29 @@ inline void vlCellArray::ReplaceCell(int loc, int npts, int *pts)
   int *oldPts=this->Ia.GetPtr(loc+1);
   for (int i=0; i < npts; i++)  oldPts[i] = pts[i];
 }
+
+// Description:
+// Get pointer to array of cell data.
+inline int *vlCellArray::GetPtr()
+{
+  return this->Ia.GetPtr(0);
+}
+
+// Description:
+// Get pointer to data array for purpose of direct writes of data. Size is the
+// total storage consumed by the cell array. ncells is the number of cells
+// represented in the array.
+// Use the method WrotePtr() to mark completion of write.
+inline int *vlCellArray::WritePtr(const int ncells, const int size)
+{
+  this->NumberOfCells = ncells;
+  this->Location = 0;
+  return this->Ia.WritePtr(0,size);
+}
+
+// Description:
+// Terminate direct write of data. Although dummy routine now, reserved for
+// future use.
+inline void vlCellArray::WrotePtr() {}
 
 #endif

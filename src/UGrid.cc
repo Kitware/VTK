@@ -216,14 +216,20 @@ int vlUnstructuredGrid::InsertNextCell(int type, int npts,
     this->Cells->InsertNextCell(type,this->Connectivity->GetLocation(npts));
 }
 
-void vlUnstructuredGrid::InsertCells(int numCells, int width, int *data)
+void vlUnstructuredGrid::SetCells(int *types, vlCellArray *cells)
 {
+  int i, npts, *pts;
 
-}
+  // set cell array
+  if ( this->Connectivity ) this->Connectivity->UnRegister(this);
+  this->Connectivity = cells;
+  if ( this->Connectivity ) this->Connectivity->Register(this);
 
-void vlUnstructuredGrid::InsertCells(int numCells, int *data)
-{
-
+  // build types
+  for (i=0, cells->InitTraversal(); cells->GetNextCell(npts,pts); i++)
+    {
+    this->Cells->InsertNextCell(types[i],this->Connectivity->GetLocation(npts));
+    }
 }
 
 void vlUnstructuredGrid::BuildLinks()

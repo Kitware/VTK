@@ -38,12 +38,12 @@ public:
   char *GetDataType() {return "vlUnstructuredGrid";};
   void PrintSelf(ostream& os, vlIndent indent);
 
-  // cell creation methods
+  // cell creation/manipulation methods
   void Allocate(int numCells=1000, int extSize=1000);
   int InsertNextCell(int type, vlIdList& ptIds);
   int InsertNextCell(int type, int npts, int pts[MAX_CELL_SIZE]);
-  void InsertCells(int numCells, int width, int* data);
-  void InsertCells(int numCells, int* data);
+  void SetCells(int *types, vlCellArray *cells);
+  vlCellArray *GetCells() {return this->Connectivity;};
 
   // dataset interface
   vlDataSet *MakeObject() {return new vlUnstructuredGrid(*this);};
