@@ -13,6 +13,8 @@ SET(VTK_VERSION
 #-----------------------------------------------------------------------------
 # Load the VTK CMake extension module.
 IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
+  INCLUDE (${CMAKE_ROOT}/Modules/TestBigEndian.cmake)
+  TEST_BIG_ENDIAN(CMAKE_WORDS_BIGENDIAN)
   # Import the VTK_LOAD_CMAKE_EXTENSIONS macro.
   INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkLoadCMakeExtensions.cmake)
 
