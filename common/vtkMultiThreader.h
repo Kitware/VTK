@@ -52,7 +52,7 @@ typedef void vtkThreadFunctionType;
 #endif
 
 #ifdef USE_PTHREADS
-typedef (void *) vtkThreadFunctionType;
+typedef void * vtkThreadFunctionType;
 #define VTK_THREAD_RETURN_TYPE  NULL
 #endif
 
