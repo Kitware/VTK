@@ -67,9 +67,7 @@ vtkWin32OpenGLRenderWindow::vtkWin32OpenGLRenderWindow()
   this->DeviceContext = (HDC)0;		// hsr
   this->MFChandledWindow = FALSE;	// hsr
 
-  if ( this->WindowName ) delete [] this->WindowName;
-  this->WindowName = new char[strlen("Visualization Toolkit - Win32OpenGL")+1];
-    strcpy( this->WindowName, "Visualization Toolkit - Win32OpenGL" );
+  this->SetWindowName("Visualization Toolkit - Win32OpenGL");
 }
 
 vtkWin32OpenGLRenderWindow::~vtkWin32OpenGLRenderWindow()
@@ -79,23 +77,8 @@ vtkWin32OpenGLRenderWindow::~vtkWin32OpenGLRenderWindow()
 
 void vtkWin32OpenGLRenderWindow::SetWindowName( char * _arg )
 {
-  vtkDebugMacro("Debug: In " __FILE__ << ", line " << __LINE__ << "\n" 
-         << this->GetClassName() << " (" << this << "): setting " 
-         << WindowName  << " to " << _arg << "\n\n");
-
-  if ( WindowName && _arg && (!strcmp(WindowName,_arg))) return;
-  if (WindowName) delete [] WindowName;
-  if( _arg )
-    {
-    WindowName = new char[strlen(_arg)+1];
-    strcpy(WindowName,_arg);
-    }
-  else
-    {
-    WindowName = NULL;
-    }
+  vtkWindow::SetWindowName(_arg);
   if (this->WindowId) SetWindowText(this->WindowId,this->WindowName);
-  this->Modified();
 }
 
 int vtkWin32OpenGLRenderWindow::GetEventPending()
@@ -408,6 +391,7 @@ void vtkWin32OpenGLRenderWindow::WindowInitialize (void)
   int x, y, width, height;
   GLenum type;
   static int count = 1;
+  char *windowName;
   
   x = ((this->Position[0] >= 0) ? this->Position[0] : 5);
   y = ((this->Position[1] >= 0) ? this->Position[1] : 5);
@@ -435,12 +419,13 @@ void vtkWin32OpenGLRenderWindow::WindowInitialize (void)
 		  {
       WNDCLASS wndClass;
 
-      if(this->WindowName) delete [] this->WindowName;
       int len = strlen( "Visualization Toolkit - Win32OpenGL #") 
                           + (int)ceil( (double) log10( (double)(count+1) ) )
                           + 1; 
-      this->WindowName = new char [ len ];
-		  sprintf(this->WindowName,"Visualization Toolkit - Win32OpenGL #%i",count++);
+      windowName = new char [ len ];
+	  sprintf(windowName,"Visualization Toolkit - Win32OpenGL #%i",count++);
+      this->SetWindowName(windowName);
+      delete [] windowName;
 
       // has the class been registered ?
       if (!GetClassInfo(this->ApplicationInstance,"vtkOpenGL",&wndClass))
