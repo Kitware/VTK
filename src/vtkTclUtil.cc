@@ -131,9 +131,11 @@ int vtkCommand(ClientData cd, Tcl_Interp *interp, int argc, char *argv[])
     vtkTclDebugOn = 0;
     return TCL_OK;
     }
+
+  return TCL_OK;
 }
 
-vtkTclGetObjectFromPointer(Tcl_Interp *interp,void *temp,
+void vtkTclGetObjectFromPointer(Tcl_Interp *interp,void *temp,
 			  int command(ClientData, Tcl_Interp *,int, char *[]))
 {
   int is_new;
