@@ -138,7 +138,10 @@ void vlPolyReader::Execute()
 // Read polygonal data specific stuff
 //
   if ( (retStat=fscanf(fp,"%256s",line)) == EOF || retStat < 1 ) 
-    goto PREMATURE;
+    {
+    vlErrorMacro(<<"Data file ends prematurely!");
+    return;
+    }
 
   if ( !strncmp(this->Reader.LowerCase(line),"dataset",(unsigned long)7) )
     {
@@ -146,7 +149,10 @@ void vlPolyReader::Execute()
 // Make sure we're reading right type of geometry
 //
     if ( (retStat=fscanf(fp,"%256s",line)) == EOF || retStat < 1 ) 
-      goto PREMATURE;
+      {
+      vlErrorMacro(<<"Data file ends prematurely!");
+      return;
+      } 
 
     if ( strncmp(this->Reader.LowerCase(line),"polydata",8) )
       {
@@ -158,13 +164,15 @@ void vlPolyReader::Execute()
 //
     while (1)
       {
-      if ( (retStat=fscanf(fp,"%256s",line)) == EOF || retStat < 1 ) 
-        goto PREMATURE;
+      if ( (retStat=fscanf(fp,"%256s",line)) == EOF || retStat < 1 ) break;
 
       if ( ! strncmp(this->Reader.LowerCase(line),"points",6) )
         {
         if ( (retStat=fscanf(fp,"%d", &numPts)) == EOF || retStat < 1 ) 
-          goto PREMATURE;
+          {
+          vlErrorMacro(<<"Cannot read number of points!");
+          return;
+          }
 
         this->Reader.ReadPoints(fp, (vlPointSet *)this, numPts);
         }
@@ -173,7 +181,10 @@ void vlPolyReader::Execute()
         {
         vlCellArray *verts = new vlCellArray;
         if ( (retStat=fscanf(fp,"%d %d", &ncells, &size)) == EOF || retStat < 2 ) 
-          goto PREMATURE;
+          {
+          vlErrorMacro(<<"Cannot read vertices!");
+          return;
+          }
 
         this->Reader.ReadCells(fp, size, verts->WritePtr(ncells,size));
         verts->WrotePtr();
@@ -184,7 +195,10 @@ void vlPolyReader::Execute()
         {
         vlCellArray *lines = new vlCellArray;
         if ( (retStat=fscanf(fp,"%d %d", &ncells, &size)) == EOF || retStat < 2 ) 
-          goto PREMATURE;
+          {
+          vlErrorMacro(<<"Cannot read lines!");
+          return;
+          }
 
         this->Reader.ReadCells(fp, size, lines->WritePtr(ncells,size));
         lines->WrotePtr();
@@ -195,7 +209,10 @@ void vlPolyReader::Execute()
         {
         vlCellArray *polys = new vlCellArray;
         if ( (retStat=fscanf(fp,"%d %d", &ncells, &size)) == EOF || retStat < 2 ) 
-          goto PREMATURE;
+          {
+          vlErrorMacro(<<"Cannot read polygons!");
+          return;
+          }
 
         this->Reader.ReadCells(fp, size, polys->WritePtr(ncells,size));
         polys->WrotePtr();
@@ -206,7 +223,10 @@ void vlPolyReader::Execute()
         {
         vlCellArray *tris = new vlCellArray;
         if ( (retStat=fscanf(fp,"%d %d", &ncells, &size)) == EOF || retStat < 2 ) 
-          goto PREMATURE;
+          {
+          vlErrorMacro(<<"Cannot read triangle strips!");
+          return;
+          }
 
         this->Reader.ReadCells(fp, size, tris->WritePtr(ncells,size));
         tris->WrotePtr();
@@ -216,48 +236,50 @@ void vlPolyReader::Execute()
       else if ( ! strncmp(line, "point_data", 10) )
         {
         if ( (retStat=fscanf(fp,"%d", &npts)) == EOF || retStat < 1 ) 
-          goto PREMATURE;
+          {
+          vlErrorMacro(<<"Cannot read point data!");
+          return;
+          }
         
         if ( npts != numPts )
           {
-          vlErrorMacro(<<"Number of points don't match!");
+          vlErrorMacro(<<"Number of points don't match number data values!");
           return;
           }
 
+        this->Reader.ReadPointData(fp, (vlDataSet *)this, npts, this->Debug);
         break; //out of this loop
         }
 
       else
-        goto UNRECOGNIZED;
-
+        {
+        vlErrorMacro(<< "Unrecognized keyord: " << line);
+        return;
+        }
       }
+
+      if ( ! this->GetPoints() ) vlWarningMacro(<<"No points read!");
+      if ( !(this->GetVerts() || this->GetLines() || 
+      this->GetPolys() || this->GetStrips()) ) 
+        vlWarningMacro(<<"No topology read!");
     }
 
   else if ( !strncmp(line, "point_data", 10) )
     {
+    vlWarningMacro(<<"No geometry defined in data file!");
     if ( (retStat=fscanf(fp,"%d", &numPts)) == EOF || retStat < 1 ) 
-      goto PREMATURE;
+      {
+      vlErrorMacro(<<"Cannot read point data!");
+      return;
+      }
 
-    numPts = 0;
-    vlWarningMacro(<<"Not reading any dataset geometry...");
+    this->Reader.ReadPointData(fp, (vlDataSet *)this, numPts, this->Debug);
     }
 
   else 
-    goto UNRECOGNIZED;
-
-//
-// Now read the point data
-//
-  this->Reader.ReadPointData(fp, (vlDataSet *)this, numPts, this->Debug);
-  return;
-
-  PREMATURE:
-    vlErrorMacro(<< "Premature EOF");
-    return;
-
-  UNRECOGNIZED:
+    {
     vlErrorMacro(<< "Unrecognized keyord: " << line);
-    return;
+    }
 }
 
 void vlPolyReader::PrintSelf(ostream& os, vlIndent indent)

@@ -127,6 +127,7 @@ void vlStructuredPointsReader::Execute()
   int retStat;
   char line[257];
   int npts;
+  int dimsRead=0, arRead=0, originRead=0;
 
   vlDebugMacro(<<"Reading vl structured points file...");
   this->Initialize();
@@ -138,7 +139,10 @@ void vlStructuredPointsReader::Execute()
 // Read structured points specific stuff
 //
   if ( (retStat=fscanf(fp,"%256s",line)) == EOF || retStat < 1 ) 
-    goto PREMATURE;
+    {
+    vlErrorMacro(<<"Data file ends prematurely!");
+    return;
+    }
 
   if ( !strncmp(this->Reader.LowerCase(line),"dataset",(unsigned long)7) )
     {
@@ -146,7 +150,10 @@ void vlStructuredPointsReader::Execute()
 // Make sure we're reading right type of geometry
 //
     if ( (retStat=fscanf(fp,"%256s",line)) == EOF || retStat < 1 ) 
-      goto PREMATURE;
+      {
+      vlErrorMacro(<<"Data file ends prematurely!");
+      return;
+      } 
 
     if ( strncmp(this->Reader.LowerCase(line),"structured_points",17) )
       {
@@ -159,18 +166,21 @@ void vlStructuredPointsReader::Execute()
     numPts = this->GetNumberOfPoints(); // get default
     while (1)
       {
-      if ( (retStat=fscanf(fp,"%256s",line)) == EOF || retStat < 1 ) 
-        goto PREMATURE;
+      if ( (retStat=fscanf(fp,"%256s",line)) == EOF || retStat < 1 ) break;
 
       if ( ! strncmp(this->Reader.LowerCase(line),"dimensions",10) )
         {
         int dim[3];
         if ( (retStat=fscanf(fp,"%d %d %d",dim, dim+1, dim+2)) == EOF
         || retStat < 3 ) 
-          goto PREMATURE;
+          {
+          vlErrorMacro(<<"Error reading dimensions!");
+          return;
+          }
 
         numPts = dim[0] * dim[1] * dim[2];
         this->SetDimensions(dim);
+        dimsRead = 1;
         }
 
       else if ( ! strncmp(line,"aspect_ratio",12) )
@@ -178,9 +188,13 @@ void vlStructuredPointsReader::Execute()
         float ar[3];
         if ( (retStat=fscanf(fp,"%f %f %f",ar, ar+1, ar+2)) == EOF
         || retStat < 3 ) 
-          goto PREMATURE;
+          {
+          vlErrorMacro(<<"Error reading aspect ratio!");
+          return;
+          }
 
         this->SetAspectRatio(ar);
+        arRead = 1;
         }
 
       else if ( ! strncmp(line,"origin",6) )
@@ -188,56 +202,60 @@ void vlStructuredPointsReader::Execute()
         float origin[3];
         if ( (retStat=fscanf(fp,"%f %f %f",origin, origin+1, origin+2)) == EOF
         || retStat < 3 ) 
-          goto PREMATURE;
+          {
+          vlErrorMacro(<<"Error reading origin!");
+          return;
+          }
 
         this->SetOrigin(origin);
+        originRead = 1;
         }
 
       else if ( ! strncmp(line, "point_data", 10) )
         {
         if ( (retStat=fscanf(fp,"%d", &npts)) == EOF || retStat < 1 ) 
-          goto PREMATURE;
+          {
+          vlErrorMacro(<<"Cannot read point data!");
+          return;
+          }
         
         if ( npts != numPts )
           {
-          vlErrorMacro(<<"Number of points don't match!");
+          vlErrorMacro(<<"Number of points don't match data values!");
           return;
           }
 
+        this->Reader.ReadPointData(fp, (vlDataSet *)this, npts, this->Debug);
         break; //out of this loop
         }
 
       else
-        goto UNRECOGNIZED;
-
+        {
+        vlErrorMacro(<< "Unrecognized keyord: " << line);
+        return;
+        }
       }
+
+      if ( !dimsRead ) vlWarningMacro(<<"No dimensions read.");
+      if ( !arRead ) vlWarningMacro(<<"No aspect ratio read.");
+      if ( !originRead ) vlWarningMacro(<<"No origin read.");
     }
 
   else if ( !strncmp(line,"point_data",10) )
     {
+    vlWarningMacro(<<"No geometry defined in data file!");
     if ( (retStat=fscanf(fp,"%d", &npts)) == EOF || retStat < 1 ) 
-      goto PREMATURE;
-
-    numPts = 0;
-    vlWarningMacro(<<"Not reading any dataset geometry...");
+      {
+      vlErrorMacro(<<"Cannot read point data!");
+      return;
+      }
+    this->Reader.ReadPointData(fp, (vlDataSet *)this, numPts, this->Debug);
     }
 
   else 
-    goto UNRECOGNIZED;
-
-//
-// Now read the point data
-//
-  this->Reader.ReadPointData(fp, (vlDataSet *)this, numPts, this->Debug);
-  return;
-
-  PREMATURE:
-    vlErrorMacro(<< "Premature EOF");
-    return;
-
-  UNRECOGNIZED:
+    {
     vlErrorMacro(<< "Unrecognized keyord: " << line);
-    return;
+    }
 }
 
 

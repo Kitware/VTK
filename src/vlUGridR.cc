@@ -130,7 +130,7 @@ void vlUnstructuredGridReader::Execute()
   vlCellArray *cells=NULL;
   int *types=NULL;
 
-  vlDebugMacro(<<"Reading vl unsstructured grid...");
+  vlDebugMacro(<<"Reading vl unstructured grid...");
   this->Initialize();
 
   if ( !(fp=this->Reader.OpenVLFile(this->Debug)) ||
@@ -140,7 +140,10 @@ void vlUnstructuredGridReader::Execute()
 // Read unstructured grid specific stuff
 //
   if ( (retStat=fscanf(fp,"%256s",line)) == EOF || retStat < 1 ) 
-    goto PREMATURE;
+    {
+    vlErrorMacro(<<"Data file ends prematurely!");
+    return;
+    }
 
   if ( !strncmp(this->Reader.LowerCase(line),"dataset",(unsigned long)7) )
     {
@@ -148,7 +151,10 @@ void vlUnstructuredGridReader::Execute()
 // Make sure we're reading right type of geometry
 //
     if ( (retStat=fscanf(fp,"%256s",line)) == EOF || retStat < 1 ) 
-      goto PREMATURE;
+      {
+      vlErrorMacro(<<"Data file ends prematurely!");
+      return;
+      } 
 
     if ( strncmp(this->Reader.LowerCase(line),"unstructured_grid",17) )
       {
@@ -160,24 +166,29 @@ void vlUnstructuredGridReader::Execute()
 //
     while (1)
       {
-      if ( (retStat=fscanf(fp,"%256s",line)) == EOF || retStat < 1 ) 
-        goto PREMATURE;
+      if ( (retStat=fscanf(fp,"%256s",line)) == EOF || retStat < 1 ) break;
 
       if ( ! strncmp(this->Reader.LowerCase(line),"points",6) )
         {
         if ( (retStat=fscanf(fp,"%d", &numPts)) == EOF || retStat < 1 ) 
-          goto PREMATURE;
+          {
+          vlErrorMacro(<<"Cannot read number of points!");
+          return;
+          }
 
-        this->Reader.ReadPoints(fp, (vlPointSet *)this, numPts);
+        if ( ! this->Reader.ReadPoints(fp, (vlPointSet *)this, numPts) ) return;
         }
 
       else if ( ! strncmp(line,"cells",5) )
         {
-        if ( (retStat=fscanf(fp,"%d %d", &ncells, &size)) == EOF || retStat < 2 ) 
-          goto PREMATURE;
+        if ((retStat=fscanf(fp,"%d %d", &ncells, &size)) == EOF || retStat < 2) 
+          {
+          vlErrorMacro(<<"Cannot read cells!");
+          return;
+          }
 
         cells = new vlCellArray;
-        this->Reader.ReadCells(fp, size, cells->WritePtr(ncells,size));
+        if ( !this->Reader.ReadCells(fp, size, cells->WritePtr(ncells,size)) ) return;
         cells->WrotePtr();
         if ( cells && types ) this->SetCells(types, cells);
         }
@@ -185,20 +196,30 @@ void vlUnstructuredGridReader::Execute()
       else if ( ! strncmp(line,"cell_types",5) )
         {
         if ( (retStat=fscanf(fp,"%d", &ncells)) == EOF || retStat < 1 ) 
-          goto PREMATURE;
+          {
+          vlErrorMacro(<<"Cannot read cell types!");
+          return;
+          }
 
         types = new int[ncells];
         if ( this->Reader.GetFileType() == BINARY )
           {
-          if ( fgets(line,256,fp) == NULL ) goto PREMATURE; //suck up newline
-          if ( fread(types,sizeof(int),ncells,fp) != ncells ) goto PREMATURE;
+          if ( (fgets(line,256,fp) == NULL) ||
+          (fread(types,sizeof(int),ncells,fp) != ncells) )
+            {
+            vlErrorMacro(<<"Error reading binary cell types!");
+            return;
+            }
           }
         else //ascii
           {
           for (int i=0; i<size; i++)
             {
             if ((retStat=fscanf(fp,"%d",types[i])) == EOF || retStat < 1) 
-              goto PREMATURE;
+              {
+              vlErrorMacro(<<"Error reading cell types!");
+              return;
+              }
             }
           }
         if ( cells && types ) this->SetCells(types, cells);
@@ -207,7 +228,10 @@ void vlUnstructuredGridReader::Execute()
       else if ( ! strncmp(line, "point_data", 10) )
         {
         if ( (retStat=fscanf(fp,"%d", &npts)) == EOF || retStat < 1 ) 
-          goto PREMATURE;
+          {
+          vlErrorMacro(<<"Cannot read point data!");
+          return;
+          }
         
         if ( npts != numPts )
           {
@@ -215,41 +239,41 @@ void vlUnstructuredGridReader::Execute()
           return;
           }
 
+        this->Reader.ReadPointData(fp, (vlDataSet *)this, npts, this->Debug);
         break; //out of this loop
         }
 
       else
-        goto UNRECOGNIZED;
-
+        {
+        vlErrorMacro(<< "Unrecognized keyord: " << line);
+        return;
+        }
       }
+      if ( ! this->GetPoints() ) vlWarningMacro(<<"No points read!");
+      if ( ! (cells && types) )  vlWarningMacro(<<"No topology read!");
     }
 
   else if ( !strncmp(line, "point_data", 10) )
     {
+    vlWarningMacro(<<"No geometry defined in data file!");
     if ( (retStat=fscanf(fp,"%d", &numPts)) == EOF || retStat < 1 ) 
-      goto PREMATURE;
+      {
+      vlErrorMacro(<<"Cannot read point data!");
+      return;
+      }
 
-    numPts = 0;
-    vlWarningMacro(<<"Not reading any dataset geometry...");
+    this->Reader.ReadPointData(fp, (vlDataSet *)this, numPts, this->Debug);
     }
 
   else 
-    goto UNRECOGNIZED;
-
+    {
+    vlErrorMacro(<< "Unrecognized keyord: " << line);
+    }
 //
 // Now read the point data
 //
-  this->Reader.ReadPointData(fp, (vlDataSet *)this, numPts, this->Debug);
   if ( types ) delete [] types;
   return;
-
-  PREMATURE:
-    vlErrorMacro(<< "Premature EOF");
-    return;
-
-  UNRECOGNIZED:
-    vlErrorMacro(<< "Unrecognized keyord: " << line);
-    return;
 }
 
 void vlUnstructuredGridReader::PrintSelf(ostream& os, vlIndent indent)

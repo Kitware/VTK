@@ -126,6 +126,7 @@ void vlStructuredGridReader::Execute()
   int numPts=0, npts;
   int retStat;
   char line[257];
+  int dimsRead=0;
 
   vlDebugMacro(<<"Reading vl structured grid file...");
   this->Initialize();
@@ -137,7 +138,10 @@ void vlStructuredGridReader::Execute()
 // Read structured grid specific stuff
 //
   if ( (retStat=fscanf(fp,"%256s",line)) == EOF || retStat < 1 ) 
-    goto PREMATURE;
+    {
+    vlErrorMacro(<<"Data file ends prematurely!");
+    return;
+    }
 
   if ( !strncmp(this->Reader.LowerCase(line),"dataset",(unsigned long)7) )
     {
@@ -145,7 +149,10 @@ void vlStructuredGridReader::Execute()
 // Make sure we're reading right type of geometry
 //
     if ( (retStat=fscanf(fp,"%256s",line)) == EOF || retStat < 1 ) 
-      goto PREMATURE;
+      {
+      vlErrorMacro(<<"Data file ends prematurely!");
+      return;
+      } 
 
     if ( strncmp(this->Reader.LowerCase(line),"structured_grid",17) )
       {
@@ -157,32 +164,41 @@ void vlStructuredGridReader::Execute()
 //
     while (1)
       {
-      if ( (retStat=fscanf(fp,"%256s",line)) == EOF || retStat < 1 ) 
-        goto PREMATURE;
+      if ( (retStat=fscanf(fp,"%256s",line)) == EOF || retStat < 1 ) break;
 
       if ( ! strncmp(this->Reader.LowerCase(line),"dimensions",10) )
         {
         int dim[3];
         if ( (retStat=fscanf(fp,"%d %d %d",dim, dim+1, dim+2)) == EOF
         || retStat < 3 ) 
-          goto PREMATURE;
+          {
+          vlErrorMacro(<<"Error reading dimensions!");
+          return;
+          }
 
         numPts = dim[0] * dim[1] * dim[2];
         this->SetDimensions(dim);
+        dimsRead = 1;
         }
 
       else if ( ! strncmp(line,"points",6) )
         {
         if ( (retStat=fscanf(fp,"%d", &npts)) == EOF || retStat < 1 ) 
-          goto PREMATURE;
+          {
+          vlErrorMacro(<<"Error reading points!");
+          return;
+          }
 
         this->Reader.ReadPoints(fp, (vlPointSet *)this, npts);
         }
 
       else if ( ! strncmp(line, "point_data", 10) )
         {
-        if ( (retStat=fscanf(fp,"%d", &npts)) == EOF || retStat < 1 ) 
-          goto PREMATURE;
+        if ( (retStat=fscanf(fp,"%d", &numPts)) == EOF || retStat < 1 ) 
+          {
+          vlErrorMacro(<<"Cannot read point data!");
+          return;
+          }
         
         if ( npts != numPts )
           {
@@ -190,41 +206,35 @@ void vlStructuredGridReader::Execute()
           return;
           }
 
+        this->Reader.ReadPointData(fp, (vlDataSet *)this, npts, this->Debug);
         break; //out of this loop
         }
 
       else
-        goto UNRECOGNIZED;
-
+        {
+        vlErrorMacro(<< "Unrecognized keyord: " << line);
+        return;
+        }
       }
+
+      if ( !dimsRead ) vlWarningMacro(<<"No dimensions read.");
+      if ( !this->GetPoints() ) vlWarningMacro(<<"No points read.");
     }
 
   else if ( !strncmp(line, "point_data", 10) )
     {
+    vlWarningMacro(<<"No geometry defined in data file!");
     if ( (retStat=fscanf(fp,"%d", &npts)) == EOF || retStat < 1 ) 
-      goto PREMATURE;
-
-    numPts = 0;
-    vlWarningMacro(<<"Not reading any dataset geometry...");
+      {
+      vlErrorMacro(<<"Cannot read point data!");
+      return;
+      }
     }
 
   else 
-    goto UNRECOGNIZED;
-
-//
-// Now read the point data
-//
-  this->Reader.ReadPointData(fp, (vlDataSet *)this, numPts, this->Debug);
-  return;
-
-  PREMATURE:
-    vlErrorMacro(<< "Premature EOF");
-    return;
-
-  UNRECOGNIZED:
+    {
     vlErrorMacro(<< "Unrecognized keyord: " << line);
-    return;
-
+    }
 }
 
 void vlStructuredGridReader::PrintSelf(ostream& os, vlIndent indent)

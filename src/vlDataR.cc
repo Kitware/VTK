@@ -72,7 +72,7 @@ FILE *vlDataReader::OpenVLFile(int debug)
   if ( !this->Filename )
     {
     vlErrorMacro(<< "No file specified!");
-    return fptr;
+    return NULL;
     }
 
   if ( (fptr=fopen(this->Filename, "rb")) == NULL )
@@ -98,8 +98,11 @@ int vlDataReader::ReadHeader(FILE *fp, int debug)
 //
 // read header
 //
-  if ( fgets (line, 256, fp) == NULL ) goto PREMATURE;
-  line[256] = '\0';
+  if ( fgets (line, 256, fp) == NULL )
+    {
+    vlErrorMacro(<<"Premature EOF reading first line!");
+    return 0;
+    }
   if ( strncmp ("# vl DataSet Version", line, 20) )
     {
     vlErrorMacro(<< "Unrecognized header: "<< line);
@@ -108,7 +111,11 @@ int vlDataReader::ReadHeader(FILE *fp, int debug)
 //
 // read title
 //
-  if ( fgets (line, 256, fp) == NULL ) goto PREMATURE;
+  if ( fgets (line, 256, fp) == NULL )
+    {
+    vlErrorMacro(<<"Premature EOF reading title!");
+    return 0;
+    }
   line[256] = '\0';
   if ( debug )
     {
@@ -118,7 +125,10 @@ int vlDataReader::ReadHeader(FILE *fp, int debug)
 // read type
 //
   if ( (retStat=fscanf(fp,"%256s",line)) == EOF || retStat < 1 ) 
-    goto PREMATURE;
+    {
+    vlErrorMacro(<<"Premature EOF reading file type!");
+    return 0;
+    }
 
   if ( !strncmp(this->LowerCase(line),"ascii",5) ) this->FileType = ASCII;
   else if ( !strncmp(line,"binary",6) ) this->FileType = BINARY;
@@ -130,17 +140,12 @@ int vlDataReader::ReadHeader(FILE *fp, int debug)
     }
 
   return 1;
-
-  PREMATURE:
-    vlErrorMacro(<< "Premature EOF");
-    return 0;
 }
 
 // Description:
 // Read the point data of a vl data file. The number of points (from the 
-// dataset) must match the number of points defined in point attributes unless
-// numPts<=0, which means no points were defined in the dataset. Returns 0 if 
-// error.
+// dataset) must match the number of points defined in point attributes (unless
+// no geometry was defined).
 int vlDataReader::ReadPointData(FILE *fp, vlDataSet *ds, int numPts, int debug)
 {
   int retStat;
@@ -213,7 +218,6 @@ int vlDataReader::ReadPointData(FILE *fp, vlDataSet *ds, int numPts, int debug)
     }
 
   return 1;
-
 }
 
 // Description:
@@ -224,7 +228,10 @@ int vlDataReader::ReadPoints(FILE *fp, vlPointSet *ps, int numPts)
   char line[257];
 
   if ((retStat=fscanf(fp, "%256s", line)) ==  EOF || retStat < 1) 
-    goto PREMATURE;
+    {
+    vlErrorMacro(<<"Cannot read points type!");
+    return 0;
+    }
 
   if ( ! strncmp(this->LowerCase(line), "int", 3) )
     {
@@ -232,15 +239,24 @@ int vlDataReader::ReadPoints(FILE *fp, vlPointSet *ps, int numPts)
     int *ptr = points->WritePtr(0,numPts);
     if ( this->FileType == BINARY)
       {
-      if ( fgets(line,256,fp) == NULL ) goto PREMATURE; //suck up newline
-      if ( fread(ptr,sizeof(int),3*numPts,fp) != (3*numPts) ) goto PREMATURE;
+      if ( (fgets(line,256,fp) == NULL) || //suck up newline
+      (fread(ptr,sizeof(int),3*numPts,fp) != (3*numPts)) )
+        {
+        vlErrorMacro(<<"Error reading binary points!");
+        return 0;
+        }
+      points->WrotePtr();
       }
     else // ascii
       {
       int p[3];
       for (i=0; i<numPts; i++)
         {
-        if ((retStat=fscanf(fp,"%d %d %d",p,p+1,p+2)) == EOF || retStat < 3) goto PREMATURE;
+        if ((retStat=fscanf(fp,"%d %d %d",p,p+1,p+2)) == EOF || retStat < 3)
+          {
+          vlErrorMacro(<<"Error reading points!");
+          return 0;
+          }
         points->SetPoint(i,p);
         }
       }
@@ -253,15 +269,24 @@ int vlDataReader::ReadPoints(FILE *fp, vlPointSet *ps, int numPts)
     float *ptr = points->WritePtr(0,numPts);
     if ( this->FileType == BINARY)
       {
-      if ( fgets(line,256,fp) == NULL ) goto PREMATURE; //suck up newline
-      if ( fread(ptr,sizeof(float),3*numPts,fp) != (3*numPts) ) goto PREMATURE;
+      if ( (fgets(line,256,fp) == NULL) || //suck up newline
+      (fread(ptr,sizeof(float),3*numPts,fp) != (3*numPts)) )
+        {
+        vlErrorMacro(<<"Error reading binary points!");
+        return 0;
+        }
+      points->WrotePtr();
       }
     else // ascii
       {
       float p[3];
       for (i=0; i<numPts; i++)
         {
-        if ((retStat=fscanf(fp,"%f %f %f",p,p+1,p+2)) == EOF || retStat < 3) goto PREMATURE;
+        if ((retStat=fscanf(fp,"%f %f %f",p,p+1,p+2)) == EOF || retStat < 3)
+          {
+          vlErrorMacro(<<"Error reading points!");
+          return 0;
+          }
         points->SetPoint(i,p);
         }
       }
@@ -269,19 +294,12 @@ int vlDataReader::ReadPoints(FILE *fp, vlPointSet *ps, int numPts)
     }
 
   else 
-    goto UNSUPPORTED;
-
-  return 1;
-//
-// It's great knowing there are goto's in this code!
-//
-  PREMATURE:
-    vlErrorMacro(<< "Premature EOF while reading points");
-    return 0;
-
-  UNSUPPORTED:
+    {
     vlErrorMacro(<< "Unsupported points type: " << line);
     return 0;
+    }
+
+  return 1;
 }
 
 // Description:
@@ -293,11 +311,17 @@ int vlDataReader::ReadScalarData(FILE *fp, vlDataSet *ds, int numPts)
 
   if ( (retStat=fscanf(fp, "%256s %256s", name, line)) == EOF || retStat < 2 ||
   ((retStat=fscanf(fp, "%256s %256s", key, tableName)) == EOF || retStat < 2) )
-    goto PREMATURE;
+    {
+    vlErrorMacro(<<"Cannot read scalar header!");
+    return 0;
+    }
 
   if ( strcmp(this->LowerCase(key), "lookup_table") )
-    goto BAD_DATA;
-
+    {
+    vlErrorMacro(<<"Lookup table must be specified with scalar.\n" <<
+                   "Use \"LOOKUP_TABLE default\" to use default table.");
+    return 0;
+    }
   //
   // See whether scalar has been already read or scalar name (if specified) 
   // matches name in file. 
@@ -315,8 +339,12 @@ int vlDataReader::ReadScalarData(FILE *fp, vlDataSet *ds, int numPts)
     unsigned char *ptr = scalars->WritePtr(0,numPts);
     if ( this->FileType == BINARY)
       {
-      if ( fgets(line,256,fp) == NULL ) goto PREMATURE; //suck up newline
-      if ( fread(ptr,sizeof(unsigned char),(numPts+1)/8,fp) != ((numPts+1)/8) ) goto PREMATURE;
+      if ( (fgets(line,256,fp) == NULL) || //suck up newline
+      (fread(ptr,sizeof(unsigned char),(numPts+1)/8,fp) != ((numPts+1)/8)) )
+        {
+        vlErrorMacro(<<"Error reading binary bit scalars!");
+        return 0;
+        }
       scalars->WrotePtr();
       }
     else // ascii
@@ -324,7 +352,11 @@ int vlDataReader::ReadScalarData(FILE *fp, vlDataSet *ds, int numPts)
       int iv;
       for (i=0; i<numPts; i++)
         {
-        if ((retStat=fscanf(fp,"%d",&iv)) == EOF || retStat < 1) goto PREMATURE;
+        if ((retStat=fscanf(fp,"%d",&iv)) == EOF || retStat < 1)
+          {
+          vlErrorMacro(<<"Error reading bit scalars!");
+          return 0;
+          }
         scalars->SetScalar(i,iv);
         }
       }
@@ -338,8 +370,12 @@ int vlDataReader::ReadScalarData(FILE *fp, vlDataSet *ds, int numPts)
     unsigned char *ptr = scalars->WritePtr(0,numPts);
     if ( this->FileType == BINARY)
       {
-      if ( fgets(line,256,fp) == NULL ) goto PREMATURE; //suck up newline
-      if ( fread(ptr,sizeof(unsigned char),numPts,fp) != numPts ) goto PREMATURE;
+      if ( (fgets(line,256,fp) == NULL) || //suck up newline
+      (fread(ptr,sizeof(unsigned char),numPts,fp) != numPts) )
+        {
+        vlErrorMacro(<<"Error reading binary char scalars!");
+        return 0;
+        }
       scalars->WrotePtr();
       }
     else // ascii
@@ -347,7 +383,11 @@ int vlDataReader::ReadScalarData(FILE *fp, vlDataSet *ds, int numPts)
       unsigned char c;
       for (i=0; i<numPts; i++)
         {
-        if ((retStat=fscanf(fp,"%c",&c)) == EOF || retStat < 1) goto PREMATURE;
+        if ((retStat=fscanf(fp,"%c",&c)) == EOF || retStat < 1)
+          {
+          vlErrorMacro(<<"Error reading char scalars!");
+          return 0;
+          }
         scalars->SetScalar(i,c);
         }
       }
@@ -361,8 +401,12 @@ int vlDataReader::ReadScalarData(FILE *fp, vlDataSet *ds, int numPts)
     short *ptr = scalars->WritePtr(0,numPts);
     if ( this->FileType == BINARY)
       {
-      if ( fgets(line,256,fp) == NULL ) goto PREMATURE; //suck up newline
-      if ( fread(ptr,sizeof(short),numPts,fp) != numPts ) goto PREMATURE;
+      if ( (fgets(line,256,fp) == NULL) || //suck up newline
+      (fread(ptr,sizeof(short),numPts,fp) != numPts) )
+        {
+        vlErrorMacro(<<"Error reading binary short scalars!");
+        return 0;
+        }
       scalars->WrotePtr();
       }
     else // ascii
@@ -370,7 +414,11 @@ int vlDataReader::ReadScalarData(FILE *fp, vlDataSet *ds, int numPts)
       short s;
       for (i=0; i<numPts; i++)
         {
-        if ((retStat=fscanf(fp,"%hd",&s)) == EOF || retStat < 1) goto PREMATURE;
+        if ((retStat=fscanf(fp,"%hd",&s)) == EOF || retStat < 1)
+          {
+          vlErrorMacro(<<"Error reading short scalars!");
+          return 0;
+          }
         scalars->SetScalar(i,s);
         }
       }
@@ -384,8 +432,12 @@ int vlDataReader::ReadScalarData(FILE *fp, vlDataSet *ds, int numPts)
     int *ptr = scalars->WritePtr(0,numPts);
     if ( this->FileType == BINARY)
       {
-      if ( fgets(line,256,fp) == NULL ) goto PREMATURE; //suck up newline
-      if ( fread(ptr,sizeof(int),numPts,fp) != numPts ) goto PREMATURE;
+      if ( (fgets(line,256,fp) == NULL) || //suck up newline
+      (fread(ptr,sizeof(int),numPts,fp) != numPts) )
+        {
+        vlErrorMacro(<<"Error reading binary int scalars!");
+        return 0;
+        }
       scalars->WrotePtr();
       }
     else // ascii
@@ -393,7 +445,11 @@ int vlDataReader::ReadScalarData(FILE *fp, vlDataSet *ds, int numPts)
       int iv;
       for (i=0; i<numPts; i++)
         {
-        if ((retStat=fscanf(fp,"%d",&iv)) == EOF || retStat < 1) goto PREMATURE;
+        if ((retStat=fscanf(fp,"%d",&iv)) == EOF || retStat < 1)
+          {
+          vlErrorMacro(<<"Error reading int scalars!");
+          return 0;
+          }
         scalars->SetScalar(i,iv);
         }
       }
@@ -407,8 +463,12 @@ int vlDataReader::ReadScalarData(FILE *fp, vlDataSet *ds, int numPts)
     float *ptr = scalars->WritePtr(0,numPts);
     if ( this->FileType == BINARY)
       {
-      if ( fgets(line,256,fp) == NULL ) goto PREMATURE; //suck up newline
-      if ( fread(ptr,sizeof(float),numPts,fp) != numPts ) goto PREMATURE;
+      if ( (fgets(line,256,fp) == NULL) || //suck up newline
+      (fread(ptr,sizeof(int),numPts,fp) != numPts) )
+        {
+        vlErrorMacro(<<"Error reading binary int scalars!");
+        return 0;
+        }
       scalars->WrotePtr();
       }
     else // ascii
@@ -416,7 +476,11 @@ int vlDataReader::ReadScalarData(FILE *fp, vlDataSet *ds, int numPts)
       float f;
       for (i=0; i<numPts; i++)
         {
-        if ((retStat=fscanf(fp,"%f",&f)) == EOF || retStat < 1) goto PREMATURE;
+        if ((retStat=fscanf(fp,"%f",&f)) == EOF || retStat < 1)
+          {
+          vlErrorMacro(<<"Error reading float scalars!");
+          return 0;
+          }
         scalars->SetScalar(i,f);
         }
       }
@@ -425,23 +489,12 @@ int vlDataReader::ReadScalarData(FILE *fp, vlDataSet *ds, int numPts)
     }
 
   else 
-    goto UNSUPPORTED;
-
-  return 1;
-//
-// It's great knowing there are goto's in this code!
-//
-  PREMATURE:
-    vlErrorMacro(<< "Premature EOF while reading scalar data");
-    return 0;
-
-  BAD_DATA:
-    vlErrorMacro(<< "Bad data while reading scalar data");
-    return 0;
-
-  UNSUPPORTED:
+    {
     vlErrorMacro(<< "Unsupported scalar data type: " << line);
     return 0;
+    }
+
+  return 1;
 }
 
 // Description:
@@ -452,7 +505,10 @@ int vlDataReader::ReadVectorData(FILE *fp, vlDataSet *ds, int numPts)
   char line[257], name[257];
 
   if ((retStat=fscanf(fp, "%256s %256s", name, line)) == EOF || retStat < 2) 
-    goto PREMATURE;
+    {
+    vlErrorMacro(<<"Cannot read vector data!");
+    return 0;
+    }
 
   //
   // See whether vector has been already read or vector name (if specified) 
@@ -470,8 +526,12 @@ int vlDataReader::ReadVectorData(FILE *fp, vlDataSet *ds, int numPts)
     float *ptr = vectors->WritePtr(0,numPts);
     if ( this->FileType == BINARY)
       {
-      if ( fgets(line,256,fp) == NULL ) goto PREMATURE; //suck up newline
-      if ( fread(ptr,sizeof(float),3*numPts,fp) != (3*numPts) ) goto PREMATURE;
+      if ( (fgets(line,256,fp) == NULL) || //suck up newline
+      (fread(ptr,sizeof(float),3*numPts,fp) != (3*numPts)) )
+        {
+        vlErrorMacro(<<"Error reading binary vectors!");
+        return 0;
+        }
       vectors->WrotePtr();
       }
     else // ascii
@@ -479,7 +539,11 @@ int vlDataReader::ReadVectorData(FILE *fp, vlDataSet *ds, int numPts)
       float v[3];
       for (i=0; i<numPts; i++)
         {
-        if ((retStat=fscanf(fp,"%f %f %f",v,v+1,v+2)) == EOF || retStat < 3) goto PREMATURE;
+        if ((retStat=fscanf(fp,"%f %f %f",v,v+1,v+2)) == EOF || retStat < 3)
+          {
+          vlErrorMacro(<<"Error reading vectors!");
+          return 0;
+          }
         vectors->SetVector(i,v);
         }
       }
@@ -488,19 +552,12 @@ int vlDataReader::ReadVectorData(FILE *fp, vlDataSet *ds, int numPts)
     }
 
   else 
-    goto UNSUPPORTED;
+    {
+    vlErrorMacro(<< "Unsupported vector type: " << line);
+    return 0;
+    }
 
   return 1;
-//
-// It's great knowing there are goto's in this code!
-//
-  PREMATURE:
-    vlErrorMacro(<< "Premature EOF while reading vector data");
-    return 0;
-
-  UNSUPPORTED:
-    vlErrorMacro(<< "Unsupported vector data type: " << line);
-    return 0;
 }
 
 // Description:
@@ -511,7 +568,10 @@ int vlDataReader::ReadNormalData(FILE *fp, vlDataSet *ds, int numPts)
   char line[257], name[257];
 
   if ((retStat=fscanf(fp, "%256s %256s", name, line)) == EOF || retStat < 2) 
-    goto PREMATURE;
+    {
+    vlErrorMacro(<<"Cannot read normal data!");
+    return 0;
+    }
   //
   // See whether normal has been already read or normal name (if specified) 
   // matches name in file. 
@@ -528,8 +588,12 @@ int vlDataReader::ReadNormalData(FILE *fp, vlDataSet *ds, int numPts)
     float *ptr = normals->WritePtr(0,numPts);
     if ( this->FileType == BINARY)
       {
-      if ( fgets(line,256,fp) == NULL ) goto PREMATURE; //suck up newline
-      if ( fread(ptr,sizeof(float),3*numPts,fp) != (3*numPts) ) goto PREMATURE;
+      if ( (fgets(line,256,fp) == NULL) || //suck up newline
+      (fread(ptr,sizeof(float),3*numPts,fp) != (3*numPts)) )
+        {
+        vlErrorMacro(<<"Error reading binary normals!");
+        return 0;
+        }
       normals->WrotePtr();
       }
     else // ascii
@@ -537,7 +601,11 @@ int vlDataReader::ReadNormalData(FILE *fp, vlDataSet *ds, int numPts)
       float n[3];
       for (i=0; i<numPts; i++)
         {
-        if ((retStat=fscanf(fp,"%f %f %f",n,n+1,n+2)) == EOF || retStat < 3) goto PREMATURE;
+        if ((retStat=fscanf(fp,"%f %f %f",n,n+1,n+2)) == EOF || retStat < 3)
+          {
+          vlErrorMacro(<<"Error reading normals!");
+          return 0;
+          }
         normals->SetNormal(i,n);
         }
       }
@@ -546,19 +614,12 @@ int vlDataReader::ReadNormalData(FILE *fp, vlDataSet *ds, int numPts)
     }
 
   else 
-    goto UNSUPPORTED;
+    {
+    vlErrorMacro(<< "Unsupported normals type: " << line);
+    return 0;
+    }
 
   return 1;
-//
-// It's great knowing there are goto's in this code!
-//
-  PREMATURE:
-    vlErrorMacro(<< "Premature EOF while reading normal data");
-    return 0;
-
-  UNSUPPORTED:
-    vlErrorMacro(<< "Unsupported normal data type: " << line);
-    return 0;
 }
 
 // Description:
@@ -569,7 +630,10 @@ int vlDataReader::ReadTensorData(FILE *fp, vlDataSet *ds, int numPts)
   char line[257], name[257];
 
   if ((retStat=fscanf(fp, "%256s %256s", name, line)) == EOF || retStat < 2) 
-    goto PREMATURE;
+    {
+    vlErrorMacro(<<"Cannot read tensor data!");
+    return 0;
+    }
   //
   // See whether tensor has been already read or tensor name (if specified) 
   // matches name in file. 
@@ -587,8 +651,12 @@ int vlDataReader::ReadTensorData(FILE *fp, vlDataSet *ds, int numPts)
     float *ptr = tensors->WritePtr(0,numPts);
     if ( this->FileType == BINARY)
       {
-      if ( fgets(line,256,fp) == NULL ) goto PREMATURE; //suck up newline
-      if ( fread(ptr,sizeof(float),9*numPts,fp) != (9*numPts) ) goto PREMATURE;
+      if ( (fgets(line,256,fp) == NULL) || //suck up newline
+      (fread(ptr,sizeof(float),9*numPts,fp) != (9*numPts)) )
+        {
+        vlErrorMacro(<<"Error reading binary tensors!");
+        return 0;
+        }
       tensors->WrotePtr();
       }
     else // ascii
@@ -597,7 +665,11 @@ int vlDataReader::ReadTensorData(FILE *fp, vlDataSet *ds, int numPts)
       float t[9];
       for (i=0; i<numPts; i++)
         {
-        if ((retStat=fscanf(fp,"%f %f %f",t,t+1,t+2,t+3,t+4,t+5,t+6,t+7,t+8)) == EOF || retStat < 9) goto PREMATURE;
+        if ((retStat=fscanf(fp,"%f %f %f",t,t+1,t+2,t+3,t+4,t+5,t+6,t+7,t+8)) == EOF || retStat < 9)
+          {
+          vlErrorMacro(<<"Error reading tensors!");
+          return 0;
+          }
         tensor = t;
         tensors->SetTensor(i,tensor);
         }
@@ -607,19 +679,12 @@ int vlDataReader::ReadTensorData(FILE *fp, vlDataSet *ds, int numPts)
     }
 
   else 
-    goto UNSUPPORTED;
+    {
+    vlErrorMacro(<< "Unsupported tensors type: " << line);
+    return 0;
+    }
 
   return 1;
-//
-// It's great knowing there are goto's in this code!
-//
-  PREMATURE:
-    vlErrorMacro(<< "Premature EOF while reading tensor data");
-    return 0;
-
-  UNSUPPORTED:
-    vlErrorMacro(<< "Unsupported tensor data type: " << line);
-    return 0;
 }
 
 // Description:
@@ -629,9 +694,11 @@ int vlDataReader::ReadCoScalarData(FILE *fp, vlDataSet *ds, int numPts)
   int retStat, i, nValues, skipScalar;
   char line[257], name[257];
 
-  if ((retStat=fscanf(fp, "%256s %d", name, &nValues)) ==  EOF || retStat < 2) 
-    goto PREMATURE;
-
+  if ((retStat=fscanf(fp, "%256s %d", name, &nValues)) ==  EOF || retStat < 2)
+    {
+    vlErrorMacro(<<"Cannot read color scalar data!");
+    return 0;
+    }
   //
   // See whether scalar has been already read or scalar name (if specified) 
   // matches name in file. 
@@ -648,8 +715,12 @@ int vlDataReader::ReadCoScalarData(FILE *fp, vlDataSet *ds, int numPts)
     unsigned char *ptr = scalars->WritePtr(0,numPts);
     if ( this->FileType == BINARY)
       {
-      if ( fgets(line,256,fp) == NULL ) goto PREMATURE; //suck up newline
-      if ( fread(ptr,sizeof(unsigned char),numPts,fp) != numPts ) goto PREMATURE;
+      if ( (fgets(line,256,fp) == NULL) || //suck up newline
+      (fread(ptr,sizeof(unsigned char),numPts,fp) != numPts) )
+        {
+        vlErrorMacro(<<"Error reading binary graymap!");
+        return 0;
+        }
       scalars->WrotePtr();
       }
     else // ascii
@@ -659,7 +730,11 @@ int vlDataReader::ReadCoScalarData(FILE *fp, vlDataSet *ds, int numPts)
       rgba[1] = rgba[2] = rgba[3] = 0;
       for (i=0; i<numPts; i++)
         {
-        if ((retStat=fscanf(fp,"%f",&f)) == EOF || retStat < 1) goto PREMATURE;
+        if ((retStat=fscanf(fp,"%f",&f)) == EOF || retStat < 1)
+          {
+          vlErrorMacro(<<"Error reading graymap!");
+          return 0;
+          }
         rgba[0] = (unsigned char)((float)f*255.0);
         scalars->SetColor(i,rgba);
         }
@@ -674,8 +749,12 @@ int vlDataReader::ReadCoScalarData(FILE *fp, vlDataSet *ds, int numPts)
     unsigned char *ptr = scalars->WritePtr(0,numPts);
     if ( this->FileType == BINARY)
       {
-      if ( fgets(line,256,fp) == NULL ) goto PREMATURE; //suck up newline
-      if ( fread(ptr,sizeof(unsigned char),2*numPts,fp) != (2*numPts) ) goto PREMATURE;
+      if ( (fgets(line,256,fp) == NULL) || //suck up newline
+      (fread(ptr,sizeof(unsigned char),2*numPts,fp) != (2*numPts)) )
+        {
+        vlErrorMacro(<<"Error reading binary alpha-graymap!");
+        return 0;
+        }
       scalars->WrotePtr();
       }
     else // ascii
@@ -685,7 +764,11 @@ int vlDataReader::ReadCoScalarData(FILE *fp, vlDataSet *ds, int numPts)
       rgba[1] = rgba[2] = 0;
       for (i=0; i<numPts; i++)
         {
-        if ((retStat=fscanf(fp,"%f %f",f,f+1)) == EOF || retStat < 2) goto PREMATURE;
+        if ((retStat=fscanf(fp,"%f %f",f,f+1)) == EOF || retStat < 2)
+          {
+          vlErrorMacro(<<"Error reading alpha-graymap!");
+          return 0;
+          }
         rgba[0] = (unsigned char)((float)f[0]*255.0);
         rgba[3] = (unsigned char)((float)f[1]*255.0);
         scalars->SetColor(i,rgba);
@@ -701,8 +784,12 @@ int vlDataReader::ReadCoScalarData(FILE *fp, vlDataSet *ds, int numPts)
     unsigned char *ptr = scalars->WritePtr(0,numPts);
     if ( this->FileType == BINARY)
       {
-      if ( fgets(line,256,fp) == NULL ) goto PREMATURE; //suck up newline
-      if ( fread(ptr,sizeof(unsigned char),3*numPts,fp) != (3*numPts) ) goto PREMATURE;
+      if ( (fgets(line,256,fp) == NULL) || //suck up newline
+      (fread(ptr,sizeof(unsigned char),3*numPts,fp) != (3*numPts)) )
+        {
+        vlErrorMacro(<<"Error reading binary pixmap!");
+        return 0;
+        }
       scalars->WrotePtr();
       }
     else // ascii
@@ -712,7 +799,11 @@ int vlDataReader::ReadCoScalarData(FILE *fp, vlDataSet *ds, int numPts)
       rgba[3] = 0;
       for (i=0; i<numPts; i++)
         {
-        if ((retStat=fscanf(fp,"%f %f %f",f,f+1,f+2)) == EOF || retStat < 3) goto PREMATURE;
+        if ((retStat=fscanf(fp,"%f %f %f",f,f+1,f+2)) == EOF || retStat < 3) 
+          {
+          vlErrorMacro(<<"Error reading pixmap!");
+          return 0;
+          }
         rgba[0] = (unsigned char)((float)f[0]*255.0);
         rgba[1] = (unsigned char)((float)f[1]*255.0);
         rgba[2] = (unsigned char)((float)f[2]*255.0);
@@ -729,8 +820,12 @@ int vlDataReader::ReadCoScalarData(FILE *fp, vlDataSet *ds, int numPts)
     unsigned char *ptr = scalars->WritePtr(0,numPts);
     if ( this->FileType == BINARY)
       {
-      if ( fgets(line,256,fp) == NULL ) goto PREMATURE; //suck up newline
-      if ( fread(ptr,sizeof(unsigned char),4*numPts,fp) != (4*numPts) ) goto PREMATURE;
+      if ( (fgets(line,256,fp) == NULL) || //suck up newline
+      (fread(ptr,sizeof(unsigned char),4*numPts,fp) != (4*numPts)) )
+        {
+        vlErrorMacro(<<"Error reading binary alpha-pixmap!");
+        return 0;
+        }
       scalars->WrotePtr();
       }
     else // ascii
@@ -739,7 +834,11 @@ int vlDataReader::ReadCoScalarData(FILE *fp, vlDataSet *ds, int numPts)
       unsigned char rgba[4];
       for (i=0; i<numPts; i++)
         {
-        if ((retStat=fscanf(fp,"%f %f %f %f",f,f+1,f+2,f+3)) == EOF || retStat < 4) goto PREMATURE;
+        if ((retStat=fscanf(fp,"%f %f %f %f",f,f+1,f+2,f+3)) == EOF || retStat < 4)
+          {
+          vlErrorMacro(<<"Error reading alpha-pixmap!");
+          return 0;
+          }
         rgba[0] = (unsigned char)((float)f[0]*255.0);
         rgba[1] = (unsigned char)((float)f[1]*255.0);
         rgba[2] = (unsigned char)((float)f[2]*255.0);
@@ -752,19 +851,12 @@ int vlDataReader::ReadCoScalarData(FILE *fp, vlDataSet *ds, int numPts)
     }
 
   else
-    goto UNSUPPORTED;
+    {
+    vlErrorMacro(<< "Unsupported number values per scalar: " << nValues);
+    return 0;
+    }
 
   return 1;
-//
-// It's great knowing there are goto's in this code!
-//
-  PREMATURE:
-    vlErrorMacro(<< "Premature EOF while reading color scalars data");
-    return 0;
-
-  UNSUPPORTED:
-    vlErrorMacro(<< "Do not support " << nValues << " per scalar");
-    return 0;
 }
 
 // Description:
@@ -775,9 +867,16 @@ int vlDataReader::ReadTCoordsData(FILE *fp, vlDataSet *ds, int numPts)
   char line[257], name[257];
 
   if ((retStat=fscanf(fp, "%256s %d %256s", name, &dim, line)) == EOF || retStat < 3) 
-    goto PREMATURE;
+    {
+    vlErrorMacro(<<"Cannot read texture data!");
+    return 0;
+    }
 
-  if ( dim < 1 || dim > 3 ) goto UNSUPPORTED_DIMENSION;
+  if ( dim < 1 || dim > 3 )
+    {
+    vlErrorMacro(<< "Unsupported texture coordinates dimension: " << dim);
+    return 0;
+    }
 
   //
   // See whether texture coords have been already read or texture coords name
@@ -796,8 +895,12 @@ int vlDataReader::ReadTCoordsData(FILE *fp, vlDataSet *ds, int numPts)
     float *ptr = tcoords->WritePtr(0,numPts);
     if ( this->FileType == BINARY)
       {
-      if ( fgets(line,256,fp) == NULL ) goto PREMATURE; //suck up newline
-      if ( fread(ptr,sizeof(float),dim*numPts,fp) != (dim*numPts) ) goto PREMATURE;
+      if ( (fgets(line,256,fp) == NULL) || //suck up newline
+      (fread(ptr,sizeof(float),dim*numPts,fp) != (dim*numPts)) )
+        {
+        vlErrorMacro(<<"Error reading binary tensors!");
+        return 0;
+        }
       tcoords->WrotePtr();
       }
     else // ascii
@@ -807,7 +910,13 @@ int vlDataReader::ReadTCoordsData(FILE *fp, vlDataSet *ds, int numPts)
       for (i=0; i<numPts; i++)
         {
         for (j=0; j<dim; j++)
-          if ((retStat=fscanf(fp,"%f",tc+j)) == EOF || retStat < 1) goto PREMATURE;
+          {
+          if ((retStat=fscanf(fp,"%f",tc+j)) == EOF || retStat < 1)
+            {
+            vlErrorMacro(<<"Error reading texture coordinates!");
+            return 0;
+            }
+          }
         tcoords->SetTCoord(i,tc);
         }
       }
@@ -816,24 +925,12 @@ int vlDataReader::ReadTCoordsData(FILE *fp, vlDataSet *ds, int numPts)
     }
 
   else 
-    goto UNSUPPORTED;
-
-  return 1;
-//
-// It's great knowing there are goto's in this code!
-//
-  PREMATURE:
-    vlErrorMacro(<< "Premature EOF while reading texture coordinates data");
-    return 0;
-
-  UNSUPPORTED:
+    {
     vlErrorMacro(<< "Unsupported texture coordinates data type: " << line);
     return 0;
+  }
 
-  UNSUPPORTED_DIMENSION:
-    vlErrorMacro(<< "Unsupported texture coordinates dimension: " << dim);
-    return 0;
-
+  return 1;
 }
 
 // Description:
@@ -846,7 +943,10 @@ int vlDataReader::ReadLutData(FILE *fp, vlDataSet *ds, int numPts)
   char line[257], name[257];
 
   if ((retStat=fscanf(fp, "%256s %d", name, &size)) ==  EOF || retStat < 2) 
-    goto PREMATURE;
+    {
+    vlErrorMacro(<<"Cannot read lookup table data!");
+    return 0;
+    }
 
   if ( ds->GetPointData()->GetScalars() == NULL ||
   (this->LookupTableName && strcmp(name,this->LookupTableName)) ||
@@ -860,8 +960,12 @@ int vlDataReader::ReadLutData(FILE *fp, vlDataSet *ds, int numPts)
 
   if ( this->FileType == BINARY)
     {
-    if ( fgets(line,256,fp) == NULL ) goto PREMATURE; //suck up newline
-    if ( fread(ptr,sizeof(unsigned char),4*size,fp) != (4*size) ) goto PREMATURE;
+      if ( (fgets(line,256,fp) == NULL) || //suck up newline
+      (fread(ptr,sizeof(unsigned char),4*size,fp) != (4*size)) )
+        {
+        vlErrorMacro(<<"Error reading binary lookup table!");
+        return 0;
+        }
     lut->WrotePtr();
     }
   else // ascii
@@ -869,7 +973,11 @@ int vlDataReader::ReadLutData(FILE *fp, vlDataSet *ds, int numPts)
     float rgba[4];
     for (i=0; i<size; i++)
       {
-      if ((retStat=fscanf(fp,"%f %f %f %f",rgba,rgba+1,rgba+2,rgba+3)) == EOF || retStat < 4) goto PREMATURE;
+      if ((retStat=fscanf(fp,"%f %f %f %f",rgba,rgba+1,rgba+2,rgba+3)) == EOF || retStat < 4) 
+        {
+        vlErrorMacro(<<"Error reading lookup table!");
+        return 0;
+        }
       lut->SetTableValue(i, rgba[0], rgba[1], rgba[2], rgba[3]);
       }
     }
@@ -878,12 +986,6 @@ int vlDataReader::ReadLutData(FILE *fp, vlDataSet *ds, int numPts)
   else ds->GetPointData()->GetScalars()->SetLookupTable(lut);
 
   return 1;
-//
-// It's great knowing there are goto's in this code!
-//
-  PREMATURE:
-    vlErrorMacro(<< "Premature EOF while reading lookup table");
-    return 0;
 }
 
 
@@ -896,30 +998,35 @@ int vlDataReader::ReadCells(FILE *fp, int size, int *data)
 
   if ( this->FileType == BINARY)
     {
-    if ( fgets(line,256,fp) == NULL ) goto PREMATURE; //suck up newline
-    if ( fread(data,sizeof(int),size,fp) != size ) goto PREMATURE;
+    if ( (fgets(line,256,fp) == NULL) || //suck up newline
+    (fread(data,sizeof(int),size,fp) != size) )
+      {
+      vlErrorMacro(<<"Error reading binary cell data!");
+      return 0;
+      }
     }
   else // ascii
     {
     for (i=0; i<size; i++)
       {
       if ((retStat=fscanf(fp,"%d",data+i)) == EOF || retStat < 1) 
-        goto PREMATURE;
+        {
+        vlErrorMacro(<<"Error reading texture coordinates!");
+        return 0;
+        }
       }
     }
 
   return 1;
-
-  PREMATURE:
-    vlErrorMacro(<< "Premature EOF while reading cell data");
-    return 0;
 }
-
-
 
 char *vlDataReader::LowerCase(char *str)
 {
-  for ( char *s=str; *s != '\0'; s++) *s = tolower(*s);
+  int i;
+  char *s;
+
+  for ( i=0, s=str; *s != '\0' && i<256; s++,i++) 
+    *s = tolower(*s);
   return str;
 }
 
