@@ -293,7 +293,10 @@ void vtkPointSet::UnRegister(vtkObject *o)
       this->Locator != o)
     {
     this->SetSource(NULL);
-    // the locater will get freed by a recursive call
+    if (this->Locator)
+      {
+      this->Locator->SetDataSet(NULL);
+      }
     }  
   
   this->vtkObject::UnRegister(o);
