@@ -56,7 +56,7 @@ public:
   vtkOStreamWrapper& operator << (const vtkLargeInteger&);
   vtkOStreamWrapper& operator << (ostream&);
   vtkOStreamWrapper& operator << (const char*);
-  vtkOStreamWrapper& operator << (void*);
+  vtkOStreamWrapper& operator << (const void*);
   vtkOStreamWrapper& operator << (char);
   vtkOStreamWrapper& operator << (short);
   vtkOStreamWrapper& operator << (int);
@@ -67,6 +67,9 @@ public:
   vtkOStreamWrapper& operator << (unsigned long);
   vtkOStreamWrapper& operator << (float);
   vtkOStreamWrapper& operator << (double);
+#ifdef VTK_COMPILER_HAS_BOOL
+  vtkOStreamWrapper& operator << (bool);
+#endif
 #ifdef VTK_NEED_ID_TYPE_STREAM_OPERATORS
   vtkOStreamWrapper& operator << (vtkIdType);
 #endif
