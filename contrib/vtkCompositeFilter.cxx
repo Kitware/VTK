@@ -39,6 +39,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkCompositeFilter.h"
+#include "vtkStructuredPoints.h"
+#include "vtkFloatArray.h"
+#include "vtkUnsignedCharArray.h"
 
 //----------------------------------------------------------------------------
 vtkCompositeFilter::vtkCompositeFilter()
@@ -63,22 +66,37 @@ void vtkCompositeFilter::RemoveInput(vtkStructuredPoints *ds)
 }
 
 //----------------------------------------------------------------------------
-// This method is much too long, and has to be broken up!
-// Append data sets into single unstructured grid
+vtkStructuredPoints *vtkCompositeFilter::GetInput(int idx)
+{
+  if (idx >= this->NumberOfInputs || idx < 0)
+    {
+    return NULL;
+    }
+  
+  return (vtkStructuredPoints *)(this->Inputs[idx]);
+}
+
+//----------------------------------------------------------------------------
 void vtkCompositeFilter::Execute()
 {
   vtkStructuredPoints *output = this->GetOutput();
-  int numPts output->GetNumberOfPoints()
+  int numPts = output->GetNumberOfPoints();
   vtkStructuredPoints *input;
   int i, j;
+  int firstFlag = 1;
   vtkScalars *inPScalars;
   vtkDataArray *inZData;
   vtkFloatArray *outZArray;
   vtkFieldData *outZField;
   float *outZPtr, *inZ, *outZ;
-  vtkUnsignedCharArray *outPArray;
   vtkScalars *outPScalars;
   unsigned char *outPPtr, *inP, *outP;
+
+  // Since this is not an image filter, we need to allocate.
+  input = this->GetInput(0);
+  numPts = input->GetNumberOfPoints();
+  output->SetDimensions(input->GetDimensions());
+  output->SetSpacing(input->GetSpacing());
 
   // allocate the output
   outZArray = vtkFloatArray::New();
@@ -86,23 +104,19 @@ void vtkCompositeFilter::Execute()
   outZArray->SetNumberOfTuples(numPts);
   outZPtr = outZArray->WritePointer(0, numPts);
   outZField = vtkFieldData::New();
-  outZField->SetArray(0, zArray);
+  outZField->SetArray(0, outZArray);
   outZField->SetArrayName(0, "ZBuffer");
 
-  outPArray = vtkUnsignedCharArray::New();
-  outPArray->SetNumberOfComponents(4);
-  outPArray->Allocate(numPts);
-  outPPtr = outPArray->WritePointer(0, numPts);
   outPScalars = vtkScalars::New();
-  outPScalars->SetData(outPArray);
-
-  // initialze the zbuffer to 0.0
-  memset(outZPtr, 0, numPts*sizeof(float));
+  outPScalars->SetDataType(VTK_UNSIGNED_CHAR);
+  outPScalars->SetNumberOfComponents(3);  
+  outPScalars->SetNumberOfScalars(numPts);
+  outPPtr = (unsigned char *)(outPScalars->GetVoidPointer(0));
 
   // composite each input
   for (i = 0; i < this->NumberOfInputs; ++i)
     {
-    input = (vtkStructuredPoints*)(this->Inputs[0]);
+    input = (vtkStructuredPoints*)(this->Inputs[i]);
     if (input && input->GetPointData()->GetScalars() && 
         input->GetPointData()->GetFieldData()) 
       {
@@ -113,7 +127,7 @@ void vtkCompositeFilter::Execute()
         }
       inPScalars = input->GetPointData()->GetScalars();
       if (inPScalars->GetDataType() != VTK_UNSIGNED_CHAR ||
-          inPScalars->GetNumberOfComponents() != 4)
+          inPScalars->GetNumberOfComponents() != 3)
         {
         vtkErrorMacro("Bap Pixel data format.");
         continue;
@@ -132,7 +146,7 @@ void vtkCompositeFilter::Execute()
       
       for (j = 0; j < numPts; ++j)
         {
-        if (*inZ > *outZ)
+        if (firstFlag || *inZ < *outZ)
           {
           *outZ++ = *inZ++;
           *outP++ = *inP++;
@@ -143,16 +157,16 @@ void vtkCompositeFilter::Execute()
           {
           ++outZ;
           ++inZ;
-          outP += 4;
-          inP += 4;
+          outP += 3;
+          inP += 3;
           }
         }
+        firstFlag = 0;
       }
     }
   output->GetPointData()->SetScalars(outPScalars);
-  output->GetPointData()->SetFieldData(outPField);
+  output->GetPointData()->SetFieldData(outZField);
   outPScalars->Delete();
-  outPArray->Delete();
   outZField->Delete();
   outZArray->Delete();
 
@@ -160,6 +174,23 @@ void vtkCompositeFilter::Execute()
 
 
 
+//----------------------------------------------------------------------------
+int vtkCompositeFilter::ComputeInputUpdateExtents(vtkDataObject *data)
+{
+  vtkStructuredPoints *output = (vtkStructuredPoints*)data;
+  vtkStructuredPoints *input;
+  int i;
+
+  for ( i = 0; i < this->NumberOfInputs; ++i)
+    {
+    input = this->GetInput(i);
+    if (input)
+      {  
+      input->CopyUpdateExtent(output);
+      }
+    }
+  return 1;
+}
 
 
 //----------------------------------------------------------------------------
