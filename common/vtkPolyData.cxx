@@ -410,7 +410,7 @@ void vtkPolyData::BuildCells()
   vtkCellArray *inPolys=this->GetPolys();
   vtkCellArray *inStrips=this->GetStrips();
   int npts, *pts;
-  vtkCellList *cells;
+  vtkCellTypes *cells;
 
   vtkDebugMacro (<< "Building PolyData cells.");
 
@@ -419,7 +419,7 @@ void vtkPolyData::BuildCells()
     numCells = 1000; //may be allocating empty list to begin with
     }
 
-  this->Cells = cells = new vtkCellList(numCells,3*numCells);
+  this->Cells = cells = new vtkCellTypes(numCells,3*numCells);
   this->Cells->Register(this);
   cells->Delete();
 //
@@ -463,7 +463,7 @@ void vtkPolyData::BuildCells()
 void vtkPolyData::BuildLinks()
 {
   if ( this->Cells == NULL ) this->BuildCells();
-  this->Links = new vtkLinkList(this->GetNumberOfPoints());
+  this->Links = new vtkCellLinks(this->GetNumberOfPoints());
   this->Links->Register(this);
   this->Links->Delete();
 
@@ -579,7 +579,7 @@ int vtkPolyData::InsertNextCell(int type, int npts, int *pts)
 
   if ( !this->Cells ) 
     {
-    this->Cells = new vtkCellList(5000,10000);
+    this->Cells = new vtkCellTypes(5000,10000);
     }
 
   switch (type)
@@ -636,7 +636,7 @@ int vtkPolyData::InsertNextCell(int type, vtkIdList &pts)
 
   if ( !this->Cells ) 
     {
-    this->Cells = new vtkCellList(5000,10000);
+    this->Cells = new vtkCellTypes(5000,10000);
     }
 
   switch (type)

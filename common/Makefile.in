@@ -43,7 +43,8 @@ vtkBitScalars \
 vtkBitmap \
 vtkByteSwap \
 vtkCellArray \
-vtkCellList \
+vtkCellLinks \
+vtkCellTypes \
 vtkCharArray \
 vtkCollection \
 vtkContourValues \
@@ -69,7 +70,6 @@ vtkIntArray \
 vtkIntPoints \
 vtkIntScalars \
 vtkLine \
-vtkLinkList \
 vtkLogLookupTable \
 vtkLookupTable \
 vtkMath \

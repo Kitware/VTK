@@ -270,17 +270,18 @@ void vtkDataSet::GetCellNeighbors(int cellId, vtkIdList &ptIds,
     }
 }
 
-void vtkDataSet::GetCellTypes(vtkIdList *types)
+void vtkDataSet::GetCellTypes(vtkCellTypes *types)
 {
-  int cellId, type, numCells=this->GetNumberOfCells();
+  int cellId, numCells=this->GetNumberOfCells();
+  unsigned char type;
 
   types->Reset();
   for (cellId=0; cellId < numCells; cellId++)
     {
     type = this->GetCellType(cellId);
-    if ( ! types->IsId(type) )
+    if ( ! types->IsType(type) )
       {
-      types->InsertNextId(type);
+      types->InsertNextType(type);
       }
     }
 }

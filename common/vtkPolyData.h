@@ -63,8 +63,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPointSet.h"
 #include "vtkFloatPoints.h"
 #include "vtkCellArray.h"
-#include "vtkCellList.h"
-#include "vtkLinkList.h"
+#include "vtkCellTypes.h"
+#include "vtkCellLinks.h"
 
 class VTK_EXPORT vtkPolyData : public vtkPointSet 
 {
@@ -158,8 +158,8 @@ protected:
 
   // supporting structures for more complex topological operations
   // built only when necessary
-  vtkCellList *Cells;
-  vtkLinkList *Links;
+  vtkCellTypes *Cells;
+  vtkCellLinks *Links;
 
 };
 

@@ -122,7 +122,7 @@ public:
   // For example a dataset 5 triangles, 3 lines, and 100 hexahedra would
   // result a list of three entries, corresponding to the types VTK_TRIANGLE,
   // VTK_LINE, and VTK_HEXAHEDRON.
-  virtual void GetCellTypes(vtkIdList *types);
+  virtual void GetCellTypes(vtkCellTypes *types);
 
   // Description:
   // Topological inquiry to get points defining cell.

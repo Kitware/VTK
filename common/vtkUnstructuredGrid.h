@@ -51,8 +51,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPointSet.h"
 #include "vtkIdList.h"
 #include "vtkCellArray.h"
-#include "vtkCellList.h"
-#include "vtkLinkList.h"
+#include "vtkCellTypes.h"
+#include "vtkCellLinks.h"
 
 class VTK_EXPORT vtkUnstructuredGrid : public vtkPointSet {
 public:
@@ -97,9 +97,9 @@ protected:
 
   // points inherited
   // point data (i.e., scalars, vectors, normals, tcoords) inherited
-  vtkCellList *Cells;
+  vtkCellTypes *Cells;
   vtkCellArray *Connectivity;
-  vtkLinkList *Links;
+  vtkCellLinks *Links;
 };
 
 #endif

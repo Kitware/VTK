@@ -65,7 +65,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkFloatPoints.h"
 #include "vtkFloatScalars.h"
 #include "vtkIdList.h"
-#include "vtkCellType.h"
+#include "vtkCellTypes.h"
 
 class vtkCellArray;
 class vtkPointLocator;

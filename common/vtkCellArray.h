@@ -49,10 +49,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Advantages of this data structure are its compactness, simplicity, and 
 // easy interface to external data.  However, it is totally inadequate for 
 // random access.  This functionality (when necessary) is accomplished by 
-// using the vtkCellList and vtkLinkList objects to extend the definition of 
+// using the vtkCellTypes and vtkCellLinks objects to extend the definition of 
 // the data structure.
 // .SECTION See Also
-// vtkCellList vtkLinkList
+// vtkCellTypes vtkCellLinks
 
 #ifndef __vtkCellArray_h
 #define __vtkCellArray_h
