@@ -818,4 +818,5 @@ void vtkQuadricDecimation::PrintSelf(ostream& os, vtkIndent indent)
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 
   os << indent << "Maximum Cost: " << this->MaximumCost << "\n";
-}
+  os << indent << "MaximumCollapsedEdges: " << this->MaximumCollapsedEdges << "\n";
+ }

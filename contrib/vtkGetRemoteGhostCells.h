@@ -70,9 +70,6 @@ public:
   vtkSetObjectMacro(Controller, vtkMultiProcessController);
   vtkGetObjectMacro(Controller, vtkMultiProcessController); 
 
-  vtkSetMacro(GhostLevel, int);
-  vtkGetMacro(GhostLevel, int);
-  
 protected:
   vtkGetRemoteGhostCells();
   ~vtkGetRemoteGhostCells();
@@ -84,7 +81,6 @@ protected:
   vtkMultiProcessController *Controller;
   vtkPointLocator *Locator;
   
-  int GhostLevel; //this shouldn't be necessary
 };
 
 #endif

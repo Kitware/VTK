@@ -167,7 +167,7 @@ int vtkBranchExtentTranslator::PieceToExtent()
 //----------------------------------------------------------------------------
 void vtkBranchExtentTranslator::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os,indent);
+  vtkExtentTranslator::PrintSelf(os,indent);
 
   os << indent << "Original Source: (" << this->OriginalSource << ")\n";
 
