@@ -129,6 +129,7 @@ void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
     this->InitializeParallelImage( ren );
     this->VolumeRayCastFunction->FunctionInitialize( 
 					       ren, vol, this,
+					       this->OpacityTFArray,
 					       this->CorrectedOpacityTFArray,
 					       this->RGBTFArray,
 					       this->GrayTFArray,
@@ -145,6 +146,7 @@ void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
     this->InitializePerspectiveImage( ren );
     this->VolumeRayCastFunction->FunctionInitialize( 
 					       ren, vol, this,
+					       this->OpacityTFArray,
 					       this->CorrectedOpacityTFArray,
 					       this->RGBTFArray,
 					       this->GrayTFArray,

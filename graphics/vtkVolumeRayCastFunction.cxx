@@ -53,15 +53,17 @@ void vtkVolumeRayCastFunction::FunctionInitialize( vtkRenderer *ren,
 						   vtkVolume *vol,
 						   vtkVolumeRayCastMapper *mapper,
 						   float *opacity_tf_array,
+						   float *corrected_opacity_tf_array,
 						   float *rgb_tf_array,
 						   float *gray_tf_array,
 						   int tf_array_size )
 {
   // First, just save the stuff that was passed in
-  this->OpacityTFArray = opacity_tf_array;
-  this->RGBTFArray     = rgb_tf_array;
-  this->GrayTFArray    = gray_tf_array;
-  this->TFArraySize    = tf_array_size;
+  this->OpacityTFArray          = opacity_tf_array;
+  this->CorrectedOpacityTFArray = corrected_opacity_tf_array;
+  this->RGBTFArray              = rgb_tf_array;
+  this->GrayTFArray             = gray_tf_array;
+  this->TFArraySize             = tf_array_size;
 
   // Is shading on?
   this->Shading = vol->GetVolumeProperty()->GetShade();

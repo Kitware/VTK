@@ -63,6 +63,7 @@ public:
 			   vtkVolume   *vol,
 			   vtkVolumeRayCastMapper *mapper,
 			   float *opacity_tf_array,
+			   float *corrected_opacity_tf_array,
 			   float *rgb_tf_array,
 			   float *gray_tf_array,
 			   int   tf_array_size);
@@ -90,6 +91,7 @@ public:
   float                        *RGBTFArray;
   float                        *GrayTFArray;
   float                        *OpacityTFArray;
+  float                        *CorrectedOpacityTFArray;
   int                          TFArraySize;
   int                          Shading;
   int                          ColorChannels;
