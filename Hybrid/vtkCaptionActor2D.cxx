@@ -28,8 +28,10 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCaptionActor2D, "1.14");
+vtkCxxRevisionMacro(vtkCaptionActor2D, "1.15");
 vtkStandardNewMacro(vtkCaptionActor2D);
+
+vtkCxxSetObjectMacro(vtkCaptionActor2D,LeaderGlyph,vtkPolyData);
 
 vtkCaptionActor2D::vtkCaptionActor2D()
 {
