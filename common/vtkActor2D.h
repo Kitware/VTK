@@ -73,7 +73,7 @@ public:
   ~vtkActor2D();
 
   static vtkActor2D* New() {return new vtkActor2D;};
-
+  void PrintSelf(ostream& os, vtkIndent indent);
   const char *GetClassName() {return "vtkActor2D";};
 
   void Render(vtkViewport *viewport);

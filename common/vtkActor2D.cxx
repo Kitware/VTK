@@ -3,9 +3,68 @@
 #include "vtkProperty2D.h"
 #include "vtkMapper2D.h"
 
-// VTK_VIEW_COORD    0
-// VTK_DISPLAY_COORD 1
-// VTK_WORLD_COORD   2
+vtkActor2D::vtkActor2D()
+{
+  this->Orientation = 0.0;
+  this->Scale[0] = 1.0;
+  this->Scale[1] = 1.0;
+  this->LayerNumber = 0;
+  this->Visibility = 1;  // ON
+  this->SelfCreatedProperty = 0;
+  this->Property = (vtkProperty2D*) NULL;
+  this->PositionType = VTK_VIEW_COORD;
+  this->DisplayPosition[0] = 0;
+  this->DisplayPosition[1] = 0;
+  this->ViewPosition[0] = -1.0;
+  this->ViewPosition[1] = -1.0;
+  this->WorldPosition[0] = 0;
+  this->WorldPosition[1] = 0;
+  this->WorldPosition[2] = 0;
+  this->Mapper = (vtkMapper2D*) NULL;
+}
+
+
+vtkActor2D::~vtkActor2D()
+{
+  if (this->SelfCreatedProperty) delete this->Property;
+}
+
+void vtkActor2D::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->vtkObject::PrintSelf(os,indent);
+  os << indent << "Orientation: " << this->Orientation << "\n";
+  os << indent << "Scale: (" << this->Scale[0] << ", " << this->Scale[1] << ")\n";
+  os << indent << "Layer Number: " << this->LayerNumber << "\n";
+  os << indent << "Visibility: " << (this->Visibility ? "On\n" : "Off\n");
+
+  char posString[64];
+  switch (this->PositionType)
+    {
+    case VTK_VIEW_COORD:
+ 	strcpy(posString, "VTK_VIEW_COORD\0");
+	break;
+    case VTK_DISPLAY_COORD:
+	strcpy(posString, "VTK_DISPLAY_COORD\0");
+	break;
+    case VTK_WORLD_COORD:
+	strcpy(posString, "VTK_WORLD_COORD\0");
+ 	break; 
+    default:
+	strcpy(posString, "UNKNOWN!\0");
+	break;
+    }
+
+  os << indent << "Position Type: " << posString << "\n";
+  os << indent << "Display Position: (" << this->DisplayPosition[0] << "," << this->DisplayPosition[1] << ")\n";
+  os << indent << "View Position: (" << this->ViewPosition[0] << "," << this->ViewPosition[1] << ")\n";
+  os << indent << "World Position: (" << this->WorldPosition[0] << "," << this->WorldPosition[1] << "," << this->WorldPosition[2] << ")\n";
+  os << indent << "Self Created Property: " << (this->SelfCreatedProperty ? "Yes\n" : "No\n");
+  os << indent << "Property: " << this->Property << "\n";
+  if (this->Property) this->Property->PrintSelf(os, indent.GetNextIndent());
+  os << indent << "Mapper: " << this->Mapper << "\n";
+  if (this->Mapper) this->Mapper->PrintSelf(os, indent.GetNextIndent());
+
+}
 
 void vtkActor2D::SetViewPosition(float XPos, float YPos)
 {
@@ -82,31 +141,6 @@ int *vtkActor2D::GetComputedDisplayPosition(vtkViewport* viewport)
   this->ComputedDisplayPosition[1] = winSize[1] - (actorPos[1] + 0.5);
 
   return this->ComputedDisplayPosition;
-}
-
-vtkActor2D::vtkActor2D()
-{
-  this->Orientation = 0.0;
-  this->Scale[0] = 1.0;
-  this->Scale[1] = 1.0;
-  this->LayerNumber = 0;
-  this->Visibility = 1;  // ON
-  this->SelfCreatedProperty = 0;
-  this->Property = (vtkProperty2D*) NULL;
-  this->PositionType = VTK_VIEW_COORD;
-  this->DisplayPosition[0] = 0;
-  this->DisplayPosition[1] = 0;
-  this->ViewPosition[0] = -1.0;
-  this->ViewPosition[1] = -1.0;
-  this->WorldPosition[0] = 0;
-  this->WorldPosition[1] = 0;
-  this->WorldPosition[2] = 0;
-}
-
-
-vtkActor2D::~vtkActor2D()
-{
-  if (this->SelfCreatedProperty) delete this->Property;
 }
 
 void vtkActor2D::Render (vtkViewport* viewport)
