@@ -24,7 +24,8 @@
 // implicit function divides space into three regions: on the surface
 // (F(x,y,z)=w), outside of the surface (F(x,y,z)>c), and inside the
 // surface (F(x,y,z)<c). (When c is zero, positive values are outside,
-// negative values are inside, and zero is on the surface.)
+// negative values are inside, and zero is on the surface. Note also
+// that the function gradient points from inside to outside.)
 //
 // Implicit functions are very powerful. It is possible to represent almost
 // any type of geometry with the level sets w = const, especially if you use 
