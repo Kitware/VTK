@@ -258,7 +258,6 @@ vtkShrinkFilter \
 vtkShrinkPolyData \
 vtkSimpleElevationFilter \
 vtkSmoothPolyDataFilter \
-vtkSolidSphereSource \
 vtkSpatialRepresentationFilter \
 vtkSphere \
 vtkSphereSource \
