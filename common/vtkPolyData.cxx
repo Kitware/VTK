@@ -461,7 +461,7 @@ void vtkPolyData::CopyCells(vtkPolyData *pd, vtkIdList *idList,
   vtkPoints *newPoints;
   vtkIdList *pointMap = vtkIdList::New(); //maps old pt ids into new
   vtkIdList *cellPts, *newCellPts = vtkIdList::New();
-  vtkCell *cell;
+  vtkGenericCell *cell = vtkGenericCell::New();
   float x[3];
   vtkPointData *outPD = this->GetPointData();
   vtkCellData *outCD = this->GetCellData();
@@ -484,7 +484,7 @@ void vtkPolyData::CopyCells(vtkPolyData *pd, vtkIdList *idList,
   // Filter the cells
   for (cellId=0; cellId < idList->GetNumberOfIds(); cellId++)
     {
-    cell = pd->GetCell(idList->GetId(cellId));
+    pd->GetCell(idList->GetId(cellId), cell);
     cellPts = cell->GetPointIds();
     numCellPts = cell->GetNumberOfPoints();
     
@@ -499,6 +499,7 @@ void vtkPolyData::CopyCells(vtkPolyData *pd, vtkIdList *idList,
 	  if ((locatorPtId = locator->IsInsertedPoint(x)) == -1)
 	    {
 	    newId = newPoints->InsertNextPoint(x);
+	    locator->InsertNextPoint(x);
 	    pointMap->SetId(ptId, newId);
 	    outPD->CopyData(pd->GetPointData(), ptId, newId);
 	    }
@@ -522,6 +523,7 @@ void vtkPolyData::CopyCells(vtkPolyData *pd, vtkIdList *idList,
     } // for all cells
   newCellPts->Delete();
   pointMap->Delete();
+  cell->Delete();
 }
 
 //----------------------------------------------------------------------------
