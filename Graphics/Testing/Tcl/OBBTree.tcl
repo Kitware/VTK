@@ -9,8 +9,8 @@ vtkActor model
   [model GetProperty] SetColor 1 0 0
 
 vtkOBBTree obb
-  obb SetMaxLevel 4
-  obb SetNumberOfCellsPerBucket 4
+  obb SetMaxLevel 2
+  obb SetNumberOfCellsPerBucket 10
 vtkSpatialRepresentationFilter boxes
   boxes SetInput [reader GetOutput]
   boxes SetSpatialRepresentation obb
@@ -39,6 +39,7 @@ renWin SetSize 400 400
 # render the image
 #
 iren Initialize
+iren SetUserMethod {wm deiconify .vtkInteract}
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
