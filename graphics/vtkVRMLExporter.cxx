@@ -45,6 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkVRMLExporter::vtkVRMLExporter()
 {
+  this->Speed = 4.0;
   this->FileName = NULL;
   this->FilePointer = NULL;
 }
@@ -137,7 +138,7 @@ void vtkVRMLExporter::WriteData()
 	  tempf[3], tempf[0]*3.1415926/180.0);
 
   // do the lights first the ambient then the others
-  fprintf(fp,"    NavigationInfo {\n      type [\"EXAMINE\",\"FLY\"]\n      speed 4.0\n");
+  fprintf(fp,"    NavigationInfo {\n      type [\"EXAMINE\",\"FLY\"]\n      speed %f\n", this->Speed);
   if (ren->GetLights()->GetNumberOfItems() == 0)
     {
     fprintf(fp,"      headlight TRUE}\n\n");
@@ -675,5 +676,6 @@ void vtkVRMLExporter::PrintSelf(ostream& os, vtkIndent indent)
   vtkExporter::PrintSelf(os,indent);
  
   os << indent << "File Name: " << this->FileName << "\n";
+  os << indent << "Speed: " << this->Speed << "\n";
 }
 
