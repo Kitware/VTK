@@ -94,7 +94,7 @@ public:
 	{this->SetInterpolationType(VTK_NEAREST_INTERPOLATION);};
   void SetInterpolationTypeToLinear() 
 	{this->SetInterpolationType(VTK_LINEAR_INTERPOLATION);};
-  char *GetInterpolationTypeAsString(void);
+  const char *GetInterpolationTypeAsString(void);
 
   // Description:
   // Set the color of a volume to a gray level transfer function. This 
@@ -240,7 +240,7 @@ protected:
 
 // Description:
 // Return the interpolation type as a descriptive character string.
-inline char *vtkVolumeProperty::GetInterpolationTypeAsString(void)
+inline const char *vtkVolumeProperty::GetInterpolationTypeAsString(void)
 {
   if( this->InterpolationType == VTK_NEAREST_INTERPOLATION )
     {

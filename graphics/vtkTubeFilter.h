@@ -102,7 +102,7 @@ public:
     {this->SetVaryRadius(VTK_VARY_RADIUS_BY_SCALAR);};
   void SetVaryRadiusToVaryRadiusByVector()
     {this->SetVaryRadius(VTK_VARY_RADIUS_BY_VECTOR);};
-  char *GetVaryRadiusAsString();
+  const char *GetVaryRadiusAsString();
 
   // Description:
   // Set the number of sides for the tube. At a minimum, number of sides is 3.
@@ -170,7 +170,7 @@ protected:
 
 // Description:
 // Return the method of varying tube radius descriptive character string.
-inline char *vtkTubeFilter::GetVaryRadiusAsString(void)
+inline const char *vtkTubeFilter::GetVaryRadiusAsString(void)
 {
   if ( this->VaryRadius == VTK_VARY_RADIUS_OFF )
     {

@@ -72,7 +72,7 @@ public:
   vtkGetMacro(VectorMode,int);
   void SetVectorModeToUseVector() {this->SetVectorMode(VTK_USE_VECTOR);};
   void SetVectorModeToUseNormal() {this->SetVectorMode(VTK_USE_NORMAL);};
-  char *GetVectorModeAsString();
+  const char *GetVectorModeAsString();
 
 protected:
   vtkHedgeHog();
@@ -88,7 +88,7 @@ protected:
 
 // Description:
 // Return the vector mode as a character string.
-inline char *vtkHedgeHog::GetVectorModeAsString(void)
+inline const char *vtkHedgeHog::GetVectorModeAsString(void)
 {
   if ( this->VectorMode == VTK_USE_VECTOR) 
     {

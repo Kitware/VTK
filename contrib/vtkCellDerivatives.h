@@ -102,7 +102,7 @@ public:
     {this->SetVectorMode(VTK_VECTOR_MODE_COMPUTE_GRADIENT);};
   void SetVectorModeToComputeVorticity() 
     {this->SetVectorMode(VTK_VECTOR_MODE_COMPUTE_VORTICITY);};
-  char *GetVectorModeAsString();
+  const char *GetVectorModeAsString();
 
   // Description:
   // Control how the filter works to generate tensor cell data. You can
@@ -118,7 +118,7 @@ public:
     {this->SetTensorMode(VTK_TENSOR_MODE_COMPUTE_GRADIENT);};
   void SetTensorModeToComputeStrain() 
     {this->SetTensorMode(VTK_TENSOR_MODE_COMPUTE_STRAIN);};
-  char *GetTensorModeAsString();
+  const char *GetTensorModeAsString();
 
 protected:
   vtkCellDerivatives();

@@ -153,7 +153,7 @@ public:
   vtkGetMacro(SortBy,int);
   void SetSortByToSortByValue() {this->SetSortBy(VTK_SORT_BY_VALUE);};
   void SetSortByToSortByCell() {this->SetSortBy(VTK_SORT_BY_CELL);};
-  char *GetSortByAsString();
+  const char *GetSortByAsString();
 
   // Description:
   // Create default locator. Used to create one when none is specified. The 
@@ -181,7 +181,7 @@ protected:
 
 // Description:
 // Return the sorting procedure as a descriptive character string.
-inline char *vtkCutter::GetSortByAsString(void)
+inline const char *vtkCutter::GetSortByAsString(void)
 {
   if ( this->SortBy == VTK_SORT_BY_VALUE ) 
     {

@@ -200,7 +200,7 @@ public:
     {this->SetIntegrationDirection(VTK_INTEGRATE_BACKWARD);};
   void SetIntegrationDirectionToIntegrateBothDirections()
     {this->SetIntegrationDirection(VTK_INTEGRATE_BOTH_DIRECTIONS);};
-  char *GetIntegrationDirectionAsString();
+  const char *GetIntegrationDirectionAsString();
 
   // Description:
   // Specify a nominal integration step size (expressed as a fraction of
@@ -317,7 +317,7 @@ protected:
 
 // Description:
 // Return the integration direction as a character string.
-inline char *vtkStreamer::GetIntegrationDirectionAsString(void)
+inline const char *vtkStreamer::GetIntegrationDirectionAsString(void)
 {
   if ( this->IntegrationDirection == VTK_INTEGRATE_FORWARD ) 
     {

@@ -162,7 +162,7 @@ public:
     {this->SetScaleMode(VTK_SCALE_BY_VECTORCOMPONENTS);};
   void SetScaleModeToDataScalingOff()
     {this->SetScaleMode(VTK_DATA_SCALING_OFF);};
-  char *GetScaleModeAsString();
+  const char *GetScaleModeAsString();
 
   // Description:
   // Either color by scale, scalar or by vector/normal magnitude.
@@ -174,7 +174,7 @@ public:
     {this->SetColorMode(VTK_COLOR_BY_SCALAR);};
   void SetColorModeToColorByVector() 
     {this->SetColorMode(VTK_COLOR_BY_VECTOR);};
-  char *GetColorModeAsString();
+  const char *GetColorModeAsString();
 
   // Description:
   // Specify scale factor to scale object by.
@@ -207,7 +207,7 @@ public:
   void SetVectorModeToUseNormal() {this->SetVectorMode(VTK_USE_NORMAL);};
   void SetVectorModeToVectorRotationOff() 
     {this->SetVectorMode(VTK_VECTOR_ROTATION_OFF);};
-  char *GetVectorModeAsString();
+  const char *GetVectorModeAsString();
 
   // Description:
   // Index into table of sources by scalar, by vector/normal magnitude, or
@@ -218,7 +218,7 @@ public:
   void SetIndexModeToScalar() {this->SetIndexMode(VTK_INDEXING_BY_SCALAR);};
   void SetIndexModeToVector() {this->SetIndexMode(VTK_INDEXING_BY_VECTOR);};
   void SetIndexModeToOff() {this->SetIndexMode(VTK_INDEXING_OFF);};
-  char *GetIndexModeAsString();
+  const char *GetIndexModeAsString();
 
 protected:
   vtkGlyph3D();
@@ -245,7 +245,7 @@ protected:
 
 // Description:
 // Return the method of scaling as a descriptive character string.
-inline char *vtkGlyph3D::GetScaleModeAsString(void)
+inline const char *vtkGlyph3D::GetScaleModeAsString(void)
 {
   if ( this->ScaleMode == VTK_SCALE_BY_SCALAR )
     {
@@ -263,7 +263,7 @@ inline char *vtkGlyph3D::GetScaleModeAsString(void)
 
 // Description:
 // Return the method of coloring as a descriptive character string.
-inline char *vtkGlyph3D::GetColorModeAsString(void)
+inline const char *vtkGlyph3D::GetColorModeAsString(void)
 {
   if ( this->ColorMode == VTK_COLOR_BY_SCALAR )
     {
@@ -281,7 +281,7 @@ inline char *vtkGlyph3D::GetColorModeAsString(void)
 
 // Description:
 // Return the vector mode as a character string.
-inline char *vtkGlyph3D::GetVectorModeAsString(void)
+inline const char *vtkGlyph3D::GetVectorModeAsString(void)
 {
   if ( this->VectorMode == VTK_USE_VECTOR) 
     {
@@ -299,7 +299,7 @@ inline char *vtkGlyph3D::GetVectorModeAsString(void)
 
 // Description:
 // Return the index mode as a character string.
-inline char *vtkGlyph3D::GetIndexModeAsString(void)
+inline const char *vtkGlyph3D::GetIndexModeAsString(void)
 {
   if ( this->IndexMode == VTK_INDEXING_OFF) 
     {

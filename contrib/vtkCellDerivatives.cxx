@@ -213,7 +213,7 @@ void vtkCellDerivatives::Execute()
   outCD->PassNoReplaceData(cd);
 }
 
-char *vtkCellDerivatives::GetVectorModeAsString(void)
+const char *vtkCellDerivatives::GetVectorModeAsString(void)
 {
   if ( this->VectorMode == VTK_VECTOR_MODE_PASS_VECTORS )
     {
@@ -229,7 +229,7 @@ char *vtkCellDerivatives::GetVectorModeAsString(void)
     }
 }
 
-char *vtkCellDerivatives::GetTensorModeAsString(void)
+const char *vtkCellDerivatives::GetTensorModeAsString(void)
 {
   if ( this->TensorMode == VTK_TENSOR_MODE_PASS_TENSORS )
     {

@@ -115,7 +115,7 @@ public:
     {this->SetOperationType(VTK_DIFFERENCE);};
   void SetOperationTypeToUnionOfMagnitudes() 
     {this->SetOperationType(VTK_UNION_OF_MAGNITUDES);};
-  char *GetOperationTypeAsString();
+  const char *GetOperationTypeAsString();
   
   // Description:
   // For legacy compatibility. Do not use.
@@ -136,7 +136,7 @@ protected:
 
 // Description:
 // Return the boolean operation type as a descriptive character string.
-inline char *vtkImplicitBoolean::GetOperationTypeAsString(void)
+inline const char *vtkImplicitBoolean::GetOperationTypeAsString(void)
 {
   if ( this->OperationType == VTK_UNION )
     {

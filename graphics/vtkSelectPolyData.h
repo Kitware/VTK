@@ -155,7 +155,7 @@ public:
     {this->SetSelectionMode(VTK_INSIDE_LARGEST_REGION);};
   void SetSelectionModeToClosestPointRegion()
     {this->SetSelectionMode(VTK_INSIDE_CLOSEST_POINT_REGION);};
-  char *GetSelectionModeAsString();
+  const char *GetSelectionModeAsString();
 
   // Description:
   // Control whether a second output is generated. The second output
@@ -209,7 +209,7 @@ private:
 
 // Description:
 // Return the method of determining in/out of loop as a string.
-inline char *vtkSelectPolyData::GetSelectionModeAsString(void)
+inline const char *vtkSelectPolyData::GetSelectionModeAsString(void)
 {
   if ( this->SelectionMode == VTK_INSIDE_SMALLEST_REGION ) 
     {

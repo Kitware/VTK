@@ -118,7 +118,7 @@ public:
     {this->SetExtractionMode(VTK_EXTRACT_CLOSEST_POINT_REGION);};
   void SetExtractionModeToAllRegions()
     {this->SetExtractionMode(VTK_EXTRACT_ALL_REGIONS);};
-  char *GetExtractionModeAsString();
+  const char *GetExtractionModeAsString();
 
   // Description:
   // Initialize list of point ids/cell ids used to seed regions.
@@ -210,7 +210,7 @@ private:
 
 // Description:
 // Return the method of extraction as a string.
-inline char *vtkPolyDataConnectivityFilter::GetExtractionModeAsString(void)
+inline const char *vtkPolyDataConnectivityFilter::GetExtractionModeAsString(void)
 {
   if ( this->ExtractionMode == VTK_EXTRACT_POINT_SEEDED_REGIONS ) 
     {
