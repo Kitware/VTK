@@ -464,7 +464,14 @@ void vtkColorQuantizeNode::ComputeStdDev()
       count += this->Histogram[i][j];
       mean  += this->Histogram[i][j] * (j + this->Bounds[i*2]);
       }
-    mean /= (float)count;
+    if (count>0)
+      {
+      mean /= (float)count;
+      }
+    else
+      {
+      mean = 0;
+      }
     this->Mean[i] = mean;
 
     // Must have some minimum distance to subdivide - if we
@@ -510,7 +517,15 @@ void vtkColorQuantizeNode::ComputeStdDev()
       }
 
     // Do the final division and square root to get the standard deviation
-    this->StdDev[i] /= (float)count;
+    if (count>0)
+      {
+      this->StdDev[i] /= (float)count;
+      }
+    else
+      {
+      this->StdDev[i] = 0;
+      }
+      
     this->StdDev[i] = sqrt( this->StdDev[i] );
     }
 
