@@ -107,8 +107,13 @@ void vtkImageBlend::SetOpacity(int idx, double opacity)
       }
     delete [] this->Opacity;
     this->Opacity = tmp;
+    this->Opacity[idx] = 0.0;
     }
-  this->Opacity[idx] = opacity;
+  if (this->Opacity[idx] != opacity)
+    {
+    this->Opacity[idx] = opacity;
+    this->Modified();
+    }
 }
     
 //----------------------------------------------------------------------------
@@ -262,7 +267,7 @@ static void vtkImageBlendExecute(vtkImageBlend *self, int id,
   inData->GetContinuousIncrements(inExt, inIncX, inIncY, inIncZ);
   outData->GetContinuousIncrements(inExt, outIncX, outIncY, outIncZ);
 
-  // Loop through ouput pixels
+  // Loop through output pixels
   for (idxZ = 0; idxZ < maxZ; idxZ++)
     {
     for (idxY = 0; !self->AbortExecute && idxY < maxY; idxY++)

@@ -39,9 +39,22 @@ viewer SetColorLevel 127.5
 viewer SetZSlice 50
 
 viewer Render
+set opacity 1
 
 #make interface
 source WindowLevelInterface.tcl
+
+frame .wl.f3
+label .wl.f3.opacityLabel -text "Opacity"
+scale .wl.f3.opacity -from 0.0 -to 1.0 \
+     -orient horizontal -command SetOpacity -variable opacity -resolution .01
+pack .wl.f3 -side top
+pack .wl.f3.opacityLabel .wl.f3.opacity -side left
+
+proc SetOpacity opacity {
+    blend SetOpacity 1 $opacity
+    viewer Render
+}
 
 vtkWindowToImageFilter windowToimage
   windowToimage SetInput [viewer GetImageWindow]
