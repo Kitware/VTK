@@ -17,6 +17,7 @@
 =========================================================================*/
 #include "vtkInteractorStyle.h"
 
+#include "vtkActor2D.h"
 #include "vtkAssemblyNode.h"
 #include "vtkCallbackCommand.h"
 #include "vtkCellPicker.h"
@@ -28,8 +29,9 @@
 #include "vtkProperty2D.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkTextMapper.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyle, "1.78");
+vtkCxxRevisionMacro(vtkInteractorStyle, "1.79");
 
 //----------------------------------------------------------------------------
 vtkInteractorStyle *vtkInteractorStyle::New() 
@@ -957,6 +959,24 @@ void vtkInteractorStyle::OnChar()
           aPart->GetProperty()->SetRepresentationToSurface();
           }
         }
+      rwi->Render();
+      }
+      break;
+
+    case 'l' :
+    case 'L' :
+      {
+      int val = vtkTextMapper::GetGlobalAntiAliasing();
+      // Cycle through global anti-aliasing control
+      if (val == VTK_TEXT_GLOBAL_ANTIALIASING_ALL)
+        {
+        val = VTK_TEXT_GLOBAL_ANTIALIASING_SOME;
+        }
+      else
+        {
+        val++;
+        }
+      vtkTextMapper::SetGlobalAntiAliasing(val);
       rwi->Render();
       }
       break;
