@@ -32,13 +32,6 @@
 #include "qobject.h"
 
 
-class vtkQtConnectionString : public vtkstd::string 
-{
-  public:
-    vtkQtConnectionString(const char* str) : vtkstd::string(str) {}
-    vtkQtConnectionString() : vtkstd::string() {}
-};
-
 // standard new
 vtkQtConnection* vtkQtConnection::New()
 {
@@ -48,7 +41,6 @@ vtkQtConnection* vtkQtConnection::New()
 // constructor
 vtkQtConnection::vtkQtConnection() 
 {
-  mQtSlot = new vtkQtConnectionString;
 }
 
 // destructor, disconnect if necessary
@@ -59,7 +51,6 @@ vtkQtConnection::~vtkQtConnection()
     mVTKObject->RemoveObserver(this);
     //Qt takes care of disconnecting slots
   }
-  delete mQtSlot;
 }
       
 // callback from VTK to emit signal
@@ -90,7 +81,7 @@ bool vtkQtConnection::IsConnection(vtkObject* vtk_obj, unsigned long event,
   if(qt_obj && qt_obj != mQtObject)
     return false;
 
-  if(slot && strcmp(mQtSlot->c_str(), slot) != 0 )
+  if(slot && mQtSlot != slot)
     return false;
 
   return true;
@@ -105,7 +96,7 @@ void vtkQtConnection::SetConnection(vtkObject* vtk_obj, unsigned long event,
   mQtObject = qt_obj;
   mVTKEvent = event;
   mClientData = client_data;
-  (*mQtSlot) = vtkQtConnectionString(slot);
+  mQtSlot = slot;
 
   // make a connection between this and the vtk object
   vtk_obj->AddObserver(event, this, priority);
