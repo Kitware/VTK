@@ -20,23 +20,20 @@ if {[catch {set channel [open test.tmp w]}] == 0 } {
    close $channel
    file delete -force test.tmp
 
+  # ====== Structured Grid ======
   # First save out a grid in parallel form.
   vtkPLOT3DReader reader
     reader SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
     reader SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"
-
   vtkPDataSetWriter writer
     writer SetFileName "comb.pvtk"
     writer SetInput [reader GetOutput]
-    writer SetNumberOfPieces 2
+    writer SetNumberOfPieces 4
     writer Write
-
   vtkPDataSetReader pReader
     pReader SetFileName "comb.pvtk"
- 
   vtkDataSetSurfaceFilter surface
     surface SetInput [pReader GetOutput]
-
   vtkPolyDataMapper mapper
     mapper SetInput [surface GetOutput]
     mapper SetNumberOfPieces 2
@@ -44,17 +41,100 @@ if {[catch {set channel [open test.tmp w]}] == 0 } {
     mapper SetGhostLevel 1
     mapper Update
 
-
   file delete -force grid.pvtk
   file delete -force grid.0.vtk
   file delete -force grid.1.vtk
+  file delete -force grid.2.vtk
+  file delete -force grid.3.vtk
 
   vtkActor actor
     actor SetMapper mapper
+    actor SetPosition -5 0 -29
 
   # Add the actors to the renderer, set the background and size
   #
   ren1 AddActor actor
+
+
+
+  # ====== ImageData ======
+  # First save out a grid in parallel form.
+  vtkImageMandelbrotSource fractal
+    fractal SetWholeExtent 0 9 0 9 0 9
+    fractal SetSampleCX 0.1 0.1 0.1 0.1
+    fractal SetMaximumNumberOfIterations 10 
+
+  vtkPDataSetWriter writer2
+    writer SetFileName "fractal.pvtk"
+    writer SetInput [fractal GetOutput]
+    writer SetNumberOfPieces 4
+    writer Write
+
+  vtkPDataSetReader pReader2
+    pReader2 SetFileName "fractal.pvtk"
+ 
+  vtkContourFilter iso
+    iso SetInput [pReader2 GetOutput]
+    iso SetValue 0 4
+
+  vtkPolyDataMapper mapper2
+    mapper2 SetInput [iso GetOutput]
+    mapper2 SetNumberOfPieces 3
+    mapper2 SetPiece 0
+    mapper2 SetGhostLevel 0
+    mapper2 Update
+
+  file delete -force fractal.pvtk
+  file delete -force fractal.0.vtk
+  file delete -force fractal.1.vtk
+  file delete -force fractal.2.vtk
+  file delete -force fractal.3.vtk
+
+  vtkActor actor2
+    actor2 SetMapper mapper2
+    actor2 SetScale 5 5 5
+    actor2 SetPosition 6 6 6
+    
+  # Add the actors to the renderer, set the background and size
+  #
+  ren1 AddActor actor2
+
+
+
+  # ====== PolyData ======
+  # First save out a grid in parallel form.
+  vtkSphereSource sphere
+    sphere SetRadius 2
+
+  vtkPDataSetWriter writer3
+    writer3 SetFileName "sphere.pvtk"
+    writer3 SetInput [sphere GetOutput]
+    writer3 SetNumberOfPieces 4
+    writer3 Write
+
+  vtkPDataSetReader pReader3
+    pReader3 SetFileName "sphere.pvtk"
+ 
+  vtkPolyDataMapper mapper3
+    mapper3 SetInput [pReader3 GetOutput]
+    mapper3 SetNumberOfPieces 2
+    mapper3 SetPiece 0
+    mapper3 SetGhostLevel 1
+    mapper3 Update
+
+  file delete -force sphere.pvtk
+  file delete -force sphere.0.vtk
+  file delete -force sphere.1.vtk
+  file delete -force sphere.2.vtk
+  file delete -force sphere.3.vtk
+
+  vtkActor actor3
+    actor3 SetMapper mapper3
+    actor3 SetPosition 6 6 6
+
+  # Add the actors to the renderer, set the background and size
+  #
+  ren1 AddActor actor3
 }
 
 ren1 SetBackground 0.1 0.2 0.4
