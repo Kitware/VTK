@@ -59,9 +59,18 @@ GRAPHICS_API_FLAGS=""
 GRAPHICS_API_OBJ=""
 
 if test "$use_sbr" = "yes"; then
+  case $system in
+    HP-UX-*.10.*)
+	GRAPHICS_API_LIBS="${GRAPHICS_API_LIBS} -L/opt/graphics/common/lib -ldld -lXwindow -lhpgfx -lXhp11"
+	GRAPHICS_API_OBJ="${GRAPHICS_API_OBJ} \${SBR_OBJ}"
+	GRAPHICS_API_FLAGS="${GRAPHICS_API_FLAGS} -DVTK_USE_SBR"
+	;;
+    HP-UX-*.08.*|HP-UX-*.09.*)
 	GRAPHICS_API_LIBS="${GRAPHICS_API_LIBS} -ldld -lXwindow -lsb -lXhp11"
 	GRAPHICS_API_OBJ="${GRAPHICS_API_OBJ} \${SBR_OBJ}"
 	GRAPHICS_API_FLAGS="${GRAPHICS_API_FLAGS} -DVTK_USE_SBR"
+        ;;
+  esac
 fi
 
 ##########################
@@ -200,6 +209,7 @@ AC_ARG_WITH(graphics,
 	 if test "$withval" = yes; then
          graphicsdir=graphics
          USE_GRAPHICS_LIBS="-L../graphics -lVTKGraphicsTcl"
+         USE_GRAPHICS_JAVA="-L../graphics -lVTKGraphicsJava"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../graphics -DVTK_USE_GRAPHICS"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_graphics"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_graphics"
@@ -209,6 +219,7 @@ AC_ARG_WITH(graphics,
          ,
          graphicsdir=graphics
          USE_GRAPHICS_LIBS="-L../graphics -lVTKGraphicsTcl"
+         USE_GRAPHICS_JAVA="-L../graphics -lVTKGraphicsJava"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../graphics -DVTK_USE_GRAPHICS"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_graphics"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_graphics"
@@ -220,6 +231,7 @@ AC_ARG_WITH(imaging,
 	 if test "$withval" = yes; then
          imagingdir=imaging
          USE_IMAGING_LIBS="-L../imaging -lVTKImagingTcl"
+         USE_IMAGING_JAVA="-L../imaging -lVTKImagingJava"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../imaging -DVTK_USE_IMAGING"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_imaging"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_imaging"
@@ -228,6 +240,7 @@ AC_ARG_WITH(imaging,
          fi,
          imagingdir=imaging
          USE_IMAGING_LIBS="-L../imaging -lVTKImagingTcl"
+         USE_IMAGING_JAVA="-L../imaging -lVTKImagingJava"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../imaging -DVTK_USE_IMAGING"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_imaging"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_imaging"
@@ -242,6 +255,7 @@ AC_ARG_WITH(patented,
 	 if test "$withval" = yes; then
          patenteddir=patented
          USE_PATENTED_LIBS="-L../patented -lVTKPatentedTcl"
+         USE_PATENTED_JAVA="-L../patented -lVTKPatentedJava"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../patented -DVTK_USE_PATENTED"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_patented"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_patented"
@@ -254,6 +268,7 @@ AC_ARG_WITH(working,
 	 if test "$withval" = yes; then
          workingdir=working
          USE_WORKING_LIBS="-L../working -lVTKWorkingTcl"
+         USE_WORKING_JAVA="-L../working -lVTKWorkingJava"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../working -DVTK_USE_WORKING"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_working"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_working"
@@ -266,6 +281,7 @@ AC_ARG_WITH(contrib,
 	 if test "$withval" = yes; then
          contribdir=contrib
          USE_CONTRIB_LIBS="-L../contrib -lVTKContribTcl"
+         USE_CONTRIB_JAVA="-L../contrib -lVTKContribJava"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../contrib -DVTK_USE_CONTRIB"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_contrib"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_contrib"
@@ -278,6 +294,7 @@ AC_ARG_WITH(geae,
 	 if test "$withval" = yes; then
          geaedir=geae
          USE_GEAE_LIBS="-L../geae -lVTKGeaeTcl"
+         USE_GEAE_JAVA="-L../geae -lVTKGeaeJava"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../geae -DVTK_USE_GEAE"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_geae"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_geae"
@@ -290,6 +307,7 @@ AC_ARG_WITH(gemsip,
 	 if test "$withval" = yes; then
          gemsipdir=gemsip
          USE_GEMSIP_LIBS="-L../gemsip -lVTKGemsipTcl"
+         USE_GEMSIP_JAVA="-L../gemsip -lVTKGemsipJava"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../gemsip -DVTK_USE_GEMSIP"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_gemsip"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_gemsip"
@@ -302,6 +320,7 @@ AC_ARG_WITH(gemsio,
 	 if test "$withval" = yes; then
          gemsiodir=gemsio
          USE_GEMSIO_LIBS="-L../gemsio -lVTKGemsioTcl"
+         USE_GEMSIO_JAVA="-L../gemsio -lVTKGemsioJava"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../gemsio -DVTK_USE_GEMSIO"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_gemsio"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_gemsio"
@@ -314,6 +333,7 @@ AC_ARG_WITH(gemsvolume,
 	 if test "$withval" = yes; then
          gemsvolumedir=gemsvolume
          USE_GEMSVOLUME_LIBS="-L../gemsvolume -lVTKGemsvolumeTcl"
+         USE_GEMSVOLUME_JAVA="-L../gemsvolume -lVTKGemsvolumeJava"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../gemsvolume -DVTK_USE_GEMSVOLUME"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_gemsvolume"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_gemsvolume"
@@ -622,6 +642,16 @@ AC_SUBST(USE_GEMSIP_LIBS)
 AC_SUBST(USE_GEMSIO_LIBS)
 AC_SUBST(USE_GEMSVOLUME_LIBS)
 
+AC_SUBST(USE_GRAPHICS_JAVA)
+AC_SUBST(USE_IMAGING_JAVA)
+AC_SUBST(USE_PATENTED_JAVA)
+AC_SUBST(USE_WORKING_JAVA)
+AC_SUBST(USE_CONTRIB_JAVA)
+AC_SUBST(USE_GEAE_JAVA)
+AC_SUBST(USE_GEMSIP_JAVA)
+AC_SUBST(USE_GEMSIO_JAVA)
+AC_SUBST(USE_GEMSVOLUME_JAVA)
+
 AC_SUBST(TOOLKIT_DEPENDS)
 AC_SUBST(USE_TOOLKIT_FLAGS)
 
@@ -678,6 +708,15 @@ case $system in
         ;;
 esac
 fi
+
+# we cant have pthreads and java at the same time
+# so clear them out if java was defined
+AC_ARG_WITH(java,
+         [  --with-java             build vtk with java support],
+	 if test "$withval" = yes; then
+	 THREAD_FLAGS=""
+         THREAD_LIBS=""
+         fi)
 
 AC_SUBST(THREAD_FLAGS)
 AC_SUBST(THREAD_LIBS)
