@@ -195,7 +195,7 @@ protected:
   // Support the BuildPaths() method. Caches last paths built for
   // performance.
   vtkTimeStamp PathTime;
-  void UpdatePaths(); //apply transformations and properties recursively
+  virtual void UpdatePaths(); //apply transformations and properties recursively
   
 private:
   vtkActor *CompatibilityActor;
