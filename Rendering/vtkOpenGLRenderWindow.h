@@ -50,68 +50,26 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkOpenGLRenderWindow_h
 
 #include <stdlib.h>
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include "vtkXRenderWindow.h"
-#include "GL/glx.h"
+#include "vtkRenderWindow.h"
+#ifndef VTK_IMPLEMENT_MESA_CXX
+#ifdef __APPLE__
+#include <OpenGL/gl.h>
+#else
+#include <GL/gl.h>
+#endif
+#endif
 
 class vtkIdList;
 
-class VTK_EXPORT vtkOpenGLRenderWindow : public vtkXRenderWindow
+class VTK_EXPORT vtkOpenGLRenderWindow : public vtkRenderWindow
 {
 protected:
-  GLXContext ContextId;
   int MultiSamples;
   long OldMonitorSetting;
 
 public:
-  static vtkOpenGLRenderWindow *New();
-  vtkTypeMacro(vtkOpenGLRenderWindow,vtkXRenderWindow);
+  vtkTypeMacro(vtkOpenGLRenderWindow,vtkRenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent);
-
-  // Description:
-  // Begin the rendering process.
-  virtual void Start(void);
-
-  // Description:
-  // End the rendering process and display the image.
-  virtual void Frame(void);
-
-  // Description:
-  // Specify various window parameters.
-  virtual void WindowConfigure(void);
-
-  // Description:
-  // Initialize the window for rendering.
-  virtual void WindowInitialize(void);
-
-  // Description:
-  // Initialize the rendering window.
-  virtual void Initialize(void);
-
-  // Description:
-  // Change the window to fill the entire screen.
-  virtual void SetFullScreen(int);
-
-  // Description:
-  // Resize the window.
-  virtual void WindowRemap(void);
-
-  // Description:
-  // Set the preferred window size to full screen.
-  virtual void PrefFullScreen(void);
-
-  // Description:
-  // Specify the size of the rendering window.
-  virtual void SetSize(int,int);
-  virtual void SetSize(int a[2]) {this->SetSize(a[0], a[1]);};
-
-  // Description:
-  // Get the X properties of an ideal rendering window.
-  virtual Colormap GetDesiredColormap();
-  virtual Visual  *GetDesiredVisual();
-  virtual XVisualInfo     *GetDesiredVisualInfo();
-  virtual int      GetDesiredDepth();
 
   // Description:
   // Set/Get the maximum number of multisamples
@@ -128,13 +86,6 @@ public:
   virtual void StereoUpdate();
 
   // Description:
-  // Prescribe that the window be created in a stereo-capable mode. This
-  // method must be called before the window is realized. This method
-  // overrides the superclass method since this class can actually check
-  // whether the window has been realized yet.
-  virtual void SetStereoCapableWindow(int capable);
-
-  // Description:
   // Set/Get the pixel data of an image, transmitted as RGBRGB... 
   virtual unsigned char *GetPixelData(int x,int y,int x2,int y2,int front);
   virtual void SetPixelData(int x,int y,int x2,int y2,unsigned char *,
@@ -145,6 +96,7 @@ public:
   virtual float *GetRGBAPixelData(int x,int y,int x2,int y2,int front);
   virtual void SetRGBAPixelData(int x,int y,int x2,int y2,float *,int front,
                                 int blend=0);
+  virtual void ReleaseRGBAPixelData(float *data);
   virtual unsigned char *GetRGBACharPixelData(int x,int y,int x2,int y2,
 					      int front);
   virtual void SetRGBACharPixelData(int x,int y,int x2,int y2,unsigned char *,
@@ -157,7 +109,7 @@ public:
 
   // Description:
   // Make this window the current OpenGL context.
-  void MakeCurrent();
+  void MakeCurrent() = 0;
   
   // Description:
   // Register a texture name with this render window.
@@ -167,6 +119,10 @@ public:
   // Get the size of the depth buffer.
   int GetDepthBufferSize();
   
+  // Description:
+  // Initialize OpenGL for this window.
+  virtual void OpenGLInit();
+
 protected:
   vtkOpenGLRenderWindow();
   ~vtkOpenGLRenderWindow();
