@@ -38,10 +38,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkVolumeCollection - a list of Volumes
+// .NAME vtkVolumeCollection - a list of volumes
 // .SECTION Description
 // vtkVolumeCollection represents and provides methods to manipulate a list of
-// Volumes (i.e., vtkVolume and subclasses). The list is unsorted and duplicate
+// volumes (i.e., vtkVolume and subclasses). The list is unsorted and duplicate
 // entries are not prevented.
 
 // .SECTION see also

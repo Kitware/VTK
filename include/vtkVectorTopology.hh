@@ -64,8 +64,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkDataSetToPolyFilter.hh"
 
-#define MAX_CONTOURS 256
-
 class vtkVectorTopology : public vtkDataSetToPolyFilter
 {
 public:
