@@ -29,7 +29,7 @@
 #include "vtkPolygon.h"
 #include "vtkQuadric.h"
 
-vtkCxxRevisionMacro(vtkTriangle, "1.94");
+vtkCxxRevisionMacro(vtkTriangle, "1.95");
 vtkStandardNewMacro(vtkTriangle);
 
 // Construct the triangle with three points.
@@ -72,9 +72,7 @@ int vtkTriangle::EvaluatePosition(float x[3], float* closestPoint,
   float *closest, closestPoint1[3], closestPoint2[3], cp[3];
 
   subId = 0;
-  pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
 
-  //
   // Get normal for triangle, only the normal direction is needed, i.e. the
   // normal need not be normalized (unit length)
   //
@@ -84,13 +82,10 @@ int vtkTriangle::EvaluatePosition(float x[3], float* closestPoint,
 
   vtkTriangle::ComputeNormalDirection(pt1, pt2, pt3, n);
 
-  //
   // Project point to plane
   //
   vtkPlane::GeneralizedProjectPoint(x,pt1,n,cp);
   
-  
-  //
   // Construct matrices.  Since we have over determined system, need to find
   // which 2 out of 3 equations to use to develop equations. (Any 2 should 
   // work since we've projected point to plane.)
@@ -129,13 +124,14 @@ int vtkTriangle::EvaluatePosition(float x[3], float* closestPoint,
 
   if ( (det = vtkMath::Determinant2x2(c1,c2)) == 0.0 )
     {
+    pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
     return -1;
     }
 
   pcoords[0] = vtkMath::Determinant2x2(rhs,c2) / det;
   pcoords[1] = vtkMath::Determinant2x2(c1,rhs) / det;
   pcoords[2] = 1.0 - (pcoords[0] + pcoords[1]);
-  //
+
   // Okay, now find closest point to element
   //
   weights[0] = pcoords[2];
@@ -455,8 +451,7 @@ int vtkTriangle::IntersectWithLine(float p1[3], float p2[3], float tol,
   float dist2, weights[3];
   
   subId = 0;
-  pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
-  //
+
   // Get normal for triangle
   //
   pt1 = this->Points->GetPoint(1);
@@ -464,14 +459,15 @@ int vtkTriangle::IntersectWithLine(float p1[3], float p2[3], float tol,
   pt3 = this->Points->GetPoint(0);
 
   vtkTriangle::ComputeNormal (pt1, pt2, pt3, n);
-  //
+
   // Intersect plane of triangle with line
   //
   if ( ! vtkPlane::IntersectWithLine(p1,p2,n,pt1,t,x) )
     {
+    pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
     return 0;
     }
-  //
+
   // Evaluate position
   //
   if (this->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights)
@@ -479,6 +475,7 @@ int vtkTriangle::IntersectWithLine(float p1[3], float p2[3], float tol,
     {
     if ( dist2 <= tol2 )
       {
+      pcoords[2] = 0.0;
       return 1;
       }
     }
@@ -495,6 +492,7 @@ int vtkTriangle::IntersectWithLine(float p1[3], float p2[3], float tol,
     this->Line->Points->InsertPoint(1,pt2);
     if (this->Line->IntersectWithLine(p1,p2,tol,t,x,pcoords,subId)) 
       {
+      pcoords[2] = 0.0;
       return 1;
       }
     }
@@ -505,6 +503,7 @@ int vtkTriangle::IntersectWithLine(float p1[3], float p2[3], float tol,
     this->Line->Points->InsertPoint(1,pt3);
     if (this->Line->IntersectWithLine(p1,p2,tol,t,x,pcoords,subId)) 
       {
+      pcoords[2] = 0.0;
       return 1;
       }
     }
@@ -515,11 +514,12 @@ int vtkTriangle::IntersectWithLine(float p1[3], float p2[3], float tol,
     this->Line->Points->InsertPoint(1,pt1);
     if (this->Line->IntersectWithLine(p1,p2,tol,t,x,pcoords,subId)) 
       {
+      pcoords[2] = 0.0;
       return 1;
       }
     }
   
-  
+  pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
   return 0;
 }
 
