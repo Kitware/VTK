@@ -46,8 +46,6 @@ class vtkMyCallback : public vtkCommand
 public:
   static vtkMyCallback *New() 
     { return new vtkMyCallback; }
-  void Delete()
-    { delete this; }
   virtual void Execute(vtkObject *caller, unsigned long, void*)
     {
       vtkTransform *t = vtkTransform::New();
