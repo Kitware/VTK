@@ -12,6 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+
+/* NOTE -- this code is not what I'd call production quality code. It does
+ * not adhear to VTK style conventions and there are a lot of floats that
+ * should probably be doubles. - Ken */  
+
 /*----------------------------------------------------------------------------
  Copyright (c) Sandia Corporation
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
@@ -43,7 +48,7 @@
 #include <algorithm>
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkKdTree, "1.1");
+vtkCxxRevisionMacro(vtkKdTree, "1.2");
 
 // methods for vtkKdNode -------------------------------------------
 
@@ -204,12 +209,13 @@ float vtkKdNode::GetDistance2ToInnerBoundary(float x, float y, float z)
 {
   return this->_GetDistance2ToBoundary(x, y, z, NULL, 1, 0);
 }
-float 
-  vtkKdNode::_GetDistance2ToBoundary( // get distance (squared) to boundary of region
-          float x, float y, float z,  // from this point
-               float *p,              // set to point on boundary that is closest
-               int innerBoundaryOnly, // ignore boundaries on "outside"
-               int useDataBounds=0)   // use bounds of data within region instead
+
+float vtkKdNode::_GetDistance2ToBoundary( 
+// get distance (squared) to boundary of region
+    float x, float y, float z,  // from this point
+    float *p,              // set to point on boundary that is closest
+    int innerBoundaryOnly, // ignore boundaries on "outside"
+    int useDataBounds=0)   // use bounds of data within region instead
 {
   float minDistance, dist;
   float edgePt[3];
@@ -266,30 +272,30 @@ float
     {
     if (!innerBoundaryOnly)
       {
-      minDistance = x - xmin;
+      minDistance = (float)(x - xmin);
       mindim = 0;
   
-      if ((dist = xmax - x) < minDistance)
+      if ((dist = (float)(xmax - x)) < minDistance)
         {
         mindim = 1;
         minDistance = dist;
         }
-      if ((dist = y - ymin) < minDistance)
+      if ((dist = (float)(y - ymin)) < minDistance)
         {
         mindim = 2;
         minDistance = dist;
         }
-      if ((dist = ymax - y) < minDistance)
+      if ((dist = (float)(ymax - y)) < minDistance)
         {
         mindim = 3;
         minDistance = dist;
         }
-      if ((dist = z - zmin) < minDistance)
+      if ((dist = (float)(z - zmin)) < minDistance)
         {
         mindim = 4;
         minDistance = dist;
         }
-      if ((dist = zmax - z) < minDistance)
+      if ((dist = (float)(zmax - z)) < minDistance)
         {
         mindim = 5;
         minDistance = dist;
@@ -300,37 +306,43 @@ float
       int first = 1;
       minDistance = VTK_LARGE_FLOAT; // Suppresses warning message.
 
-      if ((xmin != outerBoundaryMin[0]) && (((dist = x - xmin) < minDistance) || first))
+      if ((xmin != outerBoundaryMin[0]) && 
+          (((dist = (float)(x - xmin)) < minDistance) || first))
         {
         mindim = 0;
         minDistance = dist;
         first = 0;
         }
-      if ((xmax != outerBoundaryMax[0]) && (((dist = xmax - x) < minDistance) || first))
+      if ((xmax != outerBoundaryMax[0]) && 
+          (((dist = (float)(xmax - x)) < minDistance) || first))
         {
         mindim = 1;
         minDistance = dist;
         first = 0;
         }
-      if ((ymin != outerBoundaryMin[1]) && (((dist = y - ymin) < minDistance) || first))
+      if ((ymin != outerBoundaryMin[1]) && 
+          (((dist = (float)(y - ymin)) < minDistance) || first))
         {
         mindim = 2;
         minDistance = dist;
         first = 0;
         }
-      if ((ymax != outerBoundaryMax[1]) && (((dist = ymax - y) < minDistance) || first))
+      if ((ymax != outerBoundaryMax[1]) && 
+          (((dist = (float)(ymax - y)) < minDistance) || first))
         {
         mindim = 3;
         minDistance = dist;
         first = 0;
         }
-      if ((zmin != outerBoundaryMin[2]) && (((dist = z - zmin) < minDistance) || first))
+      if ((zmin != outerBoundaryMin[2]) && 
+          (((dist = (float)(z - zmin)) < minDistance) || first))
         {
         mindim = 4;
         minDistance = dist;
         first = 0;
         }
-      if ((zmax != outerBoundaryMax[2]) && (((dist = zmax - z) < minDistance) || first))
+      if ((zmax != outerBoundaryMax[2]) && 
+          (((dist = (float)(zmax - z)) < minDistance) || first))
         {
         mindim = 5;
         minDistance = dist;
@@ -344,12 +356,30 @@ float
       p[0] = x; p[1] = y; p[2] = z;
 
 
-      if (mindim == 0)      p[0] = xmin;
-      else if (mindim == 1) p[0] = xmax;
-      else if (mindim == 2) p[1] = ymin;
-      else if (mindim == 3) p[1] = ymax;
-      else if (mindim == 4) p[2] = zmin;
-      else if (mindim == 5) p[2] = zmax;
+      if (mindim == 0)      
+        {
+        p[0] = xmin;
+        }
+      else if (mindim == 1) 
+        {
+        p[0] = xmax;
+        }
+      else if (mindim == 2) 
+        {
+        p[1] = ymin;
+        }
+      else if (mindim == 3) 
+        {
+        p[1] = ymax;
+        }
+      else if (mindim == 4) 
+        {
+        p[2] = zmin;
+        }
+      else if (mindim == 5) 
+        {
+        p[2] = zmax;
+        }
       }
     }
   else if (withinX && withinY)  // point projects orthogonally to a face
