@@ -245,14 +245,14 @@ class VTK_EXPORT vtkCamera : public vtkObject
 
   // Description:
   // Change the ViewAngle of the camera so that more or less of a scene 
-  // occupies the viewport. A value > 1 is a zoom-in. 
-  // A value < 1 is a zoom-out.
+  // occupies the viewport. A value greater than 1 is a zoom-in. 
+  // A value less than 1 is a zoom-out.
   void Zoom(double);
 
   // Description:
   // Move the position of the camera along the view plane normal. Moving
-  // towards the focal point (e.g., > 1) is a dolly-in, moving away 
-  // from the focal point (e.g., < 1) is a dolly-out.
+  // towards the focal point (e.g., greater than 1) is a dolly-in, moving away 
+  // from the focal point (e.g., less than 1) is a dolly-out.
   void Dolly(double);
 
   // Description:
