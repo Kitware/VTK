@@ -60,6 +60,7 @@ static void GenerateHeaderFile(cmLoadedCommandInfo *info,
   /* copy the file if different */
   info->CAPI->CopyFileIfDifferent(tempOutputFile, fullPath);
   info->CAPI->RemoveFile(tempOutputFile);
+  free(tempOutputFile);
 }
 
 static void GenerateImplementationFile(cmLoadedCommandInfo *info, 
@@ -154,6 +155,7 @@ static void GenerateImplementationFile(cmLoadedCommandInfo *info,
   /* copy the file if different */
   info->CAPI->CopyFileIfDifferent(tempOutputFile, fullPath);
   info->CAPI->RemoveFile(tempOutputFile);
+  free(tempOutputFile);
 }
 
 /* do almost everything in the initial pass */
@@ -301,7 +303,7 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
                                  info->CAPI->GetCurrentOutputDirectory(mf),
                                  "cxx",0);
   info->CAPI->AddSource(mf,cfile);
-
+  info->CAPI->DestroySourceFile(cfile);
   info->CAPI->FreeArguments(newArgc, newArgv);
   free(classes);
   free(includes);

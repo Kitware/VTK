@@ -9,7 +9,7 @@ typedef struct
 {
   char *LibraryName;
   int NumberWrapped;
-  char **SourceFiles;
+  void **SourceFiles;
 } cmVTKWrapTclData;
 
 /* this roputine creates the init file */
@@ -154,6 +154,9 @@ static void CreateInitFile(cmLoadedCommandInfo *info,
   info->CAPI->CopyFileIfDifferent(tempOutputFile, outFileName);
   info->CAPI->RemoveFile(tempOutputFile);
   info->CAPI->FreeArguments(numCommands,capcommands);
+  info->CAPI->Free(tempOutputFile);
+  info->CAPI->Free(kitName);
+  free(outFileName);
 }
 
 /* do almost everything in the initial pass */
@@ -203,7 +206,7 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
   sources = (char **)malloc(sizeof(char *)*newArgc);
   commands = (char **)malloc(sizeof(char *)*newArgc);
   concrete = (char **)malloc(sizeof(char *)*newArgc);
-  cdata->SourceFiles = (char **)malloc(sizeof(char *)*newArgc);
+  cdata->SourceFiles = (void **)malloc(sizeof(void *)*newArgc);
   
   for(i = 1; i < newArgc; ++i)
     {   
@@ -298,7 +301,7 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
         strcat(sourceListValue,newName);
         strcat(sourceListValue,".cxx");        
         free(newName);
-        free(srcName);
+        info->CAPI->Free(srcName);
         }
       }
     /* add the init file */
@@ -312,7 +315,9 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
                                    "cxx",0);
     free(newName);
     info->CAPI->AddSource(mf,cfile);
-    info->CAPI->AddDefinition(mf, sources[0], sourceListValue);  
+    info->CAPI->DestroySourceFile(cfile);
+    info->CAPI->AddDefinition(mf, sources[0], sourceListValue);
+    free(sourceListValue);
     }
 
   /* store key data in the CLientData for the final pass */
@@ -385,13 +390,18 @@ static void FinalPass(void *inf, void *mf)
 
 static void Destructor(void *inf) 
 {
+  int i;
   cmLoadedCommandInfo *info = (cmLoadedCommandInfo *)inf;
   /* get our client data from initial pass */
   cmVTKWrapTclData *cdata = 
     (cmVTKWrapTclData *)info->CAPI->GetClientData(info);
   if (cdata)
     {
-    info->CAPI->FreeArguments(cdata->NumberWrapped, cdata->SourceFiles);
+    for (i = 0; i < cdata->NumberWrapped; ++i)
+      {              
+      info->CAPI->DestroySourceFile(cdata->SourceFiles[i]);
+      }
+    free(cdata->SourceFiles);
     free(cdata->LibraryName);
     free(cdata);
     }
