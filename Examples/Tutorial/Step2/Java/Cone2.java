@@ -43,8 +43,9 @@ public class Cone2 {
     ren1.AddActor( coneActor );
     ren1.SetBackground( 0.1, 0.2, 0.4 );
 
-    // Add the observer here, the first argument is the event
-    // the second argument is the method to invoke
+    // Add the observer here, the first argument is the event name
+    // the second argument is the instance to invoke the method on
+    // the third argument is which method to invoke
     Cone2 me = new Cone2();
     ren1.AddObserver("StartEvent",me,"myCallback");
 
