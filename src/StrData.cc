@@ -304,7 +304,7 @@ void vlStructuredData::_GetPointCells(int ptId, vlIdList& cellIds)
   ptLoc[1] = (ptId / ptDim[0]) % ptDim[1];
   ptLoc[2] = ptId / (ptDim[0]*ptDim[1]);
 //
-//  From the point lcoation, compute the cell locations.  There are at
+//  From the point location, compute the cell locations.  There are at
 //  most eight possible.
 //
   cellIds.Reset();
