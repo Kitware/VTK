@@ -123,6 +123,14 @@ public:
   void Triangulate();
 
   // Description:
+  // Boolean indicates whether the points have been pre-sorted. If 
+  // pre-sorted is enabled, the points are not sorted on point id.
+  // By default, presorted is off.
+  vtkSetMacro(PreSorted,int)
+  vtkGetMacro(PreSorted,int)
+  vtkBooleanMacro(PreSorted,int)
+
+  // Description:
   // Add the tetrahedra classified (0=inside,1=outside) to the connectivity
   // list provided. Inside tetrahedron are those whose points are all
   // classified "inside." Outside tetrahedron have at least one point
@@ -145,6 +153,7 @@ protected:
 private:
   vtkOTMesh  *Mesh;
   int NumberOfPoints;
+  int PreSorted;
   
 };
 
