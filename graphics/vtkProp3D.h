@@ -137,6 +137,7 @@ class VTK_EXPORT vtkProp3D : public vtkProp
   // matrix is cached, so multiple GetMatrix() calls will be efficient.
   virtual vtkMatrix4x4 *GetMatrixPointer();
   virtual void GetMatrix(vtkMatrix4x4 *m);
+  virtual void GetMatrix(double m[16]);
 
   // Description:
   // Get the bounds for this Prop3D as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).

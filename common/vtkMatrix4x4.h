@@ -54,6 +54,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class VTK_EXPORT vtkMatrix4x4 : public vtkObject
 {
+  // Some of the methods in here have a corresponding static (class)
+  // method taking a pointer to 16 doubles that constitutes a user
+  // supplied matrix. This allows C++ clients to allocate double arrays
+  // on the stack and manipulate them using vtkMatrix4x4 methods. 
+  // This is an alternative to allowing vtkMatrix4x4 instances to be
+  // created on the stack (which is frowned upon) or doing lots of
+  // temporary heap allocation within vtkTransform and vtkActor methods,
+  // which is inefficient.
+
  public:
   double Element[4][4];
   static vtkMatrix4x4 *New() {return new vtkMatrix4x4;};
@@ -73,43 +82,70 @@ class VTK_EXPORT vtkMatrix4x4 : public vtkObject
   // Set the elements of the matrix to the same values as the elements
   // of the source Matrix.
   void DeepCopy(vtkMatrix4x4 *source);
-  
+//BTX
+  static void DeepCopy(double Elements[16], vtkMatrix4x4 *source);
+//ETX
+
   // Description:
   // Set all of the elements to zero.
   void Zero();
-  
+//BTX
+  static void Zero(double Elements[16]);
+//ETX  
+
   // Description:
   // Matrix Inversion (adapted from Richard Carling in "Graphics Gems," 
   // Academic Press, 1990).
   void Invert(vtkMatrix4x4 *in,vtkMatrix4x4 *out);
   void Invert(void) { this->Invert(this,this);};
+//BTX
+  static void Invert(double inElements[16], double outElements[16]);
+//ETX
+
 
   // Description:
   // Transpose the matrix and put it into out. 
   void Transpose(vtkMatrix4x4 *in,vtkMatrix4x4 *out);
   void Transpose(void) { this->Transpose(this,this);};
+//BTX
+  static void Transpose(double inElements[16], double outElements[16]);
+//ETX
 
   // Description:
   // Multiply this matrix by a point (in homogeneous coordinates). 
-  // and return the result in result. The in[4] and result[4] 
+  // and return the result in result. The in[4] and out[4] 
   // arrays must both be allocated but they can be the same array.
   void MultiplyPoint(float in[4], float out[4]);
   void MultiplyPoint(double in[4], double out[4]);
+//BTX
+  static void MultiplyPoint(double Elements[16], float in[4], float out[4]);
+  static void MultiplyPoint(double Elements[16], double in[4], double out[4]);
+//ETX
 
   // Description:
   // Multiply a point (in homogeneous coordinates) by this matrix,
-  // and return the result in result. The in[4] and result[4] 
+  // and return the result in result. The in[4] and out[4] 
   // arrays must both be allocated, but they can be the same array.
   void PointMultiply(float in[4], float out[4]);
   void PointMultiply(double in[4], double out[4]);
+//BTX
+  static void PointMultiply(double Elements[16], float in[4], float out[4]);
+  static void PointMultiply(double Elements[16], double in[4], double out[4]);
+//ETX
 
   // Description:
   // Compute adjoint of the matrix and put it into out.
   void Adjoint(vtkMatrix4x4 *in,vtkMatrix4x4 *out);
+//BTX
+  static void Adjoint(double inElements[16], double outElements[16]);
+//ETX
 
   // Description:
   // Compute the determinant of the matrix and return it.
   float Determinant(vtkMatrix4x4 *in);
+//BTX
+  static float Determinant(double Elements[16]);
+//ETX
 
   // Description:
   // Sets the element i,j in the matrix.

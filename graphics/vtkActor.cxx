@@ -319,14 +319,15 @@ float *vtkActor::GetBounds()
   int i,n;
   float *bounds, bbox[24], *fptr;
   float *result;
-  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
+  //vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
+  double matrix[16];
 
   vtkDebugMacro( << "Getting Bounds" );
 
   // get the bounds of the Mapper if we have one
   if (!this->Mapper)
     {
-    matrix->Delete();
+      //matrix->Delete();
     return this->Bounds;
     }
 
@@ -398,7 +399,7 @@ float *vtkActor::GetBounds()
     this->BoundsMTime.Modified();
     }
 
-  matrix->Delete();
+  //matrix->Delete();
   return this->Bounds;
 }
 

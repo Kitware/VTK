@@ -44,6 +44,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkProp3D.h"
 #include "vtkAbstractMapper.h"
 
+typedef double (*SqMatPtr)[4];
+
 // Construct with the following defaults: origin(0,0,0) 
 // position=(0,0,0) visibility=1 pickable=1 dragable=1
 // orientation=(0,0,0). No user defined matrix and no texture map.
@@ -265,6 +267,12 @@ void vtkProp3D::RotateWXYZ (float degree, float x, float y, float z)
 
 void vtkProp3D::GetMatrix(vtkMatrix4x4 *result)
 {
+  this->GetMatrix(&result->Element[0][0]);
+  result->Modified();
+}
+
+void vtkProp3D::GetMatrix(double result[16])
+{
   // check whether or not need to rebuild the matrix
   if ( this->GetMTime() > this->MatrixMTime )
     {
@@ -304,7 +312,7 @@ void vtkProp3D::GetMatrix(vtkMatrix4x4 *result)
     this->MatrixMTime.Modified();
     this->Transform->Pop();  
     }
-  result->DeepCopy(this->Matrix);
+  vtkMatrix4x4::DeepCopy(result,this->Matrix);
 } 
 
 // Return a reference to the Prop3D's 4x4 composite matrix.

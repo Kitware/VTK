@@ -220,10 +220,12 @@ class VTK_EXPORT vtkTransform : public vtkObject
   // The setting of the PreMultiply flag determines whether the matrix
   // is PreConcatenated or PostConcatenated.
   void Concatenate(vtkMatrix4x4 *matrix);
+  void Concatenate(double Elements[16]);
 
   // Description:
   // Multiplies matrices a and b and stores the result in c.
   void Multiply4x4(vtkMatrix4x4 *a, vtkMatrix4x4 *b, vtkMatrix4x4 *c);
+  void Multiply4x4(double a[16], double b[16], double c[16]);
 
   // Description:
   // Multiply a xyzw point by the transform and store the result in out.

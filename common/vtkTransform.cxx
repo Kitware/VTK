@@ -42,6 +42,58 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTransform.h"
 #include "vtkMath.h"
 
+// Useful for viewing a double[16] as a double[4][4]
+typedef double (*SqMatPtr)[4];
+
+// Internal class -- this class maintains a single Identity matrix 
+// shared by all instances of this class, which is used for re-initializing
+// the scratchpad matrix to the identity matrix as needed. It's faster to
+// block-copy one matrix onto another than it is to do a comparison for i==j
+// inside a tight loop.
+// The constructor for this class allocates the sole vtkMatrix4x4
+// object used to maintain an identity matrix. There is only
+// one instance of this IdentityMatrix class, and it is declared
+// static inside MakeIdentity. This guarantees that the vtkMatrix4x4 will
+// be available whenever it is needed. See Meyers, _More_Effective_C++,
+// pages 130-134.
+class IdentityMatrix
+{
+private:
+  vtkMatrix4x4 *theMatrix;
+  IdentityMatrix() {theMatrix = vtkMatrix4x4::New();}
+  IdentityMatrix(const IdentityMatrix&); //Forbid copy constructor as well
+  static vtkMatrix4x4* GetIdentity();
+public:
+  // The dtor should be declared private, but the MSVC++5 compiler complains 
+  // about not being able to invoke the private dtor from within the
+  // static member function MakeIdentity, despite the fact that it has no
+  // problem with invoking the private ctor. Go figure.
+  ~IdentityMatrix() {theMatrix->Delete();}
+  static void MakeIdentity(vtkMatrix4x4 *target);
+  static void MakeIdentity(double Elements[16]);
+};
+
+vtkMatrix4x4* IdentityMatrix::GetIdentity()
+{
+  static IdentityMatrix imat;// constructed first time function called
+  return imat.theMatrix;
+}
+
+// 
+// Copy the internal identity matrix into the target matrix
+void IdentityMatrix::MakeIdentity(vtkMatrix4x4 *target)
+{
+  target->DeepCopy(IdentityMatrix::GetIdentity());
+}
+
+void IdentityMatrix::MakeIdentity(double Elements[16])
+{
+  vtkMatrix4x4::DeepCopy(Elements,IdentityMatrix::GetIdentity());
+}
+
+
+
+
 // Constructs a transform and sets the following defaults
 // preMultiplyFlag = 1 stackSize = 10. It then
 // creates an identity matrix as the top matrix on the stack.
@@ -188,26 +240,29 @@ void vtkTransform::Push ()
 // in degrees.
 void vtkTransform::RotateX ( float angle)
 {
-  vtkMatrix4x4 *ctm = vtkMatrix4x4::New();
   float radians = angle * vtkMath::DegreesToRadians();
   float cosAngle, sinAngle;
+  double ScratchPad[16]; // for passing to vtkMatrix4x4 methods
+  SqMatPtr ScratchPadMatrix = (SqMatPtr) ScratchPad; // for local manipulation
+
+  // Reset the scratchpad
+  IdentityMatrix::MakeIdentity(ScratchPad);
 
   if (angle != 0.0) 
     {
     cosAngle = cos (radians);
     sinAngle = sin (radians);
 
-    ctm->Element[0][0] = 1.0;
-    ctm->Element[1][1] =  cosAngle;
-    ctm->Element[2][1] =  sinAngle;
-    ctm->Element[1][2] = -sinAngle;
-    ctm->Element[2][2] =  cosAngle;
-    ctm->Element[3][3] = 1.0;
+    ScratchPadMatrix[0][0] = 1.0;
+    ScratchPadMatrix[1][1] =  cosAngle;
+    ScratchPadMatrix[2][1] =  sinAngle;
+    ScratchPadMatrix[1][2] = -sinAngle;
+    ScratchPadMatrix[2][2] =  cosAngle;
+    ScratchPadMatrix[3][3] = 1.0;
 
     // concatenate with current transformation matrix
-    this->Concatenate (ctm);
+    this->Concatenate (ScratchPad);
     }
-  ctm->Delete();
 }
 
 // Creates a y rotation matrix and concatenates it with
@@ -215,26 +270,27 @@ void vtkTransform::RotateX ( float angle)
 // in degrees.
 void vtkTransform::RotateY ( float angle)
 {
-  vtkMatrix4x4 *ctm = vtkMatrix4x4::New();
+  double ScratchPad[16]; // for passing to vtkMatrix4x4 methods
+  SqMatPtr ScratchPadMatrix = (SqMatPtr) ScratchPad; // for local manipulation
   float radians = angle * vtkMath::DegreesToRadians();
   float cosAngle, sinAngle;
 
+  IdentityMatrix::MakeIdentity(ScratchPad);
   if (angle != 0.0) 
     {
     cosAngle = cos (radians);
     sinAngle = sin (radians);
 
-    ctm->Element[0][0] = cosAngle;
-    ctm->Element[1][1] = 1.0;
-    ctm->Element[2][0] = -sinAngle;
-    ctm->Element[0][2] = sinAngle;
-    ctm->Element[2][2] = cosAngle;
-    ctm->Element[3][3] = 1.0;
+    ScratchPadMatrix[0][0] = cosAngle;
+    ScratchPadMatrix[1][1] = 1.0;
+    ScratchPadMatrix[2][0] = -sinAngle;
+    ScratchPadMatrix[0][2] = sinAngle;
+    ScratchPadMatrix[2][2] = cosAngle;
+    ScratchPadMatrix[3][3] = 1.0;
 
     // concatenate with current transformation matrix
-    this->Concatenate (ctm);
+    this->Concatenate (ScratchPad);
     }
-  ctm->Delete();
 }
 
 // Creates a z rotation matrix and concatenates it with
@@ -242,26 +298,27 @@ void vtkTransform::RotateY ( float angle)
 // in degrees.
 void vtkTransform::RotateZ (float angle)
 {
-  vtkMatrix4x4 *ctm = vtkMatrix4x4::New();
+  double ScratchPad[16]; // for passing to vtkMatrix4x4 methods
+  SqMatPtr ScratchPadMatrix = (SqMatPtr) ScratchPad; // for local manipulation
   float radians = angle * vtkMath::DegreesToRadians();
   float cosAngle, sinAngle;
 
+  IdentityMatrix::MakeIdentity(ScratchPad);
   if (angle != 0.0) 
     {
     cosAngle = cos (radians);
     sinAngle = sin (radians);
 
-    ctm->Element[0][0] =  cosAngle;
-    ctm->Element[1][0] =  sinAngle;
-    ctm->Element[0][1] = -sinAngle;
-    ctm->Element[1][1] =  cosAngle;
-    ctm->Element[2][2] = 1.0;
-    ctm->Element[3][3] = 1.0;
+    ScratchPadMatrix[0][0] =  cosAngle;
+    ScratchPadMatrix[1][0] =  sinAngle;
+    ScratchPadMatrix[0][1] = -sinAngle;
+    ScratchPadMatrix[1][1] =  cosAngle;
+    ScratchPadMatrix[2][2] = 1.0;
+    ScratchPadMatrix[3][3] = 1.0;
 
     // concatenate with current transformation matrix
-    this->Concatenate (ctm);
+    this->Concatenate (ScratchPad);
     }
-  ctm->Delete();
 }
 
 // Creates a matrix that rotates angle degrees about an axis
@@ -269,13 +326,16 @@ void vtkTransform::RotateZ (float angle)
 // this matrix with the current transformation matrix.
 void vtkTransform::RotateWXYZ ( float angle, float x, float y, float z)
 {
-  vtkMatrix4x4 *ctm = vtkMatrix4x4::New();
+  double ScratchPad[16]; // for passing to vtkMatrix4x4 methods
+  SqMatPtr ScratchPadMatrix = (SqMatPtr) ScratchPad; // for local manipulation
   float   radians;
   float   w;
   float   quat[4];
   float   sinAngle;
   float   cosAngle;
 
+  IdentityMatrix::MakeIdentity(ScratchPad);
+
   // build a rotation matrix and concatenate it
   quat[0] = angle;
   quat[1] = x;
@@ -304,30 +364,32 @@ void vtkTransform::RotateWXYZ ( float angle, float x, float y, float z)
   // "Animation Rotation with Quaternion Curves",
   // Comput. Graphics, vol. 19, No. 3 , p. 253
 
-  ctm->Element[0][0] = 1 - 2 * y * y - 2 * z * z;
-  ctm->Element[1][1] = 1 - 2 * x * x - 2 * z * z;
-  ctm->Element[2][2] = 1 - 2 * x * x - 2 * y * y;
-  ctm->Element[1][0] =  2 * x * y + 2 * w * z;
-  ctm->Element[2][0] =  2 * x * z - 2 * w * y;
-  ctm->Element[0][1] =  2 * x * y - 2 * w * z;
-  ctm->Element[2][1] =  2 * y * z + 2 * w * x;
-  ctm->Element[0][2] =  2 * x * z + 2 * w * y;
-  ctm->Element[1][2] =  2 * y * z - 2 * w * x;
+  ScratchPadMatrix[0][0] = 1 - 2 * y * y - 2 * z * z;
+  ScratchPadMatrix[1][1] = 1 - 2 * x * x - 2 * z * z;
+  ScratchPadMatrix[2][2] = 1 - 2 * x * x - 2 * y * y;
+  ScratchPadMatrix[1][0] =  2 * x * y + 2 * w * z;
+  ScratchPadMatrix[2][0] =  2 * x * z - 2 * w * y;
+  ScratchPadMatrix[0][1] =  2 * x * y - 2 * w * z;
+  ScratchPadMatrix[2][1] =  2 * y * z + 2 * w * x;
+  ScratchPadMatrix[0][2] =  2 * x * z + 2 * w * y;
+  ScratchPadMatrix[1][2] =  2 * y * z - 2 * w * x;
 
   // concatenate with current transformation matrix
-  this->Concatenate (ctm);
-  ctm->Delete();
+  this->Concatenate (ScratchPad);
 }
 
 void vtkTransform::RotateWXYZ ( double angle, double x, double y, double z)
 {
-  vtkMatrix4x4 *ctm = vtkMatrix4x4::New();
+  double ScratchPad[16]; // for passing to vtkMatrix4x4 methods
+  SqMatPtr ScratchPadMatrix = (SqMatPtr) ScratchPad; // for local manipulation
   double   radians;
   double   w;
   double   quat[4];
   double   sinAngle;
   double   cosAngle;
 
+  IdentityMatrix::MakeIdentity(ScratchPad);
+
   // build a rotation matrix and concatenate it
   quat[0] = angle;
   quat[1] = x;
@@ -356,108 +418,121 @@ void vtkTransform::RotateWXYZ ( double angle, double x, double y, double z)
   // "Animation Rotation with Quaternion Curves",
   // Comput. Graphics, vol. 19, No. 3 , p. 253
 
-  ctm->Element[0][0] = 1 - 2 * y * y - 2 * z * z;
-  ctm->Element[1][1] = 1 - 2 * x * x - 2 * z * z;
-  ctm->Element[2][2] = 1 - 2 * x * x - 2 * y * y;
-  ctm->Element[1][0] =  2 * x * y + 2 * w * z;
-  ctm->Element[2][0] =  2 * x * z - 2 * w * y;
-  ctm->Element[0][1] =  2 * x * y - 2 * w * z;
-  ctm->Element[2][1] =  2 * y * z + 2 * w * x;
-  ctm->Element[0][2] =  2 * x * z + 2 * w * y;
-  ctm->Element[1][2] =  2 * y * z - 2 * w * x;
+  ScratchPadMatrix[0][0] = 1 - 2 * y * y - 2 * z * z;
+  ScratchPadMatrix[1][1] = 1 - 2 * x * x - 2 * z * z;
+  ScratchPadMatrix[2][2] = 1 - 2 * x * x - 2 * y * y;
+  ScratchPadMatrix[1][0] =  2 * x * y + 2 * w * z;
+  ScratchPadMatrix[2][0] =  2 * x * z - 2 * w * y;
+  ScratchPadMatrix[0][1] =  2 * x * y - 2 * w * z;
+  ScratchPadMatrix[2][1] =  2 * y * z + 2 * w * x;
+  ScratchPadMatrix[0][2] =  2 * x * z + 2 * w * y;
+  ScratchPadMatrix[1][2] =  2 * y * z - 2 * w * x;
 
   // concatenate with current transformation matrix
-  this->Concatenate (ctm);
-  ctm->Delete();
+  this->Concatenate (ScratchPad);
 }
 
 // Scales the current transformation matrix in the x, y and z directions.
 // A scale factor of zero will automatically be replaced with one.
 void vtkTransform::Scale ( float x, float y, float z)
 {
-  vtkMatrix4x4 *ctm = vtkMatrix4x4::New(); //constructed as identity
-
+  double ScratchPad[16]; // for passing to vtkMatrix4x4 methods
+  SqMatPtr ScratchPadMatrix = (SqMatPtr) ScratchPad; // for local manipulation
+  
+  IdentityMatrix::MakeIdentity(ScratchPad);
   if (x != 1.0 || y != 1.0 || z != 1.0) 
     {
-    ctm->Element[0][0] = x;
-    ctm->Element[1][1] = y;
-    ctm->Element[2][2] = z;
+    ScratchPadMatrix[0][0] = x;
+    ScratchPadMatrix[1][1] = y;
+    ScratchPadMatrix[2][2] = z;
 
     // concatenate with current transformation matrix
-    this->Concatenate (ctm);
+    this->Concatenate (ScratchPad);
     }
-  ctm->Delete();
 }
 
 // Scales the current transformation matrix in the x, y and z directions.
 // A scale factor of zero will automatically be replaced with one.
 void vtkTransform::Scale ( double x, double y, double z)
 {
-  vtkMatrix4x4 *ctm = vtkMatrix4x4::New(); //constructed as identity
+  double ScratchPad[16]; // for passing to vtkMatrix4x4 methods
+  SqMatPtr ScratchPadMatrix = (SqMatPtr) ScratchPad; // for local manipulation
 
+  IdentityMatrix::MakeIdentity(ScratchPad);
   if (x != 1.0 || y != 1.0 || z != 1.0) 
     {
-    ctm->Element[0][0] = x;
-    ctm->Element[1][1] = y;
-    ctm->Element[2][2] = z;
+    ScratchPadMatrix[0][0] = x;
+    ScratchPadMatrix[1][1] = y;
+    ScratchPadMatrix[2][2] = z;
 
     // concatenate with current transformation matrix
-    this->Concatenate (ctm);
+    this->Concatenate (ScratchPad);
     }
-  ctm->Delete();
 }
 
 // Translate the current transformation matrix by the vector {x, y, z}.
 void vtkTransform::Translate ( float x, float y, float z)
 {
-  vtkMatrix4x4 *ctm = vtkMatrix4x4::New(); //constructed as identity matrix
+  double ScratchPad[16]; // for passing to vtkMatrix4x4 methods
+  SqMatPtr ScratchPadMatrix = (SqMatPtr) ScratchPad; // for local manipulation
 
+  IdentityMatrix::MakeIdentity(ScratchPad);
   if (x != 0.0 || y != 0.0 || z != 0.0) 
     {
-    ctm->Element[0][3] = x;
-    ctm->Element[1][3] = y;
-    ctm->Element[2][3] = z;
+    ScratchPadMatrix[0][3] = x;
+    ScratchPadMatrix[1][3] = y;
+    ScratchPadMatrix[2][3] = z;
 
     // concatenate with current transformation matrix
-    this->Concatenate (ctm);
+    this->Concatenate (ScratchPad);
     }
-  ctm->Delete();
 }
 
 // Translate the current transformation matrix by the vector {x, y, z}.
 void vtkTransform::Translate ( double x, double y, double z)
 {
-  vtkMatrix4x4 *ctm = vtkMatrix4x4::New(); //constructed as identity matrix
-
+  double ScratchPad[16]; // for passing to vtkMatrix4x4 methods
+  SqMatPtr ScratchPadMatrix = (SqMatPtr) ScratchPad; // for local manipulation
+  IdentityMatrix::MakeIdentity(ScratchPad);
   if (x != 0.0 || y != 0.0 || z != 0.0) 
     {
-    ctm->Element[0][3] = x;
-    ctm->Element[1][3] = y;
-    ctm->Element[2][3] = z;
+    ScratchPadMatrix[0][3] = x;
+    ScratchPadMatrix[1][3] = y;
+    ScratchPadMatrix[2][3] = z;
 
     // concatenate with current transformation matrix
-    this->Concatenate (ctm);
+    this->Concatenate (ScratchPad);
     }
-  ctm->Delete();
 }
 
 // Obtain the transpose of the current transformation matrix.
 void vtkTransform::GetTranspose (vtkMatrix4x4 *transpose)
 {
-  vtkMatrix4x4 *temp = vtkMatrix4x4::New();
+  double ScratchPad[16]; // for passing to vtkMatrix4x4 methods
+  SqMatPtr ScratchPadMatrix = (SqMatPtr) ScratchPad; // for local manipulation
   int i, j;
 
   for (i = 0; i < 4; i++) 
     {
     for (j = 0; j < 4; j++) 
       {
-      temp->Element[j][i] = (**this->Stack).Element[i][j];
+      ScratchPadMatrix[j][i] = (**this->Stack).Element[i][j];
       }
-    }    
-  transpose->DeepCopy (temp);
-  temp->Delete();
+    } 
+
+  // Copy the result
+  for (i = 0; i < 4; i++) 
+    {
+    for (j = 0; j < 4; j++) 
+      {
+      (*transpose).Element[i][j] = ScratchPadMatrix[i][j];
+      }
+    } 
+
 }
 
+// TEMP -- this method needs to be fixed to use the new vtkMatrix4x4 
+// style calls. Wait, maybe not. Check on it. --CRV
 // Invert the current transformation matrix.
 void vtkTransform::Inverse ()
 {
@@ -485,9 +560,10 @@ void vtkTransform::GetOrientation(float *prx, float *pry, float *prz)
 // array of three floating point values.
 float *vtkTransform::GetOrientation ()
 {
+  double ScratchPad[16]; // for passing to vtkMatrix4x4 methods
+  SqMatPtr ScratchPadMatrix = (SqMatPtr) ScratchPad; // for local manipulation
 #define VTK_AXIS_EPSILON 0.001
   float	scaleX, scaleY, scaleZ;
-  vtkMatrix4x4  *temp = vtkMatrix4x4::New();
   float   x,y,z;
   float   d;
   float   d1;
@@ -504,19 +580,19 @@ float *vtkTransform::GetOrientation ()
   float   x3p, y3p;
 
   // copy the matrix into local storage
-  temp->DeepCopy(*this->Stack);
+  vtkMatrix4x4::DeepCopy(ScratchPad,*this->Stack);
 
   // get scale factors
   this->GetScale (scaleX, scaleY, scaleZ);
 
   // first rotate about y axis
-  x2 = temp->Element[2][0] / scaleX;
-  y2 = temp->Element[2][1] / scaleY;
-  z2 = temp->Element[2][2] / scaleZ;
+  x2 = ScratchPadMatrix[2][0] / scaleX;
+  y2 = ScratchPadMatrix[2][1] / scaleY;
+  z2 = ScratchPadMatrix[2][2] / scaleZ;
 
-  x3 = temp->Element[1][0] / scaleX;
-  y3 = temp->Element[1][1] / scaleY;
-  z3 = temp->Element[1][2] / scaleZ;
+  x3 = ScratchPadMatrix[1][0] / scaleX;
+  y3 = ScratchPadMatrix[1][1] / scaleY;
+  z3 = ScratchPadMatrix[1][2] / scaleZ;
 
   dot = x2 * x2 + z2 * z2;
   d1 = sqrt (dot);
@@ -585,9 +661,10 @@ float *vtkTransform::GetOrientation ()
   this->Orientation[1] = y;
   this->Orientation[2] = z;
 
-  temp->Delete();
+
   return this->Orientation;
 }
+
 
 // Return the x, y, z positions from the current transformation matrix.
 // This is simply returning the translation component of the 4x4 matrix.
@@ -601,49 +678,57 @@ void vtkTransform::GetPosition (float *px, float *py, float *pz)
 // vtkTransform::GetOrientationWXYZ 
 float *vtkTransform::GetOrientationWXYZ ()
 {
+  double ScratchPad[16]; // for passing to vtkMatrix4x4 methods
+  SqMatPtr ScratchPadMatrix = (SqMatPtr) ScratchPad; // for local manipulation
   float	scaleX, scaleY, scaleZ;
   vtkTransform *temp1 = vtkTransform::New();
-  vtkMatrix4x4 *temp = vtkMatrix4x4::New();
   float quat[4];
   static float WXYZ[4];
   float mag;
   
+  IdentityMatrix::MakeIdentity(ScratchPad);
+
   // copy the matrix into local storage
   temp1->SetMatrix(**this->Stack);
 
   // get scale factors
   this->GetScale (scaleX, scaleY, scaleZ);
   temp1->Scale(1.0/scaleX,1.0/scaleY,1.0/scaleZ);
-  temp->DeepCopy(*temp1->Stack);
+  vtkMatrix4x4::DeepCopy(ScratchPad,*temp1->Stack);
   
-  quat[0] = 0.25*(1.0 + temp->Element[0][0] + temp->Element[1][1] 
-		  + temp->Element[2][2]);
+  quat[0] = 0.25*(1.0 + ScratchPadMatrix[0][0] + 
+		  ScratchPadMatrix[1][1] 
+		  + ScratchPadMatrix[2][2]);
 
   if (quat[0] > 0.0001)
     {
     quat[0] = sqrt(quat[0]);
-    quat[1] = (temp->Element[2][1] - temp->Element[1][2])/(4.0*quat[0]);
-    quat[2] = (temp->Element[0][2] - temp->Element[2][0])/(4.0*quat[0]);
-    quat[3] = (temp->Element[1][0] - temp->Element[0][1])/(4.0*quat[0]);
+    quat[1] = (ScratchPadMatrix[2][1] - 
+	       ScratchPadMatrix[1][2])/(4.0*quat[0]);
+    quat[2] = (ScratchPadMatrix[0][2] - 
+	       ScratchPadMatrix[2][0])/(4.0*quat[0]);
+    quat[3] = (ScratchPadMatrix[1][0] - 
+	       ScratchPadMatrix[0][1])/(4.0*quat[0]);
     }
   else
     {
     quat[0] = 0;
-    quat[1] = -0.5*(temp->Element[1][1] + temp->Element[2][2]);
+    quat[1] = -0.5*(ScratchPadMatrix[1][1] + 
+		    ScratchPadMatrix[2][2]);
     if (quat[1] > 0.0001)
       {
       quat[1] = sqrt(quat[1]);
-      quat[2] = temp->Element[1][0]/(2.0*quat[1]);
-      quat[3] = temp->Element[2][0]/(2.0*quat[1]);
+      quat[2] = ScratchPadMatrix[1][0]/(2.0*quat[1]);
+      quat[3] = ScratchPadMatrix[2][0]/(2.0*quat[1]);
       }
     else
       {
       quat[1] = 0;
-      quat[2] = 0.5*(1.0 - temp->Element[2][2]);
+      quat[2] = 0.5*(1.0 - ScratchPadMatrix[2][2]);
       if (quat[2] > 0.0001)
 	{
 	quat[2] = sqrt(quat[2]);
-	quat[3] = temp->Element[2][1]/(2.0*quat[2]);
+	quat[3] = ScratchPadMatrix[2][1]/(2.0*quat[2]);
 	}
       else
 	{
@@ -672,9 +757,10 @@ float *vtkTransform::GetOrientationWXYZ ()
     }
   
   temp1->Delete();
-  temp->Delete();
   return WXYZ;
+
 } // vtkTransform::GetOrientationWXYZ 
+
 
 // Return the position from the current transformation matrix as an array
 // of three floating point numbers. This is simply returning the translation 
@@ -746,16 +832,12 @@ void vtkTransform::Identity()
     {
     for (i = 0; i < 4; i++) 
       {
-      if (i == j)
-	{
-	ctm->Element[i][j] = 1.0;
-	}
-      else
-	{
 	ctm->Element[i][j] = 0.0;	
-	}
       }
     }
+
+  ctm->Element[0][0] = ctm->Element[1][1] =
+    ctm->Element[2][2] = ctm->Element[3][3] = 1.0;
 
   this->Modified();
 }
@@ -777,27 +859,81 @@ void vtkTransform::Concatenate (vtkMatrix4x4 *matrix)
   this->Modified ();
 }
 
+void vtkTransform::Concatenate(double Elements[16])
+{
+  if (this->PreMultiplyFlag) 
+    {
+    this->Multiply4x4 (&(*this->Stack)->Element[0][0], Elements, 
+		       &(*this->Stack)->Element[0][0]);
+    }
+  else 
+    {
+    this->Multiply4x4 (Elements, &(*this->Stack)->Element[0][0], 
+		       &(*this->Stack)->Element[0][0]);
+    }
+  (*this->Stack)->Modified();
+  this->Modified ();
+}
+
 // Multiplies matrices a and b and stores the result in c.
 void vtkTransform::Multiply4x4(vtkMatrix4x4 *a, vtkMatrix4x4 *b, 
 			       vtkMatrix4x4 *c)
 {
   int i, j, k;
-  vtkMatrix4x4 *result = vtkMatrix4x4::New();
+  double Accum[4][4];
 
-  // we need the temporary matrix because of the case c=a or c=b;
-  result->Zero();
+  for (i = 0; i < 4; i++) 
+  {
+    for (k = 0; k < 4; k++) 
+    {
+      Accum[i][k] = 0.0;
+      for (j = 0; j < 4; j++) 
+      {
+        Accum[i][k] += a->Element[i][j] * b->Element[j][k];
+      }
+    }
+  }
+
+  // Copy to final dest
+  for (i = 0; i < 4; i++)
+  {
+    for (j = 0; j < 4; j++)
+    {
+      c->Element[i][j] = Accum[i][j];
+    }
+  }
+  c->Modified();
+}
+
+// Multiplies matrices a and b and stores the result in c.
+void vtkTransform::Multiply4x4(double a[16], double b[16], double c[16])
+{
+  SqMatPtr aMat = (SqMatPtr) a;
+  SqMatPtr bMat = (SqMatPtr) b;
+  SqMatPtr cMat = (SqMatPtr) c;
+  int i, j, k;
+  double Accum[4][4];
+
   for (i = 0; i < 4; i++) 
     {
     for (k = 0; k < 4; k++) 
       {
+      Accum[i][k] = 0.0;
       for (j = 0; j < 4; j++) 
         {
-        result->Element[i][k] += a->Element[i][j] * b->Element[j][k];
+        Accum[i][k] += aMat[i][j] * bMat[j][k];
         }
       }
     }
-  c->DeepCopy(result);
-  result->Delete();
+
+  // Copy to final dest
+  for (i = 0; i < 4; i++)
+  {
+    for (j = 0; j < 4; j++)
+    {
+    cMat[i][j] = Accum[i][j];
+    }
+  }
 }
 
 // Transposes the current transformation matrix.
@@ -915,30 +1051,30 @@ void vtkTransform::MultiplyPoints(vtkPoints *inPts, vtkPoints *outPts)
 void vtkTransform::MultiplyVectors(vtkVectors *inVectors, 
 				   vtkVectors *outVectors)
 {
+  double ScratchPad[16]; // for passing to vtkMatrix4x4 methods
+  SqMatPtr ScratchPadMatrix = (SqMatPtr) ScratchPad; // for local manipulation
   float newV[3];
   float *v;
   int ptId, i;
   int numVectors = inVectors->GetNumberOfVectors();
 
-  vtkMatrix4x4 *aMatrix = vtkMatrix4x4::New();
   
-  aMatrix->DeepCopy(*this->Stack);
-  aMatrix->Invert();
-  aMatrix->Transpose();
+  vtkMatrix4x4::DeepCopy(ScratchPad, *this->Stack);
+  vtkMatrix4x4::Invert(ScratchPad,ScratchPad);
+  vtkMatrix4x4::Transpose(ScratchPad,ScratchPad);
 
   for (ptId=0; ptId < numVectors; ptId++)
     {
     v = inVectors->GetVector(ptId);
     for (i=0; i<3; i++)
       {
-      newV[i] = aMatrix->Element[i][0] * v[0] +
-                aMatrix->Element[i][1] * v[1] +
-                aMatrix->Element[i][2] * v[2];
+      newV[i] = ScratchPadMatrix[i][0] * v[0] +
+                ScratchPadMatrix[i][1] * v[1] +
+                ScratchPadMatrix[i][2] * v[2];
       }
 
     outVectors->InsertNextVector(newV);
     }
-  aMatrix->Delete();
 }
 
 
@@ -950,29 +1086,29 @@ void vtkTransform::MultiplyVectors(vtkVectors *inVectors,
 // components.
 void vtkTransform::MultiplyNormals(vtkNormals *inNormals, vtkNormals *outNormals)
 {
+  double ScratchPad[16]; // for passing to vtkMatrix4x4 methods
+  SqMatPtr ScratchPadMatrix = (SqMatPtr) ScratchPad; // for local manipulation
   float newN[3];
   float *n;
   int ptId, i;
   int numNormals = inNormals->GetNumberOfNormals();
 
-  vtkMatrix4x4 *aMatrix = vtkMatrix4x4::New();
-  
-  aMatrix->DeepCopy(*this->Stack);
-  aMatrix->Invert ();
-  aMatrix->Transpose ();
+  vtkMatrix4x4::DeepCopy(ScratchPad, *this->Stack);
+  vtkMatrix4x4::Invert (ScratchPad,ScratchPad);
+  vtkMatrix4x4::Transpose (ScratchPad,ScratchPad);
   
   for (ptId=0; ptId < numNormals; ptId++)
     {
     n = inNormals->GetNormal(ptId);
     for (i=0; i<3; i++)
       {
-      newN[i] = aMatrix->Element[i][0] * n[0] +
-                aMatrix->Element[i][1] * n[1] +
-                aMatrix->Element[i][2] * n[2];
+      newN[i] = ScratchPadMatrix[i][0] * n[0] +
+                ScratchPadMatrix[i][1] * n[1] +
+                ScratchPadMatrix[i][2] * n[2];
       }
 
     vtkMath::Normalize(newN);
     outNormals->InsertNextNormal(newN);
     }
-  aMatrix->Delete();
 }
+
