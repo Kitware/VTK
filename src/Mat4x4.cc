@@ -65,7 +65,8 @@ void vlMatrix4x4::operator= (float element)
 }
 
 // Description:
-// Multiply a point (in homogeneous coordinates) by matrix.
+// Multiply a point (in homogeneous coordinates) by matrix. The in[4] and 
+// result[4] arrays can be the same array.
 void vlMatrix4x4::PointMultiply(float in[4],float result[4])
 {
   int i;
