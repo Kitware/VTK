@@ -28,7 +28,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkLineWidget, "1.3");
+vtkCxxRevisionMacro(vtkLineWidget, "1.4");
 vtkStandardNewMacro(vtkLineWidget);
 
 vtkLineWidget::vtkLineWidget()
@@ -171,6 +171,10 @@ void vtkLineWidget::SetEnabled(int enabling)
                    this->Priority);
     i->AddObserver(vtkCommand::LeftButtonReleaseEvent, this->EventCallbackCommand,
                    this->Priority);
+    i->AddObserver(vtkCommand::MiddleButtonPressEvent, this->EventCallbackCommand,
+                   this->Priority);
+    i->AddObserver(vtkCommand::MiddleButtonReleaseEvent, this->EventCallbackCommand,
+                   this->Priority);
     i->AddObserver(vtkCommand::RightButtonPressEvent, this->EventCallbackCommand,
                    this->Priority);
     i->AddObserver(vtkCommand::RightButtonReleaseEvent, this->EventCallbackCommand,
@@ -236,6 +240,12 @@ void vtkLineWidget::ProcessEvents(vtkObject* object, unsigned long event,
     case vtkCommand::LeftButtonReleaseEvent:
       self->OnLeftButtonUp(rwi->GetControlKey(), rwi->GetShiftKey(), XY[0], XY[1]);
       break;
+    case vtkCommand::MiddleButtonPressEvent:
+      self->OnMiddleButtonDown(rwi->GetControlKey(), rwi->GetShiftKey(), XY[0], XY[1]);
+      break;
+    case vtkCommand::MiddleButtonReleaseEvent:
+      self->OnMiddleButtonUp(rwi->GetControlKey(), rwi->GetShiftKey(), XY[0], XY[1]);
+      break;
     case vtkCommand::RightButtonPressEvent:
       self->OnRightButtonDown(rwi->GetControlKey(), rwi->GetShiftKey(), XY[0], XY[1]);
       break;
@@ -296,8 +306,8 @@ void vtkLineWidget::PrintSelf(ostream& os, vtkIndent indent)
      << (this->AlignWithZAxis ? "On" : "Off") << "\n";
 
   int res = this->LineSource->GetResolution();
-  float *pt1 = this->LineSource->GetOutput()->GetPoints()->GetPoint(0);
-  float *pt2 = this->LineSource->GetOutput()->GetPoints()->GetPoint(res);
+  float *pt1 = this->LineSource->GetPoint1();
+  float *pt2 = this->LineSource->GetPoint2();
 
   os << indent << "Resolution: " << res << "\n";
   os << indent << "Point 1: (" << pt1[0] << ", "
@@ -311,8 +321,8 @@ void vtkLineWidget::PrintSelf(ostream& os, vtkIndent indent)
 void vtkLineWidget::PositionHandles()
 {
   int res = this->LineSource->GetResolution();
-  float *pt1 = this->LineSource->GetOutput()->GetPoints()->GetPoint(0);
-  float *pt2 = this->LineSource->GetOutput()->GetPoints()->GetPoint(res);
+  float *pt1 = this->LineSource->GetPoint1();
+  float *pt2 = this->LineSource->GetPoint2();
 
   this->HandleGeometry[0]->SetCenter(pt1);
   this->HandleGeometry[1]->SetCenter(pt2);
@@ -473,6 +483,55 @@ void vtkLineWidget::OnLeftButtonUp (int ctrl, int shift, int X, int Y)
   this->Interactor->Render();
 }
 
+void vtkLineWidget::OnMiddleButtonDown (int ctrl, int shift, int X, int Y)
+{
+  this->State = vtkLineWidget::Moving;
+
+  // Okay, we can process this. Try to pick handles first;
+  // if no handles picked, then pick the bounding box.
+  vtkAssemblyPath *path;
+  this->Interactor->FindPokedRenderer(X,Y);
+  this->HandlePicker->Pick(X,Y,0.0,this->CurrentRenderer);
+  path = this->HandlePicker->GetPath();
+  if ( path == NULL )
+    {
+    this->LinePicker->Pick(X,Y,0.0,this->CurrentRenderer);
+    path = this->LinePicker->GetPath();
+    if ( path == NULL )
+      {
+      this->State = vtkLineWidget::Outside;
+      this->HighlightLine(0);
+      return;
+      }
+    else
+      {
+      this->HighlightLine(1);
+      }
+    }
+  
+  this->EventCallbackCommand->SetAbortFlag(1);
+  this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+  this->Interactor->Render();
+  
+  this->OldX = X;
+  this->OldY = Y;
+}
+
+void vtkLineWidget::OnMiddleButtonUp (int ctrl, int shift, int X, int Y)
+{
+  if ( this->State == vtkLineWidget::Outside )
+    {
+    return;
+    }
+
+  this->State = vtkLineWidget::Start;
+  this->HighlightLine(0);
+  
+  this->EventCallbackCommand->SetAbortFlag(1);
+  this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+  this->Interactor->Render();
+}
+
 void vtkLineWidget::OnRightButtonDown (int ctrl, int shift, int X, int Y)
 {
   this->State = vtkLineWidget::Scaling;
@@ -531,8 +590,8 @@ void vtkLineWidget::MovePoint1(double *p1, double *p2)
   v[2] = p2[2] - p1[2];
   
   int res = this->LineSource->GetResolution();
-  float *pt1 = this->LineSource->GetOutput()->GetPoints()->GetPoint(0);
-  float *pt2 = this->LineSource->GetOutput()->GetPoints()->GetPoint(res);
+  float *pt1 = this->LineSource->GetPoint1();
+  float *pt2 = this->LineSource->GetPoint2();
 
   float point1[3];
   if ( this->AlignWithXAxis )
@@ -575,8 +634,8 @@ void vtkLineWidget::MovePoint2(double *p1, double *p2)
   v[2] = p2[2] - p1[2];
   
   int res = this->LineSource->GetResolution();
-  float *pt1 = this->LineSource->GetOutput()->GetPoints()->GetPoint(0);
-  float *pt2 = this->LineSource->GetOutput()->GetPoints()->GetPoint(res);
+  float *pt1 = this->LineSource->GetPoint1();
+  float *pt2 = this->LineSource->GetPoint2();
 
   float point2[3];
   if ( this->AlignWithXAxis )
@@ -620,8 +679,8 @@ void vtkLineWidget::Translate(double *p1, double *p2)
   v[2] = p2[2] - p1[2];
   
   int res = this->LineSource->GetResolution();
-  float *pt1 = this->LineSource->GetOutput()->GetPoints()->GetPoint(0);
-  float *pt2 = this->LineSource->GetOutput()->GetPoints()->GetPoint(res);
+  float *pt1 = this->LineSource->GetPoint1();
+  float *pt2 = this->LineSource->GetPoint2();
 
   float point1[3], point2[3];
   for (int i=0; i<3; i++)
@@ -646,8 +705,9 @@ void vtkLineWidget::Scale(double *p1, double *p2, int X, int Y)
   v[2] = p2[2] - p1[2];
 
   int res = this->LineSource->GetResolution();
-  float *pt1 = this->LineSource->GetOutput()->GetPoints()->GetPoint(0);
-  float *pt2 = this->LineSource->GetOutput()->GetPoints()->GetPoint(res);
+  float *pt1 = this->LineSource->GetPoint1();
+  float *pt2 = this->LineSource->GetPoint2();
+
   float center[3];
   center[0] = (pt1[0]+pt2[0]) / 2.0;
   center[1] = (pt1[1]+pt2[1]) / 2.0;
