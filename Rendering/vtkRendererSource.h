@@ -35,7 +35,8 @@
 #define __vtkRendererSource_h
 
 #include "vtkStructuredPointsSource.h"
-#include "vtkRenderer.h"
+
+class vtkRenderer;
 
 class VTK_RENDERING_EXPORT vtkRendererSource : public vtkStructuredPointsSource
 {
@@ -50,7 +51,7 @@ public:
 
   // Description:
   // Indicates what renderer to get the pixel data from.
-  vtkSetObjectMacro(Input,vtkRenderer);
+  virtual void SetInput(vtkRenderer*);
 
   // Description:
   // Returns which renderer is being used as the source for the pixel data.
