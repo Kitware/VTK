@@ -82,6 +82,40 @@ EXTERN int    TkMacHaveAppearance _ANSI_ARGS_((void));
 /* 10 */
 EXTERN GWorldPtr  TkMacGetDrawablePort _ANSI_ARGS_((Drawable drawable));
 #endif /* MAC_TCL */
+#ifdef MAC_OSX_TK
+/* 0 */
+EXTERN void    Tk_MacOSXSetEmbedHandler _ANSI_ARGS_((
+        Tk_MacOSXEmbedRegisterWinProc * registerWinProcPtr, 
+        Tk_MacOSXEmbedGetGrafPortProc * getPortProcPtr, 
+        Tk_MacOSXEmbedMakeContainerExistProc * containerExistProcPtr, 
+        Tk_MacOSXEmbedGetClipProc * getClipProc, 
+        Tk_MacOSXEmbedGetOffsetInParentProc * getOffsetProc));
+/* 1 */
+EXTERN void    Tk_MacOSXTurnOffMenus _ANSI_ARGS_((void));
+/* 2 */
+EXTERN void    Tk_MacOSXTkOwnsCursor _ANSI_ARGS_((int tkOwnsIt));
+/* 3 */
+EXTERN void    TkMacOSXInitMenus _ANSI_ARGS_((Tcl_Interp * interp));
+/* 4 */
+EXTERN void    TkMacOSXInitAppleEvents _ANSI_ARGS_((
+        Tcl_Interp * interp));
+/* 5 */
+EXTERN void    TkGenWMConfigureEvent _ANSI_ARGS_((Tk_Window tkwin, 
+        int x, int y, int width, int height, 
+        int flags));
+/* 6 */
+EXTERN void    TkMacOSXInvalClipRgns _ANSI_ARGS_((TkWindow * winPtr));
+/* 7 */
+EXTERN GWorldPtr  TkMacOSXGetDrawablePort _ANSI_ARGS_((
+        Drawable drawable));
+/* 8 */
+EXTERN ControlRef  TkMacOSXGetRootControl _ANSI_ARGS_((
+        Drawable drawable));
+/* 9 */
+EXTERN void    Tk_MacOSXSetupTkNotifier _ANSI_ARGS_((void));
+/* 10 */
+EXTERN int    Tk_MacOSXIsAppInFront _ANSI_ARGS_((void));
+#endif /* MAC_OSX_TK */
 
 typedef struct TkPlatStubs {
     int magic;
@@ -108,6 +142,19 @@ typedef struct TkPlatStubs {
     int (*tkMacHaveAppearance) _ANSI_ARGS_((void)); /* 9 */
     GWorldPtr (*tkMacGetDrawablePort) _ANSI_ARGS_((Drawable drawable)); /* 10 */
 #endif /* MAC_TCL */
+#ifdef MAC_OSX_TK
+    void (*tk_MacOSXSetEmbedHandler) _ANSI_ARGS_((Tk_MacOSXEmbedRegisterWinProc * registerWinProcPtr, Tk_MacOSXEmbedGetGrafPortProc * getPortProcPtr, Tk_MacOSXEmbedMakeContainerExistProc * containerExistProcPtr, Tk_MacOSXEmbedGetClipProc * getClipProc, Tk_MacOSXEmbedGetOffsetInParentProc * getOffsetProc)); /* 0 */
+    void (*tk_MacOSXTurnOffMenus) _ANSI_ARGS_((void)); /* 1 */
+    void (*tk_MacOSXTkOwnsCursor) _ANSI_ARGS_((int tkOwnsIt)); /* 2 */
+    void (*tkMacOSXInitMenus) _ANSI_ARGS_((Tcl_Interp * interp)); /* 3 */
+    void (*tkMacOSXInitAppleEvents) _ANSI_ARGS_((Tcl_Interp * interp)); /* 4 */
+    void (*tkGenWMConfigureEvent) _ANSI_ARGS_((Tk_Window tkwin, int x, int y, int width, int height, int flags)); /* 5 */
+    void (*tkMacOSXInvalClipRgns) _ANSI_ARGS_((TkWindow * winPtr)); /* 6 */
+    GWorldPtr (*tkMacOSXGetDrawablePort) _ANSI_ARGS_((Drawable drawable)); /* 7 */
+    ControlRef (*tkMacOSXGetRootControl) _ANSI_ARGS_((Drawable drawable)); /* 8 */
+    void (*tk_MacOSXSetupTkNotifier) _ANSI_ARGS_((void)); /* 9 */
+    int (*tk_MacOSXIsAppInFront) _ANSI_ARGS_((void)); /* 10 */
+#endif /* MAC_OSX_TK */
 } TkPlatStubs;
 
 #ifdef __cplusplus
@@ -196,6 +243,52 @@ extern TkPlatStubs *tkPlatStubsPtr;
   (tkPlatStubsPtr->tkMacGetDrawablePort) /* 10 */
 #endif
 #endif /* MAC_TCL */
+#ifdef MAC_OSX_TK
+#ifndef Tk_MacOSXSetEmbedHandler
+#define Tk_MacOSXSetEmbedHandler \
+  (tkPlatStubsPtr->tk_MacOSXSetEmbedHandler) /* 0 */
+#endif
+#ifndef Tk_MacOSXTurnOffMenus
+#define Tk_MacOSXTurnOffMenus \
+  (tkPlatStubsPtr->tk_MacOSXTurnOffMenus) /* 1 */
+#endif
+#ifndef Tk_MacOSXTkOwnsCursor
+#define Tk_MacOSXTkOwnsCursor \
+  (tkPlatStubsPtr->tk_MacOSXTkOwnsCursor) /* 2 */
+#endif
+#ifndef TkMacOSXInitMenus
+#define TkMacOSXInitMenus \
+  (tkPlatStubsPtr->tkMacOSXInitMenus) /* 3 */
+#endif
+#ifndef TkMacOSXInitAppleEvents
+#define TkMacOSXInitAppleEvents \
+  (tkPlatStubsPtr->tkMacOSXInitAppleEvents) /* 4 */
+#endif
+#ifndef TkGenWMConfigureEvent
+#define TkGenWMConfigureEvent \
+  (tkPlatStubsPtr->tkGenWMConfigureEvent) /* 5 */
+#endif
+#ifndef TkMacOSXInvalClipRgns
+#define TkMacOSXInvalClipRgns \
+  (tkPlatStubsPtr->tkMacOSXInvalClipRgns) /* 6 */
+#endif
+#ifndef TkMacOSXGetDrawablePort
+#define TkMacOSXGetDrawablePort \
+  (tkPlatStubsPtr->tkMacOSXGetDrawablePort) /* 7 */
+#endif
+#ifndef TkMacOSXGetRootControl
+#define TkMacOSXGetRootControl \
+  (tkPlatStubsPtr->tkMacOSXGetRootControl) /* 8 */
+#endif
+#ifndef Tk_MacOSXSetupTkNotifier
+#define Tk_MacOSXSetupTkNotifier \
+  (tkPlatStubsPtr->tk_MacOSXSetupTkNotifier) /* 9 */
+#endif
+#ifndef Tk_MacOSXIsAppInFront
+#define Tk_MacOSXIsAppInFront \
+  (tkPlatStubsPtr->tk_MacOSXIsAppInFront) /* 10 */
+#endif
+#endif /* MAC_OSX_TK */
 
 #endif /* defined(USE_TK_STUBS) && !defined(USE_TK_STUB_PROCS) */
 
