@@ -327,14 +327,13 @@ void vtkImageMultipleInputFilter::RecursiveStreamUpdate(vtkImageData *outData,
       }
     }
 
-  
   // No Streaming required.
   for (idx = 0; idx < this->NumberOfInputs; ++idx)
     {
     // Get the input region (Update extent was set at start of this method).
     inDatas[idx] = this->Inputs[idx]->UpdateAndReturnData();
     }
-  
+
   // The StartMethod call is placed here to be after updating the input.
   if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
   // fill the output region 

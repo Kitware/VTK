@@ -61,8 +61,6 @@ public:
   const char *GetClassName() {return "vtkImageDilateErode3D";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
-  void SetFilteredAxes(int axis0, int axis1, int axis2);
-
   // Set/Get the size of the neighood.
   void SetKernelSize(int size0, int size1, int size2);
   
@@ -75,15 +73,15 @@ public:
 
   // Description:
   // Get the Mask used as a footprint.
-  vtkGetObjectMacro(Mask, vtkImageRegion);
+  vtkGetObjectMacro(Mask, vtkImageData);
   
 protected:
   float DilateValue;
   float ErodeValue;
-  vtkImageRegion *Mask;
+  vtkImageData *Mask;
     
-  void ExecuteCenter(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
+		       int outExt[6], int id);
   void ComputeMask();
 };
 

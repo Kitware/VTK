@@ -44,6 +44,7 @@ vtkImageClip \
 vtkImageConnector \
 vtkImageConstantPad \
 vtkImageCursor3D \
+vtkImageElipsoidSource \
 vtkImageExtractComponents \
 vtkImageFFT \
 vtkImageFlip \
@@ -85,7 +86,6 @@ vtkTIFFWriter
 #vtkImageDilateErode3D \
 #vtkImageDivergence3D \
 #vtkImageDotProduct \
-#vtkImageElipsoidSource \
 #vtkImageEuclideanToPolar \
 #vtkImageFeatureAnd \
 #vtkImageGaussianSource \

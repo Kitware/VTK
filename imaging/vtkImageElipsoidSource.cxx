@@ -37,7 +37,7 @@ PARTICULAR PURPOSE, AND NON-INFRINGEMENT.  THIS SOFTWARE IS PROVIDED ON AN
 MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
-#include "vtkImageRegion.h"
+#include "vtkImageData.h"
 #include "vtkImageCache.h"
 #include "vtkImageElipsoidSource.h"
 
@@ -50,24 +50,16 @@ vtkImageElipsoidSource::vtkImageElipsoidSource()
   this->WholeExtent[3] = 255;
   this->WholeExtent[4] = 0;
   this->WholeExtent[5] = 0;
-  this->WholeExtent[6] = 0;
-  this->WholeExtent[7] = 0;
   this->Center[0] = 128.0;
   this->Center[1] = 128.0;
   this->Center[2] = 0.0;
-  this->Center[3] = 0.0;
   this->Radius[0] = 70.0;
   this->Radius[1] = 70.0;
   this->Radius[2] = 70.0;
-  this->Radius[3] = 70.0;
   this->InValue = 255.0;
   this->OutValue = 0.0;
   
-  // This can be overridden.
-  this->SetOutputScalarType(VTK_UNSIGNED_CHAR);
-
-  // simplest execute method possible (but slow)
-  this->NumberOfExecutionAxes = 0;
+  this->OutputScalarType = VTK_UNSIGNED_CHAR;
 }
 
 //----------------------------------------------------------------------------
@@ -79,31 +71,23 @@ vtkImageElipsoidSource::~vtkImageElipsoidSource()
 void vtkImageElipsoidSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "Center: (" << this->Center[0] << ", "
-     << this->Center[1] << ", " << this->Center[2] << ", " 
-     << this->Center[3] << ")\n";
+     << this->Center[1] << ", " << this->Center[2] << ")\n";
   
   os << indent << "Radius: (" << this->Radius[0] << ", "
-     << this->Radius[1] << ", " << this->Radius[2] << ", " 
-     << this->Radius[3] << ")\n";
+     << this->Radius[1] << ", " << this->Radius[2] << ")\n";
   
   os << indent << "InValue: " << this->InValue << "\n";
   os << indent << "OutValue: " << this->OutValue << "\n";
-
+  os << indent << "OutputScalarType: " << this->OutputScalarType << "\n";
+  
   vtkImageSource::PrintSelf(os,indent);
 }
-
 //----------------------------------------------------------------------------
-void vtkImageElipsoidSource::SetWholeExtent(int dim, int *extent)
+void vtkImageElipsoidSource::SetWholeExtent(int extent[6])
 {
-  int idx;
+  int idx, modified = 0;
   
-  if (dim > 4)
-    {
-    vtkWarningMacro("SetWholeExtent: Too many axes");
-    dim = 4;
-    }
-  
-  for (idx = 0; idx < dim*2; ++idx)
+  for (idx = 0; idx < 6; ++idx)
     {
     if (this->WholeExtent[idx] != extent[idx])
       {
@@ -111,156 +95,135 @@ void vtkImageElipsoidSource::SetWholeExtent(int dim, int *extent)
       this->Modified();
       }
     }
+  if (modified)
+    {
+    this->Modified();
+    }
 }
 
 //----------------------------------------------------------------------------
-void vtkImageElipsoidSource::GetWholeExtent(int dim, int *extent)
+void vtkImageElipsoidSource::SetWholeExtent(int minX, int maxX, 
+					    int minY, int maxY,
+					    int minZ, int maxZ)
+{
+  int extent[6];
+  
+  extent[0] = minX;  extent[1] = maxX;
+  extent[2] = minY;  extent[3] = maxY;
+  extent[4] = minZ;  extent[5] = maxZ;
+  this->SetWholeExtent(extent);
+}
+
+
+//----------------------------------------------------------------------------
+void vtkImageElipsoidSource::GetWholeExtent(int extent[6])
 {
   int idx;
   
-  if (dim > 4)
-    {
-    vtkWarningMacro("SetWholeExtent: Too many axes");
-    dim = 4;
-    }
-  
-  for (idx = 0; idx < dim*2; ++idx)
+  for (idx = 0; idx < 6; ++idx)
     {
     extent[idx] = this->WholeExtent[idx];
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkImageElipsoidSource::SetCenter(int dim, float *center)
-{
-  int idx;
-  
-  if (dim > 4)
-    {
-    vtkWarningMacro("SetCenter: Too many axes");
-    dim = 4;
-    }
-  
-  for (idx = 0; idx < dim; ++idx)
-    {
-    if (this->Center[idx] != center[idx])
-      {
-      this->Center[idx] = center[idx];
-      this->Modified();
-      }
-    }
-}
-//----------------------------------------------------------------------------
-void vtkImageElipsoidSource::GetCenter(int dim, float *center)
-{
-  int idx;
-  
-  if (dim > 4)
-    {
-    vtkWarningMacro("SetCenter: Too many axes");
-    dim = 4;
-    }
-  
-  for (idx = 0; idx < dim; ++idx)
-    {
-    center[idx] = this->Center[idx];
-    }
-}
-
-
-//----------------------------------------------------------------------------
-void vtkImageElipsoidSource::SetRadius(int dim, float *radius)
-{
-  int idx;
-  
-  if (dim > 4)
-    {
-    vtkWarningMacro("SetRadius: Too many axes");
-    dim = 4;
-    }
-  
-  for (idx = 0; idx < dim; ++idx)
-    {
-    if (this->Radius[idx] != radius[idx])
-      {
-      this->Radius[idx] = radius[idx];
-      this->Modified();
-      }
-    }
-}
-//----------------------------------------------------------------------------
-void vtkImageElipsoidSource::GetRadius(int dim, float *radius)
-{
-  int idx;
-  
-  if (dim > 4)
-    {
-    vtkWarningMacro("SetRadius: Too many axes");
-    dim = 4;
-    }
-  
-  for (idx = 0; idx < dim; ++idx)
-    {
-    radius[idx] = this->Radius[idx];
-    }
-}
-
-
-//----------------------------------------------------------------------------
 void vtkImageElipsoidSource::UpdateImageInformation()
 {
   this->CheckCache();
-  this->Output->SetSpacing(1.0, 1.0, 1.0, 1.0);
+  this->Output->SetSpacing(1.0, 1.0, 1.0);
   this->Output->SetWholeExtent(this->WholeExtent);
   this->Output->SetNumberOfScalarComponents(1);
+  this->Output->SetScalarType(this->OutputScalarType);
 }
 
 
-//----------------------------------------------------------------------------
-void vtkImageElipsoidSource::Execute(vtkImageRegion *region)
+
+
+
+template <class T>
+static void vtkImageElipsoidSourceExecute(vtkImageElipsoidSource *self,
+					  vtkImageData *data, int ext[6],
+					  T *ptr)
 {
-  float d2, temp;
-  float val;
+  int min0, max0;
+  int idx0, idx1, idx2;
+  int inc0, inc1, inc2;
+  float s0, s1, s2, temp;
+  T outVal, inVal;
+  float *center, *radius;
+
+  outVal = (T)(self->GetOutValue());
+  inVal = (T)(self->GetInValue());
+  center = self->GetCenter();
+  radius = self->GetRadius();
+
+  min0 = ext[0];
+  max0 = ext[1];
+  data->GetContinuousIncrements(ext, inc0, inc1, inc2);
+
+  for (idx2 = ext[4]; idx2 <= ext[5]; ++idx2)
+    {
+    temp = ((float)idx2 - center[2]) / radius[2];
+    s2 = temp * temp;
+    for (idx1 = ext[2]; idx1 <= ext[3]; ++idx1)
+      {
+      temp = ((float)idx1 - center[1]) / radius[1];
+      s1 = temp * temp;
+      for (idx0 = min0; idx0 <= max0; ++idx0)
+	{
+	temp = ((float)idx0 - center[0]) / radius[0];
+	s0 = temp * temp;
+	if (s0 + s1 + s2 > 1.0)
+	  {
+	  *ptr = outVal;
+	  }
+	else
+	  {
+	  *ptr = inVal;
+	  }
+	++ptr;
+	// inc0 is 0
+	}
+      ptr += inc1;
+      }
+    ptr += inc2;
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageElipsoidSource::Execute(vtkImageData *data)
+{
   int *extent;
+  void *ptr;
   
-  extent = region->GetExtent();
-  temp = ((float)(extent[0]) - this->Center[0]) / this->Radius[0];
-  d2 = temp * temp;
-  temp = ((float)(extent[2]) - this->Center[1]) / this->Radius[1];
-  d2 += temp * temp;
-  temp = ((float)(extent[4]) - this->Center[2]) / this->Radius[2];
-  d2 += temp * temp;
-  temp = ((float)(extent[6]) - this->Center[3]) / this->Radius[3];
-  d2 += temp * temp;
+  extent = this->Output->GetUpdateExtent();
+  ptr = data->GetScalarPointerForExtent(extent);
   
-  if (d2 < 1.0)
-    {
-    val = this->InValue;
-    }
-  else
-    {
-    val = this->OutValue;
-    }
-  
-  switch (region->GetScalarType())
+  switch (data->GetScalarType())
     {
     case VTK_FLOAT:
-      *((float *)(region->GetScalarPointer())) = val;
+      vtkImageElipsoidSourceExecute(this, data, extent, (float *)ptr);
       break;
     case VTK_INT:
-      *((int *)(region->GetScalarPointer())) = (int)val;
+      vtkImageElipsoidSourceExecute(this, data, extent, (int *)ptr);
       break;
     case VTK_SHORT:
-      *((short *)(region->GetScalarPointer())) = (short)val;
+      vtkImageElipsoidSourceExecute(this, data, extent, (short *)ptr);
       break;
     case VTK_UNSIGNED_SHORT:
-      *((unsigned short *)(region->GetScalarPointer())) = (unsigned short)val;
+      vtkImageElipsoidSourceExecute(this, data, extent, (unsigned short *)ptr);
       break;
     case VTK_UNSIGNED_CHAR:
-      *((unsigned char *)(region->GetScalarPointer())) = (unsigned char)val;
+      vtkImageElipsoidSourceExecute(this, data, extent, (unsigned char *)ptr);
       break;
     default:
       vtkErrorMacro("Execute: Unknown output ScalarType");
     }
 }
+
+
+
+
+
+
 

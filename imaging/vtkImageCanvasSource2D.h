@@ -103,6 +103,11 @@ public:
 
   void FillPixel(int x, int y);
   
+  // Description:
+  // To make Canvas source more like other sources, this get output
+  // method should be used.
+  vtkImageData *GetOutput() {return this;}
+  
 protected:
   vtkImageData *ImageData;
   float DrawColor[4];

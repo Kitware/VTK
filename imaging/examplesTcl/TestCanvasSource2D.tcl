@@ -7,7 +7,7 @@ source vtkImageInclude.tcl
 vtkImageCanvasSource2D canvas
 canvas SetNumberOfScalarComponents 3
 canvas SetScalarType $VTK_UNSIGNED_CHAR
-canvas SetExtent 0 511 0 511 0 2
+canvas SetExtent 0 511 0 511 0 0
 canvas SetDrawColor 100 100 0
 canvas FillBox 0 511 0 511
 canvas SetDrawColor 200 0 200
@@ -47,7 +47,7 @@ canvas SetDrawColor 100 255 100
 canvas FillPixel 450 350
 
 vtkImageViewer viewer
-viewer SetInput canvas
+viewer SetInput [canvas GetOutput]
 viewer SetColorWindow 256
 viewer SetColorLevel 128
 

@@ -98,7 +98,6 @@ static void vtkImageHSVToRGBExecute(vtkImageHSVToRGB *self,
 	S = (float)(*inPtr); inPtr++;
 	V = (float)(*inPtr); inPtr++;
 
-	// until I get the actual formula, estimate.
 	// compute rgb assuming S = 1.0;
 	if (H >= 0.0 && H <= third) // red -> green
 	  {
@@ -121,22 +120,32 @@ static void vtkImageHSVToRGBExecute(vtkImageHSVToRGB *self,
 	
 	// add Saturation to the equation.
 	S = S / max;
-	R = S + (1.0 - S)*R;
-	G = S + (1.0 - S)*G;
-	B = S + (1.0 - S)*B;
+	//R = S + (1.0 - S)*R;
+	//G = S + (1.0 - S)*G;
+	//B = S + (1.0 - S)*B;
+	// what happend to this?
+	R = S*R + (1.0 - S);
+	G = S*G + (1.0 - S);
+	B = S*B + (1.0 - S);
 	
 	// Use value to get actual RGB 
 	// normalize RGB first then apply value
 	temp = R + G + B; 
-	V = 3 * V / (temp * max);
+	//V = 3 * V / (temp * max);
+	// and what happend to this?
+	V = 3 * V / (temp);
 	R = R * V;
 	G = G * V;
 	B = B * V;
 	
 	// clip below 255
-	if (R > 255.0) R = max;
-	if (G > 255.0) G = max;
-	if (B > 255.0) B = max;
+	//if (R > 255.0) R = max;
+	//if (G > 255.0) G = max;
+	//if (B > 255.0) B = max;
+	// mixed constant 255 and max ?????
+	if (R > max) R = max;
+	if (G > max) G = max;
+	if (B > max) B = max;
 	
 	// assign output.
 	*outPtr = (T)(R); outPtr++;
@@ -153,8 +162,8 @@ static void vtkImageHSVToRGBExecute(vtkImageHSVToRGB *self,
 
 //----------------------------------------------------------------------------
 void vtkImageHSVToRGB::ThreadedExecute(vtkImageData *inData, 
-					 vtkImageData *outData,
-					 int outExt[6], int id)
+				       vtkImageData *outData,
+				       int outExt[6], int id)
 {
   void *inPtr = inData->GetScalarPointerForExtent(outExt);
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
@@ -171,12 +180,12 @@ void vtkImageHSVToRGB::ThreadedExecute(vtkImageData *inData,
     }
   
   // need three components for input and output
-  if (inData->GetNumberOfScalarComponents() < 3)
+  if (inData->GetNumberOfScalarComponents() != 3)
     {
     vtkErrorMacro("Input has too few components");
     return;
     }
-  if (outData->GetNumberOfScalarComponents() < 3)
+  if (outData->GetNumberOfScalarComponents() != 3)
     {
     vtkErrorMacro("Output has too few components");
     return;

@@ -7,9 +7,9 @@ catch {load vtktcl}
 source vtkImageInclude.tcl
 
 vtkImageCanvasSource2D canvas
-canvas SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_COMPONENT_AXIS 
+canvas SetNumberOfScalarComponents 3
 canvas SetScalarType $VTK_UNSIGNED_CHAR
-canvas SetExtent 0 320 0 320 0 2
+canvas SetExtent 0 320 0 320 0 0
 canvas SetDrawColor 0 0 0
 canvas FillBox 0 511 0 511
 
@@ -63,17 +63,11 @@ vtkImageExtractComponents extract
 extract SetInput [convert GetOutput]
 extract SetComponents 2
 
-vtkImageCast cast
-cast SetInput [extract GetOutput]
-cast SetOutputScalarTypeToFloat
-cast ReleaseDataFlagOff
-
 vtkImageViewer viewer
-viewer SetInput [cast GetOutput]
+viewer SetInput [extract GetOutput]
 viewer SetColorWindow 256
 viewer SetColorLevel 128
 #viewer SetInput [canvas GetOutput]
-#viewer ColorFlagOn
 
 # make interface
 source WindowLevelInterface.tcl

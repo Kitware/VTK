@@ -41,6 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkImageElipsoidSource - Create a binary image of a elipsoid.
 // ElipsoidSource creates a binary image of a elipsoid.  It was created
 // as an example of a simple source, and to test the mask filter.
+// It is also used internally in vtkImageDilateErode3D.
 
 
 
@@ -60,24 +61,21 @@ public:
   
   // Description:
   // Set/Get the extent of the whole output image.
-  void SetWholeExtent(int dim, int *extent);
-  vtkImageSetExtentMacro(WholeExtent);
-  void GetWholeExtent(int dim, int *extent);
-  vtkImageGetExtentMacro(WholeExtent);
+  void SetWholeExtent(int extent[6]);
+  void SetWholeExtent(int minX, int maxX, int minY, int maxY, 
+			    int minZ, int maxZ);
+  void GetWholeExtent(int extent[6]);
+  int *GetWholeExtent() {return this->WholeExtent;}
   
   // Description:
   // Set/Get the center of the elipsoid.
-  void SetCenter(int dim, float *center);
-  vtkImageSetMacro(Center, float);
-  void GetCenter(int dim, float *center);
-  vtkImageGetMacro(Center, float);
+  vtkSetVector3Macro(Center, float);
+  vtkGetVector3Macro(Center, float);
   
   // Description:
   // Set/Get the radius of the elipsoid.
-  void SetRadius(int dim, float *radius);
-  vtkImageSetMacro(Radius, float);
-  void GetRadius(int dim, float *canter);
-  vtkImageGetMacro(Radius, float);
+  vtkSetVector3Macro(Radius, float);
+  vtkGetVector3Macro(Radius, float);
 
   // Description:
   // Set/Get the inside pixel values.
@@ -91,14 +89,18 @@ public:
   
   void UpdateImageInformation();
 
+  vtkSetMacro(OutputScalarType,int);
+  vtkGetMacro(OutputScalarType,int);
+  
 protected:
-  int WholeExtent[8];
-  float Center[4];
-  float Radius[4];
+  int WholeExtent[6];
+  float Center[3];
+  float Radius[3];
   float InValue;
   float OutValue;
-
-  void Execute(vtkImageRegion *outRegion);
+  int OutputScalarType;
+  
+  void Execute(vtkImageData *outData);
 };
 
 
