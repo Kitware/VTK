@@ -182,6 +182,7 @@ class vtkActor : public vtkObject
   void SetOrientation(float,float,float);
   void SetOrientation(float a[3]);
   float *GetOrientation();
+  float *GetOrientationWXYZ();
   void AddOrientation(float,float,float);
   void AddOrientation(float a[3]);
 

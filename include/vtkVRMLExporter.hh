@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkPolyMapper.hh
+  Module:    vtkVRMLExporter.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,76 +38,43 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkPolyMapper - map vtkPolyData to graphics primitives
+// .NAME vtkVRMLExporter - export a scene into VRML 2.0 format.
 // .SECTION Description
-// vtkPolyMapper is a mapper to map polygonal data (i.e., vtkPolyData) to 
-// graphics primitives. It is possible to control which geometric 
-// primitives are displayed using the boolean variables provided.
+// vtkVRMLExporter is a concrete subclass of vtkExporter that writes VRML 2.0
+// files. This is based on the VRML 2.0 draft #3 but it should be pretty
+// stable since we aren't using any of the newer features.
+//
+// .SECTION See Also
+// vtkExporter
 
-#ifndef __vtkPolyMapper_h
-#define __vtkPolyMapper_h
 
-#include "vtkMapper.hh"
-#include "vtkPolyData.hh"
-#include "vtkRenderer.hh"
+#ifndef __vtkVRMLExporter_h
+#define __vtkVRMLExporter_h
 
-class vtkPolyMapperDevice;
+#include <stdio.h>
+#include "vtkExporter.hh"
 
-class vtkPolyMapper : public vtkMapper 
+class vtkVRMLExporter : public vtkExporter
 {
 public:
-  vtkPolyMapper();
-  ~vtkPolyMapper();
-  char *GetClassName() {return "vtkPolyMapper";};
+  vtkVRMLExporter();
+  ~vtkVRMLExporter();
+  char *GetClassName() {return "vtkVRMLExporter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  void Render(vtkRenderer *ren, vtkActor *a);
-  float *GetBounds();
-
   // Description:
-  // Specify the input data to map.
-  void SetInput(vtkPolyData *in);
-  void SetInput(vtkPolyData& in) {this->SetInput(&in);};
+  // Specify the name of the VRML file to write.
+  vtkSetStringMacro(Filename);
+  vtkGetStringMacro(Filename);
 
-  // Description:
-  // Control the visibility of vertices.
-  vtkSetMacro(VertsVisibility,int);
-  vtkGetMacro(VertsVisibility,int);
-  vtkBooleanMacro(VertsVisibility,int);
-
-  // Description:
-  // Control the visibility of lines.
-  vtkSetMacro(LinesVisibility,int);
-  vtkGetMacro(LinesVisibility,int);
-  vtkBooleanMacro(LinesVisibility,int);
-
-  // Description:
-  // Control the visibility of polygons.
-  vtkSetMacro(PolysVisibility,int);
-  vtkGetMacro(PolysVisibility,int);
-  vtkBooleanMacro(PolysVisibility,int);
-
-  // Description:
-  // Control the visibility of triangle strips.
-  vtkSetMacro(StripsVisibility,int);
-  vtkGetMacro(StripsVisibility,int);
-  vtkBooleanMacro(StripsVisibility,int);
-
-  // Description:
-  // Calculate and return the point colors for the input.
-  vtkColorScalars *GetColors();
-  
 protected:
-  vtkPolyMapperDevice  *Device;
-
-  vtkColorScalars *Colors;
-
-  int VertsVisibility;
-  int LinesVisibility;
-  int PolysVisibility;
-  int StripsVisibility;
+  void WriteData();
+  void WriteALight(vtkLight *aLight, FILE *fp);
+  void WriteAnActor(vtkActor *anActor, FILE *fp);
+  void WritePointData(vtkPoints *points, vtkNormals *normals, 
+		      vtkTCoords *tcoords, vtkColorScalars *colors, FILE *fp);
+  char *Filename;
 };
 
 #endif
-
 

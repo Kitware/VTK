@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkPolyMapper.hh
+  Module:    vtkExporter.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,74 +38,66 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkPolyMapper - map vtkPolyData to graphics primitives
+// .NAME vtkExporter - abstract class to write a scene to a file
 // .SECTION Description
-// vtkPolyMapper is a mapper to map polygonal data (i.e., vtkPolyData) to 
-// graphics primitives. It is possible to control which geometric 
-// primitives are displayed using the boolean variables provided.
+// vtkExporter is an abstract class that exports a scene to a file. It
+// is very similar to vtkWriter except that a writer only writes out
+// the geometric and topological data for an object, where an exporter
+// can write out material properties, lighting, camera parameters etc.
+// The concrete subclasses of this class may not write out all of this
+// information. For example vtkOBJWriter writes out Wavefront obj files
+// which do not include support for camera parameters.
+//
+// vtkExporter provides the convenience methods StartWrite() and EndWrite().
+// These methods are executed before and after execution of the Write() 
+// method. You can also specify arguments to these methods.
+// This class defines SetInput and GetInput methods which take or return
+// a vtkRenderWindow.  
+// .SECTION Caveats
+// Every subclass of vtkExporter must implement a WriteData() method. 
 
-#ifndef __vtkPolyMapper_h
-#define __vtkPolyMapper_h
+// .SECTION See Also
+// vtkOBJExporter vtkRenderWindow vtkWriter
 
-#include "vtkMapper.hh"
-#include "vtkPolyData.hh"
-#include "vtkRenderer.hh"
+#ifndef __vtkExporter_hh
+#define __vtkExporter_hh
 
-class vtkPolyMapperDevice;
+#include "vtkObject.hh"
+#include "vtkRenderWindow.hh"
 
-class vtkPolyMapper : public vtkMapper 
+#define VTK_ASCII 1
+#define VTK_BINARY 2
+
+class vtkExporter : public vtkObject 
 {
 public:
-  vtkPolyMapper();
-  ~vtkPolyMapper();
-  char *GetClassName() {return "vtkPolyMapper";};
+  vtkExporter();
+  char *GetClassName() {return "vtkExporter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  void Render(vtkRenderer *ren, vtkActor *a);
-  float *GetBounds();
+  virtual void Write();
+  void Update();
 
   // Description:
-  // Specify the input data to map.
-  void SetInput(vtkPolyData *in);
-  void SetInput(vtkPolyData& in) {this->SetInput(&in);};
-
-  // Description:
-  // Control the visibility of vertices.
-  vtkSetMacro(VertsVisibility,int);
-  vtkGetMacro(VertsVisibility,int);
-  vtkBooleanMacro(VertsVisibility,int);
-
-  // Description:
-  // Control the visibility of lines.
-  vtkSetMacro(LinesVisibility,int);
-  vtkGetMacro(LinesVisibility,int);
-  vtkBooleanMacro(LinesVisibility,int);
-
-  // Description:
-  // Control the visibility of polygons.
-  vtkSetMacro(PolysVisibility,int);
-  vtkGetMacro(PolysVisibility,int);
-  vtkBooleanMacro(PolysVisibility,int);
-
-  // Description:
-  // Control the visibility of triangle strips.
-  vtkSetMacro(StripsVisibility,int);
-  vtkGetMacro(StripsVisibility,int);
-  vtkBooleanMacro(StripsVisibility,int);
-
-  // Description:
-  // Calculate and return the point colors for the input.
-  vtkColorScalars *GetColors();
+  // Set/Get the rendering window that contains the scene to be written.
+  vtkSetObjectMacro(Input,vtkRenderWindow);
+  vtkGetObjectMacro(Input,vtkRenderWindow);
   
+  void SetStartWrite(void (*f)(void *), void *arg);
+  void SetEndWrite(void (*f)(void *), void *arg);
+  void SetStartWriteArgDelete(void (*f)(void *));
+  void SetEndWriteArgDelete(void (*f)(void *));
+
 protected:
-  vtkPolyMapperDevice  *Device;
+  vtkRenderWindow *Input;
+  virtual void WriteData() = 0;
 
-  vtkColorScalars *Colors;
-
-  int VertsVisibility;
-  int LinesVisibility;
-  int PolysVisibility;
-  int StripsVisibility;
+  void (*StartWrite)(void *);
+  void (*StartWriteArgDelete)(void *);
+  void *StartWriteArg;
+  void (*EndWrite)(void *);
+  void (*EndWriteArgDelete)(void *);
+  void *EndWriteArg;
 };
 
 #endif
