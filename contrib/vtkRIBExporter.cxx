@@ -583,7 +583,7 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData, vtkColorScalars *c, v
   float poly_norm[3];
   float vertexTCoords[100][2];
   int *pts;
-  int k;
+  int k, kk;
   int npts, rep, j, interpolation;
   int tDim;
   unsigned char *colors;
@@ -679,7 +679,7 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData, vtkColorScalars *c, v
       fprintf (this->FilePtr, "] ");
 
       fprintf (this->FilePtr, "\"N\" [");
-      for (int kk = 0; kk < npts; kk++)
+      for (kk = 0; kk < npts; kk++)
         {
 	fprintf (this->FilePtr, "%f %f %f ",
 	    vertexNormals[kk][0], vertexNormals[kk][1], vertexNormals[kk][2]);
@@ -690,7 +690,7 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData, vtkColorScalars *c, v
       if (c)
        {
         fprintf (this->FilePtr, "\"Cs\" [");
-        for (int kk = 0; kk < npts; kk++)
+        for (kk = 0; kk < npts; kk++)
           {
           fprintf (this->FilePtr, "%f %f %f ",
               vertexColors[kk][0], vertexColors[kk][1], vertexColors[kk][2]);
@@ -700,7 +700,7 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData, vtkColorScalars *c, v
       if (t)
        {
         fprintf (this->FilePtr, "\"st\" [");
-        for (int kk = 0; kk < npts; kk++)
+        for (kk = 0; kk < npts; kk++)
           {
           fprintf (this->FilePtr, "%f %f ",
               vertexTCoords[kk][0], vertexTCoords[kk][1]);
@@ -723,7 +723,7 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData, vtkColorScalars *c, vtk
   float vertexTCoords[100][2];
   int *pts;
   int p1, p2, p3;
-  int k;
+  int k, kk;
   int npts, rep, j, interpolation;
   int tDim;
   unsigned char *colors;
@@ -831,7 +831,7 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData, vtkColorScalars *c, vtk
 	  }
       fprintf (this->FilePtr, "Polygon ");
       fprintf (this->FilePtr, "\"P\" [");
-      for (int kk = 0; kk < 3; kk++)
+      for (kk = 0; kk < 3; kk++)
         {
 	fprintf (this->FilePtr, "%f %f %f ",
 	    vertexPoints[kk][0], vertexPoints[kk][1], vertexPoints[kk][2]);
@@ -839,7 +839,7 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData, vtkColorScalars *c, vtk
       fprintf (this->FilePtr, "] ");
 
       fprintf (this->FilePtr, "\"N\" [");
-      for (int kk = 0; kk < 3; kk++)
+      for (kk = 0; kk < 3; kk++)
         {
 	fprintf (this->FilePtr, "%f %f %f ",
 	    vertexNormals[kk][0], vertexNormals[kk][1], vertexNormals[kk][2]);
