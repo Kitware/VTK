@@ -28,7 +28,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkBoxWidget, "1.7");
+vtkCxxRevisionMacro(vtkBoxWidget, "1.8");
 vtkStandardNewMacro(vtkBoxWidget);
 
 vtkBoxWidget::vtkBoxWidget()
@@ -105,7 +105,17 @@ vtkBoxWidget::vtkBoxWidget()
   cells->Allocate(cells->EstimateSize(15,2));
   this->OutlinePolyData->SetLines(cells);
   cells->Delete();
-  this->GenerateOutline(); //changed on mouse down
+
+  // Set up the initial properties
+  this->HandleProperty = NULL;
+  this->SelectedHandleProperty = NULL;
+  this->FaceProperty = NULL;
+  this->SelectedFaceProperty = NULL;
+  this->OutlineProperty = NULL;
+  this->SelectedOutlineProperty = NULL;
+  this->CreateDefaultProperties();
+
+  this->GenerateOutline();
 
   // Create the handles
   this->Handle = new vtkActor* [7];
@@ -150,15 +160,7 @@ vtkBoxWidget::vtkBoxWidget()
   this->CurrentHandle = NULL;
 
   this->Transform = vtkTransform::New();
-  
-  // Set up the initial properties
-  this->HandleProperty = NULL;
-  this->SelectedHandleProperty = NULL;
-  this->FaceProperty = NULL;
-  this->SelectedFaceProperty = NULL;
-  this->OutlineProperty = NULL;
-  this->SelectedOutlineProperty = NULL;
-  this->CreateDefaultProperties();
+ 
 }
 
 vtkBoxWidget::~vtkBoxWidget()
@@ -1107,10 +1109,13 @@ void vtkBoxWidget::CreateDefaultProperties()
     }
 }
 
-void vtkBoxWidget::PlaceWidget(float bounds[6])
+void vtkBoxWidget::PlaceWidget(float bds[6])
 {
   int i;
-
+  float bounds[6], center[3];
+  
+  this->AdjustBounds(bds,bounds,center);
+  
   this->Points->SetPoint(0, bounds[0], bounds[2], bounds[4]);
   this->Points->SetPoint(1, bounds[1], bounds[2], bounds[4]);
   this->Points->SetPoint(2, bounds[1], bounds[3], bounds[4]);
@@ -1249,4 +1254,9 @@ void vtkBoxWidget::GenerateOutline()
     cells->InsertNextCell(2,pts);
     }
   this->OutlinePolyData->Modified();
+  if ( this->OutlineProperty) 
+    {
+    this->OutlineProperty->SetRepresentationToWireframe();
+    this->SelectedOutlineProperty->SetRepresentationToWireframe();
+    }
 }

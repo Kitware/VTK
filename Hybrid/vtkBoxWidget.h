@@ -32,7 +32,7 @@
 // To use this object, just invoke SetInteractor() with the argument of the
 // method a vtkRenderWindowInteractor.  You may also wish to invoke
 // "PlaceWidget()" to initially position the widget. The interactor will act
-// normally until the "W" key (for "widget") is pressed, at which point the
+// normally until the "i" key (for "interactor") is pressed, at which point the
 // vtkBoxWidget will appear. (See superclass documentation for information
 // about changing this behavior.) By grabbing the six face handles (use the
 // left mouse button), faces can be moved. By grabbing the center handle
@@ -45,7 +45,7 @@
 // mouse. (Note: the mouse button must be held down during manipulation.)
 // Events that occur outside of the widget (i.e., no part of the widget is
 // picked) are propagated to any other registered obsevers (such as the
-// interaction style).  Turn off the widget by pressing the "W" key again.
+// interaction style).  Turn off the widget by pressing the "i" key again.
 // (See the superclass documentation on key press activiation.)
 //
 // The vtkBoxWidget is very flexible. It can be used to select, cut, clip, or
