@@ -33,7 +33,7 @@
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkVRMLExporter, "1.74");
+vtkCxxRevisionMacro(vtkVRMLExporter, "1.75");
 vtkStandardNewMacro(vtkVRMLExporter);
 
 vtkVRMLExporter::vtkVRMLExporter()
@@ -156,7 +156,8 @@ void vtkVRMLExporter::WriteData()
   // make sure we have a default light
   // if we dont then use a headlight
   lc = ren->GetLights();
-  for (lc->InitTraversal(); (aLight = lc->GetNextItem()); )
+  vtkCollectionSimpleIterator sit;
+  for (lc->InitTraversal(sit); (aLight = lc->GetNextLight(sit)); )
     {
     this->WriteALight(aLight, fp);
     }

@@ -36,7 +36,7 @@
 #include "vtkTriangleStrip.h"
 #include "vtkVersion.h"
 
-vtkCxxRevisionMacro(vtkOOGLExporter, "1.25");
+vtkCxxRevisionMacro(vtkOOGLExporter, "1.26");
 vtkStandardNewMacro(vtkOOGLExporter);
 
 vtkOOGLExporter::vtkOOGLExporter()
@@ -203,7 +203,8 @@ void vtkOOGLExporter::WriteData()
   // make sure we have a default light
   // if we dont then use a headlight
   lc = ren->GetLights();
-  for (lc->InitTraversal(); (aLight = lc->GetNextItem()); )
+  vtkCollectionSimpleIterator sit;
+  for (lc->InitTraversal(sit); (aLight = lc->GetNextLight(sit)); )
     {
     this->WriteALight(aLight, fp);
     }

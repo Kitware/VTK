@@ -44,6 +44,13 @@ class VTK_RENDERING_EXPORT vtkLightCollection : public vtkCollection
   // exhausted.
   vtkLight *GetNextItem();
 
+  //BTX
+  // Description: 
+  // Reentrant safe way to get an object in a collection. Just pass the
+  // same cookie back and forth. 
+  vtkLight *GetNextLight(vtkCollectionSimpleIterator &cookie);
+  //ETX
+
 protected:
   vtkLightCollection() {};
   ~vtkLightCollection() {};

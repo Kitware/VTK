@@ -19,7 +19,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkLightCollection, "1.15");
+vtkCxxRevisionMacro(vtkLightCollection, "1.16");
 vtkStandardNewMacro(vtkLightCollection);
 
 // Add a light to the list.
@@ -33,6 +33,12 @@ void vtkLightCollection::AddItem(vtkLight *a)
 vtkLight *vtkLightCollection::GetNextItem() 
 { 
   return static_cast<vtkLight *>(this->GetNextItemAsObject());
+}
+
+vtkLight *vtkLightCollection::GetNextLight(
+  vtkCollectionSimpleIterator &cookie) 
+{
+  return static_cast<vtkLight *>(this->GetNextItemAsObject(cookie));
 }
 
 //----------------------------------------------------------------------------
