@@ -210,6 +210,7 @@ protected:
   int      ScreenSize[2];
   int      CursorHidden;
   int      ForceMakeCurrent;
+  int      UsingHardware;
 
   // we must keep track of the cursors we are using
   Cursor XCArrow;
