@@ -30,7 +30,7 @@
 #include <vtkstd/stack>
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.59");
+vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.60");
 vtkStandardNewMacro(vtkOrderedTriangulator);
 
 #ifdef _WIN32_WCE
@@ -670,7 +670,7 @@ int OTTetra::InCircumSphere(double x[3])
           (x[1] - this->Center[1]) * (x[1] - this->Center[1]) +
           (x[2] - this->Center[2]) * (x[2] - this->Center[2]);
 
-  return (dist2 < (0.9999L * this->Radius2) ? 1 : 0);
+  return (dist2 < (0.999999L * this->Radius2) ? 1 : 0);
 }
 
 //------------------------------------------------------------------------
