@@ -152,6 +152,15 @@ public:
   vtkGetVectorMacro( CursorPosition, double, 3 );
 
   // Description:
+  // Set/Get the cursor color
+  vtkSetVector3Macro( CursorXAxisColor, double );
+  vtkGetVectorMacro(  CursorXAxisColor, double, 3 );
+  vtkSetVector3Macro( CursorYAxisColor, double );
+  vtkGetVectorMacro(  CursorYAxisColor, double, 3 );
+  vtkSetVector3Macro( CursorZAxisColor, double );
+  vtkGetVectorMacro(  CursorZAxisColor, double, 3 );
+
+  // Description:
   // Turn supersampling on/off
   vtkSetClampMacro( SuperSampling, int, 0, 1 );
   vtkGetMacro( SuperSampling, int );
@@ -258,7 +267,10 @@ protected:
   int                  Cursor;
   int                  CursorType;
   double               CursorPosition[3];
-
+  double               CursorXAxisColor[3];
+  double               CursorYAxisColor[3];
+  double               CursorZAxisColor[3];
+  
   // The cut plane parameters
   int                  CutPlane;
   VLICutPlane          *Cut;
