@@ -28,13 +28,13 @@ vtkSphere bite
 
 # combine primitives to build ice-cream cone
 vtkImplicitBoolean theCone
-theCone SetOperationType 1; #intersection
+    theCone SetOperationTypeToIntersection
     theCone AddFunction cone
     theCone AddFunction vertPlane
     theCone AddFunction basePlane
 
 vtkImplicitBoolean theCream
-    theCream SetOperationType 2;#difference
+    theCream SetOperationTypeToDifference
     theCream AddFunction iceCream
     theCream AddFunction bite
 
