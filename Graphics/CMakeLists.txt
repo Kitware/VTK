@@ -72,6 +72,7 @@ vtkGlyph2D.cxx
 vtkGlyph3D.cxx
 vtkGlyphSource2D.cxx
 vtkGraphLayoutFilter.cxx
+vtkHierarchicalDataSetGeometryFilter.cxx
 #vtkHierarchicalBoxCellDataToPointData.cxx
 #vtkHierarchicalBoxContour.cxx
 #vtkHierarchicalBoxCutter.cxx
@@ -101,6 +102,7 @@ vtkMergeFields.cxx
 vtkMergeFilter.cxx
 vtkMeshQuality.cxx
 vtkModelMetadata.cxx
+vtkMultiBlockDataSetGeometryFilter.cxx
 vtkOBBDicer.cxx
 vtkOBBTree.cxx
 vtkOutlineCornerFilter.cxx
