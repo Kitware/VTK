@@ -63,6 +63,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_ABS          9
 #define VTK_SQR          10
 #define VTK_SQRT         11
+#define VTK_MIN          12
+#define VTK_MAX          13
 
 
 #include "vtkImageTwoInputFilter.h"
@@ -90,6 +92,8 @@ public:
   void SetOperationToAbsoluteValue() {this->SetOperation(VTK_ABS);};
   void SetOperationToSquare() {this->SetOperation(VTK_SQR);};
   void SetOperationToSquareRoot() {this->SetOperation(VTK_SQRT);};
+  void SetOperationToMin() {this->SetOperation(VTK_MIN);};
+  void SetOperationToMax() {this->SetOperation(VTK_MAX);};
 
   
 protected:

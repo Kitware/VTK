@@ -240,6 +240,36 @@ void vtkImageViewer::Render(void)
 
 
 
+//----------------------------------------------------------------------------
+int vtkImageViewer::GetWholeZMin()
+{
+  int axis = this->PermutationAxes[2];
+  int *extent;
+  
+  if ( ! this->Input)
+    {
+    return 0;
+    }
+  this->Input->UpdateImageInformation();
+  extent = this->Input->GetWholeExtent();
+  return extent[axis*2];
+}
+
+//----------------------------------------------------------------------------
+int vtkImageViewer::GetWholeZMax()
+{
+  int axis = this->PermutationAxes[2];
+  int *extent;
+  
+  if ( ! this->Input)
+    {
+    return 0;
+    }
+  this->Input->UpdateImageInformation();
+  extent = this->Input->GetWholeExtent();
+  return extent[axis*2 + 1];
+}
+
 
 
 

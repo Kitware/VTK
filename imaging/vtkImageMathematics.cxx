@@ -186,6 +186,26 @@ static void vtkImageMathematicsExecute2(vtkImageMathematics *self,
 	    {
 	    *outPtr0 = (T)(*in1Ptr0 / 0.00001);
 	    }
+	  break;
+	case VTK_MIN:
+	  if (*in1Ptr0 < *in2Ptr0)
+	    {
+	    *outPtr0 = *in1Ptr0;
+	    }
+	  else
+	    {
+	    *outPtr0 = *in2Ptr0;
+	    }
+	  break;
+	case VTK_MAX:
+	  if (*in1Ptr0 > *in2Ptr0)
+	    {
+	    *outPtr0 = *in1Ptr0;
+	    }
+	  else
+	    {
+	    *outPtr0 = *in2Ptr0;
+	    }
 	}
       
       
@@ -215,7 +235,8 @@ void vtkImageMathematics::Execute(vtkImageRegion *inRegion1,
   void *outPtr = outRegion->GetScalarPointer();
 
   if (this->Operation == VTK_ADD || this->Operation == VTK_SUBTRACT || 
-      this->Operation == VTK_MULTIPLY || this->Operation == VTK_DIVIDE) 
+      this->Operation == VTK_MULTIPLY || this->Operation == VTK_DIVIDE ||
+      this->Operation == VTK_MIN || this->Operation == VTK_MAX) 
     {
     void *inPtr2 = inRegion2->GetScalarPointer();
     // this filter expects that inputs are the same type as output.

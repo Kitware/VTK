@@ -597,7 +597,8 @@ void vtkImageReader::OpenAndSeekFile(int dataExtent[8], int idx)
     {
     streamStart = 
       (dataExtent[0] - this->DataExtent[0]) * this->DataIncrements[0] + 
-      dataExtent[3] * this->DataIncrements[1];
+      (this->DataExtent[3] - this->DataExtent[2] - dataExtent[2]) * 
+      this->DataIncrements[1];
     }
   
   // handle three and four dimensional files

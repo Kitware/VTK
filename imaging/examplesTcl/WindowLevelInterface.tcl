@@ -9,10 +9,14 @@ proc InitializeWindowLevelInterface {} {
    set w [viewer GetColorWindow]
    set l [viewer GetColorLevel]
    set sliceNumber [viewer GetZSlice]
+   set zMin [viewer GetWholeZMin]
+   set zMax [viewer GetWholeZMax]
+#   set zMin 0
+#   set zMax 128
 
    frame .slice
    label .slice.label -text "Slice"
-   scale .slice.scale -from 1 -to 128 -orient horizontal \
+   scale .slice.scale -from $zMin -to $zMax -orient horizontal \
      -command SetSlice -variable sliceNumber
 #   button .slice.up -text "Up" -command SliceUp
 #   button .slice.down -text "Down" -command SliceDown

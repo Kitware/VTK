@@ -98,6 +98,10 @@ public:
   vtkGetMacro(ZSlice, int);
   vtkSetMacro(TimeSlice, int);
   vtkGetMacro(TimeSlice, int);
+  // Description:
+  // This is for a tcl interface
+  int GetWholeZMin();
+  int GetWholeZMax();
   
   // Description:
   // Legacy compatability

@@ -62,7 +62,7 @@ public:
 
   void SetFilteredAxes(int axis0, int axis1, int axis2);
   
-  // Set/Get the size of the neighood.
+  // Set the size of the neighood.
   void SetKernelSize(int size0, int size1, int size2);
   
 protected:

@@ -75,6 +75,8 @@ public:
   const char *GetClassName() {return "vtkImageSpatialFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  int *GetKernelSize() {return KernelSize;}
+  
   // users shouldn't access these directly but templated functions need to
   int   KernelSize[4];
   int   KernelMiddle[4];      // Index of kernel origin

@@ -76,8 +76,6 @@ void vtkImageCast::InternalUpdate()
     }
   
   // call the superclass update which will cause an execute.
-  vtkDebugMacro("Update: Casting to type "
-		<< vtkImageScalarTypeNameMacro(this->Output->GetScalarType()));
   this->vtkImageFilter::Update();
 }
 
