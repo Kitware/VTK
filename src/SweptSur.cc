@@ -257,7 +257,7 @@ void vtkSweptSurface::SampleInput(vtkMatrix4x4& m, int inDim[3],
 
           inScalars->GetScalars(idList,voxelScalars);
 
-          for (ii=0; ii<3; ii) loc[ii] = loc[ii] - dim[ii];
+          for (ii=0; ii<3; ii++) loc[ii] = loc[ii] - dim[ii];
 
           voxel.InterpolationFunctions(loc,weights);
 
@@ -275,7 +275,7 @@ void vtkSweptSurface::SampleInput(vtkMatrix4x4& m, int inDim[3],
 
 unsigned long int vtkSweptSurface::GetMTime()
 {
-  unsigned long int mtime=this->GetMTime();
+  unsigned long int mtime=this->MTime;
   unsigned long int transMtime;
   vtkTransform *t;
 
@@ -292,6 +292,13 @@ unsigned long int vtkSweptSurface::GetMTime()
 // compute model bounds from geometry and path
 void vtkSweptSurface::ComputeBounds()
 {
+}
+
+// based on both path and bounding box of input, compute the number of 
+// steps between the specified transforms
+int vtkSweptSurface::ComputeNumberOfSteps(vtkTransform *t1, vtkTransform *t2)
+{
+  return 1;
 }
 
 void vtkSweptSurface::Cap(vtkFloatScalars *s)
