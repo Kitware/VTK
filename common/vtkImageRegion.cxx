@@ -782,11 +782,11 @@ void vtkImageRegionFill(vtkImageRegion *self, T value)
   int idx0, idx1, idx2, idx3, idx4;
   T *ptr0, *ptr1, *ptr2, *ptr3, *ptr4;
   
+  ptr4 = (T *)(self->GetScalarPointer());
   self->GetIncrements(inc0, inc1, inc2, inc3, inc4);
   self->GetExtent(min0,max0, min1,max1, min2,max2, min3,max3, min4,max4);
   
   // loop over 5d space.
-  ptr4 = (T *)(self->GetScalarPointer());
   for (idx4 = min4; idx4 <= max4; ++idx4)
     {
     ptr3 = ptr4;

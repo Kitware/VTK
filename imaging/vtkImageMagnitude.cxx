@@ -130,7 +130,7 @@ void vtkImageMagnitudeExecute(vtkImageMagnitude *self,
       // Compute magnitude along last axis.
       inPtr0 = inPtr1;
       sum = 0.0;
-      for (idx0 = min1; idx0 <= max0; ++idx0)
+      for (idx0 = min0; idx0 <= max0; ++idx0)
 	{
 	sum += (float)(*inPtr0 * *inPtr0);
 	inPtr0 += inInc0;

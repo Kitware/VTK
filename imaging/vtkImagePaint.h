@@ -53,6 +53,22 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 #include "vtkImageRegion.h"
 
+//
+// Special classes for manipulating data
+//
+//BTX - begin tcl exclude
+//
+// For the fill functionality
+class vtkImagePaintPixel { //;prevent man page generation
+public:
+  int X;
+  int Y;
+  void *Pointer;
+  vtkImagePaintPixel *Next;
+};
+//ETX - end tcl exclude
+//
+
 
 class vtkImagePaint : public vtkImageRegion
 {
@@ -61,6 +77,11 @@ public:
   ~vtkImagePaint();
   char *GetClassName() {return "vtkImagePaint";};
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // To drawing into a different image, set it with this method.
+  vtkSetObjectMacro(ImageRegion, vtkImageRegion);
+  vtkGetObjectMacro(ImageRegion, vtkImageRegion);
   
   // Description:
   // Set/Get DrawValue.  This is the value that is used when filling regions
@@ -79,7 +100,10 @@ public:
   void DrawSegment(int x0, int y0, int x1, int y1);
   void DrawSegment3D(float *p0, float *p1);
 
+  void FillPixel(int x, int y);
+  
 protected:
+  vtkImageRegion *ImageRegion;
   float DrawColor[VTK_IMAGE_DIMENSIONS];
   
   int ClipSegment(int &a0, int &a1, int &b0, int &b1);

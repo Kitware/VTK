@@ -1,20 +1,9 @@
 # Make an image larger by repeating the data.  Tile.
 
+source vtkImageInclude.tcl
+
 
 set sliceNumber 22
-
-set VTK_FLOAT              1
-set VTK_INT                2
-set VTK_SHORT              3
-set VTK_UNSIGNED_SHORT     4
-set VTK_UNSIGNED_CHAR      5
-
-set VTK_IMAGE_X_AXIS             0
-set VTK_IMAGE_Y_AXIS             1
-set VTK_IMAGE_Z_AXIS             2
-set VTK_IMAGE_TIME_AXIS          3
-set VTK_IMAGE_COMPONENT_AXIS     4
-
 
 # Image pipeline
 

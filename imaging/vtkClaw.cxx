@@ -1249,6 +1249,7 @@ void vtkClaw::CheckForMergedNetworks(Sphere *s)
 //----------------------------------------------------------------------------
 void vtkClaw::SpherePrint(Sphere *b)
 {
+  b = b;
 }
 
       
@@ -1396,6 +1397,7 @@ float vtkClaw::SphereSurfaceArea(Sphere *b)
 //----------------------------------------------------------------------------
 void vtkClaw::SpheresPrint(SphereList *spheres)
 {
+  spheres = spheres;
 }
 
 

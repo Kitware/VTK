@@ -645,6 +645,38 @@ void vtkImageXViewer::SetWindow(int win)
 
 
 //----------------------------------------------------------------------------
+// Description:
+// Set this ImageXViewer's X window id to a pre-existing window.
+void vtkImageXViewer::SetWindowId(Window arg)
+{
+  vtkDebugMacro(<< "Setting WindowId to " << (void *)arg << "\n"); 
+
+  this->SetWindow((int)(arg));
+}
+void vtkImageXViewer::SetWindowId(void *arg)
+{
+  this->SetWindowId((Window)arg);
+}
+
+// Description:
+// Set the X display id for this ImageXViewer to use to a pre-existing 
+// X display id.
+void vtkImageXViewer::SetDisplayId(Display  *arg)
+{
+  vtkDebugMacro(<< "Setting DisplayId to " << (void *)arg << "\n"); 
+
+  this->DisplayId = arg;
+}
+void vtkImageXViewer::SetDisplayId(void *arg)
+{
+  this->SetDisplayId((Display *)arg);
+}
+
+
+
+
+
+//----------------------------------------------------------------------------
 Colormap vtkImageXViewer::MakeColorMap(Visual *visual) 
 {
   int idx;

@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <string.h>
 #include "vtkStructuredPointsToImage.h"
+#include "vtkColorScalars.h"
 
 //----------------------------------------------------------------------------
 vtkStructuredPointsToImage::vtkStructuredPointsToImage()
@@ -202,26 +203,11 @@ void vtkStructuredPointsToImage::Execute(vtkImageRegion *region)
   vtkScalars *scalars;
   char *type;
   int size[3];
-  int *extent;
   vtkImageData *data;
 
   // Check to see if requested data is contained in the structured points.
   input = this->Input;
   input->GetDimensions(size);
-  extent = region->GetExtent();
-  if (extent[0] < 0 || extent[2] < 0 || extent[4] < 0 ||
-      extent[1] >= size[0] || extent[3] >= size[1] || extent[5] >= size[2])
-    {
-    vtkErrorMacro(<< "Execute: Requested region is not in structured points.");
-    return;
-    }
-
-  // Make sure 4th dimension is empty
-  if (extent[6] != 0 || extent[7] != 0) 
-    {
-    vtkErrorMacro(<< "Execute: Structured points are only 3d! ");
-    return;
-    }
 
   // Get scalars as float
   scalars = input->GetPointData()->GetScalars();
@@ -229,17 +215,27 @@ void vtkStructuredPointsToImage::Execute(vtkImageRegion *region)
   if (strcmp(scalars->GetScalarType(), "ColorScalar") == 0 &&
       scalars->GetNumberOfValuesPerScalar () != 1)
     {
+    int bpp;
+    unsigned char *buffer;
+    int axes[5];
+    
     // Convert to a float scalar
     newScalars = new vtkFloatScalars;
     int num, idx;
     num = scalars->GetNumberOfScalars();
+    bpp = ((vtkColorScalars *)scalars)->GetNumberOfValuesPerScalar();
+    num = num*bpp;
+    buffer = ((vtkColorScalars *)scalars)->GetPtr(0);
     for (idx = 0; idx < num; ++idx)
       {
-      newScalars->InsertNextScalar(scalars->GetScalar(idx));
+      newScalars->InsertNextScalar(buffer[idx]);
       }
     // Create a new data object for the scalars
     data = new vtkImageData;
-    data->SetExtent(0, size[0]-1, 0, size[1]-1, 0, size[2]-1, 0, 0, 0, 0);
+    // Setting data Axes has not "matured yet" lets see if it works first.
+    axes[0] = 4; axes[1] = 0; axes[2] = 1; axes[3] = 2; axes[4] = 3;
+    data->SetAxes(axes);
+    data->SetExtent(0, bpp-1, 0, size[0]-1, 0, size[1]-1, 0, size[2]-1);
     pointData = data->GetPointData();
     pointData->SetScalars(newScalars);
     newScalars->Delete();  // registered by point data.
@@ -273,18 +269,30 @@ vtkStructuredPointsToImage::ComputeImageInformation(vtkImageRegion *region)
   int size[3];
   float aspectRatio[3];
   float origin[3];
-
+  vtkScalars *scalars;
+  
   input = this->Input;
   input->GetDimensions(size);
   input->GetAspectRatio(aspectRatio);
   input->GetOrigin(origin);
-
-  region->SetImageExtent(0, size[0]-1, 0, size[1]-1, 0, size[2]-1);
+  
   region->SetAspectRatio(3, aspectRatio);
   region->SetOrigin(3, origin);
   if (region->GetScalarType() == VTK_VOID)
     {
     region->SetScalarType(this->ComputeDataType());
+    }
+  
+  region->SetImageExtent(0, size[0]-1, 0, size[1]-1, 0, size[2]-1);
+  
+  // Get scalars to find out if we need to add components
+  scalars = input->GetPointData()->GetScalars();
+  if (strcmp(scalars->GetScalarType(), "ColorScalar") == 0 &&
+      scalars->GetNumberOfValuesPerScalar () != 1)
+    {
+    int bpp;
+    bpp = ((vtkColorScalars *)scalars)->GetNumberOfValuesPerScalar();
+    region->SetAxisImageExtent(VTK_IMAGE_COMPONENT_AXIS, 0, bpp-1);
     }
 }
 

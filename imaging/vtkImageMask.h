@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageDilate1D.h
+  Module:    vtkImageMask.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,31 +38,44 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageDilate1D - Continous dilation (Max of neighborhood)
+// .NAME vtkImageMask - Combines a mask and an image.
 // .SECTION Description
-// vtkImageDilate1D implements a 1d continous dilation by replacing
-// a pixel with the maximum of its neighborhood.
-// It is meant to decompose 2 or 3d dilation so they will be faster.
+// vtkImageMask combines a mask with an image.  Non zero mask
+// implies the output pixel will be the same as the image.
+// If a mask pixel is zero,  the the output pixel
+// is set to "MaskedValue".
+// The two inputs should have the same image extent.
+// The mask input should be usigned char, and the image scalar type
+// is the same as the output scalar type.
 
 
-#ifndef __vtkImageDilate1D_h
-#define __vtkImageDilate1D_h
+#ifndef __vtkImageMask_h
+#define __vtkImageMask_h
 
 
-#include "vtkImageSpatialFilter.h"
+#include "vtkImageTwoInputFilter.h"
 
-class vtkImageDilate1D : public vtkImageSpatialFilter
+class vtkImageMask : public vtkImageTwoInputFilter
 {
 public:
-  vtkImageDilate1D();
-  char *GetClassName() {return "vtkImageDilate1D";};
-  void SetKernelSize(int size);
-  void SetStride(int stride);
+  vtkImageMask();
+  char *GetClassName() {return "vtkImageMask";};
+
+  // Description:
+  // SetGet the MaskedValue.  This is the value of the output
+  // when the mask is Masked.
+  vtkSetMacro(MaskedValue, float);
+  vtkGetMacro(MaskedValue, float);
+
+  void SetImageInput(vtkImageSource *in) {this->SetInput1(in);}
+  void SetMaskInput(vtkImageSource *in) {this->SetInput2(in);}
   
 protected:
+  float MaskedValue;
   
-  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-
+  void Execute(vtkImageRegion *inRegion1, 
+	       vtkImageRegion *inRegion2, 
+	       vtkImageRegion *outRegion);
 };
 
 #endif

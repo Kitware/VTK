@@ -47,7 +47,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImagePaint::vtkImagePaint()
 {
   int idx;
-  
+
+  this->ImageRegion = this;
   for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
     this->DrawColor[idx] = 0.0;
@@ -72,6 +73,7 @@ void vtkImagePaint::PrintSelf(ostream& os, vtkIndent indent)
   int idx, num, min, max;
   
   vtkImageRegion::PrintSelf(os,indent);
+  os << indent << "ImageRegion: (" << this->ImageRegion << ")\n";
   os << indent << "DrawColor: (" << this->DrawColor[0];
   this->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, min, max);
   num = max - min + 1;
@@ -89,7 +91,7 @@ void vtkImagePaint::SetDrawColor(int num, float *color)
 {
   int idx, min, max;
   
-  this->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, min, max);
+  this->ImageRegion->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, min, max);
   if (num != (max - min + 1))
     {
     vtkErrorMacro(<< "Color dimensions, " << num 
@@ -114,7 +116,7 @@ void vtkImagePaint::GetDrawColor(int num, float *color)
 {
   int idx, min, max;
   
-  this->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, min, max);
+  this->ImageRegion->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, min, max);
   if (num != (max - min + 1))
     {
     vtkErrorMacro(<< "Color dimensions, " << num 
@@ -138,20 +140,18 @@ void vtkImagePaint::GetDrawColor(int num, float *color)
 //----------------------------------------------------------------------------
 // Draw a region.  Only implentented for 2D extents.
 template <class T>
-void vtkImagePaintFillBox(vtkImagePaint *self, T *ptr, 
+void vtkImagePaintFillBox(vtkImageRegion *image, float *drawColor, T *ptr, 
 			 int min0, int max0, int min1, int max1)
 {
   T *ptr0, *ptr1, *ptrV;
   int idx0, idx1, idxV;
   int inc0, inc1, incV;
   int minV, maxV;
-  float *drawColor, *pf;
+  float *pf;
   
-  drawColor = self->GetDrawColor();
-  
-  self->GetIncrements(inc0, inc1);
-  self->GetAxisIncrements(VTK_IMAGE_COMPONENT_AXIS, incV);
-  self->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, minV, maxV);
+  image->GetIncrements(inc0, inc1);
+  image->GetAxisIncrements(VTK_IMAGE_COMPONENT_AXIS, incV);
+  image->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, minV, maxV);
   ptr1 = ptr;
   for (idx1 = min1; idx1 <= max1; ++idx1)
     {
@@ -183,33 +183,38 @@ void vtkImagePaint::FillBox(int min0, int max0, int min1, int max1)
   void *ptr;
   
   // Clip the region to keep in in bounds
-  extent = this->GetExtent();
+  extent = this->ImageRegion->GetExtent();
   min0 = (min0 < extent[0]) ? extent[0] : min0;
   max0 = (max0 < extent[0]) ? extent[0] : max0;
   min0 = (min0 > extent[1]) ? extent[1] : min0;
   max0 = (max0 > extent[1]) ? extent[1] : max0;
-  min1 = (min1 < extent[0]) ? extent[0] : min1;
-  max1 = (max1 < extent[0]) ? extent[0] : max1;
-  min1 = (min1 > extent[1]) ? extent[1] : min1;
-  max1 = (max1 > extent[1]) ? extent[1] : max1;
+  min1 = (min1 < extent[2]) ? extent[2] : min1;
+  max1 = (max1 < extent[2]) ? extent[2] : max1;
+  min1 = (min1 > extent[3]) ? extent[3] : min1;
+  max1 = (max1 > extent[3]) ? extent[3] : max1;
   
-  ptr = this->GetScalarPointer(min0, min1);
-  switch (this->GetScalarType())
+  ptr = this->ImageRegion->GetScalarPointer(min0, min1);
+  switch (this->ImageRegion->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImagePaintFillBox(this, (float *)(ptr), min0,max0, min1,max1);
+      vtkImagePaintFillBox(this->ImageRegion, this->DrawColor, 
+			   (float *)(ptr), min0,max0, min1,max1);
       break;
     case VTK_INT:
-      vtkImagePaintFillBox(this, (int *)(ptr), min0,max0, min1,max1);
+      vtkImagePaintFillBox(this->ImageRegion, this->DrawColor, 
+			   (int *)(ptr), min0,max0, min1,max1);
       break;
     case VTK_SHORT:
-      vtkImagePaintFillBox(this, (short *)(ptr), min0,max0, min1,max1);
+      vtkImagePaintFillBox(this->ImageRegion, this->DrawColor, 
+			   (short *)(ptr), min0,max0, min1,max1);
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImagePaintFillBox(this, (unsigned short *)(ptr), min0,max0, min1,max1);
+      vtkImagePaintFillBox(this->ImageRegion, this->DrawColor, 
+			   (unsigned short *)(ptr), min0,max0, min1,max1);
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImagePaintFillBox(this, (unsigned char *)(ptr), min0,max0, min1,max1);
+      vtkImagePaintFillBox(this->ImageRegion, this->DrawColor, 
+			   (unsigned char *)(ptr), min0,max0, min1,max1);
       break;
     default:
       vtkErrorMacro(<< "FillBox: Cannot handle ScalarType.");
@@ -221,14 +226,14 @@ void vtkImagePaint::FillBox(int min0, int max0, int min1, int max1)
 //----------------------------------------------------------------------------
 // Fill a tube (thick line for initial 2D implementation.
 template <class T>
-void vtkImagePaintFillTube(vtkImagePaint *self, T *ptr, 
+void vtkImagePaintFillTube(vtkImageRegion *image, float *drawColor, T *ptr, 
 			  int a0, int a1, int b0, int b1, float radius)
 {
   T *ptr0, *ptr1, *ptrV;
   int idx0, idx1, idxV;
   int inc0, inc1, incV;
   int min0, max0, min1, max1, minV, maxV;
-  float *drawColor, *pf;
+  float *pf;
   int n0, n1;
   int ak, bk, k;
   float fract;
@@ -249,13 +254,11 @@ void vtkImagePaintFillTube(vtkImagePaint *self, T *ptr,
     n1 = -n1;
     }
 
-  drawColor = self->GetDrawColor();
-  
-  self->GetExtent(min0, max0, min1, max1);
-  self->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, minV, maxV);
+  image->GetExtent(min0, max0, min1, max1);
+  image->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, minV, maxV);
   // Loop trough whole extent.
-  self->GetIncrements(inc0, inc1);
-  self->GetAxisIncrements(VTK_IMAGE_COMPONENT_AXIS, incV);
+  image->GetIncrements(inc0, inc1);
+  image->GetAxisIncrements(VTK_IMAGE_COMPONENT_AXIS, incV);
   ptr1 = ptr;
   for (idx1 = min1; idx1 <= max1; ++idx1)
     {
@@ -302,25 +305,28 @@ void vtkImagePaint::FillTube(int a0, int a1, int b0, int b1, float radius)
 {
   void *ptr;
   
-  ptr = this->GetScalarPointer();
-  switch (this->GetScalarType())
+  ptr = this->ImageRegion->GetScalarPointer();
+  switch (this->ImageRegion->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImagePaintFillTube(this, (float *)(ptr), a0,a1, b0,b1, radius);
+      vtkImagePaintFillTube(this->ImageRegion, this->DrawColor, 
+			    (float *)(ptr), a0,a1, b0,b1, radius);
       break;
     case VTK_INT:
-      vtkImagePaintFillTube(this, (int *)(ptr), a0,a1, b0,b1, radius);
+      vtkImagePaintFillTube(this->ImageRegion, this->DrawColor, 
+			    (int *)(ptr), a0,a1, b0,b1, radius);
       break;
     case VTK_SHORT:
-      vtkImagePaintFillTube(this, (short *)(ptr), a0,a1, b0,b1, radius);
+      vtkImagePaintFillTube(this->ImageRegion, this->DrawColor,
+			    (short *)(ptr), a0,a1, b0,b1, radius);
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImagePaintFillTube(this, (unsigned short *)(ptr),
-			   a0,a1, b0,b1, radius);
+      vtkImagePaintFillTube(this->ImageRegion, this->DrawColor, 
+			    (unsigned short *)(ptr), a0,a1, b0,b1, radius);
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImagePaintFillTube(this, (unsigned char *)(ptr), 
-			   a0,a1, b0,b1, radius);
+      vtkImagePaintFillTube(this->ImageRegion, this->DrawColor,
+			    (unsigned char *)(ptr), a0,a1, b0,b1, radius);
       break;
     default:
       vtkErrorMacro(<< "FillTube: Cannot handle ScalarType.");
@@ -334,7 +340,7 @@ void vtkImagePaint::FillTube(int a0, int a1, int b0, int b1, float radius)
 //----------------------------------------------------------------------------
 // Fill a triangle (rasterize)
 template <class T>
-void vtkImagePaintFillTriangle(vtkImagePaint *self, T *ptr, 
+void vtkImagePaintFillTriangle(vtkImageRegion *image, float *drawColor, T *ptr,
 			      int a0, int a1, int b0, int b1, int c0, int c1)
 {
   int temp;
@@ -342,14 +348,14 @@ void vtkImagePaintFillTriangle(vtkImagePaint *self, T *ptr,
   float longStep, shortStep;
   int left, right;
   int idx0, idx1, idxV;
+  int min0, max0, min1, max1;
   int minV, maxV;
-  float *drawColor, *pf;
+  float *pf;
   int incV;
   
   ptr = ptr;
-  self->GetAxisIncrements(VTK_IMAGE_COMPONENT_AXIS, incV);
-  self->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, minV, maxV);
-  drawColor = self->GetDrawColor();
+  image->GetAxisIncrements(VTK_IMAGE_COMPONENT_AXIS, incV);
+  image->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, minV, maxV);
   
   // index1 of b must be between a, and c
   if((b1 < a1 && a1 < c1) || (b1 > a1 && a1 > c1))
@@ -386,15 +392,18 @@ void vtkImagePaintFillTriangle(vtkImagePaint *self, T *ptr,
       }
     for (idx0 = left; idx0 <= right; ++idx0)
       {
-      ptr = (T *)(self->GetScalarPointer(idx0, idx1));
-      if (ptr)
+      if (idx0 >= min0 && idx0 <= max0 && idx1 >= min1 && idx1 <= max1)
 	{
-	pf = drawColor;
-	// Assign color to pixel.
-	for (idxV = minV; idxV <= maxV; ++idxV)
+	ptr = (T *)(image->GetScalarPointer(idx0, idx1));
+	if (ptr)
 	  {
-	  *ptr = (T)(*pf++);
-	  ptr += incV;
+	  pf = drawColor;
+	  // Assign color to pixel.
+	  for (idxV = minV; idxV <= maxV; ++idxV)
+	    {
+	    *ptr = (T)(*pf++);
+	    ptr += incV;
+	    }
 	  }
 	
 	}
@@ -418,7 +427,7 @@ void vtkImagePaintFillTriangle(vtkImagePaint *self, T *ptr,
       }
     for (idx0 = left; idx0 <= right; ++idx0)
       {
-      ptr = (T *)(self->GetScalarPointer(idx0, idx1));
+      ptr = (T *)(image->GetScalarPointer(idx0, idx1));
       if (ptr)
 	{
 	pf = drawColor;
@@ -440,29 +449,33 @@ void vtkImagePaintFillTriangle(vtkImagePaint *self, T *ptr,
 //----------------------------------------------------------------------------
 // Description:
 // Fill a tube (thick line for initial 2D implementation).
-void vtkImagePaint::FillTriangle(int a0, int a1, int b0, int b1, int c0, int c1)
+void vtkImagePaint::FillTriangle(int a0,int a1, int b0,int b1, int c0,int c1)
 {
   void *ptr;
   
-  ptr = this->GetScalarPointer();
-  switch (this->GetScalarType())
+  ptr = this->ImageRegion->GetScalarPointer();
+  switch (this->ImageRegion->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImagePaintFillTriangle(this, (float *)(ptr), a0,a1, b0,b1, c0,c1);
+      vtkImagePaintFillTriangle(this->ImageRegion, this->DrawColor, 
+				(float *)(ptr), a0,a1, b0,b1, c0,c1);
       break;
     case VTK_INT:
-      vtkImagePaintFillTriangle(this, (int *)(ptr), a0,a1, b0,b1, c0,c1);
+      vtkImagePaintFillTriangle(this->ImageRegion, this->DrawColor, 
+				(int *)(ptr), a0,a1, b0,b1, c0,c1);
       break;
     case VTK_SHORT:
-      vtkImagePaintFillTriangle(this, (short *)(ptr), a0,a1, b0,b1, c0,c1);
+      vtkImagePaintFillTriangle(this->ImageRegion, this->DrawColor, 
+				(short *)(ptr), a0,a1, b0,b1, c0,c1);
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImagePaintFillTriangle(this, (unsigned short *)(ptr),
+      vtkImagePaintFillTriangle(this->ImageRegion, this->DrawColor, 
+				(unsigned short *)(ptr),
 			       a0,a1, b0,b1, c0,c1);
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImagePaintFillTriangle(this, (unsigned char *)(ptr), 
-			       a0,a1, b0,b1, c0,c1);
+      vtkImagePaintFillTriangle(this->ImageRegion, this->DrawColor, 
+				(unsigned char *)(ptr), a0,a1, b0,b1, c0,c1);
       break;
     default:
       vtkErrorMacro(<< "FillTriangle: Cannot handle ScalarType.");
@@ -476,20 +489,20 @@ void vtkImagePaint::FillTriangle(int a0, int a1, int b0, int b1, int c0, int c1)
 //----------------------------------------------------------------------------
 // Draw a point.  Only implentented for 2D images.
 template <class T>
-void vtkImagePaintDrawPoint(vtkImagePaint *self, T *ptr, int p0, int p1)
+void vtkImagePaintDrawPoint(vtkImageRegion *image, float *drawColor, T *ptr, 
+			    int p0, int p1)
 {
   int min0, max0, min1, max1, minV, maxV;
   int incV, idxV;
-  float *drawColor, *pf;
+  float *pf;
   
-  self->GetExtent(min0, max0, min1, max1);
-  self->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, minV, maxV);
-  self->GetAxisIncrements(VTK_IMAGE_COMPONENT_AXIS, incV);
-  drawColor = self->GetDrawColor();
+  image->GetExtent(min0, max0, min1, max1);
+  image->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, minV, maxV);
+  image->GetAxisIncrements(VTK_IMAGE_COMPONENT_AXIS, incV);
 
   if (p0 >= min0 && p0 <= max0 && p1 >= min1 && p1 <= max1)
     {
-    ptr = (T *)(self->GetScalarPointer(p0, p1));
+    ptr = (T *)(image->GetScalarPointer(p0, p1));
 
     pf = drawColor;
     // Assign color to pixel.
@@ -513,22 +526,27 @@ void vtkImagePaint::DrawPoint(int p0, int p1)
   
   vtkDebugMacro(<< "Drawing a point: (" << p0 << ", " << p1 << ")");
   
-  switch (this->GetScalarType())
+  switch (this->ImageRegion->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImagePaintDrawPoint(this, (float *)(ptr), p0, p1);
+      vtkImagePaintDrawPoint(this->ImageRegion, this->DrawColor, 
+			     (float *)(ptr), p0, p1);
       break;
     case VTK_INT:
-      vtkImagePaintDrawPoint(this, (int *)(ptr), p0, p1);
+      vtkImagePaintDrawPoint(this->ImageRegion, this->DrawColor, 
+			     (int *)(ptr), p0, p1);
       break;
     case VTK_SHORT:
-      vtkImagePaintDrawPoint(this, (short *)(ptr), p0, p1);
+      vtkImagePaintDrawPoint(this->ImageRegion, this->DrawColor, 
+			     (short *)(ptr), p0, p1);
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImagePaintDrawPoint(this, (unsigned short *)(ptr), p0, p1);
+      vtkImagePaintDrawPoint(this->ImageRegion, this->DrawColor, 
+			     (unsigned short *)(ptr), p0, p1);
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImagePaintDrawPoint(this, (unsigned char *)(ptr), p0, p1);
+      vtkImagePaintDrawPoint(this->ImageRegion, this->DrawColor, 
+			     (unsigned char *)(ptr), p0, p1);
       break;
     default:
       vtkErrorMacro(<< "DrawPoint: Cannot handle ScalarType.");
@@ -540,22 +558,22 @@ void vtkImagePaint::DrawPoint(int p0, int p1)
 //----------------------------------------------------------------------------
 // Draw a circle.  Only implentented for 2D images.
 template <class T>
-void vtkImagePaintDrawCircle(vtkImagePaint *self, T *ptr, 
+void vtkImagePaintDrawCircle(vtkImageRegion *image, float *drawColor, T *ptr, 
 			     int c0, int c1, float radius)
 {
   int min0, max0, min1, max1, minV, maxV;
   int incV, idxV;
-  float *drawColor, *pf;
+  float *pf;
   int numberOfSteps;
   double thetaCos, thetaSin;
   double x, y, temp;
   int p0, p1;
   int idx;
-  
-  drawColor = self->GetDrawColor();
-  self->GetExtent(min0, max0, min1, max1);
-  self->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, minV, maxV);
-  self->GetAxisIncrements(VTK_IMAGE_COMPONENT_AXIS, incV);
+
+  radius += 0.1;
+  image->GetExtent(min0, max0, min1, max1);
+  image->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, minV, maxV);
+  image->GetAxisIncrements(VTK_IMAGE_COMPONENT_AXIS, incV);
 
   numberOfSteps = (int)(ceil(6.2831853 * radius));
   thetaCos = cos(1.0 / radius);
@@ -569,7 +587,7 @@ void vtkImagePaintDrawCircle(vtkImagePaint *self, T *ptr,
     p1 = c1+(int)(y);
     if (p0 >= min0 && p0 <= max0 && p1 >= min1 && p1 <= max1)
       {
-      ptr = (T *)(self->GetScalarPointer(p0, p1));
+      ptr = (T *)(image->GetScalarPointer(p0, p1));
 
       pf = drawColor;
       // Assign color to pixel.
@@ -599,22 +617,27 @@ void vtkImagePaint::DrawCircle(int c0, int c1, float radius)
   vtkDebugMacro(<< "Drawing a circle: center = (" << c0 << ", " << c1 
                 << "), radius = " << radius);
   
-  switch (this->GetScalarType())
+  switch (this->ImageRegion->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImagePaintDrawCircle(this, (float *)(ptr), c0, c1, radius);
+      vtkImagePaintDrawCircle(this->ImageRegion, this->DrawColor, 
+			      (float *)(ptr), c0, c1, radius);
       break;
     case VTK_INT:
-      vtkImagePaintDrawCircle(this, (int *)(ptr), c0, c1, radius);
+      vtkImagePaintDrawCircle(this->ImageRegion, this->DrawColor, 
+			      (int *)(ptr), c0, c1, radius);
       break;
     case VTK_SHORT:
-      vtkImagePaintDrawCircle(this, (short *)(ptr), c0, c1, radius);
+      vtkImagePaintDrawCircle(this->ImageRegion, this->DrawColor, 
+			      (short *)(ptr), c0, c1, radius);
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImagePaintDrawCircle(this, (unsigned short *)(ptr), c0, c1, radius);
+      vtkImagePaintDrawCircle(this->ImageRegion, this->DrawColor, 
+			      (unsigned short *)(ptr), c0, c1, radius);
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImagePaintDrawCircle(this, (unsigned char *)(ptr), c0, c1, radius);
+      vtkImagePaintDrawCircle(this->ImageRegion, this->DrawColor, 
+			      (unsigned char *)(ptr), c0, c1, radius);
       break;
     default:
       vtkErrorMacro(<< "DrawCircle: Cannot handle ScalarType.");
@@ -627,7 +650,7 @@ void vtkImagePaint::DrawCircle(int c0, int c1, float radius)
 // Draw a line.  Only implentented for 2D images.
 // First point is already shifted to origin.
 template <class T>
-void vtkImagePaintDrawSegment(vtkImagePaint *self, T *ptr, 
+void vtkImagePaintDrawSegment(vtkImageRegion *image, float *drawColor, T *ptr, 
 			     int p0, int p1)
 {
   float f0, f1;
@@ -636,14 +659,13 @@ void vtkImagePaintDrawSegment(vtkImagePaint *self, T *ptr,
   int minV, maxV;
   int idx, idxV;
   int inc0, inc1, incV;
-  float *drawColor, *pf;
+  float *pf;
   T *ptrV;
   
   
-  drawColor = self->GetDrawColor();
-  self->GetIncrements(inc0, inc1);
-  self->GetAxisIncrements(VTK_IMAGE_COMPONENT_AXIS, incV);
-  self->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, minV, maxV);
+  image->GetIncrements(inc0, inc1);
+  image->GetAxisIncrements(VTK_IMAGE_COMPONENT_AXIS, incV);
+  image->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, minV, maxV);
 
   // make sure we are stepping in the positive direction.
   if (p0 < 0)
@@ -725,7 +747,7 @@ void vtkImagePaint::DrawSegment(int a0, int a1, int b0, int b1)
                 << b0 << ", " << b1);
   
   // check to make sure line segment is in bounds.
-  extent = this->GetExtent();
+  extent = this->ImageRegion->GetExtent();
   if (a0 < extent[0] || a0 > extent[1] || b0 < extent[0] || b0 > extent[1] ||
       a1 < extent[2] || a1 > extent[3] || b1 < extent[2] || b1 > extent[3])
     {
@@ -736,25 +758,30 @@ void vtkImagePaint::DrawSegment(int a0, int a1, int b0, int b1)
       }
     }
 
-  ptr = this->GetScalarPointer(b0, b1);
+  ptr = this->ImageRegion->GetScalarPointer(b0, b1);
   a0 -= b0;
   a1 -= b1;
-  switch (this->GetScalarType())
+  switch (this->ImageRegion->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImagePaintDrawSegment(this, (float *)(ptr), a0, a1);
+      vtkImagePaintDrawSegment(this->ImageRegion, this->DrawColor, 
+			       (float *)(ptr), a0, a1);
       break;
     case VTK_INT:
-      vtkImagePaintDrawSegment(this, (int *)(ptr), a0, a1);
+      vtkImagePaintDrawSegment(this->ImageRegion, this->DrawColor, 
+			       (int *)(ptr), a0, a1);
       break;
     case VTK_SHORT:
-      vtkImagePaintDrawSegment(this, (short *)(ptr), a0, a1);
+      vtkImagePaintDrawSegment(this->ImageRegion, this->DrawColor, 
+			       (short *)(ptr), a0, a1);
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImagePaintDrawSegment(this, (unsigned short *)(ptr), a0, a1);
+      vtkImagePaintDrawSegment(this->ImageRegion, this->DrawColor, 
+			       (unsigned short *)(ptr), a0, a1);
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImagePaintDrawSegment(this, (unsigned char *)(ptr), a0, a1);
+      vtkImagePaintDrawSegment(this->ImageRegion, this->DrawColor, 
+			       (unsigned char *)(ptr), a0, a1);
       break;
     default:
       vtkErrorMacro(<< "DrawSegment: Cannot handle ScalarType.");
@@ -773,7 +800,7 @@ int vtkImagePaint::ClipSegment(int &a0, int &a1, int &b0, int &b1)
   float fract;
 
   
-  this->GetExtent(min0, max0, min1, max1);
+  this->ImageRegion->GetExtent(min0, max0, min1, max1);
   
   // Check planes
   // Both out of bounds
@@ -882,22 +909,21 @@ int vtkImagePaint::ClipSegment(int &a0, int &a1, int &b0, int &b1)
 // Draw a line.  Only implentented for 3D images.
 // First point is already shifted to origin.
 template <class T>
-void vtkImagePaintDrawSegment3D(vtkImagePaint *self, T *ptr, 
-			       int p0, int p1, int p2)
+void vtkImagePaintDrawSegment3D(vtkImageRegion *image, float *drawColor, 
+				T *ptr, int p0, int p1, int p2)
 {
   float f0, f1, f2;
   float s0, s1, s2;
   int numberOfSteps;
   int idx, idxV, minV, maxV;
   int inc0, inc1, inc2, incV;
-  float *drawColor, *pf;
+  float *pf;
   T *ptrV;
   
   
-  drawColor = self->GetDrawColor();
-  self->GetIncrements(inc0, inc1, inc2);
-  self->GetAxisIncrements(VTK_IMAGE_COMPONENT_AXIS, incV);
-  self->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, minV, maxV);
+  image->GetIncrements(inc0, inc1, inc2);
+  image->GetAxisIncrements(VTK_IMAGE_COMPONENT_AXIS, incV);
+  image->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, minV, maxV);
 
   // make sure we are stepping in the positive direction.
   if (p0 < 0)
@@ -979,28 +1005,33 @@ void vtkImagePaint::DrawSegment3D(float *a, float *b)
   void *ptr;
   int a0, a1, a2;
   
-  ptr = this->GetScalarPointer((int)(b[0] + 0.5), 
-			       (int)(b[1] + 0.5), 
-			       (int)(b[2] + 0.5));
+  ptr = this->ImageRegion->GetScalarPointer((int)(b[0] + 0.5), 
+					    (int)(b[1] + 0.5), 
+					    (int)(b[2] + 0.5));
   a0 = (int)(a[0] - b[0] + 0.5);
   a1 = (int)(a[1] - b[1] + 0.5);
   a2 = (int)(a[2] - b[2] + 0.5);
-  switch (this->GetScalarType())
+  switch (this->ImageRegion->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImagePaintDrawSegment3D(this, (float *)(ptr), a0, a1, a2);
+      vtkImagePaintDrawSegment3D(this->ImageRegion, this->DrawColor, 
+				 (float *)(ptr), a0, a1, a2);
       break;
     case VTK_INT:
-      vtkImagePaintDrawSegment3D(this, (int *)(ptr), a0, a1, a2);
+      vtkImagePaintDrawSegment3D(this->ImageRegion, this->DrawColor, 
+				 (int *)(ptr), a0, a1, a2);
       break;
     case VTK_SHORT:
-      vtkImagePaintDrawSegment3D(this, (short *)(ptr), a0, a1, a2);
+      vtkImagePaintDrawSegment3D(this->ImageRegion, this->DrawColor, 
+				 (short *)(ptr), a0, a1, a2);
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImagePaintDrawSegment3D(this, (unsigned short *)(ptr), a0, a1, a2);
+      vtkImagePaintDrawSegment3D(this->ImageRegion, this->DrawColor, 
+				 (unsigned short *)(ptr), a0, a1, a2);
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImagePaintDrawSegment3D(this, (unsigned char *)(ptr), a0, a1, a2);
+      vtkImagePaintDrawSegment3D(this->ImageRegion, this->DrawColor, 
+				 (unsigned char *)(ptr), a0, a1, a2);
       break;
     default:
       vtkErrorMacro(<< "DrawSegment3D: Cannot handle ScalarType.");
@@ -1009,6 +1040,311 @@ void vtkImagePaint::DrawSegment3D(float *a, float *b)
 
 
 
+//----------------------------------------------------------------------------
+template <class T>
+void vtkImagePaintFill(vtkImageRegion *image, float *color, 
+		       T *ptr, int x, int y)
+{
+  vtkImagePaintPixel *pixel;
+  vtkImagePaintPixel *first, *last;
+  vtkImagePaintPixel *heap = NULL;
+  int min0, max0, min1, max1, minV, maxV;
+  int idxV;
+  int inc0, inc1, incV;
+  T fillColor[10];
+  T drawColor[10];
+  T *ptrV, *ptrC;
+  int temp;
   
+  image->GetExtent(min0, max0, min1, max1);
+  image->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, minV, maxV);
+  image->GetIncrements(inc0, inc1);
+  image->GetAxisIncrements(VTK_IMAGE_COMPONENT_AXIS, incV);
+  
+  if ((maxV - minV + 1) > 10)
+    {
+    cerr << "Fill: Color vector too long";
+    return;
+    }
+  
+  // Copy the fill color and make sure it differs from drawColor.
+  ptrV = ptr;
+  temp = 1;
+  for (idxV = minV; idxV <= maxV; ++idxV)
+    {
+    // Save the fill color
+    fillColor[idxV-minV] = *ptrV;
+    drawColor[idxV-minV] = (T)(color[idxV-minV]);
+    if (*ptrV != drawColor[idxV-minV])
+      {
+      temp = 0;
+      }
+    ptrV += incV;
+    }
+  if (temp)
+    { // fill the same as draw
+    cerr << "Fill: Cannot handle draw color same as fill color";
+    return;
+    }
+  
+  // Create the seed
+  pixel = new vtkImagePaintPixel;
+  pixel->X = x;
+  pixel->Y = y;
+  pixel->Pointer = (void *)(ptr);
+  pixel->Next = NULL;
+  first = last = pixel;
+  // change the seeds color
+  ptrV = (T *)(last->Pointer);
+  ptrC = drawColor;
+  for (idxV = minV; idxV <= maxV; ++idxV)
+    {
+    *ptrV = *ptrC++;
+    ptrV += incV;
+    }
+    
+  
+  while (first)
+    {
+    ptr = (T *)(first->Pointer);
 
+    // check bounds for -x neighbor
+    if (first->X > min0)
+      {
+      // Get the neighbor
+      ptrV = ptr - inc0;
+      // compare color
+      ptrC = fillColor;
+      temp = 1;
+      for (idxV = minV; idxV <= maxV; ++idxV)
+	{
+	if (*ptrV != *ptrC++)
+	  {
+	  temp = 0;
+	  break;
+	  }
+	ptrV += incV;
+	}
+      if (temp)
+	{ // color match add a new seed to end of list
+	if (heap)
+	  {
+	  pixel = heap;
+	  heap = heap->Next;
+	  }
+	else
+	  {
+	  pixel = new vtkImagePaintPixel;
+	  }
+	pixel->X = first->X-1;
+	pixel->Y = first->Y;
+	pixel->Pointer = (void *)(ptr - inc0);
+	pixel->Next = NULL;
+	last->Next = pixel;
+	last = pixel;
+	// change the seeds color
+	ptrV = (T *)(last->Pointer);
+	ptrC = drawColor;
+	for (idxV = minV; idxV <= maxV; ++idxV)
+	  {
+	  *ptrV = *ptrC++;
+	  ptrV += incV;
+	  }
+	}
+      }
+  
+    // check bounds for +x neighbor
+    if (first->X < max0)
+      {
+      // Get the neighbor
+      ptrV = ptr + inc0;
+      // compare color
+      ptrC = fillColor;
+      temp = 1;
+      for (idxV = minV; idxV <= maxV; ++idxV)
+	{
+	if (*ptrV != *ptrC++)
+	  {
+	  temp = 0;
+	  break;
+	  }
+	ptrV += incV;
+	}
+      if (temp)
+	{ // color match add a new seed to end of list
+	if (heap)
+	  {
+	  pixel = heap;
+	  heap = heap->Next;
+	  }
+	else
+	  {
+	  pixel = new vtkImagePaintPixel;
+	  }
+	pixel->X = first->X+1;
+	pixel->Y = first->Y;
+	pixel->Pointer = (void *)(ptr + inc0);
+	pixel->Next = NULL;
+	last->Next = pixel;
+	last = pixel;
+	// change the seeds color
+	ptrV = (T *)(last->Pointer);
+	ptrC = drawColor;
+	for (idxV = minV; idxV <= maxV; ++idxV)
+	  {
+	  *ptrV = *ptrC++;
+	  ptrV += incV;
+	  }
+	}
+      }
+  
+    // check bounds for -y neighbor
+    if (first->Y > min1)
+      {
+      // Get the neighbor
+      ptrV = ptr - inc1;
+      // compare color
+      ptrC = fillColor;
+      temp = 1;
+      for (idxV = minV; idxV <= maxV; ++idxV)
+	{
+	if (*ptrV != *ptrC++)
+	  {
+	  temp = 0;
+	  break;
+	  }
+	ptrV += incV;
+	}
+      if (temp)
+	{ // color match add a new seed to end of list
+	if (heap)
+	  {
+	  pixel = heap;
+	  heap = heap->Next;
+	  }
+	else
+	  {
+	  pixel = new vtkImagePaintPixel;
+	  }
+	pixel->X = first->X;
+	pixel->Y = first->Y-1;
+	pixel->Pointer = (void *)(ptr - inc1);
+	pixel->Next = NULL;
+	last->Next = pixel;
+	last = pixel;
+	// change the seeds color
+	ptrV = (T *)(last->Pointer);
+	ptrC = drawColor;
+	for (idxV = minV; idxV <= maxV; ++idxV)
+	  {
+	  *ptrV = *ptrC++;
+	  ptrV += incV;
+	  }
+	}
+      }
+  
+    // check bounds for +y neighbor
+    if (first->Y < max1)
+      {
+      // Get the neighbor
+      ptrV = ptr + inc1;
+      // compare color
+      ptrC = fillColor;
+      temp = 1;
+      for (idxV = minV; idxV <= maxV; ++idxV)
+	{
+	if (*ptrV != *ptrC++)
+	  {
+	  temp = 0;
+	  break;
+	  }
+	ptrV += incV;
+	}
+      if (temp)
+	{ // color match add a new seed to end of list
+	if (heap)
+	  {
+	  pixel = heap;
+	  heap = heap->Next;
+	  }
+	else
+	  {
+	  pixel = new vtkImagePaintPixel;
+	  }
+	pixel->X = first->X;
+	pixel->Y = first->Y+1;
+	pixel->Pointer = (void *)(ptr + inc1);
+	pixel->Next = NULL;
+	last->Next = pixel;
+	last = pixel;
+	// change the seeds color
+	ptrV = (T *)(last->Pointer);
+	ptrC = drawColor;
+	for (idxV = minV; idxV <= maxV; ++idxV)
+	  {
+	  *ptrV = *ptrC++;
+	  ptrV += incV;
+	  }
+	}
+      }
+
+    // remove the first from the list.
+    pixel = first;
+    first = first->Next;
+    pixel->Next = heap;
+    heap = pixel;
+    }
+  
+  // free the heap
+  while (heap)
+    {
+    pixel = heap;
+    heap = heap->Next;
+    delete pixel;
+    }
+}
+
+  
+  
+  
+  
+  
+  
+  
+//----------------------------------------------------------------------------
+// Description:
+// Fill a colored area with another color. (like connectivity)
+// All pixels connected to pixel (x, y) get replaced by draw color.
+void vtkImagePaint::FillPixel(int x, int y)
+{
+  void *ptr;
+  
+  ptr = this->ImageRegion->GetScalarPointer(x, y);
+
+  switch (this->ImageRegion->GetScalarType())
+    {
+    case VTK_FLOAT:
+      vtkImagePaintFill(this->ImageRegion, this->DrawColor, 
+			(float *)(ptr), x, y);
+      break;
+    case VTK_INT:
+      vtkImagePaintFill(this->ImageRegion, this->DrawColor, 
+			(int *)(ptr), x, y);
+      break;
+    case VTK_SHORT:
+      vtkImagePaintFill(this->ImageRegion, this->DrawColor, 
+			(short *)(ptr), x, y);
+      break;
+    case VTK_UNSIGNED_SHORT:
+      vtkImagePaintFill(this->ImageRegion, this->DrawColor, 
+			(unsigned short *)(ptr), x, y);
+      break;
+    case VTK_UNSIGNED_CHAR:
+      vtkImagePaintFill(this->ImageRegion, this->DrawColor, 
+			(unsigned char *)(ptr), x, y);
+      break;
+    default:
+      vtkErrorMacro(<< "Fill: Cannot handle ScalarType.");
+    }   
+}
 

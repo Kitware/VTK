@@ -145,7 +145,6 @@ vtkHedgeHog \
 vtkHyperStreamline \
 vtkIVWriter \
 vtkImageDifference \
-vtkImageToMaximumSurface \
 vtkImageToStructuredPoints \
 vtkImplicitBoolean \
 vtkImplicitDataSet \
@@ -158,7 +157,6 @@ vtkLight \
 vtkLineSource \
 vtkLinearExtrusionFilter \
 vtkLinkEdgels \
-vtkLinkSurfels \
 vtkMCubesReader \
 vtkMCubesWriter \
 vtkMarchingCubes \

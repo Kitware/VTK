@@ -160,14 +160,8 @@ void vtkImageTwoInputFilter::SetInput2(vtkImageSource *input)
 
   // Should we use the data type from the input?
   this->CheckCache();      // make sure a cache exists
-  if (this->Output->GetScalarType() == VTK_VOID)
-    {
-    this->Output->SetScalarType(input->GetScalarType());
-    if (this->Output->GetScalarType() == VTK_VOID)
-      {
-      vtkErrorMacro(<< "SetInput2: Cannot determine ScalarType of input.");
-      }
-    }
+
+  // Do not use the scalar type from the second input.
 }
 
 
@@ -183,6 +177,13 @@ void
 vtkImageTwoInputFilter::UpdatePointData(int dim, vtkImageRegion *outRegion)
 {
   vtkImageRegion *inRegion1, *inRegion2;
+  
+  // Make sure the subclss has defined the execute dimensionality
+  if (this->ExecuteDimensionality < 0)
+    {
+    vtkErrorMacro(<< "Subclass has not set ExecuteDimensionality");
+    return;
+    }
   
   // If outBBox is empty return imediately.
   if (outRegion->IsEmpty())

@@ -8,12 +8,12 @@ source vtkImageInclude.tcl
 # Image pipeline
 
 # Make the WorkSpace
-vtkImageDraw workspace;
+vtkImagePaint workspace;
 workspace SetScalarType $VTK_SHORT
 workspace SetExtent 0 550 0 550;
-workspace SetDrawValue 0;
+workspace SetDrawColor 0;
 workspace FillBox 0 550 0 550;
-workspace SetDrawValue 500;
+workspace SetDrawColor 500;
 workspace FillBox 10 500 50 100;
 workspace FillBox 100 150 50 350;
 workspace FillBox 300 500 50 500;

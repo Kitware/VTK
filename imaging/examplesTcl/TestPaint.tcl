@@ -52,6 +52,15 @@ canvas SetDrawColor 250 250 250;
 canvas DrawPoint 350 350;
 
 
+# Test filling functionality
+canvas SetDrawColor 55 0 0;
+canvas DrawCircle 450 350 80.0;
+canvas SetDrawColor 100 255 100;
+canvas FillPixel 450 350;
+
+
+
+
 vtkImageXViewer viewer;
 viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_COMPONENT_AXIS;
 viewer SetInput [canvas GetOutput];

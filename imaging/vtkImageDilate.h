@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageAnnotate.h
+  Module:    vtkImageDilate.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,79 +38,47 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageAnnotate - Test For SIN# placement
+// .NAME vtkImageDilate - Continous dilation (Max of neighborhood)
 // .SECTION Description
-// vtkImageAnnotate computes where SIN# should be placed.
+// vtkImageDilate implements a continous dilation by replacing
+// a pixel with the maximum of its neighborhood.
 
 
-#ifndef __vtkImageAnnotate_h
-#define __vtkImageAnnotate_h
-
-#include <math.h>
-#include "vtkImagePaint.h"
+#ifndef __vtkImageDilate_h
+#define __vtkImageDilate_h
 
 
-class vtkImageAnnotate : public vtkImagePaint
+#include "vtkImageDecomposedFilter.h"
+#include "vtkImageDilate1D.h"
+
+class vtkImageDilate : public vtkImageDecomposedFilter
 {
 public:
-   vtkImageAnnotate();
-  ~vtkImageAnnotate();
-  char *GetClassName() {return "vtkImageAnnotate";};
-  void PrintSelf(ostream& os, vtkIndent indent); 
+  vtkImageDilate();
+  char *GetClassName() {return "vtkImageDilate";};
+
+  void SetDimensionality(int num);
 
   // Description:
-  // Draw the bounds of the drawing.
-  void ComputeBounds();
-  
+  // Set/Get the size of the neighborhood to apply Dilate.
+  void SetKernelSize(int num, int *size);
+  vtkImageSetMacro(KernelSize, int);
+  void GetKernelSize(int num, int *size);
+  vtkImageGetMacro(KernelSize, int);
+
   // Description:
-  // Test the automatic placement of annotations.
-  // Draw Bounds must be called first.
-  void Annotate(int idx);
+  // Set/Get the stride which shrinks the images.
+  void SetStrides(int num, int *size);
+  vtkImageSetMacro(Strides, int);
+  void GetStrides(int num, int *size);
+  vtkImageGetMacro(Strides, int);
 
-  vtkSetMacro(Min0, int);
-  vtkGetMacro(Min0, int);
-  vtkSetMacro(Max0, int);
-  vtkGetMacro(Max0, int);
-
-  vtkSetMacro(Min1, int);
-  vtkGetMacro(Min1, int);
-  vtkSetMacro(Max1, int);
-  vtkGetMacro(Max1, int);
-  
-  vtkSetMacro(Min01, int);
-  vtkGetMacro(Min01, int);
-  vtkSetMacro(Max01, int);
-  vtkGetMacro(Max01, int);
-  
-  vtkSetMacro(Min10, int);
-  vtkGetMacro(Min10, int);
-  vtkSetMacro(Max10, int);
-  vtkGetMacro(Max10, int);
-  
-  
-  vtkSetMacro(Center0, int);
-  vtkGetMacro(Center0, int);
-  vtkSetMacro(Center1, int);
-  vtkGetMacro(Center1, int);
-  
-  
 protected:
-
-  int Min0;
-  int Max0;
-  int Min1;
-  int Max1;
-  int Min01;
-  int Max01;
-  int Min10;
-  int Max10;
-  
-  int Center0;
-  int Center1;
+  int KernelSize[VTK_IMAGE_DIMENSIONS];
+  int Strides[VTK_IMAGE_DIMENSIONS];
 };
 
-
-
 #endif
+
 
 

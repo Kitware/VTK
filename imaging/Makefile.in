@@ -31,11 +31,11 @@ vtkClaw \
 vtkImage2DRobotSpace \
 vtkImageAnisotropicDiffusion2D \
 vtkImageAnisotropicDiffusion3D \
-vtkImageAnnotate \
 vtkImageArithmetic \
 vtkImageCast \
 vtkImageConstantPad \
 vtkImageConvolution1D \
+vtkImageDilate \
 vtkImageDilate1D \
 vtkImageDilateErode \
 vtkImageDistance1D \
@@ -60,6 +60,7 @@ vtkImageLaplacian \
 vtkImageMagnify1D \
 vtkImageMagnify \
 vtkImageMagnitude \
+vtkImageMask \
 vtkImageMatte \
 vtkImageMean \
 vtkImageMean1D \

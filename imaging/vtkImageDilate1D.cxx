@@ -47,6 +47,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // By default zero values are dilated.
 vtkImageDilate1D::vtkImageDilate1D()
 {
+  int idx;
+  
   this->SetAxes(VTK_IMAGE_X_AXIS);
   this->UseExecuteCenterOff();
   this->HandleBoundariesOn();
@@ -54,6 +56,9 @@ vtkImageDilate1D::vtkImageDilate1D()
   // Poor performance, but simple implementation.
   this->ExecuteDimensionality = 1;
   this->Dimensionality = 1;
+
+  this->SetStride(1);
+  this->SetKernelSize(1);
 }
 
 
@@ -69,14 +74,23 @@ void vtkImageDilate1D::SetKernelSize(int size)
 			     
 //----------------------------------------------------------------------------
 // Description:
+// This method Does nothing for now.
+void vtkImageDilate1D::SetStride(int stride)
+{
+  this->Strides[0] = stride;
+}
+			     
+			     
+//----------------------------------------------------------------------------
+// Description:
 // This templated function is passed a input and output region, 
 // and executes the dilate algorithm to fill the output from the input.
 // Note that input pixel is offset from output pixel.
 // It also handles ImageExtent by truncating the kernel.  
 template <class T>
 void vtkImageDilate1DExecute(vtkImageDilate1D *self,
-vtkImageRegion *inRegion, T *inPtr,
-				     vtkImageRegion *outRegion, T *outPtr)
+			     vtkImageRegion *inRegion, T *inPtr,
+			     vtkImageRegion *outRegion, T *outPtr)
 {
   int outIdx, kernelIdx;
   int outMin, outMax;
@@ -190,6 +204,12 @@ void vtkImageDilate1D::Execute(vtkImageRegion *inRegion,
 {
   void *inPtr, *outPtr;
 
+  if (this->Strides[0] != 1)
+    {
+    vtkErrorMacro("Strides not implemented yet.");
+    return;
+    }
+  
   // perform Dilate for each pixel of output.
   // Note that input pixel is offset from output pixel.
   inPtr = inRegion->GetScalarPointer();

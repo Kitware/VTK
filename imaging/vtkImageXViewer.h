@@ -87,6 +87,13 @@ public:
   float GetColorShift();
   float GetColorScale();
 
+  // Description:
+  // These are here for using a tk window.
+  void SetDisplayId(Display *);
+  void SetDisplayId(void *);
+  void SetWindowId(Window);
+  void SetWindowId(void *);
+  
 protected:
   // X stuff
   Window	       WindowId;
