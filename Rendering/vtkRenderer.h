@@ -196,8 +196,16 @@ public:
 
   // Description:
   // Compute the bounding box of all the visible props
-  // Used in ResetCamera() and ResetCameraClippingRange()
+  // Used in ResetCamera() and ResetCameraClippingRange() 
   void ComputeVisiblePropBounds( float bounds[6] );
+
+  // Description:
+  // Wrapper-friendly version of ComputeVisiblePropBounds 
+  float *ComputeVisiblePropBounds()
+    { 
+    static float bounds[6];
+    this->ComputeVisiblePropBounds(bounds);
+    return bounds;};
 
   // Description:
   // Reset the camera clipping range based on the bounds of the
