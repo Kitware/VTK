@@ -94,10 +94,10 @@ void vtkTextureMapToPlane::Execute()
 //  normal specified or plane specified
 //
   if ( this->AutomaticPlaneGeneration || 
-  (this->Origin[0] == 0.0 && this->Origin[1] == 0.0 && this->Origin[2] == 0.0
-  && this->Point1[0] == 0.0 && this->Point1[1] == 0.0 && this->Point1[2] == 0.0) )
+       (this->Origin[0] == 0.0 && this->Origin[1] == 0.0 && 
+	this->Origin[2] == 0.0 && this->Point1[0] == 0.0 && 
+	this->Point1[1] == 0.0 && this->Point1[2] == 0.0) )
     {
-
     if ( this->AutomaticPlaneGeneration ) this->ComputeNormal();
 
     vtkMath::Normalize (this->Normal);
@@ -197,6 +197,7 @@ void vtkTextureMapToPlane::Execute()
 //
   output->GetPointData()->CopyTCoordsOff();
   output->GetPointData()->PassData(input->GetPointData());
+  output->GetCellData()->PassData(input->GetCellData());
 
   output->GetPointData()->SetTCoords(newTCoords);
   newTCoords->Delete();

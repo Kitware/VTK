@@ -164,6 +164,7 @@ void vtkTextureMapToCylinder::Execute()
 
   output->GetPointData()->CopyTCoordsOff();
   output->GetPointData()->PassData(input->GetPointData());
+  output->GetCellData()->PassData(input->GetCellData());
 
   output->GetPointData()->SetTCoords(newTCoords);
   newTCoords->Delete();

@@ -73,9 +73,9 @@ void vtkTextureMapToBox::Execute()
   vtkDataSet *output=(vtkDataSet *)this->Output;
 
   vtkDebugMacro(<<"Generating 3D texture coordinates!");
-//
-//  Allocate texture data
-//
+  //
+  //  Allocate texture data
+  //
   if ( (numPts=input->GetNumberOfPoints()) < 1 )
     {
     vtkErrorMacro(<<"No points to texture!");
@@ -90,9 +90,9 @@ void vtkTextureMapToBox::Execute()
     box = input->GetBounds();
   else
     box = this->Box;
-//
-// Loop over all points generating coordinates
-//
+  //
+  // Loop over all points generating coordinates
+  //
   min[0] = RRange[0]; min[1] = SRange[0]; min[2] = TRange[0]; 
   max[0] = RRange[1]; max[1] = SRange[1]; max[2] = TRange[1]; 
 
@@ -101,17 +101,19 @@ void vtkTextureMapToBox::Execute()
     p = output->GetPoint(i);
     for (j=0; j<3; j++) 
       {
-      tc[j] = min[j] + (max[j]-min[j]) * (p[j] - box[2*j]) / (box[2*j+1] - box[2*j]);
+      tc[j] = min[j] + (max[j]-min[j]) * (p[j] - box[2*j]) / 
+	(box[2*j+1] - box[2*j]);
       if ( tc[j] < min[j] ) tc[j] = min[j];
       if ( tc[j] > max[j] ) tc[j] = max[j];
       }
     newTCoords->SetTCoord(i,tc);
     }
-//
-// Update ourselves
-//
+  //
+  // Update ourselves
+  //
   output->GetPointData()->CopyTCoordsOff();
   output->GetPointData()->PassData(input->GetPointData());
+  output->GetCellData()->PassData(input->GetCellData());
 
   output->GetPointData()->SetTCoords(newTCoords);
   newTCoords->Delete();

@@ -115,6 +115,8 @@ void vtkElevationFilter::Execute()
   ((vtkDataSet *)this->Output)->GetPointData()->CopyScalarsOff();
   ((vtkDataSet *)this->Output)->GetPointData()->PassData(input->GetPointData());
 
+  ((vtkDataSet *)this->Output)->GetCellData()->PassData(input->GetCellData());
+
   ((vtkDataSet *)this->Output)->GetPointData()->SetScalars(newScalars);
   newScalars->Delete();
 }
