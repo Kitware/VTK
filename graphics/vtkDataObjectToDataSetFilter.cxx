@@ -56,6 +56,7 @@ vtkDataObjectToDataSetFilter::vtkDataObjectToDataSetFilter()
 
   this->DataSetType = VTK_POLY_DATA;
   this->vtkSource::SetOutput(0,vtkPolyData::New());
+  this->Outputs[0]->Delete();
   
   for (i=0; i < 3; i++)
     {
@@ -166,18 +167,23 @@ void vtkDataObjectToDataSetFilter::SetDataSetType(int dt)
     {
     case VTK_POLY_DATA:
       this->SetOutput(0,vtkPolyData::New());
+      this->Outputs[0]->Delete();
       break;
     case VTK_STRUCTURED_GRID:
       this->SetOutput(0,vtkStructuredGrid::New());
+      this->Outputs[0]->Delete();
       break;
     case VTK_STRUCTURED_POINTS:
       this->SetOutput(0,vtkStructuredPoints::New());
+      this->Outputs[0]->Delete();
       break;
     case VTK_UNSTRUCTURED_GRID:
       this->SetOutput(0,vtkUnstructuredGrid::New());
+      this->Outputs[0]->Delete();
       break;
     case VTK_RECTILINEAR_GRID:
       this->SetOutput(0,vtkRectilinearGrid::New());
+      this->Outputs[0]->Delete();
       break;
     default:
       vtkWarningMacro("unknown type in SetDataSetType");
