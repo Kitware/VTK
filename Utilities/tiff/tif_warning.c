@@ -30,7 +30,7 @@
 #include "tiffiop.h"
 
 TIFFErrorHandler
-TIFFSetWarningHandler(TIFFErrorHandler handler)
+TEXPORT TIFFSetWarningHandler(TIFFErrorHandler handler)
 {
         TIFFErrorHandler prev = _TIFFwarningHandler;
         _TIFFwarningHandler = handler;

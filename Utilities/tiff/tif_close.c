@@ -30,7 +30,7 @@
 #include "tiffiop.h"
 
 void
-TIFFClose(TIFF* tif)
+TEXPORT TIFFClose(TIFF* tif)
 {
         if (tif->tif_mode != O_RDONLY)
                 /*

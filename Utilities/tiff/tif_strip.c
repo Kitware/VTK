@@ -159,7 +159,7 @@ _TIFFDefaultStripSize(TIFF* tif, uint32 s)
  * stored as separate planes.
  */
 tsize_t
-TIFFScanlineSize(TIFF* tif)
+TEXPORT TIFFScanlineSize(TIFF* tif)
 {
         TIFFDirectory *td = &tif->tif_dir;
         tsize_t scanline;
