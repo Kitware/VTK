@@ -238,7 +238,7 @@ vtkTclGetObjectFromPointer(Tcl_Interp *interp,
   /* if it is NULL then return empty string */
   if (!temp)
     {
-    interp->result[0] = '\0';
+    Tcl_ResetResult(interp);
     return;
     }
   
@@ -260,7 +260,7 @@ vtkTclGetObjectFromPointer(Tcl_Interp *interp,
       }
     
     /* while we are at it store the name since it is required anyhow */
-    sprintf(interp->result,"%s",(char *)(Tcl_GetHashValue(entry)));
+    Tcl_SetResult(interp, (char *)(Tcl_GetHashValue(entry)), TCL_VOLATILE);
     return;
     }
 
@@ -302,8 +302,7 @@ vtkTclGetObjectFromPointer(Tcl_Interp *interp,
   
   // setup the delete callback
   temp->SetDeleteMethod(vtkTclDeleteObjectFromHash);
-  
-  sprintf(interp->result,"%s",name); 
+  Tcl_SetResult(interp, (char *)name, TCL_VOLATILE);
 }
       
 VTKTCL_EXPORT void *vtkTclGetPointerFromObject(char *name,
@@ -431,7 +430,7 @@ VTKTCL_EXPORT void vtkTclListInstances(Tcl_Interp *interp, ClientData arg)
   entry = Tcl_FirstHashEntry(&vtkCommandLookup, &srch);
   if (!entry) 
     {
-    interp->result[0] = '\0';
+    Tcl_ResetResult(interp);
     return;
     }
   while (entry)
@@ -465,19 +464,21 @@ int vtkTclNewInstanceCommand(ClientData cd, Tcl_Interp *interp,
 
   if (argc != 2)
     {
-    interp->result = "vtk object creation requires one argument, a name.";
+    Tcl_SetResult(interp, "vtk object creation requires one argument, a name.", TCL_VOLATILE);
     return TCL_ERROR;
     }
 
   if ((argv[1][0] >= '0')&&(argv[1][0] <= '9'))
-    {
-    sprintf (interp->result, "%s: vtk object cannot start with a numeric.", argv[1]);
+    { 
+    Tcl_SetResult(interp, argv[1], TCL_VOLATILE);
+    Tcl_AppendResult(interp, ": vtk object cannot start with a numeric.", NULL);
     return TCL_ERROR;
     }
 
   if (Tcl_FindHashEntry(&vtkInstanceLookup,argv[1]))
-    {
-    sprintf (interp->result, "%s: a vtk object with that name already exists.", argv[1]);;
+    { 
+    Tcl_SetResult(interp, argv[1], TCL_VOLATILE);
+    Tcl_AppendResult(interp, ": a vtk object with that name already exists.");
     return TCL_ERROR;
     }
 
@@ -524,8 +525,7 @@ int vtkTclNewInstanceCommand(ClientData cd, Tcl_Interp *interp,
     Tcl_SetHashValue(entry,(ClientData)(cs->CommandFunction));
   ((vtkObject *)temp)->SetDeleteMethod(vtkTclDeleteObjectFromHash);
 
-
-  sprintf(interp->result,"%s",argv[1]);
+  Tcl_SetResult(interp, argv[1], TCL_VOLATILE);
   return TCL_OK;
 }
 

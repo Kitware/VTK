@@ -123,7 +123,8 @@ void use_hints(FILE *fp)
   switch (currentFunction->ReturnType%1000)
     {
     case 301: case 307:  
-      fprintf(fp,"    sprintf(interp->result,\"");
+      fprintf(fp,"    char tempResult[1024];\n");
+      fprintf(fp,"    sprintf(tempResult,\"");
       for (i = 0; i < currentFunction->HintSize; i++)
 	{
 	fprintf(fp,"%%g ");
@@ -134,9 +135,11 @@ void use_hints(FILE *fp)
 	fprintf(fp,",temp%i[%i]",MAX_ARGS,i);
 	}
       fprintf(fp,");\n");
+      fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
       break;
     case 304: case 305: case 306: 
-      fprintf(fp,"    sprintf(interp->result,\"");
+      fprintf(fp,"    char tempResult[1024];\n");
+      fprintf(fp,"    sprintf(tempResult,\"");
       for (i = 0; i < currentFunction->HintSize; i++)
 	{
 	fprintf(fp,"%%i ");
@@ -147,9 +150,11 @@ void use_hints(FILE *fp)
 	fprintf(fp,",temp%i[%i]",MAX_ARGS,i);
 	}
       fprintf(fp,");\n");
+      fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
       break;
     case 313: case 314: case 315: case 316:
-      fprintf(fp,"    sprintf(interp->result,\"");
+      fprintf(fp,"    char tempResult[1024];\n");
+      fprintf(fp,"    sprintf(tempResult,\"");
       for (i = 0; i < currentFunction->HintSize; i++)
 	{
 	fprintf(fp,"%%u ");
@@ -160,6 +165,7 @@ void use_hints(FILE *fp)
 	fprintf(fp,",temp%i[%i]",MAX_ARGS,i);
 	}
       fprintf(fp,");\n");
+      fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
       break;
     }
 }
@@ -169,48 +175,66 @@ void return_result(FILE *fp)
   switch (currentFunction->ReturnType%1000)
     {
     case 2:
-      fprintf(fp,"      interp->result[0] = '\\0';\n"); 
+      fprintf(fp,"      Tcl_ResetResult(interp);\n"); 
       break;
-    case 1: case 7:
-      fprintf(fp,"      sprintf(interp->result,\"%%g\",temp%i);\n",
+    case 1: case 7: 
+      fprintf(fp,"      char tempResult[1024];\n");
+      fprintf(fp,"      sprintf(tempResult,\"%%g\",temp%i);\n",
 	      MAX_ARGS); 
+      fprintf(fp,"      Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
       break;
-    case 4: 
-      fprintf(fp,"      sprintf(interp->result,\"%%i\",temp%i);\n",
+    case 4:  
+      fprintf(fp,"      char tempResult[1024];\n");
+      fprintf(fp,"      sprintf(tempResult,\"%%i\",temp%i);\n",
 	      MAX_ARGS); 
+      fprintf(fp,"      Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
       break;
     case 5:
-      fprintf(fp,"      sprintf(interp->result,\"%%hi\",temp%i);\n",
+      fprintf(fp,"      char tempResult[1024];\n");
+      fprintf(fp,"      sprintf(tempResult,\"%%hi\",temp%i);\n",
 	      MAX_ARGS); 
+      fprintf(fp,"      Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
       break;
     case 6:
-      fprintf(fp,"      sprintf(interp->result,\"%%li\",temp%i);\n",
-	      MAX_ARGS); 
+      fprintf(fp,"      char tempResult[1024];\n");
+      fprintf(fp,"      sprintf(tempResult,\"%%li\",temp%i);\n",
+	      MAX_ARGS);
+      fprintf(fp,"      Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
       break;
-    case 14: 
-      fprintf(fp,"      sprintf(interp->result,\"%%u\",temp%i);\n",
+    case 14:
+      fprintf(fp,"      char tempResult[1024];\n");
+      fprintf(fp,"      sprintf(tempResult,\"%%u\",temp%i);\n",
 	      MAX_ARGS); 
+      fprintf(fp,"      Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
       break;
-    case 15:
-      fprintf(fp,"      sprintf(interp->result,\"%%hu\",temp%i);\n",
-	      MAX_ARGS); 
+    case 15: 
+      fprintf(fp,"      char tempResult[1024];\n");
+      fprintf(fp,"      sprintf(tempResult,\"%%hu\",temp%i);\n",
+	      MAX_ARGS);  
+      fprintf(fp,"      Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
       break;
-    case 16:
-      fprintf(fp,"      sprintf(interp->result,\"%%lu\",temp%i);\n",
-	      MAX_ARGS); 
+    case 16:  
+      fprintf(fp,"      char tempResult[1024];\n");
+      fprintf(fp,"      sprintf(tempResult,\"%%lu\",temp%i);\n",
+	      MAX_ARGS);
+      fprintf(fp,"      Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
       break;
     case 13:
-      fprintf(fp,"      sprintf(interp->result,\"%%hu\",temp%i);\n",
+      fprintf(fp,"      char tempResult[1024];\n");
+      fprintf(fp,"      sprintf(tempResult,\"%%hu\",temp%i);\n",
 	      MAX_ARGS); 
+      fprintf(fp,"      Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
       break;
     case 303:
-      fprintf(fp,"      if (temp%i)\n        {\n        sprintf(interp->result,\"%%s\",temp%i);\n",MAX_ARGS,MAX_ARGS); 
+      fprintf(fp,"      if (temp%i)\n        {\n        Tcl_SetResult(interp, (char*)temp%i, TCL_VOLATILE);\n",MAX_ARGS,MAX_ARGS); 
       fprintf(fp,"        }\n      else\n        {\n");
-      fprintf(fp,"        interp->result[0] = '\\0';\n        }\n"); 
+      fprintf(fp,"        Tcl_ResetResult(interp);\n        }\n"); 
       break;
     case 3:
-      fprintf(fp,"      sprintf(interp->result,\"%%c\",temp%i);\n",
+      fprintf(fp,"      char tempResult[1024];\n");
+      fprintf(fp,"      sprintf(tempResult,\"%%c\",temp%i);\n",
 	      MAX_ARGS); 
+      fprintf(fp,"      Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
       break;
     case 109:
     case 309:  
@@ -225,7 +249,7 @@ void return_result(FILE *fp)
       use_hints(fp);
       break;
     default:
-      fprintf(fp,"      sprintf(interp->result,\"unable to return result.\");\n"); 
+      fprintf(fp,"    Tcl_SetResult(interp, \"unable to return result.\", TCL_VOLATILE);\n");
       break;
     }
 }
@@ -566,7 +590,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   fprintf(fp,"  tempd = 0; tempd = tempd;\n");
   fprintf(fp,"  temps[0] = 0; temps[0] = temps[0];\n\n");
 
-  fprintf(fp,"  if (argc < 2)\n    {\n    sprintf(interp->result,\"Could not find requested method.\");\n    return TCL_ERROR;\n    }\n");
+  fprintf(fp,"  if (argc < 2)\n    {\n    Tcl_SetResult(interp, \"Could not find requested method.\", TCL_VOLATILE);\n    return TCL_ERROR;\n    }\n");
 
   /* stick in the typecasting and delete functionality here */
   fprintf(fp,"  if (!interp)\n    {\n");
@@ -590,7 +614,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     {
     fprintf(fp,"  if (!strcmp(\"GetSuperClassName\",argv[1]))\n");
     fprintf(fp,"    {\n");
-    fprintf(fp,"    sprintf(interp->result,\"%s\");\n",data->SuperClasses[0]);
+    fprintf(fp,"    Tcl_SetResult(interp,\"%s\", TCL_VOLATILE);\n",data->SuperClasses[0]);
     fprintf(fp,"    return TCL_OK;\n");
     fprintf(fp,"    }\n\n");      
     }
