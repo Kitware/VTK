@@ -64,6 +64,8 @@ public:
   void ReverseCell(int loc);
   void ReplaceCell(int loc, int npts, int *pts);
 
+  int GetMaxCellSize();
+
   // miscellaneous pointer type operations (for fast read/write operations)
   int *GetPtr();
   int *WritePtr(const int ncells, const int size);

@@ -21,3 +21,18 @@ vlCellArray::vlCellArray (const vlCellArray& ca)
   this->Location = 0;
   this->Ia = ca.Ia;
 }
+
+// Description:
+// Returns the size of the largest cell. The size is the number of points
+// defining the cell.
+int vlCellArray::GetMaxCellSize()
+{
+  int i, npts, maxSize=0;
+
+  for (i=0; i<this->Ia.GetMaxId(); i+=npts+1)
+    {
+    if ( (npts=this->Ia.GetValue(i)) > maxSize )
+      maxSize = npts;
+    }
+  return maxSize;
+}
