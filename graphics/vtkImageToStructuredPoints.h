@@ -38,14 +38,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageToStructurePoints - Attaches image pipeline to VTK. 
+// .NAME vtkImageToStructuredPoints - Attaches image pipeline to VTK. 
 // .SECTION Description
-// vtkImageToStructurePoints changes an image region format to
+// vtkImageToStructuredPoints changes an image region format to
 // a structured points dataset.  It was modeled after vtkPNMReader.
 
 
-#ifndef __vtkImageToStructurePoints_h
-#define __vtkImageToStructurePoints_h
+#ifndef __vtkImageToStructuredPoints_h
+#define __vtkImageToStructuredPoints_h
 
 #include "vtkStructuredPointsSource.h"
 #include "vtkGraymap.h"
@@ -58,7 +58,7 @@ class vtkImageToStructuredPoints : public vtkStructuredPointsSource
 public:
   vtkImageToStructuredPoints();
   ~vtkImageToStructuredPoints();
-  char *GetClassName() {return "vtkImageToStructurePoints";};
+  char *GetClassName() {return "vtkImageToStructuredPoints";};
 
   // Description:
   // Set/Get the input object from the image pipline.
@@ -72,56 +72,49 @@ public:
 
   // Forward these messages to the "Region".
   void SetBounds(int *bounds)
-  {this->Region.SetBounds3d(bounds); this->Modified();};
+  {this->Region.SetBounds3d(bounds); this->WholeImageOff();};
   void SetBounds(int min0, int max0, int min1, int max1, int min2, int max2)
-  {this->Region.SetBounds3d(min0,max0,min1,max1,min2,max2); this->Modified();};
+  {this->Region.SetBounds3d(min0,max0,min1,max1,min2,max2);
+  this->WholeImageOff();};
   int *GetBounds(){return this->Region.GetBounds3d();};
   void GetBounds(int *bounds){this->Region.GetBounds3d(bounds);};
   void GetBounds(int &min0,int &max0,int &min1,int &max1,int &min2,int &max2)
   {this->Region.GetBounds3d(min0,max0,min1,max1,min2,max2);};
   void SetDefaultCoordinate3(int v)
   {this->Region.SetDefaultCoordinate3(v); this->Modified();};
-  
+
+  // Description:
+  // Set the coordinate system which determines how bounds are interpreted.
+  // Note: This does not yet change the order of the structured points!
   void SetAxes(int axis0, int axis1, int axis2)
   {this->Region.SetAxes3d(axis0,axis1,axis2); this->Modified();};
   void SetAxes(int axis0, int axis1, int axis2, int axis3)
   {this->Region.SetAxes4d(axis0,axis1,axis2,axis3); this->Modified();};
+
+  // Description:
+  // Set the order of the axes to split while streaming.
+  void SetSplitOrder(int axis0, int axis1)
+  {this->SplitOrder.SetAxes2d(axis0,axis1);};
+  void SetSplitOrder(int axis0, int axis1, int axis2)
+  {this->SplitOrder.SetAxes3d(axis0,axis1,axis2);};
+  void SetSplitOrder(int axis0, int axis1, int axis2, int axis3)
+  {this->SplitOrder.SetAxes4d(axis0,axis1,axis2,axis3);};
   
   // Description:
-  // Get the region to set bounds of higher dimensions
-  vtkImageRegion *GetRegion(){return &(this->Region);};
+  vtkSetMacro(InputMemoryLimit,int);
+  vtkGetMacro(InputMemoryLimit,int);
   
   void Update();
-  void ConditionalUpdate(int forced);
-  
-  friend void vtkImageToStructuredPointsReformatRegion(
-			 vtkImageToStructuredPoints *self,
-			 vtkImageRegion *inRegion, float *inPtr,
-			 vtkImageRegion *outRegion, float *outPtr);
-  friend void vtkImageToStructuredPointsReformatRegion(
-			 vtkImageToStructuredPoints *self,
-			 vtkImageRegion *inRegion, int *inPtr,
-			 vtkImageRegion *outRegion, int *outPtr);
-  friend void vtkImageToStructuredPointsReformatRegion(
-			 vtkImageToStructuredPoints *self,
-			 vtkImageRegion *inRegion, short *inPtr,
-			 vtkImageRegion *outRegion, short *outPtr);
-  friend void vtkImageToStructuredPointsReformatRegion(
-			 vtkImageToStructuredPoints *self,
-			 vtkImageRegion *inRegion, unsigned short *inPtr,
-			 vtkImageRegion *outRegion, unsigned short *outPtr);
-  friend void vtkImageToStructuredPointsReformatRegion(
-			 vtkImageToStructuredPoints *self,
-			 vtkImageRegion *inRegion, unsigned char *inPtr,
-			 vtkImageRegion *outRegion, unsigned char *outPtr);
   
 protected:
   vtkImageSource *Input;
   int WholeImage;
   vtkImageRegion Region;
+  vtkImageRegion SplitOrder;
+  int InputMemoryLimit;
 
   void Execute();
-  vtkImageRegion *ReformatRegion(vtkImageRegion *inRegion);
+  int SplitExecute(vtkImageRegion *outRegion);
 };
 
 #endif

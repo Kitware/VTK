@@ -158,6 +158,7 @@ vtkStructuredPointsFilter.o \
 vtkStructuredPointsGeometryFilter.o \
 vtkStructuredPointsReader.o \
 vtkStructuredPointsSource.o \
+vtkStructuredPointsToImage.o \
 vtkStructuredPointsToPolyDataFilter.o \
 vtkStructuredPointsToStructuredPointsFilter.o \
 vtkStructuredPointsWriter.o \
@@ -359,6 +360,7 @@ tcl/vtkStructuredPointsFilterTcl.o \
 tcl/vtkStructuredPointsGeometryFilterTcl.o \
 tcl/vtkStructuredPointsReaderTcl.o \
 tcl/vtkStructuredPointsSourceTcl.o \
+tcl/vtkStructuredPointsToImageTcl.o \
 tcl/vtkStructuredPointsToPolyDataFilterTcl.o \
 tcl/vtkStructuredPointsToStructuredPointsFilterTcl.o \
 tcl/vtkStructuredPointsWriterTcl.o \
@@ -553,6 +555,7 @@ vtkStructuredPointsFilter.h \
 vtkStructuredPointsGeometryFilter.h \
 vtkStructuredPointsReader.h \
 vtkStructuredPointsSource.h \
+vtkStructuredPointsToImage.h \
 vtkStructuredPointsToPolyDataFilter.h \
 vtkStructuredPointsToStructuredPointsFilter.h \
 vtkStructuredPointsWriter.h \
@@ -1211,6 +1214,9 @@ tcl/vtkStructuredPointsReaderTcl.cxx: vtkStructuredPointsReader.h ../tcl/cpp_par
 
 tcl/vtkStructuredPointsSourceTcl.cxx: vtkStructuredPointsSource.h ../tcl/cpp_parse 
 	rm -f tcl/vtkStructuredPointsSourceTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkStructuredPointsSource.h $(srcdir)/../tcl/hints 1 > tcl/vtkStructuredPointsSourceTcl.cxx
+
+tcl/vtkStructuredPointsToImageTcl.cxx: vtkStructuredPointsToImage.h ../tcl/cpp_parse 
+	rm -f tcl/vtkStructuredPointsToImageTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkStructuredPointsToImage.h $(srcdir)/../tcl/hints 1 > tcl/vtkStructuredPointsToImageTcl.cxx
 
 tcl/vtkStructuredPointsToPolyDataFilterTcl.cxx: vtkStructuredPointsToPolyDataFilter.h ../tcl/cpp_parse 
 	rm -f tcl/vtkStructuredPointsToPolyDataFilterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkStructuredPointsToPolyDataFilter.h $(srcdir)/../tcl/hints 1 > tcl/vtkStructuredPointsToPolyDataFilterTcl.cxx
