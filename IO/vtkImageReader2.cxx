@@ -23,7 +23,7 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkImageReader2, "1.22");
+vtkCxxRevisionMacro(vtkImageReader2, "1.23");
 vtkStandardNewMacro(vtkImageReader2);
 
 #ifdef read
@@ -664,7 +664,7 @@ void vtkImageReader2Update(vtkImageReader2 *self, vtkImageData *data, OT *outPtr
         {
         vtkGenericWarningMacro("File operation failed. row = " << idx1
                                << ", Read = " << streamRead
-                               << ", FilePos = " << self->GetFile()->tellg());
+                               << ", FilePos = " << static_cast<vtkIdType>(self->GetFile()->tellg()));
         return;
         }
       // handle swapping

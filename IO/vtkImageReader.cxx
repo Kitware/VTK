@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImageReader, "1.107");
+vtkCxxRevisionMacro(vtkImageReader, "1.108");
 vtkStandardNewMacro(vtkImageReader);
 
 vtkCxxSetObjectMacro(vtkImageReader,Transform,vtkTransform);
@@ -299,7 +299,7 @@ void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
                                << ", Read = " << self->GetFile()->gcount()
                                << ", Skip0 = " << streamSkip0
                                << ", Skip1 = " << streamSkip1
-                               << ", FilePos = " << self->GetFile()->tellg());
+                               << ", FilePos = " << static_cast<vtkIdType>(self->GetFile()->tellg()));
         delete [] buf;
         return;
         }
