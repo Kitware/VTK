@@ -53,10 +53,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkMarchingCubesCases.h"
 #include "vtkImageMarchingCubes.h"
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
+#include "vtkMarchingCubesCases.h"
 
 
 //------------------------------------------------------------------------------
