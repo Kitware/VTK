@@ -56,21 +56,21 @@ static void ResetCameraClippingRange(vtkObject *caller,
 static void RenderRMI(void *arg, void *, int, int);
 static void ComputeVisiblePropBoundsRMI(void *arg, void *, int, int);
 
-struct RenderWindowInfoInt {
+struct vtkParallelRenderManagerRenderWindowInfoInt {
   int FullSize[2];
   int ReducedSize[2];
   int NumberOfRenderers;
   int ImageReductionFactor;
   int UseCompositing;
 };
-struct RenderWindowInfoFloat {
+struct vtkParallelRenderManagerRenderWindowInfoFloat {
   float DesiredUpdateRate;
 };
 
-struct RendererInfoInt {
+struct vtkParallelRenderManagerRendererInfoInt {
   int NumberOfLights;
 };
-struct RendererInfoFloat {
+struct vtkParallelRenderManagerRendererInfoFloat {
   float Viewport[4];
   float CameraPosition[3];
   float CameraFocalPoint[3];
@@ -79,18 +79,23 @@ struct RendererInfoFloat {
   float Background[3];
 };
 
-struct LightInfoFloat {
+struct vtkParallelRenderManagerLightInfoFloat {
   float Position[3];
   float FocalPoint[3];
 };
 
-const int VTK_WIN_INFO_INT_SIZE = sizeof(RenderWindowInfoInt)/sizeof(int);
-const int VTK_WIN_INFO_FLOAT_SIZE = sizeof(RenderWindowInfoFloat)/sizeof(float);
-const int VTK_REN_INFO_INT_SIZE = sizeof(RendererInfoInt)/sizeof(int);
-const int VTK_REN_INFO_FLOAT_SIZE = sizeof(RendererInfoFloat)/sizeof(float);
-const int VTK_LIGHT_INFO_FLOAT_SIZE = sizeof(LightInfoFloat)/sizeof(float);
+const int VTK_WIN_INFO_INT_SIZE =
+  sizeof(vtkParallelRenderManagerRenderWindowInfoInt)/sizeof(int);
+const int VTK_WIN_INFO_FLOAT_SIZE =
+  sizeof(vtkParallelRenderManagerRenderWindowInfoFloat)/sizeof(float);
+const int VTK_REN_INFO_INT_SIZE =
+  sizeof(vtkParallelRenderManagerRendererInfoInt)/sizeof(int);
+const int VTK_REN_INFO_FLOAT_SIZE =
+  sizeof(vtkParallelRenderManagerRendererInfoFloat)/sizeof(float);
+const int VTK_LIGHT_INFO_FLOAT_SIZE =
+  sizeof(vtkParallelRenderManagerLightInfoFloat)/sizeof(float);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.2");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.3");
 
 vtkParallelRenderManager::vtkParallelRenderManager()
 {
@@ -494,11 +499,11 @@ void vtkParallelRenderManager::StopServices()
 void vtkParallelRenderManager::StartRender()
 {
 //  int i;
-  struct RenderWindowInfoInt winInfoInt;
-  struct RenderWindowInfoFloat winInfoFloat;
-  struct RendererInfoInt renInfoInt;
-  struct RendererInfoFloat renInfoFloat;
-  struct LightInfoFloat lightInfoFloat;
+  struct vtkParallelRenderManagerRenderWindowInfoInt winInfoInt;
+  struct vtkParallelRenderManagerRenderWindowInfoFloat winInfoFloat;
+  struct vtkParallelRenderManagerRendererInfoInt renInfoInt;
+  struct vtkParallelRenderManagerRendererInfoFloat renInfoFloat;
+  struct vtkParallelRenderManagerLightInfoFloat lightInfoFloat;
 
   vtkDebugMacro("StartRender");
 
@@ -696,11 +701,11 @@ void vtkParallelRenderManager::EndRender()
 
 void vtkParallelRenderManager::SatelliteStartRender()
 {
-  struct RenderWindowInfoInt winInfoInt;
-  struct RenderWindowInfoFloat winInfoFloat;
-  struct RendererInfoInt renInfoInt;
-  struct RendererInfoFloat renInfoFloat;
-  struct LightInfoFloat lightInfoFloat;
+  struct vtkParallelRenderManagerRenderWindowInfoInt winInfoInt;
+  struct vtkParallelRenderManagerRenderWindowInfoFloat winInfoFloat;
+  struct vtkParallelRenderManagerRendererInfoInt renInfoInt;
+  struct vtkParallelRenderManagerRendererInfoFloat renInfoFloat;
+  struct vtkParallelRenderManagerLightInfoFloat lightInfoFloat;
   int i, j;
 
   vtkDebugMacro("SatelliteStartRender");
