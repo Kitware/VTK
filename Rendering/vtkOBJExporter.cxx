@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkOBJExporter, "1.42");
+vtkCxxRevisionMacro(vtkOBJExporter, "1.43");
 vtkStandardNewMacro(vtkOBJExporter);
 
 vtkOBJExporter::vtkOBJExporter()
@@ -123,8 +123,8 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
   float *tempf, *p;
   vtkCellArray *cells;
   vtkTransform *trans = vtkTransform::New();
-  vtkIdType npts;
-  vtkIdType *indx;
+  vtkIdType npts = 0;
+  vtkIdType *indx = 0;
   
   // see if the actor has a mapper. it could be an assembly
   if (anActor->GetMapper() == NULL)

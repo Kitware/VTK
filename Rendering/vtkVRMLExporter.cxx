@@ -22,7 +22,7 @@
 #include "vtkAssemblyNode.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkVRMLExporter, "1.58");
+vtkCxxRevisionMacro(vtkVRMLExporter, "1.59");
 vtkStandardNewMacro(vtkVRMLExporter);
 
 vtkVRMLExporter::vtkVRMLExporter()
@@ -231,8 +231,8 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   vtkProperty *prop;
   float *tempf;
   vtkCellArray *cells;
-  vtkIdType npts;
-  vtkIdType *indx;
+  vtkIdType npts = 0;
+  vtkIdType *indx = 0;
   float tempf2;
   int pointDataWritten = 0;
   vtkPolyDataMapper *pm;

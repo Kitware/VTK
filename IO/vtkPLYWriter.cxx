@@ -19,7 +19,7 @@
 #include "vtkPLY.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPLYWriter, "1.11");
+vtkCxxRevisionMacro(vtkPLYWriter, "1.12");
 vtkStandardNewMacro(vtkPLYWriter);
 
 vtkPLYWriter::vtkPLYWriter()
@@ -192,7 +192,8 @@ void vtkPLYWriter::WriteData()
   int verts[256];
   face.verts = verts;
   vtkPLY::ply_put_element_setup (ply, "face");
-  vtkIdType npts, *pts;
+  vtkIdType npts = 0;
+  vtkIdType *pts = 0;
   for (polys->InitTraversal(), i = 0; i < numPolys; i++)
     {
     polys->GetNextCell(npts,pts);

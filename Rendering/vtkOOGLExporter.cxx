@@ -25,7 +25,7 @@
 #include "vtkTriangleStrip.h"
 #include "vtkVersion.h"
 
-vtkCxxRevisionMacro(vtkOOGLExporter, "1.8");
+vtkCxxRevisionMacro(vtkOOGLExporter, "1.9");
 vtkStandardNewMacro(vtkOOGLExporter);
 
 vtkOOGLExporter::vtkOOGLExporter()
@@ -266,8 +266,8 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
   static float defcolor[3] = {  1.0f, 1.0f, 1.0f };
   float *tempf = defcolor;
   vtkCellArray *cells;
-  vtkIdType npts;
-  vtkIdType *indx;
+  vtkIdType npts = 0;
+  vtkIdType *indx = 0;
   float tempf2;
   vtkPolyDataMapper *pm;
   vtkUnsignedCharArray *colors;

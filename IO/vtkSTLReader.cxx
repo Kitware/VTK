@@ -24,7 +24,7 @@
 #include <ctype.h>
 #include <string.h>
 
-vtkCxxRevisionMacro(vtkSTLReader, "1.63");
+vtkCxxRevisionMacro(vtkSTLReader, "1.64");
 vtkStandardNewMacro(vtkSTLReader);
 
 #define VTK_ASCII 0
@@ -138,7 +138,9 @@ void vtkSTLReader::Execute()
   if ( this->Merging )  
     {
     int i;
-    vtkIdType *pts, nodes[3], npts;
+    vtkIdType *pts = 0;
+    vtkIdType nodes[3];
+    vtkIdType npts = 0;
     float *x;
     int nextCell=0;
 

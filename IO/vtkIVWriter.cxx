@@ -22,7 +22,7 @@
 
 #include <stdio.h>
 
-vtkCxxRevisionMacro(vtkIVWriter, "1.23");
+vtkCxxRevisionMacro(vtkIVWriter, "1.24");
 vtkStandardNewMacro(vtkIVWriter);
 
 void vtkIVWriter::WriteData()
@@ -63,8 +63,8 @@ void vtkIVWriter::WritePolyData(vtkPolyData *pd, FILE *fp)
   vtkPoints *points = NULL;
   vtkIdType i;
   vtkCellArray *cells;
-  vtkIdType npts;
-  vtkIdType *indx;
+  vtkIdType npts = 0;
+  vtkIdType *indx = 0;
   vtkUnsignedCharArray *colors=NULL;
   int offset=0;
   

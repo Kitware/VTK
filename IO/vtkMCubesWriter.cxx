@@ -19,7 +19,7 @@
 #include "vtkByteSwap.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMCubesWriter, "1.27");
+vtkCxxRevisionMacro(vtkMCubesWriter, "1.28");
 vtkStandardNewMacro(vtkMCubesWriter);
 
 // Create object.
@@ -98,7 +98,7 @@ void WriteMCubes(FILE *fp, vtkPoints *pts, vtkDataArray *normals,
   pointType point;
   int i;
   vtkIdType npts;
-  vtkIdType *indx;
+  vtkIdType *indx = 0;
 
   //  Write out triangle polygons.  In not a triangle polygon, create triangles.
   //
