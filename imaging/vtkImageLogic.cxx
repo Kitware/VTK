@@ -100,7 +100,7 @@ static void vtkImageLogicExecute1(vtkImageLogic *self,
 	switch (op)
 	  {
 	  case VTK_NOT:
-	    if ( ! *outPtr)
+	    if ( ! *in1Ptr)
 	      {
 	      *outPtr = trueValue;
 	      }
@@ -110,7 +110,7 @@ static void vtkImageLogicExecute1(vtkImageLogic *self,
 	      }
 	    break;
 	  case VTK_NOP:
-	    if (*outPtr)
+	    if (*in1Ptr)
 	      {
 	      *outPtr = trueValue;
 	      }
