@@ -35,7 +35,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkBitArray.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.137");
+vtkCxxRevisionMacro(vtkImageData, "1.138");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -1712,11 +1712,11 @@ void vtkImageData::CopyAndCastFrom(vtkImageData *inData, int extent[6])
 void vtkImageData::Crop()
 {
   int           nExt[6];
-  int           idxY, idxZ, maxY, maxZ;
-  int           inIncX, inIncY, inIncZ, rowLength;
+  int           idxX, idxY, idxZ;
+  int           maxX, maxY, maxZ;
+  vtkIdType     outId, inId, yId, incZ, incY;
   vtkImageData  *newImage;
-  vtkDataArray  *newArray;
-  unsigned char *inPtr, *inPtr1, *outPtr;
+  int numPts, numCells, tmp;
   
   // If extents already match, then we need to do nothing.
   if (this->Extent[0] == this->UpdateExtent[0]
@@ -1726,19 +1726,6 @@ void vtkImageData::Crop()
       && this->Extent[4] == this->UpdateExtent[4]
       && this->Extent[5] == this->UpdateExtent[5])
     {
-    return;
-    }
-
-  // This should only happen if a source misbehaves. Avoid a seg fault.
-  if (this->GetPointData()->GetScalars() == NULL)
-    {
-    vtkErrorMacro("Crop could not find scalars.");
-    }
-
-  // if the scalar type has not been set then we have a problem
-  if (this->ScalarType == VTK_VOID)
-    {
-    vtkErrorMacro("ScalarType has not been set.");
     return;
     }
 
@@ -1761,47 +1748,97 @@ void vtkImageData::Crop()
     return;
     }
 
-  // Allocate new scalars.
+  // How many point/cells.
+  numPts = (nExt[1]-nExt[0]+1)*(nExt[3]-nExt[2]+1)*(nExt[5]-nExt[4]+1);
+  // Conditional are to handle 3d, 2d, and even 1d images.
+  tmp = nExt[1] - nExt[0];
+  if (tmp <= 0)
+    {
+    tmp = 1;
+    }
+  numCells = tmp;
+  tmp = nExt[3] - nExt[2];
+  if (tmp <= 0)
+    {
+    tmp = 1;
+    }
+  numCells *= tmp;
+  tmp = nExt[5] - nExt[4];
+  if (tmp <= 0)
+    {
+    tmp = 1;
+    }
+  numCells *= tmp;
+  
+  // Create a new temporary image. 
   newImage = vtkImageData::New();
   newImage->SetScalarType(this->ScalarType);
   newImage->SetNumberOfScalarComponents(this->GetNumberOfScalarComponents());
   newImage->SetExtent(nExt);
-  newImage->AllocateScalars();
-  newArray = newImage->GetPointData()->GetScalars();
-
-  // Keep the array name the same.
-  newArray->SetName(
-    this->GetPointData()->GetScalars()->GetName());
-  
-  inPtr = (unsigned char *) this->GetScalarPointerForExtent(nExt);
-  outPtr = (unsigned char *) newArray->GetVoidPointer(0);
-  
-  // Get increments to march through inData 
-  this->GetIncrements(inIncX, inIncY, inIncZ);
-  
-  // find the region to loop over
-  rowLength = (nExt[1] - nExt[0] + 1) * inIncX * this->GetScalarSize();
-  maxY = nExt[3] - nExt[2]; 
-  maxZ = nExt[5] - nExt[4];
-  
-  // Compensate for the fact we are using unsinged char pointers.
-  inIncY *= this->GetScalarSize(); 
-  inIncZ *= this->GetScalarSize();
-  
-  // Loop through outData pixels
-  for (idxZ = 0; idxZ <= maxZ; idxZ++)
+  vtkPointData *npd = newImage->GetPointData();
+  vtkCellData *ncd = newImage->GetCellData();
+  npd->CopyAllocate(this->PointData, numPts);
+  ncd->CopyAllocate(this->CellData, numCells);
+      
+  // Loop through outData points
+  incY = this->Extent[1]-this->Extent[0]+1;
+  incZ = (this->Extent[3]-this->Extent[2]+1)*incY;
+  outId = 0;
+  for (idxZ = nExt[4]; idxZ <= nExt[5]; idxZ++)
     {
-    inPtr1 = inPtr + idxZ*inIncZ;
-    for (idxY = 0; idxY <= maxY; idxY++)
+    yId = incZ * (idxZ-this->Extent[4]);
+    for (idxY = nExt[2]; idxY <= nExt[3]; idxY++)
       {
-      memcpy(outPtr,inPtr1,rowLength);
-      inPtr1 += inIncY;
-      outPtr += rowLength;
+      inId = yId;
+      for (idxX = nExt[0]; idxX <= nExt[1]; idxX++)
+        {
+        npd->CopyData( this->PointData, inId, outId);
+        ++inId;
+        ++outId;
+        }
+      yId += incY;
+      }
+    }
+         
+  // Loop through outData cells
+  // Have to handle the 2d and 1d cases.
+  maxX = nExt[1];
+  maxY = nExt[3];
+  maxZ = nExt[5];
+  if (maxX == nExt[0])
+    {
+    ++maxX;
+    }
+  if (maxY == nExt[2])
+    {
+    ++maxY;
+    }
+  if (maxZ == nExt[4])
+    {
+    ++maxZ;
+    }
+  incY = this->Extent[1]-this->Extent[0];
+  incZ = (this->Extent[3]-this->Extent[2])*incY;
+  outId = 0;
+  for (idxZ = nExt[4]; idxZ < maxZ; idxZ++)
+    {
+    yId = incZ * (idxZ-this->Extent[4]);
+    for (idxY = nExt[2]; idxY < maxY; idxY++)
+      {
+      inId = yId;
+      for (idxX = nExt[0]; idxX < maxX; idxX++)
+        {
+        ncd->CopyData(this->CellData, inId, outId);
+        ++inId;
+        ++outId;
+        }
+      yId += incY;
       }
     }
 
+  this->PointData->ShallowCopy(npd);
+  this->CellData->ShallowCopy(ncd);
   this->SetExtent(nExt);
-  this->PointData->SetScalars(newArray);
   newImage->Delete();
 }
 
