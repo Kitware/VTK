@@ -241,6 +241,6 @@ class DICOMFile
 #pragma warning ( pop )
 #endif
 
-#endif __DICOMFILE_H_
+#endif // __DICOMFILE_H_
 
 

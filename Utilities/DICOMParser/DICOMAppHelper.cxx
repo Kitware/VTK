@@ -678,7 +678,7 @@ void DICOMAppHelper::PixelRepresentationCallback( DICOMParser *parser,
   this->PixelRepresentation = uival;
 }
 
-void DICOMAppHelper::PhotometricInterpretationCallback( DICOMParser *parser,
+void DICOMAppHelper::PhotometricInterpretationCallback( DICOMParser *,
                                                         doublebyte,
                                                         doublebyte,
                                                         DICOMParser::VRTypes,
@@ -696,7 +696,7 @@ void DICOMAppHelper::PhotometricInterpretationCallback( DICOMParser *parser,
   this->PhotometricInterpretation = new std::string((char*) val);
 }
 
-void DICOMAppHelper::PixelDataCallback( DICOMParser *parser,
+void DICOMAppHelper::PixelDataCallback( DICOMParser *,
                                         doublebyte,
                                         doublebyte,
                                         DICOMParser::VRTypes,

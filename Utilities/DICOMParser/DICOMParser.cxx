@@ -655,7 +655,7 @@ bool DICOMParser::ParseImplicitRecord(doublebyte group, doublebyte element,
 
 
 
-void DICOMParser::TransferSyntaxCallback(DICOMParser *parser,
+void DICOMParser::TransferSyntaxCallback(DICOMParser *,
                                          doublebyte,
                                          doublebyte,
                                          DICOMParser::VRTypes,
