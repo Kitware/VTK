@@ -41,7 +41,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkPlaneWidget, "1.31");
+vtkCxxRevisionMacro(vtkPlaneWidget, "1.32");
 vtkStandardNewMacro(vtkPlaneWidget);
 
 vtkCxxSetObjectMacro(vtkPlaneWidget,PlaneProperty,vtkProperty);
@@ -228,12 +228,15 @@ void vtkPlaneWidget::SetEnabled(int enabling)
       return;
       }
     
-    this->CurrentRenderer = this->Interactor->FindPokedRenderer(
-      this->Interactor->GetLastEventPosition()[0],
-      this->Interactor->GetLastEventPosition()[1]);
-    if (this->CurrentRenderer == NULL)
+    if ( ! this->CurrentRenderer )
       {
-      return;
+      this->CurrentRenderer = this->Interactor->FindPokedRenderer(
+        this->Interactor->GetLastEventPosition()[0],
+        this->Interactor->GetLastEventPosition()[1]);
+      if (this->CurrentRenderer == NULL)
+        {
+        return;
+        }
       }
 
     this->Enabled = 1;
@@ -311,6 +314,7 @@ void vtkPlaneWidget::SetEnabled(int enabling)
 
     this->CurrentHandle = NULL;
     this->InvokeEvent(vtkCommand::DisableEvent,NULL);
+    this->CurrentRenderer = NULL;
     }
 
   this->Interactor->Render();
