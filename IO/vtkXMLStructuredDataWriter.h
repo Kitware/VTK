@@ -69,10 +69,10 @@ protected:
   // The actual writing driver required by vtkXMLWriter.
   int WriteData();
   void SetupExtentTranslator();
-  virtual void WriteAppendedMode(vtkIndent indent);
+  virtual int WriteAppendedMode(vtkIndent indent);
   vtkDataArray* CreateExactExtent(vtkDataArray* array, int* inExtent,
                                   int* outExtent, int isPoint);
-  virtual void WriteInlineMode(vtkIndent indent);
+  virtual int WriteInlineMode(vtkIndent indent);
   unsigned int GetStartTuple(int* extent, int* increments,
                              int i, int j, int k);
   void CalculatePieceFractions(float* fractions);

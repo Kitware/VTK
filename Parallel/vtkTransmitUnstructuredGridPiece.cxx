@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkTransmitUnstructuredGridPiece, "1.15");
+vtkCxxRevisionMacro(vtkTransmitUnstructuredGridPiece, "1.16");
 vtkStandardNewMacro(vtkTransmitUnstructuredGridPiece);
 
 vtkCxxSetObjectMacro(vtkTransmitUnstructuredGridPiece,Controller,
@@ -147,10 +147,17 @@ void vtkTransmitUnstructuredGridPiece::RootExecute()
   extract->GetOutput()->SetUpdateGhostLevel(output->GetUpdateGhostLevel());
 
   extract->Update();
+
   // Copy geometry without copying information.
   output->CopyStructure(extract->GetOutput());
   output->GetPointData()->PassData(extract->GetOutput()->GetPointData());
   output->GetCellData()->PassData(extract->GetOutput()->GetCellData());
+  vtkFieldData*  inFd = extract->GetOutput()->GetFieldData();
+  vtkFieldData* outFd = output->GetFieldData();
+  if (inFd && outFd)
+    {
+    outFd->PassData(inFd);
+    }
 
   // Now do each of the satellite requests.
   numProcs = this->Controller->GetNumberOfProcesses();

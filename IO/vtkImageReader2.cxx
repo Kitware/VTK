@@ -24,7 +24,7 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkImageReader2, "1.24");
+vtkCxxRevisionMacro(vtkImageReader2, "1.25");
 vtkStandardNewMacro(vtkImageReader2);
 
 #ifdef read
@@ -39,8 +39,8 @@ vtkStandardNewMacro(vtkImageReader2);
 vtkImageReader2::vtkImageReader2()
 {
   this->FilePrefix = NULL;
-  this->FilePattern = new char[strlen("%s.%d") + 1];
-  strcpy (this->FilePattern, "%s.%d");
+  this->FilePattern = new char[strlen("%s") + 1];
+  strcpy (this->FilePattern, "%s");
   this->File = NULL;
 
   this->DataScalarType = VTK_SHORT;
@@ -68,7 +68,7 @@ vtkImageReader2::vtkImageReader2()
   // Left over from short reader
   this->SwapBytes = 0;
   this->FileLowerLeft = 0;
-  this->FileDimensionality = 2;
+  this->FileDimensionality = 3;
 }
 
 //----------------------------------------------------------------------------

@@ -28,7 +28,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPStreamTracer, "1.8");
+vtkCxxRevisionMacro(vtkPStreamTracer, "1.9");
 
 vtkCxxSetObjectMacro(vtkPStreamTracer, Controller, vtkMultiProcessController);
 vtkCxxSetObjectMacro(vtkPStreamTracer, 
@@ -80,7 +80,7 @@ vtkPStreamTracer::~vtkPStreamTracer()
 // This method waits until a process sends its first points.
 void vtkPStreamTracer::ReceiveLastPoints()
 {
-  int streamId;
+  int streamId = 0;
 
   while(1)
     {

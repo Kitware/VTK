@@ -32,7 +32,7 @@
 #include "vtkSynchronizedTemplates2D.h"
 #include "vtkSynchronizedTemplates3D.h"
 
-vtkCxxRevisionMacro(vtkKitwareCutter, "1.1");
+vtkCxxRevisionMacro(vtkKitwareCutter, "1.2");
 vtkStandardNewMacro(vtkKitwareCutter);
 
 vtkKitwareCutter::vtkKitwareCutter()
@@ -53,6 +53,11 @@ void vtkKitwareCutter::Execute()
     return;
     }
   
+  if (input->GetNumberOfCells() == 0)
+    {
+    return;
+    }
+
   if (!this->CutFunction)
     {
     vtkErrorMacro("No cut function specified");

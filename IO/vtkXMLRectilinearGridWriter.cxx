@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkRectilinearGrid.h"
 
-vtkCxxRevisionMacro(vtkXMLRectilinearGridWriter, "1.3");
+vtkCxxRevisionMacro(vtkXMLRectilinearGridWriter, "1.4");
 vtkStandardNewMacro(vtkXMLRectilinearGridWriter);
 
 //----------------------------------------------------------------------------
@@ -118,13 +118,13 @@ vtkXMLRectilinearGridWriter::CreateExactCoordinates(vtkDataArray* a, int xyz)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLRectilinearGridWriter::WriteAppendedMode(vtkIndent indent)
+int vtkXMLRectilinearGridWriter::WriteAppendedMode(vtkIndent indent)
 {
   int i;
   this->CoordinatePositions = new unsigned long*[this->NumberOfPieces];
   for(i=0;i < this->NumberOfPieces;++i) { this->CoordinatePositions[i] = 0; }
   
-  this->Superclass::WriteAppendedMode(indent);
+  int result = this->Superclass::WriteAppendedMode(indent);
   
   for(i=0;i < this->NumberOfPieces;++i)
     {
@@ -134,6 +134,7 @@ void vtkXMLRectilinearGridWriter::WriteAppendedMode(vtkIndent indent)
       }
     }
   delete [] this->CoordinatePositions;
+  return result;
 }
 
 //----------------------------------------------------------------------------

@@ -15,12 +15,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
 #include "vtkThreadSafeLog.h"
-#include "vtkObjectFactory.h"
-#include <iomanip.h>
 
-vtkCxxRevisionMacro(vtkThreadSafeLog, "1.3");
+#include "vtkObjectFactory.h"
+#include "vtkTimerLog.h"
+
+vtkCxxRevisionMacro(vtkThreadSafeLog, "1.4");
 vtkStandardNewMacro(vtkThreadSafeLog);
 
 //----------------------------------------------------------------------------
@@ -72,9 +72,19 @@ void vtkThreadSafeLog::AddEntry(char *tag, float value)
 }
 
 //----------------------------------------------------------------------------
+void vtkThreadSafeLog::DumpLog(char *filename)
+{
+  this->DumpLog(filename, ios::out);
+}
+
+//----------------------------------------------------------------------------
 void vtkThreadSafeLog::DumpLog(char *filename, int nMode)
 {
+#if defined(__GNUC__) && (__GNUC__ >= 3)
+  ofstream os(filename, static_cast<ios::openmode>(nMode));
+#else
   ofstream os(filename, nMode);
+#endif
   int idx;
   
   if (nMode == ios::out)
@@ -93,9 +103,27 @@ void vtkThreadSafeLog::DumpLog(char *filename, int nMode)
   os << endl;
 }
 
+//----------------------------------------------------------------------------
+void StartTimer()
+{
+  this->Timer->StartTimer();
+}
+
+//----------------------------------------------------------------------------
+void StopTimer()
+{
+  this->Timer->StopTimer();
+}
+
+//----------------------------------------------------------------------------
+double GetElapsedTime()
+{
+  return this->Timer->GetElapsedTime();
+}
+
+//----------------------------------------------------------------------------
+void vtkThreadSafeLog::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}
   
-
-
-
-
-

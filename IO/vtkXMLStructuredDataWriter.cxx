@@ -24,7 +24,7 @@
 #include "vtkExtentTranslator.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkXMLStructuredDataWriter, "1.2");
+vtkCxxRevisionMacro(vtkXMLStructuredDataWriter, "1.3");
 vtkCxxSetObjectMacro(vtkXMLStructuredDataWriter, ExtentTranslator,
                      vtkExtentTranslator);
 
@@ -76,22 +76,23 @@ int vtkXMLStructuredDataWriter::WriteData()
   this->SetupExtentTranslator();
   
   // Write the file.
+  int result = 0;
   this->StartFile();
   if(this->DataMode == vtkXMLWriter::Appended)
     {
-    this->WriteAppendedMode(indent);
+    result = this->WriteAppendedMode(indent);
     }
   else
     {
-    this->WriteInlineMode(indent);
+    result = this->WriteInlineMode(indent);
     }
   this->EndFile();
   
-  return 1;
+  return result;
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLStructuredDataWriter::WriteAppendedMode(vtkIndent indent)
+int vtkXMLStructuredDataWriter::WriteAppendedMode(vtkIndent indent)
 {  
   int i;
   int extent[6];
@@ -145,7 +146,8 @@ void vtkXMLStructuredDataWriter::WriteAppendedMode(vtkIndent indent)
   // Write each piece's data.
   this->StartAppendedData();
   
-  for(i=0;i < this->NumberOfPieces;++i)
+  int result = 1;
+  for(i=0; (i < this->NumberOfPieces) && result; ++i)
     {
     // Set the progress range for this piece.
     this->SetProgressRange(progressRange, i, fractions);
@@ -156,7 +158,16 @@ void vtkXMLStructuredDataWriter::WriteAppendedMode(vtkIndent indent)
     input->SetUpdateExtent(this->ExtentTranslator->GetExtent());
     input->Update();
     
-    this->WriteAppendedPieceData(i);
+    // Make sure input is valid.
+    if(input->CheckAttributes() == 0)
+      {
+      this->WriteAppendedPieceData(i);
+      }
+    else
+      {
+      vtkErrorMacro("Input is invalid for piece " << i << ".  Aborting.");
+      result = 0;
+      }
     }
   
   this->EndAppendedData();
@@ -165,10 +176,12 @@ void vtkXMLStructuredDataWriter::WriteAppendedMode(vtkIndent indent)
   delete [] fractions;
   delete [] this->PointDataOffsets;
   delete [] this->CellDataOffsets;
+  
+  return result;
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLStructuredDataWriter::WriteInlineMode(vtkIndent indent)
+int vtkXMLStructuredDataWriter::WriteInlineMode(vtkIndent indent)
 {
   int i;
   int extent[6];
@@ -188,7 +201,8 @@ void vtkXMLStructuredDataWriter::WriteInlineMode(vtkIndent indent)
   this->CalculatePieceFractions(fractions);
   
   // Write each piece's XML and data.
-  for(i=0; i < this->NumberOfPieces; ++i)
+  int result = 1;
+  for(i=0; (i < this->NumberOfPieces) && result; ++i)
     { 
     // Set the progress range for this piece.
     this->SetProgressRange(progressRange, i, fractions);
@@ -200,19 +214,29 @@ void vtkXMLStructuredDataWriter::WriteInlineMode(vtkIndent indent)
     input->SetUpdateExtent(extent);
     input->Update();
     
-    os << indent << "<Piece";
-    this->WriteVectorAttribute("Extent", 6, extent);
-    os << ">\n";
-    
-    this->WriteInlinePiece(i, indent.GetNextIndent());
-    
-    os << indent << "</Piece>\n";
+    // Make sure input is valid.
+    if(input->CheckAttributes() == 0)
+      {
+      os << indent << "<Piece";
+      this->WriteVectorAttribute("Extent", 6, extent);
+      os << ">\n";
+      
+      this->WriteInlinePiece(i, indent.GetNextIndent());
+      
+      os << indent << "</Piece>\n";
+      }
+    else
+      {
+      vtkErrorMacro("Input is invalid for piece " << i << ".  Aborting.");
+      result = 0;
+      }
     }
   
   // Close the primary element.
   os << indent << "</" << this->GetDataSetName() << ">\n";
   
   delete [] fractions;
+  return result;
 }
 
 //----------------------------------------------------------------------------
@@ -236,7 +260,7 @@ void vtkXMLStructuredDataWriter::SetupExtentTranslator()
                 << this->WriteExtent[0] << " " << this->WriteExtent[1] << " "
                 << this->WriteExtent[2] << " " << this->WriteExtent[3] << " "
                 << this->WriteExtent[4] << " " << this->WriteExtent[5]
-                << " in " << this->NumberOfPieces << " pices.");
+                << " in " << this->NumberOfPieces << " pieces.");
 }
 
 //----------------------------------------------------------------------------

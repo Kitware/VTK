@@ -221,10 +221,12 @@ protected:
   virtual int GetDataSetMinorVersion();
   
   // Utility methods for subclasses.
-  vtkDataSet* GetInputAsDataSet();  
+  vtkDataSet* GetInputAsDataSet();
   void StartFile();
   virtual void WriteFileAttributes();
   void EndFile();
+  void DeleteFile();
+  void DeleteFile(const char* name);
   void StartAppendedData();
   void EndAppendedData();
   unsigned long ReserveAttributeSpace(const char* attr=0);

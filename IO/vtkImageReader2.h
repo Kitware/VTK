@@ -187,7 +187,7 @@ public:
   //       correct reader for this file
   virtual int CanReadFile(const char* vtkNotUsed(fname))
     {
-      return 0;
+      return 1;
     }
 
   // Description:
