@@ -22,7 +22,7 @@ extern "C" {
 #include <jpeglib.h>
 }
 
-vtkCxxRevisionMacro(vtkJPEGWriter, "1.7");
+vtkCxxRevisionMacro(vtkJPEGWriter, "1.8");
 vtkStandardNewMacro(vtkJPEGWriter);
 
 vtkJPEGWriter::vtkJPEGWriter()
@@ -266,4 +266,5 @@ void vtkJPEGWriter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Quality: " << this->Quality << "\n";
   os << indent << "Progressive: " << (this->Progressive ? "On" : "Off") << "\n";
+  os << indent << "Write to memory: " << (this->WriteToMemory ? "On" : "Off") << "\n";
 }
