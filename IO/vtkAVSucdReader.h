@@ -165,9 +165,9 @@ protected:
 
   struct DataInfo {
     long foffset; // offset in binary file
-    int  veclen;   // number of components in the node or cell variable
-    float min;    // pre-calculated data min stored in UCD file
-    float max;    // pre-calculated data max stored in UCD file
+    int  veclen;  // number of components in the node or cell variable
+    float min[3]; // pre-calculated data minima (max size 3 for vectors)
+    float max[3]; // pre-calculated data maxima (max size 3 for vectors)
   };
   //ETX
 

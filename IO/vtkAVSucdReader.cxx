@@ -34,7 +34,7 @@
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkAVSucdReader, "1.24");
+vtkCxxRevisionMacro(vtkAVSucdReader, "1.25");
 vtkStandardNewMacro(vtkAVSucdReader);
 
 //----------------------------------------------------------------------------
@@ -170,7 +170,7 @@ void vtkAVSucdReader::ExecuteInformation()
 {
   char magic_number='\0';
   long trueFileLength, calculatedFileLength;
-  int i, k, *ncomp_list;
+  int i, j, k, *ncomp_list;
 
   // first open file in binary mode to check the first byte.
   if ( !this->FileName )
@@ -304,20 +304,30 @@ void vtkAVSucdReader::ExecuteInformation()
       ncomp_list = new int[this->NumberOfNodeFields];
       this->ReadIntBlock(this->NumberOfNodeFields, ncomp_list);
 
-      this->NodeDataInfo = new DataInfo[this->NumberOfNodeFields];
+      this->NodeDataInfo = new DataInfo[this->NumberOfNodeComponents];
 
       float *mx = new float[this->NumberOfNodeFields];
       // read now the minimums for node_data
       this->ReadFloatBlock(this->NumberOfNodeFields, mx);
-      for(i=0; i < this->NumberOfNodeFields; i++)
+      k=0;
+      for(i=0; i < this->NumberOfNodeComponents; i++)
         {
-        this->NodeDataInfo[i].min = mx[i];
+        for(j=0; j < ncomp_list[i]; j++)
+          {
+          this->NodeDataInfo[i].min[j] = mx[k];
+          }
+        k++;
         }
       // read now the maximums for node_data
       this->ReadFloatBlock(this->NumberOfNodeFields, mx);
-      for(i=0; i < this->NumberOfNodeFields; i++)
+      k=0;
+      for(i=0; i < this->NumberOfNodeComponents; i++)
         {
-        this->NodeDataInfo[i].max = mx[i];
+        for(j=0; j < ncomp_list[i]; j++)
+          {
+          this->NodeDataInfo[i].max[j] = mx[k];
+          }
+        k++;
         }
       delete [] mx;
 
@@ -350,20 +360,30 @@ void vtkAVSucdReader::ExecuteInformation()
       ncomp_list = new int[this->NumberOfCellFields];
       this->ReadIntBlock(this->NumberOfCellFields, ncomp_list);
 
-      this->CellDataInfo = new DataInfo[this->NumberOfCellFields];
+      this->CellDataInfo = new DataInfo[this->NumberOfCellComponents];
 
       float *mx = new float[this->NumberOfCellFields];
       // read now the minimums for cell_data
       this->ReadFloatBlock(this->NumberOfCellFields, mx);
+      k=0;
       for(i=0; i < this->NumberOfCellFields; i++)
         {
-        this->CellDataInfo[i].min = mx[i];
+        for(j=0; j < ncomp_list[i]; j++)
+          {
+          this->CellDataInfo[i].min[j] = mx[k];
+          };
+        k++;
         }
       // read now the maximums for cell_data
       this->ReadFloatBlock(this->NumberOfCellFields, mx);
+      k=0;
       for(i=0; i < this->NumberOfCellFields; i++)
         {
-        this->CellDataInfo[i].max = mx[i];
+        for(j=0; j < ncomp_list[i]; j++)
+          {
+          this->CellDataInfo[i].max[j] = mx[k];
+          }
+        k++;
         }
       delete [] mx;
 
@@ -428,8 +448,8 @@ void vtkAVSucdReader::GetCellDataRange(int cellComp, int index, float *min, floa
     {
     index = 0;  // if wrong index, set it to zero
     }
-  *min = this->CellDataInfo[index].min;
-  *max = this->CellDataInfo[index].max;
+  *min = this->CellDataInfo[cellComp].min[index];
+  *max = this->CellDataInfo[cellComp].max[index];
 }
 
 //----------------------------------------------------------------------------
@@ -439,8 +459,8 @@ void vtkAVSucdReader::GetNodeDataRange(int nodeComp, int index, float *min, floa
     {
     index = 0;  // if wrong index, set it to zero
     }
-  *min = this->NodeDataInfo[index].min;
-  *max = this->NodeDataInfo[index].max;
+  *min = this->NodeDataInfo[nodeComp].min[index];
+  *max = this->NodeDataInfo[nodeComp].max[index];
 }
 
 //----------------------------------------------------------------------------
@@ -815,8 +835,8 @@ void vtkAVSucdReader::ReadNodeData()
     int id;
     char buf1[128], c='\0', buf2[128];
 
-    this->NodeDataInfo = new DataInfo[this->NumberOfNodeFields];
     *(this->FileStream) >> this->NumberOfNodeComponents;
+    this->NodeDataInfo = new DataInfo[this->NumberOfNodeComponents];
     for(i=0; i < this->NumberOfNodeComponents; i++)
       {
       *(this->FileStream) >> this->NodeDataInfo[i].veclen;
@@ -924,8 +944,9 @@ void vtkAVSucdReader::ReadCellData()
     int id;
     char buf1[128], c='\0', buf2[128];
 
-    this->CellDataInfo = new DataInfo[this->NumberOfCellFields];
     *(this->FileStream) >> this->NumberOfCellComponents;
+    this->CellDataInfo = new DataInfo[this->NumberOfCellComponents];
+
     for(i=0; i < this->NumberOfCellComponents; i++)
       {
       *(this->FileStream) >> this->CellDataInfo[i].veclen;
