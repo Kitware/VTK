@@ -355,6 +355,8 @@ int vtkLODProp3D::AddLOD( vtkMapper *m, vtkProperty *p,
   this->LODs[index].State         = 1;
   this->NumberOfLODs++;
 
+  actor->SetEstimatedRenderTime(time);
+  
   return this->LODs[index].ID;
 }
 
@@ -394,6 +396,8 @@ int vtkLODProp3D::AddLOD( vtkVolumeMapper *m, vtkVolumeProperty *p,
   this->LODs[index].State         = 1;
   this->NumberOfLODs++;
 
+  volume->SetEstimatedRenderTime(time);
+  
   return this->LODs[index].ID;
 }
 

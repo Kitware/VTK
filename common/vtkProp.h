@@ -225,7 +225,16 @@ public:
   virtual float GetEstimatedRenderTime( vtkViewport * )
     { return this->EstimatedRenderTime; };
   virtual float GetEstimatedRenderTime(){ return this->EstimatedRenderTime; };
-      
+  
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // DO NOT USE THESE METHODS OUTSIDE OF THE RENDERING PROCESS
+  // This method is used by, for example, the vtkLODProp3D in order to
+  // initialize the estimated render time at start-up to some user defined
+  // value.
+  virtual void SetEstimatedRenderTime(float t) 
+    {this->EstimatedRenderTime = t; this->SavedEstimatedRenderTime = t;};
+    
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THESE METHODS OUTSIDE OF THE RENDERING PROCESS
