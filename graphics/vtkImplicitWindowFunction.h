@@ -38,8 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImplicitWindowFunction - implicit function maps another
-implicit function to lie within a specified range
+// .NAME vtkImplicitWindowFunction - implicit function maps another implicit function to lie within a specified range
 // .SECTION Description
 // vtkImplicitWindowFunction is used to modify the output of another
 // implicit function to lie within a specified "window", or function
