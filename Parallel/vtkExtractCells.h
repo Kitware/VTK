@@ -29,11 +29,10 @@
 #define __vtkExtractCells_h
 
 #include "vtkDataSetToUnstructuredGridFilter.h"
-#include <vtkstd/set>     // for the internal cell ID list
-#include <vtkstd/vector>     // for the internal cell ID list
 
 class vtkIdList;
 class vtkUnstructuredGrid;
+class vtkExtractCellsSTLCloak;
 
 class VTK_PARALLEL_EXPORT vtkExtractCells : public vtkDataSetToUnstructuredGridFilter
 {
@@ -56,11 +55,7 @@ public:
 
   void AddCellList(vtkIdList *l);
 
-//BTX
-  // TODO need the following call ...
-  // void RemoveCellList(vtkIdList *l);
-  void GetCellIds( vtkstd::vector<int> &ids );
-//ETX
+  void GetCellIds( vtkIdList *ids );
 
   // Description:
   // Add this range of cell IDs to those that will be included
@@ -89,9 +84,7 @@ private:
   void CopyCellsDataSet(vtkIdList *ptMap);
   void CopyCellsUnstructuredGrid(vtkIdList *ptMap);
 
-//BTX
-  vtkstd::set<vtkIdType> CellList;
-//ETX
+  vtkExtractCellsSTLCloak *CellList;
 
   int SubSetUGridCellArraySize;
   char InputIsUgrid;
