@@ -34,7 +34,7 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkVolumeProperty.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.2");
+vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.3");
 vtkStandardNewMacro(vtkUnstructuredGridBunykRayCastFunction);
 
 #define VTK_BUNYKRCF_NUMLISTS 100000
@@ -665,26 +665,26 @@ void vtkUnstructuredGridBunykRayCastFunction::ComputePixelIntersections()
       
       if ( this->IsTriangleFrontFacing( triPtr, triPtr->ReferredByTetra[0] ) )
         {
-        int   minX = this->Points[3*triPtr->PointIndex[0]];
-        int   maxX = minX+1;
-        int   minY = this->Points[3*triPtr->PointIndex[0]+1];
-        int   maxY = minY+1;
+        int   minX = static_cast<int>(this->Points[3*triPtr->PointIndex[0]]);
+        int   maxX = static_cast<int>(minX+1);
+        int   minY = static_cast<int>(this->Points[3*triPtr->PointIndex[0]+1]);
+        int   maxY = static_cast<int>(minY+1);
         
         int tmp;
         
-        tmp = this->Points[3*triPtr->PointIndex[1]];
+        tmp = static_cast<int>(this->Points[3*triPtr->PointIndex[1]]);
         minX = (tmp<minX)?(tmp):(minX);
         maxX = ((tmp+1)>maxX)?(tmp+1):(maxX);
         
-        tmp = this->Points[3*triPtr->PointIndex[1]+1];
+        tmp = static_cast<int>(this->Points[3*triPtr->PointIndex[1]+1]);
         minY = (tmp<minY)?(tmp):(minY);
         maxY = ((tmp+1)>maxY)?(tmp+1):(maxY);
 
-        tmp = this->Points[3*triPtr->PointIndex[2]];
+        tmp = static_cast<int>(this->Points[3*triPtr->PointIndex[2]]);
         minX = (tmp<minX)?(tmp):(minX);
         maxX = ((tmp+1)>maxX)?(tmp+1):(maxX);
         
-        tmp = this->Points[3*triPtr->PointIndex[2]+1];
+        tmp = static_cast<int>(this->Points[3*triPtr->PointIndex[2]+1]);
         minY = (tmp<minY)?(tmp):(minY);
         maxY = ((tmp+1)>maxY)?(tmp+1):(maxY);
 
@@ -907,7 +907,7 @@ void vtkUnstructuredGridBunykRayCastFunction::UpdateColorTable()
       }
     else
       {
-      arraySizeNeeded = scalarRange[2*c+1] - scalarRange[2*c] + 1;
+      arraySizeNeeded = static_cast<int>(scalarRange[2*c+1] - scalarRange[2*c]) + 1;
       offset          = -scalarRange[2*c]; 
       scale           = 1.0;
       }
