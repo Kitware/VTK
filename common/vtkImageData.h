@@ -38,8 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageData - Holds an array of floats represtion a piece of the 
-// image.
+// .NAME vtkImageData - Similar to structured points.
 // .SECTION Description
 // vtkImageData holds a reference counted 3d array of floats that is the basic
 // data object of the Tile Image Pipeline.  It is not directly accessed, but
@@ -47,24 +46,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkImageCache objects are the only other class that uses vtkImageData
 // objects directly.
 // The memory of outImageData can be accessed 
-// quickly through pointer arithmatic.
+// quickly through pointer arithmetic.
 
 #ifndef __vtkImageData_h
 #define __vtkImageData_h
 
 
 #include "vtkRefCount.h"
-#include "vtkScalars.h"
+#include "vtkImageSetGet.h"
+#include "vtkPointData.h"
 
 
-// The current maximum dimensionality of "images" is 4 (volume and time).
-// These definitions will help (a little) if this needs to be changed.
+// It would be nice to get rid of this hard coding of dimensionality.
+// Could each region/filter have its own dimensionality? (NumberOfAxes).
 #define VTK_IMAGE_DIMENSIONS 5
-#define VTK_IMAGE_BOUNDS_DIMENSIONS 10
+#define VTK_IMAGE_EXTENT_DIMENSIONS 10
 
 
-// These types are returned by GetType to indicate pixel type.
-#define VTK_IMAGE_VOID            0
+// These types are returned by GetScalarType to indicate pixel type.
+#define VTK_VOID            0
 #define VTK_FLOAT           1
 #define VTK_INT             2
 #define VTK_SHORT           3
@@ -72,8 +72,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_UNSIGNED_CHAR   5
 
 // A macro to get the name of a type
-#define vtkImageDataTypeNameMacro(type) \
-(((type) == VTK_IMAGE_VOID) ? "void" : \
+#define vtkImageScalarTypeNameMacro(type) \
+(((type) == VTK_VOID) ? "void" : \
 (((type) == VTK_FLOAT) ? "float" : \
 (((type) == VTK_INT) ? "int" : \
 (((type) == VTK_SHORT) ? "short" : \
@@ -88,6 +88,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_IMAGE_Z_AXIS 2
 #define VTK_IMAGE_TIME_AXIS 3
 #define VTK_IMAGE_COMPONENT_AXIS 4
+#define VTK_IMAGE_USER_DEFINED_AXIS 5
 
 
 // A macro to get the name of an axis
@@ -97,8 +98,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 (((axis) == VTK_IMAGE_Z_AXIS) ? "Z" : \
 (((axis) == VTK_IMAGE_TIME_AXIS) ? "Time" : \
 (((axis) == VTK_IMAGE_COMPONENT_AXIS) ? "Component" : \
-"Undefined")))))
-
+(((axis) == VTK_IMAGE_USER_DEFINED_AXIS) ? "UserDefined" : \
+"Undefined"))))))
 
 
 
@@ -106,40 +107,46 @@ class vtkImageData : public vtkRefCount
 {
 public:
   vtkImageData();
-  ~vtkImageData();
   char *GetClassName() {return "vtkImageData";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void SetScalars(vtkScalars *scalars);
-  // Description:
-  // Get the vtkScalars that contain the actual data.
-  vtkGetObjectMacro(Scalars,vtkScalars);
   
-  // Description:
-  // Get the extent of the data array.
-  vtkSetVectorMacro(Extent,int,10);
-  vtkGetVectorMacro(Extent,int,10);
+  // return pointer to this dataset's point data
+  vtkPointData *GetPointData() {return &this->PointData;};
 
-  void SetExtent(int min0, int max0, int min1, int max1, 
-		 int min2, int max2, int min3, int max3,
-		 int min4, int max4);
+  // Description:
+  // Different ways to set the extent of the data array.
+  void SetExtent(int dim, int *extent);
+  vtkImageSetExtentMacro(Extent);
+  // Description:
+  // Different ways to get the extent of the data array.
+  void GetExtent(int dim, int *extent);
+  vtkImageGetExtentMacro(Extent);
+
 
   // Description:
   // Set/Get the size in chars, of each pixel.
   // The pixel size should also be set before the Allocate method is called.
-  void SetType(int type);
-  vtkGetMacro(Type,int);
+  void SetScalarType(int type);
+  vtkGetMacro(ScalarType,int);
   
   // Description:
   // Gets the increments between columns, rows, and images.  These
   // Values are computed from the size of the data array, and allow the
-  // user to step through memory using pointer arithmatic.
+  // user to step through memory using pointer arithmetic.
   vtkGetVectorMacro(Increments,int,5);
 
-  int IsAllocated();
-  int Allocate();
+  int AreScalarsAllocated();
+  int AllocateScalars();
   void *GetScalarPointer(int coordinates[VTK_IMAGE_DIMENSIONS]);
   void *GetScalarPointer();
+
+  int AreVectorsAllocated();
+  int AllocateVectors();
+  float *GetVectorPointer(int coordinates[VTK_IMAGE_DIMENSIONS]);
+  float *GetVectorPointer();
+
   void Translate(int vector[VTK_IMAGE_DIMENSIONS]);
   
   
@@ -159,18 +166,23 @@ public:
   
 
 protected:
-  int PrintScalars;
-  vtkScalars *Scalars;  // Store the data in native VTK format.
+  vtkPointData PointData;
+  int PrintScalars;   // For debuging
   int Axes[VTK_IMAGE_DIMENSIONS];   
-  int Type;             // What type of data is in this object.
-  int Extent[VTK_IMAGE_BOUNDS_DIMENSIONS]; // extent of data.
+  int ScalarType;             // data type of scalars
+  int Extent[VTK_IMAGE_EXTENT_DIMENSIONS]; // extent of data.
   int Increments[VTK_IMAGE_DIMENSIONS];    // Values used to move around data.
-  int Allocated;
+  int Volume;
+  int ScalarsAllocated;
+  int VectorsAllocated;
 };
 
 
 
 // Avoid including these in vtkImageData.cc .
+#include "vtkVectors.h"
+#include "vtkFloatVectors.h"
+#include "vtkScalars.h"
 #include "vtkFloatScalars.h"
 #include "vtkIntScalars.h"
 #include "vtkShortScalars.h"

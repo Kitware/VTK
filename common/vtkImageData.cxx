@@ -48,9 +48,9 @@ vtkImageData::vtkImageData()
 {
   int idx;
 
-  this->Scalars = NULL;
-  this->Allocated = 0;
-  this->Type = VTK_IMAGE_VOID;
+  this->ScalarsAllocated = 0;
+  this->VectorsAllocated = 0;
+  this->ScalarType = VTK_VOID;
   this->PrintScalars = 0;
   for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
@@ -61,22 +61,12 @@ vtkImageData::vtkImageData()
     }
 }
 
-//----------------------------------------------------------------------------
-vtkImageData::~vtkImageData()
-{
-  if (this->Scalars)
-    {
-    this->Scalars->Delete();
-    this->Scalars = NULL;
-    }
-}
-
 
 //----------------------------------------------------------------------------
-// A templated function to print different types of scalars.
+// A templated function to print different types of pointData.
 template <class T>
 void vtkImageDataPrintScalars(vtkImageData *self, T *ptr,
-			      ostream& os, vtkIndent indent)
+				ostream& os, vtkIndent indent)
 {
   int precisionSave = os.precision();
   int *temp;
@@ -158,78 +148,75 @@ void vtkImageDataPrintScalars(vtkImageData *self, T *ptr,
 //----------------------------------------------------------------------------
 void vtkImageData::PrintSelf(ostream& os, vtkIndent indent)
 {
+  int idx;
+  vtkScalars *scalars;
   vtkIndent nextIndent = indent.GetNextIndent();
   
   vtkRefCount::PrintSelf(os,indent);
-  os << indent << "Type: " << vtkImageDataTypeNameMacro(this->Type) << "\n";
+  os << indent << "Type: " << vtkImageScalarTypeNameMacro(this->ScalarType) 
+     << "\n";
   
-  os << indent << "Axes: (";
-  os << vtkImageAxisNameMacro(this->Axes[0]) << ", ";
-  os << vtkImageAxisNameMacro(this->Axes[1]) << ", ";
-  os << vtkImageAxisNameMacro(this->Axes[2]) << ", ";
-  os << vtkImageAxisNameMacro(this->Axes[3]) << ")\n";
-  
-  os << indent << "Extent: (";
-  os << this->Extent[0] << ", " << this->Extent[1] << ", ";
-  os << this->Extent[2] << ", " << this->Extent[3] << ", ";
-  os << this->Extent[4] << ", " << this->Extent[5] << ", ";
-  os << this->Extent[6] << ", " << this->Extent[7] << ")\n";
-
-  os << indent << "Increments: (";
-  os << this->Increments[0] << ", ";
-  os << this->Increments[1] << ", ";
-  os << this->Increments[2] << ", ";
-  os << this->Increments[3] << ")\n";
-
-  if ( ! this->Scalars)
+  os << indent << "Axes: (" << vtkImageAxisNameMacro(this->Axes[0]);
+  for (idx = 1; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
-    os << indent << "Scalars: NULL\n";
+    os << ", " << vtkImageAxisNameMacro(this->Axes[idx]);
     }
-  else
+  os << ")\n";
+  
+  os << indent << "Extent: (" << this->Extent[0];
+  for (idx = 1; idx < VTK_IMAGE_EXTENT_DIMENSIONS; ++idx)
     {
-    os << indent << "Scalars:\n";
-    this->Scalars->PrintSelf(os,nextIndent);
-    // Adding this onto scalars (but in this class).
-    if ( this->PrintScalars) 
+    os << ", " << this->Extent[idx];
+    }
+  os << ")\n";
+
+  os << indent << "Increments: (" << this->Increments[0];
+  for (idx = 1; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    os << ", " << this->Increments[idx];
+    }
+  os << ")\n";
+
+  os << indent << "PointData:\n";
+  this->PointData.PrintSelf(os,nextIndent);
+  // Adding this onto pointData (but in this class).
+  scalars = this->PointData.GetScalars();
+  if (scalars) 
+    {
+    void *ptr = this->GetScalarPointer();
+    os << nextIndent << "Scalar Values:\n";
+    switch (this->GetScalarType())
       {
-      void *ptr = this->GetScalarPointer();
-      os << nextIndent << "Scalar Values:\n";
-      switch (this->GetType())
-	{
-	case VTK_FLOAT:
-	  vtkImageDataPrintScalars(this, (float *)(ptr), os, nextIndent);
-	  break;
-	case VTK_INT:
-	  vtkImageDataPrintScalars(this, (int *)(ptr), os, nextIndent);
-	  break;
-	case VTK_SHORT:
-	  vtkImageDataPrintScalars(this, (short *)(ptr), os, nextIndent);
-	  break;
-	case VTK_UNSIGNED_SHORT:
-	  vtkImageDataPrintScalars(this, (unsigned short *)(ptr), 
+      case VTK_FLOAT:
+	vtkImageDataPrintScalars(this, (float *)(ptr), os, nextIndent);
+	break;
+      case VTK_INT:
+	vtkImageDataPrintScalars(this, (int *)(ptr), os, nextIndent);
+	break;
+      case VTK_SHORT:
+	vtkImageDataPrintScalars(this, (short *)(ptr), os, nextIndent);
+	break;
+      case VTK_UNSIGNED_SHORT:
+	vtkImageDataPrintScalars(this, (unsigned short *)(ptr), 
 				   os, nextIndent);
-	  break;
-	case VTK_UNSIGNED_CHAR:
-	  vtkImageDataPrintScalars(this, (unsigned char *)(ptr),
+	break;
+      case VTK_UNSIGNED_CHAR:
+	vtkImageDataPrintScalars(this, (unsigned char *)(ptr),
 				   os, nextIndent);
-	  break;
-	default:
-	  os << nextIndent << "Cannot handle DataType.\n";
-	}         
-      }
+	break;
+      default:
+	os << nextIndent << "Cannot handle ScalarType.\n";
+      }         
     }
 }
 
 
 
+
 //----------------------------------------------------------------------------
-// Description:
-// This method sets the extent of the data, and 
-// should be called before the data object is allocated.
-void vtkImageData::SetExtent(int min0, int max0, int min1, int max1, 
-			     int min2, int max2, int min3, int max3,
-			     int min4, int max4)
+void vtkImageData::SetExtent(int dim, int *extent)
 {
+  int idx, inc = 1;
   vtkDebugMacro(<< "SetExtent: ...");
 
   if (this->GetRefCount() > 1)
@@ -237,24 +224,40 @@ void vtkImageData::SetExtent(int min0, int max0, int min1, int max1,
     vtkWarningMacro(<< "SetExtent: This object has more than one reference!");
     }
   
-  if (this->Scalars)
+  if (this->ScalarsAllocated || this->VectorsAllocated)
     {
     vtkErrorMacro(<< "SetExtent: Data object has already been allocated.");
     return;
     }
   
   this->Modified();
-  this->Extent[0] = min0;
-  this->Extent[1] = max0;
-  this->Extent[2] = min1;
-  this->Extent[3] = max1;
-  this->Extent[4] = min2;
-  this->Extent[5] = max2;
-  this->Extent[6] = min3;
-  this->Extent[7] = max3;
-  this->Extent[8] = min4;
-  this->Extent[9] = max4;
+  for (idx = 0; idx < 2*dim; ++idx)
+    {
+    this->Extent[idx] = extent[idx];
+    }
+  
+  // set up increments and volumes
+  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    this->Increments[idx] = inc;
+    inc *= (this->Extent[idx*2+1] - this->Extent[idx*2] + 1);
+    }  
+  this->Volume = inc;
 }
+//----------------------------------------------------------------------------
+void vtkImageData::GetExtent(int dim, int *extent)
+{
+  int idx;
+
+  for (idx = 0; idx < 2*dim; ++idx)
+    {
+    extent[idx] = this->Extent[idx];
+    }
+}
+
+
+
+
 
 //----------------------------------------------------------------------------
 // Description:
@@ -280,23 +283,24 @@ void vtkImageData::Translate(int vector[VTK_IMAGE_DIMENSIONS])
 
 //----------------------------------------------------------------------------
 // Description:
-// This method tells the data object to handle a specific DataType.
+// This method tells the data object to handle a specific ScalarType.
 // The method should be called before the data object is allocated.
-void vtkImageData::SetType(int type)
+void vtkImageData::SetScalarType(int type)
 {
   if (this->GetRefCount() > 1)
     {
-    vtkWarningMacro(<< "SetType: This object has more than one reference!");
+    vtkWarningMacro(<< "SetScalarType: " 
+    << "This object has more than one reference!");
     }
   
-  if (this->Scalars)
+  if (this->ScalarsAllocated || this->VectorsAllocated)
     {
-    vtkErrorMacro(<< "SetType: Data object has already been allocated.");
+    vtkErrorMacro(<< "SetScalarType: Data object has already been allocated.");
     return;
     }
   
   this->Modified();
-  this->Type = type;
+  this->ScalarType = type;
 }
 
 
@@ -313,7 +317,7 @@ void vtkImageData::SetAxes(int *axes)
     vtkWarningMacro(<< "SetAxes: This object has more than one reference!");
     }
   
-  if (this->Scalars)
+  if (this->ScalarsAllocated || this->VectorsAllocated)
     {
     vtkErrorMacro(<< "SetAxes: Data object has already been allocated.");
     return;
@@ -330,10 +334,10 @@ void vtkImageData::SetAxes(int *axes)
 
 //----------------------------------------------------------------------------
 // Description:
-// This method returns 1 if the data object has already been allocated.
-int vtkImageData::IsAllocated()
+// This method returns 1 if the scalar data has been allocated.
+int vtkImageData::AreScalarsAllocated()
 {
-  if (this->Scalars)
+  if (this->PointData.GetScalars())
     return 1;
   else
     return 0;
@@ -343,132 +347,164 @@ int vtkImageData::IsAllocated()
 
 //----------------------------------------------------------------------------
 // Description:
-// This method allocates memory for the vtkImageData data.  The size of
+// This method allocates memory for the vtkImageData scalars.  The extent of
 // the data object should be set before this method is called.
 // The method returns 1 if the allocation was sucessful, 0 if not.
-int vtkImageData::Allocate()
+int vtkImageData::AllocateScalars()
 {
-  int idx, inc = 1;
+  vtkScalars* scalars = NULL;
+  
 
-  if (this->GetRefCount() > 1)
-    {
-    vtkWarningMacro(<< "Allocate: This object has more than one reference!");
-    }
-  
-  // delete previous data
-  // in the future try to reuse memory
-  if (this->Scalars)
-    {
-    this->Scalars->Delete();
-    this->Scalars = NULL;
-    }
-  
-  // set up increments
-  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
-    {
-    this->Increments[idx] = inc;
-    inc *= (this->Extent[idx*2+1] - this->Extent[idx*2] + 1);
-    }
-  
   // special case zero length array
-  if (inc <= 0)
+  if (this->Volume <= 0)
     {
-    this->Scalars = NULL;
+    this->PointData.SetScalars(NULL);
     return 1;
     }
   
-  // create the Scalars object.
-  switch (this->Type)
+  // create the PointData object.
+  switch (this->ScalarType)
     {
-    case VTK_IMAGE_VOID:
-      vtkErrorMacro(<< "Allocate: Type Unknown");
+    case VTK_VOID:
+      vtkErrorMacro(<< "AllocateScalars: ScalarType Unknown");
       break;
     case VTK_FLOAT:
-      this->Scalars = new vtkFloatScalars;
-      this->Allocated = this->Scalars->Allocate(inc);
-      ((vtkFloatScalars *)(this->Scalars))->WritePtr(0,inc);
+      scalars = new vtkFloatScalars;
+      this->ScalarsAllocated = scalars->Allocate(this->Volume);
+      ((vtkFloatScalars *)(scalars))->WritePtr(0,this->Volume);
       break;
     case VTK_INT:
-      this->Scalars = new vtkIntScalars;
-      this->Allocated = this->Scalars->Allocate(inc);
-      ((vtkIntScalars *)(this->Scalars))->WritePtr(0,inc);
+      scalars = new vtkIntScalars;
+      this->ScalarsAllocated = scalars->Allocate(this->Volume);
+      ((vtkIntScalars *)(scalars))->WritePtr(0,this->Volume);
       break;
     case VTK_SHORT:
-      this->Scalars = new vtkShortScalars;
-      this->Allocated =  this->Scalars->Allocate(inc);
-      ((vtkShortScalars *)(this->Scalars))->WritePtr(0,inc);
+      scalars = new vtkShortScalars;
+      this->ScalarsAllocated =  scalars->Allocate(this->Volume);
+      ((vtkShortScalars *)(scalars))->WritePtr(0,this->Volume);
       break;
     case VTK_UNSIGNED_SHORT:
-      this->Scalars = new vtkUnsignedShortScalars;
-      this->Allocated = this->Scalars->Allocate(inc);
-      ((vtkUnsignedShortScalars *)(this->Scalars))->WritePtr(0,inc);
+      scalars = new vtkUnsignedShortScalars;
+      this->ScalarsAllocated = scalars->Allocate(this->Volume);
+      ((vtkUnsignedShortScalars *)(scalars))->WritePtr(0,this->Volume);
       break;
     case VTK_UNSIGNED_CHAR:
-      this->Scalars = new vtkUnsignedCharScalars;
-      this->Allocated = this->Scalars->Allocate(inc);
-      ((vtkUnsignedCharScalars *)(this->Scalars))->WritePtr(0,inc);
+      scalars = new vtkUnsignedCharScalars;
+      this->ScalarsAllocated = scalars->Allocate(this->Volume);
+      ((vtkUnsignedCharScalars *)(scalars))->WritePtr(0,this->Volume);
       break;
     }
+  
+  if (this->ScalarsAllocated)
+    {
+    this->PointData.SetScalars(scalars);
+    }
+  // Delete scalars, since PointData refernece counts scalars.
+  scalars->Delete();
 
-
-  return this->Allocated;
+  return this->ScalarsAllocated;
 }
+
+
+
+//----------------------------------------------------------------------------
+// Description:
+// This method returns 1 if the vectors have been allocated.
+int vtkImageData::AreVectorsAllocated()
+{
+  if (this->PointData.GetVectors())
+    return 1;
+  else
+    return 0;
+}
+
+
+
+//----------------------------------------------------------------------------
+// Description:
+// This method allocates memory for the vtkImageData vectors.  The extent of
+// the data object should be set before this method is called.
+// The method returns 1 if the allocation was sucessful, 0 if not.
+int vtkImageData::AllocateVectors()
+{
+  vtkFloatVectors* vectors = NULL;
+  
+
+  // special case zero length array
+  if (this->Volume <= 0)
+    {
+    this->PointData.SetVectors(NULL);
+    return 1;
+    }
+  
+  // create and allocate the vectors.
+  vectors = new vtkFloatVectors;
+  this->VectorsAllocated = vectors->Allocate(this->Volume);
+  vectors->WritePtr(0,this->Volume);
+
+  if (this->VectorsAllocated)
+    {
+    this->PointData.SetVectors(vectors);
+    }
+  // Delete vectors, since PointData reference counts scalars.
+  vectors->Delete();
+
+  return this->VectorsAllocated;
+}
+
 
 
 //----------------------------------------------------------------------------
 // Description:
 // You can set the scalars directly (instead of allocating), but
 // you better make sure that the extent are set properly 
-// before this method is called. Old scalars are released, and
-// the new scalars are registered by this object.  The type and
-// increments are calculate as a side action of this call.
+// before this method is called. 
+// This method is here (instead of GetPointData()->SetScalars)
+// because ScalarType Needs to be set.  This may change in the future.
 void vtkImageData::SetScalars(vtkScalars *scalars)
 {
   int idx, inc=1, num;
 
+  if (! scalars)
+    {
+    this->PointData.SetScalars(scalars);
+    this->ScalarType = VTK_VOID;
+    return;
+    }
+  
   // Set the proper type.
   if (strcmp(scalars->GetDataType(), "float") == 0)
     {
-    this->Type = VTK_FLOAT;
+    this->ScalarType = VTK_FLOAT;
     num = ((vtkFloatScalars *)(scalars))->GetNumberOfScalars();
     }
   else if (strcmp(scalars->GetDataType(), "int") == 0)
     {
-    this->Type = VTK_INT;
+    this->ScalarType = VTK_INT;
     num = ((vtkIntScalars *)(scalars))->GetNumberOfScalars();
     }
   else if (strcmp(scalars->GetDataType(), "short") == 0)
     {
-    this->Type = VTK_SHORT;
+    this->ScalarType = VTK_SHORT;
     num = ((vtkShortScalars *)(scalars))->GetNumberOfScalars();
     }
   else if (strcmp(scalars->GetDataType(), "unsigned short") == 0)
     {
-    this->Type = VTK_UNSIGNED_SHORT;
+    this->ScalarType = VTK_UNSIGNED_SHORT;
     num = ((vtkUnsignedShortScalars *)(scalars))->GetNumberOfScalars();
     }
   else if (strcmp(scalars->GetDataType(), "unsigned char") == 0)
     {
-    this->Type = VTK_UNSIGNED_CHAR;
+    this->ScalarType = VTK_UNSIGNED_CHAR;
     num = ((vtkUnsignedCharScalars *)(scalars))->GetNumberOfScalars();
     }
   else
     {
-    vtkErrorMacro(<< "SetScalars: Cannot handle " << scalars->GetClassName());
+    vtkErrorMacro(<< "SetScalars: Cannot handle "<< scalars->GetClassName());
     return;
     }
   
 
-  // delete previous data
-  // in the future try to reuse memory
-  if (this->Scalars)
-    {
-    this->Scalars->UnRegister(this);
-    this->Scalars = NULL;
-    }
-  this->Scalars = scalars;
-  this->Scalars->Register(this);
-  
   // set up increments
   for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
@@ -494,7 +530,7 @@ void *vtkImageData::GetScalarPointer(int coordinates[VTK_IMAGE_DIMENSIONS])
 {
   int idx;
     
-  // error checking: since most acceses will be from pointer arithmatic.
+  // error checking: since most acceses will be from pointer arithmetic.
   // this should not waste much time.
   for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
@@ -508,15 +544,13 @@ void *vtkImageData::GetScalarPointer(int coordinates[VTK_IMAGE_DIMENSIONS])
       }
     }
   
-  // Note the VTK data model (Scalars) does not exactly fit with
-  // Image data model. We need a switch to get a void pointer.
   idx = ((coordinates[0] - this->Extent[0]) * this->Increments[0]
 	 + (coordinates[1] - this->Extent[2]) * this->Increments[1]
 	 + (coordinates[2] - this->Extent[4]) * this->Increments[2]
 	 + (coordinates[3] - this->Extent[6]) * this->Increments[3]
 	 + (coordinates[4] - this->Extent[8]) * this->Increments[4]);
   
-  return this->Scalars->GetVoidPtr(idx);
+  return this->PointData.GetScalars()->GetVoidPtr(idx);
 }
 
 
@@ -525,7 +559,70 @@ void *vtkImageData::GetScalarPointer(int coordinates[VTK_IMAGE_DIMENSIONS])
 // This Method returns a pointer to the origin of the vtkImageData.
 void *vtkImageData::GetScalarPointer()
 {
-  return this->Scalars->GetVoidPtr(0);
+  return this->PointData.GetScalars()->GetVoidPtr(0);
+}
+
+
+
+//----------------------------------------------------------------------------
+// Description:
+// This Method returns a pointer to a location in the vtkImageData.
+// Coordinates are in pixel units and are relative to the whole
+// image origin.
+float *vtkImageData::GetVectorPointer(int coordinates[VTK_IMAGE_DIMENSIONS])
+{
+  int idx;
+  vtkVectors *vectors;
+
+  // Make sure the vectors have been allocated.
+  vectors = this->PointData.GetVectors();
+  if (! vectors || vectors->GetNumberOfVectors() == 0)
+    {
+    this->AllocateVectors();
+    vectors = this->PointData.GetVectors();
+    }
+  
+  // error checking: since most acceses will be from pointer arithmetic.
+  // this should not waste much time.
+  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    if (coordinates[idx] < this->Extent[idx*2] ||
+	coordinates[idx] > this->Extent[idx*2+1])
+      {
+      vtkErrorMacro(<< "GetVectorPointer: Pixel (" << coordinates[0] << ", " 
+                    << coordinates[1] << ", " << coordinates[2] << ", "
+                    << coordinates[3] << ") not in memory.");
+      return NULL;
+      }
+    }
+  
+  // compute the index of the vector.
+  idx = ((coordinates[0] - this->Extent[0]) * this->Increments[0]
+	 + (coordinates[1] - this->Extent[2]) * this->Increments[1]
+	 + (coordinates[2] - this->Extent[4]) * this->Increments[2]
+	 + (coordinates[3] - this->Extent[6]) * this->Increments[3]
+	 + (coordinates[4] - this->Extent[8]) * this->Increments[4]);
+  
+  return vectors->GetVector(idx);
+}
+
+
+//----------------------------------------------------------------------------
+// Description:
+// This Method returns a pointer to the origin of the vtkImageData.
+float *vtkImageData::GetVectorPointer()
+{
+  vtkVectors *vectors;
+  
+  // Make sure the vectors have been allocated.
+  vectors = this->PointData.GetVectors();
+  if (! vectors || vectors->GetNumberOfVectors() == 0)
+    {
+    this->AllocateVectors();
+    vectors = this->PointData.GetVectors();
+    }
+  
+  return vectors->GetVector(0);
 }
 
 
@@ -537,8 +634,8 @@ void *vtkImageData::GetScalarPointer()
   
 //----------------------------------------------------------------------------
 // Second templated function for copying.
-// The fifth dimension should be colapsed, but I havent completely
-// adopted this protocall yet, so ....
+// This should be a recursive call to avoid many nested loops, and
+// make the code independant of VTK_IMAGE_DIMENSIONS.
 template <class IT, class OT>
 void vtkImageDataCopyData2(vtkImageData *outData, OT *outPtr,
 			   vtkImageData *inData, IT *inPtr, int *b)
@@ -605,7 +702,7 @@ template <class T>
 void vtkImageDataCopyData(vtkImageData *self, void *outPtr, 
 			  vtkImageData *inData, T *inPtr, int *extent)
 {
-  switch (self->GetType())
+  switch (self->GetScalarType())
     {
     case VTK_FLOAT:
       vtkImageDataCopyData2(self, (float *)(outPtr), inData, inPtr, extent);
@@ -625,7 +722,7 @@ void vtkImageDataCopyData(vtkImageData *self, void *outPtr,
 			   extent);
       break;
     default:
-      cerr << "vtkImageDataCopyData: Cannot handle DataType.\n\n";
+      cerr << "vtkImageDataCopyData: Cannot handle ScalarType.\n\n";
     }   
 }
 
@@ -683,17 +780,17 @@ void vtkImageData::CopyData(vtkImageData *data, int *extent)
     }
 
   // If the data type is not set, default to same as input.
-  if (this->GetType() == VTK_IMAGE_VOID)
+  if (this->GetScalarType() == VTK_VOID)
     {
-    this->SetType(data->GetType());
+    this->SetScalarType(data->GetScalarType());
     }
   
   // Make sure the region is allocated
-  if ( ! this->IsAllocated())
+  if ( ! this->AreScalarsAllocated())
     {
-    this->Allocate();
+    this->AllocateScalars();
     }
-  if ( ! this->IsAllocated())
+  if ( ! this->AreScalarsAllocated())
     {
     vtkErrorMacro(<< "CopyData: Could not allocate data.");
     return;
@@ -702,7 +799,7 @@ void vtkImageData::CopyData(vtkImageData *data, int *extent)
   inPtr = data->GetScalarPointer(origin);
   outPtr = this->GetScalarPointer(origin);
   
-  switch (data->GetType())
+  switch (data->GetScalarType())
     {
     case VTK_FLOAT:
       vtkImageDataCopyData(this,outPtr, data,(float *)(inPtr), extent);

@@ -80,21 +80,77 @@ public:
   vtkGetObjectMacro(Data,vtkImageData);
   // Description:
   // Get the data type of this region.
-  vtkSetMacro(DataType,int);
-  vtkGetMacro(DataType,int);
+  vtkSetMacro(ScalarType,int);
+  vtkGetMacro(ScalarType,int);
   
   // Description:
   // Returns pointer increments that can be used to step around the data.
   // Increments do not include size of data type, so should be used after
   // pointers have been converted to their actual type.
-  void GetIncrements(int *increments, int dim);
-  vtkImageRegionGetMacro(Increments, int);
+  void GetIncrements(int dim, int *increments);
+  vtkImageGetMacro(Increments, int);
   
   // Description:
-  // Returns a pointer relative to the current volume, image or line.
-  void *GetScalarPointer(int *coordinates, int dim);
+  // Different methods for setting the extent.
+  // The 2d and 1d functions do not modify extent of the higher dimensions.
+  void SetExtent(int dim, int *extent);
+  vtkImageSetExtentMacro(Extent);
+
+  // Description:
+  // Different methods for getting the extent.
+  void GetExtent(int dim, int *extent);
+  vtkImageGetExtentMacro(Extent);
+  
+  // Description:
+  // Different methods for setting the ImageExtent.
+  // The 2d and 1d functions do not modify ImageExtent of the higher
+  // dimensions.
+  void SetImageExtent(int dim, int *extent);
+  vtkImageSetExtentMacro(ImageExtent);
+  // Description:
+  // Different methods for getting the ImageExtent.
+  void GetImageExtent(int dim, int *extent);
+  vtkImageGetExtentMacro(ImageExtent);
+
+  
+  // Description:
+  // Different methods for setting the AspectRatio.
+  // The 2d and 1d functions do not modify aspect ratio of the higher
+  // dimensions.
+  void SetAspectRatio(int dim, float *ratio);
+  vtkImageSetMacro(AspectRatio, float);
+  // Description:
+  // Different methods for getting the Aspect Ratio.
+  void GetAspectRatio(int dim, float *ratio);
+  vtkImageGetMacro(AspectRatio, float);
+  
+
+  // Description:
+  // Different methods for setting the Origin.
+  void SetOrigin(int dim, float *origin);
+  vtkImageSetMacro(Origin, float);
+  // Description:
+  // Different methods for getting the Origin.
+  void GetOrigin(int dim, float *origin);
+  vtkImageGetMacro(Origin, float);
+  
+
+  // Description:
+  // Different methods for setting the axes.
+  void SetAxes(int dim, int *axes);
+  vtkImageSetMacro(Axes, int);
+
+  // Description:
+  // Different methods for getting the axes.
+  void GetAxes(int dim, int *axes);  
+  vtkImageGetMacro(Axes, int);
+
+  // Description:
+  // Returns a pointer to the scalar point data.
+  // Coordinates are relative to image origin.
+  void *GetScalarPointer(int dim, int *coordinates);
   void *GetScalarPointer(int coords[5])
-  {return this->GetScalarPointer(coords, 5);};
+  {return this->GetScalarPointer(5, coords);};
   void *GetScalarPointer(int c0, int c1, int c2, int c3, int c4);
   void *GetScalarPointer(int c0, int c1, int c2, int c3);
   void *GetScalarPointer(int c0, int c1, int c2);
@@ -105,60 +161,20 @@ public:
   void *GetScalarPointer();
   
   // Description:
-  // Different methods for setting the extent.
-  // The 2d and 1d functions do not modify extent of the higher dimensions.
-  void SetExtent(int *extent, int dim);
-  vtkImageRegionSetExtentMacro(Extent);
-
+  // Returns a pointer to the vector point data.
+  // Coordinates are relative to image origin.
+  float *GetVectorPointer(int dim, int *coordinates);
+  float *GetVectorPointer(int coords[5])
+  {return this->GetVectorPointer(5, coords);};
+  float *GetVectorPointer(int c0, int c1, int c2, int c3, int c4);
+  float *GetVectorPointer(int c0, int c1, int c2, int c3);
+  float *GetVectorPointer(int c0, int c1, int c2);
+  float *GetVectorPointer(int c0, int c1);
+  float *GetVectorPointer(int c0);
   // Description:
-  // Different methods for getting the extent.
-  void GetExtent(int *extent, int dim);
-  vtkImageRegionGetExtentMacro(Extent);
+  // Returns pointer to the minimum extent of region (min0, min1, ...)
+  float *GetVectorPointer();
   
-  // Description:
-  // Different methods for setting the ImageExtent.
-  // The 2d and 1d functions do not modify ImageExtent of the higher
-  // dimensions.
-  void SetImageExtent(int *extent, int dim);
-  vtkImageRegionSetExtentMacro(ImageExtent);
-  // Description:
-  // Different methods for getting the ImageExtent.
-  void GetImageExtent(int *extent, int dim);
-  vtkImageRegionGetExtentMacro(ImageExtent);
-
-  
-  // Description:
-  // Different methods for setting the AspectRatio.
-  // The 2d and 1d functions do not modify aspect ratio of the higher
-  // dimensions.
-  void SetAspectRatio(float *ratio, int dim);
-  vtkImageRegionSetMacro(AspectRatio, float);
-  // Description:
-  // Different methods for getting the Aspect Ratio.
-  void GetAspectRatio(float *ratio, int dim);
-  vtkImageRegionGetMacro(AspectRatio, float);
-  
-
-  // Description:
-  // Different methods for setting the Origin.
-  void SetOrigin(float *origin, int dim);
-  vtkImageRegionSetMacro(Origin, float);
-  // Description:
-  // Different methods for getting the Origin.
-  void GetOrigin(float *origin, int dim);
-  vtkImageRegionGetMacro(Origin, float);
-  
-
-  // Description:
-  // Different methods for setting the axes.
-  void SetAxes(int *axes, int dim);
-  vtkImageRegionSetMacro(Axes, int);
-
-  // Description:
-  // Different methods for getting the axes.
-  void GetAxes(int *axes, int dim);  
-  vtkImageRegionGetMacro(Axes, int);
-
   // Description:
   // This method returns the number of pixels enclosed in this bounding box.
   int GetVolume(){return ((Extent[1]-Extent[0]+1) 
@@ -177,10 +193,11 @@ public:
 
   // Description:
   // This method returns 1 if the region has associated data.
-  int IsAllocated(){return this->Data && this->Data->IsAllocated();};
+  int AreScalarsAllocated()
+  {return this->Data && this->Data->AreScalarsAllocated();};
 
   // Description:
-  // If the image pipeline will with another package with a different
+  // If the image pipeline will be used with another image
   // data structure, these functions will act as the glue.
   // Import will take a chunk of memory with its type and dimensions,
   // so you can use it as a region.  Export will give you a pointer to 
@@ -191,7 +208,8 @@ public:
 
   int GetMemorySize();
   
-  void Allocate();
+  void AllocateScalars();
+  void AllocateVectors();
   void ReleaseData();
   
   void MakeWritable();
@@ -203,34 +221,34 @@ public:
   // Description:
   // These functions will change the "origin" of the region.
   // The extent change, but the data does not.
-  void Translate(int *vector, int dim);
-  void Translate (int *vector) { this->Translate(vector, 5);};
+  void Translate(int dim, int *vector);
+  void Translate (int *vector) { this->Translate(5,vector);};
   void Translate(int v0,int v1,int v2, int v3,int v4) 
-  {int v[5];  v[0]=v0;v[1]=v1;v[2]=v2;v[3]=v3;v[4]=v4; this->Translate(v,5);};
+  {int v[5];  v[0]=v0;v[1]=v1;v[2]=v2;v[3]=v3;v[4]=v4; this->Translate(5,v);};
   void Translate(int v0,int v1,int v2, int v3) 
-  {int v[4];  v[0]=v0;v[1]=v1;v[2]=v2;v[3]=v3; this->Translate(v,4);};
+  {int v[4];  v[0]=v0;v[1]=v1;v[2]=v2;v[3]=v3; this->Translate(4,v);};
   void Translate(int v0,int v1,int v2) 
-  {int v[3];  v[0]=v0;v[1]=v1;v[2]=v2; this->Translate(v,3);};
+  {int v[3];  v[0]=v0;v[1]=v1;v[2]=v2; this->Translate(3,v);};
   void Translate(int v0,int v1)
-  {int v[2];  v[0]=v0;v[1]=v1; this->Translate(v,2);}; 
+  {int v[2];  v[0]=v0;v[1]=v1; this->Translate(2,v);}; 
   void Translate(int v0) 
-  {int v[1];  v[0]=v0; this->Translate(v,1);};
+  {int v[1];  v[0]=v0; this->Translate(1,v);};
   
   
 protected:
   vtkImageData *Data;   // Data is stored in this object.
-  int DataType;         // Remember the pixel type of this region.
+  int ScalarType;         // Remember the pixel type of this region.
 
   // Defines the relative coordinate system
   int Axes[VTK_IMAGE_DIMENSIONS]; // Coordinate system of this region.
 
   // Extent reordered to match Axes (relative coordinate system).
-  int Extent[VTK_IMAGE_BOUNDS_DIMENSIONS];         // Min/Max for each axis.
+  int Extent[VTK_IMAGE_EXTENT_DIMENSIONS];         // Min/Max for each axis.
   // Increments in relative coordinate system
   int Increments[VTK_IMAGE_DIMENSIONS];
 
   // Possibly make a new object to hold global information like ImageExtent.
-  int ImageExtent[VTK_IMAGE_BOUNDS_DIMENSIONS];
+  int ImageExtent[VTK_IMAGE_EXTENT_DIMENSIONS];
   float AspectRatio[VTK_IMAGE_DIMENSIONS];
   float Origin[VTK_IMAGE_DIMENSIONS];
 

@@ -53,8 +53,8 @@ vtkImageCache::vtkImageCache()
   
   // Invalid data type
   // This will be changed when the filter gets an input or
-  // the DataType is set explicitly
-  this->DataType = VTK_IMAGE_VOID;
+  // the ScalarType is set explicitly
+  this->ScalarType = VTK_VOID;
   
   // default is to save data,
   // (But caches automatically created by sources set ReleaseDataFlag to 1)
@@ -81,7 +81,7 @@ void vtkImageCache::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Source: (" << this->Source << ").\n";
   os << indent << "ReleaseDataFlag: " << this->ReleaseDataFlag << "\n";
   os << indent << "OutputMemoryLimit: " << this->OutputMemoryLimit << "\n";
-  os << indent << "DataType: " << vtkImageDataTypeNameMacro(this->DataType) 
+  os << indent << "ScalarType: " << vtkImageScalarTypeNameMacro(this->ScalarType) 
      << "\n";
   os << indent << "Data: " << this->Data << "\n";
 }
@@ -144,7 +144,7 @@ void vtkImageCache::UpdateImageInformation(vtkImageRegion *region)
     this->Source->UpdateImageInformation(region);
     // Save the ImageExtent to satisfy later calls.
     // Choose some constant coordinate system.
-    region->SetAxes(0, 1, 2, 3, 4);
+    region->SetAxes(1, 2, 3, 4, 0);
     region->GetImageExtent(this->ImageExtent);
     region->GetAspectRatio(this->AspectRatio);
     this->ImageInformationTime.Modified();
@@ -158,7 +158,7 @@ void vtkImageCache::UpdateImageInformation(vtkImageRegion *region)
   // No modifications have been made, so return our own copy.
   vtkDebugMacro(<< "UpdateImageInformation: Using own copy of ImageInfo");
   // Image extent Are saved in some constant coordinate system.
-  region->SetAxes(0, 1, 2, 3, 4);
+  region->SetAxes(1, 2, 3, 4, 0);
   region->SetImageExtent(this->ImageExtent);
   region->SetAspectRatio(this->AspectRatio);
 
@@ -193,7 +193,7 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
 {
   long memory;
   int saveAxes[VTK_IMAGE_DIMENSIONS];
-  int saveExtent[VTK_IMAGE_BOUNDS_DIMENSIONS];
+  int saveExtent[VTK_IMAGE_EXTENT_DIMENSIONS];
 
   // First Update the Image information 
   this->UpdateImageInformation(region);
@@ -202,23 +202,23 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
   region->ReleaseData();
   
   // Save the extent to restore later.
-  region->GetExtent(saveExtent, VTK_IMAGE_DIMENSIONS);
+  region->GetExtent(VTK_IMAGE_DIMENSIONS, saveExtent);
   
   // Translate region into the sources coordinate system. (save old)
-  region->GetAxes(saveAxes, VTK_IMAGE_DIMENSIONS);
-  region->SetAxes(this->Source->GetAxes(), VTK_IMAGE_DIMENSIONS);
+  region->GetAxes(VTK_IMAGE_DIMENSIONS, saveAxes);
+  region->SetAxes(VTK_IMAGE_DIMENSIONS, this->Source->GetAxes());
 
   // Set default data type.
-  if (region->GetDataType() == VTK_IMAGE_VOID)
+  if (region->GetScalarType() == VTK_VOID)
     {
-    region->SetDataType(this->GetDataType());
+    region->SetScalarType(this->GetScalarType());
     }
   else
     {
     // Do I really want this restriction?
-    if (region->GetDataType() != this->GetDataType())
+    if (region->GetScalarType() != this->GetScalarType())
       {
-      vtkErrorMacro(<< "UpdateRegion: DataType does not match.");
+      vtkErrorMacro(<< "UpdateRegion: ScalarType does not match.");
       }
     }
   
@@ -230,7 +230,7 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
   if ( memory > this->OutputMemoryLimit)
     {
     vtkDebugMacro(<< "UpdateRegion: Reuest too large " << memory);
-    region->SetAxes(saveAxes, VTK_IMAGE_DIMENSIONS);
+    region->SetAxes(VTK_IMAGE_DIMENSIONS, saveAxes);
     return;
     }
   
@@ -238,7 +238,7 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
   if (memory <= 0)
     {
     this->AllocateRegion(region);
-    region->SetAxes(saveAxes, VTK_IMAGE_DIMENSIONS);
+    region->SetAxes(VTK_IMAGE_DIMENSIONS, saveAxes);
     return;
     }
   
@@ -262,8 +262,8 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
     }
 
   // Leave the region in the original (before this method) coordinate system.
-  region->SetAxes(saveAxes, VTK_IMAGE_DIMENSIONS);
-  region->SetExtent(saveExtent, VTK_IMAGE_DIMENSIONS);
+  region->SetAxes(VTK_IMAGE_DIMENSIONS, saveAxes);
+  region->SetExtent(VTK_IMAGE_DIMENSIONS, saveExtent);
 }
 
 
@@ -298,9 +298,9 @@ void vtkImageCache::GenerateUnCachedRegionData(vtkImageRegion *region)
   // memory for as long as possible.
   // Note: This step is simply to save the extent of the region.
   this->Data = new vtkImageData;
-  region->SetAxes(this->Data->GetAxes());
-  this->Data->SetExtent(region->GetExtent());
-  this->Data->SetType(this->DataType);
+  region->SetAxes(VTK_IMAGE_DIMENSIONS, this->Data->GetAxes());
+  this->Data->SetExtent(VTK_IMAGE_DIMENSIONS, region->GetExtent());
+  this->Data->SetScalarType(this->ScalarType);
   region->SetAxes(saveAxes);
   
   // Tell the filter to generate the data for this region
@@ -310,7 +310,7 @@ void vtkImageCache::GenerateUnCachedRegionData(vtkImageRegion *region)
 
   // this->Data should be allocated by now. 
   // (unless somthing unexpected happened).
-  if ( ! this->Data->IsAllocated())
+  if ( ! this->Data->AreScalarsAllocated())
     {
     vtkWarningMacro(<< "GenerateUnCachedRegionData: Data should be allocated, "
                     << "but is not!");
@@ -349,11 +349,11 @@ void vtkImageCache::AllocateRegion(vtkImageRegion *region)
     region->SetAxes(this->Data->GetAxes());
     this->Data->SetExtent(region->GetExtent());
     region->SetAxes(saveAxes);
-    this->Data->SetType(this->DataType);
+    this->Data->SetScalarType(this->ScalarType);
     }
 
-  if ( ! this->Data->IsAllocated())
-    if ( ! this->Data->Allocate())
+  if ( ! this->Data->AreScalarsAllocated())
+    if ( ! this->Data->AllocateScalars())
       {
       // Output data could not be allocated.  Splitting will help.
       // Memory failure should not happen. MemoryLimits set wrong.

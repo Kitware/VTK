@@ -47,7 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImageRegion::vtkImageRegion()
 {
   this->Data = NULL;
-  this->DataType = VTK_IMAGE_VOID;
+  this->ScalarType = VTK_VOID;
   this->Axes[0] = VTK_IMAGE_X_AXIS;
   this->Axes[1] = VTK_IMAGE_Y_AXIS;
   this->Axes[2] = VTK_IMAGE_Z_AXIS;
@@ -90,14 +90,14 @@ void vtkImageRegion::PrintSelf(ostream& os, vtkIndent indent)
   os << ")\n";
   
   os << indent << "Extent: (" << this->Extent[0];
-  for (idx = 1; idx < VTK_IMAGE_BOUNDS_DIMENSIONS; ++idx)
+  for (idx = 1; idx < VTK_IMAGE_EXTENT_DIMENSIONS; ++idx)
     {
     os << ", " << this->Extent[idx];
     }
   os << ")\n";
   
   os << indent << "ImageExtent: (" << this->ImageExtent[0];
-  for (idx = 1; idx < VTK_IMAGE_BOUNDS_DIMENSIONS; ++idx)
+  for (idx = 1; idx < VTK_IMAGE_EXTENT_DIMENSIONS; ++idx)
     {
     os << ", " << this->ImageExtent[idx];
     }
@@ -111,13 +111,13 @@ void vtkImageRegion::PrintSelf(ostream& os, vtkIndent indent)
   os << ")\n";
   
   os << indent << "AspectRatio: (" << this->AspectRatio[0];
-  for (idx = 1; idx < VTK_IMAGE_BOUNDS_DIMENSIONS; ++idx)
+  for (idx = 1; idx < VTK_IMAGE_EXTENT_DIMENSIONS; ++idx)
     {
     os << ", " << this->AspectRatio[idx];
     }
   os << ")\n";
   
-  os << indent << "DataType: " << vtkImageDataTypeNameMacro(this->DataType) 
+  os << indent << "ScalarType: " << vtkImageScalarTypeNameMacro(this->ScalarType) 
      << "\n";
   
   if ( ! this->Data)
@@ -140,7 +140,7 @@ int vtkImageRegion::GetMemorySize()
 {
   int size;
   
-  switch (this->GetDataType())
+  switch (this->GetScalarType())
     {
     case VTK_FLOAT:
       size = sizeof(float);
@@ -157,11 +157,11 @@ int vtkImageRegion::GetMemorySize()
     case VTK_UNSIGNED_CHAR:
       size = sizeof(char);
       break;
-    case VTK_IMAGE_VOID:
+    case VTK_VOID:
       size = sizeof(char);
       break;
     default:
-      vtkErrorMacro(<< "GetMemorySize: Cannot handle DataType.");
+      vtkErrorMacro(<< "GetMemorySize: Cannot handle ScalarType.");
     }   
   
   return size * this->GetVolume() / 1000;
@@ -179,7 +179,7 @@ void vtkImageRegion::MakeWritable()
   int axesSave[VTK_IMAGE_DIMENSIONS];
   
   if ((this->Data->GetRefCount() > 1) || 
-      (this->Data->GetScalars()->GetRefCount() > 1))
+      (this->Data->GetPointData()->GetScalars()->GetRefCount() > 1))
     {
     vtkDebugMacro(<< "MakeWritable: Need to copy data because of references.");
     newData = new vtkImageData;
@@ -210,17 +210,23 @@ void vtkImageRegion::CopyRegionData(vtkImageRegion *region)
 {
   int thisAxesSave[VTK_IMAGE_DIMENSIONS];
   int regionAxesSave[VTK_IMAGE_DIMENSIONS];  
-  int overlap[VTK_IMAGE_BOUNDS_DIMENSIONS];
+  int overlap[VTK_IMAGE_EXTENT_DIMENSIONS];
   int *inExtent, *outExtent;
   int inTemp, outTemp;
   int idx;
 
-  // Make sure this region is allocated
-  if ( ! this->IsAllocated())
+  // If the data type is not set, default to same as input.
+  if (this->GetScalarType() == VTK_VOID)
     {
-    this->Allocate();
+    this->SetScalarType(region->GetScalarType());
     }
-  if ( ! this->IsAllocated())
+  
+  // Make sure this region is allocated
+  if ( ! this->AreScalarsAllocated())
+    {
+    this->AllocateScalars();
+    }
+  if ( ! this->AreScalarsAllocated())
     {
     vtkErrorMacro(<< "Could not allocate region.");
     return;
@@ -243,12 +249,6 @@ void vtkImageRegion::CopyRegionData(vtkImageRegion *region)
     inTemp = inExtent[2*idx + 1];
     outTemp = outExtent[2*idx + 1];
     overlap[2*idx + 1] = (inTemp < outTemp) ? inTemp : outTemp;  // Min
-    }
-  
-  // If the data type is not set, default to same as input.
-  if (this->GetDataType() == VTK_IMAGE_VOID)
-    {
-    this->SetDataType(region->GetDataType());
     }
   
   // Copy data
@@ -275,7 +275,7 @@ void vtkImageRegion::UpdateRegion(vtkImageRegion *region)
 {
   this->UpdateImageInformation(region);
   region->ReleaseData();
-  region->SetDataType(this->GetDataType());
+  region->SetScalarType(this->GetScalarType());
   region->SetData(this->GetData());
 }
 
@@ -359,7 +359,7 @@ void vtkImageRegion::ChangeExtentCoordinateSystem(int *extentIn, int *axesIn,
 						  int *extentOut, int *axesOut)
 {
   int idx;
-  int absolute[VTK_IMAGE_BOUNDS_DIMENSIONS];
+  int absolute[VTK_IMAGE_EXTENT_DIMENSIONS];
 
   // Change into a known coordinate system (0,1,2,...)
   for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
@@ -383,30 +383,56 @@ void vtkImageRegion::ChangeExtentCoordinateSystem(int *extentIn, int *axesIn,
 // When dealing with Regions directly (no caches), they can be allocated
 // with this method.  It keeps you from having to create a vtkImageData
 // object and setting it explicitley.
-void vtkImageRegion::Allocate()
+void vtkImageRegion::AllocateScalars()
 {
-  int extent[VTK_IMAGE_BOUNDS_DIMENSIONS];
+  int extent[VTK_IMAGE_EXTENT_DIMENSIONS];
   
   this->Modified();
 
-  if (this->Data)
+  if ( ! this->Data)
     {
-    this->Data->Delete();
-    this->Data = NULL;
+    this->Data = new vtkImageData;
+    this->Data->SetScalarType(this->ScalarType);
+    this->GetExtent(extent);
+    this->ChangeExtentCoordinateSystem(this->Extent, this->Axes,
+				       extent, this->Data->GetAxes());
+    this->Data->SetExtent(extent);
+    // Compute the increments.
+    vtkImageRegionChangeVectorCoordinateSystem(this->Data->GetIncrements(),
+					       this->Data->GetAxes(),
+					       this->Increments, this->Axes);
     }
-
-  this->Data = new vtkImageData;
-  this->Data->SetType(this->DataType);
-  this->GetExtent(extent);
-  this->ChangeExtentCoordinateSystem(this->Extent, this->Axes,
-				     extent, this->Data->GetAxes());
-  this->Data->SetExtent(extent);
-  this->Data->Allocate();
   
-  // Compute the increments.
-  vtkImageRegionChangeVectorCoordinateSystem(this->Data->GetIncrements(),
-					     this->Data->GetAxes(),
-					     this->Increments, this->Axes);
+  this->Data->AllocateScalars();
+}
+
+
+//----------------------------------------------------------------------------
+// Description:
+// When dealing with Regions directly (no caches), they can be allocated
+// with this method.  It keeps you from having to create a vtkImageData
+// object and setting it explicitley.
+void vtkImageRegion::AllocateVectors()
+{
+  int extent[VTK_IMAGE_EXTENT_DIMENSIONS];
+  
+  this->Modified();
+
+  if ( ! this->Data)
+    {
+    this->Data = new vtkImageData;
+    this->Data->SetScalarType(this->ScalarType);
+    this->GetExtent(extent);
+    this->ChangeExtentCoordinateSystem(this->Extent, this->Axes,
+				       extent, this->Data->GetAxes());
+    this->Data->SetExtent(extent);
+    // Compute the increments.
+    vtkImageRegionChangeVectorCoordinateSystem(this->Data->GetIncrements(),
+					       this->Data->GetAxes(),
+					       this->Increments, this->Axes);
+    }
+  
+  this->Data->AllocateVectors();
 }
 
 
@@ -423,7 +449,7 @@ void vtkImageRegion::ReleaseData()
     this->Data = NULL;
     }
 
-  this->DataType = VTK_IMAGE_VOID;
+  this->ScalarType = VTK_VOID;
 }
 
 
@@ -435,7 +461,7 @@ void vtkImageRegion::ReleaseData()
 // and the increments will not change.
 void vtkImageRegion::SetData(vtkImageData *data)
 {
-  if (! data->IsAllocated())
+  if (! data->AreScalarsAllocated())
     {
     vtkErrorMacro(<< "SetData:Current implementation requires allocated data");
     return;
@@ -468,9 +494,9 @@ void vtkImageRegion::SetData(vtkImageData *data)
 // A Coordinate system relative to "Axes" is used to set the order.
 // These values are determined by the actual dimensions of the data stored
 // in the vtkImageData object.  "Increments" allows the user to efficiently 
-// march through the memory using pointer arithmatic, while keeping the
+// march through the memory using pointer arithmetic, while keeping the
 // actual dimensions of the memory array transparent.  
-void vtkImageRegion::GetIncrements(int *increments, int dim)
+void vtkImageRegion::GetIncrements(int dim, int *increments)
 {
   int idx;
   
@@ -487,12 +513,7 @@ void vtkImageRegion::GetIncrements(int *increments, int dim)
 
 
 //----------------------------------------------------------------------------
-// Description:
-// These methods return pointers at locations in the region.  The coordinates
-// of the location are in pixel units and are relative to the
-// minimum corner of the whole image. The region just forwards the message
-// to its vtkImageData object.
-void *vtkImageRegion::GetScalarPointer(int *coordinates, int dim)
+void *vtkImageRegion::GetScalarPointer(int dim, int *coordinates)
 {
   int idx, temp[VTK_IMAGE_DIMENSIONS];
   
@@ -529,7 +550,7 @@ void *vtkImageRegion::GetScalarPointer(int c0, int c1, int c2, int c3, int c4)
   coords[2] = c2;
   coords[3] = c3;
   coords[4] = c4;
-  return this->GetScalarPointer(coords, 5);
+  return this->GetScalarPointer(5, coords);
 }
 //----------------------------------------------------------------------------
 void *vtkImageRegion::GetScalarPointer(int c0, int c1, int c2, int c3)
@@ -539,7 +560,7 @@ void *vtkImageRegion::GetScalarPointer(int c0, int c1, int c2, int c3)
   coords[1] = c1;
   coords[2] = c2;
   coords[3] = c3;
-  return this->GetScalarPointer(coords, 4);
+  return this->GetScalarPointer(4, coords);
 }
 //----------------------------------------------------------------------------
 void *vtkImageRegion::GetScalarPointer(int c0, int c1, int c2)
@@ -548,7 +569,7 @@ void *vtkImageRegion::GetScalarPointer(int c0, int c1, int c2)
   coords[0] = c0;
   coords[1] = c1;
   coords[2] = c2;
-  return this->GetScalarPointer(coords, 3);
+  return this->GetScalarPointer(3, coords);
 }
 //----------------------------------------------------------------------------
 void *vtkImageRegion::GetScalarPointer(int c0, int c1)
@@ -556,16 +577,15 @@ void *vtkImageRegion::GetScalarPointer(int c0, int c1)
   int coords[2];
   coords[0] = c0;
   coords[1] = c1;
-  return this->GetScalarPointer(coords, 2);
+  return this->GetScalarPointer(2, coords);
 }
 //----------------------------------------------------------------------------
 void *vtkImageRegion::GetScalarPointer(int c0)
 {
   int coords[1];
   coords[0] = c0;
-  return this->GetScalarPointer(coords, 1);
+  return this->GetScalarPointer(1, coords);
 }
-
 //----------------------------------------------------------------------------
 void *vtkImageRegion::GetScalarPointer()
 {
@@ -577,12 +597,103 @@ void *vtkImageRegion::GetScalarPointer()
   coords[3] = this->Extent[6];
   coords[4] = this->Extent[8];
   
-  return this->GetScalarPointer(coords, 5);
+  return this->GetScalarPointer(5, coords);
 }
 
 
 //----------------------------------------------------------------------------
-void vtkImageRegion::SetAxes(int *axes, int dim)
+float *vtkImageRegion::GetVectorPointer(int dim, int *coordinates)
+{
+  int idx, temp[VTK_IMAGE_DIMENSIONS];
+  
+  if ( ! this->Data){
+    vtkErrorMacro(<<"Data must be set or allocated.");
+    return NULL;
+  }
+
+  // Copy coordinates.
+  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    if (idx < dim)
+      {
+      temp[idx] = coordinates[idx];
+      }
+    else
+      {
+      temp[idx] = this->Extent[idx * 2];
+      }
+    }
+  
+  // Convert into data coordinates
+  vtkImageRegionChangeVectorCoordinateSystem(temp, this->Axes,
+					     temp, this->Data->GetAxes());
+  
+  return this->Data->GetVectorPointer(temp);
+}
+//----------------------------------------------------------------------------
+float *vtkImageRegion::GetVectorPointer(int c0, int c1, int c2, int c3, int c4)
+{
+  int coords[5];
+  coords[0] = c0;
+  coords[1] = c1;
+  coords[2] = c2;
+  coords[3] = c3;
+  coords[4] = c4;
+  return this->GetVectorPointer(5, coords);
+}
+//----------------------------------------------------------------------------
+float *vtkImageRegion::GetVectorPointer(int c0, int c1, int c2, int c3)
+{
+  int coords[4];
+  coords[0] = c0;
+  coords[1] = c1;
+  coords[2] = c2;
+  coords[3] = c3;
+  return this->GetVectorPointer(4, coords);
+}
+//----------------------------------------------------------------------------
+float *vtkImageRegion::GetVectorPointer(int c0, int c1, int c2)
+{
+  int coords[3];
+  coords[0] = c0;
+  coords[1] = c1;
+  coords[2] = c2;
+  return this->GetVectorPointer(3, coords);
+}
+//----------------------------------------------------------------------------
+float *vtkImageRegion::GetVectorPointer(int c0, int c1)
+{
+  int coords[2];
+  coords[0] = c0;
+  coords[1] = c1;
+  return this->GetVectorPointer(2, coords);
+}
+//----------------------------------------------------------------------------
+float *vtkImageRegion::GetVectorPointer(int c0)
+{
+  int coords[1];
+  coords[0] = c0;
+  return this->GetVectorPointer(1, coords);
+}
+
+//----------------------------------------------------------------------------
+float *vtkImageRegion::GetVectorPointer()
+{
+  int coords[VTK_IMAGE_DIMENSIONS];
+
+  coords[0] = this->Extent[0];
+  coords[1] = this->Extent[2];
+  coords[2] = this->Extent[4];
+  coords[3] = this->Extent[6];
+  coords[4] = this->Extent[8];
+  
+  return this->GetVectorPointer(5, coords);
+}
+
+
+
+//----------------------------------------------------------------------------
+void vtkImageRegion::SetAxes(int dim, int *axes)
 {
   int allAxes[VTK_IMAGE_DIMENSIONS];
   int axesTable[VTK_IMAGE_DIMENSIONS];
@@ -666,7 +777,7 @@ void vtkImageRegion::SetAxes(int *axes, int dim)
     }
 }
 //----------------------------------------------------------------------------
-void vtkImageRegion::GetAxes(int *axes, int dim)
+void vtkImageRegion::GetAxes(int dim, int *axes)
 {
   int idx;
   
@@ -681,10 +792,7 @@ void vtkImageRegion::GetAxes(int *axes, int dim)
 
 
 //----------------------------------------------------------------------------
-// Description:
-// These methods set the extent of the region.  Don't forget that
-// extent are relative to the coordinate system of the region (Axes).
-void vtkImageRegion::SetExtent(int *extent, int dim)
+void vtkImageRegion::SetExtent(int dim, int *extent)
 {
   int idx;
   int extentDim = dim * 2;
@@ -695,11 +803,8 @@ void vtkImageRegion::SetExtent(int *extent, int dim)
     }
   this->Modified();
 }
-
 //----------------------------------------------------------------------------
-// Description:
-// These methods get the extent of the region.
-void vtkImageRegion::GetExtent(int *extent, int dim)
+void vtkImageRegion::GetExtent(int dim, int *extent)
 {
   int idx;
   
@@ -712,11 +817,9 @@ void vtkImageRegion::GetExtent(int *extent, int dim)
 
 
 
+
 //----------------------------------------------------------------------------
-// Description:
-// These methods set the image extent of the region.  Don't forget that
-// image extent are relative to the coordinate system of the region (Axes).
-void vtkImageRegion::SetImageExtent(int *extent, int dim)
+void vtkImageRegion::SetImageExtent(int dim, int *extent)
 {
   int idx;
   int extentDim = dim * 2;
@@ -727,11 +830,8 @@ void vtkImageRegion::SetImageExtent(int *extent, int dim)
     }  
   this->Modified();
 }
-
 //----------------------------------------------------------------------------
-// Description:
-// These methods get the ImageExtent of the region.
-void vtkImageRegion::GetImageExtent(int *boundary, int dim)
+void vtkImageRegion::GetImageExtent(int dim, int *boundary)
 {
   int idx;
   
@@ -745,8 +845,10 @@ void vtkImageRegion::GetImageExtent(int *boundary, int dim)
 
 
 
+
+
 //----------------------------------------------------------------------------
-void vtkImageRegion::SetAspectRatio(float *ratio, int dim)
+void vtkImageRegion::SetAspectRatio(int dim, float *ratio)
 {
   int idx;
   
@@ -758,7 +860,7 @@ void vtkImageRegion::SetAspectRatio(float *ratio, int dim)
   this->Modified();
 }
 //----------------------------------------------------------------------------
-void vtkImageRegion::GetAspectRatio(float *ratio, int dim)
+void vtkImageRegion::GetAspectRatio(int dim, float *ratio)
 {
   int idx;
   
@@ -770,8 +872,9 @@ void vtkImageRegion::GetAspectRatio(float *ratio, int dim)
 
 
 
+
 //----------------------------------------------------------------------------
-void vtkImageRegion::SetOrigin(float *ratio, int dim)
+void vtkImageRegion::SetOrigin(int dim, float *ratio)
 {
   int idx;
   
@@ -783,7 +886,7 @@ void vtkImageRegion::SetOrigin(float *ratio, int dim)
   this->Modified();
 }
 //----------------------------------------------------------------------------
-void vtkImageRegion::GetOrigin(float *ratio, int dim)
+void vtkImageRegion::GetOrigin(int dim, float *ratio)
 {
   int idx;
   
@@ -796,7 +899,7 @@ void vtkImageRegion::GetOrigin(float *ratio, int dim)
 
 
 //----------------------------------------------------------------------------
-void vtkImageRegion::Translate(int *vector, int dim)
+void vtkImageRegion::Translate(int dim, int *vector)
 {
   int idx;
   vtkImageData *newData;
@@ -817,7 +920,7 @@ void vtkImageRegion::Translate(int *vector, int dim)
     newData = new vtkImageData;
     newData->SetAxes(this->Data->GetAxes());
     newData->SetExtent(this->Data->GetExtent());
-    newData->SetScalars(this->Data->GetScalars());
+    newData->SetScalars(this->Data->GetPointData()->GetScalars());
     this->Data->UnRegister(this);
     this->Data = newData;
     }
@@ -898,14 +1001,14 @@ void vtkImageRegionImportMemory(vtkImageRegion *self, T *memPtr)
 //----------------------------------------------------------------------------
 // Description:
 // This method will copy your memory into the region.  It is important that
-// you SetExtent and SetDataType of this region before this method is called.
+// you SetExtent and SetScalarType of this region before this method is called.
 void vtkImageRegion::ImportMemory(void *ptr)
 {
   // Get rid of old data, and allocate new
-  this->Allocate();
+  this->AllocateScalars();
   this->Modified();
   
-  switch (this->GetDataType())
+  switch (this->GetScalarType())
     {
     case VTK_FLOAT:
       vtkImageRegionImportMemory(this, (float *)(ptr));
@@ -923,7 +1026,7 @@ void vtkImageRegion::ImportMemory(void *ptr)
       vtkImageRegionImportMemory(this, (unsigned char *)(ptr));
       break;
     default:
-      vtkErrorMacro(<< "ImportMemory: Cannot handle DataType.");
+      vtkErrorMacro(<< "ImportMemory: Cannot handle ScalarType.");
     }   
 }
 

@@ -122,26 +122,26 @@ void vtkLinkEdgels::Execute()
 		  VTK_IMAGE_COMPONENT_AXIS, VTK_IMAGE_Z_AXIS);
   
   // get the input region
-  region->GetImageExtent(regionExtent, 4);
-  region->SetExtent(regionExtent, 4);
+  region->GetImageExtent(4, regionExtent);
+  region->SetExtent(4, regionExtent);
 
   this->Input->UpdateRegion(region);
 
-  if ( ! region->IsAllocated())
+  if ( ! region->AreScalarsAllocated())
     {
     vtkErrorMacro(<< "Execute: Could not get region.");
     return;
     }
 
   // chekc data type for float
-  if (region->GetDataType() != VTK_FLOAT)
+  if (region->GetScalarType() != VTK_FLOAT)
     {
     vtkImageRegion *temp = region;
     
     vtkWarningMacro(<<"Converting non float image data to float");
     
     region = new vtkImageRegion;
-    region->SetDataType(VTK_FLOAT);
+    region->SetScalarType(VTK_FLOAT);
     region->SetExtent(temp->GetExtent());
     region->CopyRegionData(temp);
     temp->Delete();

@@ -49,78 +49,109 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // These macro are for creating the many convenience functions used 
 // for accessing instance variables.  They could simplify this class.
-#define vtkImageRegionSetMacro(name,type) \
-virtual void Set##name (type *_tmp) { this->Set##name (_tmp, 5);} \
+#define vtkImageSetMacro(name,type) \
+virtual void Set##name (type *_tmp) { this->Set##name (5, _tmp);} \
 virtual void Set##name (type _name0,type _name1,type _name2, type _name3, \
 			type _name4)\
 { \
   type _tmp[5]; \
   _tmp[0] = _name0; _tmp[1] = _name1; _tmp[2] = _name2; \
   _tmp[3] = _name3; _tmp[4] = _name4; \
-  this->Set##name (_tmp,5); \
+  this->Set##name (5,_tmp); \
 } \
 virtual void Set##name (type _name0,type _name1,type _name2, type _name3) \
 { \
   type _tmp[4]; \
   _tmp[0] = _name0; _tmp[1] = _name1; \
   _tmp[2] = _name2; _tmp[3] = _name3; \
-  this->Set##name (_tmp,4); \
+  this->Set##name (4,_tmp); \
 } \
 virtual void Set##name (type _name0,type _name1,type _name2) \
 { \
   type _tmp[3]; \
   _tmp[0] = _name0; _tmp[1] = _name1; _tmp[2] = _name2; \
-  this->Set##name (_tmp,3); \
+  this->Set##name (3,_tmp); \
 } \
 virtual void Set##name (type _name0,type _name1) \
 { \
   type _tmp[2]; \
   _tmp[0] = _name0; _tmp[1] = _name1; \
-  this->Set##name (_tmp,2); \
+  this->Set##name (2,_tmp); \
 } \
 virtual void Set##name (type _name0) \
 { \
   type _tmp[1]; \
   _tmp[0] = _name0; \
-  this->Set##name (_tmp,1); \
+  this->Set##name (1,_tmp); \
+} \
+virtual void SetAxis##name (int _axis, type _val) \
+{ \
+  int _idx; \
+  for (_idx = 0; _idx < VTK_IMAGE_DIMENSIONS; ++_idx) \
+    { \
+    if (this->Axes[_idx] == _axis) \
+      { \
+      this->##name##[_idx] = _val; \
+      this->Modified(); \
+      return; \
+      } \
+    } \
+  vtkErrorMacro(<< "Could not find axis number " << _axis); \
 } 
-#define vtkImageRegionGetMacro(name,type) \
+#define vtkImageGetMacro(name,type) \
 virtual type *Get##name () { return this->##name ;}  \
-virtual void Get##name (type _tmp[5]) { this->Get##name (_tmp, 5);} \
+virtual void Get##name (type _tmp[5]) { this->Get##name (5,_tmp);} \
 virtual void Get##name (type &_name0,type &_name1,type &_name2,type &_name3, \
 			type &_name4) \
 { \
   type _tmp[5]; \
-  this->Get##name (_tmp,5); \
+  this->Get##name (5,_tmp); \
   _name0 = _tmp[0]; _name1 = _tmp[1]; _name2 = _tmp[2]; \
   _name3 = _tmp[3]; _name4 = _tmp[4]; \
 } \
 virtual void Get##name (type &_name0,type &_name1,type &_name2,type &_name3) \
 { \
   type _tmp[4]; \
-  this->Get##name (_tmp,4); \
+  this->Get##name (4,_tmp); \
   _name0 = _tmp[0]; _name1 = _tmp[1]; _name2 = _tmp[2]; _name3 = _tmp[3]; \
 } \
 virtual void Get##name (type &_name0,type &_name1,type &_name2) \
 { \
   type _tmp[3]; \
-  this->Get##name (_tmp,3); \
+  this->Get##name (3,_tmp); \
   _name0 = _tmp[0]; _name1 = _tmp[1]; _name2 = _tmp[2]; \
 } \
 virtual void Get##name (type &_name0,type &_name1) \
 { \
   type _tmp[2]; \
-  this->Get##name (_tmp,2); \
+  this->Get##name (2,_tmp); \
   _name0 = _tmp[0]; _name1 = _tmp[1]; \
 } \
 virtual void Get##name (type &_name0) \
 { \
   type _tmp[1]; \
-  this->Get##name (_tmp,1); \
+  this->Get##name (1,_tmp); \
   _name0 = _tmp[0]; \
+} \
+virtual void GetAxis##name (int _axis, type &_val) \
+{ \
+  int _idx; \
+  for (_idx = 0; _idx < VTK_IMAGE_DIMENSIONS; ++_idx) \
+    { \
+    if (this->Axes[_idx] == _axis) \
+      { \
+      _val  = this->##name##[_idx]; \
+      return; \
+      } \
+    } \
+  vtkErrorMacro(<< "Could not find axis number " << _axis); \
 } 
-#define vtkImageRegionSetExtentMacro(name) \
-virtual void Set##name (int _tmp[10]) { this->Set##name (_tmp, 5);} \
+
+
+
+
+#define vtkImageSetExtentMacro(name) \
+virtual void Set##name (int _tmp[10]) { this->Set##name (5,_tmp);} \
 virtual void Set##name (int _min0,int _max0,int _min1,int _max1, \
 		int _min2,int _max2,int _min3,int _max3, \
 		int _min4,int _max4) \
@@ -131,7 +162,7 @@ virtual void Set##name (int _min0,int _max0,int _min1,int _max1, \
   _tmp[4] = _min2; _tmp[5] = _max2; \
   _tmp[6] = _min3; _tmp[7] = _max3; \
   _tmp[8] = _min4; _tmp[9] = _max4; \
-  this->Set##name (_tmp,5); \
+  this->Set##name (5,_tmp); \
 } \
 virtual void Set##name (int _min0,int _max0,int _min1,int _max1, \
 		int _min2,int _max2,int _min3,int _max3) \
@@ -141,7 +172,7 @@ virtual void Set##name (int _min0,int _max0,int _min1,int _max1, \
   _tmp[2] = _min1; _tmp[3] = _max1; \
   _tmp[4] = _min2; _tmp[5] = _max2; \
   _tmp[6] = _min3; _tmp[7] = _max3; \
-  this->Set##name (_tmp,4); \
+  this->Set##name (4,_tmp); \
 } \
 virtual void Set##name (int _min0,int _max0,int _min1,int _max1, \
 		int _min2,int _max2) \
@@ -150,30 +181,45 @@ virtual void Set##name (int _min0,int _max0,int _min1,int _max1, \
   _tmp[0] = _min0; _tmp[1] = _max0; \
   _tmp[2] = _min1; _tmp[3] = _max1; \
   _tmp[4] = _min2; _tmp[5] = _max2; \
-  this->Set##name (_tmp,3); \
+  this->Set##name (3,_tmp); \
 } \
 virtual void Set##name (int _min0,int _max0,int _min1,int _max1) \
 { \
   int _tmp[4]; \
   _tmp[0] = _min0; _tmp[1] = _max0; \
   _tmp[2] = _min1; _tmp[3] = _max1; \
-  this->Set##name (_tmp,2); \
+  this->Set##name (2,_tmp); \
 } \
 virtual void Set##name (int _min0,int _max0) \
 { \
   int _tmp[2]; \
   _tmp[0] = _min0; _tmp[1] = _max0; \
-  this->Set##name (_tmp,1); \
+  this->Set##name (1,_tmp); \
+} \
+virtual void SetAxis##name (int _axis, int _min, int _max) \
+{ \
+  int _idx; \
+  for (_idx = 0; _idx < VTK_IMAGE_DIMENSIONS; ++_idx) \
+    { \
+    if (this->Axes[_idx] == _axis) \
+      { \
+      this->##name##[_idx*2] = _min; \
+      this->##name##[_idx*2 + 1] = _max; \
+      this->Modified(); \
+      return; \
+      } \
+    } \
+  vtkErrorMacro(<< "Could not find axis number " << _axis); \
 } 
-#define vtkImageRegionGetExtentMacro(name) \
+#define vtkImageGetExtentMacro(name) \
 int *Get##name () { return this->##name ;}  \
-virtual void Get##name (int _tmp[10]) { this->Get##name (_tmp, 5);} \
+virtual void Get##name (int _tmp[10]) { this->Get##name (5,_tmp);} \
 virtual void Get##name (int &_min0,int &_max0,int &_min1,int &_max1, \
 		int &_min2,int &_max2,int &_min3,int &_max3, \
 		int &_min4,int &_max4) \
 { \
   int _tmp[10]; \
-  this->Get##name (_tmp,5); \
+  this->Get##name (5,_tmp); \
   _min0 = _tmp[0]; _max0 = _tmp[1]; \
   _min1 = _tmp[2]; _max1 = _tmp[3]; \
   _min2 = _tmp[4]; _max2 = _tmp[5]; \
@@ -184,7 +230,7 @@ virtual void Get##name (int &_min0,int &_max0,int &_min1,int &_max1, \
 		int &_min2,int &_max2,int &_min3,int &_max3) \
 { \
   int _tmp[8]; \
-  this->Get##name (_tmp,4); \
+  this->Get##name (4,_tmp); \
   _min0 = _tmp[0]; _max0 = _tmp[1]; \
   _min1 = _tmp[2]; _max1 = _tmp[3]; \
   _min2 = _tmp[4]; _max2 = _tmp[5]; \
@@ -194,7 +240,7 @@ virtual void Get##name (int &_min0,int &_max0,int &_min1,int &_max1, \
 		int &_min2,int &_max2) \
 { \
   int _tmp[6]; \
-  this->Get##name (_tmp,3); \
+  this->Get##name (3,_tmp); \
   _min0 = _tmp[0]; _max0 = _tmp[1]; \
   _min1 = _tmp[2]; _max1 = _tmp[3]; \
   _min2 = _tmp[4]; _max2 = _tmp[5]; \
@@ -202,16 +248,32 @@ virtual void Get##name (int &_min0,int &_max0,int &_min1,int &_max1, \
 virtual void Get##name (int &_min0,int &_max0,int &_min1,int &_max1) \
 { \
   int _tmp[4]; \
-  this->Get##name (_tmp,2); \
+  this->Get##name (2,_tmp); \
   _min0 = _tmp[0]; _max0 = _tmp[1]; \
   _min1 = _tmp[2]; _max1 = _tmp[3]; \
 } \
 virtual void Get##name (int &_min0,int &_max0) \
 { \
   int _tmp[2]; \
-  this->Get##name (_tmp,1); \
+  this->Get##name (1,_tmp); \
   _min0 = _tmp[0]; _max0 = _tmp[1]; \
-}
+} \
+virtual void GetAxis##name (int _axis, int &_min, int &_max) \
+{ \
+  int _idx; \
+  for (_idx = 0; _idx < VTK_IMAGE_DIMENSIONS; ++_idx) \
+    { \
+    if (this->Axes[_idx] == _axis) \
+      { \
+      _min  = this->##name##[_idx*2]; \
+      _max  = this->##name##[_idx*2 + 1]; \
+      return; \
+      } \
+    } \
+  _min = _max = 0; \
+  vtkErrorMacro(<< "Could not find axis number " << _axis); \
+} 
+
 
 
 #endif

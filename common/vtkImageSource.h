@@ -78,10 +78,10 @@ public:
   // Description:
   // This method returns the data type of the region that will be returned by
   // the UpdateRegion method.  This method is used to automatically set
-  // the DataTypes of elements in the pipline.  When this source is set as an 
-  // input, the consumer may call this function and use the returned DataType
+  // the ScalarTypes of elements in the pipline.  When this source is set as an 
+  // input, the consumer may call this function and use the returned ScalarType
   // as a default.
-  virtual int GetDataType() = 0;
+  virtual int GetScalarType() = 0;
 
 protected:
 };

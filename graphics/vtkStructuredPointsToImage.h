@@ -64,7 +64,7 @@ public:
   void UpdateRegion(vtkImageRegion *region);
   void UpdateImageInformation(vtkImageRegion *region);
   unsigned long GetPipelineMTime();
-  int GetDataType();
+  int GetScalarType();
   
   // Description:
   // Set/Get the input

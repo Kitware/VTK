@@ -62,7 +62,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   virtual void InterceptCacheUpdate(vtkImageRegion *region);
-  virtual void UpdatePointData(int axisIdx, vtkImageRegion *region); 
+  virtual void UpdatePointData(int dim, vtkImageRegion *region); 
   virtual void UpdateImageInformation(vtkImageRegion *region) = 0;
 
   virtual unsigned long GetPipelineMTime();
@@ -75,17 +75,15 @@ public:
   int  GetReleaseDataFlag();
   vtkBooleanMacro(ReleaseDataFlag, int);
   
-  void SetOutputDataType(int type);
-  int  GetOutputDataType();
+  void SetOutputScalarType(int type);
+  int  GetOutputScalarType();
   
   // Set/Get the coordinate system for this filter.
-  void SetAxes(int *axes, int dim);
-  vtkImageRegionSetMacro(Axes,int);
-  void GetAxes(int *axes, int dim);
-  vtkImageRegionGetMacro(Axes,int);
+  void SetAxes(int dim, int *axes);
+  vtkImageSetMacro(Axes,int);
+  void GetAxes(int dim, int *axes);
+  vtkImageGetMacro(Axes,int);
 
-  void DebugOn();
-  void DebugOff();
   void SetOutputMemoryLimit(long limit);
 
 protected:

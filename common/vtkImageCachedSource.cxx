@@ -110,38 +110,30 @@ void vtkImageCachedSource::InterceptCacheUpdate(vtkImageRegion *region)
 // with a lower dimensional region.  The recursion is terminated when 
 // axesIdx is equal to NumberOfAxes.  At this point the subclasses
 // UpdatePointData is called.
-void vtkImageCachedSource::UpdatePointData(int axisIdx, vtkImageRegion *region)
+void vtkImageCachedSource::UpdatePointData(int dim, vtkImageRegion *region)
 {
   int coordinate;
-  int *extent = new int[2*axisIdx];
   int min, max;
-
+  int axis = this->Axes[dim - 1];
   
   // Terminate recursion?
-  if (axisIdx == this->NumberOfAxes)
+  if (dim == this->NumberOfAxes)
     {
     this->UpdatePointData(region);
-    delete [] extent;
     return;
     }
   
-  region->GetExtent(extent, axisIdx);
-  min = extent[axisIdx*2 - 2];
-  max = extent[axisIdx*2 - 1];
+  region->GetAxisExtent(axis, min, max);
   
   for (coordinate = min; coordinate <= max; ++coordinate)
     {
     // colapse one dimension.
-    extent[axisIdx*2 - 2] = extent[axisIdx*2 - 1] = coordinate;
-    region->SetExtent(extent, axisIdx);
+    region->SetAxisExtent(axis, coordinate, coordinate);
     // Continue recursion.
-    this->vtkImageCachedSource::UpdatePointData(axisIdx - 1, region);
+    this->vtkImageCachedSource::UpdatePointData(dim - 1, region);
     }
   // restore original extent
-  extent[axisIdx*2 - 2] = min;
-  extent[axisIdx*2 - 1] = max;
-  region->SetExtent(extent, axisIdx);  
-  delete [] extent;
+  region->SetAxisExtent(axis, min, max);  
 }
 
 //----------------------------------------------------------------------------
@@ -236,9 +228,6 @@ void vtkImageCachedSource::SetCache(vtkImageCache *cache)
   this->Output = cache;
   cache->SetSource(this);
   this->Modified();
-
-  if (this->GetDebug())
-    cache->DebugOn();
 }
 
 
@@ -246,7 +235,7 @@ void vtkImageCachedSource::SetCache(vtkImageCache *cache)
 
 
 //----------------------------------------------------------------------------
-void vtkImageCachedSource::SetAxes(int *axes, int dim)
+void vtkImageCachedSource::SetAxes(int dim, int *axes)
 {
   int allAxes[VTK_IMAGE_DIMENSIONS];
   int idx1, idx2;
@@ -297,7 +286,7 @@ void vtkImageCachedSource::SetAxes(int *axes, int dim)
 
 
 //----------------------------------------------------------------------------
-void vtkImageCachedSource::GetAxes(int *axes, int dim)
+void vtkImageCachedSource::GetAxes(int dim, int *axes)
 {
   int idx;
 
@@ -306,34 +295,6 @@ void vtkImageCachedSource::GetAxes(int *axes, int dim)
     {
     axes[idx] = this->Axes[idx];
     }
-}
-
-
-
-
-//----------------------------------------------------------------------------
-// Description:
-// This method turns debugging on for both the source and its cache.
-// This may not be the best setup.  Debug statements are begining to get
-// a little bit too numerous.
-void vtkImageCachedSource::DebugOn()
-{
-  this->vtkObject::DebugOn();
-  if ( this->Output)
-    this->Output->DebugOn();
-}
-
-
-
-
-//----------------------------------------------------------------------------
-// Description:
-// This method turns debugging off for both the source and its cache.
-void vtkImageCachedSource::DebugOff()
-{
-  this->vtkObject::DebugOff();
-  if ( this->Output)
-    this->Output->DebugOff();
 }
 
 
@@ -367,22 +328,22 @@ int vtkImageCachedSource::GetReleaseDataFlag()
 
 //----------------------------------------------------------------------------
 // Description:
-// This method sets the value of the caches DataType.
-void vtkImageCachedSource::SetOutputDataType(int value)
+// This method sets the value of the caches ScalarType.
+void vtkImageCachedSource::SetOutputScalarType(int value)
 {
   this->CheckCache();
-  this->Output->SetDataType(value);
+  this->Output->SetScalarType(value);
 }
 
 
 
 //----------------------------------------------------------------------------
 // Description:
-// This method returns the caches DataType.
-int vtkImageCachedSource::GetOutputDataType()
+// This method returns the caches ScalarType.
+int vtkImageCachedSource::GetOutputScalarType()
 {
   this->CheckCache();
-  return this->Output->GetDataType();
+  return this->Output->GetScalarType();
 }
 
 
@@ -401,8 +362,6 @@ void vtkImageCachedSource::CheckCache()
     this->Output = new vtkImageSimpleCache;
     this->Output->ReleaseDataFlagOn();
     this->Output->SetSource(this);
-    if (this->GetDebug())
-      this->Output->DebugOn();
     this->Modified();
     }
 }

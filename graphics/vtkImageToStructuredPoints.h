@@ -72,31 +72,27 @@ public:
   vtkGetMacro(WholeImage,int);
   vtkBooleanMacro(WholeImage,int);
 
-  // Forward these messages to the "Region".
-  void SetExtent(int *extent)
-  {this->Region.SetExtent(extent, 3); this->WholeImageOff();};
-  void SetExtent(int min0, int max0, int min1, int max1, int min2, int max2)
-  {this->Region.SetExtent(min0,max0,min1,max1,min2,max2);
-  this->WholeImageOff();};
-  int *GetExtent(){return this->Region.GetExtent();};
-  void GetExtent(int *extent){this->Region.GetExtent(extent, 3);};
-  void GetExtent(int &min0,int &max0,int &min1,int &max1,int &min2,int &max2)
-  {this->Region.GetExtent(min0,max0,min1,max1,min2,max2);};
+  // Set/Get the extent to translate explicitely.
+  void SetExtent(int dim, int *extent);
+  vtkImageSetExtentMacro(Extent);
+  void GetExtent(int dim, int *extent);
+  vtkImageGetExtentMacro(Extent);
+
 
   // Description:
-  // Set the coordinate system which determines how extent are interpreted.
+  // Set/Get the coordinate system which determines how extent are interpreted.
   // Note: This does not yet change the order of the structured points!
-  void SetAxes(int axis0, int axis1, int axis2)
-  {this->Region.SetAxes(axis0,axis1,axis2); this->Modified();};
-  void SetAxes(int axis0, int axis1, int axis2, int axis3)
-  {this->Region.SetAxes(axis0,axis1,axis2,axis3); this->Modified();};
+  void SetAxes(int dim, int *axes);
+  vtkImageSetMacro(Axes,int);
+  void GetAxes(int dim, int *axes);
+  vtkImageGetMacro(Axes,int);
 
   // Description:
   // Set/Get the order of the axes to split while streaming.
-  void SetSplitOrder(int *axes, int dim);
-  vtkImageRegionSetMacro(SplitOrder,int);
-  void GetSplitOrder(int *axes, int dim);
-  vtkImageRegionGetMacro(SplitOrder,int);
+  void SetSplitOrder(int dim, int *axes);
+  vtkImageSetMacro(SplitOrder,int);
+  void GetSplitOrder(int dim, int *axes);
+  vtkImageGetMacro(SplitOrder,int);
   
   // Description:
   // This object will stream to keep the input regions below this limit.
@@ -114,7 +110,8 @@ protected:
   vtkImageSource *Input;
   int WholeImage;
   int Coordinate3;
-  vtkImageRegion Region;
+  int Extent[VTK_IMAGE_EXTENT_DIMENSIONS];
+  int Axes[VTK_IMAGE_DIMENSIONS];
   int NumberOfSplitAxes;
   int SplitOrder[VTK_IMAGE_DIMENSIONS];
   int InputMemoryLimit;

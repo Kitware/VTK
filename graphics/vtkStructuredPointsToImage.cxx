@@ -129,14 +129,14 @@ unsigned long vtkStructuredPointsToImage::GetPipelineMTime()
 
 
 //----------------------------------------------------------------------------
-int vtkStructuredPointsToImage::GetDataType()
+int vtkStructuredPointsToImage::GetScalarType()
 {
   int type;
   
   if ( ! this->Input)
     {
     vtkErrorMacro(<< "GetDataType: Input not set");
-    return VTK_IMAGE_VOID;
+    return VTK_VOID;
     }
 
   // We have to get the scalars.
@@ -189,7 +189,7 @@ int vtkStructuredPointsToImage::ComputeDataType()
     }
   
   vtkErrorMacro(<< "GetDataType: Can not handle type " << type);
-  return VTK_IMAGE_VOID;
+  return VTK_VOID;
 }
 
 
@@ -202,6 +202,7 @@ void vtkStructuredPointsToImage::Execute(vtkImageRegion *region)
 {
   vtkFloatScalars *newScalars = NULL;
   vtkStructuredPoints *input;
+  vtkPointData *pointData;
   vtkScalars *scalars;
   char *type;
   int size[3];
@@ -242,8 +243,10 @@ void vtkStructuredPointsToImage::Execute(vtkImageRegion *region)
     // Create a new data object for the scalars
     data = new vtkImageData;
     data->SetExtent(0, size[0]-1, 0, size[1]-1, 0, size[2]-1, 0, 0, 0, 0);
-    data->SetScalars(newScalars);
-    newScalars->UnRegister(this);
+    pointData = new vtkPointData;
+    pointData->SetScalars(newScalars);
+    newScalars->Delete();  // registered by point data.
+    data->SetPointData(pointData);
     }
   else if ((strcmp(type,"float") == 0) || (strcmp(type,"short") == 0) || 
 	   (strcmp(type,"int") == 0) || (strcmp(type,"unsigned short") == 0) ||
@@ -252,7 +255,9 @@ void vtkStructuredPointsToImage::Execute(vtkImageRegion *region)
     // Create a new data object for the scalars
     data = new vtkImageData;
     data->SetExtent(0, size[0]-1, 0, size[1]-1, 0, size[2]-1, 0, 0, 0, 0);
-    data->SetScalars(scalars);
+    pointData = new vtkPointData;
+    pointData->SetScalars(scalars);
+    data->SetPointData(pointData);
     }
   else
     {
@@ -279,10 +284,10 @@ vtkStructuredPointsToImage::ComputeImageInformation(vtkImageRegion *region)
   input->GetAspectRatio(aspectRatio);
 
   region->SetImageExtent(0, size[0]-1, 0, size[1]-1, 0, size[2]-1);
-  region->SetAspectRatio(aspectRatio, 3);
-  if (region->GetDataType() == VTK_IMAGE_VOID)
+  region->SetAspectRatio(3, aspectRatio);
+  if (region->GetScalarType() == VTK_VOID)
     {
-    region->SetDataType(this->ComputeDataType());
+    region->SetScalarType(this->ComputeDataType());
     }
 }
 

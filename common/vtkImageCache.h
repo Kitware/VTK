@@ -95,8 +95,8 @@ public:
 
   // Description:
   // Set the data type of the regions created by this cache.
-  vtkSetMacro(DataType,int);
-  vtkGetMacro(DataType,int);
+  vtkSetMacro(ScalarType,int);
+  vtkGetMacro(ScalarType,int);
   
 protected:
   vtkImageCachedSource *Source;
@@ -112,12 +112,12 @@ protected:
   long OutputMemoryLimit;
 
   // Cache the ImageExtent, to avoid recomputing the ImageExtent on each pass.
-  int ImageExtent[VTK_IMAGE_BOUNDS_DIMENSIONS];
+  int ImageExtent[VTK_IMAGE_EXTENT_DIMENSIONS];
   float AspectRatio[VTK_IMAGE_DIMENSIONS];
   vtkTimeStamp ImageInformationTime;
 
   // The cache manipulates (and returns) regions with this data type.
-  int DataType;
+  int ScalarType;
   
   void GenerateUnCachedRegionData(vtkImageRegion *region);
   // Description:

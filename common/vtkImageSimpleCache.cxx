@@ -67,7 +67,7 @@ void vtkImageSimpleCache::GenerateCachedRegionData(vtkImageRegion *region)
   if (this->CachedData)
     {
     int saveAxes[VTK_IMAGE_DIMENSIONS];
-    int *cacheExtent, regionExtent[VTK_IMAGE_BOUNDS_DIMENSIONS];
+    int *cacheExtent, regionExtent[VTK_IMAGE_EXTENT_DIMENSIONS];
     cacheExtent = this->CachedData->GetExtent();
 
     region->GetAxes(saveAxes);
@@ -92,7 +92,7 @@ void vtkImageSimpleCache::GenerateCachedRegionData(vtkImageRegion *region)
 	/* use the cache data (automatically registered by region) */
 	vtkDebugMacro(<< "GenerateCachedRegionData: " 
 	              << "Using cache to fill region.");
-	region->SetDataType(this->DataType);
+	region->SetScalarType(this->ScalarType);
 	region->SetData(this->CachedData);
 	return;
 	}
