@@ -228,7 +228,7 @@ int vtkPNMReader::ReadBinaryPBM(FILE *fp, vtkBitmap* bitmap, int numPts,
 //
   for (j=0; j<ysize; j++)
     {
-    cptr = bitmap->WritePtr(numPts-(ysize-(j+1))*packedXSize,packedXSize);
+    cptr = bitmap->WritePtr((ysize-j-1)*packedXSize,packedXSize);
     if ( ! fread(cptr,1,packedXSize,fp) )
       {
       vtkErrorMacro(<<"Error reaading raw pbm data!");
@@ -252,7 +252,7 @@ int vtkPNMReader::ReadBinaryPGM(FILE *fp, vtkGraymap* graymap, int numPts,
 //
   for (j=0; j<ysize; j++)
     {
-    cptr = graymap->WritePtr(numPts-(ysize-(j+1))*xsize,xsize);
+    cptr = graymap->WritePtr((ysize-j-1)*xsize,xsize);
     if ( ! fread(cptr,1,xsize,fp) )
       {
       vtkErrorMacro(<<"Error reaading raw pgm data!");
@@ -276,7 +276,7 @@ int vtkPNMReader::ReadBinaryPPM(FILE *fp, vtkPixmap* pixmap, int numPts,
 //
   for (j=0; j<ysize; j++)
     {
-    cptr = pixmap->WritePtr(numPts-(ysize-(j+1))*xsize,xsize);
+    cptr = pixmap->WritePtr((ysize-j-1)*xsize,xsize);
     if ( ! fread(cptr,3,xsize,fp) )
       {
       vtkErrorMacro(<<"Error reaading raw ppm data!");
