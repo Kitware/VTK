@@ -34,6 +34,7 @@ public:
   ~vlUnstructuredGrid();
   void Allocate(int numCells=1000, int extSize=1000);
   char *GetClassName() {return "vlUnstructuredGrid";};
+  char *GetDataType() {return "vlUnstructuredGrid";};
   void PrintSelf(ostream& os, vlIndent indent);
 
   // cell creation methods
@@ -45,7 +46,6 @@ public:
 
   // dataset interface
   vlDataSet *MakeObject() {return new vlUnstructuredGrid(*this);};
-  vlMapper *MakeMapper();
   void Initialize();
   int GetNumberOfCells();
   vlCell *GetCell(int cellId);

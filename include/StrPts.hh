@@ -29,13 +29,13 @@ public:
   vlStructuredPoints(const vlStructuredPoints& v);
   ~vlStructuredPoints();
   char *GetClassName() {return "vlStructuredPoints";};
+  char *GetDataType() {return "vlStructuredPoints";};
   void PrintSelf(ostream& os, vlIndent indent);
 
   // dataset interface
   vlDataSet *MakeObject() {return new vlStructuredPoints(*this);};
   float *GetPoint(int ptId);
   vlCell *GetCell(int cellId);
-  vlMapper *MakeMapper() {return (vlMapper *)0;};
   void Initialize();
   int FindCell(float x[3], vlCell *cell, float tol2, 
                int& subId, float pcoords[3]);

@@ -33,6 +33,7 @@ public:
   vlPolyData(const vlPolyData& pd);
   ~vlPolyData();
   char *GetClassName() {return "vlPolyData";};
+  char *GetDataType() {return "vlPolyData";};
   void PrintSelf(ostream& os, vlIndent indent);
 
   // dataset interface
@@ -40,7 +41,6 @@ public:
   int GetNumberOfCells();
   vlCell *GetCell(int cellId);
   int GetCellType(int cellId);
-  vlMapper *MakeMapper();
   void Initialize();
   void GetCellPoints(int cellId, vlIdList *ptIds);
   void GetPointCells(int ptId, vlIdList *cellIds);

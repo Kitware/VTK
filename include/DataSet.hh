@@ -25,7 +25,6 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "IdList.hh"
 #include "FPoints.hh"
 #include "PtData.hh"
-#include "Mapper.hh"
 #include "Cell.hh"
 
 class vlDataSet : virtual public vlObject 
@@ -35,8 +34,6 @@ public:
   char *GetClassName() {return "vlDataSet";};
   void PrintSelf(ostream& os, vlIndent indent);
 
-  // Instantiate appropriate mapper object for this dataset
-  virtual vlMapper *MakeMapper() = 0;
   // restore data to initial state (i.e., release memory, etc.)
   virtual void Initialize();
   // absorb update methods which propagate through network
@@ -44,6 +41,8 @@ public:
 
   // Create concrete instance of this dataset
   virtual vlDataSet *MakeObject() = 0;
+  // return class name of data type
+  virtual char *GetDataType() = 0;
 
   // Determine number of points and cells composing dataset
   virtual int GetNumberOfPoints() = 0;
@@ -75,7 +74,7 @@ public:
   float *GetBounds();
   float *GetCenter();
   float GetLength();
-  
+
   // return pointer to this dataset's point data
   vlPointData *GetPointData() {return &this->PointData;};
 
@@ -83,7 +82,6 @@ protected:
   vlPointData PointData;   // Scalars, vectors, etc. associated w/ each point
   vlTimeStamp ComputeTime; // Time at which bounds, center, etc. computed
   float Bounds[6];  // (xmin,xmax, ymin,ymax, zmin,zmax) geometric bounds
-  vlMapper *Mapper; // object used to map data to graphics
 };
 
 #endif

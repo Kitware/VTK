@@ -28,7 +28,6 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Tetra.hh"
 #include "Hexa.hh"
 #include "Brick.hh"
-#include "UGridMap.hh"
 
 vlUnstructuredGrid::vlUnstructuredGrid ()
 {
@@ -67,19 +66,6 @@ vlUnstructuredGrid::vlUnstructuredGrid(const vlUnstructuredGrid& pd)
 vlUnstructuredGrid::~vlUnstructuredGrid()
 {
   vlUnstructuredGrid::Initialize();
-}
-
-vlMapper *vlUnstructuredGrid::MakeMapper()
-{
-  vlUnstructuredGridMapper *mapper;
-
-  if ( this->Mapper == NULL )
-    {
-    this->Mapper = mapper = new vlUnstructuredGridMapper;
-    this->Mapper->Register(this);
-    mapper->SetInput(this);
-    }
-  return this->Mapper;
 }
 
 void vlUnstructuredGrid::Initialize()
