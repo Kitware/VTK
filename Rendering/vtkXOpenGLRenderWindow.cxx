@@ -87,7 +87,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.40");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.41");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -1178,8 +1178,7 @@ const char* vtkXOpenGLRenderWindow::ReportCapabilities()
     }
   strm << ends;
   delete[] this->Capabilities;
-  this->Capabilities = new char[strlen(strm.str()) + 1];
-  strcpy(this->Capabilities, strm.str());
+  this->Capabilities = strm.str();
   return this->Capabilities;
 }
 
