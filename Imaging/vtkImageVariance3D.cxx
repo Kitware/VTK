@@ -17,7 +17,7 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageVariance3D, "1.24.10.1");
+vtkCxxRevisionMacro(vtkImageVariance3D, "1.24.10.2");
 vtkStandardNewMacro(vtkImageVariance3D);
 
 //----------------------------------------------------------------------------
@@ -274,7 +274,10 @@ void vtkImageVariance3D::ThreadedExecute(vtkImageData *inData,
                                          vtkImageData *outData, 
                                          int outExt[6], int id)
 {
-  void *inPtr = inData->GetScalarPointerForExtent(inData->GetUpdateExtent());
+  int inExt[6];
+  
+  this->ComputeInputUpdateExtent(inExt, outExt);
+  void *inPtr = inData->GetScalarPointerForExtent(inExt);
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
   vtkImageData *mask;
 
