@@ -72,19 +72,21 @@
 #include "vtk3DWidget.h"
 
 class vtkActor;
-class vtkPolyDataMapper;
+class vtkCellPicker;
+class vtkDataSetMapper;
+class vtkImageData;
+class vtkImageMapToColors;
+class vtkImageReslice;
+class vtkLookupTable;
+class vtkMatrix4x4;
+class vtkPlaneSource;
 class vtkPoints;
 class vtkPolyData;
-class vtkCellPicker;
-class vtkTexure;
-class vtkMatrix4x4;
+class vtkPolyDataMapper;
+class vtkProperty;
 class vtkTextureMapToPlane;
-class vtkImageReslice;
-class vtkDataSetMapper;
-class vtkLookupTable;
-class vtkImageMapToColors;
-class vtkImageData;
-class vtkPlaneSource;
+class vtkTexture;
+class vtkTransform;
 
 #define VTK_NEAREST_RESLICE 0
 #define VTK_LINEAR_RESLICE  1
@@ -232,7 +234,7 @@ public:
   // a set of three orthogonal planes can share the same lut so that
   // window-levelling is performed uniformly among planes.  The default
   // internal lut can be re-set/allocated by setting to 0 (NULL).
-  void SetLookupTable(vtkLookupTable*);
+  virtual void SetLookupTable(vtkLookupTable*);
   vtkGetObjectMacro(LookupTable,vtkLookupTable);
 
 protected:

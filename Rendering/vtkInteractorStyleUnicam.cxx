@@ -29,11 +29,12 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
+#include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSphereSource.h"
 #include "vtkWorldPointPicker.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleUnicam, "1.25");
+vtkCxxRevisionMacro(vtkInteractorStyleUnicam, "1.26");
 vtkStandardNewMacro(vtkInteractorStyleUnicam);
 
 vtkInteractorStyleUnicam::vtkInteractorStyleUnicam()

@@ -78,6 +78,8 @@ class vtkActor;
 class vtkPolyDataMapper;
 class vtkPoints;
 class vtkPolyData;
+class vtkProp;
+class vtkProperty;
 class vtkSphereSource;
 class vtkCellPicker;
 

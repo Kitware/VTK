@@ -16,13 +16,17 @@
 
 =========================================================================*/
 #include "vtkRenderWindowInteractor.h"
-#include "vtkPropPicker.h"
-#include "vtkInteractorStyleSwitch.h"
+
 #include "vtkGraphicsFactory.h"
+#include "vtkInteractorStyleSwitch.h"
 #include "vtkMath.h"
 #include "vtkOldStyleCallbackCommand.h"
+#include "vtkPropPicker.h"
+#include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.93");
+vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.94");
+
+vtkCxxSetObjectMacro(vtkRenderWindowInteractor,Picker,vtkAbstractPicker);
 
 // Construct object so that light follows camera motion.
 vtkRenderWindowInteractor::vtkRenderWindowInteractor()
@@ -477,3 +481,15 @@ void vtkRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
      << "\n";
   os << indent << "RepeatCount: " << this->RepeatCount << "\n";
 }
+
+void vtkRenderWindowInteractor::Initialize() 
+{
+  this->Initialized=1; 
+  this->Enable();
+  this->RenderWindow->Render();
+}
+
+void vtkRenderWindowInteractor::HideCursor() 
+{ this->RenderWindow->HideCursor(); };
+void vtkRenderWindowInteractor::ShowCursor() 
+{ this->RenderWindow->ShowCursor(); };

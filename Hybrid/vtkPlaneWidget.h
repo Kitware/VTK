@@ -77,14 +77,17 @@
 #include "vtk3DWidget.h"
 
 class vtkActor;
-class vtkPolyDataMapper;
+class vtkCellPicker;
+class vtkConeSource;
+class vtkLineSource;
+class vtkPlaneSource;
 class vtkPoints;
 class vtkPolyData;
-class vtkLineSource;
-class vtkConeSource;
+class vtkPolyDataMapper;
+class vtkProp;
+class vtkProperty;
 class vtkSphereSource;
-class vtkCellPicker;
-class vtkPlaneSource;
+class vtkTransform;
 
 #define VTK_PLANE_OFF 0
 #define VTK_PLANE_OUTLINE 1

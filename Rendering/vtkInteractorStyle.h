@@ -101,10 +101,13 @@
 #define VTKIS_ANIM_OFF 0
 #define VTKIS_ANIM_ON  1
 
-class vtkPolyDataMapper;
-class vtkOutlineSource;
+class vtkActor2D;
+class vtkActor;
 class vtkCallbackCommand;
-
+class vtkOutlineSource;
+class vtkPolyDataMapper;
+class vtkProp3D;
+class vtkProp;
 
 class VTK_RENDERING_EXPORT vtkInteractorStyle : public vtkInteractorObserver
 {

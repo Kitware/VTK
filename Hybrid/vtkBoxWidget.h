@@ -76,12 +76,15 @@
 #include "vtk3DWidget.h"
 
 class vtkActor;
-class vtkPolyDataMapper;
-class vtkPoints;
-class vtkPolyData;
-class vtkSphereSource;
 class vtkCellPicker;
 class vtkPlanes;
+class vtkPoints;
+class vtkPolyData;
+class vtkPolyDataMapper;
+class vtkProp;
+class vtkProperty;
+class vtkSphereSource;
+class vtkTransform;
 
 class VTK_HYBRID_EXPORT vtkBoxWidget : public vtk3DWidget
 {

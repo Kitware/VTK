@@ -68,6 +68,7 @@ class vtkPolyData;
 class vtkSphereSource;
 class vtkSphere;
 class vtkCellPicker;
+class vtkProperty;
 
 #define VTK_SPHERE_OFF 0
 #define VTK_SPHERE_WIREFRAME 1

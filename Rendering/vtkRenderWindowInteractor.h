@@ -36,14 +36,17 @@
 #define __vtkRenderWindowInteractor_h
 
 #include "vtkObject.h"
-#include "vtkRenderWindow.h"
-#include "vtkAbstractPropPicker.h"
 
 // Timer flags for win32/X compatibility
 #define VTKI_TIMER_FIRST  0
 #define VTKI_TIMER_UPDATE 1
 
+class vtkAbstractPicker;
+class vtkAbstractPropPicker;
 class vtkInteractorObserver;
+class vtkInteractorObserver;
+class vtkRenderWindow;
+class vtkRenderer;
 
 class VTK_RENDERING_EXPORT vtkRenderWindowInteractor : public vtkObject
 {
@@ -55,8 +58,7 @@ public:
   // Description:
   // Prepare for handling events. This must be called before the
   // interactor will work.
-  virtual void Initialize() {this->Initialized=1; this->Enable();
-                             this->RenderWindow->Render();}
+  virtual void Initialize();
   void ReInitialize() {  this->Initialized = 0; this->Enabled = 0;
                         this->Initialize(); } 
 
@@ -141,7 +143,7 @@ public:
   // pick instances of vtkProp, the picker must be a subclass of 
   // vtkAbstractPropPicker, meaning that it can identify a particular 
   // instance of vtkProp.
-  vtkSetObjectMacro(Picker,vtkAbstractPicker);
+  virtual void SetPicker(vtkAbstractPicker*);
   vtkGetObjectMacro(Picker,vtkAbstractPicker);
 
   // Description:
@@ -196,8 +198,8 @@ public:
   // Description:
   // Hide or show the mouse cursor, it is nice to be able to hide the
   // default cursor if you want VTK to display a 3D cursor instead.
-  void HideCursor() { this->RenderWindow->HideCursor(); };
-  void ShowCursor() { this->RenderWindow->ShowCursor(); };
+  void HideCursor();
+  void ShowCursor();
 
   // Description:
   // Render the scene. Just pass the render call on to the 

@@ -16,10 +16,13 @@
 
 =========================================================================*/
 #include "vtk3DWidget.h"
+
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
+#include "vtkProp3D.h"
+#include "vtkDataSet.h"
 
-vtkCxxRevisionMacro(vtk3DWidget, "1.8");
+vtkCxxRevisionMacro(vtk3DWidget, "1.9");
 
 vtkCxxSetObjectMacro(vtk3DWidget,Prop3D,vtkProp3D);
 vtkCxxSetObjectMacro(vtk3DWidget,Input,vtkDataSet);

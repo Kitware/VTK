@@ -53,6 +53,9 @@
 
 #include "vtkInteractorObserver.h"
 
+class vtkDataSet;
+class vtkProp3D;
+
 class VTK_HYBRID_EXPORT vtk3DWidget : public vtkInteractorObserver
 {
 public:
