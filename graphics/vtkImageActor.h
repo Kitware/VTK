@@ -42,7 +42,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .NAME vtkImageActor - represents an image (data & properties) in a rendered scene
 //
 // .SECTION Description
-// vtkImageActor is used to represent an image entity in a rendering scene.
+// vtkImageActor is used to render an image in a 3D scene.  The image
+// is placed at the origin of the image, and its size is controlled by the
+// image dimensions and image spacing. The orientation of the image is
+// orthogonal to one of the x-y-z axes depending on which plane the
+// image is defined in. vtkImageActor duplicates the functionality 
+// of combinations of other VTK classes in a convenient, single class.
 
 // .SECTION see also
 // vtkImageData vtkProp
@@ -63,14 +68,12 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Creates a ImageActor with the following defaults: origin(0,0,0) 
-  // position=(0,0,0) scale=1 visibility=1 pickable=1 dragable=1
-  // orientation=(0,0,0).
+  // Instantiate the image actor.
   static vtkImageActor *New();
 
   // Description:
-  // Set/Get the input for the image mapper.  
-  vtkSetObjectMacro(Input, vtkImageData);
+  // Set/Get the image data input for the image actor.  
+  vtkSetObjectMacro(Input,vtkImageData);
   vtkGetObjectMacro(Input,vtkImageData);
 
   // Description:
@@ -80,19 +83,26 @@ public:
   vtkBooleanMacro(Interpolate,int);
 
   // Description:
-  // The image extent of the output has to be set explicitly.
+  // The image extent is generally set explicitly, but if not set
+  // it will be determined from the input image data.
   void SetDisplayExtent(int extent[6]);
   void SetDisplayExtent(int minX, int maxX, int minY, int maxY, 
-			    int minZ, int maxZ);
+                        int minZ, int maxZ);
   void GetDisplayExtent(int extent[6]);
   int *GetDisplayExtent() {return this->DisplayExtent;}
 
   // Description:
-  // Get the bounds - either all six at once 
-  // (xmin, xmax, ymin, ymax, zmin, zmax) or one at a time.
+  // Get the bounds of this image actor. Either copy the bounds
+  // into a user provided array or return a pointer to an array.
+  // In either case the boudns is expressed as a 6-vector 
+  // (xmin,xmax, ymin,ymax, zmin,zmax).
   float *GetBounds();
   void GetBounds(float bounds[6]);
 
+  // Description:
+  // Return a slice number computed from the display extent.
+  int GetSliceNumber();
+  
 //BTX
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -103,19 +113,15 @@ public:
   virtual void Load(vtkRenderer *) {};
 //ETX
 
-  // Description:
-  // Return a slice number computed from the display extent
-  int GetSliceNumber();
-  
 protected:
   vtkImageActor();
   ~vtkImageActor();
   vtkImageActor(const vtkImageActor&) {};
   void operator=(const vtkImageActor&) {};
 
-  int   Interpolate;
+  int           Interpolate;
   vtkImageData* Input;
-  int DisplayExtent[6];
+  int           DisplayExtent[6];
   float         Bounds[6];
 };
 
