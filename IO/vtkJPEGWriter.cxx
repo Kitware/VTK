@@ -24,7 +24,7 @@ extern "C" {
 #include <setjmp.h>
 }
 
-vtkCxxRevisionMacro(vtkJPEGWriter, "1.21");
+vtkCxxRevisionMacro(vtkJPEGWriter, "1.22");
 vtkStandardNewMacro(vtkJPEGWriter);
 
 vtkCxxSetObjectMacro(vtkJPEGWriter,Result,vtkUnsignedCharArray);
@@ -210,13 +210,9 @@ extern "C"
 void vtkJPEGWriter::WriteSlice(vtkImageData *data)
 {
   // Call the correct templated function for the output
-  void *outPtr;
   unsigned int ui;
 
-  int* uext = data->GetUpdateExtent();
-  
   // Call the correct templated function for the input
-  outPtr = data->GetScalarPointer(uext[0], uext[2], uext[4]);
   if (data->GetScalarType() != VTK_UNSIGNED_CHAR)
     {
     vtkWarningMacro("JPEGWriter only supports unsigned char input");
@@ -235,6 +231,16 @@ void vtkJPEGWriter::WriteSlice(vtkImageData *data)
   struct jpeg_compress_struct cinfo;
   struct VTK_JPEG_ERROR_MANAGER jerr;
   FILE *fp = 0;
+  if (!this->WriteToMemory)
+    {
+    fp = fopen(this->InternalFileName, "wb");
+    if (!fp)
+      {
+      vtkErrorMacro("Unable to open file " << this->InternalFileName);
+      this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
+      return;
+      }
+    }
 
   cinfo.err = jpeg_std_error(&jerr.pub);
   jerr.pub.error_exit = VTK_JPEG_ERROR_EXIT;
@@ -264,13 +270,6 @@ void vtkJPEGWriter::WriteSlice(vtkImageData *data)
     }
   else
     {
-    fp = fopen(this->InternalFileName, "wb");
-    if (!fp)
-      {
-      vtkErrorMacro("Unable to open file " << this->InternalFileName);
-      this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
-      return;
-      }
     jpeg_stdio_dest(&cinfo, fp);
     }
   
@@ -306,6 +305,8 @@ void vtkJPEGWriter::WriteSlice(vtkImageData *data)
   jpeg_start_compress(&cinfo, TRUE);
 
   // write the data. in jpeg, the first row is the top row of the image
+  void *outPtr;
+  outPtr = data->GetScalarPointer(uExtent[0], uExtent[2], uExtent[4]);
   JSAMPROW *row_pointers = new JSAMPROW [height];
   int *outInc = data->GetIncrements();
   int rowInc = outInc[1];
