@@ -1,0 +1,23 @@
+XGLR_LIBS = -L${XGL_HOME}/lib -lxgl
+XGLR_FLAGS = -I${XGL_HOME}/include -DUSE_XGLR
+XGLR_OBJ = \
+vtkXglrActor.o \
+vtkXglrCamera.o \
+vtkXglrLight.o \
+vtkXglrPolyMapper.o \
+vtkXglrProperty.o \
+vtkXglrRenderWindow.o \
+vtkXglrRenderer.o \
+vtkXglrTexture.o 
+
+TCL_XGLR_OBJ = \
+tclvtkXglrActor.hh.o \
+tclvtkXglrCamera.hh.o \
+tclvtkXglrLight.hh.o \
+tclvtkXglrPolyMapper.hh.o \
+tclvtkXglrProperty.hh.o \
+tclvtkXglrRenderWindow.hh.o \
+tclvtkXglrRenderer.hh.o \
+tclvtkXglrTexture.hh.o \
+tclGNewXglr.o
+

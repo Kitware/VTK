@@ -1,0 +1,466 @@
+#
+# configure script for vtk source directory
+#
+AC_INIT(concrete.l)
+
+#
+# check for some programs we use
+#
+AC_PROG_CC
+AC_PROG_CXX
+AC_ISC_POSIX
+AC_PROG_RANLIB
+AC_PROG_LN_S
+AC_PROG_LEX
+AC_PROG_YACC
+
+#
+# Checks for header files.
+#
+AC_HEADER_STDC
+
+# Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+AC_STRUCT_TM
+
+# Find the X include directories and libraries
+AC_PATH_XTRA
+
+# get byte swapping info
+AC_C_BIGENDIAN
+
+if test $ac_cv_c_bigendian = yes; then
+  BIGENDIAN="-DWORDS_BIGENDIAN"
+fi
+AC_SUBST(BIGENDIAN)
+
+# what toolkits should we use
+AC_ARG_WITH(vis,
+         [  --with-vis              include the visualization classes],
+         USE_VIS_LIBS="-L../vis -lVTKVisTcl"
+         USE_VIS_FLAG=-DUSE_VIS)
+
+AC_SUBST(USE_VIS_FLAG)
+AC_SUBST(USE_VIS_LIBS)
+
+#
+# figure out what graphics we should compile in based on header files
+#
+AC_CHECK_HEADERS(starbase.c.h, sbr_obj=$srcdir/../Makefile.in.sbr)
+AC_SUBST_FILE(sbr_obj)
+
+AC_CHECK_HEADERS(gl/gl.h, glr_obj=$srcdir/../Makefile.in.glr)
+AC_SUBST_FILE(glr_obj)
+
+#
+# should we use mesa
+#
+AC_ARG_WITH(mesa,
+         [  --with-mesa               use the mesa opengl package],
+    oglr_obj=$srcdir/../Makefile.in.Mesaoglr)
+
+AC_CHECK_HEADERS(GL/gl.h, oglr_obj=$srcdir/../Makefile.in.oglr)
+AC_SUBST_FILE(oglr_obj)
+
+#
+# has the user set up XGL_HOME
+#
+if test "X$XGL_HOME" = "X" ; then
+  XGL_HOME=/opt/SUNWits/Graphics-sw/xgl
+fi
+AC_CHECK_HEADERS($XGL_HOME/include/xgl/xgl.h, xglr_obj=$srcdir/../Makefile.in.xglr)
+AC_SUBST_FILE(xglr_obj)
+AC_SUBST(XGL_HOME)
+
+# Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+AC_STRUCT_TM
+
+# Find the X include directories and libraries
+AC_PATH_XTRA
+
+#------------------------------------------------------------------------------
+#       Some make programs require includes to be 
+#         .include "file"
+#     others...
+#         include file
+#------------------------------------------------------------------------------
+AC_MSG_CHECKING(how make handles includes)
+cat > confmakeinc <<EOF
+
+EOF
+  cat > confmakefile <<EOF
+include confmakeinc
+
+all:
+EOF
+
+if make -f confmakefile >/dev/null 2>/dev/null; then
+    MAKEINCLUDE="include"
+    MAKEQUOTE=''
+    AC_MSG_RESULT(common make include syntax)
+else
+    MAKEINCLUDE=".include"
+    MAKEQUOTE='"'
+    AC_MSG_RESULT(BSD make include syntax)
+fi
+rm confmakefile confmakeinc
+
+AC_SUBST(MAKEINCLUDE)
+AC_SUBST(MAKEQUOTE)
+
+# the following is an excerpt from the tcl7.5b2 configure.in
+#--------------------------------------------------------------------
+#	The statements below define a collection of symbols related to
+#	dynamic loading and shared libraries:
+#
+#	SHLIB_CFLAGS -	Flags to pass to cc when compiling the components
+#			of a shared library (may request position-independent
+#			code, among other things).
+#	SHLIB_LD -	Base command to use for combining object files
+#			into a shared library.
+#	SHLIB_LD_LIBS -	Dependent libraries for the linker to scan when
+#			creating shared libraries.  This symbol typically
+#			goes at the end of the "ld" commands that build
+#			shared libraries. The value of the symbol if
+#			"${LIBS}" if all of the dependent libraries should
+#			be specified when creating a shared library.  If
+#			dependent libraries should not be specified (as on
+#			SunOS 4.x, where they cause the link to fail, or in
+#			general if Tcl and Tk aren't themselves shared
+#			libraries), then this symbol has an empty string
+#			as its value.
+#	SHLIB_SUFFIX -	Suffix to use for the name of the shared library.  An
+#			empty string means we don't know how to use shared
+#			libraries on this platform.
+#	SHLIB_VERSION -	If this platform *requires* shared libraries to end
+#			in a version string, this provides a default version
+#			string to use;  it is an empty string on platforms
+#			where it isn't needed.
+#	LD_FLAGS -	Flags to pass to the compiler when linking object
+#			files into an executable application binary such
+#			as tclsh.
+#	LD_SEARCH_FLAGS-Flags to pass to ld, such as "-R /usr/local/tcl/lib",
+#			that tell the run-time dynamic linker where to look
+#			for shared libraries such as libtcl.so.  Depends on
+#			the variable LIB_INSTALL_DIR in the Makefile.
+#--------------------------------------------------------------------
+
+# Step 1: set the variable "system" to hold the name and version number
+# for the system.  This can usually be done via the "uname" command, but
+# there are a few systems, like Next, where this doesn't work.
+
+AC_MSG_CHECKING([system version (for dynamic loading)])
+if test -f /usr/lib/NextStep/software_version; then
+  system=NEXTSTEP-`awk '/3/,/3/' /usr/lib/NextStep/software_version`
+else
+    system=`uname -s`-`uname -r`
+    if test "$?" -ne 0 ; then
+	AC_MSG_RESULT([unknown (can't find uname command)])
+	system=unknown
+    else
+	# Special check for weird MP-RAS system (uname returns weird
+	# results, and the version is kept in special file).
+    
+	if test -r /etc/.relid -a "X`uname -n`" = "X`uname -s`" ; then
+	    system=MP-RAS-`awk '{print $3}' /etc/.relid'`
+	fi
+	AC_MSG_RESULT($system)
+    fi
+fi
+
+# Step 2: check for existence of -ldl library.  This is needed because
+# Linux can use either -ldl or -ldld for dynamic loading.
+
+AC_CHECK_LIB(dl, dlopen, have_dl=yes, have_dl=no)
+
+# Step 3: disable dynamic loading if requested via a command-line switch.
+
+AC_ARG_ENABLE(load, [  --disable-load          disallow dynamic loading and "load" command],
+    [tcl_ok=$enableval], [tcl_ok=yes])
+if test "$tcl_ok" = "no"; then
+    system=unknown
+fi
+
+# Step 4: set configuration options based on system name and version.
+
+fullSrcDir=`cd $srcdir; pwd`
+mustUseSharedLibs=no
+case $system in
+    AIX-*)
+	# AIX: can't link shared library extensions unless Tcl and Tk are
+	# also shared libraries.
+	mustUseSharedLibs=yes
+	SHLIB_CFLAGS=""
+	SHLIB_LD="$fullSrcDir/ldAix /bin/ld -e _nostart -berok -bM:SRE -bE:lib.exp -H512 -T512"
+	SHLIB_LD_LIBS='${LIBS}'
+	SHLIB_SUFFIX="..o"
+	SHLIB_VERSION=""
+	DL_LIBS=""
+	LD_FLAGS=""
+	LD_SEARCH_FLAGS=""
+	;;
+    HP-UX-*.08.*|HP-UX-*.09.*|HP-UX-*.10.*)
+	SHLIB_CFLAGS="+z"
+	SHLIB_LD="ld -b"
+	SHLIB_LD_LIBS=""
+	SHLIB_SUFFIX=".sl"
+	SHLIB_VERSION=""
+	DL_LIBS="-ldld"
+	LD_FLAGS="-Wl,-E"
+	LD_SEARCH_FLAGS='-Wl,+b,${LIB_INSTALL_DIR}'
+	;;
+    IRIX-4.*)
+	SHLIB_CFLAGS="-G 0"
+	SHLIB_SUFFIX="..o"
+	SHLIB_LD="echo tclLdAout $CC \{$SHLIB_CFLAGS\} | tclsh -r -G 0"
+	SHLIB_LD_LIBS=""
+	SHLIB_VERSION=""
+	DL_LIBS=""
+	LD_FLAGS="-Wl,-D,08000000"
+	LD_SEARCH_FLAGS='-rpath ${LIB_INSTALL_DIR}'
+	;;
+    IRIX-5.*)
+	SHLIB_CFLAGS=""
+	SHLIB_LD="ld -shared -rdata_shared"
+	SHLIB_LD_LIBS=""
+	SHLIB_SUFFIX=".so"
+	SHLIB_VERSION=""
+	DL_LIBS=""
+	LD_FLAGS=""
+	LD_SEARCH_FLAGS=""
+	;;
+    Linux*)
+	SHLIB_CFLAGS="-fPIC"
+	SHLIB_LD_LIBS=""
+	SHLIB_SUFFIX=".so"
+	SHLIB_VERSION=""
+	if test "$have_dl" = yes; then
+	    SHLIB_LD="${CC} -shared"
+	    DL_LIBS="-ldl"
+	    LD_FLAGS="-rdynamic"
+	    LD_SEARCH_FLAGS=""
+	else
+	    AC_CHECK_HEADER(dld.h, [
+		SHLIB_LD="ld -shared"
+		DL_LIBS="-ldld"
+		LD_FLAGS=""
+		LD_SEARCH_FLAGS=""])
+	fi
+	;;
+    MP-RAS-02*)
+	SHLIB_CFLAGS="-K PIC"
+	SHLIB_LD="cc -G"
+	SHLIB_LD_LIBS=""
+	SHLIB_SUFFIX=".so"
+	SHLIB_VERSION=""
+	DL_LIBS="-ldl"
+	LD_FLAGS=""
+	LD_SEARCH_FLAGS=""
+	;;
+    MP-RAS-*)
+	SHLIB_CFLAGS="-K PIC"
+	SHLIB_LD="cc -G"
+	SHLIB_LD_LIBS=""
+	SHLIB_SUFFIX=".so"
+	SHLIB_VERSION=""
+	DL_LIBS="-ldl"
+	LD_FLAGS="-Wl,-Bexport"
+	LD_SEARCH_FLAGS=""
+	;;
+    NetBSD-*|FreeBSD-*)
+	# Not available on all versions:  check for include file.
+	if test -f /usr/include/dlfcn.h; then
+	    SHLIB_CFLAGS="-fpic"
+	    SHLIB_LD="ld -Bshareable"
+	    SHLIB_LD_LIBS=""
+	    SHLIB_SUFFIX=".so"
+	    SHLIB_VERSION=".1.0"
+	    DL_LIBS=""
+	    LD_FLAGS=""
+	    LD_SEARCH_FLAGS=""
+	else
+	    SHLIB_CFLAGS=""
+	    SHLIB_LD="echo tclLdAout $CC \{$SHLIB_CFLAGS\} | tclsh -r -G 0"
+	    SHLIB_LD_LIBS=""
+	    SHLIB_SUFFIX="..o"
+	    SHLIB_VERSION=""
+	    DL_LIBS=""
+	    LD_FLAGS=""
+	    LD_SEARCH_FLAGS=""
+	fi
+	;;
+    NEXTSTEP-*)
+	SHLIB_CFLAGS=""
+	SHLIB_LD="cc -nostdlib -r"
+	SHLIB_LD_LIBS=""
+	SHLIB_SUFFIX=".so"
+	SHLIB_VERSION=""
+	DL_LIBS=""
+	LD_FLAGS=""
+	LD_SEARCH_FLAGS=""
+	;;
+    OSF1-1.[012])
+	# OSF/1 1.[012] from OSF, and derivatives, including Paragon OSF/1
+	SHLIB_CFLAGS=""
+	# Hack: make package name same as library name
+	SHLIB_LD='ld -R -export $@:'
+	SHLIB_LD_LIBS=""
+	SHLIB_SUFFIX=".so"
+	SHLIB_VERSION=""
+	DL_LIBS=""
+	LD_FLAGS=""
+	LD_SEARCH_FLAGS=""
+	;;
+    OSF1-1.*)
+	# OSF/1 1.3 from OSF using ELF, and derivatives, including AD2
+	SHLIB_CFLAGS="-fpic"
+	SHLIB_LD="ld -shared"
+	SHLIB_LD_LIBS=""
+	SHLIB_SUFFIX=".so"
+	SHLIB_VERSION=""
+	DL_LIBS=""
+	LD_FLAGS=""
+	LD_SEARCH_FLAGS=""
+	;;
+    OSF1-V*)
+        # Digital OSF/1
+	SHLIB_CFLAGS=""
+	SHLIB_LD='ld -shared -expect_unresolved "*"'
+	SHLIB_LD_LIBS=""
+	SHLIB_SUFFIX=".so"
+	SHLIB_VERSION=""
+	DL_LIBS=""
+	LD_FLAGS=""
+	LD_SEARCH_FLAGS=""
+	;;
+    RISCos-*)
+	SHLIB_CFLAGS="-G 0"
+	SHLIB_LD="echo tclLdAout $CC \{$SHLIB_CFLAGS\} | tclsh -r -G 0"
+	SHLIB_LD_LIBS=""
+	SHLIB_SUFFIX="..o"
+	SHLIB_VERSION=""
+	DL_LIBS=""
+	LD_FLAGS="-Wl,-D,08000000"
+	LD_SEARCH_FLAGS=""
+	;;
+    SCO_SV-3.2*)
+        # Note, dlopen is available only on SCO 3.2.5 and greater.  However,
+        # this test works, since "uname -s" was non-standard in 3.2.4 and
+        # below.
+	SHLIB_CFLAGS="-Kpic -belf"
+	SHLIB_LD="ld -G"
+	SHLIB_LD_LIBS=""
+	SHLIB_SUFFIX=".so"
+	SHLIB_VERSION=""
+	DL_LIBS=""
+	LD_FLAGS="-belf -Wl,-Bexport"
+	LD_SEARCH_FLAGS=""
+	;;
+     SINIX*5.4*)
+	SHLIB_CFLAGS="-K PIC"
+	SHLIB_LD="cc -G"
+	SHLIB_LD_LIBS=""
+	SHLIB_SUFFIX=".so"
+	SHLIB_VERSION=""
+	DL_LIBS="-ldl"
+	LD_FLAGS=""
+	LD_SEARCH_FLAGS=""
+	;;
+    SunOS-4*)
+	SHLIB_CFLAGS="-PIC"
+	SHLIB_LD="ld"
+	SHLIB_LD_LIBS=""
+	SHLIB_SUFFIX=".so"
+	SHLIB_VERSION=""
+	DL_LIBS="-ldl"
+	LD_FLAGS=""
+	LD_SEARCH_FLAGS=""
+	;;
+    SunOS-5*)
+	SHLIB_CFLAGS="-K PIC"
+	SHLIB_LD="/usr/ccs/bin/ld -G -z text"
+	SHLIB_LD_LIBS='${LIBS}'
+	SHLIB_SUFFIX=".so"
+	SHLIB_VERSION=""
+	DL_LIBS="-ldl"
+	LD_FLAGS=""
+	LD_SEARCH_FLAGS='-R ${LIB_INSTALL_DIR}'
+	;;
+    ULTRIX-4.*)
+	SHLIB_CFLAGS="-G 0"
+	SHLIB_SUFFIX="..o"
+	SHLIB_LD="echo tclLdAout $CC \{$SHLIB_CFLAGS\} | tclsh -r -G 0"
+	SHLIB_LD_LIBS=""
+	SHLIB_VERSION=""
+	DL_LIBS=""
+	LD_FLAGS="-Wl,-D,08000000"
+	LD_SEARCH_FLAGS=""
+	;;
+    UNIX_SV*)
+	SHLIB_CFLAGS="-K PIC"
+	SHLIB_LD="cc -G"
+	SHLIB_LD_LIBS=""
+	SHLIB_SUFFIX=".so"
+	SHLIB_VERSION=""
+	DL_LIBS="-ldl"
+	LD_FLAGS="-Wl,-Bexport"
+	LD_SEARCH_FLAGS=""
+	;;
+esac
+
+# If we're running gcc, then change the C flags for compiling shared
+# libraries to the right flags for gcc, instead of those for the
+# standard manufacturer compiler.
+if test "$CC" = "gcc" -o `$CC -v 2>&1 | grep -c gcc` != "0" ; then
+  SHLIB_CFLAGS="-fPIC"
+fi
+
+#
+# use shared libs
+#
+AC_ARG_WITH(shared,
+         [  --with-shared               create shared libraries],
+    [vtk_shared_ok=yes], [vtk_shared_ok=no])
+if test "$vtk_shared_ok" = "yes" -a "${SHLIB_SUFFIX}" != "" ; then
+    VTK_SHLIB_CFLAGS="${SHLIB_CFLAGS}"
+    VTK_LD_SEARCH_FLAGS="${LD_SEARCH_FLAGS}"
+    VTK_LIB_FILE="libvtk${SHLIB_SUFFIX}${SHLIB_VERSION}"
+    RANLIB=":"
+else
+    SHLIB_LD_LIBS=""
+    VTK_SHLIB_CFLAGS=""
+    VTK_LD_SEARCH_FLAGS=""
+    VTK_LIB_FILE="libvtk.a"
+fi
+
+AC_SUBST(VTK_SHLIB_CFLAGS)
+AC_SUBST(VTK_LIB_FILE)
+AC_SUBST(SHLIB_LD)
+AC_SUBST(DL_LIBS)
+AC_SUBST(SHLIB_LD_LIBS)
+AC_SUBST(SHLIB_SUFFIX)
+AC_SUBST(SHLIB_VERSION)
+
+# on an HP unsing the native CC we need special +d flag for inlines
+VTK_INLINE_FLAGS=""
+if test $ac_cv_prog_gxx = no; then
+case $system in
+    HP-UX-*.08.*|HP-UX-*.09.*|HP-UX-*.10.*)
+	VTK_INLINE_FLAGS="+z"
+        echo $ac_n "checking whether ${CXX} accepts +d""... $ac_c" 1>&6
+        echo 'void f(){}' > conftest.cc
+        if test -z "`${CXX} +d -c conftest.cc 2>&1`"; then
+          echo "$ac_t""yes" 1>&6
+          VTK_INLINE_FLAGS="+d"
+        else
+          echo "$ac_t""no" 1>&6
+        fi
+        rm -f conftest*
+	;;
+esac
+fi
+AC_SUBST(VTK_INLINE_FLAGS)
+
+dnl Checks for library functions.
+AC_OUTPUT(Makefile)

@@ -1,0 +1,77 @@
+#
+# vtk library makefile
+#
+# NOTE !!! when adding a class, it must be added in four locations
+# It must be in the SRC_OBJ list, TCL_OBJ list and TCL_RULES
+# If it is a concrete class then it should be added to TCL_NEWS
+# as well.
+#
+ME = Vis
+
+# put all vtkFoo.cxx files here as .o files
+SRC_OBJ = \
+vtkByteSwap.o 
+
+# put all vtk classes that are to be wrapped here as tcl/vtkFooTcl.o files
+TCL_OBJ = \
+tcl/vtkByteSwapTcl.o 
+
+# put all vtk classes that are concrete here as vtkFooTcl.h files
+TCL_NEWS = \
+vtkByteSwap.h 
+
+# add in any extra libraies here
+KIT_LIBS = 
+
+# The following is all boiler plate 
+#------------------------------------------------------------------------------
+# Autoconfig defines that can be overridden in Config.mk
+
+CC            = @CC@
+CFLAGS        = @CFLAGS@
+CXX           = @CXX@
+CXXFLAGS      = @CXXFLAGS@
+XCFLAGS       = @X_CFLAGS@
+XLIBS         = @X_LIBS@
+RANLIB        = @RANLIB@
+srcdir        = @srcdir@
+VPATH         = @srcdir@
+prefix        = @prefix@
+exec_prefix   = @exec_prefix@
+XGL_HOME      = @XGL_HOME@
+HAVE_SETMON   = @HAVE_SETMON@
+WORDS_BIGENDIAN = @BIGENDIAN@
+VTK_SHLIB_CFLAGS = @VTK_SHLIB_CFLAGS@
+SHLIB_LD      = @SHLIB_LD@
+SHLIB_LD_LIBS = @SHLIB_LD_LIBS@
+SHLIB_SUFFIX  = @SHLIB_SUFFIX@
+SHLIB_VERSION = @SHLIB_VERSION@
+VTK_LIB_FILE  = libVTK${ME}@VTK_LIB_EXT@
+TCL_LIB_FILE  = libVTK${ME}Tcl@VTK_LIB_EXT@
+VTK_TEMPLATE_FLAGS = @VTK_TEMPLATE_FLAGS@
+VTK_INLINE_FLAGS = @VTK_INLINE_FLAGS@
+BUILD_TCL         = @BUILD_TCL@
+CLEAN_TCL         = @CLEAN_TCL@
+
+#------------------------------------------------------------------------------
+# Include user-editable defines.
+
+@MAKEINCLUDE@ @MAKEQUOTE@../Config.mk@MAKEQUOTE@
+
+#------------------------------------------------------------------------------
+# Include the generic stuff here
+
+@MAKEINCLUDE@ @MAKEQUOTE@../Kits.make@MAKEQUOTE@
+
+#------------------------------------------------------------------------------
+# all Tcl wrapped classes need a line here
+#
+# concrete classes will pass the last argument of 1 abstract will be 0.
+#
+tcl/vtkByteSwapTcl.cxx: vtkByteSwap.h ../tcl/cpp_parse
+	rm -f tcl/vtkByteSwapTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkByteSwap.h $(srcdir)/../tcl/hints 1 > tcl/vtkByteSwapTcl.cxx
+
+
+
+
+

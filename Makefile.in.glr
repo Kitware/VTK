@@ -1,0 +1,22 @@
+GLR_LIBS = -lgl
+GLR_FLAGS = -DUSE_GLR
+GLR_OBJ = \
+vtkGlrActor.o \
+vtkGlrCamera.o \
+vtkGlrLight.o \
+vtkGlrPolyMapper.o \
+vtkGlrProperty.o \
+vtkGlrRenderWindow.o \
+vtkGlrRenderer.o \
+vtkGlrTexture.o 
+ 
+TCL_GLR_OBJ = \
+tclvtkGlrActor.hh.o \
+tclvtkGlrCamera.hh.o \
+tclvtkGlrLight.hh.o \
+tclvtkGlrPolyMapper.hh.o \
+tclvtkGlrProperty.hh.o \
+tclvtkGlrRenderWindow.hh.o \
+tclvtkGlrRenderer.hh.o \
+tclvtkGlrTexture.hh.o \
+tclGNewGlr.o

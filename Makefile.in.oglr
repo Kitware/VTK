@@ -1,0 +1,22 @@
+OGLR_LIBS = -lGL
+OGLR_FLAGS = -DUSE_OGLR
+OGLR_OBJ = \
+vtkOglrActor.o \
+vtkOglrCamera.o \
+vtkOglrLight.o \
+vtkOglrPolyMapper.o \
+vtkOglrProperty.o \
+vtkOglrRenderWindow.o \
+vtkOglrRenderer.o \
+vtkOglrTexture.o 
+
+TCL_OGLR_OBJ = \
+tclvtkOglrActor.hh.o \
+tclvtkOglrCamera.hh.o \
+tclvtkOglrLight.hh.o \
+tclvtkOglrPolyMapper.hh.o \
+tclvtkOglrProperty.hh.o \
+tclvtkOglrRenderWindow.hh.o \
+tclvtkOglrRenderer.hh.o \
+tclvtkOglrTexture.hh.o \
+tclGNewOglr.o

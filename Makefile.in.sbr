@@ -1,0 +1,23 @@
+SBR_LIBS = -ldld -lXwindow -lsb -lXhp11
+SBR_FLAGS = -DUSE_SBR
+SBR_OBJ = \
+vtkSbrActor.o \
+vtkSbrCamera.o \
+vtkSbrLight.o \
+vtkSbrPolyMapper.o \
+vtkSbrProperty.o \
+vtkSbrRenderWindow.o \
+vtkSbrRenderer.o \
+vtkSbrTexture.o 
+
+TCL_SBR_OBJ = \
+tclvtkSbrActor.hh.o \
+tclvtkSbrCamera.hh.o \
+tclvtkSbrLight.hh.o \
+tclvtkSbrPolyMapper.hh.o \
+tclvtkSbrProperty.hh.o \
+tclvtkSbrRenderWindow.hh.o \
+tclvtkSbrRenderer.hh.o \
+tclvtkSbrTexture.hh.o \
+tclGNewSbr.o
+

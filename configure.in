@@ -1,0 +1,86 @@
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT()
+
+#
+# should we use mesa
+#
+AC_ARG_WITH(mesa,
+         [  --with-mesa             use the mesa opengl package])
+
+AC_ARG_WITH(shared,
+         [  --with-shared           create shared libraries for vtk])
+
+AC_ARG_WITH(tcl,
+         [  --with-tcl              build vtk the tcl based interpreter],
+         tcldir=tcl
+         BUILD_TCL=build_tcl
+         CLEAN_TCL=clean_tcl)
+
+AC_SUBST(BUILD_TCL)
+AC_SUBST(CLEAN_TCL)
+
+AC_ARG_WITH(vis,
+         [  --with-vis              include the visualization classes],
+         visdir=vis
+         BUILD_VIS=build_vis
+         CLEAN_VIS=clean_vis)
+
+AC_SUBST(BUILD_VIS)
+AC_SUBST(CLEAN_VIS)
+
+AC_CONFIG_SUBDIRS(core $tcldir $visdir)
+
+#------------------------------------------------------------------------------
+#       Some make programs require includes to be 
+#         .include "file"
+#     others...
+#         include file
+#------------------------------------------------------------------------------
+
+AC_MSG_CHECKING(how make handles includes)
+cat > confmakeinc <<EOF
+
+EOF
+  cat > confmakefile <<EOF
+include confmakeinc
+
+all:
+EOF
+
+if make -f confmakefile >/dev/null 2>/dev/null; then
+    MAKEINCLUDE="include"
+    MAKEQUOTE=''
+    AC_MSG_RESULT(common make include syntax)
+else
+    MAKEINCLUDE=".include"
+    MAKEQUOTE='"'
+    AC_MSG_RESULT(BSD make include syntax)
+fi
+rm confmakefile confmakeinc
+
+AC_SUBST(MAKEINCLUDE)
+AC_SUBST(MAKEQUOTE)
+
+
+#------------------------------------------------------------------------------
+#       If Config.mk is not in the build directory, copy it local.
+#------------------------------------------------------------------------------
+
+if test ! -r Config.mk
+then
+    echo "Copying $srcdir/Config.mk to build directory"
+    cp $srcdir/Config.mk  Config.mk || exit 1
+fi
+
+if test ! -r Kits.make
+then
+    echo "Copying $srcdir/Kits.make to build directory"
+    cp $srcdir/Kits.make Kits.make || exit 1
+fi
+
+AC_OUTPUT(Makefile)
+
+
+
+
+

@@ -1,0 +1,57 @@
+#
+# Makefile --
+#
+# Top-level makefile for the Visualization Toolkit
+# 
+#------------------------------------------------------------------------------
+#
+SHELL=/bin/sh
+
+#------------------------------------------------------------------------------
+# Autoconfig defines that can be overridden in Config.mk
+
+srcdir            = @srcdir@
+VPATH             = @srcdir@
+prefix            = @prefix@
+exec_prefix       = @exec_prefix@
+BUILD_TCL         = @BUILD_TCL@
+CLEAN_TCL         = @CLEAN_TCL@
+BUILD_VIS         = @BUILD_VIS@
+CLEAN_VIS         = @CLEAN_VIS@
+
+#------------------------------------------------------------------------------
+# Include user-editable defines.
+
+@MAKEINCLUDE@ @MAKEQUOTE@Config.mk@MAKEQUOTE@
+
+#------------------------------------------------------------------------------
+
+all: ${BUILD_TCL} build_core ${BUILD_VIS} ${BUILD_TCL}${BUILD_TCL}
+
+build_core:
+	cd core;       ${MAKE} -${MAKEFLAGS} all
+
+build_vis:
+	cd vis;        ${MAKE} -${MAKEFLAGS} all
+
+build_tcl:
+	cd tcl;        ${MAKE} -${MAKEFLAGS} all
+
+# tcl part2
+build_tclbuild_tcl:
+	cd tcl;        ${MAKE} -${MAKEFLAGS} vtk
+
+#------------------------------------------------------------------------------
+# Clean up all files that were built by make.
+
+clean: ${CLEAN_TCL} ${CLEAN_VIS}
+	cd core;       ${MAKE} -${MAKEFLAGS} clean
+	rm -f config.cache
+
+clean_tcl:
+	cd tcl;   ${MAKE} -${MAKEFLAGS} clean
+
+clean_vis:
+	cd vis;   ${MAKE} -${MAKEFLAGS} clean
+
+
