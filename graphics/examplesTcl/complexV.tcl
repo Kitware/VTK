@@ -25,6 +25,8 @@ vtkPolyDataMapper hhogMapper
     hhogMapper SetInput [hhog GetOutput]
     hhogMapper SetScalarRange 50 550
     hhogMapper SetLookupTable lut
+    hhogMapper ImmediateModeRenderingOn
+
 vtkActor hhogActor
     hhogActor SetMapper hhogMapper
 

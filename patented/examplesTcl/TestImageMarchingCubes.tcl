@@ -14,40 +14,35 @@ vtkRenderWindowInteractor iren
 # create pipeline
 #
 vtkVolume16Reader v16
-v16 SetDataDimensions 128 128
-[v16 GetOutput] SetOrigin 0.0 0.0 0.0
-v16 SetDataByteOrderToLittleEndian
-v16 SetFilePrefix "../../../vtkdata/headsq/half"
-#v16 SetImageRange 19 24
-v16 SetImageRange 1 93
-v16 SetDataSpacing 1.6 1.6 1.5
-v16 Update
+  v16 SetDataDimensions 128 128
+  [v16 GetOutput] SetOrigin 0.0 0.0 0.0
+  v16 SetDataByteOrderToLittleEndian
+  v16 SetFilePrefix "../../../vtkdata/headsq/half"
+  v16 SetImageRange 1 93
+  v16 SetDataSpacing 1.6 1.6 1.5
+  v16 Update
 
 vtkImageMarchingCubes iso
-#vtkMarchingCubes iso
-iso SetInput [v16 GetOutput]
-iso SetValue 0 1150
-#iso SetStartMethod {puts "Start Marching"}
-#iso SetProgressMethod {puts "Progress ..."}
-#iso SetEndMethod {puts "Finished Marching"}
-iso SetInputMemoryLimit 1000
-
+  iso SetInput [v16 GetOutput]
+  iso SetValue 0 1150
+  iso SetInputMemoryLimit 1000
 
 vtkPolyDataMapper isoMapper
-isoMapper SetInput [iso GetOutput]
-isoMapper ScalarVisibilityOff
+  isoMapper SetInput [iso GetOutput]
+  isoMapper ScalarVisibilityOff
+  isoMapper ImmediateModeRenderingOn
 
 vtkActor isoActor
-isoActor SetMapper isoMapper
-eval [isoActor GetProperty] SetColor $antique_white
+  isoActor SetMapper isoMapper
+  eval [isoActor GetProperty] SetColor $antique_white
 
 vtkOutlineFilter outline
-    outline SetInput [v16 GetOutput]
+  outline SetInput [v16 GetOutput]
 vtkPolyDataMapper outlineMapper
-    outlineMapper SetInput [outline GetOutput]
+  outlineMapper SetInput [outline GetOutput]
 vtkActor outlineActor
-    outlineActor SetMapper outlineMapper
-    outlineActor VisibilityOff
+  outlineActor SetMapper outlineMapper
+  outlineActor VisibilityOff
 
 # Add the actors to the renderer, set the background and size
 #
