@@ -20,19 +20,6 @@
 #include "vtkImageData.h"
 
 
-//-----  This hack needed to compile using gcc3 on OSX until new stdc++.dylib
-#ifdef __APPLE__
-extern "C"
-{
-  void oft_initRenderingWidgets()
-  {
-    extern void _ZNSt8ios_base4InitC4Ev();
-    _ZNSt8ios_base4InitC4Ev();
-  }
-}
-#endif
-
-
 //----------------------------------------------------------------------------
 // Vtkrenderingpythontkwidgets_Init
 // Called upon system startup to create the widget commands.

@@ -19,20 +19,8 @@
 #include "vtkPointData.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkBooleanTexture, "1.38");
+vtkCxxRevisionMacro(vtkBooleanTexture, "1.39");
 vtkStandardNewMacro(vtkBooleanTexture);
-
-//-----  This hack needed to compile using gcc3 on OSX until new stdc++.dylib
-#ifdef __APPLE__
-extern "C"
-{
-  void oft_initImaging() 
-  {
-  extern void _ZNSt8ios_base4InitC4Ev();
-  _ZNSt8ios_base4InitC4Ev();
-  }
-}
-#endif
 
 vtkBooleanTexture::vtkBooleanTexture()
 {

@@ -18,18 +18,7 @@
 #include "vtkCommand.h"
 #include "vtkTimeStamp.h"
 
-vtkCxxRevisionMacro(vtkObject, "1.89");
-
-//-----  This hack needed to compile using gcc3 on OSX until new stdc++.dylib
-#ifdef __APPLE__
-extern "C"
-{void oft_initCommon() 
- {
-   extern void _ZNSt8ios_base4InitC4Ev();
-   _ZNSt8ios_base4InitC4Ev();
- }
-}
-#endif
+vtkCxxRevisionMacro(vtkObject, "1.90");
 
 // Initialize static member that controls warning display
 static int vtkObjectGlobalWarningDisplay = 1;

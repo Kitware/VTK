@@ -199,10 +199,6 @@ VTK_MAKE_INSTANTIATOR3(vtk${KIT}Instantiator KitInstantiator_SRCS
 
 ADD_LIBRARY(vtk${KIT} ${Kit_SRCS} ${Kit_EXTRA_SRCS} ${KitInstantiator_SRCS})
 
-IF(VTK_APPLE_SHARED_FLAGS_NEEDED)
-  SET_TARGET_PROPERTIES(vtk${KIT} PROPERTIES LINK_FLAGS "-init _oft_init${KIT}")
-ENDIF(VTK_APPLE_SHARED_FLAGS_NEEDED)
-
 # Allow the user to customize their build with some local options
 #
 SET(LOCALUSERMACRODEFINED 0)

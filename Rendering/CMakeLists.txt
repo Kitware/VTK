@@ -344,9 +344,6 @@ IF (VTK_WRAP_TCL)
      vtkTkRenderWidget 
      vtkTkImageViewerWidget)
   ENDIF (NOT VTK_DISABLE_TK_INIT)
-  IF (APPLE AND VTK_BUILD_SHARED_LIBS)
-    SET(Kit_TCL_EXTRA_SRCS ${Kit_TCL_EXTRA_SRCS} vtkOSXRenderingTclInit.c)
-  ENDIF (APPLE AND VTK_BUILD_SHARED_LIBS)
 ENDIF (VTK_WRAP_TCL)
 
 # -----------------------------------------------------------------
@@ -359,10 +356,6 @@ VTK_MAKE_INSTANTIATOR3(vtk${KIT}Instantiator KitInstantiator_SRCS
                        ${VTK_BINARY_DIR} "")
 
 ADD_LIBRARY(vtk${KIT} ${Kit_SRCS} ${Kit_EXTRA_SRCS} ${KitInstantiator_SRCS})
-
-IF(VTK_APPLE_SHARED_FLAGS_NEEDED)
-  SET_TARGET_PROPERTIES(vtk${KIT} PROPERTIES LINK_FLAGS "-init _oft_init${KIT}")
-ENDIF(VTK_APPLE_SHARED_FLAGS_NEEDED)
 
 # Allow the user to customize their build with some local options
 #
@@ -435,14 +428,6 @@ ENDIF(LOCALUSERMACRODEFINED)
 
 # End of common section
 # -----------------------------------------------------------------
-
-IF (VTK_WRAP_TCL)
-  IF (APPLE AND VTK_BUILD_SHARED_LIBS)
-    IF(VTK_APPLE_SHARED_FLAGS_NEEDED)
-      SET_TARGET_PROPERTIES(vtk${KIT}TCL PROPERTIES LINK_FLAGS "-init _oft_initRenOSXInit")
-    ENDIF(VTK_APPLE_SHARED_FLAGS_NEEDED)
-  ENDIF (APPLE AND VTK_BUILD_SHARED_LIBS)
-ENDIF (VTK_WRAP_TCL)
 
 IF (VTK_WRAP_PYTHON)
   IF (TK_LIBRARY)
