@@ -45,7 +45,7 @@ vtkSmartPointerBase::vtkSmartPointerBase(const vtkSmartPointerBase& r):
   // Add a reference to the object.
   this->Register();
 }
-  
+
 //----------------------------------------------------------------------------
 vtkSmartPointerBase::~vtkSmartPointerBase()
 {
@@ -59,7 +59,7 @@ vtkSmartPointerBase::~vtkSmartPointerBase()
     object->UnRegister(0);
     }
 }
-  
+
 //----------------------------------------------------------------------------
 vtkSmartPointerBase&
 vtkSmartPointerBase::operator=(vtkObjectBase* r)

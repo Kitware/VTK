@@ -34,26 +34,26 @@ public:
   // Description:
   // Initialize smart pointer to NULL.
   vtkSmartPointerBase();
-  
+
   // Description:
   // Initialize smart pointer to given object.
   vtkSmartPointerBase(vtkObjectBase* r);
-  
+
   // Description:
   // Initialize smart pointer with a new reference to the same object
   // referenced by given smart pointer.
   vtkSmartPointerBase(const vtkSmartPointerBase& r);
-  
+
   // Description:
   // Destroy smart pointer and remove the reference to its object.
   ~vtkSmartPointerBase();
-  
+
   // Description:
   // Assign object to reference.  This removes any reference to an old
   // object.
   vtkSmartPointerBase& operator=(vtkObjectBase* r);
   vtkSmartPointerBase& operator=(const vtkSmartPointerBase& r);
-  
+
   // Description:
   // Get the contained pointer.
   vtkObjectBase* GetPointer() const
@@ -82,7 +82,7 @@ public:
   // This effectively makes it an auto-ptr.
   class NoReference {};
   vtkSmartPointerBase(vtkObjectBase* r, const NoReference&);
-  
+
 protected:
   // Pointer to the actual object.
   vtkObjectBase* Object;
@@ -117,7 +117,7 @@ private:
     }
 // Description:
 // Compare smart pointer values.
-VTK_SMART_POINTER_BASE_DEFINE_OPERATOR(==)  
+VTK_SMART_POINTER_BASE_DEFINE_OPERATOR(==)
 VTK_SMART_POINTER_BASE_DEFINE_OPERATOR(!=)
 VTK_SMART_POINTER_BASE_DEFINE_OPERATOR(<)
 VTK_SMART_POINTER_BASE_DEFINE_OPERATOR(<=)
