@@ -255,8 +255,9 @@ void  vtkXRenderWindowInteractor::StartRotate()
 void  vtkXRenderWindowInteractor::EndRotate()
 {
   if (this->State != VTKXI_ROTATE) return;
-  this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
   this->State = VTKXI_START;
+  this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
+  this->RenderWindow->Render();
 }
 
 void  vtkXRenderWindowInteractor::StartZoom()
@@ -269,8 +270,9 @@ void  vtkXRenderWindowInteractor::StartZoom()
 void  vtkXRenderWindowInteractor::EndZoom()
 {
   if (this->State != VTKXI_ZOOM) return;
-  this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
   this->State = VTKXI_START;
+  this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
+  this->RenderWindow->Render();
 }
 
 void  vtkXRenderWindowInteractor::StartPan()
@@ -297,8 +299,9 @@ void  vtkXRenderWindowInteractor::StartPan()
 void  vtkXRenderWindowInteractor::EndPan()
 {
   if (this->State != VTKXI_PAN) return;
-  this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
   this->State = VTKXI_START;
+  this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
+  this->RenderWindow->Render();
 }
 
 void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
