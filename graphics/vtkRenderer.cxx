@@ -717,9 +717,9 @@ void vtkRenderer::ResetCamera(float xmin, float xmax, float ymin, float ymax,
 // Reset the camera clipping range to include this entire bounding box
 void vtkRenderer::ResetCameraClippingRange( float bounds[6] )
 {
-  double vn[3], position[3], a, b, c, d;
-  double centerdist, diagdist;
-  double range[2];
+  double  vn[3], position[3], a, b, c, d;
+  double  range[2], dist;
+  int     i, j, k;
 
   this->GetActiveCamera();
   if ( this->ActiveCamera == NULL )
@@ -728,6 +728,7 @@ void vtkRenderer::ResetCameraClippingRange( float bounds[6] )
     return;
     }
   
+  // Find the plane equation for the camera view plane
   this->ActiveCamera->GetViewPlaneNormal(vn);
   this->ActiveCamera->GetPosition(position);
   a = -vn[0];
@@ -735,21 +736,31 @@ void vtkRenderer::ResetCameraClippingRange( float bounds[6] )
   c = -vn[2];
   d = -(a*position[0] + b*position[1] + c*position[2]);
 
-  diagdist = 
-    sqrt( (bounds[0] - bounds[1]) * (bounds[0] - bounds[1]) +
-	  (bounds[2] - bounds[3]) * (bounds[2] - bounds[3]) +
-	  (bounds[4] - bounds[5]) * (bounds[4] - bounds[5]) );
+  // Set the max near clipping plane and the min far clipping plane
+  range[0] = 1e18;
+  range[1] = 1e-18;
+
+  // Find the closest / farthest bounding box vertex
+  for ( k = 0; k < 2; k++ )
+    {
+    for ( j = 0; j < 2; j++ )
+      {
+      for ( i = 0; i < 2; i++ )
+	{
+	dist = a*bounds[i] + b*bounds[2+j] + c*bounds[4+k] + d;
+	range[0] = (dist<range[0])?(dist):(range[0]);
+	range[1] = (dist>range[1])?(dist):(range[1]);
+	}
+      }
+    }
   
-  centerdist = 
-    a*(bounds[0]+bounds[1])/2.0 + 
-    b*(bounds[2]+bounds[3])/2.0 + 
-    c*(bounds[4]+bounds[5])/2.0 + 
-    d;
+  // Give ourselves a little breathing room
+  range[0] *= .99;
+  range[1] *= 1.01;
 
-  range[0] = centerdist - 0.6*diagdist;
-  range[1] = centerdist + 0.6*diagdist;
-
-  range[0] = (range[0] < 0.1)?(0.1):(range[0]);
+  // Make sure near is at least some fraction of far - this prevents near
+  // from being behind the camera or too close in front. How close is too
+  // close depends on the resolution of the depth buffer
   if ( this->ActiveCamera->GetDepthBufferSize() <= 16 )
     {
     range[0] = (range[0] < 0.01*range[1])?(0.01*range[1]):(range[0]);
@@ -758,8 +769,6 @@ void vtkRenderer::ResetCameraClippingRange( float bounds[6] )
     {
     range[0] = (range[0] < 0.0001*range[1])?(0.0001*range[1]):(range[0]);
     }
-
-  range[1] = (range[1] < range[0]+0.1)?(range[0]+0.1):(range[1]);
 
   this->ActiveCamera->SetClippingRange( range );
 }
