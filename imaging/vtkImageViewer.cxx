@@ -65,6 +65,7 @@ vtkImageViewer::vtkImageViewer()
   this->Red = 0;
   this->Green = 1;
   this->Blue = 2;
+  this->GreyScale = 0;
 
   this->XOffset = 0;
   this->YOffset = 0;

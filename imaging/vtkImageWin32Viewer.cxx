@@ -37,7 +37,6 @@ PARTICULAR PURPOSE, AND NON-INFRINGEMENT.  THIS SOFTWARE IS PROVIDED ON AN
 "AS IS" BASIS, AND THE AUTHORS AND DISTRIBUTORS HAVE NO OBLIGATION TO PROVIDE
 MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
-
 =========================================================================*/
 #include "vtkImageWin32Viewer.h"
 
@@ -280,6 +279,23 @@ void vtkImageWin32Viewer::Render(void)
   
   if ( ! this->Input)
     {
+    // open the window anyhow if one has not been set.
+    if (!this->DeviceContext)
+      {
+      // use default size if not specified
+      if (this->Size[0] == 0 )
+        {
+        this->Size[0] = width;
+        this->Size[1] = height;
+        }
+      if (this->Size[0] == 0 )
+        {
+        this->Size[0] = 256;
+        this->Size[1] = 256;
+        }
+      this->MakeDefaultWindow();
+      }
+
     vtkErrorMacro(<< "Render: Please Set the input.");
     return;
     }
@@ -456,14 +472,50 @@ void vtkImageWin32Viewer::Render(void)
   region->Delete();
 }
 
-void vtkImageWin32ViewerSetupPixelFormat(HDC hDC)
+void vtkImageWin32ViewerSetupRGBPixelFormat(HDC hDC)
 {
     PIXELFORMATDESCRIPTOR pfd = {
         sizeof(PIXELFORMATDESCRIPTOR),  /* size */
         1,                              /* version */
         PFD_DRAW_TO_WINDOW,
-        PFD_TYPE_RGBA,                  /* color type */
+        PFD_TYPE_RGBA,                   /* color type */
         24,                             /* prefered color depth */
+        0, 0, 0, 0, 0, 0,               /* color bits (ignored) */
+        0,                              /* no alpha buffer */
+        0,                              /* alpha bits (ignored) */
+        0,                              /* no accumulation buffer */
+        0, 0, 0, 0,                     /* accum bits (ignored) */
+        0,                              /* depth buffer */
+        0,                              /* no stencil buffer */
+        0,                              /* no auxiliary buffers */
+        PFD_MAIN_PLANE,                 /* main layer */
+        0,                              /* reserved */
+        0, 0, 0,                        /* no layer, visible, damage masks */
+    };
+    int pixelFormat;
+
+    pixelFormat = ChoosePixelFormat(hDC, &pfd);
+    if (pixelFormat == 0) {
+        MessageBox(WindowFromDC(hDC), "ChoosePixelFormat failed.", "Error",
+                MB_ICONERROR | MB_OK);
+        exit(1);
+    }
+
+    if (SetPixelFormat(hDC, pixelFormat, &pfd) != TRUE) {
+        MessageBox(WindowFromDC(hDC), "SetPixelFormat failed.", "Error",
+                MB_ICONERROR | MB_OK);
+        exit(1);
+    }
+}
+
+void vtkImageWin32ViewerSetupGreyPixelFormat(HDC hDC)
+{
+    PIXELFORMATDESCRIPTOR pfd = {
+        sizeof(PIXELFORMATDESCRIPTOR),  /* size */
+        1,                              /* version */
+        PFD_DRAW_TO_WINDOW,
+        PFD_TYPE_COLORINDEX,            /* color type */
+        8,                              /* prefered color depth */
         0, 0, 0, 0, 0, 0,               /* color bits (ignored) */
         0,                              /* no alpha buffer */
         0,                              /* alpha bits (ignored) */
@@ -498,14 +550,15 @@ struct vtkImageWin32ViewerCreateInfo
   HPALETTE Palette;
   };
 
-void vtkImageWin32ViewerSetupPalette(HDC hDC, 
+// creates and applies a RGB palette
+void vtkImageWin32ViewerSetupRGBPalette(HDC hDC, 
 				     vtkImageWin32ViewerCreateInfo *me)
 {
   int pixelFormat = GetPixelFormat(hDC);
   PIXELFORMATDESCRIPTOR pfd;
   LOGPALETTE* pPal;
   int paletteSize;
-  
+    
   DescribePixelFormat(hDC, pixelFormat, sizeof(PIXELFORMATDESCRIPTOR), &pfd);
   
   if (pfd.dwFlags & PFD_NEED_PALETTE) 
@@ -549,7 +602,65 @@ void vtkImageWin32ViewerSetupPalette(HDC hDC,
     SelectPalette(hDC, me->Palette, FALSE);
     RealizePalette(hDC);
     }
+
 }
+
+void vtkImageWin32ViewerSetupGreyPalette(HDC hDC, 
+				     vtkImageWin32ViewerCreateInfo *me)
+{
+  int pixelFormat = GetPixelFormat(hDC);
+  PIXELFORMATDESCRIPTOR pfd;
+  LOGPALETTE* pPal;
+  int paletteSize;
+  
+  DescribePixelFormat(hDC, pixelFormat, sizeof(PIXELFORMATDESCRIPTOR), &pfd);
+  
+  // we always want a palette on 8 bit displays
+  if (pfd.cColorBits == 8 || pfd.dwFlags & PFD_NEED_PALETTE) 
+    {
+    paletteSize = 1 << pfd.cColorBits;
+    } 
+  else 
+    {
+    return;
+    }
+  
+  pPal = (LOGPALETTE*)
+    malloc(sizeof(LOGPALETTE) + paletteSize * sizeof(PALETTEENTRY));
+  pPal->palVersion = 0x300;
+  pPal->palNumEntries = paletteSize;
+  
+  /* build a simple RGB color palette */
+  {
+  int redMask = (1 << pfd.cRedBits) - 1;
+  int greenMask = (1 << pfd.cGreenBits) - 1;
+  int blueMask = (1 << pfd.cBlueBits) - 1;
+  int i;
+  
+  for (i=0; i<paletteSize; ++i) 
+    {
+    pPal->palPalEntry[i].peRed = (255*i)/paletteSize;
+    pPal->palPalEntry[i].peGreen = (255*i)/paletteSize;
+    pPal->palPalEntry[i].peBlue = (255*i)/paletteSize;
+    pPal->palPalEntry[i].peFlags = 0;
+    }
+  }
+  
+  me->Palette = CreatePalette(pPal);
+  free(pPal);
+  
+  if (me->Palette) 
+    {
+    SelectPalette(hDC, me->Palette, FALSE);
+    RealizePalette(hDC);
+    }
+}
+
+// used to pass info into the create routine because there doesn't
+// seem to be another way. Could be a problem for multithreaded
+// apps but this is unlikely since this doesn't get called very
+// often at all.
+static int vtkImageWin32DoGrey;
 
 LRESULT APIENTRY vtkImageWin32ViewerWndProc(HWND hWnd, UINT message, 
 					    WPARAM wParam, LPARAM lParam)
@@ -566,11 +677,19 @@ LRESULT APIENTRY vtkImageWin32ViewerWndProc(HWND hWnd, UINT message,
         // easy way to tget the this pointer during the create call
         // we'll pass the created info back out
         vtkImageWin32ViewerCreateInfo *info = 
-	  new vtkImageWin32ViewerCreateInfo;
+	      new vtkImageWin32ViewerCreateInfo;
         SetWindowLong(hWnd,GWL_USERDATA,(LONG)info);
         info->DeviceContext = GetDC(hWnd);
-        vtkImageWin32ViewerSetupPixelFormat(info->DeviceContext);
-        vtkImageWin32ViewerSetupPalette(info->DeviceContext,info);
+        if (vtkImageWin32DoGrey)
+          {
+          vtkImageWin32ViewerSetupGreyPixelFormat(info->DeviceContext);
+          vtkImageWin32ViewerSetupGreyPalette(info->DeviceContext,info);
+          }
+        else
+          {
+          vtkImageWin32ViewerSetupRGBPixelFormat(info->DeviceContext);
+          vtkImageWin32ViewerSetupRGBPalette(info->DeviceContext,info);
+          }
         return 0;
       }
     case WM_DESTROY:
@@ -679,10 +798,11 @@ void vtkImageWin32Viewer::MakeDefaultWindow()
         }
     
     /* create window */
+    vtkImageWin32DoGrey = this->GreyScale;
     if (this->ParentId)
       {
       this->WindowId = 
-	CreateWindow("vtkImage", this->WindowName,
+	      CreateWindow("vtkImage", this->WindowName,
 		     WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
 		     0, 0, this->Size[0], this->Size[1],
 		     this->ParentId, NULL, this->ApplicationInstance, NULL);
@@ -690,7 +810,7 @@ void vtkImageWin32Viewer::MakeDefaultWindow()
     else
       {
       this->WindowId = 
-	CreateWindow("vtkImage", this->WindowName,
+	      CreateWindow("vtkImage", this->WindowName,
 		     WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
 		     0, 0, this->Size[0], this->Size[1],
 		     NULL, NULL, this->ApplicationInstance, NULL);

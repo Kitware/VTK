@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include 	"vtkObject.h"
 #include 	"vtkImageSource.h"
 #include 	"vtkImageRegion.h"
-#include        "vtkStructuredPointsToImage.h"
+#include  "vtkStructuredPointsToImage.h"
 
 class VTK_EXPORT vtkImageViewer : public vtkObject {
 public:
@@ -158,6 +158,13 @@ public:
   vtkBooleanMacro(Mapped,int);
 
   // Description:
+  // By default this is a color viewer. GreyScaleOn will improve the appearance
+  // of grey scale images on some systems.
+  vtkSetMacro(GreyScale,int);
+  vtkGetMacro(GreyScale,int);
+  vtkBooleanMacro(GreyScale,int);
+
+  // Description:
   // Set/Get the position in screen coordinates of the rendering window.
   virtual int *GetPosition() {return (int *)NULL;};
   virtual void SetPosition(int,int);
@@ -191,6 +198,7 @@ protected:
   char *WindowName;
   int Size[2];
   int Position[2];
+  int GreyScale;
 };
 
 #endif
