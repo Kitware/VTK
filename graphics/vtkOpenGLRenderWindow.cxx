@@ -687,17 +687,38 @@ unsigned char *vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
 
   data = new unsigned char[(x_hi - x_low + 1)*(y_hi - y_low + 1)*3];
 
-  // disable texture to get around Sun OpenGL 1.1 bug
-  glDisable( GL_TEXTURE_1D );
-  glDisable( GL_TEXTURE_2D );
-#ifdef GL_TEXTURE_3D_EXT  
-  glDisable( GL_TEXTURE_3D_EXT );
-#endif
-
+#ifdef sparc
+  // We need to read the image data one row at a time and convert it
+  // from RGBA to RGB to get around a bug in Sun OpenGL 1.1
+  long    xloop, yloop;
+  unsigned char *buffer;
+  unsigned char *p_data = NULL;
+  
+  buffer = new unsigned char [4*(x_hi - x_low + 1)];
+  p_data = data;
+  for (yloop = y_low; yloop <= y_hi; yloop++)
+    {
+    // read in a row of pixels
+    glReadPixels(x_low,yloop,(x_hi-x_low+1),1,
+		 GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+    for (xloop = 0; xloop <= x_hi-x_low; xloop++)
+      {
+      *p_data = buffer[xloop*4]; p_data++;
+      *p_data = buffer[xloop*4+1]; p_data++;
+      *p_data = buffer[xloop*4+2]; p_data++;
+      }
+    }
+  
+  delete [] buffer;  
+#else
+  // If the Sun bug is ever fixed, then we could use the following
+  // technique which provides a vast speed improvement on the SGI
+  
   // Calling pack alignment ensures that we can grab the any size window
   glPixelStorei( GL_PACK_ALIGNMENT, 1 );
   glReadPixels(x_low, y_low, x_hi-x_low+1, y_hi-y_low+1, GL_RGB,
                GL_UNSIGNED_BYTE, data);
+#endif
   
   return data;
 }
@@ -722,6 +743,7 @@ void vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
 
   if (y1 < y2)
     {
+
     y_low = y1; 
     y_hi  = y2;
     }
@@ -742,12 +764,48 @@ void vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
     x_hi  = x1;
     }
 
-  // disable texture to get around Sun OpenGL 1.1 bug
-  glDisable( GL_TEXTURE_1D );
-  glDisable( GL_TEXTURE_2D );
-#ifdef GL_TEXTURE_3D_EXT  
-  glDisable( GL_TEXTURE_3D_EXT );
-#endif
+#ifdef sparc
+  // We need to read the image data one row at a time and convert it
+  // from RGBA to RGB to get around a bug in Sun OpenGL 1.1
+  long    xloop, yloop;
+  unsigned char *buffer;
+  unsigned char *p_data = NULL;
+  
+  buffer = new unsigned char [4*(x_hi - x_low + 1)];
+
+  // now write the binary info one row at a time
+  glDisable(GL_BLEND);
+  p_data = data;
+  for (yloop = y_low; yloop <= y_hi; yloop++)
+    {
+    for (xloop = 0; xloop <= x_hi - x_low; xloop++)
+      {
+      buffer[xloop*4] = *p_data; p_data++;
+      buffer[xloop*4+1] = *p_data; p_data++;
+      buffer[xloop*4+2] = *p_data; p_data++;
+      buffer[xloop*4+3] = 0xff;
+      }
+    /* write out a row of pixels */
+    glMatrixMode( GL_MODELVIEW );
+    glPushMatrix();
+    glLoadIdentity();
+    glMatrixMode( GL_PROJECTION );
+    glPushMatrix();
+    glLoadIdentity();
+    glRasterPos3f( (2.0 * (GLfloat)(x_low) / this->Size[0] - 1),
+		   (2.0 * (GLfloat)(yloop) / this->Size[1] - 1),
+		   -1.0 );
+    glMatrixMode( GL_MODELVIEW );
+    glPopMatrix();
+    glMatrixMode( GL_PROJECTION );
+    glPopMatrix();
+
+    glDrawPixels((x_hi-x_low+1),1, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+    }
+  glEnable(GL_BLEND);
+#else
+  // If the Sun bug is ever fixed, then we could use the following
+  // technique which provides a vast speed improvement on the SGI
   
   // now write the binary info
   glMatrixMode( GL_MODELVIEW );
@@ -765,8 +823,11 @@ void vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
   glPopMatrix();
 
   glPixelStorei( GL_UNPACK_ALIGNMENT, 1);
+  glDisable(GL_BLEND);
   glDrawPixels((x_hi-x_low+1), (y_hi - y_low + 1),
                GL_RGB, GL_UNSIGNED_BYTE, data);
+  glEnable(GL_BLEND);
+#endif
 }
 
 float *vtkOpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2, int front)
