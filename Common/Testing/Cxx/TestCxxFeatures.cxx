@@ -90,6 +90,11 @@
 
 //----------------------------------------------------------------------------
 
+/* Test inclusion of some stl headers.  */
+#include <vector>
+
+//----------------------------------------------------------------------------
+
 /* Test full template specialization of functions.  */
 template <class T>
 int FullySpecializedFunction(T*)
