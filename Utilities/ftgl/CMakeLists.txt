@@ -1,37 +1,70 @@
 PROJECT (VTKFTGL)
 
+#
+# Dependency mask
+#
 INCLUDE_REGULAR_EXPRESSION(".*")
 
+#
+# Include path
+#
 INCLUDE_DIRECTORIES (
   ${VTKFTGL_SOURCE_DIR}/src
   ${VTK_SOURCE_DIR}/Utilities/freetype/include
 )
 
+#
+# Do not use the STL (portability issue)
+#
+ADD_DEFINITIONS(-DFTGL_DO_NOT_USE_STL)
+
+#
+# Source files
+#
 SOURCE_FILES (FTGL_SRCS
   src/FTBitmapGlyph.cpp
   src/FTCharmap.cpp
-  src/FTExtrdGlyph.cpp
   src/FTFace.cpp
   src/FTFont.cpp
   src/FTGLBitmapFont.cpp
-  src/FTGLExtrdFont.cpp
-  src/FTGLOutlineFont.cpp
   src/FTGLPixmapFont.cpp
-  src/FTGLPolygonFont.cpp
   src/FTGLTextureFont.cpp
   src/FTGlyph.cpp
   src/FTGlyphContainer.cpp
   src/FTLibrary.cpp
-  src/FTOutlineGlyph.cpp
   src/FTPixmapGlyph.cpp
-  src/FTPolyGlyph.cpp
   src/FTSize.cpp
   src/FTTextureGlyph.cpp
-  src/FTVectoriser.cpp
 )
 
-ADD_DEFINITIONS(-DFTGL_DO_NOT_USE_STL)
+#
+# Do not use vector fonts (we only need pixmap and bitmaps and vector fonts
+# needs glu). Might be an option at some point, but set it to 'true' for now.
+#
+SET (FTGL_DO_NOT_USE_VECTORISER 1)
 
+IF (FTGL_DO_NOT_USE_VECTORISER)
+  ADD_DEFINITIONS(-DFTGL_DO_NOT_USE_VECTORISER)
+ELSE (FTGL_DO_NOT_USE_VECTORISER)
+  SOURCE_FILES (FTGL_SRCS
+    src/FTExtrdGlyph.cpp
+    src/FTGLExtrdFont.cpp
+    src/FTGLOutlineFont.cpp
+    src/FTGLPolygonFont.cpp
+    src/FTOutlineGlyph.cpp
+    src/FTPolyGlyph.cpp
+    src/FTVectoriser.cpp
+  )
+  INCLUDE (${CMAKE_ROOT}/Modules/FindGLU.cmake)
+  IF (GLU_INCLUDE_PATH)
+    INCLUDE_DIRECTORIES (${GLU_INCLUDE_PATH})
+  ENDIF (GLU_INCLUDE_PATH)
+  LINK_LIBRARIES (${GLU_LIBRARY})
+ENDIF (FTGL_DO_NOT_USE_VECTORISER)
+
+#
+# Win32 flags (and shared/static lib settings)
+#
 IF (WIN32)
   ADD_DEFINITIONS(-DUSE_STD_NAMESPACE)
   ADD_DEFINITIONS(-DWIN32)
@@ -42,49 +75,67 @@ IF (WIN32)
   ENDIF (BUILD_SHARED_LIBS)
 ENDIF (WIN32)
 
+#
+# Unix flags
+#
 IF (UNIX)
   # IF(CMAKE_SYSTEM MATCHES "HP-UX.*")
     ADD_DEFINITIONS(-D_HPUX_SOURCE)
   # ENDIF(CMAKE_SYSTEM MATCHES "HP-UX.*")
 ENDIF (UNIX)
 
+#
+# Apple flags
+#
 IF (APPLE)
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated -fpascal-strings")
-  SET(CMAKE_CXX_SHLIB_LINK_FLAGS "${CMAKE_CXX_SHLIB_LINK_FLAGS} -multiply_defined suppress -framework Carbon")
+  SET(CMAKE_CXX_SHLIB_LINK_FLAGS 
+  "${CMAKE_CXX_SHLIB_LINK_FLAGS} -multiply_defined suppress -framework Carbon")
 ENDIF (APPLE)
 
+#
+# We need OpenGL
+#
 INCLUDE (${CMAKE_ROOT}/Modules/FindOpenGL.cmake)
 IF (OPENGL_INCLUDE_PATH)
   INCLUDE_DIRECTORIES (${OPENGL_INCLUDE_PATH})
 ENDIF (OPENGL_INCLUDE_PATH)
 LINK_LIBRARIES (${OPENGL_LIBRARY})
 
-INCLUDE (${CMAKE_ROOT}/Modules/FindGLU.cmake)
-IF (GLU_INCLUDE_PATH)
-  INCLUDE_DIRECTORIES (${GLU_INCLUDE_PATH})
-ENDIF (GLU_INCLUDE_PATH)
-LINK_LIBRARIES (${GLU_LIBRARY})
-
+#
+# Define the library (and install it)
+#
 ADD_LIBRARY (vtkftgl FTGL_SRCS)
 TARGET_LINK_LIBRARIES(vtkftgl
   vtkfreetype
 )
+INSTALL_TARGETS (/lib/vtk vtkftgl)
 
+#
+# Do not cover this lib
+#
 CONFIGURE_FILE (${VTKFTGL_SOURCE_DIR}/.NoDartCoverage
                 ${VTKFTGL_BINARY_DIR}/.NoDartCoverage)
 
-INSTALL_TARGETS (/lib/vtk vtkftgl)
+#
+# Build examples (testing purposes)
+# (Warning, they use Glut)
+#
+OPTION (FTGL_BUILD_EXAMPLES "Build FTGL examples (warning: you need Glut)" OFF)
+MARK_AS_ADVANCED (FTGL_BUILD_EXAMPLES)
 
-IF (BUILD_EXAMPLES)
+IF (FTGL_BUILD_EXAMPLES)
 
   INCLUDE (${CMAKE_ROOT}/Modules/FindGLUT.cmake)
-
   IF (GLUT_LIBRARY)
     IF (GLUT_INCLUDE_PATH)
       INCLUDE_DIRECTORIES (${GLUT_INCLUDE_PATH})
     ENDIF (GLUT_INCLUDE_PATH)
     LINK_LIBRARIES (${GLUT_LIBRARY})
 
+    #
+    # Do we need X ?
+    #
     IF (VTK_USE_X)
       LINK_LIBRARIES (-lXt)
       FIND_LIBRARY (XMU_LIBRARY Xmu
@@ -102,28 +153,41 @@ IF (BUILD_EXAMPLES)
       LINK_LIBRARIES(${CMAKE_X_LIBS})
     ENDIF (VTK_USE_X)
 
-    # Avoid the glutCreateMenu_ATEXIT_HACK pb
+    #
+    # Win32 flags
+    #
 	IF (WIN32)
+      # - Avoid the glutCreateMenu_ATEXIT_HACK pb.
+      # - Sort-of a hack to avoid the bug in glut.h to avoid
+      #   ambiguity between 'std::exit(int)' and 'std::exit(int)' in function
       ADD_DEFINITIONS(-DGLUT_DISABLE_ATEXIT_HACK)
+      ADD_DEFINITIONS(-DGLUT_BUILDING_LIB)
 	ENDIF (WIN32)
 
-    # The following is sort-of a hack to avoid the bug in glut.h
-    # Ambiguity between 'std::exit(int)' and 'std::exit(int)' in function...
-    IF (BORLAND)
-      ADD_DEFINITIONS(-DGLUT_BUILDING_LIB)
-    ENDIF (BORLAND)
-
+    #
+    # Apple flags
+    #
     IF (APPLE)
-      SET(CMAKE_CXX_SHLIB_LINK_FLAGS "${CMAKE_CXX_SHLIB_LINK_FLAGS} -framework Cocoa")
+      SET (CMAKE_CXX_SHLIB_LINK_FLAGS 
+      "${CMAKE_CXX_SHLIB_LINK_FLAGS} -framework Cocoa")
     ENDIF (APPLE)
 
+    #
+    # Link examples to FTGL and Freetype
+    #
     LINK_LIBRARIES (
       vtkftgl
       vtkfreetype
     )
 
-    ADD_DEFINITIONS(-DFTGL_NO_TEXTURE_FONTS)
+    #
+    # Do not use texture fonts (crash on Type1 fonts)
+    #
+    ADD_DEFINITIONS(-DFTGL_DO_NOT_USE_TEXTURE_FONT)
 
+    #
+    # Example 1
+    #
     SOURCE_FILES (FTGL_DEMO_SRCS
       demo/tb.c
       demo/trackball.c
@@ -131,11 +195,11 @@ IF (BUILD_EXAMPLES)
     )
     ADD_EXECUTABLE (ftgl_demo FTGL_DEMO_SRCS)
 
+    #
+    # Example 2
+    #
     ADD_EXECUTABLE (ftgl_demo2 demo/demo.cpp)
 
   ENDIF (GLUT_LIBRARY)
 
-ENDIF (BUILD_EXAMPLES)
-
-
-
+ENDIF (FTGL_BUILD_EXAMPLES)
