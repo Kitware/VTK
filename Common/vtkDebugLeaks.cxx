@@ -38,7 +38,7 @@ int vtkDebugLeaksIgnoreClassesCheck(const char* s)
   return 0;
 }
 
-vtkCxxRevisionMacro(vtkDebugLeaks, "1.21");
+vtkCxxRevisionMacro(vtkDebugLeaks, "1.22");
 vtkStandardNewMacro(vtkDebugLeaks);
 
 // A hash function for converting a string to a long
@@ -73,6 +73,10 @@ public:
   ~vtkDebugLeaksHashNode()
     {
       delete [] this->Key;
+      if(this->Next)
+        {
+        delete this->Next;
+        }
     }
 public:
   vtkDebugLeaksHashNode *Next;
