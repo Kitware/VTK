@@ -91,7 +91,7 @@ vtkOpenGLFreeTypeTextMapper_GetGL2PSFontName(vtkTextProperty *tprop,
 
 //----------------------------------------------------------------------------
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.37");
+vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.38");
 vtkStandardNewMacro(vtkOpenGLFreeTypeTextMapper);
 #endif
 
@@ -346,6 +346,7 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
     glEnable(GL_LIGHTING);
+    glDepthFunc(GL_LEQUAL);
     
     return;
     }
