@@ -154,6 +154,8 @@ public:
   int GetLocatorPoint(int cellX, int cellY, int edge);
   void AddLocatorPoint(int cellX, int cellY, int edge, int ptId);
   void IncrementLocatorZ();
+
+  void Update();
   
 protected:
   vtkImageCache *Input;
