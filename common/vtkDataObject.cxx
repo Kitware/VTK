@@ -57,6 +57,7 @@ vtkDataObject::vtkDataObject()
   this->EstimatedMemorySize = 0;
   this->PointLock = vtkMutexLock::New();
   this->CellLock = vtkMutexLock::New();
+  this->Locality = 0;
 }
 
 //----------------------------------------------------------------------------
