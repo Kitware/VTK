@@ -26,7 +26,7 @@
 #include "vtkScalarsToColors.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkImageToPolyDataFilter, "1.26");
+vtkCxxRevisionMacro(vtkImageToPolyDataFilter, "1.27");
 vtkStandardNewMacro(vtkImageToPolyDataFilter);
 
 vtkCxxSetObjectMacro(vtkImageToPolyDataFilter,LookupTable,vtkScalarsToColors);
@@ -1249,6 +1249,7 @@ void vtkImageToPolyDataFilter::BuildPolygons(vtkUnsignedCharArray *vtkNotUsed(po
 void vtkImageToPolyDataFilter::SmoothEdges(vtkUnsignedCharArray *pointDescr, 
                                            vtkPolyData *edges)
 {
+  
   vtkPoints *points=edges->GetPoints();
   vtkIdType numPts=points->GetNumberOfPoints(), ptId;
   int i, iterNum;
@@ -1256,6 +1257,7 @@ void vtkImageToPolyDataFilter::SmoothEdges(vtkUnsignedCharArray *pointDescr,
   double x[3], xconn[3], xave[3], factor;
   unsigned short int ncells;
   vtkIdType *cells, *pts, npts;
+
 
   // For each smoothing operation, loop over points. Points that can be 
   // smoothed are moved in the direction of the average of their neighbor
@@ -1281,7 +1283,18 @@ void vtkImageToPolyDataFilter::SmoothEdges(vtkUnsignedCharArray *pointDescr,
         for (i=0; i<ncells; i++)
           {
           edges->GetCellPoints(cells[i], npts, pts);
-          connId = (pts[0] != ptId ? pts[0] : pts[1]);
+          if (pts[0] != ptId)
+            {
+            connId = pts[0];
+            }
+          else if (npts > 1)
+            {
+            connId = pts[1];
+            }
+          else
+            {
+            vtkErrorMacro("Bad cell in smoothing operation");
+            }
           points->GetPoint(connId, xconn);
           xave[0] += xconn[0]; xave[1] += xconn[1]; xave[2] += xconn[2];
           }
