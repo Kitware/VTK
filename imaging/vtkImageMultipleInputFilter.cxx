@@ -275,11 +275,9 @@ void vtkImageMultipleInputFilter::RecursiveStreamUpdate(vtkImageData *outData)
 {
   int idx;
   int memory, divide;
-  vtkImageData **inDatas;
   int outExt[6], splitExt[6];
   
   memory = 0;
-  inDatas = new vtkImageData *[this->NumberOfInputs];
   
   // Compute the required input region extent.
   // Copy to fill in extent of extra dimensions.
@@ -324,6 +322,8 @@ void vtkImageMultipleInputFilter::RecursiveStreamUpdate(vtkImageData *outData)
     }
 
   // No Streaming required.
+  vtkImageData **inDatas;
+  inDatas = new vtkImageData *[this->NumberOfInputs];
   for (idx = 0; idx < this->NumberOfInputs; ++idx)
     {
     if (this->Inputs[idx])
@@ -348,6 +348,8 @@ void vtkImageMultipleInputFilter::RecursiveStreamUpdate(vtkImageData *outData)
       this->Inputs[idx]->ReleaseData();
       }
     }
+  
+  delete [] inDatas;
 }
 
 //----------------------------------------------------------------------------

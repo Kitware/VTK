@@ -172,6 +172,14 @@ vtkTextSource::vtkTextSource()
   this->BackgroundColor[3] = 1.0;
 }
 
+vtkTextSource::~vtkTextSource()
+{
+  if (this->Text)
+    {
+    delete [] this->Text;
+    }
+}
+
 void vtkTextSource::Execute()
 {
   int row, col;

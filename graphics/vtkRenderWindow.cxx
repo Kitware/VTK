@@ -80,6 +80,10 @@ vtkRenderWindow::vtkRenderWindow()
 
 vtkRenderWindow::~vtkRenderWindow()
 {
+  if (this->FileName)
+    {
+    delete [] this->FileName;
+    } 
   if (this->AccumulationBuffer) 
     {
     delete [] this->AccumulationBuffer;

@@ -163,8 +163,9 @@ unsigned char *vtkXImageWindow::GetPixelData(int x1, int y1,
       }
     }
  
+  XDestroyImage(image);
+  
   return data;
-
 }
 
 void vtkXImageWindow::SwapBuffers()
@@ -239,8 +240,9 @@ vtkXImageWindow::~vtkXImageWindow()
   vtkDebugMacro(<< "vtkXImageWindow::vtkXImageWindow");
 
   /* free the Xwindow we created no need to free the colormap */
-  if (this->DisplayId && this->WindowId)
+  if (this->DisplayId && this->WindowId && this->WindowCreated)
     {
+    XFreeGC(this->DisplayId, this->Gc);
     XDestroyWindow(this->DisplayId,this->WindowId);
     }
   if (this->DisplayId)
