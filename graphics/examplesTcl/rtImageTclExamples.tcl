@@ -181,10 +181,6 @@ foreach afile $files {
     set CPUTime [decipadString [expr $endCPU - $startCPU] 3 8]
     puts -nonewline $logFile "$wallTime wall, $CPUTime cpu, "
     
-    
-    # reset global GL variables
-    vtkPolyDataMapper rtMapper; rtMapper SetResolveCoincidentTopologyToDefault
-
     # look for a renderWindow ImageWindow or ImageViewer
     # first check for some common names
     if {[info commands renWin] == "renWin"} {
@@ -274,6 +270,11 @@ foreach afile $files {
 	GeneratePlotFiles $afile [string trimleft $CPUTime]
     }
     
+    # reset global GL variables
+    vtkPolyDataMapper rtMapper
+    rtMapper SetResolveCoincidentTopologyToDefault
+    rtMapper GlobalImmediateModeRenderingOff
+
     vtkCommand DeleteAllObjects
     catch {destroy .top}
     catch {destroy .geo}
