@@ -257,10 +257,14 @@ arg: type
 	$<integer>1;} 
   | type var_id 
     {
-      currentFunction->ArgCounts[currentFunction->NumberOfArguments] = 0; 
+      currentFunction->ArgCounts[currentFunction->NumberOfArguments] = 
+	$<integer>2 / 10000; 
       currentFunction->ArgTypes[currentFunction->NumberOfArguments] = 
-	$<integer>1;
-    } opt_var_assign
+	$<integer>1 + $<integer>2 % 10000;
+      /* fail if array is not const */
+      currentFunction->ArrayFailure = ( (($<integer>2 % 10000)/100) % 10 != 0 
+					&& (($<integer>1 / 1000) & 1) == 0 );
+     } opt_var_assign
   | VAR_FUNCTION 
     { 
       postSig("void (*func)(void *) ");
@@ -272,14 +276,14 @@ opt_var_assign: | '=' float_num;
 
 var: type var_id ';' | VAR_FUNCTION ';';
 
-var_id: any_id var_array;
+var_id: any_id var_array { $<integer>$ = $<integer>2; };
 
-var_array: 
-  | ARRAY_NUM 
-     {char temp[100]; sprintf(temp,"[%i]",$<integer>1); postSig(temp);} 
-     var_array { currentFunction->ArrayFailure = 1; }
-  | '[' maybe_other_no_semi ']' var_array 
-    { postSig("[]"); currentFunction->ArrayFailure = 1; };
+var_array: { $<integer>$ = 0; }
+     | ARRAY_NUM { char temp[100]; sprintf(temp,"[%i]",$<integer>1); 
+                   postSig(temp); } 
+       var_array { $<integer>$ = 300 + 10000 * $<integer>1; } 
+     | '[' maybe_other_no_semi ']' var_array 
+           { postSig("[]"); $<integer>$ = 300; };
 
 
 type: CONST type_red1 {$<integer>$ = 1000 + $<integer>2;} 

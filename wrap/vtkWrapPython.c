@@ -216,6 +216,15 @@ void do_return(FILE *fp)
     case 304: case 305: case 306:
       use_hints(fp);
       break;
+    case 302:
+      {
+      fprintf(fp,"      if (temp%i == NULL)\n        {\n",MAX_ARGS);
+      fprintf(fp,"        Py_INCREF(Py_None);\n");
+      fprintf(fp,"        return Py_None;\n        }\n");
+      fprintf(fp,"      return PyString_FromString(vtkPythonManglePointer(temp%i,\"void_p\"));\n",
+	      MAX_ARGS);
+      break;
+      }
     case 1:
     case 7:   fprintf(fp,"      return PyFloat_FromDouble(temp%i);\n",
 		      MAX_ARGS); break;
@@ -402,7 +411,7 @@ void outputFunction2(FILE *fp, FileInfo *data)
 	      fprintf(fp,"    temp%d = (%s *)vtkPythonGetPointerFromObject(tempH%d,\"%s\");\n",
 		      i, currentFunction->ArgClasses[i], i, 
 		      currentFunction->ArgClasses[i]);
-	      fprintf(fp,"    if (!temp%d) error = 1;\n",i);
+	      fprintf(fp,"    if (!temp%d && tempH%d != Py_None) error = 1;\n",i,i);
 	      }
 	    }
 	  
@@ -410,7 +419,7 @@ void outputFunction2(FILE *fp, FileInfo *data)
 	  if (currentFunction->NumberOfArguments == 1 &&
 	      currentFunction->ArgTypes[0] == 5000)
 	    {
-	    fprintf(fp,"    if (!PyCallable_Check(temp0))\n");
+	    fprintf(fp,"    if (!PyCallable_Check(temp0) && temp0 != Py_None)\n");
 	    fprintf(fp,"      {\n      PyErr_SetString(PyExc_ValueError,\"vtk callback method passed to %s in %s was not callable.\");\n",
 		    currentFunction->Name,data->ClassName);
 	    fprintf(fp,"      return NULL;\n      }\n");
@@ -419,6 +428,18 @@ void outputFunction2(FILE *fp, FileInfo *data)
 	  
 	  fprintf(fp,"    if (!error)\n      {\n");
 	  
+	  /* check for void pointers and pass appropriate info*/
+	  for (i = 0; i < currentFunction->NumberOfArguments; i++)
+	    {
+	    if (currentFunction->ArgTypes[i]%1000 == 302)
+	      {
+	      fprintf(fp,"      temp%i = vtkPythonUnmanglePointer((char *)temp%i,&size%i,\"%s\");\n",i,i,i,"void_p");
+	      fprintf(fp,"      if (size%i == -1) {\n        PyErr_SetString(PyExc_ValueError,\"mangled pointer to %s in %s was of incorrect type.\");\n",
+		      i,currentFunction->Name,data->ClassName);
+	      fprintf(fp,"       return NULL;\n      }\n"); 
+	      }
+	    }
+
 	  switch (currentFunction->ReturnType%1000)
 	    {
 	    case 2:
@@ -446,7 +467,7 @@ void outputFunction2(FILE *fp, FileInfo *data)
 	    else if (currentFunction->NumberOfArguments == 1 
 		     && currentFunction->ArgTypes[i] == 5000)
 	      {
-	      fprintf(fp,"vtkPythonVoidFunc,(void *)temp%i",i);
+	      fprintf(fp,"((temp0 == Py_None) ? vtkPythonVoidFunc : NULL),(void *)temp%i",i);
 	      }
 	    else
 	      {
@@ -562,7 +583,7 @@ void outputFunction(FILE *fp, FileInfo *data)
   /* if we need a return type hint make sure we have one */
   switch (currentFunction->ReturnType%1000)
     {
-    case 301: case 302: case 307:
+    case 301: case 307:
     case 304: case 305: case 306:
       args_ok = currentFunction->HaveHint;
       break;

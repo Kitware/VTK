@@ -44,6 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkSetGet.h"
 #include "Python.h"
 
+extern char *vtkPythonManglePointer(void *ptr, const char *type);
+extern void *vtkPythonUnmanglePointer(char *ptrText, int *len, const char *type);
 extern void *vtkPythonGetPointerFromObject(PyObject *obj,char *result_type);
 extern PyObject *vtkPythonGetObjectFromPointer(void *ptr);
 extern void vtkPythonAddObjectToHash(PyObject *obj, void *anInstance,
@@ -52,3 +54,4 @@ extern void vtkPythonDeleteObjectFromHash(PyObject *obj);
 
 extern void vtkPythonVoidFunc(void *);
 extern void vtkPythonVoidFuncArgDelete(void *);
+

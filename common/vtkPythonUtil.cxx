@@ -157,6 +157,39 @@ void vtkHashTable::DeleteHashEntry(void *key)
     }
 }
 
+// mangle a void pointer into a SWIG-style string
+char *vtkPythonManglePointer(void *ptr, const char *type)
+{
+  static char ptrText[128];
+  sprintf(ptrText,"_%*.*lx_%s",sizeof(void *),sizeof(void *),ptr,type);
+  return ptrText;
+}
+
+// unmangle a void pointer from a SWIG-style string
+void *vtkPythonUnmanglePointer(char *ptrText, int *len, const char *type)
+{
+  int i; 
+  void *ptr;
+  char typeCheck[128];
+  if (*len < 128)
+    {
+    i = sscanf(ptrText,"_%lx_%s",&ptr,typeCheck);
+    if (strcmp(type,typeCheck) == 0)
+      { // sucessfully unmangle
+      *len = 0;
+      return ptr;
+      }
+    else if (i == 2)
+      { // mangled pointer of wrong type
+      *len = -1;
+      return NULL;
+      }
+    }
+  // couldn't unmangle: return string as void pointer if it didn't look
+  // like a SWIG mangled pointer
+  return (void *)ptrText;
+}
+
 // add an object to the hash table
 void vtkPythonAddObjectToHash(PyObject *obj, void *ptr, void *tcFunc)
 { 
@@ -274,5 +307,8 @@ void vtkPythonVoidFunc(void *arg)
 void vtkPythonVoidFuncArgDelete(void *arg)
 {
   PyObject *func = (PyObject *)arg;
-  Py_DECREF(func);
+  if (func)
+    {
+    Py_DECREF(func);
+    }
 }
