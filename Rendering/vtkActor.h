@@ -138,8 +138,7 @@ public:
   virtual void ApplyProperties() {return;};
 
   // Description:
-  // Get the actors mtime plus consider its properties, texture and
-  // usermatrix if set.
+  // Get the actors mtime plus consider its properties and texture if set.
   unsigned long int GetMTime();
   
   // Description:

@@ -31,7 +31,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkActor, "1.120");
+vtkCxxRevisionMacro(vtkActor, "1.121");
 
 vtkCxxSetObjectMacro(vtkActor,Texture,vtkTexture);
 
@@ -397,7 +397,7 @@ float *vtkActor::GetBounds()
 
 unsigned long int vtkActor::GetMTime()
 {
-  unsigned long mTime=this->vtkObject::GetMTime();
+  unsigned long mTime=this->Superclass::GetMTime();
   unsigned long time;
 
   if ( this->Property != NULL )
@@ -409,18 +409,6 @@ unsigned long int vtkActor::GetMTime()
   if ( this->BackfaceProperty != NULL )
     {
     time = this->BackfaceProperty->GetMTime();
-    mTime = ( time > mTime ? time : mTime );
-    }
-
-  if ( this->UserMatrix != NULL )
-    {
-    time = this->UserMatrix->GetMTime();
-    mTime = ( time > mTime ? time : mTime );
-    }
-
-  if ( this->UserTransform != NULL )
-    {
-    time = this->UserTransform->GetMTime();
     mTime = ( time > mTime ? time : mTime );
     }
 
