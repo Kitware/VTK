@@ -29,7 +29,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationStringKey.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.10");
+vtkCxxRevisionMacro(vtkDataObject, "1.11");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -235,7 +235,9 @@ void vtkDataObject::SetPipelineInformation(vtkInformation* newInfo)
       // Detach the output that used to be held by the new information.
       if(vtkDataObject* oldData = newInfo->Get(vtkDataObject::DATA_OBJECT()))
         {
+        oldData->Register(this);
         oldData->SetPipelineInformation(0);
+        oldData->UnRegister(this);
         }
 
       // Tell the new information about this object.

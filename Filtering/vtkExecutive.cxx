@@ -29,7 +29,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkExecutive, "1.14");
+vtkCxxRevisionMacro(vtkExecutive, "1.15");
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_AFTER_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_BEFORE_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_DIRECTION, Integer);
@@ -426,7 +426,9 @@ void vtkExecutive::SetOutputData(int newPort, vtkDataObject* newOutput)
         }
       else if(vtkDataObject* oldOutput = info->Get(vtkDataObject::DATA_OBJECT()))
         {
+        oldOutput->Register(this);
         oldOutput->SetPipelineInformation(0);
+        oldOutput->UnRegister(this);
         }
 
       // Output has changed.  Reset the pipeline information.
