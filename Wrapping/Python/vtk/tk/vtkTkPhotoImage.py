@@ -20,7 +20,8 @@ class vtkTkPhotoImage ( Tkinter.PhotoImage ):
         # Caller the superclass
         Tkinter.PhotoImage.__init__ ( self, kw )
         vtkLoadPythonTkWidgets ( self.tk )
-    def PutImageSlice ( self, image, z ):
-        t = cast.GetOutput().__this__
-        photo.tk.eval ( 'vtkImageDataToTkPhoto ' + t[:-2] + ' ' + self.name + ' ' + z );
+    def PutImageSlice ( self, image, z, orientation='transverse' ):
+        t = image.__this__
+        s = 'vtkImageDataToTkPhoto %s %s %d %s' % ( t[:-2], self.name, z, orientation )
+        self.tk.eval ( s )
 
