@@ -287,7 +287,7 @@ int vtkThreadedController::GetLocalProcessId()
   
   vtkErrorMacro("Could Not Find my process id.");
   return -1;
-#endif VTK_USE_SPROC
+#endif
 #ifdef VTK_USE_SPROC
   pid_t pid = PRDA.sys_prda.prda_sys.t_pid;
   for (idx = 0; idx < this->NumberOfProcesses; ++idx)
