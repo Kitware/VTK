@@ -40,6 +40,8 @@
 #include <X11/StringDefs.h> // Needed for X types in the public interface
 #include <X11/Intrinsic.h> // Needed for X types in the public interface
 
+class vtkCallbackCommand;
+
 class VTK_RENDERING_EXPORT vtkXRenderWindowInteractor : public vtkRenderWindowInteractor
 {
 public:
@@ -171,7 +173,8 @@ protected:
   void Timer(XtPointer client_data, XtIntervalId *id); 
   void Callback(Widget w, XtPointer client_data, XEvent *event, Boolean *ctd);
 
-
+  vtkCallbackCommand* BreakXtLoopCallback;
+  static void BreakXtLoop(vtkObject*, unsigned long, void*, void*);
 private:
   vtkXRenderWindowInteractor(const vtkXRenderWindowInteractor&);  // Not implemented.
   void operator=(const vtkXRenderWindowInteractor&);  // Not implemented.

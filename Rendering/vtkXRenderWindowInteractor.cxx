@@ -23,13 +23,14 @@
 #include "vtkXRenderWindowInteractor.h"
 #include "vtkInteractorStyle.h"
 #include "vtkXOpenGLRenderWindow.h"
+#include "vtkCallbackCommand.h"
 #include "vtkActor.h"
 #include <X11/Shell.h>
 #include <math.h>
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.108");
+vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.109");
 vtkStandardNewMacro(vtkXRenderWindowInteractor);
 
 typedef struct
@@ -62,6 +63,10 @@ vtkXRenderWindowInteractor::vtkXRenderWindowInteractor()
   this->OwnTop = 0;
   this->TopLevelShell = NULL;
   this->BreakLoopFlag = 0;
+  this->BreakXtLoopCallback = vtkCallbackCommand::New();
+  this->BreakXtLoopCallback->SetClientData(this);
+  this->BreakXtLoopCallback->SetCallback(
+    &vtkXRenderWindowInteractor::BreakXtLoop);
 }
 
 vtkXRenderWindowInteractor::~vtkXRenderWindowInteractor()
@@ -71,6 +76,7 @@ vtkXRenderWindowInteractor::~vtkXRenderWindowInteractor()
     {
     XtDestroyWidget(this->Top);
     }
+  this->BreakXtLoopCallback->Delete();
 }
 
 // Specify the Xt widget to use for interaction. This method is
@@ -130,9 +136,10 @@ void vtkXRenderWindowInteractor::SetTopLevelShell(Widget topLevel)
 // and the application continues instead of calling exit().
 // With this change, it is possible to have clean-up code after
 // the interactor loop.
-void BreakXtLoop(void *iren)
+void vtkXRenderWindowInteractor::BreakXtLoop(vtkObject*, unsigned long,
+                                             void* iren, void*)
 {
-  ((vtkXRenderWindowInteractor*)iren)->SetBreakLoopFlag(1);
+  static_cast<vtkXRenderWindowInteractor*>(iren)->SetBreakLoopFlag(1);
 }
 
 // This will start up the X event loop and never return. If you
@@ -155,8 +162,8 @@ void vtkXRenderWindowInteractor::Start()
     {
     return;
     }
-
-  this->SetExitMethod(BreakXtLoop, this);
+  
+  this->AddObserver(vtkCommand::ExitEvent, this->BreakXtLoopCallback);
   this->BreakLoopFlag = 0;
   do 
     {
@@ -165,6 +172,7 @@ void vtkXRenderWindowInteractor::Start()
     XtDispatchEvent(&event);
     } 
   while (this->BreakLoopFlag == 0);
+  this->RemoveObserver(this->BreakXtLoopCallback);
 }
 
 // Initializes the event handlers using an XtAppContext that you have
