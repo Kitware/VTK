@@ -368,8 +368,10 @@ float vtkImageDifference::GetError()
   int i;
 
   for ( i= 0; i < this->NumberOfThreads; i++ )
+    {
     error += this->ErrorPerThread[i];
-  
+    }
+
   return error;
 }
 
@@ -379,8 +381,10 @@ float vtkImageDifference::GetThresholdedError()
   int i;
 
   for ( i= 0; i < this->NumberOfThreads; i++ )
+    {
     error += this->ThresholdedErrorPerThread[i];
-  
+    }
+
   return error;
 }
 
