@@ -396,7 +396,8 @@ int vtkUnstructuredGrid::InsertNextCell(int type, int npts, int *pts)
   // insert connectivity
   this->Connectivity->InsertNextCell(npts,pts);
   // insert type and storage information
-  vtkDebugMacro(<< "insert location " << this->Connectivity->GetInsertLocation(npts));
+  vtkDebugMacro(<< "insert location " 
+                << this->Connectivity->GetInsertLocation(npts));
   this->Locations->InsertNextValue(this->Connectivity->GetInsertLocation(npts));
   return this->Types->InsertNextValue((unsigned char) type);
 
@@ -440,17 +441,16 @@ void vtkUnstructuredGrid::SetCells(int *types, vtkCellArray *cells)
   // build types
   for (i=0, cells->InitTraversal(); cells->GetNextCell(npts,pts); i++)
     {
-      this->Types->InsertNextValue((unsigned char) types[i]);
-      this->Locations->InsertNextValue(cells->GetTraversalLocation(npts));
+    this->Types->InsertNextValue((unsigned char) types[i]);
+    this->Locations->InsertNextValue(cells->GetTraversalLocation(npts));
     }
 }
 
 
 void vtkUnstructuredGrid::SetCells(vtkUnsignedCharArray *cellTypes, 
-				   vtkIntArray *cellLocations, 
-				   vtkCellArray *cells)
+                                   vtkIntArray *cellLocations, 
+                                   vtkCellArray *cells)
 {
-
   // set cell array
   if ( this->Connectivity )
     {
@@ -767,7 +767,7 @@ void vtkUnstructuredGrid::DeepCopy(vtkDataObject *dataObject)
       }
     if (grid->Links)
       {
-	this->Links = vtkCellLinks::New();
+      this->Links = vtkCellLinks::New();
       this->Links->DeepCopy(grid->Links);
       this->Links->Register(this);
       this->Links->Delete();
@@ -775,28 +775,28 @@ void vtkUnstructuredGrid::DeepCopy(vtkDataObject *dataObject)
 
     if ( this->Types )
       {
-	this->Types->UnRegister(this);
-	this->Types = NULL;
+      this->Types->UnRegister(this);
+      this->Types = NULL;
       }
     if (grid->Types)
       {
-	this->Types = vtkUnsignedCharArray::New();
-	this->Types->DeepCopy(grid->Types);
-	this->Types->Register(this);
-	this->Types->Delete();
+      this->Types = vtkUnsignedCharArray::New();
+      this->Types->DeepCopy(grid->Types);
+      this->Types->Register(this);
+      this->Types->Delete();
       }
 
     if ( this->Locations )
       {
-	this->Locations->UnRegister(this);
-	this->Locations = NULL;
+      this->Locations->UnRegister(this);
+      this->Locations = NULL;
       }
     if (grid->Locations)
       {
-	this->Locations = vtkIntArray::New();
-	this->Locations->DeepCopy(grid->Locations);
-	this->Locations->Register(this);
-	this->Locations->Delete();
+      this->Locations = vtkIntArray::New();
+      this->Locations->DeepCopy(grid->Locations);
+      this->Locations->Register(this);
+      this->Locations->Delete();
       }
     }
 
@@ -889,63 +889,57 @@ void vtkUnstructuredGrid::GetCellNeighbors(int cellId, vtkIdList *ptIds,
 // Fills uniqueTypes with list of unique cell types (same as above).
 void vtkUnstructuredGrid::GetListOfUniqueCellTypes(vtkUnsignedCharArray *uniqueTypes)
 {
-
   unsigned char type;
 
   if (this->Types)
     {
-
-      type = Types->GetValue(0);
-      uniqueTypes->InsertNextValue(type);
-
-      for (int cellId = 0; cellId < this->GetNumberOfCells(); cellId++)
-	{
-	  type = Types->GetValue(cellId);
-	  for (int i = 0; i < uniqueTypes->GetMaxId()+1; i++) 
-	    {
-	      if (type != uniqueTypes->GetValue(i))
-		{
-		  uniqueTypes->InsertNextValue(type);
-		}
-	      else
-		{
-		  break; //cell is not unique, return control to outer loop
-		}
-	    }
-	}
-
+    type = Types->GetValue(0);
+    uniqueTypes->InsertNextValue(type);
+    
+    for (int cellId = 0; cellId < this->GetNumberOfCells(); cellId++)
+      {
+      type = Types->GetValue(cellId);
+      for (int i = 0; i < uniqueTypes->GetMaxId()+1; i++) 
+        {
+        if (type != uniqueTypes->GetValue(i))
+          {
+          uniqueTypes->InsertNextValue(type);
+          }
+        else
+          {
+          break; //cell is not unique, return control to outer loop
+          }
+        }
+      }
     }
 }
 
-int vtkUnstructuredGrid::IsHomogeneous() {
-
+int vtkUnstructuredGrid::IsHomogeneous() 
+{
   unsigned char type;
   if (this->Types)
     {
-      type = Types->GetValue(0);
-      for (int cellId = 0; cellId < this->GetNumberOfCells(); cellId++)
-	{
-	  if (this->Types->GetValue(cellId) != type)
-	    {
-	      return 0;
-	    }
-	}
-      return 1;
+    type = Types->GetValue(0);
+    for (int cellId = 0; cellId < this->GetNumberOfCells(); cellId++)
+      {
+      if (this->Types->GetValue(cellId) != type)
+        {
+        return 0;
+        }
+      }
+    return 1;
     }
   return 0;
-
 }
 
 // Fill container with indices of cells which match given type.
 void vtkUnstructuredGrid::GetIdsOfCellsOfType(int type, vtkIntArray *array)
 {
-
   for (int cellId = 0; cellId < this->GetNumberOfCells(); cellId++)
     {
-      if ((int)Types->GetValue(cellId) == type)
+    if ((int)Types->GetValue(cellId) == type)
       {
-	array->InsertNextValue(cellId);
+      array->InsertNextValue(cellId);
       }
     }
-
 }
