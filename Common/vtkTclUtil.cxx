@@ -23,7 +23,11 @@
 
 extern "C"
 {
+#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4)
+  typedef int (*vtkTclCommandType)(ClientData, Tcl_Interp *,int, CONST char *[]);
+#else
   typedef int (*vtkTclCommandType)(ClientData, Tcl_Interp *,int, char *[]);
+#endif
 }
 
 vtkTclInterpStruct *vtkGetInterpStruct(Tcl_Interp *interp)

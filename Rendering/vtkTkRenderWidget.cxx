@@ -128,8 +128,13 @@ extern "C" {
 #define VTKIMAGEDATATOTKPHOTO_CORONAL 0
 #define VTKIMAGEDATATOTKPHOTO_SAGITTAL 1
 #define VTKIMAGEDATATOTKPHOTO_TRANSVERSE 2
-  int vtkImageDataToTkPhoto_Cmd (ClientData vtkNotUsed(clientData), Tcl_Interp *interp, 
-                                 int argc, char **argv)
+  int vtkImageDataToTkPhoto_Cmd (ClientData vtkNotUsed(clientData), 
+                                 Tcl_Interp *interp, 
+                                 int argc, 
+#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4)
+                                 const
+#endif
+                                 char **argv)
   {
     int status = 0;
     vtkImageData* image = NULL;
@@ -353,8 +358,17 @@ int vtkTkRenderWidget_Configure(Tcl_Interp *interp,
                                 int argc, char *argv[], int flags) 
 {
   // Let Tk handle generic configure options.
-  if (Tk_ConfigureWidget(interp, self->TkWin, vtkTkRenderWidgetConfigSpecs,
-                         argc, argv, (char *)self, flags) == TCL_ERROR) 
+  if (Tk_ConfigureWidget(interp, 
+                         self->TkWin, 
+                         vtkTkRenderWidgetConfigSpecs,
+                         argc, 
+#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4)
+                         const_cast<const char **>(argv), 
+#else
+                         argv, 
+#endif
+                         (char *)self, 
+                         flags) == TCL_ERROR) 
     {
     return(TCL_ERROR);
     }
@@ -377,8 +391,13 @@ int vtkTkRenderWidget_Configure(Tcl_Interp *interp,
 // to choose the appropriate method to invoke.
 extern "C"
 {
-  int vtkTkRenderWidget_Widget(ClientData clientData, Tcl_Interp *interp,
-                               int argc, char *argv[]) 
+  int vtkTkRenderWidget_Widget(ClientData clientData, 
+                               Tcl_Interp *interp,
+                               int argc, 
+#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4)
+                               const
+#endif
+                               char *argv[]) 
   {
     struct vtkTkRenderWidget *self = (struct vtkTkRenderWidget *)clientData;
     int result = TCL_OK;
@@ -426,7 +445,12 @@ extern "C"
         {
         /* Execute a configuration change */
         result = vtkTkRenderWidget_Configure(interp, self, argc-2, 
-                                             argv+2, TK_CONFIG_ARGV_ONLY);
+#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4)
+                                             const_cast<char **>(argv+2), 
+#else
+                                             argv+2, 
+#endif
+                                             TK_CONFIG_ARGV_ONLY);
         }
       }
     else if (!strcmp(argv[1], "GetRenderWindow"))
@@ -464,9 +488,17 @@ extern "C"
 //     * Configures this vtkTkRenderWidget for the given arguments
 extern "C" 
 {
-  int vtkTkRenderWidget_Cmd(ClientData clientData, Tcl_Interp *interp, 
-                            int argc, char **argv)
+  int vtkTkRenderWidget_Cmd(ClientData clientData, 
+                            Tcl_Interp *interp, 
+                            int argc, 
+#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4)
+                            const
+#endif
+                            char **argv)
   {
+#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4)
+    const
+#endif
     char *name;
     Tk_Window main = (Tk_Window)clientData;
     Tk_Window tkwin;
@@ -511,7 +543,15 @@ extern "C"
                           vtkTkRenderWidget_EventProc, (ClientData)self);
     
     // Configure vtkTkRenderWidget widget
-    if (vtkTkRenderWidget_Configure(interp, self, argc-2, argv+2, 0) 
+    if (vtkTkRenderWidget_Configure(interp, 
+                                    self, 
+                                    argc-2, 
+#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4)
+                                    const_cast<char **>(argv+2), 
+#else
+                                    argv+2, 
+#endif
+                                    0) 
         == TCL_ERROR) 
       {
       Tk_DestroyWindow(tkwin);
