@@ -25,7 +25,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkProjectedTerrainPath, "1.1");
+vtkCxxRevisionMacro(vtkProjectedTerrainPath, "1.2");
 vtkStandardNewMacro(vtkProjectedTerrainPath);
 
 // Begin vtkProjectedTerrainPath class implementation----------------------------
@@ -86,6 +86,7 @@ void vtkProjectedTerrainPath::PrintSelf(ostream& os, vtkIndent indent)
     }
   
   os << indent << "Height Offset: " << this->HeightOffset << "\n";
+  os << indent << "Height Tolerance: " << this->HeightTolerance << "\n";
   os << indent << "Subdivision Factor: " << this->SubdivisionFactor << "\n";
   
 }
