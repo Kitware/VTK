@@ -45,7 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkXMLDataElement, "1.1");
+vtkCxxRevisionMacro(vtkXMLDataElement, "1.2");
 vtkStandardNewMacro(vtkXMLDataElement);
 
 //----------------------------------------------------------------------------
@@ -65,6 +65,7 @@ vtkXMLDataElement::vtkXMLDataElement()
   this->NestedElements = new vtkXMLDataElement*[this->NestedElementsSize];
   
   this->InlineDataPosition = 0;
+  this->XMLByteIndex = 0;
 }
 
 //----------------------------------------------------------------------------
