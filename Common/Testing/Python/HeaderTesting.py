@@ -5,6 +5,13 @@ import re
 import os
 import stat
 
+def StringEndsWith(str1, str2):
+    l1 = len(str1)
+    l2 = len(str2)
+    if l1 < l2:
+        return 0
+    return (str1[(l1-l2):] == str2)
+
 class TestVTKFiles:
     def __init__(self):
         self.FileName = ""
@@ -60,7 +67,7 @@ class TestVTKFiles:
                 file = rm.group(1)
                 if file == (self.ParentName + ".h"):
                     includeparent = 1
-                if not file.endswith(".h"):
+                if not StringEndsWith(file, ".h"):
                     nplines.append(" %4d: %s" % (cc, line))
             cc = cc + 1
         if len(lines) > 1:
@@ -233,13 +240,18 @@ class TestVTKFiles:
 
 test = TestVTKFiles()
 
+if len(sys.argv) < 2:
+    print "Testing directory not specified..."
+    print "Usage: %s <directory> [ exception(s) ]" % sys.argv[0]
+    sys.exit(1)
+    
 dirname = sys.argv[1]
 exceptions = sys.argv[2:]
 
 for a in os.listdir(dirname):
     if a in exceptions:
         continue
-    if not a.endswith(".h"):
+    if not StringEndsWith(a, ".h"):
         continue
     pathname = '%s/%s' % (dirname, a)
     if pathname in exceptions:
