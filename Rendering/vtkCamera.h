@@ -359,7 +359,7 @@ class VTK_EXPORT vtkCamera : public vtkObject
   
   // Description:
   // Update the viewport
-  virtual void UpdateViewport(vtkRenderer *ren) {}
+  virtual void UpdateViewport(vtkRenderer *vtkNotUsed(ren)) {}
   
 #ifndef VTK_REMOVE_LEGACY_CODE
   // Description:

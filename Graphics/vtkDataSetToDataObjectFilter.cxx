@@ -268,7 +268,7 @@ void vtkDataSetToDataObjectFilter::Execute()
     {
     fieldData = input->GetFieldData();
     
-    for (int i=0; i<fieldData->GetNumberOfArrays(); i++)
+    for (i=0; i<fieldData->GetNumberOfArrays(); i++)
       {
       fd->AddArray(fieldData->GetArray(i));
       }
@@ -278,7 +278,7 @@ void vtkDataSetToDataObjectFilter::Execute()
     {
     fieldData = input->GetPointData();
     
-    for (int i=0; i<fieldData->GetNumberOfArrays(); i++)
+    for (i=0; i<fieldData->GetNumberOfArrays(); i++)
       {
       fd->AddArray(fieldData->GetArray(i));
       }
@@ -288,7 +288,7 @@ void vtkDataSetToDataObjectFilter::Execute()
     {
     fieldData = input->GetCellData();
     
-    for (int i=0; i<fieldData->GetNumberOfArrays(); i++)
+    for (i=0; i<fieldData->GetNumberOfArrays(); i++)
       {
       fd->AddArray(fieldData->GetArray(i));
       }
