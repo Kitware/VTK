@@ -175,7 +175,8 @@ void vtkDicer::Execute()
   this->NumberOfPieces = 0;
   this->MarkPoints(root,groupIds);
   this->DeleteTree(root);
-
+  delete root;
+  
   vtkDebugMacro(<<"Created " << this->NumberOfPieces << " pieces");
 //
 // Update self
@@ -220,6 +221,7 @@ void vtkDicer::DeleteTree(vtkOBBNode *OBBptr)
     this->DeleteTree(OBBptr->Kids[1]);
     delete OBBptr->Kids[0];
     delete OBBptr->Kids[1];
+    delete [] OBBptr->Kids;
     }
 }
 

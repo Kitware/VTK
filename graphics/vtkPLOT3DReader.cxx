@@ -644,6 +644,7 @@ void vtkPLOT3DReader::ComputeTemperature(vtkPointData *outputPD)
     temperature->SetScalar(i, p*rr*rrgas);
   }
   outputPD->SetScalars(temperature);
+  temperature->Delete();
   vtkDebugMacro(<<"Created temperature scalar");
 }
 
@@ -682,6 +683,7 @@ void vtkPLOT3DReader::ComputePressure(vtkPointData *outputPD)
     pressure->SetScalar(i, p);
   }
   outputPD->SetScalars(pressure);
+  pressure->Delete();
   vtkDebugMacro(<<"Created pressure scalar");
 }
 
@@ -719,6 +721,7 @@ void vtkPLOT3DReader::ComputeEnthalpy(vtkPointData *outputPD)
     enthalpy->SetScalar(i, this->Gamma*(e*rr - 0.5*v2));
   }
   outputPD->SetScalars(enthalpy);
+  enthalpy->Delete();
   vtkDebugMacro(<<"Created enthalpy scalar");
 }
 
@@ -760,6 +763,7 @@ void vtkPLOT3DReader::ComputeKineticEnergy(vtkPointData *outputPD)
     kineticEnergy->SetScalar(i, 0.5*v2);
   }
   outputPD->SetScalars(kineticEnergy);
+  kineticEnergy->Delete();
   vtkDebugMacro(<<"Created kinetic energy scalar");
 }
 
@@ -797,6 +801,7 @@ void vtkPLOT3DReader::ComputeVelocityMagnitude(vtkPointData *outputPD)
     velocityMag->SetScalar(i, sqrt((double)v2));
   }
   outputPD->SetScalars(velocityMag);
+  velocityMag->Delete();
   vtkDebugMacro(<<"Created velocity magnitude scalar");
 }
 
@@ -842,6 +847,7 @@ void vtkPLOT3DReader::ComputeEntropy(vtkPointData *outputPD)
     entropy->SetScalar(i, s);
   }
   outputPD->SetScalars(entropy);
+  entropy->Delete();
   vtkDebugMacro(<<"Created entropy scalar");
 }
 
@@ -892,6 +898,7 @@ void vtkPLOT3DReader::ComputeSwirl(vtkPointData *outputPD)
     swirl->SetScalar(i,s);
   }
   outputPD->SetScalars(swirl);
+  swirl->Delete();
   vtkDebugMacro(<<"Created swirl scalar");
 
   // reset current vector
@@ -932,6 +939,7 @@ void vtkPLOT3DReader::ComputeVelocity(vtkPointData *outputPD)
     velocity->SetVector(i, v);
   }
   outputPD->SetVectors(velocity);
+  velocity->Delete();
   vtkDebugMacro(<<"Created velocity vector");
 }
 
@@ -1151,6 +1159,7 @@ void vtkPLOT3DReader::ComputeVorticity(vtkPointData *outputPD)
     }
 
   outputPD->SetVectors(vorticity);
+  vorticity->Delete();
   vtkDebugMacro(<<"Created vorticity vector");
 }
 
@@ -1375,6 +1384,7 @@ void vtkPLOT3DReader::ComputePressureGradient(vtkPointData *outputPD)
     }
 
   outputPD->SetVectors(gradient);
+  gradient->Delete();
   vtkDebugMacro(<<"Created pressure gradient vector");
 
   // reset current scalar

@@ -118,6 +118,10 @@ XVisualInfo *vtkOpenGLRenderWindow::GetDesiredVisualInfo()
 #endif
     for (multi = this->MultiSamples; !v && multi >= 0; multi--)
       {
+      if (v) 
+	{
+	XFree(v);
+	}
       v = vtkOpenGLRenderWindowTryForVisual(this->DisplayId,
 					    this->DoubleBuffer, 
 					    stereo, multi);
@@ -127,6 +131,10 @@ XVisualInfo *vtkOpenGLRenderWindow::GetDesiredVisualInfo()
 #endif
     for (multi = this->MultiSamples; !v && multi >= 0; multi--)
       {
+      if (v) 
+	{
+	XFree(v);
+	}
       v = vtkOpenGLRenderWindowTryForVisual(this->DisplayId,
 					    !this->DoubleBuffer, 
 					    stereo, multi);
@@ -355,6 +363,12 @@ void vtkOpenGLRenderWindow::WindowInitialize (void)
 		       &matcher, &nItems);
     }
 
+  // free the visual info
+  if (v)
+    {
+    XFree(v);
+    }
+  
   // RESIZE THE WINDOW TO THE DESIRED SIZE
   vtkDebugMacro(<< "Resizing the xwindow\n");
   XResizeWindow(this->DisplayId,this->WindowId,
@@ -563,11 +577,18 @@ void vtkOpenGLRenderWindow::SetSize(int x,int y)
 int vtkOpenGLRenderWindow::GetDesiredDepth()
 {
   XVisualInfo *v;
-
+  int depth = 0;
+  
   // get the default visual to use 
   v = this->GetDesiredVisualInfo();
+  
+  if (v)
+    {
+    depth = v->depth;  
+    XFree(v);
+    }
 
-  return v->depth;  
+  return depth;
 }
 
 // Description:
@@ -575,11 +596,18 @@ int vtkOpenGLRenderWindow::GetDesiredDepth()
 Visual *vtkOpenGLRenderWindow::GetDesiredVisual ()
 {
   XVisualInfo *v;
-
+  Visual *vis;
+  
   // get the default visual to use 
   v = this->GetDesiredVisualInfo();
 
-  return v->visual;  
+  if (v)
+    {
+    vis = v->visual;  
+    XFree(v);
+    }
+  
+  return vis;  
 }
 
 
@@ -588,7 +616,7 @@ Visual *vtkOpenGLRenderWindow::GetDesiredVisual ()
 Colormap vtkOpenGLRenderWindow::GetDesiredColormap ()
 {
   XVisualInfo *v;
-
+  
   if (this->ColorMap) return this->ColorMap;
   
   // get the default visual to use 
@@ -596,8 +624,12 @@ Colormap vtkOpenGLRenderWindow::GetDesiredColormap ()
 
   this->ColorMap = XCreateColormap(this->DisplayId,
 				   RootWindow( this->DisplayId, v->screen),
-				   v->visual, AllocNone );
-  
+				   v->visual, AllocNone ); 
+  if (v)
+    {
+    XFree(v);
+    }
+
   return this->ColorMap;  
 }
 
@@ -610,8 +642,9 @@ void vtkOpenGLRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
-unsigned char *vtkOpenGLRenderWindow::GetPixelData(int x1, int y1, int x2, int y2, 
-						 int front)
+unsigned char *vtkOpenGLRenderWindow::GetPixelData(int x1, int y1, 
+						   int x2, int y2, 
+						   int front)
 {
   long     xloop,yloop;
   int     y_low, y_hi;

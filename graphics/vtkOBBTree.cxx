@@ -395,6 +395,10 @@ void vtkOBBTree::BuildTree(vtkIdList *cells, vtkOBBNode *OBBptr, int level)
       this->BuildTree(LHlist, LHnode, level+1);
       this->BuildTree(RHlist, RHnode, level+1);
       }
+    
+    // free up local objects
+    LHlist->Delete();
+    RHlist->Delete(); 
     }//if should build tree
 
   if ( cells && this->RetainCellLists ) 
