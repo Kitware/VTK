@@ -41,10 +41,10 @@ ren1 AddActor sphereActor
 ren1 AddActor spikeActor
 ren1 SetBackground 0.1 0.2 0.4
 ren1 SetViewport 0 0 0.5 1
-$ren2 AddActor sphereActor
-$ren2 AddActor spikeActor
-$ren2 SetBackground 0.1 0.4 0.2
-$ren2 SetViewport 0.5 0 1 1
+ren2 AddActor sphereActor
+ren2 AddActor spikeActor
+ren2 SetBackground 0.1 0.4 0.2
+ren2 SetViewport 0.5 0 1 1
 renWin SetSize 500 500
 
 # render the image
@@ -52,7 +52,7 @@ renWin SetSize 500 500
 iren SetUserMethod {wm deiconify .vtkInteract}
 iren Initialize
 set cam1 [ren1 GetActiveCamera]
-set cam2 [$ren2 GetActiveCamera]
+set cam2 [ren2 GetActiveCamera]
 $cam1 SetWindowCenter -1.01 0
 $cam2 SetWindowCenter 1.01 0
 
