@@ -169,14 +169,13 @@ architecture you wish to build.<p>
 
 <h3><A NAME="Cygwin">Cygwin Installation</h3>
 The build process for Cygwin is almost exactly the same as the UNIX build process.
-However, you have to make sure that the -mwin32 and -mwindows flags are passed to the compiler.
 
 If you will be using C++ as your development language:
 <pre>
   1) untar the src files
   2) untar the data files
   3) cd vtk
-  4) (export CXXFLAGS="-mwin32 -mwindows"; cmake )
+  4) cmake 
   5) read and edit CMakeCache.txt adding options like python or tcl/tk support.
   6) cmake
   7) make
