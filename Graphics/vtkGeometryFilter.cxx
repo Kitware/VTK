@@ -30,7 +30,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkGeometryFilter, "1.96");
+vtkCxxRevisionMacro(vtkGeometryFilter, "1.97");
 vtkStandardNewMacro(vtkGeometryFilter);
 
 // Construct with all types of clipping turned off.
@@ -868,6 +868,8 @@ void vtkGeometryFilter::UnstructuredGridExecute()
         case VTK_QUADRATIC_QUAD:
         case VTK_QUADRATIC_TETRA:
         case VTK_QUADRATIC_HEXAHEDRON:
+        case VTK_QUADRATIC_WEDGE:
+        case VTK_QUADRATIC_PYRAMID:
           {
           vtkGenericCell *cell = vtkGenericCell::New();
           input->GetCell(cellId,cell);
