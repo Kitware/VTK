@@ -1049,16 +1049,16 @@ void vtkVolumeTextureMapper2D::InitializeRender( vtkRenderer *ren,
   this->GetInput()->GetSpacing( this->DataSpacing );
   switch ( this->MajorDirection )
     {
-    VTK_PLUS_X_DIRECTION:
-    VTK_MINUS_X_DIRECTION:
+    case VTK_PLUS_X_MAJOR_DIRECTION:
+    case VTK_MINUS_X_MAJOR_DIRECTION:
       this->SampleDistance = this->DataSpacing[0];
       break;
-    VTK_PLUS_Y_DIRECTION:
-    VTK_MINUS_Y_DIRECTION:
+    case VTK_PLUS_Y_MAJOR_DIRECTION:
+    case VTK_MINUS_Y_MAJOR_DIRECTION:
       this->SampleDistance = this->DataSpacing[1];
       break;
-    VTK_PLUS_Z_DIRECTION:
-    VTK_MINUS_Z_DIRECTION:
+    case VTK_PLUS_Z_MAJOR_DIRECTION:
+    case VTK_MINUS_Z_MAJOR_DIRECTION:
       this->SampleDistance = this->DataSpacing[2];
       break;
     }
