@@ -35,7 +35,7 @@
 #define vtkCloseSocketMacro(sock) (close(sock))
 #endif
 
-vtkCxxRevisionMacro(vtkSocketCommunicator, "1.44");
+vtkCxxRevisionMacro(vtkSocketCommunicator, "1.45");
 vtkStandardNewMacro(vtkSocketCommunicator);
 
 //----------------------------------------------------------------------------
@@ -674,57 +674,3 @@ int vtkSocketCommunicator::CheckForErrorInternal(int id)
     }
   return 0;
 }
-
-//----------------------------------------------------------------------------
-#ifndef VTK_REMOVE_LEGACY_CODE
-int vtkSocketCommunicator::ReceiveMessage(char* data, int* length,
-                                          int maxlength)
-{
-  VTK_LEGACY_METHOD(ReceiveMessage, "4.4");
-  if ( this->Socket < 0 )
-    {
-    if ( this->IsConnected )
-      {
-      this->CloseConnection();
-      }
-    return VTK_ERROR;
-    }
-  
-  // Do not need a loop because we don't care how much we get.
-  *length = recv( this->Socket, data, maxlength, 0 );
-
-#if defined(_MSC_VER) || defined(__MINGW32__)
-  if ( GetLastError( ) == WSAECONNRESET )
-    {
-    if ( this->IsConnected )
-      {
-      this->CloseConnection();
-      }
-    return VTK_ERROR;
-    }
-#endif
-
-  if ( *length <= 0 )
-    {
-    return VTK_ERROR;
-    }
-  return VTK_OK;
-}
-#endif
-
-//----------------------------------------------------------------------------
-#ifndef VTK_REMOVE_LEGACY_CODE
-int vtkSocketCommunicator::SendMessage(const char *data, int length)
-{
-  VTK_LEGACY_METHOD(SendMessage, "4.4");
-  if(this->Socket < 0 || length < 1 || !data)
-    {
-    return VTK_ERROR;
-    }
-  if(!this->SendInternal(this->Socket, const_cast<char*>(data), length))
-    {
-    return VTK_ERROR;
-    }
-  return VTK_OK;
-}
-#endif

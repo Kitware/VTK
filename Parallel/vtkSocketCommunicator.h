@@ -135,13 +135,6 @@ public:
   virtual int LogToFile(const char* name);
   virtual int LogToFile(const char* name, int append);
   
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // Description:
-  // For legacy compatibility.  Do not use.
-  int ReceiveMessage(char *data, int *length, int maxlength);
-  int SendMessage(const char *data, int length);
-#endif
-  
 protected:
 
   int Socket;
