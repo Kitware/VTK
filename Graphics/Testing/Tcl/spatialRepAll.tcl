@@ -20,7 +20,7 @@ set i 1
 foreach locator $locators {
 $locator locator$i
   locator$i AutomaticOff
-  locator$i SetMaxLevel 4
+  locator$i SetMaxLevel 3
 vtkSpatialRepresentationFilter boxes$i
   boxes$i SetInput [asource GetOutput]
   boxes$i SetSpatialRepresentation locator$i
