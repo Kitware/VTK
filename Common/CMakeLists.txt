@@ -58,6 +58,7 @@ vtkEdgeTable.cxx
 vtkEmptyCell.cxx
 vtkErrorCode.cxx
 vtkExplicitCell.cxx
+vtkExtentSplitter.cxx
 vtkExtentTranslator.cxx
 vtkFieldData.cxx
 vtkFileOutputWindow.cxx
