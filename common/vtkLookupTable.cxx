@@ -214,8 +214,8 @@ void vtkLookupTable::Build()
         ((float)127.5*(1.0+(float)cos((1.0-(double)rgba[2])*3.141593)));
       c_rgba[3] = (unsigned char) (alpha*255.0);
     }
+    this->BuildTime.Modified();
   }
-  this->BuildTime.Modified();
 }
 
 // Given a scalar value v, return an rgba color value from lookup table.
