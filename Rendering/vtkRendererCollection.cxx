@@ -18,7 +18,7 @@
 
 #include <stdlib.h>
 
-vtkCxxRevisionMacro(vtkRendererCollection, "1.32");
+vtkCxxRevisionMacro(vtkRendererCollection, "1.33");
 vtkStandardNewMacro(vtkRendererCollection);
 
 // Forward the Render() method to each renderer in the list.
@@ -28,8 +28,9 @@ void vtkRendererCollection::Render()
   vtkRenderWindow  *renWin;
   int               numLayers, i;
 
-  this->InitTraversal();
-  firstRen = this->GetNextItem();
+  vtkCollectionSimpleIterator rsit;
+  this->InitTraversal(rsit);
+  firstRen = this->GetNextRenderer(rsit);
   if (firstRen == NULL)
     {
     // We cannot determine the number of layers because there are no
@@ -44,7 +45,7 @@ void vtkRendererCollection::Render()
   // then overlay their image.
   for (i = 0; i < numLayers; i++)
     {
-    for (this->InitTraversal(); (ren = this->GetNextItem()); )
+    for (this->InitTraversal(rsit); (ren = this->GetNextRenderer(rsit)); )
       {
       if (ren->GetLayer() == i)
         {
@@ -54,12 +55,24 @@ void vtkRendererCollection::Render()
     }
 
   // Let the user know if they have put a renderer at an unused layer.
-  for (this->InitTraversal(); (ren = this->GetNextItem()); )
+  for (this->InitTraversal(rsit); (ren = this->GetNextRenderer(rsit)); )
     {
     if (ren->GetLayer() < 0 || ren->GetLayer() >= numLayers)
       {
       vtkErrorMacro(<< "Invalid layer for renderer: not rendered.");
       }
+    }
+}
+
+vtkRenderer *vtkRendererCollection::GetFirstRenderer() 
+{ 
+  if ( this->Top == NULL )
+    {
+    return NULL;
+    }
+  else
+    {
+    return static_cast<vtkRenderer *>(this->Top->Item);
     }
 }
 

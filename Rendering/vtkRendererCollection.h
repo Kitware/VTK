@@ -49,6 +49,19 @@ class VTK_RENDERING_EXPORT vtkRendererCollection : public vtkCollection
   // Forward the Render() method to each renderer in the list.
   void Render();
 
+  // Description:
+  // Get the first Renderer in the list. Return NULL when at the end of the 
+  // list.
+  vtkRenderer *GetFirstRenderer();
+
+  //BTX
+  // Description: 
+  // Reentrant safe way to get an object in a collection. Just pass the
+  // same cookie back and forth. 
+  vtkRenderer *GetNextRenderer(vtkCollectionSimpleIterator &cookie) {
+    return static_cast<vtkRenderer *>(this->GetNextItemAsObject(cookie));};
+  //ETX
+
 protected:  
   vtkRendererCollection() {};
   ~vtkRendererCollection() {};
