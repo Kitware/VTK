@@ -9,6 +9,7 @@ IF (VTK_USE_RENDERING)
       camera
       cubeAxes
       depthSort
+      earth
       imageToPolyData
       financialField2
       largeImageOffset
