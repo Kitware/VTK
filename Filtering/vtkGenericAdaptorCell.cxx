@@ -32,7 +32,7 @@
 #include "vtkGenericAttribute.h"
 #include "vtkGenericCellTessellator.h"
 
-vtkCxxRevisionMacro(vtkGenericAdaptorCell, "1.14");
+vtkCxxRevisionMacro(vtkGenericAdaptorCell, "1.15");
 
 vtkGenericAdaptorCell::vtkGenericAdaptorCell()
 {
@@ -486,9 +486,9 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes
   
   int i;
   int j;
-  
-  vtkIdType valid_npts;
-  
+#ifndef NDEBUG
+  vtkIdType valid_npts=0; // for the check assertion
+#endif
   this->Reset();
 
   assert("check: TODO: Tessellate only works with 2D and 3D cells" && this->GetDimension() == 3 ||  this->GetDimension() == 2);
@@ -498,8 +498,9 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes
     internalPd->Reset();
     tess->Tessellate(this, attributes, this->InternalPoints,
                      this->InternalCellArray, internalPd);
-
+#ifndef NDEBUG
     valid_npts=4;
+#endif
     }
   else
     {
@@ -508,7 +509,9 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes
        internalPd->Reset();
        tess->Triangulate(this, attributes, this->InternalPoints, 
                          this->InternalCellArray, internalPd);
+#ifndef NDEBUG
        valid_npts=3;
+#endif
       }
     }
     
@@ -540,28 +543,7 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes
   c=internalPd->GetNumberOfArrays(); // same as pd->GetNumberOfArrays();
     
   int dataIndex=0;
-#if 0
-  for(this->InternalCellArray->InitTraversal(); 
-      this->InternalCellArray->GetNextCell(npts, pts);)
-    {
-    assert("check: is_a_simplex" && npts == valid_npts);
-    cellArray->InsertNextCell(npts, pts );
-    
-    for(i=0;i<npts;i++, point+=3) //, scalar+=numComp)
-      {
-      points->InsertPoint(pts[i], point );
-      // for each point-centered attribute
-      j=0;
-      while(j<c)
-        {
-        pd->GetArray(j)->InsertTuple(pts[i],
-                                     internalPd->GetArray(j)->GetTuple(dataIndex));
-        ++j;
-        }
-      ++dataIndex;
-      }
-    }
-#endif  
+
   if(locator==0) // no merging
     {
     for(this->InternalCellArray->InitTraversal(); 
