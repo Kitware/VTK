@@ -527,7 +527,7 @@ fi
 
 
 
-VTK_LIB_FILE="-L../../contrib/libVTKContrib\${VTK_LIB_EXT} -L../../graphics/libVTKGraphics\${VTK_LIB_EXT} -L../../common/libVTKCommon\${VTK_LIB_EXT}"
+VTK_LIB_FILE="../../contrib/libVTKContrib\${VTK_LIB_EXT} ../../graphics/libVTKGraphics\${VTK_LIB_EXT} ../../common/libVTKCommon\${VTK_LIB_EXT}"
 
 
 # if using imaging we also need imaging library
@@ -535,10 +535,10 @@ VTK_LIB_FILE="-L../../contrib/libVTKContrib\${VTK_LIB_EXT} -L../../graphics/libV
 if test "${with_imaging+set}" = set; then
   withval="$with_imaging"
   if test "$withval" = yes; then
-     VTK_LIB_FILE="-L../../imaging/libVTKImaging\${VTK_LIB_EXT} ${VTK_LIB_FILE}"
+     VTK_LIB_FILE="../../imaging/libVTKImaging\${VTK_LIB_EXT} ${VTK_LIB_FILE}"
          fi
 else
-  VTK_LIB_FILE="-L../../imaging/libVTKImaging\${VTK_LIB_EXT} ${VTK_LIB_FILE}"
+  VTK_LIB_FILE="../../imaging/libVTKImaging\${VTK_LIB_EXT} ${VTK_LIB_FILE}"
          
 fi
 
@@ -548,7 +548,7 @@ fi
 if test "${with_patented+set}" = set; then
   withval="$with_patented"
   if test "$withval" = yes; then
-     VTK_LIB_FILE="-L../../patented/libVTKPatented\${VTK_LIB_EXT} ${VTK_LIB_FILE}"
+     VTK_LIB_FILE="../../patented/libVTKPatented\${VTK_LIB_EXT} ${VTK_LIB_FILE}"
          fi
 fi
 
