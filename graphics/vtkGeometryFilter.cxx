@@ -1088,7 +1088,6 @@ void vtkGeometryFilter::ComputeInputUpdateExtents(vtkDataObject *output)
     }
 
   this->GetInput()->SetUpdateExtent(piece, numPieces, ghostLevels);
-  this->GetInput()->SetUpdateExtent(piece, numPieces, ghostLevels);
 
   this->GetInput()->RequestExactExtentOn();
 }
