@@ -536,10 +536,7 @@ void vtkRenderer::CreateLight(void)
 // camera position to focal point) so that all of the actors can be seen.
 void vtkRenderer::ResetCamera()
 {
-  vtkActor   *anActor;
-  vtkVolume  *aVolume;
-  vtkProp    *aProp;
-  vtkProp3D  *aProp3D;
+  vtkProp    *prop;
   float      *bounds;
   float      allBounds[6];
   int        nothingVisible=1;
@@ -547,127 +544,46 @@ void vtkRenderer::ResetCamera()
   allBounds[0] = allBounds[2] = allBounds[4] = VTK_LARGE_FLOAT;
   allBounds[1] = allBounds[3] = allBounds[5] = -VTK_LARGE_FLOAT;
   
-  // get the actors
-  vtkActorCollection *ac = this->GetActors();
-  
-  // loop through actors (and their parts)
-  for (ac->InitTraversal(); (anActor = ac->GetNextActor()); )
+  // loop through all props
+  for (this->Props->InitTraversal(); (prop = this->Props->GetNextProp()); )
     {
     // if it's invisible, or has no geometry, we can skip the rest 
-    if ( anActor->GetVisibility() )
+    if ( prop->GetVisibility() )
       {
-      bounds = anActor->GetBounds();
+      bounds = prop->GetBounds();
       // make sure we haven't got bogus bounds
-      if ( bounds[0] > -VTK_LARGE_FLOAT && bounds[1] < VTK_LARGE_FLOAT &&
-	   bounds[2] > -VTK_LARGE_FLOAT && bounds[3] < VTK_LARGE_FLOAT &&
-	   bounds[4] > -VTK_LARGE_FLOAT && bounds[5] < VTK_LARGE_FLOAT )
-	{
-	nothingVisible = 0;
-	
-	if (bounds[0] < allBounds[0])
-	  {
-	  allBounds[0] = bounds[0]; 
-	  }
-	if (bounds[1] > allBounds[1])
-	  {
-	  allBounds[1] = bounds[1]; 
-	  }
-	if (bounds[2] < allBounds[2])
-	  {
-	  allBounds[2] = bounds[2]; 
-	  }
-	if (bounds[3] > allBounds[3])
-	  {
-	  allBounds[3] = bounds[3]; 
-	  }
-	if (bounds[4] < allBounds[4])
-	  {
-	  allBounds[4] = bounds[4]; 
-	  }
-	if (bounds[5] > allBounds[5])
-	  {
-	  allBounds[5] = bounds[5]; 
-	  }
-	}
-      }
-    }
-  
-  // loop through volumes
-  vtkVolumeCollection *vc = this->GetVolumes();
+      if ( bounds != NULL &&
+           bounds[0] > -VTK_LARGE_FLOAT && bounds[1] < VTK_LARGE_FLOAT &&
+           bounds[2] > -VTK_LARGE_FLOAT && bounds[3] < VTK_LARGE_FLOAT &&
+           bounds[4] > -VTK_LARGE_FLOAT && bounds[5] < VTK_LARGE_FLOAT )
+        {
+        nothingVisible = 0;
 
-  for (vc->InitTraversal(); (aVolume = vc->GetNextVolume()); )
-    {
-    // if it's invisible we can skip the rest 
-    if ( aVolume->GetVisibility() )
-      {
-      nothingVisible = 0;
-      bounds = aVolume->GetBounds();
-
-      if (bounds[0] < allBounds[0])
-	{
-	allBounds[0] = bounds[0]; 
-	}
-      if (bounds[1] > allBounds[1])
-	{
-	allBounds[1] = bounds[1]; 
-	}
-      if (bounds[2] < allBounds[2])
-	{
-	allBounds[2] = bounds[2]; 
-	}
-      if (bounds[3] > allBounds[3])
-	{
-	allBounds[3] = bounds[3]; 
-	}
-      if (bounds[4] < allBounds[4])
-	{
-	allBounds[4] = bounds[4]; 
-	}
-      if (bounds[5] > allBounds[5])
-	{
-	allBounds[5] = bounds[5]; 
-	}
-      }
-    }
-
-  // For now, just search through all the props to look for a vtkLODProp3D
-  for (this->Props->InitTraversal(); (aProp = this->Props->GetNextProp()); )
-    {      
-    if ( strcmp( aProp->GetClassName(), "vtkLODProp3D" ) == 0 )
-      {
-      aProp3D = (vtkProp3D *)aProp;
-
-      // if it's invisible we can skip the rest 
-      if ( aProp3D->GetVisibility() )
-	{
-	nothingVisible = 0;
-	bounds = aProp3D->GetBounds();
-
-	if (bounds[0] < allBounds[0])
-	  {
-	  allBounds[0] = bounds[0]; 
-	  }
-	if (bounds[1] > allBounds[1])
-	  {
-	  allBounds[1] = bounds[1]; 
-	  }
-	if (bounds[2] < allBounds[2])
-	  {
-	  allBounds[2] = bounds[2]; 
-	  }
-	if (bounds[3] > allBounds[3])
-	  {
-	  allBounds[3] = bounds[3]; 
-	  }
-	if (bounds[4] < allBounds[4])
-	  {
-	  allBounds[4] = bounds[4]; 
-	  }
-	if (bounds[5] > allBounds[5])
-	  {
-	  allBounds[5] = bounds[5]; 
-	  }
-	}
+        if (bounds[0] < allBounds[0])
+          {
+          allBounds[0] = bounds[0]; 
+          }
+        if (bounds[1] > allBounds[1])
+          {
+          allBounds[1] = bounds[1]; 
+          }
+        if (bounds[2] < allBounds[2])
+          {
+          allBounds[2] = bounds[2]; 
+          }
+        if (bounds[3] > allBounds[3])
+          {
+          allBounds[3] = bounds[3]; 
+          }
+        if (bounds[4] < allBounds[4])
+          {
+          allBounds[4] = bounds[4]; 
+          }
+        if (bounds[5] > allBounds[5])
+          {
+          allBounds[5] = bounds[5]; 
+          }
+        }//not bogus
       }
     }
   
