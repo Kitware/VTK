@@ -181,8 +181,9 @@ if test "x$PERL_PROG" != "xNOTFOUND" ; then
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Common" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Filtering" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/GenericFiltering" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/GenericFiltering/Testing/Cxx" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Graphics" \
-        "$SOURCE_DIR/$REL_PATH_TO_TOP/GUISupport" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/GUISupport/MFC" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Hybrid" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Imaging" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/IO" \
@@ -211,8 +212,9 @@ if test "x$PERL_PROG" != "xNOTFOUND" ; then
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Common" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Filtering" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/GenericFiltering" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/GenericFiltering/Testing/Cxx" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Graphics" \
-        "$SOURCE_DIR/$REL_PATH_TO_TOP/GUISupport" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/GUISupport/MFC" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Hybrid" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Imaging" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/IO" \
@@ -233,8 +235,9 @@ if test "x$PERL_PROG" != "xNOTFOUND" ; then
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Common" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Filtering" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/GenericFiltering" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/GenericFiltering/Testing/Cxx" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Graphics" \
-        "$SOURCE_DIR/$REL_PATH_TO_TOP/GUISupport" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/GUISupport/MFC" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Hybrid" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Imaging" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/IO" \
