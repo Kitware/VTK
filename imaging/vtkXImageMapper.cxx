@@ -20,7 +20,7 @@ vtkXImageMapper::~vtkXImageMapper()
 
 //----------------------------------------------------------------------------
 /* 
- * This templated routine calculates effective lover and upper limits 
+ * This templated routine calculates effective lower and upper limits 
  * for a window of values of type T, lower and upper. 
  * It also returns in variable hit the flag with value 1, if the 
  * interval [f_lower, f_upper) is above the type range, -1,  if the 
@@ -28,9 +28,12 @@ vtkXImageMapper::~vtkXImageMapper()
  * there is intersection between this interval and the type range.
  */
 template <class T>
-static void vtkXImageMapperClamps ( vtkImageData *data, float w, float l, T& lower, T& upper, int& hit)
+static void vtkXImageMapperClamps ( vtkImageData *data, float w, 
+				    float l, T& lower, T& upper, 
+				    unsigned char &lower_val, 
+				    unsigned char &upper_val)
 {
-  double f_lower, f_upper;
+  double f_lower, f_upper, f_lower_val, f_upper_val;
   double range[2];
 
   data->GetPointData()->GetScalars()->GetDataTypeRange( range );
@@ -38,40 +41,78 @@ static void vtkXImageMapperClamps ( vtkImageData *data, float w, float l, T& low
   f_lower = l - fabs(w) / 2.0;
   f_upper = f_lower + fabs(w);
 
-  // Look if we above the type range
-  if ( f_lower > range[1] )
-    {
-    hit = 1;
-    return;
-    }
-  // Look if we below the type range
-  if ( f_upper <= range[0] )
-    {
-    hit = -1;
-    return;
-    }
-
   // Set the correct lower value
-  if ( f_lower >= range[0] )
+  if ( f_lower <= range[1])
     {
-    lower = (T) f_lower;
+    if (f_lower >= range[0])
+      {
+      lower = (T) f_lower;
+      }
+    else
+      {
+      lower = (T) range[0];
+      }
     }
   else
     {
-    lower = (T) range[0];
+    lower = (T) range[1];
     }
-
+  
+  
   // Set the correct upper value
-  if ( f_upper <= range[1] )
+  if ( f_upper >= range[0])
     {
-    upper = (T) f_upper;
+    if (f_upper <= range[1])
+      {
+      upper = (T) f_upper;
+      }
+    else
+      {
+      upper = (T) range[1];
+      }
     }
   else
     {
-    upper = (T) range[1];
+    upper = (T) range [0];
     }
-
-  hit = 0;
+  
+  // now compute the lower and upper values
+  if (w >= 0)
+    {
+    f_lower_val = 255.0*(lower - f_lower)/w;
+    f_upper_val = 255.0*(upper - f_lower)/w;
+    }
+  else
+    {
+    f_lower_val = 255.0 - 255.0*(lower - f_lower)/w;
+    f_upper_val = 255.0 - 255.0*(upper - f_lower)/w;
+    }
+  
+  if (f_upper_val > 255) 
+    {
+    upper_val = 255;
+    }
+  else if (f_upper_val < 0)
+    {
+    upper_val = 0;
+    }
+  else
+    {
+    upper_val = (unsigned char)(f_upper_val);
+    }
+  
+  if (f_lower_val > 255) 
+    {
+    lower_val = 255;
+    }
+  else if (f_lower_val < 0)
+    {
+    lower_val = 0;
+    }
+  else
+    {
+    lower_val = (unsigned char)(f_lower_val);
+    }  
 }
 
 int vtkXImageMapper::GetCompositingMode(vtkActor2D* actor)
@@ -230,10 +271,10 @@ static void vtkXImageMapperRenderGray(vtkXImageMapper *mapper,
   int colorsMax;
   int visualDepth, visualClass;
   T lower, upper;
-  int hit;
   unsigned char lowerPixel, upperPixel, temp;
   int colorIdx;
-
+  unsigned char lower_val, upper_val;
+  
   vtkWindow*  window = viewport->GetVTKWindow();
 
   visualClass = mapper->GetXWindowVisualClass(window);
@@ -291,23 +332,24 @@ static void vtkXImageMapperRenderGray(vtkXImageMapper *mapper,
 
   unsigned long* ulOutPtr = (unsigned long*) outPtr;
 
+  vtkXImageMapperClamps( data, mapper->GetColorWindow(),
+			 mapper->GetColorLevel(), 
+			 lower, upper, lower_val, upper_val);
+
   // compute colorsMax, lower and upper pixels.
   if (visualClass == TrueColor)
     {
-    colorsMax = 255; 
+    colorsMax = upper_val; 
     upperPixel = colorsMax;
-    lowerPixel = 0;
+    lowerPixel = lower_val;
     }
   else 
     {
     colorsMax = mapper->GetNumberOfColors() - 1;
-    upperPixel = (unsigned char)(colors[colorsMax].pixel);
-    lowerPixel = (unsigned char)(colors->pixel);
+    upperPixel = (unsigned char)(colors[upper_val].pixel);
+    lowerPixel = (unsigned char)(colors[lower_val].pixel);
     }  
 
-  vtkXImageMapperClamps( data, mapper->GetColorWindow(),
-			 mapper->GetColorLevel(), 
-			 lower, upper, hit );
 
   inInc1 = -inInc1;
 
@@ -322,14 +364,14 @@ static void vtkXImageMapperRenderGray(vtkXImageMapper *mapper,
       while (inPtr0 != endPtr)
 	{
 	*ulOutPtr = 0;
-	if (*inPtr0 < lower)	  
+	if (*inPtr0 <= lower)	  
 	  {
 	  *ulOutPtr = *ulOutPtr | ((rmask & (lowerPixel << 24)) >> rshift);
 	  *ulOutPtr = *ulOutPtr | ((gmask & (lowerPixel << 24)) >> gshift);
 	  *ulOutPtr = *ulOutPtr | ((bmask & (lowerPixel << 24)) >> bshift);
           ulOutPtr++;
 	  }
-	else if (*inPtr0 > upper)
+	else if (*inPtr0 >= upper)
 	  {
 	  *ulOutPtr = *ulOutPtr | ((rmask & (upperPixel << 24)) >> rshift);
 	  *ulOutPtr = *ulOutPtr | ((gmask & (upperPixel << 24)) >> gshift);
@@ -352,14 +394,14 @@ static void vtkXImageMapperRenderGray(vtkXImageMapper *mapper,
       while (inPtr0 != endPtr)
 	{
         *ulOutPtr = 0;
-	if (*inPtr0 < lower) 
+	if (*inPtr0 <= lower) 
 	  {
 	  *ulOutPtr = *ulOutPtr | ((rmask & (lowerPixel << 24)) >> rshift);
 	  *ulOutPtr = *ulOutPtr | ((gmask & (lowerPixel << 24)) >> gshift);
 	  *ulOutPtr = *ulOutPtr | ((bmask & (lowerPixel << 24)) >> bshift);
           ulOutPtr++;
 	  }
-	else if (*inPtr0 > upper)
+	else if (*inPtr0 >= upper)
 	  {
 	  *ulOutPtr = *ulOutPtr | ((rmask & (upperPixel << 24)) >> rshift);
 	  *ulOutPtr = *ulOutPtr | ((gmask & (upperPixel << 24)) >> gshift);
@@ -381,11 +423,11 @@ static void vtkXImageMapperRenderGray(vtkXImageMapper *mapper,
       {
       while (inPtr0 != endPtr)
 	{
-	if (*inPtr0 < lower) 
+	if (*inPtr0 <= lower) 
 	  {
 	  *outPtr++ = lowerPixel;
 	  }
-	else if (*inPtr0 > upper)
+	else if (*inPtr0 >= upper)
 	  {
 	  *outPtr++ = upperPixel;
 	  }
@@ -425,7 +467,8 @@ static void vtkXImageMapperRenderColor(vtkXImageMapper *mapper,
   T *greenPtr;
   T *bluePtr;
   T lower, upper;
-  int hit;
+  unsigned char lower_val, upper_val;
+  
   
   vtkWindow*  window = viewport->GetVTKWindow();
     
@@ -480,7 +523,7 @@ static void vtkXImageMapperRenderColor(vtkXImageMapper *mapper,
 
   vtkXImageMapperClamps ( data, mapper->GetColorWindow(),
 			  mapper->GetColorLevel(), 
-			  lower, upper, hit );
+			  lower, upper, lower_val, upper_val);
 
   inInc1 = -inInc1;
 
@@ -495,16 +538,16 @@ static void vtkXImageMapperRenderColor(vtkXImageMapper *mapper,
     bluePtr0 = bluePtr1;
     for (idx0 = inMin0; idx0 <= inMax0; idx0++)
       {
-      if (*redPtr0 < lower) red = 0;
-      else if (*redPtr0 > upper) red = 255;
+      if (*redPtr0 <= lower) red = lower_val;
+      else if (*redPtr0 >= upper) red = upper_val;
       else red = (unsigned char)(((float)(*redPtr0) + shift) * scale);
 
-      if (*greenPtr0 < lower) green = 0;
-      else if (*greenPtr0 > upper) green = 255;
+      if (*greenPtr0 <= lower) green = lower_val;
+      else if (*greenPtr0 >= upper) green = upper_val;
       else green = (unsigned char)(((float)(*greenPtr0) + shift) * scale);
   
-      if (*bluePtr0 < lower) blue = 0;
-      else if (*bluePtr0 > upper) blue = 255;
+      if (*bluePtr0 <= lower) blue = lower_val;
+      else if (*bluePtr0 >= upper) blue = upper_val;
       else blue = (unsigned char)(((float)(*bluePtr0) + shift) * scale);
 
       *ulOutPtr = 0;
