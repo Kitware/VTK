@@ -636,12 +636,6 @@ if test "$CC" = "gcc" -o `$CC -v 2>&1 | grep -c gcc` != "0" ; then
   SHLIB_CFLAGS="-fPIC"
 fi
 
-if test ! -r depend.make
-then
-    echo "Copying $srcdir/depend.make to build directory"
-    cp $srcdir/depend.make depend.make || exit 1
-fi
-
 if test ! -r targets.make
 then
     echo "Copying $srcdir/targets.make to build directory"
