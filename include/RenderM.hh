@@ -23,7 +23,7 @@ class vlRenderMaster : public vlObject
 {
  public:
   vlRenderMaster();
-  virtual char *GetClassName() {return "vlRenderMaster";};
+  char *GetClassName() {return "vlRenderMaster";};
   vlRenderWindow *MakeRenderWindow(char *ren);
   vlRenderWindow *MakeRenderWindow(void);
 };

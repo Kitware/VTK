@@ -27,7 +27,7 @@ public:
 
 public:
   vlRenderWindow();
-  virtual char *GetClassName() {return "vlRenderWindow";};
+  char *GetClassName() {return "vlRenderWindow";};
   void AddRenderers(vlRenderer *);
   virtual void Render();
   virtual void Frame() = 0;
