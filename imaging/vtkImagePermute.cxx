@@ -67,10 +67,10 @@ void vtkImagePermute::ExecuteImageInformation()
   for (idx = 0; idx < 3; ++idx)
     {
     axis = this->FilteredAxes[idx];
-    origin[axis] = inOrigin[idx];
-    spacing[axis] = inSpacing[idx];
-    ext[axis*2] = inExt[idx*2];
-    ext[axis*2+1] = inExt[idx*2+1];
+    origin[idx] = inOrigin[axis];
+    spacing[idx] = inSpacing[axis];
+    ext[idx*2] = inExt[axis*2];
+    ext[idx*2+1] = inExt[axis*2+1];
     }
   
   this->Output->SetWholeExtent(ext);
@@ -88,8 +88,8 @@ void vtkImagePermute::ComputeRequiredInputUpdateExtent(int inExt[6],
   for (idx = 0; idx < 3; ++idx)
     {
     axis = this->FilteredAxes[idx];
-    inExt[idx*2] = outExt[axis*2];
-    inExt[idx*2+1] = outExt[axis*2+1];
+    inExt[axis*2] = outExt[idx*2];
+    inExt[axis*2+1] = outExt[idx*2+1];
     }
 }
 
@@ -128,12 +128,12 @@ static void vtkImagePermuteExecute(vtkImagePermute *self,
   
   // adjust the increments for the permute
   int *fe = self->GetFilteredAxes();
-  inInc[fe[0]] = inInc0;
-  inInc[fe[1]] = inInc1;
-  inInc[fe[2]] = inInc2;
-  inInc0 = inInc[0];
-  inInc1 = inInc[1];
-  inInc2 = inInc[2];
+  inInc[0] = inInc0;
+  inInc[1] = inInc1;
+  inInc[2] = inInc2;
+  inInc0 = inInc[fe[0]];
+  inInc1 = inInc[fe[1]];
+  inInc2 = inInc[fe[2]];
     
   // Loop through ouput pixels
   inPtr2 = inPtr;
