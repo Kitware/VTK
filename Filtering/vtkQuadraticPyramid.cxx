@@ -27,7 +27,7 @@
 #include "vtkQuadraticQuad.h"
 #include "vtkQuadraticTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadraticPyramid, "1.5");
+vtkCxxRevisionMacro(vtkQuadraticPyramid, "1.5.2.1");
 vtkStandardNewMacro(vtkQuadraticPyramid);
 
 //----------------------------------------------------------------------------
@@ -56,6 +56,8 @@ vtkQuadraticPyramid::vtkQuadraticPyramid()
 
   this->PointData = vtkPointData::New();
   this->CellData = vtkCellData::New();
+  this->CellScalars = vtkDoubleArray::New();
+  this->CellScalars->SetNumberOfTuples(14);
   this->Scalars = vtkDoubleArray::New();
   this->Scalars->SetNumberOfTuples(5);  //num of vertices
 }
@@ -72,6 +74,7 @@ vtkQuadraticPyramid::~vtkQuadraticPyramid()
   this->PointData->Delete();
   this->CellData->Delete();
   this->Scalars->Delete();
+  this->CellScalars->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -303,11 +306,12 @@ int vtkQuadraticPyramid::CellBoundary(int subId, double pcoords[3],
 
 //----------------------------------------------------------------------------
 void vtkQuadraticPyramid::Subdivide(vtkPointData *inPd, vtkCellData *inCd, 
-                                    vtkIdType cellId)
+                                    vtkIdType cellId, vtkDataArray *cellScalars)
 {
   int numMidPts, i, j;
   double weights[13];
   double x[3];
+  double s;
 
   //Copy point and cell attribute data, first make sure it's empty:
   this->PointData->Initialize();
@@ -317,37 +321,37 @@ void vtkQuadraticPyramid::Subdivide(vtkPointData *inPd, vtkCellData *inCd,
   for (i=0; i<13; i++)
     {
     this->PointData->CopyData(inPd,this->PointIds->GetId(i),i);
+    this->CellScalars->SetValue( i, cellScalars->GetTuple1(i));
     }
   this->CellData->CopyData(inCd,cellId,0);
   
   //Interpolate new values
-  this->PointIds->SetNumberOfIds(13);
-  double *p;
+  double p[3];
   for ( numMidPts=0; numMidPts < 1; numMidPts++ )
     {
     this->InterpolationFunctions(MidPoints[numMidPts], weights);
 
-    x[0] = 0.0;
-    x[1] = 0.0;
-    x[2] = 0.0;
+    x[0] = x[1] = x[2] = 0.0;
+    s = 0.0;
     for (i=0; i<13; i++) 
       {
-      p = this->Points->GetPoint(i);
+      this->Points->GetPoint(i, p);
       for (j=0; j<3; j++) 
         {
         x[j] += p[j] * weights[i];
         }
+      s += cellScalars->GetTuple1(i) * weights[i];
       }
     this->Points->SetPoint(13+numMidPts,x);
+    this->CellScalars->SetValue(13+numMidPts,s);
     this->PointData->InterpolatePoint(inPd, 13+numMidPts, 
                                       this->PointIds, weights);
     }
-  this->PointIds->SetNumberOfIds(14);
 }
 
 //----------------------------------------------------------------------------
 void vtkQuadraticPyramid::Contour(double value, 
-                                  vtkDataArray* vtkNotUsed(cellScalars), 
+                                  vtkDataArray* cellScalars, 
                                   vtkPointLocator* locator, 
                                   vtkCellArray *verts, 
                                   vtkCellArray* lines, 
@@ -360,10 +364,9 @@ void vtkQuadraticPyramid::Contour(double value,
 {
   int i;
   //subdivide into 6 linear pyramids
-  this->Subdivide(inPd,inCd,cellId);
+  this->Subdivide(inPd,inCd,cellId,cellScalars);
   
   //contour each linear pyramid separately
-  vtkDataArray *localScalars = this->PointData->GetScalars();
   this->Scalars->SetNumberOfTuples(5);  //num of vertices
   for (i=0; i<6; i++) //for each pyramid
     {
@@ -371,10 +374,10 @@ void vtkQuadraticPyramid::Contour(double value,
       {
       this->Pyramid->Points->SetPoint(j,this->Points->GetPoint(LinearPyramids[i][j]));
       this->Pyramid->PointIds->SetId(j,LinearPyramids[i][j]);
-      this->Scalars->SetValue(j,localScalars->GetTuple1(LinearPyramids[i][j]));
+      this->Scalars->SetValue(j,this->CellScalars->GetValue(LinearPyramids[i][j]));
       }
     this->Pyramid->Contour(value,this->Scalars,locator,verts,lines,polys,
-                           this->PointData,outPd,this->CellData,0,outCd);
+                           this->PointData,outPd,this->CellData,cellId,outCd);
     }
 
   //contour each linear tetra separately
@@ -385,10 +388,10 @@ void vtkQuadraticPyramid::Contour(double value,
       {
       this->Tetra->Points->SetPoint(j,this->Points->GetPoint(LinearPyramids[i][j]));
       this->Tetra->PointIds->SetId(j,LinearPyramids[i][j]);
-      this->Scalars->SetValue(j,localScalars->GetTuple1(LinearPyramids[i][j]));
+      this->Scalars->SetTuple(j,this->CellScalars->GetTuple(LinearPyramids[i][j]));
       }
     this->Tetra->Contour(value,this->Scalars,locator,verts,lines,polys,
-                         this->PointData,outPd,this->CellData,0,outCd);
+                         this->PointData,outPd,this->CellData,cellId,outCd);
     }
 }
 
@@ -575,7 +578,7 @@ void vtkQuadraticPyramid::Derivatives(int vtkNotUsed(subId),
 // Clip this quadratic pyramid using scalar value provided. Like contouring, 
 // except that it cuts the pyramid to produce tetrahedra.
 //
-void vtkQuadraticPyramid::Clip(double value, vtkDataArray* vtkNotUsed(cellScalars), 
+void vtkQuadraticPyramid::Clip(double value, vtkDataArray* cellScalars,
                                vtkPointLocator* locator, vtkCellArray* tets,
                                vtkPointData* inPd, vtkPointData* outPd,
                                vtkCellData* inCd, vtkIdType cellId, 
@@ -583,10 +586,9 @@ void vtkQuadraticPyramid::Clip(double value, vtkDataArray* vtkNotUsed(cellScalar
 {
   int i;
   // create six linear pyramid + 4 tetra
-  this->Subdivide(inPd,inCd,cellId);
+  this->Subdivide(inPd,inCd,cellId,cellScalars);
 
   //contour each linear pyramid separately
-  vtkDataArray *localScalars = this->PointData->GetScalars();
   this->Scalars->SetNumberOfTuples(5);  //num of vertices
   for (i=0; i<6; i++) //for each subdivided pyramid
     {
@@ -594,7 +596,7 @@ void vtkQuadraticPyramid::Clip(double value, vtkDataArray* vtkNotUsed(cellScalar
       {
       this->Pyramid->Points->SetPoint(j,this->Points->GetPoint(LinearPyramids[i][j]));
       this->Pyramid->PointIds->SetId(j,LinearPyramids[i][j]);
-      this->Scalars->SetValue(j,localScalars->GetTuple1(LinearPyramids[i][j]));
+      this->Scalars->SetValue(j,this->CellScalars->GetValue(LinearPyramids[i][j]));
       }
     this->Pyramid->Clip(value,this->Scalars,locator,tets,this->PointData,outPd,
                     this->CellData,cellId,outCd,insideOut);
@@ -607,7 +609,7 @@ void vtkQuadraticPyramid::Clip(double value, vtkDataArray* vtkNotUsed(cellScalar
       {
       this->Tetra->Points->SetPoint(j,this->Points->GetPoint(LinearPyramids[i][j]));
       this->Tetra->PointIds->SetId(j,LinearPyramids[i][j]);
-      this->Scalars->SetValue(j,localScalars->GetTuple1(LinearPyramids[i][j]));
+      this->Scalars->SetValue(j,this->CellScalars->GetValue(LinearPyramids[i][j]));
       }
     this->Tetra->Clip(value,this->Scalars,locator,tets,this->PointData,outPd,
                     this->CellData,cellId,outCd,insideOut);

@@ -109,9 +109,10 @@ protected:
   vtkHexahedron    *Hex;
   vtkPointData     *PointData;
   vtkCellData      *CellData;
+  vtkDoubleArray   *CellScalars;
   vtkDoubleArray   *Scalars;
   
-  void Subdivide(vtkPointData *inPd, vtkCellData *inCd, vtkIdType cellId);
+  void Subdivide(vtkPointData *inPd, vtkCellData *inCd, vtkIdType cellId, vtkDataArray *cellScalars);
 
 private:
   vtkQuadraticHexahedron(const vtkQuadraticHexahedron&);  // Not implemented.

@@ -103,11 +103,11 @@ protected:
   vtkQuad          *Quad;
   vtkPointData     *PointData;
   vtkCellData      *CellData;
+  vtkDoubleArray   *CellScalars;
   vtkDoubleArray   *Scalars;
 
   void Subdivide(double *weights);
-  void InterpolateAttributes(vtkPointData *inPd, vtkCellData *inCd,
-                             vtkIdType cellId, double *weights);
+  void InterpolateAttributes(vtkPointData *inPd, vtkCellData *inCd, vtkIdType cellId, vtkDataArray *cellScalars);
 
 private:
   vtkQuadraticQuad(const vtkQuadraticQuad&);  // Not implemented.

@@ -20,13 +20,15 @@
 #include "vtkDoubleArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticEdge, "1.4");
+vtkCxxRevisionMacro(vtkQuadraticEdge, "1.4.2.1");
 vtkStandardNewMacro(vtkQuadraticEdge);
 
 //----------------------------------------------------------------------------
 // Construct the line with two points.
 vtkQuadraticEdge::vtkQuadraticEdge()
 {
+  this->Scalars = vtkDoubleArray::New();
+  this->Scalars->SetNumberOfTuples(2);
   this->Points->SetNumberOfPoints(3);
   this->PointIds->SetNumberOfIds(3);
   for (int i = 0; i < 3; i++)
@@ -41,6 +43,7 @@ vtkQuadraticEdge::vtkQuadraticEdge()
 vtkQuadraticEdge::~vtkQuadraticEdge()
 {
   this->Line->Delete();
+  this->Scalars->Delete();
 }
 
 
@@ -135,7 +138,7 @@ int vtkQuadraticEdge::CellBoundary(int subId, double pcoords[3],
 }
 
 //----------------------------------------------------------------------------
-static int linearLines[2][2] = { {0,2}, {2,1} };                             
+static int LinearLines[2][2] = { {0,2}, {2,1} };                             
     
 
 void vtkQuadraticEdge::Contour(double value, vtkDataArray *cellScalars,
@@ -145,29 +148,17 @@ void vtkQuadraticEdge::Contour(double value, vtkDataArray *cellScalars,
                                vtkCellData *inCd, vtkIdType cellId,
                                vtkCellData *outCd)
 {
-  int i;
-  vtkDataArray *lineScalars=cellScalars->NewInstance();
-  lineScalars->SetNumberOfComponents(cellScalars->GetNumberOfComponents());
-  lineScalars->SetNumberOfTuples(2);
-
-  for ( i=0; i < 2; i++)
+  for (int i=0; i < 2; i++) //for each subdivided line
     {
-    this->Line->Points->SetPoint(0,this->Points->GetPoint(linearLines[i][0]));
-    this->Line->Points->SetPoint(1,this->Points->GetPoint(linearLines[i][1]));
-
-    if ( outPd )
+    for ( int j=0; j<2; j++) //for each of the four vertices of the line
       {
-      this->Line->PointIds->SetId(0,linearLines[i][0]);
-      this->Line->PointIds->SetId(1,linearLines[i][1]);
+      this->Line->Points->SetPoint(j,this->Points->GetPoint(LinearLines[i][j]));
+      this->Line->PointIds->SetId(j,this->PointIds->GetId(LinearLines[i][j]));
+      this->Scalars->SetValue(j,cellScalars->GetTuple1(LinearLines[i][j]));
       }
-
-    lineScalars->SetTuple(0,cellScalars->GetTuple(linearLines[i][0]));
-    lineScalars->SetTuple(1,cellScalars->GetTuple(linearLines[i][1]));
-
-    this->Line->Contour(value, lineScalars, locator, verts,
+    this->Line->Contour(value, this->Scalars, locator, verts,
                        lines, polys, inPd, outPd, inCd, cellId, outCd);
     }
-  lineScalars->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -311,40 +302,17 @@ void vtkQuadraticEdge::Clip(double value, vtkDataArray *cellScalars,
                             vtkCellData *inCd, vtkIdType cellId, 
                             vtkCellData *outCd, int insideOut)
 {
-  int i, numLines=2;
-  vtkDoubleArray *lineScalars=vtkDoubleArray::New();
-  lineScalars->SetNumberOfTuples(2);
-
-  for ( i=0; i < numLines; i++)
+  for (int i=0; i < 2; i++) //for each subdivided line
     {
-    if ( i == 0 )
+    for ( int j=0; j<2; j++) //for each of the four vertices of the line
       {
-      this->Line->Points->SetPoint(0,this->Points->GetPoint(0));
-      this->Line->Points->SetPoint(1,this->Points->GetPoint(2));
-
-      this->Line->PointIds->SetId(0,0);
-      this->Line->PointIds->SetId(1,2);
-
-      lineScalars->SetComponent(0,0,cellScalars->GetComponent(0,0));
-      lineScalars->SetComponent(1,0,cellScalars->GetComponent(2,0));
+      this->Line->Points->SetPoint(j,this->Points->GetPoint(LinearLines[i][j]));
+      this->Line->PointIds->SetId(j,this->PointIds->GetId(LinearLines[i][j]));
+      this->Scalars->SetValue(j,cellScalars->GetTuple1(LinearLines[i][j]));
       }
-    else
-      {
-      this->Line->Points->SetPoint(0,this->Points->GetPoint(2));
-      this->Line->Points->SetPoint(1,this->Points->GetPoint(1));
-
-      this->Line->PointIds->SetId(0,2);
-      this->Line->PointIds->SetId(1,1);
-
-      lineScalars->SetComponent(0,0,cellScalars->GetComponent(2,0));
-      lineScalars->SetComponent(1,0,cellScalars->GetComponent(1,0));
-      }
-
-    this->Line->Clip(value, lineScalars, locator, lines, inPd, outPd, 
+    this->Line->Clip(value, this->Scalars, locator, lines, inPd, outPd, 
                      inCd, cellId, outCd, insideOut);
     }
-  
-  lineScalars->Delete();
 }
 
 //----------------------------------------------------------------------------

@@ -26,7 +26,7 @@
 #include "vtkQuadraticQuad.h"
 #include "vtkQuadraticTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadraticWedge, "1.4");
+vtkCxxRevisionMacro(vtkQuadraticWedge, "1.4.2.1");
 vtkStandardNewMacro(vtkQuadraticWedge);
 
 //----------------------------------------------------------------------------
@@ -53,6 +53,8 @@ vtkQuadraticWedge::vtkQuadraticWedge()
 
   this->PointData = vtkPointData::New();
   this->CellData = vtkCellData::New();
+  this->CellScalars = vtkDoubleArray::New();
+  this->CellScalars->SetNumberOfTuples(18);
   this->Scalars = vtkDoubleArray::New();
   this->Scalars->SetNumberOfTuples(6);  //num of vertices
 }
@@ -67,6 +69,7 @@ vtkQuadraticWedge::~vtkQuadraticWedge()
 
   this->PointData->Delete();
   this->CellData->Delete();
+  this->CellScalars->Delete();
   this->Scalars->Delete();
 }
 
@@ -299,11 +302,12 @@ int vtkQuadraticWedge::CellBoundary(int subId, double pcoords[3],
 
 //----------------------------------------------------------------------------
 void vtkQuadraticWedge::Subdivide(vtkPointData *inPd, vtkCellData *inCd, 
-                                  vtkIdType cellId)
+                                  vtkIdType cellId, vtkDataArray *cellScalars)
 {
   int numMidPts, i, j;
   double weights[15];
   double x[3];
+  double s;
 
   //Copy point and cell attribute data, first make sure it's empty:
   this->PointData->Initialize();
@@ -313,37 +317,37 @@ void vtkQuadraticWedge::Subdivide(vtkPointData *inPd, vtkCellData *inCd,
   for (i=0; i<15; i++)
     {
     this->PointData->CopyData(inPd,this->PointIds->GetId(i),i);
+    this->CellScalars->SetValue( i, cellScalars->GetTuple1(i));
     }
   this->CellData->CopyData(inCd,cellId,0);
   
   //Interpolate new values
-  this->PointIds->SetNumberOfIds(15);
-  double *p;
+  double p[3];
   for ( numMidPts=0; numMidPts < 3; numMidPts++ )
     {
     this->InterpolationFunctions(MidPoints[numMidPts], weights);
 
-    x[0] = 0.0;
-    x[1] = 0.0;
-    x[2] = 0.0;
+    x[0] = x[1] = x[2] = 0.0;
+    s = 0.0;
     for (i=0; i<15; i++) 
       {
-      p = this->Points->GetPoint(i);
+      this->Points->GetPoint(i, p);
       for (j=0; j<3; j++) 
         {
         x[j] += p[j] * weights[i];
         }
+      s += cellScalars->GetTuple1(i) * weights[i];
       }
     this->Points->SetPoint(15+numMidPts,x);
+    this->CellScalars->SetValue(15+numMidPts,s);
     this->PointData->InterpolatePoint(inPd, 15+numMidPts, 
                                       this->PointIds, weights);
     }
-  this->PointIds->SetNumberOfIds(18);
 }
 
 //----------------------------------------------------------------------------
 void vtkQuadraticWedge::Contour(double value, 
-                                vtkDataArray* vtkNotUsed(cellScalars), 
+                                vtkDataArray* cellScalars, 
                                 vtkPointLocator* locator, 
                                 vtkCellArray *verts, 
                                 vtkCellArray* lines, 
@@ -355,20 +359,19 @@ void vtkQuadraticWedge::Contour(double value,
                                 vtkCellData* outCd)
 {
   //subdivide into 8 linear wedges
-  this->Subdivide(inPd,inCd,cellId);
+  this->Subdivide(inPd,inCd,cellId, cellScalars);
   
   //contour each linear wedge separately
-  vtkDataArray *localScalars = this->PointData->GetScalars();
   for (int i=0; i<8; i++) //for each wedge
     {
     for (int j=0; j<6; j++) //for each point of wedge
       {
       this->Wedge->Points->SetPoint(j,this->Points->GetPoint(LinearWedges[i][j]));
       this->Wedge->PointIds->SetId(j,LinearWedges[i][j]);
-      this->Scalars->SetValue(j,localScalars->GetTuple1(LinearWedges[i][j]));
+      this->Scalars->SetValue(j,this->CellScalars->GetValue(LinearWedges[i][j]));
       }
     this->Wedge->Contour(value,this->Scalars,locator,verts,lines,polys,
-                         this->PointData,outPd,this->CellData,0,outCd);
+                         this->PointData,outPd,this->CellData,cellId,outCd);
     }
 
 }
@@ -543,24 +546,23 @@ void vtkQuadraticWedge::Derivatives(int vtkNotUsed(subId),
 //----------------------------------------------------------------------------
 // Clip this quadratic wedge using scalar value provided. Like contouring, 
 // except that it cuts the wedge to produce tetrahedra.
-void vtkQuadraticWedge::Clip(double value, vtkDataArray* vtkNotUsed(cellScalars), 
+void vtkQuadraticWedge::Clip(double value, vtkDataArray* cellScalars, 
                              vtkPointLocator* locator, vtkCellArray* tets,
                              vtkPointData* inPd, vtkPointData* outPd,
                              vtkCellData* inCd, vtkIdType cellId, 
                              vtkCellData* outCd, int insideOut)
 {
   // create eight linear hexes
-  this->Subdivide(inPd,inCd,cellId);
+  this->Subdivide(inPd,inCd,cellId, cellScalars);
   
   //contour each linear hex separately
-  vtkDataArray *localScalars = this->PointData->GetScalars();
   for (int i=0; i<8; i++) //for each subdivided wedge
     {
     for (int j=0; j<6; j++) //for each of the six vertices of the wedge
       {
       this->Wedge->Points->SetPoint(j,this->Points->GetPoint(LinearWedges[i][j]));
       this->Wedge->PointIds->SetId(j,LinearWedges[i][j]);
-      this->Scalars->SetValue(j,localScalars->GetTuple1(LinearWedges[i][j]));
+      this->Scalars->SetValue(j,this->CellScalars->GetValue(LinearWedges[i][j]));
       }
     this->Wedge->Clip(value,this->Scalars,locator,tets,this->PointData,outPd,
                     this->CellData,cellId,outCd,insideOut);

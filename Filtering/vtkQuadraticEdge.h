@@ -92,6 +92,7 @@ protected:
   ~vtkQuadraticEdge();
 
   vtkLine *Line;
+  vtkDoubleArray *Scalars; //used to avoid New/Delete in contouring/clipping
 
 private:
   vtkQuadraticEdge(const vtkQuadraticEdge&);  // Not implemented.

@@ -115,9 +115,10 @@ protected:
   vtkWedge         *Wedge;
   vtkPointData     *PointData;
   vtkCellData      *CellData;
+  vtkDoubleArray   *CellScalars;
   vtkDoubleArray   *Scalars; //used to avoid New/Delete in contouring/clipping
   
-  void Subdivide(vtkPointData *inPd, vtkCellData *inCd, vtkIdType cellId);
+  void Subdivide(vtkPointData *inPd, vtkCellData *inCd, vtkIdType cellId, vtkDataArray *cellScalars);
 
 private:
   vtkQuadraticWedge(const vtkQuadraticWedge&);  // Not implemented.
