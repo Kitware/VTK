@@ -47,25 +47,17 @@ vtkImageCacheFilter::vtkImageCacheFilter()
 {
   int idx;
 
-  for (idx = 0; idx < VTK_CACHE_NUMBER; ++idx)
-    {
-    this->Data[idx] = NULL;
-    this->Times[idx] = 0;
-    }
+  this->CacheSize = 0;
+  this->Data = NULL;
+  this->Times = NULL;
+  
+  this->SetCacheSize(10);
 }
 
 //----------------------------------------------------------------------------
 vtkImageCacheFilter::~vtkImageCacheFilter()
 {
-  int idx;
-
-  for (idx = 0; idx < VTK_CACHE_NUMBER; ++idx)
-    {
-    if (this->Data[idx])
-      {
-      this->Data[idx]->Delete();
-      }
-    }
+  this->SetCacheSize(0);
 }
 
 
@@ -77,18 +69,67 @@ void vtkImageCacheFilter::PrintSelf(ostream& os, vtkIndent indent)
   
   vtkImageToImageFilter::PrintSelf(os,indent);
 
+  os << indent << "CacheSize: " << this->CacheSize << endl;
   os << indent << "Caches: \n";
-  for (idx = 0; idx < VTK_CACHE_NUMBER; ++idx)
+  for (idx = 0; idx < this->CacheSize; ++idx)
     {
     if (this->Data[idx])
       {
       ext = this->Data[idx]->GetExtent();
-      cerr << i2 << ext[0] << ", " << ext[1] << ", " << ext[2] << ", " 
-	   << ext[3] << ", " << ext[4] << ", " << ext[5] << endl;
+      os << i2 << idx << ": (" << this->Times[idx] 
+	 << ") " << ext[0] << ", " << ext[1] << ", " << ext[2] << ", " 
+	 << ext[3] << ", " << ext[4] << ", " << ext[5] << endl;
       }
     }
 }
+
+void vtkImageCacheFilter::SetCacheSize(int size)
+{
+  int idx;
   
+  if (size == this->CacheSize)
+    {
+    return;
+    }
+  
+  this->Modified();
+  
+  // free the old data
+  for (idx = 0; idx < this->CacheSize; ++idx)
+    {
+    if (this->Data[idx])
+      {
+      this->Data[idx]->Delete();
+      this->Data[idx] = NULL;
+      }
+    }
+  if (this->Data)
+    {
+    delete [] this->Data;
+    this->Data = NULL;
+    }
+  if (this->Times)
+    {
+    delete [] this->Times;
+    this->Times = NULL;
+    }
+  
+  this->CacheSize = size;
+  if (size == 0)
+    {
+    return;
+    }
+  
+  this->Data = new (vtkImageData*)[size];
+  this->Times = new (unsigned long)[size];
+
+  for (idx = 0; idx < size; ++idx)
+    {
+    this->Data[idx] = NULL;
+    this->Times[idx] = 0;
+    }
+}
+
 //----------------------------------------------------------------------------
 // This method simply copies by reference the input data to the output.
 void vtkImageCacheFilter::InternalUpdate(vtkDataObject *outObject)
@@ -100,13 +141,11 @@ void vtkImageCacheFilter::InternalUpdate(vtkDataObject *outObject)
   int i;
   int flag = 0;
 
-  cerr << "UpdateCache: \n";
-  
   uExt = outData->GetUpdateExtent();
 
   // First look through the cached data to see if it is still valid.
   pmt = inData->GetPipelineMTime();
-  for (i = 0; i < VTK_CACHE_NUMBER; ++i)
+  for (i = 0; i < this->CacheSize; ++i)
     {
     if (this->Data[i] && this->Times[i] < pmt)
       {
@@ -116,7 +155,7 @@ void vtkImageCacheFilter::InternalUpdate(vtkDataObject *outObject)
     }
 
   // Look for data that contains UpdateExtent.
-  for (i = 0; i < VTK_CACHE_NUMBER; ++i)
+  for (i = 0; i < this->CacheSize; ++i)
     {
     if (this->Data[i])
       {
@@ -125,7 +164,9 @@ void vtkImageCacheFilter::InternalUpdate(vtkDataObject *outObject)
 	  uExt[2] >= ext[2] && uExt[3] <= ext[3] &&
 	  uExt[4] >= ext[4] && uExt[5] <= ext[5])
 	{
-	cerr << "Found Cached Data to meet request" << *(outData->GetGenericUpdateExtent()) << endl;
+	vtkDebugMacro("Found Cached Data to meet request" 
+		      << *(outData->GetGenericUpdateExtent()));
+	
 	// Pass this data to output.
 	outData->SetExtent(ext);
 	outData->GetPointData()->PassData(this->Data[i]->GetPointData());
@@ -145,14 +186,15 @@ void vtkImageCacheFilter::InternalUpdate(vtkDataObject *outObject)
     inData->PreUpdate();
     inData->InternalUpdate();
 
-    cerr << "Generating Data to meet request" << *(outData->GetGenericUpdateExtent()) << endl;
+    vtkDebugMacro("Generating Data to meet request" 
+		  << *(outData->GetGenericUpdateExtent()));
 
     outData->SetExtent(inData->GetExtent());
     outData->GetPointData()->PassData(inData->GetPointData());
 
     // Save the image in cache.
     // Find a spot to put the data.
-    for (i = 0; i < VTK_CACHE_NUMBER; ++i)
+    for (i = 0; i < this->CacheSize; ++i)
       {
       if (this->Data[i] == NULL)
 	{
