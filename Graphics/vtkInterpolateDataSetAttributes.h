@@ -51,8 +51,8 @@ public:
   
   // Description:
   // Specify interpolation parameter t.
-  vtkSetClampMacro(T,float,0.0,VTK_LARGE_FLOAT);
-  vtkGetMacro(T,float);
+  vtkSetClampMacro(T,double,0.0,VTK_DOUBLE_MAX);
+  vtkGetMacro(T,double);
 
 protected:
   vtkInterpolateDataSetAttributes();
@@ -61,7 +61,7 @@ protected:
   void Execute();
   
   vtkDataSetCollection *InputList; // list of data sets to interpolate 
-  float T; // interpolation parameter
+  double T; // interpolation parameter
 
 private:
   // hide the superclass' AddInput() from the user and the compiler

@@ -47,18 +47,18 @@ public:
 
   // Description:
   // Set the fraction of shrink for each cell.
-  vtkSetClampMacro(ShrinkFactor,float,0.0,1.0);
+  vtkSetClampMacro(ShrinkFactor,double,0.0,1.0);
 
   // Description:
   // Get the fraction of shrink for each cell.
-  vtkGetMacro(ShrinkFactor,float);
+  vtkGetMacro(ShrinkFactor,double);
 
 protected:
-  vtkShrinkPolyData(float sf=0.5);
+  vtkShrinkPolyData(double sf=0.5);
   ~vtkShrinkPolyData() {};
 
   void Execute();
-  float ShrinkFactor;
+  double ShrinkFactor;
 private:
   vtkShrinkPolyData(const vtkShrinkPolyData&);  // Not implemented.
   void operator=(const vtkShrinkPolyData&);  // Not implemented.

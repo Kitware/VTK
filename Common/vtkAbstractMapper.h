@@ -62,7 +62,7 @@ public:
 
   // Description:
   // Get the time required to draw the geometry last time it was rendered
-  vtkGetMacro( TimeToDraw, float );
+  vtkGetMacro( TimeToDraw, double );
 
   // Description:
   // Specify clipping planes to be applied when the data is mapped
@@ -111,7 +111,7 @@ protected:
   ~vtkAbstractMapper();
 
   vtkTimerLog *Timer;
-  float TimeToDraw;
+  double TimeToDraw;
   vtkWindow *LastWindow;   // Window used for the previous render
   vtkPlaneCollection *ClippingPlanes;
 

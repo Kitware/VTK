@@ -22,7 +22,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkTexturedSphereSource, "1.29");
+vtkCxxRevisionMacro(vtkTexturedSphereSource, "1.30");
 vtkStandardNewMacro(vtkTexturedSphereSource);
 
 // Construct sphere with radius=0.5 and default resolution 8 in both Phi
@@ -46,10 +46,10 @@ void vtkTexturedSphereSource::Execute()
   vtkFloatArray *newNormals;
   vtkFloatArray *newTCoords;
   vtkCellArray *newPolys;
-  float x[3], deltaPhi, deltaTheta, phi, theta, radius, norm;
+  double x[3], deltaPhi, deltaTheta, phi, theta, radius, norm;
   vtkIdType pts[3];
   vtkPolyData *output = this->GetOutput();
-  float tc[2];
+  double tc[2];
   
   //
   // Set things up; allocate memory

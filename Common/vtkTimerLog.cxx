@@ -38,7 +38,7 @@
 #endif
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTimerLog, "1.37");
+vtkCxxRevisionMacro(vtkTimerLog, "1.38");
 vtkStandardNewMacro(vtkTimerLog);
 
 // initialze the class variables
@@ -213,7 +213,7 @@ void vtkTimerLog::MarkEvent(const char *event)
 #endif
 
   vtkTimerLog::TimerLog[vtkTimerLog::NextEntry].Indent = vtkTimerLog::Indent;
-  vtkTimerLog::TimerLog[vtkTimerLog::NextEntry].WallTime = (float)time_diff;
+  vtkTimerLog::TimerLog[vtkTimerLog::NextEntry].WallTime = (double)time_diff;
   vtkTimerLog::TimerLog[vtkTimerLog::NextEntry].CpuTicks = ticks_diff;
   strncpy(vtkTimerLog::TimerLog[vtkTimerLog::NextEntry].Event, event, strsize);
   vtkTimerLog::TimerLog[vtkTimerLog::NextEntry].Event[strsize] = '\0';
@@ -307,7 +307,7 @@ int vtkTimerLog::GetEventIndent(int idx)
 }
 
 //----------------------------------------------------------------------------
-float vtkTimerLog::GetEventWallTime(int idx)
+double vtkTimerLog::GetEventWallTime(int idx)
 {
   vtkTimerLogEntry *tmp = vtkTimerLog::GetEvent(idx);
 
@@ -340,14 +340,14 @@ const char* vtkTimerLog::GetEventString(int idx)
 //----------------------------------------------------------------------------
 // Write the timing table out to a file.  Calculate some helpful
 // statistics (deltas and  percentages) in the process.
-void vtkTimerLog::DumpLogWithIndents(ostream *os, float threshold)
+void vtkTimerLog::DumpLogWithIndents(ostream *os, double threshold)
 {
 #ifndef _WIN32_WCE
   int num;
   int i1, i2, j;
   int indent1;
   int nextIndent;
-  float dtime;
+  double dtime;
   
   num = vtkTimerLog::GetNumberOfEvents();
 
@@ -575,15 +575,15 @@ double vtkTimerLog::GetElapsedTime()
 }
 
 //----------------------------------------------------------------------------
-void vtkTimerLog::DumpEntry(ostream& os, int index, float ttime, 
-                            float deltatime,
+void vtkTimerLog::DumpEntry(ostream& os, int index, double ttime, 
+                            double deltatime,
                             int tick, int deltatick, const char *event)
 {
   os << index << "   "
      << ttime << "  "
      << deltatime << "   "
-     << (float)tick/vtkTimerLog::TicksPerSecond << "  "
-     << (float)deltatick/vtkTimerLog::TicksPerSecond << "  ";
+     << (double)tick/vtkTimerLog::TicksPerSecond << "  "
+     << (double)deltatick/vtkTimerLog::TicksPerSecond << "  ";
   if (deltatime == 0.0)
     {
     os << "0.0   ";

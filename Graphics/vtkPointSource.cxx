@@ -23,7 +23,7 @@
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkPointSource, "1.42");
+vtkCxxRevisionMacro(vtkPointSource, "1.43");
 vtkStandardNewMacro(vtkPointSource);
 
 //----------------------------------------------------------------------------
@@ -44,8 +44,8 @@ vtkPointSource::vtkPointSource(vtkIdType numPts)
 void vtkPointSource::Execute()
 {
   vtkIdType i;
-  float theta, rho, cosphi, sinphi, radius;
-  float x[3];
+  double theta, rho, cosphi, sinphi, radius;
+  double x[3];
   vtkPoints *newPoints;
   vtkCellArray *newVerts;
   vtkPolyData *output = this->GetOutput();

@@ -23,10 +23,10 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCubeSource, "1.49");
+vtkCxxRevisionMacro(vtkCubeSource, "1.50");
 vtkStandardNewMacro(vtkCubeSource);
 
-vtkCubeSource::vtkCubeSource(float xL, float yL, float zL)
+vtkCubeSource::vtkCubeSource(double xL, double yL, double zL)
 {
   this->XLength = fabs(xL);
   this->YLength = fabs(yL);
@@ -39,7 +39,7 @@ vtkCubeSource::vtkCubeSource(float xL, float yL, float zL)
 
 void vtkCubeSource::Execute()
 {
-  float x[3], n[3], tc[3];
+  double x[3], n[3], tc[3];
   int numPolys=6, numPts=24;
   int i, j, k;
   vtkIdType pts[4];
@@ -154,11 +154,11 @@ void vtkCubeSource::Execute()
 }
 
 // Convenience method allows creation of cube by specifying bounding box.
-void vtkCubeSource::SetBounds(float xMin, float xMax,
-                              float yMin, float yMax,
-                              float zMin, float zMax)
+void vtkCubeSource::SetBounds(double xMin, double xMax,
+                              double yMin, double yMax,
+                              double zMin, double zMax)
 {
-  float bounds[6];
+  double bounds[6];
   bounds[0] = xMin;
   bounds[1] = xMax;
   bounds[2] = yMin;
@@ -168,7 +168,7 @@ void vtkCubeSource::SetBounds(float xMin, float xMax,
   this->SetBounds (bounds);
 }
 
-void vtkCubeSource::SetBounds(float bounds[6])
+void vtkCubeSource::SetBounds(double bounds[6])
 {
   this->SetXLength(bounds[1]-bounds[0]);
   this->SetYLength(bounds[3]-bounds[2]);

@@ -41,7 +41,7 @@
  #include <mpi.h>
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeManager, "1.53");
+vtkCxxRevisionMacro(vtkCompositeManager, "1.54");
 vtkStandardNewMacro(vtkCompositeManager);
 
 
@@ -60,9 +60,9 @@ struct vtkCompositeRendererInfo
   float CameraFocalPoint[3];
   float CameraViewUp[3];
   float CameraClippingRange[2];
-  float LightPosition[3];
-  float LightFocalPoint[3];
-  float Background[3];
+  double LightPosition[3];
+  double LightFocalPoint[3];
+  double Background[3];
   float ParallelScale;
 };
 

@@ -24,7 +24,7 @@
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkInterpolateDataSetAttributes, "1.25");
+vtkCxxRevisionMacro(vtkInterpolateDataSetAttributes, "1.26");
 vtkStandardNewMacro(vtkInterpolateDataSetAttributes);
 
 // Create object with no input or output.
@@ -84,7 +84,7 @@ void vtkInterpolateDataSetAttributes::Execute()
   vtkCellData *outputCD = output->GetCellData();
   vtkPointData *inputPD, *input2PD;
   vtkCellData *inputCD, *input2CD;
-  float t;
+  double t;
   
 
   if ( inputList->GetNumberOfItems() < 2 )
@@ -97,7 +97,7 @@ void vtkInterpolateDataSetAttributes::Execute()
 
   // Check input and determine between which data sets the interpolation 
   // is to occur.
-  if ( this->T > (float)numInputs )
+  if ( this->T > (double)numInputs )
     {
     vtkErrorMacro(<<"Bad interpolation parameter");
     return;
@@ -110,7 +110,7 @@ void vtkInterpolateDataSetAttributes::Execute()
     }
 
   highDS = lowDS + 1;
-  t = this->T - (float)lowDS;
+  t = this->T - (double)lowDS;
   if (t > 1.0)
     {
     t =1.0;
@@ -198,7 +198,7 @@ void vtkInterpolateDataSetAttributes::Execute()
     {
     if ( ! (i % 10000) ) 
       {
-      this->UpdateProgress ((float)i/numPts * 0.50);
+      this->UpdateProgress ((double)i/numPts * 0.50);
       if (this->GetAbortExecute())
         {
         break;
@@ -213,7 +213,7 @@ void vtkInterpolateDataSetAttributes::Execute()
     {
     if ( ! (i % 10000) ) 
       {
-      this->UpdateProgress (0.5 + (float)i/numCells * 0.50);
+      this->UpdateProgress (0.5 + (double)i/numCells * 0.50);
       if (this->GetAbortExecute())
         {
         break;

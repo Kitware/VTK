@@ -20,7 +20,7 @@
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkWarpVector, "1.43");
+vtkCxxRevisionMacro(vtkWarpVector, "1.44");
 vtkStandardNewMacro(vtkWarpVector);
 
 vtkWarpVector::vtkWarpVector()
@@ -46,7 +46,7 @@ void vtkWarpVectorExecute2(vtkWarpVector *self, T1 *inPts,
     {
     if (!(ptId & 0xfff)) 
       {
-      self->UpdateProgress ((float)ptId/(max+1));
+      self->UpdateProgress ((double)ptId/(max+1));
       if (self->GetAbortExecute())
         {
         break;

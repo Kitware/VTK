@@ -78,8 +78,8 @@ public:
   // Set the clipping value of the implicit function (if clipping with
   // implicit function) or scalar value (if clipping with
   // scalars). The default value is 0.0. 
-  vtkSetMacro(Value,float);
-  vtkGetMacro(Value,float);
+  vtkSetMacro(Value,double);
+  vtkGetMacro(Value,double);
   
   // Description:
   // Set/Get the InsideOut flag. When off, a vertex is considered
@@ -120,8 +120,8 @@ public:
   // the vertices of cells. This tolerance is used to prevent the generation
   // of degenerate primitives. Note that only 3D cells actually use this
   // instance variable.
-  vtkSetClampMacro(MergeTolerance,float,0.0001,0.25);
-  vtkGetMacro(MergeTolerance,float);
+  vtkSetClampMacro(MergeTolerance,double,0.0001,0.25);
+  vtkGetMacro(MergeTolerance,double);
   
   // Description:
   // Return the Clipped output.
@@ -159,11 +159,11 @@ protected:
   
   vtkPointLocator *Locator;
   int InsideOut;
-  float Value;
+  double Value;
   int GenerateClipScalars;
 
   int GenerateClippedOutput;
-  float MergeTolerance;
+  double MergeTolerance;
 
   char *InputScalarsSelection;
   vtkSetStringMacro(InputScalarsSelection);

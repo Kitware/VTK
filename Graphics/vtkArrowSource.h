@@ -38,10 +38,10 @@ public:
     
   // Description:
   // Set the length, and radius of the tip.  They default to 0.35 and 0.1
-  vtkSetClampMacro(TipLength,float,0.0,1.0);
-  vtkGetMacro(TipLength,float);
-  vtkSetClampMacro(TipRadius,float,0.0,10.0);
-  vtkGetMacro(TipRadius,float);
+  vtkSetClampMacro(TipLength,double,0.0,1.0);
+  vtkGetMacro(TipLength,double);
+  vtkSetClampMacro(TipRadius,double,0.0,10.0);
+  vtkGetMacro(TipRadius,double);
   
   // Description:
   // Set the resolution of the tip.  The tip behaves the same as a cone.
@@ -51,8 +51,8 @@ public:
 
   // Description:
   // Set the radius of the shaft.  Defaults to 0.03.
-  vtkSetClampMacro(ShaftRadius,float,0.0,5.0);
-  vtkGetMacro(ShaftRadius,float);
+  vtkSetClampMacro(ShaftRadius,double,0.0,5.0);
+  vtkGetMacro(ShaftRadius,double);
 
   // Description:
   // Set the resolution of the shaft.  2 gives a rectangle.
@@ -68,11 +68,11 @@ protected:
   void Execute();
 
   int TipResolution;
-  float TipLength;
-  float TipRadius;
+  double TipLength;
+  double TipRadius;
 
   int ShaftResolution;
-  float ShaftRadius;
+  double ShaftRadius;
 
 private:
   vtkArrowSource(const vtkArrowSource&); // Not implemented.

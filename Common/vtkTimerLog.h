@@ -64,7 +64,7 @@
 //BTX
 typedef struct
 {
-  float WallTime;
+  double WallTime;
   int CpuTicks;
   char Event[VTK_LOG_EVENT_LENGTH];
   unsigned char Indent;
@@ -115,14 +115,14 @@ public:
   static void MarkStartEvent(const char *EventString);
   static void MarkEndEvent(const char *EventString);
 //BTX
-  static void DumpLogWithIndents(ostream *os, float threshold);
+  static void DumpLogWithIndents(ostream *os, double threshold);
 //ETX
 
   // Description:
   // Programatic access to events.  Indexed from 0 to num-1.
   static int GetNumberOfEvents();
   static int GetEventIndent(int i);
-  static float GetEventWallTime(int i);
+  static double GetEventWallTime(int i);
   static const char* GetEventString(int i);
 
   // Description:
@@ -162,7 +162,7 @@ public:
 
   // Description:
   // Returns the difference between StartTime and EndTime as 
-  // a floating point value indicating the elapsed time in seconds.
+  // a doubleing point value indicating the elapsed time in seconds.
   double GetElapsedTime();
 
 protected:
@@ -200,7 +200,7 @@ protected:
   double EndTime;
 
   //BTX
-  static void DumpEntry(ostream& os, int index, float time, float deltatime,
+  static void DumpEntry(ostream& os, int index, double time, double deltatime,
                         int tick, int deltatick, const char *event);
   //ETX
 

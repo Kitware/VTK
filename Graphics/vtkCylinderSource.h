@@ -36,18 +36,18 @@ public:
 
   // Description:
   // Set the height of the cylinder.
-  vtkSetClampMacro(Height,float,0.0,VTK_LARGE_FLOAT)
-  vtkGetMacro(Height,float);
+  vtkSetClampMacro(Height,double,0.0,VTK_DOUBLE_MAX)
+  vtkGetMacro(Height,double);
 
   // Description:
   // Set the radius of the cylinder.
-  vtkSetClampMacro(Radius,float,0.0,VTK_LARGE_FLOAT)
-  vtkGetMacro(Radius,float);
+  vtkSetClampMacro(Radius,double,0.0,VTK_DOUBLE_MAX)
+  vtkGetMacro(Radius,double);
 
   // Description:
   // Set/Get cylinder center
-  vtkSetVector3Macro(Center,float);
-  vtkGetVectorMacro(Center,float,3);
+  vtkSetVector3Macro(Center,double);
+  vtkGetVectorMacro(Center,double,3);
 
   // Description:
   // Set the number of facets used to define cylinder.
@@ -65,9 +65,9 @@ protected:
   ~vtkCylinderSource() {};
 
   void Execute();
-  float Height;
-  float Radius;
-  float Center[3];
+  double Height;
+  double Radius;
+  double Center[3];
   int Resolution;
   int Capping;
 

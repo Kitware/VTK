@@ -40,8 +40,8 @@ public:
 
   // Description:
   // Set radius of sphere.
-  vtkSetClampMacro(Radius,float,0.0,VTK_LARGE_FLOAT);
-  vtkGetMacro(Radius,float);
+  vtkSetClampMacro(Radius,double,0.0,VTK_DOUBLE_MAX);
+  vtkGetMacro(Radius,double);
 
   // Description:
   // Set the number of points in the longitude direction.
@@ -55,22 +55,22 @@ public:
 
   // Description:
   // Set the maximum longitude angle.
-  vtkSetClampMacro(Theta,float,0.0,360.0);
-  vtkGetMacro(Theta,float);
+  vtkSetClampMacro(Theta,double,0.0,360.0);
+  vtkGetMacro(Theta,double);
 
   // Description:
   // Set the maximum latitude angle (0 is at north pole).
-  vtkSetClampMacro(Phi,float,0.0,180.0);
-  vtkGetMacro(Phi,float);
+  vtkSetClampMacro(Phi,double,0.0,180.0);
+  vtkGetMacro(Phi,double);
 
 protected:
   vtkTexturedSphereSource(int res=8);
   ~vtkTexturedSphereSource() {};
 
   void Execute();
-  float Radius;
-  float Theta;
-  float Phi;
+  double Radius;
+  double Theta;
+  double Phi;
   int ThetaResolution;
   int PhiResolution;
 

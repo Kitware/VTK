@@ -88,10 +88,10 @@ struct vtkParallelRenderManagerRendererInfoDouble
   double ParallelScale;
 };
 
-struct vtkParallelRenderManagerLightInfoFloat
+struct vtkParallelRenderManagerLightInfoDouble
 {
-  float Position[3];
-  float FocalPoint[3];
+  double Position[3];
+  double FocalPoint[3];
 };
 
 const int VTK_WIN_INFO_INT_SIZE =
@@ -102,10 +102,10 @@ const int VTK_REN_INFO_INT_SIZE =
   sizeof(vtkParallelRenderManagerRendererInfoInt)/sizeof(int);
 const int VTK_REN_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManagerRendererInfoDouble)/sizeof(double);
-const int VTK_LIGHT_INFO_FLOAT_SIZE =
-  sizeof(vtkParallelRenderManagerLightInfoFloat)/sizeof(float);
+const int VTK_LIGHT_INFO_DOUBLE_SIZE =
+  sizeof(vtkParallelRenderManagerLightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.11");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.12");
 
 vtkParallelRenderManager::vtkParallelRenderManager()
 {
@@ -519,7 +519,7 @@ void vtkParallelRenderManager::StartRender()
   struct vtkParallelRenderManagerRenderWindowInfoFloat winInfoFloat;
   struct vtkParallelRenderManagerRendererInfoInt renInfoInt;
   struct vtkParallelRenderManagerRendererInfoDouble renInfoDouble;
-  struct vtkParallelRenderManagerLightInfoFloat lightInfoFloat;
+  struct vtkParallelRenderManagerLightInfoDouble lightInfoDouble;
 
   vtkDebugMacro("StartRender");
 
@@ -635,12 +635,7 @@ void vtkParallelRenderManager::StartRender()
     cam->GetFocalPoint(renInfoDouble.CameraFocalPoint);
     cam->GetViewUp(renInfoDouble.CameraViewUp);
     cam->GetClippingRange(renInfoDouble.CameraClippingRange);
-    // TODO clean
-    float *tmp;
-    tmp = ren->GetBackground();
-    renInfoDouble.Background[0] = tmp[0];
-    renInfoDouble.Background[1] = tmp[1];
-    renInfoDouble.Background[2] = tmp[2];
+    ren->GetBackground(renInfoDouble.Background);
     if (cam->GetParallelProjection())
       {
       renInfoDouble.ParallelScale = cam->GetParallelScale();
@@ -667,15 +662,15 @@ void vtkParallelRenderManager::StartRender()
     vtkLight *light;
     for (lc->InitTraversal(); (light = lc->GetNextItem()); )
       {
-      light->GetPosition(lightInfoFloat.Position);
-      light->GetFocalPoint(lightInfoFloat.FocalPoint);
+      light->GetPosition(lightInfoDouble.Position);
+      light->GetFocalPoint(lightInfoDouble.FocalPoint);
       
       for (id = 0; id < numProcs; id++)
         {
         if (id == this->RootProcessId) continue;
-        this->Controller->Send((float *)(&lightInfoFloat),
-                               VTK_LIGHT_INFO_FLOAT_SIZE, id,
-                               vtkParallelRenderManager::LIGHT_INFO_FLOAT_TAG);
+        this->Controller->Send((double *)(&lightInfoDouble),
+                               VTK_LIGHT_INFO_DOUBLE_SIZE, id,
+                               vtkParallelRenderManager::LIGHT_INFO_DOUBLE_TAG);
         }
       }
 
@@ -1595,7 +1590,7 @@ void vtkParallelRenderManager::SatelliteStartRender()
   struct vtkParallelRenderManagerRenderWindowInfoFloat winInfoFloat;
   struct vtkParallelRenderManagerRendererInfoInt renInfoInt;
   struct vtkParallelRenderManagerRendererInfoDouble renInfoDouble;
-  struct vtkParallelRenderManagerLightInfoFloat lightInfoFloat;
+  struct vtkParallelRenderManagerLightInfoDouble lightInfoDouble;
   int i, j;
 
   vtkDebugMacro("SatelliteStartRender");
@@ -1705,12 +1700,12 @@ void vtkParallelRenderManager::SatelliteStartRender()
           light->Delete();
           }
 
-        this->Controller->Receive((float *)(&lightInfoFloat),
-                                  VTK_LIGHT_INFO_FLOAT_SIZE,
+        this->Controller->Receive((double *)(&lightInfoDouble),
+                                  VTK_LIGHT_INFO_DOUBLE_SIZE,
                                   this->RootProcessId,
-                                  vtkParallelRenderManager::LIGHT_INFO_FLOAT_TAG);
-        light->SetPosition(lightInfoFloat.Position);
-        light->SetFocalPoint(lightInfoFloat.FocalPoint);
+                                  vtkParallelRenderManager::LIGHT_INFO_DOUBLE_TAG);
+        light->SetPosition(lightInfoDouble.Position);
+        light->SetFocalPoint(lightInfoDouble.FocalPoint);
         }
       }
 

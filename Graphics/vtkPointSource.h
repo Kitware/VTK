@@ -42,15 +42,15 @@ public:
 
   // Description:
   // Set the center of the point cloud.
-  vtkSetVector3Macro(Center,float);
-  vtkGetVectorMacro(Center,float,3);
+  vtkSetVector3Macro(Center,double);
+  vtkGetVectorMacro(Center,double,3);
 
   // Description:
   // Set the radius of the point cloud.  If you are
   // generating a Gaussian distribution, then this is
   // the standard deviation for each of x, y, and z.
-  vtkSetClampMacro(Radius,float,0.0,VTK_LARGE_FLOAT);
-  vtkGetMacro(Radius,float);
+  vtkSetClampMacro(Radius,double,0.0,VTK_DOUBLE_MAX);
+  vtkGetMacro(Radius,double);
 
   // Description:
   // Specify the distribution to use.  The default is a
@@ -71,8 +71,8 @@ protected:
   void ExecuteInformation();
 
   vtkIdType NumberOfPoints;
-  float Center[3];
-  float Radius;
+  double Center[3];
+  double Radius;
   int Distribution;
 
 private:

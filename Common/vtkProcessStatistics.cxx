@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "vtkProcessStatistics.h"
 
-vtkCxxRevisionMacro(vtkProcessStatistics, "1.12");
+vtkCxxRevisionMacro(vtkProcessStatistics, "1.13");
 
 #ifndef _WIN32
 #include <sys/procfs.h>
@@ -116,7 +116,7 @@ int vtkProcessStatistics::GetProcessSizeInBytes()
 
 }
 
-float vtkProcessStatistics::GetProcessCPUTimeInMilliseconds()
+double vtkProcessStatistics::GetProcessCPUTimeInMilliseconds()
 {
 
 #ifndef _WIN32
@@ -136,8 +136,8 @@ float vtkProcessStatistics::GetProcessCPUTimeInMilliseconds()
   close( fd );
 
   return 
-    (float) psinfo.pr_time.tv_sec * 1000.0 + 
-    (float) psinfo.pr_time.tv_nsec / 1000000.0;
+    (double) psinfo.pr_time.tv_sec * 1000.0 + 
+    (double) psinfo.pr_time.tv_nsec / 1000000.0;
 #endif
 
 #ifdef _WIN32

@@ -64,13 +64,13 @@ public:
 
   // Description:
   // Set the center of the superquadric. Default is 0,0,0.
-  vtkSetVector3Macro(Center,float);
-  vtkGetVectorMacro(Center,float,3);
+  vtkSetVector3Macro(Center,double);
+  vtkGetVectorMacro(Center,double,3);
 
   // Description:
   // Set the scale factors of the superquadric. Default is 1,1,1.
-  vtkSetVector3Macro(Scale,float);
-  vtkGetVectorMacro(Scale,float,3);
+  vtkSetVector3Macro(Scale,double);
+  vtkGetVectorMacro(Scale,double,3);
 
   // Description:
   // Set the number of points in the longitude direction.
@@ -85,25 +85,25 @@ public:
   // Description:
   // Set/Get Superquadric ring thickness (toroids only).
   // Changing thickness maintains the outside diameter of the toroid.
-  vtkGetMacro(Thickness,float);
-  vtkSetClampMacro(Thickness,float,VTK_MIN_SUPERQUADRIC_THICKNESS,1.0);
+  vtkGetMacro(Thickness,double);
+  vtkSetClampMacro(Thickness,double,VTK_MIN_SUPERQUADRIC_THICKNESS,1.0);
 
   // Description:
   // Set/Get Superquadric north/south roundness. 
   // Values range from 0 (rectangular) to 1 (circular) to higher orders.
-  vtkGetMacro(PhiRoundness,float);
-  void SetPhiRoundness(float e); 
+  vtkGetMacro(PhiRoundness,double);
+  void SetPhiRoundness(double e); 
 
   // Description:
   // Set/Get Superquadric east/west roundness.
   // Values range from 0 (rectangular) to 1 (circular) to higher orders.
-  vtkGetMacro(ThetaRoundness,float);
-  void SetThetaRoundness(float e);
+  vtkGetMacro(ThetaRoundness,double);
+  void SetThetaRoundness(double e);
 
   // Description:
   // Set/Get Superquadric isotropic size.
-  vtkSetMacro(Size,float);
-  vtkGetMacro(Size,float);
+  vtkSetMacro(Size,double);
+  vtkGetMacro(Size,double);
 
   // Description:
   // Set/Get whether or not the superquadric is toroidal (1) or ellipsoidal (0).
@@ -116,13 +116,13 @@ protected:
   ~vtkSuperquadricSource() {};
 
   int Toroidal;
-  float Thickness;
-  float Size;
-  float PhiRoundness;
-  float ThetaRoundness;
+  double Thickness;
+  double Size;
+  double PhiRoundness;
+  double ThetaRoundness;
   void Execute();
-  float Center[3];
-  float Scale[3];
+  double Center[3];
+  double Scale[3];
   int ThetaResolution;
   int PhiResolution;
 

@@ -76,8 +76,8 @@ public:
   // Set the clipping value of the implicit function (if clipping with
   // implicit function) or scalar value (if clipping with
   // scalars). The default value is 0.0. 
-  vtkSetMacro(Value,float);
-  vtkGetMacro(Value,float);
+  vtkSetMacro(Value,double);
+  vtkGetMacro(Value,double);
   
   // Description:
   // Set/Get the InsideOut flag. When off, a vertex is considered
@@ -141,7 +141,7 @@ protected:
   
   vtkPointLocator *Locator;
   int InsideOut;
-  float Value;
+  double Value;
   int GenerateClipScalars;
 
   int GenerateClippedOutput;

@@ -30,16 +30,16 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSuperquadricSource, "1.21");
+vtkCxxRevisionMacro(vtkSuperquadricSource, "1.22");
 vtkStandardNewMacro(vtkSuperquadricSource);
 
-static void evalSuperquadric(float u, float v, 
-                             float du, float dv,
-                             float n, float e, 
-                             float dims[3],
-                             float alpha,  
-                             float xyz[3], 
-                             float nrm[3]);
+static void evalSuperquadric(double u, double v, 
+                             double du, double dv,
+                             double n, double e, 
+                             double dims[3],
+                             double alpha,  
+                             double xyz[3], 
+                             double nrm[3]);
   
 // Description:
 vtkSuperquadricSource::vtkSuperquadricSource(int res)
@@ -99,7 +99,7 @@ void vtkSuperquadricSource::SetThetaResolution(int i)
     }
 }
 
-void vtkSuperquadricSource::SetThetaRoundness(float e) 
+void vtkSuperquadricSource::SetThetaRoundness(double e) 
 {
   if(e < VTK_MIN_SUPERQUADRIC_ROUNDNESS)
     {
@@ -113,7 +113,7 @@ void vtkSuperquadricSource::SetThetaRoundness(float e)
     }
 }
 
-void vtkSuperquadricSource::SetPhiRoundness(float e) 
+void vtkSuperquadricSource::SetPhiRoundness(double e) 
 {
   if(e < VTK_MIN_SUPERQUADRIC_ROUNDNESS)
     {
@@ -127,7 +127,7 @@ void vtkSuperquadricSource::SetPhiRoundness(float e)
     }
 }
 
-static const float SQ_SMALL_OFFSET = 0.01;
+static const double SQ_SMALL_OFFSET = 0.01;
 
 void vtkSuperquadricSource::Execute()
 {
@@ -138,19 +138,19 @@ void vtkSuperquadricSource::Execute()
   vtkFloatArray *newTCoords;
   vtkCellArray *newPolys;
   vtkIdType *ptidx;
-  float pt[3], nv[3], dims[3];
-  float len;
-  float alpha;
-  float deltaPhi, deltaTheta, phi, theta;
-  float phiLim[2], thetaLim[2];
-  float deltaPhiTex, deltaThetaTex;
+  double pt[3], nv[3], dims[3];
+  double len;
+  double alpha;
+  double deltaPhi, deltaTheta, phi, theta;
+  double phiLim[2], thetaLim[2];
+  double deltaPhiTex, deltaThetaTex;
   int base, pbase;
   vtkIdType numStrips;
   int ptsPerStrip;
   int phiSubsegs, thetaSubsegs, phiSegs, thetaSegs;
   int iq, jq, rowOffset;
-  float thetaOffset, phiOffset;
-  float texCoord[2];
+  double thetaOffset, phiOffset;
+  double texCoord[2];
 
   vtkPolyData *output = this->GetOutput();
 
@@ -341,36 +341,36 @@ void vtkSuperquadricSource::PrintSelf(ostream& os, vtkIndent indent)
      << this->Scale[1] << ", " << this->Scale[2] << ")\n";
 }
 
-static float cf(float w, float m, float a) 
+static double cf(double w, double m, double a) 
 {
-  float c;
-  float sgn;
+  double c;
+  double sgn;
 
   c = cos(w);
   sgn = c < 0.0 ? -1.0 : 1.0;
   return a + sgn*pow(sgn*c, m);
 }
 
-static float sf(float w, float m) 
+static double sf(double w, double m) 
 {
-  float s;
-  float sgn;
+  double s;
+  double sgn;
 
   s = sin(w);
   sgn = s < 0.0 ? -1.0 : 1.0;
   return sgn*pow(sgn*s, m);
 }
 
-static void evalSuperquadric(float u, float v,  // parametric coords
-                             float du, float dv, // offsets for normals
-                             float n, float e,  // roundness params
-                             float dims[3],     // x, y, z dimensions
-                             float alpha,       // hole size
-                             float xyz[3],      // output coords
-                             float nrm[3])      // output normals
+static void evalSuperquadric(double u, double v,  // parametric coords
+                             double du, double dv, // offsets for normals
+                             double n, double e,  // roundness params
+                             double dims[3],     // x, y, z dimensions
+                             double alpha,       // hole size
+                             double xyz[3],      // output coords
+                             double nrm[3])      // output normals
   
 {
-  float cf1, cf2;
+  double cf1, cf2;
 
   cf1 = cf(v, n, alpha);
   xyz[0] = dims[0] * cf1 * sf(u, e);

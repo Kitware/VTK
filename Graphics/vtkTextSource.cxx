@@ -21,7 +21,7 @@
 #include "vtkPolyData.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkTextSource, "1.46");
+vtkCxxRevisionMacro(vtkTextSource, "1.47");
 vtkStandardNewMacro(vtkTextSource);
 
 #define vtkfont_width 9
@@ -167,7 +167,7 @@ void vtkTextSource::Execute()
   vtkPoints *newPoints; 
   vtkCellArray *newPolys;
   vtkUnsignedCharArray *newScalars;
-  float x[3];
+  double x[3];
   int pos = 0;
   int pixelPos;
   vtkIdType pts[5];

@@ -33,7 +33,7 @@
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkVRMLExporter, "1.72");
+vtkCxxRevisionMacro(vtkVRMLExporter, "1.73");
 vtkStandardNewMacro(vtkVRMLExporter);
 
 vtkVRMLExporter::vtkVRMLExporter()
@@ -120,7 +120,7 @@ void vtkVRMLExporter::WriteData()
   fprintf(fp,"# VRML file written by the visualization toolkit\n\n");
 
   // Start write the Background
-  float background[3];
+  double background[3];
   ren->GetBackground(background);
   fprintf(fp,"    Background {\n ");
   fprintf(fp,"   skyColor [%f %f %f, ]\n", background[0], 
@@ -181,7 +181,7 @@ void vtkVRMLExporter::WriteData()
 
 void vtkVRMLExporter::WriteALight(vtkLight *aLight, FILE *fp)
 {
-  float *pos, *focus, *color;
+  double *pos, *focus, *color;
   double dir[3];
   
   pos = aLight->GetPosition();
@@ -195,7 +195,7 @@ void vtkVRMLExporter::WriteALight(vtkLight *aLight, FILE *fp)
     
   if (aLight->GetPositional())
     {
-    float *attn;
+    double *attn;
     
     if (aLight->GetConeAngle() >= 180.0)
       {

@@ -53,7 +53,7 @@ public:
   // Otherwise it encodes the move into a unique integer so that
   // the caller can determine if the move state has changed.
   // This will answer the question, "Should I render."
-  int SetPoint(float x, float y, float z);  
+  int SetPoint(double x, double y, double z);  
 
   // Description:
   // Move actually implements the pending move. When percentage

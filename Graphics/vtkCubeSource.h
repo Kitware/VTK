@@ -32,41 +32,41 @@ public:
 
   // Description:
   // Set the length of the cube in the x-direction.
-  vtkSetClampMacro(XLength,float,0.0,VTK_LARGE_FLOAT);
-  vtkGetMacro(XLength,float);
+  vtkSetClampMacro(XLength,double,0.0,VTK_DOUBLE_MAX);
+  vtkGetMacro(XLength,double);
 
   // Description:
   // Set the length of the cube in the y-direction.
-  vtkSetClampMacro(YLength,float,0.0,VTK_LARGE_FLOAT);
-  vtkGetMacro(YLength,float);
+  vtkSetClampMacro(YLength,double,0.0,VTK_DOUBLE_MAX);
+  vtkGetMacro(YLength,double);
 
   // Description:
   // Set the length of the cube in the z-direction.
-  vtkSetClampMacro(ZLength,float,0.0,VTK_LARGE_FLOAT);
-  vtkGetMacro(ZLength,float);
+  vtkSetClampMacro(ZLength,double,0.0,VTK_DOUBLE_MAX);
+  vtkGetMacro(ZLength,double);
 
   // Description:
   // Set the center of the cube.
-  vtkSetVector3Macro(Center,float);
-  vtkGetVectorMacro(Center,float,3);
+  vtkSetVector3Macro(Center,double);
+  vtkGetVectorMacro(Center,double,3);
 
   // Description:
   // Convenience method allows creation of cube by specifying bounding box.
-  void SetBounds(float xMin, float xMax,
-                 float yMin, float yMax,
-                 float zMin, float zMax);
-  void SetBounds(float bounds[6]);
+  void SetBounds(double xMin, double xMax,
+                 double yMin, double yMax,
+                 double zMin, double zMax);
+  void SetBounds(double bounds[6]);
 
 
 protected:
-  vtkCubeSource(float xL=1.0, float yL=1.0, float zL=1.0);
+  vtkCubeSource(double xL=1.0, double yL=1.0, double zL=1.0);
   ~vtkCubeSource() {};
 
   void Execute();
-  float XLength;
-  float YLength;
-  float ZLength;
-  float Center[3];
+  double XLength;
+  double YLength;
+  double ZLength;
+  double Center[3];
 private:
   vtkCubeSource(const vtkCubeSource&);  // Not implemented.
   void operator=(const vtkCubeSource&);  // Not implemented.

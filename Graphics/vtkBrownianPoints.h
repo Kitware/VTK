@@ -35,21 +35,21 @@ public:
 
   // Description:
   // Set the minimum speed value.
-  vtkSetClampMacro(MinimumSpeed,float,0.0,VTK_LARGE_FLOAT);
-  vtkGetMacro(MinimumSpeed,float);
+  vtkSetClampMacro(MinimumSpeed,double,0.0,VTK_DOUBLE_MAX);
+  vtkGetMacro(MinimumSpeed,double);
 
   // Description:
   // Set the maximum speed value.
-  vtkSetClampMacro(MaximumSpeed,float,0.0,VTK_LARGE_FLOAT);
-  vtkGetMacro(MaximumSpeed,float);
+  vtkSetClampMacro(MaximumSpeed,double,0.0,VTK_DOUBLE_MAX);
+  vtkGetMacro(MaximumSpeed,double);
 
 protected:
   vtkBrownianPoints();
   ~vtkBrownianPoints() {};
 
   void Execute();
-  float MinimumSpeed;
-  float MaximumSpeed;
+  double MinimumSpeed;
+  double MaximumSpeed;
 private:
   vtkBrownianPoints(const vtkBrownianPoints&);  // Not implemented.
   void operator=(const vtkBrownianPoints&);  // Not implemented.

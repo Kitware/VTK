@@ -39,8 +39,8 @@ public:
 
   // Description:
   // Specify the separation of points in terms of absolute time.
-  vtkSetClampMacro(TimeIncrement,float,0.000001,VTK_LARGE_FLOAT);
-  vtkGetMacro(TimeIncrement,float);
+  vtkSetClampMacro(TimeIncrement,double,0.000001,VTK_DOUBLE_MAX);
+  vtkGetMacro(TimeIncrement,double);
 
 protected:
   vtkStreamPoints();
@@ -50,7 +50,7 @@ protected:
   void Execute();
 
   // the separation of points
-  float TimeIncrement;
+  double TimeIncrement;
   
 private:
   vtkStreamPoints(const vtkStreamPoints&);  // Not implemented.

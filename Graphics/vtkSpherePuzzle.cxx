@@ -26,7 +26,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSpherePuzzle, "1.11");
+vtkCxxRevisionMacro(vtkSpherePuzzle, "1.12");
 vtkStandardNewMacro(vtkSpherePuzzle);
 
 //----------------------------------------------------------------------------
@@ -124,10 +124,10 @@ void vtkSpherePuzzle::Execute()
     for (i = 0; i < 8; ++i)
       {
       color = this->State[count] * 3;
-      sphere->SetStartTheta((360.0 * (float)(i) / 8.0));
-      sphere->SetEndTheta((360.0 * (float)(i+1) / 8.0));
-      sphere->SetStartPhi((180.0 * (float)(j) / 4.0));
-      sphere->SetEndPhi((180.0 * (float)(j+1) / 4.0));
+      sphere->SetStartTheta((360.0 * (double)(i) / 8.0));
+      sphere->SetEndTheta((360.0 * (double)(i+1) / 8.0));
+      sphere->SetStartPhi((180.0 * (double)(j) / 4.0));
+      sphere->SetEndPhi((180.0 * (double)(j+1) / 4.0));
       tmp = vtkPolyData::New();
       if (this->PieceMask[count])
         { // Spheres original output is transforms input. Put it back.
@@ -275,7 +275,7 @@ void vtkSpherePuzzle::MoveHorizontal(int slab, int percentage, int rightFlag)
     {
     percentage = -percentage;
     }
-  this->Transform->RotateZ(((float)(percentage) / 100.0)
+  this->Transform->RotateZ(((double)(percentage) / 100.0)
                            * (360.0 / 8.0) );
 }
 
@@ -348,14 +348,14 @@ void vtkSpherePuzzle::MoveVertical(int half, int percentage, int rightFlag)
     percentage = -percentage;
     }
   theta = (double)(half) * vtkMath::Pi() / 4.0;
-  this->Transform->RotateWXYZ(((float)(percentage)/100.0)*(360.0/2.0),
+  this->Transform->RotateWXYZ(((double)(percentage)/100.0)*(360.0/2.0),
                               sin(theta), -cos(theta), 0.0);
 
 }
 
 
 //----------------------------------------------------------------------------
-int vtkSpherePuzzle::SetPoint(float x, float y, float z) 
+int vtkSpherePuzzle::SetPoint(double x, double y, double z) 
 {
   double pt[3];
   double theta, phi;

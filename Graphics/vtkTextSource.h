@@ -58,13 +58,13 @@ public:
 
   // Description:
   // Set/Get the foreground color. Default is white (1,1,1). ALpha is always 1.
-  vtkSetVector3Macro(ForegroundColor,float);
-  vtkGetVectorMacro(ForegroundColor,float,3);
+  vtkSetVector3Macro(ForegroundColor,double);
+  vtkGetVectorMacro(ForegroundColor,double,3);
 
   // Description:
   // Set/Get the background color. Default is black (0,0,0). Alpha is always 1.
-  vtkSetVector3Macro(BackgroundColor,float);
-  vtkGetVectorMacro(BackgroundColor,float,3);
+  vtkSetVector3Macro(BackgroundColor,double);
+  vtkGetVectorMacro(BackgroundColor,double,3);
 
 protected:
   vtkTextSource();
@@ -73,8 +73,8 @@ protected:
   void Execute();
   char *Text;
   int  Backing;
-  float ForegroundColor[4];
-  float BackgroundColor[4];
+  double ForegroundColor[4];
+  double BackgroundColor[4];
 private:
   vtkTextSource(const vtkTextSource&);  // Not implemented.
   void operator=(const vtkTextSource&);  // Not implemented.

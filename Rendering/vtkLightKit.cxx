@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkLightKit, "1.12");
+vtkCxxRevisionMacro(vtkLightKit, "1.13");
 vtkStandardNewMacro(vtkLightKit);
 
 vtkLightKit::vtkLightKit() {
@@ -96,21 +96,21 @@ vtkLightKit::~vtkLightKit() {
   }
 }
 
-void vtkLightKit::SetKeyLightAngle(float elevation, float azimuth) {
+void vtkLightKit::SetKeyLightAngle(double elevation, double azimuth) {
   this->KeyLightAngle[0] = elevation;
   this->KeyLightAngle[1] = azimuth;
 
   this->KeyLight->SetDirectionAngle(elevation, azimuth);
 }
 
-void vtkLightKit::SetFillLightAngle(float elevation, float azimuth) {
+void vtkLightKit::SetFillLightAngle(double elevation, double azimuth) {
   this->FillLightAngle[0] = elevation;
   this->FillLightAngle[1] = azimuth;
 
   this->FillLight->SetDirectionAngle(elevation, azimuth);
 }
 
-void vtkLightKit::SetBackLightAngle(float elevation, float azimuth) {
+void vtkLightKit::SetBackLightAngle(double elevation, double azimuth) {
   this->BackLightAngle[0] = elevation;
   this->BackLightAngle[1] = azimuth;
 
@@ -118,17 +118,17 @@ void vtkLightKit::SetBackLightAngle(float elevation, float azimuth) {
   this->BackLight1->SetDirectionAngle(elevation, -azimuth);
 }
 
-void vtkLightKit::WarmthToRGB(float w, float rgb[3]) {
+void vtkLightKit::WarmthToRGB(double w, double rgb[3]) {
   rgb[0] = this->WarmthFunction[0]->GetValue(w);
   rgb[1] = this->WarmthFunction[1]->GetValue(w);
   rgb[2] = this->WarmthFunction[2]->GetValue(w);
 }
 
-float vtkLightKit::WarmthToIntensity(float w) {
+double vtkLightKit::WarmthToIntensity(double w) {
   return this->WarmthFunction[3]->GetValue(w);
 }
 
-void vtkLightKit::WarmthToRGBI(float w, float rgb[3], float& i) {
+void vtkLightKit::WarmthToRGBI(double w, double rgb[3], double& i) {
   rgb[0] = this->WarmthFunction[0]->GetValue(w);
   rgb[1] = this->WarmthFunction[1]->GetValue(w);
   rgb[2] = this->WarmthFunction[2]->GetValue(w);
@@ -163,20 +163,20 @@ void vtkLightKit::Modified() {
 
 void vtkLightKit::Update() {
 
-  float *fillLightColor = this->FillLightColor;
-  float fillLightPI;
+  double *fillLightColor = this->FillLightColor;
+  double fillLightPI;
 
-  float *keyLightColor = this->KeyLightColor;
-  float keyLightPI;
+  double *keyLightColor = this->KeyLightColor;
+  double keyLightPI;
 
-  float *headlightColor = this->HeadlightColor;
-  float headlightPI;
+  double *headlightColor = this->HeadlightColor;
+  double headlightPI;
 
-  float *backLightColor = this->BackLightColor;
-  float backLightPI;
+  double *backLightColor = this->BackLightColor;
+  double backLightPI;
 
-  float fillLightIntensity, keyLightIntensity, headlightIntensity;
-  float backLightIntensity;
+  double fillLightIntensity, keyLightIntensity, headlightIntensity;
+  double backLightIntensity;
 
   this->WarmthToRGBI(this->KeyLightWarmth,  keyLightColor,  keyLightPI);
   this->WarmthToRGBI(this->FillLightWarmth, fillLightColor, fillLightPI);

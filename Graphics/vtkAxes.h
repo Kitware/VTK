@@ -34,13 +34,13 @@ public:
 
   // Description:
   // Set the origin of the axes.
-  vtkSetVector3Macro(Origin,float);
-  vtkGetVectorMacro(Origin,float,3);
+  vtkSetVector3Macro(Origin,double);
+  vtkGetVectorMacro(Origin,double,3);
 
   // Description:
   // Set the scale factor of the axes. Used to control size.
-  vtkSetMacro(ScaleFactor,float);
-  vtkGetMacro(ScaleFactor,float);
+  vtkSetMacro(ScaleFactor,double);
+  vtkGetMacro(ScaleFactor,double);
 
   // Description:
   // If Symetric is on, the the axis continue to negative values.
@@ -63,8 +63,8 @@ protected:
   int ComputeDivisionExtents(vtkDataObject *output, 
                              int idx, int numDivisions);
 
-  float Origin[3];
-  float ScaleFactor;
+  double Origin[3];
+  double ScaleFactor;
   
   int Symmetric;
   int ComputeNormals;

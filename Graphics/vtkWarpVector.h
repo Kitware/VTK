@@ -34,8 +34,8 @@ public:
 
   // Description:
   // Specify value to scale displacement.
-  vtkSetMacro(ScaleFactor,float);
-  vtkGetMacro(ScaleFactor,float);
+  vtkSetMacro(ScaleFactor,double);
+  vtkGetMacro(ScaleFactor,double);
 
   // Description:
   // If you want to warp by an arbitrary vector array, then set its name here.
@@ -49,7 +49,7 @@ protected:
   ~vtkWarpVector();
 
   void Execute();
-  float ScaleFactor;
+  double ScaleFactor;
 
   char *InputVectorsSelection;
   vtkSetStringMacro(InputVectorsSelection);

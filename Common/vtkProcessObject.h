@@ -61,14 +61,14 @@ public:
 
   // Description:
   // Set/Get the execution progress of a process object.
-  vtkSetClampMacro(Progress,float,0.0f,1.0f);
-  vtkGetMacro(Progress,float);
+  vtkSetClampMacro(Progress,double,0.0,1.0);
+  vtkGetMacro(Progress,double);
 
   // Description:
   // Update the progress of the process object. If a ProgressMethod exists,
   // executes it.  Then set the Progress ivar to amount. The parameter amount
   // should range between (0,1).
-  void UpdateProgress(float amount);
+  void UpdateProgress(double amount);
 
   // Description:
   // Set the current text message associated with the progress state.
@@ -105,7 +105,7 @@ protected:
   ~vtkProcessObject();
 
   // Progress/Update handling
-  float Progress;
+  double Progress;
   char  *ProgressText;
 
   int NumberOfInputs;

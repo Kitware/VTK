@@ -18,7 +18,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkGraphicsFactory.h"
 
-vtkCxxRevisionMacro(vtkLight, "1.51");
+vtkCxxRevisionMacro(vtkLight, "1.52");
 
 vtkCxxSetObjectMacro(vtkLight,TransformMatrix,vtkMatrix4x4);
 
@@ -76,7 +76,7 @@ vtkLight::~vtkLight()
     }
 }
 
-void vtkLight::SetDirectionAngle(float elevation, float azimuth)
+void vtkLight::SetDirectionAngle(double elevation, double azimuth)
 {
   elevation *= vtkMath::DegreesToRadians();
   azimuth   *= vtkMath::DegreesToRadians();
@@ -100,7 +100,7 @@ vtkLight *vtkLight::New()
 
 // Preserve VTK's old way of setting light color
 // which affected only diffuse and specular components. 
-void vtkLight::SetColor(float R, float G, float B)
+void vtkLight::SetColor(double R, double G, double B)
 {
   this->SetDiffuseColor(R, G, B);
   this->SetSpecularColor(R, G, B);
@@ -110,12 +110,12 @@ void vtkLight::SetColor(float R, float G, float B)
 // the specular and diffuse colors to the same value. In the future, we may
 // want to change this to compute the composite light color, similar to
 // vtkProperty.
-float *vtkLight::GetColor()
+double *vtkLight::GetColor()
 {
   return this->DiffuseColor;
 }
 
-void vtkLight::GetColor(float rgb[3])
+void vtkLight::GetColor(double rgb[3])
 {
   // May want to change this to compute the composite
   // light color, similar to vtkProperty.
@@ -139,11 +139,11 @@ int vtkLight::LightTypeIsSceneLight()
   return this->LightType == VTK_LIGHT_TYPE_SCENE_LIGHT;
 }
 
-void vtkLight::GetTransformedPosition(float a[3]) 
+void vtkLight::GetTransformedPosition(double a[3]) 
 {
   if(this->TransformMatrix)
     {
-    float f[4];
+    double f[4];
     f[0] = this->Position[0];
     f[1] = this->Position[1];
     f[2] = this->Position[2];
@@ -163,9 +163,9 @@ void vtkLight::GetTransformedPosition(float a[3])
     }
 }
 
-void vtkLight::GetTransformedPosition(float &x, float &y, float &z) 
+void vtkLight::GetTransformedPosition(double &x, double &y, double &z) 
 {
-  float a[3];
+  double a[3];
 
   this->GetTransformedPosition(a);
   x = a[0];
@@ -173,17 +173,17 @@ void vtkLight::GetTransformedPosition(float &x, float &y, float &z)
   z = a[2];
 }
 
-float *vtkLight::GetTransformedPosition() 
+double *vtkLight::GetTransformedPosition() 
 {
   this->GetTransformedPosition(this->TransformedPositionReturn);
   return this->TransformedPositionReturn;
 }
 
-void vtkLight::GetTransformedFocalPoint(float a[3]) 
+void vtkLight::GetTransformedFocalPoint(double a[3]) 
 {
   if(this->TransformMatrix)
     {
-    float f[4];
+    double f[4];
     f[0] = this->FocalPoint[0];
     f[1] = this->FocalPoint[1];
     f[2] = this->FocalPoint[2];
@@ -203,9 +203,9 @@ void vtkLight::GetTransformedFocalPoint(float a[3])
     }
 }
 
-void vtkLight::GetTransformedFocalPoint(float &x, float &y, float &z)
+void vtkLight::GetTransformedFocalPoint(double &x, double &y, double &z)
 {
-  float a[3];
+  double a[3];
 
   this->GetTransformedFocalPoint(a);
   x = a[0];
@@ -213,7 +213,7 @@ void vtkLight::GetTransformedFocalPoint(float &x, float &y, float &z)
   z = a[2];
 }
 
-float *vtkLight::GetTransformedFocalPoint() 
+double *vtkLight::GetTransformedFocalPoint() 
 {
   this->GetTransformedFocalPoint(this->TransformedFocalPointReturn);
   return this->TransformedFocalPointReturn;

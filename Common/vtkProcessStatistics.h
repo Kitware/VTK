@@ -29,8 +29,8 @@ public:
 
   vtkTypeRevisionMacro(vtkProcessStatistics,vtkObject);
 
-  int   GetProcessSizeInBytes();
-  float GetProcessCPUTimeInMilliseconds();
+  int    GetProcessSizeInBytes();
+  double GetProcessCPUTimeInMilliseconds();
 
 protected:
   vtkProcessStatistics();

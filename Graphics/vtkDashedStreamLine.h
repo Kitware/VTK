@@ -45,8 +45,8 @@ public:
   // For each dash, specify the fraction of the dash that is "on". A factor
   // of 1.0 will result in a continuous line, a factor of 0.5 will result in 
   // dashed that are half on and half off.
-  vtkSetClampMacro(DashFactor,float,0.01,1.0);
-  vtkGetMacro(DashFactor,float);
+  vtkSetClampMacro(DashFactor,double,0.01,1.0);
+  vtkGetMacro(DashFactor,double);
 
 protected:
   vtkDashedStreamLine();
@@ -56,7 +56,7 @@ protected:
   void Execute();
 
   // the fraction of on versus off in dash
-  float DashFactor;
+  double DashFactor;
   
 private:
   vtkDashedStreamLine(const vtkDashedStreamLine&);  // Not implemented.

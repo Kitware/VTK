@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCylinderSource, "1.51");
+vtkCxxRevisionMacro(vtkCylinderSource, "1.52");
 vtkStandardNewMacro(vtkCylinderSource);
 
 vtkCylinderSource::vtkCylinderSource (int res)
@@ -37,11 +37,11 @@ vtkCylinderSource::vtkCylinderSource (int res)
 
 void vtkCylinderSource::Execute()
 {
-  float angle= 2.0*3.141592654/this->Resolution;
+  double angle= 2.0*3.141592654/this->Resolution;
   int numPolys, numPts;
-  float xbot[3], tcbot[2], nbot[3];
-  float xtop[3], tctop[2], ntop[3];
-  float *center = this->Center;
+  double xbot[3], tcbot[2], nbot[3];
+  double xtop[3], tctop[2], ntop[3];
+  double *center = this->Center;
   int i, idx;
   vtkIdType pts[VTK_CELL_SIZE];
   vtkPoints *newPoints; 

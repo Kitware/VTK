@@ -46,20 +46,20 @@ public:
   
   // Description:
   // Criterion is cells whose scalars are less than lower threshold.
-  void ThresholdByLower(float lower);
+  void ThresholdByLower(double lower);
 
   // Description:
   // Criterion is cells whose scalars are less than upper threshold.
-  void ThresholdByUpper(float upper);
+  void ThresholdByUpper(double upper);
 
   // Description:
   // Criterion is cells whose scalars are between lower and upper thresholds.
-  void ThresholdBetween(float lower, float upper);
+  void ThresholdBetween(double lower, double upper);
 
   // Description:
   // Return the upper and lower thresholds.
-  vtkGetMacro(UpperThreshold,float);
-  vtkGetMacro(LowerThreshold,float);
+  vtkGetMacro(UpperThreshold,double);
+  vtkGetMacro(LowerThreshold,double);
 
   // Description:
   // Set the desired dimension of the texture map.
@@ -68,14 +68,14 @@ public:
 
   // Description:
   // Set the texture coordinate value for point satisfying threshold criterion.
-  vtkSetVector3Macro(InTextureCoord,float);
-  vtkGetVectorMacro(InTextureCoord,float,3);
+  vtkSetVector3Macro(InTextureCoord,double);
+  vtkGetVectorMacro(InTextureCoord,double,3);
 
   // Description:
   // Set the texture coordinate value for point NOT satisfying threshold
   //  criterion.
-  vtkSetVector3Macro(OutTextureCoord,float);
-  vtkGetVectorMacro(OutTextureCoord,float,3);
+  vtkSetVector3Macro(OutTextureCoord,double);
+  vtkGetVectorMacro(OutTextureCoord,double,3);
 
 protected:
   vtkThresholdTextureCoords();
@@ -84,21 +84,21 @@ protected:
   // Usual data generation method
   void Execute();
 
-  float LowerThreshold;
-  float UpperThreshold;
+  double LowerThreshold;
+  double UpperThreshold;
 
   int TextureDimension;
 
-  float InTextureCoord[3];
-  float OutTextureCoord[3];
+  double InTextureCoord[3];
+  double OutTextureCoord[3];
 
   //BTX
-  int (vtkThresholdTextureCoords::*ThresholdFunction)(float s);
+  int (vtkThresholdTextureCoords::*ThresholdFunction)(double s);
   //ETX
 
-  int Lower(float s) {return ( s <= this->LowerThreshold ? 1 : 0 );};
-  int Upper(float s) {return ( s >= this->UpperThreshold ? 1 : 0 );};
-  int Between(float s) {return ( s >= this->LowerThreshold ? 
+  int Lower(double s) {return ( s <= this->LowerThreshold ? 1 : 0 );};
+  int Upper(double s) {return ( s >= this->UpperThreshold ? 1 : 0 );};
+  int Between(double s) {return ( s >= this->LowerThreshold ? 
                                ( s <= this->UpperThreshold ? 1 : 0 ) : 0 );};
 private:
   vtkThresholdTextureCoords(const vtkThresholdTextureCoords&);  // Not implemented.

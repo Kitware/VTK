@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkThresholdTextureCoords, "1.37");
+vtkCxxRevisionMacro(vtkThresholdTextureCoords, "1.38");
 vtkStandardNewMacro(vtkThresholdTextureCoords);
 
 // Construct with lower threshold=0, upper threshold=1, threshold 
@@ -43,7 +43,7 @@ vtkThresholdTextureCoords::vtkThresholdTextureCoords()
 }
 
 // Criterion is cells whose scalars are less than lower threshold.
-void vtkThresholdTextureCoords::ThresholdByLower(float lower) 
+void vtkThresholdTextureCoords::ThresholdByLower(double lower) 
 {
   if ( this->LowerThreshold != lower )
     {
@@ -54,7 +54,7 @@ void vtkThresholdTextureCoords::ThresholdByLower(float lower)
 }
                            
 // Criterion is cells whose scalars are less than upper threshold.
-void vtkThresholdTextureCoords::ThresholdByUpper(float upper)
+void vtkThresholdTextureCoords::ThresholdByUpper(double upper)
 {
   if ( this->UpperThreshold != upper )
     {
@@ -65,7 +65,7 @@ void vtkThresholdTextureCoords::ThresholdByUpper(float upper)
 }
                            
 // Criterion is cells whose scalars are between lower and upper thresholds.
-void vtkThresholdTextureCoords::ThresholdBetween(float lower, float upper)
+void vtkThresholdTextureCoords::ThresholdBetween(double lower, double upper)
 {
   if ( this->LowerThreshold != lower || this->UpperThreshold != upper )
     {

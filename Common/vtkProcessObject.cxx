@@ -19,7 +19,7 @@
 #include "vtkErrorCode.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkProcessObject, "1.34");
+vtkCxxRevisionMacro(vtkProcessObject, "1.35");
 
 // Instantiate object with no start, end, or progress methods.
 vtkProcessObject::vtkProcessObject()
@@ -257,7 +257,7 @@ void vtkProcessObject::SetNthInput(int idx, vtkDataObject *input)
 // Update the progress of the process object. If a ProgressMethod exists, 
 // executes it. Then set the Progress ivar to amount. The parameter amount
 // should range between (0,1).
-void vtkProcessObject::UpdateProgress(float amount)
+void vtkProcessObject::UpdateProgress(double amount)
 {
   this->Progress = amount;
   this->InvokeEvent(vtkCommand::ProgressEvent,(void *)&amount);

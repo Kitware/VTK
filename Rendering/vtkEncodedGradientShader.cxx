@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkEncodedGradientShader, "1.31");
+vtkCxxRevisionMacro(vtkEncodedGradientShader, "1.32");
 vtkStandardNewMacro(vtkEncodedGradientShader);
 
 vtkEncodedGradientShader::vtkEncodedGradientShader()
@@ -192,13 +192,13 @@ float *vtkEncodedGradientShader::GetBlueSpecularShadingTable( vtkVolume *vol )
   return this->ShadingTable[index][5];
 }
 
-void vtkEncodedGradientShader::UpdateShadingTable( vtkRenderer *ren, 
-                                                   vtkVolume *vol,
-                                                   vtkEncodedGradientEstimator *gradest)
+void vtkEncodedGradientShader::UpdateShadingTable( 
+  vtkRenderer *ren, vtkVolume *vol,
+  vtkEncodedGradientEstimator *gradest)
 {
-  float                 lightDirection[3], material[4], lightColor[3];
-  float                 lightPosition[3], lightFocalPoint[3];
-  float                 lightIntensity, viewDirection[3];
+  double                 lightDirection[3], material[4], lightColor[3];
+  double                 lightPosition[3], lightFocalPoint[3];
+  double                 lightIntensity, viewDirection[3];
   float                 cameraPosition[3], cameraFocalPoint[3], mag;
   vtkLightCollection    *lightCollection;
   vtkLight              *light;
@@ -207,7 +207,7 @@ void vtkEncodedGradientShader::UpdateShadingTable( vtkRenderer *ren,
   vtkVolumeProperty     *property;
   vtkTransform          *transform;
   vtkMatrix4x4          *m;
-  float                 in[4], out[4], zero[4];
+  double                 in[4], out[4], zero[4];
   int                   index;
 
   // Figure out which shading table we are working with
@@ -278,7 +278,7 @@ void vtkEncodedGradientShader::UpdateShadingTable( vtkRenderer *ren,
     viewDirection[2] /= mag;
     }
 
-  memcpy( in, viewDirection, 3*sizeof(float) );
+  memcpy( in, viewDirection, 3*sizeof(double) );
   in[3] = 1.0;
   transform->MultiplyPoint( in, out );
   viewDirection[0] = out[0] / out[3];
@@ -339,7 +339,7 @@ void vtkEncodedGradientShader::UpdateShadingTable( vtkRenderer *ren,
     lightDirection[1] /= -norm;
     lightDirection[2] /= -norm;
       
-    memcpy( in, lightDirection, 3*sizeof(float) );
+    memcpy( in, lightDirection, 3*sizeof(double) );
     transform->MultiplyPoint( in, out );
     lightDirection[0] = out[0] / out[3] - zero[0];
     lightDirection[1] = out[1] / out[3] - zero[1];
@@ -377,16 +377,16 @@ void vtkEncodedGradientShader::UpdateShadingTable( vtkRenderer *ren,
 // be handled. There is one shading table per volume, and the index
 // value indicates which index table is to be updated
 void vtkEncodedGradientShader::BuildShadingTable( int index,
-                                                  float lightDirection[3],
-                                                  float lightColor[3],
-                                                  float lightIntensity,
-                                                  float viewDirection[3],
-                                                  float material[4],
+                                                  double lightDirection[3],
+                                                  double lightColor[3],
+                                                  double lightIntensity,
+                                                  double viewDirection[3],
+                                                  double material[4],
                                                   int   twoSided,
                                                   vtkEncodedGradientEstimator *gradest,
                                                   int   updateFlag )
 {
-  float    lx, ly, lz; 
+  double   lx, ly, lz; 
   float    n_dot_l;   
   float    n_dot_v;   
   int      i;
@@ -398,7 +398,7 @@ void vtkEncodedGradientShader::BuildShadingTable( int index,
   float    *ssg_ptr;
   float    *ssb_ptr;
   float    Ka, Es, Kd_intensity, Ks_intensity;
-  float    half_x, half_y, half_z;
+  double   half_x, half_y, half_z;
   float    mag, n_dot_h, specular_value;
   int      norm_size;
 

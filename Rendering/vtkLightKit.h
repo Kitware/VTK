@@ -105,8 +105,8 @@ public:
   // Set/Get the intensity of the key light.  The key light is the
   // brightest light in the scene.  The intensities of the other two
   // lights are ratios of the key light's intensity.  
-  vtkSetMacro(KeyLightIntensity, float);  
-  vtkGetMacro(KeyLightIntensity, float);
+  vtkSetMacro(KeyLightIntensity, double);  
+  vtkGetMacro(KeyLightIntensity, double);
 
   // Description: 
   // Set/Get the key-to-fill ratio.  This ratio controls
@@ -118,8 +118,8 @@ public:
   // off a wall, floor, or other object.  The fill light should never
   // be brighter than the key light:  a good range for the key-to-fill
   // ratio is between 2 and 10.
-  vtkSetClampMacro(KeyToFillRatio, float, 0.5, VTK_FLOAT_MAX);
-  vtkGetMacro(KeyToFillRatio, float);
+  vtkSetClampMacro(KeyToFillRatio, double, 0.5, VTK_FLOAT_MAX);
+  vtkGetMacro(KeyToFillRatio, double);
 
   // Description: 
   // Set/Get the key-to-headlight ratio.  Similar to the key-to-fill
@@ -131,8 +131,8 @@ public:
   // can be used to fill in "shadows" of the object missed by the key
   // and fill lights.  The headlight should always be significantly
   // dimmer than the key light:  ratios of 2 to 15 are typical.
-  vtkSetClampMacro(KeyToHeadRatio, float, 0.5, VTK_FLOAT_MAX);
-  vtkGetMacro(KeyToHeadRatio, float);
+  vtkSetClampMacro(KeyToHeadRatio, double, 0.5, VTK_FLOAT_MAX);
+  vtkGetMacro(KeyToHeadRatio, double);
 
   // Description: 
   // Set/Get the key-to-back light ratio.  This ratio controls
@@ -140,8 +140,8 @@ public:
   // values correspond to dimmer back lights.  The back lights fill
   // in the remaining high-contrast regions behind the object.
   // Values between 2 and 10 are good.
-  vtkSetClampMacro(KeyToBackRatio, float, 0.5, VTK_FLOAT_MAX);
-  vtkGetMacro(KeyToBackRatio, float);
+  vtkSetClampMacro(KeyToBackRatio, double, 0.5, VTK_FLOAT_MAX);
+  vtkGetMacro(KeyToBackRatio, double);
 
   // Description: 
   // Set the warmth of each the lights.  Warmth is a parameter that
@@ -154,24 +154,24 @@ public:
   // further away from 0.5, colors become more quickly varying towards
   // blues and reds.  With regards to aesthetics, extremes of warmth
   // should be used sparingly.
-  vtkSetMacro(KeyLightWarmth, float);
-  vtkGetMacro(KeyLightWarmth, float);
+  vtkSetMacro(KeyLightWarmth, double);
+  vtkGetMacro(KeyLightWarmth, double);
 
-  vtkSetMacro(FillLightWarmth, float);
-  vtkGetMacro(FillLightWarmth, float);
+  vtkSetMacro(FillLightWarmth, double);
+  vtkGetMacro(FillLightWarmth, double);
 
-  vtkSetMacro(HeadlightWarmth, float);
-  vtkGetMacro(HeadlightWarmth, float);
+  vtkSetMacro(HeadlightWarmth, double);
+  vtkGetMacro(HeadlightWarmth, double);
 
-  vtkSetMacro(BackLightWarmth, float);
-  vtkGetMacro(BackLightWarmth, float);
+  vtkSetMacro(BackLightWarmth, double);
+  vtkGetMacro(BackLightWarmth, double);
 
   // Description:
   // Returns the floating-point RGB values of each of the light's color.
-  vtkGetVectorMacro(KeyLightColor,  float, 3);
-  vtkGetVectorMacro(FillLightColor, float, 3);
-  vtkGetVectorMacro(HeadlightColor, float, 3);
-  vtkGetVectorMacro(BackLightColor, float, 3);
+  vtkGetVectorMacro(KeyLightColor,  double, 3);
+  vtkGetVectorMacro(FillLightColor, double, 3);
+  vtkGetVectorMacro(HeadlightColor, double, 3);
+  vtkGetVectorMacro(BackLightColor, double, 3);
 
   // Description:
   // If MaintainLuminance is set, the LightKit will attempt to maintain
@@ -193,56 +193,56 @@ public:
   // elevation and at opposing azimuths (ie, one to the left, and one to
   // the right).  They are generally set at the equator (elevation = 0),
   // and at approximately 120 degrees (lighting from each side and behind).
-  void SetKeyLightAngle(float elevation, float azimuth);
-  void SetKeyLightAngle(float angle[2]) { 
+  void SetKeyLightAngle(double elevation, double azimuth);
+  void SetKeyLightAngle(double angle[2]) { 
     this->SetKeyLightAngle(angle[0], angle[1]); };
 
-  void SetKeyLightElevation(float x) {
+  void SetKeyLightElevation(double x) {
     this->SetKeyLightAngle(x, this->KeyLightAngle[1]); };
 
-  void SetKeyLightAzimuth(float x) {
+  void SetKeyLightAzimuth(double x) {
     this->SetKeyLightAngle(this->KeyLightAngle[0], x); };
 
-  vtkGetVectorMacro(KeyLightAngle, float, 2);
-  float GetKeyLightElevation() {
-    float ang[2]; this->GetKeyLightAngle(ang); return ang[0]; };
+  vtkGetVectorMacro(KeyLightAngle, double, 2);
+  double GetKeyLightElevation() {
+    double ang[2]; this->GetKeyLightAngle(ang); return ang[0]; };
 
-  float GetKeyLightAzimuth() {
-    float ang[2]; this->GetKeyLightAngle(ang); return ang[1]; };
+  double GetKeyLightAzimuth() {
+    double ang[2]; this->GetKeyLightAngle(ang); return ang[1]; };
 
-  void SetFillLightAngle(float elevation, float azimuth);
-  void SetFillLightAngle(float angle[2]) { 
+  void SetFillLightAngle(double elevation, double azimuth);
+  void SetFillLightAngle(double angle[2]) { 
     this->SetFillLightAngle(angle[0], angle[1]); };
 
-  void SetFillLightElevation(float x) {
+  void SetFillLightElevation(double x) {
     this->SetFillLightAngle(x, this->FillLightAngle[1]); };
 
-  void SetFillLightAzimuth(float x) {
+  void SetFillLightAzimuth(double x) {
     this->SetFillLightAngle(this->FillLightAngle[0], x); };
 
-  vtkGetVectorMacro(FillLightAngle, float, 2);
-  float GetFillLightElevation() {
-    float ang[2]; this->GetFillLightAngle(ang); return ang[0]; };
+  vtkGetVectorMacro(FillLightAngle, double, 2);
+  double GetFillLightElevation() {
+    double ang[2]; this->GetFillLightAngle(ang); return ang[0]; };
 
-  float GetFillLightAzimuth() {
-    float ang[2]; this->GetFillLightAngle(ang); return ang[1]; };
+  double GetFillLightAzimuth() {
+    double ang[2]; this->GetFillLightAngle(ang); return ang[1]; };
 
-  void SetBackLightAngle(float elevation, float azimuth);
-  void SetBackLightAngle(float angle[2]) { 
+  void SetBackLightAngle(double elevation, double azimuth);
+  void SetBackLightAngle(double angle[2]) { 
     this->SetBackLightAngle(angle[0], angle[1]); };
 
-  void SetBackLightElevation(float x) {
+  void SetBackLightElevation(double x) {
     this->SetBackLightAngle(x, this->BackLightAngle[1]); };
 
-  void SetBackLightAzimuth(float x) {
+  void SetBackLightAzimuth(double x) {
     this->SetBackLightAngle(this->BackLightAngle[0], x); };
 
-  vtkGetVectorMacro(BackLightAngle, float, 2);
-  float GetBackLightElevation() {
-    float ang[2]; this->GetBackLightAngle(ang); return ang[0]; };
+  vtkGetVectorMacro(BackLightAngle, double, 2);
+  double GetBackLightElevation() {
+    double ang[2]; this->GetBackLightAngle(ang); return ang[0]; };
 
-  float GetBackLightAzimuth() {
-    float ang[2]; this->GetBackLightAngle(ang); return ang[1]; };
+  double GetBackLightAzimuth() {
+    double ang[2]; this->GetBackLightAngle(ang); return ang[1]; };
 
   // Description:
   // Add lights to, or remove lights from, a renderer.  
@@ -259,38 +259,38 @@ protected:
   vtkLightKit();
   ~vtkLightKit();
 
-  void WarmthToRGBI(float w, float rgb[3], float& i);
-  void WarmthToRGB(float w, float rgb[3]);
+  void WarmthToRGBI(double w, double rgb[3], double& i);
+  void WarmthToRGB(double w, double rgb[3]);
   void InitializeWarmthFunctions();
-  float WarmthToIntensity(float w);
+  double WarmthToIntensity(double w);
 
 
-  float KeyLightIntensity;
-  float KeyToFillRatio;
-  float KeyToHeadRatio;
-  float KeyToBackRatio;
+  double KeyLightIntensity;
+  double KeyToFillRatio;
+  double KeyToHeadRatio;
+  double KeyToBackRatio;
   
   vtkLight *KeyLight;
-  float KeyLightWarmth;
-  float KeyLightAngle[2];
-  float KeyLightColor[3];
+  double KeyLightWarmth;
+  double KeyLightAngle[2];
+  double KeyLightColor[3];
 
   vtkLight *FillLight;
-  float FillLightWarmth;
-  float FillLightAngle[2];
-  float FillLightColor[3];
+  double FillLightWarmth;
+  double FillLightAngle[2];
+  double FillLightColor[3];
 
-  float BackLightWarmth;
-  float BackLightColor[3];
+  double BackLightWarmth;
+  double BackLightColor[3];
 
   vtkLight *BackLight0;
   vtkLight *BackLight1;
 
-  float BackLightAngle[2];
+  double BackLightAngle[2];
 
   vtkLight *Headlight;
-  float HeadlightWarmth;
-  float HeadlightColor[3];
+  double HeadlightWarmth;
+  double HeadlightColor[3];
 
   int MaintainLuminance;
 

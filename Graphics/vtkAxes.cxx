@@ -20,7 +20,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkAxes, "1.42");
+vtkCxxRevisionMacro(vtkAxes, "1.43");
 vtkStandardNewMacro(vtkAxes);
 
 // Construct with origin=(0,0,0) and scale factor=1.
@@ -43,7 +43,7 @@ void vtkAxes::Execute()
   vtkCellArray *newLines;
   vtkFloatArray *newScalars;
   vtkFloatArray *newNormals;
-  float x[3], n[3];
+  double x[3], n[3];
   vtkIdType ptIds[2];
   vtkPolyData *output = this->GetOutput();
   

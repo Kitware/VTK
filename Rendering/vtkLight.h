@@ -72,16 +72,16 @@ public:
   // diffuse and specular colors separately. The SetColor() method sets
   // the diffuse and specular colors to the same color (this is a feature
   // to preserve backward compatbility.)
-  vtkSetVector3Macro(AmbientColor,float);
-  vtkGetVectorMacro(AmbientColor,float,3);
-  vtkSetVector3Macro(DiffuseColor,float);
-  vtkGetVectorMacro(DiffuseColor,float,3);
-  vtkSetVector3Macro(SpecularColor,float);
-  vtkGetVectorMacro(SpecularColor,float,3);
-  void SetColor(float, float, float); 
-  void SetColor(float a[3]) { this->SetColor(a[0], a[1], a[2]); }
-  void GetColor(float rgb[3]);
-  float *GetColor();
+  vtkSetVector3Macro(AmbientColor,double);
+  vtkGetVectorMacro(AmbientColor,double,3);
+  vtkSetVector3Macro(DiffuseColor,double);
+  vtkGetVectorMacro(DiffuseColor,double,3);
+  vtkSetVector3Macro(SpecularColor,double);
+  vtkGetVectorMacro(SpecularColor,double,3);
+  void SetColor(double, double, double); 
+  void SetColor(double a[3]) { this->SetColor(a[0], a[1], a[2]); }
+  void GetColor(double rgb[3]);
+  double *GetColor();
 
   // Description:
   // Set/Get the position of the light.
@@ -89,12 +89,9 @@ public:
   // space indicated by its transformation matrix (if it exists).
   // Thus, to get the light's world space position, use 
   // vtkGetTransformedPosition() instead of vtkGetPosition().
-  vtkSetVector3Macro(Position,float);
-  vtkGetVectorMacro(Position,float,3);
-  void SetPosition(double *a) {this->SetPosition(
-    static_cast<float>(a[0]),
-    static_cast<float>(a[1]),
-    static_cast<float>(a[2]));};
+  vtkSetVector3Macro(Position,double);
+  vtkGetVectorMacro(Position,double,3);
+  void SetPosition(float *a) {this->SetPosition(a[0],a[1],a[2]);};
   
   // Description:
   // Set/Get the point at which the light is shining.
@@ -102,17 +99,14 @@ public:
   // space indicated by its transformation matrix (if it exists).
   // Thus, to get the light's world space focal point, use 
   // vtkGetTransformedFocalPoint() instead of vtkGetFocalPoint().
-  vtkSetVector3Macro(FocalPoint,float);
-  vtkGetVectorMacro(FocalPoint,float,3);
-  void SetFocalPoint(double *a) {this->SetFocalPoint(
-    static_cast<float>(a[0]),
-    static_cast<float>(a[1]),
-    static_cast<float>(a[2]));};
+  vtkSetVector3Macro(FocalPoint,double);
+  vtkGetVectorMacro(FocalPoint,double,3);
+  void SetFocalPoint(float *a) {this->SetFocalPoint(a[0],a[1],a[2]);};
 
   // Description:
   // Set/Get the brightness of the light (from one to zero).
-  vtkSetMacro(Intensity,float);
-  vtkGetMacro(Intensity,float);
+  vtkSetMacro(Intensity,double);
+  vtkGetMacro(Intensity,double);
 
   // Description:
   // Turn the light on or off.
@@ -128,21 +122,21 @@ public:
 
   // Description:
   // Set/Get the exponent of the cosine used in positional lighting.
-  vtkSetMacro(Exponent,float);
-  vtkGetMacro(Exponent,float);
+  vtkSetMacro(Exponent,double);
+  vtkGetMacro(Exponent,double);
 
   // Description:
   // Set/Get the lighting cone angle of a positional light in degrees.
   // A value of 180 indicates that you want no spot lighting effects
   // just a positional light.
-  vtkSetMacro(ConeAngle,float);
-  vtkGetMacro(ConeAngle,float);
+  vtkSetMacro(ConeAngle,double);
+  vtkGetMacro(ConeAngle,double);
 
   // Description:
   // Set/Get the quadratic attenuation constants. They are specified as
   // constant, linear, and quadratic, in that order.
-  vtkSetVector3Macro(AttenuationValues,float);
-  vtkGetVectorMacro(AttenuationValues,float,3);
+  vtkSetVector3Macro(AttenuationValues,double);
+  vtkGetVectorMacro(AttenuationValues,double,3);
 
   // Description:
   // Set/Get the light's transformation matrix.  If a matrix is set for
@@ -154,24 +148,25 @@ public:
   // Description:
   // Get the position of the light, modified by the transformation matrix
   // (if it exists).
-  void GetTransformedPosition(float &a0, float &a1, float &a2);
-  void GetTransformedPosition(float a[3]);
-  float *GetTransformedPosition();
+  void GetTransformedPosition(double &a0, double &a1, double &a2);
+  void GetTransformedPosition(double a[3]);
+  double *GetTransformedPosition();
 
   // Description:
   // Get the focal point of the light, modified by the transformation matrix
   // (if it exists).
-  void GetTransformedFocalPoint(float &a0, float &a1, float &a2);
-  void GetTransformedFocalPoint(float a[3]);
-  float *GetTransformedFocalPoint();
+  void GetTransformedFocalPoint(double &a0, double &a1, double &a2);
+  void GetTransformedFocalPoint(double a[3]);
+  double *GetTransformedFocalPoint();
 
   // Description:
   // Set the position and focal point of a light based on elevation and
   // azimuth.  The light is moved so it is shining from the given angle.
   // Angles are given in degrees.  If the light is a
   // positional light, it is made directional instead.
-  void SetDirectionAngle(float elevation, float azimuth);
-  void SetDirectionAngle(float ang[2]) { this->SetDirectionAngle(ang[0], ang[1]); };
+  void SetDirectionAngle(double elevation, double azimuth);
+  void SetDirectionAngle(double ang[2]) { 
+    this->SetDirectionAngle(ang[0], ang[1]); };
 
   // Description:
   // Perform deep copy of this light.
@@ -218,20 +213,20 @@ protected:
   vtkLight();
   ~vtkLight();
 
-  float FocalPoint[3];
-  float Position[3];
-  float Intensity;
-  float AmbientColor[3];
-  float DiffuseColor[3];
-  float SpecularColor[3];
+  double FocalPoint[3];
+  double Position[3];
+  double Intensity;
+  double AmbientColor[3];
+  double DiffuseColor[3];
+  double SpecularColor[3];
   int   Switch;
   int   Positional;
-  float Exponent;
-  float ConeAngle;
-  float AttenuationValues[3];
+  double Exponent;
+  double ConeAngle;
+  double AttenuationValues[3];
   vtkMatrix4x4 *TransformMatrix;
-  float TransformedFocalPointReturn[3];
-  float TransformedPositionReturn[3];
+  double TransformedFocalPointReturn[3];
+  double TransformedPositionReturn[3];
   int LightType;
 
 private:

@@ -40,7 +40,7 @@
 #include "vtkTIFFWriter.h"
 #include "vtkTexture.h"
 
-vtkCxxRevisionMacro(vtkRIBExporter, "1.57");
+vtkCxxRevisionMacro(vtkRIBExporter, "1.58");
 vtkStandardNewMacro(vtkRIBExporter);
 
 typedef double RtColor[3];
@@ -232,7 +232,7 @@ void vtkRIBExporter::WriteHeader (vtkRenderer *aRen)
   fprintf (this->FilePtr, "Declare \"bgcolor\" \"uniform color\"\n");
   if (this->Background)
     {
-    float *color = aRen->GetBackground ();
+    double *color = aRen->GetBackground ();
     fprintf (this->FilePtr, "Imager \"background\" \"bgcolor\" [%f %f %f]\n",
              color[0], color[1], color[2]);
     }
@@ -362,8 +362,8 @@ void vtkRIBExporter::WriteProperty (vtkProperty *aProperty, vtkTexture *aTexture
 void vtkRIBExporter::WriteLight (vtkLight *aLight, int count)
 {
   double color[4];
-  float *Color;
-  float *Position, *FocalPoint;
+  double *Color;
+  double *Position, *FocalPoint;
   double Intensity;
 
   // get required info from light
@@ -377,9 +377,9 @@ void vtkRIBExporter::WriteLight (vtkLight *aLight, int count)
   FocalPoint = aLight->GetFocalPoint();
   Position   = aLight->GetPosition();
 
-//
-// Now we need to check to see if an RIBLight has been specified
-//
+  //
+  // Now we need to check to see if an RIBLight has been specified
+  //
   if (strcmp ("vtkRIBLight", aLight->GetClassName ()) == 0)
     {
     if (((vtkRIBLight *) aLight)->GetShadows())

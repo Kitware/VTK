@@ -95,11 +95,11 @@ protected:
   // table per volume, and the index value indicated which index table
   // should be used. It is computed in the UpdateShadingTable method.
   void  BuildShadingTable( int index,
-                           float lightDirection[3],
-                           float lightColor[3],
-                           float lightIntensity,
-                           float viewDirection[3],
-                           float material[4],
+                           double lightDirection[3],
+                           double lightColor[3],
+                           double lightIntensity,
+                           double viewDirection[3],
+                           double material[4],
                            int twoSided,
                            vtkEncodedGradientEstimator *gradest,
                            int updateFlag );

@@ -36,7 +36,7 @@
 #include "vtkTriangleStrip.h"
 #include "vtkVersion.h"
 
-vtkCxxRevisionMacro(vtkOOGLExporter, "1.23");
+vtkCxxRevisionMacro(vtkOOGLExporter, "1.24");
 vtkStandardNewMacro(vtkOOGLExporter);
 
 vtkOOGLExporter::vtkOOGLExporter()
@@ -238,7 +238,7 @@ void vtkOOGLExporter::WriteData()
 
 void vtkOOGLExporter::WriteALight(vtkLight *aLight, FILE *fp)
 {
-  float *pos, *focus, *color;
+  double *pos, *focus, *color;
   float dir[3];
   
   pos = aLight->GetPosition();

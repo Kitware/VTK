@@ -21,7 +21,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkDashedStreamLine, "1.42");
+vtkCxxRevisionMacro(vtkDashedStreamLine, "1.43");
 vtkStandardNewMacro(vtkDashedStreamLine);
 
 vtkDashedStreamLine::vtkDashedStreamLine()
@@ -44,9 +44,9 @@ void vtkDashedStreamLine::Execute()
   vtkCellArray *newLines;
   int i, ptId, j;
   vtkIdType pts[2];
-  float tOffset, x[3], v[3], r, xPrev[3], vPrev[3], scalarPrev;
-  float s = 0;
-  float xEnd[3], vEnd[3], sEnd;
+  double tOffset, x[3], v[3], r, xPrev[3], vPrev[3], scalarPrev;
+  double s = 0;
+  double xEnd[3], vEnd[3], sEnd;
   vtkDataSet *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
 

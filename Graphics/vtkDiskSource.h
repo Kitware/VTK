@@ -35,13 +35,13 @@ public:
 
   // Description:
   // Specify inner radius of hole in disc.
-  vtkSetClampMacro(InnerRadius,float,0.0,VTK_LARGE_FLOAT)
-  vtkGetMacro(InnerRadius,float);
+  vtkSetClampMacro(InnerRadius,double,0.0,VTK_DOUBLE_MAX)
+  vtkGetMacro(InnerRadius,double);
 
   // Description:
   // Specify outer radius of disc.
-  vtkSetClampMacro(OuterRadius,float,0.0,VTK_LARGE_FLOAT)
-  vtkGetMacro(OuterRadius,float);
+  vtkSetClampMacro(OuterRadius,double,0.0,VTK_DOUBLE_MAX)
+  vtkGetMacro(OuterRadius,double);
 
   // Description:
   // Set the number of points in radius direction.
@@ -58,8 +58,8 @@ protected:
   ~vtkDiskSource() {};
 
   void Execute();
-  float InnerRadius;
-  float OuterRadius;
+  double InnerRadius;
+  double OuterRadius;
   int RadialResolution;
   int CircumferentialResolution;
 

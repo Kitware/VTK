@@ -40,37 +40,37 @@ public:
 
   // Description:
   // Get the tensor component (i,j).
-  float GetComponent(int i, int j) {return this->T[i+3*j];};
+  double GetComponent(int i, int j) {return this->T[i+3*j];};
 
   // Description:
   // Set the value of the tensor component (i,j).
-  void SetComponent(int i, int j, float v) {if (i > 2 || j > 2) {vtkErrorMacro("trying to set tensor component i or j > 2: i = " << i << ", j = " << j); return;}; this->T[i+3*j] = v;};
+  void SetComponent(int i, int j, double v) {if (i > 2 || j > 2) {vtkErrorMacro("trying to set tensor component i or j > 2: i = " << i << ", j = " << j); return;}; this->T[i+3*j] = v;};
 
   // Description:
   // Add to the value of the tensor component at location (i,j).
-  void AddComponent(int i, int j, float v) { if (i > 2 || j > 2) {vtkErrorMacro("trying to add tensor component i or j > 2: i = " << i << ", j = " << j); return;}; this->T[i+3*j] += v;};
+  void AddComponent(int i, int j, double v) { if (i > 2 || j > 2) {vtkErrorMacro("trying to add tensor component i or j > 2: i = " << i << ", j = " << j); return;}; this->T[i+3*j] += v;};
 
   // Description:
   // Return column vector from tensor. (Assumes 2D matrix form and 0-offset.)
-  float *GetColumn(int j) { if (j > 2) {vtkErrorMacro("trying to get tensor column j > 2: j = " << j); return NULL;}; return this->T + 3*j;};
+  double *GetColumn(int j) { if (j > 2) {vtkErrorMacro("trying to get tensor column j > 2: j = " << j); return NULL;}; return this->T + 3*j;};
 
   // Description:
   // Deep copy of one tensor to another tensor.
   void DeepCopy(vtkTensor *t);
 
   // Description:
-  // Provide float * type conversion.
-  operator float*() {return this->T;};
+  // Provide double * type conversion.
+  operator double*() {return this->T;};
 
   // Description:
   // Data member left public for efficiency.
-  float *T;
+  double *T;
   
 protected: 
   vtkTensor();
   ~vtkTensor() {};
 
-  float Storage[9];
+  double Storage[9];
 private:
   vtkTensor(const vtkTensor&);  // Not implemented.
   void operator=(const vtkTensor&);  // Not implemented.
