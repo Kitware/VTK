@@ -141,7 +141,7 @@ static void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper *self,
 
   glRasterPos3f((2.0 * (GLfloat)(actorPos[0]) / vsize[0] - 1), 
                 (2.0 * (GLfloat)(actorPos[1]) / vsize[1] - 1), 
-                (front)?(-1):(1));
+                (front)?(-1):(.99999));
 
   glPixelStorei( GL_UNPACK_ALIGNMENT, 1);
 
@@ -255,7 +255,7 @@ static void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self,
   
   glRasterPos3f((2.0 * (GLfloat)(actorPos[0]) / vsize[0] - 1), 
                 (2.0 * (GLfloat)(actorPos[1]) / vsize[1] - 1), 
-                (front)?(-1):(1));
+                (front)?(-1):(.99999));
 
   glPixelStorei( GL_UNPACK_ALIGNMENT, 1);
 
@@ -381,7 +381,7 @@ static void vtkOpenGLImageMapperRenderChar(vtkOpenGLImageMapper *self,
 
   glRasterPos3f((2.0 * (GLfloat)(actorPos[0]) / vsize[0] - 1), 
                 (2.0 * (GLfloat)(actorPos[1]) / vsize[1] - 1), 
-                (front)?(-1):(1));
+                (front)?(-1):(.99999));
 
     
   glPixelStorei( GL_UNPACK_ALIGNMENT, 1);
