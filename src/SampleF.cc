@@ -13,8 +13,8 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-#include <math.h>
 #include "SampleF.hh"
+#include "vlMath.hh"
 #include "FScalars.hh"
 #include "FNormals.hh"
 
@@ -86,6 +86,7 @@ void vlSampleFunction::Execute()
   vlFloatNormals *newNormals=NULL;
   int numPts;
   float *p, s;
+  vlMath math;
 
   vlDebugMacro(<< "Sampling implicit function");
 //
@@ -130,7 +131,8 @@ void vlSampleFunction::Execute()
     for (ptId=0; ptId < numPts; ptId++ )
       {
       p = this->GetPoint(ptId);
-      this->ImplicitFunction->EvaluateNormal(p[0], p[1], p[2], n);
+      this->ImplicitFunction->EvaluateGradient(p[0], p[1], p[2], n);
+      math.Normalize(n);
       newNormals->SetNormal(ptId,n);
       }
     }
