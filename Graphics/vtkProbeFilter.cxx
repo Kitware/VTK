@@ -43,7 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkProbeFilter, "1.70");
+vtkCxxRevisionMacro(vtkProbeFilter, "1.71");
 vtkStandardNewMacro(vtkProbeFilter);
 
 //----------------------------------------------------------------------------
@@ -102,11 +102,6 @@ void vtkProbeFilter::Execute()
     }
 
   pd = source->GetPointData();
-  if (pd == NULL)
-    {
-    vtkErrorMacro(<< "PointData is NULL.");
-    return;
-    }
 
   // lets use a stack allocated array if possible for performance reasons
   int mcs = source->GetMaxCellSize();
@@ -133,7 +128,7 @@ void vtkProbeFilter::Execute()
   // Use tolerance as a function of size of source data
   //
   tol2 = source->GetLength();
-  tol2 = tol2*tol2 / 1000.0;
+  tol2 = tol2 ? tol2*tol2 / 1000.0 : 0.001;
 
   // Loop over all input points, interpolating source data
   //
