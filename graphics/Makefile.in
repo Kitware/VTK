@@ -110,6 +110,7 @@ vtkCone \
 vtkConeSource \
 vtkConnectivityFilter \
 vtkContourFilter \
+vtkContourGrid \
 vtkCubeSource \
 vtkCursor3D \
 vtkCullerCollection \
