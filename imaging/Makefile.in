@@ -62,6 +62,7 @@ vtkImageHSVToRGB \
 vtkImageIslandRemoval2D \
 vtkImageLaplacian \
 vtkImageLogic \
+vtkImageLuminance \
 vtkImageMagnify \
 vtkImageMagnitude \
 vtkImageMapper \
