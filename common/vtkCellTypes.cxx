@@ -62,7 +62,10 @@ int vtkCellTypes::Allocate(int sz, int ext)
     delete [] this->Array;
 
     this->Size = ( sz > 0 ? sz : 1);
-    if ( (this->Array = new _vtkCell_s[this->Size]) == NULL ) return 0;
+    if ( (this->Array = new _vtkCell_s[this->Size]) == NULL )
+      {
+      return 0;
+      }
     }
 
   this->Extend = ( ext > 0 ? ext : 1);
@@ -77,8 +80,14 @@ void vtkCellTypes::InsertCell(int cellId, unsigned char type, int loc)
 {
   _vtkCell_s *cell;
 
-  if ( cellId >= this->Size ) this->Resize(cellId);
-  if ( cellId > this->MaxId ) this->MaxId = cellId;
+  if ( cellId >= this->Size )
+    {
+    this->Resize(cellId);
+    }
+  if ( cellId > this->MaxId )
+    {
+    this->MaxId = cellId;
+    }
 
   cell = this->Array + cellId;
   cell->type = type;
@@ -117,14 +126,21 @@ _vtkCell_s *vtkCellTypes::Resize(int sz)
   _vtkCell_s *newArray;
   int newSize;
 
-  if ( sz >= this->Size )  newSize = this->Size + 
-    this->Extend*(((sz-this->Size)/this->Extend)+1);
-  else newSize = sz;
+  if ( sz >= this->Size )
+    {
+    newSize = this->Size + this->Extend*(((sz-this->Size)/this->Extend)+1);
+    }
+  else
+    {
+    newSize = sz;
+    }
 
   newArray = new _vtkCell_s[newSize];
 
   for (i=0; i<sz && i<this->Size; i++)
-      newArray[i] = this->Array[i];
+    {
+    newArray[i] = this->Array[i];
+    }
 
   this->Size = newSize;
   delete [] this->Array;

@@ -91,8 +91,14 @@ vtkDataSetAttributes::~vtkDataSetAttributes()
 {
   vtkDataSetAttributes::Initialize();
 
-  if ( this->NullTuple ) delete [] this->NullTuple;
-  if ( this->Tuple ) delete [] this->Tuple;
+  if ( this->NullTuple )
+    {
+    delete [] this->NullTuple;
+    }
+  if ( this->Tuple )
+    {
+    delete [] this->Tuple;
+    }
 }
 
 // Description:
@@ -188,37 +194,55 @@ unsigned long int vtkDataSetAttributes::GetMTime()
   if (this->Scalars)
     {
     otherMTime = this->Scalars->GetMTime();
-    if ( otherMTime > mtime ) mtime = otherMTime;
+    if ( otherMTime > mtime )
+      {
+      mtime = otherMTime;
+      }
     }
 
   if (this->Vectors)
     {
     otherMTime = this->Vectors->GetMTime();
-    if ( otherMTime > mtime ) mtime = otherMTime;
+    if ( otherMTime > mtime )
+      {
+      mtime = otherMTime;
+      }
     }
 
   if (this->Normals)
     {
     otherMTime = this->Normals->GetMTime();
-    if ( otherMTime > mtime ) mtime = otherMTime;
+    if ( otherMTime > mtime )
+      {
+      mtime = otherMTime;
+      }
     }
 
   if(this->TCoords) 
     {
     otherMTime = this->TCoords->GetMTime();
-    if ( otherMTime > mtime ) mtime = otherMTime;
+    if ( otherMTime > mtime )
+      {
+      mtime = otherMTime;
+      }
     }
 
   if(this->Tensors) 
     {
     otherMTime = this->Tensors->GetMTime();
-    if ( otherMTime > mtime ) mtime = otherMTime;
+    if ( otherMTime > mtime )
+      {
+      mtime = otherMTime;
+      }
     }
 
   if(this->FieldData) 
     {
     otherMTime = this->FieldData->GetMTime();
-    if ( otherMTime > mtime ) mtime = otherMTime;
+    if ( otherMTime > mtime )
+      {
+      mtime = otherMTime;
+      }
     }
 
   return mtime;
@@ -277,12 +301,30 @@ void vtkDataSetAttributes::Initialize()
 // flags.
 void vtkDataSetAttributes::PassData(vtkDataSetAttributes* pd)
 {
-  if ( this->CopyScalars ) this->SetScalars(pd->GetScalars());
-  if ( this->CopyVectors ) this->SetVectors(pd->GetVectors());
-  if ( this->CopyNormals ) this->SetNormals(pd->GetNormals());
-  if ( this->CopyTCoords ) this->SetTCoords(pd->GetTCoords());
-  if ( this->CopyTensors ) this->SetTensors(pd->GetTensors());
-  if ( this->CopyFieldData ) this->SetFieldData(pd->GetFieldData());
+  if ( this->CopyScalars )
+    {
+    this->SetScalars(pd->GetScalars());
+    }
+  if ( this->CopyVectors )
+    {
+    this->SetVectors(pd->GetVectors());
+    }
+  if ( this->CopyNormals )
+    {
+    this->SetNormals(pd->GetNormals());
+    }
+  if ( this->CopyTCoords )
+    {
+    this->SetTCoords(pd->GetTCoords());
+    }
+  if ( this->CopyTensors )
+    {
+    this->SetTensors(pd->GetTensors());
+    }
+  if ( this->CopyFieldData )
+    {
+    this->SetFieldData(pd->GetFieldData());
+    }
 }
 
 // Description:
@@ -290,12 +332,30 @@ void vtkDataSetAttributes::PassData(vtkDataSetAttributes* pd)
 // flags. Only passes the data if the output attribute is NULL (i.e., not set).
 void vtkDataSetAttributes::PassNoReplaceData(vtkDataSetAttributes* pd)
 {
-  if ( this->CopyScalars && !this->Scalars ) this->SetScalars(pd->GetScalars());
-  if ( this->CopyVectors && !this->Vectors ) this->SetVectors(pd->GetVectors());
-  if ( this->CopyNormals && !this->Normals ) this->SetNormals(pd->GetNormals());
-  if ( this->CopyTCoords && !this->TCoords ) this->SetTCoords(pd->GetTCoords());
-  if ( this->CopyTensors && !this->Tensors ) this->SetTensors(pd->GetTensors());
-  if ( this->CopyFieldData && !this->FieldData ) this->SetFieldData(pd->GetFieldData());
+  if ( this->CopyScalars && !this->Scalars )
+    {
+    this->SetScalars(pd->GetScalars());
+    }
+  if ( this->CopyVectors && !this->Vectors )
+    {
+    this->SetVectors(pd->GetVectors());
+    }
+  if ( this->CopyNormals && !this->Normals )
+    {
+    this->SetNormals(pd->GetNormals());
+    }
+  if ( this->CopyTCoords && !this->TCoords )
+    {
+    this->SetTCoords(pd->GetTCoords());
+    }
+  if ( this->CopyTensors && !this->Tensors )
+    {
+    this->SetTensors(pd->GetTensors());
+    }
+  if ( this->CopyFieldData && !this->FieldData )
+    {
+    this->SetFieldData(pd->GetFieldData());
+    }
 }
 
 // Description:
@@ -315,13 +375,22 @@ void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes* pd, int sze, int e
 //
 // Create various point data depending upon input
 //
-  if ( !pd ) return;
+  if ( !pd )
+    {
+    return;
+    }
 
   if ( this->CopyScalars && (s = pd->GetScalars()) ) 
     {
     newScalars = (vtkScalars *)s->MakeObject();
-    if ( sze > 0 ) newScalars->Allocate(sze,ext);
-    else newScalars->Allocate(s->GetNumberOfScalars());
+    if ( sze > 0 )
+      {
+      newScalars->Allocate(sze,ext);
+      }
+    else
+      {
+      newScalars->Allocate(s->GetNumberOfScalars());
+      }
     newScalars->SetLookupTable(s->GetLookupTable());
     this->SetScalars(newScalars);
     newScalars->Delete();
@@ -335,8 +404,14 @@ void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes* pd, int sze, int e
   if ( this->CopyVectors && (v = pd->GetVectors()) ) 
     {
     newVectors = (vtkVectors *)v->MakeObject();
-    if ( sze > 0 ) newVectors->Allocate(sze,ext);
-    else newVectors->Allocate(v->GetNumberOfVectors());
+    if ( sze > 0 )
+      {
+      newVectors->Allocate(sze,ext);
+      }
+    else
+      {
+      newVectors->Allocate(v->GetNumberOfVectors());
+      }
     this->SetVectors(newVectors);
     newVectors->Delete();
     this->CopyVectorsEnabled = 1;
@@ -349,8 +424,14 @@ void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes* pd, int sze, int e
   if ( this->CopyNormals && (n = pd->GetNormals()) ) 
     {
     newNormals = (vtkNormals *)n->MakeObject();
-    if ( sze > 0 ) newNormals->Allocate(sze,ext);
-    else newNormals->Allocate(n->GetNumberOfNormals());
+    if ( sze > 0 )
+      {
+      newNormals->Allocate(sze,ext);
+      }
+    else
+      {
+      newNormals->Allocate(n->GetNumberOfNormals());
+      }
     this->SetNormals(newNormals);
     newNormals->Delete();
     this->CopyNormalsEnabled = 1;
@@ -363,8 +444,14 @@ void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes* pd, int sze, int e
   if ( this->CopyTCoords && (t = pd->GetTCoords()) ) 
     {
     newTCoords = (vtkTCoords *)t->MakeObject();
-    if ( sze > 0 ) newTCoords->Allocate(sze,ext);
-    else newTCoords->Allocate(t->GetNumberOfTCoords());
+    if ( sze > 0 )
+      {
+      newTCoords->Allocate(sze,ext);
+      }
+    else
+      {
+      newTCoords->Allocate(t->GetNumberOfTCoords());
+      }
     this->SetTCoords(newTCoords);
     newTCoords->Delete();
     this->CopyTCoordsEnabled = 1;
@@ -377,8 +464,14 @@ void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes* pd, int sze, int e
   if ( this->CopyTensors && (tens = pd->GetTensors()) ) 
     {
     newTensors = (vtkTensors *)tens->MakeObject();
-    if ( sze > 0 ) newTensors->Allocate(sze,ext);
-    else newTensors->Allocate(tens->GetNumberOfTensors());
+    if ( sze > 0 )
+      {
+      newTensors->Allocate(sze,ext);
+      }
+    else
+      {
+      newTensors->Allocate(tens->GetNumberOfTensors());
+      }
     this->SetTensors(newTensors);
     newTensors->Delete();
     this->CopyTensorsEnabled = 1;
@@ -393,17 +486,32 @@ void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes* pd, int sze, int e
     int i, numComp=f->GetNumberOfComponents();
     if ( this->TupleSize != numComp )
       {
-      if ( this->Tuple ) delete [] this->Tuple;
-      if ( this->NullTuple ) delete [] this->NullTuple;
+      if ( this->Tuple )
+	{
+	delete [] this->Tuple;
+	}
+      if ( this->NullTuple )
+	{
+	delete [] this->NullTuple;
+	}
       this->NullTuple = new float[numComp];
-      for (i=0; i<numComp; i++) this->NullTuple[i] = 0.0;
+      for (i=0; i<numComp; i++)
+	{
+	this->NullTuple[i] = 0.0;
+	}
       this->Tuple = new float[numComp];
       this->TupleSize = numComp;
       }
     
     newFieldData = (vtkFieldData *)f->MakeObject();
-    if ( sze > 0 ) newFieldData->Allocate(sze,ext);
-    else newFieldData->Allocate(f->GetNumberOfTuples());
+    if ( sze > 0 )
+      {
+      newFieldData->Allocate(sze,ext);
+      }
+    else
+      {
+      newFieldData->Allocate(f->GetNumberOfTuples());
+      }
     this->SetFieldData(newFieldData);
     newFieldData->Delete();
     this->CopyFieldDataEnabled = 1;
@@ -424,7 +532,10 @@ void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes* pd, int sze, int e
 // been invoked before using this method.
 void vtkDataSetAttributes::CopyData(vtkDataSetAttributes* fromPd, int fromId, int toId)
 {
-  if ( !this->AnyEnabled ) return;
+  if ( !this->AnyEnabled )
+    {
+    return;
+    }
 
   if ( this->CopyScalarsEnabled )
     {
@@ -458,7 +569,10 @@ void vtkDataSetAttributes::CopyData(vtkDataSetAttributes* fromPd, int fromId, in
       {
       vtkDataArray *to = this->FieldData->GetArray(i);
       vtkDataArray *from = fromPd->FieldData->GetArray(i);
-      if ( to != NULL ) this->CopyTuple(from, to, fromId, toId);
+      if ( to != NULL )
+	{
+	this->CopyTuple(from, to, fromId, toId);
+	}
       }
     }
 }
@@ -475,7 +589,10 @@ void vtkDataSetAttributes::InterpolateAllocate(vtkDataSetAttributes* pd, int sze
 void vtkDataSetAttributes::InterpolatePoint(vtkDataSetAttributes *fromPd, int toId, 
                                             vtkIdList *ptIds, float *weights)
 {
-  if ( !this->AnyEnabled ) return;
+  if ( !this->AnyEnabled )
+    {
+    return;
+    }
 
   if ( this->CopyScalarsEnabled )
     {
@@ -531,7 +648,10 @@ void vtkDataSetAttributes::InterpolatePoint(vtkDataSetAttributes *fromPd, int to
 void vtkDataSetAttributes::InterpolateEdge(vtkDataSetAttributes *fromPd, int toId,
                                    int p1, int p2, float t)
 {
-  if ( !this->AnyEnabled ) return;
+  if ( !this->AnyEnabled )
+    {
+    return;
+    }
 
   if ( this->CopyScalarsEnabled )
     {
@@ -581,12 +701,30 @@ void vtkDataSetAttributes::InterpolateEdge(vtkDataSetAttributes *fromPd, int toI
 
 void vtkDataSetAttributes::Squeeze()
 {
-  if ( this->Scalars ) this->Scalars->Squeeze();
-  if ( this->Vectors ) this->Vectors->Squeeze();
-  if ( this->Normals ) this->Normals->Squeeze();
-  if ( this->TCoords ) this->TCoords->Squeeze();
-  if ( this->Tensors ) this->Tensors->Squeeze();
-  if ( this->FieldData ) this->FieldData->Squeeze();
+  if ( this->Scalars )
+    {
+    this->Scalars->Squeeze();
+    }
+  if ( this->Vectors )
+    {
+    this->Vectors->Squeeze();
+    }
+  if ( this->Normals )
+    {
+    this->Normals->Squeeze();
+    }
+  if ( this->TCoords )
+    {
+    this->TCoords->Squeeze();
+    }
+  if ( this->Tensors )
+    {
+    this->Tensors->Squeeze();
+    }
+  if ( this->FieldData )
+    {
+    this->FieldData->Squeeze();
+    }
 }
 
 // Description:
@@ -629,7 +767,10 @@ void vtkDataSetAttributes::CopyTuple(vtkDataArray *fromData, vtkDataArray *toDat
       {
       vtkBitArray *from=(vtkBitArray *)fromData;
       vtkBitArray *to=(vtkBitArray *)toData;
-      for (i=0; i<numComp; i++) to->InsertValue(toId+i, from->GetValue(fromId+i));
+      for (i=0; i<numComp; i++)
+	{
+	to->InsertValue(toId+i, from->GetValue(fromId+i));
+	}
       }
       break;
 
@@ -637,7 +778,10 @@ void vtkDataSetAttributes::CopyTuple(vtkDataArray *fromData, vtkDataArray *toDat
       {
       char *from=((vtkCharArray *)fromData)->GetPointer(fromId*numComp);
       char *to=((vtkCharArray *)toData)->WritePointer(toId*numComp,numComp);
-      for (i=0; i<numComp; i++) *to++ = *from++;
+      for (i=0; i<numComp; i++)
+	{
+	*to++ = *from++;
+	}
       }
       break;
 
@@ -645,7 +789,10 @@ void vtkDataSetAttributes::CopyTuple(vtkDataArray *fromData, vtkDataArray *toDat
       {
       unsigned char *from=((vtkUnsignedCharArray *)fromData)->GetPointer(fromId*numComp);
       unsigned char *to=((vtkUnsignedCharArray *)toData)->WritePointer(toId*numComp,numComp);
-      for (i=0; i<numComp; i++) *to++ = *from++;
+      for (i=0; i<numComp; i++)
+	{
+	*to++ = *from++;
+	}
       }
       break;
 
@@ -653,7 +800,10 @@ void vtkDataSetAttributes::CopyTuple(vtkDataArray *fromData, vtkDataArray *toDat
       {
       short *from=((vtkShortArray *)fromData)->GetPointer(fromId*numComp);
       short *to=((vtkShortArray *)toData)->WritePointer(toId*numComp,numComp);
-      for (i=0; i<numComp; i++) *to++ = *from++;
+      for (i=0; i<numComp; i++)
+	{
+	*to++ = *from++;
+	}
       }
       break;
 
@@ -661,7 +811,10 @@ void vtkDataSetAttributes::CopyTuple(vtkDataArray *fromData, vtkDataArray *toDat
       {
       unsigned short *from=((vtkUnsignedShortArray *)fromData)->GetPointer(fromId*numComp);
       unsigned short *to=((vtkUnsignedShortArray *)toData)->WritePointer(toId*numComp,numComp);
-      for (i=0; i<numComp; i++) *to++ = *from++;
+      for (i=0; i<numComp; i++)
+	{
+	*to++ = *from++;
+	}
       }
       break;
 
@@ -669,7 +822,10 @@ void vtkDataSetAttributes::CopyTuple(vtkDataArray *fromData, vtkDataArray *toDat
       {
       int *from=((vtkIntArray *)fromData)->GetPointer(fromId*numComp);
       int *to=((vtkIntArray *)toData)->WritePointer(toId*numComp,numComp);
-      for (i=0; i<numComp; i++) *to++ = *from++;
+      for (i=0; i<numComp; i++)
+	{
+	*to++ = *from++;
+	}
       }
       break;
 
@@ -677,7 +833,10 @@ void vtkDataSetAttributes::CopyTuple(vtkDataArray *fromData, vtkDataArray *toDat
       {
       unsigned int *from=((vtkUnsignedIntArray *)fromData)->GetPointer(fromId*numComp);
       unsigned int *to=((vtkUnsignedIntArray *)toData)->WritePointer(toId*numComp,numComp);
-      for (i=0; i<numComp; i++) *to++ = *from++;
+      for (i=0; i<numComp; i++)
+	{
+	*to++ = *from++;
+	}
       }
       break;
 
@@ -685,7 +844,10 @@ void vtkDataSetAttributes::CopyTuple(vtkDataArray *fromData, vtkDataArray *toDat
       {
       long *from=((vtkLongArray *)fromData)->GetPointer(fromId*numComp);
       long *to=((vtkLongArray *)toData)->WritePointer(toId*numComp,numComp);
-      for (i=0; i<numComp; i++) *to++ = *from++;
+      for (i=0; i<numComp; i++)
+	{
+	*to++ = *from++;
+	}
       }
       break;
 
@@ -693,7 +855,10 @@ void vtkDataSetAttributes::CopyTuple(vtkDataArray *fromData, vtkDataArray *toDat
       {
       unsigned long *from=((vtkUnsignedLongArray *)fromData)->GetPointer(fromId*numComp);
       unsigned long *to=((vtkUnsignedLongArray *)toData)->WritePointer(toId*numComp,numComp);
-      for (i=0; i<numComp; i++) *to++ = *from++;
+      for (i=0; i<numComp; i++)
+	{
+	*to++ = *from++;
+	}
       }
       break;
 
@@ -701,7 +866,10 @@ void vtkDataSetAttributes::CopyTuple(vtkDataArray *fromData, vtkDataArray *toDat
       {
       float *from=((vtkFloatArray *)fromData)->GetPointer(fromId*numComp);
       float *to=((vtkFloatArray *)toData)->WritePointer(toId*numComp,numComp);
-      for (i=0; i<numComp; i++) *to++ = *from++;
+      for (i=0; i<numComp; i++)
+	{
+	*to++ = *from++;
+	}
       }
       break;
 
@@ -709,7 +877,10 @@ void vtkDataSetAttributes::CopyTuple(vtkDataArray *fromData, vtkDataArray *toDat
       {
       double *from=((vtkDoubleArray *)fromData)->GetPointer(fromId*numComp);
       double *to=((vtkDoubleArray *)toData)->WritePointer(toId*numComp,numComp);
-      for (i=0; i<numComp; i++) *to++ = *from++;
+      for (i=0; i<numComp; i++)
+	{
+	*to++ = *from++;
+	}
       }
       break;
 
@@ -734,7 +905,10 @@ void vtkDataSetAttributes::InterpolateTuple(vtkDataArray *toData, vtkDataArray *
       vtkBitArray *to=(vtkBitArray *)toData;
       for (i=0; i<numComp; i++)
         {
-        for (c=0, j=0; j<numIds; j++) c += weights[j]*from->GetValue(ids[j]*numComp+i);
+        for (c=0, j=0; j<numIds; j++)
+	  {
+	  c += weights[j]*from->GetValue(ids[j]*numComp+i);
+	  }
         to->InsertValue(idx+i, (int)c);
         }
       }
@@ -746,7 +920,10 @@ void vtkDataSetAttributes::InterpolateTuple(vtkDataArray *toData, vtkDataArray *
       char *to=((vtkCharArray *)toData)->WritePointer(idx,numComp);
       for (i=0; i<numComp; i++)
         {
-        for (c=0, j=0; j<numIds; j++) c += weights[j]*from[ids[j]*numComp+i];
+        for (c=0, j=0; j<numIds; j++)
+	  {
+	  c += weights[j]*from[ids[j]*numComp+i];
+	  }
         *to++ = (char) c;
         }
       }
@@ -758,7 +935,10 @@ void vtkDataSetAttributes::InterpolateTuple(vtkDataArray *toData, vtkDataArray *
       unsigned char *to=((vtkUnsignedCharArray *)toData)->WritePointer(idx,numComp);
       for (i=0; i<numComp; i++)
         {
-        for (c=0, j=0; j<numIds; j++) c += weights[j]*from[ids[j]*numComp+i];
+        for (c=0, j=0; j<numIds; j++)
+	  {
+	  c += weights[j]*from[ids[j]*numComp+i];
+	  }
         *to++ = (unsigned char) c;
         }
       }
@@ -770,7 +950,10 @@ void vtkDataSetAttributes::InterpolateTuple(vtkDataArray *toData, vtkDataArray *
       short *to=((vtkShortArray *)toData)->WritePointer(idx,numComp);
       for (i=0; i<numComp; i++)
         {
-        for (c=0, j=0; j<numIds; j++) c += weights[j]*from[ids[j]*numComp+i];
+        for (c=0, j=0; j<numIds; j++)
+	  {
+	  c += weights[j]*from[ids[j]*numComp+i];
+	  }
         *to++ = (short) c;
         }
       }
@@ -782,7 +965,10 @@ void vtkDataSetAttributes::InterpolateTuple(vtkDataArray *toData, vtkDataArray *
       unsigned short *to=((vtkUnsignedShortArray *)toData)->WritePointer(idx,numComp);
       for (i=0; i<numComp; i++)
         {
-        for (c=0, j=0; j<numIds; j++) c += weights[j]*from[ids[j]*numComp+i];
+        for (c=0, j=0; j<numIds; j++)
+	  {
+	  c += weights[j]*from[ids[j]*numComp+i];
+	  }
         *to++ = (unsigned short) c;
         }
       }
@@ -794,7 +980,10 @@ void vtkDataSetAttributes::InterpolateTuple(vtkDataArray *toData, vtkDataArray *
       int *to=((vtkIntArray *)toData)->WritePointer(idx,numComp);
       for (i=0; i<numComp; i++)
         {
-        for (c=0, j=0; j<numIds; j++) c += weights[j]*from[ids[j]*numComp+i];
+        for (c=0, j=0; j<numIds; j++)
+	  {
+	  c += weights[j]*from[ids[j]*numComp+i];
+	  }
         *to++ = (int) c;
         }
       }
@@ -806,7 +995,10 @@ void vtkDataSetAttributes::InterpolateTuple(vtkDataArray *toData, vtkDataArray *
       unsigned int *to=((vtkUnsignedIntArray *)toData)->WritePointer(idx,numComp);
       for (i=0; i<numComp; i++)
         {
-        for (c=0, j=0; j<numIds; j++) c += weights[j]*from[ids[j]*numComp+i];
+        for (c=0, j=0; j<numIds; j++)
+	  {
+	  c += weights[j]*from[ids[j]*numComp+i];
+	  }
         *to++ = (unsigned int) c;
         }
       }
@@ -818,7 +1010,10 @@ void vtkDataSetAttributes::InterpolateTuple(vtkDataArray *toData, vtkDataArray *
       long *to=((vtkLongArray *)toData)->WritePointer(idx,numComp);
       for (i=0; i<numComp; i++)
         {
-        for (c=0, j=0; j<numIds; j++) c += weights[j]*from[ids[j]*numComp+i];
+        for (c=0, j=0; j<numIds; j++)
+	  {
+	  c += weights[j]*from[ids[j]*numComp+i];
+	  }
         *to++ = (long) c;
         }
       }
@@ -830,7 +1025,10 @@ void vtkDataSetAttributes::InterpolateTuple(vtkDataArray *toData, vtkDataArray *
       unsigned long *to=((vtkUnsignedLongArray *)toData)->WritePointer(idx,numComp);
       for (i=0; i<numComp; i++)
         {
-        for (c=0, j=0; j<numIds; j++) c += weights[j]*from[ids[j]*numComp+i];
+        for (c=0, j=0; j<numIds; j++)
+	  {
+	  c += weights[j]*from[ids[j]*numComp+i];
+	  }
         *to++ = (unsigned long) c;
         }
       }
@@ -842,7 +1040,10 @@ void vtkDataSetAttributes::InterpolateTuple(vtkDataArray *toData, vtkDataArray *
       float *to=((vtkFloatArray *)toData)->WritePointer(idx,numComp);
       for (i=0; i<numComp; i++)
         {
-        for (c=0.0, j=0; j<numIds; j++) c += weights[j]*from[ids[j]*numComp+i];
+        for (c=0.0, j=0; j<numIds; j++)
+	  {
+	  c += weights[j]*from[ids[j]*numComp+i];
+	  }
         *to++ = c;
         }
       }
@@ -854,7 +1055,10 @@ void vtkDataSetAttributes::InterpolateTuple(vtkDataArray *toData, vtkDataArray *
       double *to=((vtkDoubleArray *)toData)->WritePointer(idx,numComp);
       for (i=0; i<numComp; i++)
         {
-        for (c=0.0, j=0; j<numIds; j++) c += weights[j]*from[ids[j]*numComp+i];
+        for (c=0.0, j=0; j<numIds; j++)
+	  {
+	  c += weights[j]*from[ids[j]*numComp+i];
+	  }
         *to++ = (double) c;
         }
       }

@@ -155,7 +155,10 @@ inline void vtkCellLinks::RemoveCellReference(int cellId, int ptId)
     {
     if (cells[i] == cellId)
       {
-      for (int j=i; j < (ncells-1); j++) cells[j] = cells[j+1];
+      for (int j=i; j < (ncells-1); j++)
+	{
+	cells[j] = cells[j+1];
+	}
       this->Array[ptId].ncells--;
       break;
       }

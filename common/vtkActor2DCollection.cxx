@@ -67,8 +67,11 @@ void vtkActor2DCollection::Render(vtkViewport* viewport)
     for ( this->InitTraversal(); 
            (tempActor = this->GetNextItem());)
       {
-	    // Make sure that the actor is visible before rendering
-	    if (tempActor->GetVisibility() == 1) tempActor->Render(viewport);
+      // Make sure that the actor is visible before rendering
+      if (tempActor->GetVisibility() == 1)
+	{
+	tempActor->Render(viewport);
+	}
       }
     }
 }

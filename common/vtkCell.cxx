@@ -144,15 +144,23 @@ char vtkCell::HitBBox (float bounds[6], float origin[3], float dir[3],
 //  Find the largest parametric value of intersection
 //
   for (i=0; i<3; i++)
+    {
     if ( maxT[whichPlane] < maxT[i] )
+      {
       whichPlane = i;
+      }
+    }
 //
 //  Check for valid intersection along line
 //
   if ( maxT[whichPlane] > 1.0 || maxT[whichPlane] < 0.0 )
+    {
     return 0;
+    }
   else
+    {
     t = maxT[whichPlane];
+    }
 //
 //  Intersection point along line is okay.  Check bbox.
 //
@@ -162,7 +170,9 @@ char vtkCell::HitBBox (float bounds[6], float origin[3], float dir[3],
       {
       coord[i] = origin[i] + maxT[whichPlane]*dir[i];
       if ( coord[i] < bounds[2*i] || coord[i] > bounds[2*i+1] )
+	{
         return 0;
+	}
       } 
     else 
       {
@@ -189,8 +199,14 @@ float *vtkCell::GetBounds ()
     x = this->Points.GetPoint(i);
     for (j=0; j<3; j++)
       {
-      if ( x[j] < this->Bounds[2*j] ) this->Bounds[2*j] = x[j];
-      if ( x[j] > this->Bounds[2*j+1] ) this->Bounds[2*j+1] = x[j];
+      if ( x[j] < this->Bounds[2*j] )
+	{
+	this->Bounds[2*j] = x[j];
+	}
+      if ( x[j] > this->Bounds[2*j+1] )
+	{
+	this->Bounds[2*j+1] = x[j];
+	}
       }
     }
   return this->Bounds;
@@ -202,7 +218,10 @@ float *vtkCell::GetBounds ()
 void vtkCell::GetBounds(float bounds[6])
 {
   this->GetBounds();
-  for (int i=0; i < 6; i++) bounds[i] = this->Bounds[i];
+  for (int i=0; i < 6; i++)
+    {
+    bounds[i] = this->Bounds[i];
+    }
 }
 
 // Description:
@@ -255,8 +274,14 @@ void vtkCell::PrintSelf(ostream& os, vtkIndent indent)
     for (int i=0; i < numIds; i++)
       {
       os << this->PointIds.GetId(i);
-      if ( i && !(i % 12) ) os << "\n\t";
-      else if ( i != (numIds-1) ) os << ", ";
+      if ( i && !(i % 12) )
+	{
+	os << "\n\t";
+	}
+      else
+	{
+	if ( i != (numIds-1) ) os << ", ";
+	}
       }
     os << indent << "\n";
     }

@@ -82,7 +82,9 @@ int vtkCellArray::GetMaxCellSize()
   for (i=0; i<this->Ia->GetMaxId(); i+=(npts+1))
     {
     if ( (npts=this->Ia->GetValue(i)) > maxSize )
+      {
       maxSize = npts;
+      }
     }
   return maxSize;
 }

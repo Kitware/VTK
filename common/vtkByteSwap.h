@@ -60,8 +60,8 @@ public:
   static void Swap4LE(char *c);
   static void Swap4LE(float *p) { vtkByteSwap::Swap4LE((char *)p);};
   static void Swap4LE(int *i)   { vtkByteSwap::Swap4LE((char *)i);};
-  static void Swap4LE(unsigned long *i) { Swap4LE((char *)i);};
-  static void Swap4LE(long *i) { Swap4LE((char *)i);};
+  static void Swap4LE(unsigned long *i) { vtkByteSwap::Swap4LE((char *)i);};
+  static void Swap4LE(long *i) { vtkByteSwap::Swap4LE((char *)i);};
 
   static void Swap4LERange(char *c,int num);
   static void Swap4LERange(unsigned char *c,int num) 

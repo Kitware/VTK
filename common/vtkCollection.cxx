@@ -98,7 +98,10 @@ void vtkCollection::RemoveItem(vtkObject *a)
   int i;
   vtkCollectionElement *elem,*prev;
   
-  if (!this->Top) return;
+  if (!this->Top)
+    {
+    return;
+    }
 
   elem = this->Top;
   prev = NULL;
@@ -137,7 +140,10 @@ int vtkCollection::IsItemPresent(vtkObject *a)
   int i;
   vtkCollectionElement *elem;
   
-  if (!this->Top) return 0;
+  if (!this->Top)
+    {
+    return 0;
+    }
 
   elem = this->Top;
   for (i = 0; i < this->NumberOfItems; i++)
@@ -208,7 +214,9 @@ void vtkCollection::ReplaceItem(int i, vtkObject *a)
   vtkCollectionElement *elem;
 
   if( i < 0 || i >= this->NumberOfItems )
+    {
     return;
+    }
   
   elem = this->Top;
   for (int j = 0; j < i; j++, elem = elem->Next ) 
@@ -230,7 +238,9 @@ void vtkCollection::RemoveItem(int i)
   vtkCollectionElement *elem,*prev;
 
   if( i < 0 || i >= this->NumberOfItems )
+    {
     return;
+    }
   
   elem = this->Top;
   prev = NULL;
@@ -242,15 +252,23 @@ void vtkCollection::RemoveItem(int i)
 
   // j == i
   if (prev)
+    {
     prev->Next = elem->Next;
+    }
   else
+    {
     this->Top = elem->Next;
+    }
 
   if (!elem->Next)
+    {
     this->Bottom = prev;
+    }
       
   if ( this->Current == elem )
+    {
     this->Current = elem->Next;
+    }
 
   this->DeleteElement(elem);
   this->NumberOfItems--;

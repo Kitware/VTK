@@ -88,6 +88,9 @@ void vtkActor2D::PrintSelf(ostream& os, vtkIndent indent)
   this->vtkProp2D::PrintSelf(os,indent);
 
   os << indent << "Mapper: " << this->Mapper << "\n";
-  if (this->Mapper) this->Mapper->PrintSelf(os, indent.GetNextIndent());
+  if (this->Mapper)
+    {
+    this->Mapper->PrintSelf(os, indent.GetNextIndent());
+    }
 }
 

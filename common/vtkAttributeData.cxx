@@ -85,16 +85,31 @@ int vtkAttributeData::GetDataType()
 // Specify the underlying data type of the object.
 void vtkAttributeData::SetDataType(int dataType)
 {
-  if ( dataType == this->Data->GetDataType() ) return;
+  if ( dataType == this->Data->GetDataType() )
+    {
+    return;
+    }
   // special cases
   if (dataType == VTK_UNSIGNED_INT 
-      && this->Data->GetDataType() == VTK_UNSIGNED_SHORT) return;
+      && this->Data->GetDataType() == VTK_UNSIGNED_SHORT)
+    {
+    return;
+    }
   if (dataType == VTK_LONG 
-      && this->Data->GetDataType() == VTK_INT) return;
+      && this->Data->GetDataType() == VTK_INT)
+    {
+    return;
+    }
   if (dataType == VTK_UNSIGNED_LONG 
-      && this->Data->GetDataType() == VTK_UNSIGNED_SHORT) return;
+      && this->Data->GetDataType() == VTK_UNSIGNED_SHORT)
+    {
+    return;
+    }
   if (dataType == VTK_UNSIGNED_INT 
-      && this->Data->GetDataType() == VTK_UNSIGNED_SHORT) return;
+      && this->Data->GetDataType() == VTK_UNSIGNED_SHORT)
+    {
+    return;
+    }
   
   this->Modified();
   

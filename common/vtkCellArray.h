@@ -131,7 +131,10 @@ inline int vtkCellArray::InsertNextCell(int npts, int* pts)
   int i = this->Ia->GetMaxId() + 1;
   int *ptr = this->Ia->WritePointer(i,npts+1);
   
-  for ( *ptr++ = npts, i = 0; i < npts; i++) *ptr++ = *pts++;
+  for ( *ptr++ = npts, i = 0; i < npts; i++)
+    {
+    *ptr++ = *pts++;
+    }
 
   this->NumberOfCells++;
   this->InsertLocation += npts + 1;
@@ -147,7 +150,10 @@ inline int vtkCellArray::InsertNextCell(vtkIdList &pts)
   int i = this->Ia->GetMaxId() + 1;
   int *ptr = this->Ia->WritePointer(i,npts+1);
   
-  for ( *ptr++ = npts, i = 0; i < npts; i++) *ptr++ = pts.GetId(i);
+  for ( *ptr++ = npts, i = 0; i < npts; i++)
+    {
+    *ptr++ = pts.GetId(i);
+    }
 
   this->NumberOfCells++;
   this->InsertLocation += npts + 1;
@@ -191,7 +197,10 @@ inline int vtkCellArray::InsertNextCell(vtkCell *cell)
   int i = this->Ia->GetMaxId() + 1;
   int *ptr = this->Ia->WritePointer(i,npts+1);
   
-  for ( *ptr++ = npts, i = 0; i < npts; i++) *ptr++ = cell->PointIds.GetId(i);
+  for ( *ptr++ = npts, i = 0; i < npts; i++)
+    {
+    *ptr++ = cell->PointIds.GetId(i);
+    }
 
   this->NumberOfCells++;
   this->InsertLocation += npts + 1;
@@ -252,7 +261,7 @@ inline int vtkCellArray::GetNextCell(int& npts, int* &pts)
 
 // Description:
 // Get the size of the allocated connectivity array.
-inline int vtkCellArray::GetSize() {return Ia->GetSize();}
+inline int vtkCellArray::GetSize() {return this->Ia->GetSize();}
 
 // Description:
 // Get the total number of entries (i.e., data values) in the connectivity 
@@ -260,7 +269,7 @@ inline int vtkCellArray::GetSize() {return Ia->GetSize();}
 // from GetSize().)
 inline int vtkCellArray::GetNumberOfConnectivityEntries() 
 {
-  return Ia->GetMaxId()+1;
+  return this->Ia->GetMaxId()+1;
 }
 
 // Description:
@@ -306,7 +315,10 @@ inline void vtkCellArray::ReverseCell(int loc)
 inline void vtkCellArray::ReplaceCell(int loc, int npts, int *pts)
 {
   int *oldPts=this->Ia->GetPointer(loc+1);
-  for (int i=0; i < npts; i++)  oldPts[i] = pts[i];
+  for (int i=0; i < npts; i++)
+    {
+    oldPts[i] = pts[i];
+    }
 }
 
 // Description:

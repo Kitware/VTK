@@ -200,7 +200,7 @@ void Set##name (type* _arg) \
   } \
 void Set##name (type& _arg) \
   { \
-  Set##name (&_arg);\
+  this->Set##name (&_arg);\
   } 
 
 //
@@ -235,8 +235,8 @@ type *Get##name () \
 // Set method must be defined to use this macro.
 //
 #define vtkBooleanMacro(name,type) \
-void name##On () { Set##name((type)1);}; \
-void name##Off () { Set##name((type)0);}
+void name##On () { this->Set##name((type)1);}; \
+void name##Off () { this->Set##name((type)0);}
 
 //
 // Following set macros for vectors define two members for each macro.  The first 
@@ -257,7 +257,7 @@ void Set##name (type _arg1, type _arg2) \
   }; \
 void Set##name (type _arg[2]) \
   { \
-  Set##name (_arg[0], _arg[1]); \
+  this->Set##name (_arg[0], _arg[1]); \
   } 
 
 #define vtkGetVector2Macro(name,type) \
@@ -274,7 +274,7 @@ void Get##name (type &_arg1, type &_arg2) \
   }; \
 void Get##name (type _arg[2]) \
   { \
-  Get##name (_arg[0], _arg[1]);\
+  this->Get##name (_arg[0], _arg[1]);\
   } 
 
 #define vtkSetVector3Macro(name,type) \
@@ -291,7 +291,7 @@ void Set##name (type _arg1, type _arg2, type _arg3) \
   }; \
 void Set##name (type _arg[3]) \
   { \
-  Set##name (_arg[0], _arg[1], _arg[2]);\
+  this->Set##name (_arg[0], _arg[1], _arg[2]);\
   } 
 
 #define vtkGetVector3Macro(name,type) \
@@ -309,7 +309,7 @@ void Get##name (type &_arg1, type &_arg2, type &_arg3) \
   }; \
 void Get##name (type _arg[3]) \
   { \
-  Get##name (_arg[0], _arg[1], _arg[2]);\
+  this->Get##name (_arg[0], _arg[1], _arg[2]);\
   } 
 
 #define vtkSetVector4Macro(name,type) \
@@ -327,7 +327,7 @@ void Set##name (type _arg1, type _arg2, type _arg3, type _arg4) \
   }; \
 void Set##name (type _arg[4]) \
   { \
-  Set##name (_arg[0], _arg[1], _arg[2], _arg[3]);\
+  this->Set##name (_arg[0], _arg[1], _arg[2], _arg[3]);\
   } 
 
 
@@ -347,7 +347,7 @@ void Get##name (type &_arg1, type &_arg2, type &_arg3, type &_arg4) \
   }; \
 void Get##name (type _arg[4]) \
   { \
-  Get##name (_arg[0], _arg[1], _arg[2], _arg[3]);\
+  this->Get##name (_arg[0], _arg[1], _arg[2], _arg[3]);\
   } 
 
 #define vtkSetVector6Macro(name,type) \
@@ -367,7 +367,7 @@ void Set##name (type _arg1, type _arg2, type _arg3, type _arg4, type _arg5, type
   }; \
 void Set##name (type _arg[6]) \
   { \
-  Set##name (_arg[0], _arg[1], _arg[2], _arg[3], _arg[4], _arg[5]);\
+  this->Set##name (_arg[0], _arg[1], _arg[2], _arg[3], _arg[4], _arg[5]);\
   } 
 
 #define vtkGetVector6Macro(name,type) \
@@ -388,7 +388,7 @@ void Get##name (type &_arg1, type &_arg2, type &_arg3, type &_arg4, type &_arg5,
   }; \
 void Get##name (type _arg[6]) \
   { \
-  Get##name (_arg[0], _arg[1], _arg[2], _arg[3], _arg[4], _arg[5]);\
+  this->Get##name (_arg[0], _arg[1], _arg[2], _arg[3], _arg[4], _arg[5]);\
   } 
 
 //

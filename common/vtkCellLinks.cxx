@@ -50,17 +50,25 @@ vtkCellLinks::vtkCellLinks(int sz, int ext)
   this->Extend = ext;
   this->MaxId = -1;
 
-  for (int i=0; i < sz; i++) this->Array[i] = linkInit;
+  for (int i=0; i < sz; i++)
+    {
+    this->Array[i] = linkInit;
+    }
 }
 
 vtkCellLinks::~vtkCellLinks()
 {
-  if ( this->Array == NULL ) return;
+  if ( this->Array == NULL )
+    {
+    return;
+    }
 
   for (int i=0; i<=this->MaxId; i++)
     {
-    if ( this->Array[i].cells != NULL ) 
+    if ( this->Array[i].cells != NULL )
+      {
       delete [] this->Array[i].cells;
+      }
     }
 
   delete [] this->Array;
@@ -98,15 +106,26 @@ _vtkLink_s *vtkCellLinks::Resize(int sz)
   int newSize;
   _vtkLink_s linkInit = {0,NULL};
 
-  if ( sz >= this->Size ) newSize = this->Size + 
-    this->Extend*(((sz-this->Size)/this->Extend)+1);
-  else newSize = sz;
+  if ( sz >= this->Size )
+    {
+    newSize = this->Size +  this->Extend*(((sz-this->Size)/this->Extend)+1);
+    }
+  else
+    {
+    newSize = sz;
+    }
 
   newArray = new _vtkLink_s[newSize];
 
-  for (i=0; i<newSize && i<this->Size; i++) newArray[i] = this->Array[i];
+  for (i=0; i<newSize && i<this->Size; i++)
+    {
+    newArray[i] = this->Array[i];
+    }
 
-  for (i=this->Size; i < newSize ; i++) newArray[i] = linkInit;
+  for (i=this->Size; i < newSize ; i++)
+    {
+    newArray[i] = linkInit;
+    }
 
   this->Size = newSize;
   delete [] this->Array;
@@ -143,7 +162,10 @@ void vtkCellLinks::BuildLinks(vtkDataSet *data)
 
   // fill out lists with references to cells
   linkLoc = new unsigned short[numPts];
-  for (i=0; i < numPts; i++) linkLoc[i] = 0;
+  for (i=0; i < numPts; i++)
+    {
+    linkLoc[i] = 0;
+    }
 
   for (cellId=0; cellId < numCells; cellId++)
     {
@@ -164,7 +186,10 @@ void vtkCellLinks::BuildLinks(vtkDataSet *data)
 // is the initial size of the list.
 int vtkCellLinks::InsertNextPoint(int numLinks)
 {
-  if ( ++this->MaxId >= this->Size ) this->Resize(this->MaxId);
+  if ( ++this->MaxId >= this->Size )
+    {
+    this->Resize(this->MaxId);
+    }
   this->Array[this->MaxId].cells = new int[numLinks];
   return this->MaxId;
 }

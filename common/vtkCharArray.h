@@ -129,8 +129,14 @@ inline void vtkCharArray::SetValue(const int id, const char value)
 inline char *vtkCharArray::WritePointer(const int id, const int number) 
 {
   int newSize=id+number;
-  if ( newSize > this->Size ) this->Resize(newSize);
-  if ( (--newSize) > this->MaxId ) this->MaxId = newSize;
+  if ( newSize > this->Size )
+    {
+    this->Resize(newSize);
+    }
+  if ( (--newSize) > this->MaxId )
+    {
+    this->MaxId = newSize;
+    }
   return this->Array + id;
 }
 
@@ -138,9 +144,15 @@ inline char *vtkCharArray::WritePointer(const int id, const int number)
 // Insert data at a specified position in the array.
 inline void vtkCharArray::InsertValue(const int id, const char c)
 {
-  if ( id >= this->Size ) this->Resize(id+1);
+  if ( id >= this->Size )
+    {
+    this->Resize(id+1);
+    }
   this->Array[id] = c;
-  if ( id > this->MaxId ) this->MaxId = id;
+  if ( id > this->MaxId )
+    {
+    this->MaxId = id;
+    }
 }
 
 // Description:

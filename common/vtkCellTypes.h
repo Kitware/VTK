@@ -141,8 +141,13 @@ inline int vtkCellTypes::IsType(unsigned char type)
 {
   int numTypes=this->GetNumberOfTypes();
 
-  for (int i=0; i<numTypes; i++) 
-    if ( type == this->GetCellType(i)) return 1;
+  for (int i=0; i<numTypes; i++)
+    {
+    if ( type == this->GetCellType(i))
+      {
+      return 1;
+      }
+    }
   return 0;
 }
 

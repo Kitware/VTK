@@ -53,7 +53,10 @@ vtkBitArray::vtkBitArray(int numComp)
 
 vtkBitArray::~vtkBitArray()
 {
-  if ((this->Array) && (!this->SaveUserArray)) delete [] this->Array;
+  if ((this->Array) && (!this->SaveUserArray))
+    {
+    delete [] this->Array;
+    }
   delete [] this->Tuple;
 }
 
@@ -89,9 +92,12 @@ void vtkBitArray::SetArray(unsigned char* array, int size, int save)
 // Get the data at a particular index.
 int vtkBitArray::GetValue(const int id)
 {
-  if (this->Array[id/8]&(0x80 >> (id%8))) return 1; 
+  if (this->Array[id/8]&(0x80 >> (id%8)))
+    {
+    return 1;
+    }
   return 0;
-};
+}
 
 // Description:
 // Allocate memory for this array. Delete old storage only if necessary.
@@ -104,7 +110,10 @@ int vtkBitArray::Allocate(const int sz, const int ext)
       delete [] this->Array;
       }
     this->Size = ( sz > 0 ? sz : 1);
-    if ( (this->Array = new unsigned char[(this->Size+7)/8]) == NULL ) return 0;
+    if ( (this->Array = new unsigned char[(this->Size+7)/8]) == NULL )
+      {
+      return 0;
+      }
     this->SaveUserArray = 0;
     }
 
@@ -229,8 +238,10 @@ float *vtkBitArray::GetTuple(const int i)
     }
 
   int loc = this->NumberOfComponents*i;
-  for (int j=0; j<this->NumberOfComponents; j++) 
+  for (int j=0; j<this->NumberOfComponents; j++)
+    {
     this->Tuple[j] = (float)this->GetValue(loc+j);
+    }
 
   return this->Tuple;
 }
@@ -241,8 +252,10 @@ void vtkBitArray::GetTuple(const int i, float * tuple)
 {
   int loc = this->NumberOfComponents*i;
 
-  for (int j=0; j<this->NumberOfComponents; j++) 
+  for (int j=0; j<this->NumberOfComponents; j++)
+    {
     tuple[j] = (float)this->GetValue(loc+j);
+    }
 }
 
 // Description:
@@ -251,8 +264,10 @@ void vtkBitArray::SetTuple(const int i, const float * tuple)
 {
   int loc = i * this->NumberOfComponents; 
 
-  for (int j=0; j<this->NumberOfComponents; j++) 
+  for (int j=0; j<this->NumberOfComponents; j++)
+    {
     this->SetValue(loc+j,(int)tuple[j]);
+    }
 }
 
 // Description:
@@ -262,16 +277,20 @@ void vtkBitArray::InsertTuple(const int i, const float * tuple)
 {
   int loc = this->NumberOfComponents*i;
 
-  for (int j=0; j<this->NumberOfComponents; j++) 
+  for (int j=0; j<this->NumberOfComponents; j++)
+    {
     this->InsertValue(loc+j,(int)tuple[j]);
+    }
 }
 
 // Description:
 // Insert (memory allocation performed) the tuple onto the end of the array.
 int vtkBitArray::InsertNextTuple(const float * tuple)
 {
-  for (int i=0; i<this->NumberOfComponents; i++) 
+  for (int i=0; i<this->NumberOfComponents; i++)
+    {
     this->InsertNextValue((int)tuple[i]);
+    }
 
   return this->MaxId / this->NumberOfComponents;
 }

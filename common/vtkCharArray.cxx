@@ -53,7 +53,10 @@ vtkCharArray::vtkCharArray(int numComp)
 
 vtkCharArray::~vtkCharArray()
 {
-  if ((this->Array) && (!this->SaveUserArray)) delete [] this->Array;
+  if ((this->Array) && (!this->SaveUserArray))
+    {
+    delete [] this->Array;
+    }
   delete [] this->Tuple;
 }
 
@@ -97,7 +100,10 @@ int vtkCharArray::Allocate(const int sz, const int ext)
 	delete [] this->Array;
       }
     this->Size = ( sz > 0 ? sz : 1);
-    if ( (this->Array = new char[this->Size]) == NULL ) return 0;
+    if ( (this->Array = new char[this->Size]) == NULL )
+      {
+      return 0;
+      }
     this->SaveUserArray = 0;
     }
 
@@ -216,7 +222,10 @@ float *vtkCharArray::GetTuple(const int i)
     }
 
   char *t = this->Array + this->NumberOfComponents*i;
-  for (int j=0; j<this->NumberOfComponents; j++) this->Tuple[j] = (float)t[j];
+  for (int j=0; j<this->NumberOfComponents; j++)
+    {
+    this->Tuple[j] = (float)t[j];
+    }
   return this->Tuple;
 }
 
@@ -225,7 +234,10 @@ float *vtkCharArray::GetTuple(const int i)
 void vtkCharArray::GetTuple(const int i, float * tuple) 
 {
   char *t = this->Array + this->NumberOfComponents*i;
-  for (int j=0; j<this->NumberOfComponents; j++) tuple[j] = (float)t[j];
+  for (int j=0; j<this->NumberOfComponents; j++)
+    {
+    tuple[j] = (float)t[j];
+    }
 }
 
 // Description:
@@ -233,7 +245,10 @@ void vtkCharArray::GetTuple(const int i, float * tuple)
 void vtkCharArray::SetTuple(const int i, const float * tuple)
 {
   int loc = i * this->NumberOfComponents; 
-  for (int j=0; j<this->NumberOfComponents; j++) this->Array[loc+j] = (char)tuple[j];
+  for (int j=0; j<this->NumberOfComponents; j++)
+    {
+    this->Array[loc+j] = (char)tuple[j];
+    }
 }
 
 // Description:
@@ -243,7 +258,10 @@ void vtkCharArray::InsertTuple(const int i, const float * tuple)
 {
   char *t = this->WritePointer(i*this->NumberOfComponents,this->NumberOfComponents);
 
-  for (int j=0; j<this->NumberOfComponents; j++) *t++ = (char)*tuple++;
+  for (int j=0; j<this->NumberOfComponents; j++)
+    {
+    *t++ = (char)*tuple++;
+    }
 }
 
 // Description:
@@ -253,7 +271,10 @@ int vtkCharArray::InsertNextTuple(const float * tuple)
   int i = this->MaxId + 1;
   char *t = this->WritePointer(i,this->NumberOfComponents);
 
-  for (i=0; i<this->NumberOfComponents; i++) *t++ = (char)*tuple++;
+  for (i=0; i<this->NumberOfComponents; i++)
+    {
+    *t++ = (char)*tuple++;
+    }
 
   return this->MaxId / this->NumberOfComponents;
 }

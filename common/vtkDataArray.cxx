@@ -89,7 +89,10 @@ void vtkDataArray::SetComponent(const int i, const int j, const float c)
     }
   else
     {
-    for (int k=0; k<this->NumberOfComponents; k++) tuple[k] = 0.0;
+    for (int k=0; k<this->NumberOfComponents; k++)
+      {
+      tuple[k] = 0.0;
+      }
     }
 
   tuple[j] = c;
@@ -108,7 +111,10 @@ void vtkDataArray::InsertComponent(const int i, const int j, const float c)
     }
   else
     {
-    for (int k=0; k<this->NumberOfComponents; k++) tuple[k] = 0.0;
+    for (int k=0; k<this->NumberOfComponents; k++)
+      {
+      tuple[k] = 0.0;
+      }
     }
 
   tuple[j] = c;

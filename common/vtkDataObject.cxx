@@ -67,7 +67,10 @@ void vtkDataObject::Initialize()
 
 void vtkDataObject::SetGlobalReleaseDataFlag(int val)
 {
-  if (val == vtkDataObjectGlobalReleaseDataFlag) return;
+  if (val == vtkDataObjectGlobalReleaseDataFlag)
+    {
+    return;
+    }
   vtkDataObjectGlobalReleaseDataFlag = val;
 }
 
@@ -84,8 +87,14 @@ void vtkDataObject::ReleaseData()
 
 int vtkDataObject::ShouldIReleaseData()
 {
-  if ( vtkDataObjectGlobalReleaseDataFlag || this->ReleaseDataFlag ) return 1;
-  else return 0;
+  if ( vtkDataObjectGlobalReleaseDataFlag || this->ReleaseDataFlag )
+    {
+    return 1;
+    }
+  else
+    {
+    return 0;
+    }
 }
 
 void vtkDataObject::Update()
