@@ -28,6 +28,11 @@ MACRO (VTK_GET_TCL_TK_VERSION tcl_tk_major_version tcl_tk_minor_version)
 	  SET (${tcl_tk_major_version} "8")
 	  SET (${tcl_tk_minor_version} ${tcl_tk_minor_version_try})
     ENDIF ("${TCL_INCLUDE_PATH}" MATCHES "tcl8\\.?${tcl_tk_minor_version_try}")
+    # Mac
+    IF ("${TCL_INCLUDE_PATH}" MATCHES "Tcl.*8\\.${tcl_tk_minor_version_try}")
+	  SET (${tcl_tk_major_version} "8")
+	  SET (${tcl_tk_minor_version} ${tcl_tk_minor_version_try})
+    ENDIF ("${TCL_INCLUDE_PATH}" MATCHES "Tcl.*8\\.${tcl_tk_minor_version_try}")
   ENDFOREACH (tcl_tk_minor_version_try)
 
 ENDMACRO (VTK_GET_TCL_TK_VERSION)
