@@ -5716,7 +5716,8 @@ vtkVRMLImporter::enterNode(const char *nodeType)
       }
     }
   else if (strcmp(fr->nodeType->getName(), "IndexedFaceSet") == 0 ||
-	   strcmp(fr->nodeType->getName(), "IndexedLineSet") == 0) 
+	   strcmp(fr->nodeType->getName(), "IndexedLineSet") == 0 ||
+	   strcmp(fr->nodeType->getName(), "PointSet") == 0) 
     {
     pmap = vtkPolyDataMapper::New();
     pmap->SetScalarVisibility(0);
@@ -5802,7 +5803,8 @@ vtkVRMLImporter::exitNode()
   // Exiting this means we need to setup the color mode and 
   // normals and other fun stuff.
   if (strcmp(fr->nodeType->getName(), "IndexedFaceSet") == 0 ||
-      strcmp(fr->nodeType->getName(), "IndexedLineSet") == 0) 
+      strcmp(fr->nodeType->getName(), "IndexedLineSet") == 0 ||
+      strcmp(fr->nodeType->getName(), "PointSet") == 0) 
     {
     ((vtkPolyData *)this->CurrentMapper->GetInput())->SetPoints(this->CurrentPoints);
     // We always create a scalar object in the enternode method.
@@ -6071,6 +6073,27 @@ vtkVRMLImporter::exitField()
       {
       useList += new vtkVRMLUseStruct(curDEFName, this->CurrentPoints);
       creatingDEF = 0;
+      }
+
+    // There is no coordIndex for PointSet data, generate the PolyData here.
+    if (strcmp(fr->nodeType->getName(), "PointSet") == 0)
+      {
+	vtkCellArray *cells;
+	vtkIdType i;
+	vtkPolyData *pd;
+
+	pd = vtkPolyData::New();
+	cells = vtkCellArray::New();
+	for (i=0;i < yylval.vec3f->GetNumberOfPoints();i++) 
+	  {
+	    cells->InsertNextCell(1, &i);
+	  }
+
+	pd->SetVerts(cells);
+    
+	this->CurrentMapper->SetInput(pd);
+	pd->Delete();
+	cells->Delete();
       }
     }
   // Handle color field
