@@ -368,6 +368,7 @@ void vtkImageXViewer::RenderRegion(vtkImageRegion *region)
   void *ptr0, *ptr1, *ptr2;
   int extent[6];
   
+  
   if ( ! region)
     {
     // open the window anyhow if not yet open
@@ -378,6 +379,7 @@ void vtkImageXViewer::RenderRegion(vtkImageRegion *region)
 	{
 	this->Size[0] = 256;
 	this->Size[1] = 256;
+	vtkDebugMacro("RenderRegion: Setting size to default 256x256");
 	}
       this->SetWindow(this->MakeDefaultWindow(this->Size[0], this->Size[1]));
       }
@@ -730,6 +732,7 @@ int vtkImageXViewer::GetWindow()
     {
     this->Size[0] = 256;
     this->Size[1] = 256;
+    vtkDebugMacro("GetWindow: Setting size to default 256x256");
     }
   this->SetWindow(this->MakeDefaultWindow(this->Size[0], this->Size[1]));
   this->Modified();

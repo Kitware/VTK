@@ -95,6 +95,7 @@ void vtkImageMedian3D::SetKernelSize(int size0, int size1, int size2)
   this->KernelMiddle[3] = 0;
 
   this->SetNumberOfElements(volume);
+  this->Modified();
 }
 
 

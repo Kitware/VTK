@@ -105,7 +105,9 @@ void vtkImageViewer::PrintSelf(ostream& os, vtkIndent indent)
      << this->DisplayExtent[3] << ")\n";
   os << indent << "ColorWindow: " << this->ColorWindow << "\n";
   os << indent << "ColorLevel: " << this->ColorLevel << "\n";
-
+  os << indent << "Size: " << this->Size[0] << ", " << this->Size[1] << "\n";
+  os << indent << "Position: " << this->Position[0] << ", " 
+     << this->Position[1] << "\n";
 }
 
 

@@ -104,6 +104,7 @@ vtkImageThreshold \
 vtkImageVariance3D \
 vtkImageViewer \
 vtkImageWrapPad \
+vtkImageWriter \
 vtkImageXViewer \
 vtkPNMReader 
 

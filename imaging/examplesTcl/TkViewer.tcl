@@ -22,7 +22,7 @@ toplevel .top
 
 frame .top.f1 
 
-vtkTkImageViewerWidget .top.f1.r1 -width 300 -height 300 -iv viewer
+vtkTkImageViewerWidget .top.f1.r1 -width 512 -height 256 -iv viewer
 #    BindTkRenderWidget .top.f1.r1
 
 button .top.btn  -text Quit -command exit
