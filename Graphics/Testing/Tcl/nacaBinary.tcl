@@ -43,6 +43,7 @@ set cam1 [ren1 GetActiveCamera]
 $cam1 SetFocalPoint 0 0 0
 $cam1 ParallelProjectionOff
 $cam1 Zoom 70
+$cam1 SetViewAngle 1.0
 
 
 renWin SetSize 400 400
