@@ -44,7 +44,11 @@
 // (StartInteractionEvent), operate on the vtkProp3D or other object
 // (InteractionEvent), and set the desired frame rate back to normal values
 // (EndInteractionEvent).
-
+//
+// Note that the Priority attribute inherited from vtkInteractorObserver has
+// a new default value which is now 0.5 so that all 3D widgets have a higher
+// priority than the usual interactor styles.
+//
 // .SECTION See Also
 // vtkBoxWidget vtkLineWidget vtkPlaneWidget vtkSphereWidget
 

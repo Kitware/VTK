@@ -22,7 +22,7 @@
 #include "vtkProp3D.h"
 #include "vtkDataSet.h"
 
-vtkCxxRevisionMacro(vtk3DWidget, "1.9");
+vtkCxxRevisionMacro(vtk3DWidget, "1.10");
 
 vtkCxxSetObjectMacro(vtk3DWidget,Prop3D,vtkProp3D);
 vtkCxxSetObjectMacro(vtk3DWidget,Input,vtkDataSet);
@@ -32,6 +32,8 @@ vtk3DWidget::vtk3DWidget()
   this->Prop3D = NULL;
   this->Input = NULL;
   this->PlaceFactor = 0.5;
+
+  this->Priority = 0.5;
 }
 
 vtk3DWidget::~vtk3DWidget()
