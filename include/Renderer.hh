@@ -85,6 +85,7 @@ public:
   void ResetCamera();
 
   void SetRenderWindow(vlRenderWindow *);
+  vlRenderWindow *GetRenderWindow() {return RenderWindow;};
   
   vlSetVector3Macro(DisplayPoint,float);
   vlGetVectorMacro(DisplayPoint,float);
