@@ -20,6 +20,7 @@
 
 int otherFieldData(int,char *[])
 {
+  int i;
   vtkDebugLeaks::PromptUserOff();
 
   vtkFieldData* fd = vtkFieldData::New();
@@ -27,11 +28,15 @@ int otherFieldData(int,char *[])
   vtkFloatArray* fa;
 
   char name[128];
-  for(int i=0; i<5; i++)
+  for(i=0; i<5; i++)
     {
     sprintf(name, "Array%d", i);
     fa = vtkFloatArray::New();
     fa->SetName(name);
+    // the tuples must be set before being read to avoid a UMR
+    // this must have been a UMR in the past that was suppressed
+    fa->Allocate(20);
+    fa->SetTuple1(0,0.0);
     fd->AddArray(fa);
     fa->Delete();
     }
@@ -67,6 +72,11 @@ int otherFieldData(int,char *[])
     }
   
   double tuple[10];
+  // initialize tuple before using it to set something
+  for (i = 0; i < 10; i++)
+    {
+    tuple[i] = i;
+    }
   fd->GetTuple(2);
   fd->SetTuple(2, tuple);
   fd->InsertTuple(2, tuple);
