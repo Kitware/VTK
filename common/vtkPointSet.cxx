@@ -227,7 +227,11 @@ int vtkPointSet::FindCell(float x[3], vtkCell *cell, vtkGenericCell *gencell,
         }
       }
     }
-
+  else //EvaluatePosition insures that pcoords is defined
+    {
+    cell->EvaluatePosition(x,NULL,subId,pcoords,dist2,weights);
+    }
+  
   // If a cell is supplied, or we didn't find a starting cell (in the
   // previous chunk of code), then we use this to start our search. A
   // walking scheme is used, where we walk towards the point and eventually
