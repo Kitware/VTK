@@ -42,7 +42,7 @@ class vtkTkImageViewerWidget(Tkinter.Widget):
         Tkinter.Widget.__init__(self, master, 'vtkTkImageViewerWidget',
                                 cnf, kw)
         if doubleBuffer:
-            imageViewer.GetImageWindow().DoubleBufferOn()
+            imageViewer.GetRenderWindow().DoubleBufferOn()
 
         self.BindTkImageViewer()
 
@@ -64,7 +64,7 @@ class vtkTkImageViewerWidget(Tkinter.Widget):
         self._ImageViewer.Render()
 
     def BindTkImageViewer(self):
-        imager = self._ImageViewer.GetImager()
+        imager = self._ImageViewer.GetRenderer()
         
         # stuff for window level text.
         mapper = vtkTextMapper()
