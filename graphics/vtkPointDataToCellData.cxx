@@ -83,6 +83,9 @@ void vtkPointDataToCellData::Execute()
       }
     }
 
+  // Pass through any cell data that's in the input and not defined in the output.
+  output->GetCellData()->PassNoReplaceData(input->GetCellData());
+  
   if ( this->PassPointData )
     {
     output->GetPointData()->PassData(input->GetPointData());
