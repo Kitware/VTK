@@ -1,9 +1,6 @@
 package vtk;
 import java.awt.*;
 import java.awt.event.*;
-import java.lang.Math;
-import sun.awt.*;
-import java.beans.*;
 
 public class vtkPanel extends Canvas implements 
   MouseListener, 
@@ -16,10 +13,11 @@ public class vtkPanel extends Canvas implements
   protected vtkLight lgt = new vtkLight();
   protected int lastX;
   protected int lastY;
-  private int windowset = 0;
-  private int LightFollowCamera = 1;
-  private int InteractionMode = 1;
-  private boolean rendering = false;
+  protected int windowset = 0;
+  protected int lightingset = 0;
+  protected int LightFollowCamera = 1;
+  protected int InteractionMode = 1;
+  protected boolean rendering = false;
   
   static { 
     System.loadLibrary("vtkCommonJava"); 
@@ -29,6 +27,10 @@ public class vtkPanel extends Canvas implements
     System.loadLibrary("vtkGraphicsJava"); 
     System.loadLibrary("vtkRenderingJava"); 
   }
+
+  protected native void RenderCreate(vtkRenderWindow id0);
+  protected native void Lock();
+  protected native void UnLock();
 
   public vtkPanel()
   {
@@ -49,19 +51,30 @@ public class vtkPanel extends Canvas implements
   {
     return rw;
   }
-
-  protected native void RenderCreate(vtkRenderWindow id0);
-  protected native void Lock();
-  protected native void UnLock();
   
   public void setSize(int x, int y)
   {
     super.setSize(x,y);
-    if (windowset == 1) {
-      Lock();
-      rw.SetSize(x,y);
-      UnLock();
-    }
+    if (windowset == 1) 
+      {
+        Lock();
+        rw.SetSize(x,y);
+        UnLock();
+      }
+  }
+
+  public void addNotify() 
+  {
+    super.addNotify();
+    windowset = 0;
+    rw.SetForceMakeCurrent();
+    rendering = false;
+  }
+
+  public void removeNotify() 
+  {
+    rendering = true;
+    super.removeNotify();
   }
   
   public synchronized void Render() 
@@ -69,16 +82,19 @@ public class vtkPanel extends Canvas implements
     if (!rendering)
       {
         rendering = true;
-        if (ren.VisibleActorCount() == 0) return;
+        if (ren.VisibleActorCount() == 0) {rendering = false; return;}
         if (rw != null)
           {
             if (windowset == 0)
               {
                 // set the window id and the active camera
                 cam = ren.GetActiveCamera();
-                ren.AddLight(lgt);
-                lgt.SetPosition(cam.GetPosition());
-                lgt.SetFocalPoint(cam.GetFocalPoint());
+                if (lightingset == 0) {
+                  ren.AddLight(lgt);
+                  lgt.SetPosition(cam.GetPosition());
+                  lgt.SetFocalPoint(cam.GetFocalPoint());
+                  lightingset = 1;
+                }
                 RenderCreate(rw);
                 windowset = 1;
               }
@@ -90,7 +106,8 @@ public class vtkPanel extends Canvas implements
       }
   }
 
-  public boolean isWindowSet() {
+  public boolean isWindowSet() 
+  {
     return (this.windowset==1);
   }
   
@@ -361,16 +378,6 @@ public class vtkPanel extends Canvas implements
     if (picker.GetActor() != null)
       System.out.println(picker.GetActor().GetClassName());
   }
-  
-  public void addPropertyChangeListener(PropertyChangeListener l)
-  {
-    changes.addPropertyChangeListener(l);
-  }
-  public void removePropertyChangeListener(PropertyChangeListener l)
-  {
-    changes.removePropertyChangeListener(l);
-  }
-  protected PropertyChangeSupport changes = new PropertyChangeSupport(this);
   
   public void keyReleased(KeyEvent e) {}
 
