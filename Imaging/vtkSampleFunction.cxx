@@ -20,7 +20,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSampleFunction, "1.58");
+vtkCxxRevisionMacro(vtkSampleFunction, "1.59");
 vtkStandardNewMacro(vtkSampleFunction);
 
 // Construct with ModelBounds=(-1,1,-1,1,-1,1), SampleDimensions=(50,50,50),
@@ -44,12 +44,11 @@ vtkSampleFunction::vtkSampleFunction()
   this->ImplicitFunction = NULL;
 
   this->ComputeNormals = 1;
-  this->Scalars = NULL;
+  this->OutputScalarType = VTK_FLOAT;
 }
 
 vtkSampleFunction::~vtkSampleFunction() 
 {
-  this->SetScalars((vtkDataArray*)NULL);
   this->SetImplicitFunction(NULL);
 }
 
@@ -87,14 +86,14 @@ void vtkSampleFunction::ExecuteInformation()
 {
   int i;
   float ar[3], origin[3];
-  vtkStructuredPoints *output = this->GetOutput();
+  vtkImageData *output = this->GetOutput();
   
   output->SetScalarType(VTK_FLOAT);
   output->SetNumberOfScalarComponents(1);
   output->SetWholeExtent(0, this->SampleDimensions[0]-1,
                          0, this->SampleDimensions[1]-1,
                          0, this->SampleDimensions[2]-1);
-
+  
   for (i=0; i < 3; i++)
     {
     origin[i] = this->ModelBounds[2*i];
@@ -105,7 +104,7 @@ void vtkSampleFunction::ExecuteInformation()
     else
       {
       ar[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
-              / (this->SampleDimensions[i] - 1);
+        / (this->SampleDimensions[i] - 1);
       }
     }
   output->SetOrigin(origin);
@@ -113,13 +112,15 @@ void vtkSampleFunction::ExecuteInformation()
 }
 
 
-void vtkSampleFunction::Execute()
+void vtkSampleFunction::ExecuteData(vtkDataObject *outp)
 {
   vtkIdType ptId;
   vtkFloatArray *newNormals=NULL;
   vtkIdType numPts;
   float *p, s;
-  vtkStructuredPoints *output = this->GetOutput();
+  vtkImageData *output = this->AllocateOutputData(outp);
+  vtkFloatArray *newScalars = 
+    vtkFloatArray::SafeDownCast(output->GetPointData()->GetScalars());
 
   output->SetDimensions(this->GetSampleDimensions());
 
@@ -135,15 +136,7 @@ void vtkSampleFunction::Execute()
     }
 
   numPts = this->SampleDimensions[0] * this->SampleDimensions[1] 
-           * this->SampleDimensions[2];
-
-  if (this->Scalars == NULL) 
-    {
-    this->Scalars = vtkFloatArray::New(); //ref count is 1
-    this->Scalars->Register(this);
-    this->Scalars->Delete();
-    }
-  this->Scalars->SetNumberOfTuples(numPts);
+    * this->SampleDimensions[2];
 
   //
   // Traverse all points evaluating implicit function at each point
@@ -152,7 +145,7 @@ void vtkSampleFunction::Execute()
     {
     p = output->GetPoint(ptId);
     s = this->ImplicitFunction->FunctionValue(p);
-    this->Scalars->SetComponent(ptId,0,s);
+    newScalars->SetComponent(ptId,0,s);
     }
   //
   // If normal computation turned on, compute them
@@ -180,13 +173,11 @@ void vtkSampleFunction::Execute()
   //
   if ( this->Capping )
     {
-    this->Cap(this->Scalars);
+    this->Cap(newScalars);
     }
   //
   // Update self 
   //
-  output->GetPointData()->SetScalars(this->Scalars); //ref count is now 2
-
   if (newNormals)
     {
     output->GetPointData()->SetNormals(newNormals);
@@ -291,14 +282,7 @@ void vtkSampleFunction::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "  Zmin,Zmax: (" << this->ModelBounds[4] 
      << ", " << this->ModelBounds[5] << ")\n";
 
-  if ( this->Scalars )
-    {
-    os << indent << "Scalars: " << this->Scalars << "\n";
-    }
-  else
-    {
-    os << indent << "Scalars: (none)\n";
-    }
+  os << indent << "OutputScalarType: " << this->OutputScalarType << "\n";
 
   if ( this->ImplicitFunction )
     {

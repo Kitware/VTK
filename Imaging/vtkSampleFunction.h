@@ -30,13 +30,13 @@
 #ifndef __vtkSampleFunction_h
 #define __vtkSampleFunction_h
 
-#include "vtkStructuredPointsSource.h"
+#include "vtkImageSource.h"
 #include "vtkImplicitFunction.h"
 
-class VTK_IMAGING_EXPORT vtkSampleFunction : public vtkStructuredPointsSource
+class VTK_IMAGING_EXPORT vtkSampleFunction : public vtkImageSource
 {
 public:
-  vtkTypeRevisionMacro(vtkSampleFunction,vtkStructuredPointsSource);
+  vtkTypeRevisionMacro(vtkSampleFunction,vtkImageSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -50,10 +50,41 @@ public:
   vtkGetObjectMacro(ImplicitFunction,vtkImplicitFunction);
 
   // Description:
+  // Set what type of scalar data this source should generate.
+  vtkSetMacro(OutputScalarType,int);
+  vtkGetMacro(OutputScalarType,int);
+  void SetOutputScalarTypeToDouble()
+    {this->SetOutputScalarType(VTK_DOUBLE);}
+  void SetOutputScalarTypeToFloat()
+    {this->SetOutputScalarType(VTK_FLOAT);}
+  void SetOutputScalarTypeToLong()
+    {this->SetOutputScalarType(VTK_LONG);}
+  void SetOutputScalarTypeToUnsignedLong()
+    {this->SetOutputScalarType(VTK_UNSIGNED_LONG);};
+  void SetOutputScalarTypeToInt()
+    {this->SetOutputScalarType(VTK_INT);}
+  void SetOutputScalarTypeToUnsignedInt()
+    {this->SetOutputScalarType(VTK_UNSIGNED_INT);}
+  void SetOutputScalarTypeToShort()
+    {this->SetOutputScalarType(VTK_SHORT);}
+  void SetOutputScalarTypeToUnsignedShort()
+    {this->SetOutputScalarType(VTK_UNSIGNED_SHORT);}
+  void SetOutputScalarTypeToChar()
+    {this->SetOutputScalarType(VTK_CHAR);}
+  void SetOutputScalarTypeToUnsignedChar()
+    {this->SetOutputScalarType(VTK_UNSIGNED_CHAR);}
+
+  // Description:
   // Control the type of the scalars object by explicitly providing a scalar
-  // object.  vtkSampleFunction() will allocate space (as necessary)
-  // in the scalar object.
-  vtkSetObjectMacro(Scalars,vtkDataArray);
+  // object.  THIS IS DEPRECATED, although it still works!!! Please use
+  // SetOutputScalarType instead.
+  virtual void SetScalars(vtkDataArray *da)
+    {
+      if (da)
+        {
+        this->SetOutputScalarType(da->GetDataType());
+        }
+    }    
 
   // Description:
   // Specify the dimensions of the data on which to sample.
@@ -96,13 +127,13 @@ protected:
   vtkSampleFunction();
   ~vtkSampleFunction();
 
-  void Execute();
+  void ExecuteData(vtkDataObject *);
   void ExecuteInformation();
   void Cap(vtkDataArray *s);
 
+  int OutputScalarType;
   int SampleDimensions[3];
   float ModelBounds[6];
-  vtkDataArray *Scalars;
   int Capping;
   float CapValue;
   vtkImplicitFunction *ImplicitFunction;
