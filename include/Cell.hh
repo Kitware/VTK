@@ -42,7 +42,7 @@ public:
   // reference counting.
 
   // Number of points in cell
-  int NumberOfPoints() {return this->PointIds.NumberOfIds();};
+  int GetNumberOfPoints() {return this->PointIds.GetNumberOfIds();};
 
   // Dimensionality of cell (0,1,2, or 3)
   virtual int CellDimension() = 0;

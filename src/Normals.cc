@@ -22,7 +22,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 void vlNormals::GetNormals(vlIdList& ptId, vlFloatNormals& fp)
 {
-  for (int i=0; i<ptId.NumberOfIds(); i++)
+  for (int i=0; i<ptId.GetNumberOfIds(); i++)
     {
     fp.InsertNormal(i,this->GetNormal(ptId.GetId(i)));
     }
@@ -32,5 +32,5 @@ void vlNormals::PrintSelf(ostream& os, vlIndent indent)
 {
   vlObject::PrintSelf(os,indent);
 
-  os << indent << "Number Of Normals: " << this->NumberOfNormals() << "\n";
+  os << indent << "Number Of Normals: " << this->GetNumberOfNormals() << "\n";
 }

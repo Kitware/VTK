@@ -123,7 +123,7 @@ float *vlCell::GetBounds ()
   bounds[0] = bounds[2] = bounds[4] =  LARGE_FLOAT;
   bounds[1] = bounds[3] = bounds[5] = -LARGE_FLOAT;
 
-  for (i=0; i<this->Points.NumberOfPoints(); i++)
+  for (i=0; i<this->Points.GetNumberOfPoints(); i++)
     {
     x = this->Points.GetPoint(i);
     for (j=0; j<3; j++)

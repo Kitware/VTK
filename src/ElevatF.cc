@@ -49,7 +49,7 @@ void vlElevationFilter::Execute()
 // Initialize
 //
   this->Initialize();
-  if ( ((numPts=this->Input->NumberOfPoints()) < 1) )
+  if ( ((numPts=this->Input->GetNumberOfPoints()) < 1) )
     {
     vlErrorMacro(<< "No input!\n");
     return;

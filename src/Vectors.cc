@@ -28,7 +28,7 @@ vlVectors::vlVectors()
 
 void vlVectors::GetVectors(vlIdList& ptId, vlFloatVectors& fp)
 {
-  for (int i=0; i<ptId.NumberOfIds(); i++)
+  for (int i=0; i<ptId.GetNumberOfIds(); i++)
     {
     fp.InsertVector(i,this->GetVector(ptId.GetId(i)));
     }
@@ -42,7 +42,7 @@ void vlVectors::ComputeMaxNorm()
   if ( this->GetMTime() > this->ComputeTime )
     {
     this->MaxNorm = 0.0;
-    for (i=0; i<this->NumberOfVectors(); i++)
+    for (i=0; i<this->GetNumberOfVectors(); i++)
       {
       v = this->GetVector(i);
       norm = math.Norm(v);
@@ -65,7 +65,7 @@ void vlVectors::PrintSelf(ostream& os, vlIndent indent)
     {
     vlObject::PrintSelf(os,indent);
 
-    os << indent << "Number Of Vectors: " << this->NumberOfVectors() << "\n";
+    os << indent << "Number Of Vectors: " << this->GetNumberOfVectors() << "\n";
     os << indent << "Maximum Euclidean Norm: " << this->GetMaxNorm() << "\n";
     }
 }

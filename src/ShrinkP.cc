@@ -51,7 +51,7 @@ void vlShrinkPolyData::Execute()
 // Count the number of new points and other primitives that 
 // need to be created.
 //
-  numNewPts = this->Input->NumberOfVerts();
+  numNewPts = this->Input->GetNumberOfVerts();
   numNewLines = 0;
   numNewPolys = 0;
   poly_alloc_size = 0;
@@ -77,7 +77,7 @@ void vlShrinkPolyData::Execute()
 //
   newPoints = new vlFloatPoints(numNewPts);
 
-  newVerts = new vlCellArray(this->Input->NumberOfVerts());
+  newVerts = new vlCellArray(this->Input->GetNumberOfVerts());
 
   newLines = new vlCellArray;
   newLines->Initialize(numNewLines*3);

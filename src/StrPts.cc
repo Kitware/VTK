@@ -57,7 +57,7 @@ vlStructuredPoints::~vlStructuredPoints()
 {
 }
 
-int vlStructuredPoints::NumberOfCells()
+int vlStructuredPoints::GetNumberOfCells()
 {
   int nCells=1;
   int i;
@@ -69,7 +69,7 @@ int vlStructuredPoints::NumberOfCells()
   return nCells;
 }
 
-int vlStructuredPoints::NumberOfPoints()
+int vlStructuredPoints::GetNumberOfPoints()
 {
   return Dimension[0]*Dimension[1]*Dimension[2];
 }

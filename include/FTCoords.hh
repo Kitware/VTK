@@ -40,7 +40,7 @@ public:
   char *GetClassName() {return "vlFloatTCoords";};
 
   void operator+=(const vlFloatTCoords& ftc) {this->TC += ftc.TC;};
-  int NumberOfTCoords() {return (this->TC.GetMaxId()+1)/this->Dimension;};
+  int GetNumberOfTCoords() {return (this->TC.GetMaxId()+1)/this->Dimension;};
   void Reset() {this->TC.Reset();};
   void Squeeze() {this->TC.Squeeze();};
 

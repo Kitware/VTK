@@ -105,10 +105,10 @@ void vlPolyMapper::Render(vlRenderer *ren)
     (scalars=pd->GetScalars()) )
       {
       colors = new vlRGBArray;
-      colors->Initialize (this->Input->NumberOfPoints());
+      colors->Initialize (this->Input->GetNumberOfPoints());
 
       this->LookupTable->SetTableRange(this->ScalarRange);
-      for (i=0; i<this->Input->NumberOfPoints(); i++)
+      for (i=0; i<this->Input->GetNumberOfPoints(); i++)
         {
         colors->SetColor(i,this->LookupTable->MapValue(scalars->GetScalar(i)));
         }
@@ -118,22 +118,22 @@ void vlPolyMapper::Render(vlRenderer *ren)
       colors = 0;
       }
 
-    if (this->VertsVisibility && this->Input->NumberOfVerts())
+    if (this->VertsVisibility && this->Input->GetNumberOfVerts())
       {
       if (!this->Verts) this->Verts = ren->GetPrimitive("points");
       this->Verts->Build(this->Input,colors);
       }
-    if ( this->LinesVisibility && this->Input->NumberOfLines())
+    if ( this->LinesVisibility && this->Input->GetNumberOfLines())
       {
       if (!this->Lines) this->Lines = ren->GetPrimitive("lines");
       this->Lines->Build(this->Input,colors);
       }
-    if ( this->PolysVisibility && this->Input->NumberOfPolys())
+    if ( this->PolysVisibility && this->Input->GetNumberOfPolys())
       {
       if (!this->Polys) this->Polys = ren->GetPrimitive("polygons");
       this->Polys->Build(this->Input,colors);
       }
-    if ( this->StripsVisibility && this->Input->NumberOfStrips())
+    if ( this->StripsVisibility && this->Input->GetNumberOfStrips())
       {
       if (!this->Strips) this->Strips = ren->GetPrimitive("triangle_strips");
       this->Strips->Build(this->Input,colors);
@@ -143,19 +143,19 @@ void vlPolyMapper::Render(vlRenderer *ren)
     }
 
   // draw the primitives
-  if (this->VertsVisibility && this->Input->NumberOfVerts())
+  if (this->VertsVisibility && this->Input->GetNumberOfVerts())
     {
     this->Verts->Draw(ren);
     }
-  if ( this->LinesVisibility && this->Input->NumberOfLines())
+  if ( this->LinesVisibility && this->Input->GetNumberOfLines())
     {
     this->Lines->Draw(ren);
     }
-  if ( this->PolysVisibility && this->Input->NumberOfPolys())
+  if ( this->PolysVisibility && this->Input->GetNumberOfPolys())
     {
     this->Polys->Draw(ren);
     }
-  if ( this->StripsVisibility && this->Input->NumberOfStrips())
+  if ( this->StripsVisibility && this->Input->GetNumberOfStrips())
     {
     this->Strips->Draw(ren);
     }

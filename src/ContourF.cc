@@ -97,7 +97,7 @@ void vlContourFilter::Execute()
   for (i=0; i<this->NumberOfContours; i++)
     {
     value = this->Values[i];
-    for (cellId=0; cellId<Input->NumberOfCells(); cellId++)
+    for (cellId=0; cellId<Input->GetNumberOfCells(); cellId++)
       {
       cell = Input->GetCell(cellId);
       cellPts = cell->GetPointIds();

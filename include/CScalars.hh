@@ -37,7 +37,7 @@ public:
   vlCharScalars(const int sz, const int ext=1000):S(sz,ext){};
   ~vlCharScalars() {};
   char *GetClassName() {return "vlCharScalars";};
-  int NumberOfScalars() {return (this->S.GetMaxId()+1);};
+  int GetNumberOfScalars() {return (this->S.GetMaxId()+1);};
   void Reset() {this->S.Reset();};
   void Squeeze() {this->S.Squeeze();};
   vlCharScalars &operator=(const vlCharScalars& cs);

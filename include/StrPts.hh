@@ -44,8 +44,8 @@ public:
 
   // dataset interface
   vlDataSet *MakeObject() {return new vlStructuredPoints(*this);};
-  int NumberOfCells();
-  int NumberOfPoints(); 
+  int GetNumberOfCells();
+  int GetNumberOfPoints(); 
   float *GetPoint(int ptId);
   vlCell *GetCell(int cellId);
   vlMapper *MakeMapper() {return (vlMapper *)0;};

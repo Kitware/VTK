@@ -33,8 +33,8 @@ public:
 
   // dataset interface
   vlDataSet *MakeObject() {return this->DataSet->MakeObject();};
-  int NumberOfCells() {return this->DataSet->NumberOfCells();}
-  int NumberOfPoints() {return this->DataSet->NumberOfPoints();}
+  int GetNumberOfCells() {return this->DataSet->GetNumberOfCells();}
+  int GetNumberOfPoints() {return this->DataSet->GetNumberOfPoints();}
   float *GetPoint(int i) {return this->DataSet->GetPoint(i);}
   vlCell *GetCell(int cellId) {return this->DataSet->GetCell(cellId);}
   void Initialize();

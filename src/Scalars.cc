@@ -28,7 +28,7 @@ vlScalars::vlScalars()
 
 void vlScalars::GetScalars(vlIdList& ptId, vlFloatScalars& fs)
 {
-  for (int i=0; i<ptId.NumberOfIds(); i++)
+  for (int i=0; i<ptId.GetNumberOfIds(); i++)
     {
     fs.InsertScalar(i,this->GetScalar(ptId.GetId(i)));
     }
@@ -42,7 +42,7 @@ void vlScalars::ComputeRange()
     {
     this->Range[0] =  LARGE_FLOAT;
     this->Range[1] =  -LARGE_FLOAT;
-    for (i=0; i<this->NumberOfScalars(); i++)
+    for (i=0; i<this->GetNumberOfScalars(); i++)
       {
       s = this->GetScalar(i);
       if ( s < this->Range[0] ) this->Range[0] = s;
@@ -67,7 +67,7 @@ void vlScalars::PrintSelf(ostream& os, vlIndent indent)
 
     vlObject::PrintSelf(os,indent);
 
-    os << indent << "Number Of Scalars: " << this->NumberOfScalars() << "\n";
+    os << indent << "Number Of Scalars: " << this->GetNumberOfScalars() << "\n";
     range = this->GetRange();
     os << indent << "Range: (" << range[0] << ", " << range[1] << ")\n";
     }

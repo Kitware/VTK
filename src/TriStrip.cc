@@ -35,7 +35,7 @@ float vlTriangleStrip::EvaluatePosition(float x[3], int& subId, float pcoords[3]
 
   pcoords[2] = 0.0;
 
-  for (minDist2=LARGE_FLOAT,i=0; i<this->Points.NumberOfPoints()-2; i++)
+  for (minDist2=LARGE_FLOAT,i=0; i<this->Points.GetNumberOfPoints()-2; i++)
     {
     tri.Points.SetPoint(0,this->Points.GetPoint(i));
     tri.Points.SetPoint(1,this->Points.GetPoint(i+1));
@@ -75,7 +75,7 @@ void vlTriangleStrip::Contour(float value, vlFloatScalars *cellScalars,
   int i;
   vlFloatScalars triScalars(3);
 
-  for ( i=0; i<this->Points.NumberOfPoints()-2; i++)
+  for ( i=0; i<this->Points.GetNumberOfPoints()-2; i++)
     {
     tri.Points.SetPoint(0,this->Points.GetPoint(i));
     tri.Points.SetPoint(1,this->Points.GetPoint(i+1));

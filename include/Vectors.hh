@@ -30,7 +30,7 @@ public:
  vlVectors();
   virtual ~vlVectors() {};
   virtual vlVectors *MakeObject(int sze, int ext=1000) = 0;
-  virtual int NumberOfVectors() = 0;
+  virtual int GetNumberOfVectors() = 0;
   virtual float *GetVector(int i) = 0;
   virtual void SetVector(int i,float x[3]) = 0;       // fast insert
   virtual void InsertVector(int i, float x[3]) = 0;   // allocates memory as necessary

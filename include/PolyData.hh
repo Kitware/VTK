@@ -37,8 +37,8 @@ public:
 
   // dataset interface
   vlDataSet *MakeObject();
-  int NumberOfPoints();
-  int NumberOfCells();
+  int GetNumberOfPoints();
+  int GetNumberOfCells();
   float *GetPoint(int ptId) {return this->Points->GetPoint(ptId);};
   vlCell *GetCell(int cellId);
   vlMapper *MakeMapper();
@@ -64,10 +64,10 @@ public:
   void SetStrips (vlCellArray* s);
   vlCellArray *GetStrips();
 
-  int NumberOfVerts();
-  int NumberOfLines();
-  int NumberOfPolys();
-  int NumberOfStrips();
+  int GetNumberOfVerts();
+  int GetNumberOfLines();
+  int GetNumberOfPolys();
+  int GetNumberOfStrips();
 
   // following stuff supports cell structure
   vlBooleanMacro(LoadVerts,int);

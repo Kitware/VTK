@@ -46,7 +46,7 @@ void vlDataSet::ComputeBounds()
     {
     this->Bounds[0] = this->Bounds[2] = this->Bounds[4] =  LARGE_FLOAT;
     this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -LARGE_FLOAT;
-    for (i=0; i<this->NumberOfPoints(); i++)
+    for (i=0; i<this->GetNumberOfPoints(); i++)
       {
       x = this->GetPoint(i);
       for (j=0; j<3; j++)

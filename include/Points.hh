@@ -30,7 +30,7 @@ public:
   vlPoints();
   virtual ~vlPoints() {};
   virtual vlPoints *MakeObject(int sze, int ext=1000) = 0;
-  virtual int NumberOfPoints() = 0;
+  virtual int GetNumberOfPoints() = 0;
   virtual float *GetPoint(int i) = 0;
   virtual void SetPoint(int i,float x[3]) = 0;       // fast insert
   virtual void InsertPoint(int i, float x[3]) = 0;   // allocates memory as necessary

@@ -113,7 +113,7 @@ void vlImplicitModeller::Execute()
 //
 // Traverse all cells; computing distance function on volume points.
 //
-  for (cellNum=0; cellNum < this->Input->NumberOfCells(); cellNum++)
+  for (cellNum=0; cellNum < this->Input->GetNumberOfCells(); cellNum++)
     {
     cell = this->Input->GetCell(cellNum);
     bounds = cell->GetBounds();

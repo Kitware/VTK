@@ -22,7 +22,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 void vlTCoords::GetTCoords(vlIdList& ptId, vlFloatTCoords& ftc)
 {
-  for (int i=0; i<ptId.NumberOfIds(); i++)
+  for (int i=0; i<ptId.GetNumberOfIds(); i++)
     {
     ftc.InsertTCoord(i,this->GetTCoord(ptId.GetId(i)));
     }
@@ -34,7 +34,7 @@ void vlTCoords::PrintSelf(ostream& os, vlIndent indent)
     {
     vlObject::PrintSelf(os,indent);
 
-    os << indent << "Number Of Texture Coordinates: " << this->NumberOfTCoords() << "\n";
+    os << indent << "Number Of Texture Coordinates: " << this->GetNumberOfTCoords() << "\n";
     os << indent << "Texture Dimension: " << this->Dimension << "\n";
     }
 }

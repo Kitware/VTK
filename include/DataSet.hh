@@ -6,9 +6,11 @@
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
-contents may be copied, reproduced or altered in any way without the express
-written consent of the authors.
+Description:
+---------------------------------------------------------------------------
+This file is part of the Visualization Library. No part of this file
+or its contents may be copied, reproduced or altered in any way
+without the express written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
@@ -34,8 +36,8 @@ public:
   void PrintSelf(ostream& os, vlIndent indent);
 
   virtual vlDataSet *MakeObject() = 0;
-  virtual int NumberOfCells() = 0;
-  virtual int NumberOfPoints() = 0;
+  virtual int GetNumberOfCells() = 0;
+  virtual int GetNumberOfPoints() = 0;
   virtual float *GetPoint(int ptId) = 0;
   virtual vlCell *GetCell(int cellId) = 0;
   virtual vlMapper *MakeMapper() = 0;

@@ -160,28 +160,28 @@ void vlPointData::CopyInitialize(vlPointData* pd, int sFlg, int vFlg, int nFlg, 
   if ( (this->CopyScalars = sFlg) && (s = pd->GetScalars()) ) 
     {
     if ( sze > 0 ) newScalars = s->MakeObject(sze,ext);
-    else newScalars = s->MakeObject(s->NumberOfScalars());
+    else newScalars = s->MakeObject(s->GetNumberOfScalars());
     this->SetScalars(newScalars);
     }
 
   if ( (this->CopyVectors = vFlg) && (v = pd->GetVectors()) ) 
     {
     if ( sze > 0 ) newVectors = v->MakeObject(sze,ext);
-    else newVectors = v->MakeObject(v->NumberOfVectors());
+    else newVectors = v->MakeObject(v->GetNumberOfVectors());
     this->SetVectors(newVectors);
     }
 
   if ( (this->CopyNormals = nFlg) && (n = pd->GetNormals()) ) 
     {
     if ( sze > 0 ) newNormals = n->MakeObject(sze,ext);
-    else newNormals = n->MakeObject(n->NumberOfNormals());
+    else newNormals = n->MakeObject(n->GetNumberOfNormals());
     this->SetNormals(newNormals);
     }
 
   if ( (this->CopyTCoords = tFlg) && (t = pd->GetTCoords()) ) 
     {
     if ( sze > 0 ) newTCoords = t->MakeObject(sze,t->GetDimension(),ext);
-    else newTCoords = t->MakeObject(t->NumberOfTCoords(),t->GetDimension());
+    else newTCoords = t->MakeObject(t->GetNumberOfTCoords(),t->GetDimension());
     this->SetTCoords(newTCoords);
     }
 };

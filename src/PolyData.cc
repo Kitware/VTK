@@ -283,32 +283,33 @@ void vlPolyData::Initialize()
 
 };
 
-int vlPolyData::NumberOfCells() 
+int vlPolyData::GetNumberOfCells() 
 {
-  return NumberOfVerts() + NumberOfLines() + NumberOfPolys() + NumberOfStrips();
+  return GetNumberOfVerts() + GetNumberOfLines() + 
+         GetNumberOfPolys() + GetNumberOfStrips();
 }
 
-int vlPolyData::NumberOfPoints() 
+int vlPolyData::GetNumberOfPoints() 
 {
-  return (this->Points ? this->Points->NumberOfPoints() : 0);
+  return (this->Points ? this->Points->GetNumberOfPoints() : 0);
 }
 
-int vlPolyData::NumberOfVerts() 
+int vlPolyData::GetNumberOfVerts() 
 {
   return (this->Verts ? this->Verts->GetNumberOfCells() : 0);
 }
 
-int vlPolyData::NumberOfLines() 
+int vlPolyData::GetNumberOfLines() 
 {
   return (this->Lines ? this->Lines->GetNumberOfCells() : 0);
 }
 
-int vlPolyData::NumberOfPolys() 
+int vlPolyData::GetNumberOfPolys() 
 {
   return (this->Polys ? this->Polys->GetNumberOfCells() : 0);
 }
 
-int vlPolyData::NumberOfStrips() 
+int vlPolyData::GetNumberOfStrips() 
 {
   return (this->Strips ? this->Strips->GetNumberOfCells() : 0);
 }
@@ -343,11 +344,11 @@ void vlPolyData::PrintSelf(ostream& os, vlIndent indent)
     {
     vlDataSet::PrintSelf(os,indent);
     
-    os << indent << "Number Of Points: " << this->NumberOfPoints() << "\n";
-    os << indent << "Number Of Vertices: " << this->NumberOfVerts() << "\n";
-    os << indent << "Number Of Lines: " << this->NumberOfLines() << "\n";
-    os << indent << "Number Of Polygons: " << this->NumberOfPolys() << "\n";
-    os << indent << "Number Of Triangle Strips: " << this->NumberOfStrips() << "\n";
+    os << indent << "Number Of Points: " << this->GetNumberOfPoints() << "\n";
+    os << indent << "Number Of Vertices: " << this->GetNumberOfVerts() << "\n";
+    os << indent << "Number Of Lines: " << this->GetNumberOfLines() << "\n";
+    os << indent << "Number Of Polygons: " << this->GetNumberOfPolys() << "\n";
+    os << indent << "Number Of Triangle Strips: " << this->GetNumberOfStrips() << "\n";
     os << indent << "Load Verts: " << (this->LoadVerts ? "On\n" : "Off\n");
     os << indent << "Load Lines: " << (this->LoadLines ? "On\n" : "Off\n");
     os << indent << "Load Polys: " << (this->LoadPolys ? "On\n" : "Off\n");
@@ -380,16 +381,16 @@ void vlPolyData::BuildCells()
 
   if ( ! this->TriangleMesh )
     {
-    if (this->LoadVerts) numCells += this->NumberOfVerts();
-    if (this->LoadLines) numCells += this->NumberOfLines();
-    if (this->LoadPolys) numCells += this->NumberOfPolys();
-    if (this->LoadStrips) numCells += this->NumberOfStrips();
+    if (this->LoadVerts) numCells += this->GetNumberOfVerts();
+    if (this->LoadLines) numCells += this->GetNumberOfLines();
+    if (this->LoadPolys) numCells += this->GetNumberOfPolys();
+    if (this->LoadStrips) numCells += this->GetNumberOfStrips();
     }
   else
     {
     // an initial estimate
-    numCells += this->NumberOfPolys();
-    numCells += this->NumberOfStrips();
+    numCells += this->GetNumberOfPolys();
+    numCells += this->GetNumberOfStrips();
     }
 
   if ( ! inPoints || numCells < 1 ) 
@@ -499,7 +500,7 @@ void vlPolyData::BuildCells()
           {
           poly.Initialize(npts,pts,inPoints);
           poly.Triangulate(outVerts);
-          for (i=0; i<outVerts.NumberOfIds()/3; i++)
+          for (i=0; i<outVerts.GetNumberOfIds()/3; i++)
             {
             cells->InsertNextCell(vlTRIANGLE,polys->GetLocation(npts));
             polys->InsertNextCell(3);

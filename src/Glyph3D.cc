@@ -67,7 +67,7 @@ void vlGlyph3D::Execute()
   inScalars = pd->GetScalars();
   inVectors = pd->GetVectors();
 
-  numPts = this->Input->NumberOfPoints();
+  numPts = this->Input->GetNumberOfPoints();
 
   if ( ! this->Source )
     {
@@ -87,7 +87,7 @@ void vlGlyph3D::Execute()
   sourcePolys = this->Source->GetPolys();
   sourceStrips = this->Source->GetStrips();
 
-  newPts = new vlFloatPoints(numPts*sourcePts->NumberOfPoints());
+  newPts = new vlFloatPoints(numPts*sourcePts->GetNumberOfPoints());
   newVerts = new vlCellArray(numPts*sourceVerts->GetSize());
   newLines = new vlCellArray(numPts*sourceLines->GetSize());
   newPolys = new vlCellArray(numPts*sourcePolys->GetSize());

@@ -11,7 +11,7 @@ public:
   vlIdList(const int sz, const int ext=100):Ia(sz,ext) {};
   ~vlIdList() {};
 
-  int NumberOfIds() {return (this->Ia.GetMaxId() + 1);};
+  int GetNumberOfIds() {return (this->Ia.GetMaxId() + 1);};
   int GetId(const int i) {return this->Ia[i];};
   void SetId(const int i, const int id) {this->Ia[i]=id;};
   void InsertId(const int i, const int id) {this->Ia.InsertValue(i,id);};

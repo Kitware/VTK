@@ -108,7 +108,7 @@ void vlPolygon::ComputeNormal(vlFloatPoints *p, float *n)
 //  Because some polygon vertices are colinear, need to make sure
 //  first non-zero normal is found.
 //
-  numPts = p->NumberOfPoints();
+  numPts = p->GetNumberOfPoints();
   v1 = p->GetPoint(0);
   v2 = p->GetPoint(1);
   v3 = p->GetPoint(2);
@@ -167,7 +167,7 @@ float vlPolygon::EvaluatePosition(float x[3], int& subId, float pcoords[3])
   int ignoreId, numPts;
   vlFloatPoints pts(2);
 
-  numPts = this->Points.NumberOfPoints();
+  numPts = this->Points.GetNumberOfPoints();
   for (minDist2=LARGE_FLOAT,i=0; i<numPts - 1; i++)
     {
     line.Points.SetPoint(0,this->Points.GetPoint(i));
@@ -202,7 +202,7 @@ int vlPolygon::ParameterizePolygon(float *p0, float *p10, float& l10,
 {
   int i, j;
   float s, t, p[3], p1[3], p2[3], sbounds[2], tbounds[2];
-  int numPts=this->Points.NumberOfPoints();
+  int numPts=this->Points.GetNumberOfPoints();
   float *x1, *x2;
   vlMath math;
 //
@@ -285,7 +285,7 @@ int vlPolygon::PointInPolygon (float bounds[6], float *x, float *n)
   int deltaVotes;
   vlMath math;
   vlLine line;
-  int numPts=this->Points.NumberOfPoints();
+  int numPts=this->Points.GetNumberOfPoints();
 //
 //  Define a ray to fire.  The ray is a random ray normal to the
 //  normal of the face.  The length of the ray is a function of the
@@ -429,7 +429,7 @@ int vlPolygon::Triangulate(vlIdList &outTris)
   int i, success;
   float *bounds, d;
   int verts[MAX_CELL_SIZE];
-  int numVerts=this->PointIds.NumberOfIds();
+  int numVerts=this->PointIds.GetNumberOfIds();
 
   bounds = this->GetBounds();
   
@@ -452,7 +452,7 @@ int vlPolygon::Triangulate(vlIdList &outTris)
     }
   else // Copy the point id's into the supplied Id array
     {
-    for (i=0; i<Tris.NumberOfIds(); i++)
+    for (i=0; i<Tris.GetNumberOfIds(); i++)
       {
       outTris.InsertId(i,this->PointIds.GetId(Tris.GetId(i)));
       }
@@ -652,7 +652,7 @@ void vlPolygon::Contour(float value, vlFloatScalars *cellScalars,
                         vlCellArray *polys, vlFloatScalars *scalars)
 {
   int i, success;
-  int numVerts=this->Points.NumberOfPoints();
+  int numVerts=this->Points.GetNumberOfPoints();
   float *bounds, d;
   int polyVerts[MAX_CELL_SIZE];
   static vlTriangle tri;
@@ -678,7 +678,7 @@ void vlPolygon::Contour(float value, vlFloatScalars *cellScalars,
     }
   else // Contour triangle
     {
-    for (i=0; i<Tris.NumberOfIds(); i += 3)
+    for (i=0; i<Tris.GetNumberOfIds(); i += 3)
       {
       tri.Points.SetPoint(0,this->Points.GetPoint(i));
       tri.Points.SetPoint(1,this->Points.GetPoint(i+1));

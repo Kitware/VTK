@@ -51,7 +51,7 @@ void vlSTLReader::Execute()
     if ( this->ReadBinarySTL(fp,newPts,newPolys) ) return;
     }
 
-  vlDebugMacro(<< "Read " << newPts->NumberOfPoints() << " points");
+  vlDebugMacro(<< "Read " << newPts->GetNumberOfPoints() << " points");
   vlDebugMacro(<< "Read " << newPolys->GetNumberOfCells() << " triangles");
 //
 // Since we sized the dynamic arrays arbitrarily to begin with 

@@ -30,7 +30,7 @@ public:
   vlScalars();
   virtual ~vlScalars() {};
   virtual vlScalars *MakeObject(int sze, int ext=1000) = 0;
-  virtual int NumberOfScalars() = 0;
+  virtual int GetNumberOfScalars() = 0;
   virtual float GetScalar(int i) = 0;
   virtual void SetScalar(int i, float s) = 0;     // fast insert
   virtual void InsertScalar(int i, float s) = 0;  // allocates memory as necessary

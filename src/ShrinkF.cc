@@ -32,22 +32,22 @@ void vlShrinkFilter::Execute()
 // then create new vertices shrunk towards center.
 //
 /*
-  for (i=0; i<this->Input->NumberOfCells(); i++)
+  for (i=0; i<this->Input->GetNumberOfCells(); i++)
     {
     // get the center of the cell
     this->CellPoints(i,ptId);
-    if ( ptId.NumberOfIds() > 0 )
+    if ( ptId.GetNumberOfIds() > 0 )
       {
       this->GetPoints(ptId, pt);
-      for (center[0]=center[1]=center[2]=0.0, j=0; j<pt.NumberOfPoints(); j++)
+      for (center[0]=center[1]=center[2]=0.0, j=0; j<pt.GetNumberOfPoints(); j++)
         {
         p = pt.GetPoint(j);
         for (k=0; k<3; k++) center[k] += p[k];
         }
-      for (k=0; k<3; k++) center[k] /= pt.NumberOfPoints();
+      for (k=0; k<3; k++) center[k] /= pt.GetNumberOfPoints();
 
       // Create new points and cells
-      for (j=0; j<pt.NumberOfPoints(); j++)
+      for (j=0; j<pt.GetNumberOfPoints(); j++)
         {
         
 
