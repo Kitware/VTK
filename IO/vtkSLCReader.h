@@ -50,13 +50,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkSLCReader_h
 
 #include <stdio.h>
-#include "vtkStructuredPointsSource.h"
+#include "vtkImageReader2.h"
 
-class VTK_IO_EXPORT vtkSLCReader : public vtkStructuredPointsSource 
+class VTK_IO_EXPORT vtkSLCReader : public vtkImageReader2 
 {
 public:
   static vtkSLCReader *New();
-  vtkTypeRevisionMacro(vtkSLCReader,vtkStructuredPointsSource);
+  vtkTypeRevisionMacro(vtkSLCReader,vtkImageReader2);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -68,6 +68,10 @@ public:
   // Was there an error on the last read performed?
   vtkGetMacro(Error,int);
   
+  // Description:
+  // Is the given file an SLC file?
+  int CanReadFile(const char* fname);
+
 protected:
   vtkSLCReader();
   ~vtkSLCReader();
@@ -76,7 +80,7 @@ protected:
   char *FileName;
 
   // Reads the file name and builds a vtkStructuredPoints dataset.
-  void Execute();
+  virtual void ExecuteData(vtkDataObject*);
 
   // Not used now, but will be needed when this is made into an 
   // imaging filter.

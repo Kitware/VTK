@@ -44,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkSLCReader, "1.37");
+vtkCxxRevisionMacro(vtkSLCReader, "1.38");
 vtkStandardNewMacro(vtkSLCReader);
 
 // Constructor for a vtkSLCReader.
@@ -118,7 +118,7 @@ void vtkSLCReader::ExecuteInformation()
   int   magic_num;
 
   this->Error = 1;
-  vtkStructuredPoints *output = this->GetOutput();
+  vtkImageData *output = this->GetOutput();
 
   if (!this->FileName)
     {
@@ -168,11 +168,13 @@ void vtkSLCReader::ExecuteInformation()
 }
           
 // Reads an SLC file and creates a vtkStructuredPoints dataset.
-void vtkSLCReader::Execute()
-{
+void vtkSLCReader::ExecuteData(vtkDataObject* )
+{ 
+  vtkImageData *output = this->GetOutput();
+  
+  output->SetExtent(output->GetWholeExtent());
+  output->AllocateScalars();
   FILE *fp;
-
-  vtkUnsignedCharArray *newScalars;
 
   int   temp;
   int   data_compression;
@@ -184,15 +186,12 @@ void vtkSLCReader::Execute()
   int   z_counter;
   int   icon_width, icon_height;
   int   compressed_size;
-  int   i;
 
   unsigned char *icon_ptr = NULL;
   unsigned char *compressed_ptr = NULL;
   unsigned char *scan_ptr = NULL;
-  unsigned char *sptr = NULL;
 
   this->Error = 1;
-  vtkStructuredPoints *output = this->GetOutput();
   
   if (!this->FileName)
     {
@@ -239,8 +238,6 @@ void vtkSLCReader::Execute()
 
   plane_size = size[0] * size[1];
   volume_size = plane_size * size[2];
-  newScalars = vtkUnsignedCharArray::New();
-  newScalars->SetNumberOfTuples(volume_size);
 
   // Skip Over Icon
   fscanf( fp, "%d %d X", &icon_width,  &icon_height );
@@ -274,7 +271,6 @@ void vtkSLCReader::Execute()
           {
           vtkErrorMacro( << 
             "Unable to read slice " << z_counter << " from SLC File" );
-          newScalars->Delete();
           return;
           }
 
@@ -296,7 +292,6 @@ void vtkSLCReader::Execute()
           {
           vtkErrorMacro( << "Unable to read compressed slice " << 
             z_counter << " from SLC File" );
-          newScalars->Delete();
           return;
           }
 
@@ -309,29 +304,37 @@ void vtkSLCReader::Execute()
           data_compression );
         break;
       }
-
-    sptr = scan_ptr;
-
-    // Copy plane into volume
-    for( i=0; i<plane_size; i++ )
-      {
-      newScalars->SetValue( (z_counter*plane_size + i), *sptr++ );
-      }
+    void* outputSlice = output->GetScalarPointer(0, 0, z_counter);
+    memcpy(outputSlice, scan_ptr, plane_size);
     }
 
   delete [] scan_ptr;
 
   vtkDebugMacro(<< "Read " << volume_size << " points");
 
-  if( newScalars )
-    {
-    output->GetPointData()->SetScalars(newScalars);
-    newScalars->Delete();
-    }
-
   fclose( fp );
   this->Error = 0;
 }
+
+int vtkSLCReader::CanReadFile(const char* fname)
+{
+  FILE* fp;
+  int   magic_num;
+  if ((fp = fopen(fname, "rb")) == NULL)
+    {
+    return 0;
+    }
+
+  fscanf( fp, "%d", &magic_num );
+  if( magic_num != 11111 )
+    {
+    fclose(fp);
+    return 0;
+    }
+  return 1;
+  fclose(fp);
+}
+
 
 void vtkSLCReader::PrintSelf(ostream& os, vtkIndent indent)
 {
