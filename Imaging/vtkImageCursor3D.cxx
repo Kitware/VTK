@@ -15,9 +15,11 @@
 #include "vtkImageCursor3D.h"
 
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageCursor3D, "1.19");
+vtkCxxRevisionMacro(vtkImageCursor3D, "1.20");
 vtkStandardNewMacro(vtkImageCursor3D);
 
 //----------------------------------------------------------------------------
@@ -108,14 +110,20 @@ void vtkImageCursor3DExecute(vtkImageCursor3D *self,
 
 //----------------------------------------------------------------------------
 // Split up into finished and border datas.  Fill the border datas.
-void vtkImageCursor3D::ExecuteData(vtkDataObject *out)
+void vtkImageCursor3D::RequestData(
+  vtkInformation* request,
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
 {
   void *ptr = NULL;
   
   // let superclass allocate data
-  this->vtkImageInPlaceFilter::ExecuteData(out);
+  this->Superclass::RequestData(request, inputVector, outputVector);
 
-  vtkImageData *outData = this->GetOutput();
+  // get the data object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkImageData *outData = 
+    vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
   
   switch (outData->GetScalarType())
     {

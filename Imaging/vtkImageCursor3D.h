@@ -54,8 +54,10 @@ protected:
   double CursorValue;
   int CursorRadius;
   
-  // not threaded because it's too simple a filter
-  void ExecuteData(vtkDataObject *outData);
+  virtual void RequestData(vtkInformation *request,
+                           vtkInformationVector** inputVector,
+                           vtkInformationVector* outputVector);
+
 private:
   vtkImageCursor3D(const vtkImageCursor3D&);  // Not implemented.
   void operator=(const vtkImageCursor3D&);  // Not implemented.

@@ -26,19 +26,22 @@
 #ifndef __vtkImageInPlaceFilter_h
 #define __vtkImageInPlaceFilter_h
 
-#include "vtkImageToImageFilter.h"
+#include "vtkImageAlgorithm.h"
 
-class VTK_FILTERING_EXPORT vtkImageInPlaceFilter : public vtkImageToImageFilter
+class VTK_FILTERING_EXPORT vtkImageInPlaceFilter : public vtkImageAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkImageInPlaceFilter,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageInPlaceFilter,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
   vtkImageInPlaceFilter();
   ~vtkImageInPlaceFilter();
 
-  virtual void ExecuteData(vtkDataObject *out);
+  virtual void RequestData(vtkInformation *request,
+                           vtkInformationVector** inputVector,
+                           vtkInformationVector* outputVector);
+
   void CopyData(vtkImageData *in, vtkImageData *out);
   
 private:

@@ -15,10 +15,13 @@
 #include "vtkImageInPlaceFilter.h"
 
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageInPlaceFilter, "1.40");
+vtkCxxRevisionMacro(vtkImageInPlaceFilter, "1.41");
 
 //----------------------------------------------------------------------------
 vtkImageInPlaceFilter::vtkImageInPlaceFilter()
@@ -32,23 +35,23 @@ vtkImageInPlaceFilter::~vtkImageInPlaceFilter()
 
 //----------------------------------------------------------------------------
 
-void vtkImageInPlaceFilter::ExecuteData(vtkDataObject *vtkNotUsed(out))
+void vtkImageInPlaceFilter::RequestData(
+  vtkInformation* vtkNotUsed( request ),
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
 {
-  vtkImageData *output = this->GetOutput();
+  // get the data object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkImageData *output = 
+    vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkImageData *input = 
+    vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   int *inExt, *outExt;
-  
-  // Too many filters have floating point exceptions to execute
-  // with empty input/ no request.
-  if (this->UpdateExtentIsEmpty(output))
-    {
-    return;
-    }
-
-  inExt = this->GetInput()->GetUpdateExtent();
-  outExt = this->GetOutput()->GetUpdateExtent();
-
-  vtkImageData *input;
-  input = this->GetInput();
+  inExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+  outExt = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
 
   if ((inExt[0] == outExt[0])&&(inExt[1] == outExt[1])&&
       (inExt[2] == outExt[2])&&(inExt[3] == outExt[3])&&
@@ -57,11 +60,12 @@ void vtkImageInPlaceFilter::ExecuteData(vtkDataObject *vtkNotUsed(out))
     {
     // pass the data
     output->GetPointData()->PassData(input->GetPointData());
-    output->SetExtent(this->GetInput()->GetExtent());
+    inExt = inInfo->Get(vtkDataObject::DATA_EXTENT());
+    output->SetExtent(inExt);
     }
   else
     {
-    output->SetExtent(output->GetUpdateExtent());
+    output->SetExtent(outExt);
     output->AllocateScalars();
     this->CopyData(input,output);
     }
