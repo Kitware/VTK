@@ -610,7 +610,7 @@ void vtkWin32OpenGLRenderWindow::WindowInitialize (void)
       // has the class been registered ?
       if (!GetClassInfo(this->ApplicationInstance,"vtkOpenGL",&wndClass))
         {
-        wndClass.style = CS_HREDRAW | CS_VREDRAW;
+        wndClass.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
         wndClass.lpfnWndProc = vtkWin32OpenGLRenderWindow::WndProc;
         wndClass.cbClsExtra = 0;
         wndClass.hInstance = this->ApplicationInstance;
