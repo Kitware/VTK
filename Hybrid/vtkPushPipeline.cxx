@@ -103,7 +103,7 @@ public:
   vtkPushPipeline *PushPipeline;
 };
 
-vtkCxxRevisionMacro(vtkPushPipeline, "1.1");
+vtkCxxRevisionMacro(vtkPushPipeline, "1.2");
 vtkStandardNewMacro(vtkPushPipeline);
 
 vtkPushPipeline::vtkPushPipeline()
@@ -876,4 +876,11 @@ void vtkPushPipeline::SetupRenderer(vtkRenderer *ren)
         }
       }
     }
+}
+
+void vtkPushPipeline::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+  
+  os << indent << "RunState: " << this->RunState << "\n";
 }

@@ -53,7 +53,7 @@ public:
     }
 };
 
-vtkCxxRevisionMacro(vtkPushImageReader, "1.1");
+vtkCxxRevisionMacro(vtkPushImageReader, "1.2");
 vtkStandardNewMacro(vtkPushImageReader);
 
 vtkPushImageReader::vtkPushImageReader()
@@ -215,4 +215,12 @@ void vtkPushImageReader::Run()
     this->PushPipeline = vtkPushPipeline::New();
     }
   this->PushPipeline->Run(this);
+}
+
+void vtkPushImageReader::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+  
+  os << indent << "CurrentSlice: " << this->CurrentSlice << "\n";
+  os << indent << "PushPipeline: " << this->PushPipeline << "\n";
 }

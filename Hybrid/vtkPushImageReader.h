@@ -35,6 +35,7 @@ class VTK_HYBRID_EXPORT vtkPushImageReader : public vtkImageReader2
 public:
   static vtkPushImageReader *New();
   vtkTypeRevisionMacro(vtkPushImageReader,vtkImageReader2);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // What is the current slice of this reader

@@ -47,6 +47,7 @@ class VTK_HYBRID_EXPORT vtkPushPipeline : public vtkObject
 public:
   static vtkPushPipeline *New();
   vtkTypeRevisionMacro(vtkPushPipeline,vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Add a Pusher object to the pipeline
