@@ -136,7 +136,7 @@ void vtkInteractorStyleJoystickActor::RotateXY(int x, int y)
   vtkRenderWindowInteractor *rwi = this->Interactor;
   vtkCamera *cam;
 
-  if (this->CurrentRenderer == NULL)
+  if ( this->CurrentRenderer == NULL || this->InteractionProp == NULL )
     {
     return;
     }
@@ -233,7 +233,7 @@ void vtkInteractorStyleJoystickActor::RotateXY(int x, int y)
 //----------------------------------------------------------------------------
 void vtkInteractorStyleJoystickActor::PanXY(int x, int y)
 {
-  if (this->CurrentRenderer == NULL)
+  if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
     {
     return;
     }
@@ -290,7 +290,7 @@ void vtkInteractorStyleJoystickActor::DollyXY(int vtkNotUsed(x), int y)
 {
   vtkCamera *cam;
   
-  if (this->CurrentRenderer == NULL)
+  if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
     {
     return;
     }
@@ -350,7 +350,7 @@ void vtkInteractorStyleJoystickActor::SpinXY(int vtkNotUsed(x), int y)
   vtkRenderWindowInteractor *rwi = this->Interactor;
   vtkCamera *cam;
 
-  if (this->CurrentRenderer == NULL)
+  if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
     {
     return;
     }
@@ -421,7 +421,7 @@ void vtkInteractorStyleJoystickActor::ScaleXY(int vtkNotUsed(x), int y)
 {
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
-  if (this->CurrentRenderer == NULL)
+  if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
     {
     return;
     }
@@ -463,7 +463,7 @@ void vtkInteractorStyleJoystickActor::OnLeftButtonDown(int ctrl, int shift,
   this->FindPokedRenderer(x, y);
   this->FindPickedActor(x, y);
   
-  if (this->CurrentRenderer == NULL)
+  if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
     {
     return;
     }
