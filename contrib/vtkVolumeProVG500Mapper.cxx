@@ -439,20 +439,19 @@ void vtkVolumeProVG500Mapper::UpdateProperties( vtkRenderer *vtkNotUsed(ren),
       }
 
     gradientTable = new double [this->GradientTableSize];
+    float *spacing = this->GetInput()->GetSpacing();
+    float avgSpacing = 0.333*(spacing[0] + spacing[1] + spacing[2]);
+    scale = scale/(avgSpacing*(this->GradientTableSize-1));
+    
     for ( i = 0; i < this->GradientTableSize; i++ )
       {
       // Take an average of five values in the region
-      gradientTable[i] = 0.2 * 
-        ( goFunc->GetValue( scale*((float)i) /
-                           (float)this->GradientTableSize ) +
-          goFunc->GetValue(scale*((float)i+0.2) /
-                           (float)this->GradientTableSize ) +
-          goFunc->GetValue(scale*((float)i+0.4) /
-                           (float)this->GradientTableSize ) +
-          goFunc->GetValue(scale*((float)i+0.6) /
-                           (float)this->GradientTableSize ) +
-          goFunc->GetValue(scale*((float)i+0.8) /
-                           (float)this->GradientTableSize ) );
+      gradientTable[i] = 0.2 * ( 
+        goFunc->GetValue(scale*((float)i - 0.4))  +
+        goFunc->GetValue(scale*((float)i-0.2)) +
+        goFunc->GetValue(scale*((float)i)) +
+        goFunc->GetValue(scale*((float)i+0.2)) +
+        goFunc->GetValue(scale*((float)i+0.4)));
       }
     
     this->Context->SetGradientOpacityModulation( VLItrue );
