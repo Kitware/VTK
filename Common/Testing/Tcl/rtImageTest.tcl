@@ -46,8 +46,10 @@ if { [catch {set VTK_BASELINE_ROOT $env(VTK_BASELINE_ROOT)}] != 0} {
 
 set validImageFound 0
 for {set i  1} {$i < [expr $argc - 1]} {incr i} {
-   if {[lindex $argv $i] == "-A"} {
-      linsert auto_path 0 [lindex $argv [expr $i +1]]
+  if {[lindex $argv $i] == "-A"} {
+    foreach dir [split [lindex $argv [expr $i +1]] ":"] {
+      lappend auto_path $dir
+    }
    }
    if {[lindex $argv $i] == "-V"} {
       set validImageFound 1
