@@ -31,7 +31,7 @@ viewer SetColorLevel 127
 [viewer GetActor2D] SetDisplayPosition 220 220
 viewer Render
 
-wm withdraw .
+source WindowLevelInterface.tcl
 
 
 
