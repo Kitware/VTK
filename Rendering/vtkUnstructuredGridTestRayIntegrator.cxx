@@ -20,7 +20,7 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkPiecewiseFunction.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridTestRayIntegrator, "1.5");
+vtkCxxRevisionMacro(vtkUnstructuredGridTestRayIntegrator, "1.6");
 vtkStandardNewMacro(vtkUnstructuredGridTestRayIntegrator);
 
 template<class T>
@@ -51,6 +51,7 @@ vtkUnstructuredGridTestRayIntegrator::vtkUnstructuredGridTestRayIntegrator()
   this->SavedSampleDistance          = 0.0;
   this->SavedNumberOfComponents      = 0;
   this->SavedParametersScalars       = NULL;
+  this->ScalarOpacityUnitDistance    = 0.0;
 }
 
 //-----------------------------------------------------------------------------
