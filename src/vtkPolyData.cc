@@ -161,7 +161,7 @@ vtkCell *vtkPolyData::GetCell(int cellId)
       break;
 
     case VTK_POLY_LINE:
-      pline.PointIds.Reset(); //reset number of cells
+      pline.PointIds.Reset(); //reset number of points
       cell = &pline;
       this->Lines->GetCell(loc,numPts,pts);
       break;
@@ -177,13 +177,13 @@ vtkCell *vtkPolyData::GetCell(int cellId)
       break;
 
     case VTK_POLYGON:
-      poly.PointIds.Reset(); //reset number of cells
+      poly.PointIds.Reset(); //reset number of points
       cell = &poly;
       this->Polys->GetCell(loc,numPts,pts);
       break;
 
     case VTK_TRIANGLE_STRIP:
-      strip.PointIds.Reset(); //reset number of cells
+      strip.PointIds.Reset(); //reset number of points
       cell = &strip;
       this->Strips->GetCell(loc,numPts,pts);
       break;
