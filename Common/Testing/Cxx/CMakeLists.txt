@@ -18,6 +18,7 @@ ADD_EXECUTABLE(otherLookupTable otherLookupTable)
 ADD_EXECUTABLE(otherByteSwap otherByteSwap)
 ADD_EXECUTABLE(otherCellArray otherCellArray)
 ADD_EXECUTABLE(otherCellTypes otherCellTypes)
+ADD_EXECUTABLE(typedefCallTest typedefCallTest)
 
 ADD_TEST(ObjectFactory ${CXX_TEST_PATH}/ObjectFactory)
 ADD_TEST(otherArrays ${CXX_TEST_PATH}/otherArrays)
@@ -32,4 +33,4 @@ ADD_TEST(otherLookupTable ${CXX_TEST_PATH}/otherLookupTable)
 ADD_TEST(otherByteSwap ${CXX_TEST_PATH}/otherByteSwap)
 ADD_TEST(otherCellArray ${CXX_TEST_PATH}/otherCellArray)
 ADD_TEST(otherCellTypes ${CXX_TEST_PATH}/otherCellTypes)
-
+ADD_TEST(typedefCallTest ${CXX_TEST_PATH}/typedefCallTest)
