@@ -56,7 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define id Id
 
-vtkCxxRevisionMacro(vtkQuartzRenderWindowInteractor, "1.6");
+vtkCxxRevisionMacro(vtkQuartzRenderWindowInteractor, "1.7");
 vtkStandardNewMacro(vtkQuartzRenderWindowInteractor);
 
 void (*vtkQuartzRenderWindowInteractor::ClassExitMethod)(void *) = (void (*)(void *))NULL;
@@ -91,12 +91,9 @@ void  vtkQuartzRenderWindowInteractor::Start()
 // Begin processing keyboard strokes.
 void vtkQuartzRenderWindowInteractor::Initialize()
 {
-  static int any_initialized = 0;
   vtkQuartzRenderWindow *ren;
-  int depth;
   int *size;
-  int *position;
-  int argc = 0;
+
   // make sure we have a RenderWindow and camera
   if ( ! this->RenderWindow) 
     {
@@ -112,14 +109,14 @@ void vtkQuartzRenderWindowInteractor::Initialize()
   ren = (vtkQuartzRenderWindow *)(this->RenderWindow);
   ren->Start();
   size    = ren->GetSize();
-  position= ren->GetPosition();
+  ren->GetPosition();
   this->WindowId = ren->GetWindowId();
   this->Enable();
   this->Size[0] = size[0];
   this->Size[1] = size[1];
-  [(vtkQuartzWindow *)this->WindowId setVTKRenderWindowInteractor:this];
-  [[(vtkQuartzWindow *)this->WindowId getvtkQuartzGLView] setVTKRenderWindowInteractor:this];
-  ren->Render();
+//  [(vtkQuartzWindow *)this->WindowId setVTKRenderWindowInteractor:this];
+//  [[(vtkQuartzWindow *)this->WindowId getvtkQuartzGLView] setVTKRenderWindowInteractor:this];
+//  ren->Render();
 }
 
 void vtkQuartzRenderWindowInteractor::Enable() 
@@ -131,6 +128,8 @@ void vtkQuartzRenderWindowInteractor::Enable()
     return;
     }
 //DOQUARTZ stuff to connect windows to interactors
+  [(vtkQuartzWindow *)this->WindowId setVTKRenderWindowInteractor:this];
+  [[(vtkQuartzWindow *)this->WindowId getvtkQuartzGLView] setVTKRenderWindowInteractor:this];
   this->Enabled = 1;
   this->Modified();
 }
@@ -144,7 +143,8 @@ void vtkQuartzRenderWindowInteractor::Disable()
     return;
     }
   
-//DOQUARTZ to undo the above
+  [(vtkQuartzWindow *)this->WindowId setVTKRenderWindowInteractor:0];
+  [[(vtkQuartzWindow *)this->WindowId getvtkQuartzGLView] setVTKRenderWindowInteractor:0];
   this->Enabled = 0;
   this->Modified();
 }
