@@ -102,6 +102,8 @@ vtkVideoSource* vtkVideoSource::New()
 //----------------------------------------------------------------------------
 vtkVideoSource::vtkVideoSource()
 {
+  int i;
+  
   this->Initialized = 0;
 
   this->AutoAdvance = 1;
@@ -110,6 +112,11 @@ vtkVideoSource::vtkVideoSource()
   this->FrameSize[1] = 240;
   this->FrameSize[2] = 1;
 
+  for (i = 0; i < 6; i++)
+    {
+    this->FrameBufferExtent[i] = 0;
+    }
+  
   this->Playing = 0;
 
   this->FrameRate = 30;
@@ -627,7 +634,7 @@ void vtkVideoSource::SetFrameBufferSize(int bufsize)
     vtkErrorMacro(<< "SetFrameBufferSize: There must be at least one framebuffer");
     }
 
-  if (bufsize == this->FrameBufferSize)
+  if (bufsize == this->FrameBufferSize && bufsize != 0)
     {
     return;
     }
@@ -657,6 +664,11 @@ void vtkVideoSource::SetFrameBufferSize(int bufsize)
       framebuffer = new void *[bufsize];
       timestamps = new double[bufsize];
       }
+    else
+      {
+      framebuffer = NULL;
+      timestamps = NULL;
+      }
     // create new image buffers if necessary
     for (i = 0; i < bufsize - this->FrameBufferSize; i++)
       {
@@ -675,9 +687,15 @@ void vtkVideoSource::SetFrameBufferSize(int bufsize)
       ((vtkScalars *)this->FrameBuffer[i])->Delete();
       }
 
-    delete [] this->FrameBuffer;
+    if (this->FrameBuffer)
+      {
+      delete [] this->FrameBuffer;
+      }
     this->FrameBuffer = framebuffer;
-    delete [] this->FrameBufferTimeStamps;
+    if (this->FrameBufferTimeStamps)
+      {
+      delete [] this->FrameBufferTimeStamps;
+      }
     this->FrameBufferTimeStamps = timestamps;
 
     if (bufsize > 0)
