@@ -1,5 +1,4 @@
 #ifndef lint
-static char yysccsid[] = "@(#)yaccpar	1.9 (Berkeley) 02/21/93";
 #endif
 #define YYBYACC 1
 #define YYMAJOR 1
@@ -16,6 +15,7 @@ static char yysccsid[] = "@(#)yaccpar	1.9 (Berkeley) 02/21/93";
 #define yywrap() 1
 
 void output_function();
+int yyparse();
 
 #include "vtkParse.h"
     
@@ -38,7 +38,7 @@ void output_function();
   void checkSigSize(char *arg)
     {
     if (strlen(currentFunction->Signature) + strlen(arg) + 3 > 
-        sigAllocatedLength)
+        (unsigned long)sigAllocatedLength)
       {
       currentFunction->Signature = (char *)
 	realloc(currentFunction->Signature, sigAllocatedLength*2);
@@ -1712,7 +1712,6 @@ break;
 case 129:
 #line 745 "vtkParse.y"
 { 
-     char *local = strdup(currentFunction->Signature);
      sprintf(currentFunction->Signature,"vtkCoordinate *Get%sCoordinate ();",
        yyvsp[-1].str);
 
@@ -1762,7 +1761,6 @@ break;
 case 130:
 #line 793 "vtkParse.y"
 { 
-     char *local = strdup(currentFunction->Signature);
      sprintf(currentFunction->Signature,"vtkCoordinate *Get%sCoordinate ();",
        yyvsp[-1].str);
 

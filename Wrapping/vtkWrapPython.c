@@ -805,18 +805,22 @@ void outputFunction2(FILE *fp, FileInfo *data)
   
   /* output the method table */
   /* for each function in the array */
-  fprintf(fp,"static PyMethodDef Py%sMethods[] = {\n",data->ClassName);
-
-  for (fnum = 0; fnum < numberOfWrappedFunctions; fnum++)
+  if (data->NumberOfSuperClasses || !data->IsAbstract)
     {
-    if (wrappedFunctions[fnum]->Name)
+    fprintf(fp,"static PyMethodDef Py%sMethods[] = {\n",data->ClassName);
+  
+    for (fnum = 0; fnum < numberOfWrappedFunctions; fnum++)
       {
-      fprintf(fp,"  {\"%s\",		(PyCFunction)Py%s_%s, 1,\n   \"%s\\n\\n%s\"},\n",
-	      wrappedFunctions[fnum]->Name, data->ClassName, 
-	      wrappedFunctions[fnum]->Name, wrappedFunctions[fnum]->Signature,
-	      quote_string(wrappedFunctions[fnum]->Comment,1000));
+      if (wrappedFunctions[fnum]->Name)
+        {
+        fprintf(fp,"  {\"%s\",		(PyCFunction)Py%s_%s, 1,\n   \"%s\\n\\n%s\"},\n",
+                wrappedFunctions[fnum]->Name, data->ClassName, 
+                wrappedFunctions[fnum]->Name, wrappedFunctions[fnum]->Signature,
+                quote_string(wrappedFunctions[fnum]->Comment,1000));
+        }
       }
     }
+  
   if (!strcmp("vtkObject",data->ClassName))
     {
     fprintf(fp,"  {\"GetAddressAsString\",  (PyCFunction)Py%s_GetAddressAsString, 1,\n   \"V.GetAddressAsString(string) -> string\\n\\n Get address of C++ object in format 'Addr=%%p' after casting to\\n the specified type.  You can get the same information from V.__this__.\"},\n", data->ClassName);
@@ -1036,10 +1040,13 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   outputFunction2(fp, data);
   
   /* the docstring for the class */
-  fprintf(fp,"static char %sDoc[] = \"",data->ClassName); 
-  create_class_doc(fp,data);
-  fprintf(fp,"\";\n\n");
-
+  if (data->NumberOfSuperClasses || !data->IsAbstract)
+    {
+    fprintf(fp,"static char %sDoc[] = \"",data->ClassName); 
+    create_class_doc(fp,data);
+    fprintf(fp,"\";\n\n");
+    }
+  
   /* output the class initilization function */
   if (data->NumberOfSuperClasses)
     { 
@@ -1081,8 +1088,8 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
       }      
     fprintf(fp,"                        Py%sMethods,\n",
             data->ClassName);
-    fprintf(fp,"                        \"%s\",modulename,\"\",0);\n}\n\n",
-            data->ClassName);
+    fprintf(fp,"                        \"%s\",modulename,%sDoc,0);\n}\n\n",
+            data->ClassName, data->ClassName);
     }
   else if (!data->IsAbstract)
     {
