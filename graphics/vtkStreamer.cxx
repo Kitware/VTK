@@ -263,7 +263,7 @@ void vtkStreamer::Integrate()
   vtkPointData *pd=input->GetPointData();
   vtkScalars *inScalars;
   vtkVectors *inVectors;
-  int numSourcePts;
+  int numSourcePts, idx, idxNext;
   vtkStreamPoint *sNext, *sPtr;
   int i, j, ptId, offset, subId;
   vtkCell *cell;
@@ -314,7 +314,8 @@ void vtkStreamer::Integrate()
 
   if ( this->StartFrom == VTK_START_FROM_POSITION && !this->Source )
     {
-    sPtr = this->Streamers[0].InsertNextStreamPoint();
+    idx = this->Streamers[0].InsertNextStreamPoint();
+    sPtr = this->Streamers[0].GetStreamPoint(idx);
     for (i=0; i<3; i++)
       {
       sPtr->x[i] = this->StartPosition[i];
@@ -325,7 +326,8 @@ void vtkStreamer::Integrate()
 
   else if ( this->StartFrom == VTK_START_FROM_LOCATION && !this->Source )
     {
-    sPtr = this->Streamers[0].InsertNextStreamPoint();
+    idx = this->Streamers[0].InsertNextStreamPoint();
+    sPtr = this->Streamers[0].GetStreamPoint(idx);
     cell =  input->GetCell(sPtr->cellId);
     cell->EvaluateLocation(sPtr->subId, sPtr->p, sPtr->x, w);
     }
@@ -334,19 +336,20 @@ void vtkStreamer::Integrate()
     {
     for (ptId=0; ptId < numSourcePts; ptId++)
       {
-      sPtr = this->Streamers[offset*ptId].InsertNextStreamPoint();
+      idx = this->Streamers[offset*ptId].InsertNextStreamPoint();
+      sPtr = this->Streamers[offset*ptId].GetStreamPoint(idx);
       source->GetPoint(ptId,sPtr->x);
       sPtr->cellId = input->FindCell(sPtr->x, NULL, -1, tol2,
                                      sPtr->subId, sPtr->p, w);
       }
     }
-  //
+
   // Finish initializing each streamer
   //
   for (ptId=0; ptId < numSourcePts; ptId++)
     {
     this->Streamers[offset*ptId].Direction = 1.0;
-    sPtr = this->Streamers[offset*ptId].GetStreamPoint(0);
+    sPtr = this->Streamers[offset*ptId].GetStreamPoint(idx=0);
     sPtr->d = 0.0;
     sPtr->t = 0.0;
     if ( sPtr->cellId >= 0 ) //starting point in dataset
@@ -379,7 +382,9 @@ void vtkStreamer::Integrate()
     if ( this->IntegrationDirection == VTK_INTEGRATE_BOTH_DIRECTIONS )
       {
       this->Streamers[offset*ptId+1].Direction = -1.0;
-      sNext = this->Streamers[offset*ptId+1].InsertNextStreamPoint();
+      idxNext = this->Streamers[offset*ptId+1].InsertNextStreamPoint();
+      sNext = this->Streamers[offset*ptId+1].GetStreamPoint(idxNext);
+      sPtr = this->Streamers[offset*ptId+1].GetStreamPoint(idx);
       *sNext = *sPtr;
       }
     else if ( this->IntegrationDirection == VTK_INTEGRATE_BACKWARD )
@@ -387,13 +392,13 @@ void vtkStreamer::Integrate()
       this->Streamers[offset*ptId].Direction = -1.0;
       }
     } //for each streamer
-  //
+
   // For each streamer, integrate in appropriate direction (using RK2)
   //
   for (ptId=0; ptId < this->NumberOfStreamers; ptId++)
     {
     //get starting step
-    sPtr = this->Streamers[ptId].GetStreamPoint(0);
+    sPtr = this->Streamers[ptId].GetStreamPoint(idx=0);
     if ( sPtr->cellId < 0 )
       {
       continue;
@@ -441,7 +446,9 @@ void vtkStreamer::Integrate()
         xNext[i] = sPtr->x[i] +   
                    dir * (step/2.0) * (sPtr->v[i] + vNext[i]) / sPtr->speed;
 	}
-      sNext = this->Streamers[ptId].InsertNextStreamPoint();
+      idxNext = this->Streamers[ptId].InsertNextStreamPoint();
+      sNext = this->Streamers[ptId].GetStreamPoint(idxNext);
+      sPtr = this->Streamers[ptId].GetStreamPoint(idx);
 
       if ( cell->EvaluatePosition(xNext, closestPoint, sNext->subId, 
       sNext->p, dist2, w) == 1)
@@ -498,12 +505,12 @@ void vtkStreamer::Integrate()
         sNext->t = sPtr->t + (2.0 * d / (sPtr->speed + sNext->speed));
         }
 
+      idx = idxNext;
       sPtr = sNext;
 
       }//for elapsed time
-
     } //for each streamer
-  //
+
   // Compute vorticity if desired.
   //
   if ( this->Vorticity )

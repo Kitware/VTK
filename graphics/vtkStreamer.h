@@ -113,13 +113,13 @@ public:
     };
   int GetNumberOfPoints() {return this->MaxId + 1;};
   vtkStreamPoint *GetStreamPoint(int i) {return this->Array + i;};
-  vtkStreamPoint *InsertNextStreamPoint() 
+  int InsertNextStreamPoint() 
     {
     if ( ++this->MaxId >= this->Size )
       {
       this->Resize(this->MaxId);
       }
-    return this->Array + this->MaxId;
+    return this->MaxId; //return offset from array
     }
   vtkStreamPoint *Resize(int sz); //reallocates data
   void Reset() {this->MaxId = -1;};
