@@ -134,7 +134,6 @@ void vtkPolyDataNormals::Execute()
   this->OldMesh->SetPoints(inPts);
   if ( numStrips > 0 ) //have to decompose strips into triangles
     {
-    vtkTriangleStrip *strip = vtkTriangleStrip::New();
     if ( numPolys > 0 )
       {
       polys = vtkCellArray::New();
@@ -147,12 +146,11 @@ void vtkPolyDataNormals::Execute()
       }
     for ( inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); )
       {
-      strip->DecomposeStrip(npts, pts, polys);
+      vtkTriangleStrip::DecomposeStrip(npts, pts, polys);
       }
     this->OldMesh->SetPolys(polys);
     polys->Delete();
     numPolys = polys->GetNumberOfCells();//added some new triangles
-    strip->Delete();
     }
   else
     {
