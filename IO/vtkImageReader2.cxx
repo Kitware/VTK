@@ -24,7 +24,7 @@
 #include <string.h>
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkImageReader2, "1.13");
+vtkCxxRevisionMacro(vtkImageReader2, "1.14");
 vtkStandardNewMacro(vtkImageReader2);
 
 #ifdef read
@@ -496,12 +496,12 @@ void vtkImageReader2::ComputeDataIncrements()
 }
 
 
-void vtkImageReader2::OpenFile()
+int vtkImageReader2::OpenFile()
 {
   if (!this->FileName && !this->FilePattern)
     {
     vtkErrorMacro(<<"Either a FileName or FilePattern must be specified.");
-    return;
+    return 0;
     }
 
   // Close file from any previous image
@@ -527,8 +527,9 @@ void vtkImageReader2::OpenFile()
     {
     vtkErrorMacro(<< "Initialize: Could not open file " << 
     this->InternalFileName);
-    return;
+    return 0;
     }
+  return 1;
 }
 
 
@@ -550,7 +551,10 @@ unsigned long vtkImageReader2::GetHeaderSize(unsigned long idx)
 
     // make sure we figure out a filename to open
     this->ComputeInternalFileName(idx);
-    this->OpenFile();
+    if ( !this->OpenFile() )
+      {
+      return 0;
+      }
     
     // Get the size of the header from the size of the image
     this->File->seekg(0,ios::end);
@@ -633,7 +637,10 @@ static void vtkImageReader2Update(vtkImageReader2 *self, vtkImageData *data,
   if (self->GetFileDimensionality() == 3)
     {
     self->ComputeInternalFileName(0);
-    self->OpenFile();
+    if ( !self->OpenFile() )
+      {
+      return;
+      }
     }
   outPtr2 = outPtr;
   for (idx2 = outExtent[4]; idx2 <= outExtent[5]; ++idx2)
@@ -641,7 +648,10 @@ static void vtkImageReader2Update(vtkImageReader2 *self, vtkImageData *data,
     if (self->GetFileDimensionality() == 2)
       {
       self->ComputeInternalFileName(idx2);
-      self->OpenFile();
+      if ( !self->OpenFile() )
+        {
+        return;
+        }
       }
     outPtr1 = outPtr2;
     for (idx1 = outExtent[2]; 

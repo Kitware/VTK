@@ -156,7 +156,7 @@ public:
   vtkGetVectorMacro(DataIncrements,unsigned long,4);
 //ETX
 
-  void OpenFile();
+  int OpenFile();
   void SeekFile(int i, int j, int k);
 
   // Description:
