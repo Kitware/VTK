@@ -81,7 +81,7 @@ public:
   // This method is for setting up the processes.
   // If a subclass needs to initialize process communication (i.e. MPI)
   // it would over ride this method.
-  virtual void Initialize(int argc, char *arcv[]) {};
+  virtual void Initialize(int vtkNotUsed(argc), char *vtkNotUsed(arcv[])) {};
 
   // Description:
   // Set the number of processes you will be using.  This defaults
@@ -163,7 +163,7 @@ public:
   // Description:
   // Take an RMI away.
   void RemoveRMI(void (*f)(void *, int), void *arg, int tag)
-    {vtkErrorMacro("RemoveRMI Not Implemented Yet");};
+    {f = f; arg = arg; tag = tag; vtkErrorMacro("RemoveRMI Not Implemented Yet");};
   //ETX
   
   // Description:
