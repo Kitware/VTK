@@ -45,12 +45,26 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Map a set of scalar values through the table
 void vtkScalarsToColors::MapScalarsThroughTable(vtkScalars *scalars, 
-                                                unsigned char *output)
+                                                unsigned char *output,
+						int outputFormat)
 {
+  switch (outputFormat)
+    {
+    case VTK_RGBA:
+    case VTK_RGB:
+    case VTK_LUMINANCE_ALPHA:
+    case VTK_LUMINANCE:
+      break;
+    default:
+      vtkErrorMacro(<< "MapScalarsThroughTable: unrecognized color format");
+      break;
+    }
+
   this->MapScalarsThroughTable2(scalars->GetVoidPointer(0),
 				output,
 				scalars->GetDataType(),
 				scalars->GetNumberOfScalars(),
 				scalars->GetNumberOfComponents(),
-				4);
+				outputFormat);
 }
+

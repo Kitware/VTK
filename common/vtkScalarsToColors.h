@@ -53,6 +53,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkObject.h"
 #include "vtkUnsignedCharArray.h"
 
+#define VTK_RGBA       4
+#define VTK_RGB        3
+#define VTK_LUMINANCE  1
+#define VTK_LUMINANCE_ALPHA 2
+
 class vtkScalars;
 
 class VTK_EXPORT vtkScalarsToColors : public vtkObject
@@ -77,21 +82,25 @@ public:
   virtual unsigned char *MapValue(float v) = 0;
 
   // Description:
-  // Map a set of scalars through the lookup table in a single operation.
+  // Map a set of scalars through the lookup table in a single operation. 
+  // The output format can be set to VTK_RGBA (4 components), 
+  // VTK_RGB (3 components), VTK_LUMINANCE (1 component, greyscale),
+  // or VTK_LUMINANCE_ALPHA (2 components)
+  // If not supplied, the output format defaults to RGBA.
   void MapScalarsThroughTable(vtkScalars *scalars, 
-                              unsigned char *output);
+                              unsigned char *output,
+			      int outputFormat);
+  void MapScalarsThroughTable(vtkScalars *scalars, 
+                              unsigned char *output) 
+    { this->MapScalarsThroughTable(scalars,output,VTK_RGBA); };
+
 
   // Description:
   // An internal method typically not used in applications.
-  // The outputIncrement can be set to a value between 1 and 4.  
-  // If the number of components is 4: map to RGBA.
-  // If the number of components is 3: map to RGB.
-  // If the number of components is 2: map R to first component, A to second.
-  // If the number of components is 1: map R to first component.
   virtual void MapScalarsThroughTable2(void *input, unsigned char *output,
                                        int inputDataType, int numberOfValues,
                                        int inputIncrement, 
-				       int outputIncrement) = 0;
+				       int outputFormat) = 0;
 
 protected:
   vtkScalarsToColors() {};

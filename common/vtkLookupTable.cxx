@@ -237,7 +237,7 @@ unsigned char *vtkLookupTable::MapValue(float v)
 template<class T>
 static void vtkLookupTableMapData(vtkLookupTable *self, T *input, 
 				  unsigned char *output, int length, 
-				  int inIncr, int outIncr)
+				  int inIncr, int outFormat)
 {
   float findx;
   int i = length;
@@ -248,7 +248,7 @@ static void vtkLookupTableMapData(vtkLookupTable *self, T *input,
   unsigned char *table = self->GetPointer(0);
   unsigned char *cptr;
 
-  if (outIncr == 4)
+  if (outFormat == VTK_RGBA)
     {
     while (--i >= 0) 
       {
@@ -269,7 +269,7 @@ static void vtkLookupTableMapData(vtkLookupTable *self, T *input,
       input += inIncr;
       }
     }
-  else if (outIncr == 3)
+  else if (outFormat == VTK_RGB)
     {
     while (--i >= 0) 
       {
@@ -289,7 +289,7 @@ static void vtkLookupTableMapData(vtkLookupTable *self, T *input,
       input += inIncr;
       }
     }
-  else if (outIncr == 2)
+  else if (outFormat == VTK_LUMINANCE_ALPHA)
     {
     while (--i >= 0) 
       {
@@ -308,7 +308,7 @@ static void vtkLookupTableMapData(vtkLookupTable *self, T *input,
       input += inIncr;
       }
     }
-  else // outIncr == 1
+  else // outFormat == VTK_LUMINANCE
     {
     while (--i >= 0) 
       {
@@ -333,64 +333,59 @@ void vtkLookupTable::MapScalarsThroughTable2(void *input,
 					     int inputDataType, 
 					     int numberOfValues,
 					     int inputIncrement,
-					     int outputIncrement)
+					     int outputFormat)
 {
-  if (outputIncrement > 4)
-    {
-    vtkErrorMacro(<<"MapScalarsThroughTable: can't map to more that 4 components");
-    }
-
   switch (inputDataType)
     {
     case VTK_CHAR:
       vtkLookupTableMapData(this,(char *)input,output,numberOfValues,
-			    inputIncrement,outputIncrement);
+			    inputIncrement,outputFormat);
       break;
       
     case VTK_UNSIGNED_CHAR:
       vtkLookupTableMapData(this,(unsigned char *)input,output,numberOfValues,
-			    inputIncrement,outputIncrement);
+			    inputIncrement,outputFormat);
       break;
       
     case VTK_SHORT:
       vtkLookupTableMapData(this,(short *)input,output,numberOfValues,
-			    inputIncrement,outputIncrement);
+			    inputIncrement,outputFormat);
     break;
       
     case VTK_UNSIGNED_SHORT:
       vtkLookupTableMapData(this,(unsigned short *)input,output,numberOfValues,
-			    inputIncrement,outputIncrement);
+			    inputIncrement,outputFormat);
       break;
       
     case VTK_INT:
       vtkLookupTableMapData(this,(int *)input,output,numberOfValues,
-			    inputIncrement,outputIncrement);
+			    inputIncrement,outputFormat);
       break;
       
     case VTK_UNSIGNED_INT:
       vtkLookupTableMapData(this,(unsigned int *)input,output,numberOfValues,
-			    inputIncrement,outputIncrement);
+			    inputIncrement,outputFormat);
       break;
       
     case VTK_LONG:
       vtkLookupTableMapData(this,(long *)input,output,numberOfValues,
-			    inputIncrement,outputIncrement);
+			    inputIncrement,outputFormat);
       break;
       
     case VTK_UNSIGNED_LONG:
       vtkLookupTableMapData(this,(unsigned long *)input,output,
 			    numberOfValues,
-			    inputIncrement,outputIncrement);
+			    inputIncrement,outputFormat);
       break;
       
     case VTK_FLOAT:
       vtkLookupTableMapData(this,(float *)input,output,numberOfValues,
-			    inputIncrement,outputIncrement);
+			    inputIncrement,outputFormat);
       break;
       
     case VTK_DOUBLE:
       vtkLookupTableMapData(this,(double *)input,output,numberOfValues,
-			    inputIncrement,outputIncrement);
+			    inputIncrement,outputFormat);
       break;
       
     default:

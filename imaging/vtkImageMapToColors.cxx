@@ -99,12 +99,32 @@ unsigned long vtkImageMapToColors::GetMTime()
 void vtkImageMapToColors::ExecuteInformation(vtkImageData *vtkNotUsed(inData), 
 					   vtkImageData *outData)
 {
+  int numComponents = 4;
+
   if (this->LookupTable == 0)
     {
     vtkErrorMacro(<< "ExecuteInformation: No LookupTable was set!");
     }
   outData->SetScalarType(VTK_UNSIGNED_CHAR);
-  outData->SetNumberOfScalarComponents(this->OutputFormat);
+  switch (this->OutputFormat)
+    {
+    case VTK_RGBA:
+      numComponents = 4;
+      break;
+    case VTK_RGB:
+      numComponents = 3;
+      break;
+    case VTK_LUMINANCE_ALPHA:
+      numComponents = 2;
+      break;
+    case VTK_LUMINANCE:
+      numComponents = 1;
+      break;
+    default:
+      vtkErrorMacro(<< "ExecuteInformation: Unrecognized color format.");
+      break;
+    }
+  outData->SetNumberOfScalarComponents(numComponents);
 }
 
 //----------------------------------------------------------------------------
@@ -124,7 +144,7 @@ static void vtkImageMapToColorsExecute(vtkImageMapToColors *self,
   unsigned long target;
   int dataType = inData->GetScalarType();
   int scalarSize = inData->GetScalarSize();
-  int numberOfComponents,numberOfOutputComponents;
+  int numberOfComponents,numberOfOutputComponents,outputFormat;
   int rowLength;
   vtkScalarsToColors *lookupTable = self->GetLookupTable();
   unsigned char *outPtr1;
@@ -146,7 +166,8 @@ static void vtkImageMapToColorsExecute(vtkImageMapToColors *self,
   inIncZ *= scalarSize;
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
   numberOfComponents = inData->GetNumberOfScalarComponents();
-  numberOfOutputComponents = self->GetOutputFormat();
+  numberOfOutputComponents = outData->GetNumberOfScalarComponents();
+  outputFormat = self->GetOutputFormat();
   rowLength = extX*scalarSize;
 
   // Loop through output pixels
@@ -166,7 +187,7 @@ static void vtkImageMapToColorsExecute(vtkImageMapToColors *self,
 	}
       lookupTable->MapScalarsThroughTable2(inPtr1,(unsigned char *)outPtr1,
 					   dataType,extX,numberOfComponents,
-					   numberOfOutputComponents);
+					   outputFormat);
       outPtr1 += outIncY + extX*numberOfOutputComponents;
       inPtr1 = (void *) ((char *) inPtr1 + inIncY + rowLength);
       }
@@ -194,7 +215,12 @@ void vtkImageMapToColors::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageToImageFilter::PrintSelf(os,indent);
 
-  os << indent << "OutputFormat: " << this->OutputFormat << "\n";
+  os << indent << "OutputFormat: " << 
+    (this->OutputFormat == VTK_RGBA ? "RGBA" : 
+     (this->OutputFormat == VTK_RGB ? "RGB" :
+      (this->OutputFormat == VTK_LUMINANCE_ALPHA ? "LuminanceAlpha" :
+       (this->OutputFormat == VTK_LUMINANCE ? "Luminance" : "Unknown"))))
+     << "\n";
   os << indent << "LookupTable: " << this->LookupTable << "\n";
   if (this->LookupTable)
     {

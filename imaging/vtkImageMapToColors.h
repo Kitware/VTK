@@ -42,10 +42,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // The vtkImageMapToColors filter will take an input image of any valid
 // scalar type, and map the first component of the image through a
-// lookup table.  The result is an Colors image of type VTK_UNSIGNED_CHAR.
+// lookup table.  The result is an image of type VTK_UNSIGNED_CHAR.
 
 // .SECTION See Also
-// vtkLookupTable
+// vtkLookupTable vtkScalarsToColors
 
 #ifndef __vtkImageMapToColors_h
 #define __vtkImageMapToColors_h
@@ -70,10 +70,10 @@ public:
   // Set the output format, the default is RGBA.  
   vtkSetMacro(OutputFormat,int);
   vtkGetMacro(OutputFormat,int);
-  void SetOutputFormatToRGBA() { this->OutputFormat = 4; };
-  void SetOutputFormatToRGB() { this->OutputFormat = 3; };
-  void SetOutputFormatToLA() { this->OutputFormat = 2; };
-  void SetOutputFormatToL() { this->OutputFormat = 1; };
+  void SetOutputFormatToRGBA() { this->OutputFormat = VTK_RGBA; };
+  void SetOutputFormatToRGB() { this->OutputFormat = VTK_RGB; };
+  void SetOutputFormatToLuminanceAlpha() { this->OutputFormat = VTK_LUMINANCE_ALPHA; };
+  void SetOutputFormatToLuminance() { this->OutputFormat = VTK_LUMINANCE; };
 
   // Description:
   // We need to check the modified time of the lookup table too.
