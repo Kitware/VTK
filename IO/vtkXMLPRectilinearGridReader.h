@@ -58,6 +58,7 @@ protected:
   vtkXMLDataReader* CreatePieceReader();
   void CopySubCoordinates(int* inBounds, int* outBounds, int* subBounds,
                           vtkDataArray* inArray, vtkDataArray* outArray);
+  virtual int FillOutputPortInformation(int, vtkInformation*);
 
   // The PCoordinates element with coordinate information.
   vtkXMLDataElement* PCoordinatesElement;

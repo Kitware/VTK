@@ -21,9 +21,10 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLUnstructuredGridReader.h"
+#include "vtkInformation.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkXMLPUnstructuredGridReader, "1.7");
+vtkCxxRevisionMacro(vtkXMLPUnstructuredGridReader, "1.8");
 vtkStandardNewMacro(vtkXMLPUnstructuredGridReader);
 
 //----------------------------------------------------------------------------
@@ -201,3 +202,10 @@ vtkXMLDataReader* vtkXMLPUnstructuredGridReader::CreatePieceReader()
 {
   return vtkXMLUnstructuredGridReader::New();
 }
+
+
+int vtkXMLPUnstructuredGridReader::FillOutputPortInformation(int, vtkInformation *info)
+  {
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkUnstructuredGrid");
+  return 1;
+  }

@@ -57,6 +57,7 @@ protected:
   
   void CopyArrayForCells(vtkDataArray* inArray, vtkDataArray* outArray);
   vtkXMLDataReader* CreatePieceReader();
+  virtual int FillOutputPortInformation(int, vtkInformation*);
   
   // The index of the cell in the output where the current piece
   // begins.

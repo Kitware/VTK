@@ -59,6 +59,7 @@ protected:
   void SetupOutputData();
   int ReadPieceData();
   vtkXMLDataReader* CreatePieceReader();  
+  virtual int FillOutputPortInformation(int, vtkInformation*);
   
   // The PPoints element with point information.
   vtkXMLDataElement* PPointsElement;

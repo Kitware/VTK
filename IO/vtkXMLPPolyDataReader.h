@@ -62,6 +62,7 @@ protected:
   
   void CopyArrayForCells(vtkDataArray* inArray, vtkDataArray* outArray);
   vtkXMLDataReader* CreatePieceReader();
+  virtual int FillOutputPortInformation(int, vtkInformation*);
   
   // The size of the UpdatePiece.
   vtkIdType TotalNumberOfVerts;

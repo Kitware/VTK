@@ -58,6 +58,7 @@ protected:
   int ReadPrimaryElement(vtkXMLDataElement* ePrimary);
   void SetupOutputInformation(vtkInformation *outInfo);
   vtkXMLDataReader* CreatePieceReader();
+  virtual int FillOutputPortInformation(int, vtkInformation*);
   
 private:
   vtkXMLPImageDataReader(const vtkXMLPImageDataReader&);  // Not implemented.
