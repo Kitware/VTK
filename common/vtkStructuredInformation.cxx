@@ -60,6 +60,7 @@ void vtkStructuredInformation::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << ", " << this->WholeExtent[idx];
     }
+  os << ")\n";
 }
 
 //----------------------------------------------------------------------------
@@ -142,6 +143,7 @@ void vtkStructuredInformation::ReadSelf(istream& is)
   is >> this->WholeExtent[0] >> this->WholeExtent[1]
      >> this->WholeExtent[2] >> this->WholeExtent[3]
      >> this->WholeExtent[4] >> this->WholeExtent[5] ;
+
 }
 
 
