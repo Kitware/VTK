@@ -34,7 +34,7 @@
 #include "vtkCell.h"
 #include "vtkCellTypes.h"
 
-vtkCxxRevisionMacro(vtkMeshQuality,"1.11");
+vtkCxxRevisionMacro(vtkMeshQuality,"1.12");
 vtkStandardNewMacro(vtkMeshQuality);
 
 typedef double (*CellQualityType)( vtkCell* );
@@ -158,6 +158,7 @@ void vtkMeshQuality::Execute()
       break;
     case VTK_QUALITY_EDGE_RATIO:
       TetQuality = TetEdgeRatio;
+      break;
     default:
       TetQuality = NULL;
       break;
