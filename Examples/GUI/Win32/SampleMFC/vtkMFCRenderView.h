@@ -16,52 +16,53 @@
 class vtkMFCRenderView : public vtkMFCView
 {
 protected:
-	vtkMFCRenderView();           // protected constructor used by dynamic creation
-	DECLARE_DYNCREATE(vtkMFCRenderView)
+  vtkMFCRenderView();           // protected constructor used by dynamic creation
+  DECLARE_DYNCREATE(vtkMFCRenderView)
 
-	vtkRenderer *Renderer;
+    vtkRenderer *Renderer;
   vtkWin32OpenGLRenderWindow *RenderWindow;
-	vtkWin32RenderWindowInteractor *Interactor;
+  vtkWin32RenderWindowInteractor *Interactor;
 
-// Attributes
+  // Attributes
 public:
 
-// Operations
+  // Operations
 public:
-	virtual LRESULT WindowProc(UINT message, WPARAM wParam, LPARAM lParam);
-	void Render() {this->RenderWindow->Render();};
+  virtual void OnInitialUpdate();
+  virtual LRESULT WindowProc(UINT message, WPARAM wParam, LPARAM lParam);
+  void Render() {this->RenderWindow->Render();};
   vtkWindow *GetVTKWindow() {return this->RenderWindow;};
   virtual void SetupMemoryRendering(int x, int y, HDC prn) {
-		this->RenderWindow->SetupMemoryRendering(x,y,prn);};
-	virtual void ResumeScreenRendering() {
-		this->RenderWindow->ResumeScreenRendering();};
-	virtual unsigned char *GetMemoryData() {
-		return this->RenderWindow->GetMemoryData();};
+    this->RenderWindow->SetupMemoryRendering(x,y,prn);};
+  virtual void ResumeScreenRendering() {
+    this->RenderWindow->ResumeScreenRendering();};
+  virtual unsigned char *GetMemoryData() {
+    return this->RenderWindow->GetMemoryData();};
 
-// Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(vtkMFCRenderView)
-	protected:
-	virtual void OnDraw(CDC* pDC);      // overridden to draw this view
-	virtual BOOL OnPreparePrinting(CPrintInfo* pInfo);
-	//}}AFX_VIRTUAL
-
-// Implementation
+  // Overrides
+  // ClassWizard generated virtual function overrides
+  //{{AFX_VIRTUAL(vtkMFCRenderView)
 protected:
-	virtual ~vtkMFCRenderView();
+  virtual void OnDraw(CDC* pDC);      // overridden to draw this view
+  virtual BOOL OnPreparePrinting(CPrintInfo* pInfo);
+  //}}AFX_VIRTUAL
+
+  // Implementation
+protected:
+  virtual ~vtkMFCRenderView();
 #ifdef _DEBUG
-	virtual void AssertValid() const;
-	virtual void Dump(CDumpContext& dc) const;
+  virtual void AssertValid() const;
+  virtual void Dump(CDumpContext& dc) const;
 #endif
 
-	// Generated message map functions
+  // Generated message map functions
 protected:
-	//{{AFX_MSG(vtkMFCRenderView)
-	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
-	afx_msg void OnSize(UINT nType, int cx, int cy);
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
-};
+  //{{AFX_MSG(vtkMFCRenderView)
+  afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+  afx_msg void OnSize(UINT nType, int cx, int cy);
+  //}}AFX_MSG
+  DECLARE_MESSAGE_MAP()
+    };
 
 /////////////////////////////////////////////////////////////////////////////
 
