@@ -30,6 +30,7 @@
 #define kwsysProcess_New                 kwsys(Process_New)
 #define kwsysProcess_Delete              kwsys(Process_Delete)
 #define kwsysProcess_SetCommand          kwsys(Process_SetCommand)
+#define kwsysProcess_AddCommand          kwsys(Process_AddCommand)
 #define kwsysProcess_SetTimeout          kwsys(Process_SetTimeout)
 #define kwsysProcess_SetWorkingDirectory kwsys(Process_SetWorkingDirectory)
 #define kwsysProcess_Option_HideWindow   kwsys(Process_Option_HideWindow)
@@ -291,6 +292,7 @@ kwsysEXPORT void kwsysProcess_Kill(kwsysProcess* cp);
 # undef kwsysProcess_New
 # undef kwsysProcess_Delete
 # undef kwsysProcess_SetCommand
+# undef kwsysProcess_AddCommand
 # undef kwsysProcess_SetTimeout
 # undef kwsysProcess_SetWorkingDirectory
 # undef kwsysProcess_Option_HideWindow
