@@ -21,18 +21,8 @@
 #include "vtkPointLocator.h"
 #include "vtkObjectFactory.h"
 
-//---------------------------------------------------------------------------
-vtkConvexPointSet* vtkConvexPointSet::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkConvexPointSet");
-  if(ret)
-    {
-    return (vtkConvexPointSet*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkConvexPointSet;
-}
+vtkCxxRevisionMacro(vtkConvexPointSet, "1.3");
+vtkStandardNewMacro(vtkConvexPointSet);
 
 // Construct the hexahedron with eight points.
 vtkConvexPointSet::vtkConvexPointSet()
