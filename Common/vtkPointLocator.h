@@ -79,7 +79,8 @@ public:
   // Given a position x and a radius r, return the id of the point 
   // closest to the point in that radius.
   // These methods are thread safe if BuildLocator() is directly or
-  // indirectly called from a single thread first.
+  // indirectly called from a single thread first. dist2 returns the squared
+  // distance to the point.
   vtkIdType FindClosestPointWithinRadius(float radius, const float x[3],
                                          float& dist2);
   vtkIdType FindClosestPointWithinRadius(float radius, const float x[3], 
