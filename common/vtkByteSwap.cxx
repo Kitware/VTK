@@ -121,11 +121,11 @@ void vtkByteSwap::SwapWrite4BERange(char *mem_ptr1,int num, FILE *fp)
 // Swap 2 byte word.
 void vtkByteSwap::Swap2LE(short *mem_ptr)
 {
-#if VTK_WORDS_BIGENDIAN
-  unsigned h1,h2;
+#ifdef VTK_WORDS_BIGENDIAN
+  unsigned short h1,h2;
 
-  h1 = *mem_ptr << 8;
-  h2 = *mem_ptr >> 8;
+  h1 = (unsigned short) *mem_ptr << 8;
+  h2 = (unsigned short) *mem_ptr >> 8;
   *mem_ptr = (short) h1 | h2;
 
 #endif
@@ -135,7 +135,7 @@ void vtkByteSwap::Swap2LE(short *mem_ptr)
 // Swap four byte word.
 void vtkByteSwap::Swap4LE(char *mem_ptr1)
 {
-#if VTK_WORDS_BIGENDIAN
+#ifdef VTK_WORDS_BIGENDIAN
   char one_byte;
 
   one_byte    = mem_ptr1[0];
