@@ -27,9 +27,6 @@
 
 class VTK_COMMON_EXPORT vtkSmartPointerBase
 {
-private:
-  struct SafeBoolDummy { void Dummy() {} };
-  typedef void (SafeBoolDummy::* SafeBool)();
 public:
   // Description:
   // Initialize smart pointer to NULL.
@@ -61,20 +58,6 @@ public:
     // Inline implementation so smart pointer comparisons can be fully
     // inlined.
     return this->Object;
-    }
-
-  // Description:
-  // Return true if pointer is set to non-null.
-  operator SafeBool()
-    {
-    return this->Object? &SafeBoolDummy::Dummy : 0;
-    }
-
-  // Description:
-  // Return true if pointer is set to null.
-  SafeBool operator!()
-    {
-    return this->Object? 0 : &SafeBoolDummy::Dummy;
     }
 
   // Description:

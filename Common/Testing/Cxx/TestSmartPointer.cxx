@@ -52,7 +52,15 @@ int TestSmartPointer(int,char *[])
   da2 > ia;
   da2 >= ia;
   (*da1).SetNumberOfComponents(1);
-  da2->SetNumberOfComponents(1);
+  if(da2)
+    {
+    da2->SetNumberOfComponents(1);
+    }
+  if(!da2)
+    {
+    cerr << "da2 is NULL!" << "\n";
+    return 1;
+    }
   cout << "IntArray: " << da2 << "\n";
   da1 = vtkSmartPointer<vtkDataArray>::NewInstance(ia);
   
