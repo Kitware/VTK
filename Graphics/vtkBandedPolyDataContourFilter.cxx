@@ -45,7 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkTriangleStrip.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.11");
+vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.12");
 vtkStandardNewMacro(vtkBandedPolyDataContourFilter);
 
 // Construct object.
@@ -216,7 +216,6 @@ void vtkBandedPolyDataContourFilter::Execute()
 {
   vtkPolyData *input = this->GetInput();
   vtkPointData *pd = input->GetPointData();
-  vtkCellData *cd = input->GetCellData();
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outPD = input->GetPointData();
   vtkCellData *outCD = output->GetCellData();
@@ -225,7 +224,7 @@ void vtkBandedPolyDataContourFilter::Execute()
   int numPts, numCells;
   int abort=0;
   vtkPoints *newPts;
-  int i, j, idx, npts, cellId=0, ptId=0;
+  int i, j, idx, npts, cellId=0;
   vtkIdType *pts;
   int numEdgePts, numNewPts, maxCellSize;
   vtkIdType v, vR, *intPts;
