@@ -669,10 +669,6 @@ if test "$use_pthreads" = "yes"; then
     if test "`/usr/bin/uname -s -r`" = "SunOS 5.7"; then
       AC_CHECK_LIB(thread, thr_create, THREAD_LIBS="$THREAD_LIBS -lthread")
     fi
-# Add realtime library support for SunOS (needed for nanosleep)
-    if test "`/usr/bin/uname -s`" = "SunOS"; then
-      AC_CHECK_LIB(thread, thr_create, THREAD_LIBS="$THREAD_LIBS -lrt")
-    fi
 	THREAD_FLAGS="-DVTK_USE_PTHREADS"
   fi
 fi

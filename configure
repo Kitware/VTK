@@ -3263,49 +3263,6 @@ else
 fi
 
     fi
-# Add realtime library support for SunOS (needed for nanosleep)
-    if test "`/usr/bin/uname -s`" = "SunOS"; then
-      echo $ac_n "checking for thr_create in -lthread""... $ac_c" 1>&6
-echo "configure:3270: checking for thr_create in -lthread" >&5
-ac_lib_var=`echo thread'_'thr_create | sed 'y%./+-%__p_%'`
-if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
-  echo $ac_n "(cached) $ac_c" 1>&6
-else
-  ac_save_LIBS="$LIBS"
-LIBS="-lthread  $LIBS"
-cat > conftest.$ac_ext <<EOF
-#line 3278 "configure"
-#include "confdefs.h"
-/* Override any gcc2 internal prototype to avoid an error.  */
-/* We use char because int might match the return type of a gcc2
-    builtin and then its argument prototype would still apply.  */
-char thr_create();
-
-int main() {
-thr_create()
-; return 0; }
-EOF
-if { (eval echo configure:3289: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest; then
-  rm -rf conftest*
-  eval "ac_cv_lib_$ac_lib_var=yes"
-else
-  echo "configure: failed program was:" >&5
-  cat conftest.$ac_ext >&5
-  rm -rf conftest*
-  eval "ac_cv_lib_$ac_lib_var=no"
-fi
-rm -f conftest*
-LIBS="$ac_save_LIBS"
-
-fi
-if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
-  echo "$ac_t""yes" 1>&6
-  THREAD_LIBS="$THREAD_LIBS -lrt"
-else
-  echo "$ac_t""no" 1>&6
-fi
-
-    fi
 	THREAD_FLAGS="-DVTK_USE_PTHREADS"
   fi
 fi

@@ -44,7 +44,6 @@ vtkThreadedController \
 vtkCellDerivatives \
 vtkCubeAxesActor2D \
 vtkSurfaceReconstructionFilter \
-vtkVideoSource \
  ${CONTROLLER_API_OBJ}
 
 
