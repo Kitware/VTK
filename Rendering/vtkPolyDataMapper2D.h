@@ -47,8 +47,8 @@ public:
   
   // Description:
   // Set the input to the mapper.  
-  virtual void SetInput(vtkPolyData*);
-  vtkGetObjectMacro(Input, vtkPolyData);
+  void SetInput(vtkPolyData *in);
+  vtkPolyData *GetInput();
 
   // Description:
   // Specify a lookup table for the mapper to use.
@@ -164,8 +164,6 @@ public:
 protected:
   vtkPolyDataMapper2D();
   ~vtkPolyDataMapper2D();
-
-  vtkPolyData* Input;
 
   vtkUnsignedCharArray *Colors;
 

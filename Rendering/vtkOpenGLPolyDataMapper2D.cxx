@@ -38,7 +38,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper2D, "1.53");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper2D, "1.54");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper2D);
 #endif
 
@@ -46,7 +46,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
                                               vtkActor2D* actor)
 {
   int            numPts;
-  vtkPolyData    *input= (vtkPolyData *)this->Input;
+  vtkPolyData    *input= (vtkPolyData *)this->GetInput();
   int            j;
   vtkPoints      *p, *displayPts;
   vtkCellArray   *aPrim;

@@ -15,23 +15,22 @@
 #include "vtkPolyDataMapper2D.h"
 
 #include "vtkCoordinate.h"
+#include "vtkExecutive.h"
 #include "vtkImagingFactory.h"
 #include "vtkLookupTable.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPolyDataMapper2D, "1.42");
+vtkCxxRevisionMacro(vtkPolyDataMapper2D, "1.43");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
 vtkInstantiatorNewMacro(vtkPolyDataMapper2D);
 //----------------------------------------------------------------------------
 
-vtkCxxSetObjectMacro(vtkPolyDataMapper2D,Input,vtkPolyData);
 vtkCxxSetObjectMacro(vtkPolyDataMapper2D,TransformCoordinate,vtkCoordinate);
 
 vtkPolyDataMapper2D::vtkPolyDataMapper2D()
 {
-  this->Input = NULL;
   this->Colors = NULL;
 
   this->LookupTable = NULL;
@@ -86,8 +85,32 @@ vtkPolyDataMapper2D::~vtkPolyDataMapper2D()
     {
     this->Colors->UnRegister(this);
     }
-  
-  this->SetInput(NULL);
+}
+
+//----------------------------------------------------------------------------
+void vtkPolyDataMapper2D::SetInput(vtkPolyData *input)
+{
+  if(input)
+    {
+    this->SetInputConnection(0, input->GetProducerPort());
+    }
+  else
+    {
+    // Setting a NULL input removes the connection.
+    this->SetInputConnection(0, 0);
+    }
+}
+
+//----------------------------------------------------------------------------
+// Specify the input data or filter.
+vtkPolyData *vtkPolyDataMapper2D::GetInput()
+{
+  if (this->GetNumberOfInputConnections(0) < 1)
+    {
+    return 0;
+    }
+  return vtkPolyData::SafeDownCast(
+    this->GetExecutive()->GetInputData(0, 0));
 }
 
 vtkPolyDataMapper2D *vtkPolyDataMapper2D::New()
@@ -258,15 +281,6 @@ const char *vtkPolyDataMapper2D::GetColorModeAsString(void)
 void vtkPolyDataMapper2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-
-  if ( this->Input )
-    {
-    os << indent << "Input: (" << this->Input << ")\n";
-    }
-  else
-    {
-    os << indent << "Input: (none)\n";
-    }
 
   if ( this->LookupTable )
     {
