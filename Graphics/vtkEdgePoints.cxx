@@ -19,12 +19,14 @@
 #include "vtkCellData.h"
 #include "vtkDataSet.h"
 #include "vtkGenericCell.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkEdgePoints, "1.53");
+vtkCxxRevisionMacro(vtkEdgePoints, "1.54");
 vtkStandardNewMacro(vtkEdgePoints);
 
 // Construct object with contour value of 0.0.
@@ -43,8 +45,21 @@ vtkEdgePoints::~vtkEdgePoints()
 //
 // General filter: handles arbitrary input.
 //
-void vtkEdgePoints::Execute()
+int vtkEdgePoints::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkDataArray *inScalars;
   vtkPoints *newPts;
   vtkCellArray *newVerts;
@@ -58,8 +73,6 @@ void vtkEdgePoints::Execute()
   vtkIdType p1, p2;
   vtkIdType pts[1];
   vtkIdType numCells, estimatedSize;
-  vtkDataSet *input = this->GetInput();
-  vtkPolyData *output = this->GetOutput();
   vtkDataArray *cellScalars;
   vtkPointData *inPd=input->GetPointData(), *outPd=output->GetPointData();
   vtkCellData *inCd=input->GetCellData(), *outCd=output->GetCellData();
@@ -71,14 +84,14 @@ void vtkEdgePoints::Execute()
   if ( ! (inScalars = input->GetPointData()->GetScalars()) )
     {
     vtkErrorMacro(<<"No scalar data to contour");
-    return;
+    return 0;
     }
 
   inScalars->GetRange(range,0);
   if ( this->Value < range[0] || this->Value > range[1] )
     {
     vtkWarningMacro(<<"Value lies outside of scalar range");
-    return;
+    return 0;
     }
 
   numCells = input->GetNumberOfCells();
@@ -210,6 +223,14 @@ void vtkEdgePoints::Execute()
   output->Squeeze();
   
   cellScalars->Delete();
+
+  return 1;
+}
+
+int vtkEdgePoints::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  return 1;
 }
 
 void vtkEdgePoints::PrintSelf(ostream& os, vtkIndent indent)
@@ -218,5 +239,3 @@ void vtkEdgePoints::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Contour Value: " << this->Value << "\n";
 }
-
-
