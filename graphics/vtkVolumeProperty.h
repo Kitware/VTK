@@ -45,7 +45,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkVolumeProperty is used to represent common properties associated 
 // with volume rendering. This includes properties for determining the type
 // of interpolation to use when sampling a volume, the color of a volume, 
-// the opacity of a volume, and shading parameters of a volume.
+// the scalar opacity of a volume, the gradient opacity of a volume, and the 
+// shading parameters of a volume.
+//
+// When the scalar opacity or the gradient opacity of a volume is not set,
+// then the function is defined to be a constant value of 1.0. When both a
+// scalar and gradient opacity are both set simultaneously, then the opacity
+// is defined to be the product of the scalar opacity and gradient opacity 
+// transfer functions.
 
 // .SECTION see also
 // vtkPiecewiseFunction vtkColorTransferFunction
@@ -121,28 +128,30 @@ public:
   vtkGetMacro(RGBTransferFunctionMTime, vtkTimeStamp);
 
   // Description:
-  // Set the opacity of a volume to an opacity transfer function. 
-  void SetOpacity( vtkPiecewiseFunction *function );
+  // Set the opacity of a volume to an opacity transfer function based
+  // on scalar value. 
+  void SetScalarOpacity( vtkPiecewiseFunction *function );
 
   // Description:
-  // Get the opacity transfer function.
-  vtkPiecewiseFunction *GetOpacityTransferFunction();
+  // Get the scalar opacity transfer function.
+  vtkPiecewiseFunction *GetScalarOpacity();
 
   // Description:
-  // Get the time that the OpacityTransferFunction was set
-  vtkGetMacro(OpacityTransferFunctionMTime, vtkTimeStamp);
+  // Get the time that the scalar opacity transfer function was set.
+  vtkGetMacro(ScalarOpacityMTime, vtkTimeStamp);
 
   // Description:
-  // Set the gradient magnitude transfer function. 
-  void SetGradientMagnitude( vtkPiecewiseFunction *function );
+  // Set the opacity of a volume to an opacity transfer function based
+  // on gradient magnitude. 
+  void SetGradientOpacity( vtkPiecewiseFunction *function );
 
   // Description:
-  // Get the magnitude of gradient transfer function.
-  vtkPiecewiseFunction *GetGradientMagnitudeTransferFunction();
+  // Get the gradient magnitude opacity transfer function.
+  vtkPiecewiseFunction *GetGradientOpacity();
 
   // Description:
-  // Get the time that the GradientMagnitudeTransferFunction was set
-  vtkGetMacro(GradientMagnitudeTransferFunctionMTime, vtkTimeStamp);
+  // Get the time that the gradient opacity transfer function was set
+  vtkGetMacro(GradientOpacityMTime, vtkTimeStamp);
 
   // Description:
   // Set/Get the shading of a volume.
@@ -171,14 +180,14 @@ public:
   vtkGetMacro(SpecularPower,float);
 
   // Description:
-  // Set/Get the gradient magnitude scale.
-  vtkSetMacro(GradientMagnitudeScale,float);
-  vtkGetMacro(GradientMagnitudeScale,float);
+  // Set/Get the gradient magnitude opacity scale.
+  vtkSetMacro(GradientOpacityScale,float);
+  vtkGetMacro(GradientOpacityScale,float);
 
   // Description:
-  // Set/Get the gradient magnitude bias.
-  vtkSetMacro(GradientMagnitudeBias,float);
-  vtkGetMacro(GradientMagnitudeBias,float);
+  // Set/Get the gradient magnitude opacity bias.
+  vtkSetMacro(GradientOpacityBias,float);
+  vtkGetMacro(GradientOpacityBias,float);
 
 protected:
 
@@ -194,13 +203,13 @@ protected:
   vtkTimeStamp			RGBTransferFunctionMTime;
   int				SelfCreatedRGBTFun;
 
-  vtkPiecewiseFunction		*OpacityTransferFunction;
-  vtkTimeStamp			OpacityTransferFunctionMTime;
-  int				SelfCreatedOTFun;
+  vtkPiecewiseFunction		*ScalarOpacity;
+  vtkTimeStamp			ScalarOpacityMTime;
+  int				SelfCreatedSOTFun;
 
-  vtkPiecewiseFunction		*GradientMagnitudeTransferFunction;
-  vtkTimeStamp			GradientMagnitudeTransferFunctionMTime;
-  int				SelfCreatedGMTFun;
+  vtkPiecewiseFunction		*GradientOpacity;
+  vtkTimeStamp			GradientOpacityMTime;
+  int				SelfCreatedGOTFun;
 
   int				Shade;
   float				Ambient;
@@ -209,8 +218,8 @@ protected:
   float				SpecularPower;
 
   // Constants for remapping the gradient magnitude values
-  float				GradientMagnitudeScale;
-  float				GradientMagnitudeBias;
+  float				GradientOpacityScale;
+  float				GradientOpacityBias;
 };
 
 // Description:
