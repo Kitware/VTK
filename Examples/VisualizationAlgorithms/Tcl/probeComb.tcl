@@ -1,4 +1,4 @@
-# This shos how to probe a dataset with a plane. The probed data is then
+# This shows how to probe a dataset with a plane. The probed data is then
 # contoured.
 
 package require vtk
