@@ -42,7 +42,6 @@
 #define __vtkArcPlotter_h
 
 #include "vtkPolyDataToPolyDataFilter.h"
-#include "vtkCamera.h"
 
 #define VTK_PLOT_SCALARS    1
 #define VTK_PLOT_VECTORS    2
@@ -50,6 +49,8 @@
 #define VTK_PLOT_TCOORDS    4
 #define VTK_PLOT_TENSORS    5
 #define VTK_PLOT_FIELD_DATA 6
+
+class vtkCamera;
 
 class VTK_HYBRID_EXPORT vtkArcPlotter : public vtkPolyDataToPolyDataFilter 
 {
@@ -65,7 +66,7 @@ public:
   // Description:
   // Specify a camera used to orient the plot along the arc. If no camera
   // is specified, then the orientation of the plot is arbitrary.
-  vtkSetObjectMacro(Camera,vtkCamera);
+  virtual void SetCamera(vtkCamera*);
   vtkGetObjectMacro(Camera,vtkCamera);
 
   // Description:
