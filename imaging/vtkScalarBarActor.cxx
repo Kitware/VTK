@@ -5,10 +5,8 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
-  Thanks:    Thanks to Kitware & RPI/SCOREC who supported the development
-             of this class.
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1999 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -86,6 +84,10 @@ vtkScalarBarActor::vtkScalarBarActor()
   this->ScalarBarActor->SetMapper(this->ScalarBarMapper);
   this->ScalarBarActor->GetPositionCoordinate()->
     SetReferenceCoordinate(this->PositionCoordinate);
+  this->LastOrigin[0] = 0;
+  this->LastOrigin[1] = 0;
+  this->LastSize[0] = 0;
+  this->LastSize[1] = 0;
 }
 
 vtkScalarBarActor::~vtkScalarBarActor()
@@ -189,9 +191,29 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
     }
 
   // Check to see whether we have to rebuild everything
+  if (viewport->GetMTime() > this->BuildTime)
+    {
+    // if the viewport has changed we may - or may not need
+    // to rebuild, it depends on if the projected coords chage
+    int *barOrigin, barWidth, barHeight;
+    barOrigin = this->PositionCoordinate->GetComputedViewportValue(viewport);
+    size[0] = 
+      this->Position2Coordinate->GetComputedViewportValue(viewport)[0] -
+      barOrigin[0];
+    size[1] = 
+      this->Position2Coordinate->GetComputedViewportValue(viewport)[1] -
+      barOrigin[1];
+    if (this->LastSize[0] != size[0] || this->LastSize[1] != size[1] ||
+	this->LastOrigin[0] != barOrigin[0] || 
+	this->LastOrigin[1] != barOrigin[1])
+      {
+      this->Modified();
+      }
+    }
+  
+  // Check to see whether we have to rebuild everything
   if ( this->GetMTime() > this->BuildTime || 
-       // viewport->GetMTime() > this->BuildTime ||
-  this->LookupTable->GetMTime() > this->BuildTime )
+       this->LookupTable->GetMTime() > this->BuildTime )
     {
     vtkDebugMacro(<<"Rebuilding subobjects");
 
@@ -241,7 +263,11 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
     size[1] = 
       this->Position2Coordinate->GetComputedViewportValue(viewport)[1] -
       barOrigin[1];
-
+    this->LastOrigin[0] = barOrigin[0];
+    this->LastOrigin[1] = barOrigin[1];
+    this->LastSize[0] = size[0];
+    this->LastSize[1] = size[1];
+    
     // Update all the composing objects
     //
     if (this->Title == NULL )

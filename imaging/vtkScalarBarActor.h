@@ -210,6 +210,8 @@ private:
   vtkActor2D          *ScalarBarActor;
 
   vtkTimeStamp  BuildTime;
+  int LastSize[2];
+  int LastOrigin[2];
 };
 
 

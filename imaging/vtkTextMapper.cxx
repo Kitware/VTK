@@ -41,6 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTextMapper.h"
 
 #ifdef _WIN32
+  #include "vtkWin32OpenGLTextMapper.h"
   #include "vtkWin32TextMapper.h"
 #else
   #include "vtkXTextMapper.h"
@@ -56,16 +57,16 @@ vtkTextMapper::vtkTextMapper()
   this->Italic = 0;
   this->Shadow = 0;
   this->FontFamily = VTK_ARIAL;
-  this->FontChanged = 0;
   this->Justification = 0;
 }
 
 vtkTextMapper *vtkTextMapper::New()
 {
 #ifdef _WIN32
-    return vtkWin32TextMapper::New();
+  return vtkWin32OpenGLTextMapper::New();
+  return vtkWin32TextMapper::New();
 #else
-    return vtkXTextMapper::New();
+  return vtkXTextMapper::New();
 #endif
 
 }
@@ -111,7 +112,6 @@ void vtkTextMapper::SetShadow(int val)
     }
   
   this->Shadow = val; 
-  this->FontChanged = 1; 
   this->Modified();
 }
 

@@ -62,6 +62,11 @@ public:
   static vtkWin32ImageMapper *New() {return new vtkWin32ImageMapper;};
   
   // Description:
+  // Handle the render method.
+  void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor) {
+    this->RenderStart(viewport,actor);}
+
+  // Description:
   // Called by the Render function in vtkImageMapper.  Actually draws
   // the image to the screen.
   void RenderData(vtkViewport* viewport, vtkImageData* data, 

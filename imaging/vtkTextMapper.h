@@ -93,8 +93,8 @@ public:
   // Set the font size used by the mapper.  The subclasses can override
   // this function since all font sizes may not be available (especially
   // in X).
-  virtual void SetFontSize(int size) 
-    {this->FontSize = size; this->FontChanged = 1; this->Modified();};
+  virtual void SetFontSize(int size) { if (size != this->FontSize)
+    {this->FontSize = size; this->Modified(); this->FontMTime.Modified();}};
 
   // Description:
   // Return the font size actually in use by the mapper.  This value may
@@ -105,14 +105,14 @@ public:
   // Description:
   // Enable/disable text bolding.
   void SetBold(int val) {if (val == this->Bold) { return; }
-    this->Bold = val; this->FontChanged = 1; this->Modified();};
+    this->Bold = val; this->Modified(); this->FontMTime.Modified();};
   vtkGetMacro(Bold, int);
   vtkBooleanMacro(Bold, int);
 
   // Description:
   // Enable/disable text italic.
   void SetItalic(int val) {if (val == this->Italic) { return; }
-    this->Italic = val; this->FontChanged = 1; this->Modified();};
+    this->Italic = val; this->Modified(); this->FontMTime.Modified();};
   vtkGetMacro(Italic, int);
   vtkBooleanMacro(Italic, int);
 
@@ -126,7 +126,7 @@ public:
   // Set/Get the font family.  Three font types are allowed: Arial (VTK_ARIAL),
   // Courier (VTK_COURIER), and Times (VTK_TIMES).
   void SetFontFamily(int val) {if (val == this->FontFamily) { return; }
-    this->FontFamily = val; this->FontChanged = 1; this->Modified();};
+    this->FontFamily = val; this->Modified(); this->FontMTime.Modified();};
   vtkGetMacro(FontFamily, int);
   void SetFontFamilyToArial() {this->SetFontFamily(VTK_ARIAL);};
   void SetFontFamilyToCourier() {this->SetFontFamily(VTK_COURIER);};
@@ -148,8 +148,8 @@ protected:
   int   FontSize;
   int   FontFamily;
   char* Input;
-  int   FontChanged;  
   int   Justification;
+  vtkTimeStamp FontMTime;
 };
 
 
