@@ -137,7 +137,13 @@ int vlPicker::Pick(float selectionX, float selectionY, float selectionZ,
   renderer->SetDisplayPoint(selectionX, selectionY, selectionZ);
   renderer->DisplayToWorld();
   worldCoords = renderer->GetWorldPoint();
-  for (i=0; i < 3; i++) this->PickPosition[i] = worldCoords[i];
+  if ( worldCoords[3] == 0.0 )
+    {
+    vlErrorMacro(<<"Bad homogeneous coordinates");
+    return 0;
+    }
+  for (i=0; i < 3; i++) 
+    this->PickPosition[i] = worldCoords[i] / worldCoords[3];
 //
 //  Compute the ray endpoints.  The ray is along the line running from
 //  the camera position to the selection point, starting where this line
