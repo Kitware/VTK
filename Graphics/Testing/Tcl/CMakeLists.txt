@@ -142,6 +142,7 @@ IF (VTK_USE_RENDERING)
       testDataSetTriangleFilter
       testDataSetTriangleFilter2
       TestGraphLayoutFilter
+      testHexaPenta
       TestMultiBlockStreamer
       TestPlatonicSolids
       TestQuadricClustering
