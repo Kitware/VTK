@@ -139,7 +139,6 @@ set i 0
 foreach s $flake_list {
     vtkLODActor actor_$i
     actor_$i SetMapper mapper
-    actor_$i BuildLODsOff
     actor_$i AddLODMapper low_res_mapper
     actor_$i AddLODMapper med_res_mapper
     actor_$i SetPosition [lindex $s 0] [lindex $s 1] [lindex $s 2]
