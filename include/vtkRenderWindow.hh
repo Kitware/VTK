@@ -176,7 +176,7 @@ public:
 
   virtual int  GetRemapWindow();
   virtual void WindowRemap() {};
-
+  
   // Description:
   // Turn on/off erasing the screen between images. Allows multiple exposure
   // sequences if turned on.
@@ -225,6 +225,11 @@ public:
   vtkGetMacro(SubFrames,int);
   vtkSetMacro(SubFrames,int);
 
+  // Description:
+  // Set/Get the desired update rate.
+  void SetDesiredUpdateRate(float);
+  vtkGetMacro(DesiredUpdateRate,float);
+
 protected:
   virtual void DoStereoRender();
   virtual void DoFDRender();
@@ -253,6 +258,7 @@ protected:
   unsigned char* ResultFrame;  // used for any non immediate rendering
   int   Erase;
   int   SwapBuffers;
+  float DesiredUpdateRate;
 };
 
 #endif
