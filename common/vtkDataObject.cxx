@@ -54,7 +54,7 @@ vtkDataObject::vtkDataObject()
   // --- streaming stuff ---
   this->PipelineMTime = 0;
   this->MemoryLimit = VTK_LARGE_INTEGER;
-  this->EstimatedMemorySize = 0;
+  this->EstimatedWholeMemorySize = 0;
   this->Locality = 0;
 }
 
@@ -199,7 +199,8 @@ void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "UpdateTime: " << this->UpdateTime << endl;
   os << indent << "PipelineMTime: " << this->PipelineMTime << endl;
-  os << indent << "EstimatedMemorySize: " << this->EstimatedMemorySize << endl;
+  os << indent << "EstimatedWholeMemorySize: " 
+     << this->EstimatedWholeMemorySize << endl;
   os << indent << "MemoryLimit: " << this->MemoryLimit << endl;
   os << indent << "Locality: " << this->Locality << endl;
 

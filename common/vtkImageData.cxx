@@ -1747,14 +1747,14 @@ void vtkImageData::UpdateInformation()
   if (this->Source)
     {
     this->Source->UpdateInformation();
-    this->ComputeEstimatedMemorySize();
+    this->ComputeEstimatedWholeMemorySize();
     }
 }
 
 //----------------------------------------------------------------------------
 // Estimated memory size is implicit in the other image information.
 // It is computed automatically (superclass) during UpdateInformation.
-void vtkImageData::ComputeEstimatedMemorySize()
+void vtkImageData::ComputeEstimatedWholeMemorySize()
 {
   double size = (float)this->NumberOfScalarComponents;
   int idx;
@@ -1807,12 +1807,34 @@ void vtkImageData::ComputeEstimatedMemorySize()
   // (multiple input filters) so do not give an error.
   if (size < 0)
     {
-    this->EstimatedMemorySize = 0;
+    this->EstimatedWholeMemorySize = 0;
     }
 
   long lsize = (long)(size / 1000.0);
   
-  this->EstimatedMemorySize = lsize;
+  this->EstimatedWholeMemorySize = lsize;
+}
+
+//----------------------------------------------------------------------------
+unsigned long vtkImageData::GetEstimatedUpdateExtentMemorySize()
+{
+  int idx;
+  unsigned long wholeSize, updateSize;
+  
+  // Compute the sizes
+  wholeSize = updateSize = 1;
+  for (idx = 0; idx < 3; ++idx)
+    {
+    wholeSize *= (this->WholeExtent[idx*2+1] - this->WholeExtent[idx*2] + 1);
+    updateSize *= (this->UpdateExtent[idx*2+1] - this->UpdateExtent[idx*2] +1);
+    }
+
+  updateSize = updateSize * this->EstimatedWholeMemorySize / wholeSize;
+  if (updateSize < 1)
+    {
+    return 1;
+    }
+  return updateSize;
 }
 
 //----------------------------------------------------------------------------

@@ -293,12 +293,17 @@ public:
 
   // Description:
   // This class has a special UpdateInformation method
-  // that automatically computes EstimatedMemorySize.
+  // that automatically computes EstimatedWholeMemorySize.
   void UpdateInformation();
+
+  // Description:
+  // Return the amount of memory for the update piece.
+  unsigned long GetEstimatedUpdateExtentMemorySize();
   
   // Description:
-  // Legacy.  Replaced with GetEstimatedMemorySize.
-  long GetUpdateExtentMemorySize() {return GetEstimatedMemorySize();}
+  // Legacy.  Replaced with GetEstimatedUpdateExtentMemorySize.
+  long GetUpdateExtentMemorySize() 
+    {return GetEstimatedUpdateExtentMemorySize();}
   
 protected:
   vtkImageToStructuredPoints *ImageToStructuredPoints;
@@ -326,7 +331,7 @@ protected:
 
   // Computes the estimated memory size from the Update extent,
   // ScalarType, and NumberOfComponents
-  void ComputeEstimatedMemorySize();
+  void ComputeEstimatedWholeMemorySize();
 };
 
 inline void vtkImageData::GetPoint(int id, float x[3])

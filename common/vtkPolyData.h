@@ -346,6 +346,10 @@ public:
   int GetUpdateNumberOfPieces() {return this->UpdateNumberOfPieces;}
   int GetUpdatePiece() {return this->UpdatePiece;}
 
+  // Description:
+  // Return the amount of memory for the update piece.
+  unsigned long GetEstimatedUpdateExtentMemorySize();
+
 protected:
   // constant cell objects returned by GetCell called.
   vtkVertex *Vertex;

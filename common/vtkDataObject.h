@@ -153,7 +153,7 @@ public:
   // This makes sure all "Information" associated with this data object
   // is up to date.  Information is defined as any thing that is needed
   // before the input is updated (like PipelineMTime for the execution check
-  // and EstimatedMemorySize for streaming).
+  // and EstimatedWholeMemorySize for streaming).
   virtual void UpdateInformation();
   
   // Description:
@@ -172,10 +172,19 @@ public:
   // One of the variables set when UpdateInformation is called.
   // the estimated size of the data (in kilobytes) after the whole
   // extent is updated.  Setting the value does not alter MTime.
-  void SetEstimatedMemorySize(unsigned long v) {this->EstimatedMemorySize = v;}
-  virtual unsigned long GetEstimatedMemorySize() 
-    {return this->EstimatedMemorySize;}
-
+  void SetEstimatedWholeMemorySize(unsigned long v) 
+    {this->EstimatedWholeMemorySize = v;}
+  virtual unsigned long GetEstimatedWholeMemorySize() 
+    {return this->EstimatedWholeMemorySize;}
+  
+  // Description:
+  // Convience method: Uses the EstimatedWholeMemorySize to compute
+  // the estimated memory size of the update extent.
+  virtual unsigned long GetEstimatedUpdateExtentMemorySize()
+    { vtkErrorMacro(
+      "Subclass did not implement 'GetEstimatedUpdateExtentMemorySize'");
+    }
+  
   // Description:
   // Method implemented in the subclasses to make sure the update extent
   // is not bigger than the whole extent.  Should be pure virtual.
@@ -232,7 +241,7 @@ protected:
   // ----- streaming stuff -----------
 
   unsigned long MemoryLimit;
-  unsigned long EstimatedMemorySize;
+  unsigned long EstimatedWholeMemorySize;
 
   unsigned long PipelineMTime;
   vtkTimeStamp UpdateTime;

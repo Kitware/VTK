@@ -1359,6 +1359,29 @@ void vtkPolyData::CopyInformation(vtkDataObject *data)
     }
 }
 
+//----------------------------------------------------------------------------
+unsigned long vtkPolyData::GetEstimatedUpdateExtentMemorySize()
+{
+  int idx;
+  unsigned long size;
+  
+  if (this->UpdateNumberOfPieces <= 0)
+    {
+    // should not happen (trying to make this robust)
+    return this->EstimatedWholeMemorySize;
+    }
+  
+  size = this->EstimatedWholeMemorySize;
+  size = size * this->UpdatePiece / this->UpdateNumberOfPieces;
+  
+  if (size < 1)
+    {
+    return 1;
+    }
+  return size;
+}
+
+
 
 //----------------------------------------------------------------------------
 void vtkPolyData::PrintSelf(ostream& os, vtkIndent indent)

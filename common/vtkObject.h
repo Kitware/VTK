@@ -177,15 +177,6 @@ public:
   void SetDeleteMethod(void (*f)(void *));
   //ETX
   
-  //BTX
-  // Description:
-  // An experiment with serialization. Not yet complete.
-  virtual void ReadSelf(istream& vtkNotUsed(is))
-    {vtkErrorMacro("ReadSelf not implemented");}  
-  virtual void WriteSelf(ostream& vtkNotUsed(os))
-    {vtkErrorMacro("WriteSelf not implemented");}  
-  //ETX
-  
 protected:
   unsigned char Debug;         // Enable debug messages
   vtkTimeStamp MTime; // Keep track of modification time
