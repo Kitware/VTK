@@ -298,7 +298,7 @@ void vtkGlrRenderWindow::WindowConfigure()
   
   if (this->MultiSamples > 1.0)
     {
-    set_config_value(GLX_NORMAL,GLX_ZSIZE,the_config,0);
+    set_config_value(GLX_NORMAL,GLX_ZSIZE,the_config,GLX_NOCONFIG);
     set_config_value(GLX_NORMAL,GLX_MSSAMPLE,the_config,
 		     (unsigned long)this->MultiSamples);
     set_config_value(GLX_NORMAL,GLX_MSZSIZE,the_config,32);
