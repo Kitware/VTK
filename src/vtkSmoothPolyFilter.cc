@@ -48,10 +48,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // contraction factor 0.33; feature edge smoothing turned off; feature 
 // angle 45 degrees; edge angle 15 degrees; and boundary smoothing turned 
 // on. Error scalars and vectors are not generated (by default). The 
-// convergence criterion is 0.01 of the bounding box diagonal.
+// convergence criterion is 0.0 of the bounding box diagonal.
 vtkSmoothPolyFilter::vtkSmoothPolyFilter()
 {
-  this->Convergence = 0.01;
+  this->Convergence = 0.0; //goes to number of specied iterations
   this->NumberOfIterations = 20;
 
   this->ExpansionFactor = -0.34;
