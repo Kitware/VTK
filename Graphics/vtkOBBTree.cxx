@@ -26,7 +26,7 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkOBBTree, "1.56");
+vtkCxxRevisionMacro(vtkOBBTree, "1.57");
 vtkStandardNewMacro(vtkOBBTree);
 
 #define vtkCELLTRIANGLES(CELLPTIDS, TYPE, IDX, PTID0, PTID1, PTID2) \
@@ -269,7 +269,8 @@ void vtkOBBTree::ComputeOBB(vtkIdList *cells, double corner[3], double max[3],
 {
   vtkIdType numCells, i, j, cellId, ptId, pId, qId, rId;
   int k, type;
-  vtkIdType *ptIds, numPts;
+  vtkIdType numPts;
+  vtkIdType *ptIds = 0;
   double p[3], q[3], r[3], mean[3], xp[3], *v[3], v0[3], v1[3], v2[3];
   double *a[3], a0[3], a1[3], a2[3];
   double tMin[3], tMax[3], closest[3], t;
@@ -301,6 +302,10 @@ void vtkOBBTree::ComputeOBB(vtkIdList *cells, double corner[3], double max[3],
         break;
       case VTK_UNSTRUCTURED_GRID:
         ((vtkUnstructuredGrid *)this->DataSet)->GetCellPoints( cellId, numPts, ptIds );
+        break;
+      default:
+        vtkErrorMacro( <<"DataSet " <<  this->DataSet->GetClassName() << 
+                       " not supported." );
         break;
       }
     for ( j=0; j<numPts-2; j++ )
