@@ -32,6 +32,7 @@ vtkTransform t3
 transforms AddItem t1
 transforms AddItem t2
 transforms AddItem t3
+toolImp Update
 
 vtkSweptSurface toolVolume
   toolVolume SetInput [toolImp GetOutput]
