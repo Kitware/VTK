@@ -88,6 +88,17 @@ public:
   vtkSetVector3Macro(SampleRate, int);
   vtkGetVectorMacro(SampleRate, int, 3);
 
+  // Description:
+  // Control whether to enforce that the "boundary" of the grid is output in
+  // the subsampling process. (This ivar only has effect when the SampleRate
+  // in any direction is not equal to 1.) When this ivar IncludeBoundary is
+  // on, the subsampling will always include the boundary of the grid even
+  // though the sample rate is not an even multiple of the grid
+  // dimensions. (By default IncludeBoundary is off.)
+  vtkSetMacro(IncludeBoundary,int);
+  vtkGetMacro(IncludeBoundary,int);
+  vtkBooleanMacro(IncludeBoundary,int);
+
 protected:
   vtkExtractGrid();
   ~vtkExtractGrid() {};
@@ -99,6 +110,8 @@ protected:
 
   int VOI[6];
   int SampleRate[3];
+  int IncludeBoundary;
+  
 };
 
 #endif

@@ -42,9 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkExtractGrid.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//------------------------------------------------------------------------
 vtkExtractGrid* vtkExtractGrid::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -57,9 +55,6 @@ vtkExtractGrid* vtkExtractGrid::New()
   return new vtkExtractGrid;
 }
 
-
-
-
 // Construct object to extract all of the input data.
 vtkExtractGrid::vtkExtractGrid()
 {
@@ -67,6 +62,8 @@ vtkExtractGrid::vtkExtractGrid()
   this->VOI[1] = this->VOI[3] = this->VOI[5] = VTK_LARGE_INTEGER;
 
   this->SampleRate[0] = this->SampleRate[1] = this->SampleRate[2] = 1;
+  
+  this->IncludeBoundary = 0;
 }
 
 void vtkExtractGrid::ExecuteInformation()
@@ -120,6 +117,23 @@ void vtkExtractGrid::ExecuteInformation()
       }
     }
 
+  // Adjust the output dimensions if the boundaries are to be
+  // included and the sample rate is not 1.
+  if ( this->IncludeBoundary && 
+       (rate[0] != 1 || rate[1] != 1 || rate[2] != 1) )
+    {
+    int i, diff;
+    for (i=0; i<3; i++)
+      {
+      if ( ((diff=voi[2*i+1]-voi[2*i]) > 0) && rate[i] != 1 &&
+           ((diff % rate[i]) != 0) )
+        {
+        outDims[i]++;
+        }
+      }
+    }
+
+  // Set the whole extent of the output
   wholeExtent[0] = 0;
   wholeExtent[1] = outDims[0] - 1;
   wholeExtent[2] = 0;
@@ -138,23 +152,25 @@ void vtkExtractGrid::Execute()
   vtkStructuredGrid *output= this->GetOutput();
   vtkPointData *outPD=output->GetPointData();
   vtkCellData *outCD=output->GetCellData();
-  int i, j, k, dims[3], outDims[3], voi[6], dim, idx, newIdx;
+  int i, j, k, dims[3], outDims[3], voi[6], extent[6], dim, idx, newIdx;
   int newCellId;
   int sliceSize, outSize, jOffset, kOffset, rate[3];
   vtkPoints *newPts, *inPts;
+  int includeBoundary[3], diff;
 
   vtkDebugMacro(<< "Extracting Grid");
-//
-// Check Grid and clamp as necessary. Compute output parameters,
-//
+
   inPts = input->GetPoints();
   input->GetDimensions(dims);
 
+  // Get the volume of interest.
+  // Make sure parameters are consistent.
   for ( i=0; i < 6; i++ )
     {
     voi[i] = this->VOI[i];
     }
 
+  includeBoundary[0] = includeBoundary[1] = includeBoundary[2] = 0;
   for ( outSize=1, dim=0, i=0; i < 3; i++ )
     {
     if ( voi[2*i+1] >= dims[i] )
@@ -191,13 +207,22 @@ void vtkExtractGrid::Execute()
       outDims[i] = 1;
       }
 
+    if ( this->IncludeBoundary && rate[i] != 1 )
+      {
+      if ( ((diff=voi[2*i+1]-voi[2*i]) > 0) && ((diff % rate[i]) != 0) )
+        {
+        outDims[i]++;
+        includeBoundary[i] = 1;
+        }
+      }
+    
     outSize *= outDims[i];
     }
 
   output->SetDimensions(outDims);
-//
-// If output same as input, just pass data through
-//
+
+  // If output same as input, just pass data through
+  //
   if ( outDims[0] == dims[0] && outDims[1] == dims[1] && outDims[2] == dims[2] &&
   rate[0] == 1 && rate[1] == 1 && rate[2] == 1 )
     {
@@ -207,48 +232,80 @@ void vtkExtractGrid::Execute()
     vtkDebugMacro(<<"Passed data through bacause input and output are the same");
     return;
     }
-//
-// Allocate necessary objects
-//
-  newPts = (vtkPoints *) inPts->MakeObject(); newPts->SetNumberOfPoints(outSize);
+
+  // Allocate necessary objects
+  //
+  newPts = (vtkPoints *) inPts->MakeObject(); 
+  newPts->SetNumberOfPoints(outSize);
   outPD->CopyAllocate(pd,outSize,outSize);
   outCD->CopyAllocate(cd,outSize,outSize);
-//
-// Traverse input data and copy point attributes to output
-//
+
+  // Traverse input data and copy point attributes to output
+  //
   sliceSize = dims[0]*dims[1];
   newIdx = 0;
-  for ( k=voi[4]; k <= voi[5]; k += rate[2] )
+  for ( k=voi[4]; k <= voi[5]; )
     {
     kOffset = k * sliceSize;
-    for ( j=voi[2]; j <= voi[3]; j += rate[1] )
+    for ( j=voi[2]; j <= voi[3]; )
       {
       jOffset = j * dims[0];
-      for ( i=voi[0]; i <= voi[1]; i += rate[0] )
+      for ( i=voi[0]; i <= voi[1]; )
         {
         idx = i + jOffset + kOffset;
         newPts->SetPoint(newIdx,inPts->GetPoint(idx));
         outPD->CopyData(pd, idx, newIdx++);
+
+        i += rate[0]; //adjust for boundary
+        if ( includeBoundary[0] && i > voi[1] && (i-rate[0]) != voi[1] )
+          {
+          i = voi[1];
+          }
         }
+      j += rate[1]; //adjust for boundary
+      if ( includeBoundary[1] && j > voi[3] && (j-rate[1]) != voi[3] )
+        {
+        j = voi[3];
+        }
+      }
+    k += rate[2]; //adjust for boundary
+    if ( includeBoundary[2] && k > voi[5] && (k-rate[2]) != voi[5] )
+      {
+      k = voi[5];
       }
     }
 
-//
-// Traverse input data and copy cell attributes to output
-//
+  // Traverse input data and copy cell attributes to output
+  //
   newCellId = 0;
   sliceSize = (dims[0]-1)*(dims[1]-1);
-  for ( k=voi[4]; k < voi[5]; k += rate[2] )
+  for ( k=voi[4]; k < voi[5]; )
     {
     kOffset = k * sliceSize;
-    for ( j=voi[2]; j < voi[3]; j += rate[1] )
+    for ( j=voi[2]; j < voi[3]; )
       {
       jOffset = j * (dims[0] - 1);
-      for ( i=voi[0]; i < voi[1]; i += rate[0] )
+      for ( i=voi[0]; i < voi[1]; )
         {
         idx = i + jOffset + kOffset;
         outCD->CopyData(cd, idx, newCellId++);
+
+        i += rate[0]; //adjust for boundary
+        if ( includeBoundary[0] && i >= voi[1] && (i-rate[0]) != (voi[1]-1) )
+          {
+          i = voi[1] - 1;
+          }
         }
+      j += rate[1]; //adjust for boundary
+      if ( includeBoundary[1] && j >= voi[3] && (j-rate[1]) != (voi[3]-1) )
+        {
+        j = voi[3] - 1;
+        }
+      }
+    k += rate[2]; //adjust for boundary
+    if ( includeBoundary[2] && k >= voi[5] && (k-rate[2]) != (voi[5]-1) )
+      {
+      k = voi[5] - 1;
       }
     }
 
@@ -266,13 +323,19 @@ void vtkExtractGrid::PrintSelf(ostream& os, vtkIndent indent)
   vtkStructuredGridToStructuredGridFilter::PrintSelf(os,indent);
 
   os << indent << "VOI: \n";
-  os << indent << "  Imin,Imax: (" << this->VOI[0] << ", " << this->VOI[1] << ")\n";
-  os << indent << "  Jmin,Jmax: (" << this->VOI[2] << ", " << this->VOI[3] << ")\n";
-  os << indent << "  Kmin,Kmax: (" << this->VOI[4] << ", " << this->VOI[5] << ")\n";
+  os << indent << "  Imin,Imax: (" << this->VOI[0] << ", " 
+     << this->VOI[1] << ")\n";
+  os << indent << "  Jmin,Jmax: (" << this->VOI[2] << ", " 
+     << this->VOI[3] << ")\n";
+  os << indent << "  Kmin,Kmax: (" << this->VOI[4] << ", " 
+     << this->VOI[5] << ")\n";
 
   os << indent << "Sample Rate: (" << this->SampleRate[0] << ", "
                << this->SampleRate[1] << ", "
                << this->SampleRate[2] << ")\n";
+
+  os << indent << "Include Boundary: " 
+     << (this->IncludeBoundary ? "On\n" : "Off\n");
 }
 
 
