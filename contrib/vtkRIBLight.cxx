@@ -49,7 +49,7 @@ vtkRIBLight::vtkRIBLight ()
 
 vtkRIBLight::~vtkRIBLight()
 {
-  if (this->Light) delete [] this->Light;
+  if (this->Light) this->Light->Delete();
 }
 
 void vtkRIBLight::Render(vtkRenderer *ren, int index)
