@@ -217,7 +217,7 @@ float vtkDataSet::GetLength()
 
 unsigned long int vtkDataSet::GetMTime()
 {
-  unsigned long result;
+  unsigned long result, pointDataMTime;
   
   if (this->Source)
     {
@@ -232,8 +232,8 @@ unsigned long int vtkDataSet::GetMTime()
     result = this->MTime;
     }
   
-  if ( this->PointData.GetMTime() > result) return this->PointData.GetMTime();
-  else return result;
+  pointDataMTime = this->PointData.GetMTime();
+  return ( pointDataMTime > result ? pointDataMTime : result );
 }
 
 vtkCell *vtkDataSet::FindAndGetCell (float x[3], vtkCell *cell, int cellId, 

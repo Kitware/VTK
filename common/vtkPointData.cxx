@@ -121,6 +121,50 @@ vtkPointData& vtkPointData::operator=(vtkPointData& pd)
   return *this;
 }
 
+unsigned long int vtkPointData::GetMTime()
+{
+  unsigned long int mtime = this->MTime;
+  unsigned long int otherMTime;
+
+  if (this->Scalars)
+    {
+    otherMTime = this->Scalars->GetMTime();
+    if ( otherMTime > mtime ) mtime = otherMTime;
+    }
+
+  if (this->Vectors)
+    {
+    otherMTime = this->Vectors->GetMTime();
+    if ( otherMTime > mtime ) mtime = otherMTime;
+    }
+
+  if (this->Normals)
+    {
+    otherMTime = this->Normals->GetMTime();
+    if ( otherMTime > mtime ) mtime = otherMTime;
+    }
+
+  if(this->TCoords) 
+    {
+    otherMTime = this->TCoords->GetMTime();
+    if ( otherMTime > mtime ) mtime = otherMTime;
+    }
+
+  if(this->Tensors) 
+    {
+    otherMTime = this->Tensors->GetMTime();
+    if ( otherMTime > mtime ) mtime = otherMTime;
+    }
+
+  if(this->UserDefined) 
+    {
+    otherMTime = this->UserDefined->GetMTime();
+    if ( otherMTime > mtime ) mtime = otherMTime;
+    }
+
+  return mtime;
+}
+
 // Description:
 // Copy the point data from one point to another. Make sure CopyAllocate() has
 // been invoked before using this method.

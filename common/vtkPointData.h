@@ -89,6 +89,9 @@ public:
   // Reclaim memory
   void Squeeze();
 
+  // Need to check component pieces for modified time
+  unsigned long int GetMTime();
+
   // Description:
   // Set scalar data.
   vtkSetRefCountedObjectMacro(Scalars,vtkScalars);
