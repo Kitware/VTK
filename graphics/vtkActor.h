@@ -69,23 +69,21 @@ class vtkRenderer;
 class VTK_EXPORT vtkActor : public vtkProp
 {
  public:
-
   // Description:
-  // Creates an actor with the following defaults: origin(0,0,0) 
+  // Creates an actor with the following defaults: origin(0,0,0)
   // position=(0,0,0) scale=(1,1,1) visibility=1 pickable=1 dragable=1
   // orientation=(0,0,0). No user defined matrix and no texture map.
   vtkActor();
-
   ~vtkActor();
   static vtkActor *New();
   const char *GetClassName() {return "vtkActor";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // This causes the actor to be rendered. It in turn will render the actor's
-  // property, texture map and then mapper. If a property hasn't been 
-  // assigned, then the actor will create one automatically. Note that a 
-  // side effect of this method is that the visualization network is updated.
+  // This causes the actor to be rendered. It in turn will render the
+  // actor's property, texture map and then mapper. If a property
+  // hasn't been assigned, then the actor will create one
+  // automatically. Note that a side effect of this method is that the
   virtual void Render(vtkRenderer *ren);
 
   virtual void Render(vtkRenderer *, vtkMapper *) {};
@@ -142,7 +140,8 @@ class VTK_EXPORT vtkActor : public vtkProp
   void GetMatrix(vtkMatrix4x4 &m) {this->GetMatrix(&m);}
 
   // Description:
-  // Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
+  // Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax). (The
+  // method GetBounds(float bounds[6]) is available from the superclass.)
   float *GetBounds();
 
   // Description:
