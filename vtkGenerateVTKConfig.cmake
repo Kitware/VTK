@@ -92,27 +92,16 @@ SET(VTK_CMAKE_EXTENSIONS_DIR_CONFIG ${VTK_BINARY_DIR}/CMake)
 # Library dependencies file.
 SET(VTK_LIBRARY_DEPENDS_FILE "${VTK_BINARY_DIR}/VTKLibraryDepends.cmake")
 
+# Hack to give source tree access for a build tree configuration.
+STRING(ASCII 35 VTK_STRING_POUND)
+STRING(ASCII 64 VTK_STRING_AT)
+SET(VTK_CONFIG_BACKWARD_COMPATIBILITY_HACK
+  "\n${VTK_STRING_POUND} For backward compatability.  DO NOT USE.\nSET(VTK_SOURCE_DIR \"${VTK_SOURCE_DIR}\")\nIF(NOT TCL_LIBRARY)\n  SET(TCL_LIBRARY \"${TCL_LIBRARY}\" CACHE FILEPATH \"Location of Tcl library imported from VTK.  This may mean your project is depending on VTK to get this setting.  Consider using FindTCL.cmake.\")\nENDIF(NOT TCL_LIBRARY)\nIF(NOT TK_LIBRARY)\n  SET(TK_LIBRARY \"${TK_LIBRARY}\" CACHE FILEPATH \"Location of Tk library imported from VTK.  This may mean your project is depending on VTK to get this setting.  Consider using FindTCL.cmake.\")\nENDIF(NOT TK_LIBRARY)\nMARK_AS_ADVANCED(TCL_LIBRARY TK_LIBRARY)\n")
+
 #-----------------------------------------------------------------------------
 # Configure VTKConfig.cmake for the build tree.
 CONFIGURE_FILE(${VTK_SOURCE_DIR}/VTKConfig.cmake.in
                ${VTK_BINARY_DIR}/VTKConfig.cmake @ONLY IMMEDIATE)
-
-# Hack to give source tree access for a build tree configuration.
-STRING(ASCII 35 VTK_STRING_POUND)
-STRING(ASCII 64 VTK_STRING_AT)
-WRITE_FILE(${VTK_BINARY_DIR}/VTKConfig.cmake
-  "\n"
-  "${VTK_STRING_POUND} For backward compatability.  DO NOT USE.\n"
-  "SET(VTK_SOURCE_DIR \"${VTK_SOURCE_DIR}\")\n"
-  "IF(NOT TCL_LIBRARY)\n"
-  "  SET(TCL_LIBRARY \"${TCL_LIBRARY}\" CACHE FILEPATH \"Location of Tcl library imported from VTK.  This may mean your project is depending on VTK to get this setting.  Consider using FindTCL.cmake.\")\n"
-  "ENDIF(NOT TCL_LIBRARY)\n"
-  "IF(NOT TK_LIBRARY)\n"
-  "  SET(TK_LIBRARY \"${TK_LIBRARY}\" CACHE FILEPATH \"Location of Tk library imported from VTK.  This may mean your project is depending on VTK to get this setting.  Consider using FindTCL.cmake.\")\n"
-  "ENDIF(NOT TK_LIBRARY)\n"
-  "MARK_AS_ADVANCED(TCL_LIBRARY TK_LIBRARY)\n"
-  APPEND
-)
 
 #-----------------------------------------------------------------------------
 # Settings specific to the install tree.
@@ -199,6 +188,9 @@ SET(VTK_CMAKE_EXTENSIONS_DIR_CONFIG ${CMAKE_INSTALL_PREFIX}/lib/vtk/CMake)
 
 # Library dependencies file.
 SET(VTK_LIBRARY_DEPENDS_FILE "${CMAKE_INSTALL_PREFIX}/lib/vtk/VTKLibraryDepends.cmake")
+
+# No backward compatibility hack needed for installed path
+SET(VTK_CONFIG_BACKWARD_COMPATIBILITY_HACK)
 
 #-----------------------------------------------------------------------------
 # Configure VTKConfig.cmake for the install tree.

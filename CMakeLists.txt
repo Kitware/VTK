@@ -472,6 +472,8 @@ VTK_THIRD_PARTY_OPTION(EXPAT expat)
 
 #-----------------------------------------------------------------------------
 # VTK requires special compiler flags on some platforms.
+SET(VTK_REQUIRED_C_FLAGS)
+SET(VTK_REQUIRED_CXX_FLAGS)
 IF(CMAKE_COMPILER_IS_GNUCXX)
   # A GCC compiler.  Quiet warning about strstream deprecation.
   SET(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} -Wno-deprecated")
