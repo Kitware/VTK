@@ -1,10 +1,12 @@
-// This program test the ports by setting up a simple pipeline.
+// This program test pipeline parallelism.  Output port changes its behavior
+// with the PipelineFlagOn() call.  The output port has a call back that change
+// the parameters of the source generating the series.
 
 #include "mpi.h"
 #include "vtkImageGaussianSource.h"
 #include "vtkImageEllipsoidSource.h"
-#include "vtkUpStreamPort.h"
-#include "vtkDownStreamPort.h"
+#include "vtkOutputPort.h"
+#include "vtkInputPort.h"
 #include "vtkImageShiftScale.h"
 #include "vtkTexture.h"
 #include "vtkPlaneSource.h"
@@ -19,11 +21,14 @@
 #define ID_C 2
 
 // Used to change the source (to get a series of images for the pipeline)
-void callback1(void *arg, int id)
+void change_param(void *arg)
 {
   vtkImageGaussianSource *source = (vtkImageGaussianSource *)arg;
   float max = source->GetMaximum();
-  source->SetMaximum(max + 100.0);
+  if (max < 500.0)
+    {
+    source->SetMaximum(max + 100.0);
+    }
 }
 
 // End Execute methods of filters so we can examine values of
@@ -58,6 +63,11 @@ void report(void *arg)
 
 VTK_THREAD_RETURN_TYPE process_a( void *vtkNotUsed(arg) )
 {
+  controller = vtkMultiProcessController::RegisterAndGetGlobalController(NULL);
+  // Pipeline parallelism oprerates asynchronously so shallow copy does not work.
+  controller->ForceDeepCopy();
+  controller->UnRegister(NULL);
+
   // Set up the pipeline source.
   vtkImageGaussianSource *source = vtkImageGaussianSource::New();
   source->SetCenter(128.0, 128.0, 0.0);
@@ -65,21 +75,18 @@ VTK_THREAD_RETURN_TYPE process_a( void *vtkNotUsed(arg) )
   source->SetStandardDeviation(50.0);
   source->SetEndMethod(report, source->GetOutput());
 
-  vtkUpStreamPort *upStreamPort = vtkUpStreamPort::New();
+  vtkOutputPort *upStreamPort = vtkOutputPort::New();
   upStreamPort->SetInput(source->GetOutput());
   upStreamPort->SetTag(888);
+  // This flag changes the behavoir of the port.
+  // It acts like a buffer that delays one iteraction.
+  // It also calls update twice.  The first Update generates
+  // the requested data and transfers it.  The seconds
+  // starts processing the next request, but does not block the 
+  // down stream port.
   upStreamPort->PipelineFlagOn();
-  
-  // Put in a call back that allows process C to change the series.
-  vtkMultiProcessController *controller;
-  controller = vtkMultiProcessController::RegisterAndGetGlobalController(NULL);
-  controller->AddRMI(callback1, source, 300);
-  controller->UnRegister(NULL);
-  
-  // Prime the pipeline
-  upStreamPort->GetInput()->Update();
-  controller->TriggerRMI(ID_A, 300);
-  cerr << "----------------------\n";
+  // This method is call to change the serries parameter.
+  upStreamPort->SetParameterMethod(change_param, source);
   
   // wait for the call back to execute.
   upStreamPort->WaitForUpdate();
@@ -95,9 +102,12 @@ VTK_THREAD_RETURN_TYPE process_b( void *vtkNotUsed(arg) )
 {
   vtkMultiProcessController *controller;
   controller = vtkMultiProcessController::RegisterAndGetGlobalController(NULL);
+
+  // Pipeline parallelism oprerates asynchronously so shallow copy does not work.
+  controller->ForceDeepCopy();
   
-  vtkDownStreamPort *downStreamPort = vtkDownStreamPort::New();
-  downStreamPort->SetUpStreamProcessId(ID_A);
+  vtkInputPort *downStreamPort = vtkInputPort::New();
+  downStreamPort->SetRemoteProcessId(ID_A);
   downStreamPort->SetTag(888);
   
   vtkImageShiftScale *scale = vtkImageShiftScale::New();
@@ -105,15 +115,10 @@ VTK_THREAD_RETURN_TYPE process_b( void *vtkNotUsed(arg) )
   scale->SetScale(0.1);
   scale->SetEndMethod(report, scale->GetOutput());
   
-  vtkUpStreamPort *upStreamPort = vtkUpStreamPort::New();  
+  vtkOutputPort *upStreamPort = vtkOutputPort::New();  
   upStreamPort->SetInput(scale->GetOutput());
   upStreamPort->SetTag(999);
   upStreamPort->PipelineFlagOn();
-  
-  // Prime the pipeline
-  upStreamPort->GetInput()->Update();
-  controller->TriggerRMI(ID_A, 300);  
-  cerr << "----------------------\n";
   
   upStreamPort->WaitForUpdate();
   
@@ -131,11 +136,14 @@ VTK_THREAD_RETURN_TYPE process_c( void *vtkNotUsed(arg) )
   vtkMultiProcessController *controller;
   controller = vtkMultiProcessController::RegisterAndGetGlobalController(NULL);
   int idx;
-  
+
+  // Pipeline parallelism oprerates asynchronously so shallow copy does not work.
+  controller->ForceDeepCopy();
+
   putenv("DISPLAY=:0.0");
 
-  vtkDownStreamPort *downStreamPort = vtkDownStreamPort::New();
-  downStreamPort->SetUpStreamProcessId(ID_B);
+  vtkInputPort *downStreamPort = vtkInputPort::New();
+  downStreamPort->SetRemoteProcessId(ID_B);
   downStreamPort->SetTag(999);
 
   vtkImageShiftScale *scale = vtkImageShiftScale::New();
@@ -164,31 +172,23 @@ VTK_THREAD_RETURN_TYPE process_c( void *vtkNotUsed(arg) )
   renWindow->AddRenderer(ren);
   renWindow->SetSize( 300, 300 );
 
-  // Pipeline is all primed, now start processing
+  // Start processing
   scale->Update();
-  controller->TriggerRMI(ID_A, 300);
   sleep(1);
   cerr << "----------------------\n";
   scale->Update();
-  controller->TriggerRMI(ID_A, 300);
   sleep(1);
   cerr << "----------------------\n";
   scale->Update();
-  controller->TriggerRMI(ID_A, 300);  
+  sleep(1);
+  cerr << "----------------------\n";
+  scale->Update();
+  sleep(1);
+  cerr << "----------------------\n";
+  scale->Update();
   sleep(1);
   cerr << "----------------------\n";
   
-  // Now empty the data buffered in the pipeline
-  scale->Update();
-  sleep(1);
-  cerr << "----------------------\n";
-  scale->Update();
-  sleep(1);
-  cerr << "----------------------\n";
-  scale->Update();
-  sleep(1);
-  cerr << "----------------------\n";
- 
   controller->TriggerRMI(ID_A, VTK_BREAK_RMI_TAG);
   controller->TriggerRMI(ID_B, VTK_BREAK_RMI_TAG);
   
