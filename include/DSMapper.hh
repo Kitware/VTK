@@ -19,7 +19,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #ifndef __vlDataSetMapper_h
 #define __vlDataSetMapper_h
 
-#include "Mapper.hh"
+#include "GeomF.hh"
+#include "PolyMap.hh"
 #include "DataSet.hh"
 #include "Renderer.hh"
 
@@ -36,9 +37,9 @@ public:
   virtual vlDataSet* GetInput();
 
 protected:
-  int CreateMapper();
   vlDataSet *Input;
-  vlMapper *Mapper;
+  vlGeometryFilter *GeometryExtractor;
+  vlPolyMapper *PolyMapper;
 };
 
 #endif

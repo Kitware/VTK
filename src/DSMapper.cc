@@ -14,17 +14,16 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 //
-// Methods for polygon mapper
+// Methods to map abstract DataSet through concrete mappers.
 //
 #include "DSMapper.hh"
 #include "PolyMap.hh"
-#include "UGridMap.hh"
-#include "UPtsMap.hh"
 
 vlDataSetMapper::vlDataSetMapper()
 {
   this->Input = NULL;
-  this->Mapper = NULL;
+  this->GeometryExtractor = NULL;
+  this->PolyMapper = NULL;
 }
 
 vlDataSetMapper::~vlDataSetMapper()
@@ -34,9 +33,14 @@ vlDataSetMapper::~vlDataSetMapper()
     this->Input->UnRegister(this);
     }
 
-  if ( this->Mapper )
+  if ( this->GeometryExtractor )
     {
-    this->Mapper->UnRegister(this);
+    this->GeometryExtractor->UnRegister(this);
+    }
+
+  if ( this->PolyMapper )
+    {
+    this->PolyMapper->UnRegister(this);
     }
 }
 
@@ -82,76 +86,31 @@ void vlDataSetMapper::Render(vlRenderer *ren)
     vlErrorMacro(<< "No input!\n");
     return;
     }
-  else
-    {
 //
 // Now can create appropriate mapper
 //
-    if ( this->CreateMapper() )
-      this->Mapper->Render(ren);
-    }
-}
-
-int vlDataSetMapper::CreateMapper()
-{
-  vlMapper *mapper;
-  char *InputType;
-  char *OldMapperType = NULL;
-
-  InputType = this->Input->GetDataType();
-
-  // if we have an old mapper get its type otherwise set it to none
-  if (this->Mapper)
+  if ( this->PolyMapper == NULL ) 
     {
-    OldMapperType = this->Mapper->GetClassName();
-    }
-  else
-    {
-    OldMapperType = "none";
-    }
+    vlGeometryFilter *gf = new vlGeometryFilter();
+    vlPolyMapper *pm = new vlPolyMapper;
+    pm->SetInput(gf);
 
-  if (!strcmp("vlPolyData",InputType))
-    {
-    if (strcmp(OldMapperType,"vlPolyMapper"))
-      {
-      if (this->Mapper) this->Mapper->UnRegister(this);
-      this->Mapper = new vlPolyMapper;
-      this->Mapper->Register(this);
-      }
+    this->GeometryExtractor = gf;
+    this->GeometryExtractor->Register(this);
+
+    this->PolyMapper = pm;
+    this->PolyMapper->Register(this);
     }
   
-  if (!strcmp("vlStructuredPoints",InputType))
-    {
-    vlErrorMacro(<< "Structured Points Mapper not supported");
-    }
+  // update ourselves in case something has changed
+  this->PolyMapper->SetLookupTable(this->GetLookupTable());
+  this->PolyMapper->SetScalarsVisible(this->GetScalarsVisible());
+  this->PolyMapper->SetScalarRange(this->GetScalarRange());
 
-  if (!strcmp("vlStructuredGrid",InputType))
-    {
-    vlErrorMacro(<< "Structured Grid Mapper not supported");
-    }
+  this->GeometryExtractor->SetInput(this->Input);
+  this->PolyMapper->Render(ren);
 
-  if (!strcmp("vlUnstructuredGrid",InputType))
-    {
-    if (strcmp(OldMapperType,"vlUnstructuredGridMapper"))
-      {
-      if (this->Mapper) this->Mapper->UnRegister(this);
-      this->Mapper = new vlUnstructuredGridMapper;
-      this->Mapper->Register(this);
-      }
-    }
-
-  if (!strcmp("vlUnstructuredPoints",InputType))
-    {
-    if (strcmp(OldMapperType,"vlUnstructuredPointsMapper"))
-      {
-      if (this->Mapper) this->Mapper->UnRegister(this);
-      this->Mapper = new vlUnstructuredPointsMapper;
-      this->Mapper->Register(this);
-      }
-    }
-
-  return 1;
-} 
+}
 
 void vlDataSetMapper::PrintSelf(ostream& os, vlIndent indent)
 {
@@ -168,14 +127,22 @@ void vlDataSetMapper::PrintSelf(ostream& os, vlIndent indent)
       os << indent << "Input: (none)\n";
       }
 
-    if ( this->Mapper )
+    if ( this->PolyMapper )
       {
-      os << indent << "Mapper: (" << this->Mapper << ")\n";
-      os << indent << "Mapper type: " << this->Mapper->GetClassName() << "\n";
+      os << indent << "Poly Mapper: (" << this->PolyMapper << ")\n";
       }
     else
       {
-      os << indent << "Mapper: (none)\n";
+      os << indent << "Poly Mapper: (none)\n";
+      }
+
+    if ( this->GeometryExtractor )
+      {
+      os << indent << "Geometry Extractor: (" << this->GeometryExtractor << ")\n";
+      }
+    else
+      {
+      os << indent << "Geometry Extractor: (none)\n";
       }
    }
 }

@@ -37,18 +37,13 @@ vlMapper::~vlMapper()
 
 void vlMapper::operator=(const vlMapper& m)
 {
-  if (this->LookupTable) this->LookupTable->UnRegister(this);
-  this->LookupTable = m.LookupTable;
-  if (this->LookupTable) this->LookupTable->Register(this);
+  this->SetLookupTable(m.LookupTable);
 
-  this->ScalarsVisible = m.ScalarsVisible;
-  this->ScalarRange[0] = m.ScalarRange[0];
-  this->ScalarRange[1] = m.ScalarRange[1];
+  this->SetScalarsVisible(m.ScalarsVisible);
+  this->SetScalarRange(m.ScalarRange[0], m.ScalarRange[1]);
 
-  this->StartRender = m.StartRender;
-  this->EndRender = m.EndRender;
-
-  this->Modified();
+  this->SetStartRender(m.StartRender);
+  this->SetEndRender(m.EndRender);
 }
 
 void vlMapper::SetStartRender(void (*f)())

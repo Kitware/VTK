@@ -89,7 +89,7 @@ void vlPolyMapper::Render(vlRenderer *ren)
   else
     this->Input->Update();
 
-  if ( ! this->LookupTable ) this->LookupTable = new vlLookupTable;
+  if ( ! this->LookupTable ) this->SetLookupTable(new vlLookupTable);
   this->LookupTable->Build();
 
 //
