@@ -112,8 +112,8 @@ void vtkMaskPoints::Execute()
   else // a.r. mode
     {
     for ( ptId = this->Offset; 
-	  (ptId < numPts)&&(id < this->MaximumNumberOfPoints);  
-	  ptId += this->OnRatio )
+    (ptId < numPts) && (id < (this->MaximumNumberOfPoints-1));
+    ptId += this->OnRatio )
       {
       x =  this->Input->GetPoint(ptId);
       id = newPts->InsertNextPoint(x);
