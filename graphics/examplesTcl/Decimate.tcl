@@ -88,6 +88,10 @@ menu .mbar.view.menu
 menu .mbar.options.menu
     .mbar.options.menu add command -label "Compare Results" -command Compare \
 	    -state disabled
+    .mbar.options.menu add command -label "Background Color..." \
+	    -command BackgroundColor
+    .mbar.options.menu add command -label "Surface Properties..." \
+	    -command Properties
 
 menu .mbar.help.menu
     .mbar.help.menu add command -label {Are you kidding?}
@@ -252,8 +256,16 @@ proc ReleaseData {} {
 #### Create pipeline
 vtkPolyDataMapper   mapper
     mapper SetInput PolyData
+vtkProperty property
+    property SetColor 0.8900 0.8100 0.3400
+    property SetSpecularColor 1 1 1
+    property SetSpecular 0.3
+    property SetSpecularPower 20
+    property SetAmbient 0.2
+    property SetDiffuse 0.8
 vtkActor actor
     actor SetMapper mapper
+    actor SetProperty property
 
 # Welcome banner
 vtkVectorText banner
@@ -262,12 +274,14 @@ vtkPolyDataMapper bannerMapper
     bannerMapper SetInput [banner GetOutput]
 vtkActor bannerActor
     bannerActor SetMapper bannerMapper
+    bannerActor SetProperty property
 
 # Actor used for side-by-side data comparison
 vtkPolyDataMapper CompareMapper
     CompareMapper SetInput PreviousPolyData
 vtkActor CompareActor
     CompareActor SetMapper CompareMapper
+    CompareActor SetProperty property
 CompareRenderer AddActor CompareActor
 
 # Edges
@@ -638,6 +652,157 @@ proc ApplyNormals {} {
     CloseNormals
 }
 
+############################ Setting background color
+##
+proc BackgroundColor {} {
 
+    set background [Renderer GetBackground]
+    .back.f1.l.r set [expr [lindex $background 0] * 255.0]
+    .back.f1.l.g set [expr [lindex $background 1] * 255.0]
+    .back.f1.l.b set [expr [lindex $background 2] * 255.0]
+    wm deiconify .back
+}
 
+proc CloseBackground {} {
+    wm withdraw .back
+}
+
+toplevel .back
+wm withdraw .back
+wm title .back "Select Background Color"
+wm protocol .back WM_DELETE_WINDOW {wm withdraw .back}
+frame .back.f1
+
+frame .back.f1.l  -relief raised -borderwidth 3
+scale .back.f1.l.r -from 255 -to 0 -orient vertical -background #f00 \
+	-command SetColor
+scale .back.f1.l.g -from 255 -to 0 -orient vertical -background #0f0 \
+	-command SetColor
+scale .back.f1.l.b -from 255 -to 0 -orient vertical -background #00f \
+	-command SetColor
+pack .back.f1.l.r .back.f1.l.g .back.f1.l.b -side left -fill both
+
+frame .back.f1.m -relief raised -borderwidth 3
+label .back.f1.m.sample -highlightthickness 0 -text "  Background Color  "
+pack .back.f1.m.sample -fill both -expand 1
+
+frame .back.f1.r -relief raised -borderwidth 3
+image create photo ColorWheel -file ColorWheel.ppm
+label .back.f1.r.wheel -image ColorWheel -highlightthickness 0
+bind .back.f1.r.wheel <Button-1> {
+    scan [ColorWheel get %x %y] "%%f %%f %%f" r g b
+    .back.f1.l.r set $r
+    .back.f1.l.g set $g
+    .back.f1.l.b set $b
+}
+pack .back.f1.r.wheel -fill both
+pack .back.f1.l .back.f1.m .back.f1.r -side left -expand 1 -fill both
+
+frame .back.fb
+button .back.fb.apply -text Apply -command ApplyBackground
+button .back.fb.cancel -text Cancel -command CloseBackground
+pack .back.fb.apply .back.fb.cancel -side left -expand 1 -fill x
+pack .back.f1 .back.fb -side top -fill both -expand 1
+
+proc SetColor {value} {
+    set color [format #%02x%02x%02x [.back.f1.l.r get] [.back.f1.l.g get]\
+	    [.back.f1.l.b get]]
+    .back.f1.m.sample config -background $color
+}
+
+proc ApplyBackground {} {
+    Renderer SetBackground [expr [.back.f1.l.r get]/255.0] \
+	    [expr [.back.f1.l.g get]/255.0] \
+	    [expr [.back.f1.l.b get]/255.0]
+    CompareRenderer SetBackground [expr [.back.f1.l.r get]/255.0] \
+	    [expr [.back.f1.l.g get]/255.0] \
+	    [expr [.back.f1.l.b get]/255.0]
+    Render
+}
+
+############################ Set surface properties
+##
+proc Properties {} {
+
+    set color [property GetColor]
+    .prop.f1.l.r set [expr [lindex $color 0] * 255.0]
+    .prop.f1.l.g set [expr [lindex $color 1] * 255.0]
+    .prop.f1.l.b set [expr [lindex $color 2] * 255.0]
+    .prop.sliders.amb set [property GetAmbient]
+    .prop.sliders.diff set [property GetDiffuse]
+    .prop.sliders.spec set [property GetSpecular]
+    .prop.sliders.power set [property GetSpecularPower]
+
+    wm deiconify .prop
+}
+
+proc CloseProperties {} {
+    wm withdraw .prop
+}
+
+toplevel .prop
+wm withdraw .prop
+wm title .prop "Set Surface Properties"
+wm protocol .prop WM_DELETE_WINDOW {wm withdraw .prop}
+frame .prop.f1
+
+frame .prop.f1.l  -relief raised -borderwidth 3
+scale .prop.f1.l.r -from 255 -to 0 -orient vertical -background #f00 \
+	-command SetSurfaceColor
+scale .prop.f1.l.g -from 255 -to 0 -orient vertical -background #0f0 \
+	-command SetSurfaceColor
+scale .prop.f1.l.b -from 255 -to 0 -orient vertical -background #00f \
+	-command SetSurfaceColor
+pack .prop.f1.l.r .prop.f1.l.g .prop.f1.l.b -side left -fill both
+
+frame .prop.f1.m -relief raised -borderwidth 3
+label .prop.f1.m.sample -highlightthickness 0 -text "   Surface Color    "
+pack .prop.f1.m.sample -fill both -expand 1
+
+frame .prop.f1.r -relief raised -borderwidth 3
+image create photo ColorWheel -file ColorWheel.ppm
+label .prop.f1.r.wheel -image ColorWheel -highlightthickness 0
+bind .prop.f1.r.wheel <Button-1> {
+    scan [ColorWheel get %x %y] "%%f %%f %%f" r g b
+    .prop.f1.l.r set $r
+    .prop.f1.l.g set $g
+    .prop.f1.l.b set $b
+}
+pack .prop.f1.r.wheel -fill both
+pack .prop.f1.l .prop.f1.m .prop.f1.r -side left -expand 1 -fill both
+
+frame .prop.sliders
+scale .prop.sliders.amb -from 0.00 -to 1.00 -orient horizontal\
+	-resolution 0.01 -label Ambient
+scale .prop.sliders.diff -from 0.00 -to 1.00 -orient horizontal\
+	-resolution 0.01 -label Diffuse
+scale .prop.sliders.spec -from 0.00 -to 1.00 -orient horizontal\
+	-resolution 0.01 -label Specular
+scale .prop.sliders.power -from 0 -to 100 -orient horizontal\
+	-resolution 1 -label "Specular Power"
+pack .prop.sliders.spec .prop.sliders.power .prop.sliders.amb\
+	.prop.sliders.diff -side top -fill both
+
+frame .prop.fb
+button .prop.fb.apply -text Apply -command ApplyProperties
+button .prop.fb.cancel -text Cancel -command CloseProperties
+pack .prop.fb.apply .prop.fb.cancel -side left -expand 1 -fill x
+pack .prop.f1 .prop.sliders .prop.fb -side top -fill both -expand 1
+
+proc SetSurfaceColor {value} {
+    set color [format #%02x%02x%02x [.prop.f1.l.r get] [.prop.f1.l.g get]\
+	    [.prop.f1.l.b get]]
+    .prop.f1.m.sample config -background $color
+}
+
+proc ApplyProperties {} {
+    property SetColor [expr [.prop.f1.l.r get]/255.0] \
+	    [expr [.prop.f1.l.g get]/255.0] \
+	    [expr [.prop.f1.l.b get]/255.0]
+    property SetAmbient [.prop.sliders.amb get]
+    property SetDiffuse [.prop.sliders.diff get]
+    property SetSpecular [.prop.sliders.spec get]
+    property SetSpecularPower [.prop.sliders.power get]
+    Render
+}
 
