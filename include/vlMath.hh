@@ -38,7 +38,7 @@ public:
   float Dot(float x[3], float y[3]);
   void Cross(float x[3], float y[3], float z[3]);
   float Norm(float x[3]);
-  void Normalize(float x[3]);
+  float Normalize(float x[3]);
 
   float Determinant2x2(float c1[2], float c2[2]);
   double Determinant2x2(double a, double b, double c, double d);
@@ -71,11 +71,12 @@ inline float vlMath::Norm(float x[3])
 }
 
 // Description:
-// Normalize (in place) a 3-vector.
-inline void vlMath::Normalize(float x[3])
+// Normalize (in place) a 3-vector. Returns norm of vector.
+inline float vlMath::Normalize(float x[3])
 {
   float den; 
   if ( (den = this->Norm(x)) != 0.0 ) for (int i=0; i < 3; i++) x[i] /= den;
+  return den;
 }
 
 // Description:
