@@ -1004,38 +1004,28 @@ void vtkTransform::MultiplyPoints(vtkPoints *inPts, vtkPoints *outPts)
 
 // Multiplies a list of vectors (inVectors) by the current transformation 
 // matrix. The transformed vectors are appended to the output list 
-// (outVectors). This is a special multiplication, since these are vectors. 
-// It multiplies vectors by the transposed inverse of the matrix, ignoring 
-// the translational components.
+// (outVectors). The translational component of the matrix is ignored. 
 void vtkTransform::MultiplyVectors(vtkVectors *inVectors, 
 				   vtkVectors *outVectors)
 {
-  double ScratchPad[16]; // for passing to vtkMatrix4x4 methods
-  SqMatPtr ScratchPadMatrix = (SqMatPtr) ScratchPad; // for local manipulation
-  float newV[3];
-  float *v;
-  int ptId, i;
-  int numVectors = inVectors->GetNumberOfVectors();
+   float newV[3];
+   float *v;
+   int ptId, i;
+   int numVectors = inVectors->GetNumberOfVectors();
 
-  
-  vtkMatrix4x4::DeepCopy(ScratchPad, *this->Stack);
-  vtkMatrix4x4::Invert(ScratchPad,ScratchPad);
-  vtkMatrix4x4::Transpose(ScratchPad,ScratchPad);
+   for (ptId=0; ptId < numVectors; ptId++)
+     {
+     v = inVectors->GetVector(ptId);
+     for (i=0; i<3; i++)
+       {
+       newV[i] = (**this->Stack).Element[i][0] * v[0] +
+                 (**this->Stack).Element[i][1] * v[1] +
+                 (**this->Stack).Element[i][2] * v[2];
+       }
 
-  for (ptId=0; ptId < numVectors; ptId++)
-    {
-    v = inVectors->GetVector(ptId);
-    for (i=0; i<3; i++)
-      {
-      newV[i] = ScratchPadMatrix[i][0] * v[0] +
-                ScratchPadMatrix[i][1] * v[1] +
-                ScratchPadMatrix[i][2] * v[2];
-      }
-
-    outVectors->InsertNextVector(newV);
-    }
+     outVectors->InsertNextVector(newV);
+     }
 }
-
 
 // Multiplies a list of normals (inNormals) by the current
 // transformation matrix.  The transformed normals are then appended
