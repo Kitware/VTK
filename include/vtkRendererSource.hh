@@ -62,6 +62,8 @@ public:
   char *GetClassName() {return "vtkRendererSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  unsigned long int GetMTime();
+
   // Description:
   // Indicates what renderer to get the pixel data from.
   vtkSetObjectMacro(Input,vtkRenderer);
