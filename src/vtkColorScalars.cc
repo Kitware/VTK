@@ -51,7 +51,7 @@ float vtkColorScalars::GetScalar(int i)
 
   rgba  = this->GetColor(i);
   s = (rgba[3]/255.0) * (0.30*rgba[0] + 0.59*rgba[1] + 0.11*rgba[2]);
-
+  s /= 255.0;
   return s;
 }
 
