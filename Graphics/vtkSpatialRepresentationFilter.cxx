@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkSpatialRepresentationFilter, "1.31");
+vtkCxxRevisionMacro(vtkSpatialRepresentationFilter, "1.32");
 vtkStandardNewMacro(vtkSpatialRepresentationFilter);
 vtkCxxSetObjectMacro(vtkSpatialRepresentationFilter,
                      SpatialRepresentation,vtkLocator);
@@ -61,7 +61,8 @@ vtkPolyData *vtkSpatialRepresentationFilter::GetOutput(int level)
     return this->GetOutput();
     }
 
-  if ( this->Outputs[level] == NULL )
+  if ( this->GetNumberOfOutputs() <= level ||
+       this->Outputs[level] == NULL )
     {
     this->vtkSource::SetNthOutput(level, vtkPolyData::New());
     this->Modified(); //asking for new output
