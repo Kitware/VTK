@@ -55,9 +55,12 @@ vtkFloatScalars& vtkFloatScalars::operator=(const vtkFloatScalars& fs)
 
 void vtkFloatScalars::GetScalars(vtkIdList& ptId, vtkFloatScalars& fs)
 {
-  for (int i=0; i<ptId.GetNumberOfIds(); i++)
+  int NumberOfIds = ptId.GetNumberOfIds();
+  float *value = fs.WritePtr (0, NumberOfIds);
+
+  for (int i=0; i<NumberOfIds; i++, value++)
     {
-    fs.InsertScalar(i,this->S.GetValue(ptId.GetId(i)));
+    *value = this->S.GetValue(ptId.GetId(i));
     }
 }
 
