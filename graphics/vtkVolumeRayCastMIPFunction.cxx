@@ -494,7 +494,7 @@ void vtkVolumeRayCastMIPFunction::CastARay( int ray_type, void *data_ptr,
     }
 }
 
-float vtkVolumeRayCastMIPFunction::GetZeroOpacityThreshold( vtkVolume *vol )
+float vtkVolumeRayCastMIPFunction::GetZeroOpacityThreshold( vtkVolume *vtkNotUsed(vol) )
 {
   return ( 1.0 );
 }
