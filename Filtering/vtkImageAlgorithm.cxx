@@ -24,7 +24,16 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageAlgorithm, "1.10");
+vtkCxxRevisionMacro(vtkImageAlgorithm, "1.11");
+
+class vtkImageAlgorithmToDataSetFriendship
+{
+public:
+  static void GenerateGhostLevelArray(vtkDataSet* ds)
+    {
+    ds->GenerateGhostLevelArray();
+    }
+};
 
 //----------------------------------------------------------------------------
 vtkImageAlgorithm::vtkImageAlgorithm()
@@ -123,6 +132,11 @@ int vtkImageAlgorithm::ProcessRequest(vtkInformation* request,
         //info->Set(vtkDataObject::ORIGIN(), output->GetOrigin(), 3);
         //info->Set(vtkDataObject::SPACING(), output->GetSpacing(), 3);
         output->DataHasBeenGenerated();
+        }
+      if(vtkDataSet* ds = vtkDataSet::SafeDownCast(
+        info->Get(vtkDataObject::DATA_OBJECT())))
+        {
+        vtkImageAlgorithmToDataSetFriendship::GenerateGhostLevelArray(ds);
         }
       }
     return 1;

@@ -44,6 +44,7 @@ class vtkCellData;
 class vtkCellTypes;
 class vtkGenericCell;
 class vtkIdList;
+class vtkImageAlgorithmToDataSetFriendship;
 class vtkPointData;
 class vtkSourceToDataSetFriendship;
 
@@ -329,6 +330,7 @@ private:
   void InternalDataSetCopy(vtkDataSet *src);  
   //BTX
   friend class vtkSourceToDataSetFriendship;
+  friend class vtkImageAlgorithmToDataSetFriendship;
   //ETX
 private:
   vtkDataSet(const vtkDataSet&);  // Not implemented.
