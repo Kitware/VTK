@@ -608,7 +608,11 @@ void vtkPolyData::ComputeBounds()
 // Set the cell array defining vertices.
 void vtkPolyData::SetVerts (vtkCellArray* v) 
 {
-  if ( v != this->Verts && v != this->Dummy)
+  if (v == this->Dummy)
+    {
+    v = NULL;
+    }
+  if ( v != this->Verts)
     {
     if (this->Verts)
       {
@@ -642,7 +646,11 @@ vtkCellArray* vtkPolyData::GetVerts()
 // Set the cell array defining lines.
 void vtkPolyData::SetLines (vtkCellArray* l) 
 {
-  if ( l != this->Lines && l != this->Dummy )
+  if (l == this->Dummy)
+    {
+    l = NULL;
+    }
+  if ( l != this->Lines)
     {
     if (this->Lines)
       {
@@ -676,7 +684,11 @@ vtkCellArray* vtkPolyData::GetLines()
 // Set the cell array defining polygons.
 void vtkPolyData::SetPolys (vtkCellArray* p) 
 {
-  if ( p != this->Polys && p != this->Dummy )
+  if(p == this->Dummy) 
+    {
+    p = NULL;
+    }
+  if ( p != this->Polys)
     {
     if (this->Polys)
       {
@@ -710,7 +722,11 @@ vtkCellArray* vtkPolyData::GetPolys()
 // Set the cell array defining triangle strips.
 void vtkPolyData::SetStrips (vtkCellArray* s) 
 {
-  if ( s != this->Strips && s != this->Dummy )
+  if ( s == this->Dummy)
+    {
+    s = NULL;
+    }
+  if ( s != this->Strips)
     {
     if (this->Strips)
       {
