@@ -83,7 +83,7 @@ vtkPythonUtil::~vtkPythonUtil()
 }
 
 //--------------------------------------------------------------------
-void vtkPythonHashDelete()
+extern "C" void vtkPythonHashDelete()
 {
   delete vtkPythonHash;
   vtkPythonHash = 0;
@@ -92,7 +92,7 @@ void vtkPythonHashDelete()
 //--------------------------------------------------------------------
 static PyObject *PyVTKObject_PyString(PyVTKObject *self)
 {
-  PyObject *func = PyObject_GetAttrString((PyObject *)self, "__str__");
+  PyObject *func = PyObject_GetAttrString((PyObject *)self, (char*)"__str__");
 
   if (func)
     {
@@ -113,7 +113,7 @@ static PyObject *PyVTKObject_PyString(PyVTKObject *self)
 //--------------------------------------------------------------------
 static PyObject *PyVTKObject_PyRepr(PyVTKObject *self)
 {
-  PyObject *func = PyObject_GetAttrString((PyObject *)self, "__repr__");
+  PyObject *func = PyObject_GetAttrString((PyObject *)self, (char*)"__repr__");
 
   if (func)
     {
@@ -159,7 +159,7 @@ int PyVTKObject_PySetAttr(PyVTKObject *self, PyObject *attr,
     PyObject *func = self->vtk_class->vtk_setattr;
     if (func)
       {
-      PyObject *args = Py_BuildValue("(OOO)", self, attr, value);
+      PyObject *args = Py_BuildValue((char*)"(OOO)", self, attr, value);
       PyObject *res = PyEval_CallObject(func, args);
       Py_DECREF(args);
       if (res)
@@ -176,7 +176,7 @@ int PyVTKObject_PySetAttr(PyVTKObject *self, PyObject *attr,
     PyObject *func = self->vtk_class->vtk_delattr;
     if (func)
       {
-      PyObject *args = Py_BuildValue("(OO)", self, attr);
+      PyObject *args = Py_BuildValue((char*)"(OO)", self, attr);
       PyObject *res = PyEval_CallObject(func, args);
       Py_DECREF(args);
       if (res)
@@ -340,7 +340,7 @@ static PyObject *PyVTKObject_PyGetAttr(PyVTKObject *self, PyObject *attr)
   pyclass = self->vtk_class;
   if (pyclass->vtk_getattr)
     {
-    PyObject *args = Py_BuildValue("(OO)", self, attr);
+    PyObject *args = Py_BuildValue((char*)"(OO)", self, attr);
     PyObject *res = PyEval_CallObject(pyclass->vtk_getattr, args);
     Py_DECREF(args);
     return res;
@@ -551,12 +551,12 @@ static PyObject *PyVTKClass_PyCall(PyVTKClass *self, PyObject *arg,
                     "this function takes no keyword arguments");
     return NULL;
     }
-  if (PyArg_ParseTuple(arg,""))
+  if (PyArg_ParseTuple(arg,(char*)""))
     {
     return PyVTKObject_New((PyObject *)self, NULL);
     }
   PyErr_Clear();
-  if (PyArg_ParseTuple(arg,"O", &arg))
+  if (PyArg_ParseTuple(arg,(char*)"O", &arg))
     {
     return vtkPythonGetObjectFromObject(arg,
                                         PyString_AsString(self->vtk_name));
@@ -738,7 +738,7 @@ static PyObject *PyVTKClassMetaType_GetAttr(PyTypeObject *t, char *name)
     }
   if (strcmp(name, "__members__") == 0)
     {
-    return Py_BuildValue("[ss]", "__doc__", "__name__");
+    return Py_BuildValue((char*)"[ss]", "__doc__", "__name__");
     }
   PyErr_SetString(PyExc_AttributeError, name);
   return NULL;
@@ -954,7 +954,7 @@ static PyObject *PyVTKClass_NewSubclass(PyObject *, PyObject *args,
   PyVTKClass *base;
   PyObject *attributes;
 
-  if ((PyArg_ParseTupleAndKeywords(args, kw, "sOO", (char**)kwlist, 
+  if ((PyArg_ParseTupleAndKeywords(args, kw, (char*)"sOO", (char**)kwlist, 
                                    &classname, &bases, &attributes)))
     {
     if (!PyTuple_Check(bases) || PyTuple_Size(bases) != 1)
@@ -983,7 +983,7 @@ static PyObject *PyVTKClass_NewSubclass(PyObject *, PyObject *args,
       return NULL;
       }
 
-    if (PyDict_GetItemString(attributes, "__del__"))
+    if (PyDict_GetItemString(attributes, (char*)"__del__"))
       {
       PyErr_SetString(PyExc_ValueError, "__del__ attribute is not supported");
       return NULL;
@@ -1002,19 +1002,19 @@ static PyObject *PyVTKClass_NewSubclass(PyObject *, PyObject *args,
     newclass->vtk_dict = attributes;
     newclass->vtk_name = PyString_FromString(classname);
 
-    newclass->vtk_getattr = PyDict_GetItemString(attributes, "__getattr__");
+    newclass->vtk_getattr = PyDict_GetItemString(attributes, (char*)"__getattr__");
     if (newclass->vtk_getattr == 0)
       {
       newclass->vtk_getattr = base->vtk_getattr;
       }
     Py_XINCREF(newclass->vtk_getattr);
-    newclass->vtk_setattr = PyDict_GetItemString(attributes, "__setattr__");
+    newclass->vtk_setattr = PyDict_GetItemString(attributes, (char*)"__setattr__");
     if (newclass->vtk_setattr == 0)
       {
       newclass->vtk_setattr = base->vtk_setattr;
       }
     Py_XINCREF(newclass->vtk_setattr);
-    newclass->vtk_delattr = PyDict_GetItemString(attributes, "__delattr__");
+    newclass->vtk_delattr = PyDict_GetItemString(attributes, (char*)"__delattr__");
     if (newclass->vtk_delattr == 0)
       {
       newclass->vtk_delattr = base->vtk_delattr;
@@ -1029,7 +1029,7 @@ static PyObject *PyVTKClass_NewSubclass(PyObject *, PyObject *args,
     globals = PyEval_GetGlobals();
     if (globals != NULL)
       {
-      PyObject *modname = PyDict_GetItemString(globals, "__name__");
+      PyObject *modname = PyDict_GetItemString(globals, (char*)"__name__");
       if (modname != NULL)
         {
         Py_INCREF(modname);
@@ -1041,11 +1041,11 @@ static PyObject *PyVTKClass_NewSubclass(PyObject *, PyObject *args,
       newclass->vtk_module = PyString_FromString("__main__");
       }
 
-    newclass->vtk_doc = PyDict_GetItemString(attributes, "__doc__");
+    newclass->vtk_doc = PyDict_GetItemString(attributes, (char*)"__doc__");
     if (newclass->vtk_doc)
       {
       Py_INCREF(newclass->vtk_doc);
-      PyDict_DelItemString(attributes, "__doc__");
+      PyDict_DelItemString(attributes, (char*)"__doc__");
       }
     else
       {
@@ -1419,10 +1419,10 @@ vtkObjectBase *vtkPythonGetPointerFromObject(PyObject *obj,
   // check to ensure it is a vtk object
   if (obj->ob_type != &PyVTKObjectType)
     {
-    obj = PyObject_GetAttrString(obj,"__vtk__");
+    obj = PyObject_GetAttrString(obj,(char*)"__vtk__");
     if (obj)
       {
-      PyObject *arglist = Py_BuildValue("()");
+      PyObject *arglist = Py_BuildValue((char*)"()");
       PyObject *result = PyEval_CallObject(obj, arglist);
       Py_DECREF(arglist);
       Py_DECREF(obj);
@@ -1682,7 +1682,7 @@ void vtkPythonVoidFunc(void *arg)
   PyObject *arglist, *result;
   PyObject *func = (PyObject *)arg;
 
-  arglist = Py_BuildValue("()");
+  arglist = Py_BuildValue((char*)"()");
 
   result = PyEval_CallObject(func, arglist);
   Py_DECREF(arglist);
@@ -1750,7 +1750,7 @@ void vtkPythonCommand::Execute(vtkObject *ptr, unsigned long eventtype,
 
   eventname = this->GetStringFromEventId(eventtype);
   
-  arglist = Py_BuildValue("(Ns)",obj2,eventname);
+  arglist = Py_BuildValue((char*)"(Ns)",obj2,eventname);
   
   result = PyEval_CallObject(this->obj, arglist);
   Py_DECREF(arglist);

@@ -71,24 +71,24 @@ static void CreateInitFile(cmLoadedCommandInfo *info,
   /* module init function */
   fprintf(fout,"  PyObject *m, *d, *c;\n\n");
 #ifdef _WIN32
-  fprintf(fout,"  static char modulename[] = \"%s\";\n",kitName);
+  fprintf(fout,"  static const char modulename[] = \"%s\";\n",kitName);
 #else
-  fprintf(fout,"  static char modulename[] = \"lib%s\";\n",kitName);
+  fprintf(fout,"  static const char modulename[] = \"lib%s\";\n",kitName);
 #endif
-  fprintf(fout,"  m = Py_InitModule(modulename, Py%s_ClassMethods);\n",
+  fprintf(fout,"  m = Py_InitModule((char*)modulename, Py%s_ClassMethods);\n",
     kitName);
   
   fprintf(fout,"  d = PyModule_GetDict(m);\n");
-  fprintf(fout,"  if (!d) Py_FatalError(\"can't get dictionary for module %s!\");\n\n",
+  fprintf(fout,"  if (!d) Py_FatalError((char*)\"can't get dictionary for module %s!\");\n\n",
           kitName);
   
   for (i = 0; i < numClasses; i++)
     {
-    fprintf(fout,"  if ((c = PyVTKClass_%sNew(modulename)))\n",
+    fprintf(fout,"  if ((c = PyVTKClass_%sNew((char*)modulename)))\n",
             classes[i]);
-    fprintf(fout,"    if (-1 == PyDict_SetItemString(d, \"%s\", c))\n",
+    fprintf(fout,"    if (-1 == PyDict_SetItemString(d, (char*)\"%s\", c))\n",
       classes[i]);
-    fprintf(fout,"      Py_FatalError(\"can't add class %s to dictionary!\");\n\n",
+    fprintf(fout,"      Py_FatalError((char*)\"can't add class %s to dictionary!\");\n\n",
             classes[i]);
     }
   fprintf(fout,"}\n\n");
