@@ -21,7 +21,7 @@
 #include "vtkCommand.h"
 #include "vtkTimeStamp.h"
 
-vtkCxxRevisionMacro(vtkObject, "1.82");
+vtkCxxRevisionMacro(vtkObject, "1.83");
 
 // Initialize static member that controls warning display
 static int vtkObjectGlobalWarningDisplay = 1;
@@ -244,25 +244,6 @@ void vtkObject::UnRegister(vtkObjectBase* o)
     this->InvokeEvent(vtkCommand::DeleteEvent,NULL);
     delete this;
     }
-}
-
-int vtkObject::IsTypeOf(const char *name) 
-{
-  if ( !strcmp("vtkObject",name) )
-    {
-    return 1;
-    }
-  return vtkObject::Superclass::IsTypeOf(name);
-}
-
-int vtkObject::IsA(const char *type)
-{
-  return this->vtkObject::IsTypeOf(type);
-}
-
-vtkObject *vtkObject::SafeDownCast(vtkObject *o)
-{
-  return (vtkObject *)o;
 }
 
 //----------------------------------Command/Observer stuff-------------------
