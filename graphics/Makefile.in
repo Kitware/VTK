@@ -241,7 +241,6 @@ vtkThresholdTextureCoords \
 vtkTIFFWriter \
 vtkTransformFilter \
 vtkTransformPolyFilter \
-vtkTransformStructuredPoints \
 vtkTransformTextureCoords \
 vtkTriangleFilter \
 vtkTriangularTexture \
