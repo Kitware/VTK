@@ -151,7 +151,6 @@ static void vtkWin32ImageMapperRenderGray(vtkWin32ImageMapper *self,
   int idx1;
   T   lower, upper;
   int rowAdder;
-  int *Size;
   unsigned char lower_val, upper_val;
   
   vtkWin32ImageMapperClamps ( data, self->GetColorWindow(), 
@@ -420,9 +419,6 @@ void vtkWin32ImageMapper::RenderData(vtkViewport* viewport,
 				     vtkImageData *data, vtkActor2D *actor)
 {
   int dataWidth, width, height;
-  int size;
-  // int extent[6];
-  unsigned char *dataOut;
   void *ptr0, *ptr1, *ptr2;
   float shift, scale;
   HDC compatDC;

@@ -418,7 +418,6 @@ LRESULT vtkWin32OpenGLImageWindow::MessageProc(HWND hWnd, UINT message,
 void vtkWin32OpenGLImageWindow::MakeDefaultWindow()
 {
   int x, y, width, height;
-  GLenum type;
   static int count = 1;
   char *windowName;
   
@@ -817,7 +816,6 @@ void vtkWin32OpenGLImageWindow::SetDeviceContext(HDC arg) // hsr
 
 float *vtkWin32OpenGLImageWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2, int front)
 {
-  long    xloop,yloop;
   int     y_low, y_hi;
   int     x_low, x_hi;
   int     width, height;
@@ -825,7 +823,6 @@ float *vtkWin32OpenGLImageWindow::GetRGBAPixelData(int x1, int y1, int x2, int y
   float   *data = NULL;
 
   float   *p_data = NULL;
-  unsigned long   *buffer;
 
   // set the current window 
   this->MakeCurrent();
@@ -883,8 +880,6 @@ void vtkWin32OpenGLImageWindow::SetRGBAPixelData(int x1, int y1,
   int     y_low, y_hi;
   int     x_low, x_hi;
   int     width, height;
-  int     xloop,yloop;
-  float   *buffer;
   float   *p_data = NULL;
 
   // set the current window 
