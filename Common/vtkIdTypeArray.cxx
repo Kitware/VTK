@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkIdTypeArray, "1.3");
+vtkCxxRevisionMacro(vtkIdTypeArray, "1.4");
 vtkStandardNewMacro(vtkIdTypeArray);
 
 vtkDataArray *vtkIdTypeArray::MakeObject()
@@ -142,7 +142,7 @@ void vtkIdTypeArray::DeepCopy(vtkDataArray *ia)
     return;
     }
 
-  if ( ia->GetDataType() != VTK_INT )
+  if ( ia->GetDataType() != VTK_ID_TYPE )
     {
       vtkDataArray::DeepCopy(ia);
       return;
