@@ -92,7 +92,8 @@ public:
   vtkGetVectorMacro(SampleDimensions,int,3);
 
   // Description:
-  // Specify the region in space over which the sampling occurs.
+  // Specify the region in space over which the sampling occurs. The
+  // bounds is specified as (xMin,xMax, yMin,yMax, zMin,zMax).
   vtkSetVector6Macro(ModelBounds,float);
   vtkGetVectorMacro(ModelBounds,float,6);
 
