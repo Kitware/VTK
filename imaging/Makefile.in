@@ -29,6 +29,7 @@ vtkImageAnisotropicDiffusion2D \
 vtkImageAnisotropicDiffusion3D \
 vtkImageArithmetic \
 vtkImageCast \
+vtkImageClip \
 vtkImageConstantPad \
 vtkImageConvolution1D \
 vtkImageDilate \
@@ -42,6 +43,7 @@ vtkImageDuotone \
 vtkImageFFT \
 vtkImageFFT1D \
 vtkImageFileReader \
+vtkImageFlip \
 vtkImageFourierBandPass \
 vtkImageFourierWavelet2D \
 vtkImageGaussianSmooth \
