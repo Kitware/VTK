@@ -1,6 +1,6 @@
 # -------------------------------------------------------------------------
 # Doxygen documentation batch
-# modified by S. Barre (Time-stamp: <2002-10-25 20:33:26 barre>
+# modified by S. Barre (Time-stamp: <2002-11-01 15:52:38 barre>
 # -------------------------------------------------------------------------
 
 # Path to several tools (_PROG to avoid the typical GZIP env var pb)
@@ -80,23 +80,27 @@ export INTERMEDIATE_DOX_DIR="$DOXTEMP/dox"
 #
 export DATA_ROOT="@VTK_DATA_ROOT@"
 
-# CVSWEB_CHECKOUT, CVSWEB_CHECKOUT_SUFFIX, 
-# CVSWEB_DATA_CHECKOUT, CVSWEB_DATA_CHECKOUT_SUFFIX:
-# URL to the CVSWeb of the project, in checkout mode (i.e. appending a file 
-# name to this URL will retrieve the contents of the file). In the same way
-# CVSWEB_CHECKOUT_SUFFIX is appended to the result. 
-# Same applies for CVSWEB_DATA_CHECKOUT, which is the URL to the CVSWeb
+# CVSWEB, CVSWEB_SUFFIX, CVSWEB__CHECKOUT, 
+# CVSWEB_DATA, CVSWEB_DATA_SUFFIX, CVSWEB_DATA_CHECKOUT:
+# URL to the CVSWeb of the project + same in checkout mode (i.e. appending a 
+# file  name to this URL will retrieve the contents of the file). In the same way
+# CVSWEB_SUFFIX will be appended to the result. 
+# Same applies to CVSWEB_DATA, which is the URL to the CVSWeb
 # of the Data's project.
 # Example: 
+#   CVSWEB=http://public.kitware.com/cgi-bin/cvsweb.cgi/VTK
+#   CVSWEB_SUFFIX=?cvsroot=VTK
 #   CVSWEB_CHECKOUT=http://public.kitware.com/cgi-bin/cvsweb.cgi/~checkout~/VTK
-#   CVSWEB_CHECKOUT_SUFFIX=?cvsroot=CMake
+#   CVSWEB_DATA=http://public.kitware.com/cgi-bin/cvsweb.cgi/VTKData
+#   CVSWEB_DATA_SUFFIX=?cvsroot=VTK
 #   CVSWEB_DATA_CHECKOUT=http://public.kitware.com/cgi-bin/cvsweb.cgi/~checkout~/VTKData
-#   CVSWEB_DATA_CHECKOUT_SUFFIX=?cvsroot=CMake
 #
+export CVSWEB=http://public.kitware.com/cgi-bin/cvsweb.cgi/VTK
+export CVSWEB_SUFFIX=
 export CVSWEB_CHECKOUT=http://public.kitware.com/cgi-bin/cvsweb.cgi/~checkout~/VTK
-export CVSWEB_CHECKOUT_SUFFIX=
+export CVSWEB_DATA=http://public.kitware.com/cgi-bin/cvsweb.cgi/VTKData
+export CVSWEB_DATA_SUFFIX=
 export CVSWEB_DATA_CHECKOUT=http://public.kitware.com/cgi-bin/cvsweb.cgi/~checkout~/VTKData
-export CVSWEB_DATA_CHECKOUT_SUFFIX=
 
 # DOXYFILE:
 # Path to the Doxygen configuration file (i.e. doxyfile).
@@ -258,6 +262,8 @@ if test "x$PERL_PROG" != "xNOTFOUND" ; then
         --min_file 0.01 \
         --min_contrib 0.05 \
         --min_gcontrib 0.0001 \
+        --cvsweb "$CVSWEB" \
+        --cvsweb_suffix "$CVSWEB_SUFFIX" \
         --store "doc_""$PROJECT_NAME""_contributors.dox" \
         --relativeto "$SOURCE_DIR/$REL_PATH_TO_TOP" \
         --to "$INTERMEDIATE_DOX_DIR" \
@@ -288,13 +294,13 @@ if test "x$PERL_PROG" != "xNOTFOUND" ; then
         --baselinedir "$DATA_ROOT/Baseline" \
         --baselineicon "pic.gif" \
         --baselinelink "$CVSWEB_DATA_CHECKOUT/Baseline" \
-        --baselinelinksuffix "$CVSWEB_DATA_CHECKOUT_SUFFIX" \
+        --baselinelinksuffix "$CVSWEB_DATA_SUFFIX" \
         --datamatch "\W(VTK_DATA_ROOT|VTKData|(vtk)?GetDataRoot|ExpandDataFileName)\W" \
         --dataicon "paper-clip.gif" \
         --dirmatch "^Examples\$" \
         --label "Examples" \
         --link "$CVSWEB_CHECKOUT" \
-        --linksuffix "$CVSWEB_CHECKOUT_SUFFIX" \
+        --linksuffix "$CVSWEB_SUFFIX" \
         --project "$PROJECT_NAME" \
         --store "doc_""$PROJECT_NAME""_class2examples.dox" \
         --title "Class To Examples" \
@@ -312,13 +318,13 @@ if test "x$PERL_PROG" != "xNOTFOUND" ; then
         --baselinedir "$DATA_ROOT/Baseline" \
         --baselineicon "pic.gif" \
         --baselinelink "$CVSWEB_DATA_CHECKOUT/Baseline" \
-        --baselinelinksuffix "$CVSWEB_DATA_CHECKOUT_SUFFIX" \
+        --baselinelinksuffix "$CVSWEB_DATA_SUFFIX" \
         --datamatch "\W(VTK_DATA_ROOT|VTKData|(vtk)?GetDataRoot|ExpandDataFileName)\W" \
         --dataicon "paper-clip.gif" \
         --dirmatch "^Testing$" \
         --label "Tests" \
         --link "$CVSWEB_CHECKOUT" \
-        --linksuffix "$CVSWEB_CHECKOUT_SUFFIX" \
+        --linksuffix "$CVSWEB_SUFFIX" \
         --project "$PROJECT_NAME" \
         --store "doc_""$PROJECT_NAME""_class2tests.dox" \
         --title "Class To Tests" \

@@ -1,9 +1,12 @@
 #!/usr/bin/env perl
-# Time-stamp: <2002-02-15 10:15:43 barre>
+# Time-stamp: <2002-11-01 15:33:04 barre>
 #
 # Get author and contributors.
 #
 # barre : Sebastien Barre <sebastien@barre.nom.fr>
+#
+# 0.8 (barre) :
+#   - Add --cvsweb and --cvsweb_suffix to report links to CVSweb logs
 #
 # 0.7 (barre) :
 #   - Fix empty cached log file pb (regenerated)
@@ -39,7 +42,7 @@ use strict;
 use FileHandle;
 use Time::Local;
 
-my ($VERSION, $PROGNAME, $AUTHOR) = (0.7, $0, "Sebastien Barre");
+my ($VERSION, $PROGNAME, $AUTHOR) = (0.8, $0, "Sebastien Barre");
 $PROGNAME =~ s/^.*[\\\/]//;
 
 # -------------------------------------------------------------------------
@@ -77,7 +80,7 @@ my %default =
 
 my %args;
 Getopt::Long::Configure("bundling");
-GetOptions (\%args, "help", "verbose|v", "authors=s", "cachedir=s", "class_group=s", "files_in=s", "files_out=s", "gnuplot_file=s", "history_dir=s", "history_img=s@", "history_max_nb=i", "lines_add=f", "lines_rem=f", "massive=i", "max_class_nb=i", "max_file_nb=i", "min_class=f", "min_file=f", "min_contrib=f", "min_gcontrib=f", "relativeto=s", "store=s", "to=s");
+GetOptions (\%args, "help", "verbose|v", "authors=s", "cachedir=s", "class_group=s", "cvsweb=s", "cvsweb_suffix=s", "files_in=s", "files_out=s", "gnuplot_file=s", "history_dir=s", "history_img=s@", "history_max_nb=i", "lines_add=f", "lines_rem=f", "massive=i", "max_class_nb=i", "max_file_nb=i", "min_class=f", "min_file=f", "min_contrib=f", "min_gcontrib=f", "relativeto=s", "store=s", "to=s");
 
 print "$PROGNAME $VERSION, by $AUTHOR\n";
 
@@ -103,6 +106,8 @@ Usage : $PROGNAME [--help] [--verbose|-v] [--authors file] [--cachedir path] [--
   --min_file n    : display files that represent more than 'n' % of author's contribution (default: $default{min_file})
 x  --min_contrib n  : display authors who represent more than 'n' % of classe's contribution (default: $default{min_contrib})
   --min_gcontrib n : display authors who represent more than 'n' % of total contribution (default: $default{min_gcontrib})
+  --cvsweb s : use 's' as a base link to the CVSweb site
+  --cvsweb_suffix s : use 's' as a suffix to the link to the CVSweb site
   --store file     : use 'file' to store doc (default: $default{store})
   --relativeto path: each file/directory to document is considered relative to 'path', where --to and --relativeto should be absolute (default: $default{relativeto})
   --to path        : use 'path' as destination directory (default: $default{to})
@@ -665,7 +670,7 @@ while (@classes_names) {
       join("\n                - ", 
            sort map(exists $authors{$_}{'name'} ? $authors{$_}{'name'} : $_, keys %{$classes{$class_name}{'creators'}})) . "\n";
 
-    $doc .= "\n    \@par      Contributed by (if > " . int(100.0 * $args{"min_contrib"}) . "%):\n";
+    $doc .= "\n    \@par      CVS contributions (if > " . int(100.0 * $args{"min_contrib"}) . "%):\n";
 
     foreach my $class_contributor (@class_contributors_sorted) {
         my $ratio = 
@@ -673,6 +678,19 @@ while (@classes_names) {
             $total_class_contribution;
         last if $ratio < $args{"min_contrib"};
         $doc .= "                - " . (exists $authors{$class_contributor}{'name'} ? $authors{$class_contributor}{'name'} : $class_contributor) . " (" . int($ratio * 100.0) . "%)\n";
+    }
+
+    if (exists $args{"cvsweb"}) {
+        $doc .= "\n    \@par      CVS logs (CVSweb):\n";
+        foreach my $file (keys %{$classes{$class_name}{'files'}}) {
+            my $shortname = get_short_relative_name($file, $args{"relativeto"});
+            my ($base, $dir, $ext) = fileparse($shortname, '\..*');
+            $doc .= '                - @htmlonly<A href="' . $args{"cvsweb"} 
+              . $shortname;
+            $doc .= $args{"cvsweb_suffix"} if exists $args{"cvsweb_suffix"};
+            $doc .= '">@endhtmlonly @c ' .  $ext 
+              . ' @htmlonly</A>@endhtmlonly (@c ' . $shortname . ")\n";
+        }
     }
 
     if ($block !~ s/($preamble.+?)(\s*\@par|\z)/$doc$2/gms) {
