@@ -64,18 +64,6 @@ vtkBYUWriter::~vtkBYUWriter()
 }
 
 // Description:
-// Specify the input data or filter.
-void vtkBYUWriter::SetInput(vtkPolyData *input)
-{
-  if ( this->Input != input )
-    {
-    vtkDebugMacro(<<" setting Input to " << (void *)input);
-    this->Input = (vtkDataSet *) input;
-    this->Modified();
-    }
-}
-
-// Description:
 // Write out data in MOVIE.BYU format.
 void vtkBYUWriter::WriteData()
 {
