@@ -23,6 +23,9 @@
 
 class vtkRegressionTester : public vtkTesting 
 {
+protected:
+  vtkRegressionTester() {};
+  ~vtkRegressionTester() {};
 private:
   vtkRegressionTester(const vtkRegressionTester&);  // Not implemented.
   void operator=(const vtkRegressionTester&);  // Not implemented.
