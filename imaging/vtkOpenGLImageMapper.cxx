@@ -428,7 +428,6 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
   glLoadIdentity();
-  glDisable( GL_DEPTH_TEST );
   glDisable( GL_LIGHTING);
 
   // Get the position of the text actor
@@ -508,7 +507,6 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
   glPopMatrix();
   glMatrixMode( GL_MODELVIEW);
   glPopMatrix();
-  glEnable( GL_DEPTH_TEST );
   glEnable( GL_LIGHTING);
 }
 

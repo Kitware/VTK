@@ -127,7 +127,6 @@ void vtkWin32OpenGLTextMapper::RenderOpaqueGeometry(vtkViewport* viewport,
   glPushMatrix();
   glLoadIdentity();
   glOrtho(0,vsize[0] -1, 0, vsize[1] -1, 0, 1);
-  glDisable( GL_DEPTH_TEST );
   glDisable( GL_LIGHTING);
 
   // Check to see whether we have to rebuild anything
@@ -166,7 +165,6 @@ void vtkWin32OpenGLTextMapper::RenderOpaqueGeometry(vtkViewport* viewport,
   glPopMatrix();
   glMatrixMode( GL_MODELVIEW);
   glPopMatrix();
-  glEnable( GL_DEPTH_TEST );
   glEnable( GL_LIGHTING);
 }
 

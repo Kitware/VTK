@@ -122,7 +122,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOpaqueGeometry(vtkViewport* viewport,
       {
       this->TransformCoordinate->SetValue(p->GetPoint(j));
       itmp = this->TransformCoordinate->GetComputedViewportValue(viewport);
-      displayPts->SetPoint(j,itmp[0], itmp[1], itmp[2]);
+      displayPts->SetPoint(j,itmp[0], itmp[1], 0.0);
       }
     p = displayPts;
     }
@@ -151,7 +151,6 @@ void vtkOpenGLPolyDataMapper2D::RenderOpaqueGeometry(vtkViewport* viewport,
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
   glLoadIdentity();
-  glDisable( GL_DEPTH_TEST );
   glDisable( GL_LIGHTING);
   glOrtho(-actorPos[0],-actorPos[0] + size[0] - 1,
 	  -actorPos[1], -actorPos[1] +size[1] -1, 0, 1);
@@ -202,13 +201,16 @@ void vtkOpenGLPolyDataMapper2D::RenderOpaqueGeometry(vtkViewport* viewport,
     glEnd();
     }
 
+  if ( this->TransformCoordinate )
+    {
+    p->Delete();
+    }
 
   // push a 2D matrix on the stack
   glMatrixMode( GL_PROJECTION);
   glPopMatrix();
   glMatrixMode( GL_MODELVIEW);
   glPopMatrix();
-  glEnable( GL_DEPTH_TEST );
   glEnable( GL_LIGHTING);
 }
 
