@@ -73,6 +73,16 @@ public:
   void SetInteractor(vtkRenderWindowInteractor *iren);
   
   void OnTimer();
+
+  // Description:
+  // For legacy compatability
+  void SetTrackballModeToTrackball()
+    { this->JoystickOrTrackball = VTKIS_TRACKBALL; };
+  void SetTrackballModeToJoystick()
+    { this->JoystickOrTrackball = VTKIS_JOYSTICK; };
+  void SetActorModeToCamera() { this->CameraOrActor = VTKIS_CAMERA; };
+  void SetActorModeToActor() { this->CameraOrActor = VTKIS_ACTOR; };
+  
   
 protected:
   vtkInteractorStyleSwitch();

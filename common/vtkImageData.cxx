@@ -1102,7 +1102,22 @@ void vtkImageData::UpdateData()
     // or the whole image was requested.
     return;
     }
-  
+
+  //if (this->Extent[0] < this->UpdateExtent[0] ||
+  //  this->Extent[1] > this->UpdateExtent[1] ||
+  //  this->Extent[2] < this->UpdateExtent[2] ||
+  //  this->Extent[3] > this->UpdateExtent[3] ||
+  //  this->Extent[4] < this->UpdateExtent[4] ||
+  //  this->Extent[5] > this->UpdateExtent[5])
+  //  {
+  //  vtkImageData *image = vtkImageData::New();
+  //  image->DeepCopy(this);
+  //  this->SetExtent(this->UpdateExtent);
+  //  this->AllocateScalars();
+  //  this->CopyAndCastFrom(image, this->UpdateExtent);
+  //  image->Delete();
+  //  }
+
   // Try to avoid generating these if the input has generated them,
   // or the image data is already up to date.
   // I guess we relly need an MTime check.

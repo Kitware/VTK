@@ -129,6 +129,7 @@ vtkDataSetMapper \
 vtkDataSetReader \
 vtkDataSetSource \
 vtkDataSetToDataObjectFilter \
+vtkDataSetTriangleFilter \
 vtkDataSetWriter \
 vtkDataWriter \
 vtkDecimatePro \

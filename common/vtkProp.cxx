@@ -149,6 +149,10 @@ void vtkProp::InitPathTraversal()
 
 vtkAssemblyPath *vtkProp::GetNextPath()
 {
+  if ( ! this->Paths)
+    {
+    return NULL;
+    }
   return this->Paths->GetNextItem();
 }
 
