@@ -52,6 +52,7 @@ vtkImageShiftScale.o \
 vtkImageShortReader.o \
 vtkImageShrink3D.o \
 vtkImageSpatialFilter.o \
+vtkImageSubSampling.o \
 vtkImageThreshold.o \
 vtkImageVolumeShortWriter.o \
 vtkImageXViewer.o 
@@ -99,6 +100,7 @@ tcl/vtkImageShiftScaleTcl.o \
 tcl/vtkImageShortReaderTcl.o \
 tcl/vtkImageShrink3DTcl.o \
 tcl/vtkImageSpatialFilterTcl.o \
+tcl/vtkImageSubSamplingTcl.o \
 tcl/vtkImageThresholdTcl.o \
 tcl/vtkImageVolumeShortWriterTcl.o \
 tcl/vtkImageXViewerTcl.o 
@@ -144,6 +146,7 @@ vtkImageShiftScale.h \
 vtkImageShortReader.h \
 vtkImageShrink3D.h \
 vtkImageSpatialFilter.h \
+vtkImageSubSampling.h \
 vtkImageThreshold.h \
 vtkImageVolumeShortWriter.h \
 vtkImageXViewer.h
@@ -205,6 +208,7 @@ CLEAN_TCL         = @CLEAN_TCL@
 #
 # concrete classes will pass the last argument of 1 abstract will be 0.
 #
+
 tcl/vtkImageAnisotropicDiffusion2DTcl.cxx: vtkImageAnisotropicDiffusion2D.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageAnisotropicDiffusion2DTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageAnisotropicDiffusion2D.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageAnisotropicDiffusion2DTcl.cxx
 
@@ -327,6 +331,9 @@ tcl/vtkImageSpatial3DTcl.cxx: vtkImageSpatial3D.h ../tcl/cpp_parse
 
 tcl/vtkImageSpatialFilterTcl.cxx: vtkImageSpatialFilter.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageSpatialFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageSpatialFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageSpatialFilterTcl.cxx
+
+tcl/vtkImageSubSamplingTcl.cxx: vtkImageSubSampling.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageSubSamplingTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageSubSampling.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageSubSamplingTcl.cxx
 
 tcl/vtkImageThresholdTcl.cxx: vtkImageThreshold.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageThresholdTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageThreshold.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageThresholdTcl.cxx
