@@ -571,6 +571,11 @@ void vtkAppendPolyData::Execute()
     output->GetPointData()->SetTensors(newPtTensors);
     newPtTensors->Delete();
     }
+  if (newPtField)
+    {
+    output->GetPointData()->SetFieldData(newPtField);
+    newPtField->Delete();
+    }
   
   if ( newVerts->GetNumberOfCells() > 0 )
     {
