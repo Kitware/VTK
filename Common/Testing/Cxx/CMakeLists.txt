@@ -19,6 +19,7 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   TestImageIterator.cxx
   TestDirectory.cxx
   TestSmartPointer.cxx
+  SystemInformation.cxx
 )
 
 ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
@@ -26,6 +27,11 @@ TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkCommon)
 
 SET (TestsToRun ${Tests})
 REMOVE (TestsToRun ${KIT}CxxTests.cxx)
+
+# Configure a header needed by SystemInformation.
+CONFIGURE_FILE("${VTK_SOURCE_DIR}/Common/Testing/Cxx/SystemInformation.h.in"
+               "${VTK_BINARY_DIR}/Common/Testing/Cxx/SystemInformation.h"
+               @ONLY IMMEDIATE)
 
 #
 # Add all the executables 
