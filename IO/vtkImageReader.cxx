@@ -20,7 +20,7 @@
 #include "vtkPointData.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImageReader, "1.113");
+vtkCxxRevisionMacro(vtkImageReader, "1.114");
 vtkStandardNewMacro(vtkImageReader);
 
 vtkCxxSetObjectMacro(vtkImageReader,Transform,vtkTransform);
@@ -83,6 +83,9 @@ void vtkImageReader::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Transform: (none)\n";
     }
+  
+  os << indent << "ScalarArrayName: "
+     << (this->ScalarArrayName ? this->ScalarArrayName : "(none)") << endl;
 }
 
 
