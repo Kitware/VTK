@@ -13,3 +13,23 @@ def refine_import_err(mod_name, exc):
     mod = 'vtk' + string.upper(mod_name[0]) + mod_name[1:] +'Python'
     if string.find(str(exc), mod) == -1:
 	raise LinkError, str(exc)
+
+# Python "help(sys.setdlopenflags)" states:
+#
+# setdlopenflags(...)
+#     setdlopenflags(n) -> None
+#     
+#     Set the flags that will be used for dlopen() calls. Among other
+#     things, this will enable a lazy resolving of symbols when
+#     importing a module, if called as sys.setdlopenflags(0) To share
+#     symbols across extension modules, call as
+#
+#     sys.setdlopenflags(dl.RTLD_NOW|dl.RTLD_GLOBAL)
+#
+# GCC 3.x depends on proper merging of symbols for RTTI:
+#   http://gcc.gnu.org/faq.html#dso
+#
+import os
+if os.name == 'posix':
+  import dl
+  sys.setdlopenflags(dl.RTLD_NOW|dl.RTLD_GLOBAL)
