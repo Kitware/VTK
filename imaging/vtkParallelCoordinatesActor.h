@@ -163,12 +163,15 @@ protected:
   vtkParallelCoordinatesActor(const vtkParallelCoordinatesActor&) {};
   void operator=(const vtkParallelCoordinatesActor&) {};
 
+private:
   vtkCoordinate *Position2Coordinate;
   vtkDataObject *Input; //list of data sets to plot
 
-  int IndependentVariables;
+  int IndependentVariables; //use column or row
   int N; //the number of independent variables
   vtkAxisActor2D **Axes;
+  float *Mins; //minimum data value along this row/column
+  float *Maxs; //maximum data value along this row/column
 
   char *Title;
   vtkTextMapper *TitleMapper;

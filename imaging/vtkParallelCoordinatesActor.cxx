@@ -73,7 +73,9 @@ vtkParallelCoordinatesActor::vtkParallelCoordinatesActor()
   this->Input = NULL;
   this->IndependentVariables = VTK_IV_ROW;
   this->N = 0;
-  this->Axes = NULL;
+  this->Axes = NULL; 
+  this->Mins = NULL;
+  this->Maxs = NULL;
 
   this->Title = NULL;
   this->TitleMapper = vtkTextMapper::New();
@@ -116,6 +118,10 @@ vtkParallelCoordinatesActor::~vtkParallelCoordinatesActor()
       }
     delete [] this->Axes;
     this->Axes = NULL;
+    delete [] this->Mins;
+    this->Mins = NULL;
+    delete [] this->Maxs;
+    this->Maxs = NULL;
     }
   
   if (this->Title)
@@ -239,8 +245,43 @@ void vtkParallelCoordinatesActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkActor2D::PrintSelf(os,indent);
 
+  os << indent << "Input: " << this->Input << "\n";
   os << indent << "Position2 Coordinate: " 
      << this->Position2Coordinate << "\n";
   this->Position2Coordinate->PrintSelf(os, indent.GetNextIndent());
   
+  os << indent << "Title: " << (this->Title ? this->Title : "(none)") << "\n";
+  os << indent << "Number Of Independent Variables: " << this->N << "\n";
+  os << indent << "Independent Variables: ";
+  if ( this->IndependentVariables == VTK_IV_COLUMN )
+    {
+    os << "Columns\n";
+    }
+  else
+    {
+    os << "Rows\n";
+    }
+
+  os << indent << "Number Of Labels: " << this->NumberOfLabels << "\n";
+
+  os << indent << "Font Family: ";
+  if ( this->FontFamily == VTK_ARIAL )
+    {
+    os << "Arial\n";
+    }
+  else if ( this->FontFamily == VTK_COURIER )
+    {
+    os << "Courier\n";
+    }
+  else
+    {
+    os << "Times\n";
+    }
+
+  os << indent << "Bold: " << (this->Bold ? "On\n" : "Off\n");
+  os << indent << "Italic: " << (this->Italic ? "On\n" : "Off\n");
+  os << indent << "Shadow: " << (this->Shadow ? "On\n" : "Off\n");
+  os << indent << "Label Format: " << this->LabelFormat << "\n";
+  
+
 }
