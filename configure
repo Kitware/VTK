@@ -2032,7 +2032,7 @@ GRAPHICS_API_OBJ=""
 if test "$use_sbr" = "yes"; then
   case $system in
     HP-UX-*.10.*)
-	GRAPHICS_API_LIBS="${GRAPHICS_API_LIBS} -L/opt/graphics/common/lib -ldld -lXwindow -lhpgfx -lXhp11"
+	GRAPHICS_API_LIBS="${GRAPHICS_API_LIBS} -L/opt/graphics/OpenGL/lib -L/opt/graphics/common/lib -ldld -lXwindow -lhpgfx -lXhp11"
 	GRAPHICS_API_OBJ="${GRAPHICS_API_OBJ} \${SBR_OBJ}"
 	GRAPHICS_API_FLAGS="${GRAPHICS_API_FLAGS} -DVTK_USE_SBR"
 	;;
@@ -2684,7 +2684,7 @@ fi
 	SHLIB_CFLAGS="-fPIC"
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".so"
-	VTK_SHLIB_BUILD_FLAGS="-shared -rdata_shared"
+	VTK_SHLIB_BUILD_FLAGS="-shared"
 	if test "$have_dl" = yes; then
 	    DL_LIBS="-ldl"
 	    VTK_SHLIB_LINK_FLAGS="-rdynamic"

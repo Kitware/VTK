@@ -64,7 +64,7 @@ GRAPHICS_API_OBJ=""
 if test "$use_sbr" = "yes"; then
   case $system in
     HP-UX-*.10.*)
-	GRAPHICS_API_LIBS="${GRAPHICS_API_LIBS} -L/opt/graphics/common/lib -ldld -lXwindow -lhpgfx -lXhp11"
+	GRAPHICS_API_LIBS="${GRAPHICS_API_LIBS} -L/opt/graphics/OpenGL/lib -L/opt/graphics/common/lib -ldld -lXwindow -lhpgfx -lXhp11"
 	GRAPHICS_API_OBJ="${GRAPHICS_API_OBJ} \${SBR_OBJ}"
 	GRAPHICS_API_FLAGS="${GRAPHICS_API_FLAGS} -DVTK_USE_SBR"
 	;;
