@@ -39,76 +39,35 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkOutlineFilter.h"
+#include "vtkOutlineSource.h"
+
+vtkOutlineFilter::vtkOutlineFilter ()
+{
+  this->OutlineSource = vtkOutlineSource::New();
+}
+
+vtkOutlineFilter::~vtkOutlineFilter ()
+{
+  if (this->OutlineSource != NULL)
+    {
+    this->OutlineSource->Delete ();
+    this->OutlineSource = NULL;
+    }
+}
 
 void vtkOutlineFilter::Execute()
 {
-  float *bounds;
-  float x[3];
-  int pts[2];
-  vtkPoints *newPts;
-  vtkCellArray *newLines;
   vtkPolyData *output = this->GetOutput();
   
   vtkDebugMacro(<< "Creating dataset outline");
-  //
-  // Initialize
-  //
-  bounds = ((vtkDataSet *)this->Input)->GetBounds();
-//
-// Allocate storage and create outline
-//
-  newPts = vtkPoints::New();
-  newPts->Allocate(8);
-  newLines = vtkCellArray::New();
-  newLines->Allocate(newLines->EstimateSize(12,2));
 
-  x[0] = bounds[0]; x[1] = bounds[2]; x[2] = bounds[4];
-  newPts->InsertPoint(0,x);
-  x[0] = bounds[1]; x[1] = bounds[2]; x[2] = bounds[4];
-  newPts->InsertPoint(1,x);
-  x[0] = bounds[0]; x[1] = bounds[3]; x[2] = bounds[4];
-  newPts->InsertPoint(2,x);
-  x[0] = bounds[1]; x[1] = bounds[3]; x[2] = bounds[4];
-  newPts->InsertPoint(3,x);
-  x[0] = bounds[0]; x[1] = bounds[2]; x[2] = bounds[5];
-  newPts->InsertPoint(4,x);
-  x[0] = bounds[1]; x[1] = bounds[2]; x[2] = bounds[5];
-  newPts->InsertPoint(5,x);
-  x[0] = bounds[0]; x[1] = bounds[3]; x[2] = bounds[5];
-  newPts->InsertPoint(6,x);
-  x[0] = bounds[1]; x[1] = bounds[3]; x[2] = bounds[5];
-  newPts->InsertPoint(7,x);
-
-  pts[0] = 0; pts[1] = 1;
-  newLines->InsertNextCell(2,pts);
-  pts[0] = 2; pts[1] = 3;
-  newLines->InsertNextCell(2,pts);
-  pts[0] = 4; pts[1] = 5;
-  newLines->InsertNextCell(2,pts);
-  pts[0] = 6; pts[1] = 7;
-  newLines->InsertNextCell(2,pts);
-  pts[0] = 0; pts[1] = 2;
-  newLines->InsertNextCell(2,pts);
-  pts[0] = 1; pts[1] = 3;
-  newLines->InsertNextCell(2,pts);
-  pts[0] = 4; pts[1] = 6;
-  newLines->InsertNextCell(2,pts);
-  pts[0] = 5; pts[1] = 7;
-  newLines->InsertNextCell(2,pts);
-  pts[0] = 0; pts[1] = 4;
-  newLines->InsertNextCell(2,pts);
-  pts[0] = 1; pts[1] = 5;
-  newLines->InsertNextCell(2,pts);
-  pts[0] = 2; pts[1] = 6;
-  newLines->InsertNextCell(2,pts);
-  pts[0] = 3; pts[1] = 7;
-  newLines->InsertNextCell(2,pts);
   //
-  // Update selves and release memory
+  // Let OutlineSource do all the work
   //
-  output->SetPoints(newPts);
-  newPts->Delete();
 
-  output->SetLines(newLines);
-  newLines->Delete();
+  this->OutlineSource->SetBounds (((vtkDataSet *)this->Input)->GetBounds());
+  this->OutlineSource->Update ();
+
+  output->CopyStructure (this->OutlineSource->GetOutput ());
+
 }

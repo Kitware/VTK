@@ -48,14 +48,18 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkOutlineFilter_h
 
 #include "vtkDataSetToPolyDataFilter.h"
+class vtkOutlineSource;
 
 class VTK_EXPORT vtkOutlineFilter : public vtkDataSetToPolyDataFilter
 {
 public:
+  vtkOutlineFilter();
+  ~vtkOutlineFilter();
   static vtkOutlineFilter *New() {return new vtkOutlineFilter;};
   const char *GetClassName() {return "vtkOutlineFilter";};
 
 protected:
+  vtkOutlineSource *OutlineSource;
   void Execute();
 };
 
