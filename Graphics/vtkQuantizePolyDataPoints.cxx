@@ -16,7 +16,7 @@
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuantizePolyDataPoints, "1.8");
+vtkCxxRevisionMacro(vtkQuantizePolyDataPoints, "1.9");
 vtkStandardNewMacro(vtkQuantizePolyDataPoints);
 
 //--------------------------------------------------------------------------
@@ -28,7 +28,7 @@ vtkQuantizePolyDataPoints::vtkQuantizePolyDataPoints()
 }
 
 //--------------------------------------------------------------------------
-void vtkQuantizePolyDataPoints::OperateOnPoint(float in[3], float out[3])
+void vtkQuantizePolyDataPoints::OperateOnPoint(double in[3], double out[3])
 {
   out[0] = floor(in[0]/this->QFactor + 0.5)*this->QFactor;
   out[1] = floor(in[1]/this->QFactor + 0.5)*this->QFactor;
@@ -36,7 +36,7 @@ void vtkQuantizePolyDataPoints::OperateOnPoint(float in[3], float out[3])
 }
 
 //-------------------------------------------------------------------------
-void vtkQuantizePolyDataPoints::OperateOnBounds(float in[6], float out[6])
+void vtkQuantizePolyDataPoints::OperateOnBounds(double in[6], double out[6])
 {
   out[0] = floor(in[0]/this->QFactor + 0.5)*this->QFactor;
   out[1] = floor(in[1]/this->QFactor + 0.5)*this->QFactor;

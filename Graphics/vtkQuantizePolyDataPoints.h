@@ -45,22 +45,22 @@ public:
 
   // Description:
   // Specify quantization grain size
-  vtkSetClampMacro(QFactor,float,1E-5,VTK_LARGE_FLOAT);
-  vtkGetMacro(QFactor,float);
+  vtkSetClampMacro(QFactor,double,1E-5,VTK_LARGE_FLOAT);
+  vtkGetMacro(QFactor,double);
 
   // Description:
   // Perform quantization on a point
-  virtual void OperateOnPoint(float in[3], float out[3]);
+  virtual void OperateOnPoint(double in[3], double out[3]);
 
   // Description:
   // Perform quantization on bounds
-  virtual void OperateOnBounds(float in[6], float out[6]);
+  virtual void OperateOnBounds(double in[6], double out[6]);
 
 protected:
   vtkQuantizePolyDataPoints();
   ~vtkQuantizePolyDataPoints() {};
 
-  float QFactor;
+  double QFactor;
 private:
   vtkQuantizePolyDataPoints(const vtkQuantizePolyDataPoints&);  // Not implemented.
   void operator=(const vtkQuantizePolyDataPoints&);  // Not implemented.
