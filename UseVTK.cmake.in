@@ -19,3 +19,10 @@ INCLUDE_DIRECTORIES(${VTK_INCLUDE_DIRS})
 
 # Add link directories needed to use VTK.
 LINK_DIRECTORIES(${VTK_LIBRARY_DIRS})
+
+# Import the VTK_LOAD_CMAKE_EXTENSIONS macro.
+INCLUDE(${VTK_CMAKE_EXTENSIONS_DIR}/vtkLoadCMakeExtensions.cmake)
+
+# Compile the extensions into the build tree and load them. 
+VTK_LOAD_CMAKE_EXTENSIONS(${VTK_CMAKE_EXTENSIONS_DIR}
+                          ${PROJECT_BINARY_DIR}/CMakeVTK)
