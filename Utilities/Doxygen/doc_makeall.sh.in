@@ -1,6 +1,6 @@
 # -------------------------------------------------------------------------
 # Doxygen documentation batch
-# modified by S. Barre (Time-stamp: <2001-11-02 16:39:46 barre>
+# modified by S. Barre (Time-stamp: <2001-11-02 16:53:15 barre>
 # -------------------------------------------------------------------------
 
 # Path to several tools (_PROG to avoid the typical GZIP env var pb)
@@ -74,11 +74,14 @@ export INTERMEDIATE_DOX_DIR=$DOXTEMP/dox
 
 # CVSWEB_CHECKOUT:
 # URL to the CVSWeb of the project, in checkout mode (i.e. appending a file 
-# name to this URL will retrieve the contents of the file).
+# name to this URL will retrieve the contents of the file). In the same way
+# CVSWEB_CHECKOUT_SUFFIX is appended to the result.
 # Example: 
 #   CVSWEB_CHECKOUT=http://public.kitware.com/cgi-bin/cvsweb.cgi/~checkout~/VTK
+#   CVSWEB_CHECKOUT_SUFFIX=?cvsroot=CMake
 #
 export CVSWEB_CHECKOUT=http://public.kitware.com/cgi-bin/cvsweb.cgi/~checkout~/VTK
+export CVSWEB_CHECKOUT_SUFFIX=
 
 # DOXYFILE:
 # Path to the Doxygen configuration file (i.e. doxyfile).
@@ -207,6 +210,7 @@ if test "x$PERL_PROG" != "xNOTFOUND" ; then
         --dirmatch "^Examples\$" \
         --label "Examples" \
         --link $CVSWEB_CHECKOUT \
+        --linksuffix $CVSWEB_CHECKOUT_SUFFIX \
         --project $PROJECT_NAME \
         --store "doc_""$PROJECT_NAME""_class2examples.dox" \
         --title "Class To Examples" \
@@ -224,6 +228,7 @@ if test "x$PERL_PROG" != "xNOTFOUND" ; then
         --dirmatch "^Testing$" \
         --label "Tests" \
         --link $CVSWEB_CHECKOUT \
+        --linksuffix $CVSWEB_CHECKOUT_SUFFIX \
         --project $PROJECT_NAME \
         --store "doc_""$PROJECT_NAME""_class2tests.dox" \
         --title "Class To Tests" \

@@ -1,9 +1,12 @@
 #!/usr/bin/env perl
-# Time-stamp: <2001-10-17 16:41:20 barre>
+# Time-stamp: <2001-11-02 16:50:51 barre>
 #
 # Build cross-references between classes and examples
 #
 # barre : Sebastien Barre <sebastien@barre.nom.fr>
+#
+# 0.73 (barre) :
+#   - add --linksuffix s : suffix string to append to --link + filename
 #
 # 0.72 (barre) :
 #   - add --project name : project name, used to uniquify
@@ -75,7 +78,7 @@ use File::Basename;
 use File::Find;
 use strict;
 
-my ($VERSION, $PROGNAME, $AUTHOR) = (0.72, $0, "Sebastien Barre");
+my ($VERSION, $PROGNAME, $AUTHOR) = (0.73, $0, "Sebastien Barre");
 $PROGNAME =~ s/^.*[\\\/]//;
 print "$PROGNAME $VERSION, by $AUTHOR\n";
 
@@ -88,6 +91,7 @@ my %default =
    dirs => ["../.."],
    label => "Examples",
    limit => 20,
+   linksuffix => "",
    project => "VTK",
    store => "doc_VTK_class2examples.dox",
    title => "Class To Examples",
@@ -137,20 +141,21 @@ sub parse {
 
 my %args;
 Getopt::Long::Configure("bundling");
-GetOptions (\%args, "help", "verbose|v", "dirmatch=s", "label=s", "limit=i", "link=s", "parser=s@", "project=s", "store=s", "title=s", "to=s", "unique=s", "weight=i");
+GetOptions (\%args, "help", "verbose|v", "dirmatch=s", "label=s", "limit=i", "link=s", "linksuffix=s", "parser=s@", "project=s", "store=s", "title=s", "to=s", "unique=s", "weight=i");
 
 my $available_parser = join(", ", keys %parsers);
 
 if (exists $args{"help"}) {
     print <<"EOT";
 by $AUTHOR
-Usage : $PROGNAME [--help] [--verbose|-v] [--dirmatch string] [--label string] [--limit n] [--link path] [--parser name] [--store file] [--title string] [--to path] [--weight n] [directories...]
+Usage : $PROGNAME [--help] [--verbose|-v] [--dirmatch string] [--label string] [--limit n] [--link path] [--linksuffix string] [--parser name] [--store file] [--title string] [--to path] [--weight n] [directories...]
   --help         : this message
   --verbose|-v   : verbose (display filenames/classes while processing)
   --dirmatch str : use string to match the directory name holding files (default: $default{dirmatch})
   --label str    : use string as label in class page (default: $default{label})
   --limit n      : limit the number of examples per parser type (default: $default{limit})
   --link path    : link to example files (and prepend path)
+  --linksuffix s : suffix string to append to --link + filename
   --title str    : use string as title in "Related Pages" (default: $default{title})
   --parser name  : use specific parser only (available : $available_parser)
   --project name : project name, used to uniquify (default: $default{project})
@@ -172,6 +177,7 @@ $args{"label"} = $default{"label"} if ! exists $args{"label"};
 $args{"limit"} = $default{"limit"} if ! exists $args{"limit"};
 $args{"link"} = $default{"link"} if ! exists $args{"link"} && exists $default{"link"};
 $args{"link"} =~ s/[\\\/]*$// if exists $args{"link"};
+$args{"linksuffix"} = $default{"linksuffix"} if ! exists $args{"linksuffix"};
 $args{"project"} = $default{"project"} if ! exists $args{"project"};
 $args{"store"} = $default{"store"} if ! exists $args{"store"};
 $args{"title"} = $default{"title"} if ! exists $args{"title"};
@@ -448,7 +454,7 @@ foreach my $class (@classes) {
             if (exists $args{"link"}) {
                 push @temp, 
                 '    - @htmlonly <TT><A href="' . $args{"link"} .  
-                  $shorter_filename{$file} . '">@endhtmlonly ' . $shorter_filename{$file} . 
+                  $shorter_filename{$file} . $args{"linksuffix"} . '">@endhtmlonly ' . $shorter_filename{$file} . 
                     '@htmlonly</A></TT> @endhtmlonly';
             } else {
                 push @temp, "    - \@c $shorter_filename{$file}";
