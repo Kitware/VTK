@@ -23,7 +23,7 @@
 #include "vtkFieldData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSource, "1.104");
+vtkCxxRevisionMacro(vtkSource, "1.105");
 
 #ifndef NULL
 #define NULL 0
@@ -368,11 +368,29 @@ void vtkSource::UpdateData(vtkDataObject *output)
   // before we start to execute is 0.0.
   this->AbortExecute = 0;
   this->Progress = 0.0;
+
+  int skipExecute = 0;
   if (this->NumberOfInputs < this->NumberOfRequiredInputs)
     {
-    vtkErrorMacro(<< "At least " << this->NumberOfRequiredInputs << " inputs are required but only " << this->NumberOfInputs << " are specified");
+    vtkErrorMacro(<< "At least " << this->NumberOfRequiredInputs 
+                  << " inputs are required but only " << this->NumberOfInputs 
+                  << " are specified. Skipping execution.");
+    skipExecute = 1;
     }
   else
+    {
+    for (idx = 0; idx < this->NumberOfRequiredInputs; ++idx)
+      {
+      if (!this->Inputs[idx])
+        {
+        vtkErrorMacro(<< "Required input " << idx 
+                      << " is not assigned. Skipping execution.");
+        skipExecute = 1;
+        }
+      }
+    }
+
+  if (!skipExecute)
     {
     // Pass the vtkDataObject's field data from the first input
     // to all outputs
