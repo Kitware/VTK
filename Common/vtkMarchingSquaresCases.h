@@ -46,9 +46,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
 typedef int EDGE_LIST;
-typedef struct {
-       EDGE_LIST edges[5];
-} LINE_CASES;
+struct VTK_EXPORT VTK_LINE_CASES 
+{
+  EDGE_LIST edges[5];
+  static VTK_LINE_CASES* GetCases();
+};
 
-extern LINE_CASES VTK_MARCHING_SQUARES_LINECASES[];
 #endif

@@ -179,7 +179,8 @@ static void ContourImage(T *scalars, vtkScalars *newScalars, int roi[6], int dir
   float t, *x1, *x2, x[3], xp, yp;
   float pts[4][3], min, max;
   int contNum, jOffset, idx, ii, jj, index, *vert;
-  static int CASE_MASK[4] = {1,2,8,4};  LINE_CASES *lineCase;
+  static int CASE_MASK[4] = {1,2,8,4};  
+  VTK_LINE_CASES *lineCase;
   static int edges[4][2] = { {0,1}, {1,3}, {2,3}, {0,2} };
   EDGE_LIST  *edge;
   float value, s[4];
@@ -260,7 +261,7 @@ static void ContourImage(T *scalars, vtkScalars *newScalars, int roi[6], int dir
 	  continue; //no lines
 	  }
 
-        lineCase = VTK_MARCHING_SQUARES_LINECASES + index;
+        lineCase = VTK_LINE_CASES::GetCases() + index;
         edge = lineCase->edges;
 
         for ( ; edge[0] > -1; edge += 2 )

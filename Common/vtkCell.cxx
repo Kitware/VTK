@@ -300,7 +300,7 @@ void vtkCell::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
-LINE_CASES VTK_MARCHING_SQUARES_LINECASES[] = { 
+static VTK_LINE_CASES VTK_MARCHING_SQUARES_LINECASES[] = { 
   {{-1, -1, -1, -1, -1}},
   {{0, 3, -1, -1, -1}},
   {{1, 0, -1, -1, -1}},
@@ -318,3 +318,8 @@ LINE_CASES VTK_MARCHING_SQUARES_LINECASES[] = {
   {{3, 0, -1, -1, -1}},
   {{-1, -1, -1, -1, -1}}
 };
+
+VTK_LINE_CASES* VTK_LINE_CASES::GetCases()
+{
+  return VTK_MARCHING_SQUARES_LINECASES;
+}
