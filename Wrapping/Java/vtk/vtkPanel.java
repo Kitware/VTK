@@ -26,7 +26,6 @@ public class vtkPanel extends Canvas implements
     System.loadLibrary("vtkImagingJava"); 
     System.loadLibrary("vtkGraphicsJava"); 
     System.loadLibrary("vtkRenderingJava"); 
-    System.loadLibrary("vtkHybridJava"); 
   }
 
   protected native void RenderCreate(vtkRenderWindow id0);
