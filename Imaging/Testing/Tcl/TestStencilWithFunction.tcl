@@ -34,7 +34,8 @@ vtkImageStencil stencil
 stencil SetInput [reader GetOutput]
 stencil SetBackgroundInput [shiftScale GetOutput]
 stencil SetStencil $stencilCopy
-$stencilCopy Delete
+$stencilCopy DebugOn
+$stencilCopy UnRegister reader
 
 vtkImageViewer viewer
 viewer SetInput [stencil GetOutput]
