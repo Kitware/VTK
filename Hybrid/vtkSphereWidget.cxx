@@ -26,7 +26,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSphereWidget, "1.6");
+vtkCxxRevisionMacro(vtkSphereWidget, "1.7");
 vtkStandardNewMacro(vtkSphereWidget);
 
 vtkSphereWidget::vtkSphereWidget()
@@ -162,6 +162,7 @@ void vtkSphereWidget::SetEnabled(int enabling)
     // Add the sphere
     this->CurrentRenderer->AddActor(this->SphereActor);
     this->SphereActor->SetProperty(this->SphereProperty);
+
     this->CurrentRenderer->AddActor(this->HandleActor);
     this->HandleActor->SetProperty(this->HandleProperty);
     this->SelectRepresentation();
@@ -255,6 +256,24 @@ void vtkSphereWidget::PrintSelf(ostream& os, vtkIndent indent)
   else
     {
     os << indent << "Selected Sphere Property: (none)\n";
+    }
+
+  if ( this->HandleProperty )
+    {
+    os << indent << "Handle Property: " << this->HandleProperty << "\n";
+    }
+  else
+    {
+    os << indent << "Handle Property: (none)\n";
+    }
+  if ( this->SelectedHandleProperty )
+    {
+    os << indent << "Selected Handle Property: " 
+       << this->SelectedHandleProperty << "\n";
+    }
+  else
+    {
+    os << indent << "Selected Handle Property: (none)\n";
     }
 
   os << indent << "Translation: " << (this->Translation ? "On\n" : "Off\n");
