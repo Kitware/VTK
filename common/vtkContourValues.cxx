@@ -42,11 +42,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkFloatArray.h"
 
 // Description:
-// Construct object with empty aray of contour values.
+// Construct object with a single contour value at 0.0.
 vtkContourValues::vtkContourValues()
 {
   this->Contours = vtkFloatArray::New();
   this->Contours->Allocate(64);
+  this->Contours->InsertValue(0,0.0);
 }
 
 vtkContourValues::~vtkContourValues()
