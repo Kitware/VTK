@@ -11,6 +11,10 @@ FIND_LIBRARY(UTIL_LIBRARY
   NAMES util
   PATHS /usr/lib
 )
+IF(UTIL_LIBRARY)
+  SET(UTIL_LIBRARY_LIB ${UTIL_LIBRARY})
+ENDIF(UTIL_LIBRARY)
+
 
 # Link against all the kit wrappers.
 IF (APPLE)
@@ -28,7 +32,7 @@ TARGET_LINK_LIBRARIES(vtkpython
   vtkIO
   vtkGraphics
   vtkImaging
-  ${UTIL_LIBRARY})
+  ${UTIL_LIBRARY_LIB})
 
 IF (VTK_USE_RENDERING)
   TARGET_LINK_LIBRARIES(vtkpython vtkRendering)
@@ -59,7 +63,7 @@ IF (VTK_USE_PARALLEL)
       vtkGraphics
       vtkImaging
       vtkParallel
-      ${UTIL_LIBRARY}
+      ${UTIL_LIBRARY_LIB}
     )
     IF (VTK_USE_PATENTED)
       TARGET_LINK_LIBRARIES(pvtkpython vtkPatented)
