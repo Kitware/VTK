@@ -3,7 +3,7 @@ package require vtkinteraction
 
 # Read some AVS UCD data in ASCII form
 vtkAVSucdReader r
-   r SetFileName "$VTK_DATA_ROOT/Data/AVS/cellsnd.ascii.inp"
+   r SetFileName "$VTK_DATA_ROOT/Data/cellsnd.ascii.inp"
 vtkDataSetMapper AVSMapper
    AVSMapper SetInput [r GetOutput]
 vtkActor AVSActor
@@ -11,12 +11,12 @@ vtkActor AVSActor
 
 # Read some AVS UCD data in binary form
 vtkAVSucdReader r2
-   r2 SetFileName "$VTK_DATA_ROOT/Data/AVS/cellsnd.bin.inp"
+   r2 SetFileName "$VTK_DATA_ROOT/Data/cellsnd.bin.inp"
 vtkDataSetMapper AVSMapper2
    AVSMapper2 SetInput [r2 GetOutput]
 vtkActor AVSActor2
    AVSActor2 SetMapper AVSMapper2
-   AVSActor2 AddPosition 10 0 0
+   AVSActor2 AddPosition 5 0 0
 
 # Create the RenderWindow, Renderer and both Actors
 #
