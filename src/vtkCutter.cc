@@ -80,10 +80,11 @@ void vtkCutter::Execute()
   vtkPolyData *output = this->GetOutput();
   
   vtkDebugMacro(<< "Executing cutter");
-//
-// Initialize self; create output objects
-//
-
+  cellScalars.ReferenceCountingOff();
+  
+  //
+  // Initialize self; create output objects
+  //
   if ( !this->CutFunction )
     {
     vtkErrorMacro(<<"No cut function specified");

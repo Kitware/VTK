@@ -88,15 +88,20 @@ void vtkProbeFilter::Execute()
       outPD->NullPoint(ptId);
       }
     }
-
-  this->Modified(); //make sure something's changed
 }
 
 // Description:
-// Override update method because execution can branch two ways (Input 
-// and Source)
+// Overload update method because execution can branch two ways (Input 
+// and Source). Also input and output are abstract.
 void vtkProbeFilter::Update()
 {
+  // make sure output has been created
+  if ( !this->Output )
+    {
+    vtkErrorMacro(<< "No output has been created...need to set input");
+    return;
+    }
+
   // make sure input is available
   if ( this->Input == NULL || this->Source == NULL )
     {
@@ -117,7 +122,7 @@ void vtkProbeFilter::Update()
   this->GetMTime() > this->ExecuteTime || this->GetDataReleased() )
     {
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
-    this->Output->Initialize(); //clear output
+    this->Output->CopyStructure(this->Input);
     this->Execute();
     this->ExecuteTime.Modified();
     this->SetDataReleased(0);
