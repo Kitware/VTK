@@ -1,22 +1,24 @@
-# Microsoft Developer Studio Generated NMAKE File, Format Version 4.20
+# Microsoft Developer Studio Generated NMAKE File, Format Version 4.10
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Application" 0x0101
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
 !IF "$(CFG)" == ""
-CFG=cpp_parse - Win32 Debug
-!MESSAGE No configuration specified.  Defaulting to cpp_parse - Win32 Debug.
+CFG=java_wrap - Win32 Debug
+!MESSAGE No configuration specified.  Defaulting to java_wrap - Win32 Debug.
 !ENDIF 
 
 !IF "$(CFG)" != "pcmaker - Win32 Release" && "$(CFG)" !=\
  "pcmaker - Win32 Debug" && "$(CFG)" != "cpp_parse - Win32 Release" && "$(CFG)"\
- != "cpp_parse - Win32 Debug"
+ != "cpp_parse - Win32 Debug" && "$(CFG)" != "java_parse - Win32 Release" &&\
+ "$(CFG)" != "java_parse - Win32 Debug" && "$(CFG)" !=\
+ "java_wrap - Win32 Release" && "$(CFG)" != "java_wrap - Win32 Debug"
 !MESSAGE Invalid configuration "$(CFG)" specified.
 !MESSAGE You can specify a configuration when running NMAKE on this makefile
 !MESSAGE by defining the macro CFG on the command line.  For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "pcmaker.mak" CFG="cpp_parse - Win32 Debug"
+!MESSAGE NMAKE /f "pcmaker.mak" CFG="java_wrap - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
@@ -25,6 +27,13 @@ CFG=cpp_parse - Win32 Debug
 !MESSAGE "cpp_parse - Win32 Release" (based on\
  "Win32 (x86) Console Application")
 !MESSAGE "cpp_parse - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "java_parse - Win32 Release" (based on\
+ "Win32 (x86) Console Application")
+!MESSAGE "java_parse - Win32 Debug" (based on\
+ "Win32 (x86) Console Application")
+!MESSAGE "java_wrap - Win32 Release" (based on\
+ "Win32 (x86) Console Application")
+!MESSAGE "java_wrap - Win32 Debug" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 !ERROR An invalid configuration is specified.
 !ENDIF 
@@ -53,8 +62,8 @@ NULL=nul
 OUTDIR=.\Release
 INTDIR=.\Release
 
-ALL : "cpp_parse - Win32 Release" "$(OUTDIR)\pcmaker.exe"\
- "$(OUTDIR)\pcmaker.pch"
+ALL : "java_wrap - Win32 Release" "java_parse - Win32 Release"\
+ "cpp_parse - Win32 Release" "$(OUTDIR)\pcmaker.exe" "$(OUTDIR)\pcmaker.pch"
 
 CLEAN : 
 	-@erase "$(INTDIR)\getclasses.obj"
@@ -141,7 +150,8 @@ LINK32_OBJS= \
 OUTDIR=.\Debug
 INTDIR=.\Debug
 
-ALL : "cpp_parse - Win32 Debug" "$(OUTDIR)\pcmaker.exe" "$(OUTDIR)\pcmaker.pch"
+ALL : "java_wrap - Win32 Debug" "java_parse - Win32 Debug"\
+ "cpp_parse - Win32 Debug" "$(OUTDIR)\pcmaker.exe" "$(OUTDIR)\pcmaker.pch"
 
 CLEAN : 
 	-@erase "$(INTDIR)\getclasses.obj"
@@ -161,9 +171,9 @@ CLEAN :
 
 CPP=cl.exe
 # ADD BASE CPP /nologo /MDd /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /Yu"stdafx.h" /c
-# ADD CPP /nologo /MTd /W2 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /c
+# ADD CPP /nologo /MTd /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /c
 # SUBTRACT CPP /YX /Yc /Yu
-CPP_PROJ=/nologo /MTd /W2 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS"\
+CPP_PROJ=/nologo /MTd /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS"\
  /D "_MBCS" /Fo"$(INTDIR)/" /Fd"$(INTDIR)/" /c 
 CPP_OBJS=.\Debug/
 CPP_SBRS=.\.
@@ -366,6 +376,312 @@ LINK32_OBJS= \
   $(LINK32_FLAGS) $(LINK32_OBJS)
 <<
 
+!ELSEIF  "$(CFG)" == "java_parse - Win32 Release"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "java_parse\Release"
+# PROP BASE Intermediate_Dir "java_parse\Release"
+# PROP BASE Target_Dir "java_parse"
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir "java_parse\Release"
+# PROP Intermediate_Dir "java_parse\Release"
+# PROP Target_Dir "java_parse"
+OUTDIR=.\java_parse\Release
+INTDIR=.\java_parse\Release
+
+ALL : "$(OUTDIR)\java_parse.exe"
+
+CLEAN : 
+	-@erase "$(INTDIR)\java_parse.tab.obj"
+	-@erase "$(OUTDIR)\java_parse.exe"
+
+"$(OUTDIR)" :
+    if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
+
+CPP=cl.exe
+# ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /YX /c
+# ADD CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /YX /c
+CPP_PROJ=/nologo /ML /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE"\
+ /Fp"$(INTDIR)/java_parse.pch" /YX /Fo"$(INTDIR)/" /c 
+CPP_OBJS=.\java_parse\Release/
+CPP_SBRS=.\.
+
+.c{$(CPP_OBJS)}.obj:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cpp{$(CPP_OBJS)}.obj:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cxx{$(CPP_OBJS)}.obj:
+   $(CPP) $(CPP_PROJ) $<  
+
+.c{$(CPP_SBRS)}.sbr:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cpp{$(CPP_SBRS)}.sbr:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cxx{$(CPP_SBRS)}.sbr:
+   $(CPP) $(CPP_PROJ) $<  
+
+RSC=rc.exe
+# ADD BASE RSC /l 0x409 /d "NDEBUG"
+# ADD RSC /l 0x409 /d "NDEBUG"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+BSC32_FLAGS=/nologo /o"$(OUTDIR)/java_parse.bsc" 
+BSC32_SBRS= \
+	
+LINK32=link.exe
+# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
+LINK32_FLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib\
+ advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib\
+ odbccp32.lib /nologo /subsystem:console /incremental:no\
+ /pdb:"$(OUTDIR)/java_parse.pdb" /machine:I386 /out:"$(OUTDIR)/java_parse.exe" 
+LINK32_OBJS= \
+	"$(INTDIR)\java_parse.tab.obj"
+
+"$(OUTDIR)\java_parse.exe" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
+    $(LINK32) @<<
+  $(LINK32_FLAGS) $(LINK32_OBJS)
+<<
+
+!ELSEIF  "$(CFG)" == "java_parse - Win32 Debug"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 1
+# PROP BASE Output_Dir "java_parse\Debug"
+# PROP BASE Intermediate_Dir "java_parse\Debug"
+# PROP BASE Target_Dir "java_parse"
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 1
+# PROP Output_Dir "java_parse\Debug"
+# PROP Intermediate_Dir "java_parse\Debug"
+# PROP Target_Dir "java_parse"
+OUTDIR=.\java_parse\Debug
+INTDIR=.\java_parse\Debug
+
+ALL : "$(OUTDIR)\java_parse.exe"
+
+CLEAN : 
+	-@erase "$(INTDIR)\java_parse.tab.obj"
+	-@erase "$(INTDIR)\vc40.idb"
+	-@erase "$(INTDIR)\vc40.pdb"
+	-@erase "$(OUTDIR)\java_parse.exe"
+	-@erase "$(OUTDIR)\java_parse.ilk"
+	-@erase "$(OUTDIR)\java_parse.pdb"
+
+"$(OUTDIR)" :
+    if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
+
+CPP=cl.exe
+# ADD BASE CPP /nologo /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /YX /c
+# ADD CPP /nologo /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /YX /c
+CPP_PROJ=/nologo /MLd /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE"\
+ /Fp"$(INTDIR)/java_parse.pch" /YX /Fo"$(INTDIR)/" /Fd"$(INTDIR)/" /c 
+CPP_OBJS=.\java_parse\Debug/
+CPP_SBRS=.\.
+
+.c{$(CPP_OBJS)}.obj:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cpp{$(CPP_OBJS)}.obj:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cxx{$(CPP_OBJS)}.obj:
+   $(CPP) $(CPP_PROJ) $<  
+
+.c{$(CPP_SBRS)}.sbr:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cpp{$(CPP_SBRS)}.sbr:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cxx{$(CPP_SBRS)}.sbr:
+   $(CPP) $(CPP_PROJ) $<  
+
+RSC=rc.exe
+# ADD BASE RSC /l 0x409 /d "_DEBUG"
+# ADD RSC /l 0x409 /d "_DEBUG"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+BSC32_FLAGS=/nologo /o"$(OUTDIR)/java_parse.bsc" 
+BSC32_SBRS= \
+	
+LINK32=link.exe
+# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386
+LINK32_FLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib\
+ advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib\
+ odbccp32.lib /nologo /subsystem:console /incremental:yes\
+ /pdb:"$(OUTDIR)/java_parse.pdb" /debug /machine:I386\
+ /out:"$(OUTDIR)/java_parse.exe" 
+LINK32_OBJS= \
+	"$(INTDIR)\java_parse.tab.obj"
+
+"$(OUTDIR)\java_parse.exe" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
+    $(LINK32) @<<
+  $(LINK32_FLAGS) $(LINK32_OBJS)
+<<
+
+!ELSEIF  "$(CFG)" == "java_wrap - Win32 Release"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "java_wrap\Release"
+# PROP BASE Intermediate_Dir "java_wrap\Release"
+# PROP BASE Target_Dir "java_wrap"
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir "java_wrap\Release"
+# PROP Intermediate_Dir "java_wrap\Release"
+# PROP Target_Dir "java_wrap"
+OUTDIR=.\java_wrap\Release
+INTDIR=.\java_wrap\Release
+
+ALL : "$(OUTDIR)\java_wrap.exe"
+
+CLEAN : 
+	-@erase "$(INTDIR)\java_wrap.tab.obj"
+	-@erase "$(OUTDIR)\java_wrap.exe"
+
+"$(OUTDIR)" :
+    if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
+
+CPP=cl.exe
+# ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /YX /c
+# ADD CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /YX /c
+CPP_PROJ=/nologo /ML /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE"\
+ /Fp"$(INTDIR)/java_wrap.pch" /YX /Fo"$(INTDIR)/" /c 
+CPP_OBJS=.\java_wrap\Release/
+CPP_SBRS=.\.
+
+.c{$(CPP_OBJS)}.obj:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cpp{$(CPP_OBJS)}.obj:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cxx{$(CPP_OBJS)}.obj:
+   $(CPP) $(CPP_PROJ) $<  
+
+.c{$(CPP_SBRS)}.sbr:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cpp{$(CPP_SBRS)}.sbr:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cxx{$(CPP_SBRS)}.sbr:
+   $(CPP) $(CPP_PROJ) $<  
+
+RSC=rc.exe
+# ADD BASE RSC /l 0x409 /d "NDEBUG"
+# ADD RSC /l 0x409 /d "NDEBUG"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+BSC32_FLAGS=/nologo /o"$(OUTDIR)/java_wrap.bsc" 
+BSC32_SBRS= \
+	
+LINK32=link.exe
+# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
+LINK32_FLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib\
+ advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib\
+ odbccp32.lib /nologo /subsystem:console /incremental:no\
+ /pdb:"$(OUTDIR)/java_wrap.pdb" /machine:I386 /out:"$(OUTDIR)/java_wrap.exe" 
+LINK32_OBJS= \
+	"$(INTDIR)\java_wrap.tab.obj"
+
+"$(OUTDIR)\java_wrap.exe" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
+    $(LINK32) @<<
+  $(LINK32_FLAGS) $(LINK32_OBJS)
+<<
+
+!ELSEIF  "$(CFG)" == "java_wrap - Win32 Debug"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 1
+# PROP BASE Output_Dir "java_wrap\Debug"
+# PROP BASE Intermediate_Dir "java_wrap\Debug"
+# PROP BASE Target_Dir "java_wrap"
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 1
+# PROP Output_Dir "java_wrap\Debug"
+# PROP Intermediate_Dir "java_wrap\Debug"
+# PROP Target_Dir "java_wrap"
+OUTDIR=.\java_wrap\Debug
+INTDIR=.\java_wrap\Debug
+
+ALL : "$(OUTDIR)\java_wrap.exe"
+
+CLEAN : 
+	-@erase "$(INTDIR)\java_wrap.tab.obj"
+	-@erase "$(INTDIR)\vc40.idb"
+	-@erase "$(INTDIR)\vc40.pdb"
+	-@erase "$(OUTDIR)\java_wrap.exe"
+	-@erase "$(OUTDIR)\java_wrap.ilk"
+	-@erase "$(OUTDIR)\java_wrap.pdb"
+
+"$(OUTDIR)" :
+    if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
+
+CPP=cl.exe
+# ADD BASE CPP /nologo /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /YX /c
+# ADD CPP /nologo /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /YX /c
+CPP_PROJ=/nologo /MLd /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE"\
+ /Fp"$(INTDIR)/java_wrap.pch" /YX /Fo"$(INTDIR)/" /Fd"$(INTDIR)/" /c 
+CPP_OBJS=.\java_wrap\Debug/
+CPP_SBRS=.\.
+
+.c{$(CPP_OBJS)}.obj:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cpp{$(CPP_OBJS)}.obj:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cxx{$(CPP_OBJS)}.obj:
+   $(CPP) $(CPP_PROJ) $<  
+
+.c{$(CPP_SBRS)}.sbr:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cpp{$(CPP_SBRS)}.sbr:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cxx{$(CPP_SBRS)}.sbr:
+   $(CPP) $(CPP_PROJ) $<  
+
+RSC=rc.exe
+# ADD BASE RSC /l 0x409 /d "_DEBUG"
+# ADD RSC /l 0x409 /d "_DEBUG"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+BSC32_FLAGS=/nologo /o"$(OUTDIR)/java_wrap.bsc" 
+BSC32_SBRS= \
+	
+LINK32=link.exe
+# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386
+LINK32_FLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib\
+ advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib\
+ odbccp32.lib /nologo /subsystem:console /incremental:yes\
+ /pdb:"$(OUTDIR)/java_wrap.pdb" /debug /machine:I386\
+ /out:"$(OUTDIR)/java_wrap.exe" 
+LINK32_OBJS= \
+	"$(INTDIR)\java_wrap.tab.obj"
+
+"$(OUTDIR)\java_wrap.exe" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
+    $(LINK32) @<<
+  $(LINK32_FLAGS) $(LINK32_OBJS)
+<<
+
 !ENDIF 
 
 ################################################################################
@@ -450,7 +766,7 @@ BuildCmds= \
 # ADD CPP /Yc"stdafx.h"
 
 BuildCmds= \
-	$(CPP) /nologo /MTd /W2 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS"\
+	$(CPP) /nologo /MTd /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS"\
  /D "_MBCS" /Fp"$(INTDIR)/pcmaker.pch" /Yc"stdafx.h" /Fo"$(INTDIR)/"\
  /Fd"$(INTDIR)/" /c $(SOURCE) \
 	
@@ -510,6 +826,42 @@ DEP_CPP_GETCL=\
 !ENDIF 
 
 # End Project Dependency
+################################################################################
+# Begin Project Dependency
+
+# Project_Dep_Name "java_parse"
+
+!IF  "$(CFG)" == "pcmaker - Win32 Release"
+
+"java_parse - Win32 Release" : 
+   $(MAKE) /$(MAKEFLAGS) /F ".\pcmaker.mak" CFG="java_parse - Win32 Release" 
+
+!ELSEIF  "$(CFG)" == "pcmaker - Win32 Debug"
+
+"java_parse - Win32 Debug" : 
+   $(MAKE) /$(MAKEFLAGS) /F ".\pcmaker.mak" CFG="java_parse - Win32 Debug" 
+
+!ENDIF 
+
+# End Project Dependency
+################################################################################
+# Begin Project Dependency
+
+# Project_Dep_Name "java_wrap"
+
+!IF  "$(CFG)" == "pcmaker - Win32 Release"
+
+"java_wrap - Win32 Release" : 
+   $(MAKE) /$(MAKEFLAGS) /F ".\pcmaker.mak" CFG="java_wrap - Win32 Release" 
+
+!ELSEIF  "$(CFG)" == "pcmaker - Win32 Debug"
+
+"java_wrap - Win32 Debug" : 
+   $(MAKE) /$(MAKEFLAGS) /F ".\pcmaker.mak" CFG="java_wrap - Win32 Debug" 
+
+!ENDIF 
+
+# End Project Dependency
 # End Target
 ################################################################################
 # Begin Target
@@ -532,6 +884,58 @@ DEP_CPP_Y_TAB=\
 	
 
 "$(INTDIR)\y.tab.obj" : $(SOURCE) $(DEP_CPP_Y_TAB) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+# End Target
+################################################################################
+# Begin Target
+
+# Name "java_parse - Win32 Release"
+# Name "java_parse - Win32 Debug"
+
+!IF  "$(CFG)" == "java_parse - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "java_parse - Win32 Debug"
+
+!ENDIF 
+
+################################################################################
+# Begin Source File
+
+SOURCE=\vtk\java\java_parse.tab.c
+DEP_CPP_JAVA_=\
+	"..\java\lex.yy.c"\
+	
+
+"$(INTDIR)\java_parse.tab.obj" : $(SOURCE) $(DEP_CPP_JAVA_) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+# End Target
+################################################################################
+# Begin Target
+
+# Name "java_wrap - Win32 Release"
+# Name "java_wrap - Win32 Debug"
+
+!IF  "$(CFG)" == "java_wrap - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "java_wrap - Win32 Debug"
+
+!ENDIF 
+
+################################################################################
+# Begin Source File
+
+SOURCE=\vtk\java\java_wrap.tab.c
+DEP_CPP_JAVA_W=\
+	"..\java\lex.yy.c"\
+	
+
+"$(INTDIR)\java_wrap.tab.obj" : $(SOURCE) $(DEP_CPP_JAVA_W) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
 
