@@ -86,7 +86,7 @@ void vlDataSet::PrintSelf(ostream& os)
   float * bounds;
 
   os << "    Point Data: \n";
-  this->PointData.PrintSelf();
+  this->PointData.PrintSelf(os);
   os << "    Compute time: " << this->ComputeTime.GetMtime() << "\n";
   bounds = this->GetBounds();
   os << "    Bounds: \n";
