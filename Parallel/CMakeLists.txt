@@ -60,7 +60,8 @@ IF (VTK_WRAP_PYTHON)
                          vtkFilteringPython
                          vtkCommonPython)
   TARGET_LINK_LIBRARIES (vtkParallelPython 
-                         debug ${PY_DEBUG_LIB_PATH} optimized ${PY_LIB_PATH}))
+                         debug ${PYTHON_DEBUG_LIBRARY} 
+                         optimized ${PYTHON_LIBRARY})
 ENDIF (VTK_WRAP_PYTHON)
 
 IF (VTK_WRAP_JAVA)

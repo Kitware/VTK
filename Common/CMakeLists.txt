@@ -188,8 +188,8 @@ IF (VTK_WRAP_PYTHON)
   VTK_WRAP_PYTHON(vtkCommonPython CommonPython_SRCS Common_SRCS)
   ADD_LIBRARY(vtkCommonPython CommonPython_SRCS vtkPythonUtil)
   TARGET_LINK_LIBRARIES (vtkCommonPython 
-                         debug ${PY_DEBUG_LIB_PATH} 
-                         optimized ${PY_LIB_PATH})
+                         debug ${PYTHON_DEBUG_LIBRARY} 
+                         optimized ${PYTHON_LIBRARY})
 ENDIF (VTK_WRAP_PYTHON)
 
 # if we are wrapping into Java then add the library and extra 

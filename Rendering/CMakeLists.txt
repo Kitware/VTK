@@ -187,7 +187,8 @@ IF (VTK_WRAP_PYTHON)
                          vtkFilteringPython
                          vtkCommonPython)
   TARGET_LINK_LIBRARIES (vtkRenderingPython 
-                         debug ${PY_DEBUG_LIB_PATH} optimized ${PY_LIB_PATH})
+                         debug ${PYTHON_DEBUG_LIBRARY} 
+                         optimized ${PYTHON_LIBRARY})
 ENDIF (VTK_WRAP_PYTHON)
 
 # if we are wrapping into Java then add the library and extra 
@@ -198,9 +199,9 @@ IF (VTK_WRAP_JAVA)
   ADD_LIBRARY(vtkRenderingJava RenderingJava_SRCS)
   TARGET_LINK_LIBRARIES (vtkRenderingJava vtkCommonJava vtkFilteringJava
                          vtkImagingJava vtkGraphicsJava)
-  IF (JAVA_AWT_LIB_PATH)
-    TARGET_LINK_LIBRARIES (vtkCommonJava jawt)
-  ENDIF (JAVA_AWT_LIB_PATH)
+  IF (JAVA_AWT_LIBRARY)
+    TARGET_LINK_LIBRARIES (vtkCommonJava ${JAVA_AWT_LIBRARY})
+  ENDIF (JAVA_AWT_LIBRARY)
 ENDIF (VTK_WRAP_JAVA)
 
 LINK_LIBRARIES (

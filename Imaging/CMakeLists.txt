@@ -117,8 +117,9 @@ IF (VTK_WRAP_PYTHON)
   VTK_WRAP_PYTHON(vtkImagingPython ImagingPython_SRCS Imaging_SRCS)
   ADD_LIBRARY(vtkImagingPython ImagingPython_SRCS)
   TARGET_LINK_LIBRARIES (vtkImagingPython vtkFilteringPython vtkCommonPython )
-  TARGET_LINK_LIBRARIES (vtkImagingPython debug ${PY_DEBUG_LIB_PATH} 
-                         optimized ${PY_LIB_PATH})
+  TARGET_LINK_LIBRARIES (vtkImagingPython 
+                         debug ${PYTHON_DEBUG_LIBRARY} 
+                         optimized ${PYTHON_LIBRARY})
 ENDIF (VTK_WRAP_PYTHON)
 
 # if we are wrapping into Java then add the library and extra 
