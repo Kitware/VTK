@@ -57,6 +57,10 @@ public:
   virtual void Frame() = 0;
 
   // Description:
+  // Performed at the end of the rendering process to generate image.
+  virtual void CopyResultFrame();
+
+  // Description:
   // Create a device specific renderer.
   virtual vlRenderer  *MakeRenderer() = 0;
 
@@ -75,6 +79,10 @@ public:
   // Description:
   // Create a device specific property.
   virtual vlProperty    *MakeProperty() = 0;
+
+  // Description:
+  // Create a device specific texture.
+  virtual vlTexture     *MakeTexture() = 0;
 
   // Description:
   // Create an interactor to control renderers in this window.
@@ -154,7 +162,26 @@ public:
   virtual unsigned char *GetPixelData(int x,int y,int x2,int y2) = 0;
   virtual void SetPixelData(int x,int y,int x2,int y2,unsigned char *) = 0;
 
+  // Description:
+  // Set the number of frames for doing anti aliasing, default is zero.
+  vlGetMacro(AAFrames,int);
+  vlSetMacro(AAFrames,int);
+
+  // Description:
+  // Set the number of frames for doing focal depth, default is zero.
+  vlGetMacro(FDFrames,int);
+  vlSetMacro(FDFrames,int);
+
+  // Description:
+  // Set the number of sub frames for doing motion blur.
+  vlGetMacro(SubFrames,int);
+  vlSetMacro(SubFrames,int);
+
 protected:
+  virtual void DoStereoRender();
+  virtual void DoFDRender();
+  virtual void DoAARender();
+
   vlRendererCollection Renderers;
   char Name[80];
   int Size[2];
@@ -170,6 +197,16 @@ protected:
   vlRenderWindowInteractor *Interactor;
   char *FileName;
   unsigned char* temp_buffer;  // used for red blue stereo
+  unsigned char** AABuffer;    // used for anti aliasing
+  int AAFrames;
+  unsigned char** FDBuffer;    // used for focal depth
+  int FDFrames;
+  unsigned char** SubBuffer;   // used for sub frames
+  int SubFrames;               // number of sub frames
+  int CurrentSubFrame;         // what one are we on
+  unsigned char* ResultFrame;  // used for any non immediate rendering
 };
 
 #endif
+
+
