@@ -10,6 +10,10 @@ ME = Contrib
 srcdir        = @srcdir@
 VPATH         = @srcdir@
 
+MPI_OBJ = \
+vtkMPIController
+
+
 ABSTRACT_H = 
 
 CONCRETE_H = 
@@ -21,9 +25,12 @@ CONCRETE = \
 vtkDEMReader \
 vtkEarthSource \
 vtkImageReslice \
+vtkInputPort \
 vtkIVWriter \
 vtkMassProperties \
+vtkMultiProcessController \
 vtkOBJReader \
+vtkOutputPort \
 vtkPolyDataCollector \
 vtkProjectedTexture \
 vtkRenderLargeImage \
@@ -33,10 +40,13 @@ vtkRIBProperty \
 vtkSuperquadric \
 vtkSuperquadricSource \
 vtkSubdivideTetra \
+vtkThreadedController \
 vtkCellDerivatives \
 vtkCubeAxesActor2D \
 vtkSurfaceReconstructionFilter \
-vtkVideoSource
+vtkVideoSource \
+ ${CONTROLLER_API_OBJ}
+
 
 #------------------------------------------------------------------------------
 # Autoconfig defines that can be overridden in user.make

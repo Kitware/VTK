@@ -41,7 +41,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMultiProcessController.h"
 #include "vtkMultiThreader.h"
 #include "vtkThreadedController.h"
-//#include "vtkMPIController.h"
+
+#ifdef VTK_USE_MPI
+#include "vtkMPIController.h"
+#endif
 
 #include "vtkCollection.h"
 #include "vtkDataSetReader.h"
@@ -84,6 +87,10 @@ vtkMultiProcessController::vtkMultiProcessController()
 {
   int i;
 
+  // If some one is using multiple processes, 
+  // limit the number of threads to 1
+  vtkMultiThreader::SetGlobalDefaultNumberOfThreads(1);
+  
   this->LocalProcessId = 0;
   this->NumberOfProcesses = 1;
   this->MaximumNumberOfProcesses = VTK_MP_CONTROLLER_MAX_PROCESSES;
@@ -134,19 +141,25 @@ vtkMultiProcessController::~vtkMultiProcessController()
 //----------------------------------------------------------------------------
 vtkMultiProcessController *vtkMultiProcessController::New()
 {
-  // If some one is using multiple processes, 
-  // limit the number of threads to 1
-  vtkMultiThreader::SetGlobalDefaultNumberOfThreads(1);
+  const char *temp;
   
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMultiProcessController");
-  if(ret)
+  // first check the environment variable
+  temp = getenv("VTK_CONTROLLER");
+  
+#ifdef VTK_USE_MPI
+  if ( temp == NULL || !strcmp("MPI",temp))
     {
-    return (vtkMultiProcessController*)ret;
+    return vtkMPIController::New();
     }
-  // If the factory was unable to create the object, then create it here.
-  //return vtkMPIController::New();
-  return vtkThreadedController::New();
+#endif
+  if ( temp == NULL || !strcmp("Threaded",temp))
+    {
+    return vtkThreadedController::New();
+    }
+
+  vtkGenericWarningMacro("environment variable VTK_CONTROLLER set to unknown value "
+		       << temp << ". Tryy MPI or Threaded");
+  return NULL;
 }
 
 
