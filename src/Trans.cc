@@ -258,19 +258,19 @@ void vlTransform::Scale ( float x, float y, float z)
 
     ctm.Element[0][0] = x;
     if (ctm.Element[0][0] == 0.0) {
-      cerr <<  "vlTransform::scale: x scale is 0.0, reset to 1.0\n";
+      vlErrorMacro(<< "scale: x scale is 0.0, reset to 1.0\n");
       ctm.Element[0][0] = 1.0;
     }
 
     ctm.Element[1][1] = y;
     if (ctm.Element[1][1] == 0.0) {
-      cerr <<  "vlTransform::scale: y scale is 0.0, reset to 1.0\n";
+      vlErrorMacro(<<  "scale: y scale is 0.0, reset to 1.0\n");
       ctm.Element[1][1] = 1.0;
     }
 
     ctm.Element[2][2] = z;
     if (ctm.Element[2][2] == 0.0) {
-      cerr <<  "vlTransform::scale: z scale is 0.0, reset to 1.0\n";
+      vlErrorMacro(<< "scale: z scale is 0.0, reset to 1.0\n");
       ctm.Element[2][2] = 1.0;
     }
 

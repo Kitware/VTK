@@ -73,8 +73,7 @@ void vlMatrix4x4::Invert (vlMatrix4x4 in,vlMatrix4x4 & out)
 
   det = in.Determinant(in);
   if ( fabs( det ) < SMALL_NUMBER) {
-    cerr << "Singular matrix, no inverse! Determinant = ";
-    cerr << det;
+    vlErrorMacro(<< "Singular matrix, no inverse! Determinant= " << det <<"\n");
     det = 0.0;
     return;
   }

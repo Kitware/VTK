@@ -58,7 +58,7 @@ vlRenderer *vlRendererCollection::GetMember(int num)
 
   if (num > this->NumberOfItems)
     {
-    cerr << "Renderer: Requesting illegal index\n";
+    vlErrorMacro(<< "Renderer: Requesting illegal index\n");
     return this->Top->Renderer;
     }
 
