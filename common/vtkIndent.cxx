@@ -82,16 +82,3 @@ ostream& operator<<(ostream& os, vtkIndent& ind)
   return os;
 }
 
-int vtkIndent::IsA(const char *type)
-{
-  if ( !strcmp(this->vtkIndent::GetClassName(),type) )
-    {
-    return 1;
-    }
-  return 0;
-}
-
-vtkIndent *vtkIndent::SafeDownCast(vtkIndent *o)
-{
-  return (vtkIndent *)o;
-}
