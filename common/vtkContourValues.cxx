@@ -61,7 +61,7 @@ void vtkContourValues::SetValue(int i, float value)
   int numContours=this->Contours->GetMaxId()+1;
   i = (i < 0 ? 0 : i);
 
-  if ( i > numContours || value != this->Contours->GetValue(i) )
+  if ( i >= numContours || value != this->Contours->GetValue(i) )
     {
     this->Modified();
     this->Contours->InsertValue(i,value);
