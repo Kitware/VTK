@@ -51,7 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // than building a mask.  This class can be subclassed to allow clipping
 // with objects other than vtkImplicitFunction.
 // .SECTION see also
-// vtkImplicitFunction vtkImageStencil
+// vtkImplicitFunction vtkImageStencil vtkImagePolyDataClippingExtents
 
 #ifndef __vtkImageClippingExtents_h
 #define __vtkImageClippingExtents_h
@@ -92,7 +92,7 @@ public:
   int GetNextExtent(int &r1, int &r2, int rmin, int rmax,
                     int yIdx, int zIdx, int &iter);
 
-private:
+protected:
   vtkImageClippingExtents();
   ~vtkImageClippingExtents();
   vtkImageClippingExtents(const vtkImageClippingExtents&) {};
