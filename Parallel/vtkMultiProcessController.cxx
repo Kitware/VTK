@@ -47,10 +47,10 @@ protected:
   void operator=(const vtkMultiProcessControllerRMI&);
 };
 
-vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.10");
+vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.11");
 vtkStandardNewMacro(vtkMultiProcessControllerRMI);
 
-vtkCxxRevisionMacro(vtkMultiProcessController, "1.10");
+vtkCxxRevisionMacro(vtkMultiProcessController, "1.11");
 
 //----------------------------------------------------------------------------
 // An RMI function that will break the "ProcessRMIs" loop.
@@ -108,7 +108,8 @@ vtkMultiProcessController::vtkMultiProcessController()
 // (We need to have a "GetNetReferenceCount" to avoid memory leaks.)
 vtkMultiProcessController::~vtkMultiProcessController()
 {
-  if ( this->OutputWindow == vtkOutputWindow::GetInstance() )
+  if ( this->OutputWindow &&
+       (this->OutputWindow == vtkOutputWindow::GetInstance()) )
     {
     vtkOutputWindow::SetInstance(0);
     }
