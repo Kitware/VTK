@@ -39,7 +39,7 @@ public:
 
   // Description:
   // Begin the rendering process.
-  void Start(void);
+  void Start();
 
   // Description:
   // End the rendering process and display the image.
@@ -89,6 +89,7 @@ public:
 
   // Description:
   // Set the position of the window.
+  virtual void SetPosition(int*);
   virtual void SetPosition(int,int);
 
   // Description:

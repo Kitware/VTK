@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.27");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.28");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 
@@ -50,7 +50,7 @@ static void CStrToPStr (StringPtr outString, const char *inString)
 
 //----------------------------------------------------------------------------
 // Dump agl errors to string, return error code
-OSStatus aglReportError (void)
+OSStatus aglReportError ()
 {
   GLenum err = aglGetError();
   if (AGL_NO_ERROR != err)
@@ -64,7 +64,7 @@ OSStatus aglReportError (void)
 
 //----------------------------------------------------------------------------
 // if error dump gl errors, return error
-OSStatus glReportError (void)
+OSStatus glReportError ()
 {
   GLenum err = glGetError();
   switch (err)
@@ -433,7 +433,7 @@ void vtkCarbonRenderWindow::SetParentId(WindowPtr arg)
 
 //--------------------------------------------------------------------------
 // Begin the rendering process.
-void vtkCarbonRenderWindow::Start(void)
+void vtkCarbonRenderWindow::Start()
 {
   // if the renderer has not been initialized, do so now
   if (!this->ContextId)
@@ -508,6 +508,12 @@ void vtkCarbonRenderWindow::SetSize(int x, int y)
 }
 
 // --------------------------------------------------------------------------
+void vtkCarbonRenderWindow::SetPosition(int a[2])
+{
+  this->SetPosition(a[0], a[1]);
+}
+
+// --------------------------------------------------------------------------
 void vtkCarbonRenderWindow::SetPosition(int x, int y)
 {
   static int resizing = 0;
@@ -551,7 +557,7 @@ void vtkCarbonRenderWindow::SetPosition(int x, int y)
 
 //--------------------------------------------------------------------------
 // End the rendering process and display the image.
-void vtkCarbonRenderWindow::Frame(void)
+void vtkCarbonRenderWindow::Frame()
 {
   if (!this->AbortRender && this->DoubleBuffer)
     {
@@ -777,7 +783,7 @@ void vtkCarbonRenderWindow::WindowInitialize()
 
 //--------------------------------------------------------------------------
 // Initialize the rendering window.
-void vtkCarbonRenderWindow::Initialize (void)
+void vtkCarbonRenderWindow::Initialize ()
 {
   // make sure we havent already been initialized
 
@@ -824,7 +830,7 @@ void vtkCarbonRenderWindow::UpdateSizeAndPosition(int xPos, int yPos,
 
 //--------------------------------------------------------------------------
 // Get the current size of the window.
-int *vtkCarbonRenderWindow::GetSize(void)
+int *vtkCarbonRenderWindow::GetSize()
 {
   // if we aren't mapped then just return the ivar
   if (!this->Mapped)
@@ -846,7 +852,7 @@ int *vtkCarbonRenderWindow::GetSize(void)
 
 //--------------------------------------------------------------------------
 // Get the current size of the screen.
-int *vtkCarbonRenderWindow::GetScreenSize(void)
+int *vtkCarbonRenderWindow::GetScreenSize()
 {
   cout << "Inside vtkCarbonRenderWindow::GetScreenSize - MUST IMPLEMENT\n";
   this->Size[0] = 0;
@@ -857,7 +863,7 @@ int *vtkCarbonRenderWindow::GetScreenSize(void)
 
 //--------------------------------------------------------------------------
 // Get the position in screen coordinates of the window.
-int *vtkCarbonRenderWindow::GetPosition(void)
+int *vtkCarbonRenderWindow::GetPosition()
 {
   // if we aren't mapped then just return the ivar
   if (!this->Mapped)
