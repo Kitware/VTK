@@ -21,8 +21,6 @@ mask SetMaskedOutputValue 100 128 200;
 mask NotMaskOn;
 mask ReleaseDataFlagOff
 
-puts [mask Print]
-
 vtkImageViewer viewer
 viewer SetInput [mask GetOutput]
 viewer SetZSlice 22
