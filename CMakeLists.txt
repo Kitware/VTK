@@ -295,12 +295,30 @@ ENDIF(VTK_HAVE_OLD_STREAMS)
 
 IF(VTK_HAVE_ANSI_STREAMS AND VTK_HAVE_OLD_STREAMS)
   # Have both old and new streams.  Provide the option.
+  # Default to OFF for MSVC 6 and ON for all others.
   SET(VTK_USE_ANSI_STDLIB_DEFAULT ON)
   IF(NOT CMAKE_COMPILER_IS_GNUCXX)
-    IF(CMAKE_BUILD_TOOL MATCHES "devenv")
-    ELSE(CMAKE_BUILD_TOOL MATCHES "devenv")
+    IF("VTK_COMPILER_IS_VC6" MATCHES "^VTK_COMPILER_IS_VC6$")
+      MESSAGE(STATUS "Checking if compiler is VC6")
+      TRY_COMPILE(VTK_COMPILER_IS_VC6
+        ${VTK_BINARY_DIR}/CMakeTmp
+        ${VTK_SOURCE_DIR}/CMake/vtkTestCompilerIsVC6.cxx
+        OUTPUT_VARIABLE OUTPUT)
+      IF(VTK_COMPILER_IS_VC6)
+        MESSAGE(STATUS "Checking if compiler is VC6 -- yes")
+        SET(VTK_COMPILER_IS_VC6 1 CACHE INTERNAL "Compiler is MSVC 6")
+      ELSE(VTK_COMPILER_IS_VC6)
+        MESSAGE(STATUS "Checking if compiler is VC6 -- no")
+        SET(VTK_COMPILER_IS_VC6 0 CACHE INTERNAL "Compiler is MSVC 6")
+        WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeError.log
+          "Determining if the compiler is MSVC 6 "
+          "failed with the following output:\n"
+          "${OUTPUT}\n" APPEND)
+      ENDIF(VTK_COMPILER_IS_VC6)
+    ENDIF("VTK_COMPILER_IS_VC6" MATCHES "^VTK_COMPILER_IS_VC6$")
+    IF(VTK_COMPILER_IS_VC6)
       SET(VTK_USE_ANSI_STDLIB_DEFAULT OFF)
-    ENDIF(CMAKE_BUILD_TOOL MATCHES "devenv")
+    ENDIF(VTK_COMPILER_IS_VC6)
   ENDIF(NOT CMAKE_COMPILER_IS_GNUCXX)
   OPTION(VTK_USE_ANSI_STDLIB "Use the ANSI standard iostream library."
     ${VTK_USE_ANSI_STDLIB_DEFAULT})
