@@ -354,8 +354,16 @@ void vtkRectilinearGridReader::Execute()
   this->Reader.CloseVTKFile ();
 }
 
+static int recursing = 0;
 void vtkRectilinearGridReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkRectilinearGridSource::PrintSelf(os,indent);
-  this->Reader.PrintSelf(os,indent);
+  // the reader ivar's source will be this reader. we must do this to prevent infinite printing
+  if (!recursing)
+    { 
+    vtkRectilinearGridSource::PrintSelf(os,indent);
+    recursing = 1;
+    os << indent << "Reader:\n";
+    this->Reader.PrintSelf(os,indent.GetNextIndent());
+    }
+  recursing = 0;
 }

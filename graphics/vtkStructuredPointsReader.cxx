@@ -338,8 +338,16 @@ void vtkStructuredPointsReader::Execute()
   this->Reader.CloseVTKFile ();
 }
 
+static int recursing = 0;
 void vtkStructuredPointsReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkStructuredPointsSource::PrintSelf(os,indent);
-  this->Reader.PrintSelf(os,indent);
+  // the reader ivar's source will be this reader. we must do this to prevent infinite printing
+  if (!recursing)
+    { 
+    vtkStructuredPointsSource::PrintSelf(os,indent);
+    recursing = 1;
+    os << indent << "Reader:\n";
+    this->Reader.PrintSelf(os,indent.GetNextIndent());
+    }
+  recursing = 0;
 }

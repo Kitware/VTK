@@ -315,8 +315,16 @@ void vtkStructuredGridReader::Execute()
     this->Reader.CloseVTKFile ();
 }
 
+static int recursing = 0;
 void vtkStructuredGridReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkStructuredGridSource::PrintSelf(os,indent);
-  this->Reader.PrintSelf(os,indent);
+  // the reader ivar's source will be this reader. we must do this to prevent infinite printing
+  if (!recursing)
+    { 
+    vtkStructuredGridSource::PrintSelf(os,indent);
+    recursing = 1;
+    os << indent << "Reader:\n";
+    this->Reader.PrintSelf(os,indent.GetNextIndent());
+    }
+  recursing = 0;
 }
