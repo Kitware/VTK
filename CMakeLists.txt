@@ -115,19 +115,56 @@ INCLUDE (${VTK_SOURCE_DIR}/vtkCMakeOptions.cmake)
 IF (VTK_USE_RENDERING)
   OPTION(VTK_USE_VOLUMEPRO "Build VTK with volume pro support" OFF)
   IF (VTK_USE_VOLUMEPRO)
-    FIND_LIBRARY(VLI_LIBRARY
+    FIND_LIBRARY(VLI_LIBRARY_FOR_VG500
       NAMES vli
       PATHS  
         /usr/lib 
         /usr/local/lib
-        "C:/Program Files/VolumePro/lib" 
+        /opt/vli/lib
+        "C:/Program Files/VolumePro/lib"
       )
-    FIND_PATH(VLI_INCLUDE_PATH vli.h 
-        /usr/include 
-        /usr/local/include
-        "C:/Program Files/VolumePro/inc" 
-        )
+    FIND_LIBRARY(VLI_LIBRARY_FOR_VP1000
+      NAMES vli3
+      PATHS
+        /usr/lib
+        /usr/local/lib
+        /opt/vli/lib
+        "C:/Program Files/VolumePro1000/lib"
+      )
+    IF (VLI_LIBRARY_FOR_VG500)
+      IF (WIN32)
+        FIND_PATH(VLI_INCLUDE_PATH_FOR_VG500 VolumePro/inc/vli.h 
+          "C:/Program Files"
+          )
+      ELSE (WIN32)
+        FIND_PATH(VLI_INCLUDE_PATH_FOR_VG500 vli/include/vli.h
+          /usr
+          /usr/local
+          /opt
+          )
+      ENDIF (WIN32)
+      IF (VLI_INCLUDE_PATH_FOR_VG500)
+        SET (VTK_HAVE_VG500 ON)
+      ENDIF (VLI_INCLUDE_PATH_FOR_VG500)
+    ENDIF (VLI_LIBRARY_FOR_VG500)
+    IF (VLI_LIBRARY_FOR_VP1000)
+      IF (WIN32)
+        FIND_PATH(VLI_INCLUDE_PATH_FOR_VP1000 VolumePro1000/inc/vli.h 
+          "C:/Program Files"
+          )
+      ELSE (WIN32)
+        FIND_PATH(VLI_INCLUDE_PATH_FOR_VP1000 vli3/include/vli.h
+          /usr
+          /usr/local
+          /opt/vli/include
+          )
+      ENDIF (WIN32)
+      IF (VLI_INCLUDE_PATH_FOR_VP1000)
+        SET (VTK_HAVE_VP1000 ON)
+      ENDIF (VLI_INCLUDE_PATH_FOR_VP1000)
+    ENDIF (VLI_LIBRARY_FOR_VP1000)
   ENDIF (VTK_USE_VOLUMEPRO)
+
   INCLUDE (${CMAKE_ROOT}/Modules/FindOpenGL.cmake)
 
   FIND_PATH(OSMESA_INCLUDE_PATH GL/osmesa.h 

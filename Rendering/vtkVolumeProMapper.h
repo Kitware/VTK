@@ -53,11 +53,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // If you do not have the VolumePRO libraries when building this object, then
 // the New method will create a default renderer that will not render.
 // You can check the NumberOfBoards ivar to see if it is a real rendering class.
-// To build with the VolumePRO board see vtkVolumeProVG500Mapper.h for instructions.
+// To build with the VolumePRO board see vtkVolumeProVG500Mapper.h or
+// vtkVolumeProVP1000Mapper.h for instructions.
 //
 // For more information on the VolumePRO hardware, please see:
 //
-//   http://www.3dvolumegraphics.com/3dvolumegraphics/product/index.htm
+//   http://www.terarecon.com/3d_products.shtml
 //
 // If you encounter any problems with this class, please inform Kitware, Inc.
 // at kitware@kitware.com.
@@ -65,6 +66,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 // .SECTION See Also
 // vtkVolumeMapper vtkVolumeProVG500Mapper vtkOpenGLVolumeProVG500Mapper
+// vtkVolumeProVP1000Mapper vtkOpenGLVolumeProVP1000Mapper
 //
 
 

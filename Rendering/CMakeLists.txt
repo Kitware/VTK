@@ -89,12 +89,18 @@ vtkWorldPointPicker
 )
 
 
-IF (VTK_USE_VOLUMEPRO)
+IF (VTK_HAVE_VG500)
   SOURCE_FILES ( Rendering_SRCS
     vtkVolumeProVG500Mapper
     vtkOpenGLVolumeProVG500Mapper
     )
-ENDIF (VTK_USE_VOLUMEPRO)
+ENDIF (VTK_HAVE_VG500)
+IF (VTK_HAVE_VP1000)
+  SOURCE_FILES ( Rendering_SRCS
+    vtkVolumeProVP1000Mapper
+    vtkOpenGLVolumeProVP1000Mapper
+    )
+ENDIF (VTK_HAVE_VP1000)
 
 
 SOURCE_FILES ( RenderingOpenGL_SRCS

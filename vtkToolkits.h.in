@@ -5,6 +5,8 @@
 #cmakedefine VTK_USE_PATENTED
 #cmakedefine VTK_USE_RENDERING
 #cmakedefine VTK_USE_VOLUMEPRO
+#cmakedefine VTK_HAVE_VG500
+#cmakedefine VTK_HAVE_VP1000
 
 /* what rendering libraries to use */
 #cmakedefine OPENGL_LIBRARY

@@ -44,8 +44,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkRenderer.h"
 #include "vtkToolkits.h"
 
-#ifdef VTK_USE_VOLUMEPRO
+#ifdef VTK_HAVE_VG500
 #include "vtkVolumeProVG500Mapper.h"
+#endif
+#ifdef VTK_HAVE_VP1000
+#include "vtkVolumeProVP1000Mapper.h"
 #endif
 
 #include "vtkObjectFactory.h"
@@ -134,9 +137,10 @@ vtkVolumeProMapper *vtkVolumeProMapper::New()
     {
     return (vtkVolumeProMapper*)ret;
     }
-  // if VTK_USE_VOLUMEPRO is defined, then create the vtkVolumeProVG500Mapper
-#ifdef VTK_USE_VOLUMEPRO
-  // If the factory was unable to create the object, then create it here.
+  
+#ifdef VTK_HAVE_VP1000
+  return vtkVolumeProVP1000Mapper::New();
+#elif VTK_HAVE_VG500
   return vtkVolumeProVG500Mapper::New();
 #else
   // if not using vli, then return the stub class, which will render

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkVolumeProVG500Mapper.h
+  Module:    vtkVolumeProVP1000Mapper.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -39,11 +39,11 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkVolumeProVG500Mapper - Superclass for VG500 board
+// .NAME vtkVolumeProVP1000Mapper - Superclass for VP1000 board
 //
 // .SECTION Description
-// vtkVolumeProVG500Mapper is the superclass for VolumePRO volume rendering 
-// mappers based on the VG500 chip. Subclasses are for underlying graphics 
+// vtkVolumeProVP1000Mapper is the superclass for VolumePRO volume rendering 
+// mappers based on the VP1000 chip. Subclasses are for underlying graphics 
 // languages. Users should not create subclasses directly - 
 // a vtkVolumeProMapper will automatically create the object of the right 
 // type.
@@ -68,31 +68,28 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //
 // .SECTION See Also
-// vtkVolumeMapper vtkVolumeProMapper vtkOpenGLVolumeProVG500Mapper
+// vtkVolumeMapper vtkVolumeProMapper vtkOpenGLVolumeProVP1000Mapper
 //
 
-#ifndef __vtkVolumeProVG500Mapper_h
-#define __vtkVolumeProVG500Mapper_h
+#ifndef __vtkVolumeProVP1000Mapper_h
+#define __vtkVolumeProVP1000Mapper_h
 
 #include "vtkVolumeProMapper.h"
 
 #ifdef _WIN32
-#include "VolumePro/inc/vli.h"
+#include "VolumePro1000/inc/vli.h"
 #else
-#include "vli/include/vli.h"
+#include "vli3/include/vli.h"
 #endif
 
-#ifdef VTK_USE_VOLUMEPRO
-#define VTK_VOLUMEPRO_EXPORT VTK_RENDERING_EXPORT
-#else
-#define VTK_VOLUMEPRO_EXPORT 
-#endif
+#define VTK_VOLUME_16BIT 3
+#define VTK_VOLUME_32BIT 4
 
-class VTK_VOLUMEPRO_EXPORT vtkVolumeProVG500Mapper : public vtkVolumeProMapper
+class VTK_EXPORT vtkVolumeProVP1000Mapper : public vtkVolumeProMapper
 {
 public:
-  vtkTypeMacro(vtkVolumeProVG500Mapper,vtkVolumeProMapper);
-  static vtkVolumeProVG500Mapper *New();
+  vtkTypeMacro(vtkVolumeProVP1000Mapper,vtkVolumeProMapper);
+  static vtkVolumeProVP1000Mapper *New();
  // Description:
   // Render the image using the hardware and place it in the frame buffer
   virtual void Render( vtkRenderer *, vtkVolume * );
@@ -102,8 +99,10 @@ public:
 					   unsigned int *ySize,
 					   unsigned int *zSize );
 protected:
-  vtkVolumeProVG500Mapper();
-  ~vtkVolumeProVG500Mapper();
+  vtkVolumeProVP1000Mapper();
+  ~vtkVolumeProVP1000Mapper();
+  vtkVolumeProVP1000Mapper(const vtkVolumeProVP1000Mapper&);
+  void operator=(const vtkVolumeProVP1000Mapper&);
   
   // Update the camera - set the camera matrix
   void UpdateCamera( vtkRenderer *, vtkVolume * );
@@ -128,29 +127,19 @@ protected:
   // Update the cut plane
   void UpdateCutPlane( vtkRenderer *, vtkVolume * );
 
-  // Render the hexagon to the screen
+  // Render the image buffer to the screen
   // Defined in the specific graphics implementation.
-  virtual void RenderHexagon( vtkRenderer  * vtkNotUsed(ren), 
-			      vtkVolume    * vtkNotUsed(vol),
-			      VLIPixel     * vtkNotUsed(basePlane),
-			      int          size[2],
-			      VLIVector3D  hexagon[6], 
-			      VLIVector2D  textureCoords[6] ) 
-    {(void)size; (void)hexagon; (void)textureCoords;}
-
-  // Make the base plane size a power of 2 for OpenGL
-  void CorrectBasePlaneSize( VLIPixel *inBase, int inSize[2],
-			     VLIPixel **outBase, int outSize[2],
-			     VLIVector2D textureCoords[6] );
+  virtual void RenderImageBuffer( vtkRenderer  * vtkNotUsed(ren),
+                                  vtkVolume    * vol,
+                                  int          size[2],
+                                  unsigned int * outData )
+    {(void)vol; (void)size; (void)outData;}
 
   // Keep track of the size of the data loaded so we know if we can
   // simply update when a change occurs or if we need to release and
   // create again
   int LoadedDataSize[3];
-  
-private:
-  vtkVolumeProVG500Mapper(const vtkVolumeProVG500Mapper&);  // Not implemented.
-  void operator=(const vtkVolumeProVG500Mapper&);  // Not implemented.
+  VLIImageBuffer *ImageBuffer;
 };
 
 
