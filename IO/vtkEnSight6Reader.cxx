@@ -31,7 +31,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSight6Reader, "1.50");
+vtkCxxRevisionMacro(vtkEnSight6Reader, "1.51");
 vtkStandardNewMacro(vtkEnSight6Reader);
 
 //----------------------------------------------------------------------------
@@ -497,6 +497,7 @@ int vtkEnSight6Reader::ReadScalarsPerNode(char* fileName, char* description,
   this->ReadNextDataLine(line); // 1st data line or part #
   if (strncmp(line, "part", 4) != 0)
     {
+    int allocatedScalars = 0;
     // There are 6 values per line, and one scalar per point.
     if (!measured)
       {
@@ -515,6 +516,7 @@ int vtkEnSight6Reader::ReadScalarsPerNode(char* fileName, char* description,
       scalars->SetNumberOfTuples(numPts);
       scalars->SetNumberOfComponents(numberOfComponents);
       scalars->Allocate(numPts * numberOfComponents);
+      allocatedScalars = 1;
       }
     else
       {
@@ -559,7 +561,6 @@ int vtkEnSight6Reader::ReadScalarsPerNode(char* fileName, char* description,
             {
             output->GetPointData()->SetScalars(scalars);
             }
-          scalars->Delete();
           }
         else
           {
@@ -576,6 +577,9 @@ int vtkEnSight6Reader::ReadScalarsPerNode(char* fileName, char* description,
         {
         output->GetPointData()->SetScalars(scalars);
         }
+      }
+    if(allocatedScalars)
+      {
       scalars->Delete();
       }
     }  
@@ -583,6 +587,7 @@ int vtkEnSight6Reader::ReadScalarsPerNode(char* fileName, char* description,
   // scalars for structured parts
   while (strncmp(line, "part", 4) == 0)
     {
+    int allocatedScalars = 0;
     sscanf(line, " part %d", &partId);
     partId--;
     output = this->GetOutput(partId);
@@ -596,6 +601,7 @@ int vtkEnSight6Reader::ReadScalarsPerNode(char* fileName, char* description,
       scalars->SetNumberOfTuples(numPts);
       scalars->SetNumberOfComponents(numberOfComponents);
       scalars->Allocate(numPts * numberOfComponents);
+      allocatedScalars = 1;
       }
     else
       {
@@ -628,13 +634,16 @@ int vtkEnSight6Reader::ReadScalarsPerNode(char* fileName, char* description,
         {
         output->GetPointData()->SetScalars(scalars);
         }
-      scalars->Delete();
       }
     else
       {
       output->GetPointData()->AddArray(scalars);
       }
     this->ReadNextDataLine(line);
+    if(allocatedScalars)
+      {
+      scalars->Delete();
+      }
     }
   
   delete this->IS;

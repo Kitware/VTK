@@ -32,7 +32,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.44");
+vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.45");
 vtkStandardNewMacro(vtkEnSight6BinaryReader);
 
 //----------------------------------------------------------------------------
@@ -989,6 +989,7 @@ int vtkEnSight6BinaryReader::ReadScalarsPerNode(char* fileName,
   lineRead = this->ReadLine(line); // 1st data line or part #
   if (strncmp(line, "part", 4) != 0)
     {
+    int allocatedScalars = 0;
     this->IFile->seekg(pos, ios::beg);
     if (!measured)
       {
@@ -1005,6 +1006,7 @@ int vtkEnSight6BinaryReader::ReadScalarsPerNode(char* fileName,
       scalars->SetNumberOfTuples(numPts);
       scalars->SetNumberOfComponents(numberOfComponents);
       scalars->Allocate(numPts * numberOfComponents);
+      allocatedScalars = 1;
       }
     else
       {
@@ -1052,7 +1054,7 @@ int vtkEnSight6BinaryReader::ReadScalarsPerNode(char* fileName,
         }
       }
     delete [] scalarsRead;
-    if (component == 0)
+    if(allocatedScalars)
       {
       scalars->Delete();
       }
@@ -1061,6 +1063,7 @@ int vtkEnSight6BinaryReader::ReadScalarsPerNode(char* fileName,
   // scalars for structured parts
   while (lineRead && strncmp(line, "part", 4) == 0)
     {
+    int allocatedScalars = 0;
     sscanf(line, " part %d", &partId);
     partId--;
     output = this->GetOutput(partId);
@@ -1080,6 +1083,7 @@ int vtkEnSight6BinaryReader::ReadScalarsPerNode(char* fileName,
       scalars->SetNumberOfTuples(numPts);
       scalars->SetNumberOfComponents(numberOfComponents);
       scalars->Allocate(numPts * numberOfComponents);
+      allocatedScalars = 1;
       }
     else
       {
@@ -1099,7 +1103,6 @@ int vtkEnSight6BinaryReader::ReadScalarsPerNode(char* fileName,
         {
         output->GetPointData()->SetScalars(scalars);
         }
-      scalars->Delete();
       }
     else
       {
@@ -1107,6 +1110,10 @@ int vtkEnSight6BinaryReader::ReadScalarsPerNode(char* fileName,
       }
     delete [] scalarsRead;
     lineRead = this->ReadLine(line);
+    if(allocatedScalars)
+      {
+      scalars->Delete();
+      }
     }
   
   if (this->IFile)
@@ -1596,6 +1603,7 @@ int vtkEnSight6BinaryReader::ReadScalarsPerElement(char* fileName,
   
   while (lineRead && strncmp(line, "part", 4) == 0)
     {
+    int allocatedScalars = 0;
     sscanf(line, " part %d", &partId);
     partId--; // EnSight starts #ing with 1.
     output = this->GetOutput(partId);
@@ -1607,6 +1615,7 @@ int vtkEnSight6BinaryReader::ReadScalarsPerElement(char* fileName,
       scalars->SetNumberOfTuples(numCells);
       scalars->SetNumberOfComponents(numberOfComponents);
       scalars->Allocate(numCells * numberOfComponents);
+      allocatedScalars = 1;
       }
     else
       {
@@ -1662,11 +1671,14 @@ int vtkEnSight6BinaryReader::ReadScalarsPerElement(char* fileName,
         {
         output->GetCellData()->SetScalars(scalars);
         }
-      scalars->Delete();
       }
     else
       {
       output->GetCellData()->AddArray(scalars);
+      }
+    if(allocatedScalars)
+      {
+      scalars->Delete();
       }
     }
   
