@@ -1,7 +1,7 @@
 #
 # examples/cc//Makefile.in  --
 #
-# Makefile for Visualization Toolkit cc examples.
+# Makefile for Visualization Toolkit C++ examples.
 # 
 #------------------------------------------------------------------------------
 #
@@ -36,7 +36,42 @@ VTK_INLINE_FLAGS = @VTK_INLINE_FLAGS@
 
 #-----------------------------------------------------------------------------
 
-EXAMPLES = VisQuad 
+EXAMPLES = VisQuad \
+	CamBlur \
+	ColorSph \
+	Cone \
+	Cone2 \
+	Cone3 \
+	Cone4 \
+	Cube \
+	Hanoi \
+	Kitchen \
+	LoopShrk \
+	Lorenz \
+	Mace \
+	Mace2 \
+	Mace3 \
+	Model \
+	MotBlur \
+	Normals \
+	SGrid \
+	Sample \
+	StrSph \
+	TPlane \
+	UGrid \
+	VisQuad \
+	Vol \
+	XMace \
+	alphaFreq \
+	bluntStr \
+	contQuad \
+	finance \
+	pickCells \
+	probe \
+	quadricCut \
+	singleSplat \
+	tcutSph \
+	vol
   
 CXX_FLAGS = ${CPPFLAGS} @THREAD_FLAGS@ ${XCFLAGS} ${CXXFLAGS} -I${srcdir}/../../common \
 	${VTK_INLINE_FLAGS} ${VTK_TEMPLATE_FLAGS} \
@@ -57,9 +92,108 @@ all: ${EXAMPLES}
 VisQuad: VisQuad.o ${VTKLIB}
 	${CXX} -o VisQuad ${CXX_FLAGS} VisQuad.o ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+CamBlur: CamBlur.o ${VTKLIB}
+	${CXX} -o CamBlur ${CXX_FLAGS} CamBlur.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+ColorSph: ColorSph.o ${VTKLIB}
+	${CXX} -o ColorSph ${CXX_FLAGS} ColorSph.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+Cone: Cone.o ${VTKLIB}
+	${CXX} -o Cone ${CXX_FLAGS} Cone.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+Cone2: Cone2.o ${VTKLIB}
+	${CXX} -o Cone2 ${CXX_FLAGS} Cone2.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+Cone3: Cone3.o ${VTKLIB}
+	${CXX} -o Cone3 ${CXX_FLAGS} Cone3.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+Cone4: Cone4.o ${VTKLIB}
+	${CXX} -o Cone4 ${CXX_FLAGS} Cone4.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+Cube: Cube.o ${VTKLIB}
+	${CXX} -o Cube ${CXX_FLAGS} Cube.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+Hanoi: Hanoi.o ${VTKLIB}
+	${CXX} -o Hanoi ${CXX_FLAGS} Hanoi.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+Kitchen: Kitchen.o ${VTKLIB}
+	${CXX} -o Kitchen ${CXX_FLAGS} Kitchen.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+LoopShrk: LoopShrk.o ${VTKLIB}
+	${CXX} -o LoopShrk ${CXX_FLAGS} LoopShrk.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+Lorenz: Lorenz.o ${VTKLIB}
+	${CXX} -o Lorenz ${CXX_FLAGS} Lorenz.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+Mace: Mace.o ${VTKLIB}
+	${CXX} -o Mace ${CXX_FLAGS} Mace.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+Mace2: Mace2.o ${VTKLIB}
+	${CXX} -o Mace2 ${CXX_FLAGS} Mace2.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+Mace3: Mace3.o ${VTKLIB}
+	${CXX} -o Mace3 ${CXX_FLAGS} Mace3.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+Model: Model.o ${VTKLIB}
+	${CXX} -o Model ${CXX_FLAGS} Model.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+MotBlur: MotBlur.o ${VTKLIB}
+	${CXX} -o MotBlur ${CXX_FLAGS} MotBlur.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+Normals: Normals.o ${VTKLIB}
+	${CXX} -o Normals ${CXX_FLAGS} Normals.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+SGrid: SGrid.o ${VTKLIB}
+	${CXX} -o SGrid ${CXX_FLAGS} SGrid.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+Sample: Sample.o ${VTKLIB}
+	${CXX} -o Sample ${CXX_FLAGS} Sample.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+StrSph: StrSph.o ${VTKLIB}
+	${CXX} -o StrSph ${CXX_FLAGS} StrSph.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+TPlane: TPlane.o ${VTKLIB}
+	${CXX} -o TPlane ${CXX_FLAGS} TPlane.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+UGrid: UGrid.o ${VTKLIB}
+	${CXX} -o UGrid ${CXX_FLAGS} UGrid.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+Vol: Vol.o ${VTKLIB}
+	${CXX} -o Vol ${CXX_FLAGS} Vol.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 XMace: XMace.o ${VTKLIB}
 	${CXX} -o XMace ${CXX_FLAGS} XMace.o ${XLDFLAGS} ${LDLIBS} \
 	-lXm ${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+alphaFreq: alphaFreq.o ${VTKLIB}
+	${CXX} -o alphaFreq ${CXX_FLAGS} alphaFreq.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+bluntStr: bluntStr.o ${VTKLIB}
+	${CXX} -o bluntStr ${CXX_FLAGS} bluntStr.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+contQuad: contQuad.o ${VTKLIB}
+	${CXX} -o contQuad ${CXX_FLAGS} contQuad.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+finance: finance.o ${VTKLIB}
+	${CXX} -o finance ${CXX_FLAGS} finance.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+pickCells: pickCells.o ${VTKLIB}
+	${CXX} -o pickCells ${CXX_FLAGS} pickCells.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+probe: probe.o ${VTKLIB}
+	${CXX} -o probe ${CXX_FLAGS} probe.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+quadricCut: quadricCut.o ${VTKLIB}
+	${CXX} -o quadricCut ${CXX_FLAGS} quadricCut.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+singleSplat: singleSplat.o ${VTKLIB}
+	${CXX} -o singleSplat ${CXX_FLAGS} singleSplat.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+tcutSph: tcutSph.o ${VTKLIB}
+	${CXX} -o tcutSph ${CXX_FLAGS} tcutSph.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+vol: vol.o ${VTKLIB}
+	${CXX} -o vol ${CXX_FLAGS} vol.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 
 #------------------------------------------------------------------------------
 
