@@ -457,7 +457,7 @@ void doTclHeader(FILE *fp, const char *vtkHome,
   fprintf(fp," \"_WINDOWS\" /D \"_WINDLL\" /D \"_AFXDLL\" /D \"_MBCS\" /D \"_USRDLL\"\\\n");
   fprintf(fp," /Fp\"$(OUTDIR)/vtkdll.pch\" /YX /Fo\"$(OUTDIR)/\" /c \n");
   fprintf(fp,"LINK32=link.exe\n");
-  fprintf(fp,"LINK32_FLAGS= ..\\vtkdll\\obj\\vtkdll.lib %s\\pcmaker\\tk42.lib %s\\pcmaker\\tcl76.lib /nologo /version:1.3 /subsystem:windows\\\n",
+  fprintf(fp,"LINK32_FLAGS= mfcs42.lib msvcrt.lib ..\\vtkdll\\obj\\vtkdll.lib %s\\pcmaker\\tk42.lib %s\\pcmaker\\tcl76.lib /nologo /version:1.3 /subsystem:windows\\\n",
 	  vtkHome, vtkHome);
   fprintf(fp," /dll /incremental:no /pdb:\"$(OUTDIR)/vtktcl.pdb\" /machine:I386\\\n");
   fprintf(fp," /out:\"$(OUTDIR)/vtktcl.dll\" /implib:\"$(OUTDIR)/vtktcl.lib\" \n");
