@@ -71,7 +71,10 @@ vtkStreamPoint *vtkStreamArray::Resize(int sz)
   return this->Array;
 }
 
-
+// Description:
+// Construct object to start from position (0,0,0); integrate forward; terminal
+// speed 0.0; vorticity computation off; integrations step length 0.2; and
+// maximum propagation time 100.0.
 vtkStreamer::vtkStreamer()
 {
   this->StartFrom = VTK_START_FROM_POSITION;
@@ -89,6 +92,12 @@ vtkStreamer::vtkStreamer()
   this->TerminalSpeed = 0.0;
   this->SpeedScalars = 0;
 }
+
+vtkStreamer::~vtkStreamer()
+{
+  if ( this->Streamers ) delete [] this->Streamers;
+}
+
 
 // Description:
 // Specify the start of the streamline in the cell coordinate system. That is,
@@ -220,18 +229,23 @@ void vtkStreamer::Integrate()
   vtkStreamPoint *sNext, *sPtr;
   int i, j, ptId, offset, subId;
   vtkCell *cell;
-  vtkFloatVectors cellVectors(VTK_CELL_SIZE);
-  vtkFloatScalars cellScalars(VTK_CELL_SIZE);
   float *v, xNext[3];
   vtkMath math;
   float d, step, dir, vNext[3], tol2, p[3];
   float *w=new float[input->GetMaxCellSize()], dist2;
   float closestPoint[3];
+  vtkFloatVectors cellVectors(VTK_CELL_SIZE);
+  vtkFloatScalars cellScalars(VTK_CELL_SIZE);
   cellVectors.ReferenceCountingOff();
   cellScalars.ReferenceCountingOff();
   
   vtkDebugMacro(<<"Generating streamers");
   this->NumberOfStreamers = 0;
+  if ( this->Streamers != NULL ) // reexecuting - delete old stuff
+    {
+    delete [] this->Streamers;
+    this->Streamers = NULL;
+    }
 
   if ( ! (inVectors=pd->GetVectors()) )
     {
@@ -317,6 +331,10 @@ void vtkStreamer::Integrate()
       this->Streamers[offset*ptId+1].Direction = -1.0;
       sNext = this->Streamers[offset*ptId+1].InsertNextStreamPoint();
       *sNext = *sPtr;
+      }
+    else if ( this->IntegrationDirection == VTK_INTEGRATE_BACKWARD )
+      {
+      this->Streamers[offset*ptId].Direction = -1.0;
       }
     } //for each streamer
 //

@@ -40,9 +40,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkStreamLine.hh"
 
+// Description:
+// Construct object with step size set to 1.0.
 vtkStreamLine::vtkStreamLine()
 {
-  this->StepLength = 0.01;
+  this->StepLength = 1.0;
 }
 
 void vtkStreamLine::Execute()

@@ -40,6 +40,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkStreamPoints.hh"
 
+// Description:
+// Construct object with time increment set to 1.0.
 vtkStreamPoints::vtkStreamPoints()
 {
   this->TimeIncrement = 1.0;
@@ -51,7 +53,8 @@ void vtkStreamPoints::Execute()
   vtkFloatPoints *newPts;
   vtkFloatVectors *newVectors;
   vtkFloatScalars *newScalars=NULL;
-  int i, ptId, j, id;
+  vtkCellArray *newVerts;
+  int i, ptId, j, id, npts;
   float tOffset, x[3], v[3], s, r;
   vtkPolyData *output=(vtkPolyData *)this->Output;
 
@@ -62,6 +65,9 @@ void vtkStreamPoints::Execute()
   newVectors  = new vtkFloatVectors(1000);
   if ( this->Input->GetPointData()->GetScalars() || this->SpeedScalars )
     newScalars = new vtkFloatScalars(1000);
+  newVerts = new vtkCellArray();
+  newVerts->Allocate(newVerts->EstimateSize(2*this->NumberOfStreamers,VTK_CELL_SIZE));
+  
 //
 // Loop over all streamers generating points
 //
@@ -73,39 +79,42 @@ void vtkStreamPoints::Execute()
     i < this->Streamers[ptId].GetNumberOfPoints() && sPtr->cellId >= 0;
     i++, sPrev=sPtr, sPtr=this->Streamers[ptId].GetStreamPoint(i) )
       {
-
-      if ( i == 0 ) //create first point
-        {
-        id = newPts->InsertNextPoint(sPtr->x);
-        newVectors->InsertVector(id,sPtr->v);
-        if ( newScalars ) newScalars->InsertScalar(id,sPtr->s);
-        continue;
-        }
 //
 // For each streamer, create points "time increment" apart
 //
+      npts = 0;
+      newVerts->InsertNextCell(npts); //temporary count
       if ( (sPtr->t - tOffset) > this->TimeIncrement )
         {
-        r = (this->TimeIncrement - (sPrev->t-tOffset)) / (sPtr->t - sPrev->t);
-        for (j=0; j<3; j++)
+        while ( tOffset < sPtr->t )
           {
-          x[j] = sPrev->x[j] + r * (sPtr->x[j] - sPrev->x[j]);
-          v[j] = sPrev->v[j] + r * (sPtr->v[j] - sPrev->v[j]);
-          }
+          r = (tOffset - sPrev->t) / (sPtr->t - sPrev->t);
 
-        id = newPts->InsertNextPoint(x);
-        newVectors->InsertVector(id,v);
+          for (j=0; j<3; j++)
+            {
+            x[j] = sPrev->x[j] + r * (sPtr->x[j] - sPrev->x[j]);
+            v[j] = sPrev->v[j] + r * (sPtr->v[j] - sPrev->v[j]);
+            }
 
-        if ( newScalars ) 
-          {
-          s = sPrev->s + r * (sPtr->s - sPrev->s);
-          newScalars->InsertScalar(id,s);
-          }
+          // add point to line
+          npts++;
+          id = newPts->InsertNextPoint(x);
+          newVerts->InsertCellPoint(id);
+          newVectors->InsertVector(id,v);
 
-        tOffset += this->TimeIncrement;
+          if ( newScalars ) 
+            {
+            s = sPrev->s + r * (sPtr->s - sPrev->s);
+            newScalars->InsertScalar(id,s);
+            }
+  
+          tOffset += this->TimeIncrement;
+          } // while
 
-        }
+        } //if points should be created
+
       } //for this streamer
+    newVerts->UpdateCellCount(npts);
 
     } //for all streamers
 //
@@ -115,6 +124,8 @@ void vtkStreamPoints::Execute()
 
   output->SetPoints(newPts);
   newPts->Delete();
+  output->SetVerts(newVerts);
+  newVerts->Delete();
 
   output->GetPointData()->SetVectors(newVectors);
   newVectors->Delete();
