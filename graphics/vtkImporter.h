@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .NAME vtkImporter - importer abstract class
 // .SECTION Description
 // vtkImporter is an abstract class that specifies the protocol for
-// importing actors, cameras, lights and proeperties into a
+// importing actors, cameras, lights and properties into a
 // vtkRenderWindow. The following takes place:
 // 1) Create a RenderWindow and Renderer if none is provided.
 // 2) Open the import file

@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // read. Thus to read an image set ImageRange[0] = ImageRange[1] = slice 
 // number. The default behavior is to read a single file (i.e., image slice 1).
 //
-// The DataMask instance variable is used to read data files with imbedded
+// The DataMask instance variable is used to read data files with imbeded
 // connectivity or segmentation information. For example, some data has
 // the high order bit set to indicate connected surface. The DataMask allows
 // you to select this data. Other important ivars include HeaderSize, which
@@ -133,7 +133,7 @@ public:
 
   // Description:
   // Set/Get transformation matrix to transform the data from slice space
-  // into world space. This matirx must be a permutation matrix. To qualify,
+  // into world space. This matrix must be a permutation matrix. To qualify,
   // the sums of the rows must be + or - 1.
   vtkSetObjectMacro(Transform,vtkTransform);
   vtkGetObjectMacro(Transform,vtkTransform);

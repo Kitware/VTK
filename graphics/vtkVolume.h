@@ -296,10 +296,10 @@ protected:
   // The corrected scalar opacity transfer function array - this is identical
   // to the opacity transfer function array when the step size is 1.
   // In other cases, it is corrected to reflect the new material thickness
-  // modelled by a step size different than 1.
+  // modeled by a step size different than 1.
   float                        *CorrectedScalarOpacityArray;
 
-  // CorrectedStepSize is the step size corrently modelled by
+  // CorrectedStepSize is the step size currently modeled by
   // CorrectedArray.  It is used to determine when the 
   // CorrectedArray needs to be updated to match SampleDistance
   // in the volume mapper.

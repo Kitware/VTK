@@ -66,7 +66,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // vtkDataObjectToDataSetFilter.  vtkDataObjectToDataSetFilter filter
 // generates dataset topology and geometry and passes its input field data
 // along to its output. Then this filter is used to generate the attribute
-// data to go along with the daraset.
+// data to go along with the dataset.
 
 // .SECTION Caveats
 // Make sure that the data you extract is consistent. That is, if you have N

@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .NAME vtkSTLWriter - write stereo lithography files
 // .SECTION Description
 // vtkSTLWriter writes stereo lithography (.stl) files in either ASCII or
-// binary form. Stereo lithography files only contain triangles. If polgons
+// binary form. Stereo lithography files only contain triangles. If polygons
 // with more than 3 vertices are present, only the first 3 vertices are
 // written.  Use vtkTriangleFilter to convert polygons to triangles.
 

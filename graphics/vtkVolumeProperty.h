@@ -180,7 +180,7 @@ public:
 //BTX
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
-  // UpdateMTimes performes a Modified() on all TimeStamps.
+  // UpdateMTimes performs a Modified() on all TimeStamps.
   // This is used by vtkVolume when the property is set, so
   // that any other object that might have been caching
   // information for the property will rebuild.

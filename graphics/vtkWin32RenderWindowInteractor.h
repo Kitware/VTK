@@ -96,8 +96,8 @@ public:
 
   // Description:
   // Win32 specific application terminate, calls ClassExitMethod then
-  // calls PostQuitMessage(0) to terminate app. An application can Specify
-  // ExitMethod for alternative behaviour (i.e. suppresion of keyboard exit)
+  // calls PostQuitMessage(0) to terminate the application. An application can Specify
+  // ExitMethod for alternative behavior (i.e. suppression of keyboard exit)
   void TerminateApp(void);
 
   // Description:

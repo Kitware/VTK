@@ -62,7 +62,7 @@ public:
   vtkGetMacro(Kappa,float);
 
   // Description:
-  // Set the center of the lense distortion
+  // Set the center of the lens distortion
   vtkSetVector2Macro(Center,float);
   vtkGetVectorMacro(Center,float,2);
 

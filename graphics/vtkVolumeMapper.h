@@ -106,7 +106,7 @@ public:
   // from the lowest bit to bit number 27 in the integer containing the 
   // flags. There are several convenience functions to set some common 
   // configurations - subvolume (the default), fence (between any of the 
-  // clip plane plairs), inverted fence, cross (between any two of the 
+  // clip plane pairs), inverted fence, cross (between any two of the 
   // clip plane pairs) and inverted cross.
   vtkSetClampMacro( CroppingRegionFlags, int, 0x0, 0x7ffffff );
   vtkGetMacro( CroppingRegionFlags, int );
@@ -163,7 +163,7 @@ public:
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // Return the type of this mapper. This helps the volume
-  // determine which rendering methods the mapper will respont to.
+  // determine which rendering methods the mapper will respond to.
   virtual int GetMapperType()=0;
 
 //ETX

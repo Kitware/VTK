@@ -130,7 +130,7 @@ public:
   // Description
   // This method will store the top level shell widget for the interactor.
   // This method and the method invocation sequence applies for:
-  //     1 vtkRenderWindow-Interactor pair in a nested widget heirarchy
+  //     1 vtkRenderWindow-Interactor pair in a nested widget hierarchy
   //     multiple vtkRenderWindow-Interactor pairs in the same top level shell
   // It is not needed for
   //     1 vtkRenderWindow-Interactor pair as the direct child of a top level shell

@@ -43,7 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // .SECTION Description
 // vtkColorTransferFunction encapsulates three vtkPiecewiseFunction instances
-// to provide a full RGB transfer funciton.
+// to provide a full RGB transfer function.
 
 // .SECTION see also
 // vtkPiecewiseFunction
@@ -145,7 +145,7 @@ public:
 
   // **********************************************************
   // **********************************************************
-  // These are all depricated functions - do not use!
+  // These are all deprecated functions - do not use!
   // **********************************************************
   // **********************************************************
   

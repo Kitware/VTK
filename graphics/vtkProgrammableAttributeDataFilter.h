@@ -47,7 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // convert vectors to normals; compute scalar values as a function of
 // vectors, texture coords, and/or any other point data attribute; and so
 // on. The filter takes multiple inputs (input plus an auxiliary input list),
-// so you can write procedures that combine several datset point
+// so you can write procedures that combine several dataset point
 // attributes. Note that the output of the filter is the same type
 // (topology/geometry) as the input.
 //

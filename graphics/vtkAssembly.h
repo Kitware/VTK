@@ -69,7 +69,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // make that there are no cycles (e.g., parent->child->parent), this will
 // cause program failure.
 //
-// If you wish to create assemblies without any transormation (using the 
+// If you wish to create assemblies without any transformation (using the 
 // assembly strictly as a grouping mechanism), then you may wish to
 // consider using vtkPropAssembly.
  

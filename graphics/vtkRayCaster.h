@@ -147,7 +147,7 @@ public:
 
   // Description:
   // Get the number of samples taken during the last image rendered.
-  // This is the number of samples for ray casted images only - any
+  // This is the number of samples for ray cast images only - any
   // samples taken from other types of mapper will be reported in that
   // mapper directly
   int GetNumberOfSamplesTaken();

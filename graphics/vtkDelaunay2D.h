@@ -90,11 +90,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // define a loop with inside and outside regions. The inside of the polygon
 // is determined by using the right-hand-rule, i.e., looking down the z-axis
 // a polygon should be ordered counter-clockwise. Holes in a polygon should
-// be ordered clockwise.If you choose to create a constrained triangulation,
+// be ordered clockwise. If you choose to create a constrained triangulation,
 // the final mesh may not satisfy the Delaunay criterion. (Noted: the
 // lines/polygon edges must not intersect when projected onto the 2D plane.
 // It may not be possible to recover all edges due to not enough points in
-// the triangulation, or poorly defined edges (coincident or execssively
+// the triangulation, or poorly defined edges (coincident or excessively
 // long).  The form of the lines or polygons is a list of point ids that
 // correspond to the input point ids used to generate the triangulation.)
 

@@ -104,7 +104,7 @@ public:
   // then the output of this append filter is the whole dataset
   // pieced back together.  Duplicate points are create 
   // along the seams.  The purpose of this feature is to get 
-  // data parallism at a course scale.  Each of the inputs
+  // data parallelism at a course scale.  Each of the inputs
   // can be generated in a different process at the same time.
   vtkSetMacro(ParallelStreaming, int); 
   vtkGetMacro(ParallelStreaming, int); 

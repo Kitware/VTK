@@ -60,7 +60,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .SECTION Caveats
 // Since the resulting texture s-coordinate will lie between (0,1), and the
 // origin of the texture coordinates is not user-controllable, you may want
-// to se the class vtkTransformTexture to linearly scale and shift the origin
+// to use the class vtkTransformTexture to linearly scale and shift the origin
 // of the texture coordinates.
 
 // .SECTION See Also
@@ -104,7 +104,7 @@ public:
   // Description:
   // Control how the texture coordinates are generated. If PreventSeam is
   // set, the s-coordinate ranges from 0->1 and 1->0 corresponding to the
-  // angle variation from 0->180 and 180->0. Otherwise, the s-ccordinate
+  // angle variation from 0->180 and 180->0. Otherwise, the s-cordinate
   // ranges from 0->1 from 0->360 degrees.
   vtkSetMacro(PreventSeam,int);
   vtkGetMacro(PreventSeam,int);

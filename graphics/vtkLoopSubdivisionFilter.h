@@ -44,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .SECTION Description
 // vtkLoopSubdivisionFilter is an approximating subdivision scheme that
 // creates four new triangles for each triangle in the mesh. The user can
-// specifiy the NumberOfSubdivisions. Loop's subdivision scheme is
+// specify the NumberOfSubdivisions. Loop's subdivision scheme is
 // described in: Loop, C., "Smooth Subdivision surfaces based on
 // triangles,", Masters Thesis, University of Utah, August 1987.
 // For a nice summary of the technique see, Hoppe, H., et. al,

@@ -46,9 +46,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // interface where renderers draw their images. Methods are provided to 
 // synchronize the rendering process, set window size, and control double
 // buffering.  The window also allows rendering in stereo.  The interlaced
-// render stereo type is for output to a VRex stero projector.  All of the
+// render stereo type is for output to a VRex stereo projector.  All of the
 // odd horizontal lines are from the left eye, and the even lines are from
-// the right eye.  The user has to make the render window alligned with the 
+// the right eye.  The user has to make the render window aligned with the 
 // VRex projector, or the eye will be swapped.
 
 // .SECTION see also
@@ -99,7 +99,7 @@ public:
     return vtkGraphicsFactory::GetRenderLibrary();};
 
   // Description:
-  // Return the colleciton of renderers inthe render window.
+  // Return the collection of renderers in the render window.
   vtkRendererCollection *GetRenderers() {return this->Renderers;};
 
   // Description:

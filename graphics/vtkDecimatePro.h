@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // `92, with three major differences. First, this algorithm does not
 // necessarily preserve the topology of the mesh. Second, it is guaranteed to
 // give the a mesh reduction factor specified by the user (as long as certain
-// contraints are not set - see Caveats). Third, it is set up generate
+// constraints are not set - see Caveats). Third, it is set up generate
 // progressive meshes, that is a stream of operations that can be easily
 // transmitted and incrementally updated (see Hugues Hoppe's Siggraph '96
 // paper on progressive meshes).
@@ -200,7 +200,7 @@ public:
   // Description:
   // Turn on/off whether to preserve the topology of the original mesh. If
   // on, mesh splitting and hole elimination will not occur. This may limit
-  // the maximumm reduction that may be achieved.
+  // the maximum reduction that may be achieved.
   vtkSetMacro(PreserveTopology,int);
   vtkGetMacro(PreserveTopology,int);
   vtkBooleanMacro(PreserveTopology,int);
@@ -287,7 +287,7 @@ public:
   
   // Description:
   // Specify the inflection point ratio. An inflection point occurs
-  // when the ratio of reduction error between two iterations is greaten
+  // when the ratio of reduction error between two iterations is greater
   // than or equal to the InflectionPointRatio.
   vtkSetClampMacro(InflectionPointRatio,float,1.001,VTK_LARGE_FLOAT);
   vtkGetMacro(InflectionPointRatio,float);

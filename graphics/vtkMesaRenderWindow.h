@@ -184,8 +184,8 @@ public:
   void RegisterTextureResource (GLuint id);
   
   // Description:
-  // Override the default implmentation so that we can activly switch between
-  // on and offscreen rendering.
+  // Override the default implementation so that we can activley switch between
+  // on and off screen rendering.
   virtual void SetOffScreenRendering(int i);
   
   // Description:

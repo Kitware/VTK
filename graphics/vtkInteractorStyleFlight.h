@@ -58,7 +58,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Stationary 'look' can be achieved by holding both mouse buttons down
 // and steering with the mouse.
 // Stationary 'look' can also be achieved by holding 'Z' (or 'A') and
-// steering with mouse in orward (or reverse) motion mode.
+// steering with mouse in forward (or reverse) motion mode.
 // By default, one "step" of motion corresponds to 1/250th of the diagonal
 // of bounding box of visible actors, '+' and '-' keys allow user to
 // increase or decrease step size.

@@ -129,7 +129,7 @@ public:
   unsigned long GetMTime();
 
   // Description:
-  // For legacy compatability. Do not use.
+  // For legacy compatibility. Do not use.
   void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
 
 protected:

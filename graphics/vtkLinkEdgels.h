@@ -47,15 +47,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // be used as the lower threshold of a two value edgel thresholding. 
 //
 // For the remaining edgels, links are first tried for the four
-// connected neighbors.  A succesful neighbor will satisfy three
+// connected neighbors.  A successful neighbor will satisfy three
 // tests. First both edgels must be above the gradient
 // threshold. Second, the difference between the orientation between
 // the two edgels (Alpha) and each edgels orientation (Phi) must be
 // less than LinkThreshold. Third, the difference between the two
 // edgels Phi values must be less than PhiThreshold.
-// The most successful link is selected. The meaure is simply the 
+// The most successful link is selected. The measure is simply the 
 // sum of the three angle differences (actually stored as the sum of
-// the cosines). If none of the four connect neighbors succeds, then
+// the cosines). If none of the four connect neighbors succeeds, then
 // the eight connect neighbors are examined using the same method.
 //  
 // This filter requires gradient information so you will need to use

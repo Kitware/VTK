@@ -44,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // vtkClipVolume is a filter that clips volume data (i.e., structured points)
 // using either: any subclass of vtkImplicitFunction; or the input scalar
 // data. Clipping means that it actually "cuts" through the cells of the
-// dataset, returning everthing inside of the specified implicit function (or
+// dataset, returning everything inside of the specified implicit function (or
 // greater than the scalar value) including "pieces" of a cell. (Compare this
 // with vtkExtractGeometry or vtkGeometryFilter, which pulls out entire,
 // uncut cells.) The output of this filter is a 3D unstructured grid (e.g.,

@@ -137,7 +137,7 @@ public:
   // Description:
   // If the data in each slice is only contained within a circle circumscribed
   // within the slice, and the slice is square, then don't compute anything
-  // outside the cirle. This circle through the slices forms a cylinder.
+  // outside the circle. This circle through the slices forms a cylinder.
   vtkSetMacro( CylinderClip, int );
   vtkGetMacro( CylinderClip, int );
   vtkBooleanMacro( CylinderClip, int );

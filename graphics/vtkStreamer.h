@@ -234,7 +234,7 @@ public:
 //BTX
 
   // Description:
-  // These methods were added to allow access to these variablse from the
+  // These methods were added to allow access to these variables from the
   // threads. 
   // Not intended for general use.
   vtkGetMacro( NumberOfStreamers, int );

@@ -53,7 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // input and output types.
 
 // .SECTION Caveats
-// The filter correctlymanages modified time and network execution in most
+// The filter correctly manages modified time and network execution in most
 // cases. However, if you change the definition of the filter function,
 // you'll want to send a manual Modified() method to the filter to force it
 // to reexecute.

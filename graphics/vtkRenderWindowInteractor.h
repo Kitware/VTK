@@ -135,7 +135,7 @@ public:
 
   // Description:
   // This function is called on 'q','e' keypress if exitmethod is not
-  // specified and should be overidden by platform dependent subclasses
+  // specified and should be overridden by platform dependent subclasses
   // to provide a termination procedure if one is required.
   virtual void TerminateApp(void) {};
 
@@ -259,7 +259,7 @@ protected:
   int   EventPosition[2];
   int   Size[2];
   
-  // user methods that can be used to override default behaviour
+  // user methods that can be used to override default behavior
   void (*StartPickMethod)(void *);
   void (*StartPickMethodArgDelete)(void *);
   void *StartPickMethodArg;

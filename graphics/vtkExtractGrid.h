@@ -44,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .SECTION Description
 // vtkExtractGrid is a filter that selects a portion of an input structured
 // grid dataset, or subsamples an input dataset. (The selected portion of
-// interested is referred toas the Volume Of Interest, or VOI.) The output of
+// interested is referred to as the Volume Of Interest, or VOI.) The output of
 // this filter is a structured grid dataset. The filter treats input data of
 // any topological dimension (i.e., point, line, image, or volume) and can
 // generate output data of any topological dimension.

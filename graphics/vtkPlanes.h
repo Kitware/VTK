@@ -92,7 +92,7 @@ public:
   vtkGetObjectMacro(Normals,vtkNormals);
 
   // Description:
-  // Specify the planes via a camera frustrum definition.
+  // Specify the planes via a camera frustum definition.
   void SetFrustumPlanes(float aspect, vtkCamera *camera);
 
   // Description:

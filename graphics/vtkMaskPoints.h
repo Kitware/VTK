@@ -86,7 +86,7 @@ public:
   // Description:
   // Generate output polydata vertices as well as points. A useful
   // convenience method because vertices are drawn (they are topology) while
-  // points are not (they are geometry). By defulat this method is off.
+  // points are not (they are geometry). By default this method is off.
   vtkSetMacro(GenerateVertices,int);
   vtkGetMacro(GenerateVertices,int);
   vtkBooleanMacro(GenerateVertices,int);

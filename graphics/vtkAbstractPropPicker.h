@@ -45,7 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // subclass of this class), cannot identify the prop that is
 // picked. Subclasses of vtkAbstractPropPicker return a prop in the form of a
 // vtkAssemblyPath when a pick is invoked. Note that an vtkAssemblyPath
-// containts a list of vtkAssemblyNodes, each of which in turn contains a
+// contain a list of vtkAssemblyNodes, each of which in turn contains a
 // reference to a vtkProp and a 4x4 transformation matrix. The path fully
 // describes the entire pick path, so you can pick assemblies or portions of
 // assemblies, or just grab the tail end of the vtkAssemblyPath (which is the

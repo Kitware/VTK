@@ -45,7 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // mapping input dataset points onto a sphere. The sphere can either be user
 // specified or generated automatically. (The sphere is generated
 // automatically by computing the center (i.e., averaged coordinates) of the
-// sphere.)  Note that the generated texture coordinates range beween
+// sphere.)  Note that the generated texture coordinates range between
 // (0,1). The s-coordinate lies in the angular direction around the z-axis,
 // measured counter-clockwise from the x-axis. The t-coordinate lies in the
 // angular direction measured down from the north pole towards the south
@@ -57,7 +57,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // .SECTION Caveats
 // The resulting texture coordinates will lie between (0,1), and the texture
-// coordinates are determined with respect to the modeller's x-y-z coordinate
+// coordinates are determined with respect to the modeler's x-y-z coordinate
 // system. Use the class vtkTransformTextureCoords to linearly scale and
 // shift the origin of the texture coordinates (if necessary).
 
@@ -97,7 +97,7 @@ public:
   // Control how the texture coordinates are generated. If PreventSeam is
   // set, the s-coordinate ranges from 0->1 and 1->0 corresponding to the
   // theta angle variation between 0->180 and 180->0 degrees. Otherwise, the
-  // s-ccordinate ranges from 0->1 between 0->360 degrees.
+  // s-coordinate ranges from 0->1 between 0->360 degrees.
   vtkSetMacro(PreventSeam,int);
   vtkGetMacro(PreventSeam,int);
   vtkBooleanMacro(PreventSeam,int);

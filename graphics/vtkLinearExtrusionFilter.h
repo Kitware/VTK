@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 // .NAME vtkLinearExtrusionFilter - sweep polygonal data creating a "skirt" from free edges and lines, and lines from vertices
 // .SECTION Description
-// vtkLinearExtrusionFilter is a modelling filter. It takes polygonal data as 
+// vtkLinearExtrusionFilter is a modeling filter. It takes polygonal data as 
 // input and generates polygonal data on output. The input dataset is swept
 // according to some extrusion function and creates new polygonal primitives.
 // These primitives form a "skirt" or swept surface. For example, sweeping a

@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .NAME vtkUGFacetReader - read EDS Unigraphics facet files
 // .SECTION Description
 // vtkUGFacetReader is a source object that reads Unigraphics facet files.
-// Unigraphics is a solid modelling system; facet files are the polygonal
+// Unigraphics is a solid modeling system; facet files are the polygonal
 // plot files it uses to create 3D plots.
 
 #ifndef __vtkUGFacetReader_h
@@ -106,7 +106,7 @@ public:
   void CreateDefaultLocator();
 
   // Description:
-  // For legacy compatibiltiy. Do not use.
+  // For legacy compatibility. Do not use.
   void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
 
 protected:

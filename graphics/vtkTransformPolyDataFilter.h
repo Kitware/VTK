@@ -72,7 +72,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Return the MTime also considering the trnasform.
+  // Return the MTime also considering the transform.
   unsigned long GetMTime();
 
   // Description:

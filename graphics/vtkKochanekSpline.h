@@ -49,13 +49,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // can be specified. All have a range from -1 to 1.
 // 
 // Tension controls how sharply the curve bends at an input point. A
-// value of -1 produices more slack in the curve. A value of 1 tightens
+// value of -1 produces more slack in the curve. A value of 1 tightens
 // the curve.
 // 
 // Continuity controls the continuity of the first derivative at input
 // points. 
 // 
-// Bias controls the direction os the curve at it passes through an input
+// Bias controls the direction of the curve at it passes through an input
 // point. A value of -1 undershoots the point while a value of 1
 // overshoots the point.
 // 

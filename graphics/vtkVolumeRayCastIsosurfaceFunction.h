@@ -46,7 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // intersects a ray with an analytic isosurface in a scalar field. The color
 // and shading parameters are defined in the vtkVolumeProperty of the 
 // vtkVolume, as well as the interpolation type to use when locating the
-// surface (either a nearest neighbor approach or a trilinear interpolation
+// surface (either a nearest neighbor approach or a tri-linear interpolation
 // approach)
 //
 // .SECTION See Also

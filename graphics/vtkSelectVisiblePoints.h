@@ -60,7 +60,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // .SECTION Caveats
 // You must carefully synchronize the execution of this filter. The
-// filter refers to a renderer, which is modified everytime a render
+// filter refers to a renderer, which is modified every time a render
 // occurs. Therefore, the filter is always out of date, and always
 // executes. You may have to perform two rendering passes, or if you
 // are using this filter in conjunction with vtkLabeledPointMapper,

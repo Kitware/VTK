@@ -65,7 +65,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // is constructed (generally in the rendering library) which can then be
 // rapidly traversed and rendered by the rendering library. The disadvantage
 // of display lists is that they require additionally memory which may affect
-// the perfomance of the system.
+// the performance of the system.
 //
 // Another important feature of the mapper is the ability to shift the
 // z-buffer to resolve coincident topology. For example, if you'd like to
@@ -166,7 +166,7 @@ public:
   // tends to be slower but it can handle larger datasets.
   // The default value is immediate mode off. If you are 
   // having problems rendering a large dataset you might
-  // want to consider using imediate more rendering.
+  // want to consider using immediate more rendering.
   vtkSetMacro(ImmediateModeRendering,int);
   vtkGetMacro(ImmediateModeRendering,int);
   vtkBooleanMacro(ImmediateModeRendering,int);

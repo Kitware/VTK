@@ -44,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .SECTION Description
 // vtkButterflySubdivisionFilter is an interpolating subdivision scheme
 // that creates four new triangles for each triangle in the mesh. The
-// user can specifiy the NumberOfSubdivisions. This filter implements the
+// user can specify the NumberOfSubdivisions. This filter implements the
 // 8-point butterfly scheme described in: Zorin, D., Schroder, P., and
 // Sweldens, W., "Interpolating Subdivisions for Meshes with Arbitrary
 // Topology," Computer Graphics Proceedings, Annual Conference Series,
@@ -54,7 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // <P>
 // Currently, the filter only operates on triangles. Users should use the
 // vtkTriangleFilter to triangulate meshes that contain polygons or
-// triangle stiprs.
+// triangle strips.
 // <P>
 // The filter interpolates point data using the same scheme. New
 // triangles created at a subdivision step will have the cell data of

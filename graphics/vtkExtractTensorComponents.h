@@ -61,7 +61,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // There are two optional methods to extract scalar data. You can
 // extract the determinant of the tensor, or you can extract the
 // effective stress of the tensor. These require that the ivar
-// ExtractScalars is on, and the appropriate scalr extraction mode is
+// ExtractScalars is on, and the appropriate scalar extraction mode is
 // set.
 
 #ifndef __vtkExtractTensorComponents_h
@@ -104,7 +104,7 @@ public:
   // Description:
   // Specify how to extract the scalar. You can extract it as one of
   // the components of the tensor, as effective stress, or as the
-  // determinant of the tensor. If you extract a copmponent make sure
+  // determinant of the tensor. If you extract a component make sure
   // that you set the ScalarComponents ivar.
   vtkSetMacro(ScalarMode,int);
   vtkGetMacro(ScalarMode,int);

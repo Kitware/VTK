@@ -51,7 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // resolution of the plane (i.e., number of subdivisions) is
 // controlled by the ivars XResolution and YResolution.
 //
-// There are three conveience methods that allow you to easily move
+// There are three convenience methods that allow you to easily move
 // the plane.  The first, SetNormal(), allows you to specify the plane
 // normal. The effect of this method is to rotate the plane around the
 // center of the plane, aligning the plane normal with the specified

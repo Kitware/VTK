@@ -179,7 +179,7 @@ public:
   virtual unsigned long GetRedrawMTime();
 
   // Description:
-  // The following methods are for compaibility. The methods will be deprecated
+  // The following methods are for compatibility. The methods will be deprecated
   // in the near future. Use vtkProp::GetNextPath() (and related functionality)
   // to get the parts in an assembly (or more correctly, the paths in the
   // assembly).

@@ -74,7 +74,7 @@ public:
   void Update();
 
   // Description:
-  // If you want only a part of the data, specify by seting the piece.
+  // If you want only a part of the data, specify by setting the piece.
   vtkSetMacro(Piece, int);
   vtkGetMacro(Piece, int);
   vtkSetMacro(NumberOfPieces, int);

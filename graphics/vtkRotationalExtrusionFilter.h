@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 // .NAME vtkRotationalExtrusionFilter - sweep polygonal data creating "skirt" from free edges and lines, and lines from vertices
 // .SECTION Description
-// vtkRotationalExtrusionFilter is a modelling filter. It takes polygonal 
+// vtkRotationalExtrusionFilter is a modeling filter. It takes polygonal 
 // data as input and generates polygonal data on output. The input dataset 
 // is swept around the z-axis to create new polygonal primitives. These 
 // primitives form a "skirt" or swept surface. For example, sweeping a

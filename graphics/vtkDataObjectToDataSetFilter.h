@@ -70,7 +70,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Make sure that the data you extract is consistent. That is, if you have N
 // points, extract N x, y, and z components. Also, all the information
 // necessary to define a dataset must be given. For example, vtkPolyData
-// requires points at a minumum; vtkStructuredPoints requires setting the
+// requires points at a minimum; vtkStructuredPoints requires setting the
 // dimensions; vtkStructuredGrid requires defining points and dimensions;
 // vtkUnstructuredGrid requires setting points; and vtkRectilinearGrid
 // requires that you define the x, y, and z-coordinate arrays (by specifying

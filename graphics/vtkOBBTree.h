@@ -69,7 +69,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // unsatisfactory results. This is due to the fact that this is a top-down
 // implementation of the OBB tree, requiring that one or more complete cells
 // are contained in each OBB. This requirement makes it hard to find good 
-// split planes during the recurion process. A bottom-up implementation would
+// split planes during the recursion process. A bottom-up implementation would
 // go a long way to correcting this problem.
 
 // .SECTION See Also
@@ -168,7 +168,7 @@ public:
   //ETX
 
   // Description:
-  // Satisfy locator'a abstract interface, see vtkLocator.
+  // Satisfy locator's abstract interface, see vtkLocator.
   void FreeSearchStructure();
   void BuildLocator();
 
@@ -191,7 +191,7 @@ protected:
 
   // Compute an OBB from the list of cells given.  This used to be
   // public but should not have been.  A public call has been added
-  // so that the funtionality can be accessed.
+  // so that the functionality can be accessed.
   void ComputeOBB(vtkIdList *cells, float corner[3], float max[3], 
                        float mid[3], float min[3], float size[3]);
 

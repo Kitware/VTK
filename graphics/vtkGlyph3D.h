@@ -60,7 +60,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // vector magnitude.
 // 
 // .SECTION Caveats
-// The scaling of the glyphs is controled by the ScaleFactor ivar multiplied
+// The scaling of the glyphs is controlled by the ScaleFactor ivar multiplied
 // by the scalar value at each point (if VTK_SCALE_BY_SCALAR is set), or
 // multiplied by the vector magnitude (if VTK_SCALE_BY_VECTOR is set),
 // Alternatively (if VTK_SCALE_BY_VECTORCOMPONENTS is set), the scaling

@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 // .NAME vtkLinearSubdivisionFilter - generate a subdivision surface using the Linear Scheme
 // .SECTION Description
-// vtkLinearSubdivisionFilter is a filter that geneartes output by
+// vtkLinearSubdivisionFilter is a filter that generates output by
 // subdividing its input polydata. Each subdivision iteration create 4
 // new triangles for each triangle in the polydata.
 

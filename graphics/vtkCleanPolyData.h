@@ -69,7 +69,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Merging points can alter topology, including introducing non-manifold
 // forms. Tolerance should be chosen carefully to avoid these problems.
 // Subclasses should handle OperateOnBounds as well as OperateOnPoint
-// to ensure locator is correcly initialized (i.e. all modified points must
+// to ensure locator is correctly initialized (i.e. all modified points must
 // lie inside modified bounds).
 //
 // .SECTION See Also

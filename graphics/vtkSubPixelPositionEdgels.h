@@ -49,7 +49,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // gradient magnitude, edgel gradient magnitude and positive gradient
 // direction gradient magnitude to a quadratic function. It then
 // solves this quadratic to find the maximum gradient location along
-// the gradient orientation.  It then modifes the edgels location
+// the gradient orientation.  It then modifies the edgels location
 // along the gradient orientation to the calculated maximum
 // location. This algorithm does not adjust an edgel in the direction
 // orthogonal to its gradient vector.
@@ -100,7 +100,7 @@ protected:
   void Move(int xdim, int ydim, int zdim, int x, int y,
 	    float *img, vtkVectors *inVecs, 
 	    float *result, int z, float *aspect, float *resultNormal);
-  // extension for target insted of maximum
+  // extension for target instead of maximum
   int TargetFlag;
   float TargetValue;
 };

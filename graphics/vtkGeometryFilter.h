@@ -62,7 +62,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // in some cases. For example, if you've run vtkPolyDataNormals to
 // generate normals, which may split meshes and create duplicate
 // vertices, vtkGeometryFilter will merge these points back
-// together. Turn merging off to prevent this from occuring.
+// together. Turn merging off to prevent this from occurring.
 
 // .SECTION See Also
 // vtkStructuredPointsGeometryFilter vtkStructuredGridGeometryFilter

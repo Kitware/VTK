@@ -191,7 +191,7 @@ public:
   int ReadCells(int size, int *data);
 
   // Description:
-  // Read a piece of the cells (for streaming complience)
+  // Read a piece of the cells (for streaming compliance)
   int ReadCells(int size, int *data, int skip1, int read2, int skip3);
 
   // Description:
@@ -235,7 +235,7 @@ public:
   char *LowerCase(char *);
   
   // Description:
-  // Internal function used to consume whitespace when reading in
+  // Internal function used to consume white space when reading in
   // an InputString.
   void EatWhiteSpace();
 

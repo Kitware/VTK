@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .NAME vtkImageActor - represents an image (data & properties) in a rendered scene
 //
 // .SECTION Description
-// vtkImageActor is used to represent an imge entity in a rendering scene.
+// vtkImageActor is used to represent an image entity in a rendering scene.
 
 // .SECTION see also
 // vtkImageData vtkProp
@@ -80,7 +80,7 @@ public:
   vtkBooleanMacro(Interpolate,int);
 
   // Description:
-  // The image extent of the output has to be set explicitely.
+  // The image extent of the output has to be set explicitly.
   void SetDisplayExtent(int extent[6]);
   void SetDisplayExtent(int minX, int maxX, int minY, int maxY, 
 			    int minZ, int maxZ);
