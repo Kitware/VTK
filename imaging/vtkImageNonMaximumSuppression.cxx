@@ -216,7 +216,7 @@ void vtkImageNonMaximumSuppression::Execute(vtkImageRegion *inRegion1,
   d = (float)(this->NumberOfAxes) / d;
   for (idx = 0; idx < this->NumberOfAxes; ++idx)
     {
-    ratio[idx] = 0.38268343 * ratio[idx] * d;
+    ratio[idx] = 0.5 * ratio[idx] * d;
     //thresh[idx] = 0.414214 * ratio[idx] 
     //  / sqrt(d - 0.82842712 * ratio[idx] * ratio[idx]);
     }
