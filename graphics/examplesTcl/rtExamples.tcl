@@ -237,7 +237,7 @@ foreach afile $files {
 	puts $logFile $retval
     }
 
-    if { $retval != "" || $imageStatus == "Failed" } {
+    if { $retval != "" && $retval != "Warning: New Test" && $retval != "Warning: Recently Added Test" } {
 	GeneratePlotFiles $afile [string trimleft $CPUTime]
     }
     
