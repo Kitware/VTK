@@ -34,7 +34,7 @@
 #include "vtkTriangleStrip.h"
 #include "vtkVertex.h"
 
-vtkCxxRevisionMacro(vtkPolyData, "1.152");
+vtkCxxRevisionMacro(vtkPolyData, "1.153");
 vtkStandardNewMacro(vtkPolyData);
 
 //----------------------------------------------------------------------------
@@ -1639,9 +1639,15 @@ int vtkPolyData::IsEdge(vtkIdType p1, vtkIdType p2)
     cellType = this->GetCellType(cells[i]);
     switch (cellType)
       {
-      case VTK_EMPTY_CELL: case VTK_VERTEX: case VTK_POLY_VERTEX:
+      case VTK_EMPTY_CELL: case VTK_VERTEX: case VTK_POLY_VERTEX: case VTK_LINE: case VTK_POLY_LINE:
         break;
-      case VTK_LINE: case VTK_POLY_LINE:
+      case VTK_TRIANGLE:
+        if ( this->IsPointUsedByCell(p2,cells[i]) )
+          {
+          return 1;
+          }
+        break;
+      case VTK_QUAD:
         this->GetCellPoints(cells[i],npts,pts);
         for (j=0; j<npts-1; j++)
           {
@@ -1650,13 +1656,17 @@ int vtkPolyData::IsEdge(vtkIdType p1, vtkIdType p2)
             return 1;
             }
           }
+        if (((pts[0]==p1)&&(pts[npts-1]==p2))||((pts[0]==p2)&&(pts[npts-1]==p1)))
+          {
+          return 1;
+          }
         break;
       case VTK_TRIANGLE_STRIP:
         this->GetCellPoints(cells[i],npts,pts);
         for (j=0; j<npts-2; j++)
           {
           if ((((pts[j]==p1)&&(pts[j+1]==p2))||((pts[j]==p2)&&(pts[j+1]==p1)))||
-             (((pts[j]==p1)&&(pts[j+2]==p2))||((pts[j]==p2)&&(pts[j+2]==p1))))
+              (((pts[j]==p1)&&(pts[j+2]==p2))||((pts[j]==p2)&&(pts[j+2]==p1))))
             {
             return 1;
             }
@@ -1682,6 +1692,7 @@ int vtkPolyData::IsEdge(vtkIdType p1, vtkIdType p2)
     }
   return 0;
 }
+
 
 //----------------------------------------------------------------------------
 
