@@ -252,8 +252,6 @@ private:
   double _GetDistance2ToBoundary(double x, double y, double z, double *boundaryPt,
                              int innerBoundaryOnly, int useDataBounds);
 
-  static const char *LevelMarker[20];
-
   double Min[3];       // spatial bounds of node
   double Max[3];       // spatial bounds of node
   double MinVal[3];    // spatial bounds of data within node

@@ -26,34 +26,11 @@
 #include "vtkPlanesIntersection.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkKdNode, "1.1");
+vtkCxxRevisionMacro(vtkKdNode, "1.2");
 vtkStandardNewMacro(vtkKdNode);
 vtkCxxSetObjectMacro(vtkKdNode, Left, vtkKdNode);
 vtkCxxSetObjectMacro(vtkKdNode, Right, vtkKdNode);
 vtkCxxSetObjectMacro(vtkKdNode, Up, vtkKdNode);
-
-const char *vtkKdNode::LevelMarker[20]={
-"",
-" ",
-"  ",
-"   ",
-"    ",
-"     ",
-"      ",
-"       ",
-"        ",
-"         ",
-"          ",
-"           ",
-"            ",
-"             ",
-"              ",
-"               ",
-"                ",
-"                 ",
-"                  ",
-"                   "
-};
 
 //----------------------------------------------------------------------------
 vtkKdNode::vtkKdNode()
@@ -874,7 +851,11 @@ void vtkKdNode::PrintNode(int depth)
     depth = 19;
     }
 
-  cout << vtkKdNode::LevelMarker[depth] ;
+  for (int i=0; i<depth; i++)
+    {
+    cout << " ";
+    }
+
   cout << " x (" << this->Min[0] << ", " << this->Max[0] << ") ";
   cout << " y (" << this->Min[1] << ", " << this->Max[1] << ") ";
   cout << " z (" << this->Min[2] << ", " << this->Max[2] << ") ";
@@ -893,22 +874,38 @@ void vtkKdNode::PrintNode(int depth)
 //----------------------------------------------------------------------------
 void vtkKdNode::PrintVerboseNode(int depth)
 {
+  int i;
+
   if ( (depth < 0) || (depth > 19)) 
     {
     depth = 19;
     }
 
-  cout << vtkKdNode::LevelMarker[depth] << " Space ";
+  for (i=0; i<depth; i++)
+    {
+    cout << " ";
+    }
+
+  cout << " Space ";
   cout << " x (" << this->Min[0] << ", " << this->Max[0] << ") ";
   cout << " y (" << this->Min[1] << ", " << this->Max[1] << ") ";
   cout << " z (" << this->Min[2] << ", " << this->Max[2] << ") " << endl;
 
-  cout << vtkKdNode::LevelMarker[depth] << " Data ";
+  for (i=0; i<depth; i++)
+    {
+    cout << " ";
+    }
+
+  cout << " Data ";
   cout << " x (" << this->MinVal[0] << ", " << this->MaxVal[0] << ") ";
   cout << " y (" << this->MinVal[1] << ", " << this->MaxVal[1] << ") ";
   cout << " z (" << this->MinVal[2] << ", " << this->MaxVal[2] << ") " << endl;
 
-  cout << vtkKdNode::LevelMarker[depth] << " " ;
+  for (i=0; i<depth; i++)
+    {
+    cout << " ";
+    }
+
   cout << this->NumberOfPoints << " cells, ";
 
   if (this->ID == -1)
