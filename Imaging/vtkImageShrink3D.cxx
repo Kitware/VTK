@@ -19,7 +19,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageShrink3D, "1.59");
+vtkCxxRevisionMacro(vtkImageShrink3D, "1.59.12.1");
 vtkStandardNewMacro(vtkImageShrink3D);
 
 //----------------------------------------------------------------------------
@@ -159,6 +159,11 @@ void vtkImageShrink3D::ExecuteInformation(vtkImageData *inData,
 
   for (idx = 0; idx < 3; ++idx)
     {
+    // Avoid dividing by 0.
+      if (this->ShrinkFactors[idx] == 0)
+      {
+      this->ShrinkFactors[idx] = 1;
+      }
     // Scale the output extent
     wholeExtent[2*idx] = 
       (int)(ceil((double)(wholeExtent[2*idx] - this->Shift[idx]) 
