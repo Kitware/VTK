@@ -27,6 +27,7 @@ IF (VTK_USE_RENDERING)
   ADD_EXECUTABLE(expCos expCos)
   ADD_EXECUTABLE(volProt volProt)
   ADD_EXECUTABLE(RGrid RGrid)
+  ADD_EXECUTABLE(FrustumClip FrustumClip)
 
   #
   # Add tests, with the data
@@ -50,12 +51,16 @@ IF (VTK_USE_RENDERING)
     ADD_TEST(RGrid-image ${CXX_TEST_PATH}/RGrid
                 -D ${VTK_DATA_ROOT}
                 -V Baseline/Graphics/RGrid.png)
+    ADD_TEST(FrustumClip-image ${CXX_TEST_PATH}/FrustumClip
+                -D ${VTK_DATA_ROOT}
+                -V Baseline/Graphics/FrustumClip.png)
   ELSE (VTK_DATA_ROOT)
     ADD_TEST(Mace ${CXX_TEST_PATH}/Mace )
     ADD_TEST(RGrid ${CXX_TEST_PATH}/RGrid )
     ADD_TEST(expCos ${CXX_TEST_PATH}/expCos )
     ADD_TEST(CellLocator ${CXX_TEST_PATH}/CellLocator)
     ADD_TEST(PointLocator ${CXX_TEST_PATH}/PointLocator)
+    ADD_TEST(FrustumClip ${CXX_TEST_PATH}/FrustumClip)
   ENDIF (VTK_DATA_ROOT)
 
 ENDIF (VTK_USE_RENDERING)
