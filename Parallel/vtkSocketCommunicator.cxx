@@ -49,6 +49,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define vtkCloseSocketMacro(sock) (close(sock))
 #endif
 
+#define vtkSCCheckForError \
+  if ( checkForError(remoteProcessId, this->NumberOfProcesses) ) \
+    { \
+    return 0; \
+    } 
+
 //------------------------------------------------------------------------------
 vtkSocketCommunicator* vtkSocketCommunicator::New()
 {
@@ -137,10 +143,7 @@ static int SendMessage(T* data, int length, int tag, int sock)
 int vtkSocketCommunicator::Send(int *data, int length, int remoteProcessId, 
 				int tag)
 {
-  if ( checkForError(remoteProcessId, this->NumberOfProcesses) )
-    {
-    return 0;
-    }
+  vtkSCCheckForError;
 
   vtkDebugMacro("Sending a message of length " << length*sizeof(int) 
 		<< " bytes.");
@@ -151,10 +154,7 @@ int vtkSocketCommunicator::Send(int *data, int length, int remoteProcessId,
 int vtkSocketCommunicator::Send(unsigned long *data, int length, 
 				int remoteProcessId, int tag)
 {
-  if ( checkForError(remoteProcessId, this->NumberOfProcesses) )
-    {
-    return 0;
-    }
+  vtkSCCheckForError;
 
   vtkDebugMacro("Sending a message of length " << length*sizeof(unsigned long) 
 		<< " bytes.");
@@ -164,10 +164,7 @@ int vtkSocketCommunicator::Send(unsigned long *data, int length,
 int vtkSocketCommunicator::Send(char *data, int length, 
 				int remoteProcessId, int tag)
 {
-  if ( checkForError(remoteProcessId, this->NumberOfProcesses) )
-    {
-    return 0;
-    }
+  vtkSCCheckForError;
 
   vtkDebugMacro("Sending a message of length " << length*sizeof(char) 
 		<< " bytes.");
@@ -178,10 +175,7 @@ int vtkSocketCommunicator::Send(char *data, int length,
 int vtkSocketCommunicator::Send(unsigned char *data, int length, 
 				int remoteProcessId, int tag)
 {
-  if ( checkForError(remoteProcessId, this->NumberOfProcesses) )
-    {
-    return 0;
-    }
+  vtkSCCheckForError;
 
   vtkDebugMacro("Sending a message of length " << length*sizeof(unsigned char) 
 		<< " bytes.");
@@ -192,10 +186,7 @@ int vtkSocketCommunicator::Send(unsigned char *data, int length,
 int vtkSocketCommunicator::Send(float *data, int length, 
 				int remoteProcessId, int tag)
 {
-  if ( checkForError(remoteProcessId, this->NumberOfProcesses) )
-    {
-    return 0;
-    }
+  vtkSCCheckForError;
 
   vtkDebugMacro("Sending a message of length " << length*sizeof(float) 
 		<< " bytes.");
@@ -206,10 +197,7 @@ int vtkSocketCommunicator::Send(float *data, int length,
 int vtkSocketCommunicator::Send(double *data, int length, 
 				int remoteProcessId, int tag)
 {
-  if ( checkForError(remoteProcessId, this->NumberOfProcesses) )
-    {
-    return 0;
-    }
+  vtkSCCheckForError;
 
   vtkDebugMacro("Sending a message of length " << length*sizeof(double) 
 		<< " bytes.");
@@ -220,10 +208,7 @@ int vtkSocketCommunicator::Send(double *data, int length,
 int vtkSocketCommunicator::Send(vtkIdType *data, int length, 
 				int remoteProcessId, int tag)
 {
-  if ( checkForError(remoteProcessId, this->NumberOfProcesses) )
-    {
-    return 0;
-    }
+  vtkSCCheckForError;
 
   vtkDebugMacro("Sending a message of length " << length*sizeof(vtkIdType) 
 		<< " bytes.");
@@ -295,10 +280,7 @@ int vtkSocketCommunicator::ReceiveMessage( char *data, int size, int length,
 int vtkSocketCommunicator::Receive(int *data, int length, int remoteProcessId, 
 				   int tag)
 {
-  if ( checkForError(remoteProcessId, this->NumberOfProcesses) )
-    {
-    return 0;
-    }
+  vtkSCCheckForError;
 
   int retval = ReceiveMessage( (char *)data, sizeof(int), length, tag );
 
@@ -314,10 +296,7 @@ int vtkSocketCommunicator::Receive(int *data, int length, int remoteProcessId,
 int vtkSocketCommunicator::Receive(unsigned long *data, int length, 
 				   int remoteProcessId, int tag)
 {
-  if ( checkForError(remoteProcessId, this->NumberOfProcesses) )
-    {
-    return 0;
-    }
+  vtkSCCheckForError;
 
   return ReceiveMessage( (char *)data, sizeof(unsigned long), length, tag );
 }
@@ -326,10 +305,7 @@ int vtkSocketCommunicator::Receive(unsigned long *data, int length,
 int vtkSocketCommunicator::Receive(char *data, int length, 
 				   int remoteProcessId, int tag)
 {
-  if ( checkForError(remoteProcessId, this->NumberOfProcesses) )
-    {
-    return 0;
-    }
+  vtkSCCheckForError;
 
   return ReceiveMessage( data, sizeof(char), length, tag);
 }
@@ -338,10 +314,7 @@ int vtkSocketCommunicator::Receive(char *data, int length,
 int vtkSocketCommunicator::Receive(unsigned char *data, int length, 
 				   int remoteProcessId, int tag)
 {
-  if ( checkForError(remoteProcessId, this->NumberOfProcesses) )
-    {
-    return 0;
-    }
+  vtkSCCheckForError;
 
   return ReceiveMessage( (char *)data, sizeof(char), length, tag);
 }
@@ -349,10 +322,7 @@ int vtkSocketCommunicator::Receive(unsigned char *data, int length,
 int vtkSocketCommunicator::Receive(float *data, int length, 
 				   int remoteProcessId, int tag)
 {
-  if ( checkForError(remoteProcessId, this->NumberOfProcesses) )
-    {
-    return 0;
-    }
+  vtkSCCheckForError;
 
   return ReceiveMessage( (char *)data, sizeof(float), length, tag);
 }
@@ -360,10 +330,7 @@ int vtkSocketCommunicator::Receive(float *data, int length,
 int vtkSocketCommunicator::Receive(double *data, int length, 
 				   int remoteProcessId, int tag)
 {
-  if ( checkForError(remoteProcessId, this->NumberOfProcesses) )
-    {
-    return 0;
-    }
+  vtkSCCheckForError;
 
   return ReceiveMessage( (char *)data, sizeof(double), length, tag);
 }
@@ -371,10 +338,7 @@ int vtkSocketCommunicator::Receive(double *data, int length,
 int vtkSocketCommunicator::Receive(vtkIdType *data, int length, 
 				   int remoteProcessId, int tag)
 {
-  if ( checkForError(remoteProcessId, this->NumberOfProcesses) )
-    {
-    return 0;
-    }
+  vtkSCCheckForError;
 
   return ReceiveMessage( (char *)data, sizeof(vtkIdType), length, tag);
 }
