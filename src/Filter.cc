@@ -134,7 +134,7 @@ void vlFilter::SetEndMethodArgDelete(void (*f)(void *))
 
 void vlFilter::Execute()
 {
-  cerr << "Execution of filter should be in derived class" << "\n";
+  vl_ErrorMacro(<< "Execution of filter should be in derived class");
 }
 
 void vlFilter::_PrintSelf(ostream& os, vlIndent indent)
