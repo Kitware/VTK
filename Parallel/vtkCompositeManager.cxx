@@ -44,7 +44,7 @@
  #include <mpi.h>
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeManager, "1.40");
+vtkCxxRevisionMacro(vtkCompositeManager, "1.41");
 vtkStandardNewMacro(vtkCompositeManager);
 
 
@@ -95,6 +95,8 @@ vtkCompositeManager::vtkCompositeManager()
   this->RenderWindow = NULL;
   this->RenderWindowInteractor = NULL;
   this->Controller = vtkMultiProcessController::GetGlobalController();
+
+  this->NumberOfProcesses = 1;
 
   if (this->Controller)
     {
