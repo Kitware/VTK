@@ -72,7 +72,7 @@ protected:
   vlGeometryPrimitive *Polys;
   vlGeometryPrimitive *Strips;
 
-  vlRGBArray *Colors;
+  vlColorScalars *Colors;
 
   int VertsVisibility;
   int LinesVisibility;

@@ -78,6 +78,7 @@ void vlPolyMapper::Render(vlRenderer *ren)
   int i;
   char forceBuild = 0;
   vlPolyData *input=(vlPolyData *)this->Input;
+  vlColorScalars *colors;
 //
 // make sure that we've been properly initialized
 //
@@ -103,40 +104,54 @@ void vlPolyMapper::Render(vlRenderer *ren)
     if ( this->ScalarsVisible && (pd=input->GetPointData()) && 
     (scalars=pd->GetScalars()) )
       {
-      if ( this->Colors == NULL ) this->Colors = new vlRGBArray;
-      this->Colors->Allocate (input->GetNumberOfPoints());
-
-      this->LookupTable->SetTableRange(this->ScalarRange);
-      for (i=0; i<input->GetNumberOfPoints(); i++)
+      if ( scalars->GetNumberOfValuesPerPoint() == 1 )
         {
-        this->Colors->SetColor(i,this->LookupTable->MapValue(scalars->GetScalar(i)));
+        if ( this->Colors == NULL ) 
+          {
+          this->Colors = colors = (vlColorScalars *) 
+                                new vlPixmap(input->GetNumberOfPoints());
+          }
+        else
+          {
+          colors = this->Colors;
+          }
+
+        this->LookupTable->SetTableRange(this->ScalarRange);
+        for (i=0; i<input->GetNumberOfPoints(); i++)
+          {
+          colors->SetColor(i,this->LookupTable->MapValue(scalars->GetScalar(i)));
+          }
+        }
+      else
+        {
+        colors = (vlColorScalars *)scalars;
         }
       }
     else
       {
       if ( this->Colors ) delete this->Colors;
-      this->Colors = NULL;
+      this->Colors = colors = NULL;
       }
 
     if (this->VertsVisibility && input->GetNumberOfVerts())
       {
       if (!this->Verts) this->Verts = ren->GetPrimitive("points");
-      this->Verts->Build(input,this->Colors);
+      this->Verts->Build(input,colors);
       }
     if ( this->LinesVisibility && input->GetNumberOfLines())
       {
       if (!this->Lines) this->Lines = ren->GetPrimitive("lines");
-      this->Lines->Build(input,this->Colors);
+      this->Lines->Build(input,colors);
       }
     if ( this->PolysVisibility && input->GetNumberOfPolys())
       {
       if (!this->Polys) this->Polys = ren->GetPrimitive("polygons");
-      this->Polys->Build(input,this->Colors);
+      this->Polys->Build(input,colors);
       }
     if ( this->StripsVisibility && input->GetNumberOfStrips())
       {
       if (!this->Strips) this->Strips = ren->GetPrimitive("triangle_strips");
-      this->Strips->Build(input,this->Colors);
+      this->Strips->Build(input,colors);
       }
 
     this->BuildTime.Modified();
