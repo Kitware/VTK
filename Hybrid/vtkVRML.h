@@ -62,6 +62,118 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define	DEFAULTINCREMENT	100
 
+#ifdef VTK_USE_ANSI_STDLIB
+#include <new>
+#include <cstdlib>
+#include <iostream>
+#else
+#include <new.h>
+#include <stdlib.h>
+#include <iostream.h>
+#endif
+
+#include <string.h>
+
+struct vrmlPointerNode
+{
+  void* Ptr;
+  vrmlPointerNode* Next;
+  vrmlPointerNode()
+    {
+      Ptr = 0;
+      Next = 0;
+    }
+};
+
+class vrmlPointerList
+{
+public:
+
+  void Add(vrmlPointerNode* node)
+    {
+      node->Next = 0;
+      if (!this->Last)
+	{
+	this->Last = node;
+	this->First = node;
+	return;
+	}
+      this->Last->Next = node;
+      this->Last = node;
+    }
+
+  void CleanAll()
+    {
+      this->Current = this->First;
+      if (!this->Current) { return; }
+      while (this->DeleteAndNext());
+    }
+
+  vrmlPointerNode* DeleteAndNext()
+    {
+      if (this->Current)
+	{
+	vrmlPointerNode* tmp = this->Current;
+	this->Current = this->Current->Next;
+	if (tmp->Ptr)
+	  {
+	  free(tmp->Ptr);
+	  }
+	delete tmp;
+	return this->Current;
+	}
+      else
+	{
+	return 0;
+	}
+    }
+
+  vrmlPointerList()
+    {
+      this->First = 0;
+      this->Last = 0;
+      this->Current = 0;
+    }
+  ~vrmlPointerList()
+    {
+      this->CleanAll();
+    }
+
+  static void Initialize()
+    {
+      Heap = new vrmlPointerList;
+    }
+  static void CleanUp()
+    {
+      delete Heap;
+      Heap = 0;
+    }
+
+  static void* AllocateMemory(size_t n)
+    {
+      vrmlPointerNode* node = new vrmlPointerNode;
+      node->Ptr = malloc(n);
+      vrmlPointerList::Heap->Add(node);
+      return node->Ptr;
+    }
+
+  static char* StrDup(const char* str)
+    {
+      vrmlPointerNode* node = new vrmlPointerNode;
+      node->Ptr = strdup(str);
+      vrmlPointerList::Heap->Add(node);
+      return static_cast<char*>(node->Ptr);
+    }
+
+protected:
+  vrmlPointerNode* First;
+  vrmlPointerNode* Last;
+  vrmlPointerNode* Current;
+
+  static vrmlPointerList* Heap;
+  static int nAlloc;
+};
+
 template <class T> 
 class VectorType
 {
@@ -71,63 +183,72 @@ protected:
   int Used;
 public:
   VectorType()
-  { \
-    Allocated=DEFAULTINCREMENT;
-    Data=new T[Allocated];
-    Used=0;
-  }
+    { 
+      Allocated=DEFAULTINCREMENT;
+      Data=new T[Allocated];
+      Used=0;
+    }
   ~VectorType(void)
-  {
-    delete[] Data;
-  }
+    {
+      delete[] Data;
+    }
   void Reserve(int newSize);
   void Demand(int newSize)
-  {
-    Reserve(newSize);
-    Used=newSize;
-  }
+    {
+      Reserve(newSize);
+      Used=newSize;
+    }
   int Count(void) const
-  {
-    return Used;
-  }
+    {
+      return Used;
+    }
   T& Get(int index) const
-  {
-    if (index > Used)
-      return Data[Used-1];
-    return Data[index];
-  }
+    {
+      if (index > Used)
+	return Data[Used-1];
+      return Data[index];
+    }
   T& operator[](int index)
-  {
-    if (index > Used)
-      Demand(index);
-    return Data[index];
-  }
+    {
+      if (index > Used)
+	Demand(index);
+      return Data[index];
+    }
   operator T*() const
-  {
-     return Data;
-  }
+    {
+      return Data;
+    }
   VectorType<T>& operator+=(T datum)
-  {
-     Reserve(Used+1);
-     Data[Used]=datum;
-     Used++;
-     return *this;
-  }
+    {
+      Reserve(Used+1);
+      Data[Used]=datum;
+      Used++;
+      return *this;
+    }
   void Push(T datum)
-  {
-     Reserve(Used+1);
-     Data[Used]=datum;
-     Used++;
-  }
+    {
+      Reserve(Used+1);
+      Data[Used]=datum;
+      Used++;
+    }
   T& Pop()
-  {
-    Used--;
-    return Data[Used];
-  }
+    {
+      Used--;
+      return Data[Used];
+    }
   T& Top()
-  {
-    return Data[Used-1];
-  }
+    {
+      return Data[Used-1];
+    }
+
+  void* operator new(size_t n)
+    {
+      return vrmlPointerList::AllocateMemory(n);
+    }
+
+  void operator delete(void *ptr)
+    {
+    }
 };
 
 template <class T> 
@@ -151,7 +272,7 @@ void VectorType<T>::Reserve(int newSize)
 }
 
 static const char standardNodes[][2042] = {
-"#VRML V2.0 utf8 \n\
+  "#VRML V2.0 utf8 \n\
 # \n\
 # ************************************************** \n\
 # * VRML 2.0 Parser \n\
@@ -206,7 +327,7 @@ PROTO Background [ \n\
   exposedField MFColor  skyColor     [ 0 0 0  ] \n\
   eventOut     SFBool   isBound \n\
 ] { }",
-"PROTO Billboard [ \n\
+  "PROTO Billboard [ \n\
   eventIn      MFNode   addChildren \n\
   eventIn      MFNode   removeChildren \n\
   exposedField SFVec3f  axisOfRotation  0 1 0 \n\
@@ -278,7 +399,7 @@ PROTO CylinderSensor [ \n\
   eventOut     SFRotation rotation_changed \n\
   eventOut     SFVec3f    trackPoint_changed \n\
 ] { }",
-"PROTO DirectionalLight [ \n\
+  "PROTO DirectionalLight [ \n\
   exposedField SFFloat ambientIntensity  0  \n\
   exposedField SFColor color             1 1 1 \n\
   exposedField SFVec3f direction         0 0 -1 \n\
@@ -328,7 +449,7 @@ PROTO Fog [ \n\
   eventIn      SFBool   set_bind \n\
   eventOut     SFBool   isBound \n\
 ] { }",
-"PROTO FontStyle [ \n\
+  "PROTO FontStyle [ \n\
   field SFString family     \"SERIF\" \n\
   field SFBool   horizontal  TRUE \n\
   field MFString justify     \"BEGIN\" \n\
@@ -384,7 +505,7 @@ PROTO IndexedLineSet [ \n\
   field         SFBool  colorPerVertex    TRUE \n\
   field         MFInt32 coordIndex        [] \n\
 ] { }",
-"PROTO Inline [ \n\
+  "PROTO Inline [ \n\
   exposedField MFString url        [] \n\
   field        SFVec3f  bboxCenter 0 0 0 \n\
   field        SFVec3f  bboxSize   -1 -1 -1 \n\
@@ -449,7 +570,7 @@ PROTO PixelTexture [ \n\
   field        SFBool   repeatS    TRUE \n\
   field        SFBool   repeatT    TRUE \n\
 ] { }",
-"PROTO PlaneSensor [ \n\
+  "PROTO PlaneSensor [ \n\
   exposedField SFBool  autoOffset  TRUE \n\
   exposedField SFBool  enabled     TRUE \n\
   exposedField SFVec2f maxPosition -1 -1 \n\
@@ -492,7 +613,7 @@ PROTO ProximitySensor [ \n\
   eventOut     SFTime     enterTime \n\
   eventOut     SFTime     exitTime \n\
 ] { }",
-"PROTO ScalarInterpolator [ \n\
+  "PROTO ScalarInterpolator [ \n\
   eventIn      SFFloat set_fraction \n\
   exposedField MFFloat key       [] \n\
   exposedField MFFloat keyValue  [] \n\
@@ -560,7 +681,7 @@ PROTO Text [ \n\
   field         MFFloat  length    [] \n\
   field         SFFloat  maxExtent 0.0 \n\
 ] { }",
-"PROTO TextureCoordinate [ \n\
+  "PROTO TextureCoordinate [ \n\
   exposedField MFVec2f point [] \n\
 ] { } \n\
 PROTO TextureTransform [ \n\
@@ -615,7 +736,7 @@ PROTO Viewpoint [ \n\
   eventOut     SFTime     bindTime \n\
   eventOut     SFBool     isBound \n\
 ] { }",
-"PROTO VisibilitySensor [ \n\
+  "PROTO VisibilitySensor [ \n\
   exposedField SFVec3f center   0 0 0 \n\
   exposedField SFBool  enabled  TRUE \n\
   exposedField SFVec3f size     0 0 0 \n\

@@ -83,6 +83,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <unistd.h>
 #endif
 
+vrmlPointerList* vrmlPointerList::Heap = 0;
+int vrmlPointerList::nAlloc = 0;
+
 // Used during the parsing
 static int creatingDEF = 0;
 static char *curDEFName;
@@ -150,9 +153,24 @@ class VrmlNodeType {
     
   const char *getName() const { return name; }
 
+  void* operator new(size_t n)
+    {
+      return vrmlPointerList::AllocateMemory(n);
+    }
+
+  void operator delete(void *ptr) {}
+
   typedef struct {
     char *name;
     int type;
+
+    void* operator new(size_t n)
+      {
+	return vrmlPointerList::AllocateMemory(n);
+      }
+    
+    void operator delete(void *ptr) {}
+
   } NameTypeRec;
         
  private:
@@ -5309,6 +5327,13 @@ class vtkVRMLUseStruct {
   vtkVRMLUseStruct( char *n, vtkObject *o) { defName = n; defObject = o; }
   char            *defName;
   vtkObject       *defObject;
+
+  void* operator new(size_t n)
+    {
+      return vrmlPointerList::AllocateMemory(n);
+    }
+
+  void operator delete(void *ptr) {}
 };
 
 VectorType<vtkVRMLUseStruct *> useList;
@@ -5352,6 +5377,7 @@ int vtkVRMLImporter::OpenImportFile ()
 int vtkVRMLImporter::ImportBegin ()
 {
 
+  vrmlPointerList::Initialize();
   if (!this->OpenImportFile())
     {
     return 0;
@@ -5465,6 +5491,7 @@ vtkVRMLImporter::~vtkVRMLImporter()
 
 void vtkVRMLImporter::ImportEnd ()
 {
+  vrmlPointerList::CleanUp();
   vtkDebugMacro(<<"Closing import file");
   if ( this->FileFD != NULL )
     {
