@@ -626,7 +626,7 @@ int vtkDataWriter::WritePoints(ostream *fp, vtkPoints *points)
   
   if (points == NULL)
     {
-    *fp << "POINTS 0 ";
+    *fp << "POINTS 0 float\n";
     return 1;
     }
 
