@@ -490,15 +490,14 @@ ren1 AddActor aVertexActor; [aVertexActor GetProperty] SetDiffuseColor 1 1 1
 ren1 AddActor aPolyVertexActor; [aPolyVertexActor GetProperty] SetDiffuseColor 1 1 1
 
 if { [info command vtkRIBLight] != "" } {
-  vtkRIBLight aLight
-   aLight ShadowsOn
-   aLight PositionalOn
-   aLight SetConeAngle 5
-
+    vtkRIBLight aLight
+    aLight ShadowsOn
 } else {
-  vtkLight aLight
-    aLight PositionalOn
+    vtkLight aLight
 }
+aLight PositionalOn
+aLight SetConeAngle 5
+
 ren1 AddLight aLight
 
 [ren1 GetActiveCamera] Azimuth 30
