@@ -69,6 +69,16 @@ void vtkOglrProperty::Render(vtkProperty *prop, vtkOglrRenderer *ren)
 
   Info[3] = prop->GetOpacity();
 
+  // deal with blending if necc
+  if (Info[3] < 1.0)
+    {
+    glEnable( GL_BLEND);
+    }
+  else
+    {
+    glDisable( GL_BLEND);
+    }
+  
   Ambient = prop->GetAmbient();
   Diffuse = prop->GetDiffuse();
   Specular = prop->GetSpecular();
@@ -115,3 +125,4 @@ void vtkOglrProperty::Render(vtkProperty *prop, vtkOglrRenderer *ren)
   
   glShadeModel(method);
 }
+
