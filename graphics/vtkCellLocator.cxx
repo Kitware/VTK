@@ -86,6 +86,8 @@ vtkCellLocator::vtkCellLocator()
   this->NumberOfDivisions = 1;
   
   this->Buckets = new vtkNeighborCells(10, 10);
+  this->CacheCellBounds = 0;
+  this->CellBounds = NULL;
   }
 
 vtkCellLocator::~vtkCellLocator()
@@ -97,11 +99,17 @@ vtkCellLocator::~vtkCellLocator()
     }
   
   this->FreeSearchStructure();
-  
+ 
   if (this->CellHasBeenVisited)
     {
     delete [] this->CellHasBeenVisited;
     this->CellHasBeenVisited = NULL;
+    }
+
+  if (this->CellBounds)
+    {
+    delete [] this->CellBounds;
+    this->CellBounds = NULL;
     }
   }
 
@@ -435,8 +443,16 @@ void vtkCellLocator::FindClosestPoint(float x[3], float closestPoint[3],
               
               // check whether we could be close enough to the cell by
               // testing the cell bounds
-              this->DataSet->GetCellBounds(cellId, cellBounds);
-              distance2ToCellBounds = this->Distance2ToBounds(x, cellBounds);
+              if (this->CacheCellBounds)
+                {
+                distance2ToCellBounds = 
+                  this->Distance2ToBounds(x, this->CellBounds[cellId]);
+                }
+              else
+                {
+                this->DataSet->GetCellBounds(cellId, cellBounds);
+                distance2ToCellBounds = this->Distance2ToBounds(x, cellBounds);
+                }
               
               if (distance2ToCellBounds < refinedRadius2)
                 {
@@ -529,8 +545,16 @@ void vtkCellLocator::FindClosestPoint(float x[3], float closestPoint[3],
               
               // check whether we could be close enough to the cell by
               // testing the cell bounds
-              this->DataSet->GetCellBounds(cellId, cellBounds);
-              distance2ToCellBounds = this->Distance2ToBounds(x, cellBounds);
+              if (this->CacheCellBounds)
+                {
+                distance2ToCellBounds = 
+                  this->Distance2ToBounds(x, this->CellBounds[cellId]);
+                }
+              else
+                {
+                this->DataSet->GetCellBounds(cellId, cellBounds);
+                distance2ToCellBounds = this->Distance2ToBounds(x, cellBounds);
+                }
               
               if (distance2ToCellBounds < refinedRadius2)
                 {
@@ -688,8 +712,16 @@ vtkCellLocator::FindClosestPointWithinRadius(float x[3], float radius,
         
         // check whether we could be close enough to the cell by
         // testing the cell bounds
-        this->DataSet->GetCellBounds(cellId, cellBounds);
-        distance2ToCellBounds = this->Distance2ToBounds(x, cellBounds);
+        if (this->CacheCellBounds)
+          {
+          distance2ToCellBounds = 
+            this->Distance2ToBounds(x, this->CellBounds[cellId]);
+          }
+        else
+          {
+          this->DataSet->GetCellBounds(cellId, cellBounds);
+          distance2ToCellBounds = this->Distance2ToBounds(x, cellBounds);
+          }
         
         if (distance2ToCellBounds < refinedRadius2)
           {
@@ -812,8 +844,16 @@ vtkCellLocator::FindClosestPointWithinRadius(float x[3], float radius,
               
               // check whether we could be close enough to the cell by
               // testing the cell bounds
-              this->DataSet->GetCellBounds(cellId, cellBounds);
-              distance2ToCellBounds = this->Distance2ToBounds(x, cellBounds);
+              if (this->CacheCellBounds)
+                {
+                distance2ToCellBounds = 
+                  this->Distance2ToBounds(x, this->CellBounds[cellId]);
+                }
+              else
+                {
+                this->DataSet->GetCellBounds(cellId, cellBounds);
+                distance2ToCellBounds = this->Distance2ToBounds(x, cellBounds);
+                }
               
               if (distance2ToCellBounds < refinedRadius2)
                 {
@@ -1087,7 +1127,7 @@ vtkIdList* vtkCellLocator::GetCells(int octantId)
 //
 void vtkCellLocator::BuildLocator()
   {
-  float *bounds, length, cellBounds[6];
+  float *bounds, length, cellBounds[6], *boundsPtr;
   int numCells;
   int ndivs, product;
   int i, j, k, cellId, ijkMin[3], ijkMax[3];
@@ -1121,6 +1161,11 @@ void vtkCellLocator::BuildLocator()
     {
     delete [] this->CellHasBeenVisited;
     this->CellHasBeenVisited = NULL;
+    }
+  if (this->CellBounds)
+    {
+    delete [] this->CellBounds;
+    this->CellBounds = NULL;
     }
   
   //
@@ -1164,6 +1209,11 @@ void vtkCellLocator::BuildLocator()
   this->CellHasBeenVisited = new unsigned char [ numCells ];
   this->ClearCellHasBeenVisited();
   this->QueryNumber = 0;
+
+  if (this->CacheCellBounds)
+    {
+    this->CellBounds = new float [numCells][6];
+    }
   
   //
   //  Compute width of leaf octant in three directions
@@ -1178,16 +1228,25 @@ void vtkCellLocator::BuildLocator()
   //
   parentOffset = numOctants - (ndivs * ndivs * ndivs);
   product = ndivs * ndivs;
+  boundsPtr = cellBounds;
   for (cellId=0; cellId<numCells; cellId++) 
     {
-    this->DataSet->GetCellBounds(cellId, cellBounds);
+    if (this->CacheCellBounds)
+      {
+      boundsPtr = this->CellBounds[cellId];
+      this->DataSet->GetCellBounds(cellId, boundsPtr);
+      }
+    else
+      {
+      this->DataSet->GetCellBounds(cellId, cellBounds);
+      }
     
     // find min/max locations of bounding box
     for (i=0; i<3; i++)
       {
-      ijkMin[i] = (int)(((cellBounds[2*i] - this->Bounds[2*i]) 
+      ijkMin[i] = (int)(((boundsPtr[2*i] - this->Bounds[2*i]) 
         / this->H[i]) * 0.999);
-      ijkMax[i] = (int)(((cellBounds[2*i+1] - this->Bounds[2*i])*1.001
+      ijkMax[i] = (int)(((boundsPtr[2*i+1] - this->Bounds[2*i])*1.001
         / this->H[i]));
       
       if (ijkMin[i] < 0)

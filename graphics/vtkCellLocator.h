@@ -84,6 +84,16 @@ public:
   vtkGetMacro(NumberOfCellsPerBucket,int);
 
   // Description:
+  // Boolean controls whether the bounds of each cell are computed only
+  // once and then saved.  Should be 10 to 20% faster if repeatedly 
+  // calling any of the FindCl.oestPoint routines and the extra memory
+  // won't cause disk caching (24 extra bytes per cell are required to
+  // save the bounds).
+  vtkSetMacro(CacheCellBounds,int);
+  vtkGetMacro(CacheCellBounds,int);
+  vtkBooleanMacro(CacheCellBounds,int);
+
+  // Description:
   // Return intersection point (if any) of finite line with cells contained
   // in cell locator.
   virtual int IntersectWithLine(float a0[3], float a1[3], float tol,
@@ -179,6 +189,10 @@ protected:
   vtkNeighborCells *Buckets;
   unsigned char *CellHasBeenVisited;
   unsigned char QueryNumber;
+  int CacheCellBounds;
+//BTX - begin tcl exclude
+  float (*CellBounds)[6];
+//ETX - end tcl exclude
 };
 
 #endif
