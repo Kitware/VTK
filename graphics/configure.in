@@ -30,7 +30,7 @@ AC_ARG_WITH(bsdmake,
 AC_SUBST(MAKEINCLUDE)
 AC_SUBST(MAKEQUOTE)
 
-AC_CONFIG_SUBDIRS(tcl java examplesCxx)
+AC_CONFIG_SUBDIRS(python tcl java examplesCxx)
 
 dnl Checks for library functions.
 AC_OUTPUT(Makefile)
