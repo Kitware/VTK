@@ -106,6 +106,7 @@ vtkInformationKey.cxx
 vtkInformationKeyVectorKey.cxx
 vtkInformationObjectBaseKey.cxx
 vtkInformationStringKey.cxx
+vtkInformationUnsignedLongKey.cxx
 vtkInformationVector.cxx
 vtkInterpolatedVelocityField.cxx
 vtkKochanekSpline.cxx
@@ -239,6 +240,7 @@ vtkInformationKey
 vtkInformationKeyVectorKey
 vtkInformationObjectBaseKey
 vtkInformationStringKey
+vtkInformationUnsignedLongKey
 vtkLocator
 vtkMapper2D
 vtkNonLinearCell

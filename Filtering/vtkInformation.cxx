@@ -25,12 +25,13 @@
 #include "vtkInformationKeyVectorKey.h"
 #include "vtkInformationObjectBaseKey.h"
 #include "vtkInformationStringKey.h"
+#include "vtkInformationUnsignedLongKey.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkInformation, "1.3");
+vtkCxxRevisionMacro(vtkInformation, "1.4");
 vtkStandardNewMacro(vtkInformation);
 
 //----------------------------------------------------------------------------
@@ -184,6 +185,12 @@ void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationStringKey* ke
 }
 
 //----------------------------------------------------------------------------
+void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationUnsignedLongKey* key)
+{
+  key->Copy(from, this);
+}
+
+//----------------------------------------------------------------------------
 void vtkInformation::CopyEntries(vtkInformation* from,
                                  vtkInformationKeyVectorKey* key)
 {
@@ -214,6 +221,7 @@ void vtkInformation::CopyEntries(vtkInformation* from,
     return key->Has(this);                                                  \
     }
 VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(Integer, int);
+VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(UnsignedLong, unsigned long);
 VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(String, const char*);
 VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(DataObject, vtkDataObject*);
 VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(Executive, vtkExecutive*);
@@ -310,6 +318,12 @@ vtkInformationKey* vtkInformation::GetKey(vtkInformationDoubleVectorKey* key)
 
 //----------------------------------------------------------------------------
 vtkInformationKey* vtkInformation::GetKey(vtkInformationStringKey* key)
+{
+  return key;
+}
+
+//----------------------------------------------------------------------------
+vtkInformationKey* vtkInformation::GetKey(vtkInformationUnsignedLongKey* key)
 {
   return key;
 }

@@ -42,6 +42,7 @@ class vtkInformationKeyToInformationFriendship;
 class vtkInformationKeyVectorKey;
 class vtkInformationObjectBaseKey;
 class vtkInformationStringKey;
+class vtkInformationUnsignedLongKey;
 class vtkInformationVector;
 
 class VTK_FILTERING_EXPORT vtkInformation : public vtkObject
@@ -72,6 +73,7 @@ public:
   void CopyEntry(vtkInformation* from, vtkInformationIntegerKey* key);
   void CopyEntry(vtkInformation* from, vtkInformationIntegerVectorKey* key);
   void CopyEntry(vtkInformation* from, vtkInformationStringKey* key);
+  void CopyEntry(vtkInformation* from, vtkInformationUnsignedLongKey* key);
 
   // Description:
   // Use the given key to lookup a list of other keys in the given
@@ -95,6 +97,13 @@ public:
   int Length(vtkInformationIntegerVectorKey* key);
   void Remove(vtkInformationIntegerVectorKey* key);
   int Has(vtkInformationIntegerVectorKey* key);
+
+  // Description:
+  // Get/Set an unsigned-long-valued entry.
+  void Set(vtkInformationUnsignedLongKey* key, unsigned long value);
+  unsigned long Get(vtkInformationUnsignedLongKey* key);
+  void Remove(vtkInformationUnsignedLongKey* key);
+  int Has(vtkInformationUnsignedLongKey* key);
 
   // Description:
   // Get/Set an double-vector-valued entry.
@@ -169,6 +178,7 @@ public:
   static vtkInformationKey* GetKey(vtkInformationIntegerVectorKey* key);
   static vtkInformationKey* GetKey(vtkInformationStringKey* key);
   static vtkInformationKey* GetKey(vtkInformationKey* key);
+  static vtkInformationKey* GetKey(vtkInformationUnsignedLongKey* key);
 
   // Description:
   // Initiate garbage collection when a reference is removed.
