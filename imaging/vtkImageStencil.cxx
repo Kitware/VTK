@@ -372,7 +372,7 @@ void vtkImageStencil::ThreadedExecute(vtkImageData **inData,
     vtkErrorMacro("Input " << 0 << " must be specified.");
     return;
     }
-  in1Ptr = inData[0]->GetScalarPointerForExtent(outExt);
+  in1Ptr = inData[0]->GetScalarPointer();
   outPtr = outData->GetScalarPointerForExtent(outExt);
   
   // this filter expects that input is the same type as output.
@@ -389,7 +389,7 @@ void vtkImageStencil::ThreadedExecute(vtkImageData **inData,
     }
   else
     {
-    in2Ptr = inData[1]->GetScalarPointerForExtent(outExt);
+    in2Ptr = inData[1]->GetScalarPointer();
     if (inData[1]->GetScalarType() != inData[0]->GetScalarType())
       {
       vtkErrorMacro("Execute: Input2 ScalarType, " <<inData[1]->GetScalarType()
