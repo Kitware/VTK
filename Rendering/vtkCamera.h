@@ -224,6 +224,12 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   void SetObliqueAngles(double alpha, double beta);
 
   // Description:
+  // Apply a transform to the camera.  The camera position, focal-point,
+  // and view-up are re-calulated using the transform's matrix to
+  // multiply the old points by the new transform.
+  void ApplyTransform(vtkTransform *t);
+
+  // Description:
   // Get the ViewPlaneNormal.  This vector will point opposite to
   // the direction of projection, unless you have created an sheared output
   // view using SetViewShear/SetObliqueAngles.

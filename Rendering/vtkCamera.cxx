@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCamera, "1.99");
+vtkCxxRevisionMacro(vtkCamera, "1.100");
 
 //----------------------------------------------------------------------------
 // Construct camera instance with its focal point at the origin, 
@@ -452,6 +452,38 @@ void vtkCamera::Elevation(double angle)
   this->Transform->TransformPoint(this->Position,newPosition);
   this->SetPosition(newPosition);
 }
+
+//----------------------------------------------------------------------------
+// Apply Transform to camera
+void vtkCamera::ApplyTransform(vtkTransform *t) {
+  
+  double posOld[4], posNew[4], fpOld[4], fpNew[4], vuOld[4], vuNew[4];
+
+  this->GetPosition(posOld);
+  this->GetFocalPoint(fpOld);
+  this->GetViewUp(vuOld);
+
+  posOld[3] = 1.0;
+  fpOld[3] = 1.0;
+  vuOld[3] = 1.0;
+
+  vuOld[0] += posOld[0];
+  vuOld[1] += posOld[1];
+  vuOld[2] += posOld[2];
+
+  t->MultiplyPoint(posOld, posNew);
+  t->MultiplyPoint(fpOld, fpNew);
+  t->MultiplyPoint(vuOld, vuNew);
+
+  vuNew[0] -= posNew[0];
+  vuNew[1] -= posNew[1];
+  vuNew[2] -= posNew[2];
+
+  this->SetPosition(posNew);
+  this->SetFocalPoint(fpNew);
+  this->SetViewUp(vuNew);
+  
+} 
 
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
