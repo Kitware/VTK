@@ -311,7 +311,8 @@ int vtkDataReader::ReadHeader()
     delete [] this->Header;
     }
   this->Header = new char[strlen(line) + 1];
-  
+  strcpy (this->Header, line);
+
   vtkDebugMacro(<< "Reading vtk file entitled: " << line);
   //
   // read type
