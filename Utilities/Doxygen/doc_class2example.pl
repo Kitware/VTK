@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# Time-stamp: <2001-11-21 17:42:07 barre>
+# Time-stamp: <2001-11-21 20:20:37 barre>
 #
 # Build cross-references between classes and examples
 #
@@ -533,9 +533,9 @@ sub word_section_doc {
                 push @temp, 
                 '    - @htmlonly <TT><A href="' . $args{"link"} .  
                   $shorter_filename{$file} . $args{"linksuffix"} . '">@endhtmlonly ' . $shorter_filename{$file} . 
-                    '@htmlonly</A></TT> @endhtmlonly' . $has_data;
+                    '@htmlonly</A></TT> @endhtmlonly ' . $has_data;
             } else {
-                push @temp, "    - \@c $shorter_filename{$file}$has_data";
+                push @temp, "    - \@c $shorter_filename{$file} $has_data";
             }
         }
     }
@@ -709,7 +709,10 @@ sub build_page_doc {
         }
     }
 
-    print " => total weight is $total_weight in ", scalar @sections, " section(s) (mean is ", int($total_weight / scalar @sections), ")\n";
+    print " => total weight is $total_weight in ", scalar @sections, " section(s)\n";
+
+    print " => mean is ", int($total_weight / scalar @sections), ")\n"
+      if scalar @sections;
 
     # Compute the alphabetical groups by joining sections depending on weights
 
