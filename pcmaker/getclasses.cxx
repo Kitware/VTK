@@ -327,6 +327,7 @@ void stuffit(FILE *fp, CPcmakerDlg *vals)
   fprintf(fp,"\n\nint %s_SafeInit(Tcl_Interp *interp)\n{\n",kitName);
   fprintf(fp,"  return %s_Init(interp);\n}\n",kitName);
 
+
   /* prototype for tkRenderWidget */
   if (vals->m_Graphics) fprintf(fp,"extern \"C\" {int Vtktkrenderwidget_Init(Tcl_Interp *interp);}\n\n");
   if (vals->m_Imaging) 
@@ -351,6 +352,15 @@ void stuffit(FILE *fp, CPcmakerDlg *vals)
 
     /* create special vtkCommand command */
     fprintf(fp,"  Tcl_CreateCommand(interp,\"vtkCommand\",vtkCommand,\n		    (ClientData *)NULL, NULL);\n\n");
+
+    /* add a class exit method to the vtkWin32RenderWindowInteractor to do the
+       right thing with tcl and c++ */
+    if (vals->m_Graphics) 
+      {
+      fprintf(fp, 
+         "  vtkWin32RenderWindowInteractor\n  \t::SetClassExitMethod((void (*)(void *))Tcl_Exit, 0);\n\n");
+      }
+
     /* initialize the tkRenderWidget */
     if (vals->m_Graphics) fprintf(fp,"  Vtktkrenderwidget_Init(interp);\n");
     if (vals->m_Imaging) 
@@ -401,7 +411,8 @@ void MakeInit(char *fname, char *argv1, CPcmakerDlg *vals)
   if (fp)
   {
   fprintf(fp,"#include <string.h>\n");
-  fprintf(fp,"#include <tcl.h>\n\n");
+  fprintf(fp,"#include <tcl.h>\n");
+  fprintf(fp,"#include \"vtkWin32RenderWindowInteractor.h\"\n\n");
   stuffit(fp,vals);
   fclose(fp);
   }
