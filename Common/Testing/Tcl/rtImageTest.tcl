@@ -32,10 +32,8 @@ proc padString { str amount } {
 }
 
 
-if {$tcl_platform(os) == "Windows NT"} {
-    vtkObject rtTempObject;
-    rtTempObject GlobalWarningDisplayOff;
-}
+vtkObject rtTempObject;
+rtTempObject GlobalWarningDisplayOff;
 
 vtkMath rtExMath
 rtExMath RandomSeed 6
