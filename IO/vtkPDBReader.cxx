@@ -46,7 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPoints.h"
 #include "vtkIdTypeArray.h"
 
-vtkCxxRevisionMacro(vtkPDBReader, "1.1");
+vtkCxxRevisionMacro(vtkPDBReader, "1.2");
 vtkStandardNewMacro(vtkPDBReader);
 
 vtkPDBReader::vtkPDBReader()
@@ -100,8 +100,8 @@ void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
         //sprintf(aamin[NumberOfAtoms],"%3s", dum2);
         this->NumberOfAtoms++;
         }
+      this->AtomType->InsertNextValue(this->MakeAtomType(atype));
       }
-    this->AtomType->InsertNextValue(this->MakeAtomType(atype));
     }
   this->Points->Squeeze();
 }
