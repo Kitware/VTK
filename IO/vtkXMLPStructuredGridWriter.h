@@ -53,6 +53,7 @@ protected:
   const char* GetDataSetName();
   const char* GetDefaultFileExtension();
   vtkXMLStructuredDataWriter* CreateStructuredPieceWriter(); 
+  void WritePData(vtkIndent indent);
   
 private:
   vtkXMLPStructuredGridWriter(const vtkXMLPStructuredGridWriter&);  // Not implemented.

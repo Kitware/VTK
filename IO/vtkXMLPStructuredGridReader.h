@@ -54,10 +54,14 @@ protected:
   const char* GetDataSetName();
   void SetOutputExtent(int* extent);
   void GetPieceInputExtent(int index, int* extent);
+  int ReadPrimaryElement(vtkXMLDataElement* ePrimary);
   void SetupOutputInformation();
   void SetupOutputData();
   int ReadPieceData();
-  vtkXMLDataReader* CreatePieceReader();
+  vtkXMLDataReader* CreatePieceReader();  
+  
+  // The PPoints element with point information.
+  vtkXMLDataElement* PPointsElement;
   
 private:
   vtkXMLPStructuredGridReader(const vtkXMLPStructuredGridReader&);  // Not implemented.

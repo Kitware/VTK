@@ -20,7 +20,7 @@
 #include "vtkXMLStructuredGridWriter.h"
 #include "vtkStructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkXMLPStructuredGridWriter, "1.1");
+vtkCxxRevisionMacro(vtkXMLPStructuredGridWriter, "1.2");
 vtkStandardNewMacro(vtkXMLPStructuredGridWriter);
 
 //----------------------------------------------------------------------------
@@ -76,4 +76,12 @@ vtkXMLPStructuredGridWriter::CreateStructuredPieceWriter()
   vtkXMLStructuredGridWriter* pWriter = vtkXMLStructuredGridWriter::New();
   pWriter->SetInput(this->GetInput());
   return pWriter;
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLPStructuredGridWriter::WritePData(vtkIndent indent)
+{
+  this->Superclass::WritePData(indent);
+  vtkStructuredGrid* input = this->GetInput();  
+  this->WritePPoints(input->GetPoints(), indent);
 }

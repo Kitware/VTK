@@ -16,13 +16,15 @@
 
 =========================================================================*/
 #include "vtkXMLPStructuredGridReader.h"
-#include "vtkObjectFactory.h"
-#include "vtkXMLStructuredGridReader.h"
-#include "vtkStructuredGrid.h"
-#include "vtkPoints.h"
-#include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkXMLPStructuredGridReader, "1.1");
+#include "vtkFloatArray.h"
+#include "vtkObjectFactory.h"
+#include "vtkPoints.h"
+#include "vtkStructuredGrid.h"
+#include "vtkXMLDataElement.h"
+#include "vtkXMLStructuredGridReader.h"
+
+vtkCxxRevisionMacro(vtkXMLPStructuredGridReader, "1.2");
 vtkStandardNewMacro(vtkXMLPStructuredGridReader);
 
 //----------------------------------------------------------------------------
@@ -90,19 +92,45 @@ void vtkXMLPStructuredGridReader::GetPieceInputExtent(int index, int* extent)
 }
 
 //----------------------------------------------------------------------------
+int
+vtkXMLPStructuredGridReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
+{
+  if(!this->Superclass::ReadPrimaryElement(ePrimary)) { return 0; }
+  
+  // Find the PPoints element.
+  this->PPointsElement = 0;
+  int i;
+  int numNested = ePrimary->GetNumberOfNestedElements();
+  for(i=0;i < numNested; ++i)
+    {
+    vtkXMLDataElement* eNested = ePrimary->GetNestedElement(i);
+    if(strcmp(eNested->GetName(), "PPoints") == 0)
+      {
+      this->PPointsElement = eNested;
+      }
+    }
+  
+  if(!this->PPointsElement)
+    {
+    vtkErrorMacro("Could not find PPoints element with 1 array.");
+    return 0;
+    }
+  
+  return 1;
+}
+
+//----------------------------------------------------------------------------
 void vtkXMLPStructuredGridReader::SetupOutputInformation()
 {
   this->Superclass::SetupOutputInformation();  
-  vtkStructuredGrid* output = this->GetOutput();
+  vtkStructuredGrid* output = this->GetOutput();  
   
   // Create the points array.
   vtkPoints* points = vtkPoints::New();
-  
-  vtkDataArray* a = vtkFloatArray::New();
-  a->SetNumberOfComponents(3);
+  vtkXMLDataElement* ePoints = this->PPointsElement;
+  vtkDataArray* a = this->CreateDataArray(ePoints->GetNestedElement(0));
   points->SetData(a);
   a->Delete();
-  
   output->SetPoints(points);
   points->Delete();
 }
