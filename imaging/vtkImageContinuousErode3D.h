@@ -38,11 +38,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageContinuousErode3D - Erode implemented as a maximum.
+// .NAME vtkImageContinuousErode3D - Erosion implemented as a minimum.
 // .SECTION Description
-// vtkImageContinuousErode3D replaces a pixel with the maximum over
+// vtkImageContinuousErode3D replaces a pixel with the minimum over
 // an elipsiodal neighborhood.  If KernelSize of an axis is 1, no processing
-// is done on that axis.  This filter can do 2D or 1D erosion also.
+// is done on that axis.
 
 
 #ifndef __vtkImageContinuousErode3D_h
@@ -51,30 +51,26 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageSpatialFilter.h"
 
+class vtkImageEllipsoidSource;
+
 class VTK_EXPORT vtkImageContinuousErode3D : public vtkImageSpatialFilter
 {
 public:
   vtkImageContinuousErode3D();
+  ~vtkImageContinuousErode3D();
   static vtkImageContinuousErode3D *New() 
     {return new vtkImageContinuousErode3D;};
   const char *GetClassName() {return "vtkImageContinuousErode3D";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
-  void SetFilteredAxes(int axis0, int axis1, int axis2);
-
   // Set/Get the size of the neighood.
   void SetKernelSize(int size0, int size1, int size2);
   
-  // Description:
-  // Get the Mask used as a footprint.
-  vtkGetObjectMacro(Mask, vtkImageRegion);
-  
 protected:
-  vtkImageRegion *Mask;
+  vtkImageEllipsoidSource *Ellipse;
     
-  void ExecuteCenter(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-  void ComputeMask();
+  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
+		       int extent[6], int id);
 };
 
 #endif

@@ -38,11 +38,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageContinuousDilate3D - Dilate implemented as a minimum.
+// .NAME vtkImageContinuousDilate3D - Dilate implemented as a maximum.
 // .SECTION Description
-// vtkImageContinuousDilate3D replaces a pixel with the minimum over
+// vtkImageContinuousDilate3D replaces a pixel with the maximum over
 // an elipsiodal neighborhood.  If KernelSize of an axis is 1, no processing
-// is done on that axis.  This filter can do 2D or 1D dilation also.
+// is done on that axis.
 
 
 #ifndef __vtkImageContinuousDilate3D_h
@@ -51,30 +51,26 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageSpatialFilter.h"
 
+class vtkImageEllipsoidSource;
+
 class VTK_EXPORT vtkImageContinuousDilate3D : public vtkImageSpatialFilter
 {
 public:
   vtkImageContinuousDilate3D();
+  ~vtkImageContinuousDilate3D();
   static vtkImageContinuousDilate3D *New() 
     {return new vtkImageContinuousDilate3D;};
   const char *GetClassName() {return "vtkImageContinuousDilate3D";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
-  void SetFilteredAxes(int axis0, int axis1, int axis2);
-
   // Set/Get the size of the neighood.
   void SetKernelSize(int size0, int size1, int size2);
   
-  // Description:
-  // Get the Mask used as a footprint.
-  vtkGetObjectMacro(Mask, vtkImageRegion);
-  
 protected:
-  vtkImageRegion *Mask;
+  vtkImageEllipsoidSource *Ellipse;
     
-  void ExecuteCenter(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-  void ComputeMask();
+  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
+		       int extent[6], int id);
 };
 
 #endif

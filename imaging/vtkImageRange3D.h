@@ -38,11 +38,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageRange3D - Dilate implemented as a minimum.
+// .NAME vtkImageRange3D - Max - min of a circular neighborhood.
 // .SECTION Description
-// vtkImageRange3D replaces a pixel with the minimum over
+// vtkImageRange3D replaces a pixel with the maximum minus minimum over
 // an elipsiodal neighborhood.  If KernelSize of an axis is 1, no processing
-// is done on that axis.  This filter can do 2D or 1D dilation also.
+// is done on that axis.
 
 
 #ifndef __vtkImageRange3D_h

@@ -53,39 +53,34 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageSpatialFilter.h"
 
+class vtkImageEllipsoidSource;
+
 class VTK_EXPORT vtkImageDilateErode3D : public vtkImageSpatialFilter
 {
 public:
   vtkImageDilateErode3D();
-  static vtkImageDilateErode3D *New() {return new vtkImageDilateErode3D;};
+  ~vtkImageDilateErode3D();
+  static vtkImageDilateErode3D *New() 
+    {return new vtkImageDilateErode3D;};
   const char *GetClassName() {return "vtkImageDilateErode3D";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Set/Get the size of the neighood.
   void SetKernelSize(int size0, int size1, int size2);
   
-  // Description:
-  // Set/Get the value to dilate/erode
   vtkSetMacro(DilateValue, float);
   vtkGetMacro(DilateValue, float);
   vtkSetMacro(ErodeValue, float);
   vtkGetMacro(ErodeValue, float);
 
-  // Description:
-  // Get the Mask used as a footprint.
-  vtkGetObjectMacro(Mask, vtkImageData);
-  
 protected:
+  vtkImageEllipsoidSource *Ellipse;
   float DilateValue;
   float ErodeValue;
-  vtkImageData *Mask;
     
-  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
-		       int outExt[6], int id);
-  void ComputeMask();
+  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
+		       int extent[6], int id);
 };
 
 #endif
-
-
 
