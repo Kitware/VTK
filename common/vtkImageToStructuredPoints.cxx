@@ -726,7 +726,7 @@ vtkImageToStructuredPoints::ReformatRegionData(vtkImageRegion *region)
   vtkImageRegion *temp = NULL;
   vtkScalars *scalars;
   int min, max, dim;
-  int colorScalarsFlag;
+  int colorScalarsFlag = 0;
   
   // If we have more than one component then we want color
   // scalars. Also if we have one component and it is 
