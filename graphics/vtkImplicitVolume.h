@@ -56,7 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Works for 3D structured points datasets, 0D-2D datasets won't work properly.
 
 // .SECTION See Also
-// vtkImplicitFunction vtkImplicitDataSet vtkClipper vtkCutter
+// vtkImplicitFunction vtkImplicitDataSet vtkClipPolyData vtkCutter
 // vtkImplicitWindowFunction
 
 #ifndef __vtkImplicitVolume_h

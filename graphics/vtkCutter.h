@@ -45,7 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // corresponding to the implicit function F(x,y,z) = value(s), where
 // you can specify one or more values used to cut with.
 // .SECTION See Also
-// vtkImplicitFunction vtkClipper
+// vtkImplicitFunction vtkClipPolyData
 
 #ifndef __vtkCutter_h
 #define __vtkCutter_h

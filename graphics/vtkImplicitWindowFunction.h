@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //
 
 // .SECTION See Also
-// vtkImplictFunction
+// vtkImplicitFunction
 
 #ifndef __vtkImplicitWindowFunction_h
 #define __vtkImplicitWindowFunction_h

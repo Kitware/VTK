@@ -57,7 +57,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // has scalar data associated with it.
 
 // .SECTION See Also
-// vtkImplicitFunction vtkImplicitVolume vtkClipper vtkCutter
+// vtkImplicitFunction vtkImplicitVolume vtkClipPolyData vtkCutter
 // vtkImplicitWindowFunction
 
 #ifndef __vtkImplicitDataSet_h
