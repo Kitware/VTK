@@ -62,26 +62,41 @@ void vtkObjectFactory::LoadDynamicFactories()
 {
   // follow PATH convensions
 #ifdef _WIN32
-  const char* seps = ";";
+  char PathSeparator = ';';
 #else
-  const char* seps = ":";
+  char PathSeparator = ':';
 #endif
-  
-  char* loadpath = getenv("VTK_AUTOLOAD_PATH");
-  if(!loadpath)
+  char* LoadPath = getenv("VTK_AUTOLOAD_PATH");
+  char* CurrentPath = new char[strlen(LoadPath)+1];
+  char* SeparatorPosition = LoadPath; // initialize to env variable
+  while(SeparatorPosition)
+  {
+    int PathLength =0;
+    // find PathSeparator in LoadPath
+    SeparatorPosition = strchr(LoadPath, PathSeparator);
+    // if not found then use the whole string
+    if(SeparatorPosition == 0)
     {
-    return;
+      PathLength = strlen(LoadPath);
     }
-  
-  const char* path = strtok( loadpath, seps );
-  while( path != NULL )   
+    else
     {
-    vtkObjectFactory::LoadLibrariesInPath(path);
-    path = strtok( NULL, seps );
+      PathLength = SeparatorPosition - LoadPath;
     }
+    // copy the path out of LoadPath into CurrentPath
+    strncpy(CurrentPath, LoadPath, PathLength);
+    // add a null terminator
+    CurrentPath[PathLength] = 0;
+    // Get ready for the next path 
+    LoadPath = SeparatorPosition+1;
+    // Load the libraries in the current path
+    vtkObjectFactory::LoadLibrariesInPath(CurrentPath);
+  }
+  // clean up memory
+  delete [] CurrentPath;
 }
 
-// A full scope helper function to concat path and file into
+// A file scope helper function to concat path and file into
 // a full path
 static char* CreateFullPath(const char* path, const char* file)
 {
@@ -131,7 +146,7 @@ void vtkObjectFactory::LoadLibrariesInPath(const char* path)
       if(loadfunction)
 	{
 	vtkObjectFactory* newfactory = (*loadfunction)();
-	// initialize class members 
+	// initialize class members if load worked
 	newfactory->LibraryHandle = (void*)lib;
 	newfactory->LibraryPath = strcpy(new char[strlen(fullpath)+1], fullpath);
 	newfactory->LibraryDate = 0; // unused for now...
