@@ -59,7 +59,6 @@ vtkProp3D.cxx
 vtkProp3DCollection.cxx
 vtkPropPicker.cxx
 vtkProperty.cxx
-vtkRayCaster.cxx
 vtkRecursiveSphereDirectionEncoder.cxx
 vtkRenderWindow.cxx
 vtkRenderWindowCollection.cxx
