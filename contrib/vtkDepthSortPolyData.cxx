@@ -72,16 +72,17 @@ vtkDepthSortPolyData::vtkDepthSortPolyData()
 
 vtkDepthSortPolyData::~vtkDepthSortPolyData()
 {
-  if ( this->Camera )
-    {
-    this->Camera->Delete();
-    }
+  this->Transform->Delete();
   
   if ( this->Prop3D )
     {
     this->Prop3D->Delete();
     }
-  this->Transform->Delete();
+  
+  if ( this->Camera )
+    {
+    this->Camera->Delete();
+    }
 }
 
 typedef struct _vtkSortValues {
