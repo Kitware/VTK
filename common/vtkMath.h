@@ -56,15 +56,23 @@ class vtkMath
 public:
   vtkMath() {};
 
+  // constants
   static float Pi() {return 3.14159265358979;};
   static float DegreesToRadians() {return 0.017453292;};
 
-  // some common operations
+  // some common methods
   static float Dot(float x[3], float y[3]);
+  static double Dot(double x[3], double y[3]);
   static void Cross(float x[3], float y[3], float z[3]);
   static float Norm(float x[3]);
   static float Normalize(float x[3]);
   static float Distance2BetweenPoints(float x[3], float y[3]);
+
+  // special methods for 2D operations
+  static float Dot2D(float x[3], float y[3]);
+  static double Dot2D(double x[3], double y[3]);
+  static float Norm2D(float x[3]);
+  static float Normalize2D(float x[3]);
 
   // matrix stuff
   static float Determinant2x2(float c1[2], float c2[2]);
@@ -92,10 +100,32 @@ protected:
 };
 
 // Description:
-// Dot product of two 3-vectors.
+// Dot product of two 3-vectors (float version).
 inline float vtkMath::Dot(float x[3], float y[3]) 
 {
   return (x[0]*y[0] + x[1]*y[1] + x[2]*y[2]);
+}
+
+// Description:
+// Dot product of two 3-vectors (double-precision version).
+inline double vtkMath::Dot(double x[3], double y[3]) 
+{
+  return (x[0]*y[0] + x[1]*y[1] + x[2]*y[2]);
+}
+
+// Description:
+// Dot product of two 2-vectors. The third (z) component is ignored.
+inline float vtkMath::Dot2D(float x[3], float y[3]) 
+{
+  return (x[0]*y[0] + x[1]*y[1]);
+}
+
+// Description:
+// Dot product of two 2-vectors. The third (z) component is ignored. (Double-precision
+// version.)
+inline double vtkMath::Dot2D(double x[3], double y[3]) 
+{
+  return (x[0]*y[0] + x[1]*y[1]);
 }
 
 // Description:
@@ -106,11 +136,27 @@ inline float vtkMath::Norm(float x[3])
 }
 
 // Description:
+// Compute the norm of a 2-vector. Ignores z-component.
+inline float vtkMath::Norm2D(float x[3])
+{
+  return sqrt(x[0]*x[0] + x[1]*x[1]);
+}
+
+// Description:
 // Normalize (in place) a 3-vector. Returns norm of vector.
 inline float vtkMath::Normalize(float x[3])
 {
   float den; 
   if ( (den = vtkMath::Norm(x)) != 0.0 ) for (int i=0; i < 3; i++) x[i] /= den;
+  return den;
+}
+
+// Description:
+// Normalize (in place) a 2-vector. Returns norm of vector. Ignores z-component.
+inline float vtkMath::Normalize2D(float x[3])
+{
+  float den; 
+  if ( (den = vtkMath::Norm2D(x)) != 0.0 ) for (int i=0; i < 2; i++) x[i] /= den;
   return den;
 }
 
