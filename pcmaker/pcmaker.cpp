@@ -149,6 +149,7 @@ int ReadRegistry(CPcmakerDlg &dlg)
     if(RegQueryValueEx(hKey, _T("Flags"), NULL, &dwType, 
 		       (BYTE *)&dwData, &dwSize) != ERROR_SUCCESS)
       {
+      dlg.m_Local = FALSE;
       dlg.m_Contrib = TRUE;
       dlg.m_Graphics = TRUE;
       dlg.m_Imaging = TRUE;
@@ -168,6 +169,7 @@ int ReadRegistry(CPcmakerDlg &dlg)
       dlg.m_BuildJava = (dwData&0x20)?TRUE:FALSE;
       dlg.m_BuildPython = (dwData&0x40)?TRUE:FALSE;
       dlg.m_BuildTcl = (dwData&0x80)?TRUE:FALSE;
+      dlg.m_Local = (dwData&0x100)?TRUE:FALSE;
       }
     }
 
@@ -237,6 +239,7 @@ void WriteRegistry(CPcmakerDlg &dlg)
     dwData |= (dlg.m_BuildJava)?0x20:0;
     dwData |= (dlg.m_BuildPython)?0x40:0;
     dwData |= (dlg.m_BuildTcl)?0x80:0;
+    dwData |= (dlg.m_Local)?0x100:0;
     RegSetValueEx(hKey, _T("Flags"), 0, REG_DWORD, 
 		  (CONST BYTE *)&dwData, sizeof(DWORD));
     }

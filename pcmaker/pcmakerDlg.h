@@ -34,6 +34,7 @@ public:
 	BOOL	m_BuildJava;
 	BOOL	m_BuildPython;
 	CString	m_WherePy;
+	BOOL	m_Local;
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides

@@ -14,7 +14,7 @@
 
 
 // LT_COMMON must be last in this list
-enum LibraryTypes {LT_GRAPHICS, LT_IMAGING, LT_PATENTED, LT_CONTRIB, LT_COMMON};
+enum LibraryTypes {LT_GRAPHICS, LT_IMAGING, LT_PATENTED, LT_CONTRIB, LT_LOCAL, LT_COMMON};
 
 
 extern void CheckAndAddToDepends(char *file, const char *vtkHome, 
@@ -177,7 +177,6 @@ void removeUNIXOnlyFiles(CPcmakerDlg *vals)
 	  strcmp(concrete[i], "vtkXImageWindow") &&
 	  strcmp(concrete[i], "vtkXTextMapper") &&
 	  strcmp(concrete[i], "vtkXPolyDataMapper2D") &&
-          strncmp(concrete[i],"vtkDFA",6) && 
           strncmp(concrete[i],"vtkTcl",6) && 
           strncmp(concrete[i],"vtkTk",5) ))
       {
@@ -207,7 +206,6 @@ void removeUNIXOnlyFiles(CPcmakerDlg *vals)
 	  strcmp(abstract[i], "vtkXImageWindow") &&
 	  strcmp(abstract[i], "vtkXTextMapper") &&
 	  strcmp(abstract[i], "vtkXPolyMapper2D") &&
-          strncmp(abstract[i],"vtkDFA",6) && 
           strncmp(abstract[i],"vtkTcl",6) && 
           strncmp(abstract[i],"vtkTk",5) ))
       {
@@ -758,10 +756,6 @@ void ReadMakefiles(CPcmakerDlg *vals)
     concrete[num_concrete] = strdup("vtkWin32RenderWindowInteractor");
     concrete_lib[num_concrete] = strdup("graphics");
     num_concrete++;
-    concrete[num_concrete] = strdup("vtkWin32MappedInteractor");
-    concrete_lib[num_concrete] = strdup("graphics");
-    num_concrete++;
-
 
     if (vals->m_Patented)
       {
@@ -824,7 +818,13 @@ void ReadMakefiles(CPcmakerDlg *vals)
     num_concrete++;
     UpdateEnd(LT_CONTRIB);
     }
-
+  if (vals->m_Local)
+    {
+    UpdateStart(LT_LOCAL);
+    sprintf(fname,"%s\\local\\Makefile.in",vals->m_WhereVTK);
+    readInMakefile(fname,strdup("local"));
+    UpdateEnd(LT_LOCAL);
+    }
 
   UpdateStart(LT_COMMON);
   sprintf(fname,"%s\\common\\Makefile.in",vals->m_WhereVTK);
@@ -876,6 +876,13 @@ void CreateRequiredFiles(CPcmakerDlg *vals)
     MakeForce(fname,LT_CONTRIB);
     sprintf(fname,"%s\\vtkdll\\src\\vtkPCForceContrib.cxx",vals->m_WhereBuild);
     MakeForce(fname,LT_CONTRIB);
+    }
+  if (vals->m_Local)
+    {
+    sprintf(fname,"%s\\Debug\\vtkdll\\src\\vtkPCForceLocal.cxx",vals->m_WhereBuild);
+    MakeForce(fname,LT_LOCAL);
+    sprintf(fname,"%s\\vtkdll\\src\\vtkPCForceLocal.cxx",vals->m_WhereBuild);
+    MakeForce(fname,LT_LOCAL);
     }
 
   if (vals->m_BuildPython)
@@ -929,7 +936,8 @@ void makeMakefiles(CPcmakerDlg *vals)
   // set up the progress indicator... total is approximate
   // 1st for computing depends....
   total = 2 * (1 + vals->m_Graphics + vals->m_Imaging + vals->m_Contrib +
-	       num_concrete + num_abstract + num_abstract_h + num_concrete_h);
+	       vals->m_Local + 
+               num_concrete + num_abstract + num_abstract_h + num_concrete_h);
 
 
   // extra for split graphics stuff
@@ -1287,10 +1295,31 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
       fprintf(fp,"    \"$(OBJDIR)\\%s.obj\" \\\n",concrete[i]);
     fprintf(fp,"\n");
     }
+  if ( vals->m_Local)
+    {
+    fprintf(fp,"LOCAL_FLAGS= /dll /incremental:yes /machine:I386\\\n");
+    fprintf(fp," /out:\"$(LIBDIR)/vtkLocal.dll\" /implib:\"$(LIBDIR)/vtkLocal.lib\" \n");
+    fprintf(fp,"LOCAL_LIBS=\"$(LIBDIR)/vtkCommon.lib\" \"$(LIBDIR)/vtkImaging.lib\" ");
+    if ( vals->m_Graphics )
+      {
+      for (i = 0; i < NumOfGraphicsLibs ; i++)
+        fprintf(fp,"\"$(LIBDIR)/vtkGraphics%d.lib\" ",i);
+      }
+    fprintf(fp,"\n");
+
+
+    fprintf(fp,"LOCAL_OBJS= \\\n");
+    fprintf(fp,"    \"$(OBJDIR)\\vtkPCForceLocal.obj\" \\\n");
+    for (i = abstractStart[LT_LOCAL]; i < abstractEnd[LT_LOCAL]; i++)
+      fprintf(fp,"    \"$(OBJDIR)\\%s.obj\" \\\n",abstract[i]);
+    for (i = concreteStart[LT_LOCAL]; i < concreteEnd[LT_LOCAL]; i++)
+      fprintf(fp,"    \"$(OBJDIR)\\%s.obj\" \\\n",concrete[i]);
+    fprintf(fp,"\n");
+    }
 
 
   fprintf(fp,"OBJS : $(COMMON_OBJS) $(PATENTED_OBJS) $(IMAGING_OBJS) \\\n");
-  fprintf(fp,"       $(CONTRIB_OBJS) \\\n");
+  fprintf(fp,"       $(CONTRIB_OBJS) $(LOCAL_OBJS) \\\n");
   if (NumOfGraphicsLibs)
     fprintf(fp,"       $(GRAPHICS_OBJS0) ");
   for (i = 1; i < NumOfGraphicsLibs; i++)
@@ -1310,13 +1339,15 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     fprintf(fp,"          \"$(LIBDIR)\\vtkImaging.dll\"\\\n ");
   if ( vals->m_Contrib )
     fprintf(fp,"          \"$(LIBDIR)\\vtkContrib.dll\"\\\n ");
+  if ( vals->m_Local )
+    fprintf(fp,"          \"$(LIBDIR)\\vtkLocal.dll\"\\\n ");
   fprintf(fp,"\n");
 
 
 
 
   fprintf(fp,"vtkdll.dll : $(DEF_FILE) $(COMMON_OBJS) $(PATENTED_OBJS) ");
-  fprintf(fp," $(IMAGING_OBJS) $(CONTRIB_OBJS) ");
+  fprintf(fp," $(IMAGING_OBJS) $(CONTRIB_OBJS) $(LOCAL_OBJS)");
   for (i = 0; i < NumOfGraphicsLibs; i++)
     fprintf(fp,"$(GRAPHICS_OBJS%d) ",i);
   fprintf(fp,"\n");
@@ -1324,7 +1355,7 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
 
   fprintf(fp,"    $(LINK32) @<<\n");
   fprintf(fp,"  $(LINK32_FLAGS) $(ALL_FLAGS) $(COMMON_OBJS) $(PATENTED_OBJS) ");
-  fprintf(fp," $(IMAGING_OBJS) $(CONTRIB_OBJS) ");
+  fprintf(fp," $(IMAGING_OBJS) $(CONTRIB_OBJS) $(LOCAL_OBJS)");
   for (i = 0; i < NumOfGraphicsLibs; i++)
     fprintf(fp,"$(GRAPHICS_OBJS%d) ",i);
   fprintf(fp,"\n");
@@ -1371,6 +1402,14 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     fprintf(fp,"\"$(LIBDIR)\\vtkContrib.dll\" : $(DEF_FILE) $(CONTRIB_OBJS) %s\\GraphicsSplitInfo.txt\n",vals->m_WhereBuild);
     fprintf(fp,"    $(LINK32) @<<\n");
     fprintf(fp,"  $(LINK32_FLAGS) $(CONTRIB_FLAGS) $(CONTRIB_OBJS) $(CONTRIB_LIBS)\n");
+    fprintf(fp,"<<\n");
+    fprintf(fp,"\n");
+    }
+  if ( vals->m_Local )
+    {
+    fprintf(fp,"\"$(LIBDIR)\\vtkLocal.dll\" : $(DEF_FILE) $(LOCAL_OBJS) %s\\GraphicsSplitInfo.txt\n",vals->m_WhereBuild);
+    fprintf(fp,"    $(LINK32) @<<\n");
+    fprintf(fp,"  $(LINK32_FLAGS) $(LOCAL_FLAGS) $(LOCAL_OBJS) $(LOCAL_LIBS)\n");
     fprintf(fp,"<<\n");
     fprintf(fp,"\n");
     }
@@ -1436,6 +1475,14 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     vals->m_Progress.OffsetPos(1);
     fprintf(fp,"\"$(OBJDIR)\\vtkPCForceContrib.obj\" : src\\vtkPCForceContrib.cxx $(DEPENDS) \n");
     fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\vtkPCForceContrib.cxx\n\n");
+    }
+  if ( vals->m_Local )
+    {
+    sprintf(file,"%s\\vtkPCForceLocal.cxx",temp);
+    OutputPCDepends(file,fp,vals->m_WhereVTK, extraPtr, extra_num);
+    vals->m_Progress.OffsetPos(1);
+    fprintf(fp,"\"$(OBJDIR)\\vtkPCForceLocal.obj\" : src\\vtkPCForceLocal.cxx $(DEPENDS) \n");
+    fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\vtkPCForceLocal.cxx\n\n");
     }
 
 
@@ -1513,6 +1560,7 @@ void doBorHeader(FILE *fp, CPcmakerDlg *vals, int debugFlag)
 
   fprintf(fp," -I$(WHEREVTK)\\imaging \n");
   fprintf(fp," -I$(WHEREVTK)\\contrib \n");
+  fprintf(fp," -I$(WHEREVTK)\\local \n");
   fprintf(fp,"-P -c -w-hid -w-inl -w-ccc -w-aus \n");
   fprintf(fp,"| CPP_PROJ.CFG \n\n");
 
@@ -1713,6 +1761,8 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
   if (vals->m_Contrib) fprintf(fp," /D \"VTK_USE_CONTRIB\" /I \"%s\\contrib\" \\\n",
 			       vals->m_WhereVTK);
 
+  if (vals->m_Local) fprintf(fp," /D \"VTK_USE_LOCAL\" /I \"%s\\local\" \\\n",
+			       vals->m_WhereVTK);
 
   fprintf(fp," /D \"_WINDLL\" /D \"_MBCS\" \\\n");
 
@@ -1777,6 +1827,8 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     fprintf(fp,"..\\lib\\vtkImaging.lib ");
   if (vals->m_Contrib)
     fprintf(fp,"..\\lib\\vtkContrib.lib ");     
+  if (vals->m_Local)
+    fprintf(fp,"..\\lib\\vtkLocal.lib ");     
   fprintf(fp,"\n\n");
 
 
@@ -2025,6 +2077,7 @@ void doBorTclHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
   fprintf(fp," -I$(WHEREVTK)\\pcmaker\\xlib \n");
   fprintf(fp," -I$(WHEREVTK)\\imaging \n");
   fprintf(fp," -I$(WHEREVTK)\\contrib \n");
+  fprintf(fp," -I$(WHEREVTK)\\local \n");
   fprintf(fp,"-P -c -w-hid -w-inl -w-ccc -w-aus \n");
   fprintf(fp,"| CPP_PROJ.CFG \n\n");
 
@@ -2258,13 +2311,13 @@ void doMSCJavaHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
 
   if (debugFlag)
     {
-    fprintf(fp,"CPP_PROJ=/D \"STRICT\" /D \"_DEBUG\" /nologo /MDd /Od /Zi /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
-	    vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+    fprintf(fp,"CPP_PROJ=/D \"STRICT\" /D \"_DEBUG\" /nologo /MDd /Od /Zi /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\contrib\" /I \"%s\\local\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
+	    vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
     }
   else
     {
-    fprintf(fp,"CPP_PROJ=/D \"STRICT\" /nologo /MD /O2 /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
-	    vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+    fprintf(fp,"CPP_PROJ=/D \"STRICT\" /nologo /MD /O2 /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\contrib\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
+	    vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
     }
   if (vals->m_Patented)
     {
@@ -2311,6 +2364,8 @@ void doMSCJavaHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     fprintf(fp,"..\\lib\\vtkImaging.lib ");
   if (vals->m_Contrib)
     fprintf(fp,"..\\lib\\vtkContrib.lib ");     
+  if (vals->m_Local)
+    fprintf(fp,"..\\lib\\vtkLocal.lib ");     
   fprintf(fp,"\n\n");
 
 
@@ -2500,6 +2555,7 @@ void doBorJavaHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
   fprintf(fp," -I$(WHEREJDK)\\include\\win32 \n");
   fprintf(fp," -I$(WHEREVTK)\\imaging \n");
   fprintf(fp," -I$(WHEREVTK)\\contrib \n");
+  fprintf(fp," -I$(WHEREVTK)\\local \n");
   fprintf(fp,"-P -c -w-hid -w-inl -w-ccc -w-aus \n");
   fprintf(fp,"| CPP_PROJ.CFG \n\n");
   // JCP take Borland Builder specific action ...
@@ -2788,7 +2844,8 @@ void doMSCPythonHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
 				vals->m_WhereVTK);
   if (vals->m_Contrib) fprintf(fp," /D \"VTK_USE_CONTRIB\" /I \"%s\\contrib\" \\\n",
 			       vals->m_WhereVTK);
-
+  if (vals->m_Local) fprintf(fp," /D \"VTK_USE_LOCAL\" /I \"%s\\local\" \\\n",
+			       vals->m_WhereVTK);
 
   fprintf(fp," /D \"_WINDLL\" /D \"_MBCS\" \\\n");
 
@@ -2844,6 +2901,8 @@ void doMSCPythonHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     fprintf(fp,"..\\lib\\vtkImaging.lib ");
   if (vals->m_Contrib)
     fprintf(fp,"..\\lib\\vtkContrib.lib ");     
+  if (vals->m_Local)
+    fprintf(fp,"..\\lib\\vtkLocal.lib ");     
   fprintf(fp,"\n\n");
 
 

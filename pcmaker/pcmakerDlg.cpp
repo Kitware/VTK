@@ -37,6 +37,7 @@ CPcmakerDlg::CPcmakerDlg(CWnd* pParent /*=NULL*/)
 	m_BuildJava = FALSE;
 	m_BuildPython = FALSE;
 	m_WherePy = _T("");
+	m_Local = FALSE;
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -67,6 +68,7 @@ void CPcmakerDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_BUILDPYTHON, m_BuildPython);
 	DDX_Text(pDX, IDC_WHEREPYTHON, m_WherePy);
 	DDV_MaxChars(pDX, m_WherePy, 512);
+	DDX_Check(pDX, IDC_LOCAL, m_Local);
 	//}}AFX_DATA_MAP
 }
 

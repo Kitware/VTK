@@ -90,7 +90,7 @@ BEGIN
                     WS_TABSTOP,16,106,43,10
     CONTROL         "Borland",IDC_BORLANDCOMP,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,66,106,40,10
-    GROUPBOX        "Additional Toolkits",IDC_STATIC,7,127,162,33
+    GROUPBOX        "Additional Toolkits",IDC_STATIC,7,127,208,33
     CONTROL         "Graphics",IDC_Graphics,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,15,140,48,10
     CONTROL         "Imaging",IDC_Imaging,"Button",BS_AUTOCHECKBOX | 
@@ -111,7 +111,7 @@ BEGIN
     PUSHBUTTON      "Help",IDC_HELP1,174,199,50,14
     PUSHBUTTON      "Advanced",IDC_ADVANCED,235,199,50,14
     CONTROL         "Build Tcl",IDC_BUILDTCL,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,176,130,133,15
+                    WS_TABSTOP,229,130,76,15
     CONTROL         "Build Java",IDC_BUILDJAVA,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,176,39,133,15
     CONTROL         "Build Python",IDC_BUILDPYTHON,"Button",BS_AUTOCHECKBOX | 
@@ -119,6 +119,8 @@ BEGIN
     LTEXT           "Where is Python Installed (source)",IDC_STATIC,184,97,
                     141,9
     EDITTEXT        IDC_WHEREPYTHON,184,108,144,15,ES_AUTOHSCROLL
+    CONTROL         "Local",IDC_LOCAL,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
+                    169,138,42,14
 END
 
 IDD_HELPDIALOG DIALOG DISCARDABLE  0, 0, 263, 274
