@@ -36,7 +36,11 @@ int
 main(int argc, char **argv)
 {
   ios::sync_with_stdio();
+#ifdef VTK_USE_RENDERING
   Tk_Main(argc, argv, Tcl_AppInit);
+#else
+  Tcl_Main(argc, argv, Tcl_AppInit);
+#endif
   return 0;			/* Needed only to prevent compiler warning. */
 }
 
@@ -92,10 +96,11 @@ int Tcl_AppInit(Tcl_Interp *interp)
   if (Tcl_Init(interp) == TCL_ERROR) {
   return TCL_ERROR;
   }
+#ifdef VTK_USE_RENDERING
   if (Tk_Init(interp) == TCL_ERROR) {
   return TCL_ERROR;
   }
-
+#endif
   /* init the core vtk stuff */
   if (Vtkcommontcl_Init(interp) == TCL_ERROR) 
     {
