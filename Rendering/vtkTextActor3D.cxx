@@ -26,7 +26,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkTextActor3D, "1.3");
+vtkCxxRevisionMacro(vtkTextActor3D, "1.4");
 vtkStandardNewMacro(vtkTextActor3D);
 
 vtkCxxSetObjectMacro(vtkTextActor3D, TextProperty, vtkTextProperty);
@@ -35,7 +35,7 @@ vtkCxxSetObjectMacro(vtkTextActor3D, TextProperty, vtkTextProperty);
 vtkTextActor3D::vtkTextActor3D()
 {
   this->Input        = NULL;
-  this->ImageActor   = NULL;
+  this->ImageActor   = vtkImageActor::New();
   this->ImageData    = NULL;
   this->TextProperty = NULL;
 
@@ -43,6 +43,8 @@ vtkTextActor3D::vtkTextActor3D()
 
   this->SetTextProperty(vtkTextProperty::New());
   this->TextProperty->Delete();
+
+  this->ImageActor->InterpolateOn();
 }
 
 // --------------------------------------------------------------------------
@@ -86,9 +88,7 @@ double* vtkTextActor3D::GetBounds()
     return this->ImageActor->GetBounds();
     }
 
-  static double unknown_bounds[6];
-  vtkMath::UninitializeBounds(unknown_bounds);
-  return unknown_bounds;
+  return NULL;
 }
 
 // --------------------------------------------------------------------------
@@ -285,27 +285,24 @@ int vtkTextActor3D::UpdateImageActor()
 
   // Associate the image data (should be up to date now) to the image actor
 
-  if (!this->ImageActor)
+  if (this->ImageActor)
     {
-    this->ImageActor = vtkImageActor::New();
-    this->ImageActor->InterpolateOn();
-    }
+    this->ImageActor->SetInput(this->ImageData);
 
-  this->ImageActor->SetInput(this->ImageData);
-
-  // Position the actor
-  // Which one is faster ?
+    // Position the actor
+    // Which one is faster ?
 
 #if 1
-  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
-  this->GetMatrix(matrix);
-  this->ImageActor->SetUserMatrix(matrix);
-  matrix->Delete();
+    vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
+    this->GetMatrix(matrix);
+    this->ImageActor->SetUserMatrix(matrix);
+    matrix->Delete();
 #else
-  this->ImageActor->SetPosition(this->GetPosition());
-  this->ImageActor->SetScale(this->GetScale());
-  this->ImageActor->SetOrientation(this->GetOrientation());
+    this->ImageActor->SetPosition(this->GetPosition());
+    this->ImageActor->SetScale(this->GetScale());
+    this->ImageActor->SetOrientation(this->GetOrientation());
 #endif
+    }
 
   return 1;
 }

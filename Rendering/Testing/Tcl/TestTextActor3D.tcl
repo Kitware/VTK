@@ -12,7 +12,7 @@ renWin SetSize 600 600
 
 # The Tk render widget
 
-set vtkw [vtkTkRenderWidget .ren -width 600 -height 600 -rw renWin]
+set vtkw [vtkTkRenderWidget .ren -width 450 -height 450 -rw renWin]
 ::vtk::bind_tk_render_widget $vtkw
 
 pack $vtkw -side top -fill both -expand yes
@@ -145,8 +145,11 @@ proc update_text_actors {dummy} {
 if {0} {
     add_sphere
     add_one_text_actor
+    ren1 ResetCamera
 } {
     add_many_text_actors
+    ren1 ResetCamera
+
     set cam [ren1 GetActiveCamera]
     $cam Elevation 30
     $cam Dolly 0.3
@@ -158,7 +161,6 @@ foreach actor $text_actors {
 
 # Interact
 
-ren1 ResetCamera
 renWin Render
 
 wm protocol . WM_DELETE_WINDOW ::vtk::cb_exit
