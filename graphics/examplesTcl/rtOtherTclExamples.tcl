@@ -138,21 +138,21 @@ foreach afile $files {
     puts -nonewline $logFile "\n $Name - "
     flush stdout
     
-    set executable [info nameofexecutable]
-
     # Create a timer so that we can get CPU time.
     # Use the tcl time command to get wall time
     # capture the output using redirection
+    set rtOutId [open ${VTK_RESULTS_PATH}$afile.test.rtr "w"]
+    source $afile
+
     vtkTimerLog timer
     set startCPU [timer GetCPUTime]
-    set wallTime [decipadString [expr [lindex [time {catch { puts -nonewline "[exec $executable $afile --S ${VTK_RESULTS_PATH}$afile.test.rtr]"} } 1] 0] / 1000000.0] 4 9]
+    set wallTime [decipadString [expr [lindex [time {catch { puts -nonewline "[rtOtherTest $rtOutId]"} } 1] 0] / 1000000.0] 4 9]
+    close $rtOutId
 
     set endCPU [timer GetCPUTime]
     set CPUTime [decipadString [expr $endCPU - $startCPU] 3 8]
     puts -nonewline $logFile "$wallTime wall, $CPUTime cpu, "
 
-    catch {set filterCommand [exec $executable $afile --f]}
-    catch {set compareCommand [exec $executable $afile --c]}
     # if no exisiting valid text, then copy the new one
     if {[catch {set channel [open ${validOther}]}] != 0 } {
         puts $logFile "\nWARNING: Creating a valid result for $afile"
@@ -168,11 +168,11 @@ foreach afile $files {
     update
 
     # creating filtered file
-    catch {eval exec cat ${VTK_RESULTS_PATH}$afile.test.rtr | $filterCommand >& ${VTK_RESULTS_PATH}$afile.test.filtered.rtr}
+    catch {eval exec cat ${VTK_RESULTS_PATH}$afile.test.rtr | $rtSelector >& ${VTK_RESULTS_PATH}$afile.test.filtered.rtr}
     # creating valid filtered file
-    catch {eval exec cat $validOther | $filterCommand >& ${VTK_RESULTS_PATH}$afile.filtered.rtr}
+    catch {eval exec cat $validOther | $rtSelector >& ${VTK_RESULTS_PATH}$afile.filtered.rtr}
     # creating diff file
-    catch {eval exec $compareCommand ${VTK_RESULTS_PATH}$afile.test.filtered.rtr ${VTK_RESULTS_PATH}$afile.filtered.rtr >& ${VTK_RESULTS_PATH}$afile.error.rtr}
+    catch {eval exec $rtComparator ${VTK_RESULTS_PATH}$afile.test.filtered.rtr ${VTK_RESULTS_PATH}$afile.filtered.rtr >& ${VTK_RESULTS_PATH}$afile.error.rtr}
     # count the number of lines in the diff result file
     set otherError [lindex [exec wc -l ${VTK_RESULTS_PATH}$afile.error.rtr] 0]
     set otherErrorString [decipadString $otherError 4 9]
