@@ -314,7 +314,7 @@ void vtkDelaunay2D::Execute()
   int nodes[4][3], pts[3], npts, *triPts, numNeiPts, *neiPts, ncells;
   vtkIdList *neighbors, *cells;
   float center[3], radius, tol;
-  char *triUse = NULL;
+  int *triUse = NULL;
 
   vtkDebugMacro(<<"Generating 2D Delaunay triangulation");
 
@@ -504,7 +504,7 @@ void vtkDelaunay2D::Execute()
       }
     else
       {
-      triUse = new char[numTriangles];
+      triUse = new int[numTriangles];
       for (i=0; i<numTriangles; i++) 
         {
         triUse[i] = 1;
@@ -665,14 +665,13 @@ void vtkDelaunay2D::Execute()
 
 // Methods used to recover edges. Uses lines and polygons to determine boundary
 // and inside/outside.
-char *vtkDelaunay2D::RecoverBoundary(vtkPolyData *Mesh)
+int *vtkDelaunay2D::RecoverBoundary(vtkPolyData *Mesh)
 {
   vtkPolyData *source=this->GetSource();
   vtkCellArray *lines=source->GetLines();
   vtkCellArray *polys=source->GetPolys();
   int i, npts, *pts, p1, p2;
-  char *triUse;
-  float polyDirection;
+  int *triUse;
   
   // Recover the edges of the mesh
   for ( lines->InitTraversal(); lines->GetNextCell(npts,pts); )
@@ -704,7 +703,7 @@ char *vtkDelaunay2D::RecoverBoundary(vtkPolyData *Mesh)
   
   // Generate inside/outside marks on mesh
   int numTriangles = Mesh->GetNumberOfCells();
-  triUse = new char[numTriangles];
+  triUse = new int[numTriangles];
   for (i=0; i<numTriangles; i++) 
     {
     triUse[i] = 1;
@@ -919,10 +918,9 @@ int vtkDelaunay2D::RecoverEdge(vtkPolyData *Mesh, int p1, int p2)
     return success;
 }
 
-void vtkDelaunay2D::FillPolygons(vtkPolyData *Mesh, vtkCellArray *polys, char *triUse)
+void vtkDelaunay2D::FillPolygons(vtkPolyData *Mesh, vtkCellArray *polys, int *triUse)
 {
   int npts, *pts, p1, p2, i, j, k, kk;
-  float dir=1.0;
   static float xyNormal[3]={0.0,0.0,1.0};
   float negDir[3], x21[3], x1[3], x2[3], x[3];
   vtkIdList *neis=vtkIdList::New();
@@ -1025,6 +1023,10 @@ void vtkDelaunay2D::FillPolygons(vtkPolyData *Mesh, vtkCellArray *polys, char *t
       triUse[i] = 1;
       }
     }
+
+  currentFront->Delete();
+  nextFront->Delete();
+  neis->Delete();
 }
 
 void vtkDelaunay2D::PrintSelf(ostream& os, vtkIndent indent)
