@@ -23,6 +23,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 #include "vtkWindow.h"
+#include "vtkToolkits.h"  // for VTK_USE_GL2PS
 
 #include "vtkFreeTypeFontCache.h"
 #include "vtkfreetypeConfig.h"
@@ -32,6 +33,11 @@
 
 #include "FTFont.h"
 
+#ifdef VTK_USE_GL2PS
+#include "gl2ps.h"
+#endif // VTK_USE_GL2PS
+
+
 //----------------------------------------------------------------------------
 // Print debug info
 
@@ -40,7 +46,7 @@
 
 //----------------------------------------------------------------------------
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.29");
+vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.30");
 vtkStandardNewMacro(vtkOpenGLFreeTypeTextMapper);
 #endif
 
@@ -348,6 +354,22 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
   ftgl_context = &ftgl_context_mesa;
 #endif
 
+  // Setup the fonts for GL2PS output.
+
+#ifdef VTK_USE_GL2PS
+  char *font_name[] = {"Arial", "Courier", "Times"};
+  char ps_font[64];
+  sprintf(ps_font, "%s", font_name[tprop->GetFontFamily()]);
+  if (tprop->GetBold())
+    {
+    sprintf(ps_font, "%s%s", ps_font, "Bold");
+    }
+  if (tprop->GetItalic())
+    {
+    sprintf(ps_font, "%s%s", ps_font, "Italic");
+    }
+#endif // VTK_USE_GL2PS
+
   // Set up the shadow color
 
   int antialiasing_requested = 
@@ -411,8 +433,14 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
 #else
     font->render(this->Input, ftgl_context);
 #endif
+
+    // Shadow text for GL2PS.
+
+#ifdef VTK_USE_GL2PS
+    gl2psText(this->Input, ps_font, tprop->GetFontSize());
+#endif // VTK_USE_GL2PS
     }
-  
+
   // Set the color here since load/render glyphs is done
   // on demand and this color has to be consistent for a given font entry.
 
@@ -428,6 +456,12 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
   font->render(this->Input, ftgl_context);
 
   glFlush();
+
+  // Normal text for GL2PS.
+
+#ifdef VTK_USE_GL2PS
+  gl2psText(this->Input, ps_font, tprop->GetFontSize());
+#endif // VTK_USE_GL2PS
 
   glMatrixMode(GL_PROJECTION);
   glPopMatrix();
