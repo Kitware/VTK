@@ -55,6 +55,7 @@ vtkWindow::vtkWindow()
   this->WindowName = new char[strlen("Visualization Toolkit")+1];
     strcpy( this->WindowName, "Visualization Toolkit" );
   this->Erase = 1;
+  this->DoubleBuffer = 0;
 }
 
 vtkWindow::~vtkWindow()
@@ -134,5 +135,7 @@ void vtkWindow::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Position: (" << temp[0] << ", " << temp[1] << ")\n";
   temp = this->GetSize();
   os << indent << "Size: (" << temp[0] << ", " << temp[1] << ")\n";
+
+
 }
 
