@@ -41,9 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkUnsignedIntArray.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkUnsignedIntArray* vtkUnsignedIntArray::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -56,8 +54,12 @@ vtkUnsignedIntArray* vtkUnsignedIntArray::New()
   return new vtkUnsignedIntArray;
 }
 
-
-
+vtkDataArray *vtkUnsignedIntArray::MakeObject()
+{
+  vtkDataArray *a = vtkUnsignedIntArray::New();
+  a->SetNumberOfComponents(this->NumberOfComponents);
+  return a;
+}
 
 // Instantiate object.
 vtkUnsignedIntArray::vtkUnsignedIntArray(int numComp)

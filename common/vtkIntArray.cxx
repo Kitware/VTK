@@ -41,9 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkIntArray.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkIntArray* vtkIntArray::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -56,8 +54,12 @@ vtkIntArray* vtkIntArray::New()
   return new vtkIntArray;
 }
 
-
-
+vtkDataArray *vtkIntArray::MakeObject()
+{
+  vtkDataArray *a = vtkIntArray::New();
+  a->SetNumberOfComponents(this->NumberOfComponents);
+  return a;
+}
 
 // Instantiate object.
 vtkIntArray::vtkIntArray(int numComp)

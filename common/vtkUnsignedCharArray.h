@@ -66,9 +66,8 @@ public:
   void Initialize();
 
   // Description:
-  // Create a similar type object
-  vtkDataArray *MakeObject() {
-    return new vtkUnsignedCharArray(this->NumberOfComponents);};
+  // Create the same type object as this (virtual constructor).
+  vtkDataArray *MakeObject();
 
   // Description:
   // Get the data type.

@@ -41,9 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkLongArray.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkLongArray* vtkLongArray::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -56,8 +54,12 @@ vtkLongArray* vtkLongArray::New()
   return new vtkLongArray;
 }
 
-
-
+vtkDataArray *vtkLongArray::MakeObject()
+{
+  vtkDataArray *a = vtkLongArray::New();
+  a->SetNumberOfComponents(this->NumberOfComponents);
+  return a;
+}
 
 // Instantiate object.
 vtkLongArray::vtkLongArray(int numComp)

@@ -70,8 +70,8 @@ public:
   void Squeeze() {this->Resize (this->MaxId+1);};
 
   // Description:
-  // Create a similar type object
-  vtkDataArray *MakeObject() {return new vtkLongArray(this->NumberOfComponents);};
+  // Create the same type object as this (virtual constructor).
+  vtkDataArray *MakeObject();
 
   // Description:
   // Get the data type.

@@ -85,8 +85,8 @@ public:
   int Allocate(const int sz, const int ext=1000);
 
   // Description:
-  // Virtual constructor creates a field with the same number of data arrays and
-  // types of data arrays, but the arrays contain nothing.
+  // Virtual constructor creates a field with the same number of data 
+  // arrays and types of data arrays, but the arrays contain nothing.
   vtkFieldData *MakeObject();
 
   // Description:
@@ -102,15 +102,16 @@ public:
   int GetNumberOfArrays();
 
   // Description:
-  // Return the ith array in the field. A NULL is returned if the index i is out
-  // if range.
+  // Return the ith array in the field. A NULL is returned if the 
+  // index i is out of range.
   vtkDataArray *GetArray(int i);
 
   // Description:
-  // Return the array containing the ith component of the field. The return value
-  // is an integer number n 0<=n<this->NumberOfArrays. Also, an integer value is
-  // returned indicating the component in the array is returned. Method returns
-  // -1 if specified component is not in the field.
+  // Return the array containing the ith component of the field. The 
+  // return value is an integer number n 0<=n<this->NumberOfArrays. Also, 
+  // an integer value is returned indicating the component in the array 
+  // is returned. Method returns -1 if specified component is not 
+  // in the field.
   int GetArrayContainingComponent(int i, int& arrayComp);
 
   // Description:

@@ -41,9 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPoints.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkPoints* vtkPoints::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -56,8 +54,12 @@ vtkPoints* vtkPoints::New()
   return new vtkPoints;
 }
 
-
-
+vtkAttributeData *vtkPoints::MakeObject()
+{
+  vtkPoints *p = vtkPoints::New();
+  p->SetDataType(this->GetDataType());
+  return p;
+}
 
 // Construct object with an initial data array of type float.
 vtkPoints::vtkPoints(int dataType) : vtkAttributeData(dataType)

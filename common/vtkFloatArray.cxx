@@ -41,9 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkFloatArray* vtkFloatArray::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -56,8 +54,12 @@ vtkFloatArray* vtkFloatArray::New()
   return new vtkFloatArray;
 }
 
-
-
+vtkDataArray *vtkFloatArray::MakeObject()
+{
+  vtkDataArray *a = vtkFloatArray::New();
+  a->SetNumberOfComponents(this->NumberOfComponents);
+  return a;
+}
 
 // Instantiate object with 1 components.
 vtkFloatArray::vtkFloatArray(int numComp)

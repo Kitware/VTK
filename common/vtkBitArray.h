@@ -66,7 +66,7 @@ public:
   void Initialize();
 
   // satisfy vtkDataArray API
-  vtkDataArray *MakeObject() {return new vtkBitArray(this->NumberOfComponents);};
+  vtkDataArray *MakeObject();
   int GetDataType() {return VTK_BIT;};
   
   // Description:

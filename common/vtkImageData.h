@@ -66,8 +66,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Create a similar type object
-  vtkDataObject *MakeObject() {return new vtkImageData;};
+  // Create the same type object as this (virtual constructor).
+  vtkDataObject *MakeObject() {return vtkImageData::New();};
 
   // Description:
   // Copy the geometric and topological structure of an input image data

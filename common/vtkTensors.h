@@ -63,7 +63,8 @@ public:
 
   // Description:
   // Create a copy of this object.
-  vtkAttributeData *MakeObject() {return vtkTensors::New(this->GetDataType());};
+  vtkAttributeData *MakeObject() 
+    {return vtkTensors::New(this->GetDataType());};
 
   // Description:
   // Return number of tensors in array.

@@ -41,9 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkShortArray.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkShortArray* vtkShortArray::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -56,8 +54,12 @@ vtkShortArray* vtkShortArray::New()
   return new vtkShortArray;
 }
 
-
-
+vtkDataArray *vtkShortArray::MakeObject()
+{
+  vtkDataArray *a = vtkShortArray::New();
+  a->SetNumberOfComponents(this->NumberOfComponents);
+  return a;
+}
 
 // Instantiate object.
 vtkShortArray::vtkShortArray(int numComp)

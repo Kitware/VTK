@@ -76,8 +76,7 @@ public:
 
   // Description:
   // Create concrete instance of this data object.
-  virtual vtkDataObject *MakeObject() {return new vtkDataObject;}
-  
+  virtual vtkDataObject *MakeObject() {return vtkDataObject::New();}
 
   // Description:
   // Set/Get the source object creating this data object.

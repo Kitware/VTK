@@ -56,7 +56,7 @@ public:
 
   // Description:
   // See the vtkCell API for descriptions of these methods.
-  vtkCell *MakeObject() {return new vtkEmptyCell(*this);};
+  vtkCell *MakeObject() {return vtkEmptyCell::New();};
   int GetCellType() {return VTK_EMPTY_CELL;};
   int GetCellDimension() {return 0;};
   int GetNumberOfEdges() {return 0;};
@@ -94,7 +94,7 @@ public:
 protected:
   vtkEmptyCell() {};
   ~vtkEmptyCell() {};
-  vtkEmptyCell(const vtkEmptyCell& p);
+  vtkEmptyCell(const vtkEmptyCell& p) {};
   void operator=(const vtkEmptyCell&) {};
 
 

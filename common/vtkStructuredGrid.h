@@ -71,7 +71,7 @@ public:
 
   // Description:
   // Create a similar type object
-  vtkDataObject *MakeObject() {return new vtkStructuredGrid;};
+  vtkDataObject *MakeObject() {return vtkStructuredGrid::New();};
 
   // Description:
   // Copy the geometric and topological structure of an input poly data object.

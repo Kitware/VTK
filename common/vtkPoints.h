@@ -60,8 +60,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Create a coy of this object.
-  vtkAttributeData *MakeObject() {return new vtkPoints(this->GetDataType());};
+  // Create a copy of this object.
+  vtkAttributeData *MakeObject();
 
   // Description:
   // Return number of points in array.

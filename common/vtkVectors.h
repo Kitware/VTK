@@ -57,13 +57,13 @@ public:
   static vtkVectors *New(int dataType);
   static vtkVectors *New();
 
-
   vtkTypeMacro(vtkVectors,vtkAttributeData);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
-  // Create a copy of this object.
-  vtkAttributeData *MakeObject(){return vtkVectors::New(this->GetDataType());};
+  // Create the same type object as this (virtual constructor).
+  vtkAttributeData *MakeObject()
+    {return vtkVectors::New(this->GetDataType());};
 
   // Description:
   // Return number of vectors in array.

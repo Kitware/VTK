@@ -43,7 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 
-//------------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 vtkCharArray* vtkCharArray::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -56,8 +56,12 @@ vtkCharArray* vtkCharArray::New()
   return new vtkCharArray;
 }
 
-
-
+vtkDataArray *vtkCharArray::MakeObject()
+{
+  vtkDataArray *a = vtkCharArray::New();
+  a->SetNumberOfComponents(this->NumberOfComponents);
+  return a;
+}
 
 // Instantiate object.
 vtkCharArray::vtkCharArray(int numComp)

@@ -75,8 +75,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Create a similar type object
-  vtkDataObject *MakeObject() {return new vtkRectilinearGrid;};
+  // Create a similar type object.
+  vtkDataObject *MakeObject() {return vtkRectilinearGrid::New();};
 
   // Description:
   // Return what type of dataset this is.

@@ -41,9 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkUnsignedLongArray.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkUnsignedLongArray* vtkUnsignedLongArray::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -56,8 +54,12 @@ vtkUnsignedLongArray* vtkUnsignedLongArray::New()
   return new vtkUnsignedLongArray;
 }
 
-
-
+vtkDataArray *vtkUnsignedLongArray::MakeObject()
+{
+  vtkDataArray *a = vtkUnsignedLongArray::New();
+  a->SetNumberOfComponents(this->NumberOfComponents);
+  return a;
+}
 
 // Instantiate object.
 vtkUnsignedLongArray::vtkUnsignedLongArray(int numComp)

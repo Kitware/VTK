@@ -43,7 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkBitArray* vtkBitArray::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -56,8 +56,12 @@ vtkBitArray* vtkBitArray::New()
   return new vtkBitArray;
 }
 
-
-
+vtkDataArray *vtkBitArray::MakeObject()
+{
+  vtkDataArray *a = vtkBitArray::New();
+  a->SetNumberOfComponents(this->NumberOfComponents);
+  return a;
+}
 
 // Instantiate object.
 vtkBitArray::vtkBitArray(int numComp)

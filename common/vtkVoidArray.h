@@ -67,7 +67,7 @@ public:
 
   // Description:
   // Create a similar type object
-  vtkDataArray *MakeObject() {return new vtkVoidArray;};
+  vtkDataArray *MakeObject() {return vtkVoidArray::New();};
 
   // Description:
   // Get the data type.

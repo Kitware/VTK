@@ -43,7 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkDoubleArray* vtkDoubleArray::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -56,8 +56,12 @@ vtkDoubleArray* vtkDoubleArray::New()
   return new vtkDoubleArray;
 }
 
-
-
+vtkDataArray *vtkDoubleArray::MakeObject()
+{
+  vtkDataArray *a = vtkDoubleArray::New();
+  a->SetNumberOfComponents(this->NumberOfComponents);
+  return a;
+}
 
 // Instantiate object.
 vtkDoubleArray::vtkDoubleArray(int numComp)
