@@ -5,19 +5,25 @@ catch {load vtktcl}
 
 vtkImageWindow imgWin
 
-vtkImageEllipsoidSource sphere1
-sphere1 SetCenter 95 100 0
-sphere1 SetRadius 70 70 70
-
-vtkImageEllipsoidSource sphere2
-sphere2 SetCenter 161 100 0
-sphere2 SetRadius 70 70 70 
-
 set logics "And Or Xor Nand Nor Not"
+set types "Float Double UnsignedInt UnsignedLong UnsignedShort UnsignedChar"
+set i 0
 foreach operator $logics {
+    set ScalarType [lindex $types $i]
+
+    vtkImageEllipsoidSource sphere1${operator}
+      sphere1${operator} SetCenter 95 100 0
+      sphere1${operator} SetRadius 70 70 70
+      sphere1${operator} SetOutputScalarTypeTo${ScalarType}
+
+    vtkImageEllipsoidSource sphere2${operator}
+      sphere2${operator} SetCenter 161 100 0
+      sphere2${operator} SetRadius 70 70 70 
+      sphere2${operator} SetOutputScalarTypeTo${ScalarType}
+
     vtkImageLogic logic${operator}
-      logic${operator} SetInput1 [sphere1 GetOutput]
-      logic${operator} SetInput2 [sphere2 GetOutput]
+      logic${operator} SetInput1 [sphere1${operator} GetOutput]
+      logic${operator} SetInput2 [sphere2${operator} GetOutput]
       logic${operator} SetOutputTrueValue 150
       logic${operator} SetOperationTo${operator}
     vtkImageMapper mapper${operator}
@@ -29,6 +35,7 @@ foreach operator $logics {
     vtkImager imager${operator}
       imager${operator} AddActor2D actor${operator}
     imgWin AddImager imager${operator}
+    incr i
 }
 
 imagerAnd SetViewport 0 .5 .33 1
