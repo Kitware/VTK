@@ -69,6 +69,9 @@ static const char *vtkCommandEventStrings[] = {
   "ExecuteInformationEvent",
   "RenderWindowMessageEvent",
   "WrongTagEvent",
+  "StartAnimationCueEvent",
+  "AnimationCueTickEvent",
+  "EndAnimationCueEvent",
   NULL
 };
 

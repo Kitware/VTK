@@ -149,6 +149,9 @@ public:
     ExecuteInformationEvent,
     RenderWindowMessageEvent,
     WrongTagEvent,
+    StartAnimationCueEvent, // used by vtkAnimationCue
+    AnimationCueTickEvent,
+    EndAnimationCueEvent,
     UserEvent = 1000
   };
 //ETX

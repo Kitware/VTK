@@ -22,6 +22,8 @@ ENDIF (UNIX)
 SET( Kit_SRCS
 vtkAbstractTransform.cxx
 vtkAmoebaMinimizer.cxx
+vtkAnimationCue.cxx
+vtkAnimationScene.cxx
 vtkAssemblyNode.cxx
 vtkAssemblyPath.cxx
 vtkAssemblyPaths.cxx
