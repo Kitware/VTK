@@ -82,7 +82,6 @@ void vtkStreamLine::Execute()
   vtkFloatArray* normals = NULL;
   vtkFloatArray* rotation = 0;
   vtkPolyData *output=this->GetOutput();
-  vtkFieldData *fd;
 
   this->SavePointInterval = this->StepLength;
   this->vtkStreamer::Integrate();
