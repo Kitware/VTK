@@ -170,6 +170,7 @@ void vtkImageImport::SetImportVoidPointer(void *ptr, int save)
       }
     this->Modified();
     }
+  this->SaveUserArray = save;
   this->ImportVoidPointer = ptr;
 }
 
