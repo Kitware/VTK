@@ -14,6 +14,8 @@ Contents
 
   Installation
 
+  VTK-Python interpreters
+
   Structure/Usage
  
   Other VTK related modules
@@ -93,6 +95,28 @@ Installation
     If you have trouble with this script or find bugs please mail us
     at <vtk-developers@public.kitware.com> or at
     <vtkusers@public.kitware.com>.
+
+
+VTK-Python interpreters
+^^^^^^^^^^^^^^^^^^^^^^^
+
+  In order to solve some severe problems with running VTK-Python on
+  some platforms and compilers a special Python interpreter is
+  distributed along with VTK.  This new interpreter is called
+  'vtkpython' and is the recommended way of running VTK-Python
+  problems.  If the vanilla Python interpreter is good enough and
+  works well for you please use it but if you run into severe problems
+  you might want to give vtkpython a try.  Incidentally, to see what
+  the problems are with the vanilla Python interpreter on some
+  platforms read this thread:
+ 
+http://public.kitware.com/pipermail/vtk-developers/2002-May/001536.html
+
+  Additionally, if you built VTK along with MPI support
+  (VTK_USE_PARALLEL and VTK_USE_MPI are true) then another VTK-Python
+  interpreter called 'pvtkpython' is also built.  This interpreter
+  initializes MPI correctly and is the recommended way to run parallel
+  VTK-Python scripts.
 
 
 Structure/Usage
