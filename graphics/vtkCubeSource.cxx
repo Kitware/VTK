@@ -56,12 +56,13 @@ vtkCubeSource::vtkCubeSource(float xL, float yL, float zL)
 
 void vtkCubeSource::Execute()
 {
-  float x[3], n[3];
+  float x[3], n[3], tc[3];
   int numPolys=6, numPts=24;
   int i, j, k;
   int pts[4];
   vtkPoints *newPoints; 
   vtkNormals *newNormals;
+  vtkTCoords *newTCoords; // CCS 7/27/98 Added for Texture Mapping
   vtkCellArray *newPolys;
   vtkPolyData *output = this->GetOutput();
   
@@ -73,6 +74,8 @@ void vtkCubeSource::Execute()
   newPoints->Allocate(numPts);
   newNormals = vtkNormals::New();
   newNormals->Allocate(numPts);
+  newTCoords = vtkTCoords::New();
+  newTCoords->Allocate(numPts);
 
   newPolys = vtkCellArray::New();
   newPolys->Allocate(newPolys->EstimateSize(numPolys,4));
@@ -87,10 +90,13 @@ void vtkCubeSource::Execute()
     for (x[1]=Center[1]-this->YLength/2.0, j=0; j<2; 
     j++, x[1]+=this->YLength)
       {
+      tc[1] =  x[1] + 0.5;
       for (x[2]=Center[2]-this->ZLength/2.0, k=0; k<2; 
       k++, x[2]+=this->ZLength)
         {
+	tc[0] = (x[2] + 0.5) * ( 1 - 2*i );
         newPoints->InsertNextPoint(x);
+        newTCoords->InsertNextTCoord(tc);
         newNormals->InsertNextNormal(n);
         }
       }
@@ -106,10 +112,13 @@ void vtkCubeSource::Execute()
     for (x[0]=Center[0]-this->XLength/2.0, j=0; j<2; 
     j++, x[0]+=this->XLength)
       {
+      tc[0] = ( x[0] + 0.5 ) * ( 2*i - 1 );
       for (x[2]=Center[2]-this->ZLength/2.0, k=0; k<2; 
       k++, x[2]+=this->ZLength)
         {
+	tc[1] = ( x[2] + 0.5 ) * -1;
         newPoints->InsertNextPoint(x);
+        newTCoords->InsertNextTCoord(tc);
         newNormals->InsertNextNormal(n);
         }
       }
@@ -125,10 +134,13 @@ void vtkCubeSource::Execute()
     for (x[1]=Center[1]-this->YLength/2.0, j=0; j<2; 
     j++, x[1]+=this->YLength)
       {
+      tc[1] = x[1] + 0.5;
       for (x[0]=Center[0]-this->XLength/2.0, k=0; k<2; 
       k++, x[0]+=this->XLength)
         {
+	tc[0] = ( x[0] + 0.5 ) * ( 2*i - 1 );
         newPoints->InsertNextPoint(x);
+	newTCoords->InsertNextTCoord(tc);
         newNormals->InsertNextNormal(n);
         }
       }
@@ -145,6 +157,9 @@ void vtkCubeSource::Execute()
 
   output->GetPointData()->SetNormals(newNormals);
   newNormals->Delete();
+
+  output->GetPointData()->SetTCoords(newTCoords);
+  newTCoords->Delete();
 
   newPolys->Squeeze(); // since we've estimated size; reclaim some space
   output->SetPolys(newPolys);
