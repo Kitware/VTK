@@ -38,99 +38,34 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkTimerLog.h"
-#include "vtkImageRegion.h"
-#include "vtkImageCache.h"
 #include "vtkImageFilter.h"
 
 //----------------------------------------------------------------------------
 vtkImageFilter::vtkImageFilter()
 {
-  this->FilteredAxes[0] = VTK_IMAGE_X_AXIS;
-  this->FilteredAxes[1] = VTK_IMAGE_Y_AXIS;
-  this->FilteredAxes[2] = VTK_IMAGE_Z_AXIS;
-  this->FilteredAxes[3] = VTK_IMAGE_TIME_AXIS;
-  this->NumberOfFilteredAxes = 2;
   this->Input = NULL;
-  this->SplitOrder[0] = VTK_IMAGE_COMPONENT_AXIS;
-  this->SplitOrder[1] = VTK_IMAGE_TIME_AXIS;
-  this->SplitOrder[2] = VTK_IMAGE_Z_AXIS;
-  this->SplitOrder[3] = VTK_IMAGE_Y_AXIS;
-  this->SplitOrder[4] = VTK_IMAGE_X_AXIS;
-  this->NumberOfSplitAxes = 5;
-  this->InputMemoryLimit = 5000000;   // 5 GB
   this->Bypass = 0;
   this->Updating = 0;
-  // invalid settings
-  this->NumberOfExecutionAxes = -1;
+  this->Threader = vtkMultiThreader::New();
+  this->NumberOfThreads = this->Threader->GetNumberOfThreads();
+}
+
+//----------------------------------------------------------------------------
+vtkImageFilter::~vtkImageFilter()
+{
+  this->Threader->Delete();
 }
 
 //----------------------------------------------------------------------------
 void vtkImageFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  int idx;
-  
-  os << indent << "FilteredAxes: ";
-  if (this->NumberOfFilteredAxes == 0)
-    {
-    os << indent << "None\n";
-    }
-  else
-    {
-    os << indent << "(" << vtkImageAxisNameMacro(this->FilteredAxes[0]);
-    for (idx = 1; idx < this->NumberOfFilteredAxes; ++idx)
-      {
-      os << ", " << vtkImageAxisNameMacro(this->FilteredAxes[idx]);
-      }
-    os << ")\n";
-    }
-
   os << indent << "Bypass: " << this->Bypass << "\n";
   os << indent << "Input: (" << this->Input << ").\n";
-  os << indent << "SplitOrder: ("<< vtkImageAxisNameMacro(this->SplitOrder[0]);
-
-  for (idx = 1; idx < VTK_IMAGE_DIMENSIONS; ++idx)
-    {
-    os << ", " << vtkImageAxisNameMacro(this->SplitOrder[idx]);
-    }
-  os << ")\n";
+  os << indent << "NumberOfThreads: " << this->NumberOfThreads << "\n";
 
   vtkImageSource::PrintSelf(os,indent);
 }
 
-//----------------------------------------------------------------------------
-void vtkImageFilter::SetFilteredAxes(int num, int *axes)
-{
-  int idx;
-  int modified = 0;
-  
-  if (num > 4)
-    {
-    vtkWarningMacro("SetFilteredAxes: Too many axes");
-    num = 4;
-    }
-  
-  for (idx = 0; idx < num; ++idx)
-    {
-    if (this->FilteredAxes[idx] != axes[idx])
-      {
-      modified = 1;
-      this->FilteredAxes[idx] = axes[idx];
-      }
-    }
-  if (num != this->NumberOfFilteredAxes)
-    {
-    modified = 1;
-    this->NumberOfFilteredAxes = num;
-    }
-  
-  if (modified)
-    {
-    this->Modified();
-    }
-  this->SetExecutionAxes(num, this->FilteredAxes);
-}
-						 
 //----------------------------------------------------------------------------
 // Description:
 // This Method returns the MTime of the pipeline upto and including this filter
@@ -183,15 +118,13 @@ void vtkImageFilter::SetInput(vtkImageCache *input)
 //----------------------------------------------------------------------------
 // Description:
 // This method is called by the cache.  It eventually calls the
-// Execute(vtkImageRegion *, vtkImageRegion *) method.
+// Execute(vtkImageData *, vtkImageData *) method.
 // ImageInformation has already been updated by this point, 
 // and outRegion is in local coordinates.
 // This method will stream to get the input, and loops over extra axes.
 // Only the UpdateExtent from output will get updated.
-void vtkImageFilter::InternalUpdate()
+void vtkImageFilter::InternalUpdate(vtkImageData *outData)
 {
-  vtkImageRegion *outRegion;
-
   // Make sure the Input has been set.
   if ( ! this->Input)
     {
@@ -216,11 +149,19 @@ void vtkImageFilter::InternalUpdate()
   // Handle bypass condition.
   if (this->Bypass)
     {
+    vtkImageData *inData;
+
     this->Input->SetUpdateExtent(this->Output->GetUpdateExtent());
-    this->Input->Update();
-    this->Output->CacheScalarData(this->Input->GetScalarData());
-    this->Output->SetNumberOfScalarComponents(
-		      this->Input->GetNumberOfScalarComponents());
+    inData = this->Input->UpdateAndReturnData();
+    if (!inData)
+      {
+      vtkWarningMacro("No input data provided!");
+      }
+    else
+      {
+      outData->GetPointData()->PassData(inData->GetPointData());
+      }
+
     // release input data
     if (this->Input->ShouldIReleaseData())
       {
@@ -230,36 +171,8 @@ void vtkImageFilter::InternalUpdate()
     return;
     }
   
-  // Make sure the subclss has defined the execute dimensionality
-  // It is needed to terminate recursion.
-  if (this->NumberOfExecutionAxes < 0)
-    {
-    vtkErrorMacro(<< "Subclass has not set NumberOfExecutionAxes");
-    return;
-    }
+  this->RecursiveStreamUpdate(outData,2);
 
-  // Get the output region.
-  // Note: outRegion does not allocate until first "GetScalarPointer" call
-  outRegion = this->Output->GetScalarRegion();
-  outRegion->SetAxes(5, this->ExecutionAxes);
-
-  // If outBBox is empty return immediately.
-  if (outRegion->IsEmpty())
-    {
-    outRegion->Delete();
-    this->Updating = 0;
-    return;
-    }
-
-  // Fill in image information (ComputeRequiredInputExtent may need it)
-  this->Input->UpdateImageInformation();
-  
-  // Pass on to a method that can be called recursively (for streaming).
-  this->RecursiveStreamUpdate(outRegion);
-
-  // free the output region (cache has a reference to the data.)
-  outRegion->Delete();
-  
   this->Updating = 0;
 }
 
@@ -270,13 +183,12 @@ void vtkImageFilter::InternalUpdate()
 // Description:
 // This method can be called recursively for streaming.
 // The extent of the outRegion changes, dim remains the same.
-void vtkImageFilter::RecursiveStreamUpdate(vtkImageRegion *outRegion)
+void vtkImageFilter::RecursiveStreamUpdate(vtkImageData *outData,
+					   int splitAxis)
 {
   int memory;
-  vtkImageRegion *inRegion;
-
-  //vtkTimerLogMacro("Entering Update");
-
+  vtkImageData *inData;
+  
   // Compute the required input region extent.
   // Copy to fill in extent of extra dimensions.
   this->Input->SetUpdateExtent(this->Output->GetUpdateExtent());
@@ -285,22 +197,15 @@ void vtkImageFilter::RecursiveStreamUpdate(vtkImageRegion *outRegion)
   // determine the amount of memory that will be used by the input region.
   memory = this->Input->GetUpdateExtentMemorySize();
   
-  // Split the outRegion if we are streaming.
-  if ((memory > this->InputMemoryLimit))
+  // Split the inRegion if we are streaming.
+  if ((memory > this->Input->GetMemoryLimit()))
     {
-    int splitAxisIdx, splitAxis;
     int min, max, mid;
-    // We need to split the output into pieces.
-    // It is convenient the outRegion has its own copy of output UpdateExtent.
-    // Pick an axis to split.
-    splitAxisIdx = 0;
-    splitAxis = this->SplitOrder[splitAxisIdx];
-    outRegion->GetAxisExtent(splitAxis, min, max);
-    while ( (min == max) && splitAxisIdx < this->NumberOfSplitAxes)
+    this->Output->GetAxisUpdateExtent(splitAxis,min,max);
+    while ( (min == max) && splitAxis > 0)
       {
-      ++splitAxisIdx;
-      splitAxis = this->SplitOrder[splitAxisIdx];
-      outRegion->GetAxisExtent(splitAxis, min, max);
+      splitAxis--;
+      this->Output->GetAxisUpdateExtent(splitAxis,min,max);
       }
     // Make sure we can actually split the axis
     if (min < max)
@@ -308,50 +213,34 @@ void vtkImageFilter::RecursiveStreamUpdate(vtkImageRegion *outRegion)
       // Set the first half to update
       mid = (min + max) / 2;
       vtkDebugMacro(<< "RecursiveStreamUpdate: Splitting " 
-        << vtkImageAxisNameMacro(splitAxis) << ": memory = " << memory <<
-        ", extent = " << min << "->" << mid << " | " << mid+1 << "->" << max);
-      outRegion->SetAxisExtent(splitAxis, min, mid);
+      << splitAxis << " : memory = " << memory <<
+      ", extent = " << min << "->" << mid << " | " << mid+1 << "->" << max);
       this->Output->SetAxisUpdateExtent(splitAxis, min, mid);
-      this->RecursiveStreamUpdate(outRegion);
+      this->RecursiveStreamUpdate(outData, splitAxis);
       // Set the second half to update
       this->Output->SetAxisUpdateExtent(splitAxis, mid+1, max);
-      outRegion->SetAxisExtent(splitAxis, mid+1, max);
-      this->RecursiveStreamUpdate(outRegion);
+      this->RecursiveStreamUpdate(outData, splitAxis);
       // Restore the original extent
-      outRegion->SetAxisExtent(splitAxis, min, max);
       this->Output->SetAxisUpdateExtent(splitAxis, min, max);
       return;
       }
     else
       {
       // Cannot split any more.  Ignore memory limit and continue.
-      vtkWarningMacro(<< "UpdatePointData2: Cannot split. memory = "
-        << memory << ", limit = " << this->InputMemoryLimit << ", "
-        << vtkImageAxisNameMacro(splitAxis) << ": " << min << "->" << max);
+      vtkWarningMacro(<< "RecursiveStreamUpdate: Cannot split. memory = "
+        << memory << ", " << splitAxis << " : " << min << "->" << max);
       }
     }
 
   // No Streaming required.
   // Get the input region (Update extent was set at start of this method).
-  this->Input->Update();
-  inRegion = this->Input->GetScalarRegion();
-  inRegion->SetAxes(5, this->ExecutionAxes);
-  // Make sure we got the input.
-  if ( ! inRegion->AreScalarsAllocated())
-    {
-    vtkErrorMacro("RecursiveStreamUpdate: Could not get input");
-    inRegion->Delete();
-    return;
-    }  
-  
+  inData = this->Input->UpdateAndReturnData();
+
   // The StartMethod call is placed here to be after updating the input.
   if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
   // fill the output region 
-  this->RecursiveLoopExecute(VTK_IMAGE_DIMENSIONS, inRegion, outRegion);
+  this->Execute(inData, outData);
   if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
-  
-  // inRegion is just a handle to the data.
-  inRegion->Delete();
   
   // Like the graphics pipeline this source releases inputs data.
   if (this->Input->ShouldIReleaseData())
@@ -380,19 +269,14 @@ void vtkImageFilter::UpdateImageInformation()
   this->Output->SetWholeExtent(this->Input->GetWholeExtent());
   this->Output->SetSpacing(this->Input->GetSpacing());
   this->Output->SetOrigin(this->Input->GetOrigin());
-  this->Output->SetNumberOfScalarComponents(
-			    this->Input->GetNumberOfScalarComponents());
+  this->Output->SetScalarType(this->Input->GetScalarType());
+  this->Output->
+    SetNumberOfScalarComponents(this->Input->GetNumberOfScalarComponents());
+
   if ( ! this->Bypass)
     {
     // Let the subclass modify the default.
     this->ExecuteImageInformation();
-    }
-  
-  // If the ScalarType of the output has not been set yet,
-  // set it to be the same as input.
-  if (this->Output->GetScalarType() == VTK_VOID)
-    {
-    this->Output->SetScalarType(this->Input->GetScalarType());
     }
 }
 
@@ -417,123 +301,102 @@ void vtkImageFilter::ComputeRequiredInputUpdateExtent()
 {
 }
 
-
-//----------------------------------------------------------------------------
-// Description:
-// This execute method recursively loops over extra dimensions and
-// calls the subclasses Execute method with lower dimensional regions.
-// NumberOfExecutionAxes is used to terminate the recursion.
-void vtkImageFilter::RecursiveLoopExecute(int dim, vtkImageRegion *inRegion, 
-					  vtkImageRegion *outRegion)
+struct vtkImageThreadStruct
 {
-  // Terminate recursion?
-  if (dim <= this->NumberOfExecutionAxes)
+  vtkImageFilter *Filter;
+  vtkImageData   *Input;
+  vtkImageData   *Output;
+};
+
+
+
+// this mess is really a simple function. All it does is call
+// the ThreadedExecute method after setting the correct
+// extent for this thread. Its just a pain to calculate
+// the correct extent.
+VTK_THREAD_RETURN_TYPE vtkImageThreadedExecute( void *arg )
+{
+  vtkImageThreadStruct *str;
+  vtkImageFilter *filt;
+  int ext[6];
+  int threadId, threadCount;
+  int axis;
+  
+  threadId = ((ThreadInfoStruct *)(arg))->ThreadID;
+  threadCount = ((ThreadInfoStruct *)(arg))->NumberOfThreads;
+
+  str = (vtkImageThreadStruct *)(((ThreadInfoStruct *)(arg))->UserData);
+  
+  memcpy(ext,str->Filter->GetOutput()->GetUpdateExtent(),
+	 sizeof(int)*6);
+
+  // execute the actual method with appropriate extent
+  // first find a non degenerate axis
+  axis = 2;
+  while ((axis > 0) && 
+	 ((ext[axis*2+1] - ext[axis*2]) == 0)) axis--;
+  
+  // is there is no division then only execute for thread zero
+  if (axis == 0)
     {
-    this->Execute(inRegion, outRegion);
-    return;
+    if (threadId == 0)
+      str->Filter->ThreadedExecute(str->Input, str->Output, ext);
     }
   else
     {
-    int coordinate, axis;
-    int inMin, inMax;
-    int outMin, outMax;
-
-    // Get the extent of the forth dimension to be eliminated.
-    axis = this->ExecutionAxes[dim - 1];
-    inRegion->GetAxisExtent(axis, inMin, inMax);
-    outRegion->GetAxisExtent(axis, outMin, outMax);
-
-    // The axis should have the same extent.
-    if (inMin != outMin || inMax != outMax) 
+    // find correct extent
+    int range = ext[axis*2+1] - ext[axis*2];
+    // if the range is smaller than the threadCount
+    // then only use the first range threads
+    if ((range + 1) <= threadCount)
       {
-      vtkErrorMacro(<< "Execute: Extra axis " << vtkImageAxisNameMacro(axis)
-      << " can not be eliminated");
-      return;
-      }
-  
-    // loop over the samples along the extra axis.
-    for (coordinate = inMin; coordinate <= inMax; ++coordinate)
-      {
-      // set up the lower dimensional regions.
-      inRegion->SetAxisExtent(axis, coordinate, coordinate);
-      outRegion->SetAxisExtent(axis, coordinate, coordinate);
-      if (dim == 3)
-        {
-	this->UpdateProgress ((float) (coordinate - inMin + 1) / (float) (inMax - inMin + 1));
-	if (coordinate == inMax)
-	  {
-	  this->Progress = 0.0;
-	  }
+      if (threadId < range)
+	{
+	ext[axis*2] = ext[axis*2] + threadId;
+	ext[axis*2+1] = ext[axis*2];
+	str->Filter->ThreadedExecute(str->Input, str->Output, ext);
 	}
-      this->RecursiveLoopExecute(dim - 1, inRegion, outRegion);
       }
-    // restore the original extent
-    inRegion->SetAxisExtent(axis, inMin, inMax);
-    outRegion->SetAxisExtent(axis, outMin, outMax);
+    else
+      {
+      // split up the range between threads
+      float min = ext[axis*2] + (float)threadId*range/threadCount;
+      float max = ext[axis*2] + (threadId+1.0)*range/threadCount;
+      int tmp = min + 1.5;
+      if (tmp == ext[axis*2] + 1) tmp = ext[axis*2];
+      ext[axis*2] = tmp;
+      ext[axis*2+1] = max + 0.5;
+      str->Filter->ThreadedExecute(str->Input, str->Output, ext);
+      }
     }
+  
+  return VTK_THREAD_RETURN_VALUE;
 }
 
 
+void vtkImageFilter::Execute(vtkImageData *inData, 
+			     vtkImageData *outData)
+{
+  vtkImageThreadStruct str;
+  
+  str.Filter = this;
+  str.Input = inData;
+  str.Output = outData;
+  
+  this->Threader->SetNumberOfThreads(this->NumberOfThreads);
+  
+  // setup threading and the invoke threadedExecute
+  this->Threader->SetSingleMethod(vtkImageThreadedExecute, &str);
+  this->Threader->SingleMethodExecute();
+}
 
 
 //----------------------------------------------------------------------------
 // Description:
 // The execute method created by the subclass.
-void vtkImageFilter::Execute(vtkImageRegion *inRegion, 
-			     vtkImageRegion *outRegion)
+void vtkImageFilter::ThreadedExecute(vtkImageData *inData, 
+				     vtkImageData *outData,
+				     int extent[6])
 {
-  inRegion = outRegion;
-  vtkErrorMacro(<< "Subclass needs to supply an execute function.");
+  vtkErrorMacro("subclase should override this method!!!");
 }
-
-
-
-//----------------------------------------------------------------------------
-void vtkImageFilter::SetSplitOrder(int num, int *axes)
-{
-  int idx;
-  
-  // Error checking
-  if (num < 0 || num > VTK_IMAGE_DIMENSIONS)
-    {
-    vtkErrorMacro(<< "SetSplitOrder: Bad num " << num);
-    return;
-    }
-
-  for (idx = 0; idx < num; ++idx)
-    {
-    this->SplitOrder[idx] = axes[idx];
-    }
-  this->NumberOfSplitAxes = num;
-}
-//----------------------------------------------------------------------------
-void vtkImageFilter::GetSplitOrder(int num, int *axes)
-{
-  int idx;
-  
-  // Error checking
-  if (num < 0 || num > this->NumberOfSplitAxes)
-    {
-    vtkErrorMacro(<< "GetSplitOrder: Bad num " << num);
-    return;
-    }
-
-  for (idx = 0; idx < num; ++idx)
-    {
-    axes[idx] = this->SplitOrder[idx];
-    }
-}
-
-  
-    
-
-
-
-
-
-
-
-
-
-
-

@@ -283,7 +283,6 @@ void vtkVolumeRayCastMapper::GeneralImageInitialization( vtkRenderer *ren,
   vtkTransform           *scalar_transform;
   vtkRayCaster           *ray_caster;
   float                  spacing[3], data_origin[3];
-  char                   *data_type;
   unsigned char          *uc_data_ptr;
   unsigned short         *us_data_ptr;
   short                  *s_data_ptr;
@@ -380,54 +379,14 @@ void vtkVolumeRayCastMapper::GeneralImageInitialization( vtkRenderer *ren,
   // Get the previous zbuffer data
   this->RenderZData = ren->GetRayCaster()->GetCurrentZBuffer();
 
-  // Get the data type and set the data_switch_value accordingly.  This way,
-  // we only need to switch on an int instead of doing a string comparison
-  // during the image computation.  Also, set the correct data pointer.
-  data_type = this->ScalarInput->GetPointData()->GetScalars()->GetDataType();
-  if ( strcmp( data_type, "unsigned char" ) == 0 )
-    {
-    uc_data_ptr = ((vtkUnsignedCharScalars *)
-      (this->ScalarInput->GetPointData()->GetScalars()))->GetPointer(0);
-    this->ScalarDataPointer = (void *)uc_data_ptr;
-    this->ScalarDataType = 0;
-    }
-  else if ( strcmp( data_type, "unsigned short" ) == 0 )
-    {
-    us_data_ptr = ((vtkUnsignedShortScalars *)
-      (this->ScalarInput->GetPointData()->GetScalars()))->GetPointer(0);
-    this->ScalarDataPointer = (void *)us_data_ptr;
-    this->ScalarDataType = 1;
-    }
-  else if ( strcmp( data_type, "short" ) == 0 )
-    {
-    s_data_ptr = ((vtkShortScalars *)
-      (this->ScalarInput->GetPointData()->GetScalars()))->GetPointer(0);
-    this->ScalarDataPointer = (void *)s_data_ptr;
-    this->ScalarDataType = 2;
-    }
-  else if ( strcmp( data_type, "int" ) == 0 )
-    {
-    i_data_ptr = ((vtkIntScalars *)
-      (this->ScalarInput->GetPointData()->GetScalars()))->GetPointer(0);
-    this->ScalarDataPointer = (void *)i_data_ptr;
-    this->ScalarDataType = 3;
-    }
-  else if ( strcmp( data_type, "float" ) == 0 )
-    {
-    f_data_ptr = ((vtkFloatScalars *)
-      (this->ScalarInput->GetPointData()->GetScalars()))->GetPointer(0);
-    this->ScalarDataPointer = (void *)f_data_ptr;
-    this->ScalarDataType = 4;
-    }
-  else
-    {
-    vtkErrorMacro( << "I don't know what type of data this is: " << 
-                   data_type );
-    }
-
+  this->ScalarDataPointer = 
+    this->ScalarInput->GetPointData()->GetScalars()->GetVoidPtr(0);
+  this->ScalarDataType = 
+    this->ScalarInput->GetPointData()->GetScalars()->GetDataType();
+    
   if( (this->ScalarDataType != 0) && (this->ScalarDataType != 1) )
     {
-    vtkErrorMacro( << "The scalar data type: " << data_type <<
+    vtkErrorMacro( << "The scalar data type: " << this->ScalarDataType <<
       " is not supported when volume rendering. Please convert the " <<
       " data to unsigned char or unsigned short.\n" );
     }
@@ -1205,7 +1164,7 @@ void vtkVolumeRayCastMapper::UpdateShadingTables( vtkRenderer *ren,
 void vtkVolumeRayCastMapper::UpdateTransferFunctions( vtkRenderer *ren, 
 						  vtkVolume *vol )
 {
-  char                      *data_type;
+  int                       data_type;
   vtkVolumeProperty         *volume_property;
   vtkPiecewiseFunction      *opacity_transfer_function;
   vtkPiecewiseFunction      *gray_transfer_function;
@@ -1268,7 +1227,7 @@ void vtkVolumeRayCastMapper::UpdateTransferFunctions( vtkRenderer *ren,
     }
 
 
-  if ( strcmp( data_type, "unsigned char" ) == 0 )
+  if (data_type == VTK_UNSIGNED_CHAR)
     {
     this->TFArraySize = (int)(0x100);
 
@@ -1312,7 +1271,7 @@ void vtkVolumeRayCastMapper::UpdateTransferFunctions( vtkRenderer *ren,
       this->RGBTFArrayMTime.Modified();
       }
     }
-  else if ( strcmp( data_type, "unsigned short" ) == 0 )
+  else if ( data_type = VTK_UNSIGNED_SHORT )
     {
     this->TFArraySize = (int)(0x10000);
 

@@ -50,16 +50,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImageViewer::vtkImageViewer()
 {
   // Actual displayed extent is clipped.
-  this->PermutationAxes[0] = VTK_IMAGE_X_AXIS;
-  this->PermutationAxes[1] = VTK_IMAGE_Y_AXIS;
-  this->PermutationAxes[2] = VTK_IMAGE_Z_AXIS;
-  this->PermutationAxes[3] = VTK_IMAGE_TIME_AXIS;
   this->DisplayExtent[0] = -VTK_LARGE_INTEGER;
   this->DisplayExtent[1] = VTK_LARGE_INTEGER;
   this->DisplayExtent[2] = -VTK_LARGE_INTEGER;
   this->DisplayExtent[3] = VTK_LARGE_INTEGER;
-  this->ZSlice = -VTK_LARGE_INTEGER;
-  this->TimeSlice = -VTK_LARGE_INTEGER;
+  this->DisplayExtent[4] = -VTK_LARGE_INTEGER;
+  this->DisplayExtent[5] = VTK_LARGE_INTEGER;
   
   this->Size[0] = 0;
   this->Size[1] = 0;
@@ -95,14 +91,10 @@ vtkImageViewer *vtkImageViewer::New()
 void vtkImageViewer::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os, indent);
-  os << indent << "PermutationAxes: ("
-     << vtkImageAxisNameMacro(this->PermutationAxes[0]) << ", " 
-     << vtkImageAxisNameMacro(this->PermutationAxes[1]) << ", " 
-     << vtkImageAxisNameMacro(this->PermutationAxes[2]) << ", " 
-     << vtkImageAxisNameMacro(this->PermutationAxes[3]) << ")\n";
   os << indent << "DisplayExtent: (" << this->DisplayExtent[0] << ", " 
      << this->DisplayExtent[1] << ", " << this->DisplayExtent[2] << ", " 
-     << this->DisplayExtent[3] << ")\n";
+     << this->DisplayExtent[3] << ", " << this->DisplayExtent[4] << ", " 
+     << this->DisplayExtent[5] << ")\n";
   os << indent << "ColorWindow: " << this->ColorWindow << "\n";
   os << indent << "ColorLevel: " << this->ColorLevel << "\n";
   os << indent << "Size: " << this->Size[0] << ", " << this->Size[1] << "\n";
@@ -142,106 +134,68 @@ void vtkImageViewer::SetPosition(int x, int y)
 //----------------------------------------------------------------------------
 void vtkImageViewer::Render(void)
 {
-  int min, max;
-  int wholeMin, wholeMax;
-  int idx, axis;
-  vtkImageRegion *region;
+  int idx;
+  vtkImageData *data;
+  int *wholeExtent;
   
   if ( ! this->Input)
     {
     // open the window anyhow if not yet open
-    this->RenderRegion(NULL);
+    this->RenderData(NULL);
     vtkDebugMacro(<< "Render: Please Set the input.");
     return;
     }
 
   this->Input->UpdateImageInformation();
+  wholeExtent = this->Input->GetWholeExtent();
+  
   // determine the Extent of the 2D input region needed
   // (intersection of DisplayExtent and WholeExtent).
-  for (idx = 0; idx < 2; ++idx)
+  for (idx = 0; idx < 3; idx++)
     {
-    axis = this->PermutationAxes[idx];
-    min = this->DisplayExtent[idx*2];
-    max = this->DisplayExtent[idx*2+1];
-    // Clip to whole extent
-    this->Input->GetAxisWholeExtent(axis, wholeMin, wholeMax);
-    if (min < wholeMin)
+    if (this->DisplayExtent[idx*2] < wholeExtent[idx*2]) 
       {
-      min = wholeMin;
+      this->DisplayExtent[idx*2] = wholeExtent[idx*2];
       }
-    if (min > wholeMax)
+    if (this->DisplayExtent[idx*2+1] > wholeExtent[idx*2+1]) 
       {
-      min = wholeMax;
+      this->DisplayExtent[idx*2+1] = wholeExtent[idx*2+1];
       }
-    if (max < wholeMin)
-      {
-      max = wholeMin;
-      }
-    if (max > wholeMax)
-      {
-      max = wholeMax;
-      }
-    this->Input->SetAxisUpdateExtent(axis, min, max);
     }
 
-  // Non-display-axes extents can only have one sample.
-  // Z-Slice
-  axis = this->PermutationAxes[2];
-  min = this->ZSlice;
-  // Clip to whole extent
-  this->Input->GetAxisWholeExtent(axis, wholeMin, wholeMax);
-  if (min < wholeMin)
-    {
-    min = wholeMin;
-    }
-  if (min > wholeMax)
-    {
-    min = wholeMax;
-    }  
-  this->Input->SetAxisUpdateExtent(axis, min, min);
-  // Time slice
-  axis = this->PermutationAxes[3];
-  min = this->TimeSlice;
-  // Clip to whole extent
-  this->Input->GetAxisWholeExtent(axis, wholeMin, wholeMax);
-  if (min < wholeMin)
-    {
-    min = wholeMin;
-    }
-  if (min > wholeMax)
-    {
-    min = wholeMax;
-    }  
-  this->Input->SetAxisUpdateExtent(axis, min, min);
-  
-  // all components are updated all the time.
+  this->Input->SetUpdateExtent(this->DisplayExtent);
 
   // Get the region from the input
-  this->Input->Update();
-  region = this->Input->GetScalarRegion();
-  if ( ! region->AreScalarsAllocated())
+  data = this->Input->UpdateAndReturnData();
+  if ( !data)
     {
-    vtkErrorMacro(<< "Render: Could not get region from input.");
-    region->Delete();
+    vtkErrorMacro(<< "Render: Could not get data from input.");
     return;
     }
 
-  region->SetAxes(this->PermutationAxes[0], this->PermutationAxes[1], 
-		  VTK_IMAGE_COMPONENT_AXIS);
-  this->RenderRegion(region);
-  region->Delete();
+  this->RenderData(data);
 }
 
 
 
 
+//----------------------------------------------------------------------------
+int vtkImageViewer::GetZSlice()
+{
+  return this->DisplayExtent[4];
+}
 
+//----------------------------------------------------------------------------
+void vtkImageViewer::SetZSlice(int val)
+{
+  this->DisplayExtent[4] = val;
+  this->DisplayExtent[5] = val;
+}
 
 
 //----------------------------------------------------------------------------
 int vtkImageViewer::GetWholeZMin()
 {
-  int axis = this->PermutationAxes[2];
   int *extent;
   
   if ( ! this->Input)
@@ -250,13 +204,12 @@ int vtkImageViewer::GetWholeZMin()
     }
   this->Input->UpdateImageInformation();
   extent = this->Input->GetWholeExtent();
-  return extent[axis*2];
+  return extent[4];
 }
 
 //----------------------------------------------------------------------------
 int vtkImageViewer::GetWholeZMax()
 {
-  int axis = this->PermutationAxes[2];
   int *extent;
   
   if ( ! this->Input)
@@ -265,7 +218,7 @@ int vtkImageViewer::GetWholeZMax()
     }
   this->Input->UpdateImageInformation();
   extent = this->Input->GetWholeExtent();
-  return extent[axis*2 + 1];
+  return extent[5];
 }
 
 

@@ -61,10 +61,10 @@ public:
 
   // Description:
   // The image extent of the output has to be set explicitely.
-  void SetOutputWholeExtent(int extent[8]);
+  void SetOutputWholeExtent(int extent[6]);
   void SetOutputWholeExtent(int minX, int maxX, int minY, int maxY, 
-			    int minZ, int maxZ, int minT, int maxT);
-  void GetOutputWholeExtent(int extent[8]);
+			    int minZ, int maxZ);
+  void GetOutputWholeExtent(int extent[6]);
   int *GetOutputWholeExtent() {return this->OutputWholeExtent;}
 
   // Pad the scalar components as well.
@@ -72,7 +72,7 @@ public:
   vtkGetMacro(OutputNumberOfScalarComponents, int);
   
 protected:
-  int OutputWholeExtent[VTK_IMAGE_EXTENT_DIMENSIONS];
+  int OutputWholeExtent[6];
   int OutputNumberOfScalarComponents;
 
   void ExecuteImageInformation();

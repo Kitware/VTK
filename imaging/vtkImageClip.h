@@ -88,7 +88,7 @@ protected:
   vtkTimeStamp CTime;
   int Automatic;
   int Initialized; // Set the OutputImageExtent for the first time.
-  int OutputWholeExtent[8];
+  int OutputWholeExtent[6];
   
   void ExecuteImageInformation();
   void ComputeOutputWholeExtent();

@@ -212,64 +212,65 @@ int vtkDataWriter::WritePointData(FILE *fp, vtkDataSet *ds)
 int vtkDataWriter::WritePoints(FILE *fp, vtkPoints *points)
 {
   int i, numPts=points->GetNumberOfPoints();
-  char *type;
   
   fprintf (fp, "POINTS %d ", numPts);
-  type = points->GetDataType();
 
-  if ( !strcmp(type,"float") )
+  switch (points->GetDataType())
     {
-    fprintf (fp, "float\n");
-    if ( this->FileType == VTK_ASCII )
+    case VTK_FLOAT:
       {
-      float *p;
-      for (i=0; i<numPts; i++)
-        {
-        p = points->GetPoint(i);
-        fprintf (fp, "%g %g %g ", p[0], p[1], p[2]);
-	if ( !((i+1)%2) ) fprintf (fp,"\n");
-        }
+      fprintf (fp, "float\n");
+      if ( this->FileType == VTK_ASCII )
+	{
+	float *p;
+	for (i=0; i<numPts; i++)
+	  {
+	  p = points->GetPoint(i);
+	  fprintf (fp, "%g %g %g ", p[0], p[1], p[2]);
+	  if ( !((i+1)%2) ) fprintf (fp,"\n");
+	  }
+	}
+      else
+	{
+	vtkFloatPoints *fpoints = (vtkFloatPoints *)points;
+	float *fptr=fpoints->GetPointer(0);
+	// swap the bytes if necc
+	vtkByteSwap::SwapWrite4BERange(fptr,3*numPts,fp);
+	}
+      fprintf (fp,"\n");
       }
-    else
-      {
-      vtkFloatPoints *fpoints = (vtkFloatPoints *)points;
-      float *fptr=fpoints->GetPointer(0);
-      // swap the bytes if necc
-      vtkByteSwap::SwapWrite4BERange(fptr,3*numPts,fp);
-      }
-    fprintf (fp,"\n");
-    }
-
-  else if ( !strcmp(type,"int") )
-    {
-    vtkIntPoints *ipoints = (vtkIntPoints *)points;
-    fprintf (fp, "int\n");
-    if ( this->FileType == VTK_ASCII )
-      {
-      int *p;
-      for (i=0; i<numPts; i++)
-        {
-        p = ipoints->GetPointer(3*i);
-        fprintf (fp, "%d %d %d ", p[0], p[1], p[2]);
-        if ( !((i+1)%2) ) fprintf (fp,"\n");
-        }
-      }
-    else
+    break;
+    case VTK_INT:
       {
       vtkIntPoints *ipoints = (vtkIntPoints *)points;
-      int *iptr=ipoints->GetPointer(0);
-      // swap the bytes if necc
-      vtkByteSwap::SwapWrite4BERange(iptr,3*numPts,fp);
+      fprintf (fp, "int\n");
+      if ( this->FileType == VTK_ASCII )
+	{
+	int *p;
+	for (i=0; i<numPts; i++)
+	  {
+	  p = ipoints->GetPointer(3*i);
+	  fprintf (fp, "%d %d %d ", p[0], p[1], p[2]);
+	  if ( !((i+1)%2) ) fprintf (fp,"\n");
+	  }
+	}
+      else
+	{
+	vtkIntPoints *ipoints = (vtkIntPoints *)points;
+	int *iptr=ipoints->GetPointer(0);
+	// swap the bytes if necc
+	vtkByteSwap::SwapWrite4BERange(iptr,3*numPts,fp);
+	}
+      fprintf (fp,"\n");
       }
-    fprintf (fp,"\n");
+    break;
+    default:
+      {
+      vtkErrorMacro(<<"Point type currently not supported");
+      return 0;
+      }
     }
-
-  else
-    {
-    vtkErrorMacro(<<"Point type: " << type << " currently not supported");
-    return 0;
-    }
-
+  
   return 1;
 }
 
@@ -278,164 +279,164 @@ int vtkDataWriter::WritePoints(FILE *fp, vtkPoints *points)
 int vtkDataWriter::WriteCoordinates(FILE *fp, vtkScalars *coords, int axes)
 {
   int i, ncoords=coords->GetNumberOfScalars();
-  char *type;
   
   if ( axes == 0 ) fprintf (fp, "X_COORDINATES %d ", ncoords);
   else if ( axes == 1) fprintf (fp, "Y_COORDINATES %d ", ncoords);
   else fprintf (fp, "Z_COORDINATES %d ", ncoords);
 
-  type = coords->GetDataType();
-
-  if ( !strcmp(type,"float") )
+  switch (coords->GetDataType())
     {
-    fprintf (fp, "float\n");
-    if ( this->FileType == VTK_ASCII )
+    case VTK_FLOAT:
       {
-      float s;
-      for (i=0; i<ncoords; i++)
-        {
-        s = coords->GetScalar(i);
-        fprintf (fp, "%g ", s);
-        if ( !((i+1)%6) ) fprintf (fp,"\n");
-        }
+      fprintf (fp, "float\n");
+      if ( this->FileType == VTK_ASCII )
+	{
+	float s;
+	for (i=0; i<ncoords; i++)
+	  {
+	  s = coords->GetScalar(i);
+	  fprintf (fp, "%g ", s);
+	  if ( !((i+1)%6) ) fprintf (fp,"\n");
+	  }
+	}
+      else
+	{
+	vtkFloatScalars *fscalars = (vtkFloatScalars *)coords;
+	float *fptr=fscalars->GetPointer(0);
+	// swap the bytes if necc
+	vtkByteSwap::SwapWrite4BERange(fptr,ncoords,fp);
+	}
+      fprintf (fp,"\n");
       }
-    else
+    break;
+    case VTK_INT:
       {
-      vtkFloatScalars *fscalars = (vtkFloatScalars *)coords;
-      float *fptr=fscalars->GetPointer(0);
-      // swap the bytes if necc
-      vtkByteSwap::SwapWrite4BERange(fptr,ncoords,fp);
+      fprintf (fp, "int\n");
+      if ( this->FileType == VTK_ASCII )
+	{
+	int s;
+	for (i=0; i<ncoords; i++)
+	  {
+	  s = (int) coords->GetScalar(i);
+	  fprintf (fp, "%d ", s);
+	  if ( !((i+1)%6) ) fprintf (fp,"\n");
+	  }
+	}
+      else
+	{
+	vtkIntScalars *iscalars = (vtkIntScalars *)coords;
+	int *iptr=iscalars->GetPointer(0);
+	// swap the bytes if necc
+	vtkByteSwap::SwapWrite4BERange(iptr,ncoords,fp);
+	}
+      fprintf (fp,"\n");
       }
-    fprintf (fp,"\n");
+    break;
+    case VTK_BIT:
+      {
+      fprintf (fp, "int\n");
+      if ( this->FileType == VTK_ASCII )
+	{
+	int s;
+	for (i=0; i<ncoords; i++)
+	  {
+	  s = (int) coords->GetScalar(i);
+	  fprintf (fp, "%d ", (s!=0.0?1:0));
+	  if ( !((i+1)%6) ) fprintf (fp,"\n");
+	  }
+	}
+      else
+	{
+	vtkBitScalars *bscalars = (vtkBitScalars *)coords;
+	unsigned char *cptr=bscalars->GetPointer(0);
+	fwrite (cptr,sizeof(char),(ncoords-1)/8+1,fp);
+	}
+      fprintf (fp,"\n");
+      }
+    break;
+    case VTK_UNSIGNED_CHAR:
+      {
+      fprintf (fp, "unsigned_char\n");
+      if ( this->FileType == VTK_ASCII )
+	{
+	unsigned char s;
+	for (i=0; i<ncoords; i++)
+	  {
+	  s = (unsigned char) coords->GetScalar(i);
+	  fprintf (fp, "%i ", s);
+	  if ( !((i+1)%6) ) fprintf (fp,"\n");
+	  }
+	}
+      else
+	{
+	vtkIntScalars *iscalars = (vtkIntScalars *)coords;
+	int *iptr=iscalars->GetPointer(0);
+	// swap the bytes if necc
+	vtkByteSwap::SwapWrite4BERange(iptr,ncoords,fp);
+	}
+      fprintf (fp,"\n");
+      }
+    break;
+    case VTK_SHORT:
+      {
+      fprintf (fp, "short\n");
+      if ( this->FileType == VTK_ASCII )
+	{
+	short s;
+	for (i=0; i<ncoords; i++)
+	  {
+	  s = (short) coords->GetScalar(i);
+	  fprintf (fp, "%hd ", s);
+	  if ( !((i+1)%6) ) fprintf (fp,"\n");
+	  }
+	}
+      else
+	{
+	vtkIntScalars *iscalars = (vtkIntScalars *)coords;
+	int *iptr=iscalars->GetPointer(0);
+	// swap the bytes if necc
+	vtkByteSwap::SwapWrite4BERange(iptr,ncoords,fp);
+	}
+      fprintf (fp,"\n");
+      }
+    break;
+    case VTK_UNSIGNED_SHORT:
+      {
+      fprintf (fp, "int\n");
+      if ( this->FileType == VTK_ASCII )
+	{
+	int s;
+	for (i=0; i<ncoords; i++)
+	  {
+	  s = (int) coords->GetScalar(i);
+	  fprintf (fp, "%hu ", s);
+	  if ( !((i+1)%6) ) fprintf (fp,"\n");
+	  }
+	}
+      else
+	{
+	vtkIntScalars *iscalars = (vtkIntScalars *)coords;
+	int *iptr=iscalars->GetPointer(0);
+	// swap the bytes if necc
+	vtkByteSwap::SwapWrite4BERange(iptr,ncoords,fp);
+	}
+      fprintf (fp,"\n");
+      }
+    break;
+    default:
+      {
+      vtkErrorMacro(<<"Coordinate type not supported");
+      return 0;
+      }
     }
-
-  else if ( !strcmp(type,"int") )
-    {
-    fprintf (fp, "int\n");
-    if ( this->FileType == VTK_ASCII )
-      {
-      int s;
-      for (i=0; i<ncoords; i++)
-        {
-        s = (int) coords->GetScalar(i);
-        fprintf (fp, "%d ", s);
-        if ( !((i+1)%6) ) fprintf (fp,"\n");
-        }
-      }
-    else
-      {
-      vtkIntScalars *iscalars = (vtkIntScalars *)coords;
-      int *iptr=iscalars->GetPointer(0);
-      // swap the bytes if necc
-      vtkByteSwap::SwapWrite4BERange(iptr,ncoords,fp);
-      }
-    fprintf (fp,"\n");
-    }
-
-  else if ( !strcmp(type,"bit") )
-    {
-    fprintf (fp, "int\n");
-    if ( this->FileType == VTK_ASCII )
-      {
-      int s;
-      for (i=0; i<ncoords; i++)
-        {
-        s = (int) coords->GetScalar(i);
-        fprintf (fp, "%d ", (s!=0.0?1:0));
-        if ( !((i+1)%6) ) fprintf (fp,"\n");
-        }
-      }
-    else
-      {
-      vtkBitScalars *bscalars = (vtkBitScalars *)coords;
-      unsigned char *cptr=bscalars->GetPointer(0);
-      fwrite (cptr,sizeof(char),(ncoords-1)/8+1,fp);
-      }
-    fprintf (fp,"\n");
-    }
-
-  else if ( !strcmp(type,"unsigned char") )
-    {
-    fprintf (fp, "unsigned_char\n");
-    if ( this->FileType == VTK_ASCII )
-      {
-      unsigned char s;
-      for (i=0; i<ncoords; i++)
-        {
-        s = (unsigned char) coords->GetScalar(i);
-        fprintf (fp, "%i ", s);
-        if ( !((i+1)%6) ) fprintf (fp,"\n");
-        }
-      }
-    else
-      {
-      vtkIntScalars *iscalars = (vtkIntScalars *)coords;
-      int *iptr=iscalars->GetPointer(0);
-      // swap the bytes if necc
-      vtkByteSwap::SwapWrite4BERange(iptr,ncoords,fp);
-      }
-    fprintf (fp,"\n");
-    }
-
-  else if ( !strcmp(type,"short") )
-    {
-    fprintf (fp, "short\n");
-    if ( this->FileType == VTK_ASCII )
-      {
-      short s;
-      for (i=0; i<ncoords; i++)
-        {
-        s = (short) coords->GetScalar(i);
-        fprintf (fp, "%hd ", s);
-        if ( !((i+1)%6) ) fprintf (fp,"\n");
-        }
-      }
-    else
-      {
-      vtkIntScalars *iscalars = (vtkIntScalars *)coords;
-      int *iptr=iscalars->GetPointer(0);
-      // swap the bytes if necc
-      vtkByteSwap::SwapWrite4BERange(iptr,ncoords,fp);
-      }
-    fprintf (fp,"\n");
-    }
-
-  else if ( !strcmp(type,"unsigned short") )
-    {
-    fprintf (fp, "int\n");
-    if ( this->FileType == VTK_ASCII )
-      {
-      int s;
-      for (i=0; i<ncoords; i++)
-        {
-        s = (int) coords->GetScalar(i);
-        fprintf (fp, "%hu ", s);
-        if ( !((i+1)%6) ) fprintf (fp,"\n");
-        }
-      }
-    else
-      {
-      vtkIntScalars *iscalars = (vtkIntScalars *)coords;
-      int *iptr=iscalars->GetPointer(0);
-      // swap the bytes if necc
-      vtkByteSwap::SwapWrite4BERange(iptr,ncoords,fp);
-      }
-    fprintf (fp,"\n");
-    }
-
-  else
-    {
-    vtkErrorMacro(<<"Coordinate type: " << type << " currently not supported");
-    return 0;
-    }
-
+  
   return 1;
 }
 
 int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int numPts)
 {
   int i, size = 0;
-  char *type, *name;
+  char *name;
   vtkLookupTable *lut;
 
   if ( (lut=scalars->GetLookupTable()) == NULL || (size = lut->GetNumberOfColors()) > 0 )
@@ -446,153 +447,153 @@ int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int numPts)
   if ( ! strcmp(scalars->GetScalarType(),"SingleValued") )
     {
     fprintf (fp, "SCALARS ");
-    type = scalars->GetDataType();
-
-    if ( !strcmp(type,"bit") )
+    switch (scalars->GetDataType())
       {
-      fprintf (fp, "%s bit\nLOOKUP_TABLE %s\n", this->ScalarsName, name);
-      if ( this->FileType == VTK_ASCII )
-        {
-        float s;
-        for (i=0; i<numPts; i++)
-          {
-          s = scalars->GetScalar(i);
-          fprintf (fp, "%d ", (s!=0.0?1:0));
-          if ( !((i+1)%6) ) fprintf (fp,"\n");
-          }
-        }
-      else
-        {
-        vtkBitScalars *bscalars = (vtkBitScalars *)scalars;
-        unsigned char *cptr=bscalars->GetPointer(0);
-        fwrite (cptr,sizeof(char),(numPts-1)/8+1,fp);
-        }
-      fprintf (fp,"\n");
-      }
-
-    else if ( !strcmp(type,"unsigned char") )
-      {
-      fprintf (fp, "%s unsigned_char\nLOOKUP_TABLE %s\n", this->ScalarsName, name);
-      if ( this->FileType == VTK_ASCII )
-        {
-        unsigned char s;
-        for (i=0; i<numPts; i++)
-          {
-          s = (unsigned char) scalars->GetScalar(i);
-          fprintf (fp, "%i ", s);
-          if ( !((i+1)%6) ) fprintf (fp,"\n");
-          }
-        }
-      else
-        {
-        vtkUnsignedCharScalars *cscalars = (vtkUnsignedCharScalars *)scalars;
-        unsigned char *cptr=cscalars->GetPointer(0);
-        fwrite (cptr,sizeof(unsigned char),numPts,fp);
-        }
-      fprintf (fp,"\n");
-      }
-
-    else if ( !strcmp(type,"short") )
-      {
-      fprintf (fp, "%s short\nLOOKUP_TABLE %s\n", this->ScalarsName, name);
-      if ( this->FileType == VTK_ASCII )
-        {
-        short s;
-        for (i=0; i<numPts; i++)
-          {
-          s = (short) scalars->GetScalar(i);
-          fprintf (fp, "%hd ", s);
-          if ( !((i+1)%6) ) fprintf (fp,"\n");
-          }
-        }
-      else
-        {
-        vtkShortScalars *sscalars = (vtkShortScalars *)scalars;
-        short *sptr=sscalars->GetPointer(0);
-	// swap the bytes if necc
-	vtkByteSwap::SwapWrite2BERange(sptr,numPts,fp);
-        }
-      fprintf (fp,"\n");
-      }
-
-    else if ( !strcmp(type,"unsigned short") )
-      {
-      fprintf (fp, "%s unsigned_short\nLOOKUP_TABLE %s\n", 
-	       this->ScalarsName, name);
-      if ( this->FileType == VTK_ASCII )
-        {
-        unsigned short s;
-        for (i=0; i<numPts; i++)
-          {
-          s = (unsigned short) scalars->GetScalar(i);
-          fprintf (fp, "%hu ", s);
-          if ( !((i+1)%6) ) fprintf (fp,"\n");
-          }
-        }
-      else
-        {
-        vtkUnsignedShortScalars *usscalars = 
-	  (vtkUnsignedShortScalars *)scalars;
-        unsigned short *sptr=usscalars->GetPointer(0);
-	// swap the bytes if necc
-	vtkByteSwap::SwapWrite2BERange((short *)sptr,numPts,fp);
-        }
-      fprintf (fp,"\n");
-      }
-
-    else if ( !strcmp(type,"int") )
-      {
-      fprintf (fp, "%s int\nLOOKUP_TABLE %s\n", this->ScalarsName, name);
-      if ( this->FileType == VTK_ASCII )
-        {
-        float s;
-        for (i=0; i<numPts; i++)
-          {
-          s = scalars->GetScalar(i);
-          fprintf (fp, "%d ", (int)s);
-          if ( !((i+1)%6) ) fprintf (fp,"\n");
-          }
-        }
-      else
-        {
-        vtkIntScalars *iscalars = (vtkIntScalars *)scalars;
-        int *iptr=iscalars->GetPointer(0);
-	// swap the bytes if necc
-	vtkByteSwap::SwapWrite4BERange(iptr,numPts,fp);
-        }
-      fprintf (fp,"\n");
-      }
-
-    else if ( !strcmp(type,"float") )
-      {
-      fprintf (fp, "%s float\nLOOKUP_TABLE %s\n", this->ScalarsName, name);
-      if ( this->FileType == VTK_ASCII )
-        {
-        float s;
-        for (i=0; i<numPts; i++)
-          {
-          s = scalars->GetScalar(i);
-          fprintf (fp, "%g ", s);
-          if ( !((i+1)%6) ) fprintf (fp,"\n");
-          }
-        }
-      else
-        {
-        vtkFloatScalars *fscalars = (vtkFloatScalars *)scalars;
-        float *fptr=fscalars->GetPointer(0);
-	// swap the bytes if necc
-	vtkByteSwap::SwapWrite4BERange(fptr,numPts,fp);
-        }
-      fprintf (fp,"\n");
-      }
-
-    else
-      {
-      vtkErrorMacro(<<"Scalar type: " << type << " currently not supported");
-      return 0;
+      case VTK_BIT:
+	{
+	fprintf (fp, "%s bit\nLOOKUP_TABLE %s\n", this->ScalarsName, name);
+	if ( this->FileType == VTK_ASCII )
+	  {
+	  float s;
+	  for (i=0; i<numPts; i++)
+	    {
+	    s = scalars->GetScalar(i);
+	    fprintf (fp, "%d ", (s!=0.0?1:0));
+	    if ( !((i+1)%6) ) fprintf (fp,"\n");
+	    }
+	  }
+	else
+	  {
+	  vtkBitScalars *bscalars = (vtkBitScalars *)scalars;
+	  unsigned char *cptr=bscalars->GetPointer(0);
+	  fwrite (cptr,sizeof(char),(numPts-1)/8+1,fp);
+	  }
+	fprintf (fp,"\n");
+	}
+      break;
+      case VTK_UNSIGNED_CHAR:
+	{
+	fprintf (fp, "%s unsigned_char\nLOOKUP_TABLE %s\n", this->ScalarsName, name);
+	if ( this->FileType == VTK_ASCII )
+	  {
+	  unsigned char s;
+	  for (i=0; i<numPts; i++)
+	    {
+	    s = (unsigned char) scalars->GetScalar(i);
+	    fprintf (fp, "%i ", s);
+	    if ( !((i+1)%6) ) fprintf (fp,"\n");
+	    }
+	  }
+	else
+	  {
+	  vtkUnsignedCharScalars *cscalars = (vtkUnsignedCharScalars *)scalars;
+	  unsigned char *cptr=cscalars->GetPointer(0);
+	  fwrite (cptr,sizeof(unsigned char),numPts,fp);
+	  }
+	fprintf (fp,"\n");
+	}
+      break;
+      case VTK_SHORT:
+	{
+	fprintf (fp, "%s short\nLOOKUP_TABLE %s\n", this->ScalarsName, name);
+	if ( this->FileType == VTK_ASCII )
+	  {
+	  short s;
+	  for (i=0; i<numPts; i++)
+	    {
+	    s = (short) scalars->GetScalar(i);
+	    fprintf (fp, "%hd ", s);
+	    if ( !((i+1)%6) ) fprintf (fp,"\n");
+	    }
+	  }
+	else
+	  {
+	  vtkShortScalars *sscalars = (vtkShortScalars *)scalars;
+	  short *sptr=sscalars->GetPointer(0);
+	  // swap the bytes if necc
+	  vtkByteSwap::SwapWrite2BERange(sptr,numPts,fp);
+	  }
+	fprintf (fp,"\n");
+	}
+      break;
+      case VTK_UNSIGNED_SHORT:
+	{
+	fprintf (fp, "%s unsigned_short\nLOOKUP_TABLE %s\n", 
+		 this->ScalarsName, name);
+	if ( this->FileType == VTK_ASCII )
+	  {
+	  unsigned short s;
+	  for (i=0; i<numPts; i++)
+	    {
+	    s = (unsigned short) scalars->GetScalar(i);
+	    fprintf (fp, "%hu ", s);
+	    if ( !((i+1)%6) ) fprintf (fp,"\n");
+	    }
+	  }
+	else
+	  {
+	  vtkUnsignedShortScalars *usscalars = 
+	    (vtkUnsignedShortScalars *)scalars;
+	  unsigned short *sptr=usscalars->GetPointer(0);
+	  // swap the bytes if necc
+	  vtkByteSwap::SwapWrite2BERange((short *)sptr,numPts,fp);
+	  }
+	fprintf (fp,"\n");
+	}
+      break;
+      case VTK_INT:
+	{
+	fprintf (fp, "%s int\nLOOKUP_TABLE %s\n", this->ScalarsName, name);
+	if ( this->FileType == VTK_ASCII )
+	  {
+	  float s;
+	  for (i=0; i<numPts; i++)
+	    {
+	    s = scalars->GetScalar(i);
+	    fprintf (fp, "%d ", (int)s);
+	    if ( !((i+1)%6) ) fprintf (fp,"\n");
+	    }
+	  }
+	else
+	  {
+	  vtkIntScalars *iscalars = (vtkIntScalars *)scalars;
+	  int *iptr=iscalars->GetPointer(0);
+	  // swap the bytes if necc
+	  vtkByteSwap::SwapWrite4BERange(iptr,numPts,fp);
+	  }
+	fprintf (fp,"\n");
+	}
+      break;
+      case VTK_FLOAT:
+	{
+	fprintf (fp, "%s float\nLOOKUP_TABLE %s\n", this->ScalarsName, name);
+	if ( this->FileType == VTK_ASCII )
+	  {
+	  float s;
+	  for (i=0; i<numPts; i++)
+	    {
+	    s = scalars->GetScalar(i);
+	    fprintf (fp, "%g ", s);
+	    if ( !((i+1)%6) ) fprintf (fp,"\n");
+	    }
+	  }
+	else
+	  {
+	  vtkFloatScalars *fscalars = (vtkFloatScalars *)scalars;
+	  float *fptr=fscalars->GetPointer(0);
+	  // swap the bytes if necc
+	  vtkByteSwap::SwapWrite4BERange(fptr,numPts,fp);
+	  }
+	fprintf (fp,"\n");
+	}
+      break;
+      default:
+	{
+	vtkErrorMacro(<<"Scalar type  currently not supported");
+	return 0;
+	}
       }
     }
-
   else //color scalars
     {
     int nvs = scalars->GetNumberOfValuesPerScalar();
@@ -682,166 +683,168 @@ int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int numPts)
 int vtkDataWriter::WriteVectorData(FILE *fp, vtkVectors *vectors, int numPts)
 {
   int i;
-  char *type;
-
 
   fprintf (fp, "VECTORS ");
-  type = vectors->GetDataType();
-
-  if ( !strcmp(type,"float") )
+  switch (vectors->GetDataType())
     {
-    fprintf (fp, "%s float\n", this->VectorsName);
-    if ( this->FileType == VTK_ASCII )
+    case VTK_FLOAT:
       {
-      float *v;
-      for (i=0; i<numPts; i++)
-        {
-        v = vectors->GetVector(i);
-        fprintf (fp, "%g %g %g ", v[0], v[1], v[2]);
-        if ( (i%2) ) fprintf (fp,"\n");
-        }
+      fprintf (fp, "%s float\n", this->VectorsName);
+      if ( this->FileType == VTK_ASCII )
+	{
+	float *v;
+	for (i=0; i<numPts; i++)
+	  {
+	  v = vectors->GetVector(i);
+	  fprintf (fp, "%g %g %g ", v[0], v[1], v[2]);
+	  if ( (i%2) ) fprintf (fp,"\n");
+	  }
+	}
+      else
+	{
+	vtkFloatVectors *fvectors = (vtkFloatVectors *)vectors;
+	float *fptr=fvectors->GetPointer(0);
+	// swap the bytes if necc
+	vtkByteSwap::SwapWrite4BERange(fptr,3*numPts,fp);
+	}
+      fprintf (fp,"\n");
       }
-    else
+    break;
+    default:
       {
-      vtkFloatVectors *fvectors = (vtkFloatVectors *)vectors;
-      float *fptr=fvectors->GetPointer(0);
-      // swap the bytes if necc
-      vtkByteSwap::SwapWrite4BERange(fptr,3*numPts,fp);
+      vtkErrorMacro(<<"Vector type  currently not supported");
+      return 0;
       }
-    fprintf (fp,"\n");
     }
-
-  else
-    {
-    vtkErrorMacro(<<"Vector type: " << type << " currently not supported");
-    return 0;
-    }
-
+  
   return 1;
 }
 
 int vtkDataWriter::WriteNormalData(FILE *fp, vtkNormals *normals, int numPts)
 {
   int i;
-  char *type;
 
   fprintf (fp, "NORMALS ");
-  type = normals->GetDataType();
 
-  if ( !strcmp(type,"float") )
+  switch (normals->GetDataType())
     {
-    fprintf (fp, "%s float\n", this->NormalsName);
-    if ( this->FileType == VTK_ASCII )
+    case VTK_FLOAT:
       {
-      float *n;
-      for (i=0; i<numPts; i++)
-        {
-        n = normals->GetNormal(i);
-        fprintf (fp, "%g %g %g ", n[0], n[1], n[2]);
-        if ( !((i+1)%2) ) fprintf (fp,"\n");
-        }
+      fprintf (fp, "%s float\n", this->NormalsName);
+      if ( this->FileType == VTK_ASCII )
+	{
+	float *n;
+	for (i=0; i<numPts; i++)
+	  {
+	  n = normals->GetNormal(i);
+	  fprintf (fp, "%g %g %g ", n[0], n[1], n[2]);
+	  if ( !((i+1)%2) ) fprintf (fp,"\n");
+	  }
+	}
+      else
+	{
+	vtkFloatNormals *fnormals = (vtkFloatNormals *)normals;
+	float *fptr=fnormals->GetPointer(0);
+	// swap the bytes if necc
+	vtkByteSwap::SwapWrite4BERange(fptr,3*numPts,fp);
+	}
+      fprintf (fp,"\n");
       }
-    else
+    break;
+    default:
       {
-      vtkFloatNormals *fnormals = (vtkFloatNormals *)normals;
-      float *fptr=fnormals->GetPointer(0);
-      // swap the bytes if necc
-      vtkByteSwap::SwapWrite4BERange(fptr,3*numPts,fp);
+      vtkErrorMacro(<<"Normal type currently not supported");
+      return 0;
       }
-    fprintf (fp,"\n");
     }
-
-  else
-    {
-    vtkErrorMacro(<<"Normal type: " << type << " currently not supported");
-    return 0;
-    }
-
+  
   return 1;
 }
 
 int vtkDataWriter::WriteTCoordData(FILE *fp, vtkTCoords *tcoords, int numPts)
 {
   int i, j, dim;
-  char *type;
 
   fprintf (fp, "TEXTURE_COORDINATES ");
-  type = tcoords->GetDataType();
   dim = tcoords->GetDimension();
 
-  if ( !strcmp(type,"float") )
+  switch (tcoords->GetDataType())
     {
-    fprintf (fp, "%s %d float\n", this->TCoordsName, dim);
-    if ( this->FileType == VTK_ASCII )
+    case VTK_FLOAT:
       {
-      float *tc;
-      for (i=0; i<numPts; i++)
-        {
-        tc = tcoords->GetTCoord(i);
-        for (j=0; j<dim; j++) fprintf (fp, "%g ", tc[j]);
-        if ( !((i+1)%3) ) fprintf (fp,"\n");
-        }
+      fprintf (fp, "%s %d float\n", this->TCoordsName, dim);
+      if ( this->FileType == VTK_ASCII )
+	{
+	float *tc;
+	for (i=0; i<numPts; i++)
+	  {
+	  tc = tcoords->GetTCoord(i);
+	  for (j=0; j<dim; j++) fprintf (fp, "%g ", tc[j]);
+	  if ( !((i+1)%3) ) fprintf (fp,"\n");
+	  }
+	}
+      else
+	{
+	vtkFloatTCoords *ftcoords = (vtkFloatTCoords *)tcoords;
+	float *fptr=ftcoords->GetPointer(0);
+	// swap the bytes if necc
+	vtkByteSwap::SwapWrite4BERange(fptr,dim*numPts,fp);
+	}
+      fprintf (fp,"\n");
       }
-    else
+    break;
+    default:
       {
-      vtkFloatTCoords *ftcoords = (vtkFloatTCoords *)tcoords;
-      float *fptr=ftcoords->GetPointer(0);
-      // swap the bytes if necc
-      vtkByteSwap::SwapWrite4BERange(fptr,dim*numPts,fp);
+      vtkErrorMacro(<<"Texture coord type not supported");
+      return 0;
       }
-    fprintf (fp,"\n");
     }
-
-  else
-    {
-    vtkErrorMacro(<<"Texture coord type: " << type << " currently not supported");
-    return 0;
-    }
-
+  
   return 1;
 }
 
 int vtkDataWriter::WriteTensorData(FILE *fp, vtkTensors *tensors, int numPts)
 {
   int i, j, k, dim;
-  char *type;
 
   fprintf (fp, "TENSORS ");
-  type = tensors->GetDataType();
   dim = tensors->GetDimension();
 
-  if ( !strcmp(type,"float") )
+  switch (tensors->GetDataType())
     {
-    fprintf (fp, "%s float\n", this->TensorsName);
-    if ( this->FileType == VTK_ASCII )
+    case VTK_FLOAT:
       {
-      vtkTensor t;
-      for (i=0; i<numPts; i++)
-        {
-        tensors->GetTensor(i,t);
-        for (j=0; j<dim; j++)
-          {
-          for (k=0; k<dim; k++) fprintf (fp, "%g ", t.GetComponent(j,k));
-          fprintf (fp, "\n");
-          }
-        }
+      fprintf (fp, "%s float\n", this->TensorsName);
+      if ( this->FileType == VTK_ASCII )
+	{
+	vtkTensor t;
+	for (i=0; i<numPts; i++)
+	  {
+	  tensors->GetTensor(i,t);
+	  for (j=0; j<dim; j++)
+	    {
+	    for (k=0; k<dim; k++) fprintf (fp, "%g ", t.GetComponent(j,k));
+	    fprintf (fp, "\n");
+	    }
+	  }
+	}
+      else
+	{
+	vtkFloatTensors *ftensors = (vtkFloatTensors *)tensors;
+	float *fptr=ftensors->GetPointer(0);
+	// swap the bytes if necc
+	vtkByteSwap::SwapWrite4BERange(fptr,dim*dim*numPts,fp);
+	}
+      fprintf (fp,"\n");
       }
-    else
+    break;
+    default:
       {
-      vtkFloatTensors *ftensors = (vtkFloatTensors *)tensors;
-      float *fptr=ftensors->GetPointer(0);
-      // swap the bytes if necc
-      vtkByteSwap::SwapWrite4BERange(fptr,dim*dim*numPts,fp);
+      vtkErrorMacro(<<"Tensor type currently not supported");
+      return 0;
       }
-    fprintf (fp,"\n");
     }
-
-  else
-    {
-    vtkErrorMacro(<<"Tensor type: " << type << " currently not supported");
-    return 0;
-    }
-
+  
   return 1;
 }
 

@@ -57,7 +57,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkObject.h"
 #include "vtkImageCache.h"
-#include "vtkImageRegion.h"
 #include "vtkStructuredPoints.h"
 #include "vtkStructuredPointsToImage.h"
 
@@ -65,7 +64,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_IMAGE_VIEWER_UPPER_LEFT 0
 #define VTK_IMAGE_VIEWER_LOWER_LEFT 1
 
-class VTK_EXPORT vtkImageViewer : public vtkObject {
+class VTK_EXPORT vtkImageViewer : public vtkObject 
+{
 public:
   vtkImageViewer();
   ~vtkImageViewer();
@@ -80,7 +80,7 @@ public:
   void Render(void);
   // Description:
   // Subclass must define these methods.
-  virtual void RenderRegion(vtkImageRegion *region) {region = region;};
+  virtual void RenderData(vtkImageData *) {};
   
   // Description:
   // Set/Get the input to the viewer.
@@ -92,22 +92,16 @@ public:
   // Description:
   // Methods used to specify the region to be displayed.
   // The actual extent displayed is clipped by the "WholeExtent".
-  vtkSetVector4Macro(DisplayExtent, int);
-  vtkGetVector4Macro(DisplayExtent, int);  
-  vtkSetMacro(ZSlice, int);
-  vtkGetMacro(ZSlice, int);
-  vtkSetMacro(TimeSlice, int);
-  vtkGetMacro(TimeSlice, int);
+  vtkSetVectorMacro(DisplayExtent, int, 6);
+  vtkGetVectorMacro(DisplayExtent, int, 6);  
+
   // Description:
   // This is for a tcl interface
   int GetWholeZMin();
   int GetWholeZMax();
+  int GetZSlice();
+  void SetZSlice(int);
   
-  // Description:
-  // Legacy compatability
-  void SetCoordinate2(int c) {this->SetZSlice(c);}
-  void SetCoordinate3(int c) {this->SetTimeSlice(c);}
-
   // Description:
   // Sets window/level for mapping pixels to colors.
   vtkSetMacro(ColorWindow, float);
@@ -147,21 +141,11 @@ public:
   virtual void SetSize(int,int) {};
   virtual void SetSize(int a[2]);
   
-  // Description:
-  // The viewer implements a permutation before the image
-  // is displayed.  (Do we really want this?  Is the speed up worth it?)
-  vtkSetVector4Macro(PermutationAxes, int);
-  vtkGetVector4Macro(PermutationAxes, int);
-
 protected:
   int Mapped;
   vtkImageCache *Input;
   // Contains the extent of the region to be displayed (X and Y axes).
-  int DisplayExtent[4];
-  int ZSlice;
-  int TimeSlice;
-  // The viewer can do a permutation before the image is rendered.
-  int PermutationAxes[4];
+  int DisplayExtent[6];
   
   // For converting image pixels to X pixels.
   float ColorWindow;

@@ -39,7 +39,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkImageCache.h"
-#include "vtkImageRegion.h"
 #include "vtkImagePadFilter.h"
 
 
@@ -51,10 +50,8 @@ vtkImagePadFilter::vtkImagePadFilter()
 {
   int idx;
 
-  this->NumberOfExecutionAxes = 5;
-  
   // Initialize output image extent to INVALID
-  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+  for (idx = 0; idx < 3; ++idx)
     {
     this->OutputWholeExtent[idx * 2] = 0;
     this->OutputWholeExtent[idx * 2 + 1] = -1;
@@ -64,11 +61,11 @@ vtkImagePadFilter::vtkImagePadFilter()
 }
 
 //----------------------------------------------------------------------------
-void vtkImagePadFilter::SetOutputWholeExtent(int extent[8])
+void vtkImagePadFilter::SetOutputWholeExtent(int extent[6])
 {
   int idx, modified = 0;
   
-  for (idx = 0; idx < 8; ++idx)
+  for (idx = 0; idx < 6; ++idx)
     {
     if (this->OutputWholeExtent[idx] != extent[idx])
       {
@@ -84,25 +81,23 @@ void vtkImagePadFilter::SetOutputWholeExtent(int extent[8])
 //----------------------------------------------------------------------------
 void vtkImagePadFilter::SetOutputWholeExtent(int minX, int maxX, 
 					     int minY, int maxY,
-					     int minZ, int maxZ, 
-					     int minT, int maxT)
+					     int minZ, int maxZ)
 {
-  int extent[8];
+  int extent[6];
   
   extent[0] = minX;  extent[1] = maxX;
   extent[2] = minY;  extent[3] = maxY;
   extent[4] = minZ;  extent[5] = maxZ;
-  extent[6] = minT;  extent[7] = maxT;
   this->SetOutputWholeExtent(extent);
 }
 
 
 //----------------------------------------------------------------------------
-void vtkImagePadFilter::GetOutputWholeExtent(int extent[8])
+void vtkImagePadFilter::GetOutputWholeExtent(int extent[6])
 {
   int idx;
   
-  for (idx = 0; idx < 8; ++idx)
+  for (idx = 0; idx < 6; ++idx)
     {
     extent[idx] = this->OutputWholeExtent[idx];
     }
@@ -135,14 +130,14 @@ void vtkImagePadFilter::ExecuteImageInformation()
 void vtkImagePadFilter::ComputeRequiredInputUpdateExtent()
 {
   int idx;
-  int extent[8];
+  int extent[6];
   int *wholeExtent;
   
-  // handle XYZT
+  // handle XYZ
   this->Output->GetUpdateExtent(extent);
   wholeExtent = this->Input->GetWholeExtent();
   // Clip
-  for (idx = 0; idx < 4; ++idx)
+  for (idx = 0; idx < 3; ++idx)
     {
     if (extent[idx*2] < wholeExtent[idx*2])
       {

@@ -66,7 +66,7 @@ public:
   // output to the viewer.
   vtkImageWin32Viewer *GetOutput(){return this;};
 
-  void RenderRegion(vtkImageRegion *region);
+  void RenderData(vtkImageData *data);
   
   //BTX
   HWND      GetWindowId();

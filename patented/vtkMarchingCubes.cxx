@@ -168,10 +168,12 @@ static void ComputePointGradient(int i, int j, int k, T *s, int dims[3],
 // Contouring filter specialized for volumes and "short int" data values.  
 //
 template <class T>
-static void ContourVolume(vtkMarchingCubes *self,T *scalars, int dims[3], float origin[3], float Spacing[3],
-		   vtkPointLocator *locator, vtkScalars *newScalars, 
-                   vtkFloatVectors *newGradients, vtkFloatNormals *newNormals, 
-                   vtkCellArray *newPolys, float *values, int numValues)
+static void ContourVolume(vtkMarchingCubes *self,T *scalars, int dims[3], 
+			  float origin[3], float Spacing[3],
+			  vtkPointLocator *locator, vtkScalars *newScalars, 
+			  vtkFloatVectors *newGradients, 
+			  vtkFloatNormals *newNormals, 
+			  vtkCellArray *newPolys, float *values, int numValues)
 {
   float s[8], value;
   int i, j, k, sliceSize;
@@ -358,7 +360,6 @@ void vtkMarchingCubes::Execute()
   vtkStructuredPoints *input=(vtkStructuredPoints *)this->Input;
   vtkPointData *pd=input->GetPointData();
   vtkScalars *inScalars=pd->GetScalars();
-  char *type;
   int dims[3];
   int estimatedSize;
   float Spacing[3], origin[3];
@@ -425,109 +426,138 @@ void vtkMarchingCubes::Execute()
   newPolys = vtkCellArray::New();
   newPolys->Allocate(estimatedSize,estimatedSize/2);
 
-  type = inScalars->GetDataType();
-  if ( !strcmp(type,"unsigned char") && 
-  inScalars->GetNumberOfValuesPerScalar() == 1 )
+  switch (inScalars->GetDataType())
     {
-    unsigned char *scalars = ((vtkUnsignedCharScalars *)inScalars)->GetPointer(0);
-    if (this->ComputeScalars)
+    case VTK_FLOAT:
       {
-      newScalars = vtkUnsignedCharScalars::New();
-      newScalars->Allocate(estimatedSize,estimatedSize/2);
+      float *scalars = ((vtkFloatScalars *)inScalars)->GetPointer(0);
+      if (this->ComputeScalars)
+	{
+	newScalars = vtkFloatScalars::New();
+	newScalars->Allocate(estimatedSize,estimatedSize/2);
+	}
+      else
+	{
+	newScalars = NULL;
+	}
+      ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,
+		    newScalars,newGradients,
+		    newNormals,newPolys,values,numContours);
       }
-    else
+    break;
+    case VTK_INT:
       {
-      newScalars = NULL;
+      int *scalars = ((vtkIntScalars *)inScalars)->GetPointer(0);
+      if (this->ComputeScalars)
+	{
+	newScalars = vtkIntScalars::New();
+	newScalars->Allocate(estimatedSize,estimatedSize/2);
+	}
+      else
+	{
+	newScalars = NULL;
+	}
+      ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,
+		    newScalars,newGradients,
+		    newNormals,newPolys,values,numContours);
       }
-    ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,newScalars,newGradients,
-                  newNormals,newPolys,values,numContours);
-    }
-
-  else if ( !strcmp(type,"short") )
-    {
-    short *scalars = ((vtkShortScalars *)inScalars)->GetPointer(0);
-    if (this->ComputeScalars)
+    break;
+    case VTK_SHORT:
       {
-      newScalars = vtkShortScalars::New();
-      newScalars->Allocate(estimatedSize,estimatedSize/2);
+      short *scalars = ((vtkShortScalars *)inScalars)->GetPointer(0);
+      if (this->ComputeScalars)
+	{
+	newScalars = vtkShortScalars::New();
+	newScalars->Allocate(estimatedSize,estimatedSize/2);
+	}
+      else
+	{
+	newScalars = NULL;
+	}
+      
+      ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,
+		    newScalars,newGradients,
+		    newNormals,newPolys,values,numContours);
       }
-    else
+    break;
+    case VTK_UNSIGNED_SHORT:
       {
-      newScalars = NULL;
+      unsigned short *scalars = ((vtkUnsignedShortScalars *)inScalars)->GetPointer(0);
+      if (this->ComputeScalars)
+	{
+	newScalars = vtkUnsignedShortScalars::New();
+	newScalars->Allocate(estimatedSize,estimatedSize/2);
+	}
+      else
+	{
+	newScalars = NULL;
+	}
+      
+      ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,
+		    newScalars,newGradients,
+		    newNormals,newPolys,values,numContours);
       }
-
-    ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,newScalars,newGradients,
-                  newNormals,newPolys,values,numContours);
-    }
-  
-  else if ( !strcmp(type,"unsigned short") )
-    {
-    unsigned short *scalars = ((vtkUnsignedShortScalars *)inScalars)->GetPointer(0);
-    if (this->ComputeScalars)
+    break;
+    case VTK_UNSIGNED_CHAR:
+      if (inScalars->GetNumberOfValuesPerScalar() == 1 )
+	{
+	unsigned char *scalars = ((vtkUnsignedCharScalars *)inScalars)->GetPointer(0);
+	if (this->ComputeScalars)
+	  {
+	  newScalars = vtkUnsignedCharScalars::New();
+	  newScalars->Allocate(estimatedSize,estimatedSize/2);
+	  }
+	else
+	  {
+	  newScalars = NULL;
+	  }
+	ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,
+		      newScalars,newGradients,
+		      newNormals,newPolys,values,numContours);
+	}
+      else
+	{
+	// we have color scalars
+	int dataSize = dims[0] * dims[1] * dims[2];
+	vtkFloatScalars *image=vtkFloatScalars::New(); 
+	image->Allocate(dataSize);
+	inScalars->GetScalars(0,dataSize,*image);
+	if (this->ComputeScalars)
+	  {
+	  newScalars = vtkFloatScalars::New();
+	  newScalars->Allocate(estimatedSize,estimatedSize/2);
+	  }
+	else
+	  {
+	  newScalars = NULL;
+	  }
+	float *scalars = image->GetPointer(0);
+	ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,
+		      newScalars,newGradients,
+		      newNormals,newPolys,values,numContours);
+	image->Delete();
+	}
+      break;
+    default:
       {
-      newScalars = vtkUnsignedShortScalars::New();
-      newScalars->Allocate(estimatedSize,estimatedSize/2);
+      int dataSize = dims[0] * dims[1] * dims[2];
+      vtkFloatScalars *image=vtkFloatScalars::New(); image->Allocate(dataSize);
+      inScalars->GetScalars(0,dataSize,*image);
+      if (this->ComputeScalars)
+	{
+	newScalars = vtkFloatScalars::New();
+	newScalars->Allocate(estimatedSize,estimatedSize/2);
+	}
+      else
+	{
+	newScalars = NULL;
+	}
+      float *scalars = image->GetPointer(0);
+      ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,
+		    newScalars,newGradients,
+		    newNormals,newPolys,values,numContours);
+      image->Delete();
       }
-    else
-      {
-      newScalars = NULL;
-      }
-
-    ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,newScalars,newGradients,
-                  newNormals,newPolys,values,numContours);
-    }
-  
-  else if ( !strcmp(type,"float") )
-    {
-    float *scalars = ((vtkFloatScalars *)inScalars)->GetPointer(0);
-    if (this->ComputeScalars)
-      {
-      newScalars = vtkFloatScalars::New();
-      newScalars->Allocate(estimatedSize,estimatedSize/2);
-      }
-    else
-      {
-      newScalars = NULL;
-      }
-    ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,newScalars,newGradients,
-                  newNormals,newPolys,values,numContours);
-    }
-
-  else if ( !strcmp(type,"int") )
-    {
-    int *scalars = ((vtkIntScalars *)inScalars)->GetPointer(0);
-    if (this->ComputeScalars)
-      {
-      newScalars = vtkIntScalars::New();
-      newScalars->Allocate(estimatedSize,estimatedSize/2);
-      }
-    else
-      {
-      newScalars = NULL;
-      }
-    ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,newScalars,newGradients,
-                  newNormals,newPolys,values,numContours);
-    }
-
-  else //use general method - temporarily copies image
-    {
-    int dataSize = dims[0] * dims[1] * dims[2];
-    vtkFloatScalars *image=vtkFloatScalars::New(); image->Allocate(dataSize);
-    inScalars->GetScalars(0,dataSize,*image);
-    if (this->ComputeScalars)
-      {
-      newScalars = vtkFloatScalars::New();
-      newScalars->Allocate(estimatedSize,estimatedSize/2);
-      }
-    else
-      {
-      newScalars = NULL;
-      }
-    float *scalars = image->GetPointer(0);
-    ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,newScalars,newGradients,
-                  newNormals,newPolys,values,numContours);
-
-    image->Delete();
     }
   
   vtkDebugMacro(<<"Created: " 

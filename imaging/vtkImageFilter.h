@@ -60,13 +60,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageSource.h"
 #include "vtkStructuredPoints.h"
 #include "vtkStructuredPointsToImage.h"
-class vtkImageRegion;
-class vtkImageCache;
+#include "vtkImageCache.h"
+#include "vtkMultiThreader.h"
 
 class VTK_EXPORT vtkImageFilter : public vtkImageSource
 {
 public:
   vtkImageFilter();
+  ~vtkImageFilter();
   static vtkImageFilter *New() {return new vtkImageFilter;};
   const char *GetClassName() {return "vtkImageFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -75,25 +76,13 @@ public:
   void SetInput(vtkStructuredPoints *spts)
     {this->SetInput(spts->GetStructuredPointsToImage()->GetOutput());}
   
-  void InternalUpdate();
+  void InternalUpdate(vtkImageData *outData);
   void UpdateImageInformation();
   unsigned long int GetPipelineMTime();
   
   // Description:
   // Get input to this filter.
   vtkGetObjectMacro(Input,vtkImageCache);
-
-  // Description:
-  // Set/Get input memory limit.  Make this smaller to stream.
-  vtkSetMacro(InputMemoryLimit,long);
-  vtkGetMacro(InputMemoryLimit,long);
-
-  // Description:
-  // Set/Get the order to split region requests if we need to stream
-  void SetSplitOrder(int num, int *axes);
-  vtkSetVector4Macro(SplitOrder,int);
-  void GetSplitOrder(int num, int *axes);
-  vtkGetVector4Macro(SplitOrder,int);
 
   // Description:
   // Turning bypass on will cause the filter to turn off and
@@ -105,27 +94,28 @@ public:
   vtkBooleanMacro(Bypass,int);
 
   // Description:
-  // Filtered axes specify the axes which will be operated on.
-  vtkGetMacro(NumberOfFilteredAxes, int);
+  // Get/Set the number of threads to create when rendering
+  vtkSetClampMacro( NumberOfThreads, int, 1, VTK_MAX_THREADS );
+  vtkGetMacro( NumberOfThreads, int );
+
+  // subclasses should define this function
+  virtual void ThreadedExecute(vtkImageData *inData, 
+			       vtkImageData *outData,
+			       int extent[6]);
   
 protected:
-  int FilteredAxes[4];
-  int NumberOfFilteredAxes;
   vtkImageCache *Input;     
+  vtkMultiThreader *Threader;
   int Bypass;
-  int SplitOrder[VTK_IMAGE_DIMENSIONS];
-  int NumberOfSplitAxes;
-  long InputMemoryLimit;
   int Updating;
+  // The number of threads to use when ray casting
+  int NumberOfThreads;
   
-  virtual void SetFilteredAxes(int num, int *axes);
   virtual void ExecuteImageInformation();
   virtual void ComputeRequiredInputUpdateExtent();
 
-  void RecursiveStreamUpdate(vtkImageRegion *outRegion);
-  virtual void RecursiveLoopExecute(int dim, vtkImageRegion *inRegion, 
-				    vtkImageRegion *outRegion);
-  virtual void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  void RecursiveStreamUpdate(vtkImageData *outData, int axis);
+  virtual void Execute(vtkImageData *inData, vtkImageData *outData);
 };
 
 #endif

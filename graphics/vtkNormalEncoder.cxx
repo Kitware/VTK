@@ -482,7 +482,6 @@ VTK_THREAD_RETURN_TYPE SwitchOnDataType( void *arg )
   short              *s_data_ptr;
   int                *i_data_ptr;
   float              *f_data_ptr;
-  char               *data_type;
 
   thread_id = ((ThreadInfoStruct *)(arg))->ThreadID;
   thread_count = ((ThreadInfoStruct *)(arg))->NumberOfThreads;
@@ -490,40 +489,48 @@ VTK_THREAD_RETURN_TYPE SwitchOnDataType( void *arg )
 
   // Find the data type of the ScalarInput and call the correct 
   // templated function to actually compute the normals and magnitudes
-  data_type = 
-    encoder->ScalarInput->GetPointData()->GetScalars()->GetDataType();
 
-  if ( strcmp( data_type, "unsigned char" ) == 0 )
+  switch (encoder->ScalarInput->GetPointData()->GetScalars()->GetDataType())
     {
-    uc_data_ptr = ((vtkUnsignedCharScalars *)
-      (encoder->ScalarInput->GetPointData()->GetScalars()))->GetPointer(0);
-    ComputeGradients( encoder, uc_data_ptr, thread_id, thread_count );
+    case VTK_UNSIGNED_CHAR:
+      {
+      uc_data_ptr = ((vtkUnsignedCharScalars *)
+		     (encoder->ScalarInput->GetPointData()->GetScalars()))->GetPointer(0);
+      ComputeGradients( encoder, uc_data_ptr, thread_id, thread_count );
+      }
+    break;
+    case VTK_UNSIGNED_SHORT:
+      {
+      us_data_ptr = ((vtkUnsignedShortScalars *)
+		     (encoder->ScalarInput->GetPointData()->GetScalars()))->GetPointer(0);
+      ComputeGradients( encoder, us_data_ptr, thread_id, thread_count );
+      }
+    break;
+    case VTK_SHORT:
+      {
+      s_data_ptr = ((vtkShortScalars *)
+		    (encoder->ScalarInput->GetPointData()->GetScalars()))->GetPointer(0);
+      ComputeGradients( encoder, s_data_ptr, thread_id, thread_count );
+      }
+    break;
+    case VTK_INT:
+      {
+      i_data_ptr = ((vtkIntScalars *)
+		    (encoder->ScalarInput->GetPointData()->GetScalars()))->GetPointer(0);
+      ComputeGradients( encoder, i_data_ptr, thread_id, thread_count );
+      }
+    break;
+    case VTK_FLOAT:
+      {
+      f_data_ptr = ((vtkFloatScalars *)
+		    (encoder->ScalarInput->GetPointData()->GetScalars()))->GetPointer(0);
+      ComputeGradients( encoder, f_data_ptr, thread_id, thread_count );
+      }
+    break;
+    default:
+      vtkGenericWarningMacro("unable to encode scalar type!");
     }
-  else if ( strcmp( data_type, "unsigned short" ) == 0 )
-    {
-    us_data_ptr = ((vtkUnsignedShortScalars *)
-      (encoder->ScalarInput->GetPointData()->GetScalars()))->GetPointer(0);
-    ComputeGradients( encoder, us_data_ptr, thread_id, thread_count );
-    }
-  else if ( strcmp( data_type, "short" ) == 0 )
-    {
-    s_data_ptr = ((vtkShortScalars *)
-      (encoder->ScalarInput->GetPointData()->GetScalars()))->GetPointer(0);
-    ComputeGradients( encoder, s_data_ptr, thread_id, thread_count );
-    }
-  else if ( strcmp( data_type, "int" ) == 0 )
-    {
-    i_data_ptr = ((vtkIntScalars *)
-      (encoder->ScalarInput->GetPointData()->GetScalars()))->GetPointer(0);
-    ComputeGradients( encoder, i_data_ptr, thread_id, thread_count );
-    }
-  else if ( strcmp( data_type, "float" ) == 0 )
-    {
-    f_data_ptr = ((vtkFloatScalars *)
-      (encoder->ScalarInput->GetPointData()->GetScalars()))->GetPointer(0);
-    ComputeGradients( encoder, f_data_ptr, thread_id, thread_count );
-    }
-
+  
   return VTK_THREAD_RETURN_VALUE;
 }
 

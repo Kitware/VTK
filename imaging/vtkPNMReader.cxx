@@ -164,26 +164,32 @@ void vtkPNMReader::UpdateImageInformation()
     return;
     }
 
-  this->SetNumberOfScalarComponents(comp);
-  
   // if the user has set the VOI, just make sure its valid
   if (this->DataVOI[0] || this->DataVOI[1] || 
-      this->DataVOI[2] || this->DataVOI[3])
-    {
+      this->DataVOI[2] || this->DataVOI[3] ||
+      this->DataVOI[4] || this->DataVOI[5])
+    { 
     if ((this->DataVOI[0] < 0) ||
 	(this->DataVOI[1] >= xsize) ||
 	(this->DataVOI[2] < 0) ||
 	(this->DataVOI[3] >= ysize))
       {
       vtkWarningMacro("The requested VOI is larger than the file's (" << lFileName << ") extent ");
-      this->SetDataVOI(0, xsize -1, 0, ysize -1);
+      this->DataVOI[0] = 0;
+      this->DataVOI[1] = xsize - 1;
+      this->DataVOI[2] = 0;
+      this->DataVOI[3] = ysize - 1;
       }
     }
 
-  this->SetDataExtent(0, xsize -1, 0, ysize -1);
+  this->DataExtent[0] = 0;
+  this->DataExtent[1] = xsize - 1;
+  this->DataExtent[2] = 0;
+  this->DataExtent[3] = ysize - 1;
   
   this->SetDataScalarTypeToUnsignedChar();
-
+  this->SetNumberOfScalarComponents(comp);
+  
   vtkImageReader::UpdateImageInformation();
 }
 

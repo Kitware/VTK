@@ -54,7 +54,7 @@ void vtkBMPWriter::WriteFileHeader(ofstream *file, vtkImageCache *cache)
   int row;
   
   // Find the length of the rows to write.
-  cache->GetUpdateExtent(min0, max0, min1, max1, min2, max2, min3, max3);
+  cache->GetWholeExtent(min0, max0, min1, max1, min2, max2);
   bpp = cache->GetNumberOfScalarComponents();
   width = (max0 - min0 + 1);
   height = (max1 - min1 + 1);
@@ -97,60 +97,41 @@ void vtkBMPWriter::WriteFileHeader(ofstream *file, vtkImageCache *cache)
 }
 
 
-void vtkBMPWriter::WriteFile(ofstream *file, vtkImageRegion *region)
+void vtkBMPWriter::WriteFile(ofstream *file, vtkImageData *data,
+			     int extent[6])
 {
-  int min0, max0, min1, max1, min2, max2, min3, max3, minC, maxC;
-  int idx1, idx2, idx3;
-  int rowLength; // in bytes
-  char *ptr;
+  int idx0, idx1, idx2;
+  int rowLength, rowAdder, i; // in bytes
+  unsigned char *ptr;
   int bpp;
-  vtkImageRegion *data;
-  int i, rowAdder;
+  
+  bpp = data->GetNumberOfScalarComponents();
   
   // Make sure we actually have data.
-  if ( ! region->AreScalarsAllocated())
+  if ( !data->GetPointData()->GetScalars())
     {
-    vtkErrorMacro(<< "Could not get region from input.");
+    vtkErrorMacro(<< "Could not get data from input.");
     return;
     }
 
-  // Find the length of the rows to write.
-  region->GetExtent(min0, max0, min1, max1, min2, max2, min3, max3);
-  region->GetData()->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, minC, maxC);
-  bpp = maxC - minC + 1;
-  
   // take into consideration the scalar type
-  switch (region->GetScalarType())
+  if (data->GetScalarType() != VTK_UNSIGNED_CHAR)
     {
-    case VTK_UNSIGNED_CHAR:
-      data = region;
-      break;
-    case VTK_FLOAT:
-    case VTK_INT:
-    case VTK_SHORT:
-    case VTK_UNSIGNED_SHORT:
-    default:
-      data = vtkImageRegion::New();
-      data->SetScalarType(VTK_UNSIGNED_CHAR);
-      data->SetAxes(VTK_IMAGE_COMPONENT_AXIS, VTK_IMAGE_X_AXIS, 
-		    VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS);
-      region->SetAxes(VTK_IMAGE_COMPONENT_AXIS, VTK_IMAGE_X_AXIS, 
-		    VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS);
-      data->SetExtent(4, region->GetExtent());
-      data->CopyRegionData(region);
+    vtkErrorMacro("PNMWriter only accepts unsigned char scalars!");
+    return; 
     }
-  // Always write all the components
-  // Row length of x axis
-  rowLength = max0 - min0 + 1;
-  rowAdder = (4 - ((max0-min0 + 1)*3)%4)%4;
 
-  for (idx3 = min3; idx3 <= max3; ++idx3)
+  // Row length of x axis
+  rowLength = extent[1] - extent[0] + 1;
+  rowAdder = (4 - ((extent[1]-extent[0] + 1)*3)%4)%4;
+
+  for (idx2 = extent[4]; idx2 <= extent[5]; ++idx2)
     {
-    for (idx2 = min2; idx2 <= max2; ++idx2)
+    for (idx1 = extent[2]; idx1 <= extent[3]; idx1++)
       {
-      for (idx1 = min1; idx1 <= max1; idx1++)
+      for (idx0 = extent[0]; idx0 <= extent[1]; idx0++)
 	{
-	ptr = (char *)data->GetScalarPointer(min0, idx1, idx2, idx3);
+	ptr = (unsigned char *)data->GetScalarPointer(idx0, idx1, idx2);
 	if (bpp == 1)
 	  {
 	  for (i = 0; i < rowLength; i++)

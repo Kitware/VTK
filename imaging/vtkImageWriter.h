@@ -52,11 +52,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <iostream.h>
 #include <fstream.h>
-#include "vtkObject.h"
 #include "vtkImageCache.h"
 #include "vtkStructuredPoints.h"
 #include "vtkStructuredPointsToImage.h"
-#include "vtkImageRegion.h"
 
 class VTK_EXPORT vtkImageWriter : public vtkObject
 {
@@ -100,11 +98,6 @@ public:
   // The main interface which triggers the writer to start.
   virtual void Write();
 
-  // Description:
-  // Set/Get input memory limit.  Make this smaller to stream.
-  vtkSetMacro(InputMemoryLimit,long);
-  vtkGetMacro(InputMemoryLimit,long);
-
   // Public for templated function
   char *InternalFileName;
 
@@ -115,13 +108,12 @@ protected:
   char *FilePattern;
   char *FileName;
   int FileNumber;
-  long InputMemoryLimit;
   int FileLowerLeft;
   
   void RecursiveWrite(int dim, vtkImageCache *region, ofstream *file);
   void RecursiveWrite(int dim, vtkImageCache *cache, 
-		      vtkImageRegion *region, ofstream *file);
-  virtual void WriteFile(ofstream *file, vtkImageRegion *region);
+		      vtkImageData *data, ofstream *file);
+  virtual void WriteFile(ofstream *file, vtkImageData *data, int extent[6]);
   virtual void WriteFileHeader(ofstream *, vtkImageCache *) {};
   
 };

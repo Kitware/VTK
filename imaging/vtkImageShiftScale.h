@@ -67,11 +67,12 @@ public:
   vtkSetMacro(Scale,float);
   vtkGetMacro(Scale,float);
 
+  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
+		       int extent[6]);
+  
 protected:
   float Shift;
   float Scale;
-
-  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };
 
 #endif

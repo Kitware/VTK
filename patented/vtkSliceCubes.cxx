@@ -371,7 +371,6 @@ void vtkSliceCubes::Execute()
   vtkScalars *inScalars;
   int dims[3], imageRange[2];
   float xmin[3], xmax[3];
-  char *type;
   float origin[3], Spacing[3];
   int numTriangles;
 
@@ -420,48 +419,71 @@ void vtkSliceCubes::Execute()
     return;
     }
 
-  type = inScalars->GetDataType();
-  if ( !strcmp(type,"unsigned char") && inScalars->GetNumberOfValuesPerScalar() == 1 )
-    {
-    vtkUnsignedCharScalars *scalars = (vtkUnsignedCharScalars *)inScalars;
-    unsigned char *s = scalars->GetPointer(0);
-    numTriangles = Contour(s,scalars,imageRange,dims,origin,Spacing,this->Value,
-                  xmin,xmax,outFP,this->Reader,this->Debug);
-    }
-  else if ( !strcmp(type,"unsigned short") )
-    {
-    vtkUnsignedShortScalars *scalars = (vtkUnsignedShortScalars *)inScalars;
-    unsigned short *s = scalars->GetPointer(0);
-    numTriangles = Contour(s,scalars,imageRange,dims,origin,Spacing,this->Value,
-                  xmin,xmax,outFP,this->Reader,this->Debug);
-    }
-  else if ( !strcmp(type,"short") )
-    {
-    vtkShortScalars *scalars = (vtkShortScalars *)inScalars;
-    short *s = scalars->GetPointer(0);
-    numTriangles = Contour(s,scalars,imageRange,dims,origin,Spacing,this->Value,
-                  xmin,xmax,outFP,this->Reader,this->Debug);
-    }
-  else if ( !strcmp(type,"float") )
-    {
-    vtkFloatScalars *scalars = (vtkFloatScalars *)inScalars;
-    float *s = scalars->GetPointer(0);
-    numTriangles = Contour(s,scalars,imageRange,dims,origin,Spacing,this->Value,
-                  xmin,xmax,outFP,this->Reader,this->Debug);
-    }
-  else if ( !strcmp(type,"int") )
-    {
-    vtkIntScalars *scalars = (vtkIntScalars *)inScalars;
-    int *s = scalars->GetPointer(0);
-    numTriangles = Contour(s,scalars,imageRange,dims,origin,Spacing,this->Value,
-                  xmin,xmax,outFP,this->Reader,this->Debug);
-    }
-  else //use general method
-    {
-    vtkFloatScalars *scalars = (vtkFloatScalars *)inScalars;
-    float *s = NULL; //clue to use general method
-    numTriangles = Contour(s,scalars,imageRange,dims,origin,Spacing,this->Value,
-                  xmin,xmax,outFP,this->Reader,this->Debug);
+  switch (inScalars->GetDataType())
+    { 
+    case VTK_FLOAT:
+      {
+      vtkFloatScalars *scalars = (vtkFloatScalars *)inScalars;
+      float *s = scalars->GetPointer(0);
+      numTriangles = Contour(s,scalars,imageRange,dims,origin,
+			     Spacing,this->Value,
+			     xmin,xmax,outFP,this->Reader,this->Debug);
+      }
+    break;
+    case VTK_INT:
+      {
+      vtkIntScalars *scalars = (vtkIntScalars *)inScalars;
+      int *s = scalars->GetPointer(0);
+      numTriangles = Contour(s,scalars,imageRange,dims,origin,
+			     Spacing,this->Value,
+			     xmin,xmax,outFP,this->Reader,this->Debug);
+      }
+    break;
+    case VTK_SHORT:
+      {
+      vtkShortScalars *scalars = (vtkShortScalars *)inScalars;
+      short *s = scalars->GetPointer(0);
+      numTriangles = Contour(s,scalars,imageRange,dims,origin,
+			     Spacing,this->Value,
+			     xmin,xmax,outFP,this->Reader,this->Debug);
+      }
+    break;
+    case VTK_UNSIGNED_SHORT:
+      {
+      vtkUnsignedShortScalars *scalars = (vtkUnsignedShortScalars *)inScalars;
+      unsigned short *s = scalars->GetPointer(0);
+      numTriangles = Contour(s,scalars,imageRange,dims,origin,
+			     Spacing,this->Value,
+			     xmin,xmax,outFP,this->Reader,this->Debug);
+      }
+    break;
+    case VTK_UNSIGNED_CHAR:
+      if (inScalars->GetNumberOfValuesPerScalar() == 1 )
+	{
+	vtkUnsignedCharScalars *scalars = (vtkUnsignedCharScalars *)inScalars;
+	unsigned char *s = scalars->GetPointer(0);
+	numTriangles = Contour(s,scalars,imageRange,dims,origin,
+			       Spacing,this->Value,
+			       xmin,xmax,outFP,this->Reader,this->Debug);
+	}
+      else
+	{
+	// we have color scalars
+	vtkFloatScalars *scalars = (vtkFloatScalars *)inScalars;
+	float *s = NULL; //clue to use general method
+	numTriangles = Contour(s,scalars,imageRange,dims,origin,Spacing,
+			       this->Value,
+			       xmin,xmax,outFP,this->Reader,this->Debug);
+	}
+      break;
+    default:
+      {
+      vtkFloatScalars *scalars = (vtkFloatScalars *)inScalars;
+      float *s = NULL; //clue to use general method
+      numTriangles = Contour(s,scalars,imageRange,dims,origin,Spacing,
+			     this->Value,
+			     xmin,xmax,outFP,this->Reader,this->Debug);
+      }
     }
 
   vtkDebugMacro(<<"Created: " << 3*numTriangles << " points, " 

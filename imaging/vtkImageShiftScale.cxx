@@ -38,7 +38,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageRegion.h"
 #include "vtkImageShiftScale.h"
 
 
@@ -50,9 +49,6 @@ vtkImageShiftScale::vtkImageShiftScale()
 {
   this->Shift = 0.0;
   this->Scale = 1.0;
-
-  // For better performance, the execute function was written as a 2d.
-  this->NumberOfExecutionAxes = 2;
 }
 
 
@@ -62,96 +58,99 @@ vtkImageShiftScale::vtkImageShiftScale()
 // This templated function executes the filter for any type of data.
 template <class T>
 static void vtkImageShiftScaleExecute(vtkImageShiftScale *self,
-			       vtkImageRegion *inRegion, T *inPtr,
-			       vtkImageRegion *outRegion, T *outPtr)
+				      vtkImageData *inData, T *inPtr,
+				      vtkImageData *outData, T *outPtr,
+				      int outExt[6])
 {
-  int min0, max0, min1, max1;
-  int idx0, idx1;
-  int inInc0, inInc1;
-  int outInc0, outInc1;
-  T *inPtr0, *inPtr1;
-  T *outPtr0, *outPtr1;
   float shift = self->GetShift();
   float scale = self->GetScale();
+  int idxR, idxY, idxZ;
+  int maxX, maxY, maxZ;
+  int inIncX, inIncY, inIncZ;
+  int outIncX, outIncY, outIncZ;
+  int rowLength;
   
-  // Get information to march through data 
-  inRegion->GetIncrements(inInc0, inInc1);
-  outRegion->GetIncrements(outInc0, outInc1);
-  outRegion->GetExtent(min0, max0, min1, max1);
+  // find the region to loop over
+  rowLength = (outExt[1] - outExt[0]+1)*inData->GetNumberOfScalarComponents();
+  maxY = outExt[3] - outExt[2]; 
+  maxZ = outExt[5] - outExt[4];
+  
+  // Get increments to march through data 
+  inData->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
+  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
 
   // Loop through ouput pixels
-  inPtr1 = inPtr;
-  outPtr1 = outPtr;
-  for (idx1 = min1; idx1 <= max1; ++idx1)
+  for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {
-    outPtr0 = outPtr1;
-    inPtr0 = inPtr1;
-    for (idx0 = min0; idx0 <= max0; ++idx0)
+    for (idxY = 0; idxY <= maxY; idxY++)
       {
-      
-      // Pixel operation
-      *outPtr0 = (T)(((float)(*inPtr0) + shift) * scale);
-      
-      outPtr0 += outInc0;
-      inPtr0 += inInc0;
+      for (idxR = 0; idxR < rowLength; idxR++)
+	{
+	// Pixel operation
+	*outPtr = (T)(((float)(*inPtr) + shift) * scale);
+	outPtr++;
+	inPtr++;
+	}
+      outPtr += outIncY;
+      inPtr += inIncY;
       }
-    outPtr1 += outInc1;
-    inPtr1 += inInc1;
+    outPtr += outIncZ;
+    inPtr += inIncZ;
     }
-  
 }
 
 
 
 //----------------------------------------------------------------------------
 // Description:
-// This method is passed a input and output region, and executes the filter
+// This method is passed a input and output data, and executes the filter
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for
-// the regions data types.
-void vtkImageShiftScale::Execute(vtkImageRegion *inRegion, 
-					     vtkImageRegion *outRegion)
+// the datas data types.
+void vtkImageShiftScale::ThreadedExecute(vtkImageData *inData, 
+					 vtkImageData *outData,
+					 int outExt[6])
 {
-  void *inPtr = inRegion->GetScalarPointer();
-  void *outPtr = outRegion->GetScalarPointer();
+  void *inPtr = inData->GetScalarPointerForExtent(outExt);
+  void *outPtr = outData->GetScalarPointerForExtent(outExt);
   
-  vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
-		<< ", outRegion = " << outRegion);
+  vtkDebugMacro(<< "Execute: inData = " << inData 
+		<< ", outData = " << outData);
   
   // this filter expects that input is the same type as output.
-  if (inRegion->GetScalarType() != outRegion->GetScalarType())
+  if (inData->GetScalarType() != outData->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input ScalarType, " << inRegion->GetScalarType()
-                  << ", must match out ScalarType " << outRegion->GetScalarType());
+    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
+                  << ", must match out ScalarType " << outData->GetScalarType());
     return;
     }
   
-  switch (inRegion->GetScalarType())
+  switch (inData->GetScalarType())
     {
     case VTK_FLOAT:
       vtkImageShiftScaleExecute(this, 
-			  inRegion, (float *)(inPtr), 
-			  outRegion, (float *)(outPtr));
+			  inData, (float *)(inPtr), 
+			  outData, (float *)(outPtr), outExt);
       break;
     case VTK_INT:
       vtkImageShiftScaleExecute(this, 
-			  inRegion, (int *)(inPtr), 
-			  outRegion, (int *)(outPtr));
+			  inData, (int *)(inPtr), 
+			  outData, (int *)(outPtr), outExt);
       break;
     case VTK_SHORT:
       vtkImageShiftScaleExecute(this, 
-			  inRegion, (short *)(inPtr), 
-			  outRegion, (short *)(outPtr));
+			  inData, (short *)(inPtr), 
+			  outData, (short *)(outPtr), outExt);
       break;
     case VTK_UNSIGNED_SHORT:
       vtkImageShiftScaleExecute(this, 
-			  inRegion, (unsigned short *)(inPtr), 
-			  outRegion, (unsigned short *)(outPtr));
+			  inData, (unsigned short *)(inPtr), 
+			  outData, (unsigned short *)(outPtr), outExt);
       break;
     case VTK_UNSIGNED_CHAR:
       vtkImageShiftScaleExecute(this, 
-			  inRegion, (unsigned char *)(inPtr), 
-			  outRegion, (unsigned char *)(outPtr));
+			  inData, (unsigned char *)(inPtr), 
+			  outData, (unsigned char *)(outPtr), outExt);
       break;
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");

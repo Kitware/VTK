@@ -19,7 +19,7 @@ ABSTRACT =
 CONCRETE = \
 vtkDecimate \
 vtkDividingCubes \
-vtkImageMarchingCubes \
+#vtkImageMarchingCubes \
 vtkMarchingCubes \
 vtkMarchingSquares \
 vtkSliceCubes \

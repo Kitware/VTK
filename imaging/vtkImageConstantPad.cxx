@@ -38,7 +38,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageRegion.h"
 #include "vtkImageConstantPad.h"
 
 
@@ -48,9 +47,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Constructor sets default values
 vtkImageConstantPad::vtkImageConstantPad()
 {
-  // execute function handles four axes.
-  this->NumberOfExecutionAxes = 5;
-
   this->Constant = 0.0;
 }
 
@@ -61,149 +57,122 @@ vtkImageConstantPad::vtkImageConstantPad()
 // This templated function executes the filter for any type of data.
 template <class T>
 static void vtkImageConstantPadExecute(vtkImageConstantPad *self,
-				       vtkImageRegion *inRegion, T *inPtr,
-				       vtkImageRegion *outRegion, T *outPtr)
+				       vtkImageData *inData, T *inPtr,
+				       vtkImageData *outData, T *outPtr,
+				       int outExt[6])
 {
-  int min0, max0, min1, max1, min2, max2, min3, max3, min4, max4;
-  int imageMin0, imageMax0, imageMin1, imageMax1, 
-    imageMin2, imageMax2, imageMin3, imageMax3, imageMin4, imageMax4;
-  int outIdx0, outIdx1, outIdx2, outIdx3, outIdx4;
-  int inInc0, inInc1, inInc2, inInc3, inInc4;
-  int outInc0, outInc1, outInc2, outInc3, outInc4;
-  T *inPtr0, *inPtr1, *inPtr2, *inPtr3, *inPtr4;
-  T *outPtr0, *outPtr1, *outPtr2, *outPtr3, *outPtr4;
-  int state0, state1, state2, state3, state4;
+  int idxC, idxX, idxY, idxZ;
+  int maxC, maxX, maxY, maxZ;
+  int inIncX, inIncY, inIncZ;
+  int outIncX, outIncY, outIncZ;
   T constant;
-
-
+  int *inExt = inData->GetExtent();
+  int inMinX, inMaxX, inMaxC;
   constant = (T)(self->GetConstant());
-  // Get information to march through data 
-  inRegion->GetIncrements(inInc0, inInc1, inInc2, inInc3, inInc4);
-  inRegion->GetWholeExtent(imageMin0, imageMax0, imageMin1, imageMax1, 
-			   imageMin2, imageMax2, imageMin3, imageMax3,
-			   imageMin4, imageMax4);
-  outRegion->GetIncrements(outInc0, outInc1, outInc2, outInc3, outInc4);
-  outRegion->GetExtent(min0, max0, min1, max1, min2, max2, min3, max3,
-		       min4, max4);
+  int state0, state1, state2, state3;
+  
+  // find the region to loop over
+  maxC = outData->GetNumberOfScalarComponents();
+  maxX = outExt[1] - outExt[0]; 
+  maxY = outExt[3] - outExt[2]; 
+  maxZ = outExt[5] - outExt[4];
+  inMaxC = inData->GetNumberOfScalarComponents();
+  inMinX = inExt[0];
+  inMaxX = inExt[1];
+  
+  // Get increments to march through data 
+  inData->GetContinuousIncrements(inExt, inIncX, inIncY, inIncZ);
+  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
 
   // Loop through ouput pixels
-  inPtr4 = inPtr;
-  outPtr4 = outPtr;
-  for (outIdx4 = min4; outIdx4 <= max4; ++outIdx4)
+  for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {
-    state4 = (outIdx4 < imageMin4 || outIdx4 > imageMax4);
-    outPtr3 = outPtr4;
-    inPtr3 = inPtr4;
-    for (outIdx3 = min3; outIdx3 <= max3; ++outIdx3)
+    state3 = (idxZ < inExt[4] || idxZ > inExt[5]);
+    for (idxY = 0; idxY <= maxY; idxY++)
       {
-      state3 = (state4 || outIdx3 < imageMin3 || outIdx3 > imageMax3);
-      outPtr2 = outPtr3;
-      inPtr2 = inPtr3;
-      for (outIdx2 = min2; outIdx2 <= max2; ++outIdx2)
+      state2 = (state3 || idxY < inExt[2] || idxY > inExt[3]);
+      for (idxX = 0; idxX < maxX; idxX++)
 	{
-	state2 = (state3 || outIdx2 < imageMin2 || outIdx2 > imageMax2);
-	outPtr1 = outPtr2;
-	inPtr1 = inPtr2;
-	for (outIdx1 = min1; outIdx1 <= max1; ++outIdx1)
+	state1 = (state2 || idxX < inMinX || idxX > inMaxX);
+	for (idxC = 0; idxC < maxC; idxC++)
 	  {
-	  state1 = (state2 || outIdx1 < imageMin1 || outIdx1 > imageMax1);
-	  outPtr0 = outPtr1;
-	  inPtr0 = inPtr1;
-	  for (outIdx0 = min0; outIdx0 <= max0; ++outIdx0)
+	  // Pixel operation
+	  // Copy Pixel
+	  state0 = (state1 || idxC > inMaxC);
+	  if (state0)
 	    {
-	    state0 = (state1 || outIdx0 < imageMin0 || outIdx0 > imageMax0);
-	    
-	    // Copy Pixel
-	    if (state0)
-	      {
-	      *outPtr0 = constant;
-	      }
-	    else
-	      {
-	      *outPtr0 = *inPtr0;
-	      inPtr0 += inInc0;
-	      }
-	    outPtr0 += outInc0;
+	    *outPtr = constant;
 	    }
-	  if ( ! state1)
+	  else
 	    {
-	    inPtr1 += inInc1;
+	    *outPtr = *inPtr;
+	    inPtr++;
 	    }
-	  outPtr1 += outInc1;
+	  outPtr++;
 	  }
-	if ( ! state2)
-	  {
-	  inPtr2 += inInc2;
-	  }
-	outPtr2 += outInc2;
+	outPtr += outIncX;
+	if (state1) inPtr += inIncX;
 	}
-      if ( ! state3)
-	{
-	inPtr3 += inInc3;
-	}
-      outPtr3 += outInc3;
+      outPtr += outIncY;
+      if (state2) inPtr += inIncY;
       }
-    if ( ! state4)
-      {
-      inPtr4 += inInc4;
-      }
-    outPtr4 += outInc4;
+    outPtr += outIncZ;
+    if (state3) inPtr += inIncZ;
     }
 }
-  
 
 
 //----------------------------------------------------------------------------
 // Description:
-// This method is passed a input and output region, and executes the filter
+// This method is passed a input and output data, and executes the filter
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for
-// the regions data types.
-void vtkImageConstantPad::Execute(vtkImageRegion *inRegion, 
-				  vtkImageRegion *outRegion)
+// the datas data types.
+void vtkImageConstantPad::ThreadedExecute(vtkImageData *inData, 
+					vtkImageData *outData,
+					int outExt[6])
 {
-  void *inPtr = inRegion->GetScalarPointer();
-  void *outPtr = outRegion->GetScalarPointer();
+  void *inPtr = inData->GetScalarPointerForExtent(outExt);
+  void *outPtr = outData->GetScalarPointerForExtent(outExt);
   
-  vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
-		<< ", outRegion = " << outRegion);
+  vtkDebugMacro(<< "Execute: inData = " << inData 
+  << ", outData = " << outData);
   
   // this filter expects that input is the same type as output.
-  if (inRegion->GetScalarType() != outRegion->GetScalarType())
+  if (inData->GetScalarType() != outData->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input ScalarType, " << inRegion->GetScalarType()
-          << ", must match out ScalarType " << outRegion->GetScalarType());
+    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
+                  << ", must match out ScalarType " << outData->GetScalarType());
     return;
     }
   
-  switch (inRegion->GetScalarType())
+  switch (inData->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImageConstantPadExecute(this, inRegion, (float *)(inPtr), 
-			  outRegion, (float *)(outPtr));
+      vtkImageConstantPadExecute(this, inData, (float *)(inPtr), 
+			       outData, (float *)(outPtr), outExt);
       break;
     case VTK_INT:
-      vtkImageConstantPadExecute(this, inRegion, (int *)(inPtr), 
-			  outRegion, (int *)(outPtr));
+      vtkImageConstantPadExecute(this, inData, (int *)(inPtr), 
+			       outData, (int *)(outPtr), outExt);
       break;
     case VTK_SHORT:
-      vtkImageConstantPadExecute(this, inRegion, (short *)(inPtr), 
-			  outRegion, (short *)(outPtr));
+      vtkImageConstantPadExecute(this, inData, (short *)(inPtr), 
+			       outData, (short *)(outPtr), outExt);
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImageConstantPadExecute(this, inRegion, (unsigned short *)(inPtr), 
-			  outRegion, (unsigned short *)(outPtr));
+      vtkImageConstantPadExecute(this, inData, (unsigned short *)(inPtr), 
+			       outData, (unsigned short *)(outPtr), outExt);
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImageConstantPadExecute(this, inRegion, (unsigned char *)(inPtr), 
-			  outRegion, (unsigned char *)(outPtr));
+      vtkImageConstantPadExecute(this, inData, (unsigned char *)(inPtr), 
+			       outData, (unsigned char *)(outPtr), outExt);
       break;
     default:
-      vtkErrorMacro(<< "Execute: Unknown ScalarType");
+      vtkErrorMacro(<< "Execute: Unknown input ScalarType");
       return;
     }
 }
-
 
 
 

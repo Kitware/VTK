@@ -100,7 +100,7 @@ void vtkGLTexture::Load(vtkRenderer *vtkNotUsed(ren))
 
     // make sure using unsigned char data of color scalars type
     if (this->MapColorScalarsThroughLookupTable ||
-        (strcmp(scalars->GetDataType(),"unsigned char") ||
+        (scalars->GetDataType() != VTK_UNSIGNED_CHAR ||
         strcmp(scalars->GetScalarType(),"ColorScalar")) )
       {
       dataPtr = this->MapScalarsToColors (scalars);

@@ -93,28 +93,23 @@ public:
   // Description:
   // Get the file format.  Pixels are this type in the file.
   vtkGetMacro(DataScalarType, int);
+
+  // Description:
+  // Set/Get the number of scalar components
+  vtkSetMacro(NumberOfScalarComponents,int);
+  vtkGetMacro(NumberOfScalarComponents,int);
   
   // Description:
   // Get/Set the extent of the data on disk.  
-  void SetDataExtent(int num, int *extent);
-  vtkImageSetExtentMacro(DataExtent);
-  void GetDataExtent(int num, int *extent);
-  vtkImageGetExtentMacro(DataExtent);
+  vtkSetVectorMacro(DataExtent,int,6);
+  vtkGetVectorMacro(DataExtent,int,6);
   
   // Description:
   // Set/get the data VOI. You can limit the reader to only
   // read a subset of the data. 
-  void SetDataVOI(int num, int *extent);
-  vtkImageSetExtentMacro(DataVOI);
-  void GetDataVOI(int num, int *extent);
-  vtkImageGetExtentMacro(DataVOI);
+  vtkSetVectorMacro(DataVOI,int,6);
+  vtkGetVectorMacro(DataVOI,int,6);
   
-  // Description:
-  // The number of scalar components refers to the number of scalars
-  // per pixel to store color information.
-  vtkSetMacro(NumberOfScalarComponents,int);
-  vtkGetMacro(NumberOfScalarComponents,int);
-
   // Description:
   // The number of dimensions stored in a file. This defaults to two.
   vtkSetMacro(FileDimensionality, int);
@@ -122,22 +117,16 @@ public:
   
   // Description:
   // Set/Get the spacing of the data in the file.
-  void SetDataSpacing(int num, float *ratio);
-  vtkImageSetMacro(DataSpacing,float);
-  void GetDataSpacing(int num, float *ratio);
-  vtkImageGetMacro(DataSpacing,float);
-  float *GetDataSpacing() {return this->DataSpacing;};  
+  vtkSetVector3Macro(DataSpacing,float);
+  vtkGetVector3Macro(DataSpacing,float);
   
   // Description:
   // Set/Get the origin of the data (location of first pixel in the file).
-  void SetDataOrigin(int num, float *ratio);
-  vtkImageSetMacro(DataOrigin,float);
-  void GetDataOrigin(int num, float *ratio);
-  vtkImageGetMacro(DataOrigin,float);
-  float *GetDataOrigin() {return this->DataOrigin;};  
-  
-  void UpdateImageInformation();
+  vtkSetVector3Macro(DataOrigin,float);
+  vtkGetVector3Macro(DataOrigin,float);
+
   vtkImageCache *GetOutput();
+  void UpdateImageInformation();
   
   // Description:
   // Get the size of the header computed by this object.
@@ -187,17 +176,17 @@ public:
   // Warning !!!
   // following should only be used by methods or template helpers, not users
   ifstream *File;
-  int DataIncrements[VTK_IMAGE_DIMENSIONS];
-  int DataExtent[VTK_IMAGE_EXTENT_DIMENSIONS];
+  int DataIncrements[3];
+  int DataExtent[6];
   unsigned short DataMask;  // Mask each pixel with ...
   int SwapBytes;
-  void ComputeInverseTransformedExtent(int inExtent[8],
-				       int outExtent[8]);
-  void ComputeInverseTransformedIncrements(int inIncr[4],
-					   int outIncr[4]);
+  void ComputeInverseTransformedExtent(int inExtent[6],
+				       int outExtent[6]);
+  void ComputeInverseTransformedIncrements(int inIncr[3],
+					   int outIncr[3]);
 
   void OpenFile();
-  void OpenAndSeekFile(int extent[8], int slice);
+  void OpenAndSeekFile(int extent[6], int slice);
   char *InternalFileName;
   char *FileName;
   char *FilePrefix;
@@ -213,19 +202,19 @@ protected:
   int Initialized;
   vtkTransform *Transform;
 
-  void ComputeTransformedSpacing (float Spacing[4]);
-  void ComputeTransformedOrigin (float origin[4]);
-  void ComputeTransformedExtent(int inExtent[8],
-				int outExtent[8]);
-  void ComputeTransformedIncrements(int inIncr[4],
-				    int outIncr[4]);
+  void ComputeTransformedSpacing (float Spacing[3]);
+  void ComputeTransformedOrigin (float origin[3]);
+  void ComputeTransformedExtent(int inExtent[6],
+				int outExtent[6]);
+  void ComputeTransformedIncrements(int inIncr[3],
+				    int outIncr[3]);
 
-  int DataDimensions[VTK_IMAGE_DIMENSIONS];
-  float DataSpacing[VTK_IMAGE_DIMENSIONS];
-  float DataOrigin[VTK_IMAGE_DIMENSIONS];
-  int DataVOI[VTK_IMAGE_EXTENT_DIMENSIONS];
-
-  void Execute(vtkImageRegion *region);
+  int DataDimensions[3];
+  float DataSpacing[3];
+  float DataOrigin[3];
+  int DataVOI[6];
+  
+  void Execute(vtkImageData *data);
   virtual void ComputeDataIncrements();
 };
 

@@ -97,7 +97,8 @@ protected:
   int ReplaceOut;
   float OutValue;
 
-  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
+		       int extent[6]);
 };
 
 #endif

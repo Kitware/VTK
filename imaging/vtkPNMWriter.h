@@ -57,7 +57,7 @@ public:
   const char *GetClassName() {return "vtkPNMWriter";};
 
 protected:
-  virtual void WriteFile(ofstream *file, vtkImageRegion *region);
+  virtual void WriteFile(ofstream *file, vtkImageData *data, int extent[6]);
   virtual void WriteFileHeader(ofstream *, vtkImageCache *);
 };
 
