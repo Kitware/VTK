@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkThreadSafeLog, "1.4");
+vtkCxxRevisionMacro(vtkThreadSafeLog, "1.5");
 vtkStandardNewMacro(vtkThreadSafeLog);
 
 //----------------------------------------------------------------------------
@@ -104,19 +104,19 @@ void vtkThreadSafeLog::DumpLog(char *filename, int nMode)
 }
 
 //----------------------------------------------------------------------------
-void StartTimer()
+void vtkThreadSafeLog::StartTimer()
 {
   this->Timer->StartTimer();
 }
 
 //----------------------------------------------------------------------------
-void StopTimer()
+void vtkThreadSafeLog::StopTimer()
 {
   this->Timer->StopTimer();
 }
 
 //----------------------------------------------------------------------------
-double GetElapsedTime()
+double vtkThreadSafeLog::GetElapsedTime()
 {
   return this->Timer->GetElapsedTime();
 }
