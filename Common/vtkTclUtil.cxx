@@ -598,7 +598,7 @@ void vtkTclCommand::SetStringCommand(const char *arg)
 void vtkTclCommand::Execute(vtkObject *, unsigned long, void *)
 {
   int res;
-  res = Tcl_GlobalEval(this->Interp, this->StringCommand);
+  res = Tcl_EvalEx(this->Interp, this->StringCommand, -1, TCL_EVAL_GLOBAL);
   
   if (res == TCL_ERROR)
     {
