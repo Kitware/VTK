@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkPiecewiseFunction.h"
+#include "vtkSource.h"
 
 // Construct a new vtkPiecewiseFunction with default values
 vtkPiecewiseFunction::vtkPiecewiseFunction()
@@ -185,6 +186,28 @@ char *vtkPiecewiseFunction::GetType()
     return( "Unknown" );
 }
 
+
+// Return the mtime of this object, or the source - whicheve is greater
+// This way the pipeline will update correctly
+unsigned long vtkPiecewiseFunction::GetMTime()
+{
+  unsigned long mt1, mt2, mtime;
+
+  mt1 = this->vtkObject::GetMTime();
+
+  if ( this->Source )
+    {
+    mt2 = this->Source->GetMTime();
+    }
+  else
+    {
+    mt2 = 0;
+    }
+
+  mtime = (mt1 > mt2)?(mt1):(mt2);
+
+  return mtime;
+}
 
 // Returns the first point location which starts a non-zero segment of the
 // function. Note that the value at this point may be zero.
@@ -585,12 +608,13 @@ void vtkPiecewiseFunction::PrintSelf(ostream& os, vtkIndent indent)
 {
   int i;
 
-  vtkDataObject::PrintSelf(os, indent);
+  this->vtkDataObject::PrintSelf(os, indent);
 
   os << indent << "Clamping: " << this->Clamping << "\n";
   os << indent << "Function Points: " << this->GetSize() << "\n";
-  for( i=0; i<this->FunctionSize; i++ )
+  for( i = 0; i < this->FunctionSize; i++ )
     {
-    os << indent << indent << i << ": " << this->Function[(2*i)] << ", " << this->Function[(2*i+1)] << "\n";
+    os << indent << indent << i << ": " 
+       << this->Function[(2*i)] << ", " << this->Function[(2*i+1)] << "\n";
     }
 }
