@@ -142,9 +142,18 @@ void vtkCellTypes::SetCellTypes(int ncells, vtkUnsignedCharArray *cellTypes, vtk
 {
   this->Size = ncells;
 
+  if (this->TypeArray)
+    {
+    this->TypeArray->Delete();
+    }
+  
   this->TypeArray = cellTypes;
   cellTypes->Register(this);
 
+  if (this->LocationArray)
+    {
+    this->LocationArray->Delete();
+    }
   this->LocationArray = cellLocations;
   cellLocations->Register(this);
   this->Extend = 1;
