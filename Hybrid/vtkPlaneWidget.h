@@ -139,11 +139,15 @@ public:
 
   // Description:
   // Get the center of the plane.
+  void SetCenter(float x, float y, float z);
+  void SetCenter(float x[3]);
   float* GetCenter();
   void GetCenter(float xyz[3]);
 
   // Description:
   // Get the normal to the plane.
+  void SetNormal(float x, float y, float z);
+  void SetNormal(float x[3]);
   float* GetNormal();
   void GetNormal(float xyz[3]);
   

@@ -35,7 +35,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSphereSource.h"
 
-vtkCxxRevisionMacro(vtkPlaneWidget, "1.17");
+vtkCxxRevisionMacro(vtkPlaneWidget, "1.18");
 vtkStandardNewMacro(vtkPlaneWidget);
 
 vtkCxxSetObjectMacro(vtkPlaneWidget,PlaneProperty,vtkProperty);
@@ -256,6 +256,8 @@ void vtkPlaneWidget::SetEnabled(int enabling)
 
       this->SelectRepresentation();
       this->InvokeEvent(vtkCommand::EnableEvent,NULL);
+      cout << "Plane enabled" << endl;
+      this->Print(cout);
     }
   
   else //disabling----------------------------------------------------------
@@ -1244,11 +1246,12 @@ int vtkPlaneWidget::GetResolution()
 void vtkPlaneWidget::SetOrigin(float x, float y, float z) 
 {
   this->PlaneSource->SetOrigin(x,y,z);
+  this->PositionHandles();
 }
 
 void vtkPlaneWidget::SetOrigin(float x[3]) 
 {
-  this->PlaneSource->SetOrigin(x);
+  this->SetOrigin(x[0], x[1], x[2]);
 }
 
 float* vtkPlaneWidget::GetOrigin() 
@@ -1266,11 +1269,12 @@ void vtkPlaneWidget::GetOrigin(float xyz[3])
 void vtkPlaneWidget::SetPoint1(float x, float y, float z) 
 {
   this->PlaneSource->SetPoint1(x,y,z);
+  this->PositionHandles();
 }
 
 void vtkPlaneWidget::SetPoint1(float x[3]) 
 {
-  this->PlaneSource->SetPoint1(x);
+  this->SetPoint1(x[0], x[1], x[2]);
 }
 
 float* vtkPlaneWidget::GetPoint1() 
@@ -1288,11 +1292,12 @@ void vtkPlaneWidget::GetPoint1(float xyz[3])
 void vtkPlaneWidget::SetPoint2(float x, float y, float z) 
 {
   this->PlaneSource->SetPoint2(x,y,z);
+  this->PositionHandles();
 }
 
 void vtkPlaneWidget::SetPoint2(float x[3]) 
 {
-  this->PlaneSource->SetPoint2(x);
+  this->SetPoint2(x[0], x[1], x[2]);
 }
 
 float* vtkPlaneWidget::GetPoint2() 
@@ -1306,6 +1311,21 @@ void vtkPlaneWidget::GetPoint2(float xyz[3])
 }
 
 // Description:
+// Set the center of the plane.
+void vtkPlaneWidget::SetCenter(float x, float y, float z) 
+{
+  this->PlaneSource->SetCenter(x, y, z);
+  this->PositionHandles();
+}
+
+// Description:
+// Set the center of the plane.
+void vtkPlaneWidget::SetCenter(float c[3]) 
+{
+  this->SetCenter(c[0], c[1], c[2]);
+}
+
+// Description:
 // Get the center of the plane.
 float* vtkPlaneWidget::GetCenter() 
 {
@@ -1315,6 +1335,21 @@ float* vtkPlaneWidget::GetCenter()
 void vtkPlaneWidget::GetCenter(float xyz[3]) 
 {
   this->PlaneSource->GetCenter(xyz);
+}
+
+// Description:
+// Set the normal to the plane.
+void vtkPlaneWidget::SetNormal(float x, float y, float z) 
+{
+  this->PlaneSource->SetNormal(x, y, z);
+  this->PositionHandles();
+}
+
+// Description:
+// Set the normal to the plane.
+void vtkPlaneWidget::SetNormal(float n[3]) 
+{
+  this->SetNormal(n[0], n[1], n[2]);
 }
 
 // Description:
