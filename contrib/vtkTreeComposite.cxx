@@ -87,8 +87,9 @@ vtkTreeComposite::vtkTreeComposite()
   this->RenderWindowInteractor = NULL;
   this->Controller = vtkMultiProcessController::GetGlobalController();
 
-  this->StartTag = this->EndTag = -1;
-  this->StartInteractorTag = -1;
+  this->StartTag = this->EndTag = 0;
+  this->StartInteractorTag = 0;
+  this->EndInteractorTag = 0;
 }
 
   
@@ -102,9 +103,9 @@ vtkTreeComposite::~vtkTreeComposite()
 //-------------------------------------------------------------------------
 // We may want to pass the render window as an argument for a sanity check.
 void vtkTreeCompositeStartRender(vtkObject *caller, unsigned long event, 
-                                 void *, void *arg)
+                                 void *clientData, void *)
 {
-  vtkTreeComposite *self = (vtkTreeComposite *)arg;
+  vtkTreeComposite *self = (vtkTreeComposite *)clientData;
   
   if (caller != self->GetRenderWindow())
     { // Sanity check.
@@ -116,9 +117,9 @@ void vtkTreeCompositeStartRender(vtkObject *caller, unsigned long event,
 }
 //-------------------------------------------------------------------------
 void vtkTreeCompositeEndRender(vtkObject *caller, unsigned long event, 
-                               void *, void *arg)
+                               void *clientData, void *)
 {
-  vtkTreeComposite *self = (vtkTreeComposite *)arg;
+  vtkTreeComposite *self = (vtkTreeComposite *)clientData;
   
   if (caller != self->GetRenderWindow())
     { // Sanity check.
@@ -129,10 +130,10 @@ void vtkTreeCompositeEndRender(vtkObject *caller, unsigned long event,
   self->EndRender();
 }
 //-------------------------------------------------------------------------
-void vtkTreeCompositeStartInteractor(vtkObject *, unsigned long event, 
-                                     void *, void *arg)
+void vtkTreeCompositeStartInteractor(vtkObject *o, unsigned long event, 
+                                     void *clientData, void *)
 {
-  vtkTreeComposite *self = (vtkTreeComposite *)arg;
+  vtkTreeComposite *self = (vtkTreeComposite *)clientData;
   
   // If we stay with event driven compositing, I think in the future
   // we should pass all events through the RenderWindow.
@@ -144,12 +145,28 @@ void vtkTreeCompositeStartInteractor(vtkObject *, unsigned long event,
 
   self->StartInteractor();
 }
+//-------------------------------------------------------------------------
+void vtkTreeCompositeExitInteractor(vtkObject *o, unsigned long event, 
+                                    void *clientData, void *)
+{
+  vtkTreeComposite *self = (vtkTreeComposite *)clientData;
+  
+  // If we stay with event driven compositing, I think in the future
+  // we should pass all events through the RenderWindow.
+  //if (caller != self->GetRenderWindowInteractor) // private
+  //  { // Sanity check.
+  //  vtkGenericErrorMacro("Caller mismatch.");
+  //  return;
+  //  }
+
+  self->ExitInteractor();
+}
 
 //-------------------------------------------------------------------------
 void vtkTreeCompositeResetCamera(vtkObject *caller, unsigned long event, 
-                                 void *, void *arg)
+                                 void *clientData, void *)
 {
-  vtkTreeComposite *self = (vtkTreeComposite *)arg;
+  vtkTreeComposite *self = (vtkTreeComposite *)clientData;
   vtkRenderer *ren = (vtkRenderer*)caller;
 
   self->ResetCamera(ren);
@@ -157,9 +174,9 @@ void vtkTreeCompositeResetCamera(vtkObject *caller, unsigned long event,
 //-------------------------------------------------------------------------
 void vtkTreeCompositeResetCameraClippingRange(vtkObject *caller, 
                                               unsigned long event, 
-                                              void *, void *arg)
+                                              void *clientData, void *)
 {
-  vtkTreeComposite *self = (vtkTreeComposite *)arg;
+  vtkTreeComposite *self = (vtkTreeComposite *)clientData;
   vtkRenderer *ren = (vtkRenderer*)caller;
 
   self->ResetCameraClippingRange(ren);
@@ -168,7 +185,7 @@ void vtkTreeCompositeResetCameraClippingRange(vtkObject *caller,
 void vtkTreeCompositeRenderRMI(void *arg, void *, int, int)
 {
   vtkTreeComposite* self = (vtkTreeComposite*) arg;
-
+  
   self->RenderRMI();
 }
 
@@ -198,7 +215,7 @@ void vtkTreeComposite::SetRenderWindow(vtkRenderWindow *renWin)
     renWin->Register(this);
     this->RenderWindow = renWin;
     this->SetRenderWindowInteractor(renWin->GetInteractor());
-    if (this->Controller && this->Controller->GetLocalProcessId() > 0)
+    if (this->Controller && this->Controller->GetLocalProcessId() == 0)
       {
       vtkCallbackCommand *cbc;
       cbc= new vtkCallbackCommand;
@@ -227,13 +244,22 @@ vtkTreeComposite::SetRenderWindowInteractor(vtkRenderWindowInteractor *iren)
     return;
     }
 
+  if (this->Controller == NULL)
+    {
+    return;
+    }
+  
   if (this->RenderWindowInteractor)
     {
     this->RenderWindowInteractor->UnRegister(this);
     this->RenderWindowInteractor =  NULL;
-    if (this->Controller && this->Controller->GetLocalProcessId() > 0)
+    if (this->Controller->GetLocalProcessId() > 0)
       {
       this->RenderWindowInteractor->RemoveObserver(this->StartInteractorTag);
+      }
+    else
+      {
+      this->RenderWindowInteractor->RemoveObserver(this->EndInteractorTag);
       }
     }
   if (iren)
@@ -241,14 +267,23 @@ vtkTreeComposite::SetRenderWindowInteractor(vtkRenderWindowInteractor *iren)
     iren->Register(this);
     this->RenderWindowInteractor = iren;
 
-    if (this->Controller && this->Controller->GetLocalProcessId() > 0)
+    if (this->Controller->GetLocalProcessId() > 0)
       {
       vtkCallbackCommand *cbc;
       cbc= new vtkCallbackCommand;
       cbc->SetCallback(vtkTreeCompositeStartInteractor);
-      cbc->SetClientData(this);
+      cbc->SetClientData((void*)this);
       // IRen will delete the cbc when the observer is removed.
       this->StartInteractorTag = iren->AddObserver(vtkCommand::StartEvent,cbc);
+      }
+    else
+      {
+      vtkCallbackCommand *cbc;
+      cbc= new vtkCallbackCommand;
+      cbc->SetCallback(vtkTreeCompositeExitInteractor);
+      cbc->SetClientData((void*)this);
+      // IRen will delete the cbc when the observer is removed.
+      this->EndInteractorTag = iren->AddObserver(vtkCommand::ExitEvent,cbc);
       }
     }
 }
@@ -335,6 +370,26 @@ void vtkTreeComposite::StartInteractor()
                            VTK_COMPOSITE_RENDER_RMI_TAG); 
   this->Controller->ProcessRMIs();
 }
+
+//-------------------------------------------------------------------------
+// This is only called in process 0.
+void vtkTreeComposite::ExitInteractor()
+{
+  int numProcs, id;
+  
+  if (this->Controller == NULL)
+    {
+    vtkErrorMacro("Missing Controller.");
+    return;
+    }
+
+  numProcs = this->Controller->GetNumberOfProcesses();
+  for (id = 1; id < numProcs; ++id)
+    {
+    this->Controller->TriggerRMI(id, VTK_BREAK_RMI_TAG);
+    }
+}
+
 
 //-------------------------------------------------------------------------
 // Only called in process 0.
@@ -678,6 +733,7 @@ void vtkTreeComposite::Composite(int flag, float *remoteZdata,
       }
     }
 }
+
 
 void vtkTreeComposite::PrintSelf(ostream& os, vtkIndent indent)
 {

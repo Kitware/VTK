@@ -83,6 +83,7 @@ public:
   // Description:
   // Callbacks that initialize and finish the compositing.
   void StartInteractor();
+  void ExitInteractor();
   void StartRender();
   void EndRender();
   void RenderRMI();
@@ -100,6 +101,7 @@ protected:
   vtkMultiProcessController* Controller;
 
   unsigned long StartInteractorTag;
+  unsigned long EndInteractorTag;
   unsigned long StartTag;
   unsigned long EndTag;
   
