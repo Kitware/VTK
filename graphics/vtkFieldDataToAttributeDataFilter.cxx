@@ -197,6 +197,11 @@ void vtkFieldDataToAttributeDataFilter::Execute()
                          this->NormalArrayComponents, 
                          this->NormalNormalize);
   this->ConstructFieldData(num, attr);
+  
+  ((vtkDataSet *)this->Output)->GetPointData()->PassNoReplaceData(
+	  ((vtkDataSet *)this->Input)->GetPointData());
+  ((vtkDataSet *)this->Output)->GetCellData()->PassNoReplaceData(
+	  ((vtkDataSet *)this->Input)->GetCellData());
 }
 
 void vtkFieldDataToAttributeDataFilter::PrintSelf(ostream& os, 
