@@ -945,7 +945,7 @@ void vtkRIBExporter::WriteTexture (vtkTexture *aTexture)
     vtkTIFFWriter *aWriter = new vtkTIFFWriter;
     vtkStructuredPoints *anImage = new vtkStructuredPoints;
       anImage->SetDimensions (xsize, ysize, 1);
-      anImage->GetPointData()->SetScalars (scalars);
+      anImage->GetPointData()->SetScalars (mappedScalars);
       aWriter->SetInput (anImage);
       aWriter->SetFilename (GetTIFFName (aTexture));
       aWriter->Write ();
