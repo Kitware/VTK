@@ -183,8 +183,8 @@ public:
   vtkCommand *GetCommand(unsigned long tag);
   void InvokeEvent(unsigned long event, void *callData);
   void InvokeEvent(const char *event, void *callData);
-  //ETX
   void RemoveObserver(vtkCommand*);
+  //ETX
   void RemoveObserver(unsigned long tag);
   int HasObserver(unsigned long event);
   int HasObserver(const char *event);
