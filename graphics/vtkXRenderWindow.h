@@ -62,6 +62,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_EXPORT vtkXRenderWindow : public vtkRenderWindow
 {
 public:
+  vtkTypeMacro(vtkXRenderWindow,vtkRenderWindow);
   static vtkXRenderWindow *New();
   void PrintSelf(ostream& os, vtkIndent indent);
 
