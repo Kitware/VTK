@@ -211,10 +211,9 @@ void vtkOBBTree::BuildLocator()
   vtkDebugMacro(<<"Building OBB tree");
   if ( this->Tree != NULL && this->BuildTime > this->MTime ) return;
 
-  if ( this->DataSet == NULL || 
-  (numPts = this->DataSet->GetNumberOfPoints()) < 1 ||
-  (numCells = this->DataSet->GetNumberOfCells()) < 1 )
-  
+  numPts = this->DataSet->GetNumberOfPoints();
+  numCells = this->DataSet->GetNumberOfCells();
+  if ( this->DataSet == NULL || numPts < 1 || numCells < 1 )
     {
     vtkErrorMacro(<<"Can't build OBB tree - no data available!");
     return;
@@ -294,7 +293,7 @@ void vtkOBBTree::BuildTree(vtkIdList *cells, vtkOBBNode *OBBptr, int level)
     vtkIdList *RHlist = new vtkIdList(cells->GetNumberOfIds()/2);
     float n[3], p[3], *x, val, ratio, bestRatio;
     int negative, positive, splitAcceptable, splitPlane;
-    int foundBestSplit, bestPlane, numStraddles;
+    int foundBestSplit, bestPlane=0, numStraddles;
     int numInLHnode, numInRHnode;
 
     //loop over three split planes to find acceptable one
