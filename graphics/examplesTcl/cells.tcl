@@ -367,10 +367,12 @@ vtkVRMLExporter vrml
   vrml SetFileName cells.wrl
   vrml Write
 
-vtkRIBExporter rib
-  rib SetInput renWin
-  rib SetFilePrefix cells
-  rib Write
+if { [info command vtkRIBExporter] != "" } {
+  vtkRIBExporter rib
+    rib SetInput renWin
+    rib SetFilePrefix cells
+    rib Write
+}
 
 vtkIVExporter iv
   iv SetInput renWin
