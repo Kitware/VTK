@@ -309,10 +309,6 @@ class QVTKRenderWindowInteractor(qt.QWidget):
 
 
 #-----------------------------------------------------------------------  
-def foo(obj, event):
-  print event
-  print obj.GetRepeatCount() 
-
 def QVTKRenderWidgetConeExample():    
     """A simple example that uses the QVTKRenderWindowInteractor
     class.  """
@@ -326,7 +322,6 @@ def QVTKRenderWidgetConeExample():
     widget.Start()
     # if you dont want the 'q' key to exit comment this.
     widget.AddObserver("ExitEvent", lambda o, e, a=app: a.quit())
-    widget.AddObserver("LeftButtonPressEvent", foo)
 
     ren = vtk.vtkRenderer()
     widget.GetRenderWindow().AddRenderer(ren)
