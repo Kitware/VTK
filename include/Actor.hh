@@ -141,7 +141,7 @@ class vlActor : public vlObject
   vlBooleanMacro(Dragable,int);
 
   vlMatrix4x4& GetMatrix();
-  void GetMatrix(vlMatrix4x4& m);
+  virtual void GetMatrix(vlMatrix4x4& m);
 
   float *GetBounds();
   float *GetXRange();
