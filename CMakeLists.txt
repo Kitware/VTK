@@ -96,7 +96,7 @@ OPTION(VTK_USE_ANSI_STDLIB "Use the ANSI standard iostream library", OFF)
 #
 # try to find the data files for VTKData
 #
-FIND_PATH(VTK_DATA_ROOT VTKData.readme ${VTK_SOURCE_DIR}/../VTKData)
+FIND_PATH(VTK_DATA_ROOT VTKData.readme ${VTK_SOURCE_DIR}/../VTKData $ENV{VTK_DATA_ROOT})
 
 # where will executable tests be written ?
 IF (EXECUTABLE_OUTPUT_PATH)
