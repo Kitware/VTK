@@ -137,6 +137,7 @@ void vtkImageViewer::Render(void)
   int idx;
   vtkImageData *data;
   int *wholeExtent;
+  int displayExtent[6];
   
   if ( ! this->Input)
     {
@@ -155,15 +156,23 @@ void vtkImageViewer::Render(void)
     {
     if (this->DisplayExtent[idx*2] < wholeExtent[idx*2]) 
       {
-      this->DisplayExtent[idx*2] = wholeExtent[idx*2];
+      displayExtent[idx*2] = wholeExtent[idx*2];
+      }
+    else 
+      {
+      displayExtent[idx*2] = this->DisplayExtent[idx*2];
       }
     if (this->DisplayExtent[idx*2+1] > wholeExtent[idx*2+1]) 
       {
-      this->DisplayExtent[idx*2+1] = wholeExtent[idx*2+1];
+      displayExtent[idx*2+1] = wholeExtent[idx*2+1];
+      }
+    else 
+      {
+      displayExtent[idx*2+1] = this->DisplayExtent[idx*2+1];
       }
     }
 
-  this->Input->SetUpdateExtent(this->DisplayExtent);
+  this->Input->SetUpdateExtent(displayExtent);
 
   // Get the region from the input
   data = this->Input->UpdateAndReturnData();
