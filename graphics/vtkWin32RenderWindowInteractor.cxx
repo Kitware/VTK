@@ -1032,7 +1032,7 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
             
             me->InteractionActor = NULL;
             me->ActorPicked = 0;
-            me->HighlightACtor(me->Picker->GetAssembly());
+            me->HighlightActor(me->Picker->GetAssembly());
 
             if (me->EndPickMethod)
               {
