@@ -20,7 +20,8 @@ vtkFloatTCoords \
 vtkFloatTensors \
 vtkFloatVectors \
 vtkImplicitFunctionCollection \
-vtkTransformCollection
+vtkTransformCollection \
+vtkVersion
 
 ABSTRACT = \
 vtkAttributeData \
