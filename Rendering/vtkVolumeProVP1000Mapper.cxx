@@ -35,7 +35,7 @@
 #include <stdio.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeProVP1000Mapper, "1.23");
+vtkCxxRevisionMacro(vtkVolumeProVP1000Mapper, "1.24");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -614,7 +614,7 @@ void vtkVolumeProVP1000Mapper::UpdateVolume( vtkRenderer * vtkNotUsed(ren), vtkV
   float                     dataOrigin[3];
   float                     dataSpacing[3];
   VLIStatus                 status;
-  float                     range[2];
+  double                    range[2];
   
   // We need the size to create the volume and check the subvolume
   input->GetDimensions( dataSize );
