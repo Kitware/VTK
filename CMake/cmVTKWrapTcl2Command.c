@@ -10,6 +10,7 @@ typedef struct
   char *LibraryName;
   int NumberWrapped;
   void **SourceFiles;
+  char **HeaderFiles;
 } cmVTKWrapTclData;
 
 /* this roputine creates the init file */
@@ -224,6 +225,7 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
   commands = (char **)malloc(sizeof(char *)*newArgc);
   concrete = (char **)malloc(sizeof(char *)*newArgc);
   cdata->SourceFiles = (void **)malloc(sizeof(void *)*newArgc);
+  cdata->HeaderFiles = (char **)malloc(sizeof(char *)*newArgc);
   
   for(i = 1; i < newArgc; ++i)
     {   
@@ -283,7 +285,9 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
         void *file = info->CAPI->CreateSourceFile();
         char *srcName;
         char *hname;
+        char *pathName;
         srcName = info->CAPI->GetFilenameWithoutExtension(sources[i]);
+        pathName = info->CAPI->GetFilenamePath(sources[i]);
         if (curr)
           {
           int abst = info->CAPI->SourceFileGetPropertyAsBool(curr,"ABSTRACT");
@@ -306,19 +310,28 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
                              info->CAPI->GetCurrentOutputDirectory(mf),
                              "cxx",0);
         
-        hname = (char *)malloc(strlen(cdir) + strlen(srcName) + 4);
-        sprintf(hname,"%s/%s.h",cdir,srcName);
+        if (strlen(pathName) > 1)
+          {
+          hname = (char *)malloc(strlen(pathName) + strlen(srcName) + 4);
+          sprintf(hname,"%s/%s.h",pathName,srcName);
+          }
+        else
+          {
+          hname = (char *)malloc(strlen(cdir) + strlen(srcName) + 4);
+          sprintf(hname,"%s/%s.h",cdir,srcName);
+          }
         /* add starting depends */
         info->CAPI->SourceFileAddDepend(file,hname);
         info->CAPI->AddSource(mf,file);
-        free(hname);
         cdata->SourceFiles[numWrapped] = file;
+        cdata->HeaderFiles[numWrapped] = hname;
         numWrapped++;
         strcat(sourceListValue,";");
         strcat(sourceListValue,newName);
         strcat(sourceListValue,".cxx");        
         free(newName);
         info->CAPI->Free(srcName);
+        info->CAPI->Free(pathName);
         }
       }
     /* add the init file */
@@ -382,11 +395,7 @@ static void FinalPass(void *inf, void *mf)
     {
     char *res;
     const char *srcName = info->CAPI->SourceFileGetSourceName(cdata->SourceFiles[i]);
-    char *hname = (char *)malloc(strlen(cdir) + strlen(srcName) + 4);
-    sprintf(hname,"%s/%s",cdir,srcName);
-    hname[strlen(hname)-3]= '\0';
-    strcat(hname,".h");
-    args[0] = hname;
+    args[0] = cdata->HeaderFiles[i];
     numArgs = 1;
     if (hints)
       {
@@ -405,7 +414,6 @@ static void FinalPass(void *inf, void *mf)
                        wtcl, numArgs, args, numDepends, depends, 
                        1, &res, cdata->LibraryName);
     free(res);
-    free(hname);
     }
 }
 
@@ -421,8 +429,10 @@ static void Destructor(void *inf)
     for (i = 0; i < cdata->NumberWrapped; ++i)
       {              
       info->CAPI->DestroySourceFile(cdata->SourceFiles[i]);
+      free(cdata->HeaderFiles[i]);
       }
     free(cdata->SourceFiles);
+    free(cdata->HeaderFiles);
     free(cdata->LibraryName);
     free(cdata);
     }
