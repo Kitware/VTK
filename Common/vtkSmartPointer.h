@@ -98,6 +98,12 @@ protected:
 
 #define VTK_SMART_POINTER_DEFINE_OPERATOR(op) \
   template <class T> \
+  inline vtkstd_bool \
+  operator op (const vtkSmartPointer<T>& l, const vtkSmartPointer<T>& r) \
+    { \
+    return (l.GetPointer() op r.GetPointer()); \
+    } \
+  template <class T> \
   inline vtkstd_bool operator op (T* l, const vtkSmartPointer<T>& r) \
     { \
     return (l op r.GetPointer()); \
