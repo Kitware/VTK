@@ -74,6 +74,11 @@ public:
   // If there is no output, execute anyway.  Execute creates an output.
   void Update();
   
+  // Description:
+  // This method can be used to find out the type of output expected without
+  // needing to read the whole file.
+  int ReadOutputType();
+
 protected:
   vtkDataSetReader();
   ~vtkDataSetReader();

@@ -23,7 +23,7 @@
 #include "vtkUnstructuredGridReader.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataSetReader, "1.58");
+vtkCxxRevisionMacro(vtkDataSetReader, "1.59");
 vtkStandardNewMacro(vtkDataSetReader);
 
 vtkDataSetReader::vtkDataSetReader()
@@ -66,37 +66,13 @@ vtkDataSet * vtkDataSetReader::GetOutput()
 
 void vtkDataSetReader::Execute()
 {
-  char line[256];
   vtkDataObject *output;
   
   vtkDebugMacro(<<"Reading vtk dataset...");
 
-  if (!this->OpenVTKFile() || !this->ReadHeader())
+  switch (this->ReadOutputType())
     {
-    return;
-    }
-
-  // Determine dataset type
-  //
-  if (!this->ReadString(line))
-    {
-    vtkErrorMacro(<< "Premature EOF reading dataset keyword");
-    return;
-    }
-
-  if ( !strncmp(this->LowerCase(line),"dataset",(unsigned long)7) )
-    {
-    // See if type is recognized.
-    //
-    if (!this->ReadString(line))
-      {
-      vtkErrorMacro(<< "Premature EOF reading type");
-      this->CloseVTKFile ();
-      return;
-      }
-
-    this->CloseVTKFile();
-    if ( ! strncmp(this->LowerCase(line),"polydata",8) )
+    case VTK_POLY_DATA:
       {
       vtkPolyDataReader *preader = vtkPolyDataReader::New();
       preader->SetFileName(this->GetFileName());
@@ -122,11 +98,10 @@ void vtkDataSetReader::Execute()
         {
         this->SetNthOutput(0, preader->GetOutput());
         }
-
       preader->Delete();
+      return;
       }
-
-    else if ( ! strncmp(line,"structured_points",17) )
+    case VTK_STRUCTURED_POINTS:
       {
       vtkStructuredPointsReader *preader = vtkStructuredPointsReader::New();
       preader->SetFileName(this->GetFileName());
@@ -142,7 +117,6 @@ void vtkDataSetReader::Execute()
       preader->SetLookupTableName(this->GetLookupTableName());
       preader->SetFieldDataName(this->GetFieldDataName());
       preader->Update();
-
       // Can we use the old output?
       output = this->Outputs ? this->Outputs[0] : NULL;
       if (output && strcmp(output->GetClassName(), "vtkStructuredPoints") == 0)
@@ -153,11 +127,10 @@ void vtkDataSetReader::Execute()
         {
         this->SetNthOutput(0, preader->GetOutput());
         }
-
       preader->Delete();
+      return;
       }
-
-    else if ( ! strncmp(line,"structured_grid",15) )
+    case VTK_STRUCTURED_GRID:
       {
       vtkStructuredGridReader *preader = vtkStructuredGridReader::New();
       preader->SetFileName(this->GetFileName());
@@ -173,7 +146,6 @@ void vtkDataSetReader::Execute()
       preader->SetLookupTableName(this->GetLookupTableName());
       preader->SetFieldDataName(this->GetFieldDataName());
       preader->Update();
-
       // Can we use the old output?
       output = this->Outputs ? this->Outputs[0] : NULL;
       if (output && strcmp(output->GetClassName(), "vtkStructuredGrid") == 0)
@@ -184,11 +156,10 @@ void vtkDataSetReader::Execute()
         {
         this->SetNthOutput(0, preader->GetOutput());
         }
-
       preader->Delete();
+      return;
       }
-
-    else if ( ! strncmp(line,"rectilinear_grid",16) )
+    case VTK_RECTILINEAR_GRID:
       {
       vtkRectilinearGridReader *preader = vtkRectilinearGridReader::New();
       preader->SetFileName(this->GetFileName());
@@ -204,7 +175,6 @@ void vtkDataSetReader::Execute()
       preader->SetLookupTableName(this->GetLookupTableName());
       preader->SetFieldDataName(this->GetFieldDataName());
       preader->Update();
-
       // Can we use the old output?
       output = this->Outputs ? this->Outputs[0] : NULL;
       if (output && strcmp(output->GetClassName(), "vtkRectilinearGrid") == 0)
@@ -215,11 +185,10 @@ void vtkDataSetReader::Execute()
         {
         this->SetNthOutput(0, preader->GetOutput());
         }
-
       preader->Delete();
+      return;
       }
-
-    else if ( ! strncmp(line,"unstructured_grid",17) )
+    case VTK_UNSTRUCTURED_GRID:
       {
       vtkUnstructuredGridReader *preader = vtkUnstructuredGridReader::New();
       preader->SetFileName(this->GetFileName());
@@ -235,7 +204,6 @@ void vtkDataSetReader::Execute()
       preader->SetLookupTableName(this->GetLookupTableName());
       preader->SetFieldDataName(this->GetFieldDataName());
       preader->Update();
-
       // Can we use the old output?
       output = this->Outputs ? this->Outputs[0] : NULL;
       if (output && strcmp(output->GetClassName(), "vtkUnstructuredGrid") == 0)
@@ -246,14 +214,70 @@ void vtkDataSetReader::Execute()
         {
         this->SetNthOutput(0, preader->GetOutput());
         }
-
       preader->Delete();
+      return;
       }
-    
+    default:
+        vtkErrorMacro("Could not read file " << this->FileName);
+    }
+}
+
+
+int vtkDataSetReader::ReadOutputType()
+{
+  char line[256];
+  
+  vtkDebugMacro(<<"Reading vtk dataset...");
+
+  if (!this->OpenVTKFile() || !this->ReadHeader())
+    {
+    return -1;
+    }
+
+  // Determine dataset type
+  //
+  if (!this->ReadString(line))
+    {
+    vtkErrorMacro(<< "Premature EOF reading dataset keyword");
+    return -1;
+    }
+
+  if ( !strncmp(this->LowerCase(line),"dataset",(unsigned long)7) )
+    {
+    // See if type is recognized.
+    //
+    if (!this->ReadString(line))
+      {
+      vtkErrorMacro(<< "Premature EOF reading type");
+      this->CloseVTKFile ();
+      return -1;
+      }
+
+    this->CloseVTKFile();
+    if ( ! strncmp(this->LowerCase(line),"polydata",8) )
+      {
+      return VTK_POLY_DATA;
+      }
+    else if ( ! strncmp(line,"structured_points",17) )
+      {
+      return VTK_STRUCTURED_POINTS;
+      }
+    else if ( ! strncmp(line,"structured_grid",15) )
+      {
+      return VTK_STRUCTURED_GRID;
+      }
+    else if ( ! strncmp(line,"rectilinear_grid",16) )
+      {
+      return VTK_RECTILINEAR_GRID;
+      }
+    else if ( ! strncmp(line,"unstructured_grid",17) )
+      {
+      return VTK_UNSTRUCTURED_GRID;
+      }
     else
       {
       vtkErrorMacro(<< "Cannot read dataset type: " << line);
-      return;
+      return -1;
       }
     }
 
@@ -267,8 +291,11 @@ void vtkDataSetReader::Execute()
     vtkErrorMacro(<<"Expecting DATASET keyword, got " << line << " instead");
     }
 
-  return;
+  return -1;
 }
+
+
+
 
 
 vtkPolyData *vtkDataSetReader::GetPolyDataOutput()
