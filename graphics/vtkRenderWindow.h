@@ -281,6 +281,10 @@ public:
   vtkSetMacro(SubFrames,int);
 
   // Description:
+  // This flag is set if the window hasn't rendered since it was created
+  vtkGetMacro(NeverRendered,int);
+
+  // Description:
   // This is a flag that can be set to interrupt a rendering that is in
   // progress.
   vtkGetMacro(AbortRender,int);
@@ -369,6 +373,7 @@ protected:
   int   AbortRender;
   int   InAbortCheck;
   int   InRender;
+  int   NeverRendered;
   void (*AbortCheckMethod)(void *);
   void (*AbortCheckMethodArgDelete)(void *);
   void *AbortCheckMethodArg;

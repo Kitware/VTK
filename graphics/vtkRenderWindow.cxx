@@ -79,6 +79,7 @@ vtkRenderWindow::vtkRenderWindow()
   this->AbortRender = 0;
   this->InAbortCheck = 0;
   this->InRender = 0;
+  this->NeverRendered = 1;
   this->AbortCheckMethod = NULL;
   this->AbortCheckMethodArg = NULL;
   this->AbortCheckMethodArgDelete = NULL;
@@ -321,6 +322,8 @@ void vtkRenderWindow::Render()
 
   this->InRender = 1;
   
+  this->NeverRendered = 0;
+
   if ( this->Interactor && ! this->Interactor->GetInitialized() )
     {
     this->Interactor->Initialize();
@@ -787,6 +790,7 @@ void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Desired Update Rate: " << this->DesiredUpdateRate << "\n";
   os << indent << "Focal Depth Frames: " << this->FDFrames << "\n";
   os << indent << "In Abort Check: " << this->InAbortCheck << "\n";
+  os << indent << "NeverRendered: " << this->NeverRendered << "\n";
   os << indent << "Interactor: " << this->Interactor << "\n";
   os << indent << "Motion Blur Frames: " << this->SubFrames << "\n";
   os << indent << "Swapbuffers: " << (this->SwapBuffers ? "On\n":"Off\n");
