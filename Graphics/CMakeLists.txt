@@ -73,10 +73,6 @@ vtkGlyph3D.cxx
 vtkGlyphSource2D.cxx
 vtkGraphLayoutFilter.cxx
 vtkHierarchicalDataSetGeometryFilter.cxx
-#vtkHierarchicalBoxCellDataToPointData.cxx
-#vtkHierarchicalBoxContour.cxx
-#vtkHierarchicalBoxCutter.cxx
-#vtkHierarchicalBoxOutlineFilter.cxx
 vtkHedgeHog.cxx
 vtkHull.cxx
 vtkHyperStreamline.cxx
