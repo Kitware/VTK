@@ -20,6 +20,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // along the input vectors or normals, and it may be scaled according
 // to scalar data or vector magnitude. The geometry is supplied via the 
 // Source instance variable; the points come from the Input.
+// .SECTION See Also
+// vlTensorEllipsoid
 
 #ifndef __vlGlyph3D_h
 #define __vlGlyph3D_h
