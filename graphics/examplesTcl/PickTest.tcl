@@ -123,7 +123,7 @@ if { $path != "" } {
 # Here we pick an assembly. Since we are invoking the "HighlightProp"
 # method by hand, we have to make sure that some internal varables
 # are set (e.g., CurrentRenderer). We use the FindPokedRenderer method.
-[iren GetPicker] Pick 350 100 0 ren1
+[iren GetPicker] Pick 327 58 0 ren1
 [iren GetInteractorStyle] FindPokedRenderer 350 100
 set path [[iren GetPicker] GetPath]
 if { $path != "" } {
