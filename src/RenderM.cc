@@ -30,6 +30,10 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "GlrRenW.hh"
 #endif
 
+#ifdef USE_XGLR
+#include "XglrRenW.hh"
+#endif
+
 vlRenderMaster::vlRenderMaster()
 {
 }
@@ -58,10 +62,19 @@ vlRenderWindow *vlRenderMaster::MakeRenderWindow(char *type)
 #endif
 
 #ifdef USE_GLR
-  if (!strncmp("glr",type,4))
+  if (!strncmp("glr",type,3))
     {
     vlGlrRenderWindow *ren;
     ren = new vlGlrRenderWindow;
+    return (vlRenderWindow *)ren;
+    }
+#endif
+
+#ifdef USE_XGLR
+  if (!strncmp("xglr",type,4))
+    {
+    vlXglrRenderWindow *ren;
+    ren = new vlXglrRenderWindow;
     return (vlRenderWindow *)ren;
     }
 #endif
