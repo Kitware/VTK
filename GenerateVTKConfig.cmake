@@ -63,8 +63,7 @@ SET(VTK_USE_FILE ${VTK_BINARY_DIR}/UseVTK.cmake)
 # Library directory.
 SET(VTK_LIBRARY_DIRS ${VTK_LIBRARY_PATH})
 
-# Determine the include directories needed.  Note that use projects
-# should not need the "Utilities" directory or its subdirectories.
+# Determine the include directories needed.
 SET(VTK_INCLUDE_DIRS ${VTK_BINARY_DIR})
 IF(VTK_USE_PARALLEL)
   SET(VTK_INCLUDE_DIRS ${VTK_INCLUDE_DIRS} ${VTK_SOURCE_DIR}/Parallel)
@@ -85,9 +84,14 @@ SET(VTK_INCLUDE_DIRS ${VTK_INCLUDE_DIRS}
   ${VTK_SOURCE_DIR}/Imaging
   ${VTK_SOURCE_DIR}/Graphics
   ${VTK_SOURCE_DIR}/Filtering
-  ${VTK_SOURCE_DIR}/Common
-  ${VTK_SOURCE_DIR}/Utilities/zlib
-  ${VTK_BINARY_DIR}/Utilities/zlib)
+  ${VTK_SOURCE_DIR}/Common)
+
+# Give access to a few utilities.
+SET(VTK_INCLUDE_DIRS ${VTK_INCLUDE_DIRS}
+  ${VTK_BINARY_DIR}/Utilities/png
+  ${VTK_SOURCE_DIR}/Utilities/png
+  ${VTK_BINARY_DIR}/Utilities/zlib
+  ${VTK_SOURCE_DIR}/Utilities/zlib)
 
 # Add the system include directories last.
 SET(VTK_INCLUDE_DIRS ${VTK_INCLUDE_DIRS} ${VTK_INCLUDE_DIRS_SYS})
