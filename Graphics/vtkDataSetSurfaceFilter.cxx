@@ -137,6 +137,13 @@ void vtkDataSetSurfaceFilter::Execute()
       this->StructuredExecute(image, ext);
       return;
       }
+    case VTK_POLY_DATA:      
+      {
+      vtkPolyData *inPd = vtkPolyData::SafeDownCast(input);
+      vtkPolyData *output = this->GetOutput();
+      output->ShallowCopy(inPd);
+      return;
+      }
     default:
       this->DataSetExecute();
       return;
