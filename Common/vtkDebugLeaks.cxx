@@ -21,7 +21,29 @@
 #include "vtkOutputWindow.h"
 #include "vtkCriticalSection.h"
 
-vtkCxxRevisionMacro(vtkDebugLeaks, "1.17");
+static const char *vtkDebugLeaksIgnoreClasses[] = {
+  "vtkInstantiatorHashTable",
+  "vtkWin32OutputWindow",
+  "vtkOutputWindow",
+  0
+};
+
+// return 1 if the class should be ignored
+int vtkDebugLeaksIgnoreClassesCheck(const char* s)
+{
+  int i =0;
+  while(vtkDebugLeaksIgnoreClasses[i])
+    {
+    if(strcmp(s, vtkDebugLeaksIgnoreClasses[i]) == 0)
+      {
+      return 1;
+      }
+    i++;
+    }
+  return 0;
+}
+
+vtkCxxRevisionMacro(vtkDebugLeaks, "1.18");
 vtkStandardNewMacro(vtkDebugLeaks);
 
 int vtkDebugLeaks::PromptUser = 1;
@@ -34,6 +56,19 @@ void vtkDebugLeaks::PromptUserOff()
 {
   PromptUser = 0;
 }
+static vtkSimpleCriticalSection* DebugLeaksCritSec = 0;
+void vtkDebugLeaksLock()
+{
+  if(!DebugLeaksCritSec)
+    {
+    DebugLeaksCritSec = new vtkSimpleCriticalSection;
+    }
+  DebugLeaksCritSec->Lock();
+}
+void vtkDebugLeaksUnlock()
+{
+  DebugLeaksCritSec->Unlock();
+}
 
 // A singleton that prints out the table, and deletes the table.
 class vtkPrintLeaksAtExit
@@ -44,17 +79,21 @@ public:
     }
   ~vtkPrintLeaksAtExit()
     {
+#ifdef VTK_DEBUG_LEAKS
       vtkObjectFactory::UnRegisterAllFactories();
       vtkOutputWindow::SetInstance(0);
       vtkDebugLeaks::PrintCurrentLeaks();
       vtkDebugLeaks::DeleteTable();
+#endif
+      // clean up memory
+      delete DebugLeaksCritSec;
+      DebugLeaksCritSec = 0;
     }  
 };
 
-#ifdef VTK_DEBUG_LEAKS
 // the global varible that should be destroyed at exit
 static vtkPrintLeaksAtExit vtkPrintLeaksAtExitGlobal;
-#endif
+
 
 // A hash function for converting a string to a long
 inline size_t vtkHashString(const char* s)
@@ -190,20 +229,29 @@ unsigned int vtkDebugLeaksHashTable::GetCount(const char* key)
 int vtkDebugLeaksHashTable::IsEmpty()
 {
   int count = 0;
+  int ignore = 0;
   for(int i =0; i < 64; i++)
     {
     vtkDebugLeaksHashNode *pos = this->Nodes[i];
     if(pos)
       { 
       count += pos->Count;
+      if(vtkDebugLeaksIgnoreClassesCheck(pos->Key))
+        {
+        ignore++;
+        }
       while(pos->Next)
         {
         pos = pos->Next;
+        if(vtkDebugLeaksIgnoreClassesCheck(pos->Key))
+          {
+          ignore++;
+          }
         count += pos->Count;
         }
       }
     }
-  return !count;
+  return ((count - ignore) == 0);
 }
 
 int vtkDebugLeaksHashTable::DecrementCount(const char *key)
@@ -228,49 +276,52 @@ void vtkDebugLeaksHashTable::PrintTable()
     vtkDebugLeaksHashNode *pos = this->Nodes[i];
     if(pos)
       { 
-      pos->Print();
+      if(!vtkDebugLeaksIgnoreClassesCheck(pos->Key))
+        {
+        pos->Print();
+        }
       while(pos->Next)
         {
         pos = pos->Next;
-        pos->Print();
+        if(!vtkDebugLeaksIgnoreClassesCheck(pos->Key))
+          {
+          pos->Print();
+          }
         }
       }
     }
 }
 
 vtkDebugLeaksHashTable* vtkDebugLeaks::MemoryTable = 0;
-static vtkSimpleCriticalSection DebugLeaksCritSec;
+
 
 void vtkDebugLeaks::ConstructClass(const char* name)
 {
-#ifdef VTK_DEBUG_LEAKS
   // force the use of the global varible so it gets constructed
   // but only do this if VTK_DEBUG_LEAKS is on
   vtkPrintLeaksAtExitGlobal.Use();
-#endif  
-  DebugLeaksCritSec.Lock();
-
+  vtkDebugLeaksLock();
   if(!vtkDebugLeaks::MemoryTable)
     {
     vtkDebugLeaks::MemoryTable = new vtkDebugLeaksHashTable;
     }
   vtkDebugLeaks::MemoryTable->IncrementCount(name);
-  DebugLeaksCritSec.Unlock();
+  vtkDebugLeaksUnlock();
 }
 
 void vtkDebugLeaks::DestructClass(const char* p)
 {
-  DebugLeaksCritSec.Lock();
+  vtkDebugLeaksLock();
   // Due to globals being deleted, this table may already have
   // been deleted.
   if(vtkDebugLeaks::MemoryTable && !vtkDebugLeaks::MemoryTable->DecrementCount(p))
     {
-    DebugLeaksCritSec.Unlock();
+    vtkDebugLeaksUnlock();
     vtkGenericWarningMacro("Deleting unknown object: " << p);
     }
   else
     {
-    DebugLeaksCritSec.Unlock();
+    vtkDebugLeaksUnlock();
     }
 }
 void vtkDebugLeaks::PrintCurrentLeaks()
@@ -291,8 +342,11 @@ void vtkDebugLeaks::PrintCurrentLeaks()
     {
     vtkOutputWindow::GetInstance()->PromptUserOff();
     }
+  vtkOutputWindow::GetInstance()->PromptUserOn();
   vtkGenericWarningMacro("vtkDebugLeaks has detected LEAKS!\n ");
+  // force some other singletons to delete themselves now
   vtkObjectFactory::UnRegisterAllFactories();
+  // print the table
   vtkDebugLeaks::MemoryTable->PrintTable();
 }
 
