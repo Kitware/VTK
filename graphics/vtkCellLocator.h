@@ -188,6 +188,11 @@ public:
   virtual vtkIdList *GetCells(int bucket);
 
   // Description:
+  // Return number of buckets availabe : Ensure Locator has been built
+  // before attempting to access (octants)buckets
+  virtual int GetNumberOfBuckets(void);
+
+  // Description:
   // Satisfy vtkLocator abstract interface
   void FreeSearchStructure();
   void BuildLocator();

@@ -99,7 +99,7 @@ vtkCellLocator::vtkCellLocator()
   this->QueryNumber = 0;
   this->H[0] = this->H[1] = this->H[2] = 1.0;
   this->NumberOfDivisions = 1;
-  
+
   this->Buckets = new vtkNeighborCells(10, 10);
   this->CacheCellBounds = 0;
   this->CellBounds = NULL;
@@ -155,7 +155,7 @@ void vtkCellLocator::FreeSearchStructure()
 // Given an offset into the structure, the number of divisions in the octree,
 // an i,j,k location in the octree; return the index (idx) into the structure.
 // Method returns 1 is the specified i,j,k location is "outside" of the octree.
-int vtkCellLocator::GenerateIndex(int offset, int numDivs, int i, int j, 
+int vtkCellLocator::GenerateIndex(int offset, int numDivs, int i, int j,
                                   int k, int &idx)
 {
   if ( i < 0 || i >= numDivs || 
@@ -1163,7 +1163,18 @@ void vtkCellLocator::GetOverlappingBuckets(float x[3], int vtkNotUsed(ijk)[3],
   prevMaxLevel[2] = maxLevel[2];
 }
 
-
+// number of buckets available
+int vtkCellLocator::GetNumberOfBuckets(void) {
+    if (this->Tree)
+    {
+      return this->NumberOfOctants;
+    }
+    else
+    {
+      vtkWarningMacro(<<"Attempting to access Tree before Locator has been built");
+      return 0;
+    }
+}
 
 // Get the cells in a bucket.
 vtkIdList* vtkCellLocator::GetCells(int octantId)
@@ -1220,7 +1231,7 @@ void vtkCellLocator::BuildLocator()
     this->CellBounds = NULL;
     }
   
-  //  Size the root cell.  Initialize cell data structure, compute 
+  //  Size the root cell.  Initialize cell data structure, compute
   //  level and divisions.
   //
   bounds = this->DataSet->GetBounds();
@@ -1253,7 +1264,7 @@ void vtkCellLocator::BuildLocator()
     }
   this->NumberOfDivisions = ndivs;
   this->NumberOfOctants = numOctants;
-  
+
   this->Tree = new vtkIdListPtr[numOctants];
   memset (this->Tree, 0, numOctants*sizeof(vtkIdListPtr));
   
