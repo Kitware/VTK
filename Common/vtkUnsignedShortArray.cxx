@@ -147,6 +147,12 @@ void vtkUnsignedShortArray::Initialize()
 // Deep copy of another unsigned short array.
 void vtkUnsignedShortArray::DeepCopy(vtkDataArray *sa)
 {
+  // Do nothing on a NULL input.
+  if (sa == NULL)
+    {
+    return;
+    }
+
   if ( sa->GetDataType() != VTK_UNSIGNED_SHORT )
     {
     vtkDataArray::DeepCopy(sa);

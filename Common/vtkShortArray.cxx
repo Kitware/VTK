@@ -146,6 +146,12 @@ void vtkShortArray::Initialize()
 // Deep copy of another short array.
 void vtkShortArray::DeepCopy(vtkDataArray *sa)
 {
+  // Do nothing on a NULL input.
+  if (sa == NULL)
+    {
+    return;
+    }
+
   if ( sa->GetDataType() != VTK_SHORT )
     {
       vtkDataArray::DeepCopy(sa);

@@ -146,6 +146,12 @@ void vtkIdTypeArray::Initialize()
 // Deep copy of another integer array.
 void vtkIdTypeArray::DeepCopy(vtkDataArray *ia)
 {
+  // Do nothing on a NULL input.
+  if (ia == NULL)
+    {
+    return;
+    }
+
   if ( ia->GetDataType() != VTK_INT )
     {
       vtkDataArray::DeepCopy(ia);

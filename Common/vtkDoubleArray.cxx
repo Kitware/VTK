@@ -151,6 +151,12 @@ void vtkDoubleArray::Initialize()
 // Deep copy of another double array.
 void vtkDoubleArray::DeepCopy(vtkDataArray *fa)
 {
+  // Do nothing on a NULL input.
+  if (fa == NULL)
+    {
+    return;
+    }
+
   if (fa->GetDataType() != VTK_DOUBLE)
     {
     vtkDataArray::DeepCopy(fa);

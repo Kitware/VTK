@@ -113,6 +113,12 @@ void vtkVoidArray::Initialize()
 // Deep copy of another void array.
 void vtkVoidArray::DeepCopy(vtkDataArray *da)
 {
+  // Do nothing on a NULL input.
+  if (da == NULL)
+    {
+    return;
+    }
+
   if ( da->GetDataType() != VTK_VOID )
     {
     vtkDataArray::DeepCopy(da);

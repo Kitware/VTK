@@ -70,6 +70,12 @@ vtkCellArray::vtkCellArray()
 
 void vtkCellArray::DeepCopy (vtkCellArray *ca)
 {
+  // Do nothing on a NULL input.
+  if (ca == NULL)
+    {
+    return;
+    }
+
   this->Ia->DeepCopy(ca->Ia);
   this->NumberOfCells = ca->NumberOfCells;
   this->InsertLocation = 0;

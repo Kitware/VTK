@@ -158,6 +158,12 @@ void vtkBitArray::Initialize()
 // Deep copy of another bit array.
 void vtkBitArray::DeepCopy(vtkDataArray *ia)
 {
+  // Do nothing on a NULL input.
+  if (ia == NULL)
+    {
+    return;
+    }
+
   if (ia->GetDataType() != VTK_BIT)
     {
     vtkDataArray::DeepCopy(ia);

@@ -147,6 +147,12 @@ void vtkUnsignedIntArray::Initialize()
 // Deep copy of another unsigned int array.
 void vtkUnsignedIntArray::DeepCopy(vtkDataArray *sa)
 {
+  // Do nothing on a NULL input.
+  if (sa == NULL)
+    {
+    return;
+    }
+
   if ( sa->GetDataType() != VTK_UNSIGNED_INT )
     {
     vtkDataArray::DeepCopy(sa);

@@ -145,6 +145,12 @@ void vtkFloatArray::Initialize()
 // Deep copy of another float array.
 void vtkFloatArray::DeepCopy(vtkDataArray *fa)
 {
+  // Do nothing on a NULL input.
+  if ( fa == NULL)
+    {
+    return;
+    }
+
   if ( fa->GetDataType() != VTK_FLOAT )
     {
     vtkDataArray::DeepCopy(fa);

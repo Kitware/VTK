@@ -100,6 +100,13 @@ const char* vtkDataArray::GetName()
 
 void vtkDataArray::DeepCopy(vtkDataArray *da)
 {
+
+  // Match the behavior of the old AttributeData
+  if ( da == NULL )
+    {
+    return;
+    }
+
   if ( this != da )
     {
     int numTuples = da->GetNumberOfTuples();

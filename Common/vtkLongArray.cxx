@@ -147,6 +147,12 @@ void vtkLongArray::Initialize()
 // Deep copy of another long array.
 void vtkLongArray::DeepCopy(vtkDataArray *sa)
 {
+  // Do nothing on a NULL input.
+  if (sa == NULL)
+    {
+    return;
+    }
+
   if ( sa->GetDataType() != VTK_LONG )
     {
       vtkDataArray::DeepCopy(sa);
