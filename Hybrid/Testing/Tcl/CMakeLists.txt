@@ -16,7 +16,7 @@ IF (VTK_USE_RENDERING)
       clipTet
       clipWedge
       cubeAxes
-      cursor3d
+      cursor3D
       depthSort
       earth
       imageToPolyData
