@@ -52,16 +52,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageGaussianSmooth : public vtkImageFilter
 {
 public:
+  vtkImageGaussianSmooth();
+  ~vtkImageGaussianSmooth();
+  const char *GetClassName() {return "vtkImageGaussianSmooth";};
+  void PrintSelf(ostream& os, vtkIndent indent);
+
   // Description:
   // Creates an instance of vtkImageGaussianSmmoth with the following
   // defaults: Dimensioonality 3, StandardDeviations( 2, 2, 2), 
   // Radius Factors ( 1.5, 1.5, 1.5)
-  vtkImageGaussianSmooth();
-
-  ~vtkImageGaussianSmooth();
   static vtkImageGaussianSmooth *New() {return new vtkImageGaussianSmooth;};
-  const char *GetClassName() {return "vtkImageGaussianSmooth";};
-  void PrintSelf(ostream& os, vtkIndent indent);
   
   
   // Description:

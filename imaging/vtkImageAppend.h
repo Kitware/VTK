@@ -62,6 +62,7 @@ public:
   static vtkImageAppend *New(){return new vtkImageAppend;};
   const char *GetClassName() {return "vtkImageAppend";};
   vtkImageAppend();
+  void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
   // This axis is expanded to hold the multiple images.
