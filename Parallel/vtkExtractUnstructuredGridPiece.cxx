@@ -19,13 +19,16 @@
 #include "vtkCellData.h"
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractUnstructuredGridPiece, "1.17");
+vtkCxxRevisionMacro(vtkExtractUnstructuredGridPiece, "1.18");
 vtkStandardNewMacro(vtkExtractUnstructuredGridPiece);
 
 vtkExtractUnstructuredGridPiece::vtkExtractUnstructuredGridPiece()
@@ -33,42 +36,46 @@ vtkExtractUnstructuredGridPiece::vtkExtractUnstructuredGridPiece()
   this->CreateGhostCells = 1;
 }
 
-void vtkExtractUnstructuredGridPiece::ComputeInputUpdateExtents(vtkDataObject *out)
+int vtkExtractUnstructuredGridPiece::RequestUpdateExtent(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *vtkNotUsed(outputVector))
 {
-  vtkUnstructuredGrid *input = this->GetInput();
-  
-  if (this->GetInput() == NULL)
-    {
-    vtkErrorMacro("Missing input");
-    return;
-    }
+  // get the info object
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
 
-  out = out;
-  input->SetUpdateExtent(0, 1, 0);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+              0);
+  return 1;
 }
 
-void vtkExtractUnstructuredGridPiece::ExecuteInformation()
+int vtkExtractUnstructuredGridPiece::RequestInformation(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
-  if (this->GetInput() == NULL)
-    {
-    vtkErrorMacro("Missing input");
-    return;
-    }
-  this->GetOutput()->SetMaximumNumberOfPieces(-1);
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
+               -1);
+
+  return 1;
 }
   
 void vtkExtractUnstructuredGridPiece::ComputeCellTags(vtkIntArray *tags, 
                                               vtkIdList *pointOwnership,
-                                              int piece, int numPieces)
+                                              int piece, int numPieces,
+                                              vtkUnstructuredGrid *input)
 {
-  vtkUnstructuredGrid *input;
   int j;
   vtkIdType idx, numCells, ptId;
   vtkIdType* cellPointer;
   vtkIdType* ids;
   vtkIdType numCellPts;
 
-  input = this->GetInput();
   numCells = input->GetNumberOfCells();
   
   // Clear Point ownership.  This is only necessary if we
@@ -112,10 +119,21 @@ void vtkExtractUnstructuredGridPiece::ComputeCellTags(vtkIntArray *tags,
     }
 }
 
-void vtkExtractUnstructuredGridPiece::Execute()
+int vtkExtractUnstructuredGridPiece::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkUnstructuredGrid *input = this->GetInput();
-  vtkUnstructuredGrid *output = this->GetOutput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkUnstructuredGrid *input = vtkUnstructuredGrid::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
   unsigned char* cellTypes = input->GetCellTypesArray()->GetPointer(0);
@@ -136,9 +154,9 @@ void vtkExtractUnstructuredGridPiece::Execute()
   double *x;
 
   // Pipeline update piece will tell us what to generate.
-  ghostLevel = output->GetUpdateGhostLevel();
-  piece = output->GetUpdatePiece();
-  numPieces = output->GetUpdateNumberOfPieces();
+  ghostLevel = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+  piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
   
   outPD->CopyAllocate(pd);
   outCD->CopyAllocate(cd);
@@ -166,7 +184,7 @@ void vtkExtractUnstructuredGridPiece::Execute()
   cellTags->Allocate(input->GetNumberOfCells(), 1000);
   // Cell tags end up being 0 for cells in piece and -1 for all others.
   // Point ownership is the cell that owns the point.
-  this->ComputeCellTags(cellTags, pointOwnership, piece, numPieces);
+  this->ComputeCellTags(cellTags, pointOwnership, piece, numPieces, input);
   
   // Find the layers of ghost cells.
   if (this->CreateGhostCells)
@@ -295,6 +313,8 @@ void vtkExtractUnstructuredGridPiece::Execute()
     pointOwnership->Delete();
     pointOwnership = 0;
     }
+
+  return 1;
 }
 
 void vtkExtractUnstructuredGridPiece::PrintSelf(ostream& os, vtkIndent indent)

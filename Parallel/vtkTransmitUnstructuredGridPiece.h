@@ -23,15 +23,15 @@
 #ifndef __vtkTransmitUnstructuredGridPiece_h
 #define __vtkTransmitUnstructuredGridPiece_h
 
-#include "vtkUnstructuredGridToUnstructuredGridFilter.h"
+#include "vtkUnstructuredGridAlgorithm.h"
 
 class vtkMultiProcessController;
 
-class VTK_PARALLEL_EXPORT vtkTransmitUnstructuredGridPiece : public vtkUnstructuredGridToUnstructuredGridFilter
+class VTK_PARALLEL_EXPORT vtkTransmitUnstructuredGridPiece : public vtkUnstructuredGridAlgorithm
 {
 public:
   static vtkTransmitUnstructuredGridPiece *New();
-  vtkTypeRevisionMacro(vtkTransmitUnstructuredGridPiece, vtkUnstructuredGridToUnstructuredGridFilter);
+  vtkTypeRevisionMacro(vtkTransmitUnstructuredGridPiece, vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
@@ -51,11 +51,13 @@ protected:
   ~vtkTransmitUnstructuredGridPiece();
 
   // Data generation method
-  void Execute();
-  void RootExecute();
-  void SatelliteExecute(int procId);
-  void ExecuteInformation();
-  void ComputeInputUpdateExtents(vtkDataObject *out);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  void RootExecute(vtkUnstructuredGrid *input, vtkUnstructuredGrid *output,
+                   vtkInformation *outInfo);
+  void SatelliteExecute(int procId, vtkUnstructuredGrid *output,
+                        vtkInformation *outInfo);
+  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
  
   int CreateGhostCells;
   vtkMultiProcessController *Controller;

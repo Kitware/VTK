@@ -65,9 +65,10 @@ protected:
   vtkExtractUserDefinedPiece();
   ~vtkExtractUserDefinedPiece();
 
-  void Execute();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
-  void ComputeCellTagsWithFunction(vtkIntArray *tags, vtkIdList *pointOwnership);
+  void ComputeCellTagsWithFunction(vtkIntArray *tags, vtkIdList *pointOwnership,
+                                   vtkUnstructuredGrid *input);
 
 private:
   vtkExtractUserDefinedPiece(const vtkExtractUserDefinedPiece&); // Not implemented

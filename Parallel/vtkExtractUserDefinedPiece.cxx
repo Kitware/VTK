@@ -28,8 +28,11 @@
 #include "vtkCell.h"
 #include "vtkPoints.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkExtractUserDefinedPiece, "1.3");
+vtkCxxRevisionMacro(vtkExtractUserDefinedPiece, "1.4");
 vtkStandardNewMacro(vtkExtractUserDefinedPiece);
 
 vtkExtractUserDefinedPiece::vtkExtractUserDefinedPiece()
@@ -75,10 +78,21 @@ int vtkExtractUserDefinedPiece::GetConstantData(void **data)
 // than ComputeCellTags.  If ComputeCellTags were virtual, we could
 // just override it here.
 
-void vtkExtractUserDefinedPiece::Execute()
+int vtkExtractUserDefinedPiece::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkUnstructuredGrid *input = this->GetInput();
-  vtkUnstructuredGrid *output = this->GetOutput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkUnstructuredGrid *input = vtkUnstructuredGrid::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
   vtkIntArray *cellTags;
@@ -96,9 +110,7 @@ void vtkExtractUserDefinedPiece::Execute()
   double *x;
 
   // Pipeline update piece will tell us what to generate.
-  ghostLevel = output->GetUpdateGhostLevel();
-  output->GetUpdatePiece();
-  output->GetUpdateNumberOfPieces();
+  ghostLevel = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
 
   outPD->CopyAllocate(pd);
   outCD->CopyAllocate(cd);
@@ -120,7 +132,7 @@ void vtkExtractUserDefinedPiece::Execute()
   // Cell tags end up being 0 for cells in piece and -1 for all others.
   // Point ownership is the cell that owns the point.
 
-  this->ComputeCellTagsWithFunction(cellTags, pointOwnership);
+  this->ComputeCellTagsWithFunction(cellTags, pointOwnership, input);
 
   // Find the layers of ghost cells.
   if (this->CreateGhostCells)
@@ -210,17 +222,18 @@ void vtkExtractUserDefinedPiece::Execute()
   output->Squeeze();
   cellTags->Delete();
   pointOwnership->Delete();
+
+  return 1;
 }
 void vtkExtractUserDefinedPiece::
 ComputeCellTagsWithFunction(vtkIntArray *tags,
-                            vtkIdList *pointOwnership)
+                            vtkIdList *pointOwnership,
+                            vtkUnstructuredGrid *input)
 {
-  vtkUnstructuredGrid *input;
   int j;
   vtkIdType idx, numCells, ptId;
   vtkIdList *cellPtIds;
 
-  input = this->GetInput();
   numCells = input->GetNumberOfCells();
 
   cellPtIds = vtkIdList::New();

@@ -16,12 +16,15 @@
 
 #include "vtkCellData.h"
 #include "vtkExtractUnstructuredGridPiece.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkTransmitUnstructuredGridPiece, "1.17");
+vtkCxxRevisionMacro(vtkTransmitUnstructuredGridPiece, "1.18");
 vtkStandardNewMacro(vtkTransmitUnstructuredGridPiece);
 
 vtkCxxSetObjectMacro(vtkTransmitUnstructuredGridPiece,Controller,
@@ -44,91 +47,119 @@ vtkTransmitUnstructuredGridPiece::~vtkTransmitUnstructuredGridPiece()
 }
 
 //----------------------------------------------------------------------------
-void vtkTransmitUnstructuredGridPiece::ComputeInputUpdateExtents(vtkDataObject *out)
+int vtkTransmitUnstructuredGridPiece::RequestUpdateExtent(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *vtkNotUsed(outputVector))
 {
-  vtkUnstructuredGrid *input = this->GetInput();
-  
-  out = out;
-  if (this->GetInput() == NULL)
-    {
-    vtkErrorMacro("Missing input");
-    return;
-    }
+  // get the info object
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
 
   if (this->Controller == NULL)
     {
-    input->SetUpdateNumberOfPieces(1);
-    input->SetUpdatePiece(0);
-    input->SetUpdateGhostLevel(0);
-    return;
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+                1);
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
+                0);
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+                0);
+    return 1;
     }
   
   if (this->Controller->GetLocalProcessId() == 0)
     { // Request everything.
-    input->SetUpdateNumberOfPieces(1);
-    input->SetUpdatePiece(0);
-    input->SetUpdateGhostLevel(0);
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+                1);
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
+                0);
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+                0);
     }
   else
     { // Request nothing.
-    input->SetUpdateNumberOfPieces(0);
-    input->SetUpdatePiece(0);
-    input->SetUpdateGhostLevel(0);
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+                0);
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
+                0);
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+                0);
     }
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkTransmitUnstructuredGridPiece::ExecuteInformation()
+int vtkTransmitUnstructuredGridPiece::RequestInformation(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  if (this->GetOutput() == NULL)
-    {
-    vtkErrorMacro("Missing output");
-    return;
-    }
-  if (this->GetInput())
-    {
-    this->GetOutput()->CopyInformation(this->GetInput());
-    }
-  this->GetOutput()->SetMaximumNumberOfPieces(-1);
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR(),
+               inInfo->Get(vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR()));
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
+               -1);
+
+  return 1;
 }
   
 //----------------------------------------------------------------------------
-void vtkTransmitUnstructuredGridPiece::Execute()
+int vtkTransmitUnstructuredGridPiece::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkUnstructuredGrid *input = vtkUnstructuredGrid::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   int procId;
 
   if (this->Controller == NULL)
     {
     vtkErrorMacro("Could not find Controller.");
-    return;
+    return 1;
     }
 
   procId = this->Controller->GetLocalProcessId();
   if (procId == 0)
     {
     // cerr << "Root Execute\n";
-    this->RootExecute();
+    this->RootExecute(input, output, outInfo);
     }
   else
     {
     // cerr << "Satellite Execute " << procId << endl;
-    this->SatelliteExecute(procId);
+    this->SatelliteExecute(procId, output, outInfo);
     }
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkTransmitUnstructuredGridPiece::RootExecute()
+void vtkTransmitUnstructuredGridPiece::RootExecute(vtkUnstructuredGrid *input,
+                                                   vtkUnstructuredGrid *output,
+                                                   vtkInformation *outInfo)
 {
-  vtkUnstructuredGrid *input = this->GetInput();
   vtkUnstructuredGrid *tmp = vtkUnstructuredGrid::New();
-  vtkUnstructuredGrid *output = this->GetOutput();
   vtkExtractUnstructuredGridPiece *extract = vtkExtractUnstructuredGridPiece::New();
   int ext[3];
   int numProcs, i;
 
-  if (output->GetUpdatePiece() != 0)
+  int outPiece =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  if (outPiece != 0)
     {
-    vtkWarningMacro(<< "Piece " << output->GetUpdatePiece() 
+    vtkWarningMacro(<< "Piece " << outPiece
                     << " does not match process 0.  " 
                     << "Altering request to try to avoid a deadlock.");
     }
@@ -138,10 +169,13 @@ void vtkTransmitUnstructuredGridPiece::RootExecute()
   tmp->SetReleaseDataFlag(0);
   extract->SetCreateGhostCells(this->CreateGhostCells);
   extract->SetInput(tmp);
-  extract->GetOutput()->SetUpdateNumberOfPieces(
-                                output->GetUpdateNumberOfPieces());
-  extract->GetOutput()->SetUpdatePiece(output->GetUpdatePiece());
-  extract->GetOutput()->SetUpdateGhostLevel(output->GetUpdateGhostLevel());
+  vtkInformation *extractOutInfo = extract->GetOutputPortInformation(0);
+  extractOutInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+                      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
+  extractOutInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
+                      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
+  extractOutInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+                      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
 
   extract->Update();
 
@@ -161,9 +195,12 @@ void vtkTransmitUnstructuredGridPiece::RootExecute()
   for (i = 1; i < numProcs; ++i)
     {
     this->Controller->Receive(ext, 3, i, 22341);
-    extract->GetOutput()->SetUpdateNumberOfPieces(ext[1]);
-    extract->GetOutput()->SetUpdatePiece(ext[0]);
-    extract->GetOutput()->SetUpdateGhostLevel(ext[2]);
+    extractOutInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+                        ext[1]);
+    extractOutInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
+                        ext[0]);
+    extractOutInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+                        ext[2]);
     extract->Update();
     this->Controller->Send(extract->GetOutput(), i, 22342);
     }
@@ -172,15 +209,15 @@ void vtkTransmitUnstructuredGridPiece::RootExecute()
 }
 
 //----------------------------------------------------------------------------
-void vtkTransmitUnstructuredGridPiece::SatelliteExecute(int)
+void vtkTransmitUnstructuredGridPiece::SatelliteExecute(
+  int, vtkUnstructuredGrid *output, vtkInformation *outInfo)
 {
   vtkUnstructuredGrid *tmp = vtkUnstructuredGrid::New();
-  vtkUnstructuredGrid *output = this->GetOutput();
   int ext[3];
 
-  ext[0] = output->GetUpdatePiece();
-  ext[1] = output->GetUpdateNumberOfPieces();
-  ext[2] = output->GetUpdateGhostLevel();
+  ext[0] = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  ext[1] = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  ext[2] = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
 
   this->Controller->Send(ext, 3, 0, 22341);
   this->Controller->Receive(tmp, 0, 22342);
@@ -190,7 +227,8 @@ void vtkTransmitUnstructuredGridPiece::SatelliteExecute(int)
   output->GetPointData()->PassData(tmp->GetPointData());
   output->GetCellData()->PassData(tmp->GetCellData());
 
-  tmp->Delete();}
+  tmp->Delete();
+}
 
 //----------------------------------------------------------------------------
 void vtkTransmitUnstructuredGridPiece::PrintSelf(ostream& os, vtkIndent indent)
