@@ -516,7 +516,11 @@ vtkLargeInteger& vtkLargeInteger::operator*=(const vtkLargeInteger& n)
 vtkLargeInteger& vtkLargeInteger::operator/=(const vtkLargeInteger& n)
 {
     if (n.zero()) // no divide by zero
-        throw;
+      {
+      vtkGenericWarningMacro("Divide by zero!");
+      return *this;
+      }
+      
     vtkLargeInteger c;
     vtkLargeInteger m = n;
     m <<= maximum(sig - n.sig, 0); // vtkpower of two multiple of n
@@ -540,7 +544,11 @@ vtkLargeInteger& vtkLargeInteger::operator/=(const vtkLargeInteger& n)
 vtkLargeInteger& vtkLargeInteger::operator%=(const vtkLargeInteger& n)
 {
     if (n.zero()) // no divide by zero
-        throw;
+      {
+      vtkGenericWarningMacro("Divide by zero!");
+      return *this;
+      }
+
     vtkLargeInteger m = n;
     m <<= maximum(sig - n.sig, 0); // power of two multiple of n
     for (int i = sig - n.sig; i >= 0; i--)
