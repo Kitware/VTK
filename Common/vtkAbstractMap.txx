@@ -109,7 +109,8 @@ void vtkAbstractMapKeyIsString(vtkAbstractMap<KeyType,DataType>* ma)
 // Note that we can mostly compare pointers as integers, so we do not
 // have to set the compare function.
 template<class KeyType, class DataType>
-void vtkAbstractMapDataIsReferenceCounted(vtkAbstractMap<KeyType,DataType>*)
+void vtkAbstractMapDataIsReferenceCounted(
+  vtkAbstractMap<KeyType,DataType>* ma)
 {
   ma->SetDataDeleteFunction(vtkAbstractMapReferenceCountedDeleteFunction);
   ma->SetDataCreateFunction(vtkAbstractMapReferenceCountedCreateFunction); 
