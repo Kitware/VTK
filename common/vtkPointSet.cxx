@@ -300,7 +300,7 @@ void vtkPointSet::UnRegister(vtkObject *o)
 }
 
 
-int void vtkPointSet::GetNetReferenceCount()
+int vtkPointSet::GetNetReferenceCount()
 {
   if (this->Locator && this->Locator->GetDataSet() == this)
     {    
