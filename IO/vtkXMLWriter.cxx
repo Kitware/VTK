@@ -37,7 +37,7 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.39");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.40");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 
 //----------------------------------------------------------------------------
@@ -78,6 +78,8 @@ vtkXMLWriter::vtkXMLWriter()
 
   this->SetNumberOfOutputPorts(0);
   this->SetNumberOfInputPorts(1);
+
+  this->OutFile = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -86,6 +88,7 @@ vtkXMLWriter::~vtkXMLWriter()
   this->SetFileName(0);
   this->DataStream->Delete();
   this->SetCompressor(0);
+  delete this->OutFile;
 }
 
 //----------------------------------------------------------------------------
@@ -279,6 +282,7 @@ int vtkXMLWriter::ProcessRequest(vtkInformation* request,
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
+//----------------------------------------------------------------------------
 int vtkXMLWriter::RequestData(
   vtkInformation* vtkNotUsed( request ),
   vtkInformationVector** vtkNotUsed( inputVector ) ,
@@ -332,14 +336,15 @@ int vtkXMLWriter::Write()
 
   // always write even if the data hasn't changed
   this->Modified();
-  this->UpdateWholeExtent();
+
+  this->Update();
   return 1;
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLWriter::WriteInternal()
+int vtkXMLWriter::OpenFile()
 {
-  ofstream* outFile = 0;
+  this->OutFile = 0;
   if(this->Stream)
     {
     // Rewind stream to the beginning.
@@ -349,11 +354,11 @@ int vtkXMLWriter::WriteInternal()
     {
     // Try to open the output file for writing.
 #ifdef _WIN32
-    outFile = new ofstream(this->FileName, ios::out | ios::binary);
+    this->OutFile = new ofstream(this->FileName, ios::out | ios::binary);
 #else
-    outFile = new ofstream(this->FileName, ios::out);
+    this->OutFile = new ofstream(this->FileName, ios::out);
 #endif
-    if(!outFile || !*outFile)
+    if(!this->OutFile || !*this->OutFile)
       {
       vtkErrorMacro("Error opening output file \"" << this->FileName << "\"");
       this->SetErrorCode(vtkErrorCode::GetLastSystemError());
@@ -361,24 +366,42 @@ int vtkXMLWriter::WriteInternal()
                     << vtkErrorCode::GetStringFromErrorCode(this->GetErrorCode()) << "\"");
       return 0;
       }
-    this->Stream = outFile;
+    this->Stream = this->OutFile;
     }
 
   // Setup the output streams.
   this->DataStream->SetStream(this->Stream);
 
-  // Tell the subclass to write the data.
-  int result = this->WriteData();
+  return 1;
+}
 
+//----------------------------------------------------------------------------
+void vtkXMLWriter::CloseFile()
+{
   // Cleanup the output streams.
   this->DataStream->SetStream(0);
 
-  if(outFile)
+  if(this->OutFile)
     {
     // We opened a file.  Close it.
-    delete outFile;
+    delete this->OutFile;
+    this->OutFile = 0;
     this->Stream = 0;
     }
+}
+
+//----------------------------------------------------------------------------
+int vtkXMLWriter::WriteInternal()
+{
+  if (!this->OpenFile())
+    {
+    return 0;
+    }
+
+  // Tell the subclass to write the data.
+  int result = this->WriteData();
+
+  this->CloseFile();
 
   return result;
 }

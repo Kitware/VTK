@@ -27,6 +27,8 @@ class vtkPointData;
 class vtkExtentTranslator;
 class vtkDataArray;
 class vtkDataSetAttributes;
+class vtkInformation;
+class vtkInformationVector;
 
 class VTK_IO_EXPORT vtkXMLStructuredDataWriter : public vtkXMLWriter
 {
@@ -60,13 +62,17 @@ protected:
   virtual void WritePrimaryElementAttributes();
   virtual void WriteAppendedPiece(int index, vtkIndent indent);
   virtual void WriteAppendedPieceData(int index);
-  virtual void WriteInlinePiece(int index, vtkIndent indent);
+  virtual void WriteInlinePiece(vtkIndent indent);
   virtual void GetInputExtent(int* extent)=0;
   
-  // The actual writing driver required by vtkXMLWriter.
-  int WriteData();
+  virtual int WriteHeader();
+  virtual int WriteAPiece();
+  virtual int WriteFooter();
+
+  virtual void AllocatePositionArrays();
+  virtual void DeletePositionArrays();
+
   void SetupExtentTranslator();
-  virtual int WriteAppendedMode(vtkIndent indent);
   vtkDataArray* CreateExactExtent(vtkDataArray* array, int* inExtent,
                                   int* outExtent, int isPoint);
   virtual int WriteInlineMode(vtkIndent indent);
@@ -78,6 +84,11 @@ protected:
   vtkDataArray* CreateArrayForPoints(vtkDataArray* inArray);
   vtkDataArray* CreateArrayForCells(vtkDataArray* inArray);
   
+  void SetInputUpdateExtent(int piece);
+  int ProcessRequest(vtkInformation* request,
+                     vtkInformationVector** inputVector,
+                     vtkInformationVector* outputVector);
+
   // The extent of the input to write.
   int WriteExtent[6];
   
@@ -90,6 +101,10 @@ protected:
   // Appended data offsets of point and cell data arrays.
   unsigned long** PointDataOffsets;
   unsigned long** CellDataOffsets;
+  
+  float* ProgressFractions;
+
+  int CurrentPiece;
   
 private:
   vtkXMLStructuredDataWriter(const vtkXMLStructuredDataWriter&);  // Not implemented.

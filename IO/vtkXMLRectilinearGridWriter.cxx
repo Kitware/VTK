@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkRectilinearGrid.h"
 
-vtkCxxRevisionMacro(vtkXMLRectilinearGridWriter, "1.9");
+vtkCxxRevisionMacro(vtkXMLRectilinearGridWriter, "1.10");
 vtkStandardNewMacro(vtkXMLRectilinearGridWriter);
 
 //----------------------------------------------------------------------------
@@ -106,14 +106,21 @@ vtkXMLRectilinearGridWriter::CreateExactCoordinates(vtkDataArray* a, int xyz)
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLRectilinearGridWriter::WriteAppendedMode(vtkIndent indent)
+void vtkXMLRectilinearGridWriter::AllocatePositionArrays()
 {
+  this->Superclass::AllocatePositionArrays();
+
   int i;
   this->CoordinatePositions = new unsigned long*[this->NumberOfPieces];
   for(i=0;i < this->NumberOfPieces;++i) { this->CoordinatePositions[i] = 0; }
-  
-  int result = this->Superclass::WriteAppendedMode(indent);
-  
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLRectilinearGridWriter::DeletePositionArrays()
+{
+  this->Superclass::DeletePositionArrays();
+
+  int i;
   for(i=0;i < this->NumberOfPieces;++i)
     {
     if(this->CoordinatePositions[i])
@@ -122,8 +129,6 @@ int vtkXMLRectilinearGridWriter::WriteAppendedMode(vtkIndent indent)
       }
     }
   delete [] this->CoordinatePositions;
-
-  return result;
 }
 
 //----------------------------------------------------------------------------
@@ -176,7 +181,7 @@ void vtkXMLRectilinearGridWriter::WriteAppendedPieceData(int index)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLRectilinearGridWriter::WriteInlinePiece(int index, vtkIndent indent)
+void vtkXMLRectilinearGridWriter::WriteInlinePiece(vtkIndent indent)
 {
   // Split progress range by the approximate fractions of data written
   // by each step in this method.
@@ -189,7 +194,7 @@ void vtkXMLRectilinearGridWriter::WriteInlinePiece(int index, vtkIndent indent)
   this->SetProgressRange(progressRange, 0, fractions);
   
   // Let the superclass write its data.
-  this->Superclass::WriteInlinePiece(index, indent);
+  this->Superclass::WriteInlinePiece(indent);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
     {
     return;

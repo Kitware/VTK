@@ -49,6 +49,11 @@ public:
   // Get/Set the ghost level used to pad each piece.
   vtkSetMacro(GhostLevel, int);
   vtkGetMacro(GhostLevel, int);
+
+  // See the vtkAlgorithm for a desciption of what these do
+  int ProcessRequest(vtkInformation*,
+                     vtkInformationVector**,
+                     vtkInformationVector*);
   
 protected:
   vtkXMLUnstructuredDataWriter();
@@ -57,16 +62,19 @@ protected:
   vtkPointSet* GetInputAsPointSet();
   virtual const char* GetDataSetName()=0;
   virtual void SetInputUpdateExtent(int piece, int numPieces,
-                                    int ghostLevel)=0;
+                                    int ghostLevel);
   
-  // The actual writing driver required by vtkXMLWriter.
-  int WriteData();
-  
+  virtual int WriteHeader();
+  virtual int WriteAPiece();
+  virtual int WriteFooter();
+
+  virtual void AllocatePositionArrays();
+  virtual void DeletePositionArrays();
+
   virtual int WriteInlineMode(vtkIndent indent);
   virtual void WriteInlinePieceAttributes();
   virtual void WriteInlinePiece(vtkIndent indent);
   
-  virtual int WriteAppendedMode(vtkIndent indent);
   virtual void WriteAppendedPieceAttributes(int index);
   virtual void WriteAppendedPiece(int index, vtkIndent indent);
   virtual void WriteAppendedPieceData(int index);  
@@ -104,6 +112,8 @@ protected:
   // Hold the new cell representation arrays while writing a piece.
   vtkIdTypeArray* CellPoints;
   vtkIdTypeArray* CellOffsets;
+
+  int CurrentPiece;
   
 private:
   vtkXMLUnstructuredDataWriter(const vtkXMLUnstructuredDataWriter&);  // Not implemented.

@@ -56,12 +56,13 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
   const char* GetDataSetName();
-  void SetInputUpdateExtent(int piece, int numPieces, int ghostLevel);
-  
+
+  virtual void AllocatePositionArrays();
+  virtual void DeletePositionArrays();
+   
   void WriteInlinePieceAttributes();
   void WriteInlinePiece(vtkIndent indent);
   
-  int WriteAppendedMode(vtkIndent indent);
   void WriteAppendedPieceAttributes(int index);
   void WriteAppendedPiece(int index, vtkIndent indent);
   void WriteAppendedPieceData(int index);

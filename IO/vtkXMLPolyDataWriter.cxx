@@ -1,15 +1,15 @@
 /*=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    vtkXMLPolyDataWriter.cxx
+Program:   Visualization Toolkit
+Module:    vtkXMLPolyDataWriter.cxx
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+All rights reserved.
+See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+This software is distributed WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 #include "vtkXMLPolyDataWriter.h"
@@ -18,11 +18,13 @@
 #include "vtkCellData.h"
 #include "vtkErrorCode.h"
 #include "vtkInformation.h"
+#include "vtkInformationIntegerKey.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkXMLPolyDataWriter, "1.8");
+vtkCxxRevisionMacro(vtkXMLPolyDataWriter, "1.9");
 vtkStandardNewMacro(vtkXMLPolyDataWriter);
 
 //----------------------------------------------------------------------------
@@ -61,10 +63,35 @@ const char* vtkXMLPolyDataWriter::GetDefaultFileExtension()
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLPolyDataWriter::SetInputUpdateExtent(int piece, int numPieces,
-                                                int ghostLevel)
+void vtkXMLPolyDataWriter::AllocatePositionArrays()
 {
-  this->GetInput()->SetUpdateExtent(piece, numPieces, ghostLevel);
+  this->Superclass::AllocatePositionArrays();
+
+  this->NumberOfVertsPositions = new unsigned long[this->NumberOfPieces];
+  this->NumberOfLinesPositions = new unsigned long[this->NumberOfPieces];
+  this->NumberOfStripsPositions = new unsigned long[this->NumberOfPieces];
+  this->NumberOfPolysPositions = new unsigned long[this->NumberOfPieces];
+
+  this->VertsPositions = new unsigned long*[this->NumberOfPieces];
+  this->LinesPositions = new unsigned long*[this->NumberOfPieces];
+  this->StripsPositions = new unsigned long*[this->NumberOfPieces];
+  this->PolysPositions = new unsigned long*[this->NumberOfPieces];
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLPolyDataWriter::DeletePositionArrays()
+{
+  this->Superclass::DeletePositionArrays();
+
+  delete[] this->NumberOfVertsPositions;
+  delete[] this->NumberOfLinesPositions;
+  delete[] this->NumberOfStripsPositions;
+  delete[] this->NumberOfPolysPositions;
+
+  delete[] this->VertsPositions;
+  delete[] this->LinesPositions;
+  delete[] this->StripsPositions;
+  delete[] this->PolysPositions;
 }
 
 //----------------------------------------------------------------------------
@@ -157,33 +184,6 @@ void vtkXMLPolyDataWriter::WriteInlinePiece(vtkIndent indent)
   // Write the Polys.
   this->WriteCellsInline("Polys", input->GetPolys(), 0, indent);
 }  
-
-//----------------------------------------------------------------------------
-int vtkXMLPolyDataWriter::WriteAppendedMode(vtkIndent indent)
-{
-  this->NumberOfVertsPositions = new unsigned long[this->NumberOfPieces];
-  this->NumberOfLinesPositions = new unsigned long[this->NumberOfPieces];
-  this->NumberOfStripsPositions = new unsigned long[this->NumberOfPieces];
-  this->NumberOfPolysPositions = new unsigned long[this->NumberOfPieces];
-  
-  this->VertsPositions = new unsigned long*[this->NumberOfPieces];
-  this->LinesPositions = new unsigned long*[this->NumberOfPieces];
-  this->StripsPositions = new unsigned long*[this->NumberOfPieces];
-  this->PolysPositions = new unsigned long*[this->NumberOfPieces];
-  
-  int res = this->Superclass::WriteAppendedMode(indent);
-  
-  delete [] this->PolysPositions;
-  delete [] this->StripsPositions;
-  delete [] this->LinesPositions;
-  delete [] this->VertsPositions;
-  delete [] this->NumberOfPolysPositions;
-  delete [] this->NumberOfStripsPositions;
-  delete [] this->NumberOfLinesPositions;
-  delete [] this->NumberOfVertsPositions;
-  
-  return res;
-}
 
 //----------------------------------------------------------------------------
 void vtkXMLPolyDataWriter::WriteAppendedPieceAttributes(int index)

@@ -21,13 +21,16 @@
 #include "vtkDataSetAttributes.h"
 #include "vtkErrorCode.h"
 #include "vtkIdTypeArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredDataWriter, "1.9");
+vtkCxxRevisionMacro(vtkXMLUnstructuredDataWriter, "1.10");
 
 //----------------------------------------------------------------------------
 vtkXMLUnstructuredDataWriter::vtkXMLUnstructuredDataWriter()
@@ -39,6 +42,8 @@ vtkXMLUnstructuredDataWriter::vtkXMLUnstructuredDataWriter()
   this->CellOffsets = vtkIdTypeArray::New();
   this->CellPoints->SetName("connectivity");
   this->CellOffsets->SetName("offsets");
+
+  this->CurrentPiece = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -64,51 +69,280 @@ vtkPointSet* vtkXMLUnstructuredDataWriter::GetInputAsPointSet()
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLUnstructuredDataWriter::WriteData()
+int vtkXMLUnstructuredDataWriter::ProcessRequest(
+  vtkInformation* request,
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
+{
+
+  if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
+    {
+    if((this->WritePiece < 0) || (this->WritePiece >= this->NumberOfPieces))
+      {
+      this->SetInputUpdateExtent(
+        this->CurrentPiece, this->NumberOfPieces, this->GhostLevel);
+      }
+    else
+      {
+      this->SetInputUpdateExtent(
+        this->WritePiece, this->NumberOfPieces, this->GhostLevel);
+      }
+    return 1;
+    }
+  
+  // generate the data
+  else if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
+    {
+    this->SetErrorCode(vtkErrorCode::NoError);
+
+    // We don't want to write more pieces than the pipeline can produce,
+    // but we need to preserve the user's requested number of pieces in
+    // case the input changes later.  If MaximumNumberOfPieces is lower
+    // than 1, any number of pieces can be produced by the pipeline.
+    vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+    int numPieces = this->NumberOfPieces;
+    int maxPieces = 
+      inInfo->Get(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES());
+    if((maxPieces > 0) && (this->NumberOfPieces > maxPieces))
+      {
+      this->NumberOfPieces = maxPieces;
+      }
+
+    if (this->WritePiece >= 0)
+      {
+      this->CurrentPiece = this->WritePiece;
+      }
+    else
+      {
+      float progressRange[2] = {0,0};
+      this->GetProgressRange(progressRange);
+      this->SetProgressRange(progressRange, this->CurrentPiece, this->NumberOfPieces);
+      }
+
+    int result = 1;
+    if (this->CurrentPiece == 0 || this->WritePiece >= 0)
+      {
+      // We are just starting to write.  Do not call
+      // UpdateProgressDiscrete because we want a 0 progress callback the
+      // first time.
+      this->UpdateProgress(0);
+
+      // Initialize progress range to entire 0..1 range.
+      float wholeProgressRange[2] = {0,1};
+      this->SetProgressRange(wholeProgressRange, 0, 1);
+  
+      if (!this->OpenFile())
+        {
+        this->NumberOfPieces = numPieces;
+        return 0;
+        }
+      // Write the file.
+      if (!this->StartFile())
+        {
+        this->NumberOfPieces = numPieces;
+        return 0;
+        }
+
+      if (!this->WriteHeader())
+        {
+        this->NumberOfPieces = numPieces;
+        return 0;
+        }
+      }
+
+    result = this->WriteAPiece();
+
+    if((this->WritePiece < 0) || (this->WritePiece >= this->NumberOfPieces))
+      {
+      // Tell the pipeline to start looping.
+      if (this->CurrentPiece == 0)
+        {
+        request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
+        }
+      this->CurrentPiece++;
+      }
+
+    if (this->CurrentPiece == this->NumberOfPieces || this->WritePiece >= 0)
+      {
+      request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
+      this->CurrentPiece = 0;
+  
+      if (!this->WriteFooter())
+        {
+        this->NumberOfPieces = numPieces;
+        return 0;
+        }
+
+      if (!this->EndFile())
+        {
+        this->NumberOfPieces = numPieces;
+        return 0;
+        }
+
+      this->CloseFile();
+      }
+    this->NumberOfPieces = numPieces;
+
+    // We have finished writing.
+    this->UpdateProgressDiscrete(1);
+    return result;
+    }
+  return this->Superclass::ProcessRequest(request, inputVector, outputVector);
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLUnstructuredDataWriter::AllocatePositionArrays()
+{
+  this->NumberOfPointsPositions = new unsigned long[this->NumberOfPieces];
+  this->PointsPositions = new unsigned long[this->NumberOfPieces];
+  this->PointDataPositions = new unsigned long*[this->NumberOfPieces];
+  this->CellDataPositions = new unsigned long*[this->NumberOfPieces];
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLUnstructuredDataWriter::DeletePositionArrays()
+{
+  delete [] this->NumberOfPointsPositions;
+  delete [] this->PointsPositions;
+  delete [] this->PointDataPositions;
+  delete [] this->CellDataPositions;
+}
+ 
+//----------------------------------------------------------------------------
+int vtkXMLUnstructuredDataWriter::WriteHeader()
 {
   vtkIndent indent = vtkIndent().GetNextIndent();
+
+  ostream& os = *(this->Stream);
   
-  vtkPointSet* input = this->GetInputAsPointSet();
-  input->UpdateInformation();
-  
-  // We don't want to write more pieces than the pipeline can produce,
-  // but we need to preserve the user's requested number of pieces in
-  // case the input changes later.  If MaximumNumberOfPieces is lower
-  // than 1, any number of pieces can be produced by the pipeline.
-  int maxPieces = input->GetMaximumNumberOfPieces();
-  int numPieces = this->NumberOfPieces;
-  if((maxPieces > 0) && (this->NumberOfPieces > maxPieces))
-    {
-    this->NumberOfPieces = maxPieces;
-    }
-  
-  // Write the file.
-  if (!this->StartFile())
-    {
-    return 0;
-    }
-  
+  // Open the primary element.
+  os << indent << "<" << this->GetDataSetName() << ">\n";
+
   if(this->DataMode == vtkXMLWriter::Appended)
     {
-    if (!this->WriteAppendedMode(indent))
+    vtkIndent nextIndent = indent.GetNextIndent();
+
+    this->AllocatePositionArrays();
+
+    if((this->WritePiece < 0) || (this->WritePiece >= this->NumberOfPieces))
       {
+      // Loop over each piece and write its structure.
+      int i;
+      for(i=0; i < this->NumberOfPieces; ++i)
+        {
+        // Open the piece's element.
+        os << nextIndent << "<Piece";
+        this->WriteAppendedPieceAttributes(i);
+        if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+          {
+          this->DeletePositionArrays();
+          return 0;
+          }
+        os << ">\n";
+        
+        this->WriteAppendedPiece(i, nextIndent.GetNextIndent());
+        if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+          {
+          this->DeletePositionArrays();
+          return 0;
+          }
+        
+        // Close the piece's element.
+        os << nextIndent << "</Piece>\n";
+        }
+      }
+    else
+      {
+      // Write just the requested piece.
+      // Open the piece's element.
+      os << nextIndent << "<Piece";
+      this->WriteAppendedPieceAttributes(this->WritePiece);
+      if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+        {
+        this->DeletePositionArrays();
+        return 0;
+        }
+      os << ">\n";
+      
+      this->WriteAppendedPiece(this->WritePiece, nextIndent.GetNextIndent());
+      if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+        {
+        this->DeletePositionArrays();
+        return 0;
+        }
+      
+      // Close the piece's element.
+      os << nextIndent << "</Piece>\n";
+      }
+
+    // Close the primary element.
+    os << indent << "</" << this->GetDataSetName() << ">\n";
+    os.flush();
+    if (os.fail())
+      {
+      this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+      this->DeletePositionArrays();
       return 0;
       }
+    
+    this->StartAppendedData();
+    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+      {
+      this->DeletePositionArrays();
+      return 0;
+      }
+    
+    }
+
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkXMLUnstructuredDataWriter::WriteAPiece()
+{
+  vtkIndent indent = vtkIndent().GetNextIndent();
+
+  int result=1;
+
+  if(this->DataMode == vtkXMLWriter::Appended)
+    {
+    this->WriteAppendedPieceData(this->CurrentPiece);
     }
   else
     {
-    if (!this->WriteInlineMode(indent))
+    result = this->WriteInlineMode(indent);
+    }
+
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    this->DeletePositionArrays();
+    result = 0;
+    }
+  return result;
+}
+
+//----------------------------------------------------------------------------
+int vtkXMLUnstructuredDataWriter::WriteFooter()
+{
+  vtkIndent indent = vtkIndent().GetNextIndent();
+
+  ostream& os = *(this->Stream);
+  
+  if(this->DataMode == vtkXMLWriter::Appended)
+    {
+    this->DeletePositionArrays();
+    this->EndAppendedData();
+    }
+  else
+    {
+    // Close the primary element.
+    os << indent << "</" << this->GetDataSetName() << ">\n";
+    os.flush();
+    if (os.fail())
       {
       return 0;
       }
     }
-  if (!this->EndFile())
-    {
-    return 0;
-    }
-  
-  // Restore the user's number of pieces.
-  this->NumberOfPieces = numPieces;
   
   return 1;
 }
@@ -118,78 +352,25 @@ int vtkXMLUnstructuredDataWriter::WriteInlineMode(vtkIndent indent)
 {
   ostream& os = *(this->Stream);
   vtkIndent nextIndent = indent.GetNextIndent();
-  vtkPointSet* input = this->GetInputAsPointSet();
   
-  // Open the primary element.
-  os << indent << "<" << this->GetDataSetName() << ">\n";
-  
-  if((this->WritePiece < 0) || (this->WritePiece >= this->NumberOfPieces))
-    {
-    // Loop over each piece and write it.  Unfortunately, there is no
-    // way to know the relative size of each piece ahead of time
-    // without executing twice for all pieces.  We just assume all the
-    // pieces are approximately the same size for reporting progress.
-    float progressRange[2] = {0,0};
-    this->GetProgressRange(progressRange);
-    int i;
-    for(i=0; i < this->NumberOfPieces; ++i)
-      {
-      this->SetProgressRange(progressRange, i, this->NumberOfPieces);
-      this->SetInputUpdateExtent(i, this->NumberOfPieces, this->GhostLevel);
-      input->Update();
-      
-      // Open the piece's element.
-      os << nextIndent << "<Piece";
-      this->WriteInlinePieceAttributes();
-      if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-        {
-        return 0;
-        }
-      os << ">\n";
-      
-      this->WriteInlinePiece(nextIndent.GetNextIndent());
-      if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-        {
-        return 0;
-        }
-      
-      // Close the piece's element.
-      os << nextIndent << "</Piece>\n";
-      }
-    }
-  else
-    {
-    // Write just the one requested piece.
-    this->SetInputUpdateExtent(this->WritePiece, this->NumberOfPieces,
-                               this->GhostLevel);
-    input->Update();
-    
-    // Open the piece's element.
-    os << nextIndent << "<Piece";
-    this->WriteInlinePieceAttributes();
-    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-      {
-      return 0;
-      }
-    os << ">\n";
-    
-    this->WriteInlinePiece(nextIndent.GetNextIndent());
-    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-      {
-      return 0;
-      }
-    // Close the piece's element.
-    os << nextIndent << "</Piece>\n";
-    }
-  
-  // Close the primary element.
-  os << indent << "</" << this->GetDataSetName() << ">\n";
-  os.flush();
-  if (os.fail())
+  // Open the piece's element.
+  os << nextIndent << "<Piece";
+  this->WriteInlinePieceAttributes();
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
     {
     return 0;
     }
+  os << ">\n";
   
+  this->WriteInlinePiece(nextIndent.GetNextIndent());
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return 0;
+    }
+
+  // Close the piece's element.
+  os << nextIndent << "</Piece>\n";
+
   return 1;
 }
 
@@ -237,173 +418,6 @@ void vtkXMLUnstructuredDataWriter::WriteInlinePiece(vtkIndent indent)
   
   // Write the point specification array.
   this->WritePointsInline(input->GetPoints(), indent);
-}
-
-//----------------------------------------------------------------------------
-int vtkXMLUnstructuredDataWriter::WriteAppendedMode(vtkIndent indent)
-{
-  ostream& os = *(this->Stream);
-  vtkIndent nextIndent = indent.GetNextIndent();
-  
-  this->NumberOfPointsPositions = new unsigned long[this->NumberOfPieces];
-  this->PointsPositions = new unsigned long[this->NumberOfPieces];
-  this->PointDataPositions = new unsigned long*[this->NumberOfPieces];
-  this->CellDataPositions = new unsigned long*[this->NumberOfPieces];
-  
-  // Update the first piece of the input to get the form of the data.
-  vtkPointSet* input = this->GetInputAsPointSet();
-  int piece = this->WritePiece;
-  if((piece < 0) || (piece >= this->NumberOfPieces)) { piece = 0; }
-  input->SetUpdateExtent(piece, this->NumberOfPieces, this->GhostLevel);
-  input->Update();
-  
-  // Open the primary element.
-  os << indent << "<" << this->GetDataSetName() << ">\n";
-  
-  if((this->WritePiece < 0) || (this->WritePiece >= this->NumberOfPieces))
-    {
-    // Loop over each piece and write its structure.
-    int i;
-    for(i=0; i < this->NumberOfPieces; ++i)
-      {
-      // Open the piece's element.
-      os << nextIndent << "<Piece";
-      this->WriteAppendedPieceAttributes(i);
-      if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-        {
-        delete [] this->NumberOfPointsPositions;
-        delete [] this->PointsPositions;
-        delete [] this->PointDataPositions;
-        delete [] this->CellDataPositions;
-        return 0;
-        }
-      os << ">\n";
-      
-      this->WriteAppendedPiece(i, nextIndent.GetNextIndent());
-      if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-        {
-        delete [] this->NumberOfPointsPositions;
-        delete [] this->PointsPositions;
-        delete [] this->PointDataPositions;
-        delete [] this->CellDataPositions;
-        return 0;
-        }
-        
-      // Close the piece's element.
-      os << nextIndent << "</Piece>\n";
-      }
-    }
-  else
-    {
-    // Write just the requested piece.
-    // Open the piece's element.
-    os << nextIndent << "<Piece";
-    this->WriteAppendedPieceAttributes(this->WritePiece);
-    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-      {
-      delete [] this->NumberOfPointsPositions;
-      delete [] this->PointsPositions;
-      delete [] this->PointDataPositions;
-      delete [] this->CellDataPositions;
-      return 0;
-      }
-    os << ">\n";
-    
-    this->WriteAppendedPiece(this->WritePiece, nextIndent.GetNextIndent());
-    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-      {
-      delete [] this->NumberOfPointsPositions;
-      delete [] this->PointsPositions;
-      delete [] this->PointDataPositions;
-      delete [] this->CellDataPositions;
-      return 0;
-      }
-    
-    // Close the piece's element.
-    os << nextIndent << "</Piece>\n";
-    }
-  
-  // Close the primary element.
-  os << indent << "</" << this->GetDataSetName() << ">\n";
-  os.flush();
-  if (os.fail())
-    {
-    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
-    delete [] this->NumberOfPointsPositions;
-    delete [] this->PointsPositions;
-    delete [] this->PointDataPositions;
-    delete [] this->CellDataPositions;
-    return 0;
-    }
-  
-  this->StartAppendedData();
-  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
-    delete [] this->NumberOfPointsPositions;
-    delete [] this->PointsPositions;
-    delete [] this->PointDataPositions;
-    delete [] this->CellDataPositions;
-    return 0;
-    }
-  
-  if((this->WritePiece < 0) || (this->WritePiece >= this->NumberOfPieces))
-    {
-    // Loop over each piece and write its data.  Unfortunately, there
-    // is no way to know the relative size of each piece ahead of time
-    // without executing twice for all pieces.  We just assume all the
-    // pieces are approximately the same size for reporting progress.
-    float progressRange[2] = {0,0};
-    this->GetProgressRange(progressRange);
-    int i;
-    for(i=0; i < this->NumberOfPieces; ++i)
-      {
-      this->SetProgressRange(progressRange, i, this->NumberOfPieces);
-      input->SetUpdateExtent(i, this->NumberOfPieces, this->GhostLevel);
-      input->Update();
-      this->WriteAppendedPieceData(i);
-      if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-        {
-        delete [] this->NumberOfPointsPositions;
-        delete [] this->PointsPositions;
-        delete [] this->PointDataPositions;
-        delete [] this->CellDataPositions;
-        return 0;
-        }
-      }
-    }
-  else
-    {
-    // Write just the requested piece.
-    input->SetUpdateExtent(this->WritePiece, this->NumberOfPieces,
-                           this->GhostLevel);
-    input->Update();
-    this->WriteAppendedPieceData(this->WritePiece);
-    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-      {
-      delete [] this->NumberOfPointsPositions;
-      delete [] this->PointsPositions;
-      delete [] this->PointDataPositions;
-      delete [] this->CellDataPositions;
-      return 0;
-      }
-    }
-  
-  this->EndAppendedData();
-  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
-    delete [] this->NumberOfPointsPositions;
-    delete [] this->PointsPositions;
-    delete [] this->PointDataPositions;
-    delete [] this->CellDataPositions;
-    return 0;
-    }
-  
-  delete [] this->NumberOfPointsPositions;
-  delete [] this->PointsPositions;
-  delete [] this->PointDataPositions;
-  delete [] this->CellDataPositions;
-  
-  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -719,3 +733,18 @@ void vtkXMLUnstructuredDataWriter::CalculateCellFractions(float* fractions,
   fractions[2] = float(connectSize+offsetSize)/total;
   fractions[3] = 1;
 }
+
+//----------------------------------------------------------------------------
+void vtkXMLUnstructuredDataWriter::SetInputUpdateExtent(
+  int piece, int numPieces, int ghostLevel)
+{
+  vtkInformation* inInfo = 
+    this->GetExecutive()->GetInputInformation(0, 0);
+  inInfo->Set(
+    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), numPieces);
+  inInfo->Set(
+    vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), piece);
+  inInfo->Set(
+    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), ghostLevel);
+}
+

@@ -19,7 +19,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLUnstructuredGridWriter.h"
 
-vtkCxxRevisionMacro(vtkXMLPUnstructuredGridWriter, "1.5");
+vtkCxxRevisionMacro(vtkXMLPUnstructuredGridWriter, "1.6");
 vtkStandardNewMacro(vtkXMLPUnstructuredGridWriter);
 
 //----------------------------------------------------------------------------
@@ -66,6 +66,7 @@ vtkXMLPUnstructuredGridWriter::CreateUnstructuredPieceWriter()
   return pWriter;
 }
 
+//----------------------------------------------------------------------------
 int vtkXMLPUnstructuredGridWriter::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {

@@ -57,7 +57,7 @@ protected:
   int WriteAppendedMode(vtkIndent indent);
   void WriteAppendedPiece(int index, vtkIndent indent);
   void WriteAppendedPieceData(int index);
-  void WriteInlinePiece(int index, vtkIndent indent);
+  void WriteInlinePiece(vtkIndent indent);
   void GetInputExtent(int* extent);
   const char* GetDataSetName();
   vtkDataArray* CreateExactCoordinates(vtkDataArray* a, int xyz);
@@ -65,6 +65,9 @@ protected:
   
   // Coordinate array appended data positions.
   unsigned long** CoordinatePositions;
+
+  virtual void AllocatePositionArrays();
+  virtual void DeletePositionArrays();
   
 private:
   vtkXMLRectilinearGridWriter(const vtkXMLRectilinearGridWriter&);  // Not implemented.

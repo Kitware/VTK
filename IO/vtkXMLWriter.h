@@ -132,14 +132,16 @@ public:
   // Description:
   // Invoke the writer.  Returns 1 for success, 0 for failure.
   int Write();
+
+  // See the vtkAlgorithm for a desciption of what these do
+  virtual int ProcessRequest(vtkInformation* request,
+                             vtkInformationVector** inputVector,
+                             vtkInformationVector* outputVector);
   
 protected:
   vtkXMLWriter();
   ~vtkXMLWriter();
   
-  virtual int ProcessRequest(vtkInformation* request,
-                             vtkInformationVector** inputVector,
-                             vtkInformationVector* outputVector);
   virtual int RequestData(vtkInformation* request,
                           vtkInformationVector** inputVector,
                           vtkInformationVector* outputVector);
@@ -223,7 +225,7 @@ protected:
   
   // Method defined by subclasses to write data.  Return 1 for
   // success, 0 for failure.
-  virtual int WriteData()=0;
+  virtual int WriteData() {return 1;};
   
   // Method defined by subclasses to specify the data set's type name.
   virtual const char* GetDataSetName()=0;
@@ -358,7 +360,12 @@ protected:
   virtual void SetProgressPartial(float fraction);
   virtual void UpdateProgressDiscrete(float progress);
   float ProgressRange[2];
-  
+
+  ofstream* OutFile;
+
+  int OpenFile();
+  void CloseFile();
+
 private:
   vtkXMLWriter(const vtkXMLWriter&);  // Not implemented.
   void operator=(const vtkXMLWriter&);  // Not implemented.

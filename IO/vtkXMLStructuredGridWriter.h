@@ -54,10 +54,9 @@ protected:
   // see algorithm for more info
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
-  int WriteAppendedMode(vtkIndent indent);
   void WriteAppendedPiece(int index, vtkIndent indent);
   void WriteAppendedPieceData(int index);
-  void WriteInlinePiece(int index, vtkIndent indent);
+  void WriteInlinePiece(vtkIndent indent);
   void GetInputExtent(int* extent);
   const char* GetDataSetName();
   void CalculateSuperclassFraction(float* fractions);
@@ -65,6 +64,9 @@ protected:
   // The position of the appended data offset attribute for the points
   // array.
   unsigned long* PointsPosition;
+
+  virtual void AllocatePositionArrays();
+  virtual void DeletePositionArrays();
   
 private:
   vtkXMLStructuredGridWriter(const vtkXMLStructuredGridWriter&);  // Not implemented.

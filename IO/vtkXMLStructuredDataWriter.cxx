@@ -20,9 +20,13 @@
 #include "vtkDataSet.h"
 #include "vtkErrorCode.h"
 #include "vtkExtentTranslator.h"
+#include "vtkInformation.h"
+#include "vtkInformationIntegerVectorKey.h"
+#include "vtkInformationVector.h"
 #include "vtkPointData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkXMLStructuredDataWriter, "1.6");
+vtkCxxRevisionMacro(vtkXMLStructuredDataWriter, "1.7");
 vtkCxxSetObjectMacro(vtkXMLStructuredDataWriter, ExtentTranslator,
                      vtkExtentTranslator);
 
@@ -34,12 +38,16 @@ vtkXMLStructuredDataWriter::vtkXMLStructuredDataWriter()
   this->WriteExtent[0] = 0; this->WriteExtent[1] = -1;
   this->WriteExtent[2] = 0; this->WriteExtent[3] = -1;
   this->WriteExtent[4] = 0; this->WriteExtent[5] = -1;
+
+  this->CurrentPiece = 0;
+  this->ProgressFractions = 0;
 }
 
 //----------------------------------------------------------------------------
 vtkXMLStructuredDataWriter::~vtkXMLStructuredDataWriter()
 {
   this->SetExtentTranslator(0);
+  delete[] this->ProgressFractions;
 }
 
 //----------------------------------------------------------------------------
@@ -62,271 +70,320 @@ void vtkXMLStructuredDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLStructuredDataWriter::WriteData()
+void vtkXMLStructuredDataWriter::SetInputUpdateExtent(int piece)
 {
-  vtkIndent indent = vtkIndent().GetNextIndent();
-  vtkDataSet* input = this->GetInputAsDataSet();
-  
-  // Make sure our input's WholeExtent is up to date.
-  input->UpdateInformation();
-  
-  // Prepare the extent translator to create the set of pieces.
-  this->SetupExtentTranslator();
-  
-  int result;
+  this->ExtentTranslator->SetPiece(piece);
+  this->ExtentTranslator->PieceToExtent();
 
-  // Write the file.
-  if (!this->StartFile())
-    {
-    return 0;
-    }
-  if(this->DataMode == vtkXMLWriter::Appended)
-    {
-    result = this->WriteAppendedMode(indent);
-    if (!result)
-      {
-      return 0;
-      }
-    }
-  else
-    {
-    result = this->WriteInlineMode(indent);
-    if (!result)
-      {
-      return 0;
-      }
-    }
-  if (!this->EndFile())
-    {
-    return 0;
-    }
-  
-  return result;
+  vtkInformation* inInfo = 
+    this->GetExecutive()->GetInputInformation(0, 0);
+  inInfo->Set(
+    vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), 
+    this->ExtentTranslator->GetExtent(),
+    6);
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLStructuredDataWriter::WriteAppendedMode(vtkIndent indent)
-{  
-  int i;
-  int extent[6];
-  ostream& os = *(this->Stream);
-  vtkIndent nextIndent = indent.GetNextIndent();
+int vtkXMLStructuredDataWriter::ProcessRequest(
+  vtkInformation* request,
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
+{
+
+  if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
+    {
+    // Prepare the extent translator to create the set of pieces.
+    this->SetupExtentTranslator();
+    this->SetInputUpdateExtent(this->CurrentPiece);
+
+    return 1;
+    }
   
+  // generate the data
+  else if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
+    {
+    this->SetErrorCode(vtkErrorCode::NoError);
+
+    // We are just starting to write.  Do not call
+    // UpdateProgressDiscrete because we want a 0 progress callback the
+    // first time.
+    this->UpdateProgress(0);
+
+    // Initialize progress range to entire 0..1 range.
+    float wholeProgressRange[2] = {0,1};
+    this->SetProgressRange(wholeProgressRange, 0, 1);
+    
+    int result = 1;
+    if (this->CurrentPiece == 0)
+      {
+      if (!this->OpenFile())
+        {
+        return 0;
+        }
+      // Write the file.
+      if (!this->StartFile())
+        {
+        return 0;
+        }
+
+      if (!this->WriteHeader())
+        {
+        return 0;
+        }
+      }
+
+    result = this->WriteAPiece();
+
+    // Tell the pipeline to start looping.
+    if (this->CurrentPiece == 0)
+      {
+      request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
+      }
+    this->CurrentPiece++;
+
+    if (this->CurrentPiece == this->NumberOfPieces)
+      {
+      request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
+      this->CurrentPiece = 0;
+  
+      if (!this->WriteFooter())
+        {
+        return 0;
+        }
+
+      if (!this->EndFile())
+        {
+        return 0;
+        }
+
+      this->CloseFile();
+      }
+
+    // We have finished writing.
+    this->UpdateProgressDiscrete(1);
+    return result;
+    }
+  return this->Superclass::ProcessRequest(request, inputVector, outputVector);
+}
+
+
+//----------------------------------------------------------------------------
+void vtkXMLStructuredDataWriter::AllocatePositionArrays()
+{
   // Prepare storage for the point and cell data array appended data
   // offsets for each piece.
   this->PointDataOffsets = new unsigned long*[this->NumberOfPieces];
   this->CellDataOffsets = new unsigned long*[this->NumberOfPieces];
-  
-  // Update the first piece to get form of data setup.
-  vtkDataSet* input = this->GetInputAsDataSet();
-  this->ExtentTranslator->SetPiece(0);
-  this->ExtentTranslator->PieceToExtent();
-  input->SetUpdateExtent(this->ExtentTranslator->GetExtent());
-  input->Update();
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLStructuredDataWriter::DeletePositionArrays()
+{
+  delete [] this->PointDataOffsets;
+  delete [] this->CellDataOffsets;
+}
+
+//----------------------------------------------------------------------------
+int vtkXMLStructuredDataWriter::WriteHeader()
+{
+  vtkIndent indent = vtkIndent().GetNextIndent();
+
+  ostream& os = *(this->Stream);
   
   // Open the primary element.
   os << indent << "<" << this->GetDataSetName();
   this->WritePrimaryElementAttributes();
-
+  
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
     {
-    delete [] this->PointDataOffsets;
-    delete [] this->CellDataOffsets;
     return 0;
     }
   
   os << ">\n";
 
-  // Write each piece's XML.
-  for(i=0;i < this->NumberOfPieces;++i)
+  if(this->DataMode == vtkXMLWriter::Appended)
     {
-    // Update the piece's extent.
-    this->ExtentTranslator->SetPiece(i);
-    this->ExtentTranslator->PieceToExtent();
-    this->ExtentTranslator->GetExtent(extent);
+    vtkIndent nextIndent = indent.GetNextIndent();
     
-    os << nextIndent << "<Piece";
-    this->WriteVectorAttribute("Extent", 6, extent);
-    os << ">\n";
-    
-    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-      {
-      delete [] this->PointDataOffsets;
-      delete [] this->CellDataOffsets;
-      return 0;
-      }
-    
-    this->WriteAppendedPiece(i, nextIndent.GetNextIndent());
-    
-    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-      {
-      delete [] this->PointDataOffsets;
-      delete [] this->CellDataOffsets;
-      return 0;
-      }
-    
-    os << nextIndent << "</Piece>\n";
-    }
-  
-  // Close the primary element.
-  os << indent << "</" << this->GetDataSetName() << ">\n";
+    this->AllocatePositionArrays();
 
-  os.flush();
-  if (os.fail())
-    {
-    delete [] this->PointDataOffsets;
-    delete [] this->CellDataOffsets;
-    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
-    return 0;
+    int extent[6];
+    // Loop over each piece and write its structure.
+    int i;
+    for(i=0; i < this->NumberOfPieces; ++i)
+      {
+      vtkDataSet* input = this->GetInputAsDataSet();
+      cout << "Cell ghost: " << input->GetCellData()->GetNumberOfArrays() << endl;
+      
+      // Update the piece's extent.
+      this->ExtentTranslator->SetPiece(i);
+      this->ExtentTranslator->PieceToExtent();
+      this->ExtentTranslator->GetExtent(extent);
+
+      os << nextIndent << "<Piece";
+      this->WriteVectorAttribute("Extent", 6, extent);
+      os << ">\n";
+      
+      if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+        {
+        this->DeletePositionArrays();
+        return 0;
+        }
+      
+      this->WriteAppendedPiece(i, nextIndent.GetNextIndent());
+      
+      if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+        {
+        this->DeletePositionArrays();
+        return 0;
+        }
+      // Close the piece's element.
+      os << nextIndent << "</Piece>\n";
+      }
+
+    // Close the primary element.
+    os << indent << "</" << this->GetDataSetName() << ">\n";
+    
+    os.flush();
+    if (os.fail())
+      {
+      this->DeletePositionArrays();
+      this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+      return 0;
+      }
+
+    this->StartAppendedData();
+    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+      {
+      this->DeletePositionArrays();
+      return 0;
+      }
     }
-  
+
   // Split progress of the data write by the fraction contributed by
   // each piece.
   float progressRange[2] = {0,0};
   this->GetProgressRange(progressRange);
-  float* fractions = new float[this->NumberOfPieces+1];
-  this->CalculatePieceFractions(fractions);
-  
-  // Write each piece's data.
-  this->StartAppendedData();
-  
-  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
-    delete [] fractions;
-    delete [] this->PointDataOffsets;
-    delete [] this->CellDataOffsets;
-    return 0;
-    }
-  
+  this->ProgressFractions = new float[this->NumberOfPieces+1];
+  this->CalculatePieceFractions(this->ProgressFractions);
+
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkXMLStructuredDataWriter::WriteAPiece()
+{
+  vtkIndent indent = vtkIndent().GetNextIndent();
   int result = 1;
-  for(i=0; (i < this->NumberOfPieces) && result; ++i)
+
+  if(this->DataMode == vtkXMLWriter::Appended)
     {
-    // Set the progress range for this piece.
-    this->SetProgressRange(progressRange, i, fractions);
-    
-    // Update the piece's data.
-    this->ExtentTranslator->SetPiece(i);
-    this->ExtentTranslator->PieceToExtent();
-    input->SetUpdateExtent(this->ExtentTranslator->GetExtent());
-    input->Update();
-    
+    vtkDataSet* input = this->GetInputAsDataSet();
+
     // Make sure input is valid.
     if(input->CheckAttributes() == 0)
       {
-      this->WriteAppendedPieceData(i);
+      this->WriteAppendedPieceData(this->CurrentPiece);
     
       if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
         {
-        delete [] fractions;
-        delete [] this->PointDataOffsets;
-        delete [] this->CellDataOffsets;
+        this->DeletePositionArrays();
         return 0;
         }
       }
     else
       {
-      vtkErrorMacro("Input is invalid for piece " << i << ".  Aborting.");
+      vtkErrorMacro("Input is invalid for piece " 
+                    << this->CurrentPiece 
+                    << ".  Aborting.");
       result = 0;
       }
     }
-  
-  this->EndAppendedData();
-  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+  else
     {
-    delete [] fractions;
-    delete [] this->PointDataOffsets;
-    delete [] this->CellDataOffsets;
-    return 0;
+    this->WriteInlineMode(indent);
     }
-  
-  // Cleanup.
-  delete [] fractions;
-  delete [] this->PointDataOffsets;
-  delete [] this->CellDataOffsets;
-  
+
   return result;
+}
+
+//----------------------------------------------------------------------------
+int vtkXMLStructuredDataWriter::WriteFooter()
+{
+  vtkIndent indent = vtkIndent().GetNextIndent();
+
+  ostream& os = *(this->Stream);
+
+  if(this->DataMode == vtkXMLWriter::Appended)
+    {
+    this->DeletePositionArrays();
+    this->EndAppendedData();
+    }
+  else
+    {
+    // Close the primary element.
+    os << indent << "</" << this->GetDataSetName() << ">\n";
+    
+    os.flush();
+    if (os.fail())
+      {
+      this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+      }
+    }
+
+  delete[] this->ProgressFractions;
+  this->ProgressFractions = 0;
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
 int vtkXMLStructuredDataWriter::WriteInlineMode(vtkIndent indent)
 {
-  int i;
-  int extent[6];
   vtkDataSet* input = this->GetInputAsDataSet();
   ostream& os = *(this->Stream);
-  
-  // Open the primary element.
-  os << indent << "<" << this->GetDataSetName();
-  this->WritePrimaryElementAttributes();
-  
-  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
-    return 0;
-    }
-  
-  os << ">\n";
+
+  int extent[6];
+  vtkInformation* inInfo = this->GetExecutive()->GetInputInformation(0, 0);
+  inInfo->Get(
+    vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), extent);
   
   // Split progress of the data write by the fraction contributed by
   // each piece.
   float progressRange[2] = {0,0};
   this->GetProgressRange(progressRange);
-  float* fractions = new float[this->NumberOfPieces+1];
-  this->CalculatePieceFractions(fractions);
   
   // Write each piece's XML and data.
   int result = 1;
-  for(i=0; (i < this->NumberOfPieces) && result; ++i)
-    { 
-    // Set the progress range for this piece.
-    this->SetProgressRange(progressRange, i, fractions);
+
+  // Set the progress range for this piece.
+  this->SetProgressRange(progressRange, this->CurrentPiece, this->ProgressFractions);
     
-    // Update the piece's extent and data.
-    this->ExtentTranslator->SetPiece(i);
-    this->ExtentTranslator->PieceToExtent();
-    this->ExtentTranslator->GetExtent(extent);
-    input->SetUpdateExtent(extent);
-    input->Update();
-    
-    // Make sure input is valid.
-    if(input->CheckAttributes() == 0)
-      {
-      os << indent << "<Piece";
-      this->WriteVectorAttribute("Extent", 6, extent);
-      if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-        {
-        delete [] fractions;
-        return 0;
-        }
-      
-      os << ">\n";
-      
-      this->WriteInlinePiece(i, indent.GetNextIndent());
-      if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-        {
-        delete [] fractions;
-        return 0;
-        }
-      os << indent << "</Piece>\n";
-      }
-    else
-      {
-      vtkErrorMacro("Input is invalid for piece " << i << ".  Aborting.");
-      result = 0;
-      }
-    }
-  
-  // Close the primary element.
-  os << indent << "</" << this->GetDataSetName() << ">\n";
-  
-  os.flush();
-  if (os.fail())
+  // Make sure input is valid.
+  if(input->CheckAttributes() == 0)
     {
-    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    os << indent << "<Piece";
+    this->WriteVectorAttribute("Extent", 6, extent);
+    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+      {
+      return 0;
+      }
+      
+    os << ">\n";
+      
+    this->WriteInlinePiece(indent.GetNextIndent());
+    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+      {
+      return 0;
+      }
+    os << indent << "</Piece>\n";
+    }
+  else
+    {
+    vtkErrorMacro("Input is invalid for piece " << this->CurrentPiece << ".  Aborting.");
     result = 0;
     }
   
-  delete [] fractions;
-
   return result;
 }
 
@@ -503,7 +560,7 @@ void vtkXMLStructuredDataWriter::WriteAppendedPieceData(int index)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLStructuredDataWriter::WriteInlinePiece(int, vtkIndent indent)
+void vtkXMLStructuredDataWriter::WriteInlinePiece(vtkIndent indent)
 {
   // Write the point data and cell data arrays.
   vtkDataSet* input = this->GetInputAsDataSet();
@@ -551,7 +608,11 @@ vtkXMLStructuredDataWriter::CreateArrayForPoints(vtkDataArray* inArray)
   int inExtent[6];
   int outExtent[6];
   this->GetInputExtent(inExtent);
-  this->ExtentTranslator->GetExtent(outExtent);
+
+  vtkInformation* inInfo = this->GetExecutive()->GetInputInformation(0, 0);
+  inInfo->Get(
+    vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), outExtent);
+
   return this->CreateExactExtent(inArray, inExtent, outExtent, 1);
 }
 
@@ -562,7 +623,10 @@ vtkXMLStructuredDataWriter::CreateArrayForCells(vtkDataArray* inArray)
   int inExtent[6];
   int outExtent[6];
   this->GetInputExtent(inExtent);
-  this->ExtentTranslator->GetExtent(outExtent);
+
+  vtkInformation* inInfo = this->GetExecutive()->GetInputInformation(0, 0);
+  inInfo->Get(
+    vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), outExtent);
   return this->CreateExactExtent(inArray, inExtent, outExtent, 0);
 }
 
