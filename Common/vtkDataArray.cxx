@@ -722,7 +722,16 @@ void vtkDataArray::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
 
-  os << indent << "Name: " << this->GetName() << "\n";
+  os << indent << "Name: " ;
+  char* name = this->GetName();
+  if (name)
+    {
+    os << name << endl;
+    }
+  else
+    {
+    os << "(none)" << endl;
+    }
   os << indent << "Number Of Components: " << this->NumberOfComponents << "\n";
   os << indent << "Number Of Tuples: " << this->GetNumberOfTuples() << "\n";
   os << indent << "Size: " << this->Size << "\n";
