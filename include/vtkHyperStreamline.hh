@@ -1,6 +1,6 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    vtkHyperStreamline.hh
   Language:  C++
   Date:      $Date$
