@@ -85,7 +85,7 @@ void vtkAppendPolyData::Update()
 
   this->Updating = 1;
   for (mtime=0, this->InputList.InitTraversal(); 
-       pd = this->InputList.GetNextItem();)
+       (pd = this->InputList.GetNextItem());)
     {
     pd->Update();
     pdMtime = pd->GetMTime();
@@ -104,7 +104,7 @@ void vtkAppendPolyData::Update()
     if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
     }
 
-  for (this->InputList.InitTraversal(); pd = this->InputList.GetNextItem(); )
+  for (this->InputList.InitTraversal(); (pd = this->InputList.GetNextItem()); )
     if ( pd->ShouldIReleaseData() ) pd->ReleaseData();
 }
 
@@ -139,7 +139,7 @@ void vtkAppendPolyData::Execute()
   tensorsPresent = 1;
   userDefinedPresent = 1;
 
-  for ( this->InputList.InitTraversal(); ds = this->InputList.GetNextItem(); )
+  for (this->InputList.InitTraversal(); (ds = this->InputList.GetNextItem()); )
     {
     numPts += ds->GetNumberOfPoints();
     numCells += ds->GetNumberOfCells();
@@ -182,7 +182,8 @@ void vtkAppendPolyData::Execute()
   newStrips->Allocate(numCells*4);
 
   // loop over all input sets
-  for ( ptOffset=0, this->InputList.InitTraversal(); ds = this->InputList.GetNextItem(); ptOffset+=numPts)
+  for (ptOffset=0, this->InputList.InitTraversal(); 
+       (ds = this->InputList.GetNextItem()); ptOffset+=numPts)
     {
     pd = ds->GetPointData();
 
