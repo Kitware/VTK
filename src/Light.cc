@@ -37,6 +37,12 @@ vlLight::vlLight()
   this->Switch = 1;
 
   this->Intensity = 1.0;
+  this->Positional = 0;
+  this->ConeAngle= 30;
+  this->AttenuationValues[0] = 1;
+  this->AttenuationValues[1] = 0;
+  this->AttenuationValues[2] = 0;
+  this->Exponent = 1;
 }
 
 
@@ -44,13 +50,18 @@ void vlLight::PrintSelf(ostream& os, vlIndent indent)
 {
   vlObject::PrintSelf(os,indent);
 
+  os << indent << "AttenuationValues: (" << this->AttenuationValues[0] << ", " 
+    << this->AttenuationValues[1] << ", " << this->AttenuationValues[2] << ")\n";
   os << indent << "Color: (" << this->Color[0] << ", " 
     << this->Color[1] << ", " << this->Color[2] << ")\n";
+  os << indent << "Cone Angle: " << this->ConeAngle << "\n";
+  os << indent << "Exponent: " << this->Exponent << "\n";
   os << indent << "Focal Point: (" << this->FocalPoint[0] << ", " 
     << this->FocalPoint[1] << ", " << this->FocalPoint[2] << ")\n";
   os << indent << "Intensity: " << this->Intensity << "\n";
   os << indent << "Position: (" << this->Position[0] << ", " 
     << this->Position[1] << ", " << this->Position[2] << ")\n";
+  os << indent << "Positional: " << (this->Positional ? "On\n" : "Off\n");
   os << indent << "Switch: " << (this->Switch ? "On\n" : "Off\n");
 }
 
