@@ -1,5 +1,5 @@
 //
-// Abstract class for specifying behavior of data sources
+// Create nxm array of quadrilaterals
 //
 #ifndef __vlPlaneSource_h
 #define __vlPlaneSource_h
