@@ -188,8 +188,9 @@ extern "C" int Vtkrenderingtcl_Init(Tcl_Interp *interp);
 // if VTK_DISABLE_TK_INIT is defined, then those widgets were *not*
 // initialized by the Rendering kit, thus we need to do it here so
 // that we can use them from the vtk executable
+// Also, Cocoa does not suport those widgets yet
 
-#if defined(VTK_DISABLE_TK_INIT)
+#if defined(VTK_DISABLE_TK_INIT) && !defined(VTK_USE_COCOA)
 extern "C" int Vtktkrenderwidget_Init(Tcl_Interp *interp);
 extern "C" int Vtktkimageviewerwidget_Init(Tcl_Interp *interp);
 #endif
@@ -433,7 +434,9 @@ int Tcl_AppInit(Tcl_Interp *interp)
   // if VTK_DISABLE_TK_INIT is defined, then those widgets were *not*
   // initialized by the Rendering kit, thus we need to do it here so
   // that we can use them from the vtk executable
-#if defined(VTK_DISABLE_TK_INIT)
+  // Also, Cocoa does not suport those widgets yet
+
+#if defined(VTK_DISABLE_TK_INIT) && !defined(VTK_USE_COCOA)
   if (Vtktkrenderwidget_Init(interp) == TCL_ERROR) 
     {
     return TCL_ERROR;
