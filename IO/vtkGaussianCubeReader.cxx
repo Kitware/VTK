@@ -51,7 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkGaussianCubeReader, "1.4");
+vtkCxxRevisionMacro(vtkGaussianCubeReader, "1.5");
 vtkStandardNewMacro(vtkGaussianCubeReader);
 
 // Construct object with merging set to true.
@@ -184,7 +184,7 @@ void vtkGaussianCubeReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << "Filename: " << this->FileName << "\n";
+  os << "Filename: " << (this->FileName?this->FileName:"<null>") << "\n";
   os << indent << "Xform: ";
   //os << indent << this->Transform->PrintSelf(os, indent);
 }
