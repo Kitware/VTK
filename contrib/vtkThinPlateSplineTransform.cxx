@@ -628,7 +628,7 @@ void vtkThinPlateSplineTransform::TransformDerivatives(const float point[3],
 //----------------------------------------------------------------------------
 // helper function, swap two 3-vectors
 template <class T>
-inline static void SwapVectors(T v1[3], T v2[3])
+static inline void SwapVectors(T v1[3], T v2[3])
 {
   T tmpvec[3];
   memcpy(tmpvec,v1,3*sizeof(T));
@@ -638,7 +638,7 @@ inline static void SwapVectors(T v1[3], T v2[3])
 
 //----------------------------------------------------------------------------
 // unrolled LU factorization of a 3x3 matrix with pivoting
-static int LUFactor3x3(float A[3][3], int index[3])
+static void LUFactor3x3(float A[3][3], int index[3])
 {
   int i,maxI;
   float tmp,largest;
@@ -709,7 +709,7 @@ static int LUFactor3x3(float A[3][3], int index[3])
 
 //----------------------------------------------------------------------------
 // backsubsitution with an LU-decomposed matrix
-static int LUSolve3x3(float A[3][3], int index[3], float x[3])
+static void LUSolve3x3(float A[3][3], int index[3], float x[3])
 {
   float sum;
 
