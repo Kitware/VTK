@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkCell3D, "1.32");
+vtkCxxRevisionMacro(vtkCell3D, "1.33");
 
 vtkCell3D::~vtkCell3D()
 {
@@ -56,13 +56,14 @@ void vtkCell3D::Clip(float value, vtkDataArray *cellScalars,
   vtkIdType id, ptId;
   vtkIdType internalId[VTK_CELL_SIZE];
   float s1, s2, *xPtr, t, p1[3], p2[3], x[3], deltaScalar;
-  int allInside;
+  int allInside=1, allOutside=1;
   
   // Create a triangulator if necessary.
   if ( ! this->Triangulator )
     {
     this->Triangulator = vtkOrderedTriangulator::New();
     this->Triangulator->PreSortedOff();
+    this->Triangulator->UseTemplatesOn();
     }
 
   // Initialize Delaunay insertion process.
@@ -71,13 +72,14 @@ void vtkCell3D::Clip(float value, vtkDataArray *cellScalars,
   // initial bounds is in the (0,1) cube.
   this->Triangulator->InitTriangulation(0.0,1.0, 0.0,1.0, 0.0,1.0,
                                         (numPts + numEdges));
-  this->Triangulator->UseTemplatesOn();
+  this->Triangulator->SetTemplateParameters(this->GetCellType(),
+                                            numPts,numEdges);
 
   // Inject cell points into triangulation. Recall that the PreSortedOff() 
   // flag was set which means that the triangulator will order the points 
   // according to point id.
   float *p, *pPtr = this->GetParametricCoords();
-  for (allInside=1, p=pPtr, i=0; i<numPts; i++, p+=3)
+  for (p=pPtr, i=0; i<numPts; i++, p+=3)
     {
     ptId = this->PointIds->GetId(i);
       
@@ -86,6 +88,7 @@ void vtkCell3D::Clip(float value, vtkDataArray *cellScalars,
     s1 = cellScalars->GetComponent(i,0);
     if ( (s1 >= value && !insideOut) || (s1 < value && insideOut) )
       {
+      allOutside = 0;
       type = 0; //inside
       }
     else
@@ -102,12 +105,16 @@ void vtkCell3D::Clip(float value, vtkDataArray *cellScalars,
     internalId[i] = this->Triangulator->InsertPoint(id, xPtr, p, type);
     }//for all points
   
+  // If everything is outside, then nothing can be produced.
+  if ( allOutside )
+    {
+    return;
+    }
+
   // Some cell types support templates for interior clipping. Templates
   // are a heck of a lot faster.
   if ( allInside )
     {
-    this->Triangulator->SetTemplateParameters(this->GetCellType(),
-                                              numPts,numEdges);
     this->Triangulator->Triangulate();
     this->Triangulator->AddTetras(0,tets);
     return;
