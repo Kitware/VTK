@@ -84,35 +84,44 @@ Building the example in the IDE:
      this creates a blank form and unit
 2. Project->Add to Project
      browse and add the unit ..\vtkBorland\ProjectDemo\Form_Test.cpp
-3. Project->Add to Project
-     browse and add the unit ..\vtkBorland\ProjectDemo\Form_Test.cpp
-4. Project->Remove from Project
+3. Project->Remove from Project
      choose the default created 'Unit1.cpp'
+4. Project->Options->Forms
+     choose VTK_Form form the list of available forms and add it to the
+     list of Auto-create forms if the list is empty
+     select VTK_Form as the sample project's Main form
 5. Project->Options->Compiler
      choose debug or release
 6. Project->Options->Directories/Conditionals
-   Include path:
-     path to/VTK/Common
-     path to/VTK/Filtering
-     path to/VTK/Graphics
-     path to/VTK/Rendering
-     path to vtkConfigure.h
+   Include path to header files:
+     path to /VTK/Common
+     path to /VTK/Filtering
+     path to /VTK/Graphics
+     path to /VTK/Rendering
+     path to vtkConfigure.h (in-source or out-of-source VTK build directory)
+     path to vtkBorlandRenderwindow.h 
    Library path:
-     path to vtk libs
+     path to Borland compiled VTK libs
    Conditionals:
    Add
      'STRICT'
-7. File->Save Project As
+   Intermediate output: 
+      your choice
+   Final output: 
+      your choice
+7. Project->Add to Project
+     browse and add the VTK libs: vtkCommon, vtkFiltering, vtkGraphics, vtkRendering
+8. File->Save Project As
      choose a name and save (e.g., Project1)
-8. Project->Build Project1
+9. Project->Build Project1
      debug as required
-9. Project->Run
+10. Project->Run
 
-
+*This project was last successfully tested 140304 in both the BCB5 and BCB6 IDEs by Dean Inglis
 
 Conditional Defines
 -------------------
-You should use conditional defines STRICT; in each vtk based project you
+You should use conditional defines STRICT; in each VTK based project you
 work on. It may help solve some linking problems. STRICT causes the compiler
 to strongly type HWND and prevents a compiler cough caused by defining
 certain functions twice (because it thinks void* and HWND are the same
