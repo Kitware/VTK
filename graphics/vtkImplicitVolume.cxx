@@ -78,7 +78,11 @@ vtkImplicitVolume::vtkImplicitVolume()
 
 vtkImplicitVolume::~vtkImplicitVolume()
 {
-  this->SetVolume(NULL);
+  if (this->Volume)
+    {
+    this->Volume->Delete();
+    this->Volume = NULL;
+    }
   this->PointIds->Delete();
 }
 
