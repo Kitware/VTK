@@ -48,11 +48,12 @@ vtkHashMap<KeyType,DataType>::NewIterator()
 
 //----------------------------------------------------------------------------
 template<class KeyType, class DataType>
-vtkIdType vtkHashMap<KeyType,DataType>::HashKey(const KeyType& key)
+vtkIdType vtkHashMap<KeyType,DataType>::HashKey(const KeyType& key,
+                                                vtkIdType nbuckets)
 {
   return static_cast<vtkIdType>(
     vtkHashMapHashMethod(key) % 
-    static_cast<unsigned long>(this->NumberOfBuckets) );
+    static_cast<unsigned long>(nbuckets) );
 }
 
 //----------------------------------------------------------------------------
@@ -60,7 +61,7 @@ template<class KeyType, class DataType>
 int vtkHashMap<KeyType,DataType>::SetItem(const KeyType& key,
                                           const DataType& data)
 {
-  vtkIdType bucket = this->HashKey(key);
+  vtkIdType bucket = this->HashKey(key, this->NumberOfBuckets);
   ItemType item = { key, data };
   vtkIdType index=0;
   
@@ -82,7 +83,7 @@ int vtkHashMap<KeyType,DataType>::SetItem(const KeyType& key,
 template<class KeyType, class DataType>
 int vtkHashMap<KeyType,DataType>::RemoveItem(const KeyType& key)
 {
-  vtkIdType bucket = this->HashKey(key);
+  vtkIdType bucket = this->HashKey(key, this->NumberOfBuckets);
   ItemType item = { key, DataType() };
   vtkIdType index=0;
   
@@ -110,7 +111,7 @@ void vtkHashMap<KeyType,DataType>::RemoveAllItems()
 template<class KeyType, class DataType>
 int vtkHashMap<KeyType,DataType>::GetItem(const KeyType& key, DataType& data)
 {
-  vtkIdType bucket = this->HashKey(key);
+  vtkIdType bucket = this->HashKey(key, this->NumberOfBuckets);
   ItemType item = { key, DataType() };
   vtkIdType index=0;
   
@@ -250,18 +251,23 @@ void vtkHashMap<KeyType,DataType>::RehashItems(vtkIdType newNumberOfBuckets)
     }
   
   // Re-hash the items.
-  ItemType item = { KeyType(), DataType() };
   vtkIdType bucket;
-  IteratorType* it = this->NewIterator();
-  while(!it->IsDoneWithTraversal())
+  ItemType item;
+  IteratorType::BucketIterator *it = this->Buckets[0]->NewIterator();
+  for(i=0; i < this->NumberOfBuckets; ++i)
     {
-    it->Iterator->GetData(item);
-    bucket = this->HashKey(item.Key);
-    newBuckets[bucket]->AppendItem(item);
-    it->GoToNextItem();
+    it->SetContainer(this->Buckets[i]);
+    it->GoToFirstItem();
+    while(!it->IsDoneWithTraversal())
+      {
+      it->GetData(item);
+      bucket = this->HashKey(item.Key, newNumberOfBuckets);
+      newBuckets[bucket]->AppendItem(item);
+      it->GoToNextItem();
+      }
     }
   it->Delete();
-  
+
   // Delete the old buckets.
   for(i=0; i < this->NumberOfBuckets; ++i)
     {

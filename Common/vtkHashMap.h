@@ -136,8 +136,8 @@ protected:
   void RehashItems(vtkIdType newNumberOfBuckets);
 
   // Description:
-  // Hash key...
-  vtkIdType HashKey(const KeyType& key);
+  // Hash a key to give an index in the range [0,nbuckets-1].
+  vtkIdType HashKey(const KeyType& key, vtkIdType nbuckets);
   
   float MaximumLoadFactor;
   vtkIdType NumberOfItems;
