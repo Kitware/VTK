@@ -106,7 +106,7 @@ public:
 
   // Description:
   // Need to override to propagate across port
-  void PropagateUpdateExtent(vtkDataObject *output) {};
+  void PropagateUpdateExtent(vtkDataObject *vtkNotUsed(output)) {};
 
   // Description:
   // Need to override to propagate across port

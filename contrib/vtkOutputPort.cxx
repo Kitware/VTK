@@ -102,10 +102,13 @@ void vtkOutputPort::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 // Remote method call to UpdateInformation and send the information downstream.
 // This should be a friend.
-void vtkOutputPortUpdateInformationCallBack(void *arg, void *remoteArgs, int remoteArgsLength, int remoteProcessId)  
+void vtkOutputPortUpdateInformationCallBack(void *arg, void *remoteArgs,
+		  	            int remoteArgsLength, int remoteProcessId)
 {
   vtkOutputPort *self = (vtkOutputPort*)arg;
   
+  remoteArgs = remoteArgs;
+  remoteArgsLength = remoteArgsLength;
   // Just call a method
   self->TriggerUpdateInformation(remoteProcessId);
 }
@@ -151,10 +154,13 @@ void vtkOutputPort::TriggerUpdateInformation(int remoteProcessId)
 //----------------------------------------------------------------------------
 // Remote method call to Update and send data downstream.
 // This should be a friend.
-void vtkOutputPortUpdateCallBack(void *arg, void *remoteArgs, int remoteArgsLength, int remoteProcessId)  
+void vtkOutputPortUpdateCallBack(void *arg, void *remoteArgs, 
+				 int remoteArgsLength, int remoteProcessId)  
 {
   vtkOutputPort *self = (vtkOutputPort*)arg;
   
+  remoteArgs = remoteArgs;
+  remoteArgsLength = remoteArgsLength;  
   // Just call a method
   self->TriggerUpdate(remoteProcessId);
 }

@@ -78,8 +78,6 @@ public:
 //----------------------------------------------------------------------------
 vtkThreadedController::vtkThreadedController()
 {
-  int idx;
-
   // This may no longer be neede now that superclass sets 
   // GlobalDefaultNumberOfThreads.
   vtkMultiThreader::SetGlobalMaximumNumberOfThreads(0);
@@ -120,6 +118,7 @@ void vtkThreadedController::PrintSelf(ostream& os, vtkIndent indent)
   vtkMultiProcessController::PrintSelf(os,indent);
   os << indent << "MultiThreader:\n";
   this->MultiThreader->PrintSelf(os, indent.GetNextIndent());
+  os << indent << "LocalProcessId: " << this->LocalProcessId << endl;
 }
 
 //----------------------------------------------------------------------------

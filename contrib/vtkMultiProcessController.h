@@ -195,8 +195,7 @@ public:
   
   // Description:
   // Take an RMI away.
-  void RemoveRMI(void (*f)(void *localArg, void *remoteArg, int remoteProcessId), 
-                 void *arg, int tag)
+  void RemoveRMI(vtkRMIFunctionType f, void *arg, int tag)
     {f = f; arg = arg; tag = tag; vtkErrorMacro("RemoveRMI Not Implemented Yet");};
   //ETX
   
