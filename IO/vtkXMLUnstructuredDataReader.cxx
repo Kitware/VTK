@@ -24,7 +24,7 @@
 #include "vtkCellArray.h"
 #include "vtkPointSet.h"
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredDataReader, "1.10");
+vtkCxxRevisionMacro(vtkXMLUnstructuredDataReader, "1.11");
 
 //----------------------------------------------------------------------------
 vtkXMLUnstructuredDataReader::vtkXMLUnstructuredDataReader()
@@ -460,6 +460,9 @@ int vtkXMLUnstructuredDataReader::ReadPieceData()
     if(!this->ReadArrayForPoints(ePoints->GetNestedElement(0),
                                  output->GetPoints()->GetData()))
       {
+      vtkErrorMacro("Cannot read points array from " << ePoints->GetName()
+                    << " in piece " << this->Piece
+                    << ".  The data array in the element may be too short.");
       return 0;
       }
     }
