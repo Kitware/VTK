@@ -68,10 +68,10 @@ public:
   vtkBooleanMacro(Clipping,int);
 
   float GetXminClipPlane( void ) { return this->ClippingPlanes[0]; };
-  float GetXmaxClipPlane( void ) { return this->ClippingPlanes[1]; };
-  float GetYminClipPlane( void ) { return this->ClippingPlanes[2]; };
-  float GetYmaxClipPlane( void ) { return this->ClippingPlanes[3]; };
-  float GetZminClipPlane( void ) { return this->ClippingPlanes[4]; };
+  float GetYminClipPlane( void ) { return this->ClippingPlanes[1]; };
+  float GetZminClipPlane( void ) { return this->ClippingPlanes[2]; };
+  float GetXmaxClipPlane( void ) { return this->ClippingPlanes[3]; };
+  float GetYmaxClipPlane( void ) { return this->ClippingPlanes[4]; };
   float GetZmaxClipPlane( void ) { return this->ClippingPlanes[5]; };
 
   // Description:
