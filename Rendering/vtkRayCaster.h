@@ -49,11 +49,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkRayCaster_h
 
 #include "vtkObject.h"
+#include "vtkObjectFactory.h"
 
 class VTK_EXPORT vtkRayCaster : public vtkObject
 {
 public:
-  static vtkRayCaster *New() {return new vtkRayCaster;};
+  static vtkRayCaster *New(); 
   vtkTypeMacro(vtkRayCaster,vtkObject);
   
 #ifndef VTK_REMOVE_LEGACY_CODE
@@ -140,6 +141,18 @@ protected:
   void operator=(const vtkRayCaster&);
 
 };
+
+vtkRayCaster *vtkRayCaster::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkRayCaster");
+  if(ret)
+    {
+    return (vtkRayCaster*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkRayCaster;
+}
 
 #endif
 
