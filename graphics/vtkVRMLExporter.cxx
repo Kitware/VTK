@@ -61,6 +61,8 @@ void vtkVRMLExporter::WriteData()
   vtkActor *anActor, *aPart;
   vtkLightCollection *lc;
   vtkLight *aLight;
+  vtkCamera *cam;
+  float *tempf;
   
   // make sure the user specified a filename
   if ( this->Filename == NULL)
@@ -102,8 +104,20 @@ void vtkVRMLExporter::WriteData()
   fprintf(fp,"#VRML V2.0 utf8\n");
   fprintf(fp,"# VRML file written by the visualization toolkit\n\n");
   fprintf(fp,"Transform {\n  children [\n");
-  
+
+  // do the camera
+  cam = ren->GetActiveCamera();
+  fprintf(fp,"    Viewpoint\n      {\n      fieldOfView %f\n",
+	  cam->GetViewAngle()*3.1415926/180.0);
+  fprintf(fp,"      position %f %f %f\n",cam->GetPosition()[0],
+	  cam->GetPosition()[1], cam->GetPosition()[2]);
+  fprintf(fp,"      description \"Default View\"\n");
+  tempf = cam->GetOrientationWXYZ();
+  fprintf(fp,"      orientation %g %g %g %g\n      }\n", tempf[1], tempf[2], 
+	  tempf[3], tempf[0]*3.1415926/180.0);
+
   // do the lights first the ambient then the others
+  fprintf(fp,"    NavigationInfo {headlight FALSE}\n");
   fprintf(fp,"    DirectionalLight { ambientIntensity 1 intensity 0 # ambient light\n");
   fprintf(fp,"      color %f %f %f }\n\n", ren->GetAmbient()[0],
 	  ren->GetAmbient()[1], ren->GetAmbient()[2]);

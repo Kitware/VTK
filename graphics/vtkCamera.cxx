@@ -442,6 +442,37 @@ float *vtkCamera::GetOrientation ()
 }
 
 // Description:
+// Returns the WXYZ orientation of the camera. 
+float *vtkCamera::GetOrientationWXYZ()
+{
+  vtkMatrix4x4  matrix;
+  float *Rz, Rx[3], Ry[3];
+  
+  // calculate a new orientation
+  Rz = this->ViewPlaneNormal;
+  vtkMath::Cross(this->ViewUp,Rz,Rx);
+  vtkMath::Normalize(Rx);
+  vtkMath::Cross(Rz,Rx,Ry);
+  
+  matrix[0][0] = Rx[0];
+  matrix[1][0] = Rx[1];
+  matrix[2][0] = Rx[2];
+  matrix[0][1] = Ry[0];
+  matrix[1][1] = Ry[1];
+  matrix[2][1] = Ry[2];
+  matrix[0][2] = Rz[0];
+  matrix[1][2] = Rz[1];
+  matrix[2][2] = Rz[2];
+  matrix[3][0] = 0;
+  matrix[3][1] = 0;
+  matrix[3][2] = 0;
+  matrix[3][3] = 1;
+
+  this->PerspectiveTransform.SetMatrix(matrix);
+  return this->PerspectiveTransform.GetOrientationWXYZ();
+}
+
+// Description:
 // Compute the view transform matrix. This is used in converting 
 // between view and world coordinates. It does not include any 
 // perspective effects but it does include shearing and scaling.

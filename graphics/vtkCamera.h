@@ -192,6 +192,7 @@ class vtkCamera : public vtkObject
   void OrthogonalizeViewUp();
 
   float *GetOrientation();
+  float *GetOrientationWXYZ();
 
   unsigned long int GetViewingRaysMTime();
   void              ViewingRaysModified();
