@@ -88,7 +88,7 @@ public:
   // Set the Level for the lookup table.  The level is the average of
   // TableRange[0] and TableRange[1].
   void SetLevel(float level) {
-    this->Window = level;
+    this->Level = level;
     this->SetTableRange(this->Level - this->Window/2.0,
 			this->Level + this->Window/2.0); };
   vtkGetMacro(Level,float);
