@@ -44,29 +44,31 @@ IF (VTK_DATA_ROOT)
     IF (VTK_USE_MPI)
      IF (UNIX)
       IF (VTK_MPIRUN_EXE)
-        ADD_TEST(ParallelIsoMPI-image 
-          ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS} 
-                 ${CXX_TEST_PATH}/ParallelIsoTest
-                 -D ${VTK_DATA_ROOT}
-                 -T ${VTK_BINARY_DIR}/Testing/Temporary
-                 -V Baseline/Parallel/ParallelIso.cxx.png
-                 ${VTK_MPI_POSTFLAGS})
-        ADD_TEST(TestCommunicatorMPI-image 
-          ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS} 
-                 ${CXX_TEST_PATH}/GenericCommunicator
-                 -D ${VTK_DATA_ROOT}
-                 -T ${VTK_BINARY_DIR}/Testing/Temporary
-                 -V Baseline/Parallel/GenericCommunicator.cxx.png
-                 ${VTK_MPI_POSTFLAGS})
-        ADD_TEST(TestPStreamMPI-image 
-          ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS} 
-                 ${CXX_TEST_PATH}/TestPStream
-                 -D ${VTK_DATA_ROOT}
-                 -T ${VTK_BINARY_DIR}/Testing/Temporary
-                 -V Baseline/Parallel/TestPStream.cxx.png
-                 ${VTK_MPI_POSTFLAGS})
+        IF(VTK_MPI_MAX_NUMPROCS GREATER 1)
+          ADD_TEST(ParallelIsoMPI-image 
+            ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS} 
+                   ${CXX_TEST_PATH}/ParallelIsoTest
+                   -D ${VTK_DATA_ROOT}
+                   -T ${VTK_BINARY_DIR}/Testing/Temporary
+                   -V Baseline/Parallel/ParallelIso.cxx.png
+                   ${VTK_MPI_POSTFLAGS})
+          ADD_TEST(TestCommunicatorMPI-image 
+            ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS} 
+                   ${CXX_TEST_PATH}/GenericCommunicator
+                   -D ${VTK_DATA_ROOT}
+                   -T ${VTK_BINARY_DIR}/Testing/Temporary
+                   -V Baseline/Parallel/GenericCommunicator.cxx.png
+                   ${VTK_MPI_POSTFLAGS})
+          ADD_TEST(TestPStreamMPI-image 
+            ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS} 
+                   ${CXX_TEST_PATH}/TestPStream
+                   -D ${VTK_DATA_ROOT}
+                   -T ${VTK_BINARY_DIR}/Testing/Temporary
+                   -V Baseline/Parallel/TestPStream.cxx.png
+                   ${VTK_MPI_POSTFLAGS})
+        ENDIF(VTK_MPI_MAX_NUMPROCS GREATER 1)
         IF (VTK_MPI_MAX_NUMPROCS)
-          IF (VTK_MPI_MAX_NUMPROCS MATCHES "[1-9]*(0|[4-9])$")
+          IF (VTK_MPI_MAX_NUMPROCS GREATER 3)
            ADD_TEST(MPIGroups-image 
           ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS} ${VTK_MPI_PREFLAGS} 
                    ${CXX_TEST_PATH}/MPIGroups
@@ -74,7 +76,7 @@ IF (VTK_DATA_ROOT)
                    -T ${VTK_BINARY_DIR}/Testing/Temporary
                    -V Baseline/Parallel/MPIGroups.cxx.png
                    ${VTK_MPI_POSTFLAGS})
-          ENDIF (VTK_MPI_MAX_NUMPROCS MATCHES "[1-9]*(0|[4-9])$")
+          ENDIF (VTK_MPI_MAX_NUMPROCS GREATER 3)
         ENDIF (VTK_MPI_MAX_NUMPROCS)
       ENDIF(VTK_MPIRUN_EXE)
      ENDIF (UNIX)
