@@ -1,6 +1,6 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    vtkLogLookupTable.cc
   Language:  C++
   Date:      $Date$

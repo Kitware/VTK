@@ -1,6 +1,6 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    vtkHyperStreamline.cc
   Language:  C++
   Date:      06 Nov 1995

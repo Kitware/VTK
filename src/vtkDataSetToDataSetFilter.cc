@@ -106,7 +106,7 @@ void vtkDataSetToDataSetFilter::Update()
       }
 
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
-    // clear just point data output because structure is copied from input
+    // copy topological/geometric structure from input
     this->Output->CopyStructure(this->Input);
     this->Execute();
     this->ExecuteTime.Modified();

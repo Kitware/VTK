@@ -589,9 +589,9 @@ void vtkDelaunay3D::Execute()
             if ( neiTetras.GetNumberOfIds() < 1  ||
             ( (nei = neiTetras.GetId(0)) > i && !tetraUse[nei] ) )
               {
-              points->GetPoint(p1,x1); tri.Points.SetPoint(0,x1);
-              points->GetPoint(p2,x2); tri.Points.SetPoint(1,x2);
-              points->GetPoint(p3,x3); tri.Points.SetPoint(2,x3);
+              points->GetPoint(p1,x1); 
+              points->GetPoint(p2,x2);
+              points->GetPoint(p3,x3);
               tri.ProjectTo2D(x1,x2,x3,v1,v2,v3);
               if ( tri.Circumcircle(v1,v2,v3,center) <= alpha2 )
                 {

@@ -1,6 +1,6 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    vtkRecursiveDividingCubes.cc
   Language:  C++
   Date:      $Date$
