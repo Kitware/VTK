@@ -46,8 +46,8 @@ public:
   vtkImageData *GetBlankingInput();
 
 protected:
-  vtkBlankStructuredGridWithImage() {this->NumberOfRequiredInputs = 2;}
-  ~vtkBlankStructuredGridWithImage() {}
+  vtkBlankStructuredGridWithImage();
+  ~vtkBlankStructuredGridWithImage();
 
   void Execute();
 private:

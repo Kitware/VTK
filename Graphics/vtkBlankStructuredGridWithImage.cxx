@@ -22,8 +22,19 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkBlankStructuredGridWithImage, "1.9");
+vtkCxxRevisionMacro(vtkBlankStructuredGridWithImage, "1.10");
 vtkStandardNewMacro(vtkBlankStructuredGridWithImage);
+
+//----------------------------------------------------------------------------
+vtkBlankStructuredGridWithImage::vtkBlankStructuredGridWithImage()
+{
+  this->NumberOfRequiredInputs = 2;
+}
+
+//----------------------------------------------------------------------------
+vtkBlankStructuredGridWithImage::~vtkBlankStructuredGridWithImage()
+{
+}
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.
