@@ -26,7 +26,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkDICOMImageReader, "1.2");
+vtkCxxRevisionMacro(vtkDICOMImageReader, "1.3");
 vtkStandardNewMacro(vtkDICOMImageReader);
 
 class myvector : public vtkstd::vector<vtkstd::string>
@@ -315,3 +315,27 @@ void vtkDICOMImageReader::SetupOutputInformation(int num_slices)
 
     this->vtkImageReader2::ExecuteInformation();
 }
+
+void vtkDICOMImageReader::SetDirectoryName(const char* dn)
+{
+  if (dn == NULL)
+    {
+    return;
+    }
+  int len = strlen(dn);
+  if (this->DirectoryName != NULL)
+    {
+    delete [] this->DirectoryName;
+    }
+  this->DirectoryName = new char[len+1];
+  strcpy(this->DirectoryName, dn);
+  this->FileName = NULL;
+  this->Modified();
+}
+
+/*
+const char* vtkDICOMImageReader::GetDirectoryName()
+{
+  return this->DirectoryName;
+}
+*/
