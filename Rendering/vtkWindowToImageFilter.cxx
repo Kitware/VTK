@@ -45,23 +45,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkRenderWindow.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkWindowToImageFilter* vtkWindowToImageFilter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkWindowToImageFilter");
-  if(ret)
-    {
-    return (vtkWindowToImageFilter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkWindowToImageFilter;
-}
-
-
-
+vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.4");
+vtkStandardNewMacro(vtkWindowToImageFilter);
 
 //----------------------------------------------------------------------------
 vtkWindowToImageFilter::vtkWindowToImageFilter()

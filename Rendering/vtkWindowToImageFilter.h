@@ -57,7 +57,7 @@ class VTK_RENDERING_EXPORT vtkWindowToImageFilter : public vtkImageSource
 public:
   static vtkWindowToImageFilter *New();
 
-  vtkTypeMacro(vtkWindowToImageFilter,vtkImageSource);
+  vtkTypeRevisionMacro(vtkWindowToImageFilter,vtkImageSource);
   void PrintSelf(ostream& os, vtkIndent indent);   
 
   // Description:
