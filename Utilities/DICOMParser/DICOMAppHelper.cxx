@@ -907,3 +907,13 @@ std::string DICOMAppHelper::GetFilenameForSlice(unsigned int slice_number)
     }
   return std::string(" ");
 }
+
+DICOMAppHelper::DICOMAppHelper(const DICOMAppHelper&)
+{
+  std::cerr << "DICOMAppHelper copy constructor should not be called!" << std::endl;
+}
+
+void DICOMAppHelper::operator=(const DICOMAppHelper&)
+{
+  std::cerr << "DICOMAppHelper assignment operator should not be called!" << std::endl;
+}

@@ -300,6 +300,11 @@ class DICOMAppHelper
   DICOMMemberCallback<DICOMAppHelper>* PixelDataCB;
 
   std::vector<std::pair<int, std::string> > SortedFilenames;
+
+ private:
+  DICOMAppHelper(const DICOMAppHelper&);  
+  void operator=(const DICOMAppHelper&); 
+   
 };
 
 #endif
