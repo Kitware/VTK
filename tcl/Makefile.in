@@ -84,14 +84,8 @@ kit_init: kit_init.c
 tkAppInit.o: tkAppInit.c
 	$(CC) $(C_FLAGS) -c -o tkAppInit.o $(srcdir)/tkAppInit.c
 
-cpp_parse: y.tab.c lex.yy.c
+cpp_parse: $(srcdir)/y.tab.c $(srcdir)/lex.yy.c
 	$(CC) $(C_FLAGS) -I. -o cpp_parse $(srcdir)/y.tab.c -lm
-
-lex.yy.c: concrete.l
-	${LEX} $(srcdir)/concrete.l
-
-y.tab.c: cpp_parse.y
-	${YACC} $(srcdir)/cpp_parse.y
 
 #------------------------------------------------------------------------------
 # build the vtk executable
