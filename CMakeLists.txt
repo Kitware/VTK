@@ -178,6 +178,10 @@ ${VTK_SOURCE_DIR}/vtkConfigure.h.in
 ${VTK_BINARY_DIR}/vtkConfigure.h)
 
 CONFIGURE_FILE(
+${VTK_SOURCE_DIR}/UseVTK.cmake 
+${VTK_BINARY_DIR}/UseVTK.cmake COPYONLY)
+
+CONFIGURE_FILE(
 ${VTK_SOURCE_DIR}/vtkToolkits.h.in 
 ${VTK_BINARY_DIR}/vtkToolkits.h)
 
