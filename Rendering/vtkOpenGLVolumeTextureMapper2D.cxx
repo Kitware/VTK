@@ -132,10 +132,6 @@ void vtkOpenGLVolumeTextureMapper2D::Render(vtkRenderer *ren, vtkVolume *vol)
   // Turn texturing on so that we can draw the textured polygons
   glEnable( GL_TEXTURE_2D );
 
-  // Turn blending on so that the translucent geometry of the polygons can
-  // be blended with other geoemtry (non-intersecting only)
-  glEnable( GL_BLEND );
-
 #ifdef GL_VERSION_1_1
   GLuint tempIndex;
   glGenTextures(1, &tempIndex);
@@ -155,7 +151,6 @@ void vtkOpenGLVolumeTextureMapper2D::Render(vtkRenderer *ren, vtkVolume *vol)
 
   matrix->Delete();
 
-  glDisable( GL_BLEND );
   glDisable( GL_TEXTURE_2D );
   
 #ifdef GL_VERSION_1_1
