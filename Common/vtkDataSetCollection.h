@@ -39,16 +39,27 @@ public:
   // Get the next dataset in the list.
   vtkDataSet *GetNextItem() { 
     return static_cast<vtkDataSet *>(this->GetNextItemAsObject());};
+  vtkDataSet *GetNextDataSet() { 
+    return static_cast<vtkDataSet *>(this->GetNextItemAsObject());};
 
   // Description:
   // Get the ith dataset in the list.
   vtkDataSet *GetItem(int i) { 
     return static_cast<vtkDataSet *>(this->GetItemAsObject(i));};
+  vtkDataSet *GetDataSet(int i) { 
+    return static_cast<vtkDataSet *>(this->GetItemAsObject(i));};
   
+  //BTX
+  // Description: 
+  // Reentrant safe way to get an object in a collection. Just pass the
+  // same cookie back and forth. 
+  vtkDataSet *GetNextDataSet(vtkCollectionSimpleIterator &cookie) {
+    return static_cast<vtkDataSet *>(this->GetNextItemAsObject(cookie));};
+  //ETX
+
 protected:
   vtkDataSetCollection() {};
   ~vtkDataSetCollection() {};
-
 
 private:
   // hide the standard AddItem from the user and the compiler.
