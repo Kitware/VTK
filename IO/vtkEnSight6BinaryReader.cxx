@@ -35,7 +35,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.34");
+vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.35");
 vtkStandardNewMacro(vtkEnSight6BinaryReader);
 
 //----------------------------------------------------------------------------
@@ -951,6 +951,13 @@ int vtkEnSight6BinaryReader::ReadScalarsPerNode(char* fileName,
     sscanf(line, " part %d", &partId);
     partId--;
     output = this->GetOutput(partId);
+    if (output == NULL)
+      {
+      vtkErrorMacro("Could not get output for part " << partId);
+      vtkErrorMacro("Got part from line: " << line);
+      return 0;
+      }
+    
     this->ReadLine(line); // block
     numPts = output->GetNumberOfPoints();
     scalarsRead = new float[numPts];
