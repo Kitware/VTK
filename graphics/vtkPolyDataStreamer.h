@@ -71,6 +71,14 @@ public:
   void SetNumberOfStreamDivisions(int num);
   int GetNumberOfStreamDivisions();
   
+  // Description:
+  // By default, this option is off.  When it is on, cell scalars are generated
+  // based on which piece they are in.
+  vtkSetMacro(ColorByPiece, int);
+  vtkGetMacro(ColorByPiece, int);
+  vtkBooleanMacro(ColorByPiece, int);
+
+
 protected:
   vtkPolyDataStreamer();
   ~vtkPolyDataStreamer();
@@ -86,6 +94,8 @@ protected:
   unsigned long MemoryLimit;
   int NumberOfStreamDivisions;
   void ComputeNumberOfStreamDivisionsFromMemoryLimit();
+
+  int ColorByPiece;
 
 };
 

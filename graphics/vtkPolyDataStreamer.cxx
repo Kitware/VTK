@@ -67,6 +67,7 @@ vtkPolyDataStreamer::vtkPolyDataStreamer()
   this->MemoryLimit = 1000000;
   this->UseMemoryLimit = 0;
   this->NumberOfStreamDivisions = 2;
+  this->ColorByPiece = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -107,6 +108,12 @@ void vtkPolyDataStreamer::ComputeNumberOfStreamDivisionsFromMemoryLimit()
 //----------------------------------------------------------------------------
 void vtkPolyDataStreamer::SetNumberOfStreamDivisions(int num)
 {
+  if (this->UseMemoryLimit == 0 && this->NumberOfStreamDivisions == num)
+    {
+    return;
+    }
+
+  this->Modified();
   this->UseMemoryLimit = 0;
   this->NumberOfStreamDivisions = num;
 }
@@ -149,21 +156,34 @@ void vtkPolyDataStreamer::Execute()
   vtkPolyData *copy;
   vtkAppendPolyData *append = vtkAppendPolyData::New();
   int outPiece, outNumPieces, outGhost;
-  int i;
+  int i, j, inPiece;
+  vtkScalars *pieceColors = NULL;
+
+  if (this->ColorByPiece)
+    {
+    pieceColors = vtkScalars::New();
+    }
 
   outGhost = output->GetUpdateGhostLevel();
   outPiece = output->GetUpdatePiece();
   outNumPieces = output->GetUpdateNumberOfPieces();
   for (i = 0; i < this->NumberOfStreamDivisions; ++i)
     {
-    input->SetUpdateExtent(outPiece * this->NumberOfStreamDivisions + i, 
-                           outNumPieces *this->NumberOfStreamDivisions);
+    inPiece = outPiece * this->NumberOfStreamDivisions + i;
+    input->SetUpdateExtent(inPiece,outNumPieces *this->NumberOfStreamDivisions);
     input->Update();
     copy = vtkPolyData::New();
     copy->ShallowCopy(input);
     append->AddInput(copy);
     copy->Delete();
     copy = NULL;
+    if (pieceColors)
+      {
+      for (j = 0; j < input->GetNumberOfCells(); ++j)
+        {
+        pieceColors->InsertNextScalar((float)inPiece);
+        }
+      }
     }
 
   append->Update();
@@ -173,6 +193,11 @@ void vtkPolyDataStreamer::Execute()
   output->SetUpdateNumberOfPieces(outNumPieces );
   output->SetUpdatePiece(outPiece);
   output->SetUpdateGhostLevel(outGhost);
+  if (pieceColors)
+    {
+    output->GetCellData()->SetScalars(pieceColors);
+    pieceColors->Delete();
+    }
   append->Delete();
 }
 
@@ -187,6 +212,7 @@ void vtkPolyDataStreamer::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "MemoryLimit: " << this->MemoryLimit << endl;
     }
+  os << indent << "ColorByPiece: " << this->ColorByPiece << endl;
 }
 
 
