@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.33");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.34");
 
 vtkParallelRenderManager::vtkParallelRenderManager()
 {
@@ -1681,6 +1681,9 @@ void vtkParallelRenderManager::SatelliteStartRender()
 
   vtkCollectionSimpleIterator rsit;
   vtkRendererCollection *rens = this->RenderWindow->GetRenderers();
+
+  this->Viewports->SetNumberOfTuples(rens->GetNumberOfItems());
+
   rens->InitTraversal(rsit);
   for (i = 0; i < winInfoInt.NumberOfRenderers; i++)
     {
@@ -1708,6 +1711,7 @@ void vtkParallelRenderManager::SatelliteStartRender()
       }
     else
       {
+      this->Viewports->SetTuple(i, ren->GetViewport());
       ren->SetViewport(renInfoDouble.Viewport);
       ren->SetBackground(renInfoDouble.Background[0],
                          renInfoDouble.Background[1],
