@@ -3,34 +3,34 @@
 //
 //  use internal floating point array to represent data
 //
-#ifndef FloatScalars_h
-#define FloatScalars_h
+#ifndef __vlFloatScalars_h
+#define __vlFloatScalars_h
 
-#include "Params.h"
+#include "Object.h"
 #include "FArray.h"
 #include "FTriple.h"
 #include "IdList.h"
 
-class FloatScalars : public RefCount {
+class vlFloatScalars : public vlObject {
 public:
-  FloatScalars();
-  int Initialize(const int sz, const int ext=1000) {return s.Initialize(sz,ext);};
-  FloatScalars(const FloatScalars& fs);
-  FloatScalars(const int sz, const int ext);
-  FloatScalars(FloatArray& fa);
-  ~FloatScalars();
-  int numScalars();
-  void reset();
-  FloatScalars &operator=(const FloatScalars& fs);
-  void operator+=(const FloatScalars& fs);
-  void operator+=(const float f) {s += f;};
-  float &operator[](const int i) {return s[i];};
-  void insertScalar(const int i, float f) {s.insertValue(i, f);};
-  int insertNextScalar(float f) {return s.insertNextValue(f);};
-  void getScalars(IdList& ptId, FloatScalars& fs);
-  float *getArray();
+  vlFloatScalars();
+  int Initialize(const int sz, const int ext=1000) {return S.Initialize(sz,ext);};
+  vlFloatScalars(const vlFloatScalars& fs);
+  vlFloatScalars(const int sz, const int ext);
+  vlFloatScalars(vlFloatArray& fa);
+  virtual ~vlFloatScalars();
+  int NumScalars();
+  void Reset();
+  vlFloatScalars &operator=(const vlFloatScalars& fs);
+  void operator+=(const vlFloatScalars& fs);
+  void operator+=(const float f) {this->S += f;};
+  float &operator[](const int i) {return this->S[i];};
+  void InsertScalar(const int i, float f) {S.InsertValue(i, f);};
+  int InsertNextScalar(float f) {return S.InsertNextValue(f);};
+  void GetScalars(vlIdList& ptId, vlFloatScalars& fs);
+  float *GetArray();
 private:
-  FloatArray s;
+  vlFloatArray S;
 };
 
 #endif

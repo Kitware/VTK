@@ -1,17 +1,15 @@
 //
 // Abstract class for specifying behavior of data sources
 //
-#ifndef PolySource_h
-#define PolySource_h
+#ifndef __vlPolySource_h
+#define __vlPolySource_h
 
-#include "Params.h"
 #include "Source.h"
 #include "PolyData.h"
 
-class PolySource : public Source, public PolyData {
+class vlPolySource : public vlSource, public vlPolyData {
 public:
-  virtual void update();
-
+  virtual void Update();
 };
 
 #endif

@@ -1,6 +1,6 @@
 #include "PolySrc.h"
 
-void PolySource::update()
+void vlPolySource::Update()
 {
-  Source::update();
+  vlSource::Update();
 }

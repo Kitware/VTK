@@ -3,105 +3,105 @@
 //
 #include "PolyMap.h"
 
-PolyMapper::PolyMapper()
+vlPolyMapper::vlPolyMapper()
 {
-  input = 0;
-  verts = 0;
-  lines = 0;
-  polys = 0;
-  strips = 0;
+  this->Input = 0;
+  this->Verts = 0;
+  this->Lines = 0;
+  this->Polys = 0;
+  this->Strips = 0;
 }
 
-PolyMapper::~PolyMapper()
+vlPolyMapper::~vlPolyMapper()
 {
-  if ( input != 0 )
-  {
-    input->UnRegister((void *)this);
-  }
+  if ( this->Input != 0 )
+    {
+    this->Input->UnRegister((void *)this);
+    }
 }
 
-void PolyMapper::setInput(PolyData *in)
+void vlPolyMapper::SetInput(vlPolyData *in)
 {
-  if (in != input )
-  {
-    input = in;
-    input->Register((void *)this);
-    modified();
-  }
+  if (in != this->Input )
+    {
+    this->Input = in;
+    this->Input->Register((void *)this);
+    this->Modified();
+    }
 }
-PolyData* PolyMapper::getInput()
+vlPolyData* vlPolyMapper::GetInput()
 {
-    return input;
+  return this->Input;
 }
 
 //
 // Receives from Actor -> maps data to primitives
 //
-void PolyMapper::Render(Renderer *ren)
+void vlPolyMapper::Render(Renderer *ren)
 {
-  PointData *pd;
-  RGBArray *colors;
-  FloatScalars *scalars;
+  vlPointData *pd;
+  vlRGBArray *colors;
+  vlFloatScalars *scalars;
   int i;
   char forceBuild = 0;
 //
 // make sure that we've been properly initialized
 //
-  if ( ! input ) 
+  if ( ! this->Input ) 
     return;
   else
-    input->update();
+    this->Input->Update();
 
-  if ( ! lut )
-  {
-    lut = new LookupTable;
-    lut->build();
+  if ( ! this->Lut )
+    {
+    this->Lut = new vlLookupTable;
+    this->Lut->Build();
     forceBuild = 1;
-  }
+    }
 
-  if ( ! polys )
-  {
+  if ( ! this->Polys )
+    {
     forceBuild = 1;
-//    verts = ren->GetPrimitive("points");
-//    lines = ren->GetPrimitive("lines");
-    polys = ren->GetPrimitive("polygons");
-//    strips = ren->GetPrimitive("triangle_strips");
-  }
+//    this->Verts = ren->GetPrimitive("points");
+//    this->Lines = ren->GetPrimitive("lines");
+    this->Polys = ren->GetPrimitive("polygons");
+//    this->Strips = ren->GetPrimitive("triangle_strips");
+    }
 //
 // create colors
 //
-  if ( scalarsVisible && (pd=input->getPointData()) && 
-  (scalars=pd->getScalars()) )
-  {
-    colors = new RGBArray;
-    colors->Initialize (input->numPoints());
-
-    for (i=0; i<input->numPoints(); i++)
+  if ( this->ScalarsVisible && (pd=this->Input->GetPointData()) && 
+  (scalars=pd->GetScalars()) )
     {
-      (*colors)[i] = lut->mapValue((*scalars)[i]);
+    colors = new vlRGBArray;
+    colors->Initialize (this->Input->NumPoints());
+
+    for (i=0; i<this->Input->NumPoints(); i++)
+      {
+      (*colors)[i] = this->Lut->MapValue((*scalars)[i]);
+      }
     }
-  }
   else
-  {
+    {
     colors = 0;
-  }
+    }
 //
 // Now send data down to primitives and draw it
 //
-  if ( forceBuild || input->getMtime() > buildTime.getMtime() || 
-  lut->getMtime() > buildTime.getMtime() )
-  {
-//      verts->Build(input,colors);
-//      lines->Build(input,colors);
-      polys->Build(input,colors);
-//      strips->Build(input,colors);
-      buildTime.modified();
-  }
+  if ( forceBuild || this->Input->Mtime > this->BuildTime || 
+  this->Lut->Mtime > this->BuildTime )
+    {
+//      this->Verts->Build(this->Input,colors);
+//      this->Lines->Build(this->Input,colors);
+      this->Polys->Build(this->Input,colors);
+//      this->Strips->Build(this->Input,colors);
+      this->BuildTime.Modified();
+    }
 
-//  verts->Draw(ren);
-//  lines->Draw(ren);
-  polys->Draw(ren);
-//  strips->Draw(ren);
+//  this->Verts->Draw(ren);
+//  this->Lines->Draw(ren);
+  this->Polys->Draw(ren);
+//  this->Strips->Draw(ren);
 
 }
 

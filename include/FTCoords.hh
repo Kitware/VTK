@@ -3,52 +3,52 @@
 //
 //  use internal floating point array to represent data
 //
-#ifndef FloatTCoords_h
-#define FloatTCoords_h
+#ifndef __vlFloatTCoords_h
+#define __vlFloatTCoords_h
 
-#include "Params.h"
+#include "Object.h"
 #include "FArray.h"
 #include "FTriple.h"
 #include "IdList.h"
 
-class FloatTCoords : public RefCount {
+class vlFloatTCoords : public vlObject {
 public:
-  FloatTCoords();
-  int Initialize(const int sz, const int dim=2, const int ext=1000) {return tc.Initialize(dim*sz,dim*ext);};
-  FloatTCoords(const FloatTCoords& tc);
-  FloatTCoords(const int sz, const int d=2, const int ext=1000);
-  FloatTCoords(FloatArray& fa);
-  ~FloatTCoords();
-  int numTCoords();
-  void reset();
-  FloatTCoords &operator=(const FloatTCoords& ftc);
-  void operator+=(const FloatTCoords& ftc);
-  void operator+=(const FloatTriple& ft) {
-    for(int j=0; j<dim; j++) tc += ft.x[j];
+  vlFloatTCoords();
+  int Initialize(const int sz, const int dim=2, const int ext=1000) {return this->TC.Initialize(dim*sz,dim*ext);};
+  vlFloatTCoords(const vlFloatTCoords& tc);
+  vlFloatTCoords(const int sz, const int d=2, const int ext=1000);
+  vlFloatTCoords(vlFloatArray& fa);
+  virtual ~vlFloatTCoords();
+  int NumTCoords();
+  void Reset();
+  vlFloatTCoords &operator=(const vlFloatTCoords& ftc);
+  void operator+=(const vlFloatTCoords& ftc);
+  void operator+=(const vlFloatTriple& ft) {
+    for(int j=0; j<this->Dim; j++) this->TC += ft.X[j];
   }
-  FloatTriple &operator[](const int i) {ft.x = tc.getPtr(3*i); return ft;};
-  void insertTCoord(const int i, FloatTriple &ft) {
-    for(int j=0; j<dim; j++) tc.insertValue(3*i+j, ft.x[j]);
+  vlFloatTriple &operator[](const int i) {this->Ft.X = this->TC.GetPtr(3*i); return this->Ft;};
+  void InsertTCoord(const int i, vlFloatTriple &ft) {
+    for(int j=0; j<this->Dim; j++) this->TC.InsertValue(3*i+j, ft.X[j]);
   }
-  void insertTCoord(const int i, float *x) {
-    for(int j=0; j<dim; j++) tc.insertValue(3*i+j, x[j]);
+  void InsertTCoord(const int i, float *x) {
+    for(int j=0; j<this->Dim; j++) this->TC.InsertValue(3*i+j, x[j]);
   }
-  int insertNextTCoord(float *x) {
-    int id = tc.insertNextValue(x[0]);
-    for(int j=1; j<dim; j++) tc.insertNextValue(x[j]);
-    return id/dim;
+  int InsertNextTCoord(float *x) {
+    int id = this->TC.InsertNextValue(x[0]);
+    for(int j=1; j<this->Dim; j++) this->TC.InsertNextValue(x[j]);
+    return id/this->Dim;
   }
-  FloatTCoords& setDimension(const int i) {
-    dim = ( (i<1) ? 1 : (i>3) ? 3 : i);
+  vlFloatTCoords&SetDimension(const int i) {
+    this->Dim = ( (i<1) ? 1 : (i>3) ? 3 : i);
     return *this;
   }
-  int getDimension() {return dim;};
-  void getTCoords(IdList& ptId, FloatTCoords& ftc);
-  float *getArray();
+  int GetDimension() {return this->Dim;};
+  void GetTCoords(vlIdList& ptId, vlFloatTCoords& ftc);
+  float *GetArray();
 private:
-  FloatArray tc;
-  FloatTriple ft;
-  int dim;
+  vlFloatArray TC;
+  vlFloatTriple Ft;
+  int Dim;
 };
 
 #endif

@@ -1,80 +1,57 @@
 //
 //  3D normals, floating representation
 //
-//  Assumptions:
-//
-//
 #include "FNormals.h"
 
-FloatNormals::FloatNormals ()
+vlFloatNormals::vlFloatNormals ()
 {
-#ifdef DEBUG
-  cout << "Constructor\n";
-#endif
-
+  if ( this->Debug ) cerr << "Constructor\n";
 }
 
-
-FloatNormals::FloatNormals (const FloatNormals& fn)
+vlFloatNormals::vlFloatNormals (const vlFloatNormals& fn)
 {
-#ifdef DEBUG
-  cout << "Constructor\n";
-#endif
-
-  n = fn.n;
+  if ( this->Debug ) cerr << "Constructor\n";
+  this->N= fn.N;
 }
 
-
-FloatNormals::FloatNormals(const int sz, const int ext):n(3*sz,3*ext)
+vlFloatNormals::vlFloatNormals(const int sz, const int ext):N(3*sz,3*ext)
 {
-#ifdef DEBUG
-  cout << "Constructor\n";
-#endif
-
+  if ( this->Debug ) cerr << "Constructor\n";
 }
 
-
-FloatNormals::~FloatNormals()
+vlFloatNormals::~vlFloatNormals()
 {
-#ifdef DEBUG
-  cout << "Destructor\n";
-#endif
-
+  if ( this->Debug ) cerr << "Destructor\n";
 }
 
-FloatNormals& FloatNormals::operator=(const FloatNormals& fn)
+vlFloatNormals& vlFloatNormals::operator=(const vlFloatNormals& fn)
 {
-#ifdef DEBUG
-  cout << "Assignment\n";
-#endif
+  if ( this->Debug ) cerr << "Assignment\n";
 
-  n = fn.n;
-  
+  this->N = fn.N;
   return *this;
 }
 
-void FloatNormals::operator+=(const FloatNormals& fn)
+void vlFloatNormals::operator+=(const vlFloatNormals& fn)
 {
-#ifdef DEBUG
-  cout << "Add method\n";
-#endif
-  n += fn.n;
+  if ( this->Debug ) cerr << "Add method\n";
+  this->N += fn.N;
 }
 
-void FloatNormals::reset()
+void vlFloatNormals::Reset()
 {
-  n.reset();
+  this->N.Reset();
 }
 
-int FloatNormals::numNormals()
+int vlFloatNormals::NumNormals()
 {
-  return (n.getMaxId()+1)/3;
+  return (this->N.GetMaxId()+1)/3;
 }
 
-void FloatNormals::getNormals(IdList& ptId, FloatNormals& fn)
+void vlFloatNormals::GetNormals(vlIdList& ptId, vlFloatNormals& fn)
 {
-  for (int i=0; i<ptId.numIds(); i++)
-  {
+  for (int i=0; i<ptId.NumIds(); i++)
+    {
     fn += (*this)[ptId[i]];
-  }
+    }
 }

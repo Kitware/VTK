@@ -4,196 +4,196 @@
 #include "PolyData.h"
 
 // Initialize static member
-CellArray PolyData::dummy;
+vlCellArray vlPolyData::Dummy;
 
-PolyData::PolyData ()
+vlPolyData::vlPolyData ()
 {
-  points = 0;
+  this->Points = 0;
 
-  verts = 0;
-  lines = 0;
-  polys = 0;
-  strips = 0;
+  this->Verts = 0;
+  this->Lines = 0;
+  this->Polys = 0;
+  this->Strips = 0;
 }
 
-PolyData::PolyData(const PolyData& pd)
+vlPolyData::vlPolyData(const vlPolyData& pd)
 {
 
-  points = pd.points;
-  points->Register((void *)this);
+  this->Points = pd.Points;
+  this->Points->Register((void *)this);
 
-  verts = pd.verts;
-  verts->Register((void *)this);
+  this->Verts = pd.Verts;
+  this->Verts->Register((void *)this);
 
-  lines = pd.lines;
-  lines->Register((void *)this);
+  this->Lines = pd.Lines;
+  this->Lines->Register((void *)this);
 
-  polys = pd.polys;
-  polys->Register((void *)this);
+  this->Polys = pd.Polys;
+  this->Polys->Register((void *)this);
 
-  strips = pd.strips;
-  strips->Register((void *)this);
+  this->Strips = pd.Strips;
+  this->Strips->Register((void *)this);
 }
 
-PolyData::~PolyData()
+vlPolyData::~vlPolyData()
 {
-  PolyData::Initialize();
+  vlPolyData::Initialize();
 }
 
-int PolyData::cellDimension (int cellId)
+int vlPolyData::CellDimension (int cellId)
 {
   return 2;
 }
 
-void PolyData::cellPoints (int cellId, IdList& ptId)
+void vlPolyData::CellPoints (int cellId, vlIdList& ptId)
 {
 
 }
 
-void PolyData::pointCoords (IdList& ptId, FloatPoints& fp)
+void vlPolyData::PointCoords (vlIdList& ptId, vlFloatPoints& fp)
 {
 
 }
 
-void PolyData::setPoints (FloatPoints* pts) 
+void vlPolyData::SetPoints (vlFloatPoints* pts) 
 {
-  if ( points != pts )
+  if ( this->Points != pts )
   {
-    if ( points != 0 ) points->UnRegister((void *)this);
-    points = pts;
-    points->Register((void *)this);
-    modified();
+    if ( this->Points != 0 ) this->Points->UnRegister((void *)this);
+    this->Points = pts;
+    this->Points->Register((void *)this);
+    this->Modified();
   }
 }
-FloatPoints* PolyData::getPoints()
+vlFloatPoints* vlPolyData::GetPoints()
 {
-  return points;
+  return this->Points;
 }
 
-void PolyData::setVerts (CellArray* v) 
+void vlPolyData::SetVerts (vlCellArray* v) 
 {
-  if ( verts != v && verts != &dummy )
+  if ( this->Verts != v && this->Verts != &this->Dummy )
   {
-    if ( verts != 0 ) verts->UnRegister((void *)this);
-    verts = v;
-    verts->Register((void *)this);
-    modified();
+    if ( this->Verts != 0 ) this->Verts->UnRegister((void *)this);
+    this->Verts = v;
+    this->Verts->Register((void *)this);
+    this->Modified();
   }
 }
-CellArray* PolyData::getVerts()
+vlCellArray* vlPolyData::GetVerts()
 {
-  if ( !verts ) return &dummy;
-  else return verts;
+  if ( !this->Verts ) return &this->Dummy;
+  else return this->Verts;
 }
 
-void PolyData::setLines (CellArray* l) 
+void vlPolyData::SetLines (vlCellArray* l) 
 {
-  if ( lines != l && lines != &dummy )
+  if ( this->Lines != l && this->Lines != &this->Dummy )
   {
-    if ( lines != 0 ) lines->UnRegister((void *)this);
-    lines = l;
-    lines->Register((void *)this);
-    modified();
+    if ( this->Lines != 0 ) this->Lines->UnRegister((void *)this);
+    this->Lines = l;
+    this->Lines->Register((void *)this);
+    this->Modified();
   }
 }
-CellArray* PolyData::getLines()
+vlCellArray* vlPolyData::GetLines()
 {
-  if ( !lines ) return &dummy;
-  else return lines;
+  if ( !this->Lines ) return &this->Dummy;
+  else return this->Lines;
 }
 
-void PolyData::setPolys (CellArray* p) 
+void vlPolyData::SetPolys (vlCellArray* p) 
 {
-  if ( polys != p && polys != &dummy )
+  if ( this->Polys != p && this->Polys != &this->Dummy )
   {
-    if ( polys != 0 ) polys->UnRegister((void *)this);
-    polys = p;
-    polys->Register((void *)this);
-    modified();
+    if ( this->Polys != 0 ) this->Polys->UnRegister((void *)this);
+    this->Polys = p;
+    this->Polys->Register((void *)this);
+    this->Modified();
   }
 }
-CellArray* PolyData::getPolys()
+vlCellArray* vlPolyData::GetPolys()
 {
-  if ( !polys ) return &dummy;
-  else return polys;
+  if ( !this->Polys ) return &this->Dummy;
+  else return this->Polys;
 }
 
-void PolyData::setStrips (CellArray* s) 
+void vlPolyData::SetStrips (vlCellArray* s) 
 {
-  if ( strips != s && strips != &dummy )
+  if ( this->Strips != s && this->Strips != &this->Dummy )
   {
-    if ( strips != 0 ) strips->UnRegister((void *)this);
-    strips = s;
-    strips->Register((void *)this);
-    modified();
+    if ( this->Strips != 0 ) this->Strips->UnRegister((void *)this);
+    this->Strips = s;
+    this->Strips->Register((void *)this);
+    this->Modified();
   }
 }
-CellArray* PolyData::getStrips()
+vlCellArray* vlPolyData::GetStrips()
 {
-  if ( !strips ) return &dummy;
-  else return strips;
+  if ( !this->Strips ) return &this->Dummy;
+  else return this->Strips;
 }
 
-void PolyData::Initialize()
+void vlPolyData::Initialize()
 {
-  if ( points != 0 ) 
+  if ( this->Points != 0 ) 
   {
-    points->UnRegister((void *)this);
-    points = 0;
+    this->Points->UnRegister((void *)this);
+    this->Points = 0;
   }
 
-  if ( verts != 0 ) 
+  if ( this->Verts != 0 ) 
   {
-    verts->UnRegister((void *)this);
-    verts = 0;
+    this->Verts->UnRegister((void *)this);
+    this->Verts = 0;
   }
 
-  if ( lines != 0 ) 
+  if ( this->Lines != 0 ) 
   {
-    lines->UnRegister((void *)this);
-    lines = 0;
+    this->Lines->UnRegister((void *)this);
+    this->Lines = 0;
   }
 
-  if ( polys != 0 ) 
+  if ( this->Polys != 0 ) 
   {
-    polys->UnRegister((void *)this);
-    polys = 0;
+    this->Polys->UnRegister((void *)this);
+    this->Polys = 0;
   }
 
-  if ( strips != 0 ) 
+  if ( this->Strips != 0 ) 
   {
-    strips->UnRegister((void *)this);
-    strips = 0;
+    this->Strips->UnRegister((void *)this);
+    this->Strips = 0;
   }
 
 };
 
-int PolyData::numCells() 
+int vlPolyData::NumCells() 
 {
-  return numVerts() + numLines() + numPolys() + numStrips();
+  return NumVerts() + NumLines() + NumPolys() + NumStrips();
 }
 
-int PolyData::numPoints() 
+int vlPolyData::NumPoints() 
 {
-  return (points ? points->numPoints() : 0);
+  return (this->Points ? this->Points->NumPoints() : 0);
 }
 
-int PolyData::numVerts() 
+int vlPolyData::NumVerts() 
 {
-  return (verts ? verts->numCells() : 0);
+  return (this->Verts ? this->Verts->GetNumCells() : 0);
 }
 
-int PolyData::numLines() 
+int vlPolyData::NumLines() 
 {
-  return (lines ? lines->numCells() : 0);
+  return (this->Lines ? this->Lines->GetNumCells() : 0);
 }
 
-int PolyData::numPolys() 
+int vlPolyData::NumPolys() 
 {
-  return (polys ? polys->numCells() : 0);
+  return (this->Polys ? this->Polys->GetNumCells() : 0);
 }
 
-int PolyData::numStrips() 
+int vlPolyData::NumStrips() 
 {
-  return (strips ? strips->numCells() : 0);
+  return (this->Strips ? this->Strips->GetNumCells() : 0);
 }

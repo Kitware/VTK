@@ -1,46 +1,45 @@
 //
 // Define cell array
 //
-#ifndef CellArray_h
-#define CellArray_h
+#ifndef __vlCellArray_h
+#define __vlCellArray_h
 
-#include "Params.h"
 #include "IntArray.h"
 
-class CellArray : public RefCount {
+class vlCellArray : public vlObject {
 public:
-  CellArray() : ncells(0), loc(0) {};
-  int Initialize(const int sz, const int ext=1000) {return ia.Initialize(sz,ext);};
-  CellArray (const int sz, const int ext=1000):ncells(0),loc(0),ia(sz,ext){};
-  ~CellArray() {};
-  int getNextCell(int& npts, int* &pts)
+  vlCellArray() : NumCells(0), Loc(0) {};
+  int Initialize(const int sz, const int ext=1000) {return this->Ia.Initialize(sz,ext);};
+  vlCellArray (const int sz, const int ext=1000):NumCells(0),Loc(0),Ia(sz,ext){};
+  ~vlCellArray() {};
+  int GetNextCell(int& npts, int* &pts)
   {
-    if ( loc <= ia.getMaxId() ) 
-    {
-      npts = ia.getValue(loc++);
-      pts = ia.getPtr(loc);
-      loc += npts;
+    if ( this->Loc <= this->Ia.GetMaxId() ) 
+      {
+      npts = this->Ia.GetValue(this->Loc++);
+      pts = this->Ia.GetPtr(this->Loc);
+      this->Loc += npts;
       return 1;
-    }
+      }
     else
-    {
+      {
       return 0;
-    }
+      }
   }
-  void insertNextCell(int npts, int* pts)
+  void InsertNextCell(int npts, int* pts)
   {
-    ncells++;
-    ia.insertNextValue(npts);
-    for (int i=0; i<npts; i++) ia.insertNextValue(pts[i]);
+    NumCells++;
+    this->Ia.InsertNextValue(npts);
+    for (int i=0; i<npts; i++) this->Ia.InsertNextValue(pts[i]);
   }
-  int numCells() {return ncells;};
-  void initTraversal() {loc=0;};
-  void squeeze() {ia.squeeze();};
+  int GetNumCells() {return NumCells;};
+  void InitTraversal() {this->Loc=0;};
+  void Squeeze() {this->Ia.Squeeze();};
   
 private:
-  int ncells;
-  int loc;
-  IntArray ia;
+  int NumCells;
+  int Loc;
+  vlIntArray Ia;
 };
 
 #endif

@@ -1,6 +1,6 @@
 #include "P2PF.h"
 
-void PolyToPolyFilter::update()
+void vlPolyToPolyFilter::Update()
 {
-  PolyFilter::update();
+  vlPolyFilter::Update();
 }

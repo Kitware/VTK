@@ -1,35 +1,33 @@
 //
 // Define cell array
 //
-#ifndef CellList_h
-#define CellList_h
+#ifndef __vlCellList_h
+#define __vlCellList_h
 
-#include "Params.h"
-
-struct Cell {
+struct vlCell {
     short type;
     int loc;
 };
 
-class CellList {
+class vlCellList {
 public:
-  CellList() : array(0),size(0),max_id(-1),extend(1000) {};
-  CellList(const int sz, const int ext);
-  ~CellList();
-  Cell &getCell(const int id) {return array[id];};
-  short getCellType(const int id) {return array[id].type;};
-  int getCellLoc(const int id) {return array[id].loc;};
-  void insertCell(const int id, const short type, const int loc);
-  int insertNextCell(const short type, const int pos);
-  void squeeze();
-  void reset();
+  vlCellList() : Array(0),Size(0),MaxId(-1),Extend(1000) {};
+  vlCellList(const int sz, const int ext);
+  ~vlCellList();
+  vlCell &GetCell(const int id) {return this->Array[id];};
+  short GetCellType(const int id) {return this->Array[id].type;};
+  int GetCellLoc(const int id) {return this->Array[id].loc;};
+  void InsertCell(const int id, const short type, const int loc);
+  int InsertNextCell(const short type, const int pos);
+  void Squeeze();
+  void Reset();
 
 private:
-  Cell *array;   // pointer to data
-  int size;       // allocated size of data
-  int max_id;     // maximum index inserted thus far
-  int extend;     // grow array by this point
-  Cell *resize(const int sz);  // function to resize data
+  vlCell *Array;   // pointer to data
+  int Size;       // allocated size of data
+  int MaxId;     // maximum index inserted thus far
+  int Extend;     // grow array by this point
+  vlCell *Resize(const int sz);  // function to resize data
 };
 
 #endif

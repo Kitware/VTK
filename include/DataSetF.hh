@@ -1,23 +1,22 @@
 //
 // DataSetFilter takes general DataSet as input
 //
-#ifndef DataSetFilter_h
-#define DataSetFilter_h
+#ifndef __vlDataSetFilter_h
+#define __vlDataSetFilter_h
 
-#include "Params.h"
 #include "Filter.h"
 #include "DataSetF.h"
 
-class DataSetFilter : virtual public Filter {
+class vlDataSetFilter : virtual public vlFilter {
 public:
-  DataSetFilter();
-  ~DataSetFilter();
-  virtual void setInput(DataSet *in);
-  virtual DataSet*  getInput();
-  virtual void execute();
-  virtual void update();
+  vlDataSetFilter();
+  ~vlDataSetFilter();
+  virtual void SetInput(vlDataSet *in);
+  virtual vlDataSet*  GetInput();
+  virtual void Execute();
+  virtual void Update();
 protected:
-  DataSet *input;
+  vlDataSet *Input;
 
 };
 

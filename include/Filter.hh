@@ -1,25 +1,25 @@
 //
 // Abstract class for specifying filter behaviour
 //
-#ifndef Filter_h
-#define Filter_h
+#ifndef __vlFilter_h
+#define __vlFilter_h
 
-#include "Params.h"
+#include "Object.h"
 #include "DataSet.h"
 
-class Filter : virtual public TimeStamp, virtual public RefCount {
+class vlFilter : virtual public vlObject {
 public:
-  Filter() : startMethod(0), endMethod(0), updating(0) {};
-  virtual ~Filter() {};
-  virtual void execute() = 0;
-  virtual void update() = 0;
-  void setStartMethod(void (*f)());
-  void setEndMethod(void (*f)());
+  vlFilter() : StartMethod(0), EndMethod(0), Updating(0) {};
+  virtual ~vlFilter() {};
+  virtual void Execute() = 0;
+  virtual void Update() = 0;
+  void SetStartMethod(void (*f)());
+  void SetEndMethod(void (*f)());
 protected:
-  char updating;
-  void (*startMethod)();
-  void (*endMethod)();
-  TimeStamp executeTime;
+  char Updating;
+  void (*StartMethod)();
+  void (*EndMethod)();
+  vlTimeStamp ExecuteTime;
 
 };
 

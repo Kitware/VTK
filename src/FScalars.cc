@@ -6,76 +6,58 @@
 //
 #include "FScalars.h"
 
-FloatScalars::FloatScalars ()
+vlFloatScalars::vlFloatScalars ()
 {
-#ifdef DEBUG
-  cout << "Constructor\n";
-#endif
+  if ( this->Debug ) cerr << "Constructor\n";
+}
 
+vlFloatScalars::vlFloatScalars (const vlFloatScalars& fs)
+{
+  if ( this->Debug ) cerr << "Constructor\n";
+
+  this->S = fs.S;
 }
 
 
-FloatScalars::FloatScalars (const FloatScalars& fs)
+vlFloatScalars::vlFloatScalars(const int sz, const int ext=1000):S(sz,ext)
 {
-#ifdef DEBUG
-  cout << "Constructor\n";
-#endif
-
-  s = fs.s;
+  if ( this->Debug ) cerr << "Constructor\n";
 }
 
 
-FloatScalars::FloatScalars(const int sz, const int ext=1000):s(sz,ext)
+vlFloatScalars::~vlFloatScalars()
 {
-#ifdef DEBUG
-  cout << "Constructor\n";
-#endif
-
+  if ( this->Debug ) cerr << "Destructor\n";
 }
 
-
-FloatScalars::~FloatScalars()
+vlFloatScalars& vlFloatScalars::operator=(const vlFloatScalars& fs)
 {
-#ifdef DEBUG
-  cout << "Destructor\n";
-#endif
+  if ( this->Debug ) cerr << "Assignment\n";
 
-}
-
-FloatScalars& FloatScalars::operator=(const FloatScalars& fs)
-{
-#ifdef DEBUG
-  cout << "Assignment\n";
-#endif
-
-  s = fs.s;
-  
+  this->S = fs.S;
   return *this;
 }
 
-void FloatScalars::operator+=(const FloatScalars& fs)
+void vlFloatScalars::operator+=(const vlFloatScalars& fs)
 {
-#ifdef DEBUG
-  cout << "Add method\n";
-#endif
-  s += fs.s;
-
+  if ( this->Debug ) cerr << "Add method\n";
+  this->S += fs.S;
 }
 
-void FloatScalars::reset()
+void vlFloatScalars::Reset()
 {
-  s.reset();
+  this->S.Reset();
 }
 
-int FloatScalars::numScalars()
+int vlFloatScalars::NumScalars()
 {
-  return (s.getMaxId()+1);
+  return (this->S.GetMaxId()+1);
 }
 
-void FloatScalars::getScalars(IdList& ptId, FloatScalars& fs)
+void vlFloatScalars::GetScalars(vlIdList& ptId, vlFloatScalars& fs)
 {
-  for (int i=0; i<ptId.numIds(); i++)
-  {
+  for (int i=0; i<ptId.NumIds(); i++)
+    {
     fs += (*this)[ptId[i]];
-  }
+    }
 }

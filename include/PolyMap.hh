@@ -1,28 +1,27 @@
 //
 // PolyMapper takes PolyData as input
 //
-#ifndef PolyMapper_h
-#define PolyMapper_h
+#ifndef __vlPolyMapper_h
+#define __vlPolyMapper_h
 
-#include "Params.h"
 #include "Mapper.h"
 #include "PolyData.h"
 #include "Renderer.h"
 
-class PolyMapper : public Mapper {
+class vlPolyMapper : public vlMapper {
 public:
-  PolyMapper();
-  ~PolyMapper();
-  virtual void setInput(PolyData *in);
-  virtual PolyData* getInput();
+  vlPolyMapper();
+  virtual ~vlPolyMapper();
+  virtual void SetInput(vlPolyData *in);
+  virtual vlPolyData* GetInput();
   virtual void Render(Renderer *ren);
 
 protected:
-  PolyData *input;
-  GeometryPrimitive *verts;
-  GeometryPrimitive *lines;
-  GeometryPrimitive *polys;
-  GeometryPrimitive *strips;
+  vlPolyData *Input;
+  GeometryPrimitive *Verts;
+  GeometryPrimitive *Lines;
+  GeometryPrimitive *Polys;
+  GeometryPrimitive *Strips;
 
 };
 

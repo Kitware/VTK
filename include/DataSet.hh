@@ -1,34 +1,34 @@
 //
 // Abstract class for specifying dataset behaviour
 //
-#ifndef DataSet_h
-#define DataSet_h
+#ifndef __vlDataSet_h
+#define __vlDataSet_h
 
-#include "Params.h"
-#include "TimeSt.h"
-#include "RefCount.h"
+#include "Object.h"
 #include "IdList.h"
 #include "FPoints.h"
 #include "PtData.h"
 
-class DataSet : virtual public TimeStamp, virtual public RefCount {
-public:
-  DataSet();
-  DataSet(const DataSet& ds);
-  virtual ~DataSet();
-  virtual int numCells() = 0;
-  virtual int numPoints() = 0;
-  virtual int cellDimension(int cellId) = 0;
-  virtual void cellPoints(int cellId, IdList& ptId) = 0;
-  virtual void Initialize() = 0;
-  virtual void pointCoords(IdList& ptId, FloatPoints& fp) = 0;
-  virtual void update() {};
+#define MAX_CELL_SIZE 128
 
-  void setPointData (PointData* pd);
-  PointData *getPointData();
+class vlDataSet : virtual public vlObject {
+public:
+  vlDataSet();
+  vlDataSet(const vlDataSet& ds);
+  virtual ~vlDataSet();
+  virtual int NumCells() = 0;
+  virtual int NumPoints() = 0;
+  virtual int CellDimension(int cellId) = 0;
+  virtual void CellPoints(int cellId, vlIdList& ptId) = 0;
+  virtual void Initialize() = 0;
+  virtual void PointCoords(vlIdList& ptId, vlFloatPoints& fp) = 0;
+  virtual void Update() {};
+
+  void SetPointData (vlPointData* pd);
+  vlPointData *GetPointData();
 
 private:
-  PointData *pointData;
+  vlPointData *PointData;
 };
 
 #endif

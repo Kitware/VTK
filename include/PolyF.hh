@@ -1,23 +1,22 @@
 //
 // PolyFilter takes PolyData as input
 //
-#ifndef PolyFilter_h
-#define PolyFilter_h
+#ifndef __vlPolyFilter_h
+#define __vlPolyFilter_h
 
-#include "Params.h"
 #include "Filter.h"
 #include "PolyData.h"
 
-class PolyFilter : public Filter {
+class vlPolyFilter : public vlFilter {
 public:
-  PolyFilter() : input(0) {};
-  ~PolyFilter();
-  virtual void setInput(PolyData *in);
-  virtual PolyData* getInput();
-  virtual void execute();
-  virtual void update();
+  vlPolyFilter() : Input(0) {};
+  virtual ~vlPolyFilter();
+  virtual void SetInput(vlPolyData *in);
+  virtual vlPolyData* GetInput();
+  virtual void Execute();
+  virtual void Update();
 protected:
-  PolyData *input;
+  vlPolyData *Input;
 
 };
 

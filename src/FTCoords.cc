@@ -1,83 +1,63 @@
 //
 //  3D TCoords, floating representation
 //
-//  Assumptions:
-//
-//
 #include "FTCoords.h"
 
-FloatTCoords::FloatTCoords ():dim(2)
+vlFloatTCoords::vlFloatTCoords ():Dim(2)
 {
-#ifdef DEBUG
-  cout << "Constructor\n";
-#endif
+  if ( this->Debug ) cerr << "Constructor\n";
+}
 
+vlFloatTCoords::vlFloatTCoords (const vlFloatTCoords& ftc)
+{
+  if ( this->Debug ) cerr << "Constructor\n";
+
+  this->TC = ftc.TC;
+  this->Dim = ftc.Dim;
+}
+
+vlFloatTCoords::vlFloatTCoords(const int sz, const int d, const int ext):
+Dim(d), TC(d*sz,d*ext)
+{
+  if ( this->Debug ) cerr << "Constructor\n";
 }
 
 
-FloatTCoords::FloatTCoords (const FloatTCoords& ftc)
+vlFloatTCoords::~vlFloatTCoords()
 {
-#ifdef DEBUG
-  cout << "Constructor\n";
-#endif
-
-  tc = ftc.tc;
-  dim = ftc.dim;
+  if ( this->Debug ) cerr << "Destructor\n";
 }
 
-
-FloatTCoords::FloatTCoords(const int sz, const int d, const int ext):
-dim(d), tc(d*sz,d*ext)
+vlFloatTCoords& vlFloatTCoords::operator=(const vlFloatTCoords& ftc)
 {
-#ifdef DEBUG
-  cout << "Constructor\n";
-#endif
+  if ( this->Debug ) cerr << "Assignment\n";
 
-}
-
-
-FloatTCoords::~FloatTCoords()
-{
-#ifdef DEBUG
-  cout << "Destructor\n";
-#endif
-
-}
-
-FloatTCoords& FloatTCoords::operator=(const FloatTCoords& ftc)
-{
-#ifdef DEBUG
-  cout << "Assignment\n";
-#endif
-
-  tc = ftc.tc;
-  dim = ftc.dim;
+  this->TC = ftc.TC;
+  this->Dim = ftc.Dim;
   
   return *this;
 }
 
-void FloatTCoords::operator+=(const FloatTCoords& ftc)
+void vlFloatTCoords::operator+=(const vlFloatTCoords& ftc)
 {
-#ifdef DEBUG
-  cout << "Add method\n";
-#endif
-  tc += ftc.tc;
+  if ( this->Debug ) cerr << "Add method\n";
+  this->TC += ftc.TC;
 }
 
-void FloatTCoords::reset()
+void vlFloatTCoords::Reset()
 {
-  tc.reset();
+  this->TC.Reset();
 }
 
-int FloatTCoords::numTCoords()
+int vlFloatTCoords::NumTCoords()
 {
-  return (tc.getMaxId()+1)/dim;
+  return (this->TC.GetMaxId()+1)/this->Dim;
 }
 
-void FloatTCoords::getTCoords(IdList& ptId, FloatTCoords& ftc)
+void vlFloatTCoords::GetTCoords(vlIdList& ptId, vlFloatTCoords& ftc)
 {
-  for (int i=0; i<ptId.numIds(); i++)
-  {
+  for (int i=0; i<ptId.NumIds(); i++)
+    {
     ftc += (*this)[ptId[i]];
-  }
+    }
 }

@@ -1,41 +1,39 @@
 //
 // Class for manipulating data associated with points
 //
-#ifndef PointData_h
-#define PointData_h
+#ifndef __vlPointData_h
+#define __vlPointData_h
 
-#include "Params.h"
-#include "TimeSt.h"
-#include "RefCount.h"
+#include "Object.h"
 #include "FScalars.h"
 #include "FVectors.h"
 #include "FNormals.h"
 #include "FTCoords.h"
 
-class PointData : public TimeStamp, public RefCount {
+class vlPointData : public vlObject {
 public:
-  PointData() : scalars(0), vectors(0), normals(0), tcoords(0) {};
-  void Initialize(PointData* const pd=0, const int sze=0, const int ext=1000);
-  ~PointData();
-  PointData::PointData (const PointData& pd);
-  virtual void update() {};
-  void copyData(const PointData *const from_pd, const int from_id, 
-                const PointData* to_pd, const int to_id);
+  vlPointData() : Scalars(0), Vectors(0), Normals(0), TCoords(0) {};
+  void Initialize(vlPointData* const pd=0,const int sze=0,const int ext=1000);
+  virtual ~vlPointData();
+  vlPointData::vlPointData (const vlPointData& pd);
+  virtual void Update() {};
+  void CopyData(const vlPointData *const from_pd, const int from_id, 
+                const vlPointData* to_pd, const int to_id);
 
-  void setScalars (FloatScalars* s);
-  FloatScalars *getScalars() {return scalars;};
-  void setVectors (FloatVectors* v);
-  FloatVectors *getVectors() {return vectors;};
-  void setNormals (FloatNormals* n);
-  FloatNormals *getNormals() {return normals;};
-  void setTCoords (FloatTCoords* t);
-  FloatTCoords *getTCoords() {return tcoords;};
+  void SetScalars (vlFloatScalars* s);
+  vlFloatScalars *GetScalars() {return this->Scalars;};
+  void SetVectors (vlFloatVectors* v);
+  vlFloatVectors *GetVectors() {return this->Vectors;};
+  void SetNormals (vlFloatNormals* n);
+  vlFloatNormals *GetNormals() {return this->Normals;};
+  void SetTCoords (vlFloatTCoords* t);
+  vlFloatTCoords *GetTCoords() {return this->TCoords;};
 
-private:
-  FloatScalars *scalars;
-  FloatVectors *vectors;
-  FloatNormals *normals;
-  FloatTCoords *tcoords;
+protected:
+  vlFloatScalars *Scalars;
+  vlFloatVectors *Vectors;
+  vlFloatNormals *Normals;
+  vlFloatTCoords *TCoords;
 };
 
 #endif

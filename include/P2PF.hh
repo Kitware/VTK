@@ -1,16 +1,15 @@
 //
 // PolyToPolyFilter are filters that take PolyData in and generate PolyData
 //
-#ifndef PolyToPolyFilter_h
-#define PolyToPolyFilter_h
+#ifndef __vlPolyToPolyFilter_h
+#define __vlPolyToPolyFilter_h
 
-#include "Params.h"
 #include "PolyF.h"
 #include "PolyData.h"
 
-class PolyToPolyFilter : public PolyFilter, public PolyData {
+class vlPolyToPolyFilter : public vlPolyFilter, public vlPolyData {
 public:
-  void update();
+  void Update();
 
 };
 

@@ -1,29 +1,28 @@
 //
 // List of id's.  Used for passing information back and forth between objects.
 //
-#ifndef IdList_h
-#define IdList_h
+#ifndef vlIdList_h
+#define vlIdList_h
 
-#include "Params.h"
 #include "IntArray.h"
 
-class IdList {
+class vlIdList {
 public:
-  IdList(const int sz, const int ext=100):ia(sz,ext) {};
-  ~IdList() {};
-  int &operator[](const int id) {return ia[id];};
-  void reset() {ia.reset();};
-  int numIds() {return (ia.getMaxId() + 1);};
-  int insertNextId(const int i) {return ia.insertNextValue(i);};
-  void operator+=(IdList& ids) {ia += ids.ia;};
-  void operator+=(const int i) {ia += i;};
+  vlIdList(const int sz, const int ext=100):Ia(sz,ext) {};
+  ~vlIdList() {};
+  int &operator[](const int id) {return this->Ia[id];};
+  void Reset() {this->Ia.Reset();};
+  int NumIds() {return (this->Ia.GetMaxId() + 1);};
+  int InsertNextId(const int i) {return Ia.InsertNextValue(i);};
+  void operator+=(vlIdList& ids) {this->Ia += ids.Ia;};
+  void operator+=(const int i) {this->Ia += i;};
   int getChunk(const int sz) { // get chunk of memory
-    int pos = ia.getMaxId()+1;
-    ia.insertValue(pos+sz-1,0);
+    int pos = this->Ia.GetMaxId()+1;
+    this->Ia.InsertValue(pos+sz-1,0);
     return pos;
   }
 private:
-  IntArray ia;
+  vlIntArray Ia;
 };
 
 #endif

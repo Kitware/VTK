@@ -6,75 +6,56 @@
 //
 #include "FVectors.h"
 
-FloatVectors::FloatVectors ()
+vlFloatVectors::vlFloatVectors ()
 {
-#ifdef DEBUG
-  cout << "Constructor\n";
-#endif
-
+  if ( this->Debug ) cerr << "Constructor\n";
 }
 
-
-FloatVectors::FloatVectors (const FloatVectors& fv)
+vlFloatVectors::vlFloatVectors (const vlFloatVectors& fv)
 {
-#ifdef DEBUG
-  cout << "Constructor\n";
-#endif
+  if ( this->Debug ) cerr << "Constructor\n";
 
-  v = fv.v;
+  this->V = fv.V;
 }
 
-
-FloatVectors::FloatVectors(const int sz, const int ext=1000):v(3*sz,3*ext)
+vlFloatVectors::vlFloatVectors(const int sz, const int ext=1000):V(3*sz,3*ext)
 {
-#ifdef DEBUG
-  cout << "Constructor\n";
-#endif
-
+  if ( this->Debug ) cerr << "Constructor\n";
 }
 
-
-FloatVectors::~FloatVectors()
+vlFloatVectors::~vlFloatVectors()
 {
-#ifdef DEBUG
-  cout << "Destructor\n";
-#endif
-
+  if ( this->Debug ) cerr << "Destructor\n";
 }
 
-FloatVectors& FloatVectors::operator=(const FloatVectors& fv)
+vlFloatVectors& vlFloatVectors::operator=(const vlFloatVectors& fv)
 {
-#ifdef DEBUG
-  cout << "Assignment\n";
-#endif
+  if ( this->Debug ) cerr << "Assignment\n";
 
-  v = fv.v;
-  
+  this->V = fv.V;
   return *this;
 }
 
-void FloatVectors::operator+=(const FloatVectors& fv)
+void vlFloatVectors::operator+=(const vlFloatVectors& fv)
 {
-#ifdef DEBUG
-  cout << "Add method\n";
-#endif
-  v += fv.v;
+  if ( this->Debug ) cerr << "Add method\n";
+  this->V += fv.V;
 }
 
-void FloatVectors::reset()
+void vlFloatVectors::Reset()
 {
-  v.reset();
+  this->V.Reset();
 }
 
-int FloatVectors::numVectors()
+int vlFloatVectors::NumVectors()
 {
-  return (v.getMaxId()+1)/3;
+  return (this->V.GetMaxId()+1)/3;
 }
 
-void FloatVectors::getVectors(IdList& ptId, FloatVectors& fv)
+void vlFloatVectors::GetVectors(vlIdList& ptId, vlFloatVectors& fv)
 {
-  for (int i=0; i<ptId.numIds(); i++)
-  {
+  for (int i=0; i<ptId.NumIds(); i++)
+    {
     fv += (*this)[ptId[i]];
-  }
+    }
 }

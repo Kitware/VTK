@@ -1,36 +1,33 @@
 //
 // Define link array
 //
-#ifndef LinkList_h
-#define LinkList_h
+#ifndef __vlLinkList_h
+#define __vlLinkList_h
 
-#include "Params.h"
-
-struct Link {
+struct vlLink {
     unsigned short ncells;
     int *cells;
 };
 
-class LinkList {
+class vlLinkList {
 public:
-  LinkList():array(0),size(0),max_id(-1),extend(1000) {};
-  LinkList(const int sz, const int ext);
-  ~LinkList();
-  Link &getLink(const int id) {return array[id];};
-  unsigned short getNcells(const int id) {return array[id].ncells;};
-  int *getCells(const int id) {return array[id].cells;};
-  void insertLink(const int id, const unsigned short ncells, int *cells);
-  int insertNextLink(const unsigned short ncells, int *cells);
-  void squeeze();
-  void reset();
+  vlLinkList():Array(0),Size(0),MaxId(-1),Extend(1000) {};
+  vlLinkList(const int sz, const int ext);
+  ~vlLinkList();
+  vlLink &GetLink(const int id) {return this->Array[id];};
+  unsigned short GetNcells(const int id) {return this->Array[id].ncells;};
+  int *GetCells(const int id) {return this->Array[id].cells;};
+  void InsertLink(const int id, const unsigned short ncells, int *cells);
+  int InsertNextLink(const unsigned short ncells, int *cells);
+  void Squeeze();
+  void Reset();
 
 private:
-  Link *array;   // pointer to data
-  int size;       // allocated size of data
-  int max_id;     // maximum index inserted thus far
-  int extend;     // grow array by this point
-  Link *resize(const int sz);  // function to resize data
+  vlLink *Array;   // pointer to data
+  int Size;       // allocated size of data
+  int MaxId;     // maximum index inserted thus far
+  int Extend;     // grow array by this point
+  vlLink *Resize(const int sz);  // function to resize data
 };
-
 
 #endif
