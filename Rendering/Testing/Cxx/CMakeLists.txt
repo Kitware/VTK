@@ -32,9 +32,14 @@ ENDIF (VTK_USE_X)
 ADD_EXECUTABLE(TimeRenderer TimeRenderer.cxx)
 ADD_EXECUTABLE(TimeRenderer2 TimeRenderer2.cxx)
 ADD_EXECUTABLE(otherCoordinate otherCoordinate.cxx)
+ADD_EXECUTABLE(TestRenderWindow TestRenderWindow.cxx)
 
 ADD_TEST(otherCoordinate ${CXX_TEST_PATH}/otherCoordinate)
 
+ADD_TEST(TestRenderWindow-image ${CXX_TEST_PATH}/TestRenderWindow
+                      -D ${VTK_DATA_ROOT}
+                      -FrontBuffer
+                      -V Baseline/Rendering/TestRenderWindow.png)
 
 
 
