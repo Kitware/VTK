@@ -78,6 +78,10 @@ public:
                                      vtkInformationVector *, 
                                      vtkInformationVector *);
 
+  // Remove me Remove me - See Ken
+  void ReleaseDataFlagOn() {};
+  void ReleaseDataFlagOff() {};
+  
 protected:
   vtkImageAlgorithm();
   ~vtkImageAlgorithm();
