@@ -297,7 +297,7 @@ char *get_format_string()
 static void add_to_sig(char *sig, char *add, int *i)
 {
   strcpy(&sig[*i],add);
-  *i += strlen(add);
+  *i += (int)strlen(add);
 }
 
 void get_python_signature()
@@ -462,7 +462,7 @@ static const char *quote_string(const char *comment, int maxlen)
 
   j = 0;
 
-  n = strlen(comment);
+  n = (int)strlen(comment);
   for (i = 0; i < n; i++)
     {
     if (comment[i] == '\"')
@@ -493,7 +493,7 @@ static const char *quote_string(const char *comment, int maxlen)
     if (j >= maxlen - 21)
       {      
       sprintf(&result[j]," ...\\n [Truncated]\\n");
-      j += strlen(" ...\\n [Truncated]\\n");
+      j += (int)strlen(" ...\\n [Truncated]\\n");
       break;
       }
     }
@@ -803,7 +803,7 @@ void outputFunction2(FILE *fp, FileInfo *data)
         if (wrappedFunctions[occ]->Name && 
             !strcmp(theFunc->Name,wrappedFunctions[occ]->Name))
           {
-          int siglen = strlen(wrappedFunctions[fnum]->Signature);
+          int siglen = (int)strlen(wrappedFunctions[fnum]->Signature);
           /* memory leak here but ... */
           wrappedFunctions[occ]->Name = NULL;
           wrappedFunctions[fnum]->Signature = (char *)
@@ -961,7 +961,7 @@ static void create_class_doc(FILE *fp, FileInfo *data)
 
   if (data->Description)
     {
-    n = (strlen(data->Description) + 400-1)/400;
+    n = (int)((strlen(data->Description) + 400-1)/400);
     for (i = 0; i < n; i++)
       {
       strncpy(temp, &data->Description[400*i], 400);

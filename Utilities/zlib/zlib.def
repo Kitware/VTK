@@ -1,7 +1,5 @@
 LIBRARY		"vtkzlib"
 
-DESCRIPTION	'"""zlib data compression library"""'
-
 VERSION		1.13
 
 HEAPSIZE	1048576,4096
