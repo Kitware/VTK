@@ -1345,3 +1345,20 @@ void vlSbrRenderWindow::CopyResultFrame(void)
 
   this->Frame();
 }
+
+void vlSbrRenderWindow::SaveImageAsPPM()
+{
+  // flush and display the buffer
+  if (this->DoubleBuffer) 
+    {
+    dbuffer_switch(this->Fd, this->Buffer = !(this->Buffer));
+    }
+
+  this->vlRenderWindow::SaveImageAsPPM();
+
+  // flush and display the buffer
+  if (this->DoubleBuffer) 
+    {
+    dbuffer_switch(this->Fd, this->Buffer = !(this->Buffer));
+    }
+}

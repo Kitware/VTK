@@ -52,6 +52,7 @@ public:
   void SetSize(int,int);
 
   vlGetMacro(Fd,int);
+  virtual void SaveImageAsPPM();
 
   // stereo rendering stuff
   virtual void StereoUpdate();
