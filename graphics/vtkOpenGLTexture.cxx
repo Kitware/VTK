@@ -138,7 +138,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *vtkNotUsed(ren))
       }
     if ((xs > 1)||(ys > 1))
       {
-      vtkWarningMacro(<< "Resampling texture to power of two for OpenGL");
+      vtkDebugMacro(<< "Resampling texture to power of two for OpenGL");
       resultData = this->ResampleToPowerOfTwo(xsize, ysize, dataPtr, 
                                               bytesPerPixel);
       }
