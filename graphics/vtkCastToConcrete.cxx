@@ -88,6 +88,9 @@ void vtkCastToConcrete::Update()
   this->GetMTime() > this->ExecuteTime )
     {
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
+    // reset AbortExecute flag and Progress
+    this->AbortExecute = 0;
+    this->Progress = 0.0;
     this->Execute();
     this->ExecuteTime.Modified();
     if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);

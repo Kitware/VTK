@@ -75,6 +75,10 @@ void vtkFilter::Update()
       }
 
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
+
+    // reset Abort flag
+    this->AbortExecute = 0;
+    this->Progress = 0.0;
     this->Output->Initialize(); //clear output
     this->Execute();
     this->ExecuteTime.Modified();

@@ -193,6 +193,9 @@ void vtkExtractVectorComponents::Update()
     this->Output->CopyStructure(this->Input);
     this->VyComponent->CopyStructure(this->Input);
     this->VzComponent->CopyStructure(this->Input);
+    // reset AbortExecute flag and Progress
+    this->AbortExecute = 0;
+    this->Progress = 0.0;
     this->Execute();
     this->ExecuteTime.Modified();
     this->SetDataReleased(0);
