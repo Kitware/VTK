@@ -102,11 +102,6 @@ private:
   vtkOutputWindow* Pointer;
 };
 
-// use this as a way of memory managment when the
-// program exits the smartPointer will be deleted which
-// will delete the Instance singleton
-vtkOutputWindowSmartPointer smartPointer;
-
 
 // Up the reference count so it behaves like New
 vtkOutputWindow* vtkOutputWindow::New()
@@ -120,6 +115,10 @@ vtkOutputWindow* vtkOutputWindow::New()
 // Return the single instance of the vtkOutputWindow
 vtkOutputWindow* vtkOutputWindow::GetInstance()
 {
+  // use this as a way of memory managment when the 
+  // program exits the static will be deleted which
+  // will delete the Instance singleton
+  static vtkOutputWindowSmartPointer smartPointer;
   if(!vtkOutputWindow::Instance)
     {
     // Try the factory first
@@ -141,27 +140,3 @@ vtkOutputWindow* vtkOutputWindow::GetInstance()
   // return the instance
   return vtkOutputWindow::Instance;
 }
-
-void vtkOutputWindow::SetInstance(vtkOutputWindow* instance)
-{
-  if (vtkOutputWindow::Instance==instance)
-    {
-    return;
-    }
-  smartPointer.SetPointer( instance );
-  // preferably this will be NULL
-  if (vtkOutputWindow::Instance)
-    {
-    vtkOutputWindow::Instance->Delete();;
-    }
-  vtkOutputWindow::Instance = instance;
-  // Should be safe to send a message now as instance is set
-  if (instance->GetReferenceCount()!=1)
-    {
-    vtkGenericWarningMacro(<<"OutputWindow should have reference count = 1");
-    }
-  // user will call ->Delete() after setting instance
-  instance->Register(NULL);
-}
-
-
