@@ -7,8 +7,8 @@ source ViewerApp.tcl
 
 vtkImageWindow imgWin
 
-gradient BypassOff
-magnitude BypassOff
+BypassOff gradient
+BypassOff magnitude
 
 $viewer Render
 ResetTkImageViewer .top.f1.v1 

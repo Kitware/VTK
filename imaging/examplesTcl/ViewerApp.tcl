@@ -114,7 +114,6 @@ reader SetDataMask 0x7fff
 vtkImageGaussianSmooth gaussian
 gaussian SetInput [reader GetOutput]
 gaussian SetStandardDeviations 2 2
-gaussian BypassOn
 
 #
 # #3 -- Add additional filters here. Turn BypassOn on each to start.
@@ -122,21 +121,17 @@ gaussian BypassOn
 
 vtkImageGradient gradient
 gradient SetInput [gaussian GetOutput]
-gradient BypassOn
 
 vtkImageMagnitude magnitude
 magnitude SetInput [gradient GetOutput]
-magnitude BypassOn
 
 vtkImageFlip flipY
 flipY SetInput [magnitude GetOutput]
 flipY SetFilteredAxis 1
-flipY BypassOn
 
 vtkImageFlip flipX
 flipX SetInput [flipY GetOutput]
 flipX SetFilteredAxis 0
-flipX BypassOn
 
 #
 # #4 -- Set "lastfilter" to be the last filter in the pipeline
@@ -182,9 +177,9 @@ proc ActivateFilter { filtername } {
     if { $foo == 1 } {
   	# filter exists
   	if { $filtermode == "off" } {
-  	    eval $filtername BypassOn
+  	    BypassOn $filtername
   	} else {
-  	    eval $filtername BypassOff
+  	    BypassOff $filtername
   	}
 	
 	ResetTkImageViewer .top.f1.v1
@@ -216,3 +211,77 @@ proc HelpUI {} {
 	raise .help
     }
 }
+
+# to support the old bypass functionality these routines can be used
+# as long as none of the filters in the pipline have multiple inputs.
+# You must first call this routine to setup bypass functionality.
+# Pass in the last filter (downstream) as well as that filter's 
+# consumer (typically a mapper or writer)  Then the BypassOn and BypassOff
+# procedures should work - Ken
+#
+proc SupportBypass {lastFilter lastFiltersConsumer} {
+   # create arrays of inputs, outputs and states
+   global bypassState
+   global bypassInputs
+   global bypassOutputs
+
+   set currentFilter $lastFilter
+   set bypassState($currentFilter) 0
+   set bypassOutputs($currentFilter) $lastFiltersConsumer
+   set bypassState($lastFiltersConsumer) 0
+   while {[$currentFilter GetNumberOfInputs] > 0} {
+      puts "Tracing back a step"
+      set bypassInputs($currentFilter) [[$currentFilter GetInput] GetSource]
+      set bypassOutputs($bypassInputs($currentFilter)) $currentFilter
+      set currentFilter $bypassInputs($currentFilter)
+      set bypassState($currentFilter) 0
+   }
+}
+
+proc BypassOn {filterName} {
+   global bypassState
+   global bypassInputs
+   global bypassOutputs
+
+   # only process if it isn't already bypassed ?
+   if {$bypassState($filterName) == 0} {
+      # set this filters input to the next available downstream input
+      set currentFilter $bypassOutputs($filterName)
+      while {$bypassState($currentFilter) == 1} {
+         set currentFilter $bypassOutputs($currentFilter)
+      }
+      $currentFilter SetInput [$filterName GetInput]
+      set bypassState($filterName) 1
+   }
+}
+
+proc BypassOff {filterName} {
+   global bypassState
+   global bypassInputs
+   global bypassOutputs
+
+   # only process if it is already bypassed ?
+   if {$bypassState($filterName) == 1} {
+      # set this filters input to the next available upsream output
+      set currentFilter $bypassInputs($filterName)
+      while {$bypassState($currentFilter) == 1} {
+         set currentFilter $bypassInputs($currentFilter)
+      }
+      $filterName SetInput [$currentFilter GetOutput]
+      # set this filters input to the next available downstream input
+      set currentFilter $bypassOutputs($filterName)
+      while {$bypassState($currentFilter) == 1} {
+         set currentFilter $bypassOutputs($currentFilter)
+      }
+      $currentFilter SetInput [$filterName GetOutput]
+      set bypassState($filterName) 0
+   }
+}
+
+
+SupportBypass flipX [$viewer GetImageMapper]
+BypassOn gaussian 
+BypassOn gradient
+BypassOn magnitude
+BypassOn flipY
+BypassOn flipX
