@@ -232,7 +232,7 @@ int vtkTkImageViewerWidget_Cmd(ClientData clientData,
   
   // Create vtkTkImageViewerWidget data structure 
   self = (struct vtkTkImageViewerWidget *)
-    malloc(sizeof(struct vtkTkImageViewerWidget));
+    ckalloc(sizeof(struct vtkTkImageViewerWidget));
   self->TkWin = tkwin;
   self->Interp = interp;
   self->Width = 0;
@@ -300,7 +300,7 @@ static void vtkTkImageViewerWidget_Destroy(char *memPtr)
     self->ImageViewer->UnRegister(NULL);
     self->ImageViewer = NULL;
     ckfree (self->IV);
-    }
+  }
   ckfree((char *) memPtr);
 }
 
