@@ -89,7 +89,7 @@ int vtkVoxel::EvaluatePosition(float x[3], float closestPoint[3],
   pcoords[1] = (x[1] - pt1[1]) / (pt3[1] - pt1[1]);
   pcoords[2] = (x[2] - pt1[2]) / (pt4[2] - pt1[2]);
 
-  if ( pcoords[0] >= 0.0 && pcoords[1] <= 1.0 &&
+  if ( pcoords[0] >= 0.0 && pcoords[0] <= 1.0 &&
   pcoords[1] >= 0.0 && pcoords[1] <= 1.0 &&
   pcoords[2] >= 0.0 && pcoords[2] <= 1.0 )
     {
