@@ -185,7 +185,7 @@ void vtkFieldDataToAttributeDataFilter::Execute()
     
   if ( num < 1 )
     {
-    vtkErrorMacro(<<"No input points/cells to create attribute data for");
+    vtkDebugMacro(<<"No input points/cells to create attribute data for");
     return;
     }
 

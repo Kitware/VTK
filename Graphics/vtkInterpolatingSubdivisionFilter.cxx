@@ -76,7 +76,7 @@ void vtkInterpolatingSubdivisionFilter::Execute()
 
   if (numPts < 1 || numCells < 1)
     {
-    vtkErrorMacro(<<"No data to interpolate!");
+    vtkDebugMacro(<<"No data to interpolate!");
     return;
     }
 
