@@ -147,7 +147,8 @@ vtkTreeComposite::~vtkTreeComposite()
 
 //-------------------------------------------------------------------------
 // We may want to pass the render window as an argument for a sanity check.
-void vtkTreeCompositeStartRender(vtkObject *caller, unsigned long event, 
+void vtkTreeCompositeStartRender(vtkObject *caller,
+				 unsigned long vtkNotUsed(event), 
                                  void *clientData, void *)
 {
   vtkTreeComposite *self = (vtkTreeComposite *)clientData;
@@ -161,7 +162,8 @@ void vtkTreeCompositeStartRender(vtkObject *caller, unsigned long event,
   self->StartRender();
 }
 //-------------------------------------------------------------------------
-void vtkTreeCompositeEndRender(vtkObject *caller, unsigned long event, 
+void vtkTreeCompositeEndRender(vtkObject *caller,
+			       unsigned long vtkNotUsed(event), 
                                void *clientData, void *)
 {
   vtkTreeComposite *self = (vtkTreeComposite *)clientData;
@@ -175,7 +177,8 @@ void vtkTreeCompositeEndRender(vtkObject *caller, unsigned long event,
   self->EndRender();
 }
 //-------------------------------------------------------------------------
-void vtkTreeCompositeStartInteractor(vtkObject *o, unsigned long event, 
+void vtkTreeCompositeStartInteractor(vtkObject *vtkNotUsed(o),
+				     unsigned long vtkNotUsed(event), 
                                      void *clientData, void *)
 {
   vtkTreeComposite *self = (vtkTreeComposite *)clientData;
@@ -191,7 +194,8 @@ void vtkTreeCompositeStartInteractor(vtkObject *o, unsigned long event,
   self->StartInteractor();
 }
 //-------------------------------------------------------------------------
-void vtkTreeCompositeExitInteractor(vtkObject *o, unsigned long event, 
+void vtkTreeCompositeExitInteractor(vtkObject *vtkNotUsed(o),
+				    unsigned long vtkNotUsed(event), 
                                     void *clientData, void *)
 {
   vtkTreeComposite *self = (vtkTreeComposite *)clientData;
@@ -208,7 +212,8 @@ void vtkTreeCompositeExitInteractor(vtkObject *o, unsigned long event,
 }
 
 //-------------------------------------------------------------------------
-void vtkTreeCompositeResetCamera(vtkObject *caller, unsigned long event, 
+void vtkTreeCompositeResetCamera(vtkObject *caller,
+				 unsigned long vtkNotUsed(event), 
                                  void *clientData, void *)
 {
   vtkTreeComposite *self = (vtkTreeComposite *)clientData;
@@ -218,7 +223,7 @@ void vtkTreeCompositeResetCamera(vtkObject *caller, unsigned long event,
 }
 //-------------------------------------------------------------------------
 void vtkTreeCompositeResetCameraClippingRange(vtkObject *caller, 
-                                              unsigned long event, 
+                                              unsigned long vtkNotUsed(event), 
                                               void *clientData, void *)
 {
   vtkTreeComposite *self = (vtkTreeComposite *)clientData;
