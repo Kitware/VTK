@@ -35,7 +35,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.36");
+vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.37");
 vtkStandardNewMacro(vtkEnSight6BinaryReader);
 
 //----------------------------------------------------------------------------
@@ -2595,6 +2595,7 @@ int vtkEnSight6BinaryReader::ReadIntNumber(int *result)
 {
   if ( ! this->IFile->read((char*)result, sizeof(int)))
     {
+    vtkErrorMacro("Read failed");
     return 0;
     }
   if (this->ByteOrder == FILE_LITTLE_ENDIAN)
@@ -2655,8 +2656,14 @@ int vtkEnSight6BinaryReader::ReadIntNumber(int *result)
 int vtkEnSight6BinaryReader::ReadIntArray(int *result,
                                           int numInts)
 {
+  if (numInts <= 0)
+    {
+    return 1;
+    }
+  
   if ( ! this->IFile->read((char*)result, sizeof(int)*numInts))
     {
+    vtkErrorMacro("Read failed.");
     return 0;
     }
   if (this->ByteOrder == FILE_LITTLE_ENDIAN)
@@ -2676,8 +2683,14 @@ int vtkEnSight6BinaryReader::ReadIntArray(int *result,
 int vtkEnSight6BinaryReader::ReadFloatArray(float *result,
                                             int numFloats)
 {
+  if (numFloats <= 0)
+    {
+    return 1;
+    }
+
   if ( ! this->IFile->read((char*)result, sizeof(float)*numFloats))
     {
+    vtkErrorMacro("Read failed.");
     return 0;
     }
 
