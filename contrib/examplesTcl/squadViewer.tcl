@@ -34,7 +34,7 @@ grid $prs $trs -sticky news   -padx 10 -ipady 5
 pack $torbut $texbut -padx 10 -pady 5 -ipadx 20 -ipady 5 -side right -anchor s
 pack propagate $rframe no
 
-set renWin [$ren GetRenderWindow]
+set renWin1 [$ren GetRenderWindow]
 
 # create pipeline
 vtkSuperquadricSource squad
@@ -108,13 +108,13 @@ squad SetThetaRoundness [$trs get]
 squad SetToroidal $toroid
 squad SetThickness [$thicks get]
 squad SetScale 1 1 1
-setTexture actor atext $renWin
+setTexture actor atext $renWin1
 
 # Create renderer stuff
 #
 vtkRenderer ren1
 ren1 SetAmbient 1 1 1
-$renWin AddRenderer ren1
+$renWin1 AddRenderer ren1
 
 
 # Add the actors to the renderer, set the background and size
@@ -129,10 +129,10 @@ ren1 SetBackground 0.25 0.2 0.2
 wm withdraw .
 update
 
-$prs   config -command "setPhi squad $renWin"
-$trs   config -command "setTheta squad $renWin"
-$thicks config -command "setThickness squad $renWin"
-$torbut config -command "setToroid squad $thicks $renWin"
-$texbut config -command "setTexture actor atext $renWin"
+$prs   config -command "setPhi squad $renWin1"
+$trs   config -command "setTheta squad $renWin1"
+$thicks config -command "setThickness squad $renWin1"
+$torbut config -command "setToroid squad $thicks $renWin1"
+$texbut config -command "setTexture actor atext $renWin1"
 
 
