@@ -61,8 +61,6 @@ class vtkRenderWindow;
 class VTK_EXPORT vtkVolumeTextureMapper : public vtkVolumeMapper
 {
 public:
-  vtkVolumeTextureMapper();
-  ~vtkVolumeTextureMapper();
   const char *GetClassName() {return "vtkVolumeTextureMapper";};
   void PrintSelf( ostream& os, vtkIndent index );
 
@@ -112,6 +110,8 @@ public:
   vtkGetObjectMacro( GradientShader, vtkEncodedGradientShader );
 
 protected:
+  vtkVolumeTextureMapper();
+  ~vtkVolumeTextureMapper();
 
   void InitializeRender( vtkRenderer *ren, vtkVolume *vol );
 
