@@ -18,7 +18,7 @@
 #include "vtkScaledTextActor.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkScaledTextActor, "1.25");
+vtkCxxRevisionMacro(vtkScaledTextActor, "1.26");
 vtkStandardNewMacro(vtkScaledTextActor);
 
 vtkScaledTextActor::vtkScaledTextActor()
@@ -27,7 +27,5 @@ vtkScaledTextActor::vtkScaledTextActor()
   this->PositionCoordinate->SetCoordinateSystemToNormalizedViewport();
   this->PositionCoordinate->SetValue(0.2,0.85);
   this->SetScaledText(1);
-  vtkGenericWarningMacro("vtkScaledTextActor is being deprecated in VTK 4.1. \n"
-    << "Use vtkTextActor with ScaledText = true insead.");
 }
 
