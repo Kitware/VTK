@@ -47,9 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkTriangleStrip.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkSelectPolyData* vtkSelectPolyData::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -61,9 +59,6 @@ vtkSelectPolyData* vtkSelectPolyData::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkSelectPolyData;
 }
-
-
-
 
 // Description:
 // Instantiate object with InsideOut turned off.
@@ -93,21 +88,22 @@ vtkSelectPolyData::~vtkSelectPolyData()
 
 void vtkSelectPolyData::Execute()
 {
-  int numPts, numLoopPts;
+  vtkIdType numPts, numLoopPts;
   vtkPolyData *input=this->GetInput();
   vtkPolyData *output=this->GetOutput();
   vtkPolyData *triMesh;
   vtkPointData *inPD, *outPD=output->GetPointData();
   vtkCellData *inCD, *outCD=output->GetCellData();
-  int i, j, k, closest, numPolys;
+  vtkIdType closest, numPolys, i, j;
+  int k;
   vtkIdList *loopIds, *edgeIds, *neighbors;
   float x[3], xLoop[3], closestDist2, dist2, t;
   float x0[3], x1[3], vec[3], dir[3], neiX[3];
   vtkCellArray *inPolys;
   vtkPoints *inPts;
-  int id, pt1, pt2, currentId = 0, nextId, numCells, numNei, neiId;
-  int numMeshLoopPts, prevId;
-  vtkIdType *cells, *pts, npts;
+  int numNei;
+  vtkIdType id, currentId = 0, nextId, pt1, pt2, numCells, neiId;
+  vtkIdType *cells, *pts, npts, numMeshLoopPts, prevId;
   unsigned short int ncells;
   int mark, s1, s2, val;
 
@@ -299,7 +295,8 @@ void vtkSelectPolyData::Execute()
 
   // Traverse the front as long as we can. We're basically computing a 
   // topological distance.
-  int maxFront=0, maxFrontCell=(-1);
+  int maxFront=0;
+  vtkIdType maxFrontCell=(-1);
   int currentFrontNumber=1, numPtsInFront;
   while ( (numPtsInFront = currentFront->GetNumberOfIds()) )
     {
@@ -360,7 +357,7 @@ void vtkSelectPolyData::Execute()
   // fill negates one region of the mesh on one side of the loop.
   currentFront->Reset(); nextFront->Reset();
   currentFront->InsertNextId(maxFrontCell);
-  int numCellsInFront;
+  vtkIdType numCellsInFront;
   
   cellMarks->SetValue(maxFrontCell,-1);
 
@@ -559,7 +556,7 @@ void vtkSelectPolyData::Execute()
   nextFront->Delete();
 }
 
-void vtkSelectPolyData::GetPointNeighbors (int ptId, vtkIdList *nei)
+void vtkSelectPolyData::GetPointNeighbors (vtkIdType ptId, vtkIdList *nei)
 {
   unsigned short ncells;
   int i, j;
@@ -622,7 +619,6 @@ void vtkSelectPolyData::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Loop not defined\n";
     }
 }
-
 
 void vtkSelectPolyData::UnRegister(vtkObject *o)
 {

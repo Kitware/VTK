@@ -176,7 +176,7 @@ private:
   vtkDataObject *Input; //list of data sets to plot
 
   int IndependentVariables; //use column or row
-  int N; //the number of independent variables
+  vtkIdType N; //the number of independent variables
   vtkAxisActor2D **Axes; //an array of axes
   float *Mins; //minimum data value along this row/column
   float *Maxs; //maximum data value along this row/column
