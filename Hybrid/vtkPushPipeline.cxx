@@ -68,7 +68,7 @@ class vtkPushPipelineConsumeCommand : public vtkCommand
 {
 public:
   static vtkPushPipelineConsumeCommand *New() { return new vtkPushPipelineConsumeCommand;}
-  virtual void Execute(vtkObject *caller, unsigned long, void *callData)
+  virtual void Execute(vtkObject *caller, unsigned long, void *)
     {
       vtkProcessObject *po = vtkProcessObject::SafeDownCast(caller);
       if (po && this->PushPipeline)
@@ -90,7 +90,7 @@ class vtkPushPipelineEndRunCommand : public vtkCommand
 {
 public:
   static vtkPushPipelineEndRunCommand *New() { return new vtkPushPipelineEndRunCommand;}
-  virtual void Execute(vtkObject *caller, unsigned long, void *callData)
+  virtual void Execute(vtkObject *, unsigned long, void *)
     {
       if (this->PushPipeline)
         {
@@ -103,7 +103,7 @@ public:
   vtkPushPipeline *PushPipeline;
 };
 
-vtkCxxRevisionMacro(vtkPushPipeline, "1.3");
+vtkCxxRevisionMacro(vtkPushPipeline, "1.4");
 vtkStandardNewMacro(vtkPushPipeline);
 
 vtkPushPipeline::vtkPushPipeline()
@@ -118,7 +118,7 @@ vtkPushPipeline::~vtkPushPipeline()
 {
   vtkArrayMapIterator<vtkProcessObject *, vtkPushPipelineProcessInfo *> *pmi = 
     this->ProcessMap->NewIterator();
-  vtkPushPipelineProcessInfo *pref;
+  vtkPushPipelineProcessInfo *pref = NULL;
   while(!pmi->IsDoneWithTraversal())
     {
     pmi->GetData(pref);
@@ -130,7 +130,7 @@ vtkPushPipeline::~vtkPushPipeline()
 
   vtkArrayMapIterator<vtkDataObject *, vtkPushPipelineDataInfo *> *dmi = 
     this->DataMap->NewIterator();
-  vtkPushPipelineDataInfo *dref;
+  vtkPushPipelineDataInfo *dref = NULL;
   while(!dmi->IsDoneWithTraversal())
     {
     dmi->GetData(dref);
@@ -181,7 +181,7 @@ void vtkPushPipeline::ClearTraceMarkers()
 {
   vtkArrayMapIterator<vtkDataObject *, vtkPushPipelineDataInfo *> *dmi = 
     this->DataMap->NewIterator();
-  vtkPushPipelineDataInfo *dref;
+  vtkPushPipelineDataInfo *dref = NULL;
   while(!dmi->IsDoneWithTraversal())
     {
     dmi->GetData(dref);
@@ -192,7 +192,7 @@ void vtkPushPipeline::ClearTraceMarkers()
 
   vtkArrayMapIterator<vtkProcessObject *, vtkPushPipelineProcessInfo *> *pmi = 
     this->ProcessMap->NewIterator();
-  vtkPushPipelineProcessInfo *pref;
+  vtkPushPipelineProcessInfo *pref = NULL;
   while(!pmi->IsDoneWithTraversal())
     {
     pmi->GetData(pref);
@@ -206,7 +206,7 @@ void vtkPushPipeline::Trace(vtkDataObject *dao)
 {
   // add the data object to the map
   this->AddData(dao);
-  vtkPushPipelineDataInfo *dref;
+  vtkPushPipelineDataInfo *dref = NULL;
   this->DataMap->GetItem(dao,dref);
   if (dref->Marked)
     {
@@ -336,7 +336,7 @@ void vtkPushPipeline::Trace(vtkProcessObject *po)
 vtkPushPipelineProcessInfo *
 vtkPushPipeline::GetPushProcessInfo(vtkProcessObject *pusher)
 {
-  vtkPushPipelineProcessInfo *res;
+  vtkPushPipelineProcessInfo *res = NULL;
   this->ProcessMap->GetItem(pusher,res);
   return res;
 }
@@ -371,7 +371,7 @@ void vtkPushPipeline::Push(vtkSource *pusher)
     // foreach source/filter/worker
     vtkArrayMapIterator<vtkProcessObject *, vtkPushPipelineProcessInfo *> *pmi = this->ProcessMap->NewIterator();
     int executedOne = 0;
-    vtkPushPipelineProcessInfo *pref;
+    vtkPushPipelineProcessInfo *pref = NULL;
     for (;!pmi->IsDoneWithTraversal(); pmi->GoToNextItem())
       {
       pmi->GetData(pref);
@@ -425,7 +425,7 @@ void vtkPushPipeline::Run(vtkSource *pusher)
     // foreach source/filter/worker
     vtkArrayMapIterator<vtkProcessObject *, vtkPushPipelineProcessInfo *> *pmi = this->ProcessMap->NewIterator();
     int executedOne = 0;
-    vtkPushPipelineProcessInfo *pref;
+    vtkPushPipelineProcessInfo *pref = NULL;
     for (;!pmi->IsDoneWithTraversal(); pmi->GoToNextItem())
       {
       pmi->GetData(pref);
@@ -581,7 +581,7 @@ void vtkPushPipelineDataInfo::ConsumeData(vtkProcessObject *po)
 {
   if (this->IsConsumerLeft(po))
     {
-    vtkIdType id;
+    vtkIdType id = 0;
     this->ConsumersLeft->FindItem(po,id);
     this->ConsumersLeft->RemoveItem(id);
     }
@@ -591,7 +591,7 @@ void vtkPushPipelineDataInfo::ConsumeWindow(vtkRenderWindow *rw)
 {
   if (this->IsWindowConsumerLeft(rw))
     {
-    vtkIdType id;
+    vtkIdType id = 0;
     this->WindowConsumersLeft->FindItem(rw,id);
     this->WindowConsumersLeft->RemoveItem(id);
     }
@@ -747,10 +747,6 @@ int vtkPushPipeline::IsRendererReady(vtkRenderer *ren)
 {
   int ready = 1;
   
-  // find the mappers
-  // check actors
-  vtkActorCollection *actors = ren->GetActors();
-  
   // check for other props
   vtkPropCollection *pc = ren->GetProps();
   vtkProp *prop;
@@ -805,10 +801,6 @@ void vtkPushPipeline::ConsumeRenderWindowInputs(vtkRenderWindow *win)
 
 void vtkPushPipeline::ConsumeRendererInputs(vtkRenderer *ren)
 {
-  // find the mappers
-  // check actors
-  vtkActorCollection *actors = ren->GetActors();
-  
   // check for other props
   vtkPropCollection *pc = ren->GetProps();
   vtkProp *prop;
@@ -853,10 +845,6 @@ void vtkPushPipeline::SetupRenderWindow(vtkRenderWindow *win)
 
 void vtkPushPipeline::SetupRenderer(vtkRenderer *ren)
 {
-  // find the mappers
-  // check actors
-  vtkActorCollection *actors = ren->GetActors();
-  
   // check for other props
   vtkPropCollection *pc = ren->GetProps();
   vtkProp *prop;

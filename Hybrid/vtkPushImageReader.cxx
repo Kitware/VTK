@@ -28,7 +28,7 @@ public:
   // when a push is received move to the next slice,
   // when the last slice is reached, invoke a 
   // EndOfData event
-  virtual void Execute(vtkObject *caller, unsigned long, void *callData)
+  virtual void Execute(vtkObject *caller, unsigned long, void *)
     {
       vtkPushImageReader *pir = vtkPushImageReader::SafeDownCast(caller);
       if (pir)
@@ -53,7 +53,7 @@ public:
     }
 };
 
-vtkCxxRevisionMacro(vtkPushImageReader, "1.3");
+vtkCxxRevisionMacro(vtkPushImageReader, "1.4");
 vtkStandardNewMacro(vtkPushImageReader);
 
 vtkPushImageReader::vtkPushImageReader()
