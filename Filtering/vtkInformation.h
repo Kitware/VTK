@@ -40,6 +40,7 @@ class vtkInformationInternals;
 class vtkInformationKey;
 class vtkInformationKeyToInformationFriendship;
 class vtkInformationKeyVectorKey;
+class vtkInformationObjectBaseKey;
 class vtkInformationStringKey;
 class vtkInformationVector;
 
@@ -117,6 +118,13 @@ public:
   vtkInformationVector* Get(vtkInformationInformationVectorKey* key);
   void Remove(vtkInformationInformationVectorKey* key);
   int Has(vtkInformationInformationVectorKey* key);
+
+  // Description:
+  // Get/Set an entry storing a vtkObjectBase instance.
+  void Set(vtkInformationObjectBaseKey* key, vtkObjectBase*);
+  vtkObjectBase* Get(vtkInformationObjectBaseKey* key);
+  void Remove(vtkInformationObjectBaseKey* key);
+  int Has(vtkInformationObjectBaseKey* key);
 
   // Description:
   // Get/Set an entry storing a vtkDataObject instance.

@@ -22,13 +22,14 @@
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationKeyVectorKey.h"
+#include "vtkInformationObjectBaseKey.h"
 #include "vtkInformationStringKey.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkInformation, "1.1.2.2");
+vtkCxxRevisionMacro(vtkInformation, "1.1.2.3");
 vtkStandardNewMacro(vtkInformation);
 
 //----------------------------------------------------------------------------
@@ -167,7 +168,7 @@ VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(DataObject, vtkDataObject*);
 VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(Executive, vtkExecutive*);
 VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(Information, vtkInformation*);
 VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(InformationVector, vtkInformationVector*);
-//VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(Float, float);
+VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(ObjectBase, vtkObjectBase*);
 #undef VTK_INFORMATION_DEFINE_SCALAR_PROPERTY
 
 //----------------------------------------------------------------------------

@@ -103,6 +103,7 @@ vtkInformationIntegerKey.cxx
 vtkInformationIntegerVectorKey.cxx
 vtkInformationKey.cxx
 vtkInformationKeyVectorKey.cxx
+vtkInformationObjectBaseKey.cxx
 vtkInformationStringKey.cxx
 vtkInformationVector.cxx
 vtkInterpolatedVelocityField.cxx
@@ -234,6 +235,7 @@ vtkInformationIntegerKey
 vtkInformationIntegerVectorKey
 vtkInformationKey
 vtkInformationKeyVectorKey
+vtkInformationObjectBaseKey
 vtkInformationStringKey
 vtkLocator
 vtkMapper2D
