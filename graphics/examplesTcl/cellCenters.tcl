@@ -116,11 +116,11 @@ vtkActor aTetraActor
 
 vtkPoints wedgePoints
   wedgePoints SetNumberOfPoints 6
-  wedgePoints InsertPoint 0 0 0 0
-  wedgePoints InsertPoint 1 0 1 0
+  wedgePoints InsertPoint 0 0 1 0
+  wedgePoints InsertPoint 1 0 0 0
   wedgePoints InsertPoint 2 0 .5 .5
-  wedgePoints InsertPoint 3 1 0 0
-  wedgePoints InsertPoint 4 1 1 0
+  wedgePoints InsertPoint 3 1 1 0
+  wedgePoints InsertPoint 4 1 0 0
   wedgePoints InsertPoint 5 1 .5 .5
 
 vtkWedge aWedge
