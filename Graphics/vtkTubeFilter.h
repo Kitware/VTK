@@ -47,6 +47,9 @@
 // .SECTION See Also
 // vtkRibbonFilter vtkStreamLine
 
+// .SECTION Thanks
+// Michael Finch for absolute scalar radius
+
 #ifndef __vtkTubeFilter_h
 #define __vtkTubeFilter_h
 
@@ -55,6 +58,7 @@
 #define VTK_VARY_RADIUS_OFF 0
 #define VTK_VARY_RADIUS_BY_SCALAR 1
 #define VTK_VARY_RADIUS_BY_VECTOR 2
+#define VTK_VARY_RADIUS_BY_ABSOLUTE_SCALAR 3
 
 #define VTK_TCOORDS_OFF                    0
 #define VTK_TCOORDS_FROM_NORMALIZED_LENGTH 1
@@ -87,7 +91,7 @@ public:
   // Description:
   // Turn on/off the variation of tube radius with scalar value.
   vtkSetClampMacro(VaryRadius,int,
-                   VTK_VARY_RADIUS_OFF,VTK_VARY_RADIUS_BY_VECTOR);
+                   VTK_VARY_RADIUS_OFF,VTK_VARY_RADIUS_BY_ABSOLUTE_SCALAR);
   vtkGetMacro(VaryRadius,int);
   void SetVaryRadiusToVaryRadiusOff()
     {this->SetVaryRadius(VTK_VARY_RADIUS_OFF);};
@@ -95,6 +99,8 @@ public:
     {this->SetVaryRadius(VTK_VARY_RADIUS_BY_SCALAR);};
   void SetVaryRadiusToVaryRadiusByVector()
     {this->SetVaryRadius(VTK_VARY_RADIUS_BY_VECTOR);};
+  void SetVaryRadiusToVaryRadiusByAbsoluteScalar()
+    {this->SetVaryRadius(VTK_VARY_RADIUS_BY_ABSOLUTE_SCALAR);};
   const char *GetVaryRadiusAsString();
 
   // Description:
