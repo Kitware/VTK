@@ -13,6 +13,7 @@ IF(PYTHON_EXECUTABLE)
            ${VTK_SOURCE_DIR}/Common/Testing/HeaderTesting.py
            "${VTK_SOURCE_DIR}/Rendering"
            vtkTkRenderWidget.h
+           vtkTkInternals.h
            vtkTkImageViewerWidget.h
            vtkCocoaGLView.h
            vtkCocoaWindow.h
