@@ -36,7 +36,7 @@ public:
   
   vlPointData *GetPointData() {return &this->PointData;};
 
-  virtual vlMapper *MakeMapper(vlDataSet *ds) = 0;
+  virtual vlMapper *MakeMapper() = 0;
 
 protected:
   vlPointData PointData;   // Scalars, vectors, etc. associated w/ each point

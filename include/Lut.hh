@@ -10,12 +10,15 @@
 class vlLookupTable : public vlObject 
 {
 public:
-  vlLookupTable();
-  int Initialize(const int sz=256, const int ext=256);
-  int GetTableSize();
+  vlLookupTable(int sze=256, int ext=256);
+  int Initialize(int sz=256, int ext=256);
   void Build();
 
-  vlSetVector2Macro(TableRange,float);
+  vlSetClampMacro(NumColors,int,8, 65536);
+  vlGetMacro(NumColors,int);
+
+  void SetTableRange(float r[2]); // can't use macro 'cause don't want modified
+  void SetTableRange(float min, float max);
   vlGetVectorMacro(TableRange,float);
 
   vlSetVector2Macro(HueRange,float);
@@ -32,12 +35,14 @@ public:
   float *GetTableValue (int);
 
 protected:
+  int NumColors;
   vlRGBArray Table;  
   float TableRange[2];
   float HueRange[2];
   float SaturationRange[2];
   float ValueRange[2];
-
+  vlTimeStamp InsertTime;
+  vlTimeStamp BuildTime;
 };
 
 #endif

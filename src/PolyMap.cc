@@ -56,12 +56,8 @@ void vlPolyMapper::Render(vlRenderer *ren)
   else
     this->Input->Update();
 
-  if ( ! this->Lut )
-    {
-    this->Lut = new vlLookupTable;
-    this->Lut->Build();
-    forceBuild = 1;
-    }
+  if ( ! this->Lut ) this->Lut = new vlLookupTable;
+  this->Lut->Build();
 
   if ( ! this->Polys )
     {
@@ -72,35 +68,38 @@ void vlPolyMapper::Render(vlRenderer *ren)
 //    this->Strips = ren->GetPrimitive("triangle_strips");
     }
 //
-// create colors
-//
-  if ( this->ScalarsVisible && (pd=this->Input->GetPointData()) && 
-  (scalars=pd->GetScalars()) )
-    {
-    colors = new vlRGBArray;
-    colors->Initialize (this->Input->NumPoints());
-
-    this->Lut->SetTableRange(this->ScalarRange);
-    for (i=0; i<this->Input->NumPoints(); i++)
-      {
-      colors->SetColor(i,this->Lut->MapValue(scalars->GetScalar(i)));
-      }
-    }
-  else
-    {
-    colors = 0;
-    }
-//
 // Now send data down to primitives and draw it
 //
   if ( forceBuild || this->Input->GetMtime() > this->BuildTime || 
   this->Lut->GetMtime() > this->BuildTime )
     {
-//      this->Verts->Build(this->Input,colors);
-//      this->Lines->Build(this->Input,colors);
-      this->Polys->Build(this->Input,colors);
-//      this->Strips->Build(this->Input,colors);
-      this->BuildTime.Modified();
+//
+// create colors
+//
+    if ( this->ScalarsVisible && (pd=this->Input->GetPointData()) && 
+    (scalars=pd->GetScalars()) )
+      {
+      colors = new vlRGBArray;
+      colors->Initialize (this->Input->NumPoints());
+
+      this->Lut->SetTableRange(this->ScalarRange);
+      for (i=0; i<this->Input->NumPoints(); i++)
+        {
+        colors->SetColor(i,this->Lut->MapValue(scalars->GetScalar(i)));
+        }
+      }
+    else
+      {
+      colors = 0;
+      }
+//
+//  Cause primitives to build themselves
+//
+//    this->Verts->Build(this->Input,colors);
+//    this->Lines->Build(this->Input,colors);
+    this->Polys->Build(this->Input,colors);
+//    this->Strips->Build(this->Input,colors);
+    this->BuildTime.Modified();
     }
 
 //  if ( this->VertsVisibility ) this->Verts->Draw(ren);
