@@ -439,7 +439,14 @@ void vtkCleanPolyData::CreateDefaultLocator() {
     if (this->ToleranceIsAbsolute) {
         tol = this->AbsoluteTolerance;
     } else {
-        tol = this->Tolerance*this->GetInput()->GetLength();
+        if (this->GetInput())
+        {
+          tol = this->Tolerance*this->GetInput()->GetLength();
+        }
+        else
+        {
+          tol = this->Tolerance;
+        }
     }
     //
     if ( this->Locator == NULL) {
