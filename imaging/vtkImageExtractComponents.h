@@ -68,7 +68,8 @@ public:
   vtkGetVector3Macro(Components,int);
   
   // Description:
-  // Get the number of componets. This is set implicitly by the SetComponents method.
+  // Get the number of components to extract. This is set implicitly by the 
+  // SetComponents() method.
   vtkGetMacro(NumberOfComponents,int);
 
 protected:
