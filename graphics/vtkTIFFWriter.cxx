@@ -80,7 +80,7 @@ void vtkTIFFWriter::WriteData()
   int numPts;
   vtkStructuredPoints *input=(vtkStructuredPoints *)this->Input;
   vtkPointData *pd = input->GetPointData();
-  int bpp, i;
+  int bpp;
   unsigned char *buffer;
   
   vtkDebugMacro(<< "Writing TIFF file");

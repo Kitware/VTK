@@ -43,7 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMath.h"
 
 // Description:
-// Instantiate object with XSize and YSize = 64; the texture patter =1
+// Instantiate object with XSize and YSize = 64; the texture pattern =1
 // (opaque at centroid); and the scale factor set to 1.0.
 
 vtkTriangularTexture::vtkTriangularTexture()
@@ -56,13 +56,12 @@ vtkTriangularTexture::vtkTriangularTexture()
 static void OpaqueAtElementCentroid (int XSize, int YSize, float ScaleFactor, vtkAGraymap *newScalars)
 {
   int i, j;
-  float centroid[3] = {.5, sqrt(3.0)/6.0, 0.0};
   float opacity;
   float point[3];
   float XScale = XSize + 1.0;
   float YScale = YSize + 1.0;
   unsigned char AGrayValue[2];
-  float dist, distToV1, distToV2, distToV3;
+  float dist, distToV2, distToV3;
   float v1[3] = {0.0, 0.0, 0.0};
   float v2[3] = {1.0, 0.0, 0.0};
   float v3[3] = {0.5, sqrt(3.0)/2.0, 0.0};
@@ -95,13 +94,12 @@ static void OpaqueAtVertices (int XSize, int YSize, float ScaleFactor,
                               vtkAGraymap *newScalars)
 {
   int i, j;
-  float centroid[3] = {.5, sqrt(3.0)/6.0, 0.0};
   float opacity;
   float point[3];
   float XScale = XSize + 1.0;
   float YScale = YSize + 1.0;
   unsigned char AGrayValue[2];
-  float dist, distToV1, distToV2, distToV3;
+  float dist, distToV2, distToV3;
   float v1[3] = {0.0, 0.0, 0.0};
   float v2[3] = {1.0, 0.0, 0.0};
   float v3[3] = {0.5, sqrt(3.0)/2.0, 0.0};
@@ -133,7 +131,7 @@ static void OpaqueAtVertices (int XSize, int YSize, float ScaleFactor,
 
 void vtkTriangularTexture::Execute()
 {
-  int numPts, i, j;
+  int numPts;
   vtkAGraymap *newScalars;
   vtkStructuredPoints *output = this->GetOutput();
   

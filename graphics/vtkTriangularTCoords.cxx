@@ -45,7 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 void vtkTriangularTCoords::Execute()
 {
   int tmp;
-  int j, k;
+  int j;
   vtkPoints *inPts;
   vtkPointData *pd;
   vtkCellArray *inPolys,*inStrips;
@@ -55,7 +55,7 @@ void vtkTriangularTCoords::Execute()
   int errorLogging = 1;
   vtkFloatPoints *newPoints;
   vtkCellArray *newPolys;
-  float *p1, *p2, *p3, pt[3];
+  float *p1, *p2, *p3;
   float tCoords[6];
   vtkPolyData *input =(vtkPolyData *)this->Input;
   vtkPolyData *output=(vtkPolyData *)this->Output;

@@ -38,10 +38,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+#include <stdio.h>
 #include "vtkIVWriter.h"
-//#include "vtkPolyFilter.hh"
 #include "vtkPolyMapper.h"
-//#include "vtkColorScalars.hh"
 
 void vtkIVWriter::WriteData()
 {
@@ -58,7 +57,7 @@ void vtkIVWriter::WriteData()
   fp = fopen(this->Filename,"w");
   if (!fp)
     {
-    vtkErrorMacro(<< "unable to open OpenInventor file " << this->Filename);
+    vtkErrorMacro(<< "unable to open OpenInventor file: " << this->Filename);
     return;
     }
   
@@ -81,16 +80,11 @@ void vtkIVWriter::WritePolyData(vtkPolyData *pd, FILE *fp)
   vtkPoints *points = NULL;
   vtkNormals *normals = NULL;
   vtkTCoords *tcoords = NULL;
-  int i, i1, i2;
-  float *tempf;
+  int i;
   vtkCellArray *cells;
   int npts, *indx;
-  float tempf2;
-  int pointDataWritten = 0;
   vtkPolyMapper *pm;
   vtkColorScalars *colors;
-  float *p;
-  unsigned char *c;
   
   pm = new vtkPolyMapper;
   pm->SetInput(pd);

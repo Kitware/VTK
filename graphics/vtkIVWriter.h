@@ -50,7 +50,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkIVWriter_h
 #define __vtkIVWriter_h
 
-#include <stdio.h>
 #include "vtkPolyWriter.h"
 
 class vtkIVWriter : public vtkPolyWriter
