@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkgluPickMatrix.h"
 
-vtkCxxRevisionMacro(vtkWin32OpenGLTextMapper, "1.38");
+vtkCxxRevisionMacro(vtkWin32OpenGLTextMapper, "1.39");
 vtkStandardNewMacro(vtkWin32OpenGLTextMapper);
 
 struct vtkFontStruct
@@ -325,11 +325,12 @@ vtkDebugMacro (<< "RenderOpaqueGeometry");
     (actor->GetProperty()->GetDisplayLocation() == VTK_FOREGROUND_LOCATION);
 
   float *tileViewport = viewport->GetVTKWindow()->GetTileViewport();
+  float *vport = viewport->GetViewport();
   float visVP[4];
-  visVP[0] = (vport[0] >= tileViewPort[0]) ? vport[0] : tileViewPort[0];
-  visVP[1] = (vport[1] >= tileViewPort[1]) ? vport[1] : tileViewPort[1];
-  visVP[2] = (vport[2] <= tileViewPort[2]) ? vport[2] : tileViewPort[2];
-  visVP[3] = (vport[3] <= tileViewPort[3]) ? vport[3] : tileViewPort[3];
+  visVP[0] = (vport[0] >= tileViewport[0]) ? vport[0] : tileViewport[0];
+  visVP[1] = (vport[1] >= tileViewport[1]) ? vport[1] : tileViewport[1];
+  visVP[2] = (vport[2] <= tileViewport[2]) ? vport[2] : tileViewport[2];
+  visVP[3] = (vport[3] <= tileViewport[3]) ? vport[3] : tileViewport[3];
   if (visVP[0] == visVP[2])
     {
     return;
