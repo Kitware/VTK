@@ -43,6 +43,16 @@ all:  vtk
 #
 vtk: libvtkJava$(SHLIB_SUFFIX)
 
+# special hack for sgi compilers, uncomment out the following target 
+# and comment out the normal one
+#libvtkJava$(SHLIB_SUFFIX): 
+#	touch empty.c; $(CXX) $(CXX_FLAGS) $(USER_CXXFLAGS)
+#	${VTK_SHLIB_BUILD_FLAGS} -c -o empty.o empty.c
+#	$(CXX) ${CXX_FLAGS} ${VTK_SHLIB_BUILD_FLAGS} empty.o \
+#	-o libvtkJava$(SHLIB_SUFFIX) -L. ${XLDFLAGS} ${LDLIBS} \
+#	${XLIBS} -lXext ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} ${JAVA_CXX_LIB}
+#	rm -f empty.c empty.o
+
 libvtkJava$(SHLIB_SUFFIX): 
 	$(CXX) ${CXX_FLAGS} ${VTK_SHLIB_BUILD_FLAGS} \
 	-o libvtkJava$(SHLIB_SUFFIX) -L. ${XLDFLAGS} ${LDLIBS} \
