@@ -18,8 +18,9 @@
 #include "vtkImageLogic.h"
 #include <math.h>
 #include "vtkObjectFactory.h"
+#include "vtkImageProgressIterator.h"
 
-vtkCxxRevisionMacro(vtkImageLogic, "1.25");
+vtkCxxRevisionMacro(vtkImageLogic, "1.26");
 vtkStandardNewMacro(vtkImageLogic);
 
 //----------------------------------------------------------------------------
@@ -36,81 +37,57 @@ vtkImageLogic::vtkImageLogic()
 // Handles the one input operations
 template <class T>
 static void vtkImageLogicExecute1(vtkImageLogic *self,
-                                  vtkImageData *in1Data, 
-                                  T *in1Ptr,
+                                  vtkImageData *inData, 
                                   vtkImageData *outData, 
-                                  T *outPtr,
-                                  int outExt[6], int id)
+                                  int outExt[6], int id, T *)
 {
-  int idxR, idxY, idxZ;
-  int maxY, maxZ;
-  int inIncX, inIncY, inIncZ;
-  int outIncX, outIncY, outIncZ;
-  int rowLength;
-  unsigned long count = 0;
-  unsigned long target;
+  vtkImageIterator<T> inIt(inData, outExt);
+  vtkImageProgressIterator<T> outIt(outData, outExt, self, id);
   T trueValue = (T)(self->GetOutputTrueValue());
   int op = self->GetOperation();
-
   
-  // find the region to loop over
-  rowLength = (outExt[1] - outExt[0]+1)*in1Data->GetNumberOfScalarComponents();
-  maxY = outExt[3] - outExt[2]; 
-  maxZ = outExt[5] - outExt[4];
-  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
-  target++;
-  
-  // Get increments to march through data 
-  in1Data->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
-  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
-
   // Loop through ouput pixels
-  for (idxZ = 0; idxZ <= maxZ; idxZ++)
+  while (!outIt.IsAtEnd())
     {
-    for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
+    T* inSI = inIt.BeginSpan();
+    T* outSI = outIt.BeginSpan();
+    T* outSIEnd = outIt.EndSpan();
+    // Pixel operation
+    switch (op)
       {
-      if (!id) 
-        {
-        if (!(count%target))
+      case VTK_NOT:
+        while (outSI != outSIEnd)
           {
-          self->UpdateProgress(count/(50.0*target));
+          if ( ! *inSI)
+            {
+            *outSI = trueValue;
+            }
+          else
+            {
+            *outSI = 0;
+            }
+          outSI++;
+          inSI++;
           }
-        count++;
-        }
-      for (idxR = 0; idxR < rowLength; idxR++)
-        {
-        // Pixel operation
-        switch (op)
+        break;
+      case VTK_NOP:
+        while (outSI != outSIEnd)
           {
-          case VTK_NOT:
-            if ( ! *in1Ptr)
-              {
-              *outPtr = trueValue;
-              }
-            else
-              {
-              *outPtr = 0;
-              }
-            break;
-          case VTK_NOP:
-            if (*in1Ptr)
-              {
-              *outPtr = trueValue;
-              }
-            else
-              {
-              *outPtr = 0;
-              }
-            break;
+          if (*inSI)
+            {
+            *outSI = trueValue;
+            }
+          else
+            {
+            *outSI = 0;
+            }
+          outSI++;
+          inSI++;
           }
-        outPtr++;
-        in1Ptr++;
-        }
-      outPtr += outIncY;
-      in1Ptr += inIncY;
+        break;
       }
-    outPtr += outIncZ;
-    in1Ptr += inIncZ;
+    inIt.NextSpan();
+    outIt.NextSpan();
     }
 }
 
@@ -120,116 +97,111 @@ static void vtkImageLogicExecute1(vtkImageLogic *self,
 // Handles the two input operations
 template <class T>
 static void vtkImageLogicExecute2(vtkImageLogic *self,
-                                  vtkImageData *in1Data, T *in1Ptr,
-                                  vtkImageData *in2Data, T *in2Ptr,
+                                  vtkImageData *in1Data,
+                                  vtkImageData *in2Data,
                                   vtkImageData *outData, 
-                                  T *outPtr,
-                                  int outExt[6], int id)
+                                  int outExt[6], int id, T *)
 {
-  int idxR, idxY, idxZ;
-  int maxY, maxZ;
-  int inIncX, inIncY, inIncZ;
-  int in2IncX, in2IncY, in2IncZ;
-  int outIncX, outIncY, outIncZ;
-  int rowLength;
-  unsigned long count = 0;
-  unsigned long target;
+  vtkImageIterator<T> inIt1(in1Data, outExt);
+  vtkImageIterator<T> inIt2(in2Data, outExt);
+  vtkImageProgressIterator<T> outIt(outData, outExt, self, id);
   T trueValue = (T)(self->GetOutputTrueValue());
   int op = self->GetOperation();
 
-  
-  // find the region to loop over
-  rowLength = (outExt[1] - outExt[0]+1)*in1Data->GetNumberOfScalarComponents();
-  maxY = outExt[3] - outExt[2]; 
-  maxZ = outExt[5] - outExt[4];
-  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
-  target++;
-  
-  // Get increments to march through data 
-  in1Data->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
-  in2Data->GetContinuousIncrements(outExt, in2IncX, in2IncY, in2IncZ);
-  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
-
   // Loop through ouput pixels
-  for (idxZ = 0; idxZ <= maxZ; idxZ++)
+  while (!outIt.IsAtEnd())
     {
-    for (idxY = 0; idxY <= maxY; idxY++)
+    T* inSI1 = inIt1.BeginSpan();
+    T* inSI2 = inIt2.BeginSpan();
+    T* outSI = outIt.BeginSpan();
+    T* outSIEnd = outIt.EndSpan();
+    // Pixel operation
+    switch (op)
       {
-      if (!id) 
-        {
-        if (!(count%target))
+      case VTK_AND:
+        while (outSI != outSIEnd)
           {
-          self->UpdateProgress(count/(50.0*target));
-          }
-        count++;
-        }
-      for (idxR = 0; idxR < rowLength; idxR++)
-        {
-        // Pixel operation
-        switch (op)
-          {
-          case VTK_AND:
-            if (*in1Ptr && *in2Ptr)
-              {
-              *outPtr = trueValue;
-              }
-            else
-              {
-              *outPtr = 0;
-              }
-            break;
-          case VTK_OR:
-            if (*in1Ptr || *in2Ptr)
-              {
-              *outPtr = trueValue;
-              }
-            else
-              {
-              *outPtr = 0;
-              }
-            break;
-          case VTK_XOR:
-            if (( ! *in1Ptr && *in2Ptr) || (*in1Ptr && ! *in2Ptr))
-              {
-              *outPtr = trueValue;
-              }
-            else
-              {
-              *outPtr = 0;
-              }
-            break;
-          case VTK_NAND:
-            if ( ! (*in1Ptr && *in2Ptr))
-              {
-              *outPtr = trueValue;
-              }
-            else
-              {
-              *outPtr = 0;
+          if (*inSI1 && *inSI2)
+            {
+            *outSI = trueValue;
             }
-            break;
-          case VTK_NOR:
-            if ( ! (*in1Ptr || *in2Ptr))
-              {
-              *outPtr = trueValue;
-              }
-            else
-              {
-              *outPtr = 0;
-              }
-            break;
+          else
+            {
+            *outSI = 0;
+            }
+          outSI++;
+          inSI1++;
+          inSI2++;
           }
-        outPtr++;
-        in1Ptr++;
-        in2Ptr++;
-        }
-      outPtr += outIncY;
-      in1Ptr += inIncY;
-      in2Ptr += in2IncY;
+        break;
+      case VTK_OR:
+        while (outSI != outSIEnd)
+          {
+          if (*inSI1 || *inSI2)
+            {
+            *outSI = trueValue;
+            }
+          else
+            {
+            *outSI = 0;
+            }
+          outSI++;
+          inSI1++;
+          inSI2++;
+          }
+        break;
+      case VTK_XOR:
+        while (outSI != outSIEnd)
+          {
+          if (( ! *inSI1 && *inSI2) || (*inSI1 && ! *inSI2))
+            {
+            *outSI = trueValue;
+            }
+          else
+            {
+            *outSI = 0;
+            }
+          outSI++;
+          inSI1++;
+          inSI2++;
+          }
+        break;
+      case VTK_NAND:
+        while (outSI != outSIEnd)
+          {
+          if ( ! (*inSI1 && *inSI2))
+            {
+            *outSI = trueValue;
+            }
+          else
+            {
+            *outSI = 0;
+            }
+          outSI++;
+          inSI1++;
+          inSI2++;
+          }
+        break;
+      case VTK_NOR:
+        while (outSI != outSIEnd)
+          {
+          if ( ! (*inSI1 || *inSI2))
+            {
+            *outSI = trueValue;
+            }
+          else
+            {
+            *outSI = 0;
+            }
+          outSI++;
+          inSI1++;
+          inSI2++;
+          }
+        break;
       }
-    outPtr += outIncZ;
-    in1Ptr += inIncZ;
-    in2Ptr += in2IncZ;
+    inIt1.NextSpan();
+    inIt2.NextSpan();
+    outIt.NextSpan();
     }
 }
 
@@ -244,19 +216,14 @@ void vtkImageLogic::ThreadedExecute(vtkImageData **inData,
                                     vtkImageData *outData,
                                     int outExt[6], int id)
 {
-  void *in1Ptr;
-  void *outPtr;
-  
   vtkDebugMacro(<< "Execute: inData = " << inData 
-                << ", outData = " << outData);
+  << ", outData = " << outData);
   
   if (inData[0] == NULL)
     {
     vtkErrorMacro(<< "Input " << 0 << " must be specified.");
     return;
     }
-  in1Ptr = inData[0]->GetScalarPointerForExtent(outExt);
-  outPtr = outData->GetScalarPointerForExtent(outExt);
   
   // this filter expects that input is the same type as output.
   if (inData[0]->GetScalarType() != outData->GetScalarType())
@@ -265,14 +232,13 @@ void vtkImageLogic::ThreadedExecute(vtkImageData **inData,
     << ", must match out ScalarType " << outData->GetScalarType());
     return;
     }
-
+  
   if (this->Operation == VTK_NOT || this->Operation == VTK_NOP)
     {
     switch (inData[0]->GetScalarType())
       {
-      vtkTemplateMacro7(vtkImageLogicExecute1, this, inData[0], 
-                        (VTK_TT *)(in1Ptr), outData, (VTK_TT *)(outPtr), 
-                        outExt, id);
+      vtkTemplateMacro6(vtkImageLogicExecute1, this, inData[0], 
+                        outData, outExt, id,  static_cast<VTK_TT *>(0));
       default:
         vtkErrorMacro(<< "Execute: Unknown ScalarType");
         return;
@@ -280,14 +246,11 @@ void vtkImageLogic::ThreadedExecute(vtkImageData **inData,
     }
   else
     {
-    void *in2Ptr;
-    
     if (inData[1] == NULL)
       {
       vtkErrorMacro(<< "Input " << 1 << " must be specified.");
       return;
       }
-    in2Ptr = inData[1]->GetScalarPointerForExtent(outExt);
 
     // this filter expects that inputs that have the same number of components
     if (inData[0]->GetNumberOfScalarComponents() != 
@@ -302,9 +265,9 @@ void vtkImageLogic::ThreadedExecute(vtkImageData **inData,
 
     switch (inData[0]->GetScalarType())
       {
-      vtkTemplateMacro9(vtkImageLogicExecute2, this, inData[0], 
-                        (VTK_TT *)(in1Ptr), inData[1], (VTK_TT *)(in2Ptr), 
-                        outData, (VTK_TT *)(outPtr), outExt, id);
+      vtkTemplateMacro7(vtkImageLogicExecute2, this, inData[0], 
+                        inData[1], outData, outExt, id,
+                        static_cast<VTK_TT *>(0));
       default:
         vtkErrorMacro(<< "Execute: Unknown ScalarType");
         return;
