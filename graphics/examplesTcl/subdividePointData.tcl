@@ -65,7 +65,7 @@ ren2 SetBackground 1 1 1
 ren3 AddActor actor3
 ren3 SetBackground 1 1 1
 
-renWin SetSize 900 300
+renWin SetSize 600 200
 vtkCamera aCamera
   aCamera Azimuth 70
 vtkLight aLight
