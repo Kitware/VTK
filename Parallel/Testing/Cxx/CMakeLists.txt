@@ -57,6 +57,7 @@ IF (VTK_DATA_ROOT)
              -V Baseline/Parallel/ThreadedCommunicator.cxx.png)
 
     IF (VTK_USE_MPI)
+     IF (UNIX)
       IF (MPIRUN)
         ADD_TEST(ParallelIsoMPI-image ${MPIRUN} ${MPI_PREFLAGS}
                  ${CXX_TEST_PATH}/ParallelIsoTest
@@ -69,6 +70,7 @@ IF (VTK_DATA_ROOT)
                  -V Baseline/Parallel/GenericCommunicator.cxx.png
                  ${MPI_POSTFLAGS})
       ENDIF(MPIRUN)
+     ENDIF (UNIX)
     ELSE (VTK_USE_MPI)
       IF (CMAKE_USE_PTHREADS OR CMAKE_USE_SPROC)
         ADD_TEST(ParallelIso-image ${CXX_TEST_PATH}/ParallelIsoTest
@@ -88,12 +90,14 @@ ELSE (VTK_DATA_ROOT)
     ADD_TEST(ThreadedCommunicator-image 
              ${CXX_TEST_PATH}/ThreadedCommunicator)
     IF (VTK_USE_MPI)
+     IF(UNIX)
       IF (MPIRUN)
         ADD_TEST(ParallelIsoMPI ${MPIRUN} ${MPI_PREFLAGS}
                  ${CXX_TEST_PATH}/ParallelIsoTest ${MPI_POSTFLAGS})
         ADD_TEST(TestCommunicatorMPI ${MPIRUN} ${MPI_PREFLAGS}
                  ${CXX_TEST_PATH}/GenericCommunicator ${MPI_POSTFLAGS})
       ENDIF(MPIRUN)
+     ENDIF(UNIX)
     ELSE (VTK_USE_MPI)
       ADD_TEST(ParallelIso ${CXX_TEST_PATH}/ParallelIsoTest)
       ADD_TEST(TestCommunicator ${CXX_TEST_PATH}/GenericCommunicator)
