@@ -11,6 +11,8 @@
 # will create render windows but only the render window of the root 
 # process will contain the composited image).
 
+package require vtktcl_interactor
+
 # Create a controller. At this point, MPI has already been initialized
 # therefore there is no need to call Initialize.
 vtkMPIController controller
@@ -48,7 +50,6 @@ vtkElevationFilter  elev
 elev SetInput [cf GetOutput]
 elev SetScalarRange $myId [expr $myId + 0.001]
 
-elev SetStartMethod {puts executing}
 # Create the rendering part of the pipeline
 vtkPolyDataMapper mapper
 mapper SetInput [elev GetOutput]
@@ -72,6 +73,9 @@ tc SetRenderWindow renWin
 # Tell the pipeline that we requests pieces not the whole
 # data.
 tc InitializePieces
+# Reset camera so that a global clipping range is computed
+# before the first render
+ren ResetCamera
 
 iren Initialize
 wm withdraw .
