@@ -20,9 +20,26 @@
 #include "vtkPointData.h"
 
 #include <ctype.h>
+#include <vtkstd/exception>
 
-vtkCxxRevisionMacro(vtkImageImport, "1.41");
+vtkCxxRevisionMacro(vtkImageImport, "1.42");
 vtkStandardNewMacro(vtkImageImport);
+
+
+#define tryCatchMacro(invocation, messagePrepend)\
+    try\
+      {\
+      invocation;\
+      }\
+    catch (vtkstd::exception &_e)\
+      {\
+      vtkErrorMacro(<<messagePrepend <<_e.what());\
+      }\
+    catch (...)\
+      {\
+      vtkErrorMacro(<<"Unknown exception.");\
+      }\
+
 
 //----------------------------------------------------------------------------
 vtkImageImport::vtkImageImport()
@@ -248,19 +265,53 @@ void vtkImageImport::SetImportVoidPointer(void *ptr, int save)
 }
 
 //----------------------------------------------------------------------------
+int vtkImageImport::InvokePipelineModifiedCallbacks()
+{
+  if (this->PipelineModifiedCallback)
+    {
+    int ret;
+    try
+      {
+      ret = (this->PipelineModifiedCallback)(this->CallbackUserData);
+      }
+    catch (vtkstd::exception &_e)
+      {
+      vtkErrorMacro(<<"Calling PipelineModifiedCallback: " << _e.what());
+      // if an error occurred, we don't want the pipeline to run again
+      // until the error has been rectified.  It can be assumed that
+      // the rectifying actions will set the modified flag.
+      ret = 0;
+      }
+    catch (...)
+      {
+      vtkErrorMacro(<<"Unknown exception.");
+      // same logic as above
+      ret = 0;
+      }
+
+    return ret;
+    }
+  else
+    {
+    // if there's no PipelineModified installed, we return 0
+    return 0;
+    }
+
+}
+
+//----------------------------------------------------------------------------
 void vtkImageImport::InvokeUpdateInformationCallbacks()
 {
   if (this->UpdateInformationCallback)
     {
-    (this->UpdateInformationCallback)(this->CallbackUserData);
+    tryCatchMacro((this->UpdateInformationCallback)(this->CallbackUserData),
+                  "Calling UpdateInformationCallback: ");
     }
-  if (this->PipelineModifiedCallback)
+
+  if (this->InvokePipelineModifiedCallbacks())
     {
-    if ((this->PipelineModifiedCallback)(this->CallbackUserData))
-      {
-      this->Modified();
-      }
-    }  
+    this->Modified();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -268,25 +319,37 @@ void vtkImageImport::InvokeExecuteInformationCallbacks()
 {
   if (this->WholeExtentCallback)
     {
-    this->SetWholeExtent((this->WholeExtentCallback)(this->CallbackUserData));
+    tryCatchMacro(
+      this->SetWholeExtent(
+        (this->WholeExtentCallback)(this->CallbackUserData)),
+      "Calling WholeExtentCallback: ");
     }
   if (this->SpacingCallback)
     {
-    this->SetDataSpacing((this->SpacingCallback)(this->CallbackUserData));
+    tryCatchMacro(
+      this->SetDataSpacing((this->SpacingCallback)(this->CallbackUserData)),
+      "Calling SpacingCallback: ");
     }
   if (this->OriginCallback)
     {
-    this->SetDataOrigin((this->OriginCallback)(this->CallbackUserData));
+    tryCatchMacro(
+      this->SetDataOrigin((this->OriginCallback)(this->CallbackUserData)),
+      "Calling OriginCallback: ");
     }
   if (this->NumberOfComponentsCallback)
     {
-    this->SetNumberOfScalarComponents(
-      (this->NumberOfComponentsCallback)(this->CallbackUserData));
+    tryCatchMacro(
+      this->SetNumberOfScalarComponents(
+        (this->NumberOfComponentsCallback)(this->CallbackUserData)),
+      "Calling NumberOfComponentsCallback: ");
     }
   if (this->ScalarTypeCallback)
     {
-    const char* scalarType =
-      (this->ScalarTypeCallback)(this->CallbackUserData);
+    const char* scalarType = "double"; // default
+    tryCatchMacro(
+      scalarType = (this->ScalarTypeCallback)(this->CallbackUserData),
+      "Calling ScalarTypeCallback: ");
+    
     if (strcmp(scalarType, "double")==0)
       {
       this->SetDataScalarType(VTK_DOUBLE);
@@ -336,16 +399,22 @@ void vtkImageImport::InvokeExecuteDataCallbacks()
 {
   if (this->UpdateDataCallback)
     {
-    (this->UpdateDataCallback)(this->CallbackUserData);
+    tryCatchMacro(
+      (this->UpdateDataCallback)(this->CallbackUserData),
+      "Calling UpdateDataCallback: ");
     }
   if (this->DataExtentCallback)
     {
-    this->SetDataExtent((this->DataExtentCallback)(this->CallbackUserData));
+    tryCatchMacro(
+      this->SetDataExtent((this->DataExtentCallback)(this->CallbackUserData)),
+      "Calling DataExtentCallback: ");
     }
   if (this->BufferPointerCallback)
     {
-    this->SetImportVoidPointer(
-      (this->BufferPointerCallback)(this->CallbackUserData));
+    tryCatchMacro(
+      this->SetImportVoidPointer(
+        (this->BufferPointerCallback)(this->CallbackUserData)),
+      "Calling BufferPointerCallback: ");
     }
 }  
 

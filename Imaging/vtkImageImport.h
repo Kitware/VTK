@@ -229,7 +229,8 @@ protected:
 
   virtual void UpdateInformation();
   virtual void ExecuteInformation();
-  
+
+  int InvokePipelineModifiedCallbacks();
   void InvokeUpdateInformationCallbacks();
   void InvokeExecuteInformationCallbacks();
   void InvokeExecuteDataCallbacks();
