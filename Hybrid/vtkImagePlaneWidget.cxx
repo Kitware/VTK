@@ -44,7 +44,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.62");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.63");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -889,6 +889,22 @@ void vtkImagePlaneWidget::WindowLevel(int X, int Y)
       {
       this->LookupTable->SetTableRange(rmin,rmax);
       }
+    }
+}
+
+void vtkImagePlaneWidget::SetWindowLevel(float window, float level)
+{
+  float rmin = level - window*0.5;
+  float rmax = level + window*0.5;
+  this->CurrentWindow = window;
+  this->OriginalWindow  = window;
+  this->CurrentLevel = level;
+  this->OriginalLevel  = level;
+  this->LookupTable->SetTableRange(rmin,rmax);
+
+  if(this->Enabled)
+    {
+    this->Interactor->Render();
     }
 }
 

@@ -338,7 +338,9 @@ public:
   vtkGetObjectMacro(TexturePlaneProperty,vtkProperty);
 
   // Description:
-  // Get the current window and level values.
+  // Set/Get the current window and level values.  Set should
+  // only be called after SetInput.
+  void SetWindowLevel(float window, float level);
   void GetWindowLevel(float wl[2]);
 
   // Description:
