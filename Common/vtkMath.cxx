@@ -15,7 +15,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMath, "1.89");
+vtkCxxRevisionMacro(vtkMath, "1.90");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
@@ -1936,7 +1936,11 @@ inline void vtkOrthogonalize3x3(const T1 A[3][3], T2 B[3][3])
       {
       largest = tmp;
       }
-    scale[i] = T2(1.0)/largest;
+    scale[i] = 1.0;
+    if (largest != 0)
+      {
+      scale[i] = T2(1.0)/largest;
+      }
     }
 
   // first column
