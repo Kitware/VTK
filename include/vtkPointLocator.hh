@@ -62,8 +62,7 @@ class vtkPointLocator : public vtkLocator
 public:
   vtkPointLocator();
   char *GetClassName() {return "vtkPointLocator";};
-  void FreeSearchStructure();
-  void Initialize();
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set the number of divisions in x-y-z directions.
@@ -82,11 +81,13 @@ public:
   virtual int InsertPoint(float x[3]);
   
   // satisfy vtkLocator abstract interface
+  void Initialize();
+  void FreeSearchStructure();
+  void BuildLocator();
   void GenerateRepresentation(int level, vtkPolyData *pd);
 
 protected:
   // place points in appropriate buckets
-  void BuildLocator();
   void GetBucketNeighbors(int ijk[3], int ndivs[3], int level);
   void GenerateFace(int face, int i, int j, int k, 
                     vtkFloatPoints *pts, vtkCellArray *polys);

@@ -67,7 +67,7 @@ class vtkCellLocator : public vtkLocator
 public:
   vtkCellLocator();
   char *GetClassName() {return "vtkCellLocator";};
-  virtual void FreeSearchStructure();
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Specify the average number of cells in each octant.
@@ -83,12 +83,11 @@ public:
   virtual int GetNextIntersection(int& bucket1, int& bucket2);
 
   // satisfy vtkLocator abstract interface
+  void FreeSearchStructure();
+  void BuildLocator();
   void GenerateRepresentation(int level, vtkPolyData *pd);
   
 protected:
-  // place points in appropriate cells
-  void BuildLocator();
-
   int NumberOfCellsPerBucket; // cells per octant
   int NumberOfOctants; // number of octants in tree
   float Bounds[6]; // bounding box root octant

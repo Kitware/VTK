@@ -58,7 +58,7 @@ public:
   vtkMergePoints() {};
   char *GetClassName() {return "vtkMergePoints";};
 
-  virtual int *MergePoints();
+  int *MergePoints();
   int InsertPoint(float x[3]);
 };
 

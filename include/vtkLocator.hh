@@ -83,12 +83,9 @@ class vtkLocator : public vtkObject
 {
 public:
   vtkLocator();
-  virtual ~vtkLocator();
+  ~vtkLocator();
   char *GetClassName() {return "vtkLocator";};
-
-  // Description:
-  // Initialize locator. Frees memory and resets object as appropriate.
-  virtual void Initialize();
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Build the locator from the points/cells defining this dataset.
@@ -96,14 +93,14 @@ public:
   vtkGetObjectMacro(DataSet,vtkDataSet);
 
   // Description:
-  // Set the maximum allowable level for the tree. If the Automatic ivar is off,
-  // this will be the target depth of the locator.
+  // Set the maximum allowable level for the tree. If the Automatic ivar is 
+  // off, this will be the target depth of the locator.
   vtkSetClampMacro(MaxLevel,int,0,VTK_LARGE_INTEGER);
   vtkGetMacro(MaxLevel,int);
 
   // Description:
-  // Get the level of the locator (determined automatically if Automatic is true).
-  // The value of this ivar may change each time the locator is built.
+  // Get the level of the locator (determined automatically if Automatic is 
+  // true). The value of this ivar may change each time the locator is built.
   vtkGetMacro(Level,int);
 
   // Description:
@@ -130,20 +127,30 @@ public:
   vtkBooleanMacro(RetainCellLists,int);
 
   // Description:
+  // Cause the locator to rebuild itself if it or its input dataset has 
+  // changed.
+  virtual void Update();
+
+  // Description:
+  // Initialize locator. Frees memory and resets object as appropriate.
+  virtual void Initialize();
+
+  // Description:
+  // Build the locator from the input dataset.
+  virtual void BuildLocator() = 0;
+
+  // Description:
+  // Free the memory required for the spatial data structure.
+  virtual void FreeSearchStructure() = 0;
+
+  // Description:
   // Method to build a representation at a particular level. Note that the 
   // method GetLevel() returns the maximum number of levels available for
   // the tree. You must provide a vtkPolyData object into which to place the 
   // data.
   virtual void GenerateRepresentation(int level, vtkPolyData *pd) = 0;
 
-  // Description:
-  // Cause the locator to rebuild itself if it or its input dataset has changed.
-  virtual void Update();
-
 protected:
-  virtual void FreeSearchStructure() = 0; // free data
-  virtual void BuildLocator() = 0; // Build the locator from the input dataset.
-
   vtkDataSet *DataSet;
   int Automatic; // boolean controls automatic subdivision (or uses user spec.)
   float Tolerance; // for performing merging
