@@ -14,40 +14,21 @@
 =========================================================================*/
 #include "vtkConfigure.h"
 
-// Hack access to some private stream implementations.
 #if defined(VTK_IOSTREAM_NEED_OPERATORS_LL)
 # ifdef _MSC_VER
 #  pragma warning (push, 1)
 # endif
 # if defined(VTK_USE_ANSI_STDLIB)
-#  if defined(_MSC_VER)
-#   include <cerrno>
-#   include <climits>
-#   include <cstdio>
-#   include <cstdlib>
-#   include <xiosbase>
-#   define private public
-#   if defined(VTK_BUILD_SHARED_LIBS)
-     // Avoid dllimport of num_get::_Getifld
-#    undef _DLL
-#    include <xlocnum>
-#    define _DLL 1
-#   else
-#    include <xlocnum>
-#   endif
-#   undef private
-#  else
-#   error "The ANSI streams library does not support long long"
-#  endif
 #  include <iostream>
    using std::istream;
    using std::ostream;
+   using std::ios_base;
 # else
 #  include <string.h> // memchr
 #  include <stdio.h> // sscanf, sprintf
 #  if defined(__HP_aCC)
 #   define protected public
-#   include <iostream.h>
+#   include <iostream.h> // Hack access to some private stream methods.
 #   undef protected
 #  else
 #   include <iostream.h>
@@ -63,100 +44,16 @@
 
 #if defined(VTK_IOSTREAM_NEED_OPERATORS_LL)
 
-# if defined(VTK_USE_ANSI_STDLIB)
+# if !defined(VTK_USE_ANSI_STDLIB)
+#  define ios_base ios
+# endif
 
-#  if defined(_MSC_VER)
-// Template to scan an input stream for a __int64 or unsigned __int64 value.
-template <class T>
-std::istream& vtkIOStreamScanTemplate(std::istream& is, T& value, char type)
-{
-  std::ios_base::iostate state = std::ios_base::goodbit;
-  const std::istream::sentry okay(is);
-  if(okay)
-    {
-    try
-      {
-      // Copy the string to a buffer and construct the format string.
-      std::istream::_Iter first = is.rdbuf();
-      std::istream::_Iter last = 0;
-      char buffer[_MAX_INT_DIG];
-      char format[] = "%I64_";
-      switch(std::istream::_Nget::_Getifld(buffer, first, last,
-                                           is.flags(), is.getloc()))
-        {
-        case 8: format[4] = 'o'; break;
-        case 10: format[4] = type; break;
-        case 16: format[4] = 'x'; break;
-        };
+# if defined(_MAX_INT_DIG)
+#  define VTK_TYPE_INT64_MAX_DIG _MAX_INT_DIG
+# else
+#  define VTK_TYPE_INT64_MAX_DIG 32
+# endif
 
-      // Use sscanf to parse the number from the buffer.
-      T result;
-      int success = (sscanf(buffer, format, &result) == 1)?1:0;
-
-      // Set flags for resulting state.
-      if(first == last) { state |= std::ios_base::eofbit; }
-      if(!success) { state |= std::ios_base::failbit; }
-      else { value = result; }
-      }
-    catch(...) { is.setstate(std::ios_base::badbit, true); }
-    }
-  
-  is.setstate(state);
-  return is;  
-}
-
-// Template to print a __int64 or unsigned __int64 value to an output stream.
-template <class T>
-std::ostream& vtkIOStreamPrintTemplate(std::ostream& os, T value, char type)
-{
-  std::ios_base::iostate state = std::ios_base::goodbit;
-  const std::ostream::sentry okay(os);
-  if(okay)
-    {
-    try
-      {
-      // Construct the format string.
-      char format[8];
-      char* f = format;
-      *f++ = '%';
-      if(os.flags() & std::ios_base::showpos) { *f++ = '+'; }
-      if(os.flags() & std::ios_base::showbase) { *f++ = '#'; }
-      *f++ = 'I';
-      *f++ = '6';
-      *f++ = '4';
-      std::ios_base::fmtflags bflags = os.flags() & std::ios_base::basefield;
-      if(bflags == std::ios_base::oct) { *f++ = 'o'; }
-      else if(bflags != std::ios_base::hex) { *f++ = type; }
-      else if(os.flags() & std::ios_base::uppercase) { *f++ = 'X'; }
-      else { *f++ = 'x'; }
-      *f = '\0';
-
-      // Use sprintf to print to a buffer and then write the
-      // buffer to the stream.
-      char buffer[2*_MAX_INT_DIG];
-      if(std::ostream::_Nput::_Iput(os.rdbuf(), os, os.fill(), buffer,
-                                    sprintf(buffer, format, value)).failed())
-        {
-        state |= std::ios_base::badbit;
-        }
-      }
-    catch(...) { os.setstate(std::ios_base::badbit, true); }
-    }
-  
-  os.setstate(state);
-  return os;
-}
-#  endif
-
-# else // begin implementation for VTK_USE_ANSI_STDLIB not defined
-
-#  if defined(_MAX_INT_DIG)
-#   define VTK_TYPE_INT64_MAX_DIG _MAX_INT_DIG
-#  else
-#   define VTK_TYPE_INT64_MAX_DIG 32
-#  endif
-
-#  if !defined(VTK_ISTREAM_SUPPORTS_LONG_LONG)
 static int vtkIOStreamScanStream(istream& is, char* buffer)
 {
   // Prepare to write to buffer.
@@ -171,10 +68,10 @@ static int vtkIOStreamScanStream(istream& is, char* buffer)
   // detect it from the input.  A leading 0x means hex, and a leading
   // 0 alone means octal.
   int base = 0;
-  int flags = is.flags() & ios::basefield;
-  if(flags == ios::oct) { base = 8; }
-  else if(flags == ios::dec) { base = 10; }
-  else if(flags == ios::hex) { base = 16; }
+  int flags = is.flags() & ios_base::basefield;
+  if(flags == ios_base::oct) { base = 8; }
+  else if(flags == ios_base::dec) { base = 10; }
+  else if(flags == ios_base::hex) { base = 16; }
   bool foundDigit = false;
   bool foundNonZero = false;
   if(is.peek() == '0')
@@ -243,22 +140,30 @@ static int vtkIOStreamScanStream(istream& is, char* buffer)
 template <class T>
 istream& vtkIOStreamScanTemplate(istream& is, T& value, char type)
 {
-  int state = ios::goodbit;
+  int state = ios_base::goodbit;
 
   // Skip leading whitespace.
+# if defined(VTK_USE_ANSI_STDLIB)
+  istream::sentry okay(is);
+# else
   is.eatwhite();
+  istream& okay = is;
+# endif
 
-  if(is)
+  if(okay)
     {
+#   if defined(VTK_USE_ANSI_STDLIB)
+    try {
+#   endif
     // Copy the string to a buffer and construct the format string.
     char buffer[VTK_TYPE_INT64_MAX_DIG];
-#  if defined(_MSC_VER)
+#   if defined(_MSC_VER)
     char format[] = "%I64_";
     const int typeIndex = 4;
-#  else
+#   else
     char format[] = "%ll_";
     const int typeIndex = 3;
-#  endif
+#   endif
     switch(vtkIOStreamScanStream(is, buffer))
       {
       case 8: format[typeIndex] = 'o'; break;
@@ -266,44 +171,57 @@ istream& vtkIOStreamScanTemplate(istream& is, T& value, char type)
       case 10: format[typeIndex] = type; break;
       case 16: format[typeIndex] = 'x'; break;
       };
-
+    
     // Use sscanf to parse the number from the buffer.
     T result;
     int success = (sscanf(buffer, format, &result) == 1)?1:0;
     
     // Set flags for resulting state.
-    if(is.peek() == EOF) { state |= ios::eofbit; }
-    if(!success) { state |= ios::failbit; }
+    if(is.peek() == EOF) { state |= ios_base::eofbit; }
+    if(!success) { state |= ios_base::failbit; }
     else { value = result; }
+#   if defined(VTK_USE_ANSI_STDLIB)
+    } catch(...) { state |= ios_base::badbit; }
+#   endif
     }
   
+# if defined(VTK_USE_ANSI_STDLIB)
+  is.setstate(ios_base::iostate(state));
+# else
   is.clear(state);
+# endif
   return is;  
 }
-#  endif
 
-#  if !defined(VTK_OSTREAM_SUPPORTS_LONG_LONG)
 // Print a vtkIOStreamSLL or vtkIOStreamULL value to an output stream.
 template <class T>
 ostream& vtkIOStreamPrintTemplate(ostream& os, T value, char type)
 {
-  if(os)
+# if defined(VTK_USE_ANSI_STDLIB)
+  ostream::sentry okay(os);
+# else
+  ostream& okay = os;
+# endif
+  if(okay)
     {
+#   if defined(VTK_USE_ANSI_STDLIB)
+    try {
+#   endif
     // Construct the format string.
     char format[8];
     char* f = format;
     *f++ = '%';
-    if(os.flags() & ios::showpos) { *f++ = '+'; }
-    if(os.flags() & ios::showbase) { *f++ = '#'; }
-#  if defined(_MSC_VER)
+    if(os.flags() & ios_base::showpos) { *f++ = '+'; }
+    if(os.flags() & ios_base::showbase) { *f++ = '#'; }
+#   if defined(_MSC_VER)
     *f++ = 'I'; *f++ = '6'; *f++ = '4';
-#  else
+#   else
     *f++ = 'l'; *f++ = 'l';
-#  endif
-    long bflags = os.flags() & ios::basefield;
-    if(bflags == ios::oct) { *f++ = 'o'; }
-    else if(bflags != ios::hex) { *f++ = type; }
-    else if(os.flags() & ios::uppercase) { *f++ = 'X'; }
+#   endif
+    long bflags = os.flags() & ios_base::basefield;
+    if(bflags == ios_base::oct) { *f++ = 'o'; }
+    else if(bflags != ios_base::hex) { *f++ = type; }
+    else if(os.flags() & ios_base::uppercase) { *f++ = 'X'; }
     else { *f++ = 'x'; }
     *f = '\0';
 
@@ -312,11 +230,12 @@ ostream& vtkIOStreamPrintTemplate(ostream& os, T value, char type)
     char buffer[2*VTK_TYPE_INT64_MAX_DIG];
     sprintf(buffer, format, value);
     os << buffer;
+#   if defined(VTK_USE_ANSI_STDLIB)
+    } catch(...) { os.clear(os.rdstate() | ios_base::badbit); }
+#   endif
     }
   return os;
 }
-#  endif
-# endif // end implementation for VTK_USE_ANSI_STDLIB not defined
 
 # if !defined(VTK_ISTREAM_SUPPORTS_LONG_LONG)
 // Implement input stream operator for vtkIOStreamSLL.
