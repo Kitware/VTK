@@ -371,6 +371,8 @@ void makeMakefile(CPcmakerDlg *vals)
     doAddedValue = 1;
     sprintf(fname,"%s\\gemsvolume\\Makefile.in",vals->m_WhereVTK);
     readInMakefile(fname,strdup("gemsvolume"));
+    sprintf(fname,"%s\\volume\\Makefile.in",vals->m_WhereVTK);
+    readInMakefile(fname,strdup("volume"));
   }
 
   //remove any UNIX only stuff
@@ -396,6 +398,9 @@ void makeMakefile(CPcmakerDlg *vals)
     num_concrete++;
     concrete[num_concrete] = strdup("vtkOglrPolyMapper");
     concrete_lib[num_concrete] = strdup("graphics");
+    num_concrete++;
+    concrete[num_concrete] = strdup("vtkOglrPolyDepthMapper");
+    concrete_lib[num_concrete] = strdup("volume");
     num_concrete++;
     concrete[num_concrete] = strdup("vtkOglrLight");
     concrete_lib[num_concrete] = strdup("graphics");
@@ -455,13 +460,13 @@ void doHeader(FILE *fp, const char *vtkHome,
   fprintf(fp,"\n");
   if (Debug)
     {
-    fprintf(fp,"CPP_PROJ=/nologo /D \"_DEBUG\" /MTd /GX /Od /Zi /I \"%s\\mfc\\include\" /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
-      vtkCompiler, vtkCompiler, vtkHome, vtkHome);
+    fprintf(fp,"CPP_PROJ=/nologo /D \"_DEBUG\" /MTd /GX /Od /Zi /I \"%s\\mfc\\include\" /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\volume\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
+      vtkCompiler, vtkCompiler, vtkHome, vtkHome, vtkHome);
     }
   else
     {
-    fprintf(fp,"CPP_PROJ=/nologo /MT /GX /O2 /I \"%s\\mfc\\include\" /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
-      vtkCompiler, vtkCompiler, vtkHome, vtkHome);
+    fprintf(fp,"CPP_PROJ=/nologo /MT /GX /O2 /I \"%s\\mfc\\include\" /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\volume\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
+      vtkCompiler, vtkCompiler, vtkHome, vtkHome, vtkHome);
     }
   if (doPatented)
     {
@@ -584,13 +589,13 @@ void doTclHeader(FILE *fp, const char *vtkHome,
 
   if (Debug)
     {
-    fprintf(fp,"CPP_PROJ=/D \"_DEBUG\" /nologo /MTd /GX /Od /Zi /I \"%s\\mfc\\include\" /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
-      vtkCompiler, vtkCompiler, vtkHome, vtkHome, vtkHome, vtkHome, vtkHome);
+    fprintf(fp,"CPP_PROJ=/D \"_DEBUG\" /nologo /MTd /GX /Od /Zi /I \"%s\\mfc\\include\" /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\"  /I \"%s\\volume\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
+      vtkCompiler, vtkCompiler, vtkHome, vtkHome, vtkHome, vtkHome, vtkHome, vtkHome);
     }
   else
     {
-    fprintf(fp,"CPP_PROJ=/nologo /MT /GX /O2 /I \"%s\\mfc\\include\" /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
-      vtkCompiler, vtkCompiler, vtkHome, vtkHome, vtkHome, vtkHome, vtkHome);
+    fprintf(fp,"CPP_PROJ=/nologo /MT /GX /O2 /I \"%s\\mfc\\include\" /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\"  /I \"%s\\volume\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
+      vtkCompiler, vtkCompiler, vtkHome, vtkHome, vtkHome, vtkHome, vtkHome, vtkHome);
     }
   if (doPatented)
     {
@@ -601,8 +606,8 @@ void doTclHeader(FILE *fp, const char *vtkHome,
     {
     fprintf(fp," \"_WINDOWS\" /D \"_WINDLL\" /D \"_USRDLL\" /D \"_MBCS\" \\\n");
     }
-  if (doAddedValue) fprintf(fp," /I \"%s\\gemsio\" /I \"%s\\gemsip\" /I \"%s\\gemsvolume\" \\\n",
-    vtkHome, vtkHome, vtkHome);
+  if (doAddedValue) fprintf(fp," /I \"%s\\gemsio\" /I \"%s\\gemsip\" /I \"%s\\gemsvolume\" /I \"%s\\volume\" \\\n",
+    vtkHome, vtkHome, vtkHome, vtkHome);
   fprintf(fp," /Fp\"$(OUTDIR)/vtktcl.pch\" /YX /Fo\"$(OUTDIR)/\" /c \n");
   fprintf(fp,"LINK32=link.exe\n");
   if (Debug)
