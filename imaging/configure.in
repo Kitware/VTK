@@ -1,7 +1,7 @@
 #
 # configure script for vtk source directory
 #
-AC_INIT(vtkImageFilter.cxx)
+AC_INIT(vtkImageToImageFilter.cxx)
 
 
 TKWIDGET=""
