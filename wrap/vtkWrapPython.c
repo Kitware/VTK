@@ -480,6 +480,10 @@ void outputFunction2(FILE *fp, FileInfo *data)
 	      wrappedFunctions[fnum]->Name);
       }
     }
+  if (!strcmp("vtkObject",data->ClassName))
+    {
+    fprintf(fp,"  {\"GetAddressAsString\",  (PyCFunction)Py%s_GetAddressAsString, 1},\n", data->ClassName);
+    }
   
   fprintf(fp,"  {NULL,	       	NULL}\n};\n\n");
 }
@@ -606,6 +610,18 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     }
   fprintf(fp,"    }\n  return NULL;\n}\n\n");
 
+  if (!strcmp("vtkObject",data->ClassName))
+    {
+    /* while we are at it spit out the GetStringFromObject method */
+    fprintf(fp,"PyObject *PyvtkObject_GetAddressAsString(PyObject *self, PyObject *args)\n");
+    fprintf(fp,"{\n  char *typecast;\n\n  PyErr_Clear();\n");
+    fprintf(fp,"  if (PyArg_ParseTuple(args, \"s\", &typecast))\n");
+    fprintf(fp,"    {\n    char temp20[256];\n");
+    fprintf(fp,"    sprintf(temp20,\"Addr=%%p\",vtkPythonGetPointerFromObject(self, typecast));\n");
+    fprintf(fp,"    return PyString_FromString(temp20);\n");
+    fprintf(fp,"    }\n  return NULL;\n}\n\n");
+    }
+  
   /* insert function handling code here */
   for (i = 0; i < data->NumberOfFunctions; i++)
     {
