@@ -154,7 +154,7 @@ void vtkVolumeMapper::SetRGBTextureInput( vtkStructuredPoints *rgbTexture )
 // Print the vtkVolumeMapper
 void vtkVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os,indent);
+  vtkProcessObject::PrintSelf(os,indent);
 
   if ( this->ScalarInput )
     {
