@@ -49,6 +49,15 @@ vtkImageAppend::vtkImageAppend()
   this->Shifts = NULL;
 }
 
+//----------------------------------------------------------------------------
+vtkImageAppend::~vtkImageAppend()
+{
+  if (this->Shifts != NULL)
+    {
+    delete [] this->Shifts;
+    }
+}
+
 
 
 //----------------------------------------------------------------------------
