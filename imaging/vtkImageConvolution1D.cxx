@@ -49,7 +49,7 @@ vtkImageConvolution1D::vtkImageConvolution1D()
 {
   this->Kernel = NULL;
   this->SetAxes(VTK_IMAGE_X_AXIS);
-  this->BoundaryRescaleOn();
+  this->BoundaryRescale = 1;
   this->HandleBoundariesOn();
 }
 
