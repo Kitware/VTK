@@ -275,7 +275,7 @@ vtkDebugMacro (<< "RenderOpaqueGeometry");
   int* actorPos = 
     actor->GetPositionCoordinate()->GetComputedViewportValue(viewport);
   ptDestOff.x = actorPos[0];
-  ptDestOff.y = actorPos[1] - this->LineOffset;
+  ptDestOff.y = static_cast<long>(actorPos[1] - this->LineOffset);
 
   // Set up the font color from the text actor
   unsigned char red = 0;
