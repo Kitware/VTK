@@ -55,6 +55,7 @@ class VTK_EXPORT vtkImageDecomposedFilter : public vtkImageFilter
 public:
   vtkImageDecomposedFilter();
   ~vtkImageDecomposedFilter();
+  static vtkImageDecomposedFilter *New(){return new vtkImageDecomposedFilter;};
   const char *GetClassName() {return "vtkImageDecomposedFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
