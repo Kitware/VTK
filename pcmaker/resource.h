@@ -14,6 +14,7 @@
 #define IDC_WHEREJDK                    1006
 #define IDC_WHERETK                     1007
 #define IDC_WHEREPYTHON                 1007
+#define IDC_WHEREMPILIB                 1008
 #define IDC_WHEREBUILD                  1009
 #define IDC_MSCOMP                      1010
 #define IDC_BORLANDCOMP                 1011
@@ -41,16 +42,20 @@
 #define IDC_EXTRA_LINK_FLAGS            1033
 #define IDC_BUILDTCL                    1033
 #define IDC_BUILDJAVA                   1034
+#define IDC_WHEREMPIINCLUDE             1034
 #define IDC_BUILDPYTHON                 1035
 #define IDC_LOCAL                       1036
 #define IDC_VTK_INSTALL_BROWSE          1037
 #define IDC_VTK_LIB_BROWSE              1038
 #define IDC_LIBPREFIX                   1038
 #define IDC_COMPILER_PATH_BROWSE        1039
+#define IDC_USEMPI                      1039
 #define IDC_JDK_WHERE                   1040
 #define IDC_WhereLibTCL                 1040
 #define IDC_PYTHON_WHERE                1041
 #define IDC_WHERE_LIBTK                 1041
+#define IDC_BROWSEMPIINCLUDE            1042
+#define IDC_BROWSEMPILIB                1043
 
 // Next default values for new objects
 // 
@@ -58,7 +63,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        131
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1039
+#define _APS_NEXT_CONTROL_VALUE         1040
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

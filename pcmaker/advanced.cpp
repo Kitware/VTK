@@ -24,6 +24,9 @@ advanced::advanced(CWnd* pParent /*=NULL*/)
 	m_WhereTcl = _T("");
 	m_WhereTk = _T("");
 	m_LibPrefix = _T("vtk");
+	m_WhereMPIInclude = _T("");
+	m_WhereMPILibrary = _T("");
+	m_UseMPI = FALSE;
 	//}}AFX_DATA_INIT
 }
 
@@ -42,6 +45,11 @@ void advanced::DoDataExchange(CDataExchange* pDX)
 	DDV_MaxChars(pDX, m_WhereTk, 512);
 	DDX_Text(pDX, IDC_LIBPREFIX, m_LibPrefix);
 	DDV_MaxChars(pDX, m_LibPrefix, 40);
+	DDX_Text(pDX, IDC_WHEREMPIINCLUDE, m_WhereMPIInclude);
+	DDV_MaxChars(pDX, m_WhereMPIInclude, 512);
+	DDX_Text(pDX, IDC_WHEREMPILIB, m_WhereMPILibrary);
+	DDV_MaxChars(pDX, m_WhereMPILibrary, 512);
+	DDX_Check(pDX, IDC_USEMPI, m_UseMPI);
 	//}}AFX_DATA_MAP
 }
 
@@ -50,6 +58,8 @@ BEGIN_MESSAGE_MAP(advanced, CDialog)
 	//{{AFX_MSG_MAP(advanced)
 	ON_BN_CLICKED(IDC_WhereLibTCL, OnWhereLibTCL)
 	ON_BN_CLICKED(IDC_WHERE_LIBTK, OnWhereLibtk)
+	ON_BN_CLICKED(IDC_BROWSEMPIINCLUDE, OnBrowsempiinclude)
+	ON_BN_CLICKED(IDC_BROWSEMPILIB, OnBrowsempilib)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -71,6 +81,29 @@ BOOL advanced::Browse(CString& result, const char* title)
   return false;
 }
 
+BOOL advanced::BrowseFolder(CString& result, const char* title)
+{
+  char path[MAX_PATH];
+  
+  BROWSEINFO bi;
+  bi.hwndOwner = NULL;
+  bi.pidlRoot = NULL;
+  bi.pszDisplayName = path; 
+  bi.lpszTitle = "Select Folder"; 
+  bi.ulFlags = 0; 
+  bi.lpfn = NULL; 
+  bi.lParam = 0; 
+  
+  LPITEMIDLIST foo = SHBrowseForFolder(&bi);
+  if (foo)
+    {
+    SHGetPathFromIDList(foo,path);
+    result = path;
+    return true;
+    }
+  return false;
+}
+
 void advanced::OnWhereLibTCL() 
 {
 	// TODO: Add your control notification handler code here
@@ -85,4 +118,22 @@ void advanced::OnWhereLibtk()
   this->UpdateData();
   Browse(m_WhereTk, "Select TK library");
   this->UpdateData(FALSE);		
+}
+
+void advanced::OnBrowsempiinclude() 
+{
+  // TODO: Add your control notification handler code here
+  this->UpdateData();
+  BrowseFolder(m_WhereMPIInclude, "Select MPI Include Directory");
+  this->UpdateData(FALSE);	
+	
+}
+
+void advanced::OnBrowsempilib() 
+{
+  // TODO: Add your control notification handler code here
+  this->UpdateData();
+  BrowseFolder(m_WhereMPILibrary, "Select MPI Library library");
+  this->UpdateData(FALSE);	
+	
 }

@@ -18,6 +18,9 @@ public:
 	CString	m_WhereTcl;
 	CString	m_WhereTk;
 	CString	m_LibPrefix;
+	CString	m_WhereMPIInclude;
+	CString	m_WhereMPILibrary;
+	BOOL	m_UseMPI;
 	//}}AFX_DATA
 
 
@@ -36,6 +39,9 @@ protected:
 	afx_msg void OnWhereLibTCL();
 	afx_msg void OnWhereLibtk();
 	afx_msg BOOL Browse(CString& result, const char*);
+	afx_msg BOOL BrowseFolder(CString& result, const char*);
+	afx_msg void OnBrowsempiinclude();
+	afx_msg void OnBrowsempilib();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

@@ -241,6 +241,10 @@ void CreateToolkitsH(CPcmakerDlg *vals)
       {
       fprintf(ofp,"#define VTK_USE_GRAPHICS 1\n");
       }
+    if (vals->adlg.m_UseMPI) 
+      {
+      fprintf(ofp,"#define VTK_USE_MPI 1\n");
+      }
     fclose(ofp);    
     }
   else
@@ -787,6 +791,12 @@ void ReadMakefiles(CPcmakerDlg *vals)
     UpdateStart(LT_CONTRIB);
     sprintf(fname,"%s\\contrib\\Makefile.in",vals->m_WhereVTK);
     readInMakefile(fname,strdup("contrib"));
+    if (vals->adlg.m_UseMPI)
+      {
+      concrete[num_concrete] = strdup("vtkMPIController");
+      concrete_lib[num_concrete] = strdup("contrib");
+      num_concrete++;
+      }
     UpdateEnd(LT_CONTRIB);
     }
   if (vals->m_Local)
@@ -1173,6 +1183,10 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     {
     fprintf(fp," /I \"%s\\contrib\" \\\n",vals->m_WhereVTK);
     }
+  if (vals->adlg.m_UseMPI) 
+    {
+    fprintf(fp," /I \"%s\" \\\n",vals->adlg.m_WhereMPIInclude);
+    }
   
   fprintf(fp," %s /D \"_WINDOWS\" /D \"_WINDLL\" /D \"_MBCS\" /D \"VTKDLL\"\\\n",
 	  vals->adlg.m_EXTRA_CFLAGS);
@@ -1187,24 +1201,64 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     fprintf(fp,"/Fo$(OBJDIR)\\ /c\n");
     }
 
-
+  char mpilibs[1024];
+  sprintf(mpilibs,"");
+  if (vals->adlg.m_UseMPI) 
+    {
+    // what libraries to link in for MPI ?
+    FILE *testfp;
+    char fname[1024];
+    char libs[1024];
+    sprintf(fname,"%s\\mpich.lib",vals->adlg.m_WhereMPILibrary);
+    testfp = fopen(fname,"r");
+    if (testfp)
+      {
+      fclose(testfp);
+      sprintf(fname,"%s\\pmpich.lib",vals->adlg.m_WhereMPILibrary);
+      testfp = fopen(fname,"r");
+      if (testfp)
+        {
+        sprintf(libs,"mpich.lib pmpich.lib");
+        }
+      else
+        {
+        sprintf(libs,"mpich.lib");
+        }
+      }
+    else
+      {
+      fclose(testfp);
+      sprintf(fname,"%s\\mpi.lib",vals->adlg.m_WhereMPILibrary);
+      testfp = fopen(fname,"r");
+      if (testfp)
+        {
+        sprintf(libs,"mpi.lib");
+        }
+      else
+        {
+        sprintf(libs,"");
+        }
+      }
+    fclose(testfp);
+    sprintf(mpilibs,"/libpath:\"%s\" %s",
+            vals->adlg.m_WhereMPILibrary, libs);
+    }
+  
   fprintf(fp,"LINK32=link.exe\n");
   if (debugFlag)
     {
-    fprintf(fp,"LINK32_FLAGS= %s /debug /libpath:\"%s\\lib\" \"%s\\lib\\opengl32.lib\" \"%s\\lib\\glaux.lib\" \"%s\\lib\\gdi32.lib\" \"%s\\lib\\user32.lib\" /nologo /version:1.3 /subsystem:windows\n",
-	    vals->adlg.m_EXTRA_LINK_FLAGS, vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler);
+    fprintf(fp,"LINK32_FLAGS= %s /debug %s /libpath:\"%s\\lib\" \"%s\\lib\\opengl32.lib\" \"%s\\lib\\glaux.lib\" \"%s\\lib\\gdi32.lib\" \"%s\\lib\\user32.lib\" /nologo /version:1.3 /subsystem:windows\n",
+	    vals->adlg.m_EXTRA_LINK_FLAGS, mpilibs, vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler);
     }
   else
     {
-    fprintf(fp,"LINK32_FLAGS= %s /libpath:\"%s\\lib\" \"%s\\lib\\opengl32.lib\" \"%s\\lib\\glaux.lib\" \"%s\\lib\\gdi32.lib\" \"%s\\lib\\user32.lib\" /nologo /version:1.3 /subsystem:windows\n",
-	    vals->adlg.m_EXTRA_LINK_FLAGS, vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler);
+    fprintf(fp,"LINK32_FLAGS= %s %s /libpath:\"%s\\lib\" \"%s\\lib\\opengl32.lib\" \"%s\\lib\\glaux.lib\" \"%s\\lib\\gdi32.lib\" \"%s\\lib\\user32.lib\" /nologo /version:1.3 /subsystem:windows\n",
+	    vals->adlg.m_EXTRA_LINK_FLAGS, mpilibs, vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler);
     }
-
 
   fprintf(fp,"ALL_FLAGS= /dll /incremental:no /machine:I386\\\n");
   fprintf(fp," /out:%sdll.dll /implib:%sdll.lib \n\n",vals->adlg.m_LibPrefix,
 	  vals->adlg.m_LibPrefix);
-
 
   fprintf(fp,"COMMON_FLAGS= /dll /incremental:yes /machine:I386\\\n");
   fprintf(fp," /out:\"$(LIBDIR)/vtkCommon.dll\" /implib:\"$(LIBDIR)/vtkCommon.lib\" \n");

@@ -128,11 +128,13 @@ int ReadRegistry(CPcmakerDlg &dlg)
     ReadAValue(hKey, &(dlg.adlg.m_WhereTcl),"WhereTcl","");
     ReadAValue(hKey, &(dlg.adlg.m_WhereTk),"WhereTk","");
     ReadAValue(hKey, &(dlg.adlg.m_LibPrefix),"LibPrefix","vtk");
-	// if the value is an empty string then set it to vtk
-	if (!dlg.adlg.m_LibPrefix || strlen(dlg.adlg.m_LibPrefix) < 1)
-		{
-		dlg.adlg.m_LibPrefix = _T("vtk");
-		}
+    // if the value is an empty string then set it to vtk
+    if (!dlg.adlg.m_LibPrefix || strlen(dlg.adlg.m_LibPrefix) < 1)
+      {
+      dlg.adlg.m_LibPrefix = _T("vtk");
+      }
+    ReadAValue(hKey, &(dlg.adlg.m_WhereMPIInclude),"WhereMPIInclude","");
+    ReadAValue(hKey, &(dlg.adlg.m_WhereMPILibrary),"WhereMPILibrary","");
 
     // save which compiler
     dwType = REG_DWORD;
@@ -164,6 +166,7 @@ int ReadRegistry(CPcmakerDlg &dlg)
       dlg.m_BuildJava = FALSE;
       dlg.m_BuildPython = FALSE;
       dlg.m_BuildTcl = FALSE;
+      dlg.adlg.m_UseMPI = FALSE;
       }
     else
       {
@@ -176,6 +179,7 @@ int ReadRegistry(CPcmakerDlg &dlg)
       dlg.m_BuildPython = (dwData&0x40)?TRUE:FALSE;
       dlg.m_BuildTcl = (dwData&0x80)?TRUE:FALSE;
       dlg.m_Local = (dwData&0x100)?TRUE:FALSE;
+      dlg.adlg.m_UseMPI = (dwData&0x200)?TRUE:FALSE;
       }
     }
 
@@ -233,6 +237,12 @@ void WriteRegistry(CPcmakerDlg &dlg)
     RegSetValueEx(hKey, _T("LibPrefix"), 0, REG_SZ, 
 		  (CONST BYTE *)(const char *)dlg.adlg.m_LibPrefix, 
 		  dlg.adlg.m_LibPrefix.GetLength());
+    RegSetValueEx(hKey, _T("WhereMPIInclude"), 0, REG_SZ, 
+		  (CONST BYTE *)(const char *)dlg.adlg.m_WhereMPIInclude, 
+		  dlg.adlg.m_WhereMPIInclude.GetLength());
+    RegSetValueEx(hKey, _T("WhereMPILibrary"), 0, REG_SZ, 
+		  (CONST BYTE *)(const char *)dlg.adlg.m_WhereMPILibrary, 
+		  dlg.adlg.m_WhereMPILibrary.GetLength());
 
     dwData = 0;
     dwData |= (dlg.m_MSComp)?1:0;
@@ -249,6 +259,7 @@ void WriteRegistry(CPcmakerDlg &dlg)
     dwData |= (dlg.m_BuildPython)?0x40:0;
     dwData |= (dlg.m_BuildTcl)?0x80:0;
     dwData |= (dlg.m_Local)?0x100:0;
+    dwData |= (dlg.adlg.m_UseMPI)?0x200:0;
     RegSetValueEx(hKey, _T("Flags"), 0, REG_DWORD, 
 		  (CONST BYTE *)&dwData, sizeof(DWORD));
     }
@@ -286,6 +297,8 @@ BOOL CPcmakerApp::InitInstance()
     dlg.adlg.m_WhereTcl = "";
     dlg.adlg.m_WhereTk  = "";
     dlg.adlg.m_LibPrefix  = "vtk";
+    dlg.adlg.m_WhereMPIInclude = "";
+    dlg.adlg.m_WhereMPILibrary  = "";
     }
    if (strncmp(m_lpCmdLine, "nightly", 7) == 0)  // skip any trailing characters
     {
