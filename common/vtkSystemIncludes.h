@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* first include the local configuration for this machine */
 /* this only applies to UNIX systems */
-#ifndef _WIN32
+#ifndef _MSC_VER
 #include "vtkConfigure.h"
 #endif
 
@@ -85,7 +85,7 @@ using std::ifstream;
 // otherwise, non-ANSI -----------------------------------------------------
 #else
 #include <iostream.h>
-#if defined(_WIN32) || defined(WIN32)
+#if defined(_MSC_VER)
 #include <strstrea.h>
 #else
 #include <strstream.h>
