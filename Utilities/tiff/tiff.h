@@ -364,6 +364,11 @@ typedef enum {
 #define TIFFTAG_WRITERSERIALNUMBER      33405   /* device serial number */
 /* tag 33432 is listed in the 6.0 spec w/ unknown ownership */
 #define TIFFTAG_COPYRIGHT               33432   /* copyright string */
+/* some UIC tags */
+#define TIFFTAG_UIC1TAG                 33628
+#define TIFFTAG_UIC2TAG                 33629
+#define TIFFTAG_UIC3TAG                 33630
+#define TIFFTAG_UIC4TAG                 33631
 /* IPTC TAG from RichTIFF specifications */
 #define TIFFTAG_RICHTIFFIPTC    33723
 /* 34016-34029 are reserved for ANSI IT8 TIFF/IT <dkelly@etsinc.com) */
@@ -383,6 +388,8 @@ typedef enum {
 #define TIFFTAG_IT8COLORCHARACTERIZATION 34029  /* color character. table */
 /* tags 34232-34236 are private tags registered to Texas Instruments */
 #define TIFFTAG_FRAMECOUNT              34232   /* Sequence Frame Count */
+/* tag for zeiss confocal microscopes */
+#define TIFFTAG_CZ_LSMINFO              34412
 /* tag 34750 is a private tag registered to Adobe? */
 #define TIFFTAG_ICCPROFILE              34675   /* ICC profile data */
 /* tag 34377 is private tag registered to Adobe for PhotoShop */

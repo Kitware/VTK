@@ -629,7 +629,8 @@ MissingRequired(TIFF* tif, const char* tagname)
 static int
 CheckDirCount(TIFF* tif, TIFFDirEntry* dir, uint32 count)
 {
-        if (count != dir->tdir_count) {
+        if (count > dir->tdir_count)
+        {
                 TIFFWarning(tif->tif_name,
         "incorrect count for field \"%s\" (%lu, expecting %lu); tag ignored",
                     _TIFFFieldWithTag(tif, dir->tdir_tag)->field_name,
@@ -1220,7 +1221,7 @@ TIFFFetchStripThing(TIFF* tif, TIFFDirEntry* dir, long nstrips, uint32** lpp)
          */
         if (*lpp == NULL &&
             (*lpp = (uint32 *)CheckMalloc(tif,
-              nstrips * sizeof (uint32), "for strip array")) == NULL)
+              dir->tdir_count * sizeof (uint32), "for strip array")) == NULL)
                 return (0);
         lp = *lpp;
         if (dir->tdir_type == (int)TIFF_SHORT) {
