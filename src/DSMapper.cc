@@ -87,6 +87,11 @@ void vlDataSetMapper::Render(vlRenderer *ren)
     return;
     }
 //
+// Need a lookup table
+//
+  if ( ! this->LookupTable ) this->SetLookupTable(new vlLookupTable);
+  this->LookupTable->Build();
+//
 // Now can create appropriate mapper
 //
   if ( this->PolyMapper == NULL ) 
