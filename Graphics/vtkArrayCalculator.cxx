@@ -63,6 +63,7 @@ vtkArrayCalculator::vtkArrayCalculator()
   
   this->Function = NULL;
   this->ResultArrayName = NULL;
+  this->SetResultArrayName("resultArray");
   this->ScalarArrayNames = NULL;
   this->VectorArrayNames = NULL;
   this->ScalarVariableNames = NULL;
@@ -153,6 +154,27 @@ vtkArrayCalculator::~vtkArrayCalculator()
     delete [] this->SelectedVectorComponents;
     this->SelectedVectorComponents = NULL;
     }
+}
+
+void vtkArrayCalculator::SetResultArrayName(const char* name)
+{
+  if (name == NULL || *name == '\0')
+    {
+    vtkErrorMacro("The result array must have a name.");
+    return;
+    }
+  if (strcmp(this->ResultArrayName, name) == 0)
+    {
+    return;
+    }
+  this->Modified();
+  if (this->ResultArrayName)
+    {
+    delete [] this->ResultArrayName;
+    this->ResultArrayName = NULL;
+    }
+  this->ResultArrayName = new char [strlen(name)+1];
+  strcpy(this->ResultArrayName, name);
 }
 
 void vtkArrayCalculator::Execute()

@@ -98,7 +98,7 @@ public:
   // evaluating this function.  If this is the name of an existing array,
   // that array will be overwritten.  Otherwise a new array will be
   // created with the specified name.
-  vtkSetStringMacro(ResultArrayName);
+  void SetResultArrayName(const char* name);
   vtkGetStringMacro(ResultArrayName);
   
   // Description:
