@@ -21,7 +21,6 @@ IF (VTK_USE_RENDERING)
       TestLODProp3D
       TestOnePoint
       TestParallelCoordinates
-      TestInteractorEventRecorder
       TestStyleJoystickActor
       TestStyleJoystickCamera
       TestStyleTerrain
