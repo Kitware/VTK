@@ -65,6 +65,11 @@ public:
   int Tag;
   vtkRMIFunctionType Function;
   void *LocalArgument;
+  
+protected:
+  vtkMultiProcessControllerRMI() {};
+  vtkMultiProcessControllerRMI(const vtkMultiProcessControllerRMI&);
+  void operator=(const vtkMultiProcessControllerRMI&);
 };
 
 vtkMultiProcessControllerRMI* vtkMultiProcessControllerRMI::New()
