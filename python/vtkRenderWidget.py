@@ -87,6 +87,7 @@ class vtkTkRenderWidget(Tkinter.Widget):
 
         # initialize some variables
         self._RenderWindow = renderWindow
+        renderWindow.UnRegister(renderWindow)
         
         self._CurrentRenderer = None
         self._CurrentCamera = None
@@ -249,8 +250,8 @@ class vtkTkRenderWidget(Tkinter.Widget):
             
             renderer = self._CurrentRenderer
             camera = self._CurrentCamera
-            (fPoint0,fPoint1,fPoint2) = camera.GetFocalPoint()
             (pPoint0,pPoint1,pPoint2) = camera.GetPosition()
+            (fPoint0,fPoint1,fPoint2) = camera.GetFocalPoint()
 
             if (camera.GetParallelProjection()):
                 renderer.SetWorldPoint(fPoint0,fPoint1,fPoint2,1.0)
@@ -262,7 +263,7 @@ class vtkTkRenderWidget(Tkinter.Widget):
                 renderer.DisplayToWorld()
                 fx,fy,fz,fw = renderer.GetWorldPoint()
                 camera.SetFocalPoint(fx,fy,fz)
-                
+
                 renderer.SetWorldPoint(pPoint0,pPoint1,pPoint2,1.0)
                 renderer.WorldToDisplay()
                 fx,fy,fz = renderer.GetDisplayPoint()
@@ -274,6 +275,7 @@ class vtkTkRenderWidget(Tkinter.Widget):
                 camera.SetPosition(fx,fy,fz)
                 
             else:
+                (fPoint0,fPoint1,fPoint2) = camera.GetFocalPoint()
                 # Specify a point location in world coordinates
                 renderer.SetWorldPoint(fPoint0,fPoint1,fPoint2,1.0)
                 renderer.WorldToDisplay()
