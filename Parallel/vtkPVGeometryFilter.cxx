@@ -19,12 +19,13 @@
 #include "vtkGeometryFilter.h"
 #include "vtkExtractEdges.h"
 #include "vtkOutlineSource.h"
+#include "vtkRectilinearGridOutlineFilter.h"
 #include "vtkStructuredGridOutlineFilter.h"
 #include "vtkStripper.h"
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkPVGeometryFilter, "1.7");
+vtkCxxRevisionMacro(vtkPVGeometryFilter, "1.8");
 vtkStandardNewMacro(vtkPVGeometryFilter);
 
 //----------------------------------------------------------------------------
@@ -198,7 +199,6 @@ void vtkPVGeometryFilter::StructuredGridExecute(vtkStructuredGrid *input)
 void vtkPVGeometryFilter::RectilinearGridExecute(vtkRectilinearGrid *input)
 {
   int *ext;
-  float bounds[6];
   vtkPolyData *output = this->GetOutput();
 
   ext = input->GetWholeExtent();
@@ -216,12 +216,13 @@ void vtkPVGeometryFilter::RectilinearGridExecute(vtkRectilinearGrid *input)
   // Otherwise, let Outline do all the work
   //
   
-  // Until we get a vtkRectilinearOutlineFilter.
-  input->GetBounds(bounds);
-
-  vtkOutlineSource *outline = vtkOutlineSource::New();
-  outline->SetBounds(bounds);
-  outline->Update();
+  vtkRectilinearGridOutlineFilter *outline = vtkRectilinearGridOutlineFilter::New();
+  // Because of streaming, it is important to set the input and not copy it.
+  outline->SetInput(input);
+  outline->GetOutput()->SetUpdateNumberOfPieces(output->GetUpdateNumberOfPieces());
+  outline->GetOutput()->SetUpdatePiece(output->GetUpdatePiece());
+  outline->GetOutput()->SetUpdateGhostLevel(output->GetUpdateGhostLevel());
+  outline->GetOutput()->Update();
 
   output->CopyStructure(outline->GetOutput());
   outline->Delete();
