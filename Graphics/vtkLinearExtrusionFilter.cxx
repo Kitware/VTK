@@ -367,18 +367,18 @@ void vtkLinearExtrusionFilter::Execute()
                                     lineIds->GetId(i),outCellId);
     ++outCellId;
     }
-  j = stripIds->GetNumberOfIds();
-  for (i = 0; i < j; ++i)
-    {
-    output->GetCellData()->CopyData(input->GetCellData(),
-                                    stripIds->GetId(i),outCellId);
-    ++outCellId;
-    }
   j = polyIds->GetNumberOfIds();
   for (i = 0; i < j; ++i)
     {
     output->GetCellData()->CopyData(input->GetCellData(),
                                     polyIds->GetId(i),outCellId);
+    ++outCellId;
+    }
+  j = stripIds->GetNumberOfIds();
+  for (i = 0; i < j; ++i)
+    {
+    output->GetCellData()->CopyData(input->GetCellData(),
+                                    stripIds->GetId(i),outCellId);
     ++outCellId;
     }
   lineIds->Delete();
