@@ -249,7 +249,7 @@ int TestViewDependentErrorMetric(int argc, char* argv[])
   // need an outline filter in the pipeline to ensure that the
   // camera are set with the bounding box of the dataset.
   
-  vtkCamera *cam1=renderer->GetActiveCamera();
+//  vtkCamera *cam1=renderer->GetActiveCamera();
   vtkCamera *cam2=renderer2->GetActiveCamera();
   
   cam2->Azimuth(90);
