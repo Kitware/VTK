@@ -11,6 +11,37 @@ IF (VTK_RENDERING)
   LINK_DIRECTORIES(${VTK_BINARY_DIR}/Rendering) 
 ENDIF (VTK_RENDERING)
 
+OPTION (VTK_HYBRID "Build the hybrid directory classes")
+IF (VTK_HYBRID)
+  # hybrid requires rendering
+  IF (VTK_RENDERING)
+    SUBDIRS(Hybrid)
+    INCLUDE_DIRECTORIES(${VTK_SOURCE_DIR}/Hybrid)
+    LINK_DIRECTORIES(${VTK_BINARY_DIR}/Hybrid) 
+  ELSE (VTK_RENDERING)
+  # error message should go here
+  ENDIF (VTK_RENDERING)
+ENDIF (VTK_HYBRID)
+
+OPTION (VTK_PATENTED "Build the patented directory classes, these classes are patented and may require a license to use")
+IF (VTK_PATENTED)
+  # patented requires rendering
+  IF (VTK_RENDERING)
+    SUBDIRS(Patented)
+    INCLUDE_DIRECTORIES(${VTK_SOURCE_DIR}/Patented)
+    LINK_DIRECTORIES(${VTK_BINARY_DIR}/Patented) 
+  ELSE (VTK_RENDERING)
+  # error message should go here
+  ENDIF (VTK_RENDERING)
+ENDIF (VTK_PATENTED)
+
+OPTION (VTK_PARALLEL "Build the parallel directory classes")
+IF (VTK_PARALLEL)
+    SUBDIRS(Parallel)
+    INCLUDE_DIRECTORIES(${VTK_SOURCE_DIR}/Parallel)
+    LINK_DIRECTORIES(${VTK_BINARY_DIR}/Parallel) 
+ENDIF (VTK_PARALLEL)
+
 IF (WIN32)
   IF (BUILD_SHARED_LIBS)
     ADD_DEFINITIONS(-DVTKDLL)

@@ -1,4 +1,6 @@
 SOURCE_FILES( IO_SRCS
+vtkBMPReader
+vtkBMPWriter
 vtkBYUReader
 vtkBYUWriter
 vtkDataObjectReader
@@ -11,9 +13,14 @@ vtkEnSightGoldBinaryReader
 vtkEnSightGoldReader
 vtkEnSightReader
 vtkGenericEnSightReader
+vtkImageReader
+vtkImageReader2
+vtkImageWriter
 vtkMCubesReader
 vtkMCubesWriter
 vtkPLOT3DReader
+vtkPNMReader
+vtkPNMWriter
 vtkPolyDataReader
 vtkPolyDataWriter
 vtkRectilinearGridReader
@@ -25,6 +32,8 @@ vtkStructuredGridReader
 vtkStructuredGridWriter
 vtkStructuredPointsReader
 vtkStructuredPointsWriter
+vtkTIFFReader
+vtkTIFFWriter
 vtkUGFacetReader
 vtkUnstructuredGridReader
 vtkUnstructuredGridWriter

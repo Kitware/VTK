@@ -5,6 +5,7 @@ vtkAbstractPropPicker
 vtkActor
 vtkActorCollection
 vtkAssembly
+vtkAxisActor2D
 vtkCamera
 vtkCellPicker
 vtkCuller
@@ -167,7 +168,8 @@ IF (VTK_WRAP_TCL)
   ELSE (WIN32)
     SOURCE_FILES(RenderingTCL_SRCS vtkXRenderWindowTclInteractor)
   ENDIF (WIN32)  
-  VTK_WRAP_TCL(vtkRenderingTCL RenderingTCL_SRCS Rendering_SRCS)
+  VTK_WRAP_TCL(vtkRenderingTCL RenderingTCL_SRCS 
+               Rendering_SRCS RenderingOpenGL_SRCS)
   ADD_LIBRARY(vtkRenderingTCL RenderingTCL_SRCS)
   TARGET_LINK_LIBRARIES (vtkRenderingTCL vtkIOTCL vtkGraphicsTCL 
                          vtkImagingTCL vtkFilteringTCL vtkCommonTCL)
