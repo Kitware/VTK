@@ -241,7 +241,7 @@ void vtkHashMap<KeyType,DataType>::RehashItems(vtkIdType newNumberOfBuckets)
     }
   
   // Re-hash the items.
-  ItemType item;
+  ItemType item = { KeyType(), DataType() };
   vtkIdType bucket;
   IteratorType* it = this->NewIterator();
   while(!it->IsDoneWithTraversal())
