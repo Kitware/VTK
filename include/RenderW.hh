@@ -148,8 +148,8 @@ public:
 
   // Description:
   // Set/Get the filename used for saving images.
-  vlSetStringMacro(FileName);
-  vlGetStringMacro(FileName);
+  vlSetStringMacro(Filename);
+  vlGetStringMacro(Filename);
 
 
   // Description:
@@ -195,7 +195,7 @@ protected:
   int StereoType;
   int StereoStatus; // used for keeping track of what's going on
   vlRenderWindowInteractor *Interactor;
-  char *FileName;
+  char *Filename;
   unsigned char* temp_buffer;  // used for red blue stereo
   unsigned char** AABuffer;    // used for anti aliasing
   int AAFrames;

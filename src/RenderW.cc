@@ -46,7 +46,7 @@ vlRenderWindow::vlRenderWindow()
   this->SubBuffer = NULL;
   this->CurrentSubFrame = 0;
   this->ResultFrame = NULL;
-  this->FileName = NULL;
+  this->Filename = NULL;
 }
 
 // Description:
@@ -477,6 +477,11 @@ void vlRenderWindow::PrintSelf(ostream& os, vlIndent indent)
   os << indent << "Size: (" << temp[0] << ", " << temp[1] << ")\n";
   os << indent << "Stereo Render: " 
      << (this->StereoRender ? "On\n":"Off\n");
+
+  if ( this->Filename )
+    os << indent << "Filename: " << this->Filename << "\n";
+  else
+    os << indent << "Filename: (None)\n";
 }
 
 
@@ -492,9 +497,9 @@ void vlRenderWindow::SaveImageAsPPM()
   buffer = this->GetPixelData(0,0,size[0]-1,size[1]-1);
 
   //  open the ppm file and write header 
-  if ( this->FileName != NULL && *this->FileName != '\0')
+  if ( this->Filename != NULL && *this->Filename != '\0')
     {
-    fp = fopen(this->FileName,"w");
+    fp = fopen(this->Filename,"w");
     if (!fp)
       {
       vlErrorMacro(<< "RenderWindow unable to open image file for writing\n");
