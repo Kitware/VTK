@@ -253,7 +253,7 @@ void vtkImageNonMaximumSuppression::Execute(vtkImageRegion *inRegion1,
 	  for (idx = 0; idx < this->NumberOfAxes; ++idx)
 	    {
 	    d = vector[idx] = *in2Ptr4 / ratio[idx];
-	    normalizeFactor = d * d;
+	    normalizeFactor += d * d;
 	    in2Ptr4 += in2Inc4;
 	    }
 	  normalizeFactor = 1.0 / sqrt(normalizeFactor);
