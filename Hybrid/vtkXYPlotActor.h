@@ -227,7 +227,8 @@ public:
   // methods that follow have an index i that corresponds to the input dataset
   // or data object. 
   void SetPlotColor(int i, float r, float g, float b);
-  void SetPlotColor(int i, float color[3]);
+  void SetPlotColor(int i, const float color[3]) {
+    this->SetPlotColor(i, color[0], color[1], color[2]); };
   float *GetPlotColor(int i);
   void SetPlotSymbol(int i,vtkPolyData *input);
   vtkPolyData *GetPlotSymbol(int i);
