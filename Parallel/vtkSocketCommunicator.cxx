@@ -36,7 +36,7 @@
 #define vtkCloseSocketMacro(sock) (close(sock))
 #endif
 
-vtkCxxRevisionMacro(vtkSocketCommunicator, "1.48");
+vtkCxxRevisionMacro(vtkSocketCommunicator, "1.49");
 vtkStandardNewMacro(vtkSocketCommunicator);
 
 //----------------------------------------------------------------------------
@@ -270,6 +270,24 @@ int vtkSocketCommunicator::Receive(vtkIdType* data, int length,
 #endif
 
 //----------------------------------------------------------------------------
+int vtkSocketCommunicator::GetPort(int sock)
+{
+  struct sockaddr_in sockinfo;
+  memset(&sockinfo, 0, sizeof(sockinfo));
+#if defined(_WIN32) &&  !defined(__CYGWIN__)
+  int sizebuf = sizeof(sockinfo);
+#else
+  socklen_t sizebuf = sizeof(sockinfo);
+#endif
+  if(getsockname(sock, (sockaddr*)&sockinfo, &sizebuf) != 0)
+    {
+    vtkErrorMacro("No port found for socket " << sock);
+    return 0;
+    }
+  return ntohs(sockinfo.sin_port);
+}
+
+//----------------------------------------------------------------------------
 int vtkSocketCommunicator::OpenSocket(int port, const char* )
 {
   if ( this->IsConnected )
@@ -304,31 +322,13 @@ int vtkSocketCommunicator::OpenSocket(int port, const char* )
     vtkErrorMacro("Can not bind socket to port " << port);
     return 0;
     }
+  listen(sock,1);
   return sock;
-}
-
-//----------------------------------------------------------------------------
-int vtkSocketCommunicator::GetPort(int sock)
-{
-  struct sockaddr_in sockinfo;
-  memset(&sockinfo, 0, sizeof(sockinfo));
-#if defined(_WIN32) &&  !defined(__CYGWIN__)
-  int sizebuf = sizeof(sockinfo);
-#else
-  socklen_t sizebuf = sizeof(sockinfo);
-#endif
-  if(getsockname(sock, (sockaddr*)&sockinfo, &sizebuf) != 0)
-    {
-    vtkErrorMacro("No port found for socket " << sock);
-    return 0;
-    }
-  return ntohs(sockinfo.sin_port);
 }
 
 //----------------------------------------------------------------------------
 int vtkSocketCommunicator::WaitForConnectionOnSocket(int sock)
 {
-  listen(sock,1);
   this->Socket = accept(sock, 0, 0);
   if ( this->Socket == -1 )
     {
