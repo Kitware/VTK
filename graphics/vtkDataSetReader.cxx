@@ -133,12 +133,6 @@ void vtkDataSetReader::Execute()
     if ( ! strncmp(this->LowerCase(line),"polydata",8) )
       {
       vtkPolyDataReader *preader = vtkPolyDataReader::New();
-      // Can we use the old output?
-      output = this->Outputs ? this->Outputs[0] : NULL;
-      if (output && strcmp(output->GetClassName(), "vtkPolyData") == 0)
-	{
-	preader->SetOutput((vtkPolyData *)(output));
-	}
       preader->SetFileName(this->GetFileName());
       preader->SetInputString(this->GetInputString(),
 			      this->GetInputStringLength());
@@ -151,20 +145,23 @@ void vtkDataSetReader::Execute()
       preader->SetLookupTableName(this->GetLookupTableName());
       preader->SetFieldDataName(this->GetFieldDataName());
       preader->Update();
-      // whether we used the old output or not, we need to set the output.
-      this->SetNthOutput(0, preader->GetOutput());
+      // Can we use the old output?
+      output = this->Outputs ? this->Outputs[0] : NULL;
+      if (output && strcmp(output->GetClassName(), "vtkPolyData") == 0)
+        {
+        output->ShallowCopy(preader->GetOutput());
+        }
+      else
+        {
+        this->SetNthOutput(0, preader->GetOutput());
+        }
+
       preader->Delete();
       }
 
     else if ( ! strncmp(line,"structured_points",17) )
       {
       vtkStructuredPointsReader *preader = vtkStructuredPointsReader::New();
-      // Can we use the old output?
-      output = this->Outputs ? this->Outputs[0] : NULL;
-      if (output && strcmp(output->GetClassName(), "vtkStructuredPoints") == 0)
-	{
-	preader->SetOutput((vtkStructuredPoints *)(output));
-	}
       preader->SetFileName(this->GetFileName());
       preader->SetInputString(this->GetInputString(),
 			      this->GetInputStringLength());
@@ -177,20 +174,24 @@ void vtkDataSetReader::Execute()
       preader->SetLookupTableName(this->GetLookupTableName());
       preader->SetFieldDataName(this->GetFieldDataName());
       preader->Update();
-      // whether we used the old output or not, we need to set the output.
-      this->SetNthOutput(0, preader->GetOutput());
+
+      // Can we use the old output?
+      output = this->Outputs ? this->Outputs[0] : NULL;
+      if (output && strcmp(output->GetClassName(), "vtkStructuredPoints") == 0)
+        {
+        output->ShallowCopy(preader->GetOutput());
+        }
+      else
+        {
+        this->SetNthOutput(0, preader->GetOutput());
+        }
+
       preader->Delete();
       }
 
     else if ( ! strncmp(line,"structured_grid",15) )
       {
       vtkStructuredGridReader *preader = vtkStructuredGridReader::New();
-      // Can we use the old output?
-      output = this->Outputs ? this->Outputs[0] : NULL;
-      if (output && strcmp(output->GetClassName(), "vtkStructuredGrid") == 0)
-	{
-	preader->SetOutput((vtkStructuredGrid *)(output));
-	}
       preader->SetFileName(this->GetFileName());
       preader->SetInputString(this->GetInputString(),
 			      this->GetInputStringLength());
@@ -203,20 +204,24 @@ void vtkDataSetReader::Execute()
       preader->SetLookupTableName(this->GetLookupTableName());
       preader->SetFieldDataName(this->GetFieldDataName());
       preader->Update();
-      // whether we used the old output or not, we need to set the output.
-      this->SetNthOutput(0, preader->GetOutput());
+
+      // Can we use the old output?
+      output = this->Outputs ? this->Outputs[0] : NULL;
+      if (output && strcmp(output->GetClassName(), "vtkStructuredGrid") == 0)
+        {
+        output->ShallowCopy(preader->GetOutput());
+        }
+      else
+        {
+        this->SetNthOutput(0, preader->GetOutput());
+        }
+
       preader->Delete();
       }
 
     else if ( ! strncmp(line,"rectilinear_grid",16) )
       {
       vtkRectilinearGridReader *preader = vtkRectilinearGridReader::New();
-      // Can we use the old output?
-      output = this->Outputs ? this->Outputs[0] : NULL;
-      if (output && strcmp(output->GetClassName(), "vtkRectilinearGrid") == 0)
-	{
-	preader->SetOutput((vtkRectilinearGrid *)(output));
-	}
       preader->SetFileName(this->GetFileName());
       preader->SetInputString(this->GetInputString(),
 			      this->GetInputStringLength());
@@ -229,20 +234,24 @@ void vtkDataSetReader::Execute()
       preader->SetLookupTableName(this->GetLookupTableName());
       preader->SetFieldDataName(this->GetFieldDataName());
       preader->Update();
-      // whether we used the old output or not, we need to set the output.
-      this->SetNthOutput(0, preader->GetOutput());
+
+      // Can we use the old output?
+      output = this->Outputs ? this->Outputs[0] : NULL;
+      if (output && strcmp(output->GetClassName(), "vtkRectilinearGrid") == 0)
+        {
+        output->ShallowCopy(preader->GetOutput());
+        }
+      else
+        {
+        this->SetNthOutput(0, preader->GetOutput());
+        }
+
       preader->Delete();
       }
 
     else if ( ! strncmp(line,"unstructured_grid",17) )
       {
       vtkUnstructuredGridReader *preader = vtkUnstructuredGridReader::New();
-      // Can we use the old output?
-      output = this->Outputs ? this->Outputs[0] : NULL;
-      if (output && strcmp(output->GetClassName(), "vtkUnstructuredGrid") == 0)
-	{
-	preader->SetOutput((vtkUnstructuredGrid *)(output));
-	}
       preader->SetFileName(this->GetFileName());
       preader->SetInputString(this->GetInputString(),
 			      this->GetInputStringLength());
@@ -255,8 +264,18 @@ void vtkDataSetReader::Execute()
       preader->SetLookupTableName(this->GetLookupTableName());
       preader->SetFieldDataName(this->GetFieldDataName());
       preader->Update();
-      // whether we used the old output or not, we need to set the output.
-      this->SetNthOutput(0, preader->GetOutput());
+
+      // Can we use the old output?
+      output = this->Outputs ? this->Outputs[0] : NULL;
+      if (output && strcmp(output->GetClassName(), "vtkUnstructuredGrid") == 0)
+        {
+        output->ShallowCopy(preader->GetOutput());
+        }
+      else
+        {
+        this->SetNthOutput(0, preader->GetOutput());
+        }
+
       preader->Delete();
       }
     
