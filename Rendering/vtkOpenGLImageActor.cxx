@@ -30,7 +30,7 @@
 #endif
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLImageActor, "1.24");
+vtkCxxRevisionMacro(vtkOpenGLImageActor, "1.25");
 vtkStandardNewMacro(vtkOpenGLImageActor);
 #endif
 
@@ -374,6 +374,8 @@ void vtkOpenGLImageActor::Load(vtkRenderer *ren)
     if (reuseTexture)
       {
 #ifdef GL_VERSION_1_1
+      glPixelStorei( GL_UNPACK_ALIGNMENT, 1);
+      glPixelStorei( GL_UNPACK_ROW_LENGTH, 0);
       glTexSubImage2D(  GL_TEXTURE_2D, 0,
                         0, 0, xsize, ysize, format, 
                         GL_UNSIGNED_BYTE, (const GLvoid *)data );
