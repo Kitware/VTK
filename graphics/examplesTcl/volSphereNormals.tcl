@@ -284,7 +284,7 @@ and 1 encoded index for the zero normal.
 
 wm withdraw .
 
-toplevel .top
+toplevel .top -visual truecolor
 wm title .top {Recursive Sphere Normal Encoding}
 
 frame .top.f1 -bd 0 -bg #193264
@@ -296,7 +296,7 @@ vtkTkRenderWidget .top.f1.rw -width 200 -height 200 -rw renWin
 BindTkRenderWidget .top.f1.rw
 pack .top.f1.rw -side top -expand 1 -fill both
 
-label .top.f1.info -bg #193264 -fg #aaaaaa -text \
+label .top.f1.info -bg #193264 -fg #aaaaaa -font {Helvetica -12 bold} -text \
 "A 50x50x50 volume created 
 from the sphere distance 
 function, rendered with 
@@ -309,7 +309,7 @@ vtkTkRenderWidget .top.f2.rw -width 200 -height 200 -rw renWin2
 BindTkRenderWidget .top.f2.rw
 pack .top.f2.rw -side top -expand 1 -fill both
 
-label .top.f2.info -bg #193264 -fg #aaaaaa -text \
+label .top.f2.info -bg #193264 -fg #aaaaaa -font {Helvetica -12 bold} -text \
 "This wireframe sphere
 represents the direction
 encoding. Each vertex has
@@ -319,13 +319,14 @@ the closest vertex."
 
 pack .top.f2.info -side top -expand 1 -fill both
 
-label .top.f3.info -bg #193264 -fg #aaaaaa -text "hello world" \
+label .top.f3.info -bg #193264 -fg #aaaaaa -font {Helvetica -12 bold} -text "hello world" \
 	-bd 0 -justify left 
 
 pack .top.f3.info -side top -expand 0 -fill both -padx 10 -pady 10
 SetInfoLabel
 
 scale .top.f3.level -label "Recursion Depth" -orient horizontal \
+        -font {Helvetica -12 bold} \
 	-length 200 -from 0 -to 6 -variable recursion_depth \
 	-bg #193264 -fg #aaaaaa -bd 0 -highlightthickness 0 \
 	-troughcolor #777777 -activebackground #385284 
@@ -333,10 +334,10 @@ scale .top.f3.level -label "Recursion Depth" -orient horizontal \
 
 pack .top.f3.level -side top -expand 0 -fill both -padx 10 -pady 10
 
-label .top.f3.working  -bg #193264 -fg #ff3333 -text "" -justify center
+label .top.f3.working  -bg #193264 -fg #ff3333 -font {Helvetica -12 bold} -text "" -justify center
 pack .top.f3.working -side top -expand 0 -fill both -padx 10 -pady 10
 
-label .top.f3.timeinfo  -bg #193264 -fg #ff3333 -text "" -justify center
+label .top.f3.timeinfo  -bg #193264 -fg #ff3333 -font {Helvetica -12 bold} -text "" -justify center
 pack .top.f3.timeinfo -side top -expand 0 -fill both -padx 10 -pady 10
 
 
