@@ -19,13 +19,16 @@
 #include "vtkCellLocator.h"
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolygon.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTriangleFilter.h"
 
-vtkCxxRevisionMacro(vtkSmoothPolyDataFilter, "1.40");
+vtkCxxRevisionMacro(vtkSmoothPolyDataFilter, "1.41");
 vtkStandardNewMacro(vtkSmoothPolyDataFilter);
 
 // The following code defines a helper class for performing mesh smoothing
@@ -126,20 +129,24 @@ vtkSmoothPolyDataFilter::vtkSmoothPolyDataFilter()
 
   this->GenerateErrorScalars = 0;
   this->GenerateErrorVectors = 0;
+
+  // optional second input
+  this->SetNumberOfInputPorts(2);
 }
 
 void vtkSmoothPolyDataFilter::SetSource(vtkPolyData *source)
 {
-  this->vtkProcessObject::SetNthInput(1, source);
+  this->SetInput(1, source);
 }
 
 vtkPolyData *vtkSmoothPolyDataFilter::GetSource()
 {
-  if (this->NumberOfInputs < 2)
+  if (this->GetNumberOfInputConnections(1) < 1)
     {
     return NULL;
     }
-  return (vtkPolyData *)(this->Inputs[1]);
+  return vtkPolyData::SafeDownCast(
+    this->GetExecutive()->GetInputData(1, 0));
 }
 
 #define VTK_SIMPLE_VERTEX 0
@@ -154,8 +161,28 @@ typedef struct _vtkMeshVertex
   vtkIdList *edges; // connected edges (list of connected point ids)
 } vtkMeshVertex, *vtkMeshVertexPtr;
     
-void vtkSmoothPolyDataFilter::Execute()
+int vtkSmoothPolyDataFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkPolyData *input = vtkPolyData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *source = 0;
+  if (sourceInfo)
+    {
+    source = vtkPolyData::SafeDownCast(
+      sourceInfo->Get(vtkDataObject::DATA_OBJECT()));
+    }
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkIdType numPts, numCells, i, numPolys, numStrips;
   int j, k;
   vtkIdType npts = 0;
@@ -174,9 +201,6 @@ void vtkSmoothPolyDataFilter::Execute()
   vtkCellArray *inVerts, *inLines, *inPolys, *inStrips;
   vtkPoints *newPts;
   vtkMeshVertexPtr Verts;
-  vtkPolyData *input=this->GetInput();
-  vtkPolyData *output=this->GetOutput();
-  vtkPolyData *source=this->GetSource();
   vtkCellLocator *cellLocator=NULL;
 
   // Check input
@@ -186,7 +210,7 @@ void vtkSmoothPolyDataFilter::Execute()
   if (numPts < 1 || numCells < 1)
     {
     vtkErrorMacro(<<"No data to smooth!");
-    return;
+    return 0;
     }
 
   CosFeatureAngle = 
@@ -209,7 +233,7 @@ void vtkSmoothPolyDataFilter::Execute()
     output->CopyStructure(input);
     output->GetPointData()->PassData(input->GetPointData());
     output->GetCellData()->PassData(input->GetCellData());
-    return;
+    return 1;
     }
 
   // Peform topological analysis. What we're gonna do is build a connectivity
@@ -506,7 +530,7 @@ void vtkSmoothPolyDataFilter::Execute()
     cellLocator = vtkCellLocator::New();
     w = new double[input->GetMaxCellSize()];
     
-    cellLocator->SetDataSet(this->GetSource());
+    cellLocator->SetDataSet(source);
     cellLocator->BuildLocator();
     
     for (i=0; i < numPts; i++)
@@ -571,7 +595,7 @@ void vtkSmoothPolyDataFilter::Execute()
 
           if ( sPtr->cellId >= 0 ) //in cell
             {
-            cell = this->GetSource()->GetCell(sPtr->cellId);
+            cell = source->GetCell(sPtr->cellId);
             }
 
           if ( !cell || cell->EvaluatePosition(xNew, closestPt,
@@ -661,6 +685,23 @@ void vtkSmoothPolyDataFilter::Execute()
       }
     }
   delete [] Verts;
+
+  return 1;
+}
+
+int vtkSmoothPolyDataFilter::FillInputPortInformation(int port,
+                                                      vtkInformation *info)
+{
+  if (!this->Superclass::FillInputPortInformation(port, info))
+    {
+    return 0;
+    }
+  
+  if (port == 1)
+    {
+    info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
+    }
+  return 1;
 }
 
 void vtkSmoothPolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)

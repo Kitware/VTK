@@ -90,14 +90,14 @@
 #ifndef __vtkSmoothPolyDataFilter_h
 #define __vtkSmoothPolyDataFilter_h
 
-#include "vtkPolyDataToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
 class vtkSmoothPoints;
 
-class VTK_GRAPHICS_EXPORT vtkSmoothPolyDataFilter : public vtkPolyDataToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkSmoothPolyDataFilter : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkSmoothPolyDataFilter,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkSmoothPolyDataFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -174,7 +174,8 @@ protected:
   vtkSmoothPolyDataFilter();
   ~vtkSmoothPolyDataFilter() {};
 
-  void Execute();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
 
   double Convergence;
   int NumberOfIterations;
