@@ -41,7 +41,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkTransformCollection - maintain a list of transforms
 // .SECTION Description
 // vtkTransformCollection is an object that creates and manipulates lists of
-// objects of type vtkTransform. See also vtkCollection and subclasses.
+// objects of type vtkTransform.
+// .SECTION see also
+// vtkCollection vtkTransform
 
 #ifndef __vtkTransformCollection_hh
 #define __vtkTransformCollection_hh
@@ -83,7 +85,8 @@ inline int vtkTransformCollection::IsItemPresent(vtkTransform *t)
 }
 
 // Description:
-// Get the next Transform in the list.
+// Get the next Transform in the list. Return NULL when the end of the
+// list is reached.
 inline vtkTransform *vtkTransformCollection::GetNextItem() 
 { 
   return (vtkTransform *)(this->vtkCollection::GetNextItem());

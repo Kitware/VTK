@@ -46,12 +46,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // scale, and rotation components of the matrix.  Methods operate on
 // the matrix at the top of the stack. Many object such as vtkActor and
 // vtkCamera use this class for performing their matrix operations.
+// It is very important to realize that this class performs all of
+// its operations in a right handed coordinate system with right
+// handed rotations. Some other graphics libraries use left handed 
+// coordinate systems and rotations.
 
 // .SECTION Caveats
 // By default the initial matrix is the identity matrix.
 // .EXAMPLE XFormSph.cc
 // .SECTION see also
-// vtkMatrix4x4
+// vtkMatrix4x4 vtkTransformCollection vtkTransformFilter
+// vtkTransformPolyFilter
 
 #ifndef __vtkTransform_hh
 #define __vtkTransform_hh
