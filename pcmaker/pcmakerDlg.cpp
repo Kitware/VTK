@@ -24,7 +24,7 @@ CPcmakerDlg::CPcmakerDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CPcmakerDlg::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CPcmakerDlg)
-	m_WhereVTK = _T("");
+  	m_WhereVTK = _T("");
 	m_WhereBuild = _T("");
 	m_WhereJDK = _T("");
 	m_BorlandComp = FALSE;
@@ -40,6 +40,7 @@ CPcmakerDlg::CPcmakerDlg(CWnd* pParent /*=NULL*/)
 	m_BuildPython = FALSE;
 	m_WherePy = _T("");
 	m_Local = FALSE;
+	m_AnsiCpp = FALSE;
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -71,6 +72,7 @@ void CPcmakerDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_WHEREPYTHON, m_WherePy);
 	DDV_MaxChars(pDX, m_WherePy, 512);
 	DDX_Check(pDX, IDC_LOCAL, m_Local);
+	DDX_Check(pDX, IDC_ANSICPP, m_AnsiCpp);
 	//}}AFX_DATA_MAP
 }
 

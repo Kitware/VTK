@@ -258,12 +258,34 @@ void CreateToolkitsH(CPcmakerDlg *vals)
   // create the vtkConfigure.h file only if it isn't already there
   sprintf(fname,"%s\\vtkConfigure.h",vals->m_WhereBuild);
   ofp = fopen(fname,"r");
-  if (!ofp)
+  const char* AnsiDefine = "#define VTK_USE_ANSI_STDLIB\n";
+  bool writeFilep = true;
+  if(ofp)
+    {
+    char lineIn[1024];
+    fgets(lineIn, 1024, ofp);
+    // if the second line is the ansi flag, and ansi is on, then do not
+    // write the file again, as it needs no change
+    fgets(lineIn, 1024, ofp);
+    if(vals->m_AnsiCpp)
+      {
+      if(strcmp(lineIn, AnsiDefine) == 0)
+        {
+        writeFilep = false;
+        }
+      }
+    fclose(ofp);
+    }
+  if (!ofp || writeFilep)
     {
     ofp = fopen(fname,"w");
     if (ofp)
       {
       fprintf(ofp,"/* generated file from pcmaker.exe */\n");
+      if(vals->m_AnsiCpp)
+        {
+        fprintf(ofp,"%s", AnsiDefine);
+        }
       fclose(ofp);    
       }
     else
@@ -1204,6 +1226,7 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     fprintf(fp,"/Fo$(OBJDIR)\\ /c\n");
     }
 
+
   char mpilibs[1024];
   sprintf(mpilibs,"");
   if (vals->adlg.m_UseMPI) 
@@ -1245,7 +1268,7 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     sprintf(mpilibs,"/libpath:\"%s\" %s",
             vals->adlg.m_WhereMPILibrary, libs);
     }
-  
+
   fprintf(fp,"LINK32=link.exe\n");
   if (debugFlag)
     {

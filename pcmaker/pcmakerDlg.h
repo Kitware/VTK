@@ -35,6 +35,7 @@ public:
 	BOOL	m_BuildPython;
 	CString	m_WherePy;
 	BOOL	m_Local;
+	BOOL	m_AnsiCpp;
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides

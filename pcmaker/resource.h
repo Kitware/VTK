@@ -56,6 +56,7 @@
 #define IDC_WHERE_LIBTK                 1041
 #define IDC_BROWSEMPIINCLUDE            1042
 #define IDC_BROWSEMPILIB                1043
+#define IDC_ANSICPP                     1044
 
 // Next default values for new objects
 // 

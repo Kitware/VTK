@@ -180,6 +180,7 @@ int ReadRegistry(CPcmakerDlg &dlg)
       dlg.m_BuildTcl = (dwData&0x80)?TRUE:FALSE;
       dlg.m_Local = (dwData&0x100)?TRUE:FALSE;
       dlg.adlg.m_UseMPI = (dwData&0x200)?TRUE:FALSE;
+      dlg.m_AnsiCpp = (dwData&0x400)?TRUE:FALSE;
       }
     }
 
@@ -260,6 +261,7 @@ void WriteRegistry(CPcmakerDlg &dlg)
     dwData |= (dlg.m_BuildTcl)?0x80:0;
     dwData |= (dlg.m_Local)?0x100:0;
     dwData |= (dlg.adlg.m_UseMPI)?0x200:0;
+    dwData |= (dlg.m_AnsiCpp)?0x400:0;
     RegSetValueEx(hKey, _T("Flags"), 0, REG_DWORD, 
 		  (CONST BYTE *)&dwData, sizeof(DWORD));
     }
