@@ -20,7 +20,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkFunctionParser, "1.19");
+vtkCxxRevisionMacro(vtkFunctionParser, "1.20");
 vtkStandardNewMacro(vtkFunctionParser);
 
 static double vtkParserVectorErrorResult[3] = { VTK_PARSER_ERROR_RESULT, 
@@ -712,13 +712,14 @@ int vtkFunctionParser::IsElementaryOperator(int op)
   return strchr("+-.*/^", op) != NULL;
 }
 
-void vtkFunctionParser::SetScalarVariableValue(const char* variableName,
+void vtkFunctionParser::SetScalarVariableValue(const char* inVariableName,
                                                double value)
 {
   int i;
   double *tempValues;
   char** tempNames;
-  
+  char* variableName = this->RemoveSpacesFrom(inVariableName);
+
   for (i = 0; i < this->NumberOfScalarVariables; i++)
     {
     if (strcmp(variableName, this->ScalarVariableNames[i]) == 0)
@@ -729,6 +730,7 @@ void vtkFunctionParser::SetScalarVariableValue(const char* variableName,
         this->VariableMTime.Modified();
         this->Modified();
         }
+      delete [] variableName;
       return;
       }
     }
@@ -777,6 +779,7 @@ void vtkFunctionParser::SetScalarVariableValue(const char* variableName,
 
   this->VariableMTime.Modified();
   this->Modified();
+  delete [] variableName;
 }
 
 void vtkFunctionParser::SetScalarVariableValue(int i, double value)
@@ -794,19 +797,22 @@ void vtkFunctionParser::SetScalarVariableValue(int i, double value)
   this->Modified();
 }
 
-double vtkFunctionParser::GetScalarVariableValue(const char* variableName)
+double vtkFunctionParser::GetScalarVariableValue(const char* inVariableName)
 {
   int i;
+  char* variableName = this->RemoveSpacesFrom(inVariableName);
   
   for (i = 0; i < this->NumberOfScalarVariables; i++)
     {
     if (strcmp(variableName, this->ScalarVariableNames[i]) == 0)
       {
+      delete [] variableName;
       return this->ScalarVariableValues[i];
       }
     }
   vtkErrorMacro("GetScalarVariableValue: scalar variable " << variableName 
                 << " does not exist");
+  delete [] variableName;
   return VTK_PARSER_ERROR_RESULT;
 }
 
@@ -822,13 +828,14 @@ double vtkFunctionParser::GetScalarVariableValue(int i)
   return this->ScalarVariableValues[i];
 }
 
-void vtkFunctionParser::SetVectorVariableValue(const char* variableName,
+void vtkFunctionParser::SetVectorVariableValue(const char* inVariableName,
                                                double xValue, double yValue,
                                                double zValue)
 {
   int i;
   double **tempValues;
   char** tempNames;
+  char* variableName = this->RemoveSpacesFrom(inVariableName);
   
   for (i = 0; i < this->NumberOfVectorVariables; i++)
     {
@@ -844,6 +851,7 @@ void vtkFunctionParser::SetVectorVariableValue(const char* variableName,
         this->VariableMTime.Modified();
         this->Modified();
         }
+      delete [] variableName;
       return;
       }
     }
@@ -905,6 +913,7 @@ void vtkFunctionParser::SetVectorVariableValue(const char* variableName,
 
   this->VariableMTime.Modified();
   this->Modified();
+  delete [] variableName;
 }
 
 void vtkFunctionParser::SetVectorVariableValue(int i, double xValue,
@@ -926,19 +935,22 @@ void vtkFunctionParser::SetVectorVariableValue(int i, double xValue,
     }
 }
 
-double* vtkFunctionParser::GetVectorVariableValue(const char* variableName)
+double* vtkFunctionParser::GetVectorVariableValue(const char* inVariableName)
 {
   int i;
+  char* variableName = this->RemoveSpacesFrom(inVariableName);
   
   for (i = 0; i < this->NumberOfVectorVariables; i++)
     {
     if (strcmp(variableName, this->VectorVariableNames[i]) == 0)
       {
+      delete [] variableName;
       return this->VectorVariableValues[i];
       }
     }
   vtkErrorMacro("GetVectorVariableValue: vector variable " << variableName 
                 << " does not exist");
+  delete [] variableName;
   return vtkParserVectorErrorResult;
 }
 
@@ -951,6 +963,23 @@ double* vtkFunctionParser::GetVectorVariableValue(int i)
     return vtkParserVectorErrorResult;
     }
   return this->VectorVariableValues[i];
+}
+
+char* vtkFunctionParser::RemoveSpacesFrom(const char* variableName)
+{
+  int len = static_cast<int>(strlen(variableName));
+  int i;
+  char* resultString = new char[len+1];
+  char* out = resultString;
+  for(i=0; i < len; ++i)
+    {
+    if(variableName[i] != ' ')
+      {
+      *out++ = variableName[i];
+      }
+    }
+  *out = '\0';
+  return resultString;
 }
 
 void vtkFunctionParser::RemoveSpaces()
