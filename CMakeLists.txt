@@ -190,7 +190,7 @@ ENDIF (VTK_USE_RENDERING)
 
 IF (VTK_USE_HYBRID)
   IF (WIN32)
-    OPTION(VTK_USE_VIDEO_FOR_WINDOWS "Use Video for Windows for video input" ON)
+    OPTION(VTK_USE_VIDEO_FOR_WINDOWS "Use Video for Windows for video input" OFF)
     OPTION(VTK_USE_MATROX_IMAGING "Use Matrox Imaging Library for video input" OFF)
     IF (VTK_USE_MATROX_IMAGING)
       FIND_LIBRARY(MIL_LIBRARY MIL
