@@ -26,7 +26,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGridToTetrahedra, "1.10");
+vtkCxxRevisionMacro(vtkRectilinearGridToTetrahedra, "1.10.2.1");
 vtkStandardNewMacro(vtkRectilinearGridToTetrahedra);
 
 // ways to convert to a voxel to tetrahedra.
@@ -161,7 +161,7 @@ void vtkRectilinearGridToTetrahedra::DetermineGridDivisionTypes(
   // the next
 
   int Rec[3];
-  int flip = 0;
+  int flip;
   int i;
 
   switch (TetraPerCell)

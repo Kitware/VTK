@@ -98,9 +98,9 @@ public:
   virtual void SetWindowInfo(void *);
 
   void SetNextWindowInfo(char *)
-     {
-        vtkWarningMacro("SetNextWindowInfo not implemented (WindowRemap not implemented).");
-     }
+    {
+    vtkWarningMacro("SetNextWindowInfo not implemented (WindowRemap not implemented).");
+    }
 
 
   //BTX
@@ -110,25 +110,25 @@ public:
   virtual void SetDisplayId(void *) {};
   virtual void SetParentId(void *) 
     {
-      vtkWarningMacro("Method not implemented.");
+    vtkWarningMacro("Method not implemented.");
     }
   virtual void* GetGenericParentId()
     {
-      vtkWarningMacro("Method not implemented.");
-      return 0;
+    vtkWarningMacro("Method not implemented.");
+    return 0;
     }
   virtual void* GetGenericDrawable()
     {
-      vtkWarningMacro("Method not implemented.");
-      return 0;
+    vtkWarningMacro("Method not implemented.");
+    return 0;
     }
   virtual void SetWindowInfo(char*)
     {
-      vtkWarningMacro("Method not implemented.");
+    vtkWarningMacro("Method not implemented.");
     }
   virtual void SetParentInfo(char*)
     {
-      vtkWarningMacro("Method not implemented.");
+    vtkWarningMacro("Method not implemented.");
     }
 
   // Description:
@@ -141,10 +141,9 @@ public:
 
   void SetNextWindowId(void*)
     {
-       vtkWarningMacro("SetNextWindowId not implemented (WindowRemap not implemented).");
+    vtkWarningMacro("SetNextWindowId not implemented (WindowRemap not implemented).");
     }
 
-  
   void  SetContextId(void *);   // hsr
   void  SetDeviceContext(void *);       // hsr
 

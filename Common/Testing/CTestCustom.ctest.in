@@ -29,11 +29,13 @@ SET(CTEST_CUSTOM_MEMCHECK_IGNORE
   TestSetObjectMacro-Patented
   TestSetObjectMacro-Rendering
   Install
+  Example-vtkMy
   )
 
 SET(CTEST_CUSTOM_MEMCHECK_IGNORE
   ${CTEST_CUSTOM_MEMCHECK_IGNORE}
   largeImageOffset-image
   largeImageParallel-image
+  Sockets-image
   )
 

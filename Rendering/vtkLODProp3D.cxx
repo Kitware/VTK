@@ -26,7 +26,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkLODProp3D, "1.42");
+vtkCxxRevisionMacro(vtkLODProp3D, "1.42.10.1");
 vtkStandardNewMacro(vtkLODProp3D);
 
 #define VTK_INDEX_NOT_IN_USE    -1
@@ -1026,7 +1026,7 @@ void vtkLODProp3D::PrintSelf(ostream& os, vtkIndent indent)
 void vtkLODProp3D::GetActors(vtkPropCollection *ac)
 {
   vtkDebugMacro(<< "vtkLODProp3D::GetActors");
-  int index = 0;
+  int index;
   int lodID;
 
   lodID = this->GetPickLODID();
@@ -1043,12 +1043,12 @@ void vtkLODProp3D::GetActors(vtkPropCollection *ac)
     }
 }
 
-int vtkLODProp3D::GetAutomaticPickPropIndex(void)
+int vtkLODProp3D::GetAutomaticPickPropIndex()
 {
   double bestTime = -1.0;
   int index = 0;
   double targetTime = 0;
-  double estimatedTime = 0.0;
+  double estimatedTime;
 
     for (int i = 0; i < this->NumberOfEntries; i++ )
       {
@@ -1062,7 +1062,6 @@ int vtkLODProp3D::GetAutomaticPickPropIndex(void)
         if ( estimatedTime == 0.0 )
           {
           index = i;
-          bestTime = 0.0;
           break;
           }
         
@@ -1095,10 +1094,10 @@ int vtkLODProp3D::GetAutomaticPickPropIndex(void)
 
 int vtkLODProp3D::GetPickLODID(void)
 {
-  int lodID=0;
+  int lodID;
 
   vtkDebugMacro(<< "vtkLODProp3D::GetPickLODID");
-  int index = 0;
+  int index;
   if (this->AutomaticPickLODSelection)
     {
     if ( this->SelectedLODIndex < 0 ||

@@ -24,7 +24,7 @@
 #include "vtkPolyData.h"
 #include "vtkPolyLine.h"
 
-vtkCxxRevisionMacro(vtkRibbonFilter, "1.75");
+vtkCxxRevisionMacro(vtkRibbonFilter, "1.75.4.1");
 vtkStandardNewMacro(vtkRibbonFilter);
 
 // Construct ribbon so that width is 0.1, the width does 
@@ -63,12 +63,12 @@ void vtkRibbonFilter::Execute()
   vtkPointData *outPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData();
   vtkCellData *outCD=output->GetCellData();
-  vtkCellArray *inLines = NULL;
+  vtkCellArray *inLines;
   vtkDataArray *inNormals;
   vtkDataArray *inScalars=pd->GetScalars(this->InputScalarsSelection);
 
   vtkPoints *inPts;
-  vtkIdType numPts = 0;
+  vtkIdType numPts;
   vtkIdType numLines;
   vtkIdType numNewPts, numNewCells;
   vtkPoints *newPts;
@@ -263,7 +263,7 @@ int vtkRibbonFilter::GeneratePoints(vtkIdType offset,
   double sPrev[3];
   double n[3];
   double s[3], sp[3], sm[3], v[3];
-  double bevelAngle;
+  //double bevelAngle;
   double w[3];
   double nP[3];
   double sFactor=1.0;
@@ -328,7 +328,7 @@ int vtkRibbonFilter::GeneratePoints(vtkIdType offset,
         vtkWarningMacro(<< "Using alternate bevel vector");
         }
       }
-
+/*
     if ( (bevelAngle = vtkMath::Dot(sNext,sPrev)) > 1.0 )
       {
       bevelAngle = 1.0;
@@ -344,7 +344,7 @@ int vtkRibbonFilter::GeneratePoints(vtkIdType offset,
       }
 
     bevelAngle = this->Width / bevelAngle; //keep ribbon constant width
-
+*/
     vtkMath::Cross(s,n,w);
     if ( vtkMath::Normalize(w) == 0.0)
       {

@@ -19,7 +19,7 @@
 #include "vtkMath.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkPCAAnalysisFilter, "1.10");
+vtkCxxRevisionMacro(vtkPCAAnalysisFilter, "1.10.4.1");
 vtkStandardNewMacro(vtkPCAAnalysisFilter);
 
 //------------------------------------------------------------------------
@@ -430,7 +430,7 @@ vtkPointSet* vtkPCAAnalysisFilter::GetOutput(int idx)
 void vtkPCAAnalysisFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  this->Evals->PrintSelf(os,indent);
+  this->Evals->PrintSelf(os,indent.GetNextIndent());
 }
 
 //----------------------------------------------------------------------------

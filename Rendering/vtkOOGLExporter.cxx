@@ -34,9 +34,8 @@
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 #include "vtkTriangleStrip.h"
-#include "vtkVersion.h"
 
-vtkCxxRevisionMacro(vtkOOGLExporter, "1.30");
+vtkCxxRevisionMacro(vtkOOGLExporter, "1.30.2.1");
 vtkStandardNewMacro(vtkOOGLExporter);
 
 vtkOOGLExporter::vtkOOGLExporter()
@@ -46,10 +45,7 @@ vtkOOGLExporter::vtkOOGLExporter()
 
 vtkOOGLExporter::~vtkOOGLExporter()
 {
-  if ( this->FileName )
-    {
-    delete [] this->FileName;
-    }
+  this->SetFileName( 0 );
 }
 
 static char indent[256];
@@ -272,7 +268,7 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
   vtkDataSet *ds;
   vtkPolyData *pd;
   vtkGeometryFilter *gf = NULL;
-  vtkPoints *points = NULL;
+  vtkPoints *points;
   int i;
   vtkProperty *prop;
   static double defcolor[3] = {  1.0, 1.0, 1.0 };

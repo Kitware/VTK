@@ -26,7 +26,7 @@
 #include "vtkPointData.h"
 #include "vtkCellData.h"
 
-vtkCxxRevisionMacro(vtkDecimatePro, "1.76");
+vtkCxxRevisionMacro(vtkDecimatePro, "1.76.10.1");
 vtkStandardNewMacro(vtkDecimatePro);
 
 #define VTK_TOLERANCE 1.0e-05
@@ -261,11 +261,7 @@ void vtkDecimatePro::Execute()
       {
       vtkDebugMacro(<<"Inserting vertex #" << ptId);
       this->UpdateProgress (0.25*ptId/npts);//25% spent inserting
-      if (this->GetAbortExecute())
-        {
-        abortExecute = 1;
-        break;
-        }
+      abortExecute = this->GetAbortExecute();
       }
     this->Insert(ptId);
     }
@@ -288,11 +284,7 @@ void vtkDecimatePro::Execute()
       {
       vtkDebugMacro(<<"Deleting vertex #" << numPops);
       this->UpdateProgress (0.25 + 0.75*(reduction/this->TargetReduction));
-      if (this->GetAbortExecute())
-        {
-        abortExecute = 1;
-        break;
-        }
+      abortExecute = this->GetAbortExecute();
       }
     
     this->Mesh->GetPoint(ptId,this->X);
@@ -997,7 +989,7 @@ void vtkDecimatePro::SplitVertex(vtkIdType ptId, int type,
       }
 
     // now group into manifold pieces
-    for ( i=0, id=ptId; triangles->GetNumberOfIds() > 0; i++ )
+    for ( i=0; triangles->GetNumberOfIds() > 0; i++ )
       {
       group->Reset();
       startTri = triangles->GetId(0);

@@ -22,7 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkPolyDataAlgorithm, "1.1.2.5");
+vtkCxxRevisionMacro(vtkPolyDataAlgorithm, "1.1.2.6");
 vtkStandardNewMacro(vtkPolyDataAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -70,63 +70,6 @@ vtkPolyData* vtkPolyDataAlgorithm::GetPolyDataInput(int port)
 }
 
 //----------------------------------------------------------------------------
-void vtkPolyDataAlgorithm::SetInput(vtkDataObject* input)
-{
-  this->SetInput(0, input);
-}
-
-//----------------------------------------------------------------------------
-void vtkPolyDataAlgorithm::SetInput(int index, vtkDataObject* input)
-{
-  if(input)
-    {
-    if(vtkAlgorithmOutput* producerPort = input->GetProducerPort())
-      {
-      this->SetInputConnection(index, producerPort);
-      }
-    else
-      {
-      // The data object has no producer.  Give it a trivial producer.
-      vtkTrivialProducer* producer = vtkTrivialProducer::New();
-      producer->SetOutput(input);
-      this->SetInputConnection(index, producer->GetOutputPort(0));
-      producer->Delete();
-      }
-    }
-  else
-    {
-    // Setting a NULL input removes the connection.
-    this->SetInputConnection(index, 0);
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkPolyDataAlgorithm::AddInput(vtkDataObject* input)
-{
-  this->AddInput(0, input);
-}
-
-//----------------------------------------------------------------------------
-void vtkPolyDataAlgorithm::AddInput(int index, vtkDataObject* input)
-{
-  if(input)
-    {
-    if(vtkAlgorithmOutput* producerPort = input->GetProducerPort())
-      {
-      this->AddInputConnection(index, producerPort);
-      }
-    else
-      {
-      // The data object has no producer.  Give it a trivial producer.
-      vtkTrivialProducer* producer = vtkTrivialProducer::New();
-      producer->SetOutput(input);
-      this->AddInputConnection(index, producer->GetOutputPort(0));
-      producer->Delete();
-      }
-    }
-}
-
-//----------------------------------------------------------------------------
 int vtkPolyDataAlgorithm::ProcessRequest(vtkInformation* request,
                                          vtkInformationVector* inputVector,
                                          vtkInformationVector* outputVector)
@@ -146,7 +89,7 @@ int vtkPolyDataAlgorithm::ProcessRequest(vtkInformation* request,
     this->AbortExecute = 0;
     this->Progress = 0.0;
 
-    this->ExecuteData(request, inputVector, outputVector);
+    this->RequestData(request, inputVector, outputVector);
 
     if(!this->AbortExecute)
       {
@@ -196,7 +139,7 @@ void vtkPolyDataAlgorithm::ExecuteInformation(
 //----------------------------------------------------------------------------
 // This is the superclasses style of Execute method.  Convert it into
 // an imaging style Execute method.
-void vtkPolyDataAlgorithm::ExecuteData(
+void vtkPolyDataAlgorithm::RequestData(
   vtkInformation *request, 
   vtkInformationVector * vtkNotUsed( inputVector ), 
   vtkInformationVector *outputVector)
@@ -281,28 +224,38 @@ int vtkPolyDataAlgorithm::UpdateExtentIsEmpty(vtkDataObject *output)
   return 0;
 }
 
+
 //----------------------------------------------------------------------------
-void vtkPolyDataAlgorithm::ReleaseDataFlagOn()
+void vtkPolyDataAlgorithm::SetInput(vtkDataObject* input)
 {
-  if(vtkDemandDrivenPipeline* ddp =
-     vtkDemandDrivenPipeline::SafeDownCast(this->GetExecutive()))
+  this->SetInput(0, input);
+}
+
+//----------------------------------------------------------------------------
+void vtkPolyDataAlgorithm::SetInput(int index, vtkDataObject* input)
+{
+  if(input)
     {
-    for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
-      {
-      ddp->SetReleaseDataFlag(i, 1);
-      }
+    this->SetInputConnection(index, input->GetProducerPort());
+    }
+  else
+    {
+    // Setting a NULL input removes the connection.
+    this->SetInputConnection(index, 0);
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkPolyDataAlgorithm::ReleaseDataFlagOff()
+void vtkPolyDataAlgorithm::AddInput(vtkDataObject* input)
 {
-  if(vtkDemandDrivenPipeline* ddp =
-     vtkDemandDrivenPipeline::SafeDownCast(this->GetExecutive()))
+  this->AddInput(0, input);
+}
+
+//----------------------------------------------------------------------------
+void vtkPolyDataAlgorithm::AddInput(int index, vtkDataObject* input)
+{
+  if(input)
     {
-    for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
-      {
-      ddp->SetReleaseDataFlag(i, 0);
-      }
+    this->AddInputConnection(index, input->GetProducerPort());
     }
 }

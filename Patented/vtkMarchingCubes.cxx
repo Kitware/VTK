@@ -49,7 +49,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkMarchingCubes, "1.87");
+vtkCxxRevisionMacro(vtkMarchingCubes, "1.87.10.1");
 vtkStandardNewMacro(vtkMarchingCubes);
 
 // Description:
@@ -659,7 +659,7 @@ void vtkMarchingCubes::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  this->ContourValues->PrintSelf(os,indent);
+  this->ContourValues->PrintSelf(os,indent.GetNextIndent());
 
   os << indent << "Compute Normals: " << (this->ComputeNormals ? "On\n" : "Off\n");
   os << indent << "Compute Gradients: " << (this->ComputeGradients ? "On\n" : "Off\n");

@@ -46,7 +46,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkMultiProcessController.h"
 
-vtkCxxRevisionMacro(vtkTreeCompositer, "1.5");
+vtkCxxRevisionMacro(vtkTreeCompositer, "1.5.10.1");
 vtkStandardNewMacro(vtkTreeCompositer);
 
 #ifdef VTK_USE_MPI
@@ -259,7 +259,7 @@ void vtkTreeCompositer::CompositeBuffer(vtkDataArray *pBuf,
 
 void vtkTreeCompositer::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkCompositer::PrintSelf(os, indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
 

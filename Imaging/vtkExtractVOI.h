@@ -74,7 +74,7 @@ protected:
                            vtkInformationVector *, 
                            vtkInformationVector *);
   
-  virtual void ExecuteData(vtkInformation *request, 
+  virtual void RequestData(vtkInformation *request, 
                            vtkInformationVector *inputVector, 
                            vtkInformationVector *outputVector);
 

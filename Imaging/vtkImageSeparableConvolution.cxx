@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkImageSeparableConvolution, "1.13");
+vtkCxxRevisionMacro(vtkImageSeparableConvolution, "1.13.10.1");
 vtkStandardNewMacro(vtkImageSeparableConvolution);
 vtkCxxSetObjectMacro(vtkImageSeparableConvolution,XKernel,vtkFloatArray);
 vtkCxxSetObjectMacro(vtkImageSeparableConvolution,YKernel,vtkFloatArray);
@@ -38,17 +38,17 @@ void ExecuteConvolve ( float* kernel, int kernelSize, float* image, float* outIm
     {
     outImage[i] = 0.0;
 
-    iStart = i - center;
-    if ( iStart < 0 )
-      {
-      iStart = 0;
-      }
+//    iStart = i - center;
+//    if ( iStart < 0 )
+//      {
+//      iStart = 0;
+//      }
     
-    iEnd = i + center;
-    if ( iEnd > imageSize - 1 )
-      {
-      iEnd = imageSize - 1;
-      }
+//    iEnd = i + center;
+//    if ( iEnd > imageSize - 1 )
+//      {
+//      iEnd = imageSize - 1;
+//      }
 
     // Handle padding
     iStart = i - center;
@@ -248,7 +248,7 @@ void vtkImageSeparableConvolutionExecute ( vtkImageSeparableConvolution* self,
   int imageSize = inMax0 + 1;
   float* image = new float[imageSize];
   float* outImage = new float[imageSize];
-  float* imagePtr = NULL;
+  float* imagePtr;
 
   
   // loop over all the extra axes

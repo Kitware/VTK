@@ -32,26 +32,31 @@
 #include <OpenGL/gl.h>
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.4");
+//----------------------------------------------------------------------------
+vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.4.8.1");
 vtkStandardNewMacro(vtkCocoaRenderWindowInteractor);
 
+//----------------------------------------------------------------------------
 void (*vtkCocoaRenderWindowInteractor::ClassExitMethod)(void *) = (void (*)(void *))NULL;
 void *vtkCocoaRenderWindowInteractor::ClassExitMethodArg = (void *)NULL;
 void (*vtkCocoaRenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (void (*)(void *))NULL;
 
+//----------------------------------------------------------------------------
 // Construct object so that light follows camera motion.
 vtkCocoaRenderWindowInteractor::vtkCocoaRenderWindowInteractor() 
 {
   this->WindowId           = 0;
-  this->ApplicationId		=0;
+  this->ApplicationId      = 0;
   this->InstallMessageProc = 1;
 }
 
+//----------------------------------------------------------------------------
 vtkCocoaRenderWindowInteractor::~vtkCocoaRenderWindowInteractor() 
 {
-    this->Enabled = 0;
+  this->Enabled = 0;
 }
 
+//----------------------------------------------------------------------------
 void  vtkCocoaRenderWindowInteractor::Start() 
 {
   // No need to do anything if this is a 'mapped' interactor
@@ -62,6 +67,7 @@ void  vtkCocoaRenderWindowInteractor::Start()
   [NSApp run];
 }
 
+//----------------------------------------------------------------------------
 // Begin processing keyboard strokes.
 void vtkCocoaRenderWindowInteractor::Initialize()
 {
@@ -69,7 +75,7 @@ void vtkCocoaRenderWindowInteractor::Initialize()
   int *size;
 
   // make sure we have a RenderWindow and camera
-  if ( ! this->RenderWindow) 
+  if ( !this->RenderWindow ) 
     {
     vtkErrorMacro(<<"No renderer defined!");
     return;
@@ -82,7 +88,7 @@ void vtkCocoaRenderWindowInteractor::Initialize()
   // get the info we need from the RenderingWindow
   ren = (vtkCocoaRenderWindow *)(this->RenderWindow);
   ren->Start();
-  size    = ren->GetSize();
+  size = ren->GetSize();
   ren->GetPosition();
   this->WindowId = ren->GetWindowId();
   this->Enable();
@@ -90,6 +96,7 @@ void vtkCocoaRenderWindowInteractor::Initialize()
   this->Size[1] = size[1];
 }
 
+//----------------------------------------------------------------------------
 void vtkCocoaRenderWindowInteractor::Enable() 
 {
   if (this->Enabled) 
@@ -102,7 +109,7 @@ void vtkCocoaRenderWindowInteractor::Enable()
   this->Modified();
 }
 
-
+//----------------------------------------------------------------------------
 void vtkCocoaRenderWindowInteractor::Disable() 
 {
   if (!this->Enabled) 
@@ -116,34 +123,39 @@ void vtkCocoaRenderWindowInteractor::Disable()
   this->Modified();
 }
 
-void vtkCocoaRenderWindowInteractor::TerminateApp(void) 
+//----------------------------------------------------------------------------
+void vtkCocoaRenderWindowInteractor::TerminateApp() 
 {
   [NSApp terminate:(vtkCocoaWindow *)this->WindowId];
 }
 
+//----------------------------------------------------------------------------
 int vtkCocoaRenderWindowInteractor::CreateTimer(int) 
 {
-    [NSEvent stopPeriodicEvents];
-    [NSEvent startPeriodicEventsAfterDelay:0.01 withPeriod:0.01];
-    return 1;
-}
+  [NSEvent stopPeriodicEvents];
+  [NSEvent startPeriodicEventsAfterDelay:0.01 withPeriod:0.01];
 
-int vtkCocoaRenderWindowInteractor::DestroyTimer(void) 
-{
-    [NSEvent stopPeriodicEvents];
   return 1;
 }
 
+//----------------------------------------------------------------------------
+int vtkCocoaRenderWindowInteractor::DestroyTimer()
+{
+  [NSEvent stopPeriodicEvents];
+  return 1;
+}
+
+//----------------------------------------------------------------------------
 // Specify the default function to be called when an interactor needs to exit.
 // This callback is overridden by an instance ExitMethod that is defined.
 void vtkCocoaRenderWindowInteractor::SetClassExitMethod(void (*f)(void *),void *arg)
 {
   if ( f != vtkCocoaRenderWindowInteractor::ClassExitMethod
-       || arg != vtkCocoaRenderWindowInteractor::ClassExitMethodArg)
+  || arg != vtkCocoaRenderWindowInteractor::ClassExitMethodArg)
     {
     // delete the current arg if there is a delete method
     if ((vtkCocoaRenderWindowInteractor::ClassExitMethodArg)
-        && (vtkCocoaRenderWindowInteractor::ClassExitMethodArgDelete))
+     && (vtkCocoaRenderWindowInteractor::ClassExitMethodArgDelete))
       {
       (*vtkCocoaRenderWindowInteractor::ClassExitMethodArgDelete)
         (vtkCocoaRenderWindowInteractor::ClassExitMethodArg);
@@ -156,9 +168,9 @@ void vtkCocoaRenderWindowInteractor::SetClassExitMethod(void (*f)(void *),void *
 }
 
 
+//----------------------------------------------------------------------------
 // Set the arg delete method.  This is used to free user memory.
-void
-vtkCocoaRenderWindowInteractor::SetClassExitMethodArgDelete(void (*f)(void *))
+void vtkCocoaRenderWindowInteractor::SetClassExitMethodArgDelete(void (*f)(void *))
 {
   if (f != vtkCocoaRenderWindowInteractor::ClassExitMethodArgDelete)
     {
@@ -168,12 +180,15 @@ vtkCocoaRenderWindowInteractor::SetClassExitMethodArgDelete(void (*f)(void *))
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkCocoaRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkRenderWindowInteractor::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
+
   os << indent << "InstallMessageProc: " << this->InstallMessageProc << endl;
 }
 
+//----------------------------------------------------------------------------
 void vtkCocoaRenderWindowInteractor::ExitCallback()
 {
   if (this->ClassExitMethod)

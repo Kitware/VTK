@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkArrayCalculator, "1.26");
+vtkCxxRevisionMacro(vtkArrayCalculator, "1.26.8.1");
 vtkStandardNewMacro(vtkArrayCalculator);
 
 vtkArrayCalculator::vtkArrayCalculator()
@@ -327,7 +327,6 @@ void vtkArrayCalculator::Execute()
     }
   
   resultArray->Delete();
-  resultArray = NULL;
 }
 
 void vtkArrayCalculator::SetFunction(const char* function)
@@ -412,11 +411,8 @@ void vtkArrayCalculator::AddScalarArrayName(const char* arrayName,
     this->SelectedScalarComponents[i] = tempComponents[i];
     }
   delete [] arrayNames;
-  arrayNames = NULL;
   delete [] varNames;
-  varNames = NULL;
   delete [] tempComponents;
-  tempComponents = NULL;
 
   this->ScalarArrayNames[i] = new char[strlen(arrayName) + 1];
   strcpy(this->ScalarArrayNames[i], arrayName);
@@ -497,11 +493,8 @@ void vtkArrayCalculator::AddVectorArrayName(const char* arrayName,
     tempComponents[i] = NULL;
     }
   delete [] arrayNames;
-  arrayNames = NULL;
   delete [] varNames;
-  varNames = NULL;
   delete [] tempComponents;
-  tempComponents = NULL;
 
   this->VectorArrayNames[i] = new char[strlen(arrayName) + 1];
   strcpy(this->VectorArrayNames[i], arrayName);
@@ -574,11 +567,8 @@ void vtkArrayCalculator::AddScalarVariable(const char* variableName,
     this->SelectedScalarComponents[i] = tempComponents[i];
     }
   delete [] arrayNames;
-  arrayNames = NULL;
   delete [] varNames;
-  varNames = NULL;
   delete [] tempComponents;
-  tempComponents = NULL;
 
   this->ScalarArrayNames[i] = new char[strlen(arrayName) + 1];
   strcpy(this->ScalarArrayNames[i], arrayName);
@@ -660,11 +650,8 @@ void vtkArrayCalculator::AddVectorVariable(const char* variableName,
     tempComponents[i] = NULL;
     }
   delete [] arrayNames;
-  arrayNames = NULL;
   delete [] varNames;
-  varNames = NULL;
   delete [] tempComponents;
-  tempComponents = NULL;
 
   this->VectorArrayNames[i] = new char[strlen(arrayName) + 1];
   strcpy(this->VectorArrayNames[i], arrayName);

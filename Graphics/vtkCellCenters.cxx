@@ -23,7 +23,7 @@
 #include "vtkPolyData.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkCellCenters, "1.22");
+vtkCxxRevisionMacro(vtkCellCenters, "1.22.10.1");
 vtkStandardNewMacro(vtkCellCenters);
 
 // Construct object with vertex cell generation turned off.
@@ -44,7 +44,7 @@ void vtkCellCenters::Execute()
   vtkPoints *newPts;
   vtkCell *cell;
   double x[3], pcoords[3];
-  double *weights = NULL;
+  double *weights;
 
   if (input == NULL)
     {

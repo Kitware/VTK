@@ -23,7 +23,7 @@
 #include "vtkPolyData.h"
 #include "vtkPolyLine.h"
 
-vtkCxxRevisionMacro(vtkTubeFilter, "1.80.10.1");
+vtkCxxRevisionMacro(vtkTubeFilter, "1.80.10.2");
 vtkStandardNewMacro(vtkTubeFilter);
 
 // Construct object with radius 0.5, radius variation turned off, the number 
@@ -50,19 +50,19 @@ vtkTubeFilter::vtkTubeFilter()
 
 void vtkTubeFilter::Execute()
 {
-  vtkPolyData *input = this->GetPolyDataInput(0);
+  vtkPolyData *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
   vtkPointData *pd=input->GetPointData();
   vtkPointData *outPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData();
   vtkCellData *outCD=output->GetCellData();
-  vtkCellArray *inLines = NULL;
+  vtkCellArray *inLines;
   vtkDataArray *inNormals;
   vtkDataArray *inScalars=pd->GetScalars();
   vtkDataArray *inVectors=pd->GetVectors();
 
   vtkPoints *inPts;
-  vtkIdType numPts = 0;
+  vtkIdType numPts;
   vtkIdType numLines;
   vtkIdType numNewPts, numNewCells;
   vtkPoints *newPts;
@@ -284,7 +284,7 @@ int vtkTubeFilter::GeneratePoints(vtkIdType offset,
   double startCapNorm[3], endCapNorm[3];
   double n[3];
   double s[3];
-  double bevelAngle;
+  //double bevelAngle;
   double w[3];
   double nP[3];
   double sFactor=1.0;
@@ -355,7 +355,7 @@ int vtkTubeFilter::GeneratePoints(vtkIdType offset,
         }
       }
 
-    if ( (bevelAngle = vtkMath::Dot(sNext,sPrev)) > 1.0 )
+/*    if ( (bevelAngle = vtkMath::Dot(sNext,sPrev)) > 1.0 )
       {
       bevelAngle = 1.0;
       }
@@ -370,7 +370,7 @@ int vtkTubeFilter::GeneratePoints(vtkIdType offset,
       }
 
     bevelAngle = this->Radius / bevelAngle; //keep tube constant radius
-
+*/
     vtkMath::Cross(s,n,w);
     if ( vtkMath::Normalize(w) == 0.0)
       {

@@ -25,7 +25,7 @@
 #include "vtkTetra.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkConvexPointSet, "1.1");
+vtkCxxRevisionMacro(vtkConvexPointSet, "1.1.2.1");
 vtkStandardNewMacro(vtkConvexPointSet);
 
 //----------------------------------------------------------------------------
@@ -43,6 +43,7 @@ vtkConvexPointSet::vtkConvexPointSet()
   this->Triangulator = vtkOrderedTriangulator::New();
   this->Triangulator->PreSortedOff();
   this->Triangulator->UseTemplatesOff();
+  this->ParametricCoords = NULL;
 }
 
 //----------------------------------------------------------------------------

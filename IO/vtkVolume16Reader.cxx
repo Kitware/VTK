@@ -20,7 +20,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkVolume16Reader, "1.52");
+vtkCxxRevisionMacro(vtkVolume16Reader, "1.52.4.1");
 vtkStandardNewMacro(vtkVolume16Reader);
 
 vtkCxxSetObjectMacro(vtkVolume16Reader,Transform,vtkTransform);
@@ -290,7 +290,7 @@ void vtkVolume16Reader::ReadVolume(int first, int last,
   FILE *fp;
   int numPts;
   int fileNumber;
-  int status=0;
+  int status;
   int numberSlices = last - first + 1;
   char filename[1024];
   int dimensions[3];

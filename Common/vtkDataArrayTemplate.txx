@@ -78,6 +78,8 @@ void vtkDataArrayTemplate<T>::SetArray(T* array, vtkIdType size, int save)
 template <class T>
 int vtkDataArrayTemplate<T>::Allocate(vtkIdType sz, vtkIdType)
 {
+  this->MaxId = -1;
+
   if(sz > this->Size)
     {
     if(this->Array && !this->SaveUserArray)
@@ -85,16 +87,18 @@ int vtkDataArrayTemplate<T>::Allocate(vtkIdType sz, vtkIdType)
       delete [] this->Array;
       }
 
-    this->Size = ( sz > 0 ? sz : 1);
-    this->Array = new T[this->Size];
+    this->Array = 0;
+    this->Size = 0;
+    this->SaveUserArray = 0;
+
+    int newSize = (sz > 0 ? sz : 1);
+    this->Array = new T[newSize];
     if(!this->Array)
       {
       return 0;
       }
-    this->SaveUserArray = 0;
+    this->Size = newSize;
     }
-
-  this->MaxId = -1;
 
   return 1;
 }

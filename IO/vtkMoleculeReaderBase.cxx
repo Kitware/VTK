@@ -25,7 +25,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkMoleculeReaderBase, "1.15");
+vtkCxxRevisionMacro(vtkMoleculeReaderBase, "1.15.8.1");
 
 static double vtkMoleculeReaderBaseCovRadius[103] = {
 0.32 , 1.6 , 0.68 , 0.352 , 0.832 , 0.72 ,
@@ -271,7 +271,6 @@ int vtkMoleculeReaderBase::MakeBonds(vtkPoints *newPts,
 {
   register int i, j;
   register int nbonds;
-  register int nbonds_this_atom;     // this is not used for the moment
   register double dx, dy, dz;
   double max, dist;
   double X[3], Y[3];
@@ -280,7 +279,6 @@ int vtkMoleculeReaderBase::MakeBonds(vtkPoints *newPts,
   nbonds = 0;
   for(i = this->NumberOfAtoms - 1; i > 0; i--) 
     {
-    nbonds_this_atom = 0;
     bond[0] = i;
     newPts->GetPoint(i, X);
     for(j = i - 1; j >= 0 ; j--) 
@@ -342,7 +340,6 @@ int vtkMoleculeReaderBase::MakeBonds(vtkPoints *newPts,
       newBonds->InsertNextCell(2, bond);
 
       nbonds++;
-      nbonds_this_atom++;
       }
     }
   newBonds-> Squeeze();

@@ -23,7 +23,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkGlyph2D, "1.22");
+vtkCxxRevisionMacro(vtkGlyph2D, "1.22.10.1");
 vtkStandardNewMacro(vtkGlyph2D);
 
 void vtkGlyph2D::Execute()
@@ -132,7 +132,7 @@ void vtkGlyph2D::Execute()
   if ( this->IndexMode != VTK_INDEXING_OFF )
     {
     pd = NULL;
-    numSourcePts = numSourceCells = 0;
+    //numSourcePts = numSourceCells = 0;
     haveNormals = 1;
     for (numSourcePts=numSourceCells=i=0; i < numberOfSources; i++)
       {

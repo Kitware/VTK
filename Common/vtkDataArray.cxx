@@ -30,7 +30,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkDataArray, "1.63.4.1");
+vtkCxxRevisionMacro(vtkDataArray, "1.63.4.2");
 
 // Construct object with default tuple dimension (number of components) of 1.
 vtkDataArray::vtkDataArray(vtkIdType numComp)
@@ -524,7 +524,7 @@ unsigned long vtkDataArray::GetDataTypeSize(int type)
   switch (type)
     {
     case VTK_BIT:
-      return 0;
+      return 1;
       break;
 
     case VTK_CHAR:

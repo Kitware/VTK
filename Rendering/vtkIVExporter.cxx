@@ -34,7 +34,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkIVExporter, "1.60");
+vtkCxxRevisionMacro(vtkIVExporter, "1.60.6.1");
 vtkStandardNewMacro(vtkIVExporter);
 
 vtkIVExporter::vtkIVExporter()
@@ -244,7 +244,7 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   vtkPolyData *pd;
   vtkGeometryFilter *gf = NULL;
   vtkPointData *pntData;
-  vtkPoints *points = NULL;
+  vtkPoints *points;
   vtkDataArray *normals = NULL;
   vtkDataArray *tcoords = NULL;
   int i;

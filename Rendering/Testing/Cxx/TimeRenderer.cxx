@@ -109,7 +109,7 @@ int main( int argc, char *argv[] )
   vtkPolyDataMapper *mapper;
   vtkCellArray *cells;
   vtkActor *actor;
-  vtkGlyph3D *filter = NULL;
+  vtkGlyph3D *filter;
   vtkPolyData *data;
   vtkPoints *pnts = 0;
   vtkTriangleFilter *tfilter;

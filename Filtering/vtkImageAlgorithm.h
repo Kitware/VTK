@@ -41,25 +41,20 @@ public:
   vtkImageData* GetOutput(int);
 
   // Description:
-  // Set an input of this algorithm.
-  void SetInput(vtkImageData*);
-  void SetInput(int, vtkImageData*);
-
-  // Description:
-  // Add an input of this algorithm.
-  void AddInput(vtkImageData*);
-  void AddInput(int, vtkImageData*);
-
-  // Description:
   // see vtkAlgorithm for details
   virtual int ProcessRequest(vtkInformation*,
                              vtkInformationVector*,
                              vtkInformationVector*);
 
   // Description:
-  // Turn release data flag on or off for all output ports.
-  void ReleaseDataFlagOn();
-  void ReleaseDataFlagOff();
+  // Set an input of this algorithm.
+  void SetInput(vtkDataObject *);
+  void SetInput(int, vtkDataObject*);
+
+  // Description:
+  // Add an input of this algorithm.
+  void AddInput(vtkDataObject *);
+  void AddInput(int, vtkDataObject*);
 
 protected:
   vtkImageAlgorithm();
@@ -75,7 +70,7 @@ protected:
 
   // This is called by the superclass.
   // This is the method you should override.
-  virtual void ExecuteData(vtkInformation *request, 
+  virtual void RequestData(vtkInformation *request, 
                            vtkInformationVector *inputVector, 
                            vtkInformationVector *outputVector);
 

@@ -412,7 +412,7 @@ int TestImageTracerWidget( int argc, char *argv[] )
     imageTracerWidget->SetCaptureRadius(1.5);
     imageTracerWidget->GetGlyphSource()->SetColor(1, 0, 0);
     imageTracerWidget->GetGlyphSource()->SetScale(3.0);
-    imageTracerWidget->SetGlyphAngle(45.0);
+    imageTracerWidget->GetGlyphSource()->SetRotationAngle(45.0);
     imageTracerWidget->GetGlyphSource()->Modified();
     imageTracerWidget->ProjectToPlaneOn();
     imageTracerWidget->SetProjectionNormalToXAxes();

@@ -17,7 +17,7 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageDifference, "1.34.10.1");
+vtkCxxRevisionMacro(vtkImageDifference, "1.34.10.2");
 vtkStandardNewMacro(vtkImageDifference);
 
 // Construct object to extract all of the input data.
@@ -344,15 +344,13 @@ void vtkImageDifference::ExecuteInformation(vtkImageData **inputs,
       this->ErrorPerThread[i] = 1000;
       this->ThresholdedErrorPerThread[i] = 1000;
       }
-    vtkErrorMacro("ExecuteInformation: Input images do not share the same "
-                  "extent.  The first input has extent "
-                  << in1Ext[0] << " " << in1Ext[1] << " "
-                  << in1Ext[2] << " " << in1Ext[3] << " "
-                  << in1Ext[4] << " " << in1Ext[5]
-                  << " and the second input has extent "
-                  << in2Ext[0] << " " << in2Ext[1] << " "
-                  << in2Ext[2] << " " << in2Ext[3] << " "
-                  << in2Ext[4] << " " << in2Ext[5] << ".");
+    vtkErrorMacro("ExecuteInformation: Input are not the same size.\n" 
+      << " Input1 is: " << in1Ext[0] << "," << in1Ext[1] << ","
+                        << in1Ext[2] << "," << in1Ext[3] << ","
+                        << in1Ext[4] << "," << in1Ext[5] << "\n"
+      << " Input2 is: " << in2Ext[0] << "," << in2Ext[1] << ","
+                        << in2Ext[2] << "," << in2Ext[3] << ","
+                        << in2Ext[4] << "," << in2Ext[5] );
     }
 
   // We still need to set the whole extent to be the intersection.

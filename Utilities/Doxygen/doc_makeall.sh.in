@@ -180,6 +180,7 @@ if test "x$PERL_PROG" != "xNOTFOUND" ; then
         --relativeto "$SOURCE_DIR/$REL_PATH_TO_TOP" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Common" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Filtering" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/GenericFiltering" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Graphics" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Hybrid" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Imaging" \
@@ -208,6 +209,7 @@ if test "x$PERL_PROG" != "xNOTFOUND" ; then
         --relativeto "$SOURCE_DIR/$REL_PATH_TO_TOP" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Common" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Filtering" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/GenericFiltering" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Graphics" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Hybrid" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Imaging" \
@@ -228,6 +230,7 @@ if test "x$PERL_PROG" != "xNOTFOUND" ; then
         --to "$INTERMEDIATE_DOX_DIR" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Common" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Filtering" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/GenericFiltering" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Graphics" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Hybrid" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Imaging" \

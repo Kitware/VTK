@@ -27,7 +27,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkRendererSource, "1.55.2.1");
+vtkCxxRevisionMacro(vtkRendererSource, "1.55.2.2");
 vtkStandardNewMacro(vtkRendererSource);
 
 vtkCxxSetObjectMacro(vtkRendererSource,Input,vtkRenderer);
@@ -53,7 +53,7 @@ vtkRendererSource::~vtkRendererSource()
     }
 }
 
-void vtkRendererSource::ExecuteData(vtkInformation *, 
+void vtkRendererSource::RequestData(vtkInformation *, 
                                     vtkInformationVector *, 
                                     vtkInformationVector *outputVector)
 {

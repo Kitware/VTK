@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkXMLDataElement.h"
 
-vtkCxxRevisionMacro(vtkXMLDataParser, "1.23");
+vtkCxxRevisionMacro(vtkXMLDataParser, "1.23.8.1");
 vtkStandardNewMacro(vtkXMLDataParser);
 vtkCxxSetObjectMacro(vtkXMLDataParser, Compressor, vtkDataCompressor);
 
@@ -733,7 +733,7 @@ unsigned long vtkXMLDataParser::ReadBinaryData(void* in_buffer, int startWord,
 
   // Read the data.
   unsigned char* d = reinterpret_cast<unsigned char*>(buffer);
-  unsigned long actualWords = 0;
+  unsigned long actualWords;
   if(this->Compressor)
     {
     this->ReadCompressionHeader();

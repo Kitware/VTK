@@ -210,6 +210,20 @@ public:
   // connections to a port, connecction pair
   void ConvertTotalInputToPortConnection(int ind, int &port, int &conn);
   
+
+  //======================================================================
+  //The followling block of code is to support old style VTK applications. If
+  //you are using these calls there are better ways to do it in the new
+  //pipeline
+  //======================================================================
+  
+  // Description:
+  // Turn release data flag on or off for all output ports.
+  void ReleaseDataFlagOn();
+  void ReleaseDataFlagOff();
+
+  //========================================================================
+  
 protected:
   vtkAlgorithm();
   ~vtkAlgorithm();

@@ -21,7 +21,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkCleanPolyData, "1.74");
+vtkCxxRevisionMacro(vtkCleanPolyData, "1.74.10.1");
 vtkStandardNewMacro(vtkCleanPolyData);
 
 //---------------------------------------------------------------------------
@@ -595,7 +595,7 @@ void vtkCleanPolyData::SetLocator(vtkPointLocator *locator)
 // change of tolerance (zero to non-zero).
 void vtkCleanPolyData::CreateDefaultLocator() 
 {
-  double tol = 0.0;
+  double tol;
   if (this->ToleranceIsAbsolute) 
     {
     tol = this->AbsoluteTolerance;

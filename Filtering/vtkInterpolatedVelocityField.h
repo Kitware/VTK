@@ -106,7 +106,17 @@ public:
     {this->SetVectorsSelection(fieldName);}
   
   // Description:
+  // Returns the last dataset that was visited. Can be used
+  // as a first guess as to where the next point will be as
+  // well as to avoid searching through all datasets to get
+  // more information about the point.
   vtkGetObjectMacro(LastDataSet, vtkDataSet);
+
+  // Description:
+  // Copy the user set parameters from source. This copies
+  // the Caching parameters. Sub-classes can add more after
+  // chaining.
+  virtual void CopyParameters(vtkInterpolatedVelocityField* from);
 
 protected:
   vtkInterpolatedVelocityField();

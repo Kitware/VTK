@@ -22,7 +22,7 @@
 #include "vtkPolyData.h"
 #include "vtkStructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkStructuredGridGeometryFilter, "1.59");
+vtkCxxRevisionMacro(vtkStructuredGridGeometryFilter, "1.59.10.1");
 vtkStandardNewMacro(vtkStructuredGridGeometryFilter);
 
 // Construct with initial extent of all the data
@@ -40,7 +40,7 @@ void vtkStructuredGridGeometryFilter::Execute()
 {
   int *dims, dimension, dir[3], diff[3];
   int i, j, k, extent[6], *inExt;
-  vtkIdType ptIds[4], idx = 0, startIdx, startCellIdx, cellId;
+  vtkIdType ptIds[4], idx, startIdx, startCellIdx, cellId;
   vtkPoints *newPts=0;
   vtkCellArray *newVerts=0;
   vtkCellArray *newLines=0;
@@ -334,7 +334,7 @@ void vtkStructuredGridGeometryFilter::Execute()
       offset[0] = dims[0];
       offset[1] = dims[0]*dims[1];
 
-      for (pos=startIdx, k=0; k < (diff[2]+1); k++) 
+      for (k=0; k < (diff[2]+1); k++) 
         {
         for (j=0; j < (diff[1]+1); j++) 
           {

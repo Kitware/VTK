@@ -31,7 +31,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSight6Reader, "1.48");
+vtkCxxRevisionMacro(vtkEnSight6Reader, "1.48.2.1");
 vtkStandardNewMacro(vtkEnSight6Reader);
 
 //----------------------------------------------------------------------------
@@ -291,7 +291,7 @@ int vtkEnSight6Reader::ReadGeometryFile(char* fileName, int timeStep)
     
     this->ReadLine(line); // part description line
     char *name = strdup(line);
-    lineRead = this->ReadNextDataLine(line);
+    this->ReadNextDataLine(line);
     
     if (strncmp(line, "block", 5) == 0)
       {
@@ -313,7 +313,7 @@ int vtkEnSight6Reader::ReadGeometryFile(char* fileName, int timeStep)
 int vtkEnSight6Reader::ReadMeasuredGeometryFile(char* fileName, int timeStep)
 {
   char line[256], subLine[256];
-  vtkPoints *newPoints = NULL;
+  vtkPoints *newPoints;
   int i;
   vtkIdType id;
   int tempId;
@@ -937,7 +937,7 @@ int vtkEnSight6Reader::ReadTensorsPerNode(char* fileName, char* description,
       {
       for (i = 0; i < numLines; i++)
         {
-        lineRead = this->ReadNextDataLine(line);
+        this->ReadNextDataLine(line);
         vtkEnSight6ReaderRead3(line, " %12e %12e %12e %12e %12e %12e", &values[0], &values[1],
                &values[2], &values[3], &values[4], &values[5]);
         for (j = 0; j < 6; j++)
@@ -948,7 +948,7 @@ int vtkEnSight6Reader::ReadTensorsPerNode(char* fileName, char* description,
       
       if (moreTensors)
         {
-        lineRead = this->ReadNextDataLine(line);
+        this->ReadNextDataLine(line);
         strcpy(tempLine, "");
         for (j = 0; j < moreTensors; j++)
           {
@@ -1113,7 +1113,7 @@ int vtkEnSight6Reader::ReadScalarsPerElement(char* fileName, char* description,
           }
         if (moreScalars)
           {
-          lineRead = this->ReadNextDataLine(line);
+          this->ReadNextDataLine(line);
           for (j = 0; j < moreScalars; j++)
             {
             vtkEnSight6ReaderRead4(line+j*12,&scalarsRead[j]);
@@ -1284,7 +1284,7 @@ int vtkEnSight6Reader::ReadVectorsPerElement(char* fileName, char* description,
           }
         if (moreVectors)
           {
-          lineRead = this->ReadNextDataLine(line);
+          this->ReadNextDataLine(line);
           for (j = 0; j < moreVectors; j++)
             {
             vtkEnSight6ReaderRead4(line+j*36,&vector1[0]);

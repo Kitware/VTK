@@ -17,7 +17,7 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageCursor3D, "1.18");
+vtkCxxRevisionMacro(vtkImageCursor3D, "1.18.10.1");
 vtkStandardNewMacro(vtkImageCursor3D);
 
 //----------------------------------------------------------------------------
@@ -57,7 +57,7 @@ void vtkImageCursor3DExecute(vtkImageCursor3D *self,
   int min0, max0, min1, max1, min2, max2;
   int c0, c1, c2;
   int idx;
-  double value = 0.0;
+  double value;
   int rad = self->GetCursorRadius();
   
   c0 = (int)(self->GetCursorPosition()[0]);

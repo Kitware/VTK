@@ -21,7 +21,7 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkImageReader2, "1.29");
+vtkCxxRevisionMacro(vtkImageReader2, "1.29.6.1");
 vtkStandardNewMacro(vtkImageReader2);
 
 #ifdef read
@@ -685,7 +685,7 @@ void vtkImageReader2::ExecuteData(vtkDataObject *output)
 {
   vtkImageData *data = this->AllocateOutputData(output);
   
-  void *ptr = NULL;
+  void *ptr;
   int *ext;
   
   if (!this->FileName && !this->FilePattern)

@@ -22,7 +22,7 @@
 #include "vtkExtentTranslator.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkXMLStructuredDataWriter, "1.5");
+vtkCxxRevisionMacro(vtkXMLStructuredDataWriter, "1.5.10.1");
 vtkCxxSetObjectMacro(vtkXMLStructuredDataWriter, ExtentTranslator,
                      vtkExtentTranslator);
 
@@ -73,7 +73,7 @@ int vtkXMLStructuredDataWriter::WriteData()
   // Prepare the extent translator to create the set of pieces.
   this->SetupExtentTranslator();
   
-  int result = 0;
+  int result;
 
   // Write the file.
   if (!this->StartFile())

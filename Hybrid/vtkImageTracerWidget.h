@@ -41,9 +41,6 @@
 // 7) shift key + right button down on any snap drawn line segment will insert
 // a handle at the cursor position.  The line segment is split accordingly.
 
-// .SECTION Thanks
-// Thanks to Dean Inglis for developing and contributing this class.
-
 // .SECTION Caveats
 // the input vtkDataSet should be vtkImageData.
 
@@ -160,11 +157,6 @@ public:
   vtkBooleanMacro(AutoClose,int);
 
   // Description:
-  // Set/Get the initial orientation of the glyph/handle when generated.
-  vtkSetMacro(GlyphAngle,double);
-  vtkGetMacro(GlyphAngle,double);
-
-  // Description:
   // Set/Get the capture radius for automatic path closing.  For image
   // data, capture radius should be half the distance between voxel/pixel
   // centers.
@@ -180,7 +172,7 @@ public:
 
   // Description:
   // Get the handles' geometric representation via vtkGlyphSource2D.
-  vtkGlyphSource2D* GetGlyphSource() { return this->HandleGeometryGenerator; }
+  vtkGlyphSource2D* GetGlyphSource() { return this->HandleGenerator; }
 
   // Description:
   // Set/Get the type of snapping to image data: center of a pixel/voxel or
@@ -258,7 +250,6 @@ protected:
   int    ImageSnapType;
   int    SnapToImage;
   double CaptureRadius; // tolerance for auto path close
-  double GlyphAngle;  // pre-rotation of a glyph
   int    AutoClose;
 
   int   IsSnapping;
@@ -273,7 +264,7 @@ protected:
   vtkActor          **Handle;
   vtkPolyDataMapper **HandleMapper;
   vtkPolyData       **HandleGeometry;
-  vtkGlyphSource2D   *HandleGeometryGenerator;
+  vtkGlyphSource2D   *HandleGenerator;
 
   // Transforms required as 2D glyphs are generated in the x-y plane
   vtkTransformPolyDataFilter *TransformFilter;

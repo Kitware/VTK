@@ -32,7 +32,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.42");
+vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.42.4.1");
 vtkStandardNewMacro(vtkEnSight6BinaryReader);
 
 //----------------------------------------------------------------------------
@@ -263,7 +263,7 @@ int vtkEnSight6BinaryReader::ReadGeometryFile(char* fileName, int timeStep)
     
     this->ReadLine(line); // part description line
     char *name = strdup(line);
-    lineRead = this->ReadLine(line);
+    this->ReadLine(line);
     
     if (strncmp(line, "block", 5) == 0)
       {
@@ -353,7 +353,7 @@ int vtkEnSight6BinaryReader::SkipTimeStep()
   while (lineRead && strncmp(line, "part", 4) == 0)
     {
     this->ReadLine(line); // part description line
-    lineRead = this->ReadLine(line);
+    this->ReadLine(line);
     
     if (strncmp(line, "block", 5) == 0)
       {
@@ -376,7 +376,7 @@ int vtkEnSight6BinaryReader::SkipTimeStep()
 int vtkEnSight6BinaryReader::SkipStructuredGrid(char line[256])
 {
   char subLine[80];
-  int lineRead = 1;
+  int lineRead;
   int iblanked = 0;
   int dimensions[3];
   int numPts;
@@ -880,7 +880,7 @@ int vtkEnSight6BinaryReader::ReadScalarsPerNode(char* fileName,
 {
   char line[80];
   int partId, numPts, numParts, i;
-  vtkFloatArray *scalars = NULL;
+  vtkFloatArray *scalars;
   float* scalarsRead;
   long pos;
   vtkDataSet *output;
@@ -1055,7 +1055,6 @@ int vtkEnSight6BinaryReader::ReadScalarsPerNode(char* fileName,
     if (component == 0)
       {
       scalars->Delete();
-      scalars = NULL;
       }
     }
 
@@ -2656,7 +2655,7 @@ int vtkEnSight6BinaryReader::CreateStructuredGridOutput(int partId,
                                                         const char* name)
 {
   char subLine[80];
-  int lineRead = 1;
+  int lineRead;
   int iblanked = 0;
   int dimensions[3];
   int i;

@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkLinearExtrusionFilter, "1.59");
+vtkCxxRevisionMacro(vtkLinearExtrusionFilter, "1.59.10.1");
 vtkStandardNewMacro(vtkLinearExtrusionFilter);
 
 // Create object with normal extrusion type, capping on, scale factor=1.0,
@@ -98,7 +98,7 @@ void vtkLinearExtrusionFilter::Execute()
   int i, j;
   double x[3];
   vtkPoints *newPts;
-  vtkCellArray *newLines=NULL, *newPolys=NULL, *newStrips=NULL;
+  vtkCellArray *newLines=NULL, *newPolys=NULL, *newStrips;
   vtkCell *edge;
   vtkIdList *cellIds, *cellPts;
   vtkPolyData *output = this->GetOutput();
@@ -355,9 +355,7 @@ void vtkLinearExtrusionFilter::Execute()
     ++outCellId;
     }
   lineIds->Delete();
-  lineIds = NULL;
   stripIds->Delete();
-  stripIds = NULL;
   polyIds->Delete();
   polyIds = NULL;
 

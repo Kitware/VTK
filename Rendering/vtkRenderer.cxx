@@ -33,7 +33,7 @@
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.208");
+vtkCxxRevisionMacro(vtkRenderer, "1.208.4.1");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -217,8 +217,8 @@ void vtkRenderer::Render(void)
 
   this->PropArrayCount = 0;
   vtkCollectionSimpleIterator pit;
-  for ( i = 0, this->Props->InitTraversal(pit); 
-        (aProp = this->Props->GetNextProp(pit));i++ )
+  for ( this->Props->InitTraversal(pit); 
+        (aProp = this->Props->GetNextProp(pit)); )
     {
     if ( aProp->GetVisibility() )
       {
@@ -621,7 +621,6 @@ void vtkRenderer::CreateLight(void)
   this->CreatedLight->Register(this);
   this->AddLight(this->CreatedLight);
   l->Delete();
-  l = NULL;
 
   this->CreatedLight->SetLightTypeToHeadlight();
 
@@ -889,8 +888,7 @@ void vtkRenderer::ResetCameraClippingRange( double bounds[6] )
     this->NearClippingPlaneTolerance = 0.01;
     if (this->RenderWindow)
       {
-      int ZBufferDepth = 16;
-      ZBufferDepth = this->RenderWindow->GetDepthBufferSize();
+      int ZBufferDepth = this->RenderWindow->GetDepthBufferSize();
       if ( ZBufferDepth > 16 )
         {
         this->NearClippingPlaneTolerance = 0.001;

@@ -20,7 +20,7 @@
 #include "vtkPointData.h"
 #include "vtkCellData.h"
 
-vtkCxxRevisionMacro(vtkFieldDataToAttributeDataFilter, "1.37");
+vtkCxxRevisionMacro(vtkFieldDataToAttributeDataFilter, "1.37.10.1");
 vtkStandardNewMacro(vtkFieldDataToAttributeDataFilter);
 
 // Instantiate object with no input and no defined output.
@@ -339,7 +339,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructScalars(int num, vtkFieldData *
     normalizeAny |= normalize[i];
     }
   
-  vtkDataArray *newScalars = 0;
+  vtkDataArray *newScalars;
   for (i=1; i < numComp; i++) //see whether all the data is from the same array
     {
     if ( fieldArray[i] != fieldArray[i-1] )
@@ -488,7 +488,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructVectors(int num, vtkFieldData *
     return;
     }
   
-  vtkDataArray *newVectors = 0;
+  vtkDataArray *newVectors;
   if ( fieldArray[0]->GetNumberOfComponents() == 3 && 
        fieldArray[0] == fieldArray[1] && fieldArray[1] == fieldArray[2] &&
        fieldArray[0]->GetNumberOfTuples() == num &&
@@ -631,7 +631,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructNormals(int num, vtkFieldData *
     return;
     }
 
-  vtkDataArray *newNormals = 0;
+  vtkDataArray *newNormals;
   if ( fieldArray[0]->GetNumberOfComponents() == 3 && 
        fieldArray[0] == fieldArray[1] && fieldArray[1] == fieldArray[2] &&
        fieldArray[0]->GetNumberOfTuples() == num &&
@@ -780,7 +780,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructTCoords(int num, vtkFieldData *
       }
     }
   
-  vtkDataArray *newTCoords = 0;
+  vtkDataArray *newTCoords;
   for (i=1; i < numComp; i++) //see whether all the data is from the same array
     {
     if ( fieldArray[i] != fieldArray[i-1] )
@@ -928,7 +928,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructTensors(int num, vtkFieldData *
     normalizeAny |= normalize[i];
     }
   
-  vtkDataArray *newTensors = 0;
+  vtkDataArray *newTensors;
   for (i=1; i < 9; i++) //see whether all the data is from the same array
     {
     if ( fieldArray[i] != fieldArray[i-1] )

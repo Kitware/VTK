@@ -23,7 +23,7 @@
 #include <sys/stat.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkXYZMolReader, "1.7");
+vtkCxxRevisionMacro(vtkXYZMolReader, "1.7.8.1");
 vtkStandardNewMacro(vtkXYZMolReader);
 
 //----------------------------------------------------------------------------
@@ -43,8 +43,8 @@ char* vtkXYZMolReader::GetNextLine(FILE* fp, char* line, int maxlen)
 {
   int cc;
   int len;
-  int comment = 0;
-  char* ptr = 0;
+  int comment;
+  char* ptr;
   do 
     {
     comment = 0;
@@ -189,7 +189,7 @@ int vtkXYZMolReader::CanReadFile(const char* name)
   char buffer[maxlen];
   char comment[maxlen];
   char atom[maxlen];
-  char* lptr = 0;
+  char* lptr;
   int num = 0;
   float pos[3];
 
@@ -231,7 +231,7 @@ void vtkXYZMolReader::ReadSpecificMolecule(FILE *fp)
   const int maxlen = 1024;
   char buffer[maxlen];
   char comment[maxlen];
-  char* lptr = 0;
+  char* lptr;
 
   int have_header = 0;
   int num = 0;

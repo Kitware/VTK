@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkImageSeedConnectivity, "1.28");
+vtkCxxRevisionMacro(vtkImageSeedConnectivity, "1.28.10.1");
 vtkStandardNewMacro(vtkImageSeedConnectivity);
 
 //----------------------------------------------------------------------------
@@ -95,11 +95,10 @@ void vtkImageSeedConnectivity::AddSeed(int i0, int i1)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageSeedConnectivity::ComputeInputUpdateExtents(vtkDataObject *out)
+void vtkImageSeedConnectivity::ComputeInputUpdateExtents(vtkDataObject *)
 {
   vtkImageData *input = this->GetInput();
 
-  out = out;
   if (input)
     {
     input->SetUpdateExtent(input->GetWholeExtent());

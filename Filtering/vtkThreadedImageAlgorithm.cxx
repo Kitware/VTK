@@ -26,7 +26,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkThreadedImageAlgorithm, "1.1.2.4");
+vtkCxxRevisionMacro(vtkThreadedImageAlgorithm, "1.1.2.5");
 
 //----------------------------------------------------------------------------
 vtkThreadedImageAlgorithm::vtkThreadedImageAlgorithm()
@@ -206,7 +206,7 @@ VTK_THREAD_RETURN_TYPE vtkThreadedImageAlgorithmThreadedExecute( void *arg )
 //----------------------------------------------------------------------------
 // This is the superclasses style of Execute method.  Convert it into
 // an imaging style Execute method.
-void vtkThreadedImageAlgorithm::ExecuteData(
+void vtkThreadedImageAlgorithm::RequestData(
   vtkInformation *request, 
   vtkInformationVector *inputVector, 
   vtkInformationVector *outputVector)

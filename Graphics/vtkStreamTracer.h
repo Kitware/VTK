@@ -289,6 +289,9 @@ public:
   // Add a dataset to the list inputs
   void AddInput(vtkDataSet *in);
 
+  // Description:
+  void SetInterpolatorPrototype(vtkInterpolatedVelocityField* ivf);
+
 protected:
 
   vtkStreamTracer();
@@ -371,6 +374,8 @@ protected:
 
   int ComputeVorticity;
   double RotationScale;
+
+  vtkInterpolatedVelocityField* InterpolatorPrototype;
 
 private:
   vtkStreamTracer(const vtkStreamTracer&);  // Not implemented.

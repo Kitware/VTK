@@ -417,18 +417,9 @@ extern VTK_COMMON_EXPORT void vtkOutputWindowDisplayDebugText(const char*);
 // This macro is used for  debug statements in instance methods
 // vtkDebugMacro(<< "this is debug info" << this->SomeVariable);
 //
-#ifdef VTK_LEAN_AND_MEAN
-#define vtkDebugMacro(x)
-#else
 #define vtkDebugMacro(x) \
-{ if (this->Debug && vtkObject::GetGlobalWarningDisplay()) \
-    { vtkOStreamWrapper::EndlType endl; \
-      vtkOStreamWrapper::UseEndl(endl); \
-      vtkOStrStreamWrapper vtkmsg; \
-      vtkmsg << "Debug: In " __FILE__ ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x  << "\n\n"; \
-      vtkOutputWindowDisplayDebugText(vtkmsg.str());\
-      vtkmsg.rdbuf()->freeze(0);}}
-#endif
+   vtkDebugWithObjectMacro(this,x)
+
 //
 // This macro is used to print out warning messages.
 // vtkWarningMacro(<< "Warning message" << variable);
@@ -495,7 +486,23 @@ extern VTK_COMMON_EXPORT void vtkOutputWindowDisplayDebugText(const char*);
      }                                                          \
    }
 
-
+#ifdef VTK_LEAN_AND_MEAN
+# define vtkDebugWithObjectMacro(self, x)
+#else
+# define vtkDebugWithObjectMacro(self, x)                                     \
+  {                                                                           \
+  if (self->GetDebug() && vtkObject::GetGlobalWarningDisplay())               \
+    {                                                                         \
+    vtkOStreamWrapper::EndlType endl;                                         \
+    vtkOStreamWrapper::UseEndl(endl);                                         \
+    vtkOStrStreamWrapper vtkmsg;                                              \
+    vtkmsg << "Debug: In " __FILE__ ", line " << __LINE__ << "\n"             \
+           << self->GetClassName() << " (" << self << "): " x  << "\n\n";     \
+    vtkOutputWindowDisplayDebugText(vtkmsg.str());                            \
+    vtkmsg.rdbuf()->freeze(0);                                                \
+    }                                                                         \
+  }
+#endif
 
 //
 // This macro is used to quiet compiler warnings about unused parameters

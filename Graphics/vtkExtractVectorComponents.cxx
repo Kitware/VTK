@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkExtractVectorComponents, "1.47");
+vtkCxxRevisionMacro(vtkExtractVectorComponents, "1.47.10.1");
 vtkStandardNewMacro(vtkExtractVectorComponents);
 
 vtkExtractVectorComponents::vtkExtractVectorComponents()
@@ -208,7 +208,7 @@ void vtkExtractVectorComponents::Execute()
     name = 0;
     }
 
-  char* newName=0;
+  char* newName;
   if (name)
     {
     newName = new char[strlen(name)+10];

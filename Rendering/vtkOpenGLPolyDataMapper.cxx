@@ -45,7 +45,7 @@
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.98");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.98.4.1");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper);
 #endif
 
@@ -427,7 +427,7 @@ static void vtkOpenGLBeginPolyTriangleOrQuad(GLenum aGlFunction,
 
 #define vtkDrawPointsMacro(ptype,ntype,glVertFuncs,glInitFuncs) \
 { \
-  vtkIdType nPts = 0; unsigned short count = 0; \
+  vtkIdType nPts; unsigned short count = 0; \
   ptype *points = (ptype *)voidPoints; \
   glInitFuncs \
   glBegin(GL_POINTS); \
@@ -459,7 +459,7 @@ static void vtkOpenGLBeginPolyTriangleOrQuad(GLenum aGlFunction,
 
 #define vtkDrawPrimsMacro(ptype,ntype,prim,glVertFuncs,glInitFuncs) \
 { \
-  vtkIdType nPts = 0; unsigned short count = 0; \
+  vtkIdType nPts; unsigned short count = 0; \
   ptype *points = (ptype *)voidPoints; \
   glInitFuncs \
   while (ptIds < endPtIds) \
@@ -491,7 +491,7 @@ static void vtkOpenGLBeginPolyTriangleOrQuad(GLenum aGlFunction,
 
 #define vtkDrawPolysMacro(ptype,ntype,ttype,prim,glVertFuncs,glCellFuncs,glInitFuncs) \
 { \
-  vtkIdType nPts = 0; unsigned short count = 0; \
+  vtkIdType nPts; unsigned short count = 0; \
   ptype *points = (ptype *)voidPoints; \
   GLenum previousGlFunction=GL_INVALID_VALUE; \
   glInitFuncs \
@@ -536,7 +536,7 @@ static void vtkOpenGLBeginPolyTriangleOrQuad(GLenum aGlFunction,
 
 #define vtkDrawStripLinesMacro(ptype,ntype,ttype,prim,glVertFuncs,glCellFuncs,glInitFuncs) \
 { \
-  vtkIdType nPts = 0; \
+  vtkIdType nPts; \
   ptype *points = (ptype *)voidPoints; \
   vtkIdType *savedPtIds = ptIds; \
   glInitFuncs \
@@ -1460,7 +1460,7 @@ void vtkOpenGLPolyDataMapperDrawTStripLines(int idx,
     default:
     {
     int j;
-    vtkIdType nPts = 0;
+    vtkIdType nPts;
     int count = 0;
     for (ca->InitTraversal(); noAbort && ca->GetNextCell(nPts,ptIds); 
          count++)
@@ -1604,7 +1604,7 @@ int vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
   vtkPolyData *input = this->GetInput();
   int cellScalars = 0;
   vtkIdType cellNum = 0;
-  int cellNormals = 0;
+  int cellNormals;
   int resolve=0, zResolve=0;
   double zRes = 0.0;
   

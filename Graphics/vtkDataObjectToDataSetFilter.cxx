@@ -23,7 +23,7 @@
 #include "vtkCellArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataObjectToDataSetFilter, "1.43");
+vtkCxxRevisionMacro(vtkDataObjectToDataSetFilter, "1.43.10.1");
 vtkStandardNewMacro(vtkDataObjectToDataSetFilter);
 
 //----------------------------------------------------------------------------
@@ -1269,9 +1269,8 @@ vtkCellArray *vtkDataObjectToDataSetFilter::ConstructCellArray(vtkDataArray *da,
   // Otherwise, we'll copy the data by inserting it into a vtkCellArray
   else
     {
-    for (ncells=0, i=min; i<max; i+=(npts+1))
+    for (i=min; i<max; i+=(npts+1))
       {
-      ncells++;
       npts = (int) da->GetComponent(i,comp);
       if ( npts <= 0 )
         {

@@ -33,7 +33,7 @@
 #include "vtkVolumeProperty.h"
 #include "vtkUnstructuredGridVolumeRayCastIterator.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.31");
+vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.31.2.1");
 vtkStandardNewMacro(vtkUnstructuredGridBunykRayCastFunction);
 
 #define VTK_BUNYKRCF_NUMLISTS 100000
@@ -96,7 +96,7 @@ private:
   void operator=(const vtkUnstructuredGridBunykRayCastIterator&);  // Not implemented
 };
 
-vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastIterator, "1.31");
+vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastIterator, "1.31.2.1");
 vtkStandardNewMacro(vtkUnstructuredGridBunykRayCastIterator);
 
 vtkUnstructuredGridBunykRayCastIterator::vtkUnstructuredGridBunykRayCastIterator()
@@ -566,8 +566,6 @@ void  vtkUnstructuredGridBunykRayCastFunction::UpdateTriangleList()
   // Provide a warning if we find anything other than tetra
   int warningNeeded = 0;
     
-  int searchCount = 0;
-
   // Create a set of links from each tetra to the four triangles
   // This is redundant information, but saves time during rendering
   this->TetraTriangles = new Triangle *[4 * numCells];
@@ -629,7 +627,6 @@ void  vtkUnstructuredGridBunykRayCastFunction::UpdateTriangleList()
       Triangle *triPtr = tmpList[tri[0]%VTK_BUNYKRCF_NUMLISTS];
       while ( triPtr )
         {
-        searchCount++;
         if ( triPtr->PointIndex[0] == tri[0] &&
              triPtr->PointIndex[1] == tri[1] &&
              triPtr->PointIndex[2] == tri[2] )
@@ -752,21 +749,11 @@ void  vtkUnstructuredGridBunykRayCastFunction::ComputeViewDependentInfo()
 
 void vtkUnstructuredGridBunykRayCastFunction::ComputePixelIntersections()
 {
-  int numExterior = 0;
-  int numInterior = 0;
-  
   Triangle *triPtr = this->TriangleList;
   while ( triPtr )
     {
-    if ( triPtr->ReferredByTetra[1] != -1 )
-      {
-      numInterior++;
-      }
-    
     if ( triPtr->ReferredByTetra[1] == -1 )
       {
-      numExterior++;
-      
       if ( this->IsTriangleFrontFacing( triPtr, triPtr->ReferredByTetra[0] ) )
         {
         int   minX = static_cast<int>(this->Points[3*triPtr->PointIndex[0]]);

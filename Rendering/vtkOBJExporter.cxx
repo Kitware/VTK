@@ -30,7 +30,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkOBJExporter, "1.55");
+vtkCxxRevisionMacro(vtkOBJExporter, "1.55.6.1");
 vtkStandardNewMacro(vtkOBJExporter);
 
 vtkOBJExporter::vtkOBJExporter()
@@ -124,9 +124,9 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
   vtkPolyData *pd;
   vtkGeometryFilter *gf = NULL;
   vtkPointData *pntData;
-  vtkPoints *points = NULL;
+  vtkPoints *points;
   vtkDataArray *normals = NULL;
-  vtkDataArray *tcoords = NULL;
+  vtkDataArray *tcoords;
   int i, i1, i2, idNext;
   vtkProperty *prop;
   double *tempd;

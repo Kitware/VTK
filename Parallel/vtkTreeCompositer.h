@@ -48,8 +48,8 @@
 // the color and depth buffer to process 0's render window.
 // It will not handle transparency well.
 //
-// SECTION See Also
-// vtkCompositeManager.
+// .SECTION See Also
+// vtkCompositeManager
 
 #ifndef __vtkTreeCompositer_h
 #define __vtkTreeCompositer_h

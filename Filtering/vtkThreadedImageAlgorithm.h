@@ -72,7 +72,7 @@ protected:
 
   // This is called by the superclass.
   // This is the method you should override.
-  virtual void ExecuteData(vtkInformation *request, 
+  virtual void RequestData(vtkInformation *request, 
                            vtkInformationVector *inputVector, 
                            vtkInformationVector *outputVector);
 

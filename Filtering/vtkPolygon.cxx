@@ -27,7 +27,7 @@
 #include "vtkTriangle.h"
 #include "vtkBox.h"
 
-vtkCxxRevisionMacro(vtkPolygon, "1.1");
+vtkCxxRevisionMacro(vtkPolygon, "1.1.2.1");
 vtkStandardNewMacro(vtkPolygon);
 
 // Instantiate polygon.
@@ -40,6 +40,9 @@ vtkPolygon::vtkPolygon()
   this->TriScalars = vtkDoubleArray::New();
   this->TriScalars->Allocate(3);
   this->Line = vtkLine::New();
+  this->Tolerance = 0.0;
+  this->SuccessfulTriangulation = 0;
+  this->Normal[0] = this->Normal[1] = this->Normal[2] = 0.0;
 }
 
 vtkPolygon::~vtkPolygon()

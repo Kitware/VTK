@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageAlgorithm, "1.1.2.10");
+vtkCxxRevisionMacro(vtkImageAlgorithm, "1.1.2.11");
 
 //----------------------------------------------------------------------------
 vtkImageAlgorithm::vtkImageAlgorithm()
@@ -49,7 +49,7 @@ void vtkImageAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 // This is the superclasses style of Execute method.  Convert it into
 // an imaging style Execute method.
-void vtkImageAlgorithm::ExecuteData(
+void vtkImageAlgorithm::RequestData(
   vtkInformation *request, 
   vtkInformationVector * vtkNotUsed( inputVector ), 
   vtkInformationVector * outputVector)
@@ -100,7 +100,7 @@ int vtkImageAlgorithm::ProcessRequest(vtkInformation* request,
     this->AbortExecute = 0;
     this->Progress = 0.0;
 
-    this->ExecuteData(request, inputVector, outputVector);
+    this->RequestData(request, inputVector, outputVector);
 
     if(!this->AbortExecute)
       {
@@ -343,40 +343,6 @@ vtkImageData* vtkImageAlgorithm::GetOutput(int port)
   return vtkImageData::SafeDownCast(this->GetOutputDataObject(port));
 }
 
-//----------------------------------------------------------------------------
-void vtkImageAlgorithm::SetInput(vtkImageData* input)
-{
-  this->SetInput(0, input);
-}
-
-//----------------------------------------------------------------------------
-void vtkImageAlgorithm::SetInput(int index, vtkImageData* input)
-{
-  if(input)
-    {
-    this->SetInputConnection(index, input->GetProducerPort());
-    }
-  else
-    {
-    // Setting a NULL input removes the connection.
-    this->SetInputConnection(index, 0);
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkImageAlgorithm::AddInput(vtkImageData* input)
-{
-  this->AddInput(0, input);
-}
-
-//----------------------------------------------------------------------------
-void vtkImageAlgorithm::AddInput(int index, vtkImageData* input)
-{
-  if(input)
-    {
-    this->AddInputConnection(index, input->GetProducerPort());
-    }
-}
 
 int vtkImageAlgorithm::FillOutputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
@@ -395,27 +361,36 @@ int vtkImageAlgorithm::FillInputPortInformation(
 }
 
 //----------------------------------------------------------------------------
-void vtkImageAlgorithm::ReleaseDataFlagOn()
+void vtkImageAlgorithm::SetInput(vtkDataObject* input)
 {
-  if(vtkDemandDrivenPipeline* ddp =
-     vtkDemandDrivenPipeline::SafeDownCast(this->GetExecutive()))
+  this->SetInput(0, input);
+}
+
+//----------------------------------------------------------------------------
+void vtkImageAlgorithm::SetInput(int index, vtkDataObject* input)
+{
+  if(input)
     {
-    for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
-      {
-      ddp->SetReleaseDataFlag(i, 1);
-      }
+    this->SetInputConnection(index, input->GetProducerPort());
+    }
+  else
+    {
+    // Setting a NULL input removes the connection.
+    this->SetInputConnection(index, 0);
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkImageAlgorithm::ReleaseDataFlagOff()
+void vtkImageAlgorithm::AddInput(vtkDataObject* input)
 {
-  if(vtkDemandDrivenPipeline* ddp =
-     vtkDemandDrivenPipeline::SafeDownCast(this->GetExecutive()))
+  this->AddInput(0, input);
+}
+
+//----------------------------------------------------------------------------
+void vtkImageAlgorithm::AddInput(int index, vtkDataObject* input)
+{
+  if(input)
     {
-    for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
-      {
-      ddp->SetReleaseDataFlag(i, 0);
-      }
+    this->AddInputConnection(index, input->GetProducerPort());
     }
 }

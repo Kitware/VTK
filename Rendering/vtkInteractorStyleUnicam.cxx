@@ -35,7 +35,7 @@
 #include "vtkTransform.h"
 #include "vtkWorldPointPicker.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleUnicam, "1.34");
+vtkCxxRevisionMacro(vtkInteractorStyleUnicam, "1.34.10.1");
 vtkStandardNewMacro(vtkInteractorStyleUnicam);
 
 // define 'TheTime()' function-- returns time in elapsed seconds
@@ -408,7 +408,7 @@ void vtkInteractorStyleUnicam::RotateXY( int X, int Y )
     {
     this->FindPokedRenderer(X, Y);
 
-    double angle = -2*acos(clamp(dot,-1.,1.)) * Sign(te[0]-tp[0]);
+    double angle = -2*acos(clamp(dot,(double)-1.0,(double)1.0)) * Sign(te[0]-tp[0]);
 
     double UPvec[3];
     UPvec[0] = WorldUpVector[0];

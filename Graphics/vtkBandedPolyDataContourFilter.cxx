@@ -25,7 +25,7 @@
 
 #include <float.h>
 
-vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.39");
+vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.39.4.1");
 vtkStandardNewMacro(vtkBandedPolyDataContourFilter);
 
 // Construct object.
@@ -640,7 +640,7 @@ void vtkBandedPolyDataContourFilter::Execute()
         numPointsToAdd = (mL > mR ? mL-mR+1 : numFullPts-(mR-mL)+1);
         if ( numPointsToAdd == 3 )
           {//just a triangle left
-          for (numPolyPoints=0, i=0; i<numPointsToAdd; i++)
+          for (i=0; i<numPointsToAdd; i++)
             {
             newPolygon[i] = fullPoly[(mR+i)%numFullPts];
             }
@@ -759,7 +759,7 @@ void vtkBandedPolyDataContourFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Generate Contour Edges: " 
      << (this->GenerateContourEdges ? "On\n" : "Off\n");
 
-  this->ContourValues->PrintSelf(os,indent);
+  this->ContourValues->PrintSelf(os,indent.GetNextIndent());
   os << indent << "Clipping: " << (this->Clipping ? "On\n" : "Off\n");
   
   os << indent << "Scalar Mode: ";

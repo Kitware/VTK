@@ -43,6 +43,9 @@ public:
   vtkOStreamWrapper(vtkOStreamWrapper& r);
   
   // Description:
+  virtual ~vtkOStreamWrapper();
+
+  // Description:
   // Type for a fake endl.
   struct EndlType {};
   

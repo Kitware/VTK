@@ -271,6 +271,7 @@ LRESULT CVtkMDIView::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
     case WM_RBUTTONDOWN: 
     case WM_RBUTTONUP: 
     case WM_MOUSEMOVE:
+    case WM_MOUSEWHEEL:
     case WM_CHAR:
     case WM_TIMER:
       if (this->iren->GetInitialized())

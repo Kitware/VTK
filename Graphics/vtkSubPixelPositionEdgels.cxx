@@ -22,7 +22,7 @@
 #include "vtkPolyData.h"
 #include "vtkStructuredPoints.h"
 
-vtkCxxRevisionMacro(vtkSubPixelPositionEdgels, "1.45");
+vtkCxxRevisionMacro(vtkSubPixelPositionEdgels, "1.45.10.1");
 vtkStandardNewMacro(vtkSubPixelPositionEdgels);
 
 vtkSubPixelPositionEdgels::vtkSubPixelPositionEdgels()
@@ -224,10 +224,10 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
       // now calc the normal, trilinear interp of vectors
       xi = (int)result[0];
       yi = (int)result[1];
-      zi = (int)result[2];
+      //zi = (int)result[2];
       xn = result[0];
       yn = result[1];
-      zn = result[2];
+      //zn = result[2];
       for (i = 0; i < 3; i++)
         {
         resultNormal[i] = 
@@ -516,10 +516,10 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
       // now calc the normal, trilinear interp of vectors
       xi = (int)result[0];
       yi = (int)result[1];
-      zi = (int)result[2];
+      //zi = (int)result[2];
       xn = result[0];
       yn = result[1];
-      zn = result[2];
+      //zn = result[2];
       for (i = 0; i < 3; i++)
         {
         resultNormal[i] = 

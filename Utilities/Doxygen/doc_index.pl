@@ -63,6 +63,7 @@ my %default =
    limit => 10,
    dirs => ["../../Common", 
             "../../Filtering", 
+            "../../GenericFiltering", 
             "../../Graphics", 
             "../../Hybrid", 
             "../../Imaging", 

@@ -22,7 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkExtractVOI, "1.37.6.2");
+vtkCxxRevisionMacro(vtkExtractVOI, "1.37.6.3");
 vtkStandardNewMacro(vtkExtractVOI);
 
 //-----------------------------------------------------------------------------
@@ -140,7 +140,7 @@ vtkExtractVOI::ExecuteInformation (
 }
 
 //-----------------------------------------------------------------------------
-void vtkExtractVOI::ExecuteData(
+void vtkExtractVOI::RequestData(
   vtkInformation * vtkNotUsed( request ), 
   vtkInformationVector * inputVector, 
   vtkInformationVector * outputVector)

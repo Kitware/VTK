@@ -21,7 +21,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkReverseSense, "1.30");
+vtkCxxRevisionMacro(vtkReverseSense, "1.30.10.1");
 vtkStandardNewMacro(vtkReverseSense);
 
 // Construct object so that behavior is to reverse cell ordering and
@@ -119,7 +119,7 @@ void vtkReverseSense::Execute()
     double n[3];
 
     progressInterval=numCells/5+1;
-    for (vtkIdType cellId=0; cellId < numCells; cellId++ )
+    for (vtkIdType cellId=0; cellId < numCells && !abort; cellId++ )
       {
       if ( ! (cellId % progressInterval) ) //manage progress / early abort
         {

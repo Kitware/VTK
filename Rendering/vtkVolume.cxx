@@ -30,7 +30,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolume, "1.80.10.1");
+vtkCxxRevisionMacro(vtkVolume, "1.80.10.2");
 vtkStandardNewMacro(vtkVolume);
 
 // Creates a Volume with the following defaults: origin(0,0,0) 
@@ -529,7 +529,7 @@ void vtkVolume::UpdateTransferFunctions( vtkRenderer *vtkNotUsed(ren) )
   vtkColorTransferFunction  *rgbtf;
   int                        colorChannels;
   
-  int                        arraySize = 0;
+  int                        arraySize;
   
   // Check that we have scalars
   if ( this->Mapper == NULL ||

@@ -33,7 +33,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.36");
+vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.36.6.1");
 vtkStandardNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------
@@ -207,7 +207,6 @@ void vtkDataSetSurfaceFilter::StructuredExecute(vtkDataSet *input, int *ext)
     outStrips->Allocate(cellArraySize);
     this->GetOutput()->SetStrips(outStrips);
     outStrips->Delete();
-    outStrips = NULL;
     }
   else
     {
@@ -215,13 +214,11 @@ void vtkDataSetSurfaceFilter::StructuredExecute(vtkDataSet *input, int *ext)
     outPolys->Allocate(cellArraySize);
     this->GetOutput()->SetPolys(outPolys);
     outPolys->Delete();
-    outPolys = NULL;
     }
   outPoints = vtkPoints::New();
   outPoints->Allocate(numPoints);
   this->GetOutput()->SetPoints(outPoints);
   outPoints->Delete();
-  outPoints = NULL;
   
 
   // Allocate attributes for copying.
@@ -1093,7 +1090,6 @@ void vtkDataSetSurfaceFilter::UnstructuredGridExecute()
     output->SetLines(newLines);
     }
   newLines->Delete();
-  newLines = NULL;
 
   //free storage
   output->Squeeze();

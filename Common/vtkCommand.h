@@ -134,10 +134,7 @@ public:
     StartWindowLevelEvent,
     EndWindowLevelEvent,
     ResetWindowLevelEvent,
-    NextDataEvent,
-    PushDataStartEvent,
     SetOutputEvent,
-    EndOfDataEvent,
     ErrorEvent,
     WarningEvent,
     StartInteractionEvent, //mainly used by vtkInteractorObservers

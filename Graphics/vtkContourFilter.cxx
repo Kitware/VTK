@@ -31,7 +31,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkContourFilter, "1.101");
+vtkCxxRevisionMacro(vtkContourFilter, "1.101.2.1");
 vtkStandardNewMacro(vtkContourFilter);
 vtkCxxSetObjectMacro(vtkContourFilter,ScalarTree,vtkScalarTree);
 
@@ -317,7 +317,7 @@ void vtkContourFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Compute Scalars: " 
      << (this->ComputeScalars ? "On\n" : "Off\n");
 
-  this->ContourValues->PrintSelf(os,indent);
+  this->ContourValues->PrintSelf(os,indent.GetNextIndent());
 
   os << indent << "Use Scalar Tree: " 
      << (this->UseScalarTree ? "On\n" : "Off\n");

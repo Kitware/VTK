@@ -88,7 +88,7 @@ protected:
   vtkRendererSource();
   ~vtkRendererSource();
 
-  void ExecuteData(vtkInformation *request, 
+  void RequestData(vtkInformation *request, 
                    vtkInformationVector *inputVector, 
                    vtkInformationVector *outputVector);
   

@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPolyDataStreamer, "1.16");
+vtkCxxRevisionMacro(vtkPolyDataStreamer, "1.16.10.1");
 vtkStandardNewMacro(vtkPolyDataStreamer);
 
 //----------------------------------------------------------------------------
@@ -95,7 +95,6 @@ void vtkPolyDataStreamer::Execute()
     copy->ShallowCopy(input);
     append->AddInput(copy);
     copy->Delete();
-    copy = NULL;
     if (pieceColors)
       {
       for (j = 0; j < input->GetNumberOfCells(); ++j)

@@ -16,6 +16,7 @@
 
 #include "vtkAlgorithmOutput.h"
 #include "vtkCommand.h"
+#include "vtkDataObject.h"
 #include "vtkGarbageCollector.h"
 #include "vtkInformation.h"
 #include "vtkInformationInformationVectorKey.h"
@@ -29,7 +30,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.1.2.5");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.1.2.6");
 vtkStandardNewMacro(vtkAlgorithm);
 
 vtkCxxSetObjectMacro(vtkAlgorithm,Information,vtkInformation);
@@ -785,3 +786,28 @@ void vtkAlgorithm::ConvertTotalInputToPortConnection(
     }
 }
 
+//----------------------------------------------------------------------------
+void vtkAlgorithm::ReleaseDataFlagOn()
+{
+  if(vtkDemandDrivenPipeline* ddp =
+     vtkDemandDrivenPipeline::SafeDownCast(this->GetExecutive()))
+    {
+    for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
+      {
+      ddp->SetReleaseDataFlag(i, 1);
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkAlgorithm::ReleaseDataFlagOff()
+{
+  if(vtkDemandDrivenPipeline* ddp =
+     vtkDemandDrivenPipeline::SafeDownCast(this->GetExecutive()))
+    {
+    for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
+      {
+      ddp->SetReleaseDataFlag(i, 0);
+      }
+    }
+}

@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractGeometry, "1.52");
+vtkCxxRevisionMacro(vtkExtractGeometry, "1.52.10.1");
 vtkStandardNewMacro(vtkExtractGeometry);
 vtkCxxSetObjectMacro(vtkExtractGeometry,ImplicitFunction,vtkImplicitFunction);
 
@@ -78,7 +78,6 @@ void vtkExtractGeometry::Execute()
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
   int npts;
-  numCells = input->GetNumberOfCells();
   
   vtkDebugMacro(<< "Extracting geometry");
 

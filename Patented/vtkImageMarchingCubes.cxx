@@ -42,7 +42,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageMarchingCubes, "1.58");
+vtkCxxRevisionMacro(vtkImageMarchingCubes, "1.58.2.1");
 vtkStandardNewMacro(vtkImageMarchingCubes);
 
 //----------------------------------------------------------------------------
@@ -912,7 +912,7 @@ void vtkImageMarchingCubes::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  this->ContourValues->PrintSelf(os,indent);
+  this->ContourValues->PrintSelf(os,indent.GetNextIndent());
 
   os << indent << "ComputeScalars: " << this->ComputeScalars << "\n";
   os << indent << "ComputeNormals: " << this->ComputeNormals << "\n";

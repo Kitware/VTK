@@ -26,7 +26,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFollower, "1.44");
+vtkCxxRevisionMacro(vtkFollower, "1.44.10.1");
 vtkStandardNewMacro(vtkFollower);
 
 vtkCxxSetObjectMacro(vtkFollower,Camera,vtkCamera);
@@ -107,9 +107,21 @@ void vtkFollower::GetMatrix(vtkMatrix4x4 *result)
         }
       }
   
-    vtkMath::Cross(vup,Rz,Rx);
-    vtkMath::Normalize(Rx);
-    vtkMath::Cross(Rz,Rx,Ry);
+    // We cannot directly use the vup angle since it can be aligned with Rz:
+    //vtkMath::Cross(vup,Rz,Rx);
+    //vtkMath::Normalize(Rx);
+    //vtkMath::Cross(Rz,Rx,Ry);       
+    
+    //instead use the view right angle:
+    double dop[3], vur[3];
+    this->Camera->GetDirectionOfProjection(dop);
+
+    vtkMath::Cross(dop,vup,vur);
+    vtkMath::Normalize(vur);
+
+    vtkMath::Cross(Rz, vur, Ry);
+    vtkMath::Normalize(Ry);
+    vtkMath::Cross(Ry,Rz,Rx);
     
     matrix->Element[0][0] = Rx[0];
     matrix->Element[1][0] = Rx[1];

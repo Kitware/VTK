@@ -20,13 +20,13 @@
 // pipeline architecture. Ther are some assumptions and defaults made by this
 // class you should be aware of. This class defaults such that your filter
 // will have one input port and one output port. If that is not the case
-// simply change it with SetNumberOfINputPorts etc. See this classes
-// contstructor for the default. This class also provides a FillInputPortInfo
+// simply change it with SetNumberOfInputPorts etc. See this classes
+// constructor for the default. This class also provides a FillInputPortInfo
 // method that by default says that all inputs will be PolyData. If that
 // isn't the case then please override this method in your subclass. This
 // class breaks out the downstream requests into seperate functions such as
 // ExecuteData and ExecuteInformation.  For new algorithms you should
-// implement ExecuteData( request, inputVec, outputVec) but for older filters
+// implement RequestData( request, inputVec, outputVec) but for older filters
 // there is a default implementation that calls the old ExecuteData(output)
 // signature, for even older filters that don;t implement ExecuteData the
 // default implementation calls the even older Execute() signature.
@@ -51,16 +51,6 @@ public:
   vtkPolyData* GetOutput(int);
 
   // Description:
-  // Set an input of this algorithm.
-  void SetInput(vtkDataObject*);
-  void SetInput(int, vtkDataObject*);
-
-  // Description:
-  // Add an input of this algorithm.
-  void AddInput(vtkDataObject*);
-  void AddInput(int, vtkDataObject*);
-
-  // Description:
   // see vtkAlgorithm for details
   virtual int ProcessRequest(vtkInformation*,
                              vtkInformationVector*,
@@ -72,9 +62,14 @@ public:
   vtkPolyData *GetPolyDataInput(int port);
 
   // Description:
-  // Turn release data flag on or off for all output ports.
-  void ReleaseDataFlagOn();
-  void ReleaseDataFlagOff();
+  // Set an input of this algorithm.
+  void SetInput(vtkDataObject *);
+  void SetInput(int, vtkDataObject*);
+
+  // Description:
+  // Add an input of this algorithm.
+  void AddInput(vtkDataObject *);
+  void AddInput(int, vtkDataObject*);
 
 protected:
   vtkPolyDataAlgorithm();
@@ -87,7 +82,7 @@ protected:
 
   // This is called by the superclass.
   // This is the method you should override.
-  virtual void ExecuteData(vtkInformation *request, 
+  virtual void RequestData(vtkInformation *request, 
                            vtkInformationVector *inputVector, 
                            vtkInformationVector *outputVector);
   

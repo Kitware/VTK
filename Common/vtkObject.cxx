@@ -18,7 +18,7 @@
 #include "vtkCommand.h"
 #include "vtkTimeStamp.h"
 
-vtkCxxRevisionMacro(vtkObject, "1.90");
+vtkCxxRevisionMacro(vtkObject, "1.90.2.1");
 
 // Initialize static member that controls warning display
 static int vtkObjectGlobalWarningDisplay = 1;
@@ -160,13 +160,15 @@ void vtkObject::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Debug: " << (this->Debug ? "On\n" : "Off\n");
   os << indent << "Modified Time: " << this->GetMTime() << "\n";
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "Registered Events: ";
   if ( this->SubjectHelper )
     {
-    this->SubjectHelper->PrintSelf(os,indent);
+    os << endl;
+    this->SubjectHelper->PrintSelf(os,indent.GetNextIndent());
     }
   else
     {
-    os << indent << "Registered Events: (none)\n";
+    os << "(none)\n";
     }
 }
 

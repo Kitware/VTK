@@ -25,7 +25,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkDICOMImageReader, "1.28");
+vtkCxxRevisionMacro(vtkDICOMImageReader, "1.28.4.1");
 vtkStandardNewMacro(vtkDICOMImageReader);
 
 class vtkDICOMImageReaderVector : public vtkstd::vector<vtkstd::string>
@@ -75,7 +75,7 @@ vtkDICOMImageReader::~vtkDICOMImageReader()
 
 void vtkDICOMImageReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkImageReader2::PrintSelf(os, indent);
+  this->Superclass::PrintSelf(os, indent);
   if (this->DirectoryName)
     {
     os << "DirectoryName : " << this->DirectoryName << "\n";

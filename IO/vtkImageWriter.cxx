@@ -26,7 +26,7 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkImageWriter, "1.53");
+vtkCxxRevisionMacro(vtkImageWriter, "1.53.10.1");
 vtkStandardNewMacro(vtkImageWriter);
 
 #ifdef write
@@ -340,7 +340,6 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
       }
     file->close();
     delete file;
-    file = NULL;
     }
   return;
 }

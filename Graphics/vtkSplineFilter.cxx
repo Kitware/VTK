@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkSplineFilter, "1.13");
+vtkCxxRevisionMacro(vtkSplineFilter, "1.13.10.1");
 vtkStandardNewMacro(vtkSplineFilter);
 vtkCxxSetObjectMacro(vtkSplineFilter,Spline,vtkSpline);
 
@@ -55,7 +55,7 @@ void vtkSplineFilter::Execute()
   vtkPointData *outPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData();
   vtkCellData *outCD=output->GetCellData();
-  vtkCellArray *inLines = NULL;
+  vtkCellArray *inLines;
   
   vtkPoints *inPts;
   vtkIdType numLines;

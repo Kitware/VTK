@@ -49,7 +49,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkRectilinearSynchronizedTemplates, "1.13");
+vtkCxxRevisionMacro(vtkRectilinearSynchronizedTemplates, "1.13.2.1");
 vtkStandardNewMacro(vtkRectilinearSynchronizedTemplates);
 
 //----------------------------------------------------------------------------
@@ -847,7 +847,7 @@ void vtkRectilinearSynchronizedTemplates::PrintSelf(ostream& os, vtkIndent inden
 {
   this->Superclass::PrintSelf(os,indent);
 
-  this->ContourValues->PrintSelf(os,indent);
+  this->ContourValues->PrintSelf(os,indent.GetNextIndent());
 
   os << indent << "Compute Normals: " << (this->ComputeNormals ? "On\n" : "Off\n");
   os << indent << "Compute Gradients: " << (this->ComputeGradients ? "On\n" : "Off\n");

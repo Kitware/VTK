@@ -15,7 +15,7 @@
 #include "vtkAmoebaMinimizer.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkAmoebaMinimizer, "1.3");
+vtkCxxRevisionMacro(vtkAmoebaMinimizer, "1.3.4.1");
 vtkStandardNewMacro(vtkAmoebaMinimizer);
 
 //----------------------------------------------------------------------------
@@ -86,7 +86,7 @@ vtkAmoebaMinimizer::~vtkAmoebaMinimizer()
 //----------------------------------------------------------------------------
 void vtkAmoebaMinimizer::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkObject::PrintSelf(os, indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "NumberOfParameters: " << this->GetNumberOfParameters() << "\n";
   if (this->NumberOfParameters > 0)
     {

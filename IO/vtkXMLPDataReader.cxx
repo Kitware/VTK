@@ -23,7 +23,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataReader.h"
 
-vtkCxxRevisionMacro(vtkXMLPDataReader, "1.9");
+vtkCxxRevisionMacro(vtkXMLPDataReader, "1.9.10.1");
 
 //----------------------------------------------------------------------------
 vtkXMLPDataReader::vtkXMLPDataReader()
@@ -393,17 +393,26 @@ void vtkXMLPDataReader::SplitFileName()
 #endif
   
   // Extract the path name up to the last '/'.
-  if(this->PathName) { delete [] this->PathName; this->PathName = 0; }
+  if(this->PathName) 
+    { 
+    delete [] this->PathName; 
+    this->PathName = 0; 
+    }
   char* rbegin = end-1;
   char* rend = begin-1;
-  for(s=rbegin;s != rend;--s) { if(*s == '/') { break; } }
+  for(s=rbegin;s != rend;--s) 
+    { 
+    if(*s == '/') 
+      { 
+      break; 
+      } 
+    }
   if(s >= begin)
     {
     length = (s-begin)+1;
     this->PathName = new char[length+1];
     strncpy(this->PathName, this->FileName, length);
     this->PathName[length] = '\0';
-    begin = s+1;
     }
   
   // Cleanup temporary name.

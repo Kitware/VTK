@@ -38,7 +38,7 @@
 #define VTK_FTFC_DEBUG_CD 0
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.5");
+vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.5.2.1");
 vtkInstantiatorNewMacro(vtkFreeTypeUtilities);
 
 //----------------------------------------------------------------------------
@@ -263,7 +263,6 @@ void vtkFreeTypeUtilities::MapTextPropertyToId(vtkTextProperty *tprop,
   // - 1/10th degree: 12 bits (11.8)
 
   int angle = (vtkMath::Round(tprop->GetOrientation() * 10.0) % 3600) << bits;
-  bits += 12;
   
   // We really should not use more than 32 bits
 
@@ -310,7 +309,6 @@ void vtkFreeTypeUtilities::MapIdToTextProperty(unsigned long id,
   // - 1/10th degree: 12 bits (11.8)
 
   int angle = id >> bits;
-  bits += 12;
   tprop->SetOrientation((float)(angle & ((1 << 12) - 1)) / 10.0);
 
   // We really should not use more than 32 bits

@@ -20,7 +20,7 @@
 #include "vtkProp.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkFrustumCoverageCuller, "1.32");
+vtkCxxRevisionMacro(vtkFrustumCoverageCuller, "1.32.4.1");
 vtkStandardNewMacro(vtkFrustumCoverageCuller);
 
 // Create a frustum coverage culler with default values
@@ -106,7 +106,6 @@ double vtkFrustumCoverageCuller::Cull( vtkRenderer *ren,
       if (!vtkMath::AreBoundsInitialized(bounds))
         {
         coverage = 0.0;
-        i = 7;
         }
       else
         {

@@ -29,7 +29,7 @@
 #include "vtkMath.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkPentagonalPrism, "1.1");
+vtkCxxRevisionMacro(vtkPentagonalPrism, "1.1.2.1");
 vtkStandardNewMacro(vtkPentagonalPrism);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -57,6 +57,7 @@ vtkPentagonalPrism::vtkPentagonalPrism()
   for (i = 0; i < 5; i++)
     {
     this->Polygon->Points->SetPoint(i, 0.0, 0.0, 0.0);
+    this->Polygon->PointIds->SetId(i,0);
     }
 }
 

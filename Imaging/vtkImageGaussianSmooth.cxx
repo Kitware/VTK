@@ -19,7 +19,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGaussianSmooth, "1.39");
+vtkCxxRevisionMacro(vtkImageGaussianSmooth, "1.39.10.1");
 vtkStandardNewMacro(vtkImageGaussianSmooth);
 
 //----------------------------------------------------------------------------
@@ -468,7 +468,6 @@ void vtkImageGaussianSmooth::ThreadedExecute(vtkImageData *inData,
                   &cycle, target, &count, total);
       // release temporary data
       tempData->Delete();
-      tempData = NULL;
       break;
     case 3:
       // we do z first because it is most likely smallest
@@ -498,11 +497,9 @@ void vtkImageGaussianSmooth::ThreadedExecute(vtkImageData *inData,
       this->ExecuteAxis(1, temp0Data, temp0Ext, temp1Data, temp1Ext,
                   &cycle, target, &count, total);
       temp0Data->Delete();
-      temp0Data = NULL;
       this->ExecuteAxis(0, temp1Data, temp1Ext, outData, outExt,
                   &cycle, target, &count, total);
       temp1Data->Delete();
-      temp1Data = NULL;
       break;
     }  
 }

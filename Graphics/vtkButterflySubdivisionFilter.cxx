@@ -21,7 +21,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkButterflySubdivisionFilter, "1.15");
+vtkCxxRevisionMacro(vtkButterflySubdivisionFilter, "1.15.10.1");
 vtkStandardNewMacro(vtkButterflySubdivisionFilter);
 
 static double butterflyWeights[8] =
@@ -182,7 +182,6 @@ void vtkButterflySubdivisionFilter::GenerateLoopStencil(
   // Walk around the loop and get cells
   nextCell = cellIds->GetId(1);
   tp2 = p2;
-  boundary = 0;
   while (nextCell != startCell)
     {
     cell = polys->GetCell(nextCell);

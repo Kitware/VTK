@@ -21,7 +21,7 @@
 //
 // .SECTION See Also
 // vtkPolyDataReader vtkStructuredPointsReader vtkStructuredGridReader
-// vtkUnsutructuredGridReader vtkRectilinearGridReader
+// vtkUnstructuredGridReader vtkRectilinearGridReader
 
 #ifndef __vtkDataReader_h
 #define __vtkDataReader_h

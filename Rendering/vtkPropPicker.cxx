@@ -21,7 +21,7 @@
 #include "vtkRenderer.h"
 #include "vtkWorldPointPicker.h"
 
-vtkCxxRevisionMacro(vtkPropPicker, "1.23");
+vtkCxxRevisionMacro(vtkPropPicker, "1.23.10.1");
 vtkStandardNewMacro(vtkPropPicker);
 
 vtkPropPicker::vtkPropPicker()
@@ -105,7 +105,7 @@ int vtkPropPicker::PickProp(double selectionX, double selectionY,
 
 void vtkPropPicker::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkAbstractPropPicker::PrintSelf(os, indent);
+  this->Superclass::PrintSelf(os, indent);
 
   if (this->PickFromProps)
     {

@@ -22,7 +22,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInterpolatedVelocityField, "1.1");
+vtkCxxRevisionMacro(vtkInterpolatedVelocityField, "1.1.2.1");
 vtkStandardNewMacro(vtkInterpolatedVelocityField);
 
 typedef vtkstd::vector< vtkDataSet* > DataSetsTypeBase;
@@ -265,6 +265,12 @@ int vtkInterpolatedVelocityField::GetLastLocalCoordinates(double pcoords[3])
     {
     return 0;
     }
+}
+
+void vtkInterpolatedVelocityField::CopyParameters(
+  vtkInterpolatedVelocityField* from)
+{
+  this->Caching = from->Caching;
 }
 
 void vtkInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent indent)

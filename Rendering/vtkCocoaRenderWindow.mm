@@ -31,7 +31,7 @@
 #define id Id // since id is a reserved token in ObjC and is used a _lot_ in vtk
 
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.22");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.22.2.1");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 
@@ -102,8 +102,8 @@ void vtkCocoaRenderWindow::Clean()
     // destructor)
     this->Renderers->InitTraversal();
     for ( ren = (vtkOpenGLRenderer *) this->Renderers->GetNextItemAsObject();
-    ren != NULL;
-    ren = (vtkOpenGLRenderer *) this->Renderers->GetNextItemAsObject() )
+          ren != NULL;
+          ren = (vtkOpenGLRenderer *) this->Renderers->GetNextItemAsObject() )
       {
       ren->SetRenderWindow(NULL);
       }
@@ -217,7 +217,7 @@ int vtkCocoaRenderWindow::SupportsOpenGL()
   this->MakeCurrent();
   if (!this->ContextId)
     {
-      return 0;
+    return 0;
     }
 
   NSOpenGLContext* context = [[(vtkCocoaWindow*)this->WindowId getvtkCocoaGLView] openGLContext];
@@ -410,14 +410,12 @@ void vtkCocoaRenderWindow::WindowInitialize ()
   vtkCocoaGLView *glView;
 #undef id
 #define id Id
+  NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
   // create our own window if not already set
   this->OwnWindow = 0;
   // get the application instance if we don't have one already
   if (!this->ApplicationInitialized)
     {
-//temporary remove the autorelease pool until a better solution is found
-//    NSAutoreleasePool *pool = (NSAutoreleasePool *)(this->AutoreleasePool);
-//    pool = [[NSAutoreleasePool alloc] init];
     [NSApplication sharedApplication];
     this->ApplicationInitialized=1;
     }
@@ -431,13 +429,13 @@ void vtkCocoaRenderWindow::WindowInitialize ()
     delete [] windowName;
     if ((this->Size[0]+this->Size[1])==0)
       {
-      this->Size[0]=300;
-      this->Size[1]=300;
+      this->Size[0] = 300;
+      this->Size[1] = 300;
       }
     if ((this->Position[0]+this->Position[1])==0)
       {
-      this->Position[0]=50;
-      this->Position[1]=50;
+      this->Position[0] = 50;
+      this->Position[1] = 50;
       }
     //22 added since that is the size of the title bar
     ctRect = NSMakeRect(this->Position[0],this->Position[1],
@@ -472,6 +470,7 @@ void vtkCocoaRenderWindow::WindowInitialize ()
 
   this->OpenGLInit();
   this->Mapped = 1;
+  [pool release];
 }
 
 //----------------------------------------------------------------------------
@@ -491,10 +490,11 @@ void vtkCocoaRenderWindow::Initialize ()
 //----------------------------------------------------------------------------
 void vtkCocoaRenderWindow::UpdateSizeAndPosition(int xPos, int yPos, int xSize, int ySize)
 {
-  this->Size[0]=xSize;
-  this->Size[1]=ySize;
-  this->Position[0]=xPos;
-  this->Position[1]=yPos;
+  this->Size[0] = xSize;
+  this->Size[1] = ySize;
+  this->Position[0] = xPos;
+  this->Position[1] = yPos;
+
   this->Modified();
 }
 
