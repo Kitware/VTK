@@ -19,9 +19,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // Construct with default extraction mode to extract largest regions.
 vlConnectivityFilter::vlConnectivityFilter()
 {
-  this->ExtractionMode = EXTRACT_LARGEST_REGIONS;
+  this->ExtractionMode = EXTRACT_LARGEST_REGION;
   this->ColorRegions = 0;
-  this->NumberOfRegionsToExtract = 1;
   this->MaxRecursionDepth = 10000;
 }
 
@@ -41,7 +40,8 @@ void vlConnectivityFilter::Execute()
   vlIdList cellIds(MAX_CELL_SIZE), ptIds(MAX_CELL_SIZE);
   vlPointData *pd;
   int id;
-
+  int maxCellsInRegion, largestRegionId;
+   
   vlDebugMacro(<<"Executing connectivity filter.");
   this->Initialize();
 //
@@ -74,6 +74,7 @@ void vlConnectivityFilter::Execute()
 
   NumExceededMaxDepth = 0;
   RegionNumber = 0;
+  maxCellsInRegion = 0;
 
   if ( this->ExtractionMode != EXTRACT_POINT_SEEDED_REGIONS && 
   this->ExtractionMode != EXTRACT_CELL_SEEDED_REGIONS ) 
@@ -83,19 +84,24 @@ void vlConnectivityFilter::Execute()
       if ( Visited[cellId] < 0 ) 
         {
         NumCellsInRegion = 0;
-        RegionNumber += 1;
         RecursionDepth = 0;
         this->TraverseAndMark (cellId);
-        }
 
-      for (i=0; i < RecursionSeeds->GetNumberOfIds(); i++) 
-        {
-        RecursionDepth = 0;
-        this->TraverseAndMark (RecursionSeeds->GetId(i));
-        }
+        for (i=0; i < RecursionSeeds->GetNumberOfIds(); i++) 
+          {
+          RecursionDepth = 0;
+          this->TraverseAndMark (RecursionSeeds->GetId(i));
+          }
 
-      this->RegionSizes.InsertValue(RegionNumber,NumCellsInRegion);
-      RecursionSeeds->Reset();
+        if ( NumCellsInRegion > maxCellsInRegion )
+          {
+          maxCellsInRegion = NumCellsInRegion;
+          largestRegionId = RegionNumber;
+          }
+
+        this->RegionSizes.InsertValue(RegionNumber++,NumCellsInRegion);
+        RecursionSeeds->Reset();
+        }
       }
     }
   else // regions have been seeded, everything considered in same region
@@ -158,28 +164,73 @@ void vlConnectivityFilter::Execute()
 
   // if coloring regions; send down new scalar data
   if ( this->ColorRegions ) this->PointData.SetScalars(NewScalars);
-  delete NewScalars;
+  else delete NewScalars;
 
-  this->PointData.Squeeze();
-  newPts->Squeeze();
   this->SetPoints(newPts);
-
 //
 // Create output cells
 //
-  for (cellId=0; cellId < numCells; cellId++)
-    {
-    if ( Visited[cellId] >= 0 )
+  if ( this->ExtractionMode == EXTRACT_POINT_SEEDED_REGIONS ||
+  this->ExtractionMode == EXTRACT_CELL_SEEDED_REGIONS )
+    { // extract any cell that's been visited
+    for (cellId=0; cellId < numCells; cellId++)
       {
-      this->Input->GetCellPoints(cellId, ptIds);
-      for (i=0; i < ptIds.GetNumberOfIds(); i++)
+      if ( Visited[cellId] >= 0 )
         {
-        id = PointMap[ptIds.GetId(i)];
-        ptIds.SetId(i,id);
+        this->Input->GetCellPoints(cellId, ptIds);
+        for (i=0; i < ptIds.GetNumberOfIds(); i++)
+          {
+          id = PointMap[ptIds.GetId(i)];
+          ptIds.SetId(i,id);
+          }
+        this->InsertNextCell(this->Input->GetCellType(cellId),ptIds);
         }
-      this->InsertNextCell(this->Input->GetCellType(cellId),ptIds);
       }
     }
+  else if ( this->ExtractionMode == EXTRACT_SPECIFIED_REGIONS )
+    {
+    for (cellId=0; cellId < numCells; cellId++)
+      {
+      int inReg, regionId;
+      if ( (regionId=Visited[cellId]) >= 0 )
+        {
+        for (inReg=0,i=0; i<this->SpecifiedRegionIds.GetNumberOfIds(); i++)
+          {
+          if ( regionId == this->SpecifiedRegionIds.GetId(i) )
+            {
+            inReg = 1;
+            break;
+            }
+          }
+        if ( inReg )
+          {
+          this->Input->GetCellPoints(cellId, ptIds);
+          for (i=0; i < ptIds.GetNumberOfIds(); i++)
+            {
+            id = PointMap[ptIds.GetId(i)];
+            ptIds.SetId(i,id);
+            }
+          this->InsertNextCell(this->Input->GetCellType(cellId),ptIds);
+          }
+        }
+      }
+    }
+  else //extract largest region
+    {
+    for (cellId=0; cellId < numCells; cellId++)
+      {
+      if ( Visited[cellId] == largestRegionId )
+        {
+        this->Input->GetCellPoints(cellId, ptIds);
+        for (i=0; i < ptIds.GetNumberOfIds(); i++)
+          {
+          id = PointMap[ptIds.GetId(i)];
+          ptIds.SetId(i,id);
+          }
+        this->InsertNextCell(this->Input->GetCellType(cellId),ptIds);
+        }
+      }
+   }
 
   delete [] Visited;
   delete [] PointMap;
@@ -271,14 +322,12 @@ void vlConnectivityFilter::ExtractSpecifiedRegions()
 
 // Description:
 // Set the extraction mode to extract the largest region found.
-void vlConnectivityFilter::ExtractLargestRegions(int numRegions)
+void vlConnectivityFilter::ExtractLargestRegion()
 {
-  if ( this->ExtractionMode != EXTRACT_LARGEST_REGIONS 
-  || numRegions != this->NumberOfRegionsToExtract)
+  if ( this->ExtractionMode != EXTRACT_LARGEST_REGION )
     {
     this->Modified();
-    this->ExtractionMode = EXTRACT_LARGEST_REGIONS;
-    this->NumberOfRegionsToExtract = numRegions;
+    this->ExtractionMode = EXTRACT_LARGEST_REGION;
     }
 }
 
@@ -346,8 +395,8 @@ void vlConnectivityFilter::PrintSelf(ostream& os, vlIndent indent)
     case EXTRACT_SPECIFIED_REGIONS:
       os << "(Extract specified regions)\n";
       break;
-    case EXTRACT_LARGEST_REGIONS:
-      os << "(Extract " << this->NumberOfRegionsToExtract << " largest regions)\n";
+    case EXTRACT_LARGEST_REGION:
+      os << "(Extract largest region)\n";
       break;
 
     os << indent << "Color Regions: " << (this->ColorRegions ? "On\n" : "Off\n");

@@ -29,7 +29,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #define EXTRACT_POINT_SEEDED_REGIONS 1
 #define EXTRACT_CELL_SEEDED_REGIONS 2
 #define EXTRACT_SPECIFIED_REGIONS 3
-#define EXTRACT_LARGEST_REGIONS 4
+#define EXTRACT_LARGEST_REGION 4
 
 class vlConnectivityFilter : public vlDataSetToUnstructuredGridFilter
 {
@@ -42,7 +42,7 @@ public:
   void ExtractPointSeededRegions();
   void ExtractCellSeededRegions();
 
-  void ExtractLargestRegions(int numberOfRegions);
+  void ExtractLargestRegion();
 
   void ExtractSpecifiedRegions();
   void InitializeSpecifiedRegionList();
@@ -77,7 +77,6 @@ protected:
   int MaxRecursionDepth; //prevent excessive recursion
   vlIdList SpecifiedRegionIds; //regions specified for extraction
   vlIntArray RegionSizes; //size (in cells) of each region extracted
-  int NumberOfRegionsToExtract;
 
   void TraverseAndMark(int cellId);
 };
