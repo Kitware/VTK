@@ -65,7 +65,7 @@ void vtkEdgePoints::Execute()
   float s0, s1, x0[3], x1[3], x[3], r;
   vtkFloatScalars *newScalars, cellScalars(MAX_CELL_SIZE);
   vtkIdList neighbors(MAX_CELL_SIZE);
-  int visitedNei, nei, pts[1];
+  int visitedNei, pts[1];
 
   vtkDebugMacro(<< "Generating edge points");
 //
