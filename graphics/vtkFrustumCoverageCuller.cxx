@@ -82,7 +82,8 @@ float vtkFrustumCoverageCuller::Cull( vtkRenderer *ren,
 {
   vtkProp            *prop;
   float               total_time;
-  float               *bounds, center[3], radius;
+  float               *bounds, center[3];
+  float               radius = 0.0;
   float               planes[24], d;
   float               coverage, screen_bounds[4];
   float               previous_time;

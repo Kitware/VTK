@@ -139,7 +139,7 @@ void vtkExtractUnstructuredGrid::Execute()
   vtkUnstructuredGrid *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
-  int *pointMap;
+  int *pointMap = NULL;
   
   vtkDebugMacro(<<"Executing geometry filter");
 

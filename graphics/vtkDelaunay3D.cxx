@@ -349,7 +349,8 @@ int vtkDelaunay3D::FindTetra(vtkUnstructuredGrid *Mesh, double x[3],
   double p[4][3];
   double b[4];
   vtkTetra *tetra;
-  int neg, j, numNeg;
+  int neg = 0;
+  int j, numNeg;
   double negValue;
   
   // prevent aimless wandering and death by recursion
@@ -387,7 +388,7 @@ int vtkDelaunay3D::FindTetra(vtkUnstructuredGrid *Mesh, double x[3],
     }
   
   // okay, march towards the most negative direction
-  int p1, p2, p3;
+  int p1 = 0, p2 = 0, p3 = 0;
   switch (neg) 
     {
     case 0:

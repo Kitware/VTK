@@ -91,7 +91,7 @@ void vtkFeatureEdges::Execute()
   vtkPolyData *input= this->GetInput();
   vtkPoints *inPts;
   vtkPoints *newPts;
-  vtkScalars *newScalars;
+  vtkScalars *newScalars = NULL;
   vtkCellArray *newLines;
   vtkPolyData *Mesh;
   int i, j, numNei, cellId;
