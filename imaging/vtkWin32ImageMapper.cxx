@@ -649,7 +649,7 @@ void vtkWin32ImageMapper::RenderData(vtkViewport* viewport,
   actorPos[0] += this->PositionAdjustment[0]; 
   actorPos[1] -= this->PositionAdjustment[1];
 
-  actorPos[1] = actorPos[1] - height;
+  actorPos[1] = actorPos[1] - height + 1;
 
   // actorPos[1] = actorPos[1] - actorScale[1] * height;
   // Adjust position for image flips - note actorScale is negative in expression
