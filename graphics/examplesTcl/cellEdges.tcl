@@ -16,7 +16,7 @@ vtkRenderWindowInteractor iren
 
 # create a scene with one of each cell type
 
-vtkFloatPoints voxelPoints
+vtkPoints voxelPoints
   voxelPoints SetNumberOfPoints 8
   voxelPoints InsertPoint 0 0 0 0
   voxelPoints InsertPoint 1 1 0 0
@@ -50,7 +50,7 @@ vtkActor aVoxelActor
   aVoxelActor SetMapper aVoxelMapper
   [aVoxelActor GetProperty] BackfaceCullingOn
 
-vtkFloatPoints hexahedronPoints
+vtkPoints hexahedronPoints
   hexahedronPoints SetNumberOfPoints 8
   hexahedronPoints InsertPoint 0 0 0 0
   hexahedronPoints InsertPoint 1 1 0 0
@@ -86,7 +86,7 @@ vtkActor aHexahedronActor
   [aHexahedronActor GetProperty] BackfaceCullingOn
 
 
-vtkFloatPoints tetraPoints
+vtkPoints tetraPoints
   tetraPoints SetNumberOfPoints 4
   tetraPoints InsertPoint 0 0 0 0
   tetraPoints InsertPoint 1 1 0 0
@@ -114,7 +114,69 @@ vtkActor aTetraActor
   [aTetraActor GetProperty] BackfaceCullingOn
 
 
-vtkFloatPoints pixelPoints
+vtkPoints wedgePoints
+  wedgePoints SetNumberOfPoints 6
+  wedgePoints InsertPoint 0 0 0 0
+  wedgePoints InsertPoint 1 0 1 0
+  wedgePoints InsertPoint 2 0 .5 .5
+  wedgePoints InsertPoint 3 1 0 0
+  wedgePoints InsertPoint 4 1 1 0
+  wedgePoints InsertPoint 5 1 .5 .5
+
+vtkWedge aWedge
+  [aWedge GetPointIds] SetId 0 0
+  [aWedge GetPointIds] SetId 1 1
+  [aWedge GetPointIds] SetId 2 2
+  [aWedge GetPointIds] SetId 3 3
+  [aWedge GetPointIds] SetId 4 4
+  [aWedge GetPointIds] SetId 5 5
+
+
+vtkUnstructuredGrid aWedgeGrid
+  aWedgeGrid Allocate 1 1
+  aWedgeGrid InsertNextCell [aWedge GetCellType] [aWedge GetPointIds]
+  aWedgeGrid SetPoints wedgePoints
+
+vtkDataSetMapper aWedgeMapper
+  aWedgeMapper SetInput aWedgeGrid
+
+vtkActor aWedgeActor
+  aWedgeActor SetMapper aWedgeMapper
+  aWedgeActor AddPosition 6 0 0
+  [aWedgeActor GetProperty] BackfaceCullingOn
+
+
+vtkPoints pyramidPoints
+  pyramidPoints SetNumberOfPoints 5
+  pyramidPoints InsertPoint 0 0 0 0
+  pyramidPoints InsertPoint 1 1 0 0
+  pyramidPoints InsertPoint 2 1 1 0
+  pyramidPoints InsertPoint 3 0 1 0
+  pyramidPoints InsertPoint 4 .5 .5 1
+
+vtkPyramid aPyramid
+  [aPyramid GetPointIds] SetId 0 0
+  [aPyramid GetPointIds] SetId 1 1
+  [aPyramid GetPointIds] SetId 2 2
+  [aPyramid GetPointIds] SetId 3 3
+  [aPyramid GetPointIds] SetId 4 4
+
+
+vtkUnstructuredGrid aPyramidGrid
+  aPyramidGrid Allocate 1 1
+  aPyramidGrid InsertNextCell [aPyramid GetCellType] [aPyramid GetPointIds]
+  aPyramidGrid SetPoints pyramidPoints
+
+vtkDataSetMapper aPyramidMapper
+  aPyramidMapper SetInput aPyramidGrid
+
+vtkActor aPyramidActor
+  aPyramidActor SetMapper aPyramidMapper
+  aPyramidActor AddPosition 8 0 0
+  [aPyramidActor GetProperty] BackfaceCullingOn
+
+
+vtkPoints pixelPoints
   pixelPoints SetNumberOfPoints 4
   pixelPoints InsertPoint 0 0 0 0
   pixelPoints InsertPoint 1 1 0 0
@@ -142,7 +204,7 @@ vtkActor aPixelActor
   [aPixelActor GetProperty] BackfaceCullingOn
 
 
-vtkFloatPoints quadPoints
+vtkPoints quadPoints
   quadPoints SetNumberOfPoints 4
   quadPoints InsertPoint 0 0 0 0
   quadPoints InsertPoint 1 1 0 0
@@ -170,13 +232,13 @@ vtkActor aQuadActor
   [aQuadActor GetProperty] BackfaceCullingOn
 
 
-vtkFloatPoints trianglePoints
+vtkPoints trianglePoints
   trianglePoints SetNumberOfPoints 3
   trianglePoints InsertPoint 0 0 0 0
   trianglePoints InsertPoint 1 1 0 0
   trianglePoints InsertPoint 2 .5 .5 0
 
-vtkFloatTCoords triangleTCoords
+vtkTCoords triangleTCoords
   triangleTCoords SetNumberOfTCoords 3
   triangleTCoords InsertTCoord 0 1 1 1
   triangleTCoords InsertTCoord 1 2 2 2
@@ -203,7 +265,7 @@ vtkActor aTriangleActor
   [aTriangleActor GetProperty] BackfaceCullingOn
 
 
-vtkFloatPoints polygonPoints
+vtkPoints polygonPoints
   polygonPoints SetNumberOfPoints 4
   polygonPoints InsertPoint 0 0 0 0
   polygonPoints InsertPoint 1 1 0 0
@@ -232,7 +294,7 @@ vtkActor aPolygonActor
   [aPolygonActor GetProperty] BackfaceCullingOn
 
 
-vtkFloatPoints triangleStripPoints
+vtkPoints triangleStripPoints
   triangleStripPoints SetNumberOfPoints 5
   triangleStripPoints InsertPoint 0 0 1 0
   triangleStripPoints InsertPoint 1 0 0 0
@@ -240,7 +302,7 @@ vtkFloatPoints triangleStripPoints
   triangleStripPoints InsertPoint 3 1 0 0
   triangleStripPoints InsertPoint 4 2 1 0
 
-vtkFloatTCoords triangleStripTCoords
+vtkTCoords triangleStripTCoords
   triangleStripTCoords SetNumberOfTCoords 3
   triangleStripTCoords InsertTCoord 0 1 1 1
   triangleStripTCoords InsertTCoord 1 2 2 2
@@ -272,7 +334,7 @@ vtkActor aTriangleStripActor
   [aTriangleStripActor GetProperty] BackfaceCullingOn
 
 
-vtkFloatPoints linePoints
+vtkPoints linePoints
   linePoints SetNumberOfPoints 2
   linePoints InsertPoint 0 0 0 0
   linePoints InsertPoint 1 1 1 0
@@ -296,7 +358,7 @@ vtkActor aLineActor
   [aLineActor GetProperty] BackfaceCullingOn
 
 
-vtkFloatPoints polyLinePoints
+vtkPoints polyLinePoints
   polyLinePoints SetNumberOfPoints 3
   polyLinePoints InsertPoint 0 0 0 0
   polyLinePoints InsertPoint 1 1 1 0
@@ -323,7 +385,7 @@ vtkActor aPolyLineActor
   [aPolyLineActor GetProperty] BackfaceCullingOn
 
 
-vtkFloatPoints vertexPoints
+vtkPoints vertexPoints
   vertexPoints SetNumberOfPoints 1
   vertexPoints InsertPoint 0 0 0 0
 
@@ -345,7 +407,7 @@ vtkActor aVertexActor
   [aVertexActor GetProperty] BackfaceCullingOn
 
 
-vtkFloatPoints polyVertexPoints
+vtkPoints polyVertexPoints
   polyVertexPoints SetNumberOfPoints 3
   polyVertexPoints InsertPoint 0 0 0 0
   polyVertexPoints InsertPoint 1 1 0 0
@@ -377,6 +439,8 @@ ren1 SetBackground .1 .2 .4
 ren1 AddActor aVoxelActor; [aVoxelActor GetProperty] SetDiffuseColor 1 0 0
 ren1 AddActor aHexahedronActor; [aHexahedronActor GetProperty] SetDiffuseColor 1 1 0
 ren1 AddActor aTetraActor; [aTetraActor GetProperty] SetDiffuseColor 0 1 0
+ren1 AddActor aWedgeActor; [aWedgeActor GetProperty] SetDiffuseColor 0 1 0
+ren1 AddActor aPyramidActor; [aPyramidActor GetProperty] SetDiffuseColor 0 1 0
 ren1 AddActor aPixelActor; [aPixelActor GetProperty] SetDiffuseColor 0 1 1
 ren1 AddActor aQuadActor; [aQuadActor GetProperty] SetDiffuseColor 1 0 1
 ren1 AddActor aTriangleActor; [aTriangleActor GetProperty] SetDiffuseColor .3 1 .5
@@ -393,7 +457,7 @@ ren1 AddActor aPolyVertexActor; [aPolyVertexActor GetProperty] SetDiffuseColor 1
 vtkSphereSource ball
   ball SetRadius .2
 
-foreach cell "aVoxel aHexahedron aTetra aPixel aQuad aTriangle aPolygon aTriangleStrip" {
+foreach cell "aVoxel aHexahedron aTetra aWedge aPyramid aPixel aQuad aTriangle aPolygon aTriangleStrip" {
   vtkExtractEdges ${cell}Edges
     ${cell}Edges SetInput ${cell}Grid
   vtkTubeFilter ${cell}Tubes
