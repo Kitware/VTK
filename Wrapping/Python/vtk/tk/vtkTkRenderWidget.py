@@ -271,10 +271,7 @@ class vtkTkRenderWidget(Tkinter.Widget):
     def Enter(self,x,y):
         self._OldFocus=self.focus_get()
         self.focus()
-        if self._FocusOnEnter:
-            self.StartMotion(x, y)
-        else:
-            self.UpdateRenderer(x, y)
+        self.StartMotion(x, y)
 
     def Leave(self,x,y):
         if (self._OldFocus != None):
