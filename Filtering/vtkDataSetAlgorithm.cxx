@@ -27,7 +27,7 @@
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkDataSetAlgorithm, "1.10");
+vtkCxxRevisionMacro(vtkDataSetAlgorithm, "1.11");
 vtkStandardNewMacro(vtkDataSetAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -48,6 +48,13 @@ vtkDataSet* vtkDataSetAlgorithm::GetOutput()
 vtkDataSet* vtkDataSetAlgorithm::GetOutput(int port)
 {
   return vtkDataSet::SafeDownCast(this->GetOutputDataObject(port));
+}
+
+//----------------------------------------------------------------------------
+// Get the output as vtkImageData
+vtkImageData *vtkDataSetAlgorithm::GetImageDataOutput() 
+{
+  return vtkImageData::SafeDownCast(this->GetOutput());
 }
 
 //----------------------------------------------------------------------------
@@ -175,7 +182,7 @@ int vtkDataSetAlgorithm::ProcessRequest(
   // create the output
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
     {
-    return this->CreateOutput(request, inputVector, outputVector);
+    return this->RequestDataObject(request, inputVector, outputVector);
     }
 
   // execute information
@@ -193,7 +200,7 @@ int vtkDataSetAlgorithm::ProcessRequest(
 }
 
 //----------------------------------------------------------------------------
-int vtkDataSetAlgorithm::CreateOutput(
+int vtkDataSetAlgorithm::RequestDataObject(
   vtkInformation*, 
   vtkInformationVector** inputVector , 
   vtkInformationVector* outputVector)

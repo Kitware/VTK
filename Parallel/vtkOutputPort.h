@@ -73,6 +73,7 @@ public:
   // No one else should call it.
   void TriggerUpdateInformation(int remoteProcessId);
   void TriggerUpdate(int remoteProcessId);
+  void TriggerRequestDataObject(int remoteProcessId);
   
   // Description:
   // Trying to get pipeline parallelism working.

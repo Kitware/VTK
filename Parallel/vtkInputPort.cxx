@@ -28,7 +28,7 @@
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkInputPort, "1.17");
+vtkCxxRevisionMacro(vtkInputPort, "1.18");
 vtkStandardNewMacro(vtkInputPort);
 
 vtkCxxSetObjectMacro(vtkInputPort,Controller, vtkMultiProcessController);
@@ -56,6 +56,9 @@ vtkInputPort::vtkInputPort()
   this->LastUpdateExtent[0] = this->LastUpdateExtent[1] = 
     this->LastUpdateExtent[2] = this->LastUpdateExtent[3] = 
     this->LastUpdateExtent[4] = this->LastUpdateExtent[5] = 0;
+
+  // from a pipeline perspective this has no inputs
+  this->SetNumberOfInputPorts(0);
 }
 
 //----------------------------------------------------------------------------
@@ -76,197 +79,6 @@ void vtkInputPort::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "TransferNeeded: " << this->TransferNeeded << endl;  
   os << indent << "DoUpdateInformation: " << this->DoUpdateInformation << endl;
 }
-
-//----------------------------------------------------------------------------
-// Maybe we can come up with a way to check the type of the upstream port's
-// input here.  While we are at it, we could automatically generate a tag.
-vtkPolyData *vtkInputPort::GetPolyDataOutput()
-{
-  vtkDataObject *output = NULL;
-  
-  // If there is already an output, I hope it is a vtkPolyData.
-  if (this->Outputs)
-    {
-    output = this->Outputs[0];
-    }
-  if (output)
-    {
-    if (output->GetDataObjectType() == VTK_POLY_DATA)
-      {
-      return (vtkPolyData*)(output);
-      }
-//      else
-//        {
-//        vtkWarningMacro("vtkInputPort: Changing data type of output.");
-//        }
-    }
-  
-  output = vtkPolyData::New();
-  output->ReleaseData();
-  this->vtkSource::SetNthOutput(0, output);
-  output->Delete();
-  return (vtkPolyData*)(output);
-}
-
-
-//----------------------------------------------------------------------------
-// Maybe we can come up with a way to check the type of the upstream port's
-// input here.  While we are at it, we could automatically generate a tag.
-vtkUnstructuredGrid *vtkInputPort::GetUnstructuredGridOutput()
-{
-  vtkDataObject *output = NULL;
-  
-  // If there is already an output, I hope it is a vtkPolyData.
-  if (this->Outputs)
-    {
-    output = this->Outputs[0];
-    }
-  if (output)
-    {
-    if (output->GetDataObjectType() == VTK_UNSTRUCTURED_GRID)
-      {
-      return (vtkUnstructuredGrid*)(output);
-      }
-//      else
-//        {
-//        vtkWarningMacro("vtkInputPort: Changing data type of output.");
-//        }
-    }
-  
-  output = vtkUnstructuredGrid::New();
-  output->ReleaseData();
-  this->vtkSource::SetNthOutput(0, output);
-  output->Delete();
-  return (vtkUnstructuredGrid*)(output);
-}
-
-//----------------------------------------------------------------------------
-// Maybe we can come up with a way to check the type of the upstream port's
-// input here.  While we are at it, we could automatically generate a tag.
-vtkStructuredGrid *vtkInputPort::GetStructuredGridOutput()
-{
-  vtkDataObject *output = NULL;
-  
-  // If there is already an output, I hope it is a vtkPolyData.
-  if (this->Outputs)
-    {
-    output = this->Outputs[0];
-    }
-  if (output)
-    {
-    if (output->GetDataObjectType() == VTK_STRUCTURED_GRID)
-      {
-      return (vtkStructuredGrid*)(output);
-      }
-//      else
-//        {
-//        vtkWarningMacro("vtkInputPort: Changing data type of output.");
-//        }
-    }
-  
-  output = vtkStructuredGrid::New();
-  output->ReleaseData();
-  this->vtkSource::SetNthOutput(0, output);
-  output->Delete();
-  return (vtkStructuredGrid*)(output);
-}
-
-
-//----------------------------------------------------------------------------
-// Maybe we can come up with a way to check the type of the upstream port's
-// input here.  While we are at it, we could automatically generate a tag.
-vtkRectilinearGrid *vtkInputPort::GetRectilinearGridOutput()
-{
-  vtkDataObject *output = NULL;
-  
-  // If there is already an output, I hope it is a vtkPolyData.
-  if (this->Outputs)
-    {
-    output = this->Outputs[0];
-    }
-  if (output)
-    {
-    if (output->GetDataObjectType() == VTK_RECTILINEAR_GRID)
-      {
-      return (vtkRectilinearGrid*)(output);
-      }
-//      else
-//        {
-//        vtkWarningMacro("vtkInputPort: Changing data type of output.");
-//        }
-    }
-  
-  output = vtkRectilinearGrid::New();
-  output->ReleaseData();
-  this->vtkSource::SetNthOutput(0, output);
-  output->Delete();
-  return (vtkRectilinearGrid*)(output);
-}
-
-
-//----------------------------------------------------------------------------
-// Maybe we can come up with a way to check the type of the upstream port's
-// input here.  While we are at it, we could automatically generate a tag.
-vtkStructuredPoints *vtkInputPort::GetStructuredPointsOutput()
-{
-  vtkDataObject *output = NULL;
-  
-  // If there is already an output, I hope it is a vtkPolyData.
-  if (this->Outputs)
-    {
-    output = this->Outputs[0];
-    }
-  if (output)
-    {
-    if (output->GetDataObjectType() == VTK_STRUCTURED_POINTS)
-      {
-      return (vtkStructuredPoints*)(output);
-      }
-//      else
-//        {
-//        vtkWarningMacro("vtkInputPort: Changing data type of output.");
-//        }
-    }
-  
-  output = vtkStructuredPoints::New();
-  output->ReleaseData();
-  this->vtkSource::SetNthOutput(0, output);
-  output->Delete();
-  return (vtkStructuredPoints*)(output);
-}
-
-
-//----------------------------------------------------------------------------
-// Maybe we can come up with a way to check the type of the upstream port's
-// input here.  While we are at it, we could automatically generate a tag.
-vtkImageData *vtkInputPort::GetImageDataOutput()
-{
-  vtkDataObject *output = NULL;
-  
-  // If there is already an output, I hope it is a vtkImageData.
-  if (this->Outputs)
-    {
-    output = this->Outputs[0];
-    }
-  if (output)
-    {
-    if (output->GetDataObjectType() == VTK_IMAGE_DATA)
-      {
-      return (vtkImageData*)(output);
-      }
-//      else
-//        {
-//        vtkWarningMacro("vtkInputPort: Changing data type of output.");
-//        }
-    }
-  
-  output = vtkImageData::New();
-  output->ReleaseData();
-  this->vtkSource::SetNthOutput(0, output);
-  output->Delete();
-  return (vtkImageData*)(output);
-}
-
 
 int vtkInputPort::UpdateExtentIsOutsideOfTheExtent(vtkDataObject *output)
   {
@@ -308,23 +120,25 @@ unsigned long vtkInputPort::GetMTime()
 {
   if (this->DoUpdateInformation && this->Controller)
     {
-    vtkDataObject *output;
-    unsigned long pmt = 0;
-    
-    if (this->Outputs == NULL || this->Outputs[0] == NULL)
+    vtkDataObject *output = 0;
+    vtkInformation* outInfo = this->GetExecutive()->GetOutputInformation(0);
+    if (outInfo)
       {
-      vtkErrorMacro("No output.");
+      output = outInfo->Get(vtkDataObject::DATA_OBJECT());
+      }
+    
+    if (!output)
+      {
       return this->Superclass::GetMTime();
       }
 
-    output = this->Outputs[0];
-  
     // Trigger UpdateInformation in remotePort.
     // Up-stream port should have the same tag.
     this->Controller->TriggerRMI(this->RemoteProcessId, this->Tag);
   
     // Now receive the information
     int wholeInformation[7];
+    unsigned long pmt = 0;
     this->Controller->Receive( wholeInformation, 7, 
                                this->RemoteProcessId,
                                vtkInputPort::INFORMATION_TRANSFER_TAG);
@@ -352,24 +166,21 @@ unsigned long vtkInputPort::GetMTime()
   return this->Superclass::GetMTime();
 }
 
-void vtkInputPort::ExecuteInformation()
-{
-  vtkDataObject *output;
+int vtkInputPort::RequestInformation(
+  vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed( inputVector ),
+  vtkInformationVector* outputVector)
+{  
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+
   unsigned long pmt = 0;
   
   if (!this->DoUpdateInformation)
     {
-    return;
+    return 1;
     }
 
-  if (this->Outputs == NULL || this->Outputs[0] == NULL)
-    {
-    vtkErrorMacro("No output.");
-    return;
-    }
-
-  output = this->Outputs[0];
-  
   // Trigger UpdateInformation in remotePort.
   // Up-stream port should have the same tag.
   this->Controller->TriggerRMI(this->RemoteProcessId, this->Tag);
@@ -387,30 +198,42 @@ void vtkInputPort::ExecuteInformation()
   this->Controller->Receive( &maxNumPieces, 1, 
                              this->RemoteProcessId,
                              vtkInputPort::INFORMATION_TRANSFER_TAG);
-  output->SetMaximumNumberOfPieces(maxNumPieces);
-  output->SetWholeExtent( wholeInformation );
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
+               maxNumPieces);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+               wholeInformation, 6);
     
   // Save the upstream PMT for execute check (this may not be necessary)
   this->UpStreamMTime = pmt;
 
-  // !!! Make sure that Update is called if data is released. !!!
-  if (pmt > this->DataTime || output->GetDataReleased())
+  if (pmt > this->DataTime)
     {
     // Our data is out of data.  We will need a transfer.
     // This Modified call will ensure Update will get called.
     this->Modified();
     }
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkInputPort::ExecuteData(vtkDataObject *output)
+int vtkInputPort::RequestData(vtkInformation* vtkNotUsed(request),
+                              vtkInformationVector** vtkNotUsed( inputVector),
+                              vtkInformationVector* outputVector)
 {
+  // get the info objects
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *output = vtkDataSet::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  
   // This should be cleared by this point.
   // UpdateInformation and Update calls need to be made in pairs.
   if (this->TransferNeeded)
     {
     vtkWarningMacro("Transfer should have been received.");
-    return;
+    return 0;
     }
 
   // Trigger Update in remotePort.
@@ -443,23 +266,23 @@ void vtkInputPort::ExecuteData(vtkDataObject *output)
       !this->UpdateExtentIsOutsideOfTheExtent(output) )
     { 
     // No, we do not need to update.
-    return;
+    return 1;
     }
 
   if ( ! this->TransferNeeded)
     {
     // If something unexpected happened, let me know.
     vtkWarningMacro("UpdateData was called when no data was needed.");
-    return;
+    return 1;
     }
   
   // Well here is a bit of a hack.
   // Since the reader will overwrite whole extents, we need to save the whole
   // extent and reset it.
   int wholeExtent[6];
-  output->GetWholeExtent(wholeExtent);
-  // receive the data
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),wholeExtent);
 
+  // receive the data
   this->Controller->Receive(output, this->RemoteProcessId,
                             vtkInputPort::DATA_TRANSFER_TAG);
   
@@ -476,6 +299,8 @@ void vtkInputPort::ExecuteData(vtkDataObject *output)
   this->LastUpdateGhostLevel = output->GetUpdateGhostLevel();
   
   this->SetLastUpdateExtent( output->GetUpdateExtent() );
+
+  return 1;
 }
 
 int vtkInputPort::FillOutputPortInformation(
@@ -488,4 +313,59 @@ int vtkInputPort::FillOutputPortInformation(
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkDataSet");
   
   return retVal;
+}
+
+//----------------------------------------------------------------------------
+int vtkInputPort::RequestDataObject(
+  vtkInformation*, 
+  vtkInformationVector** vtkNotUsed( inputVector ), 
+  vtkInformationVector* outputVector)
+{
+  // if the controller has not been set yet then we have a problem
+  if (!this->Controller)
+    {
+    vtkErrorMacro("Attempt to use input port withotu a controller!");
+    return 0;
+    }
+  
+  // Trigger 
+  // Up-stream port should have the same tag.
+  this->Controller->TriggerRMI(this->RemoteProcessId, this->Tag+2);
+  
+  // Now receive the information
+  int dataType;
+  this->Controller->Receive( &dataType, 1, 
+                             this->RemoteProcessId,
+                             vtkInputPort::DATA_TYPE_TAG);
+  
+  vtkInformation* info = outputVector->GetInformationObject(0);
+  vtkDataSet *output = vtkDataSet::SafeDownCast(
+    info->Get(vtkDataObject::DATA_OBJECT()));
+  
+  if (!output || output->GetDataObjectType() != dataType) 
+    {
+    switch (dataType)
+      {
+      case VTK_POLY_DATA:
+        output = vtkPolyData::New();
+        break;
+      case VTK_STRUCTURED_GRID:
+        output = vtkStructuredGrid::New();
+        break;        
+      case VTK_RECTILINEAR_GRID:
+        output = vtkRectilinearGrid::New();
+        break;
+      case VTK_UNSTRUCTURED_GRID:
+        output = vtkUnstructuredGrid::New();
+        break;
+      case VTK_IMAGE_DATA:
+        output = vtkImageData::New();
+        break;
+      }
+    output->SetPipelineInformation(info);
+    output->Delete();
+    this->GetOutputPortInformation(0)->Set(
+      vtkDataObject::DATA_EXTENT_TYPE(), output->GetExtentType());
+    }
+  return 1;
 }

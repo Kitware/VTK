@@ -28,35 +28,17 @@
 #ifndef __vtkInputPort_h
 #define __vtkInputPort_h
 
-#include "vtkSource.h"
+#include "vtkDataSetAlgorithm.h"
 
-class vtkPolyData;
-class vtkUnstructuredGrid;
-class vtkStructuredGrid;
-class vtkRectilinearGrid;
-class vtkStructuredPoints;
-class vtkImageData;
 class vtkMultiProcessController;
 
-class VTK_PARALLEL_EXPORT vtkInputPort : public vtkSource
+class VTK_PARALLEL_EXPORT vtkInputPort : public vtkDataSetAlgorithm
 {
 public:
   static vtkInputPort *New();
-  vtkTypeRevisionMacro(vtkInputPort,vtkSource);
+  vtkTypeRevisionMacro(vtkInputPort,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Note: You have to ask for the right type, and it has to match
-  // the type of the up stream port input, or you will get an error.
-  // We have to live with the fact that the error will not occur until
-  // an update is called.
-  vtkPolyData *GetPolyDataOutput();
-  vtkUnstructuredGrid *GetUnstructuredGridOutput();
-  vtkStructuredGrid *GetStructuredGridOutput();
-  vtkRectilinearGrid *GetRectilinearGridOutput();
-  vtkStructuredPoints *GetStructuredPointsOutput();
-  vtkImageData *GetImageDataOutput();
-  
   // Description:
   // The matching OutputPort is specified by the output port's process
   // and a tag.  There can be more than one output port per process.
@@ -95,7 +77,8 @@ public:
     TRANSFER_NEEDED_TAG = 98972,
     INFORMATION_TRANSFER_TAG = 98973,
     DATA_TRANSFER_TAG = 98974,
-    NEW_DATA_TIME_TAG = 98975
+    NEW_DATA_TIME_TAG = 98975,
+    DATA_TYPE_TAG = 98976
   };
 
 //ETX
@@ -122,8 +105,17 @@ protected:
 
   int UpdateExtentIsOutsideOfTheExtent(vtkDataObject *output);
 
-  void ExecuteInformation();
-  void ExecuteData(vtkDataObject *output);
+  // This is called by the superclass.
+  // This is the method you should override.
+  virtual int RequestDataObject(vtkInformation* request, 
+                                vtkInformationVector** inputVector, 
+                                vtkInformationVector* outputVector);
+  virtual int RequestInformation(vtkInformation* request, 
+                                 vtkInformationVector** inputVector, 
+                                 vtkInformationVector* outputVector);
+  virtual int RequestData(vtkInformation* request, 
+                          vtkInformationVector** inputVector, 
+                          vtkInformationVector* outputVector);
 
   // see the vtkAlgorithm for what these methods do
   virtual int FillOutputPortInformation(int port, vtkInformation* info);

@@ -50,9 +50,9 @@ protected:
   vtkPDataSetReader();
   ~vtkPDataSetReader();
 
-  virtual int CreateOutput(vtkInformation* request, 
-                           vtkInformationVector** inputVector, 
-                           vtkInformationVector* outputVector);
+  virtual int RequestDataObject(vtkInformation* request, 
+                                vtkInformationVector** inputVector, 
+                                vtkInformationVector* outputVector);
   void ReadPVTKFileInformation(ifstream *fp,
                                vtkInformation* request, 
                                vtkInformationVector** inputVector,

@@ -34,7 +34,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkExtentTranslator.h"
 
-vtkCxxRevisionMacro(vtkPDataSetReader, "1.34");
+vtkCxxRevisionMacro(vtkPDataSetReader, "1.35");
 vtkStandardNewMacro(vtkPDataSetReader);
 
 //----------------------------------------------------------------------------
@@ -120,7 +120,7 @@ void vtkPDataSetReader::SetNumberOfPieces(int num)
 
 
 //----------------------------------------------------------------------------
-int vtkPDataSetReader::CreateOutput(
+int vtkPDataSetReader::RequestDataObject(
   vtkInformation* request, 
   vtkInformationVector** inputVector , 
   vtkInformationVector* outputVector)
