@@ -40,9 +40,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkImageMapToRGBA - map the input image through a lookup table
 // .SECTION Description
-// The vtkImageMapToRGBA filter will take an input image of any valid
-// scalar type, and map the first component of the image through a
-// lookup table.  The result is an RGBA image of type VTK_UNSIGNED_CHAR.
+// This filter has been replaced by vtkImageMapToColors, which provided
+// additional features.  Use vtkImageMapToColors instead.
 
 // .SECTION See Also
 // vtkLookupTable
@@ -60,7 +59,7 @@ public:
   const char *GetClassName() {return "vtkImageMapToRGBA";};
 
 protected:
-  vtkImageMapToRGBA();
+  vtkImageMapToRGBA() {};
   ~vtkImageMapToRGBA() {};
   vtkImageMapToRGBA(const vtkImageMapToRGBA&) {};
   void operator=(const vtkImageMapToRGBA&) {};

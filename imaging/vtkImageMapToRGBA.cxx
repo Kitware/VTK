@@ -54,10 +54,3 @@ vtkImageMapToRGBA* vtkImageMapToRGBA::New()
   return new vtkImageMapToRGBA;
 }
 
-//----------------------------------------------------------------------------
-// Constructor sets default values
-vtkImageMapToRGBA::vtkImageMapToRGBA()
-{
-  vtkWarningMacro(<<"vtkImageMapToRGBA is deprecated, use vtkImageMapToColors");
-}
-
