@@ -217,6 +217,10 @@ IF(VTK_SIZEOF___INT64)
     IF(VTK_TYPE_SAME_LONG_AND___INT64)
       MESSAGE(STATUS "Checking whether long and __int64 are the same type -- yes")
       SET(VTK_TYPE_SAME_LONG_AND___INT64 1 CACHE INTERNAL "Whether long and __int64 are the same type")
+      WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeOutput.log
+        "Determining whether long and __int64 are the same type "
+        "passed with the following output:\n"
+        "${OUTPUT}\n" APPEND)
     ELSE(VTK_TYPE_SAME_LONG_AND___INT64)
       MESSAGE(STATUS "Checking whether long and __int64 are the same type -- no")
       SET(VTK_TYPE_SAME_LONG_AND___INT64 0 CACHE INTERNAL "Whether long and __int64 are the same type")
@@ -237,6 +241,10 @@ IF("VTK_COMPILER_HAS_BOOL" MATCHES "^VTK_COMPILER_HAS_BOOL$")
   IF(VTK_COMPILER_HAS_BOOL)
     MESSAGE(STATUS "Checking support for C++ type bool -- yes")
     SET(VTK_COMPILER_HAS_BOOL 1 CACHE INTERNAL "Support for C++ type bool")
+    WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeOutput.log
+      "Determining if the C++ compiler supports type bool "
+      "passed with the following output:\n"
+      "${OUTPUT}\n" APPEND)
   ELSE(VTK_COMPILER_HAS_BOOL)
     MESSAGE(STATUS "Checking support for C++ type bool -- no")
     SET(VTK_COMPILER_HAS_BOOL 0 CACHE INTERNAL "Support for C++ type bool")
@@ -466,6 +474,10 @@ IF(VTK_SIZEOF_LONG_LONG)
     IF(VTK_OSTREAM_SUPPORTS_LONG_LONG)
       MESSAGE(STATUS "Checking if ostream supports long long -- yes")
       SET(VTK_OSTREAM_SUPPORTS_LONG_LONG 1 CACHE INTERNAL "Whether ostream supports long long")
+      WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeOutput.log
+        "Determining if ostream supports long long "
+        "passed with the following output:\n"
+        "${OUTPUT}\n" APPEND)
     ELSE(VTK_OSTREAM_SUPPORTS_LONG_LONG)
       MESSAGE(STATUS "Checking if ostream supports long long -- no")
       SET(VTK_OSTREAM_SUPPORTS_LONG_LONG 0 CACHE INTERNAL "Whether ostream supports long long")
@@ -485,6 +497,10 @@ IF(VTK_SIZEOF_LONG_LONG)
     IF(VTK_ISTREAM_SUPPORTS_LONG_LONG)
       MESSAGE(STATUS "Checking if istream supports long long -- yes")
       SET(VTK_ISTREAM_SUPPORTS_LONG_LONG 1 CACHE INTERNAL "Whether istream supports long long")
+      WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeOutput.log
+        "Determining if istream supports long long "
+        "passed with the following output:\n"
+        "${OUTPUT}\n" APPEND)
     ELSE(VTK_ISTREAM_SUPPORTS_LONG_LONG)
       MESSAGE(STATUS "Checking if istream supports long long -- no")
       SET(VTK_ISTREAM_SUPPORTS_LONG_LONG 0 CACHE INTERNAL "Whether istream supports long long")
