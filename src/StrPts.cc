@@ -269,6 +269,20 @@ int vlStructuredPoints::GetCellType(int cellId)
     }
 }
 
+void vlStructuredPoints::ComputeBounds()
+{
+  this->Bounds[0] = this->Origin[0];
+  this->Bounds[2] = this->Origin[1];
+  this->Bounds[4] = this->Origin[2];
+
+  this->Bounds[1] = this->Origin[0] + 
+                    (this->Dimensions[0]-1) * this->AspectRatio[0];
+  this->Bounds[3] = this->Origin[1] + 
+                    (this->Dimensions[1]-1) * this->AspectRatio[1];
+  this->Bounds[5] = this->Origin[2] +
+                    (this->Dimensions[2]-1) * this->AspectRatio[2];
+}
+
 void vlStructuredPoints::PrintSelf(ostream& os, vlIndent indent)
 {
   vlDataSet::PrintSelf(os,indent);

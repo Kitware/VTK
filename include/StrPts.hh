@@ -49,7 +49,7 @@ public:
   int GetCellType(int cellId);
   void GetCellPoints(int cellId, vlIdList& ptIds);
   void GetPointCells(int ptId, vlIdList& cellIds);
-
+  void ComputeBounds();
 
   // Description:
   // Set the aspect ratio of the cubical cells that compose the structured
