@@ -94,5 +94,11 @@ vtkSTLWriter stl
   stl SetFileName brain.stl
   stl Write
 
+vtkSTLWriter stlBinary
+  stlBinary SetInput [triangles GetOutput]
+  stlBinary SetFileName brainBinary.stl
+  stlBinary SetFileTypeToBinary
+  stlBinary Write
+
 
 
