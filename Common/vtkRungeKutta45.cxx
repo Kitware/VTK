@@ -18,37 +18,37 @@
 #include "vtkRungeKutta45.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkRungeKutta45, "1.2");
+vtkCxxRevisionMacro(vtkRungeKutta45, "1.3");
 vtkStandardNewMacro(vtkRungeKutta45);
 
 // Cash-Karp parameters
 double vtkRungeKutta45::A[5] = { 1.0L/5.0, 3.0L/10.0, 3.0L/5.0, 1.0, 
-				 7.0L/8.0 };
+                 7.0L/8.0 };
 double vtkRungeKutta45::B[5][5] = { { 1.0L/5.0, 0, 0, 0, 0 },
-				    { 3.0L/40.0, 9.0L/40.0,  0, 0, 0 },
-				    { 3.0L/10.0, -9.0L/10.0, 6.0L/5.0, 0, 0 },
-				    { -11.0L/54.0, 
-				      5.0L/2.0, 
-				      -70.0L/27.0, 
-				      35.0L/27.0, 
-				      0 },
-				    { 1631.0L/55296.0, 
-				      175.0/512.0, 
-				      575.0/13824.0, 
-				      44275.0/110592.0, 
-				      253.0L/4096.0 } };
+                    { 3.0L/40.0, 9.0L/40.0,  0, 0, 0 },
+                    { 3.0L/10.0, -9.0L/10.0, 6.0L/5.0, 0, 0 },
+                    { -11.0L/54.0, 
+                      5.0L/2.0, 
+                      -70.0L/27.0, 
+                      35.0L/27.0, 
+                      0 },
+                    { 1631.0L/55296.0, 
+                      175.0/512.0, 
+                      575.0/13824.0, 
+                      44275.0/110592.0, 
+                      253.0L/4096.0 } };
 double vtkRungeKutta45::C[6] = {37.0L/378.0, 
-				0, 
-				250.0L/621.0, 
-				125.0L/594.0, 
-				0, 
-				512.0L/1771.0 };
+                0, 
+                250.0L/621.0, 
+                125.0L/594.0, 
+                0, 
+                512.0L/1771.0 };
 double vtkRungeKutta45::DC[6] = { 37.0L/378.0 - 2825.0L/27648.0, 
-				  0, 
-				  250.0L/621.0 - 18575.0L/48384.0, 
-				  125.0L/594.0 - 13525.0L/55296, 
-				  -277.0L/14336.0, 
-				  512.0L/1771.0 - 1.0L/4.0};
+                  0, 
+                  250.0L/621.0 - 18575.0L/48384.0, 
+                  125.0L/594.0 - 13525.0L/55296, 
+                  -277.0L/14336.0, 
+                  512.0L/1771.0 - 1.0L/4.0};
 
 vtkRungeKutta45::vtkRungeKutta45() 
 {
@@ -84,10 +84,10 @@ void vtkRungeKutta45::Initialize()
 }
 
 int vtkRungeKutta45::ComputeNextStep(float* xprev, float* dxprev, 
-				     float* xnext, float t, float& delT,
-				     float& delTActual,
-				     float minStep, float maxStep, 
-				     float maxError, float& error)
+                                     float* xnext, float t, float& delT,
+                                     float& delTActual,
+                                     float minStep, float maxStep, 
+                                     float maxError, float& vtkNotUsed(error))
 {
   float estErr = VTK_LARGE_FLOAT;
 
@@ -122,7 +122,7 @@ int vtkRungeKutta45::ComputeNextStep(float* xprev, float* dxprev,
   while ( estErr > maxError )
     {
     if ((retVal = 
-	 this->ComputeAStep(xprev, dxprev, xnext, t, delT, estErr)))
+     this->ComputeAStep(xprev, dxprev, xnext, t, delT, estErr)))
       {
       delTActual = delT;
       return retVal;
@@ -169,8 +169,8 @@ int vtkRungeKutta45::ComputeNextStep(float* xprev, float* dxprev,
     if ( tmp2 == t )
       {
       vtkWarningMacro("Step size underflow. You must choose a larger "
-		      "tolerance or set the minimum step size to a larger "
-		      "value.");
+              "tolerance or set the minimum step size to a larger "
+              "value.");
       return UnexpectedValue;
       }
 
@@ -180,11 +180,11 @@ int vtkRungeKutta45::ComputeNextStep(float* xprev, float* dxprev,
     if (shouldBreak)
       {
       if (retVal = 
-	  this->ComputeAStep(xprev, dxprev, xnext, t, delT, estErr))
-	{
-	delTActual = delT;
-	return retVal;
-	}
+      this->ComputeAStep(xprev, dxprev, xnext, t, delT, estErr))
+    {
+    delTActual = delT;
+    return retVal;
+    }
       break;
       }
     }
@@ -195,8 +195,8 @@ int vtkRungeKutta45::ComputeNextStep(float* xprev, float* dxprev,
 
 // Calculate next time step
 int vtkRungeKutta45::ComputeAStep(float* xprev, float* dxprev, 
-				  float* xnext, float t, float& delT, 
-				  float& error)
+                  float* xnext, float t, float& delT, 
+                  float& error)
 {
   int i, j, k, numDerivs, numVals;
 
@@ -231,7 +231,7 @@ int vtkRungeKutta45::ComputeAStep(float* xprev, float* dxprev,
       }
     }
   else if ( !this->FunctionSet->FunctionValues(this->Vals, 
-					       this->NextDerivs[0]) )
+                           this->NextDerivs[0]) )
     {
     for(i=0; i<numVals-1; i++)
       {
@@ -249,20 +249,20 @@ int vtkRungeKutta45::ComputeAStep(float* xprev, float* dxprev,
       {
       sum = 0;
       for (k=0; k<i; k++)
-	{
-	sum += B[i-1][k]*this->NextDerivs[k][j];
-	}
+    {
+    sum += B[i-1][k]*this->NextDerivs[k][j];
+    }
       this->Vals[j] = xprev[j] + delT*sum;
       }
     this->Vals[numVals-1] = t + delT*A[i-1];
 
     if ( !this->FunctionSet->FunctionValues(this->Vals, 
-					    this->NextDerivs[i]) )
+                        this->NextDerivs[i]) )
       {
       for(i=0; i<numVals-1; i++)
-	{
-	xnext[i] = this->Vals[i];
-	}
+    {
+    xnext[i] = this->Vals[i];
+    }
       return OutOfDomain;
       }    
     }

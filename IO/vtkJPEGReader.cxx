@@ -24,7 +24,7 @@ extern "C" {
 }
 
 
-vtkCxxRevisionMacro(vtkJPEGReader, "1.8");
+vtkCxxRevisionMacro(vtkJPEGReader, "1.9");
 vtkStandardNewMacro(vtkJPEGReader);
 
 
@@ -58,6 +58,12 @@ extern "C" void vtk_jpeg_output_message (j_common_ptr cinfo)
                             "libjpeg error: " <<  buffer);
 }
 
+#ifdef _MSC_VER
+// Let us get rid of this funny warning on /W4:
+// warning C4611: interaction between '_setjmp' and C++ object 
+// destruction is non-portable
+#pragma warning( disable : 4611 )
+#endif 
 
 void vtkJPEGReader::ExecuteInformation()
 {
@@ -125,7 +131,6 @@ void vtkJPEGReader::ExecuteInformation()
   jpeg_destroy_decompress(&cinfo);
   fclose(fp);
 }
-
 
 template <class OT>
 static void vtkJPEGReaderUpdate2(vtkJPEGReader *self, OT *outPtr,
@@ -292,10 +297,8 @@ int vtkJPEGReader::CanReadFile(const char* fname)
     }
   // check for the magic stuff:
   // 0xFF followed by 0xD8
-  if( ( (static_cast<const char>(magic[0]) != 
-         static_cast<const char>(0xFF)) || 
-        (static_cast<const char>(magic[1]) != 
-         static_cast<const char>(0xD8)) ) )
+  if( ( (static_cast<unsigned char>(magic[0]) != 0xFF) || 
+        (static_cast<unsigned char>(magic[1]) != 0xD8) ) )
     {
     fclose(fp);
     return 0;
@@ -334,3 +337,8 @@ int vtkJPEGReader::CanReadFile(const char* fname)
   fclose(fp);
   return 1;
 }
+#ifdef _MSC_VER
+// Put the warning back
+#pragma warning( default : 4611 )
+#endif 
+

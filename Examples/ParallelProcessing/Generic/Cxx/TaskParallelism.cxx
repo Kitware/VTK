@@ -31,7 +31,7 @@
 
 // This function sets up properties common to both processes
 // and executes the task corresponding to the current process
-void process(vtkMultiProcessController* controller, void* arg)
+void process(vtkMultiProcessController* controller, void* vtkNotUsed(arg))
 {
   taskFunction task;
   int myId = controller->GetLocalProcessId();

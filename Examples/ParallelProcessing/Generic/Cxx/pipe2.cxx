@@ -25,7 +25,8 @@
 
 // Pipe 2 for PipelineParallelism.
 // See PipelineParallelism.cxx for more information.
-void pipe2(vtkMultiProcessController* controller, void* arg)
+void pipe2(vtkMultiProcessController* vtkNotUsed(controller), 
+           void* vtkNotUsed(arg))
 {
   // Input port
   vtkInputPort* ip = vtkInputPort::New();

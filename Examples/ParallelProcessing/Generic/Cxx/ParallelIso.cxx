@@ -48,8 +48,8 @@ static const int ISO_VALUE_RMI_TAG=300;
 static const int PORT_TAG=999;
 
 // call back to set the iso surface value.
-void SetIsoValueRMI(void *localArg, void *remoteArg, 
-                  int remoteArgLen, int id)
+void SetIsoValueRMI(void *localArg, void* vtkNotUsed(remoteArg), 
+                    int vtkNotUsed(remoteArgLen), int vtkNotUsed(id))
 { 
   float val;
 

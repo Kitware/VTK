@@ -31,7 +31,8 @@ void IncrementXFreq(void* sr)
 
 // Pipe 1 for PipelineParallelism.
 // See PipelineParallelism.cxx for more information.
-void pipe1(vtkMultiProcessController* controller, void* arg)
+void pipe1(vtkMultiProcessController* vtkNotUsed(controller), 
+           void* vtkNotUsed(arg))
 {
   double extent = 20;
   int iextent = static_cast<int>(extent);
