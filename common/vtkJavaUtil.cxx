@@ -24,6 +24,7 @@ Copyright (c) Ken Martin 1995
 #ifdef _WIN32
 #include "vtkSetGet.h"
 #include "vtkWin32Header.h"
+#include "vtkObject.h"
 HANDLE vtkGlobalMutex = NULL;
 #define VTK_GET_MUTEX() WaitForSingleObject(vtkGlobalMutex,INFINITE)
 #define VTK_RELEASE_MUTEX() ReleaseMutex(vtkGlobalMutex)

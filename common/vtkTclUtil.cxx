@@ -18,6 +18,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include <stdlib.h>
 #include "vtkTclUtil.h"
 #include "vtkSetGet.h"
+#include "vtkObject.h"
 
 int vtkTclEval(char *str)
 {
