@@ -77,7 +77,7 @@ public:
   
   // Description:
   // Set / get the extent (imin,imax, jmin,jmax, kmin,kmax) indices.
-  void SetExtent(int *extent);
+  void SetExtent(int extent[6]);
   void SetExtent(int iMin, int iMax, int jMin, int jMax, int kMin, int kMax);
   int *GetExtent() { return this->Extent;};
 

@@ -98,7 +98,7 @@ void vtkExtractUnstructuredGrid::SetExtent(float xMin,float xMax, float yMin,
 }
 
 // Specify a (xmin,xmax, ymin,ymax, zmin,zmax) bounding box to clip data.
-void vtkExtractUnstructuredGrid::SetExtent(float *extent)
+void vtkExtractUnstructuredGrid::SetExtent(float extent[6])
 {
   int i;
 

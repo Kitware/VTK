@@ -413,7 +413,7 @@ void vtkRectilinearGridGeometryFilter::SetExtent(int iMin, int iMax, int jMin,
 }
 
 // Specify (imin,imax, jmin,jmax, kmin,kmax) indices in array form.
-void vtkRectilinearGridGeometryFilter::SetExtent(int *extent)
+void vtkRectilinearGridGeometryFilter::SetExtent(int extent[6])
 {
   int i;
 

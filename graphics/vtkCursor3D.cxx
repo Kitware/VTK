@@ -450,7 +450,7 @@ void vtkCursor3D::SetModelBounds(float xmin, float xmax, float ymin, float ymax,
     }
 }
 
-void vtkCursor3D::SetModelBounds(float *bounds)
+void vtkCursor3D::SetModelBounds(float bounds[6])
 {
   this->SetModelBounds(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4],
                        bounds[5]);

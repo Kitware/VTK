@@ -89,7 +89,7 @@ public:
 
   // Description:
   // Specify the position in space to perform the voxelization.
-  void SetModelBounds(float *bounds);
+  void SetModelBounds(float bounds[6]);
   void SetModelBounds(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax);
   vtkGetVectorMacro(ModelBounds,float,6);
 

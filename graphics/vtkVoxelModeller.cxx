@@ -84,7 +84,7 @@ vtkVoxelModeller::vtkVoxelModeller()
 }
 
 // Specify the position in space to perform the voxelization.
-void vtkVoxelModeller::SetModelBounds(float *bounds)
+void vtkVoxelModeller::SetModelBounds(float bounds[6])
 {
   vtkVoxelModeller::SetModelBounds(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);
 }

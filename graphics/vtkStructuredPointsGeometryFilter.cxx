@@ -410,7 +410,7 @@ void vtkStructuredPointsGeometryFilter::SetExtent(int iMin, int iMax,
 }
 
 // Specify (imin,imax, jmin,jmax, kmin,kmax) indices.
-void vtkStructuredPointsGeometryFilter::SetExtent(int *extent)
+void vtkStructuredPointsGeometryFilter::SetExtent(int extent[6])
 {
   int i;
 

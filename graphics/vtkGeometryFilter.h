@@ -125,7 +125,7 @@ public:
 
   // Description:
   // Set / get a (xmin,xmax, ymin,ymax, zmin,zmax) bounding box to clip data.
-  void SetExtent(float *extent);
+  void SetExtent(float extent[6]);
   float *GetExtent() { return this->Extent;};
 
   // Description:

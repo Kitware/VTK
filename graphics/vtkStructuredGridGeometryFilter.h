@@ -83,7 +83,7 @@ public:
 
   // Description:
   // Specify (imin,imax, jmin,jmax, kmin,kmax) indices in array form.
-  void SetExtent(int *extent);
+  void SetExtent(int extent[6]);
 
 protected:
   vtkStructuredGridGeometryFilter();

@@ -434,7 +434,7 @@ void vtkStructuredGridGeometryFilter::SetExtent(int iMin, int iMax, int jMin, in
 }
 
 // Specify (imin,imax, jmin,jmax, kmin,kmax) indices in array form.
-void vtkStructuredGridGeometryFilter::SetExtent(int *extent)
+void vtkStructuredGridGeometryFilter::SetExtent(int extent[6])
 {
   int i;
 
