@@ -70,6 +70,8 @@ vtkRenderWindow::vtkRenderWindow()
   this->CurrentSubFrame = 0;
   this->ResultFrame = NULL;
   this->Filename = NULL;
+  this->Erase = 1;
+  this->SwapBuffers = 1;
 }
 
 // Description:
@@ -528,6 +530,7 @@ void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Borders: " << (this->Borders ? "On\n":"Off\n");
   os << indent << "Double Buffer: " << (this->DoubleBuffer ? "On\n":"Off\n");
+  os << indent << "Erase: " << (this->Erase ? "On\n" : "Off\n");
   os << indent << "Full Screen: " << (this->FullScreen ? "On\n":"Off\n");
   os << indent << "Name: " << this->Name << "\n";
   temp = this->GetPosition();
@@ -694,12 +697,10 @@ void vtkRenderWindow::CopyResultFrame(void)
 
     // get the size
     size = this->GetSize();
-    this->SetPixelData(0,0,size[0]-1,size[1]-1,this->ResultFrame,1);
+    this->SetPixelData(0,0,size[0]-1,size[1]-1,this->ResultFrame,0);
     }
-  else
-    {
-    this->Frame();
-    }
+
+  this->Frame();
 }
 
 // Description:
