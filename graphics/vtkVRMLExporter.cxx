@@ -355,8 +355,8 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
 	  }
 	else
 	  {
-	  i1 = i - 1;
-	  i2 = i - 2;
+	  i1 = i - 2;
+	  i2 = i - 1;
 	  }
 	fprintf(fp,"              %i, %i, %i, -1,\n",indx[i1], 
 		indx[i2], indx[i]);
