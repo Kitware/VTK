@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 // .NAME vtkImageGaussianSource - Create an image with Gaussian pixel values.
+// .SECTION Description
 // vtkImageGaussianSource just produces images with pixel values determined 
 // by a Gaussian.
 

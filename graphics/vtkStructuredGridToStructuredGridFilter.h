@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkStructuredPointsToStructuredPointsFilter - abstract filter class
+// .NAME vtkStructuredGridToStructuredGridFilter - abstract filter class
 // .SECTION Description
 // vtkStructuredPointsToStructuredPointsFilter is an abstract filter class 
 // whose subclasses take on input a structured grid  and generate a

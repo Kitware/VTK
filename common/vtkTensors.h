@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkVectors - represent and manipulate 3x3 tensors
+// .NAME vtkTensors - represent and manipulate 3x3 tensors
 // .SECTION Description
 // vtkTensors represents 3x3 tensors. The data model for vtkTensors is an 
 // array of 3x3 matrices accessible by (point or cell) id.

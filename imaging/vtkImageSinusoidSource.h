@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 // .NAME vtkImageSinusoidSource - Create an image with sinusoidal pixel values.
+// .SECTION Description
 // vtkImageSinusoidSource just produces images with pixel values determined 
 // by a sinusoid.
 

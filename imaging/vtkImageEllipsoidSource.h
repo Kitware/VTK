@@ -38,8 +38,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageEllipsoidSource - Create a binary image of a elipsoid.
-// EllipsoidSource creates a binary image of a elipsoid.  It was created
+// .NAME vtkImageEllipsoidSource - Create a binary image of an ellipsoid.
+// .SECTION Description
+// vtkImageEllipsoidSource creates a binary image of a elipsoid.  It was created
 // as an example of a simple source, and to test the mask filter.
 // It is also used internally in vtkImageDilateErode3D.
 

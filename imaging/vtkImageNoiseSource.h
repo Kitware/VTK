@@ -38,8 +38,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageSphereSource - Create a binary image of a sphere.
-// .SECTION
+// .NAME vtkImageNoiseSource - Create an image filled with noise.
+// .SECTION Description
 // vtkImageNoiseSource just produces images filled with noise.  
 // The only option now is uniform noise
 // specified by a min and a max.  

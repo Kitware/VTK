@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkimageLaplacian - Computes divergence of gradient.
+// .NAME vtkImageLaplacian - Computes divergence of gradient.
 // .SECTION Description
 // vtkimageLaplacian computes the Laplacian (like a second derivative)
 // of a scalar image.  The operation is the same as taking the

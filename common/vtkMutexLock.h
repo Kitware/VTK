@@ -38,6 +38,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+// .NAME vtkMutexLock - mutual exclusion locking class
+// .SECTION Description
+// vtkMutexLock allows the locking of variables which are accessed 
+// through different threads
 
 #ifndef __vtkMutexVariable_h
 #define __vtkMutexVariable_h
