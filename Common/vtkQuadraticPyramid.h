@@ -12,20 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkQuadraticPyramid - cell represents a parabolic, isoparametric triangle
+// .NAME vtkQuadraticPyramid - cell represents a parabolic, 13-node isoparametric pyramid
 // .SECTION Description
 // vtkQuadraticPyramid is a concrete implementation of vtkNonLinearCell to
-// represent a two-dimensional, 6-node, isoparametric parabolic triangle. The
-// interpolation is the standard finite element, quadratic isoparametric
-// shape function. The cell includes three mid-edge nodes besides the three
-// triangle vertices. The ordering of the three points defining the cell is 
-// point ids (0-2,3-5) where id #3 is the midedge node between points
-// (0,1); id #4 is the midedge node between points (1,2); and id #5 is the 
-// midedge node between points (2,0).
+// represent a three-dimensional, 13-node isoparametric parabolic
+// pyramid. The interpolation is the standard finite element, quadratic
+// isoparametric shape function. The cell includes a mid-edge node. The
+// ordering of the thirteen points defining the cell is point ids (0-4,5-12)
+// where point ids 0-4 are the five corner vertices of the pyramid; followed by
+// eight midedge nodes (5-12). Note that these midedge nodes correspond lie
+// on the edges defined by (0,1), (1,2), (2,3), (3,0), (0,4), (1,4), (2,4),
+// (3,4).
 
 // .SECTION See Also
-// vtkQuadraticEdge vtkQuadraticTetra
-// vtkQuadraticQuad vtkQuadraticHexahedron
+// vtkQuadraticEdge vtkQuadraticTriangle vtkQuadraticTetra
+// vtkQuadraticHexahedron vtkQuadraticQuad vtkQuadraticWedge
 
 #ifndef __vtkQuadraticPyramid_h
 #define __vtkQuadraticPyramid_h

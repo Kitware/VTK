@@ -27,10 +27,10 @@
 #include "vtkQuadraticQuad.h"
 #include "vtkQuadraticTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadraticPyramid, "1.1");
+vtkCxxRevisionMacro(vtkQuadraticPyramid, "1.2");
 vtkStandardNewMacro(vtkQuadraticPyramid);
 
-// Construct the wedge with 14 points + 1 extra point for internal
+// Construct the wedge with 13 points + 1 extra point for internal
 // computation.
 vtkQuadraticPyramid::vtkQuadraticPyramid()
 {

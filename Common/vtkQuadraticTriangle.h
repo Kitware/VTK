@@ -24,8 +24,8 @@
 // midedge node between points (2,0).
 
 // .SECTION See Also
-// vtkQuadraticEdge vtkQuadraticTetra
-// vtkQuadraticQuad vtkQuadraticHexahedron
+// vtkQuadraticEdge vtkQuadraticTetra vtkQuadraticPyramid
+// vtkQuadraticQuad vtkQuadraticHexahedron vtkQuadraticWedge
 
 #ifndef __vtkQuadraticTriangle_h
 #define __vtkQuadraticTriangle_h

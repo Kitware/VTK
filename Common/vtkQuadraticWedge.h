@@ -12,21 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkQuadraticWedge - cell represents a parabolic, 20-node isoparametric hexahedron
+// .NAME vtkQuadraticWedge - cell represents a parabolic, 15-node isoparametric wedge
 // .SECTION Description
 // vtkQuadraticWedge is a concrete implementation of vtkNonLinearCell to
-// represent a three-dimensional, 20-node isoparametric parabolic
-// hexahedron. The interpolation is the standard finite element, quadratic
+// represent a three-dimensional, 15-node isoparametric parabolic
+// wedge. The interpolation is the standard finite element, quadratic
 // isoparametric shape function. The cell includes a mid-edge node. The
-// ordering of the twenty points defining the cell is point ids (0-7,8-19)
-// where point ids 0-7 are the eight corner vertices of the cube; followed by
-// twelve midedge nodes (8-19). Note that these midedge nodes correspond lie
-// on the edges defined by (0,1), (1,2), (2,3), (3,0), (4,5), (5,6), (6,7),
-// (7,4), (0,4), (1,5), (2,6), (3,7).
+// ordering of the fifteen points defining the cell is point ids (0-5,6-15)
+// where point ids 0-5 are the six corner vertices of the wedge; followed by
+// nine midedge nodes (6-15). Note that these midedge nodes correspond lie
+// on the edges defined by (0,1), (1,2), (2,0), (3,4), (4,5), (5,3), (0,3),
+// (1,4), (2,5).
 
 // .SECTION See Also
 // vtkQuadraticEdge vtkQuadraticTriangle vtkQuadraticTetra
-// vtkQuadraticQuad
+// vtkQuadraticHexahedron vtkQuadraticQuad vtkQuadraticPyramid
 
 #ifndef __vtkQuadraticWedge_h
 #define __vtkQuadraticWedge_h
