@@ -172,14 +172,7 @@ vtkPointSet *vtkPointSetToPointSetFilter::GetOutput()
     return NULL;
     }
 
-  // sanity check
-  if (this->NumberOfOutputs < 1)
-    {
-    vtkErrorMacro("Sanity check failed. We should have an output");
-    return NULL;
-    }
-
-  return (vtkPointSet *)this->Outputs[0];
+  return this->vtkPointSetSource::GetOutput();
 }
 
    
