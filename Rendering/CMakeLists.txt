@@ -27,6 +27,7 @@ vtkImageViewer.cxx
 vtkImageViewer2.cxx
 vtkImagingFactory.cxx
 vtkImporter.cxx
+vtkInteractorEventRecorder.cxx
 vtkInteractorObserver.cxx
 vtkInteractorStyle.cxx
 vtkInteractorStyleFlight.cxx
