@@ -25,7 +25,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkCubeAxesActor2D, "1.35");
+vtkCxxRevisionMacro(vtkCubeAxesActor2D, "1.35.4.1");
 vtkStandardNewMacro(vtkCubeAxesActor2D);
 
 vtkCxxSetObjectMacro(vtkCubeAxesActor2D,Input, vtkDataSet);
@@ -54,18 +54,18 @@ vtkCubeAxesActor2D::vtkCubeAxesActor2D()
   this->Scaling = 1;
 
   this->XAxis = vtkAxisActor2D::New();
-  this->XAxis->GetPoint1Coordinate()->SetCoordinateSystemToDisplay();
-  this->XAxis->GetPoint2Coordinate()->SetCoordinateSystemToDisplay();
+  this->XAxis->GetPositionCoordinate()->SetCoordinateSystemToDisplay();
+  this->XAxis->GetPosition2Coordinate()->SetCoordinateSystemToDisplay();
   this->XAxis->AdjustLabelsOff();
 
   this->YAxis = vtkAxisActor2D::New();
-  this->YAxis->GetPoint1Coordinate()->SetCoordinateSystemToDisplay();
-  this->YAxis->GetPoint2Coordinate()->SetCoordinateSystemToDisplay();
+  this->YAxis->GetPositionCoordinate()->SetCoordinateSystemToDisplay();
+  this->YAxis->GetPosition2Coordinate()->SetCoordinateSystemToDisplay();
   this->YAxis->AdjustLabelsOff();
 
   this->ZAxis = vtkAxisActor2D::New();
-  this->ZAxis->GetPoint1Coordinate()->SetCoordinateSystemToDisplay();
-  this->ZAxis->GetPoint2Coordinate()->SetCoordinateSystemToDisplay();
+  this->ZAxis->GetPositionCoordinate()->SetCoordinateSystemToDisplay();
+  this->ZAxis->GetPosition2Coordinate()->SetCoordinateSystemToDisplay();
   this->ZAxis->AdjustLabelsOff();
 
   this->NumberOfLabels = 3;
@@ -367,8 +367,8 @@ int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   this->Labels[1] = this->YLabel;
   this->Labels[2] = this->ZLabel;
 
-  this->XAxis->GetPoint1Coordinate()->SetValue(xCoords[0], xCoords[1]);
-  this->XAxis->GetPoint2Coordinate()->SetValue(xCoords[2], xCoords[3]);
+  this->XAxis->GetPositionCoordinate()->SetValue(xCoords[0], xCoords[1]);
+  this->XAxis->GetPosition2Coordinate()->SetValue(xCoords[2], xCoords[3]);
   this->XAxis->SetRange(xRange[0], xRange[1]);
   this->XAxis->SetTitle(this->Labels[xAxes]);
   this->XAxis->SetNumberOfLabels(this->NumberOfLabels);
@@ -376,8 +376,8 @@ int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   this->XAxis->SetFontFactor(this->FontFactor);
   this->XAxis->SetProperty(this->GetProperty());
 
-  this->YAxis->GetPoint1Coordinate()->SetValue(yCoords[2], yCoords[3]);
-  this->YAxis->GetPoint2Coordinate()->SetValue(yCoords[0], yCoords[1]);
+  this->YAxis->GetPositionCoordinate()->SetValue(yCoords[2], yCoords[3]);
+  this->YAxis->GetPosition2Coordinate()->SetValue(yCoords[0], yCoords[1]);
   this->YAxis->SetRange(yRange[1], yRange[0]);
   this->YAxis->SetTitle(this->Labels[yAxes]);
   this->YAxis->SetNumberOfLabels(this->NumberOfLabels);
@@ -385,8 +385,8 @@ int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   this->YAxis->SetFontFactor(this->FontFactor);
   this->YAxis->SetProperty(this->GetProperty());
 
-  this->ZAxis->GetPoint1Coordinate()->SetValue(zCoords[0], zCoords[1]);
-  this->ZAxis->GetPoint2Coordinate()->SetValue(zCoords[2], zCoords[3]);
+  this->ZAxis->GetPositionCoordinate()->SetValue(zCoords[0], zCoords[1]);
+  this->ZAxis->GetPosition2Coordinate()->SetValue(zCoords[2], zCoords[3]);
   this->ZAxis->SetRange(zRange[0], zRange[1]);
   this->ZAxis->SetTitle(this->Labels[zAxes]);
   this->ZAxis->SetNumberOfLabels(this->NumberOfLabels);
