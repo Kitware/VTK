@@ -26,7 +26,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkGlyph2D, "1.16");
+vtkCxxRevisionMacro(vtkGlyph2D, "1.17");
 vtkStandardNewMacro(vtkGlyph2D);
 
 void vtkGlyph2D::Execute()
@@ -347,7 +347,7 @@ void vtkGlyph2D::Execute()
         }
       if (this->Orient && (vMag > 0.0))
         {
-        theta = atan2(v[0],v[1])/vtkMath::DegreesToRadians();
+        theta = atan2(v[1],v[0])/vtkMath::DegreesToRadians();
         trans->RotateWXYZ(theta, 0.0, 0.0, 1.0);
         }
       }
