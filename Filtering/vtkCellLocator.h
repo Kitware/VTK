@@ -85,7 +85,7 @@ public:
   // Description:
   // Boolean controls whether the bounds of each cell are computed only
   // once and then saved.  Should be 10 to 20% faster if repeatedly 
-  // calling any of the FindCl.oestPoint routines and the extra memory
+  // calling any of the FindClosestPoint routines and the extra memory
   // won't cause disk caching (24 extra bytes per cell are required to
   // save the bounds).
   vtkSetMacro(CacheCellBounds,int);
@@ -149,16 +149,16 @@ public:
   // Description:
   // Return the closest point within a specified radius and the cell which is
   // closest to the point x. The closest point is somewhere on a cell, it
-  // need not be one of the vertices of the cell. This method returns 1 if
-  // a point is found within the specified radius. If there are no cells within
-  // the specified radius, the method returns 0 and the values of closestPoint,
-  // cellId, subId, and dist2 are undefined. This version takes in a
-  // vtkGenericCell to avoid allocating and deallocating the cell.  This is
-  // much faster than the version which does not take a *cell, especially when
-  // this function is called many times in a row such as by a for loop, where
-  // the allocation and deallocation can be done only once outside the for loop.
-  // If a closest point is found, "cell" contains the points and ptIds for the
-  // cell "cellId" upon exit.
+  // need not be one of the vertices of the cell. This method returns 1 if a
+  // point is found within the specified radius. If there are no cells within
+  // the specified radius, the method returns 0 and the values of
+  // closestPoint, cellId, subId, and dist2 are undefined. This version takes
+  // in a vtkGenericCell to avoid allocating and deallocating the cell.  This
+  // is much faster than the version which does not take a *cell, especially
+  // when this function is called many times in a row such as by a for loop,
+  // where the allocation and deallocation can be done only once outside the
+  // for loop.  If a closest point is found, "cell" contains the points and
+  // ptIds for the cell "cellId" upon exit.
   int FindClosestPointWithinRadius(float x[3], float radius,
 				   float closestPoint[3],
 				   vtkGenericCell *cell, vtkIdType &cellId,
@@ -167,18 +167,18 @@ public:
   // Description:
   // Return the closest point within a specified radius and the cell which is
   // closest to the point x. The closest point is somewhere on a cell, it
-  // need not be one of the vertices of the cell. This method returns 1 if
-  // a point is found within the specified radius. If there are no cells within
-  // the specified radius, the method returns 0 and the values of closestPoint,
-  // cellId, subId, and dist2 are undefined. This version takes in a
-  // vtkGenericCell to avoid allocating and deallocating the cell.  This is
-  // much faster than the version which does not take a *cell, especially when
-  // this function is called many times in a row such as by a for loop, where
-  // the allocation and dealloction can be done only once outside the for loop.
-  // If a closest point is found, "cell" contains the points and ptIds for the
-  // cell "cellId" upon exit.  If a closest point is found, inside returns the
-  // return value of the EvaluatePosition call to the closest cell; inside(=1)
-  // or outside(=0).
+  // need not be one of the vertices of the cell. This method returns 1 if a
+  // point is found within the specified radius. If there are no cells within
+  // the specified radius, the method returns 0 and the values of
+  // closestPoint, cellId, subId, and dist2 are undefined. This version takes
+  // in a vtkGenericCell to avoid allocating and deallocating the cell.  This
+  // is much faster than the version which does not take a *cell, especially
+  // when this function is called many times in a row such as by a for loop,
+  // where the allocation and dealloction can be done only once outside the
+  // for loop.  If a closest point is found, "cell" contains the points and
+  // ptIds for the cell "cellId" upon exit.  If a closest point is found,
+  // inside returns the return value of the EvaluatePosition call to the
+  // closest cell; inside(=1) or outside(=0).
   int FindClosestPointWithinRadius(float x[3], float radius,
 				   float closestPoint[3],
 				   vtkGenericCell *cell, vtkIdType &cellId,
@@ -189,12 +189,12 @@ public:
   virtual vtkIdList *GetCells(int bucket);
 
   // Description:
-  // Return number of buckets available : Ensure Locator has been built
-  // before attempting to access (octants)buckets
+  // Return number of buckets available. Insure that the locator has been 
+  // built before attempting to access buckets (octants).
   virtual int GetNumberOfBuckets(void);
 
   // Description:
-  // Satisfy vtkLocator abstract interface
+  // Satisfy vtkLocator abstract interface.
   void FreeSearchStructure();
   void BuildLocator();
   void GenerateRepresentation(int level, vtkPolyData *pd);
