@@ -29,7 +29,7 @@ IF (VTK_USE_RENDERING)
   IF (VTK_DATA_ROOT)
     ADD_TEST(BoxWidget-image ${CXX_TEST_PATH}/BoxWidget
                 -D ${VTK_DATA_ROOT}
-                -V Baseline/Graphics/BoxWidget.png)
+                -V Baseline/Hybrid/BoxWidget.png)
   ELSE (VTK_DATA_ROOT)
     ADD_TEST(BoxWidget ${CXX_TEST_PATH}/BoxWidget)
   ENDIF (VTK_DATA_ROOT)
