@@ -123,6 +123,7 @@ void vtkExtractGeometry::Execute()
     cellPts = cell->GetPointIds();
     numCellPts = cell->GetNumberOfPoints();
 
+    newCellPts.Reset();
     for ( i=0; i < numCellPts; i++)
       {
       ptId = cellPts->GetId(i);
