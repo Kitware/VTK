@@ -76,8 +76,8 @@ eval [outlineActor GetProperty] SetColor $banana
 ren1 AddActor isoActor
 isoActor VisibilityOn
 ren1 AddActor cut
-set opacity 1
-[cut GetProperty] SetOpacity .06
+set opacity .06
+[cut GetProperty] SetOpacity 1
 ren1 SetBackground 1 1 1
 renWin SetSize 640 480
 
