@@ -31,8 +31,8 @@ public:
   char *GetClassName() {return "vlLookupTable";};
   void PrintSelf(ostream& os, vlIndent indent);
 
-  vlSetClampMacro(NumColors,int,8, 65536);
-  vlGetMacro(NumColors,int);
+  vlSetClampMacro(NumberOfColors,int,8, 65536);
+  vlGetMacro(NumberOfColors,int);
 
   void SetTableRange(float r[2]); // can't use macro 'cause don't want modified
   void SetTableRange(float min, float max);
@@ -53,7 +53,7 @@ public:
   float *GetTableValue (int);
 
 protected:
-  int NumColors;
+  int NumberOfColors;
   vlRGBArray Table;  
   float TableRange[2];
   float HueRange[2];

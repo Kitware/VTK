@@ -21,7 +21,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 vlLookupTable::vlLookupTable(int sze, int ext)
 {
-  this->NumColors = sze;
+  this->NumberOfColors = sze;
   this->Table.Initialize(sze,ext);
 
   this->TableRange[0] = 0.0;
@@ -40,8 +40,8 @@ vlLookupTable::vlLookupTable(int sze, int ext)
 int vlLookupTable::Initialize(int sz, int ext) 
 {
   this->Modified();
-  this->NumColors = sz;
-  return this->Table.Initialize(this->NumColors,ext);
+  this->NumberOfColors = sz;
+  return this->Table.Initialize(this->NumberOfColors,ext);
 }
 
 void  vlLookupTable::SetTableRange(float r[2])
@@ -61,14 +61,14 @@ void vlLookupTable::Build()
   float hue, sat, val, lx, ly, lz, frac, hinc, sinc, vinc;
   float rgb[3];
 
-  if ( this->Table.NumColors() < 1 ||
-  (this->GetMtime() > this->BuildTime && this->InsertTime < this->BuildTime) )
+  if ( this->Table.NumberOfColors() < 1 ||
+  (this->GetMTime() > this->BuildTime && this->InsertTime < this->BuildTime) )
     {
-    hinc = (this->HueRange[1] - this->HueRange[0])/(this->NumColors-1);
-    sinc = (this->SaturationRange[1] - this->SaturationRange[0])/(this->NumColors-1);
-    vinc = (this->ValueRange[1] - this->ValueRange[0])/(this->NumColors-1);
+    hinc = (this->HueRange[1] - this->HueRange[0])/(this->NumberOfColors-1);
+    sinc = (this->SaturationRange[1] - this->SaturationRange[0])/(this->NumberOfColors-1);
+    vinc = (this->ValueRange[1] - this->ValueRange[0])/(this->NumberOfColors-1);
 
-    for (i=0; i < this->NumColors; i++) 
+    for (i=0; i < this->NumberOfColors; i++) 
       {
       hue = this->HueRange[0] + i * hinc;
       sat = this->SaturationRange[0] + i * sinc;
@@ -136,15 +136,15 @@ float *vlLookupTable::MapValue(float v)
 {
   int indx;
 
-  indx = (v-this->TableRange[0])/(this->TableRange[1]-this->TableRange[0]) * this->NumColors;
-  indx = (indx < 0 ? 0 : (indx >= this->NumColors ? this->NumColors-1 : indx));
+  indx = (v-this->TableRange[0])/(this->TableRange[1]-this->TableRange[0]) * this->NumberOfColors;
+  indx = (indx < 0 ? 0 : (indx >= this->NumberOfColors ? this->NumberOfColors-1 : indx));
 
   return this->Table.GetColor(indx);
 }
 
 void vlLookupTable::SetTableValue (int indx, float rgb[3])
 {
-  indx = (indx < 0 ? 0 : (indx >= this->NumColors ? this->NumColors-1 : indx));
+  indx = (indx < 0 ? 0 : (indx >= this->NumberOfColors ? this->NumberOfColors-1 : indx));
   this->Table.SetColor(indx,rgb);
   this->InsertTime.Modified();
   this->Modified();
@@ -159,7 +159,7 @@ void vlLookupTable::SetTableValue (int indx, float r, float g, float b)
 
 float *vlLookupTable::GetTableValue (int indx)
 {
-  indx = (indx < 0 ? 0 : (indx >= this->NumColors ? this->NumColors-1 : indx));
+  indx = (indx < 0 ? 0 : (indx >= this->NumberOfColors ? this->NumberOfColors-1 : indx));
   return this->Table.GetColor(indx);
   
 }
@@ -170,11 +170,11 @@ void vlLookupTable::PrintSelf(ostream& os, vlIndent indent)
     {
     vlObject::PrintSelf(os,indent);
 
-    os << indent << "Build Time: " <<this->BuildTime.GetMtime() << "\n";
+    os << indent << "Build Time: " <<this->BuildTime.GetMTime() << "\n";
     os << indent << "Hue Range: (" << this->HueRange[0] << ", "
        << this->HueRange[1] << ")\n";
-    os << indent << "Insert Time: " <<this->InsertTime.GetMtime() << "\n";
-    os << indent << "Num Colors: " << this->GetNumColors() << "\n";
+    os << indent << "Insert Time: " <<this->InsertTime.GetMTime() << "\n";
+    os << indent << "Number Of Colors: " << this->GetNumberOfColors() << "\n";
     os << indent << "Saturation Range: (" << this->SaturationRange[0] << ", "
        << this->SaturationRange[1] << ")\n";
     os << indent << "Table Range: (" << this->TableRange[0] << ", "
