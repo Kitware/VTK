@@ -168,3 +168,4 @@ suppress mse memcpy
 suppress mse strlen
 
 suppress zpr *
+suppress ipr *
