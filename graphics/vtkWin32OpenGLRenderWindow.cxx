@@ -1105,6 +1105,7 @@ void vtkWin32OpenGLRenderWindow::ResumeScreenRendering()
     {
     ren->SetRenderWindow(NULL);
     }
+  wglDeleteContext(this->ContextId);
   this->Mapped = this->ScreenMapped;
   this->Size[0] = this->ScreenWindowSize[0];
   this->Size[1] = this->ScreenWindowSize[1];
