@@ -54,6 +54,10 @@ vtkRefCount::~vtkRefCount()
 // Increase the reference count (mark as used by another object).
 void vtkRefCount::Register(vtkObject* o)
 {
+  if ( this->ReferenceCounting == 0 )
+    {
+    vtkErrorMacro(<<"Attempting to Register an object which has reference counting turned off.");
+    }
   this->RefCount++;
   vtkDebugMacro(<< "Registered by " << o->GetClassName() << " (" << o << ")");
 }
@@ -62,6 +66,11 @@ void vtkRefCount::Register(vtkObject* o)
 // Decrease the reference count (release by another object).
 void vtkRefCount::UnRegister(vtkObject* o)
 {
+  if ( this->ReferenceCounting == 0 )
+    {
+    vtkErrorMacro(<<"Attempting to UnRegister an object which has reference counting turned off.");
+    }
+
   vtkDebugMacro(<< "UnRegistered by " <<o->GetClassName() << " (" << 0 << ")");
 
   if (--this->RefCount <= 0) delete this;
