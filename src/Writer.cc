@@ -29,8 +29,8 @@ vlWriter::vlWriter()
 }
 
 // Description:
-// General write method executes subclasses WriteData() method, as well as
-// StartWrite() and EndWrite() methods.
+// Write data to output. Method executes subclasses WriteData() method, as 
+// well as StartWrite() and EndWrite() methods.
 void vlWriter::Write()
 {
   // make sure input is available
@@ -47,6 +47,13 @@ void vlWriter::Write()
   if ( this->EndWrite ) (*this->EndWrite)(this->EndWriteArg);
 
   if ( this->Input->ShouldIReleaseData() ) this->Input->ReleaseData();
+}
+
+// Description:
+// Convenient alias for Write() method.
+void vlWriter::Update()
+{
+  this->Write();
 }
 
 // Description:

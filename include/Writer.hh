@@ -36,9 +36,8 @@ public:
   char *GetClassName() {return "vlWriter";};
   void PrintSelf(ostream& os, vlIndent indent);
 
-  // Description:
-  // Write data to disk (or port).
   virtual void Write();
+  void Update();
 
   void SetStartWrite(void (*f)(void *), void *arg);
   void SetEndWrite(void (*f)(void *), void *arg);
