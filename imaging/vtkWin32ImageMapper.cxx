@@ -5,7 +5,7 @@
 
 
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkWin32ImageMapper* vtkWin32ImageMapper::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -158,11 +158,10 @@ static void vtkWin32ImageMapperRenderGray(vtkWin32ImageMapper *self,
 			      self->GetColorLevel(), 
 			      lower, upper, lower_val, upper_val );
   
-  int* tempExt = self->GetInput()->GetUpdateExtent();
-  inMin0 = tempExt[0];
-  inMax0 = tempExt[1];
-  inMin1 = tempExt[2];
-  inMax1 = tempExt[3];
+  inMin0 = self->DisplayExtent[0];
+  inMax0 = self->DisplayExtent[1];
+  inMin1 = self->DisplayExtent[2];
+  inMax1 = self->DisplayExtent[3];
 
   // data->GetIncrements(inInc0, inInc1);
   int* tempIncs = data->GetIncrements();
@@ -233,11 +232,10 @@ static void vtkWin32ImageMapperRenderColor(vtkWin32ImageMapper *self,
   unsigned char lower_val, upper_val;
   
   // data->GetExtent(inMin0, inMax0, inMin1, inMax1);
-  int* tempExt = self->GetInput()->GetUpdateExtent();
-  inMin0 = tempExt[0];
-  inMax0 = tempExt[1];
-  inMin1 = tempExt[2];
-  inMax1 = tempExt[3];
+  inMin0 = self->DisplayExtent[0];
+  inMax0 = self->DisplayExtent[1];
+  inMin1 = self->DisplayExtent[2];
+  inMax1 = self->DisplayExtent[3];
 
   // data->GetIncrements(inInc0, inInc1);
   int* tempIncs = data->GetIncrements();
@@ -366,11 +364,10 @@ static void vtkWin32ImageMapperRenderShortGray(vtkWin32ImageMapper *self,
   sshift = sscale*shift;
   
   // data->GetExtent(inMin0, inMax0, inMin1, inMax1);
-  int* tempExt = self->GetInput()->GetUpdateExtent();
-  inMin0 = tempExt[0];
-  inMax0 = tempExt[1];
-  inMin1 = tempExt[2];
-  inMax1 = tempExt[3];
+  inMin0 = self->DisplayExtent[0];
+  inMax0 = self->DisplayExtent[1];
+  inMin1 = self->DisplayExtent[2];
+  inMax1 = self->DisplayExtent[3];
 
   // data->GetIncrements(inInc0, inInc1);
   int* tempIncs = data->GetIncrements();
@@ -446,9 +443,8 @@ void vtkWin32ImageMapper::RenderData(vtkViewport* viewport,
   HDC windowDC = (HDC) window->GetGenericContext();
 
   // Determine the size of the displayed data.
-  int* extent = this->Input->GetUpdateExtent();
-  width = (extent[1] - extent[0] + 1);
-  height = (extent[3] - extent[2] + 1);
+  width = (this->DisplayExtent[1] - this->DisplayExtent[0] + 1);
+  height = (this->DisplayExtent[3] - this->DisplayExtent[2] + 1);
   
   dataWidth = ((width*3+3)/4)*4;
   
@@ -509,7 +505,9 @@ void vtkWin32ImageMapper::RenderData(vtkViewport* viewport,
 
   int dim = 0;
   dim = data->GetNumberOfScalarComponents();
-  ptr0 = data->GetScalarPointer(extent[0], extent[2], extent[4]);
+  ptr0 = data->GetScalarPointer(this->DisplayExtent[0], 
+				this->DisplayExtent[2], 
+				this->DisplayExtent[4]);
 
   if (dim > 1)    
 

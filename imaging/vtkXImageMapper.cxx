@@ -6,7 +6,7 @@
 
 
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkXImageMapper* vtkXImageMapper::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -255,7 +255,7 @@ static void vtkXImageMapperRenderGray(vtkXImageMapper *mapper,
   unsigned char lowerPixel, upperPixel;
   int colorIdx;
   unsigned char lower_val, upper_val;
-  
+
   vtkWindow*  window = viewport->GetVTKWindow();
 
   visualClass = mapper->GetXWindowVisualClass(window);
@@ -268,11 +268,10 @@ static void vtkXImageMapperRenderGray(vtkXImageMapper *mapper,
   shift = mapper->GetColorShift();
   scale = mapper->GetColorScale();
 
-  int* tempExt = mapper->GetInput()->GetUpdateExtent();
-  inMin0 = tempExt[0];
-  inMax0 = tempExt[1];
-  inMin1 = tempExt[2];
-  inMax1 = tempExt[3];
+  inMin0 = mapper->DisplayExtent[0];
+  inMax0 = mapper->DisplayExtent[1];
+  inMin1 = mapper->DisplayExtent[2];
+  inMax1 = mapper->DisplayExtent[3];
 
   int* tempIncs = data->GetIncrements();
   inInc0 = tempIncs[0];
@@ -490,11 +489,10 @@ static void vtkXImageMapperRenderColor(vtkXImageMapper *mapper,
   shift = mapper->GetColorShift();
   scale = mapper->GetColorScale();
 
-  int* tempExt = mapper->GetInput()->GetUpdateExtent();
-  inMin0 = tempExt[0];
-  inMax0 = tempExt[1];
-  inMin1 = tempExt[2];
-  inMax1 = tempExt[3];
+  inMin0 = mapper->DisplayExtent[0];
+  inMax0 = mapper->DisplayExtent[1];
+  inMin1 = mapper->DisplayExtent[2];
+  inMax1 = mapper->DisplayExtent[3];
   int* tempIncs = data->GetIncrements();
   inInc0 = tempIncs[0];
   inInc1 = tempIncs[1];
@@ -663,9 +661,8 @@ void vtkXImageMapper::RenderData(vtkViewport* viewport, vtkImageData* data, vtkA
   GC gc = (GC) window->GetGenericContext();
   if (gc == NULL) vtkErrorMacro(<<"Window returned NULL gc!");
 
-  int* extent = this->GetInput()->GetUpdateExtent();
-  width = (extent[1] - extent[0] + 1);
-  height = (extent[3] - extent[2] + 1);
+  width = (this->DisplayExtent[1] - this->DisplayExtent[0] + 1);
+  height = (this->DisplayExtent[3] - this->DisplayExtent[2] + 1);
 
   size = width * height;
 
@@ -700,7 +697,9 @@ void vtkXImageMapper::RenderData(vtkViewport* viewport, vtkImageData* data, vtkA
 
   int dim;
   dim = data->GetNumberOfScalarComponents();
-  ptr0 = data->GetScalarPointer(extent[0], extent[3], extent[4]);
+  ptr0 = data->GetScalarPointer(this->DisplayExtent[0], 
+				this->DisplayExtent[3], 
+				this->DisplayExtent[4]);
 
   if (dim > 1)  
     {

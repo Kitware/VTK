@@ -64,6 +64,9 @@ vtkImageMapper::vtkImageMapper()
   this->ColorWindow = 2000;
   this->ColorLevel = 1000;
 
+  this->DisplayExtent[0] = this->DisplayExtent[1] = 0;
+  this->DisplayExtent[2] = this->DisplayExtent[3] = 0;
+  this->DisplayExtent[4] = this->DisplayExtent[5] = 0;
   this->ZSlice = 0;
 }
 
@@ -108,7 +111,6 @@ void vtkImageMapper::RenderStart(vtkViewport* viewport, vtkActor2D* actor)
   vtkDebugMacro(<< "vtkImageMapper::RenderOverlay");
 
   vtkImageData *data;
-  int displayExtent[6];
   int wholeExtent[6];
 
   if (!viewport)
@@ -133,11 +135,11 @@ void vtkImageMapper::RenderStart(vtkViewport* viewport, vtkActor2D* actor)
   this->GetInput()->UpdateInformation();
   // start with the wholeExtent
   memcpy(wholeExtent,this->GetInput()->GetWholeExtent(),6*sizeof(int));
-  memcpy(displayExtent,this->GetInput()->GetWholeExtent(),6*sizeof(int));
+  memcpy(this->DisplayExtent,this->GetInput()->GetWholeExtent(),6*sizeof(int));
 
   // Set The z values to the zslice
-  displayExtent[4] = this->ZSlice;
-  displayExtent[5] = this->ZSlice;
+  this->DisplayExtent[4] = this->ZSlice;
+  this->DisplayExtent[5] = this->ZSlice;
 
   // scale currently not handled
   //float *scale = actor->GetScale();
@@ -178,34 +180,37 @@ void vtkImageMapper::RenderStart(vtkViewport* viewport, vtkActor2D* actor)
   // Now clip to imager extents
   if (pos[0] + wholeExtent[0] < 0) 
     {
-    displayExtent[0] = -pos[0];
+    this->DisplayExtent[0] = -pos[0];
     }
   if ((pos[0]+wholeExtent[1]) > vSize[0]) 
     {
-    displayExtent[1] = vSize[0] - pos[0];
+    this->DisplayExtent[1] = vSize[0] - pos[0];
     }
   if (pos[1] + wholeExtent[2] < 0) 
     {
-    displayExtent[2] = -pos[1];
+    this->DisplayExtent[2] = -pos[1];
     }
   if ((pos[1]+wholeExtent[3]) > vSize[1])
     {
-    displayExtent[3] = vSize[1] - pos[1];
+    this->DisplayExtent[3] = vSize[1] - pos[1];
     }
 
   // check for the condition where no pixels are visible.
-  if (    displayExtent[0] > wholeExtent[1] || displayExtent[1] < wholeExtent[0]
-       || displayExtent[2] > wholeExtent[3] || displayExtent[3] < wholeExtent[2]
-       || displayExtent[4] > wholeExtent[5] || displayExtent[5] < wholeExtent[4])
+  if (this->DisplayExtent[0] > wholeExtent[1] || 
+      this->DisplayExtent[1] < wholeExtent[0] ||
+      this->DisplayExtent[2] > wholeExtent[3] || 
+      this->DisplayExtent[3] < wholeExtent[2] ||
+      this->DisplayExtent[4] > wholeExtent[5] || 
+      this->DisplayExtent[5] < wholeExtent[4])
     {
     return;
     }
   
-  this->GetInput()->SetUpdateExtent(displayExtent);
+  this->GetInput()->SetUpdateExtent(this->DisplayExtent);
 
   // set the position adjustment
-  this->PositionAdjustment[0] = displayExtent[0];
-  this->PositionAdjustment[1] = displayExtent[2];
+  this->PositionAdjustment[0] = this->DisplayExtent[0];
+  this->PositionAdjustment[1] = this->DisplayExtent[2];
     
   // Get the region from the input
   this->GetInput()->Update();
