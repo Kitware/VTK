@@ -56,12 +56,12 @@
 #include <vtkstd/map>
 
 #ifdef VTK_USE_MPI
-#include <vtkMPIController.h>
+#include "vtkMPIController.h"
 #endif
 
 // Timing data ---------------------------------------------
 
-#include <vtkTimerLog.h>
+#include "vtkTimerLog.h"
 
 #define MSGSIZE 60
 
@@ -99,7 +99,7 @@ static char *makeEntry(const char *s)
 
 // Timing data ---------------------------------------------
 
-vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.2")
+vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.3")
 
 vtkStandardNewMacro(vtkDistributedDataFilter)
 
