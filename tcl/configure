@@ -2597,6 +2597,42 @@ case $system in
 	SHLIB_SUFFIX="..o"
 	SHLIB_VERSION=""
 	DL_LIBS=""
+        echo $ac_n "checking for -lld""... $ac_c" 1>&6
+ac_lib_var=`echo ld_printf | tr '.-/+' '___p'`
+if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  ac_save_LIBS="$LIBS"
+LIBS="-lld  $LIBS"
+cat > conftest.$ac_ext <<EOF
+#line 2609 "configure"
+#include "confdefs.h"
+/* Override any gcc2 internal prototype to avoid an error.  */
+char printf();
+
+int main() { return 0; }
+int t() {
+printf()
+; return 0; }
+EOF
+if { (eval echo configure:2619: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
+  rm -rf conftest*
+  eval "ac_cv_lib_$ac_lib_var=yes"
+else
+  rm -rf conftest*
+  eval "ac_cv_lib_$ac_lib_var=no"
+fi
+rm -f conftest*
+LIBS="$ac_save_LIBS"
+
+fi
+if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
+  echo "$ac_t""yes" 1>&6
+  DL_LIBS="-lld"
+else
+  echo "$ac_t""no" 1>&6
+fi
+
 	LD_FLAGS=""
 	LD_SEARCH_FLAGS=""
 	;;
@@ -2657,12 +2693,12 @@ if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 2661 "configure"
+#line 2697 "configure"
 #include "confdefs.h"
 #include <dld.h>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:2666: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:2702: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -2989,10 +3025,12 @@ USE_GEMSIP_DEPENDS=""
 USE_GEMSIO_DEPENDS=""
 USE_GEMSVOLUME_DEPENDS=""
 COMMON_DEPENDS=""
+VTK_TCL_SHLIB_TARGET=""
 
 if test "$vtk_shared_ok" = "yes"; then
     VTK_SHLIB_CFLAGS="${SHLIB_CFLAGS}"
     VTK_LD_SEARCH_FLAGS="${LD_SEARCH_FLAGS}"
+    VTK_TCL_SHLIB_TARGET="vtktcl"
     RANLIB=":"
 else
     SHLIB_LD_LIBS=""
@@ -3079,6 +3117,8 @@ fi
 
 
 
+
+
 ##########################
 ##			##
 ## Check thread support ##
@@ -3095,12 +3135,12 @@ if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 3099 "configure"
+#line 3139 "configure"
 #include "confdefs.h"
 #include <$ac_hdr>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:3104: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:3144: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -3141,12 +3181,12 @@ if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 3145 "configure"
+#line 3185 "configure"
 #include "confdefs.h"
 #include <$ac_hdr>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:3150: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:3190: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -3172,7 +3212,78 @@ done
 
 if test "$use_pthreads" = "yes"; then
   if test "$use_sproc" = "no"; then
-	THREAD_LIBS="-lpthread"
+    echo $ac_n "checking for -lpthreads""... $ac_c" 1>&6
+ac_lib_var=`echo pthreads_pthread_create | tr '.-/+' '___p'`
+if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  ac_save_LIBS="$LIBS"
+LIBS="-lpthreads  $LIBS"
+cat > conftest.$ac_ext <<EOF
+#line 3224 "configure"
+#include "confdefs.h"
+/* Override any gcc2 internal prototype to avoid an error.  */
+char pthread_create();
+
+int main() { return 0; }
+int t() {
+pthread_create()
+; return 0; }
+EOF
+if { (eval echo configure:3234: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
+  rm -rf conftest*
+  eval "ac_cv_lib_$ac_lib_var=yes"
+else
+  rm -rf conftest*
+  eval "ac_cv_lib_$ac_lib_var=no"
+fi
+rm -f conftest*
+LIBS="$ac_save_LIBS"
+
+fi
+if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
+  echo "$ac_t""yes" 1>&6
+  THREAD_LIBS="-lpthreads"
+else
+  echo "$ac_t""no" 1>&6
+fi
+
+    echo $ac_n "checking for -lpthread""... $ac_c" 1>&6
+ac_lib_var=`echo pthread_pthread_create | tr '.-/+' '___p'`
+if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  ac_save_LIBS="$LIBS"
+LIBS="-lpthread  $LIBS"
+cat > conftest.$ac_ext <<EOF
+#line 3260 "configure"
+#include "confdefs.h"
+/* Override any gcc2 internal prototype to avoid an error.  */
+char pthread_create();
+
+int main() { return 0; }
+int t() {
+pthread_create()
+; return 0; }
+EOF
+if { (eval echo configure:3270: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
+  rm -rf conftest*
+  eval "ac_cv_lib_$ac_lib_var=yes"
+else
+  rm -rf conftest*
+  eval "ac_cv_lib_$ac_lib_var=no"
+fi
+rm -f conftest*
+LIBS="$ac_save_LIBS"
+
+fi
+if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
+  echo "$ac_t""yes" 1>&6
+  THREAD_LIBS="-lpthread"
+else
+  echo "$ac_t""no" 1>&6
+fi
+
 	THREAD_FLAGS="-DVTK_USE_PTHREADS"
   fi
 fi
@@ -3377,6 +3488,7 @@ s%@XGLR_FLAGS@%$XGLR_FLAGS%g
 s%@XGL_HOME@%$XGL_HOME%g
 s%@MAKEINCLUDE@%$MAKEINCLUDE%g
 s%@MAKEQUOTE@%$MAKEQUOTE%g
+s%@VTK_TCL_SHLIB_TARGET@%$VTK_TCL_SHLIB_TARGET%g
 s%@USE_GRAPHICS_FLAG@%$USE_GRAPHICS_FLAG%g
 s%@USE_GRAPHICS_LIBS@%$USE_GRAPHICS_LIBS%g
 s%@USE_GRAPHICS_DEPENDS@%$USE_GRAPHICS_DEPENDS%g
