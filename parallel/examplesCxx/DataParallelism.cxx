@@ -357,11 +357,6 @@ void process(vtkMultiProcessController* controller, void* arg)
   vtkPolyDataMapper* mapper = vtkPolyDataMapper::New();
   mapper->SetInput(probe->GetPolyDataOutput());
 
-// Compute the number of pieces which will be processed by this
-// processor using streaming.
-// The total number of points is approximately 8*EXTENT*EXTENT*EXTENT.
-// The number of points which will be processed in one pass is numPts.
-
 // Use vtkPipelineSize to estimate the number of sub-pieces
 // which will satisfy the memory limit
   vtkPipelineSize* psize = vtkPipelineSize::New();
@@ -380,10 +375,10 @@ void process(vtkMultiProcessController* controller, void* arg)
     numPieces = 1;
   if (!myId)
     {
-    cout << "Number of pieces / processor: " << NUM_SAVE*numPieces << endl;
+    cout << "Number of pieces / processor: " << NUM_SAVE << endl;
     }
 
-// Set the total number of pieces 
+// Set the number of sub-pieces 
   mapper->SetNumberOfSubPieces(numPieces);
   mapper->SetScalarRange(50, 180);
 // Reduces memory use
@@ -425,7 +420,7 @@ void process(vtkMultiProcessController* controller, void* arg)
     {
     if (myId == 0)
       {
-      cout << "Current piece: " << myId*NUM_SAVE+i << endl;
+      cout << "Current piece: " << i << endl;
       }
     mapper->SetPiece(myId*NUM_SAVE+i);
     renWin->Render();
@@ -485,7 +480,7 @@ void process(vtkMultiProcessController* controller, void* arg)
       {
       cout << "Number of processors: " << numProcs << endl;
       cout << "Problem size: 8 " << EXTENT << "^3" << endl;
-      cout << "Number of pieces per processor: " <<  NUM_SAVE*numPieces 
+      cout << "Total number of pieces per processor: " <<  NUM_SAVE*numPieces 
 	   << endl;
       cout << "Total elapsed time is: " << totalElapsedTime << endl;
 
