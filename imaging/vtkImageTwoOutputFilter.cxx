@@ -171,7 +171,7 @@ void vtkImageTwoOutputFilter::SetInput(vtkImageCache *input)
 //----------------------------------------------------------------------------
 // Description:
 // This method is called by the cache.  
-void vtkImageTwoOutputFilter::Update()
+void vtkImageTwoOutputFilter::InternalUpdate()
 {
   vtkImageRegion *inRegion;
   vtkImageRegion *outRegion1;

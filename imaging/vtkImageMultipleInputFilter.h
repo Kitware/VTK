@@ -77,7 +77,7 @@ public:
   void AddInput(vtkStructuredPoints *spts)
     {this->AddInput(spts->GetStructuredPointsToImage()->GetOutput());}
   
-  void Update();
+  void InternalUpdate();
   void UpdateImageInformation();
   unsigned long int GetPipelineMTime();
   

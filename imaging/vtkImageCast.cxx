@@ -54,7 +54,7 @@ vtkImageCast::vtkImageCast()
 //----------------------------------------------------------------------------
 // Description:
 // The update method first checks to see is a cast is necessary.
-void vtkImageCast::Update()
+void vtkImageCast::InternalUpdate()
 {
   
   if (! this->Input || ! this->Output)

@@ -188,7 +188,7 @@ void vtkImageFilter::SetInput(vtkImageCache *input)
 // and outRegion is in local coordinates.
 // This method will stream to get the input, and loops over extra axes.
 // Only the UpdateExtent from output will get updated.
-void vtkImageFilter::Update()
+void vtkImageFilter::InternalUpdate()
 {
   vtkImageRegion *outRegion;
 

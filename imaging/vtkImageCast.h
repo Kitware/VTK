@@ -60,7 +60,7 @@ public:
   const char *GetClassName() {return "vtkImageCast";};
 
 protected:
-  void Update();
+  void InternalUpdate();
   void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };
 

@@ -285,7 +285,7 @@ void vtkImageMultipleInputFilter::SetInput(int num, vtkImageCache *input)
 //----------------------------------------------------------------------------
 // Description:
 // Called by cache
-void vtkImageMultipleInputFilter::Update()
+void vtkImageMultipleInputFilter::InternalUpdate()
 {
   vtkImageRegion *outRegion;
   int idx, idx2;
