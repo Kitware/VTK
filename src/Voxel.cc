@@ -21,7 +21,6 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 static vlMath math;  
 static vlLine line;
-static vlPixel pixel;
 
 // Description:
 // Deep copy of cell.
@@ -256,6 +255,7 @@ vlCell *vlVoxel::GetEdge(int edgeId)
 
 vlCell *vlVoxel::GetFace(int faceId)
 {
+  static vlPixel pixel;
   int *verts, i;
 
   verts = faces[faceId];
