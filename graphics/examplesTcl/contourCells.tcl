@@ -69,8 +69,6 @@ vtkActor aVoxelActor
 
 vtkActor aVoxelContourActor
   aVoxelContourActor SetMapper aVoxelContourMapper
-  aVoxelContourActor AddPosition 0 0 0
-  aVoxelContourActor AddPosition 0 2 0
   [aVoxelContourActor GetProperty] BackfaceCullingOn
 
 vtkFloatPoints hexahedronPoints
@@ -126,14 +124,11 @@ vtkDataSetMapper aHexahedronMapper
 
 vtkActor aHexahedronActor
   aHexahedronActor SetMapper aHexahedronMapper
-  aHexahedronActor AddPosition 2 0 0
   [aHexahedronActor GetProperty] BackfaceCullingOn
   [aHexahedronActor GetProperty] SetRepresentationToWireframe
 
 vtkActor aHexahedronContourActor
   aHexahedronContourActor SetMapper aHexahedronContourMapper
-  aHexahedronContourActor AddPosition 2 0 0
-  aHexahedronContourActor AddPosition 0 2 0
   [aHexahedronContourActor GetProperty] BackfaceCullingOn
 
 
@@ -177,12 +172,9 @@ vtkDataSetMapper aTetraMapper
 
 vtkActor aTetraContourActor
   aTetraContourActor SetMapper aTetraContourMapper
-  aTetraContourActor AddPosition 4 0 0
-  aTetraContourActor AddPosition 0 2 0
 
 vtkActor aTetraActor
   aTetraActor SetMapper aTetraMapper
-  aTetraActor AddPosition 4 0 0
   [aTetraActor GetProperty] SetRepresentationToWireframe
 
 
@@ -226,12 +218,9 @@ vtkDataSetMapper aPixelMapper
 
 vtkActor aPixelContourActor
   aPixelContourActor SetMapper aPixelContourMapper
-  aPixelContourActor AddPosition 0 0 2
-  aPixelContourActor AddPosition 0 2 0
 
 vtkActor aPixelActor
   aPixelActor SetMapper aPixelMapper
-  aPixelActor AddPosition 0 0 2
   [aPixelActor GetProperty] BackfaceCullingOn
   [aPixelActor GetProperty] SetRepresentationToWireframe
 
@@ -276,12 +265,9 @@ vtkDataSetMapper aQuadMapper
 
 vtkActor aQuadContourActor
   aQuadContourActor SetMapper aQuadContourMapper
-  aQuadContourActor AddPosition 2 0 2
-  aQuadContourActor AddPosition 0 2 0
 
 vtkActor aQuadActor
   aQuadActor SetMapper aQuadMapper
-  aQuadActor AddPosition 2 0 2
   [aQuadActor GetProperty] BackfaceCullingOn
   [aQuadActor GetProperty] SetRepresentationToWireframe
 
@@ -319,8 +305,6 @@ vtkDataSetMapper aTriangleContourMapper
 
 vtkActor aTriangleContourActor
   aTriangleContourActor SetMapper aTriangleContourMapper
-  aTriangleContourActor AddPosition 4 0 2
-  aTriangleContourActor AddPosition 0 2 0
 
 vtkDataSetMapper aTriangleMapper
   aTriangleMapper SetInput aTriangleGrid
@@ -328,7 +312,6 @@ vtkDataSetMapper aTriangleMapper
 
 vtkActor aTriangleActor
   aTriangleActor SetMapper aTriangleMapper
-  aTriangleActor AddPosition 4 0 2
   [aTriangleActor GetProperty] BackfaceCullingOn
   [aTriangleActor GetProperty] SetRepresentationToWireframe
 
@@ -374,12 +357,9 @@ vtkDataSetMapper aPolygonMapper
 
 vtkActor aPolygonContourActor
   aPolygonContourActor SetMapper aPolygonContourMapper
-  aPolygonContourActor AddPosition 6 0 2
-  aPolygonContourActor AddPosition 0 2 0
 
 vtkActor aPolygonActor
   aPolygonActor SetMapper aPolygonMapper
-  aPolygonActor AddPosition 6 0 2
   [aPolygonActor GetProperty] BackfaceCullingOn
   [aPolygonActor GetProperty] SetRepresentationToWireframe
 
@@ -428,12 +408,9 @@ vtkDataSetMapper aTriangleStripContourMapper
 
 vtkActor aTriangleStripContourActor
   aTriangleStripContourActor SetMapper aTriangleStripContourMapper
-  aTriangleStripContourActor AddPosition 8 0 2
-  aTriangleStripContourActor AddPosition 0 2 0
 
 vtkActor aTriangleStripActor
   aTriangleStripActor SetMapper aTriangleStripMapper
-  aTriangleStripActor AddPosition 8 0 2
   [aTriangleStripActor GetProperty] BackfaceCullingOn
   [aTriangleStripActor GetProperty] SetRepresentationToWireframe
 
@@ -467,8 +444,6 @@ vtkDataSetMapper aLineContourMapper
 
 vtkActor aLineContourActor
   aLineContourActor SetMapper aLineContourMapper
-  aLineContourActor AddPosition 0 0 4
-  aLineContourActor AddPosition 0 2 0
 
 vtkDataSetMapper aLineMapper
   aLineMapper SetInput aLineGrid
@@ -476,7 +451,6 @@ vtkDataSetMapper aLineMapper
 
 vtkActor aLineActor
   aLineActor SetMapper aLineMapper
-  aLineActor AddPosition 0 0 4
   [aLineActor GetProperty] BackfaceCullingOn
   [aLineActor GetProperty] SetRepresentationToWireframe
 
@@ -515,8 +489,6 @@ vtkDataSetMapper aPolyLineContourMapper
 
 vtkActor aPolyLineContourActor
   aPolyLineContourActor SetMapper aPolyLineContourMapper
-  aPolyLineContourActor AddPosition 2 0 4
-  aPolyLineContourActor AddPosition 0 2 0
 
 vtkDataSetMapper aPolyLineMapper
   aPolyLineMapper SetInput aPolyLineGrid
@@ -524,7 +496,6 @@ vtkDataSetMapper aPolyLineMapper
 
 vtkActor aPolyLineActor
   aPolyLineActor SetMapper aPolyLineMapper
-  aPolyLineActor AddPosition 2 0 4
   [aPolyLineActor GetProperty] BackfaceCullingOn
   [aPolyLineActor GetProperty] SetRepresentationToWireframe
 
@@ -546,7 +517,6 @@ vtkDataSetMapper aVertexMapper
 
 vtkActor aVertexActor
   aVertexActor SetMapper aVertexMapper
-  aVertexActor AddPosition 0 0 6
   [aVertexActor GetProperty] BackfaceCullingOn
 
 
@@ -572,12 +542,11 @@ vtkDataSetMapper aPolyVertexMapper
 
 vtkActor aPolyVertexActor
   aPolyVertexActor SetMapper aPolyVertexMapper
-  aPolyVertexActor AddPosition 2 0 6
   [aPolyVertexActor GetProperty] BackfaceCullingOn
 
 
 ren1 SetBackground .1 .2 .3
-renWin SetSize 600 300
+renWin SetSize 500 500
 
 ren1 AddActor aVoxelActor; [aVoxelActor GetProperty] SetDiffuseColor 1 0 0
 ren1 AddActor aVoxelContourActor; [aVoxelContourActor GetProperty] SetDiffuseColor 1 0 0
@@ -613,18 +582,54 @@ ren1 AddActor aVertexActor; [aVertexActor GetProperty] SetDiffuseColor 1 1 1
 
 ren1 AddActor aPolyVertexActor; [aPolyVertexActor GetProperty] SetDiffuseColor 1 1 1
 
-source backdrop.tcl
-BuildBackdrop -1 11 -1 4 -1 7 .1
-ren1 AddActor base
-[base GetProperty] SetDiffuseColor .4 .4 .4
-ren1 AddActor left
-[left GetProperty] SetDiffuseColor .4 .4 .4
-ren1 AddActor back
-[left GetProperty] SetDiffuseColor .4 .4 .4
+# places everyone!!
+aVoxelContourActor AddPosition 0 0 0
+aVoxelContourActor AddPosition 0 2 0
+aHexahedronContourActor AddPosition 2 0 0
+aHexahedronContourActor AddPosition 0 2 0
+aHexahedronActor AddPosition 2 0 0
+aTetraContourActor AddPosition 4 0 0
+aTetraContourActor AddPosition 0 2 0
+aTetraActor AddPosition 4 0 0
 
-[ren1 GetActiveCamera] Azimuth 30
-[ren1 GetActiveCamera] Elevation 20
-[ren1 GetActiveCamera] Dolly 3
+aPixelContourActor AddPosition 0 4 0
+aPixelContourActor AddPosition 0 2 0
+aPixelActor AddPosition 0 4 0
+aQuadContourActor AddPosition 2 4 0
+aQuadContourActor AddPosition 0 2 0
+aQuadActor AddPosition 2 4 0
+aTriangleContourActor AddPosition 4 4 0
+aTriangleContourActor AddPosition 0 2 0
+aTriangleActor AddPosition 4 4 0
+aPolygonContourActor AddPosition 6 4 0
+aPolygonContourActor AddPosition 0 2 0
+aPolygonActor AddPosition 6 4 0
+aTriangleStripContourActor AddPosition 8 4 0
+aTriangleStripContourActor AddPosition 0 2 0
+aTriangleStripActor AddPosition 8 4 0
+
+aLineContourActor AddPosition 0 8 0
+aLineContourActor AddPosition 0 2 0
+aLineActor AddPosition 0 8 0
+aPolyLineContourActor AddPosition 2 8 0
+aPolyLineContourActor AddPosition 0 2 0
+aPolyLineActor AddPosition 2 8 0
+
+aVertexActor AddPosition 0 12 0
+aPolyVertexActor AddPosition 2 12 0
+
+
+source backdrop.tcl
+BuildBackdrop -1 11 -1 14 -1 2 .1
+
+ren1 AddActor base
+[base GetProperty] SetDiffuseColor .2 .2 .2
+ren1 AddActor left
+[left GetProperty] SetDiffuseColor .2 .2 .2
+ren1 AddActor back
+[back GetProperty] SetDiffuseColor .2 .2 .2
+
+[ren1 GetActiveCamera] Dolly 1.5
 renWin Render
 
 # render the image
