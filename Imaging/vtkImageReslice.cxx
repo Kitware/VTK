@@ -1761,13 +1761,13 @@ static int intersectionLow(float *point, float *axis, int *sign,
   float rd = (limit[ai]*point[3]-point[ai])
     /(axis[ai]-limit[ai]*axis[3]) + 0.5f;
    
-  if (rd < outExt[2*ai]) 
+  if (rd < outExt[0]) 
     {
-    r = outExt[2*ai];
+    r = outExt[0];
     }
-  else if (rd > outExt[2*ai+1])
+  else if (rd > outExt[1])
     {
-    r = outExt[2*ai+1];
+    r = outExt[1];
     }
   else
     {
@@ -1782,7 +1782,9 @@ static int intersectionLow(float *point, float *axis, int *sign,
     f = 1.0f/f;
     p *= f;
     
-    if (vtkResliceFloor(p + 0.5f) < limit[ai])
+    if ((sign[ai] < 0 && r > outExt[0] ||
+	 sign[ai] > 0 && r < outExt[1])
+	 && vtkResliceFloor(p + 0.5f) < limit[ai])
       {
       r += sign[ai];
       }
@@ -1799,7 +1801,9 @@ static int intersectionLow(float *point, float *axis, int *sign,
     f = 1.0f/f;
     p *= f;
     
-    if (vtkResliceFloor(p + 0.5f) >= limit[ai])
+    if ((sign[ai] > 0 && r > outExt[0] ||
+	 sign[ai] < 0 && r < outExt[1])
+	&& vtkResliceFloor(p + 0.5f) >= limit[ai])
       {
       r -= sign[ai];
       }
@@ -1821,13 +1825,13 @@ static int intersectionHigh(float *point, float *axis, int *sign,
   float rd = (limit[ai]*point[3]-point[ai])
       /(axis[ai]-limit[ai]*axis[3]) + 0.5f; 
     
-  if (rd < outExt[2*ai])
+  if (rd < outExt[0])
     { 
-    r = outExt[2*ai];
+    r = outExt[0];
     }
-  else if (rd > outExt[2*ai+1])
+  else if (rd > outExt[1])
     {
-    r = outExt[2*ai+1];
+    r = outExt[1];
     }
   else
     {
@@ -1842,7 +1846,9 @@ static int intersectionHigh(float *point, float *axis, int *sign,
     f = 1.0f/f;
     p *= f;
     
-    if (vtkResliceFloor(p + 0.5f) > limit[ai])
+    if ((sign[ai] > 0 && r > outExt[0] ||
+	 sign[ai] < 0 && r < outExt[1])
+	 && vtkResliceFloor(p + 0.5f) > limit[ai])
       {
       r -= sign[ai];
       }
@@ -1859,7 +1865,9 @@ static int intersectionHigh(float *point, float *axis, int *sign,
     f = 1.0f/f;
     p *= f;
     
-    if (vtkResliceFloor(p + 0.5f) <= limit[ai])
+    if ((sign[ai] < 0 && r > outExt[0] ||
+	 sign[ai] > 0 && r < outExt[1])
+	&& vtkResliceFloor(p + 0.5f) <= limit[ai])
       {
       r += sign[ai];
       }
@@ -2181,7 +2189,7 @@ static void vtkOptimizedExecute(vtkImageReslice *self,
                      int inExt[6], int inInc[3]);
 
   // find maximum input range
-  self->GetInput()->GetExtent(inExt);
+  inData->GetExtent(inExt);
 
   for (i = 0; i < 3; i++)
     {
