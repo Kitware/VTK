@@ -1,8 +1,6 @@
 VTK Tcl wrappers
 ===========================================================================
 
-Using VTK inside Tcl/Tk is a two step process :
-
   I) Invoking the VTK Tcl package
  II) Invoking the 'generic interactor' package
 III) Invoking the 'vtkTkRenderWidget bindings' package
