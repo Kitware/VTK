@@ -92,8 +92,6 @@ vtkPointSet(sg)
     this->PointVisibility = NULL;
     }
   
-  this->UpdateExtent->Delete();
-  this->UpdateExtent = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -110,6 +108,8 @@ vtkStructuredGrid::~vtkStructuredGrid()
   this->Line->Delete();
   this->Quad->Delete();
   this->Hexahedron->Delete();
+  this->UpdateExtent->Delete();
+  this->UpdateExtent = NULL;
 }
 
 //----------------------------------------------------------------------------
