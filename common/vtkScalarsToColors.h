@@ -41,7 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkScalarsToColors - map scalar values into colors
 // .SECTION Description
 // vtkScalarsToColors is a general purpose superclass for objects that
-// convert scalars to colors. Tis include LookupTable classes and
+// convert scalars to colors. This include vtkLookupTable classes and
 // color transfer functions.
 //
 // .SECTION See Also
@@ -72,16 +72,20 @@ public:
   void SetRange(float rng[2]) {this->SetRange(rng[0],rng[1]);};
   
   // Description:
-  // Map one value through the lookup table.
+  // Map one value through the lookup table and return a color defined
+  // as a RGBA unsigned char tuple (4 bytes).
   virtual unsigned char *MapValue(float v) = 0;
 
   // Description:
-  // map a set of scalars through the lookup table
+  // Map a set of scalars through the lookup table in a single operation.
+  void MapScalarsThroughTable(vtkScalars *scalars, 
+                              unsigned char *output);
+
+  // Description:
+  // An internal method typically not used in applications.
   virtual void MapScalarsThroughTable2(void *input, unsigned char *output,
                                        int inputDataType, int numberOfValues,
                                        int inputIncrement) = 0;
-  void MapScalarsThroughTable(vtkScalars *scalars, 
-                              unsigned char *output);
     
 protected:
 };
