@@ -142,9 +142,9 @@ void vtkCellLocator::FreeSearchStructure()
 // Method returns 1 is the specified i,j,k location is "outside" of the octree.
 int vtkCellLocator::GenerateIndex(int offset, int numDivs, int i, int j, int k, 
                                   int &idx)
-  {
+{
   if ( i < 0 || i >= numDivs || 
-    j < 0 || j >= numDivs || k < 0 || k >= numDivs )
+       j < 0 || j >= numDivs || k < 0 || k >= numDivs )
     {
     return 1;
     }
@@ -152,7 +152,7 @@ int vtkCellLocator::GenerateIndex(int offset, int numDivs, int i, int j, int k,
   idx = offset + i + j*numDivs + k*numDivs*numDivs;
   
   return 0;
-  }
+}
 
 
 // Return intersection point (if any) of finite line with cells contained
@@ -160,19 +160,36 @@ int vtkCellLocator::GenerateIndex(int offset, int numDivs, int i, int j, int k,
 int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
                                       float& t, float x[3], float pcoords[3],
                                       int &subId)
-  {
+{
   int cellId = -1;
   
   return this->IntersectWithLine( a0, a1, tol, t, x, pcoords,
-    subId, cellId);
-  }
-
+				  subId, cellId);
+}
 
 // Return intersection point (if any) AND the cell which was intersected by
 // finite line
 int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
                                       float& t, float x[3], float pcoords[3],
                                       int &subId, int &cellId)
+{
+  vtkGenericCell *cell=vtkGenericCell::New();
+  int returnVal;
+
+  returnVal = this->IntersectWithLine( a0, a1, tol, t, x, pcoords, subId,
+				       cellId, cell);
+
+  cell->Delete();
+  return returnVal;
+}
+  
+    
+// Return intersection point (if any) AND the cell which was intersected by
+// finite line
+int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
+                                      float& t, float x[3], float pcoords[3],
+                                      int &subId, int &cellId,
+				      vtkGenericCell *cell)
   {
   float origin[3];
   float direction2[3];
@@ -182,7 +199,6 @@ int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
   float *bounds;
   float bounds2[6];
   int i, leafStart, prod, loop;
-  vtkGenericCell *cell = vtkGenericCell::New();
   int bestCellId = -1;
   int idx, cId;
   float tMax, dist[3];
@@ -346,19 +362,18 @@ int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
       
       // store the best cell id in the return "parameter"
       cellId = bestCellId;
-      cell->Delete();
       return 1;
       }
     
-    cell->Delete();
     return 0;
 }
 
 
 // Return closest point (if any) AND the cell on which this closest point lies
 void vtkCellLocator::FindClosestPoint(float x[3], float closestPoint[3], 
-                                      vtkGenericCell *cell, int &cellId, int &subId, float& dist2)
-  {
+                                      vtkGenericCell *cell, int &cellId,
+				      int &subId, float& dist2)
+{
   int i, j;
   int *nei, cno;
   int inside=0;
@@ -501,7 +516,8 @@ void vtkCellLocator::FindClosestPoint(float x[3], float closestPoint[3],
   if ( (minDist2 > 0.0) && (level < this->NumberOfDivisions))
     {
     int prevMinLevel[3], prevMaxLevel[3];
-    // setup prevMinLevel and prevMaxLevel to indicate previously visited buckets
+    // setup prevMinLevel and prevMaxLevel to indicate previously visited
+    // buckets
     if (--level < 0)
       {
       level = 0;
@@ -519,7 +535,8 @@ void vtkCellLocator::FindClosestPoint(float x[3], float closestPoint[3],
         prevMaxLevel[i] = this->NumberOfDivisions - 1;
         }
       }
-    this->GetOverlappingBuckets(x, ijk, sqrt(minDist2), prevMinLevel, prevMaxLevel);
+    this->GetOverlappingBuckets(x, ijk, sqrt(minDist2), prevMinLevel,
+				prevMaxLevel);
     
     for (i=0; i<this->Buckets->GetNumberOfNeighbors(); i++) 
       {
@@ -603,6 +620,7 @@ void vtkCellLocator::FindClosestPoint(float x[3], float closestPoint[3],
     closestPoint[0] = cachedPoint[0];
     closestPoint[1] = cachedPoint[1];
     closestPoint[2] = cachedPoint[2];
+    this->DataSet->GetCell(cellId, cell);
     }
   
   if (weights != NULL)
@@ -626,7 +644,8 @@ void vtkCellLocator::FindClosestPoint(float x[3], float closestPoint[3],
 
 int
 vtkCellLocator::FindClosestPointWithinRadius(float x[3], float radius,
-                                             float closestPoint[3], vtkGenericCell *cell,
+                                             float closestPoint[3],
+					     vtkGenericCell *cell,
                                              int &cellId,
                                              int &subId, float& dist2)
   {
@@ -818,7 +837,8 @@ vtkCellLocator::FindClosestPointWithinRadius(float x[3], float radius,
     currentRadius = refinedRadius; // used in if at bottom of this for loop
     
     // Build up a list of buckets that are arranged in rings
-    this->GetOverlappingBuckets(x, ijk, refinedRadius/ii, prevMinLevel, prevMaxLevel);
+    this->GetOverlappingBuckets(x, ijk, refinedRadius/ii, prevMinLevel,
+				prevMaxLevel);
     
     for (i=0; i<this->Buckets->GetNumberOfNeighbors(); i++) 
       {
@@ -893,7 +913,8 @@ vtkCellLocator::FindClosestPointWithinRadius(float x[3], float radius,
         }//if cells in bucket
       }//for each overlapping bucket
 
-    // don't want to checker a smaller radius than we just checked so update ii appropriately
+    // don't want to checker a smaller radius than we just checked so update
+    // ii appropriately
     if (refinedRadius < currentRadius && ii > 2) // always have to do check ii==1
       {
       ii = ii * (refinedRadius / currentRadius) + 1;
@@ -912,6 +933,7 @@ vtkCellLocator::FindClosestPointWithinRadius(float x[3], float radius,
     closestPoint[0] = cachedPoint[0];
     closestPoint[1] = cachedPoint[1];
     closestPoint[2] = cachedPoint[2];
+    this->DataSet->GetCell(cellId, cell);
     returnVal = 1;
     }
   
@@ -932,7 +954,7 @@ vtkCellLocator::FindClosestPointWithinRadius(float x[3], float radius,
   int found;
   
   found = this->FindClosestPointWithinRadius(x, radius, closestPoint,
-    cell, cellId, subId, dist2);
+					     cell, cellId, subId, dist2);
   cell->Delete();
   return found;
   }
