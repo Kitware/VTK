@@ -99,9 +99,6 @@ IF (VTK_USE_MPI)
   IF (MPI_EXTRA_LIBRARY)   
     TARGET_LINK_LIBRARIES (vtkParallel ${MPI_EXTRA_LIBRARY})   
   ENDIF (MPI_EXTRA_LIBRARY) 
-  IF (MPI_INCLUDE_PATH)   
-    INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
-  ENDIF (MPI_INCLUDE_PATH)   
 ENDIF (VTK_USE_MPI)
 
 # Allow the user to customize their build with some local options
@@ -143,19 +140,6 @@ IF (VTK_WRAP_TCL)
     IF (VTK_USE_HYBRID)
       TARGET_LINK_LIBRARIES(pvtk vtkHybridTCL vtkHybrid)
     ENDIF (VTK_USE_HYBRID)
-
-    # add in the Tk values if found
-    IF (TK_INCLUDE_PATH)
-      INCLUDE_DIRECTORIES(${TK_INCLUDE_PATH})
-    ENDIF (TK_INCLUDE_PATH)
-    IF (TK_XLIB_PATH)
-      INCLUDE_DIRECTORIES(${TK_XLIB_PATH})
-    ENDIF (TK_XLIB_PATH)
-
-    # add in xwindows stuff
-    IF (VTK_USE_X)
-      ADD_DEFINITIONS(${CMAKE_X_CFLAGS})
-    ENDIF (VTK_USE_X)
 
     INSTALL_TARGETS(/bin pvtk)
   ENDIF (VTK_USE_MPI)

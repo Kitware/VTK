@@ -11,42 +11,122 @@ SET(VTK_VERSION
     "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}.${VTK_BUILD_VERSION}")
 
 #-----------------------------------------------------------------------------
-# Figure out which version of the VTK_MAKE_INSTANTIATOR command is
-# available with this version of CMake.
+# Load the VTK CMake extension module.
 IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
-   IF (COMMAND VTK_MAKE_INSTANTIATOR2)
-   ELSE (COMMAND VTK_MAKE_INSTANTIATOR2)
-      MESSAGE(STATUS "Compiling VTK loaded commands")
-      TRY_COMPILE(COMPILE_OK 
-         ${VTK_BINARY_DIR}/CMake 
-         ${VTK_SOURCE_DIR}/CMake 
-         VTK_LOADED_COMMANDS)
-      IF (COMPILE_OK)
-         MESSAGE(STATUS "Compiling VTK loaded commands - done")
-         # load the four extra CMake commands 
-         LOAD_COMMAND(VTK_WRAP_TCL2 
-            ${VTK_BINARY_DIR}/CMake ${VTK_BINARY_DIR}/CMake/Debug)
-         LOAD_COMMAND(VTK_WRAP_PYTHON2 
-            ${VTK_BINARY_DIR}/CMake ${VTK_BINARY_DIR}/CMake/Debug)
-         LOAD_COMMAND(VTK_WRAP_JAVA2 
-            ${VTK_BINARY_DIR}/CMake ${VTK_BINARY_DIR}/CMake/Debug)
-         LOAD_COMMAND(VTK_MAKE_INSTANTIATOR2 
-            ${VTK_BINARY_DIR}/CMake ${VTK_BINARY_DIR}/CMake/Debug)
-      ELSE (COMPILE_OK)
-         MESSAGE(STATUS "Compiling VTK loaded commands - failed")
-         MESSAGE("failed to compile VTK extensions to CMake")
-      ENDIF (COMPILE_OK)
-   ENDIF (COMMAND VTK_MAKE_INSTANTIATOR2)
-   SET(VTK_USE_INSTANTIATOR_NEW "1")
+  # Import the VTK_LOAD_CMAKE_EXTENSIONS macro.
+  INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkLoadCMakeExtensions.cmake)
+
+  # Compile the extensions into the build tree and load them.
+  VTK_LOAD_CMAKE_EXTENSIONS(${VTK_SOURCE_DIR}/CMake ${VTK_BINARY_DIR}/CMake)
 
   # Install cmake extension directory so user projects can build the commands.
   INSTALL_FILES(/lib/vtk/CMake FILES
                 ${VTK_SOURCE_DIR}/CMake/CMakeLists.txt
+                ${VTK_SOURCE_DIR}/CMake/vtkLoadCMakeExtensions.cmake
                 ${VTK_SOURCE_DIR}/CMake/cmVTKWrapTcl2Command.c
                 ${VTK_SOURCE_DIR}/CMake/cmVTKWrapPython2Command.c
                 ${VTK_SOURCE_DIR}/CMake/cmVTKWrapJava2Command.c
                 ${VTK_SOURCE_DIR}/CMake/cmVTKMakeInstantiator2Command.c)
 ENDIF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
+
+#-----------------------------------------------------------------------------
+# Determine the set of VTK kits that should be built.
+OPTION (VTK_USE_RENDERING "Build the vtkRendering kit.  Needed for displaying data." ON)
+OPTION (VTK_USE_HYBRID "Build the vtkHybrid kit." OFF)
+OPTION (VTK_USE_PARALLEL "Build the vtkParallel kit." OFF)
+OPTION (VTK_USE_PATENTED
+        "Build the vtkPatented kit.  These classes are patented and may require a license to use."
+        OFF)
+
+SET(VTK_KITS COMMON FILTERING IO GRAPHICS IMAGING)
+IF(VTK_USE_RENDERING)
+  SET(VTK_KITS ${VTK_KITS} RENDERING)
+ENDIF(VTK_USE_RENDERING)
+IF(VTK_USE_HYBRID)
+  SET(VTK_KITS ${VTK_KITS} HYBRID)
+ENDIF(VTK_USE_HYBRID)
+IF(VTK_USE_PARALLEL)
+  SET(VTK_KITS ${VTK_KITS} PARALLEL)
+ENDIF(VTK_USE_PARALLEL)
+IF(VTK_USE_PATENTED)
+  SET(VTK_KITS ${VTK_KITS} PATENTED)
+ENDIF(VTK_USE_PATENTED)
+
+#-----------------------------------------------------------------------------
+# Determine the set of language wrappers that should be built.
+OPTION(VTK_WRAP_TCL "Wrap VTK classes into the TCL language.")
+OPTION(VTK_WRAP_PYTHON "Wrap VTK classes into the Python language.")
+OPTION(VTK_WRAP_JAVA "Wrap VTK classes into the Java language.")
+
+SET(VTK_LANGUAGES "")
+IF(VTK_WRAP_TCL)
+  SET(VTK_LANGUAGES ${VTK_LANGUAGES} TCL)
+ENDIF(VTK_WRAP_TCL)
+IF(VTK_WRAP_PYTHON)
+  SET(VTK_LANGUAGES ${VTK_LANGUAGES} PYTHON)
+ENDIF(VTK_WRAP_PYTHON)
+IF(VTK_WRAP_JAVA)
+  SET(VTK_LANGUAGES ${VTK_LANGUAGES} JAVA)
+ENDIF(VTK_WRAP_JAVA)
+
+#-----------------------------------------------------------------------------
+# VTK requires special compiler flags on some platforms.
+IF(CMAKE_COMPILER_IS_GNUCXX)
+  IF(WIN32)
+    # The platform is gcc on cygwin.
+    SET(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} -mwin32")
+    SET(VTK_REQUIRED_C_FLAGS "${VTK_REQUIRED_C_FLAGS} -mwin32")
+  ENDIF(WIN32)
+ELSE(CMAKE_COMPILER_IS_GNUCXX)
+  IF(CMAKE_ANSI_CFLAGS)
+    SET(VTK_REQUIRED_C_FLAGS "${VTK_REQUIRED_C_FLAGS} ${CMAKE_ANSI_CFLAGS}")
+  ENDIF(CMAKE_ANSI_CFLAGS)
+  IF(CMAKE_SYSTEM MATCHES "OSF1-V.*")
+     SET(VTK_REQUIRED_CXX_FLAGS
+         "${VTK_REQUIRED_CXX_FLAGS} -timplicit_local -no_implicit_include")
+  ENDIF(CMAKE_SYSTEM MATCHES "OSF1-V.*")
+ENDIF(CMAKE_COMPILER_IS_GNUCXX)
+
+IF(APPLE)
+  IF (VTK_USE_CARBON)
+    SET(CMAKE_CXX_SHLIB_LINK_FLAGS "${CMAKE_CXX_SHLIB_LINK_FLAGS} -multiply_defined suppress -framework Carbon")
+    SET(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} -fpascal-strings")
+  ENDIF (VTK_USE_CARBON)
+  IF (VTK_USE_COCOA)
+    SET(CMAKE_CXX_SHLIB_LINK_FLAGS "${CMAKE_CXX_SHLIB_LINK_FLAGS} -multiply_defined suppress -framework Cocoa")
+  ENDIF (VTK_USE_COCOA)
+ENDIF(APPLE)
+
+IF(VTK_USE_X)
+  IF(CMAKE_X_CFLAGS)
+    SET(VTK_REQUIRED_C_FLAGS "${VTK_REQUIRED_C_FLAGS} ${CMAKE_X_CFLAGS}")
+    SET(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} ${CMAKE_X_CFLAGS}")
+  ENDIF(CMAKE_X_CFLAGS)
+ENDIF(VTK_USE_X)
+
+#-----------------------------------------------------------------------------
+# VTK utility script locations.
+SET(VTK_DOXYGEN_HOME ${VTK_SOURCE_DIR}/Utilities/Doxygen)
+SET(VTK_HEADER_TESTING_PY ${VTK_SOURCE_DIR}/Common/Testing/HeaderTesting.py)
+SET(VTK_FIND_STRING_TCL ${VTK_SOURCE_DIR}/Common/Testing/Tcl/FindString.tcl)
+SET(VTK_PRINT_SELF_CHECK_TCL ${VTK_SOURCE_DIR}/Common/Testing/Tcl/PrintSelfCheck.tcl)
+SET(VTK_RT_IMAGE_TEST_TCL ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl)
+IF(VTK_USE_PARALLEL)
+  SET(VTK_PRT_IMAGE_TEST_TCL ${VTK_SOURCE_DIR}/Common/Testing/Tcl/prtImageTest.tcl)
+ENDIF(VTK_USE_PARALLEL)
+
+#-----------------------------------------------------------------------------
+# VTK executable locations
+IF(VTK_WRAP_TCL)
+  SET(VTK_TCL_EXE ${VTK_EXECUTABLE_PATH}/vtk)
+  SET(VTK_TCL_HOME ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+ENDIF(VTK_WRAP_TCL)
+IF(VTK_WRAP_PYTHON)
+  SET(VTK_PYTHON_EXE ${VTK_EXECUTABLE_PATH}/vtkpython)
+ENDIF(VTK_WRAP_PYTHON)
+IF(VTK_WRAP_JAVA)
+  SET(VTK_JAVA_JAR ${LIBRARY_OUTPUT_PATH}/vtk.jar)
+ENDIF(VTK_WRAP_JAVA)
 
 #-----------------------------------------------------------------------------
 OPTION(BUILD_SHARED_LIBS "Build VTK with shared libraries." OFF)
@@ -67,11 +147,8 @@ SET (VTK_LIBRARY_PATH ${LIBRARY_OUTPUT_PATH} CACHE INTERNAL "Where VTK libraries
 
 SET (VTK_EXECUTABLE_PATH ${EXECUTABLE_OUTPUT_PATH} CACHE INTERNAL "Where VTK executables are. Used by projects which depend on VTK. Do not remove.")
 
-OPTION (VTK_USE_RENDERING "Build the rendering classes used for displaying" ON)
 OPTION (VTK_DEBUG_LEAKS "Build leak checking support into vtk." OFF)
 MARK_AS_ADVANCED(VTK_DEBUG_LEAKS)
-OPTION (VTK_USE_HYBRID "Build the hybrid directory classes")
-OPTION (VTK_USE_PATENTED "Build the patented directory classes, these classes are patented and may require a license to use")
 IF (APPLE)
   OPTION (VTK_USE_COCOA "Build classes using Cocoa API - Can only use one of these!" OFF)
   OPTION (VTK_USE_CARBON "Build classes using Carbon API" ON)
@@ -84,8 +161,6 @@ ELSE(APPLE)
   ENDIF (CMAKE_HAS_X)
 ENDIF(APPLE)
 
-
-OPTION (VTK_USE_PARALLEL "Build the parallel directory classes")
 IF (VTK_USE_PARALLEL)
     OPTION (VTK_USE_MPI 
       "use MPI (Message Passing Interface) library for parallel support")
@@ -115,7 +190,6 @@ IF (VTK_USE_MANGLED_MESA)
   ENDIF(MANGLED_MESA_INCLUDE_DIR)
 ENDIF(VTK_USE_MANGLED_MESA)
 
-OPTION(VTK_WRAP_TCL "wrap classes into the TCL intepreted language")
 IF (VTK_WRAP_TCL)
   INCLUDE (${CMAKE_ROOT}/Modules/FindTCL.cmake)
   UTILITY_SOURCE(VTK_WRAP_TCL_EXE vtkWrapTcl Wrapping vtkWrapTcl.c)
@@ -130,7 +204,6 @@ IF (VTK_WRAP_TCL)
   ENDIF(VTK_USE_PARALLEL)
 ENDIF (VTK_WRAP_TCL)
 
-OPTION(VTK_WRAP_PYTHON "wrap classes into the Python interpreted language")
 IF (VTK_WRAP_PYTHON)
   INCLUDE (${CMAKE_ROOT}/Modules/FindPythonLibs.cmake)
   FIND_FILE(VTK_WRAP_HINTS hints ${VTK_SOURCE_DIR}/Wrapping )
@@ -154,7 +227,6 @@ IF(BUILD_TESTING)
  ENDIF (DART_ROOT)
 ENDIF(BUILD_TESTING)
 
-OPTION(VTK_WRAP_JAVA "wrap classes into the Java language")
 IF (VTK_WRAP_JAVA)
   INCLUDE (${CMAKE_ROOT}/Modules/FindJNI.cmake)
   FIND_FILE(VTK_WRAP_HINTS hints ${VTK_SOURCE_DIR}/Wrapping )
@@ -312,7 +384,7 @@ IF (VTK_USE_HYBRID)
   INSTALL_FILES(/include/vtk .h vtkHybridInstantiator)
 ENDIF (VTK_USE_HYBRID)
 
-INCLUDE (${VTK_SOURCE_DIR}/vtkCMakeOptions.cmake)
+#-----------------------------------------------------------------------------
 
 IF (VTK_USE_PATENTED)
   SUBDIRS(Patented)
@@ -336,6 +408,12 @@ IF (VTK_WRAP_JAVA)
   INCLUDE (${CMAKE_ROOT}/Modules/FindJava.cmake)
   SUBDIRS(Wrapping/Java)
 ENDIF (VTK_WRAP_JAVA)
+
+IF(CMAKE_COMPILER_IS_GNUCXX AND WIN32)
+  # GCC on Cygwin cannot do explicit template instantiation correctly with
+  # DLLs.
+  SET(CMAKE_NO_EXPLICIT_TEMPLATE_INSTANTIATION 1)
+ENDIF(CMAKE_COMPILER_IS_GNUCXX AND WIN32)
 
 CONFIGURE_FILE(
 ${VTK_SOURCE_DIR}/vtkConfigure.h.in 
@@ -383,13 +461,51 @@ IF (BUILD_EXAMPLES)
   SUBDIRS(Examples)
 ENDIF (BUILD_EXAMPLES)
 
+
+#-----------------------------------------------------------------------------
+# The entire VTK tree should use the same include path.
+
+# Create the list of include directories needed for VTK header files.
+INCLUDE (${VTK_SOURCE_DIR}/vtkIncludeDirectories.cmake)
+
+# This should be the only INCLUDE_DIRECTORIES command in the entire
+# tree, except for the CMake, Utilities, and Examples directories.  We
+# need to do this in one place to make sure the order is correct.
+INCLUDE_DIRECTORIES(
+  ${VTK_INCLUDE_DIRS_BUILD_TREE}
+  ${VTK_INCLUDE_DIRS_SOURCE_TREE}
+  ${VTK_INCLUDE_DIRS_BUILD_TREE_CXX}
+  ${VTK_INCLUDE_DIRS_SYSTEM}
+)
+
+#-----------------------------------------------------------------------------
+# Help other projects use VTK.
+
+# Save the compiler settings so another project can import them.
+IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
+  INCLUDE(${CMAKE_ROOT}/Modules/CMakeExportBuildSettings.cmake)
+  CMAKE_EXPORT_BUILD_SETTINGS(${VTK_BINARY_DIR}/VTKBuildSettings.cmake)
+ENDIF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
+
+# Create the VTKConfig.cmake file containing the VTK configuration.
+INCLUDE (${VTK_SOURCE_DIR}/vtkGenerateVTKConfig.cmake)
+
+# Install some files.
 INSTALL_FILES(/include/vtk .h vtkConfigure vtkToolkits)
 INSTALL_FILES(/lib/vtk .cmake UseVTK)
+INSTALL_FILES(/lib/vtk .cmake VTKBuildSettings)
 
 # Hack for cmake 1.4 module.  It needs the file here.
 INSTALL_FILES(/include/vtk .cmake UseVTK)
 
+#-----------------------------------------------------------------------------
+# Add compiler flags VTK needs to work on this platform.  This must be
+# done AFTER the call to CMAKE_EXPORT_BUILD_SETTINGS.
+
+SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${VTK_REQUIRED_C_FLAGS}")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${VTK_REQUIRED_CXX_FLAGS}")
+
+#-----------------------------------------------------------------------------
+# Allow local additions to this file without CVS conflicts.
 INCLUDE (${VTK_BINARY_DIR}/LocalUserOptions.cmake OPTIONAL)
 INCLUDE (${VTK_SOURCE_DIR}/LocalUserOptions.cmake OPTIONAL)
-
-INCLUDE (${VTK_SOURCE_DIR}/GenerateVTKConfig.cmake)

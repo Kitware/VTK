@@ -21,32 +21,20 @@ IF(NOT VTK_USE_FILE)
   ENDIF(USE_INSTALLED_VTK)
 ENDIF(NOT VTK_USE_FILE)
 
-# Now we have the settings from VTKConfig.cmake.
-INCLUDE_DIRECTORIES(${VTK_INCLUDE_DIRS})
-LINK_DIRECTORIES(${VTK_LIBRARY_DIRS})
-ADD_DEFINITIONS(${VTK_DEFINITIONS})
+# Load the compiler settings used for VTK.
+IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
+  IF(VTK_BUILD_SETTINGS_FILE)
+    INCLUDE(${CMAKE_ROOT}/Modules/CMakeImportBuildSettings.cmake)
+    CMAKE_IMPORT_BUILD_SETTINGS(${VTK_BUILD_SETTINGS_FILE})
+  ENDIF(VTK_BUILD_SETTINGS_FILE)
+ENDIF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
 
-# Make sure the compiler settings match those used to build VTK.
-IF(NOT VTK_NO_ENFORCE_CXX_COMPILER)
-  IF(VTK_CXX_COMPILER_MISMATCH)
-    MESSAGE(SEND_ERROR
-            "The selected VTK was built with "
-            "\"${VTK_CXX_COMPILER}\""
-            ", but the current compiler is \"${CMAKE_CXX_COMPILER}\".  "
-            "Please set CMAKE_CXX_COMPILER to \"${VTK_CXX_COMPILER}\".")
-  ENDIF(VTK_CXX_COMPILER_MISMATCH)
-  IF(NOT VTK_NO_ENFORCE_BUILD_TYPE)
-    # Build type only needs to match on windows.  A user project can
-    # always set VTK_NO_ENFORCE_BUILD_TYPE and then check the build type
-    # itself to get the check on UNIX and Windows.
-    IF(WIN32)
-      IF(VTK_BUILD_TYPE_MISMATCH)
-        MESSAGE(SEND_ERROR
-                "The selected VTK was built with build type "
-                "\"${VTK_BUILD_TYPE}\""
-                ", but the current build type is \"${CMAKE_BUILD_TYPE}\".  "
-                "Please set CMAKE_BUILD_TYPE to \"${VTK_BUILD_TYPE}\".")
-      ENDIF(VTK_BUILD_TYPE_MISMATCH)
-    ENDIF(WIN32)
-  ENDIF(NOT VTK_NO_ENFORCE_BUILD_TYPE)
-ENDIF(NOT VTK_NO_ENFORCE_CXX_COMPILER)
+# Add compiler flags needed to use VTK.
+SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${VTK_REQUIRED_C_FLAGS}")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${VTK_REQUIRED_CXX_FLAGS}")
+
+# Add include directories needed to use VTK.
+INCLUDE_DIRECTORIES(${VTK_INCLUDE_DIRS})
+
+# Add link directories needed to use VTK.
+LINK_DIRECTORIES(${VTK_LIBRARY_DIRS})

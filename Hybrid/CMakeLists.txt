@@ -55,7 +55,7 @@ IF (WIN32)
 
   IF (VTK_USE_MATROX_IMAGING)
     SET (Hybrid_SRCS ${Hybrid_SRCS} vtkMILVideoSource.cxx)
-    INCLUDE_DIRECTORIES (${MIL_INCLUDE_PATH})
+    # Include directory needed for vtkMILVideoSource.cxx.
   ENDIF (VTK_USE_MATROX_IMAGING)
 ENDIF (WIN32)
 

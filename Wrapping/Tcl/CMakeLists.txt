@@ -18,24 +18,7 @@ ELSE (TCL_LIBRARY)
   MESSAGE("VTK_WRAP_TCL is ON, but the Tcl library was not found.  Please set TCL_LIBRARY." "Error")
 ENDIF (TCL_LIBRARY)
 
-
 IF (VTK_USE_RENDERING)
-  # add in the Tk values if found
-  IF (TK_INCLUDE_PATH)
-    INCLUDE_DIRECTORIES(${TK_INCLUDE_PATH})
-    IF (APPLE)
-      INCLUDE_DIRECTORIES(${VTK_SOURCE_DIR}/Rendering/tkOSXInternals)
-    ENDIF (APPLE)
-  ENDIF (TK_INCLUDE_PATH)
-  IF (TK_XLIB_PATH)
-    INCLUDE_DIRECTORIES(${TK_XLIB_PATH})
-  ENDIF (TK_XLIB_PATH)
-
-  # add in xwindows stuff
-#  IF (VTK_USE_X)
-#    ADD_DEFINITIONS(${CMAKE_X_CFLAGS})
-#  ENDIF (VTK_USE_X)
-
   SET(LIBS ${LIBS} vtkRenderingTCL vtkRendering)
 ENDIF (VTK_USE_RENDERING)
 

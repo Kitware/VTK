@@ -141,12 +141,6 @@ ABSTRACT
 
 # Freetype stuff
 
-INCLUDE_DIRECTORIES(
-  ${VTKFREETYPE_SOURCE_DIR}/include
-  ${VTKFREETYPE_BINARY_DIR}
-  ${VTKFTGL_SOURCE_DIR}/src
-  ${VTKFTGL_BINARY_DIR}
-)
 SET(Rendering_SRCS ${Rendering_SRCS}
   vtkFreeTypeFontCache.cxx
 )
@@ -247,9 +241,6 @@ IF (VTK_USE_MANGLED_MESA)
   ENDIF (MANGLED_MESA_LIBRARY)
 ELSE (VTK_USE_MANGLED_MESA)
   IF(VTK_OPENGL_HAS_OSMESA)
-    IF(OSMESA_INCLUDE_DIR)
-      INCLUDE_DIRECTORIES(${OSMESA_INCLUDE_DIR})
-    ENDIF(OSMESA_INCLUDE_DIR)
     IF (OSMESA_LIBRARY)
       SET(Rendering_LIBS ${Rendering_LIBS} ${OSMESA_LIBRARY})
     ENDIF (OSMESA_LIBRARY)
@@ -292,6 +283,38 @@ TARGET_LINK_LIBRARIES(vtkRendering
   vtkfreetype
 )
 
+SET(VTK_RENDERING_NEED_TK_INTERNAL 0)
+IF (VTK_WRAP_TCL)
+  SET(VTK_RENDERING_NEED_TK_INTERNAL 1)
+ENDIF (VTK_WRAP_TCL)
+IF (VTK_WRAP_PYTHON)
+  SET(VTK_RENDERING_NEED_TK_INTERNAL 1)
+ENDIF (VTK_WRAP_PYTHON)
+IF (VTK_DISABLE_TK_INIT)
+  SET(VTK_RENDERING_NEED_TK_INTERNAL 0)
+ENDIF (VTK_DISABLE_TK_INIT)
+
+IF(VTK_RENDERING_NEED_TK_INTERNAL)
+  IF (TK_LIBRARY)
+    IF (APPLE)
+      FIND_PATH(TK_INTERNAL_PATH tkMacOSXInt.h
+        ${VTK_SOURCE_DIR}/Rendering/tkOSXInternals)
+    ENDIF (APPLE)
+    IF (TK_LIBRARY MATCHES tk84)
+      FIND_PATH(TK_INTERNAL_PATH tkWinInt.h
+        ${VTK_SOURCE_DIR}/Rendering/tkInternals/tk84)
+    ENDIF (TK_LIBRARY MATCHES tk84)
+    IF (TK_LIBRARY MATCHES tk83)
+      FIND_PATH(TK_INTERNAL_PATH tkWinInt.h
+        ${VTK_SOURCE_DIR}/Rendering/tkInternals/tk83)
+    ENDIF (TK_LIBRARY MATCHES tk83)
+    IF (TK_LIBRARY MATCHES tk82)
+      FIND_PATH(TK_INTERNAL_PATH tkWinInt.h
+        ${VTK_SOURCE_DIR}/Rendering/tkInternals)
+    ENDIF (TK_LIBRARY MATCHES tk82)
+  ENDIF (TK_LIBRARY)
+ENDIF(VTK_RENDERING_NEED_TK_INTERNAL)
+
 IF (VTK_WRAP_TCL)
   SET(RenderingTCL_SRCS
      vtkTkRenderWidget.cxx
@@ -302,44 +325,16 @@ IF (VTK_WRAP_TCL)
     MARK_AS_ADVANCED(VTK_DISABLE_TK_INIT)
   ENDIF (VTK_USE_X)
 
-  # add in the Tk values if found
-  IF (TK_INCLUDE_PATH)
-    INCLUDE_DIRECTORIES(${TK_INCLUDE_PATH})
-  ENDIF (TK_INCLUDE_PATH)
-
   # find the tk internals for win32
   IF (WIN32)
-    # look for the internals header files in a few places
-    IF (TK_LIBRARY)
-      IF (TK_LIBRARY MATCHES tk84)
-        FIND_PATH(TK_INTERNAL_PATH tkWinInt.h
-          ${VTK_SOURCE_DIR}/Rendering/tkInternals/tk84)
-      ENDIF (TK_LIBRARY MATCHES tk84)
-      IF (TK_LIBRARY MATCHES tk83)
-        FIND_PATH(TK_INTERNAL_PATH tkWinInt.h
-          ${VTK_SOURCE_DIR}/Rendering/tkInternals/tk83)
-      ENDIF (TK_LIBRARY MATCHES tk83)
-      IF (TK_LIBRARY MATCHES tk82)
-        FIND_PATH(TK_INTERNAL_PATH tkWinInt.h
-          ${VTK_SOURCE_DIR}/Rendering/tkInternals)
-      ENDIF (TK_LIBRARY MATCHES tk82)
-    ENDIF (TK_LIBRARY)
-    IF (TK_INTERNAL_PATH)
-      INCLUDE_DIRECTORIES(${TK_INTERNAL_PATH})
-    ENDIF (TK_INTERNAL_PATH)
     # for builds against the source tree on windows
     FIND_PATH(TK_XLIB_PATH X11/Xlib.h ${TK_INCLUDE_PATH} ${TK_INCLUDE_PATH}/../xlib)
     MARK_AS_ADVANCED(TK_XLIB_PATH)
-    IF (TK_XLIB_PATH)
-      INCLUDE_DIRECTORIES(${TK_XLIB_PATH})
-    ENDIF (TK_XLIB_PATH)
   ELSE (WIN32)
-    IF (APPLE)
-      INCLUDE_DIRECTORIES(${VTK_SOURCE_DIR}/Rendering/tkOSXInternals)
-    ELSE (APPLE)
+    IF(NOT APPLE)
       SET(RenderingTCL_SRCS ${RenderingTCL_SRCS} 
         vtkXRenderWindowTclInteractor.cxx)
-    ENDIF (APPLE)
+    ENDIF (NOT APPLE)
   ENDIF (WIN32) 
 
   IF (NOT VTK_DISABLE_TK_INIT)
@@ -417,46 +412,12 @@ IF (VTK_WRAP_PYTHON)
                             ${TK_LIBRARY})
      INSTALL_TARGETS(/lib/vtk vtkRenderingPythonTkWidgets)
 
-     # add in the Tk values if found
-     IF (TK_INCLUDE_PATH)
-       INCLUDE_DIRECTORIES(${TK_INCLUDE_PATH})
-     ENDIF (TK_INCLUDE_PATH)
-     # add in the Tcl values if found
-     IF (TCL_INCLUDE_PATH)
-       INCLUDE_DIRECTORIES(${TCL_INCLUDE_PATH})
-     ENDIF (TCL_INCLUDE_PATH)
-
      # find the tk internals for win32
      IF (WIN32)
-       # look for the internals header files in a few places
-       IF (TK_LIBRARY MATCHES tk84)
-         FIND_PATH(TK_INTERNAL_PATH tkWinInt.h
-                   ${VTK_SOURCE_DIR}/Rendering/tkInternals/tk84)
-       ENDIF (TK_LIBRARY MATCHES tk84)
-       IF (TK_LIBRARY MATCHES tk83)
-         FIND_PATH(TK_INTERNAL_PATH tkWinInt.h
-                   ${VTK_SOURCE_DIR}/Rendering/tkInternals/tk83)
-       ENDIF (TK_LIBRARY MATCHES tk83)
-       IF (TK_LIBRARY MATCHES tk82)
-         FIND_PATH(TK_INTERNAL_PATH tkWinInt.h
-                   ${VTK_SOURCE_DIR}/Rendering/tkInternals)
-       ENDIF (TK_LIBRARY MATCHES tk82)
-       IF (TK_INTERNAL_PATH)
-         INCLUDE_DIRECTORIES(${TK_INTERNAL_PATH})
-       ENDIF (TK_INTERNAL_PATH)
        # for builds against the source tree on windows
        FIND_PATH(TK_XLIB_PATH X11/Xlib.h ${TK_INCLUDE_PATH} ${TK_INCLUDE_PATH}/../xlib)
        MARK_AS_ADVANCED(TK_XLIB_PATH)
-       IF (TK_XLIB_PATH)
-         INCLUDE_DIRECTORIES(${TK_XLIB_PATH})
-       ENDIF (TK_XLIB_PATH)
      ENDIF (WIN32)
-     
-     # find the tk internals for Mac OSX
-     IF (APPLE)
-       INCLUDE_DIRECTORIES(${VTK_SOURCE_DIR}/Rendering/tkOSXInternals)
-     ENDIF (APPLE)
-
   ENDIF (TK_LIBRARY)
 ENDIF (VTK_WRAP_PYTHON)
 
