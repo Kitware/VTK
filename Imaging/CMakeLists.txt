@@ -15,6 +15,7 @@ vtkImageCanvasSource2D
 vtkImageCast
 vtkImageCityBlockDistance
 vtkImageClip
+vtkImageClippingExtents
 vtkImageConnector
 vtkImageConstantPad
 vtkImageContinuousDilate3D
