@@ -229,7 +229,7 @@ int *vtkViewport::GetSize()
 {  
   if ( this->VTKWindow )
     {
-    int  *size, lowerLeft[2];
+    int  lowerLeft[2];
     float *vport = this->GetViewport();
     
     float vpu, vpv;

@@ -432,7 +432,8 @@ float *vtkCoordinate::GetComputedFloatDisplayValue(vtkViewport* viewport)
     {
     float *RefValue;
     
-    this->ReferenceCoordinate->GetComputedFloatDisplayValue(viewport);
+    RefValue = 
+      this->ReferenceCoordinate->GetComputedFloatDisplayValue(viewport);
     val[0] += RefValue[0];
     val[1] += RefValue[1];
     }

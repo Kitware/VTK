@@ -69,7 +69,7 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
 {
   float aspect[2];
   float *vport;
-  int  *size, lowerLeft[2], upperRight[2];
+  int  *size, lowerLeft[2];
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
 
   // get the bounds of the window 
