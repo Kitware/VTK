@@ -70,9 +70,9 @@ private:
   void operator=(const vtkThreadedControllerOutputWindow&);
 };
 
-vtkCxxRevisionMacro(vtkThreadedControllerOutputWindow, "1.19");
+vtkCxxRevisionMacro(vtkThreadedControllerOutputWindow, "1.20");
 
-vtkCxxRevisionMacro(vtkThreadedController, "1.19");
+vtkCxxRevisionMacro(vtkThreadedController, "1.20");
 vtkStandardNewMacro(vtkThreadedController);
 
 void vtkThreadedController::CreateOutputWindow()
@@ -145,6 +145,7 @@ void vtkThreadedController::PrintSelf(ostream& os, vtkIndent indent)
 void vtkThreadedController::Initialize(int* vtkNotUsed(argc), 
                                        char*** vtkNotUsed(argv))
 {
+#ifndef VTK_USE_WIN32_THREADS
   if ( !vtkThreadedController::BarrierLock )
     {
     vtkThreadedController::BarrierLock = new vtkSimpleCriticalSection(1);
@@ -153,10 +154,12 @@ void vtkThreadedController::Initialize(int* vtkNotUsed(argc),
     {
     vtkThreadedController::BarrierInProgress = new vtkSimpleCriticalSection;
     }
+#endif
 }
 
 void vtkThreadedController::Finalize()
 {
+#ifndef VTK_USE_WIN32_THREADS
   if (vtkThreadedController::BarrierLock)
     {
     vtkThreadedController::BarrierLock->Unlock();
@@ -165,6 +168,7 @@ void vtkThreadedController::Finalize()
   vtkThreadedController::BarrierLock = 0;
   delete vtkThreadedController::BarrierInProgress;
   vtkThreadedController::BarrierInProgress = 0;
+#endif
 }
   
 void vtkThreadedController::ResetControllers()
