@@ -78,15 +78,15 @@ public:
   
   // Description:
   // Get the current size of the window in pixels.
-  int     *GetSize();
+  virtual int     *GetSize();
 
   // Description:
   // Get the size of the screen in pixels
-  int     *GetScreenSize();
+  virtual int     *GetScreenSize();
 
   // Description:
   // Get the position in screen coordinates (pixels) of the window.
-  int     *GetPosition();
+  virtual int     *GetPosition();
 
   // Description:
   // Get this RenderWindow's X display id.
