@@ -108,7 +108,7 @@ public:
   void SetWorldPosition(float XPos, float YPos, float ZPos);
   void SetWorldPosition(float arr[3]) {this->SetWorldPosition(arr[0], arr[1], arr[2]);};
 
-  int *GetComputedDisplayPosition(vtkViewport* viewport);
+  virtual int *GetComputedDisplayPosition(vtkViewport* viewport);
 
   vtkSetMacro(PositionType, int);
   vtkGetMacro(PositionType, int);
