@@ -32,6 +32,8 @@
 #include "vtkTriangleStrip.h"
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
+#include "vtkPentagonalPrism.h"
+#include "vtkHexagonalPrism.h"
 
 int TestOCP(ostream& strm)
 {
@@ -44,6 +46,7 @@ int TestOCP(ostream& strm)
 
   strm << "Test vtkCell::EvaluatePosition Start" << endl;
 
+  //Vertex
   vtkVertex *vertex = vtkVertex::New();
   double vertexCoords[3], vertexWeights[2];
   double vertexPoint[2][3] = {{10.0, 20.0, 30.0}, {0, 0, 0}};
@@ -65,6 +68,7 @@ int TestOCP(ostream& strm)
     strm << endl;
     }
   
+  //Poly Vertex
   vtkPolyVertex *polyVertex = vtkPolyVertex::New();
   double polyVertexCoords[1], polyVertexWeights[2];
   double polyVertexPoint[3][3] = {{10.0, 20.0, 30.0}, {30.0, 20.0, 10.0}, {0, 0, 0}};
@@ -91,6 +95,7 @@ int TestOCP(ostream& strm)
     strm << endl;
     }
 
+  //Line
   vtkLine *line = vtkLine::New();
   double lineCoords[3], lineWeights[2];
   double linePoint[3][3] = {{10.0, 20.0, 30.0}, {30.0, 20.0, 10.0}, {0, 0, 0}};
@@ -114,6 +119,7 @@ int TestOCP(ostream& strm)
     strm << endl;
     }
 
+  //Poly Line
   vtkPolyLine *polyLine = vtkPolyLine::New();
   double polyLineCoords[3], polyLineWeights[3];
   double polyLinePoint[4][3] = {{10.0, 20.0, 30.0}, {10.0, 30.0, 30.0}, {10.0, 30.0, 40.0}, {0, 0, 0}};
@@ -142,6 +148,7 @@ int TestOCP(ostream& strm)
     strm << endl;
     }
 
+  //Triangle
   vtkTriangle *triangle = vtkTriangle::New();
   double triangleCoords[3], triangleWeights[3], trianglePosition[3];
   double trianglePoint[4][3] = {{10.0, 10.0, 10.0}, {12.0, 10.0, 10.0}, {11.0, 12.0, 12.0}, {11, 11, 11}};
@@ -170,7 +177,7 @@ int TestOCP(ostream& strm)
     strm << endl;
     }
 
-  
+  //Triangle Strip
   vtkTriangleStrip *triangleStrip = vtkTriangleStrip::New();
   double triangleStripCoords[3], triangleStripWeights[4], triangleStripPosition[3];
   double triangleStripPoint[5][3] = {{10.0, 10.0, 10.0}, {12.0, 10.0, 10.0}, {11.0, 12.0, 10.0}, {13, 10, 10}, {11, 11, 10}};
@@ -203,6 +210,7 @@ int TestOCP(ostream& strm)
     strm << endl;
     }
 
+  //Quad
   vtkQuad *quad = vtkQuad::New();
   double quadCoords[2], quadWeights[4], quadPosition[3];
   double quadPoint[5][3] = {{10.0, 10.0, 10.0}, {12.0, 10.0, 10.0}, {12.0, 12.0, 10.0}, {10, 12, 10}, {11, 11, 10.1}};
@@ -233,6 +241,7 @@ int TestOCP(ostream& strm)
     strm << endl;
     }
 
+  //Pixel
   vtkPixel *pixel = vtkPixel::New();
   double pixelCoords[3], pixelWeights[4], pixelPosition[3];
   double pixelPoint[5][3] = {{10.0, 10.0, 10.0}, {12.0, 10.0, 10.0}, {12.0, 12.0, 10.0}, {10, 12, 10}, {11, 11, 10.1}};
@@ -263,6 +272,7 @@ int TestOCP(ostream& strm)
     strm << endl;
     }
 
+  //Polygon
   vtkPolygon *polygon = vtkPolygon::New();
   double polygonCoords[2], polygonWeights[4], polygonPosition[3];
   double polygonPoint[5][3] = {{0.0, 0.0, 0.0}, {1.0, 0.0, 0.0}, {1.0, 1.0, 0.0}, {0, 1, 0}, {.5, .5, 0}};
@@ -295,7 +305,7 @@ int TestOCP(ostream& strm)
     strm << endl;
     }
 
-  
+  //Tetra
   vtkTetra *tetra = vtkTetra::New();
   double tetraCoords[3], tetraWeights[4], tetraPosition[3];
   double tetraPoint[5][3] = {{10, 10, 10}, {12, 10, 10}, {11, 12, 10}, {11, 11, 12}, {11, 11, 11}};
@@ -326,6 +336,7 @@ int TestOCP(ostream& strm)
     strm << endl;
     }
 
+  //Voxel
   vtkVoxel *voxel = vtkVoxel::New();
   double voxelCoords[3], voxelWeights[8], voxelPosition[3];
   double voxelPoint[9][3] = {{10, 10, 10}, {12, 10, 10}, {12, 12, 10}, {10, 12, 10},
@@ -367,6 +378,7 @@ int TestOCP(ostream& strm)
     strm << endl;
     }
 
+  //Hexahedron
   vtkHexahedron *hexahedron = vtkHexahedron::New();
   double hexahedronCoords[3], hexahedronWeights[8], hexahedronPosition[3];
   double hexahedronPoint[9][3] = {{10, 10, 10}, {12, 10, 10}, {12, 12, 10}, {10, 12, 10},
@@ -408,6 +420,103 @@ int TestOCP(ostream& strm)
     strm << endl;
     }
 
+  //Pentagonal Prism
+  vtkPentagonalPrism *penta = vtkPentagonalPrism::New();
+  double pentaCoords[3], pentaWeights[10], pentaPosition[3];
+  double pentaPoint[11][3] = {{11, 10, 10}, {13, 10, 10}, {14, 12, 10}, {12, 14, 10},
+                              {10, 12, 10}, {11, 10, 14}, {13, 10, 14}, {14, 12, 14},
+                              {12, 14, 14}, {10, 12, 14}, {12, 12, 12}};
+  double pentaClosest[3];
+
+  penta->GetPointIds()->SetNumberOfIds(10);
+  penta->GetPointIds()->SetId(0,0);
+  penta->GetPointIds()->SetId(1,1);
+  penta->GetPointIds()->SetId(2,2);
+  penta->GetPointIds()->SetId(3,3);
+  penta->GetPointIds()->SetId(4,4);
+  penta->GetPointIds()->SetId(5,5);
+  penta->GetPointIds()->SetId(6,6);
+  penta->GetPointIds()->SetId(7,7);
+  penta->GetPointIds()->SetId(8,8);
+  penta->GetPointIds()->SetId(9,9);
+
+  penta->GetPoints()->SetPoint(0, 11, 10, 10);
+  penta->GetPoints()->SetPoint(1, 13, 10, 10);
+  penta->GetPoints()->SetPoint(2, 14, 12, 10);
+  penta->GetPoints()->SetPoint(3, 12, 14, 10);
+  penta->GetPoints()->SetPoint(4, 10, 12, 10);
+  penta->GetPoints()->SetPoint(5, 11, 10, 14);
+  penta->GetPoints()->SetPoint(6, 13, 10, 14);
+  penta->GetPoints()->SetPoint(7, 14, 12, 14);
+  penta->GetPoints()->SetPoint(8, 12, 14, 14);
+  penta->GetPoints()->SetPoint(9, 10, 12, 14);
+
+  n = sizeof(pentaPoint) / (3 * sizeof(double));
+  for (j = 0; j < n; j++)
+    {
+    penta->EvaluatePosition (&pentaPoint[j][0], &pentaClosest[0], subId, &pentaCoords[0], dist2, &pentaWeights[0]);
+    strm << "vtkPentagonalPrism (" << pentaPoint[j][0] << ", " << pentaPoint[j][1] << ", " << pentaPoint[j][2] << ")" << endl;
+    strm << "\tclosest: " << pentaClosest[0] << ", " << pentaClosest[1] << ", " << pentaClosest[2] << endl;
+    strm << "\tcoords: " << pentaCoords[0] << ", " << pentaCoords[1] << ", " << pentaCoords[2] << endl;
+    strm << "\tweights: " << pentaWeights[0] << ", " << pentaWeights[1] << ", " << pentaWeights[2] << ", " << pentaWeights[3] << endl;
+    strm << "\tsubid: " << subId << endl;
+    strm << "\tdist2: " << dist2 << endl;
+    penta->EvaluateLocation (subId, pentaCoords, pentaPosition, pentaWeights);
+    strm << "\tposition: " << pentaPosition[0] << ", " << pentaPosition[1] << ", " << pentaPosition[2] << endl;
+    strm << endl;
+    }
+
+  //Hexagonal Prism
+  vtkHexagonalPrism *hexa = vtkHexagonalPrism::New();
+  double hexaCoords[3], hexaWeights[12], hexaPosition[3];
+  double hexaPoint[13][3] = {{11, 10, 10}, {13, 10, 10}, {14, 12, 10}, {13, 14, 10},
+                             {11, 14, 10}, {10, 12, 10}, {11, 10, 14}, {13, 10, 14}, 
+                             {14, 12, 14}, {13, 14, 14}, {11, 14, 14}, {10, 12, 14},
+                             {12, 12, 12}};
+  double hexaClosest[3];
+
+  hexa->GetPointIds()->SetNumberOfIds(12);
+  hexa->GetPointIds()->SetId(0,0);
+  hexa->GetPointIds()->SetId(1,1);
+  hexa->GetPointIds()->SetId(2,2);
+  hexa->GetPointIds()->SetId(3,3);
+  hexa->GetPointIds()->SetId(4,4);
+  hexa->GetPointIds()->SetId(5,5);
+  hexa->GetPointIds()->SetId(6,6);
+  hexa->GetPointIds()->SetId(7,7);
+  hexa->GetPointIds()->SetId(8,8);
+  hexa->GetPointIds()->SetId(9,9);
+  hexa->GetPointIds()->SetId(10,10);
+  hexa->GetPointIds()->SetId(11,11);
+
+  hexa->GetPoints()->SetPoint(0, 11, 10, 10);
+  hexa->GetPoints()->SetPoint(1, 13, 10, 10);
+  hexa->GetPoints()->SetPoint(2, 14, 12, 10);
+  hexa->GetPoints()->SetPoint(3, 13, 14, 10);
+  hexa->GetPoints()->SetPoint(4, 11, 14, 10);
+  hexa->GetPoints()->SetPoint(5, 10, 12, 10);
+  hexa->GetPoints()->SetPoint(6, 11, 10, 14);
+  hexa->GetPoints()->SetPoint(7, 13, 10, 14);
+  hexa->GetPoints()->SetPoint(8, 14, 12, 14);
+  hexa->GetPoints()->SetPoint(9, 13, 14, 14);
+  hexa->GetPoints()->SetPoint(10, 11, 14, 14);
+  hexa->GetPoints()->SetPoint(11, 10, 12, 14);
+
+  n = sizeof(hexaPoint) / (3 * sizeof(double));
+  for (j = 0; j < n; j++)
+    {
+    hexa->EvaluatePosition (&hexaPoint[j][0], &hexaClosest[0], subId, &hexaCoords[0], dist2, &hexaWeights[0]);
+    strm << "vtkHexagonalPrism (" << hexaPoint[j][0] << ", " << hexaPoint[j][1] << ", " << hexaPoint[j][2] << ")" << endl;
+    strm << "\tclosest: " << hexaClosest[0] << ", " << hexaClosest[1] << ", " << hexaClosest[2] << endl;
+    strm << "\tcoords: " << hexaCoords[0] << ", " << hexaCoords[1] << ", " << hexaCoords[2] << endl;
+    strm << "\tweights: " << hexaWeights[0] << ", " << hexaWeights[1] << ", " << hexaWeights[2] << ", " << hexaWeights[3] << endl;
+    strm << "\tsubid: " << subId << endl;
+    strm << "\tdist2: " << dist2 << endl;
+    hexa->EvaluateLocation (subId, hexaCoords, hexaPosition, hexaWeights);
+    strm << "\tposition: " << hexaPosition[0] << ", " << hexaPosition[1] << ", " << hexaPosition[2] << endl;
+    strm << endl;
+    }
+
   ids->Delete();
   vertex->Delete();
   polyVertex->Delete();
@@ -421,6 +530,8 @@ int TestOCP(ostream& strm)
   tetra->Delete();
   voxel->Delete();
   hexahedron->Delete();
+  penta->Delete();
+  hexa->Delete();
 
   strm << "Test vtkCell::CellPosition Complete" << endl;
   return 0;

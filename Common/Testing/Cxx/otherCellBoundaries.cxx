@@ -32,6 +32,9 @@
 #include "vtkTriangleStrip.h"
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
+#include "vtkPentagonalPrism.h"
+#include "vtkHexagonalPrism.h"
+
 
 int TestOCB(ostream& strm)
 {
@@ -40,6 +43,7 @@ int TestOCB(ostream& strm)
   int i, j, k;
   strm << "Test vtkCell::CellBoundary Start" << endl;
 
+  //Vertex
   vtkVertex *vertex = vtkVertex::New();
   double vertexCoords[1][1];
 
@@ -58,6 +62,7 @@ int TestOCB(ostream& strm)
     strm << endl;
     }
   
+  //Poly Vertex
   vtkPolyVertex *polyVertex = vtkPolyVertex::New();
   double polyVertexCoords[1][1];
 
@@ -81,6 +86,7 @@ int TestOCB(ostream& strm)
       }
     }
   
+  //Line
   vtkLine *line = vtkLine::New();
   double lineCoords[2][1];
 
@@ -101,6 +107,7 @@ int TestOCB(ostream& strm)
     strm << endl;
     }
   
+  //Poly Line
   vtkPolyLine *polyLine = vtkPolyLine::New();
   double polyLineCoords[3][1];
 
@@ -126,6 +133,7 @@ int TestOCB(ostream& strm)
       }
     }
   
+  //Triangle
   vtkTriangle *triangle = vtkTriangle::New();
   double triangleCoords[3][2];
 
@@ -148,6 +156,7 @@ int TestOCB(ostream& strm)
     strm << endl;
     }
   
+  //Triangle Strip
   vtkTriangleStrip *triangleStrip = vtkTriangleStrip::New();
   double triangleStripCoords[3][2];
 
@@ -175,6 +184,7 @@ int TestOCB(ostream& strm)
       }
     }
   
+  //Quad
   vtkQuad *quad = vtkQuad::New();
   double quadCoords[4][2];
 
@@ -199,6 +209,7 @@ int TestOCB(ostream& strm)
     strm << endl;
     }
 
+  //Pixel
   vtkPixel *pixel = vtkPixel::New();
   double pixelCoords[4][2];
 
@@ -223,6 +234,7 @@ int TestOCB(ostream& strm)
     strm << endl;
     }
   
+  //Polygon
   vtkPolygon *polygon = vtkPolygon::New();
   double polygonCoords[4][2];
 
@@ -254,6 +266,7 @@ int TestOCB(ostream& strm)
     strm << endl;
     }
   
+  //Tetra
   vtkTetra *tetra = vtkTetra::New();
   double tetraCoords[4][3];
 
@@ -279,6 +292,7 @@ int TestOCB(ostream& strm)
     strm << endl;
     }
   
+  //Voxel
   vtkVoxel *voxel = vtkVoxel::New();
   double voxelCoords[6][3];
 
@@ -310,18 +324,17 @@ int TestOCB(ostream& strm)
     strm << endl;
     }
 
+  //Hexahedron
   vtkHexahedron *hexahedron = vtkHexahedron::New();
   double hexahedronCoords[6][3];
 
-  hexahedron->GetPointIds()->SetNumberOfIds(8);
+  hexahedron->GetPointIds()->SetNumberOfIds(6);
   hexahedron->GetPointIds()->SetId(0,0);
   hexahedron->GetPointIds()->SetId(1,1);
   hexahedron->GetPointIds()->SetId(2,2);
   hexahedron->GetPointIds()->SetId(3,3);
   hexahedron->GetPointIds()->SetId(4,4);
   hexahedron->GetPointIds()->SetId(5,5);
-  hexahedron->GetPointIds()->SetId(6,6);
-  hexahedron->GetPointIds()->SetId(7,7);
 
   hexahedronCoords[0][0] = .5; hexahedronCoords[0][1] = 0.5; hexahedronCoords[0][2] = 0.1;
   hexahedronCoords[1][0] = .9; hexahedronCoords[1][1] = 0.9; hexahedronCoords[1][2] = 0.5;
@@ -334,6 +347,86 @@ int TestOCB(ostream& strm)
     {
     hexahedron->CellBoundary (0, hexahedronCoords[j], ids);
     strm << "vtkHexahedron \t(" << hexahedronCoords[j][0] << ", " << hexahedronCoords[j][1] << ", " << hexahedronCoords[j][2] << ") = \t";
+    for (i = 0; i < ids->GetNumberOfIds(); i++)
+      {
+      strm << ids->GetId(i) << ", ";
+      }
+    strm << endl;
+    }
+
+  //Pentagonal Prism
+  vtkPentagonalPrism *penta = vtkPentagonalPrism::New();
+  double pentaCoords[10][3];
+
+  penta->GetPointIds()->SetNumberOfIds(10);
+  penta->GetPointIds()->SetId(0,0);
+  penta->GetPointIds()->SetId(1,1);
+  penta->GetPointIds()->SetId(2,2);
+  penta->GetPointIds()->SetId(3,3);
+  penta->GetPointIds()->SetId(4,4);
+  penta->GetPointIds()->SetId(5,5);
+  penta->GetPointIds()->SetId(6,6);
+  penta->GetPointIds()->SetId(7,7);
+  penta->GetPointIds()->SetId(8,8);
+  penta->GetPointIds()->SetId(9,9);
+
+  pentaCoords[0][0] = 0.25; pentaCoords[0][1] = 0.0; pentaCoords[0][2] = 0.0;
+  pentaCoords[1][0] = 0.75; pentaCoords[1][1] = 0.0; pentaCoords[1][2] = 0.0;
+  pentaCoords[2][0] = 1.0 ; pentaCoords[2][1] = 0.5; pentaCoords[2][2] = 0.0;
+  pentaCoords[3][0] = 0.5 ; pentaCoords[3][1] = 1.0; pentaCoords[3][2] = 0.0;
+  pentaCoords[4][0] = 0.0 ; pentaCoords[4][1] = 0.5; pentaCoords[4][2] = 0.0;
+  pentaCoords[5][0] = 0.25; pentaCoords[5][1] = 0.0; pentaCoords[5][2] = 1.0;
+  pentaCoords[6][0] = 0.75; pentaCoords[6][1] = 0.0; pentaCoords[6][2] = 1.0;
+  pentaCoords[7][0] = 1.0 ; pentaCoords[7][1] = 0.5; pentaCoords[7][2] = 1.0;
+  pentaCoords[8][0] = 0.5 ; pentaCoords[8][1] = 1.0; pentaCoords[8][2] = 1.0;
+  pentaCoords[9][0] = 0.0 ; pentaCoords[9][1] = 0.5; pentaCoords[9][2] = 1.0;
+
+  for (j = 0; j < 10; j++)
+    {
+    penta->CellBoundary (0, pentaCoords[j], ids);
+    strm << "vtkPentagonalPrism \t(" << pentaCoords[j][0] << ", " << pentaCoords[j][1] << ", " << pentaCoords[j][2] << ") = \t";
+    for (i = 0; i < ids->GetNumberOfIds(); i++)
+      {
+      strm << ids->GetId(i) << ", ";
+      }
+    strm << endl;
+    }
+
+  //Hexagonal Prism
+  vtkHexagonalPrism *hexa = vtkHexagonalPrism::New();
+  double hexaCoords[12][3];
+
+  hexa->GetPointIds()->SetNumberOfIds(12);
+  hexa->GetPointIds()->SetId(0,0);
+  hexa->GetPointIds()->SetId(1,1);
+  hexa->GetPointIds()->SetId(2,2);
+  hexa->GetPointIds()->SetId(3,3);
+  hexa->GetPointIds()->SetId(4,4);
+  hexa->GetPointIds()->SetId(5,5);
+  hexa->GetPointIds()->SetId(6,6);
+  hexa->GetPointIds()->SetId(7,7);
+  hexa->GetPointIds()->SetId(8,8);
+  hexa->GetPointIds()->SetId(9,9);
+  hexa->GetPointIds()->SetId(10,12);
+  hexa->GetPointIds()->SetId(11,11);
+
+  hexaCoords[0][0] = 0.0 ; hexaCoords[0][1] = 0.0; hexaCoords[0][2] = 0.0;
+  hexaCoords[1][0] = 0.5 ; hexaCoords[1][1] = 0.0; hexaCoords[1][2] = 0.0;
+  hexaCoords[2][0] = 1.0 ; hexaCoords[2][1] = 0.5; hexaCoords[2][2] = 0.0;
+  hexaCoords[3][0] = 1.0 ; hexaCoords[3][1] = 1.0; hexaCoords[3][2] = 0.0;
+  hexaCoords[4][0] = 0.5 ; hexaCoords[4][1] = 1.0; hexaCoords[4][2] = 0.0;
+  hexaCoords[5][0] = 0.0 ; hexaCoords[5][1] = 0.5; hexaCoords[5][2] = 0.0;
+  hexaCoords[6][0] = 0.0 ; hexaCoords[6][1] = 0.0; hexaCoords[6][2] = 1.0;
+  hexaCoords[7][0] = 0.5 ; hexaCoords[7][1] = 0.0; hexaCoords[7][2] = 1.0;
+  hexaCoords[8][0] = 1.0 ; hexaCoords[8][1] = 0.5; hexaCoords[8][2] = 1.0;
+  hexaCoords[9][0] = 1.0 ; hexaCoords[9][1] = 1.0; hexaCoords[9][2] = 1.0;
+  hexaCoords[10][0] = 0.5 ; hexaCoords[10][1] = 1.0; hexaCoords[10][2] = 1.0;
+  hexaCoords[11][0] = 0.0 ; hexaCoords[11][1] = 0.5; hexaCoords[11][2] = 1.0;
+
+  for (j = 0; j < 12; j++)
+    {
+    hexa->CellBoundary (0, hexaCoords[j], ids);
+    strm << "vtkHexagonalPrism \t(" << hexaCoords[j][0] << ", " << hexaCoords[j][1] << ", " << hexaCoords[j][2] << ") = \t";
     for (i = 0; i < ids->GetNumberOfIds(); i++)
       {
       strm << ids->GetId(i) << ", ";
@@ -354,6 +447,8 @@ int TestOCB(ostream& strm)
   tetra->Delete();
   voxel->Delete();
   hexahedron->Delete();
+  penta->Delete();
+  hexa->Delete();
 
  strm << "Test vtkCell::CellBoundary Complete" << endl;
 
