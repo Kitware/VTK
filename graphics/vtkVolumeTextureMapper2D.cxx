@@ -76,8 +76,8 @@ VolumeTextureMapper2D_XMajorDirection( T *data_ptr,
   unsigned char  *scalarOpacityArray = me->GetScalarOpacityArray();
   float          gradientOpacityConstant = me->GetGradientOpacityConstant();
   float          *gradientOpacityArray;
-  unsigned short *encodedNormals;
   unsigned char  *gradientMagnitudes;
+  unsigned short *encodedNormals;
   float          *redDiffuseShadingTable;
   float          *greenDiffuseShadingTable;
   float          *blueDiffuseShadingTable;
@@ -86,6 +86,10 @@ VolumeTextureMapper2D_XMajorDirection( T *data_ptr,
   float          *blueSpecularShadingTable;
   int            shade;
   float          tmpval;
+  int            clipping, clippingFlags;
+  float          *clippingPlanes;
+  int            flag[3], tmpFlag, index;
+  int            clipLow, clipHigh;
 
   if ( directionFlag )
     {
@@ -121,6 +125,19 @@ VolumeTextureMapper2D_XMajorDirection( T *data_ptr,
   v[10] = size[1];
   v[11] = 0.0;
 
+  clipping       = me->GetClipping();
+  clippingFlags  = me->GetClippingRegionFlags();
+  clippingPlanes = me->GetClippingPlanes();
+
+  if ( !clipping )
+    {
+    clipLow    = 0;
+    clipHigh   = size[1];
+    flag[0]    = 1;
+    flag[1]    = 1;
+    flag[2]    = 1;
+    }
+
   shade = me->GetShade();
   if ( shade )
     {
@@ -152,6 +169,19 @@ VolumeTextureMapper2D_XMajorDirection( T *data_ptr,
       tptr = texture + k*4*tsize[0];
       dptr = data_ptr + k*size[0]*size[1] + i;
 
+      // Given a X and Z value, what are the clipping bounds
+      // on Y.
+      if ( clipping )
+	{
+	clipLow  = clippingPlanes[2];
+	clipHigh = clippingPlanes[3];
+	tmpFlag =    (i<clippingPlanes[0])?(0):(1+(i>=clippingPlanes[1]));
+	tmpFlag+= 9*((k<clippingPlanes[4])?(0):(1+(k>=clippingPlanes[5])));
+	flag[0]  = clippingFlags&(1<<(tmpFlag));
+	flag[1]  = clippingFlags&(1<<(tmpFlag+3));
+	flag[2]  = clippingFlags&(1<<(tmpFlag+6));
+	}
+
       if ( shade )
 	{
 	nptr = encodedNormals + k*size[0]*size[1] + i;
@@ -161,86 +191,115 @@ VolumeTextureMapper2D_XMajorDirection( T *data_ptr,
 	  }
 	for ( j = 0; j < size[1]; j++ )
 	  {
-	  tmpval = rgbArray[(*dptr)*3];
-	  tmpval = tmpval * redDiffuseShadingTable[*nptr] +
-	    redSpecularShadingTable[*nptr]*255.0;
-	  if ( tmpval > 255.0 )
+	  index = 0;
+	  index += ( j >= clipLow );
+	  index += ( j >= clipHigh );
+	  if ( flag[index] )
 	    {
-	    tmpval = 255.0;
-	    }
-	  *(tptr++) = tmpval;
+	    tmpval = rgbArray[(*dptr)*3];
+	    tmpval = tmpval * redDiffuseShadingTable[*nptr] +
+	      redSpecularShadingTable[*nptr]*255.0;
+	    if ( tmpval > 255.0 )
+	      {
+	      tmpval = 255.0;
+	      }
+	    *(tptr++) = tmpval;
 
-	  tmpval = rgbArray[(*dptr)*3 + 1];
-	  tmpval = tmpval * greenDiffuseShadingTable[*nptr] +
-	    greenSpecularShadingTable[*nptr]*255.0;
-	  if ( tmpval > 255.0 )
-	    {
-	    tmpval = 255.0;
-	    }
-	  *(tptr++) = tmpval;
-
-	  tmpval = rgbArray[(*dptr)*3 + 2];
-	  tmpval = tmpval * blueDiffuseShadingTable[*nptr] +
-	    blueSpecularShadingTable[*nptr]*255.0;
-	  if ( tmpval > 255.0 )
-	    {
-	    tmpval = 255.0;
-	    }
-	  *(tptr++) = tmpval;
-
-	  tmpval = scalarOpacityArray[(*dptr)];
-	  if ( gradientMagnitudes )
-	    {
-	    tmpval *= gradientOpacityArray[*gptr];
-	    gptr += size[0];
+	    tmpval = rgbArray[(*dptr)*3 + 1];
+	    tmpval = tmpval * greenDiffuseShadingTable[*nptr] +
+	      greenSpecularShadingTable[*nptr]*255.0;
+	    if ( tmpval > 255.0 )
+	      {
+	      tmpval = 255.0;
+	      }
+	    *(tptr++) = tmpval;
+	    
+	    tmpval = rgbArray[(*dptr)*3 + 2];
+	    tmpval = tmpval * blueDiffuseShadingTable[*nptr] +
+	      blueSpecularShadingTable[*nptr]*255.0;
+	    if ( tmpval > 255.0 )
+	      {
+	      tmpval = 255.0;
+	      }
+	    *(tptr++) = tmpval;
+	    
+	    tmpval = scalarOpacityArray[(*dptr)];
+	    if ( gradientMagnitudes )
+	      {
+	      tmpval *= gradientOpacityArray[*gptr];
+	      gptr += size[0];
+	      }
+	    else
+	      {
+	      tmpval *= gradientOpacityConstant;
+	      }
+	    *(tptr++) = tmpval;
 	    }
 	  else
 	    {
-	    tmpval *= gradientOpacityConstant;
+	    *(tptr++) = 0;
+	    *(tptr++) = 0;
+	    *(tptr++) = 0;
+	    *(tptr++) = 0;
+	    if ( gradientMagnitudes )
+	      {
+	      gptr += size[0];
+	      }
 	    }
-	  *(tptr++) = tmpval;
-
 	  dptr += size[0];
 	  nptr += size[0];
 	  }
 	}
       else
 	{
-	if ( gradientOpacityConstant == 1.0 )
-	  {
-	  for ( j = 0; j < size[1]; j++ )
-	    {
-	    *(tptr++) = rgbArray[(*dptr)*3];
-	    *(tptr++) = rgbArray[(*dptr)*3+1];
-	    *(tptr++) = rgbArray[(*dptr)*3+2];
-	    *(tptr++) = scalarOpacityArray[(*dptr)];
-	    dptr += size[0];
-	    }
-	  }
-	else if ( gradientOpacityConstant >= 0.0 )
-	  {
-	  for ( j = 0; j < size[1]; j++ )
-	    {
-	    *(tptr++) = rgbArray[(*dptr)*3];
-	    *(tptr++) = rgbArray[(*dptr)*3+1];
-	    *(tptr++) = rgbArray[(*dptr)*3+2];
-	    *(tptr++) = scalarOpacityArray[(*dptr)]*gradientOpacityConstant;
-	    dptr += size[0];
-	    }
-	  }
-	else
+	if ( gradientMagnitudes )
 	  {
 	  gptr = gradientMagnitudes + k*size[0]*size[1] + i;
-	  for ( j = 0; j < size[1]; j++ )
+	  }
+
+	for ( j = 0; j < size[1]; j++ )
+	  {
+	  index = 0;
+	  index += ( j >= clipLow );
+	  index += ( j >= clipHigh );
+	  if ( flag[index] )
 	    {
-	    *(tptr++) = rgbArray[(*dptr)*3];
-	    *(tptr++) = rgbArray[(*dptr)*3+1];
-	    *(tptr++) = rgbArray[(*dptr)*3+2];
-	    *(tptr++) = 
-	      ((float)scalarOpacityArray[*dptr]*gradientOpacityArray[*gptr]);
-	    dptr += size[0];
-	    gptr += size[0];
+	    if ( gradientOpacityConstant == 1.0 )
+	      {
+	      *(tptr++) = rgbArray[(*dptr)*3];
+	      *(tptr++) = rgbArray[(*dptr)*3+1];
+	      *(tptr++) = rgbArray[(*dptr)*3+2];
+	      *(tptr++) = scalarOpacityArray[(*dptr)];
+	      }
+	    else if ( gradientOpacityConstant >= 0.0 )
+	      {
+	      *(tptr++) = rgbArray[(*dptr)*3];
+	      *(tptr++) = rgbArray[(*dptr)*3+1];
+	      *(tptr++) = rgbArray[(*dptr)*3+2];
+	      *(tptr++) = scalarOpacityArray[(*dptr)]*gradientOpacityConstant;
+	      }
+	    else
+	      {
+	      *(tptr++) = rgbArray[(*dptr)*3];
+	      *(tptr++) = rgbArray[(*dptr)*3+1];
+	      *(tptr++) = rgbArray[(*dptr)*3+2];
+	      *(tptr++) = 
+		((float)scalarOpacityArray[*dptr]*gradientOpacityArray[*gptr]);
+	      gptr += size[0];
+	      }
 	    }
+	  else
+	    {
+	    *(tptr++) = 0;
+	    *(tptr++) = 0;
+	    *(tptr++) = 0;
+	    *(tptr++) = 0;
+	    if ( gradientMagnitudes )
+	      {
+	      gptr += size[0];
+	      }	      
+	    }
+	  dptr += size[0];
 	  }
 	}
       }
@@ -264,10 +323,14 @@ VolumeTextureMapper2D_YMajorDirection( T *data_ptr,
   unsigned char  *tptr;
   T              *dptr;
   unsigned short *nptr;
+  unsigned char  *gptr;
   float          v[12], t[8];
   unsigned char  *rgbArray = me->GetRGBArray();
   unsigned char  *scalarOpacityArray = me->GetScalarOpacityArray();
+  float          gradientOpacityConstant = me->GetGradientOpacityConstant();
   unsigned short *encodedNormals;
+  float          *gradientOpacityArray;
+  unsigned char  *gradientMagnitudes;
   float          *redDiffuseShadingTable;
   float          *greenDiffuseShadingTable;
   float          *blueDiffuseShadingTable;
@@ -276,6 +339,10 @@ VolumeTextureMapper2D_YMajorDirection( T *data_ptr,
   float          *blueSpecularShadingTable;
   int            shade;
   float          tmpval;
+  int            clipping, clippingFlags;
+  float          *clippingPlanes;
+  int            flag[3], tmpFlag, index;
+  int            clipLow, clipHigh;
 
   if ( directionFlag )
     {
@@ -311,6 +378,19 @@ VolumeTextureMapper2D_YMajorDirection( T *data_ptr,
   v[9] = 0.0;
   v[11] = size[2];
 
+  clipping       = me->GetClipping();
+  clippingFlags  = me->GetClippingRegionFlags();
+  clippingPlanes = me->GetClippingPlanes();
+
+  if ( !clipping )
+    {
+    clipLow    = 0;
+    clipHigh   = size[0];
+    flag[0]    = 1;
+    flag[1]    = 1;
+    flag[2]    = 1;
+    }
+
   shade = me->GetShade();
   if ( shade )
     {
@@ -325,6 +405,16 @@ VolumeTextureMapper2D_YMajorDirection( T *data_ptr,
     blueSpecularShadingTable =  me->GetBlueSpecularShadingTable(); 
     }
 
+  if ( gradientOpacityConstant < 0.0 )
+    {
+    gradientMagnitudes = me->GetGradientMagnitudes();
+    gradientOpacityArray = me->GetGradientOpacityArray();
+    }
+  else
+    {
+    gradientMagnitudes = NULL;
+    }
+
   for ( j = jstart; j != jend; j+=jinc )
     {
     for ( k = 0; k < size[2]; k++ )
@@ -332,51 +422,136 @@ VolumeTextureMapper2D_YMajorDirection( T *data_ptr,
       tptr = texture + k*4*tsize[0];
       dptr = data_ptr + k*size[0]*size[1] + j*size[0];
 
+      // Given a Y and Z value, what are the clipping bounds
+      // on X.
+      if ( clipping )
+	{
+	clipLow  = clippingPlanes[0];
+	clipHigh = clippingPlanes[1];
+	tmpFlag = 3*((j<clippingPlanes[2])?(0):(1+(j>=clippingPlanes[3])));
+	tmpFlag+= 9*((k<clippingPlanes[4])?(0):(1+(k>=clippingPlanes[5])));
+	flag[0]  = clippingFlags&(1<<(tmpFlag));
+	flag[1]  = clippingFlags&(1<<(tmpFlag+1));
+	flag[2]  = clippingFlags&(1<<(tmpFlag+2));
+	}
+
       if ( shade )
 	{
 	nptr = encodedNormals + k*size[0]*size[1] + j*size[0];
+	if ( gradientMagnitudes )
+	  {
+	  gptr = gradientMagnitudes + k*size[0]*size[1] + j*size[0];
+	  }
 	for ( i = 0; i < size[0]; i++ )
 	  {
-	  tmpval = rgbArray[(*dptr)*3];
-	  tmpval = tmpval * redDiffuseShadingTable[*nptr] +
-	    redSpecularShadingTable[*nptr]*255.0;
-	  if ( tmpval > 255.0 )
+	  index = 0;
+	  index += ( i >= clipLow );
+	  index += ( i >= clipHigh );
+	  if ( flag[index] )
 	    {
-	    tmpval = 255.0;
-	    }
-	  *(tptr++) = tmpval;
+	    tmpval = rgbArray[(*dptr)*3];
+	    tmpval = tmpval * redDiffuseShadingTable[*nptr] +
+	      redSpecularShadingTable[*nptr]*255.0;
+	    if ( tmpval > 255.0 )
+	      {
+	      tmpval = 255.0;
+	      }
+	    *(tptr++) = tmpval;
 
-	  tmpval = rgbArray[(*dptr)*3 + 1];
-	  tmpval = tmpval * greenDiffuseShadingTable[*nptr] +
-	    greenSpecularShadingTable[*nptr]*255.0;
-	  if ( tmpval > 255.0 )
+	    tmpval = rgbArray[(*dptr)*3 + 1];
+	    tmpval = tmpval * greenDiffuseShadingTable[*nptr] +
+	      greenSpecularShadingTable[*nptr]*255.0;
+	    if ( tmpval > 255.0 )
+	      {
+	      tmpval = 255.0;
+	      }
+	    *(tptr++) = tmpval;
+
+	    tmpval = rgbArray[(*dptr)*3 + 2];
+	    tmpval = tmpval * blueDiffuseShadingTable[*nptr] +
+	      blueSpecularShadingTable[*nptr]*255.0;
+	    if ( tmpval > 255.0 )
+	      {
+	      tmpval = 255.0;
+	      }
+	    *(tptr++) = tmpval;
+	    
+	    tmpval = scalarOpacityArray[(*dptr)];
+	    if ( gradientMagnitudes )
+	      {
+	      tmpval *= gradientOpacityArray[*gptr];
+	      gptr++;
+	      }
+	    else
+	      {
+	      tmpval *= gradientOpacityConstant;
+	      }
+	    *(tptr++) = tmpval;
+	    }
+	  else
 	    {
-	    tmpval = 255.0;
+	    *(tptr++) = 0;
+	    *(tptr++) = 0;
+	    *(tptr++) = 0;
+	    *(tptr++) = 0;
+	    if ( gradientMagnitudes )
+	      {
+	      gptr++;
+	      }
 	    }
-	  *(tptr++) = tmpval;
-
-	  tmpval = rgbArray[(*dptr)*3 + 2];
-	  tmpval = tmpval * blueDiffuseShadingTable[*nptr] +
-	    blueSpecularShadingTable[*nptr]*255.0;
-	  if ( tmpval > 255.0 )
-	    {
-	    tmpval = 255.0;
-	    }
-	  *(tptr++) = tmpval;
-
-	  *(tptr++) = scalarOpacityArray[(*dptr)];
 	  dptr++;
 	  nptr++;
 	  }
 	}
       else
 	{
+	if ( gradientMagnitudes )
+	  {
+	  gptr = gradientMagnitudes + k*size[0]*size[1] + j*size[0];
+	  }
+
 	for ( i = 0; i < size[0]; i++ )
 	  {
-	  *(tptr++) = rgbArray[(*dptr)*3];
-	  *(tptr++) = rgbArray[(*dptr)*3+1];
-	  *(tptr++) = rgbArray[(*dptr)*3+2];
-	  *(tptr++) = scalarOpacityArray[(*dptr)];
+	  index = 0;
+	  index += ( i >= clipLow );
+	  index += ( i >= clipHigh );
+	  if ( flag[index] )
+	    {
+	    if ( gradientOpacityConstant == 1.0 )
+	      {
+	      *(tptr++) = rgbArray[(*dptr)*3];
+	      *(tptr++) = rgbArray[(*dptr)*3+1];
+	      *(tptr++) = rgbArray[(*dptr)*3+2];
+	      *(tptr++) = scalarOpacityArray[(*dptr)];
+	      }
+	    else if ( gradientOpacityConstant >= 0.0 )
+	      {
+	      *(tptr++) = rgbArray[(*dptr)*3];
+	      *(tptr++) = rgbArray[(*dptr)*3+1];
+	      *(tptr++) = rgbArray[(*dptr)*3+2];
+	      *(tptr++) = scalarOpacityArray[(*dptr)]*gradientOpacityConstant;
+	      }
+	    else
+	      {
+	      *(tptr++) = rgbArray[(*dptr)*3];
+	      *(tptr++) = rgbArray[(*dptr)*3+1];
+	      *(tptr++) = rgbArray[(*dptr)*3+2];
+	      *(tptr++) = 
+		((float)scalarOpacityArray[*dptr]*gradientOpacityArray[*gptr]);
+	      gptr++;
+	      }
+	    }
+	  else
+	    {
+	    *(tptr++) = 0;
+	    *(tptr++) = 0;
+	    *(tptr++) = 0;
+	    *(tptr++) = 0;
+	    if ( gradientMagnitudes )
+	      {
+	      gptr++;
+	      }	      
+	    }
 	  dptr++;
 	  }
 	}
@@ -401,10 +576,14 @@ VolumeTextureMapper2D_ZMajorDirection( T *data_ptr,
   unsigned char  *tptr;
   T              *dptr;
   unsigned short *nptr;
+  unsigned char  *gptr;
   float          v[12], t[8];
   unsigned char  *rgbArray = me->GetRGBArray();
   unsigned char  *scalarOpacityArray = me->GetScalarOpacityArray();
+  float          gradientOpacityConstant = me->GetGradientOpacityConstant();
   unsigned short *encodedNormals;
+  float          *gradientOpacityArray;
+  unsigned char  *gradientMagnitudes;
   float          *redDiffuseShadingTable;
   float          *greenDiffuseShadingTable;
   float          *blueDiffuseShadingTable;
@@ -413,6 +592,10 @@ VolumeTextureMapper2D_ZMajorDirection( T *data_ptr,
   float          *blueSpecularShadingTable;
   int            shade;
   float          tmpval;
+  int            clipping, clippingFlags;
+  float          *clippingPlanes;
+  int            flag[3], tmpFlag, index;
+  int            clipLow, clipHigh;
 
   if ( directionFlag )
     {
@@ -448,6 +631,19 @@ VolumeTextureMapper2D_ZMajorDirection( T *data_ptr,
   v[9] = 0.0;
   v[10] = size[1];
 
+  clipping       = me->GetClipping();
+  clippingFlags  = me->GetClippingRegionFlags();
+  clippingPlanes = me->GetClippingPlanes();
+
+  if ( !clipping )
+    {
+    clipLow    = 0;
+    clipHigh   = size[0];
+    flag[0]    = 1;
+    flag[1]    = 1;
+    flag[2]    = 1;
+    }
+
   shade = me->GetShade();
   if ( shade )
     {
@@ -462,6 +658,16 @@ VolumeTextureMapper2D_ZMajorDirection( T *data_ptr,
     blueSpecularShadingTable =  me->GetBlueSpecularShadingTable(); 
     }
 
+  if ( gradientOpacityConstant < 0.0 )
+    {
+    gradientMagnitudes = me->GetGradientMagnitudes();
+    gradientOpacityArray = me->GetGradientOpacityArray();
+    }
+  else
+    {
+    gradientMagnitudes = NULL;
+    }
+
   for ( k = kstart; k != kend; k+=kinc )
     {
     for ( j = 0; j < size[1]; j++ )
@@ -469,51 +675,136 @@ VolumeTextureMapper2D_ZMajorDirection( T *data_ptr,
       tptr = texture + j*4*tsize[0];
       dptr = data_ptr + k*size[0]*size[1] + j*size[0];
 
+      // Given a Y and Z value, what are the clipping bounds
+      // on X.
+      if ( clipping )
+	{
+	clipLow  = clippingPlanes[0];
+	clipHigh = clippingPlanes[1];
+	tmpFlag = 3*((j<clippingPlanes[2])?(0):(1+(j>=clippingPlanes[3])));
+	tmpFlag+= 9*((k<clippingPlanes[4])?(0):(1+(k>=clippingPlanes[5])));
+	flag[0]  = clippingFlags&(1<<(tmpFlag));
+	flag[1]  = clippingFlags&(1<<(tmpFlag+1));
+	flag[2]  = clippingFlags&(1<<(tmpFlag+2));
+	}
+
       if ( shade )
 	{
 	nptr = encodedNormals + k*size[0]*size[1] + j*size[0];
+	if ( gradientMagnitudes )
+	  {
+	  gptr = gradientMagnitudes + k*size[0]*size[1] + j*size[0];
+	  }
 	for ( i = 0; i < size[0]; i++ )
 	  {
-	  tmpval = rgbArray[(*dptr)*3];
-	  tmpval = tmpval * redDiffuseShadingTable[*nptr] +
-	    redSpecularShadingTable[*nptr]*255.0;
-	  if ( tmpval > 255.0 )
+	  index = 0;
+	  index += ( i >= clipLow );
+	  index += ( i >= clipHigh );
+	  if ( flag[index] )
 	    {
-	    tmpval = 255.0;
+	    tmpval = rgbArray[(*dptr)*3];
+	    tmpval = tmpval * redDiffuseShadingTable[*nptr] +
+	      redSpecularShadingTable[*nptr]*255.0;
+	    if ( tmpval > 255.0 )
+	      {
+	      tmpval = 255.0;
+	      }
+	    *(tptr++) = tmpval;
+	    
+	    tmpval = rgbArray[(*dptr)*3 + 1];
+	    tmpval = tmpval * greenDiffuseShadingTable[*nptr] +
+	      greenSpecularShadingTable[*nptr]*255.0;
+	    if ( tmpval > 255.0 )
+	      {
+	      tmpval = 255.0;
+	      }
+	    *(tptr++) = tmpval;
+	    
+	    tmpval = rgbArray[(*dptr)*3 + 2];
+	    tmpval = tmpval * blueDiffuseShadingTable[*nptr] +
+	      blueSpecularShadingTable[*nptr]*255.0;
+	    if ( tmpval > 255.0 )
+	      {
+	      tmpval = 255.0;
+	      }
+	    *(tptr++) = tmpval;
+	    
+	    tmpval = scalarOpacityArray[(*dptr)];
+	    if ( gradientMagnitudes )
+	      {
+	      tmpval *= gradientOpacityArray[*gptr];
+	      gptr++;
+	      }
+	    else
+	      {
+	      tmpval *= gradientOpacityConstant;
+	      }
+	    *(tptr++) = tmpval;
 	    }
-	  *(tptr++) = tmpval;
-
-	  tmpval = rgbArray[(*dptr)*3 + 1];
-	  tmpval = tmpval * greenDiffuseShadingTable[*nptr] +
-	    greenSpecularShadingTable[*nptr]*255.0;
-	  if ( tmpval > 255.0 )
+	  else
 	    {
-	    tmpval = 255.0;
+	    *(tptr++) = 0;
+	    *(tptr++) = 0;
+	    *(tptr++) = 0;
+	    *(tptr++) = 0;
+	    if ( gradientMagnitudes )
+	      {
+	      gptr++;
+	      }
 	    }
-	  *(tptr++) = tmpval;
-
-	  tmpval = rgbArray[(*dptr)*3 + 2];
-	  tmpval = tmpval * blueDiffuseShadingTable[*nptr] +
-	    blueSpecularShadingTable[*nptr]*255.0;
-	  if ( tmpval > 255.0 )
-	    {
-	    tmpval = 255.0;
-	    }
-	  *(tptr++) = tmpval;
-
-	  *(tptr++) = scalarOpacityArray[(*dptr)];
 	  nptr++;
 	  dptr++;
 	  }
 	}
       else
 	{
+	if ( gradientMagnitudes )
+	  {
+	  gptr = gradientMagnitudes + k*size[0]*size[1] + j*size[0];
+	  }
+
 	for ( i = 0; i < size[0]; i++ )
 	  {
-	  *(tptr++) = rgbArray[(*dptr)*3];
-	  *(tptr++) = rgbArray[(*dptr)*3+1];
-	  *(tptr++) = rgbArray[(*dptr)*3+2];
-	  *(tptr++) = scalarOpacityArray[(*dptr)];
+	  index = 0;
+	  index += ( i >= clipLow );
+	  index += ( i >= clipHigh );
+	  if ( flag[index] )
+	    {
+	    if ( gradientOpacityConstant == 1.0 )
+	      {
+	      *(tptr++) = rgbArray[(*dptr)*3];
+	      *(tptr++) = rgbArray[(*dptr)*3+1];
+	      *(tptr++) = rgbArray[(*dptr)*3+2];
+	      *(tptr++) = scalarOpacityArray[(*dptr)];
+	      }
+	    else if ( gradientOpacityConstant >= 0.0 )
+	      {
+	      *(tptr++) = rgbArray[(*dptr)*3];
+	      *(tptr++) = rgbArray[(*dptr)*3+1];
+	      *(tptr++) = rgbArray[(*dptr)*3+2];
+	      *(tptr++) = scalarOpacityArray[(*dptr)]*gradientOpacityConstant;
+	      }
+	    else
+	      {
+	      *(tptr++) = rgbArray[(*dptr)*3];
+	      *(tptr++) = rgbArray[(*dptr)*3+1];
+	      *(tptr++) = rgbArray[(*dptr)*3+2];
+	      *(tptr++) = 
+		((float)scalarOpacityArray[*dptr]*gradientOpacityArray[*gptr]);
+	      gptr++;
+	      }
+	    }
+	  else
+	    {
+	    *(tptr++) = 0;
+	    *(tptr++) = 0;
+	    *(tptr++) = 0;
+	    *(tptr++) = 0;
+	    if ( gradientMagnitudes )
+	      {
+	      gptr++;
+	      }	      
+	    }
 	  dptr++;
 	  }
 	}
