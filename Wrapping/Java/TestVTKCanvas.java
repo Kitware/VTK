@@ -21,7 +21,6 @@ public class TestVTKCanvas extends JPanel {
     renWin.GetRenderer().AddActor(coneActor);
     AxesActor aa = new AxesActor(renWin.GetRenderer());
     renWin.GetRenderer().AddActor(aa);
-
   }
 
 

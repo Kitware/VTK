@@ -1,18 +1,18 @@
 /*=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    TestRenderWindow.cxx
-  Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
+Program:   Visualization Toolkit
+Module:    TestRenderWindow.cxx
+Language:  C++
+Date:      $Date$
+Version:   $Revision$
 
-  Copyright (c) 1993-2002 Ken Martin, Will Schroeder, Bill Lorensen 
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+Copyright (c) 1993-2002 Ken Martin, Will Schroeder, Bill Lorensen 
+All rights reserved.
+See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
-     PURPOSE.  See the above copyright notice for more information.
+This software is distributed WITHOUT ANY WARRANTY; without even 
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 #include "vtkRenderer.h"
@@ -95,9 +95,9 @@ int TestRenderWindow( int argc, char *argv[] )
   for ( i = 0; i < 200; i++ )
     for ( j = 0; j < 200; j++ )
       {
-      checks[i*200*3 + j*3] = 0;
-      checks[i*200*3 + j*3 + 1] = i;
-      checks[i*200*3 + j*3 + 2] = j;      
+        checks[i*200*3 + j*3] = 0;
+        checks[i*200*3 + j*3 + 1] = i;
+        checks[i*200*3 + j*3 + 2] = j;      
       }
   
   renWin->SetPixelData( 0, 0, 199, 199, checks, 1 );
@@ -128,8 +128,13 @@ int TestRenderWindow( int argc, char *argv[] )
 
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
     {
-    iren->Start();
+      iren->Start();
     }
+
+  cout << "Test RenderWindow" << endl;
+  cout << "direct rendering supported:  " << renWin->IsDirect() << endl;
+  cout << "opengl supported:  " << renWin->SupportsOpenGL() << endl;
+  cout << renWin->ReportCapabilities() << endl;
 
   floatArray->Delete();
   ucCharArray->Delete();

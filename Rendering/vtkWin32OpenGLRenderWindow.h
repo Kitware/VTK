@@ -144,6 +144,18 @@ public:
   void MakeCurrent();
 
   // Description:
+  // Get report of capabilities for the render window
+  const char *ReportCapabilities();
+
+  // Description:
+  // Does this render window support OpenGL? 0-false, 1-true
+  int SupportsOpenGL();
+
+  // Description:
+  // Is this render window using hardware acceleration? 0-false, 1-true
+  int IsDirect();
+
+  // Description:
   // Check to see if a mouse button has been pressed.
   // All other events are ignored by this method.
   // This is a useful check to abort a long render.

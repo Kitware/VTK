@@ -95,6 +95,18 @@ public:
   // MakeCurrent() reverts to original behavior of cache-checking
   // on the next render.
   void SetForceMakeCurrent();
+
+  // Description:
+  // Get report of capabilities for the render window
+  const char *ReportCapabilities();
+
+  // Description:
+  // Does this render window support OpenGL? 0-false, 1-true
+  int SupportsOpenGL();
+
+  // Description:
+  // Is this render window using hardware acceleration? 0-false, 1-true
+  int IsDirect();
   
   // Description:
   // Xwindow get set functions
@@ -199,6 +211,7 @@ protected:
   int      ScreenSize[2];
   int      CursorHidden;
   int      ForceMakeCurrent;
+  int      UsingHardware;
 
   // we must keep track of the cursors we are using
   Cursor XCArrow;

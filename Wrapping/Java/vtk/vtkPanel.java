@@ -20,7 +20,7 @@ public class vtkPanel extends Canvas implements
   protected int InteractionMode = 1;
   protected boolean rendering = false;
   protected WindowObservable windowSetObservable = new WindowObservable();
-  
+
   static { 
     System.loadLibrary("vtkCommonJava"); 
     System.loadLibrary("vtkFilteringJava"); 
@@ -30,7 +30,7 @@ public class vtkPanel extends Canvas implements
     System.loadLibrary("vtkRenderingJava"); 
   }
 
-  protected native void RenderCreate(vtkRenderWindow id0);
+  protected native String RenderCreate(vtkRenderWindow id0);
   protected native void Lock();
   protected native void UnLock();
 
@@ -42,6 +42,14 @@ public class vtkPanel extends Canvas implements
     addKeyListener(this);
     super.setSize(200,200);
     rw.SetSize(200,200);
+  }
+
+  public void Report() {
+    Lock();
+    System.out.println("direct rendering = " + (rw.IsDirect()==1));
+    System.out.println("opengl supported = " + (rw.SupportsOpenGL()==1));
+    System.out.println("report = " + rw.ReportCapabilities());
+    UnLock();
   }
 
   public vtkRenderer GetRenderer()

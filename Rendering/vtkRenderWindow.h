@@ -384,6 +384,18 @@ public:
   virtual void SetForceMakeCurrent() {};
 
   // Description:
+  // Get report of capabilities for the render window
+  virtual const char *ReportCapabilities() { return "Not Implemented";};
+
+  // Description:
+  // Does this render window support OpenGL? 0-false, 1-true
+  virtual int SupportsOpenGL() { return 0;};
+
+  // Description:
+  // Is this render window using hardware acceleration? 0-false, 1-true
+  virtual int IsDirect() { return 0;};
+
+  // Description:
   // This method should be defined by the subclass. How many bits of
   // precision are there in the zbuffer?
   virtual int GetDepthBufferSize() = 0;

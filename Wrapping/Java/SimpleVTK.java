@@ -10,13 +10,13 @@ import vtk.*;
  */
 public class SimpleVTK extends JPanel implements ActionListener {
   static JFrame frame;
-
+  vtkPanel renWin;
   JButton exitButton;
 
   public SimpleVTK() {
     setLayout(new BorderLayout());
     // Create the buttons.
-    vtkPanel renWin = new vtkPanel();
+    renWin = new vtkPanel();
     vtkConeSource cone = new vtkConeSource();
     cone.SetResolution(8);
     vtkPolyDataMapper coneMapper = new vtkPolyDataMapper();
@@ -31,7 +31,7 @@ public class SimpleVTK extends JPanel implements ActionListener {
     exitButton.addActionListener(this);
 
     add(renWin, BorderLayout.CENTER);
-    add(exitButton, BorderLayout.EAST);
+    add(exitButton, BorderLayout.EAST); 
   }
 
 

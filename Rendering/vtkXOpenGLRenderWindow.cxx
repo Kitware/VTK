@@ -88,7 +88,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.35");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.36");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -108,8 +108,6 @@ void *vtkOSMesaCreateWindow(int width, int height)
   return malloc(width*height*4);
 }
 #endif
-
-
 
 
 XVisualInfo *vtkXOpenGLRenderWindowTryForVisual(Display *DisplayId,
@@ -151,10 +149,6 @@ XVisualInfo *vtkXOpenGLRenderWindowTryForVisual(Display *DisplayId,
     
   attributes[index++] = None;
 
-  if (!DisplayId)
-    {
-    return NULL;
-    }
   return glXChooseVisual(DisplayId, DefaultScreen(DisplayId), attributes );
 }
 
@@ -231,6 +225,7 @@ vtkXOpenGLRenderWindow::vtkXOpenGLRenderWindow()
   this->OwnDisplay = 0;
   this->CursorHidden = 0;
   this->ForceMakeCurrent = 0;
+  this->UsingHardware = 0;
   this->DisplayId = (Display *)NULL;
   this->WindowId = (Window)NULL;
   this->NextWindowId = (Window)NULL;
@@ -501,8 +496,16 @@ void vtkXOpenGLRenderWindow::WindowInitialize (void)
                   ((this->Size[1] > 0) ? 
                    (int)(this->Size[1]) : 300));
     XSync(this->DisplayId,False);
+
+    // is GLX extension is supported?
+    if(!glXQueryExtension(this->DisplayId, NULL, NULL)) 
+      {
+      vtkErrorMacro("GLX not found.  Aborting.");
+      abort();
+      }
     
     this->Internal->ContextId = glXCreateContext(this->DisplayId, v, 0, GL_TRUE);
+
     if(!this->Internal->ContextId)
       {
       vtkErrorMacro("Cannot create GLX context.  Aborting.");
@@ -1164,6 +1167,88 @@ void vtkXOpenGLRenderWindow::SetParentId(void *arg)
   this->SetParentId((Window)arg);
 }
 
+const char* vtkXOpenGLRenderWindow::ReportCapabilities()
+{
+  MakeCurrent();
+
+  if (!this->DisplayId) 
+    {
+    return "display id not set";
+    }
+
+  int scrnum = DefaultScreen(this->DisplayId);
+  const char *serverVendor = glXQueryServerString(this->DisplayId, scrnum, GLX_VENDOR);
+  const char *serverVersion = glXQueryServerString(this->DisplayId, scrnum, GLX_VERSION);
+  const char *serverExtensions = glXQueryServerString(this->DisplayId, scrnum, GLX_EXTENSIONS);
+  const char *clientVendor = glXGetClientString(this->DisplayId, GLX_VENDOR);
+  const char *clientVersion = glXGetClientString(this->DisplayId, GLX_VERSION);
+  const char *clientExtensions = glXGetClientString(this->DisplayId, GLX_EXTENSIONS);
+  const char *glxExtensions = glXQueryExtensionsString(this->DisplayId, scrnum);
+  const char *glVendor = (const char *) glGetString(GL_VENDOR);
+  const char *glRenderer = (const char *) glGetString(GL_RENDERER);
+  const char *glVersion = (const char *) glGetString(GL_VERSION);
+  const char *glExtensions = (const char *) glGetString(GL_EXTENSIONS);
+
+  ostrstream strm;
+  strm << "server glx vendor string:  " << serverVendor << endl;
+  strm << "server glx version string:  " << serverVersion << endl;
+  strm << "server glx extensions:  " << serverExtensions << endl;
+  strm << "client glx vendor string:  " << clientVendor << endl;
+  strm << "client glx version string:  " << clientVersion << endl;
+  strm << "client glx extensions:  " << clientExtensions << endl;
+  strm << "glx extensions:  " << glxExtensions << endl;
+  strm << "OpenGL vendor string:  " << glVendor << endl;
+  strm << "OpenGL renderer string:  " << glRenderer << endl;
+  strm << "OpenGL version string:  " << glVersion << endl;
+  strm << "OpenGL extensions:  " << glExtensions << endl;
+  strm << "X Extensions:  ";
+
+  int n = 0;
+  char **extlist = XListExtensions(this->DisplayId, &n);
+
+  for (int i = 0; i < n; i++) 
+    {
+      if (i != n-1) {
+        strm << extlist[i] << ", ";
+      } else {
+        strm << extlist[i] << endl;
+      }
+    }
+
+  return strm.str();
+}
+
+int vtkXOpenGLRenderWindow::SupportsOpenGL()
+{
+  MakeCurrent();
+  if (!this->DisplayId) 
+    {
+    return 0;
+    }
+
+  int value = 0;
+  XVisualInfo *v = this->GetDesiredVisualInfo();
+  if (v)
+    {
+      glXGetConfig(this->DisplayId, v, GLX_USE_GL, &value);
+    }
+
+  return value;
+}
+
+
+int vtkXOpenGLRenderWindow::IsDirect()
+{
+  MakeCurrent();
+  if (!this->DisplayId || !this->Internal->ContextId)
+    {
+      return 0;
+    }
+  this->UsingHardware = glXIsDirect(this->DisplayId, 
+                                    this->Internal->ContextId) ? 1:0;
+  return this->UsingHardware;
+}
+
 
 void vtkXOpenGLRenderWindow::SetWindowName(const char * cname)
 {
@@ -1206,6 +1291,7 @@ void vtkXOpenGLRenderWindow::SetDisplayId(Display  *arg)
 
   this->DisplayId = arg;
   this->OwnDisplay = 0;
+
 }
 void vtkXOpenGLRenderWindow::SetDisplayId(void *arg)
 {
