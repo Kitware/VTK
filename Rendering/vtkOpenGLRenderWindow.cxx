@@ -157,6 +157,7 @@ void vtkOpenGLRenderWindow::OpenGLInit()
     glDisable(GL_POLYGON_SMOOTH);
     }
 
+  glEnable(GL_NORMALIZE);
   glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
 }
 
