@@ -1,15 +1,15 @@
 /*=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    vtkTkAppInit.cxx
+Program:   Visualization Toolkit
+Module:    vtkTkAppInit.cxx
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+All rights reserved.
+See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+This software is distributed WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 /* 
@@ -33,6 +33,10 @@
 #include "vtkSystemIncludes.h"
 #include "vtkToolkits.h"
 #include "Wrapping/Tcl/vtkTkAppInitConfigure.h"
+
+#ifdef VTK_TCL_TK_STATIC
+#include <sys/stat.h>
+#endif
 
 #if defined(CMAKE_INTDIR)
 # define VTK_TCL_PACKAGE_DIR VTK_TCL_PACKAGE_DIR_BUILD "/" CMAKE_INTDIR
@@ -129,6 +133,12 @@ main(int argc, char **argv)
   VTKMPICleanup.Initialize(&argc, &argv);
 #endif // VTK_COMPILED_USING_MPI
 
+  // This is mandatory *now*, it does more than just finding the executable
+  // (like finding the encodings, setting variables depending on the value
+  // of TCL_LIBRARY, TK_LIBRARY
+
+  Tcl_FindExecutable(argv[0]);
+
 #ifdef VTK_USE_RENDERING
   Tk_Main(argc, argv, Tcl_AppInit);
 #else
@@ -184,23 +194,174 @@ extern "C" int Vtkhybridtcl_Init(Tcl_Interp *interp);
 extern "C" int Vtkparalleltcl_Init(Tcl_Interp *interp);
 #endif
 
-void help() {
-  
+void help() 
+{
 }
+
+#ifdef VTK_TCL_TK_STATIC
+int vtkTkAppInitFileExists(const char *filename)
+{
+  struct stat fs;
+  return (filename && !stat(filename, &fs)) ? 1 : 0;
+}
+
+const char* vtkTkAppInitGetFilenamePath(const char *filename, char *path)
+{
+  if (!path)
+    {
+    return path;
+    }
+
+  if (!filename || !strlen(filename))
+    {
+    path[0] = '\0';
+    return path;
+    }
+
+  const char *ptr = filename + strlen(filename) - 1;
+  while (ptr > filename && *ptr != '/' && *ptr != '\\')
+    {
+    ptr--;
+    }
+
+  size_t length = ptr - filename;
+  if (length)
+    {
+    strncpy(path, filename, length);
+    }
+  path[length] = '\0';
+  
+  return path;
+}
+
+const char* vtkTkAppInitConvertToUnixSlashes(const char* path, char *unix_path)
+{
+  if (!unix_path)
+    {
+    return unix_path;
+    }
+
+  unix_path[0] = '\0';
+  if (!path)
+    {
+    return unix_path;
+    }
+
+  if (path[0] == '~')
+    {
+    const char* home = getenv("HOME");
+    if(home)
+      {
+      strcpy(unix_path, home);
+      }
+    }
+  strcat(unix_path, path);
+  
+  size_t length = strlen(unix_path);
+  if (length < 1)
+    {
+    return unix_path;
+    }
+  
+  size_t i;
+  for (i = 0; i < length; ++i)
+    {
+    if(unix_path[i] == '\\')
+      {
+      unix_path[i] = '/';
+      }
+    }
+  
+  if (unix_path[length - 1] == '/')
+    {
+    unix_path[length - 1] = '\0';
+    }
+  
+  return unix_path;
+}
+#endif
 
 int Tcl_AppInit(Tcl_Interp *interp)
 {
 #ifdef __CYGWIN__
   Tcl_SetVar(interp, "tclDefaultLibrary", "/usr/share/tcl" TCL_VERSION, TCL_GLOBAL_ONLY);
 #endif
-  if (Tcl_Init(interp) == TCL_ERROR) {
-  return TCL_ERROR;
-  }
+
+  /*
+    Tcl/Tk requires support files to work (set of tcl files).
+    When an app is linked against Tcl/Tk shared libraries, the path to
+    the libraries is used by Tcl/Tk to search for its support files.
+    For example, on Windows, if bin/tcl84.dll is the shared lib, support
+    files will be searched in bin/../lib/tcl8.4, which is where they are
+    usually installed.
+    If an app is linked against Tcl/Tk *static* libraries, there is no
+    way for Tcl/Tk to find its support files. In that case, it will
+    use the TCL_LIBRARY and TK_LIBRARY environment variable (those should
+    point to the support files dir, ex: c:/tcl/lib/tcl8.4, c:/tk/lib/tcl8.4).
+
+    The above code will also make Tcl/Tk search inside VTK's build/install
+    directory, more precisely inside a TclTk/lib sub dir.
+    ex: [path to vtk.exe]/TclTk/lib/tcl8.4, [path to vtk.exe]/TclTk/lib/tk8.4
+    If we provide support files in the future, or if they are provided
+    by turn-key apps (ParaView or VolView), this is where they are going to
+    be copied. 
+  */
+
+#ifdef VTK_TCL_TK_STATIC
+  int has_tcllibpath_env = getenv("TCL_LIBRARY") ? 1 : 0;
+  int has_tklibpath_env = getenv("TK_LIBRARY") ? 1 : 0;
+  if (!has_tcllibpath_env || !has_tklibpath_env)
+    {
+    const char *nameofexec = Tcl_GetNameOfExecutable();
+    if (nameofexec && vtkTkAppInitFileExists(nameofexec))
+      {
+      char dir[1024], dir_unix[1024], buffer[1024];
+      vtkTkAppInitGetFilenamePath(nameofexec, dir);
+      vtkTkAppInitConvertToUnixSlashes(dir, dir_unix);
+      sprintf(buffer, "%s/TclTk", dir_unix);
+      if (vtkTkAppInitFileExists(buffer))
+        {
+        if (!has_tcllibpath_env)
+          {
+          char tcl_library[1024] = "";
+          sprintf(tcl_library, "%s/lib/tcl%s", buffer, TCL_VERSION);
+          if (vtkTkAppInitFileExists(tcl_library))
+            {
+            // Setting TCL_LIBRARY won't do the trick, it's too late
+            Tcl_SetVar(interp, "tcl_library", tcl_library, 
+                       TCL_GLOBAL_ONLY | TCL_LEAVE_ERR_MSG);
+            }
+          }
 #ifdef VTK_USE_RENDERING
-  if (Tk_Init(interp) == TCL_ERROR) {
-  return TCL_ERROR;
-  }
+        if (!has_tklibpath_env)
+          {
+          char tk_library[1024] = "";
+          sprintf(tk_library, "%s/lib/tk%s", buffer, TK_VERSION);
+          if (vtkTkAppInitFileExists(tk_library))
+            {
+            // Setting TK_LIBRARY won't do the trick, it's too late
+            Tcl_SetVar(interp, "tk_library", tk_library, 
+                       TCL_GLOBAL_ONLY | TCL_LEAVE_ERR_MSG);
+            }
+          }
 #endif
+        }
+      }
+    }
+#endif
+
+  if (Tcl_Init(interp) == TCL_ERROR) 
+    {
+    return TCL_ERROR;
+    }
+
+#ifdef VTK_USE_RENDERING
+  if (Tk_Init(interp) == TCL_ERROR) 
+    {
+    return TCL_ERROR;
+    }
+#endif
+
   /* init the core vtk stuff */
   if (Vtkcommontcl_Init(interp) == TCL_ERROR) 
     {
