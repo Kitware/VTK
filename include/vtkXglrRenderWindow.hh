@@ -93,6 +93,9 @@ public:
 			 char name[80]);
   Xgl_3d_ctx *GetContext() {return &(this->Context);};
   Xgl_win_ras *GetRaster() {return &(this->WindowRaster);};
+  Xgl_ras *GetRas;
+  Xgl_ras *SetRas;
+  Xgl_3d_ctx GetCtx;
 
 protected:
   Xgl_3d_ctx Context;
