@@ -47,8 +47,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // matrix as follows: [x y z 1] = [x y z 1] Translate(-origin) Scale(scale)
 // Rot(y) Rot(x) Rot (z) Trans(origin) Trans(position). Both vtkActor and
 // vtkVolume are specializations of class vtkProp.  The constructor defaults
-// to: origin(0,0,0) position=(0,0,0) orientation=(0,0,0). 
-// No user defined matrix and no texture map.
+// to: origin(0,0,0) position=(0,0,0) orientation=(0,0,0), no user defined 
+// matrix or transform, and no texture map.
 
 // .SECTION See Also
 // vtkProp vtkActor vtkAssembly vtkVolume
@@ -96,12 +96,25 @@ public:
 
   // Description:
   // In addition to the instance variables such as position and orientation,
-  // you can specify your own 4x4 transformation matrix that will
-  // get concatenated with the actor's 4x4 matrix as determined
-  // by the other instance variables. If the other instance variables such
-  // as position and orientation are left with  their default values then 
-  // they will result in the identity matrix. And the resulting matrix
-  // will be the user defined matrix.
+  // you can add an additional transformation for your own use.  This 
+  // transformation is concatenated with the actor's internal transformation,
+  // which you implicitly create through the use of SetPosition(), 
+  // SetOrigin() and SetOrientation().  
+  // <p>If the internal transformation
+  // is identity (i.e. if you don't set the Position, Origin, or 
+  // Orientation) then the actors final transformation will be the
+  // UserTransform, concatenated with the UserMatrix if the UserMatrix
+  // is present.
+  vtkSetObjectMacro(UserTransform,vtkLinearTransform);
+  vtkGetObjectMacro(UserTransform,vtkLinearTransform);
+
+  // Description:
+  // The UserMatrix can be used in place of or in combination with
+  // the UserTransform - see the description of SetUserTransform().  
+  // If both are present, then the concatenation of the two is used,
+  // where the UserMatrix is applied after the UserTransform.
+  // <p>You cannot use the UserMatrix for actors which are part of
+  // a vtkAssembly, while you can use the UserTransform.
   vtkSetObjectMacro(UserMatrix,vtkMatrix4x4);
   vtkGetObjectMacro(UserMatrix,vtkMatrix4x4);
 
@@ -112,6 +125,9 @@ public:
   virtual vtkMatrix4x4 *GetMatrixPointer();
   virtual void GetMatrix(vtkMatrix4x4 *m);
   virtual void GetMatrix(double m[16]);
+
+  // Description:
+  // Return a reference to the Prop3D's composite transform.
 
   // Description:
   // Get the bounds for this Prop3D as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
@@ -217,6 +233,7 @@ protected:
   vtkProp3D(const vtkProp3D&) {};
   void operator=(const vtkProp3D&) {};
 
+  vtkLinearTransform *UserTransform;
   vtkMatrix4x4  *UserMatrix;
   vtkMatrix4x4  *Matrix;
   vtkTimeStamp  MatrixMTime;

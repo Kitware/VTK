@@ -73,6 +73,7 @@ vtkProp3D::vtkProp3D()
   this->Center[0] = this->Center[1] = this->Center[2] = 0.0;
 
   this->UserMatrix = NULL;
+  this->UserTransform = NULL;
   this->Matrix = vtkMatrix4x4::New();
   this->Transform = vtkTransform::New();
 }
@@ -85,6 +86,11 @@ vtkProp3D::~vtkProp3D()
     {
     this->UserMatrix->UnRegister(this);
     this->UserMatrix = NULL;
+    }
+  if (this->UserTransform)
+    {
+    this->UserTransform->UnRegister(this);
+    this->UserTransform = NULL;
     }
 }
 
@@ -109,7 +115,8 @@ void vtkProp3D::ShallowCopy(vtkProp3D *Prop3D)
     {
     this->Bounds[i] = Prop3D->Bounds[i];
     }
-  
+
+  this->SetUserTransform(Prop3D->UserTransform);
   this->SetUserMatrix(Prop3D->UserMatrix);
 }
 
@@ -287,7 +294,14 @@ void vtkProp3D::GetMatrix(double result[16])
     this->Transform->Translate(this->Origin[0] + this->Position[0],
                               this->Origin[1] + this->Position[1],
                               this->Origin[2] + this->Position[2]);
-   
+
+    // apply user defined transform if it is present
+    if (this->UserTransform)
+      {
+      this->UserTransform->Update();
+      this->Transform->Concatenate(this->UserTransform->GetMatrixPointer());
+      }
+
     // apply user defined matrix last if there is one 
     if (this->UserMatrix)
       {
@@ -372,15 +386,6 @@ void vtkProp3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkProp::PrintSelf(os,indent);
 
-  if ( this->UserMatrix )
-    {
-    os << indent << "User Matrix: " << this->UserMatrix << "\n";
-    }
-  else
-    {
-    os << indent << "User Matrix: (none)\n";
-    }
-
   os << indent << "Position: (" << this->Position[0] << ", " 
      << this->Position[1] << ", " << this->Position[2] << ")\n";
 
@@ -392,5 +397,25 @@ void vtkProp3D::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Scale: (" << this->Scale[0] << ", " 
      << this->Scale[1] << ", " << this->Scale[2] << ")\n";
+
+  os << indent << "UserTransform: ";
+  if (this->UserTransform)
+    {
+    os << this->UserTransform; 
+    }
+  else
+    {
+    os << "(none)";
+    }
+
+  os << indent << "UserMatrix: ";
+  if (this->UserMatrix)
+    {
+    os << this->UserMatrix; 
+    }
+  else
+    {
+    os << "(none)";
+    }
 }
 

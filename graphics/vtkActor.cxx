@@ -418,6 +418,12 @@ unsigned long int vtkActor::GetMTime()
     mTime = ( time > mTime ? time : mTime );
     }
 
+  if ( this->UserTransform != NULL )
+    {
+    time = this->UserTransform->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
+    }
+
   if ( this->Texture != NULL )
     {
     time = this->Texture->GetMTime();
