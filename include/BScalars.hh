@@ -33,7 +33,7 @@ public:
   vlBitScalars(const int sz, const int ext=1000):S(sz,ext){};
   ~vlBitScalars() {};
   int Allocate(const int sz, const int ext=1000) {return this->S.Allocate(sz,ext);};
-  void Initialize() {return this->S.Initialize();};
+  void Initialize() {this->S.Initialize();};
   char *GetClassName() {return "vlBitScalars";};
 
   // vlScalar interface
