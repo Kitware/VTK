@@ -104,8 +104,73 @@ void vtkMath::Cross(float x[3], float y[3], float z[3])
 // the matrix is specified in size. If error is found, method returns a 0.
 int vtkMath::SolveLinearSystem(double **A, double *x, int size)
 {
-  static double *scale = NULL;
   static int *index = NULL, maxSize=0;
+//
+// Check on allocation of working vectors
+//
+  if ( index == NULL ) 
+    {
+    index = new int[size];
+    maxSize = size;
+    } 
+  else if ( size > maxSize ) 
+    {
+    delete [] index;
+    index = new int[size];
+    maxSize = size;
+    }
+//
+// Factor and solve matrix
+//
+  if ( this->LUFactorLinearSystem(A, index, size) == 0 ) return 0;
+  this->LUSolveLinearSystem(A,index,x,size);
+}
+
+// Description:
+// Invert input square matrix A into matrix AI. Note that A is modified during
+// the inversion. The size variable is the dimension of the matrix. Returns 0
+// if inverse not computed.
+int vtkMath::InvertMatrix(double **A, double **AI, int size)
+{
+  static int *index = NULL, maxSize=0;
+  static double *column = NULL;
+  int i;
+//
+// Check on allocation of working vectors
+//
+  if ( index == NULL ) 
+    {
+    column = new double[size];
+    index = new int[size];
+    maxSize = size;
+    } 
+  else if ( size > maxSize ) 
+    {
+    delete [] index; delete [] column;
+    index = new int[size];
+    column = new double[size];
+    maxSize = size;
+    }
+//
+// Factor matrix; then begin solving for inverse one column at a time.
+//
+  if ( this->LUFactorLinearSystem(A, index, size) == 0 ) return 0;
+  
+  //initialize column matrix
+  for (column[0]=1.0, i=1; i < size; i++) column[i] = 0.0;
+  this->LUSolveLinearSystem(A,index,column,size);
+}
+
+// Description:
+// Factor linear equations Ax = b using LU decompostion A = LU where L is
+// lower triangular matrix and U is upper triangular matrix. Input is 
+// square matrix A, integer array of pivot indices index[0->n-1], and size
+// of square matrix n. Output factorization LU is in matrix A. If error is 
+// found, method returns 0. 
+int vtkMath::LUFactorLinearSystem(double **A, int *index, int size)
+{
+  static double *scale = NULL;
+  static maxSize=0;
   int i, maxI, j, k, idx, ii;
   double largest, temp1, temp2, sum;
 //
@@ -114,14 +179,12 @@ int vtkMath::SolveLinearSystem(double **A, double *x, int size)
   if ( scale == NULL ) 
     {
     scale = new double[size];
-    index = new int[size];
     maxSize = size;
     } 
   else if ( size > maxSize ) 
     {
-    delete [] scale; delete [] index;
+    delete [] scale; 
     scale = new double[size];
-    index = new int[size];
     maxSize = size;
     }
 //
@@ -189,8 +252,24 @@ int vtkMath::SolveLinearSystem(double **A, double *x, int size)
       for ( i = j + 1; i < size; i++ ) A[i][j] *= temp1;
       }
     }
+
+  return 1;
+}
+
+
+// Description:
+// Solve linear equations Ax = b using LU decompostion A = LU where L is
+// lower triangular matrix and U is upper triangular matrix. Input is 
+// factored matrix A=LU, integer array of pivot indices index[0->n-1],
+// load vector x[0->n-1], and size of square matrix n. Note that A=LU and
+// index[] are generated from method LUFactorLinearSystem). Also, solution
+// vector is written directly over input load vector.
+void vtkMath::LUSolveLinearSystem(double **A, int *index, double *x, int size)
+{
+  int i, j, ii, idx;
+  double sum;
 //
-// Now proceed with forward and backsubstitution for L and U
+// Proceed with forward and backsubstitution for L and U
 // matrices.  First, forward substitution.
 //
   for ( ii = -1, i = 0; i < size; i++ ) 
@@ -219,9 +298,8 @@ int vtkMath::SolveLinearSystem(double **A, double *x, int size)
     for ( j = i + 1; j < size; j++ ) sum -= A[i][j]*x[j];
     x[i] = sum / A[i][i];
     }
-
-  return 1;
 }
+
 #undef SMALL_NUMBER
 
 #define ROTATE(a,i,j,k,l) g=a[i][j];h=a[k][l];a[i][j]=g-s*(h+g*tau);\
