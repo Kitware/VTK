@@ -1,6 +1,7 @@
 The classes in this directory are patented. If you use these classes
-for commerical purposes, you must obtain a license grant from GE. The
-contact point is:
+for commerical purposes, you must obtain a license grant from the 
+patent holder (either GE or Kitware, Inc.. The contact point for
+GE patents is:
 
         Mike Silver
         GE Medical Systems
@@ -9,7 +10,7 @@ contact point is:
         New Berlin, WI, 53151
         Phone:1-414-827-3400 
 
-The pertinent patents are:
+The pertinent GE patents are:
 
     4,710,876   System and Method for the Display of Surface Structures Contained
                 Within The Interior Region of a Solid Body
@@ -20,3 +21,14 @@ The pertinent patents are:
 
     5,559,388   Method for Reducting the Complexity of a Polygonal Mesh
 
+
+The contact points for Kitware patents:
+
+        Ken Martin
+        Kitware, Inc.
+        469 Clifton Corporate Parkway
+        Clifton Park, NY 12065 USA
+
+The pending patents are:
+
+        Synchronized templates - a high performance isosurface algorithm
