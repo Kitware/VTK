@@ -45,7 +45,7 @@
 #include <vtkstd/set>
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkKdTree, "1.27");
+vtkCxxRevisionMacro(vtkKdTree, "1.1");
 
 // Timing data ---------------------------------------------
 

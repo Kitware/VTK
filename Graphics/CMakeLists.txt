@@ -21,9 +21,12 @@ vtkAxes.cxx
 vtkBandedPolyDataContourFilter.cxx
 vtkBlankStructuredGrid.cxx
 vtkBlankStructuredGridWithImage.cxx
+vtkBoxClipDataSet.cxx
 vtkBrownianPoints.cxx
 vtkButterflySubdivisionFilter.cxx
 vtkButtonSource.cxx
+vtkBSPCuts.cxx
+vtkBSPIntersections.cxx
 vtkCellCenters.cxx
 vtkCellDataToPointData.cxx
 vtkCellDerivatives.cxx
@@ -81,6 +84,8 @@ vtkImageDataGeometryFilter.cxx
 vtkImplicitTextureCoords.cxx
 vtkInterpolateDataSetAttributes.cxx
 vtkInterpolatingSubdivisionFilter.cxx
+vtkKdNode.cxx
+vtkKdTree.cxx
 vtkLineSource.cxx
 vtkLinearExtrusionFilter.cxx
 vtkLinearSubdivisionFilter.cxx
@@ -101,9 +106,11 @@ vtkOutlineCornerFilter.cxx
 vtkOutlineCornerSource.cxx
 vtkOutlineFilter.cxx
 vtkOutlineSource.cxx
+vtkPlanesIntersection.cxx
 vtkPlaneSource.cxx
 vtkPlatonicSolidSource.cxx
 vtkPointDataToCellData.cxx
+vtkPointsProjectedHull.cxx
 vtkPointSource.cxx
 vtkPolyDataConnectivityFilter.cxx
 vtkPolyDataNormals.cxx
