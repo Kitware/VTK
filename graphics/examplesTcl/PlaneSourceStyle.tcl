@@ -6,12 +6,6 @@ if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdat
 source $VTK_TCL/vtkInt.tcl
 source $VTK_TCL/colors.tcl
 
-
-vtkInteractorStyle defaultStyle
-vtkInteractorStylePlane planeStyle
-
-
-
 # Create the RenderWindow, Renderer and both Actors
 #
 vtkRenderer ren1
@@ -27,16 +21,24 @@ vtkPLOT3DReader pl3d
     pl3d SetScalarFunctionNumber 100
     pl3d SetVectorFunctionNumber 202
     pl3d Update
-set plane [planeStyle GetPlane]
-    eval $plane SetOrigin [[pl3d GetOutput] GetCenter]
-    $plane SetNormal -0.287 0 0.9579
-vtkCutter planeCut
-    planeCut SetInput [pl3d GetOutput]
-    planeCut SetCutFunction $plane
+
+vtkInteractorStylePlane planeStyle
+set planeSource [planeStyle GetPlaneSource]
+$planeSource SetXResolution 50
+$planeSource SetYResolution 50
+$planeSource SetOrigin 2.487 -3.188 25.5
+$planeSource SetPoint1 12.25 -3.87 30.1
+$planeSource SetPoint2 0.345 -3.81 30.0
+
+# 0 16.51   -5.662  5.662    23.331 36.195
+
+vtkProbeFilter probe
+    probe SetInput [$planeSource GetOutput]
+    probe SetSource [pl3d GetOutput]
 vtkDataSetMapper cutMapper
-    cutMapper SetInput [planeCut GetOutput]
-    eval cutMapper SetScalarRange \
-      [[[[pl3d GetOutput] GetPointData] GetScalars] GetRange]
+    cutMapper SetInput [probe GetOutput]
+    eval cutMapper SetScalarRange 0.198 0.4
+        # 0.198 0.710
 vtkActor cutActor
     cutActor SetMapper cutMapper
     [cutActor GetProperty] SetAmbient 1.0
@@ -72,27 +74,13 @@ ren1 AddActor cutActor
 ren1 SetBackground 1 1 1
 renWin SetSize 500 500
 
-
-
-iren SetInteractorStyle planeStyle
-
-proc ToggleStyle {} {
-    if {[string equal [iren GetInteractorStyle] defaultStyle]} {
-	iren SetInteractorStyle planeStyle
-    } else {
-	iren SetInteractorStyle defaultStyle
-    }
-}
-
-
-
 set cam1 [ren1 GetActiveCamera]
 $cam1 SetClippingRange 3.95297 50
 $cam1 SetFocalPoint 9.71821 0.458166 29.3999
 $cam1 SetPosition 2.7439 -37.3196 38.7167
-$cam1 ComputeViewPlaneNormal
 $cam1 SetViewUp -0.16123 0.264271 0.950876
 iren Initialize
+iren SetInteractorStyle planeStyle
 
 # render the image
 #
@@ -103,14 +91,6 @@ iren SetUserMethod {wm deiconify .vtkInteract}
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
-
-
-
-
-
-
-
-
 
 
 
