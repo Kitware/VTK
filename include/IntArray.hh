@@ -45,7 +45,7 @@ public:
   // special operators
   vlIntArray &operator=(const vlIntArray& ia);
   void operator+=(const vlIntArray& ia);
-  void operator+=(const int i) {this->InsertNextValue(i);};
+  void operator+=(const int i);
   int& operator[](const int i);
 
   // miscellaneous methods
@@ -87,6 +87,10 @@ inline int vlIntArray::InsertNextValue(const int i)
 {
   this->InsertValue (++this->MaxId,i); 
   return this->MaxId;
+}
+inline void vlIntArray::operator+=(const int i) 
+{
+  this->InsertNextValue(i);
 }
 
 // Description:
