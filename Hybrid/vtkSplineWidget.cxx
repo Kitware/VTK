@@ -35,7 +35,7 @@
 #include "vtkSpline.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkSplineWidget, "1.6");
+vtkCxxRevisionMacro(vtkSplineWidget, "1.7");
 vtkStandardNewMacro(vtkSplineWidget);
 
 vtkSplineWidget::vtkSplineWidget()
@@ -492,7 +492,6 @@ void vtkSplineWidget::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "SelectedHandle Property: (none)\n";
     }
-
   if ( this->LineProperty )
     {
     os << indent << "Line Property: " << this->LineProperty << "\n";
@@ -509,6 +508,33 @@ void vtkSplineWidget::PrintSelf(ostream& os, vtkIndent indent)
   else
     {
     os << indent << "Selected Line Property: (none)\n";
+    }
+  if ( this->XSpline )
+    {
+    os << indent << "XSpline: "
+       << this->XSpline << "\n";
+    }
+  else
+    {
+    os << indent << "XSpline: (none)\n";
+    }
+  if ( this->YSpline )
+    {
+    os << indent << "YSpline: "
+       << this->YSpline << "\n";
+    }
+  else
+    {
+    os << indent << "YSpline: (none)\n";
+    }
+  if ( this->ZSpline )
+    {
+    os << indent << "ZSpline: "
+       << this->ZSpline << "\n";
+    }
+  else
+    {
+    os << indent << "ZSpline: (none)\n";
     }
 
   os << indent << "Project To Plane: "
