@@ -18,7 +18,7 @@
 #include "vtkLookupTable.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkMapper, "1.110");
+vtkCxxRevisionMacro(vtkMapper, "1.111");
 
 // Initialize static member that controls global immediate mode rendering
 static int vtkMapperGlobalImmediateModeRendering = 0;
@@ -217,7 +217,6 @@ vtkUnsignedCharArray *vtkMapper::MapScalars(double alpha)
     {
     if (this->LookupTable && this->LookupTable->GetAlpha() == alpha)
       {
-      vtkDataArray *scalars = vtkAbstractMapper::
         GetScalars(this->GetInput(), this->ScalarMode, this->ArrayAccessMode,
                    this->ArrayId, this->ArrayName, this->ArrayComponent);
       if (this->GetMTime() < this->Colors->GetMTime() &&
