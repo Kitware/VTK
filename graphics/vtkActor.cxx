@@ -43,7 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkActor.h"
 #include "vtkRenderWindow.h"
-#include "vtkObjectFactory.h"
+#include "vtkGraphicsFactory.h"
 
 // Creates an actor with the following defaults: origin(0,0,0) 
 // position=(0,0,0) scale=(1,1,1) visibility=1 pickable=1 dragable=1
@@ -98,38 +98,12 @@ void vtkActor::ShallowCopy(vtkActor *actor)
 }
 
 
-#ifdef VTK_USE_OGLR
-#include "vtkOpenGLActor.h"
-#endif
-#ifdef _WIN32
-#include "vtkOpenGLActor.h"
-#endif
 // return the correct type of Actor 
 vtkActor *vtkActor::New()
 {
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkActor");
-  if(ret)
-    {
-    return (vtkActor*)ret;
-    } 
-  // If the factory was unable to create the object, then create it here.
-  char *temp = vtkRenderWindow::GetRenderLibrary();
-  
-#ifdef VTK_USE_OGLR
-  if (!strcmp("OpenGL",temp))
-    {
-    return vtkOpenGLActor::New();
-    }
-#endif
-#ifdef _WIN32
-  if (!strcmp("Win32OpenGL",temp))
-    {
-    return vtkOpenGLActor::New();
-    }
-#endif
-  
-  return new vtkActor;
+  // First try to create the object from the vtkGraphicsFactory
+  vtkObject* ret = vtkGraphicsFactory::CreateInstance("vtkActor");
+  return (vtkActor*)ret;
 }
 
 void vtkActor::GetActors(vtkPropCollection *ac)

@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTimerLog.h"
 #include "vtkCuller.h"
 #include "vtkFrustumCoverageCuller.h"
-#include "vtkObjectFactory.h"
+#include "vtkGraphicsFactory.h"
 
 // Create a vtkRenderer with a black background, a white ambient light, 
 // two-sided lighting turned on, a viewport of (0,0,1,1), and backface culling
@@ -124,39 +124,12 @@ vtkRenderer::~vtkRenderer()
   this->Cullers = NULL;
 }
 
-#ifdef VTK_USE_OGLR
-#include "vtkOpenGLRenderer.h"
-#endif
-#ifdef _WIN32
-#include "vtkOpenGLRenderer.h"
-#endif
 // return the correct type of Renderer 
 vtkRenderer *vtkRenderer::New()
 { 
   // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkRenderer");
-  if(ret)
-    {
-    return (vtkRenderer*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-
-  char *temp = vtkRenderWindow::GetRenderLibrary();
-  
-#ifdef VTK_USE_OGLR
-  if (!strcmp("OpenGL",temp))
-    {
-    return vtkOpenGLRenderer::New();
-    }
-#endif
-#ifdef _WIN32
-  if (!strcmp("Win32OpenGL",temp))
-    {
-    return vtkOpenGLRenderer::New();
-    }
-#endif
-  
-  return new vtkRenderer;
+  vtkObject* ret = vtkGraphicsFactory::CreateInstance("vtkRenderer");
+  return (vtkRenderer *)ret;
 }
 
 // Concrete render method.

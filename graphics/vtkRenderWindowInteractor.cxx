@@ -43,12 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPicker.h"
 #include "vtkCellPicker.h"
 #include "vtkInteractorStyleTrackball.h"
-
-#ifdef _WIN32
-#include "vtkWin32RenderWindowInteractor.h"
-#else
-#include "vtkXRenderWindowInteractor.h"
-#endif
+#include "vtkGraphicsFactory.h"
 
 
 // Construct object so that light follows camera motion.
@@ -119,12 +114,12 @@ vtkRenderWindowInteractor::~vtkRenderWindowInteractor()
 
 vtkRenderWindowInteractor *vtkRenderWindowInteractor::New()
 {
-#ifdef _WIN32
-  return vtkWin32RenderWindowInteractor::New();
-#else
-  return vtkXRenderWindowInteractor::New();
-#endif
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = 
+    vtkGraphicsFactory::CreateInstance("vtkRenderWindowInteractor");
+  return (vtkRenderWindowInteractor *)ret;
 }
+
 void vtkRenderWindowInteractor::Render()
 {
   if (this->RenderWindow)

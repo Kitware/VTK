@@ -40,15 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkVolumeTextureMapper2D.h"
 #include "vtkRenderWindow.h"
-#include "vtkObjectFactory.h"
-
-#ifdef VTK_USE_OGLR
-#include "vtkOpenGLVolumeTextureMapper2D.h"
-#endif
-
-#ifdef WIN32
-#include "vtkOpenGLVolumeTextureMapper2D.h"
-#endif
+#include "vtkGraphicsFactory.h"
 
 #define VTK_PLUS_X_MAJOR_DIRECTION  0
 #define VTK_MINUS_X_MAJOR_DIRECTION 1
@@ -864,33 +856,9 @@ vtkVolumeTextureMapper2D::~vtkVolumeTextureMapper2D()
 vtkVolumeTextureMapper2D *vtkVolumeTextureMapper2D::New()
 {
   // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkVolumeTextureMapper2D");
-  if(ret)
-    {
-    return (vtkVolumeTextureMapper2D*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  char *temp = vtkRenderWindow::GetRenderLibrary();
-  
-#ifdef VTK_USE_OGLR
-  if (!strcmp("OpenGL",temp))
-    {
-    return vtkOpenGLVolumeTextureMapper2D::New();
-    }
-#endif
-
-#ifdef WIN32
-  if (!strcmp("Win32OpenGL",temp))
-    {
-    return vtkOpenGLVolumeTextureMapper2D::New();
-    }
-#endif
-
-  vtkGenericWarningMacro( << 
-     "No 2D texture mapped volume rendering support for "
-     << temp );
-
-  return new vtkVolumeTextureMapper2D;
+  vtkObject* ret = 
+    vtkGraphicsFactory::CreateInstance("vtkVolumeTextureMapper2D");
+  return (vtkVolumeTextureMapper2D*)ret;
 }
 
 

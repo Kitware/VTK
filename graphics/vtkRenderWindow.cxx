@@ -45,7 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkRenderWindowInteractor.h"
 #include "vtkTransform.h"
 #include "vtkMath.h"
-#include "vtkObjectFactory.h"
+#include "vtkGraphicsFactory.h"
 
 // Construct an instance of  vtkRenderWindow with its screen size 
 // set to 300x300, borders turned on, positioned at (0,0), double 
@@ -140,78 +140,12 @@ void vtkRenderWindow::SetAbortCheckMethodArgDelete(void (*f)(void *))
     }
 }
 
-char *vtkRenderWindow::GetRenderLibrary()
-{
-  char *temp;
-  
-  // first check the environment variable
-  temp = getenv("VTK_RENDERER");
-
-  // Backward compatibility
-  if ( temp )
-    {
-    if (!strcmp("oglr",temp))
-      {
-      temp = "OpenGL";
-      }
-    else if (!strcmp("woglr",temp))
-      {
-      temp = "Win32OpenGL";
-      }
-    else if ( strcmp("OpenGL",temp) && strcmp("Win32OpenGL",temp))
-      {
-      vtkGenericWarningMacro(<<"VTK_RENDERER set to unsupported type:" << temp);
-      temp = NULL;
-      }
-    }
-
-  // if nothing is set then work down the list of possible renderers
-  if ( !temp )
-    {
-#ifdef VTK_USE_OGLR
-    temp = "OpenGL";
-#endif
-#ifdef _WIN32
-    temp = "Win32OpenGL";
-#endif
-    }
-
-  return temp;
-}
-
-#ifdef VTK_USE_OGLR
-#include "vtkOpenGLRenderWindow.h"
-#endif
-#ifdef _WIN32
-#include "vtkWin32OpenGLRenderWindow.h"
-#endif
 // return the correct type of RenderWindow 
 vtkRenderWindow *vtkRenderWindow::New()
 {
   // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkRenderWindow");
-  if(ret)
-    {
-    return (vtkRenderWindow*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-
-  char *temp = vtkRenderWindow::GetRenderLibrary();
-  
-#ifdef VTK_USE_OGLR
-  if (!strcmp("OpenGL",temp))
-    {
-    return vtkOpenGLRenderWindow::New();
-    }
-#endif
-#ifdef _WIN32
-  if (!strcmp("Win32OpenGL",temp))
-    {
-    return vtkWin32OpenGLRenderWindow::New();
-    }
-#endif
-  
-  return NULL;
+  vtkObject* ret = vtkGraphicsFactory::CreateInstance("vtkRenderWindow");
+  return (vtkRenderWindow*)ret;
 }
 
 // Create an interactor that will work with this renderer.

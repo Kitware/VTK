@@ -43,7 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkActor.h"
-#include "vtkObjectFactory.h"
+#include "vtkGraphicsFactory.h"
 
 // Construct object with object color, ambient color, diffuse color,
 // specular color, and edge color white; ambient coefficient=0; diffuse 
@@ -101,39 +101,12 @@ void vtkProperty::DeepCopy(vtkProperty *p)
 }
 
 
-#ifdef VTK_USE_OGLR
-#include "vtkOpenGLProperty.h"
-#endif
-#ifdef _WIN32
-#include "vtkOpenGLProperty.h"
-#endif
 // return the correct type of Property 
 vtkProperty *vtkProperty::New()
 { 
   // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkProperty");
-  if(ret)
-    {
-    return (vtkProperty*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-
-  char *temp = vtkRenderWindow::GetRenderLibrary();
-  
-#ifdef VTK_USE_OGLR
-  if (!strcmp("OpenGL",temp))
-    {
-    return vtkOpenGLProperty::New();
-    }
-#endif
-#ifdef _WIN32
-  if (!strcmp("Win32OpenGL",temp))
-    {
-    return vtkOpenGLProperty::New();
-    }
-#endif
-  
-  return new vtkProperty;
+  vtkObject* ret = vtkGraphicsFactory::CreateInstance("vtkProperty");
+  return (vtkProperty*)ret;
 }
 
 void vtkProperty::SetColor(float R,float G,float B)

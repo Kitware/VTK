@@ -42,7 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTexture.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
-#include "vtkObjectFactory.h"
+#include "vtkGraphicsFactory.h"
 
 // Construct object and initialize.
 vtkTexture::vtkTexture()
@@ -76,39 +76,12 @@ vtkTexture::~vtkTexture()
     }
 }
 
-#ifdef VTK_USE_OGLR
-#include "vtkOpenGLTexture.h"
-#endif
-#ifdef _WIN32
-#include "vtkOpenGLTexture.h"
-#endif
 // return the correct type of Texture 
 vtkTexture *vtkTexture::New()
 {  
   // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkTexture");
-  if(ret)
-    {
-    return (vtkTexture*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-
-  char *temp = vtkRenderWindow::GetRenderLibrary();
-  
-#ifdef VTK_USE_OGLR
-  if (!strcmp("OpenGL",temp))
-    {
-    return vtkOpenGLTexture::New();
-    }
-#endif
-#ifdef _WIN32
-  if (!strcmp("Win32OpenGL",temp))
-    {
-    return vtkOpenGLTexture::New();
-    }
-#endif
-  
-  return new vtkTexture;
+  vtkObject* ret = vtkGraphicsFactory::CreateInstance("vtkTexture");
+  return (vtkTexture*)ret;
 }
 
 void vtkTexture::SetLookupTable(vtkLookupTable *lut)
