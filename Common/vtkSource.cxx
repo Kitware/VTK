@@ -45,8 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkCommand.h"
 #include "vtkErrorCode.h"
 
-vtkCxxRevisionMacro(vtkSource, "1.91");
-vtkStandardNewMacro(vtkSource);
+vtkCxxRevisionMacro(vtkSource, "1.92");
 
 #ifndef NULL
 #define NULL 0

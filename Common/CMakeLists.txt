@@ -156,6 +156,7 @@ vtkOverrideInformation
 vtkOverrideInformationCollection 
 vtkPointSet 
 vtkScalarsToColors 
+vtkSource 
 vtkViewport 
 vtkWarpTransform 
 vtkWindow 
