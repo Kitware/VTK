@@ -222,21 +222,6 @@ void vtkDataReader::SetInputString(char* in, int len)
   this->Modified(); 
 } 
 
-// Internal function used to consume whitespace when reading in
-// an InputString.
-void vtkDataReader::EatWhiteSpace()
-{
-  char c;
-  while (this->IS->get(c)) 
-    {
-    if (c == '\n' || isspace(c)==0)
-      {
-      this->IS->putback(c);
-      break;
-      }
-    }
-}
-
 // Internal function to read in a line up to 256 characters.
 // Returns zero if there was an error.
 int vtkDataReader::ReadLine(char result[256])

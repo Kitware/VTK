@@ -241,11 +241,6 @@ public:
   char *LowerCase(char *);
   
   // Description:
-  // Internal function used to consume white space when reading in
-  // an InputString.
-  void EatWhiteSpace();
-
-  // Description:
   // Return the istream being used to read in the data.
   istream *GetIStream() {return this->IS;};
 
