@@ -43,7 +43,7 @@
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.93");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.94");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper);
 #endif
 
@@ -483,25 +483,21 @@ static void vtkOpenGLBeginPolyTriangleOrQuad(GLenum aGlFunction,
     } \
 }
 
-#define vtkDrawStripLinesMacro(ptype,ntype,ttype,prim,glPFunc,glNFunc,glCFunc,glTFunc,glFlatNFunc,glNInit,glTInit) \
+#define vtkDrawStripLinesMacro(ptype,ntype,ttype,prim,glVertFuncs,glCellFuncs,glInitFuncs) \
 { \
   vtkIdType nPts = 0; \
   ptype *points = (ptype *)voidPoints; \
   vtkIdType *savedPtIds = ptIds; \
-  glNInit \
-  glTInit \
+  glInitFuncs \
   while (ptIds < endPtIds) \
     { \
     glBegin(prim); \
     nPts = *ptIds; \
     ++ptIds; \
-    glFlatNFunc \
+    glCellFuncs \
     while (nPts > 0) \
       { \
-      glTFunc \
-      glCFunc \
-      glNFunc \
-      glPFunc \
+      glVertFuncs \
       ptIds += 2; \
       nPts -= 2; \
       } \
@@ -514,15 +510,12 @@ static void vtkOpenGLBeginPolyTriangleOrQuad(GLenum aGlFunction,
     glBegin(prim); \
     nPts = *ptIds; \
     ++ptIds; \
-    glFlatNFunc \
+    glCellFuncs \
     ++ptIds; \
     --nPts; \
     while (nPts > 0) \
       { \
-      glTFunc \
-      glCFunc \
-      glNFunc \
-      glPFunc \
+      glVertFuncs \
       ptIds += 2; \
       nPts -= 2; \
       } \
@@ -1247,58 +1240,57 @@ void vtkOpenGLPolyDataMapperDrawTStripLines(int idx,
     {
     case VTK_PDM_POINT_TYPE_FLOAT:
       vtkDrawStripLinesMacro(float, float, float, rep, 
-                        glVertex3fv(points + 3**ptIds);, TStripNormal,;,;, 
-                        TStripNormalStart,;,;);
+                             TStripNormal; glVertex3fv(points + 3**ptIds);, 
+                             TStripNormalStart,;);
       break;
     case VTK_PDM_POINT_TYPE_DOUBLE:
       vtkDrawStripLinesMacro(double, float, float, rep, 
-                        glVertex3dv(points + 3**ptIds);, TStripNormal,;,;, 
-                        TStripNormalStart,;,;);
+                        TStripNormal glVertex3dv(points + 3**ptIds);, 
+                        TStripNormalStart,;);
       break;
     case VTK_PDM_POINT_TYPE_FLOAT|VTK_PDM_NORMAL_TYPE_FLOAT|VTK_PDM_NORMALS:
       vtkDrawStripLinesMacro(float, float, float, rep, 
-                             glVertex3fv(points + 3**ptIds);, 
-                             glNormal3fv(normals + 3**ptIds);,;,;,;,
-                             float *normals = (float *)voidNormals;,;
-                             );
+                             glNormal3fv(normals + 3**ptIds);
+                             glVertex3fv(points + 3**ptIds);,;,
+                             float *normals = (float *)voidNormals;);
       break;
     case VTK_PDM_POINT_TYPE_FLOAT | VTK_PDM_COLORS:
       vtkDrawStripLinesMacro(float, float, float, rep, 
-                        glVertex3fv(points + 3**ptIds);, TStripNormal, 
-                        glColor4ubv(colors + 4**ptIds);,;, 
-                        TStripNormalStart,;,;);
+                             TStripNormal;
+                             glColor4ubv(colors + 4**ptIds);
+                             glVertex3fv(points + 3**ptIds);,
+                             TStripNormalStart,;);
       break;
     case VTK_PDM_POINT_TYPE_FLOAT | VTK_PDM_COLORS | VTK_PDM_OPAQUE_COLORS:
       vtkDrawStripLinesMacro(float, float, float, rep, 
-                        glVertex3fv(points + 3**ptIds);, TStripNormal, 
-                        glColor3ubv(colors + 4**ptIds);,;, 
-                        TStripNormalStart,;,;);
+                             TStripNormal;
+                             glColor3ubv(colors + 4**ptIds);
+                             glVertex3fv(points + 3**ptIds);, 
+                             TStripNormalStart,;);
       break;
     case VTK_PDM_POINT_TYPE_FLOAT | VTK_PDM_NORMAL_TYPE_FLOAT | 
       VTK_PDM_NORMALS | VTK_PDM_COLORS:
       vtkDrawStripLinesMacro(float, float, float, rep, 
-                             glVertex3fv(points + 3**ptIds);, 
-                             glNormal3fv(normals + 3**ptIds);, 
-                             glColor4ubv(colors + 4**ptIds);,;,;,
-                             float *normals = (float *)voidNormals;,;
-        );
+                             glNormal3fv(normals + 3**ptIds);
+                             glColor4ubv(colors + 4**ptIds);
+                             glVertex3fv(points + 3**ptIds);,;,
+                             float *normals = (float *)voidNormals;);
       break;
     case VTK_PDM_POINT_TYPE_FLOAT | VTK_PDM_NORMAL_TYPE_FLOAT | 
       VTK_PDM_NORMALS | VTK_PDM_COLORS | VTK_PDM_OPAQUE_COLORS:
       vtkDrawStripLinesMacro(float, float, float, rep, 
-                             glVertex3fv(points + 3**ptIds);, 
-                             glNormal3fv(normals + 3**ptIds);, 
-                             glColor3ubv(colors + 4**ptIds);,;,;,
-                             float *normals = (float *)voidNormals;,;
-        );
+                             glNormal3fv(normals + 3**ptIds); 
+                             glColor3ubv(colors + 4**ptIds);
+                             glVertex3fv(points + 3**ptIds);,;,
+                             float *normals = (float *)voidNormals;);
       break;
     case VTK_PDM_POINT_TYPE_FLOAT | VTK_PDM_NORMAL_TYPE_FLOAT | 
         VTK_PDM_NORMALS | VTK_PDM_TCOORD_TYPE_FLOAT | VTK_PDM_TCOORDS:
       vtkDrawStripLinesMacro(float, float, float, rep, 
-                             glVertex3fv(points + 3**ptIds);, 
-                             glNormal3fv(normals + 3**ptIds);,;,
-                             glTexCoord2fv(tcoords + 2**ptIds);,;,
-                             float *normals = (float *)voidNormals;,
+                             glNormal3fv(normals + 3**ptIds);
+                             glTexCoord2fv(tcoords + 2**ptIds);
+                             glVertex3fv(points + 3**ptIds);,;,
+                             float *normals = (float *)voidNormals;
                              float *tcoords = (float *)voidTCoords;);
       break;
     default:
