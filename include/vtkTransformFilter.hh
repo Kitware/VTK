@@ -43,7 +43,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkTransformFilter is a filter to transform point coordinates and 
 // associated point normals and vectors. Other point data is passed
 // through the filter.
-//   (An alternative method of transformation is to use vtkActors methods
+//
+// (An alternative method of transformation is to use vtkActors methods
 // to scale, rotate, and translate objects. The difference between the
 // two methods is that vtkActor's transformation simply effects where
 // objects are rendered (via the graphics pipeline), whereas
