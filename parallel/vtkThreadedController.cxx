@@ -84,7 +84,11 @@ public:
       ret->Delete();
   }
 
-  friend vtkThreadedController;
+  friend class vtkThreadedController;
+
+protected:
+  vtkThreadedControllerOutputWindow(const vtkThreadedControllerOutputWindow&);
+  void operator=(const vtkThreadedControllerOutputWindow&);
 
 };
 
