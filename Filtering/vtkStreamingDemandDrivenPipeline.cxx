@@ -28,7 +28,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.26");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.27");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -361,7 +361,10 @@ vtkStreamingDemandDrivenPipeline
           vtkInformation* inInfo = this->GetInputInformation(i, j);
 
           // Copy the time request
-          inInfo->CopyEntry(outInfo, UPDATE_TIME_INDEX());
+          if ( outInfo->Has(UPDATE_TIME_INDEX()) )
+            {
+            inInfo->CopyEntry(outInfo, UPDATE_TIME_INDEX());
+            }
 
           // Get the executive and port number producing this input.
           vtkStreamingDemandDrivenPipeline* inExec =
