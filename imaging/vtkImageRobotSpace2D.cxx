@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImage2DRobotSpace.cxx
+  Module:    vtkImageRobotSpace2D.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -40,28 +40,33 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdio.h>
 #include <math.h>
 #include "vtkImageXViewer.h"
-#include "vtkImage2DRobotSpace.h"
+#include "vtkImageRobotSpace2D.h"
 #include "vtkImageDistance.h"
 
 
 // State is in pixel units.
 
 //----------------------------------------------------------------------------
-vtkImage2DRobotSpace::vtkImage2DRobotSpace()
+vtkImageRobotSpace2D::vtkImageRobotSpace2D()
 {
+  this->Robot = NULL;
   this->Canvas = NULL;
   this->DistanceMap = NULL;
   this->WorkSpace = NULL;
   this->Threshold = 1.0;
-  this->MaximumNumberOfSegments = 0;
-  this->NumberOfSegments = 0;
-  this->Segments = NULL;
+  this->MaximumNumberOfJoints = 0;
+  this->NumberOfJoints = 0;
+  this->Joints = NULL;
 }
 
 
 //----------------------------------------------------------------------------
-vtkImage2DRobotSpace::~vtkImage2DRobotSpace()
+vtkImageRobotSpace2D::~vtkImageRobotSpace2D()
 {
+  if (this->Robot)
+    {
+    this->Robot->Delete();
+    }
   if (this->WorkSpace)
     {
     this->WorkSpace->Delete();
@@ -74,111 +79,84 @@ vtkImage2DRobotSpace::~vtkImage2DRobotSpace()
     {
     this->Canvas->Delete();
     }
-  if (this->Segments)
+  if (this->Joints)
     {
-    delete [] this->Segments;
+    delete this->Joints;
     }
 }
 
 
 //----------------------------------------------------------------------------
 // Description:
-// This method  creates the array to hold the segments and should be called
-// before segemnts are added.
-void vtkImage2DRobotSpace::SetNumberOfSegments(int number)
+// This method  creates the array to hold the joints and should be called
+// before jointss are added.
+void vtkImageRobotSpace2D::SetNumberOfJoints(int number)
 {
-  if (this->Segments)
+  if (this->Joints)
     {
-    delete [] this->Segments;
+    delete this->Joints;
     }
-  this->NumberOfSegments = 0;
-  this->MaximumNumberOfSegments = number;
-  this->Segments = new float[number * 4];
+  this->NumberOfJoints = 0;
+  this->MaximumNumberOfJoints = number;
+  this->Joints = (vtkRobotJoint2D **)malloc(sizeof (void *) * number);
 }
+
+
+
+//----------------------------------------------------------------------------
+// Description:
+// Sets the robot and computes the rotation factor at the same time.
+void vtkImageRobotSpace2D::SetRobot(vtkRobotTransform2D *robot)
+{
+  float bounds[4];
+  float diameter;
+  
+  this->Modified();
+  this->Robot = robot;
+  robot->GetBounds(bounds);
+  diameter = fabs(bounds[1] - bounds[0]) + fabs(bounds[3] - bounds[2]);
+  this->RotationFactor = 2.0 / diameter;
+}
+
+
+
 
 
 
 //----------------------------------------------------------------------------
 // Description:
 // Add a segment to the robot.
-void vtkImage2DRobotSpace::AddSegment(float x0, float y0, float x1, float y1)
+void vtkImageRobotSpace2D::AddJoint(vtkRobotJoint2D *joint)
 {
-  float *ptr;
-  int flag = 0;
+  float bounds[4];
+  float pivot[2];
+  float max, temp;
   
-  if (this->NumberOfSegments >= this->MaximumNumberOfSegments)
+  if (this->NumberOfJoints >= this->MaximumNumberOfJoints)
     {
-    vtkErrorMacro(<< "AddSegment: Too many segments");
+    vtkErrorMacro(<< "AddJoint: Too many joints");
     return;
     }
-  ptr = this->Segments + 4*this->NumberOfSegments;
-  *ptr++ = x0;
-  *ptr++ = y0;
-  *ptr++ = x1;
-  *ptr++ = y1;
 
-  ++(this->NumberOfSegments);
+  this->Modified();
+  this->Joints[this->NumberOfJoints] = joint;
+  ++(this->NumberOfJoints);
   
-  // Keep track of bounds so we know how to scale rotation.
-  if (this->NumberOfSegments == 1)
-    {
-    this->RotationFactor = 0.0;
-    this->RobotBounds[0] = x0;
-    this->RobotBounds[1] = x0;
-    this->RobotBounds[2] = y0;
-    this->RobotBounds[3] = y0;
-    }
-  if (x0 < this->RobotBounds[0])
-    {
-    flag = 1;
-    this->RobotBounds[0] = x0;
-    }
-  if (x0 > this->RobotBounds[1])
-    {
-    flag = 1;
-    this->RobotBounds[1] = x0;
-    }
-  if (x1 < this->RobotBounds[0])
-    {
-    flag = 1;
-    this->RobotBounds[0] = x1;
-    }
-  if (x1 > this->RobotBounds[1])
-    {
-    flag = 1;
-    this->RobotBounds[1] = x1;
-    }
-  if (y0 < this->RobotBounds[2])
-    {
-    flag = 1;
-    this->RobotBounds[2] = y0;
-    }
-  if (y0 > this->RobotBounds[3])
-    {
-    flag = 1;
-    this->RobotBounds[3] = y0;
-    }
-  if (y1 < this->RobotBounds[2])
-    {
-    flag = 1;
-    this->RobotBounds[2] = y1;
-    }
-  if (y1 > this->RobotBounds[3])
-    {
-    flag = 1;
-    this->RobotBounds[3] = y1;
-    }
+  // Compute the joint rotation factor here.
+  joint->GetRobotB()->GetBounds(bounds);
+  joint->GetPivot(pivot);
+  // Compute the maximum radius.
+  max = 0;
+  temp = fabs(pivot[0] - bounds[0]) + fabs(pivot[1] - bounds[2]);
+  max = (temp > max) ? temp : max;
+  temp = fabs(pivot[0] - bounds[0]) + fabs(pivot[1] - bounds[3]);
+  max = (temp > max) ? temp : max;
+  temp = fabs(pivot[0] - bounds[1]) + fabs(pivot[1] - bounds[2]);
+  max = (temp > max) ? temp : max;
+  temp = fabs(pivot[0] - bounds[1]) + fabs(pivot[1] - bounds[3]);
+  max = (temp > max) ? temp : max;
   
-  // If the this->RobotBounds were modified, recompute Rotation factor.
-  if (flag)
-    {
-    float diameter, dx, dy;
-    dx = this->RobotBounds[1] - this->RobotBounds[0];
-    dy = this->RobotBounds[3] - this->RobotBounds[2];
-    diameter = sqrt (dx*dx + dy*dy);
-    // 1 / radius
-    this->RotationFactor = 2.0 / diameter;
-    }
+  joint->SetFactor(1.0 / max);
 }
 
 
@@ -193,16 +171,24 @@ void vtkImage2DRobotSpace::AddSegment(float x0, float y0, float x1, float y1)
 //----------------------------------------------------------------------------
 // Description:
 // This method removes redundant locations in state space.
-void vtkImage2DRobotSpace::Wrap(float *state)
+void vtkImageRobotSpace2D::Wrap(float *state)
 {
-  // Third dimension represents orientation.
-  while (state[2] < 0.0)
+  int idx;
+  
+  // Loop: Robot rotation + joint rotations.
+  state += 2;
+  for (idx = 0; idx <= this->NumberOfJoints; ++idx)
     {
-    state[2] += 6.283185307;   // 2pi
-    }
-  while (state[2] > 6.283185307)
-    {
-    state[2] -= 6.283185307;
+    while (*state < 0.0)
+      {
+      *state += 6.283185307;   // 2pi
+      }
+    while (*state > 6.283185307)
+      {
+      *state -= 6.283185307;
+      }
+    
+    ++state;
     }
 }
 
@@ -211,7 +197,7 @@ void vtkImage2DRobotSpace::Wrap(float *state)
 // Description:
 // This method returns 0.0 if a state is out of the image bounds.
 // Values are middle of pixels (rounded)
-float vtkImage2DRobotSpace::BoundsTest(float *state)
+float vtkImageRobotSpace2D::BoundsTest(float *state)
 {
   int idx;
   int round;
@@ -235,7 +221,7 @@ float vtkImage2DRobotSpace::BoundsTest(float *state)
 // This method takes a region.  All zero values are assumed to be collision.
 // All 1 values are assumed to be open space..
 // A distance map is created from it.
-void vtkImage2DRobotSpace::SetWorkSpace(vtkImageRegion *region)
+void vtkImageRobotSpace2D::SetWorkSpace(vtkImageRegion *region)
 {
   vtkImageDistance *distanceFilter = new vtkImageDistance;
   
@@ -284,170 +270,79 @@ void vtkImage2DRobotSpace::SetWorkSpace(vtkImageRegion *region)
 //----------------------------------------------------------------------------
 // This method computes max distance between two points.
 // manhaten distance. 
-float vtkImage2DRobotSpace::Distance(float *p0, float *p1)
+float vtkImageRobotSpace2D::Distance(float *p0, float *p1)
 {
   int idx;
-  float sum;
-  
-  // handle rotation
-  sum = fabs(p0[2] - p1[2]);
-  // Make sure the sum is less than PI
-  if (sum > 3.1415927)
-    {
-    sum = 6.2831835 - sum;
-    }
-  sum /= this->RotationFactor;
+  float sum, temp;
   
   // handle position
+  sum = 0.0;
   for (idx = 0; idx < 2; ++idx)
     {
-    sum += fabs(p0[idx] - p1[idx]);
+    sum += fabs(*p0++ - *p1++);
+    }
+  
+  // handle robot rotation
+  temp = fabs(*p0++ - *p1++);
+  // Make sure the difference is less than PI
+  if (temp > 3.1415927)
+    {
+    temp = 6.2831835 - temp;
+    }
+  temp /= this->RotationFactor;
+  sum += temp;
+  
+  // handle joint rotation
+  for (idx = 0; idx < this->NumberOfJoints; ++idx)
+    {
+    temp = fabs(*p0++ - *p1++);
+    // Make sure the difference is less than PI
+    if (temp > 3.1415927)
+      {
+      temp = 6.2831835 - temp;
+      }
+    temp /= this->Joints[idx]->GetFactor();
+    sum += temp;
     }
   
   return sum;
 }
 
 
-
-
-
-
 //----------------------------------------------------------------------------
 // This method determines collision space from free space
-int vtkImage2DRobotSpace::Collide(float *state)
+int vtkImageRobotSpace2D::Collide(float *state)
 {
-  float *segment = this->Segments;
-  float x0,y0, x1,y1, s,c;
-  short *map;
-  short d0, d1;
-  float length;
-  int *extent;
-  int xInc, yInc, x, y;
   int idx;
-
-  extent = this->DistanceMap->GetExtent();
-  this->DistanceMap->GetIncrements(xInc, yInc);
-  map = (short *)(this->DistanceMap->GetScalarPointer());
-  s = sin(state[2]);
-  c = cos(state[2]);
-  for (idx = 0; idx < this->NumberOfSegments; ++idx)
+  
+  // Set the parameters from the state.
+  this->Robot->SetX(*state++);
+  this->Robot->SetY(*state++);
+  this->Robot->SetTheta(*state++);
+  for (idx = 0; idx < this->NumberOfJoints; ++idx)
     {
-    x0 = state[0] + c*segment[0] + s*segment[1];
-    y0 = state[1] + c*segment[1] - s*segment[0];
-    x1 = state[0] + c*segment[2] + s*segment[3];
-    y1 = state[1] + c*segment[3] - s*segment[2];
-    segment += 4;
-    
-    // Do the initial check
-    length = fabs(x1-x0) + fabs(y1-y0);
-    x = (int)(floor(x0 + 0.5));
-    y = (int)(floor(y0 + 0.5));
-    // Make sure the point is in the map
-    if (x < extent[0] || x > extent[1] || y < extent[2] || y > extent[3])
-      {
-      return 1;
-      }
-    d0 = *(map + x*xInc + y*yInc);
-    x = (int)(floor(x1 + 0.5));
-    y = (int)(floor(y1 + 0.5));
-    // Make sure the point is in the map
-    if (x < extent[0] || x > extent[1] || y < extent[2] || y > extent[3])
-      {
-      return 1;
-      }
-    d1 = *(map + x*xInc + y*yInc);
-    // check for imediate collision
-    if (d0 == 0 || d1 == 0)
-      {
-      return 1;
-      }
-    // do not call recursive collide if we have wide clearance
-    if ((length >= (float)(d0)-0.5) || (length >= (float)(d1)-0.5))
-      {
-      // Call recursive segment collide
-      if (this->CollideSegment(x0,y0,d0, x1,y1,d1, length, map, xInc, yInc))
-	{
-	return 1;
-	}
-      }
+    this->Joints[idx]->SetTheta(*state++);
     }
   
-  
-  return 0;
+  return this->Robot->Collide(this->DistanceMap);
 }
 
-
-
-
-//----------------------------------------------------------------------------
-// This method determines collision space from free space
-int vtkImage2DRobotSpace::CollideSegment(float x0, float y0, short d0,
-					 float x1, float y1, short d1,
-					 float length, short *map, 
-					 int xInc, int yInc)
-{
-  float xMid, yMid;
-  int x, y;
-  short dMid;
-
-  // Find the middle of the segment
-  xMid = (x0 + x1) / 2.0;
-  yMid = (y0 + y1) / 2.0;
-  x = (int)(floor(xMid + 0.5));
-  y = (int)(floor(yMid + 0.5));
-  dMid = *(map + x*xInc + y*yInc);
-  length *= 0.5;
-
-  // check for imediate collision
-  if (dMid == 0)
-    {
-    return 1;
-    }
-  // check for wide clearance.
-  if (length < d0-1 && length < d1-1 && length < dMid-1)
-    {
-    return 0;
-    }
-
-  // Call recursive segment collide
-  if ((length >= (float)(d0)-0.5) || (length >= (float)(dMid)-0.5))
-    {
-    if (this->CollideSegment(x0,y0,d0, xMid,yMid,dMid, length, map, xInc,yInc))
-      {
-      return 1;
-      }
-    }
-
-  if ((length >= (float)(d1)-0.5) || (length >= (float)(dMid)-0.5))
-    {
-    if (this->CollideSegment(xMid,yMid,dMid, x1,y1,d1, length, map, xInc,yInc))
-      {
-      return 1;
-      }
-    }
-
-  return 0;
-}
-
-  
-
-  
-  
   
 //----------------------------------------------------------------------------
 // This method returns the state mid-way between s0 and s1.
-void vtkImage2DRobotSpace::GetMiddleState(float *s0, float *s1, float *middle)
+void vtkImageRobotSpace2D::GetMiddleState(float *s0, float *s1, float *middle)
 {
   int idx;
-  float temp;
+  float temp, *tmid = middle;
   
+  // Position
   for (idx = 0; idx < 2; ++idx)
     {
-    middle[idx] = (s0[idx] + s1[idx]) / 2.0;
+    *tmid++ = (*s0++ + *s1++) / 2.0;
     }
   
-  // Find the shortest path
-  temp = s0[2] - s1[2];
+  // Rotation of robot.
+  temp = *s0 - *s1;
   if (temp > 3.1415927)
     {
     temp -= 6.2831853;
@@ -456,7 +351,29 @@ void vtkImage2DRobotSpace::GetMiddleState(float *s0, float *s1, float *middle)
     {
     temp += 6.2831853;
     }
-  middle[2] = s1[2] + temp * 0.5;
+  *tmid = *s1 + temp * 0.5;
+  ++tmid;
+  ++s0;
+  ++s1;
+
+    // NumberOfJoints +1 for Robot rotation.
+  for (idx = 0; idx < this->NumberOfJoints; ++idx)
+    {
+    // Find the shortest path
+    temp = *s0 - *s1;
+    if (temp > 3.1415927)
+      {
+      temp -= 6.2831853;
+      }
+    if (temp < -3.1415927)
+      {
+      temp += 6.2831853;
+      }
+    *tmid = *s1 + temp * 0.5;
+    ++tmid;
+    ++s0;
+    ++s1;
+    }
 
   // Convert back to range 0->2PI.
   this->Wrap(middle);
@@ -468,13 +385,13 @@ void vtkImage2DRobotSpace::GetMiddleState(float *s0, float *s1, float *middle)
 //----------------------------------------------------------------------------
 // This method finds a child of a state.  This is a new state a specified
 // distance along an axis from the first state.
-void vtkImage2DRobotSpace::GetChildState(float *state, int axis, 
+void vtkImageRobotSpace2D::GetChildState(float *state, int axis, 
 					 float distance, float *child)
 {
   int idx;
 
   // First copy the state.
-  for (idx = 0; idx < 3; ++idx)
+  for (idx = 0; idx < this->GetStateDimensionality(); ++idx)
     {
     child[idx] = state[idx];
     }
@@ -484,9 +401,13 @@ void vtkImage2DRobotSpace::GetChildState(float *state, int axis,
     {
     child[axis] += distance;
     }
-  else
+  else if (axis == 2)
     {
     child[2] += distance * this->RotationFactor;
+    }
+  else
+    {
+    child[axis] += distance * this->Joints[axis - 3]->GetFactor();
     }
   
   this->Wrap(child);
@@ -502,7 +423,7 @@ void vtkImage2DRobotSpace::GetChildState(float *state, int axis,
 
 //----------------------------------------------------------------------------
 // This method reinitializes the canvas with the Workspace.
-void vtkImage2DRobotSpace::ClearCanvas()
+void vtkImageRobotSpace2D::ClearCanvas()
 {
   if (this->Canvas && this->WorkSpace)
     {
@@ -513,44 +434,36 @@ void vtkImage2DRobotSpace::ClearCanvas()
 
 //----------------------------------------------------------------------------
 // This method draws the robot on the canvas.
-void vtkImage2DRobotSpace::DrawRobot(float *state)
+void vtkImageRobotSpace2D::DrawRobot(float *state)
 {
-  float *segment = this->Segments;
-  float x0,y0, x1,y1, s,c;
   int idx;
-
+  
   // Make sure we have a canvas.
-  if ( ! this->Canvas)
+  if ( ! this->Canvas || ! this->Robot)
     {
     return;
     }
 
-  s = sin(state[2]);
-  c = cos(state[2]);
-  // loop through all the segments.
-  for (idx = 0; idx < this->NumberOfSegments; ++idx)
+  // Set the parameters from the state.
+  this->Robot->SetX(*state++);
+  this->Robot->SetY(*state++);
+  this->Robot->SetTheta(*state++);
+  for (idx = 0; idx < this->NumberOfJoints; ++idx)
     {
-    // transform the segment using the state.
-    x0 = state[0] + c*segment[0] + s*segment[1];
-    y0 = state[1] + c*segment[1] - s*segment[0];
-    x1 = state[0] + c*segment[2] + s*segment[3];
-    y1 = state[1] + c*segment[3] - s*segment[2];
-    segment += 4;
-    
-    // draw the segment
-    this->Canvas->DrawSegment((int)(floor(x0 + 0.5)), (int)(floor(y0 + 0.5)),
-			      (int)(floor(x1 + 0.5)), (int)(floor(y1 + 0.5)));
+    this->Joints[idx]->SetTheta(*state++);
     }
+  
+  this->Robot->Draw(this->Canvas);
 }
 
 
 //----------------------------------------------------------------------------
 // This method animates a path
-void vtkImage2DRobotSpace::AnimatePath(vtkClaw *planner)
+void vtkImageRobotSpace2D::AnimatePath(vtkClaw *planner)
 {
-  int idx;
+  int idx, idxJoint;
   int numberOfStates;
-  float state[3];
+  float *state;
   vtkImageXViewer *viewer;
   
   if ( !planner || !this->Canvas)
@@ -562,12 +475,21 @@ void vtkImage2DRobotSpace::AnimatePath(vtkClaw *planner)
   viewer->SetInput(this->Canvas->GetOutput());
   
   numberOfStates = planner->GetPathLength();
-  
+  state = this->NewState();
   for(idx = 0; idx < numberOfStates; ++idx)
     {
     planner->GetPathState(idx, state);
+    // Set the parameters from the state.
+    this->Robot->SetX(*state++);
+    this->Robot->SetY(*state++);
+    this->Robot->SetTheta(*state++);
+    for (idxJoint = 0; idxJoint < this->NumberOfJoints; ++idxJoint)
+      {
+      this->Joints[idxJoint]->SetTheta(*state++);
+      }
+    
     this->ClearCanvas();
-    this->DrawRobot(state);
+    this->Robot->Draw(this->Canvas);
     viewer->Render();
     printf("%d: pause:", idx);
     getchar();
@@ -577,6 +499,7 @@ void vtkImage2DRobotSpace::AnimatePath(vtkClaw *planner)
 }
 
     
+
 
 
 

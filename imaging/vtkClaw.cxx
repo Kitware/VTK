@@ -48,8 +48,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // States are just vectors.
 // User supplies a Space object which can compute:
 // The distance between states, a guide tube function and
-// a function to wrap a state to remove any duplicate states.
-
 
 // Outstanding issue:  How do we return a path (what format).
 
@@ -65,6 +63,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 /* The current start and goal Sphere of the planner */
 static Sphere *START_SPHERE = NULL;
 static Sphere *GOAL_SPHERE = NULL;
+/* A list of points (stored as Sphere centers) which are not in free space */
+static SphereList *COLLISIONS = NULL;
+/* A list of all FREE_SPHERES */
+static SphereList *FREE_SPHERES = NULL;
+
 
 
 
@@ -73,12 +76,7 @@ static Sphere *GOAL_SPHERE = NULL;
 //----------------------------------------------------------------------------
 vtkClaw::vtkClaw()
 {
-  int idx;
-  
-  for (idx = 0; idx < VTK_CLAW_DIMENSIONS; ++idx)
-    {
-    this->StartState[idx] = this->GoalState[idx] = 0.0;
-    }
+  this->StartState = this->GoalState = NULL;
   this->InitialSphereRadius = 2.0;
   this->VerifyStep = 0.1;
   this->SamplePeriod = 200;
@@ -86,7 +84,8 @@ vtkClaw::vtkClaw()
   this->ChildFraction = 0.75;
   this->Path = NULL;
   this->StateSpace = NULL;
-
+  this->Candidates = NULL;
+  
   this->SearchStrategies[0] = VTK_CLAW_NEAREST_NETWORK;
   this->SearchStrategies[1] = VTK_CLAW_PIONEER_LOCAL;
   this->SearchStrategies[2] = VTK_CLAW_WELL_NOISE;
@@ -105,9 +104,44 @@ vtkClaw::~vtkClaw()
 // Set the state space to search.  This should be done first.
 void vtkClaw::SetStateSpace(vtkStateSpace *space)
 {
+  int idx;
+
   this->StateSpace = space;
   this->Modified();
+  this->StateDimensionality = space->GetStateDimensionality();
+  this->DegreesOfFreedom = space->GetDegreesOfFreedom();
+  
+  // Free previos allocated memory
+  if (this->Candidates)
+    {
+    delete [] this->Candidates;
+    }
+  if (this->StartState)
+    {
+    delete [] this->StartState;
+    }
+  if (this->GoalState)
+    {
+    delete [] this->GoalState;
+    }
+  
+  // Allocate static temporary array used to compute uncovered candidates.
+  this->Candidates = (int *)malloc(sizeof(int) * this->DegreesOfFreedom * 2);
+  // Allocate start and goal states.
+  this->StartState = space->NewState();
+  this->GoalState = space->NewState();
+  
+  // Initialize to 0.
+  for (idx = 0; idx < this->StateDimensionality; ++idx)
+    {
+    this->StartState[idx] = this->GoalState[idx] = 0.0;
+    }
+  for (idx = 0; idx < this->DegreesOfFreedom * 2; ++idx)
+    {
+    this->Candidates[idx] = 0;
+    }
 }
+
 
 
 //----------------------------------------------------------------------------
@@ -116,11 +150,17 @@ void vtkClaw::SetStartState(float *state)
 {
   int idx;
   
-  for (idx = 0; idx < VTK_CLAW_DIMENSIONS; ++idx)
+  if ( ! this->StateSpace)
+    {
+    vtkErrorMacro(<< "SetStartSpace: Set StateSpace first!");
+    return;
+    }
+
+  this->Modified();
+  for (idx = 0; idx < this->StateDimensionality; ++idx)
     {
     this->StartState[idx] = state[idx];
     }
-  this->Modified();
 }
 
 
@@ -130,11 +170,17 @@ void vtkClaw::SetGoalState(float *state)
 {
   int idx;
   
-  for (idx = 0; idx < VTK_CLAW_DIMENSIONS; ++idx)
+  if ( ! this->StateSpace)
+    {
+    vtkErrorMacro(<< "SetGoalSpace: Set StateSpace first!");
+    return;
+    }
+
+  this->Modified();
+  for (idx = 0; idx < this->StateDimensionality; ++idx)
     {
     this->GoalState[idx] = state[idx];
     }
-  this->Modified();
 }
 
 
@@ -158,7 +204,9 @@ void vtkClaw::SetSearchStrategies (int num, int *strategies)
     this->SearchStrategies[idx] = strategies[idx];
     }
   this->NumberOfSearchStrategies = num;
-  this->Modified();
+
+  // do not modify because this does not invalidate the path.
+  // this->Modified();
 }
 
   
@@ -167,51 +215,48 @@ void vtkClaw::SetSearchStrategies (int num, int *strategies)
 
 
 
-// Global untill we convert the rest of the functions to methods.
-vtkStateSpace *STATE_SPACE;
 // Global that gives search strategies a scale.
 static float ROBOT_RADIUS;
 
 
-
-
-static void path_verify_step_set(float step_size);
-static void Sphere_search_strategy_set(int strategy);
-static int Spheres_free_count();
-static int Spheres_collision_count();
-static void Sphere_collisions_prune();
-static void Sphere_all_free();
+#include "vtkImageXViewer.h"
+#include "vtkImageRobotSpace2D.h"
 //----------------------------------------------------------------------------
 void vtkClaw::GeneratePath()
 {
   SphereList *path = NULL;
-  int goal_iterations, start_iterations;
+  int goalIterations, startIterations;
   int strategyIdx;
+  //vtkImageXViewer *viewer = new vtkImageXViewer;
+  //vtkImageRobotSpace2D *rSpace;
+  
+  //rSpace = (vtkImageRobotSpace2D *)(this->StateSpace);
+  //viewer->SetInput(rSpace->GetCanvas()->GetOutput());
+  //viewer->Render();
 
-
-  // Save the Space as a global
-  STATE_SPACE = this->StateSpace;
   // Give the space some scale.
   ROBOT_RADIUS = this->InitialSphereRadius * 2;
   
   /* get rid of all the Spheres from previous runs */
-  Sphere_all_free();
-  this->SphereVerifiedLinksClear();
+  // SphereAllFree();
+  // this->SphereVerifiedLinksClear();
 
-  this->SphereStartGoalInitialize(this->StartState, this->GoalState, 
-				  this->InitialSphereRadius);
-
+  if ( ! START_SPHERE)
+    {
+    this->SphereStartGoalInitialize(this->StartState, this->GoalState, 
+				    this->InitialSphereRadius);
+    }
   
   /* set the step resolution for verification */
-  path_verify_step_set(this->VerifyStep);
+  this->PathVerifyStepSet(this->VerifyStep);
   
   /* call the path generation routines */
   strategyIdx = -1;
   while( ! path)
     {
     /* determine how much time to spend searching goal */
-    goal_iterations = (int)(this->SamplePeriod*this->GoalPercentage * 0.01);
-    start_iterations = this->SamplePeriod - goal_iterations;
+    goalIterations = (int)(this->SamplePeriod*this->GoalPercentage * 0.01);
+    startIterations = this->SamplePeriod - goalIterations;
     
     /* Change search strategy */
     ++strategyIdx;
@@ -219,27 +264,30 @@ void vtkClaw::GeneratePath()
       {
       strategyIdx = 0;
       }
-    Sphere_search_strategy_set(this->SearchStrategies[strategyIdx]);
+    this->SphereSearchStrategySet(this->SearchStrategies[strategyIdx]);
     
     /* search the start network */
-    if (! path && start_iterations)
+    if (! path && startIterations)
       {
       vtkDebugMacro(<< "Searching start");
-      path = this->PathGenerate(start_iterations, 0, this->ChildFraction);
-      vtkDebugMacro(<< "num free = " << Spheres_free_count()
-                    << ", num collisions = " << Spheres_collision_count());
+      path = this->PathGenerate(startIterations, 0, this->ChildFraction);
+      vtkDebugMacro(<< "num free = " << SpheresFreeCount()
+                    << ", num collisions = " << SpheresCollisionCount());
       }
 
     /* search the goal network */
-    if (! path && goal_iterations)
+    if (! path && goalIterations)
       {
       vtkDebugMacro(<< "Searching goal");
-      path = PathGenerate(goal_iterations, 1, this->ChildFraction);
-      vtkDebugMacro(<< "num free = " << Spheres_free_count()
-                    << ", num collisions = " << Spheres_collision_count());
+      path = PathGenerate(goalIterations, 1, this->ChildFraction);
+      vtkDebugMacro(<< "num free = " << SpheresFreeCount()
+                    << ", num collisions = " << SpheresCollisionCount());
       }
 
-    Sphere_collisions_prune();
+    SphereCollisionsPrune();
+    
+    //viewer->Render();
+    //rSpace->ClearCanvas();
     
     fflush(stdout);
     }
@@ -272,7 +320,6 @@ void vtkClaw::SmoothPath(int number)
 
 
 
-static void SpherePrint(Sphere *b);
 //----------------------------------------------------------------------------
 // Description:
 // This method smooths an existing path (found by GeneratePath) by making
@@ -299,15 +346,15 @@ int vtkClaw::SmoothPath()
   
   // Assuming that claw is initialized  properly (see GeneratePath)
   // Only use nearest network strategy (assume gaps are small)
-  Sphere_search_strategy_set(VTK_CLAW_NEAREST_NETWORK);
+  this->SphereSearchStrategySet(VTK_CLAW_NEAREST_NETWORK);
   path = this->PathGetValid(START_SPHERE, GOAL_SPHERE);
   while( ! path)
     {
     // Only search goal (because oll other networks are considered start)
     vtkDebugMacro(<< "Searching goal");
     path = PathGenerate(200, 1, this->ChildFraction);
-    vtkDebugMacro(<< "num free = " << Spheres_free_count()
-                  << ", num collisions = " << Spheres_collision_count());
+    vtkDebugMacro(<< "num free = " << SpheresFreeCount()
+                  << ", num collisions = " << SpheresCollisionCount());
     }
 
   // should we delete any previous path?????????????????????????????????
@@ -316,9 +363,6 @@ int vtkClaw::SmoothPath()
   return flag;
 }
 
-static int SphereCandidateValid(Sphere *b, float *proposed);
-static Sphere *Sphere_make(float *center, float radius, int visited);
-static void Sphere_collision_add(Sphere *b, Sphere *parent);
 //----------------------------------------------------------------------------
 // Description:
 // A helper method for SmoothPath.  This method makes sure a sphere 
@@ -326,7 +370,7 @@ static void Sphere_collision_add(Sphere *b, Sphere *parent);
 int vtkClaw::SmoothSphere(Sphere *s)
 {
   int axis;
-  float child[VTK_CLAW_DIMENSIONS];
+  float *child = this->StateSpace->NewState();
   float temp;
   int flag = 0;
   
@@ -338,36 +382,38 @@ int vtkClaw::SmoothSphere(Sphere *s)
 
   temp = s->Radius * this->ChildFraction;
   // loop through axes (to find children)
-  for (axis = 0; axis < VTK_CLAW_DIMENSIONS; ++axis)
+  for (axis = 0; axis < this->DegreesOfFreedom; ++axis)
     {
-    STATE_SPACE->GetChildState(s->Center, axis, temp, child);
-    if (STATE_SPACE->Collide(child))
+    this->StateSpace->GetChildState(s->Center, axis, temp, child);
+    if (this->StateSpace->Collide(child))
       {
       // Collision
-      Sphere_collision_add(Sphere_make(child, 0.0, -1), s);
+      this->SphereCollisionAdd(this->SphereMake(child, 0.0, -1), s);
       vtkDebugMacro(<< "Collision");
       // Call this function recursively (sphere now has smaller radius)
       this->SmoothSphere(s);
+      delete [] child;
       return 1;
       }
-    else if (SphereCandidateValid(s, child))
+    else if (this->SphereCandidateValid(s, child))
       {
       // Make a neighbor
       flag = 1;
       this->SphereNew(child, s);
       }
 
-    STATE_SPACE->GetChildState(s->Center, axis, -temp, child);
-    if (STATE_SPACE->Collide(child))
+    this->StateSpace->GetChildState(s->Center, axis, -temp, child);
+    if (this->StateSpace->Collide(child))
       {
       // Collision
-      Sphere_collision_add(Sphere_make(child, 0.0, -1), s);
+      this->SphereCollisionAdd(this->SphereMake(child, 0.0, -1), s);
       vtkDebugMacro(<< "Collision");
       // Call this function recursively (sphere now has smaller radius)
       this->SmoothSphere(s);
+      delete [] child;
       return 1;
       }
-    else if (SphereCandidateValid(s, child))
+    else if (this->SphereCandidateValid(s, child))
       {
       // Make a neighbor
       flag = 1;
@@ -375,22 +421,46 @@ int vtkClaw::SmoothSphere(Sphere *s)
       }
     }
   
+  delete [] child;
   return flag;
 }
 
 
 
 
-static void free_Spheres_print();
 //----------------------------------------------------------------------------
 // for debugging
 void vtkClaw::PrintFreeSpheres ()
 {
-  free_Spheres_print();
+  this->FreeSpheresPrint();
 }
 
 
 //----------------------------------------------------------------------------
+// Description:
+// Get a list spheres which are collisions.
+// DO NOT DELETE THE LIST RETURNED.
+SphereList *vtkClaw::GetCollisions()
+{
+  return COLLISIONS;
+}
+
+
+//----------------------------------------------------------------------------
+// Description:
+// Get a list of all spheres.
+// DO NOT DELETE THE LIST RETURNED.
+SphereList *vtkClaw::GetSpheres()
+{
+  return FREE_SPHERES;
+}
+
+
+
+//----------------------------------------------------------------------------
+// Description:
+// Get a list spheres that defines the path.
+// DO NOT DELETE THE LIST RETURNED.
 SphereList *vtkClaw::GetPath()
 {
   return this->Path;
@@ -419,7 +489,7 @@ void vtkClaw::SavePath(char *fileName)
     b = path->Item;
     path = path->Next;
     (*file) << b->Center[0];
-    for (idx = 1; idx < VTK_CLAW_DIMENSIONS; ++idx)
+    for (idx = 1; idx < this->StateDimensionality; ++idx)
       {
       (*file) << " ";
       (*file) << b->Center[idx];
@@ -427,6 +497,46 @@ void vtkClaw::SavePath(char *fileName)
     (*file) << "\n";
     }
   file->close();
+}
+
+
+//----------------------------------------------------------------------------
+void vtkClaw::LoadPath(char *fileName)
+{
+  SphereList *path = NULL;
+  Sphere *b;
+  int idx;
+  FILE *file;
+  float *state, temp;
+  
+  
+  file = fopen(fileName, "r");
+  if (! file)
+    {
+    vtkDebugMacro(<< "LoadPath: Could not open file " << fileName);
+    return;
+    }  
+  
+  // keep loading states.
+  state = this->StateSpace->NewState();
+  while (1)
+    {
+    for (idx = 0; idx < this->StateDimensionality; ++idx)
+      {
+      if ( ! fscanf(file, "%f", &temp))
+	{
+	// We should delete the old path ...
+	this->Path = path;
+	delete [] state;
+	fclose(file);
+	return;
+	}
+      state[idx] = temp;
+      }
+    // Make a sphere and add it to the path.
+    b = this->SphereNew(state, NULL);
+    path = this->SphereListAdd(path, b);
+    }
 }
 
 
@@ -472,7 +582,7 @@ void vtkClaw::GetPathState(int idx, float *state)
   b = path->Item;
 
   // Copy the state
-  for (idx = 0; idx < VTK_CLAW_DIMENSIONS; ++idx)
+  for (idx = 0; idx < this->StateDimensionality; ++idx)
     {
     state[idx] = b->Center[idx];
     }
@@ -497,19 +607,14 @@ void vtkClaw::GetPathState(int idx, float *state)
 /* determines where child should be created in sphere */
 static float SPHERE_CHILD_FRACTION = 0.65;
 
-/* For returning best_Sphere from last network searched */
+/* For returning bestSphere from last network searched */
 static int LAST_NETWORK_SEARCHED = 0;
 
 /* tells which search strategy to use */
 static int SEARCH_STRATEGY = 0;
 
-/* A list of all FREE_SPHERES */
-static SphereList *FREE_SPHERES = NULL;
 /* The radius of the largest unknown Sphere */
 static float SPHERE_MAX_RESOLUTION;
-
-/* A list of points (stored as Sphere centers) which are not in free space */
-static SphereList *COLLISIONS = NULL;
 
 /* This flag is set when the goal network of spheres merges with another net */
 /* It tells the main routine to look for a path, and recompute goal net */
@@ -532,7 +637,7 @@ static SphereList *SPHERELIST_HEAP = NULL;
 
 //----------------------------------------------------------------------------
 // This function frees one cell (element) of a SphereList.
-static void SphereList_element_free(SphereList *l)
+void vtkClaw::SphereListElementFree(SphereList *l)
 {
   l->Next = SPHERELIST_HEAP;
   SPHERELIST_HEAP = l;
@@ -540,20 +645,20 @@ static void SphereList_element_free(SphereList *l)
 
 //----------------------------------------------------------------------------
 // This function frees all the elements in a list.
-static void SphereList_all_free(SphereList *l)
+void vtkClaw::SphereListAllFree(SphereList *l)
 {
   SphereList *temp;
 
   while(l){
     temp = l;
     l = l->Next;
-    SphereList_element_free(temp);
+    this->SphereListElementFree(temp);
   }
 }
 
 //----------------------------------------------------------------------------
 // This function removes the first cell containing "b", from the SphereList "l".
-static void SphereList_item_remove(SphereList **pl, void *ptr)
+void vtkClaw::SphereListItemRemove(SphereList **pl, void *ptr)
 {
   SphereList *temp;
 
@@ -561,7 +666,7 @@ static void SphereList_item_remove(SphereList **pl, void *ptr)
     if((*pl)->Item == ptr){
       temp = *pl;
       *pl = (*pl)->Next;
-      SphereList_element_free(temp);
+      this->SphereListElementFree(temp);
       return;
     } else {
       pl = &((*pl)->Next);
@@ -573,7 +678,7 @@ static void SphereList_item_remove(SphereList **pl, void *ptr)
 
 //----------------------------------------------------------------------------
 // Returns a new list with "item" appended to the begining of "l".
-static SphereList *SphereListAdd(SphereList *l, Sphere *item)
+SphereList *vtkClaw::SphereListAdd(SphereList *l, Sphere *item)
 {
   SphereList *element;
 
@@ -595,13 +700,12 @@ static SphereList *SphereListAdd(SphereList *l, Sphere *item)
 }
 
 
-static float SphereSort(Sphere *b);
 //----------------------------------------------------------------------------
 // Finds the best Sphere of a network.
-static Sphere *SphereListNetworkBest(SphereList *list, int network)
+Sphere *vtkClaw::SphereListNetworkBest(SphereList *list, int network)
 {
   float biggest;
-  Sphere *best_Sphere = NULL;
+  Sphere *bestSphere = NULL;
   Sphere *b;
   SphereList *l;
 
@@ -621,14 +725,14 @@ static Sphere *SphereListNetworkBest(SphereList *list, int network)
       if (b->Radius > SPHERE_MAX_RESOLUTION)
 	SPHERE_MAX_RESOLUTION = b->Radius;
 
-      if (!best_Sphere || SphereSort(b) > biggest){
-	best_Sphere = b;
-	biggest = SphereSort(b);
+      if (!bestSphere || this->SphereSort(b) > biggest){
+	bestSphere = b;
+	biggest = this->SphereSort(b);
       }
     }
   }
   
-  return best_Sphere;
+  return bestSphere;
 }
 
 /*============================================================================
@@ -640,27 +744,26 @@ static Sphere *SphereListNetworkBest(SphereList *list, int network)
 
 
 
-static void SphereRadiusReduce(Sphere *b, float radius);
 //----------------------------------------------------------------------------
 // External.
 // This function sets the starting point and goal of the planner.
-int vtkClaw::SphereStartGoalInitialize(float *start_state, float *goal_state,
+int vtkClaw::SphereStartGoalInitialize(float *startState, float *goalState,
 				       float radius)
 {
   /* Create the first Sphere and last Sphere*/
-  START_SPHERE = this->SphereNew(start_state, NULL);
+  START_SPHERE = this->SphereNew(startState, NULL);
   if(!START_SPHERE){
-    fprintf(stderr, "start position not in free space. (start_goal_init)\n");
+    fprintf(stderr, "start position not in free space. (startGoalInit)\n");
     exit(0);
   }
-  SphereRadiusReduce(START_SPHERE, radius);
+  this->SphereRadiusReduce(START_SPHERE, radius);
 
-  GOAL_SPHERE = this->SphereNew(goal_state, NULL);
+  GOAL_SPHERE = this->SphereNew(goalState, NULL);
   if(!GOAL_SPHERE){
-    fprintf(stderr, "goal position not in free space. (start_goal_init)\n");
+    fprintf(stderr, "goal position not in free space. (startGoalInit)\n");
     exit(0);
   }
-  SphereRadiusReduce(GOAL_SPHERE, radius);
+  this->SphereRadiusReduce(GOAL_SPHERE, radius);
   GOAL_MERGED = 1;
 
   return 1;
@@ -670,32 +773,29 @@ int vtkClaw::SphereStartGoalInitialize(float *start_state, float *goal_state,
 
 
 
-static Sphere *Sphere_nearest(Sphere *b);
-static void Spheres_print(SphereList *spheres);
 //----------------------------------------------------------------------------
 // External
 // For debugging
-static void free_Spheres_print()
+void vtkClaw::FreeSpheresPrint()
 {
-  Spheres_print(FREE_SPHERES);
+  this->SpheresPrint(FREE_SPHERES);
 }
 
 
-static int Spheres_count(SphereList *spheres);
 //----------------------------------------------------------------------------
 // External
 // Returns the number of spheres in free space.
-static int Spheres_free_count()
+int vtkClaw::SpheresFreeCount()
 {
-  return Spheres_count(FREE_SPHERES);
+  return this->SpheresCount(FREE_SPHERES);
 }
 
 //----------------------------------------------------------------------------
 // External
 // Returns the number of spheres in collision space.
-static int Spheres_collision_count()
+int vtkClaw::SpheresCollisionCount()
 {
-  return Spheres_count(COLLISIONS);
+  return this->SpheresCount(COLLISIONS);
 }
 
 
@@ -715,75 +815,76 @@ static int Spheres_collision_count()
 Sphere *vtkClaw::SphereNew(float *center, Sphere *parent)
 {
   Sphere *b;
-
   
-  if (STATE_SPACE->Collide(center)){
-    b = Sphere_make(center, 0.0, -1);
-    Sphere_collision_add(b, parent);
+  if (this->StateSpace->Collide(center)){
+    b = this->SphereMake(center, 0.0, -1);
+    this->SphereCollisionAdd(b, parent);
     return NULL;
   }
 
   if (parent)
-    b = Sphere_make(center, SPHERE_MAX_RADIUS, parent->Visited);
+    b = this->SphereMake(center, SPHERE_MAX_RADIUS, parent->Visited);
   else
-    b = Sphere_make(center, SPHERE_MAX_RADIUS, 0);
+    b = this->SphereMake(center, SPHERE_MAX_RADIUS, 0);
 
-  if (this->Debug)
-    {
-    printf("New Sphere:\n   ");
-    SpherePrint(b);
-    }
+  
+  //((vtkImageRobotSpace2D *)(this->StateSpace))->DrawRobot(b->Center);
+  
+  //if (this->Debug)
+  //  {
+  //  printf("New Sphere:\n   ");
+  //  this->SpherePrint(b);
+  //  }
   
   return this->SphereAdd(b);
 }
 
 
-static void Sphere_neighbors_prune(Sphere *b);
 //----------------------------------------------------------------------------
 // This function reduces the radius of a Sphere, and updates neighbors.
 // It does not resort the FREE_SPHERES list.
-static void SphereRadiusReduce(Sphere *b, float radius)
+void vtkClaw::SphereRadiusReduce(Sphere *b, float radius)
 {
   /* Set the new radius */
   b->Radius = radius;
 
-  Sphere_neighbors_prune(b);
+  this->SphereNeighborsPrune(b);
 }
 
 //----------------------------------------------------------------------------
 // This function removes all neighbors that should not be in list.
 // I also makes sure the Sphere is not in neighbor neighbors list.
-static void Sphere_neighbors_prune(Sphere *b)
+void vtkClaw::SphereNeighborsPrune(Sphere *b)
 {
-  SphereList *list, *pruned_list, *temp;
+  SphereList *list, *prunedList, *temp;
   Sphere *neighbor;
 
-  pruned_list = NULL;
+  prunedList = NULL;
   list = b->Neighbors;
   while (list){
     neighbor = list->Item;
     /* if this box no longer overlaps neighbor ... (avoid round off) */
-    if (STATE_SPACE->Distance(neighbor->Center, b->Center) + 0.00001 >= 
+    if (this->StateSpace->Distance(neighbor->Center, b->Center) + 0.00001 >= 
 	(neighbor->Radius + b->Radius)){
       /* remove this neighbor from list */
       temp = list;
       list = list->Next;
-      SphereList_element_free(temp);
+      this->SphereListElementFree(temp);
       /* remove this Sphere from neighbor's neighbor list also */
-      SphereList_item_remove(&(neighbor->Neighbors), b);
+      this->SphereListItemRemove(&(neighbor->Neighbors), b);
     } else {
       /* Place this neighbor on in list (Keep the neighbor) */
       temp = list;
       list = list->Next;
-      temp->Next = pruned_list;
-      pruned_list = temp;
+      temp->Next = prunedList;
+      prunedList = temp;
     }
     /* Update neighbors free surface area */
     neighbor->SortValid = (char)(0);
     neighbor->SurfaceAreaValid = (char)(0);
   }
   /* replace neighbor_list with pruned list */
-  b->Neighbors = pruned_list;
+  b->Neighbors = prunedList;
   /* Update this spheres free surface area */
   b->SortValid = (char)(0);
   b->SurfaceAreaValid = (char)(0);
@@ -793,19 +894,24 @@ static void Sphere_neighbors_prune(Sphere *b)
 
 //----------------------------------------------------------------------------
 // This function makes a Sphere structure.
-static Sphere *Sphere_make(float *center, float radius, int visited)
+Sphere *vtkClaw::SphereMake(float *center, float radius, int visited)
 {
   Sphere *b;
   int idx;
 
   b = (Sphere *)malloc(sizeof(struct Sphere));
-  if (!b){
-    printf("malloc failed. (Sphere_make)\n");
+  if (!b)
+    {
+    printf("malloc failed. (SphereMake)\n");
     return NULL;
   }
 
-  for(idx = 0; idx < VTK_CLAW_DIMENSIONS; ++idx)
+  // Allocate and set the center state.
+  b->Center = this->StateSpace->NewState();
+  for(idx = 0; idx < this->StateDimensionality; ++idx)
+    {
     b->Center[idx] = center[idx];
+    }
 
   b->Radius = radius;
   b->Neighbors = NULL;
@@ -823,31 +929,31 @@ static Sphere *Sphere_make(float *center, float radius, int visited)
 //----------------------------------------------------------------------------
 // This function takes a position (not in free space), and shrinks any
 // spheres if necessary. (only neighbors of parent need to be checked).
-static void Sphere_collision_add(Sphere *b, Sphere *parent)
+void vtkClaw::SphereCollisionAdd(Sphere *b, Sphere *parent)
 {
   SphereList *l;
   float temp;
 
-  COLLISIONS = SphereListAdd(COLLISIONS, b);
+  COLLISIONS = this->SphereListAdd(COLLISIONS, b);
   b->Visited = -1;
 
   if ( parent){
     /* We are garenteed parent is the only sphere which contains collision */
-    temp = STATE_SPACE->Distance(parent->Center, b->Center) - b->Radius;
+    temp = this->StateSpace->Distance(parent->Center, b->Center) - b->Radius;
     /* Reduce the spheres radius */
-    SphereRadiusReduce(parent, temp);
+    this->SphereRadiusReduce(parent, temp);
     /* Add collision neighbor */
-    b->Neighbors = SphereListAdd(b->Neighbors, parent);
+    b->Neighbors = this->SphereListAdd(b->Neighbors, parent);
   } else {
-    /* This collision must be fron verifiing a path. Check all spheres */
+    /* This collision must be from verifiing a path. Check all spheres */
     l = FREE_SPHERES;
     while (l){
-      temp = STATE_SPACE->Distance(l->Item->Center, b->Center) - b->Radius;
+      temp = this->StateSpace->Distance(l->Item->Center, b->Center) - b->Radius;
       if (temp <= l->Item->Radius){
 	/* Reduce the spheres radius */
-	SphereRadiusReduce(l->Item, temp);
+	this->SphereRadiusReduce(l->Item, temp);
 	/* Add collision neighbor */
-	b->Neighbors = SphereListAdd(b->Neighbors, l->Item);
+	b->Neighbors = this->SphereListAdd(b->Neighbors, l->Item);
       }
       l = l->Next;
     }
@@ -858,9 +964,9 @@ static void Sphere_collision_add(Sphere *b, Sphere *parent)
 //----------------------------------------------------------------------------
 // This function frees a Sphere
 // It does not bother removing itself as a neighbor of other spheres.
-static void Sphere_free(Sphere *b)
+void vtkClaw::SphereFree(Sphere *b)
 {
-  SphereList_all_free(b->Neighbors);
+  this->SphereListAllFree(b->Neighbors);
   free(b);
 }
 
@@ -868,27 +974,27 @@ static void Sphere_free(Sphere *b)
 //----------------------------------------------------------------------------
 // EXTERNAL
 // This function removes all spheres (to start the algorithm over)
-static void Sphere_all_free()
+void vtkClaw::SphereAllFree()
 {
   SphereList *l1;
 
   /* free the collision spheres */  
   l1 = COLLISIONS;
   while (l1){
-    Sphere_free(l1->Item);
+    this->SphereFree(l1->Item);
     l1 = l1->Next;
   }
-  SphereList_all_free(COLLISIONS);
+  this->SphereListAllFree(COLLISIONS);
   COLLISIONS = NULL;
 
 
   /* free the free spheres */  
   l1 = FREE_SPHERES;
   while (l1){
-    Sphere_free(l1->Item);
+    this->SphereFree(l1->Item);
     l1 = l1->Next;
   }
-  SphereList_all_free(FREE_SPHERES);
+  this->SphereListAllFree(FREE_SPHERES);
   FREE_SPHERES = NULL;
 }
 	
@@ -896,51 +1002,50 @@ static void Sphere_all_free()
 
 
 //----------------------------------------------------------------------------
-// EXTERNAL
 // This function removes collisions that do not have neighbors.
-static void Sphere_collisions_prune()
+void vtkClaw::SphereCollisionsPrune()
 {
-  SphereList *new_collisions = NULL;
-  SphereList *new_neighbors;
+  SphereList *newCollisions = NULL;
+  SphereList *newNeighbors;
   SphereList *l1, *l2, *temp;
   
   l1 = COLLISIONS;
   while (l1){
-    new_neighbors = NULL;
+    newNeighbors = NULL;
     l2 = l1->Item->Neighbors;
     while (l2){
-      if (STATE_SPACE->Distance(l1->Item->Center, l2->Item->Center) <=
+      if (this->StateSpace->Distance(l1->Item->Center, l2->Item->Center) <=
 	  l2->Item->Radius + 0.001){
 	/* keep: move to new neighbors list */
 	temp = l2->Next;
-	l2->Next = new_neighbors;
-	new_neighbors = l2;
+	l2->Next = newNeighbors;
+	newNeighbors = l2;
 	l2 = temp;
       } else {
 	/* dispose of this neighbor */
 	temp = l2->Next;
-	SphereList_element_free(l2);
+	this->SphereListElementFree(l2);
 	l2 = temp;
       }
     }
-    l1->Item->Neighbors = new_neighbors;
+    l1->Item->Neighbors = newNeighbors;
 
-    if (new_neighbors){
+    if (newNeighbors){
       /* keep: move to new collisions list */
       temp = l1->Next;
-      l1->Next = new_collisions;
-      new_collisions = l1;
+      l1->Next = newCollisions;
+      newCollisions = l1;
       l1 = temp;
     } else {
       /* dispose of this Sphere */
       temp = l1->Next;
       free(l1->Item);
-      SphereList_element_free(l1);
+      this->SphereListElementFree(l1);
       l1 = temp;
     }
   }
 
-  COLLISIONS = new_collisions;
+  COLLISIONS = newCollisions;
 }
 	
 	
@@ -949,14 +1054,14 @@ static void Sphere_collisions_prune()
 //----------------------------------------------------------------------------
 // This function recomputes a spheres nearest if necessary.
 // It returns the nearest_val.
-static float Sphere_nearest_val(Sphere *b)
+float vtkClaw::SphereNearestVal(Sphere *b)
 {
   /* ignore collision nodes */
   if (b->Visited < 0)
     return 10000;
 
   /* make sure nearest is up to date */
-  if ( ! Sphere_nearest(b))
+  if ( ! this->SphereNearest(b))
     return 10000;  /* could not find nearest */
 
   /* return the distance between sphere surfaces */
@@ -968,7 +1073,7 @@ static float Sphere_nearest_val(Sphere *b)
 //----------------------------------------------------------------------------
 // This function recomputes a spheres nearest if necessary.
 // It returns the nearest.
-static Sphere *Sphere_nearest(Sphere *b)
+Sphere *vtkClaw::SphereNearest(Sphere *b)
 {
   /* ignore collision nodes */
   if (b->Visited < 0)
@@ -994,7 +1099,7 @@ static Sphere *Sphere_nearest(Sphere *b)
 
       if (((b->Visited > 0) && (other->Visited == 0)) || 
 	  ((b->Visited == 0) && (other->Visited > 0))){
-	temp = STATE_SPACE->Distance(b->Center, other->Center);
+	temp = this->StateSpace->Distance(b->Center, other->Center);
 	if (!(b->Nearest) || temp < b->NearestVal){
 	  b->Nearest = other;
 	  b->NearestVal = temp;
@@ -1034,7 +1139,7 @@ Sphere *vtkClaw::SphereAdd(Sphere *b)
   other = NULL;
   l = COLLISIONS;
   while(l){
-    temp = STATE_SPACE->Distance(b->Center, l->Item->Center);
+    temp = this->StateSpace->Distance(b->Center, l->Item->Center);
     if (temp < b->Radius){
       b->Radius = temp;
       other = l->Item;
@@ -1044,7 +1149,7 @@ Sphere *vtkClaw::SphereAdd(Sphere *b)
 
   /* the closest collision */
   if(other){
-    other->Neighbors = SphereListAdd(other->Neighbors, b);
+    other->Neighbors = this->SphereListAdd(other->Neighbors, b);
   }
 
   /* Add neighbors from valid FREE_SPHERES */
@@ -1052,7 +1157,7 @@ Sphere *vtkClaw::SphereAdd(Sphere *b)
   while (l){
     other = l->Item;
     l = l->Next;
-    temp = STATE_SPACE->Distance(b->Center, other->Center);
+    temp = this->StateSpace->Distance(b->Center, other->Center);
 
     /* compute nearest as a side action */
     if (((b->Visited && !(other->Visited)) || 
@@ -1082,8 +1187,8 @@ Sphere *vtkClaw::SphereAdd(Sphere *b)
     /* if these two spheres are touching */
     if (temp <= ((b->Radius + other->Radius))){
       /* update the neighbor lists */
-      b->Neighbors = SphereListAdd(b->Neighbors, other);
-      other->Neighbors = SphereListAdd(other->Neighbors, b);
+      b->Neighbors = this->SphereListAdd(b->Neighbors, other);
+      other->Neighbors = this->SphereListAdd(other->Neighbors, b);
       /* Update neighbors free surface area */
       other->SortValid = (char)(0);
       other->SurfaceAreaValid = (char)(0);
@@ -1091,7 +1196,7 @@ Sphere *vtkClaw::SphereAdd(Sphere *b)
   }
 
   /* Add to the list */
-  FREE_SPHERES = SphereListAdd(FREE_SPHERES, b);
+  FREE_SPHERES = this->SphereListAdd(FREE_SPHERES, b);
 
   /* Update this spheres free surface area */
   b->SortValid = (char)(0);
@@ -1106,11 +1211,8 @@ Sphere *vtkClaw::SphereAdd(Sphere *b)
 }
 
 
-static float Sphere_nearest_val(Sphere *b);
-static int Sphere_num_neighbors(Sphere *b);
-static float Sphere_surface_area(Sphere *b);
 //----------------------------------------------------------------------------
-static void SpherePrint(Sphere *b)
+void vtkClaw::SpherePrint(Sphere *b)
 {
   int idx;
 
@@ -1120,17 +1222,17 @@ static void SpherePrint(Sphere *b)
   }
 
   printf("space DrawRobot %.4f", b->Center[0]);
-  for (idx = 1; idx < VTK_CLAW_DIMENSIONS; ++idx)
+  for (idx = 1; idx < this->StateDimensionality; ++idx)
     printf(" %.4f", b->Center[idx]);
   printf("; # r: %.3f, sort: %.6f, net %d, num %.1f,%d, dist %.1f, near %.3f,%.3f",
-	 b->Radius, SphereSort(b), b->Visited, 
-	 Sphere_surface_area(b), Sphere_num_neighbors(b),
-	 STATE_SPACE->BoundsTest(b->Center), Sphere_nearest_val(b), 
+	 b->Radius, this->SphereSort(b), b->Visited, 
+	 this->SphereSurfaceArea(b), this->SphereNumNeighbors(b),
+	 this->StateSpace->BoundsTest(b->Center), this->SphereNearestVal(b), 
 	 b->NearestVal);
 
-  b = Sphere_nearest(b);
+  b = this->SphereNearest(b);
   if (b)
-    printf(", %.3f\n", Sphere_nearest_val(b));
+    printf(", %.3f\n", this->SphereNearestVal(b));
   else
     printf("\n");
 
@@ -1141,7 +1243,7 @@ static void SpherePrint(Sphere *b)
 
 
 //----------------------------------------------------------------------------
-static int Sphere_num_neighbors(Sphere *b)
+int vtkClaw::SphereNumNeighbors(Sphere *b)
 {
   SphereList *l;
   int count = 0;
@@ -1163,15 +1265,14 @@ static int Sphere_num_neighbors(Sphere *b)
 //----------------------------------------------------------------------------
 // This function returns 1 if a candidate child for a sphere is not
 // Already mapped. It returns 0 otherwise.
-static int 
-SphereCandidateValid(Sphere *b, float *proposed)
+int vtkClaw::SphereCandidateValid(Sphere *b, float *proposed)
 {
   float temp = b->Radius * SPHERE_CHILD_FRACTION;
   SphereList *l;
   Sphere *other;
 
   /* handle if the sphere touches itself */
-  if (STATE_SPACE->Distance(b->Center, proposed) < (temp * 0.9))
+  if (this->StateSpace->Distance(b->Center, proposed) < (temp * 0.9))
     {
     return 0;
     }
@@ -1182,7 +1283,7 @@ SphereCandidateValid(Sphere *b, float *proposed)
     {
     other = l->Item;
     l = l->Next;
-    if (STATE_SPACE->Distance(other->Center, proposed) < other->Radius)
+    if (this->StateSpace->Distance(other->Center, proposed) < other->Radius)
       {
       return 0;
       }
@@ -1196,40 +1297,38 @@ SphereCandidateValid(Sphere *b, float *proposed)
 // This function returns (pointer argument) an array which tells which 
 // search directions of a Sphere are already filled (and which are free).
 // The integer return value is the number of candidates.
-static int 
-Sphere_candidates_get(Sphere *b, int candidates[VTK_CLAW_DIMENSIONS][2])
+int vtkClaw::SphereCandidatesGet(Sphere *b)
 {
-  float proposed[VTK_CLAW_DIMENSIONS];
-  int num_candidates, valid;
+  float *proposed = this->StateSpace->NewState();
+  int numCandidates, valid;
   int direction, axis;
   float temp;
 
-  num_candidates = 0;
+  numCandidates = 0;
   
   /* Find the number of unoccupied inbounds candidates */
   temp = b->Radius * SPHERE_CHILD_FRACTION;
-  for (axis = 0; axis < VTK_CLAW_DIMENSIONS; ++axis){
+  for (axis = 0; axis < this->DegreesOfFreedom; ++axis){
     for (direction = 0; direction < 2; ++direction){
       /* Set up child state */
       if (direction)
 	{
-	STATE_SPACE->GetChildState(b->Center, axis, temp, proposed);
+	this->StateSpace->GetChildState(b->Center, axis, temp, proposed);
 	}
       else
 	{
-	STATE_SPACE->GetChildState(b->Center, axis, -temp, proposed);
+	this->StateSpace->GetChildState(b->Center, axis, -temp, proposed);
 	}
-      /* Wrap the new position if necessary */
-      STATE_SPACE->Wrap(proposed);
 
-      valid = SphereCandidateValid(b, proposed);
+      valid = this->SphereCandidateValid(b, proposed);
 
-      num_candidates += valid;
-      candidates[axis][direction] = valid;
+      numCandidates += valid;
+      this->Candidates[axis * 2 + direction] = valid;
     }
   }
   
-  return num_candidates;
+  delete [] proposed;
+  return numCandidates;
 }
 
 
@@ -1238,14 +1337,12 @@ Sphere_candidates_get(Sphere *b, int candidates[VTK_CLAW_DIMENSIONS][2])
 // This function returns (pointer argument) an array which tells which
 // search direstions of a Sphere are already filled (and which are free). 
 // The integer return value is the number of candidates.
-static float Sphere_surface_area(Sphere *b)
+float vtkClaw::SphereSurfaceArea(Sphere *b)
 {
   if ( ! b->SurfaceAreaValid){
-    int candidates[VTK_CLAW_DIMENSIONS][2];
-
-    b->SurfaceArea = (float)(Sphere_candidates_get(b, candidates));
+    b->SurfaceArea = (float)(SphereCandidatesGet(b));
     /* consider the guide tube at this point */
-    b->SurfaceArea *= STATE_SPACE->BoundsTest(b->Center);
+    b->SurfaceArea *= this->StateSpace->BoundsTest(b->Center);
     b->SurfaceAreaValid = (char)(1);
   }
 
@@ -1280,14 +1377,14 @@ static float Sphere_surface_area(Sphere *b)
 
 
 //----------------------------------------------------------------------------
-static void Spheres_print(SphereList *spheres)
+void vtkClaw::SpheresPrint(SphereList *spheres)
 {
   SphereList *list;
 
   printf("Sphere list:\n");
   list = spheres;
   while (list){
-    SpherePrint(list->Item);
+    this->SpherePrint(list->Item);
     list = list->Next;
   }
   printf("\n");
@@ -1297,7 +1394,7 @@ static void Spheres_print(SphereList *spheres)
 
 //----------------------------------------------------------------------------
 // Returns the length of the list.
-static int Spheres_count(SphereList *spheres)
+int vtkClaw::SpheresCount(SphereList *spheres)
 {
   SphereList *list;
   int count = 0;
@@ -1320,7 +1417,7 @@ static int Spheres_count(SphereList *spheres)
 //----------------------------------------------------------------------------
 // External
 // Changes the search strategy.
-static void Sphere_search_strategy_set(int strategy)
+void vtkClaw::SphereSearchStrategySet(int strategy)
 {
   SphereList *l;
   Sphere *b;
@@ -1339,87 +1436,77 @@ static void Sphere_search_strategy_set(int strategy)
     
 
 
-static float 
-Sphere_nearest_network_move_evaluate(Sphere *b, int axis, int direction);
-static float Sphere_nearest_global_move_evaluate(Sphere *b, float *proposed);
-static float Sphere_pioneer_local_move_evaluate(Sphere *b, float *proposed);
-static float Sphere_pioneer_global_move_evaluate(Sphere *b, float *proposed);
-static float Sphere_noise_move_evaluate();
-static float Sphere_nearest_noise_move_evaluate(Sphere *b, float *proposed);
 //----------------------------------------------------------------------------
 // This function chooses the next position to spawn a child.
 // It uses the search strategy to select a huristic.
 // Returns the chosen position in proposed.
-static int Sphere_candidate_choose(Sphere *b, float *proposed)
+int vtkClaw::SphereCandidateChoose(Sphere *b, float *proposed)
 {
-  int candidates[VTK_CLAW_DIMENSIONS][2];
   int direction, axis;
   float best, temp, first = 1;
-  int best_direction, best_axis;
+  int bestDirection, bestAxis;
   float sortSave;
 
-  sortSave = SphereSort(b);
+  sortSave = this->SphereSort(b);
   /* find the free directions */
-  Sphere_candidates_get(b, candidates);
+  this->SphereCandidatesGet(b);
 
   /* Choose the best free direction. */
-  for (axis = 0; axis < VTK_CLAW_DIMENSIONS; ++axis)
+  for (axis = 0; axis < this->DegreesOfFreedom; ++axis)
     {
     for (direction = 0; direction < 2; ++direction)
       {
-      if (candidates[axis][direction])
+      if (this->Candidates[axis * 2 + direction])
 	{
 	/* set up the proposed position */
 	temp = b->Radius * SPHERE_CHILD_FRACTION;
 	if (direction)
 	  {
-	  STATE_SPACE->GetChildState(b->Center, axis, temp, proposed);
+	  this->StateSpace->GetChildState(b->Center, axis, temp, proposed);
 	  }
 	else
 	  {
-	  STATE_SPACE->GetChildState(b->Center, axis, -temp, proposed);
+	  this->StateSpace->GetChildState(b->Center, axis, -temp, proposed);
 	  }
-	STATE_SPACE->Wrap(proposed);
-	/* get the rating of this position from the search_strategy */
+	/* get the rating of this position from the searchStrategy */
 	if (SEARCH_STRATEGY == 0)
-	  temp = Sphere_nearest_network_move_evaluate(b, axis, direction);
+	  temp = this->SphereNearestNetworkMoveEvaluate(b, axis, direction);
 	if (SEARCH_STRATEGY == 1)
-	  temp = Sphere_nearest_network_move_evaluate(b, axis, direction);
+	  temp = this->SphereNearestNetworkMoveEvaluate(b, axis, direction);
 	if (SEARCH_STRATEGY == 2)
-	  temp = Sphere_nearest_global_move_evaluate(b, proposed);
+	  temp = this->SphereNearestGlobalMoveEvaluate(b, proposed);
 	if (SEARCH_STRATEGY == 3)
-	  temp = Sphere_pioneer_local_move_evaluate(b, proposed);
+	  temp = this->SpherePioneerLocalMoveEvaluate(b, proposed);
 	if (SEARCH_STRATEGY == 4)
-	  temp = Sphere_pioneer_global_move_evaluate(b, proposed);
+	  temp = this->SpherePioneerGlobalMoveEvaluate(b, proposed);
 	if (SEARCH_STRATEGY == 5)
-	  temp = Sphere_nearest_network_move_evaluate(b, axis, direction);
+	  temp = this->SphereNearestNetworkMoveEvaluate(b, axis, direction);
 	if (SEARCH_STRATEGY == 6)
-	  temp = Sphere_noise_move_evaluate();
+	  temp = this->SphereNoiseMoveEvaluate();
 	if (SEARCH_STRATEGY == 7)
-	  temp = Sphere_nearest_noise_move_evaluate(b, proposed);
+	  temp = this->SphereNearestNoiseMoveEvaluate(b, proposed);
 	if (SEARCH_STRATEGY == 8)
-	  temp = Sphere_nearest_network_move_evaluate(b, axis, direction);
+	  temp = this->SphereNearestNetworkMoveEvaluate(b, axis, direction);
 	if (SEARCH_STRATEGY == 9)
-	  temp = Sphere_noise_move_evaluate();
+	  temp = this->SphereNoiseMoveEvaluate();
 	if (SEARCH_STRATEGY == 10)
-	  temp = Sphere_noise_move_evaluate();
+	  temp = this->SphereNoiseMoveEvaluate();
 	/* if this beats the best so far, (or is the first) save it */
 	if (first || temp > best)
 	  {
 	  first = 0;
 	  best = temp;
-	  best_axis = axis;
-	  best_direction = direction;
+	  bestAxis = axis;
+	  bestDirection = direction;
 	  }
 	}
       }
     }
   
-  
   if (first)
     {
-    printf("problem choosing best direction (no free directions) %f\n",
-	   sortSave);
+    vtkWarningMacro(<< "problem choosing best direction (no free directions)"
+                    << sortSave);
     // Just incase something was not upto date
     SpherePrint(b);
     b->SortValid = 0;
@@ -1428,19 +1515,17 @@ static int Sphere_candidate_choose(Sphere *b, float *proposed)
     
     return 0;
     }
-  
 
   /* set up the best proposed position */
   temp = b->Radius * SPHERE_CHILD_FRACTION;
-  if (best_direction)
+  if (bestDirection)
     {
-    STATE_SPACE->GetChildState(b->Center, best_axis, temp, proposed);
+    this->StateSpace->GetChildState(b->Center, bestAxis, temp, proposed);
     }
   else
     {
-    STATE_SPACE->GetChildState(b->Center, best_axis, -temp, proposed);
+    this->StateSpace->GetChildState(b->Center, bestAxis, -temp, proposed);
     }
-  STATE_SPACE->Wrap(proposed);
   
   return 1;
 }
@@ -1449,12 +1534,12 @@ static int Sphere_candidate_choose(Sphere *b, float *proposed)
 //----------------------------------------------------------------------------
 // Get as close to the other network as possible (the nearest)
 // larger return value is better.
-static float 
-Sphere_nearest_network_move_evaluate(Sphere *b, int axis, int direction)
+float vtkClaw::SphereNearestNetworkMoveEvaluate(Sphere *b, int axis, 
+						int direction)
 {
   Sphere *nearest;
   
-  nearest = Sphere_nearest(b);
+  nearest = this->SphereNearest(b);
 
   if ( ! nearest)
     return 0.0;
@@ -1471,7 +1556,7 @@ Sphere_nearest_network_move_evaluate(Sphere *b, int axis, int direction)
 //----------------------------------------------------------------------------
 // Move toward the ultimate goal, the other networks root.
 // larger return value is better.
-static float Sphere_nearest_global_move_evaluate(Sphere *b, float *proposed)
+float vtkClaw::SphereNearestGlobalMoveEvaluate(Sphere *b, float *proposed)
 {
   float temp;
 
@@ -1479,30 +1564,29 @@ static float Sphere_nearest_global_move_evaluate(Sphere *b, float *proposed)
     /* this Sphere *is in the goal network */
     if (! START_SPHERE)
       return 0.0;
-    temp = STATE_SPACE->Distance(proposed, START_SPHERE->Center);
+    temp = this->StateSpace->Distance(proposed, START_SPHERE->Center);
   } else {
     /* this Sphere is in the start network */
     if (! GOAL_SPHERE)
       return 0.0;
-    temp = STATE_SPACE->Distance(proposed, GOAL_SPHERE->Center);
+    temp = this->StateSpace->Distance(proposed, GOAL_SPHERE->Center);
   }
 
   return 1 / temp;
 }
 
 
-
 //----------------------------------------------------------------------------
 // Move away from neighbors.
 // larger return value is better.
-static float Sphere_pioneer_local_move_evaluate(Sphere *b, float *proposed)
+float vtkClaw::SpherePioneerLocalMoveEvaluate(Sphere *b, float *proposed)
 {
   SphereList *l;
   float temp = 0.0;
 
   l = b->Neighbors;
   while (l){
-    temp += STATE_SPACE->Distance(proposed, l->Item->Center);
+    temp += this->StateSpace->Distance(proposed, l->Item->Center);
     l = l->Next;
   }
 
@@ -1513,7 +1597,7 @@ static float Sphere_pioneer_local_move_evaluate(Sphere *b, float *proposed)
 //----------------------------------------------------------------------------
 // Move away from this spheres root.
 // larger return value is better.
-static float Sphere_pioneer_global_move_evaluate(Sphere *b, float *proposed)
+float vtkClaw::SpherePioneerGlobalMoveEvaluate(Sphere *b, float *proposed)
 {
   float temp;
 
@@ -1521,12 +1605,12 @@ static float Sphere_pioneer_global_move_evaluate(Sphere *b, float *proposed)
     /* this Sphere is in the goal network */
     if (! GOAL_SPHERE)
       return 0.0;
-    temp = STATE_SPACE->Distance(proposed, GOAL_SPHERE->Center);
+    temp = this->StateSpace->Distance(proposed, GOAL_SPHERE->Center);
   } else {
     /* this Sphere *is in the start network */
     if (! START_SPHERE)
       return 0.0;
-    temp = STATE_SPACE->Distance(proposed, START_SPHERE->Center);
+    temp = this->StateSpace->Distance(proposed, START_SPHERE->Center);
   }
 
   return temp;
@@ -1535,7 +1619,7 @@ static float Sphere_pioneer_global_move_evaluate(Sphere *b, float *proposed)
 
 //----------------------------------------------------------------------------
 // Adds noise to the search. Just returns a randorm number.
-static float Sphere_noise_move_evaluate()
+float vtkClaw::SphereNoiseMoveEvaluate()
 {
   return  (float)(rand()) / 2147483648.0;
 }
@@ -1546,12 +1630,12 @@ static float Sphere_noise_move_evaluate()
 //----------------------------------------------------------------------------
 // Selects randomly among directions which move the Sphere closer
 // to the nearset network
-static float Sphere_nearest_noise_move_evaluate(Sphere *b, float *proposed)
+float vtkClaw::SphereNearestNoiseMoveEvaluate(Sphere *b, float *proposed)
 {
   Sphere *nearest;
 
-  nearest = Sphere_nearest(b);
-  if (STATE_SPACE->Distance(proposed, nearest->Center) < b->NearestVal)
+  nearest = this->SphereNearest(b);
+  if (this->StateSpace->Distance(proposed, nearest->Center) < b->NearestVal)
     return  (float)(rand()) / 2147483648.0;
   else
     return 0.0;
@@ -1562,49 +1646,38 @@ static float Sphere_nearest_noise_move_evaluate(Sphere *b, float *proposed)
 
 
 
-static float Sphere_nearest_network_sort_compute(Sphere *b);
-static float Sphere_nearest_minimum_sort_compute(Sphere *b);
-static float Sphere_nearest_global_sort_compute(Sphere *b);
-static float Sphere_pioneer_local_sort_compute(Sphere *b);
-static float Sphere_pioneer_global_sort_compute(Sphere *b);
-static float Sphere_close_tolerance_sort_compute(Sphere *b);
-static float Sphere_nearest_net_pioneer_sort_compute(Sphere *b);
-static float Sphere_minimum_well_sort_compute(Sphere *b);
-static float Sphere_narrow_well_sort_compute(Sphere *b);
 //----------------------------------------------------------------------------
 // A function to compute the free surface area of a box.
 // A variation of the above. (neighbor must include proposed point).
-static float SphereSort(Sphere *b)
+float vtkClaw::SphereSort(Sphere *b)
 {
   /* It is possible that this value could change with out setting valid to 0 */
-  /* (for nearest_minimum)  (if nearest changes its nearest_val) */
+  /* (for nearestMinimum)  (if nearest changes its nearest_val) */
   /* this small inconsistancey should not make much difference */
   if (b->SortValid)
     return b->Sort;
 
     
   if (SEARCH_STRATEGY == 0)
-    b->Sort = Sphere_nearest_network_sort_compute(b);
+    b->Sort = this->SphereNearestNetworkSortCompute(b);
   if (SEARCH_STRATEGY == 1)
-    b->Sort = Sphere_nearest_minimum_sort_compute(b);
+    b->Sort = this->SphereNearestMinimumSortCompute(b);
   if (SEARCH_STRATEGY == 2)
-    b->Sort = Sphere_nearest_global_sort_compute(b);
+    b->Sort = this->SphereNearestGlobalSortCompute(b);
   if (SEARCH_STRATEGY == 3)
-    b->Sort = Sphere_pioneer_local_sort_compute(b);
+    b->Sort = this->SpherePioneerLocalSortCompute(b);
   if (SEARCH_STRATEGY == 4)
-    b->Sort = Sphere_pioneer_global_sort_compute(b);
-  if (SEARCH_STRATEGY == 5)
-    b->Sort = Sphere_nearest_net_pioneer_sort_compute(b);
+    b->Sort = this->SpherePioneerGlobalSortCompute(b);
   if (SEARCH_STRATEGY == 6)
-    b->Sort = Sphere_minimum_well_sort_compute(b);
+    b->Sort = this->SphereMinimumWellSortCompute(b);
   if (SEARCH_STRATEGY == 7)
-    b->Sort = Sphere_minimum_well_sort_compute(b);
+    b->Sort = this->SphereMinimumWellSortCompute(b);
   if (SEARCH_STRATEGY == 8)
-    b->Sort = Sphere_minimum_well_sort_compute(b);
+    b->Sort = this->SphereMinimumWellSortCompute(b);
   if (SEARCH_STRATEGY == 9)
-    b->Sort = Sphere_close_tolerance_sort_compute(b);
+    b->Sort = this->SphereCloseToleranceSortCompute(b);
   if (SEARCH_STRATEGY == 10)
-    b->Sort = Sphere_narrow_well_sort_compute(b);
+    b->Sort = this->SphereNarrowWellSortCompute(b);
   b->SortValid = (char)(1);
   return b->Sort;
 }
@@ -1613,39 +1686,39 @@ static float SphereSort(Sphere *b)
 
 
 //----------------------------------------------------------------------------
-// 1/StateSpace->Distance(nearest_neighbor);
+// 1/StateSpace->Distance(nearestNeighbor);
 // larger is better.
-static float Sphere_nearest_network_sort_compute(Sphere *b)
+float vtkClaw::SphereNearestNetworkSortCompute(Sphere *b)
 {
-  float temp = Sphere_nearest_val(b);
+  float temp = this->SphereNearestVal(b);
 
   /* hack to cover up intermitent bug */
   if (temp <= 0.00001)
     temp = 0.00001;
 
-  return b->Radius * (Sphere_surface_area(b) + 0.0001) / temp;
+  return b->Radius * (this->SphereSurfaceArea(b) + 0.0001) / temp;
 }
 
 
 //----------------------------------------------------------------------------
 // Search LOCAL minimum.
 // larger is better.
-static float Sphere_nearest_minimum_sort_compute(Sphere *b)
+float vtkClaw::SphereNearestMinimumSortCompute(Sphere *b)
 {
   float temp;
   Sphere *nearest;
 
-  nearest = Sphere_nearest(b);
+  nearest = this->SphereNearest(b);
   if ( ! nearest)
     return 0.00001;
 
-  temp = Sphere_nearest_val(b) - Sphere_nearest_val(nearest);
+  temp = this->SphereNearestVal(b) - this->SphereNearestVal(nearest);
 
   if (temp <= 0.00001)
     temp = 0.00001;
 
   /* what value should I use (0.5, 1.0, some measure of STD) */
-  return b->Radius * (Sphere_surface_area(b) + 0.0001) 
+  return b->Radius * (this->SphereSurfaceArea(b) + 0.0001) 
     / (0.5 + temp);
 }
 
@@ -1653,20 +1726,20 @@ static float Sphere_nearest_minimum_sort_compute(Sphere *b)
 //----------------------------------------------------------------------------
 // 1 / (StateSpace->Distance(GOAL))
 // larger is better.
-static float Sphere_nearest_global_sort_compute(Sphere *b)
+float vtkClaw::SphereNearestGlobalSortCompute(Sphere *b)
 {
   if (b->Visited > 0){
     /* this Sphere is part of the goal netework */
     if ( ! START_SPHERE)
       return 0.00001;
-    return b->Radius * (Sphere_surface_area(b) + 0.00001) 
-      / STATE_SPACE->Distance(b->Center, START_SPHERE->Center);
+    return b->Radius * (this->SphereSurfaceArea(b) + 0.00001) 
+      / this->StateSpace->Distance(b->Center, START_SPHERE->Center);
   } else {
     /* this Sphere *is part of the start netework */
     if ( ! GOAL_SPHERE)
       return 0.00001;
-    return b->Radius * (Sphere_surface_area(b) + 0.00001) 
-      / STATE_SPACE->Distance(b->Center, GOAL_SPHERE->Center);
+    return b->Radius * (this->SphereSurfaceArea(b) + 0.00001) 
+      / this->StateSpace->Distance(b->Center, GOAL_SPHERE->Center);
   }
 }
 
@@ -1674,111 +1747,98 @@ static float Sphere_nearest_global_sort_compute(Sphere *b)
 //----------------------------------------------------------------------------
 // 1 / (length(neighbors));
 // larger is better.
-static float Sphere_pioneer_local_sort_compute(Sphere *b)
+float vtkClaw::SpherePioneerLocalSortCompute(Sphere *b)
 {
-  return b->Radius * (Sphere_surface_area(b) + 0.00001) 
-    / (0.01 + (float)(Sphere_num_neighbors(b)));
+  return b->Radius * (this->SphereSurfaceArea(b) + 0.00001) 
+    / (0.01 + (float)(this->SphereNumNeighbors(b)));
 }
-
-
 
 
 //----------------------------------------------------------------------------
 // StateSpace->Distance(START).
 // larger is better.
-static float Sphere_pioneer_global_sort_compute(Sphere *b)
+float vtkClaw::SpherePioneerGlobalSortCompute(Sphere *b)
 {
   if (b->Visited > 0){
     /* this Sphere is part of the goal netework */
     if ( ! GOAL_SPHERE)
       return 0.00001;
-    return b->Radius * (Sphere_surface_area(b) + 0.00001) 
-      * STATE_SPACE->Distance(b->Center, GOAL_SPHERE->Center);
+    return b->Radius * (this->SphereSurfaceArea(b) + 0.00001) 
+      * this->StateSpace->Distance(b->Center, GOAL_SPHERE->Center);
   } else {
     /* this Sphere is part of the start netework */
     if ( ! START_SPHERE)
       return 0.00001;
-    return b->Radius * (Sphere_surface_area(b) + 0.00001) 
-      * STATE_SPACE->Distance(b->Center, START_SPHERE->Center);
+    return b->Radius * (this->SphereSurfaceArea(b) + 0.00001) 
+      * this->StateSpace->Distance(b->Center, START_SPHERE->Center);
   }
 }
 
 
 
 //----------------------------------------------------------------------------
-// 1/(StateSpace->Distance(nearest_neighbor) * num_neighbors);
-// larger is better.
-static float Sphere_nearest_net_pioneer_sort_compute(Sphere *b)
-{
-  b = b;
-  printf("nearest_net_pioneer is no longer available (spheres.cls)\n");
-  return 1.0;
-}
-
-
-//----------------------------------------------------------------------------
 // focus on the local minimum
 // larger is better.
 // problem with this: shhould never return 0 (sometimes all are 0)
-static float Sphere_minimum_well_sort_compute(Sphere *b)
+float vtkClaw::SphereMinimumWellSortCompute(Sphere *b)
 {
   float temp;
   Sphere *nearest;
 
-  nearest = Sphere_nearest(b);
+  nearest = this->SphereNearest(b);
   if ( ! nearest)
     return 0.00001;
 
   temp = (ROBOT_RADIUS * 0.02)
-    - (Sphere_nearest_val(b) - Sphere_nearest_val(nearest));
+    - (this->SphereNearestVal(b) - this->SphereNearestVal(nearest));
 
   if (temp <= 0.00001)
     temp = 0.00001; /* hack */
 
-  return b->Radius * (Sphere_surface_area(b) + 0.0000001) * temp;
+  return b->Radius * (this->SphereSurfaceArea(b) + 0.0000001) * temp;
 }
 
 //----------------------------------------------------------------------------
 // same as nearest minimum but much more focused search of minimum.
 // larger is better.
-static float Sphere_close_tolerance_sort_compute(Sphere *b)
+float vtkClaw::SphereCloseToleranceSortCompute(Sphere *b)
 {
   float temp;
   Sphere *nearest;
 
-  nearest = Sphere_nearest(b);
+  nearest = this->SphereNearest(b);
   if ( ! nearest)
     return 0.0;
 
   temp = (ROBOT_RADIUS * 0.01)
-    - (Sphere_nearest_val(b) - Sphere_nearest_val(nearest));
+    - (this->SphereNearestVal(b) - this->SphereNearestVal(nearest));
 
   if (temp <= 0.00001)
     temp = 0.00001; /* hack */
 
-  return b->Radius * (Sphere_surface_area(b) + 0.00001) * temp;
+  return b->Radius * (this->SphereSurfaceArea(b) + 0.00001) * temp;
 }
 
 
 //----------------------------------------------------------------------------
 // same as close tolerence, except narrow minimumare prefered to wide.
 // (ignore radius => narrow has lots with small radius and is prefered)
-static float Sphere_narrow_well_sort_compute(Sphere *b)
+float vtkClaw::SphereNarrowWellSortCompute(Sphere *b)
 {
   float temp;
   Sphere *nearest;
 
-  nearest = Sphere_nearest(b);
+  nearest = this->SphereNearest(b);
   if ( ! nearest)
     return 0.0;
-  Sphere_nearest(nearest);
+  this->SphereNearest(nearest);
 
   temp = (ROBOT_RADIUS * 0.02) - (b->NearestVal - nearest->NearestVal);
 
   if (temp <= 0.00001)
     temp = 0.00001; /* hack */
 
-  return b->Radius * (Sphere_surface_area(b) + 0.00001) * temp;
+  return b->Radius * (this->SphereSurfaceArea(b) + 0.00001) * temp;
 }
 
 
@@ -1810,48 +1870,46 @@ static float Sphere_narrow_well_sort_compute(Sphere *b)
 float VERIFY_STEP = 1.0;
 //----------------------------------------------------------------------------
 // EXTERNAL
-static void path_verify_step_set(float step_size)
+void vtkClaw::PathVerifyStepSet(float stepSize)
 {
-  VERIFY_STEP = step_size;
+  VERIFY_STEP = stepSize;
 }
 
 
 
-static int Sphere_candidate_choose(Sphere *b, float *center);
-static void SpherePrint(Sphere *b);
-static Sphere *Sphere_nearest(Sphere *b);
 //----------------------------------------------------------------------------
 // External
 // This function fills the free space with spheres until a path is found,
-// or until "additional_spheres" additional spheres are created.
+// or until "additionalSpheres" additional spheres are created.
 // It returns the verified path or NULL.
-SphereList *vtkClaw::PathGenerate(int additional_Spheres, 
-				  int network, float child_fraction)
+SphereList *vtkClaw::PathGenerate(int additionalSpheres, 
+				  int network, float childFraction)
 {
   Sphere *b;
-  float center[VTK_CLAW_DIMENSIONS];
+  float *center = this->StateSpace->NewState();
   SphereList *path = NULL;
   int temp;
 
-  SPHERE_CHILD_FRACTION = child_fraction;
+  SPHERE_CHILD_FRACTION = childFraction;
   LAST_NETWORK_SEARCHED = network;
 
   if(!START_SPHERE || !GOAL_SPHERE){
     vtkErrorMacro(<< "start and goal position must be initialized (PathGenerate)");
+    delete [] center;
     return NULL;
   }
   
-  while (!path && additional_Spheres > 0){
+  while (!path && additionalSpheres > 0){
     /* if the newest Sphere contains goal, find path and try to verify */
     if (GOAL_MERGED){
       path = this->PathGetValid(START_SPHERE, GOAL_SPHERE);
       GOAL_MERGED = 0;
     } else {
-      --additional_Spheres;
+      --additionalSpheres;
       /* Pick the biggest Sphere in unknown space */
       b = SphereListNetworkBest(FREE_SPHERES, network);
       /* Pick a direction to extend the space */
-      temp = Sphere_candidate_choose(b, center);
+      temp = SphereCandidateChoose(b, center);
 
       /* Create a new Sphere if new position is valid */
       if (temp){
@@ -1860,8 +1918,7 @@ SphereList *vtkClaw::PathGenerate(int additional_Spheres,
     }
   }
 
-  printf("Sphere resolution = %f\n", SPHERE_MAX_RESOLUTION);
-
+  delete [] center;
   return path;
 }
 
@@ -1871,19 +1928,19 @@ SphereList *vtkClaw::PathGenerate(int additional_Spheres,
 // This function is called when the goal and the start spaces merge.  
 // The space is searched until a valid path is found, 
 // or until the space is split into two sections again.
-SphereList *vtkClaw::PathGetValid(Sphere *start_Sphere, Sphere *goal_Sphere)
+SphereList *vtkClaw::PathGetValid(Sphere *startSphere, Sphere *goalSphere)
 {
   SphereList *path;
 
-  vtkDebugMacro(<< "-----path_get_valid");
-  while ( (path = this->PathSearch(start_Sphere, goal_Sphere)) ){
+  vtkDebugMacro(<< "-----pathGet_valid");
+  while ( (path = this->PathSearch(startSphere, goalSphere)) ){
     if (this->PathVerify(path)){
       printf("-----path validated\n");
       return path;
     }
 
     /* Free the current path */
-    SphereList_all_free(path);
+    SphereListAllFree(path);
     printf("     This path no good. Oh well, try again\n");
   }
   
@@ -1950,7 +2007,7 @@ void vtkClaw::SphereLinkVerifiedRecord(Sphere *b0, Sphere *b1)
 // Starts from scratch. All previous verifications are cleared.
 void vtkClaw::SphereVerifiedLinksClear()
 {
-  SphereList_all_free(VERIFIED_LINKS);
+  SphereListAllFree(VERIFIED_LINKS);
   VERIFIED_LINKS = NULL;
 }
 
@@ -1963,7 +2020,7 @@ int vtkClaw::SphereLinkStates(float *s1, float *s2, float distance)
   // confirm and return.
   if (distance <= VERIFY_STEP)
     {
-    distance = STATE_SPACE->Distance(s1, s2);
+    distance = this->StateSpace->Distance(s1, s2);
     if (distance > VERIFY_STEP)
       {
       return this->SphereLinkStates(s1, s2, distance);
@@ -1975,19 +2032,21 @@ int vtkClaw::SphereLinkStates(float *s1, float *s2, float distance)
     }
   else
     {
-    float middle[VTK_CLAW_DIMENSIONS];
+    float *middle = this->StateSpace->NewState();
     // Split the link in two by adding mid point state.
-    STATE_SPACE->GetMiddleState(s1, s2, middle);
-    if (STATE_SPACE->Collide(middle))
+    this->StateSpace->GetMiddleState(s1, s2, middle);
+    if (this->StateSpace->Collide(middle))
       {
-      Sphere_collision_add(Sphere_make(middle, 0.0, -1), NULL);
+      this->SphereCollisionAdd(this->SphereMake(middle, 0.0, -1), NULL);
       printf(" link no good\n");
       fflush(stdout);
+      delete [] middle;
       return 0;
       }
     else
       {
       // Recursion: Call this function on the two links
+      delete [] middle;
       return (this->SphereLinkStates(s1, middle, distance/2.0) &&
 	      this->SphereLinkStates(middle, s2, distance/2.0));
       }
@@ -2016,7 +2075,7 @@ int vtkClaw::SphereLinkVerify(Sphere *b0, Sphere *b1)
     return 1;
     }
 
-  distance = STATE_SPACE->Distance(b0->Center, b1->Center);
+  distance = this->StateSpace->Distance(b0->Center, b1->Center);
   if ( ! this->SphereLinkStates(b0->Center, b1->Center, distance))
     {
     vtkDebugMacro(<< "SphereLinkVerify: Not Verified " << b0 << ", " << b1);
@@ -2045,7 +2104,7 @@ int vtkClaw::SphereLinkVerify(Sphere *b0, Sphere *b1)
 // The visited value of the spheres ends up being the distance+1 to goal.
 SphereList *vtkClaw::PathSearch(Sphere *start, Sphere *end)
 {
-  SphereList *leaves, *last_leaf, *ll;
+  SphereList *leaves, *lastLeaf, *ll;
   Sphere *b;
 
   /* Set all the spheres to not visited */
@@ -2058,7 +2117,7 @@ SphereList *vtkClaw::PathSearch(Sphere *start, Sphere *end)
   /* Depth first search from goal */
   leaves = SphereListAdd(NULL, end);
   end->Visited = 1;
-  last_leaf = leaves;
+  lastLeaf = leaves;
   while (leaves){
     /* first Sphere on the list */
     b = leaves->Item;
@@ -2069,11 +2128,11 @@ SphereList *vtkClaw::PathSearch(Sphere *start, Sphere *end)
       if ( ! ll->Item->Visited){
 	ll->Item->Visited = b->Visited + 1;
 	/* Add new Sphere to end of leaves list */
-	last_leaf->Next = SphereListAdd(NULL, ll->Item);
-	last_leaf = last_leaf->Next;
+	lastLeaf->Next = SphereListAdd(NULL, ll->Item);
+	lastLeaf = lastLeaf->Next;
 	/* If we have reached the start Sphere, the a path has been found */
 	if(ll->Item == start){
-	  SphereList_all_free(leaves);
+	  SphereListAllFree(leaves);
 	  return this->PathUnravel(start);
 	}
       }
@@ -2082,7 +2141,7 @@ SphereList *vtkClaw::PathSearch(Sphere *start, Sphere *end)
     /* remove the first list element */
     ll = leaves;
     leaves = leaves->Next;
-    SphereList_element_free(ll);
+    SphereListElementFree(ll);
   }
 
   /* No paths exist */

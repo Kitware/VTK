@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkStateSpace.h
+  Module:    vtkRobotJoint2D.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,69 +37,64 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkStateSpace - StateSpace for CLAW to search.
+// .NAME vtkRobotJoint2D - Join two robots with a flexible rotation joint.
 // .SECTION Description
-// vtkStateSpace has topological and collision methods that defines
-// a space. For now, the maximum dimensionality of state space is three.
+// vtkRobotJoint2D will connect two robots with a flexible rotational joint.
+// This adds an extra degree of freedom.  The Joint angle is specified
+// by Theta (units radians).  This adds an extra degree of 
+// freedom to the robot.  There is no limitation on rotation of the joint yet.
+// RobotA is stationary, and RobotB is rotated around the PivotPoint.
 
 
-#ifndef __vtkStateSpace_h
-#define __vtkStateSpace_h
+#ifndef __vtkRobotJoint2D_h
+#define __vtkRobotJoint2D_h
 
-#include "vtkObject.h"
+#include "vtkRobot2D.h"
 
-class vtkStateSpace : public vtkObject
+class vtkRobotJoint2D : public vtkRobot2D
 {
 public:
-  vtkStateSpace();
-  ~vtkStateSpace();
-  char *GetClassName() {return "vtkStateSpace";};
-
-  
-  
-  // Description:
-  // Returns the number of independent state variables.
-  // Determines how many directions the GetChildState will take.
-  virtual int GetDegreesOfFreedom() = 0;
+  vtkRobotJoint2D();
+  ~vtkRobotJoint2D();
+  char *GetClassName() {return "vtkRobotJoint2D";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Returns the number of elements in the state vector.  It is used
-  // by claw to determine how much memory to allocate for each state.
-  virtual int GetStateDimensionality() = 0;
-
-  // Description:
-  // Allocates memory to hold a state.
-  virtual float *NewState() = 0;
+  // Set/Get the two robots to join
+  vtkSetObjectMacro(RobotA, vtkRobot2D);
+  vtkGetObjectMacro(RobotA, vtkRobot2D);
+  vtkSetObjectMacro(RobotB, vtkRobot2D);
+  vtkGetObjectMacro(RobotB, vtkRobot2D);
   
   // Description:
-  // Returns  a floating point value form 0 to 1 that represents
-  // the pseudo probablility that a state will be in the final path.
-  // It is used to implement guide paths.
-  virtual float BoundsTest(float *state) = 0;
-
-  // Description:
-  // This method computes max distance between two points.
-  virtual float Distance(float *s0, float *s1) = 0;
-
-  // Description:
-  // This method determines collision space from free space.
-  // It is assumed that this is an expensive operation.
-  virtual int Collide(float *state) = 0;
-
-  // Description:
-  // This method should return the state half way between two states.
-  // It is used to break a link into smaller steps.
-  virtual void GetMiddleState(float *s0, float *s1, float *middle) = 0;
+  // Set/Get the rotation Theta in radians.
+  vtkSetMacro(Theta, float);
+  vtkGetMacro(Theta, float);
   
   // Description:
-  // This method should return a new (child) state from a parent state.
-  // The child state should be "distance" along "axis".
-  virtual void GetChildState(float *state, int axis, float distance, 
-			     float *child) = 0;
+  // Set/Get the Pivot point of the rotation.
+  vtkSetVector2Macro(Pivot, float);
+  vtkGetVector2Macro(Pivot, float);
+
+  void TransformDraw(float x, float y, float s, float c, vtkImageDraw *canvas);
+  void GetBounds(float bounds[4]);
+  int TransformCollide(vtkImageRegion *distanceMap, 
+		       float x, float y, float s, float c);
+  
+  // Description::
+  // Set/Get the factor to scale Theta to have same "units" as translation.
+  // Externally computed for now.
+  vtkSetMacro(Factor,float);
+  vtkGetMacro(Factor,float);
   
   
 protected:
-
+  vtkRobot2D *RobotA;
+  vtkRobot2D *RobotB;  
+  float Pivot[2];
+  float Theta;
+  // Factor to scale theta to same "units" as translation.
+  float Factor;
 };
 
 #endif

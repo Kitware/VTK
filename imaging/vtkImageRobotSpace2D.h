@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImage2DRobotSpace.h
+  Module:    vtkImageRobotSpace2D.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,35 +37,42 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImage2DRobotSpace - 2D Robots with 3 degrees of freedom.
+// .NAME vtkImageRobotSpace2D - 2D JointedRobots with 3+ degrees of freedom.
 // .SECTION Description
-// vtkImage2DRobotSpace Uses a 2D image as a work space, and defines
+// vtkImageRobotSpace2D Uses a 2D image as a work space, and defines
 // a 2D robot from edges.
 
-#ifndef __vtkImage2DRobotSpace_h
-#define __vtkImage2DRobotSpace_h
+#ifndef __vtkImageRobotSpace2D_h
+#define __vtkImageRobotSpace2D_h
 
+#include <stdlib.h>
 #include "vtkStateSpace.h"
-#include "vtkImageRegion.h"
+#include "vtkRobotTransform2D.h"
+#include "vtkRobotJoint2D.h"
 #include "vtkImageDraw.h"
 #include "vtkClaw.h"
 
 
-class vtkImage2DRobotSpace : public vtkStateSpace
+class vtkImageRobotSpace2D : public vtkStateSpace
 {
 public:
-  vtkImage2DRobotSpace();
-  ~vtkImage2DRobotSpace();
-  char *GetClassName() {return "vtkImage2DRobotSpace";};
+  vtkImageRobotSpace2D();
+  ~vtkImageRobotSpace2D();
+  char *GetClassName() {return "vtkImageRobotSpace2D";};
 
   // Description:
+  // Set/Get the robot that will be moving aroung the work space.
+  void SetRobot(vtkRobotTransform2D *robot);
+  vtkGetObjectMacro(Robot, vtkRobotTransform2D);
+  
+  // Description:
   // The three dregrees of freedom are: x, y and rotation.
-  int GetDegreesOfFreedom(){return 3;};
+  int GetDegreesOfFreedom(){return 3 + this->NumberOfJoints;};
 
   // Description:
   // This states have three variables coresponding to the three degrees
   // of freedom.
-  int GetStateDimensionality(){return 3;};
+  int GetStateDimensionality(){return this->GetDegreesOfFreedom();};
 
   // Description:
   // Allocates a new state.
@@ -106,16 +113,12 @@ public:
   
   // Description:
   // Set/Get the number of segments in the robot.
-  void SetNumberOfSegments(int);
-  vtkGetMacro(NumberOfSegments,int);
-
-  // Description:
-  // Get the Rotation factor (small for large robots).
-  vtkGetMacro(RotationFactor,float);
+  void SetNumberOfJoints(int);
+  vtkGetMacro(NumberOfJoints,int);
 
   // Description:
   // For building a robot.
-  void AddSegment(float x0, float y0, float x1, float y1);
+  void AddJoint(vtkRobotJoint2D *joint);
 
   void ClearCanvas();
   void DrawRobot(float *state);
@@ -123,38 +126,37 @@ public:
   // The robot is drawn with this value.
   void SetDrawValue(float val){if(Canvas)Canvas->SetDrawValue(val);};
 
-  // For testing the object from tcl
-  void DrawRobot(float x, float y, float theta)
-  {float state[3]; state[0] = x; state[1] = y; state[2] = theta;
-  this->DrawRobot(state);};
-
-  void DrawChild(float x, float y, float theta, int axis, float d)
-  {float state[3]; state[0] = x; state[1] = y; state[2] = theta;
-  GetChildState(state, axis, d, state); this->DrawRobot(state);};
-  
-  void PrintCollision(float x, float y, float theta)
-  {float state[3]; state[0] = x; state[1] = y; state[2] = theta;
-  if (this->Collide(state)) printf("Collision\n"); else printf("Free\n");};
-  
   void AnimatePath(vtkClaw *planner);
   
   
+  // For testing the object from tcl
+  void DrawRobot(float x, float y, float theta, float theta2)
+  {float state[4]; state[0] = x; state[1] = y; state[2] = theta; 
+  state[3] = theta2; this->DrawRobot(state);};
+
+  void DrawChild(float x, float y, float theta, float t2, int axis, float d)
+  {float state[4]; state[0] = x; state[1] = y; state[2] = theta;
+  state[3] = t2; GetChildState(state, axis, d, state); this->DrawRobot(state);};
+  
+  void PrintCollision(float x, float y, float theta, float t2)
+  {float state[4]; state[0] = x; state[1] = y; state[2] = theta; state[3] = t2;
+  if (this->Collide(state)) printf("Collision\n"); else printf("Free\n");};
+  
+  vtkGetMacro(RotationFactor, float);
+  
+  
 protected:
+  vtkRobotTransform2D *Robot;
   vtkImageRegion *WorkSpace;
   vtkImageRegion *DistanceMap;
   vtkImageDraw *Canvas;
   float Threshold;
-
-  int NumberOfSegments;
-  int MaximumNumberOfSegments;
-  float *Segments;
-  float RobotBounds[4];
   float RotationFactor;
+
+  int NumberOfJoints;
+  int MaximumNumberOfJoints;
+  vtkRobotJoint2D **Joints;
   
-  int CollideSegment(float x0, float y0, short d0,
-		     float x1, float y1, short d1,
-		     float length, short *map, 
-		     int xInc, int yInc);
   // Description:
   // This function make sure the circular parameter is in range -rad -> rad.
   // Same point, smaller(smallest) absolute parameter values.

@@ -19,6 +19,7 @@ vtkImageFourierFilter \
 vtkImageMultipleInputFilter \
 vtkImageInPlaceFilter \
 vtkImageSpatialFilter \
+vtkRobot2D \
 vtkStateSpace 
 
 CONCRETE = \
@@ -55,6 +56,7 @@ vtkImageNonMaximumSuppression \
 vtkImageOpenClose \
 vtkImageRFFT \
 vtkImageRFFT1D \
+vtkImageRobotSpace2D \
 vtkImageScatterPlot \
 vtkImageShiftScale \
 vtkImageShortReader \
@@ -62,7 +64,11 @@ vtkImageShortWriter \
 vtkImageShrink3D \
 vtkImageStateSpace \
 vtkImageThreshold \
-vtkImageXViewer 
+vtkImageXViewer \
+vtkRobotGroup2D \
+vtkRobotJoint2D \
+vtkRobotSegment2D \
+vtkRobotTransform2D 
 
 #------------------------------------------------------------------------------
 # Include the generated targets

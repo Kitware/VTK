@@ -50,19 +50,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 
-#define VTK_CLAW_DIMENSIONS 3
-
-
-
-
-
 // Definitions of the search strategies
 #define VTK_CLAW_NEAREST_NETWORK      0
 #define VTK_CLAW_NEAREST_MINIMUM      1
 #define VTK_CLAW_NEAREST_GLOBAL       2
 #define VTK_CLAW_PIONEER_LOCAL        3
 #define VTK_CLAW_PIONEER_GLOBAL       4
-#define VTK_CLAW_NEAREST_NET_PIONEER  5
 #define VTK_CLAW_WELL_NOISE           6
 #define VTK_CLAW_WELL_DIRECTED_NOISE  7
 #define VTK_CLAW_MINIMUM_WELL         8
@@ -76,7 +69,7 @@ typedef struct Sphere;
 
 struct Sphere
   {
-  float Center[VTK_CLAW_DIMENSIONS];
+  float *Center;
   float Radius;         /* radius of this sphere */
   SphereList *Neighbors; /* other spheres whose centers fall within this box */
   char  SortValid;
@@ -108,27 +101,49 @@ public:
   void SetStartState(float *state);
   void SetStartState(float x, float y, float z)
   {float s[3]; s[0] = x; s[1] = y; s[2] = z; this->SetStartState(s);};
+  void SetStartState(float x, float y, float z, float t)
+  {float s[4]; s[0]=x; s[1]=y; s[2]=z; s[3]=t; this->SetStartState(s);};
+
   void SetGoalState(float *state);
   void SetGoalState(float x, float y, float z)
   {float s[3]; s[0] = x; s[1] = y; s[2] = z; this->SetGoalState(s);};
+  void SetGoalState(float x, float y, float z, float t)
+  {float s[4]; s[0]=x; s[1]=y; s[2]=z; s[3]=t; this->SetGoalState(s);};
+
   void SetSearchStrategies (int num, int *strategies);
   void GeneratePath();
   void SmoothPath(int number);
   int SmoothPath();
   void PrintFreeSpheres();
   void SavePath(char *fileName);
-  SphereList *GetPath();
+  void LoadPath(char *fileName);
   int GetPathLength();
   void GetPathState(int idx, float *state);
   
+  // Set/Get the percentage of time this goal network is searched.
+  vtkSetMacro(GoalPercentage, float);
+  vtkGetMacro(GoalPercentage, float);
+  
+  // Get the list of collisions
+  SphereList *GetCollisions();
+  // Get the list of spheres
+  SphereList *GetSpheres();
+  // Get A list of spheres that defines the path.
+  SphereList *GetPath();
+  
   
 protected:
+  // How many directions can we move (gotten from StateSpace.
+  int DegreesOfFreedom;
+  // The length of State vectors.
+  int StateDimensionality;
+  
   // Defines which search strategies to use.
   int NumberOfSearchStrategies;
   int SearchStrategies[20];
   // A path must be found between these two points.
-  float StartState[VTK_CLAW_DIMENSIONS];
-  float GoalState[VTK_CLAW_DIMENSIONS];
+  float *StartState;
+  float *GoalState;
   // The initial radius of the start and goal spheres.
   float InitialSphereRadius;
   // The final path has to be valid when sampled at this resolution.
@@ -143,7 +158,51 @@ protected:
   SphereList *Path;
   // The object which defines the state space we are searching.
   vtkStateSpace *StateSpace;
+  // An array to compute which children are covered. ([2*DegreesOfFreedom]).
+  int *Candidates;
 
+  Sphere *SphereMake(float *center, float radius, int visited);
+  void SphereListElementFree(SphereList *l);
+  void SphereListAllFree(SphereList *l);
+  void SphereListItemRemove(SphereList **pl, void *ptr);
+  SphereList *SphereListAdd(SphereList *l, Sphere *item);
+  Sphere *SphereListNetworkBest(SphereList *list, int network);
+  void FreeSpheresPrint();
+  int SpheresFreeCount();
+  int SpheresCollisionCount();
+  void SphereRadiusReduce(Sphere *b, float radius);
+  void SphereNeighborsPrune(Sphere *b);
+  void SphereCollisionAdd(Sphere *b, Sphere *parent);
+  void SphereFree(Sphere *b);
+  void SphereAllFree();
+  void SphereCollisionsPrune();
+  float SphereNearestVal(Sphere *b);
+  Sphere *SphereNearest(Sphere *b);
+  void SpherePrint(Sphere *b);
+  int SphereNumNeighbors(Sphere *b);
+  int SphereCandidateValid(Sphere *b, float *proposed);
+  int SphereCandidatesGet(Sphere *b);
+  float SphereSurfaceArea(Sphere *b);
+  void SpheresPrint(SphereList *spheres);
+  int SpheresCount(SphereList *spheres);
+  void SphereSearchStrategySet(int strategy);
+  int SphereCandidateChoose(Sphere *b, float *proposed);
+  float SphereNearestNetworkMoveEvaluate(Sphere *b, int axis, int direction);
+  float SphereNearestGlobalMoveEvaluate(Sphere *b, float *proposed);
+  float SpherePioneerLocalMoveEvaluate(Sphere *b, float *proposed);
+  float SpherePioneerGlobalMoveEvaluate(Sphere *b, float *proposed);
+  float SphereNoiseMoveEvaluate();
+  float SphereNearestNoiseMoveEvaluate(Sphere *b, float *proposed);
+  float SphereSort(Sphere *b);
+  float SphereNearestNetworkSortCompute(Sphere *b);
+  float SphereNearestMinimumSortCompute(Sphere *b);
+  float SphereNearestGlobalSortCompute(Sphere *b);
+  float SpherePioneerLocalSortCompute(Sphere *b);
+  float SpherePioneerGlobalSortCompute(Sphere *b);
+  float SphereMinimumWellSortCompute(Sphere *b);
+  float SphereCloseToleranceSortCompute(Sphere *b);
+  float SphereNarrowWellSortCompute(Sphere *b);
+  void PathVerifyStepSet(float step_size);
   int SmoothSphere(Sphere *s);
   void SphereLinkVerifiedRecord(Sphere *b0, Sphere *b1);
   int SphereLinkVerifiedAlready(Sphere *b0, Sphere *b1);

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkStateSpace.h
+  Module:    vtkRobotTransform2D.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,69 +37,49 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkStateSpace - StateSpace for CLAW to search.
+// .NAME vtkRobotTransform2D - RobotTransform2D repositions a robot.
 // .SECTION Description
-// vtkStateSpace has topological and collision methods that defines
-// a space. For now, the maximum dimensionality of state space is three.
+// vtkRobotTransform2D will reposition a robot. The robot is first rotated
+// by Theta (units radians) and then translated by X and Y.
 
+#ifndef __vtkRobotTransform2D_h
+#define __vtkRobotTransform2D_h
 
-#ifndef __vtkStateSpace_h
-#define __vtkStateSpace_h
+#include "vtkRobot2D.h"
 
-#include "vtkObject.h"
-
-class vtkStateSpace : public vtkObject
+class vtkRobotTransform2D : public vtkRobot2D
 {
 public:
-  vtkStateSpace();
-  ~vtkStateSpace();
-  char *GetClassName() {return "vtkStateSpace";};
+  vtkRobotTransform2D();
+  ~vtkRobotTransform2D();
+  char *GetClassName() {return "vtkRobotTransform2D";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
-  
-  
-  // Description:
-  // Returns the number of independent state variables.
-  // Determines how many directions the GetChildState will take.
-  virtual int GetDegreesOfFreedom() = 0;
-
-  // Description:
-  // Returns the number of elements in the state vector.  It is used
-  // by claw to determine how much memory to allocate for each state.
-  virtual int GetStateDimensionality() = 0;
-
-  // Description:
-  // Allocates memory to hold a state.
-  virtual float *NewState() = 0;
+  // Set/Get the robot to transform.
+  vtkSetObjectMacro(Robot, vtkRobot2D);
   
   // Description:
-  // Returns  a floating point value form 0 to 1 that represents
-  // the pseudo probablility that a state will be in the final path.
-  // It is used to implement guide paths.
-  virtual float BoundsTest(float *state) = 0;
-
-  // Description:
-  // This method computes max distance between two points.
-  virtual float Distance(float *s0, float *s1) = 0;
-
-  // Description:
-  // This method determines collision space from free space.
-  // It is assumed that this is an expensive operation.
-  virtual int Collide(float *state) = 0;
-
-  // Description:
-  // This method should return the state half way between two states.
-  // It is used to break a link into smaller steps.
-  virtual void GetMiddleState(float *s0, float *s1, float *middle) = 0;
+  // Set/Get the rotation Theta in radians.
+  vtkSetMacro(Theta, float);
+  vtkGetMacro(Theta, float);
   
   // Description:
-  // This method should return a new (child) state from a parent state.
-  // The child state should be "distance" along "axis".
-  virtual void GetChildState(float *state, int axis, float distance, 
-			     float *child) = 0;
-  
-  
+  // Set/Get the translation.
+  vtkSetMacro(X, float);
+  vtkGetMacro(X, float);
+  vtkSetMacro(Y, float);
+  vtkGetMacro(Y, float);
+
+  void TransformDraw(float x, float y, float s, float c, vtkImageDraw *canvas);
+  void GetBounds(float bounds[4]);
+  int TransformCollide(vtkImageRegion *distanceMap, 
+		       float x, float y, float s, float c);
+
 protected:
-
+  vtkRobot2D *Robot;
+  float Theta;
+  float X;
+  float Y;
 };
 
 #endif

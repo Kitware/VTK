@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkStateSpace.h
+  Module:    vtkRobotSegment2D.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,69 +37,45 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkStateSpace - StateSpace for CLAW to search.
+// .NAME vtkRobotSegment2D - The smallest robot building block, a line segment.
 // .SECTION Description
-// vtkStateSpace has topological and collision methods that defines
-// a space. For now, the maximum dimensionality of state space is three.
+// vtkRobotSegment2D defines a line segment wich can be used to build bigger
+// robots.
 
+#ifndef __vtkRobotSegment2D_h
+#define __vtkRobotSegment2D_h
 
-#ifndef __vtkStateSpace_h
-#define __vtkStateSpace_h
+#include "vtkRobot2D.h"
 
-#include "vtkObject.h"
-
-class vtkStateSpace : public vtkObject
+class vtkRobotSegment2D : public vtkRobot2D
 {
 public:
-  vtkStateSpace();
-  ~vtkStateSpace();
-  char *GetClassName() {return "vtkStateSpace";};
-
-  
-  
-  // Description:
-  // Returns the number of independent state variables.
-  // Determines how many directions the GetChildState will take.
-  virtual int GetDegreesOfFreedom() = 0;
-
-  // Description:
-  // Returns the number of elements in the state vector.  It is used
-  // by claw to determine how much memory to allocate for each state.
-  virtual int GetStateDimensionality() = 0;
-
-  // Description:
-  // Allocates memory to hold a state.
-  virtual float *NewState() = 0;
+  vtkRobotSegment2D();
+  ~vtkRobotSegment2D();
+  char *GetClassName() {return "vtkRobotSegment2D";};
+  void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
-  // Returns  a floating point value form 0 to 1 that represents
-  // the pseudo probablility that a state will be in the final path.
-  // It is used to implement guide paths.
-  virtual float BoundsTest(float *state) = 0;
+  // Set/Get the two points that define a segment.
+  vtkSetVector2Macro(PointA, float);
+  vtkGetVector2Macro(PointA, float); 
+  vtkSetVector2Macro(PointB, float);
+  vtkGetVector2Macro(PointB, float);
 
-  // Description:
-  // This method computes max distance between two points.
-  virtual float Distance(float *s0, float *s1) = 0;
+  void TransformDraw(float x, float y, float s, float c, vtkImageDraw *canvas);
+  void GetBounds(float bounds[4]);
+  int TransformCollide(vtkImageRegion *distanceMap, 
+		       float x, float y, float s, float c);
 
-  // Description:
-  // This method determines collision space from free space.
-  // It is assumed that this is an expensive operation.
-  virtual int Collide(float *state) = 0;
-
-  // Description:
-  // This method should return the state half way between two states.
-  // It is used to break a link into smaller steps.
-  virtual void GetMiddleState(float *s0, float *s1, float *middle) = 0;
-  
-  // Description:
-  // This method should return a new (child) state from a parent state.
-  // The child state should be "distance" along "axis".
-  virtual void GetChildState(float *state, int axis, float distance, 
-			     float *child) = 0;
-  
   
 protected:
+  float PointA[2];
+  float PointB[2];
 
+  int CollideSegment(float x0, float y0, short d0,
+		     float x1, float y1, short d1,
+		     float length, short *map, 
+		     int xInc, int yInc);
 };
 
 #endif

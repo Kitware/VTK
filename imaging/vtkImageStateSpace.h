@@ -48,6 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkStateSpace.h"
 #include "vtkImageRegion.h"
+#include "vtkPolyData.h"
 #include "vtkClaw.h"
 
 
@@ -59,10 +60,19 @@ public:
   char *GetClassName() {return "vtkImageStateSpace";};
 
   // Description:
-  // This function make sure the circular parameter is in range -rad -> rad.
-  // Same point, smaller(smallest) absolute parameter values.
-  void Wrap(float *state);
+  // This StateSpace only deals with volumes, 
+  // so there are 3 degrees of freedom.
+  int GetDegreesOfFreedom(){return 3;};
 
+  // Description:
+  // This StateSpace only deals with volumes, 
+  // so the state vectors have three elements (x, y, z).
+  int GetStateDimensionality(){return 3;};
+
+  // Description:
+  // Allocates a new state.
+  float *NewState() {return new float[this->GetStateDimensionality()];};
+  
   // Description:
   // Returns  0.0 if state is out of bounds
   float BoundsTest(float *state);
@@ -98,12 +108,20 @@ public:
   // For debugging.
   void DrawPath(vtkClaw *claw, float value);
   
+  vtkPolyData *GetPathPolyData(vtkClaw *planner);
+  vtkPolyData *GetSpherePolyData(vtkClaw *planner);
+  vtkPolyData *GetCollisionPolyData(vtkClaw *planner);
+  
   
 protected:
   int NumberOfDimensions;
   vtkImageRegion *Region;
   float Threshold;
 
+  // Description:
+  // This function make sure the circular parameter is in range -rad -> rad.
+  // Same point, smaller(smallest) absolute parameter values.
+  void Wrap(float *state);
 };
 
 #endif
