@@ -36,6 +36,26 @@ IF (CMAKE_MAJOR_VERSION MATCHES [1-9][0-9]*)
       IF (VTK_USE_PARALLEL)
         TARGET_LINK_LIBRARIES(vtkpython vtkParallelPython vtkParallel)
       ENDIF (VTK_USE_PARALLEL)
+
+      IF (VTK_WRAP_TCL)
+        TARGET_LINK_LIBRARIES (vtkpython vtkIOTCL vtkGraphicsTCL vtkImagingTCL)
+  
+        IF (VTK_USE_RENDERING)
+          TARGET_LINK_LIBRARIES(vtkpython vtkRenderingTCL)
+        ENDIF (VTK_USE_RENDERING)
+  
+        IF (VTK_USE_PATENTED)
+          TARGET_LINK_LIBRARIES(vtkpython vtkPatentedTCL)
+        ENDIF (VTK_USE_PATENTED)
+  
+        IF (VTK_USE_HYBRID)
+          TARGET_LINK_LIBRARIES(vtkpython vtkHybridTCL)
+        ENDIF (VTK_USE_HYBRID)
+  
+        IF (VTK_USE_PARALLEL)
+          TARGET_LINK_LIBRARIES(vtkpython vtkParallelTCL)
+        ENDIF (VTK_USE_PARALLEL)
+      ENDIF (VTK_WRAP_TCL)
     
       INSTALL_TARGETS(/bin vtkpython)
     
