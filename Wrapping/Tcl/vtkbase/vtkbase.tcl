@@ -36,12 +36,12 @@ namespace eval ::vtk {
 
         foreach dir $dirs {
             set libname [file join $dir ${prefix}${name}${ext}]
-            if {![catch {load $libname} errormsg]} {
-                # WARNING: it HAS to be "" so that pkg_mkIndex work (since
-                # while evaluating a package ::vtk::load_component won't
-                # exist and will default to the unknown() proc that returns ""
-                return ""
-            }
+	    if {[file exists $libname] && ![catch {load $libname} errormsg]} {
+		# WARNING: it HAS to be "" so that pkg_mkIndex work (since
+		# while evaluating a package ::vtk::load_component won't
+		# exist and will default to the unknown() proc that returns ""
+		return ""
+	    }
             # If not loaded but file was found, oops
             if {[file exists $libname] && $::vtk::complain_on_loading} {
                 puts stderr $errormsg
