@@ -128,15 +128,15 @@ public:
   // GetArray(i)->GetName() if ith array pointer is not NULL
   const char* GetArrayName(int i)
     {
-      vtkDataArray* da;
-      if ((da=this->GetArray(i)))
-        {
-        return da->GetName();
-        }
-      else
-        {
-        return 0;
-        }
+    vtkDataArray* da = this->GetArray(i);
+    if (da)
+      {
+      return da->GetName();
+      }
+    else
+      {
+      return 0;
+      }
     }
 
   // Description:
