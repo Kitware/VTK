@@ -19,7 +19,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkMaskPolyData, "1.41");
+vtkCxxRevisionMacro(vtkMaskPolyData, "1.42");
 vtkStandardNewMacro(vtkMaskPolyData);
 
 vtkMaskPolyData::vtkMaskPolyData()
@@ -38,7 +38,7 @@ void vtkMaskPolyData::Execute()
   vtkIdType numNewVerts, numNewLines, numNewPolys, numNewStrips;
   vtkCellArray *newVerts=NULL, *newLines=NULL;
   vtkCellArray *newPolys=NULL, *newStrips=NULL;
-  vtkIdType id, interval;
+  vtkIdType id;
   vtkPointData *pd;
   vtkIdType numCells;
   vtkIdType *pts = 0;
@@ -100,12 +100,12 @@ void vtkMaskPolyData::Execute()
 
   // Traverse topological lists and traverse
   //
-  interval = this->Offset + this->OnRatio;
   if ( newVerts )
     {
-    for (id=0, inVerts->InitTraversal(); inVerts->GetNextCell(npts,pts); id++)
+    for (id=this->Offset, inVerts->InitTraversal(); 
+         inVerts->GetNextCell(npts,pts); id++)
       {
-      if ( ! (id % interval) )
+      if ( ! (id % this->OnRatio) )
         {
         newVerts->InsertNextCell(npts,pts);
         }
@@ -115,9 +115,10 @@ void vtkMaskPolyData::Execute()
 
   if ( newLines )
     {
-    for (id=0, inLines->InitTraversal(); inLines->GetNextCell(npts,pts); id++)
+    for (id=this->Offset, inLines->InitTraversal(); 
+         inLines->GetNextCell(npts,pts); id++)
       {
-      if ( ! (id % interval) )
+      if ( ! (id % this->OnRatio) )
         {
         newLines->InsertNextCell(npts,pts);
         }
@@ -127,9 +128,10 @@ void vtkMaskPolyData::Execute()
 
   if ( newPolys )
     {
-    for (id=0, inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); id++)
+    for (id=this->Offset, inPolys->InitTraversal(); 
+         inPolys->GetNextCell(npts,pts); id++)
       {
-      if ( ! (id % interval) )
+      if ( ! (id % this->OnRatio) )
         {
         newPolys->InsertNextCell(npts,pts);
         }
@@ -139,10 +141,10 @@ void vtkMaskPolyData::Execute()
 
   if ( newStrips )
     {
-    for (id=0, inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts);
-         id++)
+    for (id=this->Offset, inStrips->InitTraversal(); 
+         inStrips->GetNextCell(npts,pts); id++)
       {
-      if ( ! (id % interval) )
+      if ( ! (id % this->OnRatio) )
         {
         newStrips->InsertNextCell(npts,pts);
         }

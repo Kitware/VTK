@@ -12,10 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMaskPolyData - sample subset of input polygonal data
+// .NAME vtkMaskPolyData - sample subset of input polygonal data cells
 // .SECTION Description
-// vtkMaskPolyData is a filter that sub-samples input polygonal data. The user
-// specifies every nth item, with an initial offset to begin sampling.
+// vtkMaskPolyData is a filter that sub-samples the cells of input polygonal
+// data. The user specifies every nth item, with an initial offset to begin
+// sampling. Note that every nth vertex, line, polyon and triangle strip
+// is sampled.
+
+// .SECTION See Also
+// vtkMaskPoints
 
 #ifndef __vtkMaskPolyData_h
 #define __vtkMaskPolyData_h
@@ -46,6 +51,7 @@ protected:
   void Execute();
   int OnRatio; // every OnRatio entity is on; all others are off.
   vtkIdType Offset;  // offset (or starting point id)
+
 private:
   vtkMaskPolyData(const vtkMaskPolyData&);  // Not implemented.
   void operator=(const vtkMaskPolyData&);  // Not implemented.
