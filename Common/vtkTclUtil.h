@@ -46,7 +46,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObject.h"
 #include "vtkCommand.h"
 #include <tcl.h>
-#include <tk.h>
 
 #ifdef WIN32
 #define VTKTCL_EXPORT __declspec( dllexport )
