@@ -135,6 +135,11 @@ void vtkRIBExporter::WriteData()
   ac = ren->GetActors();
   for ( ac->InitTraversal (); (anActor = ac->GetNextItem()); )
     {
+    // see if the actor has a mapper. it could be an assembly
+    if (anActor->GetMapper() == NULL)
+      {
+      continue;
+      }
     // if it's invisible, don't make the texture
     if ( anActor->GetVisibility () )
       {
@@ -560,6 +565,12 @@ void vtkRIBExporter::WriteActor(vtkActor *anActor)
   vtkGeometryFilter *geometryFilter = NULL;
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
   
+  // see if the actor has a mapper. it could be an assembly
+  if (anActor->GetMapper() == NULL)
+    {
+    return;
+    }
+
   fprintf (this->FilePtr, "AttributeBegin\n");
 
   fprintf (this->FilePtr, "TransformBegin\n");
