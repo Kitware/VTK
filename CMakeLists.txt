@@ -328,7 +328,6 @@ VTK_THIRD_PARTY_OPTION(EXPAT expat)
 IF(CMAKE_COMPILER_IS_GNUCXX)
   # A GCC compiler.  Quiet warning about strstream deprecation.
   SET(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} -Wno-deprecated")
-  SET(VTK_REQUIRED_C_FLAGS "${VTK_REQUIRED_C_FLAGS} -Wno-deprecated")
   IF(WIN32)
     # The platform is gcc on cygwin.
     SET(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} -mwin32")
