@@ -25,7 +25,7 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkPyramid, "1.36");
+vtkCxxRevisionMacro(vtkPyramid, "1.37");
 vtkStandardNewMacro(vtkPyramid);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -550,16 +550,53 @@ int vtkPyramid::IntersectWithLine(double p1[3], double p2[3], double tol, double
 //----------------------------------------------------------------------------
 int vtkPyramid::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds, vtkPoints *pts)
 {
+  int p[4], i;
   ptIds->Reset();
   pts->Reset();
-    
-  for ( int i=0; i < 4; i++ )
+
+  // The base of the pyramid must be split into two triangles.  There are two
+  // ways to do this (across either diagonal).  Pick the shorter diagonal.
+  double base_points[4][3];
+  for (i = 0; i < 4; i++)
     {
-    ptIds->InsertId(i,this->PointIds->GetId(i));
-    pts->InsertPoint(i,this->Points->GetPoint(i));
+    this->Points->GetPoint(i, base_points[i]);
+    }
+  double diagonal1, diagonal2;
+  diagonal1 = vtkMath::Distance2BetweenPoints(base_points[0], base_points[2]);
+  diagonal2 = vtkMath::Distance2BetweenPoints(base_points[1], base_points[3]);
+
+  if (diagonal1 < diagonal2)
+    {
+    p[0] = 0; p[1] = 1; p[2] = 2; p[3] = 4;
+    for (i=0; i < 4; i++)
+      {
+      ptIds->InsertId(i,this->PointIds->GetId(i));
+      pts->InsertPoint(i,this->Points->GetPoint(i));
+      }
+    p[0] = 0; p[1] = 2; p[2] = 3; p[3] = 4;
+    for (i=0; i < 4; i++)
+      {
+      ptIds->InsertId(i,this->PointIds->GetId(i));
+      pts->InsertPoint(i,this->Points->GetPoint(i));
+      }
+    }
+  else
+    {
+    p[0] = 0; p[1] = 1; p[2] = 3; p[3] = 4;
+    for (i=0; i < 4; i++)
+      {
+      ptIds->InsertId(i,this->PointIds->GetId(i));
+      pts->InsertPoint(i,this->Points->GetPoint(i));
+      }
+    p[0] = 1; p[1] = 2; p[2] = 3; p[3] = 4;
+    for (i=0; i < 4; i++)
+      {
+      ptIds->InsertId(i,this->PointIds->GetId(i));
+      pts->InsertPoint(i,this->Points->GetPoint(i));
+      }
     }
 
-  return 1;
+  return !(diagonal1 == diagonal2);
 }
 
 //----------------------------------------------------------------------------
