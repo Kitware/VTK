@@ -212,14 +212,14 @@ static void vtkImageGradientExecute(vtkImageGradient *self,
 	d = (float)(inPtr[useXMin]);
 	d -= (float)(inPtr[useXMax]);
 	d *= r[0]; // multiply by the data spacing
-	*outPtr = (T)(d);
+	*outPtr = d;
 	outPtr++;
 	
 	// do y axis
 	d = (float)(inPtr[useYMin]);
 	d -= (float)(inPtr[useYMax]);
 	d *= r[1]; // multiply by the data spacing
-	*outPtr = (T)(d);
+	*outPtr = d;
 	outPtr++;
 	if (axesNum == 3)
 	  {
@@ -227,7 +227,7 @@ static void vtkImageGradientExecute(vtkImageGradient *self,
 	  d = (float)(inPtr[useZMin]);
 	  d -= (float)(inPtr[useZMax]);
 	  d *= r[2]; // multiply by the data spacing
-	  *outPtr = (T)(d);
+	  *outPtr = d;
 	  outPtr++;
 	  }
 	inPtr++;
