@@ -15,15 +15,14 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include <stdlib.h>
 #include <math.h>
-
 #include "Trans.hh"
+#include "vlMath.hh"
 
-//	vlTransform
 // Description:
-//  Constructs a transform. Sets the following defaults
-//  preMultiplyFlag = 1
-//  stackSize = 10
-//  creates an identity matrix as the top matrix on the stack
+// Constructs a transform. Sets the following defaults
+// preMultiplyFlag = 1
+// stackSize = 10
+// creates an identity matrix as the top matrix on the stack.
 
 vlTransform::vlTransform ()
 {
@@ -43,10 +42,8 @@ vlTransform::vlTransform ()
   this->Modified ();
 }
 
-//-----------------------------------------------
-// vlTransform (const vlTransform t)
 // Description:
-//	Copy constructor
+// Copy constructor
 
 vlTransform::vlTransform (const vlTransform& t)
 {
@@ -67,9 +64,8 @@ vlTransform::vlTransform (const vlTransform& t)
 }
 
 // Description:
-//  Deletes the transformation on the top of the
-//  stack and sets the top to the next transformation
-//  on the stack.
+// Deletes the transformation on the top of the stack and sets the top 
+// to the next transformation on the stack.
 
 void vlTransform::Pop ()
 {
@@ -87,10 +83,10 @@ void vlTransform::Pop ()
 }
 
 // Description:
-//  Sets the internal state of the transform to
-//  post multiply. All matrix subsequent matrix
-//  opeartions will occur after those already represented
-//  in the current transformation matrix.
+// Sets the internal state of the transform to
+// post multiply. All matrix subsequent matrix
+// operations will occur after those already represented
+// in the current transformation matrix.
 void vlTransform::PostMultiply ()
 {
   if (this->PreMultiplyFlag != 0) {
@@ -100,10 +96,10 @@ void vlTransform::PostMultiply ()
 }
 
 // Description:
-//  Sets the internal state of the transform to
-//  pre multiply. All matrix subsequent matrix
-//  opeartions will occur before those already represented
-//  in the current transformation matrix.
+// Sets the internal state of the transform to
+// pre multiply. All matrix subsequent matrix
+// operations will occur before those already represented
+// in the current transformation matrix.
 void vlTransform::PreMultiply ()
 {
   if (this->PreMultiplyFlag != 1) {
@@ -113,8 +109,8 @@ void vlTransform::PreMultiply ()
 }
 
 // Description:
-//  Pushes the current transformation matrix onto the
-//  transformation stack.
+// Pushes the current transformation matrix onto the
+// transformation stack.
 void vlTransform::Push ()
 {
   vlMatrix4x4 ctm;
@@ -134,29 +130,28 @@ void vlTransform::Push ()
 
   this->Modified ();
 }
-# define RADIANS_PER_DEGREE     .017453292
 
-//--------------------RotateX-----------------------
 // Description:
-//  Creates an x rotation matrix andn concatenates it with 
-//  the current transformation matrix.
+// Creates an x rotation matrix andn concatenates it with 
+// the current transformation matrix.
 void vlTransform::RotateX ( float angle)
 {
   vlMatrix4x4 ctm;
-  float radians = angle * RADIANS_PER_DEGREE;
-  float cos_angle, sin_angle;
+  vlMath math;
+  float radians = angle * math.DegreesToRadians();
+  float cosAngle, sinAngle;
 
   if (angle != 0.0) {
-    cos_angle = cos (radians);
-    sin_angle = sin (radians);
+    cosAngle = cos (radians);
+    sinAngle = sin (radians);
 
     ctm = 0.0;
 
     ctm.Element[0][0] = 1.0;
-    ctm.Element[1][1] =  cos_angle;
-    ctm.Element[2][1] = -sin_angle;
-    ctm.Element[1][2] =  sin_angle;
-    ctm.Element[2][2] =  cos_angle;
+    ctm.Element[1][1] =  cosAngle;
+    ctm.Element[2][1] = -sinAngle;
+    ctm.Element[1][2] =  sinAngle;
+    ctm.Element[2][2] =  cosAngle;
     ctm.Element[3][3] = 1.0;
 
     // concatenate with current transformation matrix
@@ -165,25 +160,27 @@ void vlTransform::RotateX ( float angle)
 }
 
 // Description:
+// Rotate about y-axis
 void vlTransform::RotateY ( float angle)
   //  Creates a y rotation matrix and concatenates it with 
   //  the current transformation matrix.
 {
   vlMatrix4x4 ctm;
-  float radians = angle * RADIANS_PER_DEGREE;
-  float cos_angle, sin_angle;
+  vlMath math;
+  float radians = angle * math.DegreesToRadians();
+  float cosAngle, sinAngle;
 
   if (angle != 0.0) {
-    cos_angle = cos (radians);
-    sin_angle = sin (radians);
+    cosAngle = cos (radians);
+    sinAngle = sin (radians);
 
     ctm = 0.0;
 
-    ctm.Element[0][0] = cos_angle;
+    ctm.Element[0][0] = cosAngle;
     ctm.Element[1][1] = 1.0;
-    ctm.Element[2][0] = sin_angle;
-    ctm.Element[0][2] = -sin_angle;
-    ctm.Element[2][2] = cos_angle;
+    ctm.Element[2][0] = sinAngle;
+    ctm.Element[0][2] = -sinAngle;
+    ctm.Element[2][2] = cosAngle;
     ctm.Element[3][3] = 1.0;
 
     // concatenate with current transformation matrix
@@ -192,24 +189,26 @@ void vlTransform::RotateY ( float angle)
 }
 
 // Description:
+// Rotate about y-axis
 void vlTransform::RotateZ (float angle)
   //  Creates a z rotation matrix and concatenates it with 
   //  the current transformation matrix.
 {
   vlMatrix4x4 ctm;
-  float radians = angle * RADIANS_PER_DEGREE;
-  float cos_angle, sin_angle;
+  vlMath math;
+  float radians = angle * math.DegreesToRadians();
+  float cosAngle, sinAngle;
 
   if (angle != 0.0) {
-    cos_angle = cos (radians);
-    sin_angle = sin (radians);
+    cosAngle = cos (radians);
+    sinAngle = sin (radians);
 
     ctm = 0.0;
 
-    ctm.Element[0][0] =  cos_angle;
-    ctm.Element[1][0] = -sin_angle;
-    ctm.Element[0][1] =  sin_angle;
-    ctm.Element[1][1] =  cos_angle;
+    ctm.Element[0][0] =  cosAngle;
+    ctm.Element[1][0] = -sinAngle;
+    ctm.Element[0][1] =  sinAngle;
+    ctm.Element[1][1] =  cosAngle;
     ctm.Element[2][2] = 1.0;
     ctm.Element[3][3] = 1.0;
 
@@ -219,18 +218,19 @@ void vlTransform::RotateZ (float angle)
 }
 
 // Description:
+// Creates a matrix that rotates angle degrees about an axis
+// through the origin and x, y, z. Then concatenates
+// this matrix with the current transformation matrix.
 void vlTransform::RotateWXYZ ( float angle, float x, float y, float z)
-  //  Creates a matrix that rotates angle degrees about an axis
-  //  through the origin and x, y, z. Then concatenates
-  //  this matrix with the current transformation matrix.
 {
   vlMatrix4x4 ctm;
   float   radians;
   float   w;
   float   sum;
   float   quat[4];
-  float   sin_angle;
-  float   cos_angle;
+  float   sinAngle;
+  float   cosAngle;
+  vlMath math;
 
   // build a rotation matrix and concatenate it
   quat[0] = angle;
@@ -239,24 +239,24 @@ void vlTransform::RotateWXYZ ( float angle, float x, float y, float z)
   quat[3] = z;
 
   // convert degrees to radians
-  radians = - quat[0] * RADIANS_PER_DEGREE / 2;
+  radians = - quat[0] * math.DegreesToRadians() / 2;
 
-  cos_angle = cos (radians);
-  sin_angle = sin (radians);
+  cosAngle = cos (radians);
+  sinAngle = sin (radians);
 
   // normalize x, y, z
   if (sum = quat[1] * quat[1] + quat[2] * quat[2] + quat[3] * quat[3]) 
     {
-    quat[1] *= sin_angle / sqrt(sum);
-    quat[2] *= sin_angle / sqrt(sum);
-    quat[3] *= sin_angle / sqrt(sum);
+    quat[1] *= sinAngle / sqrt(sum);
+    quat[2] *= sinAngle / sqrt(sum);
+    quat[3] *= sinAngle / sqrt(sum);
     }
   else 
     {
     return;
     }
 
-  w = cos_angle;
+  w = cosAngle;
   x = quat[1];
   y = quat[2];
   z = quat[3];
@@ -283,6 +283,7 @@ void vlTransform::RotateWXYZ ( float angle, float x, float y, float z)
 }
 
 // Description:
+// Scale in x, y, z directions using current transformation matrix.
 void vlTransform::Scale ( float x, float y, float z)
 {
   vlMatrix4x4 ctm;
@@ -316,6 +317,7 @@ void vlTransform::Scale ( float x, float y, float z)
 }
 
 // Description:
+//  Translate in x, y, z directions using current transformation matrix.
 void vlTransform::Translate ( float x, float y, float z)
 {
   vlMatrix4x4 ctm;
@@ -338,6 +340,7 @@ void vlTransform::Translate ( float x, float y, float z)
 }
 
 // Description:
+//  Obtain transpose of current transformation matrix.
 void vlTransform::GetTranspose (vlMatrix4x4& (transpose))
 {
   vlMatrix4x4 temp;
@@ -352,6 +355,7 @@ void vlTransform::GetTranspose (vlMatrix4x4& (transpose))
 }
 
 // Description:
+//  Invert current transformation matrix.
 void vlTransform::Inverse ()
 {
   (**this->Stack).Invert (**this->Stack, **this->Stack);
@@ -360,31 +364,34 @@ void vlTransform::Inverse ()
 }
 
 // Description:
+// Return inverse of current transformation matrix.
 void vlTransform::GetInverse ( vlMatrix4x4& inverse)
 {
   inverse.Invert (**this->Stack, inverse);
 }
 
 // Description:
+// Get the x, y, z orientation angles from transformation matrix.
 float *vlTransform::GetOrientation ()
 {
 #define AXIS_EPSILON .01
-	float	scale_x, scale_y, scale_z;
-	vlMatrix4x4  temp;
-	float   x,y,z;
-	float   d;
-	float   d1;
-	float   d2;
-	float   dot;
-	float   alpha;
-	float   phi;
-	float   theta;
-	float   cos_phi, sin_phi;
-	float   cos_theta, sin_theta;
-	float   cos_alpha, sin_alpha;
-	float   x2, y2, z2;
-	float   x3, y3, z3;
-	float   x3p, y3p;
+  float	scale_x, scale_y, scale_z;
+  vlMatrix4x4  temp;
+  float   x,y,z;
+  float   d;
+  float   d1;
+  float   d2;
+  float   dot;
+  float   alpha;
+  float   phi;
+  float   theta;
+  float   cos_phi, sin_phi;
+  float   cos_theta, sin_theta;
+  float   cos_alpha, sin_alpha;
+  float   x2, y2, z2;
+  float   x3, y3, z3;
+  float   x3p, y3p;
+  vlMath math;
 
   // copy the matrix into local storage
 
@@ -418,7 +425,7 @@ float *vlTransform::GetOrientation ()
 
   theta = atan2 (sin_theta, cos_theta);
 
-  y = theta / RADIANS_PER_DEGREE;
+  y = theta / math.DegreesToRadians();
 
   // now rotate about x axis
 
@@ -440,7 +447,7 @@ float *vlTransform::GetOrientation ()
 
   phi = atan2 (sin_phi, cos_phi);
 
-  x = - phi / RADIANS_PER_DEGREE;
+  x = - phi / math.DegreesToRadians();
 
   // finally, rotate about z
 
@@ -460,7 +467,7 @@ float *vlTransform::GetOrientation ()
 
   alpha = atan2 (sin_alpha, cos_alpha);
 
-  z = - alpha / RADIANS_PER_DEGREE;
+  z = - alpha / math.DegreesToRadians();
 
   this->Orientation[0] = x;
   this->Orientation[1] = y;
@@ -470,6 +477,7 @@ float *vlTransform::GetOrientation ()
 }
 
 // Description:
+// Return the x, y, z positions from the current transformation matrix.
 void vlTransform::GetPosition (float & x,float & y,float & z)
 {
 	x = (**this->Stack).Element[0][3];
@@ -477,10 +485,8 @@ void vlTransform::GetPosition (float & x,float & y,float & z)
 	z = (**this->Stack).Element[2][3];
 }
 
-// -----------------------------GetScale-----------------------------
 // Description:
-//	Returns the x, y, z scale factors of  the current transformation matrix.
-
+// Return the x, y, z scale factors of the current transformation matrix.
 void vlTransform::GetScale ( float & x, float & y, float & z)
 {
   int	i;
@@ -503,16 +509,15 @@ void vlTransform::GetScale ( float & x, float & y, float & z)
   z = scale[2];
 }
 
-// -----------------------GetMatrix-------------------------
 // Description:
-//	Returns the current transformation matrix.
+// Returns the current transformation matrix.
 vlMatrix4x4 & vlTransform::GetMatrix ()
 {
   return **this->Stack;;
 }
 
 // Description:
-//	Creates an identity matrix and makes it the current transformation matrix.
+// Creates an identity matrix and makes it the current transformation matrix.
 void vlTransform::Identity ()
 {
   vlMatrix4x4 ctm;
@@ -526,10 +531,9 @@ void vlTransform::Identity ()
   **this->Stack = ctm;
 }
 
-//------------------------Concatenate---------------------------
 // Description:
-//	Concatenates \fImatrix\fR with the current transformation matrix.
-//	The resulting matrix becomes the new current transformation matrix.
+// Concatenates \fImatrix\fR with the current transformation matrix.
+// The resulting matrix becomes the new current transformation matrix.
 
 void vlTransform::Concatenate (vlMatrix4x4 & matrix)
 {
@@ -543,7 +547,7 @@ void vlTransform::Concatenate (vlMatrix4x4 & matrix)
 }
 
 // Description:
-//	Multiplies a and b and stores result in c.
+// Multiplies matrices a and b and stores result in c.
 
 void vlTransform::Multiply4x4 ( vlMatrix4x4 & a, vlMatrix4x4 & b, vlMatrix4x4 & c)
 {
@@ -562,7 +566,7 @@ void vlTransform::Multiply4x4 ( vlMatrix4x4 & a, vlMatrix4x4 & b, vlMatrix4x4 & 
 }
 
 // Description:
-//	Transposes the current transformation matrix.
+// Transposes the current transformation matrix.
 
 void vlTransform::Transpose ()
 {
@@ -570,7 +574,7 @@ void vlTransform::Transpose ()
 }
 
 // Description:
-//	Returns the current transformation matrix.
+// Returns the current transformation matrix.
 
 void vlTransform::GetMatrix (vlMatrix4x4 & ctm)
 {
@@ -578,8 +582,7 @@ void vlTransform::GetMatrix (vlMatrix4x4 & ctm)
 }
 
 // Description:
-//	Destructor.
-//	Deletes all matrices on the stack and the stack
+// Destructor. Deletes all matrices on the stack and the stack
 
 vlTransform::~vlTransform ()
 {
@@ -594,6 +597,8 @@ vlTransform::~vlTransform ()
   delete this->Stack;
 }
 
+// Description:
+// Print method.
 void vlTransform::PrintSelf (ostream& os, vlIndent indent)
 {
   vlMatrix4x4 ctm;
@@ -626,6 +631,8 @@ float *vlTransform::GetPoint()
   return this->Point;
 }
 
+// Description:
+// Multiplies list of points by current transformation matrix.
 void vlTransform::MultiplyPoints(vlPoints *inPts, vlPoints *outPts)
 {
   float newX[4];
@@ -645,6 +652,10 @@ void vlTransform::MultiplyPoints(vlPoints *inPts, vlPoints *outPts)
     outPts->SetPoint(ptId, newX);
     }
 }
+
+// Description:
+// Multiplies list of vectors by current transformation matrix.
+// Special multiplication since these are vectors.
 
 void vlTransform::MultiplyVectors(vlVectors *inVectors, vlVectors *outVectors)
 {
@@ -670,6 +681,10 @@ void vlTransform::MultiplyVectors(vlVectors *inVectors, vlVectors *outVectors)
     }
   this->Pop();
 }
+
+// Description:
+// Multiplies list of normals by current transformation matrix.
+// Special multiplication since these are vectors.
 
 void vlTransform::MultiplyNormals(vlNormals *inNormals, vlNormals *outNormals)
 {
