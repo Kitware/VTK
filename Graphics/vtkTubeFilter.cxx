@@ -25,7 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkPolyLine.h"
 
-vtkCxxRevisionMacro(vtkTubeFilter, "1.83");
+vtkCxxRevisionMacro(vtkTubeFilter, "1.84");
 vtkStandardNewMacro(vtkTubeFilter);
 
 // Construct object with radius 0.5, radius variation turned off, the number 
@@ -213,7 +213,8 @@ int vtkTubeFilter::RequestData(
       if ( !lineNormalGenerator->GenerateSlidingNormals(inPts,singlePolyline,
                                                         inNormals) )
         {
-        vtkWarningMacro(<< "No normals for line!");
+        vtkWarningMacro("Could not generate normals for line. "
+                        "Skipping to next.");
         continue; //skip tubing this polyline
         }
       }
