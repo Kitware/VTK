@@ -48,6 +48,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImageMathematics::vtkImageMathematics()
 {
   this->Operation = VTK_ADD;
+  this->ConstantK = 1.0;
+  this->ConstantC = 0.0;
 }
 
 
@@ -62,7 +64,7 @@ void vtkImageMathematics::ExecuteImageInformation()
   // two input take intersection
   if (this->Operation == VTK_ADD || this->Operation == VTK_SUBTRACT || 
       this->Operation == VTK_MULTIPLY || this->Operation == VTK_DIVIDE ||
-      this->Operation == VTK_MIN || this->Operation == VTK_MAX) 
+      this->Operation == VTK_MIN || this->Operation == VTK_MAX || this->Operation == VTK_ATAN2) 
     {
     ext2 = this->Inputs[1]->GetWholeExtent();
     for (idx = 0; idx < 3; ++idx)
@@ -116,6 +118,8 @@ static void vtkImageMathematicsExecute1(vtkImageMathematics *self,
   in1Data->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
 
+  double constantk = self->GetConstantK();
+  double constantc = self->GetConstantC();
   // Loop through ouput pixels
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {
@@ -153,10 +157,19 @@ static void vtkImageMathematicsExecute1(vtkImageMathematics *self,
 	    *outPtr = (T)(fabs((double)*in1Ptr));
 	    break;
 	  case VTK_SQR:
-	    *outPtr = *in1Ptr * *in1Ptr;
+	    *outPtr = (T)(*in1Ptr * *in1Ptr);
 	    break;
 	  case VTK_SQRT:
 	    *outPtr = (T)(sqrt((double)*in1Ptr));
+	    break;
+	  case VTK_ATAN:
+	    *outPtr = (T)(atan((double)*in1Ptr));
+	    break;
+	  case VTK_MULTIPLYBYK:
+	    *outPtr = (T)(constantk*(double)*in1Ptr);
+	    break;
+	  case VTK_ADDC:
+	    *outPtr = (T)((T)constantc + *in1Ptr);
 	    break;
 	  }
 	outPtr++;
@@ -261,6 +274,10 @@ static void vtkImageMathematicsExecute2(vtkImageMathematics *self,
 	      {
 	      *outPtr = *in2Ptr;
 	      }
+	    break;
+	  case VTK_ATAN2:
+	      *outPtr =  (T)atan2(*in1Ptr,*in2Ptr);
+	    break;
 	  }
 	outPtr++;
 	in1Ptr++;
@@ -295,7 +312,7 @@ void vtkImageMathematics::ThreadedExecute(vtkImageData **inData,
 
   if (this->Operation == VTK_ADD || this->Operation == VTK_SUBTRACT || 
       this->Operation == VTK_MULTIPLY || this->Operation == VTK_DIVIDE ||
-      this->Operation == VTK_MIN || this->Operation == VTK_MAX) 
+      this->Operation == VTK_MIN || this->Operation == VTK_MAX || this->Operation == VTK_ATAN2) 
     {
     void *inPtr2 = inData[1]->GetScalarPointerForExtent(outExt);
 
@@ -404,5 +421,8 @@ void vtkImageMathematics::PrintSelf(ostream& os, vtkIndent indent)
   vtkImageTwoInputFilter::PrintSelf(os,indent);
 
   os << indent << "Operation: " << this->Operation << "\n";
+  os << indent << "ConstantK: " << this->ConstantK << "\n";
+  os << indent << "ConstantC: " << this->ConstantC << "\n";
+
 }
 
