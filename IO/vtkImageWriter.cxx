@@ -24,9 +24,11 @@
 
 #if !defined(_WIN32) || defined(__CYGWIN__)
 # include <unistd.h> /* unlink */
+#else
+# include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkImageWriter, "1.50");
+vtkCxxRevisionMacro(vtkImageWriter, "1.51");
 vtkStandardNewMacro(vtkImageWriter);
 
 #ifdef write

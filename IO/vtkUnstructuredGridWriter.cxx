@@ -24,9 +24,11 @@
 
 #if !defined(_WIN32) || defined(__CYGWIN__)
 # include <unistd.h> /* unlink */
+#else
+# include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkUnstructuredGridWriter, "1.38");
+vtkCxxRevisionMacro(vtkUnstructuredGridWriter, "1.39");
 vtkStandardNewMacro(vtkUnstructuredGridWriter);
 
 //----------------------------------------------------------------------------

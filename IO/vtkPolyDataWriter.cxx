@@ -22,9 +22,11 @@
 
 #if !defined(_WIN32) || defined(__CYGWIN__)
 # include <unistd.h> /* unlink */
+#else
+# include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkPolyDataWriter, "1.21");
+vtkCxxRevisionMacro(vtkPolyDataWriter, "1.22");
 vtkStandardNewMacro(vtkPolyDataWriter);
 
 //----------------------------------------------------------------------------

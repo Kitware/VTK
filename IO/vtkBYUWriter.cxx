@@ -25,11 +25,13 @@
 
 #if !defined(_WIN32) || defined(__CYGWIN__)
 # include <unistd.h> /* unlink */
+#else
+# include <io.h> /* unlink */
 #endif
 
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkBYUWriter, "1.53");
+vtkCxxRevisionMacro(vtkBYUWriter, "1.54");
 vtkStandardNewMacro(vtkBYUWriter);
 
 // Create object so that it writes displacement, scalar, and texture files

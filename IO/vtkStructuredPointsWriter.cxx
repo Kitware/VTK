@@ -22,9 +22,12 @@
 
 #if !defined(_WIN32) || defined(__CYGWIN__)
 # include <unistd.h> /* unlink */
+#else
+# include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkStructuredPointsWriter, "1.37");
+
+vtkCxxRevisionMacro(vtkStructuredPointsWriter, "1.38");
 vtkStandardNewMacro(vtkStructuredPointsWriter);
 
 //----------------------------------------------------------------------------
