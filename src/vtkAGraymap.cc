@@ -59,7 +59,7 @@ unsigned char *vtkAGraymap::GetColor(int id)
 // Description:
 // Copy rgba color value components into user provided array for specified
 // point id.
-void vtkAGraymap::GetColor(int id, unsigned char rgba[3])
+void vtkAGraymap::GetColor(int id, unsigned char rgba[4])
 {
   rgba[0] = rgba[1] = rgba[2] = this->S[2*id];
   rgba[3] = this->S[2*id+1];

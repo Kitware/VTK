@@ -230,6 +230,20 @@ typedef struct {
 #define FLAG_THETARIGHT	0x00001000	/* theta is right hand rule */
 #define FLAG_INSIDE_OUT	0x00002000	/* inside surface is outside */
 
+#define VTXNLG		1024
+#define VTXNLT		1024
+#define NVAR		6
+
+struct Vertex {
+	GSPEC *gs;
+	int nlg;
+	int nlt;
+	int lgmin, lgmax;
+	int ltmin, ltmax;
+	int lgresol;
+	int ltresol;
+	float pnt[VTXNLG][VTXNLT][NVAR];
+};
 
 static GSPEC *cyread(GSPEC *gs, int fd);
 static GSPEC *gsallo();
@@ -243,10 +257,6 @@ static int makegsheader(GSPEC* gs);
 static void gstovtx (GSPEC* gs, struct Vertex *vtx);
 // end of cyfile.h-------------------------------------------------------------
 
-#define VTXNLG		1024
-#define VTXNLT		1024
-#define NVAR		6
-
 // subscripts for pnt[] below
 #define NX		0
 #define NY		1
@@ -254,17 +264,6 @@ static void gstovtx (GSPEC* gs, struct Vertex *vtx);
 #define LX		3
 #define LY		4
 #define LZ		5
-
-struct Vertex {
-	GSPEC *gs;
-	int nlg;
-	int nlt;
-	int lgmin, lgmax;
-	int ltmin, ltmax;
-	int lgresol;
-	int ltresol;
-	float pnt[VTXNLG][VTXNLT][NVAR];
-};
 
 #define SMALL_VOID 0.125
 
