@@ -91,7 +91,7 @@ void vtkWin32PolyDataMapper2D::Render(vtkViewport* viewport, vtkActor2D* actor)
   int npts, idx[3], rep, j;
   float fclr[4];
   short clr[4];
-  vtkPoints *p;
+  vtkPoints *p, *displayPts;
   vtkCellArray *aPrim;
   vtkScalars *c=NULL;
   unsigned char *rgba;
@@ -174,9 +174,23 @@ void vtkWin32PolyDataMapper2D::Render(vtkViewport* viewport, vtkActor2D* actor)
     vtkErrorMacro(<<"vtkWin32TextMapper::Render - ROP not set!");
     }
 
-  // Calculate the size of the bounding rectangle
-  // and draw the display list
+  // Transform the points, if necessary
   p = input->GetPoints();
+  if ( this->TransformCoordinate )
+    {
+    int *itmp, numPts = p->GetNumberOfPoints();
+    displayPts = vtkPoints::New();
+    displayPts->SetNumberOfPoints(numPts);
+    for ( j=0; j < numPts; j++ )
+      {
+      this->TransformCoordinate->SetValue(p->GetPoint(j));
+      itmp = this->TransformCoordinate->GetComputedLocalDisplayValue(viewport);
+      displayPts->SetPoint(j,itmp[0], itmp[1], itmp[2]);
+      }
+    p = displayPts;
+    }
+
+  // Set up the coloring
   if ( this->Colors )
     {
     c = this->Colors;
@@ -272,6 +286,10 @@ vtkDebugMacro(<< cellScalars);
     }
 
   delete [] points;
+  if ( this->TransformCoordinate )
+    {
+    p->Delete();
+    }
   
   SelectObject(hdc, oldPen);
   DeleteObject(pen);

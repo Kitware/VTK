@@ -57,6 +57,8 @@ vtkPolyDataMapper2D::vtkPolyDataMapper2D()
   this->ScalarRange[0] = 0.0; this->ScalarRange[1] = 1.0;
 
   this->ColorMode = VTK_COLOR_MODE_DEFAULT;
+  
+  this->TransformCoordinate = NULL;
 }
 
 vtkPolyDataMapper2D::~vtkPolyDataMapper2D()
@@ -243,6 +245,17 @@ void vtkPolyDataMapper2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Scalar Range: (" << range[0] << ", " << range[1] << ")\n";
   
   os << indent << "Color Mode: " << this->GetColorModeAsString() << endl;
+
+  if ( this->TransformCoordinate )
+    {
+    os << indent << "Transform Coordinate: " 
+       << this->TransformCoordinate << "\n";
+    this->TransformCoordinate->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "No Transform Coordinate\n";
+    }
 }
 
 
