@@ -1,5 +1,4 @@
-#package require vtktcl
-catch { load vtktcl}
+package require vtktcl_interactor
 
 vtkDiskSource disk
   disk SetRadialResolution 2
