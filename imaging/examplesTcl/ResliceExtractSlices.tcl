@@ -10,15 +10,9 @@ if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdat
 # SetOutputDimensionality(2) the output slices will pass through
 # whatever point we set as the ResliceAxesOrigin.
 
-# If you don't want the images to always be centered, then see
-# the example ResliceExtractSlices2 -- the way that it does things
-# provides more flexibility in setting the exact extents/origins
-# of the extracted slices.
-# The difference between this example and ResliceExtractSlices2
-# is that this example gives a quick & dirty way to do things,
-# while ResliceExtractSlices2 is more suitable as the basis for
-# a serious visualization program but requires a greater
-# understanding of how vtkImageReslice actually works.
+# This is meant as a quick-and-dirty example.  The corresponding
+# python example, SliceViewerWidget.py, is developed to a much
+# greater extent.
 
 # Image pipeline
 

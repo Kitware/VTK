@@ -1,24 +1,137 @@
-from VTK import *
+#!/usr/bin/env python
+
+"""
+A moderately advanced image viewer.
+
+Left Button:    Pan
+Middle Button:  Slice
+Right Button:   Zoom
+
+with 'Shift' held down:
+
+Left Button:    Slice
+Middle Button:  Slice
+Right Button:   Window/Level (vert/horiz)
+
+special keys:
+
+r:              Reset View
+
+
+See the end of this file for an example of how to use
+the SliceViewerWidget.
+"""
+
+try:
+    from vtkpython import *
+except:
+    from libVTKCommonPython import *
+    from libVTKGraphicsPython import *
+    from libVTKImagingPython import *
+    from libVTKContribPython import *
+
 from Tkinter import *
-import math
+import Tkinter
+import math, os
 
-class SliceViewerWidget(vtkTkImageWindowWidget):
-    def __init__(self,*args,**kw):
-        self.__ImageViewer = vtkImageViewer()
-        kw['iw'] = self.__ImageViewer.GetImageWindow()
-        kw['double'] = 1
-        apply(vtkTkImageWindowWidget.__init__,(self,)+args,kw)
+class SliceViewerWidget(Tkinter.Widget):
+    def __init__(self, master, cnf={}, **kw):
+        try: # check for VTK_TK_WIDGET_PATH environment variable
+	    tkWidgetPath = os.environ['VTK_TK_WIDGET_PATH']
+        except KeyError:
+            tkWidgetPath = "."
 
-        self.__ImageReslice = vtkImageReslice()
-        self.__ImageReslice.SetInterpolationModeToCubic()
-        self.__ImageReslice.SetOptimization(2)        
-        self.__ImageViewer.SetInput(self.__ImageReslice.GetOutput())
+        try: # try specified path or current directory
+            master.tk.call('load',os.path.join(tkWidgetPath, \
+                                               'vtkTkRenderWidget'))
+        except: # try tcl/tk load path
+            master.tk.call('load','vtkTkRenderWidget')
+
+        try: # check to see if a render window was specified
+            renderWindow = kw['rw']
+        except KeyError:
+            renderWindow = vtkRenderWindow()
+
+        kw['rw'] = renderWindow.GetAddressAsString("vtkRenderWindow")
+        Tkinter.Widget.__init__(self, master, 'vtkTkRenderWidget', cnf, kw)
+        
+        self._ImageReslice = vtkImageReslice()
+        self._ImageReslice.SetInterpolationModeToCubic()
+
+        self._LookupTable = vtkLookupTable()
+        self._LookupTable.SetSaturationRange(0,0)
+        self._LookupTable.SetValueRange(0,1)
+        self._LookupTable.SetTableRange(0,2000)
+        self._LookupTable.Build()
+
+        self._OriginalColorWindow = 2000
+        self._OriginalColorLevel = 1000
+
+        self._ImageColor = vtkImageMapToColors()
+        self._ImageColor.SetInput(self._ImageReslice.GetOutput())
+        self._ImageColor.SetOutputFormatToRGB()
+        self._ImageColor.SetLookupTable(self._LookupTable)
+        
+        self._ImageMapper = vtkImageMapper()        
+        self._ImageMapper.SetInput(self._ImageColor.GetOutput())
+        self._ImageMapper.SetColorWindow(255.0)
+        self._ImageMapper.SetColorLevel(127.5)
+
+        self._Actor = vtkActor2D()
+        self._Actor.SetMapper(self._ImageMapper)
+
+        renderer = vtkRenderer()
+        renderer.AddActor2D(self._Actor)
+        self._RenderWindow.AddRenderer(renderer)
 
         self.BindSliceViewerWidget()
 
+    def __getattr__(self,attr):
+        # because the tk part of vtkTkRenderWidget must have
+        # the only remaining reference to the RenderWindow when
+        # it is destroyed, we can't actually store the RenderWindow
+        # as an attribute but instead have to get it from the tk-side
+        if attr == '_RenderWindow':
+            return self.GetRenderWindow()
+        if attr == '_Renderer':
+            rens = self.GetRenderWindow().GetRenderers()
+            rens.InitTraversal()
+            return rens.GetNextItem()
+
+    def SetResliceAxes(self,*args):
+        try:
+            apply(self._ImageReslice.SetResliceAxes,args)
+        except:
+            apply(self._ImageReslice.SetResliceAxesDirectionCosines,args)
+
+    def GetResliceAxes(self):
+        return self._ImageReslice.GetResliceAxes()
+
+    def SetResliceTransform(self,transform): 
+        self._ImageReslice.SetResliceTransform(transform)
+
+    def GetResliceTransform(self):
+        return self._ImageReslice.GetResliceTransform()
+
+    def SetLookupTable(self,table):
+        if self._Table == table:
+            return
+        self._LookupTable = table
+        self._ImageColor.SetLookupTable(table)
+        range = table.GetTableRange()
+        self._OriginalColorWindow = range[1]-range[0]
+        self._OriginalColorLevel = 0.5*(range[0]+range[1])
+
+    def GetLookupTable(self):
+        return self._LookupTable
+
+    def GetRenderWindow(self):
+        addr = self.tk.call(self._w, 'GetRenderWindow')[5:]
+        return vtkRenderWindow('_%s_vtkRenderWindow_p' % addr)
+    
     def BindSliceViewerWidget(self):
-        self.__LastX = 0
-        self.__LastY = 0
+        self._LastX = 0
+        self._LastY = 0
         
         self.bind('<Any-ButtonPress>',
                   lambda e,s=self: s.StartInteraction(e.x,e.y))
@@ -39,6 +152,9 @@ class SliceViewerWidget(vtkTkImageWindowWidget):
         self.bind('<B3-Motion>',
                   lambda e,s=self: s.Scale(e.x,e.y))
 
+        self.bind('<Shift-B3-Motion>',
+                  lambda e,s=self: s.WindowLevel(e.x,e.y))
+
         self.bind('<KeyPress-r>',
                   lambda e,s=self: s.Reset())
 
@@ -47,9 +163,12 @@ class SliceViewerWidget(vtkTkImageWindowWidget):
         self.bind("<Enter>",
                   lambda e,s=self: s.Enter())
 
+    def Enter(self):
+        self.focus()
 
-    def Configure(self,width,height):
-        reslice = self.__ImageReslice
+    def Configure(self, width, height):
+
+        reslice = self._ImageReslice
         extent = reslice.GetOutputExtent()
         origin = reslice.GetOutputOrigin()
         spacing = reslice.GetOutputSpacing()
@@ -71,15 +190,21 @@ class SliceViewerWidget(vtkTkImageWindowWidget):
         reslice.SetOutputOrigin(origin)
 
         self.Scale(1.0*(old_width-1)/(width-1))
+    
+    def StartInteraction(self,x,y):
+        self._ImageReslice.SetInterpolationModeToLinear()
+        self._LastX = x
+        self._LastY = y
 
-    def Enter(self):
-        self.focus()
+    def EndInteraction(self,x,y):
+        self._ImageReslice.SetInterpolationModeToCubic()
+        self.Render()
 
     def Slide(self,x,y):
-        reslice = self.__ImageReslice
+        reslice = self._ImageReslice
         spacing = reslice.GetOutputSpacing()
         origin = reslice.GetOutputOrigin()
-        delta = (self.__LastX-x,y-self.__LastY)
+        delta = (self._LastX-x,y-self._LastY)
 
         origin = list(origin)
         for i in xrange(2):
@@ -88,44 +213,53 @@ class SliceViewerWidget(vtkTkImageWindowWidget):
 
         reslice.SetOutputOrigin(origin)
             
-        self.__LastX = x
-        self.__LastY = y
+        self._LastX = x
+        self._LastY = y
         self.Render()
 
     def Slice(self,x,y):
-        reslice = self.__ImageReslice
+        reslice = self._ImageReslice
         input = reslice.GetInput()
-        spacing = reslice.GetOutputSpacing()
+        extent = reslice.GetOutputExtent()
         origin = reslice.GetOutputOrigin()
-        delta = y-self.__LastY
+        spacing = reslice.GetOutputSpacing()
 
+        reslice.SetOutputExtentToDefault()
+        reslice.SetOutputOriginToDefault()
+        reslice.SetOutputSpacingToDefault()
+        output = reslice.GetOutput()
+        output.UpdateInformation()
+        lo,hi = output.GetWholeExtent()[4:6]
+        s = output.GetSpacing()[2]
+        o = output.GetOrigin()[2]
+        lo = o + lo*s
+        hi = o + hi*s
+        orig_lo = min((lo,hi))
+        orig_hi = max((lo,hi))
+
+        delta = y-self._LastY
         origin = list(origin)
         origin[2] = origin[2]+delta*spacing[2]
-        orig_lo = input.GetOrigin()[2]
-        orig_hi = input.GetOrigin()[2]+input.GetSpacing()[2]*\
-                  (input.GetWholeExtent()[5]-input.GetWholeExtent()[4])
-        if (orig_lo > orig_hi):
-            tmp = orig_hi
-            orig_hi = orig_lo
-            orig_lo = tmp
         if (origin[2] > orig_hi):
             origin[2] = orig_hi
         elif (origin[2] < orig_lo):
             origin[2] = orig_lo
         origin = tuple(origin)
 
+        reslice.SetOutputSpacing(spacing)
         reslice.SetOutputOrigin(origin)
+        reslice.SetOutputExtent(extent)
 
-        self.__LastX = x
-        self.__LastY = y
+        self._LastX = x
+        self._LastY = y
         self.Render()        
 
     def Scale(self,x,y=None):
         if (y == None):
             zoomFactor = x
         else:
-            zoomFactor = math.pow(1.02,(0.5*(y - self.__LastY)))
-        reslice = self.__ImageReslice
+            zoomFactor = math.pow(1.02,(0.5*(y-self._LastY)))
+        reslice = self._ImageReslice
         extent = reslice.GetOutputExtent()
         spacing = reslice.GetOutputSpacing()
         origin = reslice.GetOutputOrigin()
@@ -139,28 +273,40 @@ class SliceViewerWidget(vtkTkImageWindowWidget):
         spacing = tuple(spacing)
 
         origin = list(origin)
-        for i in xrange(3):
+        for i in xrange(2):
             origin[i] = center[i] + zoomFactor*(origin[i]-center[i])
         origin = tuple(origin)
 
         reslice.SetOutputSpacing(spacing)
         reslice.SetOutputOrigin(origin)
 
-        self.__LastX = x
-        self.__LastY = y
+        self._LastX = x
+        self._LastY = y
         self.Render()
 
-    def StartInteraction(self,x,y):
-        self.__ImageReslice.SetInterpolationModeToLinear()
-        self.__LastX = x
-        self.__LastY = y
+    def WindowLevel(self,x,y):
+        range = self._LookupTable.GetTableRange()
+        window = range[1]-range[0]
+        level = 0.5*(range[0]+range[1])
 
-    def EndInteraction(self,x,y):
-        self.__ImageReslice.SetInterpolationModeToCubic()
-        self.Render()
+        owin = self._OriginalColorWindow
+        olev = self._OriginalColorLevel
+
+        level = level + (x - self._LastX)*owin/500.0
+        window = window + (self._LastY - y)*owin/250.0
+
+        if window <= 0:
+            window = 1e-3
+
+        self._LookupTable.SetTableRange(level-window*0.5,
+                                        level+window*0.5)
+
+        self._LastX = x
+        self._LastY = y
+        self.Render()        
 
     def ChangeSlice(self,inc):
-        reslice = self.__ImageReslice
+        reslice = self._ImageReslice
         input = reslice.GetInput()
         orig_lo = input.GetOrigin()[2]
         orig_hi = input.GetOrigin()[2]+input.GetSpacing()[2]*\
@@ -180,79 +326,90 @@ class SliceViewerWidget(vtkTkImageWindowWidget):
         origin = tuple(origin)
         reslice.SetOutputOrigin(origin)
         
-    def GetImageViewer(self):
-        return self.__ImageViewer
-
     def Reset(self):
-        reslice = self.__ImageReslice
+        reslice = self._ImageReslice
+        wextent = reslice.GetOutputExtent()
+        zorigin = reslice.GetOutputOrigin()[2]
+
         input = reslice.GetInput()
-        extent = input.GetWholeExtent()
-        spacing = input.GetSpacing()
-        origin = input.GetOrigin()
+        input.UpdateInformation()
+        newspacing = min(map(abs,input.GetSpacing()))
+
+        reslice.SetOutputExtentToDefault()
+        reslice.SetOutputOriginToDefault()
+        reslice.SetOutputSpacingToDefault()
+
+        output = reslice.GetOutput()
+        output.UpdateInformation()
+
+        # note: don't convert the /2 into *0.5 because we want
+        # the result of the division to be an integer
+        extent = output.GetWholeExtent()
+        spacing = output.GetSpacing()
+        zspacing = spacing[2]
+        origin = output.GetOrigin()
         center = [(extent[0]+extent[1])/2*spacing[0]+origin[0],
                   (extent[2]+extent[3])/2*spacing[1]+origin[1],
-                  0]
+                  (extent[4]+extent[5])/2*spacing[2]+origin[2]]
         
-        zspacing = spacing[2]
-        zorigin = origin[2]
-        
-        newspacing = min(spacing)
-
-        extent = reslice.GetOutputExtent()
-        spacing = reslice.GetOutputSpacing()
-        origin = reslice.GetOutputOrigin()
-        center[2] = (extent[4]+extent[5])/2*spacing[2]+origin[2]
-
-        spacing = list(spacing)
-        spacing[0] = newspacing
-        spacing[1] = newspacing
-        spacing[2] = newspacing
-        spacing = tuple(spacing)
-
         origin = list(origin)
         for i in xrange(2):
-            origin[i] = center[i]-(extent[2*i+1]+extent[2*i])/2*spacing[i]
-        # go to nearest slice, i.e. don't interpolate between slices
-        slice = int((center[2]-zorigin)/zspacing+0.5)
-        origin[2] = zorigin+slice*zspacing        
-        origin = tuple(origin)
+            origin[i] = center[i]-(wextent[2*i+1]+wextent[2*i])/2* \
+                        newspacing
         
-        reslice.SetOutputSpacing(spacing)
+        # go to nearest slice
+        slice = math.floor((center[2] - zorigin)/zspacing+0.5)
+        origin[2] = center[2] - slice*zspacing        
+        origin = tuple(origin)
+
+        reslice.SetOutputSpacing(newspacing,newspacing,newspacing)
+        reslice.SetOutputExtent(wextent)
         reslice.SetOutputOrigin(origin)
         self.Render()
 
     def SetInput(self,input):
-        reslice = self.__ImageReslice
         input.UpdateInformation()
+        spacing = min(map(abs,input.GetSpacing()))
+        width, height = self._RenderWindow.GetSize() 
 
-        spacing = list(input.GetSpacing())
-        extent = list(input.GetWholeExtent())
-        newspacing = min(spacing)
-
-        extent[1] = extent[0]+int((extent[1]-extent[0])*\
-                                  spacing[0]/newspacing)
-        extent[3] = extent[2]+int((extent[3]-extent[2])*\
-                                  spacing[1]/newspacing)
-        extent[5] = extent[4]
-        extent = tuple(extent)
-
-        spacing[0] = newspacing
-        spacing[1] = newspacing
-        spacing[2] = newspacing
-        spacing = tuple(spacing)
-
+        reslice = self._ImageReslice
         reslice.SetInput(input)
-        reslice.SetOutputOrigin(input.GetOrigin())
-        reslice.SetOutputExtent(extent)
-        reslice.SetOutputSpacing(spacing)
+        reslice.SetOutputSpacing(spacing,spacing,spacing)
+        reslice.SetOutputOriginToDefault()
+        if (width > 0 and height > 0):
+            reslice.SetOutputExtent(0,width-1,0,height-1,0,0)
+        else:
+            reslice.SetOutputExtentToDefault()
 
-        extent = input.GetWholeExtent()
-        self.configure(width=extent[1]-extent[0]+1,
-                       height=extent[3]-extent[2]+1)
-        self.update()
+        output = reslice.GetOutput()
+        output.UpdateInformation()
+
+        extent = output.GetWholeExtent()
+        origin = output.GetOrigin()
+        origin = list(origin)
+        origin[2] = origin[2] + (extent[4] + extent[5])/2*spacing
+        origin = tuple(origin)
+
+        reslice.SetOutputOrigin(origin)
+        reslice.SetOutputExtent(extent)
+        
+        self._RenderWindow.SetSize(extent[1]-extent[0]+1,
+                                   extent[3]-extent[2]+1)
+
+    def SetColorWindow(self,window):
+        self._ImageMapper.SetColorWindow(window)
+        self._OriginalColorWindow = window
+
+    def SetColorLevel(self,level):
+        self._ImageMapper.SetColorLevel(level)
+        self._OriginalColorLevel = level
 
     def GetInput(self):
-        return self.__ImageViewer.GetInput()
+        return self._ImageReslice.GetInput()
+
+    def Render(self):
+        self._RenderWindow.Render()
+
 
 if __name__ == '__main__':
     # short how-to-use example
@@ -267,16 +424,88 @@ if __name__ == '__main__':
     reader.SetDataMask(0x7fff)
     reader.UpdateWholeExtent()
     
-    top = Toplevel()
+    # set the slice orientation to view
+    sagittal = ( 0, 1, 0,
+                 0, 0,-1,
+                -1, 0, 0 )
     
-    ren = SliceViewerWidget(top,width=256,height=256)
-    ren.SetInput(reader.GetOutput())
+    coronal =  ( 1, 0, 0,
+                 0, 0,-1,
+                 0, 1, 0 )
     
-    top.bind("<Destroy>",lambda e: e.widget.quit())
+    axial =    ( 1, 0, 0,
+                 0, 1, 0,
+                 0, 0, 1 )    
+
+    oblique = vtkTransform()
+    oblique.RotateWXYZ(-50,1,0,0)
+
+    root = Tk()
+
+    def RenderAll():
+        viewer1.Render()
+        viewer2.Render()
+        viewer3.Render()
+        viewer4.Render()
+
+    frame = Frame(root)
     
-    top.tk.call('wm','withdraw','.')
-    ren.pack(side='left',fill='both',expand='t')
+    viewer1 = SliceViewerWidget(frame,width=256,height=256)
+    viewer1.SetResliceAxes(coronal)
+    viewer1.SetInput(reader.GetOutput())
+
+    viewer2 = SliceViewerWidget(frame,width=256,height=256)
+    viewer2.SetResliceAxes(sagittal)
+    viewer2.SetInput(reader.GetOutput())
+
+    viewer3 = SliceViewerWidget(frame,width=256,height=256)
+    viewer3.SetResliceAxes(axial)
+    viewer3.SetInput(reader.GetOutput())
+
+    viewer4 = SliceViewerWidget(frame,width=256,height=256)
+    viewer4.SetResliceAxes(oblique.GetMatrix())
+    viewer4.SetInput(reader.GetOutput())
+
+    # uncomment the following to make window/level sync across windows
+    """
+    table = vtkLookupTable()
+    table.SetSaturationRange(0,0)
+    table.SetValueRange(0,1)
+    table.SetTableRange(0,2000)
+    table.Build()
+
+    viewers = [viewer1, viewer2, viewer3, viewer4]
+
+    for viewer in viewers:
+        viewer.SetLookupTable(table)
+
+    def RenderAll():
+        for viewer in viewers:
+            viewer.GetRenderWindow().SwapBuffersOff()
+        for viewer in viewers:
+            viewer.GetRenderWindow().Render()
+        for viewer in viewers:
+            viewer.GetRenderWindow().SwapBuffersOn()
+        for viewer in viewers:
+            viewer.GetRenderWindow().Frame()
+
+    for viewer in viewers:
+        viewer.Render = RenderAll
+    """
+
+    viewer1.grid(row=1,column=1,sticky='nsew')
+    viewer2.grid(row=1,column=2,sticky='nsew')
+    viewer3.grid(row=2,column=1,sticky='nsew')
+    viewer4.grid(row=2,column=2,sticky='nsew')
+
+    frame.grid_rowconfigure(1,weight=1)
+    frame.grid_rowconfigure(2,weight=1)
+    frame.grid_columnconfigure(1,weight=1)
+    frame.grid_columnconfigure(2,weight=1)
+
+    frame.pack(expand='true',fill='both')
     
-    top.mainloop()
+    root.bind("<Destroy>",lambda e: e.widget.quit())    
+    root.mainloop()
 
 

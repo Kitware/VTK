@@ -60,6 +60,9 @@ class SliceViewer:
 
         self.BindSliceViewer()
 
+    def SetSliceAxes(self,*args):
+        apply(self._ImageReslice.SetResliceAxesDirectionCosines,args)
+
     def BindSliceViewer(self):
         self._LastX = 0
         self._LastY = 0
@@ -165,26 +168,35 @@ class SliceViewer:
     def Slice(self,x,y):
         reslice = self._ImageReslice
         input = reslice.GetInput()
-        spacing = reslice.GetOutputSpacing()
+        extent = reslice.GetOutputExtent()
         origin = reslice.GetOutputOrigin()
-        delta = self._LastY-y
+        spacing = reslice.GetOutputSpacing()
 
+        reslice.SetOutputExtentToDefault()
+        reslice.SetOutputOriginToDefault()
+        reslice.SetOutputSpacingToDefault()
+        output = reslice.GetOutput()
+        output.UpdateInformation()
+        lo,hi = output.GetWholeExtent()[4:6]
+        s = output.GetSpacing()[2]
+        o = output.GetOrigin()[2]
+        lo = o + lo*s
+        hi = o + hi*s
+        orig_lo = min((lo,hi))
+        orig_hi = max((lo,hi))
+
+        delta = self._LastY-y
         origin = list(origin)
         origin[2] = origin[2]+delta*spacing[2]
-        orig_lo = input.GetOrigin()[2]
-        orig_hi = input.GetOrigin()[2]+input.GetSpacing()[2]*\
-                  (input.GetWholeExtent()[5]-input.GetWholeExtent()[4])
-        if (orig_lo > orig_hi):
-            tmp = orig_hi
-            orig_hi = orig_lo
-            orig_lo = tmp
         if (origin[2] > orig_hi):
             origin[2] = orig_hi
         elif (origin[2] < orig_lo):
             origin[2] = orig_lo
         origin = tuple(origin)
 
+        reslice.SetOutputSpacing(spacing)
         reslice.SetOutputOrigin(origin)
+        reslice.SetOutputExtent(extent)
 
         self._LastX = x
         self._LastY = y
@@ -209,7 +221,7 @@ class SliceViewer:
         spacing = tuple(spacing)
 
         origin = list(origin)
-        for i in xrange(3):
+        for i in xrange(2):
             origin[i] = center[i] + zoomFactor*(origin[i]-center[i])
         origin = tuple(origin)
 
@@ -263,68 +275,67 @@ class SliceViewer:
         
     def Reset(self):
         reslice = self._ImageReslice
+        wextent = reslice.GetOutputExtent()
+        zorigin = reslice.GetOutputOrigin()[2]
+
         input = reslice.GetInput()
-        extent = input.GetWholeExtent()
-        spacing = input.GetSpacing()
-        origin = input.GetOrigin()
+        input.UpdateInformation()
+        newspacing = min(map(abs,input.GetSpacing()))
+
+        reslice.SetOutputExtentToDefault()
+        reslice.SetOutputOriginToDefault()
+        reslice.SetOutputSpacingToDefault()
+
+        output = reslice.GetOutput()
+        output.UpdateInformation()
+
+        # note: don't convert the /2 into *0.5 because we want
+        # the result of the division to be an integer
+        extent = output.GetWholeExtent()
+        spacing = output.GetSpacing()
+        zspacing = spacing[2]
+        origin = output.GetOrigin()
         center = [(extent[0]+extent[1])/2*spacing[0]+origin[0],
                   (extent[2]+extent[3])/2*spacing[1]+origin[1],
-                  0]
+                  (extent[4]+extent[5])/2*spacing[2]+origin[2]]
         
-        zspacing = spacing[2]
-        zorigin = origin[2]
-        
-        newspacing = min(spacing)
-
-        extent = reslice.GetOutputExtent()
-        spacing = reslice.GetOutputSpacing()
-        origin = reslice.GetOutputOrigin()
-        center[2] = (extent[4]+extent[5])/2*spacing[2]+origin[2]
-
-        spacing = list(spacing)
-        spacing[0] = newspacing
-        spacing[1] = newspacing
-        spacing[2] = newspacing
-        spacing = tuple(spacing)
-
         origin = list(origin)
         for i in xrange(2):
-            origin[i] = center[i]-(extent[2*i+1]+extent[2*i])/2*spacing[i]
-        # go to nearest slice, i.e. don't interpolate between slices
-        slice = int((center[2]-zorigin)/zspacing+0.5)
-        origin[2] = zorigin+slice*zspacing        
-        origin = tuple(origin)
+            origin[i] = center[i]-(wextent[2*i+1]+wextent[2*i])/2* \
+                        newspacing
         
-        reslice.SetOutputSpacing(spacing)
+        # go to nearest slice
+        slice = math.floor((center[2] - zorigin)/zspacing+0.5)
+        origin[2] = center[2] - slice*zspacing        
+        origin = tuple(origin)
+
+        reslice.SetOutputSpacing(newspacing,newspacing,newspacing)
+        reslice.SetOutputExtent(wextent)
         reslice.SetOutputOrigin(origin)
         self.Render()
 
     def SetInput(self,input):
-        reslice = self._ImageReslice
         input.UpdateInformation()
+        spacing = min(map(abs,input.GetSpacing()))
 
-        spacing = list(input.GetSpacing())
-        extent = list(input.GetWholeExtent())
-        newspacing = min(spacing)
-
-        extent[1] = extent[0]+int((extent[1]-extent[0])*\
-                                  spacing[0]/newspacing)
-        extent[3] = extent[2]+int((extent[3]-extent[2])*\
-                                  spacing[1]/newspacing)
-        extent[5] = extent[4]
-        extent = tuple(extent)
-
-        spacing[0] = newspacing
-        spacing[1] = newspacing
-        spacing[2] = newspacing
-        spacing = tuple(spacing)
-
+        reslice = self._ImageReslice
         reslice.SetInput(input)
-        reslice.SetOutputOrigin(input.GetOrigin())
-        reslice.SetOutputExtent(extent)
-        reslice.SetOutputSpacing(spacing)
+        reslice.SetOutputSpacing(spacing,spacing,spacing)
+        reslice.SetOutputOriginToDefault()
+        reslice.SetOutputExtentToDefault()
 
-        extent = input.GetWholeExtent()
+        output = reslice.GetOutput()
+        output.UpdateInformation()
+
+        extent = output.GetWholeExtent()
+        origin = output.GetOrigin()
+        origin = list(origin)
+        origin[2] = origin[2] + (extent[4] + extent[5])/2*spacing
+        origin = tuple(origin)
+
+        reslice.SetOutputOrigin(origin)
+        reslice.SetOutputExtent(extent)
+        
         self._RenderWindow.SetSize(extent[1]-extent[0]+1,
                                    extent[3]-extent[2]+1)
 
@@ -360,16 +371,28 @@ if __name__ == '__main__':
     reader = vtkImageReader()
     reader.ReleaseDataFlagOff()
     reader.SetDataByteOrderToLittleEndian()
-    reader.SetDataSpacing(1.0,1.0,2.0)
+    reader.SetDataSpacing(1.0,1.0,-2.0)
     reader.SetDataExtent(0,255,0,255,1,93)
-    reader.SetDataOrigin(-127.5,-127.5,-94.0)
+    #reader.SetDataOrigin(-127.5,-127.5,-94.0)
     reader.SetFilePrefix(os.path.join(VTK_DATA,'fullHead/headsq'))
     reader.SetDataMask(0x7fff)
     reader.UpdateWholeExtent()
 
+    # set the slice orientation to view
+    sagittal = ( 0, 1, 0,
+                 0, 0,-1,
+                -1, 0, 0)
+    coronal =  ( 1, 0, 0,
+                 0, 0,-1,
+                 0, 1, 0)
+    axial =    ( 1, 0, 0,
+                 0, 1, 0,
+                 0, 0, 1)
+        
     # you _must_ set the initial Window and Level, these
     # will not be set automatically
     viewer = SliceViewer()
+    viewer.SetSliceAxes(sagittal)
     viewer.SetInput(reader.GetOutput())
     viewer.SetColorWindow(2000) 
     viewer.SetColorLevel(1000)
