@@ -128,7 +128,6 @@ static void vtkOpenGLImageMapperRenderGray(vtkOpenGLImageMapper *self,
   int *Size;
   unsigned char lower_val, upper_val;
   int width, height;
-  int rowAdder;
   
   vtkOpenGLImageMapperClamps ( data, self->GetColorWindow(), 
 			      self->GetColorLevel(), 
@@ -149,8 +148,7 @@ static void vtkOpenGLImageMapperRenderGray(vtkOpenGLImageMapper *self,
   width = inMax0 - inMin0 + 1;
   height = inMax1 - inMin1 + 1;
   
-  rowAdder = (4 - ((inMax0-inMin0 + 1)*3)%4)%4;
-  unsigned char *outLinePtr = new unsigned char [(3*width+rowAdder)*height];
+  unsigned char *outLinePtr = new unsigned char [(3*width)*height];
   unsigned char *outPtr = outLinePtr;
 
   glRasterPos3f((2.0 * (GLfloat)(actorPos[0]) / vsize[0] - 1), 
@@ -188,9 +186,9 @@ static void vtkOpenGLImageMapperRenderGray(vtkOpenGLImageMapper *self,
       }
     // rows must be a multiple of four bytes
     // so pad it if neccessary
-    outPtr += rowAdder;
     inPtr1 += inInc1;
     }
+  glPixelStorei( GL_UNPACK_ALIGNMENT, 1);
   glDrawPixels(width, height, GL_RGB, GL_UNSIGNED_BYTE, outLinePtr);
   delete [] outLinePtr;
 }
@@ -216,7 +214,6 @@ static void vtkOpenGLImageMapperRenderColor(vtkOpenGLImageMapper *self,
   T *bluePtr;  
   unsigned char lower_val, upper_val;
   int width, height;
-  int rowAdder;
   
   // data->GetExtent(inMin0, inMax0, inMin1, inMax1);
   int* tempExt = self->GetInput()->GetUpdateExtent();
@@ -253,8 +250,7 @@ static void vtkOpenGLImageMapperRenderColor(vtkOpenGLImageMapper *self,
 
   width = inMax0 - inMin0 + 1;
   height = inMax1 - inMin1 + 1;
-  rowAdder = (4 - ((inMax0-inMin0 + 1)*3)%4)%4;
-  unsigned char *outLinePtr = new unsigned char [(3*width+rowAdder)*height];
+  unsigned char *outLinePtr = new unsigned char [(3*width)*height];
   unsigned char *outPtr = outLinePtr;
 
   glRasterPos3f((2.0 * (GLfloat)(actorPos[0]) / vsize[0] - 1), 
@@ -317,11 +313,11 @@ static void vtkOpenGLImageMapperRenderColor(vtkOpenGLImageMapper *self,
       greenPtr0 += inInc0;
       bluePtr0 += inInc0;
       }
-    outPtr += rowAdder;
     redPtr1 += inInc1;
     greenPtr1 += inInc1;
     bluePtr1 += inInc1;
     }
+  glPixelStorei( GL_UNPACK_ALIGNMENT, 1);
   glDrawPixels(width, height, GL_RGB, GL_UNSIGNED_BYTE, outLinePtr);
   delete [] outLinePtr;
 }
@@ -346,7 +342,6 @@ static void vtkOpenGLImageMapperRenderShortGray(vtkOpenGLImageMapper *self,
   long sscale, sshift;
   unsigned char lower_val, upper_val;
   int width, height;
-  int rowAdder;
   
   vtkOpenGLImageMapperClamps ( data, self->GetColorWindow(), 
 			      self->GetColorLevel(), 
@@ -371,8 +366,7 @@ static void vtkOpenGLImageMapperRenderShortGray(vtkOpenGLImageMapper *self,
   width = inMax0 - inMin0 + 1;
   height = inMax1 - inMin1 + 1;
   
-  rowAdder = (4 - ((inMax0-inMin0 + 1)*3)%4)%4;
-  unsigned char *outLinePtr = new unsigned char [(3*width+rowAdder)*height];
+  unsigned char *outLinePtr = new unsigned char [(3*width)*height];
   unsigned char *outPtr = outLinePtr;
 
   inPtr1 = inPtr;
@@ -408,9 +402,9 @@ static void vtkOpenGLImageMapperRenderShortGray(vtkOpenGLImageMapper *self,
       }
     // rows must be a multiple of four bytes
     // so pad it if neccessary
-    outPtr += rowAdder;
     inPtr1 += inInc1;
     }
+  glPixelStorei( GL_UNPACK_ALIGNMENT, 1);
   glDrawPixels(width, height, GL_RGB, GL_UNSIGNED_BYTE, outLinePtr);
   delete [] outLinePtr;
 }
