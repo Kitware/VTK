@@ -476,8 +476,8 @@ void HandleDataArray(FILE *fp, FileInfo *data)
     {
     type = "char";
     fromtype = "Char";
-    jtype = type;
-    jfromtype = fromtype;
+    jtype = "byte";
+    jfromtype = "Byte";
     }
   else if (!strcmp("vtkDoubleArray",data->ClassName) )
     {
