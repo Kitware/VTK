@@ -117,10 +117,11 @@ public:
   //BTX
   enum FileTypes
   {
-    ENSIGHT_6            = 0,
-    ENSIGHT_6_BINARY     = 1,
-    ENSIGHT_GOLD         = 2,
-    ENSIGHT_GOLD_BINARY  = 3
+    ENSIGHT_6             = 0,
+    ENSIGHT_6_BINARY      = 1,
+    ENSIGHT_GOLD          = 2,
+    ENSIGHT_GOLD_BINARY   = 3,
+    ENSIGHT_MASTER_SERVER = 4
   };
   //ETX
 
