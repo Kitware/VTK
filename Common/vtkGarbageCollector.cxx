@@ -25,7 +25,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGarbageCollector, "1.16");
+vtkCxxRevisionMacro(vtkGarbageCollector, "1.17");
 
 class vtkGarbageCollectorSingleton;
 
@@ -190,8 +190,10 @@ public:
   // Perform a collection check.
   void CollectInternal(vtkObjectBase* root);
 
-protected:
 
+// Sun's compiler is broken and does not allow access to protected members from
+// nested class
+// protected:
   //--------------------------------------------------------------------------
   // Internal data structure types.
 
