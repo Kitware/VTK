@@ -237,19 +237,28 @@ public:
   vtkBooleanMacro(BackingStore,int);
 
   // Description:
-  // Turn on/off transparent rendering.  This allow multiple renderers to
-  // be cascaded together in the same section of a viewport.
-  vtkSetMacro(TransparentRenderer,int);
-  vtkGetMacro(TransparentRenderer,int);
-  vtkBooleanMacro(TransparentRenderer,int);
-
-  // Description:
   // Turn on/off interactive status.  An interactive renderer is one that 
   // can receive events from an interactor.  Should only be set if
   // there are multiple renderers in the same section of the viewport.
   vtkSetMacro(Interactive,int);
   vtkGetMacro(Interactive,int);
   vtkBooleanMacro(Interactive,int);
+
+  // Description:
+  // Set/Get the layer that this renderer belongs to.  This is only used if
+  // there are layered renderers.
+  vtkSetMacro(Layer, int);
+  vtkGetMacro(Layer, int);
+
+  // Description:
+  // Get the minimum and maximum z-buffer values that this renderer's layer 
+  // should map into.
+  void  GetLayer(float &min, float &max);
+
+  // Description:
+  // Returns a bool indicating if this renderer is transparent.  It is
+  // transparent if it is not in the deepest layer of its render window.
+  int  Transparent();
 
   // Description:
   // Convert world point coordinates to view coordinates.
@@ -360,13 +369,13 @@ protected:
   vtkAssemblyPath    **PathArray;
   int                PathArrayCount;
 
-  // Indicates if there are renderers below this one at the same location in
-  // the viewport, meaning it should behave as a transparent renderer.
-  int                TransparentRenderer;
-
   // Indicates if the renderer should receive events from an interactor.
   // Typically only used in conjunction with transparent renderers.
   int                Interactive;
+
+  // Shows what layer this renderer belongs to.  Only of interested when
+  // there are layered renderers.
+  int                Layer;
 
   // Description:
   // Ask all props to update and draw any opaque and translucent
