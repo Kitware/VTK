@@ -194,25 +194,25 @@ void vtkAttributeData::SetData(vtkDataArray *data)
 
 // Deep copy of data. Checks consistency to make sure this operation
 // makes sense.
-void vtkAttributeData::DeepCopy(vtkAttributeData& da)
+void vtkAttributeData::DeepCopy(vtkAttributeData *da)
 {
-  if ( da.Data != this->Data && &da.Data != NULL )
+  if ( da->Data != this->Data && da->Data != NULL )
     {
-    if (da.Data->GetNumberOfComponents() != this->Data->GetNumberOfComponents() )
+    if (da->Data->GetNumberOfComponents() != this->Data->GetNumberOfComponents() )
       {
       vtkErrorMacro(<<"Number of components is different...can't copy");
       return;
       }
-    this->Data->DeepCopy(*(da.Data));
+    this->Data->DeepCopy(da->Data);
     this->Modified();
     }
 }
 
 // Shallow copy of data (i.e. via reference counting). Checks 
 // consistency to make sure this operation makes sense.
-void vtkAttributeData::ShallowCopy(vtkAttributeData& da)
+void vtkAttributeData::ShallowCopy(vtkAttributeData *da)
 {
-  this->SetData(da.GetData());
+  this->SetData(da->GetData());
 }
 
 void vtkAttributeData::PrintSelf(ostream& os, vtkIndent indent)

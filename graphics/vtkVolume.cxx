@@ -67,15 +67,15 @@ vtkVolume& vtkVolume::operator=(const vtkVolume& volume)
 {
 
   this->UserMatrix = volume.UserMatrix;
-
+  
   this->VolumeMapper = volume.VolumeMapper;
 
   *((vtkProp *)this) = volume;
-
+  
   this->Scale = volume.Scale;
   
   this->VolumeProperty = volume.VolumeProperty;
-
+  
   return *this;
 }
 
@@ -93,7 +93,7 @@ void vtkVolume::GetMatrix(vtkMatrix4x4 *result)
     // apply user defined matrix last if there is one 
     if (this->UserMatrix)
       {
-	this->Transform->Concatenate(*this->UserMatrix);
+      this->Transform->Concatenate(this->UserMatrix);
       }
 
     // first translate
@@ -121,11 +121,11 @@ void vtkVolume::GetMatrix(vtkMatrix4x4 *result)
 			      -this->Origin[1],
 			      -this->Origin[2]);
 
-    *(this->Matrix) = *(this->Transform->GetMatrixPointer());
+    this->Matrix->DeepCopy(this->Transform->GetMatrixPointer());
     this->MatrixMTime.Modified();
     this->Transform->Pop();  
     }
-  *result = *(this->Matrix);
+  result->DeepCopy(this->Matrix);
 } 
 
 // Get the bounds for this Volume as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).

@@ -281,9 +281,9 @@ void vtkUnstructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
 
 // Insert/create cell in object by type and list of point ids defining
 // cell topology.
-int vtkUnstructuredGrid::InsertNextCell(int type, vtkIdList& ptIds)
+int vtkUnstructuredGrid::InsertNextCell(int type, vtkIdList *ptIds)
 {
-  int npts=ptIds.GetNumberOfIds();
+  int npts=ptIds->GetNumberOfIds();
 
   // insert connectivity
   this->Connectivity->InsertNextCell(ptIds);

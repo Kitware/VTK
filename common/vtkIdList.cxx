@@ -52,22 +52,22 @@ vtkIdList::~vtkIdList()
 }
 
 // Copy an id list by reference counting internal array.
-void vtkIdList::ShallowCopy(vtkIdList& ids)
+void vtkIdList::ShallowCopy(vtkIdList *ids)
 {
-  if ( ids.Ia != NULL )
+  if ( ids->Ia != NULL )
     {
     this->Ia->Delete();
-    this->Ia = ids.Ia;
+    this->Ia = ids->Ia;
     this->Ia->Register(this);
     }
 }
 
 // Copy an id list by explicitly copying the internal array.
-void vtkIdList::DeepCopy(vtkIdList& ids)
+void vtkIdList::DeepCopy(vtkIdList *ids)
 {
-  if ( ids.Ia != NULL )
+  if ( ids->Ia != NULL )
     {
-    this->Ia->DeepCopy(*ids.Ia);
+    this->Ia->DeepCopy(ids->Ia);
     }
 }
 

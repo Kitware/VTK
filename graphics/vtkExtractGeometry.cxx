@@ -144,7 +144,7 @@ void vtkExtractGeometry::Execute()
 
     if ( i >= numCellPts )
       {
-      newCellId = output->InsertNextCell(cell->GetCellType(),*newCellPts);
+      newCellId = output->InsertNextCell(cell->GetCellType(),newCellPts);
       outputCD->CopyData(cd,cellId,newCellId);
       }
     }

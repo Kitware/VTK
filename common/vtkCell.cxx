@@ -69,16 +69,16 @@ void vtkCell::Initialize(int npts, int *pts, vtkPoints *p)
     }
 }
  
-void vtkCell::ShallowCopy(vtkCell& c)
+void vtkCell::ShallowCopy(vtkCell *c)
 {
-  this->Points->ShallowCopy(*(c.Points));
-  this->PointIds->ShallowCopy(*(c.PointIds));
+  this->Points->ShallowCopy(c->Points);
+  this->PointIds->ShallowCopy(c->PointIds);
 }
 
-void vtkCell::DeepCopy(vtkCell& c)
+void vtkCell::DeepCopy(vtkCell *c)
 {
-  this->Points->DeepCopy(*(c.Points));
-  this->PointIds->DeepCopy(*(c.PointIds));
+  this->Points->DeepCopy(c->Points);
+  this->PointIds->DeepCopy(c->PointIds);
 }
 
 #define VTK_RIGHT 0

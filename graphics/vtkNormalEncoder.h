@@ -201,7 +201,7 @@ protected:
   // The number of threads to use when encoding normals
   int                        NumberOfThreads;
 
-  vtkMultiThreader                Threader;
+  vtkMultiThreader                *Threader;
   friend VTK_THREAD_RETURN_TYPE   SwitchOnDataType( void *arg );
 
 }; 

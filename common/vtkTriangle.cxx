@@ -65,7 +65,7 @@ vtkTriangle::~vtkTriangle()
 vtkCell *vtkTriangle::MakeObject()
 {
   vtkCell *cell = vtkTriangle::New();
-  cell->DeepCopy(*this);
+  cell->DeepCopy(this);
   return cell;
 }
 
@@ -500,16 +500,16 @@ int vtkTriangle::IntersectWithLine(float p1[3], float p2[3], float tol,
   return 0;
 }
 
-int vtkTriangle::Triangulate(int vtkNotUsed(index), vtkIdList &ptIds, 
-                             vtkPoints &pts)
+int vtkTriangle::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds, 
+                             vtkPoints *pts)
 {
-  pts.Reset();
-  ptIds.Reset();
+  pts->Reset();
+  ptIds->Reset();
 
   for ( int i=0; i < 3; i++ )
     {
-    ptIds.InsertId(i,this->PointIds->GetId(i));
-    pts.InsertPoint(i,this->Points->GetPoint(i));
+    ptIds->InsertId(i,this->PointIds->GetId(i));
+    pts->InsertPoint(i,this->Points->GetPoint(i));
     }
 
   return 1;

@@ -161,7 +161,8 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
   ren->SetAspect(aspect);
 
   glMatrixMode( GL_PROJECTION);
-  *matrix = this->GetPerspectiveTransform(aspect[0]/aspect[1],-1,1);
+  matrix->DeepCopy(this->GetPerspectiveTransformMatrix(aspect[0]/aspect[1],
+						       -1,1));
   matrix->Transpose();
   // insert camera view transformation 
   glLoadMatrixf(matrix->Element[0]);
@@ -172,7 +173,7 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
 
-  *matrix = this->GetViewTransform();
+  matrix->DeepCopy(this->GetViewTransformMatrix());
   matrix->Transpose();
   
   // insert camera view transformation 

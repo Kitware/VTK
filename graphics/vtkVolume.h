@@ -123,12 +123,11 @@ public:
   unsigned long GetMTime();
 
   // Description:
-  // For legacy compatability. Do not use.
+  // For legacy compatibility. Do not use.
   vtkVolume &operator=(const vtkVolume& volume);
   void GetMatrix(vtkMatrix4x4 &m) {this->GetMatrix(&m);}
   void SetVolumeProperty(vtkVolumeProperty& property) 
     {this->SetVolumeProperty(&property);}
-
 
 protected:
 

@@ -492,7 +492,7 @@ void vtkMarchingSquares::Execute()
     {
     vtkScalars *image = vtkScalars::New();
     image->Allocate(dataSize);
-    inScalars->GetScalars(0,dataSize,*image);
+    inScalars->GetScalars(0,dataSize,image);
     newScalars = vtkScalars::New(VTK_FLOAT);
     newScalars->Allocate(5000,25000);
     float *scalars = ((vtkFloatArray *)image->GetData())->GetPointer(0);
@@ -504,10 +504,10 @@ void vtkMarchingSquares::Execute()
   vtkDebugMacro(<<"Created: " 
                << newPts->GetNumberOfPoints() << " points, " 
                << newLines->GetNumberOfCells() << " lines");
-//
-// Update ourselves.  Because we don't know up front how many lines
-// we've created, take care to reclaim memory. 
-//
+  //
+  // Update ourselves.  Because we don't know up front how many lines
+  // we've created, take care to reclaim memory. 
+  //
   output->SetPoints(newPts);
   newPts->Delete();
 

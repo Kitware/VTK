@@ -83,7 +83,6 @@ public:
   // Description:
   // Return the Tensor requested in the tensor passed.
   void GetTensor(int id, vtkTensor *t);
-  void GetTensor(int id, vtkTensor& t) {this->GetTensor(id, &t);}
 
   // Description:
   // Insert a Tensor into an object. No range checking performed (fast!).
@@ -109,8 +108,12 @@ public:
   // Description:
   // Given a list of pt ids, return an array of tensors.
   void GetTensors(vtkIdList *ptId, vtkTensors *fv);
+
+  // Description:
+  // For legacy compatibility. Do not use.
   void GetTensors(vtkIdList& ptId, vtkTensors& fv)
     {this->GetTensors(&ptId, &fv);}
+  void GetTensor(int id, vtkTensor& t) {this->GetTensor(id, &t);}
 
 protected:
   vtkTensor *T;

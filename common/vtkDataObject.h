@@ -123,10 +123,13 @@ public:
 
   // Description:
   // Assign or retrieve field data to this data object.
-  void SetFieldData(vtkFieldData *fd);
-  void SetFieldData(vtkFieldData &fd) {this->SetFieldData(&fd);}
+  void SetFieldData(vtkFieldData &fd);
   vtkFieldData *GetFieldData() {return this->FieldData;};
 
+  // Description:
+  // For legacy compatibility: Do not use.
+  void SetFieldData(vtkFieldData *fd) {this->SetFieldData(*fd);}
+  
 protected:
   vtkSource *Source;
   vtkFieldData *FieldData; //General field data associated with data object

@@ -79,7 +79,7 @@ vtkAssembly& vtkAssembly::operator=(const vtkAssembly& assembly)
 {
   *((vtkActor *)this) = assembly;
   this->DeletePaths();
-
+  
   return *this;
 }
 
@@ -168,7 +168,7 @@ void vtkAssembly::BuildPaths(vtkAssemblyPaths *paths, vtkActorCollection *path)
     if ( this->GetUserMatrix() )
       {
       matrix = vtkMatrix4x4::New();
-      *(matrix) = *(this->GetUserMatrix());
+      matrix->DeepCopy(this->GetUserMatrix());
       copy->SetUserMatrix(matrix);
       matrix->Delete();
       }
@@ -202,7 +202,7 @@ void vtkAssembly::BuildPaths(vtkAssemblyPaths *paths, vtkActorCollection *path)
         if ( actor->GetUserMatrix() )
           {
           matrix = vtkMatrix4x4::New();
-          *matrix = *(actor->GetUserMatrix());
+          matrix->DeepCopy(actor->GetUserMatrix());
           copy->SetUserMatrix(matrix);
 	  matrix->Delete();
           }

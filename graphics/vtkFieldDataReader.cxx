@@ -98,7 +98,7 @@ void vtkFieldDataReader::Execute()
   if ( !strncmp(this->Reader->LowerCase(line),"field",(unsigned long)5) )
     {
     vtkFieldData *f = this->Reader->ReadFieldData();
-    this->Output->GetFieldData()->ShallowCopy(*f);
+    this->Output->GetFieldData()->ShallowCopy(f);
     f->Delete();
     }
 

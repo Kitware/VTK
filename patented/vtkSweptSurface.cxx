@@ -337,7 +337,7 @@ void vtkSweptSurface::SampleInput(vtkMatrix4x4 *m, int inDim[3],
           this->IdList->SetId(6,idx + inDim[0] + inSliceSize);
           this->IdList->SetId(7,idx+1 + inDim[0] + inSliceSize);
 
-          inScalars->GetScalars(*this->IdList,*this->VoxelScalars);
+          inScalars->GetScalars(this->IdList,this->VoxelScalars);
 
           for (ii=0; ii<3; ii++)
 	    {

@@ -85,7 +85,6 @@ class VTK_EXPORT vtkTransform : public vtkObject
   static vtkTransform *New() {return new vtkTransform;};
   const char *GetClassName () {return "vtkTransform";};
   void PrintSelf (ostream& os, vtkIndent indent);
-  vtkTransform &operator=(const vtkTransform &t);
 
   // Description:
   // Creates an identity matrix and makes it the current transformation matrix.
@@ -256,7 +255,7 @@ class VTK_EXPORT vtkTransform : public vtkObject
   vtkSetVector4Macro(Point,float);
 
   // Description:
-  // For legacy compatability. Do not use.
+  // For legacy compatibility. Do not use.
   void Multiply4x4(vtkMatrix4x4 &a, vtkMatrix4x4 &b, vtkMatrix4x4 &c)
     {this->Multiply4x4(&a,&b,&c);}
   void Concatenate(vtkMatrix4x4 &matrix){this->Concatenate(&matrix);}
@@ -264,6 +263,8 @@ class VTK_EXPORT vtkTransform : public vtkObject
   void GetTranspose (vtkMatrix4x4 &transpose){this->GetTranspose(&transpose);}
   void GetInverse(vtkMatrix4x4& inverse){this->GetInverse(&inverse);}
   vtkMatrix4x4& GetMatrix() {return *(this->GetMatrixPointer());}
+  vtkTransform &operator=(const vtkTransform &t);
+  
   
 private:
   int PreMultiplyFlag;

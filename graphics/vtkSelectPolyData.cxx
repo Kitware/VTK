@@ -353,7 +353,7 @@ void vtkSelectPolyData::Execute()
 
         if ( ! (s1 == 0 && s2 == 0) )
           {
-          this->Mesh->GetCellEdgeNeighbors(id, pt1, pt2, *neighbors);
+          this->Mesh->GetCellEdgeNeighbors(id, pt1, pt2, neighbors);
           numNei = neighbors->GetNumberOfIds();
           for (k=0; k<numNei; k++)
             {

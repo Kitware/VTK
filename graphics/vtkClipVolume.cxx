@@ -193,7 +193,7 @@ void vtkClipVolume::Execute()
     vtkScalars *tmpScalars = vtkScalars::New();
     tmpScalars->Allocate(numPts);
     inPD = vtkPointData::New();
-    inPD->ShallowCopy(*(input->GetPointData()));
+    inPD->ShallowCopy(input->GetPointData());
     //    inPD = new vtkPointData(*(input->GetPointData()));//copies original
     if ( this->GenerateClipScalars )
       {
@@ -306,7 +306,7 @@ void vtkClipVolume::Execute()
         if ( (above && !below) || 
 	     (this->GenerateClippedOutput && (below && !above)) )
           {
-          ((vtkVoxel *)cell)->Triangulate(flip, *tetraIds, *tetraPts);
+          ((vtkVoxel *)cell)->Triangulate(flip, tetraIds, tetraPts);
           ntetra = tetraPts->GetNumberOfPoints() / 4;
 
           if (above && !below)
@@ -434,7 +434,7 @@ void vtkClipVolume::ClipVoxel(float value, vtkScalars *cellScalars,
     {
     ptId = order[flip][numPts];
     xPtr = cellPts->GetPoint(ptId);
-    this->Triangulator->InsertPoint(this->Mesh, points, ptId, xPtr, *holeTetras);
+    this->Triangulator->InsertPoint(this->Mesh, points, ptId, xPtr, holeTetras);
       
     // Incorporate points into output if appropriate
     s1 = cellScalars->GetScalar(ptId);
@@ -481,7 +481,7 @@ void vtkClipVolume::ClipVoxel(float value, vtkScalars *cellScalars,
       
       //Insert into Delaunay triangulation
       this->Triangulator->InsertPoint(this->Mesh, points, numPts++, 
-                                      x, *holeTetras);
+                                      x, holeTetras);
       
       // Incorporate point into output and interpolate edge data as necessary
       if ( this->Locator->IsInsertedPoint(x) < 0 )

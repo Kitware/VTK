@@ -51,7 +51,15 @@ vtkImplicitVolume::vtkImplicitVolume()
   this->OutGradient[0] = 0.0;
   this->OutGradient[1] = 0.0;
   this->OutGradient[2] = 1.0;
+  
+  this->PointIds = new vtkIdList(8);
 }
+
+vtkImplicitVolume::~vtkImplicitVolume()
+{
+  this->PointIds->Delete();
+}
+
 
 // Evaluate the ImplicitVolume. This returns the interpolated scalar value
 // at x[3].
@@ -61,9 +69,6 @@ float vtkImplicitVolume::EvaluateFunction(float x[3])
   int i, ijk[3];
   int numPts;
   float pcoords[3], weights[8], s;
-  static vtkIdList ptIds(8);
-
-  ptIds.ReferenceCountingOff();
 
   // See if a volume is defined
   if ( !this->Volume ||
@@ -76,13 +81,13 @@ float vtkImplicitVolume::EvaluateFunction(float x[3])
   // Find the cell that contains xyz and get it
   if ( this->Volume->ComputeStructuredCoordinates(x,ijk,pcoords) )
     {
-    this->Volume->GetCellPoints(this->Volume->ComputeCellId(ijk),ptIds);
+    this->Volume->GetCellPoints(this->Volume->ComputeCellId(ijk),this->PointIds);
     vtkVoxel::InterpolationFunctions(pcoords,weights);
 
-    numPts = ptIds.GetNumberOfIds ();
+    numPts = this->PointIds->GetNumberOfIds ();
     for (s=0.0, i=0; i < numPts; i++)
       {
-      s += scalars->GetScalar(ptIds.GetId(i)) * weights[i];
+      s += scalars->GetScalar(this->PointIds->GetId(i)) * weights[i];
       }
     return s;
     }
@@ -115,7 +120,10 @@ void vtkImplicitVolume::EvaluateGradient(float x[3], float n[3])
   vtkScalars *scalars;
   int i, ijk[3];
   float pcoords[3], weights[8], *v;
-  vtkVectors gradient; gradient.SetNumberOfVectors(8);
+  vtkVectors *gradient; 
+  
+  gradient = vtkVectors::New();
+  gradient->SetNumberOfVectors(8);
 
   // See if a volume is defined
   if ( !this->Volume ||
@@ -134,7 +142,7 @@ void vtkImplicitVolume::EvaluateGradient(float x[3], float n[3])
     n[0] = n[1] = n[2] = 0.0;
     for (i=0; i < 8; i++)
       {
-      v = gradient.GetVector(i);
+      v = gradient->GetVector(i);
       n[0] += v[0] * weights[i];
       n[1] += v[1] * weights[i];
       n[2] += v[2] * weights[i];
@@ -145,6 +153,7 @@ void vtkImplicitVolume::EvaluateGradient(float x[3], float n[3])
     { // use outside value
     for ( i=0; i < 3; i++ ) n[i] = this->OutGradient[i];
     }
+  gradient->Delete();
 }
 
 void vtkImplicitVolume::PrintSelf(ostream& os, vtkIndent indent)

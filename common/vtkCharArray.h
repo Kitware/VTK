@@ -159,7 +159,7 @@ public:
 
   // Description:
   // Deep copy of another char array.
-  void DeepCopy(vtkDataArray& ia);
+  void DeepCopy(vtkDataArray *ia);
 
   // Description:
   // This method lets the user specify data to be held by the array.  The 
@@ -170,6 +170,9 @@ public:
   // from the suppled array.
   void SetArray(char* array, int size, int save);
 
+  // Description:
+  // For legacy compatibility. Do not use.
+  void DeepCopy(vtkDataArray &ia) {this->DeepCopy(&ia);}  
 
 private:
   char *Array;    // pointer to data

@@ -279,7 +279,7 @@ void vtkActor::GetMatrix(vtkMatrix4x4 *result)
     // apply user defined matrix last if there is one 
     if (this->UserMatrix)
       {
-      this->Transform->Concatenate(*this->UserMatrix);
+      this->Transform->Concatenate(this->UserMatrix);
       }
 
     this->Transform->PreMultiply();  
@@ -287,7 +287,7 @@ void vtkActor::GetMatrix(vtkMatrix4x4 *result)
     this->MatrixMTime.Modified();
     this->Transform->Pop();  
     }
-  *result = *(this->Matrix);
+  result->DeepCopy(this->Matrix);
 } 
 
 // Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
@@ -336,7 +336,7 @@ float *vtkActor::GetBounds()
     this->Transform->Push(); 
     this->Transform->PostMultiply();
     this->Transform->Identity();
-    this->Transform->Concatenate(*matrix);
+    this->Transform->Concatenate(matrix);
 
     // and transform into actors coordinates
     fptr = bbox;
@@ -447,7 +447,7 @@ void vtkActor::BuildPaths(vtkAssemblyPaths *vtkNotUsed(paths),
   previous = path->GetLastItem();
 
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
-  *matrix = *previous->vtkProp::GetMatrixPointer();
+  matrix->DeepCopy(previous->vtkProp::GetMatrixPointer());
   copy->SetUserMatrix(matrix);
   matrix->Delete();
 

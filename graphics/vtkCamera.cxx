@@ -559,7 +559,7 @@ void vtkCamera::ComputeViewTransform()
   matrix->Element[2][1] = Rz[1];
   matrix->Element[2][2] = Rz[2];
   
-  this->PerspectiveTransform->Concatenate(*matrix);
+  this->PerspectiveTransform->Concatenate(matrix);
 
   // translate to projection reference point PRP
   // this is the camera's position blasted through
@@ -629,7 +629,7 @@ void vtkCamera::ComputePerspectiveTransform(float aspect,
   matrix->Element[2][1] = Rz[1];
   matrix->Element[2][2] = Rz[2];
   
-  this->PerspectiveTransform->Concatenate(*matrix);
+  this->PerspectiveTransform->Concatenate(matrix);
 
   // translate to projection reference point PRP
   // this is the camera's position blasted through
@@ -688,7 +688,7 @@ void vtkCamera::ComputePerspectiveTransform(float aspect,
   matrix->Element[3][2] = 0;
   matrix->Element[3][3] = 1;
   
-  this->PerspectiveTransform->Concatenate(*matrix);
+  this->PerspectiveTransform->Concatenate(matrix);
 
   if (this->ParallelProjection)
     {
@@ -735,14 +735,14 @@ void vtkCamera::ComputePerspectiveTransform(float aspect,
     matrix->Element[3][3] = 0;
     }
   
-  this->PerspectiveTransform->Concatenate(*matrix);
+  this->PerspectiveTransform->Concatenate(matrix);
   matrix->Delete();
 }
 
 
 // Return the perspective transform matrix. See ComputePerspectiveTransform.
-vtkMatrix4x4 &vtkCamera::GetPerspectiveTransform(float aspect,
-						 float nearz, float farz)
+vtkMatrix4x4 *vtkCamera::GetPerspectiveTransformMatrix(float aspect,
+						       float nearz, float farz)
 {
   // update transform 
   this->PerspectiveTransform->PostMultiply();  
@@ -750,30 +750,30 @@ vtkMatrix4x4 &vtkCamera::GetPerspectiveTransform(float aspect,
   this->ComputePerspectiveTransform(aspect, nearz,farz);
   
   // return the transform 
-  return *(this->PerspectiveTransform->GetMatrixPointer());
+  return this->PerspectiveTransform->GetMatrixPointer();
 }
 
 // Return the perspective transform matrix. See ComputePerspectiveTransform.
-vtkMatrix4x4 &vtkCamera::GetViewTransform()
+vtkMatrix4x4 *vtkCamera::GetViewTransformMatrix()
 {
   // update transform 
   this->ComputeViewTransform();
   
   // return the transform 
-  return *(this->PerspectiveTransform->GetMatrixPointer());
+  return this->PerspectiveTransform->GetMatrixPointer();
 }
 
 // Return the perspective transform matrix. See ComputePerspectiveTransform.
-vtkMatrix4x4 &vtkCamera::GetCompositePerspectiveTransform(float aspect,
-							  float nearz,
-							  float farz)
+vtkMatrix4x4 *vtkCamera::GetCompositePerspectiveTransformMatrix(float aspect,
+								float nearz,
+								float farz)
 {
   // update transform 
   this->ComputeViewTransform();
   this->ComputePerspectiveTransform(aspect, nearz,farz);
   
   // return the transform 
-  return *(this->PerspectiveTransform->GetMatrixPointer());
+  return this->PerspectiveTransform->GetMatrixPointer();
 }
 
 #define VTK_SQ_MAG(x) ( (x)[0]*(x)[0] + (x)[1]*(x)[1] + (x)[2]*(x)[2] )
@@ -1110,17 +1110,16 @@ void vtkCamera::SetViewPlaneNormal(float a[3])
 // the view frustum. 
 void vtkCamera::GetFrustumPlanes( float planes[24] )
 {
-  vtkMatrix4x4 *m = vtkMatrix4x4::New();
+  vtkMatrix4x4 *m;
   vtkTransform *transform = vtkTransform::New();
   float        in[4], out[8][4] ;
   int          i, j, k, index;
   int          which_points[6][3];
   float        v1[3], v2[3], A, B, C, D, t;
 
-  *m = this->GetCompositePerspectiveTransform(1,0,1);
-  transform->SetMatrix(*m);
+  transform->SetMatrix(*(this->GetCompositePerspectiveTransformMatrix(1,0,1)));
   transform->Inverse();
-  transform->GetMatrix(m);
+  m = transform->GetMatrixPointer();
 
   in[3] = 1.0;
   index = 0;
@@ -1185,7 +1184,6 @@ void vtkCamera::GetFrustumPlanes( float planes[24] )
     planes[4*index + 3] = D;
     }
 
-  m->Delete();
   transform->Delete();
 }
 

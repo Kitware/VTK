@@ -67,8 +67,12 @@ public:
   virtual void SetInput(vtkDataSet *input);
   virtual void SetInput(vtkImageCache *cache)
     {this->SetInput(cache->GetImageToStructuredPoints()->GetOutput());}
-  void SetInput(vtkDataSet &input) {this->SetInput(&input);};
   vtkDataSet *GetInput() {return (vtkDataSet *)this->Input;};
+
+  // Description:
+  // For legacy compatibility. Do not use.
+  void SetInput(vtkDataSet &input) {this->SetInput(&input);};
+
 };
 
 #endif

@@ -172,7 +172,7 @@ public:
   void SetReferenceCount(int);
 
   // Description:
-  // For legacy compatability. Do not use. 
+  // For legacy compatibility. Do not use. 
   // Works now by making reference count negative.
   void ReferenceCountingOff();
 
@@ -193,7 +193,6 @@ inline void vtkObject::Modified()
 }
 
 
-// Description:
 // Turn off reference counting for this object. This allows you to create
 // automatic reference counted objects and avoid warning messages when scope
 // is existed. (Note: It is preferable to use the combination new/Delete() 

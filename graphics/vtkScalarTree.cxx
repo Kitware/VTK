@@ -129,7 +129,7 @@ void vtkScalarTree::BuildTree()
       {
       cell = this->DataSet->GetCell(cellId);
       cellPts = cell->GetPointIds();
-      this->Scalars->GetScalars(*cellPts,*cellScalars);
+      this->Scalars->GetScalars(cellPts, cellScalars);
       s = ((vtkFloatArray *)cellScalars->GetData())->GetPointer(0);
       numScalars = cellScalars->GetNumberOfScalars();
 
@@ -272,7 +272,7 @@ int vtkScalarTree::FindNextLeaf(int childIndex, int childLevel)
 // exhausted. Make sure that InitTraversal() has been invoked first or
 // you'll get erratic behavior.
 vtkCell *vtkScalarTree::GetNextCell(int& cellId, vtkIdList* &cellPts,
-                                    vtkScalars& cellScalars)
+                                    vtkScalars *cellScalars)
 {
   float *s, min=VTK_LARGE_FLOAT, max=(-VTK_LARGE_FLOAT);
   int i, numScalars;
@@ -285,9 +285,9 @@ vtkCell *vtkScalarTree::GetNextCell(int& cellId, vtkIdList* &cellPts,
       {
       cell = this->DataSet->GetCell(this->CellId);
       cellPts = cell->GetPointIds();
-      this->Scalars->GetScalars(*cellPts,cellScalars);
-      s = ((vtkFloatArray *)cellScalars.GetData())->GetPointer(0);
-      numScalars = cellScalars.GetNumberOfScalars();
+      this->Scalars->GetScalars(cellPts, cellScalars);
+      s = ((vtkFloatArray *)cellScalars->GetData())->GetPointer(0);
+      numScalars = cellScalars->GetNumberOfScalars();
       for (i=0; i < numScalars; i++)
         {
         if ( s[i] < min ) min = s[i];

@@ -46,6 +46,7 @@ vtkPlanes::vtkPlanes()
 {
   this->Points = NULL;
   this->Normals = NULL;
+  this->Plane = vtkPlane::New();
 }
 
 vtkPlanes::~vtkPlanes()
@@ -55,16 +56,15 @@ vtkPlanes::~vtkPlanes()
 
   if ( this->Normals )
     this->Normals->UnRegister(this);
+  
+  this->Plane->Delete();
 }
 
 // Evaluate plane equations. Return smallest absolute value.
 float vtkPlanes::EvaluateFunction(float x[3])
 {
-  static vtkPlane plane;
   int numPlanes, i;
   float val, maxVal;
-  
-  plane.ReferenceCountingOff();
 
   if ( !this->Points || ! this->Normals )
     {
@@ -80,7 +80,7 @@ float vtkPlanes::EvaluateFunction(float x[3])
 
   for (maxVal=-VTK_LARGE_FLOAT, i=0; i < numPlanes; i++)
     {
-    val = plane.Evaluate(this->Normals->GetNormal(i),
+    val = this->Plane->Evaluate(this->Normals->GetNormal(i),
 			 this->Points->GetPoint(i), x);
     if (val > maxVal ) maxVal = val;
     }
@@ -91,11 +91,8 @@ float vtkPlanes::EvaluateFunction(float x[3])
 // Evaluate planes gradient.
 void vtkPlanes::EvaluateGradient(float x[3], float n[3])
 {
-  static vtkPlane plane;
   int numPlanes, i;
   float val, maxVal, *nTemp;
-
-  plane.ReferenceCountingOff();
 
   if ( !this->Points || ! this->Normals )
     {
@@ -112,7 +109,7 @@ void vtkPlanes::EvaluateGradient(float x[3], float n[3])
   for (maxVal=-VTK_LARGE_FLOAT, i=0; i < numPlanes; i++)
     {
     nTemp = this->Normals->GetNormal(i);
-    val = plane.Evaluate(nTemp,this->Points->GetPoint(i), x);
+    val = this->Plane->Evaluate(nTemp,this->Points->GetPoint(i), x);
     if ( val > maxVal )
       {
       maxVal = val;

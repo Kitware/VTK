@@ -93,12 +93,12 @@ public:
   // Copy this cell by reference counting the internal data structures. 
   // This is safe if you want a "read-only" copy. If you modify the cell
   // you might wish to use DeepCopy().
-  virtual void ShallowCopy(vtkCell& c);
+  virtual void ShallowCopy(vtkCell *c);
 
   // Description:
   // Copy this cell by completely copying internal data structures. This is
   // slower but safer than ShallowCopy().
-  virtual void DeepCopy(vtkCell& c);
+  virtual void DeepCopy(vtkCell *c);
 
   // Description:
   // Return the type of cell.
@@ -226,7 +226,7 @@ public:
   // cell dimension) defining a simplex. The index is a parameter that controls
   // which triangulation to use (if more than one is possible). If numerical
   // degeneracy encountered, 0 is returned, otherwise 1 is returned.
-  virtual int Triangulate(int index, vtkIdList &ptIds, vtkPoints &pts) = 0;
+  virtual int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts) = 0;
 
   // Description:
   // Compute derivatives given cell subId and parametric coordinates. The
@@ -284,6 +284,11 @@ public:
   // left public for quick computational access
   vtkPoints *Points;
   vtkIdList *PointIds;
+
+  // Description:
+  // For legacy compatibility. Do not use.
+  void DeepCopy(vtkCell &c) {this->DeepCopy(&c);}
+  void ShallowCopy(vtkCell &c) {this->ShallowCopy(&c);}
 
 protected:
   float Bounds[6];

@@ -121,29 +121,29 @@ void vtkFloatArray::Initialize()
 }
 
 // Deep copy of another float array.
-void vtkFloatArray::DeepCopy(vtkDataArray& fa)
+void vtkFloatArray::DeepCopy(vtkDataArray *fa)
 {
-  if ( fa.GetDataType() != VTK_FLOAT )
+  if ( fa->GetDataType() != VTK_FLOAT )
     {
     vtkDataArray::DeepCopy(fa);
     return;
     }
 
-  if ( this != &fa )
+  if ( this != fa )
     {
     if ((this->Array) && (!this->SaveUserArray))
       {
       delete [] this->Array;
       }
 
-    this->NumberOfComponents = fa.GetNumberOfComponents();
-    this->MaxId = fa.GetMaxId();
-    this->Size = fa.GetSize();
-    this->Extend = fa.GetExtend();
+    this->NumberOfComponents = fa->GetNumberOfComponents();
+    this->MaxId = fa->GetMaxId();
+    this->Size = fa->GetSize();
+    this->Extend = fa->GetExtend();
     this->SaveUserArray = 0;
 
     this->Array = new float[this->Size];
-    memcpy(this->Array, (float *)fa.GetVoidPointer(0), this->Size*sizeof(float));
+    memcpy(this->Array, (float *)fa->GetVoidPointer(0), this->Size*sizeof(float));
     }
 }
 

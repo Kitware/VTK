@@ -261,7 +261,7 @@ void vtkWindowedSincPolyDataFilter::Execute()
           // Verts[p2].edges = new vtkIdList(6,6);
           }
 
-        Mesh->GetCellEdgeNeighbors(cellId,p1,p2,*neighbors);
+        Mesh->GetCellEdgeNeighbors(cellId,p1,p2,neighbors);
         numNei = neighbors->GetNumberOfIds();
 
         edge = VTK_SIMPLE_VERTEX;
@@ -274,8 +274,12 @@ void vtkWindowedSincPolyDataFilter::Execute()
           {
           // check to make sure that this edge hasn't been marked already
           for (j=0; j < numNei; j++)
+	    {
             if ( neighbors->GetId(j) < cellId )
+	      {
               break;
+	      }
+	    }
           if ( j >= numNei )
             {
             edge = VTK_FEATURE_EDGE_VERTEX;

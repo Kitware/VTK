@@ -59,6 +59,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <math.h>
 #include "vtkImplicitFunction.h"
+class vtkPlane;
 
 class VTK_EXPORT vtkPlanes : public vtkImplicitFunction
 {
@@ -91,7 +92,7 @@ public:
 protected:
   vtkPoints *Points;
   vtkNormals *Normals;
-
+  vtkPlane *Plane;
 };
 
 #endif

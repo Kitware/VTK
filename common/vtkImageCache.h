@@ -142,7 +142,7 @@ public:
 		      int &yMin, int &yMax, int &zMin, int &zMax);
   
   // Description:
-  // These duplicate the above and also provide compatability 
+  // These duplicate the above and also provide compatibility 
   // with vtkImageStructuredPoints.  Note: The result of these calls
   // depends on the coordinate system!  Note:  These methods provide 
   // image information, not the data in the cache.
@@ -241,7 +241,7 @@ protected:
   int WholeExtent[6];
   float Bounds[6];
   
-  // This is for vtkStructuredPoints compatability.  
+  // This is for vtkStructuredPoints compatibility.  
   // These variables are redundant.
   unsigned long PipelineMTime;
 };

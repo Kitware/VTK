@@ -395,18 +395,18 @@ void vtkFieldData::InsertComponent(const int i, const int j, const float c)
 }
 
 // Copy a field by creating new data arrays (i.e., duplicate storage).
-void vtkFieldData::DeepCopy(vtkFieldData& f)
+void vtkFieldData::DeepCopy(vtkFieldData *f)
 {
   vtkDataArray *data, *newData;
   
-  this->SetNumberOfArrays(f.GetNumberOfArrays());
+  this->SetNumberOfArrays(f->GetNumberOfArrays());
 
   for ( int i=0; i < this->NumberOfArrays; i++ )
     {
-    if ( (data = f.GetArray(i)) != NULL )
+    if ( (data = f->GetArray(i)) != NULL )
       {
       newData = data->MakeObject(); //instantiate same type of object
-      newData->DeepCopy(*data);
+      newData->DeepCopy(data);
       this->SetArray(i, newData);
       newData->Delete();
       }
@@ -414,13 +414,13 @@ void vtkFieldData::DeepCopy(vtkFieldData& f)
 }
 
 // Copy a field by reference counting the data arrays.
-void vtkFieldData::ShallowCopy(vtkFieldData& f)
+void vtkFieldData::ShallowCopy(vtkFieldData *f)
 {
-  this->SetNumberOfArrays(f.GetNumberOfArrays());
+  this->SetNumberOfArrays(f->GetNumberOfArrays());
 
   for ( int i=0; i < this->NumberOfArrays; i++ )
     {
-    this->SetArray(i, f.GetArray(i));
+    this->SetArray(i, f->GetArray(i));
     }
 }
 
@@ -454,13 +454,13 @@ void vtkFieldData::Reset()
 
 // Get a field from a list of ids. Supplied field f should have same types 
 // and number of data arrays as this one (i.e., like MakeObject() returns).
-void vtkFieldData::GetField(vtkIdList& ptIds, vtkFieldData& f)
+void vtkFieldData::GetField(vtkIdList *ptIds, vtkFieldData *f)
 {
-  int i, numIds=ptIds.GetNumberOfIds();
+  int i, numIds=ptIds->GetNumberOfIds();
 
   for (i=0; i < numIds; i++)
     {
-    f.InsertTuple(i, this->GetTuple(ptIds.GetId(i)));
+    f->InsertTuple(i, this->GetTuple(ptIds->GetId(i)));
     }
 }
 

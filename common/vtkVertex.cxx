@@ -54,7 +54,7 @@ vtkVertex::vtkVertex()
 vtkCell *vtkVertex::MakeObject()
 {
   vtkCell *cell = vtkVertex::New();
-  cell->DeepCopy(*this);
+  cell->DeepCopy(this);
   return cell;
 }
 
@@ -197,12 +197,12 @@ int vtkVertex::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
 
 // Triangulate the vertex. This method fills pts and ptIds with information
 // from the only point in the vertex.
-int vtkVertex::Triangulate(int vtkNotUsed(index),vtkIdList &ptIds, vtkPoints &pts)
+int vtkVertex::Triangulate(int vtkNotUsed(index),vtkIdList *ptIds, vtkPoints *pts)
 {
-  pts.Reset();
-  ptIds.Reset();
-  pts.InsertPoint(0,this->Points->GetPoint(0));
-  ptIds.InsertId(0,this->PointIds->GetId(0));
+  pts->Reset();
+  ptIds->Reset();
+  pts->InsertPoint(0,this->Points->GetPoint(0));
+  ptIds->InsertId(0,this->PointIds->GetId(0));
 
   return 1;
 }

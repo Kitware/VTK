@@ -53,3 +53,8 @@ vtkTensor::vtkTensor()
     }
 }
 
+// legacy
+void vtkTensor::DeepCopy(vtkTensor &t) 
+{
+  this->DeepCopy(&t);
+}

@@ -55,7 +55,7 @@ vtkPolyLine::~vtkPolyLine()
 vtkCell *vtkPolyLine::MakeObject()
 {
   vtkCell *cell = vtkPolyLine::New();
-  cell->DeepCopy(*this);
+  cell->DeepCopy(this);
   return cell;
 }
 
@@ -395,20 +395,20 @@ int vtkPolyLine::IntersectWithLine(float p1[3], float p2[3],float tol,float& t,
   return 0;
 }
 
-int vtkPolyLine::Triangulate(int vtkNotUsed(index), vtkIdList &ptIds,
-                             vtkPoints &pts)
+int vtkPolyLine::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
+                             vtkPoints *pts)
 {
   int numLines=this->Points->GetNumberOfPoints() - 1;
-  pts.Reset();
-  ptIds.Reset();
+  pts->Reset();
+  ptIds->Reset();
 
   for (int subId=0; subId < numLines; subId++)
     {
-    pts.InsertNextPoint(this->Points->GetPoint(subId));
-    ptIds.InsertNextId(this->PointIds->GetId(subId));
+    pts->InsertNextPoint(this->Points->GetPoint(subId));
+    ptIds->InsertNextId(this->PointIds->GetId(subId));
 
-    pts.InsertNextPoint(this->Points->GetPoint(subId+1));
-    ptIds.InsertNextId(this->PointIds->GetId(subId+1));
+    pts->InsertNextPoint(this->Points->GetPoint(subId+1));
+    ptIds->InsertNextId(this->PointIds->GetId(subId+1));
     }
 
   return 1;

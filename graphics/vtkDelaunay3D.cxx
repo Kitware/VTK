@@ -168,17 +168,17 @@ int vtkDelaunay3D::FindTetra(float x[3], int ptIds[4], float p[4][3],
   vtkIdList *pts, *facePts, *neighbors;
   float v12[3], vp[3], vx[3], v32[3], n[3], valx, valp, maxValx;
   
-  pts = new vtkIdList(4);
-  facePts = new vtkIdList(3); 
-  facePts->SetNumberOfIds(3);
-  neighbors = new vtkIdList(2);
-
   // prevent aimless wandering and death by recursion
   if ( depth++ > 100 )
     {
     this->NumberOfDegeneracies++;
     return -1;
     }
+
+  pts = new vtkIdList(4);
+  facePts = new vtkIdList(3); 
+  facePts->SetNumberOfIds(3);
+  neighbors = new vtkIdList(2);
 
   // get local tetrahedron info
   Mesh->GetCellPoints(tetra,pts);
@@ -207,12 +207,18 @@ int vtkDelaunay3D::FindTetra(float x[3], int ptIds[4], float p[4][3],
     if ( vtkMath::Normalize(vx) <= tol ) //check for duplicate point
       {
       this->NumberOfDuplicatePoints++;
+      pts->Delete();
+      facePts->Delete();
+      neighbors->Delete();
       return -1;
       }
 
     if ( vtkMath::Normalize(vp) <=  VTK_DEL3D_TOLERANCE ) //degenerate tetra
       {
       this->NumberOfDegeneracies++;
+      pts->Delete();
+      facePts->Delete();
+      neighbors->Delete();
       return -1;
       }
 
@@ -220,7 +226,13 @@ int vtkDelaunay3D::FindTetra(float x[3], int ptIds[4], float p[4][3],
 
     //see whether point and tetra vertex are on same side of tetra face
     valp = vtkMath::Dot(n,vp);
-    if ( fabs(valx = vtkMath::Dot(n,vx)) <= VTK_DEL3D_TOLERANCE ) return tetra;
+    if ( fabs(valx = vtkMath::Dot(n,vx)) <= VTK_DEL3D_TOLERANCE ) 
+      {
+      pts->Delete();
+      facePts->Delete();
+      neighbors->Delete();
+      return tetra;
+      }
 
     if ( (valx < 0.0 && valp > 0.0) || (valx > 0.0 && valp < 0.0)  )
       {
@@ -238,17 +250,20 @@ int vtkDelaunay3D::FindTetra(float x[3], int ptIds[4], float p[4][3],
   //must be in this tetra if all faces test inside
   if ( !inside ) 
     {
-    Mesh->GetCellNeighbors(tetra, *facePts, *neighbors);
+    Mesh->GetCellNeighbors(tetra, facePts, neighbors);
+    pts->Delete();
+    facePts->Delete();
+    neighbors->Delete();
     return this->FindTetra(x, ptIds, p, neighbors->GetId(0),
 			   Mesh, points, tol, depth);
     }
   else 
     {
+    pts->Delete();
+    facePts->Delete();
+    neighbors->Delete();
     return tetra;
     }
-  pts->Delete();
-  facePts->Delete();
-  neighbors->Delete();
 }
 #undef VTK_DEL3D_TOLERANCE
 
@@ -343,7 +358,7 @@ int vtkDelaunay3D::FindEnclosingFaces(float x[3], int tetra,
       boundaryPts->InsertNextId((p1=tetraPts[j]));
       boundaryPts->InsertNextId((p2=tetraPts[(j+1)%4]));
       boundaryPts->InsertNextId((p3=tetraPts[(j+2)%4]));
-      Mesh->GetCellNeighbors(tetraId, *boundaryPts, *neiTetras);
+      Mesh->GetCellNeighbors(tetraId, boundaryPts, neiTetras);
 
       //if a boundary face or an enclosing face
       if ( neiTetras->GetNumberOfIds() == 0 )
@@ -563,7 +578,7 @@ void vtkDelaunay3D::Execute()
             boundaryPts->InsertId(0,p1);
             boundaryPts->InsertId(1,p2);
             boundaryPts->InsertId(2,p3);
-            Mesh->GetCellNeighbors(tetraId, *boundaryPts, *neiTetras);
+            Mesh->GetCellNeighbors(tetraId, boundaryPts, neiTetras);
             numNei = neiTetras->GetNumberOfIds();
 
             if ( neiTetras->GetNumberOfIds() < 1  ||

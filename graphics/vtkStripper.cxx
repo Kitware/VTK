@@ -148,7 +148,7 @@ void vtkStripper::Execute()
           pts[1] = triPts[i];
           pts[2] = triPts[(i+1)%3];
 
-          Mesh->GetCellEdgeNeighbors(cellId, pts[1], pts[2], *cellIds);
+          Mesh->GetCellEdgeNeighbors(cellId, pts[1], pts[2], cellIds);
           if ( cellIds->GetNumberOfIds() > 0 && 
           !visited[neighbor=cellIds->GetId(0)] &&
           Mesh->GetCellType(neighbor) == VTK_TRIANGLE )
@@ -187,7 +187,7 @@ void vtkStripper::Execute()
 	      {
 	      pts[numPts] = triPts[i];
 	      Mesh->GetCellEdgeNeighbors(neighbor, pts[numPts], 
-					pts[numPts-1], *cellIds);
+					 pts[numPts-1], cellIds);
 	      numPts++;
 	      }
 	    

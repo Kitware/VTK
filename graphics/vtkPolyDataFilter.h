@@ -61,8 +61,11 @@ public:
   // Description:
   // Set / get the input data or filter.
   virtual void SetInput(vtkPolyData *input);
-  void SetInput(vtkPolyData &input) {this->SetInput(&input);};
   vtkPolyData *GetInput() {return (vtkPolyData *)this->Input;};
+
+  // Description:
+  // For legacy compatability. Do not use.
+  void SetInput(vtkPolyData &input) {this->SetInput(&input);};
 };
 
 #endif

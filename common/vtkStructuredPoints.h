@@ -140,7 +140,7 @@ public:
   // volume where forward difference is used). The scalars s are the scalars
   // from which the gradient is to be computed. This method will treat 
   // only 3D structured point datasets (i.e., volumes).
-  void GetVoxelGradient(int i,int j,int k, vtkScalars *s, vtkVectors& g);
+  void GetVoxelGradient(int i,int j,int k, vtkScalars *s, vtkVectors *g);
 
   // Description:
   // Given structured coordinates (i,j,k) for a point in a structured point 
@@ -170,12 +170,21 @@ public:
   vtkStructuredPointsToImage *GetStructuredPointsToImage();
 
   // Description:
-  // For legacy compatability. Do not use.
+  // Decrease the reference count (release by another object).
+  // Also, we need to check for the reference loop 
+  // StructurePoints<->StructuredPointsToImage to avoid memory leaks.
+  void UnRegister(vtkObject* o);
+
+  // Description:
+  // For legacy compatibility. Do not use.
   void GetCellPoints(int cellId, vtkIdList &ptIds)
     {this->GetCellPoints(cellId, &ptIds);}
   void GetPointCells(int ptId, vtkIdList &cellIds)
     {this->GetPointCells(ptId, &cellIds);}
+  void GetVoxelGradient(int i,int j,int k, vtkScalars *s, vtkVectors &g)
+    {this->GetVoxelGradient(i, j, k, s, &g);}
 
+  
 protected:
   // for the GetCell method
   vtkVertex *Vertex;

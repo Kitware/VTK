@@ -105,7 +105,6 @@ public:
   // Description:
   // Specify a lookup table for the mapper to use.
   void SetLookupTable(vtkLookupTable *lut);
-  void SetLookupTable(vtkLookupTable& lut) {this->SetLookupTable(&lut);};
   vtkLookupTable *GetLookupTable();
 
   // Description:
@@ -230,6 +229,10 @@ public:
   void SetRenderTime(float time) {this->RenderTime = time;}
   vtkGetMacro(RenderTime, float);
   
+  // Description:
+  // For legacy compatibility. Do not use.
+  void SetLookupTable(vtkLookupTable& lut) {this->SetLookupTable(&lut);}
+
 protected:
   vtkDataSet *Input;
   vtkScalars *Colors;

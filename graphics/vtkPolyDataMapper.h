@@ -69,8 +69,10 @@ public:
   // Description:
   // Specify the input data to map.
   void SetInput(vtkPolyData *in);
-  void SetInput(vtkPolyData& in) {this->SetInput(&in);};
 
+  // Description:
+  // For legacy compatability. Do not use.
+  void SetInput(vtkPolyData& in) {this->SetInput(&in);};
 };
 
 #endif

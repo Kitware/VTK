@@ -107,85 +107,85 @@ vtkDataSetAttributes::~vtkDataSetAttributes()
 
 // Deep copy of data (i.e., create new data arrays and
 // copy from input data).
-void vtkDataSetAttributes::DeepCopy(vtkDataSetAttributes& pd)
+void vtkDataSetAttributes::DeepCopy(vtkDataSetAttributes *pd)
 {
   vtkAttributeData *data, *newData;
   vtkFieldData *f, *newF;
 
   this->Initialize(); //free up memory
   
-  if ( (data=pd.GetScalars()) != NULL )
+  if ( (data=pd->GetScalars()) != NULL )
     {
     newData = data->MakeObject();
-    newData->DeepCopy(*data);
+    newData->DeepCopy(data);
     this->SetScalars((vtkScalars *) newData);
     newData->Delete ();
     }
   
-  if ( (data=pd.GetVectors()) != NULL )
+  if ( (data=pd->GetVectors()) != NULL )
     {
     newData = data->MakeObject();
-    newData->DeepCopy(*data);
+    newData->DeepCopy(data);
     this->SetVectors((vtkVectors *) newData);
     newData->Delete ();
     }
   
-  if ( (data=pd.GetNormals()) != NULL )
+  if ( (data=pd->GetNormals()) != NULL )
     {
     newData = data->MakeObject();
-    newData->DeepCopy(*data);
+    newData->DeepCopy(data);
     this->SetNormals((vtkNormals *) newData);
     newData->Delete ();
     }
   
-  if ( (data=pd.GetTCoords()) != NULL )
+  if ( (data=pd->GetTCoords()) != NULL )
     {
     newData = data->MakeObject();
-    newData->DeepCopy(*data);
+    newData->DeepCopy(data);
     this->SetTCoords((vtkTCoords *) newData);
     newData->Delete ();
     }
   
-  if ( (data=pd.GetTensors()) != NULL )
+  if ( (data=pd->GetTensors()) != NULL )
     {
     newData = data->MakeObject();
-    newData->DeepCopy(*data);
+    newData->DeepCopy(data);
     this->SetTensors((vtkTensors *) newData);
     newData->Delete ();
     }
   
-  if ( (f=pd.GetFieldData()) != NULL )
+  if ( (f=pd->GetFieldData()) != NULL )
     {
     newF = (vtkFieldData *)f->MakeObject();
-    newF->DeepCopy(*f);
+    newF->DeepCopy(f);
     this->SetFieldData((vtkFieldData *) newF);
     newF->Delete ();
     }
   
-  this->CopyScalars = pd.CopyScalars;
-  this->CopyVectors = pd.CopyVectors;
-  this->CopyNormals = pd.CopyNormals;
-  this->CopyTCoords = pd.CopyTCoords;
-  this->CopyTensors = pd.CopyTensors;
-  this->CopyFieldData = pd.CopyFieldData;
+  this->CopyScalars = pd->CopyScalars;
+  this->CopyVectors = pd->CopyVectors;
+  this->CopyNormals = pd->CopyNormals;
+  this->CopyTCoords = pd->CopyTCoords;
+  this->CopyTensors = pd->CopyTensors;
+  this->CopyFieldData = pd->CopyFieldData;
 }
 
 // Shallow copy of data (i.e., use reference counting).
-void vtkDataSetAttributes::ShallowCopy(vtkDataSetAttributes& pd)
+void vtkDataSetAttributes::ShallowCopy(vtkDataSetAttributes *pd)
 {
-  this->SetScalars(pd.GetScalars());
-  this->SetVectors(pd.GetVectors());
-  this->SetNormals(pd.GetNormals());
-  this->SetTCoords(pd.GetTCoords());
-  this->SetTensors(pd.GetTensors());
-  this->SetFieldData(pd.GetFieldData());
+  this->SetScalars(pd->GetScalars());
+  this->SetVectors(pd->GetVectors());
+  this->SetNormals(pd->GetNormals());
+  this->SetTCoords(pd->GetTCoords());
+  this->SetTensors(pd->GetTensors());
+  this->SetFieldData(pd->GetFieldData());
 
-  this->CopyScalars = pd.CopyScalars;
-  this->CopyVectors = pd.CopyVectors;
-  this->CopyNormals = pd.CopyNormals;
-  this->CopyTCoords = pd.CopyTCoords;
-  this->CopyTensors = pd.CopyTensors;
-  this->CopyFieldData = pd.CopyFieldData;
+  this->CopyScalars = pd->CopyScalars;
+  this->CopyVectors = pd->CopyVectors;
+  this->CopyNormals = pd->CopyNormals;
+  this->CopyTCoords = pd->CopyTCoords;
+  this->CopyTensors = pd->CopyTensors;
+  this->CopyFieldData = pd->CopyFieldData;
 }
 
 // Check object's components for modified times.

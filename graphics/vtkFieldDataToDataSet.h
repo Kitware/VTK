@@ -78,7 +78,6 @@ public:
   // Description:
   // Set the input to the filter.
   virtual void SetInput(vtkDataObject *input);
-  void SetInput(vtkDataObject &input) {this->SetInput(&input);};
   vtkDataObject *GetInput() {return this->Input;};
 
   // Description:
@@ -88,6 +87,10 @@ public:
   vtkStructuredGrid *GetStructuredGridOutput();
   vtkUnstructuredGrid *GetUnstructuredGridOutput();
   vtkRectilinearGrid *GetRectilinearGridOutput();
+
+  // Description:
+  // For legacy compatibility. Do not use.
+  void SetInput(vtkDataObject &input) {this->SetInput(&input);}
 
 protected:
   vtkDataObject *Input;

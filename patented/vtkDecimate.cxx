@@ -119,6 +119,13 @@ vtkDecimate::vtkDecimate()
   this->MaximumNumberOfSquawks = 10;
 
   this->PreserveTopology = 1;
+  
+  this->Neighbors = new vtkIdList(VTK_MAX_TRIS_PER_VERTEX);
+}
+
+vtkDecimate::~vtkDecimate()
+{
+  this->Neighbors->Delete();
 }
 
 //
@@ -160,18 +167,18 @@ void vtkDecimate::Execute()
   vtkDebugMacro(<<"Decimating mesh...");
   V = &VertexArray;
   T = &TriangleArray;
-//
-// Check input
-//
+  //
+  // Check input
+  //
   if ( (numPts=input->GetNumberOfPoints()) < 1 || 
   (numTris=input->GetNumberOfPolys()) < 1 )
     {
     vtkErrorMacro(<<"No data to decimate!");
     return;
     }
-//
-//  Get the bounds of the data to compute decimation threshold
-//
+  //
+  //  Get the bounds of the data to compute decimation threshold
+  //
   bounds = input->GetBounds();
 
   for (max=0.0, i=0; i<3; i++)
@@ -196,10 +203,10 @@ void vtkDecimate::Execute()
                << "\tDistance= " << Distance << "\n"
                << "\tAspect ratio= " << this->AspectRatio << "\n"
                << "\tMaximum vertex degree= " << this->Degree);
-//
-// Build cell data structure. Need to copy triangle connectivity data
-// so we can modify it.
-//
+  //
+  // Build cell data structure. Need to copy triangle connectivity data
+  // so we can modify it.
+  //
   if ( this->MaximumIterations > 0 )
     {
     inPts = input->GetPoints();
@@ -218,25 +225,25 @@ void vtkDecimate::Execute()
     vtkWarningMacro(<<"Maximum iterations == 0: passing data through unchanged");
     return;
     }
-//
-// Create array of vertex errors (initially zero)
-//
+  //
+  // Create array of vertex errors (initially zero)
+  //
   VertexError = new float[numPts];
   for (i=0; i<numPts; i++)
     {
     VertexError[i] = 0.0;
     }
-//
-//  Traverse all vertices, eliminating those that meet decimation
-//  error.  Initialize loop information.
-//
-//************************************ Outer Loop ***************************
+  //
+  //  Traverse all vertices, eliminating those that meet decimation
+  //  error.  Initialize loop information.
+  //
+  //************************************ Outer Loop ***************************
 
   while ( reduction < this->TargetReduction && iteration < this->MaximumIterations && !abortFlag) 
     {
     trisEliminated = 1;
 
-//******************************** Subiterations ****************************
+    //******************************** Subiterations ****************************
 
     for (sub=0; sub < this->MaximumSubIterations && trisEliminated &&
     reduction < this->TargetReduction && !abortFlag; sub++) 
@@ -246,10 +253,10 @@ void vtkDecimate::Execute()
 	this->Stats[i] = 0;
 	}
       trisEliminated = 0;
-//
-//  For every vertex that is used by two or more elements and has a loop
-//  of simple enough complexity...
-//
+      //
+      //  For every vertex that is used by two or more elements and has a loop
+      //  of simple enough complexity...
+      //
       for (ptId=0; ptId < numPts && !abortFlag; ptId++)
         {
         if ( ! (ptId % 5000) )
@@ -273,13 +280,13 @@ void vtkDecimate::Execute()
         if ( ncells > 0 && 
         (vtype=this->BuildLoop(ptId,ncells,cells)) != VTK_COMPLEX_VERTEX )
           {
-//
-//  Determine the distance of the vertex to an "average plane"
-//  through the loop.  If it's less than the decimation distance
-//  criterion, then vertex can be eliminated.  If the vertex is on the
-//  boundary, see whether it can be eliminated based on distance to
-//  boundary.
-//
+	  //
+	  //  Determine the distance of the vertex to an "average plane"
+	  //  through the loop.  If it's less than the decimation distance
+	  //  criterion, then vertex can be eliminated.  If the vertex is on the
+	  //  boundary, see whether it can be eliminated based on distance to
+	  //  boundary.
+	  //
           ContinueTriangulating = 0;
           this->EvaluateLoop (vtype, numFEdges, fedges);
 
@@ -292,21 +299,21 @@ void vtkDecimate::Execute()
               verts[i] = V->Array + i;
               }
             }
-//
-//  Note: interior edges can be eliminated if decimation criterion met
-//  and flag set.
-//
+	  //
+	  //  Note: interior edges can be eliminated if decimation criterion met
+	  //  and flag set.
+	  //
           if ( (vtype == VTK_SIMPLE_VERTEX || 
           ( (vtype == VTK_INTERIOR_EDGE_VERTEX || vtype == VTK_CORNER_VERTEX) && !this->PreserveEdges)) &&
           vtkPlane::DistanceToPlane(X,Normal,Pt) <= Error)
             {
             this->Triangulate (numVerts, verts);
             this->Stats[VTK_ELIMINATED_DISTANCE_TO_PLANE]++;
-//
-//  If the vertex is on an interior edge, then see whether the
-//  be eliminated based on distance to line (e.g., edge), and it the
-//  loop can be split.  
-//
+	    //
+	    //  If the vertex is on an interior edge, then see whether the
+	    //  be eliminated based on distance to line (e.g., edge), and it the
+	    //  loop can be split.  
+	    //
             } 
 
           else if ( (vtype == VTK_INTERIOR_EDGE_VERTEX || 
@@ -418,9 +425,9 @@ void vtkDecimate::Execute()
     CosAngle = cos ((double) vtkMath::DegreesToRadians() * Angle);
 
     } //********************************** outer loop **********************
-//
-//  Update output. This means renumbering points.
-//
+  //
+  //  Update output. This means renumbering points.
+  //
   this->CreateOutput(numPts, numTris, totalEliminated, input->GetPointData(), 
                      inPts);
 }
@@ -532,13 +539,10 @@ int vtkDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
 {
   int numVerts;
   int numNei;
-  static vtkIdList nei(VTK_MAX_TRIS_PER_VERTEX);
   vtkLocalTri t;
   vtkLocalVertex sn;
   int i, j, *verts;
   int startVertex, nextVertex;
-
-  nei.ReferenceCountingOff();
 
   //
   // Check complex cases
@@ -585,8 +589,8 @@ int vtkDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
   V->InsertNextVertex(sn);
 
   nextVertex = -1; // initialize
-  nei.Reset();
-  nei.InsertId(0,*tris);
+  this->Neighbors->Reset();
+  this->Neighbors->InsertId(0,*tris);
   numNei = 1;
   //
   //  Traverse the edge neighbors and see whether a cycle can be
@@ -595,7 +599,7 @@ int vtkDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
   //
   while ( T->MaxId < numTris && numNei == 1 && nextVertex != startVertex) 
     {
-    t.id = nei.GetId(0);
+    t.id = this->Neighbors->GetId(0);
     T->InsertNextTriangle(t);
 
     Mesh->GetCellPoints(t.id,numVerts,verts);
@@ -612,13 +616,13 @@ int vtkDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
     Mesh->GetPoint(sn.id, sn.x);
     V->InsertNextVertex(sn);
 
-    Mesh->GetCellEdgeNeighbors(t.id, ptId, nextVertex, nei);
-    numNei = nei.GetNumberOfIds();
+    Mesh->GetCellEdgeNeighbors(t.id, ptId, nextVertex, this->Neighbors);
+    numNei = this->Neighbors->GetNumberOfIds();
     } 
-//
-//  See whether we've run around the loop, hit a boundary, or hit a
-//  complex spot.
-//
+  //
+  //  See whether we've run around the loop, hit a boundary, or hit a
+  //  complex spot.
+  //
   if ( nextVertex == startVertex && numNei == 1 ) 
     {
     if ( T->GetNumberOfTriangles() != numTris ) //touching non-manifold
@@ -634,9 +638,9 @@ int vtkDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
       return VTK_SIMPLE_VERTEX;
       }
     }
-//
-//  Check for non-manifold cases
-//
+  //
+  //  Check for non-manifold cases
+  //
   else if ( numNei > 1 || T->GetNumberOfTriangles() > numTris ) 
     {
     if ( Squawks++ < this->MaximumNumberOfSquawks ) 
@@ -645,9 +649,9 @@ int vtkDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
     this->Stats[VTK_COMPLEX_VERTEX]++;
     return VTK_COMPLEX_VERTEX;
     }
-//
-//  Boundary loop - but (luckily) completed semi-cycle
-//
+  //
+  //  Boundary loop - but (luckily) completed semi-cycle
+  //
   else if ( numNei == 0 && T->GetNumberOfTriangles() == numTris ) 
     {
     V->Array[0].FAngle = -1.0; // using cosine of -180 degrees
@@ -658,11 +662,11 @@ int vtkDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
     this->Stats[VTK_BOUNDARY_VERTEX]++;
     return VTK_BOUNDARY_VERTEX;
     }
-//
-//  Hit a boundary but didn't complete semi-cycle.  Gotta go back
-//  around the other way.  Just reset the starting point and go 
-//  back the other way.
-//
+  //
+  //  Hit a boundary but didn't complete semi-cycle.  Gotta go back
+  //  around the other way.  Just reset the starting point and go 
+  //  back the other way.
+  //
   else 
     {
     t = T->GetTriangle(T->MaxId);
@@ -675,15 +679,15 @@ int vtkDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
     V->InsertNextVertex(sn);
 
     nextVertex = -1;
-    nei.Reset();
-    nei.InsertId(0,t.id);
+    this->Neighbors->Reset();
+    this->Neighbors->InsertId(0,t.id);
     numNei = 1;
-//
-//  Now move from boundary edge around the other way.
-//
+    //
+    //  Now move from boundary edge around the other way.
+    //
     while ( T->MaxId < numTris && numNei == 1 && nextVertex != startVertex) 
       {
-      t.id = nei.GetId(0);
+      t.id = this->Neighbors->GetId(0);
       T->InsertNextTriangle(t);
 
       Mesh->GetCellPoints(t.id,numVerts,verts);
@@ -701,19 +705,19 @@ int vtkDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
       Mesh->GetPoint(sn.id, sn.x);
       V->InsertNextVertex(sn);
 
-      Mesh->GetCellEdgeNeighbors(t.id, ptId, nextVertex, nei);
-      numNei = nei.GetNumberOfIds();
+      Mesh->GetCellEdgeNeighbors(t.id, ptId, nextVertex, this->Neighbors);
+      numNei = this->Neighbors->GetNumberOfIds();
       }
-//
-//  Make sure that there are only two boundaries (i.e., not non-manifold)
-//
+    //
+    //  Make sure that there are only two boundaries (i.e., not non-manifold)
+    //
     if ( T->GetNumberOfTriangles() == numTris ) 
       {
-//
-//  Because we've reversed order of loop, need to rearrange the order
-//  of the vertices and polygons to preserve consistent polygons
-//  ordering / normal orientation.
-//
+      //
+      //  Because we've reversed order of loop, need to rearrange the order
+      //  of the vertices and polygons to preserve consistent polygons
+      //  ordering / normal orientation.
+      //
       numVerts = V->GetNumberOfVertices();
       for (i=0; i<(numVerts/2); i++) 
         {
@@ -767,9 +771,9 @@ void vtkDecimate::EvaluateLoop (int& vtype, int& numFEdges,
   int i, j, numNormals;
   float *x1, *x2, *normal, loopArea;
   float v1[3], v2[3], center[3];
-//
-//  Traverse all polygons and generate normals and areas
-//
+  //
+  //  Traverse all polygons and generate normals and areas
+  //
   x2 =  V->Array[0].x;
   for (i=0; i<3; i++)
     {
@@ -798,10 +802,10 @@ void vtkDecimate::EvaluateLoop (int& vtype, int& numFEdges,
     loopArea += T->Array[i].area;
 
     vtkMath::Cross (v1, v2, normal);
-//
-//  Get normals.  If null, then normal make no contribution to loop.
-//  The center of the loop is the center of gravity.
-//
+    //
+    //  Get normals.  If null, then normal make no contribution to loop.
+    //  The center of the loop is the center of gravity.
+    //
     if ( vtkMath::Normalize(normal) != 0.0 ) 
       {
       numNormals++;
@@ -812,10 +816,10 @@ void vtkDecimate::EvaluateLoop (int& vtype, int& numFEdges,
         }
       }
     }
-//
-//  Compute "average" plane normal and plane center.  Use an area
-//  averaged normal calulation
-//
+  //
+  //  Compute "average" plane normal and plane center.  Use an area
+  //  averaged normal calulation
+  //
   if ( !numNormals || loopArea == 0.0 ) 
     {
     this->Stats[VTK_FAILED_ZERO_AREA_TEST]++;
@@ -834,12 +838,12 @@ void vtkDecimate::EvaluateLoop (int& vtype, int& numFEdges,
     vtype = VTK_COMPLEX_VERTEX;
     return;
     }
-//
-//  Now run through polygons again generating feature angles.  (Note
-//  that if an edge is on the boundary its feature angle has already
-//  been set to 180.)  Also need to keep track whether any feature
-//  angles exceed the current value.
-//
+  //
+  //  Now run through polygons again generating feature angles.  (Note
+  //  that if an edge is on the boundary its feature angle has already
+  //  been set to 180.)  Also need to keep track whether any feature
+  //  angles exceed the current value.
+  //
   if ( vtype == VTK_BOUNDARY_VERTEX ) 
     {
     numFEdges = 2;
@@ -850,9 +854,9 @@ void vtkDecimate::EvaluateLoop (int& vtype, int& numFEdges,
     {
     numFEdges = 0;
     }
-//
-//  Compare to cosine of feature angle to avoid cosine extraction
-//
+  //
+  //  Compare to cosine of feature angle to avoid cosine extraction
+  //
   if ( vtype == VTK_SIMPLE_VERTEX ) // first edge 
     {
     if ( (V->Array[0].FAngle = VTK_FEATURE_ANGLE(0,T->MaxId)) <= CosAngle )
@@ -874,9 +878,9 @@ void vtkDecimate::EvaluateLoop (int& vtype, int& numFEdges,
 	}
       }
     }
-//
-//  Final classification
-//
+  //
+  //  Final classification
+  //
   if ( vtype == VTK_SIMPLE_VERTEX && numFEdges == 2 ) 
     {
     this->Stats[VTK_INTERIOR_EDGE_VERTEX]++;
@@ -901,22 +905,22 @@ int vtkDecimate::CanSplitLoop (vtkLocalVertexPtr fedges[2], int numVerts,
   int i, sign;
   float *x, val, absVal, sPt[3], v21[3], sN[3];
   float dist=VTK_LARGE_FLOAT;
-//
-//  See whether creating this edge would duplicate a new edge (this
-//  means collapsing a tunnel)
-//
+  //
+  //  See whether creating this edge would duplicate a new edge (this
+  //  means collapsing a tunnel)
+  //
   if ( this->PreserveTopology && Mesh->IsEdge(fedges[0]->id, fedges[1]->id) )
     {
     return 0;
     }
-//
-//  Create two loops from the one using the splitting vertices provided.
-//
+  //
+  //  Create two loops from the one using the splitting vertices provided.
+  //
   this->SplitLoop (fedges, numVerts, verts, n1, l1, n2, l2);
-//
-//  Create splitting plane.  Splitting plane is parallel to the loop
-//  plane normal and contains the splitting vertices fedges[0] and fedges[1].
-//
+  //
+  //  Create splitting plane.  Splitting plane is parallel to the loop
+  //  plane normal and contains the splitting vertices fedges[0] and fedges[1].
+  //
   for (i=0; i<3; i++) 
     {
     sPt[i] = fedges[0]->x[i];
@@ -928,11 +932,11 @@ int vtkDecimate::CanSplitLoop (vtkLocalVertexPtr fedges[2], int numVerts,
     {
     return 0;
     }
-//
-//  This plane can only be split if all points of each loop lie on the
-//  same side of the splitting plane.  Also keep track of the minimum 
-//  distance to the plane.
-//
+  //
+  //  This plane can only be split if all points of each loop lie on the
+  //  same side of the splitting plane.  Also keep track of the minimum 
+  //  distance to the plane.
+  //
   for (sign=0, i=0; i < n1; i++) // first loop 
     {
     if ( !(l1[i] == fedges[0] || l1[i] == fedges[1]) ) 
@@ -971,9 +975,9 @@ int vtkDecimate::CanSplitLoop (vtkLocalVertexPtr fedges[2], int numVerts,
 	}
       }
     }
-//
-//  Now see if can split plane based on aspect ratio
-//
+  //
+  //  Now see if can split plane based on aspect ratio
+  //
   if ( (ar = (dist*dist)/(v21[0]*v21[0] + v21[1]*v21[1] + v21[2]*v21[2])) < AspectRatio2 )
     {
     return 0;
@@ -1032,28 +1036,28 @@ void vtkDecimate::Triangulate(int numVerts, vtkLocalVertexPtr verts[])
 
   switch (numVerts) 
     {
-//
-//  In loops of less than 3 vertices no elements are created
-//
+    //
+    //  In loops of less than 3 vertices no elements are created
+    //
     case 0: case 1: case 2:
       return;
-//
-//  A loop of three vertices makes one triangle!  Replace an old
-//  polygon with a newly created one.  
-//
+      //
+      //  A loop of three vertices makes one triangle!  Replace an old
+      //  polygon with a newly created one.  
+      //
     case 3:
-//
-//  Make sure the new triangle doesn't duplicate an old one
-//
+      //
+      //  Make sure the new triangle doesn't duplicate an old one
+      //
       if ( this->PreserveTopology &&
       Mesh->IsTriangle (verts[0]->id, verts[1]->id, verts[2]->id) ) 
         {
         ContinueTriangulating = 0;
         return;
         }
-//
-//  Okay: can create triangle, find a spot to put the triangle.
-//
+      //
+      //  Okay: can create triangle, find a spot to put the triangle.
+      //
       for (i=0; i < T->MaxId; i++)
 	{
         if ( T->Array[i].verts[0] == -1 )
@@ -1066,15 +1070,15 @@ void vtkDecimate::Triangulate(int numVerts, vtkLocalVertexPtr verts[])
         T->Array[i].verts[j] = verts[j]->id;
         verts[j]->newRefs++;
         }
-
+      
       return;
-//
-//  Loops greater than three vertices must be subdivided.  This is
-//  done by finding the best splitting plane and creating two loop and 
-//  recursively triangulating.  To find the best splitting plane, try
-//  all possible combinations, keeping track of the one that gives the
-//  largest dihedral angle combination.
-//
+      //
+      //  Loops greater than three vertices must be subdivided.  This is
+      //  done by finding the best splitting plane and creating two loop and 
+      //  recursively triangulating.  To find the best splitting plane, try
+      //  all possible combinations, keeping track of the one that gives the
+      //  largest dihedral angle combination.
+      //
     default:
       max = 0.0;
       maxI = maxJ = -1;
@@ -1129,13 +1133,13 @@ void vtkDecimate::Triangulate(int numVerts, vtkLocalVertexPtr verts[])
 
 int vtkDecimate::CheckError ()
 {
-    int i, j;
-    float error, planeError;
-    float normal[3], np[3], v21[3], v31[3], *x1, *x2, *x3;
-//
-//  Loop through triangles computing distance to plane (looking for minimum
-//  perpendicular distance)
-//
+  int i, j;
+  float error, planeError;
+  float normal[3], np[3], v21[3], v31[3], *x1, *x2, *x3;
+  //
+  //  Loop through triangles computing distance to plane (looking for minimum
+  //  perpendicular distance)
+  //
   for (planeError=VTK_LARGE_FLOAT, i=0; i < T->GetNumberOfTriangles(); i++) 
     {
     if ( T->Array[i].verts[0] == -1 )
@@ -1182,9 +1186,9 @@ int vtkDecimate::CheckError ()
     {
     return 0;
     }
-//
-// Can distribute errors to surrounding nodes
-//
+  //
+  // Can distribute errors to surrounding nodes
+  //
   for (i=0; i < V->GetNumberOfVertices(); i++)
     {
     VertexError[V->Array[i].id] += error;

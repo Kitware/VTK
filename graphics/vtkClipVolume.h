@@ -151,7 +151,6 @@ public:
   // Set / Get a spatial locator for merging points. By default, 
   // an instance of vtkMergePoints is used.
   void SetLocator(vtkPointLocator *locator);
-  void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
   vtkGetObjectMacro(Locator,vtkPointLocator);
 
   // Description:
@@ -162,6 +161,10 @@ public:
   // Description:
   // Return the mtime also considering the locator and clip function.
   unsigned long int GetMTime();
+
+  // Description:
+  // For legacy compatibility. Do not use.
+  void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
 
 protected:
   void Execute();

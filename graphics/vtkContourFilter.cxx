@@ -191,7 +191,7 @@ void vtkContourFilter::Execute()
       {
       cell = input->GetCell(cellId);
       cellPts = cell->GetPointIds();
-      inScalars->GetScalars(*cellPts,*cellScalars);
+      inScalars->GetScalars(cellPts,cellScalars);
 
       for (i=0; i < numContours; i++)
         {
@@ -216,7 +216,7 @@ void vtkContourFilter::Execute()
     for (i=0; i < numContours; i++)
       {
       for ( this->ScalarTree->InitTraversal(values[i]); 
-      (cell=this->ScalarTree->GetNextCell(cellId,cellPts,*cellScalars)) != NULL; )
+      (cell=this->ScalarTree->GetNextCell(cellId,cellPts,cellScalars)) != NULL; )
         {
         cell->Contour(values[i], cellScalars, this->Locator, 
                       newVerts, newLines, newPolys, inPd, outPd,
@@ -318,7 +318,7 @@ void vtkContourFilter::StructuredPointsContour(int dim)
     }
   
   thisOutput->CopyStructure(output);
-  thisOutput->GetPointData()->ShallowCopy(*output->GetPointData());
+  thisOutput->GetPointData()->ShallowCopy(output->GetPointData());
   output->UnRegister(this);
 }
 #endif

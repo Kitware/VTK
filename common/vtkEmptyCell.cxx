@@ -101,10 +101,10 @@ int vtkEmptyCell::IntersectWithLine(float vtkNotUsed(p1)[3],
 }
 
 int vtkEmptyCell::Triangulate(int vtkNotUsed(index),
-                             vtkIdList& ptIds, vtkPoints& pts)
+                             vtkIdList *ptIds, vtkPoints *pts)
 {
-  pts.Reset();
-  ptIds.Reset();
+  pts->Reset();
+  ptIds->Reset();
 
   return 1;
 }

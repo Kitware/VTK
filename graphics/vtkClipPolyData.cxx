@@ -164,7 +164,7 @@ void vtkClipPolyData::Execute()
     vtkScalars *tmpScalars = vtkScalars::New();
     tmpScalars->SetNumberOfScalars(numPts);
     inPD = vtkPointData::New();
-    inPD->ShallowCopy(*(input->GetPointData()));//copies original
+    inPD->ShallowCopy(input->GetPointData());//copies original
     if ( this->GenerateClipScalars )
       {
       inPD->SetScalars(tmpScalars);

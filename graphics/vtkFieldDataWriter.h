@@ -60,6 +60,7 @@ class VTK_EXPORT vtkFieldDataWriter : public vtkWriter
 {
 public:
   vtkFieldDataWriter();
+  ~vtkFieldDataWriter();
   static vtkFieldDataWriter *New() {return new vtkFieldDataWriter;};
   const char *GetClassName() {return "vtkFieldDataWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -67,25 +68,28 @@ public:
   // Description:
   // Set / get the input data or filter.
   void SetInput(vtkDataObject *input);
-  void SetInput(vtkDataObject &input) {this->SetInput(&input);};
   vtkDataObject *GetInput() {return this->Input;};
               
   // Description:
   // Methods delegated to vtkDataWriter, see vtkDataWriter.
-  void SetFileName(char *filename) {this->Writer.SetFileName(filename);};
-  char *GetFileName() {return this->Writer.GetFileName();};
-  void SetHeader(char *header) {this->Writer.SetHeader(header);};
-  char *GetHeader() {return this->Writer.GetHeader();};
-  void SetFileType(int type) {this->Writer.SetFileType(type);};
-  int GetFileType() {return this->Writer.GetFileType();};
-  void SetFileTypeToASCII() {this->Writer.SetFileType(VTK_ASCII);};
-  void SetFileTypeToBinary() {this->Writer.SetFileType(VTK_BINARY);};
-  void SetFieldDataName(char *fieldname) {this->Writer.SetFieldDataName(fieldname);};
-  char *GetFieldDataName() {return this->Writer.GetFieldDataName();};
+  void SetFileName(char *filename) {this->Writer->SetFileName(filename);};
+  char *GetFileName() {return this->Writer->GetFileName();};
+  void SetHeader(char *header) {this->Writer->SetHeader(header);};
+  char *GetHeader() {return this->Writer->GetHeader();};
+  void SetFileType(int type) {this->Writer->SetFileType(type);};
+  int GetFileType() {return this->Writer->GetFileType();};
+  void SetFileTypeToASCII() {this->Writer->SetFileType(VTK_ASCII);};
+  void SetFileTypeToBinary() {this->Writer->SetFileType(VTK_BINARY);};
+  void SetFieldDataName(char *fieldname) {this->Writer->SetFieldDataName(fieldname);};
+  char *GetFieldDataName() {return this->Writer->GetFieldDataName();};
+
+  // Description:
+  // For legacy compatibility. Do not use.
+  void SetInput(vtkDataObject &input) {this->SetInput(&input);};
 
 protected:
   void WriteData();
-  vtkDataWriter Writer;
+  vtkDataWriter *Writer;
   
 };
 

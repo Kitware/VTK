@@ -51,17 +51,17 @@ vtkDataArray::vtkDataArray(int numComp)
   this->NumberOfComponents = (numComp < 1 ? 1 : numComp);
 }
 
-void vtkDataArray::DeepCopy(vtkDataArray& da)
+void vtkDataArray::DeepCopy(vtkDataArray *da)
 {
-  if ( this != &da )
+  if ( this != da )
     {
-    int numTuples = da.GetNumberOfTuples();
-    this->NumberOfComponents = da.NumberOfComponents;
+    int numTuples = da->GetNumberOfTuples();
+    this->NumberOfComponents = da->NumberOfComponents;
     this->SetNumberOfTuples(numTuples);
 
     for (int i=0; i < numTuples; i++)
       {
-      this->SetTuple(i, da.GetTuple(i));
+      this->SetTuple(i, da->GetTuple(i));
       }
     }
 }

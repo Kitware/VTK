@@ -309,18 +309,21 @@ protected:
   float InflectionPointRatio;
   vtkFloatArray *InflectionPoints;
 
-
+  // to replace a static object
+  vtkIdList *Neighbors;
+  vtkPriorityQueue *EdgeLengths;
+  
   void SplitMesh();
   int EvaluateVertex(int ptId, unsigned short int numTris, int *tris,
                      int fedges[2]);
   int FindSplit(int type, int fedges[2], int& pt1, int& pt2, 
-                vtkIdList& CollapseTris);
+                vtkIdList *CollapseTris);
   int IsValidSplit(int index);
   void SplitLoop(int fedges[2], int& n1, int *l1, int& n2, int *l2);
   void SplitVertex(int ptId,int type, unsigned short int numTris, int *tris,
                    int insert);
   int CollapseEdge(int type, int ptId, int collapseId, int pt1, int pt2,
-                   vtkIdList& CollapseTris);
+                   vtkIdList *CollapseTris);
   void DistributeError(float error);
 
 private:

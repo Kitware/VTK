@@ -105,7 +105,7 @@ public:
   // Description:
   // Triangulate the vertex. This method fills pts and ptIds with information
   // from the only point in the vertex.
-  int Triangulate(int index, vtkIdList &ptIds, vtkPoints &pts);
+  int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts);
 
   // Description:
   // Get the derivative of the vertex. Returns (0.0, 0.0, 0.0) for all 
@@ -114,9 +114,12 @@ public:
                    int dim, float *derivs);
 
   // Description:
-  // For legacy compatability. Do not use.
+  // For legacy compatibility. Do not use.
   int CellBoundary(int subId, float pcoords[3], vtkIdList &pts)
     {return this->CellBoundary(subId, pcoords, &pts);}
+  int Triangulate(int index, vtkIdList &ptIds, vtkPoints &pts)
+    {return this->Triangulate(index, &ptIds, &pts);}
+  
 };
 
 #endif

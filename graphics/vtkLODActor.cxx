@@ -46,8 +46,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //----------------------------------------------------------------------------
 vtkLODActor::vtkLODActor()
 {
+  vtkMatrix4x4 *m;
+  
   // get a hardware dependent actor and mappers
   this->Device = vtkActor::New();
+  m = vtkMatrix4x4::New();
+  this->Device->SetUserMatrix(m);
+  m->Delete();
+  
   this->LODMappers = vtkMapperCollection::New();
   this->SelfCreatedLODs = 0;
   // stuff for creating own LODs
@@ -85,7 +91,7 @@ void vtkLODActor::Render(vtkRenderer *ren)
 {
   float myTime, bestTime, tempTime;
   double aTime;
-  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
+  vtkMatrix4x4 *matrix;
   vtkMapper *mapper, *bestMapper;
   
   // first time through create lods if non have been added
@@ -180,8 +186,8 @@ void vtkLODActor::Render(vtkRenderer *ren)
   if (this->Texture) this->Texture->Render(ren);
   
   // make sure the device has the same matrix
+  matrix = this->Device->GetUserMatrix();
   this->GetMatrix(matrix);
-  this->Device->SetUserMatrix(matrix);
   
   // Store information on time it takes to render.
   // We might want to estimate time from the number of polygons in mapper.
@@ -203,8 +209,6 @@ void vtkLODActor::Render(vtkRenderer *ren)
       bestMapper->SetRenderTime(0.2 * myTime + 0.8 * bestTime);
       }
     }
-
-  matrix->Delete();
 }
 
       

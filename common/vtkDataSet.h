@@ -139,8 +139,6 @@ public:
   // cell specified (e.g., cellId).
   virtual void GetCellNeighbors(int cellId, vtkIdList *ptIds, 
 				vtkIdList *cellIds);
-  void GetCellNeighbors(int cellId, vtkIdList& ptIds, vtkIdList& cellIds)
-    {this->GetCellNeighbors(cellId, &ptIds, &cellIds);}
 
   // Description:
   // Locate the closest point to the global coordinate x. Return the
@@ -223,11 +221,13 @@ public:
   virtual int GetMaxCellSize() = 0;
 
   // Description:
-  // For legacy compatability. Do not use.
+  // For legacy compatibility. Do not use.
   void GetCellPoints(int cellId, vtkIdList &ptIds)
     {this->GetCellPoints(cellId, &ptIds);}
   void GetPointCells(int ptId, vtkIdList &cellIds)
     {this->GetPointCells(ptId, &cellIds);}
+  void GetCellNeighbors(int cellId, vtkIdList& ptIds, vtkIdList& cellIds)
+    {this->GetCellNeighbors(cellId, &ptIds, &cellIds);}
   
 protected:
   vtkCellData *CellData;   // Scalars, vectors, etc. associated w/ each cell
@@ -236,9 +236,6 @@ protected:
   float Bounds[6];  // (xmin,xmax, ymin,ymax, zmin,zmax) geometric bounds
   float ScalarRange[2];
   float Center[3];
-
-  // Temporary reference to keep returned cell from destructing . 
-  vtkCell *Cell;
 };
 
 inline void vtkDataSet::GetPoint(int id, float x[3])

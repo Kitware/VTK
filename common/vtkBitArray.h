@@ -139,7 +139,7 @@ public:
 
   // Description:
   // Deep copy of another bit array.
-  void DeepCopy(vtkDataArray& da);
+  void DeepCopy(vtkDataArray *da);
 
   // Description:
   // This method lets the user specify data to be held by the array.  The 
@@ -149,6 +149,10 @@ public:
   // The class uses the actual array provided; it does not copy the data 
   // from the suppled array.
   void SetArray(unsigned char* array, int size, int save);
+
+  // Description:
+  // For legacy compatibility. Do not use.
+  void DeepCopy(vtkBitArray &da) {this->DeepCopy(&da);}
 
 private:
   unsigned char *Array;   // pointer to data

@@ -682,7 +682,8 @@ void vtkRenderer::ViewToWorld()
   float result[4];
 
   // get the perspective transformation from the active camera 
-  *mat = this->ActiveCamera->GetCompositePerspectiveTransform(1,0,1);
+  mat->DeepCopy(
+	this->ActiveCamera->GetCompositePerspectiveTransformMatrix(1,0,1));
   
   // use the inverse matrix 
   mat->Invert();
@@ -716,7 +717,8 @@ void vtkRenderer::ViewToWorld(float &x, float &y, float &z)
   float result[4];
 
   // get the perspective transformation from the active camera 
-  *mat = this->ActiveCamera->GetCompositePerspectiveTransform(1,0,1);
+  mat->DeepCopy(
+    this->ActiveCamera->GetCompositePerspectiveTransformMatrix(1,0,1));
   
   // use the inverse matrix 
   mat->Invert();
@@ -749,7 +751,8 @@ void vtkRenderer::WorldToView()
   float     *world;
 
   // get the perspective transformation from the active camera 
-  *matrix = this->ActiveCamera->GetCompositePerspectiveTransform(1,0,1);
+  matrix->DeepCopy(
+	   this->ActiveCamera->GetCompositePerspectiveTransformMatrix(1,0,1));
 
   world = this->WorldPoint;
   view[0] = world[0]*matrix->Element[0][0] + world[1]*matrix->Element[0][1] +
@@ -776,8 +779,9 @@ void vtkRenderer::WorldToView(float &x, float &y, float &z)
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
   float     view[4];
 
-  // get the perspective transformation from the active camera 
-  *matrix = this->ActiveCamera->GetCompositePerspectiveTransform(1,0,1);
+  // get the perspective transformation from the active camera
+  matrix->DeepCopy(
+    this->ActiveCamera->GetCompositePerspectiveTransformMatrix(1,0,1));
 
   view[0] = x*matrix->Element[0][0] + y*matrix->Element[0][1] +
     z*matrix->Element[0][2] + matrix->Element[0][3];

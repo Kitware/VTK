@@ -132,7 +132,7 @@ public:
   // Description:
   // Create a cell by specifying a list of point ids. Return the cell id of
   // the cell.
-  int InsertNextCell(vtkIdList &pts);
+  int InsertNextCell(vtkIdList *pts);
 
   // Description:
   // Create cells by specifying count, and then adding points one at a time
@@ -193,6 +193,10 @@ public:
   // Reclaim any extra memory.
   void Squeeze() {this->Ia->Squeeze();}
 
+  // Description:
+  // For legacy compatibility. Do not use.
+  int InsertNextCell(vtkIdList &pts);
+  
 protected:
   int NumberOfCells;
   int InsertLocation;     //keep track of current insertion point
@@ -217,15 +221,15 @@ inline int vtkCellArray::InsertNextCell(int npts, int* pts)
   return this->NumberOfCells - 1;
 }
 
-inline int vtkCellArray::InsertNextCell(vtkIdList &pts)
+inline int vtkCellArray::InsertNextCell(vtkIdList *pts)
 {
-  int npts = pts.GetNumberOfIds();
+  int npts = pts->GetNumberOfIds();
   int i = this->Ia->GetMaxId() + 1;
   int *ptr = this->Ia->WritePointer(i,npts+1);
   
   for ( *ptr++ = npts, i = 0; i < npts; i++)
     {
-    *ptr++ = pts.GetId(i);
+    *ptr++ = pts->GetId(i);
     }
 
   this->NumberOfCells++;

@@ -164,7 +164,7 @@ public:
   // Description:
   // Deep copy of data. Copies data from different data arrays even if they are 
   // different types (using floating-point exchange).
-  virtual void DeepCopy(vtkDataArray& da);
+  virtual void DeepCopy(vtkDataArray *da);
 
   // Description:
   // Return a void pointer. For image pipeline interface and other 
@@ -191,6 +191,10 @@ public:
   // By how many elements should the array increase when more memory is 
   // required.
   int GetExtend() {return this->Extend;}
+
+  // Description:
+  // For legacy compatibility. Do not use.
+  void DeepCopy(vtkDataArray &da) {this->DeepCopy(&da);}
 
 protected:
   int Size;      // allocated size of data

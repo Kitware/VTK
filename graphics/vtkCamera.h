@@ -207,17 +207,18 @@ class VTK_EXPORT vtkCamera : public vtkObject
 
   // Description:
   // Return the perspective transform matrix. See ComputePerspectiveTransform.
-  vtkMatrix4x4 &GetViewTransform();
+  vtkMatrix4x4 *GetViewTransformMatrix();
   
   // Description:
   // Return the perspective transform matrix. See ComputePerspectiveTransform.
-  vtkMatrix4x4 &GetPerspectiveTransform(float aspect,
-					float nearz, float farz);
+  vtkMatrix4x4 *GetPerspectiveTransformMatrix(float aspect,
+					      float nearz, float farz);
 
   // Description:
   // Return the perspective transform matrix. See ComputePerspectiveTransform.
-  vtkMatrix4x4 &GetCompositePerspectiveTransform(float aspect, 
-						 float nearz, float farz);
+  vtkMatrix4x4 *GetCompositePerspectiveTransformMatrix(float aspect, 
+						       float nearz, 
+						       float farz);
 
   // Description:
   // Set the roll angle of the camera about the view plane normal.
@@ -291,7 +292,18 @@ class VTK_EXPORT vtkCamera : public vtkObject
   // The plane normals point inward.
   void GetFrustumPlanes( float planes[24] );
 
- protected:
+  // Description:
+  // For legacy compatibility. Do not use.
+  vtkMatrix4x4 &GetViewTransform(){return *this->GetViewTransformMatrix();}
+  vtkMatrix4x4 &GetPerspectiveTransform(float aspect,float nearz,float farz)
+    {return *this->GetPerspectiveTransformMatrix(aspect, nearz, farz);}
+  vtkMatrix4x4 &GetCompositePerspectiveTransform(float aspect, float nearz, 
+  						 float farz)
+    {return *this->GetCompositePerspectiveTransformMatrix(aspect,nearz,farz);}
+  
+    
+
+protected:
   float WindowCenter[2];
   float FocalPoint[3];
   float Position[3];

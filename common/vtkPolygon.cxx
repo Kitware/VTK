@@ -68,7 +68,7 @@ vtkPolygon::~vtkPolygon()
 vtkCell *vtkPolygon::MakeObject()
 {
   vtkCell *cell = vtkPolygon::New();
-  cell->DeepCopy(*this);
+  cell->DeepCopy(this);
   return cell;
 }
 
@@ -535,7 +535,7 @@ int vtkPolygon::PointInPolygon (float x[3], int numPts, float *pts,
 // Triangulate polygon. Tries to use the fast triangulation technique 
 // first, and if that doesn't work, uses more complex routine that is
 //  guaranteed to work.
-int vtkPolygon::Triangulate(vtkIdList &outTris)
+int vtkPolygon::Triangulate(vtkIdList *outTris)
 {
   int i, success;
   float *bounds, d;
@@ -556,7 +556,7 @@ int vtkPolygon::Triangulate(vtkIdList &outTris)
     verts[i] = i;
     }
   this->Tris->Reset();
-  outTris.Reset();
+  outTris->Reset();
 
   success = this->RecursiveTriangulate(numVerts, verts);
   delete [] verts;
@@ -565,7 +565,7 @@ int vtkPolygon::Triangulate(vtkIdList &outTris)
     {
     for (i=0; i<this->Tris->GetNumberOfIds(); i++)
       {
-      outTris.InsertId(i,this->PointIds->GetId(this->Tris->GetId(i)));
+      outTris->InsertId(i,this->PointIds->GetId(this->Tris->GetId(i)));
       }
     return 1;
     }
@@ -1055,16 +1055,16 @@ int vtkPolygon::IntersectWithLine(float p1[3], float p2[3], float tol,float& t,
 
 }
 
-int vtkPolygon::Triangulate(int vtkNotUsed(index), vtkIdList &ptIds, 
-                            vtkPoints &pts)
+int vtkPolygon::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds, 
+                            vtkPoints *pts)
 {
   int i, success;
   float *bounds, d;
   int numVerts=this->PointIds->GetNumberOfIds();
   int *verts = new int[numVerts];
 
-  pts.Reset();
-  ptIds.Reset();
+  pts->Reset();
+  ptIds->Reset();
 
   bounds = this->GetBounds();
   d = sqrt((bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
@@ -1090,8 +1090,8 @@ int vtkPolygon::Triangulate(int vtkNotUsed(index), vtkIdList &ptIds,
     {
     for (i=0; i<this->Tris->GetNumberOfIds(); i++)
       {
-      ptIds.InsertId(i,this->PointIds->GetId(this->Tris->GetId(i)));
-      pts.InsertPoint(i,this->Points->GetPoint(this->Tris->GetId(i)));
+      ptIds->InsertId(i,this->PointIds->GetId(this->Tris->GetId(i)));
+      pts->InsertPoint(i,this->Points->GetPoint(this->Tris->GetId(i)));
       }
     }
 

@@ -52,7 +52,7 @@ vtkTransform::vtkTransform ()
   this->Stack = new vtkMatrix4x4 *[this->StackSize];
   *this->Stack = vtkMatrix4x4::New();
   this->StackBottom = this->Stack;
-  this->Identity ();
+  this->Identity();
 
   this->Point[0] = this->Point[1] = this->Point[2] = this->Point[3] = 0.0;
   this->Orientation[0] = this->Orientation[1] = this->Orientation[2] = 0.0;
@@ -72,7 +72,7 @@ vtkTransform::vtkTransform (const vtkTransform& t)
   for ( n=t.Stack-t.StackBottom+1, i=0; i < n; i++ )
     {
     this->StackBottom[i] = new vtkMatrix4x4(*(t.Stack[i]));
-    *(this->StackBottom[i]) = *(t.Stack[i]);
+    (this->StackBottom[i])->DeepCopy(t.Stack[i]);
     }
 
   this->Stack = this->StackBottom + (n - 1);
@@ -97,7 +97,7 @@ vtkTransform& vtkTransform::operator=(const vtkTransform& t)
   for ( n=t.Stack-t.StackBottom+1, i=0; i < n; i++ )
     {
     this->StackBottom[i] = vtkMatrix4x4::New();
-    *(this->StackBottom[i]) = *(t.Stack[i]);
+    (this->StackBottom[i])->DeepCopy(t.Stack[i]);
     }
   this->Stack = this->StackBottom + (n - 1);
 
@@ -161,9 +161,9 @@ void vtkTransform::PreMultiply ()
 // transformation stack.
 void vtkTransform::Push ()
 {
-  vtkMatrix4x4 *ctm = vtkMatrix4x4::New();
+  vtkMatrix4x4 *ctm;
 
-  *ctm = **this->Stack;
+  ctm = *this->Stack;
   this->Stack++;
   if ((this->Stack - this->StackBottom) > this->StackSize) 
     {
@@ -174,11 +174,10 @@ void vtkTransform::Push ()
     }
 
   // allocate a new matrix on the stack
-  *this->Stack = vtkMatrix4x4::New();
-
+  (*this->Stack) = vtkMatrix4x4::New();
+  
   // set the new matrix to the previous top of stack matrix
-  **this->Stack = *ctm;
-  ctm->Delete();
+  (*this->Stack)->DeepCopy(ctm);
 
   this->Modified ();
 }
@@ -357,24 +356,21 @@ void vtkTransform::Translate ( float x, float y, float z)
 // Obtain the transpose of the current transformation matrix.
 void vtkTransform::GetTranspose (vtkMatrix4x4 *transpose)
 {
-  vtkMatrix4x4 *temp = vtkMatrix4x4::New();
   int i, j;
 
   for (i = 0; i < 4; i++) 
     {
     for (j = 0; j < 4; j++) 
       {
-      temp->Element[j][i] = (**this->Stack).Element[i][j];
+      transpose->Element[j][i] = (**this->Stack).Element[i][j];
       }
     }    
-  *transpose = *temp;
-  temp->Delete();
 }
 
 // Invert the current transformation matrix.
 void vtkTransform::Inverse ()
 {
-  (**this->Stack).Invert (**this->Stack, **this->Stack);
+  (*this->Stack)->Invert(*this->Stack, *this->Stack);
 
   this->Modified ();
 }
@@ -382,7 +378,7 @@ void vtkTransform::Inverse ()
 // Return the inverse of the current transformation matrix.
 void vtkTransform::GetInverse ( vtkMatrix4x4 *inverse)
 {
-  inverse->Invert (**this->Stack, *inverse);
+  inverse->Invert(*this->Stack, inverse);
 }
 
 // Get the x, y, z orientation angles from the transformation matrix.
@@ -417,7 +413,7 @@ float *vtkTransform::GetOrientation ()
   float   x3p, y3p;
 
   // copy the matrix into local storage
-  *temp = **this->Stack;
+  temp->DeepCopy(*this->Stack);
 
   // get scale factors
   this->GetScale (scaleX, scaleY, scaleZ);
@@ -527,7 +523,7 @@ float *vtkTransform::GetOrientationWXYZ ()
   // get scale factors
   this->GetScale (scaleX, scaleY, scaleZ);
   temp1->Scale(1.0/scaleX,1.0/scaleY,1.0/scaleZ);
-  *temp = **temp1->Stack;
+  temp->DeepCopy(*temp1->Stack);
   
   quat[0] = 0.25*(1.0 + temp->Element[0][0] + temp->Element[1][1] 
 		  + temp->Element[2][2]);
@@ -619,11 +615,9 @@ float *vtkTransform::GetScale()
 {
   int	i;
   static float scale[3];
-  vtkMatrix4x4 *temp = vtkMatrix4x4::New();
+  vtkMatrix4x4 *temp;
 
-  // copy the matrix into local storage
-
-  *temp = **this->Stack;
+  temp = *this->Stack;
 
   // find scale factors
 
@@ -634,7 +628,6 @@ float *vtkTransform::GetScale()
                      temp->Element[2][i] * temp->Element[2][i]);
     }
 
-  temp->Delete();
   return scale;
 }
 
@@ -647,24 +640,32 @@ vtkMatrix4x4 *vtkTransform::GetMatrixPointer()
 // Set the current matrix directly.
 void vtkTransform::SetMatrix(vtkMatrix4x4 &m)
 {
-  **this->Stack = m;
+  (*this->Stack)->DeepCopy(&m);
 }
 
 // Creates an identity matrix and makes it the current transformation matrix.
-void vtkTransform::Identity ()
+void vtkTransform::Identity()
 {
-  vtkMatrix4x4 *ctm = vtkMatrix4x4::New();
-  int i;
+  vtkMatrix4x4 *ctm;
+  int i,j;
 
-  *ctm = 0.0;
-
-  for (i = 0; i < 4; i++) 
+  ctm = *this->Stack;
+  
+  for (j = 0; j < 4; j++) 
     {
-    ctm->Element[i][i] = 1.0;
+    for (i = 0; i < 4; i++) 
+      {
+      if (i == j)
+	{
+	ctm->Element[i][j] = 1.0;
+	}
+      else
+	{
+	ctm->Element[i][j] = 0.0;	
+	}
+      }
     }
-  **this->Stack = *ctm;
 
-  ctm->Delete();
   this->Modified();
 }
 
@@ -692,7 +693,8 @@ void vtkTransform::Multiply4x4(vtkMatrix4x4 *a, vtkMatrix4x4 *b,
   int i, j, k;
   vtkMatrix4x4 *result = vtkMatrix4x4::New();
 
-  *result = 0.0;
+  // we need the temporary matrix because of the case c=a or c=b;
+  result->Zero();
   for (i = 0; i < 4; i++) 
     {
     for (k = 0; k < 4; k++) 
@@ -703,21 +705,21 @@ void vtkTransform::Multiply4x4(vtkMatrix4x4 *a, vtkMatrix4x4 *b,
         }
       }
     }
-  *c = *result;
+  c->DeepCopy(result);
   result->Delete();
 }
 
 // Transposes the current transformation matrix.
 void vtkTransform::Transpose ()
 {
-  this->GetTranspose (**this->Stack);
+  this->GetTranspose(*this->Stack);
   this->Modified();
 }
 
 // Returns the current transformation matrix.
 void vtkTransform::GetMatrix (vtkMatrix4x4 *ctm)
 {
-  *ctm = **this->Stack;
+  ctm->DeepCopy(*this->Stack);
 }
 
 vtkTransform::~vtkTransform ()
@@ -800,7 +802,8 @@ void vtkTransform::MultiplyPoints(vtkPoints *inPts, vtkPoints *outPts)
 // (outVectors). This is a special multiplication, since these are vectors. 
 // It multiplies vectors by the transposed inverse of the matrix, ignoring 
 // the translational components.
-void vtkTransform::MultiplyVectors(vtkVectors *inVectors, vtkVectors *outVectors)
+void vtkTransform::MultiplyVectors(vtkVectors *inVectors, 
+				   vtkVectors *outVectors)
 {
   float newV[3];
   float *v;
@@ -809,9 +812,9 @@ void vtkTransform::MultiplyVectors(vtkVectors *inVectors, vtkVectors *outVectors
 
   vtkMatrix4x4 *aMatrix = vtkMatrix4x4::New();
   
-  *aMatrix = **this->Stack;
-  aMatrix->Invert ();
-  aMatrix->Transpose ();
+  aMatrix->DeepCopy(*this->Stack);
+  aMatrix->Invert();
+  aMatrix->Transpose();
 
   for (ptId=0; ptId < numVectors; ptId++)
     {
@@ -844,7 +847,7 @@ void vtkTransform::MultiplyNormals(vtkNormals *inNormals, vtkNormals *outNormals
 
   vtkMatrix4x4 *aMatrix = vtkMatrix4x4::New();
   
-  *aMatrix = **this->Stack;
+  aMatrix->DeepCopy(*this->Stack);
   aMatrix->Invert ();
   aMatrix->Transpose ();
   

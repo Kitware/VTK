@@ -141,7 +141,7 @@ public:
   
   // Description:
   // Deep copy of another long array.
-  void DeepCopy(vtkDataArray& da);
+  void DeepCopy(vtkDataArray *da);
 
   // Description:
   // This method lets the user specify data to be held by the array.  The 
@@ -152,6 +152,9 @@ public:
   // from the suppled array.
   void SetArray(long* array, int size, int save);
 
+  // Description:
+  // For legacy compatibility. Do not use.
+  void DeepCopy(vtkDataArray &da) {this->DeepCopy(&da);}
 
 private:
   long *Array;   // pointer to data

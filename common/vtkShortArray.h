@@ -159,7 +159,7 @@ public:
 
   // Description:
   // Deep copy of another short array.
-  void DeepCopy(vtkDataArray& da);
+  void DeepCopy(vtkDataArray *da);
   
   // Description:
   // This method lets the user specify data to be held by the array.  The 
@@ -169,6 +169,10 @@ public:
   // The class uses the actual array provided; it does not copy the data 
   // from the suppled array.
   void SetArray(short* array, int size, int save);
+
+  // Description:
+  // For legacy compatibility. Do not use.
+  void DeepCopy(vtkDataArray &da) {this->DeepCopy(&da);}
 
 private:
   short *Array;   // pointer to data

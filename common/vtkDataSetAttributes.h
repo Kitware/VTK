@@ -120,11 +120,11 @@ public:
   // Description:
   // Deep copy of data (i.e., create new data arrays and
   // copy from input data).
-  void DeepCopy(vtkDataSetAttributes& pd);
+  void DeepCopy(vtkDataSetAttributes *pd);
 
   // Description:
   // Shallow copy of data (i.e., use reference counting).
-  void ShallowCopy(vtkDataSetAttributes& pd);
+  void ShallowCopy(vtkDataSetAttributes *pd);
 
   // Description:
   // Resize object to just fit data requirements. Reclaims extra memory.
@@ -223,6 +223,11 @@ public:
   void CopyTuple(vtkDataArray *fromData, vtkDataArray *toData, int fromId, 
 		 int toId);
 
+  // Description:
+  // For legacy compatibility. Do not use.
+  void DeepCopy(vtkDataSetAttributes &pd) {this->DeepCopy(&pd);}
+  void ShallowCopy(vtkDataSetAttributes &pd) {this->ShallowCopy(&pd);}
+  
 protected:
   // special methods to support managing data
   void InterpolateTuple(vtkDataArray *fromData, vtkDataArray *toData, int toId,

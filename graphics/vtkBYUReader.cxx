@@ -187,7 +187,7 @@ void vtkBYUReader::ReadGeometryFile(FILE *geomFile, int &numPts)
     // Insert polygon (if in selected part)
     if ( partStart <= polyId && polyId <= partEnd )
       {
-      newPolys->InsertNextCell(*pts);
+      newPolys->InsertNextCell(pts);
       }
     }
   this->UpdateProgress(0.6667);

@@ -134,12 +134,11 @@ void vtkMassProperties::Update()
 // Currently, the input is a ploydata which consists of triangles.
 void vtkMassProperties::Execute()
 {
-  vtkIdList ptIds(VTK_CELL_SIZE);
+  vtkIdList *ptIds;
   vtkPolyData *input=(vtkPolyData *)this->Input;
   int cellId, numCells, numPts, numIds;
   float *p;
   
-  ptIds.ReferenceCountingOff();
   numCells=input->GetNumberOfCells();
   numPts = input->GetNumberOfPoints();
   if (numCells < 1 || numPts < 1)
@@ -147,6 +146,9 @@ void vtkMassProperties::Execute()
       vtkErrorMacro(<<"No data to measure...!");
       return;
     }
+  
+  ptIds = new vtkIdList(VTK_CELL_SIZE);
+  
   //
   // Traverse all cells, obtaining node coordinates.
   //
@@ -180,13 +182,13 @@ void vtkMassProperties::Execute()
       return;
       }
     input->GetCellPoints(cellId,ptIds);
-    numIds = ptIds.GetNumberOfIds();
+    numIds = ptIds->GetNumberOfIds();
     //
     // store current vertix (x,y,z) corrdinates ...
     //
     for (idx=0; idx < numIds; idx++)
       {
-      p = input->GetPoint(ptIds.GetId(idx));
+      p = input->GetPoint(ptIds->GetId(idx));
       x[idx] = p[0]; y[idx] = p[1]; z[idx] = p[2];
       }
     //
@@ -302,6 +304,7 @@ void vtkMassProperties::Execute()
   this->Volume =  (kxyz[0] * vol[0] + kxyz[1] * vol[1] + kxyz[2]  * vol[2]);
   this->Volume =  fabs(this->Volume);
   this->NormalizedShapeIndex = (sqrt(surfacearea)/VTK_CUBE_ROOT(this->Volume))/2.199085233;
+  ptIds->Delete();
 }
 
 void vtkMassProperties::PrintSelf(ostream& os, vtkIndent indent)

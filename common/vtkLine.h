@@ -74,7 +74,7 @@ public:
                        float& dist2, float *weights);
   void EvaluateLocation(int& subId, float pcoords[3], float x[3],
                         float *weights);
-  int Triangulate(int index, vtkIdList &ptIds, vtkPoints &pts);
+  int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts);
   void Derivatives(int subId, float pcoords[3], float *values, 
                    int dim, float *derivs);
 
@@ -117,9 +117,11 @@ public:
   static float DistanceToLine(float x[3], float p1[3], float p2[3]);
 
   // Description:
-  // For legacy compatability. Do not use.
+  // For legacy compatibility. Do not use.
   int CellBoundary(int subId, float pcoords[3], vtkIdList &pts)
     {return this->CellBoundary(subId, pcoords, &pts);}
+  int Triangulate(int index, vtkIdList &ptIds, vtkPoints &pts)
+    {return this->Triangulate(index, &ptIds, &pts);}
 
 };
 

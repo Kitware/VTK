@@ -69,13 +69,14 @@ class VTK_EXPORT vtkImplicitVolume : public vtkImplicitFunction
 {
 public:
   vtkImplicitVolume();
-  const char *GetClassName() {return "vtkImplicitVolume";};
+  ~vtkImplicitVolume();
+  const char *GetClassName() {return "vtkImplicitVolume";}
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description
   // Construct an vtkImplicitVolume with no initial volume; the OutValue
   // set to a large negative number; and the OutGradient set to (0,0,1).
-  static vtkImplicitVolume *New() {return new vtkImplicitVolume;};
+  static vtkImplicitVolume *New() {return new vtkImplicitVolume;}
 
   // Description:
   // Returns the mtime also considering the volume.
@@ -109,7 +110,8 @@ protected:
   vtkStructuredPoints *Volume; // the structured points
   float OutValue;
   float OutGradient[3];
-
+  // to replace a static
+  vtkIdList *PointIds;
 };
 
 #endif

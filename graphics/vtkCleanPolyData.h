@@ -77,7 +77,6 @@ public:
   // Set/Get a spatial locator for speeding the search process. By
   // default an instance of vtkLocator is used.
   void SetLocator(vtkPointLocator *locator);
-  void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
   vtkGetObjectMacro(Locator,vtkPointLocator);
 
   // Description:
@@ -87,6 +86,10 @@ public:
   // Description:
   // Get the MTime of this object also considering the locator.
   unsigned long int GetMTime();
+
+  // Description:
+  // For legacy compatibility. Do not use.
+  void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};  
 
 protected:
   // Usual data generation method

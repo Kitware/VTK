@@ -171,16 +171,12 @@ public:
   // Description:
   // Given a list of point ids, return an array of scalar values.
   void GetScalars(vtkIdList *ptIds, vtkScalars *fv);
-  void GetScalars(vtkIdList& ptIds, vtkScalars& fv) 
-    {this->GetScalars(&ptIds, &fv);}
 
   // Description:
   // Get the scalar values for the range of points ids specified 
   // (i.e., p1->p2 inclusive). You must insure that the vtkScalars has 
   // been previously allocated with enough space to hold the data.
   void GetScalars(int p1, int p2, vtkScalars *fs);
-  void GetScalars(int p1, int p2, vtkScalars& fs) 
-    {this->GetScalars(p1, p2, &fs);}
   
   // Description:
   // Initialize the traversal of the scalar data to generate colors 
@@ -198,6 +194,13 @@ public:
   // invoking this method.
   unsigned char *GetColor(int id) {
     return (this->*(this->CurrentColorFunction))(id);};
+
+  // Description:
+  // For legacy compatibility. Do not use.
+  void GetScalars(vtkIdList& ptIds, vtkScalars& fv) 
+    {this->GetScalars(&ptIds, &fv);}
+  void GetScalars(int p1, int p2, vtkScalars& fs) 
+    {this->GetScalars(p1, p2, &fs);}
 
 protected:
   float Range[8];

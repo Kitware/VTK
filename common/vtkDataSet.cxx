@@ -57,15 +57,10 @@ vtkDataSet::vtkDataSet ()
 
   this->PointData = vtkPointData::New();
   this->CellData = vtkCellData::New();
-  this->Cell = NULL;
 }
 
 vtkDataSet::~vtkDataSet ()
 {
-  if (this->Cell)
-    {
-    this->Cell->UnRegister(this);
-    }
   this->PointData->Delete();
   this->CellData->Delete();
 }

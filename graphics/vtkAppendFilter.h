@@ -68,12 +68,10 @@ public:
   // Description:
   // Add a dataset to the list of data to append.
   void AddInput(vtkDataSet *in);
-  void AddInput(vtkDataSet& in) {this->AddInput(&in);}
 
   // Description:
   // Remove a dataset from the list of data to append.
   void RemoveInput(vtkDataSet *in);
-  void RemoveInput(vtkDataSet& in) {this->RemoveInput(&in);}
 
   // Description:
   // Return the list of inputs to this filter.
@@ -82,6 +80,11 @@ public:
   // filter interface
   void Update();
 
+  // Description:
+  // For legacy compatibility. Do not use.
+  void AddInput(vtkDataSet& in) {this->AddInput(&in);}
+  void RemoveInput(vtkDataSet& in) {this->RemoveInput(&in);}
+  
 protected:
   // Usual data generation method
   void Execute();

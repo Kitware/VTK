@@ -179,7 +179,7 @@ float *vtkOpenGLProjectedPolyDataRayBounder::Draw( vtkRenderer *ren,
   // Put the volume's matrix on the stack
   position_matrix->Transpose();
   glPushMatrix();
-  glMultMatrixf( (*position_matrix)[0] );
+  glMultMatrixf( &(position_matrix->Element[0][0]) );
 
   // Do the far buffer 
   glDepthFunc( GL_GREATER );
@@ -233,7 +233,7 @@ float *vtkOpenGLProjectedPolyDataRayBounder::Draw( vtkRenderer *ren,
     
     // Create the perspective matrix for the camera.  This will be used
     // to decode z values, so we will need to inverted
-    transform->SetMatrix( ren->GetActiveCamera()->GetPerspectiveTransform(
+    transform->SetMatrix(*ren->GetActiveCamera()->GetPerspectiveTransformMatrix(
       aspect, -1, 1 ) );
     transform->Inverse();
     
@@ -286,8 +286,8 @@ float *vtkOpenGLProjectedPolyDataRayBounder::Draw( vtkRenderer *ren,
     
     // Create the perspective matrix for the camera.  This will be used
     // to decode z values, so we will need to invert it
-    transform->SetMatrix( 
-      ren->GetActiveCamera()->GetPerspectiveTransform( aspect, -1, 1 ) );
+    transform->SetMatrix(
+      *ren->GetActiveCamera()->GetPerspectiveTransformMatrix( aspect, -1, 1 ) );
     transform->Inverse();
     
     // To speed things up, we pull the matrix out of the transform. 

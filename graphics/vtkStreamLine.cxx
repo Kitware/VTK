@@ -129,7 +129,7 @@ void vtkStreamLine::Execute()
 
     if ( pts->GetNumberOfIds() > 1 )
       {
-      newLines->InsertNextCell(*pts);
+      newLines->InsertNextCell(pts);
       pts->Reset();
       }
     } //for all streamers

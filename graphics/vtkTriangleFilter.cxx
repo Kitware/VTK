@@ -80,7 +80,7 @@ void vtkTriangleFilter::Execute()
     else if ( npts > 3 ) // triangulate poly
       {
       poly->Initialize(npts,pts,inPoints);
-      poly->Triangulate(*outVerts);
+      poly->Triangulate(outVerts);
       for (i=0; i<outVerts->GetNumberOfIds()/3; i++)
         {
         newPolys->InsertNextCell(3);

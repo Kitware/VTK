@@ -228,15 +228,15 @@ static void ComputeGradients( vtkNormalEncoder *encoder, T *data_ptr,
 // when magnitude of gradient opacities are included
 vtkNormalEncoder::vtkNormalEncoder()
 {
+  this->Threader = vtkMultiThreader::New();
   this->ScalarInput                = NULL;
   this->EncodedNormal              = NULL;
   this->GradientMagnitude          = NULL;
   this->GradientMagnitudeScale     = 1.0;
   this->GradientMagnitudeBias      = 0.0;
   this->IndexTableInitialized      = 0;
-  this->NumberOfThreads            = this->Threader.GetNumberOfThreads();
+  this->NumberOfThreads            = this->Threader->GetNumberOfThreads();
   this->SampleSpacingInVoxels      = 1;
-
 }
 
 // Destruct a vtkNormalEncoder - free up any memory used
@@ -247,6 +247,9 @@ vtkNormalEncoder::~vtkNormalEncoder()
 
   if ( this->GradientMagnitude )
     delete [] this->GradientMagnitude;
+  
+  this->Threader->Delete();
+  this->Threader = NULL;
 }
 
 
@@ -441,12 +444,12 @@ void vtkNormalEncoder::UpdateNormals( )
   memcpy( this->ScalarInputSize, scalar_input_size, 3 * sizeof(int) );
   memcpy( this->ScalarInputAspect, scalar_input_aspect, 3 * sizeof(float) );
 
-  this->Threader.SetNumberOfThreads( this->NumberOfThreads );
+  this->Threader->SetNumberOfThreads( this->NumberOfThreads );
 
-  this->Threader.SetSingleMethod( SwitchOnDataType,
+  this->Threader->SetSingleMethod( SwitchOnDataType,
 				  (vtkObject *)this );
 
-  this->Threader.SingleMethodExecute();
+  this->Threader->SingleMethodExecute();
 
 }
 

@@ -109,7 +109,7 @@ void vtkShrinkFilter::Execute()
 
       outPD->CopyData(pd, oldId, newId);
       }
-    output->InsertNextCell(input->GetCellType(cellId), *newPtIds);
+    output->InsertNextCell(input->GetCellType(cellId), newPtIds);
     }
   //
   // Update ourselves and release memory

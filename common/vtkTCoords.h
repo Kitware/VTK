@@ -117,8 +117,11 @@ public:
 
   // Description:
   // Get a list of texture coordinates
-  void GetTCoords(vtkIdList& ptId, vtkTCoords& fv);
+  void GetTCoords(vtkIdList *ptId, vtkTCoords *fv);
 
+  // Description:
+  // For legacy compatibility. Do not use.
+  void GetTCoords(vtkIdList& ptId, vtkTCoords& fv) {this->GetTCoords(&ptId, &fv);}
 };
 
 inline vtkAttributeData *vtkTCoords::MakeObject()

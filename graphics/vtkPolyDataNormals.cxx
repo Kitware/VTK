@@ -364,7 +364,7 @@ void vtkPolyDataNormals::TraverseAndOrder (int cellId)
     p1 = pts[j];
     p2 = pts[(j+1)%npts];
 
-    OldMesh->GetCellEdgeNeighbors(cellId, p1, p2, *cellIds);
+    OldMesh->GetCellEdgeNeighbors(cellId, p1, p2, cellIds);
     //
     //  Check the direction of the neighbor ordering.  Should be
     //  consistent with us (i.e., if we are n1->n2, neighbor should be n2->n1).
@@ -463,7 +463,7 @@ void vtkPolyDataNormals::MarkAndReplace (int cellId, int n,
 
   for (i=0; i<2; i++) 
     {
-    OldMesh->GetCellEdgeNeighbors(cellId, n, neiNode[i], *cellIds);
+    OldMesh->GetCellEdgeNeighbors(cellId, n, neiNode[i], cellIds);
     if ( cellIds->GetNumberOfIds() == 1 && Visited[cellIds->GetId(0)] != Mark)
       {
       thisNormal = PolyNormals->GetNormal(cellId);

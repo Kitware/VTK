@@ -65,10 +65,13 @@ public:
   // Description:
   // Set / get the input data or filter.
   void SetInput(vtkStructuredPoints *input);
-  void SetInput(vtkStructuredPoints &input) {this->SetInput(&input);};
   void SetInput(vtkImageCache *cache)
     {this->SetInput(cache->GetImageToStructuredPoints()->GetOutput());}
   vtkStructuredPoints *GetInput() {return (vtkStructuredPoints *)this->Input;};
+
+  // Description:
+  // For legacy compatibiltiy. Do not use.
+  //void SetInput(vtkStructuredPoints &input) {this->SetInput(&input);};
 };
 
 #endif

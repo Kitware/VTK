@@ -100,12 +100,15 @@ public:
   // Specify a spatial locator for merging points. By
   // default an instance of vtkMergePoints is used.
   void SetLocator(vtkPointLocator *locator);
-  void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
   vtkGetObjectMacro(Locator,vtkPointLocator);
 
   // Description:
   // Create default locator. Used to create one when none is specified.
   void CreateDefaultLocator();
+
+  // Description:
+  // For legacy compatibiltiy. Do not use.
+  void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
 
 protected:
   void Execute();

@@ -56,7 +56,7 @@ vtkTensors::~vtkTensors()
 void vtkTensors::GetTensor(int id, vtkTensor *ft)
 {
   vtkTensor *t = this->GetTensor(id);
-  ft->DeepCopy(*t);
+  ft->DeepCopy(t);
 }
 
 void vtkTensors::SetTensor(int id, vtkTensor *t)

@@ -95,6 +95,9 @@ static float ComputeSingleTriangleError(float x[3], float x1[3], float x2[3]);
 // degree is 25. Error accumulation is turned off.
 vtkDecimatePro::vtkDecimatePro()
 {
+  this->Neighbors = new vtkIdList(VTK_MAX_TRIS_PER_VERTEX);
+  this->EdgeLengths = vtkPriorityQueue::New();
+  
   this->InflectionPoints = vtkFloatArray::New();
   this->TargetReduction = 0.90;
   this->FeatureAngle = 15.0;
@@ -117,6 +120,8 @@ vtkDecimatePro::~vtkDecimatePro()
   this->InflectionPoints->Delete();
   if ( this->Queue ) delete this->Queue;
   if ( this->VertexError ) this->VertexError->Delete();
+  this->Neighbors->Delete();
+  this->EdgeLengths->Delete();
 }
 
 //
@@ -277,14 +282,14 @@ void vtkDecimatePro::Execute()
 
       // FindSplit finds the edge to collapse - and if it fails, we
       // split the vertex.
-      collapseId = this->FindSplit (type, fedges, pt1, pt2, *CollapseTris);
+      collapseId = this->FindSplit (type, fedges, pt1, pt2, CollapseTris);
 
       if ( collapseId >= 0 )
         {
         if ( this->AccumulateError ) this->DistributeError(error);
 
-        totalEliminated += this->CollapseEdge(type, ptId, collapseId, pt1, pt2, 
-                                        *CollapseTris);
+        totalEliminated += this->CollapseEdge(type, ptId, collapseId, pt1, pt2,
+					      CollapseTris);
 
         reduction = (float) totalEliminated / numTris;
         NumberOfRemainingTris = numTris - totalEliminated;
@@ -438,7 +443,6 @@ int vtkDecimatePro::EvaluateVertex(int ptId, unsigned short int numTris, int *tr
                           int fedges[2])
 {
   int numVerts, numNei, numFEdges;
-  static vtkIdList nei(VTK_MAX_TRIS_PER_VERTEX);
   vtkLocalTri t;
   vtkProLocalVertex sn;
   int startVertex, nextVertex;
@@ -448,8 +452,6 @@ int vtkDecimatePro::EvaluateVertex(int ptId, unsigned short int numTris, int *tr
   //
   //  The first step is to evaluate topology.
   //
-
-  nei.ReferenceCountingOff();
 
   // Check cases with high vertex degree
   //
@@ -485,8 +487,8 @@ int vtkDecimatePro::EvaluateVertex(int ptId, unsigned short int numTris, int *tr
   V->InsertNextVertex(sn);
 
   nextVertex = -1; // initialize
-  nei.Reset();
-  nei.InsertId(0,*tris);
+  this->Neighbors->Reset();
+  this->Neighbors->InsertId(0,*tris);
   numNei = 1;
   //
   //  Traverse the edge neighbors and see whether a cycle can be
@@ -495,7 +497,7 @@ int vtkDecimatePro::EvaluateVertex(int ptId, unsigned short int numTris, int *tr
   //
   while ( T->MaxId < numTris && numNei == 1 && nextVertex != startVertex) 
     {
-    t.id = nei.GetId(0);
+    t.id = this->Neighbors->GetId(0);
     T->InsertNextTriangle(t);
 
     Mesh->GetCellPoints(t.id,numVerts,verts);
@@ -512,8 +514,8 @@ int vtkDecimatePro::EvaluateVertex(int ptId, unsigned short int numTris, int *tr
     Mesh->GetPoint(sn.id, sn.x);
     V->InsertNextVertex(sn);
 
-    Mesh->GetCellEdgeNeighbors(t.id, ptId, nextVertex, nei);
-    numNei = nei.GetNumberOfIds();
+    Mesh->GetCellEdgeNeighbors(t.id, ptId, nextVertex, this->Neighbors);
+    numNei = this->Neighbors->GetNumberOfIds();
     } 
   //
   //  See whether we've run around the loop, hit a boundary, or hit a
@@ -564,15 +566,15 @@ int vtkDecimatePro::EvaluateVertex(int ptId, unsigned short int numTris, int *tr
     V->InsertNextVertex(sn);
 
     nextVertex = -1;
-    nei.Reset();
-    nei.InsertId(0,t.id);
+    this->Neighbors->Reset();
+    this->Neighbors->InsertId(0,t.id);
     numNei = 1;
     //
     //  Now move from boundary edge around the other way.
     //
     while ( T->MaxId < numTris && numNei == 1 && nextVertex != startVertex) 
       {
-      t.id = nei.GetId(0);
+      t.id = this->Neighbors->GetId(0);
       T->InsertNextTriangle(t);
 
       Mesh->GetCellPoints(t.id,numVerts,verts);
@@ -590,8 +592,8 @@ int vtkDecimatePro::EvaluateVertex(int ptId, unsigned short int numTris, int *tr
       Mesh->GetPoint(sn.id, sn.x);
       V->InsertNextVertex(sn);
 
-      Mesh->GetCellEdgeNeighbors(t.id, ptId, nextVertex, nei);
-      numNei = nei.GetNumberOfIds();
+      Mesh->GetCellEdgeNeighbors(t.id, ptId, nextVertex, this->Neighbors);
+      numNei = this->Neighbors->GetNumberOfIds();
       }
     //
     //  Make sure that there are only two boundaries (i.e., not non-manifold)
@@ -891,7 +893,7 @@ void vtkDecimatePro::SplitVertex(int ptId, int type, unsigned short int numTris,
         {
         for ( tri=startTri; p[j] >= 0; )
           {
-          Mesh->GetCellEdgeNeighbors(tri, ptId, p[j], *cellIds);
+          Mesh->GetCellEdgeNeighbors(tri, ptId, p[j], cellIds);
           if ( cellIds->GetNumberOfIds() == 1 && 
 	       triangles->IsId((tri=cellIds->GetId(0)))
 	       && group->GetNumberOfIds() < maxGroupSize )
@@ -940,17 +942,14 @@ void vtkDecimatePro::SplitVertex(int ptId, int type, unsigned short int numTris,
 // bad situation and we'll split the vertex.
 //
 int vtkDecimatePro::FindSplit (int type, int fedges[2], int& pt1, int& pt2, 
-			       vtkIdList& CollapseTris)
+			       vtkIdList *CollapseTris)
 {
   int i, maxI;
   float dist2, e2dist2;
   int numVerts=V->MaxId+1;
-  static vtkPriorityQueue EdgeLengths(VTK_MAX_TRIS_PER_VERTEX);
 
-  EdgeLengths.ReferenceCountingOff();
-
-  CollapseTris.SetNumberOfIds(2);
-  EdgeLengths.Reset();
+  CollapseTris->SetNumberOfIds(2);
+  EdgeLengths->Reset();
 
   switch (type)
     {
@@ -959,40 +958,40 @@ int vtkDecimatePro::FindSplit (int type, int fedges[2], int& pt1, int& pt2,
       if ( type == VTK_INTERIOR_EDGE_VERTEX )
         {
         dist2 = vtkMath::Distance2BetweenPoints(X, V->Array[fedges[0]].x);
-        EdgeLengths.Insert(dist2,fedges[0]);
+        EdgeLengths->Insert(dist2,fedges[0]);
 
         dist2 = vtkMath::Distance2BetweenPoints(X, V->Array[fedges[1]].x);
-        EdgeLengths.Insert(dist2,fedges[1]);
+        EdgeLengths->Insert(dist2,fedges[1]);
         }
       else // Compute the edge lengths
         {
         for ( i=0; i < numVerts; i++ )
           {
           dist2 = vtkMath::Distance2BetweenPoints(X, V->Array[i].x);
-          EdgeLengths.Insert(dist2,i);
+          EdgeLengths->Insert(dist2,i);
           }
         }
 
       // See whether the collapse is okay
-      while ( (maxI = EdgeLengths.Pop(dist2)) >= 0 )
+      while ( (maxI = EdgeLengths->Pop(dist2)) >= 0 )
         {
         if ( this->IsValidSplit(maxI) ) break;
         }
 
       if ( maxI >= 0 )
         {
-        CollapseTris.SetId(0,T->Array[maxI].id);
+        CollapseTris->SetId(0,T->Array[maxI].id);
         if ( maxI == 0 )
           {
           pt1 = V->Array[1].id;
           pt2 = V->Array[V->MaxId].id;
-          CollapseTris.SetId(1,T->Array[T->MaxId].id);
+          CollapseTris->SetId(1,T->Array[T->MaxId].id);
           }
         else
           {
           pt1 = V->Array[(maxI+1)%numVerts].id;
           pt2 = V->Array[maxI-1].id;
-          CollapseTris.SetId(1,T->Array[maxI-1].id);
+          CollapseTris->SetId(1,T->Array[maxI-1].id);
           }
 
         return V->Array[maxI].id;
@@ -1001,7 +1000,7 @@ int vtkDecimatePro::FindSplit (int type, int fedges[2], int& pt1, int& pt2,
 
 
     case VTK_BOUNDARY_VERTEX: //--------------------------------------------
-      CollapseTris.SetNumberOfIds(1);
+      CollapseTris->SetNumberOfIds(1);
       // Compute the edge lengths
       dist2 = vtkMath::Distance2BetweenPoints(X, V->Array[0].x);
       e2dist2 = vtkMath::Distance2BetweenPoints(X, V->Array[V->MaxId].x);
@@ -1022,13 +1021,13 @@ int vtkDecimatePro::FindSplit (int type, int fedges[2], int& pt1, int& pt2,
         {
         if ( maxI == 0 )
           {
-          CollapseTris.SetId(0,T->Array[0].id);
+          CollapseTris->SetId(0,T->Array[0].id);
           pt1 = V->Array[1].id;
           return V->Array[0].id;
           }
         else
           {
-          CollapseTris.SetId(0,T->Array[T->MaxId].id);
+          CollapseTris->SetId(0,T->Array[T->MaxId].id);
           pt1 = V->Array[V->MaxId-1].id;
           return V->Array[V->MaxId].id;
           }
@@ -1040,10 +1039,10 @@ int vtkDecimatePro::FindSplit (int type, int fedges[2], int& pt1, int& pt2,
       V->MaxId--;
       if ( this->IsValidSplit(0) )
         {
-        CollapseTris.SetId(0,T->Array[0].id);
+        CollapseTris->SetId(0,T->Array[0].id);
         pt1 = V->Array[1].id;
         pt2 = V->Array[V->MaxId].id;
-        CollapseTris.SetId(1,T->Array[T->MaxId].id);
+        CollapseTris->SetId(1,T->Array[T->MaxId].id);
         return V->Array[0].id;
         }
       else V->MaxId++;
@@ -1052,19 +1051,19 @@ int vtkDecimatePro::FindSplit (int type, int fedges[2], int& pt1, int& pt2,
 
     case VTK_DEGENERATE_VERTEX: //-------------------------------------------
       // Collapse to the first edge
-      CollapseTris.SetId(0,T->Array[0].id);
+      CollapseTris->SetId(0,T->Array[0].id);
       pt1 = V->Array[1].id;
       if ( T->MaxId > 0 ) //more than one triangle
         {
         if ( T->MaxId == V->MaxId ) //a complete cycle
           {
-          CollapseTris.SetId(1,T->Array[T->MaxId].id);
+          CollapseTris->SetId(1,T->Array[T->MaxId].id);
           pt2 = V->Array[V->MaxId].id;
           }
         }
       else
 	{
-	CollapseTris.SetNumberOfIds(1);
+	CollapseTris->SetNumberOfIds(1);
 	}
 
       return V->Array[0].id;
@@ -1169,18 +1168,22 @@ void vtkDecimatePro::SplitLoop(int fedges[2], int& n1, int *l1, int& n2, int *l2
 // Collapse the point to the specified vertex. Distribute the error
 // and update neighborhood vertices.
 int vtkDecimatePro::CollapseEdge(int type, int ptId, int collapseId, int pt1, 
-				 int pt2, vtkIdList& CollapseTris)
+				 int pt2, vtkIdList *CollapseTris)
 {
-  int i, numDeleted=CollapseTris.GetNumberOfIds();
+  int i, numDeleted=CollapseTris->GetNumberOfIds();
   int ntris=T->MaxId+1;
   int nverts=V->MaxId+1;
   int tri[2];
   int verts[VTK_MAX_TRIS_PER_VERTEX+1];
 
   NumCollapses++;
-  for ( i=0; i < numDeleted; i++ ) tri[i] = CollapseTris.GetId(i);
+  for ( i=0; i < numDeleted; i++ ) 
+    {
+    tri[i] = CollapseTris->GetId(i);
+    }
 
-  if ( numDeleted == 2 ) // type == VTK_CRACK_TIP_VERTEX || type == VTK_SIMPLE_VERTEX
+  // type == VTK_CRACK_TIP_VERTEX || type == VTK_SIMPLE_VERTEX
+  if ( numDeleted == 2 ) 
     {
     if ( type == VTK_CRACK_TIP_VERTEX ) //got to seal the crack first
       {

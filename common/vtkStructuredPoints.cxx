@@ -320,20 +320,12 @@ vtkCell *vtkStructuredPoints::FindAndGetCell(float x[3],
   int d01 = this->Dimensions[0]*this->Dimensions[1];
   float xOut[3];
   int iMax, jMax, kMax;
-  vtkCell *cell;
+  vtkCell *cell = NULL;
 
   if ( this->ComputeStructuredCoordinates(x, loc, pcoords) == 0 )
     {
     return NULL;
     }
-
-  // Get rid of the reference from the previous call
-  if (this->Cell != NULL)
-    {
-    this->Cell->UnRegister(this);
-    this->Cell = NULL;
-    }
-  cell = NULL;
 
   //
   // Get the parametric coordinates and weights for interpolation
@@ -346,62 +338,57 @@ vtkCell *vtkStructuredPoints::FindAndGetCell(float x[3],
       iMax = loc[0];
       jMax = loc[1];
       kMax = loc[2];
-      cell = vtkVertex::New();
+      cell = this->Vertex;
       break;
 
     case VTK_X_LINE:
       iMax = loc[0] + 1;
       jMax = loc[1];
       kMax = loc[2];
-      cell = vtkLine::New();
+      cell = this->Line;
       break;
 
     case VTK_Y_LINE:
       iMax = loc[0];
       jMax = loc[1] + 1;
       kMax = loc[2];
-      cell = vtkLine::New();
+      cell = this->Line;
       break;
 
     case VTK_Z_LINE:
       iMax = loc[0];
       jMax = loc[1];
       kMax = loc[2] + 1;
-      cell = vtkLine::New();
+      cell = this->Line;
       break;
 
     case VTK_XY_PLANE:
       iMax = loc[0] + 1;
       jMax = loc[1] + 1;
       kMax = loc[2];
-      cell = vtkPixel::New();
+      cell = this->Pixel;
       break;
 
     case VTK_YZ_PLANE:
       iMax = loc[0];
       jMax = loc[1] + 1;
       kMax = loc[2] + 1;
-      cell = vtkPixel::New();
+      cell = this->Pixel;
       break;
 
     case VTK_XZ_PLANE:
       iMax = loc[0] + 1;
       jMax = loc[1];
       kMax = loc[2] + 1;
-      cell = vtkPixel::New();
+      cell = this->Pixel;
       break;
 
     case VTK_XYZ_GRID:
       iMax = loc[0] + 1;
       jMax = loc[1] + 1;
       kMax = loc[2] + 1;
-      cell = vtkVoxel::New();
+      cell = this->Voxel;
       break;
-    }
-  // sanity check ?
-  if (cell == NULL)
-    {
-    return NULL;
     }
 
   for (npts=0,k = loc[2]; k <= kMax; k++)
@@ -422,11 +409,8 @@ vtkCell *vtkStructuredPoints::FindAndGetCell(float x[3],
     }
 
   subId = 0;
-  this->Cell = cell;
-  this->Cell->Register(this);
-  cell->Delete();
 
-  return this->Cell;
+  return cell;
 }
 
 int vtkStructuredPoints::GetCellType(int vtkNotUsed(cellId))
@@ -473,7 +457,7 @@ void vtkStructuredPoints::ComputeBounds()
 // from which the gradient is to be computed. This method will treat 
 // only 3D structured point datasets (i.e., volumes).
 void vtkStructuredPoints::GetVoxelGradient(int i, int j, int k, vtkScalars *s, 
-                                          vtkVectors& g)
+                                          vtkVectors *g)
 {
   float gv[3];
   int ii, jj, kk, idx=0;
@@ -485,7 +469,7 @@ void vtkStructuredPoints::GetVoxelGradient(int i, int j, int k, vtkScalars *s,
       for ( ii=0; ii < 2; ii++)
         {
         this->GetPointGradient(i+ii, j+jj, k+kk, s, gv);
-        g.SetVector(idx++, gv);
+        g->SetVector(idx++, gv);
         }
       } 
     }
@@ -663,6 +647,25 @@ vtkStructuredPointsToImage *vtkStructuredPoints::GetStructuredPointsToImage()
     }
   
   return this->StructuredPointsToImage;
+}
+
+//----------------------------------------------------------------------------
+// Check to see if we own a StructuredPointsToImage which has registered
+// this cache.
+void vtkStructuredPoints::UnRegister(vtkObject* o)
+{
+  // this is the special test. I own StructuredPointsToImage, 
+  // but it has registered me.
+  if (this->GetReferenceCount() == 2 && 
+      this->StructuredPointsToImage != NULL &&
+      this->StructuredPointsToImage->GetInput() == this)
+    {
+    vtkStructuredPointsToImage *temp = this->StructuredPointsToImage;
+    this->StructuredPointsToImage = NULL;    
+    temp->Delete();
+    }
+
+  this->vtkObject::UnRegister(o);  
 }
 
 

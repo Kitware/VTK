@@ -108,8 +108,12 @@ public:
 
   // Description:
   // Given a list of pt ids, return an array of normals.
-  void GetNormals(vtkIdList& ptId, vtkNormals& fn);
+  void GetNormals(vtkIdList *ptId, vtkNormals *fn);
 
+  // Description:
+  // For legacy compatibility. 
+  void GetNormals(vtkIdList& ptId, vtkNormals& fn) {this->GetNormals(&ptId, &fn);}
+  
 };
 
 

@@ -80,7 +80,7 @@ public:
   int GetDataSetType() {return VTK_UNSTRUCTURED_GRID;};
   void Allocate(int numCells=1000, int extSize=1000);
   int InsertNextCell(int type, int npts, int *pts);
-  int InsertNextCell(int type, vtkIdList& ptIds);
+  int InsertNextCell(int type, vtkIdList *ptIds);
   void Reset();
   void SetCells(int *types, vtkCellArray *cells);
   vtkCellArray *GetCells() {return this->Connectivity;};
@@ -103,11 +103,13 @@ public:
   void ResizeCellList(int ptId, int size);
 
   // Description:
-  // For legacy compatability. Do not use.
+  // For legacy compatibility. Do not use.
   void GetCellPoints(int cellId, vtkIdList &ptIds)
     {this->GetCellPoints(cellId, &ptIds);}
   void GetPointCells(int ptId, vtkIdList &cellIds)
     {this->GetPointCells(ptId, &cellIds);}
+  int InsertNextCell(int type, vtkIdList &pts) {return this->InsertNextCell(type, &pts);}
+  
 
 protected:
   // used by GetCell method

@@ -200,13 +200,14 @@ void vtkExtractUnstructuredGrid::Execute()
 	ptId = cell->PointIds->GetId(i);
 	if ( pointMap[ptId] < 0 )
 	  {
-	  pointMap[ptId] = newPtId = newPts->InsertNextPoint(inPts->GetPoint(ptId));
+	  pointMap[ptId] = newPtId 
+	    = newPts->InsertNextPoint(inPts->GetPoint(ptId));
 	  outputPD->CopyData(pd, ptId, newPtId);
 	  }
 	cellIds->InsertNextId(pointMap[ptId]);
 	}
 
-      newCellId = output->InsertNextCell(input->GetCellType(cellId), *cellIds);
+      newCellId = output->InsertNextCell(input->GetCellType(cellId), cellIds);
       outputCD->CopyData(cd, cellId, newCellId);
 	
       } //if visible

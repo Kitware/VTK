@@ -189,7 +189,7 @@ class VTK_EXPORT vtkActor : public vtkProp
   vtkGetMacro(AllocatedRenderTime, float);
   
   // Description:
-  // For legacy compatability. Do not use.
+  // For legacy compatibility. Do not use.
   void SetProperty(vtkProperty& lut) {this->SetProperty(&lut);};
   void SetBackfaceProperty(vtkProperty& lut) 
     {this->SetBackfaceProperty(&lut);};

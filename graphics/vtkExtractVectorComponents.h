@@ -79,7 +79,6 @@ public:
   // Description:
   // Specify the input data or filter.
   virtual void SetInput(vtkDataSet *input);
-  void SetInput(vtkDataSet &input) {this->SetInput(&input);};
 
   // Description:
   // Get the output dataset representing velocity x-component. If output is
@@ -108,6 +107,9 @@ public:
   // vector component. By default, the x component is extracted.
   vtkDataSet *GetOutput(int i=0); //default extracts vector component.
 
+  // Description:
+  // For legacy compatibility. Do not use.
+  void SetInput(vtkDataSet &input) {this->SetInput(&input);};
 
 protected:
   void Execute();

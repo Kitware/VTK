@@ -202,6 +202,7 @@ void Set##name (type& _arg) \
   { \
   this->Set##name (&_arg);\
   } 
+// ^^^ legacy do not use ^^^
 
 //
 // Set pointer to object; uses vtkObject reference counting methodology.

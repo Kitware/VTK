@@ -63,9 +63,12 @@ public:
   // Description:
   // Set / get the input to the filter.
   virtual void SetInput(vtkDataObject *input);
-  void SetInput(vtkDataObject &input) {this->SetInput(&input);};
   vtkDataObject *GetInput() {return this->Input;};
 
+  // Description:
+  // For legacy compatibility. Do not use.
+  void SetInput(vtkDataObject &input) {this->SetInput(&input);};
+  
 };
 
 #endif

@@ -122,29 +122,29 @@ void vtkIntArray::Initialize()
 }
 
 // Deep copy of another integer array.
-void vtkIntArray::DeepCopy(vtkDataArray& ia)
+void vtkIntArray::DeepCopy(vtkDataArray *ia)
 {
-  if ( ia.GetDataType() != VTK_INT )
+  if ( ia->GetDataType() != VTK_INT )
     {
       vtkDataArray::DeepCopy(ia);
       return;
     }
 
-  if ( this != &ia )
+  if ( this != ia )
     {
     if ((this->Array) && (!this->SaveUserArray))
       {
       delete [] this->Array;
       }
 
-    this->NumberOfComponents = ia.GetNumberOfComponents();
-    this->MaxId = ia.GetMaxId();
-    this->Size = ia.GetSize();
-    this->Extend = ia.GetExtend();
+    this->NumberOfComponents = ia->GetNumberOfComponents();
+    this->MaxId = ia->GetMaxId();
+    this->Size = ia->GetSize();
+    this->Extend = ia->GetExtend();
     this->SaveUserArray = 0;
 
     this->Array = new int[this->Size];
-    memcpy(this->Array, (int *)ia.GetVoidPointer(0), this->Size*sizeof(int));
+    memcpy(this->Array, (int *)ia->GetVoidPointer(0), this->Size*sizeof(int));
     }
 }
 

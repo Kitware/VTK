@@ -71,7 +71,6 @@ public:
   // Description:
   // Specify the input data to map.
   void SetInput(vtkDataSet *in);
-  void SetInput(vtkDataSet& in) {this->SetInput(&in);};
   void SetInput(vtkImageCache *cache)
     {this->SetInput(cache->GetImageToStructuredPoints()->GetOutput());}
   
@@ -82,6 +81,10 @@ public:
   // Description:
   // Get the mtime also considering the lookup table.
   unsigned long GetMTime();
+
+  // Description:
+  // For legacy compatibility. Do not use.
+  void SetInput(vtkDataSet& in) {this->SetInput(&in);};
 
 protected:
   vtkGeometryFilter *GeometryExtractor;

@@ -77,6 +77,7 @@ void vtkSubdivideTetra::Execute()
   (type=types->GetCellType(0)) != VTK_TETRA )
     {
     vtkErrorMacro(<<"Must be tetrahedra");
+    types->Delete();
     return;
     }
   connections = input->GetCells();
@@ -238,8 +239,8 @@ void vtkSubdivideTetra::Execute()
 
   vtkDebugMacro(<<"Subdivided " << numCells << " cells");
 
-  types->Delete();
   locator->Delete();
+  types->Delete();
   newPts->Delete();
   output->Squeeze();
 }

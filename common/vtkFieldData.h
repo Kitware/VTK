@@ -170,11 +170,11 @@ public:
 
   // Description:
   // Copy a field by creating new data arrays (i.e., duplicate storage).
-  void DeepCopy(vtkFieldData& da);
+  void DeepCopy(vtkFieldData *da);
 
   // Description:
   // Copy a field by reference counting the data arrays.
-  void ShallowCopy(vtkFieldData& da);
+  void ShallowCopy(vtkFieldData *da);
 
   // Description:
   // Squeezes each data array in the field (Squeeze() reclaims unused memory.)
@@ -188,9 +188,15 @@ public:
   // Description:
   // Get a field from a list of ids. Supplied field f should have same types 
   // and number of data arrays as this one (i.e., like MakeObject() returns).
-  void GetField(vtkIdList& ptId, vtkFieldData& f);
+  void GetField(vtkIdList *ptId, vtkFieldData *f);
 
-
+  // Description:
+  // For legacy compatibility. Do not use.
+  void DeepCopy(vtkFieldData &da) {this->DeepCopy(&da);}
+  void ShallowCopy(vtkFieldData &da) {this->ShallowCopy(&da);}
+  void GetField(vtkIdList& ptId, vtkFieldData& f) {this->GetField(&ptId, &f);}
+  
+  
 protected:
   int NumberOfArrays;
   vtkDataArray **Data;

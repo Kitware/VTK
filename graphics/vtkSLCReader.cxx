@@ -182,6 +182,7 @@ void vtkSLCReader::Execute()
 	{
           vtkErrorMacro( << 
 	    "Unable to read slice " << z_counter << " from SLC File" );
+	  newScalars->Delete();
 	  return;
 	}
 
@@ -201,6 +202,7 @@ void vtkSLCReader::Execute()
 	{
           vtkErrorMacro( << "Unable to read compressed slice " << 
 	    z_counter << " from SLC File" );
+	  newScalars->Delete();
 	  return;
 	}
 

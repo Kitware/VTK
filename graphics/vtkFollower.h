@@ -86,9 +86,9 @@ class VTK_EXPORT vtkFollower : public vtkActor
   vtkGetObjectMacro(Camera,vtkCamera);
 
   // Description:
-  // For legacy compatability. Do not use.
+  // For legacy compatibility. Do not use.
   void GetMatrix(vtkMatrix4x4 &m) {this->GetMatrix(&m);}
-
+  
 protected:
   vtkCamera *Camera; 
   vtkActor  *Device;

@@ -103,7 +103,7 @@ void vtkFeatureEdges::Execute()
   Mesh->SetPolys(inPolys);
   Mesh->BuildLinks();
   //
-  //  Allocate storage for lines/points (arbitrary allocations size)
+  // Allocate storage for lines/points (arbitrary allocations size)
   //
   newPts = vtkPoints::New();
   newPts->Allocate(numPts/10,numPts); 
@@ -111,9 +111,10 @@ void vtkFeatureEdges::Execute()
   newScalars->Allocate(numPts/10,numPts);
   newLines = vtkCellArray::New();
   newLines->Allocate(numPts/10);
-//
-//  Loop over all polygons generating boundary, non-manifold, and feature edges
-//
+  //
+  // Loop over all polygons generating boundary, non-manifold, 
+  // and feature edges
+  //
   if ( this->FeatureEdges ) 
     {    
     polyNormals = vtkNormals::New();
@@ -141,7 +142,7 @@ void vtkFeatureEdges::Execute()
       p1 = pts[i];
       p2 = pts[(i+1)%npts];
 
-      Mesh->GetCellEdgeNeighbors(cellId,p1,p2,*neighbors);
+      Mesh->GetCellEdgeNeighbors(cellId,p1,p2, neighbors);
       numNei = neighbors->GetNumberOfIds();
 
       if ( this->BoundaryEdges && numNei < 1 )

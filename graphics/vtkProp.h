@@ -69,6 +69,10 @@ class VTK_EXPORT vtkProp : public vtkObject
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Shallow copy.
+  vtkProp &operator=(const vtkProp& Prop);
+
+  // Description:
   // All concrete subclasses must implement a Render method.
   virtual void Render(vtkRenderer *ren) = 0;
 
@@ -231,8 +235,7 @@ class VTK_EXPORT vtkProp : public vtkObject
     if (this->PickMethod) (*this->PickMethod)(this->PickMethodArg);};
 
   // Description:
-  // For legacy compatability. Do not use.
-  vtkProp &operator=(const vtkProp& Prop);
+  // For legacy compatibility. Do not use.
   vtkMatrix4x4& GetMatrix() {return *(this->GetMatrixPointer());}
   void GetMatrix(vtkMatrix4x4 &m) {this->GetMatrix(&m);}
 

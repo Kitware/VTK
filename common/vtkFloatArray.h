@@ -157,7 +157,7 @@ public:
 
   // Description:
   // Deep copy of another float array.
-  void DeepCopy(vtkDataArray& fa);
+  void DeepCopy(vtkDataArray *fa);
 
   // Description:
   // This method lets the user specify data to be held by the array.  The 
@@ -168,6 +168,11 @@ public:
   // from the suppled array.
   void SetArray(float* array, int size, int save);
 
+  // Description:
+  // For legacy compatibility. Do not use.
+  void DeepCopy(vtkDataArray &fa) {this->DeepCopy(&fa);}
+  
+  
 private:
   float *Array;  // pointer to data
   float *Resize(const int sz);  // function to reallocate data

@@ -124,23 +124,22 @@ void vtkCharArray::Initialize()
 }
 
 // Deep copy of another char array.
-void vtkCharArray::DeepCopy(vtkDataArray& ia)
+void vtkCharArray::DeepCopy(vtkDataArray *ia)
 {
-  if ( this != &ia )
+  if ( this != ia )
     {
     if ((this->Array) && (!this->SaveUserArray))
       {
 	delete [] this->Array;
       }
 
-    this->NumberOfComponents = ia.GetNumberOfComponents();
-    this->MaxId = ia.GetMaxId();
-    this->Size = ia.GetSize();
-    this->Extend = ia.GetExtend();
+    this->NumberOfComponents = ia->GetNumberOfComponents();
+    this->MaxId = ia->GetMaxId();
+    this->Size = ia->GetSize();
+    this->Extend = ia->GetExtend();
     this->SaveUserArray = 0;
     this->Array = new char[this->Size];
-    memcpy(this->Array, (char*) ia.GetVoidPointer(0), this->Size*sizeof(char));
-
+    memcpy(this->Array, (char*) ia->GetVoidPointer(0), this->Size*sizeof(char));
     }
 }
 

@@ -260,7 +260,7 @@ void vtkLinearExtrusionFilter::Execute()
           {
           p1 = edge->PointIds->GetId(j);
           p2 = edge->PointIds->GetId(j+1);
-          mesh->GetCellEdgeNeighbors(cellId, p1, p2, *cellIds);
+          mesh->GetCellEdgeNeighbors(cellId, p1, p2, cellIds);
 
           if ( cellIds->GetNumberOfIds() < 1 ) //generate strip
             {

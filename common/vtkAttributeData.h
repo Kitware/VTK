@@ -119,9 +119,14 @@ public:
   // Different ways to copy data. Shallow copy does reference count (i.e.,
   // assigns pointers and updates reference count); deep copy runs through
   // entire data array assigning values.
-  virtual void DeepCopy(vtkAttributeData& ad);
-  virtual void ShallowCopy(vtkAttributeData& ad);
+  virtual void DeepCopy(vtkAttributeData *ad);
+  virtual void ShallowCopy(vtkAttributeData *ad);
 
+  // Description:
+  // For legacy compatibility. Do not use.
+  void DeepCopy(vtkAttributeData &ad) {this->DeepCopy(&ad);}
+  void ShallowCopy(vtkAttributeData &ad) {this->ShallowCopy(&ad);}
+  
 protected:
   vtkDataArray *Data;  // Array which represents data
 

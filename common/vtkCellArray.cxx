@@ -63,7 +63,7 @@ vtkCellArray::vtkCellArray (const vtkCellArray& ca)
   this->NumberOfCells = ca.NumberOfCells;
   this->InsertLocation = 0;
   this->TraversalLocation = 0;
-  this->Ia->DeepCopy(*ca.Ia);
+  this->Ia->DeepCopy(ca.Ia);
 }
 
 vtkCellArray::~vtkCellArray()
@@ -87,3 +87,9 @@ int vtkCellArray::GetMaxCellSize()
     }
   return maxSize;
 }
+
+int vtkCellArray::InsertNextCell(vtkIdList &pts)
+{
+  return this->InsertNextCell(&pts);
+}
+

@@ -147,9 +147,8 @@ public:
   unsigned long int GetMTime();
 
   // Description:
-  // For legacy compatability. Do not use.
+  // For legacy compatibility. Do not use.
   vtkAssembly &operator=(const vtkAssembly& assembly);
-
 
 protected:
   vtkActorCollection *Parts;

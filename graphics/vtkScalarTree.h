@@ -123,8 +123,17 @@ public:
   // initialize traversal. The value NULL is returned if the list is
   // exhausted. Make sure that InitTraversal() has been invoked first or
   // you'll get erratic behavior.
+  vtkCell *GetNextCell(int &cellId, vtkIdList* &ptIds,
+                       vtkScalars *cellScalars);
+
+  // Description:
+  // For legacy compatibiltiy. Do not use.
   vtkCell *GetNextCell(int& cellId, vtkIdList* &ptIds,
-                       vtkScalars& cellScalars);
+                       vtkScalars& cellScalars) 
+    {return this->GetNextCell(cellId, ptIds, &cellScalars);}
+  
+  
+    
 
 protected:
   vtkDataSet *DataSet;

@@ -102,7 +102,7 @@ public:
     return ijk[2]*(dim[0]-1)*(dim[1]-1) + ijk[1]*(dim[0]-1) + ijk[0];};
 
   // Description:
-  // For legacy compatability. Do not use.
+  // For legacy compatibility. Do not use.
   void GetCellPoints(int cellId, vtkIdList &ptIds, int dataDescription, int dim[3])
     {this->GetCellPoints(cellId, &ptIds, dataDescription, dim);}
   void GetPointCells(int ptId, vtkIdList &cellIds, int dim[3])

@@ -300,7 +300,7 @@ void vtkConnectivityFilter::Execute()
           id = this->PointMap[ptIds->GetId(i)];
           ptIds->InsertId(i,id);
           }
-        newCellId = output->InsertNextCell(input->GetCellType(cellId),*ptIds);
+        newCellId = output->InsertNextCell(input->GetCellType(cellId),ptIds);
 	outputCD->CopyData(cd,cellId,newCellId);
         }
       }
@@ -328,7 +328,7 @@ void vtkConnectivityFilter::Execute()
             id = this->PointMap[ptIds->GetId(i)];
             ptIds->InsertId(i,id);
             }
-          newCellId =output->InsertNextCell(input->GetCellType(cellId),*ptIds);
+          newCellId =output->InsertNextCell(input->GetCellType(cellId),ptIds);
 	  outputCD->CopyData(cd,cellId,newCellId);
           }
         }
@@ -346,7 +346,7 @@ void vtkConnectivityFilter::Execute()
           id = this->PointMap[ptIds->GetId(i)];
           ptIds->InsertId(i,id);
           }
-        newCellId = output->InsertNextCell(input->GetCellType(cellId),*ptIds);
+        newCellId = output->InsertNextCell(input->GetCellType(cellId),ptIds);
 	outputCD->CopyData(cd,cellId,newCellId);
         }
       }
@@ -420,7 +420,8 @@ void vtkConnectivityFilter::TraverseAndMark (int cellId)
           float s, range[2];
 
           input->GetCellPoints(cellId, this->NeighborCellPointIds);
-          this->InScalars->GetScalars(*this->NeighborCellPointIds,*this->CellScalars);
+          this->InScalars->GetScalars(this->NeighborCellPointIds,
+				      this->CellScalars);
           numScalars = this->CellScalars->GetNumberOfScalars();
           range[0] = VTK_LARGE_FLOAT; range[1] = -VTK_LARGE_FLOAT;
           for (ii=0; ii < numScalars;  ii++)

@@ -63,7 +63,7 @@ vtkVoxel::~vtkVoxel()
 vtkCell *vtkVoxel::MakeObject()
 {
   vtkCell *cell = vtkVoxel::New();
-  cell->DeepCopy(*this);
+  cell->DeepCopy(this);
   return cell;
 }
 
@@ -425,12 +425,12 @@ int vtkVoxel::IntersectWithLine(float p1[3], float p2[3], float vtkNotUsed(tol),
   return 1;
 }
 
-int vtkVoxel::Triangulate(int index, vtkIdList &ptIds, vtkPoints &pts)
+int vtkVoxel::Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts)
 {
   int p[4], i;
 
-  ptIds.Reset();
-  pts.Reset();
+  ptIds->Reset();
+  pts->Reset();
   //
   // Create five tetrahedron. Triangulation varies depending upon index. This
   // is necessary to insure compatible voxel triangulations.
@@ -440,36 +440,36 @@ int vtkVoxel::Triangulate(int index, vtkIdList &ptIds, vtkPoints &pts)
     p[0] = 0; p[1] = 1; p[2] = 4; p[3] = 2;
     for ( i=0; i < 4; i++ )
       {
-      ptIds.InsertNextId(this->PointIds->GetId(p[i]));
-      pts.InsertNextPoint(this->Points->GetPoint(p[i]));
+      ptIds->InsertNextId(this->PointIds->GetId(p[i]));
+      pts->InsertNextPoint(this->Points->GetPoint(p[i]));
       }
 
     p[0] = 1; p[1] = 4; p[2] = 7; p[3] = 5;
     for ( i=0; i < 4; i++ )
       {
-      ptIds.InsertNextId(this->PointIds->GetId(p[i]));
-      pts.InsertNextPoint(this->Points->GetPoint(p[i]));
+      ptIds->InsertNextId(this->PointIds->GetId(p[i]));
+      pts->InsertNextPoint(this->Points->GetPoint(p[i]));
       }
 
     p[0] = 1; p[1] = 4; p[2] = 2; p[3] = 7;
     for ( i=0; i < 4; i++ )
       {
-      ptIds.InsertNextId(this->PointIds->GetId(p[i]));
-      pts.InsertNextPoint(this->Points->GetPoint(p[i]));
+      ptIds->InsertNextId(this->PointIds->GetId(p[i]));
+      pts->InsertNextPoint(this->Points->GetPoint(p[i]));
       }
 
     p[0] = 1; p[1] = 2; p[2] = 3; p[3] = 7;
     for ( i=0; i < 4; i++ )
       {
-      ptIds.InsertNextId(this->PointIds->GetId(p[i]));
-      pts.InsertNextPoint(this->Points->GetPoint(p[i]));
+      ptIds->InsertNextId(this->PointIds->GetId(p[i]));
+      pts->InsertNextPoint(this->Points->GetPoint(p[i]));
       }
 
     p[0] = 2; p[1] = 7; p[2] = 4; p[3] = 6;
     for ( i=0; i < 4; i++ )
       {
-      ptIds.InsertNextId(this->PointIds->GetId(p[i]));
-      pts.InsertNextPoint(this->Points->GetPoint(p[i]));
+      ptIds->InsertNextId(this->PointIds->GetId(p[i]));
+      pts->InsertNextPoint(this->Points->GetPoint(p[i]));
       }
     }
   else
@@ -477,36 +477,36 @@ int vtkVoxel::Triangulate(int index, vtkIdList &ptIds, vtkPoints &pts)
     p[0] = 3; p[1] = 1; p[2] = 0; p[3] = 5;
     for ( i=0; i < 4; i++ )
       {
-      ptIds.InsertNextId(this->PointIds->GetId(p[i]));
-      pts.InsertNextPoint(this->Points->GetPoint(p[i]));
+      ptIds->InsertNextId(this->PointIds->GetId(p[i]));
+      pts->InsertNextPoint(this->Points->GetPoint(p[i]));
       }
 
     p[0] = 0; p[1] = 3; p[2] = 6; p[3] = 2;
     for ( i=0; i < 4; i++ )
       {
-      ptIds.InsertNextId(this->PointIds->GetId(p[i]));
-      pts.InsertNextPoint(this->Points->GetPoint(p[i]));
+      ptIds->InsertNextId(this->PointIds->GetId(p[i]));
+      pts->InsertNextPoint(this->Points->GetPoint(p[i]));
       }
 
     p[0] = 3; p[1] = 5; p[2] = 6; p[3] = 7;
     for ( i=0; i < 4; i++ )
       {
-      ptIds.InsertNextId(this->PointIds->GetId(p[i]));
-      pts.InsertNextPoint(this->Points->GetPoint(p[i]));
+      ptIds->InsertNextId(this->PointIds->GetId(p[i]));
+      pts->InsertNextPoint(this->Points->GetPoint(p[i]));
       }
 
     p[0] = 0; p[1] = 6; p[2] = 5; p[3] = 4;
     for ( i=0; i < 4; i++ )
       {
-      ptIds.InsertNextId(this->PointIds->GetId(p[i]));
-      pts.InsertNextPoint(this->Points->GetPoint(p[i]));
+      ptIds->InsertNextId(this->PointIds->GetId(p[i]));
+      pts->InsertNextPoint(this->Points->GetPoint(p[i]));
       }
 
     p[0] = 0; p[1] = 3; p[2] = 5; p[3] = 6;
     for ( i=0; i < 4; i++ )
       {
-      ptIds.InsertNextId(this->PointIds->GetId(p[i]));
-      pts.InsertNextPoint(this->Points->GetPoint(p[i]));
+      ptIds->InsertNextId(this->PointIds->GetId(p[i]));
+      pts->InsertNextPoint(this->Points->GetPoint(p[i]));
       }
     }
 

@@ -61,6 +61,7 @@ proc TestObject {kit objectClass} {
 
    # just return if this object is not in the kit
    if {[catch {set pathList [glob "../$kit/$objectClass*"]}] != 0} {
+      if {$DEBUG} {puts "could not find! $objectClass in $kit"}
       return
    }
 
@@ -83,6 +84,7 @@ proc TestObject {kit objectClass} {
 	 set idx [expr $idx + 2]
 	 set methodClass [string trim [lindex $methodList $idx] ":"]
       }
+      if {$DEBUG} {puts "look at: $str"}
       if {[string range $str 0 2] == "Set"} {
 	 regsub "\{" $str " " str
 	 # we found a Set method

@@ -149,7 +149,7 @@ static int FindTriangle(float x[3], int ptIds[3], int tri, vtkPolyData *Mesh,
 
   else if ( !inside && (fabs(minProj) < VTK_DEL2D_TOLERANCE) ) // on edge
     {
-    Mesh->GetCellEdgeNeighbors(tri,nei[1],nei[2],*neighbors);
+    Mesh->GetCellEdgeNeighbors(tri,nei[1],nei[2],neighbors);
     nei[0] = neighbors->GetId(0);
     neighbors->Delete();
     return tri;
@@ -157,7 +157,7 @@ static int FindTriangle(float x[3], int ptIds[3], int tri, vtkPolyData *Mesh,
 
   else //walk towards point
     {
-    Mesh->GetCellEdgeNeighbors(tri,nei[1],nei[2],*neighbors);
+    Mesh->GetCellEdgeNeighbors(tri,nei[1],nei[2],neighbors);
     if ( (newNei=neighbors->GetId(0)) == nei[0] )
       {
       NumberOfDegeneracies++;
@@ -193,7 +193,7 @@ static void CheckEdge(int ptId, float x[3], int p1, int p2, int tri,
   neighbors = vtkIdList::New();
   neighbors->Allocate(2);
 
-  Mesh->GetCellEdgeNeighbors(tri,p1,p2,*neighbors);
+  Mesh->GetCellEdgeNeighbors(tri,p1,p2,neighbors);
   numNei = neighbors->GetNumberOfIds();
 
   if ( numNei > 0 ) //i.e., not a boundary edge
@@ -483,9 +483,9 @@ void vtkDelaunay2D::Execute()
           p1 = triPts[i];
           p2 = triPts[(i+1)%npts];
 
-          if ( this->BoundingTriangulation || (p1 < numPoints && p2 < numPoints ) )
+          if (this->BoundingTriangulation || (p1<numPoints && p2<numPoints))
             {
-            Mesh->GetCellEdgeNeighbors(cellId,p1,p2,*neighbors);
+            Mesh->GetCellEdgeNeighbors(cellId,p1,p2,neighbors);
             numNei = neighbors->GetNumberOfIds();
 
             if ( numNei < 1 || ((nei=neighbors->GetId(0)) > cellId 

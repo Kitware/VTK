@@ -63,9 +63,12 @@ public:
   // Description:
   // Set / get the input data or filter.
   void SetInput(vtkStructuredGrid *input);
-  void SetInput(vtkStructuredGrid &input) {this->SetInput(&input);};
   vtkStructuredGrid *GetInput() {return (vtkStructuredGrid *)this->Input;};
                                
+  // Description:
+  // For legacy compatibiltiy. Do not use.
+  void SetInput(vtkStructuredGrid &input) {this->SetInput(&input);};
+
 protected:
   void WriteData();
 

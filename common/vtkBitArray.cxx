@@ -133,29 +133,29 @@ void vtkBitArray::Initialize()
 }
 
 // Deep copy of another bit array.
-void vtkBitArray::DeepCopy(vtkDataArray& ia)
+void vtkBitArray::DeepCopy(vtkDataArray *ia)
 {
-  if (ia.GetDataType() != VTK_BIT)
+  if (ia->GetDataType() != VTK_BIT)
     {
     vtkDataArray::DeepCopy(ia);
     return;
     }
 
-  if ( this != &ia )
+  if ( this != ia )
     {
     if ((this->Array) && (!this->SaveUserArray))
       {
       delete [] this->Array;
       }
 
-    this->NumberOfComponents = ia.GetNumberOfComponents();
-    this->MaxId = ia.GetMaxId();
-    this->Size = ia.GetSize();
-    this->Extend = ia.GetExtend();
+    this->NumberOfComponents = ia->GetNumberOfComponents();
+    this->MaxId = ia->GetMaxId();
+    this->Size = ia->GetSize();
+    this->Extend = ia->GetExtend();
     this->SaveUserArray = 0;
 
     this->Array = new unsigned char[(this->Size+7)/8];
-    memcpy(this->Array, (unsigned char*)ia.GetVoidPointer(0),
+    memcpy(this->Array, (unsigned char*)ia->GetVoidPointer(0),
 	   ((this->Size+7)/8)*sizeof(unsigned char));
     }
 }

@@ -107,7 +107,7 @@ public:
 
   // Description:
   // Given a list of pt ids, return an array of points.
-  void GetPoints(vtkIdList& ptId, vtkPoints& fp);
+  void GetPoints(vtkIdList *ptId, vtkPoints *fp);
 
   // Description:
   // Determine (xmin,xmax, ymin,ymax, zmin,zmax) bounds of points.
@@ -120,6 +120,10 @@ public:
   // Description:
   // Return the bounds of the points.
   void GetBounds(float bounds[6]);
+
+  // Description:
+  // For legacy compatibility. Do not use.
+  void GetPoints(vtkIdList &ptId, vtkPoints &fp) {this->GetPoints(&ptId, &fp);}
 
 protected:
   float Bounds[6];

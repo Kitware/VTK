@@ -200,7 +200,7 @@ void vtkThreshold::Execute()
           }
         newCellPts->InsertId(i,newId);
         }
-      newCellId = output->InsertNextCell(cell->GetCellType(),*newCellPts);
+      newCellId = output->InsertNextCell(cell->GetCellType(),newCellPts);
       outCD->CopyData(cd,cellId,newCellId);
       newCellPts->Reset();
       } // satisfied thresholding

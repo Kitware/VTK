@@ -83,14 +83,19 @@ public:
 
   // Description:
   // Deep copy of one tensor to another tensor.
-  void DeepCopy(vtkTensor &t);
+  void DeepCopy(vtkTensor *t);
 
   // Description:
   // Provide float * type conversion.
   operator float*() {return this->T;};
 
-  float *T;
+  // Description:
+  // For legacy compatibility. Do not use.
+  void DeepCopy(vtkTensor &t);
 
+  float *T;
+  
+  
 protected: 
   float Storage[9];
 };
@@ -106,13 +111,13 @@ inline void vtkTensor::Initialize()
     }
 }
 
-inline void vtkTensor::DeepCopy(vtkTensor &t)
+inline void vtkTensor::DeepCopy(vtkTensor *t)
 {
   for (int j=0; j < 3; j++)
     {
     for (int i=0; i < 3; i++)
       {
-      this->T[i+3*j] = t.T[i+3*j];
+      this->T[i+3*j] = t->T[i+3*j];
       }
     }
 }

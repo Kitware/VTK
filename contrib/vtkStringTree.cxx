@@ -55,6 +55,11 @@ vtkStringTree::vtkStringTree()
 //----------------------------------------------------------------------------
 vtkStringTree::~vtkStringTree()
 {
+  // This deletes the whole tree.
+  // we have to do this here because in vtkTree::~vtkTree(); this is no longer
+  // a string tree, and vtkStringTree::DeleteItem() never gets called.
+  this->DeleteElement(this->Root);
+  this->Root = NULL;
 }
 
 //----------------------------------------------------------------------------

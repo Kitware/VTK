@@ -125,29 +125,29 @@ void vtkDoubleArray::Initialize()
 }
 
 // Deep copy of another double array.
-void vtkDoubleArray::DeepCopy(vtkDataArray& fa)
+void vtkDoubleArray::DeepCopy(vtkDataArray *fa)
 {
-  if (fa.GetDataType() != VTK_DOUBLE)
+  if (fa->GetDataType() != VTK_DOUBLE)
     {
     vtkDataArray::DeepCopy(fa);
     return;
     }
 
-  if ( this != &fa )
+  if ( this != fa )
     {
     if ((this->Array) && (!this->SaveUserArray))
       {
       delete [] this->Array;
       }
 
-    this->NumberOfComponents = fa.GetNumberOfComponents();
-    this->MaxId = fa.GetMaxId();
-    this->Size = fa.GetSize();
-    this->Extend = fa.GetExtend();
+    this->NumberOfComponents = fa->GetNumberOfComponents();
+    this->MaxId = fa->GetMaxId();
+    this->Size = fa->GetSize();
+    this->Extend = fa->GetExtend();
     this->SaveUserArray = 0;
 
     this->Array = new double[this->Size];
-    memcpy(this->Array, (double*) fa.GetVoidPointer(0), this->Size*sizeof(double));
+    memcpy(this->Array, (double*) fa->GetVoidPointer(0), this->Size*sizeof(double));
     }
 }
 

@@ -78,7 +78,12 @@ void vtkTree::DeleteElement(vtkTreeElement *element)
 {
   void *item;
   vtkTreeElement *tmp, *child;
-
+  
+  if (element == NULL)
+    {
+    return;
+    }
+  
   item = element->GetItem();
   if (item)
     {

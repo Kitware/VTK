@@ -249,7 +249,7 @@ void vtkSmoothPolyDataFilter::Execute()
           Verts[p2].edges = new vtkIdList(6,6);
           }
 
-        Mesh->GetCellEdgeNeighbors(cellId,p1,p2,*neighbors);
+        Mesh->GetCellEdgeNeighbors(cellId,p1,p2,neighbors);
         numNei = neighbors->GetNumberOfIds();
 
         edge = VTK_SIMPLE_VERTEX;

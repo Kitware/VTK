@@ -262,10 +262,7 @@ vtkCell *vtkPolyData::GetCell(int cellId)
 
     default:
       cell = this->EmptyCell;
-      this->Cell = cell;
-      cell->Register(this);
-      cell->Delete();
-      return this->Cell;
+      return cell;
     }
 
   for (i=0; i < numPts; i++)
@@ -767,10 +764,10 @@ int vtkPolyData::InsertNextCell(int type, int npts, int *pts)
 // the PolyData::Allocate() function has been called first or that vertex,
 // line, polygon, and triangle strip arrays have been supplied.
 // Note: will also insert VTK_PIXEL, but converts it to VTK_QUAD.
-int vtkPolyData::InsertNextCell(int type, vtkIdList &pts)
+int vtkPolyData::InsertNextCell(int type, vtkIdList *pts)
 {
   int id;
-  int npts=pts.GetNumberOfIds();
+  int npts=pts->GetNumberOfIds();
 
   if ( !this->Cells ) 
     {
@@ -797,10 +794,10 @@ int vtkPolyData::InsertNextCell(int type, vtkIdList &pts)
     case VTK_PIXEL: //need to rearrange vertices
       {
       static int pixPts[4];
-      pixPts[0] = pts.GetId(0);
-      pixPts[1] = pts.GetId(1);
-      pixPts[2] = pts.GetId(3);
-      pixPts[3] = pts.GetId(2);
+      pixPts[0] = pts->GetId(0);
+      pixPts[1] = pts->GetId(1);
+      pixPts[2] = pts->GetId(3);
+      pixPts[3] = pts->GetId(2);
       this->Polys->InsertNextCell(4,pixPts);
       id = this->Cells->InsertNextCell(VTK_QUAD, this->Polys->GetInsertLocation(npts));
       break;
@@ -1029,14 +1026,14 @@ void vtkPolyData::ReplaceLinkedCell(int cellId, int npts, int *pts)
 // GetCellNeighbors(). Assumes links have been built (with BuildLinks()), 
 // and looks specifically for edge neighbors.
 void vtkPolyData::GetCellEdgeNeighbors(int cellId, int p1, int p2,
-                                      vtkIdList& cellIds)
+                                      vtkIdList *cellIds)
 {
   int *cells;
   int numCells;
   int i,j;
   int npts, *pts;
 
-  cellIds.Reset();
+  cellIds->Reset();
 
   numCells = this->Links->GetNcells(p1);
   cells = this->Links->GetCells(p1);
@@ -1055,7 +1052,7 @@ void vtkPolyData::GetCellEdgeNeighbors(int cellId, int p1, int p2,
 	}
       if ( j < npts )
 	{
-	cellIds.InsertNextId(cells[i]);
+	cellIds->InsertNextId(cells[i]);
 	}
       }
     }

@@ -114,11 +114,11 @@ class VTK_EXPORT vtkIdList : public vtkObject
 
   // Description:
   // Copy an id list by reference counting internal array.
-  void ShallowCopy(vtkIdList& ids);
+  void ShallowCopy(vtkIdList *ids);
 
   // Description:
   // Copy an id list by explicitly copying the internal array.
-  void DeepCopy(vtkIdList& ids);
+  void DeepCopy(vtkIdList *ids);
 
   // Description:
   // Delete specified id from list. Will replace all occurences of id in list.
@@ -133,6 +133,12 @@ class VTK_EXPORT vtkIdList : public vtkObject
   // Return 1 if id specified is contained in list; 0 otherwise.
   int IsId(int id);
 
+  // Description:
+  // For legacy compatibility. Do not use.
+  void DeepCopy(vtkIdList &ids) {this->DeepCopy(&ids);}
+  void ShallowCopy(vtkIdList &ids) {this->ShallowCopy(&ids);}
+  
+  
 protected:
   vtkIntArray *Ia;
 };

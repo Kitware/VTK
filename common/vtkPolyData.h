@@ -191,7 +191,7 @@ public:
   // the PolyData::Allocate() function has been called first or that vertex,
   // line, polygon, and triangle strip arrays have been supplied.
   // Note: will also insert VTK_PIXEL, but converts it to VTK_QUAD.
-  int InsertNextCell(int type, vtkIdList &pts);
+  int InsertNextCell(int type, vtkIdList *pts);
 
   // Description:
   // Begin inserting data all over again. Memory is not freed but otherwise
@@ -215,7 +215,7 @@ public:
   // Get the neighbors at an edge. More efficient than the general 
   // GetCellNeighbors(). Assumes links have been built (with BuildLinks()), 
   // and looks specifically for edge neighbors.
-  void GetCellEdgeNeighbors(int cellId, int p1, int p2, vtkIdList& cellIds);
+  void GetCellEdgeNeighbors(int cellId, int p1, int p2, vtkIdList *cellIds);
 
   // Description:
   // Return a pointer to a list of point ids defining cell. (More efficient.)
@@ -317,12 +317,16 @@ public:
   virtual void Initialize();
 
   // Description:
-  // For legacy compatability. Do not use.
+  // For legacy compatibility. Do not use.
   void GetCellPoints(int cellId, vtkIdList &ptIds)
     {this->GetCellPoints(cellId, &ptIds);}
   void GetPointCells(int ptId, vtkIdList &cellIds)
     {this->GetPointCells(ptId, &cellIds);}
+  int InsertNextCell(int type, vtkIdList &pts) {return this->InsertNextCell(type, &pts);}
+  void GetCellEdgeNeighbors(int cellId, int p1, int p2, vtkIdList& cellIds)
+    {this->GetCellEdgeNeighbors(cellId, p1, p2, &cellIds);}
 
+  
 protected:
   // constant cell objects returned by GetCell called.
   vtkVertex *Vertex;

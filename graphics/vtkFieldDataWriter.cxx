@@ -40,9 +40,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkFieldDataWriter.h"
 
-// Instantiate object with no input.
 vtkFieldDataWriter::vtkFieldDataWriter()
 {
+  this->Writer = vtkDataWriter::New();
+}
+
+vtkFieldDataWriter::~vtkFieldDataWriter()
+{
+  this->Writer->Delete();
 }
 
 // Specify the input data or filter.
@@ -67,14 +72,14 @@ void vtkFieldDataWriter::WriteData()
 
   vtkDebugMacro(<<"Writing vtk FieldData data...");
 
-  if ( !(fp=this->Writer.OpenVTKFile()) || !this->Writer.WriteHeader(fp) )
+  if ( !(fp=this->Writer->OpenVTKFile()) || !this->Writer->WriteHeader(fp) )
       return;
   //
   // Write FieldData data specific stuff
   //
-  this->Writer.WriteFieldData(fp, f);
+  this->Writer->WriteFieldData(fp, f);
   
-  this->Writer.CloseVTKFile(fp);  
+  this->Writer->CloseVTKFile(fp);  
 }
 
 void vtkFieldDataWriter::PrintSelf(ostream& os, vtkIndent indent)
@@ -82,20 +87,20 @@ void vtkFieldDataWriter::PrintSelf(ostream& os, vtkIndent indent)
   vtkWriter::PrintSelf(os,indent);
   
   os << indent << "File Name: " 
-     << (this->Writer.GetFileName() ? this->Writer.GetFileName() : "(none)") << "\n";
+     << (this->Writer->GetFileName() ? this->Writer->GetFileName() : "(none)") << "\n";
 
-  if ( this->Writer.GetFileType() == VTK_BINARY )
+  if ( this->Writer->GetFileType() == VTK_BINARY )
     os << indent << "File Type: BINARY\n";
   else
     os << indent << "File Type: ASCII\n";
 
-  if ( this->Writer.GetHeader() )
-    os << indent << "Header: " << this->Writer.GetHeader() << "\n";
+  if ( this->Writer->GetHeader() )
+    os << indent << "Header: " << this->Writer->GetHeader() << "\n";
   else
     os << indent << "Header: (None)\n";
 
-  if ( this->Writer.GetFieldDataName() )
-    os << indent << "Field Data Name: " << this->Writer.GetFieldDataName() << "\n";
+  if ( this->Writer->GetFieldDataName() )
+    os << indent << "Field Data Name: " << this->Writer->GetFieldDataName() << "\n";
   else
     os << indent << "Field Data Name: (None)\n";
 

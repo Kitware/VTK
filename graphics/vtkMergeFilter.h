@@ -74,7 +74,6 @@ public:
   // Description:
   // Specify object from which to extract geometry information.
   void SetGeometry(vtkDataSet *input);
-  void SetGeometry(vtkDataSet &input) {this->SetGeometry(&input);};
   vtkDataSet *GetGeometry() {return (vtkDataSet *)this->Input;};
 
   // Description:
@@ -122,6 +121,10 @@ public:
   // Set / get the object from which to extract field data.
   vtkSetObjectMacro(FieldData,vtkDataSet);
   vtkGetObjectMacro(FieldData,vtkDataSet);
+  
+  // Description:
+  // For legacy compatibility. Do not use.
+  void SetGeometry(vtkDataSet &input) {this->SetGeometry(&input);}
 
 protected:
   // Usual data generation method

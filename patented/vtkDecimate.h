@@ -173,6 +173,7 @@ class VTK_EXPORT vtkDecimate : public vtkPolyDataToPolyDataFilter
 {
 public:
   vtkDecimate();
+  ~vtkDecimate();
   static vtkDecimate *New() {return new vtkDecimate;};
   const char *GetClassName() {return "vtkDecimate";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -286,7 +287,8 @@ protected:
   int GenerateErrorScalars; // turn on/off vertex error scalar generation
   int MaximumNumberOfSquawks; //control number of error messages
   int PreserveTopology; //control whether mesh topology is preserved
-
+  vtkIdList *Neighbors; // to replace static
+  
   void CreateOutput(int numPts, int numTris, int numEliminated, 
                     vtkPointData *pd, vtkPoints *inPts);
   int BuildLoop(int ptId, unsigned short int nTris, int* tris);

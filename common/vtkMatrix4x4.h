@@ -57,47 +57,37 @@ class VTK_EXPORT vtkMatrix4x4 : public vtkObject
  public:
   float Element[4][4];
   static vtkMatrix4x4 *New() {return new vtkMatrix4x4;};
-  const char *GetClassName () {return "vtkMatrix4x4";};
+  const char *GetClassName() {return "vtkMatrix4x4";};
   void PrintSelf (ostream& os, vtkIndent indent);
 
   // Description:
   // Construct a 4x4 identity matrix.
-  vtkMatrix4x4 ();
+  vtkMatrix4x4();
 
   // Description:
   // Construct a 4x4 matrix with the values which are contained in the
   // argument m.
-  vtkMatrix4x4 (const vtkMatrix4x4& m);
-
-  // Description:
-  // Set all the elements of the matrix to the given value.
-  void operator= (float element);
+  vtkMatrix4x4(const vtkMatrix4x4& m);
   
   // Description:
   // Set the elements of the matrix to the same values as the elements
   // of the source Matrix.
-  vtkMatrix4x4& operator= (const vtkMatrix4x4& source);
+  void DeepCopy(vtkMatrix4x4 *source);
   
-  // Description: 
-  // Provide standard [] access to elements.
-  float *operator[](const unsigned int i) {return &(this->Element[i][0]);};
-  const float *operator[](unsigned int i) const
-    { return &(this->Element[i][0]); }
-
+  // Description:
+  // Set all of the elements to zero.
+  void Zero();
+  
   // Description:
   // Matrix Inversion (adapted from Richard Carling in "Graphics Gems," 
   // Academic Press, 1990).
-  void Invert (vtkMatrix4x4 *in,vtkMatrix4x4 *out);
-  void Invert (void) { this->Invert(this,this);};
-  void Invert (vtkMatrix4x4 &in,vtkMatrix4x4 &out)
-    {this->Invert(&in,&out);}
+  void Invert(vtkMatrix4x4 *in,vtkMatrix4x4 *out);
+  void Invert(void) { this->Invert(this,this);};
 
   // Description:
   // Transpose the matrix and put it into out. 
-  void Transpose (vtkMatrix4x4 *in,vtkMatrix4x4 *out);
-  void Transpose (void) { this->Transpose(this,this);};
-  void Transpose (vtkMatrix4x4 &in,vtkMatrix4x4 &out)
-    {this->Transpose(&in,&out);}
+  void Transpose(vtkMatrix4x4 *in,vtkMatrix4x4 *out);
+  void Transpose(void) { this->Transpose(this,this);};
 
   // Description:
   // Multiply this matrix by a point (in homogeneous coordinates). 
@@ -113,13 +103,11 @@ class VTK_EXPORT vtkMatrix4x4 : public vtkObject
 
   // Description:
   // Compute adjoint of the matrix and put it into out.
-  void Adjoint (vtkMatrix4x4 *in,vtkMatrix4x4 *out);
-  void Adjoint (vtkMatrix4x4 &in,vtkMatrix4x4 &out){this->Adjoint(&in,&out);}
+  void Adjoint(vtkMatrix4x4 *in,vtkMatrix4x4 *out);
 
   // Description:
   // Compute the determinant of the matrix and return it.
-  float Determinant (vtkMatrix4x4 *in);
-  float Determinant (vtkMatrix4x4 &in) {return this->Determinant(&in);}
+  float Determinant(vtkMatrix4x4 *in);
 
   // Description:
   // Sets the element i,j in the matrix.
@@ -127,8 +115,21 @@ class VTK_EXPORT vtkMatrix4x4 : public vtkObject
 
   // Description:
   // Returns the element i,j from the matrix.
-  float GetElement (int i, int j) const {return this->Element[i][j];};
+  float GetElement(int i, int j) const {return this->Element[i][j];};
 
+  // Description: 
+  // For legacy compatibility. Do not use.
+  float *operator[](const unsigned int i) {return &(this->Element[i][0]);};
+  void operator= (float element);
+  vtkMatrix4x4& operator= (const vtkMatrix4x4& source);
+  void Adjoint(vtkMatrix4x4 &in,vtkMatrix4x4 &out){this->Adjoint(&in,&out);}
+  float Determinant(vtkMatrix4x4 &in) {return this->Determinant(&in);}
+  void Invert(vtkMatrix4x4 &in,vtkMatrix4x4 &out)
+    {this->Invert(&in,&out);}
+  void Transpose(vtkMatrix4x4 &in,vtkMatrix4x4 &out)
+    {this->Transpose(&in,&out);}
+  const float *operator[](unsigned int i) const
+    { return &(this->Element[i][0]); }  
 };
 
 inline void vtkMatrix4x4::SetElement (int i, int j, float value)
@@ -136,7 +137,7 @@ inline void vtkMatrix4x4::SetElement (int i, int j, float value)
   if (this->Element[i][j] != value)
     {
     this->Element[i][j] = value;
-    this->Modified ();
+    this->Modified();
     }
 }
 

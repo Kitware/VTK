@@ -262,7 +262,7 @@ void vtkAppendFilter::Execute()
 	{
         newPtIds->InsertId(i,ptIds->GetId(i)+ptOffset);
 	}
-      output->InsertNextCell(ds->GetCellType(cellId),*newPtIds);
+      output->InsertNextCell(ds->GetCellType(cellId),newPtIds);
       }
     }
   //

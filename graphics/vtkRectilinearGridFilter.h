@@ -62,8 +62,11 @@ public:
   // Description:
   // Set / get the input Grid or filter.
   void SetInput(vtkRectilinearGrid *input);
-  void SetInput(vtkRectilinearGrid &input) {this->SetInput(&input);};
   vtkRectilinearGrid *GetInput() {return (vtkRectilinearGrid *)this->Input;};
+
+  // Description:
+  // For legacy compatibility. Do not use.
+  void SetInput(vtkRectilinearGrid &input) {this->SetInput(&input);};
 };
 
 #endif

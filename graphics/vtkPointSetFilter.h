@@ -64,8 +64,11 @@ public:
   // Description:
   // Set / get the input data or filter.
   virtual void SetInput(vtkPointSet *input);
-  void SetInput(vtkPointSet &input) {this->SetInput(&input);};
   vtkPointSet *GetInput() {return (vtkPointSet *)this->Input;};
+
+  // Description:
+  // For legacy compatibility. Do not use.
+  void SetInput(vtkPointSet &input) {this->SetInput(&input);};
 };
 
 #endif

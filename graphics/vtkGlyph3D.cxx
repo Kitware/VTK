@@ -247,9 +247,11 @@ void vtkGlyph3D::Execute()
       if ( this->IndexMode == VTK_INDEXING_BY_SCALAR ) value = s;
       else value = vMag;
 
-      index = (int) ((float)(value - this->Range[0]) * (this->NumberOfSources-1) / den);
+      index = (int) ((float)(value - this->Range[0]) * 
+		     (this->NumberOfSources-1) / den);
       index = (index < 0 ? 0 : 
-              (index >= this->NumberOfSources ? (this->NumberOfSources-1) : index));
+              (index >= this->NumberOfSources ? (this->NumberOfSources-1) : 
+	       index));
 
       if ( this->Source[index] != NULL )
         {
@@ -272,8 +274,11 @@ void vtkGlyph3D::Execute()
       cell = this->Source[index]->GetCell(cellId);
       cellPts = cell->GetPointIds();
       npts = cellPts->GetNumberOfIds();
-      for (pts->Reset(), i=0; i < npts; i++) pts->InsertId(i,cellPts->GetId(i) + ptIncr);
-      output->InsertNextCell(cell->GetCellType(),*pts);
+      for (pts->Reset(), i=0; i < npts; i++) 
+	{
+	pts->InsertId(i,cellPts->GetId(i) + ptIncr);
+	}
+      output->InsertNextCell(cell->GetCellType(),pts);
       }
 
     // translate Source to Input point

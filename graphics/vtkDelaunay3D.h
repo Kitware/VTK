@@ -222,18 +222,16 @@ public:
   unsigned long GetMTime();
 
   // Description:
-  // For legacy compatability. Do not use.
+  // For legacy compatibility. Do not use.
   void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};  
   vtkUnstructuredGrid *InitPointInsertion(int numPtsToInsert,  int numTetra,
-					  vtkPoints &boundingTetraPts, 
-					  float bounds[6], vtkPoints* &pts) 
-  {return this->InitPointInsertion(numPtsToInsert, numTetra, 
-				   &boundingTetraPts, bounds, pts);};
+  					  vtkPoints &boundingTetraPts, 
+  					  float bounds[6], vtkPoints* &pts) 
+    {return this->InitPointInsertion(numPtsToInsert, numTetra, 
+  				   &boundingTetraPts, bounds, pts);};
   void InsertPoint(vtkUnstructuredGrid *Mesh, vtkPoints *points,
-		   int id, float x[3], vtkIdList &holeTetras) {
-    this->InsertPoint(Mesh, points, id, x, &holeTetras);};
-  
-  
+  		   int id, float x[3], vtkIdList &holeTetras) {
+    this->InsertPoint(Mesh, points, id, x, &holeTetras);}; 
     
 protected:
   void Execute();

@@ -226,7 +226,7 @@ void vtkGeometryFilter::Execute()
               }
             pts->InsertId(i,pt);
             }
-          newCellId = output->InsertNextCell(cell->GetCellType(), *pts);
+          newCellId = output->InsertNextCell(cell->GetCellType(), pts);
           outputCD->CopyData(cd,cellId,newCellId);
           break;
 
@@ -245,7 +245,7 @@ void vtkGeometryFilter::Execute()
                 {
                 ptId = face->GetPointId(i);
                 x = input->GetPoint(ptId);
-                if ( this->Merging && (pt=this->Locator->IsInsertedPoint(x)) < 0)
+                if (this->Merging && (pt=this->Locator->IsInsertedPoint(x)) <0)
                   {
                   pt = this->Locator->InsertNextPoint(x);
                   outputPD->CopyData(pd,ptId,pt);
@@ -257,7 +257,7 @@ void vtkGeometryFilter::Execute()
                   }
                 pts->InsertId(i,pt);
                 }
-              newCellId = output->InsertNextCell(face->GetCellType(), *pts);
+              newCellId = output->InsertNextCell(face->GetCellType(), pts);
               outputCD->CopyData(cd,cellId,newCellId);
               }
             }
@@ -270,13 +270,14 @@ void vtkGeometryFilter::Execute()
 
   vtkDebugMacro(<<"Extracted " << newPts->GetNumberOfPoints() << " points,"
                 << output->GetNumberOfCells() << " cells.");
-//
-// Update ourselves and release memory
-//
+  //
+  // Update ourselves and release memory
+  //
   output->SetPoints(newPts);
   newPts->Delete();
 
-  if (!this->Merging && this->Locator) this->Locator->Initialize(); //free storage
+  //free storage
+  if (!this->Merging && this->Locator) this->Locator->Initialize(); 
 
   output->Squeeze();
 

@@ -47,14 +47,14 @@ vtkNormals::vtkNormals(int dataType) : vtkAttributeData(dataType)
 }
 
 // Given a list of pt ids, return an array of normals.
-void vtkNormals::GetNormals(vtkIdList& ptIds, vtkNormals& n)
+void vtkNormals::GetNormals(vtkIdList *ptIds, vtkNormals *n)
 {
-  int num=ptIds.GetNumberOfIds();
+  int num = ptIds->GetNumberOfIds();
 
-  n.SetNumberOfNormals(num);
-  for (int i=0; i<num; i++)
+  n->SetNumberOfNormals(num);
+  for (int i=0; i < num; i++)
     {
-    n.SetNormal(i,this->GetNormal(ptIds.GetId(i)));
+    n->SetNormal(i,this->GetNormal(ptIds->GetId(i)));
     }
 }
 

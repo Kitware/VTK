@@ -88,7 +88,6 @@ public:
   // Specify (imin,imax, jmin,jmax, kmin,kmax) indices in array form.
   void SetExtent(int *extent);
 
-
 protected:
   void Execute();
   int Extent[6];

@@ -153,7 +153,7 @@ void vtkCutter::Execute()
   if ( this->GenerateCutScalars )
     {
     inPD = vtkPointData::New();
-    inPD->ShallowCopy(*(input->GetPointData()));//copies original attributes
+    inPD->ShallowCopy(input->GetPointData());//copies original attributes
     inPD->SetScalars(cutScalars);
     }
   else 

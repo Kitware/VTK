@@ -355,7 +355,7 @@ void vtkVolumeRayCastMapper::GeneralImageInitialization( vtkRenderer *ren,
   // in camera coordinates) into volume coordinates.
   // First, get the active camera transformation matrix
   this->ViewRaysTransform->SetMatrix(
-    ren->GetActiveCamera()->GetViewTransform() );
+	     *ren->GetActiveCamera()->GetViewTransformMatrix() );
 
   // Now invert it so that we go from camera to world instead of
   // world to camera coordinates
@@ -479,14 +479,14 @@ void vtkVolumeRayCastMapper::InitializeParallelImage( vtkRenderer *ren )
 
   // Create the perspective matrix for the camera.  This will be used
   // to decode z values, so we will need to invert it
-  transform->SetMatrix( ren->GetActiveCamera()->GetPerspectiveTransform(
+  transform->SetMatrix(*ren->GetActiveCamera()->GetPerspectiveTransformMatrix(
     aspect, -1, 1 ) );
   transform->Inverse();
 
   // To speed things up, we pull the matrix out of the transform. 
   // This way, we can decode z values faster since we know which elements
   // of the matrix are important, and which are zero.
-  transform->GetMatrix( *matrix );
+  transform->GetMatrix( matrix );
 
   // Just checking that our assumptions are correct. 
   if( this->Debug )
@@ -840,14 +840,14 @@ void vtkVolumeRayCastMapper::InitializePerspectiveImage( vtkRenderer *ren )
 
   // Create the perspective matrix for the camera.  This will be used
   // to decode z values, so we will need to invert it
-  transform->SetMatrix( ren->GetActiveCamera()->GetPerspectiveTransform(
+  transform->SetMatrix(*ren->GetActiveCamera()->GetPerspectiveTransformMatrix(
     aspect, -1, 1 ) );
   transform->Inverse();
 
   // To speed things up, we pull the matrix out of the transform. 
   // This way, we can decode z values faster since we know which elements
   // of the matrix are important, and which are zero.
-  transform->GetMatrix( *matrix );
+  transform->GetMatrix( matrix );
 
   // Just checking that our assumptions are correct.  This code should
   // be removed after the debugging phase is complete
