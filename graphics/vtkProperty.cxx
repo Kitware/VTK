@@ -122,40 +122,40 @@ vtkProperty& vtkProperty::operator=(const vtkProperty& p)
 }
 
 
-#ifdef USE_GLR
-#include "vtkGlrProperty.h"
+#ifdef VTK_USE_GLR
+#include "vtkGLProperty.h"
 #endif
-#ifdef USE_OGLR
-#include "vtkOglrProperty.h"
+#ifdef VTK_USE_OGLR
+#include "vtkOpenGLProperty.h"
 #endif
-#ifdef USE_SBR
-#include "vtkSbrProperty.h"
+#ifdef VTK_USE_SBR
+#include "vtkStarbaseProperty.h"
 #endif
-#ifdef USE_XGLR
-#include "vtkXglrProperty.h"
+#ifdef VTK_USE_XGLR
+#include "vtkXGLProperty.h"
 #endif
 #ifdef _WIN32
-#include "vtkOglrProperty.h"
+#include "vtkOpenGLProperty.h"
 #endif
 // return the correct type of Property 
 vtkProperty *vtkProperty::New()
 {
   char *temp = vtkRenderWindow::GetRenderLibrary();
   
-#ifdef USE_SBR
-  if (!strncmp("sbr",temp,4)) return vtkSbrProperty::New();
+#ifdef VTK_USE_SBR
+  if (!strcmp("Starbase",temp)) return vtkStarbaseProperty::New();
 #endif
-#ifdef USE_GLR
-  if (!strncmp("glr",temp,3)) return vtkGlrProperty::New();
+#ifdef VTK_USE_GLR
+  if (!strcmp("GL",temp)) return vtkGLProperty::New();
 #endif
-#ifdef USE_OGLR
-  if (!strncmp("oglr",temp,4)) return vtkOglrProperty::New();
+#ifdef VTK_USE_OGLR
+  if (!strcmp("OpenGL",temp)) return vtkOpenGLProperty::New();
 #endif
 #ifdef _WIN32
-  if (!strncmp("woglr",temp,5)) return vtkOglrProperty::New();
+  if (!strcmp("Win32OpenGL",temp)) return vtkOpenGLProperty::New();
 #endif
-#ifdef USE_XGLR
-  if (!strncmp("xglr",temp,4)) return vtkXglrProperty::New();
+#ifdef VTK_USE_XGLR
+  if (!strcmp("XGL",temp)) return vtkXGLProperty::New();
 #endif
   
   return new vtkProperty;

@@ -86,8 +86,6 @@ vtkRenderWindow::vtkRenderWindow()
 
 vtkRenderWindow::~vtkRenderWindow()
 {
-  vtkRenderer *aren;
-
   if (this->AccumulationBuffer) 
     {
     delete [] this->AccumulationBuffer;
@@ -99,12 +97,6 @@ vtkRenderWindow::~vtkRenderWindow()
     this->ResultFrame = NULL;
     }
 
-  // we also free all of our renderers
-  for (this->Renderers.InitTraversal(); 
-       (aren = this->Renderers.GetNextItem()); )
-    {
-    delete aren;
-    }
   if( WindowName ) 
     delete [] this->WindowName;
 }
@@ -144,40 +136,57 @@ char *vtkRenderWindow::GetRenderLibrary()
   
   // first check the environment variable
   temp = getenv("VTK_RENDERER");
-  // if nothing is set then work down the list of possible renderers
-  if (!temp) 
+
+  // Backward compatibility
+  if ( temp )
     {
-#ifdef USE_GLR
-    temp = "glr";
+    if (!strcmp("sbr",temp)) temp = "Starbase";
+    else if (!strcmp("glr",temp)) temp = "GL";
+    else if (!strcmp("oglr",temp)) temp = "OpenGL";
+    else if (!strcmp("woglr",temp)) temp = "Win32OpenGL";
+    else if (!strcmp("xglr",temp)) temp = "XGL";
+    else if ( strcmp("Starbase",temp) && strcmp("GL",temp) && 
+      strcmp("OpenGL",temp) && strcmp("Win32OpenGL",temp) && strcmp("XGL",temp) )
+      {
+      vtkGenericWarningMacro(<<"VTK_RENDERER set to unsupported type:" << temp);
+      temp = NULL;
+      }
+    }
+
+  // if nothing is set then work down the list of possible renderers
+  if ( !temp )
+    {
+#ifdef VTK_USE_GLR
+    temp = "GL";
 #endif
-#ifdef USE_OGLR
-    temp = "oglr";
+#ifdef VTK_USE_OGLR
+    temp = "OpenGL";
 #endif
-#ifdef USE_SBR
-    temp = "sbr";
+#ifdef VTK_USE_SBR
+    temp = "Starbase";
 #endif
-#ifdef USE_XGLR
-    temp = "xglr";
+#ifdef VTK_USE_XGLR
+    temp = "XGL";
 #endif
 #ifdef _WIN32
-    temp = "woglr";
+    temp = "Win32OpenGL";
 #endif
     }
 
   return temp;
 }
 
-#ifdef USE_GLR
-#include "vtkGlrRenderWindow.h"
+#ifdef VTK_USE_GLR
+#include "vtkGLRenderWindow.h"
 #endif
-#ifdef USE_OGLR
-#include "vtkOglrRenderWindow.h"
+#ifdef VTK_USE_OGLR
+#include "vtkOpenGLRenderWindow.h"
 #endif
-#ifdef USE_SBR
-#include "vtkSbrRenderWindow.h"
+#ifdef VTK_USE_SBR
+#include "vtkStarbaseRenderWindow.h"
 #endif
-#ifdef USE_XGLR
-#include "vtkXglrRenderWindow.h"
+#ifdef VTK_USE_XGLR
+#include "vtkXGLRenderWindow.h"
 #endif
 #ifdef _WIN32
 #include "vtkWin32OglrRenderWindow.h"
@@ -187,20 +196,20 @@ vtkRenderWindow *vtkRenderWindow::New()
 {
   char *temp = vtkRenderWindow::GetRenderLibrary();
   
-#ifdef USE_SBR
-  if (!strncmp("sbr",temp,4)) return vtkSbrRenderWindow::New();
+#ifdef VTK_USE_SBR
+  if (!strcmp("Starbase",temp)) return vtkStarbaseRenderWindow::New();
 #endif
-#ifdef USE_GLR
-  if (!strncmp("glr",temp,3)) return vtkGlrRenderWindow::New();
+#ifdef VTK_USE_GLR
+  if (!strcmp("GL",temp)) return vtkGLRenderWindow::New();
 #endif
-#ifdef USE_OGLR
-  if (!strncmp("oglr",temp,4)) return vtkOglrRenderWindow::New();
+#ifdef VTK_USE_OGLR
+  if (!strcmp("OpenGL",temp)) return vtkOpenGLRenderWindow::New();
 #endif
 #ifdef _WIN32
-  if (!strncmp("woglr",temp,5)) return vtkWin32OglrRenderWindow::New();
+  if (!strcmp("Win32OpenGL",temp)) return vtkWin32OglrRenderWindow::New();
 #endif
-#ifdef USE_XGLR
-  if (!strncmp("xglr",temp,4)) return vtkXglrRenderWindow::New();
+#ifdef VTK_USE_XGLR
+  if (!strcmp("XGL",temp)) return vtkXGLRenderWindow::New();
 #endif
   
   return new vtkRenderWindow;

@@ -56,40 +56,40 @@ vtkTexture::vtkTexture()
   this->SelfCreatedLookupTable = 0;
 }
 
-#ifdef USE_GLR
-#include "vtkGlrTexture.h"
+#ifdef VTK_USE_GLR
+#include "vtkGLTexture.h"
 #endif
-#ifdef USE_OGLR
-#include "vtkOglrTexture.h"
+#ifdef VTK_USE_OGLR
+#include "vtkOpenGLTexture.h"
 #endif
-#ifdef USE_SBR
-#include "vtkSbrTexture.h"
+#ifdef VTK_USE_SBR
+#include "vtkStarbaseTexture.h"
 #endif
-#ifdef USE_XGLR
-#include "vtkXglrTexture.h"
+#ifdef VTK_USE_XGLR
+#include "vtkXGLTexture.h"
 #endif
 #ifdef _WIN32
-#include "vtkOglrTexture.h"
+#include "vtkOpenGLTexture.h"
 #endif
 // return the correct type of Texture 
 vtkTexture *vtkTexture::New()
 {
   char *temp = vtkRenderWindow::GetRenderLibrary();
   
-#ifdef USE_SBR
-  if (!strncmp("sbr",temp,4)) return vtkSbrTexture::New();
+#ifdef VTK_USE_SBR
+  if (!strcmp("Starbase",temp)) return vtkStarbaseTexture::New();
 #endif
-#ifdef USE_GLR
-  if (!strncmp("glr",temp,3)) return vtkGlrTexture::New();
+#ifdef VTK_USE_GLR
+  if (!strcmp("GL",temp)) return vtkGLTexture::New();
 #endif
-#ifdef USE_OGLR
-  if (!strncmp("oglr",temp,4)) return vtkOglrTexture::New();
+#ifdef VTK_USE_OGLR
+  if (!strcmp("OpenGL",temp)) return vtkOpenGLTexture::New();
 #endif
 #ifdef _WIN32
-  if (!strncmp("woglr",temp,5)) return vtkOglrTexture::New();
+  if (!strcmp("Win32OpenGL",temp)) return vtkOpenGLTexture::New();
 #endif
-#ifdef USE_XGLR
-  if (!strncmp("xglr",temp,4)) return vtkXglrTexture::New();
+#ifdef VTK_USE_XGLR
+  if (!strcmp("XGL",temp)) return vtkXGLTexture::New();
 #endif
   
   return new vtkTexture;

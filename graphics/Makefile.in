@@ -9,44 +9,44 @@ ME = Graphics
 
 
 SBR_OBJ = \
-vtkSbrActor \
-vtkSbrCamera \
-vtkSbrLight \
-vtkSbrPolyMapper \
-vtkSbrProperty \
-vtkSbrRenderWindow \
-vtkSbrRenderer \
-vtkSbrTexture 
+vtkStarbaseActor \
+vtkStarbaseCamera \
+vtkStarbaseLight \
+vtkStarbasePolyMapper \
+vtkStarbaseProperty \
+vtkStarbaseRenderWindow \
+vtkStarbaseRenderer \
+vtkStarbaseTexture 
 
 GLR_OBJ = \
-vtkGlrActor \
-vtkGlrCamera \
-vtkGlrLight \
-vtkGlrPolyMapper \
-vtkGlrProperty \
-vtkGlrRenderWindow \
-vtkGlrRenderer \
-vtkGlrTexture 
+vtkGLActor \
+vtkGLCamera \
+vtkGLLight \
+vtkGLPolyMapper \
+vtkGLProperty \
+vtkGLRenderWindow \
+vtkGLRenderer \
+vtkGLTexture 
 
 OGLR_OBJ = \
-vtkOglrActor \
-vtkOglrCamera \
-vtkOglrLight \
-vtkOglrPolyMapper \
-vtkOglrProperty \
-vtkOglrRenderWindow \
-vtkOglrRenderer \
-vtkOglrTexture 
+vtkOpenGLActor \
+vtkOpenGLCamera \
+vtkOpenGLLight \
+vtkOpenGLPolyMapper \
+vtkOpenGLProperty \
+vtkOpenGLRenderWindow \
+vtkOpenGLRenderer \
+vtkOpenGLTexture 
 
 XGLR_OBJ = \
-vtkXglrActor \
-vtkXglrCamera \
-vtkXglrLight \
-vtkXglrPolyMapper \
-vtkXglrProperty \
-vtkXglrRenderWindow \
-vtkXglrRenderer \
-vtkXglrTexture 
+vtkXGLActor \
+vtkXGLCamera \
+vtkXGLLight \
+vtkXGLPolyMapper \
+vtkXGLProperty \
+vtkXGLRenderWindow \
+vtkXGLRenderer \
+vtkXGLTexture 
 
 ABSTRACT_H = \
 vtkRayBounder 
@@ -186,7 +186,6 @@ vtkRectilinearGridSource \
 vtkRectilinearGridToPolyFilter \
 vtkRectilinearGridWriter \
 vtkRecursiveDividingCubes \
-vtkRenderMaster \
 vtkRenderWindow \
 vtkRenderWindowInteractor \
 vtkRenderer \
@@ -205,7 +204,7 @@ vtkScalarTree \
 vtkShepardMethod \
 vtkShrinkFilter \
 vtkShrinkPolyData \
-vtkSpatialRepFilter \
+vtkSpatialRepresentationFilter \
 vtkSphere \
 vtkSphereSource \
 vtkSphereTree \

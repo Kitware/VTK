@@ -56,7 +56,7 @@ vtkVolume16Reader::vtkVolume16Reader()
 
 void vtkVolume16Reader::SetFileByteOrderToBigEndian()
 {
-#ifndef WORDS_BIGENDIAN
+#ifndef VTK_WORDS_BIGENDIAN
   this->SwapBytesOn();
 #else
   this->SwapBytesOff();
@@ -65,7 +65,7 @@ void vtkVolume16Reader::SetFileByteOrderToBigEndian()
 
 void vtkVolume16Reader::SetFileByteOrderToLittleEndian()
 {
-#ifdef WORDS_BIGENDIAN
+#ifdef VTK_WORDS_BIGENDIAN
   this->SwapBytesOn();
 #else
   this->SwapBytesOff();
@@ -82,7 +82,7 @@ void vtkVolume16Reader::SetFileByteOrder(int byteOrder)
 
 int vtkVolume16Reader::GetFileByteOrder()
 {
-#ifdef WORDS_BIGENDIAN
+#ifdef VTK_WORDS_BIGENDIAN
   if ( this->SwapBytes )
     return VTK_FILE_BYTE_ORDER_LITTLE_ENDIAN;
   else
@@ -97,7 +97,7 @@ int vtkVolume16Reader::GetFileByteOrder()
 
 char *vtkVolume16Reader::GetFileByteOrderAsString()
 {
-#ifdef WORDS_BIGENDIAN
+#ifdef VTK_WORDS_BIGENDIAN
   if ( this->SwapBytes )
     return "LittleEndian";
   else

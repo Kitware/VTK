@@ -45,7 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMergePoints.h"
 #include "vtkScalarTree.h"
 
-#ifdef USE_PATENTED
+#ifdef VTK_USE_PATENTED
 #include "vtkMarchingSquares.h"
 #include "vtkMarchingCubes.h"
 #endif
@@ -156,7 +156,7 @@ void vtkContourFilter::Execute()
     {
     int dim = this->Input->GetCell(0)->GetCellDimension();
 
-#ifdef USE_PATENTED
+#ifdef VTK_USE_PATENTED
     if ( this->Input->GetCell(0)->GetCellDimension() >= 2 ) 
       {
       this->StructuredPointsContour(dim);
@@ -264,7 +264,7 @@ void vtkContourFilter::StructuredPointsContour(int dim)
   vtkPolyData *thisOutput = (vtkPolyData *)this->Output;
   int i;
 
-#ifdef USE_PATENTED  
+#ifdef VTK_USE_PATENTED  
   if ( dim == 2 ) //marching squares
     {
     static vtkMarchingSquares msquares;

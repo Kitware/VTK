@@ -41,40 +41,40 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPolyMapper.h"
 #include "vtkRenderWindow.h"
 
-#ifdef USE_GLR
-#include "vtkGlrPolyMapper.h"
+#ifdef VTK_USE_GLR
+#include "vtkGLPolyMapper.h"
 #endif
-#ifdef USE_OGLR
-#include "vtkOglrPolyMapper.h"
+#ifdef VTK_USE_OGLR
+#include "vtkOpenGLPolyMapper.h"
 #endif
-#ifdef USE_SBR
-#include "vtkSbrPolyMapper.h"
+#ifdef VTK_USE_SBR
+#include "vtkStarbasePolyMapper.h"
 #endif
-#ifdef USE_XGLR
-#include "vtkXglrPolyMapper.h"
+#ifdef VTK_USE_XGLR
+#include "vtkXGLPolyMapper.h"
 #endif
 #ifdef _WIN32
-#include "vtkOglrPolyMapper.h"
+#include "vtkOpenGLPolyMapper.h"
 #endif
 // return the correct type of PolyMapper 
 vtkPolyMapper *vtkPolyMapper::New()
 {
   char *temp = vtkRenderWindow::GetRenderLibrary();
   
-#ifdef USE_SBR
-  if (!strncmp("sbr",temp,4)) return vtkSbrPolyMapper::New();
+#ifdef VTK_USE_SBR
+  if (!strcmp("Starbase",temp)) return vtkStarbasePolyMapper::New();
 #endif
-#ifdef USE_GLR
-  if (!strncmp("glr",temp,3)) return vtkGlrPolyMapper::New();
+#ifdef VTK_USE_GLR
+  if (!strcmp("GL",temp)) return vtkGLPolyMapper::New();
 #endif
-#ifdef USE_OGLR
-  if (!strncmp("oglr",temp,4)) return vtkOglrPolyMapper::New();
+#ifdef VTK_USE_OGLR
+  if (!strcmp("OpenGL",temp)) return vtkOpenGLPolyMapper::New();
 #endif
 #ifdef _WIN32
-  if (!strncmp("woglr",temp,5)) return vtkOglrPolyMapper::New();
+  if (!strcmp("Win32OpenGL",temp)) return vtkOpenGLPolyMapper::New();
 #endif
-#ifdef USE_XGLR
-  if (!strncmp("xglr",temp,4)) return vtkXglrPolyMapper::New();
+#ifdef VTK_USE_XGLR
+  if (!strcmp("XGL",temp)) return vtkXGLPolyMapper::New();
 #endif
   
   return new vtkPolyMapper;

@@ -73,40 +73,40 @@ vtkLight::vtkLight()
   this->Exponent = 1;
 }
 
-#ifdef USE_GLR
-#include "vtkGlrLight.h"
+#ifdef VTK_USE_GLR
+#include "vtkGLLight.h"
 #endif
-#ifdef USE_OGLR
-#include "vtkOglrLight.h"
+#ifdef VTK_USE_OGLR
+#include "vtkOpenGLLight.h"
 #endif
-#ifdef USE_SBR
-#include "vtkSbrLight.h"
+#ifdef VTK_USE_SBR
+#include "vtkStarbaseLight.h"
 #endif
-#ifdef USE_XGLR
-#include "vtkXglrLight.h"
+#ifdef VTK_USE_XGLR
+#include "vtkXGLLight.h"
 #endif
 #ifdef _WIN32
-#include "vtkOglrLight.h"
+#include "vtkOpenGLLight.h"
 #endif
 // return the correct type of light 
 vtkLight *vtkLight::New()
 {
   char *temp = vtkRenderWindow::GetRenderLibrary();
   
-#ifdef USE_SBR
-  if (!strncmp("sbr",temp,4)) return vtkSbrLight::New();
+#ifdef VTK_USE_SBR
+  if (!strcmp("Starbase",temp)) return vtkStarbaseLight::New();
 #endif
-#ifdef USE_GLR
-  if (!strncmp("glr",temp,3)) return vtkGlrLight::New();
+#ifdef VTK_USE_GLR
+  if (!strcmp("GL",temp)) return vtkGLLight::New();
 #endif
-#ifdef USE_OGLR
-  if (!strncmp("oglr",temp,4)) return vtkOglrLight::New();
+#ifdef VTK_USE_OGLR
+  if (!strcmp("OpenGL",temp)) return vtkOpenGLLight::New();
 #endif
 #ifdef _WIN32
-  if (!strncmp("woglr",temp,5)) return vtkOglrLight::New();
+  if (!strcmp("Win32OpenGL",temp)) return vtkOpenGLLight::New();
 #endif
-#ifdef USE_XGLR
-  if (!strncmp("xglr",temp,4)) return vtkXglrLight::New();
+#ifdef VTK_USE_XGLR
+  if (!strcmp("XGL",temp)) return vtkXGLLight::New();
 #endif
   
   return new vtkLight;

@@ -111,40 +111,40 @@ vtkRenderer::~vtkRenderer()
     this->CreatedLight->Delete();
 }
 
-#ifdef USE_GLR
-#include "vtkGlrRenderer.h"
+#ifdef VTK_USE_GLR
+#include "vtkGLRenderer.h"
 #endif
-#ifdef USE_OGLR
-#include "vtkOglrRenderer.h"
+#ifdef VTK_USE_OGLR
+#include "vtkOpenGLRenderer.h"
 #endif
-#ifdef USE_SBR
-#include "vtkSbrRenderer.h"
+#ifdef VTK_USE_SBR
+#include "vtkStarbaseRenderer.h"
 #endif
-#ifdef USE_XGLR
-#include "vtkXglrRenderer.h"
+#ifdef VTK_USE_XGLR
+#include "vtkXGLRenderer.h"
 #endif
 #ifdef _WIN32
-#include "vtkOglrRenderer.h"
+#include "vtkOpenGLRenderer.h"
 #endif
 // return the correct type of Renderer 
 vtkRenderer *vtkRenderer::New()
 {
   char *temp = vtkRenderWindow::GetRenderLibrary();
   
-#ifdef USE_SBR
-  if (!strncmp("sbr",temp,4)) return vtkSbrRenderer::New();
+#ifdef VTK_USE_SBR
+  if (!strcmp("Starbase",temp)) return vtkStarbaseRenderer::New();
 #endif
-#ifdef USE_GLR
-  if (!strncmp("glr",temp,3)) return vtkGlrRenderer::New();
+#ifdef VTK_USE_GLR
+  if (!strcmp("GL",temp)) return vtkGLRenderer::New();
 #endif
-#ifdef USE_OGLR
-  if (!strncmp("oglr",temp,4)) return vtkOglrRenderer::New();
+#ifdef VTK_USE_OGLR
+  if (!strcmp("OpenGL",temp)) return vtkOpenGLRenderer::New();
 #endif
 #ifdef _WIN32
-  if (!strncmp("woglr",temp,5)) return vtkOglrRenderer::New();
+  if (!strcmp("Win32OpenGL",temp)) return vtkOpenGLRenderer::New();
 #endif
-#ifdef USE_XGLR
-  if (!strncmp("xglr",temp,4)) return vtkXglrRenderer::New();
+#ifdef VTK_USE_XGLR
+  if (!strcmp("XGL",temp)) return vtkXGLRenderer::New();
 #endif
   
   return new vtkRenderer;

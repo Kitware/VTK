@@ -363,7 +363,7 @@ void WriteTiffRGB (FILE *fd, int width, int height, int orientation, unsigned ch
   offset = 0;
 
   // fill the header and write it
-#ifdef WORDS_BIGENDIAN
+#ifdef VTK_WORDS_BIGENDIAN
   myHeader.tiff_magic = TIFF_BIGENDIAN;
   longShift = 16;
 #else
@@ -540,7 +540,7 @@ void WriteTiffRGBA (FILE *fd, int width, int height, int orientation, unsigned c
   offset = 0;
 
   // fill the header and write it
-#ifdef WORDS_BIGENDIAN
+#ifdef VTK_WORDS_BIGENDIAN
   myHeader.tiff_magic = TIFF_BIGENDIAN;
   longShift = 16;
 #else
@@ -711,7 +711,7 @@ void WriteTiffI (FILE *fd, int width, int height, int orientation, unsigned char
   offset = 0;
 
   // fill the header and write it
-#ifdef WORDS_BIGENDIAN
+#ifdef VTK_WORDS_BIGENDIAN
   myHeader.tiff_magic = TIFF_BIGENDIAN;
   longShift = 16;
 #else
@@ -868,7 +868,7 @@ void WriteTiffIA (FILE *fd, int width, int height, int orientation, unsigned cha
   offset = 0;
 
   // fill the header and write it
-#ifdef WORDS_BIGENDIAN
+#ifdef VTK_WORDS_BIGENDIAN
   myHeader.tiff_magic = TIFF_BIGENDIAN;
   longShift = 16;
 #else

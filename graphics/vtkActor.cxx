@@ -92,40 +92,40 @@ vtkActor& vtkActor::operator=(const vtkActor& actor)
 }
 
 
-#ifdef USE_GLR
-#include "vtkGlrActor.h"
+#ifdef VTK_USE_GLR
+#include "vtkGLActor.h"
 #endif
-#ifdef USE_OGLR
-#include "vtkOglrActor.h"
+#ifdef VTK_USE_OGLR
+#include "vtkOpenGLActor.h"
 #endif
-#ifdef USE_SBR
-#include "vtkSbrActor.h"
+#ifdef VTK_USE_SBR
+#include "vtkStarbaseActor.h"
 #endif
-#ifdef USE_XGLR
-#include "vtkXglrActor.h"
+#ifdef VTK_USE_XGLR
+#include "vtkXGLActor.h"
 #endif
 #ifdef _WIN32
-#include "vtkOglrActor.h"
+#include "vtkOpenGLActor.h"
 #endif
 // return the correct type of Actor 
 vtkActor *vtkActor::New()
 {
   char *temp = vtkRenderWindow::GetRenderLibrary();
   
-#ifdef USE_SBR
-  if (!strncmp("sbr",temp,4)) return vtkSbrActor::New();
+#ifdef VTK_USE_SBR
+  if (!strcmp("Starbase",temp)) return vtkStarbaseActor::New();
 #endif
-#ifdef USE_GLR
-  if (!strncmp("glr",temp,3)) return vtkGlrActor::New();
+#ifdef VTK_USE_GLR
+  if (!strcmp("GL",temp)) return vtkGLActor::New();
 #endif
-#ifdef USE_OGLR
-  if (!strncmp("oglr",temp,4)) return vtkOglrActor::New();
+#ifdef VTK_USE_OGLR
+  if (!strcmp("OpenGL",temp)) return vtkOpenGLActor::New();
 #endif
 #ifdef _WIN32
-  if (!strncmp("woglr",temp,5)) return vtkOglrActor::New();
+  if (!strcmp("Win32OpenGL",temp)) return vtkOpenGLActor::New();
 #endif
-#ifdef USE_XGLR
-  if (!strncmp("xglr",temp,4)) return vtkXglrActor::New();
+#ifdef VTK_USE_XGLR
+  if (!strcmp("XGL",temp)) return vtkXGLActor::New();
 #endif
   
   return new vtkActor;

@@ -92,40 +92,40 @@ vtkCamera::vtkCamera()
   this->VPN_dot_DOP = 0.0;
 }
 
-#ifdef USE_GLR
-#include "vtkGlrCamera.h"
+#ifdef VTK_USE_GLR
+#include "vtkGLCamera.h"
 #endif
-#ifdef USE_OGLR
-#include "vtkOglrCamera.h"
+#ifdef VTK_USE_OGLR
+#include "vtkOpenGLCamera.h"
 #endif
-#ifdef USE_SBR
-#include "vtkSbrCamera.h"
+#ifdef VTK_USE_SBR
+#include "vtkStarbaseCamera.h"
 #endif
-#ifdef USE_XGLR
-#include "vtkXglrCamera.h"
+#ifdef VTK_USE_XGLR
+#include "vtkXGLCamera.h"
 #endif
 #ifdef _WIN32
-#include "vtkOglrCamera.h"
+#include "vtkOpenGLCamera.h"
 #endif
 // return the correct type of Camera 
 vtkCamera *vtkCamera::New()
 {
   char *temp = vtkRenderWindow::GetRenderLibrary();
   
-#ifdef USE_SBR
-  if (!strncmp("sbr",temp,4)) return vtkSbrCamera::New();
+#ifdef VTK_USE_SBR
+  if (!strcmp("Starbase",temp)) return vtkStarbaseCamera::New();
 #endif
-#ifdef USE_GLR
-  if (!strncmp("glr",temp,3)) return vtkGlrCamera::New();
+#ifdef VTK_USE_GLR
+  if (!strcmp("GL",temp)) return vtkGLCamera::New();
 #endif
-#ifdef USE_OGLR
-  if (!strncmp("oglr",temp,4)) return vtkOglrCamera::New();
+#ifdef VTK_USE_OGLR
+  if (!strcmp("OpenGL",temp)) return vtkOpenGLCamera::New();
 #endif
 #ifdef _WIN32
-  if (!strncmp("woglr",temp,5)) return vtkOglrCamera::New();
+  if (!strcmp("Win32OpenGL",temp)) return vtkOpenGLCamera::New();
 #endif
-#ifdef USE_XGLR
-  if (!strncmp("xglr",temp,4)) return vtkXglrCamera::New();
+#ifdef VTK_USE_XGLR
+  if (!strcmp("XGL",temp)) return vtkXGLCamera::New();
 #endif
   
   return new vtkCamera;

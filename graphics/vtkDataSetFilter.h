@@ -47,8 +47,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // as input.
 
 // SECTION See Also
-// vtkDataSetToDataSetFilter vtkDataSetToPolyFilter vtkDataSetToStructuredGridFilter
-// vtkOBBFilter vtkSpatialRepFilter
+// vtkDataSetToDataSetFilter vtkDataSetToPolyFilter 
+// vtkDataSetToStructuredGridFilter vtkOBBFilter vtkSpatialRepresentationFilter
 
 #ifndef __vtkDataSetFilter_h
 #define __vtkDataSetFilter_h
