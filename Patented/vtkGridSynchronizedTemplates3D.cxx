@@ -586,11 +586,6 @@ static void ContourGrid(vtkGridSynchronizedTemplates3D *self,
                 outCD->CopyData(inCD, inCellId, outCellId);
                 }
               }
-            else
-              {
-              int kkk;
-              kkk=0;
-              }
             }
           inPtPtrX += 3;
           ++inPtrX;
