@@ -1742,6 +1742,12 @@ void vtkImageData::Crop()
     return;
     }
 
+  // This should only happen if a source misbehaves. Avoid a seg fault.
+  if (this->GetPointData()->GetActiveScalars() == NULL)
+    {
+    vtkErrorMacro("Crop could not find scalars.");
+    }
+
   // if the scalar type has not been set then we have a problem
   if (this->ScalarType == VTK_VOID)
     {
