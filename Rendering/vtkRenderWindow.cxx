@@ -22,7 +22,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkRenderWindow, "1.142");
+vtkCxxRevisionMacro(vtkRenderWindow, "1.143");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -710,6 +710,12 @@ void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "AccumulationBuffer Size " << this->AccumulationBufferSize << "\n";
   os << indent << "AlphaBitPlanes: " << (this->AlphaBitPlanes ? "On" : "Off")
      << endl;
+  
+  os << indent << "AnaglyphColorSaturation: " 
+     << this->AnaglyphColorSaturation << "\n";
+  os << indent << "AnaglyphColorMask: "  
+     << this->AnaglyphColorMask[0] << " , " 
+     << this->AnaglyphColorMask[1] << "\n";
 }
 
 
