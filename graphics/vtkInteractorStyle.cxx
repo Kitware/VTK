@@ -969,6 +969,11 @@ void vtkInteractorStyle::DollyCamera(int x, int y)
   double dyf = 0.5 * (double)(y - this->Center[1]) /
     (double)(this->Center[1]);
   double zoomFactor = pow((double)1.1, dyf);
+  if (zoomFactor < 0.5 || zoomFactor > 1.5)
+    {
+    vtkErrorMacro("Bad zoom factor encountered");
+    }
+  
   if (this->CurrentCamera->GetParallelProjection())
     {
     this->CurrentCamera->
