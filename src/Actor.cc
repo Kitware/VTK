@@ -48,7 +48,7 @@ vlActor::vlActor()
 
 vlActor::~vlActor()
 {
-  if ( this->Mapper ) this->Mapper->UnRegister((void *)this);
+  if ( this->Mapper ) this->Mapper->UnRegister(this);
 }
 
 void vlActor::Render(vlRenderer *ren)
@@ -65,9 +65,9 @@ void vlActor::SetMapper(vlMapper *m)
 {
   if ( this->Mapper != m )
     {
-    if ( this->Mapper ) this->Mapper->UnRegister((void *)this);
+    if ( this->Mapper ) this->Mapper->UnRegister(this);
     this->Mapper = m;
-    this->Mapper->Register((void *)this);
+    this->Mapper->Register(this);
     this->Modified();
     }
 }

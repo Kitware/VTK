@@ -31,15 +31,15 @@ vlMapper::~vlMapper()
 {
   if (this->LookupTable)
     {
-    this->LookupTable->UnRegister((void *)this);
+    this->LookupTable->UnRegister(this);
     }
 }
 
 void vlMapper::operator=(const vlMapper& m)
 {
-  if (this->LookupTable) this->LookupTable->UnRegister((void *)this);
+  if (this->LookupTable) this->LookupTable->UnRegister(this);
   this->LookupTable = m.LookupTable;
-  if (this->LookupTable) this->LookupTable->Register((void *)this);
+  if (this->LookupTable) this->LookupTable->Register(this);
 
   this->ScalarsVisible = m.ScalarsVisible;
   this->ScalarRange[0] = m.ScalarRange[0];
