@@ -20,7 +20,7 @@ sphere SetRadius 80 80 80
 vtkImageMask mask
 mask SetImageInput [reader GetOutput]
 mask SetMaskInput [sphere GetOutput]
-mask SetMaskedOutputValue 0.0;
+mask SetMaskedOutputValue 500
 mask NotMaskOn;
 mask ReleaseDataFlagOff
 
