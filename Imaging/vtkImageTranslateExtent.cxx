@@ -15,10 +15,13 @@
 #include "vtkImageTranslateExtent.h"
 
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageTranslateExtent, "1.22");
+vtkCxxRevisionMacro(vtkImageTranslateExtent, "1.23");
 vtkStandardNewMacro(vtkImageTranslateExtent);
 
 //----------------------------------------------------------------------------
@@ -32,7 +35,6 @@ vtkImageTranslateExtent::vtkImageTranslateExtent()
     }
 }
 
-
 //----------------------------------------------------------------------------
 void vtkImageTranslateExtent::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -41,19 +43,25 @@ void vtkImageTranslateExtent::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Translation: (" << this->Translation[0]
      << "," << this->Translation[1] << "," << this->Translation[2] << endl;
 }
-  
-
-
 
 //----------------------------------------------------------------------------
 // Change the WholeExtent
-void vtkImageTranslateExtent::ExecuteInformation(vtkImageData *inData, 
-                                                 vtkImageData *outData)
+void vtkImageTranslateExtent::ExecuteInformation (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+
+  vtkImageData *inData = vtkImageData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   int idx, extent[6];
   double *spacing, origin[3];
   
-  inData->GetWholeExtent(extent);
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent);
   inData->GetOrigin(origin);
   spacing = inData->GetSpacing();
 
@@ -67,18 +75,26 @@ void vtkImageTranslateExtent::ExecuteInformation(vtkImageData *inData,
     origin[idx] -= (double)(this->Translation[idx]) * spacing[idx];
     }
   
-  outData->SetWholeExtent(extent);
-  outData->SetOrigin(origin);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent,6);
+  outInfo->Set(vtkDataObject::ORIGIN(),origin,3);
 }
 
 //----------------------------------------------------------------------------
 // This method simply copies by reference the input data to the output.
-void vtkImageTranslateExtent::ExecuteData(vtkDataObject *data)
+void vtkImageTranslateExtent::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkImageData *inData = this->GetInput();
-  vtkImageData *outData = (vtkImageData *)(data);
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  vtkImageData *inData = vtkImageData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkImageData *outData = vtkImageData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
   int extent[6];
-  
+
   // since inData can be larger than update extent.
   inData->GetExtent(extent);
   for (int i = 0; i < 3; ++i)
@@ -91,13 +107,24 @@ void vtkImageTranslateExtent::ExecuteData(vtkDataObject *data)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageTranslateExtent::ComputeInputUpdateExtent(int extent[6], 
-                                                       int inExtent[6])
+void vtkImageTranslateExtent::RequestUpdateExtent (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+
+  int inExtent[6], extent[6];
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExtent);
+
   extent[0] = inExtent[0] - this->Translation[0];
   extent[1] = inExtent[1] - this->Translation[0];
   extent[2] = inExtent[2] - this->Translation[1];
   extent[3] = inExtent[3] - this->Translation[1];
   extent[4] = inExtent[4] - this->Translation[2];
   extent[5] = inExtent[5] - this->Translation[2];
+
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), extent, 6);
 }

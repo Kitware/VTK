@@ -20,13 +20,13 @@
 #ifndef __vtkImageTranslateExtent_h
 #define __vtkImageTranslateExtent_h
 
-#include "vtkImageToImageFilter.h"
+#include "vtkImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageTranslateExtent : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImageTranslateExtent : public vtkImageAlgorithm
 {
 public:
   static vtkImageTranslateExtent *New();
-  vtkTypeRevisionMacro(vtkImageTranslateExtent,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageTranslateExtent,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -40,17 +40,14 @@ protected:
 
   int Translation[3];
   
-  void ComputeInputUpdateExtent(int extent[6], int wholeExtent[6]);
-  void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
-  void ExecuteInformation() {
-    this->vtkImageToImageFilter::ExecuteInformation(); };
-  void ExecuteData(vtkDataObject *data);
+  void RequestUpdateExtent (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  void ExecuteInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  
+  void RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+
 private:
   vtkImageTranslateExtent(const vtkImageTranslateExtent&);  // Not implemented.
   void operator=(const vtkImageTranslateExtent&);  // Not implemented.
 };
 
 #endif
-
-
-
