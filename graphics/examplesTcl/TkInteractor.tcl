@@ -11,8 +11,8 @@ proc BindTkRenderWidget {widget} {
     bind $widget <Shift-B1-Motion> {Pan %W %x %y}
     bind $widget <KeyPress-r> {Reset %W %x %y}
     bind $widget <KeyPress-u> {wm deiconify .vtkInteract}
-    bind $widget <KeyPress-w> Wireframe
-    bind $widget <KeyPress-s> Surface
+    bind $widget <KeyPress-w> {Wireframe %W}
+    bind $widget <KeyPress-s> {Surface %W}
     bind $widget <Enter> {Enter %W %x %y}
     bind $widget <Leave> {focus $oldFocus}
     bind $widget <Expose> {Expose %W}
@@ -27,13 +27,13 @@ set RendererFound 0
 
 # Create event bindings
 #
-proc Render {} {
-    global CurrentCamera CurrentLight CurrentRenderWindow
+proc Render {widget} {
+    global CurrentCamera CurrentLight
 
     eval $CurrentLight SetPosition [$CurrentCamera GetPosition]
     eval $CurrentLight SetFocalPoint [$CurrentCamera GetFocalPoint]
 
-    $CurrentRenderWindow Render
+    $widget Render
 }
 
 proc UpdateRenderer {widget x y} {
@@ -106,7 +106,7 @@ proc EndMotion {widget x y} {
 
     if { ! $RendererFound } {return}
     $CurrentRenderWindow SetDesiredUpdateRate 0.01
-    Render
+    Render $widget
 }
 
 proc Rotate {widget x y} {
@@ -123,7 +123,7 @@ proc Rotate {widget x y} {
     set LastX $x
     set LastY $y
 
-    Render
+    Render $widget
 }
 
 proc Pan {widget x y} {
@@ -177,7 +177,7 @@ proc Pan {widget x y} {
     set LastX $x
     set LastY $y
 
-    Render
+    Render widget
 }
 
 proc Zoom {widget x y} {
@@ -204,7 +204,7 @@ proc Zoom {widget x y} {
     set LastX $x
     set LastY $y
 
-    Render
+    Render $widget
 }
 
 proc Reset {widget x y} {
@@ -241,10 +241,10 @@ proc Reset {widget x y} {
 
     if { $RendererFound } {$CurrentRenderer ResetCamera}
 
-    Render
+    Render $widget
 }
 
-proc Wireframe {} {
+proc Wireframe {widget} {
     global CurrentRenderer
 
     set actors [$CurrentRenderer GetActors]
@@ -256,10 +256,10 @@ proc Wireframe {} {
         set actor [$actors GetNextItem]
     }
 
-    Render
+    Render $widget
 }
 
-proc Surface {} {
+proc Surface {widget} {
     global CurrentRenderer
 
     set actors [$CurrentRenderer GetActors]
@@ -271,5 +271,5 @@ proc Surface {} {
         set actor [$actors GetNextItem]
     }
 
-    Render
+    Render $widget
 }
