@@ -51,7 +51,7 @@
 #include <vtkstd/set>
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkKdTree, "1.17");
+vtkCxxRevisionMacro(vtkKdTree, "1.18");
 
 // Timing data ---------------------------------------------
 
@@ -4076,7 +4076,7 @@ int vtkKdTree::IntersectsCell(int *ids, int len, vtkCell *cell, int cellRegion)
 
 //----------------------------------------------------------------------------
 int vtkKdTree::_IntersectsCell(vtkKdNode *node, int *ids, int len,
-                                 vtkCell *cell, int cellRegion, double *bounds)
+                                 vtkCell *cell, int cellRegion, double *)
 {
   int result, nnodes1, nnodes2, listlen, intersects;
   int *idlist;
