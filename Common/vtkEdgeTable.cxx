@@ -20,7 +20,7 @@
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkEdgeTable, "1.30");
+vtkCxxRevisionMacro(vtkEdgeTable, "1.31");
 vtkStandardNewMacro(vtkEdgeTable);
 
 // Instantiate object based on maximum point id.
@@ -116,7 +116,6 @@ void vtkEdgeTable::Reset()
     }
     
   this->NumberOfEdges = 0;
-  this->StoreAttributes = 0;
 }
 
 vtkEdgeTable::~vtkEdgeTable()
