@@ -201,11 +201,16 @@ float vtkDataSet::GetLength()
   this->ComputeBounds();
   for (i=0; i<3; i++)
     {
-    diff = this->Bounds[2*i+1] - this->Bounds[2*i];
+    diff = static_cast<double>(this->Bounds[2*i+1]) - 
+      static_cast<double>(this->Bounds[2*i]);
     l += diff * diff;
     }
- 
-  return (float)sqrt(l);
+  diff = sqrt(l);
+  if(diff > VTK_LARGE_FLOAT)
+    {
+    return VTK_LARGE_FLOAT;
+    }
+  return static_cast<float>(diff);
 }
 
 //----------------------------------------------------------------------------
