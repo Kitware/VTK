@@ -1,5 +1,7 @@
 ## Procedure should be called to set bindings and initialize variables
 #
+source vtkInt.tcl
+
 proc BindTkRenderWidget {widget} {
     bind $widget <Any-ButtonPress> {StartMotion %W %x %y}
     bind $widget <Any-ButtonRelease> {EndMotion %W %x %y}
@@ -8,6 +10,9 @@ proc BindTkRenderWidget {widget} {
     bind $widget <B3-Motion> {Zoom %W %x %y}
     bind $widget <Shift-B1-Motion> {Pan %W %x %y}
     bind $widget <KeyPress-r> {Reset %W %x %y}
+    bind $widget <KeyPress-u> {wm deiconify .vtkInteract}
+    bind $widget <KeyPress-w> Wireframe
+    bind $widget <KeyPress-s> Surface
     bind $widget <Enter> {Enter %W}
     bind $widget <Leave> {focus $oldFocus}
 }
@@ -157,6 +162,36 @@ proc Reset {widget x y} {
     set renderers [$CurrentRenderWindow GetRenderers]
     $renderers InitTraversal; set CurrentRenderer [$renderers GetNextItem]
     $CurrentRenderer ResetCamera
+
+    Render
+}
+
+proc Wireframe {} {
+    global CurrentRenderer
+
+    set actors [$CurrentRenderer GetActors]
+
+    $actors InitTraversal
+    set actor [$actors GetNextItem]
+    while { $actor != "" } {
+        [$actor GetProperty] SetWireframe
+        set actor [$actors GetNextItem]
+    }
+
+    Render
+}
+
+proc Surface {} {
+    global CurrentRenderer
+
+    set actors [$CurrentRenderer GetActors]
+
+    $actors InitTraversal
+    set actor [$actors GetNextItem]
+    while { $actor != "" } {
+        [$actor GetProperty] SetSurface
+        set actor [$actors GetNextItem]
+    }
 
     Render
 }
