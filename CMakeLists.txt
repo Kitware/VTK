@@ -154,6 +154,20 @@ IF (VTK_USE_RENDERING)
 ENDIF (VTK_USE_RENDERING)
 
 IF (VTK_USE_HYBRID)
+  IF (WIN32)
+    OPTION(VTK_USE_VIDEO_FOR_WINDOWS "Use Video for Windows for video input" ON)
+    OPTION(VTK_USE_MATROX_IMAGING "Use Matrox Imaging Library for video input" OFF)
+    IF (VTK_USE_MATROX_IMAGING)
+      FIND_LIBRARY(MIL_LIBRARY MIL
+        "C:/Program Files/Matrox Imaging/mil/library/winnt/msc/dll"
+        "C:/Program Files/Matrox Imaging/mil/library/windows/msc/dll"
+        )
+      FIND_PATH(MIL_INCLUDE_PATH mil.h
+        "C:/Program Files/Matrox Imaging/mil/include"
+        )
+    ENDIF (VTK_USE_MATROX_IMAGING)
+  ENDIF (WIN32)
+
   SUBDIRS(Hybrid)
   SUBDIR_DEPENDS(Hybrid Rendering)
 ENDIF (VTK_USE_HYBRID)

@@ -26,23 +26,13 @@ vtkWeightedTransformFilter
 )
 
 IF (WIN32)
-  OPTION(VTK_USE_VIDEO_FOR_WINDOWS "Use Video for Windows for video input" OFF)
   IF (VTK_USE_VIDEO_FOR_WINDOWS)
     SOURCE_FILES (Hybrid_SRCS vtkWin32VideoSource)
   ENDIF (VTK_USE_VIDEO_FOR_WINDOWS)
 
-  OPTION(VTK_USE_MATROX_IMAGING "Use Matrox Imaging Library for video input" OFF)
   IF (VTK_USE_MATROX_IMAGING)
-    FIND_LIBRARY(MIL_LIBRARY MIL
-      "C:/Program Files/Matrox Imaging/mil/library/winnt/msc/dll"
-      "C:/Program Files/Matrox Imaging/mil/library/windows/msc/dll"
-      )
-    FIND_PATH(MIL_INCLUDE_PATH mil.h
-      "C:/Program Files/Matrox Imaging/mil/include"
-      )
     SOURCE_FILES (Hybrid_SRCS vtkMILVideoSource)
     INCLUDE_DIRECTORIES (${MIL_INCLUDE_PATH})
-    LINK_LIBRARIES (${MIL_LIBRARY})
   ENDIF (VTK_USE_MATROX_IMAGING)
 ENDIF (WIN32)
 
