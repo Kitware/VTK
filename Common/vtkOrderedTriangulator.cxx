@@ -624,7 +624,7 @@ void vtkOTTetra::GetFacePoints(int i, vtkOTFace *face)
 //------------------------------------------------------------------------
  
 extern "C" {
-static int SortOnPointIds(const void *val1, const void *val2)
+int vtkSortOnPointIds(const void *val1, const void *val2)
 {
   if (((vtkOTPoint *)val1)->Id < ((vtkOTPoint *)val2)->Id)
     {
