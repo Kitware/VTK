@@ -31,6 +31,7 @@ IF (VTK_USE_RENDERING)
       combColorIso
       combIso
       coneResolution
+      constrainedDelaunay
       contourCells
       contoursToSurface
       contour2DAll
