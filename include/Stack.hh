@@ -27,6 +27,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 class vlStackElement
 {
  public:
+  vlStackElement():Item(NULL),Next(NULL) {};
   vlObject *Item;
   vlStackElement *Next;
 };

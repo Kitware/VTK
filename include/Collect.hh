@@ -27,6 +27,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 class vlCollectionElement
 {
  public:
+  vlCollectionElement():Item(NULL),Next(NULL) {};
   vlObject *Item;
   vlCollectionElement *Next;
 };
