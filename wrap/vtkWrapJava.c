@@ -78,7 +78,7 @@ void output_proto_vars(FILE *fp, int i)
   
   if ((currentFunction->ArgTypes[i] == 304)||(currentFunction->ArgTypes[i] == 306))
     {
-    fprintf(fp,"jlongArray ");
+    fprintf(fp,"jintArray ");
     fprintf(fp,"id%i",i);
     return;
     }
@@ -268,12 +268,12 @@ void get_args(FILE *fp, int i)
       break;
     case 304:
     case 306:
-      fprintf(fp,"  tempArray = (void *)(env->GetLongArrayElements(id%i,NULL));\n",i);
+      fprintf(fp,"  tempArray = (void *)(env->GetIntArrayElements(id%i,NULL));\n",i);
       for (j = 0; j < currentFunction->ArgCounts[i]; j++)
 	{
-	fprintf(fp,"  temp%i[%i] = ((jlong *)tempArray)[%i];\n",i,j,j);
+	fprintf(fp,"  temp%i[%i] = ((jint *)tempArray)[%i];\n",i,j,j);
 	}
-      fprintf(fp,"  env->ReleaseLongArrayElements(id%i,(jlong *)tempArray,0);\n",i);      
+      fprintf(fp,"  env->ReleaseIntArrayElements(id%i,(jint *)tempArray,0);\n",i);      
       break;
     case 2:    
     case 9: break;
