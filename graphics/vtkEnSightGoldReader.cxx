@@ -1003,6 +1003,13 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
           delete [] nodeIds;
           }
         }
+      for (i = 0; i < numElements*2; i++)
+        {
+        delete [] newLines[i];
+        newLines[i] = NULL;
+        }
+      delete [] newLines;
+      newLines = NULL;
       }
     else if (strncmp(line, "tria3", 5) == 0 ||
              strncmp(line, "tria6", 5) == 0)
