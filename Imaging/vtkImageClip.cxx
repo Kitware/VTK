@@ -19,7 +19,7 @@
 #include "vtkExtentTranslator.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageClip, "1.45");
+vtkCxxRevisionMacro(vtkImageClip, "1.46");
 vtkStandardNewMacro(vtkImageClip);
 
 //----------------------------------------------------------------------------
@@ -182,6 +182,7 @@ void vtkImageClip::ExecuteData(vtkDataObject *)
 
   outData->SetExtent(inExt);
   outData->GetPointData()->PassData(inData->GetPointData());
+  outData->GetCellData()->PassData(inData->GetCellData());
 
   if (this->ClipData)
     {
