@@ -23,7 +23,7 @@
 
 #include "vtkObject.h"
 
-class VTK_COMMON_EXPORT vtkAMRBox
+class VTK_FILTERING_EXPORT vtkAMRBox
 {
 public:
   // public for quick access
