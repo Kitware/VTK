@@ -123,13 +123,8 @@ IF(VTK_COMPILE_PYTHON_SCRIPTS)
     MAKE_DIRECTORY(${dir})
   ENDFOREACH(dir)
   SET(VTK_PYTHON_LIBRARY_FILES "")
-  FOREACH(file
-    vtk/gtk/GtkVTKRenderWindow
-    vtk/gtk/__init__
-    vtk/gtk/GtkVTKRenderWindowInteractor
-    vtk/qt/QVTKRenderWidget
-    vtk/qt/__init__
-    vtk/qt/QVTKRenderWindowInteractor
+
+  SET(VTK_PYTHON_FILES
     vtk/__helper
     vtk/__init__
     vtk/common
@@ -155,19 +150,47 @@ IF(VTK_COMPILE_PYTHON_SCRIPTS)
     vtk/util/vtkImageExportToArray
     vtk/util/vtkImageImportFromArray
     vtk/util/colors
-    vtk/wx/__init__
-    vtk/wx/wxVTKRenderWindow
-    vtk/wx/wxVTKRenderWindowInteractor
     vtk/test/BlackBox
     vtk/test/Testing
     vtk/test/__init__
-    QVTKRenderWidget
     vtkRenderWidget
     vtkTkImageViewerWidget
     vtkTkRenderWidget
     vtkpython
     vtkpythontk
-    wxVTKRenderWindow
+    )
+
+  IF(VTK_PYTHON_QT)
+    SET(VTK_PYTHON_FILES 
+        ${VTK_PYTHON_FILES}
+        vtk/qt/QVTKRenderWidget
+        vtk/qt/__init__
+        vtk/qt/QVTKRenderWindowInteractor
+        QVTKRenderWidget
+        )
+  ENDIF(VTK_PYTHON_QT)
+
+  IF(VTK_PYTHON_WX)
+    SET(VTK_PYTHON_FILES 
+        ${VTK_PYTHON_FILES}
+        vtk/wx/__init__
+        vtk/wx/wxVTKRenderWindow
+        vtk/wx/wxVTKRenderWindowInteractor
+        wxVTKRenderWindow
+        )
+  ENDIF(VTK_PYTHON_WX)
+
+  IF(VTK_PYTHON_GTK)
+    SET(VTK_PYTHON_FILES 
+        ${VTK_PYTHON_FILES}
+        vtk/gtk/GtkVTKRenderWindow
+        vtk/gtk/__init__
+        vtk/gtk/GtkVTKRenderWindowInteractor
+        )
+  ENDIF(VTK_PYTHON_GTK)
+
+  FOREACH(file
+    ${VTK_PYTHON_FILES}
     )
     SET(src "${VTK_SOURCE_DIR}/Wrapping/Python/${file}.py")
     SET(tgt "${VTK_BINARY_DIR}/Wrapping/Python/${file}.pyc")
