@@ -364,7 +364,7 @@ int TestMixedTypeTemplate()
     cerr << "TestMixedTypeTemplateFunction(&x3) != 3\n";
     result = 0;
     }
-  return 0;
+  return result;
 }
 
 //----------------------------------------------------------------------------
