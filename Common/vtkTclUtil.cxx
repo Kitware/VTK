@@ -583,7 +583,14 @@ vtkTclCommand::vtkTclCommand()
 
 vtkTclCommand::~vtkTclCommand() 
 { 
-  delete [] this->StringCommand;
+  if(this->StringCommand) { delete [] this->StringCommand; }
+}
+
+void vtkTclCommand::SetStringCommand(const char *arg)
+{
+  if(this->StringCommand) { delete [] this->StringCommand; }
+  this->StringCommand = new char[strlen(arg)+1];
+  strcpy(this->StringCommand, arg);
 }
   
 void vtkTclCommand::Execute(vtkObject *, unsigned long, void *)

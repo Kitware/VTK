@@ -91,7 +91,7 @@ public:
   ~vtkTclCommand(); 
   static vtkTclCommand *New() { return new vtkTclCommand; };
 
-  void SetStringCommand(char *arg) { this->StringCommand = arg; };
+  void SetStringCommand(const char *arg);
   void SetInterp(Tcl_Interp *interp) { this->Interp = interp; };
   
   void Execute(vtkObject *, unsigned long, void *);

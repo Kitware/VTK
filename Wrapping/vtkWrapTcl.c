@@ -691,7 +691,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"  if ((!strcmp(\"AddObserver\",argv[1]))&&(argc == 4))\n    {\n");
     fprintf(fp,"    vtkTclCommand *cbc = new vtkTclCommand;\n");
     fprintf(fp,"    cbc->SetInterp(interp);\n");
-    fprintf(fp,"    cbc->SetStringCommand(strcpy(new char [strlen(argv[3])+1],argv[3]));\n");
+    fprintf(fp,"    cbc->SetStringCommand(argv[3]);\n");
     
     fprintf(fp,"    unsigned long      temp20;\n");
     fprintf(fp,"    temp20 = op->AddObserver(argv[2],cbc);\n");
