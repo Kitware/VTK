@@ -44,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkEdgeTable, "1.28");
+vtkCxxRevisionMacro(vtkEdgeTable, "1.29");
 vtkStandardNewMacro(vtkEdgeTable);
 
 // Instantiate object based on maximum point id.
@@ -157,7 +157,7 @@ int vtkEdgeTable::InitEdgeInsertion(vtkIdType numPoints, int storeAttributes)
     numPoints = 1;
     }
 
-  // Discard old memory if not enough has benn previously allocated
+  // Discard old memory if not enough has been previously allocated
   if ( numPoints > this->TableSize )
     {
     this->Initialize();
