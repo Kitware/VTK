@@ -90,7 +90,7 @@ public:
   vtkGetObjectMacro(Renderer,vtkRenderer);
 
   float GetViewportScaleFactor( vtkRenderer *ren );
-  float GetViewportStepSize( vtkRenderer *ren );
+  float GetViewportStepSize( );
   
   vtkGetMacro( AutomaticScaleAdjustment, int );
   void AutomaticScaleAdjustmentOn( void );

@@ -532,14 +532,14 @@ float vtkRayCaster::GetViewportScaleFactor( vtkRenderer *ren )
   return this->ImageScale[ this->SelectedImageScaleIndex ];
 }
 
-float vtkRayCaster::GetViewportStepSize(vtkRenderer *ren)
-  {
-    if ( this->SelectedImageScaleIndex >= 0 &&
-	 this->SelectedImageScaleIndex < VTK_MAX_VIEW_RAYS_LEVEL )
-      return this->ViewRaysStepSize[this->SelectedImageScaleIndex];
-    else
-      return 1.0;
-  }
+float vtkRayCaster::GetViewportStepSize()
+{
+  if ( this->SelectedImageScaleIndex >= 0 &&
+       this->SelectedImageScaleIndex < VTK_MAX_VIEW_RAYS_LEVEL )
+    return this->ViewRaysStepSize[this->SelectedImageScaleIndex];
+  else
+    return 1.0;
+}
 
 
 #ifndef TRUE
