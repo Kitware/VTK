@@ -702,8 +702,6 @@ void vtkGridSynchronizedTemplates3D::ThreadedExecute(int *exExt, int threadId)
   vtkCellArray *newPolys;
   vtkScalars *inScalars = pd->GetScalars();
   vtkPolyData *output = this->GetOutput();
-  int *dims = this->GetInput()->GetDimensions();
-  int *inUpdateExtent = input->GetUpdateExtent();
   long dataSize;
   vtkScalars *newScalars;
   vtkNormals *newNormals;
