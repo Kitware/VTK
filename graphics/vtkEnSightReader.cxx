@@ -688,7 +688,7 @@ int vtkEnSightReader::ReadCaseFile()
               {
               this->AddVariableDescription(subLine);
               sscanf(line, " %*s %*s %*s %*s %*s %s %s", subLine, subLine2);
-              this->AddVariableFileName(subLine);
+              this->AddVariableFileName(subLine, subLine2);
               this->NumberOfComplexVectorsPerNode++;
               }
             }
