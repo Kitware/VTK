@@ -12,7 +12,7 @@ vtkPolyData PolyData
     PolyData GlobalWarningDisplayOff
 vtkPolyData PreviousPolyData
 vtkPolyData TempPolyData
-vtkIdList CellTypes
+vtkCellTypes CellTypes
 set deciReduction 0.0
 set deciPreserve 1
 set view Left
@@ -257,7 +257,7 @@ proc UpdateGUI {} {
 	}
 
 	.mbar.edit.menu entryconfigure 1 -state normal
-        if { [CellTypes GetNumberOfIds] != 1 || [CellTypes GetId 0] != 5 } {
+        if { [CellTypes GetNumberOfTypes] != 1 || [CellTypes GetCellType 0] != 5 } {
 	    .mbar.edit.menu entryconfigure 2 -state disabled
             set s [format "Vertices:%d    Cells:%d" \
                    $NumberOfNodes $NumberOfElements]
