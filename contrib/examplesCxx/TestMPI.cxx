@@ -7,7 +7,6 @@
 
 void main( int argc, char *argv[] )
 {
-  char a;
   int numprocs, myid;
   int id0 = 0;
   int id1 = 1;
