@@ -18,7 +18,7 @@
 // .NAME vtkInteractorStyleImage - interactive manipulation of the camera specialized for images
 // .SECTION Description
 // vtkInteractorStyleImage allows the user to interactively manipulate
-// (rotate, pan, zoomm etc.) the camera.  vtkInteractorStyleImage is specially
+// (rotate, pan, zoomm etc.) the camera. vtkInteractorStyleImage is specially
 // designed to work with images that are being rendered with
 // vtkImageActor. Several events are overloaded from its superclass
 // vtkInteractorStyle, hence the mouse bindings are different. (The bindings
@@ -41,18 +41,18 @@
 #ifndef __vtkInteractorStyleImage_h
 #define __vtkInteractorStyleImage_h
 
-#include "vtkInteractorStyle.h"
+#include "vtkInteractorStyleTrackballCamera.h"
 
 // Motion flags
 
 #define VTKIS_WINDOW_LEVEL 1024
 #define VTKIS_PICK         1025
 
-class VTK_RENDERING_EXPORT vtkInteractorStyleImage : public vtkInteractorStyle
+class VTK_RENDERING_EXPORT vtkInteractorStyleImage : public vtkInteractorStyleTrackballCamera
 {
 public:
   static vtkInteractorStyleImage *New();
-  vtkTypeRevisionMacro(vtkInteractorStyleImage, vtkInteractorStyle);
+  vtkTypeRevisionMacro(vtkInteractorStyleImage, vtkInteractorStyleTrackballCamera);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -61,8 +61,6 @@ public:
   virtual void OnMouseMove       (int ctrl, int shift, int x, int y);
   virtual void OnLeftButtonDown  (int ctrl, int shift, int x, int y);
   virtual void OnLeftButtonUp    (int ctrl, int shift, int x, int y);
-  virtual void OnMiddleButtonDown(int ctrl, int shift, int x, int y);
-  virtual void OnMiddleButtonUp  (int ctrl, int shift, int x, int y);
   virtual void OnRightButtonDown (int ctrl, int shift, int x, int y);
   virtual void OnRightButtonUp   (int ctrl, int shift, int x, int y);
 
@@ -76,27 +74,25 @@ public:
   vtkGetVector2Macro(WindowLevelCurrentPosition,int);
   
 protected:
+  vtkInteractorStyleImage();
+  ~vtkInteractorStyleImage();
 
+  // These methods for the different interactions in different modes
+  // are overridden in subclasses to perform the correct motion. Since
+  // they might be called from OnTimer, they do not have mouse coord parameters
+  // (use GetLastPos and interactor GetEventPosition)
+  virtual void WindowLevel();
+  virtual void Pick();
+  
   // Interaction mode entry points used internally.  
   virtual void StartWindowLevel();
   virtual void EndWindowLevel();
   virtual void StartPick();
   virtual void EndPick();
 
-  vtkInteractorStyleImage();
-  ~vtkInteractorStyleImage();
-
-  void WindowLevelXY(int dx, int dy);
-  void PanXY(int x, int y, int oldX, int oldY);
-  void DollyXY(int dx, int dy);
-  void SpinXY(int dx, int dy, int oldX, int oldY);
-  void PickXY(int x, int y);
-  
   int WindowLevelStartPosition[2];
   int WindowLevelCurrentPosition[2];
  
-  float MotionFactor;
-  float RadianToDegree; // constant: for conv from deg to rad
 private:
   vtkInteractorStyleImage(const vtkInteractorStyleImage&);  // Not implemented.
   void operator=(const vtkInteractorStyleImage&);  // Not implemented.
