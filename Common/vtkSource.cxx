@@ -16,16 +16,28 @@
 
 #include "vtkCommand.h"
 #include "vtkDataObject.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkErrorCode.h"
 #include "vtkFieldData.h"
 #include "vtkGarbageCollector.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSource, "1.112");
+vtkCxxRevisionMacro(vtkSource, "1.113");
 
 #ifndef NULL
 #define NULL 0
 #endif
+
+class vtkSourceToDataObjectFriendship
+{
+public:
+  static int UpdateExtentInitialized(vtkDataObject* obj)
+    {
+    return obj->UpdateExtentInitialized;
+    }
+};
 
 //----------------------------------------------------------------------------
 vtkSource::vtkSource()
@@ -38,8 +50,8 @@ vtkSource::vtkSource()
 //----------------------------------------------------------------------------
 vtkSource::~vtkSource()
 {
-  UnRegisterAllOutputs();
-  if (this->Outputs)
+  this->UnRegisterAllOutputs();
+  if(this->Outputs)
     {
     delete [] this->Outputs;
     this->Outputs = NULL;
@@ -63,19 +75,24 @@ int vtkSource::GetOutputIndex(vtkDataObject *out)
 
 
 //----------------------------------------------------------------------------
-vtkDataObject *vtkSource::GetOutput(int i)
+vtkDataObject* vtkSource::GetOutput(int i)
 {
-  if (this->NumberOfOutputs < i+1)
+  if(i >= 0 && i < this->NumberOfOutputs)
     {
-    return NULL;
+    return this->Outputs[i];
     }
-
-  return this->Outputs[i];
+  return 0;
 }
 
 //----------------------------------------------------------------------------
-void vtkSource::UnRegisterAllOutputs(void)
+void vtkSource::UnRegisterAllOutputs()
 {
+#ifdef VTK_USE_EXECUTIVES
+  for(int i=0; i < this->NumberOfOutputs; ++i)
+    {
+    this->SetNthOutput(i, 0);
+    }
+#else
   int idx;
 
   for (idx = 0; idx < this->NumberOfOutputs; ++idx)
@@ -87,6 +104,7 @@ void vtkSource::UnRegisterAllOutputs(void)
       this->Outputs[idx] = NULL;
       }
     }
+#endif
 }
 
 //----------------------------------------------------------------------------
@@ -114,7 +132,6 @@ void vtkSource::SetReleaseDataFlag(int i)
     }
 }
 
-
 //----------------------------------------------------------------------------
 void vtkSource::UpdateWholeExtent()
 {
@@ -130,6 +147,17 @@ void vtkSource::UpdateWholeExtent()
 //----------------------------------------------------------------------------
 void vtkSource::Update()
 {
+#ifdef VTK_USE_EXECUTIVES
+  if(vtkDemandDrivenPipeline* ddp =
+     vtkDemandDrivenPipeline::SafeDownCast(this->GetExecutive()))
+    {
+    ddp->Update(this);
+    }
+  else
+    {
+    vtkErrorMacro("Executive is not a vtkDemandDrivenPipeline.");
+    }
+#else
   if (this->GetOutput(0))
     {
     this->GetOutput(0)->Update();
@@ -138,11 +166,23 @@ void vtkSource::Update()
       this->SetErrorCode( this->GetOutput(0)->GetSource()->GetErrorCode() );
       }
     }
+#endif
 }
 
 //----------------------------------------------------------------------------
 void vtkSource::UpdateInformation()
 {
+#ifdef VTK_USE_EXECUTIVES
+  if(vtkDemandDrivenPipeline* ddp =
+     vtkDemandDrivenPipeline::SafeDownCast(this->GetExecutive()))
+    {
+    ddp->UpdateInformation();
+    }
+  else
+    {
+    vtkErrorMacro("Executive is not a vtkDemandDrivenPipeline.");
+    }
+#else
   unsigned long t1, t2;
   int           idx;
   vtkDataObject *input;
@@ -226,11 +266,32 @@ void vtkSource::UpdateInformation()
     // so validate it again here.
     this->InformationTime.Modified();
     }
+#endif
 }
 
 //----------------------------------------------------------------------------
-void vtkSource::PropagateUpdateExtent(vtkDataObject *output)
+void vtkSource::PropagateUpdateExtent(vtkDataObject* output)
 {
+#ifdef VTK_USE_EXECUTIVES
+  if(vtkStreamingDemandDrivenPipeline* sddp =
+     vtkStreamingDemandDrivenPipeline::SafeDownCast(this->GetExecutive()))
+    {
+    if(output)
+      {
+      for(int i=0; i < this->NumberOfOutputs; ++i)
+        {
+        if(this->Outputs[i] == output)
+          {
+          sddp->PropagateUpdateExtent(i);
+          }
+        }
+      }
+    else
+      {
+      sddp->PropagateUpdateExtent(-1);
+      }
+    }
+#else
   int idx;
 
   // Check flag to avoid executing forever if there is a loop.
@@ -272,6 +333,7 @@ void vtkSource::PropagateUpdateExtent(vtkDataObject *output)
       }
     }
   this->Updating = 0;
+#endif
 }
 
 //----------------------------------------------------------------------------
@@ -313,8 +375,32 @@ void vtkSource::TriggerAsynchronousUpdate()
 }
 
 //----------------------------------------------------------------------------
-void vtkSource::UpdateData(vtkDataObject *output)
+void vtkSource::UpdateData(vtkDataObject* output)
 {
+#ifdef VTK_USE_EXECUTIVES
+  if(vtkDemandDrivenPipeline* ddp =
+     vtkDemandDrivenPipeline::SafeDownCast(this->GetExecutive()))
+    {
+    if(output)
+      {
+      for(int i=0; i < this->NumberOfOutputs; ++i)
+        {
+        if(this->Outputs[i] == output)
+          {
+          ddp->UpdateData(i);
+          }
+        }
+      }
+    else
+      {
+      ddp->UpdateData(-1);
+      }
+    }
+  else
+    {
+    vtkErrorMacro("Executive is not a vtkDemandDrivenPipeline.");
+    }
+#else
   int idx;
 
   // prevent chasing our tail
@@ -451,8 +537,8 @@ void vtkSource::UpdateData(vtkDataObject *output)
 
   this->Updating = 0;
   
+#endif
 }
-
 
 //----------------------------------------------------------------------------
 int vtkSource::UpdateExtentIsEmpty(vtkDataObject *output)
@@ -510,7 +596,37 @@ void vtkSource::ExecuteData(vtkDataObject *output)
 
 
 //----------------------------------------------------------------------------
-// Called by constructor to set up output array.
+#ifdef VTK_USE_EXECUTIVES
+void vtkSource::SetNumberOfOutputs(int newNumberOfOutputs)
+{
+  if(newNumberOfOutputs < 0)
+    {
+    vtkErrorMacro("Cannot set number of outputs to " << newNumberOfOutputs);
+    newNumberOfOutputs = 0;
+    }
+
+  if(newNumberOfOutputs != this->NumberOfOutputs)
+    {
+    vtkDataObject** newOutputs = new vtkDataObject*[newNumberOfOutputs];
+    for(int i=0; i < newNumberOfOutputs; ++i)
+      {
+      newOutputs[i] = (i < this->NumberOfOutputs)? this->Outputs[i] : 0;
+      }
+
+    if(this->Outputs)
+      {
+      delete [] this->Outputs;
+      this->Outputs = 0;
+      this->NumberOfOutputs = 0;
+      }
+
+    this->Outputs = newOutputs;
+    this->NumberOfOutputs = newNumberOfOutputs;
+    this->SetNumberOfOutputPorts(this->NumberOfOutputs);
+    this->Modified();
+    }
+}
+#else
 void vtkSource::SetNumberOfOutputs(int num)
 {
   int idx;
@@ -551,12 +667,25 @@ void vtkSource::SetNumberOfOutputs(int num)
   this->NumberOfOutputs = num;
   this->Modified();
 }
+#endif
 
 //----------------------------------------------------------------------------
-// Adds an output to the first null position in the output list.
-// Expands the list memory if necessary
-void vtkSource::AddOutput(vtkDataObject *output)
+void vtkSource::AddOutput(vtkDataObject* output)
 {
+#ifdef VTK_USE_EXECUTIVES
+  if(output)
+    {
+    for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
+      {
+      if(!this->Outputs[i])
+        {
+        this->SetNthOutput(i, output);
+        return;
+        }
+      }
+    this->SetNthOutput(this->GetNumberOfOutputPorts(), output);
+    }
+#else
   int idx;
   
   if (output)
@@ -577,13 +706,27 @@ void vtkSource::AddOutput(vtkDataObject *output)
   
   this->SetNumberOfOutputs(this->NumberOfOutputs + 1);
   this->Outputs[this->NumberOfOutputs - 1] = output;
+#endif
 }
 
 //----------------------------------------------------------------------------
-// Adds an output to the first null position in the output list.
-// Expands the list memory if necessary
-void vtkSource::RemoveOutput(vtkDataObject *output)
+void vtkSource::RemoveOutput(vtkDataObject* output)
 {
+#ifdef VTK_USE_EXECUTIVES
+  if(output)
+    {
+    for(int i=0; i < this->NumberOfOutputs; ++i)
+      {
+      if(this->Outputs[i] == output)
+        {
+        this->SetNthOutput(i, 0);
+        return;
+        }
+      }
+    vtkErrorMacro("Could not remove " << output->GetClassName()
+                  << "(" << output << ") because it is not an output.");
+    }
+#else
   int idx, loc;
   
   if (!output)
@@ -617,12 +760,58 @@ void vtkSource::RemoveOutput(vtkDataObject *output)
     }
   
   this->Modified();
+#endif
 }
 
 //----------------------------------------------------------------------------
-// Set an Output of this filter. 
-// tricky because we have to manage the double pointers and keep
-// them consistent.
+#ifdef VTK_USE_EXECUTIVES
+void vtkSource::SetNthOutput(int index, vtkDataObject* newOutput)
+{
+  if(index < 0)
+    {
+    vtkErrorMacro("SetNthOutput: " << index << ", cannot set output. ");
+    return;
+    }
+
+  if(index >= this->NumberOfOutputs)
+    {
+    this->SetNumberOfOutputs(index+1);
+    }
+
+  vtkDataObject* oldOutput = this->Outputs[index];
+  if(newOutput == oldOutput)
+    {
+    return;
+    }
+
+  vtkInformation* info =
+    this->GetExecutive()->GetOutputInformation(this, index);
+
+  if(oldOutput)
+    {
+    oldOutput->SetSource(0);
+    oldOutput->UnRegister(this);
+    this->Outputs[index] = 0;
+    info->Set(vtkInformation::DATA_OBJECT(), 0);
+    }
+
+  if(newOutput)
+    {
+    newOutput->Register(this);
+    if(vtkSource* oldSource = newOutput->GetSource())
+      {
+      oldSource->RemoveOutput(newOutput);
+      }
+    info->Set(vtkInformation::DATA_OBJECT(), newOutput);
+    this->Outputs[index] = newOutput;
+    newOutput->SetSource(this);
+    }
+
+  this->InvokeEvent(vtkCommand::SetOutputEvent,NULL);
+
+  this->Modified();
+}
+#else
 void vtkSource::SetNthOutput(int idx, vtkDataObject *newOutput)
 {
   vtkDataObject *oldOutput;
@@ -675,6 +864,7 @@ void vtkSource::SetNthOutput(int idx, vtkDataObject *newOutput)
 
   this->Modified();
 }
+#endif
 
 //----------------------------------------------------------------------------
 void vtkSource::Execute()
@@ -683,7 +873,7 @@ void vtkSource::Execute()
 }
 
 //----------------------------------------------------------------------------
-vtkDataObject **vtkSource::GetOutputs()
+vtkDataObject** vtkSource::GetOutputs()
 {
   return this->Outputs;
 }
@@ -778,27 +968,287 @@ void vtkSource::RemoveReferences()
 }
 
 //----------------------------------------------------------------------------
-void vtkSource::SetExecutive(vtkExecutive*)
+void vtkSource::SetExecutive(vtkExecutive* executive)
 {
+  // Set the executive normally.
+  this->Superclass::SetExecutive(executive);
+#ifdef VTK_USE_EXECUTIVES
+  // Copy our set of outputs to the information objects in the
+  // executive.
+  for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
+    {
+    vtkInformation* info = this->GetExecutive()->GetOutputInformation(this, i);
+    info->Set(vtkInformation::DATA_OBJECT(), this->Outputs[i]);
+    }
+#endif
 }
 
 //----------------------------------------------------------------------------
-void vtkSource::SetNumberOfOutputPorts(int)
+void vtkSource::SetNumberOfOutputPorts(int n)
 {
+  if(n != this->GetNumberOfOutputPorts())
+    {
+    this->Superclass::SetNumberOfOutputPorts(n);
+#ifdef VTK_USE_EXECUTIVES
+    this->SetNumberOfOutputs(n);
+#endif
+    }
 }
 
 //----------------------------------------------------------------------------
 int vtkSource::ProcessUpstreamRequest(vtkInformation* request,
-                                      vtkInformationVector* inVector,
-                                      vtkInformationVector* outVector)
+                                      vtkInformationVector* inputVector,
+                                      vtkInformationVector* outputVector)
 {
-  return this->Superclass::ProcessUpstreamRequest(request, inVector, outVector);
+#ifdef VTK_USE_EXECUTIVES
+  if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
+    {
+    int i;
+    for(i=0; i < this->NumberOfOutputs; ++i)
+      {
+      vtkInformation* info =
+        this->GetExecutive()->GetOutputInformation(this, i);
+      this->SetNthOutput(i, info->Get(vtkInformation::DATA_OBJECT()));
+      }
+
+    // If the user defines a ComputeInputUpdateExtent method, we want
+    // RequestExactUpdateExtent to be off by default (User does
+    // nothing else).  Otherwise, the ComputeInputUpdateExtent in this
+    // superclass sets RequestExactExtent to on.  The reason for this
+    // initialization here is if this sources shares an input with
+    // another, we do not want the input's RequestExactExtent "state"
+    // to interfere with each other.
+    for(i=0; i < this->NumberOfInputs; ++i)
+      {
+      if(this->Inputs[i])
+        {
+        this->Inputs[i]->RequestExactExtentOff();
+        }
+      }
+    int outputPort =
+      request->Get(vtkDemandDrivenPipeline::FROM_OUTPUT_PORT());
+
+    vtkDataObject* fromOutput = 0;
+    if(outputPort >= 0)
+      {
+      fromOutput = this->Outputs[outputPort];
+      int upExt[6] = {0, -1, 0, -1, 0, -1};
+      outputVector->GetInformationObject(outputPort)
+        ->Get(vtkInformation::UPDATE_EXTENT(), upExt);
+      fromOutput->SetUpdateExtent(upExt);
+      }
+
+    // Check inputs.
+    if(this->NumberOfRequiredInputs > 0 &&
+       this->GetNumberOfInputPorts() < 1)
+      {
+      vtkErrorMacro("This filter requires " << this->NumberOfRequiredInputs
+                    << " input(s) but has no input ports.  A call to "
+                    << "SetNumberOfInputPorts and an implementation of "
+                    << "FillInputPortInformation may need to be added to "
+                    << "this class.");
+      return 0;
+      }
+
+    vtkDebugMacro("ProcessUpstreamRequest(REQUEST_UPDATE_EXTENT) "
+                  "calling ComputeInputUpdateExtents using output port "
+                  << outputPort);
+
+    // Give the subclass a chance to request a larger extent on the
+    // inputs. This is necessary when, for example, a filter requires
+    // more data at the "internal" boundaries to produce the boundary
+    // values - such as an image filter that derives a new pixel value
+    // by applying some operation to a neighborhood of surrounding
+    // original values.
+    this->ComputeInputUpdateExtents(fromOutput);
+
+    // Copy the resulting information back into the information objects.
+    for(i=0; i < this->NumberOfInputs; ++i)
+      {
+      if(this->Inputs[i])
+        {
+        int extent[6];
+        this->Inputs[i]->GetUpdateExtent(extent);
+        vtkDebugMacro("ProcessUpstreamRequest(REQUEST_UPDATE_EXTENT) "
+                      "Input " << i << " UpdateExtent = "
+                      << extent[0] << " " << extent[1] << " "
+                      << extent[2] << " " << extent[3] << " "
+                      << extent[4] << " " << extent[5]);
+        inputVector->GetInformationObject(0)
+          ->Get(vtkInformation::INPUT_CONNECTION_INFORMATION())
+          ->GetInformationObject(i)
+          ->Set(vtkInformation::UPDATE_EXTENT(), extent, 6);
+        }
+      }
+    return 1;
+    }
+  return 0;
+#else
+  return this->Superclass::ProcessUpstreamRequest(request, inputVector,
+                                                  outputVector);
+#endif
 }
 
 //----------------------------------------------------------------------------
 int vtkSource::ProcessDownstreamRequest(vtkInformation* request,
-                                        vtkInformationVector* inVector,
-                                        vtkInformationVector* outVector)
+                                        vtkInformationVector* inputVector,
+                                        vtkInformationVector* outputVector)
 {
-  return this->Superclass::ProcessDownstreamRequest(request, inVector, outVector);
+#ifdef VTK_USE_EXECUTIVES
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
+    {
+    // Make sure the outputs are synchronized between the old and new
+    // style pipelines.
+    int i;
+    for(i=0; i < this->NumberOfOutputs; ++i)
+      {
+      vtkInformation* info =
+        this->GetExecutive()->GetOutputInformation(this, i);
+      this->SetNthOutput(i, info->Get(vtkInformation::DATA_OBJECT()));
+      }
+
+    // Copy information from information objects into data objects for
+    // backward compatibility.
+    for(i=0; i < this->NumberOfInputs; ++i)
+      {
+      vtkInformation* info = inputVector->GetInformationObject(0)
+        ->Get(vtkInformation::INPUT_CONNECTION_INFORMATION())
+        ->GetInformationObject(i);
+      if(info->Has(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES()))
+        {
+        this->Inputs[i]->SetMaximumNumberOfPieces(
+          info->Get(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES()));
+        }
+      if(info->Has(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()))
+        {
+        this->Inputs[i]->SetWholeExtent(
+          info->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
+        }
+      }
+
+    vtkDebugMacro("ProcessDownstreamRequest(REQUEST_INFORMATION) "
+                  "calling ExecuteInformation.");
+
+    // Ask the subclass to fill in the information for the outputs.
+    this->InvokeEvent(vtkCommand::ExecuteInformationEvent, NULL);
+    this->ExecuteInformation();
+
+    // Copy the resulting information back into the information objects.
+    for(i=0; i < this->NumberOfOutputs; ++i)
+      {
+      if(this->Outputs[i])
+        {
+        vtkInformation* info = outputVector->GetInformationObject(i);
+        int extent[6];
+        this->Outputs[i]->GetWholeExtent(extent);
+        vtkDebugMacro("ProcessDownstreamRequest(REQUEST_INFORMATION) "
+                      "Output " << i << "  WholeExtent = "
+                      << extent[0] << " " << extent[1] << " "
+                      << extent[2] << " " << extent[3] << " "
+                      << extent[4] << " " << extent[5]
+                      << "  MaxPieces = "
+                      << this->Outputs[i]->GetMaximumNumberOfPieces());
+        info->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent, 6);
+        info->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
+                  this->Outputs[i]->GetMaximumNumberOfPieces());
+
+        // For backward compatibility, set the update extent of the
+        // output data object to the whole extent if it is
+        // uninitialized.
+        if(!(vtkSourceToDataObjectFriendship
+             ::UpdateExtentInitialized(this->Outputs[i])))
+          {
+          this->Outputs[i]->SetUpdateExtentToWholeExtent();
+          }
+        }
+      }
+    return 1;
+    }
+  else if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
+    {
+    // Make sure the outputs are synchronized between the old and new
+    // style pipelines.
+    int i;
+    for(i=0; i < this->NumberOfOutputs; ++i)
+      {
+      vtkInformation* info =
+        this->GetExecutive()->GetOutputInformation(this, i);
+      this->SetNthOutput(i, info->Get(vtkInformation::DATA_OBJECT()));
+      }
+    int outputPort = request->Get(vtkDemandDrivenPipeline::FROM_OUTPUT_PORT());
+
+    // Check inputs.
+    if(this->NumberOfRequiredInputs > 0 &&
+       this->GetNumberOfInputPorts() < 1)
+      {
+      vtkErrorMacro("This filter requires " << this->NumberOfRequiredInputs
+                    << " input(s) but has no input ports.  A call to "
+                    << "SetNumberOfInputPorts and an implementation of "
+                    << "FillInputPortInformation may need to be added to "
+                    << "this class.");
+      return 0;
+      }
+
+    vtkDebugMacro("ProcessDownstreamRequest(REQUEST_DATA) "
+                  "calling ExecuteData for output port " << outputPort);
+
+    // Prepare to execute the filter.
+    for(i=0; i < this->NumberOfOutputs; ++i)
+      {
+      if(this->Outputs[i])
+        {
+        this->Outputs[i]->PrepareForNewData();
+        }
+      }
+    this->InvokeEvent(vtkCommand::StartEvent,NULL);
+    this->AbortExecute = 0;
+    this->Progress = 0.0;
+
+    // Pass the vtkDataObject's field data from the first input to all
+    // outputs.
+    if(this->NumberOfInputs > 0 && this->Inputs[0] &&
+       this->Inputs[0]->GetFieldData())
+      {
+      for(i=0; i < this->NumberOfOutputs; ++i)
+        {
+        if(this->Outputs[i] && this->Outputs[i]->GetFieldData())
+          {
+          this->Outputs[i]->GetFieldData()->PassData(
+            this->Inputs[0]->GetFieldData());
+          }
+        }
+      }
+
+    // Execute the filter.
+    this->ExecuteData((outputPort >= 0)? this->Outputs[outputPort] : 0);
+    if(!this->AbortExecute)
+      {
+      this->UpdateProgress(1.0);
+      }
+    this->InvokeEvent(vtkCommand::EndEvent,NULL);
+
+    // Now we have to mark the data as up to data.
+    for(i=0; i < this->NumberOfOutputs; ++i)
+      {
+      if(this->Outputs[i])
+        {
+        this->Outputs[i]->DataHasBeenGenerated();
+        }
+      }
+
+    // Release any inputs if marked for release
+    for(i=0; i < this->NumberOfInputs; ++i)
+      {
+      if(this->Inputs[i] && this->Inputs[i]->ShouldIReleaseData())
+        {
+        this->Inputs[i]->ReleaseData();
+        }
+      }
+    return 1;
+    }
+  return 0;
+#else
+  return this->Superclass::ProcessDownstreamRequest(request, inputVector,
+                                                    outputVector);
+#endif
 }
