@@ -68,6 +68,7 @@ ren1 AddLight light
 #
 iren SetUserMethod {wm deiconify .vtkInteract}
 [ren1 GetActiveCamera] Zoom 1.5
+iren LightFollowCameraOff
 iren Initialize
 
 renWin SetFileName "faultLines.ppm"
