@@ -117,14 +117,14 @@ typedef void (*vtkThreadFunctionType)(void *);
 // MultipleMethod that is called during SingleMethodExecute or
 // MultipleMethodExecute. It is passed in as a void *, and it is
 // up to the method to cast correctly and extract the information.
-// The ThreadID is a number between 0 and ThreadCount-1 that indicates
-// the id of this thread. The ThreadCount is this->ThreadCount.
+// The ThreadID is a number between 0 and NumberOfThreads-1 that indicates
+// the id of this thread. The NumberOfThreads is this->NumberOfThreads.
 // The UserData is obtained from the SetSingleMethod or SetMultipleMethod
 // call.
 struct ThreadInfoStruct
 {
   int                 ThreadID;
-  int                 ThreadCount;
+  int                 NumberOfThreads;
   void                *UserData;
 };
 
@@ -143,8 +143,8 @@ public:
   // It will be clamped to the range 1 - VTK_MAX_THREADS, so the
   // caller of this method should check that the requested number
   // of threads was accepted.
-  vtkSetClampMacro( ThreadCount, int, 1, VTK_MAX_THREADS );
-  vtkGetMacro( ThreadCount, int );
+  vtkSetClampMacro( NumberOfThreads, int, 1, VTK_MAX_THREADS );
+  vtkGetMacro( NumberOfThreads, int );
 
   // These methods are excluded from Tcl wrapping 1) because the
   // wrapper barfs on them and 2) because they really shouldn't be
@@ -153,13 +153,13 @@ public:
   
   // Description:
   // Execute the SingleMethod (as define by SetSingleMethod) using
-  // this->ThreadCount threads.
+  // this->NumberOfThreads threads.
   void SingleMethodExecute();
 
   // Description:
   // Execute the MultipleMethods (as define by calling SetMultipleMethod
-  // for each of the required this->ThreadCount methods) using
-  // this->ThreadCount threads.
+  // for each of the required this->NumberOfThreads methods) using
+  // this->NumberOfThreads threads.
   void MultipleMethodExecute();
 
   // Description:
@@ -178,7 +178,7 @@ public:
 
 protected:
   // The number of threads to use
-  int                        ThreadCount;
+  int                        NumberOfThreads;
 
   // An array of thread info containing a thread id
   // (0, 1, 2, .. VTK_MAX_THREADS-1), the thread count, and a pointer

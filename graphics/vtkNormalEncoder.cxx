@@ -219,7 +219,7 @@ vtkNormalEncoder::vtkNormalEncoder()
   this->GradientMagnitudeRange[0]  = 0.0;
   this->GradientMagnitudeRange[1]  = 256.0;
   this->IndexTableInitialized      = 0;
-  this->ThreadCount                = this->Threader.GetThreadCount();
+  this->NumberOfThreads            = this->Threader.GetNumberOfThreads();
 
   for ( i = 0; i < 256; i++ )
     this->GradientMagnitudeTable[i] = this->GradientMagnitudeRange[0] + 
@@ -463,7 +463,7 @@ void vtkNormalEncoder::UpdateNormals( )
   memcpy( this->ScalarInputSize, scalar_input_size, 3 * sizeof(int) );
   memcpy( this->ScalarInputAspect, scalar_input_aspect, 3 * sizeof(float) );
 
-  this->Threader.SetThreadCount( this->ThreadCount );
+  this->Threader.SetNumberOfThreads( this->NumberOfThreads );
 
   this->Threader.SetSingleMethod( SwitchOnDataType,
 				  (vtkObject *)this );
@@ -485,7 +485,7 @@ VTK_THREAD_RETURN_TYPE SwitchOnDataType( void *arg )
   char               *data_type;
 
   thread_id = ((ThreadInfoStruct *)(arg))->ThreadID;
-  thread_count = ((ThreadInfoStruct *)(arg))->ThreadCount;
+  thread_count = ((ThreadInfoStruct *)(arg))->NumberOfThreads;
   encoder = (vtkNormalEncoder *)(((ThreadInfoStruct *)(arg))->UserData);
 
   // Find the data type of the ScalarInput and call the correct 

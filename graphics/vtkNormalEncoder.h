@@ -134,8 +134,8 @@ public:
 
   // Description:
   // Get/Set the number of threads to create when encoding normals
-  vtkSetClampMacro( ThreadCount, int, 1, VTK_MAX_THREADS );
-  vtkGetMacro( ThreadCount, int );
+  vtkSetClampMacro( NumberOfThreads, int, 1, VTK_MAX_THREADS );
+  vtkGetMacro( NumberOfThreads, int );
 
   // These variables should be protected but are being
   // made public to be accessible to the templated function.
@@ -189,7 +189,7 @@ protected:
   void                  InitializeIndexTable( void );
 
   // The number of threads to use when encoding normals
-  int                        ThreadCount;
+  int                        NumberOfThreads;
 
   vtkMultiThreader                Threader;
   friend VTK_THREAD_RETURN_TYPE   SwitchOnDataType( void *arg );
