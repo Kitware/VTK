@@ -64,10 +64,17 @@ public:
   // Note that ext is no longer used.
   int Allocate(const vtkIdType sz, const vtkIdType ext=1000);
 
+#ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
-  // Virtual constructor creates a field with the same number of data 
-  // arrays and types of data arrays, but the arrays contain nothing.
-  vtkFieldData *MakeObject();
+  // For legacy compatibility.  Do not use.
+  virtual vtkFieldData* MakeObject();
+#endif
+
+  // Description:
+  // Copy data array structure from a given field.  The same arrays
+  // will exist with the same types, but will contain nothing in the
+  // copy.
+  void CopyStructure(vtkFieldData*);
 
   // Description:
   // AllocateOfArrays actually sets the number of
@@ -204,13 +211,13 @@ public:
   unsigned long int GetMTime();
   
   // Description:
-  // Get a field from a list of ids. Supplied field f should have same types 
-  // and number of data arrays as this one (i.e., like MakeObject() returns).
-  // This method should not be used if the instance is from a
-  // subclass of vtkFieldData (vtkPointData or vtkCellData).
-  // This is because in those cases, the attribute data is 
-  // stored with the other fields and will cause the method
-  // to behave in an unexpected way.
+  // Get a field from a list of ids. Supplied field f should have same
+  // types and number of data arrays as this one (i.e., like
+  // CopyStructure() creates).  This method should not be used if the
+  // instance is from a subclass of vtkFieldData (vtkPointData or
+  // vtkCellData).  This is because in those cases, the attribute data
+  // is stored with the other fields and will cause the method to
+  // behave in an unexpected way.
   void GetField(vtkIdList *ptId, vtkFieldData *f);
 
   // Description:

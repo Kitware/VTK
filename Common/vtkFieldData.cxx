@@ -18,7 +18,7 @@
 #include "vtkFieldData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkFieldData, "1.46");
+vtkCxxRevisionMacro(vtkFieldData, "1.47");
 vtkStandardNewMacro(vtkFieldData);
 
 vtkFieldData::BasicIterator::BasicIterator(const int* list, 
@@ -231,27 +231,26 @@ int vtkFieldData::Allocate(const vtkIdType sz, const vtkIdType ext)
   return status;
 }
 
-// Virtual constructor creates a field with the same number of data arrays and
-// types of data arrays, but the arrays contain nothing.
-vtkFieldData *vtkFieldData::MakeObject()
+void vtkFieldData::CopyStructure(vtkFieldData* r)
 {
-  vtkFieldData *f= vtkFieldData::New();
+  // Free old fields.
+  this->InitializeFields();
+  
+  // Allocate new fields.
+  this->AllocateArrays(r->GetNumberOfArrays());
+  this->NumberOfActiveArrays = r->GetNumberOfArrays();
+  
+  // Copy the data arrays without data.
   int i;
   vtkDataArray *data;
-  
-  f->AllocateArrays(this->GetNumberOfArrays());
-  f->NumberOfActiveArrays = this->GetNumberOfArrays();
-
-  for ( i=0; i < this->GetNumberOfArrays(); i++ )
+  for(i=0; i < r->GetNumberOfArrays(); ++i)
     {
-    data = this->Data[i]->NewInstance();
-    data->SetNumberOfComponents(this->Data[i]->GetNumberOfComponents());
-    data->SetName(this->Data[i]->GetName());
-    f->SetArray(i, data);
+    data = r->Data[i]->NewInstance();
+    data->SetNumberOfComponents(r->Data[i]->GetNumberOfComponents());
+    data->SetName(r->Data[i]->GetName());
+    this->SetArray(i, data);
     data->Delete();
     }
-
-  return f;
 }
 
 // Set the number of arrays used to define the field.
@@ -428,8 +427,9 @@ void vtkFieldData::Reset()
     }
 }
 
-// Get a field from a list of ids. Supplied field f should have same types
-// and number of data arrays as this one (i.e., like MakeObject() returns).
+// Get a field from a list of ids. Supplied field f should have same
+// types and number of data arrays as this one (i.e., like
+// CopyStructure() creates).
 void vtkFieldData::GetField(vtkIdList *ptIds, vtkFieldData *f)
 {
   int i, numIds=ptIds->GetNumberOfIds();
@@ -857,3 +857,13 @@ void vtkFieldData::InsertComponent(const vtkIdType i, const int j,
   this->InsertTuple(i,this->Tuple);
 }
 
+//----------------------------------------------------------------------------
+#ifndef VTK_REMOVE_LEGACY_CODE
+vtkFieldData* vtkFieldData::MakeObject()
+{
+  VTK_LEGACY_METHOD(MakeObject, "4.2");
+  vtkFieldData* f = this->NewInstance();
+  f->CopyStructure(this);
+  return f;
+}
+#endif

@@ -50,7 +50,8 @@ int otherFieldData(int,char *[])
   fd->CopyFieldOff("Array0");
   fd->CopyFieldOff("Array1");
 
-  vtkFieldData* fd2 = fd->MakeObject();
+  vtkFieldData* fd2 = fd->NewInstance();
+  fd2->CopyStructure(fd);
   fd2->ShallowCopy(fd);
   fd2->DeepCopy(fd);
 
