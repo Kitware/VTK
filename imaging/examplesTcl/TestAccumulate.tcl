@@ -22,8 +22,8 @@ vtkImageGaussianSmooth smooth
   smooth SetInput [reader GetOutput]
 
 vtkImageAppendComponents imageAppend
-  imageAppend SetInput1 [reader GetOutput]
-  imageAppend SetInput2 [smooth GetOutput]
+  imageAppend SetInput 0 [reader GetOutput]
+  imageAppend SetInput 1 [smooth GetOutput]
 
 vtkImageClip clip
   clip SetInput [imageAppend GetOutput]
