@@ -28,7 +28,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkZLibDataCompressor.h"
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.21");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.22");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 
 //----------------------------------------------------------------------------
@@ -120,6 +120,14 @@ void vtkXMLWriter::PrintSelf(ostream& os, vtkIndent indent)
     }
   os << indent << "EncodeAppendedData: " << this->EncodeAppendedData << "\n";
   os << indent << "BlockSize: " << this->BlockSize << "\n";
+  if(this->Stream)
+    {
+    os << indent << "Stream: " << this->Stream << "\n";
+    }
+  else
+    {
+    os << indent << "Stream: (none)\n";
+    }
 }
 
 //----------------------------------------------------------------------------
