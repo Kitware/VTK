@@ -239,10 +239,8 @@ ENDIF (HAVE_OPENGL_SRCS)
 
 # Allow the user to customize their build with some local options
 #
-INCLUDE (LocalUserOptions.cmake OPTIONAL)
-
-
-
+INCLUDE (${VTK_BINARY_DIR}/Rendering/LocalUserOptions.cmake OPTIONAL)
+INCLUDE (${VTK_SOURCE_DIR}/Rendering/LocalUserOptions.cmake OPTIONAL)
 
 IF (VTK_WRAP_TCL)
   SOURCE_FILES(RenderingTCL_SRCS 
@@ -292,9 +290,9 @@ IF (VTK_WRAP_TCL)
                vtkTkImageWindowWidget)
   ELSE (HAVE_OPENGL_SRCS)
     VTK_WRAP_TCL(vtkRenderingTCL
-               SOURCES 
-               RenderingTCL_SRCS 
-               Rendering_SRCS 
+               SOURCES
+               RenderingTCL_SRCS
+               Rendering_SRCS
                COMMANDS
                vtkTkRenderWidget
                vtkTkImageViewerWidget

@@ -101,3 +101,9 @@ ENDIF (VTK_USE_PARALLEL)
 TARGET_LINK_LIBRARIES(vtk png zlib vtkjpeg)
 
 INSTALL_TARGETS(/bin vtk)
+
+# Allow the user to customize their build with some local options
+#
+INCLUDE (${VTK_BINARY_DIR}/Wrapping/Tcl/LocalUserOptions.cmake OPTIONAL)
+INCLUDE (${VTK_SOURCE_DIR}/Wrapping/Tcl/LocalUserOptions.cmake OPTIONAL)
+
