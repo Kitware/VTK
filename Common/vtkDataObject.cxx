@@ -26,7 +26,7 @@
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationIntegerVectorKey.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.110");
+vtkCxxRevisionMacro(vtkDataObject, "1.111");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -254,23 +254,9 @@ void vtkDataObject::Update()
   if(vtkStreamingDemandDrivenPipeline* sddp =
      vtkStreamingDemandDrivenPipeline::SafeDownCast(producer->GetExecutive()))
     {
-    // Since update has been called on the data object, the update
-    // extent was probably set as well.
-    if(this->UpdateExtentInitialized)
-      {
-      sddp->GetOutputInformation(index)
-        ->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-              this->UpdateExtent, 6);
-      sddp->GetOutputInformation(index)
-        ->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED(),
-              1);
-      }
-    else
-      {
-      sddp->GetOutputInformation(index)
-        ->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED(),
-              0);
-      }
+    // Since this method has been called on the data object, the
+    // update extent was probably set as well.
+    this->CopyUpdateExtentToInformation(sddp->GetOutputInformation(index));
 
     // Update this output.
     sddp->Update(producer, index);
@@ -339,14 +325,9 @@ void vtkDataObject::PropagateUpdateExtent()
   if(vtkStreamingDemandDrivenPipeline* sddp =
      vtkStreamingDemandDrivenPipeline::SafeDownCast(producer->GetExecutive()))
     {
-    // Since update has been called on the data object, the update
-    // extent was probably set as well.
-    if(this->UpdateExtentInitialized)
-      {
-      sddp->GetOutputInformation(index)
-        ->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-              this->UpdateExtent, 6);
-      }
+    // Since this method has been called on the data object, the
+    // update extent was probably set as well.
+    this->CopyUpdateExtentToInformation(sddp->GetOutputInformation(index));
 
     // Propagate the extent.
     sddp->PropagateUpdateExtent(this->ProducerPort->GetIndex());
@@ -893,6 +874,60 @@ void vtkDataObject::SetupProducer()
     producer->Delete();
     }
 #endif
+}
+
+//----------------------------------------------------------------------------
+void vtkDataObject::CopyUpdateExtentToInformation(vtkInformation* info)
+{
+  // Copy update extent to the information object.
+  info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED(),
+            this->UpdateExtentInitialized);
+  if(this->UpdateExtentInitialized)
+    {
+    if(this->GetExtentType() == VTK_PIECES_EXTENT)
+      {
+      // Setup unstructured extent.
+      info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
+                this->UpdatePiece);
+      info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+                this->UpdateNumberOfPieces);
+      info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+                this->UpdateGhostLevel);
+      }
+    else
+      {
+      // Setup structured extent.
+      info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+                this->UpdateExtent, 6);
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkDataObject::CopyUpdateExtentFromInformation(vtkInformation* info)
+{
+  // Copy update extent from the information object.
+  this->UpdateExtentInitialized =
+    info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED());
+  if(this->UpdateExtentInitialized)
+    {
+    if(this->GetExtentType() == VTK_PIECES_EXTENT)
+      {
+      // Setup unstructured extent.
+      this->UpdatePiece =
+        info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+      this->UpdateNumberOfPieces =
+        info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+      this->UpdateGhostLevel =
+        info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+      }
+    else
+      {
+      // Setup structured extent.
+      info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+                this->UpdateExtent);
+      }
+    }
 }
 
 //----------------------------------------------------------------------------

@@ -24,7 +24,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSource, "1.119");
+vtkCxxRevisionMacro(vtkSource, "1.120");
 
 #ifndef NULL
 #define NULL 0
@@ -36,6 +36,16 @@ public:
   static int UpdateExtentInitialized(vtkDataObject* obj)
     {
     return obj->UpdateExtentInitialized;
+    }
+  static void CopyUpdateExtentToInformation(vtkDataObject* obj,
+                                            vtkInformation* info)
+    {
+    obj->CopyUpdateExtentToInformation(info);
+    }
+  static void CopyUpdateExtentFromInformation(vtkDataObject* obj,
+                                              vtkInformation* info)
+    {
+    obj->CopyUpdateExtentFromInformation(info);
     }
 };
 
@@ -157,23 +167,9 @@ void vtkSource::Update()
       // The update extent may have been set on the output.
       if(this->NumberOfOutputs > 0)
         {
-        if(vtkSourceToDataObjectFriendship
-           ::UpdateExtentInitialized(this->Outputs[0]))
-          {
-          int extent[6];
-          this->Outputs[0]->GetUpdateExtent(extent);
-          sddp->GetOutputInformation(0)
-            ->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), extent, 6);
-          sddp->GetOutputInformation(0)
-            ->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED(),
-                  1);
-          }
-        else
-          {
-          sddp->GetOutputInformation(0)
-            ->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED(),
-                  0);
-          }
+        vtkSourceToDataObjectFriendship
+          ::CopyUpdateExtentToInformation(this->Outputs[0],
+                                          sddp->GetOutputInformation(0));
         }
       }
     ddp->Update(this, 0);
@@ -1057,10 +1053,9 @@ int vtkSource::ProcessUpstreamRequest(vtkInformation* request,
     if(outputPort >= 0)
       {
       fromOutput = this->Outputs[outputPort];
-      int upExt[6] = {0, -1, 0, -1, 0, -1};
-      outputVector->GetInformationObject(outputPort)
-        ->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), upExt);
-      fromOutput->SetUpdateExtent(upExt);
+      vtkInformation* info = outputVector->GetInformationObject(outputPort);
+      vtkSourceToDataObjectFriendship::
+        CopyUpdateExtentFromInformation(fromOutput, info);
       }
 
     // Check inputs.
@@ -1092,17 +1087,12 @@ int vtkSource::ProcessUpstreamRequest(vtkInformation* request,
       {
       if(this->Inputs[i])
         {
-        int extent[6];
-        this->Inputs[i]->GetUpdateExtent(extent);
-        vtkDebugMacro("ProcessUpstreamRequest(REQUEST_UPDATE_EXTENT) "
-                      "Input " << i << " UpdateExtent = "
-                      << extent[0] << " " << extent[1] << " "
-                      << extent[2] << " " << extent[3] << " "
-                      << extent[4] << " " << extent[5]);
-        inputVector->GetInformationObject(0)
+        vtkInformation* info =
+          inputVector->GetInformationObject(0)
           ->Get(vtkInformation::INPUT_CONNECTION_INFORMATION())
-          ->GetInformationObject(i)
-          ->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), extent, 6);
+          ->GetInformationObject(i);
+        vtkSourceToDataObjectFriendship::
+          CopyUpdateExtentToInformation(this->Inputs[i], info);
         }
       }
     return 1;

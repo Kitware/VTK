@@ -410,6 +410,8 @@ protected:
   double Locality;  
 
   void SetupProducer();
+  void CopyUpdateExtentFromInformation(vtkInformation*);
+  void CopyUpdateExtentToInformation(vtkInformation*);
   virtual void ReportReferences(vtkGarbageCollector*);
   virtual void RemoveReferences();
   virtual void GarbageCollectionStarting();
