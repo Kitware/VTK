@@ -16,12 +16,15 @@
 
 #include "vtkImageData.h"
 #include "vtkLookupTable.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTimerLog.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageQuantizeRGBToIndex, "1.36");
+vtkCxxRevisionMacro(vtkImageQuantizeRGBToIndex, "1.37");
 vtkStandardNewMacro(vtkImageQuantizeRGBToIndex);
 
 class vtkColorQuantizeNode
@@ -389,7 +392,6 @@ void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
 
   delete root;
 }
-
         
 void vtkColorQuantizeNode::ComputeStdDev()
 {
@@ -563,21 +565,31 @@ vtkImageQuantizeRGBToIndex::~vtkImageQuantizeRGBToIndex()
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for
 // the Datas data types.
-void vtkImageQuantizeRGBToIndex::ExecuteData(vtkDataObject *)
+void vtkImageQuantizeRGBToIndex::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
   void *inPtr;
   void *outPtr;
-  vtkImageData *inData = this->GetInput();
-  vtkImageData *outData = this->GetOutput();
   
-  outData->SetExtent(outData->GetWholeExtent());
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  vtkImageData *inData = vtkImageData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkImageData *outData = vtkImageData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
+  outData->SetExtent(
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
   outData->AllocateScalars();
-  
+
   inPtr = inData->GetScalarPointer();
   outPtr = outData->GetScalarPointer();
   
   // Input must be 3 components (rgb)
-  if (this->GetInput()->GetNumberOfScalarComponents() != 3)
+  if (inData->GetNumberOfScalarComponents() != 3)
     {
     vtkErrorMacro("This filter can handles only 3 components");
     return;
@@ -604,23 +616,31 @@ void vtkImageQuantizeRGBToIndex::ExecuteData(vtkDataObject *)
     }
 }
 
-
 // Change the output type and number of components
 void vtkImageQuantizeRGBToIndex::ExecuteInformation(
-                    vtkImageData *vtkNotUsed(inData), vtkImageData *outData)
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
-  outData->SetNumberOfScalarComponents(1);
-  outData->SetScalarType(VTK_UNSIGNED_SHORT);
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+
+  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),1);
+  outInfo->Set(vtkDataObject::SCALAR_TYPE(),VTK_UNSIGNED_SHORT);
 }
 
 // Get ALL of the input.
-void vtkImageQuantizeRGBToIndex::ComputeInputUpdateExtent(int inExt[6],
-                                                    int vtkNotUsed(outExt)[6])
+void vtkImageQuantizeRGBToIndex::RequestUpdateExtent(
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *vtkNotUsed(outputVector))
 {
-  int *wholeExtent;
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
 
-  wholeExtent = this->GetInput()->GetWholeExtent();
-  memcpy(inExt, wholeExtent, 6*sizeof(int));
+  int inExt[6];
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), inExt);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt, 6);
 }
 
 void vtkImageQuantizeRGBToIndex::PrintSelf(ostream& os, vtkIndent indent)
@@ -639,4 +659,3 @@ void vtkImageQuantizeRGBToIndex::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Execute Time (in lookup index stage): " << 
     this->LookupIndexExecuteTime << endl;
 }
-

@@ -28,15 +28,15 @@
 #ifndef __vtkImageQuantizeRGBToIndex_h
 #define __vtkImageQuantizeRGBToIndex_h
 
-#include "vtkImageToImageFilter.h"
+#include "vtkImageAlgorithm.h"
 
 class vtkLookupTable;
 
-class VTK_IMAGING_EXPORT vtkImageQuantizeRGBToIndex : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImageQuantizeRGBToIndex : public vtkImageAlgorithm
 {
 public:
   static vtkImageQuantizeRGBToIndex *New();
-  vtkTypeRevisionMacro(vtkImageQuantizeRGBToIndex,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageQuantizeRGBToIndex,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -78,11 +78,13 @@ protected:
   double           BuildTreeExecuteTime;
   double           LookupIndexExecuteTime;
 
-  void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
-  void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
-  void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
+  void ExecuteInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  void RequestUpdateExtent (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
-  virtual void ExecuteData(vtkDataObject *out);
+  virtual void RequestData(vtkInformation *,
+                           vtkInformationVector **,
+                           vtkInformationVector *);
+
 private:
   vtkImageQuantizeRGBToIndex(const vtkImageQuantizeRGBToIndex&);  // Not implemented.
   void operator=(const vtkImageQuantizeRGBToIndex&);  // Not implemented.
