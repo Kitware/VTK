@@ -71,6 +71,11 @@ public:
   // Description:
   // Return the singleton instance with no reference counting.
   static vtkOutputWindow* GetInstance();
+  // Description:
+  // Supply a user defined output window. Call ->Delete() on the supplied
+  // instance after setting it.
+  static void SetInstance(vtkOutputWindow *instance);
+  //
   virtual void DisplayText(const char*);
   // Description:
   // If PromptUser is set to true then each time a line of text
@@ -79,7 +84,7 @@ public:
   vtkBooleanMacro(PromptUser,int);
   vtkSetMacro(PromptUser, int);
 protected:
-  vtkOutputWindow(); 
+  vtkOutputWindow();
   virtual ~vtkOutputWindow(); 
   vtkOutputWindow(const vtkOutputWindow&) {};
   void operator=(const vtkOutputWindow&) {};
