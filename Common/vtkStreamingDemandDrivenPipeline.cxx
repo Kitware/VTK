@@ -24,7 +24,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.9");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.10");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 //----------------------------------------------------------------------------
@@ -266,6 +266,7 @@ int vtkStreamingDemandDrivenPipeline::NeedToExecuteData(int outputPort)
     return 1;
     }
 
+#if 0
   // If the update extent is outside of the extent, we need to execute.
   if(outputPort >= 0)
     {
@@ -295,6 +296,7 @@ int vtkStreamingDemandDrivenPipeline::NeedToExecuteData(int outputPort)
         }
       }
     }
+#endif
 
   // We do not need to execute.
   return 0;
