@@ -535,13 +535,17 @@ virtual float *Get##name() \
 //
 #define vtkTypeMacro(thisClass,superclass) \
 virtual const char *GetClassName() {return #thisClass;};\
-virtual int IsA(const char *type) \
+static int IsTypeOf(const char *type) \
 { \
-  if ( !strcmp(this->thisClass::GetClassName(),type) ) \
+  if ( !strcmp(#thisClass,type) ) \
     { \
     return 1; \
     } \
-  return this->superclass::IsA(type); \
+  return superclass::IsTypeOf(type); \
+} \
+virtual int IsA(const char *type) \
+{ \
+  return this->thisClass::IsTypeOf(type); \
 } \
 static thisClass* SafeDownCast(vtkObject *o) \
 { \

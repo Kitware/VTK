@@ -81,6 +81,12 @@ public:
   virtual const char *GetClassName() {return "vtkObject";};
 
   // Description:
+  // Return 1 if this class type is the same type of (or a subclass of)
+  // the named class. Returns 0 otherwise. This method works in
+  // combination with vtkTypeMacro found in vtkSetGet.h.
+  static int IsTypeOf(const char *name);
+
+  // Description:
   // Return 1 if this class is the same type of (or a subclass of)
   // the named class. Returns 0 otherwise. This method works in
   // combination with vtkTypeMacro found in vtkSetGet.h.

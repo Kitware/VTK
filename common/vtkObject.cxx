@@ -257,13 +257,18 @@ void vtkObject::UnRegister(vtkObject* o)
     }
 }
 
-int vtkObject::IsA(const char *type)
+int vtkObject::IsTypeOf(const char *name) 
 {
-  if ( !strcmp(this->vtkObject::GetClassName(),type) )
+  if ( !strcmp("vtkObject",name) )
     {
     return 1;
     }
   return 0;
+}
+
+int vtkObject::IsA(const char *type)
+{
+  return this->vtkObject::IsTypeOf(type);
 }
 
 vtkObject *vtkObject::SafeDownCast(vtkObject *o)
