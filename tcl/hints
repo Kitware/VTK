@@ -29,6 +29,9 @@ vtkMath			SolveCubic	2307 4
 vtkMath			SolveQuadratic	2307 3
 vtkMergeFilter		GetPoint	301 3
 vtkNormals		GetNormal	301 3
+vtkPHANToMController    GetPosition     301 3
+vtkPHANToMController    GetWorldPosition 301 3
+vtkPHANToMController    GetOrientation  301 3
 vtkPixmap		GetColor	313 4
 vtkPointSet		GetPoint	301 3
 vtkPoints		GetBounds	301 6
