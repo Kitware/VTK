@@ -47,6 +47,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define yyerror(a) fprintf(stderr,"%s\n",a)
 #define yywrap() 1
 
+void output_function();
+
 #include "vtkParse.h"
     
   FileInfo data;
