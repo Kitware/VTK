@@ -17,6 +17,8 @@ vtkAbstractMapper.cxx
 vtkAbstractTransform.cxx
 vtkActor2D.cxx
 vtkActor2DCollection.cxx
+vtkAlgorithm.cxx
+vtkAlgorithmOutput.cxx
 vtkAmoebaMinimizer.cxx
 vtkAssemblyNode.cxx
 vtkAssemblyPath.cxx
@@ -56,11 +58,13 @@ vtkDataSetCollection.cxx
 vtkDebugLeaks.cxx
 vtkDebugLeaksManager.cxx
 vtkDirectory.cxx
+vtkDistributedExecutive.cxx
 vtkDoubleArray.cxx
 vtkDynamicLoader.cxx
 vtkEdgeTable.cxx
 vtkEmptyCell.cxx
 vtkErrorCode.cxx
+vtkExecutive.cxx
 vtkExplicitCell.cxx
 vtkExtentSplitter.cxx
 vtkExtentTranslator.cxx
@@ -227,6 +231,7 @@ vtkCompositeDataVisitor
 vtkCompositeDataCommand
 vtkDataArray
 vtkDataSet
+vtkExecutive
 vtkExplicitCell
 vtkFunctionSet
 vtkGarbageCollector
