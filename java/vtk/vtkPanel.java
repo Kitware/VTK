@@ -5,20 +5,42 @@ import java.awt.*;
 import java.awt.event.*;
 import java.lang.Math;
 import sun.awt.*;
+import java.beans.*;
 
 public class vtkPanel extends Canvas implements MouseListener, MouseMotionListener, KeyListener
 {
-  vtkRenderWindow rw = new vtkRenderWindow();     
-  vtkRenderer ren = new vtkRenderer();
-  vtkCamera cam = null;
-  vtkLight lgt = new vtkLight();
-  int lastX;
-  int lastY;
-  int windowSet = 0;
+  protected vtkRenderWindow rw = new vtkRenderWindow();     
+  protected vtkRenderer ren = new vtkRenderer();
+  protected vtkCamera cam = null;
+  protected vtkLight lgt = new vtkLight();
+  protected int lastX;
+  protected int lastY;
+  int windowset = 0;
   int LightFollowCamera = 1;
   int InteractionMode = 1;
-
+  boolean rendering = false;
+  
   static { System.loadLibrary("vtkJava"); }
+
+  public void setActor(vtkActor id0)
+    { 
+    // add the actor if it isnt present
+    if (ren.GetActors().IsItemPresent(id0) == 0)
+      {
+      ren.AddActor(id0); 
+      this.Render();
+      }
+    }
+
+  public void setVolume(vtkVolume id0)
+    { 
+    // add the actor if it isnt present
+    if (ren.GetVolumes().IsItemPresent(id0) == 0)
+      {
+      ren.AddVolume(id0); 
+      this.Render();
+      }
+    }
 
 public vtkPanel()
   {
@@ -26,6 +48,8 @@ public vtkPanel()
     addMouseListener(this);
     addMouseMotionListener(this);
     addKeyListener(this);
+    super.setSize(200,200);
+    rw.SetSize(200,200);
   }
 
 public int getWindowID() 
@@ -33,14 +57,14 @@ public int getWindowID()
     DrawingSurfaceInfo surfaceInfo =
       ((DrawingSurface)this.getPeer()).getDrawingSurfaceInfo();
     surfaceInfo.lock();
-    Win32DrawingSurface wds =
-      (Win32DrawingSurface)surfaceInfo.getSurface();
-    int hWnd = wds.getHWnd();
+    X11DrawingSurface wds =
+      (X11DrawingSurface)surfaceInfo.getSurface();
+    int hWnd = wds.getDrawable();
     surfaceInfo.unlock();
     return hWnd;
   }
  
-public String GetWindowInfo()
+public String getWindowInfo()
   {
     String result;
     result = "" + this.getWindowID();
@@ -53,52 +77,43 @@ public void setSize(int x, int y)
     rw.SetSize(x,y);
   }
 
-public vtkRenderer GetRenderer()
+public vtkRenderer getRenderer()
   {
     return ren;
   }
 
-public vtkRenderWindow GetRenderWindow()
+public vtkRenderWindow getRenderWindow()
   {
     return rw;
   }
 
-public void Render() 
+public synchronized void Render() 
   {
-    if (ren.VisibleActorCount() == 0) return;
-    if (rw != null)
+    if (!rendering)
       {
-      if (windowSet == 0)
-	{ 
-	// set the window id and the active camera
-	rw.SetWindowInfo(this.GetWindowInfo());
-	cam = ren.GetActiveCamera();
-	ren.AddLight(lgt);
-	lgt.SetPosition(cam.GetPosition());
-	lgt.SetFocalPoint(cam.GetFocalPoint());
-	windowSet = 1;
+      rendering = true;
+      if (ren.VisibleActorCount() == 0) return;
+      if (rw != null)
+	{
+	if (windowset == 0)
+	  { 
+	  // set the window id and the active camera
+	  rw.SetWindowInfo(this.getWindowInfo());
+	  cam = ren.GetActiveCamera();
+	  ren.AddLight(lgt);
+	  lgt.SetPosition(cam.GetPosition());
+	  lgt.SetFocalPoint(cam.GetFocalPoint());
+	  windowset = 1;
+	  }
+	rw.Render();
+	rendering = false;
 	}
-      rw.Render();
       }
   }
 
 public void paint(Graphics g)
   {
-    if (ren.VisibleActorCount() == 0) return;
-    if (rw != null)
-      {
-      if (windowSet == 0)
-	{ 
-	// set the window id and the active camera
-	rw.SetWindowInfo(this.GetWindowInfo());
-	cam = ren.GetActiveCamera();
-	ren.AddLight(lgt);
-	lgt.SetPosition(cam.GetPosition());
-	lgt.SetFocalPoint(cam.GetFocalPoint());
-	windowSet = 1;
-	}
-      rw.Render();
-      }
+  this.Render();
   }
         
 public void LightFollowCameraOn()
@@ -132,19 +147,18 @@ public void UpdateLight()
     lgt.SetFocalPoint(cam.GetFocalPoint());
   }
 
-public void mouseClicked(MouseEvent e) {}
+public void mouseClicked(MouseEvent e) {
+
+}
 
 public void mousePressed(MouseEvent e)
   {
+
     if (ren.VisibleActorCount() == 0) return;
     rw.SetDesiredUpdateRate(5.0);
     lastX = e.getX();
     lastY = e.getY();
-    if(e.getModifiers()==InputEvent.BUTTON1_MASK)
-      {
-      InteractionModeRotate();
-      }
-    else if ((e.getModifiers()==InputEvent.BUTTON2_MASK) ||
+    if ((e.getModifiers()==InputEvent.BUTTON2_MASK) ||
 	     (e.getModifiers()==(InputEvent.BUTTON1_MASK | InputEvent.SHIFT_MASK)))
       {
       InteractionModeTranslate();
@@ -153,6 +167,10 @@ public void mousePressed(MouseEvent e)
       {
       InteractionModeZoom();
       }
+    else 
+      {
+      InteractionModeRotate();
+      }
   }
 
 public void mouseReleased(MouseEvent e)
@@ -160,11 +178,16 @@ public void mouseReleased(MouseEvent e)
     rw.SetDesiredUpdateRate(0.01);
   }
 
-public void mouseEntered(MouseEvent e) {}
+public void mouseEntered(MouseEvent e) {
+	this.requestFocus();
+	}
 
 public void mouseExited(MouseEvent e) {}
 
-public void mouseMoved(MouseEvent e) {}
+public void mouseMoved(MouseEvent e) {
+    lastX = e.getX();
+    lastY = e.getY();
+}
 
 
 public void mouseDragged(MouseEvent e)
@@ -249,7 +272,7 @@ public void mouseDragged(MouseEvent e)
       }
     lastX = x;
     lastY = y;
-    rw.Render();
+    this.Render();
   }
 
 public void keyTyped(KeyEvent e) {}
@@ -262,7 +285,13 @@ public void keyPressed(KeyEvent e)
     if ('r' == keyChar)
       {
       ren.ResetCamera();
-      rw.Render();
+      this.Render();
+      }
+    if ('u' == keyChar)
+      {
+      vtkPicker picker = new vtkPicker();
+      picker.Pick(lastX,700 - lastY,0.0,ren);
+
       }
     if ('w' == keyChar)
       {
@@ -283,7 +312,7 @@ public void keyPressed(KeyEvent e)
 	  aPart.GetProperty().SetRepresentationToWireframe();
 	  }
 	}
-      rw.Render();
+      this.Render();
       }
     if ('s' == keyChar)
       {
@@ -304,9 +333,20 @@ public void keyPressed(KeyEvent e)
 	  aPart.GetProperty().SetRepresentationToSurface();
 	  }
 	}
-      rw.Render();
+      this.Render();
       }
   }
 
-public void keyReleased(KeyEvent e) {}
+  public void addPropertyChangeListener(PropertyChangeListener l)
+    {
+    changes.addPropertyChangeListener(l);
+    }
+  public void removePropertyChangeListener(PropertyChangeListener l)
+    {
+    changes.removePropertyChangeListener(l);
+    }
+  protected PropertyChangeSupport changes = new PropertyChangeSupport(this);
+
+  public void keyReleased(KeyEvent e) {}
+
 }

@@ -41,16 +41,7 @@ LDLIBS = -L../common \
 
 C_FLAGS = ${CPPFLAGS} ${XCFLAGS} ${CFLAGS} -I${srcdir} 
 
-all:  java_parse java_wrap 
-
-vtk/vtkPanel.class: vtk/vtkPanel.java
-	${JAVAC} -d ${JAVA_CLASS_HOME} ${srcdir}/vtk/vtkPanel.java
-
-java_parse: $(srcdir)/java_parse.tab.c $(srcdir)/lex.yy.c
-	$(CC) $(C_FLAGS) -I. -o java_parse $(srcdir)/java_parse.tab.c -lm
-
-java_wrap: $(srcdir)/java_wrap.tab.c $(srcdir)/lex.yy.c
-	$(CC) $(C_FLAGS) -I. -o java_wrap $(srcdir)/java_wrap.tab.c -lm
+all:  vtk
 
 #------------------------------------------------------------------------------
 # build the vtk java library
@@ -64,6 +55,6 @@ libvtkJava$(SHLIB_SUFFIX):
 
 #------------------------------------------------------------------------------
 clean: 
-	-rm -f *.o *.a java_parse java_wrap Makefile
+	-rm -f *.o *.a Makefile
 
 
