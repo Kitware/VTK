@@ -15,13 +15,16 @@
 #include "vtkPProbeFilter.h"
 
 #include "vtkIdTypeArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkCellData.h"
 #include "vtkPolyData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkPProbeFilter, "1.9");
+vtkCxxRevisionMacro(vtkPProbeFilter, "1.10");
 vtkStandardNewMacro(vtkPProbeFilter);
 
 vtkCxxSetObjectMacro(vtkPProbeFilter, Controller, vtkMultiProcessController);
@@ -40,20 +43,26 @@ vtkPProbeFilter::~vtkPProbeFilter()
 }
 
 //----------------------------------------------------------------------------
-void vtkPProbeFilter::ExecuteInformation()
+int vtkPProbeFilter::RequestInformation(vtkInformation *,
+                                        vtkInformationVector **,
+                                        vtkInformationVector *outputVector)
 {
-  vtkDataSet *output = this->GetOutput();
-  output->SetMaximumNumberOfPieces(-1);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
+               -1);
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkPProbeFilter::ExecuteData(vtkDataObject *)
+int vtkPProbeFilter::RequestData(vtkInformation *request,
+                                 vtkInformationVector **inputVector,
+                                 vtkInformationVector *outputVector)
 {
-  vtkDataSet *output = this->GetOutput();
-  //vtkDataObject *input = this->GetInput();
-  //vtkDataObject *source = this->GetSource();
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkDataSet *output = vtkDataSet::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
   
-  this->vtkProbeFilter::Execute();
+  this->vtkProbeFilter::RequestData(request, inputVector, outputVector);
   int procid = 0;
   int numProcs = 1;
   if ( this->Controller )
@@ -113,23 +122,31 @@ void vtkPProbeFilter::ExecuteData(vtkDataObject *)
     remoteProbeOutput->Delete();
     delete [] tuple;
     }
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkPProbeFilter::ComputeInputUpdateExtents( vtkDataObject *output )
+int vtkPProbeFilter::RequestUpdateExtent(vtkInformation *,
+                                         vtkInformationVector **inputVector,
+                                         vtkInformationVector *outputVector)
 {
-  vtkDataObject *input = this->GetInput();
-  vtkDataObject *source = this->GetSource();
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  if ( !input || !source || !output )
-    {
-    return;
-    }
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+              0);
+  sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
+                  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
+  sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+                  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
+  sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+                  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
 
-  input->SetUpdateExtent(0, 1, 0);
-  source->SetUpdateExtent(output->GetUpdatePiece(),
-                          output->GetUpdateNumberOfPieces(),
-                          output->GetUpdateGhostLevel());
+  return 1;
 }
 
 //----------------------------------------------------------------------------

@@ -31,15 +31,15 @@
 #ifndef __vtkProbeFilter_h
 #define __vtkProbeFilter_h
 
-#include "vtkDataSetToDataSetFilter.h"
+#include "vtkDataSetAlgorithm.h"
 
 class vtkIdTypeArray;
 
-class VTK_GRAPHICS_EXPORT vtkProbeFilter : public vtkDataSetToDataSetFilter
+class VTK_GRAPHICS_EXPORT vtkProbeFilter : public vtkDataSetAlgorithm
 {
 public:
   static vtkProbeFilter *New();
-  vtkTypeRevisionMacro(vtkProbeFilter,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkProbeFilter,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -72,9 +72,9 @@ protected:
 
   int SpatialMatch;
 
-  virtual void Execute();
-  void ExecuteInformation();
-  virtual void ComputeInputUpdateExtents(vtkDataObject *output);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   vtkIdTypeArray *ValidPoints;
 private:

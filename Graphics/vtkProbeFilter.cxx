@@ -17,10 +17,13 @@
 #include "vtkCell.h"
 #include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkProbeFilter, "1.79");
+vtkCxxRevisionMacro(vtkProbeFilter, "1.80");
 vtkStandardNewMacro(vtkProbeFilter);
 
 //----------------------------------------------------------------------------
@@ -28,6 +31,7 @@ vtkProbeFilter::vtkProbeFilter()
 {
   this->SpatialMatch = 0;
   this->ValidPoints = vtkIdTypeArray::New();
+  this->SetNumberOfInputPorts(2);
 }
 
 //----------------------------------------------------------------------------
@@ -37,46 +41,52 @@ vtkProbeFilter::~vtkProbeFilter()
   this->ValidPoints = NULL;
 }
 
-
 //----------------------------------------------------------------------------
 void vtkProbeFilter::SetSource(vtkDataSet *input)
 {
-  this->vtkProcessObject::SetNthInput(1, input);
+  this->SetInput(1, input);
 }
 
 //----------------------------------------------------------------------------
 vtkDataSet *vtkProbeFilter::GetSource()
 {
-  if (this->NumberOfInputs < 2)
+  if (this->GetNumberOfInputConnections(1) < 1)
     {
     return NULL;
     }
   
-  return (vtkDataSet *)(this->Inputs[1]);
+  return vtkDataSet::SafeDownCast(
+    this->GetExecutive()->GetInputData(1, 0));
 }
 
-
 //----------------------------------------------------------------------------
-void vtkProbeFilter::Execute()
+int vtkProbeFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet *source = vtkDataSet::SafeDownCast(
+    sourceInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet *output = vtkDataSet::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkIdType ptId, numPts;
   double x[3], tol2;
   vtkCell *cell;
   vtkPointData *pd, *outPD;
   int subId;
-  vtkDataSet *source = this->GetSource();
-  vtkDataSet *input = this->GetInput();
-  vtkDataSet *output= this->GetOutput();
   double pcoords[3], *weights;
   double fastweights[256];
 
   vtkDebugMacro(<<"Probing data");
-
-  if (source == NULL)
-    {
-    vtkErrorMacro (<< "Source is NULL.");
-    return;
-    }
 
   pd = source->GetPointData();
   int size = input->GetNumberOfPoints();
@@ -150,33 +160,42 @@ void vtkProbeFilter::Execute()
     {
     delete [] weights;
     }
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkProbeFilter::ExecuteInformation()
+int vtkProbeFilter::RequestInformation(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  if (this->GetInput() == NULL || this->GetSource() == NULL)
-    {
-    vtkErrorMacro("Missing input or source");
-    return;
-    }
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // Copy whole extent ...
-  this->vtkSource::ExecuteInformation();
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+               inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),
+               6);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
+               inInfo->Get(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES()));
 
   // Special case for ParaView.
   if (this->SpatialMatch == 2)
     {
-    this->GetOutput()->SetMaximumNumberOfPieces(this->GetSource()->GetMaximumNumberOfPieces());
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
+                 sourceInfo->Get(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES()));
     }
-
+  
   if (this->SpatialMatch == 1)
     {
-    int m1 = this->GetInput()->GetMaximumNumberOfPieces();
-    int m2 = this->GetSource()->GetMaximumNumberOfPieces();
+    int m1 = inInfo->Get(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES());
+    int m2 = sourceInfo->Get(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES());
     if (m1 < 0 && m2 < 0)
       {
-      this->GetOutput()->SetMaximumNumberOfPieces(-1);
+      outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
+                   -1);
       }
     else
       {
@@ -192,38 +211,45 @@ void vtkProbeFilter::ExecuteInformation()
         {
         m1 = m2;
         }
-      this->GetOutput()->SetMaximumNumberOfPieces(m1);
+      outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
+                   m1);
       }
     }
+
+  return 1;
 }
 
-
 //----------------------------------------------------------------------------
-void vtkProbeFilter::ComputeInputUpdateExtents( vtkDataObject *output )
+int vtkProbeFilter::RequestUpdateExtent(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkDataObject *input = this->GetInput();
-  vtkDataObject *source = this->GetSource();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
   int usePiece = 0;
-  
-  if (input == NULL || source == NULL)
-    {
-    vtkErrorMacro("Missing input or source.");
-    return;
-    }
 
   // What ever happend to CopyUpdateExtent in vtkDataObject?
   // Copying both piece and extent could be bad.  Setting the piece
   // of a structured data set will affect the extent.
-  if (output->IsA("vtkUnstructuredGrid") || output->IsA("vtkPolyData"))
+  if (!strcmp(outInfo->Get(vtkDataObject::DATA_TYPE_NAME()), "vtkUnstructuredGrid") ||
+      !strcmp(outInfo->Get(vtkDataObject::DATA_TYPE_NAME()), "vtkPolyData"))
     {
     usePiece = 1;
     }
   
-  input->RequestExactExtentOn();
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
   
   if ( ! this->SpatialMatch)
     {
-    source->SetUpdateExtent(0, 1, 0);
+    sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
+    sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+                    1);
+    sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+                    0);
     }
   else if (this->SpatialMatch == 1)
     {
@@ -232,36 +258,52 @@ void vtkProbeFilter::ComputeInputUpdateExtents( vtkDataObject *output )
       // Request an extra ghost level because the probe
       // gets external values with computation prescision problems.
       // I think the probe should be changed to have an epsilon ...
-      source->SetUpdateExtent(output->GetUpdatePiece(), 
-                              output->GetUpdateNumberOfPieces(),
-                              output->GetUpdateGhostLevel()+1);
+      sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
+                      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
+      sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+                      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
+      sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+                      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS())+1);
       }
     else
       {
-      source->SetUpdateExtent(output->GetUpdateExtent()); 
+      sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+                      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()),
+                      6);
       }
     }
   
   if (usePiece)
     {
-    input->SetUpdateExtent(output->GetUpdatePiece(), 
-                           output->GetUpdateNumberOfPieces(),
-                           output->GetUpdateGhostLevel());
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
+                outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+                outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+                outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
     }
   else
     {
-    input->SetUpdateExtent(output->GetUpdateExtent()); 
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+                outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()),
+                6);
     }
   
   // Use the whole input in all processes, and use the requested update
   // extent of the output to divide up the source.
   if (this->SpatialMatch == 2)
     {
-    input->SetUpdateExtent(0, 1, 0);
-    source->SetUpdateExtent(output->GetUpdatePiece(),
-                            output->GetUpdateNumberOfPieces(),
-                            output->GetUpdateGhostLevel());
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1);
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), 0);
+    sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
+                    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
+    sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+                    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
+    sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+                    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
     }
+  return 1;
 }
 
 //----------------------------------------------------------------------------

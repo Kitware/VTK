@@ -41,9 +41,9 @@ protected:
   ~vtkPProbeFilter();
 
   // Usual data generation method
-  virtual void ExecuteData(vtkDataObject*);
-  virtual void ExecuteInformation();
-  virtual void ComputeInputUpdateExtents(vtkDataObject *output);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   vtkMultiProcessController* Controller;
 
