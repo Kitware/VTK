@@ -253,7 +253,6 @@ private:
   int MaxID;
 
   vtkKdNode(const vtkKdNode&); // Not implemented
-  void operator=(const vtkKdNode&); // Not implemented
 };
 
 #endif

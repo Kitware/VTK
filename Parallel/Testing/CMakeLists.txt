@@ -6,7 +6,8 @@ ENDIF (VTK_WRAP_TCL)
 IF(PYTHON_EXECUTABLE)
   ADD_TEST(HeaderTesting-Parallel ${PYTHON_EXECUTABLE}
            ${VTK_SOURCE_DIR}/Common/Testing/HeaderTesting.py
-	   "${VTK_SOURCE_DIR}/Parallel"
+           "${VTK_SOURCE_DIR}/Parallel"
            vtkMPI.h
+           vtkKdNode.h
            )
 ENDIF(PYTHON_EXECUTABLE)
