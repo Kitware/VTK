@@ -45,7 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkUnstructuredGridWriter* vtkUnstructuredGridWriter::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -119,7 +119,7 @@ void vtkUnstructuredGridWriter::WriteData()
   else
     {
     // swap the bytes if necc
-    //vtkByteSwap::SwapWrite4BERange(types,ncells,fp);
+    vtkByteSwap::SwapWrite4BERange(types,ncells,fp);
     }
   *fp << "\n";
   delete [] types;
