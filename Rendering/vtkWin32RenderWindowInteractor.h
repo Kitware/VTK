@@ -55,10 +55,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdlib.h>
 #include "vtkRenderWindowInteractor.h"
 
-private:
-vtkWin32RenderWindowInteractor(const vtkWin32RenderWindowInteractor&);  // Not implemented.
-void operator=(const vtkWin32RenderWindowInteractor&);  // Not implemented.
-class VTK_RENDERING_EXPORT vtkWin32RenderWindowInteractor : public vtkRenderWindowInteractor {
+
+class VTK_RENDERING_EXPORT vtkWin32RenderWindowInteractor : public vtkRenderWindowInteractor 
+{
 public:
   // Description:
   // Construct object so that light follows camera motion.
@@ -163,6 +162,10 @@ protected:
   static void (*ClassExitMethodArgDelete)(void *);
   static void *ClassExitMethodArg;
   //ETX
+
+private:
+  vtkWin32RenderWindowInteractor(const vtkWin32RenderWindowInteractor&);  // Not implemented.
+  void operator=(const vtkWin32RenderWindowInteractor&);  // Not implemented.
 };
 
 #endif
