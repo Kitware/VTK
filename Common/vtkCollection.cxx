@@ -76,7 +76,16 @@ vtkCollection::vtkCollection()
 // objects from the collection.
 vtkCollection::~vtkCollection()
 {
-  this->RemoveAllItems();
+  vtkCollectionElement *elem;
+
+  while (this->NumberOfItems )
+    {
+    elem = this->Top;
+    this->Top = elem->Next;
+    this->Current = elem->Next;
+    this->DeleteElement(elem);
+    this->NumberOfItems--;    
+    }
 }
 
 // protected function to delete an element. Internal use only.
