@@ -7,9 +7,7 @@ catch {load vtktcl}
 # if VTK_RESULTS_PATH is defined, then use if to qualify the error 
 # and test texts
 #
-if { [catch {set VTK_RESULTS_PATH $env(VTK_OTHER_RESULTS_PATH)/}] != 0} { set VTK_RESULTS_PATH "" }
-
-puts "${VTK_RESULTS_PATH}"
+if { [catch {set VTK_RESULTS_PATH $env(VTK_RESULTS_PATH)/}] != 0} { set VTK_RESULTS_PATH "" }
 
 # on windows shut off global warnings because they hold up the tests
 if {$tcl_platform(os) == "Windows NT"} {
