@@ -115,7 +115,7 @@ vtkOpenGLImageWindow::vtkOpenGLImageWindow()
     delete [] this->WindowName;
   this->WindowName = new char[strlen("Visualization Toolkit - OpenGL")+1];
     strcpy( this->WindowName, "Visualization Toolkit - OpenGL" );
-  this->DoubleBuffer = 1;
+  this->DoubleBuffer = 0;
   this->Erase = 1;
 }
 
@@ -140,7 +140,7 @@ vtkOpenGLImageWindow::~vtkOpenGLImageWindow()
     }
 }
 
-// Begin the Imageing process.
+// Begin the Imaging process.
 void vtkOpenGLImageWindow::Render()
 {
   if (this->WindowCreated)
@@ -150,7 +150,7 @@ void vtkOpenGLImageWindow::Render()
   this->vtkImageWindow::Render();
 }
 
-// End the Imageing process and display the image.
+// End the Imaging process and display the image.
 void vtkOpenGLImageWindow::SwapBuffers()
 {
   glFlush();
@@ -162,7 +162,7 @@ void vtkOpenGLImageWindow::SwapBuffers()
 }
  
 
-// Initialize the window for Imageing.
+// Initialize the window for Imaging.
 void vtkOpenGLImageWindow::MakeDefaultWindow()
 {
   XVisualInfo  *v, matcher;
