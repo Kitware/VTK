@@ -67,6 +67,7 @@ vtkDataSetAttributes.cxx
 vtkDataSetCollection.cxx
 vtkDebugLeaks.cxx
 vtkDebugLeaksManager.cxx
+vtkDemandDrivenPipeline.cxx
 vtkDirectory.cxx
 vtkDistributedExecutive.cxx
 vtkDoubleArray.cxx
@@ -191,6 +192,7 @@ vtkSmartPointerBase.cxx
 vtkSource.cxx
 vtkSphericalTransform.cxx
 vtkStdString.cxx
+vtkStreamingDemandDrivenPipeline.cxx
 vtkStructuredData.cxx
 vtkStructuredGrid.cxx
 vtkStructuredPoints.cxx

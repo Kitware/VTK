@@ -15,7 +15,7 @@
 #include "vtkAlgorithm.h"
 
 #include "vtkAlgorithmOutput.h"
-#include "vtkDistributedExecutive.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkGarbageCollector.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -25,7 +25,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.9");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.10");
 vtkStandardNewMacro(vtkAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -632,7 +632,7 @@ void vtkAlgorithm::Update()
 //----------------------------------------------------------------------------
 vtkExecutive* vtkAlgorithm::CreateDefaultExecutive()
 {
-  return vtkDistributedExecutive::New();
+  return vtkStreamingDemandDrivenPipeline::New();
 }
 
 //----------------------------------------------------------------------------
