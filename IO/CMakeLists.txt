@@ -27,6 +27,7 @@ vtkJPEGReader
 vtkJPEGWriter
 vtkMCubesReader
 vtkMCubesWriter
+vtkMedicalImageReader2
 vtkOBJReader
 vtkParticleReader
 vtkPLOT3DReader

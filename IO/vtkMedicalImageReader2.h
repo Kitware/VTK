@@ -1,11 +1,10 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkGESignaReader.h
+  Module:    vtkMedicalImageReader2.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
-
 
 Copyright (c) 1993-2001 Ken Martin, Will Schroeder, Bill Lorensen 
 All rights reserved.
@@ -39,45 +38,58 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkGESignaReader - read GE Signa ximg files
+// .NAME vtkMedicalImageReader2 - vtkImageReader2 with medical meta data.
 // .SECTION Description
-// vtkGESignaReader is a source object that reads some GE Signa ximg files It
-// does support reading in pixel spacing, slice spacing and it computes an
-// origin for the image in millimeters. It always produces greyscale unsigned
-// short data and it supports reading in rectangular, packed, compressed, and
-// packed&compressed. It does not read in slice orientation, or position
-// right now. To use it you just need to specify a filename or a file prefix
-// and pattern.
+// vtkMedicalImageReader2 is a parent class for medical image readers.
+// It provides a place to store patient information that may be stored
+// in the image header.
 
-//
 // .SECTION See Also
-// vtkImageReader2
+// vtkImageReader2 vtkGESignaReader
 
-#ifndef __vtkGESignaReader_h
-#define __vtkGESignaReader_h
+#ifndef __vtkMedicalImageReader2_h
+#define __vtkMedicalImageReader2_h
 
-#include <stdio.h>
-#include "vtkMedicalImageReader2.h"
+#include "vtkImageReader2.h"
 
-class VTK_IO_EXPORT vtkGESignaReader : public vtkMedicalImageReader2
+
+class VTK_IO_EXPORT vtkMedicalImageReader2 : public vtkImageReader2
 {
 public:
-  static vtkGESignaReader *New();
-  vtkTypeRevisionMacro(vtkGESignaReader,vtkImageReader2);
+  static vtkMedicalImageReader2 *New();
+  vtkTypeRevisionMacro(vtkMedicalImageReader2,vtkImageReader2);
+  void PrintSelf(ostream& os, vtkIndent indent);   
 
-  // Description: is the given file name a GESigna file?
-  virtual int CanReadFile(const char* fname);
+  // Description:
+  // Methods to set/get the patient information data.
+  vtkSetStringMacro(PatientName);
+  vtkGetStringMacro(PatientName);
+  vtkSetStringMacro(PatientID);
+  vtkGetStringMacro(PatientID);
+  vtkSetStringMacro(Date);
+  vtkGetStringMacro(Date);
+  vtkSetStringMacro(Series);
+  vtkGetStringMacro(Series);
+  vtkSetStringMacro(Study);
+  vtkGetStringMacro(Study);
+  vtkSetStringMacro(ImageNumber);
+  vtkGetStringMacro(ImageNumber);
+  
 protected:
-  vtkGESignaReader() {};
-  ~vtkGESignaReader() {};
+  vtkMedicalImageReader2();
+  ~vtkMedicalImageReader2();
 
-  virtual void ExecuteInformation();
-  virtual void ExecuteData(vtkDataObject *out);
-
+  // store header info
+  char *PatientName;
+  char *PatientID;
+  char *Date;
+  char *ImageNumber;
+  char *Study;
+  char *Series;
+  
 private:
-  vtkGESignaReader(const vtkGESignaReader&);  // Not implemented.
-  void operator=(const vtkGESignaReader&);  // Not implemented.
+  vtkMedicalImageReader2(const vtkMedicalImageReader2&); // Not implemented.
+  void operator=(const vtkMedicalImageReader2&); // Not implemented.
 };
+
 #endif
-
-

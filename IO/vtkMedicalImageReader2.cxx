@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkGESignaReader.h
+  Module:    vtkMedicalImageReader2.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -39,45 +39,70 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkGESignaReader - read GE Signa ximg files
-// .SECTION Description
-// vtkGESignaReader is a source object that reads some GE Signa ximg files It
-// does support reading in pixel spacing, slice spacing and it computes an
-// origin for the image in millimeters. It always produces greyscale unsigned
-// short data and it supports reading in rectangular, packed, compressed, and
-// packed&compressed. It does not read in slice orientation, or position
-// right now. To use it you just need to specify a filename or a file prefix
-// and pattern.
-
-//
-// .SECTION See Also
-// vtkImageReader2
-
-#ifndef __vtkGESignaReader_h
-#define __vtkGESignaReader_h
-
-#include <stdio.h>
 #include "vtkMedicalImageReader2.h"
+#include "vtkObjectFactory.h"
 
-class VTK_IO_EXPORT vtkGESignaReader : public vtkMedicalImageReader2
+vtkCxxRevisionMacro(vtkMedicalImageReader2, "1.1");
+vtkStandardNewMacro(vtkMedicalImageReader2);
+
+vtkMedicalImageReader2::vtkMedicalImageReader2()
 {
-public:
-  static vtkGESignaReader *New();
-  vtkTypeRevisionMacro(vtkGESignaReader,vtkImageReader2);
+  this->PatientName = 0;
+  this->PatientID = 0;
+  this->Date = 0;
+  this->ImageNumber = 0;
+  this->Series = 0;
+  this->Study = 0;
+}
 
-  // Description: is the given file name a GESigna file?
-  virtual int CanReadFile(const char* fname);
-protected:
-  vtkGESignaReader() {};
-  ~vtkGESignaReader() {};
+vtkMedicalImageReader2::~vtkMedicalImageReader2()
+{
+  delete [] this->PatientName;
+  this->PatientName = NULL;
+  delete [] this->PatientID;
+  this->PatientID = NULL;
+  delete [] this->Date;
+  this->Date = NULL;
+  delete [] this->ImageNumber;
+  this->ImageNumber = NULL;
+  delete [] this->Series;
+  this->Series = NULL;
+  delete [] this->Study;
+  this->Study = NULL;
+}
 
-  virtual void ExecuteInformation();
-  virtual void ExecuteData(vtkDataObject *out);
+void vtkMedicalImageReader2::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
 
-private:
-  vtkGESignaReader(const vtkGESignaReader&);  // Not implemented.
-  void operator=(const vtkGESignaReader&);  // Not implemented.
-};
-#endif
-
-
+  os << "\n" << indent << "PatientName: ";
+  if (this->PatientName)
+    {
+    os << this->PatientName;
+    }
+  os << "\n" << indent << "PatientID: ";
+  if (this->PatientID)
+    {
+    os << this->PatientID;
+    }
+  os << "\n" << indent << "Date: ";
+  if (this->Date)
+    {
+    os << this->Date;
+    }
+  os << "\n" << indent << "ImageNumber: ";
+  if (this->ImageNumber)
+    {
+    os << this->ImageNumber;
+    }
+  os << "\n" << indent << "Series: ";
+  if (this->Series)
+    {
+    os << this->Series;
+    }
+  os << "\n" << indent << "Study: ";
+  if (this->Study)
+    {
+    os << this->Study;
+    }
+}
