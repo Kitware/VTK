@@ -105,7 +105,7 @@ protected:
   float           BuildTreeExecuteTime;
   float           LookupIndexExecuteTime;
 
-  void ExecuteImageInformation();
+  void ExecuteInformation();
   void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
   void Execute(vtkImageData *inData, vtkImageData *outData);
 };

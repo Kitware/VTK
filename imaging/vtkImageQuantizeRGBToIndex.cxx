@@ -651,7 +651,7 @@ void vtkImageQuantizeRGBToIndex::Execute(vtkImageData *inData,
 
 
 // Change the output type and number of components
-void vtkImageQuantizeRGBToIndex::ExecuteImageInformation()
+void vtkImageQuantizeRGBToIndex::ExecuteInformation()
 {
   this->GetOutput()->SetNumberOfScalarComponents(1);
   this->GetOutput()->SetScalarType(VTK_UNSIGNED_SHORT);
