@@ -45,6 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkStructuredGrid.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkStructuredPoints.h"
+#include "vtkPolyData.h"
 #include "vtkFloatArray.h"
 #include "vtkByteSwap.h"
 #include <ctype.h>
@@ -233,8 +234,102 @@ int vtkEnSight6BinaryReader::ReadGeometryFile()
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSight6BinaryReader::ReadScalarsPerNode(char* fileName, char* description,
-					  int numberOfComponents, int component)
+int vtkEnSight6BinaryReader::ReadMeasuredGeometryFile()
+{
+  char line[80], subLine[80];
+  int i, lineRead;
+  int *pointIds;
+  float *xCoords, *yCoords, *zCoords;
+  vtkPoints *points = vtkPoints::New();
+  vtkPolyData *pd = vtkPolyData::New();
+  
+  // Initialize
+  //
+  if (!this->GeometryFileName)
+    {
+    vtkErrorMacro("A MeasuredFileName must be specified in the case file.");
+    return 0;
+    }
+  if (strrchr(this->MeasuredFileName, '*') != NULL)
+    {
+    vtkErrorMacro("VTK does not currently handle time.");
+    return 0;
+    }
+  if (this->FilePath)
+    {
+    strcpy(line, this->FilePath);
+    strcat(line, this->MeasuredFileName);
+    vtkDebugMacro("full path to measured geometry file: " << line);
+    }
+  else
+    {
+    strcpy(line, this->MeasuredFileName);
+    }
+  
+  this->IFile = fopen(line, "rb");
+  if (this->IFile == NULL)
+    {
+    vtkErrorMacro("Unable to open file: " << line);
+    return 0;
+    }
+  
+  this->ReadLine(line);
+  sscanf(line, " %*s %s", subLine);
+  if (strcmp(subLine, "Binary") != 0)
+    {
+    vtkErrorMacro("This is not a binary data set. Try "
+                  << "vtkEnSightGoldReader.");
+    return 0;
+    }
+  // Skip the description line.
+  this->ReadLine(line);
+
+  this->ReadLine(line); // "particle coordinates"
+  
+  lineRead = this->ReadInt(&this->NumberOfMeasuredPoints);
+  
+  this->MeasuredNodeIds->Allocate(this->NumberOfMeasuredPoints);
+
+  pointIds = new int[this->NumberOfMeasuredPoints];
+  xCoords = new float [this->NumberOfMeasuredPoints];
+  yCoords = new float [this->NumberOfMeasuredPoints];
+  zCoords = new float [this->NumberOfMeasuredPoints];
+  points->Allocate(this->NumberOfMeasuredPoints);
+  pd->Allocate(this->NumberOfMeasuredPoints);
+  
+  this->ReadIntArray(pointIds, this->NumberOfMeasuredPoints);
+  this->ReadFloatArray(xCoords, this->NumberOfMeasuredPoints);
+  this->ReadFloatArray(yCoords, this->NumberOfMeasuredPoints);
+  this->ReadFloatArray(zCoords, this->NumberOfMeasuredPoints);
+  
+  for (i = 0; i < this->NumberOfMeasuredPoints; i++)
+    {
+    this->MeasuredNodeIds->InsertNextId(pointIds[i]);
+    points->InsertNextPoint(xCoords[i], yCoords[i], zCoords[i]);
+    pd->InsertNextCell(VTK_VERTEX, 1, &pointIds[i]);
+    }
+
+  pd->SetPoints(points);
+  this->SetNthOutput(this->NumberOfGeometryParts, pd);
+  
+  points->Delete();
+  pd->Delete();
+  delete [] pointIds;
+  delete [] xCoords;
+  delete [] yCoords;
+  delete [] zCoords;
+  
+  fclose(this->IFile);
+  this->IFile = NULL;
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkEnSight6BinaryReader::ReadScalarsPerNode(char* fileName,
+                                                char* description,
+                                                int measured,
+                                                int numberOfComponents,
+                                                int component)
 {
   char line[80];
   int partId, numPts, numParts, i;
@@ -274,7 +369,15 @@ int vtkEnSight6BinaryReader::ReadScalarsPerNode(char* fileName, char* descriptio
   if (strncmp(line, "part", 4) != 0)
     {
     fsetpos(this->IFile, &pos);
-    numPts = this->UnstructuredPoints->GetNumberOfPoints();
+    if (!measured)
+      {
+      numPts = this->UnstructuredPoints->GetNumberOfPoints();
+      }
+    else
+      {
+      numPts = this->GetOutput(this->NumberOfGeometryParts)->
+        GetNumberOfPoints();
+      }
     if (component == 0)
       {
       scalars = vtkFloatArray::New();
@@ -294,20 +397,30 @@ int vtkEnSight6BinaryReader::ReadScalarsPerNode(char* fileName, char* descriptio
       scalars->InsertComponent(i, component, scalarsRead[i]);
       }
     
-    numParts = this->UnstructuredPartIds->GetNumberOfIds();
-    for (i = 0; i < numParts; i++)
+    if (!measured)
       {
-      partId = this->UnstructuredPartIds->GetId(i);
-      if (component == 0)
-	{
-	scalars->SetName(description);
-	this->GetOutput(partId)->GetPointData()->AddArray(scalars);
-	scalars->Delete();
-	}
-      else
-	{
-	this->GetOutput(partId)->GetPointData()->AddArray(scalars);
-	}
+      numParts = this->UnstructuredPartIds->GetNumberOfIds();
+      for (i = 0; i < numParts; i++)
+        {
+        partId = this->UnstructuredPartIds->GetId(i);
+        if (component == 0)
+          {
+          scalars->SetName(description);
+          this->GetOutput(partId)->GetPointData()->AddArray(scalars);
+          scalars->Delete();
+          }
+        else
+          {
+          this->GetOutput(partId)->GetPointData()->AddArray(scalars);
+          }
+        }
+      }
+    else
+      {
+      scalars->SetName(description);
+      this->GetOutput(this->NumberOfGeometryParts)->GetPointData()->
+        AddArray(scalars);
+      scalars->Delete();
       }
     delete [] scalarsRead;
     }
@@ -355,7 +468,9 @@ int vtkEnSight6BinaryReader::ReadScalarsPerNode(char* fileName, char* descriptio
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSight6BinaryReader::ReadVectorsPerNode(char* fileName, char* description)
+int vtkEnSight6BinaryReader::ReadVectorsPerNode(char* fileName,
+                                                char* description,
+                                                int measured)
 {
   char line[80];
   int partId, numPts, i;
@@ -396,7 +511,16 @@ int vtkEnSight6BinaryReader::ReadVectorsPerNode(char* fileName, char* descriptio
   if (strncmp(line, "part", 4) != 0)
     {
     fsetpos(this->IFile, &pos);
-    numPts = this->UnstructuredPoints->GetNumberOfPoints();
+    if (!measured)
+      {
+      numPts = this->UnstructuredPoints->GetNumberOfPoints();
+      }
+    else
+      {
+      numPts = this->GetOutput(this->NumberOfGeometryParts)->
+        GetNumberOfPoints();
+      }
+    
     vectors = vtkFloatArray::New();
     vectors->SetNumberOfTuples(numPts);
     vectors->SetNumberOfComponents(3);
@@ -410,12 +534,23 @@ int vtkEnSight6BinaryReader::ReadVectorsPerNode(char* fileName, char* descriptio
       vector[2] = vectorsRead[3*i+2];
       vectors->InsertTuple(i, vector);
       }
-    for (i = 0; i < this->UnstructuredPartIds->GetNumberOfIds(); i++)
+    
+    if (!measured)
       {
-      partId = this->UnstructuredPartIds->GetId(i);
-      vectors->SetName(description);
-      this->GetOutput(partId)->GetPointData()-> AddArray(vectors);
+      for (i = 0; i < this->UnstructuredPartIds->GetNumberOfIds(); i++)
+        {
+        partId = this->UnstructuredPartIds->GetId(i);
+        vectors->SetName(description);
+        this->GetOutput(partId)->GetPointData()-> AddArray(vectors);
+        }
       }
+    else
+      {
+      vectors->SetName(description);
+      this->GetOutput(this->NumberOfGeometryParts)->GetPointData()->
+        AddArray(vectors);
+      }
+    
     vectors->Delete();
     delete [] vectorsRead;
     }

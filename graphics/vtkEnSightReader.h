@@ -159,6 +159,11 @@ protected:
   virtual int ReadGeometryFile() = 0;
 
   // Description:
+  // Read the measured geometry file.  If an error occurred, 0 is returned;
+  // otherwise 1.
+  virtual int ReadMeasuredGeometryFile() = 0;
+
+  // Description:
   // Read the variable files. If an error occurred, 0 is returned; otherwise 1.
   int ReadVariableFiles();
 
@@ -166,12 +171,14 @@ protected:
   // Read scalars per node for this dataset.  If an error occurred, 0 is
   // returned; otherwise 1.
   virtual int ReadScalarsPerNode(char* fileName, char* description,
-				 int numberOfComponents = 1, int component = 0) = 0;
+                                 int measured = 0, int numberOfComponents = 1,
+                                 int component = 0) = 0;
   
   // Description:
   // Read vectors per node for this dataset.  If an error occurred, 0 is
   // returned; otherwise 1.
-  virtual int ReadVectorsPerNode(char* fileName, char* description) = 0;
+  virtual int ReadVectorsPerNode(char* fileName, char* description,
+                                 int measured = 0) = 0;
 
   // Description:
   // Read tensors per node for this dataset.  If an error occurred, 0 is
@@ -290,6 +297,12 @@ protected:
   int NumberOfComplexVectorsPerElement;
   
   istream* IS;
+  
+  int NumberOfGeometryParts;
+  
+  // global list of points for measured geometry
+  int NumberOfMeasuredPoints;
+  vtkIdList *MeasuredNodeIds;
 };
 
 #endif

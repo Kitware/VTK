@@ -45,6 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkStructuredGrid.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkImageData.h"
+#include "vtkPolyData.h"
 #include "vtkFloatArray.h"
 #include "vtkByteSwap.h"
 #include <ctype.h>
@@ -221,8 +222,100 @@ int vtkEnSightGoldBinaryReader::ReadGeometryFile()
 }
 
 //----------------------------------------------------------------------------
+int vtkEnSightGoldBinaryReader::ReadMeasuredGeometryFile()
+{
+  char line[80], subLine[80];
+  int i, lineRead;
+  int *pointIds;
+  float *xCoords, *yCoords, *zCoords;
+  vtkPoints *points = vtkPoints::New();
+  vtkPolyData *pd = vtkPolyData::New();
+  
+  // Initialize
+  //
+  if (!this->GeometryFileName)
+    {
+    vtkErrorMacro("A MeasuredFileName must be specified in the case file.");
+    return 0;
+    }
+  if (strrchr(this->MeasuredFileName, '*') != NULL)
+    {
+    vtkErrorMacro("VTK does not currently handle time.");
+    return 0;
+    }
+  if (this->FilePath)
+    {
+    strcpy(line, this->FilePath);
+    strcat(line, this->MeasuredFileName);
+    vtkDebugMacro("full path to measured geometry file: " << line);
+    }
+  else
+    {
+    strcpy(line, this->MeasuredFileName);
+    }
+  
+  this->IFile = fopen(line, "rb");
+  if (this->IFile == NULL)
+    {
+    vtkErrorMacro("Unable to open file: " << line);
+    return 0;
+    }
+  
+  this->ReadLine(line);
+  sscanf(line, " %*s %s", subLine);
+  if (strcmp(subLine, "Binary") != 0)
+    {
+    vtkErrorMacro("This is not a binary data set. Try "
+                  << "vtkEnSightGoldReader.");
+    return 0;
+    }
+  // Skip the description line.
+  this->ReadLine(line);
+
+  this->ReadLine(line); // "particle coordinates"
+  
+  lineRead = this->ReadInt(&this->NumberOfMeasuredPoints);
+  
+  this->MeasuredNodeIds->Allocate(this->NumberOfMeasuredPoints);
+
+  pointIds = new int[this->NumberOfMeasuredPoints];
+  xCoords = new float [this->NumberOfMeasuredPoints];
+  yCoords = new float [this->NumberOfMeasuredPoints];
+  zCoords = new float [this->NumberOfMeasuredPoints];
+  points->Allocate(this->NumberOfMeasuredPoints);
+  pd->Allocate(this->NumberOfMeasuredPoints);
+  
+  this->ReadIntArray(pointIds, this->NumberOfMeasuredPoints);
+  this->ReadFloatArray(xCoords, this->NumberOfMeasuredPoints);
+  this->ReadFloatArray(yCoords, this->NumberOfMeasuredPoints);
+  this->ReadFloatArray(zCoords, this->NumberOfMeasuredPoints);
+  
+  for (i = 0; i < this->NumberOfMeasuredPoints; i++)
+    {
+    this->MeasuredNodeIds->InsertNextId(pointIds[i]);
+    points->InsertNextPoint(xCoords[i], yCoords[i], zCoords[i]);
+    pd->InsertNextCell(VTK_VERTEX, 1, &pointIds[i]);
+    }
+
+  pd->SetPoints(points);
+  this->SetNthOutput(this->NumberOfGeometryParts, pd);
+  
+  points->Delete();
+  pd->Delete();
+  delete [] pointIds;
+  delete [] xCoords;
+  delete [] yCoords;
+  delete [] zCoords;
+  
+  fclose(this->IFile);
+  this->IFile = NULL;
+  return 1;
+}
+
+//----------------------------------------------------------------------------
 int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(char* fileName,
                                                    char* description,
+                                                   int measured,
                                                    int numberOfComponents,
                                                    int component)
 {
@@ -257,6 +350,30 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(char* fileName,
     }
 
   this->ReadLine(line); // skip the description line
+  
+  if (measured)
+    {
+    this->ReadLine(line);
+    numPts = this->GetOutput(this->NumberOfGeometryParts)->GetNumberOfPoints();
+    scalars = vtkFloatArray::New();
+    scalars->SetNumberOfTuples(numPts);
+    scalars->SetNumberOfComponents(numberOfComponents);
+    scalars->Allocate(numPts * numberOfComponents);
+    scalarsRead = new float [numPts];
+    this->ReadFloatArray(scalarsRead, numPts);
+    for (i = 0; i < numPts; i++)
+      {
+      scalars->InsertComponent(i, component, scalarsRead[i]);
+      }
+    scalars->SetName(description);
+    this->GetOutput(this->NumberOfGeometryParts)->GetPointData()->
+      AddArray(scalars);
+    scalars->Delete();
+    delete [] scalarsRead;
+    fclose(this->IFile);
+    this->IFile = NULL;
+    return 1;
+    }
   
   while (this->ReadLine(line) &&
          strcmp(line, "part") == 0)
@@ -306,13 +423,16 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(char* fileName,
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(char* fileName, char* description)
+int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(char* fileName,
+                                                   char* description,
+                                                   int measured)
 {
   char line[80]; 
   int partId, numPts, i;
   vtkFloatArray *vectors;
   float *xComp = NULL, *yComp = NULL, *zComp = NULL;
-  float tuple[3];
+  float tuple[3], vector[3];
+  float *vectorsRead;
   
   // Initialize
   //
@@ -341,6 +461,33 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(char* fileName, char* descrip
 
   this->ReadLine(line); // skip the description line
 
+  if (measured)
+    {
+    this->ReadLine(line);
+    numPts = this->GetOutput(this->NumberOfGeometryParts)->GetNumberOfPoints();
+    vectors = vtkFloatArray::New();
+    vectors->SetNumberOfTuples(numPts);
+    vectors->SetNumberOfComponents(3);
+    vectors->Allocate(numPts*3);
+    vectorsRead = new float[numPts*3];
+    this->ReadFloatArray(vectorsRead, numPts*3);
+    for (i = 0; i < numPts; i++)
+      {
+      vector[0] = vectorsRead[3*i];
+      vector[1] = vectorsRead[3*i+1];
+      vector[2] = vectorsRead[3*i+2];
+      vectors->InsertTuple(i, vector);
+      }
+    vectors->SetName(description);
+    this->GetOutput(this->NumberOfGeometryParts)->GetPointData()->
+      AddArray(vectors);
+    vectors->Delete();
+    delete [] vectorsRead;
+    fclose(this->IFile);
+    this->IFile = NULL;
+    return 1;
+    }
+  
   while (this->ReadLine(line) &&
          strcmp(line, "part") == 0)
     {
