@@ -133,8 +133,7 @@ int  FTFont::Descender() const
 #define FTFONT_DEBUG 0
 
 void FTFont::BBox( const char* string,
-                   float& llx, float& lly, float& llz, float& urx, float& ury, float& urz,
-                   bool adjust)
+                   float& llx, float& lly, float& llz, float& urx, float& ury, float& urz)
 {
   const unsigned char* c = (unsigned char*)string;
   llx = lly = llz = urx = ury = urz = 0;
@@ -163,12 +162,9 @@ void FTFont::BBox( const char* string,
   }
   
   //Final adjustments
-  if (adjust)
-    {
-    llx = glyphList->BBox( *string).x1;
-    urx -= glyphList->Advance( *(c - 1), 0);
-    urx += bbox.x2;
-    }
+  llx = glyphList->BBox( *string).x1;
+  urx -= glyphList->Advance( *(c - 1), 0);
+  urx += bbox.x2;
 
 #if FTFONT_DEBUG 
     printf("FTFont::BBox: (%f, %f, %f) -> (%f, %f, %f)\n",
@@ -177,7 +173,7 @@ void FTFont::BBox( const char* string,
 }
 
 void FTFont::BBox( const wchar_t* string,
-                    float& llx, float& lly, float& llz, float& urx, float& ury, float& urz, bool adjust)
+                    float& llx, float& lly, float& llz, float& urx, float& ury, float& urz)
 {
   const wchar_t* c = string;
   llx = lly = llz = urx = ury = urz = 0;
@@ -206,12 +202,9 @@ void FTFont::BBox( const wchar_t* string,
   }
   
   //Final adjustments
-  if (adjust)
-    {
-    llx = glyphList->BBox( *string).x1;
-    urx -= glyphList->Advance( *(c - 1), 0);
-    urx += bbox.x2;
-    }
+  llx = glyphList->BBox( *string).x1;
+  urx -= glyphList->Advance( *(c - 1), 0);
+  urx += bbox.x2;
 }
 
 

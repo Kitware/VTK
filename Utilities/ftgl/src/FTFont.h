@@ -133,7 +133,7 @@ class FTGL_EXPORT FTFont
      * @param ury    upper right far y coord
      * @param urz    upper right far z coord
      */
-    void BBox( const char* text, float& llx, float& lly, float& llz, float& urx, float& ury, float& urz, bool adjust = true);
+    void BBox( const char* text, float& llx, float& lly, float& llz, float& urx, float& ury, float& urz);
 
     /**
      * Get the bounding box for a string.
@@ -146,7 +146,7 @@ class FTGL_EXPORT FTFont
      * @param ury    upper right far y coord
      * @param urz    upper right far z coord
      */
-    void BBox( const wchar_t* string, float& llx, float& lly, float& llz, float& urx, float& ury, float& urz, bool adjust = true);
+    void BBox( const wchar_t* string, float& llx, float& lly, float& llz, float& urx, float& ury, float& urz);
 
     /**
      * Get the advance width for a string.
