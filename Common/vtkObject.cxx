@@ -54,7 +54,7 @@ int vtkObject::GetGlobalWarningDisplay()
 class vtkObserver
 {
  public:
-  vtkObserver():Command(0),Event(0),Tag(0),Next(0),Priority(0.0) {}
+  vtkObserver():Command(0),Event(0),Tag(0),Next(0),Priority(0.0), Visited(0) {}
   ~vtkObserver();
   void PrintSelf(ostream& os, vtkIndent indent);
   
@@ -63,6 +63,7 @@ class vtkObserver
   unsigned long Tag;
   vtkObserver *Next;
   float Priority;
+  int Visited;
 };
 
 void vtkObserver::PrintSelf(ostream& os, vtkIndent indent)
@@ -79,7 +80,7 @@ void vtkObserver::PrintSelf(ostream& os, vtkIndent indent)
 class vtkSubjectHelper
 {
 public:
-  vtkSubjectHelper():Start(0),Count(1) {}
+  vtkSubjectHelper():ListModified(0),Start(0),Count(1) {}
   ~vtkSubjectHelper();
   
   unsigned long AddObserver(unsigned long event, vtkCommand *cmd, float p);
@@ -91,6 +92,8 @@ public:
   int HasObserver(unsigned long event);
   void PrintSelf(ostream& os, vtkIndent indent);
   
+  int ListModified;
+
 protected:
   vtkObserver *Start;
   unsigned long Count;
@@ -262,7 +265,7 @@ vtkObject *vtkObject::SafeDownCast(vtkObject *o)
 
 void vtkObject::CollectRevisions(ostream& os)
 {
-  os << "vtkObject 1.80\n";
+  os << "vtkObject 1.80.4.1\n";
 }
 
 //----------------------------------Command/Observer stuff-------------------
@@ -371,6 +374,8 @@ void vtkSubjectHelper::RemoveObserver(unsigned long tag)
       elem = elem->Next;
       }
     }
+
+  this->ListModified = 1;
 }
 
 void vtkSubjectHelper::RemoveObservers(unsigned long event)
@@ -404,6 +409,8 @@ void vtkSubjectHelper::RemoveObservers(unsigned long event)
       elem = elem->Next;
       }
     }
+  
+  this->ListModified = 1;
 }
 
 int vtkSubjectHelper::HasObserver(unsigned long event)
@@ -423,15 +430,26 @@ int vtkSubjectHelper::HasObserver(unsigned long event)
 int vtkSubjectHelper::InvokeEvent(unsigned long event, void *callData,
                                    vtkObject *self)
 {
+  this->ListModified = 0;
+  
   vtkObserver *elem = this->Start;
+  while (elem)
+    {
+    elem->Visited = 0;
+    elem=elem->Next;
+    }
+  
+  elem = this->Start;
   vtkObserver *next;
   while (elem)
     {
     // store the next pointer because elem could disappear due to Command
     next = elem->Next;
-    if (elem->Event == event || elem->Event == vtkCommand::AnyEvent)
+    if (!elem->Visited &&
+        elem->Event == event || elem->Event == vtkCommand::AnyEvent)
       {
       int abort = 0;
+      elem->Visited = 1;
       elem->Command->SetAbortFlagPointer(&abort);
       elem->Command->Execute(self,event,callData);
       // if the command set the abort flag, then stop firing events
@@ -441,7 +459,15 @@ int vtkSubjectHelper::InvokeEvent(unsigned long event, void *callData,
         return 1;
         }
       }
-    elem = next;
+    if (this->ListModified)
+      {
+      elem = this->Start;
+      this->ListModified = 0;
+      }
+    else
+      {
+      elem = next;
+      }
     }
   return 0;
 }
