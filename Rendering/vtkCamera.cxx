@@ -25,7 +25,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCamera, "1.104");
+vtkCxxRevisionMacro(vtkCamera, "1.105");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -145,7 +145,7 @@ void vtkCamera::SetPosition(double x, double y, double z)
   this->Modified();
 }
 
-void vtkCamera::SetUserTransform(vtkLinearTransform *transform)
+void vtkCamera::SetUserTransform(vtkHomogeneousTransform *transform)
 {
   if (transform == this->UserTransform) 
     { 
