@@ -130,7 +130,7 @@ protected:
   // Does the edge need to be subdivided according to at least one error
   // metric? The edge is defined by its `leftPoint' and its `rightPoint'.
   // `leftPoint', `midPoint' and `rightPoint' have to be initialized before
-  // calling NeedEdgeSubdivision().
+  // calling RequiresEdgeSubdivision().
   // Their format is global coordinates, parametric coordinates and
   // point centered attributes: xyx rst abc de...
   // `alpha' is the normalized abscissa of the midpoint along the edge.
@@ -142,10 +142,7 @@ protected:
   // \pre clamped_alpha: alpha>0 && alpha<1
   // \pre valid_size: sizeof(leftPoint)=sizeof(midPoint)=sizeof(rightPoint)
   //          =GetAttributeCollection()->GetNumberOfPointCenteredComponents()+6
-  int NeedEdgeSubdivision(double *left,
-                          double *mid,
-                          double *right,
-                          double alpha);
+  int RequiresEdgeSubdivision(double *left, double *mid, double *right, double alpha);
   
   // Description:
   // List of error metrics. Collection of vtkGenericSubdivisionErrorMetric

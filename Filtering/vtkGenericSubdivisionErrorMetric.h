@@ -18,7 +18,7 @@
 // .SECTION Description
 // Objects of that class answer the following question during the cell
 // subdivision: "does the edge need to be subdivided?" through
-// NeedEdgeSubdivision(). 
+// RequiresEdgeSubdivision(). 
 // The answer depends on the criterium actually used in the subclass of this
 // abstract class: a geometric-based error
 // metric (variation of edge from a straight line), an attribute-based error
@@ -54,7 +54,7 @@ public:
   // computation?
   // The edge is defined by its `leftPoint' and its `rightPoint'.
   // `leftPoint', `midPoint' and `rightPoint' have to be initialized before
-  // calling NeedEdgeSubdivision().
+  // calling RequiresEdgeSubdivision().
   // Their format is global coordinates, parametric coordinates and
   // point centered attributes: xyx rst abc de...
   // `alpha' is the normalized abscissa of the midpoint along the edge.
@@ -66,10 +66,8 @@ public:
   // \pre clamped_alpha: alpha>0 && alpha<1
   // \pre valid_size: sizeof(leftPoint)=sizeof(midPoint)=sizeof(rightPoint)
   //          =GetAttributeCollection()->GetNumberOfPointCenteredComponents()+6
-  virtual int NeedEdgeSubdivision(double *leftPoint,
-                                  double *midPoint,
-                                  double *rightPoint,
-                                  double alpha)=0;
+  virtual int RequiresEdgeSubdivision(double *leftPoint, double *midPoint,
+                                  double *rightPoint, double alpha)=0;
 
   // Description:
   // The cell that the edge belongs to.

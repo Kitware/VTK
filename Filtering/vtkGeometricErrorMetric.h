@@ -71,7 +71,7 @@ public:
   // the line passing through its endpoints and the mid point?
   // The edge is defined by its `leftPoint' and its `rightPoint'.
   // `leftPoint', `midPoint' and `rightPoint' have to be initialized before
-  // calling NeedEdgeSubdivision().
+  // calling RequiresEdgeSubdivision().
   // Their format is global coordinates, parametric coordinates and
   // point centered attributes: xyx rst abc de...
   // `alpha' is the normalized abscissa of the midpoint along the edge.
@@ -83,10 +83,8 @@ public:
   // \pre clamped_alpha: alpha>0 && alpha<1
   // \pre valid_size: sizeof(leftPoint)=sizeof(midPoint)=sizeof(rightPoint)
   //          =GetAttributeCollection()->GetNumberOfPointCenteredComponents()+6
-  int NeedEdgeSubdivision(double *leftPoint,
-                          double *midPoint,
-                          double *rightPoint,
-                          double alpha);
+  int RequiresEdgeSubdivision(double *leftPoint, double *midPoint, double *rightPoint,
+                              double alpha);
 
 protected:
   vtkGeometricErrorMetric();

@@ -33,7 +33,7 @@
 
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkGenericCellTessellator, "1.9");
+vtkCxxRevisionMacro(vtkGenericCellTessellator, "1.10");
 vtkCxxSetObjectMacro(vtkGenericCellTessellator, ErrorMetrics, vtkCollection);
 
 //-----------------------------------------------------------------------------
@@ -66,7 +66,7 @@ void vtkGenericCellTessellator::PrintSelf(ostream& os, vtkIndent indent)
 // Does the edge need to be subdivided according to at least one error
 // metric? The edge is defined by its `leftPoint' and its `rightPoint'.
 // `leftPoint', `midPoint' and `rightPoint' have to be initialized before
-// calling NeedEdgeSubdivision().
+// calling RequiresEdgeSubdivision().
 // Their format is global coordinates, parametric coordinates and
 // point centered attributes: xyx rst abc de...
 // `alpha' is the normalized abscissa of the midpoint along the edge.
@@ -78,7 +78,7 @@ void vtkGenericCellTessellator::PrintSelf(ostream& os, vtkIndent indent)
 // \pre clamped_alpha: alpha>0 && alpha<1
 // \pre valid_size: sizeof(leftPoint)=sizeof(midPoint)=sizeof(rightPoint)
 //          =GetAttributeCollection()->GetNumberOfPointCenteredComponents()+6
-int vtkGenericCellTessellator::NeedEdgeSubdivision(double *leftPoint,
+int vtkGenericCellTessellator::RequiresEdgeSubdivision(double *leftPoint,
                                                    double *midPoint,
                                                    double *rightPoint,
                                                    double alpha)
@@ -97,7 +97,7 @@ int vtkGenericCellTessellator::NeedEdgeSubdivision(double *leftPoint,
   // error metrics.
   while(!result&&(e!=0))
     {
-    result=e->NeedEdgeSubdivision(leftPoint,midPoint,rightPoint,alpha);
+    result=e->RequiresEdgeSubdivision(leftPoint,midPoint,rightPoint,alpha);
     e=static_cast<vtkGenericSubdivisionErrorMetric *>(this->ErrorMetrics->GetNextItemAsObject());
     }
   
