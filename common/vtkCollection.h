@@ -81,6 +81,8 @@ public:
   int  GetNumberOfItems();
   void InitTraversal();
   vtkObject *GetNextItemAsObject();  
+  vtkObject *GetItemAsObject(int i);
+  
 
 protected:
   int NumberOfItems;

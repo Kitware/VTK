@@ -180,3 +180,32 @@ void vtkCollection::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Number Of Items: " << this->NumberOfItems << "\n";
 }
+
+
+// Description:
+// Get the i'th item in the collection. NULL is returned if i is out
+// of range
+vtkObject *vtkCollection::GetItemAsObject(int i)
+{
+  vtkCollectionElement *elem=this->Top;
+
+  if (i < 0)
+    {
+    return NULL;
+    }
+  
+  while (elem != NULL && i > 0)
+    {
+    elem = elem->Next;
+    i--;
+    }
+  
+  if ( elem != NULL )
+    {
+    return elem->Item;
+    }
+  else
+    {
+    return NULL;
+    }
+}
