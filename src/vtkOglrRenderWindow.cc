@@ -412,14 +412,18 @@ void vtkOglrRenderWindow::WindowInitialize (void)
 				     RootWindow( this->DisplayId, v->screen),
 				     v->visual, AllocNone );
 
+    attr.background_pixel = 0;
     attr.border_pixel = 0;
     attr.colormap = this->ColorMap;
-
+    attr.event_mask = StructureNotifyMask | ExposureMask;
+    
     this->WindowId = 
       XCreateWindow(this->DisplayId,
 		    RootWindow(this->DisplayId, v->screen), 
 		    x, y, width, height, 0, v->depth, InputOutput, v->visual,
-		    CWBorderPixel|CWColormap|CWOverrideRedirect, &attr);
+		    CWBackPixel | CWBorderPixel | CWColormap | 
+		    CWOverrideRedirect | CWEventMask, 
+		    &attr);
     XStoreName(this->DisplayId, this->WindowId, this->Name);
     XSetNormalHints(this->DisplayId,this->WindowId,&xsh);
     this->OwnWindow = 1;
@@ -440,6 +444,7 @@ void vtkOglrRenderWindow::WindowInitialize (void)
   XSync(this->DisplayId,False);
 
   this->ContextId = glXCreateContext(this->DisplayId, v, 0, GL_TRUE);
+  glXMakeCurrent(this->DisplayId,this->WindowId,this->ContextId);
 
   vtkDebugMacro(" Mapping the xwindow\n");
   XMapWindow(this->DisplayId, this->WindowId);
@@ -452,8 +457,6 @@ void vtkOglrRenderWindow::WindowInitialize (void)
 			 this->WindowId,&winattr);
     };
   
-  glXMakeCurrent(this->DisplayId,this->WindowId,this->ContextId);
-
   vtkDebugMacro(<< " glMatrixMode ModelView\n");
   glMatrixMode( GL_MODELVIEW );
 
