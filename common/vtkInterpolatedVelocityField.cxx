@@ -148,28 +148,15 @@ int vtkInterpolatedVelocityField::FunctionValues(float* x, float* f)
 					      this->Weights))
 	|| ret == -1)
       {
-	if (this->LastCellId != - 1 )
-	  {
-	  this->DataSet->GetCell(this->LastCellId, this->Cell);
-
-	  // if not, find and get it
-	  this->LastCellId = 
-	    this->DataSet->FindCell(x, this->Cell, this->GenCell, -1, 0, 
-				    subId, this->LastPCoords, this->Weights);
-	  if (this->LastCellId != - 1)
-	    {
-	    this->DataSet->GetCell(this->LastCellId, this->GenCell);
-	    }
-	  else
-	    {
-	    return 0;
-	    }
-	  this->CacheMiss++;
-	  }
-	else
-	  {
-	  return 0;
-	  }
+      // if not, find and get it
+      this->LastCellId = 
+	this->DataSet->FindCell(x, 0, this->GenCell, -1, 0, 
+				subId, this->LastPCoords, this->Weights);
+      if (this->LastCellId != - 1)
+	{
+	this->DataSet->GetCell(this->LastCellId, this->GenCell);
+	}
+      this->CacheMiss++;
       }
     else
       {
@@ -184,7 +171,7 @@ int vtkInterpolatedVelocityField::FunctionValues(float* x, float* f)
 			      subId, this->LastPCoords, this->Weights);
     this->DataSet->GetCell(this->LastCellId, this->GenCell);
     }
-
+  
   // if the cell is valid
   if (this->LastCellId >= 0)
     {
@@ -205,7 +192,7 @@ int vtkInterpolatedVelocityField::FunctionValues(float* x, float* f)
     {
     return 0;
     }
-
+  
   return 1;
 }
 
