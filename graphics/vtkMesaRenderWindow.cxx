@@ -100,7 +100,6 @@ XVisualInfo *vtkMesaRenderWindowTryForVisual(Display *DisplayId,
 XVisualInfo *vtkMesaRenderWindow::GetDesiredVisualInfo()
 {
   XVisualInfo   *v = NULL;
-  int           multi;
   int           stereo = 0;
   
   // get the default display connection 
