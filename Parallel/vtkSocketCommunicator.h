@@ -112,12 +112,7 @@ public:
   int Receive(vtkDataObject *data, int remoteId, int tag)
     {return this->vtkCommunicator::Receive(data, remoteId, tag);}
 
-  vtkSetMacro(MaximumMessageSize, int);
-  vtkGetMacro(MaximumMessageSize, int);
-  
 protected:
-
-  int MaximumMessageSize;
 
   int Socket;
   int IsConnected;
