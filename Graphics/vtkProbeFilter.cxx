@@ -284,4 +284,5 @@ void vtkProbeFilter::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "SpatialMatchOff\n";
     }
+  os << indent << "ValidPoints: " << this->ValidPoints << "\n";
 }
