@@ -48,9 +48,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkUnstructuredGrid.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 vtkTetra* vtkTetra::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -62,9 +60,6 @@ vtkTetra* vtkTetra::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkTetra;
 }
-
-
-
 
 // Construct the tetra with four points.
 vtkTetra::vtkTetra()
@@ -261,8 +256,7 @@ int vtkTetra::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
     }
 }
 
-//
-// Marching (convex) tetrahedron
+// Marching tetrahedron
 //
 static int edges[6][2] = { {0,1}, {1,2}, {2,0}, 
                            {0,3}, {1,3}, {2,3} };
@@ -510,9 +504,9 @@ double vtkTetra::Circumsphere(double  x1[3], double x2[3], double x3[3],
   double n12[3], n13[3], n14[3], x12[3], x13[3], x14[3];
   double *A[3], rhs[3], sum, diff;
   int i;
-//
-//  calculate normals and intersection points of bisecting planes.  
-//
+
+  //  calculate normals and intersection points of bisecting planes.  
+  //
   for (i=0; i<3; i++) 
     {
     n12[i] = x2[i] - x1[i];
@@ -522,12 +516,12 @@ double vtkTetra::Circumsphere(double  x1[3], double x2[3], double x3[3],
     x13[i] = (x3[i] + x1[i]) / 2.0;
     x14[i] = (x4[i] + x1[i]) / 2.0;
     }
-//
-//  Compute solutions to the intersection of two bisecting lines
-//  (3-eqns. in 3-unknowns).
-//
-//  form system matrices
-//
+
+  //  Compute solutions to the intersection of two bisecting lines
+  //  (3-eqns. in 3-unknowns).
+  //
+  //  form system matrices
+  //
   A[0] = n12;
   A[1] = n13;
   A[2] = n14;
@@ -535,9 +529,9 @@ double vtkTetra::Circumsphere(double  x1[3], double x2[3], double x3[3],
   rhs[0] = vtkMath::Dot(n12,x12); 
   rhs[1] = vtkMath::Dot(n13,x13);
   rhs[2] = vtkMath::Dot(n14,x14);
-//
-// Solve system of equations
-//
+
+  // Solve system of equations
+  //
   if ( vtkMath::SolveLinearSystem(A,rhs,3) == 0 )
     {
     center[0] = center[1] = center[2] = 0.0;
@@ -590,7 +584,6 @@ int vtkTetra::BarycentricCoords(double x[3], double  x1[3], double x2[3],
   double *A[4], p[4], a1[4], a2[4], a3[4], a4[4];
   int i;
 
-  //
   // Homogenize the variables; load into arrays.
   //
   a1[0] = x1[0]; a1[1] = x2[0]; a1[2] = x3[0]; a1[3] = x4[0];
@@ -599,7 +592,6 @@ int vtkTetra::BarycentricCoords(double x[3], double  x1[3], double x2[3],
   a4[0] = 1.0;   a4[1] = 1.0;   a4[2] = 1.0;   a4[3] = 1.0;
   p[0] = x[0]; p[1] = x[1]; p[2] = x[2]; p[3] = 1.0;
 
-  //
   //   Now solve system of equations for barycentric coordinates
   //
   A[0] = a1;
@@ -704,30 +696,33 @@ int vtkTetra::JacobianInverse(double **inverse, float derivs[12])
 // support tetra clipping
 typedef int TETRA_EDGE_LIST;
 typedef struct {
-       TETRA_EDGE_LIST edges[13];
+       TETRA_EDGE_LIST edges[7];
 } TETRA_CASES;
  
+// The first number is the number of verts; the following are edge id's.
+// This table generates tetrahedron as well as wedges.
 static TETRA_CASES tetraCases[] = { 
-{{  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1}}, // 0
-{{  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1}}, // 1
-{{  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1}}, // 2
-{{  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1}}, // 3
-{{  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1}}, // 4
-{{  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1}}, // 5
-{{  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1}}, // 6
-{{  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1}}, // 7
-{{  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1}}, // 8
-{{  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1}}, // 9
-{{  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1}}, // 10
-{{  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1}}, // 11
-{{  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1}}, // 12
-{{  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1}}, // 13
-{{  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1}}, // 14
-{{ 100, 101, 102, 103,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1}}, // 15
+{{  -1,  -1,  -1,  -1,  -1,  -1,  -1}}, // 0
+{{   4, 100,   0,   3,   2,  -1,  -1}}, // 1
+{{   4, 101,   0,   1,   4,  -1,  -1}}, // 2
+{{   6, 100,   2,   3, 101,   1,   4}}, // 3
+{{   4, 102,   1,   2,   5,  -1,  -1}}, // 4
+{{   6, 100,   3,   0, 102,   5,   1}}, // 5
+{{   6, 101,   0,   4, 102,   2,   5}}, // 6
+{{   6, 100, 101, 102,   3,   4,   5}}, // 7
+{{   4, 103,   3,   4,   5,  -1,  -1}}, // 8
+{{   6, 100,   0,   2, 103,   4,   5}}, // 9
+{{   6, 101,   1,   0, 103,   5,   3}}, // 10
+{{   6, 100, 103, 101,   2,   5,   1}}, // 11
+{{   6, 102,   2,   1, 103,   3,   4}}, // 12
+{{   6, 100, 102, 103,   0,   1,   4}}, // 13
+{{   6, 101, 103, 102,   0,   3,   2}}, // 14
+{{   4, 100, 101, 102, 103,  -1,  -1}}, // 15 
 };
 
 // Clip this tetra using scalar value provided. Like contouring, except
-// that it cuts the tetra to produce other tetrahedra.
+// that it cuts the tetra to produce other 3D cells (tetrahedra and
+// wedges).
 void vtkTetra::Clip(float value, vtkScalars *cellScalars, 
                     vtkPointLocator *locator, vtkCellArray *tetras,
                     vtkPointData *inPd, vtkPointData *outPd,
@@ -738,8 +733,7 @@ void vtkTetra::Clip(float value, vtkScalars *cellScalars,
   TETRA_CASES *tetraCase;
   TETRA_EDGE_LIST  *edge;
   int i, j, index, *vert, newCellId;
-  int pts[4];
-  int vertexId;
+  int pts[6], vertexId, numPts;
   float t, x1[3], x2[3], x[3];
 
   // Build the case table
@@ -767,53 +761,45 @@ void vtkTetra::Clip(float value, vtkScalars *cellScalars,
   // Select the case based on the index and get the list of edges for this case
   tetraCase = tetraCases + index;
   edge = tetraCase->edges;
+  numPts = edge[0];
 
-  // generate each tetra
-  for ( ; edge[0] > -1; edge += 4 )
+  // generate the cell
+  for (i=1; i<numPts; i++) // insert cell and all its pointsb
     {
-    for (i=0; i<4; i++) // insert tetra
+    // vertex exists, and need not be interpolated
+    if (edge[i] >= 100)
       {
-      // vertex exists, and need not be interpolated
-      if (edge[i] >= 100)
-        {
-        vertexId = edge[i] - 100;
-        this->Points->GetPoint(vertexId, x);
-        if ( locator->InsertUniquePoint(x, pts[i]) )
-          {
-          outPd->CopyData(inPd,this->PointIds->GetId(vertexId),pts[i]);
-          }
-        }
-
-      else //new vertex, interpolate
-        {
-        vert = edges[edge[i]];
-
-        t = (value - cellScalars->GetScalar(vert[0])) /
-            (cellScalars->GetScalar(vert[1]) - cellScalars->GetScalar(vert[0]));
-
-        this->Points->GetPoint(vert[0], x1);
-        this->Points->GetPoint(vert[1], x2);
-        for (j=0; j<3; j++)
-	  {
-	  x[j] = x1[j] + t * (x2[j] - x1[j]);
-	  }
-
-        if ( locator->InsertUniquePoint(x, pts[i]) )
-          {
-          int p1 = this->PointIds->GetId(vert[0]);
-          int p2 = this->PointIds->GetId(vert[1]);
-          outPd->InterpolateEdge(inPd,pts[i],p1,p2,t);
-          }
-        }
-      }
-    // check for degenerate tri's
-    if ( pts[0] == pts[1] || pts[0] == pts[2] || pts[0] == pts[3] ||
-	 pts[1] == pts[2] || pts[1] == pts[3] || pts[2] == pts[3] )
-      {
-      continue;
+      vertexId = edge[i] - 100;
+      this->Points->GetPoint(vertexId, x);
+      if ( locator->InsertUniquePoint(x, pts[i]) )
+	{
+	outPd->CopyData(inPd,this->PointIds->GetId(vertexId),pts[i]);
+	}
       }
 
-    newCellId = tetras->InsertNextCell(4,pts);
-    outCd->CopyData(inCd,cellId,newCellId);
+    else //new vertex, interpolate
+      {
+      vert = edges[edge[i]];
+
+      t = (value - cellScalars->GetScalar(vert[0])) /
+	  (cellScalars->GetScalar(vert[1]) - cellScalars->GetScalar(vert[0]));
+
+      this->Points->GetPoint(vert[0], x1);
+      this->Points->GetPoint(vert[1], x2);
+      for (j=0; j<3; j++)
+	{
+	x[j] = x1[j] + t * (x2[j] - x1[j]);
+	}
+
+      if ( locator->InsertUniquePoint(x, pts[i]) )
+	{
+	int p1 = this->PointIds->GetId(vert[0]);
+	int p2 = this->PointIds->GetId(vert[1]);
+	outPd->InterpolateEdge(inPd,pts[i],p1,p2,t);
+	}
+      }
     }
+
+  newCellId = tetras->InsertNextCell(numPts,pts);
+  outCd->CopyData(inCd,cellId,newCellId);
 }
