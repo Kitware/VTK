@@ -137,6 +137,7 @@ protected:
   void operator=(const vtkRectilinearGridReader&) {};
 
   void Execute();
+  void ExecuteInformation();
   vtkDataReader *Reader;
 
 };
