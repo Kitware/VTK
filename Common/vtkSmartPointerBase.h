@@ -84,17 +84,17 @@ protected:
   class NoReference {};
   vtkSmartPointerBase(vtkObjectBase* r, const NoReference&);
   
+  // Pointer to the actual object.
+  vtkObjectBase* Object;
+
+private:
   // Internal utility methods.
   void Swap(vtkSmartPointerBase& r);
   void Register();
-  void UnRegister();
-  
-  // Pointer to the actual object.
-  vtkObjectBase* Object;
 };
 
 //----------------------------------------------------------------------------
-// Need to use vtkstd_bool type because std::less requires bool return
+// Need to use vtkstd_bool type because std: :less requires bool return
 // type from operators.  This example should not be used to justify
 // using bool elsewhere in VTK.
 

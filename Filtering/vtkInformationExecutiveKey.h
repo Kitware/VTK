@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkInformationDataObjectKey.h
+  Module:    vtkInformationExecutiveKey.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,32 +12,32 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkInformationDataObjectKey - Key for vtkDataObject values.
+// .NAME vtkInformationExecutiveKey - Key for vtkExecutive values.
 // .SECTION Description
-// vtkInformationDataObjectKey is used to represent keys in
-// vtkInformation for values that are vtkDataObject instances.
+// vtkInformationExecutiveKey is used to represent keys in
+// vtkInformation for values that are vtkExecutive instances.
 
-#ifndef __vtkInformationDataObjectKey_h
-#define __vtkInformationDataObjectKey_h
+#ifndef __vtkInformationExecutiveKey_h
+#define __vtkInformationExecutiveKey_h
 
 #include "vtkInformationKey.h"
 
-class vtkDataObject;
+class vtkExecutive;
 
-class VTK_FILTERING_EXPORT vtkInformationDataObjectKey : public vtkInformationKey
+class VTK_FILTERING_EXPORT vtkInformationExecutiveKey : public vtkInformationKey
 {
 public:
-  vtkTypeRevisionMacro(vtkInformationDataObjectKey,vtkInformationKey);
+  vtkTypeRevisionMacro(vtkInformationExecutiveKey,vtkInformationKey);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  vtkInformationDataObjectKey(const char* name, const char* location);
-  ~vtkInformationDataObjectKey();
+  vtkInformationExecutiveKey(const char* name, const char* location);
+  ~vtkInformationExecutiveKey();
 
   // Description:
   // Get/Set the value associated with this key in the given
   // information object.
-  void Set(vtkInformation* info, vtkDataObject*);
-  vtkDataObject* Get(vtkInformation* info);
+  void Set(vtkInformation* info, vtkExecutive*);
+  vtkExecutive* Get(vtkInformation* info);
   int Has(vtkInformation* info);
 
   // Description:
@@ -51,8 +51,8 @@ public:
   virtual void Report(vtkInformation* info, vtkGarbageCollector* collector);
 
 private:
-  vtkInformationDataObjectKey(const vtkInformationDataObjectKey&);  // Not implemented.
-  void operator=(const vtkInformationDataObjectKey&);  // Not implemented.
+  vtkInformationExecutiveKey(const vtkInformationExecutiveKey&);  // Not implemented.
+  void operator=(const vtkInformationExecutiveKey&);  // Not implemented.
 };
 
 #endif

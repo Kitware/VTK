@@ -19,7 +19,7 @@
 #include <vtkstd/stack>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkGarbageCollector, "1.12");
+vtkCxxRevisionMacro(vtkGarbageCollector, "1.13");
 
 //----------------------------------------------------------------------------
 class vtkGarbageCollectorInternals
@@ -29,7 +29,8 @@ public:
   struct Entry
   {
     Entry(vtkObjectBase* obj): Object(obj), Root(), InComponent(0),
-                               VisitOrder(0), Queued(0), References() {}
+                               VisitOrder(0), Queued(0), Count(0),
+                               References() {}
 
     // The object corresponding to this entry.
     vtkObjectBase* Object;
@@ -45,6 +46,10 @@ public:
 
     // Whether this entry has been queued while computing net reference count.
     int Queued;
+
+    // The number of references not accounted for while computing the
+    // net reference count.
+    int Count;
 
     // The list of references reported by this entry's object.
     typedef vtkstd::vector<Entry*> ReferencesType;
@@ -88,7 +93,7 @@ public:
   int Count;
 
   // The objects in the root's connected component.
-  typedef vtkstd::vector<vtkObjectBase*> ComponentType;
+  typedef vtkstd::vector<Entry*> ComponentType;
   ComponentType Component;
 
   // Find the strongly connected components reachable from the given root.
@@ -106,6 +111,9 @@ public:
   void PrintComponent(ostream& os);
   void DeleteComponent();
 };
+
+// Global debug setting.
+static int vtkGarbageCollectorGlobalDebugFlag = 0;
 
 //----------------------------------------------------------------------------
 vtkGarbageCollector::vtkGarbageCollector(vtkGarbageCollectorInternals* internal)
@@ -155,11 +163,29 @@ void vtkGarbageCollector::Check(vtkObjectBase* root)
   //  collector.SetDebug(obj->GetDebug());
   //  }
 
+  // Force debugging on if global flag is set.
+  if(vtkGarbageCollectorGlobalDebugFlag)
+    {
+    collector.SetDebug(1);
+    }
+
   // Do collection if necessary.
   collector.CheckReferenceLoops(root);
 
   // Avoid destruction message.
   collector.SetDebug(0);
+}
+
+//----------------------------------------------------------------------------
+void vtkGarbageCollector::SetGlobalDebugFlag(int flag)
+{
+  vtkGarbageCollectorGlobalDebugFlag = flag;
+}
+
+//----------------------------------------------------------------------------
+int vtkGarbageCollector::GetGlobalDebugFlag()
+{
+  return vtkGarbageCollectorGlobalDebugFlag;
 }
 
 //----------------------------------------------------------------------------
@@ -282,8 +308,9 @@ int vtkGarbageCollectorInternals::FindComponent(Entry* root)
   QueueType entryQueue;
 
   // Initialize the queue with the root object.
-  int netCount = root->Object->GetReferenceCount();
-  this->Component.push_back(root->Object);
+  root->Count = root->Object->GetReferenceCount();
+  int netCount = root->Count;
+  this->Component.push_back(root);
   root->Queued = 1;
   entryQueue.push(root);
 
@@ -303,18 +330,21 @@ int vtkGarbageCollectorInternals::FindComponent(Entry* root)
         {
         if(!w->Queued)
           {
-          // Include the references to this object.
-          netCount += w->Object->GetReferenceCount();
+          // Include the references to this object in the net count.
+          w->Count = w->Object->GetReferenceCount();
+          netCount += w->Count;
 
           // Add the object to the list of objects in the component.
-          this->Component.push_back(w->Object);
+          this->Component.push_back(w);
 
           // Queue the object.
           w->Queued = 1;
           entryQueue.push(w);
           }
 
-        // This is an internal reference, so decrement the net count.
+        // This is an internal reference, so decrement the object's
+        // count and the net count.
+        --w->Count;
         --netCount;
         }
       }
@@ -402,7 +432,11 @@ void vtkGarbageCollectorInternals::PrintComponent(ostream& os)
   for(ComponentType::iterator i = this->Component.begin();
       i != this->Component.end(); ++i)
     {
-    os << "\n  " << (*i)->GetClassName() << "(" << *i << ")";
+    vtkObjectBase* obj = (*i)->Object;
+    int count = (*i)->Count;
+    os << "\n  " << obj->GetClassName() << "(" << obj << ")"
+       << " with " << count << " external "
+       << ((count == 1)? "reference" : "references");
     }
 }
 
@@ -415,19 +449,19 @@ void vtkGarbageCollectorInternals::DeleteComponent()
   // They will disable reference loop checking.
   for(obj = this->Component.begin(); obj != this->Component.end(); ++obj)
     {
-    vtkGarbageCollector::ForwardGarbageCollectionStarting(*obj);
+    vtkGarbageCollector::ForwardGarbageCollectionStarting((*obj)->Object);
     }
 
   // Disconnect the reference graph.
   for(obj = this->Component.begin(); obj != this->Component.end(); ++obj)
     {
-    vtkGarbageCollector::ForwardRemoveReferences(*obj);
+    vtkGarbageCollector::ForwardRemoveReferences((*obj)->Object);
     }
 
   // Notify all objects they have been garbage collected.  They will
   // delete themselves.
   for(obj = this->Component.begin(); obj != this->Component.end(); ++obj)
     {
-    vtkGarbageCollector::ForwardGarbageCollectionFinishing(*obj);
+    vtkGarbageCollector::ForwardGarbageCollectionFinishing((*obj)->Object);
     }
 }

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkInformationDataObjectKey.cxx
+  Module:    vtkInformationObjectBaseKey.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,58 +12,71 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkInformationDataObjectKey.h"
+#include "vtkInformationObjectBaseKey.h"
 
-#include "vtkDataObject.h"
 #include "vtkGarbageCollector.h"
+#include "vtkInformation.h" // For vtkErrorWithObjectMacro
 
-vtkCxxRevisionMacro(vtkInformationDataObjectKey, "1.2");
+vtkCxxRevisionMacro(vtkInformationObjectBaseKey, "1.2");
 
 //----------------------------------------------------------------------------
-vtkInformationDataObjectKey::vtkInformationDataObjectKey(const char* name, const char* location):
-  vtkInformationKey(name, location)
+vtkInformationObjectBaseKey
+::vtkInformationObjectBaseKey(const char* name, const char* location,
+                              const char* requiredClass):
+  vtkInformationKey(name, location), RequiredClass(requiredClass)
 {
 }
 
 //----------------------------------------------------------------------------
-vtkInformationDataObjectKey::~vtkInformationDataObjectKey()
+vtkInformationObjectBaseKey::~vtkInformationObjectBaseKey()
 {
 }
 
 //----------------------------------------------------------------------------
-void vtkInformationDataObjectKey::PrintSelf(ostream& os, vtkIndent indent)
+void vtkInformationObjectBaseKey::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
 //----------------------------------------------------------------------------
-void vtkInformationDataObjectKey::Set(vtkInformation* info,
-                                      vtkDataObject* value)
+void vtkInformationObjectBaseKey::Set(vtkInformation* info,
+                                      vtkObjectBase* value)
 {
+  if(value && this->RequiredClass && !value->IsA(this->RequiredClass))
+    {
+    vtkErrorWithObjectMacro(
+      info,
+      "Cannot store object of type " << value->GetClassName()
+      << " with key " << this->Location << "::" << this->Name
+      << " which requires objects of type "
+      << this->RequiredClass << ".  Removing the key instead.");
+    this->SetAsObjectBase(info, 0);
+    return;
+    }
   this->SetAsObjectBase(info, value);
 }
 
 //----------------------------------------------------------------------------
-vtkDataObject* vtkInformationDataObjectKey::Get(vtkInformation* info)
+vtkObjectBase* vtkInformationObjectBaseKey::Get(vtkInformation* info)
 {
-  return vtkDataObject::SafeDownCast(this->GetAsObjectBase(info));
+  return this->GetAsObjectBase(info);
 }
 
 //----------------------------------------------------------------------------
-int vtkInformationDataObjectKey::Has(vtkInformation* info)
+int vtkInformationObjectBaseKey::Has(vtkInformation* info)
 {
-  return vtkDataObject::SafeDownCast(this->GetAsObjectBase(info))?1:0;
+  return this->GetAsObjectBase(info)?1:0;
 }
 
 //----------------------------------------------------------------------------
-void vtkInformationDataObjectKey::Copy(vtkInformation* from,
+void vtkInformationObjectBaseKey::Copy(vtkInformation* from,
                                        vtkInformation* to)
 {
   this->Set(to, this->Get(from));
 }
 
 //----------------------------------------------------------------------------
-void vtkInformationDataObjectKey::Report(vtkInformation* info,
+void vtkInformationObjectBaseKey::Report(vtkInformation* info,
                                          vtkGarbageCollector* collector)
 {
   collector->ReportReference(this->Get(info), this->GetName());

@@ -12,13 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+
+#include "vtkDebugLeaks.h"
 #include "vtkObjectFactory.h"
+#include "vtkObjectFactoryCollection.h"
+#include "vtkOutputWindow.h"
+#include "vtkOverrideInformation.h"
+#include "vtkOverrideInformationCollection.h"
 #include "vtkVersion.h"
 #include "vtkVertex.h"
-#include "vtkObjectFactoryCollection.h"
-#include "vtkDebugLeaks.h"
-#include "vtkOverrideInformationCollection.h"
-#include "vtkOverrideInformation.h"
 
 int failed = 0;
 
@@ -38,7 +40,7 @@ private:
   void operator=(const vtkTestVertex&);
 };
 
-vtkCxxRevisionMacro(vtkTestVertex, "1.19");
+vtkCxxRevisionMacro(vtkTestVertex, "1.20");
 
 class vtkTestVertex2 : public vtkVertex
 {
@@ -56,7 +58,7 @@ private:
   void operator=(const vtkTestVertex2&);
 };
 
-vtkCxxRevisionMacro(vtkTestVertex2, "1.19");
+vtkCxxRevisionMacro(vtkTestVertex2, "1.20");
 
 VTK_CREATE_CREATE_FUNCTION(vtkTestVertex);
 VTK_CREATE_CREATE_FUNCTION(vtkTestVertex2);
@@ -105,6 +107,7 @@ void TestNewVertex(vtkVertex* v, const char* expectedClassName)
 int ObjectFactory(int, char *[])
 {
   vtkDebugLeaks::PromptUserOff();
+  vtkOutputWindow::GetInstance()->PromptUserOff();
   vtkGenericWarningMacro("Test Generic Warning");
   TestFactory* factory = TestFactory::New();
   vtkObjectFactory::RegisterFactory(factory);

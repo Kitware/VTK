@@ -18,8 +18,7 @@
 // one output of a vtkAlgorithm.  It maps from keys to values of
 // several data types.  Instances of this class are collected in
 // vtkInformationVector instances and passed to
-// vtkAlgorithm::ProcessUpstreamRequest and
-// vtkAlgorithm::ProcessDownstreamRequest calls.  The information and
+// vtkAlgorithm::ProcessRequest calls.  The information and
 // data referenced by the instance on a particular input or output
 // define the request made to the vtkAlgorithm instance.
 
@@ -29,8 +28,10 @@
 #include "vtkObject.h"
 
 class vtkDataObject;
+class vtkExecutive;
 class vtkInformationDataObjectKey;
-class vtkInformationDataObjectVectorKey;
+class vtkInformationDoubleVectorKey;
+class vtkInformationExecutiveKey;
 class vtkInformationInformationKey;
 class vtkInformationInformationVectorKey;
 class vtkInformationIntegerKey;
@@ -39,6 +40,7 @@ class vtkInformationInternals;
 class vtkInformationKey;
 class vtkInformationKeyToInformationFriendship;
 class vtkInformationKeyVectorKey;
+class vtkInformationObjectBaseKey;
 class vtkInformationStringKey;
 class vtkInformationVector;
 
@@ -87,6 +89,16 @@ public:
   int Has(vtkInformationIntegerVectorKey* key);
 
   // Description:
+  // Get/Set an double-vector-valued entry.
+  void Append(vtkInformationDoubleVectorKey* key, double value);
+  void Set(vtkInformationDoubleVectorKey* key, double* value, int length);
+  double* Get(vtkInformationDoubleVectorKey* key);
+  void Get(vtkInformationDoubleVectorKey* key, double* value);
+  int Length(vtkInformationDoubleVectorKey* key);
+  void Remove(vtkInformationDoubleVectorKey* key);
+  int Has(vtkInformationDoubleVectorKey* key);
+
+  // Description:
   // Get/Set an InformationKey-vector-valued entry.
   void Append(vtkInformationKeyVectorKey* key, vtkInformationKey* value);
   void Set(vtkInformationKeyVectorKey* key, vtkInformationKey** value, int length);
@@ -95,16 +107,6 @@ public:
   int Length(vtkInformationKeyVectorKey* key);
   void Remove(vtkInformationKeyVectorKey* key);
   int Has(vtkInformationKeyVectorKey* key);
-
-  // Description:
-  // Get/Set a DataObject-vector-valued entry.
-  void Append(vtkInformationDataObjectVectorKey* key, vtkDataObject* value);
-  void Set(vtkInformationDataObjectVectorKey* key, vtkDataObject** value, int length);
-  vtkDataObject** Get(vtkInformationDataObjectVectorKey* key);
-  void Get(vtkInformationDataObjectVectorKey* key, vtkDataObject** value);
-  int Length(vtkInformationDataObjectVectorKey* key);
-  void Remove(vtkInformationDataObjectVectorKey* key);
-  int Has(vtkInformationDataObjectVectorKey* key);
 
   // Description:
   // Get/Set a string-valued entry.
@@ -128,6 +130,13 @@ public:
   int Has(vtkInformationInformationVectorKey* key);
 
   // Description:
+  // Get/Set an entry storing a vtkObjectBase instance.
+  void Set(vtkInformationObjectBaseKey* key, vtkObjectBase*);
+  vtkObjectBase* Get(vtkInformationObjectBaseKey* key);
+  void Remove(vtkInformationObjectBaseKey* key);
+  int Has(vtkInformationObjectBaseKey* key);
+
+  // Description:
   // Get/Set an entry storing a vtkDataObject instance.
   void Set(vtkInformationDataObjectKey* key, vtkDataObject*);
   vtkDataObject* Get(vtkInformationDataObjectKey* key);
@@ -135,15 +144,28 @@ public:
   int Has(vtkInformationDataObjectKey* key);
 
   // Description:
+  // Get/Set an entry storing a vtkExecutive instance.
+  void Set(vtkInformationExecutiveKey* key, vtkExecutive*);
+  vtkExecutive* Get(vtkInformationExecutiveKey* key);
+  void Remove(vtkInformationExecutiveKey* key);
+  int Has(vtkInformationExecutiveKey* key);
+
+  // Description:
   // Upcast the given key instance.
   vtkInformationKey* GetKey(vtkInformationDataObjectKey* key);
-  vtkInformationKey* GetKey(vtkInformationDataObjectVectorKey* key);
+  vtkInformationKey* GetKey(vtkInformationDoubleVectorKey* key);
+  vtkInformationKey* GetKey(vtkInformationExecutiveKey* key);
   vtkInformationKey* GetKey(vtkInformationInformationKey* key);
   vtkInformationKey* GetKey(vtkInformationInformationVectorKey* key);
   vtkInformationKey* GetKey(vtkInformationIntegerKey* key);
   vtkInformationKey* GetKey(vtkInformationIntegerVectorKey* key);
   vtkInformationKey* GetKey(vtkInformationStringKey* key);
   vtkInformationKey* GetKey(vtkInformationKey* key);
+
+  // Description:
+  // Initiate garbage collection when a reference is removed.
+  virtual void UnRegister(vtkObjectBase* o);
+
 protected:
   vtkInformation();
   ~vtkInformation();
@@ -156,6 +178,11 @@ protected:
   // Internal implementation details.
   vtkInformationInternals* Internal;
 
+  // Garbage collection support.
+  virtual void ReportReferences(vtkGarbageCollector*);
+  virtual void RemoveReferences();
+  virtual void GarbageCollectionStarting();
+  int GarbageCollecting;
 private:
   //BTX
   friend class vtkInformationKeyToInformationFriendship;

@@ -31,7 +31,7 @@
 #include <limits.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLImageMapper, "1.58");
+vtkCxxRevisionMacro(vtkOpenGLImageMapper, "1.59");
 vtkStandardNewMacro(vtkOpenGLImageMapper);
 #endif
 
@@ -377,7 +377,7 @@ void vtkOpenGLImageMapperRenderChar(vtkOpenGLImageMapper *self, vtkImageData *da
   int* tempIncs = data->GetIncrements();
   int inInc1 = tempIncs[1];
 
-  int bpp = data->GetNumberOfScalarComponents();
+  int bpp = data->GetPointData()->GetScalars()->GetNumberOfComponents();
 
   double range[2];
   data->GetPointData()->GetScalars()->GetDataTypeRange( range );
@@ -583,7 +583,7 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
 #if defined(sparc) && defined(GL_VERSION_1_1)
   glDisable(GL_BLEND);
 #endif
-  switch (data->GetScalarType())
+  switch (data->GetPointData()->GetScalars()->GetDataType())
     {
     case VTK_DOUBLE:  
       vtkOpenGLImageMapperRender(this, data,

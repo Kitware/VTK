@@ -17,7 +17,7 @@
 #include "vtkDebugLeaks.h"
 #include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkInformationKey, "1.1");
+vtkCxxRevisionMacro(vtkInformationKey, "1.2");
 
 class vtkInformationKeyToInformationFriendship
 {
@@ -92,6 +92,12 @@ vtkObjectBase* vtkInformationKey::GetAsObjectBase(vtkInformation* info)
 void vtkInformationKey::Remove(vtkInformation* info)
 {
   this->SetAsObjectBase(info, 0);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformationKey::Report(vtkInformation*, vtkGarbageCollector*)
+{
+  // Report nothing by default.
 }
 
 #ifdef VTK_DEBUG_LEAKS

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkInformationIntegerVectorKey.cxx
+  Module:    vtkInformationDoubleVectorKey.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,46 +12,46 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkInformationIntegerVectorKey.h"
+#include "vtkInformationDoubleVectorKey.h"
 
 #include "vtkInformation.h" // For vtkErrorWithObjectMacro
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformationIntegerVectorKey, "1.2");
+vtkCxxRevisionMacro(vtkInformationDoubleVectorKey, "1.2");
 
 //----------------------------------------------------------------------------
-vtkInformationIntegerVectorKey
-::vtkInformationIntegerVectorKey(const char* name, const char* location,
+vtkInformationDoubleVectorKey
+::vtkInformationDoubleVectorKey(const char* name, const char* location,
                                  int length):
   vtkInformationKey(name, location), RequiredLength(length)
 {
 }
 
 //----------------------------------------------------------------------------
-vtkInformationIntegerVectorKey::~vtkInformationIntegerVectorKey()
+vtkInformationDoubleVectorKey::~vtkInformationDoubleVectorKey()
 {
 }
 
 //----------------------------------------------------------------------------
-void vtkInformationIntegerVectorKey::PrintSelf(ostream& os, vtkIndent indent)
+void vtkInformationDoubleVectorKey::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
 //----------------------------------------------------------------------------
-class vtkInformationIntegerVectorValue: public vtkObjectBase
+class vtkInformationDoubleVectorValue: public vtkObjectBase
 {
 public:
-  vtkTypeMacro(vtkInformationIntegerVectorValue, vtkObjectBase);
-  vtkstd::vector<int> Value;
+  vtkTypeMacro(vtkInformationDoubleVectorValue, vtkObjectBase);
+  vtkstd::vector<double> Value;
 };
 
 //----------------------------------------------------------------------------
-void vtkInformationIntegerVectorKey::Append(vtkInformation* info, int value)
+void vtkInformationDoubleVectorKey::Append(vtkInformation* info, double value)
 {
-  vtkInformationIntegerVectorValue* v =
-    vtkInformationIntegerVectorValue::SafeDownCast(
+  vtkInformationDoubleVectorValue* v =
+    vtkInformationDoubleVectorValue::SafeDownCast(
       this->GetAsObjectBase(info));
   if(v)
     {
@@ -64,7 +64,7 @@ void vtkInformationIntegerVectorKey::Append(vtkInformation* info, int value)
 }
 
 //----------------------------------------------------------------------------
-void vtkInformationIntegerVectorKey::Set(vtkInformation* info, int* value,
+void vtkInformationDoubleVectorKey::Set(vtkInformation* info, double* value,
                                          int length)
 {
   if(value)
@@ -73,16 +73,16 @@ void vtkInformationIntegerVectorKey::Set(vtkInformation* info, int* value,
       {
       vtkErrorWithObjectMacro(
         info,
-        "Cannot store integer vector of length " << length
+        "Cannot store double vector of length " << length
         << " with key " << this->Location << "::" << this->Name
         << " which requires a vector of length "
         << this->RequiredLength << ".  Removing the key instead.");
       this->SetAsObjectBase(info, 0);
       return;
       }
-    vtkInformationIntegerVectorValue* v =
-      new vtkInformationIntegerVectorValue;
-    this->ConstructClass("vtkInformationIntegerVectorValue");
+    vtkInformationDoubleVectorValue* v =
+      new vtkInformationDoubleVectorValue;
+    this->ConstructClass("vtkInformationDoubleVectorValue");
     v->Value.insert(v->Value.begin(), value, value+length);
     this->SetAsObjectBase(info, v);
     v->Delete();
@@ -94,24 +94,24 @@ void vtkInformationIntegerVectorKey::Set(vtkInformation* info, int* value,
 }
 
 //----------------------------------------------------------------------------
-int* vtkInformationIntegerVectorKey::Get(vtkInformation* info)
+double* vtkInformationDoubleVectorKey::Get(vtkInformation* info)
 {
-  vtkInformationIntegerVectorValue* v =
-    vtkInformationIntegerVectorValue::SafeDownCast(
+  vtkInformationDoubleVectorValue* v =
+    vtkInformationDoubleVectorValue::SafeDownCast(
       this->GetAsObjectBase(info));
   return v?(&v->Value[0]):0;
 }
 
 //----------------------------------------------------------------------------
-void vtkInformationIntegerVectorKey::Get(vtkInformation* info,
-                                     int* value)
+void vtkInformationDoubleVectorKey::Get(vtkInformation* info,
+                                     double* value)
 {
-  vtkInformationIntegerVectorValue* v =
-    vtkInformationIntegerVectorValue::SafeDownCast(
+  vtkInformationDoubleVectorValue* v =
+    vtkInformationDoubleVectorValue::SafeDownCast(
       this->GetAsObjectBase(info));
   if(v && value)
     {
-    for(vtkstd::vector<int>::size_type i = 0;
+    for(vtkstd::vector<double>::size_type i = 0;
         i < v->Value.size(); ++i)
       {
       value[i] = v->Value[i];
@@ -120,25 +120,25 @@ void vtkInformationIntegerVectorKey::Get(vtkInformation* info,
 }
 
 //----------------------------------------------------------------------------
-int vtkInformationIntegerVectorKey::Length(vtkInformation* info)
+int vtkInformationDoubleVectorKey::Length(vtkInformation* info)
 {
-  vtkInformationIntegerVectorValue* v =
-    vtkInformationIntegerVectorValue::SafeDownCast(
+  vtkInformationDoubleVectorValue* v =
+    vtkInformationDoubleVectorValue::SafeDownCast(
       this->GetAsObjectBase(info));
   return v?static_cast<int>(v->Value.size()):0;
 }
 
 //----------------------------------------------------------------------------
-int vtkInformationIntegerVectorKey::Has(vtkInformation* info)
+int vtkInformationDoubleVectorKey::Has(vtkInformation* info)
 {
-  vtkInformationIntegerVectorValue* v =
-    vtkInformationIntegerVectorValue::SafeDownCast(
+  vtkInformationDoubleVectorValue* v =
+    vtkInformationDoubleVectorValue::SafeDownCast(
       this->GetAsObjectBase(info));
   return v?1:0;
 }
 
 //----------------------------------------------------------------------------
-void vtkInformationIntegerVectorKey::Copy(vtkInformation* from,
+void vtkInformationDoubleVectorKey::Copy(vtkInformation* from,
                                           vtkInformation* to)
 {
   this->Set(to, this->Get(from), this->Length(from));

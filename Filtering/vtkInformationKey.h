@@ -74,6 +74,10 @@ public:
   // Remove this key from the given information object.
   void Remove(vtkInformation* info);
 
+  // Description:
+  // Report a reference this key has in the given information object.
+  virtual void Report(vtkInformation* info, vtkGarbageCollector* collector);
+
 protected:
   const char* Name;
   const char* Location;
@@ -90,5 +94,15 @@ private:
   vtkInformationKey(const vtkInformationKey&);  // Not implemented.
   void operator=(const vtkInformationKey&);  // Not implemented.
 };
+
+// Macros to define an information key instance in a C++ source file.
+// The corresponding method declaration must appear in the class
+// definition in the header file.
+#define vtkInformationKeyMacro(CLASS, NAME, type)                      \
+  static vtkInformation##type##Key CLASS##_##NAME(#NAME, #CLASS);      \
+  vtkInformation##type##Key* CLASS::NAME() { return &CLASS##_##NAME; }
+#define vtkInformationKeyRestrictedMacro(CLASS, NAME, type, required)       \
+  static vtkInformation##type##Key CLASS##_##NAME(#NAME, #CLASS, required); \
+  vtkInformation##type##Key* CLASS::NAME() { return &CLASS##_##NAME; }
 
 #endif

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkInformationInformationVectorKey.cxx
+  Module:    vtkInformationExecutiveKey.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,60 +12,59 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkInformationInformationVectorKey.h"
+#include "vtkInformationExecutiveKey.h"
 
+#include "vtkExecutive.h"
 #include "vtkGarbageCollector.h"
-#include "vtkInformationVector.h"
 
-vtkCxxRevisionMacro(vtkInformationInformationVectorKey, "1.2");
+vtkCxxRevisionMacro(vtkInformationExecutiveKey, "1.2");
 
 //----------------------------------------------------------------------------
-vtkInformationInformationVectorKey::vtkInformationInformationVectorKey(const char* name, const char* location):
+vtkInformationExecutiveKey::vtkInformationExecutiveKey(const char* name, const char* location):
   vtkInformationKey(name, location)
 {
 }
 
 //----------------------------------------------------------------------------
-vtkInformationInformationVectorKey::~vtkInformationInformationVectorKey()
+vtkInformationExecutiveKey::~vtkInformationExecutiveKey()
 {
 }
 
 //----------------------------------------------------------------------------
-void vtkInformationInformationVectorKey::PrintSelf(ostream& os, vtkIndent indent)
+void vtkInformationExecutiveKey::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
 //----------------------------------------------------------------------------
-void vtkInformationInformationVectorKey::Set(vtkInformation* info,
-                                             vtkInformationVector* value)
+void vtkInformationExecutiveKey::Set(vtkInformation* info,
+                                     vtkExecutive* value)
 {
   this->SetAsObjectBase(info, value);
 }
 
 //----------------------------------------------------------------------------
-vtkInformationVector*
-vtkInformationInformationVectorKey::Get(vtkInformation* info)
+vtkExecutive* vtkInformationExecutiveKey::Get(vtkInformation* info)
 {
-  return vtkInformationVector::SafeDownCast(this->GetAsObjectBase(info));
+  return vtkExecutive::SafeDownCast(this->GetAsObjectBase(info));
 }
 
 //----------------------------------------------------------------------------
-int vtkInformationInformationVectorKey::Has(vtkInformation* info)
+int vtkInformationExecutiveKey::Has(vtkInformation* info)
 {
-  return vtkInformationVector::SafeDownCast(this->GetAsObjectBase(info))?1:0;
+  return vtkExecutive::SafeDownCast(this->GetAsObjectBase(info))?1:0;
 }
 
 //----------------------------------------------------------------------------
-void vtkInformationInformationVectorKey::Copy(vtkInformation* from,
-                                              vtkInformation* to)
+void vtkInformationExecutiveKey::Copy(vtkInformation* from,
+                                      vtkInformation* to)
 {
   this->Set(to, this->Get(from));
 }
 
 //----------------------------------------------------------------------------
-void vtkInformationInformationVectorKey::Report(vtkInformation* info,
-                                                vtkGarbageCollector* collector)
+void vtkInformationExecutiveKey::Report(vtkInformation* info,
+                                        vtkGarbageCollector* collector)
 {
   collector->ReportReference(this->Get(info), this->GetName());
 }

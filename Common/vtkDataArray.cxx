@@ -30,7 +30,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkDataArray, "1.63");
+vtkCxxRevisionMacro(vtkDataArray, "1.64");
 
 // Construct object with default tuple dimension (number of components) of 1.
 vtkDataArray::vtkDataArray(vtkIdType numComp)
@@ -519,6 +519,65 @@ void vtkDataArray::InsertNextTuple9(double val0, double val1,
   this->InsertNextTuple(tuple);
 }
 
+unsigned long vtkDataArray::GetDataTypeSize(int type)
+{
+  switch (type)
+    {
+    case VTK_BIT:
+      return 1;
+      break;
+
+    case VTK_CHAR:
+      return sizeof(char);
+      break;
+
+    case VTK_UNSIGNED_CHAR:
+      return sizeof(unsigned char);
+      break;
+
+    case VTK_SHORT:
+      return sizeof(short);
+      break;
+
+    case VTK_UNSIGNED_SHORT:
+      return sizeof(unsigned short);
+      break;
+
+    case VTK_INT:
+      return sizeof(int);
+      break;
+
+    case VTK_UNSIGNED_INT:
+      return sizeof(unsigned int);
+      break;
+
+    case VTK_LONG:
+      return sizeof(long);
+      break;
+
+    case VTK_UNSIGNED_LONG:
+      return sizeof(unsigned long);
+      break;
+
+    case VTK_FLOAT:
+      return sizeof(float);
+      break;
+
+    case VTK_DOUBLE:
+      return sizeof(double);
+      break;
+
+    case VTK_ID_TYPE:
+      return sizeof(vtkIdType);
+      break;
+
+    default:
+      vtkGenericWarningMacro(<<"Unsupported data type!");
+    }
+  
+  return 1;
+}
+
 unsigned long vtkDataArray::GetActualMemorySize()
 {
   unsigned long numPrims;
@@ -527,59 +586,7 @@ unsigned long vtkDataArray::GetActualMemorySize()
   //numPrims = this->GetNumberOfTuples() * this->GetNumberOfComponents();
   numPrims = this->GetSize();
 
-  switch (this->GetDataType())
-    {
-    case VTK_BIT:
-      size = (double)sizeof(char)/8.0;
-      break;
-
-    case VTK_CHAR:
-      size = (double)sizeof(char);
-      break;
-
-    case VTK_UNSIGNED_CHAR:
-      size = (double)sizeof(unsigned char);
-      break;
-
-    case VTK_SHORT:
-      size = (double)sizeof(short);
-      break;
-
-    case VTK_UNSIGNED_SHORT:
-      size = (double)sizeof(unsigned short);
-      break;
-
-    case VTK_INT:
-      size = (double)sizeof(int);
-      break;
-
-    case VTK_UNSIGNED_INT:
-      size = (double)sizeof(unsigned int);
-      break;
-
-    case VTK_LONG:
-      size = (double)sizeof(long);
-      break;
-
-    case VTK_UNSIGNED_LONG:
-      size = (double)sizeof(unsigned long);
-      break;
-
-    case VTK_FLOAT:
-      size = (double)sizeof(float);
-      break;
-
-    case VTK_DOUBLE:
-      size = (double)sizeof(double);
-      break;
-
-    case VTK_ID_TYPE:
-      size = (double)sizeof(vtkIdType);
-      break;
-
-    default:
-      vtkErrorMacro(<<"Unsupported data type!");
-    }
+  size = vtkDataArray::GetDataTypeSize(this->GetDataType());
 
   return (unsigned long)ceil((size * numPrims)/1000.0); //kilobytes
 }

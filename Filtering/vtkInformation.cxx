@@ -14,20 +14,23 @@
 =========================================================================*/
 #include "vtkInformation.h"
 
+#include "vtkGarbageCollector.h"
 #include "vtkInformationDataObjectKey.h"
-#include "vtkInformationDataObjectVectorKey.h"
+#include "vtkInformationDoubleVectorKey.h"
+#include "vtkInformationExecutiveKey.h"
 #include "vtkInformationInformationKey.h"
 #include "vtkInformationInformationVectorKey.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationKeyVectorKey.h"
+#include "vtkInformationObjectBaseKey.h"
 #include "vtkInformationStringKey.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkInformation, "1.1");
+vtkCxxRevisionMacro(vtkInformation, "1.2");
 vtkStandardNewMacro(vtkInformation);
 
 //----------------------------------------------------------------------------
@@ -43,6 +46,7 @@ public:
 vtkInformation::vtkInformation()
 {
   this->Internal = new vtkInformationInternals;
+  this->GarbageCollecting = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -112,16 +116,18 @@ void vtkInformation::Clear()
 //----------------------------------------------------------------------------
 void vtkInformation::Copy(vtkInformation* from)
 {
+  vtkInformationInternals* oldInternal = this->Internal;
+  this->Internal = new vtkInformationInternals;
   if(from)
     {
-    this->Internal->Map = from->Internal->Map;
+    vtkInformationInternals::MapType::const_iterator i;
+    for(i=from->Internal->Map.begin(); i != from->Internal->Map.end(); ++i)
+      {
+      this->CopyEntry(from, i->first);
     }
-  else
-    {
-    this->Internal->Map.clear();
     }
+  delete oldInternal;
 }
-
 
 //----------------------------------------------------------------------------
 void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationKey* key)
@@ -162,9 +168,10 @@ void vtkInformation::CopyEntries(vtkInformation* from,
 VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(Integer, int);
 VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(String, const char*);
 VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(DataObject, vtkDataObject*);
+VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(Executive, vtkExecutive*);
 VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(Information, vtkInformation*);
 VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(InformationVector, vtkInformationVector*);
-//VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(Float, float);
+VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(ObjectBase, vtkObjectBase*);
 #undef VTK_INFORMATION_DEFINE_SCALAR_PROPERTY
 
 //----------------------------------------------------------------------------
@@ -201,8 +208,8 @@ VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(InformationVector, vtkInformationVector*)
     return key->Has(this);                                                  \
     }
 VTK_INFORMATION_DEFINE_VECTOR_PROPERTY(Integer, int);
+VTK_INFORMATION_DEFINE_VECTOR_PROPERTY(Double, double);
 VTK_INFORMATION_DEFINE_VECTOR_PROPERTY(Key, vtkInformationKey*);
-VTK_INFORMATION_DEFINE_VECTOR_PROPERTY(DataObject, vtkDataObject*);
 #undef VTK_INFORMATION_DEFINE_VECTOR_PROPERTY
 
 //----------------------------------------------------------------------------
@@ -218,7 +225,7 @@ vtkInformationKey* vtkInformation::GetKey(vtkInformationDataObjectKey* key)
 }
 
 //----------------------------------------------------------------------------
-vtkInformationKey* vtkInformation::GetKey(vtkInformationDataObjectVectorKey* key)
+vtkInformationKey* vtkInformation::GetKey(vtkInformationExecutiveKey* key)
 {
   return key;
 }
@@ -248,7 +255,49 @@ vtkInformationKey* vtkInformation::GetKey(vtkInformationIntegerVectorKey* key)
 }
 
 //----------------------------------------------------------------------------
+vtkInformationKey* vtkInformation::GetKey(vtkInformationDoubleVectorKey* key)
+{
+  return key;
+}
+
+//----------------------------------------------------------------------------
 vtkInformationKey* vtkInformation::GetKey(vtkInformationStringKey* key)
 {
   return key;
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::UnRegister(vtkObjectBase *o)
+{
+  int check = (this->GetReferenceCount() > 1);
+  this->Superclass::UnRegister(o);
+  if(check && !this->GarbageCollecting)
+    {
+    vtkGarbageCollector::Check(this);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::ReportReferences(vtkGarbageCollector* collector)
+{
+  this->Superclass::ReportReferences(collector);
+  vtkInformationInternals::MapType::const_iterator i;
+  for(i=this->Internal->Map.begin(); i != this->Internal->Map.end(); ++i)
+    {
+    i->first->Report(this, collector);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::GarbageCollectionStarting()
+{
+  this->GarbageCollecting = 1;
+  this->Superclass::GarbageCollectionStarting();
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::RemoveReferences()
+{
+  this->Internal->Map.clear();
+  this->Superclass::RemoveReferences();
 }

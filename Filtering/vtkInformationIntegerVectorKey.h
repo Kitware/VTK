@@ -28,7 +28,8 @@ public:
   vtkTypeRevisionMacro(vtkInformationIntegerVectorKey,vtkInformationKey);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  vtkInformationIntegerVectorKey(const char* name, const char* location);
+  vtkInformationIntegerVectorKey(const char* name, const char* location,
+                                 int length=-1);
   ~vtkInformationIntegerVectorKey();
 
   // Description:
@@ -46,6 +47,10 @@ public:
   // object to another.  If there is no entry in the first information
   // object for this key, the value is removed from the second.
   virtual void Copy(vtkInformation* from, vtkInformation* to);
+
+protected:
+  // The required length of the vector value (-1 is no restriction).
+  int RequiredLength;
 
 private:
   vtkInformationIntegerVectorKey(const vtkInformationIntegerVectorKey&);  // Not implemented.
