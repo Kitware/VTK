@@ -123,6 +123,9 @@ public:
 
 protected:
   vtkSimpleMutexLock   SimpleMutexLock;
+  vtkMutexLock() {};
+  vtkMutexLock(const vtkMutexLock&);
+  void operator=(const vtkMutexLock&);
 };
 
 
