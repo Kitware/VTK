@@ -181,7 +181,7 @@ public:
 
   // Description:
   // Set/Get the number of handles for this widget.
-  void SetNumberOfHandles(int npts);
+  virtual void SetNumberOfHandles(int npts);
   vtkGetMacro(NumberOfHandles, int);
 
   // Description:
