@@ -222,8 +222,8 @@ protected:
   int StartFile();
   virtual void WriteFileAttributes();
   int EndFile();
-  void DeleteFile();
-  void DeleteFile(const char* name);
+  void DeleteAFile();
+  void DeleteAFile(const char* name);
 
   void StartAppendedData();
   void EndAppendedData();

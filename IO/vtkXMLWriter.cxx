@@ -33,7 +33,7 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.34");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.35");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 
 //----------------------------------------------------------------------------
@@ -267,7 +267,7 @@ int vtkXMLWriter::Write()
     {
     vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
 
-    this->DeleteFile();
+    this->DeleteAFile();
     }
 
   // We have finished writing.
@@ -427,16 +427,16 @@ int vtkXMLWriter::EndFile()
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLWriter::DeleteFile()
+void vtkXMLWriter::DeleteAFile()
 {
   if(!this->Stream && this->FileName)
     {
-    this->DeleteFile(this->FileName);
+    this->DeleteAFile(this->FileName);
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLWriter::DeleteFile(const char* name)
+void vtkXMLWriter::DeleteAFile(const char* name)
 {
   unlink(name);
 }
