@@ -10,6 +10,17 @@ ME = Graphics
 srcdir        = @srcdir@
 VPATH         = @srcdir@
 
+MESA_OBJ = \
+vtkMesaActor \
+vtkMesaCamera \
+vtkMesaLight \
+vtkMesaPolyDataMapper \
+vtkMesaProperty \
+vtkMesaRenderWindow \
+vtkMesaRenderer \
+vtkMesaTexture  \
+vtkMesaVolumeTextureMapper2D
+
 OGLR_OBJ = \
 vtkOpenGLActor \
 vtkOpenGLCamera \
@@ -332,17 +343,8 @@ KIT_TCL_OBJ = vtkXRenderWindowTclInteractor.o ${TCL_OBJ}
 KIT_NEWS = ${TCL_NEWS} 
 
 KIT_FLAGS = 
-PYTHON_LIBS = @USE_GRAPHICS_PATENTED_LIBS@ -L../common -lVTKCommonPython ${XLIBS} ${GRAPHICS_API_LIBS}
+PYTHON_LIBS = -L../common -lVTKCommonPython ${XLIBS} ${GRAPHICS_API_LIBS}
 
-# add depend for contour filter on Makefile because when patented
-# setting changes this needs to be recompiled
-vtkContourFilter.o : Makefile
-
-@USE_GRAPHICS_PATENTED_PYTHON_TARGET@
-@USE_GRAPHICS_PATENTED_TCL_TARGET@
-
-../patented/libVTKPatented${SHLIB_SUFFIX} :
-	cd ../patented ; ${MAKE} libVTKPatented${SHLIB_SUFFIX}
 
 #------------------------------------------------------------------------------
 # Include the generic stuff here

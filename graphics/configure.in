@@ -15,18 +15,6 @@ AC_ARG_WITH(shared,
          [  --with-shared               create shared libraries],
          [vtk_shared_ok=$withval], [vtk_shared_ok=no])
 
-AC_ARG_WITH(patented,
-         [  --with-patented           include the patented classes],
-	 if test "$withval" = yes -a "$vtk_shared_ok" != no; then
-         USE_GRAPHICS_PATENTED_PYTHON_TARGET="libVTKGraphicsPython${SHLIB_SUFFIX} : ../patented/libVTKPatented${SHLIB_SUFFIX}"
-         USE_GRAPHICS_PATENTED_TCL_TARGET="libVTKGraphicsTcl${SHLIB_SUFFIX} : ../patented/libVTKPatented${SHLIB_SUFFIX}"
-         USE_GRAPHICS_PATENTED_LIBS="-L\${VTK_OBJ}/patented -lVTKPatented"
-         fi,)
-
-AC_SUBST(USE_GRAPHICS_PATENTED_PYTHON_TARGET)
-AC_SUBST(USE_GRAPHICS_PATENTED_TCL_TARGET)
-AC_SUBST(USE_GRAPHICS_PATENTED_LIBS)
-
 if test ! -r targets.make
 then
     echo "Copying $srcdir/targets.make to build directory"
