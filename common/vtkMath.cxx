@@ -547,6 +547,8 @@ int vtkMath::JacobiN(float **a, int n, float *w, float **v)
       }
     }
 
+  delete [] b;
+  delete [] z;
   return 1;
 }
 
