@@ -21,7 +21,7 @@
 
 #include <png.h>
 
-vtkCxxRevisionMacro(vtkPNGWriter, "1.21");
+vtkCxxRevisionMacro(vtkPNGWriter, "1.22");
 vtkStandardNewMacro(vtkPNGWriter);
 
 vtkCxxSetObjectMacro(vtkPNGWriter,Result,vtkUnsignedCharArray);
@@ -167,12 +167,9 @@ extern "C"
 void vtkPNGWriter::WriteSlice(vtkImageData *data)
 {
   // Call the correct templated function for the output
-  void *outPtr;
   unsigned int ui;
 
-  int* uext = data->GetUpdateExtent();
   // Call the correct templated function for the input
-  outPtr = data->GetScalarPointer(uext[0], uext[2], uext[4]);
   if (data->GetScalarType() != VTK_UNSIGNED_SHORT &&
       data->GetScalarType() != VTK_UNSIGNED_CHAR)
     {
@@ -235,6 +232,8 @@ void vtkPNGWriter::WriteSlice(vtkImageData *data)
 
   
   int *uExtent = data->GetUpdateExtent();
+  void *outPtr;
+  outPtr = data->GetScalarPointer(uExtent[0], uExtent[2], uExtent[4]);
   png_uint_32 width, height;
   width = uExtent[1] - uExtent[0] + 1;
   height = uExtent[3] - uExtent[2] + 1;  
