@@ -93,9 +93,9 @@ class vtkTest(unittest.TestCase):
     _blackbox = BlackBox.Tester(debug=0)
 
     # Due to what seems to be a bug in python some objects leak.
-    # Avoid the abort in vtkDebugLeaks.
+    # Avoid the exit-with-error in vtkDebugLeaks.
     dl = vtk.vtkDebugLeaks()
-    dl.SetExitAbort(0)
+    dl.SetExitError(0)
     dl = None
 
     def _testParse(self, obj):

@@ -55,6 +55,6 @@ vtkImageViewer viewer
 if { $tcl_platform(platform) == "unix" } {
   renWin1 Register ren1
   vtkDebugLeaks dl
-  dl SetExitAbort 0
+  dl SetExitError 0
   dl Delete
 }

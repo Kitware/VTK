@@ -40,7 +40,7 @@ int vtkDebugLeaksIgnoreClassesCheck(const char* s)
   return 0;
 }
 
-vtkCxxRevisionMacro(vtkDebugLeaks, "1.35");
+vtkCxxRevisionMacro(vtkDebugLeaks, "1.36");
 vtkStandardNewMacro(vtkDebugLeaks);
 
 //----------------------------------------------------------------------------
@@ -320,7 +320,14 @@ int vtkDebugLeaks::PrintCurrentLeaks()
   vtkDebugLeaks::MemoryTable->PrintTable(leaks);
 #ifdef _WIN32
   fprintf(stderr,"%s",leaks.c_str());
+  fflush(stderr);
   int cancel=0;
+  if(getenv("DASHBOARD_TEST_FROM_CTEST") ||
+     getenv("DART_TEST_FROM_DART"))
+    {
+    // Skip dialogs when running on dashboard.
+    return 1;
+    }
   vtkstd::string::size_type myPos = 0;
   int count = 0;
   vtkstd::string msg;
@@ -343,25 +350,17 @@ int vtkDebugLeaks::PrintCurrentLeaks()
     if (count == 10)
       {
       count = 0;
-      if(!getenv("DASHBOARD_TEST_FROM_CTEST") && 
-         !getenv("DART_TEST_FROM_DART"))
-        {
-        cancel = vtkDebugLeaks::DisplayMessageBox(msg.c_str());
-        }
+      cancel = vtkDebugLeaks::DisplayMessageBox(msg.c_str());
       msg = "";
       }
     }
-  if (count)
+  if (!cancel && count > 0)
     {
-    if(!getenv("DASHBOARD_TEST_FROM_CTEST") && 
-       !getenv("DART_TEST_FROM_DART"))
-      {
-      cancel = vtkDebugLeaks::DisplayMessageBox(msg.c_str());
-      }
+    vtkDebugLeaks::DisplayMessageBox(msg.c_str());
     }
 #else
   cout << "vtkDebugLeaks has detected LEAKS!\n";
-  cout << leaks.c_str() << "\n";
+  cout << leaks.c_str() << endl;
 #endif
 #endif
   return 1;
@@ -391,15 +390,15 @@ int vtkDebugLeaks::DisplayMessageBox(const char*)
 #endif
 
 //----------------------------------------------------------------------------
-int vtkDebugLeaks::GetExitAbort()
+int vtkDebugLeaks::GetExitError()
 {
-  return vtkDebugLeaks::ExitAbort;
+  return vtkDebugLeaks::ExitError;
 }
 
 //----------------------------------------------------------------------------
-void vtkDebugLeaks::SetExitAbort(int flag)
+void vtkDebugLeaks::SetExitError(int flag)
 {
-  vtkDebugLeaks::ExitAbort = flag;
+  vtkDebugLeaks::ExitError = flag;
 }
 
 //----------------------------------------------------------------------------
@@ -408,18 +407,18 @@ void vtkDebugLeaks::ClassInitialize()
 #ifdef VTK_DEBUG_LEAKS
   // Create the hash table.
   vtkDebugLeaks::MemoryTable = new vtkDebugLeaksHashTable;
-  
+
   // Create the lock for the critical sections.
   vtkDebugLeaks::CriticalSection = new vtkSimpleCriticalSection;
 
-  // Default to aborting when leaks occur when running tests.  Do not
-  // look for DART_TEST_FROM_DART because the Dart testing client
-  // cannot handle the Windows debug popup caused by the abort.
-  vtkDebugLeaks::ExitAbort = getenv("DASHBOARD_TEST_FROM_CTEST")? 1:0;
+  // Default to error when leaks occur while running tests.
+  vtkDebugLeaks::ExitError =
+    (getenv("DASHBOARD_TEST_FROM_CTEST") ||
+     getenv("DART_TEST_FROM_DART"))? 1:0;
 #else
   vtkDebugLeaks::MemoryTable = 0;
   vtkDebugLeaks::CriticalSection = 0;
-  vtkDebugLeaks::ExitAbort = 0;
+  vtkDebugLeaks::ExitError = 0;
 #endif
 }
 
@@ -438,10 +437,10 @@ void vtkDebugLeaks::ClassFinalize()
   delete vtkDebugLeaks::CriticalSection;
   vtkDebugLeaks::CriticalSection = 0;
 
-  // Abort if leaks occured and abort mode is on.
-  if(leaked && vtkDebugLeaks::ExitAbort)
+  // Exit with error if leaks occured and error mode is on.
+  if(leaked && vtkDebugLeaks::ExitError)
     {
-    abort();
+    exit(1);
     }
 #endif
 }
@@ -455,4 +454,4 @@ vtkDebugLeaksHashTable* vtkDebugLeaks::MemoryTable;
 vtkSimpleCriticalSection* vtkDebugLeaks::CriticalSection;
 
 // Purposely not initialized.  ClassInitialize will handle it.
-int vtkDebugLeaks::ExitAbort;
+int vtkDebugLeaks::ExitError;
