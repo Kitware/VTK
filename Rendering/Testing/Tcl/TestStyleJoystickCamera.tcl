@@ -65,7 +65,7 @@ vtkInteractorStyleSwitch inStyle
 iren SetInteractorStyle inStyle
 iren SetDesiredUpdateRate .00001
 iren Initialize
-
+set currentStyle [inStyle GetCurrentStyle]
 set actions "OnLeftButtonDown OnLeftButtonUp OnRightButtonDown OnRightButtonUp OnMiddleButtonDown OnMiddleButtonUp"
 set ctrls "0 1"
 set shifts "0 1"
@@ -73,10 +73,10 @@ set shifts "0 1"
 foreach action $actions {
   foreach ctrl $ctrls {
       foreach shift $shifts {
-	  inStyle $action $ctrl $shift [randint 125 175] [randint 125 175]
-	  inStyle OnTimer
-	  inStyle OnMouseMove $ctrl $shift [randint 125 175] [randint 125 175]
-	  inStyle OnTimer
+	  $currentStyle $action $ctrl $shift [randint 125 175] [randint 125 175]
+	  $currentStyle OnTimer
+	  $currentStyle OnMouseMove $ctrl $shift [randint 125 175] [randint 125 175]
+	  $currentStyle OnTimer
       }
   }
 }

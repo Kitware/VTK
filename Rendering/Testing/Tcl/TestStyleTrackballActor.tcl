@@ -61,7 +61,7 @@ iren SetDesiredUpdateRate .00001
 iren Initialize
 inStyle OnChar 0 0 a 0
 inStyle OnChar 0 0 t 0
-
+set currentStyle [inStyle GetCurrentStyle]
 set actions "OnLeftButtonDown OnLeftButtonUp OnRightButtonDown OnRightButtonUp OnMiddleButtonDown OnMiddleButtonUp"
 set ctrls "0 1"
 set shifts "0 1"
@@ -75,10 +75,10 @@ proc randint {min max} {
 foreach action $actions {
   foreach ctrl $ctrls {
       foreach shift $shifts {
-	  inStyle $action $ctrl $shift [randint 125 175] [randint 125 175]
-	  inStyle OnTimer
-	  inStyle OnMouseMove $ctrl $shift [randint 125 175] [randint 125 175]
-	  inStyle OnTimer
+	  $currentStyle $action $ctrl $shift [randint 125 175] [randint 125 175]
+	  $currentStyle OnTimer
+	  $currentStyle OnMouseMove $ctrl $shift [randint 125 175] [randint 125 175]
+	  $currentStyle OnTimer
       }
   }
 }
