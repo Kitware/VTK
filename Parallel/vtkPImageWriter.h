@@ -54,7 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageWriter.h"
 class vtkPipelineSize;
 
-class VTK_EXPORT vtkPImageWriter : public vtkImageWriter
+class VTK_PARALLEL_EXPORT vtkPImageWriter : public vtkImageWriter
 {
 public:
   static vtkPImageWriter *New();

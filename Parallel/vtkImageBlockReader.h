@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageSource.h"
 
 
-class VTK_EXPORT vtkImageBlockReader : public vtkImageSource
+class VTK_PARALLEL_EXPORT vtkImageBlockReader : public vtkImageSource
 {
 public:
   static vtkImageBlockReader *New();

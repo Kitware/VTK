@@ -72,7 +72,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMPICommunicator.h"
 
 
-class VTK_EXPORT vtkMPIController : public vtkMultiProcessController
+class VTK_PARALLEL_EXPORT vtkMPIController : public vtkMultiProcessController
 {
 
 public:

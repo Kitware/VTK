@@ -49,7 +49,7 @@ class vtkSource;
 class vtkDataObject;
 class vtkPolyDataMapper;
 
-class VTK_EXPORT vtkPipelineSize : public vtkObject
+class VTK_PARALLEL_EXPORT vtkPipelineSize : public vtkObject
 {
 public:
   // Description:

@@ -47,7 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkUnstructuredGridToUnstructuredGridFilter.h"
 
-class VTK_EXPORT vtkExtractUnstructuredGridPiece : public vtkUnstructuredGridToUnstructuredGridFilter
+class VTK_PARALLEL_EXPORT vtkExtractUnstructuredGridPiece : public vtkUnstructuredGridToUnstructuredGridFilter
 {
 public:
   static vtkExtractUnstructuredGridPiece *New();

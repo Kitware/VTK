@@ -87,7 +87,7 @@ typedef void (*vtkRMIFunctionType)(void *localArg,
 //ETX
 
 
-class VTK_EXPORT vtkMultiProcessController : public vtkObject
+class VTK_PARALLEL_EXPORT vtkMultiProcessController : public vtkObject
 {
 public:
   static vtkMultiProcessController *New();

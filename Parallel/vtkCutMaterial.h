@@ -54,7 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPlane.h"
 
 
-class VTK_EXPORT vtkCutMaterial : public vtkDataSetToPolyDataFilter
+class VTK_PARALLEL_EXPORT vtkCutMaterial : public vtkDataSetToPolyDataFilter
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent);

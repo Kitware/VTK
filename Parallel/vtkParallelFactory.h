@@ -30,7 +30,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkObjectFactory.h"
 
-class VTK_EXPORT vtkParallelFactory : public vtkObjectFactory
+class VTK_PARALLEL_EXPORT vtkParallelFactory : public vtkObjectFactory
 {
 public: 
 // Methods from vtkObject
@@ -46,5 +46,5 @@ protected:
   void operator=(const vtkParallelFactory&);
 };
 
-extern "C" VTK_EXPORT vtkObjectFactory* vtkLoad();
+extern "C" VTK_PARALLEL_EXPORT vtkObjectFactory* vtkLoad();
 #endif

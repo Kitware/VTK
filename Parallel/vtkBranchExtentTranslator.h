@@ -59,7 +59,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageData.h"
 
 
-class VTK_EXPORT vtkBranchExtentTranslator : public vtkExtentTranslator
+class VTK_PARALLEL_EXPORT vtkBranchExtentTranslator : public vtkExtentTranslator
 {
 public:
   static vtkBranchExtentTranslator *New();

@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkProcessObject.h"
 #include "vtkImageData.h"
 
-class VTK_EXPORT vtkImageBlockWriter : public vtkProcessObject
+class VTK_PARALLEL_EXPORT vtkImageBlockWriter : public vtkProcessObject
 {
 public:
   static vtkImageBlockWriter *New();

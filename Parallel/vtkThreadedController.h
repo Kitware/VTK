@@ -59,7 +59,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkSharedMemoryCommunicator.h"
 #include "vtkCriticalSection.h"
 
-class VTK_EXPORT vtkThreadedController : public vtkMultiProcessController
+class VTK_PARALLEL_EXPORT vtkThreadedController : public vtkMultiProcessController
 {
 public:
   static vtkThreadedController *New();

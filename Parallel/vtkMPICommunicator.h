@@ -66,7 +66,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkMPIController;
 
-class VTK_EXPORT vtkMPICommunicator : public vtkCommunicator
+class VTK_PARALLEL_EXPORT vtkMPICommunicator : public vtkCommunicator
 {
 
 public:
@@ -113,7 +113,7 @@ public:
 
 //BTX
 
-  class VTK_EXPORT Request
+  class VTK_PARALLEL_EXPORT Request
   {
   public:
     int Test();

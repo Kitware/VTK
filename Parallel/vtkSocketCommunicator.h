@@ -84,7 +84,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # define vtkSwap8Range vtkByteSwap::Swap8BERange
 #endif
 
-class VTK_EXPORT vtkSocketCommunicator : public vtkCommunicator
+class VTK_PARALLEL_EXPORT vtkSocketCommunicator : public vtkCommunicator
 {
 public:
   static vtkSocketCommunicator *New();

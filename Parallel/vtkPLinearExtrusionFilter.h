@@ -51,7 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkLinearExtrusionFilter.h"
 
-class VTK_EXPORT vtkPLinearExtrusionFilter : public vtkLinearExtrusionFilter 
+class VTK_PARALLEL_EXPORT vtkPLinearExtrusionFilter : public vtkLinearExtrusionFilter 
 {
 public:
   vtkTypeMacro(vtkPLinearExtrusionFilter,vtkLinearExtrusionFilter);

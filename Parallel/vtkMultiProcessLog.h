@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #define VTK_MULTI_PROCESS_LOG_MAX 1000
 
-class VTK_EXPORT vtkMultiProcessLog : public vtkObject
+class VTK_PARALLEL_EXPORT vtkMultiProcessLog : public vtkObject
 {
 public:
   static vtkMultiProcessLog *New();

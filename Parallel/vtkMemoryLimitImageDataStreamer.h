@@ -50,7 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageDataStreamer.h"
 
 
-class VTK_EXPORT vtkMemoryLimitImageDataStreamer : public vtkImageDataStreamer
+class VTK_PARALLEL_EXPORT vtkMemoryLimitImageDataStreamer : public vtkImageDataStreamer
 {
 public:
   static vtkMemoryLimitImageDataStreamer *New();

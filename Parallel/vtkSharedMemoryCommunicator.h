@@ -64,7 +64,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class vtkThreadedController;
 class vtkSharedMemoryCommunicatorMessage;
 
-class VTK_EXPORT vtkSharedMemoryCommunicator : public vtkCommunicator
+class VTK_PARALLEL_EXPORT vtkSharedMemoryCommunicator : public vtkCommunicator
 {
 
 public:

@@ -66,7 +66,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMultiProcessController.h"
 #include "vtkSocketCommunicator.h"
 
-class VTK_EXPORT vtkSocketController : public vtkMultiProcessController
+class VTK_PARALLEL_EXPORT vtkSocketController : public vtkMultiProcessController
 {
 public:
   static vtkSocketController *New();

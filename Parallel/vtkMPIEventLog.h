@@ -60,7 +60,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObject.h"
 #include "vtkMPIController.h"
 
-class VTK_EXPORT vtkMPIEventLog : public vtkObject
+class VTK_PARALLEL_EXPORT vtkMPIEventLog : public vtkObject
 {
 
 public:

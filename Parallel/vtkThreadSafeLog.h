@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #define VTK_THREAD_SAFE_LOG_MAX 1000
 
-class VTK_EXPORT vtkThreadSafeLog : public vtkObject
+class VTK_PARALLEL_EXPORT vtkThreadSafeLog : public vtkObject
 {
 public:
   static vtkThreadSafeLog *New();

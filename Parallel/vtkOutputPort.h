@@ -59,7 +59,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMultiProcessController.h"
 
 
-class VTK_EXPORT vtkOutputPort : public vtkProcessObject
+class VTK_PARALLEL_EXPORT vtkOutputPort : public vtkProcessObject
 {
 public:
   static vtkOutputPort *New();

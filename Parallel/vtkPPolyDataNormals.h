@@ -47,7 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkPolyDataNormals.h"
 
-class VTK_EXPORT vtkPPolyDataNormals : public vtkPolyDataNormals
+class VTK_PARALLEL_EXPORT vtkPPolyDataNormals : public vtkPolyDataNormals
 {
 public:
   vtkTypeMacro(vtkPPolyDataNormals,vtkPolyDataNormals);

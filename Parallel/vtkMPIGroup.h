@@ -58,7 +58,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class vtkMPIController;
 class vtkMPICommunicator;
 
-class VTK_EXPORT vtkMPIGroup : public vtkObject
+class VTK_PARALLEL_EXPORT vtkMPIGroup : public vtkObject
 {
 
 public:

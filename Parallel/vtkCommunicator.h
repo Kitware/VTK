@@ -62,7 +62,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class vtkDataSet;
 class vtkImageData;
 
-class VTK_EXPORT vtkCommunicator : public vtkObject
+class VTK_PARALLEL_EXPORT vtkCommunicator : public vtkObject
 {
 
 public:

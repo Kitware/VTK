@@ -65,7 +65,7 @@ class vtkImageData;
 
 
 
-class VTK_EXPORT vtkInputPort : public vtkSource
+class VTK_PARALLEL_EXPORT vtkInputPort : public vtkSource
 {
 public:
   static vtkInputPort *New();

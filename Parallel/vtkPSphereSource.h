@@ -46,7 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkSphereSource.h"
 
-class VTK_EXPORT vtkPSphereSource : public vtkSphereSource
+class VTK_PARALLEL_EXPORT vtkPSphereSource : public vtkSphereSource
 {
 public:
   vtkTypeMacro(vtkPSphereSource,vtkSphereSource);

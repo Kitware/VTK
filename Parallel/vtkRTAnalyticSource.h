@@ -50,7 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkImageSource.h"
 
-class VTK_EXPORT vtkRTAnalyticSource : public vtkImageSource
+class VTK_PARALLEL_EXPORT vtkRTAnalyticSource : public vtkImageSource
 {
 public:
   static vtkRTAnalyticSource *New();
