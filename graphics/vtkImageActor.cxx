@@ -141,7 +141,10 @@ int vtkImageActor::RenderOpaqueGeometry(vtkViewport* viewport)
   vtkDebugMacro(<< "vtkImageActor::RenderOpaqueGeometry");
 
   vtkImageData *input = this->GetInput();
-  
+  if (!input)
+    {
+    return 0;
+    }
   // make sure the data is available
   input->UpdateInformation();
 

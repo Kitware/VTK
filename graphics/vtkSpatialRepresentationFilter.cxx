@@ -136,6 +136,10 @@ void vtkSpatialRepresentationFilter::Execute()
 void vtkSpatialRepresentationFilter::GenerateOutput()
 {
   vtkDataSet *input = this->GetInput();
+  if (!input)
+    {
+    return;
+    }
   vtkPolyData *output;
   int inputModified=(input->GetMTime() > this->GetMTime() ? 1 : 0);
   int i;
