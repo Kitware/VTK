@@ -39,25 +39,6 @@ vlGlyph3D::~vlGlyph3D()
 {
 }
 
-void vlGlyph3D::PrintSelf(ostream& os, vlIndent indent)
-{
-  if (this->ShouldIPrint(vlGlyph3D::GetClassName()))
-    {
-    vlDataSetToPolyFilter::PrintSelf(os,indent);
-
-    os << indent << "Source: " << this->Source << "\n";
-    os << indent << "Scaling: " << (this->Scaling ? "On\n" : "Off\n");
-    os << indent << "Scale Mode: " << (this->ScaleMode == SCALE_BY_SCALAR ? "Scale by scalar\n" : "Scale by vector\n");
-    os << indent << "Scale Factor: " << this->ScaleFactor << "\n";
-    os << indent << "Range: (" << this->Range[0] << ", " << this->Range[1] << ")\n";
-    os << indent << "Orient: " << (this->Orient ? "On\n" : "Off\n");
-
-
-
-    os << indent << "Orient Mode: " << (this->VectorMode == USE_VECTOR ? "Orient by vector\n" : "Orient by normal\n");
-    }
-}
-
 void vlGlyph3D::Execute()
 {
   vlPointData *pd;
@@ -279,3 +260,21 @@ void vlGlyph3D::Update()
     if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
     }
 }
+
+void vlGlyph3D::PrintSelf(ostream& os, vlIndent indent)
+{
+  if (this->ShouldIPrint(vlGlyph3D::GetClassName()))
+    {
+    vlDataSetToPolyFilter::PrintSelf(os,indent);
+
+    os << indent << "Source: " << this->Source << "\n";
+    os << indent << "Scaling: " << (this->Scaling ? "On\n" : "Off\n");
+    os << indent << "Scale Mode: " << (this->ScaleMode == SCALE_BY_SCALAR ? "Scale by scalar\n" : "Scale by vector\n");
+    os << indent << "Scale Factor: " << this->ScaleFactor << "\n";
+    os << indent << "Range: (" << this->Range[0] << ", " << this->Range[1] << ")\n";
+    os << indent << "Orient: " << (this->Orient ? "On\n" : "Off\n");
+
+    os << indent << "Orient Mode: " << (this->VectorMode == USE_VECTOR ? "Orient by vector\n" : "Orient by normal\n");
+    }
+}
+
