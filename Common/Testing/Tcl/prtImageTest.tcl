@@ -17,11 +17,19 @@ rtDebugLeaks PromptUserOff
 vtkMultiProcessController mpc
 set gc [mpc GetGlobalController]
 mpc Delete
-set myProcId [$gc GetLocalProcessId]
-set numProcs [$gc GetNumberOfProcesses]
 
 vtkCompositeRenderManager compManager
-compManager SetController $gc
+
+if { $gc != "" } {
+    set myProcId [$gc GetLocalProcessId]
+    set numProcs [$gc GetNumberOfProcesses]
+
+    compManager SetController $gc
+} else {
+    set myProcId 0
+    set numProcs 1
+}
+
 
 proc ExitMaster { code } {
     global numProcs
