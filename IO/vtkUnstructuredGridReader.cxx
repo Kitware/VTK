@@ -19,7 +19,7 @@
 #include "vtkByteSwap.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridReader, "1.63");
+vtkCxxRevisionMacro(vtkUnstructuredGridReader, "1.64");
 vtkStandardNewMacro(vtkUnstructuredGridReader);
 
 #ifdef read
@@ -87,7 +87,7 @@ void vtkUnstructuredGridReader::Execute()
 {
   int i, numPts=0, numCells=0;
   char line[256];
-  int npts, size, ncells;
+  int npts, size, ncells=0;
   int piece, numPieces, ghostLevel, skip1, read2, skip3, tmp;
   vtkCellArray *cells=NULL;
   int *types=NULL;

@@ -22,7 +22,7 @@
 #include <math.h>
 #include <stdlib.h>
 
-vtkCxxRevisionMacro(vtkImageQuantizeRGBToIndex, "1.30");
+vtkCxxRevisionMacro(vtkImageQuantizeRGBToIndex, "1.31");
 vtkStandardNewMacro(vtkImageQuantizeRGBToIndex);
 
 class vtkColorQuantizeNode
@@ -399,7 +399,8 @@ void vtkColorQuantizeNode::ComputeStdDev()
 {
   int   i, j;
   float mean;
-  int   count, medianCount;
+  int   count=0;
+  int   medianCount;
 
   // Create space for histogram
   this->Histogram[0] = new int[this->Bounds[1] - this->Bounds[0] + 1];

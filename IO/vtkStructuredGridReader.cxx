@@ -18,7 +18,7 @@
 #include "vtkStructuredGridReader.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkStructuredGridReader, "1.51");
+vtkCxxRevisionMacro(vtkStructuredGridReader, "1.52");
 vtkStandardNewMacro(vtkStructuredGridReader);
 
 vtkStructuredGridReader::vtkStructuredGridReader()
@@ -130,7 +130,7 @@ void vtkStructuredGridReader::ExecuteInformation()
 
 void vtkStructuredGridReader::Execute()
 {
-  int numPts=0, npts, numCells=0, ncells;
+  int numPts=0, npts=0, numCells=0, ncells;
   char line[256];
   int dimsRead=0;
   int done=0;

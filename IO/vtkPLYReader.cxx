@@ -23,7 +23,7 @@
 #include <ctype.h>
 #include <string.h>
 
-vtkCxxRevisionMacro(vtkPLYReader, "1.9");
+vtkCxxRevisionMacro(vtkPLYReader, "1.10");
 vtkStandardNewMacro(vtkPLYReader);
 
 #ifndef true
@@ -78,7 +78,7 @@ void vtkPLYReader::Execute()
   };
 
   int i, j, k;
-  int numPts, numPolys;
+  int numPts=0, numPolys=0;
   vtkPolyData *output = (vtkPolyData *)this->GetOutput();
 
   if (!this->FileName)

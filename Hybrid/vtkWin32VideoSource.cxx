@@ -25,7 +25,7 @@
 // VFW compressed formats are listed at http://www.webartz.com/fourcc/
 #define VTK_BI_UYVY 0x59565955
 
-vtkCxxRevisionMacro(vtkWin32VideoSource, "1.16");
+vtkCxxRevisionMacro(vtkWin32VideoSource, "1.17");
 vtkStandardNewMacro(vtkWin32VideoSource);
 
 //----------------------------------------------------------------------------
@@ -132,10 +132,11 @@ LRESULT PASCAL vtkWin32VideoSourceCallbackProc(HWND hwndC, LPVIDEOHDR lpVHdr)
 
 //----------------------------------------------------------------------------
 // this callback is left in for debug purposes
-LRESULT PASCAL vtkWin32VideoSourceStatusCallbackProc(HWND hwndC, int nID, 
-                                                     LPCSTR lpsz)
+LRESULT PASCAL vtkWin32VideoSourceStatusCallbackProc(HWND vtkNotUsed(hwndC), 
+                                                     int nID, 
+                                                     LPCSTR vtkNotUsed(lpsz))
 {
-  vtkWin32VideoSource *self = (vtkWin32VideoSource *)(capGetUserData(hwndC));
+  //vtkWin32VideoSource *self = (vtkWin32VideoSource *)(capGetUserData(hwndC));
 
   if (nID == IDS_CAP_BEGIN)
     {
@@ -704,7 +705,7 @@ void vtkWin32VideoSource::UnpackRasterLine(char *outptr, char *inptr,
           case VTK_RGBA:
             { // unpack UYVY megapixel to two RGB or RGBA pixels
             unsigned char YUV[3];
-            int finish = start + count;
+            //int finish = start + count;
             int odd = (start % 2 == 1);
             if (count > 0) { YUV[1+odd] = inptr[0]; }
             if (count > 1) { YUV[0]     = inptr[1]; }
@@ -975,6 +976,7 @@ void vtkWin32VideoSource::SetOutputFormat(int format)
       numComponents = 1;
       break;
     default:
+      numComponents = 0;
       vtkErrorMacro(<< "SetOutputFormat: Unrecognized color format.");
       break;
     }
