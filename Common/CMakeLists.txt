@@ -1,29 +1,6 @@
 SOURCE_FILES( Common_SRCS
 vtkAbstractMapper 
 vtkAbstractTransform 
-vtkCallbackCommand 
-vtkCell 
-vtkCell3D
-vtkCommand 
-vtkDataArray 
-vtkDataSet 
-vtkFunctionParser
-vtkHomogeneousTransform 
-vtkLinearTransform 
-vtkImplicitFunction 
-vtkLocator 
-vtkObjectFactory 
-vtkObjectFactoryCollection
-vtkOverrideInformation 
-vtkOverrideInformationCollection 
-vtkPlanes
-vtkPointSet 
-vtkScalarsToColors 
-vtkViewport 
-vtkWarpTransform 
-vtkWindow 
-vtkFunctionSet 
-vtkInitialValueProblemSolver
 vtkActor2D 
 vtkActor2DCollection 
 vtkAssemblyNode 
@@ -31,46 +8,62 @@ vtkAssemblyPath
 vtkAssemblyPaths 
 vtkBitArray 
 vtkByteSwap 
+vtkCallbackCommand 
+vtkCell 
+vtkCell3D
 vtkCellArray 
 vtkCellData 
 vtkCellLinks 
 vtkCellTypes 
 vtkCharArray 
 vtkCollection 
+vtkCommand 
+vtkContainer
 vtkContourValues 
 vtkCoordinate 
 vtkCriticalSection 
+vtkDataArray 
 vtkDataObject 
 vtkDataObjectCollection 
+vtkDataSet 
 vtkDataSetAttributes 
 vtkDataSetCollection 
 vtkDebugLeaks 
 vtkDirectory 
-vtkDynamicLoader 
 vtkDoubleArray 
+vtkDynamicLoader 
 vtkEdgeTable 
 vtkEmptyCell 
+vtkErrorCode
 vtkExplicitCell
 vtkExtentTranslator 
 vtkFieldData 
 vtkFileOutputWindow 
 vtkFloatArray 
+vtkFunctionParser
+vtkFunctionSet 
 vtkGeneralTransform 
 vtkGenericCell 
 vtkHeap
 vtkHexahedron 
-vtkIdentityTransform 
+vtkHomogeneousTransform 
 vtkIdList 
 vtkIdTypeArray
+vtkIdentityTransform 
 vtkImageData 
 vtkImageIterator
 vtkImageProgressIterator
+vtkImplicitFunction 
 vtkImplicitFunctionCollection 
 vtkIndent 
+vtkInitialValueProblemSolver
 vtkInstantiator
 vtkIntArray 
-vtkLine 
+vtkInterpolatedVelocityField 
 vtkLargeInteger
+vtkLine 
+vtkLinearTransform 
+vtkLocator 
 vtkLogLookupTable 
 vtkLongArray 
 vtkLookupTable 
@@ -83,16 +76,22 @@ vtkMultiThreader
 vtkMutexLock 
 vtkNonLinearCell
 vtkObject 
+vtkObjectFactory 
+vtkObjectFactoryCollection
 vtkOldStyleCallbackCommand 
 vtkOrderedTriangulator
 vtkOutputWindow 
+vtkOverrideInformation 
+vtkOverrideInformationCollection 
 vtkPerspectiveTransform 
 vtkPixel 
 vtkPlane 
 vtkPlaneCollection 
+vtkPlanes
 vtkPointData 
 vtkPointLocator 
 vtkPointLocator2D 
+vtkPointSet 
 vtkPoints 
 vtkPolyData 
 vtkPolyLine 
@@ -110,6 +109,10 @@ vtkQuadraticEdge
 vtkQuadric 
 vtkRectilinearGrid 
 vtkReferenceCount 
+vtkRungeKutta2 
+vtkRungeKutta4 
+vtkRungeKutta45
+vtkScalarsToColors 
 vtkShortArray 
 vtkSource 
 vtkStructuredData 
@@ -130,16 +133,14 @@ vtkUnsignedShortArray
 vtkUnstructuredGrid 
 vtkVersion 
 vtkVertex 
+vtkViewport 
 vtkVoidArray 
 vtkVoxel 
+vtkWarpTransform 
 vtkWedge 
+vtkWindow 
 vtkWindowLevelLookupTable 
-vtkInterpolatedVelocityField 
-vtkRungeKutta2 
-vtkRungeKutta4 
-vtkRungeKutta45
 vtkXMLFileOutputWindow 
-vtkErrorCode
 )
 
 ABSTRACT_FILES(
@@ -150,12 +151,15 @@ vtkCallbackCommand
 vtkCell 
 vtkCell3D
 vtkCommand 
+vtkContainer
 vtkDataArray 
 vtkDataSet 
 vtkExplicitCell
+vtkFunctionSet 
 vtkHomogeneousTransform 
-vtkLinearTransform 
 vtkImplicitFunction 
+vtkInitialValueProblemSolver
+vtkLinearTransform 
 vtkLocator 
 vtkNonLinearCell
 vtkObjectFactory 
@@ -168,21 +172,21 @@ vtkSource
 vtkViewport 
 vtkWarpTransform 
 vtkWindow 
-vtkFunctionSet 
-vtkInitialValueProblemSolver
 )
 
 IF (WIN32)
   SOURCE_FILES(Common_SRCS vtkWin32OutputWindow)
 ENDIF (WIN32)
+
 WRAP_EXCLUDE_FILES(
-  vtkLargeInteger 
-  vtkCommand 
   vtkCallbackCommand 
-  vtkOldStyleCallbackCommand
+  vtkCommand 
+  vtkContainer
   vtkErrorCode
   vtkImageIterator
   vtkImageProgressIterator
+  vtkLargeInteger 
+  vtkOldStyleCallbackCommand
 )
 
 IF(VTK_MAKE_INSTANTIATOR)
