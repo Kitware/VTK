@@ -16,10 +16,12 @@
 
 =========================================================================*/
 #include "vtkImageDotProduct.h"
-#include "vtkObjectFactory.h"
-#include "vtkImageProgressIterator.h"
 
-vtkCxxRevisionMacro(vtkImageDotProduct, "1.26");
+#include "vtkImageData.h"
+#include "vtkImageProgressIterator.h"
+#include "vtkObjectFactory.h"
+
+vtkCxxRevisionMacro(vtkImageDotProduct, "1.27");
 vtkStandardNewMacro(vtkImageDotProduct);
 
 //----------------------------------------------------------------------------

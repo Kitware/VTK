@@ -16,11 +16,13 @@
 
 =========================================================================*/
 #include "vtkImageGaussianSource.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGaussianSource, "1.23");
+vtkCxxRevisionMacro(vtkImageGaussianSource, "1.24");
 vtkStandardNewMacro(vtkImageGaussianSource);
 
 //----------------------------------------------------------------------------

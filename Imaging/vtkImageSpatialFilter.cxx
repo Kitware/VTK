@@ -16,11 +16,13 @@
 
 =========================================================================*/
 #include "vtkImageSpatialFilter.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageSpatialFilter, "1.48");
+vtkCxxRevisionMacro(vtkImageSpatialFilter, "1.49");
 vtkStandardNewMacro(vtkImageSpatialFilter);
 
 //----------------------------------------------------------------------------

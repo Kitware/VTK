@@ -16,11 +16,13 @@
 
 =========================================================================*/
 #include "vtkImageLaplacian.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageLaplacian, "1.25");
+vtkCxxRevisionMacro(vtkImageLaplacian, "1.26");
 vtkStandardNewMacro(vtkImageLaplacian);
 
 //----------------------------------------------------------------------------

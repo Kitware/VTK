@@ -16,11 +16,13 @@
 
 =========================================================================*/
 #include "vtkImageNonMaximumSuppression.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageNonMaximumSuppression, "1.45");
+vtkCxxRevisionMacro(vtkImageNonMaximumSuppression, "1.46");
 vtkStandardNewMacro(vtkImageNonMaximumSuppression);
 
 //----------------------------------------------------------------------------

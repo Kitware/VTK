@@ -16,12 +16,14 @@
 
 =========================================================================*/
 #include "vtkImageEuclideanToPolar.h"
-#include "vtkObjectFactory.h"
+
+#include "vtkImageData.h"
 #include "vtkImageProgressIterator.h"
+#include "vtkObjectFactory.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageEuclideanToPolar, "1.23");
+vtkCxxRevisionMacro(vtkImageEuclideanToPolar, "1.24");
 vtkStandardNewMacro(vtkImageEuclideanToPolar);
 
 //----------------------------------------------------------------------------

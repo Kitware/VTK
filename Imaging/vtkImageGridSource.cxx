@@ -16,11 +16,13 @@
 
 =========================================================================*/
 #include "vtkImageGridSource.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGridSource, "1.8");
+vtkCxxRevisionMacro(vtkImageGridSource, "1.9");
 vtkStandardNewMacro(vtkImageGridSource);
 
 //----------------------------------------------------------------------------

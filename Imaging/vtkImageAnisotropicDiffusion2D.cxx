@@ -16,11 +16,13 @@
 
 =========================================================================*/
 #include "vtkImageAnisotropicDiffusion2D.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageAnisotropicDiffusion2D, "1.41");
+vtkCxxRevisionMacro(vtkImageAnisotropicDiffusion2D, "1.42");
 vtkStandardNewMacro(vtkImageAnisotropicDiffusion2D);
 
 //----------------------------------------------------------------------------

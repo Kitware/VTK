@@ -16,12 +16,13 @@
 
 =========================================================================*/
 #include "vtkImageAccumulate.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
 #include <math.h>
-#include <stdlib.h>
 
-vtkCxxRevisionMacro(vtkImageAccumulate, "1.46");
+vtkCxxRevisionMacro(vtkImageAccumulate, "1.47");
 vtkStandardNewMacro(vtkImageAccumulate);
 
 //----------------------------------------------------------------------------

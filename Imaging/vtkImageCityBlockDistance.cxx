@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkImageCityBlockDistance.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageCityBlockDistance, "1.21");
+vtkCxxRevisionMacro(vtkImageCityBlockDistance, "1.22");
 vtkStandardNewMacro(vtkImageCityBlockDistance);
 
 //----------------------------------------------------------------------------

@@ -16,11 +16,13 @@
 
 =========================================================================*/
 #include "vtkImageFourierCenter.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageFourierCenter, "1.15");
+vtkCxxRevisionMacro(vtkImageFourierCenter, "1.16");
 vtkStandardNewMacro(vtkImageFourierCenter);
 
 //----------------------------------------------------------------------------

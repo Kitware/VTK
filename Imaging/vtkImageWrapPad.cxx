@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkImageWrapPad.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageWrapPad, "1.24");
+vtkCxxRevisionMacro(vtkImageWrapPad, "1.25");
 vtkStandardNewMacro(vtkImageWrapPad);
 
 //----------------------------------------------------------------------------

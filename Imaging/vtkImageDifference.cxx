@@ -16,11 +16,11 @@
 
 =========================================================================*/
 #include "vtkImageDifference.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-#include "stdlib.h"
-
-vtkCxxRevisionMacro(vtkImageDifference, "1.30");
+vtkCxxRevisionMacro(vtkImageDifference, "1.31");
 vtkStandardNewMacro(vtkImageDifference);
 
 // Construct object to extract all of the input data.

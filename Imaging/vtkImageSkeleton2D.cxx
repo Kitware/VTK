@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkImageSkeleton2D.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageSkeleton2D, "1.31");
+vtkCxxRevisionMacro(vtkImageSkeleton2D, "1.32");
 vtkStandardNewMacro(vtkImageSkeleton2D);
 
 //----------------------------------------------------------------------------

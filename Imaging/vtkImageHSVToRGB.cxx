@@ -16,12 +16,14 @@
 
 =========================================================================*/
 #include "vtkImageHSVToRGB.h"
-#include "vtkObjectFactory.h"
+
+#include "vtkImageData.h"
 #include "vtkImageProgressIterator.h"
+#include "vtkObjectFactory.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageHSVToRGB, "1.25");
+vtkCxxRevisionMacro(vtkImageHSVToRGB, "1.26");
 vtkStandardNewMacro(vtkImageHSVToRGB);
 
 //----------------------------------------------------------------------------

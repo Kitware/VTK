@@ -16,10 +16,12 @@
 
 =========================================================================*/
 #include "vtkImageFlip.h"
+
+#include "vtkImageData.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageFlip, "1.33");
+vtkCxxRevisionMacro(vtkImageFlip, "1.34");
 vtkStandardNewMacro(vtkImageFlip);
 
 //----------------------------------------------------------------------------

@@ -16,12 +16,14 @@
 
 =========================================================================*/
 #include "vtkImageLuminance.h"
-#include "vtkObjectFactory.h"
+
+#include "vtkImageData.h"
 #include "vtkImageProgressIterator.h"
+#include "vtkObjectFactory.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageLuminance, "1.20");
+vtkCxxRevisionMacro(vtkImageLuminance, "1.21");
 vtkStandardNewMacro(vtkImageLuminance);
 
 //----------------------------------------------------------------------------

@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkImageIslandRemoval2D.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageIslandRemoval2D, "1.40");
+vtkCxxRevisionMacro(vtkImageIslandRemoval2D, "1.41");
 vtkStandardNewMacro(vtkImageIslandRemoval2D);
 
 //----------------------------------------------------------------------------

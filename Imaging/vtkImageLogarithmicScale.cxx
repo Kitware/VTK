@@ -16,12 +16,14 @@
 
 =========================================================================*/
 #include "vtkImageLogarithmicScale.h"
-#include "vtkObjectFactory.h"
+
+#include "vtkImageData.h"
 #include "vtkImageProgressIterator.h"
+#include "vtkObjectFactory.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageLogarithmicScale, "1.21");
+vtkCxxRevisionMacro(vtkImageLogarithmicScale, "1.22");
 vtkStandardNewMacro(vtkImageLogarithmicScale);
 
 //----------------------------------------------------------------------------

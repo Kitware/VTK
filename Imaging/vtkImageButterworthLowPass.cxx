@@ -16,11 +16,13 @@
 
 =========================================================================*/
 #include "vtkImageButterworthLowPass.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageButterworthLowPass, "1.20");
+vtkCxxRevisionMacro(vtkImageButterworthLowPass, "1.21");
 vtkStandardNewMacro(vtkImageButterworthLowPass);
 
 //----------------------------------------------------------------------------

@@ -16,12 +16,14 @@
 
 =========================================================================*/
 #include "vtkImageMaskBits.h"
-#include "vtkObjectFactory.h"
+
+#include "vtkImageData.h"
 #include "vtkImageProgressIterator.h"
+#include "vtkObjectFactory.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageMaskBits, "1.14");
+vtkCxxRevisionMacro(vtkImageMaskBits, "1.15");
 vtkStandardNewMacro(vtkImageMaskBits);
 
 vtkImageMaskBits::vtkImageMaskBits()

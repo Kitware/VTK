@@ -16,11 +16,13 @@
 
 =========================================================================*/
 #include "vtkImageShrink3D.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageShrink3D, "1.53");
+vtkCxxRevisionMacro(vtkImageShrink3D, "1.54");
 vtkStandardNewMacro(vtkImageShrink3D);
 
 //----------------------------------------------------------------------------

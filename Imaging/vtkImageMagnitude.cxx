@@ -16,12 +16,14 @@
 
 =========================================================================*/
 #include "vtkImageMagnitude.h"
-#include "vtkObjectFactory.h"
+
+#include "vtkImageData.h"
 #include "vtkImageProgressIterator.h"
+#include "vtkObjectFactory.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageMagnitude, "1.33");
+vtkCxxRevisionMacro(vtkImageMagnitude, "1.34");
 vtkStandardNewMacro(vtkImageMagnitude);
 
 //----------------------------------------------------------------------------

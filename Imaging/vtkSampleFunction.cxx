@@ -16,11 +16,13 @@
 
 =========================================================================*/
 #include "vtkSampleFunction.h"
-#include "vtkMath.h"
+
 #include "vtkFloatArray.h"
+#include "vtkImageData.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSampleFunction, "1.59");
+vtkCxxRevisionMacro(vtkSampleFunction, "1.60");
 vtkStandardNewMacro(vtkSampleFunction);
 
 // Construct with ModelBounds=(-1,1,-1,1,-1,1), SampleDimensions=(50,50,50),

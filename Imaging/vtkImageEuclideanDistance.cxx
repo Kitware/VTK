@@ -16,11 +16,13 @@
 
 =========================================================================*/
 #include "vtkImageEuclideanDistance.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageEuclideanDistance, "1.13");
+vtkCxxRevisionMacro(vtkImageEuclideanDistance, "1.14");
 vtkStandardNewMacro(vtkImageEuclideanDistance);
 
 //----------------------------------------------------------------------------

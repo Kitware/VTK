@@ -16,10 +16,12 @@
 
 =========================================================================*/
 #include "vtkImageThreshold.h"
-#include "vtkObjectFactory.h"
-#include "vtkImageProgressIterator.h"
 
-vtkCxxRevisionMacro(vtkImageThreshold, "1.40");
+#include "vtkImageData.h"
+#include "vtkImageProgressIterator.h"
+#include "vtkObjectFactory.h"
+
+vtkCxxRevisionMacro(vtkImageThreshold, "1.41");
 vtkStandardNewMacro(vtkImageThreshold);
 
 //----------------------------------------------------------------------------

@@ -16,11 +16,13 @@
 
 =========================================================================*/
 #include "vtkShepardMethod.h"
+
+#include "vtkFloatArray.h"
+#include "vtkImageData.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkShepardMethod, "1.39");
+vtkCxxRevisionMacro(vtkShepardMethod, "1.40");
 vtkStandardNewMacro(vtkShepardMethod);
 
 // Construct with sample dimensions=(50,50,50) and so that model bounds are

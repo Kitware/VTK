@@ -16,12 +16,14 @@
 
 =========================================================================*/
 #include "vtkImageNormalize.h"
-#include "vtkObjectFactory.h"
+
+#include "vtkImageData.h"
 #include "vtkImageProgressIterator.h"
+#include "vtkObjectFactory.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageNormalize, "1.11");
+vtkCxxRevisionMacro(vtkImageNormalize, "1.12");
 vtkStandardNewMacro(vtkImageNormalize);
 
 //----------------------------------------------------------------------------

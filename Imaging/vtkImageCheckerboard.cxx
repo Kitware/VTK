@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkImageCheckerboard.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageCheckerboard, "1.7");
+vtkCxxRevisionMacro(vtkImageCheckerboard, "1.8");
 vtkStandardNewMacro(vtkImageCheckerboard);
 
 //----------------------------------------------------------------------------

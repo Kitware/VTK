@@ -64,6 +64,8 @@
 #define VTK_RESLICE_LINEAR 1
 #define VTK_RESLICE_CUBIC 3
 
+class vtkImageData;
+
 class VTK_IMAGING_EXPORT vtkImageReslice : public vtkImageToImageFilter
 {
 public:
@@ -146,7 +148,7 @@ public:
   // SetOutputOrigin, and SetOutputExtent will override these
   // values.  By default, the Spacing, Origin, and WholeExtent
   // of the Input are used.
-  vtkSetObjectMacro(InformationInput, vtkImageData);
+  virtual void SetInformationInput(vtkImageData*);
   vtkGetObjectMacro(InformationInput, vtkImageData);
 
   // Description:

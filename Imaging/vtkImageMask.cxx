@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkImageMask.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageMask, "1.30");
+vtkCxxRevisionMacro(vtkImageMask, "1.31");
 vtkStandardNewMacro(vtkImageMask);
 
 //----------------------------------------------------------------------------

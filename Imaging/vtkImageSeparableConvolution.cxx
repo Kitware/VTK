@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkImageSeparableConvolution.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageSeparableConvolution, "1.10");
+vtkCxxRevisionMacro(vtkImageSeparableConvolution, "1.11");
 vtkStandardNewMacro(vtkImageSeparableConvolution);
 
 // Actually do the convolution

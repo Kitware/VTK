@@ -16,11 +16,13 @@
 
 =========================================================================*/
 #include "vtkImageSinusoidSource.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageSinusoidSource, "1.32");
+vtkCxxRevisionMacro(vtkImageSinusoidSource, "1.33");
 vtkStandardNewMacro(vtkImageSinusoidSource);
 
 //----------------------------------------------------------------------------

@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkImageCursor3D.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageCursor3D, "1.15");
+vtkCxxRevisionMacro(vtkImageCursor3D, "1.16");
 vtkStandardNewMacro(vtkImageCursor3D);
 
 //----------------------------------------------------------------------------

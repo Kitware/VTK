@@ -16,9 +16,13 @@
 
 =========================================================================*/
 #include "vtkExtractVOI.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkExtractVOI, "1.30");
+#include "vtkCellData.h"
+#include "vtkImageData.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+
+vtkCxxRevisionMacro(vtkExtractVOI, "1.31");
 vtkStandardNewMacro(vtkExtractVOI);
 
 // Construct object to extract all of the input data.

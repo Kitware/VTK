@@ -16,13 +16,14 @@
 
 =========================================================================*/
 #include "vtkImageQuantizeRGBToIndex.h"
-#include "vtkTimerLog.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
+#include "vtkTimerLog.h"
 
 #include <math.h>
-#include <stdlib.h>
 
-vtkCxxRevisionMacro(vtkImageQuantizeRGBToIndex, "1.32");
+vtkCxxRevisionMacro(vtkImageQuantizeRGBToIndex, "1.33");
 vtkStandardNewMacro(vtkImageQuantizeRGBToIndex);
 
 class vtkColorQuantizeNode

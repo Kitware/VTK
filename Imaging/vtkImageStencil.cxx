@@ -16,11 +16,13 @@
 
 =========================================================================*/
 #include "vtkImageStencil.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageStencil, "1.7");
+vtkCxxRevisionMacro(vtkImageStencil, "1.8");
 vtkStandardNewMacro(vtkImageStencil);
 
 //----------------------------------------------------------------------------

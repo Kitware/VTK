@@ -16,11 +16,14 @@
 
 =========================================================================*/
 #include "vtkImageLogic.h"
-#include <math.h>
-#include "vtkObjectFactory.h"
-#include "vtkImageProgressIterator.h"
 
-vtkCxxRevisionMacro(vtkImageLogic, "1.27");
+#include "vtkImageData.h"
+#include "vtkImageProgressIterator.h"
+#include "vtkObjectFactory.h"
+
+#include <math.h>
+
+vtkCxxRevisionMacro(vtkImageLogic, "1.28");
 vtkStandardNewMacro(vtkImageLogic);
 
 //----------------------------------------------------------------------------

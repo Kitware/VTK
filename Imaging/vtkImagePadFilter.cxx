@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkImagePadFilter.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImagePadFilter, "1.26");
+vtkCxxRevisionMacro(vtkImagePadFilter, "1.27");
 vtkStandardNewMacro(vtkImagePadFilter);
 
 //----------------------------------------------------------------------------

@@ -16,11 +16,13 @@
 
 =========================================================================*/
 #include "vtkImageDivergence.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageDivergence, "1.24");
+vtkCxxRevisionMacro(vtkImageDivergence, "1.25");
 vtkStandardNewMacro(vtkImageDivergence);
 
 //----------------------------------------------------------------------------

@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkImageMagnify.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageMagnify, "1.41");
+vtkCxxRevisionMacro(vtkImageMagnify, "1.42");
 vtkStandardNewMacro(vtkImageMagnify);
 
 //----------------------------------------------------------------------------

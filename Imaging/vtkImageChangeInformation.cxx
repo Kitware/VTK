@@ -16,10 +16,13 @@
 
 =========================================================================*/
 #include "vtkImageChangeInformation.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageChangeInformation, "1.7");
+vtkCxxRevisionMacro(vtkImageChangeInformation, "1.8");
 vtkStandardNewMacro(vtkImageChangeInformation);
+vtkCxxSetObjectMacro(vtkImageChangeInformation, InformationInput, vtkImageData);
 
 //----------------------------------------------------------------------------
 vtkImageChangeInformation::vtkImageChangeInformation()

@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkImageMirrorPad.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageMirrorPad, "1.29");
+vtkCxxRevisionMacro(vtkImageMirrorPad, "1.30");
 vtkStandardNewMacro(vtkImageMirrorPad);
 
 //----------------------------------------------------------------------------

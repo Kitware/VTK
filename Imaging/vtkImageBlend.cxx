@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkImageBlend.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageBlend, "1.26");
+vtkCxxRevisionMacro(vtkImageBlend, "1.27");
 vtkStandardNewMacro(vtkImageBlend);
 
 //----------------------------------------------------------------------------

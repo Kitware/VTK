@@ -16,11 +16,13 @@
 
 =========================================================================*/
 #include "vtkImageExtractComponents.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageExtractComponents, "1.26");
+vtkCxxRevisionMacro(vtkImageExtractComponents, "1.27");
 vtkStandardNewMacro(vtkImageExtractComponents);
 
 //----------------------------------------------------------------------------

@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkImageHybridMedian2D.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageHybridMedian2D, "1.14");
+vtkCxxRevisionMacro(vtkImageHybridMedian2D, "1.15");
 vtkStandardNewMacro(vtkImageHybridMedian2D);
 
 //----------------------------------------------------------------------------

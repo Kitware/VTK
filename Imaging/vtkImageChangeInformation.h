@@ -26,6 +26,8 @@
 
 #include "vtkImageToImageFilter.h"
 
+class vtkImageData;
+
 class VTK_IMAGING_EXPORT vtkImageChangeInformation : public vtkImageToImageFilter
 {
 public:
@@ -36,7 +38,7 @@ public:
   // Description:
   // Copy the information from another data set.  By default,
   // the information is copied from the input.
-  vtkSetObjectMacro(InformationInput, vtkImageData);
+  virtual void SetInformationInput(vtkImageData*);
   vtkGetObjectMacro(InformationInput, vtkImageData);
 
   // Description:

@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkImageMedian3D.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageMedian3D, "1.29");
+vtkCxxRevisionMacro(vtkImageMedian3D, "1.30");
 vtkStandardNewMacro(vtkImageMedian3D);
 
 //----------------------------------------------------------------------------

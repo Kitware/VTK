@@ -16,11 +16,13 @@
 
 =========================================================================*/
 #include "vtkImageGradient.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGradient, "1.38");
+vtkCxxRevisionMacro(vtkImageGradient, "1.39");
 vtkStandardNewMacro(vtkImageGradient);
 
 //----------------------------------------------------------------------------

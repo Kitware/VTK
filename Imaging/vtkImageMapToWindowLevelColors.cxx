@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkImageMapToWindowLevelColors.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageMapToWindowLevelColors, "1.12");
+vtkCxxRevisionMacro(vtkImageMapToWindowLevelColors, "1.13");
 vtkStandardNewMacro(vtkImageMapToWindowLevelColors);
 
 // Constructor sets default values

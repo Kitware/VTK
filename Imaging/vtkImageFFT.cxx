@@ -16,11 +16,13 @@
 
 =========================================================================*/
 #include "vtkImageFFT.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageFFT, "1.32");
+vtkCxxRevisionMacro(vtkImageFFT, "1.33");
 vtkStandardNewMacro(vtkImageFFT);
 
 //----------------------------------------------------------------------------

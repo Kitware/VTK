@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkImageCorrelation.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageCorrelation, "1.26");
+vtkCxxRevisionMacro(vtkImageCorrelation, "1.27");
 vtkStandardNewMacro(vtkImageCorrelation);
 
 //----------------------------------------------------------------------------

@@ -16,11 +16,13 @@
 
 =========================================================================*/
 #include "vtkImageSobel2D.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageSobel2D, "1.25");
+vtkCxxRevisionMacro(vtkImageSobel2D, "1.26");
 vtkStandardNewMacro(vtkImageSobel2D);
 
 //----------------------------------------------------------------------------

@@ -16,14 +16,14 @@
 
 =========================================================================*/
 #include "vtkImageImport.h"
+
 #include "vtkByteSwap.h"
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-#include <stdio.h>
 #include <ctype.h>
-#include <string.h>
 
-vtkCxxRevisionMacro(vtkImageImport, "1.37");
+vtkCxxRevisionMacro(vtkImageImport, "1.38");
 vtkStandardNewMacro(vtkImageImport);
 
 //----------------------------------------------------------------------------

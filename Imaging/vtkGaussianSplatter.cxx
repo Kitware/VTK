@@ -16,12 +16,14 @@
 
 =========================================================================*/
 #include "vtkGaussianSplatter.h"
+
 #include "vtkFloatArray.h"
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGaussianSplatter, "1.50");
+vtkCxxRevisionMacro(vtkGaussianSplatter, "1.51");
 vtkStandardNewMacro(vtkGaussianSplatter);
 
 // Construct object with dimensions=(50,50,50); automatic computation of 

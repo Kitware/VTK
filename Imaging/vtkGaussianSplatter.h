@@ -73,7 +73,7 @@
 #define VTK_ACCUMULATION_MODE_MAX 1
 #define VTK_ACCUMULATION_MODE_SUM 2
 
-class vtkFloatAray;
+class vtkFloatArray;
 
 class VTK_IMAGING_EXPORT vtkGaussianSplatter : public vtkDataSetToImageFilter 
 {

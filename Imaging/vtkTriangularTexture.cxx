@@ -16,11 +16,13 @@
 
 =========================================================================*/
 #include "vtkTriangularTexture.h"
-#include "vtkMath.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTriangularTexture, "1.21");
+#include "vtkImageData.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkUnsignedCharArray.h"
+
+vtkCxxRevisionMacro(vtkTriangularTexture, "1.22");
 vtkStandardNewMacro(vtkTriangularTexture);
 
 // Instantiate object with XSize and YSize = 64; the texture pattern =1

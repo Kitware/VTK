@@ -16,12 +16,14 @@
 
 =========================================================================*/
 #include "vtkImageRGBToHSV.h"
-#include "vtkObjectFactory.h"
+
+#include "vtkImageData.h"
 #include "vtkImageProgressIterator.h"
+#include "vtkObjectFactory.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageRGBToHSV, "1.24");
+vtkCxxRevisionMacro(vtkImageRGBToHSV, "1.25");
 vtkStandardNewMacro(vtkImageRGBToHSV);
 
 //----------------------------------------------------------------------------
