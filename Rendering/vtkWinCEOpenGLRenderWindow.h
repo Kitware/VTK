@@ -25,8 +25,8 @@
 #define __vtkWinCEOpenGLRenderWindow_h
 
 #include "vtkOpenGLRenderWindow.h"
-#include "GL/osmesa.h"
 
+#include "GL/osmesa.h" // Needed for Mesa types
 
 class vtkIdList;
 
