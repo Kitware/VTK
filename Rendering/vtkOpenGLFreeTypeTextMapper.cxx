@@ -15,6 +15,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+
 #include "vtkOpenGLFreeTypeTextMapper.h"
 #include "vtkObjectFactory.h"
 #include "vtkgluPickMatrix.h"
@@ -176,7 +177,7 @@ public:
 private:
 
   Entry *Entries[FONT_CACHE_CAPACITY];
-  size_t NumberOfEntries;
+  int NumberOfEntries;
 };
 
 // Create cache
@@ -421,7 +422,7 @@ FTFont* vtkFontCache::GetFont(vtkTextProperty *tprop,
 vtkFontCache FontCacheSingleton;
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.6");
+vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.7");
 vtkStandardNewMacro(vtkOpenGLFreeTypeTextMapper);
 
 //----------------------------------------------------------------------------
@@ -441,7 +442,7 @@ vtkOpenGLFreeTypeTextMapper::~vtkOpenGLFreeTypeTextMapper()
 }
 
 //----------------------------------------------------------------------------
-void vtkOpenGLFreeTypeTextMapper::ReleaseGraphicsResources(vtkWindow *win)
+void vtkOpenGLFreeTypeTextMapper::ReleaseGraphicsResources(vtkWindow *vtkNotUsed(win))
 {
 #if VTK_FTTM_DEBUG
     printf("vtkOpenGLFreeTypeTextMapper::ReleaseGraphicsResources\n");
