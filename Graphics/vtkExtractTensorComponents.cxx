@@ -41,11 +41,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkExtractTensorComponents.h"
 #include "vtkMath.h"
-#include "vtkScalars.h"
-#include "vtkVectors.h"
-#include "vtkNormals.h"
-#include "vtkTCoords.h"
 #include "vtkObjectFactory.h"
+#include "vtkFloatArray.h"
 
 
 
@@ -98,17 +95,17 @@ vtkExtractTensorComponents::vtkExtractTensorComponents()
 //
 void vtkExtractTensorComponents::Execute()
 {
-  vtkTensors *inTensors;
-  vtkTensor *tensor;
+  vtkDataArray *inTensors;
+  float *tensor;
   vtkDataSet *input = this->GetInput();
   vtkPointData *pd = input->GetPointData();
   vtkPointData *outPD = this->GetOutput()->GetPointData();
   float s = 0.0;
   float v[3];
-  vtkScalars *newScalars=NULL;
-  vtkVectors *newVectors=NULL;
-  vtkNormals *newNormals=NULL;
-  vtkTCoords *newTCoords=NULL;
+  vtkFloatArray *newScalars=NULL;
+  vtkFloatArray *newVectors=NULL;
+  vtkFloatArray *newNormals=NULL;
+  vtkFloatArray *newTCoords=NULL;
   int ptId, numPts;
   float sx, sy, sz, txy, tyz, txz;
 
@@ -119,7 +116,7 @@ void vtkExtractTensorComponents::Execute()
   // First, copy the input to the output as a starting point
   this->GetOutput()->CopyStructure( input );
 
-  inTensors = pd->GetTensors();
+  inTensors = pd->GetActiveTensors();
   numPts = input->GetNumberOfPoints();
 
   if ( !inTensors || numPts < 1 )
@@ -142,26 +139,29 @@ void vtkExtractTensorComponents::Execute()
   if ( this->ExtractScalars )
     {
     outPD->CopyScalarsOff();
-    newScalars = vtkScalars::New();
-    newScalars->SetNumberOfScalars(numPts);
+    newScalars = vtkFloatArray::New();
+    newScalars->SetNumberOfTuples(numPts);
     }
   if ( this->ExtractVectors ) 
     {
     outPD->CopyVectorsOff();
-    newVectors = vtkVectors::New();
-    newVectors->SetNumberOfVectors(numPts);
+    newVectors = vtkFloatArray::New();
+    newVectors->SetNumberOfComponents(3);
+    newVectors->SetNumberOfTuples(numPts);
     }
   if ( this->ExtractNormals ) 
     {
     outPD->CopyNormalsOff();
-    newNormals = vtkNormals::New();
-    newNormals->SetNumberOfNormals(numPts);
+    newNormals = vtkFloatArray::New();
+    newNormals->SetNumberOfComponents(3);
+    newNormals->SetNumberOfTuples(numPts);
     }
   if ( this->ExtractTCoords ) 
     {
     outPD->CopyTCoordsOff();
-    newTCoords = vtkTCoords::New();
-    newTCoords->SetNumberOfTCoords(numPts);
+    newTCoords = vtkFloatArray::New();
+    newTCoords->SetNumberOfComponents(2);
+    newTCoords->SetNumberOfTuples(numPts);
     }
   outPD->PassData(pd);
 
@@ -169,18 +169,18 @@ void vtkExtractTensorComponents::Execute()
   //
   for (ptId=0; ptId < numPts; ptId++)
     {
-    tensor = inTensors->GetTensor(ptId);
+    tensor = inTensors->GetTuple(ptId);
 
     if ( this->ExtractScalars )
       {
       if ( this->ScalarMode == VTK_EXTRACT_EFFECTIVE_STRESS )
         {
-        sx = tensor->GetComponent(0,0);
-        sy = tensor->GetComponent(1,1);
-        sz = tensor->GetComponent(2,2);
-        txy = tensor->GetComponent(0,1);
-        tyz = tensor->GetComponent(1,2);
-        txz = tensor->GetComponent(0,2);
+        sx = tensor[0];
+        sy = tensor[4];
+        sz = tensor[8];
+        txy = tensor[3];
+        tyz = tensor[7];
+        txz = tensor[6];
 
         s = sqrt (0.16666667 * ((sx-sy)*(sx-sy) + (sy-sz)*(sy-sz) + (sz-sx)*(sz-sx) + 
                                 6.0*(txy*txy + tyz*tyz + txz*txz)));
@@ -188,38 +188,38 @@ void vtkExtractTensorComponents::Execute()
 
       else if ( this->ScalarMode == VTK_EXTRACT_COMPONENT )
         {
-        s = tensor->GetComponent(this->ScalarComponents[0],this->ScalarComponents[1]);
+        s = tensor[this->ScalarComponents[0]+3*this->ScalarComponents[1]];
         }
 
       else //VTK_EXTRACT_EFFECTIVE_DETERMINANT
         {
         }
-      newScalars->SetScalar(ptId, s);
+      newScalars->SetTuple(ptId, &s);
       }//if extract scalars
 
     if ( this->ExtractVectors ) 
       {
-      v[0] = tensor->GetComponent(this->VectorComponents[0],this->VectorComponents[1]);
-      v[1] = tensor->GetComponent(this->VectorComponents[2],this->VectorComponents[3]);
-      v[2] = tensor->GetComponent(this->VectorComponents[4],this->VectorComponents[5]);
-      newVectors->SetVector(ptId, v);
+      v[0] = tensor[this->VectorComponents[0]+3*this->VectorComponents[1]];
+      v[1] = tensor[this->VectorComponents[2]+3*this->VectorComponents[3]];
+      v[2] = tensor[this->VectorComponents[4]+3*this->VectorComponents[5]];
+      newVectors->SetTuple(ptId, v);
       }
 
     if ( this->ExtractNormals ) 
       {
-      v[0] = tensor->GetComponent(this->NormalComponents[0],this->NormalComponents[1]);
-      v[1] = tensor->GetComponent(this->NormalComponents[2],this->NormalComponents[3]);
-      v[2] = tensor->GetComponent(this->NormalComponents[4],this->NormalComponents[5]);
-      newNormals->SetNormal(ptId, v);
+      v[0] = tensor[this->NormalComponents[0]+3*this->NormalComponents[1]];
+      v[1] = tensor[this->NormalComponents[2]+3*this->NormalComponents[3]];
+      v[2] = tensor[this->NormalComponents[4]+3*this->NormalComponents[5]];
+      newNormals->SetTuple(ptId, v);
       }
 
     if ( this->ExtractTCoords ) 
       {
       for ( int i=0; i < this->NumberOfTCoords; i++ )
         {
-        v[i] = tensor->GetComponent(this->TCoordComponents[2*i],this->TCoordComponents[2*i+1]);
+        v[i] = tensor[this->TCoordComponents[2*i]+3*this->TCoordComponents[2*i+1]];
         }
-      newTCoords->SetTCoord(ptId, v);
+      newTCoords->SetTuple(ptId, v);
       }
 
     }//for all points
