@@ -25,12 +25,9 @@
 
 #include "vtkDataSetSource.h"
 
-class vtkCollection;
+class vtkDataArrayCollection;
+class vtkIdListCollection;
 
-#define VTK_ENSIGHT_6    0
-#define VTK_ENSIGHT_6_BINARY 1
-#define VTK_ENSIGHT_GOLD 2
-#define VTK_ENSIGHT_GOLD_BINARY 3
 
 class VTK_IO_EXPORT vtkGenericEnSightReader : public vtkDataSetSource
 {
@@ -41,7 +38,7 @@ public:
 
   // Description:
   // Set/Get the Case file name.
-  void SetCaseFileName(char* fileName);
+  void SetCaseFileName(const char* fileName);
   vtkGetStringMacro(CaseFileName);
 
   // Description:
@@ -50,7 +47,7 @@ public:
   vtkGetStringMacro(FilePath);
   
   virtual void Update();
-  virtual void UpdateInformation();
+  virtual void ExecuteInformation();
   
   // Description:
   // Get the number of variables listed in the case file.
@@ -84,12 +81,12 @@ public:
   // Description:
   // Get the nth description of a particular variable type.  Returns NULL if no
   // variable of this type exists in this data set.
-  // VTK_SCALAR_PER_NODE = 0; VTK_VECTOR_PER_NODE = 1;
-  // VTK_TENSOR_SYMM_PER_NODE = 2; VTK_SCALAR_PER_ELEMENT = 3;
-  // VTK_VECTOR_PER_ELEMENT = 4; VTK_TENSOR_SYMM_PER_ELEMENT = 5;
-  // VTK_SCALAR_PER_MEASURED_NODE = 6; VTK_VECTOR_PER_MEASURED_NODE = 7;
-  // VTK_COMPLEX_SCALAR_PER_NODE = 8; VTK_COMPLEX_VECTOR_PER_NODE 9;
-  // VTK_COMPLEX_SCALAR_PER_ELEMENT  = 10; VTK_COMPLEX_VECTOR_PER_ELEMENT = 11
+  // SCALAR_PER_NODE = 0; VECTOR_PER_NODE = 1;
+  // TENSOR_SYMM_PER_NODE = 2; SCALAR_PER_ELEMENT = 3;
+  // VECTOR_PER_ELEMENT = 4; TENSOR_SYMM_PER_ELEMENT = 5;
+  // SCALAR_PER_MEASURED_NODE = 6; VECTOR_PER_MEASURED_NODE = 7;
+  // COMPLEX_SCALAR_PER_NODE = 8; COMPLEX_VECTOR_PER_NODE 9;
+  // COMPLEX_SCALAR_PER_ELEMENT  = 10; COMPLEX_VECTOR_PER_ELEMENT = 11
   char* GetDescription(int n, int type);
   
   // Description:
@@ -109,20 +106,30 @@ public:
   
   // Description:
   // Get the time values per time set
-  vtkGetObjectMacro(TimeSetTimeValuesCollection, vtkCollection);
-  
-protected:
-  vtkGenericEnSightReader();
-  ~vtkGenericEnSightReader();
+  vtkGetObjectMacro(TimeSets, vtkDataArrayCollection);
 
-  void Execute();
-  
   // Description:
   // Reads the FORMAT part of the case file to determine whether this is an
   // EnSight6 or EnSightGold data set.  Returns 0 if the format is EnSight6,
   // 1 if it is EnSightGold, and -1 otherwise (meaning an error occurred).
   int DetermineEnSightVersion();
 
+  //BTX
+  enum FileTypes
+  {
+    ENSIGHT_6            = 0,
+    ENSIGHT_6_BINARY     = 1,
+    ENSIGHT_GOLD         = 2,
+    ENSIGHT_GOLD_BINARY  = 3
+  };
+  //ETX
+
+protected:
+  vtkGenericEnSightReader();
+  ~vtkGenericEnSightReader();
+
+  void Execute();
+  
   // Description:
   // Internal function to read in a line up to 256 characters.
   // Returns zero if there was an error.
@@ -196,8 +203,8 @@ protected:
   float MinimumTimeValue;
   float MaximumTimeValue;
   
-  vtkCollection *TimeSetTimeValuesCollection;
-  virtual void SetTimeSetTimeValuesCollection(vtkCollection*);
+  vtkDataArrayCollection *TimeSets;
+  virtual void SetTimeSets(vtkDataArrayCollection*);
   
 private:
   vtkGenericEnSightReader(const vtkGenericEnSightReader&);  // Not implemented.

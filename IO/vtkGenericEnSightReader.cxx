@@ -17,18 +17,19 @@
 =========================================================================*/
 #include "vtkGenericEnSightReader.h"
 
-#include "vtkCollection.h"
+#include "vtkDataArrayCollection.h"
+#include "vtkIdListCollection.h"
 #include "vtkEnSight6BinaryReader.h"
 #include "vtkEnSight6Reader.h"
 #include "vtkEnSightGoldBinaryReader.h"
 #include "vtkEnSightGoldReader.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.28");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.29");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
-vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSetTimeValuesCollection, 
-                     vtkCollection);
+vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
+                     vtkDataArrayCollection);
 
 //----------------------------------------------------------------------------
 vtkGenericEnSightReader::vtkGenericEnSightReader()
@@ -67,7 +68,7 @@ vtkGenericEnSightReader::vtkGenericEnSightReader()
   this->MinimumTimeValue = 0;
   this->MaximumTimeValue = 0;
   
-  this->TimeSetTimeValuesCollection = NULL;
+  this->TimeSets = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -122,6 +123,8 @@ vtkGenericEnSightReader::~vtkGenericEnSightReader()
     this->ComplexVariableDescriptions = NULL;
     this->ComplexVariableTypes = NULL;
     }
+
+  this->SetTimeSets(0);
 }
 
 //----------------------------------------------------------------------------
@@ -139,14 +142,22 @@ void vtkGenericEnSightReader::Execute()
 
   this->NumberOfScalarsPerNode = this->Reader->GetNumberOfScalarsPerNode();
   this->NumberOfVectorsPerNode = this->Reader->GetNumberOfVectorsPerNode();
-  this->NumberOfTensorsSymmPerNode = this->Reader->GetNumberOfTensorsSymmPerNode();
-  this->NumberOfScalarsPerElement = this->Reader->GetNumberOfScalarsPerElement();
-  this->NumberOfVectorsPerElement = this->Reader->GetNumberOfVectorsPerElement();
-  this->NumberOfTensorsSymmPerElement = this->Reader->GetNumberOfTensorsSymmPerElement();
-  this->NumberOfScalarsPerMeasuredNode = this->Reader->GetNumberOfScalarsPerMeasuredNode();
-  this->NumberOfVectorsPerMeasuredNode = this->Reader->GetNumberOfVectorsPerMeasuredNode();
-  this->NumberOfComplexScalarsPerNode = this->Reader->GetNumberOfComplexScalarsPerNode();
-  this->NumberOfComplexVectorsPerNode = this->Reader->GetNumberOfComplexVectorsPerNode();
+  this->NumberOfTensorsSymmPerNode = 
+    this->Reader->GetNumberOfTensorsSymmPerNode();
+  this->NumberOfScalarsPerElement = 
+    this->Reader->GetNumberOfScalarsPerElement();
+  this->NumberOfVectorsPerElement = 
+    this->Reader->GetNumberOfVectorsPerElement();
+  this->NumberOfTensorsSymmPerElement = 
+    this->Reader->GetNumberOfTensorsSymmPerElement();
+  this->NumberOfScalarsPerMeasuredNode = 
+    this->Reader->GetNumberOfScalarsPerMeasuredNode();
+  this->NumberOfVectorsPerMeasuredNode = 
+    this->Reader->GetNumberOfVectorsPerMeasuredNode();
+  this->NumberOfComplexScalarsPerNode = 
+    this->Reader->GetNumberOfComplexScalarsPerNode();
+  this->NumberOfComplexVectorsPerNode = 
+    this->Reader->GetNumberOfComplexVectorsPerNode();
   this->NumberOfComplexScalarsPerElement =
     this->Reader->GetNumberOfComplexScalarsPerElement();
   this->NumberOfComplexVectorsPerElement =
@@ -164,7 +175,8 @@ void vtkGenericEnSightReader::Execute()
     }
   for (i = 0; i < this->Reader->GetNumberOfComplexVariables(); i++)
     {
-    this->AddComplexVariableDescription(this->Reader->GetComplexDescription(i));
+    this->AddComplexVariableDescription(
+      this->Reader->GetComplexDescription(i));
     this->AddComplexVariableType(this->Reader->GetComplexVariableType(i));
     this->NumberOfComplexVariables++;
     }
@@ -247,7 +259,8 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
           
           if (!fileName)
             {
-            vtkErrorMacro("A GeometryFileName must be specified in the case file.");
+            vtkErrorMacro(
+	      "A GeometryFileName must be specified in the case file.");
             return 0;
             }
           if (strrchr(fileName, '*') != NULL)
@@ -285,13 +298,13 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
             fclose(this->IFile);
             this->IFile = NULL;
             delete [] fileName;
-            return VTK_ENSIGHT_GOLD_BINARY;
+            return vtkGenericEnSightReader::ENSIGHT_GOLD_BINARY;
             } //end if binary
           
           fclose(this->IFile);
           this->IFile = NULL;
           delete [] fileName;
-          return VTK_ENSIGHT_GOLD;
+          return vtkGenericEnSightReader::ENSIGHT_GOLD;
           } // if we found the geometry section in the case file
         }
       }
@@ -327,7 +340,8 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
         this->IS = NULL;
         if (!fileName)
           {
-          vtkErrorMacro("A GeometryFileName must be specified in the case file.");
+          vtkErrorMacro(
+	    "A GeometryFileName must be specified in the case file.");
           return 0;
           }
         if (strrchr(fileName, '*') != NULL)
@@ -365,13 +379,13 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
           fclose(this->IFile);
           this->IFile = NULL;
           delete [] fileName;
-          return VTK_ENSIGHT_6_BINARY;
+          return vtkGenericEnSightReader::ENSIGHT_6_BINARY;
           } //end if binary
         
         fclose(this->IFile);
         this->IFile = NULL;
         delete [] fileName;
-        return VTK_ENSIGHT_6;
+        return vtkGenericEnSightReader::ENSIGHT_6;
         } // if we found the geometry section in the case file
       } // not ensight gold
     } // if we found the format section in the case file
@@ -384,13 +398,14 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
   return -1;
 }
 
-void vtkGenericEnSightReader::SetCaseFileName(char* fileName)
+void vtkGenericEnSightReader::SetCaseFileName(const char* fileName)
 {
   char *endingSlash = NULL;
   char *path, *newFileName;
   int position, numChars;
   
-  if ( this->CaseFileName && fileName && (!strcmp(this->CaseFileName, fileName)))
+  if ( this->CaseFileName && fileName && 
+       (!strcmp(this->CaseFileName, fileName)))
     {
     return;
     }
@@ -408,7 +423,8 @@ void vtkGenericEnSightReader::SetCaseFileName(char* fileName)
     this->CaseFileName = NULL;
     }
   
-  // strip off the path and save it as FilePath if it was included in the filename
+  // strip off the path and save it as FilePath if it was included in the
+  // filename
   if ((endingSlash = strrchr(this->CaseFileName, '/')))
     {
     position = endingSlash - this->CaseFileName + 1;
@@ -493,12 +509,12 @@ void vtkGenericEnSightReader::Update()
 }
 
 //----------------------------------------------------------------------------
-void vtkGenericEnSightReader::UpdateInformation()
+void vtkGenericEnSightReader::ExecuteInformation()
 {
   int version = this->DetermineEnSightVersion();
   int createReader = 1;
   
-  if (version == VTK_ENSIGHT_6)
+  if (version == vtkGenericEnSightReader::ENSIGHT_6)
     {
     vtkDebugMacro("EnSight6");
     if (this->Reader)
@@ -517,7 +533,7 @@ void vtkGenericEnSightReader::UpdateInformation()
       this->Reader = vtkEnSight6Reader::New();
       }
     }
-  else if (version == VTK_ENSIGHT_6_BINARY)
+  else if (version == vtkGenericEnSightReader::ENSIGHT_6_BINARY)
     {
     vtkDebugMacro("EnSight6 binary");
     if (this->Reader)
@@ -536,7 +552,7 @@ void vtkGenericEnSightReader::UpdateInformation()
       this->Reader = vtkEnSight6BinaryReader::New();
       }
     }
-  else if (version == VTK_ENSIGHT_GOLD)
+  else if (version == vtkGenericEnSightReader::ENSIGHT_GOLD)
     {
     vtkDebugMacro("EnSightGold");
     if (this->Reader)
@@ -555,7 +571,7 @@ void vtkGenericEnSightReader::UpdateInformation()
       this->Reader = vtkEnSightGoldReader::New();
       }
     }
-  else if (version == VTK_ENSIGHT_GOLD_BINARY)
+  else if (version == vtkGenericEnSightReader::ENSIGHT_GOLD_BINARY)
     {
     vtkDebugMacro("EnSightGold binary");
     if (this->Reader)
@@ -585,8 +601,7 @@ void vtkGenericEnSightReader::UpdateInformation()
   this->Reader->SetFilePath(this->GetFilePath());
   this->Reader->UpdateInformation();
   
-  this->SetTimeSetTimeValuesCollection(
-    this->Reader->GetTimeSetTimeValuesCollection());
+  this->SetTimeSets(this->Reader->GetTimeSets());
   this->MinimumTimeValue = this->Reader->GetMinimumTimeValue();
   this->MaximumTimeValue = this->Reader->GetMaximumTimeValue();
 }
@@ -670,29 +685,29 @@ int vtkGenericEnSightReader::GetNumberOfVariables(int type)
 {
   switch (type)
     {
-    case VTK_SCALAR_PER_NODE:
+    case vtkEnSightReader::SCALAR_PER_NODE:
       return this->GetNumberOfScalarsPerNode();
-    case VTK_VECTOR_PER_NODE:
+    case vtkEnSightReader::VECTOR_PER_NODE:
       return this->GetNumberOfVectorsPerNode();
-    case VTK_TENSOR_SYMM_PER_NODE:
+    case vtkEnSightReader::TENSOR_SYMM_PER_NODE:
       return this->GetNumberOfTensorsSymmPerNode();
-    case VTK_SCALAR_PER_ELEMENT:
+    case vtkEnSightReader::SCALAR_PER_ELEMENT:
       return this->GetNumberOfScalarsPerElement();
-    case VTK_VECTOR_PER_ELEMENT:
+    case vtkEnSightReader::VECTOR_PER_ELEMENT:
       return this->GetNumberOfVectorsPerElement();
-    case VTK_TENSOR_SYMM_PER_ELEMENT:
+    case vtkEnSightReader::TENSOR_SYMM_PER_ELEMENT:
       return this->GetNumberOfTensorsSymmPerElement();
-    case VTK_SCALAR_PER_MEASURED_NODE:
+    case vtkEnSightReader::SCALAR_PER_MEASURED_NODE:
       return this->GetNumberOfScalarsPerMeasuredNode();
-    case VTK_VECTOR_PER_MEASURED_NODE:
+    case vtkEnSightReader::VECTOR_PER_MEASURED_NODE:
       return this->GetNumberOfVectorsPerMeasuredNode();
-    case VTK_COMPLEX_SCALAR_PER_NODE:
+    case vtkEnSightReader::COMPLEX_SCALAR_PER_NODE:
       return this->GetNumberOfComplexScalarsPerNode();
-    case VTK_COMPLEX_VECTOR_PER_NODE:
+    case vtkEnSightReader::COMPLEX_VECTOR_PER_NODE:
       return this->GetNumberOfComplexVectorsPerNode();
-    case VTK_COMPLEX_SCALAR_PER_ELEMENT:
+    case vtkEnSightReader::COMPLEX_SCALAR_PER_ELEMENT:
       return this->GetNumberOfComplexScalarsPerElement();
-    case VTK_COMPLEX_VECTOR_PER_ELEMENT:
+    case vtkEnSightReader::COMPLEX_VECTOR_PER_ELEMENT:
       return this->GetNumberOfComplexVectorsPerElement();
     default:
       vtkWarningMacro("unknow variable type");
@@ -1026,7 +1041,6 @@ void vtkGenericEnSightReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "TimeValue: " << this->TimeValue << endl;
   os << indent << "MinimumTimeValue: " << this->MinimumTimeValue << endl;
   os << indent << "MaximumTimeValue: " << this->MaximumTimeValue << endl;
-  os << indent << "TimeSetTimeValuesCollection"
-     << this->TimeSetTimeValuesCollection << endl;
+  os << indent << "TimeSets" << this->TimeSets << endl;
 }
 
