@@ -110,7 +110,7 @@ int vtkStarbaseRenderer::UpdateLights ()
   count = 0;
   curLight= this->NumberOfLightsBound;
 
-  for (this->Lights->InitTraversal(); (light = this->Lights.GetNextItem()); )
+  for (this->Lights->InitTraversal(); (light = this->Lights->GetNextItem()); )
     {
 
     status = light->GetSwitch();
