@@ -240,6 +240,15 @@ int main(int argc, char** argv)
     }
   da->Delete();
 
+  // Test receiving null vtkDataArray
+  vtkDoubleArray *da2 = NULL;
+  if (!comm->Send(da2, 1, 9))
+    {
+    cerr << "Client error: Error sending data." << endl;
+    CleanUp(comm, contr);
+    return 1;
+    }
+
   contr->SetCommunicator(comm);
 
   vtkOutputPort* op = vtkOutputPort::New();

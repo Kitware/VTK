@@ -238,6 +238,24 @@ int main(int argc, char** argv)
 
   da->Delete();
 
+  // Test receiving null vtkDataArray
+  vtkDoubleArray *da2 = vtkDoubleArray::New();
+  if (!comm->Receive(da2, 1, 9))
+    {
+    cerr << "Client error: Error receiving data." << endl;
+    CleanUp(comm, contr);
+    ugrid->Delete();
+    uactor->Delete();
+    da2->Delete();
+    return 1;
+    }
+  if (da2->GetNumberOfTuples() == 0) {
+    cout << "recieve null data array successful" << endl;
+  } else {
+    cout << "recieve null data array failed" << endl;
+  }
+  da2->Delete();
+
   contr->SetCommunicator(comm);
 
   // The following lines were added for coverage
