@@ -475,7 +475,7 @@ void outputFunction(FILE *fp, FileInfo *data)
 /* print the parsed structures */
 void vtkParseOutput(FILE *fp, FileInfo *data)
 {
-  int i;
+  int i,j;
   
   fprintf(fp,"// tcl wrapper for %s object\n//\n",data->ClassName);
   fprintf(fp,"#ifdef _WIN32\n");
@@ -558,18 +558,28 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   fprintf(fp,"    Tcl_AppendResult(interp,\"Methods from %s:\\n\",NULL);\n",data->ClassName);
   for (i = 0; i < numberOfWrappedFunctions; i++)
     {
+    int numArgs = 0;
+
     currentFunction = wrappedFunctions[i];
-    if (currentFunction->NumberOfArguments > 1)
+    	
+    /* calc the total required args */
+    for (j = 0; j < currentFunction->NumberOfArguments; j++)
+      {
+      numArgs = numArgs + 
+	(currentFunction->ArgCounts[j] ? currentFunction->ArgCounts[j] : 1);
+      }
+
+    if (numArgs > 1)
       {
       fprintf(fp,"    Tcl_AppendResult(interp,\"  %s\\t with %i args\\n\",NULL);\n",
-	      currentFunction->Name, currentFunction->NumberOfArguments);
+	      currentFunction->Name, numArgs);
       }
-    if (currentFunction->NumberOfArguments == 1)
+    if (numArgs == 1)
       {
 	  fprintf(fp,"    Tcl_AppendResult(interp,\"  %s\\t with 1 arg\\n\",NULL);\n",
 		  currentFunction->Name);
       }
-    if (currentFunction->NumberOfArguments == 0)
+    if (numArgs == 0)
       {
       fprintf(fp,"    Tcl_AppendResult(interp,\"  %s\\n\",NULL);\n",
 	      currentFunction->Name);
