@@ -1279,7 +1279,7 @@ void vtkCellLocator::BuildLocator()
   this->NumberOfOctants = numOctants;
   
   this->Tree = new vtkIdListPtr[numOctants];
-  memset (this->Tree, (int)NULL, numOctants*sizeof(vtkIdListPtr));
+  memset (this->Tree, 0, numOctants*sizeof(vtkIdListPtr));
   
   this->CellHasBeenVisited = new unsigned char [ numCells ];
   this->ClearCellHasBeenVisited();

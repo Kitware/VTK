@@ -746,7 +746,7 @@ void vtkPointLocator2D::BuildLocator()
 
   this->NumberOfBuckets = numBuckets = ndivs[0]*ndivs[1];
   this->HashTable = new vtkIdListPtr[numBuckets];
-  memset (this->HashTable, (int)NULL, numBuckets*sizeof(vtkIdListPtr));
+  memset (this->HashTable, 0, numBuckets*sizeof(vtkIdListPtr));
   //
   //  Compute width of bucket in three directions
   //

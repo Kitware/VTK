@@ -768,7 +768,7 @@ void vtkPointLocator::BuildLocator()
 
   this->NumberOfBuckets = numBuckets = ndivs[0]*ndivs[1]*ndivs[2];
   this->HashTable = new vtkIdListPtr[numBuckets];
-  memset (this->HashTable, (int)NULL, numBuckets*sizeof(vtkIdListPtr));
+  memset (this->HashTable, 0, numBuckets*sizeof(vtkIdListPtr));
   //
   //  Compute width of bucket in three directions
   //
@@ -978,7 +978,7 @@ int vtkPointLocator::InitPointInsertion(vtkPoints *newPts, float bounds[6],
 
   this->NumberOfBuckets = ndivs[0]*ndivs[1]*ndivs[2];
   this->HashTable = new vtkIdListPtr[this->NumberOfBuckets];
-  memset (this->HashTable, (int)NULL, this->NumberOfBuckets*
+  memset (this->HashTable, 0, this->NumberOfBuckets*
           sizeof(vtkIdListPtr));
   //
   //  Compute width of bucket in three directions
