@@ -16,7 +16,7 @@ CONCRETE_H =
 
 ABSTRACT = 
 
-CONCRETE = \
+CONCRETE = 
 
 #------------------------------------------------------------------------------
 # Autoconfig defines that can be overridden in user.make
@@ -47,6 +47,7 @@ PYTHON_LIBS = -lVTK${ME} -L../graphics -lVTKGraphicsPython -L../imaging -lVTKIma
 VTK_LIB_FILE  = libVTK${ME}${VTK_LIB_EXT}
 TCL_LIB_FILE  = libVTK${ME}Tcl${VTK_LIB_EXT}
 PYTHON_LIB_FILE = libVTK${ME}Python${VTK_LIB_EXT}
+
 
 #------------------------------------------------------------------------------
 # Include the generic stuff here
