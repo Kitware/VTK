@@ -106,11 +106,22 @@ void vtkContourValues::GetValues(float *contourValues)
 // will automatically increase list size as needed.
 void vtkContourValues::SetNumberOfContours(const int number)
 {
+  int currentNumber = this->Contours->GetMaxId()+1;
   int n = ( number < 0 ? 0 : number);
-  if ( number != this->Contours->GetMaxId()+1 )
+  int i;
+
+  if ( n != currentNumber )
     {
     this->Modified();
     this->Contours->SetNumberOfValues(n);
+    }
+  // Zero out new values
+  if (n > currentNumber)
+    {
+    for ( i = currentNumber; i < n; i++ )
+      {
+      this->Contours->SetValue (i, 0.0);
+      }
     }
 }
 
