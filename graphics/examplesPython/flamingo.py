@@ -16,7 +16,7 @@ renWin.AddRenderer(ren)
 importer = vtk3DSImporter()
 importer.SetRenderWindow(renWin)
 importer.ComputeNormalsOn()
-importer.SetFileName("/usr/people/heiland/vtkdata/Viewpoint/iflamigm.3ds")
+importer.SetFileName("../../../vtkdata/Viewpoint/iflamigm.3ds")
 importer.Read()
 
 iren = vtkRenderWindowInteractor()
