@@ -890,14 +890,13 @@ void vtkTransform::PrintSelf (ostream& os, vtkIndent indent)
 
 // Returns the result of multiplying the currently set Point by the current 
 // transformation matrix. Point is expressed in homogeneous coordinates.
+// The setting of the PreMultiplyFlag will determine if the Point is
+// Pre or Post multiplied.
 float *vtkTransform::GetPoint()
 {
   if (this->PreMultiplyFlag)
     {
-    double matrix[16];
-    vtkMatrix4x4::DeepCopy(matrix,this->Matrix);
-    vtkMatrix4x4::Transpose(matrix,matrix);
-    vtkMatrix4x4::MultiplyPoint(matrix,this->Point,this->Point);
+    this->Matrix->PointMultiply(this->Point,this->Point);
     }
   else
     {
@@ -910,10 +909,7 @@ double *vtkTransform::GetDoublePoint()
 {
   if (this->PreMultiplyFlag)
     {
-    double matrix[16];
-    vtkMatrix4x4::DeepCopy(matrix,this->Matrix);
-    vtkMatrix4x4::Transpose(matrix,matrix);
-    vtkMatrix4x4::MultiplyPoint(matrix,this->Point,this->Point);
+    this->Matrix->PointMultiply(this->DoublePoint,this->DoublePoint);
     }
   else
     {

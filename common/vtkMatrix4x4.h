@@ -186,6 +186,15 @@ class VTK_EXPORT vtkMatrix4x4 : public vtkObject
     {this->Invert(&in,&out);}
   void Transpose(vtkMatrix4x4 &in,vtkMatrix4x4 &out)
     {this->Transpose(&in,&out);}
+  void PointMultiply(const float in[4], float out[4]);
+  void PointMultiply(const double in[4], double out[4]);
+//BTX
+  static void PointMultiply(const double Elements[16], 
+			    const float in[4], float out[4]);
+  static void PointMultiply(const double Elements[16], 
+			    const double in[4], double out[4]);
+//ETX
+
 
 protected:
   vtkMatrix4x4();

@@ -200,6 +200,36 @@ void vtkMatrix4x4::MultiplyPoint(const double Elements[16],
   
 }
 
+// Multiply a point (in homogeneous coordinates) by the transpose
+// of the matrix.
+void vtkMatrix4x4::PointMultiply(const float in[4],float result[4])
+{
+  vtkMatrix4x4::PointMultiply(&this->Element[0][0], in, result);
+  vtkWarningMacro("PointMultiply: this method is deprecated");
+}
+
+void vtkMatrix4x4::PointMultiply(const double Elements[16], 
+				 const float in[4], float result[4])
+{
+  double newElements[16];
+  vtkMatrix4x4::Transpose(Elements,newElements);
+  vtkMatrix4x4::MultiplyPoint(newElements,in,result);
+}
+
+void vtkMatrix4x4::PointMultiply(const double in[4],double result[4])
+{
+  vtkMatrix4x4::PointMultiply(&this->Element[0][0], in, result);
+  vtkWarningMacro("PointMultiply: this method is deprecated");
+}
+
+void vtkMatrix4x4::PointMultiply(const double Elements[16], 
+				 const double in[4], double result[4])
+{
+  double newElements[16];
+  vtkMatrix4x4::Transpose(Elements,newElements);
+  vtkMatrix4x4::MultiplyPoint(newElements,in,result);
+}
+
 // Multiplies matrices a and b and stores the result in c.
 void vtkMatrix4x4::Multiply4x4(vtkMatrix4x4 *a, vtkMatrix4x4 *b, 
 			       vtkMatrix4x4 *c)
