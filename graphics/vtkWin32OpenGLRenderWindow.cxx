@@ -475,8 +475,8 @@ void vtkWin32OpenGLRenderWindow::WindowInitialize (void)
     }	
   else 
     {
-    vtkWin32OpenGLInit();
     wglMakeCurrent(this->DeviceContext, this->ContextId); // hsr
+    vtkWin32OpenGLInit();
     }
 
 }
