@@ -44,6 +44,15 @@ IF(JAVA_COMPILE)
       SET(KITS ${KITS} Rendering)
     ENDIF(VTK_USE_RENDERING)
 
+    # Some platforms have libjvm in a subdirectory from
+    # the rest of the java libraries and are missing the symlink.
+    IF(JAVA_AWT_LIBRARY)
+      GET_FILENAME_COMPONENT(JAVA_LIB_DIR ${JAVA_AWT_LIBRARY} PATH)
+      IF(EXISTS ${JAVA_LIB_DIR}/client)
+        LINK_DIRECTORIES(${JAVA_LIB_DIR}/client)
+      ENDIF(EXISTS ${JAVA_LIB_DIR}/client)
+    ENDIF(JAVA_AWT_LIBRARY)
+
     ADD_EXECUTABLE(VTKJavaExecutable VTKJava.cxx)
     SET(JAVA_LIBRARIES)
 

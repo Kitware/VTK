@@ -163,18 +163,10 @@ ABSTRACT
 )
 
 # Setup vtkInstantiator registration for this library's classes.
-IF (COMMAND VTK_MAKE_INSTANTIATOR2)
-  VTK_MAKE_INSTANTIATOR2(vtkGraphicsInstantiator GraphicsInstantiator_SRCS
-                      ${Graphics_SRCS}
-                      EXPORT_MACRO VTK_GRAPHICS_EXPORT
-                      HEADER_LOCATION ${VTK_BINARY_DIR})
-
-ELSE (COMMAND VTK_MAKE_INSTANTIATOR2)
-  VTK_MAKE_INSTANTIATOR(vtkGraphicsInstantiator GraphicsInstantiator_SRCS
-                      ${Graphics_SRCS}
-                      EXPORT_MACRO VTK_GRAPHICS_EXPORT
-                      HEADER_LOCATION ${VTK_BINARY_DIR})
-ENDIF (COMMAND VTK_MAKE_INSTANTIATOR2)
+VTK_MAKE_INSTANTIATOR2(vtkGraphicsInstantiator GraphicsInstantiator_SRCS
+                       ${Graphics_SRCS}
+                       EXPORT_MACRO VTK_GRAPHICS_EXPORT
+                       HEADER_LOCATION ${VTK_BINARY_DIR})
 
 ADD_LIBRARY(vtkGraphics ${Graphics_SRCS} ${GraphicsInstantiator_SRCS})
 
@@ -193,7 +185,7 @@ TARGET_LINK_LIBRARIES (vtkGraphics vtkFiltering)
 # source files
 #
 IF (VTK_WRAP_TCL)
-  VTK_WRAP_TCL(vtkGraphicsTCL GraphicsTCL_SRCS ${Graphics_SRCS})
+  VTK_WRAP_TCL2(vtkGraphicsTCL GraphicsTCL_SRCS ${Graphics_SRCS})
   ADD_LIBRARY(vtkGraphicsTCL ${GraphicsTCL_SRCS})
   TARGET_LINK_LIBRARIES (vtkGraphicsTCL vtkFilteringTCL vtkGraphics
                          ${TCL_LIBRARY})
@@ -204,7 +196,7 @@ ENDIF (VTK_WRAP_TCL)
 # source files
 #
 IF (VTK_WRAP_PYTHON)
-  VTK_WRAP_PYTHON(vtkGraphicsPython GraphicsPython_SRCS ${Graphics_SRCS})
+  VTK_WRAP_PYTHON2(vtkGraphicsPython GraphicsPython_SRCS ${Graphics_SRCS})
   ADD_LIBRARY(vtkGraphicsPython MODULE ${GraphicsPython_SRCS})
   IF(NOT APPLE)
     TARGET_LINK_LIBRARIES (vtkGraphicsPython
@@ -225,7 +217,7 @@ ENDIF (VTK_WRAP_PYTHON)
 # source files
 #
 IF (VTK_WRAP_JAVA)
-  VTK_WRAP_JAVA(vtkGraphicsJava GraphicsJava_SRCS ${Graphics_SRCS})
+  VTK_WRAP_JAVA2(vtkGraphicsJava GraphicsJava_SRCS ${Graphics_SRCS})
   ADD_LIBRARY(vtkGraphicsJava SHARED ${GraphicsJava_SRCS})
   TARGET_LINK_LIBRARIES (vtkGraphicsJava vtkCommonJava vtkFilteringJava 
                          vtkGraphics)

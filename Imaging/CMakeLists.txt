@@ -115,18 +115,10 @@ ABSTRACT
 )
 
 # Setup vtkInstantiator registration for this library's classes.
-IF (COMMAND VTK_MAKE_INSTANTIATOR2)
-  VTK_MAKE_INSTANTIATOR2(vtkImagingInstantiator ImagingInstantiator_SRCS
-                      ${Imaging_SRCS}
-                      EXPORT_MACRO VTK_IMAGING_EXPORT
-                      HEADER_LOCATION ${VTK_BINARY_DIR})
-
-ELSE (COMMAND VTK_MAKE_INSTANTIATOR2)
-  VTK_MAKE_INSTANTIATOR(vtkImagingInstantiator ImagingInstantiator_SRCS
-                      ${Imaging_SRCS}
-                      EXPORT_MACRO VTK_IMAGING_EXPORT
-                      HEADER_LOCATION ${VTK_BINARY_DIR})
-ENDIF (COMMAND VTK_MAKE_INSTANTIATOR2)
+VTK_MAKE_INSTANTIATOR2(vtkImagingInstantiator ImagingInstantiator_SRCS
+                       ${Imaging_SRCS}
+                       EXPORT_MACRO VTK_IMAGING_EXPORT
+                       HEADER_LOCATION ${VTK_BINARY_DIR})
 
 ADD_LIBRARY(vtkImaging ${Imaging_SRCS} ${ImagingInstantiator_SRCS})
 
@@ -145,7 +137,7 @@ TARGET_LINK_LIBRARIES (vtkImaging vtkFiltering)
 # source files
 #
 IF (VTK_WRAP_TCL)
-  VTK_WRAP_TCL(vtkImagingTCL ImagingTCL_SRCS ${Imaging_SRCS})
+  VTK_WRAP_TCL2(vtkImagingTCL ImagingTCL_SRCS ${Imaging_SRCS})
   ADD_LIBRARY(vtkImagingTCL ${ImagingTCL_SRCS})
   TARGET_LINK_LIBRARIES (vtkImagingTCL
                          vtkFilteringTCL
@@ -158,7 +150,7 @@ ENDIF (VTK_WRAP_TCL)
 # source files
 #
 IF (VTK_WRAP_PYTHON)
-  VTK_WRAP_PYTHON(vtkImagingPython ImagingPython_SRCS ${Imaging_SRCS})
+  VTK_WRAP_PYTHON2(vtkImagingPython ImagingPython_SRCS ${Imaging_SRCS})
   ADD_LIBRARY(vtkImagingPython MODULE ${ImagingPython_SRCS})
   IF(NOT APPLE)
     TARGET_LINK_LIBRARIES (vtkImagingPython
@@ -179,7 +171,7 @@ ENDIF (VTK_WRAP_PYTHON)
 # source files
 #
 IF (VTK_WRAP_JAVA)
-  VTK_WRAP_JAVA(vtkImagingJava ImagingJava_SRCS ${Imaging_SRCS})
+  VTK_WRAP_JAVA2(vtkImagingJava ImagingJava_SRCS ${Imaging_SRCS})
   ADD_LIBRARY(vtkImagingJava SHARED ${ImagingJava_SRCS})
   TARGET_LINK_LIBRARIES (vtkImagingJava
                          vtkCommonJava

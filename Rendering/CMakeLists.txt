@@ -266,18 +266,10 @@ ELSE (VTK_USE_MANGLED_MESA)
 ENDIF(VTK_USE_MANGLED_MESA)
 
 # Setup vtkInstantiator registration for this library's classes.
-IF (COMMAND VTK_MAKE_INSTANTIATOR2)
-  VTK_MAKE_INSTANTIATOR2(vtkRenderingInstantiator RenderingInstantiator_SRCS
-    ${Rendering_SRCS} ${RenderingOpenGL_SRCS}
-    EXPORT_MACRO VTK_RENDERING_EXPORT
-    HEADER_LOCATION ${VTK_BINARY_DIR})
-
-ELSE (COMMAND VTK_MAKE_INSTANTIATOR2)
-  VTK_MAKE_INSTANTIATOR(vtkRenderingInstantiator RenderingInstantiator_SRCS
-    ${Rendering_SRCS} ${RenderingOpenGL_SRCS}
-    EXPORT_MACRO VTK_RENDERING_EXPORT
-    HEADER_LOCATION ${VTK_BINARY_DIR})
-ENDIF (COMMAND VTK_MAKE_INSTANTIATOR2)
+VTK_MAKE_INSTANTIATOR2(vtkRenderingInstantiator RenderingInstantiator_SRCS
+  ${Rendering_SRCS} ${RenderingOpenGL_SRCS}
+  EXPORT_MACRO VTK_RENDERING_EXPORT
+  HEADER_LOCATION ${VTK_BINARY_DIR})
 
 ADD_LIBRARY(vtkRendering 
     ${Rendering_SRCS} 
@@ -317,7 +309,7 @@ IF (VTK_WRAP_TCL)
   ENDIF (NOT WIN32) 
 
   IF (NOT VTK_DISABLE_TK_INIT)
-    VTK_WRAP_TCL(vtkRenderingTCL
+    VTK_WRAP_TCL2(vtkRenderingTCL
                  SOURCES
                  RenderingTCL_SRCS
                  ${Rendering_SRCS}
@@ -327,7 +319,7 @@ IF (VTK_WRAP_TCL)
                  vtkTkImageViewerWidget
                  )
   ELSE (NOT VTK_DISABLE_TK_INIT)
-    VTK_WRAP_TCL(vtkRenderingTCL
+    VTK_WRAP_TCL2(vtkRenderingTCL
                  SOURCES
                  RenderingTCL_SRCS
                  ${Rendering_SRCS}
@@ -359,7 +351,7 @@ ENDIF (VTK_WRAP_TCL)
 # source files
 #
 IF (VTK_WRAP_PYTHON)
-  VTK_WRAP_PYTHON(vtkRenderingPython
+  VTK_WRAP_PYTHON2(vtkRenderingPython
                  RenderingPython_SRCS
                  ${Rendering_SRCS}
                  ${RenderingOpenGL_SRCS})
@@ -406,7 +398,7 @@ ENDIF (VTK_WRAP_PYTHON)
 # source files
 #
 IF (VTK_WRAP_JAVA)
-  VTK_WRAP_JAVA(vtkRenderingJava
+  VTK_WRAP_JAVA2(vtkRenderingJava
                 RenderingJava_SRCS
                 ${Rendering_SRCS})
   ADD_LIBRARY(vtkRenderingJava SHARED ${RenderingJava_SRCS})

@@ -64,18 +64,10 @@ SET_SOURCE_FILES_PROPERTIES(vtkVRML WRAP_EXCLUDE)
 INCLUDE (${CMAKE_ROOT}/Modules/FindOpenGL.cmake)
 
 # Setup vtkInstantiator registration for this library's classes.
-IF (COMMAND VTK_MAKE_INSTANTIATOR2)
-  VTK_MAKE_INSTANTIATOR2(vtkHybridInstantiator HybridInstantiator_SRCS
-                      ${Hybrid_SRCS}
-                      EXPORT_MACRO VTK_HYBRID_EXPORT
-                      HEADER_LOCATION ${VTK_BINARY_DIR})
-
-ELSE (COMMAND VTK_MAKE_INSTANTIATOR2)
-  VTK_MAKE_INSTANTIATOR(vtkHybridInstantiator HybridInstantiator_SRCS
-                      ${Hybrid_SRCS}
-                      EXPORT_MACRO VTK_HYBRID_EXPORT
-                      HEADER_LOCATION ${VTK_BINARY_DIR})
-ENDIF (COMMAND VTK_MAKE_INSTANTIATOR2)
+VTK_MAKE_INSTANTIATOR2(vtkHybridInstantiator HybridInstantiator_SRCS
+                       ${Hybrid_SRCS}
+                       EXPORT_MACRO VTK_HYBRID_EXPORT
+                       HEADER_LOCATION ${VTK_BINARY_DIR})
 
 ADD_LIBRARY(vtkHybrid ${Hybrid_SRCS} ${HybridInstantiator_SRCS})
 
@@ -89,7 +81,7 @@ INCLUDE (${VTK_BINARY_DIR}/Hybrid/LocalUserOptions.cmake OPTIONAL)
 INCLUDE (${VTK_SOURCE_DIR}/Hybrid/LocalUserOptions.cmake OPTIONAL)
 
 IF (VTK_WRAP_TCL)
-  VTK_WRAP_TCL(vtkHybridTCL HybridTCL_SRCS ${Hybrid_SRCS})
+  VTK_WRAP_TCL2(vtkHybridTCL HybridTCL_SRCS ${Hybrid_SRCS})
   ADD_LIBRARY(vtkHybridTCL ${HybridTCL_SRCS})
   TARGET_LINK_LIBRARIES (vtkHybridTCL vtkHybrid vtkRenderingTCL vtkIOTCL)
   IF (WIN32)
@@ -108,7 +100,7 @@ ENDIF (VTK_WRAP_TCL)
 # source files
 #
 IF (VTK_WRAP_PYTHON)
-  VTK_WRAP_PYTHON(vtkHybridPython HybridPython_SRCS ${Hybrid_SRCS})
+  VTK_WRAP_PYTHON2(vtkHybridPython HybridPython_SRCS ${Hybrid_SRCS})
   ADD_LIBRARY(vtkHybridPython MODULE ${HybridPython_SRCS})
   IF(NOT APPLE)
     TARGET_LINK_LIBRARIES (vtkHybridPython vtkRenderingPython vtkIOPython)
@@ -134,7 +126,7 @@ IF (VTK_WRAP_PYTHON)
 ENDIF (VTK_WRAP_PYTHON)
 
 IF (VTK_WRAP_JAVA)
-  VTK_WRAP_JAVA(vtkHybridJava HybridJava_SRCS ${Hybrid_SRCS})
+  VTK_WRAP_JAVA2(vtkHybridJava HybridJava_SRCS ${Hybrid_SRCS})
   ADD_LIBRARY(vtkHybridJava SHARED ${HybridJava_SRCS})
   TARGET_LINK_LIBRARIES (vtkHybridJava vtkHybrid vtkRenderingJava vtkIOJava)
   IF (WIN32)

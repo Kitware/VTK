@@ -220,17 +220,11 @@ SET_SOURCE_FILES_PROPERTIES(
 )
 
 # Setup vtkInstantiator registration for this library's classes.
-IF (COMMAND VTK_MAKE_INSTANTIATOR2)
-  VTK_MAKE_INSTANTIATOR2(vtkCommonInstantiator CommonInstantiator_SRCS
-                      ${Common_SRCS}
-                      EXPORT_MACRO VTK_COMMON_EXPORT
-                      HEADER_LOCATION ${VTK_BINARY_DIR})
-ELSE (COMMAND VTK_MAKE_INSTANTIATOR2)
-  VTK_MAKE_INSTANTIATOR(vtkCommonInstantiator CommonInstantiator_SRCS
-                      ${Common_SRCS}
-                      EXPORT_MACRO VTK_COMMON_EXPORT
-                      HEADER_LOCATION ${VTK_BINARY_DIR})
-ENDIF (COMMAND VTK_MAKE_INSTANTIATOR2)
+VTK_MAKE_INSTANTIATOR2(vtkCommonInstantiator CommonInstantiator_SRCS
+                       ${Common_SRCS}
+                       EXPORT_MACRO VTK_COMMON_EXPORT
+                       HEADER_LOCATION ${VTK_BINARY_DIR})
+
 ADD_LIBRARY(vtkCommon ${Common_SRCS} ${CommonInstantiator_SRCS})
 
 IF(VTK_APPLE_SHARED_FLAGS_NEEDED)
@@ -253,7 +247,7 @@ INCLUDE (${VTK_SOURCE_DIR}/Common/LocalUserOptions.cmake OPTIONAL)
 # source files
 #
 IF (VTK_WRAP_TCL)
-  VTK_WRAP_TCL(vtkCommonTCL CommonTCL_SRCS ${Common_SRCS})
+  VTK_WRAP_TCL2(vtkCommonTCL CommonTCL_SRCS ${Common_SRCS})
   ADD_LIBRARY(vtkCommonTCL ${CommonTCL_SRCS} vtkTclUtil.cxx)
   TARGET_LINK_LIBRARIES (vtkCommonTCL ${TCL_LIBRARY} vtkCommon)
   INSTALL_TARGETS(/lib/vtk vtkCommonTCL)
@@ -266,7 +260,7 @@ ENDIF (VTK_WRAP_TCL)
 # source files
 #
 IF (VTK_WRAP_PYTHON)
-  VTK_WRAP_PYTHON(vtkCommonPython CommonPython_SRCS ${Common_SRCS})
+  VTK_WRAP_PYTHON2(vtkCommonPython CommonPython_SRCS ${Common_SRCS})
   ADD_LIBRARY(vtkCommonPython MODULE ${CommonPython_SRCS} vtkPythonUtil.cxx)
   IF(WIN32)
     TARGET_LINK_LIBRARIES (vtkCommonPython
@@ -287,7 +281,7 @@ ENDIF (VTK_WRAP_PYTHON)
 # source files
 #
 IF (VTK_WRAP_JAVA)
-  VTK_WRAP_JAVA(vtkCommonJava CommonJava_SRCS ${Common_SRCS})
+  VTK_WRAP_JAVA2(vtkCommonJava CommonJava_SRCS ${Common_SRCS})
   ADD_LIBRARY(vtkCommonJava SHARED ${CommonJava_SRCS} vtkJavaUtil.cxx)
   TARGET_LINK_LIBRARIES(vtkCommonJava vtkCommon)
   INSTALL_TARGETS(/lib/vtk vtkCommonJava)

@@ -99,17 +99,10 @@ ABSTRACT
 )
 
 # Setup vtkInstantiator registration for this library's classes.
-IF (COMMAND VTK_MAKE_INSTANTIATOR2)
-  VTK_MAKE_INSTANTIATOR2(vtkFilteringInstantiator FilteringInstantiator_SRCS
-                         ${Filtering_SRCS}
-                         EXPORT_MACRO VTK_FILTERING_EXPORT
-                         HEADER_LOCATION ${VTK_BINARY_DIR})
-ELSE (COMMAND VTK_MAKE_INSTANTIATOR2)
-  VTK_MAKE_INSTANTIATOR(vtkFilteringInstantiator FilteringInstantiator_SRCS
-                      ${Filtering_SRCS}
-                      EXPORT_MACRO VTK_FILTERING_EXPORT
-                      HEADER_LOCATION ${VTK_BINARY_DIR})
-ENDIF (COMMAND VTK_MAKE_INSTANTIATOR2)
+VTK_MAKE_INSTANTIATOR2(vtkFilteringInstantiator FilteringInstantiator_SRCS
+                       ${Filtering_SRCS}
+                       EXPORT_MACRO VTK_FILTERING_EXPORT
+                       HEADER_LOCATION ${VTK_BINARY_DIR})
 
 ADD_LIBRARY(vtkFiltering ${Filtering_SRCS} ${FilteringInstantiator_SRCS})
 
@@ -128,7 +121,7 @@ INCLUDE (${VTK_SOURCE_DIR}/Filtering/LocalUserOptions.cmake OPTIONAL)
 # source files
 #
 IF (VTK_WRAP_TCL)
-  VTK_WRAP_TCL(vtkFilteringTCL FilteringTCL_SRCS ${Filtering_SRCS})
+  VTK_WRAP_TCL2(vtkFilteringTCL FilteringTCL_SRCS ${Filtering_SRCS})
   ADD_LIBRARY(vtkFilteringTCL ${FilteringTCL_SRCS})
   TARGET_LINK_LIBRARIES (vtkFilteringTCL vtkCommonTCL vtkFiltering ${TCL_LIBRARY})
   INSTALL_TARGETS(/lib/vtk vtkFilteringTCL)
@@ -138,7 +131,7 @@ ENDIF (VTK_WRAP_TCL)
 # source files
 #
 IF (VTK_WRAP_PYTHON)
-  VTK_WRAP_PYTHON(vtkFilteringPython FilteringPython_SRCS ${Filtering_SRCS})
+  VTK_WRAP_PYTHON2(vtkFilteringPython FilteringPython_SRCS ${Filtering_SRCS})
   ADD_LIBRARY(vtkFilteringPython MODULE ${FilteringPython_SRCS})
   IF(NOT APPLE)
     TARGET_LINK_LIBRARIES (vtkFilteringPython vtkCommonPython)
@@ -157,7 +150,7 @@ ENDIF (VTK_WRAP_PYTHON)
 # source files
 #
 IF (VTK_WRAP_JAVA)
-  VTK_WRAP_JAVA(vtkFilteringJava FilteringJava_SRCS ${Filtering_SRCS})
+  VTK_WRAP_JAVA2(vtkFilteringJava FilteringJava_SRCS ${Filtering_SRCS})
   ADD_LIBRARY(vtkFilteringJava SHARED ${FilteringJava_SRCS})
   TARGET_LINK_LIBRARIES (vtkFilteringJava vtkCommonJava vtkFiltering)
   INSTALL_TARGETS(/lib/vtk vtkFilteringJava)

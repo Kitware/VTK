@@ -135,18 +135,10 @@ ABSTRACT
 SET_SOURCE_FILES_PROPERTIES(vtkPLY WRAP_EXCLUDE)
 
 # Setup vtkInstantiator registration for this library's classes.
-IF (COMMAND VTK_MAKE_INSTANTIATOR2)
-  VTK_MAKE_INSTANTIATOR2(vtkIOInstantiator IOInstantiator_SRCS
-                      ${IO_SRCS}
-                      EXPORT_MACRO VTK_IO_EXPORT
-                      HEADER_LOCATION ${VTK_BINARY_DIR})
-
-ELSE (COMMAND VTK_MAKE_INSTANTIATOR2)
-  VTK_MAKE_INSTANTIATOR(vtkIOInstantiator IOInstantiator_SRCS
-                      ${IO_SRCS}
-                      EXPORT_MACRO VTK_IO_EXPORT
-                      HEADER_LOCATION ${VTK_BINARY_DIR})
-ENDIF (COMMAND VTK_MAKE_INSTANTIATOR2)
+VTK_MAKE_INSTANTIATOR2(vtkIOInstantiator IOInstantiator_SRCS
+                       ${IO_SRCS}
+                       EXPORT_MACRO VTK_IO_EXPORT
+                       HEADER_LOCATION ${VTK_BINARY_DIR})
 
 ADD_LIBRARY(vtkIO ${IO_SRCS} ${IOInstantiator_SRCS})
 
@@ -164,7 +156,7 @@ TARGET_LINK_LIBRARIES (vtkIO vtkFiltering
   ${VTK_TIFF_LIBRARIES} ${VTK_EXPAT_LIBRARIES})
 
 IF (VTK_WRAP_TCL)
-  VTK_WRAP_TCL(vtkIOTCL IOTCL_SRCS ${IO_SRCS})
+  VTK_WRAP_TCL2(vtkIOTCL IOTCL_SRCS ${IO_SRCS})
   ADD_LIBRARY(vtkIOTCL ${IOTCL_SRCS})
   TARGET_LINK_LIBRARIES (vtkIOTCL
                          vtkFilteringTCL
@@ -177,7 +169,7 @@ ENDIF (VTK_WRAP_TCL)
 # source files
 #
 IF (VTK_WRAP_PYTHON)
-  VTK_WRAP_PYTHON(vtkIOPython IOPython_SRCS ${IO_SRCS})
+  VTK_WRAP_PYTHON2(vtkIOPython IOPython_SRCS ${IO_SRCS})
   ADD_LIBRARY(vtkIOPython MODULE ${IOPython_SRCS})
   IF(NOT APPLE)
     TARGET_LINK_LIBRARIES (vtkIOPython
@@ -198,7 +190,7 @@ ENDIF (VTK_WRAP_PYTHON)
 # source files
 #
 IF (VTK_WRAP_JAVA)
-  VTK_WRAP_JAVA(vtkIOJava IOJava_SRCS ${IO_SRCS})
+  VTK_WRAP_JAVA2(vtkIOJava IOJava_SRCS ${IO_SRCS})
   ADD_LIBRARY(vtkIOJava SHARED ${IOJava_SRCS})
   TARGET_LINK_LIBRARIES (vtkIOJava
                          vtkCommonJava

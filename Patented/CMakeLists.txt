@@ -18,18 +18,10 @@ IF(CMAKE_BUILD_TOOL MATCHES devenv)
 ENDIF(CMAKE_BUILD_TOOL MATCHES devenv)
 
 # Setup vtkInstantiator registration for this library's classes.
-IF (COMMAND VTK_MAKE_INSTANTIATOR2)
-  VTK_MAKE_INSTANTIATOR2(vtkPatentedInstantiator PatentedInstantiator_SRCS
-                      ${Patented_SRCS}
-                      EXPORT_MACRO VTK_PATENTED_EXPORT
-                      HEADER_LOCATION ${VTK_BINARY_DIR})
-
-ELSE (COMMAND VTK_MAKE_INSTANTIATOR2)
-  VTK_MAKE_INSTANTIATOR(vtkPatentedInstantiator PatentedInstantiator_SRCS
-                      ${Patented_SRCS}
-                      EXPORT_MACRO VTK_PATENTED_EXPORT
-                      HEADER_LOCATION ${VTK_BINARY_DIR})
-ENDIF (COMMAND VTK_MAKE_INSTANTIATOR2)
+VTK_MAKE_INSTANTIATOR2(vtkPatentedInstantiator PatentedInstantiator_SRCS
+                       ${Patented_SRCS}
+                       EXPORT_MACRO VTK_PATENTED_EXPORT
+                       HEADER_LOCATION ${VTK_BINARY_DIR})
 
 ADD_LIBRARY(vtkPatented ${Patented_SRCS} ${PatentedInstantiator_SRCS})
 
@@ -43,7 +35,7 @@ INCLUDE (${VTK_BINARY_DIR}/Patented/LocalUserOptions.cmake OPTIONAL)
 INCLUDE (${VTK_SOURCE_DIR}/Patented/LocalUserOptions.cmake OPTIONAL)
 
 IF (VTK_WRAP_TCL)
-  VTK_WRAP_TCL(vtkPatentedTCL PatentedTCL_SRCS ${Patented_SRCS})
+  VTK_WRAP_TCL2(vtkPatentedTCL PatentedTCL_SRCS ${Patented_SRCS})
   ADD_LIBRARY(vtkPatentedTCL ${PatentedTCL_SRCS})
   TARGET_LINK_LIBRARIES (vtkPatentedTCL vtkPatented vtkIOTCL vtkGraphicsTCL
                          vtkImagingTCL)
@@ -54,7 +46,7 @@ ENDIF (VTK_WRAP_TCL)
 # source files
 #
 IF (VTK_WRAP_PYTHON)
-  VTK_WRAP_PYTHON(vtkPatentedPython PatentedPython_SRCS ${Patented_SRCS})
+  VTK_WRAP_PYTHON2(vtkPatentedPython PatentedPython_SRCS ${Patented_SRCS})
   ADD_LIBRARY(vtkPatentedPython MODULE ${PatentedPython_SRCS})
   IF(NOT APPLE)
     TARGET_LINK_LIBRARIES (vtkPatentedPython
@@ -75,7 +67,7 @@ ENDIF (VTK_WRAP_PYTHON)
 # source files
 #
 IF (VTK_WRAP_JAVA)
-  VTK_WRAP_JAVA(vtkPatentedJava PatentedJava_SRCS ${Patented_SRCS})
+  VTK_WRAP_JAVA2(vtkPatentedJava PatentedJava_SRCS ${Patented_SRCS})
   ADD_LIBRARY(vtkPatentedJava SHARED ${PatentedJava_SRCS})
   TARGET_LINK_LIBRARIES (vtkPatentedJava vtkPatented vtkImagingJava
                          vtkGraphicsJava)

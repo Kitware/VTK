@@ -71,18 +71,10 @@ IF (VTK_USE_MPI)
 ENDIF (VTK_USE_MPI)
 
 # Setup vtkInstantiator registration for this library's classes.
-IF (COMMAND VTK_MAKE_INSTANTIATOR2)
-  VTK_MAKE_INSTANTIATOR2(vtkParallelInstantiator ParallelInstantiator_SRCS
-                      ${Parallel_SRCS}
-                      EXPORT_MACRO VTK_PARALLEL_EXPORT
-                      HEADER_LOCATION ${VTK_BINARY_DIR})
-
-ELSE (COMMAND VTK_MAKE_INSTANTIATOR2)
-  VTK_MAKE_INSTANTIATOR(vtkParallelInstantiator ParallelInstantiator_SRCS
-                      ${Parallel_SRCS}
-                      EXPORT_MACRO VTK_PARALLEL_EXPORT
-                      HEADER_LOCATION ${VTK_BINARY_DIR})
-ENDIF (COMMAND VTK_MAKE_INSTANTIATOR2)
+VTK_MAKE_INSTANTIATOR2(vtkParallelInstantiator ParallelInstantiator_SRCS
+                       ${Parallel_SRCS}
+                       EXPORT_MACRO VTK_PARALLEL_EXPORT
+                       HEADER_LOCATION ${VTK_BINARY_DIR})
 
 ADD_LIBRARY(vtkParallel ${Parallel_SRCS} ${ParallelInstantiator_SRCS})
 
@@ -111,7 +103,7 @@ IF (WIN32)
 ENDIF (WIN32)
 
 IF (VTK_WRAP_TCL)
-  VTK_WRAP_TCL(vtkParallelTCL ParallelTCL_SRCS ${Parallel_SRCS})
+  VTK_WRAP_TCL2(vtkParallelTCL ParallelTCL_SRCS ${Parallel_SRCS})
   ADD_LIBRARY(vtkParallelTCL ${ParallelTCL_SRCS})
   TARGET_LINK_LIBRARIES (vtkParallelTCL vtkParallel vtkIOTCL vtkRenderingTCL)
   INSTALL_TARGETS(/lib/vtk vtkParallelTCL)
@@ -121,7 +113,7 @@ ENDIF (VTK_WRAP_TCL)
 # source files
 #
 IF (VTK_WRAP_PYTHON)
-  VTK_WRAP_PYTHON(vtkParallelPython ParallelPython_SRCS ${Parallel_SRCS})
+  VTK_WRAP_PYTHON2(vtkParallelPython ParallelPython_SRCS ${Parallel_SRCS})
   ADD_LIBRARY(vtkParallelPython MODULE ${ParallelPython_SRCS})
   IF(NOT APPLE)
     TARGET_LINK_LIBRARIES (vtkParallelPython vtkIOPython vtkRenderingPython)
@@ -139,7 +131,7 @@ IF (VTK_WRAP_PYTHON)
 ENDIF (VTK_WRAP_PYTHON)
 
 IF (VTK_WRAP_JAVA)
-  VTK_WRAP_JAVA(vtkParallelJava ParallelJava_SRCS ${Parallel_SRCS})
+  VTK_WRAP_JAVA2(vtkParallelJava ParallelJava_SRCS ${Parallel_SRCS})
   ADD_LIBRARY(vtkParallelJava SHARED ${ParallelJava_SRCS})
   TARGET_LINK_LIBRARIES (vtkParallelJava vtkParallel vtkRenderingJava vtkIOJava)
   INSTALL_TARGETS(/lib/vtk vtkParallelJava)
