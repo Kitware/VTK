@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkBMPWriter, "1.21");
+vtkCxxRevisionMacro(vtkBMPWriter, "1.22");
 vtkStandardNewMacro(vtkBMPWriter);
 
 vtkBMPWriter::vtkBMPWriter()
@@ -110,7 +110,7 @@ void vtkBMPWriter::WriteFile(ofstream *file, vtkImageData *data,
   // take into consideration the scalar type
   if (data->GetScalarType() != VTK_UNSIGNED_CHAR)
     {
-    vtkErrorMacro("PNMWriter only accepts unsigned char scalars!");
+    vtkErrorMacro("BMPWriter only accepts unsigned char scalars!");
     return; 
     }
 
