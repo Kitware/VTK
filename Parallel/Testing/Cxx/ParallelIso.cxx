@@ -26,6 +26,8 @@
 #include "vtkMultiProcessController.h"
 #include "vtkRegressionTestImage.h"
 
+#include "vtkDebugLeaks.h"
+
 static const float ISO_START=4250.0;
 static const float ISO_STEP=-1250.0;
 static const int ISO_NUM=3;

@@ -2,7 +2,7 @@
 #include "vtkVersion.h"
 #include "vtkVertex.h"
 #include "vtkObjectFactoryCollection.h"
-
+#include "vtkDebugLeaks.h"
 
 class vtkTestVertex : public vtkVertex
 {
