@@ -36,7 +36,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkDataWriter, "1.104");
+vtkCxxRevisionMacro(vtkDataWriter, "1.105");
 vtkStandardNewMacro(vtkDataWriter);
 
 // this undef is required on the hp. vtkMutexLock ends up including
@@ -974,7 +974,7 @@ int vtkDataWriter::WriteFieldData(ostream *fp, vtkFieldData *f)
         // in theory there could be array name consisting of only
         // weird symbols.
         char* buffer;
-        if(strlen(array->GetName()) == 0)
+        if( !array->GetName() || strlen(array->GetName()) == 0)
           {
           buffer = strcpy(new char[strlen("unknown")+1], "unknown");
           }
@@ -1006,6 +1006,11 @@ int vtkDataWriter::WriteFieldData(ostream *fp, vtkFieldData *f)
 
 int vtkDataWriter::WriteCells(ostream *fp, vtkCellArray *cells, const char *label)
 {
+  if ( ! cells )
+    {
+    return 1;
+    }
+  
   int ncells=cells->GetNumberOfCells();
   int size=cells->GetNumberOfConnectivityEntries();
 
