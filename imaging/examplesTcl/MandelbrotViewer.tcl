@@ -37,7 +37,7 @@ vtkImageMapToRGBA map1
 vtkImageViewer viewer
   viewer SetInput [map1 GetOutput]
   viewer SetColorWindow 255.0
-  viewer SetColorLevel 127.5.0
+  viewer SetColorLevel 127.5
   [viewer GetActor2D] SetPosition $XRAD $YRAD
 
 
@@ -113,6 +113,7 @@ pack $equation -side bottom -fill x
 focus $manView
 bind $manView <ButtonPress-1> {StartZoom %x %y}
 bind $manView <ButtonRelease-1> {EndZoom %x %y 1 2}
+bind $manView <ButtonRelease-2> {Pan %x %y 1 2}
 bind $manView <ButtonRelease-3> {ZoomOut %x %y 1 2}
 bind $manView <KeyPress-u> {wm deiconify .vtkInteract}
 bind $manView <KeyPress-e> {exit}
@@ -120,6 +121,7 @@ bind $manView <Expose> {Expose %W}
 
 bind $julView <ButtonPress-1> {StartZoom %x %y}
 bind $julView <ButtonRelease-1> {EndZoom %x %y 2 1}
+bind $julView <ButtonRelease-2> {Pan %x %y 2 1}
 bind $julView <ButtonRelease-3> {ZoomOut %x %y 2 1}
 bind $julView <KeyPress-u> {wm deiconify .vtkInteract}
 bind $julView <KeyPress-e> {exit}
@@ -250,8 +252,25 @@ proc EndZoom {x y master slave} {
   MandelbrotUpdate
 }
 
+proc Pan {x y master slave} {
+  global XRAD YRAD
+    
+  # Tk origin in uppder left. Flip y axis. Put origin in middle. 
+  set x [expr $x - $XRAD]
+  set y [expr $YRAD - $y]
+
+  set scale 2.0
+
+  # Compute new origin.
+
+  mandelbrot$master Pan $x $y 0.0
+  mandelbrot$slave CopyOriginAndSpacing mandelbrot$master
+
+  MandelbrotUpdate
+}
+
 proc ZoomOut {x y master slave} {
-  global XRAD YRAD MAX_ITERATIONS
+  global XRAD YRAD
   
   # Tk origin in uppder left. Flip y axis. Put origin in middle. 
   set x [expr $x - $XRAD]
