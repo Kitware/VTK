@@ -635,20 +635,6 @@ void vtkSynchronizedTemplates3D::ExecuteInformation()
     }
   this->GetOutput()->SetEstimatedWholeMemorySize(
     numTris*sizeTri + numPts*sizePt);
-  
-  // Lets determine how many piece we can divide the output into.
-  // OK lets be picky and compute this exactly.
-  
-  numPts = (dims[0]-1) / this->MinimumPieceSize[0];
-  if (numPts <= 0) {numPts = 1;}
-  numTris = numPts;
-  numPts = (dims[1]-1) / this->MinimumPieceSize[1];
-  if (numPts <= 0) {numPts = 1;}
-  numTris *= numPts;
-  numPts = (dims[2]-1) / this->MinimumPieceSize[2];
-  if (numPts <= 0) {numPts = 1;}
-  numTris *= numPts;
-  this->GetOutput()->SetMaximumNumberOfPieces(numTris);
 }
 
 //----------------------------------------------------------------------------

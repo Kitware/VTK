@@ -23,6 +23,8 @@ vtkGeometryFilter	GetExtent	301 6
 vtkGraymap		GetColor	313 4
 vtkImageData            GetUpdateExtent 304 6
 vtkImageData            GetWholeExtent  304 6
+vtkImageData		GetOrigin   	301 3
+vtkImageData		GetSpacing   	301 3
 vtkImageSpatialFilter   GetKernelSize   304 4
 vtkImageExport		GetDataDimensions 304 3
 vtkImageExport		GetDataExtent   304 6
