@@ -10,6 +10,7 @@ IF (VTK_USE_RENDERING)
       cells 
       ImageActor
       labeledContours
+      multiLineText
       pickCells
       rendererSource
       rotations
