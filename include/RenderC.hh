@@ -20,7 +20,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // duplicate entries are not prevented.
 
 #ifndef __vlRendererCollection_hh
-#define __vlRendererColleciton_hh
+#define __vlRendererCollection_hh
 
 #include "Collect.hh"
 #include "Renderer.hh"
