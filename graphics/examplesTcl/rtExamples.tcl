@@ -6,7 +6,11 @@ catch {load vtktcl}
 #vtkCommand DebugOn
 
 # first find all the examples
-set files [lsort [glob {[A-z]*.tcl}]]
+if { $argv != ""} {
+  set files $argv
+  } else {
+  set files [lsort [glob {[A-z]*.tcl}]]
+}
 
 # remove support files that we know are not examples
 if {[set pos [lsearch $files "rt.tcl"]] != -1} {
@@ -30,10 +34,13 @@ if {[set pos [lsearch $files "RenderWidget.tcl"]] != -1} {
 if {[set pos [lsearch $files "rtExamples.tcl"]] != -1} {
    set files [lreplace $files $pos $pos ]
 }
-if {[set pos [lsearch $files "covExamples.tcl"]] != -1} {
+if {[set pos [lsearch $files "polyViewer.tcl"]] != -1} {
    set files [lreplace $files $pos $pos ]
 }
-if {[set pos [lsearch $files "polyViewer.tcl"]] != -1} {
+if {[set pos [lsearch $files "KeyFrame.tcl"]] != -1} {
+   set files [lreplace $files $pos $pos ]
+}
+if {[set pos [lsearch $files "cameraKey.tcl"]] != -1} {
    set files [lreplace $files $pos $pos ]
 }
 if {[set pos [lsearch $files "timing.tcl"]] != -1} {
@@ -87,8 +94,17 @@ if {[set pos [lsearch $files "3dsToRIB.tcl"]] != -1} {
 
 # now do the tests
 foreach afile $files {
+    #
+    # check for a valid image
+    if {[catch {set channel [open "valid/$afile.ppm"]}] != 0 } {
+     puts "WARNING: There is no valid image for $afile"
+     continue
+    }
+   close $channel
+
    vtkMath rtExMath
    rtExMath RandomSeed 6
+
    source "$afile"
 
    vtkRendererSource renSrc
