@@ -33,7 +33,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.31");
+vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.32");
 vtkStandardNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------
@@ -637,7 +637,7 @@ void vtkDataSetSurfaceFilter::DataSetExecute()
 
   //free storage
   output->Squeeze();
-
+  
   cellIds->Delete();
   pts->Delete();
 }
@@ -665,7 +665,7 @@ void vtkDataSetSurfaceFilter::ComputeInputUpdateExtents(vtkDataObject *output)
       { // Processing does nothing fo ghost levels yet so ...
       // Be careful to set output ghost level value one less than default
       // when they are implemented.  I had trouble with multiple executes.
-      //++ghostLevels;
+      ++ghostLevels;
       }
     }
   
@@ -1056,10 +1056,11 @@ void vtkDataSetSurfaceFilter::UnstructuredGridExecute()
   newLines->Delete();
   newLines = NULL;
 
-
-
   //free storage
   output->Squeeze();
+
+  int ghostLevels = output->GetUpdateGhostLevel();
+  output->RemoveGhostCells(ghostLevels+1);
 
   this->DeleteQuadHash();
 }
