@@ -92,7 +92,7 @@ vtkEnSight6BinaryReader::~vtkEnSight6BinaryReader()
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSight6BinaryReader::ReadGeometryFile()
+int vtkEnSight6BinaryReader::ReadGeometryFile(char* fileName, int timeStep)
 {
   char line[80], subLine[80];
   int partId;
@@ -234,7 +234,8 @@ int vtkEnSight6BinaryReader::ReadGeometryFile()
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSight6BinaryReader::ReadMeasuredGeometryFile()
+int vtkEnSight6BinaryReader::ReadMeasuredGeometryFile(char* fileName,
+						      int timeStep)
 {
   char line[80], subLine[80];
   int i;
@@ -327,7 +328,7 @@ int vtkEnSight6BinaryReader::ReadMeasuredGeometryFile()
 //----------------------------------------------------------------------------
 int vtkEnSight6BinaryReader::ReadScalarsPerNode(char* fileName,
                                                 char* description,
-                                                int measured,
+						int timeStep, int measured,
                                                 int numberOfComponents,
                                                 int component)
 {
@@ -442,7 +443,8 @@ int vtkEnSight6BinaryReader::ReadScalarsPerNode(char* fileName,
       }
     else
       {
-      scalars = (vtkFloatArray*)(this->GetOutput(partId)->GetPointData()->GetArray(description)); 
+      scalars = (vtkFloatArray*)(this->GetOutput(partId)->GetPointData()->
+				 GetArray(description));
       }
     this->ReadFloatArray(scalarsRead, numPts);
     for (i = 0; i < numPts; i++)
@@ -470,7 +472,7 @@ int vtkEnSight6BinaryReader::ReadScalarsPerNode(char* fileName,
 //----------------------------------------------------------------------------
 int vtkEnSight6BinaryReader::ReadVectorsPerNode(char* fileName,
                                                 char* description,
-                                                int measured)
+						int timeStep, int measured)
 {
   char line[80];
   int partId, numPts, i;
@@ -589,7 +591,9 @@ int vtkEnSight6BinaryReader::ReadVectorsPerNode(char* fileName,
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSight6BinaryReader::ReadTensorsPerNode(char* fileName, char* description)
+int vtkEnSight6BinaryReader::ReadTensorsPerNode(char* fileName,
+						char* description,
+						int timeStep)
 {
   char line[80];
   int partId, numPts, i;
@@ -696,7 +700,9 @@ int vtkEnSight6BinaryReader::ReadTensorsPerNode(char* fileName, char* descriptio
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSight6BinaryReader::ReadScalarsPerElement(char* fileName, char* description,
+int vtkEnSight6BinaryReader::ReadScalarsPerElement(char* fileName,
+						   char* description,
+						   int timeStep,
                                                    int numberOfComponents,
                                                    int component)
 {
@@ -750,7 +756,8 @@ int vtkEnSight6BinaryReader::ReadScalarsPerElement(char* fileName, char* descrip
       }
     else
       {
-      scalars = (vtkFloatArray*)(this->GetOutput(partId)->GetCellData()->GetArray(description));
+      scalars = (vtkFloatArray*)(this->GetOutput(partId)->GetCellData()->
+				 GetArray(description));
       }
     
     // need to find out from CellIds how many cells we have of this element
@@ -810,7 +817,8 @@ int vtkEnSight6BinaryReader::ReadScalarsPerElement(char* fileName, char* descrip
 
 //----------------------------------------------------------------------------
 int vtkEnSight6BinaryReader::ReadVectorsPerElement(char* fileName,
-                                                   char* description)
+                                                   char* description,
+						   int timeStep)
 {
   char line[80];
   int partId, numCells, numCellsPerElement, i, idx;
@@ -916,7 +924,8 @@ int vtkEnSight6BinaryReader::ReadVectorsPerElement(char* fileName,
 
 //----------------------------------------------------------------------------
 int vtkEnSight6BinaryReader::ReadTensorsPerElement(char* fileName,
-                                             char* description)
+						   char* description,
+						   int timeStep)
 {
   char line[80];
   int partId, numCells, numCellsPerElement, i, idx;

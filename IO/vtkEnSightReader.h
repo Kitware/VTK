@@ -45,6 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkEnSightReader_h
 
 #include "vtkDataSetSource.h"
+#include "vtkCollection.h"
 
 // element types
 #define VTK_ENSIGHT_POINT               0
@@ -141,6 +142,11 @@ public:
   int GetComplexVariableType(int n);
   
   void Update();
+
+  // Description:
+  // Set/Get the time value at which to get the value.
+  vtkSetMacro(TimeValue, float);
+  vtkGetMacro(TimeValue, float);
   
 protected:
   vtkEnSightReader();
@@ -156,12 +162,12 @@ protected:
   
   // Description:
   // Read the geometry file.  If an error occurred, 0 is returned; otherwise 1.
-  virtual int ReadGeometryFile() = 0;
+  virtual int ReadGeometryFile(char* fileName, int timeStep) = 0;
 
   // Description:
   // Read the measured geometry file.  If an error occurred, 0 is returned;
   // otherwise 1.
-  virtual int ReadMeasuredGeometryFile() = 0;
+  virtual int ReadMeasuredGeometryFile(char* fileName, int timeStep) = 0;
 
   // Description:
   // Read the variable files. If an error occurred, 0 is returned; otherwise 1.
@@ -171,35 +177,40 @@ protected:
   // Read scalars per node for this dataset.  If an error occurred, 0 is
   // returned; otherwise 1.
   virtual int ReadScalarsPerNode(char* fileName, char* description,
-                                 int measured = 0, int numberOfComponents = 1,
+				 int timeStep, int measured = 0,
+				 int numberOfComponents = 1,
                                  int component = 0) = 0;
   
   // Description:
   // Read vectors per node for this dataset.  If an error occurred, 0 is
   // returned; otherwise 1.
   virtual int ReadVectorsPerNode(char* fileName, char* description,
-                                 int measured = 0) = 0;
+				 int timeStep, int measured = 0) = 0;
 
   // Description:
   // Read tensors per node for this dataset.  If an error occurred, 0 is
   // returned; otherwise 1.
-  virtual int ReadTensorsPerNode(char* fileName, char* description) = 0;
+  virtual int ReadTensorsPerNode(char* fileName, char* description,
+				 int timeStep) = 0;
 
   // Description:
   // Read scalars per element for this dataset.  If an error occurred, 0 is
   // returned; otherwise 1.
   virtual int ReadScalarsPerElement(char* fileName, char* description,
-				    int numberOfComponents = 1, int component = 0) = 0;
+				    int timeStep, int numberOfComponents = 1,
+				    int component = 0) = 0;
 
   // Description:
   // Read vectors per element for this dataset.  If an error occurred, 0 is
   // returned; otherwise 1.
-  virtual int ReadVectorsPerElement(char* fileName, char* description) = 0;
+  virtual int ReadVectorsPerElement(char* fileName, char* description,
+				    int timeStep) = 0;
 
   // Description:
   // Read tensors per element for this dataset.  If an error occurred, 0 is
   // returned; otherwise 1.
-  virtual int ReadTensorsPerElement(char* fileName, char* description) = 0;
+  virtual int ReadTensorsPerElement(char* fileName, char* description,
+				    int timeStep) = 0;
 
   // Description:
   // Read an unstructured part (partId) from the geometry file and create a
@@ -253,6 +264,10 @@ protected:
   // invalid element type.
   int GetElementType(char* line);
 
+  // Description:
+  // Replace the *'s in the filename with the given filename number.
+  void ReplaceWildcards(char* filename, int num);
+  
   char* FilePath;
   
   char* CaseFileName;
@@ -281,6 +296,41 @@ protected:
   // pointers to lists of descriptions
   char** VariableDescriptions; // non-complex
   char** ComplexVariableDescriptions;
+
+  // array of time sets
+  vtkIdList *VariableTimeSets;
+  vtkIdList *ComplexVariableTimeSets;
+  
+  // array of file sets
+  vtkIdList *VariableFileSets;
+  vtkIdList *ComplexVariableFileSets;
+  
+  // collection of filename numbers per time set
+  vtkCollection *TimeSetFilenameNumbersCollection;
+  vtkIdList *TimeSetsWithFilenameNumbers;
+  
+  // collection of time values per time set
+  vtkCollection *TimeSetTimeValuesCollection;
+  
+  // collection of filename numbers per file set
+  vtkCollection *FileSetFilenameNumbersCollection;
+  vtkIdList *FileSetsWithFilenameNumbers;
+  
+  // collection of number of steps per file per file set
+  vtkCollection *FileSetNumberOfStepsCollection;
+  
+  // ids of the time and file sets
+  vtkIdList *TimeSets;
+  vtkIdList *FileSets;
+  
+  int GeometryTimeSet;
+  int GeometryFileSet;
+  int MeasuredTimeSet;
+  int MeasuredFileSet;
+  
+  float TimeValue;
+  float GeometryTimeValue;
+  float MeasuredTimeValue;
   
   // number of file names / descriptions per type
   int NumberOfScalarsPerNode;
@@ -297,6 +347,16 @@ protected:
   int NumberOfComplexVectorsPerElement;
   
   istream* IS;
+
+  int UseTimeSets;
+  vtkSetMacro(UseTimeSets, int);
+  vtkGetMacro(UseTimeSets, int);
+  vtkBooleanMacro(UseTimeSets, int);
+  
+  int UseFileSets;
+  vtkSetMacro(UseFileSets, int);
+  vtkGetMacro(UseFileSets, int);
+  vtkBooleanMacro(UseFileSets, int);
   
   int NumberOfGeometryParts;
   

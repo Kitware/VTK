@@ -91,6 +91,8 @@ vtkGenericEnSightReader::vtkGenericEnSightReader()
   this->NumberOfComplexVectorsPerNode = 0;
   this->NumberOfComplexScalarsPerElement = 0;
   this->NumberOfComplexVectorsPerElement = 0;
+  
+  this->TimeValue = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -181,6 +183,7 @@ void vtkGenericEnSightReader::Execute()
   
   this->Reader->SetCaseFileName(this->GetCaseFileName());
   this->Reader->SetFilePath(this->GetFilePath());
+  this->Reader->SetTimeValue(this->GetTimeValue());
   this->Reader->Update();
   
   this->NumberOfScalarsPerNode = this->Reader->GetNumberOfScalarsPerNode();
@@ -224,6 +227,8 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
 {
   char line[256], subLine[256], binaryLine[80];
   int stringRead;
+  int timeSet = 0, fileSet = 0;
+  char *fileName = NULL;
   
   if (!this->CaseFileName)
     {
@@ -272,11 +277,12 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
           this->ReadNextDataLine(line);
           if (strncmp(line, "model:", 6) == 0)
             {
-            if (sscanf(line, " %*s %*d %*d %s", subLine) == 1)
+            if (sscanf(line, " %*s %d %d %s", &timeSet, &fileSet,
+		       subLine) == 3)
               {
               this->SetGeometryFileName(subLine);
               }
-            else if (sscanf(line, " %*s %*d %s", subLine) == 1)
+            else if (sscanf(line, " %*s %d %s", &timeSet, subLine) == 2)
               {
               this->SetGeometryFileName(subLine);
               }
@@ -287,25 +293,31 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
             } // geometry file name set
           delete this->IS;
           this->IS = NULL;
-          if (!this->GeometryFileName)
+	  
+	  fileName = new char[strlen(this->GeometryFileName) + 1];
+	  strcpy(fileName, this->GeometryFileName);
+	  
+          if (!fileName)
             {
             vtkErrorMacro("A GeometryFileName must be specified in the case file.");
             return 0;
             }
-          if (strrchr(this->GeometryFileName, '*') != NULL)
+          if (strrchr(fileName, '*') != NULL)
             {
-            vtkErrorMacro("VTK does not currently handle time.");
-            return 0;
+	    // reopen case file; find right time set and fill in wildcards from
+	    // there if possible; if not, then find right file set and fill in
+	    // wildcards from there.
+	    this->ReplaceWildcards(fileName, timeSet, fileSet);
             }
           if (this->FilePath)
             {
             strcpy(line, this->FilePath);
-            strcat(line, this->GeometryFileName);
+            strcat(line, fileName);
             vtkDebugMacro("full path to geometry file: " << line);
             }
           else
             {
-            strcpy(line, this->GeometryFileName);
+            strcpy(line, fileName);
             } // got full path to geometry file
           
           this->IFile = fopen(line, "rb");
@@ -314,6 +326,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
             vtkErrorMacro("Unable to open file: " << line);
             fclose(this->IFile);
             this->IFile = NULL;
+	    delete [] fileName;
             return 0;
             } // end if IFile == NULL
           
@@ -323,9 +336,11 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
             {
             fclose(this->IFile);
             this->IFile = NULL;
+	    delete [] fileName;
             return VTK_ENSIGHT_GOLD_BINARY;
             } //end if binary
           
+	  delete [] fileName;
           return VTK_ENSIGHT_GOLD;
           } // if we found the geometry section in the case file
         }
@@ -341,11 +356,11 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
         this->ReadNextDataLine(line);
         if (strncmp(line, "model:", 6) == 0)
           {
-          if (sscanf(line, " %*s %*d %*d %s", subLine) == 1)
+          if (sscanf(line, " %*s %d %d %s", &timeSet, &fileSet, subLine) == 3)
             {
             this->SetGeometryFileName(subLine);
             }
-          else if (sscanf(line, " %*s %*d %s", subLine) == 1)
+          else if (sscanf(line, " %*s %d %s", &timeSet, subLine) == 2)
             {
             this->SetGeometryFileName(subLine);
             }
@@ -354,27 +369,33 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
             this->SetGeometryFileName(subLine);
             }
           } // geometry file name set
+	
+	fileName = new char[strlen(this->GeometryFileName) + 1];
+	strcpy(fileName, this->GeometryFileName);
+	
         delete this->IS;
         this->IS = NULL;
-        if (!this->GeometryFileName)
+        if (!fileName)
           {
           vtkErrorMacro("A GeometryFileName must be specified in the case file.");
           return 0;
           }
-        if (strrchr(this->GeometryFileName, '*') != NULL)
+        if (strrchr(fileName, '*') != NULL)
           {
-          vtkErrorMacro("VTK does not currently handle time.");
-          return 0;
+	  // reopen case file; find right time set and fill in wildcards from
+	  // there if possible; if not, then find right file set and fill in
+	  // wildcards from there.
+	  this->ReplaceWildcards(fileName, timeSet, fileSet);
           }
         if (this->FilePath)
           {
           strcpy(line, this->FilePath);
-          strcat(line, this->GeometryFileName);
+          strcat(line, fileName);
           vtkDebugMacro("full path to geometry file: " << line);
           }
         else
           {
-          strcpy(line, this->GeometryFileName);
+          strcpy(line, fileName);
           } // got full path to geometry file
         
         this->IFile = fopen(line, "rb");
@@ -383,6 +404,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
           vtkErrorMacro("Unable to open file: " << line);
           fclose(this->IFile);
           this->IFile = NULL;
+	  delete [] fileName;
           return 0;
           } // end if IFile == NULL
         
@@ -392,13 +414,21 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
           {
           fclose(this->IFile);
           this->IFile = NULL;
+	  delete [] fileName;
           return VTK_ENSIGHT_6_BINARY;
           } //end if binary
         
+	delete [] fileName;
         return VTK_ENSIGHT_6;
         } // if we found the geometry section in the case file
       } // not ensight gold
     } // if we found the format section in the case file
+  
+  if (fileName)
+    {
+    delete [] fileName;
+    }
+  
   return -1;
 }
 
@@ -751,6 +781,158 @@ int vtkGenericEnSightReader::GetComplexVariableType(int n)
     return this->ComplexVariableTypes[n];
     }
   return -1;
+}
+
+void vtkGenericEnSightReader::ReplaceWildcards(char* fileName, int timeSet,
+					       int fileSet)
+{
+  char line[256], subLine[256];
+  int cmpTimeSet, cmpFileSet, fileNameNum;
+  
+  if (this->FilePath)
+    {
+    strcpy(line, this->FilePath);
+    strcat(line, this->CaseFileName);
+    vtkDebugMacro("full path to case file: " << line);
+    }
+  else
+    {
+    strcpy(line, this->CaseFileName);
+    }
+  
+  this->IS = new ifstream(line, ios::in);
+  // We already know we have a valid case file if we've gotten to this point.
+  
+  this->ReadLine(line);
+  while (strncmp(line, "TIME", 4) != 0)
+    {
+    this->ReadLine(line);
+    }
+  
+  this->ReadNextDataLine(line);
+  sscanf(line, " %*s %*s %d", &cmpTimeSet);
+  while (cmpTimeSet != timeSet)
+    {
+    this->ReadNextDataLine(line);
+    this->ReadNextDataLine(line);
+    sscanf(line, " %s", subLine);
+    if (strncmp(subLine, "filename", 8) == 0)
+      {
+      this->ReadNextDataLine(line);
+      }
+    if (strncmp(subLine, "filename", 8) == 0)
+      {
+      this->ReadNextDataLine(line);
+      }
+    sscanf(line, " %*s %*s %d", &cmpTimeSet);
+    }
+  
+  this->ReadNextDataLine(line); // number of timesteps
+  this->ReadNextDataLine(line);
+  sscanf(line, " %s", subLine);
+  if (strncmp(subLine, "filename", 8) == 0)
+    {
+    sscanf(line, " %*s %s", subLine);
+    if (strncmp(subLine, "start", 5) == 0)
+      {
+      sscanf(line, " %*s %*s %*s %d", &fileNameNum);
+      }
+    else
+      {
+      sscanf(line, " %*s %*s %d", &fileNameNum);
+      }
+    this->ReplaceWildcardsHelper(fileName, fileNameNum);
+    }
+  else
+    {
+    while (strncmp(line, "FILE", 4) != 0)
+      {
+      this->ReadLine(line);
+      }
+    this->ReadNextDataLine(line);
+    sscanf(line, " %*s %*s %d", &cmpFileSet);
+    while (cmpFileSet != fileSet)
+      {
+      this->ReadNextDataLine(line);
+      this->ReadNextDataLine(line);
+      sscanf(line, " %s", subLine);
+      if (strncmp(subLine, "filename", 8) == 0)
+	{
+	this->ReadNextDataLine(line);
+	}
+      sscanf(line, " %*s %*s %d", &cmpFileSet);
+      }
+    this->ReadNextDataLine(line);
+    sscanf(line, " %*s %*s %d", &fileNameNum);
+    this->ReplaceWildcardsHelper(fileName, fileNameNum);
+    }
+}
+
+void vtkGenericEnSightReader::ReplaceWildcardsHelper(char* fileName, int num)
+{
+  int wildcardPos, numWildcards, numDigits = 1, i;
+  int tmpNum = num, multTen = 1;
+  char newChar;
+  int newNum;
+  
+  wildcardPos = strcspn(fileName, "*");
+  numWildcards = strspn(fileName + wildcardPos, "*");
+  
+  tmpNum /= 10;
+  while (tmpNum >= 1)
+    {
+    numDigits++;
+    multTen *= 10;
+    tmpNum /= 10;
+    }
+  
+  for (i = 0; i < numWildcards - numDigits; i++)
+    {
+    fileName[i + wildcardPos] = '0';
+    }
+  
+  tmpNum = num;
+  for (i = numWildcards - numDigits; i < numWildcards; i++)
+    {
+    newNum = tmpNum / multTen;
+    switch (newNum)
+      {
+      case 0:
+	newChar = '0';
+	break;
+      case 1:
+	newChar = '1';
+	break;
+      case 2:
+	newChar = '2';
+	break;
+      case 3:
+	newChar = '3';
+	break;
+      case 4:
+	newChar = '4';
+	break;
+      case 5:
+	newChar = '5';
+	break;
+      case 6:
+	newChar = '6';
+	break;
+      case 7:
+	newChar = '7';
+	break;
+      case 8:
+	newChar = '8';
+	break;
+      case 9:
+	newChar = '9';
+	break;
+      }
+    
+    fileName[i + wildcardPos] = newChar;
+    tmpNum -= multTen * newNum;
+    multTen /= 10;
+    }
 }
 
 void vtkGenericEnSightReader::PrintSelf(ostream& os, vtkIndent indent)
