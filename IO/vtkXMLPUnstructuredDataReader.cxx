@@ -21,7 +21,7 @@
 #include "vtkPointSet.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkXMLPUnstructuredDataReader, "1.6");
+vtkCxxRevisionMacro(vtkXMLPUnstructuredDataReader, "1.7");
 
 //----------------------------------------------------------------------------
 vtkXMLPUnstructuredDataReader::vtkXMLPUnstructuredDataReader()
@@ -281,7 +281,8 @@ void vtkXMLPUnstructuredDataReader::ReadXMLData()
     }
   
   // Read the data needed from each piece.
-  for(i=this->StartPiece; i < this->EndPiece; ++i)
+  for(i=this->StartPiece; (i < this->EndPiece && !this->AbortExecute &&
+                           !this->DataError); ++i)
     {
     // Set the range of progress for this piece.
     this->SetProgressRange(progressRange, i-this->StartPiece, fractions);

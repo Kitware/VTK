@@ -23,7 +23,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLStructuredDataReader.h"
 
-vtkCxxRevisionMacro(vtkXMLPStructuredDataReader, "1.4");
+vtkCxxRevisionMacro(vtkXMLPStructuredDataReader, "1.5");
 
 //----------------------------------------------------------------------------
 vtkXMLPStructuredDataReader::vtkXMLPStructuredDataReader()
@@ -120,7 +120,8 @@ void vtkXMLPStructuredDataReader::ReadXMLData()
     }
   
   // Read the data needed from each piece.
-  for(i=0;i < this->NumberOfPieces;++i)
+  for(i=0;(i < this->NumberOfPieces && !this->AbortExecute &&
+           !this->DataError);++i)
     {
     // Set the range of progress for this piece.
     this->SetProgressRange(progressRange, i, fractions);
@@ -140,7 +141,11 @@ void vtkXMLPStructuredDataReader::ReadXMLData()
       this->ComputeDimensions(this->SubExtent, this->SubCellDimensions, 0);
       
       // Read the data from this piece.
-      this->Superclass::ReadPieceData(i);
+      if(!this->Superclass::ReadPieceData(i))
+        {
+        // An error occurred while reading the piece.
+        this->DataError = 1;
+        }
       }
     }
   
@@ -224,6 +229,12 @@ int vtkXMLPStructuredDataReader::ReadPieceData()
   vtkDataSet* input = this->GetPieceInputAsDataSet(this->Piece);
   input->SetUpdateExtent(this->SubExtent);
   input->Update();
+  
+  // Skip rest of read if aborting.
+  if(this->AbortExecute)
+    {
+    return 0;
+    }
   
   // Get the actual portion of the piece that was read.
   this->GetPieceInputExtent(this->Piece, this->SubPieceExtent);

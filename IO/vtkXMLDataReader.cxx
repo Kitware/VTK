@@ -25,7 +25,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataParser.h"
 
-vtkCxxRevisionMacro(vtkXMLDataReader, "1.4");
+vtkCxxRevisionMacro(vtkXMLDataReader, "1.5");
 
 //----------------------------------------------------------------------------
 vtkXMLDataReader::vtkXMLDataReader()
@@ -305,7 +305,8 @@ int vtkXMLDataReader::ReadPieceData()
   if(ePointData)
     {
     int a=0;
-    for(i=0;i < ePointData->GetNumberOfNestedElements();++i)
+    for(i=0;(i < ePointData->GetNumberOfNestedElements() &&
+             !this->AbortExecute);++i)
       {
       vtkXMLDataElement* eNested = ePointData->GetNestedElement(i);
       if(this->PointDataArrayIsEnabled(eNested))
@@ -324,7 +325,8 @@ int vtkXMLDataReader::ReadPieceData()
   if(eCellData)
     {
     int a=0;
-    for(i=0;i < eCellData->GetNumberOfNestedElements();++i)
+    for(i=0;(i < eCellData->GetNumberOfNestedElements() &&
+             !this->AbortExecute);++i)
       {
       vtkXMLDataElement* eNested = eCellData->GetNestedElement(i);
       if(this->CellDataArrayIsEnabled(eNested))
@@ -339,6 +341,11 @@ int vtkXMLDataReader::ReadPieceData()
           }
         }
       }
+    }
+  
+  if(this->AbortExecute)
+    {
+    return 0;
     }
   
   return 1;
@@ -369,7 +376,13 @@ int vtkXMLDataReader::ReadArrayForCells(vtkXMLDataElement* da,
 //----------------------------------------------------------------------------
 int vtkXMLDataReader::ReadData(vtkXMLDataElement* da, void* data, int wordType,
                                int startWord, int numWords)
-{ 
+{
+  // Skip real read if aborting.
+  if(this->AbortExecute)
+    {
+    return 0;
+    }
+  
   this->InReadData = 1;
   unsigned long num = numWords;
   int result = 0;
@@ -409,5 +422,9 @@ void vtkXMLDataReader::DataProgressCallback()
     float dataProgress = this->XMLParser->GetProgress();
     float progress = this->ProgressRange[0] + dataProgress*width;
     this->UpdateProgressDiscrete(progress);
+    if(this->AbortExecute)
+      {
+      this->XMLParser->SetAbort(1);
+      }
     }
 }

@@ -32,7 +32,7 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.11");
+vtkCxxRevisionMacro(vtkXMLReader, "1.12");
 
 //----------------------------------------------------------------------------
 vtkXMLReader::vtkXMLReader()
@@ -273,12 +273,15 @@ void vtkXMLReader::ExecuteData(vtkDataObject* vtkNotUsed(output))
   
   if(!this->InformationError)
     {
-    // Let the subclasses read the data they want.
+    // We are just starting to execute.  No errors have yet occurred.
+    this->XMLParser->SetAbort(0);
     this->DataError = 0;
+    
+    // Let the subclasses read the data they want.
     this->ReadXMLData();
     
-    // If there was an error, provide empty output.
-    if(this->DataError)
+    // If we aborted or there was an error, provide empty output.
+    if(this->DataError || this->AbortExecute)
       {
       this->GetOutputAsDataSet()->Initialize();
       }

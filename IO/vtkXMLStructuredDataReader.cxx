@@ -22,7 +22,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataParser.h"
 
-vtkCxxRevisionMacro(vtkXMLStructuredDataReader, "1.7");
+vtkCxxRevisionMacro(vtkXMLStructuredDataReader, "1.8");
 
 //----------------------------------------------------------------------------
 vtkXMLStructuredDataReader::vtkXMLStructuredDataReader()
@@ -223,7 +223,8 @@ void vtkXMLStructuredDataReader::ReadXMLData()
     }
   
   // Read the data needed from each piece.
-  for(i=0;i < this->NumberOfPieces;++i)
+  for(i=0;(i < this->NumberOfPieces && !this->AbortExecute &&
+           !this->DataError);++i)
     {
     // Set the range of progress for this piece.
     this->SetProgressRange(progressRange, i, fractions);
@@ -243,7 +244,11 @@ void vtkXMLStructuredDataReader::ReadXMLData()
       this->ComputeDimensions(this->SubExtent, this->SubCellDimensions, 0);
       
       // Read the data from this piece.
-      this->ReadPieceData(i);
+      if(!this->ReadPieceData(i))
+        {
+        // An error occurred while reading the piece.
+        this->DataError = 1;
+        }
       }
     }
   
@@ -332,7 +337,7 @@ vtkXMLStructuredDataReader
       this->GetProgressRange(progressRange);
       unsigned int sliceTuples = inDimensions[0]*inDimensions[1];
       int k;
-      for(k=0;k < subDimensions[2];++k)
+      for(k=0;k < subDimensions[2] && !this->AbortExecute;++k)
         {
         // Calculate the starting tuples for source and destination.
         unsigned int sourceTuple =
@@ -364,9 +369,9 @@ vtkXMLStructuredDataReader
       this->GetProgressRange(progressRange);
       unsigned int rowTuples = subDimensions[0];
       int j,k;
-      for(k=0;k < subDimensions[2];++k)
+      for(k=0;k < subDimensions[2] && !this->AbortExecute;++k)
         {
-        for(j=0;j < subDimensions[1];++j)
+        for(j=0;j < subDimensions[1] && !this->AbortExecute;++j)
           {          
           // Calculate the starting tuples for source and destination.
           unsigned int sourceTuple =
@@ -403,7 +408,7 @@ vtkXMLStructuredDataReader
       temp->SetNumberOfComponents(array->GetNumberOfComponents());
       temp->SetNumberOfTuples(partialSliceTuples);
       int k;
-      for(k=0;k < subDimensions[2];++k)
+      for(k=0;k < subDimensions[2] && !this->AbortExecute;++k)
         {
         // Calculate the starting tuple from the input.
         unsigned int inTuple =

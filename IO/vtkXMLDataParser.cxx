@@ -25,7 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkXMLDataElement.h"
 
-vtkCxxRevisionMacro(vtkXMLDataParser, "1.12");
+vtkCxxRevisionMacro(vtkXMLDataParser, "1.13");
 vtkStandardNewMacro(vtkXMLDataParser);
 vtkCxxSetObjectMacro(vtkXMLDataParser, Compressor, vtkDataCompressor);
 
@@ -558,7 +558,7 @@ unsigned long vtkXMLDataParser::ReadUncompressedData(unsigned char* data,
   long left = length;
   p = data;
   this->UpdateProgress(0);
-  while(left > 0)
+  while(left > 0 && !this->Abort)
     {
     // Read this block.
     long n = (blockSize < left)? blockSize:left;
@@ -666,7 +666,7 @@ unsigned long vtkXMLDataParser::ReadCompressedData(unsigned char* data,
     this->UpdateProgress(float(outputPointer-data)/length);
     
     unsigned int currentBlock = firstBlock+1;
-    for(;currentBlock != lastBlock; ++currentBlock)
+    for(;currentBlock != lastBlock && !this->Abort; ++currentBlock)
       {
       // Read this block.
       if(!this->ReadBlock(currentBlock, outputPointer)) { return 0; }
@@ -683,7 +683,7 @@ unsigned long vtkXMLDataParser::ReadCompressedData(unsigned char* data,
       }
     
     // Now read the final block, which is incomplete if it exists.
-    if(endBlockOffset > 0)
+    if(endBlockOffset > 0 && !this->Abort)
       {
       blockBuffer = this->ReadBlock(lastBlock);
       if(!blockBuffer) { return 0; }
@@ -711,6 +711,12 @@ vtkXMLDataElement* vtkXMLDataParser::GetRootElement()
 unsigned long vtkXMLDataParser::ReadBinaryData(void* in_buffer, int startWord,
                                                int numWords, int wordType)
 {
+  // Skip real read if aborting.
+  if(this->Abort)
+    {
+    return 0;
+    }
+  
   unsigned long wordSize = this->GetWordTypeSize(wordType);  
   void* buffer = in_buffer;
   
@@ -736,13 +742,19 @@ unsigned long vtkXMLDataParser::ReadBinaryData(void* in_buffer, int startWord,
     }
   
   // Return the actual amount read.
-  return actualWords;
+  return this->Abort? 0:actualWords;
 }
 
 //----------------------------------------------------------------------------
 unsigned long vtkXMLDataParser::ReadAsciiData(void* buffer, int startWord,
                                               int numWords, int wordType)
 {
+  // Skip real read if aborting.
+  if(this->Abort)
+    {
+    return 0;
+    }
+  
   // We assume that ascii data are not very large and parse the entire
   // block into memory.
   this->UpdateProgress(0);
@@ -769,7 +781,7 @@ unsigned long vtkXMLDataParser::ReadAsciiData(void* buffer, int startWord,
   
   this->UpdateProgress(1);
   
-  return actualWords;
+  return this->Abort? 0:actualWords;
 }
 
 //----------------------------------------------------------------------------
