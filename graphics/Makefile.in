@@ -260,6 +260,7 @@ vtkVectorText \
 vtkVectorTopology \
 vtkViewRays \
 vtkVolume \
+vtkVolumeProperty \
 vtkVolume16Reader \
 vtkVoxelModeller \
 vtkWarpScalar \
