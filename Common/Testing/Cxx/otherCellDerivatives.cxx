@@ -367,6 +367,6 @@ int otherCellDerivatives(int,char *[])
 {
   vtkDebugLeaks::PromptUserOff();
 
-  ostrstream vtkmsg; 
-  return TestOCD(vtkmsg);
+  ostrstream vtkmsg_with_warning_C4701; 
+  return TestOCD(vtkmsg_with_warning_C4701);
 } 

@@ -752,7 +752,7 @@ int otherArrays(int, char *[])
 {
   vtkDebugLeaks::PromptUserOff();
 
-  ostrstream vtkmsg; 
-  return otherArraysTest(vtkmsg);
+  ostrstream vtkmsg_with_warning_C4701; 
+  return otherArraysTest(vtkmsg_with_warning_C4701);
 
 } 

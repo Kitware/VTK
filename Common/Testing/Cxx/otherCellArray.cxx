@@ -86,6 +86,6 @@ int otherCellArray(int,char *[])
 {
   vtkDebugLeaks::PromptUserOff();
 
-  ostrstream vtkmsg; 
-  return TestCellArray(vtkmsg);
+  ostrstream vtkmsg_with_warning_C4701; 
+  return TestCellArray(vtkmsg_with_warning_C4701);
 } 

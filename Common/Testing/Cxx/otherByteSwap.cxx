@@ -159,6 +159,6 @@ int otherByteSwap(int,char *[])
 {
   vtkDebugLeaks::PromptUserOff();
 
-  ostrstream vtkmsg; 
-  return TestByteSwap(vtkmsg);
+  ostrstream vtkmsg_with_warning_C4701; 
+  return TestByteSwap(vtkmsg_with_warning_C4701);
 } 

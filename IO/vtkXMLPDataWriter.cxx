@@ -18,7 +18,7 @@
 #include "vtkXMLPDataWriter.h"
 #include "vtkDataSet.h"
 
-vtkCxxRevisionMacro(vtkXMLPDataWriter, "1.3");
+vtkCxxRevisionMacro(vtkXMLPDataWriter, "1.4");
 
 //----------------------------------------------------------------------------
 vtkXMLPDataWriter::vtkXMLPDataWriter()
@@ -223,13 +223,15 @@ void vtkXMLPDataWriter::SplitFileName()
 //----------------------------------------------------------------------------
 char* vtkXMLPDataWriter::CreatePieceFileName(int index, const char* path)
 {
-  ostrstream fn;
-  if(path) { fn << path; }
-  fn << this->FileNameBase << index;
-  if(this->PieceFileNameExtension) { fn << this->PieceFileNameExtension; }
-  //if(this->FileNameExtension) { fn << this->FileNameExtension; }
-  fn << ends;
-  return fn.str();
+  ostrstream fn_with_warning_C4701;
+  if(path) { fn_with_warning_C4701 << path; }
+  fn_with_warning_C4701 << this->FileNameBase << index;
+  if(this->PieceFileNameExtension) 
+  { fn_with_warning_C4701 << this->PieceFileNameExtension; }
+  //if(this->FileNameExtension) 
+  //{ fn_with_warning_C4701 << this->FileNameExtension; }
+  fn_with_warning_C4701 << ends;
+  return fn_with_warning_C4701.str();
 }
 
 //----------------------------------------------------------------------------

@@ -99,11 +99,11 @@ static PyObject *PyVTKObject_PyString(PyVTKObject *self)
     }
   PyErr_Clear();
 
-  ostrstream buf;
-  self->vtk_ptr->Print(buf);
-  buf.put('\0');
-  PyObject *res = PyString_FromString(buf.str());
-  buf.rdbuf()->freeze(0);
+  ostrstream vtkmsg_with_warning_C4701;
+  self->vtk_ptr->Print(vtkmsg_with_warning_C4701);
+  vtkmsg_with_warning_C4701.put('\0');
+  PyObject *res = PyString_FromString(vtkmsg_with_warning_C4701.str());
+  vtkmsg_with_warning_C4701.rdbuf()->freeze(0);
   return res;
 }
 

@@ -41,7 +41,7 @@
 #endif
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTimerLog, "1.33");
+vtkCxxRevisionMacro(vtkTimerLog, "1.34");
 vtkStandardNewMacro(vtkTimerLog);
 
 // initialze the class variables
@@ -394,25 +394,24 @@ void vtkTimerLog::DumpLogWithIndents(ostream *os, float threshold)
 #endif
 }
 
-
 //----------------------------------------------------------------------------
 // Write the timing table out to a file.  Calculate some helpful
 // statistics (deltas and  percentages) in the process.
 void vtkTimerLog::DumpLog(const char *filename)
 {
 #ifndef _WIN32_WCE
-  ofstream os(filename);
+  ofstream os_with_warning_C4701(filename);
   int i;
     
   if ( vtkTimerLog::WrapFlag )
     {
-    vtkTimerLog::DumpEntry(os, 0,
+    vtkTimerLog::DumpEntry(os_with_warning_C4701, 0,
                     vtkTimerLog::TimerLog[vtkTimerLog::NextEntry].WallTime, 0,
                     vtkTimerLog::TimerLog[vtkTimerLog::NextEntry].CpuTicks, 0,
                     vtkTimerLog::TimerLog[vtkTimerLog::NextEntry].Event);
     for (i=vtkTimerLog::NextEntry+1; i<vtkTimerLog::MaxEntries; i++)
       {
-      vtkTimerLog::DumpEntry(os,
+      vtkTimerLog::DumpEntry(os_with_warning_C4701,
                 i-vtkTimerLog::NextEntry, vtkTimerLog::TimerLog[i].WallTime,
                 vtkTimerLog::TimerLog[i].WallTime
                  - vtkTimerLog::TimerLog[i-1].WallTime,
@@ -421,7 +420,7 @@ void vtkTimerLog::DumpLog(const char *filename)
                  - vtkTimerLog::TimerLog[i-1].CpuTicks,
                 vtkTimerLog::TimerLog[i].Event);
       }
-    vtkTimerLog::DumpEntry(os, vtkTimerLog::MaxEntries-vtkTimerLog::NextEntry,
+    vtkTimerLog::DumpEntry(os_with_warning_C4701, vtkTimerLog::MaxEntries-vtkTimerLog::NextEntry,
                     vtkTimerLog::TimerLog[0].WallTime,
                     vtkTimerLog::TimerLog[0].WallTime
                     -vtkTimerLog::TimerLog[vtkTimerLog::MaxEntries-1].WallTime,
@@ -431,7 +430,7 @@ void vtkTimerLog::DumpLog(const char *filename)
                     vtkTimerLog::TimerLog[0].Event);
     for (i=1; i<vtkTimerLog::NextEntry; i++)
       {
-      vtkTimerLog::DumpEntry(os, vtkTimerLog::MaxEntries-vtkTimerLog::NextEntry+i,
+      vtkTimerLog::DumpEntry(os_with_warning_C4701, vtkTimerLog::MaxEntries-vtkTimerLog::NextEntry+i,
                       vtkTimerLog::TimerLog[i].WallTime,
                       vtkTimerLog::TimerLog[i].WallTime
                       - vtkTimerLog::TimerLog[i-1].WallTime,
@@ -443,12 +442,12 @@ void vtkTimerLog::DumpLog(const char *filename)
     }
   else
     {
-    vtkTimerLog::DumpEntry(os, 0, vtkTimerLog::TimerLog[0].WallTime, 0,
+    vtkTimerLog::DumpEntry(os_with_warning_C4701, 0, vtkTimerLog::TimerLog[0].WallTime, 0,
                     vtkTimerLog::TimerLog[0].CpuTicks, 0,
                     vtkTimerLog::TimerLog[0].Event);
     for (i=1; i<vtkTimerLog::NextEntry; i++)
       {
-      vtkTimerLog::DumpEntry(os, i, vtkTimerLog::TimerLog[i].WallTime,
+      vtkTimerLog::DumpEntry(os_with_warning_C4701, i, vtkTimerLog::TimerLog[i].WallTime,
                       vtkTimerLog::TimerLog[i].WallTime
                       - vtkTimerLog::TimerLog[i-1].WallTime,
                       vtkTimerLog::TimerLog[i].CpuTicks,
@@ -458,7 +457,7 @@ void vtkTimerLog::DumpLog(const char *filename)
       }
     }
   
-  os.close();
+  os_with_warning_C4701.close();
 #endif
 }
 

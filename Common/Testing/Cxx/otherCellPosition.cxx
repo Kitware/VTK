@@ -433,6 +433,6 @@ int otherCellPosition(int, char *[])
 {
   vtkDebugLeaks::PromptUserOff();
 
-  ostrstream vtkmsg; 
-  return TestOCP(vtkmsg);
+  ostrstream vtkmsg_with_warning_C4701; 
+  return TestOCP(vtkmsg_with_warning_C4701);
 } 

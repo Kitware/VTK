@@ -42,7 +42,7 @@
 #include "vtkTIFFWriter.h"
 #include "vtkTexture.h"
 
-vtkCxxRevisionMacro(vtkRIBExporter, "1.52");
+vtkCxxRevisionMacro(vtkRIBExporter, "1.53");
 vtkStandardNewMacro(vtkRIBExporter);
 
 typedef float RtColor[3];
@@ -834,76 +834,78 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData,
       {
       if ( pointData )
         {
-        int cc, aa;      ostrstream str;
+        int cc, aa;      
+        ostrstream str_with_warning_C4701;
         for ( cc = 0; cc < pointData->GetNumberOfArrays(); cc ++ )
           {
           vtkDataArray *array = pointData->GetArray(cc);
           char buffer[1024];
           this->ModifyArrayName(buffer, array->GetName());
-          str << "\"" << buffer << "\" [";
+          str_with_warning_C4701 << "\"" << buffer << "\" [";
           for (kk = 0; kk < npts; kk++)
             {
             float* tuple = array->GetTuple(pts[kk]);
             for ( aa = 0; aa < array->GetNumberOfComponents(); aa++ )
               {
-              str << ((!kk &&!aa) ? "" : " ") << tuple[aa];
+              str_with_warning_C4701 << ((!kk &&!aa) ? "" : " ") << tuple[aa];
               }
             }
-          str << "] ";
+          str_with_warning_C4701 << "] ";
           }
-        str << ends;
-        fprintf ( this->FilePtr, "%s", str.str() );
-        str.rdbuf()->freeze(0);      
+        str_with_warning_C4701 << ends;
+        fprintf ( this->FilePtr, "%s", str_with_warning_C4701.str() );
+        str_with_warning_C4701.rdbuf()->freeze(0);      
         }
 
       if ( cellData )
         {
         int cc, aa;
-        ostrstream str;
+        ostrstream str_with_warning_C4701;
         for ( cc = 0; cc < cellData->GetNumberOfArrays(); cc ++ )
           {
           vtkDataArray *array = cellData->GetArray(cc);
           char buffer[1024];
           this->ModifyArrayName(buffer, array->GetName());
-          str << "\"" << buffer << "\" [";
+          str_with_warning_C4701 << "\"" << buffer << "\" [";
           for (kk = 0; kk < npts; kk++)
             {
             float* tuple = array->GetTuple(pts[kk]);
             for ( aa = 0; aa < array->GetNumberOfComponents(); aa++ )
               {
-              str << ((!kk &&!aa) ? "" : " ") << tuple[aa];
+              str_with_warning_C4701 << ((!kk &&!aa) ? "" : " ") << tuple[aa];
               }
             }
-          str << "] ";
+          str_with_warning_C4701 << "] ";
           }
-        str << ends;
-        fprintf ( this->FilePtr, "%s", str.str() );
-        str.rdbuf()->freeze(0);      
+        str_with_warning_C4701 << ends;
+        fprintf ( this->FilePtr, "%s", str_with_warning_C4701.str() );
+        str_with_warning_C4701.rdbuf()->freeze(0);      
         }
 
       if ( fieldData )
         {
         int cc, aa;
-        ostrstream str;
+        ostrstream str_with_warning_C4701;
+
         for ( cc = 0; cc < fieldData->GetNumberOfArrays(); cc ++ )
           {
           vtkDataArray *array = fieldData->GetArray(cc);
           char buffer[1024];
           this->ModifyArrayName(buffer, array->GetName());
-          str << "\"" << buffer << "\" [";
+          str_with_warning_C4701 << "\"" << buffer << "\" [";
           for (kk = 0; kk < npts; kk++)
             {
             float* tuple = array->GetTuple(pts[kk]);
             for ( aa = 0; aa < array->GetNumberOfComponents(); aa++ )
               {
-              str << ((!kk &&!aa) ? "" : " ") << tuple[aa];
+              str_with_warning_C4701 << ((!kk &&!aa) ? "" : " ") << tuple[aa];
               }
             }
-          str << "] ";
+          str_with_warning_C4701 << "] ";
           }
-        str << ends;
-        fprintf ( this->FilePtr, "%s", str.str() );
-        str.rdbuf()->freeze(0);      
+        str_with_warning_C4701 << ends;
+        fprintf ( this->FilePtr, "%s", str_with_warning_C4701.str() );
+        str_with_warning_C4701.rdbuf()->freeze(0);      
         }
       }
 
@@ -1086,76 +1088,76 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData,
         if ( pointData )
           {
           int cc, aa;
-          ostrstream str;
+          ostrstream str_with_warning_C4701;
           for ( cc = 0; cc < pointData->GetNumberOfArrays(); cc ++ )
             {
             vtkDataArray *array = pointData->GetArray(cc);
             char buffer[1024];
             this->ModifyArrayName(buffer, array->GetName());
-            str << "\"" << buffer << "\" [";
+            str_with_warning_C4701 << "\"" << buffer << "\" [";
             for (kk = 0; kk < npts; kk++)
               {
               float* tuple = array->GetTuple(pts[kk]);
               for ( aa = 0; aa < array->GetNumberOfComponents(); aa++ )
                 {
-                str << ((!kk &&!aa) ? "" : " ") << tuple[aa];
+                str_with_warning_C4701 << ((!kk &&!aa) ? "" : " ") << tuple[aa];
                 }
               }
-            str << "] ";
+            str_with_warning_C4701 << "] ";
             }
-          str << ends;
-          fprintf ( this->FilePtr, "%s", str.str() );
-          str.rdbuf()->freeze(0);      
+          str_with_warning_C4701 << ends;
+          fprintf ( this->FilePtr, "%s", str_with_warning_C4701.str() );
+          str_with_warning_C4701.rdbuf()->freeze(0);      
           }
 
         if ( cellData )
           {
           int cc, aa;
-          ostrstream str;
+          ostrstream str_with_warning_C4701;
           for ( cc = 0; cc < cellData->GetNumberOfArrays(); cc ++ )
             {
             vtkDataArray *array = cellData->GetArray(cc);
             char buffer[1024];
             this->ModifyArrayName(buffer, array->GetName());
-            str << "\"" << buffer << "\" [";
+            str_with_warning_C4701 << "\"" << buffer << "\" [";
             for (kk = 0; kk < npts; kk++)
               {
               float* tuple = array->GetTuple(pts[kk]);
               for ( aa = 0; aa < array->GetNumberOfComponents(); aa++ )
                 {
-                str << ((!kk &&!aa) ? "" : " ") << tuple[aa];
+                str_with_warning_C4701 << ((!kk &&!aa) ? "" : " ") << tuple[aa];
                 }
               }
-            str << "] ";
+            str_with_warning_C4701 << "] ";
             }
-          str << ends;
-          fprintf ( this->FilePtr, "%s", str.str() );
-          str.rdbuf()->freeze(0);      
+          str_with_warning_C4701 << ends;
+          fprintf ( this->FilePtr, "%s", str_with_warning_C4701.str() );
+          str_with_warning_C4701.rdbuf()->freeze(0);      
           }
 
         if ( fieldData )
           {
           int cc, aa;
-          ostrstream str;
+          ostrstream str_with_warning_C4701;
           for ( cc = 0; cc < fieldData->GetNumberOfArrays(); cc ++ )
             {
             vtkDataArray *array = fieldData->GetArray(cc);
             char buffer[1024];
             this->ModifyArrayName(buffer, array->GetName());
-            str << "\"" << buffer << "\" [";
+            str_with_warning_C4701 << "\"" << buffer << "\" [";
             for (kk = 0; kk < npts; kk++)
               {
               float* tuple = array->GetTuple(pts[kk]);
               for ( aa = 0; aa < array->GetNumberOfComponents(); aa++ )
                 {
-                str << ((!kk &&!aa) ? "" : " ") << tuple[aa];
+                str_with_warning_C4701 << ((!kk &&!aa) ? "" : " ") << tuple[aa];
                 }
               }
-            str << "] ";
+            str_with_warning_C4701 << "] ";
             }
-          str << ends;
-          fprintf ( this->FilePtr, "%s", str.str() );
-          str.rdbuf()->freeze(0);      
+          str_with_warning_C4701 << ends;
+          fprintf ( this->FilePtr, "%s", str_with_warning_C4701.str() );
+          str_with_warning_C4701.rdbuf()->freeze(0);      
           }
         }
       fprintf (this->FilePtr, "\n");

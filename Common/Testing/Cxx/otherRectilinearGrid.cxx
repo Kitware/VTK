@@ -602,6 +602,6 @@ int otherRectilinearGrid(int,char *[])
 {
   vtkDebugLeaks::PromptUserOff();
 
-  ostrstream vtkmsg; 
-  return TestORG(vtkmsg);
+  ostrstream vtkmsg_with_warning_C4701; 
+  return TestORG(vtkmsg_with_warning_C4701);
 } 

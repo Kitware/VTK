@@ -297,6 +297,6 @@ int quadraticEvaluation(int,char *[])
 {
   vtkDebugLeaks::PromptUserOff();
 
-  ostrstream vtkmsg; 
-  return TestQE(vtkmsg);
+  ostrstream vtkmsg_with_warning_C4701; 
+  return TestQE(vtkmsg_with_warning_C4701);
 } 

@@ -368,6 +368,6 @@ int otherCellBoundaries(int, char *[])
 {
   vtkDebugLeaks::PromptUserOff();
 
-  ostrstream vtkmsg; 
-  return TestOCB(vtkmsg);
+  ostrstream vtkmsg_with_warning_C4701; 
+  return TestOCB(vtkmsg_with_warning_C4701);
 } 

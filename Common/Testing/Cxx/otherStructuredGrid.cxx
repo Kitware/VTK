@@ -634,6 +634,6 @@ int otherStructuredGrid(int,char *[])
 {
   vtkDebugLeaks::PromptUserOff();
 
-  ostrstream vtkmsg; 
-  return TestOSG(vtkmsg);
+  ostrstream vtkmsg_with_warning_C4701; 
+  return TestOSG(vtkmsg_with_warning_C4701);
 } 

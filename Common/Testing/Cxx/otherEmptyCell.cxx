@@ -98,8 +98,8 @@ int otherEmptyCell(int , char *[])
 {
   vtkDebugLeaks::PromptUserOff();
 
-  ostrstream vtkmsg; 
-  TestOEC(vtkmsg);
+  ostrstream vtkmsg_with_warning_C4701; 
+  TestOEC(vtkmsg_with_warning_C4701);
 
   return 0;
 } 

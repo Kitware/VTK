@@ -173,7 +173,7 @@ int otherCoordinate(int,char *[])
 {
   vtkDebugLeaks::PromptUserOff();
 
-  ostrstream vtkmsg; 
-  return Test(vtkmsg);
+  ostrstream vtkmsg_with_warning_C4701; 
+  return Test(vtkmsg_with_warning_C4701);
 }
 

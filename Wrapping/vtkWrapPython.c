@@ -1089,11 +1089,11 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"  %s *op;\n",data->ClassName);
     fprintf(fp,"  if ((op = (%s *)PyArg_VTKParseTuple(self, args, \"\")))\n",data->ClassName);
     fprintf(fp,"    {\n");
-    fprintf(fp,"    ostrstream buf;\n");
-    fprintf(fp,"    op->PrintRevisions(buf);\n");
-    fprintf(fp,"    buf.put('\\0');\n");
-    fprintf(fp,"    PyObject *result = PyString_FromString(buf.str());\n");
-    fprintf(fp,"    delete buf.str();\n");
+    fprintf(fp,"    ostrstream vtkmsg_with_warning_C4701;\n");
+    fprintf(fp,"    op->PrintRevisions(vtkmsg_with_warning_C4701);\n");
+    fprintf(fp,"    vtkmsg_with_warning_C4701.put('\\0');\n");
+    fprintf(fp,"    PyObject *result = PyString_FromString(vtkmsg_with_warning_C4701.str());\n");
+    fprintf(fp,"    delete vtkmsg_with_warning_C4701.str();\n");
     fprintf(fp,"    return result;\n");
     fprintf(fp,"    }\n");
     fprintf(fp,"  return NULL;\n}\n\n");

@@ -70,8 +70,8 @@ int otherTimerLog(int,char *[])
 {
   vtkDebugLeaks::PromptUserOff();
 
-  ostrstream vtkmsg; 
-  otherTimerLogTest(vtkmsg);
+  ostrstream vtkmsg_with_warning_C4701; 
+  otherTimerLogTest(vtkmsg_with_warning_C4701);
 
   return 0;
 } 
