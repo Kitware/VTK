@@ -7,6 +7,8 @@ IF (HAVE_PNG)
   IF (VTK_DATA_ROOT)
     FOREACH ( tfile 
         ContinuousClose2D
+        IdealHighPass
+        LaplacianEdgeEnhance
         Spectrum
         TestAnisotropicDiffusion2D
         TestAnisotropicDiffusion3D
@@ -24,10 +26,14 @@ IF (HAVE_PNG)
         TestDilateErode3D
         TestDivergence
         TestDotProduct
-        TestInPlaceFilter
-        TestFFT
+        TestEuclideanToPolar
         TestGradient
         TestGradientMagnitude
+        TestGridSource
+        TestHSVToRGB
+        TestHybridMedian2D
+        TestIdealLowPass
+        TestInPlaceFilter
         )
       ADD_TEST(${tfile}-image ${VTK_EXECUTABLE}
         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
