@@ -191,15 +191,15 @@ void vtkBooleanStructuredPoints::Execute()
 void vtkBooleanStructuredPoints::Append(vtkStructuredPoints *sp)
 {
   vtkScalars *currentScalars, *inScalars;
-  float *in_bounds;
-  float *dest_bounds;
+  float *inBounds;
+  float *destBounds;
   int i,j,k;
   float *in_aspect;
-  float in_x,in_y,in_z;
-  int in_i,in_j,in_k;
-  int in_kval,in_jval;
-  int dest_kval,dest_jval;
-  int *in_dimensions;
+  float inX,inY,inZ;
+  int inI,inJ,inK;
+  int inKval,inJval;
+  int destKval,destJval;
+  int *inDimensions;
 
   if ( (currentScalars = this->PointData.GetScalars()) == NULL )
     {
@@ -209,10 +209,10 @@ void vtkBooleanStructuredPoints::Append(vtkStructuredPoints *sp)
 
   inScalars = sp->GetPointData()->GetScalars();
 
-  in_bounds = sp->GetBounds();
-  dest_bounds = this->GetModelBounds();
+  inBounds = sp->GetBounds();
+  destBounds = this->GetModelBounds();
   in_aspect = sp->GetAspectRatio();
-  in_dimensions = sp->GetDimensions();
+  inDimensions = sp->GetDimensions();
 
   // now perform operation on data
   switch (this->OperationType)
@@ -222,29 +222,29 @@ void vtkBooleanStructuredPoints::Append(vtkStructuredPoints *sp)
       // for each cell
       for (k = 0; k < this->SampleDimensions[2]; k++)
 	{
-	in_z = dest_bounds[4] + k*this->AspectRatio[2];
-	in_k = int ((float)(in_z - in_bounds[4])/in_aspect[2]);
-	if ((in_k >= 0)&&(in_k < in_dimensions[2]))
+	inZ = destBounds[4] + k*this->AspectRatio[2];
+	inK = int ((float)(inZ - inBounds[4])/in_aspect[2]);
+	if ((inK >= 0)&&(inK < inDimensions[2]))
 	  {
-	  in_kval = in_k*in_dimensions[0]*in_dimensions[1];
-	  dest_kval = k*this->SampleDimensions[0]*this->SampleDimensions[1];
+	  inKval = inK*inDimensions[0]*inDimensions[1];
+	  destKval = k*this->SampleDimensions[0]*this->SampleDimensions[1];
 	  for (j = 0; j < this->SampleDimensions[1]; j++)
 	    {
-	    in_y = dest_bounds[2] + j*this->AspectRatio[1];
-	    in_j = (int) ((float)(in_y - in_bounds[2])/in_aspect[1]);
-	    if ((in_j >= 0)&&(in_j < in_dimensions[1]))
+	    inY = destBounds[2] + j*this->AspectRatio[1];
+	    inJ = (int) ((float)(inY - inBounds[2])/in_aspect[1]);
+	    if ((inJ >= 0)&&(inJ < inDimensions[1]))
 	      {
-	      in_jval = in_j*in_dimensions[0];
-	      dest_jval = j*this->SampleDimensions[0];
+	      inJval = inJ*inDimensions[0];
+	      destJval = j*this->SampleDimensions[0];
 	      for (i = 0; i < this->SampleDimensions[0]; i++)
 		{
-		in_x = dest_bounds[0] + i*this->AspectRatio[0];
-		in_i = (int) ((float)(in_x - in_bounds[0])/in_aspect[0]);
-		if ((in_i >= 0)&&(in_i < in_dimensions[0]))
+		inX = destBounds[0] + i*this->AspectRatio[0];
+		inI = (int) ((float)(inX - inBounds[0])/in_aspect[0]);
+		if ((inI >= 0)&&(inI < inDimensions[0]))
 		  {
-		  if (inScalars->GetScalar(in_kval+in_jval+in_i))
+		  if (inScalars->GetScalar(inKval+inJval+inI))
 		    {
-		    currentScalars->SetScalar(dest_kval + dest_jval+i,1);
+		    currentScalars->SetScalar(destKval + destJval+i,1);
 		    }
 		  }
 		}
@@ -292,7 +292,7 @@ void vtkBooleanStructuredPoints::SetSampleDimensions(int dim[3])
 }
 
 // Description:
-// Set the size of the volume oon which to perform the sampling.
+// Set the size of the volume on which to perform the sampling.
 void vtkBooleanStructuredPoints::SetModelBounds(float *bounds)
 {
   vtkBooleanStructuredPoints::SetModelBounds(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);
