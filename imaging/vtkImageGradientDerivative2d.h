@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMedianFilter.h
+  Module:    vtkImageGradientDerivative2d.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,40 +37,40 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMedianFilter - Median Filter
+// .NAME vtkImageGradientDerivative2d - Derivative of gradient images.
 // .SECTION Description
-// vtkImageMedianFilter a Median filter that replaces each pixel with the 
-// median value from a square neighborhood around that pixel.
+// vtkImageGradientDerivative2d Operates only on gradient images
+// because it needs the phase in the second component.  It Takes 
+// a derivative along the gradient. Output has only one component.
 
 
-#ifndef __vtkImageMedianFilter_h
-#define __vtkImageMedianFilter_h
+
+#ifndef __vtkImageGradientDerivative2d_h
+#define __vtkImageGradientDerivative2d_h
 
 
-#include "vtkImageSpatial3d.h"
+#include "vtkImageSpatialFilter.h"
 
-class vtkImageMedianFilter : public vtkImageSpatial3d
+class vtkImageGradientDerivative2d : public vtkImageSpatialFilter
 {
 public:
-  vtkImageMedianFilter();
-  ~vtkImageMedianFilter();
-  char *GetClassName() {return "vtkImageMedianFilter";};
+  vtkImageGradientDerivative2d();
+  char *GetClassName() {return "vtkImageGradientDerivative2d";};
+  void PrintSelf(ostream& os, vtkIndent indent);
+  
+  void SetAxes2d(int axis0, int axis1);
+  void InterceptCacheUpdate(vtkImageRegion *region);
 
-  void SetKernelSize(int size0, int size1, int size2);
-  void ClearMedian();
-  void AccumulateMedian(double val);
-  double GetMedian();
+  // Description:
+  // Magnitude has to be above this threshold to register.
+  vtkSetMacro(LowerThreshold, float);
+  vtkGetMacro(LowerThreshold, float);
+  
   
 protected:
-  // stuff for sorting the pixels
-  int NumNeighborhood;
-  double *Sort;
-  double *Median;
-  int UpMax;
-  int DownMax;
-  int UpNum;
-  int DownNum;
-
+  float LowerThreshold;
+  
+  void ExecuteCenter3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
   void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 
 };

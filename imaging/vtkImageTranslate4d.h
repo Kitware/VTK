@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMedianFilter.h
+  Module:    vtkImageTranslate4d.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,42 +37,40 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMedianFilter - Median Filter
+// .NAME vtkImageTranslate4d - Same data, different bounds.
 // .SECTION Description
-// vtkImageMedianFilter a Median filter that replaces each pixel with the 
-// median value from a square neighborhood around that pixel.
+// vtkImageTranslate4d translates images to different pixel
+// locations.  For example, this filter might be used as a time delay.
+// It is sort of wasteful to recopy the data, which illustrates
+// the need for non cached filters.
 
 
-#ifndef __vtkImageMedianFilter_h
-#define __vtkImageMedianFilter_h
+#ifndef __vtkImageTranslate4d_h
+#define __vtkImageTranslate4d_h
 
 
-#include "vtkImageSpatial3d.h"
+#include "vtkImageFilter.h"
 
-class vtkImageMedianFilter : public vtkImageSpatial3d
+class vtkImageTranslate4d : public vtkImageFilter
 {
 public:
-  vtkImageMedianFilter();
-  ~vtkImageMedianFilter();
-  char *GetClassName() {return "vtkImageMedianFilter";};
+  vtkImageTranslate4d();
+  char *GetClassName() {return "vtkImageTranslate4d";};
 
-  void SetKernelSize(int size0, int size1, int size2);
-  void ClearMedian();
-  void AccumulateMedian(double val);
-  double GetMedian();
-  
+  // Description:
+  // Set/Get the translation vector.
+  vtkSetVector4Macro(Translation,int);
+  vtkGetVector4Macro(Translation,int);
+
 protected:
-  // stuff for sorting the pixels
-  int NumNeighborhood;
-  double *Sort;
-  double *Median;
-  int UpMax;
-  int DownMax;
-  int UpNum;
-  int DownNum;
+  int Translation[4];
 
-  void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-
+  void ComputeOutputImageInformation(vtkImageRegion *inRegion,
+					     vtkImageRegion *outRegion);
+  void ComputeRequiredInputRegionBounds(vtkImageRegion *outRegion,
+						vtkImageRegion *inRegion);
+  
+  void Execute4d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };
 
 #endif

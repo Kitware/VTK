@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMedianFilter.h
+  Module:    vtkImageDecomposed3d.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,42 +37,46 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMedianFilter - Median Filter
+// .NAME vtkImageDecomposed3d - Contains three 1d filters.
 // .SECTION Description
-// vtkImageMedianFilter a Median filter that replaces each pixel with the 
-// median value from a square neighborhood around that pixel.
+// vtkImageDecomposed3d is a super class for filters that break
+// their 3d processing into three 1d steps.  They contain a sub pipeline
+// that contains three 1d filters in series.
 
 
-#ifndef __vtkImageMedianFilter_h
-#define __vtkImageMedianFilter_h
+#ifndef __vtkImageDecomposed3d_h
+#define __vtkImageDecomposed3d_h
 
 
-#include "vtkImageSpatial3d.h"
+#include "vtkImageFilter.h"
 
-class vtkImageMedianFilter : public vtkImageSpatial3d
+class vtkImageDecomposed3d : public vtkImageFilter
 {
 public:
-  vtkImageMedianFilter();
-  ~vtkImageMedianFilter();
-  char *GetClassName() {return "vtkImageMedianFilter";};
+  vtkImageDecomposed3d();
+  ~vtkImageDecomposed3d();
+  char *GetClassName() {return "vtkImageDecomposed3d";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
-  void SetKernelSize(int size0, int size1, int size2);
-  void ClearMedian();
-  void AccumulateMedian(double val);
-  double GetMedian();
-  
+  // Forward Object messages to filter1 and fitler2
+  void DebugOn();
+  void Modified();
+  // Foward Source messages to filter2
+  void SetCache(vtkImageCache *cache);
+  vtkImageCache *GetCache();
+  void SetReleaseDataFlag(int flag);
+  vtkImageSource *GetOutput();
+  unsigned long GetPipelineMTime();
+  // Foward filter messages to fitler1
+  void SetInput(vtkImageSource *Input);
+
+  void SetAxes3d(int axis0, int axis1, int axis2);
+
 protected:
-  // stuff for sorting the pixels
-  int NumNeighborhood;
-  double *Sort;
-  double *Median;
-  int UpMax;
-  int DownMax;
-  int UpNum;
-  int DownNum;
 
-  void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-
+  vtkImageFilter *Filter0;
+  vtkImageFilter *Filter1;
+  vtkImageFilter *Filter2;
 };
 
 #endif

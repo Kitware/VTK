@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMedianFilter.h
+  Module:    vtkImageAnisotropicDiffusion2d.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,42 +37,50 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMedianFilter - Median Filter
+// .NAME vtkImageAnisotropicDiffusion2d - edge preserving smoothing.
 // .SECTION Description
-// vtkImageMedianFilter a Median filter that replaces each pixel with the 
-// median value from a square neighborhood around that pixel.
+// vtkImageAnisotropicDiffusion2d  diffuses if pixel
+// difference is below a threshold.  It diffuses with all 8 neighbors.
+// Input and output can be any type.
 
 
-#ifndef __vtkImageMedianFilter_h
-#define __vtkImageMedianFilter_h
+#ifndef __vtkImageAnisotropicDiffusion2d_h
+#define __vtkImageAnisotropicDiffusion2d_h
 
 
-#include "vtkImageSpatial3d.h"
+#include "vtkImageSpatialFilter.h"
 
-class vtkImageMedianFilter : public vtkImageSpatial3d
+class vtkImageAnisotropicDiffusion2d : public vtkImageSpatialFilter
 {
 public:
-  vtkImageMedianFilter();
-  ~vtkImageMedianFilter();
-  char *GetClassName() {return "vtkImageMedianFilter";};
+  vtkImageAnisotropicDiffusion2d();
+  char *GetClassName() {return "vtkImageAnisotropicDiffusion2d";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
-  void SetKernelSize(int size0, int size1, int size2);
-  void ClearMedian();
-  void AccumulateMedian(double val);
-  double GetMedian();
+  void SetNumberOfIterations(int num);
+  // Description:
+  // Get the number of iterations.
+  vtkGetMacro(NumberOfIterations,int);
+
+  // Description:
+  // Set/Get the difference threshold that stops diffusion.
+  vtkSetMacro(DiffusionThreshold,float);
+  vtkGetMacro(DiffusionThreshold,float);
+  
+  
+  // Description:
+  // Set/Get the difference factor
+  vtkSetMacro(DiffusionFactor,float);
+  vtkGetMacro(DiffusionFactor,float);
+  
   
 protected:
-  // stuff for sorting the pixels
-  int NumNeighborhood;
-  double *Sort;
-  double *Median;
-  int UpMax;
-  int DownMax;
-  int UpNum;
-  int DownNum;
-
-  void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-
+  int NumberOfIterations;
+  float DiffusionThreshold;
+  float DiffusionFactor;  
+  
+  void Execute2d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  void Iterate(vtkImageRegion *in, vtkImageRegion *out, float ar0, float ar1);
 };
 
 #endif

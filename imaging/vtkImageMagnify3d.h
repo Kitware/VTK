@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMedianFilter.h
+  Module:    vtkImageMagnify3d.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,42 +37,42 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMedianFilter - Median Filter
+// .NAME vtkImageMagnify3d - Magnifies an image by integer factors.
 // .SECTION Description
-// vtkImageMedianFilter a Median filter that replaces each pixel with the 
-// median value from a square neighborhood around that pixel.
+// vtkImageMagnify3d maps each pixel of the input onto a nxmxp region
+// of the output.  Location (0,0) remains in the same place.  The filter
+// can use trilinear interpolation or simple pixel replication. 
 
 
-#ifndef __vtkImageMedianFilter_h
-#define __vtkImageMedianFilter_h
+#ifndef __vtkImageMagnify3d_h
+#define __vtkImageMagnify3d_h
 
 
-#include "vtkImageSpatial3d.h"
+#include "vtkImageDecomposed3d.h"
+#include "vtkImageMagnify1d.h"
 
-class vtkImageMedianFilter : public vtkImageSpatial3d
+class vtkImageMagnify3d : public vtkImageDecomposed3d
 {
 public:
-  vtkImageMedianFilter();
-  ~vtkImageMedianFilter();
-  char *GetClassName() {return "vtkImageMedianFilter";};
+  vtkImageMagnify3d();
+  char *GetClassName() {return "vtkImageMagnify3d";};
 
-  void SetKernelSize(int size0, int size1, int size2);
-  void ClearMedian();
-  void AccumulateMedian(double val);
-  double GetMedian();
+  // Description:
+  // Set/Get Magnification factors
+  void SetMagnificationFactors(int f0, int f1, int f2);
+  void SetMagnificationFactors(int *factors)
+  {this->SetMagnificationFactors(factors[0], factors[1], factors[2]);};
+  vtkGetVector3Macro(MagnificationFactors,int);
   
+  // Description:
+  // Turn interpolation on and off (pixel replication)
+  void SetInterpolate(int interpolate);
+  int GetInterpolate();
+  vtkBooleanMacro(Interpolate,int);
+  
+
 protected:
-  // stuff for sorting the pixels
-  int NumNeighborhood;
-  double *Sort;
-  double *Median;
-  int UpMax;
-  int DownMax;
-  int UpNum;
-  int DownNum;
-
-  void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-
+  int MagnificationFactors[3];
 };
 
 #endif

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMedianFilter.h
+  Module:    vtkImageGaussianSmooth3d.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,45 +37,36 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMedianFilter - Median Filter
-// .SECTION Description
-// vtkImageMedianFilter a Median filter that replaces each pixel with the 
-// median value from a square neighborhood around that pixel.
+#include "vtkImageGaussianSmooth3d.h"
 
-
-#ifndef __vtkImageMedianFilter_h
-#define __vtkImageMedianFilter_h
-
-
-#include "vtkImageSpatial3d.h"
-
-class vtkImageMedianFilter : public vtkImageSpatial3d
+//----------------------------------------------------------------------------
+// Description:
+// This method sets up the 2 1d filters that perform the convolution.
+vtkImageGaussianSmooth3d::vtkImageGaussianSmooth3d()
 {
-public:
-  vtkImageMedianFilter();
-  ~vtkImageMedianFilter();
-  char *GetClassName() {return "vtkImageMedianFilter";};
+  // create the filter chain 
+  this->Filter0 = new vtkImageGaussianSmooth1d;
+  this->Filter1 = new vtkImageGaussianSmooth1d;
+  this->Filter2 = new vtkImageGaussianSmooth1d;
 
-  void SetKernelSize(int size0, int size1, int size2);
-  void ClearMedian();
-  void AccumulateMedian(double val);
-  double GetMedian();
-  
-protected:
-  // stuff for sorting the pixels
-  int NumNeighborhood;
-  double *Sort;
-  double *Median;
-  int UpMax;
-  int DownMax;
-  int UpNum;
-  int DownNum;
-
-  void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-
-};
-
-#endif
+  this->SetAxes3d(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS);
+}
 
 
+//----------------------------------------------------------------------------
+// Description:
+// This method sets the kernal. Both axes are the same.  
+// A future simple extension could make the kernel eliptical.
+void vtkImageGaussianSmooth3d::SetGaussianStdRadius(float std, int rad)
+{
+  vtkDebugMacro(<< "SetGauss: Std = " << std << ", Radius = " << rad);
 
+  ((vtkImageGaussianSmooth1d *)
+   (this->Filter0))->SetGaussianStdRadius(std, rad);
+  ((vtkImageGaussianSmooth1d *)
+   (this->Filter1))->SetGaussianStdRadius(std, rad);
+  ((vtkImageGaussianSmooth1d *)
+   (this->Filter2))->SetGaussianStdRadius(std, rad);
+
+  this->Modified();
+}

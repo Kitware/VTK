@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMedianFilter.h
+  Module:    vtkImageHar2d.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,42 +37,49 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMedianFilter - Median Filter
+// .NAME vtkImageHar2d - Har wavelet decomposition.
 // .SECTION Description
-// vtkImageMedianFilter a Median filter that replaces each pixel with the 
-// median value from a square neighborhood around that pixel.
+// vtkImageHar2d Uses har wavelets to decompose an image to
+// a specified number of resolution levels.  It is written so that
+// it uses the whole input, and generates the whole output, when
+// any region is requested.
 
 
-#ifndef __vtkImageMedianFilter_h
-#define __vtkImageMedianFilter_h
+#ifndef __vtkImageHar2d_h
+#define __vtkImageHar2d_h
 
 
-#include "vtkImageSpatial3d.h"
+#include "vtkImageFilter.h"
 
-class vtkImageMedianFilter : public vtkImageSpatial3d
+class vtkImageHar2d : public vtkImageFilter
 {
 public:
-  vtkImageMedianFilter();
-  ~vtkImageMedianFilter();
-  char *GetClassName() {return "vtkImageMedianFilter";};
+  vtkImageHar2d();
+  char *GetClassName() {return "vtkImageHar2d";};
 
-  void SetKernelSize(int size0, int size1, int size2);
-  void ClearMedian();
-  void AccumulateMedian(double val);
-  double GetMedian();
+  // Description:
+  // Set/Get the number of resolution levels.
+  vtkSetMacro(NumberLevels,int);
+  vtkGetMacro(NumberLevels,int);
   
+  // Description:
+  // Set/Get offset for the 3 wavelet quadrents.
+  vtkSetMacro(PixelOffset,float);
+  vtkGetMacro(PixelOffset,float);
+
+  // Description:
+  // Set/Get scale for the 3 wavelet quadrents.
+  vtkSetMacro(PixelScale,float);
+  vtkGetMacro(PixelScale,float);
+
+  void InterceptCacheUpdate(vtkImageRegion *region);
+
 protected:
-  // stuff for sorting the pixels
-  int NumNeighborhood;
-  double *Sort;
-  double *Median;
-  int UpMax;
-  int DownMax;
-  int UpNum;
-  int DownNum;
+  int NumberLevels;
+  float PixelScale;
+  float PixelOffset;
 
-  void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-
+  void Execute2d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);  
 };
 
 #endif

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMedianFilter.h
+  Module:    vtkImageDilateValue2d.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,45 +37,43 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMedianFilter - Median Filter
-// .SECTION Description
-// vtkImageMedianFilter a Median filter that replaces each pixel with the 
-// median value from a square neighborhood around that pixel.
+#include "vtkImageDilateValue2d.h"
 
-
-#ifndef __vtkImageMedianFilter_h
-#define __vtkImageMedianFilter_h
-
-
-#include "vtkImageSpatial3d.h"
-
-class vtkImageMedianFilter : public vtkImageSpatial3d
+//----------------------------------------------------------------------------
+// Description:
+// This method sets up the 2 1d filters that perform the convolution.
+vtkImageDilateValue2d::vtkImageDilateValue2d()
 {
-public:
-  vtkImageMedianFilter();
-  ~vtkImageMedianFilter();
-  char *GetClassName() {return "vtkImageMedianFilter";};
+  // create the filter chain 
+  this->Filter0 = new vtkImageDilateValue1d;
+  this->Filter1 = new vtkImageDilateValue1d;
 
-  void SetKernelSize(int size0, int size1, int size2);
-  void ClearMedian();
-  void AccumulateMedian(double val);
-  double GetMedian();
-  
-protected:
-  // stuff for sorting the pixels
-  int NumNeighborhood;
-  double *Sort;
-  double *Median;
-  int UpMax;
-  int DownMax;
-  int UpNum;
-  int DownNum;
-
-  void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-
-};
-
-#endif
+  this->SetAxes2d(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
+}
 
 
+//----------------------------------------------------------------------------
+// Description:
+// This method sets the dimensions of the rectangular kernel.
+void vtkImageDilateValue2d::SetKernelSize(int width, int height)
+{
+  ((vtkImageDilateValue1d *)
+   (this->Filter0))->SetKernelSize(width);
+  ((vtkImageDilateValue1d *)
+   (this->Filter1))->SetKernelSize(height);
 
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// This method sets value to dilate
+void vtkImageDilateValue2d::SetValue(float value)
+{
+  ((vtkImageDilateValue1d *)
+   (this->Filter0))->SetValue(value);
+  ((vtkImageDilateValue1d *)
+   (this->Filter1))->SetValue(value);
+
+  this->Modified();
+}

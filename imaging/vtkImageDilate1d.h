@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMedianFilter.h
+  Module:    vtkImageDilate1d.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,42 +37,50 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMedianFilter - Median Filter
+// .NAME vtkImageDilate1d - Continous dilation (Max of neighborhood)
 // .SECTION Description
-// vtkImageMedianFilter a Median filter that replaces each pixel with the 
-// median value from a square neighborhood around that pixel.
+// vtkImageDilate1d implements a 1d continous dilation by replacing
+// a pixel with the maximum of its neighborhood.
+// It is meant to decompose 2 or 3d dilation so they will be faster.
 
 
-#ifndef __vtkImageMedianFilter_h
-#define __vtkImageMedianFilter_h
+#ifndef __vtkImageDilate1d_h
+#define __vtkImageDilate1d_h
 
 
-#include "vtkImageSpatial3d.h"
+#include "vtkImageSpatial1d.h"
 
-class vtkImageMedianFilter : public vtkImageSpatial3d
+class vtkImageDilate1d : public vtkImageSpatial1d
 {
 public:
-  vtkImageMedianFilter();
-  ~vtkImageMedianFilter();
-  char *GetClassName() {return "vtkImageMedianFilter";};
-
-  void SetKernelSize(int size0, int size1, int size2);
-  void ClearMedian();
-  void AccumulateMedian(double val);
-  double GetMedian();
+  vtkImageDilate1d();
+  char *GetClassName() {return "vtkImageDilate1d";};
   
 protected:
-  // stuff for sorting the pixels
-  int NumNeighborhood;
-  double *Sort;
-  double *Median;
-  int UpMax;
-  int DownMax;
-  int UpNum;
-  int DownNum;
+  
+  void Execute1d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 
-  void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-
+  // for templated function.
+  friend void vtkImageDilate1dExecute1d(
+			   vtkImageDilate1d *self,
+			   vtkImageRegion *inRegion, float *inPtr,
+			   vtkImageRegion *outRegion, float *outPtr);
+  friend void vtkImageDilate1dExecute1d(
+			   vtkImageDilate1d *self,
+			   vtkImageRegion *inRegion, int *inPtr,
+			   vtkImageRegion *outRegion, int *outPtr);
+  friend void vtkImageDilate1dExecute1d(
+			   vtkImageDilate1d *self,
+			   vtkImageRegion *inRegion, short *inPtr,
+			   vtkImageRegion *outRegion, short *outPtr);
+  friend void vtkImageDilate1dExecute1d(
+			   vtkImageDilate1d *self,
+			   vtkImageRegion *inRegion, unsigned short *inPtr,
+			   vtkImageRegion *outRegion, unsigned short *outPtr);
+  friend void vtkImageDilate1dExecute1d(
+			   vtkImageDilate1d *self,
+			   vtkImageRegion *inRegion, unsigned char *inPtr,
+			   vtkImageRegion *outRegion, unsigned char *outPtr);
 };
 
 #endif

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMedianFilter.h
+  Module:    vtkImageDilateErode3d.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,42 +37,47 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMedianFilter - Median Filter
+// .NAME vtkImageDilateErode3d - Dilates one value and erodes another.
 // .SECTION Description
-// vtkImageMedianFilter a Median filter that replaces each pixel with the 
-// median value from a square neighborhood around that pixel.
+// vtkImageDilateErode3d will dilate one value and erode another.
+// It uses an box foot print, and only erodes/dilates on the
+// boundary of the two values.
 
 
-#ifndef __vtkImageMedianFilter_h
-#define __vtkImageMedianFilter_h
+#ifndef __vtkImageDilateErode3d_h
+#define __vtkImageDilateErode3d_h
 
 
-#include "vtkImageSpatial3d.h"
+#include "vtkImageSpatialFilter.h"
 
-class vtkImageMedianFilter : public vtkImageSpatial3d
+class vtkImageDilateErode3d : public vtkImageSpatialFilter
 {
 public:
-  vtkImageMedianFilter();
-  ~vtkImageMedianFilter();
-  char *GetClassName() {return "vtkImageMedianFilter";};
-
+  vtkImageDilateErode3d();
+  char *GetClassName() {return "vtkImageDilateErode3d";};
+  void PrintSelf(ostream& os, vtkIndent indent);
+  
+  void SetKernelSize(int size){this->SetKernelSize(size,size,size);};
   void SetKernelSize(int size0, int size1, int size2);
-  void ClearMedian();
-  void AccumulateMedian(double val);
-  double GetMedian();
+  
+  // Description:
+  // Set/Get the value to dilate/erode
+  vtkSetMacro(DilateValue, float);
+  vtkGetMacro(DilateValue, float);
+  vtkSetMacro(ErodeValue, float);
+  vtkGetMacro(ErodeValue, float);
+
+  // Description:
+  // Get the Mask used as a footprint.
+  vtkGetObjectMacro(Mask, vtkImageRegion);
   
 protected:
-  // stuff for sorting the pixels
-  int NumNeighborhood;
-  double *Sort;
-  double *Median;
-  int UpMax;
-  int DownMax;
-  int UpNum;
-  int DownNum;
-
+  float DilateValue;
+  float ErodeValue;
+  vtkImageRegion *Mask;
+    
+  void ExecuteCenter3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
   void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-
 };
 
 #endif

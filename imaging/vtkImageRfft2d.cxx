@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMedianFilter.h
+  Module:    vtkImageRfft2d.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,45 +37,28 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMedianFilter - Median Filter
-// .SECTION Description
-// vtkImageMedianFilter a Median filter that replaces each pixel with the 
-// median value from a square neighborhood around that pixel.
+#include "vtkImageRfft2d.h"
 
-
-#ifndef __vtkImageMedianFilter_h
-#define __vtkImageMedianFilter_h
-
-
-#include "vtkImageSpatial3d.h"
-
-class vtkImageMedianFilter : public vtkImageSpatial3d
+//----------------------------------------------------------------------------
+// Description:
+// This method sets up the two 1d filters that perform the convolution.
+vtkImageRfft2d::vtkImageRfft2d()
 {
-public:
-  vtkImageMedianFilter();
-  ~vtkImageMedianFilter();
-  char *GetClassName() {return "vtkImageMedianFilter";};
+  // create the filter chain 
+  this->Filter0 = new vtkImageRfft1d;
+  this->Filter1 = new vtkImageRfft1d;
 
-  void SetKernelSize(int size0, int size1, int size2);
-  void ClearMedian();
-  void AccumulateMedian(double val);
-  double GetMedian();
-  
-protected:
-  // stuff for sorting the pixels
-  int NumNeighborhood;
-  double *Sort;
-  double *Median;
-  int UpMax;
-  int DownMax;
-  int UpNum;
-  int DownNum;
+  this->SetAxes2d(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
+}
 
-  void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 
-};
 
-#endif
+
+
+
+
+
+
 
 
 

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMedianFilter.h
+  Module:    vtkImageGaussianSmooth1d.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,42 +37,32 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMedianFilter - Median Filter
+// .NAME vtkImageGaussianSmooth1d - smooths on one axis.
 // .SECTION Description
-// vtkImageMedianFilter a Median filter that replaces each pixel with the 
-// median value from a square neighborhood around that pixel.
+// vtkImageGaussianSmooth1d implements a 1d Gaussian smoothing
+// on one axis.
 
 
-#ifndef __vtkImageMedianFilter_h
-#define __vtkImageMedianFilter_h
+#ifndef __vtkImageGaussianSmooth1d_h
+#define __vtkImageGaussianSmooth1d_h
 
 
-#include "vtkImageSpatial3d.h"
+#include "vtkImageConvolution1d.h"
 
-class vtkImageMedianFilter : public vtkImageSpatial3d
+class vtkImageGaussianSmooth1d : public vtkImageConvolution1d
 {
 public:
-  vtkImageMedianFilter();
-  ~vtkImageMedianFilter();
-  char *GetClassName() {return "vtkImageMedianFilter";};
+  char *GetClassName() {return "vtkImageGaussianSmooth1d";};
 
-  void SetKernelSize(int size0, int size1, int size2);
-  void ClearMedian();
-  void AccumulateMedian(double val);
-  double GetMedian();
-  
+  // Description:
+  // Set/Get the Guassian.
+  void SetGaussianStdRadius(float Std, int Radius);
+  vtkGetMacro(Radius,float);
+  vtkGetMacro(Std,float);
+
 protected:
-  // stuff for sorting the pixels
-  int NumNeighborhood;
-  double *Sort;
-  double *Median;
-  int UpMax;
-  int DownMax;
-  int UpNum;
-  int DownNum;
-
-  void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-
+  float Radius;
+  float Std;
 };
 
 #endif

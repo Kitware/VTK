@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMedianFilter.h
+  Module:    vtkImageRfft1d.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,45 +37,43 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMedianFilter - Median Filter
+// .NAME vtkImageRfft1d - Performs a 1d reverse fast Fourier transform.
 // .SECTION Description
-// vtkImageMedianFilter a Median filter that replaces each pixel with the 
-// median value from a square neighborhood around that pixel.
+// vtkImageRfft1d implements a 1d reverse Fourier transform.  It
+// takes an frequency domain image with two components (real, imaginary) 
+// and changes it to spatial domain image also with two channels.
+// Input channels always must be 0 = real and 1 = imaginary.
 
 
-#ifndef __vtkImageMedianFilter_h
-#define __vtkImageMedianFilter_h
+#ifndef __vtkImageRfft1d_h
+#define __vtkImageRfft1d_h
 
 
-#include "vtkImageSpatial3d.h"
+#include "vtkImageFourierFilter.h"
 
-class vtkImageMedianFilter : public vtkImageSpatial3d
+class vtkImageRfft1d : public vtkImageFourierFilter
 {
 public:
-  vtkImageMedianFilter();
-  ~vtkImageMedianFilter();
-  char *GetClassName() {return "vtkImageMedianFilter";};
+  vtkImageRfft1d();
+  char *GetClassName() {return "vtkImageRfft1d";};
 
-  void SetKernelSize(int size0, int size1, int size2);
-  void ClearMedian();
-  void AccumulateMedian(double val);
-  double GetMedian();
+  void SetAxes1d(int axis);
+  void InterceptCacheUpdate(vtkImageRegion *region);
   
 protected:
-  // stuff for sorting the pixels
-  int NumNeighborhood;
-  double *Sort;
-  double *Median;
-  int UpMax;
-  int DownMax;
-  int UpNum;
-  int DownNum;
-
-  void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-
+  void ComputeRequiredInputRegionBounds(vtkImageRegion *outRegion, 
+					vtkImageRegion *inRegion);
+  void Execute2d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };
 
 #endif
+
+
+
+
+
+
+
 
 
 

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMedianFilter.h
+  Module:    vtkImageDistance3d.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,42 +37,27 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMedianFilter - Median Filter
+// .NAME vtkImageDistance3d - 3d image distance map.
 // .SECTION Description
-// vtkImageMedianFilter a Median filter that replaces each pixel with the 
-// median value from a square neighborhood around that pixel.
+// vtkImageDistance3d creates a Manhatten distance map from
+// a mask.  It used three 1d distance filters along each axis.
 
 
-#ifndef __vtkImageMedianFilter_h
-#define __vtkImageMedianFilter_h
+
+#ifndef __vtkImageDistance3d_h
+#define __vtkImageDistance3d_h
 
 
-#include "vtkImageSpatial3d.h"
+#include "vtkImageDecomposed3d.h"
+#include "vtkImageDistance1d.h"
 
-class vtkImageMedianFilter : public vtkImageSpatial3d
+class vtkImageDistance3d : public vtkImageDecomposed3d
 {
 public:
-  vtkImageMedianFilter();
-  ~vtkImageMedianFilter();
-  char *GetClassName() {return "vtkImageMedianFilter";};
+  vtkImageDistance3d();
+  char *GetClassName() {return "vtkImageDistance3d";};
 
-  void SetKernelSize(int size0, int size1, int size2);
-  void ClearMedian();
-  void AccumulateMedian(double val);
-  double GetMedian();
-  
 protected:
-  // stuff for sorting the pixels
-  int NumNeighborhood;
-  double *Sort;
-  double *Median;
-  int UpMax;
-  int DownMax;
-  int UpNum;
-  int DownNum;
-
-  void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-
 };
 
 #endif

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMedianFilter.h
+  Module:    vtkImageMagnify2d.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,45 +37,63 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMedianFilter - Median Filter
-// .SECTION Description
-// vtkImageMedianFilter a Median filter that replaces each pixel with the 
-// median value from a square neighborhood around that pixel.
+#include "vtkImageMagnify2d.h"
+#include "vtkImageCache.h"
 
 
-#ifndef __vtkImageMedianFilter_h
-#define __vtkImageMedianFilter_h
-
-
-#include "vtkImageSpatial3d.h"
-
-class vtkImageMedianFilter : public vtkImageSpatial3d
+//----------------------------------------------------------------------------
+// Description:
+// Constructor: Sets default filter to be identity.
+vtkImageMagnify2d::vtkImageMagnify2d()
 {
-public:
-  vtkImageMedianFilter();
-  ~vtkImageMedianFilter();
-  char *GetClassName() {return "vtkImageMedianFilter";};
+  // create the filter chain 
+  this->Filter0 = new vtkImageMagnify1d;
+  this->Filter1 = new vtkImageMagnify1d;
 
-  void SetKernelSize(int size0, int size1, int size2);
-  void ClearMedian();
-  void AccumulateMedian(double val);
-  double GetMedian();
+  this->SetAxes2d(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
+  this->SetMagnificationFactors(1, 1);
+}
+
+
+//----------------------------------------------------------------------------
+void vtkImageMagnify2d::SetMagnificationFactors(int f0, int f1)
+{
+  // Having my own copy simplifies the Get methods.
+  this->MagnificationFactors[0] = f0;
+  this->MagnificationFactors[1] = f1;
+  this->Modified();
   
-protected:
-  // stuff for sorting the pixels
-  int NumNeighborhood;
-  double *Sort;
-  double *Median;
-  int UpMax;
-  int DownMax;
-  int UpNum;
-  int DownNum;
+  ((vtkImageMagnify1d *)(this->Filter0))->SetMagnificationFactor(f0);
+  ((vtkImageMagnify1d *)(this->Filter1))->SetMagnificationFactor(f1);
+}
 
-  void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 
-};
+//----------------------------------------------------------------------------
+void vtkImageMagnify2d::SetInterpolate(int interpolate)
+{
+  this->Modified();
+  
+  ((vtkImageMagnify1d *)(this->Filter0))->SetInterpolate(interpolate);
+  ((vtkImageMagnify1d *)(this->Filter1))->SetInterpolate(interpolate);
+}
 
-#endif
+
+
+//----------------------------------------------------------------------------
+int vtkImageMagnify2d::GetInterpolate()
+{
+  // Assume filter1 has same interpolate value as filter0
+  return ((vtkImageMagnify1d *)(this->Filter0))->GetInterpolate();
+}
+
+
+
+
+
+
+
+
+
 
 
 

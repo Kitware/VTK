@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMedianFilter.h
+  Module:    vtkImageRfft2d.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,42 +37,26 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMedianFilter - Median Filter
+// .NAME vtkImageRfft2d - 2d Reverse Fast Fourier Transform
 // .SECTION Description
-// vtkImageMedianFilter a Median filter that replaces each pixel with the 
-// median value from a square neighborhood around that pixel.
+// vtkImageRfft2d implements a 2d reverse Fast Fourier Transform.
+// It really consists of two 1d RFFTs.
 
 
-#ifndef __vtkImageMedianFilter_h
-#define __vtkImageMedianFilter_h
+#ifndef __vtkImageRfft2d_h
+#define __vtkImageRfft2d_h
 
 
-#include "vtkImageSpatial3d.h"
+#include "vtkImageDecomposed2d.h"
+#include "vtkImageRfft1d.h"
 
-class vtkImageMedianFilter : public vtkImageSpatial3d
+class vtkImageRfft2d : public vtkImageDecomposed2d
 {
 public:
-  vtkImageMedianFilter();
-  ~vtkImageMedianFilter();
-  char *GetClassName() {return "vtkImageMedianFilter";};
+  vtkImageRfft2d();
+  char *GetClassName() {return "vtkImageRfft2d";};
 
-  void SetKernelSize(int size0, int size1, int size2);
-  void ClearMedian();
-  void AccumulateMedian(double val);
-  double GetMedian();
-  
 protected:
-  // stuff for sorting the pixels
-  int NumNeighborhood;
-  double *Sort;
-  double *Median;
-  int UpMax;
-  int DownMax;
-  int UpNum;
-  int DownNum;
-
-  void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-
 };
 
 #endif

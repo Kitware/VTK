@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMedianFilter.h
+  Module:    vtkImageFourierWavelet2d.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,42 +37,56 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMedianFilter - Median Filter
+// .NAME vtkImageFourierWavelet2d - Fourier wavelet decomposition.
 // .SECTION Description
-// vtkImageMedianFilter a Median filter that replaces each pixel with the 
-// median value from a square neighborhood around that pixel.
+// vtkImageFourierWavelet2d Fourier components (NxN) are used
+// as a Wavelet set.  The set is orthogonal, but they overlap.
+// The output is a multispectral image whose spatial dimensions
+// are smaller than the original image.
+// Channel 0 has a lowres version of the original image.  For a multi
+// resolution decomposition, chain these filters (multiple instanceses of 
+// this class together).  
 
 
-#ifndef __vtkImageMedianFilter_h
-#define __vtkImageMedianFilter_h
+#ifndef __vtkImageFourierWavelet2d_h
+#define __vtkImageFourierWavelet2d_h
 
+#include <math.h>
+#include "vtkImageFilter.h"
 
-#include "vtkImageSpatial3d.h"
-
-class vtkImageMedianFilter : public vtkImageSpatial3d
+class vtkImageFourierWavelet2d : public vtkImageFilter
 {
 public:
-  vtkImageMedianFilter();
-  ~vtkImageMedianFilter();
-  char *GetClassName() {return "vtkImageMedianFilter";};
+  vtkImageFourierWavelet2d();
+  char *GetClassName() {return "vtkImageFourierWavelet2d";};
 
-  void SetKernelSize(int size0, int size1, int size2);
-  void ClearMedian();
-  void AccumulateMedian(double val);
-  double GetMedian();
-  
+  void InitializeWavelets(int dim);
+
+  void InterceptCacheUpdate(vtkImageRegion *region);
+
+  // Description:
+  // Get the region that holds the wavelets.
+  vtkGetObjectMacro(Wavelets, vtkImageRegion);
+
+  // Description:
+  // Set/Get the spacing between subsamples
+  vtkSetMacro(Spacing, int);
+  vtkGetMacro(Spacing, int);
+
 protected:
-  // stuff for sorting the pixels
-  int NumNeighborhood;
-  double *Sort;
-  double *Median;
-  int UpMax;
-  int DownMax;
-  int UpNum;
-  int DownNum;
+  vtkImageRegion *Wavelets;
+  int Spacing;
 
-  void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  void ComputeWaveletReal(int f1, int f2, int w0);
+  void ComputeWaveletImaginary(int f1, int f2, int w0);  
+  int  TestWaveletOrthogonality(int waveletIdx);
 
+  void ComputeOutputImageInformation(vtkImageRegion *inRegion,
+				     vtkImageRegion *outRegion);
+  void ComputeRequiredInputRegionBounds(vtkImageRegion *outRegion, 
+					vtkImageRegion *inRegion);
+  
+  void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);  
 };
 
 #endif

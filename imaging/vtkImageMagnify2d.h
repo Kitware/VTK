@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMedianFilter.h
+  Module:    vtkImageMagnify2d.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,42 +37,41 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMedianFilter - Median Filter
+// .NAME vtkImageMagnify2d - Magnifies an image with pixel replication.
 // .SECTION Description
-// vtkImageMedianFilter a Median filter that replaces each pixel with the 
-// median value from a square neighborhood around that pixel.
+// vtkImageMagnify2d maps each pixel of the input onto a nxn region
+// of the output.  Location (0,0) remains in the same place.
 
 
-#ifndef __vtkImageMedianFilter_h
-#define __vtkImageMedianFilter_h
+#ifndef __vtkImageMagnify2d_h
+#define __vtkImageMagnify2d_h
 
 
-#include "vtkImageSpatial3d.h"
+#include "vtkImageDecomposed2d.h"
+#include "vtkImageMagnify1d.h"
 
-class vtkImageMedianFilter : public vtkImageSpatial3d
+class vtkImageMagnify2d : public vtkImageDecomposed2d
 {
 public:
-  vtkImageMedianFilter();
-  ~vtkImageMedianFilter();
-  char *GetClassName() {return "vtkImageMedianFilter";};
+  vtkImageMagnify2d();
+  char *GetClassName() {return "vtkImageMagnify2d";};
 
-  void SetKernelSize(int size0, int size1, int size2);
-  void ClearMedian();
-  void AccumulateMedian(double val);
-  double GetMedian();
+  // Description:
+  // Set/Get Magnification factors
+  void SetMagnificationFactors(int f0, int f1);
+  void SetMagnificationFactors(int *factors)
+  {this->SetMagnificationFactors(factors[0], factors[1]);};
+  vtkGetVector2Macro(MagnificationFactors,int);
   
+  // Description:
+  // Turn interpolation on and off (pixel replication)
+  void SetInterpolate(int interpolate);
+  int GetInterpolate();
+  vtkBooleanMacro(Interpolate,int);
+  
+
 protected:
-  // stuff for sorting the pixels
-  int NumNeighborhood;
-  double *Sort;
-  double *Median;
-  int UpMax;
-  int DownMax;
-  int UpNum;
-  int DownNum;
-
-  void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-
+  int MagnificationFactors[2];
 };
 
 #endif

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMedianFilter.h
+  Module:    vtkImageIslandRemoval2d.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,42 +37,68 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMedianFilter - Median Filter
+// .NAME vtkImageIslandRemoval2d - Removes small clusters in masks.
 // .SECTION Description
-// vtkImageMedianFilter a Median filter that replaces each pixel with the 
-// median value from a square neighborhood around that pixel.
+// vtkImageIslandRemoval2d computes the area of separate islands in 
+// a mask image.  It removes any island that has less than AreaThreshold
+// pixels.  Output has the same DataType as input.
 
 
-#ifndef __vtkImageMedianFilter_h
-#define __vtkImageMedianFilter_h
+#ifndef __vtkImageIslandRemoval2d_h
+#define __vtkImageIslandRemoval2d_h
 
 
-#include "vtkImageSpatial3d.h"
+#include "vtkImageFilter.h"
 
-class vtkImageMedianFilter : public vtkImageSpatial3d
+
+
+typedef struct{
+  void *inPtr;
+  void *outPtr;
+  int idx0;
+  int idx1;
+  } vtkImage2dIslandPixel;
+
+
+
+class vtkImageIslandRemoval2d : public vtkImageFilter
 {
 public:
-  vtkImageMedianFilter();
-  ~vtkImageMedianFilter();
-  char *GetClassName() {return "vtkImageMedianFilter";};
+  vtkImageIslandRemoval2d();
+  char *GetClassName() {return "vtkImageIslandRemoval2d";};
+  void PrintSelf(ostream& os, vtkIndent indent);
+  
+  void InterceptCacheUpdate(vtkImageRegion *region);
+  
+  // Description:
+  // Set/Get the cutoff area for removal
+  vtkSetMacro(AreaThreshold, int);
+  vtkGetMacro(AreaThreshold, int);
 
-  void SetKernelSize(int size0, int size1, int size2);
-  void ClearMedian();
-  void AccumulateMedian(double val);
-  double GetMedian();
+  // Description:
+  // Set/Get whether to use 4 or 8 neighbors
+  vtkSetMacro(SquareNeighborhood, int);
+  vtkGetMacro(SquareNeighborhood, int);
+  vtkBooleanMacro(SquareNeighborhood, int);
+
+  // Description:
+  // Set/Get the value to remove.
+  vtkSetMacro(IslandValue, float);
+  vtkGetMacro(IslandValue, float);
+
+  // Description:
+  // Set/Get the value to put in the place of removed pixels.
+  vtkSetMacro(ReplaceValue, float);
+  vtkGetMacro(ReplaceValue, float);
   
 protected:
-  // stuff for sorting the pixels
-  int NumNeighborhood;
-  double *Sort;
-  double *Median;
-  int UpMax;
-  int DownMax;
-  int UpNum;
-  int DownNum;
-
-  void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-
+  int AreaThreshold;
+  int SquareNeighborhood;
+  float IslandValue;
+  float ReplaceValue;
+  
+  
+  void Execute2d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);  
 };
 
 #endif

@@ -67,7 +67,7 @@ vtkImageMedianFilter::~vtkImageMedianFilter()
 void vtkImageMedianFilter::SetKernelSize(int size0, int size1, int size2)
 {
   // Call the superclass to set the kernel size
-  this->vtkImage3dSpatialFilter::SetKernelSize(size0, size1, size2);
+  this->vtkImageSpatial3d::SetKernelSize(size0, size1, size2);
   
   // free old sort memeory
   if (this->Sort)

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMedianFilter.h
+  Module:    vtkImageFft1d.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,45 +37,58 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMedianFilter - Median Filter
+// .NAME vtkImageFft1d - 1d Fast Fourier Transform.
 // .SECTION Description
-// vtkImageMedianFilter a Median filter that replaces each pixel with the 
-// median value from a square neighborhood around that pixel.
+// vtkImageFft1d implements a 1d fast Fourier transform.  The input
+// can have real or imaginary data in any components and data types, but
+// the output is always float with real values in component0, and
+// imaginary values in component1.
 
 
-#ifndef __vtkImageMedianFilter_h
-#define __vtkImageMedianFilter_h
+#ifndef __vtkImageFft1d_h
+#define __vtkImageFft1d_h
 
 
-#include "vtkImageSpatial3d.h"
+#include "vtkImageFourierFilter.h"
 
-class vtkImageMedianFilter : public vtkImageSpatial3d
+class vtkImageFft1d : public vtkImageFourierFilter
 {
 public:
-  vtkImageMedianFilter();
-  ~vtkImageMedianFilter();
-  char *GetClassName() {return "vtkImageMedianFilter";};
+  vtkImageFft1d();
+  char *GetClassName() {return "vtkImageFft1d";};
+  void PrintSelf(ostream& os, vtkIndent indent);
+  
+  void SetAxes1d(int axis);
+  void InterceptCacheUpdate(vtkImageRegion *region);
 
-  void SetKernelSize(int size0, int size1, int size2);
-  void ClearMedian();
-  void AccumulateMedian(double val);
-  double GetMedian();
+  // Description:
+  // Tell the filter which input component is real and which is imaginary.
+  // If imaginary is out of the image bounds, it is ignored.
+  vtkSetMacro(InputRealComponent, int);
+  vtkGetMacro(InputRealComponent, int);
+  vtkSetMacro(InputImaginaryComponent, int);
+  vtkGetMacro(InputImaginaryComponent, int);
   
 protected:
-  // stuff for sorting the pixels
-  int NumNeighborhood;
-  double *Sort;
-  double *Median;
-  int UpMax;
-  int DownMax;
-  int UpNum;
-  int DownNum;
-
-  void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-
+  // which input components are real and which are imaginary.
+  int InputRealComponent;
+  int InputImaginaryComponent;
+    
+  void ComputeOutputImageInformation(vtkImageRegion *inRegion,
+				     vtkImageRegion *outRegion);
+  void ComputeRequiredInputRegionBounds(vtkImageRegion *outRegion, 
+					vtkImageRegion *inRegion);
+  void Execute2d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };
 
 #endif
+
+
+
+
+
+
+
 
 
 

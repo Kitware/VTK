@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMedianFilter.h
+  Module:    vtkImageShrink3d.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,42 +37,52 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMedianFilter - Median Filter
+// .NAME vtkImageShrink3d - Subsamples an image.
 // .SECTION Description
-// vtkImageMedianFilter a Median filter that replaces each pixel with the 
-// median value from a square neighborhood around that pixel.
+// vtkImageShrink3d shrinks an image by sub sampling on a 
+// uniform grid. (integer multiples)
 
 
-#ifndef __vtkImageMedianFilter_h
-#define __vtkImageMedianFilter_h
+#ifndef __vtkImageShrink3d_h
+#define __vtkImageShrink3d_h
 
 
-#include "vtkImageSpatial3d.h"
+#include "vtkImageFilter.h"
 
-class vtkImageMedianFilter : public vtkImageSpatial3d
+class vtkImageShrink3d : public vtkImageFilter
 {
 public:
-  vtkImageMedianFilter();
-  ~vtkImageMedianFilter();
-  char *GetClassName() {return "vtkImageMedianFilter";};
+  vtkImageShrink3d();
+  char *GetClassName() {return "vtkImageShrink3d";};
+  void PrintSelf(ostream& os, vtkIndent indent);
+  
+  // Description:
+  // Set/Get the shrink factors
+  vtkSetVector3Macro(ShrinkFactors,int);
+  vtkGetVector3Macro(ShrinkFactors,int);
 
-  void SetKernelSize(int size0, int size1, int size2);
-  void ClearMedian();
-  void AccumulateMedian(double val);
-  double GetMedian();
+  // Description:
+  // Set/Get the pixel to use as origin.
+  vtkSetVector3Macro(Shift,int);
+  vtkGetVector3Macro(Shift,int);
+
+  // Description:
+  // Choose Averaging or sub sampling
+  vtkSetMacro(Averaging,int);
+  vtkGetMacro(Averaging,int);
+  vtkBooleanMacro(Averaging,int);
+  
   
 protected:
-  // stuff for sorting the pixels
-  int NumNeighborhood;
-  double *Sort;
-  double *Median;
-  int UpMax;
-  int DownMax;
-  int UpNum;
-  int DownNum;
+  int ShrinkFactors[3];
+  int Shift[3];
+  int Averaging;
 
-  void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-
+  void ComputeOutputImageInformation(vtkImageRegion *inRegion,
+				     vtkImageRegion *outRegion);
+  void ComputeRequiredInputRegionBounds(vtkImageRegion *outRegion,
+					vtkImageRegion *inRegion);
+  void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);  
 };
 
 #endif

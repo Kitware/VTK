@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMedianFilter.h
+  Module:    vtkImageNonMaximalSuppression3d.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,41 +37,33 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMedianFilter - Median Filter
+// .NAME vtkImageNonMaximalSuppression3d - Thins Gradient images..
 // .SECTION Description
-// vtkImageMedianFilter a Median filter that replaces each pixel with the 
-// median value from a square neighborhood around that pixel.
+// vtkImageNonMaximalSuppression3d Sets to zero any gradient
+// that is not a peak.  If a pixel has a neighbor along the gradient
+// that has larger magnitude, the smaller pixel is set to zero.
+// The vector of the image is just passed along.  
+// The input and output must be float.
 
 
-#ifndef __vtkImageMedianFilter_h
-#define __vtkImageMedianFilter_h
+#ifndef __vtkImageNonMaximalSuppression3d_h
+#define __vtkImageNonMaximalSuppression3d_h
 
 
-#include "vtkImageSpatial3d.h"
+#include "vtkImageSpatialFilter.h"
 
-class vtkImageMedianFilter : public vtkImageSpatial3d
+class vtkImageNonMaximalSuppression3d : public vtkImageSpatialFilter
 {
 public:
-  vtkImageMedianFilter();
-  ~vtkImageMedianFilter();
-  char *GetClassName() {return "vtkImageMedianFilter";};
-
-  void SetKernelSize(int size0, int size1, int size2);
-  void ClearMedian();
-  void AccumulateMedian(double val);
-  double GetMedian();
+  vtkImageNonMaximalSuppression3d();
+  char *GetClassName() {return "vtkImageNonMaximalSuppression3d";};
   
-protected:
-  // stuff for sorting the pixels
-  int NumNeighborhood;
-  double *Sort;
-  double *Median;
-  int UpMax;
-  int DownMax;
-  int UpNum;
-  int DownNum;
+  void SetAxes3d(int axis0, int axis1, int axis2);
+  void InterceptCacheUpdate(vtkImageRegion *region);
 
-  void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+protected:
+  void ExecuteCenter4d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  void Execute4d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 
 };
 

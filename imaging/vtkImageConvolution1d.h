@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMedianFilter.h
+  Module:    vtkImageConvolution1d.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,45 +37,72 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMedianFilter - Median Filter
+// .NAME vtkImageConvolution1d - Performs a 1 dimensional convilution.
 // .SECTION Description
-// vtkImageMedianFilter a Median filter that replaces each pixel with the 
-// median value from a square neighborhood around that pixel.
+// vtkImageConvolution1d implements a 1d convolution along any axis.  
+// It is used in higher level filter which decompose their convolution 
+// (i.e. 2d Gaussian smoothing)
 
 
-#ifndef __vtkImageMedianFilter_h
-#define __vtkImageMedianFilter_h
+#ifndef __vtkImageConvolution1d_h
+#define __vtkImageConvolution1d_h
 
 
-#include "vtkImageSpatial3d.h"
+#include "vtkImageSpatial1d.h"
+#include "vtkImageRegion.h"
 
-class vtkImageMedianFilter : public vtkImageSpatial3d
+class vtkImageConvolution1d : public vtkImageSpatial1d
 {
 public:
-  vtkImageMedianFilter();
-  ~vtkImageMedianFilter();
-  char *GetClassName() {return "vtkImageMedianFilter";};
+  vtkImageConvolution1d();
+  ~vtkImageConvolution1d();
+  char *GetClassName() {return "vtkImageConvolution1d";};
+  void SetKernel(float *kernel, int size);
+  // Description:
+  // Set/Get whether to rescale boundary-truncated kernel
+  vtkSetMacro(BoundaryRescale,int);
+  vtkGetMacro(BoundaryRescale,int);
+  vtkBooleanMacro(BoundaryRescale,int);
 
-  void SetKernelSize(int size0, int size1, int size2);
-  void ClearMedian();
-  void AccumulateMedian(double val);
-  double GetMedian();
-  
 protected:
-  // stuff for sorting the pixels
-  int NumNeighborhood;
-  double *Sort;
-  double *Median;
-  int UpMax;
-  int DownMax;
-  int UpNum;
-  int DownNum;
+  float *Kernel;
+  float *BoundaryFactors;     // Used to scale boundary-truncated kernel
+  int   BoundaryRescale;  // Kernel is rescaled at boundaries
 
-  void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-
+  void Execute1d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  
+  // for templated function.
+  friend void vtkImageConvolution1dExecute1d(
+			   vtkImageConvolution1d *self,
+			   vtkImageRegion *inRegion, float *inPtr,
+			   vtkImageRegion *outRegion, float *outPtr);
+  friend void vtkImageConvolution1dExecute1d(
+			   vtkImageConvolution1d *self,
+			   vtkImageRegion *inRegion, int *inPtr,
+			   vtkImageRegion *outRegion, int *outPtr);
+  friend void vtkImageConvolution1dExecute1d(
+			   vtkImageConvolution1d *self,
+			   vtkImageRegion *inRegion, short *inPtr,
+			   vtkImageRegion *outRegion, short *outPtr);
+  friend void vtkImageConvolution1dExecute1d(
+			   vtkImageConvolution1d *self,
+			   vtkImageRegion *inRegion, unsigned short *inPtr,
+			   vtkImageRegion *outRegion, unsigned short *outPtr);
+  friend void vtkImageConvolution1dExecute1d(
+			   vtkImageConvolution1d *self,
+			   vtkImageRegion *inRegion, unsigned char *inPtr,
+			   vtkImageRegion *outRegion, unsigned char *outPtr);
+  
 };
 
 #endif
+
+
+
+
+
+
+
 
 
 

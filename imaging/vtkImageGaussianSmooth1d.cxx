@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMedianFilter.h
+  Module:    vtkImageGaussianSmooth1d.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,45 +37,66 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMedianFilter - Median Filter
-// .SECTION Description
-// vtkImageMedianFilter a Median filter that replaces each pixel with the 
-// median value from a square neighborhood around that pixel.
+#include<math.h>
+#include "vtkImageGaussianSmooth1d.h"
 
 
-#ifndef __vtkImageMedianFilter_h
-#define __vtkImageMedianFilter_h
-
-
-#include "vtkImageSpatial3d.h"
-
-class vtkImageMedianFilter : public vtkImageSpatial3d
+//----------------------------------------------------------------------------
+// Description:
+// This method sets up the Gaussian kernel.
+void vtkImageGaussianSmooth1d::SetGaussianStdRadius(float Std,int Radius)
 {
-public:
-  vtkImageMedianFilter();
-  ~vtkImageMedianFilter();
-  char *GetClassName() {return "vtkImageMedianFilter";};
+  int idx;
+  float *kernel;
+  float sum;
 
-  void SetKernelSize(int size0, int size1, int size2);
-  void ClearMedian();
-  void AccumulateMedian(double val);
-  double GetMedian();
+  vtkDebugMacro(<< "SetGaussianStdRadius: Std = " << Std 
+                << ", Radius = " << Radius);
   
-protected:
-  // stuff for sorting the pixels
-  int NumNeighborhood;
-  double *Sort;
-  double *Median;
-  int UpMax;
-  int DownMax;
-  int UpNum;
-  int DownNum;
+  // save the values
+  this->Std = Std;
+  this->Radius = Radius;
+  this->Modified();
 
-  void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  // generate the kernel
+  kernel = new float[2 * Radius + 1];
+  kernel[Radius] = 1.0;
+  sum = 0.5;
+  for (idx = 1; idx <= Radius; ++idx)
+    sum += kernel[Radius + idx] = 
+      exp(- (float)(idx * idx) / (2.0 * Std * Std));
 
-};
+  // normalize
+  sum = 0.5 / sum;
+  kernel[Radius] *= sum;
+  for (idx = 1; idx <= Radius; ++idx)
+    kernel[Radius + idx] = kernel[Radius - idx] = 
+      kernel[Radius + idx] * sum;
 
-#endif
+  this->BoundaryRescaleOn();
+  
+  // set the kernel
+  this->SetKernel(kernel, Radius * 2 + 1);
+
+  // free kernel
+  delete [] kernel;
+}
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

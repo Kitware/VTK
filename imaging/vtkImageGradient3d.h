@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMedianFilter.h
+  Module:    vtkImageGradient3d.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,41 +37,36 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMedianFilter - Median Filter
+// .NAME vtkImageGradient3d - magnitude and phase of gradient.
 // .SECTION Description
-// vtkImageMedianFilter a Median filter that replaces each pixel with the 
-// median value from a square neighborhood around that pixel.
+// vtkImageGradient3d computes a gradient of 3d volume using central
+// differences.  The output is always float and has four components.
+// The magnitude is returned in component 0 and the direction returned
+// in components 1, 2 and 3 as a normalized vector.
 
 
-#ifndef __vtkImageMedianFilter_h
-#define __vtkImageMedianFilter_h
+#ifndef __vtkImageGradient3d_h
+#define __vtkImageGradient3d_h
 
 
-#include "vtkImageSpatial3d.h"
+#include "vtkImageSpatialFilter.h"
 
-class vtkImageMedianFilter : public vtkImageSpatial3d
+class vtkImageGradient3d : public vtkImageSpatialFilter
 {
 public:
-  vtkImageMedianFilter();
-  ~vtkImageMedianFilter();
-  char *GetClassName() {return "vtkImageMedianFilter";};
-
-  void SetKernelSize(int size0, int size1, int size2);
-  void ClearMedian();
-  void AccumulateMedian(double val);
-  double GetMedian();
+  vtkImageGradient3d();
+  char *GetClassName() {return "vtkImageGradient3d";};
+  void PrintSelf(ostream& os, vtkIndent indent);
+  
+  void SetAxes3d(int axis0, int axis1, int axis2);
+  void InterceptCacheUpdate(vtkImageRegion *region);
+  
   
 protected:
-  // stuff for sorting the pixels
-  int NumNeighborhood;
-  double *Sort;
-  double *Median;
-  int UpMax;
-  int DownMax;
-  int UpNum;
-  int DownNum;
 
-  void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  void ComputeOutputImageInformation(vtkImageRegion *inRegion,
+				     vtkImageRegion *outRegion);
+  void Execute4d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 
 };
 

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMedianFilter.h
+  Module:    vtkImageDilateValue3d.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,42 +37,30 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMedianFilter - Median Filter
+// .NAME vtkImageDilateValue3d - smooths on a 3D plane.
 // .SECTION Description
-// vtkImageMedianFilter a Median filter that replaces each pixel with the 
-// median value from a square neighborhood around that pixel.
+// vtkImageDilateValue3d implements a 3d Gaussian smoothing on an axis
+// aligned plane.  It really consists of three 1d Gaussian filters.
 
 
-#ifndef __vtkImageMedianFilter_h
-#define __vtkImageMedianFilter_h
+#ifndef __vtkImageDilateValue3d_h
+#define __vtkImageDilateValue3d_h
 
 
-#include "vtkImageSpatial3d.h"
+#include "vtkImageDecomposed3d.h"
+#include "vtkImageDilateValue1d.h"
 
-class vtkImageMedianFilter : public vtkImageSpatial3d
+class vtkImageDilateValue3d : public vtkImageDecomposed3d
 {
 public:
-  vtkImageMedianFilter();
-  ~vtkImageMedianFilter();
-  char *GetClassName() {return "vtkImageMedianFilter";};
+  vtkImageDilateValue3d();
+  char *GetClassName() {return "vtkImageDilateValue3d";};
 
-  void SetKernelSize(int size0, int size1, int size2);
-  void ClearMedian();
-  void AccumulateMedian(double val);
-  double GetMedian();
-  
+  void SetKernelSize(int width, int height, int depth);
+  void SetKernelSize(int size) {this->SetKernelSize(size, size, size);};
+  void SetValue(float value);
+
 protected:
-  // stuff for sorting the pixels
-  int NumNeighborhood;
-  double *Sort;
-  double *Median;
-  int UpMax;
-  int DownMax;
-  int UpNum;
-  int DownNum;
-
-  void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-
 };
 
 #endif

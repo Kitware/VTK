@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMedianFilter.h
+  Module:    vtkImageMagnify1d.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,42 +37,45 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMedianFilter - Median Filter
+// .NAME vtkImageMagnify1d - Magnifies an image.
 // .SECTION Description
-// vtkImageMedianFilter a Median filter that replaces each pixel with the 
-// median value from a square neighborhood around that pixel.
+// vtkImageMagnify1d maps each pixel of the input onto a n (integer)
+// region of the output.  Location (0,0) remains in the same place.
+// The filter can use pixel replication (nearest neighbor) or interpolation.
 
 
-#ifndef __vtkImageMedianFilter_h
-#define __vtkImageMedianFilter_h
+#ifndef __vtkImageMagnify1d_h
+#define __vtkImageMagnify1d_h
 
 
-#include "vtkImageSpatial3d.h"
+#include "vtkImageFilter.h"
 
-class vtkImageMedianFilter : public vtkImageSpatial3d
+class vtkImageMagnify1d : public vtkImageFilter
 {
 public:
-  vtkImageMedianFilter();
-  ~vtkImageMedianFilter();
-  char *GetClassName() {return "vtkImageMedianFilter";};
+  vtkImageMagnify1d();
+  char *GetClassName() {return "vtkImageMagnify1d";};
 
-  void SetKernelSize(int size0, int size1, int size2);
-  void ClearMedian();
-  void AccumulateMedian(double val);
-  double GetMedian();
+  // Description:
+  // Set/Get the convolution axis.
+  vtkSetMacro(MagnificationFactor,int);
+  vtkGetMacro(MagnificationFactor,int);
+
+  // Description:
+  // Pixel replication or Interpolation.
+  vtkSetMacro(Interpolate,int);
+  vtkGetMacro(Interpolate,int);
+  vtkBooleanMacro(Interpolate,int);
   
 protected:
-  // stuff for sorting the pixels
-  int NumNeighborhood;
-  double *Sort;
-  double *Median;
-  int UpMax;
-  int DownMax;
-  int UpNum;
-  int DownNum;
+  int MagnificationFactor;
+  int Interpolate;
 
-  void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-
+  void ComputeOutputImageInformation(vtkImageRegion *inRegion,
+				     vtkImageRegion *outRegion);
+  void ComputeRequiredInputRegionBounds(vtkImageRegion *outRegion,
+					vtkImageRegion *inRegion);
+  void Execute2d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);  
 };
 
 #endif

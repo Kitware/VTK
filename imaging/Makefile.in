@@ -12,44 +12,44 @@ ME = Imaging
 
 # put all vtkFoo.cxx files here as .o files
 SRC_OBJ = \
-vtkImage1dConvolutionFilter.o \
-vtkImage1dDilateFilter.o \
-vtkImage1dDilateValueFilter.o \
-vtkImage1dDistanceFilter.o \
-vtkImage1dFftFilter.o \
-vtkImage1dGaussianSmoothFilter.o \
-vtkImage1dMagnifyFilter.o \
-vtkImage1dRfftFilter.o \
-vtkImage1dSpatialFilter.o \
-vtkImage2dAnisotropicDiffusionFilter.o \
-vtkImage2dDecomposedFilter.o \
-vtkImage2dDilateValueFilter.o \
-vtkImage2dDistanceFilter.o \
-vtkImage2dFftFilter.o \
-vtkImage2dFourierBandPassFilter.o \
-vtkImage2dFourierWaveletFilter.o \
-vtkImage2dGaussianSmoothFilter.o \
-vtkImage2dGradientDerivativeFilter.o \
-vtkImage2dGradientFilter.o \
-vtkImage2dHarFilter.o \
-vtkImage2dIslandRemovalFilter.o \
-vtkImage2dMagnifyFilter.o \
-vtkImage2dNonMaximalSuppressionFilter.o \
-vtkImage2dRfftFilter.o \
-vtkImage3dDecomposedFilter.o \
-vtkImage3dDilateErodeFilter.o \
-vtkImage3dDilateValueFilter.o \
-vtkImage3dDistanceFilter.o \
-vtkImage3dGaussianSmoothFilter.o \
-vtkImage3dGradientFilter.o \
-vtkImage3dMagnifyFilter.o \
-vtkImage3dNonMaximalSuppressionFilter.o \
-vtkImage3dOpenCloseFilter.o \
-vtkImage3dShrinkFilter.o \
-vtkImage3dSpatialFilter.o \
-vtkImage4dMatFilter.o \
+vtkImageConvolution1d.o \
+vtkImageDilate1d.o \
+vtkImageDilateValue1d.o \
+vtkImageDistance1d.o \
+vtkImageFft1d.o \
+vtkImageGaussianSmooth1d.o \
+vtkImageMagnify1d.o \
+vtkImageRfft1d.o \
+vtkImageSpatial1d.o \
+vtkImageAnisotropicDiffusion2d.o \
+vtkImageDecomposed2d.o \
+vtkImageDilateValue2d.o \
+vtkImageDistance2d.o \
+vtkImageFft2d.o \
+vtkImageFourierBandPass2d.o \
+vtkImageFourierWavelet2d.o \
+vtkImageGaussianSmooth2d.o \
+vtkImageGradientDerivative2d.o \
+vtkImageGradient2d.o \
+vtkImageHar2d.o \
+vtkImageIslandRemoval2d.o \
+vtkImageMagnify2d.o \
+vtkImageNonMaximalSuppression2d.o \
+vtkImageRfft2d.o \
+vtkImageDecomposed3d.o \
+vtkImageDilateErode3d.o \
+vtkImageDilateValue3d.o \
+vtkImageDistance3d.o \
+vtkImageGaussianSmooth3d.o \
+vtkImageGradient3d.o \
+vtkImageMagnify3d.o \
+vtkImageNonMaximalSuppression3d.o \
+vtkImageOpenClose3d.o \
+vtkImageShrink3d.o \
+vtkImageSpatial3d.o \
+vtkImageMat4d.o \
 vtkImage4dShortReader.o \
-vtkImage4dTranslateFilter.o \
+vtkImageTranslate4d.o \
 vtkImageDifferenceFilter.o \
 vtkImageDyadicFilter.o \
 vtkImageFilter.o \
@@ -69,44 +69,44 @@ vtkImageXViewer.o
 
 # put all vtk classes that are to be wrapped here as tcl/vtkFooTcl.o \ files
 TCL_OBJ = \
-tcl/vtkImage1dConvolutionFilterTcl.o \
-tcl/vtkImage1dDilateFilterTcl.o \
-tcl/vtkImage1dDilateValueFilterTcl.o \
-tcl/vtkImage1dDistanceFilterTcl.o \
-tcl/vtkImage1dFftFilterTcl.o \
-tcl/vtkImage1dGaussianSmoothFilterTcl.o \
-tcl/vtkImage1dMagnifyFilterTcl.o \
-tcl/vtkImage1dRfftFilterTcl.o \
-tcl/vtkImage1dSpatialFilterTcl.o \
-tcl/vtkImage2dAnisotropicDiffusionFilterTcl.o \
-tcl/vtkImage2dDecomposedFilterTcl.o \
-tcl/vtkImage2dDilateValueFilterTcl.o \
-tcl/vtkImage2dDistanceFilterTcl.o \
-tcl/vtkImage2dFftFilterTcl.o \
-tcl/vtkImage2dFourierBandPassFilterTcl.o \
-tcl/vtkImage2dFourierWaveletFilterTcl.o \
-tcl/vtkImage2dGaussianSmoothFilterTcl.o \
-tcl/vtkImage2dGradientDerivativeFilterTcl.o \
-tcl/vtkImage2dGradientFilterTcl.o \
-tcl/vtkImage2dHarFilterTcl.o \
-tcl/vtkImage2dIslandRemovalFilterTcl.o \
-tcl/vtkImage2dMagnifyFilterTcl.o \
-tcl/vtkImage2dNonMaximalSuppressionFilterTcl.o \
-tcl/vtkImage2dRfftFilterTcl.o \
-tcl/vtkImage3dDecomposedFilterTcl.o \
-tcl/vtkImage3dDilateErodeFilterTcl.o \
-tcl/vtkImage3dDilateValueFilterTcl.o \
-tcl/vtkImage3dDistanceFilterTcl.o \
-tcl/vtkImage3dGaussianSmoothFilterTcl.o \
-tcl/vtkImage3dGradientFilterTcl.o \
-tcl/vtkImage3dMagnifyFilterTcl.o \
-tcl/vtkImage3dNonMaximalSuppressionFilterTcl.o \
-tcl/vtkImage3dOpenCloseFilterTcl.o \
-tcl/vtkImage3dShrinkFilterTcl.o \
-tcl/vtkImage3dSpatialFilterTcl.o \
-tcl/vtkImage4dMatFilterTcl.o \
+tcl/vtkImageConvolution1dTcl.o \
+tcl/vtkImageDilate1dTcl.o \
+tcl/vtkImageDilateValue1dTcl.o \
+tcl/vtkImageDistance1dTcl.o \
+tcl/vtkImageFft1dTcl.o \
+tcl/vtkImageGaussianSmooth1dTcl.o \
+tcl/vtkImageMagnify1dTcl.o \
+tcl/vtkImageRfft1dTcl.o \
+tcl/vtkImageSpatial1dTcl.o \
+tcl/vtkImageAnisotropicDiffusion2dTcl.o \
+tcl/vtkImageDecomposed2dTcl.o \
+tcl/vtkImageDilateValue2dTcl.o \
+tcl/vtkImageDistance2dTcl.o \
+tcl/vtkImageFft2dTcl.o \
+tcl/vtkImageFourierBandPass2dTcl.o \
+tcl/vtkImageFourierWavelet2dTcl.o \
+tcl/vtkImageGaussianSmooth2dTcl.o \
+tcl/vtkImageGradientDerivative2dTcl.o \
+tcl/vtkImageGradient2dTcl.o \
+tcl/vtkImageHar2dTcl.o \
+tcl/vtkImageIslandRemoval2dTcl.o \
+tcl/vtkImageMagnify2dTcl.o \
+tcl/vtkImageNonMaximalSuppression2dTcl.o \
+tcl/vtkImageRfft2dTcl.o \
+tcl/vtkImageDecomposed3dTcl.o \
+tcl/vtkImageDilateErode3dTcl.o \
+tcl/vtkImageDilateValue3dTcl.o \
+tcl/vtkImageDistance3dTcl.o \
+tcl/vtkImageGaussianSmooth3dTcl.o \
+tcl/vtkImageGradient3dTcl.o \
+tcl/vtkImageMagnify3dTcl.o \
+tcl/vtkImageNonMaximalSuppression3dTcl.o \
+tcl/vtkImageOpenClose3dTcl.o \
+tcl/vtkImageShrink3dTcl.o \
+tcl/vtkImageSpatial3dTcl.o \
+tcl/vtkImageMat4dTcl.o \
 tcl/vtkImage4dShortReaderTcl.o \
-tcl/vtkImage4dTranslateFilterTcl.o \
+tcl/vtkImageTranslate4dTcl.o \
 tcl/vtkImageDifferenceFilterTcl.o \
 tcl/vtkImageDyadicFilterTcl.o \
 tcl/vtkImageFilterTcl.o \
@@ -126,44 +126,44 @@ tcl/vtkImageXViewerTcl.o
 
 # put all vtk classes that are concrete here as vtkFooTcl.h files
 TCL_NEWS = \
-vtkImage1dConvolutionFilter.h \
-vtkImage1dDilateFilter.h \
-vtkImage1dDilateValueFilter.h \
-vtkImage1dDistanceFilter.h \
-vtkImage1dFftFilter.h \
-vtkImage1dGaussianSmoothFilter.h \
-vtkImage1dMagnifyFilter.h \
-vtkImage1dRfftFilter.h \
-vtkImage1dSpatialFilter.h \
-vtkImage2dAnisotropicDiffusionFilter.h \
-vtkImage2dDecomposedFilter.h \
-vtkImage2dDilateValueFilter.h \
-vtkImage2dDistanceFilter.h \
-vtkImage2dFftFilter.h \
-vtkImage2dFourierBandPassFilter.h \
-vtkImage2dFourierWaveletFilter.h \
-vtkImage2dGaussianSmoothFilter.h \
-vtkImage2dGradientDerivativeFilter.h \
-vtkImage2dGradientFilter.h \
-vtkImage2dHarFilter.h \
-vtkImage2dIslandRemovalFilter.h \
-vtkImage2dMagnifyFilter.h \
-vtkImage2dNonMaximalSuppressionFilter.h \
-vtkImage2dRfftFilter.h \
-vtkImage3dDecomposedFilter.h \
-vtkImage3dDilateErodeFilter.h \
-vtkImage3dDilateValueFilter.h \
-vtkImage3dDistanceFilter.h \
-vtkImage3dGaussianSmoothFilter.h \
-vtkImage3dGradientFilter.h \
-vtkImage3dMagnifyFilter.h \
-vtkImage3dNonMaximalSuppressionFilter.h \
-vtkImage3dOpenCloseFilter.h \
-vtkImage3dShrinkFilter.h \
-vtkImage3dSpatialFilter.h \
-vtkImage4dMatFilter.h \
+vtkImageConvolution1d.h \
+vtkImageDilate1d.h \
+vtkImageDilateValue1d.h \
+vtkImageDistance1d.h \
+vtkImageFft1d.h \
+vtkImageGaussianSmooth1d.h \
+vtkImageMagnify1d.h \
+vtkImageRfft1d.h \
+vtkImageSpatial1d.h \
+vtkImageAnisotropicDiffusion2d.h \
+vtkImageDecomposed2d.h \
+vtkImageDilateValue2d.h \
+vtkImageDistance2d.h \
+vtkImageFft2d.h \
+vtkImageFourierBandPass2d.h \
+vtkImageFourierWavelet2d.h \
+vtkImageGaussianSmooth2d.h \
+vtkImageGradientDerivative2d.h \
+vtkImageGradient2d.h \
+vtkImageHar2d.h \
+vtkImageIslandRemoval2d.h \
+vtkImageMagnify2d.h \
+vtkImageNonMaximalSuppression2d.h \
+vtkImageRfft2d.h \
+vtkImageDecomposed3d.h \
+vtkImageDilateErode3d.h \
+vtkImageDilateValue3d.h \
+vtkImageDistance3d.h \
+vtkImageGaussianSmooth3d.h \
+vtkImageGradient3d.h \
+vtkImageMagnify3d.h \
+vtkImageNonMaximalSuppression3d.h \
+vtkImageOpenClose3d.h \
+vtkImageShrink3d.h \
+vtkImageSpatial3d.h \
+vtkImageMat4d.h \
 vtkImage4dShortReader.h \
-vtkImage4dTranslateFilter.h \
+vtkImageTranslate4d.h \
 vtkImageDifferenceFilter.h \
 vtkImageDyadicFilter.h \
 vtkImageFilter.h \
@@ -238,119 +238,119 @@ CLEAN_TCL         = @CLEAN_TCL@
 #
 # concrete classes will pass the last argument of 1 abstract will be 0.
 #
-tcl/vtkImage1dConvolutionFilterTcl.cxx: vtkImage1dConvolutionFilter.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImage1dConvolutionFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage1dConvolutionFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage1dConvolutionFilterTcl.cxx
+tcl/vtkImageConvolution1dTcl.cxx: vtkImageConvolution1d.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageConvolution1dTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageConvolution1d.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageConvolution1dTcl.cxx
 
-tcl/vtkImage1dDilateFilterTcl.cxx: vtkImage1dDilateFilter.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImage1dDilateFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage1dDilateFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage1dDilateFilterTcl.cxx
+tcl/vtkImageDilate1dTcl.cxx: vtkImageDilate1d.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageDilate1dTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageDilate1d.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageDilate1dTcl.cxx
 
-tcl/vtkImage1dDilateValueFilterTcl.cxx: vtkImage1dDilateValueFilter.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImage1dDilateValueFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage1dDilateValueFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage1dDilateValueFilterTcl.cxx
+tcl/vtkImageDilateValue1dTcl.cxx: vtkImageDilateValue1d.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageDilateValue1dTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageDilateValue1d.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageDilateValue1dTcl.cxx
 
-tcl/vtkImage1dDistanceFilterTcl.cxx: vtkImage1dDistanceFilter.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImage1dDistanceFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage1dDistanceFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage1dDistanceFilterTcl.cxx
+tcl/vtkImageDistance1dTcl.cxx: vtkImageDistance1d.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageDistance1dTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageDistance1d.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageDistance1dTcl.cxx
 
-tcl/vtkImage1dFftFilterTcl.cxx: vtkImage1dFftFilter.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImage1dFftFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage1dFftFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage1dFftFilterTcl.cxx
+tcl/vtkImageFft1dTcl.cxx: vtkImageFft1d.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageFft1dTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageFft1d.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageFft1dTcl.cxx
 
-tcl/vtkImage1dGaussianSmoothFilterTcl.cxx: vtkImage1dGaussianSmoothFilter.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImage1dGaussianSmoothFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage1dGaussianSmoothFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage1dGaussianSmoothFilterTcl.cxx
+tcl/vtkImageGaussianSmooth1dTcl.cxx: vtkImageGaussianSmooth1d.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageGaussianSmooth1dTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageGaussianSmooth1d.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageGaussianSmooth1dTcl.cxx
 
-tcl/vtkImage1dMagnifyFilterTcl.cxx: vtkImage1dMagnifyFilter.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImage1dMagnifyFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage1dMagnifyFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage1dMagnifyFilterTcl.cxx
+tcl/vtkImageMagnify1dTcl.cxx: vtkImageMagnify1d.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageMagnify1dTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageMagnify1d.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageMagnify1dTcl.cxx
 
-tcl/vtkImage1dRfftFilterTcl.cxx: vtkImage1dRfftFilter.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImage1dRfftFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage1dRfftFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage1dRfftFilterTcl.cxx
+tcl/vtkImageRfft1dTcl.cxx: vtkImageRfft1d.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageRfft1dTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageRfft1d.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageRfft1dTcl.cxx
 
-tcl/vtkImage1dSpatialFilterTcl.cxx: vtkImage1dSpatialFilter.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImage1dSpatialFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage1dSpatialFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage1dSpatialFilterTcl.cxx
+tcl/vtkImageSpatial1dTcl.cxx: vtkImageSpatial1d.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageSpatial1dTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageSpatial1d.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageSpatial1dTcl.cxx
 
-tcl/vtkImage2dAnisotropicDiffusionFilterTcl.cxx: vtkImage2dAnisotropicDiffusionFilter.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImage2dAnisotropicDiffusionFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage2dAnisotropicDiffusionFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage2dAnisotropicDiffusionFilterTcl.cxx
+tcl/vtkImageAnisotropicDiffusion2dTcl.cxx: vtkImageAnisotropicDiffusion2d.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageAnisotropicDiffusion2dTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageAnisotropicDiffusion2d.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageAnisotropicDiffusion2dTcl.cxx
 
-tcl/vtkImage2dDecomposedFilterTcl.cxx: vtkImage2dDecomposedFilter.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImage2dDecomposedFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage2dDecomposedFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage2dDecomposedFilterTcl.cxx
+tcl/vtkImageDecomposed2dTcl.cxx: vtkImageDecomposed2d.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageDecomposed2dTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageDecomposed2d.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageDecomposed2dTcl.cxx
 
-tcl/vtkImage2dDilateValueFilterTcl.cxx: vtkImage2dDilateValueFilter.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImage2dDilateValueFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage2dDilateValueFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage2dDilateValueFilterTcl.cxx
+tcl/vtkImageDilateValue2dTcl.cxx: vtkImageDilateValue2d.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageDilateValue2dTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageDilateValue2d.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageDilateValue2dTcl.cxx
 
-tcl/vtkImage2dDistanceFilterTcl.cxx: vtkImage2dDistanceFilter.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImage2dDistanceFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage2dDistanceFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage2dDistanceFilterTcl.cxx
+tcl/vtkImageDistance2dTcl.cxx: vtkImageDistance2d.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageDistance2dTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageDistance2d.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageDistance2dTcl.cxx
 
-tcl/vtkImage2dFftFilterTcl.cxx: vtkImage2dFftFilter.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImage2dFftFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage2dFftFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage2dFftFilterTcl.cxx
+tcl/vtkImageFft2dTcl.cxx: vtkImageFft2d.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageFft2dTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageFft2d.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageFft2dTcl.cxx
 
-tcl/vtkImage2dFourierBandPassFilterTcl.cxx: vtkImage2dFourierBandPassFilter.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImage2dFourierBandPassFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage2dFourierBandPassFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage2dFourierBandPassFilterTcl.cxx
+tcl/vtkImageFourierBandPass2dTcl.cxx: vtkImageFourierBandPass2d.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageFourierBandPass2dTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageFourierBandPass2d.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageFourierBandPass2dTcl.cxx
 
-tcl/vtkImage2dFourierWaveletFilterTcl.cxx: vtkImage2dFourierWaveletFilter.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImage2dFourierWaveletFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage2dFourierWaveletFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage2dFourierWaveletFilterTcl.cxx
+tcl/vtkImageFourierWavelet2dTcl.cxx: vtkImageFourierWavelet2d.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageFourierWavelet2dTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageFourierWavelet2d.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageFourierWavelet2dTcl.cxx
 
-tcl/vtkImage2dGaussianSmoothFilterTcl.cxx: vtkImage2dGaussianSmoothFilter.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImage2dGaussianSmoothFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage2dGaussianSmoothFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage2dGaussianSmoothFilterTcl.cxx
+tcl/vtkImageGaussianSmooth2dTcl.cxx: vtkImageGaussianSmooth2d.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageGaussianSmooth2dTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageGaussianSmooth2d.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageGaussianSmooth2dTcl.cxx
 
-tcl/vtkImage2dGradientDerivativeFilterTcl.cxx: vtkImage2dGradientDerivativeFilter.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImage2dGradientDerivativeFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage2dGradientDerivativeFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage2dGradientDerivativeFilterTcl.cxx
+tcl/vtkImageGradientDerivative2dTcl.cxx: vtkImageGradientDerivative2d.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageGradientDerivative2dTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageGradientDerivative2d.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageGradientDerivative2dTcl.cxx
 
-tcl/vtkImage2dGradientFilterTcl.cxx: vtkImage2dGradientFilter.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImage2dGradientFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage2dGradientFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage2dGradientFilterTcl.cxx
+tcl/vtkImageGradient2dTcl.cxx: vtkImageGradient2d.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageGradient2dTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageGradient2d.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageGradient2dTcl.cxx
 
-tcl/vtkImage2dHarFilterTcl.cxx: vtkImage2dHarFilter.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImage2dHarFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage2dHarFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage2dHarFilterTcl.cxx
+tcl/vtkImageHar2dTcl.cxx: vtkImageHar2d.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageHar2dTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageHar2d.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageHar2dTcl.cxx
 
-tcl/vtkImage2dIslandRemovalFilterTcl.cxx: vtkImage2dIslandRemovalFilter.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImage2dIslandRemovalFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage2dIslandRemovalFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage2dIslandRemovalFilterTcl.cxx
+tcl/vtkImageIslandRemoval2dTcl.cxx: vtkImageIslandRemoval2d.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageIslandRemoval2dTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageIslandRemoval2d.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageIslandRemoval2dTcl.cxx
 
-tcl/vtkImage2dMagnifyFilterTcl.cxx: vtkImage2dMagnifyFilter.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImage2dMagnifyFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage2dMagnifyFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage2dMagnifyFilterTcl.cxx
+tcl/vtkImageMagnify2dTcl.cxx: vtkImageMagnify2d.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageMagnify2dTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageMagnify2d.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageMagnify2dTcl.cxx
 
-tcl/vtkImage2dNonMaximalSuppressionFilterTcl.cxx: vtkImage2dNonMaximalSuppressionFilter.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImage2dNonMaximalSuppressionFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage2dNonMaximalSuppressionFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage2dNonMaximalSuppressionFilterTcl.cxx
+tcl/vtkImageNonMaximalSuppression2dTcl.cxx: vtkImageNonMaximalSuppression2d.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageNonMaximalSuppression2dTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageNonMaximalSuppression2d.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageNonMaximalSuppression2dTcl.cxx
 
-tcl/vtkImage2dRfftFilterTcl.cxx: vtkImage2dRfftFilter.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImage2dRfftFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage2dRfftFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage2dRfftFilterTcl.cxx
+tcl/vtkImageRfft2dTcl.cxx: vtkImageRfft2d.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageRfft2dTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageRfft2d.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageRfft2dTcl.cxx
 
-tcl/vtkImage3dDecomposedFilterTcl.cxx: vtkImage3dDecomposedFilter.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImage3dDecomposedFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage3dDecomposedFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage3dDecomposedFilterTcl.cxx
+tcl/vtkImageDecomposed3dTcl.cxx: vtkImageDecomposed3d.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageDecomposed3dTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageDecomposed3d.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageDecomposed3dTcl.cxx
 
-tcl/vtkImage3dDilateErodeFilterTcl.cxx: vtkImage3dDilateErodeFilter.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImage3dDilateErodeFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage3dDilateErodeFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage3dDilateErodeFilterTcl.cxx
+tcl/vtkImageDilateErode3dTcl.cxx: vtkImageDilateErode3d.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageDilateErode3dTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageDilateErode3d.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageDilateErode3dTcl.cxx
 
-tcl/vtkImage3dDilateValueFilterTcl.cxx: vtkImage3dDilateValueFilter.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImage3dDilateValueFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage3dDilateValueFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage3dDilateValueFilterTcl.cxx
+tcl/vtkImageDilateValue3dTcl.cxx: vtkImageDilateValue3d.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageDilateValue3dTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageDilateValue3d.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageDilateValue3dTcl.cxx
 
-tcl/vtkImage3dDistanceFilterTcl.cxx: vtkImage3dDistanceFilter.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImage3dDistanceFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage3dDistanceFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage3dDistanceFilterTcl.cxx
+tcl/vtkImageDistance3dTcl.cxx: vtkImageDistance3d.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageDistance3dTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageDistance3d.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageDistance3dTcl.cxx
 
-tcl/vtkImage3dGaussianSmoothFilterTcl.cxx: vtkImage3dGaussianSmoothFilter.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImage3dGaussianSmoothFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage3dGaussianSmoothFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage3dGaussianSmoothFilterTcl.cxx
+tcl/vtkImageGaussianSmooth3dTcl.cxx: vtkImageGaussianSmooth3d.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageGaussianSmooth3dTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageGaussianSmooth3d.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageGaussianSmooth3dTcl.cxx
 
-tcl/vtkImage3dGradientFilterTcl.cxx: vtkImage3dGradientFilter.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImage3dGradientFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage3dGradientFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage3dGradientFilterTcl.cxx
+tcl/vtkImageGradient3dTcl.cxx: vtkImageGradient3d.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageGradient3dTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageGradient3d.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageGradient3dTcl.cxx
 
-tcl/vtkImage3dMagnifyFilterTcl.cxx: vtkImage3dMagnifyFilter.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImage3dMagnifyFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage3dMagnifyFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage3dMagnifyFilterTcl.cxx
+tcl/vtkImageMagnify3dTcl.cxx: vtkImageMagnify3d.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageMagnify3dTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageMagnify3d.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageMagnify3dTcl.cxx
 
-tcl/vtkImage3dNonMaximalSuppressionFilterTcl.cxx: vtkImage3dNonMaximalSuppressionFilter.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImage3dNonMaximalSuppressionFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage3dNonMaximalSuppressionFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage3dNonMaximalSuppressionFilterTcl.cxx
+tcl/vtkImageNonMaximalSuppression3dTcl.cxx: vtkImageNonMaximalSuppression3d.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageNonMaximalSuppression3dTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageNonMaximalSuppression3d.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageNonMaximalSuppression3dTcl.cxx
 
-tcl/vtkImage3dOpenCloseFilterTcl.cxx: vtkImage3dOpenCloseFilter.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImage3dOpenCloseFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage3dOpenCloseFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage3dOpenCloseFilterTcl.cxx
+tcl/vtkImageOpenClose3dTcl.cxx: vtkImageOpenClose3d.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageOpenClose3dTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageOpenClose3d.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageOpenClose3dTcl.cxx
 
-tcl/vtkImage3dShrinkFilterTcl.cxx: vtkImage3dShrinkFilter.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImage3dShrinkFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage3dShrinkFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage3dShrinkFilterTcl.cxx
+tcl/vtkImageShrink3dTcl.cxx: vtkImageShrink3d.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageShrink3dTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageShrink3d.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageShrink3dTcl.cxx
 
-tcl/vtkImage3dSpatialFilterTcl.cxx: vtkImage3dSpatialFilter.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImage3dSpatialFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage3dSpatialFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage3dSpatialFilterTcl.cxx
+tcl/vtkImageSpatial3dTcl.cxx: vtkImageSpatial3d.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageSpatial3dTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageSpatial3d.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageSpatial3dTcl.cxx
 
-tcl/vtkImage4dMatFilterTcl.cxx: vtkImage4dMatFilter.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImage4dMatFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage4dMatFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage4dMatFilterTcl.cxx
+tcl/vtkImageMat4dTcl.cxx: vtkImageMat4d.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageMat4dTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageMat4d.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageMat4dTcl.cxx
 
 tcl/vtkImage4dShortReaderTcl.cxx: vtkImage4dShortReader.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImage4dShortReaderTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage4dShortReader.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage4dShortReaderTcl.cxx
 
-tcl/vtkImage4dTranslateFilterTcl.cxx: vtkImage4dTranslateFilter.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImage4dTranslateFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage4dTranslateFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage4dTranslateFilterTcl.cxx
+tcl/vtkImageTranslate4dTcl.cxx: vtkImageTranslate4d.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageTranslate4dTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageTranslate4d.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageTranslate4dTcl.cxx
 
 tcl/vtkImageDifferenceFilterTcl.cxx: vtkImageDifferenceFilter.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageDifferenceFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageDifferenceFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageDifferenceFilterTcl.cxx

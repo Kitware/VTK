@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMedianFilter.h
+  Module:    vtkImageMat4d.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,43 +37,66 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMedianFilter - Median Filter
+// .NAME vtkImageMat4d - Adds a border to an image.
 // .SECTION Description
-// vtkImageMedianFilter a Median filter that replaces each pixel with the 
-// median value from a square neighborhood around that pixel.
+// vtkImageMat4d adds a border to an image.  The border
+// can have different widths for each axis.  Notice that this
+// filter is not cached.  The input is used directly with no
+// copying of data (unless absolutely necessary).
 
 
-#ifndef __vtkImageMedianFilter_h
-#define __vtkImageMedianFilter_h
+#ifndef __vtkImageMat4d_h
+#define __vtkImageMat4d_h
 
+#include "vtkImageSource.h"
+#include "vtkImageRegion.h"
 
-#include "vtkImageSpatial3d.h"
-
-class vtkImageMedianFilter : public vtkImageSpatial3d
+class vtkImageMat4d : public vtkImageSource
 {
 public:
-  vtkImageMedianFilter();
-  ~vtkImageMedianFilter();
-  char *GetClassName() {return "vtkImageMedianFilter";};
+  vtkImageMat4d();
+  char *GetClassName() {return "vtkImageMat4d";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
-  void SetKernelSize(int size0, int size1, int size2);
-  void ClearMedian();
-  void AccumulateMedian(double val);
-  double GetMedian();
+  void UpdateRegion(vtkImageRegion *region); 
+  void UpdateImageInformation(vtkImageRegion *region); 
+  unsigned long GetPipelineMTime();
+  int GetDataType();
+
+  void SetBorderWidths1d(int w0);
+  void SetBorderWidths2d(int w0, int w1);
+  void SetBorderWidths3d(int w0, int w1, int w2);
+
+  // Description:
+  // Set/Get the input to this filter
+  vtkSetObjectMacro(Input,vtkImageSource);
+  vtkGetObjectMacro(Input,vtkImageSource);
+
+  // Description:
+  // Set/Get the value to use as a border.
+  vtkSetMacro(BorderValue,float);
+  vtkGetMacro(BorderValue,float);
+
+  // Description:
+  // Set/Get the Border of the mat.
+  vtkSetVector4Macro(BorderWidths,int);
+  vtkGetVector4Macro(BorderWidths,int);
+  
+  // Description:
+  // Set/Get the local coordinate system.
+  vtkSetVector4Macro(Axes,int);
+  vtkGetVector4Macro(Axes,int);
+
   
 protected:
-  // stuff for sorting the pixels
-  int NumNeighborhood;
-  double *Sort;
-  double *Median;
-  int UpMax;
-  int DownMax;
-  int UpNum;
-  int DownNum;
-
-  void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-
+  int Axes[4];
+  int BorderWidths[4];
+  float BorderValue;
+  vtkImageSource *Input;
+  
 };
+
+
 
 #endif
 

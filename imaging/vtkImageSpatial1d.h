@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMedianFilter.h
+  Module:    vtkImageSpatial1d.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,45 +37,56 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMedianFilter - Median Filter
+// .NAME vtkImageSpatial1d - Filters that operate on pixel neighborhoods.
 // .SECTION Description
-// vtkImageMedianFilter a Median filter that replaces each pixel with the 
-// median value from a square neighborhood around that pixel.
+// vtkImageSpatial1d is a class of filters that use a 1d neighborhood
+// of input pixels to compute a output pixel.  
+// An example is vtkImageConvolution1d.
 
 
-#ifndef __vtkImageMedianFilter_h
-#define __vtkImageMedianFilter_h
+#ifndef __vtkImageSpatial1d_h
+#define __vtkImageSpatial1d_h
 
 
-#include "vtkImageSpatial3d.h"
+#include "vtkImageFilter.h"
+#include "vtkImageRegion.h"
 
-class vtkImageMedianFilter : public vtkImageSpatial3d
+class vtkImageSpatial1d : public vtkImageFilter
 {
 public:
-  vtkImageMedianFilter();
-  ~vtkImageMedianFilter();
-  char *GetClassName() {return "vtkImageMedianFilter";};
-
-  void SetKernelSize(int size0, int size1, int size2);
-  void ClearMedian();
-  void AccumulateMedian(double val);
-  double GetMedian();
+  vtkImageSpatial1d();
+  char *GetClassName() {return "vtkImageSpatial1d";};
+  void SetKernelSize(int size);
+  // Description:
+  // Get the Spatial kernel size and middle.
+  vtkGetMacro(KernelSize,int);
+  vtkGetMacro(KernelMiddle,int);
+  // Description:
+  // Set/Get whether convolve up to boundaries or not (truncate kernel).
+  vtkSetMacro(HandleBoundaries,int);
+  vtkGetMacro(HandleBoundaries,int);
+  vtkBooleanMacro(HandleBoundaries,int);
   
+
 protected:
-  // stuff for sorting the pixels
-  int NumNeighborhood;
-  double *Sort;
-  double *Median;
-  int UpMax;
-  int DownMax;
-  int UpNum;
-  int DownNum;
+  int   KernelSize;
+  int   KernelMiddle;         // Index of kernel origin
+  int   HandleBoundaries; // Shrink kernel at boundaries.
 
-  void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-
+  void ComputeOutputImageInformation(vtkImageRegion *inRegion,
+				     vtkImageRegion *outRegion);
+  void ComputeRequiredInputRegionBounds(vtkImageRegion *outRegion, 
+				   vtkImageRegion *inRegion);
 };
 
 #endif
+
+
+
+
+
+
+
 
 
 
