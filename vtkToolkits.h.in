@@ -1,0 +1,35 @@
+
+/* what toolkits was VTK built with */
+#cmakedefine VTK_USE_HYBRID
+#cmakedefine VTK_USE_PARALLEL
+#cmakedefine VTK_USE_PATENTED
+#cmakedefine VTK_USE_RENDERING
+
+/* what rendering libraries to use */
+#cmakedefine OPENGL_LIBRARY
+#ifdef OPENGL_LIBRARY
+ #ifndef _WIN32
+   #define VTK_USE_OGLR 
+ #endif
+#endif
+
+#cmakedefine VTK_MANGLE_MESA 
+#ifdef VTK_MANGLE_MESA
+ #ifndef _WIN32
+   #define VTK_USE_OGLR 
+ #endif
+#endif
+
+#cmakedefine VTK_USE_QUARTZ
+
+/* use MPI */
+#cmakedefine VTK_USE_MPI
+
+/* java awt support */
+#cmakedefine JAVA_AWT_INCLUDE_PATH
+#ifdef JAVA_AWT_INCLUDE_PATH
+  #define VTK_USE_JAWT 
+#endif
+
+/* debug leaks */
+#cmakedefine VTK_DEBUG_LEAKS

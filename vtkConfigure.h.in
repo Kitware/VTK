@@ -1,0 +1,35 @@
+/* 
+ * here is where system comupted values get stored these values should only
+ * change when the target compile platform changes 
+ */
+
+/* what byte order */
+#cmakedefine CMAKE_WORDS_BIGENDIAN
+#ifdef CMAKE_WORDS_BIGENDIAN
+  #define VTK_WORDS_BIGENDIAN 
+#endif
+
+/* what threading system are we using */
+#cmakedefine CMAKE_USE_PTHREADS
+#ifdef CMAKE_USE_PTHREADS
+#define VTK_USE_PTHREADS
+#endif
+
+#cmakedefine CMAKE_USE_SPROC
+#ifdef CMAKE_USE_SPROC
+#define VTK_USE_SPROC
+#endif
+
+#cmakedefine CMAKE_HP_PTHREADS
+#ifdef CMAKE_HP_PTHREADS
+#define VTK_HP_PTHREADS
+#endif
+
+#cmakedefine BUILD_SHARED_LIBS
+#ifdef BUILD_SHARED_LIBS
+#define VTKDLL
+#else
+#define VTKSTATIC
+#endif
+
+#cmakedefine VTK_USE_ANSI_STDLIB

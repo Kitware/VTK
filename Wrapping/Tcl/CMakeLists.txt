@@ -1,0 +1,88 @@
+# create the vtk executable
+ADD_EXECUTABLE(vtk tkAppInit)
+
+LINK_LIBRARIES (
+  vtkImagingTCL
+  vtkGraphicsTCL
+  vtkIOTCL
+  vtkFilteringTCL 
+  vtkCommonTCL  
+  vtkIO
+  vtkGraphics
+  vtkImaging
+  vtkFiltering 
+  vtkCommon 
+)
+
+IF (TCL_LIBRARY)
+  LINK_LIBRARIES (${TCL_LIBRARY})
+ELSE (TCL_LIBRARY)
+  MESSAGE("VTK_WRAP_TCL is ON, but the Tcl library was not found.  Please set TCL_LIBRARY." "Error")
+ENDIF (TCL_LIBRARY)
+
+
+IF (VTK_USE_RENDERING)
+  # add in opengl
+  IF (WIN32)
+    LINK_LIBRARIES ( ${OPENGL_LIBRARY} )
+  ELSE (WIN32)
+    IF (OPENGL_LIBRARY)
+      LINK_LIBRARIES (${OPENGL_LIBRARY})
+    ENDIF (OPENGL_LIBRARY)
+  ENDIF (WIN32)
+  IF (VTK_MANGLE_MESA)
+    LINK_LIBRARIES( ${MESA_LIBRARY})
+    IF ( MESA_OS_LIBRARY )
+      LINK_LIBRARIES(${MESA_OS_LIBRARY})
+    ENDIF ( MESA_OS_LIBRARY )
+  ENDIF (VTK_MANGLE_MESA)
+
+  # add in the Tk values if found
+  IF (TK_INCLUDE_PATH)
+    INCLUDE_DIRECTORIES(${TK_INCLUDE_PATH})
+  ENDIF (TK_INCLUDE_PATH)
+  IF (TK_LIBRARY)
+    LINK_LIBRARIES (${TK_LIBRARY})
+  ELSE (TK_LIBRARY)
+    MESSAGE("VTK_WRAP_TCL and VTK_USE_RENDERING are ON, but the Tk library was not found.  Please set TK_LIBRARY." "Error")
+  ENDIF (TK_LIBRARY)
+
+  # add in xwindows stuff
+  IF (CMAKE_HAS_X)
+    LINK_LIBRARIES(-lXt)
+    LINK_LIBRARIES(${CMAKE_X_LIBS})
+    ADD_DEFINITIONS(${CMAKE_X_CFLAGS})
+  ENDIF (CMAKE_HAS_X)
+
+  LINK_LIBRARIES(vtkRenderingTCL vtkRendering)
+ENDIF (VTK_USE_RENDERING)
+
+IF (VTK_USE_PATENTED)
+  LINK_LIBRARIES(vtkPatentedTCL vtkPatented)
+ENDIF (VTK_USE_PATENTED)
+
+IF (VTK_USE_HYBRID)
+  LINK_LIBRARIES(vtkHybridTCL vtkHybrid)
+ENDIF (VTK_USE_HYBRID)
+
+IF (VTK_USE_PARALLEL)
+  LINK_LIBRARIES(vtkParallelTCL vtkParallel)
+
+  IF (WIN32)
+    LINK_LIBRARIES( wsock32 )
+  ENDIF (WIN32)
+
+  IF (VTK_USE_MPI)
+    INCLUDE (${CMAKE_ROOT}/Modules/FindMPI.cmake)
+    IF (MPI_LIBRARY)
+      LINK_LIBRARIES (${MPI_LIBRARY})
+    ENDIF (MPI_LIBRARY)
+  ENDIF (VTK_USE_MPI)
+ENDIF (VTK_USE_PARALLEL)
+
+#
+# link in the PNG library if it was found
+#
+TARGET_LINK_LIBRARIES(vtk png zlib)
+
+INSTALL_TARGETS(/bin vtk)
