@@ -25,7 +25,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtk3DWidget, "1.14");
+vtkCxxRevisionMacro(vtk3DWidget, "1.14.2.1");
 
 vtkCxxSetObjectMacro(vtk3DWidget,Prop3D,vtkProp3D);
 vtkCxxSetObjectMacro(vtk3DWidget,Input,vtkDataSet);
@@ -118,10 +118,9 @@ float vtk3DWidget::SizeHandles(float factor)
 {
   int i;
   vtkRenderer *renderer;
-  vtkCamera *camera;
 
   if ( !this->ValidPick || !(renderer=this->CurrentRenderer) || 
-       !(camera=renderer->GetActiveCamera()) )
+       !renderer->GetActiveCamera() )
     {
     return (this->HandleSize * factor * this->InitialLength);
     }
