@@ -285,7 +285,6 @@ VTK_THREAD_RETURN_TYPE process( void *vtkNotUsed(arg) )
 void main( int argc, char *argv[] )
 {
   vtkMultiProcessController *controller;
-  int myid;
   
   TIMER = vtkTimerLog::New();
   

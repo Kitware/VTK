@@ -124,7 +124,6 @@ VTK_THREAD_RETURN_TYPE process( void *vtkNotUsed(arg) )
     vtkActor *actor = vtkActor::New();
     vtkTimerLog *timer = vtkTimerLog::New();
     vtkCamera *cam = vtkCamera::New();
-    char filename[500];
     
     // This is the main thread: Collect the data and render it.
     app->AddInput(elev->GetPolyDataOutput());

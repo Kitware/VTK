@@ -15,12 +15,6 @@
 
 VTK_THREAD_RETURN_TYPE process_a( void *vtkNotUsed(arg) )
 {
-  vtkMultiProcessController *controller;
-  int myid;
-  
-  controller = vtkMultiProcessController::RegisterAndGetGlobalController(NULL);
-  myid = controller->GetLocalProcessId();
-  
   vtkPLOT3DReader *pl3d = vtkPLOT3DReader::New();
   pl3d->SetXYZFileName("../../../vtkdata/combxyz.bin");
   pl3d->SetQFileName("../../../vtkdata/combq.bin");
@@ -109,7 +103,6 @@ VTK_THREAD_RETURN_TYPE process_b( void *vtkNotUsed(arg) )
 void main( int argc, char *argv[] )
 {
   vtkMultiProcessController *controller;
-  int myid;
   
   controller = vtkMultiProcessController::RegisterAndGetGlobalController(NULL);
 

@@ -41,7 +41,6 @@ void callback3(void *arg, int id)
 VTK_THREAD_RETURN_TYPE process_a( void *vtkNotUsed(proc_arg) )
 {
   int myid, otherid;
-  char a;
   vtkConeSource *cone = vtkConeSource::New();
   vtkElevationFilter *elev = vtkElevationFilter::New();
   vtkMultiProcessController *controller;
@@ -99,7 +98,6 @@ VTK_THREAD_RETURN_TYPE process_a( void *vtkNotUsed(proc_arg) )
 VTK_THREAD_RETURN_TYPE process_b( void *vtkNotUsed(proc_arg) )
 {
   int myid, otherid;
-  char a;
   vtkPolyData *data = vtkPolyData::New();
   vtkRenderer *ren = vtkRenderer::New();
   vtkRenderWindow *renWindow = vtkRenderWindow::New();
@@ -174,7 +172,6 @@ VTK_THREAD_RETURN_TYPE process_b( void *vtkNotUsed(proc_arg) )
 void main( int argc, char *argv[] )
 {
   vtkMultiProcessController *controller;
-  int myid;
   
   controller = vtkMultiProcessController::RegisterAndGetGlobalController(NULL);
 

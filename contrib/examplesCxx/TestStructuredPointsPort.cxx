@@ -16,14 +16,9 @@
 
 VTK_THREAD_RETURN_TYPE process_a( void *vtkNotUsed(arg) )
 {
-  vtkMultiProcessController *controller;
   vtkImageGaussianSource *source = vtkImageGaussianSource::New();
   vtkImageEllipsoidSource *ellipse = vtkImageEllipsoidSource::New();
   vtkOutputPort *upStreamPort = vtkOutputPort::New();
-  int myid;
-  
-  controller = vtkMultiProcessController::RegisterAndGetGlobalController(NULL);
-  myid = controller->GetLocalProcessId();
   
   // Set up the pipeline source.
   source->SetCenter(128.0, 128.0, 0.0);
@@ -118,7 +113,6 @@ VTK_THREAD_RETURN_TYPE process_b( void *vtkNotUsed(arg) )
 void main( int argc, char *argv[] )
 {
   vtkMultiProcessController *controller;
-  int myid;
   
   controller = vtkMultiProcessController::RegisterAndGetGlobalController(NULL);
 

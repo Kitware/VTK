@@ -52,7 +52,6 @@ void main( int argc, char *argv[] )
   MPI_Barrier (MPI_COMM_WORLD);
   cerr << myid << " past barrier\n";
   MPI_Finalize();
-  return(0);
 }
 
 
