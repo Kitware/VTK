@@ -224,6 +224,10 @@ public:
   virtual unsigned long GetActualMemorySize();
   
   // Description:
+  // Return the type of data object.
+  int GetDataObjectType();
+  
+  // Description:
   // Estimated size needed after tessellation (or special operation)
   virtual vtkIdType GetEstimatedSize() = 0;
   

@@ -23,7 +23,7 @@
 #include "vtkGenericAdaptorCell.h"
 #include "vtkGenericCellTessellator.h"
 
-vtkCxxRevisionMacro(vtkGenericDataSet, "1.1");
+vtkCxxRevisionMacro(vtkGenericDataSet, "1.2");
 vtkCxxSetObjectMacro(vtkGenericDataSet, Tessellator,vtkGenericCellTessellator);
 
 //----------------------------------------------------------------------------
@@ -199,4 +199,12 @@ unsigned long vtkGenericDataSet::GetActualMemorySize()
   unsigned long result=this->vtkDataObject::GetActualMemorySize();
   result += this->Attributes->GetActualMemorySize();
   return result;
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// Return the type of data object.
+int vtkGenericDataSet::GetDataObjectType() 
+{
+  return VTK_GENERIC_DATA_SET;
 }
