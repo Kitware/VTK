@@ -18,7 +18,7 @@
 #include "vtkRungeKutta45.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkRungeKutta45, "1.6");
+vtkCxxRevisionMacro(vtkRungeKutta45, "1.7");
 vtkStandardNewMacro(vtkRungeKutta45);
 
 // Cash-Karp parameters
@@ -115,7 +115,7 @@ int vtkRungeKutta45::ComputeNextStep(float* xprev, float* dxprev,
     return UNEXPECTED_VALUE;
     }
 
-  float errRatio, tmp, tmp2;
+  double errRatio, tmp, tmp2;
   int retVal, shouldBreak = 0;
 
   // Reduce the step size until estimated error <= maximum allowed error
@@ -135,15 +135,16 @@ int vtkRungeKutta45::ComputeNextStep(float* xprev, float* dxprev,
       break;
       }
 
-    errRatio = estErr / maxError;
+    errRatio = (double)estErr / (double)maxError;
     // Empirical formulae for calculating next step size
+    // 0.9 is a safety factor to prevent infinite loops (see reference)
     if ( errRatio > 1 )
       {
-      tmp = delT*pow(errRatio, static_cast<float>(-0.25));
+      tmp = 0.9*delT*pow(errRatio, static_cast<float>(-0.25));
       }
     else
       {
-      tmp = delT*pow(errRatio, static_cast<float>(-0.2));
+      tmp = 0.9*delT*pow(errRatio, static_cast<float>(-0.2));
       }
     tmp2 = fabs(tmp);
     
@@ -249,20 +250,20 @@ int vtkRungeKutta45::ComputeAStep(float* xprev, float* dxprev,
       {
       sum = 0;
       for (k=0; k<i; k++)
-    {
-    sum += B[i-1][k]*this->NextDerivs[k][j];
-    }
+        {
+        sum += B[i-1][k]*this->NextDerivs[k][j];
+        }
       this->Vals[j] = xprev[j] + delT*sum;
       }
     this->Vals[numVals-1] = t + delT*A[i-1];
-
+    
     if ( !this->FunctionSet->FunctionValues(this->Vals, 
-                        this->NextDerivs[i]) )
+                                            this->NextDerivs[i]) )
       {
       for(i=0; i<numVals-1; i++)
-    {
-    xnext[i] = this->Vals[i];
-    }
+        {
+        xnext[i] = this->Vals[i];
+        }
       return OUT_OF_DOMAIN;
       }    
     }
@@ -279,7 +280,6 @@ int vtkRungeKutta45::ComputeAStep(float* xprev, float* dxprev,
     xnext[i] = xprev[i] + delT*sum;
     }
 
-
   // Calculate norm of error vector
   double err=0;
   for(i=0; i<numDerivs; i++)
@@ -292,6 +292,19 @@ int vtkRungeKutta45::ComputeAStep(float* xprev, float* dxprev,
     err += delT*sum*delT*sum;
     }
   error = static_cast<float>(sqrt(err));
+
+  int numZero = 0;
+  for(i=0; i<numDerivs; i++)
+    {
+    if ( xnext[i] == xprev[i] )
+      {
+      numZero++;
+      }
+    }
+  if (numZero == numDerivs)
+    {
+    return UNEXPECTED_VALUE;
+    }
 
   return 0;
 }
