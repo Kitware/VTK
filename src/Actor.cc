@@ -13,20 +13,18 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
-
 #include <stdlib.h>
-#include <iostream.h>
 #include <math.h>
 
 #include "Actor.hh"
 
 // Description:
 // Creates an actor with the following defaults: origin(0,0,0) 
-// position(0,0,0) scale(1,1,1) visibility=1 pickable=1 dragable=1
-// orientation= (0,0,0). IMPORTANT NOTE: Usually the vlRenderWindow
+// position=(0,0,0) scale=(1,1,1) visibility=1 pickable=1 dragable=1
+// orientation=(0,0,0). IMPORTANT NOTE: Usually the vlRenderWindow
 // method MakeActor() is used to create a device specific actor. This
 // has the added benefit that a default device-specific property is 
-// automatically created.
+// automatically created. Try to use MakeActor() whenever possible.
 vlActor::vlActor()
 {
   this->Mapper = NULL;
@@ -188,7 +186,7 @@ void vlActor::RotateWXYZ (float degree, float x, float y, float z)
 }
 
 // Description:
-// Load the 4x4 composite actor matrix into the matrix provided.
+// Copy the actor's composite 4x4 matrix into the matrix provided.
 void vlActor::GetMatrix(vlMatrix4x4& result)
 {
   this->GetOrientation();
@@ -227,8 +225,7 @@ void vlActor::GetMatrix(vlMatrix4x4& result)
 } 
 
 // Description:
-// Return a reference to the actor'sLoad the 4x4 composite actor 
-// matrix into the matrix provided.
+// Return a reference to the actor's 4x4 composite matrix.
 vlMatrix4x4& vlActor::GetMatrix()
 {
   static vlMatrix4x4 result;
