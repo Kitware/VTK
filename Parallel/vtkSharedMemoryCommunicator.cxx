@@ -37,7 +37,7 @@ public:
   vtkSharedMemoryCommunicatorMessage* Previous;
 };
 
-vtkCxxRevisionMacro(vtkSharedMemoryCommunicator, "1.16");
+vtkCxxRevisionMacro(vtkSharedMemoryCommunicator, "1.17");
 vtkStandardNewMacro(vtkSharedMemoryCommunicator);
 
 void vtkSharedMemoryCommunicator::PrintSelf(ostream& os, vtkIndent indent)
@@ -322,7 +322,7 @@ vtkSharedMemoryCommunicatorMessage
 
   if (object)
     {
-    message->Object = object->MakeObject();
+    message->Object = object->NewInstance();
     if (this->ForceDeepCopy)
       {
       message->Object->DeepCopy(object);
@@ -358,7 +358,7 @@ vtkSharedMemoryCommunicatorMessage
 
   if (object)
     {
-    message->Array = object->MakeObject();
+    message->Array = object->NewInstance();
     if (this->ForceDeepCopy)
       {
       message->Array->DeepCopy(object);
