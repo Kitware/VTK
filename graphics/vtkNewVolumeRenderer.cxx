@@ -28,6 +28,15 @@ int vtkNewVolumeRenderer::Render(vtkRenderer *ren)
   return( 0 );
 }
 
+float *vtkNewVolumeRenderer::GetCurrentColorBuffer()
+{
+  return NULL;
+}
+
+float *vtkNewVolumeRenderer::GetCurrentZBuffer()
+{
+  return NULL;
+}
 
 void vtkNewVolumeRenderer::PrintSelf(ostream& os, vtkIndent indent)
 {
