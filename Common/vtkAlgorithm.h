@@ -58,7 +58,7 @@ public:
   // any executive to which it has previously been assigned and then
   // assigned to the given executive.  A algorithm's executive should
   // not be changed after pipeline connectivity has been established.
-  void SetExecutive(vtkExecutive* executive);
+  virtual void SetExecutive(vtkExecutive* executive);
 
   // Description:
   // Upstream/Downstream requests form the generalized interface
@@ -180,11 +180,11 @@ protected:
 
   // Description:
   // Set the number of input ports used by the algorithm.
-  void SetNumberOfInputPorts(int n);
+  virtual void SetNumberOfInputPorts(int n);
 
   // Description:
   // Set the number of output ports provided by the algorithm.
-  void SetNumberOfOutputPorts(int n);
+  virtual void SetNumberOfOutputPorts(int n);
 
   // Helper methods to check input/output port index ranges.
   int InputPortIndexInRange(int index, const char* action);
