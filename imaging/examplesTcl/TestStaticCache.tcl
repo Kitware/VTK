@@ -12,7 +12,6 @@ reader SetFileName "../../../vtkdata/earth.ppm"
 
 vtkImageStaticCache staticCache
 set data [[reader GetOutput] UpdateAndReturnData]
-puts [$data Print]
 staticCache SetCachedData $data
 
 
