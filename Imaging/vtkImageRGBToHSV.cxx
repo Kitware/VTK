@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageRGBToHSV, "1.21");
+vtkCxxRevisionMacro(vtkImageRGBToHSV, "1.22");
 vtkStandardNewMacro(vtkImageRGBToHSV);
 
 //----------------------------------------------------------------------------
@@ -78,25 +78,6 @@ static void vtkImageRGBToHSVExecute(vtkImageRGBToHSV *self,
         R = (float)(*inPtr); inPtr++;
         G = (float)(*inPtr); inPtr++;
         B = (float)(*inPtr); inPtr++;
-        temp = (float)(R + G + B);
-        // Value is easy
-        V = temp / 3.0;
-        
-        // Hue
-        temp = sqrt((R-G)*(R-G) + (R-B)*(G-B));
-        if(temp != 0.0)
-          {
-          temp = acos((0.5 * ((R-G) + (R-B))) / temp);
-          }
-        if (G >= B)
-          {
-          H = max * (temp / 6.2831853);
-          }
-        else
-          {
-          H = max * (1.0 - (temp / 6.2831853));
-          }
-        
         // Saturation
         temp = R;
         if (G < temp)
@@ -115,6 +96,25 @@ static void vtkImageRGBToHSVExecute(vtkImageRGBToHSV *self,
         else
           {
           S = max * (1.0 - (3.0 * temp / sumRGB));
+          }
+        
+        temp = (float)(R + G + B);
+        // Value is easy
+        V = temp / 3.0;
+        
+        // Hue
+        temp = sqrt((R-G)*(R-G) + (R-B)*(G-B));
+        if(temp != 0.0)
+          {
+          temp = acos((0.5 * ((R-G) + (R-B))) / temp);
+          }
+        if (G >= B)
+          {
+          H = max * (temp / 6.2831853);
+          }
+        else
+          {
+          H = max * (1.0 - (temp / 6.2831853));
           }
         
         // assign output.
