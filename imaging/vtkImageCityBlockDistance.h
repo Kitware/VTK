@@ -57,7 +57,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 #include "vtkImageDecomposeFilter.h"
-#include "vtkImageCityBlockDistance.h"
 
 class VTK_EXPORT vtkImageCityBlockDistance : public vtkImageDecomposeFilter
 {
