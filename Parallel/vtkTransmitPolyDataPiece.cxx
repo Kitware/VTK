@@ -24,7 +24,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkTransmitPolyDataPiece, "1.18");
+vtkCxxRevisionMacro(vtkTransmitPolyDataPiece, "1.19");
 vtkStandardNewMacro(vtkTransmitPolyDataPiece);
 
 vtkCxxSetObjectMacro(vtkTransmitPolyDataPiece,Controller,
@@ -196,7 +196,7 @@ void vtkTransmitPolyDataPiece::RootExecute(vtkPolyData *input,
   extract->SetCreateGhostCells(this->CreateGhostCells);
   extract->SetInput(tmp);
 
-  vtkInformation *extractInfo = extract->GetOutputPortInformation(0);
+  vtkInformation *extractInfo = extract->GetExecutive()->GetOutputInformation(0);
   extractInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
                    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
   extractInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
