@@ -148,6 +148,7 @@ IF (VTK_USE_RENDERING)
       TestPlatonicSolids
       TestQuadricClustering
       TestRectilinearGridToTetrahedra
+      TestRegularPolygonSource
       testReflect
       TestRotate
       TestRuledSurface
