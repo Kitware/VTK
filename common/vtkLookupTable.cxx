@@ -476,7 +476,7 @@ void vtkLookupTable::SetTableValue(int indx, float r, float g, float b, float a)
 
 // Return a rgba color value for the given index into the lookup Table. Color
 // components are expressed as [0,1] float values.
-float *vtkLookupTable::GetTableValue (int indx)
+void vtkLookupTable::GetTableValue (int indx, float rgba[4])
 {
   unsigned char *_rgba;
 
@@ -487,24 +487,18 @@ float *vtkLookupTable::GetTableValue (int indx)
   // line with a -O5 optimization level 
   // for (int i=0; i<4; i++) rgba[i] = _rgba[i] / 255.0;
 
-  this->RGBA[0] = _rgba[0] / 255.0;
-  this->RGBA[1] = _rgba[1] / 255.0;
-  this->RGBA[2] = _rgba[2] / 255.0;
-  this->RGBA[3] = _rgba[3] / 255.0;
-
-  return this->RGBA;
+  rgba[0] = _rgba[0] / 255.0;
+  rgba[1] = _rgba[1] / 255.0;
+  rgba[2] = _rgba[2] / 255.0;
+  rgba[3] = _rgba[3] / 255.0;
 }
 
 // Return a rgba color value for the given index into the lookup table. Color
 // components are expressed as [0,1] float values.
-void vtkLookupTable::GetTableValue (int indx, float rgba[4])
+float *vtkLookupTable::GetTableValue (int indx)
 {
-  float *_rgba = this->GetTableValue(indx);
-
-  for (int i=0; i<4; i++)
-    {
-    rgba[i] = _rgba[i];
-    }
+  this->GetTableValue(indx, this->RGBA);
+  return this->RGBA;
 }
 
 void vtkLookupTable::PrintSelf(ostream& os, vtkIndent indent)
