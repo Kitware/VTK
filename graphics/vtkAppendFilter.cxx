@@ -243,6 +243,10 @@ void vtkAppendFilter::Execute()
     }
   
   tenth = (numPts + numCells) / 10;
+  if (tenth == 0)
+    {
+    tenth = 1;
+    }
 
   // Now can allocate memory
   output->Allocate(numCells); //allocate storage for geometry/topology
