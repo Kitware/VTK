@@ -324,6 +324,7 @@ extern "C" {
 PNG_EXPORT_VAR (const char) png_libpng_ver[18];
   /* need room for 99.99.99beta99z*/
 #else
+#undef png_libpng_ver
 #define png_libpng_ver png_get_header_ver(NULL)
 #endif
 
@@ -2422,6 +2423,7 @@ extern PNG_EXPORT(void,png_set_strip_error_numbers) PNGARG((png_structp
 #ifdef PNG_USE_GLOBAL_ARRAYS
    PNG_EXPORT_VAR (const png_byte FARDATA) png_sig[8];
 #else
+#undef png_sig
 #define png_sig png_sig_bytes(NULL)
 #endif
 #endif /* PNG_NO_EXTERN */

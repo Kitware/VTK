@@ -345,5 +345,6 @@ nm libvtkpng.a |grep " T "
 #define png_IDAT vtk_png_IDAT
 #define png_IHDR vtk_png_IHDR
 #define png_sig  vtk_png_sig 
+#define png_sig_bytes vtk_png_sig_bytes
 
 #endif
