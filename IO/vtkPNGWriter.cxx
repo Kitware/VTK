@@ -131,7 +131,6 @@ void vtkPNGWriter::WriteSlice(vtkImageData *data)
 {
   // Call the correct templated function for the output
   void *outPtr;
-  int bpp = data->GetNumberOfScalarComponents();
   unsigned int ui;
 
   // Call the correct templated function for the input
