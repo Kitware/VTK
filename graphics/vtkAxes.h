@@ -76,6 +76,9 @@ public:
 
 protected:
   void Execute();
+  // This source does not know how to generate pieces yet.
+  int ComputeDivisionExtents(vtkDataObject *output, 
+			     int idx, int numDivisions);
 
   float Origin[3];
   float ScaleFactor;
