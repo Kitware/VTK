@@ -48,7 +48,7 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	virtual void OnOK();
-	afx_msg void OnHelp();
+	afx_msg void OnHelp1();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

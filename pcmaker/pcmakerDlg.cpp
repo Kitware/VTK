@@ -73,7 +73,7 @@ BEGIN_MESSAGE_MAP(CPcmakerDlg, CDialog)
 	//{{AFX_MSG_MAP(CPcmakerDlg)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
-	ON_BN_CLICKED(IDC_HELP, OnHelp)
+	ON_BN_CLICKED(IDC_HELP1, OnHelp1)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -245,9 +245,9 @@ void CPcmakerDlg::DoOKStuff()
   CDialog::OnOK();
 }
 
-void CPcmakerDlg::OnHelp() 
+void CPcmakerDlg::OnHelp1() 
 {
 	// TODO: Add your control notification handler code here
   help dlg;
-  dlg.DoModal();
+  dlg.DoModal();	
 }
