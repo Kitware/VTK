@@ -57,7 +57,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_DEGENERATE_VERTEX 8
 #define VTK_HIGH_DEGREE_VERTEX 9
 
-#define VTK_DEFERRED VTK_LARGE_FLOAT
+#define VTK_RECYCLE VTK_LARGE_FLOAT
 
 // Static variables used by object
 static vtkPolyData *Mesh; // operate on this data structure
@@ -97,11 +97,11 @@ public:
   float Delete(int id);
   void Insert(int id, float error=(-1.0));
   int GetNumberOfPops() {return this->NumberOfPops;};
-  void Reset() {this->PlanarQueue->Reset(); this->Queue->Reset();};
+  void Reset() {this->Queue->Reset();};
 
 protected:
-  vtkPriorityQueue *PlanarQueue;
   vtkPriorityQueue *Queue;
+  vtkIdList *RecycleBin;
   int NumberOfPoints;
   vtkDecimatePro *Owner;
   int NumberOfPops;
@@ -110,51 +110,62 @@ protected:
 vtkVertexQueue::vtkVertexQueue(vtkDecimatePro *owner, int numPts)
 {
   this->Queue = new vtkPriorityQueue(numPts, (int)((float)0.25*numPts));
+  this->RecycleBin = new vtkIdList((int)((float)(0.10*numPts)));
   this->Owner = owner;
   this->NumberOfPoints = numPts;
+  this->NumberOfPops = 0;
 }
 
 vtkVertexQueue::~vtkVertexQueue()
 {
-  delete this->PlanarQueue;
   delete this->Queue;
+  delete this->RecycleBin;
 }
 
 int vtkVertexQueue::Pop(float &error)
 {
   int ptId;
+  static int recycled=0;
+
   this->NumberOfPops++;
 
-  // Return planar vertices first, then try regular ones.
-  if ( (ptId = this->PlanarQueue->Pop(error)) >= 0 )
+  // Try returning what's in queue
+  if ( (ptId = this->Queue->Pop(error)) >= 0 )
     {
-    error = 0.0;
     return ptId;
     }
-  else if ( (ptId = this->Queue->Pop(error)) >= 0 )
+
+  // See whether anything's left in recycle bin
+  else if ( this->RecycleBin->GetNumberOfIds() > 0 && !recycled )
     {
-    return ptId;
+    recycled = 1;
+    for ( int i=0; i < this->RecycleBin->GetNumberOfIds(); i++ )
+      {
+      this->Insert(this->RecycleBin->GetId(i));
+      }
+    this->RecycleBin->Reset();
+    return this->Pop(error);
     }
 
   // If no verts left, have to decide whether splitting has been
   // deferred, and if so, now insert the points.
   else if ( Split && DeferSplit )
     {
+    recycled = 0;
+    this->RecycleBin->Reset();
     this->Owner->ProcessDeferredSplits(this->NumberOfPoints, this->NumberOfPops);
     return this->Pop(error);
     }
+
   else
     {
     return -1; //every point has been processed
     }
 }
 
-float vtkVertexQueue::Delete(int ptId)
+inline float vtkVertexQueue::Delete(int ptId)
 {
-  if ( this->PlanarQueue->Delete(ptId) != VTK_LARGE_FLOAT )
-    return 0.0;
-  else
-    return this->Queue->Delete(ptId);
+  return this->Queue->Delete(ptId);
 }
 
 // Computes error and inserts point into priority queue.
@@ -189,11 +200,9 @@ void vtkVertexQueue::Insert(int ptId, float error)
                                  V->Array[fedges[1]].x);
         }
 
-      // If error ~ 0, then put into planar queue; otherwise the regular queue
       if ( simpleType )
         {
-        if ( error <= Tolerance ) this->PlanarQueue->Insert(LoopArea,ptId);
-        else this->Queue->Insert(error,ptId);
+        this->Queue->Insert(error,ptId);
         }
 
       // Type is complex so we break it up (if not defering splitting). A side-effect
@@ -206,11 +215,16 @@ void vtkVertexQueue::Insert(int ptId, float error)
       } //if cells attached to vertex
     } //need to compute the error
 
+  // If point is being deferred, place it into recycling bin
+  else if ( error >= VTK_RECYCLE )
+    {
+    this->RecycleBin->InsertNextId(ptId);
+    }
+
   // Sometimes the error is computed for us so we insert it appropriately
   else 
     {
-    if ( error <= Tolerance ) this->PlanarQueue->Insert(LoopArea,ptId);
-    else this->Queue->Insert(error,ptId);
+    this->Queue->Insert(error,ptId);
     }
 
 }
@@ -249,7 +263,7 @@ void vtkDecimatePro::Execute()
   vtkPolyData *input=(vtkPolyData *)this->Input;
   vtkPolyData *output=(vtkPolyData *)this->Output;
   int type, totalEliminated, numPops;
-  int numTriSplits, npts, *pts;
+  int numRecycles, npts, *pts;
   unsigned short int ncells;
   int *cells, pt1, pt2, cellId, fedges[2];
   vtkIdList CollapseTris(100,100);
@@ -322,10 +336,10 @@ void vtkDecimatePro::Execute()
   // surrounding vertex, evaluate the error and re-insert into the queue. 
   // (While this is happening we keep track of operations on the data - 
   // this forms the core of the progressive mesh representation.)
-  for ( totalEliminated=0, reduction=0.0, numTriSplits=0; 
-  reduction < this->Reduction && (ptId = VertexQueue->Pop(error)) >= 0; )
+  for ( totalEliminated=0, reduction=0.0, numRecycles=0, numPops=0;
+  reduction < this->Reduction && (ptId = VertexQueue->Pop(error)) >= 0; numPops++)
     {
-    if ( ! ((numPops=VertexQueue->GetNumberOfPops()) % 10000) )
+    if ( ! (numPops % 10000) )
       vtkDebugMacro(<<"Deleting vertex #" << numPops);
 
     Mesh->GetPoint(ptId,X);
@@ -335,7 +349,7 @@ void vtkDecimatePro::Execute()
       {
       type = EvaluateVertex(ptId, ncells, cells, fedges);
 
-      if ( error >= VTK_DEFERRED )
+      if ( error >= VTK_RECYCLE )
         {
         if ( Split && DeferSplit )
           {
@@ -343,7 +357,6 @@ void vtkDecimatePro::Execute()
           }
         else if ( Split ) //okay to break it up - already processed deferred splits
           {
-          numTriSplits++;
           SplitVertex(ptId, type, ncells, cells);
           continue;
           }
@@ -376,7 +389,8 @@ void vtkDecimatePro::Execute()
 
       else //Couldn't delete the vertex, so we'll re-insert it
         { 
-        VertexQueue->Insert(ptId,VTK_DEFERRED);
+        numRecycles++;
+        VertexQueue->Insert(ptId,VTK_RECYCLE);
         }
 
       }//if cells attached
@@ -386,8 +400,8 @@ void vtkDecimatePro::Execute()
                 <<"\n\tPerformed " << numPops << " vertex pops"
                 <<"\n\tFound " << this->GetNumberOfInflectionPoints() 
                     <<" inflection points"
-                <<"\n\tPerformed " << NumSplits << " initial splits"
-                <<"\n\tPerformed " << numTriSplits << " triangulation splits"
+                <<"\n\tPerformed " << NumSplits << " vertex splits"
+                <<"\n\tRecycles " << numRecycles << " points"
                 <<"\n\tAdded " << Mesh->GetNumberOfPoints() - numPts 
                     << " new points");
 
@@ -850,7 +864,7 @@ static void SplitVertex(int ptId, int type, unsigned short int numTris, int *tri
   // Non-manifold case tears off triangle(s) in current loop. Points are
   // then re-inserted - possibly recursively.
   //
-  else if ( type == VTK_NON_MANIFOLD_VERTEX )
+/*  else if ( type == VTK_NON_MANIFOLD_VERTEX )
     {
     // tear off manifold part
     id = Mesh->InsertNextLinkedPoint(X,T->MaxId+1);
@@ -860,10 +874,10 @@ static void SplitVertex(int ptId, int type, unsigned short int numTris, int *tri
       Mesh->AddReferenceToCell(id,T->Array[i].id);
       Mesh->ReplaceCellPoint(T->Array[i].id, ptId, id);
       }
-    VertexQueue->Insert(id,error);
-    VertexQueue->Insert(ptId,error);
+    VertexQueue->Insert(id);
+    VertexQueue->Insert(ptId);
     }
-
+*/
   //
   // Default case just splits off triangle(s) in current loop. Other
   // triangles are given a new vertex and are re-inserted.
@@ -873,7 +887,7 @@ static void SplitVertex(int ptId, int type, unsigned short int numTris, int *tri
     // First triangle is detached from other vertices
     Mesh->GetCellPoints(tris[0],nverts,verts);
     p1 = ( verts[0] != ptId ? verts[0] : verts[1] );
-    p2 = ( verts[1] != ptId ? verts[1] : verts[2] );
+    p2 = ( verts[1] != ptId && verts[1] != p1 ? verts[1] : verts[2] );
     Mesh->GetPoint(p1,x1);
     Mesh->GetPoint(p2,x2);
     error = ComputeEdgeError(X, x1, x2);
@@ -881,7 +895,7 @@ static void SplitVertex(int ptId, int type, unsigned short int numTris, int *tri
 
     // Other connected triangles are detached by creating a new vertex and
     // attaching triangles to it (and detaching from old).
-    for ( i=1; i < numTris; i++ ) 
+    for ( i=(numTris-1); i > 0; i-- ) 
       {
       Mesh->RemoveReferenceToCell(ptId,tris[i]);
 
@@ -892,7 +906,7 @@ static void SplitVertex(int ptId, int type, unsigned short int numTris, int *tri
       // Compute error and insert into priority queue
       Mesh->GetCellPoints(tris[i],nverts,verts);
       p1 = ( verts[0] != id ? verts[0] : verts[1] );
-      p2 = ( verts[1] != id ? verts[1] : verts[2] );
+      p2 = ( verts[1] != id && verts[1] != p1 ? verts[1] : verts[2] );
       Mesh->GetPoint(p1,x1);
       Mesh->GetPoint(p2,x2);
       error = ComputeEdgeError(X, x1, x2);
@@ -1204,7 +1218,7 @@ void vtkDecimatePro::ProcessDeferredSplits(int numPts, int numPops)
 
   DeferSplit = 0;
 
-  // Flush queus and reinsert all points still left
+  // Flush queues and reinsert all points still left
   VertexQueue->Reset();
   for ( int ptId=0; ptId < numPts; ptId++ )
     {
