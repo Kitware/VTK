@@ -427,7 +427,11 @@ void vtkCamera::CalcDistance ()
 float *vtkCamera::GetOrientation ()
 {
   // calculate a new orientation
-  this->CalcPerspectiveTransform(1,0,1);
+//  this->CalcPerspectiveTransform(1,0,1);
+  this->CalcViewTransform();
+  this->PerspectiveTransform.GetOrientation (this->Orientation[0],
+					     this->Orientation[1],
+					     this->Orientation[2]);
 
   vtkDebugMacro(<< " Returning Orientation of ( " <<  this->Orientation[0] 
   << ", " << this->Orientation[1] << ", " << this->Orientation[2] << ")");
