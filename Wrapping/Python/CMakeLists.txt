@@ -203,6 +203,8 @@ IF(PYTHON_EXECUTABLE)
     DEPENDS ${VTK_PYTHON_LIBRARY_FILES}
     TARGET vtkpython_pyc
     )
+  CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Python/vtk.pth
+                 ${VTK_BINARY_DIR}/Wrapping/Python/vtk.pth COPYONLY)
 ENDIF(PYTHON_EXECUTABLE)
 
 # Allow the user to customize their build with some local options
