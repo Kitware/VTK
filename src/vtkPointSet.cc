@@ -63,7 +63,7 @@ vtkPointSet::~vtkPointSet ()
 
 // Description:
 // Copy the geometric structure of an input point set object.
-void vtkPolyData::CopyStructure(vtkDataSet *ds)
+void vtkPointSet::CopyStructure(vtkDataSet *ds)
 {
   vtkPointSet *ps=(vtkPointSet *)ds;
   this->Initialize();
