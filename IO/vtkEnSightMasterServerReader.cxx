@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkString.h"
 
-vtkCxxRevisionMacro(vtkEnSightMasterServerReader, "1.3");
+vtkCxxRevisionMacro(vtkEnSightMasterServerReader, "1.4");
 vtkStandardNewMacro(vtkEnSightMasterServerReader);
 
 //----------------------------------------------------------------------------
@@ -139,7 +139,7 @@ int vtkEnSightMasterServerReader::DetermineFileName(int piece)
         sscanf(result, "casefile: %s", filename);
         if ( filename[0] == 0 )
           {
-          //cout << "Problem parsing file name from: " << result << endl;
+          vtkErrorMacro("Problem parsing file name from: " << result);
           return VTK_ERROR;
           }
         this->SetPieceCaseFileName(filename);
