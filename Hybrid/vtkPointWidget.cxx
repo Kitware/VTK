@@ -28,7 +28,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPointWidget, "1.9");
+vtkCxxRevisionMacro(vtkPointWidget, "1.10");
 vtkStandardNewMacro(vtkPointWidget);
 
 vtkPointWidget::vtkPointWidget()
@@ -353,7 +353,6 @@ void vtkPointWidget::OnMiddleButtonDown()
   if ( path != NULL )
     {
     this->State = vtkPointWidget::Translating;
-    int idx = this->CursorPicker->GetCellId();
     this->Highlight(1);
     this->ConstraintAxis = this->DetermineConstraintAxis(-1,NULL);
     }
