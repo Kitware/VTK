@@ -44,7 +44,6 @@ void vlSbrLight::Render(vlSbrRenderer *ren,int light_index)
   dx = this->Position[0] - this->FocalPoint[0];
   dy = this->Position[1] - this->FocalPoint[1];
   dz = this->Position[2] - this->FocalPoint[2];
-  dz = -dz;
   
   // define the light source
   light_source(fd, light_index, DIRECTIONAL,
