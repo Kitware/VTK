@@ -1,7 +1,7 @@
 package require vtk
 package require vtkinteraction
 
-# Demonstrate how to use the vtkHexahedralManipulator
+# Demonstrate how to use the vtkBoxWidget.
 # This script uses a 3D box widget to define a "clipping box" to clip some
 # simple geometry (a mace). Make sure that you hit the "W" key to activate the widget.
 
@@ -15,10 +15,15 @@ vtkGlyph3D glyph
     glyph SetVectorModeToUseNormal
     glyph SetScaleModeToScaleByVector
     glyph SetScaleFactor 0.25
-
 vtkAppendPolyData apd
     apd AddInput [glyph GetOutput]
     apd AddInput [sphere GetOutput]
+vtkPolyDataMapper maceMapper
+    maceMapper SetInput [apd GetOutput]
+vtkLODActor maceActor
+    maceActor SetMapper maceMapper
+    maceActor VisibilityOn
+
 vtkPlanes planes
 vtkClipPolyData clipper
     clipper SetInput [apd GetOutput]
@@ -31,12 +36,6 @@ vtkLODActor selectActor
     [selectActor GetProperty] SetColor 0 1 0
     selectActor VisibilityOff
     selectActor SetScale 1.01 1.01 1.01
-
-vtkPolyDataMapper maceMapper
-    maceMapper SetInput [apd GetOutput]
-vtkLODActor maceActor
-    maceActor SetMapper maceMapper
-    maceActor VisibilityOn
 
 # Create the RenderWindow, Renderer and both Actors
 #
