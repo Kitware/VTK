@@ -150,6 +150,7 @@ void vtkEncodedGradientEstimator::Update( )
 
   if ( this->GetMTime() > this->BuildTime || 
        this->DirectionEncoder->GetMTime() > this->BuildTime ||
+       this->ScalarInput->GetMTime() > this->BuildTime ||
        !this->EncodedNormals )
     {
 
