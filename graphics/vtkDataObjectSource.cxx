@@ -43,6 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkDataObjectSource::vtkDataObjectSource()
 {
   this->SetOutput(vtkDataObject::New());
+  this->Outputs[0]->Delete();
 }
 
 
