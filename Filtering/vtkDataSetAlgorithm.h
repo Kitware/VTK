@@ -25,8 +25,8 @@
 // the case then please override this method in your subclass. This class
 // breaks out the downstream requests into seperate functions such as
 // RequestDataObject RequestData and RequestInformation. The default
-// implementation of CreateOutput will create an output data of the same type
-// as the input.
+// implementation of RequestDataObject will create an output data of the 
+// same type as the input.
 
 
 #ifndef __vtkDataSetAlgorithm_h
