@@ -418,27 +418,54 @@ void vlPolyData::GetPointCells(int ptId, vlIdList& cellIds)
 void vlPolyData::InsertNextCell(int type, int npts, int pts[MAX_CELL_SIZE])
 {
 
+
   switch (type)
     {
     case vlPOINT: case vlPOLY_POINTS:
-     this->Verts->InsertNextCell(npts,pts);
-     break;
+      if ( this->Verts == NULL ) // hasn't been initialized
+        {
+        this->SetVerts(new vlCellArray(1000,1000));
+        }
+      this->Verts->InsertNextCell(npts,pts);
+      break;
 
     case vlLINE: case vlPOLY_LINE:
+      if ( this->Lines == NULL ) // hasn't been initialized
+        {
+        this->SetLines(new vlCellArray(1000,1000));
+        }
       this->Lines->InsertNextCell(npts,pts);
       break;
 
     case vlTRIANGLE: case vlQUAD: case vlPOLYGON:
+      if ( this->Polys == NULL ) // hasn't been initialized
+        {
+        this->SetPolys(new vlCellArray(1000,1000));
+        }
       this->Polys->InsertNextCell(npts,pts);
       break;
 
     case vlTRIANGLE_STRIP:
+      if ( this->Strips == NULL ) // hasn't been initialized
+        {
+        this->SetStrips(new vlCellArray(1000,1000));
+        }
       this->Strips->InsertNextCell(npts,pts);
       break;
 
     default:
       vlErrorMacro(<<"Bad cell type! Can't insert!");
     }
+}
+
+void vlPolyData::Squeeze()
+{
+  if ( this->Verts != NULL ) this->Verts->Squeeze();
+  if ( this->Lines != NULL ) this->Lines->Squeeze();
+  if ( this->Polys != NULL ) this->Polys->Squeeze();
+  if ( this->Strips != NULL ) this->Strips->Squeeze();
+
+  vlPointSet::Squeeze();
 }
 
 void vlPolyData::ReverseCell(int cellId)

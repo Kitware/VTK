@@ -609,19 +609,90 @@ void vlTransform::PrintSelf (ostream& os, vlIndent indent)
 }
 
 // Description:
-// Returns vector transformed by the current transformation matrix.
+// Returns point transformed by the current transformation matrix.
 
-float *vlTransform::GetVector()
+float *vlTransform::GetPoint()
 {
   if (this->PreMultiplyFlag)
     {
     this->Stack[0]->Transpose();
-    this->Stack[0]->VectorMultiply(this->Vector,this->Vector);
+    this->Stack[0]->PointMultiply(this->Point,this->Point);
     this->Stack[0]->Transpose();
     }
   else
     {
-    this->Stack[0]->VectorMultiply(this->Vector,this->Vector);
+    this->Stack[0]->PointMultiply(this->Point,this->Point);
     }
-  return this->Vector;
+  return this->Point;
+}
+
+void vlTransform::MultiplyPoints(vlPoints *inPts, vlPoints *outPts)
+{
+  float newX[4];
+  float *x;
+  int ptId, i;
+  int numPts = inPts->GetNumberOfPoints();
+
+  for (ptId=0; ptId < numPts; ptId++)
+    {
+    x = inPts->GetPoint(ptId);
+    for (i=0; i<3; i++) newX[i] = x[i];
+    newX[3] = 1.0;
+
+    this->Stack[0]->PointMultiply(newX,newX);
+
+    for (i=0; i<3; i++) newX[i] /= newX[3];  //normalize
+    outPts->SetPoint(ptId, newX);
+    }
+}
+
+void vlTransform::MultiplyVectors(vlVectors *inVectors, vlVectors *outVectors)
+{
+  float newV[4];
+  float *v;
+  int ptId, i;
+  int numVectors = inVectors->GetNumberOfVectors();
+
+  this->Push();
+  this->Inverse();
+  this->Transpose();
+
+  for (ptId=0; ptId < numVectors; ptId++)
+    {
+    v = inVectors->GetVector(ptId);
+    for (i=0; i<3; i++) newV[i] = v[i];
+    newV[3] = 1.0;
+
+    this->Stack[0]->PointMultiply(newV,newV);
+
+    for (i=0; i<3; i++) newV[i] /= newV[3];  //normalize
+    outVectors->SetVector(ptId, newV);
+    }
+  this->Pop();
+}
+
+void vlTransform::MultiplyNormals(vlNormals *inNormals, vlNormals *outNormals)
+{
+  float newN[4];
+  float *n;
+  int ptId, i;
+  int numNormals = inNormals->GetNumberOfNormals();
+
+  this->Push();
+  this->Inverse();
+  this->Transpose();
+
+  for (ptId=0; ptId < numNormals; ptId++)
+    {
+    n = inNormals->GetNormal(ptId);
+    for (i=0; i<3; i++) newN[i] = n[i];
+    newN[3] = 1.0;
+
+    this->Stack[0]->PointMultiply(newN,newN);
+
+    for (i=0; i<3; i++) newN[i] /= newN[3];  //normalize
+    outNormals->SetNormal(ptId, newN);
+    }
+  this->Pop();
+
 }

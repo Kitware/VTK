@@ -66,6 +66,8 @@ public:
 
   // create verts, lines, polys, tmeshes from cell object
   void InsertNextCell(int type, int npts, int pts[MAX_CELL_SIZE]);
+  // Use this method to reclaim memory when using InsertNextCell()
+  void Squeeze();
 
   // special operations on cell
   void ReverseCell(int cellId);

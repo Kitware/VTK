@@ -48,9 +48,12 @@ public:
   void GetCellPoints(int cellId, vlIdList& ptIds);
   void GetPointCells(int ptId, vlIdList& cellIds);
 
+  // specific object methods
   void SetDimensions(int i, int j, int k);
   void SetDimensions(int dim[3]);
   vlGetVectorMacro(Dimensions,int);
+
+  int GetDataDimension();
 
   void BlankingOn();
   void BlankingOff();

@@ -52,6 +52,9 @@ public:
   // compute bounds of data
   void ComputeBounds();
   
+  // reclaim memory
+  void Squeeze();
+
   vlSetObjectMacro(Points,vlPoints);
   vlGetObjectMacro(Points,vlPoints);
 

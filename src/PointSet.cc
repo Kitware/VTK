@@ -134,3 +134,9 @@ int vlPointSet::FindCell(float x[3], vlCell *cell, float tol2, int& subId,
     }
   return closestCell;
 }
+
+void vlPointSet::Squeeze()
+{
+  if ( this->Points ) this->Points->Squeeze();
+  vlDataSet::Squeeze();
+}

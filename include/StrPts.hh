@@ -41,6 +41,7 @@ public:
                int& subId, float pcoords[3]);
   int GetCellType(int cellId);
 
+  // specific object methods
   vlSetVector3Macro(AspectRatio,float);
   vlGetVectorMacro(AspectRatio,float);
 

@@ -44,6 +44,19 @@ vlStructuredDataSet::~vlStructuredDataSet()
   this->Initialize();
 }
 
+int vlStructuredDataSet::GetDataDimension()
+{
+  switch (this->DataDescription)
+    {
+    case SINGLE_POINT: return 0;
+
+    case X_LINE: case Y_LINE: case Z_LINE: return 1;
+
+    case XY_PLANE: case YZ_PLANE: case XZ_PLANE: return 2;
+
+    case XYZ_GRID: return 3;
+    }
+}
 
 void vlStructuredDataSet::SetDimensions(int i, int j, int k)
 {

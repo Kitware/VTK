@@ -136,3 +136,8 @@ void vlDataSet::GetCellNeighbors(int cellId, vlIdList &ptIds,
       }
     }
 }
+
+void vlDataSet::Squeeze()
+{
+  this->PointData.Squeeze();
+}

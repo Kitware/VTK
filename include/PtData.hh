@@ -28,7 +28,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 class vlPointData : public vlObject 
 {
 public:
-  vlPointData() : Scalars(NULL), Vectors(NULL), Normals(NULL), TCoords(NULL) {};
+  vlPointData();
   void Initialize();
   ~vlPointData();
   char *GetClassName() {return "vlPointData";};

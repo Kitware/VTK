@@ -23,6 +23,19 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "FNormals.hh"
 #include "FTCoords.hh"
 
+vlPointData::vlPointData()
+{
+  this->Scalars = NULL;
+  this->Vectors = NULL;
+  this->Normals = NULL;
+  this->TCoords = NULL;
+
+  this->CopyScalars = 1;
+  this->CopyVectors = 1;
+  this->CopyNormals = 1;
+  this->CopyTCoords = 1;
+}
+
 vlPointData::vlPointData (const vlPointData& pd)
 {
   this->Scalars = pd.Scalars;

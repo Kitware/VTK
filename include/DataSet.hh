@@ -78,6 +78,9 @@ public:
   // return pointer to this dataset's point data
   vlPointData *GetPointData() {return &this->PointData;};
 
+  // reclaim memory
+  virtual void Squeeze();
+
 protected:
   vlPointData PointData;   // Scalars, vectors, etc. associated w/ each point
   vlTimeStamp ComputeTime; // Time at which bounds, center, etc. computed

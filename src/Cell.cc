@@ -134,3 +134,20 @@ float *vlCell::GetBounds ()
     }
   return bounds;
 }
+
+float vlCell::GetLength2 ()
+{
+  float diff, l=0.0;
+  float *bounds;
+  int i;
+
+  bounds = this->GetBounds();
+
+  for (i=0; i<3; i++)
+    {
+    diff = bounds[2*i+1] - bounds[2*i];
+    l += diff * diff;
+    }
+ 
+  return l;
+}

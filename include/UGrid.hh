@@ -42,7 +42,6 @@ public:
   int InsertNextCell(int type, int npts, int pts[MAX_CELL_SIZE]);
   void InsertCells(int numCells, int width, int* data);
   void InsertCells(int numCells, int* data);
-  void Squeeze();
 
   // dataset interface
   vlDataSet *MakeObject() {return new vlUnstructuredGrid(*this);};
@@ -52,6 +51,7 @@ public:
   void GetCellPoints(int cellId, vlIdList& ptIds);
   void GetPointCells(int ptId, vlIdList& cellIds);
   int GetCellType(int cellId);
+  void Squeeze();
 
 protected:
   // points inherited

@@ -258,5 +258,6 @@ void vlUnstructuredGrid::Squeeze()
   if ( this->Connectivity ) this->Connectivity->Squeeze();
   if ( this->Cells ) this->Cells->Squeeze();
   if ( this->Links ) this->Links->Squeeze();
-}
 
+  vlPointSet::Squeeze();
+}

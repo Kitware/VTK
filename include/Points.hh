@@ -34,6 +34,8 @@ public:
   virtual float *GetPoint(int i) = 0;
   virtual void SetPoint(int i,float x[3]) = 0;       // fast insert
   virtual void InsertPoint(int i, float x[3]) = 0;   // allocates memory as necessary
+  virtual void Squeeze() = 0; // reclaim memory
+
   void GetPoints(vlIdList& ptId, vlFloatPoints& fp);
   char *GetClassName() {return "vlPoints";};
   void PrintSelf(ostream& os, vlIndent indent);

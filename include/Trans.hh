@@ -18,6 +18,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 #include "Object.hh"
 #include "Mat4x4.hh"
+#include "Points.hh"
+#include "Normals.hh"
+#include "Vectors.hh"
 
 // .NAME vlTransform - a general matrix transformation class
 // .LIBRARY common
@@ -28,13 +31,6 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 class vlTransform : public vlObject
 {
- private:
-  int PreMultiplyFlag;
-  int StackSize;
-  vlMatrix4x4 ** Stack;
-  vlMatrix4x4 ** StackBottom;
-  float Vector[4];
-  float Orientation[3];
  public:
   vlTransform ();
   vlTransform (const vlTransform& t);
@@ -63,10 +59,22 @@ class vlTransform : public vlObject
   void PrintSelf (ostream& os, vlIndent indent);
   void Concatenate (vlMatrix4x4 & matrix);
   void Multiply4x4 ( vlMatrix4x4 & a, vlMatrix4x4 & b, vlMatrix4x4 & c);
-  void VectorMultiply (float in[4],float out[4]) 
-     {this->Stack[0]->VectorMultiply(in,out);};
-  vlSetVector4Macro(Vector,float);
-  float *GetVector();
+  void PointMultiply (float in[4],float out[4]) 
+     {this->Stack[0]->PointMultiply(in,out);};
+  void MultiplyPoints(vlPoints *inPts, vlPoints *outPts);
+  void MultiplyVectors(vlVectors *inVectors, vlVectors *outVectors);
+  void MultiplyNormals(vlNormals *inNormals, vlNormals *outNormals);
+  vlSetVector4Macro(Point,float);
+  float *GetPoint();
+
+ private:
+  int PreMultiplyFlag;
+  int StackSize;
+  vlMatrix4x4 ** Stack;
+  vlMatrix4x4 ** StackBottom;
+  float Point[4];
+  float Orientation[3];
+
 };
 
 #endif
