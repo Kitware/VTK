@@ -152,8 +152,10 @@ void vtkXRenderWindowInteractor::Initialize()
     }
   if (!any_initialized)
     {
+    vtkDebugMacro("toolkit init");
     XtToolkitInitialize();
     app = XtCreateApplicationContext();
+    vtkDebugMacro("app ctx " << app);
     any_initialized = 1;
     }
   this->App = app;
@@ -161,8 +163,10 @@ void vtkXRenderWindowInteractor::Initialize()
   this->DisplayId = ren->GetDisplayId();
   if (!this->DisplayId)
     {
+    vtkDebugMacro("opening display");
     this->DisplayId = 
       XtOpenDisplay(this->App,NULL,"VTK","vtk",NULL,0,&argc,NULL);
+    vtkDebugMacro("opened display");
     }
   else
     {
@@ -542,7 +546,11 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
             if (actor != NULL)
               {
               pickPoint = pickPositions->GetPoint(i);
-              d = vtkMath::Distance2BetweenPoints(pickPoint, me->ViewPoint);
+	      double dtmp[3];
+	      dtmp[0] = pickPoint[0];
+	      dtmp[1] = pickPoint[1];
+	      dtmp[2] = pickPoint[2];
+              d = vtkMath::Distance2BetweenPoints(dtmp, me->ViewPoint);
               if (distToCamera > d)
                 {
                 distToCamera = d;

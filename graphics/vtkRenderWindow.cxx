@@ -492,7 +492,7 @@ void vtkRenderWindow::DoAARender()
 	worldOffset[1] = dpoint[1] - origfocus[1];
 	worldOffset[2] = dpoint[2] - origfocus[2];
 
-	dpoint = acam->GetPosition();
+	acam->GetPosition((float [3])dpoint);
 	acam->SetPosition(dpoint[0]+worldOffset[0],
 			  dpoint[1]+worldOffset[1],
 			  dpoint[2]+worldOffset[2]);
@@ -526,7 +526,7 @@ void vtkRenderWindow::DoAARender()
 	worldOffset[1] = dpoint[1] - origfocus[1];
 	worldOffset[2] = dpoint[2] - origfocus[2];
 
-	dpoint = acam->GetPosition();
+	acam->GetPosition((float [3])dpoint);
 	acam->SetPosition(dpoint[0]+worldOffset[0],
 			  dpoint[1]+worldOffset[1],
 			  dpoint[2]+worldOffset[2]);
@@ -584,19 +584,19 @@ void vtkRenderWindow::DoFDRender()
     vtkRenderer *aren;
     vtkCamera *acam;
     float focalDisk;
-    float viewUp[4];
-    float *vpn;
-    float *dpoint;
+    double viewUp[4];
+    double *vpn;
+    double *dpoint;
     vtkTransform *aTrans = vtkTransform::New();
     float offsets[2];
-    float *orig;
+    double *orig;
 
     // get the size
     size = this->GetSize();
 
     viewUp[3] = 1.0;
 
-    orig = new float [3*this->Renderers->GetNumberOfItems()];
+    orig = new double [3*this->Renderers->GetNumberOfItems()];
 
     for (i = 0; i < this->FDFrames; i++)
       {
@@ -612,13 +612,13 @@ void vtkRenderWindow::DoFDRender()
 	acam = aren->GetActiveCamera();
 	focalDisk = acam->GetFocalDisk()*offsets[0];
 
-	memcpy(viewUp,acam->GetViewUp(),12);
+	memcpy(viewUp,acam->GetViewUp(),sizeof(double)*3);
 	vpn = acam->GetViewPlaneNormal();
 	aTrans->Identity();
 	aTrans->Scale(focalDisk,focalDisk,focalDisk);
 	aTrans->RotateWXYZ(offsets[1],vpn[0],vpn[1],vpn[2]);
-	aTrans->SetPoint(viewUp);
-	vpn = aTrans->GetPoint();
+	aTrans->SetDoublePoint(viewUp);
+	vpn = aTrans->GetDoublePoint();
 	dpoint = acam->GetPosition();
 
 	// store the position for later
