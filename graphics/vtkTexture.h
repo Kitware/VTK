@@ -57,10 +57,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // 
 // Some renderers such as OpenGL require that the texture map dimensions are
 // a power of two in each direction. Other renderers may have similar
-// (ridiculous) restrictions, so be careful out there...
+// (ridiculous) restrictions, so be careful out there... (Note: a recent change
+// to vtk allows use of non-power of two texture maps in OpenGL. The texture is
+// automatically resampled to a power of two in one or more directions.)
 
 // .SECTION See Also
-// vtkActor vtkRenderer vtkTextureDevice
+// vtkActor vtkRenderer vtkOpenGLTexture
 
 #ifndef __vtkTexture_h
 #define __vtkTexture_h
