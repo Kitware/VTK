@@ -258,7 +258,7 @@ public:
 
   // Description:
   // Helper method for reading in data.
-  char *LowerCase(char *);
+  char *LowerCase(char *str, const size_t len=256);
   
   // Description:
   // Return the istream being used to read in the data.

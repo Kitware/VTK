@@ -437,11 +437,11 @@ int vtkDataReader::ReadHeader()
     return 0;
     }
 
-  if ( !strncmp(this->LowerCase(line),"ascii",5) )
+  if ( !strncmp(this->LowerCase(line), "ascii", 5) )
     {
     this->FileType = VTK_ASCII;
     }
-  else if ( !strncmp(line,"binary",6) )
+  else if ( !strncmp(line, "binary", 6) )
     {
     this->FileType = VTK_BINARY;
     }
@@ -1752,12 +1752,12 @@ vtkFieldData *vtkDataReader::ReadFieldData()
 }
 
 
-char *vtkDataReader::LowerCase(char *str)
+char *vtkDataReader::LowerCase(char *str, const size_t len)
 {
-  int i;
+  size_t i;
   char *s;
 
-  for ( i=0, s=str; *s != '\0' && i<256; s++,i++) 
+  for ( i=0, s=str; *s != '\0' && i<len; s++,i++) 
     {
     *s = tolower(*s);
     }
@@ -1889,7 +1889,7 @@ int vtkDataReader::CharacterizeFile()
 void vtkDataReader::CheckFor(const char* name, char *line, int &num, 
                              char** &array, int &allocSize)
 {
-  if ( !strncmp(this->LowerCase(line),name,strlen(name)) )
+  if ( !strncmp(this->LowerCase(line, strlen(name)), name, strlen(name)) )
     {
     int i;
     int newAllocSize;
@@ -1937,6 +1937,7 @@ void vtkDataReader::CheckFor(const char* name, char *line, int &num,
 
 const char *vtkDataReader::GetScalarsNameInFile(int i)
 {
+  this->CharacterizeFile();
   if ( !this->ScalarsNameInFile || 
        i < 0 || i >= this->NumberOfScalarsInFile )
     {
@@ -1950,6 +1951,7 @@ const char *vtkDataReader::GetScalarsNameInFile(int i)
 
 const char *vtkDataReader::GetVectorsNameInFile(int i)
 {
+  this->CharacterizeFile();
   if ( !this->VectorsNameInFile || 
        i < 0 || i >= this->NumberOfVectorsInFile )
     {
@@ -1962,6 +1964,7 @@ const char *vtkDataReader::GetVectorsNameInFile(int i)
 }
 const char *vtkDataReader::GetTensorsNameInFile(int i)
 {
+  this->CharacterizeFile();
   if ( !this->TensorsNameInFile || 
        i < 0 || i >= this->NumberOfTensorsInFile )
     {
@@ -1974,6 +1977,7 @@ const char *vtkDataReader::GetTensorsNameInFile(int i)
 }
 const char *vtkDataReader::GetNormalsNameInFile(int i)
 {
+  this->CharacterizeFile();
   if ( !this->NormalsNameInFile || 
        i < 0 || i >= this->NumberOfNormalsInFile )
     {
@@ -1986,6 +1990,7 @@ const char *vtkDataReader::GetNormalsNameInFile(int i)
 }
 const char *vtkDataReader::GetTCoordsNameInFile(int i)
 {
+  this->CharacterizeFile();
   if ( !this->TCoordsNameInFile || 
        i < 0 || i >= this->NumberOfTCoordsInFile )
     {
@@ -1998,6 +2003,7 @@ const char *vtkDataReader::GetTCoordsNameInFile(int i)
 }
 const char *vtkDataReader::GetFieldDataNameInFile(int i)
 {
+  this->CharacterizeFile();
   if ( !this->FieldDataNameInFile || 
        i < 0 || i >= this->NumberOfFieldDataInFile )
     {
