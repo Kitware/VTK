@@ -44,6 +44,7 @@ vtkCompositeRenderManager.cxx
 vtkCompressCompositer.cxx
 vtkCutMaterial.cxx
 vtkDistributedDataFilter.cxx
+vtkModelMetadata.cxx
 vtkDistributedStreamTracer.cxx
 vtkDummyController.cxx
 vtkExtractCells.cxx
@@ -80,6 +81,7 @@ vtkRTAnalyticSource.cxx
 vtkRectilinearGridOutlineFilter.cxx
 vtkSocketCommunicator.cxx
 vtkSocketController.cxx
+vtkSubGroup.cxx
 vtkTransmitPolyDataPiece.cxx
 vtkTransmitUnstructuredGridPiece.cxx
 vtkTreeCompositer.cxx
