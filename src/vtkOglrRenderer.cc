@@ -38,10 +38,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+#ifdef _WIN32
+#include <windows.h>
+#endif
+#include <GL/gl.h>
+
 #include <math.h>
-#include <iostream.h>
 #include "vtkOglrRenderer.hh"
-#include "vtkOglrRenderWindow.hh"
+#include "vtkRenderWindow.hh"
 #include "vtkOglrProperty.hh"
 #include "vtkOglrCamera.hh"
 #include "vtkOglrLight.hh"

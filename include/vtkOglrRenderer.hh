@@ -48,10 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkOglrRenderer_hh
 
 #include <stdlib.h>
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
 #include "vtkRenderer.hh"
-#include <GL/gl.h>
 
 class vtkOglrRenderer : public vtkRenderer
 {
