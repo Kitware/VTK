@@ -1204,7 +1204,7 @@ void vtkImageToPolyDataFilter::BuildPolygons(vtkUnsignedCharArray *vtkNotUsed(po
           {//build loop
           polyVisited[polyId[j]] = 1;
           numPolyPts = 1;
-          cellId = newPolys->InsertNextCell(npts); //will update count later
+          cellId = newPolys->InsertNextCell(0); //will update count later
           newPolys->InsertCellPoint(ptId);
 
           // Update polygonal color
