@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# Time-stamp: <2002-01-15 10:26:23 barre>
+# Time-stamp: <2002-01-15 11:10:15 barre>
 #
 # Build cross-references between classes and examples
 #
@@ -577,7 +577,7 @@ sub word_section_doc {
             my $has_data;
             $has_data = ' @htmlonly <img src="' . $args{"dataicon"} . '" align="top"> @endhtmlonly' if exists $use_data{$file};
             my $has_baseline_picture;
-            $has_baseline_picture = ' @htmlonly <a href="' . $args{"baselinelink"} . '/' . $baseline_picture{$file} . $args{"baselinelinksuffix"} . '"><img src="' . $args{"baselineicon"} . '" align="top"></a> @endhtmlonly' if exists $baseline_picture{$file};
+            $has_baseline_picture = ' @htmlonly <a href="' . $args{"baselinelink"} . '/' . $baseline_picture{$file} . $args{"baselinelinksuffix"} . '"><img src="' . $args{"baselineicon"} . '" align="top" border="0"></a> @endhtmlonly' if exists $baseline_picture{$file};
             last if ++$count > $args{"limit"};
             if (exists $args{"link"}) {
                 push @temp, 
