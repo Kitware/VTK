@@ -18,31 +18,39 @@
 // .NAME vtkGreedyTerrainDecimation - reduce height field (represented as image) to reduced TIN
 // .SECTION Description
 // vtkGreedyTerrainDecimation approximates a height field with a triangle
-// mesh (TIM) using a greedy insertion algorithm similar to that
-// described by Garland and Heckbert (Technical Report CMU-CS-95-181).
-// The input to the filter is a height field (represented by a 
-// image whose scalar values are height) and the output of the filter
-// is polygonal data consisting of triangles. The number of triangles in
-// the output is reduced in number as compared to a naive tessellation of
-// the input height field.
+// mesh (triangulated irregular network - TIN) using a greedy insertion
+// algorithm similar to that described by Garland and Heckbert in their paper
+// "Fast Polygonal Approximations of Terrain and Height Fields" (Technical
+// Report CMU-CS-95-181).  The input to the filter is a height field
+// (represented by a image whose scalar values are height) and the output of
+// the filter is polygonal data consisting of triangles. The number of
+// triangles in the output is reduced in number as compared to a naive
+// tessellation of the input height field. This filter copies point data
+// from the input to the output for those points present in the output.
 //
-// An brief description of the algorithm is as follows. It is a
-// top-down approach that initially represents the height field with
-// two triangles (whose vertices are at the four corners of the
-// image). These two triangles form a Delaunay triangulation. In an
-// iterative fashion, those points in the image with the greatest
-// error (as compared to the original height field) are injected into
-// the triangulation. This modifies the triangulation using the
-// standard incremental Delaunay point insertion (see vtkDelaunay2D)
-// algorithm. Points are repeatedly inserted until the appropriate
-// (user-specified) error criterion is met.
+// An brief description of the algorithm is as follows. The algorithm uses a
+// top-down decimation approach that initially represents the height field
+// with two triangles (whose vertices are at the four corners of the
+// image). These two triangles form a Delaunay triangulation. In an iterative
+// fashion, the point in the image with the greatest error (as compared to
+// the original height field) is injected into the triangulation. (Note that
+// the single point with the greatest error per triangle is identified and
+// placed into a priority queue. As the triangulation is modified, the errors
+// from the deleted triangles are removed from the queue, error values from
+// the new triangles are added.) The point whose error is at the top of the
+// queue is added to the triangulaion modifying it using the standard
+// incremental Delaunay point insertion (see vtkDelaunay2D) algorithm. Points
+// are repeatedly inserted until the appropriate (user-specified) error
+// criterion is met.
 //
-// To use this filter, set the input and specify the error measure to be used.
-// The error measure options are 1) the absolute number of triangles to be
-// produced; 2) a fractional reduction of the mesh (numTris/maxTris);
-// 3) an absolute measure on error (maximum difference in height field to reduced
-// TIN); and 4) relative error (the absolute error is set to a fraction of the
-// diagonal of the bounding box of the height field).
+// To use this filter, set the input and specify the error measure to be
+// used.  The error measure options are 1) the absolute number of triangles
+// to be produced; 2) a fractional reduction of the mesh (numTris/maxTris)
+// where maxTris is the largest possible number of triangles
+// 2*(dims[0]-1)*(dims[1]-1); 3) an absolute measure on error (maximum
+// difference in height field to reduced TIN); and 4) relative error (the
+// absolute error is normalized by the diagonal of the bounding box of the
+// height field).
 // 
 // .SECTION Caveats
 // This algorithm requires the entire input dataset to be in memory, hence it 
@@ -50,7 +58,7 @@
 // will allow you to stitch together images with matching boundaries.
 //
 // The input height image is assumed to be positioned in the x-y plane so the
-// z coordinate is the height value.
+// scalar value is the z-coordinate, height value.
 //
 // .SECTION See Also
 // vtkDecimatePro vtkQuadricDecimation vtkQuadricClustering
@@ -168,9 +176,9 @@ protected:
   float          Length;
 
   //Bookeeping arrays
-  vtkPriorityQueue                           *TerrainError; //errors for each pt in height field
-  vtkGreedyTerrainDecimationTerrainInfoType  *TerrainInfo;  //owning triangle for each pt
-  vtkGreedyTerrainDecimationPointInfoType    *PointInfo;    //map mesh pt id to input pt id
+  vtkPriorityQueue                          *TerrainError; //errors for each pt in height field
+  vtkGreedyTerrainDecimationTerrainInfoType *TerrainInfo;  //owning triangle for each pt
+  vtkGreedyTerrainDecimationPointInfoType   *PointInfo;    //map mesh pt id to input pt id
   
   //Make a guess at initial allocation
   void EstimateOutputSize(const vtkIdType numInputPts, vtkIdType &numPts, vtkIdType &numTris);
