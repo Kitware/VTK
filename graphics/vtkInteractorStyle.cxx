@@ -331,6 +331,7 @@ void vtkInteractorStyle::FindPokedRenderer(int x,int y)
 {
   vtkRendererCollection *rc;
   vtkRenderer *aren;
+  vtkRenderer *interactiveren = NULL, *viewportren = NULL;
   int numRens, i;
   this->CurrentRenderer = NULL;
 
@@ -344,9 +345,37 @@ void vtkInteractorStyle::FindPokedRenderer(int x,int y)
       {
       this->CurrentRenderer = aren;
       }
+
+    if (interactiveren == NULL && aren->GetInteractive())
+      {
+      // Save this renderer in case we can't find one in the viewport that
+      // is interactive.
+      interactiveren = aren;
+      }
+    if (viewportren == NULL && aren->IsInViewport(x, y))
+      {
+      // Save this renderer in case we can't find one in the viewport that 
+      // is interactive.
+      viewportren = aren;
+      }
     }
   
-  // we must have a value
+  // We must have a value.  If we found an interactive renderer before, that's
+  // better than a non-interactive renderer.
+  if (this->CurrentRenderer == NULL)
+    {
+    this->CurrentRenderer = interactiveren;
+    }
+  
+  // We must have a value.  If we found a renderer that is in the viewport,
+  // that is better than any old viewport (but not as good as an interactive
+  // one).
+  if (this->CurrentRenderer == NULL)
+    {
+    this->CurrentRenderer = viewportren;
+    }
+
+  // We must have a value - take anything.
   if (this->CurrentRenderer == NULL) 
     {
     rc->InitTraversal();
