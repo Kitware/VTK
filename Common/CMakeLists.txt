@@ -200,6 +200,7 @@ vtkStructuredVisibilityConstraint.cxx
 vtkTableExtentTranslator.cxx
 vtkTensor.cxx
 vtkTetra.cxx
+vtkThreadMessager.cxx
 vtkTimeStamp.cxx
 vtkTimerLog.cxx
 vtkTransform.cxx
