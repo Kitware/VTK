@@ -1211,9 +1211,13 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     }
   if ( vals->m_GEMSIP )
     {
-    fprintf(fp,"\"$(LIBDIR)\\vtkGemsip.dll\" : $(DEF_FILE) $(LIBDIR)\\vtkGemsVolume.dll $(GEMSIP_OBJS) %s\\GraphicsSplitInfo.txt\n",vals->m_WhereBuild);
+	// also compile the SdC helper object
+    fprintf(fp,"\"$(OBJDIR)\\vtkSdC.obj\" : \"%s\\gemsio\\vtkSdC.cxx\" \"%s\\gemsio\\vtkSdC.h\"\n",
+  	      vals->m_WhereVTK,vals->m_WhereVTK);
+    fprintf(fp,"  $(CPP) $(CPP_PROJ) \"%s\\gemsio\\vtkSdC.cxx\"\n\n", vals->m_WhereVTK);
+    fprintf(fp,"\"$(LIBDIR)\\vtkGemsip.dll\" : \"$(OBJDIR)\\vtkSdC.obj\" $(DEF_FILE) $(LIBDIR)\\vtkGemsVolume.dll $(GEMSIP_OBJS) %s\\GraphicsSplitInfo.txt\n",vals->m_WhereBuild);
 	  fprintf(fp,"    $(LINK32) @<<\n");
-    fprintf(fp,"  $(LINK32_FLAGS) $(GEMSIP_FLAGS) $(GEMSIP_OBJS) $(GEMSIP_LIBS)\n");
+    fprintf(fp,"  $(LINK32_FLAGS) $(GEMSIP_FLAGS) $(GEMSIP_OBJS) \"$(OBJDIR)\\vtkSdC.obj\" $(GEMSIP_LIBS)\n");
     fprintf(fp,"<<\n");
     fprintf(fp,"\n");
     }
