@@ -31,7 +31,9 @@ reader.SetDataMask(0x7fff)
 reader.UpdateWholeExtent()
 
 # transforms for each slice actor
-transform = vtkTransform()
+matrix = vtkMatrix4x4()
+transform = vtkMatrixToLinearTransform()
+transform.SetInput(matrix)
 
 # slice extraction filter for each slice actor
 reslice = vtkImageReslice()
@@ -118,8 +120,10 @@ renWin.SetSize(500,500)
 
 # Add the actors to the renderer, set the background and size
 #
-transform.RotateX(10.0)
-transform.RotateY(10.0)
+tmpTrans = vtkTransform()
+tmpTrans.RotateX(10.0)
+tmpTrans.RotateY(10.0)
+tmpTrans.GetMatrix(matrix)
 
 # render the image
 #

@@ -31,7 +31,9 @@ vtkImageReader reader
   reader UpdateWholeExtent
 
 # transform shared by reslice filter and texture mapped plane actor
-vtkTransform transform
+vtkMatrix4x4 matrix
+vtkMatrixToLinearTransform transform
+  transform SetInput matrix
 
 # slice extraction filter
 vtkImageReslice reslice
@@ -84,7 +86,7 @@ vtkDataSetMapper mapper
 vtkActor actor
   actor SetMapper mapper
   actor SetTexture atext
-  actor SetUserMatrix [transform GetMatrix]
+  actor SetUserMatrix matrix
   actor SetOrigin 0.0 0.0 0.0
 
 # create rendering stuff
@@ -114,8 +116,10 @@ ren1 SetBackground 1 1 1
 renWin SetSize 500 500
 
 # apply transformations
-transform RotateX 10.0
-transform RotateY 10.0
+vtkTransform tmpTrans
+tmpTrans RotateX 10.0
+tmpTrans RotateY 10.0
+tmpTrans GetMatrix matrix
 
 # don't show the tcl window
 wm withdraw .
