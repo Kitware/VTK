@@ -234,7 +234,9 @@ void vtkCleanPolyData::Execute()
                  newStrips->GetNumberOfCells() << " strips");
     }
 
-  //
+  vtkDebugMacro(<<"Removed " << numPts - newPts->GetNumberOfPoints()
+                << " points");
+
   // Update ourselves and release memory
   //
   delete [] updatedPts;
