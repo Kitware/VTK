@@ -22,7 +22,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtk3DWidget, "1.19");
+vtkCxxRevisionMacro(vtk3DWidget, "1.20");
 
 vtkCxxSetObjectMacro(vtk3DWidget,Prop3D,vtkProp3D);
 vtkCxxSetObjectMacro(vtk3DWidget,Input,vtkDataSet);
@@ -77,9 +77,7 @@ void vtk3DWidget::PlaceWidget()
     bounds[5] = 1.0;
     }
   
-  this->PlaceWidget(bounds);
-  this->InvokeEvent(vtkCommand::PlaceWidgetEvent,NULL);  
-  this->Placed = 1;
+  this->PlaceWidget(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);
 }
 
 void vtk3DWidget::PlaceWidget(double xmin, double xmax, 
@@ -96,6 +94,8 @@ void vtk3DWidget::PlaceWidget(double xmin, double xmax,
   bounds[5] = zmax;
   
   this->PlaceWidget(bounds);
+  this->InvokeEvent(vtkCommand::PlaceWidgetEvent,NULL);  
+  this->Placed = 1;
 }
 
 void vtk3DWidget::AdjustBounds(double bounds[6], 
