@@ -275,12 +275,15 @@ void vtkImageCache::GetAxesUpdateExtent(int num, int *axes, int *extent)
 // This method updates the region specified by "UpdateExtent".  
 void vtkImageCache::Update()
 {
+  int updateExtentSave[8];
   unsigned long pipelineMTime = this->GetPipelineMTime();
 
   // Make sure image information is upto date
   this->UpdateImageInformation(pipelineMTime);
   this->ClipUpdateExtentWithWholeExtent();
   
+  // Let the cache modify the update extent, but save the old one.
+  this->GetUpdateExtent(updateExtentSave);
   this->Source->InterceptCacheUpdate(this);
   
   // if cache doesn't have the necessary data.
@@ -308,6 +311,9 @@ void vtkImageCache::Update()
     {
     vtkDebugMacro("Update: UpdateRegion already in cache.");
     }
+  
+  // Restore the old update extent
+  this->SetUpdateExtent(updateExtentSave);
 }
 
 
