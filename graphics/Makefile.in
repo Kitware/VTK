@@ -208,6 +208,7 @@ vtkScalarTree \
 vtkShepardMethod \
 vtkShrinkFilter \
 vtkShrinkPolyData \
+vtkSmoothPolyDataFilter \
 vtkSpatialRepresentationFilter \
 vtkSphere \
 vtkSphereSource \
