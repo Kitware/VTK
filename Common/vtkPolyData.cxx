@@ -34,7 +34,7 @@
 #include "vtkTriangleStrip.h"
 #include "vtkVertex.h"
 
-vtkCxxRevisionMacro(vtkPolyData, "1.150");
+vtkCxxRevisionMacro(vtkPolyData, "1.151");
 vtkStandardNewMacro(vtkPolyData);
 
 //----------------------------------------------------------------------------
@@ -1607,6 +1607,64 @@ void vtkPolyData::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
         }
       }
     }
+}
+
+int vtkPolyData::IsEdge(vtkIdType p1, vtkIdType p2)
+{
+  unsigned short int ncells;
+  vtkIdType cellType;
+  vtkIdType npts;
+  vtkIdType i, j;
+  vtkIdType *cells, *pts;
+   
+  this->GetPointCells(p1,ncells,cells);
+  for (i=0; i<ncells; i++)
+    {
+    cellType = this->GetCellType(cells[i]);
+    switch (cellType)
+      {
+      case VTK_EMPTY_CELL: case VTK_VERTEX: case VTK_POLY_VERTEX:
+        break;
+      case VTK_LINE: case VTK_POLY_LINE:
+        this->GetCellPoints(cells[i],npts,pts);
+        for (j=0; j<npts-1; j++)
+          {
+          if (((pts[j]==p1)&&(pts[j+1]==p2))||((pts[j]==p2)&&(pts[j+1]==p1)))
+            {
+            return 1;
+            }
+          }
+        break;
+      case VTK_TRIANGLE_STRIP:
+        this->GetCellPoints(cells[i],npts,pts);
+        for (j=0; j<npts-2; j++)
+          {
+          if ((((pts[j]==p1)&&(pts[j+1]==p2))||((pts[j]==p2)&&(pts[j+1]==p1)))||
+             (((pts[j]==p1)&&(pts[j+2]==p2))||((pts[j]==p2)&&(pts[j+2]==p1))))
+            {
+            return 1;
+            }
+          }
+        if (((pts[npts-2]==p1)&&(pts[npts-1]==p2))||((pts[npts-2]==p2)&&(pts[npts-1]==p1)))
+          {
+          return 1;
+          }
+        break;
+      default:
+        this->GetCellPoints(cells[i],npts,pts);
+        for (j=0; j<npts; j++)
+          {
+          if (p1==pts[j])
+            {
+            if ((pts[(j-1+npts)%npts]==p2)||(pts[(j+1)%npts]==p2))
+              {
+              return 1;
+              }
+            }
+          }
+      }
+    }
+  return 0;
 }
 
 //----------------------------------------------------------------------------
