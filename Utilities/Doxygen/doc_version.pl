@@ -1,9 +1,12 @@
 #!/usr/bin/env perl
-# Time-stamp: <2001-10-06 20:57:37 barre>
+# Time-stamp: <2001-10-17 12:21:09 barre>
 #
 # Extract VTK version and add it to documentation
 #
 # barre : Sebastien Barre <sebastien@barre.nom.fr>
+#
+# 0.23 (barre) :
+#   - update useful links
 #
 # 0.22 (barre) :
 #   - add more (useful) links to various VTK documentation ressources
@@ -45,7 +48,7 @@ use Fcntl;
 use Getopt::Long;
 use strict;
 
-my ($VERSION, $PROGNAME, $AUTHOR) = (0.22, $0, "Sebastien Barre");
+my ($VERSION, $PROGNAME, $AUTHOR) = (0.23, $0, "Sebastien Barre");
 $PROGNAME =~ s/^.*[\\\/]//;
 print "$PROGNAME $VERSION, by $AUTHOR\n";
 
@@ -139,7 +142,7 @@ print DEST_FILE
   "  $revision\n",
   "  $date\n",
   "  \@par Useful links:\n",
-  "  \@li VTK Home: http://public.kitware.com\n",
+  "  \@li VTK Home: http://public.kitware.com/VTK\n",
   "  \@li VTK Mailing-list: http://public.kitware.com/mailman/listinfo/vtkusers\n",
   "  \@li VTK FAQ: http://public.kitware.com/cgi-bin/vtkfaq\n",
   "  \@li VTK Search: http://www.kitware.com/search.html\n",
