@@ -233,10 +233,7 @@ static float  falloff = -1;
 static void cleanup_name (char *);
 static void list_insert (List **root, List *new_node);
 static void *list_find (List **root, char *name);
-static void list_delete (List **root, List *node);
 static void list_kill (List **root);
 static MatProp *create_mprop (void);
 static Mesh *create_mesh (char *name, int vertices, int faces);
-static void free_mesh_data (Mesh *mesh);
-static float findfov (float lens);
 

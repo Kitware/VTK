@@ -102,6 +102,8 @@ int vtk3DSImporter::ImportBegin ()
 
 int vtk3DSImporter::Read3DS ()
 {
+  MatProp *aMaterial;
+
   if (parse_3ds_file (this) == 0)
     {
     vtkErrorMacro (<<  "Error readings .3ds file: " << this->FileName << "\n");
@@ -109,8 +111,11 @@ int vtk3DSImporter::Read3DS ()
     }
 
 
-  DefaultMaterial.aProperty = vtkProperty::New ();
-  LIST_INSERT (this->MatPropList, &DefaultMaterial);
+  // create a MatProp and fill if in with default
+  aMaterial = (MatProp *) malloc (sizeof (MatProp));
+  *aMaterial = DefaultMaterial;
+  aMaterial->aProperty = vtkProperty::New ();
+  LIST_INSERT (this->MatPropList, aMaterial);
   return 1;
 }
 
@@ -215,7 +220,6 @@ void vtk3DSImporter::ImportCameras (vtkRenderer *renderer)
 void vtk3DSImporter::ImportLights (vtkRenderer *renderer)
 {
   OmniLight *omniLight;
-  SpotLight *spot_light_ptr;
   vtkLight *aLight;
 
   // just walk the list of omni lights, creating lymb lights
@@ -243,7 +247,7 @@ void vtk3DSImporter::ImportProperties (vtkRenderer *vtkNotUsed(renderer))
   vtkProperty *property;
   MatProp *m;
 
-  // just walk the list of material properties, creating vtk properties */
+  // just walk the list of material properties, creating vtk properties
   for (m = this->MatPropList; m != (MatProp *) NULL; m = (MatProp *) m->next)
     {
     if (m->self_illum)
@@ -313,23 +317,6 @@ static void *list_find (List **root, char *name)
 	    break;
     }
     return (void *)p;
-}
-
-/* Delete the indicated node from the list */
-static void list_delete (List **root, List *node)
-{
-    List *prev;
-
-    prev = *root;
-    while (prev != (List *) NULL && prev->next != node)
-	prev = (List *) prev->next;
-
-    if (prev == NULL)
-	*root = (List *) node->next;
-    else
-	prev->next = node->next;
-
-    free (node);
 }
 
 /* Delete the entire list */
@@ -419,20 +406,6 @@ static Mesh *create_mesh (char *name, int vertices, int faces)
     new_mesh->shadow = TRUE;
 
     return new_mesh;
-}
-
-
-/* Free all data associated with mesh object */
-static void free_mesh_data (Mesh *mesh)
-{
-    if (mesh->vertex != (Vector *) NULL)
-	free (mesh->vertex);
-
-    if (mesh->face != (Face *) NULL)
-	free (mesh->face);
-
-    if (mesh->mtl != (Material **) NULL)
-	free (mesh->mtl);
 }
 
 
@@ -744,7 +717,7 @@ static void parse_msh_mat_group(vtk3DSImporter *importer, Mesh *mesh)
 
 }
 
-static void parse_smooth_group(vtk3DSImporter *importer)
+static void parse_smooth_group(vtk3DSImporter *vtkNotUsed(importer))
 {
 }
 
@@ -872,42 +845,6 @@ static void parse_n_camera(vtk3DSImporter *importer)
 	LIST_INSERT (importer->CameraList, c);
 }
 
-static float findfov (float lens)
-{
-    static float lens_table[13] =
-		 { 15.0, 17.0, 24.0, 35.0, 50.0, 85.0, 100.0, 135.0, 200.0,
-		   500.0, 625.0, 800.0, 1000.0 };
-    static float fov_table[13] =
-		 { 115.0, 102.0, 84.0, 63.0, 46.0, 28.0, 24.0, 18.0,
-		   12.0, 5.0, 4.0, 3.125, 2.5 };
-
-    float fov, f1, f2, l1, l2;
-    int   i;
-
-    if (lens < 15.0)
-	lens = 15.0;
-    else if (lens > 1000.0)
-	lens = 1000.0;
-
-    for (i = 0; i < 13; i++)
-	if (lens < lens_table[i])
-	    break;
-
-    if (i == 13)
-	i = 12;
-    else if (i == 0)
-	i = 1;
-
-    f1 = fov_table[i-1];
-    f2 = fov_table[i];
-    l1 = lens_table[i-1];
-    l2 = lens_table[i];
-
-    fov = f1 + (lens - l1) * (f2 - f1) / (l2 - l1);
-
-    return fov;
-}
-
 static void parse_colour (vtk3DSImporter *importer, Colour *colour)
 {
     Chunk chunk;
@@ -1027,14 +964,16 @@ static word read_word(vtk3DSImporter *importer)
 
 static dword read_dword(vtk3DSImporter *importer)
 {
-    dword data;
+  dword data;
 
-    fread (&data, 4, 1, importer->FileFD);
+  if (fread (&data, 4, 1, importer->FileFD) != 1)
+    {
+    vtkGenericWarningMacro(<<"Pre-mature end of file in read_dword\n");
+    data = 0;
+    }
 
-    vtkByteSwap::Swap4LE ((char *) &data);
-/*    TIFFSwabLong (&data);*/
-
-    return data;
+  vtkByteSwap::Swap4LE ((char *) &data);
+  return data;
 }
 
 
@@ -1116,9 +1055,40 @@ static void cleanup_name (char *name)
     free (tmp);
 }
 
+vtk3DSImporter::~vtk3DSImporter()
+{
+  LIST_KILL (this->OmniList);
+  LIST_KILL (this->SpotLightList);
+  LIST_KILL (this->CameraList);
+  // walk the mesh list and delete malloced data
+  Mesh *mesh;
+  for (mesh = this->MeshList; mesh != (Mesh *) NULL; mesh = (Mesh *) mesh->next)
+    {
+    if (mesh->vertex) free (mesh->vertex);
+    if (mesh->face) free (mesh->face);
+    if (mesh->mtl) free (mesh->mtl);  
+    }
+
+  // then delete the list structure
+
+  LIST_KILL (this->MeshList);
+  LIST_KILL (this->MaterialList);
+
+  // objects allocated in Material Property List
+  MatProp *m;
+  // just walk the list of material properties, deleting vtk properties
+  for (m = this->MatPropList; m != (MatProp *) NULL; m = (MatProp *) m->next)
+    {
+    delete m->aProperty;
+    }
+
+  // then delete the list structure
+  LIST_KILL (this->MatPropList);
+}
+
 void vtk3DSImporter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtk3DSImporter::PrintSelf(os,indent);
+  vtkImporter::PrintSelf(os,indent);
 }
 
 

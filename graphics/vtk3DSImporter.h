@@ -57,6 +57,7 @@ class VTK_EXPORT vtk3DSImporter : public vtkImporter
 {
 public:
   vtk3DSImporter();
+  ~vtk3DSImporter();
   static vtk3DSImporter *New() {return new vtk3DSImporter;};
   const char *GetClassName() {return "vtk3DSImporter";};
   void PrintSelf(ostream& os, vtkIndent indent);
