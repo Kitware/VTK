@@ -1,0 +1,26 @@
+/*=========================================================================
+This source has no copyright.  It is intended to be copied by users
+wishing to create their own VTK classes locally.
+=========================================================================*/
+#ifndef __@VTKLOCAL_PROJECT_NAME@Configure_h
+#define __@VTKLOCAL_PROJECT_NAME@Configure_h
+
+#if @VTKLOCAL_BUILD_SHARED_LIBS_CONFIG@
+# define @PROJECT_NAME@_SHARED
+#endif
+
+#if defined(_MSC_VER) && defined(@PROJECT_NAME@_SHARED)
+# pragma warning ( disable : 4275 )
+#endif
+
+#if defined(_WIN32) && defined(@PROJECT_NAME@_SHARED)
+# if defined(@PROJECT_NAME@_EXPORTS)
+#  define VTK_@PROJECT_NAME@_EXPORT __declspec( dllexport ) 
+# else
+#  define VTK_@PROJECT_NAME@_EXPORT __declspec( dllimport ) 
+# endif
+#else
+# define VTK_@PROJECT_NAME@_EXPORT
+#endif
+
+#endif // __@PROJECT_NAME@Configure_h
