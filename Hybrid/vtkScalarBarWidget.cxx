@@ -21,7 +21,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkCoordinate.h"
 
-vtkCxxRevisionMacro(vtkScalarBarWidget, "1.11");
+vtkCxxRevisionMacro(vtkScalarBarWidget, "1.12");
 vtkStandardNewMacro(vtkScalarBarWidget);
 vtkCxxSetObjectMacro(vtkScalarBarWidget, ScalarBarActor, vtkScalarBarActor);
 
@@ -429,6 +429,7 @@ void vtkScalarBarWidget::OnMouseMove()
   
   // start a drag
   this->EventCallbackCommand->SetAbortFlag(1);
+  this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
   this->Interactor->Render();
 }
 
