@@ -108,6 +108,17 @@ public:
   vtkDataArray *GetArray(int i);
 
   // Description:
+  // Return the array containing the ith component of the field. The return value
+  // is an integer number n 0<=n<this->NumberOfArrays. Also, an integer value is
+  // returned indicating the component in the array is returned. Method returns
+  // -1 if specified component is not in the field.
+  int GetArrayContainingComponent(int i, int& arrayComp);
+
+  // Description:
+  // Return the array with the name given. Returns NULL is array not found.
+  vtkDataArray *GetArray(char *arrayName);
+
+  // Description:
   // Set/Get the name for an array of data. 
   void SetArrayName(int i,char *name);
   char *GetArrayName(int i);

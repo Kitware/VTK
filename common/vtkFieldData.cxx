@@ -71,9 +71,9 @@ void vtkFieldData::Initialize()
     for ( i=0; i < this->NumberOfArrays; i++ )
       {
       if (this->ArrayNames[i] != NULL)
-	{
-	delete [] this->ArrayNames[i];
-	}
+        {
+        delete [] this->ArrayNames[i];
+        }
       }
 
     delete [] this->ArrayNames;
@@ -85,9 +85,9 @@ void vtkFieldData::Initialize()
     for ( i=0; i<this->NumberOfArrays; i++ )
       {
       if ( this->Data[i] != NULL ) 
-	{
-	this->Data[i]->UnRegister(this);
-	}
+        {
+        this->Data[i]->UnRegister(this);
+        }
       }
     
     delete [] this->Data;
@@ -107,9 +107,9 @@ int vtkFieldData::Allocate(const int sz, const int ext)
     if ( this->Data[i] != NULL )
       {
       if ( (status = this->Data[i]->Allocate(sz,ext)) == 0 )
-	{
-	break;
-	}
+        {
+        break;
+        }
       }
     }
 
@@ -144,6 +144,7 @@ vtkFieldData *vtkFieldData::MakeObject()
 void vtkFieldData::SetNumberOfArrays(int num)
 {
   int i;
+  char **arrayNames;
   
   if ( num < 0 )
     {
@@ -169,6 +170,7 @@ void vtkFieldData::SetNumberOfArrays(int num)
     for ( i=num; i < this->NumberOfArrays; i++)
       {
       this->Data[i]->UnRegister(this);
+      delete [] this->ArrayNames[i];
       }
     this->NumberOfArrays = num;
     }
@@ -176,19 +178,46 @@ void vtkFieldData::SetNumberOfArrays(int num)
   else //num > this->NumberOfArrays
     {
     vtkDataArray **data=new vtkDataArray * [num];
+    arrayNames = new char *[num];
+    // copy the original data
     for ( i=0; i < this->NumberOfArrays; i++ )
       {
       data[i] = this->Data[i];
+      if ( this->ArrayNames[i] != NULL )
+        {
+        arrayNames[i] = new char[strlen(this->ArrayNames[i])+1];
+        strcpy(arrayNames[i],this->ArrayNames[i]);
+        }
+      else
+        {
+        arrayNames[i] = NULL;
+        }
       }
+
+    //initialize the new arrays
     for ( i=this->NumberOfArrays; i < num; i++ )
       {
       data[i] = NULL;
+      arrayNames[i] = NULL;
       }
+
+    // get rid of the old data
     if ( this->Data )
       {
       delete [] this->Data;
       }
+    if ( this->ArrayNames )
+      {
+      for ( i=0; i<this->NumberOfArrays; i++ )
+        {
+        if ( this->ArrayNames[i] != NULL ) delete [] this->ArrayNames[i];
+        }
+      delete [] this->ArrayNames;
+      }
+    
+    // update object
     this->Data = data;
+    this->ArrayNames = arrayNames;
     this->NumberOfArrays = num;
     }
 }
@@ -409,6 +438,7 @@ void vtkFieldData::DeepCopy(vtkFieldData *f)
       newData->DeepCopy(data);
       this->SetArray(i, newData);
       newData->Delete();
+      this->SetArrayName(i, f->GetArrayName(i));
       }
     }
 }
@@ -421,6 +451,7 @@ void vtkFieldData::ShallowCopy(vtkFieldData *f)
   for ( int i=0; i < this->NumberOfArrays; i++ )
     {
     this->SetArray(i, f->GetArray(i));
+    this->SetArrayName(i, f->GetArrayName(i));
     }
 }
 
@@ -515,6 +546,45 @@ char *vtkFieldData::GetArrayName(int i)
     }
 }
 
+// Return the array containing the ith component of the field. The return value
+// is an integer number n 0<=n<this->NumberOfArrays. Also, an integer value is
+// returned indicating the component in the array is returned. Method returns
+// -1 if specified component is not in field.
+int vtkFieldData::GetArrayContainingComponent(int i, int& arrayComp)
+{
+  int numComp, count=0;
+
+  for ( int j=0; j < this->NumberOfArrays; j++ )
+    {
+    if ( this->Data[j] != NULL )
+      {
+      numComp = this->Data[j]->GetNumberOfComponents();
+      if ( j < (numComp + count) )
+        {
+        arrayComp = i - count;
+        return j;
+        }
+      count += numComp;
+      }
+    }
+  return -1;
+}
+
+vtkDataArray *vtkFieldData::GetArray(char *arrayName)
+{
+  int i;
+  char *name;
+
+  for (i=0; i < this->NumberOfArrays; i++)
+    {
+    name = this->GetArrayName(i);
+    if ( name && arrayName && !strcmp(name,arrayName) )
+      {
+      return this->GetArray(i);
+      }
+    }
+  return NULL;
+}
 
 void vtkFieldData::PrintSelf(ostream& os, vtkIndent indent)
 {
