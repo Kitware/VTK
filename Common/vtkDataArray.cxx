@@ -437,6 +437,57 @@ void vtkDataArray::GetTuples(vtkIdList *ptIds, vtkDataArray *da)
     }
 }
 
+
+void vtkDataArray::FillComponent(const int j, const float c)
+{
+  if (j < 0 || j >= this->GetNumberOfComponents())
+    {
+    vtkErrorMacro(<< "Specified component " << j << " is not in [0, "
+    << this->GetNumberOfComponents() << ")" );
+    return;
+    }
+  
+  vtkIdType i;
+
+  for (i = 0; i < this->GetNumberOfTuples(); i++)
+    {
+    this->SetComponent(i, j, c);
+    }
+}
+
+
+void vtkDataArray::CopyComponent(const int j, vtkDataArray *from,
+                                 const int fromComponent)
+{
+  if (this->GetNumberOfTuples() != from->GetNumberOfTuples())
+    {
+    vtkErrorMacro(<< "Number of tuples in 'from' ("
+    << from->GetNumberOfTuples() << ") and 'to' ("
+    << this->GetNumberOfTuples() << ") do not match.");
+    return;
+    }
+
+  if (j < 0 || j >= this->GetNumberOfComponents())
+    {
+    vtkErrorMacro(<< "Specified component " << j << " in 'to' array is not in [0, "
+    << this->GetNumberOfComponents() << ")" );
+    return;
+    }
+
+  if (fromComponent < 0 || fromComponent >= from->GetNumberOfComponents())
+    {
+    vtkErrorMacro(<< "Specified component " << fromComponent << " in 'from' array is not in [0, "
+    << from->GetNumberOfComponents() << ")" );
+    return;
+    }
+
+  vtkIdType i;
+  for (i = 0; i < this->GetNumberOfTuples(); i++)
+    {
+    this->SetComponent(i, j, from->GetComponent(i, fromComponent));
+    }
+}
+
 void vtkDataArray::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
