@@ -25,7 +25,7 @@
 #include "vtkPointLocator.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkVertex, "1.59");
+vtkCxxRevisionMacro(vtkVertex, "1.60");
 vtkStandardNewMacro(vtkVertex);
 
 // Construct the vertex with a single point.
@@ -50,12 +50,12 @@ int vtkVertex::EvaluatePosition(float x[3], float* closestPoint,
                                 int& subId, float pcoords[3], 
                                 float& dist2, float *weights)
 {
-  float *X;
+  float X[3];
 
   subId = 0;
   pcoords[1] = pcoords[2] = 0.0;
 
-  X = this->Points->GetPoint(0);
+  this->Points->GetPoint(0, X);
   if (closestPoint)
     {
     closestPoint[0] = X[0]; closestPoint[1] = X[1]; closestPoint[2] = X[2];
@@ -80,10 +80,7 @@ void vtkVertex::EvaluateLocation(int& vtkNotUsed(subId),
                                  float vtkNotUsed(pcoords)[3], float x[3],
                                  float *weights)
 {
-  float *X = this->Points->GetPoint(0);
-  x[0] = X[0];
-  x[1] = X[1];
-  x[2] = X[2];
+  this->Points->GetPoint(0, x);
 
   weights[0] = 1.0;
 }
@@ -143,12 +140,12 @@ int vtkVertex::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
                                 float x[3], float pcoords[3], int& subId)
 {
   int i;
-  float *X, ray[3], rayFactor, projXYZ[3];
+  float X[3], ray[3], rayFactor, projXYZ[3];
 
   subId = 0;
   pcoords[1] = pcoords[2] = 0.0;
 
-  X = this->Points->GetPoint(0);
+  this->Points->GetPoint(0, X);
 
   for (i=0; i<3; i++)
     {
@@ -224,7 +221,7 @@ void vtkVertex::Clip(float value, vtkDataArray *cellScalars,
                      vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
                      int insideOut)
 {
-  float s, *x;
+  float s, x[3];
   int newCellId;
   vtkIdType pts[1];
   
@@ -232,7 +229,7 @@ void vtkVertex::Clip(float value, vtkDataArray *cellScalars,
 
   if ( ( !insideOut && s > value) || (insideOut && s <= value) )
     {
-    x = this->Points->GetPoint(0);
+    this->Points->GetPoint(0, x);
     if ( locator->InsertUniquePoint(x, pts[0]) )
       {
       outPd->CopyData(inPd,this->PointIds->GetId(0),pts[0]);

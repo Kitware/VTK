@@ -29,7 +29,7 @@
 #include "vtkPoints.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuad, "1.88");
+vtkCxxRevisionMacro(vtkQuad, "1.89");
 vtkStandardNewMacro(vtkQuad);
 
 static const float VTK_DIVERGED = 1.e6;
@@ -62,12 +62,9 @@ vtkQuad::~vtkQuad()
 static const int VTK_QUAD_MAX_ITERATION=20;
 static const float VTK_QUAD_CONVERGED=1.e-04;
 
-inline static void ComputeNormal(vtkQuad *self, float* &pt1, float* &pt2, 
-                                 float* &pt3, float n[3])
+inline static void ComputeNormal(vtkQuad *self, float pt1[3], float pt2[3],
+                                 float pt3[3], float n[3])
 {
-  pt1 = self->Points->GetPoint(0);
-  pt2 = self->Points->GetPoint(1);
-  pt3 = self->Points->GetPoint(2);
   vtkTriangle::ComputeNormal (pt1, pt2, pt3, n);
   
   // If first three points are co-linear, then use fourth point
@@ -84,7 +81,7 @@ int vtkQuad::EvaluatePosition(float x[3], float* closestPoint,
                              float& dist2, float *weights)
 {
   int i, j;
-  float *pt1, *pt2, *pt3, *pt, n[3];
+  float pt1[3], pt2[3], pt3[3], pt[3], n[3];
   float det;
   float maxComponent;
   int idx=0, indices[2];
@@ -98,9 +95,9 @@ int vtkQuad::EvaluatePosition(float x[3], float* closestPoint,
 
   // Get normal for quadrilateral
   //
-  pt1 = this->Points->GetPoint(0);
-  pt2 = this->Points->GetPoint(1);
-  pt3 = this->Points->GetPoint(2);
+  this->Points->GetPoint(0, pt1);
+  this->Points->GetPoint(1, pt2);
+  this->Points->GetPoint(2, pt3);
   ComputeNormal (this, pt1, pt2, pt3, n);
 
   // Project point to plane
@@ -146,7 +143,7 @@ int vtkQuad::EvaluatePosition(float x[3], float* closestPoint,
       }
     for (i=0; i<4; i++)
       {
-      pt = this->Points->GetPoint(i);
+      this->Points->GetPoint(i, pt);
       for (j=0; j<2; j++)
         {
         fcol[j] += pt[indices[j]] * weights[i];
@@ -219,11 +216,11 @@ int vtkQuad::EvaluatePosition(float x[3], float* closestPoint,
   else
     {
     float t;
-    float *pt4;
+    float pt4[3];
     
     if (closestPoint)
       {
-      pt4 = this->Points->GetPoint(3);
+      this->Points->GetPoint(3, pt4);
       
       if ( pcoords[0] < 0.0 && pcoords[1] < 0.0 )
         {
@@ -282,14 +279,14 @@ void vtkQuad::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3],
                                float x[3], float *weights)
 {
   int i, j;
-  float *pt;
+  float pt[3];
 
   this->InterpolationFunctions(pcoords, weights);
 
   x[0] = x[1] = x[2] = 0.0;
   for (i=0; i<4; i++)
     {
-    pt = this->Points->GetPoint(i);
+    this->Points->GetPoint(i, pt);
     for (j=0; j<3; j++)
       {
       x[j] += pt[j] * weights[i];
@@ -650,18 +647,18 @@ void vtkQuad::Derivatives(int vtkNotUsed(subId), float pcoords[3],
                           float *values, int dim, float *derivs)
 {
   float v0[2], v1[2], v2[2], v3[2], v10[3], v20[3], lenX;
-  float *x0, *x1, *x2, *x3, n[3], vec20[3], vec30[3];
+  float x0[3], x1[3], x2[3], x3[3], n[3], vec20[3], vec30[3];
   double *J[2], J0[2], J1[2];
   double *JI[2], JI0[2], JI1[2];
   float funcDerivs[8], sum[2], dBydx, dBydy;
   int i, j;
 
   // Project points of quad into 2D system
-  x0 = this->Points->GetPoint(0);
-  x1 = this->Points->GetPoint(1);
-  x2 = this->Points->GetPoint(2);
+  this->Points->GetPoint(0, x0);
+  this->Points->GetPoint(1, x1);
+  this->Points->GetPoint(2, x2);
   ComputeNormal (this,x0, x1, x2, n);
-  x3 = this->Points->GetPoint(3);
+  this->Points->GetPoint(3, x3);
 
   for (i=0; i < 3; i++) 
     {

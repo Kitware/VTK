@@ -25,7 +25,7 @@
 #include "vtkPointLocator.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkLine, "1.80");
+vtkCxxRevisionMacro(vtkLine, "1.81");
 vtkStandardNewMacro(vtkLine);
 
 // Construct the line with two points.
@@ -53,13 +53,13 @@ int vtkLine::EvaluatePosition(float x[3], float* closestPoint,
                              int& subId, float pcoords[3],
                              float& dist2, float *weights)
 {
-  float *a1, *a2;
+  float a1[3], a2[3];
 
   subId = 0;
   pcoords[1] = pcoords[2] = 0.0;
 
-  a1 = this->Points->GetPoint(0);
-  a2 = this->Points->GetPoint(1);
+  this->Points->GetPoint(0, a1);
+  this->Points->GetPoint(1, a2);
 
   if (closestPoint)
     {
@@ -85,8 +85,9 @@ void vtkLine::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3],
                                float x[3], float *weights)
 {
   int i;
-  float *a1 = this->Points->GetPoint(0);
-  float *a2 = this->Points->GetPoint(1);
+  float a1[3], a2[3];
+  this->Points->GetPoint(0, a1);
+  this->Points->GetPoint(1, a2);
 
   for (i=0; i<3; i++) 
     {
@@ -208,7 +209,7 @@ void vtkLine::Contour(float value, vtkDataArray *cellScalars,
   int index, i, newCellId;
   VERT_CASES *vertCase;
   VERT_LIST *vert;
-  float t, x[3], *x1, *x2;
+  float t, x[3], x1[3], x2[3];
   vtkIdType pts[1];
 
   //
@@ -229,8 +230,8 @@ void vtkLine::Contour(float value, vtkDataArray *cellScalars,
     {
     t = (value - cellScalars->GetComponent(vert[0],0)) /
         (cellScalars->GetComponent(vert[1],0) - cellScalars->GetComponent(vert[0],0));
-    x1 = this->Points->GetPoint(vert[0]);
-    x2 = this->Points->GetPoint(vert[1]);
+    this->Points->GetPoint(vert[0], x1);
+    this->Points->GetPoint(vert[1], x2);
     for (i=0; i<3; i++)
       {
       x[i] = x1[i] + t * (x2[i] - x1[i]);
@@ -345,15 +346,15 @@ float vtkLine::DistanceToLine (float x[3], float p1[3], float p2[3])
 int vtkLine::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
                                float x[3], float pcoords[3], int& subId)
 {
-  float *a1, *a2;
+  float a1[3], a2[3];
   float projXYZ[3];
   int i;
 
   subId = 0;
   pcoords[1] = pcoords[2] = 0.0;
 
-  a1 = this->Points->GetPoint(0);
-  a2 = this->Points->GetPoint(1);
+  this->Points->GetPoint(0, a1);
+  this->Points->GetPoint(1, a2);
 
   if ( this->Intersection(p1, p2, a1, a2, t, pcoords[0]) == VTK_YES_INTERSECTION )
     {
@@ -447,11 +448,11 @@ void vtkLine::Derivatives(int vtkNotUsed(subId),
                           float *values, 
                           int dim, float *derivs)
 {
-  float *x0, *x1, deltaX[3];
+  float x0[3], x1[3], deltaX[3];
   int i, j;
 
-  x0 = this->Points->GetPoint(0);
-  x1 = this->Points->GetPoint(1);
+  this->Points->GetPoint(0, x0);
+  this->Points->GetPoint(1, x1);
 
   for (i=0; i<3; i++)
     {

@@ -27,7 +27,7 @@
 #include "vtkQuad.h"
 #include "vtkQuadraticEdge.h"
 
-vtkCxxRevisionMacro(vtkQuadraticQuad, "1.17");
+vtkCxxRevisionMacro(vtkQuadraticQuad, "1.18");
 vtkStandardNewMacro(vtkQuadraticQuad);
 
 // Construct the line with two points.
@@ -334,10 +334,11 @@ int vtkQuadraticQuad::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
   // Now the two remaining triangles
   // Choose the triangulation that minimizes the edge length
   // across the cell.
-  float *x4 = this->Points->GetPoint(4);
-  float *x5 = this->Points->GetPoint(5);
-  float *x6 = this->Points->GetPoint(6);
-  float *x7 = this->Points->GetPoint(7);
+  float x4[3], x5[3], x6[3], x7[3];
+  this->Points->GetPoint(4, x4);
+  this->Points->GetPoint(5, x5);
+  this->Points->GetPoint(6, x6);
+  this->Points->GetPoint(7, x7);
   
   if ( vtkMath::Distance2BetweenPoints(x4,x6) <=
        vtkMath::Distance2BetweenPoints(x5,x7) )
@@ -380,13 +381,13 @@ void vtkQuadraticQuad::Derivatives(int vtkNotUsed(subId),
                                    float pcoords[3], float *values, 
                                    int dim, float *derivs)
 {
-  float *x0, *x1, *x2, deltaX[3], weights[8];
+  float x0[3], x1[3], x2[3], deltaX[3], weights[8];
   int i, j;
   float functionDerivs[16];
 
-  x0 = this->Points->GetPoint(0);
-  x1 = this->Points->GetPoint(1);
-  x2 = this->Points->GetPoint(2);
+  this->Points->GetPoint(0, x0);
+  this->Points->GetPoint(1, x1);
+  this->Points->GetPoint(2, x2);
 
   this->InterpolationFunctions(pcoords,weights);
   this->InterpolationDerivs(pcoords,functionDerivs);

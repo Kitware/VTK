@@ -29,7 +29,7 @@
 #include "vtkPolygon.h"
 #include "vtkQuadric.h"
 
-vtkCxxRevisionMacro(vtkTriangle, "1.99");
+vtkCxxRevisionMacro(vtkTriangle, "1.100");
 vtkStandardNewMacro(vtkTriangle);
 
 // Construct the triangle with three points.
@@ -63,7 +63,7 @@ int vtkTriangle::EvaluatePosition(float x[3], float* closestPoint,
                                  float& dist2, float *weights)
 {
   int i, j;
-  float *pt1, *pt2, *pt3, n[3], fabsn;
+  float pt1[3], pt2[3], pt3[3], n[3], fabsn;
   float rhs[2], c1[2], c2[2];
   float det;
   float maxComponent;
@@ -76,9 +76,9 @@ int vtkTriangle::EvaluatePosition(float x[3], float* closestPoint,
   // Get normal for triangle, only the normal direction is needed, i.e. the
   // normal need not be normalized (unit length)
   //
-  pt1 = this->Points->GetPoint(1);
-  pt2 = this->Points->GetPoint(2);
-  pt3 = this->Points->GetPoint(0);
+  this->Points->GetPoint(1, pt1);
+  this->Points->GetPoint(2, pt2);
+  this->Points->GetPoint(0, pt3);
 
   vtkTriangle::ComputeNormalDirection(pt1, pt2, pt3, n);
 
@@ -253,12 +253,12 @@ void vtkTriangle::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3],
                                    float x[3], float *weights)
 {
   float u3;
-  float *pt0, *pt1, *pt2;
+  float pt0[3], pt1[3], pt2[3];
   int i;
 
-  pt0 = this->Points->GetPoint(0);
-  pt1 = this->Points->GetPoint(1);
-  pt2 = this->Points->GetPoint(2);
+  this->Points->GetPoint(0, pt0);
+  this->Points->GetPoint(1, pt1);
+  this->Points->GetPoint(2, pt2);
 
   u3 = 1.0 - pcoords[0] - pcoords[1];
 
@@ -445,7 +445,7 @@ int vtkTriangle::IntersectWithLine(float p1[3], float p2[3], float tol,
                                   float& t, float x[3], float pcoords[3], 
                                   int& subId)
 {
-  float *pt1, *pt2, *pt3, n[3];
+  float pt1[3], pt2[3], pt3[3], n[3];
   float tol2 = tol*tol;
   float closestPoint[3];
   float dist2, weights[3];
@@ -454,9 +454,9 @@ int vtkTriangle::IntersectWithLine(float p1[3], float p2[3], float tol,
 
   // Get normal for triangle
   //
-  pt1 = this->Points->GetPoint(1);
-  pt2 = this->Points->GetPoint(2);
-  pt3 = this->Points->GetPoint(0);
+  this->Points->GetPoint(1, pt1);
+  this->Points->GetPoint(2, pt2);
+  this->Points->GetPoint(0, pt3);
 
   vtkTriangle::ComputeNormal (pt1, pt2, pt3, n);
 
@@ -544,16 +544,16 @@ void vtkTriangle::Derivatives(int vtkNotUsed(subId), float vtkNotUsed(pcoords)[3
                               float *values, int dim, float *derivs)
 {
   float v0[2], v1[2], v2[2], v[3], v10[3], v20[3], lenX;
-  float *x0, *x1, *x2, n[3];
+  float x0[3], x1[3], x2[3], n[3];
   double *J[2], J0[2], J1[2];
   double *JI[2], JI0[2], JI1[2];
   float functionDerivs[6], sum[2], dBydx, dBydy;
   int i, j;
 
   // Project points of triangle into 2D system
-  x0 = this->Points->GetPoint(0);
-  x1 = this->Points->GetPoint(1);
-  x2 = this->Points->GetPoint(2);
+  this->Points->GetPoint(0, x0);
+  this->Points->GetPoint(1, x1);
+  this->Points->GetPoint(2, x2);
   vtkTriangle::ComputeNormal (x0, x1, x2, n);
 
   for (i=0; i < 3; i++) 

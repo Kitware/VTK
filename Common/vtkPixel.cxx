@@ -29,7 +29,7 @@
 #include "vtkCellData.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkPixel, "1.78");
+vtkCxxRevisionMacro(vtkPixel, "1.79");
 vtkStandardNewMacro(vtkPixel);
 
 // Construct the pixel with four points.
@@ -59,7 +59,7 @@ int vtkPixel::EvaluatePosition(float x[3], float* closestPoint,
                                   int& subId, float pcoords[3], 
                                   float& dist2, float *weights)
 {
-  float *pt1, *pt2, *pt3;
+  float pt1[3], pt2[3], pt3[3];
   int i;
   float p[3], p21[3], p31[3], cp[3];
   float l21, l31, n[3];
@@ -69,9 +69,9 @@ int vtkPixel::EvaluatePosition(float x[3], float* closestPoint,
 
   // Get normal for pixel
   //
-  pt1 = this->Points->GetPoint(0);
-  pt2 = this->Points->GetPoint(1);
-  pt3 = this->Points->GetPoint(2);
+  this->Points->GetPoint(0, pt1);
+  this->Points->GetPoint(1, pt2);
+  this->Points->GetPoint(2, pt3);
 
   vtkTriangle::ComputeNormal (pt1, pt2, pt3, n);
 
@@ -143,14 +143,14 @@ int vtkPixel::EvaluatePosition(float x[3], float* closestPoint,
 void vtkPixel::EvaluateLocation(int& subId, float pcoords[3], float x[3],
                                    float *weights)
 {
-  float *pt1, *pt2, *pt3;
+  float pt1[3], pt2[3], pt3[3];
   int i;
 
   subId = 0;
   
-  pt1 = this->Points->GetPoint(0);
-  pt2 = this->Points->GetPoint(1);
-  pt3 = this->Points->GetPoint(2);
+  this->Points->GetPoint(0, pt1);
+  this->Points->GetPoint(1, pt2);
+  this->Points->GetPoint(2, pt3);
 
   for (i=0; i<3; i++)
     {
@@ -226,7 +226,7 @@ void vtkPixel::Contour(float value, vtkDataArray *cellScalars,
   int i, j, index, *vert;
   int newCellId;
   vtkIdType pts[2];
-  float t, *x1, *x2, x[3];
+  float t, x1[3], x2[3], x[3];
 
   // Build the case table
   for ( i=0, index = 0; i < 4; i++)
@@ -248,8 +248,8 @@ void vtkPixel::Contour(float value, vtkDataArray *cellScalars,
       t = (value - cellScalars->GetComponent(vert[0],0)) /
           (cellScalars->GetComponent(vert[1],0) - 
            cellScalars->GetComponent(vert[0],0));
-      x1 = this->Points->GetPoint(vert[0]);
-      x2 = this->Points->GetPoint(vert[1]);
+      this->Points->GetPoint(vert[0], x1);
+      this->Points->GetPoint(vert[1], x2);
       for (j=0; j<3; j++)
         {
         x[j] = x1[j] + t * (x2[j] - x1[j]);
@@ -335,7 +335,7 @@ void vtkPixel::InterpolationDerivs(float pcoords[3], float derivs[8])
 int vtkPixel::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
                                 float x[3], float pcoords[3], int& subId)
 {
-  float *pt1, *pt4, n[3];
+  float pt1[3], pt4[3], n[3];
   float tol2 = tol*tol;
   float closestPoint[3];
   float dist2, weights[4];
@@ -346,8 +346,8 @@ int vtkPixel::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
 //
 // Get normal for triangle
 //
-  pt1 = this->Points->GetPoint(0);
-  pt4 = this->Points->GetPoint(3);
+  this->Points->GetPoint(0, pt1);
+  this->Points->GetPoint(3, pt4);
 
   n[0] = n[1] = n[2] = 0.0;
   for (i=0; i<3; i++)
@@ -427,12 +427,12 @@ void vtkPixel::Derivatives(int vtkNotUsed(subId),
 {
   float functionDerivs[8], sum;
   int i, j, k, plane, idx[2], jj;
-  float *x0, *x1, *x2, *x3, spacing[3];
+  float x0[3], x1[3], x2[3], x3[3], spacing[3];
 
-  x0 = this->Points->GetPoint(0);
-  x1 = this->Points->GetPoint(1);
-  x2 = this->Points->GetPoint(2);
-  x3 = this->Points->GetPoint(3);
+  this->Points->GetPoint(0, x0);
+  this->Points->GetPoint(1, x1);
+  this->Points->GetPoint(2, x2);
+  this->Points->GetPoint(3, x3);
 
   //figure which plane this pixel is in
   for (i=0; i < 3; i++)

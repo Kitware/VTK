@@ -28,7 +28,7 @@
 #include "vtkTetra.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkConvexPointSet, "1.20");
+vtkCxxRevisionMacro(vtkConvexPointSet, "1.21");
 vtkStandardNewMacro(vtkConvexPointSet);
 
 // Construct the hexahedron with eight points.
@@ -97,7 +97,7 @@ int vtkConvexPointSet::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
 {
   int numPts=this->GetNumberOfPoints();
   int i;
-  float *xPtr;
+  float x[3];
   vtkIdType ptId;
 
   // Initialize
@@ -117,8 +117,8 @@ int vtkConvexPointSet::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
   for (i=0; i<numPts; i++)
     {
     ptId = this->PointIds->GetId(i);
-    xPtr = this->Points->GetPoint(i);
-    this->Triangulator->InsertPoint(i, ptId, xPtr, xPtr, 0);
+    this->Points->GetPoint(i, x);
+    this->Triangulator->InsertPoint(i, ptId, x, x, 0);
     }//for all points
   
   // triangulate the points
@@ -191,7 +191,7 @@ int vtkConvexPointSet::CellBoundary(int subId, float pcoords[3],
                                     vtkIdList *pts)
 {
   int i, status, returnStatus=(-1);
-  float p[3], *x, dist2, minDist2=VTK_LARGE_FLOAT, pMin[3], closest[3], pc[3];
+  float p[3], x[3], dist2, minDist2=VTK_LARGE_FLOAT, pMin[3], closest[3], pc[3];
   float weights[4];
 
   // Get the current global coordinate
@@ -201,7 +201,7 @@ int vtkConvexPointSet::CellBoundary(int subId, float pcoords[3],
   vtkIdType numPts = this->PointIds->GetNumberOfIds();
   for (i=0; i < numPts; i++)
     {
-    x = this->Points->GetPoint(i);
+    this->Points->GetPoint(i, x);
     dist2 = vtkMath::Distance2BetweenPoints(x,p);
     if ( dist2 < minDist2 )
       {
@@ -364,11 +364,11 @@ float *vtkConvexPointSet::GetParametricCoords()
 
   this->ParametricCoords->SetNumberOfComponents(3);
   this->ParametricCoords->SetNumberOfTuples(numPts);
-  float p[3], *x, *bounds = this->GetBounds();
+  float p[3], x[3], *bounds = this->GetBounds();
   int i, j;
   for (i=0; i < numPts; i++)
     {
-    x = this->Points->GetPoint(i);
+    this->Points->GetPoint(i, x);
     for (j=0; j<3; j++)
       {
       p[j] = (x[j] - bounds[2*j]) / (bounds[2*j+1] - bounds[2*j]);

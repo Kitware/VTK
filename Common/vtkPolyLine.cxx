@@ -24,7 +24,7 @@
 #include "vtkLine.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkPolyLine, "1.75");
+vtkCxxRevisionMacro(vtkPolyLine, "1.76");
 vtkStandardNewMacro(vtkPolyLine);
 
 vtkPolyLine::vtkPolyLine()
@@ -314,8 +314,10 @@ void vtkPolyLine::EvaluateLocation(int& subId, float pcoords[3], float x[3],
                                    float *weights)
 {
   int i;
-  float *a1 = this->Points->GetPoint(subId);
-  float *a2 = this->Points->GetPoint(subId+1);
+  float a1[3];
+  float a2[3];
+  this->Points->GetPoint(subId, a1);
+  this->Points->GetPoint(subId+1, a2);
 
   for (i=0; i<3; i++) 
     {

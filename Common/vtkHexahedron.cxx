@@ -27,7 +27,7 @@
 #include "vtkPoints.h"
 #include "vtkQuad.h"
 
-vtkCxxRevisionMacro(vtkHexahedron, "1.88");
+vtkCxxRevisionMacro(vtkHexahedron, "1.89");
 vtkStandardNewMacro(vtkHexahedron);
 
 static const float VTK_DIVERGED = 1.e6;
@@ -72,7 +72,7 @@ int vtkHexahedron::EvaluatePosition(float x[3], float* closestPoint,
   float  params[3];
   float  fcol[3], rcol[3], scol[3], tcol[3];
   int i, j;
-  float  d, *pt;
+  float  d, pt[3];
   float derivs[24];
 
   //  set initial position for Newton's method
@@ -94,7 +94,7 @@ int vtkHexahedron::EvaluatePosition(float x[3], float* closestPoint,
       }
     for (i=0; i<8; i++)
       {
-      pt = this->Points->GetPoint(i);
+      this->Points->GetPoint(i, pt);
       for (j=0; j<3; j++)
         {
         fcol[j] += pt[j] * weights[i];
@@ -255,14 +255,14 @@ void vtkHexahedron::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3],
                                      float x[3], float *weights)
 {
   int i, j;
-  float *pt;
+  float pt[3];
 
   this->InterpolationFunctions(pcoords, weights);
 
   x[0] = x[1] = x[2] = 0.0;
   for (i=0; i<8; i++)
     {
-    pt = this->Points->GetPoint(i);
+    this->Points->GetPoint(i, pt);
     for (j=0; j<3; j++)
       {
       x[j] += pt[j] * weights[i];
@@ -484,7 +484,7 @@ int vtkHexahedron::IntersectWithLine(float p1[3], float p2[3], float tol,
                                     int& subId)
 {
   int intersection=0;
-  float *pt1, *pt2, *pt3, *pt4;
+  float pt1[3], pt2[3], pt3[3], pt4[3];
   float tTemp;
   float pc[3], xTemp[3];
   int faceNum;
@@ -492,10 +492,10 @@ int vtkHexahedron::IntersectWithLine(float p1[3], float p2[3], float tol,
   t = VTK_LARGE_FLOAT;
   for (faceNum=0; faceNum<6; faceNum++)
     {
-    pt1 = this->Points->GetPoint(faces[faceNum][0]);
-    pt2 = this->Points->GetPoint(faces[faceNum][1]);
-    pt3 = this->Points->GetPoint(faces[faceNum][2]);
-    pt4 = this->Points->GetPoint(faces[faceNum][3]);
+    this->Points->GetPoint(faces[faceNum][0], pt1);
+    this->Points->GetPoint(faces[faceNum][1], pt2);
+    this->Points->GetPoint(faces[faceNum][2], pt3);
+    this->Points->GetPoint(faces[faceNum][3], pt4);
 
     this->Quad->Points->SetPoint(0,pt1);
     this->Quad->Points->SetPoint(1,pt2);
@@ -667,7 +667,7 @@ void vtkHexahedron::JacobianInverse(float pcoords[3], double **inverse,
 {
   int i, j;
   double *m[3], m0[3], m1[3], m2[3];
-  float *x;
+  float x[3];
 
   // compute interpolation function derivatives
   this->InterpolationDerivs(pcoords, derivs);
@@ -681,7 +681,7 @@ void vtkHexahedron::JacobianInverse(float pcoords[3], double **inverse,
 
   for ( j=0; j < 8; j++ )
     {
-    x = this->Points->GetPoint(j);
+    this->Points->GetPoint(j, x);
     for ( i=0; i < 3; i++ )
       {
       m0[i] += x[i] * derivs[j];

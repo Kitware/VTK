@@ -28,7 +28,7 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkWedge, "1.31");
+vtkCxxRevisionMacro(vtkWedge, "1.32");
 vtkStandardNewMacro(vtkWedge);
 
 static const float VTK_DIVERGED = 1.e6;
@@ -70,7 +70,7 @@ int vtkWedge::EvaluatePosition(float x[3], float* closestPoint,
   float  params[3];
   float  fcol[3], rcol[3], scol[3], tcol[3];
   int i, j;
-  float  d, *pt;
+  float  d, pt[3];
   float derivs[18];
 
   //  set initial position for Newton's method
@@ -93,7 +93,7 @@ int vtkWedge::EvaluatePosition(float x[3], float* closestPoint,
       }
     for (i=0; i<6; i++)
       {
-      pt = this->Points->GetPoint(i);
+      this->Points->GetPoint(i, pt);
       for (j=0; j<3; j++)
         {
         fcol[j] += pt[j] * weights[i];
@@ -193,14 +193,14 @@ void vtkWedge::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3],
                                 float x[3], float *weights)
 {
   int i, j;
-  float *pt;
+  float pt[3];
 
   this->InterpolationFunctions(pcoords, weights);
 
   x[0] = x[1] = x[2] = 0.0;
   for (i=0; i<6; i++)
     {
-    pt = this->Points->GetPoint(i);
+    this->Points->GetPoint(i, pt);
     for (j=0; j<3; j++)
       {
       x[j] += pt[j] * weights[i];
@@ -382,7 +382,7 @@ void vtkWedge::Contour(float value, vtkDataArray *cellScalars,
   EDGE_LIST  *edge;
   int i, j, index, *vert, v1, v2, newCellId;
   vtkIdType pts[3];
-  float t, *x1, *x2, x[3], deltaScalar;
+  float t, x1[3], x2[3], x[3], deltaScalar;
 
   // Build the case table
   for ( i=0, index = 0; i < 6; i++)
@@ -419,8 +419,8 @@ void vtkWedge::Contour(float value, vtkDataArray *cellScalars,
       t = ( deltaScalar == 0.0 ? 0.0 :
             (value - cellScalars->GetComponent(v1,0)) / deltaScalar );
 
-      x1 = this->Points->GetPoint(v1);
-      x2 = this->Points->GetPoint(v2);
+      this->Points->GetPoint(v1, x1);
+      this->Points->GetPoint(v2, x2);
 
       for (j=0; j<3; j++)
         {
@@ -515,7 +515,7 @@ int vtkWedge::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
                                float x[3], float pcoords[3], int& subId)
 {
   int intersection=0;
-  float *pt1, *pt2, *pt3, *pt4;
+  float pt1[3], pt2[3], pt3[3], pt4[3];
   float tTemp;
   float pc[3], xTemp[3];
   int faceNum;
@@ -525,9 +525,9 @@ int vtkWedge::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
   //first intersect the triangle faces
   for (faceNum=0; faceNum<2; faceNum++)
     {
-    pt1 = this->Points->GetPoint(faces[faceNum][0]);
-    pt2 = this->Points->GetPoint(faces[faceNum][1]);
-    pt3 = this->Points->GetPoint(faces[faceNum][2]);
+    this->Points->GetPoint(faces[faceNum][0], pt1);
+    this->Points->GetPoint(faces[faceNum][1], pt2);
+    this->Points->GetPoint(faces[faceNum][2], pt3);
 
     this->Triangle->Points->SetPoint(0,pt1);
     this->Triangle->Points->SetPoint(1,pt2);
@@ -557,10 +557,10 @@ int vtkWedge::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
   //now intersect the quad faces
   for (faceNum=2; faceNum<5; faceNum++)
     {
-    pt1 = this->Points->GetPoint(faces[faceNum][0]);
-    pt2 = this->Points->GetPoint(faces[faceNum][1]);
-    pt3 = this->Points->GetPoint(faces[faceNum][2]);
-    pt4 = this->Points->GetPoint(faces[faceNum][3]);
+    this->Points->GetPoint(faces[faceNum][0], pt1);
+    this->Points->GetPoint(faces[faceNum][1], pt2);
+    this->Points->GetPoint(faces[faceNum][2], pt3);
+    this->Points->GetPoint(faces[faceNum][3], pt4);
 
     this->Quad->Points->SetPoint(0,pt1);
     this->Quad->Points->SetPoint(1,pt2);
@@ -686,7 +686,7 @@ int vtkWedge::JacobianInverse(float pcoords[3], double **inverse, float derivs[1
 {
   int i, j;
   double *m[3], m0[3], m1[3], m2[3];
-  float *x;
+  float x[3];
 
   // compute interpolation function derivatives
   this->InterpolationDerivs(pcoords,derivs);
@@ -700,7 +700,7 @@ int vtkWedge::JacobianInverse(float pcoords[3], double **inverse, float derivs[1
 
   for ( j=0; j < 6; j++ )
     {
-    x = this->Points->GetPoint(j);
+    this->Points->GetPoint(j, x);
     for ( i=0; i < 3; i++ )
       {
       m0[i] += x[i] * derivs[j];

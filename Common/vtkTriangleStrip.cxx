@@ -24,7 +24,7 @@
 #include "vtkTriangle.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkTriangleStrip, "1.71");
+vtkCxxRevisionMacro(vtkTriangleStrip, "1.72");
 vtkStandardNewMacro(vtkTriangleStrip);
 
 vtkTriangleStrip::vtkTriangleStrip()
@@ -95,9 +95,10 @@ void vtkTriangleStrip::EvaluateLocation(int& subId, float pcoords[3],
   static int idx[2][3]={{0,1,2},{1,0,2}};
   int order = subId % 2;
 
-  float *pt1 = this->Points->GetPoint(subId+idx[order][0]);
-  float *pt2 = this->Points->GetPoint(subId+idx[order][1]);
-  float *pt3 = this->Points->GetPoint(subId+idx[order][2]);
+  float pt1[3], pt2[3], pt3[3];
+  this->Points->GetPoint(subId+idx[order][0], pt1);
+  this->Points->GetPoint(subId+idx[order][1], pt2);
+  this->Points->GetPoint(subId+idx[order][2], pt3);
   float u3 = 1.0 - pcoords[0] - pcoords[1];
 
   weights[0] = u3;

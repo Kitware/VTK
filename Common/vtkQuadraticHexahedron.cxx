@@ -28,7 +28,7 @@
 #include "vtkQuadraticEdge.h"
 #include "vtkQuadraticQuad.h"
 
-vtkCxxRevisionMacro(vtkQuadraticHexahedron, "1.16");
+vtkCxxRevisionMacro(vtkQuadraticHexahedron, "1.17");
 vtkStandardNewMacro(vtkQuadraticHexahedron);
 
 // Construct the hex with 20 points + 7 extra points for internal
@@ -174,7 +174,7 @@ int vtkQuadraticHexahedron::EvaluatePosition(float* x,
   float  params[3];
   float  fcol[3], rcol[3], scol[3], tcol[3];
   int i, j;
-  float  d, *pt;
+  float  d, pt[3];
   float derivs[60];
 
   //  set initial position for Newton's method
@@ -196,7 +196,7 @@ int vtkQuadraticHexahedron::EvaluatePosition(float* x,
       }
     for (i=0; i<20; i++)
       {
-      pt = this->Points->GetPoint(i);
+      this->Points->GetPoint(i, pt);
       for (j=0; j<3; j++)
         {
         fcol[j] += pt[j] * weights[i];
@@ -299,14 +299,14 @@ void vtkQuadraticHexahedron::EvaluateLocation(int& vtkNotUsed(subId),
                                               float x[3], float *weights)
 {
   int i, j;
-  float *pt;
+  float pt[3];
 
   this->InterpolationFunctions(pcoords, weights);
 
   x[0] = x[1] = x[2] = 0.0;
   for (i=0; i<20; i++)
     {
-    pt = this->Points->GetPoint(i);
+    this->Points->GetPoint(i, pt);
     for (j=0; j<3; j++)
       {
       x[j] += pt[j] * weights[i];
@@ -435,7 +435,7 @@ void vtkQuadraticHexahedron::JacobianInverse(float pcoords[3],
 {
   int i, j;
   double *m[3], m0[3], m1[3], m2[3];
-  float *x;
+  float x[3];
 
   // compute interpolation function derivatives
   this->InterpolationDerivs(pcoords, derivs);
@@ -449,7 +449,7 @@ void vtkQuadraticHexahedron::JacobianInverse(float pcoords[3],
 
   for ( j=0; j < 20; j++ )
     {
-    x = this->Points->GetPoint(j);
+    this->Points->GetPoint(j, x);
     for ( i=0; i < 3; i++ )
       {
       m0[i] += x[i] * derivs[j];

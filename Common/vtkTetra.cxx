@@ -27,7 +27,7 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkTetra, "1.82");
+vtkCxxRevisionMacro(vtkTetra, "1.83");
 vtkStandardNewMacro(vtkTetra);
 
 // Construct the tetra with four points.
@@ -59,7 +59,7 @@ int vtkTetra::EvaluatePosition(float x[3], float* closestPoint,
                               int& subId, float pcoords[3], 
                               float& minDist2, float *weights)
 {
-  float *pt1, *pt2, *pt3, *pt4;
+  float pt1[3], pt2[3], pt3[3], pt4[3];
   int i;
   float rhs[3], c1[3], c2[3], c3[3];
   float det, p4;
@@ -67,10 +67,10 @@ int vtkTetra::EvaluatePosition(float x[3], float* closestPoint,
   subId = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
 
-  pt1 = this->Points->GetPoint(1);
-  pt2 = this->Points->GetPoint(2);
-  pt3 = this->Points->GetPoint(3);
-  pt4 = this->Points->GetPoint(0);
+  this->Points->GetPoint(1, pt1);
+  this->Points->GetPoint(2, pt2);
+  this->Points->GetPoint(3, pt3);
+  this->Points->GetPoint(0, pt4);
 
   for (i=0; i<3; i++)
     {  
@@ -138,13 +138,13 @@ void vtkTetra::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3],
                                 float x[3], float *weights)
 {
   float u4;
-  float *pt1, *pt2, *pt3, *pt4;
+  float pt1[3], pt2[3], pt3[3], pt4[3];
   int i;
 
-  pt1 = this->Points->GetPoint(1);
-  pt2 = this->Points->GetPoint(2);
-  pt3 = this->Points->GetPoint(3);
-  pt4 = this->Points->GetPoint(0);
+  this->Points->GetPoint(1, pt1);
+  this->Points->GetPoint(2, pt2);
+  this->Points->GetPoint(3, pt3);
+  this->Points->GetPoint(0, pt4);
 
   u4 = 1.0 - pcoords[0] - pcoords[1] - pcoords[2];
 
@@ -261,7 +261,7 @@ void vtkTetra::Contour(float value, vtkDataArray *cellScalars,
   EDGE_LIST  *edge;
   int i, j, index, *vert, v1, v2, newCellId;
   vtkIdType pts[3];
-  float t, *x1, *x2, x[3], deltaScalar;
+  float t, x1[3], x2[3], x[3], deltaScalar;
 
   // Build the case table
   for ( i=0, index = 0; i < 4; i++)
@@ -298,8 +298,8 @@ void vtkTetra::Contour(float value, vtkDataArray *cellScalars,
       t = ( deltaScalar == 0.0 ? 0.0 :
             (value - cellScalars->GetComponent(v1,0)) / deltaScalar );
 
-      x1 = this->Points->GetPoint(v1);
-      x2 = this->Points->GetPoint(v2);
+      this->Points->GetPoint(v1, x1);
+      this->Points->GetPoint(v2, x2);
 
       for (j=0; j<3; j++)
         {
@@ -376,7 +376,7 @@ int vtkTetra::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
                                float x[3], float pcoords[3], int& subId)
 {
   int intersection=0;
-  float *pt1, *pt2, *pt3;
+  float pt1[3], pt2[3], pt3[3];
   float tTemp;
   float pc[3], xTemp[3];
   int faceNum;
@@ -384,9 +384,9 @@ int vtkTetra::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
   t = VTK_LARGE_FLOAT;
   for (faceNum=0; faceNum<4; faceNum++)
     {
-    pt1 = this->Points->GetPoint(faces[faceNum][0]);
-    pt2 = this->Points->GetPoint(faces[faceNum][1]);
-    pt3 = this->Points->GetPoint(faces[faceNum][2]);
+    this->Points->GetPoint(faces[faceNum][0], pt1);
+    this->Points->GetPoint(faces[faceNum][1], pt2);
+    this->Points->GetPoint(faces[faceNum][2], pt3);
 
     this->Triangle->Points->SetPoint(0,pt1);
     this->Triangle->Points->SetPoint(1,pt2);
@@ -711,7 +711,7 @@ int vtkTetra::JacobianInverse(double **inverse, float derivs[12])
 {
   int i, j;
   double *m[3], m0[3], m1[3], m2[3];
-  float *x;
+  float x[3];
 
   // compute interpolation function derivatives
   this->InterpolationDerivs(derivs);
@@ -725,7 +725,7 @@ int vtkTetra::JacobianInverse(double **inverse, float derivs[12])
 
   for ( j=0; j < 4; j++ )
     {
-    x = this->Points->GetPoint(j);
+    this->Points->GetPoint(j, x);
     for ( i=0; i < 3; i++ )
       {
       m0[i] += x[i] * derivs[j];
@@ -809,7 +809,7 @@ void vtkTetra::Clip(float value, vtkDataArray *cellScalars,
   int i, j, index, *vert, newCellId;
   vtkIdType pts[6];
   int vertexId;
-  float t, *x1, *x2, x[3];
+  float t, x1[3], x2[3], x[3];
 
   // Build the case table
   if ( insideOut )
@@ -873,8 +873,8 @@ void vtkTetra::Clip(float value, vtkDataArray *cellScalars,
       t = ( deltaScalar == 0.0 ? 0.0 :
             (value - cellScalars->GetComponent(v1,0)) / deltaScalar );
 
-      x1 = this->Points->GetPoint(v1);
-      x2 = this->Points->GetPoint(v2);
+      this->Points->GetPoint(v1, x1);
+      this->Points->GetPoint(v2, x2);
       for (j=0; j<3; j++)
         {
         x[j] = x1[j] + t * (x2[j] - x1[j]);

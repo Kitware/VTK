@@ -24,7 +24,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPointLocator, "1.62");
+vtkCxxRevisionMacro(vtkPointLocator, "1.63");
 vtkStandardNewMacro(vtkPointLocator);
 
 static const int VTK_INITIAL_SIZE=1000;
@@ -1449,7 +1449,7 @@ vtkIdType vtkPointLocator::IsInsertedPoint(const float x[3])
   int *nei, lvtk;
   vtkIdType ptId, cno;
   vtkIdList *ptIds;
-  float *pt;
+  float pt[3];
 
   for (lvtk=0; lvtk <= this->InsertionLevel; lvtk++)
     {
@@ -1466,7 +1466,7 @@ vtkIdType vtkPointLocator::IsInsertedPoint(const float x[3])
         for (j=0; j < ptIds->GetNumberOfIds(); j++) 
           {
           ptId = ptIds->GetId(j);
-          pt = this->Points->GetPoint(ptId);
+          this->Points->GetPoint(ptId, pt);
 
           if ( vtkMath::Distance2BetweenPoints(x,pt) <= this->InsertionTol2 )
             {
@@ -1506,7 +1506,7 @@ vtkIdType vtkPointLocator::FindClosestInsertedPoint(const float x[3])
 {
   int i;
   float minDist2, dist2;
-  float *pt;
+  float pt[3];
   int level;
   vtkIdType closest, j;
   vtkIdType ptId, cno;
@@ -1560,7 +1560,7 @@ vtkIdType vtkPointLocator::FindClosestInsertedPoint(const float x[3])
         for (j=0; j < ptIds->GetNumberOfIds(); j++) 
           {
           ptId = ptIds->GetId(j);
-          pt = this->Points->GetPoint(ptId);
+          this->Points->GetPoint(ptId, pt);
           if ( (dist2 = vtkMath::Distance2BetweenPoints(x,pt)) < minDist2 ) 
             {
             closest = ptId;
@@ -1603,7 +1603,7 @@ vtkIdType vtkPointLocator::FindClosestInsertedPoint(const float x[3])
           for (j=0; j < ptIds->GetNumberOfIds(); j++) 
             {
             ptId = ptIds->GetId(j);
-            pt = this->Points->GetPoint(ptId);
+            this->Points->GetPoint(ptId, pt);
             if ( (dist2 = vtkMath::Distance2BetweenPoints(x,pt)) < minDist2 ) 
               {
               closest = ptId;

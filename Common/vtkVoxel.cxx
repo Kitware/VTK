@@ -28,7 +28,7 @@
 #include "vtkPoints.h"
 #include "vtkBox.h"
 
-vtkCxxRevisionMacro(vtkVoxel, "1.79");
+vtkCxxRevisionMacro(vtkVoxel, "1.80");
 vtkStandardNewMacro(vtkVoxel);
 
 // Construct the voxel with eight points.
@@ -60,17 +60,17 @@ int vtkVoxel::EvaluatePosition(float x[3], float* closestPoint,
                               int& subId, float pcoords[3], 
                               float& dist2, float *weights)
 {
-  float *pt1, *pt2, *pt3, *pt4;
+  float pt1[3], pt2[3], pt3[3], pt4[3];
   int i;
 
   subId = 0;
 //
 // Get coordinate system
 //
-  pt1 = this->Points->GetPoint(0);
-  pt2 = this->Points->GetPoint(1);
-  pt3 = this->Points->GetPoint(2);
-  pt4 = this->Points->GetPoint(4);
+  this->Points->GetPoint(0, pt1);
+  this->Points->GetPoint(1, pt2);
+  this->Points->GetPoint(2, pt3);
+  this->Points->GetPoint(4, pt4);
 //
 // Develop parametric coordinates
 //
@@ -120,13 +120,13 @@ int vtkVoxel::EvaluatePosition(float x[3], float* closestPoint,
 void vtkVoxel::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3], 
                                 float x[3], float *weights)
 {
-  float *pt1, *pt2, *pt3, *pt4;
+  float pt1[3], pt2[3], pt3[3], pt4[3];
   int i;
 
-  pt1 = this->Points->GetPoint(0);
-  pt2 = this->Points->GetPoint(1);
-  pt3 = this->Points->GetPoint(2);
-  pt4 = this->Points->GetPoint(4);
+  this->Points->GetPoint(0, pt1);
+  this->Points->GetPoint(1, pt2);
+  this->Points->GetPoint(2, pt3);
+  this->Points->GetPoint(4, pt4);
 
   for (i=0; i<3; i++)
     {
@@ -302,7 +302,7 @@ void vtkVoxel::Contour(float value, vtkDataArray *cellScalars,
   static int vertMap[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
   int newCellId;
   vtkIdType pts[3];
-  float t, *x1, *x2, x[3];
+  float t, x1[3], x2[3], x[3];
 
   // Build the case table
   for ( i=0, index = 0; i < 8; i++)
@@ -324,8 +324,8 @@ void vtkVoxel::Contour(float value, vtkDataArray *cellScalars,
       t = (value - cellScalars->GetComponent(vert[0],0)) /
           (cellScalars->GetComponent(vert[1],0) 
            - cellScalars->GetComponent(vert[0],0));
-      x1 = this->Points->GetPoint(vert[0]);
-      x2 = this->Points->GetPoint(vert[1]);
+      this->Points->GetPoint(vert[0], x1);
+      this->Points->GetPoint(vert[1], x2);
       for (j=0; j<3; j++)
         {
         x[j] = x1[j] + t * (x2[j] - x1[j]);
@@ -398,14 +398,14 @@ vtkCell *vtkVoxel::GetFace(int faceId)
 int vtkVoxel::IntersectWithLine(float p1[3], float p2[3], float vtkNotUsed(tol), 
                                float& t, float x[3], float pcoords[3], int& subId)
 {
-  float *minPt, *maxPt;
+  float minPt[3], maxPt[3];
   float bounds[6], p21[3];
   int i;
 
   subId = 0;
 
-  minPt = this->Points->GetPoint(0);
-  maxPt = this->Points->GetPoint(7);
+  this->Points->GetPoint(0, minPt);
+  this->Points->GetPoint(7, maxPt);
 
   for (i=0; i<3; i++)
     {
@@ -522,16 +522,16 @@ void vtkVoxel::Derivatives(int vtkNotUsed(subId), float pcoords[3],
 {
   float functionDerivs[24], sum;
   int i, j, k;
-  float *x0, *x1, *x2, *x4, spacing[3];
+  float x0[3], x1[3], x2[3], x4[3], spacing[3];
 
-  x0 = this->Points->GetPoint(0);
-  x1 = this->Points->GetPoint(1);
+  this->Points->GetPoint(0, x0);
+  this->Points->GetPoint(1, x1);
   spacing[0] = x1[0] - x0[0];
 
-  x2 = this->Points->GetPoint(2);
+  this->Points->GetPoint(2, x2);
   spacing[1] = x2[1] - x0[1];
 
-  x4 = this->Points->GetPoint(4);
+  this->Points->GetPoint(4, x4);
   spacing[2] = x4[2] - x0[2];
 
   // get derivatives in r-s-t directions
