@@ -75,10 +75,10 @@ void vtkStreamPoints::Execute()
   vtkScalars *newScalars=NULL;
   vtkCellArray *newVerts;
   int i, ptId, j, id;
-  int npts = 0;
   float tOffset, x[3], v[3], s, r;
   vtkPolyData *output = this->GetOutput();
   vtkDataSet *input = this->GetInput();
+  vtkIdList *pts;
   
   this->vtkStreamer::Integrate();
   if ( this->NumberOfStreamers <= 0 )
@@ -87,6 +87,8 @@ void vtkStreamPoints::Execute()
     }
   
 
+  pts = vtkIdList::New();
+  pts->Allocate(2500);
   newPts  = vtkPoints::New();
   newPts ->Allocate(1000);
   newVectors  = vtkVectors::New();
@@ -114,8 +116,6 @@ void vtkStreamPoints::Execute()
       //
       // For each streamer, create points "time increment" apart
       //
-      npts = 0;
-      newVerts->InsertNextCell(npts); //temporary count
       if ( tOffset < sPtr->t )
         {
         while ( tOffset < sPtr->t )
@@ -129,9 +129,8 @@ void vtkStreamPoints::Execute()
             }
 
           // add point to line
-          npts++;
           id = newPts->InsertNextPoint(x);
-          newVerts->InsertCellPoint(id);
+	  pts->InsertNextId(id);
           newVectors->InsertVector(id,v);
 
           if ( newScalars ) 
@@ -146,8 +145,11 @@ void vtkStreamPoints::Execute()
         } //if points should be created
 
       } //for this streamer
-    newVerts->UpdateCellCount(npts);
-
+    if ( pts->GetNumberOfIds() > 1 )
+      {
+      newVerts->InsertNextCell(pts);
+      pts->Reset();
+      }
     } //for all streamers
   //
   // Update ourselves
@@ -169,6 +171,7 @@ void vtkStreamPoints::Execute()
     }
 
   output->Squeeze();
+  pts->Delete();
 }
 
 void vtkStreamPoints::PrintSelf(ostream& os, vtkIndent indent)
@@ -177,3 +180,5 @@ void vtkStreamPoints::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Time Increment: " << this->TimeIncrement << " <<\n";
 }
+
+
