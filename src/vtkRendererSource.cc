@@ -123,3 +123,18 @@ void vtkRendererSource::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Input: (none)\n";
     }
 }
+
+
+unsigned long vtkRendererSource::GetMTime()
+{
+  unsigned long mTime=this->MTime.GetMTime();
+  unsigned long transMTime;
+
+  if ( this->Input )
+    {
+    transMTime = this->Input->GetMTime();
+    mTime = ( transMTime > mTime ? transMTime : mTime );
+    }
+
+  return mTime;
+}
