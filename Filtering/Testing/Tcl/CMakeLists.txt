@@ -4,35 +4,22 @@ IF (VTK_USE_RENDERING)
   # Add tests, with the data
   #
   IF (VTK_DATA_ROOT)
-
-    ADD_TEST(CSpline-image ${VTK_EXECUTABLE}
-      ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
-      ${VTK_SOURCE_DIR}/Filtering/Testing/Tcl/CSpline.tcl
-      -D ${VTK_DATA_ROOT}
-      -V Baseline/Filtering/CSpline.png
-      -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
-
-    ADD_TEST(KSpline-image ${VTK_EXECUTABLE}
-      ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
-      ${VTK_SOURCE_DIR}/Filtering/Testing/Tcl/KSpline.tcl
-      -D ${VTK_DATA_ROOT}
-      -V Baseline/Filtering/KSpline.png
-      -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+    FOREACH ( tfile 
+      CSpline
+      KSpline
+      TestGraphLayoutFilter
+      )
+      ADD_TEST(${tfile}-image ${VTK_EXECUTABLE}
+        ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+        ${VTK_SOURCE_DIR}/Hybrid/Testing/Tcl/${tfile}.tcl
+        -D ${VTK_DATA_ROOT}
+        -V Baseline/Hybrid/${tfile}.png
+        -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+    ENDFOREACH( tfile )
   #
   # If we do not have the data, still run the tests that we can
   #
   ELSE (VTK_DATA_ROOT)
-
-    ADD_TEST(CSpline-image ${VTK_EXECUTABLE}
-      ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
-      ${VTK_SOURCE_DIR}/Filtering/Testing/Tcl/CSpline.tcl
-      -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
-
-    ADD_TEST(KSpline-image ${VTK_EXECUTABLE}
-      ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
-      ${VTK_SOURCE_DIR}/Filtering/Testing/Tcl/KSpline.tcl
-      -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
-
   ENDIF (VTK_DATA_ROOT)
 
 ENDIF (VTK_USE_RENDERING)
