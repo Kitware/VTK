@@ -42,6 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMath.h"
 #include "vtkPolygon.h"
 #include "vtkNormals.h"
+#include "vtkMergePoints.h"
 
 // Construct object with feature angle = 30; all types of edges extracted
 // and colored.
@@ -53,6 +54,16 @@ vtkFeatureEdges::vtkFeatureEdges()
   this->NonManifoldEdges = 1;
   this->ManifoldEdges = 0;
   this->Coloring = 1;
+  this->Locator = NULL;
+}
+
+vtkFeatureEdges::~vtkFeatureEdges()
+{
+  if ( this->Locator )
+    {
+    this->Locator->UnRegister(this);
+    this->Locator = NULL;
+    }
 }
 
 // Generate feature edges for mesh
@@ -66,19 +77,21 @@ void vtkFeatureEdges::Execute()
   vtkPolyData *Mesh;
   int i, j, numNei, cellId;
   int numBEdges, numNonManifoldEdges, numFedges, numManifoldEdges;
-  float scalar, n[3], *x1, *x2;
+  float scalar, n[3], x1[3], x2[3];
   float cosAngle = 0;
   int lineIds[2];
   int npts, *pts;
   vtkCellArray *inPolys;
   vtkNormals *polyNormals = NULL;
-  int numPts, nei;
+  int numPts, numCells, nei;
   vtkIdList *neighbors;
-  int p1, p2;
+  int p1, p2, newId;
   vtkPolyData *output = this->GetOutput();
+  vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
+  vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
   
   vtkDebugMacro(<<"Executing feature edges");
-  //
+
   //  Check input
   //
   inPts=input->GetPoints();
@@ -89,6 +102,7 @@ void vtkFeatureEdges::Execute()
     vtkErrorMacro(<<"No input data!");
     return;
     }
+  numCells = input->GetNumberOfCells();
 
   if ( !this->BoundaryEdges && !this->NonManifoldEdges && 
   !this->FeatureEdges && !this->ManifoldEdges )
@@ -102,16 +116,28 @@ void vtkFeatureEdges::Execute()
   Mesh->SetPoints(inPts);
   Mesh->SetPolys(inPolys);
   Mesh->BuildLinks();
-  //
+
   // Allocate storage for lines/points (arbitrary allocations size)
   //
   newPts = vtkPoints::New();
   newPts->Allocate(numPts/10,numPts); 
-  newScalars = vtkScalars::New();
-  newScalars->Allocate(numPts/10,numPts);
   newLines = vtkCellArray::New();
   newLines->Allocate(numPts/10);
+  if ( this->Coloring )
+    {
+    newScalars = vtkScalars::New();
+    newScalars->Allocate(numCells/10,numCells);
+    outCD->CopyScalarsOff();
+    }
+
+  outPD->CopyAllocate(pd, numPts);
+  outCD->CopyAllocate(cd, numCells);
+
+  // Get our locator for merging points
   //
+  if ( this->Locator == NULL ) this->CreateDefaultLocator();
+  this->Locator->InitPointInsertion (newPts, input->GetBounds());
+
   // Loop over all polygons generating boundary, non-manifold, 
   // and feature edges
   //
@@ -137,6 +163,15 @@ void vtkFeatureEdges::Execute()
   for (cellId=0, inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); 
   cellId++)
     {
+    if ( ! (cellId % 10000) ) //manage progress reports / early abort
+      {
+      this->UpdateProgress ((float)cellId / numCells);
+      if ( this->GetAbortExecute() ) 
+        {
+        break;
+        }
+      }
+
     for (i=0; i < npts; i++) 
       {
       p1 = pts[i];
@@ -166,10 +201,10 @@ void vtkFeatureEdges::Execute()
         }
 
       else if ( this->FeatureEdges && 
-		numNei == 1 && (nei=neighbors->GetId(0)) > cellId ) 
+                numNei == 1 && (nei=neighbors->GetId(0)) > cellId ) 
         {
         if ( vtkMath::Dot(polyNormals->GetNormal(nei),
-			  polyNormals->GetNormal(cellId)) <= cosAngle ) 
+                          polyNormals->GetNormal(cellId)) <= cosAngle ) 
           {
           numFedges++;
           scalar = 0.444444;
@@ -185,16 +220,24 @@ void vtkFeatureEdges::Execute()
       else continue;
 
       // Add edge to output
-      x1 = Mesh->GetPoint(p1);
-      x2 = Mesh->GetPoint(p2);
+      Mesh->GetPoint(p1, x1);
+      Mesh->GetPoint(p2, x2);
 
-      lineIds[0] = newPts->InsertNextPoint(x1);
-      lineIds[1] = newPts->InsertNextPoint(x2);
+      if ( (lineIds[0] = this->Locator->IsInsertedPoint(x1)) )
+        {
+        lineIds[0] = this->Locator->InsertNextPoint(x1);
+        outPD->CopyData (pd,p1,lineIds[0]);
+        }
+      
+      if ( (lineIds[1] = this->Locator->IsInsertedPoint(x2)) )
+        {
+        lineIds[1] = this->Locator->InsertNextPoint(x2);
+        outPD->CopyData (pd,p2,lineIds[1]);
+        }
 
-      newLines->InsertNextCell(2,lineIds);
-
-      newScalars->InsertScalar(lineIds[0], scalar);
-      newScalars->InsertScalar(lineIds[1], scalar);
+      newId = newLines->InsertNextCell(2,lineIds);
+      outCD->CopyData (cd,cellId,newId);
+      if ( this->Coloring ) newScalars->InsertScalar(newId, scalar);
       }
     }
 
@@ -203,7 +246,6 @@ void vtkFeatureEdges::Execute()
                 << numFedges << " feature edges, "
                 << numManifoldEdges << " manifold edges");
 
-  //
   //  Update ourselves.
   //
   if ( this->FeatureEdges ) polyNormals->Delete();
@@ -217,8 +259,50 @@ void vtkFeatureEdges::Execute()
   output->SetLines(newLines);
   newLines->Delete();
 
-  if ( this->Coloring ) output->GetPointData()->SetScalars(newScalars);
+  if ( this->Coloring ) outCD->SetScalars(newScalars);
   newScalars->Delete();
+}
+
+void vtkFeatureEdges::CreateDefaultLocator()
+{
+  if ( this->Locator == NULL )
+    {
+    this->Locator = vtkMergePoints::New();
+    }
+}
+
+// Specify a spatial locator for merging points. By
+// default an instance of vtkMergePoints is used.
+void vtkFeatureEdges::SetLocator(vtkPointLocator *locator)
+{
+  if ( this->Locator == locator ) 
+    {
+    return;
+    }
+  if ( this->Locator )
+    {
+    this->Locator->UnRegister(this);
+    this->Locator = NULL;
+    }
+  if ( locator )
+    {
+    locator->Register(this);
+    }
+  this->Locator = locator;
+  this->Modified();
+}
+
+unsigned long int vtkFeatureEdges::GetMTime()
+{
+  unsigned long mTime=this-> vtkPolyDataToPolyDataFilter::GetMTime();
+  unsigned long time;
+
+  if ( this->Locator != NULL )
+    {
+    time = this->Locator->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
+    }
+  return mTime;
 }
 
 void vtkFeatureEdges::PrintSelf(ostream& os, vtkIndent indent)
@@ -231,5 +315,14 @@ void vtkFeatureEdges::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Non-Manifold Edges: " << (this->NonManifoldEdges ? "On\n" : "Off\n");
   os << indent << "Manifold Edges: " << (this->ManifoldEdges ? "On\n" : "Off\n");
   os << indent << "Coloring: " << (this->Coloring ? "On\n" : "Off\n");
+
+  if ( this->Locator )
+    {
+    os << indent << "Locator: " << this->Locator << "\n";
+    }
+  else
+    {
+    os << indent << "Locator: (none)\n";
+    }
 }
 

@@ -47,7 +47,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // dihedral angle > FeatureAngle); or 4) manifold edges (edges used by
 // exactly two polygons). These edges may be extracted in any
 // combination. Edges may also be "colored" (i.e., scalar values assigned)
-// based on edge type.
+// based on edge type. The cell coloring is assigned to the cell data of
+// the extracted edges.
+
+// .SECTION Caveats
+// To see the coloring of the liens you may have to set the ScalarMode
+// instance variable of the mapper to SetScalarModeToUseCellData(). (This
+// is only a problem if there are point data scalars.)
 
 // .SECTION See Also
 // vtkFeatureVertices
@@ -61,6 +67,7 @@ class VTK_EXPORT vtkFeatureEdges : public vtkPolyDataToPolyDataFilter
 {
 public:
   vtkFeatureEdges();
+  ~vtkFeatureEdges();
   const char *GetClassName() {return "vtkFeatureEdges";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -104,6 +111,20 @@ public:
   vtkGetMacro(Coloring,int);
   vtkBooleanMacro(Coloring,int);
 
+  // Description:
+  // Set / get a spatial locator for merging points. By
+  // default an instance of vtkMergePoints is used.
+  void SetLocator(vtkPointLocator *locator);
+  vtkGetObjectMacro(Locator,vtkPointLocator);
+
+  // Description:
+  // Create default locator. Used to create one when none is specified.
+  void CreateDefaultLocator();
+
+  // Description:
+  // Return MTime also considering the locator.
+  unsigned long GetMTime();
+
 protected:
   // Usual data generation method
   void Execute();
@@ -114,6 +135,7 @@ protected:
   int NonManifoldEdges;
   int ManifoldEdges;
   int Coloring;
+  vtkPointLocator *Locator;
 };
 
 #endif

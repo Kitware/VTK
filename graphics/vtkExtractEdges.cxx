@@ -65,15 +65,16 @@ void vtkExtractEdges::Execute()
   vtkPoints *newPts;
   vtkCellArray *newLines;
   int numCells, cellNum, numEdges, edgeNum, numEdgePts, numCellEdges;
-  int numPts, numNewPts, i, pts[2], pt2;
+  int numPts, numNewPts, i, pts[2], pt2, newId;
   int pt1 = 0;
   float *x;
   vtkEdgeTable *edgeTable;
   vtkCell *cell, *edge;
   vtkPointData *pd, *outPD;
+  vtkCellData *cd, *outCD;
 
   vtkDebugMacro(<<"Executing edge extractor");
-  //
+
   //  Check input
   //
   numPts=input->GetNumberOfPoints();
@@ -82,7 +83,7 @@ void vtkExtractEdges::Execute()
     vtkErrorMacro(<<"No input data!");
     return;
     }
-  //
+
   // Set up processing
   //
   numNewPts = 0;
@@ -96,18 +97,27 @@ void vtkExtractEdges::Execute()
   pd = input->GetPointData();
   outPD = output->GetPointData();
   outPD->CopyAllocate(pd,numPts);
+  outCD = output->GetCellData();
+  outCD->CopyAllocate(cd,numCells);
   
-  //
   // Get our locator for merging points
   //
   if ( this->Locator == NULL ) this->CreateDefaultLocator();
   this->Locator->InitPointInsertion (newPts, input->GetBounds());
 
-  //
   // Loop over all cells, extracting non-visited edges. 
   //
   for (cellNum=0; cellNum < numCells; cellNum++ )
     {
+    if ( ! (cellNum % 10000) ) //manage progress reports / early abort
+      {
+      this->UpdateProgress ((float)cellNum / numCells);
+      if ( this->GetAbortExecute() ) 
+        {
+        break;
+        }
+      }
+
     cell = input->GetCell(cellNum);
     numCellEdges = cell->GetNumberOfEdges();
     for (edgeNum=0; edgeNum < numCellEdges; edgeNum++ )
@@ -127,7 +137,8 @@ void vtkExtractEdges::Execute()
         if ( i > 0 && !edgeTable->IsEdge(pt1,pt2) )
           {
           edgeTable->InsertEdge(pt1, pt2);
-          newLines->InsertNextCell(2,pts);
+          newId = newLines->InsertNextCell(2,pts);
+          outCD->CopyData(cd, cellNum, newId);
           }
         }
       }//for all edges of cell
