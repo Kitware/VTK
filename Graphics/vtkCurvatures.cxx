@@ -27,7 +27,7 @@
 #include "vtkTensor.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkCurvatures, "1.9");
+vtkCxxRevisionMacro(vtkCurvatures, "1.10");
 vtkStandardNewMacro(vtkCurvatures);
 
 //------------------------------------------------------------------------------
@@ -323,6 +323,90 @@ void vtkCurvatures::GetGaussCurvature()
     /*******************************************************/
 };
 
+void vtkCurvatures::GetMaximumCurvature()
+{
+  this->GetGaussCurvature();
+  this->GetMeanCurvature();
+  
+  vtkPolyData *output = this->GetOutput();
+  vtkPolyData *input = this->GetInput();
+  vtkIdType numPts = input->GetNumberOfPoints();
+  
+  vtkDoubleArray *maximumCurvature = vtkDoubleArray::New();
+  maximumCurvature->SetNumberOfComponents(1);
+  maximumCurvature->SetNumberOfTuples(numPts);
+  maximumCurvature->SetName("Maximum_Curvature");
+  output->GetPointData()->AddArray(maximumCurvature);
+  output->GetPointData()->SetActiveScalars("Maximum_Curvature");
+  maximumCurvature->Delete();
+  
+  vtkDoubleArray *gauss = (vtkDoubleArray *)output->GetPointData()->GetArray("Gauss_Curvature");
+  vtkDoubleArray *mean = (vtkDoubleArray *)output->GetPointData()->GetArray("Mean_Curvature");
+  double k, h, k_max,tmp;
+  
+  for (vtkIdType i = 0; i<numPts; i++)
+    {
+    k = gauss->GetComponent(i,0);
+    h = mean->GetComponent(i,0);
+    tmp = h*h - k;
+    if (tmp >= 0)
+      {
+      k_max = h + sqrt(tmp);
+      }
+    else
+      {
+      vtkDebugMacro(<< "Maximum Curvature undefined at point: " << i);
+      // k_max can be any real number. Undefined points will be indistinguishable
+      // from points that actually have a k_max == 0
+      k_max = NULL;
+      }
+    maximumCurvature->SetComponent(i, 0, k_max);
+    }
+    
+}
+
+void vtkCurvatures::GetMinimumCurvature()
+{
+  this->GetGaussCurvature();
+  this->GetMeanCurvature();
+  
+  vtkPolyData *output = this->GetOutput();
+  vtkPolyData *input = this->GetInput();
+  vtkIdType numPts = input->GetNumberOfPoints();
+  
+  vtkDoubleArray *minimumCurvature = vtkDoubleArray::New();
+  minimumCurvature->SetNumberOfComponents(1);
+  minimumCurvature->SetNumberOfTuples(numPts);
+  minimumCurvature->SetName("Minimum_Curvature");
+  output->GetPointData()->AddArray(minimumCurvature);
+  output->GetPointData()->SetActiveScalars("Minimum_Curvature");
+  minimumCurvature->Delete();
+  
+  vtkDoubleArray *gauss = (vtkDoubleArray *)output->GetPointData()->GetArray("Gauss_Curvature");
+  vtkDoubleArray *mean = (vtkDoubleArray *)output->GetPointData()->GetArray("Mean_Curvature");
+  double k, h, k_min,tmp;
+  
+  for (vtkIdType i = 0; i<numPts; i++)
+    {
+    k = gauss->GetComponent(i,0);
+    h = mean->GetComponent(i,0);
+    tmp = h*h - k;
+    if (tmp >= 0)
+      {
+      k_min = h - sqrt(tmp);
+      }
+    else
+      {
+      vtkDebugMacro(<< "Minimum Curvature undefined at point: " << i);
+      // k_min can be any real number. Undefined points will be indistinguishable
+      // from points that actually have a k_min == 0
+      k_min = NULL;
+      }
+    minimumCurvature->SetComponent(i, 0, k_min);
+    }
+  
+}
+
 //-------------------------------------------------------
 void vtkCurvatures::Execute()
 {
@@ -350,9 +434,17 @@ void vtkCurvatures::Execute()
       {
       this->GetMeanCurvature();
       }
-  else
+  else if ( this->CurvatureType ==  VTK_CURVATURE_MAXIMUM )
       {
-      vtkErrorMacro("Only Gauss and Mean Curvature type available");
+      this->GetMaximumCurvature();
+      }
+  else if ( this->CurvatureType ==  VTK_CURVATURE_MINIMUM )
+      {
+      this->GetMinimumCurvature();
+      }
+  else 
+      {
+      vtkErrorMacro("Only Gauss, Mean, Max, and Min Curvature type available");
       }
 }
 /*-------------------------------------------------------*/

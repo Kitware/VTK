@@ -15,7 +15,7 @@
 // .NAME vtkCurvatures - compute curvatures (Gauss and mean) of a Polydata object
 // .SECTION Description
 // vtkCurvatures takes a polydata input and computes the curvature of the
-// mesh at each point. Two possible methods of computation are available :
+// mesh at each point. Four possible methods of computation are available :
 //
 // Gauss Curvature
 // discrete Gauss curvature (K) computation,
@@ -31,6 +31,15 @@
 // the computation creates the orientation
 // The units of Mean Curvature are [1/m]
 //
+// Maximum (k_max) and Minimum (k_min) Principal Curvatures
+// k_max = H + sqrt(H^2 - K)
+// k_min = H - sqrt(H^2 - K)
+// Excepting spherical and planar surfaces which have equal principal curvatures,
+// the curvature at a point on a surface varies with the direction one "sets off"
+// from the point. For all directions, the curvature will pass through two extrema:
+// a minimum (k_min) and a maximum (k_max) which occur at mutually orthogonal
+// directions to each other.
+//
 // NB. The sign of the Gauss curvature is a geometric ivariant, it should be +ve
 // when the surface looks like a sphere, -ve when it looks like a saddle,
 // however, the sign of the Mean curvature is not, it depends on the
@@ -42,7 +51,9 @@
 // .SECTION Thanks
 // Philip Batchelor philipp.batchelor@kcl.ac.uk for creating and contributing
 // the class and Andrew Maclean a.maclean@acfr.usyd.edu.au for cleanups and 
-// fixes
+// fixes. Thanks also to Goodwin Lawlor for contributing patch to calculate
+// principal curvatures
+
 //
 // .SECTION See Also
 //
@@ -54,6 +65,8 @@
 
 #define VTK_CURVATURE_GAUSS 0
 #define VTK_CURVATURE_MEAN  1
+#define VTK_CURVATURE_MAXIMUM 2
+#define VTK_CURVATURE_MINIMUM 3
 
 class VTK_GRAPHICS_EXPORT vtkCurvatures : public vtkPolyDataToPolyDataFilter
 {
@@ -77,6 +90,10 @@ public:
   { this->SetCurvatureType(VTK_CURVATURE_GAUSS); }
   void SetCurvatureTypeToMean()
   { this->SetCurvatureType(VTK_CURVATURE_MEAN); }
+  void SetCurvatureTypeToMaximum()
+  { this->SetCurvatureType(VTK_CURVATURE_MAXIMUM); }
+  void SetCurvatureTypeToMinimum()
+  { this->SetCurvatureType(VTK_CURVATURE_MINIMUM); }
 
   // Description:
   // Set/Get the flag which inverts the mean curvature calculation for
@@ -98,6 +115,15 @@ protected:
   // discrete Mean curvature (H) computation,
   // cf http://www-ipg.umds.ac.uk/p.batchelor/curvatures/curvatures.html
   void GetMeanCurvature();
+  
+  //Description:
+  // Maximum principal curvature k_max = H + sqrt(H^2 -K)
+  void GetMaximumCurvature();
+  
+  //Description:
+  // Minimum principal curvature k_min = H - sqrt(H^2 -K)
+  void GetMinimumCurvature();
+  
 
   // Vars
   int CurvatureType;

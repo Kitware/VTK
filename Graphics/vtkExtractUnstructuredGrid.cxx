@@ -22,7 +22,7 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractUnstructuredGrid, "1.34");
+vtkCxxRevisionMacro(vtkExtractUnstructuredGrid, "1.35");
 vtkStandardNewMacro(vtkExtractUnstructuredGrid);
 
 // Construct with all types of clipping turned off.
@@ -74,7 +74,7 @@ void vtkExtractUnstructuredGrid::SetExtent(double extent[6])
        extent[2] != this->Extent[2] || extent[3] != this->Extent[3] ||
        extent[4] != this->Extent[4] || extent[5] != this->Extent[5] )
     {
-    this->Modified();
+    this->ExtentClippingOn();
     for (i=0; i<3; i++)
       {
       if ( extent[2*i+1] < extent[2*i] )
