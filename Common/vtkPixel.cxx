@@ -29,7 +29,7 @@
 #include "vtkCellData.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkPixel, "1.76");
+vtkCxxRevisionMacro(vtkPixel, "1.77");
 vtkStandardNewMacro(vtkPixel);
 
 // Construct the pixel with four points.
@@ -65,18 +65,18 @@ int vtkPixel::EvaluatePosition(float x[3], float* closestPoint,
   float l21, l31, n[3];
 
   subId = 0;
-  pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
-//
-// Get normal for pixel
-//
+  pcoords[2] = 0.0;
+
+  // Get normal for pixel
+  //
   pt1 = this->Points->GetPoint(0);
   pt2 = this->Points->GetPoint(1);
   pt3 = this->Points->GetPoint(2);
 
   vtkTriangle::ComputeNormal (pt1, pt2, pt3, n);
-//
-// Project point to plane
-//
+
+  // Project point to plane
+  //
   vtkPlane::ProjectPoint(x,pt1,n,cp);
 
   for (i=0; i<3; i++)
