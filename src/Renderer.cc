@@ -118,10 +118,9 @@ void vlRenderer::ResetCamera()
   float center[3];
   float distance;
   float width;
-  int visibility;
 
-  all_bounds[0] = all_bounds[2] = all_bounds[4] = 1.0e30;
-  all_bounds[1] = all_bounds[3] = all_bounds[5] = -1.0e30;
+  all_bounds[0] = all_bounds[2] = all_bounds[4] = LARGE_FLOAT;
+  all_bounds[1] = all_bounds[3] = all_bounds[5] = -LARGE_FLOAT;
   
   // loop through actors 
   for (num = 0; num < this->Actors.GetNumberOfMembers(); num++)
@@ -129,8 +128,7 @@ void vlRenderer::ResetCamera()
     anActor = this->Actors.GetMember(num);
  
     // if it's invisible, we can skip the rest 
-    visibility = anActor->GetVisibility();
-    if (visibility == 1.0)
+    if ( anActor->GetVisibility() )
       {
       bounds = anActor->GetBounds();
  
