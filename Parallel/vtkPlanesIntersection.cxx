@@ -27,7 +27,7 @@
 #include "vtkCell.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPlanesIntersection, "1.2");
+vtkCxxRevisionMacro(vtkPlanesIntersection, "1.3");
 vtkStandardNewMacro(vtkPlanesIntersection);
 
 // Experiment shows that we get plane equation values on the
@@ -1096,17 +1096,17 @@ int vtkPlanesIntersection::IntersectsProjection(vtkPoints *R, int dir)
     {
     case Xdim:
 
-      intersects = this->regionPts->rectangleIntersectionX(R);
+      intersects = this->regionPts->RectangleIntersectionX(R);
       break;
 
     case Ydim:
 
-      intersects = this->regionPts->rectangleIntersectionY(R);
+      intersects = this->regionPts->RectangleIntersectionY(R);
       break;
 
     case Zdim:
 
-      intersects = this->regionPts->rectangleIntersectionZ(R);
+      intersects = this->regionPts->RectangleIntersectionZ(R);
       break;
     }
 
