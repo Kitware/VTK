@@ -11,69 +11,94 @@ proc BindTkRenderWidget {widget} {
     bind $widget <Shift-B1-Motion> {Pan %W %x %y}
     bind $widget <KeyPress-r> {Reset %W %x %y}
     bind $widget <KeyPress-u> {wm deiconify .vtkInteract}
-    bind $widget <KeyPress-w> Wireframe
-    bind $widget <KeyPress-s> Surface
-    bind $widget <Enter> {Enter %W}
+    bind $widget <Escape> ConfirmExit
+    bind $widget <Enter> {Enter %W %x %y}
     bind $widget <Leave> {focus $oldFocus}
+    bind $widget <Shift-B3-Motion> {MoveCursor %W %x %y}
 }
+# Global variable keeps track of whether active renderer was found
+set RendererFound 0
 
 # Create event bindings
 #
 proc Render {} {
-   global CurrentCamera CurrentLight CurrentRenderWindow
+    global CurrentCamera CurrentLight CurrentRenderWindow
 
-   if {$CurrentLight != ""} {
-      eval $CurrentLight SetPosition [$CurrentCamera GetPosition]
-      eval $CurrentLight SetFocalPoint [$CurrentCamera GetFocalPoint]
-   }
+    eval $CurrentLight SetPosition [$CurrentCamera GetPosition]
+    eval $CurrentLight SetFocalPoint [$CurrentCamera GetFocalPoint]
 
-   $CurrentRenderWindow Render
+    $CurrentRenderWindow Render
 }
 
-proc UpdateRenderer {widget} {
-   global CurrentCamera CurrentLight 
-   global CurrentRenderWindow CurrentRenderer
-   
-   set CurrentRenderWindow [$widget GetRenderWindow]
-   set renderers [$CurrentRenderWindow GetRenderers]
-   $renderers InitTraversal; set CurrentRenderer [$renderers GetNextItem]
-   set CurrentCamera [$CurrentRenderer GetActiveCamera]
-   set lights [$CurrentRenderer GetLights]
-   $lights InitTraversal; set CurrentLight [$lights GetNextItem]
+proc UpdateRenderer {widget x y} {
+    global CurrentCamera CurrentLight 
+    global CurrentRenderWindow CurrentRenderer
+    global RendererFound LastX LastY
+    global WindowCenterX WindowCenterY
+
+    # Get the renderer window dimensions
+    set WindowX [lindex [$widget configure -width] 4]
+    set WindowY [lindex [$widget configure -height] 4]
+
+    # Find which renderer event has occurred in
+    set CurrentRenderWindow [$widget GetRenderWindow]
+    set renderers [$CurrentRenderWindow GetRenderers]
+    set numRenderers [$renderers GetNumberOfItems]
+
+    $renderers InitTraversal; set RendererFound 0
+    for {set i 0} {$i < $numRenderers} {incr i} {
+	set CurrentRenderer [$renderers GetNextItem]
+	set vx [expr double($x) / $WindowX]
+	set vy [expr ($WindowY - double($y)) / $WindowY]
+	set viewport [$CurrentRenderer GetViewport]
+	set vpxmin [lindex $viewport 0]
+	set vpymin [lindex $viewport 1]
+	set vpxmax [lindex $viewport 2]
+	set vpymax [lindex $viewport 3]
+	if { $vx >= $vpxmin && $vx <= $vpxmax && \
+	$vy >= $vpymin && $vy <= $vpymax} {
+            set RendererFound 1
+            set WindowCenterX [expr double($WindowX)*(($vpxmax - $vpxmin)/2.0\
+                                + $vpxmin)]
+            set WindowCenterY [expr double($WindowY)*(($vpymax - $vpymin)/2.0\
+		                + $vpymin)]
+            break
+        }
+    }
+    
+    set CurrentCamera [$CurrentRenderer GetActiveCamera]
+    set lights [$CurrentRenderer GetLights]
+    $lights InitTraversal; set CurrentLight [$lights GetNextItem]
+
+    set LastX $x
+    set LastY $y
 }
 
-proc Enter {widget} {
+proc Enter {widget x y} {
     global oldFocus
 
     set oldFocus [focus]
     focus $widget
-    UpdateRenderer $widget
+    UpdateRenderer $widget $x $y
 }
 
 proc StartMotion {widget x y} {
     global CurrentCamera CurrentLight 
     global CurrentRenderWindow CurrentRenderer
     global LastX LastY
-    global WindowX WindowY 
+    global RendererFound
 
-    UpdateRenderer $widget
+    UpdateRenderer $widget $x $y
+    if { ! $RendererFound } { return }
 
-   if {[$CurrentRenderWindow GetInAbortCheck] == 0} {
-      $CurrentRenderWindow SetDesiredUpdateRate 5.0
-      set LastX $x
-      set LastY $y
-      set WindowX [lindex [$widget configure -width] 4]
-      set WindowY [lindex [$widget configure -height] 4]
-   } else {
-      $CurrentRenderWindow SetAbortRender 1
-   }
+    $CurrentRenderWindow SetDesiredUpdateRate 5.0
 }
 
-set CurrentRenderWindow ""
 proc EndMotion {widget x y} {
     global CurrentRenderWindow
-    if { $CurrentRenderWindow == "" } {return}
+    global RendererFound
 
+    if { ! $RendererFound } {return}
     $CurrentRenderWindow SetDesiredUpdateRate 0.01
     Render
 }
@@ -81,7 +106,9 @@ proc EndMotion {widget x y} {
 proc Rotate {widget x y} {
     global CurrentCamera 
     global LastX LastY
-    if { ![info exists LastX] } {return}
+    global RendererFound
+
+    if { ! $RendererFound } { return }
 
     $CurrentCamera Azimuth [expr ($LastX - $x)]
     $CurrentCamera Elevation [expr ($y - $LastY)]
@@ -95,7 +122,10 @@ proc Rotate {widget x y} {
 
 proc Pan {widget x y} {
     global CurrentRenderer CurrentCamera
-    global WindowX WindowY LastX LastY
+    global WindowCenterX WindowCenterY LastX LastY
+    global RendererFound
+
+    if { ! $RendererFound } { return }
 
     set FPoint [$CurrentCamera GetFocalPoint]
         set FPoint0 [lindex $FPoint 0]
@@ -112,8 +142,12 @@ proc Pan {widget x y} {
     set DPoint [$CurrentRenderer GetDisplayPoint]
     set focalDepth [lindex $DPoint 2]
 
-    set APoint0 [expr $WindowX/2.0 + ($x - $LastX)]
-    set APoint1 [expr $WindowY/2.0 - ($y - $LastY)]
+    puts $DPoint
+
+    set APoint0 [expr $WindowCenterX + ($x - $LastX)]
+    set APoint1 [expr $WindowCenterY - ($y - $LastY)]
+
+    puts "APoint: $APoint0 $APoint1"
 
     $CurrentRenderer SetDisplayPoint $APoint0 $APoint1 $focalDepth
     $CurrentRenderer DisplayToWorld
@@ -127,6 +161,8 @@ proc Pan {widget x y} {
         set RPoint1 [expr $RPoint1 / $RPoint3]
         set RPoint2 [expr $RPoint2 / $RPoint3]
     }
+
+    puts "FPoint: $FPoint; RPoint: $RPoint"
 
     $CurrentCamera SetFocalPoint \
       [expr ($FPoint0 - $RPoint0)/2.0 + $FPoint0] \
@@ -147,6 +183,9 @@ proc Pan {widget x y} {
 proc Zoom {widget x y} {
     global CurrentCamera
     global LastX LastY
+    global RendererFound
+
+    if { ! $RendererFound } { return }
 
     set zoomFactor [expr pow(1.02,($y - $LastY))]
     set clippingRange [$CurrentCamera GetClippingRange]
@@ -163,45 +202,38 @@ proc Zoom {widget x y} {
 }
 
 proc Reset {widget x y} {
-   global CurrentRenderWindow
-   set CurrentRenderWindow [$widget GetRenderWindow]
-   
-   if {[$CurrentRenderWindow GetInAbortCheck] == 0} {
-      set renderers [$CurrentRenderWindow GetRenderers]
-      $renderers InitTraversal; set CurrentRenderer [$renderers GetNextItem]
-      $CurrentRenderer ResetCamera
-      
-      Render
-   }
-}
-
-proc Wireframe {} {
+    global CurrentRenderWindow
+    global RendererFound
     global CurrentRenderer
 
-    set actors [$CurrentRenderer GetActors]
+    # Get the renderer window dimensions
+    set WindowX [lindex [$widget configure -width] 4]
+    set WindowY [lindex [$widget configure -height] 4]
 
-    $actors InitTraversal
-    set actor [$actors GetNextItem]
-    while { $actor != "" } {
-        [$actor GetProperty] SetRepresentationToWireframe
-        set actor [$actors GetNextItem]
+    # Find which renderer event has occurred in
+    set CurrentRenderWindow [$widget GetRenderWindow]
+    set renderers [$CurrentRenderWindow GetRenderers]
+    set numRenderers [$renderers GetNumberOfItems]
+
+    $renderers InitTraversal; set RendererFound 0
+    for {set i 0} {$i < $numRenderers} {incr i} {
+	set CurrentRenderer [$renderers GetNextItem]
+	set vx [expr double($x) / $WindowX]
+	set vy [expr ($WindowY - double($y)) / $WindowY]
+
+	set viewport [$CurrentRenderer GetViewport]
+	set vpxmin [lindex $viewport 0]
+	set vpymin [lindex $viewport 1]
+	set vpxmax [lindex $viewport 2]
+	set vpymax [lindex $viewport 3]
+	if { $vx >= $vpxmin && $vx <= $vpxmax && \
+	$vy >= $vpymin && $vy <= $vpymax} {
+            set RendererFound 1
+            break
+        }
     }
+
+    if { $RendererFound } {$CurrentRenderer ResetCamera}
 
     Render
 }
-
-proc Surface {} {
-    global CurrentRenderer
-
-    set actors [$CurrentRenderer GetActors]
-
-    $actors InitTraversal
-    set actor [$actors GetNextItem]
-    while { $actor != "" } {
-        [$actor GetProperty] SetRepresentationToSurface
-        set actor [$actors GetNextItem]
-    }
-
-    Render
-}
-
