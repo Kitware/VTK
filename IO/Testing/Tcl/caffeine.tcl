@@ -81,10 +81,6 @@ vtkLODActor Actor7
 
 ren1 AddActor Actor7
 
-vtkCompositeManager compManager
-	compManager SetRenderWindow renWin 
-	compManager InitializePieces
-
 # enable user interface interactor
 #iren SetUserMethod {wm deiconify .vtkInteract}
 iren Initialize
