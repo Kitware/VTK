@@ -80,7 +80,7 @@ public:
   vtkGetMacro(NumberOfPieces, int);
 
 protected:  
-  vtkPolyDataMapper() {};
+  vtkPolyDataMapper();
   ~vtkPolyDataMapper() {};
   vtkPolyDataMapper(const vtkPolyDataMapper&) {};
   void operator=(const vtkPolyDataMapper&) {};
