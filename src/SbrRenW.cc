@@ -631,6 +631,8 @@ void vlSbrRenderWindow::WindowInitialize (void)
     
     /* make sure the window is full screen */
     vlDebugMacro( << "Resizing the xwindow\n");
+    XSelectInput(this->DisplayId, this->WindowId, 
+		 KeyPressMask|ExposureMask);
     XResizeWindow(this->DisplayId,this->WindowId,
 		  WidthOfScreen(ScreenOfDisplay(this->DisplayId,0)),
 		  HeightOfScreen(ScreenOfDisplay(this->DisplayId,0)));
@@ -640,7 +642,7 @@ void vlSbrRenderWindow::WindowInitialize (void)
     while (winattr.width != 
 	   WidthOfScreen(ScreenOfDisplay(this->DisplayId,0)))
       {
-      XNextEvent(this->DisplayId, &event);
+/*      XNextEvent(this->DisplayId, &event); */
       XGetWindowAttributes(this->DisplayId,
 			   this->WindowId,&winattr);
       } 
