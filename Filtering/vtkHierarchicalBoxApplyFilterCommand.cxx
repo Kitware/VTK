@@ -23,7 +23,7 @@
 
 #include "vtkApplyFilterCommandInternal.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalBoxApplyFilterCommand, "1.3");
+vtkCxxRevisionMacro(vtkHierarchicalBoxApplyFilterCommand, "1.4");
 vtkStandardNewMacro(vtkHierarchicalBoxApplyFilterCommand);
 
 vtkCxxSetObjectMacro(vtkHierarchicalBoxApplyFilterCommand,
@@ -76,27 +76,38 @@ void vtkHierarchicalBoxApplyFilterCommand::Execute(
   vtkAMRLevelInformation* info
     = reinterpret_cast<vtkAMRLevelInformation*>(callData);
 
-  if (this->CheckFilterInputMatch(input))
+  vtkUniformGrid* output = 0;
+  if (input)
     {
-    this->SetFilterInput(this->Filter, input);
-    this->Filter->Update();
-    vtkUniformGrid* output = 
-      vtkUniformGrid::SafeDownCast(this->Filter->GetOutputs()[0]);
-    if (output)
+    if (this->CheckFilterInputMatch(input))
       {
-      vtkUniformGrid* outputsc = output->NewInstance();
-      outputsc->ShallowCopy(output);
-      this->Output->SetDataSet(info->Level, 
-                               info->DataSetId, 
-                               info->Box, 
-                               outputsc);
-      outputsc->Delete();
+      this->SetFilterInput(this->Filter, input);
+      this->Filter->Update();
+      output = vtkUniformGrid::SafeDownCast(this->Filter->GetOutputs()[0]);
       }
+    else
+      {
+      vtkErrorMacro("The input and filter do not match. Aborting.");
+      return;
+      }
+    }
+
+  if (output)
+    {
+    vtkUniformGrid* outputsc = output->NewInstance();
+    outputsc->ShallowCopy(output);
+    this->Output->SetDataSet(info->Level, 
+                             info->DataSetId, 
+                             info->Box, 
+                             outputsc);
+    outputsc->Delete();
     }
   else
     {
-    vtkErrorMacro("The input and filter do not match. Aborting.");
-    return;
+    this->Output->SetDataSet(info->Level, 
+                             info->DataSetId, 
+                             info->Box, 
+                             0);
     }
 }
 

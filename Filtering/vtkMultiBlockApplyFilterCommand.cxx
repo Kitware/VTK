@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSource.h"
 
-vtkCxxRevisionMacro(vtkMultiBlockApplyFilterCommand, "1.3");
+vtkCxxRevisionMacro(vtkMultiBlockApplyFilterCommand, "1.4");
 vtkStandardNewMacro(vtkMultiBlockApplyFilterCommand);
 
 vtkCxxSetObjectMacro(vtkMultiBlockApplyFilterCommand,
@@ -65,21 +65,24 @@ void vtkMultiBlockApplyFilterCommand::Execute(vtkCompositeDataVisitor *,
     return;
     }
 
-  if (this->CheckFilterInputMatch(input))
+  if (input)
     {
-    this->SetFilterInput(this->Filter, input);
-    this->Filter->Update();
-    vtkDataSet* output = 
-      vtkDataSet::SafeDownCast(this->Filter->GetOutputs()[0]);
-    vtkDataSet* outputsc = output->NewInstance();
-    outputsc->ShallowCopy(output);
-    this->Output->AddDataSet(outputsc);
-    outputsc->Delete();
-    }
-  else
-    {
-    vtkErrorMacro("The input and filter do not match. Aborting.");
-    return;
+    if (this->CheckFilterInputMatch(input))
+      {
+      this->SetFilterInput(this->Filter, input);
+      this->Filter->Update();
+      vtkDataSet* output = 
+        vtkDataSet::SafeDownCast(this->Filter->GetOutputs()[0]);
+      vtkDataSet* outputsc = output->NewInstance();
+      outputsc->ShallowCopy(output);
+      this->Output->AddDataSet(outputsc);
+      outputsc->Delete();
+      }
+    else
+      {
+      vtkErrorMacro("The input and filter do not match. Aborting.");
+      return;
+      }
     }
 }
 

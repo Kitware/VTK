@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkUniformGrid.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalBoxVisitor, "1.1");
+vtkCxxRevisionMacro(vtkHierarchicalBoxVisitor, "1.2");
 vtkStandardNewMacro(vtkHierarchicalBoxVisitor);
 
 vtkCxxSetObjectMacro(vtkHierarchicalBoxVisitor, 
@@ -67,10 +67,7 @@ void vtkHierarchicalBoxVisitor::Execute()
       info.Level = levelId;
       info.DataSetId = dsId;
       info.Box = box;
-      if (grid)
-        {
-        this->Command->Execute(this, grid, &info);
-        }
+      this->Command->Execute(this, grid, &info);
       }
     }
 }
