@@ -1,4 +1,4 @@
-LIBRARY		"zlib"
+LIBRARY		"vtkzlib"
 
 DESCRIPTION	'"""zlib data compression library"""'
 
