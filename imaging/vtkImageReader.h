@@ -192,8 +192,10 @@ public:
   vtkGetMacro(SwapBytes,int);
   vtkBooleanMacro(SwapBytes,int);
 
+//BTX
   vtkGetMacro(File,ifstream *);
   vtkGetVectorMacro(DataIncrements,int,4);
+//ETX
 
   // Warning !!!
   // following should only be used by methods or template helpers, not users

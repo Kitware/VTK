@@ -79,9 +79,11 @@ public:
   // Returns the depth of the BMP, either 8 or 24.
   vtkGetMacro(Depth,int);
 
+//BTX
   // Description:
   // Returns the color lut.
   vtkGetMacro(Colors,unsigned char *);
+//ETX
 
 protected:
   unsigned char *Colors;
@@ -92,7 +94,6 @@ protected:
   virtual void Execute(vtkImageData *out);
   
 };
-
 #endif
 
 

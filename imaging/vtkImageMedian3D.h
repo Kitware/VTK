@@ -60,6 +60,7 @@ public:
 
   static vtkImageMedian3D *New() {return new vtkImageMedian3D;};
   const char *GetClassName() {return "vtkImageMedian3D";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // This method sets the size of the neighborhood.  It also sets the 

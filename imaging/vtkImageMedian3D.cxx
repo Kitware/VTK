@@ -51,6 +51,14 @@ vtkImageMedian3D::vtkImageMedian3D()
 }
 
 //----------------------------------------------------------------------------
+void vtkImageMedian3D::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkImageSpatialFilter::PrintSelf(os, indent);
+
+  os << indent << "NumberOfElements: " << this->NumberOfElements << endl;
+}
+
+//----------------------------------------------------------------------------
 // This method sets the size of the neighborhood.  It also sets the 
 // default middle of the neighborhood 
 void vtkImageMedian3D::SetKernelSize(int size0, int size1, int size2)
