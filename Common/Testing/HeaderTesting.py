@@ -55,8 +55,6 @@ class TestVTKFiles:
         pass
     def Print(self, text=""):
         rtext = text
-        rtext = rtext.replace("<", "&lt;")
-        rtext = rtext.replace(">", "&gt;")
         print rtext
     def Error(self, error):
         self.ErrorValue = 1
