@@ -72,7 +72,8 @@ static int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
     }
 
   strm << "CreateDefaultLookupTable" << endl;
-  ptr2->CreateDefaultLookupTable();
+  ptr->CreateDefaultLookupTable();
+  strm << *ptr;
 
   strm << "\tGetTuple(i)...";
   tuple2 = ptr->GetTuple (2);
