@@ -28,9 +28,9 @@
 
 
 #include "vtkImageMapper.h"
-#include "vtkLookupTable.h"
 
 class vtkImageActor2D;
+class vtkLookupTable;
 
 #ifndef VTK_REMOVE_LEGACY_CODE
 class VTK_RENDERING_EXPORT vtkWin32ImageMapper : public vtkImageMapper
@@ -66,7 +66,7 @@ public:
   // then one, the lookuptable is ignored. If the lookuptable is NULL, a default
   // greyscale image is generated. Users should ensure that the range of the
   // lookuptable is {0,255} for full colour effects
-  vtkSetObjectMacro(LookupTable, vtkLookupTable);
+  virtual void SetLookupTable(vtkLookupTable*);
   vtkGetObjectMacro(LookupTable, vtkLookupTable);
 
   // Description:

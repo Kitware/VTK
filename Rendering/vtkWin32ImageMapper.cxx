@@ -19,11 +19,14 @@
 #include "vtkWin32ImageWindow.h"
 #include "vtkProperty2D.h"
 #include "vtkObjectFactory.h"
+#include "vtkLookupTable.h"
 
 #ifndef VTK_REMOVE_LEGACY_CODE
 
-vtkCxxRevisionMacro(vtkWin32ImageMapper, "1.32");
+vtkCxxRevisionMacro(vtkWin32ImageMapper, "1.33");
 vtkStandardNewMacro(vtkWin32ImageMapper);
+
+vtkSetObjectMacro(vtkWin32ImageMapper,LookupTable,vtkLookupTable);
 
 vtkWin32ImageMapper::vtkWin32ImageMapper()
 {
