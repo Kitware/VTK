@@ -135,9 +135,7 @@ class vlTransform : public vlObject
   //  same as either of the two input matrices.
   void VectorMultiply (float in[4],float out[4]) 
      {this->Stack[0]->VectorMultiply(in,out);};
-  //  Multiplies two 4 x 4 matrices and produces a
-  //  4 x 4 matrix. The output matrix can be the
-  //  same as either of the two input matrices.
+  //  Multiply a vector in homo coords and store in another vector
   vlSetVector4Macro(Vector,float);
   float *GetVector();
 };
