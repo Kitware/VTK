@@ -143,11 +143,10 @@ void vlTransform::RotateX ( float angle)
   float radians = angle * math.DegreesToRadians();
   float cosAngle, sinAngle;
 
-  if (angle != 0.0) {
+  if (angle != 0.0) 
+    {
     cosAngle = cos (radians);
     sinAngle = sin (radians);
-
-    ctm = 0.0;
 
     ctm.Element[0][0] = 1.0;
     ctm.Element[1][1] =  cosAngle;
@@ -158,7 +157,7 @@ void vlTransform::RotateX ( float angle)
 
     // concatenate with current transformation matrix
     this->Concatenate (ctm);
-  }
+    }
 }
 
 // Description:
@@ -172,11 +171,10 @@ void vlTransform::RotateY ( float angle)
   float radians = angle * math.DegreesToRadians();
   float cosAngle, sinAngle;
 
-  if (angle != 0.0) {
+  if (angle != 0.0) 
+    {
     cosAngle = cos (radians);
     sinAngle = sin (radians);
-
-    ctm = 0.0;
 
     ctm.Element[0][0] = cosAngle;
     ctm.Element[1][1] = 1.0;
@@ -187,7 +185,7 @@ void vlTransform::RotateY ( float angle)
 
     // concatenate with current transformation matrix
     this->Concatenate (ctm);
-  }
+    }
 }
 
 // Description:
@@ -201,11 +199,10 @@ void vlTransform::RotateZ (float angle)
   float radians = angle * math.DegreesToRadians();
   float cosAngle, sinAngle;
 
-  if (angle != 0.0) {
+  if (angle != 0.0) 
+    {
     cosAngle = cos (radians);
     sinAngle = sin (radians);
-
-    ctm = 0.0;
 
     ctm.Element[0][0] =  cosAngle;
     ctm.Element[1][0] = -sinAngle;
@@ -216,7 +213,7 @@ void vlTransform::RotateZ (float angle)
 
     // concatenate with current transformation matrix
     this->Concatenate (ctm);
-  }
+    }
 }
 
 // Description:
@@ -281,32 +278,34 @@ void vlTransform::Scale ( float x, float y, float z)
 {
   vlMatrix4x4 ctm;
 
-  if (x != 1.0 || y != 1.0 || z != 1.0) {
-    ctm = 0.0;
-
+  if (x != 1.0 || y != 1.0 || z != 1.0) 
+    {
     ctm.Element[0][0] = x;
-    if (ctm.Element[0][0] == 0.0) {
+    if (ctm.Element[0][0] == 0.0) 
+      {
       vlErrorMacro(<< "scale: x scale is 0.0, reset to 1.0\n");
       ctm.Element[0][0] = 1.0;
-    }
+      }
 
     ctm.Element[1][1] = y;
-    if (ctm.Element[1][1] == 0.0) {
+    if (ctm.Element[1][1] == 0.0) 
+      {
       vlErrorMacro(<<  "scale: y scale is 0.0, reset to 1.0\n");
       ctm.Element[1][1] = 1.0;
-    }
+      }
 
     ctm.Element[2][2] = z;
-    if (ctm.Element[2][2] == 0.0) {
+    if (ctm.Element[2][2] == 0.0) 
+      {
       vlErrorMacro(<< "scale: z scale is 0.0, reset to 1.0\n");
       ctm.Element[2][2] = 1.0;
-    }
+      }
 
     ctm.Element[3][3] = 1.0;
 
     // concatenate with current transformation matrix
     this->Concatenate (ctm);
-  }
+    }
 }
 
 // Description:
@@ -315,9 +314,8 @@ void vlTransform::Translate ( float x, float y, float z)
 {
   vlMatrix4x4 ctm;
 
-  if (x != 0.0 || y != 0.0 || z != 0.0) {
-    ctm = 0.0;
-
+  if (x != 0.0 || y != 0.0 || z != 0.0) 
+    {
     ctm.Element[0][0] = 1.0;
     ctm.Element[1][1] = 1.0;
     ctm.Element[2][2] = 1.0;
@@ -329,7 +327,7 @@ void vlTransform::Translate ( float x, float y, float z)
 
     // concatenate with current transformation matrix
     this->Concatenate (ctm);
-  }
+    }
 }
 
 // Description:
@@ -339,11 +337,13 @@ void vlTransform::GetTranspose (vlMatrix4x4& (transpose))
   vlMatrix4x4 temp;
   int i, j;
 
-  for (i = 0; i < 4; i++) {
-    for (j = 0; j < 4; j++) {
+  for (i = 0; i < 4; i++) 
+    {
+    for (j = 0; j < 4; j++) 
+      {
       temp.Element[j][i] = (**this->Stack).Element[i][j];
-    }
-  }    
+      }
+    }    
   transpose = temp;
 }
 
@@ -407,14 +407,16 @@ float *vlTransform::GetOrientation ()
   dot = x2 * x2 + z2 * z2;
   d1 = sqrt (dot);
 
-  if (d1 < AXIS_EPSILON) {
+  if (d1 < AXIS_EPSILON) 
+    {
     cos_theta = 1.0;
     sin_theta = 0.0;
-  }
-  else {
+    }
+  else 
+    {
     cos_theta = z2 / d1;
     sin_theta = x2 / d1;
-  }
+    }
 
   theta = atan2 (sin_theta, cos_theta);
 
@@ -425,38 +427,42 @@ float *vlTransform::GetOrientation ()
   dot = x2 * x2 + y2 * y2 + z2 * z2;
   d = sqrt (dot);
 
-  if (d < AXIS_EPSILON) {
+  if (d < AXIS_EPSILON) 
+    {
     sin_phi = 0.0;
     cos_phi = 1.0;
-  }
-  else if (d1 < AXIS_EPSILON) {
+    }
+  else if (d1 < AXIS_EPSILON) 
+    {
     sin_phi = y2 / d;
     cos_phi = z2 / d;
-  }
-  else {
+    }
+  else 
+    {
     sin_phi = y2 / d;
     cos_phi = ( x2 * x2 + z2 * z2) / (d1 * d);
-  }
+    }
 
   phi = atan2 (sin_phi, cos_phi);
 
   x = - phi / math.DegreesToRadians();
 
   // finally, rotate about z
-
   x3p = x3 * cos_theta - z3 * sin_theta;
   y3p = - sin_phi * sin_theta * x3 + cos_phi * y3 - sin_phi * cos_theta * z3;
   dot = x3p * x3p + y3p * y3p;
 
   d2 = sqrt (dot);
-  if (d2 < AXIS_EPSILON) {
+  if (d2 < AXIS_EPSILON) 
+    {
     cos_alpha = 1.0;
     sin_alpha = 0.0;
-  }
-  else {
+    }
+  else 
+    {
     cos_alpha = y3p / d2;
     sin_alpha = x3p / d2;
-  }
+    }
 
   alpha = atan2 (sin_alpha, cos_alpha);
 
@@ -473,9 +479,9 @@ float *vlTransform::GetOrientation ()
 // Return the x, y, z positions from the current transformation matrix.
 void vlTransform::GetPosition (float & x,float & y,float & z)
 {
-	x = (**this->Stack).Element[0][3];
-	y = (**this->Stack).Element[1][3];
-	z = (**this->Stack).Element[2][3];
+  x = (**this->Stack).Element[0][3];
+  y = (**this->Stack).Element[1][3];
+  z = (**this->Stack).Element[2][3];
 }
 
 // Description:
@@ -492,11 +498,12 @@ void vlTransform::GetScale ( float & x, float & y, float & z)
 
   // find scale factors
 
-  for (i = 0; i < 3; i++) {
+  for (i = 0; i < 3; i++) 
+    {
     scale[i] = sqrt (temp.Element[i][0] * temp.Element[i][0] +
-	temp.Element[i][1] * temp.Element[i][1] +
-	temp.Element[i][2] * temp.Element[i][2]);
-  }
+                     temp.Element[i][1] * temp.Element[i][1] +
+                     temp.Element[i][2] * temp.Element[i][2]);
+    }
   x = scale[0];
   y = scale[1];
   z = scale[2];
@@ -525,9 +532,10 @@ void vlTransform::Identity ()
 
   ctm = 0.0;
 
-  for (i = 0; i < 4; i++) {
+  for (i = 0; i < 4; i++) 
+    {
     ctm.Element[i][i] = 1.0;
-  }
+    }
   **this->Stack = ctm;
 }
 
@@ -537,31 +545,35 @@ void vlTransform::Identity ()
 
 void vlTransform::Concatenate (vlMatrix4x4 & matrix)
 {
-  if (this->PreMultiplyFlag) {
+  if (this->PreMultiplyFlag) 
+    {
     this->Multiply4x4 (**this->Stack, matrix, **this->Stack);
-  }
-  else {
+    }
+  else 
+    {
     this->Multiply4x4 (matrix, **this->Stack, **this->Stack);
-  }
+    }
   this->Modified ();
 }
 
 // Description:
 // Multiplies matrices a and b and stores result in c.
-
 void vlTransform::Multiply4x4 ( vlMatrix4x4 & a, vlMatrix4x4 & b, vlMatrix4x4 & c)
 {
   int i, j, k;
   vlMatrix4x4 result;
 
   result = 0.0;
-  for (i = 0; i < 4; i++) {
-    for (k = 0; k < 4; k++) {
-      for (j = 0; j < 4; j++) {
+  for (i = 0; i < 4; i++) 
+    {
+    for (k = 0; k < 4; k++) 
+      {
+      for (j = 0; j < 4; j++) 
+        {
         result.Element[i][k] += a.Element[i][j] * b.Element[j][k];
+        }
       }
     }
-  }
   c = result;
 }
 
@@ -599,11 +611,11 @@ vlTransform::~vlTransform ()
 
 void vlTransform::PrintSelf (ostream& os, vlIndent indent)
 {
-        vlObject::PrintSelf(os, indent);
+  vlObject::PrintSelf(os, indent);
 
-        os << indent << "Current Transformation:" << "\n";
+  os << indent << "Current Transformation:" << "\n";
 
-        (**this->Stack).PrintSelf (os, indent.GetNextIndent());
+  (**this->Stack).PrintSelf (os, indent.GetNextIndent());
 }
 
 // Description:
