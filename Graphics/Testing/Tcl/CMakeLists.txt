@@ -82,6 +82,7 @@ IF (VTK_USE_RENDERING)
       quadricCut
       rectGrid
       recursiveDC
+      scalarColors
       scalarConn
       schwarz
       shepards
