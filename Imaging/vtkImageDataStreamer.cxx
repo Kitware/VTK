@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageDataStreamer, "1.34");
+vtkCxxRevisionMacro(vtkImageDataStreamer, "1.35");
 vtkStandardNewMacro(vtkImageDataStreamer);
 vtkCxxSetObjectMacro(vtkImageDataStreamer,ExtentTranslator,vtkExtentTranslator);
 
@@ -112,17 +112,9 @@ int vtkImageDataStreamer::ProcessRequest(vtkInformation* request,
     // is this the first request
     if (!this->CurrentDivision)
       {
-      output->PrepareForNewData();
-      this->AbortExecute = 0;
-      this->Progress = 0.0;
-      this->InvokeEvent(vtkCommand::StartEvent,NULL);
       // tell the pipeline to loop
       this->Information->Set(
         vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(),1);
-      int outUpExt[6];
-      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-                   outUpExt);
-      output->SetUpdateExtent(outUpExt);
       this->AllocateOutputData(output);
       }
 
@@ -142,14 +134,6 @@ int vtkImageDataStreamer::ProcessRequest(vtkInformation* request,
     this->CurrentDivision++;
     if (this->CurrentDivision == this->NumberOfStreamDivisions)
       {
-      if(!this->AbortExecute)
-        {
-        this->UpdateProgress(1.0);
-        }
-      this->InvokeEvent(vtkCommand::EndEvent,NULL);
-
-      // Mark the data as up-to-date.
-      output->DataHasBeenGenerated();
       this->Information->Set(
         vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(),0);
       this->CurrentDivision = 0;

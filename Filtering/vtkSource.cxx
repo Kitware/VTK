@@ -26,7 +26,7 @@
 
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkSource, "1.13");
+vtkCxxRevisionMacro(vtkSource, "1.14");
 
 #ifndef NULL
 #define NULL 0
@@ -636,6 +636,18 @@ int vtkSource::ProcessRequest(vtkInformation* request,
     this->ComputeInputUpdateExtents(fromOutput);
 
     return 1;
+    }
+  else if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_NOT_GENERATED()))
+    {
+    // Mark all outputs as not generated so that the executive does
+    // not try to handle initialization/finalization of the outputs.
+    // We will do it here.
+    int i;
+    for(i=0; i < outputVector->GetNumberOfInformationObjects(); ++i)
+      {
+      vtkInformation* outInfo = outputVector->GetInformationObject(i);
+      outInfo->Set(vtkDemandDrivenPipeline::DATA_NOT_GENERATED(), 1);
+      }
     }
   else if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
     {

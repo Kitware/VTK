@@ -177,6 +177,13 @@ protected:
   // Override this check to account for update extent.
   virtual int NeedToExecuteData(int outputPort);
 
+  // Override these to handle the continue-executing option.
+  virtual void ExecuteDataStart(vtkInformation* request);
+  virtual void ExecuteDataEnd(vtkInformation* request);
+
+  // Override this to handle cropping and ghost levels.
+  virtual void MarkOutputsGenerated();
+
   // Remove update/whole extent when resetting pipeline information.
   virtual void ResetPipelineInformation(int port, vtkInformation*);
 

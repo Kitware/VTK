@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageAlgorithm, "1.14");
+vtkCxxRevisionMacro(vtkImageAlgorithm, "1.15");
 
 class vtkImageAlgorithmToDataSetFriendship
 {
@@ -92,43 +92,7 @@ int vtkImageAlgorithm::ProcessRequest(vtkInformation* request,
   // generate the data
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
     {
-    int i;
-    // for each output
-    for (i = 0; i < this->GetNumberOfOutputPorts(); ++i)
-      {
-      vtkInformation* info = outputVector->GetInformationObject(i);
-      vtkImageData *output = 
-        vtkImageData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
-      if (output)
-        {
-        output->PrepareForNewData();
-        }
-      }
-
     this->RequestData(request, inputVector, outputVector);
-
-    // Mark the data as up-to-date.
-    for (i = 0; i < this->GetNumberOfOutputPorts(); ++i)
-      {
-      vtkInformation* info = outputVector->GetInformationObject(i);
-      vtkImageData *output = 
-        vtkImageData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
-      if (output)
-        {
-        if (output->GetRequestExactExtent())
-          {
-          output->Crop();
-          }
-        //info->Set(vtkDataObject::ORIGIN(), output->GetOrigin(), 3);
-        //info->Set(vtkDataObject::SPACING(), output->GetSpacing(), 3);
-        output->DataHasBeenGenerated();
-        }
-      if(vtkDataSet* ds = vtkDataSet::SafeDownCast(
-        info->Get(vtkDataObject::DATA_OBJECT())))
-        {
-        vtkImageAlgorithmToDataSetFriendship::GenerateGhostLevelArray(ds);
-        }
-      }
     return 1;
     }
 

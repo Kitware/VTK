@@ -22,7 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkPolyDataAlgorithm, "1.15");
+vtkCxxRevisionMacro(vtkPolyDataAlgorithm, "1.16");
 vtkStandardNewMacro(vtkPolyDataAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -93,26 +93,7 @@ int vtkPolyDataAlgorithm::ProcessRequest(vtkInformation* request,
   // generate the data
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
     {
-    // get the output data object
-    vtkInformation* info = outputVector->GetInformationObject(0);
-
-    // do we need to prepare all outputs? I think this should be done in the
-    // executive
-    vtkDataObject *output = 0;
-    if (info && info->Has(vtkDataObject::DATA_OBJECT()))
-      {
-      output = info->Get(vtkDataObject::DATA_OBJECT());
-      output->PrepareForNewData();
-      }
-    int retVal = this->RequestData(request, inputVector, outputVector);
-
-    // Mark the data as up-to-date. I think this should be done in the
-    // executive
-    if (output)
-      {
-      output->DataHasBeenGenerated();
-      }
-    return retVal;
+    return this->RequestData(request, inputVector, outputVector);
     }
 
   if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))

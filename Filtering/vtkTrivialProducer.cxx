@@ -21,7 +21,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTrivialProducer, "1.6");
+vtkCxxRevisionMacro(vtkTrivialProducer, "1.7");
 vtkStandardNewMacro(vtkTrivialProducer);
 
 //----------------------------------------------------------------------------
@@ -135,9 +135,18 @@ vtkTrivialProducer::ProcessRequest(vtkInformation* request,
         }
       }
     }
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_NOT_GENERATED()))
+    {
+    // We do not really generate the output.  Do not let the executive
+    // initialize it.
+    vtkInformation* outputInfo = outputVector->GetInformationObject(0);
+    outputInfo->Set(vtkDemandDrivenPipeline::DATA_NOT_GENERATED(), 1);
+    }
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()) && this->Output)
     {
-    this->Output->DataHasBeenGenerated();
+    // Pretend we generated the output.
+    vtkInformation* outputInfo = outputVector->GetInformationObject(0);
+    outputInfo->Remove(vtkDemandDrivenPipeline::DATA_NOT_GENERATED());
     }
   return 1;
 }

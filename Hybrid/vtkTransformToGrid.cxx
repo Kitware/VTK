@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkTransformToGrid, "1.18");
+vtkCxxRevisionMacro(vtkTransformToGrid, "1.19");
 vtkStandardNewMacro(vtkTransformToGrid);
 
 vtkCxxSetObjectMacro(vtkTransformToGrid,Input,vtkAbstractTransform);
@@ -429,43 +429,7 @@ int vtkTransformToGrid::ProcessRequest(vtkInformation* request,
   // generate the data
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
     {
-    int i;
-    // for each output
-    for (i = 0; i < this->GetNumberOfOutputPorts(); ++i)
-      {
-      vtkInformation* info = outputVector->GetInformationObject(i);
-      vtkImageData *output = 
-        vtkImageData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
-      if (output)
-        {
-        output->PrepareForNewData();
-        }
-      }
-
     this->RequestData(request, inputVector, outputVector);
-
-    // Mark the data as up-to-date.
-    for (i = 0; i < this->GetNumberOfOutputPorts(); ++i)
-      {
-      vtkInformation* info = outputVector->GetInformationObject(i);
-      vtkImageData *output = 
-        vtkImageData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
-      if (output)
-        {
-        if (output->GetRequestExactExtent())
-          {
-          output->Crop();
-          }
-        //info->Set(vtkDataObject::ORIGIN(), output->GetOrigin(), 3);
-        //info->Set(vtkDataObject::SPACING(), output->GetSpacing(), 3);
-        output->DataHasBeenGenerated();
-        }
-      if(vtkDataSet* ds = vtkDataSet::SafeDownCast(
-        info->Get(vtkDataObject::DATA_OBJECT())))
-        {
-        ds->GenerateGhostLevelArray();
-        }
-      }
     return 1;
     }
 

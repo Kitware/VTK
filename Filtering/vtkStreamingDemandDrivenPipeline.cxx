@@ -17,6 +17,7 @@
 #include "vtkAlgorithm.h"
 #include "vtkAlgorithmOutput.h"
 #include "vtkDataObject.h"
+#include "vtkDataSet.h"
 #include "vtkExtentTranslator.h"
 #include "vtkInformation.h"
 #include "vtkInformationDoubleVectorKey.h"
@@ -27,7 +28,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.18");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.19");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -566,6 +567,54 @@ int vtkStreamingDemandDrivenPipeline::VerifyOutputInformation(int outputPort)
     }
 
   return 1;
+}
+
+//----------------------------------------------------------------------------
+void
+vtkStreamingDemandDrivenPipeline::ExecuteDataStart(vtkInformation* request)
+{
+  // Perform start operations only if not in an execute continuation.
+  if(!this->Algorithm->GetInformation()->Has(CONTINUE_EXECUTING()))
+    {
+    this->Superclass::ExecuteDataStart(request);
+    }
+}
+
+//----------------------------------------------------------------------------
+void
+vtkStreamingDemandDrivenPipeline::ExecuteDataEnd(vtkInformation* request)
+{
+  // Perform end operations only if not in an execute continuation.
+  if(!this->Algorithm->GetInformation()->Has(CONTINUE_EXECUTING()))
+    {
+    this->Superclass::ExecuteDataEnd(request);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkStreamingDemandDrivenPipeline::MarkOutputsGenerated()
+{
+  // Tell outputs they have been generated.
+  this->Superclass::MarkOutputsGenerated();
+
+  // Handle cropping and ghost levels for generated outputs.
+  vtkInformationVector* outputs = this->GetOutputInformation();
+  for(int i=0; i < outputs->GetNumberOfInformationObjects(); ++i)
+    {
+    vtkInformation* outInfo = outputs->GetInformationObject(i);
+    vtkDataObject* data = outInfo->Get(vtkDataObject::DATA_OBJECT());
+    if(data && !outInfo->Get(DATA_NOT_GENERATED()))
+      {
+      if(outInfo->Get(EXACT_EXTENT()))
+        {
+        data->Crop();
+        }
+      if(vtkDataSet* ds = vtkDataSet::SafeDownCast(data))
+        {
+        ds->GenerateGhostLevelArray();
+        }
+      }
+    }
 }
 
 //----------------------------------------------------------------------------

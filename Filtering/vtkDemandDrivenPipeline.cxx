@@ -39,15 +39,17 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.20");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.21");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
+vtkInformationKeyMacro(vtkDemandDrivenPipeline, DATA_NOT_GENERATED, Integer);
+vtkInformationKeyMacro(vtkDemandDrivenPipeline, PIPELINE_MODIFIED_TIME, UnsignedLong);
+vtkInformationKeyMacro(vtkDemandDrivenPipeline, RELEASE_DATA, Integer);
+vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_DATA, Integer);
+vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_DATA_NOT_GENERATED, Integer);
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_DATA_OBJECT, Integer);
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_INFORMATION, Integer);
-vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_DATA, Integer);
-vtkInformationKeyMacro(vtkDemandDrivenPipeline, RELEASE_DATA, Integer);
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_PIPELINE_MODIFIED_TIME, Integer);
-vtkInformationKeyMacro(vtkDemandDrivenPipeline, PIPELINE_MODIFIED_TIME, UnsignedLong);
 
 //----------------------------------------------------------------------------
 vtkDemandDrivenPipeline::vtkDemandDrivenPipeline()
@@ -423,16 +425,49 @@ int vtkDemandDrivenPipeline::ExecuteInformation(vtkInformation* request)
 //----------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::ExecuteData(vtkInformation* request)
 {
+  this->ExecuteDataStart(request);
+
+  // Invoke the request on the algorithm.
+  int result = this->CallAlgorithm(request, vtkExecutive::RequestDownstream);
+
+  this->ExecuteDataEnd(request);
+
+  return result;
+}
+
+//----------------------------------------------------------------------------
+void vtkDemandDrivenPipeline::ExecuteDataStart(vtkInformation* request)
+{
+  // Ask the algorithm to mark outputs that it will not generate.
+  request->Remove(REQUEST_DATA());
+  request->Set(REQUEST_DATA_NOT_GENERATED(), 1);
+  this->CallAlgorithm(request, vtkExecutive::RequestDownstream);
+  request->Remove(REQUEST_DATA_NOT_GENERATED());
+  request->Set(REQUEST_DATA(), 1);
+
+  // Prepare outputs that will be generated to receive new data.
+  vtkInformationVector* outputs = this->GetOutputInformation();
+  for(int i=0; i < outputs->GetNumberOfInformationObjects(); ++i)
+    {
+    vtkInformation* outInfo = outputs->GetInformationObject(i);
+    vtkDataObject* data = outInfo->Get(vtkDataObject::DATA_OBJECT());
+    if(data && !outInfo->Get(DATA_NOT_GENERATED()))
+      {
+      data->PrepareForNewData();
+      }
+    }
+
   // Tell observers the algorithm is about to execute.
   this->Algorithm->InvokeEvent(vtkCommand::StartEvent,NULL);
 
   // The algorithm has not yet made any progress.
   this->Algorithm->SetAbortExecute(0);
   this->Algorithm->UpdateProgress(0.0);
+}
 
-  // Invoke the request on the algorithm.
-  int result = this->CallAlgorithm(request, vtkExecutive::RequestDownstream);
-
+//----------------------------------------------------------------------------
+void vtkDemandDrivenPipeline::ExecuteDataEnd(vtkInformation*)
+{
   // The algorithm has either finished or aborted.
   if(!this->Algorithm->GetAbortExecute())
     {
@@ -442,7 +477,32 @@ int vtkDemandDrivenPipeline::ExecuteData(vtkInformation* request)
   // Tell observers the algorithm is done executing.
   this->Algorithm->InvokeEvent(vtkCommand::EndEvent,NULL);
 
-  return result;
+  // Tell outputs they have been generated.
+  this->MarkOutputsGenerated();
+
+  // Remove any not-generated mark.
+  vtkInformationVector* outputs = this->GetOutputInformation();
+  for(int i=0; i < outputs->GetNumberOfInformationObjects(); ++i)
+    {
+    vtkInformation* outInfo = outputs->GetInformationObject(i);
+    outInfo->Remove(DATA_NOT_GENERATED());
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkDemandDrivenPipeline::MarkOutputsGenerated()
+{
+  // Tell all generated outputs that they have been generated.
+  vtkInformationVector* outputs = this->GetOutputInformation();
+  for(int i=0; i < outputs->GetNumberOfInformationObjects(); ++i)
+    {
+    vtkInformation* outInfo = outputs->GetInformationObject(i);
+    vtkDataObject* data = outInfo->Get(vtkDataObject::DATA_OBJECT());
+    if(data && !outInfo->Get(DATA_NOT_GENERATED()))
+      {
+      data->DataHasBeenGenerated();
+      }
+    }
 }
 
 //----------------------------------------------------------------------------

@@ -27,7 +27,7 @@
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkDataSetAlgorithm, "1.7");
+vtkCxxRevisionMacro(vtkDataSetAlgorithm, "1.8");
 vtkStandardNewMacro(vtkDataSetAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -159,30 +159,7 @@ int vtkDataSetAlgorithm::ProcessRequest(
   // generate the data
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
     {
-    // get the output data object
-    vtkInformation* info = outputVector->GetInformationObject(0);
-
-    // do we need to prepare all outputs? I think this should be done in the
-    // executive
-    vtkDataObject *output = info->Get(vtkDataObject::DATA_OBJECT());
-    output->PrepareForNewData();
-
-    this->InvokeEvent(vtkCommand::StartEvent,NULL);
-    this->AbortExecute = 0;
-    this->Progress = 0.0;
-
-    int retVal = this->RequestData(request, inputVector, outputVector);
-
-    if(!this->AbortExecute)
-      {
-      this->UpdateProgress(1.0);
-      }
-    this->InvokeEvent(vtkCommand::EndEvent,NULL);
-
-    // Mark the data as up-to-date. I think this should be done in the
-    // executive
-    output->DataHasBeenGenerated();
-    return retVal;
+    return this->RequestData(request, inputVector, outputVector);
     }
 
   // create the output

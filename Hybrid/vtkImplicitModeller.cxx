@@ -37,7 +37,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImplicitModeller, "1.92");
+vtkCxxRevisionMacro(vtkImplicitModeller, "1.93");
 vtkStandardNewMacro(vtkImplicitModeller);
 
 struct vtkImplicitModellerAppendInfo
@@ -680,7 +680,6 @@ void vtkImplicitModeller::EndAppend()
   this->UpdateProgress(1.0);
 }
 
-
 //----------------------------------------------------------------------------
 void vtkImplicitModeller::RequestInformation (
   vtkInformation * vtkNotUsed(request),
@@ -975,13 +974,21 @@ int vtkImplicitModeller::ProcessRequest(vtkInformation* request,
                                         vtkInformationVector** inputVector,
                                         vtkInformationVector* outputVector)
 {
-  // should we generate the data?
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
+  // If we have no input then we will not generate the output because
+  // the user already called StartAppend/Append/EndAppend.
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_NOT_GENERATED()))
     {
-    if (this->GetInput() == NULL)
+    if(inputVector[0]->GetNumberOfInformationObjects() == 0)
       {
-      // we do not want to release the data because user might
-      // have called Append ...
+      vtkInformation* outInfo = outputVector->GetInformationObject(0);
+      outInfo->Set(vtkDemandDrivenPipeline::DATA_NOT_GENERATED(), 1);
+      }
+    return 1;
+    }
+  else if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
+    {
+    if(inputVector[0]->GetNumberOfInformationObjects() == 0)
+      {
       return 1;
       }
     }

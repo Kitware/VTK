@@ -101,6 +101,11 @@ public:
   static vtkInformationIntegerKey* REQUEST_DATA();
 
   // Description:
+  // Key defining a request to mark outputs that will NOT be generated
+  // during a REQUEST_DATA.
+  static vtkInformationIntegerKey* REQUEST_DATA_NOT_GENERATED();
+
+  // Description:
   // Key to specify in pipeline information the request that data be
   // released after it is used.
   static vtkInformationIntegerKey* RELEASE_DATA();
@@ -108,6 +113,12 @@ public:
   // Description:
   // Key to store the pipeline modified time in pipeline information.
   static vtkInformationUnsignedLongKey* PIPELINE_MODIFIED_TIME();
+
+  // Description:
+  // Key to store a mark for an output that will not be generated.
+  // Algorithms use this to tell the executive that they will not
+  // generate certain outputs for a REQUEST_DATA.
+  static vtkInformationIntegerKey* DATA_NOT_GENERATED();
 
 protected:
   vtkDemandDrivenPipeline();
@@ -151,6 +162,11 @@ protected:
 
   // Decide whether the output data need to be generated.
   virtual int NeedToExecuteData(int outputPort);
+
+  // Handle before/after operations for ExecuteData method.
+  virtual void ExecuteDataStart(vtkInformation* request);
+  virtual void ExecuteDataEnd(vtkInformation* request);
+  virtual void MarkOutputsGenerated();
 
   // Largest MTime of any algorithm on this executive or preceding
   // executives.
