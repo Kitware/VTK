@@ -119,7 +119,7 @@ int vtkVertex::EvaluatePosition(float x[3], float* closestPoint,
 }
 
 void vtkVertex::EvaluateLocation(int& vtkNotUsed(subId), 
-				 float vtkNotUsed(pcoords)[3], float x[3],
+                                 float vtkNotUsed(pcoords)[3], float x[3],
                                  float *weights)
 {
   float *X = this->Points->GetPoint(0);
@@ -135,7 +135,7 @@ void vtkVertex::EvaluateLocation(int& vtkNotUsed(subId),
 // is defined by a list of points (pts) that specify a vertex (1D cell). 
 // If the return value of the method is != 0, then the point is inside the cell.
 int vtkVertex::CellBoundary(int vtkNotUsed(subId), float pcoords[3], 
-			    vtkIdList *pts)
+                            vtkIdList *pts)
 {
 
   pts->SetNumberOfIds(1);
@@ -157,10 +157,10 @@ int vtkVertex::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
 // points list that merges points as they are inserted (i.e., prevents 
 // duplicates). 
 void vtkVertex::Contour(float value, vtkDataArray *cellScalars, 
-			vtkPointLocator *locator,
-			vtkCellArray *verts, 
-			vtkCellArray *vtkNotUsed(lines), 
-			vtkCellArray *vtkNotUsed(polys), 
+                        vtkPointLocator *locator,
+                        vtkCellArray *verts, 
+                        vtkCellArray *vtkNotUsed(lines), 
+                        vtkCellArray *vtkNotUsed(polys), 
                         vtkPointData *inPd, vtkPointData *outPd,
                         vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd)
 {
@@ -212,9 +212,9 @@ int vtkVertex::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
       {
       projXYZ[i] = p1[i] + t*ray[i];
       if ( fabs(X[i]-projXYZ[i]) > tol )
-	{
-	break;
-	}
+        {
+        break;
+        }
       }
 
     if ( i > 2 ) // within tolerance 
@@ -245,8 +245,8 @@ int vtkVertex::Triangulate(int vtkNotUsed(index),vtkIdList *ptIds,
 // Get the derivative of the vertex. Returns (0.0, 0.0, 0.0) for all 
 // dimensions.
 void vtkVertex::Derivatives(int vtkNotUsed(subId), 
-			    float vtkNotUsed(pcoords)[3], 
-			    float *vtkNotUsed(values), 
+                            float vtkNotUsed(pcoords)[3], 
+                            float *vtkNotUsed(values), 
                             int dim, float *derivs)
 {
   int i, idx;

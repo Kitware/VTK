@@ -65,7 +65,7 @@ int vtkDirectory::Open(const char* name)
     buf = new char[n + 2 + 1];
     sprintf(buf, "%s/*", name);
     }
-  struct _finddata_t data;	// data of current file
+  struct _finddata_t data;      // data of current file
   
   // First count the number of files in the directory
   long srchHandle = _findfirst(buf, &data);

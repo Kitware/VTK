@@ -226,54 +226,54 @@ void vtkTimerLog::DumpLog(char *filename)
   if ( vtkTimerLog::WrapFlag )
     {
     vtkTimerLog::DumpEntry(os, 0,
-		    vtkTimerLog::TimerLog[vtkTimerLog::NextEntry].WallTime, 0,
-		    vtkTimerLog::TimerLog[vtkTimerLog::NextEntry].CpuTicks, 0,
-		    vtkTimerLog::TimerLog[vtkTimerLog::NextEntry].Event);
+                    vtkTimerLog::TimerLog[vtkTimerLog::NextEntry].WallTime, 0,
+                    vtkTimerLog::TimerLog[vtkTimerLog::NextEntry].CpuTicks, 0,
+                    vtkTimerLog::TimerLog[vtkTimerLog::NextEntry].Event);
     for (i=vtkTimerLog::NextEntry+1; i<vtkTimerLog::MaxEntries; i++)
       {
       vtkTimerLog::DumpEntry(os,
-		i-vtkTimerLog::NextEntry, vtkTimerLog::TimerLog[i].WallTime,
-		vtkTimerLog::TimerLog[i].WallTime
-		 - vtkTimerLog::TimerLog[i-1].WallTime,
+                i-vtkTimerLog::NextEntry, vtkTimerLog::TimerLog[i].WallTime,
+                vtkTimerLog::TimerLog[i].WallTime
+                 - vtkTimerLog::TimerLog[i-1].WallTime,
                 vtkTimerLog::TimerLog[i].CpuTicks,
-		vtkTimerLog::TimerLog[i].CpuTicks
-		 - vtkTimerLog::TimerLog[i-1].CpuTicks,
+                vtkTimerLog::TimerLog[i].CpuTicks
+                 - vtkTimerLog::TimerLog[i-1].CpuTicks,
                 vtkTimerLog::TimerLog[i].Event);
       }
     vtkTimerLog::DumpEntry(os, vtkTimerLog::MaxEntries-vtkTimerLog::NextEntry,
-		    vtkTimerLog::TimerLog[0].WallTime,
-		    vtkTimerLog::TimerLog[0].WallTime
-	            -vtkTimerLog::TimerLog[vtkTimerLog::MaxEntries-1].WallTime,
-		    vtkTimerLog::TimerLog[0].CpuTicks,
-		    vtkTimerLog::TimerLog[0].CpuTicks
-		    -vtkTimerLog::TimerLog[vtkTimerLog::MaxEntries-1].CpuTicks,
-		    vtkTimerLog::TimerLog[0].Event);
+                    vtkTimerLog::TimerLog[0].WallTime,
+                    vtkTimerLog::TimerLog[0].WallTime
+                    -vtkTimerLog::TimerLog[vtkTimerLog::MaxEntries-1].WallTime,
+                    vtkTimerLog::TimerLog[0].CpuTicks,
+                    vtkTimerLog::TimerLog[0].CpuTicks
+                    -vtkTimerLog::TimerLog[vtkTimerLog::MaxEntries-1].CpuTicks,
+                    vtkTimerLog::TimerLog[0].Event);
     for (i=1; i<vtkTimerLog::NextEntry; i++)
       {
       vtkTimerLog::DumpEntry(os, vtkTimerLog::MaxEntries-vtkTimerLog::NextEntry+i,
-		      vtkTimerLog::TimerLog[i].WallTime,
-		      vtkTimerLog::TimerLog[i].WallTime
-		      - vtkTimerLog::TimerLog[i-1].WallTime,
-		      vtkTimerLog::TimerLog[i].CpuTicks,
-		      vtkTimerLog::TimerLog[i].CpuTicks
-		      - vtkTimerLog::TimerLog[i-1].CpuTicks,
-		      vtkTimerLog::TimerLog[i].Event);
+                      vtkTimerLog::TimerLog[i].WallTime,
+                      vtkTimerLog::TimerLog[i].WallTime
+                      - vtkTimerLog::TimerLog[i-1].WallTime,
+                      vtkTimerLog::TimerLog[i].CpuTicks,
+                      vtkTimerLog::TimerLog[i].CpuTicks
+                      - vtkTimerLog::TimerLog[i-1].CpuTicks,
+                      vtkTimerLog::TimerLog[i].Event);
       }
     }
   else
     {
     vtkTimerLog::DumpEntry(os, 0, vtkTimerLog::TimerLog[0].WallTime, 0,
-		    vtkTimerLog::TimerLog[0].CpuTicks, 0,
-		    vtkTimerLog::TimerLog[0].Event);
+                    vtkTimerLog::TimerLog[0].CpuTicks, 0,
+                    vtkTimerLog::TimerLog[0].Event);
     for (i=1; i<vtkTimerLog::NextEntry; i++)
       {
       vtkTimerLog::DumpEntry(os, i, vtkTimerLog::TimerLog[i].WallTime,
-		      vtkTimerLog::TimerLog[i].WallTime
-		      - vtkTimerLog::TimerLog[i-1].WallTime,
-		      vtkTimerLog::TimerLog[i].CpuTicks,
-		      vtkTimerLog::TimerLog[i].CpuTicks
-		      - vtkTimerLog::TimerLog[i-1].CpuTicks,
-		      vtkTimerLog::TimerLog[i].Event);
+                      vtkTimerLog::TimerLog[i].WallTime
+                      - vtkTimerLog::TimerLog[i-1].WallTime,
+                      vtkTimerLog::TimerLog[i].CpuTicks,
+                      vtkTimerLog::TimerLog[i].CpuTicks
+                      - vtkTimerLog::TimerLog[i-1].CpuTicks,
+                      vtkTimerLog::TimerLog[i].Event);
       }
     }
   
@@ -302,7 +302,7 @@ void vtkTimerLog::PrintSelf(ostream& os, vtkIndent indent)
     for (i=vtkTimerLog::NextEntry; i<vtkTimerLog::MaxEntries; i++)
       {
       os << indent << i << "\t\t" << TimerLog[i].WallTime << "\t\t" << 
-	TimerLog[i].CpuTicks << "\t\t" << TimerLog[i].Event << "\n";
+        TimerLog[i].CpuTicks << "\t\t" << TimerLog[i].Event << "\n";
       }
     }
   
@@ -370,8 +370,8 @@ double vtkTimerLog::GetElapsedTime()
 }
 
 void vtkTimerLog::DumpEntry(ostream& os, int index, float ttime, 
-			    float deltatime,
-			    int tick, int deltatick, char *event)
+                            float deltatime,
+                            int tick, int deltatick, char *event)
 {
   os << index << "   "
      << ttime << "  "

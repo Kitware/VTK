@@ -182,17 +182,17 @@ void vtkByteSwap::SwapWrite2BERange(char *mem_ptr1,int num, ostream *fp)
  
       pos = cpy; 
       for (i = 0; i < chunkSize; i++)
-	{
-	  Swap2Bytes(pos);
-	  pos += 2;
-	}
+        {
+          Swap2Bytes(pos);
+          pos += 2;
+        }
       fp->write((char *)cpy, 2*chunkSize);
       mem_ptr1 += chunkSize * 2;
       num -= chunkSize;
       if (num < chunkSize)
-	{
-	  chunkSize = num;
-	}
+        {
+          chunkSize = num;
+        }
     }
     
   delete [] cpy;
@@ -300,20 +300,20 @@ void vtkByteSwap::SwapWrite2BERange(char *mem_ptr1,int num, FILE *fp)
   
       pos = cpy;    
       for (i = 0; i < chunkSize; i++)
-	{
+        {
 
-	  Swap2Bytes(pos);
+          Swap2Bytes(pos);
 
-	  pos += 2;
+          pos += 2;
 
-	}
+        }
       fwrite(cpy,2,chunkSize,fp);
       mem_ptr1 += chunkSize*2;
       num -= chunkSize;
       if (num < chunkSize)
-	{
-	  chunkSize = num;
-	}
+        {
+          chunkSize = num;
+        }
     }
   delete [] cpy;
   
@@ -516,13 +516,13 @@ void vtkByteSwap::SwapVoidRange(void *buffer, int numWords, int wordSize)
     {
       out = buf + inc;
       for (idx2 = 0; idx2 < half; ++idx2)
-	{
-	  temp = *out;
-	  *out = *buf;
-	  *buf = temp;
-	  ++buf;
-	  --out;
-	}
+        {
+          temp = *out;
+          *out = *buf;
+          *buf = temp;
+          ++buf;
+          --out;
+        }
       buf += half;
     }
 }

@@ -122,7 +122,7 @@ public:
   // (e.g., non-convex). Returns 0 if point is not in polygon; 1 if it is.
   // Can also return -1 to indicate degenerate polygon.
   static int PointInPolygon(float x[3], int numPts, float *pts, 
-			    float bounds[6], float n[3]);  
+                            float bounds[6], float n[3]);  
 
   // Description:
   // Triangulate this polygon. The user must provide the vtkIdList outTris.

@@ -147,13 +147,13 @@ void vtkScalars::ComputeRange()
       {
       s = this->GetScalar(i);
       if ( s < this->Range[0] )
-	{
-	this->Range[0] = s;
-	}
+        {
+        this->Range[0] = s;
+        }
       if ( s > this->Range[1] )
-	{
-	this->Range[1] = s;
-	}
+        {
+        this->Range[1] = s;
+        }
       }
 
     this->ComputeTime.Modified();

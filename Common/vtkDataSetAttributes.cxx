@@ -145,22 +145,22 @@ void vtkDataSetAttributes::DeepCopy(vtkFieldData *fd)
       newData->DeepCopy(data);
       newData->SetName(data->GetName());
       if ((attributeType=dsa->IsArrayAnAttribute(i)) != -1)
-	{
-	// If this array is an attribute in the source, make it so
-	// in the target as well.
-	this->SetAttribute(newData, attributeType);
-	}
+        {
+        // If this array is an attribute in the source, make it so
+        // in the target as well.
+        this->SetAttribute(newData, attributeType);
+        }
       else
-	{
-	this->AddArray(newData);
-	}
+        {
+        this->AddArray(newData);
+        }
       newData->Delete();
       }
     // Copy the copy flags
     for(attributeType=0; attributeType<NUM_ATTRIBUTES; attributeType++)
       {
       this->CopyAttributeFlags[attributeType] = 
-	dsa->CopyAttributeFlags[attributeType];
+        dsa->CopyAttributeFlags[attributeType];
       }
     this->CopyFlags(dsa);
     }
@@ -169,7 +169,7 @@ void vtkDataSetAttributes::DeepCopy(vtkFieldData *fd)
     {
     this->vtkFieldData::DeepCopy(fd);
     }
-	  
+          
 }
 
 // Shallow copy of data (i.e., use reference counting).
@@ -192,17 +192,17 @@ void vtkDataSetAttributes::ShallowCopy(vtkFieldData *fd)
       this->NumberOfActiveArrays++;
       this->SetArray(i, fd->GetArray(i));
       if ((attributeType=dsa->IsArrayAnAttribute(i)) != -1)
-	{
-	// If this array is an attribute in the source, make it so
-	// in the target as well.
-	this->SetActiveAttribute(i, attributeType);
-	}
+        {
+        // If this array is an attribute in the source, make it so
+        // in the target as well.
+        this->SetActiveAttribute(i, attributeType);
+        }
       }
     // Copy the copy flags
     for(attributeType=0; attributeType<NUM_ATTRIBUTES; attributeType++)
       {
       this->CopyAttributeFlags[attributeType] = 
-	dsa->CopyAttributeFlags[attributeType];
+        dsa->CopyAttributeFlags[attributeType];
       }
     this->CopyFlags(dsa);
     }
@@ -251,8 +251,8 @@ vtkFieldData::BasicIterator  vtkDataSetAttributes::ComputeRequiredArrays(
     // If there is no blocker for the given array
     // and both CopyAllOff and CopyOn for that array are not true
     if ( (this->GetFlag(arrayName) != 0) &&
-	 !(this->DoCopyAllOff && (this->GetFlag(arrayName) != 1)) &&
-	 pd->GetArray(i))
+         !(this->DoCopyAllOff && (this->GetFlag(arrayName) != 1)) &&
+         pd->GetArray(i))
       {
       copyFlags[numArrays] = i;
       numArrays++;
@@ -345,10 +345,10 @@ void vtkDataSetAttributes::PassData(vtkFieldData* fd)
     for(attributeType=0; attributeType<NUM_ATTRIBUTES; attributeType++)
       {
       if (this->CopyAttributeFlags[attributeType])
-	{
-	this->RemoveArray(this->AttributeIndices[attributeType]);
-	this->AttributeIndices[attributeType] = -1;
-	}
+        {
+        this->RemoveArray(this->AttributeIndices[attributeType]);
+        this->AttributeIndices[attributeType] = -1;
+        }
       }
     
     int i, arrayIndex;
@@ -357,10 +357,10 @@ void vtkDataSetAttributes::PassData(vtkFieldData* fd)
       arrayIndex = this->AddArray(dsa->GetArray(i));
       // If necessary, make the array an attribute
       if ( ((attributeType = dsa->IsArrayAnAttribute(i)) != -1 ) && 
-	   this->CopyAttributeFlags[attributeType] )
-	{
-	this->SetActiveAttribute(arrayIndex, attributeType);
-	}
+           this->CopyAttributeFlags[attributeType] )
+        {
+        this->SetActiveAttribute(arrayIndex, attributeType);
+        }
       }
     }
   else
@@ -373,7 +373,7 @@ void vtkDataSetAttributes::PassData(vtkFieldData* fd)
 // If sze=0, then use the input DataSetAttributes to create (i.e., find 
 // initial size of) new objects; otherwise use the sze variable.
 void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes* pd, 
-					vtkIdType sze, vtkIdType ext)
+                                        vtkIdType sze, vtkIdType ext)
 {
   vtkDataArray* newDA;
   int i;
@@ -428,10 +428,10 @@ void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes* pd,
       this->TargetIndices[i] = this->AddArray(newDA);
       // If necessary, make the array an attribute
       if ( ((attributeType = pd->IsArrayAnAttribute(i)) != -1 ) && 
-	   this->CopyAttributeFlags[attributeType] )
-	{
-	this->SetActiveAttribute(this->TargetIndices[i], attributeType);
-	}
+           this->CopyAttributeFlags[attributeType] )
+        {
+        this->SetActiveAttribute(this->TargetIndices[i], attributeType);
+        }
       newDA->Delete();
       }
     }
@@ -1327,8 +1327,8 @@ int vtkDataSetAttributes::SetActiveAttribute(int index, int attributeType)
     if (!this->CheckNumberOfComponents(this->Data[index], attributeType))
       {
       vtkWarningMacro("Can not set attribute " 
-		      << vtkDataSetAttributes::AttributeNames[attributeType]
-		      << ". Incorrect number of components.");
+                      << vtkDataSetAttributes::AttributeNames[attributeType]
+                      << ". Incorrect number of components.");
       return -1;
       }
     this->AttributeIndices[attributeType] = index;
@@ -1357,14 +1357,14 @@ int vtkDataSetAttributes::AttributeLimits[vtkDataSetAttributes::NUM_ATTRIBUTES]
     EXACT };
 
 int vtkDataSetAttributes::CheckNumberOfComponents(vtkDataArray* da,
-						  int attributeType)
+                                                  int attributeType)
 {
   int numComp = da->GetNumberOfComponents();
   
   if ( vtkDataSetAttributes::AttributeLimits[attributeType] == MAX )
     {
     if ( numComp > 
-	 vtkDataSetAttributes::NumberOfAttributeComponents[attributeType] )
+         vtkDataSetAttributes::NumberOfAttributeComponents[attributeType] )
       {
       return 0;
       }
@@ -1376,7 +1376,7 @@ int vtkDataSetAttributes::CheckNumberOfComponents(vtkDataArray* da,
   else if ( vtkDataSetAttributes::AttributeLimits[attributeType] == EXACT )
     {
     if ( numComp != 
-	 vtkDataSetAttributes::NumberOfAttributeComponents[attributeType] )
+         vtkDataSetAttributes::NumberOfAttributeComponents[attributeType] )
       {
       return 0;
       }
@@ -1416,8 +1416,8 @@ int vtkDataSetAttributes::SetAttribute(vtkDataArray* da, int attributeType)
   if (da && !this->CheckNumberOfComponents(da, attributeType))
     {
     vtkWarningMacro("Can not set attribute " 
-		    << vtkDataSetAttributes::AttributeNames[attributeType]
-		    << ". Incorrect number of components.");
+                    << vtkDataSetAttributes::AttributeNames[attributeType]
+                    << ". Incorrect number of components.");
     return -1;
     }
 
@@ -1644,8 +1644,8 @@ void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes::FieldList& list,
         }
       else //check if this field is to be copied
         {
-	if ( (this->GetFlag(list.Fields[i]) != 0) &&
-	     !(this->DoCopyAllOff && (this->GetFlag(list.Fields[i]) != 1)) )
+        if ( (this->GetFlag(list.Fields[i]) != 0) &&
+             !(this->DoCopyAllOff && (this->GetFlag(list.Fields[i]) != 1)) )
           {
           list.FieldIndices[i] = this->AddArray(newDA);
           }

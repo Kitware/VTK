@@ -115,7 +115,7 @@ public:
   // been allocated.  If you pass in a point locator, then the points
   // won't be duplicated in the output.
   void CopyCells(vtkPolyData *pd, vtkIdList *idList,
-		 vtkPointLocator *locator = NULL);
+                 vtkPointLocator *locator = NULL);
   
   // Description:
   // Copy a cells point ids into list provided. (Less efficient.)
@@ -480,14 +480,14 @@ inline int vtkPolyData::IsTriangle(int v1, int v2, int v3)
       {
       this->GetCellPoints(cells[j], n2, tVerts2);
       if ( (tVerts[0] == tVerts2[0] || tVerts[0] == tVerts2[1] ||
-	    tVerts[0] == tVerts2[2]) &&
-	   (tVerts[1] == tVerts2[0] || tVerts[1] == tVerts2[1] ||
-	    tVerts[1] == tVerts2[2]) &&
-	   (tVerts[2] == tVerts2[0] || tVerts[2] == tVerts2[1] ||
-	    tVerts[2] == tVerts2[2]) )
-	{
+            tVerts[0] == tVerts2[2]) &&
+           (tVerts[1] == tVerts2[0] || tVerts[1] == tVerts2[1] ||
+            tVerts[1] == tVerts2[2]) &&
+           (tVerts[2] == tVerts2[0] || tVerts[2] == tVerts2[1] ||
+            tVerts[2] == tVerts2[2]) )
+        {
         return 1;
-	}
+        }
       }
     }
   return 0;

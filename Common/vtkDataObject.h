@@ -196,7 +196,7 @@ public:
   // must decide what a piece is.  When the NumberOfPieces is zero, then
   // no data is requested, and the source will not execute.
   virtual void SetUpdateExtent(int vtkNotUsed(piece),int vtkNotUsed(numPieces),
-			       int vtkNotUsed(ghostLevel))
+                               int vtkNotUsed(ghostLevel))
     {vtkErrorMacro("Subclass did not implement 'SetUpdateExtent'");}
   void SetUpdateExtent(int piece, int numPieces)
     {this->SetUpdateExtent(piece, numPieces, 0);}

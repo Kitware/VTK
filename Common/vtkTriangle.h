@@ -161,7 +161,7 @@ public:
   // Description:
   // Compute the (unnormalized) triangle normal direction from three points.
   static void ComputeNormalDirection(float v1[3], float v2[3], float v3[3],
-				     float n[3]);
+                                     float n[3]);
   
   // Description:
   // Compute the triangle normal from three points (double-precision version).
@@ -172,7 +172,7 @@ public:
   // Compute the (unnormalized) triangle normal direction from three points
   // (double precision version).
   static void ComputeNormalDirection(double v1[3], double v2[3], double v3[3],
-				     double n[3]);
+                                     double n[3]);
 
   // Description:
   // Given a point x, determine whether it is inside (within the
@@ -189,9 +189,9 @@ public:
   // Lindstrom's Siggraph 2000 paper, "Out-of-Core Simplification of
   // Large Polygonal Models")
   static void ComputeQuadric(float x1[3], float x2[3], float x3[3],
-			     float quadric[4][4]);
+                             float quadric[4][4]);
   static void ComputeQuadric(float x1[3], float x2[3], float x3[3],
-			     vtkQuadric *quadric);
+                             vtkQuadric *quadric);
   
 
 protected:

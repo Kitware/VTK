@@ -115,7 +115,7 @@ public:
   int GetCellType(vtkIdType cellId);
   void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds)
     {vtkStructuredData::GetCellPoints(cellId,ptIds,this->DataDescription,
-				      this->Dimensions);}
+                                      this->Dimensions);}
   void GetPointCells(vtkIdType ptId, vtkIdList *cellIds)
     {vtkStructuredData::GetPointCells(ptId,cellIds,this->Dimensions);}
   void ComputeBounds();

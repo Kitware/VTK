@@ -98,9 +98,9 @@ public:
   // without calling Update.  Meant for use only within other VTK
   // classes.
   void InternalTransformDerivative(const float in[3], float out[3],
-				   float derivative[3][3]);
+                                   float derivative[3][3]);
   void InternalTransformDerivative(const double in[3], double out[3],
-				   double derivative[3][3]);
+                                   double derivative[3][3]);
 
   //BTX
   // Description:
@@ -113,20 +113,20 @@ public:
   void TemplateTransformPoint(const double in[3], double out[3]) {
     this->ForwardTransformPoint(in,out); }; 
   void TemplateTransformPoint(const float in[3], float out[3],
-			      float derivative[3][3]) {
+                              float derivative[3][3]) {
     this->ForwardTransformDerivative(in,out,derivative); }; 
   void TemplateTransformPoint(const double in[3], double out[3],
-			      double derivative[3][3]) {
+                              double derivative[3][3]) {
     this->ForwardTransformDerivative(in,out,derivative); }; 
   void TemplateTransformInverse(const float in[3], float out[3]) {
     this->InverseTransformPoint(in,out); }; 
   void TemplateTransformInverse(const double in[3], double out[3]) {
     this->InverseTransformPoint(in,out); }; 
   void TemplateTransformInverse(const float in[3], float out[3],
-				float derivative[3][3]) {
+                                float derivative[3][3]) {
     this->InverseTransformDerivative(in,out,derivative); }; 
   void TemplateTransformInverse(const double in[3], double out[3],
-				double derivative[3][3]) {
+                                double derivative[3][3]) {
     this->InverseTransformDerivative(in,out,derivative); }; 
   //ETX
 
@@ -143,9 +143,9 @@ protected:
   // Description:
   // Calculate the forward transform as well as the derivative. 
   virtual void ForwardTransformDerivative(const float in[3], float out[3],
-					  float derivative[3][3]) = 0;
+                                          float derivative[3][3]) = 0;
   virtual void ForwardTransformDerivative(const double in[3], double out[3],
-					  double derivative[3][3]) = 0;
+                                          double derivative[3][3]) = 0;
 
   // Description:
   // If the InverseFlag is set to 1, then a call to InternalTransformPoint
@@ -159,9 +159,9 @@ protected:
   // forward transform (that's correct: the derivative of the
   // forward transform, not of the inverse transform)
   virtual void InverseTransformDerivative(const float in[3], float out[3],
-					  float derivative[3][3]);
+                                          float derivative[3][3]);
   virtual void InverseTransformDerivative(const double in[3], double out[3],
-					  double derivative[3][3]);
+                                          double derivative[3][3]);
 
   int InverseFlag;
   int InverseIterations;

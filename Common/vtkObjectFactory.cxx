@@ -239,11 +239,11 @@ void vtkObjectFactory::LoadLibrariesInPath(const char* path)
       char* fullpath = CreateFullPath(path, file);
       vtkLibHandle lib = vtkDynamicLoader::OpenLibrary(fullpath);
       if(lib)
-	{
-	// Look for the symbol vtkLoad, vtkGetFactoryCompilerUsed,
+        {
+        // Look for the symbol vtkLoad, vtkGetFactoryCompilerUsed,
         // and vtkGetFactoryVersion in the library
-	VTK_LOAD_FUNCTION loadfunction
-	  = (VTK_LOAD_FUNCTION)
+        VTK_LOAD_FUNCTION loadfunction
+          = (VTK_LOAD_FUNCTION)
           vtkDynamicLoader::GetSymbolAddress(lib,
                                              "vtkLoad");
         VTK_COMPILER_FUNCTION compilerFunction
@@ -251,13 +251,13 @@ void vtkObjectFactory::LoadLibrariesInPath(const char* path)
           vtkDynamicLoader::GetSymbolAddress(lib,
                                              "vtkGetFactoryCompilerUsed");
         VTK_VERSION_FUNCTION versionFunction
-	  = (VTK_VERSION_FUNCTION)
+          = (VTK_VERSION_FUNCTION)
           vtkDynamicLoader::GetSymbolAddress(lib,
                                              "vtkGetFactoryVersion");
-	// if the symbol is found call it to create the factory
-	// from the library
-	if(loadfunction && compilerFunction && versionFunction)
-	  {
+        // if the symbol is found call it to create the factory
+        // from the library
+        if(loadfunction && compilerFunction && versionFunction)
+          {
           const char* compiler = (*compilerFunction)();
           const char* version = (*versionFunction)();
           if(strcmp(compiler, VTK_CXX_COMPILER) ||
@@ -348,7 +348,7 @@ void vtkObjectFactory::RegisterFactory(vtkObjectFactory* factory)
     {
     const char* nonDynamicName = "Non-Dynamicly loaded factory";
     factory->LibraryPath = strcpy(new char[strlen(nonDynamicName)+1], 
-				  nonDynamicName);
+                                  nonDynamicName);
     factory->LibraryCompilerUsed = 
       strcpy(new char[strlen(VTK_CXX_COMPILER)+1], VTK_CXX_COMPILER);
     factory->LibraryVTKVersion = 
@@ -439,7 +439,7 @@ void vtkObjectFactory::UnRegisterAllFactories()
   vtkObjectFactory::RegisteredFactories->InitTraversal();
   int index = 0;
   while((factory =
-	 vtkObjectFactory::RegisteredFactories->GetNextItem()))
+         vtkObjectFactory::RegisteredFactories->GetNextItem()))
     {
     libs[index] = factory->LibraryHandle;
     }
@@ -461,10 +461,10 @@ void vtkObjectFactory::UnRegisterAllFactories()
 
 // Register an override function with a factory.
 void vtkObjectFactory::RegisterOverride(const char* classOverride,
-					const char* subclass,
-					const char* description,
-					int enableFlag,
-					CreateFunction createFunction)
+                                        const char* subclass,
+                                        const char* description,
+                                        int enableFlag,
+                                        CreateFunction createFunction)
 {
   this->GrowOverrideArray();
   int nextIndex = this->OverrideArrayLength;
@@ -472,7 +472,7 @@ void vtkObjectFactory::RegisterOverride(const char* classOverride,
   char* override = strcpy(new char[strlen(classOverride)+1], classOverride);
   char* desc = strcpy(new char[strlen(description)+1], description);
   char* ocn =  strcpy(new char[strlen(subclass)+1], 
-		      subclass);
+                      subclass);
   this->OverrideClassNames[nextIndex] = override;
   this->OverrideArray[nextIndex].Description = desc;
   this->OverrideArray[nextIndex].OverrideWithName = ocn;
@@ -541,8 +541,8 @@ const char* vtkObjectFactory::GetOverrideDescription(int index)
 
 // Set the enable flag for a class / subclassName pair
 void vtkObjectFactory::SetEnableFlag(int flag,
-				     const char* className,
-				     const char* subclassName)
+                                     const char* className,
+                                     const char* subclassName)
 {
   for(int i =0; i < this->OverrideArrayLength; i++)
     {
@@ -566,7 +566,7 @@ void vtkObjectFactory::SetEnableFlag(int flag,
 
 // Get the enable flag for a className/subclassName pair
 int vtkObjectFactory::GetEnableFlag(const char* className,
-				    const char* subclassName)
+                                    const char* subclassName)
 {
   for(int i =0; i < this->OverrideArrayLength; i++)
   {
@@ -574,7 +574,7 @@ int vtkObjectFactory::GetEnableFlag(const char* className,
     {
       if(strcmp(this->OverrideArray[i].OverrideWithName, subclassName) == 0)
       {
-	return this->OverrideArray[i].EnabledFlag;
+        return this->OverrideArray[i].EnabledFlag;
       }
     }
   }

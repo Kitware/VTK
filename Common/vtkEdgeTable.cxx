@@ -285,7 +285,7 @@ vtkIdType vtkEdgeTable::InsertEdge(vtkIdType p1, vtkIdType p2)
       {
       if ( this->Attributes[index] )
         {
-	this->Attributes[index]->Delete();
+        this->Attributes[index]->Delete();
         }
       this->Attributes[index] = vtkIdList::New();
       this->Attributes[index]->Allocate(6,12);

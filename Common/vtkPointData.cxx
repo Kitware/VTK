@@ -68,9 +68,9 @@ void vtkPointData::NullPoint (vtkIdType ptId)
       int length = da->GetNumberOfComponents();
       float* tuple = new float[length];
       for(int j=0; j<length; j++)
-	{
-	tuple[j] = 0;
-	}
+        {
+        tuple[j] = 0;
+        }
       da->InsertTuple(ptId, tuple);
       delete[] tuple;
       }

@@ -97,9 +97,9 @@ int vtkPolyVertex::EvaluatePosition(float x[3], float* closestPoint,
     if (dist2 < minDist2)
       {
       if (closestPoint)
-	{
-	closestPoint[0] = X[0]; closestPoint[1] = X[1]; closestPoint[2] = X[2];
-	}
+        {
+        closestPoint[0] = X[0]; closestPoint[1] = X[1]; closestPoint[2] = X[2];
+        }
       minDist2 = dist2;
       subId = i;
       }
@@ -124,7 +124,7 @@ int vtkPolyVertex::EvaluatePosition(float x[3], float* closestPoint,
 }
 
 void vtkPolyVertex::EvaluateLocation(int& subId, 
-				     float vtkNotUsed(pcoords)[3], 
+                                     float vtkNotUsed(pcoords)[3], 
                                      float x[3], float *weights)
 {
   int i;
@@ -156,9 +156,9 @@ int vtkPolyVertex::CellBoundary(int subId, float pcoords[3], vtkIdList *pts)
 }
 
 void vtkPolyVertex::Contour(float value, vtkDataArray *cellScalars, 
-			    vtkPointLocator *locator, vtkCellArray *verts,
-			    vtkCellArray *vtkNotUsed(lines), 
-			    vtkCellArray *vtkNotUsed(polys), 
+                            vtkPointLocator *locator, vtkCellArray *verts,
+                            vtkCellArray *vtkNotUsed(lines), 
+                            vtkCellArray *vtkNotUsed(polys), 
                             vtkPointData *inPd, vtkPointData *outPd,
                             vtkCellData *inCd, vtkIdType cellId,
                             vtkCellData *outCd)
@@ -219,9 +219,9 @@ int vtkPolyVertex::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
 }
 
 void vtkPolyVertex::Derivatives(int vtkNotUsed(subId), 
-				float vtkNotUsed(pcoords)[3], 
-				float *vtkNotUsed(values), 
-				int dim, float *derivs)
+                                float vtkNotUsed(pcoords)[3], 
+                                float *vtkNotUsed(values), 
+                                int dim, float *derivs)
 {
   int i, idx;
 

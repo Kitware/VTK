@@ -75,9 +75,9 @@ public:
     { 
       this->Count = 0; 
       if ( this->P != &(this->InitialBuffer[0]) )
-	{
-	delete[] this->P;
-	}
+        {
+        delete[] this->P;
+        }
     }
   int GetNumberOfNeighbors() { return this->Count; }
   void Reset() { this->Count = 0; }
@@ -94,21 +94,21 @@ public:
       // Re-allocate if beyond the current max size.
       // (Increase by VTK_INITIAL_SIZE)
       if (this->Count == this->MaxSize)
- 	{
-	tmp = this->P;
+        {
+        tmp = this->P;
 
-	this->MaxSize += VTK_INITIAL_SIZE;
-	this->P = new int[this->MaxSize*3];
+        this->MaxSize += VTK_INITIAL_SIZE;
+        this->P = new int[this->MaxSize*3];
 
-	for(int i=0; i<3*this->Count; i++)
-	  {
-	  this->P[i] = tmp[i];
-	  }
-	if ( tmp != &(this->InitialBuffer[0]) )
-	  {
-	  delete[] tmp;
-	  }
- 	}
+        for(int i=0; i<3*this->Count; i++)
+          {
+          this->P[i] = tmp[i];
+          }
+        if ( tmp != &(this->InitialBuffer[0]) )
+          {
+          delete[] tmp;
+          }
+        }
 
       this->P[3*this->Count] = x[0];
       this->P[3*this->Count+1] = x[1];
@@ -686,7 +686,7 @@ void vtkPointLocator::FindDistributedPoints(int N, const float x[3],
   
   // Now do the refinement
   this->GetOverlappingBuckets (&buckets, 
-			       x, ijk, sqrt(GetMax(maxDistance)),level-1);
+                               x, ijk, sqrt(GetMax(maxDistance)),level-1);
   
   for (i=0; pointsChecked < M && i<buckets.GetNumberOfNeighbors(); i++) 
     {
@@ -737,7 +737,7 @@ void vtkPointLocator::FindClosestNPoints(int N, float x,
 }
 
 void vtkPointLocator::FindClosestNPoints(int N, const float x[3],
-					 vtkIdList *result)
+                                         vtkIdList *result)
 {
   int i, j;
   float dist2;
@@ -1060,8 +1060,8 @@ void vtkPointLocator::BuildLocator()
 //  Internal function to get bucket neighbors at specified level
 //
 void vtkPointLocator::GetBucketNeighbors(vtkNeighborPoints* buckets,
-					 const int ijk[3], const int ndivs[3],
-					 int level)
+                                         const int ijk[3], const int ndivs[3],
+                                         int level)
 {
   int i, j, k, min, max, minLevel[3], maxLevel[3];
   int nei[3];
@@ -1114,8 +1114,8 @@ void vtkPointLocator::GetBucketNeighbors(vtkNeighborPoints* buckets,
 // Internal method to find those buckets that are within distance specified
 // only those buckets outside of level radiuses of ijk are returned
 void vtkPointLocator::GetOverlappingBuckets(vtkNeighborPoints* buckets,
-					    const float x[3],
-					    const int ijk[3], 
+                                            const float x[3],
+                                            const int ijk[3], 
                                             float dist, int level)
 {
   int i, j, k, nei[3], minLevel[3], maxLevel[3];
@@ -1164,9 +1164,9 @@ void vtkPointLocator::GetOverlappingBuckets(vtkNeighborPoints* buckets,
 // Internal method to find those buckets that are within distance specified
 // only those buckets outside of level radiuses of ijk are returned
 void vtkPointLocator::GetOverlappingBuckets(vtkNeighborPoints* buckets,
-					    const float x[3], float dist, 
-					    int prevMinLevel[3],
-					    int prevMaxLevel[3])
+                                            const float x[3], float dist, 
+                                            int prevMinLevel[3],
+                                            int prevMaxLevel[3])
 {
   int i, j, k, nei[3], minLevel[3], maxLevel[3];
   int kFactor, jFactor;
@@ -1262,7 +1262,7 @@ void vtkPointLocator::GetOverlappingBuckets(vtkNeighborPoints* buckets,
 // point coordinates into which incremental insertion methods place their 
 // data. Bounds are the box that the points lie in.
 int vtkPointLocator::InitPointInsertion(vtkPoints *newPts,
-					const float bounds[6])
+                                        const float bounds[6])
 {
   return this->InitPointInsertion(newPts,bounds,0);
 }
@@ -1271,7 +1271,7 @@ int vtkPointLocator::InitPointInsertion(vtkPoints *newPts,
 // point coordinates into which incremental insertion methods place their 
 // data. Bounds are the box that the points lie in.
 int vtkPointLocator::InitPointInsertion(vtkPoints *newPts,
-					const float bounds[6],
+                                        const float bounds[6],
                                         vtkIdType estNumPts)
 {
   int i;
@@ -1618,7 +1618,7 @@ vtkIdType vtkPointLocator::FindClosestInsertedPoint(const float x[3])
 
 // Return the list of points in the bucket containing x.
 vtkIdList *vtkPointLocator::GetPointsInBucket(const float x[3],
-					      int ijk[3])
+                                              int ijk[3])
 {
   int i;
 
@@ -1657,7 +1657,7 @@ vtkIdList *vtkPointLocator::GetPointsInBucket(const float x[3],
 // Build polygonal representation of locator. Create faces that separate
 // inside/outside buckets, or separate inside/boundary of locator.
 void vtkPointLocator::GenerateRepresentation(int vtkNotUsed(level),
-					     vtkPolyData *pd)
+                                             vtkPolyData *pd)
 {
   vtkPoints *pts;
   vtkCellArray *polys;
@@ -1832,7 +1832,7 @@ void vtkPointLocator::GenerateFace(int face, int i, int j, int k,
 // routine can make is 25% slower!!!!
 //
 float vtkPointLocator::Distance2ToBucket(const float x[3],
-					 const int nei[3])
+                                         const int nei[3])
 {
   float bounds[6];
 
@@ -1851,7 +1851,7 @@ float vtkPointLocator::Distance2ToBucket(const float x[3],
 // WARNING!!!!! Be very careful altering this routine.  Simple changes to this
 // routine can make is 25% slower!!!!
 float vtkPointLocator::Distance2ToBounds(const float x[3],
-					 const float bounds[6])
+                                         const float bounds[6])
 {
   float distance;
   float deltas[3];

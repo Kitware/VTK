@@ -101,7 +101,7 @@ void vtkPerspectiveTransform::PrintSelf(ostream& os, vtkIndent indent)
       {
       vtkHomogeneousTransform *t = this->GetConcatenatedTransform(i);
       os << indent << "    " << i << ": " << t->GetClassName() << " at " <<
-	 t << "\n";
+         t << "\n";
       }
     }
 }
@@ -253,7 +253,7 @@ void vtkPerspectiveTransform::InternalUpdate()
     vtkHomogeneousTransform *transform = 
       (vtkHomogeneousTransform *)this->Concatenation->GetTransform(i);
     vtkMatrix4x4::Multiply4x4(this->Matrix,transform->GetMatrix(),
-			      this->Matrix);
+                              this->Matrix);
     }
 
   // concatenate PostTransforms
@@ -262,7 +262,7 @@ void vtkPerspectiveTransform::InternalUpdate()
     vtkHomogeneousTransform *transform = 
       (vtkHomogeneousTransform *)this->Concatenation->GetTransform(i);
     vtkMatrix4x4::Multiply4x4(transform->GetMatrix(),this->Matrix,
-			      this->Matrix);
+                              this->Matrix);
     }
 }  
 
@@ -271,9 +271,9 @@ void vtkPerspectiveTransform::InternalUpdate()
 // previous range was ([-1,+1],[-1,+1]) as per Ortho and Frustum, and you
 // are mapping to the display coordinate range ([0,width-1],[0,height-1]).
 void vtkPerspectiveTransform::AdjustViewport(double oldXMin, double oldXMax, 
-					     double oldYMin, double oldYMax,
-					     double newXMin, double newXMax, 
-					     double newYMin, double newYMax)
+                                             double oldYMin, double oldYMax,
+                                             double newXMin, double newXMax, 
+                                             double newYMin, double newYMax)
 {
   double matrix[4][4];
   vtkMatrix4x4::Identity(*matrix);
@@ -292,7 +292,7 @@ void vtkPerspectiveTransform::AdjustViewport(double oldXMin, double oldXMax,
 // the oldZMin, oldZMax are [-1,+1] as per Ortho and Frustum, and
 // you are mapping the Z buffer to a new range.
 void vtkPerspectiveTransform::AdjustZBuffer(double oldZMin, double oldZMax,
-					    double newZMin, double newZMax)
+                                            double newZMin, double newZMax)
 {
   double matrix[4][4];
   vtkMatrix4x4::Identity(*matrix);
@@ -308,8 +308,8 @@ void vtkPerspectiveTransform::AdjustZBuffer(double oldZMin, double oldZMax,
 // to [-1,+1], [-1,+1], [-1,+1].
 // From the OpenGL Programmer's guide, 2nd Ed.
 void vtkPerspectiveTransform::Ortho(double xmin, double xmax,
-				    double ymin, double ymax,
-				    double znear, double zfar)
+                                    double ymin, double ymax,
+                                    double znear, double zfar)
 {
   double matrix[4][4];
   vtkMatrix4x4::Identity(*matrix);
@@ -331,8 +331,8 @@ void vtkPerspectiveTransform::Ortho(double xmin, double xmax,
 // to [-1,+1], [-1,+1], [-1,+1].
 // From the OpenGL Programmer's guide, 2nd Ed.
 void vtkPerspectiveTransform::Frustum(double xmin, double xmax,
-				      double ymin, double ymax,
-				      double znear, double zfar)
+                                      double ymin, double ymax,
+                                      double znear, double zfar)
 {
   double matrix[4][4];
 
@@ -362,7 +362,7 @@ void vtkPerspectiveTransform::Frustum(double xmin, double xmax,
 //----------------------------------------------------------------------------
 // For convenience, an easy way to set up a symmetrical frustum.
 void vtkPerspectiveTransform::Perspective(double angle, double aspect,
-					  double znear, double zfar)
+                                          double znear, double zfar)
 {
   double ymax =  tan(angle*vtkMath::DoubleDegreesToRadians()/2)*znear;
   double ymin = -ymax; 
@@ -455,8 +455,8 @@ void vtkPerspectiveTransform::Stereo(double angle, double focaldistance)
 
 //----------------------------------------------------------------------------
 void vtkPerspectiveTransform::SetupCamera(const double position[3],
-					  const double focalPoint[3],
-					  const double viewUp[3])
+                                          const double focalPoint[3],
+                                          const double viewUp[3])
 {
   double matrix[4][4];
   vtkMatrix4x4::Identity(*matrix);

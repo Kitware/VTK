@@ -143,33 +143,33 @@ int vtkInterpolatedVelocityField::FunctionValues(float* x, float* f)
     {
     // See if the point is in the cached cell
     if (this->LastCellId == -1 || 
-	!(ret=this->GenCell->EvaluatePosition(x, 0, subId,
-					      this->LastPCoords, dist2, 
-					      this->Weights))
-	|| ret == -1)
+        !(ret=this->GenCell->EvaluatePosition(x, 0, subId,
+                                              this->LastPCoords, dist2, 
+                                              this->Weights))
+        || ret == -1)
       {
       // if not, find and get it
-	if (this->LastCellId != - 1 )
-	  {
-	  this->DataSet->GetCell(this->LastCellId, this->Cell);
+        if (this->LastCellId != - 1 )
+          {
+          this->DataSet->GetCell(this->LastCellId, this->Cell);
 
-	  this->LastCellId = 
-	    this->DataSet->FindCell(x, this->Cell, this->GenCell, -1, 0, 
-				    subId, this->LastPCoords, this->Weights);
-	  if (this->LastCellId != - 1)
-	    {
-	    this->DataSet->GetCell(this->LastCellId, this->GenCell);
-	    }
-	  else
-	    {
-	    return 0;
-	    }
-	  this->CacheMiss++;
-	  }
-	else
-	  {
-	  return 0;
-	  }
+          this->LastCellId = 
+            this->DataSet->FindCell(x, this->Cell, this->GenCell, -1, 0, 
+                                    subId, this->LastPCoords, this->Weights);
+          if (this->LastCellId != - 1)
+            {
+            this->DataSet->GetCell(this->LastCellId, this->GenCell);
+            }
+          else
+            {
+            return 0;
+            }
+          this->CacheMiss++;
+          }
+        else
+          {
+          return 0;
+          }
       }
     else
       {
@@ -181,7 +181,7 @@ int vtkInterpolatedVelocityField::FunctionValues(float* x, float* f)
     // if caching is off, find the cell and get it
     this->LastCellId = 
       this->DataSet->FindCell(x, 0, this->GenCell, -1, 0, 
-			      subId, this->LastPCoords, this->Weights);
+                              subId, this->LastPCoords, this->Weights);
     this->DataSet->GetCell(this->LastCellId, this->GenCell);
     }
 
@@ -195,9 +195,9 @@ int vtkInterpolatedVelocityField::FunctionValues(float* x, float* f)
       id = this->GenCell->PointIds->GetId(j);
       vectors->GetTuple(id, vec);
       for (i=0; i < 3; i++)
-	{
-	f[i] +=  vec[i] * this->Weights[j];
-	}
+        {
+        f[i] +=  vec[i] * this->Weights[j];
+        }
       }
     }
   // if not, return false

@@ -134,9 +134,9 @@ void vtkContourValues::SetNumberOfContours(const int number)
       {
       oldValues = new float[currentNumber];
       for ( i = 0; i < currentNumber; i++ )
-	{
-	oldValues[i] = this->Contours->GetValue(i);
-	}
+        {
+        oldValues[i] = this->Contours->GetValue(i);
+        }
       }
 
     this->Contours->SetNumberOfValues(n);
@@ -146,9 +146,9 @@ void vtkContourValues::SetNumberOfContours(const int number)
       {
       int limit = (currentNumber < n)?(currentNumber):(n);
       for ( i = 0; i < limit; i++ )
-	{
-	this->Contours->SetValue( i, oldValues[i] );
-	}
+        {
+        this->Contours->SetValue( i, oldValues[i] );
+        }
       delete [] oldValues;
       }
 
@@ -166,7 +166,7 @@ void vtkContourValues::SetNumberOfContours(const int number)
 // Generate numContours equally spaced contour values between specified
 // range. Contour values will include min/max range values.
 void vtkContourValues::GenerateValues(int numContours, float rangeStart, 
-				     float rangeEnd)
+                                     float rangeEnd)
 {
   float range[2];
 

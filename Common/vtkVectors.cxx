@@ -104,9 +104,9 @@ void vtkVectors::ComputeMaxNorm()
       v = this->GetVector(i);
       norm = vtkMath::Norm(v);
       if ( norm > this->MaxNorm )
-	{
-	this->MaxNorm = norm;
-	}
+        {
+        this->MaxNorm = norm;
+        }
       }
 
     this->ComputeTime.Modified();

@@ -106,21 +106,21 @@ static inline void vtkMatrixMultiplyPoint(T1 elem[16], T2 in[4], T3 out[4])
 // and return the result in result. The in[4] and result[4] 
 // arrays must both be allocated but they can be the same array.
 void vtkMatrix4x4::MultiplyPoint(const double Elements[16], 
-				 const float in[4], float result[4])
+                                 const float in[4], float result[4])
 {
   vtkMatrixMultiplyPoint(Elements,in,result);
 }
 
 //----------------------------------------------------------------------------
 void vtkMatrix4x4::MultiplyPoint(const double Elements[16], 
-				 const double in[4], double result[4])
+                                 const double in[4], double result[4])
 {
   vtkMatrixMultiplyPoint(Elements,in,result);
 }
 
 //----------------------------------------------------------------------------
 void vtkMatrix4x4::PointMultiply(const double Elements[16], 
-				 const float in[4], float result[4])
+                                 const float in[4], float result[4])
 {
   double newElements[16];
   vtkMatrix4x4::Transpose(Elements,newElements);
@@ -129,7 +129,7 @@ void vtkMatrix4x4::PointMultiply(const double Elements[16],
 
 //----------------------------------------------------------------------------
 void vtkMatrix4x4::PointMultiply(const double Elements[16], 
-				 const double in[4], double result[4])
+                                 const double in[4], double result[4])
 {
   double newElements[16];
   vtkMatrix4x4::Transpose(Elements,newElements);
@@ -139,7 +139,7 @@ void vtkMatrix4x4::PointMultiply(const double Elements[16],
 //----------------------------------------------------------------------------
 // Multiplies matrices a and b and stores the result in c.
 void vtkMatrix4x4::Multiply4x4(const double a[16], const double b[16], 
-			       double c[16])
+                               double c[16])
 {
   SqMatPtr aMat = (SqMatPtr) a;
   SqMatPtr bMat = (SqMatPtr) b;
@@ -173,7 +173,7 @@ void vtkMatrix4x4::Multiply4x4(const double a[16], const double b[16],
 // Matrix Inversion (adapted from Richard Carling in "Graphics Gems," 
 // Academic Press, 1990).
 void vtkMatrix4x4::Invert(const double inElements[16], 
-			  double outElements[16])
+                          double outElements[16])
 {
   SqMatPtr outElem = (SqMatPtr)outElements;
 
@@ -333,7 +333,7 @@ void vtkMatrix4x4::DeepCopy(double Elements[16], const double newElements[16])
 //----------------------------------------------------------------------------
 // Transpose the matrix and put it into out.   
 void vtkMatrix4x4::Transpose(const double inElements[16], 
-			      double outElements[16])
+                              double outElements[16])
 {
   SqMatPtr inElem = (SqMatPtr)inElements;
   SqMatPtr outElem = (SqMatPtr)outElements;

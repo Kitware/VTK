@@ -120,7 +120,7 @@ public:
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
   virtual void GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds, 
-				vtkIdList *cellIds);
+                                vtkIdList *cellIds);
 
   // Description:
   // For streaming.  User/next filter specifies which piece the want updated.

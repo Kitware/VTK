@@ -68,7 +68,7 @@ public:
   virtual void DisplayText(const char*);
   //BTX
   static LRESULT APIENTRY WndProc(HWND hWnd, UINT message, 
-				  WPARAM wParam, LPARAM lParam);
+                                  WPARAM wParam, LPARAM lParam);
   //ETX
 protected: 
   vtkWin32OutputWindow() {}; 

@@ -102,31 +102,31 @@ void vtkWindowLevelLookupTable::Build()
       {
       start[j] = this->MinimumTableValue[j]*255;
       incr[j] = ((this->MaximumTableValue[j]-this->MinimumTableValue[j]) / 
-		 (this->NumberOfColors - 1) * 255);
+                 (this->NumberOfColors - 1) * 255);
       }
 
     if (this->InverseVideo)
       {
       for (i = 0; i < this->NumberOfColors; i++)
-	{
+        {
         rgba = this->Table->WritePointer(4*i,4);
-	for (j = 0; j < 4; j++)
-	  {
-	  rgba[j] = (unsigned char) \
-	    (start[j] + (this->NumberOfColors - i - 1)*incr[j] + 0.5);
-	  }
-	}
+        for (j = 0; j < 4; j++)
+          {
+          rgba[j] = (unsigned char) \
+            (start[j] + (this->NumberOfColors - i - 1)*incr[j] + 0.5);
+          }
+        }
       }
     else
       {
       for (i = 0; i < this->NumberOfColors; i++)
-	{
+        {
         rgba = this->Table->WritePointer(4*i,4);
-	for (j = 0; j < 4; j++)
-	  {
-	  rgba[j] = (unsigned char)(start[j] + i*incr[j] + 0.5);
-	  }
-	}
+        for (j = 0; j < 4; j++)
+          {
+          rgba[j] = (unsigned char)(start[j] + i*incr[j] + 0.5);
+          }
+        }
       }
     }
   this->BuildTime.Modified();

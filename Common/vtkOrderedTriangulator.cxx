@@ -745,7 +745,7 @@ static void AssignNeighbors(vtkOTTetra* t1, vtkOTTetra* t2)
 }
 
 static vtkOTTetra *CreateTetra(vtkOTPoint& p, vtkOTFace& face, 
-			       vtkMemoryPool& pool)
+                               vtkMemoryPool& pool)
 {
   vtkOTTetra *tetra = new(pool.GetNextPointer()) vtkOTTetra;
   tetra->Radius2 = vtkTetra::Circumsphere(p.X,

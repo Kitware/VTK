@@ -119,23 +119,23 @@ void vtkXMLFileOutputWindow:: DisplayXML(const char* tag, const char* text)
     switch (*s)
       {
       case '&':
-	strcat(x, "&amp;"); x += 5;
-	break;
+        strcat(x, "&amp;"); x += 5;
+        break;
       case '"':
-	strcat(x, "&quot;"); x += 6;
-	break;
+        strcat(x, "&quot;"); x += 6;
+        break;
       case '\'':
-	strcat(x, "&apos;"); x += 6;
-	break;
+        strcat(x, "&apos;"); x += 6;
+        break;
       case '<':
-	strcat(x, "&lt;"); x += 4;
-	break;
+        strcat(x, "&lt;"); x += 4;
+        break;
       case '>':
-	strcat(x, "&gt;"); x += 4;
-	break;
+        strcat(x, "&gt;"); x += 4;
+        break;
       default:
-	*x = *s; x++;
-	*x = '\0'; // explicitly terminate the new string
+        *x = *s; x++;
+        *x = '\0'; // explicitly terminate the new string
       }
     s++;
     }

@@ -98,9 +98,9 @@ class VTK_COMMON_EXPORT vtkPerspectiveTransform : public vtkHomogeneousTransform
   // that if you must apply both AdjustZBuffer and AdjustViewport, it
   // makes no difference which order you apply them in.
   void AdjustViewport(double oldXMin, double oldXMax, 
-		      double oldYMin, double oldYMax,
-		      double newXMin, double newXMax, 
-		      double newYMin, double newYMax);
+                      double oldYMin, double oldYMax,
+                      double newXMin, double newXMax, 
+                      double newYMin, double newYMax);
 
   // Description:
   // Perform an adjustment to the Z-Buffer range that the near and far
@@ -109,14 +109,14 @@ class VTK_COMMON_EXPORT vtkPerspectiveTransform : public vtkHomogeneousTransform
   // In PreMultiply mode, you call this method before calling Ortho, Frustum,
   // or Perspective.  In PostMultiply mode you can call it after.
   void AdjustZBuffer(double oldNearZ, double oldFarZ,
-		     double newNearZ, double newFarZ);
+                     double newNearZ, double newFarZ);
 
   // Description:
   // Create an orthogonal projection matrix and concatenate it by the
   // current transformation.  The matrix maps [xmin,xmax], [ymin,ymax], 
   // [-znear,-zfar] to [-1,+1], [-1,+1], [+1,-1]. 
   void Ortho(double xmin, double xmax, double ymin, double ymax, 
-	     double znear, double zfar);
+             double znear, double zfar);
 
   // Description:
   // Create an perspective projection matrix and concatenate it by the
@@ -124,7 +124,7 @@ class VTK_COMMON_EXPORT vtkPerspectiveTransform : public vtkHomogeneousTransform
   // plane at -zfar and a front plane at -znear with extent 
   // [xmin,xmax],[ymin,ymax] to [-1,+1], [-1,+1], [+1,-1].
   void Frustum(double xmin, double xmax, double ymin, double ymax, 
-	       double znear, double zfar);
+               double znear, double zfar);
 
   // Description:
   // Create a perspective projection matrix by specifying the view angle
@@ -163,7 +163,7 @@ class VTK_COMMON_EXPORT vtkPerspectiveTransform : public vtkHomogeneousTransform
   // not contain any perspective) and concatenate it with the current
   // transformation.
   void SetupCamera(const double position[3], const double focalpoint[3],
-		   const double viewup[3]);
+                   const double viewup[3]);
 
   // Description:
   // Create a translation matrix and concatenate it with the current

@@ -155,18 +155,18 @@ int vtkTetra::EvaluatePosition(float x[3], float* closestPoint,
     if (closestPoint)
       {
       for (minDist2=VTK_LARGE_FLOAT,i=0; i<4; i++)
-	{
-	triangle = (vtkTriangle *) this->GetFace (i);
-	triangle->EvaluatePosition(x,closest,sub,pc,dist2,(float *)w);
-	
-	if ( dist2 < minDist2 )
-	  {
-	  closestPoint[0] = closest[0]; 
-	  closestPoint[1] = closest[1]; 
-	  closestPoint[2] = closest[2];
-	  minDist2 = dist2;
-	  }
-	}
+        {
+        triangle = (vtkTriangle *) this->GetFace (i);
+        triangle->EvaluatePosition(x,closest,sub,pc,dist2,(float *)w);
+        
+        if ( dist2 < minDist2 )
+          {
+          closestPoint[0] = closest[0]; 
+          closestPoint[1] = closest[1]; 
+          closestPoint[2] = closest[2];
+          minDist2 = dist2;
+          }
+        }
       }
     return 0;
     }
@@ -320,13 +320,13 @@ void vtkTetra::Contour(float value, vtkDataArray *cellScalars,
       vert = edges[edge[i]];
       t = (value - cellScalars->GetComponent(vert[0],0)) /
           (cellScalars->GetComponent(vert[1],0) 
-	   - cellScalars->GetComponent(vert[0],0));
+           - cellScalars->GetComponent(vert[0],0));
       x1 = this->Points->GetPoint(vert[0]);
       x2 = this->Points->GetPoint(vert[1]);
       for (j=0; j<3; j++)
-	{
-	x[j] = x1[j] + t * (x2[j] - x1[j]);
-	}
+        {
+        x[j] = x1[j] + t * (x2[j] - x1[j]);
+        }
       if ( locator->InsertUniquePoint(x, pts[i]) )
         {
         if ( outPd ) 
@@ -416,7 +416,7 @@ int vtkTetra::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
     this->Triangle->Points->SetPoint(2,pt3);
 
     if ( this->Triangle->IntersectWithLine(p1, p2, tol, tTemp, 
-					   xTemp, pc, subId) )
+                                           xTemp, pc, subId) )
       {
       intersection = 1;
       if ( tTemp < t )

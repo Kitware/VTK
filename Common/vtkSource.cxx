@@ -274,11 +274,11 @@ void vtkSource::PropagateUpdateExtent(vtkDataObject *output)
   if (this->LegacyHack)
     {
     vtkErrorMacro("EnlargeOutputUpdateExtent is no longer being supported."
-	<< " This method was used by inmaging filters to change the"
-	<< "UpdateExtent of their input so that the vtkImmageToImageFilter superclass"
-	<< " would allocate a larger volume.  Changing the UpdateExtent of your input is"
-	<< " no longer allowed.  The alternative method is to write your own 'ExecuteData(vtkDataObject *)'"
-	<< " method and allocate your own data.");  
+        << " This method was used by inmaging filters to change the"
+        << "UpdateExtent of their input so that the vtkImmageToImageFilter superclass"
+        << " would allocate a larger volume.  Changing the UpdateExtent of your input is"
+        << " no longer allowed.  The alternative method is to write your own 'ExecuteData(vtkDataObject *)'"
+        << " method and allocate your own data.");  
     }
   
   // If the user defines a ComputeInputUpdateExtent method,
@@ -391,7 +391,7 @@ void vtkSource::UpdateData(vtkDataObject *output)
         }
       }
     }
-  this->Updating = 0;	  
+  this->Updating = 0;     
     
   // Initialize all the outputs
   for (idx = 0; idx < this->NumberOfOutputs; idx++)
@@ -420,17 +420,17 @@ void vtkSource::UpdateData(vtkDataObject *output)
     // to all outputs
     vtkFieldData* fd;
     if ((this->NumberOfInputs > 0) && (this->Inputs[0]) && 
-	(fd = this->Inputs[0]->GetFieldData()))
+        (fd = this->Inputs[0]->GetFieldData()))
       {
       vtkFieldData* outputFd;
       for (idx = 0; idx < this->NumberOfOutputs; idx++)
-	{
-	if (this->Outputs[idx] && 
-	    (outputFd=this->Outputs[idx]->GetFieldData()))
-	  {
-	  outputFd->PassData(fd);
-	  }
-	}
+        {
+        if (this->Outputs[idx] && 
+            (outputFd=this->Outputs[idx]->GetFieldData()))
+          {
+          outputFd->PassData(fd);
+          }
+        }
       }
     }
 
@@ -459,9 +459,9 @@ void vtkSource::UpdateData(vtkDataObject *output)
     if (this->Inputs[idx] != NULL)
       {
       if ( this->Inputs[idx]->ShouldIReleaseData() )
-	{
-	this->Inputs[idx]->ReleaseData();
-	}
+        {
+        this->Inputs[idx]->ReleaseData();
+        }
       }  
     }
   

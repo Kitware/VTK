@@ -183,7 +183,7 @@ public:
   // scalar data. The color mode parameter controls how the scalar data 
   // is mapped to colors (see vtkMapper::ColorMode methods for a definition).
   int InitColorTraversal(float alpha, vtkScalarsToColors *lut, 
-			 int colorMode=0);
+                         int colorMode=0);
   
   // Description:
   // Get the color value at a particular id. Returns a pointer to a 4-byte

@@ -166,11 +166,11 @@ public:
   // Apply the transformation to a combination of points, normals
   // and vectors.  
   void TransformPointsNormalsVectors(vtkPoints *inPts, 
-				     vtkPoints *outPts, 
-				     vtkDataArray *inNms, 
-				     vtkDataArray *outNms,
-				     vtkDataArray *inVrs, 
-				     vtkDataArray *outVrs);
+                                     vtkPoints *outPts, 
+                                     vtkDataArray *inNms, 
+                                     vtkDataArray *outNms,
+                                     vtkDataArray *inVrs, 
+                                     vtkDataArray *outVrs);
 
   // Description:
   // Just like GetInverse, but it includes a typecast to 
@@ -201,9 +201,9 @@ public:
   // without calling Update.  Meant for use only within other VTK
   // classes.
   void InternalTransformDerivative(const float in[3], float out[3],
-				   float derivative[3][3]);
+                                   float derivative[3][3]);
   void InternalTransformDerivative(const double in[3], double out[3],
-				   double derivative[3][3]);
+                                   double derivative[3][3]);
 
 protected:
   vtkLinearTransform() {};

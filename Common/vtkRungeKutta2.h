@@ -71,12 +71,12 @@ public:
   // or -1 on failure (for example, if the integration moves out of
   // a data set)
   virtual float ComputeNextStep(float* xprev, float* xnext, float t,
-				float delT) 
+                                float delT) 
     {
       return this->ComputeNextStep(xprev, 0, xnext, t, delT);
     }
   virtual float ComputeNextStep(float* xprev, float* dxprev, float* xnext, 
-				float t, float delT);
+                                float t, float delT);
 
   // Description:
   // Create concrete instance of this object.

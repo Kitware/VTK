@@ -187,9 +187,9 @@ char vtkCell::HitBBox (float bounds[6], float origin[3], float dir[3],
       {
       coord[i] = origin[i] + maxT[whichPlane]*dir[i];
       if ( coord[i] < bounds[2*i] || coord[i] > bounds[2*i+1] )
-	{
+        {
         return 0;
-	}
+        }
       } 
     else 
       {
@@ -285,16 +285,16 @@ void vtkCell::PrintSelf(ostream& os, vtkIndent indent)
       {
       os << this->PointIds->GetId(i);
       if ( i && !(i % 12) )
-	{
-	os << "\n\t";
-	}
+        {
+        os << "\n\t";
+        }
       else
-	{
-	if ( i != (numIds-1) )
-	  {
-	  os << ", ";
-	  }
-	}
+        {
+        if ( i != (numIds-1) )
+          {
+          os << ", ";
+          }
+        }
       }
     os << indent << "\n";
     }

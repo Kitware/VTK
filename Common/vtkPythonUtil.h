@@ -93,15 +93,15 @@ VTK_PYTHON_EXPORT int PyVTKClass_Check(PyObject *obj);
 VTK_PYTHON_EXPORT int PyVTKSpecialObjectCheck(PyObject *obj);
 VTK_PYTHON_EXPORT PyObject *PyVTKObject_New(PyObject *vtkclass, vtkObject *ptr);
 VTK_PYTHON_EXPORT PyObject *PyVTKClass_New(vtknewfunc constructor, PyMethodDef *methods,
-			 char *classname, char *modulename, char *docstring,
-			 PyObject *base);
+                         char *classname, char *modulename, char *docstring,
+                         PyObject *base);
 VTK_PYTHON_EXPORT PyObject *PyVTKSpecialObject_New(void *ptr, PyMethodDef *methods,
-				 char *classname, char *docstring);
+                                 char *classname, char *docstring);
 
 // this is a special version of ParseTuple that handles both bound
 // and unbound method calls for VTK objects
 VTK_PYTHON_EXPORT vtkObject *PyArg_VTKParseTuple(PyObject *self, PyObject *args, 
-			       char *format, ...);
+                               char *format, ...);
 }
 
 // Add a PyVTKClass to the type lookup table, this allows us to later
@@ -133,7 +133,7 @@ extern VTK_PYTHON_EXPORT void vtkPythonDeleteObjectFromHash(PyObject *obj);
 // Utility functions for creating/usinge SWIG-style mangled pointer strings.
 extern VTK_PYTHON_EXPORT char *vtkPythonManglePointer(void *ptr, const char *type);
 extern VTK_PYTHON_EXPORT void *vtkPythonUnmanglePointer(char *ptrText, int *len,
-				      const char *type);
+                                      const char *type);
 
 // For use by SetXXMethod() , SetXXMethodArgDelete()
 extern VTK_PYTHON_EXPORT void vtkPythonVoidFunc(void *);

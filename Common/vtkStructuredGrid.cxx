@@ -870,7 +870,7 @@ void vtkStructuredGrid::GetCellPoints(vtkIdType cellId, vtkIdList *ptIds)
 // Should we split up cells, or just points.  It does not matter for now.
 // Extent of structured data assumes points.
 void vtkStructuredGrid::SetUpdateExtent(int piece, int numPieces,
-					int ghostLevel)
+                                        int ghostLevel)
 {
   int ext[6];
   
@@ -915,8 +915,8 @@ void vtkStructuredGrid::SetExtent(int extent[6])
 
 //----------------------------------------------------------------------------
 void vtkStructuredGrid::SetExtent(int xMin, int xMax, 
-				  int yMin, int yMax,
-				  int zMin, int zMax)
+                                  int yMin, int yMax,
+                                  int zMin, int zMax)
 {
   int extent[6];
 

@@ -104,7 +104,7 @@ void vtkMatrixToHomogeneousTransform::InternalUpdate()
 
 //----------------------------------------------------------------------------
 void vtkMatrixToHomogeneousTransform::InternalDeepCopy(
-						vtkAbstractTransform *gtrans)
+                                                vtkAbstractTransform *gtrans)
 {
   vtkMatrixToHomogeneousTransform *transform = 
     (vtkMatrixToHomogeneousTransform *)gtrans;

@@ -63,9 +63,9 @@ long vtkMath::Seed = 1177; // One authors home address
 // some constants we need
 //
 #define VTK_K_A 16807
-#define VTK_K_M 2147483647			/* Mersenne prime 2^31 -1 */
-#define VTK_K_Q 127773			/* VTK_K_M div VTK_K_A */
-#define VTK_K_R 2836			/* VTK_K_M mod VTK_K_A */
+#define VTK_K_M 2147483647                      /* Mersenne prime 2^31 -1 */
+#define VTK_K_Q 127773                  /* VTK_K_M div VTK_K_A */
+#define VTK_K_R 2836                    /* VTK_K_M mod VTK_K_A */
 //
 // Some useful macros
 //
@@ -109,7 +109,7 @@ void vtkMath::RandomSeed(long s)
 // Find unit vectors which is perpendicular to this on and to
 // each other.
 void vtkMath::Perpendiculars(const double x[3], double y[3], double z[3],
-			     double theta)
+                             double theta)
 {
   int dx,dy,dz;
   double x2 = x[0]*x[0];
@@ -177,7 +177,7 @@ void vtkMath::Perpendiculars(const double x[3], double y[3], double z[3],
 // Find unit vectors which are perpendicular to this one and to
 // each other.
 void vtkMath::Perpendiculars(const float x[3], float y[3], float z[3],
-			     double theta)
+                             double theta)
 {
   int dx,dy,dz;
   double x2 = x[0]*x[0];
@@ -361,9 +361,9 @@ int vtkMath::LUFactorLinearSystem(double **A, int *index, int size)
     for ( largest = 0.0, j = 0; j < size; j++ ) 
       {
       if ( (temp2 = fabs(A[i][j])) > largest )
-	{
-	largest = temp2;
-	}
+        {
+        largest = temp2;
+        }
       }
 
     if ( largest == 0.0 )
@@ -381,9 +381,9 @@ int vtkMath::LUFactorLinearSystem(double **A, int *index, int size)
       {
       sum = A[i][j];
       for ( k = 0; k < i; k++ )
-	{
-	sum -= A[i][k] * A[k][j];
-	}
+        {
+        sum -= A[i][k] * A[k][j];
+        }
       A[i][j] = sum;
       }
     //
@@ -393,9 +393,9 @@ int vtkMath::LUFactorLinearSystem(double **A, int *index, int size)
       {
       sum = A[i][j];
       for ( k = 0; k < j; k++ )
-	{
-	sum -= A[i][k] * A[k][j];
-	}
+        {
+        sum -= A[i][k] * A[k][j];
+        }
       A[i][j] = sum;
 
       if ( (temp1 = scale[i]*fabs(sum)) >= largest ) 
@@ -431,9 +431,9 @@ int vtkMath::LUFactorLinearSystem(double **A, int *index, int size)
       {
       temp1 = 1.0 / A[j][j];
       for ( i = j + 1; i < size; i++ )
-	{
-	A[i][j] *= temp1;
-	}
+        {
+        A[i][j] *= temp1;
+        }
       }
     }
 
@@ -450,7 +450,7 @@ int vtkMath::LUFactorLinearSystem(double **A, int *index, int size)
 // index[] are generated from method LUFactorLinearSystem). Also, solution
 // vector is written directly over input load vector.
 void vtkMath::LUSolveLinearSystem(double **A, int *index, 
-				  double *x, int size)
+                                  double *x, int size)
 {
   int i, j, ii, idx;
   double sum;
@@ -467,9 +467,9 @@ void vtkMath::LUSolveLinearSystem(double **A, int *index,
     if ( ii >= 0 )
       {
       for ( j = ii; j <= (i-1); j++ )
-	{
-	sum -= A[i][j]*x[j];
-	}
+        {
+        sum -= A[i][j]*x[j];
+        }
       }
     else if (sum)
       {
@@ -546,9 +546,9 @@ static inline int vtkJacobiN(T **a, int n, T *w, T **v)
     for (ip=0; ip<n-1; ip++) 
       {
       for (iq=ip+1; iq<n; iq++)
-	{
-	sm += fabs(a[ip][iq]);
-	}
+        {
+        sm += fabs(a[ip][iq]);
+        }
       }
     if (sm == 0.0)
       {
@@ -580,17 +580,17 @@ static inline int vtkJacobiN(T **a, int n, T *w, T **v)
           {
           h = w[iq] - w[ip];
           if ( (fabs(h)+g) == fabs(h))
-	    {
-	    t = (a[ip][iq]) / h;
-	    }
+            {
+            t = (a[ip][iq]) / h;
+            }
           else 
             {
             theta = 0.5*h / (a[ip][iq]);
             t = 1.0 / (fabs(theta)+sqrt(1.0+theta*theta));
             if (theta < 0.0)
-	      {
-	      t = -t;
-	      }
+              {
+              t = -t;
+              }
             }
           c = 1.0 / sqrt(1+t*t);
           s = t*c;
@@ -675,16 +675,16 @@ static inline int vtkJacobiN(T **a, int n, T *w, T **v)
     for (numPos=0, i=0; i<n; i++)
       {
       if ( v[i][j] >= 0.0 )
-	{
-	numPos++;
-	}
+        {
+        numPos++;
+        }
       }
     if ( numPos < ceil(double(n)/double(2.0)) )
       {
       for(i=0; i<n; i++)
-	{
-	v[i][j] *= -1.0;
-	}
+        {
+        v[i][j] *= -1.0;
+        }
       }
     }
 
@@ -742,9 +742,9 @@ double vtkMath::EstimateMatrixCondition(double **A, int size)
     for (j=i; j < size; j++)
       {
       if ( fabs(A[i][j]) > max )
-	{
-	max = fabs(A[i][j]);
-	}
+        {
+        max = fabs(A[i][j]);
+        }
       }
     }
 
@@ -782,7 +782,7 @@ double* vtkMath::SolveCubic( double c0, double c1, double c2, double c3 )
   int num_roots;
 
   roots[4] = vtkMath::SolveCubic(c0, c1, c2, c3, 
-				 &roots[1], &roots[2], &roots[3], &num_roots );
+                                 &roots[1], &roots[2], &roots[3], &num_roots );
   roots[0] = num_roots;
   return roots;
 }
@@ -799,13 +799,13 @@ double* vtkMath::SolveCubic( double c0, double c1, double c2, double c3 )
 // imaginary in r2); (-3)-one real root and a complex conjugate pair
 // (real root in r1 and real part of pair in r2 and imaginary in r3).
 int vtkMath::SolveCubic( double c0, double c1, double c2, double c3, 
-			 double *r1, double *r2, double *r3, int *num_roots )
+                         double *r1, double *r2, double *r3, int *num_roots )
 {
-  double	Q, R;
-  double	R_squared;	/* R*R */
-  double	Q_cubed;	/* Q*Q*Q */
-  double	theta;
-  double	A, B;
+  double        Q, R;
+  double        R_squared;      /* R*R */
+  double        Q_cubed;        /* Q*Q*Q */
+  double        theta;
+  double        A, B;
 
   // Cubic equation: c0*t^3  + c1*t^2  + c2*t + c3 = 0 
   //                                               
@@ -830,45 +830,45 @@ int vtkMath::SolveCubic( double c0, double c1, double c2, double c3,
     if( R_squared <= Q_cubed )
       {
       if( Q_cubed == 0.0 )
-	{
-	*r1 = -c1/3.0;
-	*r2 = *r1;
-	*r3 = *r1;
-	*num_roots = 1;
-	return 1;
-	} 
+        {
+        *r1 = -c1/3.0;
+        *r2 = *r1;
+        *r3 = *r1;
+        *num_roots = 1;
+        return 1;
+        } 
       else
-	{
-	theta = acos( R / (sqrt(Q_cubed) ) );
+        {
+        theta = acos( R / (sqrt(Q_cubed) ) );
 
-	*r1 = -2.0*sqrt(Q)*cos( theta/3.0 ) - c1/3.0;
-	*r2 = -2.0*sqrt(Q)*cos( (theta + 2.0*3.141592653589)/3.0) - c1/3.0;
-	*r3 = -2.0*sqrt(Q)*cos( (theta - 2.0*3.141592653589)/3.0) - c1/3.0;
+        *r1 = -2.0*sqrt(Q)*cos( theta/3.0 ) - c1/3.0;
+        *r2 = -2.0*sqrt(Q)*cos( (theta + 2.0*3.141592653589)/3.0) - c1/3.0;
+        *r3 = -2.0*sqrt(Q)*cos( (theta - 2.0*3.141592653589)/3.0) - c1/3.0;
 
-	*num_roots = 3;
+        *num_roots = 3;
 
-	// Reduce Number Of Roots To Two 
-	if( *r1 == *r2 )
-	  {
-	  *num_roots = 2;
-	  *r2 = *r3;
-	  }
-	else if( *r1 == *r3 )
-	  {
-	  *num_roots = 2;
-	  }
+        // Reduce Number Of Roots To Two 
+        if( *r1 == *r2 )
+          {
+          *num_roots = 2;
+          *r2 = *r3;
+          }
+        else if( *r1 == *r3 )
+          {
+          *num_roots = 2;
+          }
 
-	if( (*r2 == *r3) && (*num_roots == 3) )
-	  {
-	  *num_roots = 2;
-	  }
+        if( (*r2 == *r3) && (*num_roots == 3) )
+          {
+          *num_roots = 2;
+          }
 
-	// Reduce Number Of Roots To One 
-	if( (*r1 == *r2) )
-	  {
-	  *num_roots = 1;
-	  }
- 	}
+        // Reduce Number Of Roots To One 
+        if( (*r1 == *r2) )
+          {
+          *num_roots = 1;
+          }
+        }
       return *num_roots;
       }
     else //single real and complex conjugate pair
@@ -876,13 +876,13 @@ int vtkMath::SolveCubic( double c0, double c1, double c2, double c3,
       A = -VTK_SIGN(R) * pow(fabs(R) + sqrt(R_squared - Q_cubed),0.33333333);
 
       if( A == 0.0 )
-	{
-	B = 0.0;
-	}
+        {
+        B = 0.0;
+        }
       else
-	{
-	B = Q/A;
-	}
+        {
+        B = Q/A;
+        }
 
       *r1 =  (A + B) - c1/3.0;
       *r2 = -0.5*(A + B) - c1/3.0;
@@ -915,7 +915,7 @@ double* vtkMath::SolveQuadratic( double c1, double c2, double c3)
   int num_roots;
 
   roots[3] = vtkMath::SolveQuadratic( c1, c2, c3, &roots[1], &roots[2], 
-				      &num_roots );
+                                      &num_roots );
   roots[0] = num_roots;
   return roots;
 }
@@ -926,10 +926,10 @@ double* vtkMath::SolveQuadratic( double c1, double c2, double c3)
 // Roots and number of roots are stored in user provided variables
 // r1, r2, num_roots
 int vtkMath::SolveQuadratic( double c1, double c2, double c3, 
-			     double *r1, double *r2, int *num_roots )
+                             double *r1, double *r2, int *num_roots )
 {
-  double	Q;
-  double	determinant;
+  double        Q;
+  double        determinant;
 
   // Quadratic equation: c1*t^2 + c2*t + c3 = 0 
 
@@ -945,24 +945,24 @@ int vtkMath::SolveQuadratic( double c1, double c2, double c3,
       *r1 = Q / c1;
 
       if( Q == 0.0 )
-	{
-	*r2 = 0.0;
-	}
+        {
+        *r2 = 0.0;
+        }
       else
-	{
-	*r2 = c3 / Q;
-	}
+        {
+        *r2 = c3 / Q;
+        }
 
       *num_roots = 2;
 
       // Reduce Number Of Roots To One 
       if( *r1 == *r2 )
-	{
-	*num_roots = 1;
-	}
+        {
+        *num_roots = 1;
+        }
       return *num_roots;
       }
-    else	// Equation Does Not Have Real Roots 
+    else        // Equation Does Not Have Real Roots 
       {
       *num_roots = 0;
       return (-2);
@@ -1133,7 +1133,7 @@ int vtkMath::SolveLeastSquares(int numberOfSamples, double **xt, int xOrder,
 // For thread safe behavior, temporary arrays tmp1SIze and tmp2Size
 // of length size must be passsed in.
 int vtkMath::InvertMatrix(double **A, double **AI, int size,
-			  int *tmp1Size, double *tmp2Size)
+                          int *tmp1Size, double *tmp2Size)
 {
   int i, j;
 
@@ -1179,7 +1179,7 @@ int vtkMath::InvertMatrix(double **A, double **AI, int size,
 // For thread safe, temporary memory array tmpSize of length size
 // must be passed in.
 int vtkMath::LUFactorLinearSystem(double **A, int *index, int size,
-				  double *tmpSize)
+                                  double *tmpSize)
 {
   int i, j, k;
   int maxI = 0;
@@ -1193,9 +1193,9 @@ int vtkMath::LUFactorLinearSystem(double **A, int *index, int size,
     for ( largest = 0.0, j = 0; j < size; j++ ) 
       {
       if ( (temp2 = fabs(A[i][j])) > largest )
-	{
-	largest = temp2;
-	}
+        {
+        largest = temp2;
+        }
       }
 
     if ( largest == 0.0 )
@@ -1213,9 +1213,9 @@ int vtkMath::LUFactorLinearSystem(double **A, int *index, int size,
       {
       sum = A[i][j];
       for ( k = 0; k < i; k++ )
-	{
-	sum -= A[i][k] * A[k][j];
-	}
+        {
+        sum -= A[i][k] * A[k][j];
+        }
       A[i][j] = sum;
       }
     //
@@ -1225,9 +1225,9 @@ int vtkMath::LUFactorLinearSystem(double **A, int *index, int size,
       {
       sum = A[i][j];
       for ( k = 0; k < j; k++ )
-	{
-	sum -= A[i][k] * A[k][j];
-	}
+        {
+        sum -= A[i][k] * A[k][j];
+        }
       A[i][j] = sum;
 
       if ( (temp1 = tmpSize[i]*fabs(sum)) >= largest ) 
@@ -1263,9 +1263,9 @@ int vtkMath::LUFactorLinearSystem(double **A, int *index, int size,
       {
       temp1 = 1.0 / A[j][j];
       for ( i = j + 1; i < size; i++ )
-	{
-	A[i][j] *= temp1;
-	}
+        {
+        A[i][j] *= temp1;
+        }
       }
     }
 
@@ -1409,13 +1409,13 @@ static inline void vtkLUSolve3x3(const T1 A[3][3], const int index[3], T2 x[3])
 }  
 
 void vtkMath::LUSolve3x3(const float A[3][3], 
-			 const int index[3], float x[3])
+                         const int index[3], float x[3])
 {
   vtkLUSolve3x3(A,index,x);
 }
 
 void vtkMath::LUSolve3x3(const double A[3][3], 
-			 const int index[3], double x[3])
+                         const int index[3], double x[3])
 {
   vtkLUSolve3x3(A,index,x);
 }
@@ -1440,13 +1440,13 @@ static inline void vtkLinearSolve3x3(const T1 A[3][3], const T2 x[3], T3 y[3])
 }
 
 void vtkMath::LinearSolve3x3(const float A[3][3], 
-			     const float x[3], float y[3])
+                             const float x[3], float y[3])
 {
   vtkLinearSolve3x3(A,x,y);
 }
 
 void vtkMath::LinearSolve3x3(const double A[3][3], 
-			     const double x[3], double y[3])
+                             const double x[3], double y[3])
 {
   vtkLinearSolve3x3(A,x,y);
 }
@@ -1497,13 +1497,13 @@ static inline void vtkMultiplyMatrix3x3(const T A[3][3], const T2 B[3][3],
 }
 
 void vtkMath::Multiply3x3(const float A[3][3], 
-			  const float B[3][3], float C[3][3])
+                          const float B[3][3], float C[3][3])
 {
   vtkMultiplyMatrix3x3(A,B,C);
 }
 
 void vtkMath::Multiply3x3(const double A[3][3], 
-			  const double B[3][3], double C[3][3])
+                          const double B[3][3], double C[3][3])
 {
   vtkMultiplyMatrix3x3(A,B,C);
 }
@@ -1877,28 +1877,28 @@ static inline void vtkDiagonalize3x3(const T1 A[3][3], T2 w[3], T2 V[3][3])
       maxVal = fabs(V[i][0]);
       maxI = 0;
       for (j = 1; j < 3; j++)
-	{
-	if (maxVal < (tmp = fabs(V[i][j])))
-	  {
-	  maxVal = tmp;
-	  maxI = j;
-	  }
-	}
+        {
+        if (maxVal < (tmp = fabs(V[i][j])))
+          {
+          maxVal = tmp;
+          maxI = j;
+          }
+        }
       // swap the eigenvector into its proper position
       if (maxI != i)
-	{
-	tmp = w[maxI];
-	w[maxI] = w[i];
-	w[i] = tmp;
-	vtkSwapVectors3(V[i],V[maxI]);
-	}
+        {
+        tmp = w[maxI];
+        w[maxI] = w[i];
+        w[i] = tmp;
+        vtkSwapVectors3(V[i],V[maxI]);
+        }
       // maximum element of eigenvector should be positive
       if (V[maxI][maxI] < 0)
-	{
-	V[maxI][0] = -V[maxI][0];
-	V[maxI][1] = -V[maxI][1];
-	V[maxI][2] = -V[maxI][2];
-	}
+        {
+        V[maxI][0] = -V[maxI][0];
+        V[maxI][1] = -V[maxI][1];
+        V[maxI][2] = -V[maxI][2];
+        }
       
       // re-orthogonalize the other two eigenvectors
       j = (maxI+1)%3;
@@ -2000,8 +2000,8 @@ void vtkMath::Diagonalize3x3(const double A[3][3],double w[3],double V[3][3])
 // Contributed by David Gobbi (dgobbi@irus.rri.on.ca)
 template <class T1, class T2>
 static inline void vtkSingularValueDecomposition3x3(const T1 A[3][3], 
-						    T2 U[3][3], T2 w[3],
-						    T2 VT[3][3])
+                                                    T2 U[3][3], T2 w[3],
+                                                    T2 VT[3][3])
 {
   int i;
   T2 B[3][3];
@@ -2072,9 +2072,9 @@ static inline void vtkSingularValueDecomposition3x3(const T1 A[3][3],
     for (j = 0; j < 3; j++)
       {
       if ((tmp = fabs(B[i][j] - M[i][j])) > maxerr)
-	{
-	maxerr = tmp;
-	}
+        {
+        maxerr = tmp;
+        }
       }
     }
 
@@ -2083,15 +2083,15 @@ static inline void vtkSingularValueDecomposition3x3(const T1 A[3][3],
 }
 
 void vtkMath::SingularValueDecomposition3x3(const float A[3][3], 
-					    float U[3][3], float w[3],
-					    float VT[3][3])
+                                            float U[3][3], float w[3],
+                                            float VT[3][3])
 {
   vtkSingularValueDecomposition3x3(A,U,w,VT);
 }
 
 void vtkMath::SingularValueDecomposition3x3(const double A[3][3], 
-					    double U[3][3], double w[3],
-					    double VT[3][3])
+                                            double U[3][3], double w[3],
+                                            double VT[3][3])
 {
   vtkSingularValueDecomposition3x3(A,U,w,VT);
 }

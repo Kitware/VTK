@@ -171,7 +171,7 @@ void vtkDataArray::InsertComponent(const vtkIdType i, const int j,
 }
 
 void vtkDataArray::GetData(vtkIdType tupleMin, vtkIdType tupleMax, int compMin,
-			   int compMax, vtkFloatArray* data)
+                           int compMax, vtkFloatArray* data)
 {
   int i, j;
   int numComp=this->GetNumberOfComponents();
@@ -238,7 +238,7 @@ float* vtkDataArray::GetTupleN(const vtkIdType i, int n)
   if (numComp != n)
     {
     vtkErrorMacro("The number of components do not match the number requested: "
-		  << numComp << " != " << n);
+                  << numComp << " != " << n);
     }
   return this->GetTuple(i);
 }
@@ -249,7 +249,7 @@ float vtkDataArray::GetTuple1(const vtkIdType i)
   if (numComp != 1)
     {
     vtkErrorMacro("The number of components do not match the number requested: "
-		  << numComp << " != 1");
+                  << numComp << " != 1");
     }
   return *(this->GetTuple(i));
 }
@@ -289,7 +289,7 @@ void vtkDataArray::SetTuple1(const vtkIdType i, float value)
   if (numComp != 1)
     {
     vtkErrorMacro("The number of components do not match the number requested: "
-		  << numComp << " != 1");
+                  << numComp << " != 1");
     }
   this->SetTuple(i, &value);
 }
@@ -300,21 +300,21 @@ void vtkDataArray::SetTuple2(const vtkIdType i, float val0, float val1)
   if (numComp != 2)
     {
     vtkErrorMacro("The number of components do not match the number requested: "
-		  << numComp << " != 2");
+                  << numComp << " != 2");
     }
   tuple[0] = val0;
   tuple[1] = val1;
   this->SetTuple(i, tuple);
 }
 void vtkDataArray::SetTuple3(const vtkIdType i, float val0, float val1, 
-			       float val2)
+                               float val2)
 {
   float tuple[3];
   int numComp = this->GetNumberOfComponents();
   if (numComp != 3)
     {
     vtkErrorMacro("The number of components do not match the number requested: "
-		  << numComp << " != 3");
+                  << numComp << " != 3");
     }
   tuple[0] = val0;
   tuple[1] = val1;
@@ -322,14 +322,14 @@ void vtkDataArray::SetTuple3(const vtkIdType i, float val0, float val1,
   this->SetTuple(i, tuple);
 }
 void vtkDataArray::SetTuple4(const vtkIdType i, float val0, float val1, 
-			     float val2, float val3)
+                             float val2, float val3)
 {
   float tuple[4];
   int numComp = this->GetNumberOfComponents();
   if (numComp != 4)
     {
     vtkErrorMacro("The number of components do not match the number requested: "
-		  << numComp << " != 4");
+                  << numComp << " != 4");
     }
   tuple[0] = val0;
   tuple[1] = val1;
@@ -338,15 +338,15 @@ void vtkDataArray::SetTuple4(const vtkIdType i, float val0, float val1,
   this->SetTuple(i, tuple);
 }
 void vtkDataArray::SetTuple9(const vtkIdType i, float val0, float val1, 
-			     float val2,  float val3, float val4, 
-			     float val5, float val6,float val7, float val8)
+                             float val2,  float val3, float val4, 
+                             float val5, float val6,float val7, float val8)
 {
   float tuple[9];
   int numComp = this->GetNumberOfComponents();
   if (numComp != 9)
     {
     vtkErrorMacro("The number of components do not match the number requested: "
-		  << numComp << " != 9");
+                  << numComp << " != 9");
     }
   tuple[0] = val0;
   tuple[1] = val1;
@@ -379,7 +379,7 @@ void vtkDataArray::InsertTuple1(const vtkIdType i, float value)
   if (numComp != 1)
     {
     vtkErrorMacro("The number of components do not match the number requested: "
-		  << numComp << " != 1");
+                  << numComp << " != 1");
     }
   this->InsertTuple(i, &value);
 }
@@ -390,21 +390,21 @@ void vtkDataArray::InsertTuple2(const vtkIdType i, float val0, float val1)
   if (numComp != 2)
     {
     vtkErrorMacro("The number of components do not match the number requested: "
-		  << numComp << " != 2");
+                  << numComp << " != 2");
     }
   tuple[0] = val0;
   tuple[1] = val1;
   this->InsertTuple(i, tuple);
 }
 void vtkDataArray::InsertTuple3(const vtkIdType i, float val0, float val1, 
-				float val2)
+                                float val2)
 {
   float tuple[3];
   int numComp = this->GetNumberOfComponents();
   if (numComp != 3)
     {
     vtkErrorMacro("The number of components do not match the number requested: "
-		  << numComp << " != 3");
+                  << numComp << " != 3");
     }
   tuple[0] = val0;
   tuple[1] = val1;
@@ -412,14 +412,14 @@ void vtkDataArray::InsertTuple3(const vtkIdType i, float val0, float val1,
   this->InsertTuple(i, tuple);
 }
 void vtkDataArray::InsertTuple4(const vtkIdType i, float val0, float val1, 
-				float val2, float val3)
+                                float val2, float val3)
 {
   float tuple[4];
   int numComp = this->GetNumberOfComponents();
   if (numComp != 4)
     {
     vtkErrorMacro("The number of components do not match the number requested: "
-		  << numComp << " != 4");
+                  << numComp << " != 4");
     }
   tuple[0] = val0;
   tuple[1] = val1;
@@ -428,15 +428,15 @@ void vtkDataArray::InsertTuple4(const vtkIdType i, float val0, float val1,
   this->InsertTuple(i, tuple);
 }
 void vtkDataArray::InsertTuple9(const vtkIdType i, float val0, float val1, 
-				float val2,  float val3, float val4, 
-				float val5, float val6,float val7, float val8)
+                                float val2,  float val3, float val4, 
+                                float val5, float val6,float val7, float val8)
 {
   float tuple[9];
   int numComp = this->GetNumberOfComponents();
   if (numComp != 9)
     {
     vtkErrorMacro("The number of components do not match the number requested: "
-		  << numComp << " != 9");
+                  << numComp << " != 9");
     }
   tuple[0] = val0;
   tuple[1] = val1;
@@ -470,7 +470,7 @@ void vtkDataArray::InsertNextTuple1(float value)
   if (numComp != 1)
     {
     vtkErrorMacro("The number of components do not match the number requested: "
-		  << numComp << " != 1");
+                  << numComp << " != 1");
     }
   this->InsertNextTuple(&value);
 }
@@ -481,21 +481,21 @@ void vtkDataArray::InsertNextTuple2(float val0, float val1)
   if (numComp != 2)
     {
     vtkErrorMacro("The number of components do not match the number requested: "
-		  << numComp << " != 2");
+                  << numComp << " != 2");
     }
   tuple[0] = val0;
   tuple[1] = val0;
   this->InsertNextTuple(tuple);
 }
 void vtkDataArray::InsertNextTuple3(float val0, float val1, 
-				    float val2)
+                                    float val2)
 {
   float tuple[3];
   int numComp = this->GetNumberOfComponents();
   if (numComp != 3)
     {
     vtkErrorMacro("The number of components do not match the number requested: "
-		  << numComp << " != 3");
+                  << numComp << " != 3");
     }
   tuple[0] = val0;
   tuple[1] = val1;
@@ -503,14 +503,14 @@ void vtkDataArray::InsertNextTuple3(float val0, float val1,
   this->InsertNextTuple(tuple);
 }
 void vtkDataArray::InsertNextTuple4(float val0, float val1, 
-				    float val2, float val3)
+                                    float val2, float val3)
 {
   float tuple[4];
   int numComp = this->GetNumberOfComponents();
   if (numComp != 4)
     {
     vtkErrorMacro("The number of components do not match the number requested: "
-		  << numComp << " != 4");
+                  << numComp << " != 4");
     }
   tuple[0] = val0;
   tuple[1] = val1;
@@ -519,16 +519,16 @@ void vtkDataArray::InsertNextTuple4(float val0, float val1,
   this->InsertNextTuple(tuple);
 }
 void vtkDataArray::InsertNextTuple9(float val0, float val1, 
-				    float val2,  float val3, float val4, 
-				    float val5, float val6,float val7, 
-				    float val8)
+                                    float val2,  float val3, float val4, 
+                                    float val5, float val6,float val7, 
+                                    float val8)
 {
   float tuple[9];
   int numComp = this->GetNumberOfComponents();
   if (numComp != 9)
     {
     vtkErrorMacro("The number of components do not match the number requested: "
-		  << numComp << " != 9");
+                  << numComp << " != 9");
     }
   tuple[0] = val0;
   tuple[1] = val1;
@@ -671,7 +671,7 @@ static void CopyTuples1(IT* input, vtkDataArray* output, vtkIdList* ptIds)
   switch (output->GetDataType())
     {
     vtkTemplateMacro4(CopyTuples, input, (VTK_TT *)output->GetVoidPointer(0), 
-		      output->GetNumberOfComponents(), ptIds );
+                      output->GetNumberOfComponents(), ptIds );
 
     default:
       vtkGenericWarningMacro(<<"Sanity check failed: Unsupported data type.");
@@ -691,7 +691,7 @@ void vtkDataArray::GetTuples(vtkIdList *ptIds, vtkDataArray *da)
   switch (this->GetDataType())
     {
     vtkTemplateMacro3(CopyTuples1, (VTK_TT *)this->GetVoidPointer(0), da,
-		      ptIds );
+                      ptIds );
     // This is not supported by the template macro.
     // Switch to using the float interface.
     case VTK_BIT:
@@ -711,7 +711,7 @@ void vtkDataArray::GetTuples(vtkIdList *ptIds, vtkDataArray *da)
 
 template <class IT, class OT>
 static void CopyTuples(IT* input, OT* output, int nComp, 
-		       vtkIdType p1, vtkIdType p2)
+                       vtkIdType p1, vtkIdType p2)
 {
   int i, j;
   int num=p2-p1+1;
@@ -726,12 +726,12 @@ static void CopyTuples(IT* input, OT* output, int nComp,
 
 template <class IT>
 static void CopyTuples1(IT* input, vtkDataArray* output, 
-			vtkIdType p1, vtkIdType p2)
+                        vtkIdType p1, vtkIdType p2)
 {
   switch (output->GetDataType())
     {
     vtkTemplateMacro5(CopyTuples, input, (VTK_TT *)output->GetVoidPointer(0), 
-		      output->GetNumberOfComponents(), p1, p2 );
+                      output->GetNumberOfComponents(), p1, p2 );
 
     default:
       vtkGenericWarningMacro(<<"Sanity check failed: Unsupported data type.");
@@ -752,7 +752,7 @@ void vtkDataArray::GetTuples(vtkIdType p1, vtkIdType p2, vtkDataArray *da)
   switch (this->GetDataType())
     {
     vtkTemplateMacro4(CopyTuples1, (VTK_TT *)this->GetVoidPointer(0), da,
-		      p1, p2 );
+                      p1, p2 );
     // This is not supported by the template macro.
     // Switch to using the float interface.
     case VTK_BIT:
@@ -855,13 +855,13 @@ void vtkDataArray::ComputeRange(int comp)
       {
       s = this->GetComponent(i,comp);
       if ( s < this->Range[0] )
-	{
-	this->Range[0] = s;
-	}
+        {
+        this->Range[0] = s;
+        }
       if ( s > this->Range[1] )
-	{
-	this->Range[1] = s;
-	}
+        {
+        this->Range[1] = s;
+        }
       }
     this->ComputeTimeForLastRange.Modified();
     this->ComponentForLastRange = comp;

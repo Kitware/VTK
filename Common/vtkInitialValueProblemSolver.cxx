@@ -66,7 +66,7 @@ void vtkInitialValueProblemSolver::SetFunctionSet(vtkFunctionSet* fset)
     {
     if (this->FunctionSet != 0) { this->FunctionSet->UnRegister(this); }
     if (fset != 0 && (fset->GetNumberOfFunctions() !=
-		      fset->GetNumberOfIndependentVariables() - 1))
+                      fset->GetNumberOfIndependentVariables() - 1))
       {
       vtkErrorMacro("Invalid function set!");
       this->FunctionSet = 0;

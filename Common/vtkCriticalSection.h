@@ -100,9 +100,9 @@ public:
     {
       this->Init();
       if(isLocked)
-	{
-	this->Lock();
-	}
+        {
+        this->Lock();
+        }
     }
 
   void Init();

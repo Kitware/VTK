@@ -121,8 +121,8 @@ extern "C" JNIEXPORT void  JNICALL
 
 extern "C" JNIEXPORT void  JNICALL 
     Java_vtkPanel_SetSizeInternal(JNIEnv *env, 
-				  jobject canvas,
-				  jobject id0, jint id1,jint id2)
+                                  jobject canvas,
+                                  jobject id0, jint id1,jint id2)
 {
   JAWT awt;
   JAWT_DrawingSurface* ds;
@@ -136,16 +136,16 @@ extern "C" JNIEXPORT void  JNICALL
   awt.version = JAWT_VERSION_1_3;
   if (JAWT_GetAWT(env, &awt) == JNI_FALSE) 
       {
-	  printf("AWT Not found\n");
-	  return;
+          printf("AWT Not found\n");
+          return;
       }
   
   /* Get the drawing surface */
   ds = awt.GetDrawingSurface(env, canvas);
   if (ds == NULL) 
       {
-	  printf("NULL drawing surface\n");
-	  return;
+          printf("NULL drawing surface\n");
+          return;
       }
   
   /* Lock the drawing surface */

@@ -45,8 +45,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <ctype.h>
 
 static double vtkParserVectorErrorResult[3] = { VTK_PARSER_ERROR_RESULT, 
-						VTK_PARSER_ERROR_RESULT, 
-						VTK_PARSER_ERROR_RESULT };
+                                                VTK_PARSER_ERROR_RESULT, 
+                                                VTK_PARSER_ERROR_RESULT };
 
 vtkFunctionParser* vtkFunctionParser::New()
 {
@@ -733,11 +733,11 @@ void vtkFunctionParser::SetScalarVariableValue(const char* variableName,
     if (strcmp(variableName, this->ScalarVariableNames[i]) == 0)
       {
       if (this->ScalarVariableValues[i] != value)
-	{
-	this->ScalarVariableValues[i] = value;
-	this->VariableMTime.Modified();
-	this->Modified();
-	}
+        {
+        this->ScalarVariableValues[i] = value;
+        this->VariableMTime.Modified();
+        this->Modified();
+        }
       return;
       }
     }
@@ -815,7 +815,7 @@ double vtkFunctionParser::GetScalarVariableValue(const char* variableName)
       }
     }
   vtkErrorMacro("GetScalarVariableValue: scalar variable " << variableName 
-		<< " does not exist");
+                << " does not exist");
   return VTK_PARSER_ERROR_RESULT;
 }
 
@@ -824,7 +824,7 @@ double vtkFunctionParser::GetScalarVariableValue(int i)
   if (i < 0 || i >= this->NumberOfScalarVariables)
     {
     vtkErrorMacro("GetScalarVariableValue: scalar variable " << i 
-		  << " does not exist");
+                  << " does not exist");
     return VTK_PARSER_ERROR_RESULT;
     }
 
@@ -844,15 +844,15 @@ void vtkFunctionParser::SetVectorVariableValue(const char* variableName,
     if (strcmp(variableName, this->VectorVariableNames[i]) == 0)
       {
       if (this->VectorVariableValues[i][0] != xValue ||
-	  this->VectorVariableValues[i][1] != yValue ||
-	  this->VectorVariableValues[i][2] != zValue)
-	{
-	this->VectorVariableValues[i][0] = xValue;
-	this->VectorVariableValues[i][1] = yValue;
-	this->VectorVariableValues[i][2] = zValue;
-	this->VariableMTime.Modified();
-	this->Modified();
-	}
+          this->VectorVariableValues[i][1] != yValue ||
+          this->VectorVariableValues[i][2] != zValue)
+        {
+        this->VectorVariableValues[i][0] = xValue;
+        this->VectorVariableValues[i][1] = yValue;
+        this->VectorVariableValues[i][2] = zValue;
+        this->VariableMTime.Modified();
+        this->Modified();
+        }
       return;
       }
     }
@@ -917,7 +917,7 @@ void vtkFunctionParser::SetVectorVariableValue(const char* variableName,
 }
 
 void vtkFunctionParser::SetVectorVariableValue(int i, double xValue,
-					       double yValue, double zValue)
+                                               double yValue, double zValue)
 {
   if (i < 0 || i >= this->NumberOfVectorVariables)
     {
@@ -947,7 +947,7 @@ double* vtkFunctionParser::GetVectorVariableValue(const char* variableName)
       }
     }
   vtkErrorMacro("GetVectorVariableValue: vector variable " << variableName 
-		<< " does not exist");
+                << " does not exist");
   return vtkParserVectorErrorResult;
 }
 
@@ -956,7 +956,7 @@ double* vtkFunctionParser::GetVectorVariableValue(int i)
   if (i < 0 || i >= this->NumberOfVectorVariables)
     {
     vtkErrorMacro("GetVectorVariableValue: vector variable " << i 
-		  << " does not exist");
+                  << " does not exist");
     return vtkParserVectorErrorResult;
     }
   return this->VectorVariableValues[i];
@@ -1060,13 +1060,13 @@ int vtkFunctionParser::CheckSyntax()
       if(parenthesisCount < 0)
         {
         vtkErrorMacro("Syntax Error: mismatched parenthesis; see position " 
-		      << index);
+                      << index);
         return 0;
         }
       if( this->Function[index - 1] == '(' )
         {
         vtkErrorMacro("Syntax Error: empty parentheses; see position " 
-		      << index);
+                      << index);
         return 0;
         }
       currentChar = this->Function[++index];
@@ -1098,7 +1098,7 @@ int vtkFunctionParser::CheckSyntax()
   if(parenthesisCount > 0)
     {
     vtkErrorMacro("Syntax Error: missing closing parenthesis; see position " 
-		  << index);
+                  << index);
     return 0;
     }
   

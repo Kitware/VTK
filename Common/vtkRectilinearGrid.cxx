@@ -561,13 +561,13 @@ vtkIdType vtkRectilinearGrid::FindPoint(float x[3])
       if ( x[j] >= xPrev && x[j] <= xNext )
         {
         if ( (x[j]-xPrev) < (xNext-x[j]) )
-	  {
-	  loc[j] = i-1;
-	  }
+          {
+          loc[j] = i-1;
+          }
         else
-	  {
-	  loc[j] = i;
-	  }
+          {
+          loc[j] = i;
+          }
         }
       xPrev = xNext;
       }
@@ -740,7 +740,7 @@ void vtkRectilinearGrid::SetExtent(int extent[6])
 
 //----------------------------------------------------------------------------
 void vtkRectilinearGrid::SetExtent(int xMin, int xMax, int yMin, int yMax,
-				   int zMin, int zMax)
+                                   int zMin, int zMax)
 {
   int extent[6];
 
@@ -814,7 +814,7 @@ int vtkRectilinearGrid::ComputeStructuredCoordinates(float x[3], int ijk[3],
 // Should we split up cells, or just points.  It does not matter for now.
 // Extent of structured data assumes points.
 void vtkRectilinearGrid::SetUpdateExtent(int piece, int numPieces,
-					 int ghostLevel)
+                                         int ghostLevel)
 {
   int ext[6], zdim, min, max, oldZMin, oldZMax;
   
@@ -1020,7 +1020,7 @@ void vtkRectilinearGrid::Crop()
     for (idx = uExt[0]; idx <= uExt[1]; ++idx)
       {
       newCoords->InsertComponent(idx-(vtkIdType)uExt[0], 0,
-				 coords->GetComponent(idx,0));
+                                 coords->GetComponent(idx,0));
       }
     newGrid->SetXCoordinates(newCoords);
     newCoords->Delete();
@@ -1031,7 +1031,7 @@ void vtkRectilinearGrid::Crop()
     for (idx = uExt[2]; idx <= uExt[3]; ++idx)
       {
       newCoords->InsertComponent(idx-(vtkIdType)uExt[2], 0,
-				 coords->GetComponent(idx,0));
+                                 coords->GetComponent(idx,0));
       }
     newGrid->SetYCoordinates(newCoords);
     newCoords->Delete();
@@ -1042,7 +1042,7 @@ void vtkRectilinearGrid::Crop()
     for (idx = uExt[4]; idx <= uExt[5]; ++idx)
       {
       newCoords->InsertComponent(idx-(vtkIdType)uExt[4], 0,
-				 coords->GetComponent(idx,0));
+                                 coords->GetComponent(idx,0));
       }
     newGrid->SetZCoordinates(newCoords);
     newCoords->Delete();

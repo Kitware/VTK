@@ -67,7 +67,7 @@ vtkRungeKutta2* vtkRungeKutta2::New()
 
 // Calculate next time step
 float vtkRungeKutta2::ComputeNextStep(float* xprev, float* dxprev, 
-				      float* xnext, float t, float delT)
+                                      float* xnext, float t, float delT)
 {
   int i, numDerivs, numVals;
 

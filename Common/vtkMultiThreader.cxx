@@ -186,7 +186,7 @@ vtkMultiThreader::~vtkMultiThreader()
 // Set the user defined method that will be run on NumberOfThreads threads
 // when SingleMethodExecute is called.
 void vtkMultiThreader::SetSingleMethod( vtkThreadFunctionType f, 
-					void *data )
+                                        void *data )
 { 
   this->SingleMethod = f;
   this->SingleData   = data;
@@ -197,7 +197,7 @@ void vtkMultiThreader::SetSingleMethod( vtkThreadFunctionType f,
 // called with index = 0, 1, ..,  NumberOfThreads-1 to set up all the
 // required user defined methods
 void vtkMultiThreader::SetMultipleMethod( int index, 
-					  vtkThreadFunctionType f, void *data )
+                                          vtkThreadFunctionType f, void *data )
 { 
   // You can only set the method for 0 through NumberOfThreads-1
   if ( index >= this->NumberOfThreads ) {
@@ -263,7 +263,7 @@ void vtkMultiThreader::SingleMethodExecute()
     this->ThreadInfoArray[thread_loop].NumberOfThreads = this->NumberOfThreads;
     process_id[thread_loop] = 
       CreateThread(NULL, 0, this->SingleMethod, 
-	     ((void *)(&this->ThreadInfoArray[thread_loop])), 0, &threadId);
+             ((void *)(&this->ThreadInfoArray[thread_loop])), 0, &threadId);
     if (process_id == NULL)
       {
       vtkErrorMacro("Error in thread creation !!!");
@@ -306,7 +306,7 @@ void vtkMultiThreader::SingleMethodExecute()
     this->ThreadInfoArray[thread_loop].NumberOfThreads = this->NumberOfThreads;
     process_id[thread_loop] = 
       sproc( this->SingleMethod, PR_SADDR, 
-	     ( (void *)(&this->ThreadInfoArray[thread_loop]) ) );
+             ( (void *)(&this->ThreadInfoArray[thread_loop]) ) );
     if ( process_id[thread_loop] == -1)
       {
       vtkErrorMacro("sproc call failed. Code: " << errno << endl);
@@ -355,13 +355,13 @@ void vtkMultiThreader::SingleMethodExecute()
 
 #ifdef VTK_HP_PTHREADS
     pthread_create( &(process_id[thread_loop]),
-		    attr, this->SingleMethod,  
-		    ( (void *)(&this->ThreadInfoArray[thread_loop]) ) );
+                    attr, this->SingleMethod,  
+                    ( (void *)(&this->ThreadInfoArray[thread_loop]) ) );
 #else
     int                threadError;
     threadError =
       pthread_create( &(process_id[thread_loop]), &attr, this->SingleMethod,  
-		      ( (void *)(&this->ThreadInfoArray[thread_loop]) ) );
+                      ( (void *)(&this->ThreadInfoArray[thread_loop]) ) );
     if (threadError != 0)
       {
       vtkErrorMacro(<< "Unable to create a thread.  pthread_create() returned "
@@ -451,7 +451,7 @@ void vtkMultiThreader::MultipleMethodExecute()
     this->ThreadInfoArray[thread_loop].NumberOfThreads = this->NumberOfThreads;
     process_id[thread_loop] = 
       CreateThread(NULL, 0, this->MultipleMethod[thread_loop], 
-	     ((void *)(&this->ThreadInfoArray[thread_loop])), 0, &threadId);
+             ((void *)(&this->ThreadInfoArray[thread_loop])), 0, &threadId);
     if (process_id == NULL)
       {
       vtkErrorMacro("Error in thread creation !!!");
@@ -496,7 +496,7 @@ void vtkMultiThreader::MultipleMethodExecute()
     this->ThreadInfoArray[thread_loop].NumberOfThreads = this->NumberOfThreads;
     process_id[thread_loop] = 
       sproc( this->MultipleMethod[thread_loop], PR_SADDR, 
-	     ( (void *)(&this->ThreadInfoArray[thread_loop]) ) );
+             ( (void *)(&this->ThreadInfoArray[thread_loop]) ) );
     }
   
   // Now, the parent thread calls the last method itself
@@ -544,12 +544,12 @@ void vtkMultiThreader::MultipleMethodExecute()
     this->ThreadInfoArray[thread_loop].NumberOfThreads = this->NumberOfThreads;
 #ifdef VTK_HP_PTHREADS
     pthread_create( &(process_id[thread_loop]),
-		    attr, this->MultipleMethod[thread_loop],  
-		    ( (void *)(&this->ThreadInfoArray[thread_loop]) ) );
+                    attr, this->MultipleMethod[thread_loop],  
+                    ( (void *)(&this->ThreadInfoArray[thread_loop]) ) );
 #else
     pthread_create( &(process_id[thread_loop]),
-		    &attr, this->MultipleMethod[thread_loop],  
-		    ( (void *)(&this->ThreadInfoArray[thread_loop]) ) );
+                    &attr, this->MultipleMethod[thread_loop],  
+                    ( (void *)(&this->ThreadInfoArray[thread_loop]) ) );
 #endif
     }
   
@@ -633,7 +633,7 @@ int vtkMultiThreader::SpawnThread( vtkThreadFunctionType f, void *UserData )
   //
   this->SpawnedThreadProcessID[id] = 
       CreateThread(NULL, 0, f, 
-	     ((void *)(&this->SpawnedThreadInfoArray[id])), 0, &threadId);
+             ((void *)(&this->SpawnedThreadInfoArray[id])), 0, &threadId);
   if (this->SpawnedThreadProcessID[id] == NULL)
     {
     vtkErrorMacro("Error in thread creation !!!");
@@ -664,12 +664,12 @@ int vtkMultiThreader::SpawnThread( vtkThreadFunctionType f, void *UserData )
   
 #ifdef VTK_HP_PTHREADS
   pthread_create( &(this->SpawnedThreadProcessID[id]),
-		  attr, f,  
-		  ( (void *)(&this->SpawnedThreadInfoArray[id]) ) );
+                  attr, f,  
+                  ( (void *)(&this->SpawnedThreadInfoArray[id]) ) );
 #else
   pthread_create( &(this->SpawnedThreadProcessID[id]),
-		  &attr, f,  
-		  ( (void *)(&this->SpawnedThreadInfoArray[id]) ) );
+                  &attr, f,  
+                  ( (void *)(&this->SpawnedThreadInfoArray[id]) ) );
 #endif
 
 #endif
@@ -709,7 +709,7 @@ void vtkMultiThreader::TerminateThread( int ThreadID )
   siginfo_t info_ptr;
 
   waitid( P_PID, (id_t) this->SpawnedThreadProcessID[ThreadID], 
-	  &info_ptr, WEXITED );
+          &info_ptr, WEXITED );
 #endif
 
 #ifdef VTK_USE_PTHREADS

@@ -426,8 +426,8 @@ void vtkDataObject::UpdateData()
 
 //----------------------------------------------------------------------------
 void vtkDataObject::SetUpdateExtent( int x1, int x2, 
-				     int y1, int y2, 
-				     int z1, int z2 )
+                                     int y1, int y2, 
+                                     int z1, int z2 )
 {
   this->UpdateExtent[0] = x1;
   this->UpdateExtent[1] = x2;
@@ -649,23 +649,23 @@ int vtkDataObject::UpdateExtentIsOutsideOfTheExtent()
     {
     case VTK_PIECES_EXTENT:
       if ( this->UpdatePiece != this->Piece ||
-	   this->UpdateNumberOfPieces != this->NumberOfPieces ||
-	   this->UpdateGhostLevel != this->GhostLevel)
-	{
+           this->UpdateNumberOfPieces != this->NumberOfPieces ||
+           this->UpdateGhostLevel != this->GhostLevel)
+        {
         return 1;
-	}
+        }
       break;
 
     case VTK_3D_EXTENT:
       if ( this->UpdateExtent[0] < this->Extent[0] ||
-	   this->UpdateExtent[1] > this->Extent[1] ||
-	   this->UpdateExtent[2] < this->Extent[2] ||
-	   this->UpdateExtent[3] > this->Extent[3] ||
-	   this->UpdateExtent[4] < this->Extent[4] ||
-	   this->UpdateExtent[5] > this->Extent[5] )
-	{
+           this->UpdateExtent[1] > this->Extent[1] ||
+           this->UpdateExtent[2] < this->Extent[2] ||
+           this->UpdateExtent[3] > this->Extent[3] ||
+           this->UpdateExtent[4] < this->Extent[4] ||
+           this->UpdateExtent[5] > this->Extent[5] )
+        {
         return 1;
-	}
+        }
       break;
 
     // We should never have this case occur

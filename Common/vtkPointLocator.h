@@ -121,7 +121,7 @@ public:
   // place their data. Bounds are the box that the points lie in.
   // Not thread safe.
   virtual int InitPointInsertion(vtkPoints *newPts, const float bounds[6], 
-				 vtkIdType estSize);
+                                 vtkIdType estSize);
 
   // Description:
   // Incrementally insert a point into search structure with a particular
@@ -183,7 +183,7 @@ public:
   // indirectly called from a single thread first.
   virtual void FindClosestNPoints(int N, const float x[3], vtkIdList *result);
   virtual void FindClosestNPoints(int N, float x, float y, float z,
-				  vtkIdList *result);
+                                  vtkIdList *result);
 
   // Description:
   // Find the closest points to a position such that each octant of
@@ -192,9 +192,9 @@ public:
   // These methods are thread safe if BuildLocator() is directly or
   // indirectly called from a single thread first.
   virtual void FindDistributedPoints(int N, const float x[3], 
-				     vtkIdList *result, int M);
+                                     vtkIdList *result, int M);
   virtual void FindDistributedPoints(int N, float x, float y, 
-				     float z, vtkIdList *result, int M);
+                                     float z, vtkIdList *result, int M);
 
   // Description:
   // Find all points within a specified radius R of position x.
@@ -202,9 +202,9 @@ public:
   // These methods are thread safe if BuildLocator() is directly or
   // indirectly called from a single thread first.
   virtual void FindPointsWithinRadius(float R, const float x[3],
-				      vtkIdList *result);
+                                      vtkIdList *result);
   virtual void FindPointsWithinRadius(float R, float x, float y, float z, 
-				      vtkIdList *result);
+                                      vtkIdList *result);
   
   // Description:
   // Given a position x, return the list of points in the bucket that
@@ -227,14 +227,14 @@ protected:
 
   // place points in appropriate buckets
   void GetBucketNeighbors(vtkNeighborPoints* buckets,
-			  const int ijk[3], const int ndivs[3], int level);
+                          const int ijk[3], const int ndivs[3], int level);
   void GetOverlappingBuckets(vtkNeighborPoints* buckets, 
-			     const float x[3], const int ijk[3], float dist,
-			     int level);
+                             const float x[3], const int ijk[3], float dist,
+                             int level);
   void GetOverlappingBuckets(vtkNeighborPoints* buckets,
-			     const float x[3], float dist,
-			     int prevMinLevel[3],
-			     int prevMaxLevel[3]);
+                             const float x[3], float dist,
+                             int prevMinLevel[3],
+                             int prevMaxLevel[3]);
   void GenerateFace(int face, int i, int j, int k, 
                     vtkPoints *pts, vtkCellArray *polys);
   float Distance2ToBucket(const float x[3], const int nei[3]);

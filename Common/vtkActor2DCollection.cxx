@@ -87,9 +87,9 @@ void vtkActor2DCollection::RenderOverlay(vtkViewport* viewport)
       {
       // Make sure that the actor is visible before rendering
       if (tempActor->GetVisibility() == 1)
-			{
-	    tempActor->RenderOverlay(viewport);
-	}
+                        {
+            tempActor->RenderOverlay(viewport);
+        }
       }
     }
 }

@@ -43,7 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 
 vtkFieldData::BasicIterator::BasicIterator(const int* list, 
-					   unsigned int listSize)
+                                           unsigned int listSize)
 {
   if (list)
     {
@@ -66,7 +66,7 @@ vtkFieldData::BasicIterator::BasicIterator(const int* list,
 }
 
 vtkFieldData::Iterator::Iterator(vtkFieldData* dsa, const int* list, 
-				 unsigned int listSize)
+                                 unsigned int listSize)
   : vtkFieldData::BasicIterator(list, listSize)
 {
   this->Fields = dsa;
@@ -93,7 +93,7 @@ vtkFieldData::Iterator::Iterator()
 }
 
 vtkFieldData::BasicIterator::BasicIterator(const vtkFieldData::BasicIterator& 
-					   source)
+                                           source)
 {
   this->ListSize = source.ListSize;
 
@@ -589,9 +589,9 @@ unsigned long int vtkFieldData::GetMTime()
       {
       otherMTime = da->GetMTime();
       if ( otherMTime > mTime )
-	{
-	mTime = otherMTime;
-	}
+        {
+        mTime = otherMTime;
+        }
       }
     }
 
@@ -666,7 +666,7 @@ int vtkFieldData::FindFlag(const char* field)
   for(int i=0; i<this->NumberOfFieldFlags; i++)
     {
     if (this->CopyFieldFlags[i].ArrayName &&
-	!strcmp(field, this->CopyFieldFlags[i].ArrayName))
+        !strcmp(field, this->CopyFieldFlags[i].ArrayName))
       {
       return i;
       }
@@ -703,7 +703,7 @@ void vtkFieldData::CopyFlags(const vtkFieldData* source)
       this->CopyFieldFlags[i].ArrayName = 
         new char[strlen(source->CopyFieldFlags[i].ArrayName)+1];
       strcpy(this->CopyFieldFlags[i].ArrayName, 
-	     source->CopyFieldFlags[i].ArrayName);
+             source->CopyFieldFlags[i].ArrayName);
       }
     }
   else
@@ -720,8 +720,8 @@ void vtkFieldData::PassData(vtkFieldData* fd)
     // If there is no blocker for the given array
     // and both CopyAllOff and CopyOn for that array are not true
     if ( (this->GetFlag(arrayName) != 0) &&
-	 !(this->DoCopyAllOff && (this->GetFlag(arrayName) != 1)) &&
-	 fd->GetArray(i))
+         !(this->DoCopyAllOff && (this->GetFlag(arrayName) != 1)) &&
+         fd->GetArray(i))
       {
       this->AddArray(fd->GetArray(i));
       }

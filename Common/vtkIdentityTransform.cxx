@@ -97,7 +97,7 @@ static inline void vtkIdentityTransformPoint(T2 in[3], T3 out[3])
 //------------------------------------------------------------------------
 template<class T2, class T3, class T4>
 static inline void vtkIdentityTransformDerivative(T2 in[3], T3 out[3], 
-						  T4 derivative[3][3])
+                                                  T4 derivative[3][3])
 {
   out[0] = in[0];
   out[1] = in[1];
@@ -108,21 +108,21 @@ static inline void vtkIdentityTransformDerivative(T2 in[3], T3 out[3],
 
 //------------------------------------------------------------------------
 void vtkIdentityTransform::InternalTransformPoint(const float in[3], 
-						  float out[3])
+                                                  float out[3])
 {
   vtkIdentityTransformPoint(in,out);
 }
 
 //------------------------------------------------------------------------
 void vtkIdentityTransform::InternalTransformPoint(const double in[3], 
-						  double out[3])
+                                                  double out[3])
 {
   vtkIdentityTransformPoint(in,out);
 }
 
 //------------------------------------------------------------------------
 void vtkIdentityTransform::InternalTransformNormal(const float in[3], 
-						   float out[3])
+                                                   float out[3])
 {
   vtkIdentityTransformPoint(in,out);
   vtkMath::Normalize(out);
@@ -130,7 +130,7 @@ void vtkIdentityTransform::InternalTransformNormal(const float in[3],
 
 //------------------------------------------------------------------------
 void vtkIdentityTransform::InternalTransformNormal(const double in[3], 
-						   double out[3])
+                                                   double out[3])
 {
   vtkIdentityTransformPoint(in,out);
   vtkMath::Normalize(out);
@@ -138,30 +138,30 @@ void vtkIdentityTransform::InternalTransformNormal(const double in[3],
 
 //------------------------------------------------------------------------
 void vtkIdentityTransform::InternalTransformVector(const float in[3], 
-						   float out[3])
+                                                   float out[3])
 {
   vtkIdentityTransformPoint(in,out);
 }
 
 //------------------------------------------------------------------------
 void vtkIdentityTransform::InternalTransformVector(const double in[3], 
-						   double out[3])
+                                                   double out[3])
 {
   vtkIdentityTransformPoint(in,out);
 }
 
 //----------------------------------------------------------------------------
 void vtkIdentityTransform::InternalTransformDerivative(const float in[3], 
-						       float out[3],
-						       float derivative[3][3])
+                                                       float out[3],
+                                                       float derivative[3][3])
 {
   vtkIdentityTransformDerivative(in,out,derivative);
 }
 
 //----------------------------------------------------------------------------
 void vtkIdentityTransform::InternalTransformDerivative(const double in[3], 
-						       double out[3],
-						       double derivative[3][3])
+                                                       double out[3],
+                                                       double derivative[3][3])
 {
   vtkIdentityTransformDerivative(in,out,derivative);
 }
@@ -174,11 +174,11 @@ void vtkIdentityTransform::InternalTransformDerivative(const double in[3],
 // Note that the derivative of the inverse transform is simply the
 // inverse of the derivative of the forward transform. 
 void vtkIdentityTransform::TransformPointsNormalsVectors(vtkPoints *inPts, 
-							 vtkPoints *outPts,
-							 vtkDataArray *inNms, 
-							 vtkDataArray *outNms,
-							 vtkDataArray *inVrs, 
-							 vtkDataArray *outVrs)
+                                                         vtkPoints *outPts,
+                                                         vtkDataArray *inNms, 
+                                                         vtkDataArray *outNms,
+                                                         vtkDataArray *inVrs, 
+                                                         vtkDataArray *outVrs)
 {
   this->TransformPoints(inPts,outPts);
   if (inNms)
@@ -193,7 +193,7 @@ void vtkIdentityTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
 
 //----------------------------------------------------------------------------
 void vtkIdentityTransform::TransformPoints(vtkPoints *inPts, 
-					   vtkPoints *outPts)
+                                           vtkPoints *outPts)
 {
   int n = inPts->GetNumberOfPoints();
   double point[3];  
@@ -207,7 +207,7 @@ void vtkIdentityTransform::TransformPoints(vtkPoints *inPts,
 
 //----------------------------------------------------------------------------
 void vtkIdentityTransform::TransformNormals(vtkDataArray *inNms, 
-					    vtkDataArray *outNms)
+                                            vtkDataArray *outNms)
 {
   int n = inNms->GetNumberOfTuples();
   double normal[3];
@@ -221,7 +221,7 @@ void vtkIdentityTransform::TransformNormals(vtkDataArray *inNms,
 
 //----------------------------------------------------------------------------
 void vtkIdentityTransform::TransformVectors(vtkDataArray *inNms, 
-					    vtkDataArray *outNms)
+                                            vtkDataArray *outNms)
 {
   int n = inNms->GetNumberOfTuples();
   double vect[3];

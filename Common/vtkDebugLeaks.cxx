@@ -100,10 +100,10 @@ public:
   void Print()
     {
       if(this->Count)
-	{
-	vtkGenericWarningMacro("Class " << this->Key << " has " 
-			       << this->Count << " instances still around" );
-	}
+        {
+        vtkGenericWarningMacro("Class " << this->Key << " has " 
+                               << this->Count << " instances still around" );
+        }
     }
   ~vtkDebugLeaksHashNode()
     {
@@ -233,10 +233,10 @@ int vtkDebugLeaksHashTable::IsEmpty()
       { 
       count += pos->Count;
       while(pos->Next)
-	{
-	pos = pos->Next;
-	count += pos->Count;
-	}
+        {
+        pos = pos->Next;
+        count += pos->Count;
+        }
       }
     }
   return !count;
@@ -266,10 +266,10 @@ void vtkDebugLeaksHashTable::PrintTable()
       { 
       pos->Print();
       while(pos->Next)
-	{
-	pos = pos->Next;
-	pos->Print();
-	}
+        {
+        pos = pos->Next;
+        pos->Print();
+        }
       }
     }
 }

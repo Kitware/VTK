@@ -196,20 +196,20 @@ int vtkHexahedron::EvaluatePosition(float x[3], float* closestPoint,
     if (closestPoint)
       {
       for (i=0; i<3; i++) //only approximate, not really true for warped hexa
-	{
-	if (pcoords[i] < 0.0)
-	  {
-	  pc[i] = 0.0;
-	  }
-	else if (pcoords[i] > 1.0)
-	  {
-	  pc[i] = 1.0;
-	  }
-	else
-	  {
-	  pc[i] = pcoords[i];
-	  }
-	}
+        {
+        if (pcoords[i] < 0.0)
+          {
+          pc[i] = 0.0;
+          }
+        else if (pcoords[i] > 1.0)
+          {
+          pc[i] = 1.0;
+          }
+        else
+          {
+          pc[i] = pcoords[i];
+          }
+        }
       this->EvaluateLocation(subId, pc, closestPoint, (float *)w);
       dist2 = vtkMath::Distance2BetweenPoints(closestPoint,x);
       }
@@ -277,7 +277,7 @@ void vtkHexahedron::InterpolationDerivs(float pcoords[3], float derivs[24])
 }
 
 void vtkHexahedron::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3],
-				     float x[3], float *weights)
+                                     float x[3], float *weights)
 {
   int i, j;
   float *pt;
@@ -296,7 +296,7 @@ void vtkHexahedron::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3],
 }
 
 int vtkHexahedron::CellBoundary(int vtkNotUsed(subId), float pcoords[3], 
-				vtkIdList *pts)
+                                vtkIdList *pts)
 {
   float t1=pcoords[0]-pcoords[1];
   float t2=1.0-pcoords[0]-pcoords[1];
@@ -401,10 +401,10 @@ vtkHexahedron* vtkHexahedron::New()
 
 
 void vtkHexahedron::Contour(float value, vtkDataArray *cellScalars, 
-			    vtkPointLocator *locator,
-			    vtkCellArray *vtkNotUsed(verts), 
-			    vtkCellArray *vtkNotUsed(lines), 
-			    vtkCellArray *polys, 
+                            vtkPointLocator *locator,
+                            vtkCellArray *vtkNotUsed(verts), 
+                            vtkCellArray *vtkNotUsed(lines), 
+                            vtkCellArray *polys, 
                             vtkPointData *inPd, vtkPointData *outPd,
                             vtkCellData *inCd, vtkIdType cellId,
                             vtkCellData *outCd)
@@ -436,34 +436,34 @@ void vtkHexahedron::Contour(float value, vtkDataArray *cellScalars,
       vert = edges[edge[i]];
       // calculate a preferred interpolation direction
       deltaScalar = (cellScalars->GetComponent(vert[1],0) 
-		     - cellScalars->GetComponent(vert[0],0));
+                     - cellScalars->GetComponent(vert[0],0));
       if (deltaScalar > 0)
         {
-	e1 = vert[0]; e2 = vert[1];
+        e1 = vert[0]; e2 = vert[1];
         }
       else
         {
-	e1 = vert[1]; e2 = vert[0];
+        e1 = vert[1]; e2 = vert[0];
         deltaScalar = -deltaScalar;
         }
 
       // linear interpolation
       if (deltaScalar == 0.0)
-	{
-	t = 0.0;
-	}
+        {
+        t = 0.0;
+        }
       else
-	{
-	t = (value - cellScalars->GetComponent(e1,0)) / deltaScalar;
-	}
+        {
+        t = (value - cellScalars->GetComponent(e1,0)) / deltaScalar;
+        }
 
       this->Points->GetPoint(e1, x1);
       this->Points->GetPoint(e2, x2);
 
       for (j=0; j<3; j++)
-	{
-	x[j] = x1[j] + t * (x2[j] - x1[j]);
-	}
+        {
+        x[j] = x1[j] + t * (x2[j] - x1[j]);
+        }
       if ( locator->InsertUniquePoint(x, pts[i]) )
         {
         if ( outPd ) 
@@ -476,8 +476,8 @@ void vtkHexahedron::Contour(float value, vtkDataArray *cellScalars,
       }
     // check for degenerate triangle
     if ( pts[0] != pts[1] &&
-	 pts[0] != pts[2] &&
-	 pts[1] != pts[2] )
+         pts[0] != pts[2] &&
+         pts[1] != pts[2] )
       {
       newCellId = polys->InsertNextCell(3,pts);
       outCd->CopyData(inCd,cellId,newCellId);

@@ -97,7 +97,7 @@ public:
   // projected point is returned in xproj. NOTE : normal does NOT have to 
   // have magnitude 1.
   static void GeneralizedProjectPoint(float x[3], float origin[3],
-				      float normal[3], float xproj[3]);
+                                      float normal[3], float xproj[3]);
   
   // Description:
   // Quick evaluation of plane equation n(x-origin)=0.

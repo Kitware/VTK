@@ -132,7 +132,7 @@ int vtkPixel::EvaluatePosition(float x[3], float* closestPoint,
       closestPoint[1] = cp[1];
       closestPoint[2] = cp[2];
       dist2 = 
-	vtkMath::Distance2BetweenPoints(closestPoint,x); //projection distance
+        vtkMath::Distance2BetweenPoints(closestPoint,x); //projection distance
       }
     return 1;
     }
@@ -142,20 +142,20 @@ int vtkPixel::EvaluatePosition(float x[3], float* closestPoint,
     if (closestPoint)
       {
       for (i=0; i<2; i++)
-	{
-	if (pcoords[i] < 0.0)
-	{
-	pc[i] = 0.0;
-	}
-	else if (pcoords[i] > 1.0)
-	  {
-	  pc[i] = 1.0;
-	  }
-	else
-	  {
-	  pc[i] = pcoords[i];
-	  }
-	}
+        {
+        if (pcoords[i] < 0.0)
+        {
+        pc[i] = 0.0;
+        }
+        else if (pcoords[i] > 1.0)
+          {
+          pc[i] = 1.0;
+          }
+        else
+          {
+          pc[i] = pcoords[i];
+          }
+        }
       this->EvaluateLocation(subId, pc, closestPoint, (float *)w);
       dist2 = vtkMath::Distance2BetweenPoints(closestPoint,x);
       }
@@ -255,10 +255,10 @@ vtkPixel* vtkPixel::New()
 static int edges[4][2] = { {0,1}, {1,3}, {2,3}, {0,2} };
 
 void vtkPixel::Contour(float value, vtkDataArray *cellScalars,
-		       vtkPointLocator *locator, 
-		       vtkCellArray *vtkNotUsed(verts),
-		       vtkCellArray *lines, 
-		       vtkCellArray *vtkNotUsed(polys), 
+                       vtkPointLocator *locator, 
+                       vtkCellArray *vtkNotUsed(verts),
+                       vtkCellArray *lines, 
+                       vtkCellArray *vtkNotUsed(polys), 
                        vtkPointData *inPd, vtkPointData *outPd,
                        vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd)
 {
@@ -289,13 +289,13 @@ void vtkPixel::Contour(float value, vtkDataArray *cellScalars,
       vert = edges[edge[i]];
       t = (value - cellScalars->GetComponent(vert[0],0)) /
           (cellScalars->GetComponent(vert[1],0) - 
-	   cellScalars->GetComponent(vert[0],0));
+           cellScalars->GetComponent(vert[0],0));
       x1 = this->Points->GetPoint(vert[0]);
       x2 = this->Points->GetPoint(vert[1]);
       for (j=0; j<3; j++)
-	{
-	x[j] = x1[j] + t * (x2[j] - x1[j]);
-	}
+        {
+        x[j] = x1[j] + t * (x2[j] - x1[j]);
+        }
       if ( locator->InsertUniquePoint(x, pts[i]) )
         {
         if ( outPd ) 
@@ -463,9 +463,9 @@ int vtkPixel::Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts)
 }
 
 void vtkPixel::Derivatives(int vtkNotUsed(subId), 
-			   float pcoords[3], 
-			   float *values, 
-			   int dim, float *derivs)
+                           float pcoords[3], 
+                           float *values, 
+                           int dim, float *derivs)
 {
   float functionDerivs[8], sum;
   int i, j, k, plane, idx[2], jj;
@@ -528,13 +528,13 @@ void vtkPixel::Derivatives(int vtkNotUsed(subId),
 }
 
 void vtkPixel::Clip(float vtkNotUsed(value), 
-		    vtkDataArray *vtkNotUsed(cellScalars), 
-		    vtkPointLocator *vtkNotUsed(locator), 
-		    vtkCellArray *vtkNotUsed(tetras),
-		    vtkPointData *vtkNotUsed(inPd),
+                    vtkDataArray *vtkNotUsed(cellScalars), 
+                    vtkPointLocator *vtkNotUsed(locator), 
+                    vtkCellArray *vtkNotUsed(tetras),
+                    vtkPointData *vtkNotUsed(inPd),
                     vtkPointData *vtkNotUsed(outPd),
-		    vtkCellData *vtkNotUsed(inCd), vtkIdType vtkNotUsed(cellId),
-		    vtkCellData *vtkNotUsed(outCd), int vtkNotUsed(insideOut))
+                    vtkCellData *vtkNotUsed(inCd), vtkIdType vtkNotUsed(cellId),
+                    vtkCellData *vtkNotUsed(outCd), int vtkNotUsed(insideOut))
 {
 
 }

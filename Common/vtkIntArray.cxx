@@ -392,7 +392,7 @@ vtkIdType vtkIntArray::InsertNextTuple(const double * tuple)
 }
 
 void vtkIntArray::InsertComponent(const vtkIdType i, const int j, 
-				  const float c)
+                                  const float c)
 {
   this->InsertValue(i*this->NumberOfComponents + j, static_cast<const int>(c));
 }

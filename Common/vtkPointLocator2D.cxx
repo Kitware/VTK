@@ -144,9 +144,9 @@ void vtkPointLocator2D::FreeSearchStructure()
     for (i=0; i<this->NumberOfBuckets; i++)
       {
       if ( (ptIds = this->HashTable[i]) )
-	{
-	ptIds->Delete();
-	}
+        {
+        ptIds->Delete();
+        }
       }
     delete [] this->HashTable;
     this->HashTable = NULL;
@@ -190,7 +190,7 @@ int vtkPointLocator2D::FindClosestPoint(float x[2])
   //  until closest point found.
   //
   for (closest=(-1),minDist2=VTK_LARGE_FLOAT,level=0; (closest == -1) && 
-	 (level < this->Divisions[0] || level < this->Divisions[1]); level++) 
+         (level < this->Divisions[0] || level < this->Divisions[1]); level++) 
     {
     this->GetBucketNeighbors (ijk, this->Divisions, level);
 
@@ -206,7 +206,7 @@ int vtkPointLocator2D::FindClosestPoint(float x[2])
           ptId = ptIds->GetId(j);
           pt = this->DataSet->GetPoint(ptId);
           if ((dist2 =
-	       ((x[0]-pt[0])*(x[0]-pt[0])+(x[1]-pt[1])*(x[1]-pt[1]))) < minDist2) 
+               ((x[0]-pt[0])*(x[0]-pt[0])+(x[1]-pt[1])*(x[1]-pt[1]))) < minDist2) 
             {
             closest = ptId;
             minDist2 = dist2;
@@ -236,7 +236,7 @@ int vtkPointLocator2D::FindClosestPoint(float x[2])
           ptId = ptIds->GetId(j);
           pt = this->DataSet->GetPoint(ptId);
           if ((dist2 =
-	       ((x[0]-pt[0])*(x[0]-pt[0])+(x[1]-pt[1])*(x[1]-pt[1]))) < minDist2) 
+               ((x[0]-pt[0])*(x[0]-pt[0])+(x[1]-pt[1])*(x[1]-pt[1]))) < minDist2) 
             {
             closest = ptId;
             minDist2 = dist2;
@@ -271,8 +271,8 @@ static int idsortcompare(const void *arg1, const void *arg2)
 }
 
 void vtkPointLocator2D::FindDistributedPoints(int N, float x,
-					      float y,
-					      vtkIdList *result, int M)
+                                              float y,
+                                              vtkIdList *result, int M)
 {
   float p[2];
   p[0] = x;
@@ -330,7 +330,7 @@ static float GetMax(float *foo)
 }
 
 void vtkPointLocator2D::FindDistributedPoints(int N, float x[2],
-					    vtkIdList *result, int M)
+                                            vtkIdList *result, int M)
 {
   int i, j;
   float dist2;
@@ -381,8 +381,8 @@ void vtkPointLocator2D::FindDistributedPoints(int N, float x[2],
   
   this->GetBucketNeighbors (ijk, this->Divisions, level);
   while (this->Buckets->GetNumberOfNeighbors() && 
-	 minCurrentCount < N &&
-	 pointsChecked < M)
+         minCurrentCount < N &&
+         pointsChecked < M)
     {
     for (i=0; i<this->Buckets->GetNumberOfNeighbors(); i++) 
       {
@@ -393,34 +393,34 @@ void vtkPointLocator2D::FindDistributedPoints(int N, float x[2],
         {
         for (j=0; j < ptIds->GetNumberOfIds(); j++) 
           {
-	  pointsChecked++;
+          pointsChecked++;
           ptId = ptIds->GetId(j);
           pt = this->DataSet->GetPoint(ptId);
-	  dist2 = (x[0]-pt[0])*(x[0]-pt[0])+(x[1]-pt[1])*(x[1]-pt[1]);
-	  oct = GetQuadrant(x,pt);
-	  if (currentCount[oct] < N)
-	    {
-	    res[oct][currentCount[oct]].dist = dist2;
-	    res[oct][currentCount[oct]].id = ptId;
-	    if (dist2 > maxDistance[oct])
-	      {
-	      maxDistance[oct] = dist2;
-	      }
-	    currentCount[oct] = currentCount[oct] + 1;
-	    // compute new minCurrentCount
-	    minCurrentCount = GetMin(currentCount);	    
-	    if (currentCount[oct] == N)
-	      {
-	      qsort(res[oct], currentCount[oct], sizeof(idsort),idsortcompare);
-	      }
-	    }
-	  else if (dist2 < maxDistance[oct])
-	    {
-	    res[oct][N-1].dist = dist2;
-	    res[oct][N-1].id = ptId;
-	    qsort(res[oct], N, sizeof(idsort), idsortcompare);
-	    maxDistance[oct] = res[oct][N-1].dist;
-	    }
+          dist2 = (x[0]-pt[0])*(x[0]-pt[0])+(x[1]-pt[1])*(x[1]-pt[1]);
+          oct = GetQuadrant(x,pt);
+          if (currentCount[oct] < N)
+            {
+            res[oct][currentCount[oct]].dist = dist2;
+            res[oct][currentCount[oct]].id = ptId;
+            if (dist2 > maxDistance[oct])
+              {
+              maxDistance[oct] = dist2;
+              }
+            currentCount[oct] = currentCount[oct] + 1;
+            // compute new minCurrentCount
+            minCurrentCount = GetMin(currentCount);         
+            if (currentCount[oct] == N)
+              {
+              qsort(res[oct], currentCount[oct], sizeof(idsort),idsortcompare);
+              }
+            }
+          else if (dist2 < maxDistance[oct])
+            {
+            res[oct][N-1].dist = dist2;
+            res[oct][N-1].id = ptId;
+            qsort(res[oct], N, sizeof(idsort), idsortcompare);
+            maxDistance[oct] = res[oct][N-1].dist;
+            }
           }
         }
       }
@@ -445,20 +445,20 @@ void vtkPointLocator2D::FindDistributedPoints(int N, float x[2],
     if ( (ptIds = this->HashTable[cno]) != NULL )
       {
       for (j=0; j < ptIds->GetNumberOfIds(); j++) 
-	{
-	pointsChecked++;
-	ptId = ptIds->GetId(j);
-	pt = this->DataSet->GetPoint(ptId);
-	dist2 = (x[0]-pt[0])*(x[0]-pt[0])+(x[1]-pt[1])*(x[1]-pt[1]);
-	oct = GetQuadrant(x,pt);
-	if (dist2 < maxDistance[oct])
-	  {
-	  res[oct][N-1].dist = dist2;
-	  res[oct][N-1].id = ptId;
-	  qsort(res[oct], N, sizeof(idsort), idsortcompare);
-	  maxDistance[oct] = res[oct][N-1].dist;
-	  }
-	}
+        {
+        pointsChecked++;
+        ptId = ptIds->GetId(j);
+        pt = this->DataSet->GetPoint(ptId);
+        dist2 = (x[0]-pt[0])*(x[0]-pt[0])+(x[1]-pt[1])*(x[1]-pt[1]);
+        oct = GetQuadrant(x,pt);
+        if (dist2 < maxDistance[oct])
+          {
+          res[oct][N-1].dist = dist2;
+          res[oct][N-1].id = ptId;
+          qsort(res[oct], N, sizeof(idsort), idsortcompare);
+          maxDistance[oct] = res[oct][N-1].dist;
+          }
+        }
       }
     }
     
@@ -474,8 +474,8 @@ void vtkPointLocator2D::FindDistributedPoints(int N, float x[2],
 }
 
 void vtkPointLocator2D::FindClosestNPoints(int N, float x,
-					 float y,
-					 vtkIdList *result)
+                                         float y,
+                                         vtkIdList *result)
 {
   float p[2];
   p[0] = x;
@@ -538,28 +538,28 @@ void vtkPointLocator2D::FindClosestNPoints(int N, float x[2],vtkIdList *result)
           {
           ptId = ptIds->GetId(j);
           pt = this->DataSet->GetPoint(ptId);
-	  dist2 = (x[0]-pt[0])*(x[0]-pt[0])+(x[1]-pt[1])*(x[1]-pt[1]);
-	  if (currentCount < N)
-	    {
-	    res[currentCount].dist = dist2;
-	    res[currentCount].id = ptId;
-	    if (dist2 > maxDistance)
-	      {
-	      maxDistance = dist2;
-	      }
-	    currentCount++;
-	    if (currentCount == N)
-	      {
-	      qsort(res, currentCount, sizeof(idsort), idsortcompare);
-	      }
-	    }
-	  else if (dist2 < maxDistance)
-	    {
-	    res[N-1].dist = dist2;
-	    res[N-1].id = ptId;
-	    qsort(res, N, sizeof(idsort), idsortcompare);
-	    maxDistance = res[N-1].dist;
-	    }
+          dist2 = (x[0]-pt[0])*(x[0]-pt[0])+(x[1]-pt[1])*(x[1]-pt[1]);
+          if (currentCount < N)
+            {
+            res[currentCount].dist = dist2;
+            res[currentCount].id = ptId;
+            if (dist2 > maxDistance)
+              {
+              maxDistance = dist2;
+              }
+            currentCount++;
+            if (currentCount == N)
+              {
+              qsort(res, currentCount, sizeof(idsort), idsortcompare);
+              }
+            }
+          else if (dist2 < maxDistance)
+            {
+            res[N-1].dist = dist2;
+            res[N-1].id = ptId;
+            qsort(res, N, sizeof(idsort), idsortcompare);
+            maxDistance = res[N-1].dist;
+            }
           }
         }
       }
@@ -581,18 +581,18 @@ void vtkPointLocator2D::FindClosestNPoints(int N, float x[2],vtkIdList *result)
     if ( (ptIds = this->HashTable[cno]) != NULL )
       {
       for (j=0; j < ptIds->GetNumberOfIds(); j++) 
-	{
-	ptId = ptIds->GetId(j);
-	pt = this->DataSet->GetPoint(ptId);
-	dist2 = (x[0]-pt[0])*(x[0]-pt[0])+(x[1]-pt[1])*(x[1]-pt[1]);
-	if (dist2 < maxDistance)
-	  {
-	  res[N-1].dist = dist2;
-	  res[N-1].id = ptId;
-	  qsort(res, N, sizeof(idsort), idsortcompare);
-	  maxDistance = res[N-1].dist;
-	  }
-	}
+        {
+        ptId = ptIds->GetId(j);
+        pt = this->DataSet->GetPoint(ptId);
+        dist2 = (x[0]-pt[0])*(x[0]-pt[0])+(x[1]-pt[1])*(x[1]-pt[1]);
+        if (dist2 < maxDistance)
+          {
+          res[N-1].dist = dist2;
+          res[N-1].id = ptId;
+          qsort(res, N, sizeof(idsort), idsortcompare);
+          maxDistance = res[N-1].dist;
+          }
+        }
       }
     }
     
@@ -607,8 +607,8 @@ void vtkPointLocator2D::FindClosestNPoints(int N, float x[2],vtkIdList *result)
 }
 
 void vtkPointLocator2D::FindPointsWithinRadius(float R, float x,
-					       float y,
-					       vtkIdList *result)
+                                               float y,
+                                               vtkIdList *result)
 {
   float p[2];
   p[0] = x;
@@ -617,7 +617,7 @@ void vtkPointLocator2D::FindPointsWithinRadius(float R, float x,
 }
 
 void vtkPointLocator2D::FindPointsWithinRadius(float R, float x[2],
-					       vtkIdList *result)
+                                               vtkIdList *result)
 {
   int i, j;
   float dist2;
@@ -663,15 +663,15 @@ void vtkPointLocator2D::FindPointsWithinRadius(float R, float x[2],
     if ( (ptIds = this->HashTable[cno]) != NULL )
       {
       for (j=0; j < ptIds->GetNumberOfIds(); j++) 
-	{
-	ptId = ptIds->GetId(j);
-	pt = this->DataSet->GetPoint(ptId);
-	dist2 = (x[0]-pt[0])*(x[0]-pt[0])+(x[1]-pt[1])*(x[1]-pt[1]);
-	if (dist2 <= R2)
-	  {
-	  result->InsertNextId(ptId);
-	  }
-	}
+        {
+        ptId = ptIds->GetId(j);
+        pt = this->DataSet->GetPoint(ptId);
+        dist2 = (x[0]-pt[0])*(x[0]-pt[0])+(x[1]-pt[1])*(x[1]-pt[1]);
+        if (dist2 <= R2)
+          {
+          result->InsertNextId(ptId);
+          }
+        }
       }
     }
 
@@ -783,7 +783,7 @@ void vtkPointLocator2D::BuildLocator()
       {
       bucket = vtkIdList::New();
       bucket->Allocate(this->NumberOfPointsPerBucket/2,
-		       this->NumberOfPointsPerBucket/3);
+                       this->NumberOfPointsPerBucket/3);
       this->HashTable[idx] = bucket;
       }
     bucket->InsertNextId(i);
@@ -829,11 +829,11 @@ void vtkPointLocator2D::GetBucketNeighbors(int ijk[2], int ndivs[2], int level)
     for ( j= minLevel[1]; j <= maxLevel[1]; j++ ) 
       {
       if (i == (ijk[0] + level) || i == (ijk[0] - level) ||
-	  j == (ijk[1] + level) || j == (ijk[1] - level)) 
-	{
+          j == (ijk[1] + level) || j == (ijk[1] - level)) 
+        {
         nei[0]=i; nei[1]=j;
-	this->Buckets->InsertNextPoint(nei);
-	}
+        this->Buckets->InsertNextPoint(nei);
+        }
       }
     }
 
@@ -843,7 +843,7 @@ void vtkPointLocator2D::GetBucketNeighbors(int ijk[2], int ndivs[2], int level)
 //
 // Internal method to find those buckets that are within distance specified
 void vtkPointLocator2D::GetOverlappingBuckets(float x[2], int ijk[2], 
-					      float dist, int level)
+                                              float dist, int level)
 {
   int i, j, nei[2], minLevel[2], maxLevel[2];
 
@@ -873,11 +873,11 @@ void vtkPointLocator2D::GetOverlappingBuckets(float x[2], int ijk[2],
     for ( j= minLevel[1]; j <= maxLevel[1]; j++ ) 
       {
       if ( i < (ijk[0]-level) || i > (ijk[0]+level) ||
-	   j < (ijk[1]-level) || j > (ijk[1]+level))
-	{
+           j < (ijk[1]-level) || j > (ijk[1]+level))
+        {
         nei[0]=i; nei[1]=j;
-	this->Buckets->InsertNextPoint(nei);
-	}
+        this->Buckets->InsertNextPoint(nei);
+        }
       }
     }
 }
@@ -938,7 +938,7 @@ int vtkPointLocator2D::IsInsertedPoint(float x[2])
             pt = this->Points->GetPoint(ptId);
 
             if ( ((x[0]-pt[0])*(x[0]-pt[0])+(x[1]-pt[1])*(x[1]-pt[1]))
-		 <= this->InsertionTol2 )
+                 <= this->InsertionTol2 )
               {
               return ptId;
               }
@@ -955,7 +955,7 @@ int vtkPointLocator2D::IsInsertedPoint(float x[2])
 // Build polygonal representation of locator. Create faces that separate
 // inside/outside buckets, or separate inside/boundary of locator.
 void vtkPointLocator2D::GenerateRepresentation(int vtkNotUsed(level),
-					       vtkPolyData *vtkNotUsed(pd))
+                                               vtkPolyData *vtkNotUsed(pd))
 {
   // to be done
 }

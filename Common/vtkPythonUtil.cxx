@@ -108,9 +108,9 @@ static PyObject *PyVTKObject_PyRepr(PyObject *self)
 {
   char buf[255];
   sprintf(buf,"<%s.%s %s at %p>",
-	  ((PyVTKObject *)self)->vtk_class->vtk_module,
-	  ((PyVTKObject *)self)->vtk_class->vtk_name,
-	  self->ob_type->tp_name,self);
+          ((PyVTKObject *)self)->vtk_class->vtk_module,
+          ((PyVTKObject *)self)->vtk_class->vtk_name,
+          self->ob_type->tp_name,self);
   
   return PyString_FromString(buf);
 }
@@ -124,103 +124,103 @@ static PyObject *PyVTKObject_PyGetAttr(PyObject *self, char *name)
   if (name[0] == '_')
     {
       if (strcmp(name,"__class__") == 0)
-	{
-	  Py_INCREF(((PyVTKObject *)self)->vtk_class);
-	  return (PyObject *)((PyVTKObject *)self)->vtk_class;
-	}
+        {
+          Py_INCREF(((PyVTKObject *)self)->vtk_class);
+          return (PyObject *)((PyVTKObject *)self)->vtk_class;
+        }
       
       if (strcmp(name,"__this__") == 0)
-	{
-	  char buf[256];
-	  sprintf(buf,"%s_p",((PyVTKObject *)self)->vtk_ptr->GetClassName());
-	  return PyString_FromString(
-	         vtkPythonManglePointer(((PyVTKObject *)self)->vtk_ptr,buf));
-	}
+        {
+          char buf[256];
+          sprintf(buf,"%s_p",((PyVTKObject *)self)->vtk_ptr->GetClassName());
+          return PyString_FromString(
+                 vtkPythonManglePointer(((PyVTKObject *)self)->vtk_ptr,buf));
+        }
       
       if (strcmp(name,"__doc__") == 0)
-	{
-	  return PyString_FromString(pyclass->vtk_doc);
-	}
+        {
+          return PyString_FromString(pyclass->vtk_doc);
+        }
       
       if (strcmp(name,"__methods__") == 0)
-	{
-	  PyMethodDef *meth = pyclass->vtk_methods;
-	  PyObject *lst;
-	  int i, n, m;
-	  
-	  n = 0;
-	  if ((lst = PyList_New(0)) == NULL)
-	    {
-	      return NULL;
-	    }
-	  
-	  bases = NULL;
-	  while (pyclass != NULL)
-	    {
-	      m = 0;
-	      for (meth = pyclass->vtk_methods; meth->ml_name; meth++)
-		{
-		  for (i = 0; i < n; i++)
-		    {
-		      if (strcmp(PyString_AsString(PyList_GetItem(lst,i)),
-				 meth->ml_name) == 0)
-			{
-			  break;
-			}
-		    }
-		  if (i == n)
-		    {
-		      if (PyList_Append(lst,PyString_FromString(meth->ml_name)) == -1)
-			{
-			  Py_DECREF(lst);
-			  return NULL;
-			}
-		      m++;
-		    }
-		}
-	      n += m;
-	      bases = ((PyVTKClass *)pyclass)->vtk_bases;
-	      pyclass = NULL;
-	      if (PyTuple_Size(bases))
-		{
-		  pyclass = (PyVTKClass *)PyTuple_GetItem(bases,0);
-		}
-	    }
-	  PyList_Sort(lst);
-	  return lst;
-	}
+        {
+          PyMethodDef *meth = pyclass->vtk_methods;
+          PyObject *lst;
+          int i, n, m;
+          
+          n = 0;
+          if ((lst = PyList_New(0)) == NULL)
+            {
+              return NULL;
+            }
+          
+          bases = NULL;
+          while (pyclass != NULL)
+            {
+              m = 0;
+              for (meth = pyclass->vtk_methods; meth->ml_name; meth++)
+                {
+                  for (i = 0; i < n; i++)
+                    {
+                      if (strcmp(PyString_AsString(PyList_GetItem(lst,i)),
+                                 meth->ml_name) == 0)
+                        {
+                          break;
+                        }
+                    }
+                  if (i == n)
+                    {
+                      if (PyList_Append(lst,PyString_FromString(meth->ml_name)) == -1)
+                        {
+                          Py_DECREF(lst);
+                          return NULL;
+                        }
+                      m++;
+                    }
+                }
+              n += m;
+              bases = ((PyVTKClass *)pyclass)->vtk_bases;
+              pyclass = NULL;
+              if (PyTuple_Size(bases))
+                {
+                  pyclass = (PyVTKClass *)PyTuple_GetItem(bases,0);
+                }
+            }
+          PyList_Sort(lst);
+          return lst;
+        }
       
       if (strcmp(name,"__members__") == 0)
-	{
-	  PyObject *lst;
-	  if ((lst = PyList_New(5)) != NULL)
-	    {
-	      PyList_SetItem(lst,0,PyString_FromString("__class__"));
-	      PyList_SetItem(lst,1,PyString_FromString("__doc__"));
-	      PyList_SetItem(lst,2,PyString_FromString("__members__"));
-	      PyList_SetItem(lst,3,PyString_FromString("__methods__"));
-	      PyList_SetItem(lst,4,PyString_FromString("__this__"));
-	    }
-	  return lst;
-	}
+        {
+          PyObject *lst;
+          if ((lst = PyList_New(5)) != NULL)
+            {
+              PyList_SetItem(lst,0,PyString_FromString("__class__"));
+              PyList_SetItem(lst,1,PyString_FromString("__doc__"));
+              PyList_SetItem(lst,2,PyString_FromString("__members__"));
+              PyList_SetItem(lst,3,PyString_FromString("__methods__"));
+              PyList_SetItem(lst,4,PyString_FromString("__this__"));
+            }
+          return lst;
+        }
     }
   
   while (pyclass != NULL)
     {
       PyMethodDef *m;
       for (m = pyclass->vtk_methods; m->ml_name; m++)
-	{
-	  if (name[0] == m->ml_name[0] && strcmp(name+1, m->ml_name+1) == 0)
-	    {
-	      return PyCFunction_New(m, self);
-	    }
-	} 
+        {
+          if (name[0] == m->ml_name[0] && strcmp(name+1, m->ml_name+1) == 0)
+            {
+              return PyCFunction_New(m, self);
+            }
+        } 
       bases = ((PyVTKClass *)pyclass)->vtk_bases;
       pyclass = NULL;
       if (PyTuple_Size(bases))
-	{
-	  pyclass = (PyVTKClass *)PyTuple_GetItem(bases,0);
-	}
+        {
+          pyclass = (PyVTKClass *)PyTuple_GetItem(bases,0);
+        }
     }
   
   PyErr_SetString(PyExc_AttributeError, name);
@@ -282,7 +282,7 @@ PyObject *PyVTKObject_New(PyObject *vtkclass, vtkObject *ptr)
   else
     {
     PyErr_SetString(PyExc_TypeError,
-		    "this is an abstract class and cannot be instantiated");
+                    "this is an abstract class and cannot be instantiated");
     return 0;
     }
   PyVTKObject *self = PyObject_NEW(PyVTKObject, &PyVTKObjectType);
@@ -308,7 +308,7 @@ PyObject *PyVTKObject_New(PyObject *vtkclass, vtkObject *ptr)
 static int PyVTKClass_PyPrint(PyObject *self, FILE *fp, int)
 {
   fprintf(fp,"%s.%s",((PyVTKClass *)self)->vtk_module,
-	             ((PyVTKClass *)self)->vtk_name);
+                     ((PyVTKClass *)self)->vtk_name);
   return 0;
 }
 
@@ -317,7 +317,7 @@ static PyObject *PyVTKClass_PyString(PyObject *self)
 {
   char buf[255];
   sprintf(buf,"%s.%s",((PyVTKClass *)self)->vtk_module,
-	              ((PyVTKClass *)self)->vtk_name);
+                      ((PyVTKClass *)self)->vtk_name);
 
   return PyString_FromString(buf);
 }
@@ -327,8 +327,8 @@ static PyObject *PyVTKClass_PyRepr(PyObject *self)
 {
   char buf[255];
   sprintf(buf,"<%s %s.%s at %p>",self->ob_type->tp_name,
- 	                        ((PyVTKClass *)self)->vtk_module,
- 	                        ((PyVTKClass *)self)->vtk_name,self);
+                                ((PyVTKClass *)self)->vtk_module,
+                                ((PyVTKClass *)self)->vtk_name,self);
   
   return PyString_FromString(buf);
 }
@@ -339,7 +339,7 @@ static PyObject *PyVTKClass_PyCall(PyObject *self, PyObject *arg, PyObject *kw)
   if (kw != NULL)
     {
       PyErr_SetString(PyExc_TypeError,
-		      "this function takes no keyword arguments");
+                      "this function takes no keyword arguments");
       return NULL;
     }
   if (PyArg_ParseTuple(arg,""))
@@ -353,7 +353,7 @@ static PyObject *PyVTKClass_PyCall(PyObject *self, PyObject *arg, PyObject *kw)
     }
   PyErr_Clear();
   PyErr_SetString(PyExc_TypeError,
-		  "function requires 0 or 1 arguments");
+                  "function requires 0 or 1 arguments");
 
   return NULL;
 }
@@ -367,78 +367,78 @@ static PyObject *PyVTKClass_PyGetAttr(PyObject *self, char *name)
   if (name[0] == '_')
     {
       if (strcmp(name,"__bases__") == 0)
-	{
-	  Py_INCREF(((PyVTKClass *)self)->vtk_bases);
-	  return ((PyVTKClass *)self)->vtk_bases;
-	}
+        {
+          Py_INCREF(((PyVTKClass *)self)->vtk_bases);
+          return ((PyVTKClass *)self)->vtk_bases;
+        }
       
       if (strcmp(name,"__name__") == 0)
-	{
-	  return PyString_FromString(pyclass->vtk_name);
-	}
+        {
+          return PyString_FromString(pyclass->vtk_name);
+        }
       
       if (strcmp(name,"__module__") == 0)
-	{
-	  return PyString_FromString(pyclass->vtk_module);
-	}
+        {
+          return PyString_FromString(pyclass->vtk_module);
+        }
       
       if (strcmp(name,"__doc__") == 0)
-	{
-	  return PyString_FromString(pyclass->vtk_doc);
-	}
+        {
+          return PyString_FromString(pyclass->vtk_doc);
+        }
       
       if (strcmp(name,"__methods__") == 0)
-	{
-	  PyMethodDef *meth = pyclass->vtk_methods;
-	  PyObject *lst;
-	  int i, n;
-	  
-	  for (n = 0; meth[n].ml_name; n++);
-	  
-	  if ((lst = PyList_New(n)) != NULL)
-	    {
-	      meth = pyclass->vtk_methods;
-	      for (i = 0; i < n; i++)
-		{
-		  PyList_SetItem(lst, i, PyString_FromString(meth[i].ml_name));
-		}
-	      PyList_Sort(lst);
-	    }
-	  return lst;
-	}
+        {
+          PyMethodDef *meth = pyclass->vtk_methods;
+          PyObject *lst;
+          int i, n;
+          
+          for (n = 0; meth[n].ml_name; n++);
+          
+          if ((lst = PyList_New(n)) != NULL)
+            {
+              meth = pyclass->vtk_methods;
+              for (i = 0; i < n; i++)
+                {
+                  PyList_SetItem(lst, i, PyString_FromString(meth[i].ml_name));
+                }
+              PyList_Sort(lst);
+            }
+          return lst;
+        }
       
       if (strcmp(name,"__members__") == 0)
-	{
-	  PyObject *lst;
-	  if ((lst = PyList_New(6)) != NULL)
-	    {
-	      PyList_SetItem(lst,0,PyString_FromString("__bases__"));
-	      PyList_SetItem(lst,1,PyString_FromString("__doc__"));
-	      PyList_SetItem(lst,2,PyString_FromString("__members__"));
-	      PyList_SetItem(lst,3,PyString_FromString("__methods__"));
-	      PyList_SetItem(lst,4,PyString_FromString("__module__"));
-	      PyList_SetItem(lst,5,PyString_FromString("__name__"));
-	    }
-	  return lst;
-	}
+        {
+          PyObject *lst;
+          if ((lst = PyList_New(6)) != NULL)
+            {
+              PyList_SetItem(lst,0,PyString_FromString("__bases__"));
+              PyList_SetItem(lst,1,PyString_FromString("__doc__"));
+              PyList_SetItem(lst,2,PyString_FromString("__members__"));
+              PyList_SetItem(lst,3,PyString_FromString("__methods__"));
+              PyList_SetItem(lst,4,PyString_FromString("__module__"));
+              PyList_SetItem(lst,5,PyString_FromString("__name__"));
+            }
+          return lst;
+        }
     }
   
   while (pyclass != NULL)
     {
       PyMethodDef *meth;
       for (meth = pyclass->vtk_methods; meth->ml_name; meth++)
-	{
-	  if (name[0] == meth->ml_name[0] && strcmp(name+1, meth->ml_name+1) == 0)
-	    {
-	      return PyCFunction_New(meth, self);
-	    }
-	} 
+        {
+          if (name[0] == meth->ml_name[0] && strcmp(name+1, meth->ml_name+1) == 0)
+            {
+              return PyCFunction_New(meth, self);
+            }
+        } 
       bases = ((PyVTKClass *)pyclass)->vtk_bases;
       pyclass = NULL;
       if (PyTuple_Size(bases))
-	{
-	  pyclass = (PyVTKClass *)PyTuple_GetItem(bases,0);
-	}
+        {
+          pyclass = (PyVTKClass *)PyTuple_GetItem(bases,0);
+        }
     }
   
   PyErr_SetString(PyExc_AttributeError, name);
@@ -483,9 +483,9 @@ int PyVTKClass_Check(PyObject *obj)
 }
 
 PyObject *PyVTKClass_New(vtknewfunc constructor,
-			 PyMethodDef *methods,
-			 char *classname, char *modulename, char *docstring,
-			 PyObject *base)
+                         PyMethodDef *methods,
+                         char *classname, char *modulename, char *docstring,
+                         PyObject *base)
 {
   PyVTKClass *self = NULL;
   if (vtkPythonHash)
@@ -505,14 +505,14 @@ PyObject *PyVTKClass_New(vtknewfunc constructor,
       self->vtk_module = modulename;
       self->vtk_doc = docstring;
       if (base)
-	{
-	  self->vtk_bases = PyTuple_New(1);
-	  PyTuple_SET_ITEM(((PyVTKClass *)self)->vtk_bases, 0, base);
-	}
+        {
+          self->vtk_bases = PyTuple_New(1);
+          PyTuple_SET_ITEM(((PyVTKClass *)self)->vtk_bases, 0, base);
+        }
       else
-	{
-	  self->vtk_bases = PyTuple_New(0);
-	}
+        {
+          self->vtk_bases = PyTuple_New(0);
+        }
       vtkPythonAddClassToHash((PyObject *)self,classname);
     }
   
@@ -540,8 +540,8 @@ static PyObject *PyVTKSpecialObject_PyRepr(PyObject *self)
 {
   char buf[255];
   sprintf(buf,"<%s %s at %p>", self->ob_type->tp_name, 
-	                       ((PyVTKSpecialObject *)self)->vtk_name,
-	                       self);
+                               ((PyVTKSpecialObject *)self)->vtk_name,
+                               self);
   return PyString_FromString(buf);
 }
 
@@ -554,53 +554,53 @@ static PyObject *PyVTKSpecialObject_PyGetAttr(PyObject *self, char *name)
   if (name[0] == '_')
     {
       if (strcmp(name,"__name__") == 0)
-	{
-	  return PyString_FromString(pyobject->vtk_name);
-	}
+        {
+          return PyString_FromString(pyobject->vtk_name);
+        }
       if (strcmp(name,"__doc__") == 0)
-	{
-	  return PyString_FromString(pyobject->vtk_doc);
-	}
+        {
+          return PyString_FromString(pyobject->vtk_doc);
+        }
       if (strcmp(name,"__methods__") == 0)
-	{
-	  PyMethodDef *meth = pyobject->vtk_methods;
-	  PyObject *lst;
-	  int i, n;
-	  
-	  for (n = 0; meth[n].ml_name; n++);
-	  
-	  if ((lst = PyList_New(n)) != NULL)
-	    {
-	      meth = pyobject->vtk_methods;
-	      for (i = 0; i < n; i++)
-		{
-		  PyList_SetItem(lst, i, PyString_FromString(meth[i].ml_name));
-		}
-	      PyList_Sort(lst);
-	    }
-	  return lst;
-	}
+        {
+          PyMethodDef *meth = pyobject->vtk_methods;
+          PyObject *lst;
+          int i, n;
+          
+          for (n = 0; meth[n].ml_name; n++);
+          
+          if ((lst = PyList_New(n)) != NULL)
+            {
+              meth = pyobject->vtk_methods;
+              for (i = 0; i < n; i++)
+                {
+                  PyList_SetItem(lst, i, PyString_FromString(meth[i].ml_name));
+                }
+              PyList_Sort(lst);
+            }
+          return lst;
+        }
       
       if (strcmp(name,"__members__") == 0)
-	{
-	  PyObject *lst;
-	  if ((lst = PyList_New(4)) != NULL)
-	    {
-	      PyList_SetItem(lst,0,PyString_FromString("__doc__"));
-	      PyList_SetItem(lst,1,PyString_FromString("__members__"));
-	      PyList_SetItem(lst,2,PyString_FromString("__methods__"));
-	      PyList_SetItem(lst,3,PyString_FromString("__name__"));
-	    }
-	  return lst;
-	}
+        {
+          PyObject *lst;
+          if ((lst = PyList_New(4)) != NULL)
+            {
+              PyList_SetItem(lst,0,PyString_FromString("__doc__"));
+              PyList_SetItem(lst,1,PyString_FromString("__members__"));
+              PyList_SetItem(lst,2,PyString_FromString("__methods__"));
+              PyList_SetItem(lst,3,PyString_FromString("__name__"));
+            }
+          return lst;
+        }
     }  
 
   for (meth = pyobject->vtk_methods; meth->ml_name; meth++)
     {
       if (name[0] == meth->ml_name[0] && strcmp(name+1, meth->ml_name+1) == 0)
-	{
-	  return PyCFunction_New(meth, self);
-	}
+        {
+          return PyCFunction_New(meth, self);
+        }
     } 
   
   PyErr_SetString(PyExc_AttributeError, name);
@@ -653,10 +653,10 @@ int PyVTKSpecialObject_Check(PyObject *obj)
 }
 
 PyObject *PyVTKSpecialObject_New(void *ptr, PyMethodDef *methods,
-				 char *classname, char *docstring)
+                                 char *classname, char *docstring)
 {
   PyVTKSpecialObject *self = PyObject_NEW(PyVTKSpecialObject, 
-					  &PyVTKSpecialObjectType);
+                                          &PyVTKSpecialObjectType);
   self->vtk_ptr = ptr;
   self->vtk_methods = methods;
   self->vtk_name = classname;
@@ -667,7 +667,7 @@ PyObject *PyVTKSpecialObject_New(void *ptr, PyMethodDef *methods,
 
 //--------------------------------------------------------------------
 vtkObject *PyArg_VTKParseTuple(PyObject *self, PyObject *args, 
-			       char *format, ...)
+                               char *format, ...)
 {
   vtkObject *obj = NULL;
   va_list va;
@@ -680,30 +680,30 @@ vtkObject *PyArg_VTKParseTuple(PyObject *self, PyObject *args,
       PyVTKClass *vtkclass = (PyVTKClass *)self;
       
       if (n == 0 || (self = PyTuple_GetItem(args,0)) == NULL ||
-	  self->ob_type != &PyVTKObjectType ||
-	  !((PyVTKObject *)self)->vtk_ptr->IsA(vtkclass->vtk_name))
-	{
-	  char buf[256];
-	  sprintf(buf,"unbound method requires a %s as the first argument",
-		  vtkclass->vtk_name);
-	  PyErr_SetString(PyExc_ValueError,buf);
-	  return NULL;
-	}
+          self->ob_type != &PyVTKObjectType ||
+          !((PyVTKObject *)self)->vtk_ptr->IsA(vtkclass->vtk_name))
+        {
+          char buf[256];
+          sprintf(buf,"unbound method requires a %s as the first argument",
+                  vtkclass->vtk_name);
+          PyErr_SetString(PyExc_ValueError,buf);
+          return NULL;
+        }
       // re-slice the args to remove 'self'
       args = PyTuple_GetSlice(args,1,n);
       if (PyArg_VaParse(args,format,va))
-	{
-	  obj = ((PyVTKObject *)self)->vtk_ptr;
-	}
+        {
+          obj = ((PyVTKObject *)self)->vtk_ptr;
+        }
       Py_DECREF(args);
     }
   /* it was called as a bound method */
   else
     {
       if (PyArg_VaParse(args,format,va))
-	{
-	  obj = ((PyVTKObject *)self)->vtk_ptr;
-	}
+        {
+          obj = ((PyVTKObject *)self)->vtk_ptr;
+        }
     }    
   return obj;
 }
@@ -757,7 +757,7 @@ void vtkPythonAddObjectToHash(PyObject *obj, vtkObject *ptr)
 
 #ifdef VTKPYTHONDEBUG
   vtkGenericWarningMacro("Added object to hash obj= " << obj << " " 
-			 << ((PyVTKObject *)obj)->vtk_ptr);
+                         << ((PyVTKObject *)obj)->vtk_ptr);
 #endif  
 }  
 
@@ -766,7 +766,7 @@ void vtkPythonDeleteObjectFromHash(PyObject *obj)
 {
 #ifdef VTKPYTHONDEBUG
   vtkGenericWarningMacro("Deleting an object from hash obj = " << obj << " "
-			 << ((PyVTKObject *)obj)->vtk_ptr);
+                         << ((PyVTKObject *)obj)->vtk_ptr);
 #endif  
 
   void *ptr = (void *)((PyVTKObject *)obj)->vtk_ptr;
@@ -793,9 +793,9 @@ PyObject *vtkPythonGetObjectFromPointer(vtkObject *ptr)
       Py_DECREF(pyPtr1);
       
       if (pyPtr2)
-	{
-	  obj = (PyObject *)PyInt_AsLong(pyPtr2);
-	}
+        {
+          obj = (PyObject *)PyInt_AsLong(pyPtr2);
+        }
     }
   else
     {
@@ -809,16 +809,16 @@ PyObject *vtkPythonGetObjectFromPointer(vtkObject *ptr)
   if (obj == NULL)
     {
       PyObject *vtkclass = PyDict_GetItemString(vtkPythonHash->ClassDict,
-						(char *)((vtkObject *)ptr)->GetClassName());
+                                                (char *)((vtkObject *)ptr)->GetClassName());
       
       // if the class was not in the hash, then find the nearest base class
       // that is and associate ptr->GetClassName() with that base class
       if (vtkclass == NULL)
-	{
-	  vtkclass = vtkFindNearestBase(ptr);
-	  vtkPythonAddClassToHash(vtkclass, 
-				  (char *)((vtkObject *)ptr)->GetClassName());
-	}      
+        {
+          vtkclass = vtkFindNearestBase(ptr);
+          vtkPythonAddClassToHash(vtkclass, 
+                                  (char *)((vtkObject *)ptr)->GetClassName());
+        }      
       
       obj = PyVTKObject_New(vtkclass,ptr);
     }
@@ -845,22 +845,22 @@ static PyObject *vtkFindNearestBase(vtkObject *ptr)
       PyObject *pyclass = PyList_GetItem(classes,i);
       // check to see if ptr is derived from this class
       if (ptr->IsA(((PyVTKClass *)pyclass)->vtk_name))
-	{ 
-	  PyObject *cls = pyclass;
-	  PyObject *bases = ((PyVTKClass *)pyclass)->vtk_bases;
-	  // count the heirarchy depth for this class
-	  for (depth = 0; PyTuple_Size(bases) != 0; depth++)
-	    {
-	      cls = PyTuple_GetItem(bases,0);
-	      bases = ((PyVTKClass *)cls)->vtk_bases;
-	    }
-	  // we want the class that is furthest from vtkObject
-	  if (depth > maxdepth)
-	    {
-	      maxdepth = depth;
-	      nearestbase = pyclass;
-	    }
-	}
+        { 
+          PyObject *cls = pyclass;
+          PyObject *bases = ((PyVTKClass *)pyclass)->vtk_bases;
+          // count the heirarchy depth for this class
+          for (depth = 0; PyTuple_Size(bases) != 0; depth++)
+            {
+              cls = PyTuple_GetItem(bases,0);
+              bases = ((PyVTKClass *)cls)->vtk_bases;
+            }
+          // we want the class that is furthest from vtkObject
+          if (depth > maxdepth)
+            {
+              maxdepth = depth;
+              nearestbase = pyclass;
+            }
+        }
     }
   
   Py_DECREF(classes);
@@ -890,28 +890,28 @@ vtkObject *vtkPythonGetPointerFromObject(PyObject *obj, char *result_type)
       Py_DECREF(arglist);
       Py_DECREF(obj);
       if (result == NULL)
-	{
-	return NULL;
-	}
+        {
+        return NULL;
+        }
       if (result->ob_type != &PyVTKObjectType)
-	{
-	PyErr_SetString(PyExc_ValueError,"__vtk__() doesn't return a VTK object");
-	Py_DECREF(result);
-	return NULL;
-	}
+        {
+        PyErr_SetString(PyExc_ValueError,"__vtk__() doesn't return a VTK object");
+        Py_DECREF(result);
+        return NULL;
+        }
       else
-	{
-	ptr = ((PyVTKObject *)result)->vtk_ptr;
-	Py_DECREF(result);
-	}
+        {
+        ptr = ((PyVTKObject *)result)->vtk_ptr;
+        Py_DECREF(result);
+        }
       }
     else
       {
 #ifdef VTKPYTHONDEBUG
-	vtkGenericWarningMacro("Object " << obj << " is not a VTK object!!");
+        vtkGenericWarningMacro("Object " << obj << " is not a VTK object!!");
 #endif  
-	PyErr_SetString(PyExc_ValueError,"method requires a VTK object");
-	return NULL;
+        PyErr_SetString(PyExc_ValueError,"method requires a VTK object");
+        return NULL;
       }
     }
   else
@@ -937,7 +937,7 @@ vtkObject *vtkPythonGetPointerFromObject(PyObject *obj, char *result_type)
       vtkGenericWarningMacro("vtk bad argument, type conversion failed.");
 #endif
       sprintf(error_string,"method requires a %s, a %s was provided.",
-	      result_type,((vtkObject *)ptr)->GetClassName());
+              result_type,((vtkObject *)ptr)->GetClassName());
       PyErr_SetString(PyExc_ValueError,error_string);
       return NULL;
     }
@@ -954,27 +954,27 @@ PyObject *vtkPythonGetObjectFromObject(PyObject *arg, const char *type)
       int i = sscanf(ptrText,"_%lx_%s",(long *)&ptr,typeCheck);
       
       if (i <= 0)
-	{
-	  i = sscanf(ptrText,"Addr=0x%lx",(long *)&ptr);
-	}      
+        {
+          i = sscanf(ptrText,"Addr=0x%lx",(long *)&ptr);
+        }      
       if (i <= 0)
-	{
-	  i = sscanf(ptrText,"%lx",(long *)&ptr);
-	}
+        {
+          i = sscanf(ptrText,"%lx",(long *)&ptr);
+        }
       if (i <= 0)
-	{
-	  PyErr_SetString(PyExc_ValueError,"could not extract hexidecimal address from argument string");
-	  return NULL;
-	}
+        {
+          PyErr_SetString(PyExc_ValueError,"could not extract hexidecimal address from argument string");
+          return NULL;
+        }
       
       if (!ptr->IsA(type))
-	{
-	  char error_string[256];
-	  sprintf(error_string,"method requires a %s address, a %s address was provided.",
-		  type,((vtkObject *)ptr)->GetClassName());
-	  PyErr_SetString(PyExc_TypeError,error_string);
-	  return NULL;
-	}
+        {
+          char error_string[256];
+          sprintf(error_string,"method requires a %s address, a %s address was provided.",
+                  type,((vtkObject *)ptr)->GetClassName());
+          PyErr_SetString(PyExc_TypeError,error_string);
+          return NULL;
+        }
       
       return vtkPythonGetObjectFromPointer(ptr);
     }
@@ -989,7 +989,7 @@ char *vtkPythonManglePointer(void *ptr, const char *type)
 {
   static char ptrText[128];
   sprintf(ptrText,"_%*.*lx_%s",2*(int)sizeof(void *),2*(int)sizeof(void *),
-	  (long)ptr,type);
+          (long)ptr,type);
   return ptrText;
 }
 
@@ -1005,13 +1005,13 @@ void *vtkPythonUnmanglePointer(char *ptrText, int *len, const char *type)
     i = sscanf(ptrText,"_%lx_%s",(long *)&ptr,typeCheck);
     if (strcmp(type,typeCheck) == 0)
       { // sucessfully unmangle
-	*len = 0;
-	return ptr;
+        *len = 0;
+        return ptr;
       }
     else if (i == 2)
       { // mangled pointer of wrong type
-	*len = -1;
-	return NULL;
+        *len = -1;
+        return NULL;
       }
     }
   // couldn't unmangle: return string as void pointer if it didn't look
@@ -1037,10 +1037,10 @@ void vtkPythonVoidFunc(void *arg)
   else
     {
       if (PyErr_ExceptionMatches(PyExc_KeyboardInterrupt))
-	{
-	  cerr << "Caught a Ctrl-C within python, exiting program.\n";
-	  Py_Exit(1);
-	}
+        {
+          cerr << "Caught a Ctrl-C within python, exiting program.\n";
+          Py_Exit(1);
+        }
       PyErr_Print();
     }
 }
@@ -1076,7 +1076,7 @@ void vtkPythonCommand::SetObject(PyObject *o)
 }
 
 void vtkPythonCommand::Execute(vtkObject *ptr, unsigned long eventtype, 
-			       void *)
+                               void *)
 {
   PyObject *arglist, *result, *obj2;
   const char *eventname;
@@ -1105,10 +1105,10 @@ void vtkPythonCommand::Execute(vtkObject *ptr, unsigned long eventtype,
   else
     {
       if (PyErr_ExceptionMatches(PyExc_KeyboardInterrupt))
-	{
-	  cerr << "Caught a Ctrl-C within python, exiting program.\n";
-	  Py_Exit(1);
-	}
+        {
+          cerr << "Caught a Ctrl-C within python, exiting program.\n";
+          Py_Exit(1);
+        }
       PyErr_Print();
     }
 }

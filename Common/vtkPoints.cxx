@@ -127,13 +127,13 @@ void vtkPoints::ComputeBounds()
       for (j=0; j<3; j++)
         {
         if ( x[j] < this->Bounds[2*j] )
-	  {
-	  this->Bounds[2*j] = x[j];
-	  }
+          {
+          this->Bounds[2*j] = x[j];
+          }
         if ( x[j] > this->Bounds[2*j+1] )
-	  {
-	  this->Bounds[2*j+1] = x[j];
-	  }
+          {
+          this->Bounds[2*j+1] = x[j];
+          }
         }
       }
 

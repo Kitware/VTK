@@ -58,7 +58,7 @@ void vtkCell3D::Clip(float value, vtkDataArray *cellScalars,
                      vtkPointData *inPD, vtkPointData *outPD,
                      vtkCellData *vtkNotUsed(inCD),
                      vtkIdType vtkNotUsed(cellId),
-		     vtkCellData *vtkNotUsed(outCD), int insideOut)
+                     vtkCellData *vtkNotUsed(outCD), int insideOut)
 {
   vtkCell3D *cell3D = (vtkCell3D *)this; //has to be to be in this method
   int numPts=this->GetNumberOfPoints();

@@ -499,13 +499,13 @@ void vtkLine::Derivatives(int vtkNotUsed(subId),
     for (j=0; j<3; j++)
       {
       if ( deltaX[j] != 0 )
-	{
-	derivs[3*i+j] = (values[2*i+1] - values[2*i]) / deltaX[j];
-	}
+        {
+        derivs[3*i+j] = (values[2*i+1] - values[2*i]) / deltaX[j];
+        }
       else
-	{
-	derivs[3*i+j] =0;
-	}
+        {
+        derivs[3*i+j] =0;
+        }
       }
     }
 }

@@ -217,7 +217,7 @@ float *vtkFloatArray::ResizeAndExtend(const vtkIdType sz)
   if (this->Array)
     {
     memcpy(newArray, this->Array,
-	   (sz < this->Size ? sz : this->Size) * sizeof(float));
+           (sz < this->Size ? sz : this->Size) * sizeof(float));
     if (!this->SaveUserArray)
       {
       delete [] this->Array;
@@ -259,7 +259,7 @@ void vtkFloatArray::Resize(vtkIdType sz)
   if (this->Array)
     {
     memcpy(newArray, this->Array,
-	   (newSize < this->Size ? newSize : this->Size) * sizeof(float));
+           (newSize < this->Size ? newSize : this->Size) * sizeof(float));
     if (!this->SaveUserArray)
       {
       delete [] this->Array;

@@ -102,7 +102,7 @@ vtkProcessStatistics* vtkProcessStatistics::New()
 #    endif /* no NBPG */
 #   endif /* no EXEC_PAGESIZE */
 #  else /* no HAVE_SYS_PARAM_H */
-#   define getpagesize() 8192	/* punt totally */
+#   define getpagesize() 8192   /* punt totally */
 #  endif /* no HAVE_SYS_PARAM_H */
 # endif /* no _SC_PAGESIZE */
 

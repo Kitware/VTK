@@ -99,7 +99,7 @@ void vtkGeneralTransform::PrintSelf(ostream& os, vtkIndent indent)
       {
       vtkAbstractTransform *t = this->GetConcatenatedTransform(i);
       os << indent << "    " << i << ": " << t->GetClassName() << " at " <<
-	 t << "\n";
+         t << "\n";
       }
     }
 }
@@ -108,8 +108,8 @@ void vtkGeneralTransform::PrintSelf(ostream& os, vtkIndent indent)
 // Pass the point through each transform in turn
 template<class T2, class T3>
 static inline void vtkConcatenationTransformPoint(vtkAbstractTransform *input,
-					   vtkTransformConcatenation *concat,
-					   T2 point[3], T3 output[3])
+                                           vtkTransformConcatenation *concat,
+                                           T2 point[3], T3 output[3])
 {
   output[0] = point[0];
   output[1] = point[1];
@@ -147,9 +147,9 @@ static inline void vtkConcatenationTransformPoint(vtkAbstractTransform *input,
 // concatenate the derivatives.
 template<class T2, class T3, class T4>
 static inline void vtkConcatenationTransformDerivative(
-					    vtkAbstractTransform *input,
-		                            vtkTransformConcatenation *concat,
-		                            T2 point[3], T3 output[3],
+                                            vtkAbstractTransform *input,
+                                            vtkTransformConcatenation *concat,
+                                            T2 point[3], T3 output[3],
                                             T4 derivative[3][3])
 {
   T4 matrix[3][3];
@@ -192,34 +192,34 @@ static inline void vtkConcatenationTransformDerivative(
   
 //------------------------------------------------------------------------
 void vtkGeneralTransform::InternalTransformPoint(const float input[3],
-						 float output[3])
+                                                 float output[3])
 {
   vtkConcatenationTransformPoint(this->Input,this->Concatenation,input,output);
 }
 
 //----------------------------------------------------------------------------
 void vtkGeneralTransform::InternalTransformPoint(const double input[3],
-						 double output[3])
+                                                 double output[3])
 {
   vtkConcatenationTransformPoint(this->Input,this->Concatenation,input,output);
 }
 
 //----------------------------------------------------------------------------
 void vtkGeneralTransform::InternalTransformDerivative(const float input[3], 
-						      float output[3],
-						      float derivative[3][3])
+                                                      float output[3],
+                                                      float derivative[3][3])
 {
   vtkConcatenationTransformDerivative(this->Input,this->Concatenation,
-				      input,output,derivative);
+                                      input,output,derivative);
 }
   
 //----------------------------------------------------------------------------
 void vtkGeneralTransform::InternalTransformDerivative(const double input[3], 
-						      double output[3],
-						      double derivative[3][3])
+                                                      double output[3],
+                                                      double derivative[3][3])
 {
   vtkConcatenationTransformDerivative(this->Input,this->Concatenation,
-				      input,output,derivative);
+                                      input,output,derivative);
 }
   
 //----------------------------------------------------------------------------

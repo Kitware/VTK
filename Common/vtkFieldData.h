@@ -106,7 +106,7 @@ public:
   void SetNumberOfArrays(int num)
     {
       vtkWarningMacro("This method will be deprecated. Please use "
-		      "AllocateArrays() instead.");
+                      "AllocateArrays() instead.");
       this->AllocateArrays(num);
     }
 #endif
@@ -153,13 +153,13 @@ public:
     {
       vtkDataArray* da;
       if ((da=this->GetArray(i)))
-	{
-	return da->GetName();
-	}
+        {
+        return da->GetName();
+        }
       else
-	{
-	return 0;
-	}
+        {
+        return 0;
+        }
     }
 
   // Description:
@@ -395,25 +395,25 @@ public:
 
     int GetListSize() const
       {
-	return this->ListSize;
+        return this->ListSize;
       }
     int GetCurrentIndex()
       {
-	return this->List[this->Position];
+        return this->List[this->Position];
       }
     int BeginIndex()
       {
-	this->Position = -1;
-	return this->NextIndex();
+        this->Position = -1;
+        return this->NextIndex();
       }
     int End() const
       {
-	return (this->Position >= this->ListSize);
+        return (this->Position >= this->ListSize);
       }
     int NextIndex()
       {
-	this->Position++;
-	return (this->End() ? -1 : this->List[this->Position]);
+        this->Position++;
+        return (this->End() ? -1 : this->List[this->Position]);
       }
     
   protected:
@@ -433,19 +433,19 @@ public:
     Iterator& operator=(const Iterator& source);
     virtual ~Iterator();
     Iterator(vtkFieldData* dsa, const int* list=0, 
-	     unsigned int listSize=0);
+             unsigned int listSize=0);
 
     vtkDataArray* Begin()
       {
-	this->Position = -1;
-	return this->Next();
+        this->Position = -1;
+        return this->Next();
       }
 
     vtkDataArray* Next()
       {
-	this->Position++;
-	return (this->End() ? 0 : 
-		Fields->GetArray(this->List[this->Position]));
+        this->Position++;
+        return (this->End() ? 0 : 
+                Fields->GetArray(this->List[this->Position]));
       }
 
     void DetachFieldData();

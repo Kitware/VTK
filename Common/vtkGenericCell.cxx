@@ -144,15 +144,15 @@ int vtkGenericCell::CellBoundary(int subId, float pcoords[3], vtkIdList *pts)
 }
 
 int vtkGenericCell::EvaluatePosition(float x[3], float closestPoint[3], 
-				    int& subId, float pcoords[3], 
-				    float& dist2, float *weights)
+                                    int& subId, float pcoords[3], 
+                                    float& dist2, float *weights)
 {
   return this->Cell->EvaluatePosition(x, closestPoint, subId, 
-				      pcoords, dist2, weights);
+                                      pcoords, dist2, weights);
 }
 
 void vtkGenericCell::EvaluateLocation(int& subId, float pcoords[3], 
-				     float x[3], float *weights)
+                                     float x[3], float *weights)
 {
   this->Cell->EvaluateLocation(subId, pcoords, x, weights);
 }
@@ -165,7 +165,7 @@ void vtkGenericCell::Contour(float value, vtkDataArray *cellScalars,
                              vtkCellData *outCd)
 {
   this->Cell->Contour(value, cellScalars, locator, verts, lines, polys,
-		      inPd, outPd, inCd, cellId, outCd);
+                      inPd, outPd, inCd, cellId, outCd);
 }
 
 void vtkGenericCell::Clip(float value, vtkDataArray *cellScalars, 
@@ -175,7 +175,7 @@ void vtkGenericCell::Clip(float value, vtkDataArray *cellScalars,
                           vtkCellData *outCd, int insideOut)
 {
   this->Cell->Clip(value, cellScalars, locator, connectivity, inPd,
-		   outPd, inCd, cellId, outCd, insideOut);
+                   outPd, inCd, cellId, outCd, insideOut);
 }
 
 int vtkGenericCell::IntersectWithLine(float p1[3], float p2[3], float tol,
@@ -215,52 +215,52 @@ void vtkGenericCell::SetCellType(int cellType)
     switch (cellType)
       {
       case VTK_EMPTY_CELL:
-	this->Cell = vtkEmptyCell::New();
-	break;
+        this->Cell = vtkEmptyCell::New();
+        break;
       case VTK_VERTEX:
-	this->Cell = vtkVertex::New();
-	break;
+        this->Cell = vtkVertex::New();
+        break;
       case VTK_POLY_VERTEX:
-	this->Cell = vtkPolyVertex::New();
-	break;
+        this->Cell = vtkPolyVertex::New();
+        break;
       case VTK_LINE:
-	this->Cell = vtkLine::New();
-	break;
+        this->Cell = vtkLine::New();
+        break;
       case VTK_POLY_LINE:
-	this->Cell = vtkPolyLine::New();
-	break;
+        this->Cell = vtkPolyLine::New();
+        break;
       case VTK_TRIANGLE:
-	this->Cell = vtkTriangle::New();
-	break;
+        this->Cell = vtkTriangle::New();
+        break;
       case VTK_TRIANGLE_STRIP:
-	this->Cell = vtkTriangleStrip::New();
-	break;
+        this->Cell = vtkTriangleStrip::New();
+        break;
       case VTK_POLYGON:
-	this->Cell = vtkPolygon::New();
-	break;
+        this->Cell = vtkPolygon::New();
+        break;
       case VTK_PIXEL:
-	this->Cell = vtkPixel::New();
-	break;
+        this->Cell = vtkPixel::New();
+        break;
       case VTK_QUAD:
-	this->Cell = vtkQuad::New();
-	break;
+        this->Cell = vtkQuad::New();
+        break;
       case VTK_TETRA:
-	this->Cell = vtkTetra::New();
-	break;
+        this->Cell = vtkTetra::New();
+        break;
       case VTK_VOXEL:
-	this->Cell = vtkVoxel::New();
-	break;
+        this->Cell = vtkVoxel::New();
+        break;
       case VTK_HEXAHEDRON:
-	this->Cell = vtkHexahedron::New();
-	break;
+        this->Cell = vtkHexahedron::New();
+        break;
       case VTK_WEDGE:
-	this->Cell = vtkWedge::New();
-	break;
+        this->Cell = vtkWedge::New();
+        break;
       case VTK_PYRAMID:
-	this->Cell = vtkPyramid::New();
-	break;
+        this->Cell = vtkPyramid::New();
+        break;
       default:
-	vtkErrorMacro(<<"Unsupported cell type! Setting to vtkEmptyCell");
+        vtkErrorMacro(<<"Unsupported cell type! Setting to vtkEmptyCell");
         this->SetCellType(VTK_EMPTY_CELL);
       }
     this->Points = this->Cell->Points;

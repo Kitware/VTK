@@ -165,10 +165,10 @@ public:
   void SetTuple2(const vtkIdType i, float val0, float val1);
   void SetTuple3(const vtkIdType i, float val0, float val1, float val2);
   void SetTuple4(const vtkIdType i, float val0, float val1, float val2,
-		 float val3);
+                 float val3);
   void SetTuple9(const vtkIdType i, float val0, float val1, float val2,
-		 float val3, float val4, float val5, float val6,
-		 float val7, float val8);
+                 float val3, float val4, float val5, float val6,
+                 float val7, float val8);
 
   // Description:
   // Insert the data tuple at ith location. Note that memory allocation
@@ -184,10 +184,10 @@ public:
   void InsertTuple2(const vtkIdType i, float val0, float val1);
   void InsertTuple3(const vtkIdType i, float val0, float val1, float val2);
   void InsertTuple4(const vtkIdType i, float val0, float val1, float val2,
-		    float val3);
+                    float val3);
   void InsertTuple9(const vtkIdType i, float val0, float val1, float val2,
-		    float val3, float val4, float val5, float val6,
-		    float val7, float val8);
+                    float val3, float val4, float val5, float val6,
+                    float val7, float val8);
 
   // Description:
   // Insert the data tuple at the end of the array and return the location at
@@ -204,10 +204,10 @@ public:
   void InsertNextTuple2(float val0, float val1);
   void InsertNextTuple3(float val0, float val1, float val2);
   void InsertNextTuple4(float val0, float val1, float val2,
-			float val3);
+                        float val3);
   void InsertNextTuple9(float val0, float val1, float val2,
-			float val3, float val4, float val5, float val6,
-			float val7, float val8);
+                        float val3, float val4, float val5, float val6,
+                        float val7, float val8);
 
   // Description:
   // Return the data component at the ith tuple and jth component location.
@@ -296,7 +296,7 @@ public:
   // from the supplied array.
   virtual void SetVoidArray(void *vtkNotUsed(array),
                             vtkIdType vtkNotUsed(size),
-			    int vtkNotUsed(save)) {};
+                            int vtkNotUsed(save)) {};
 
   // Description:
   // Return the memory in kilobytes consumed by this data array. Used to

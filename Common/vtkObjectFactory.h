@@ -171,10 +171,10 @@ public:
   // Set and Get the Enable flag for the specific override of className.
   // if subclassName is null, then it is ignored.
   virtual void SetEnableFlag(int flag,
-			     const char* className,
-			     const char* subclassName);
+                             const char* className,
+                             const char* subclassName);
   virtual int GetEnableFlag(const char* className,
-			    const char* subclassName);
+                            const char* subclassName);
 
   // Description:
   // Return 1 if this factory overrides the given class name, 0 otherwise.
@@ -202,14 +202,14 @@ protected:
   // Description:
   // Register object creation information with the factory.
   void RegisterOverride(const char* classOverride,
-			const char* overrideClassName,
-			const char* description,
-			int enableFlag,
-			CreateFunction createFunction);
-		
+                        const char* overrideClassName,
+                        const char* description,
+                        int enableFlag,
+                        CreateFunction createFunction);
+                
   //ETX
 
-	
+        
   // Description:
   // This method is provided by sub-classes of vtkObjectFactory.
   // It should create the named vtk object or return 0 if that object

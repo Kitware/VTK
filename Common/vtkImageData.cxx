@@ -651,9 +651,9 @@ vtkIdType vtkImageData::FindPoint(float x[3])
 vtkIdType vtkImageData::FindCell(float x[3], vtkCell *vtkNotUsed(cell), 
                                  vtkGenericCell *vtkNotUsed(gencell),
                                  vtkIdType vtkNotUsed(cellId), 
-				  float vtkNotUsed(tol2), 
-				  int& subId, float pcoords[3], 
-				  float *weights)
+                                  float vtkNotUsed(tol2), 
+                                  int& subId, float pcoords[3], 
+                                  float *weights)
 {
   return
     this->FindCell( x, (vtkCell *)NULL, 0, 0.0, subId, pcoords, weights );
@@ -786,7 +786,7 @@ vtkCell *vtkImageData::FindAndGetCell(float x[3],
       xOut[1] = origin[1] + j * spacing[1]; 
       // make idx relative to the extent not the whole extent
       idx = loc[0]-this->Extent[0] + (j-this->Extent[2])*dims[0]
-	+ (k-this->Extent[4])*d01;
+        + (k-this->Extent[4])*d01;
       for (i = loc[0]; i <= iMax; i++, idx++)
         {
         xOut[0] = origin[0] + i * spacing[0]; 
@@ -974,7 +974,7 @@ void vtkImageData::SetDimensions(int dim[3])
 // in the cell are specified with pcoords[3]. The function returns a 0 if the
 // point x is outside of the volume, and a 1 if inside the volume.
 int vtkImageData::ComputeStructuredCoordinates(float x[3], int ijk[3], 
-					       float pcoords[3])
+                                               float pcoords[3])
 {
   int i;
   float d, floatLoc;
@@ -1131,68 +1131,68 @@ void vtkImageData::UpdateData()
     // Allocate the appropriate number levels (number of points).
     levels = vtkUnsignedCharArray::New();
     levels->Allocate((this->Extent[1]-this->Extent[0] + 1) *
-		     (this->Extent[3]-this->Extent[2] + 1) *
-		     (this->Extent[5]-this->Extent[4] + 1));
+                     (this->Extent[3]-this->Extent[2] + 1) *
+                     (this->Extent[5]-this->Extent[4] + 1));
     
     //cerr << "max: " << extent[0] << ", " << extent[1] << ", " 
-    //	 << extent[2] << ", " << extent[3] << ", " 
-    //	 << extent[4] << ", " << extent[5] << endl;
+    //   << extent[2] << ", " << extent[3] << ", " 
+    //   << extent[4] << ", " << extent[5] << endl;
     //cerr << "zero: " << zeroExt[0] << ", " << zeroExt[1] << ", " 
-    //	 << zeroExt[2] << ", " << zeroExt[3] << ", "
-    //	 << zeroExt[4] << ", " << zeroExt[5] << endl;
+    //   << zeroExt[2] << ", " << zeroExt[3] << ", "
+    //   << zeroExt[4] << ", " << zeroExt[5] << endl;
     
     // Loop through the points in this image.
     for (k = extent[4]; k <= extent[5]; ++k)
       { 
       dk = 0;
       if (k < zeroExt[4])
-	{
-	dk = zeroExt[4] - k;
-	}
+        {
+        dk = zeroExt[4] - k;
+        }
       if (k >= zeroExt[5] && k < this->WholeExtent[5])
-	{ // Special case for last tile.
-	dk = k - zeroExt[5] + 1;
-	}
+        { // Special case for last tile.
+        dk = k - zeroExt[5] + 1;
+        }
       for (j = extent[2]; j <= extent[3]; ++j)
-	{ 
-	dj = 0;
-	if (j < zeroExt[2])
-	  {
-	  dj = zeroExt[2] - j;
-	  }
-	if (j >= zeroExt[3] && j < this->WholeExtent[3])
-	  { // Special case for last tile.
-	  dj = j - zeroExt[3] + 1;
-	  }
-	for (i = extent[0]; i <= extent[1]; ++i)
-	  { 
-	  di = 0;
-	  if (i < zeroExt[0])
-	    {
-	    di = zeroExt[0] - i;
-	    }
-	  if (i >= zeroExt[1] && i < this->WholeExtent[1])
-	    { // Special case for last tile.
-	    di = i - zeroExt[1] + 1;
-	    }
-	  // Compute Manhatten distance.
-	  dist = di;
-	  if (dj > dist)
-	    {
-	    dist = dj;
-	    }
-	  if (dk > dist)
-	    {
-	    dist = dk;
-	    }
+        { 
+        dj = 0;
+        if (j < zeroExt[2])
+          {
+          dj = zeroExt[2] - j;
+          }
+        if (j >= zeroExt[3] && j < this->WholeExtent[3])
+          { // Special case for last tile.
+          dj = j - zeroExt[3] + 1;
+          }
+        for (i = extent[0]; i <= extent[1]; ++i)
+          { 
+          di = 0;
+          if (i < zeroExt[0])
+            {
+            di = zeroExt[0] - i;
+            }
+          if (i >= zeroExt[1] && i < this->WholeExtent[1])
+            { // Special case for last tile.
+            di = i - zeroExt[1] + 1;
+            }
+          // Compute Manhatten distance.
+          dist = di;
+          if (dj > dist)
+            {
+            dist = dj;
+            }
+          if (dk > dist)
+            {
+            dist = dk;
+            }
 
-	  //cerr << "   " << i << ", " << j << ", " << k << endl;
-	  //cerr << "   " << di << ", " << dj << ", " << dk << endl;
-	  //cerr << dist << endl;
-	  
-	  levels->InsertNextValue((unsigned char)dist);
-	  }
-	}
+          //cerr << "   " << i << ", " << j << ", " << k << endl;
+          //cerr << "   " << di << ", " << dj << ", " << dk << endl;
+          //cerr << dist << endl;
+          
+          levels->InsertNextValue((unsigned char)dist);
+          }
+        }
       }
     levels->SetName("vtkGhostLevels");
     this->PointData->AddArray(levels);
@@ -1210,8 +1210,8 @@ void vtkImageData::UpdateData()
     // Allocate the appropriate number levels (number of cells).
     levels = vtkUnsignedCharArray::New();
     levels->Allocate((this->Extent[1]-this->Extent[0]) *
-		     (this->Extent[3]-this->Extent[2]) *
-		     (this->Extent[5]-this->Extent[4]));
+                     (this->Extent[3]-this->Extent[2]) *
+                     (this->Extent[5]-this->Extent[4]));
     
     // Loop through the cells in this image.
     // Cells may be 2d or 1d ... Treat all as 3D
@@ -1236,49 +1236,49 @@ void vtkImageData::UpdateData()
       { // Determine the Manhatten distances to zero extent.
       dk = 0;
       if (k < zeroExt[4])
-	{
-	dk = zeroExt[4] - k;
-	}
+        {
+        dk = zeroExt[4] - k;
+        }
       if (k >= zeroExt[5])
-	{
-	dk = k - zeroExt[5] + 1;
-	}
+        {
+        dk = k - zeroExt[5] + 1;
+        }
       for (j = extent[2]; j < extent[3]; ++j)
-	{
-	dj = 0;
-	if (j < zeroExt[2])
-	  {
-	  dj = zeroExt[2] - j;
-	  }
-	if (j >= zeroExt[3])
-	  {
-	  dj = j - zeroExt[3] + 1;
-	  }
-	for (i = extent[0]; i < extent[1]; ++i)
-	  {
-	  di = 0;
-	  if (i < zeroExt[0])
-	    {
-	    di = zeroExt[0] - i;
-	    }
-	  if (i >= zeroExt[1])
-	    {
-	    di = i - zeroExt[1] + 1;
-	    }
-	  // Compute Manhatten distance.
-	  dist = di;
-	  if (dj > dist)
-	    {
-	    dist = dj;
-	    }
-	  if (dk > dist)
-	    {
-	    dist = dk;
-	    }
+        {
+        dj = 0;
+        if (j < zeroExt[2])
+          {
+          dj = zeroExt[2] - j;
+          }
+        if (j >= zeroExt[3])
+          {
+          dj = j - zeroExt[3] + 1;
+          }
+        for (i = extent[0]; i < extent[1]; ++i)
+          {
+          di = 0;
+          if (i < zeroExt[0])
+            {
+            di = zeroExt[0] - i;
+            }
+          if (i >= zeroExt[1])
+            {
+            di = i - zeroExt[1] + 1;
+            }
+          // Compute Manhatten distance.
+          dist = di;
+          if (dj > dist)
+            {
+            dist = dj;
+            }
+          if (dk > dist)
+            {
+            dist = dk;
+            }
 
-	  levels->InsertNextValue((unsigned char)dist);
-	  }
-	}
+          levels->InsertNextValue((unsigned char)dist);
+          }
+        }
       }
     levels->SetName("vtkGhostLevels");
     this->CellData->AddArray(levels);
@@ -1330,7 +1330,7 @@ void vtkImageData::GetIncrements(int inc[3])
 
 //----------------------------------------------------------------------------
 void vtkImageData::GetContinuousIncrements(int extent[6], int &incX,
-					   int &incY, int &incZ)
+                                           int &incY, int &incZ)
 {
   int e0, e1, e2, e3;
   
@@ -1480,7 +1480,7 @@ void *vtkImageData::GetScalarPointer(int coordinates[3])
   for (idx = 0; idx < 3; ++idx)
     {
     if (coordinates[idx] < this->Extent[idx*2] ||
-	coordinates[idx] > this->Extent[idx*2+1])
+        coordinates[idx] > this->Extent[idx*2+1])
       {
       vtkErrorMacro(<< "GetScalarPointer: Pixel (" << coordinates[0] << ", " 
       << coordinates[1] << ", "
@@ -1495,8 +1495,8 @@ void *vtkImageData::GetScalarPointer(int coordinates[3])
   // compute the index of the vector.
   incs = this->GetIncrements();
   idx = ((coordinates[0] - this->Extent[0]) * incs[0]
-	 + (coordinates[1] - this->Extent[2]) * incs[1]
-	 + (coordinates[2] - this->Extent[4]) * incs[2]);
+         + (coordinates[1] - this->Extent[2]) * incs[1]
+         + (coordinates[2] - this->Extent[4]) * incs[2]);
   
   return scalars->GetVoidPointer(idx);
 }
@@ -1550,8 +1550,8 @@ void vtkImageData::AllocateScalars()
     {
     scalars->SetNumberOfComponents(this->GetNumberOfScalarComponents());
     scalars->SetNumberOfTuples((this->Extent[1] - this->Extent[0] + 1)*
-			       (this->Extent[3] - this->Extent[2] + 1)*
-			       (this->Extent[5] - this->Extent[4] + 1));
+                               (this->Extent[3] - this->Extent[2] + 1)*
+                               (this->Extent[5] - this->Extent[4] + 1));
     // Since the execute method will be modifying the scalars
     // directly.
     scalars->Modified();
@@ -1602,8 +1602,8 @@ void vtkImageData::AllocateScalars()
   // allocate enough memory
   scalars->
     SetNumberOfTuples((this->Extent[1] - this->Extent[0] + 1)*
-		      (this->Extent[3] - this->Extent[2] + 1)*
-		      (this->Extent[5] - this->Extent[4] + 1));
+                      (this->Extent[3] - this->Extent[2] + 1)*
+                      (this->Extent[5] - this->Extent[4] + 1));
 
   this->PointData->SetScalars(scalars);
   scalars->Delete();
@@ -1642,8 +1642,8 @@ int vtkImageData::GetScalarSize()
 // This templated function executes the filter for any type of data.
 template <class IT, class OT>
 static void vtkImageDataCastExecute(vtkImageData *inData, IT *inPtr,
-				    vtkImageData *outData, OT *outPtr,
-				    int outExt[6])
+                                    vtkImageData *outData, OT *outPtr,
+                                    int outExt[6])
 {
   int idxR, idxY, idxZ;
   int maxY, maxZ;
@@ -1668,7 +1668,7 @@ static void vtkImageDataCastExecute(vtkImageData *inData, IT *inPtr,
       for (idxR = 0; idxR < rowLength; idxR++)
         {
         // Pixel operation
-	*outPtr = (OT)(*inPtr);
+        *outPtr = (OT)(*inPtr);
         outPtr++;
         inPtr++;
         }
@@ -1685,7 +1685,7 @@ static void vtkImageDataCastExecute(vtkImageData *inData, IT *inPtr,
 //----------------------------------------------------------------------------
 template <class T>
 static void vtkImageDataCastExecute(vtkImageData *inData, T *inPtr,
-				    vtkImageData *outData, int outExt[6])
+                                    vtkImageData *outData, int outExt[6])
 {
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
 

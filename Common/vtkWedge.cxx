@@ -199,20 +199,20 @@ int vtkWedge::EvaluatePosition(float x[3], float* closestPoint,
     if (closestPoint)
       {
       for (i=0; i<3; i++) //only approximate, not really true for warped hexa
-	{
-	if (pcoords[i] < 0.0) 
-	  {
-	  pc[i] = 0.0;
-	}
-	else if (pcoords[i] > 1.0) 
-	  {
-	  pc[i] = 1.0;
-	  }
-	else 
-	  {
-	  pc[i] = pcoords[i];
-	  }
-	}
+        {
+        if (pcoords[i] < 0.0) 
+          {
+          pc[i] = 0.0;
+        }
+        else if (pcoords[i] > 1.0) 
+          {
+          pc[i] = 1.0;
+          }
+        else 
+          {
+          pc[i] = pcoords[i];
+          }
+        }
       this->EvaluateLocation(subId, pc, closestPoint, (float *)w);
       dist2 = vtkMath::Distance2BetweenPoints(closestPoint,x);
       }
@@ -280,7 +280,7 @@ int vtkWedge::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
     }
 
   else if ( vals[0] <= 0.0 && vals[3] <= 0.0 && 
-	    vals[6] <= 0.0 && vals[7] <= 0.0 )
+            vals[6] <= 0.0 && vals[7] <= 0.0 )
     {
     pts->SetNumberOfIds(4); //quad face
     pts->SetId(0,this->PointIds->GetId(0));
@@ -290,7 +290,7 @@ int vtkWedge::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
     }
 
   else if ( vals[1] <= 0.0 && vals[4] <= 0.0 && 
-	    vals[7] >= 0.0 && vals[8] >= 0.0 )
+            vals[7] >= 0.0 && vals[8] >= 0.0 )
     {
     pts->SetNumberOfIds(4); //quad face
     pts->SetId(0,this->PointIds->GetId(1));
@@ -326,7 +326,7 @@ static int edges[9][2] = { {0,1}, {1,2}, {2,0},
                            {3,4}, {4,5}, {5,3},
                            {0,3}, {1,4}, {2,5} };
 static int faces[5][4] = { {0,1,2,-1}, {3,5,4,-1}, 
-			   {0,3,4,1}, {1,4,5,2}, {2,5,3,0} };
+                           {0,3,4,1}, {1,4,5,2}, {2,5,3,0} };
 
 typedef int EDGE_LIST;
 typedef struct {
@@ -434,13 +434,13 @@ void vtkWedge::Contour(float value, vtkDataArray *cellScalars,
       vert = edges[edge[i]];
       t = (value - cellScalars->GetComponent(vert[0],0)) /
           (cellScalars->GetComponent(vert[1],0) 
-	   - cellScalars->GetComponent(vert[0],0));
+           - cellScalars->GetComponent(vert[0],0));
       x1 = this->Points->GetPoint(vert[0]);
       x2 = this->Points->GetPoint(vert[1]);
       for (j=0; j<3; j++) 
-	{
-	x[j] = x1[j] + t * (x2[j] - x1[j]);
-	}
+        {
+        x[j] = x1[j] + t * (x2[j] - x1[j]);
+        }
       
       if ( (pts[i] = locator->IsInsertedPoint(x)) < 0 )
         {

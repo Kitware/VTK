@@ -187,7 +187,7 @@ vtkIdType vtkPriorityQueue::Pop(float &priority, vtkIdType location)
     idx = 2*i + 1;
 
     if ( this->Array[idx].priority < this->Array[idx+1].priority || 
-	 idx == this->MaxId )
+         idx == this->MaxId )
       {
       j = idx;
       }
@@ -240,7 +240,7 @@ vtkPriorityItem *vtkPriorityQueue::Resize(const vtkIdType sz)
   if (this->Array)
     {
     memcpy(newArray, this->Array,
-	   (sz < this->Size ? sz : this->Size) * sizeof(vtkPriorityItem));
+           (sz < this->Size ? sz : this->Size) * sizeof(vtkPriorityItem));
     delete [] this->Array;
     }
 

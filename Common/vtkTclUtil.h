@@ -54,35 +54,35 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 extern VTKTCL_EXPORT void vtkTclDeleteObjectFromHash(vtkObject *,
-						     unsigned long eventId,
+                                                     unsigned long eventId,
                                                      void *, void *);
 extern VTKTCL_EXPORT void vtkTclGenericDeleteObject(ClientData cd);
 
 extern VTKTCL_EXPORT void 
 vtkTclGetObjectFromPointer(Tcl_Interp *interp, void *temp,
-			   int (*command)(ClientData, 
-					  Tcl_Interp *,int, char *[]));
+                           int (*command)(ClientData, 
+                                          Tcl_Interp *,int, char *[]));
 
 extern VTKTCL_EXPORT void *
 vtkTclGetPointerFromObject(const char *name, const char *result_type,
-			   Tcl_Interp *interp, int &error);
+                           Tcl_Interp *interp, int &error);
 
 extern VTKTCL_EXPORT void vtkTclVoidFunc(void *);
 extern VTKTCL_EXPORT void vtkTclVoidFuncArgDelete(void *);
 extern VTKTCL_EXPORT void vtkTclListInstances(Tcl_Interp *interp, 
-					      ClientData arg);
+                                              ClientData arg);
 extern VTKTCL_EXPORT int  vtkTclInDelete(Tcl_Interp *interp);
 
 extern VTKTCL_EXPORT int vtkTclNewInstanceCommand(ClientData cd, 
-						  Tcl_Interp *interp,
-						  int argc, char *argv[]);
+                                                  Tcl_Interp *interp,
+                                                  int argc, char *argv[]);
 extern VTKTCL_EXPORT void vtkTclDeleteCommandStruct(ClientData cd);
 extern VTKTCL_EXPORT 
 void vtkTclCreateNew(Tcl_Interp *interp, const char *cname,
-		     ClientData (*NewCommand)(),
-		     int (*CommandFunction)(ClientData cd,
-					    Tcl_Interp *interp,
-					    int argc, char *argv[]));
+                     ClientData (*NewCommand)(),
+                     int (*CommandFunction)(ClientData cd,
+                                            Tcl_Interp *interp,
+                                            int argc, char *argv[]));
 
 class vtkTclCommand : public vtkCommand
 {

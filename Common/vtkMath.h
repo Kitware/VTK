@@ -116,9 +116,9 @@ public:
   // to choose one set.  If you want only one perpendicular vector, 
   // specify NULL for z.
   static void Perpendiculars(const double x[3], double y[3], double z[3], 
-			     double theta);
+                             double theta);
   static void Perpendiculars(const float x[3], float y[3], float z[3],
-			     double theta);
+                             double theta);
 
   // Description:
   // Compute distance squared between two points.
@@ -180,31 +180,31 @@ public:
   // LU back substitution for a 3x3 matrix.  The diagonal elements are the
   // multiplicative inverse of those in the standard LU factorization.
   static void LUSolve3x3(const float A[3][3], const int index[3], 
-			 float x[3]);
+                         float x[3]);
   static void LUSolve3x3(const double A[3][3], const int index[3], 
-			 double x[3]);
+                         double x[3]);
 
   // Description:
   // Solve Ay = x for y and place the result in y.  The matrix A is
   // destroyed in the process.
   static void LinearSolve3x3(const float A[3][3], const float x[3], 
-			     float y[3]);
+                             float y[3]);
   static void LinearSolve3x3(const double A[3][3], const double x[3], 
-			     double y[3]);
+                             double y[3]);
 
   // Description:
   // Multiply a vector by a 3x3 matrix.  The result is placed in out.
   static void Multiply3x3(const float A[3][3], const float in[3], 
-			  float out[3]);
+                          float out[3]);
   static void Multiply3x3(const double A[3][3], const double in[3], 
-			  double out[3]);
+                          double out[3]);
   
   // Description:
   // Mutltiply one 3x3 matrix by another according to C = AB.
   static void Multiply3x3(const float A[3][3], const float B[3][3], 
-			  float C[3][3]);
+                          float C[3][3]);
   static void Multiply3x3(const double A[3][3], const double B[3][3], 
-			  double C[3][3]);
+                          double C[3][3]);
 
   // Description:
   // Transpose a 3x3 matrix.
@@ -229,8 +229,8 @@ public:
   // Description:
   // Compute determinant of 3x3 matrix. Three columns of matrix are input.
   static float Determinant3x3(const float c1[3], 
-			      const float c2[3], 
-			      const float c3[3]);
+                              const float c2[3], 
+                              const float c3[3]);
 
   // Description:
   // Calculate the determinant of a 3x3 matrix in the form:
@@ -238,8 +238,8 @@ public:
   //     | a2,  b2,  c2 |
   //     | a3,  b3,  c3 |
   static double Determinant3x3(double a1, double a2, double a3, 
-			       double b1, double b2, double b3, 
-			       double c1, double c2, double c3);
+                               double b1, double b2, double b3, 
+                               double c1, double c2, double c3);
 
   // Description:
   // Convert a quaternion to a 3x3 rotation matrix.  The quaternion
@@ -278,11 +278,11 @@ public:
   // with the x, y, and z axes respectively.  If the determinant of A is
   // negative, then the three w values will be negative.
   static void SingularValueDecomposition3x3(const float A[3][3],
-					    float U[3][3], float w[3],
-					    float VT[3][3]);
+                                            float U[3][3], float w[3],
+                                            float VT[3][3]);
   static void SingularValueDecomposition3x3(const double A[3][3],
-					    double U[3][3], double w[3],
-					    double VT[3][3]);
+                                            double U[3][3], double w[3],
+                                            double VT[3][3]);
   
   // Description:
   // Solve linear equations Ax = b using Crout's method. Input is square
@@ -303,7 +303,7 @@ public:
   // Working memory arrays tmp1SIze and tmp2Size
   // of length size must be passed in.
   static int InvertMatrix(double **A, double **AI, int size,
-			  int *tmp1Size, double *tmp2Size);
+                          int *tmp1Size, double *tmp2Size);
 
   // Description:
   // Factor linear equations Ax = b using LU decomposition A = LU where L is
@@ -318,7 +318,7 @@ public:
   // Working memory array tmpSize of length size
   // must be passed in.
   static int LUFactorLinearSystem(double **A, int *index, int size,
-				  double *tmpSize);
+                                  double *tmpSize);
 
   // Description:
   // Solve linear equations Ax = b using LU decomposition A = LU where L is
@@ -328,7 +328,7 @@ public:
   // index[] are generated from method LUFactorLinearSystem). Also, solution
   // vector is written directly over input load vector.
   static void LUSolveLinearSystem(double **A, int *index, 
-				  double *x, int size);
+                                  double *x, int size);
 
   // Description:
   // Estimate the condition number of a LU factored matrix. Used to judge the
@@ -410,7 +410,7 @@ public:
   // imaginary in r2); (-3)-one real root and a complex conjugate pair
   // (real root in r1 and real part of pair in r2 and imaginary in r3).
   static int SolveCubic(double c0, double c1, double c2, double c3, 
-			double *r1, double *r2, double *r3, int *num_roots);
+                        double *r1, double *r2, double *r3, int *num_roots);
 
   // Description:
   // Solves A Quadratic Equation c1*t^2  + c2*t  + c3 = 0 when 
@@ -419,7 +419,7 @@ public:
   // Roots and number of roots are stored in user provided variables
   // r1, r2, num_roots
   static int SolveQuadratic(double c0, double c1, double c2, 
-			    double *r1, double *r2, int *num_roots);
+                            double *r1, double *r2, int *num_roots);
   
   // Description:
   // Solves a linear equation c2*t + c3 = 0 when c2 and c3 are REAL.
@@ -504,30 +504,30 @@ inline double vtkMath::Normalize2D(double x[3])
 }
 
 inline float vtkMath::Determinant3x3(const float c1[3], 
-				     const float c2[3], 
-				     const float c3[3])
+                                     const float c2[3], 
+                                     const float c3[3])
 {
   return c1[0]*c2[1]*c3[2] + c2[0]*c3[1]*c1[2] + c3[0]*c1[1]*c2[2] -
          c1[0]*c3[1]*c2[2] - c2[0]*c1[1]*c3[2] - c3[0]*c2[1]*c1[2];
 }
 
 inline double vtkMath::Determinant3x3(double a1, double a2, double a3, 
-				      double b1, double b2, double b3, 
-				      double c1, double c2, double c3)
+                                      double b1, double b2, double b3, 
+                                      double c1, double c2, double c3)
 {
     return ( a1 * vtkMath::Determinant2x2( b2, b3, c2, c3 )
-	   - b1 * vtkMath::Determinant2x2( a2, a3, c2, c3 )
+           - b1 * vtkMath::Determinant2x2( a2, a3, c2, c3 )
            + c1 * vtkMath::Determinant2x2( a2, a3, b2, b3 ) );
 }
 
 inline float vtkMath::Distance2BetweenPoints(const float x[3], 
-					     const float y[3])
+                                             const float y[3])
 {
   return ((x[0]-y[0])*(x[0]-y[0]) + (x[1]-y[1])*(x[1]-y[1]) +
           (x[2]-y[2])*(x[2]-y[2]));
 }
 inline double vtkMath::Distance2BetweenPoints(const double x[3], 
-					      const double y[3])
+                                              const double y[3])
 {
   return ((x[0]-y[0])*(x[0]-y[0]) + (x[1]-y[1])*(x[1]-y[1]) +
           (x[2]-y[2])*(x[2]-y[2]));

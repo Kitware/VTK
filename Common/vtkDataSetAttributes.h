@@ -298,7 +298,7 @@ public:
   // same type, and have the same number of components. This is true if you
   // invoke CopyAllocate() or InterpolateAllocate().
   void CopyTuple(vtkDataArray *fromData, vtkDataArray *toData, 
-		 vtkIdType fromId, vtkIdType toId);
+                 vtkIdType fromId, vtkIdType toId);
 
   // Description:
   // Get the field data array indices corresponding to scalars, 

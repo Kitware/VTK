@@ -118,7 +118,7 @@ int vtkCharArray::Allocate(const vtkIdType sz, const vtkIdType vtkNotUsed(ext))
     {
     if ((this->Array) && (!this->SaveUserArray))
       {
-	delete [] this->Array;
+        delete [] this->Array;
       }
     this->Size = ( sz > 0 ? sz : 1);
     if ( (this->Array = new char[this->Size]) == NULL )
@@ -153,7 +153,7 @@ void vtkCharArray::DeepCopy(vtkDataArray *ia)
     {
     if ((this->Array) && (!this->SaveUserArray))
       {
-	delete [] this->Array;
+        delete [] this->Array;
       }
 
     this->NumberOfComponents = ia->GetNumberOfComponents();
@@ -216,7 +216,7 @@ char *vtkCharArray::ResizeAndExtend(const vtkIdType sz)
   if (this->Array)
     {
     memcpy(newArray, this->Array, 
-	   (sz < this->Size ? sz : this->Size) * sizeof(char));
+           (sz < this->Size ? sz : this->Size) * sizeof(char));
     if (!this->SaveUserArray)
       {
       delete [] this->Array;
@@ -260,7 +260,7 @@ void vtkCharArray::Resize(vtkIdType sz)
   if (this->Array)
     {
     memcpy(newArray, this->Array, 
-	   (newSize < this->Size ? newSize : this->Size) * sizeof(char));
+           (newSize < this->Size ? newSize : this->Size) * sizeof(char));
     if (!this->SaveUserArray)
       {
       delete [] this->Array;

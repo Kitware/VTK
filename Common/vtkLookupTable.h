@@ -207,8 +207,8 @@ public:
   // Description:
   // map a set of scalars through the lookup table
   void MapScalarsThroughTable2(void *input, unsigned char *output,
-			       int inputDataType, int numberOfValues,
-			       int inputIncrement, int outputIncrement);
+                               int inputDataType, int numberOfValues,
+                               int inputIncrement, int outputIncrement);
 
 protected:
   vtkLookupTable(int sze=256, int ext=256);
@@ -232,7 +232,7 @@ private:
 };
 
 inline unsigned char *vtkLookupTable::WritePointer(const int id, 
-						   const int number)
+                                                   const int number)
 {
  return this->Table->WritePointer(4*id,4*number);
 }

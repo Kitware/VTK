@@ -75,12 +75,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #   define SELECT_MASK fd_set
 #else
 #   ifndef _AIX
-	typedef long fd_mask;
+        typedef long fd_mask;
 #   endif
 #   if defined(_IBMR2)
-#	define SELECT_MASK void
+#       define SELECT_MASK void
 #   else
-#	define SELECT_MASK int
+#       define SELECT_MASK int
 #   endif
 #endif
 
@@ -204,7 +204,7 @@ private:
 #define vtkTimerLogMacro(string) \
   { \
       vtkTimerLog::FormatAndMarkEvent("Mark: In %s, line %d, class %s: %s", \
-			      __FILE__, __LINE__, this->GetClassName(), string); \
+                              __FILE__, __LINE__, this->GetClassName(), string); \
   }
 
 #endif

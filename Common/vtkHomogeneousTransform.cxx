@@ -72,7 +72,7 @@ void vtkHomogeneousTransform::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------
 template <class T1, class T2, class T3>
 static inline double vtkHomogeneousTransformPoint(T1 M[4][4],
-						  T2 in[3], T3 out[3])
+                                                  T2 in[3], T3 out[3])
 {
   double x = M[0][0]*in[0] + M[0][1]*in[1] + M[0][2]*in[2] + M[0][3];
   double y = M[1][0]*in[0] + M[1][1]*in[1] + M[1][2]*in[2] + M[1][3];
@@ -91,8 +91,8 @@ static inline double vtkHomogeneousTransformPoint(T1 M[4][4],
 // computes a coordinate transformation and also returns the Jacobian matrix
 template <class T1, class T2, class T3, class T4>
 static inline void vtkHomogeneousTransformDerivative(T1 M[4][4],
-						     T2 in[3], T3 out[3],
-						     T4 derivative[3][3])
+                                                     T2 in[3], T3 out[3],
+                                                     T4 derivative[3][3])
 {
   double f = vtkHomogeneousTransformPoint(M,in,out);
 
@@ -106,37 +106,37 @@ static inline void vtkHomogeneousTransformDerivative(T1 M[4][4],
 
 //------------------------------------------------------------------------
 void vtkHomogeneousTransform::InternalTransformPoint(const float in[3], 
-						     float out[3])
+                                                     float out[3])
 {
   vtkHomogeneousTransformPoint(this->Matrix->Element,in,out);
 }
 
 //------------------------------------------------------------------------
 void vtkHomogeneousTransform::InternalTransformPoint(const double in[3], 
-						     double out[3])
+                                                     double out[3])
 {
   vtkHomogeneousTransformPoint(this->Matrix->Element,in,out);
 }
 
 //----------------------------------------------------------------------------
 void vtkHomogeneousTransform::InternalTransformDerivative(const float in[3], 
-						    float out[3],
-						    float derivative[3][3])
+                                                    float out[3],
+                                                    float derivative[3][3])
 {
   vtkHomogeneousTransformDerivative(this->Matrix->Element,in,out,derivative);
 }
 
 //----------------------------------------------------------------------------
 void vtkHomogeneousTransform::InternalTransformDerivative(const double in[3], 
-						    double out[3],
-						    double derivative[3][3])
+                                                    double out[3],
+                                                    double derivative[3][3])
 {
   vtkHomogeneousTransformDerivative(this->Matrix->Element,in,out,derivative);
 }
 
 //----------------------------------------------------------------------------
 void vtkHomogeneousTransform::TransformPoints(vtkPoints *inPts, 
-					      vtkPoints *outPts)
+                                              vtkPoints *outPts)
 {
   int n = inPts->GetNumberOfPoints();
   double (*M)[4] = this->Matrix->Element;
@@ -162,11 +162,11 @@ void vtkHomogeneousTransform::TransformPoints(vtkPoints *inPts,
 // Note that the derivative of the inverse transform is simply the
 // inverse of the derivative of the forward transform. 
 void vtkHomogeneousTransform::TransformPointsNormalsVectors(vtkPoints *inPts, 
-							    vtkPoints *outPts,
-							    vtkDataArray *inNms, 
-							    vtkDataArray *outNms,
-							    vtkDataArray *inVrs, 
-							    vtkDataArray *outVrs)
+                                                            vtkPoints *outPts,
+                                                            vtkDataArray *inNms, 
+                                                            vtkDataArray *outNms,
+                                                            vtkDataArray *inVrs, 
+                                                            vtkDataArray *outVrs)
 {
   int n = inNms->GetNumberOfTuples();
   double (*M)[4] = this->Matrix->Element;

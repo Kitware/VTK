@@ -138,9 +138,9 @@ public:
 
 //BTX
   static void MultiplyPoint(const double Elements[16], 
-			    const float in[4], float out[4]);
+                            const float in[4], float out[4]);
   static void MultiplyPoint(const double Elements[16], 
-			    const double in[4], double out[4]);
+                            const double in[4], double out[4]);
 //ETX
 
   // Description:
@@ -159,7 +159,7 @@ public:
     vtkMatrix4x4::Multiply4x4(*a->Element,*b->Element,*c->Element); };
 //BTX
   static void Multiply4x4(const double a[16], const double b[16], 
-			  double c[16]);
+                          double c[16]);
 //ETX
 
   // Description:
@@ -203,9 +203,9 @@ public:
   void Transpose(vtkMatrix4x4 &in,vtkMatrix4x4 &out)
     {this->Transpose(&in,&out);}
   static void PointMultiply(const double Elements[16], 
-			    const float in[4], float out[4]);
+                            const float in[4], float out[4]);
   static void PointMultiply(const double Elements[16], 
-			    const double in[4], double out[4]);
+                            const double in[4], double out[4]);
 //ETX
 
 protected:

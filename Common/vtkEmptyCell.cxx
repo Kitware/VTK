@@ -77,22 +77,22 @@ void vtkEmptyCell::EvaluateLocation(int&  vtkNotUsed(subId),
 
 int vtkEmptyCell::CellBoundary(int vtkNotUsed(subId), 
                             float vtkNotUsed(pcoords)[3], 
-			    vtkIdList *vtkNotUsed(pts))
+                            vtkIdList *vtkNotUsed(pts))
 {
   return 0;
 }
 
 void vtkEmptyCell::Contour(float vtkNotUsed(value), 
-			   vtkDataArray *vtkNotUsed(cellScalars), 
-			   vtkPointLocator *vtkNotUsed(locator),
-			   vtkCellArray *vtkNotUsed(verts), 
-			   vtkCellArray *vtkNotUsed(lines), 
-			   vtkCellArray *vtkNotUsed(polys), 
-			   vtkPointData *vtkNotUsed(inPd),
-			   vtkPointData *vtkNotUsed(outPd),
-			   vtkCellData *vtkNotUsed(inCd),
-			   vtkIdType vtkNotUsed(cellId), 
-			   vtkCellData *vtkNotUsed(outCd))
+                           vtkDataArray *vtkNotUsed(cellScalars), 
+                           vtkPointLocator *vtkNotUsed(locator),
+                           vtkCellArray *vtkNotUsed(verts), 
+                           vtkCellArray *vtkNotUsed(lines), 
+                           vtkCellArray *vtkNotUsed(polys), 
+                           vtkPointData *vtkNotUsed(inPd),
+                           vtkPointData *vtkNotUsed(outPd),
+                           vtkCellData *vtkNotUsed(inCd),
+                           vtkIdType vtkNotUsed(cellId), 
+                           vtkCellData *vtkNotUsed(outCd))
 {
 }
 
@@ -120,22 +120,22 @@ int vtkEmptyCell::Triangulate(int vtkNotUsed(index),
 }
 
 void vtkEmptyCell::Derivatives(int vtkNotUsed(subId), 
-			    float vtkNotUsed(pcoords)[3], 
-			    float *vtkNotUsed(values), 
+                            float vtkNotUsed(pcoords)[3], 
+                            float *vtkNotUsed(values), 
                             int vtkNotUsed(dim), 
                             float *vtkNotUsed(derivs))
 {
 }
 
 void vtkEmptyCell::Clip(float vtkNotUsed(value), 
-			vtkDataArray *vtkNotUsed(cellScalars), 
-			vtkPointLocator *vtkNotUsed(locator), 
-			vtkCellArray *vtkNotUsed(verts),    
-			vtkPointData *vtkNotUsed(inPD),
+                        vtkDataArray *vtkNotUsed(cellScalars), 
+                        vtkPointLocator *vtkNotUsed(locator), 
+                        vtkCellArray *vtkNotUsed(verts),    
+                        vtkPointData *vtkNotUsed(inPD),
                         vtkPointData *vtkNotUsed(outPD),
-			vtkCellData *vtkNotUsed(inCD), 
-			vtkIdType vtkNotUsed(cellId),
-			vtkCellData *vtkNotUsed(outCD),
-			int vtkNotUsed(insideOut))
+                        vtkCellData *vtkNotUsed(inCD), 
+                        vtkIdType vtkNotUsed(cellId),
+                        vtkCellData *vtkNotUsed(outCD),
+                        int vtkNotUsed(insideOut))
 {
 }

@@ -58,8 +58,8 @@ vtkWin32OutputWindow* vtkWin32OutputWindow::New()
 
 
 LRESULT APIENTRY vtkWin32OutputWindow::WndProc(HWND hWnd, UINT message,
-					       WPARAM wParam,
-					       LPARAM lParam)
+                                               WPARAM wParam,
+                                               LPARAM lParam)
 {
   switch (message)
     {
@@ -69,7 +69,7 @@ LRESULT APIENTRY vtkWin32OutputWindow::WndProc(HWND hWnd, UINT message,
       int h = HIWORD(lParam); // height of client area
 
       MoveWindow(vtkWin32OutputWindow::OutputWindow,
-		 0, 0, w, h, true);
+                 0, 0, w, h, true);
       }
       break;
     case WM_DESTROY:
@@ -137,10 +137,10 @@ void vtkWin32OutputWindow::AddText(const char* someText)
   
   // move to the end of the text area
   SendMessage( vtkWin32OutputWindow::OutputWindow, EM_SETSEL, 
-	       (WPARAM)-1, (LPARAM)-1 );  
+               (WPARAM)-1, (LPARAM)-1 );  
   // Append the text to the control
   SendMessage( vtkWin32OutputWindow::OutputWindow, EM_REPLACESEL, 
-	       0, (LPARAM)someText );
+               0, (LPARAM)someText );
 }
 
 
@@ -215,7 +215,7 @@ int vtkWin32OutputWindow::Initialize()
   const int maxsize = 5242880;
   
   SendMessage(vtkWin32OutputWindow::OutputWindow, 
-	      EM_LIMITTEXT, 5242880, 0L);
+              EM_LIMITTEXT, 5242880, 0L);
 
   
   // show the top level container window
@@ -230,7 +230,7 @@ void vtkWin32OutputWindow::PromptText(const char* someText)
   vtkmsg << someText << "\nPress Cancel to suppress any further messages." 
          << ends;
   if (MessageBox(NULL, vtkmsg.str(), "Error",
-		 MB_ICONERROR | MB_OKCANCEL) == IDCANCEL) 
+                 MB_ICONERROR | MB_OKCANCEL) == IDCANCEL) 
     { 
     vtkObject::GlobalWarningDisplayOff(); 
     }

@@ -103,11 +103,11 @@ public:
   vtkGetMacro(CoordinateSystem, int);
   void SetCoordinateSystemToDisplay() {this->SetCoordinateSystem(VTK_DISPLAY);}
   void SetCoordinateSystemToNormalizedDisplay() 
-	{this->SetCoordinateSystem(VTK_NORMALIZED_DISPLAY);}
+        {this->SetCoordinateSystem(VTK_NORMALIZED_DISPLAY);}
   void SetCoordinateSystemToViewport() 
-	{this->SetCoordinateSystem(VTK_VIEWPORT);}
+        {this->SetCoordinateSystem(VTK_VIEWPORT);}
   void SetCoordinateSystemToNormalizedViewport() 
-	{this->SetCoordinateSystem(VTK_NORMALIZED_VIEWPORT);}
+        {this->SetCoordinateSystem(VTK_NORMALIZED_VIEWPORT);}
   void SetCoordinateSystemToView() {this->SetCoordinateSystem(VTK_VIEW);}
   void SetCoordinateSystemToWorld() {this->SetCoordinateSystem(VTK_WORLD);}
     

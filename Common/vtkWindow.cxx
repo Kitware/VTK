@@ -66,7 +66,7 @@ vtkWindow::~vtkWindow()
   if( this->WindowName )
     {
     delete [] this->WindowName;
-	this->WindowName = NULL;
+        this->WindowName = NULL;
     }
 }
 

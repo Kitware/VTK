@@ -80,7 +80,7 @@ public:
   vtkIdType FindCell(float x[3], vtkCell *cell, vtkIdType cellId, float tol2,
                int& subId, float pcoords[3], float *weights);
   vtkIdType FindCell(float x[3], vtkCell *cell, vtkGenericCell *gencell,
-	       vtkIdType cellId, float tol2, int& subId, 
+               vtkIdType cellId, float tol2, int& subId, 
                float pcoords[3], float *weights);
 
   // Description:

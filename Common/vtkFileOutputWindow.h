@@ -73,7 +73,7 @@ public:
   vtkSetMacro(Flush, int);
   vtkGetMacro(Flush, int);
   vtkBooleanMacro(Flush, int);
-	
+        
   // Description: Setting append will cause the log file to be 
   // opened in append mode.  Otherwise, if the log file exists,
   // it will be overwritten each time the vtkFileOutputWindow 

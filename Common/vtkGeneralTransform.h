@@ -217,9 +217,9 @@ public:
   // without calling Update.  Meant for use only within other VTK
   // classes.
   void InternalTransformDerivative(const float in[3], float out[3],
-				   float derivative[3][3]);
+                                   float derivative[3][3]);
   void InternalTransformDerivative(const double in[3], double out[3],
-				   double derivative[3][3]);
+                                   double derivative[3][3]);
 
   // Description:
   // Check for self-reference.  Will return true if concatenating

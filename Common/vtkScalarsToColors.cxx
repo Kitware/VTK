@@ -98,11 +98,11 @@ void vtkScalarsToColors::MapScalarsThroughTable(vtkDataArray *scalars,
     }
 
   this->MapScalarsThroughTable2(scalars->GetVoidPointer(0),
-				output,
-				scalars->GetDataType(),
-				scalars->GetNumberOfTuples(),
-				scalars->GetNumberOfComponents(),
-				outputFormat);
+                                output,
+                                scalars->GetDataType(),
+                                scalars->GetNumberOfTuples(),
+                                scalars->GetNumberOfComponents(),
+                                outputFormat);
 }
 
 vtkUnsignedCharArray *vtkScalarsToColors::ConvertUnsignedCharToRGBA(

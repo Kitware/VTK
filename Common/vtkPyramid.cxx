@@ -199,20 +199,20 @@ int vtkPyramid::EvaluatePosition(float x[3], float closestPoint[3],
     if (closestPoint)
       {
       for (i=0; i<3; i++) //only approximate, not really true for warped hexa
-	{
-	if (pcoords[i] < 0.0) 
-	  {
-	  pc[i] = 0.0;
-	  }
-	else if (pcoords[i] > 1.0) 
-	  {
-	  pc[i] = 1.0;
-	  }
-	else 
-	  {
-	  pc[i] = pcoords[i];
-	  }
-	}
+        {
+        if (pcoords[i] < 0.0) 
+          {
+          pc[i] = 0.0;
+          }
+        else if (pcoords[i] > 1.0) 
+          {
+          pc[i] = 1.0;
+          }
+        else 
+          {
+          pc[i] = pcoords[i];
+          }
+        }
       this->EvaluateLocation(subId, pc, closestPoint, (float *)w);
       dist2 = vtkMath::Distance2BetweenPoints(closestPoint,x);
       }
@@ -321,7 +321,7 @@ static int edges[8][2] = { {0,1}, {1,2}, {2,3},
                            {3,0}, {0,4}, {1,4},
                            {2,4}, {3,4} };
 static int faces[5][4] = { {0,3,2,1}, {0,1,4,-1}, 
-			   {1,2,4,-1}, {2,3,4,-1}, {3,0,4,-1} };
+                           {1,2,4,-1}, {2,3,4,-1}, {3,0,4,-1} };
 
 typedef int EDGE_LIST;
 typedef struct {
@@ -398,13 +398,13 @@ void vtkPyramid::Contour(float value, vtkDataArray *cellScalars,
       vert = edges[edge[i]];
       t = (value - cellScalars->GetComponent(vert[0],0)) /
           (cellScalars->GetComponent(vert[1],0) 
-	   - cellScalars->GetComponent(vert[0],0));
+           - cellScalars->GetComponent(vert[0],0));
       x1 = this->Points->GetPoint(vert[0]);
       x2 = this->Points->GetPoint(vert[1]);
       for (j=0; j<3; j++) 
-	{
-	x[j] = x1[j] + t * (x2[j] - x1[j]);
-	}
+        {
+        x[j] = x1[j] + t * (x2[j] - x1[j]);
+        }
       if ( (pts[i] = locator->IsInsertedPoint(x)) < 0 )
         {
         pts[i] = locator->InsertNextPoint(x);
@@ -524,7 +524,7 @@ int vtkPyramid::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
         {
         t = tTemp;
         x[0] = xTemp[0]; x[1] = xTemp[1]; x[2] = xTemp[2]; 
-	this->EvaluatePosition(x, xTemp, subId, pcoords, dist2, weights);
+        this->EvaluatePosition(x, xTemp, subId, pcoords, dist2, weights);
         }
       }
     }
@@ -570,7 +570,7 @@ int vtkPyramid::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds, vtkPoints *
 
 
 void vtkPyramid::Derivatives(int vtkNotUsed(subId), float pcoords[3],
-			     float *values, int dim, float *derivs)
+                             float *values, int dim, float *derivs)
 {
   double *jI[3], j0[3], j1[3], j2[3];
   float functionDerivs[15], sum[3], value;

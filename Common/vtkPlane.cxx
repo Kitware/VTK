@@ -111,7 +111,7 @@ void vtkPlane::ProjectPoint(double x[3], double origin[3], double normal[3], dou
 // projected point is returned in xproj. NOTE : normal NOT required to
 // have magnitude 1.
 void vtkPlane::GeneralizedProjectPoint(float x[3], float origin[3],
-				       float normal[3], float xproj[3])
+                                       float normal[3], float xproj[3])
 {
   float t, xo[3], n2;
 

@@ -127,12 +127,12 @@ public:
   // transformation is a vtkLinearTransform, you can use TransformNormal()
   // instead.
   void TransformNormalAtPoint(const float point[3], const float in[3],
-			      float out[3]);
+                              float out[3]);
   void TransformNormalAtPoint(const double point[3], const double in[3],
-			      double out[3]);
+                              double out[3]);
 
   double *TransformNormalAtPoint(const double point[3], 
-				 const double normal[3]) {
+                                 const double normal[3]) {
     this->TransformNormalAtPoint(point,normal,this->InternalDoublePoint);
     return this->InternalDoublePoint; };
 
@@ -141,7 +141,7 @@ public:
   // vertex.  If the transformation is a vtkLinearTransform, you can use
   // TransformDoubleNormal() instead.
   double *TransformDoubleNormalAtPoint(const double point[3],
-				       const double normal[3]) {
+                                       const double normal[3]) {
     this->TransformNormalAtPoint(point,normal,this->InternalDoublePoint);
     return this->InternalDoublePoint; };
   
@@ -150,7 +150,7 @@ public:
   // vertex.  If the transformation is a vtkLinearTransform, you can use
   // TransformFloatNormal() instead.
   float *TransformFloatNormalAtPoint(const float point[3],
-				     const float normal[3]) {
+                                     const float normal[3]) {
     this->TransformNormalAtPoint(point,normal,this->InternalFloatPoint);
     return this->InternalFloatPoint; };
 
@@ -159,12 +159,12 @@ public:
   // transformation is a vtkLinearTransform, you can use TransformVector()
   // instead.
   void TransformVectorAtPoint(const float point[3], const float in[3],
-			      float out[3]);
+                              float out[3]);
   void TransformVectorAtPoint(const double point[3], const double in[3],
-			      double out[3]);
+                              double out[3]);
 
   double *TransformVectorAtPoint(const double point[3], 
-				 const double vector[3]) {
+                                 const double vector[3]) {
     this->TransformVectorAtPoint(point,vector,this->InternalDoublePoint);
     return this->InternalDoublePoint; };
 
@@ -173,7 +173,7 @@ public:
   // vertex.  If the transformation is a vtkLinearTransform, you can use
   // TransformDoubleVector() instead.
   double *TransformDoubleVectorAtPoint(const double point[3],
-				       const double vector[3]) {
+                                       const double vector[3]) {
     this->TransformVectorAtPoint(point,vector,this->InternalDoublePoint);
     return this->InternalDoublePoint; };
   
@@ -182,7 +182,7 @@ public:
   // vertex.  If the transformation is a vtkLinearTransform, you can use
   // TransformFloatVector() instead.
   float *TransformFloatVectorAtPoint(const float point[3],
-				     const float vector[3]) {
+                                     const float vector[3]) {
     this->TransformVectorAtPoint(point,vector,this->InternalFloatPoint);
     return this->InternalFloatPoint; };
 
@@ -195,11 +195,11 @@ public:
   // Apply the transformation to a combination of points, normals
   // and vectors.  
   virtual void TransformPointsNormalsVectors(vtkPoints *inPts, 
-					     vtkPoints *outPts, 
-					     vtkDataArray *inNms, 
-					     vtkDataArray *outNms,
-					     vtkDataArray *inVrs, 
-					     vtkDataArray *outVrs);
+                                             vtkPoints *outPts, 
+                                             vtkDataArray *inNms, 
+                                             vtkDataArray *outNms,
+                                             vtkDataArray *inVrs, 
+                                             vtkDataArray *outVrs);
 
   // Description:
   // Get the inverse of this transform.  If you modify this transform,
@@ -242,9 +242,9 @@ public:
   // transformation at that point.  This method does not call Update.
   // Meant for use only within other VTK classes.
   virtual void InternalTransformDerivative(const float in[3], float out[3],
-					   float derivative[3][3]) = 0;
+                                           float derivative[3][3]) = 0;
   virtual void InternalTransformDerivative(const double in[3], double out[3],
-					   double derivative[3][3]) = 0;
+                                           double derivative[3][3]) = 0;
 
   // Description:
   // Make another transform of the same type.

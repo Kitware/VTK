@@ -144,10 +144,10 @@ public:
   void SetVectorVariableValue(const char* variableName, double xValue,
                               double yValue, double zValue);
   void SetVectorVariableValue(const char* variableName, 
-			      const double values[3]) {
+                              const double values[3]) {
     this->SetVectorVariableValue(variableName,values[0],values[1],values[2]);};
   void SetVectorVariableValue(int i, double xValue, double yValue,
-			      double zValue);
+                              double zValue);
   void SetVectorVariableValue(int i, const double values[3]) {
     this->SetVectorVariableValue(i,values[0],values[1],values[2]);};
   

@@ -230,8 +230,8 @@ JNIEXPORT void vtkJavaSetId(JNIEnv *env,jobject obj, int newVal)
 }
 
 JNIEXPORT void vtkJavaRegisterCastFunction(JNIEnv *vtkNotUsed(env), 
-					   jobject vtkNotUsed(obj), 
-					   int id, void *tcFunc) 
+                                           jobject vtkNotUsed(obj), 
+                                           int id, void *tcFunc) 
 {
   VTK_GET_MUTEX();
 #ifdef VTKJAVADEBUG
@@ -602,13 +602,13 @@ JNIEXPORT void vtkJavaVoidFuncArgDelete(void* arg)
 
 jobject vtkJavaExportedGetObjectFromPointer(void *ptr)
 {
-	return vtkJavaGetObjectFromPointer(ptr);
+        return vtkJavaGetObjectFromPointer(ptr);
 }
 
 void* vtkJavaExportedGetPointerFromObject(JNIEnv *env,jobject obj, 
-					  char *result_type)
+                                          char *result_type)
 {
-	return vtkJavaGetPointerFromObject(env, obj, result_type);
+        return vtkJavaGetPointerFromObject(env, obj, result_type);
 }
 
 vtkJavaCommand::vtkJavaCommand() 

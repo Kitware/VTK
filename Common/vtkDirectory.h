@@ -90,9 +90,9 @@ protected:
   vtkDirectory();
   ~vtkDirectory() ;
 private:
-  char* Path;		// Path to Open'ed directory
-  char** Files;			// Array of Files
-  int NumberOfFiles;		// Number if files in open directory
+  char* Path;           // Path to Open'ed directory
+  char** Files;                 // Array of Files
+  int NumberOfFiles;            // Number if files in open directory
   
 private:
   vtkDirectory(const vtkDirectory&);  // Not implemented.

@@ -109,7 +109,7 @@ void vtkTransform::PrintSelf(ostream& os, vtkIndent indent)
       {
       vtkLinearTransform *t = this->GetConcatenatedTransform(i);
       os << indent << "    " << i << ": " << t->GetClassName() << " at " <<
-	 t << "\n";
+         t << "\n";
       }
     }
 
@@ -213,9 +213,9 @@ void vtkTransform::InternalUpdate()
     int isPipelined = (this->Input != 0);
     for (i = 0; i < nTransforms && !isPipelined; i++)
       { // the vtkSimpleTransform is just a matrix placeholder, 
-	// it is not a real transform
+        // it is not a real transform
       isPipelined = 
-	!this->Concatenation->GetTransform(i)->IsA("vtkSimpleTransform");
+        !this->Concatenation->GetTransform(i)->IsA("vtkSimpleTransform");
       }
     // do the legacy hack only if we have no input transforms
     doTheLegacyHack = !isPipelined;
@@ -253,7 +253,7 @@ void vtkTransform::InternalUpdate()
     vtkHomogeneousTransform *transform = 
       (vtkHomogeneousTransform *)this->Concatenation->GetTransform(i);
     vtkMatrix4x4::Multiply4x4(this->Matrix,transform->GetMatrix(),
-			      this->Matrix);
+                              this->Matrix);
     }
 
   // concatenate PostTransforms
@@ -262,7 +262,7 @@ void vtkTransform::InternalUpdate()
     vtkHomogeneousTransform *transform = 
       (vtkHomogeneousTransform *)this->Concatenation->GetTransform(i);
     vtkMatrix4x4::Multiply4x4(transform->GetMatrix(),this->Matrix,
-			      this->Matrix);
+                              this->Matrix);
     }
 
   if (doTheLegacyHack)
