@@ -54,7 +54,7 @@ void vlCamera::SetPosition(float X, float Y, float Z)
   this->Position[2] = Z;
 
   vlDebugMacro(<< " Position set to ( " <<  this->Position[0] << ", "
-  << this->Position[1] << ", " << this->Position[2] << ")\n");
+  << this->Position[1] << ", " << this->Position[2] << ")");
 
   // recalculate distance
   this->CalcDistance();
@@ -79,7 +79,7 @@ void vlCamera::SetFocalPoint(float X, float Y, float Z)
   this->FocalPoint[2] = Z;
 
   vlDebugMacro(<< " FocalPoint set to ( " <<  this->FocalPoint[0] << ", "
-  << this->FocalPoint[1] << ", " << this->FocalPoint[2] << ")\n");
+  << this->FocalPoint[1] << ", " << this->FocalPoint[2] << ")");
 
   // recalculate distance
   this->CalcDistance();
@@ -125,7 +125,7 @@ void vlCamera::SetViewUp(float X, float Y, float Z)
     }
   
   vlDebugMacro(<< " ViewUp set to ( " <<  this->ViewUp[0] << ", "
-  << this->ViewUp[1] << ", " << this->ViewUp[2] << ")\n");
+  << this->ViewUp[1] << ", " << this->ViewUp[2] << ")");
   
   this->Modified();
 }
@@ -148,7 +148,7 @@ void vlCamera::SetClippingRange(float X, float Y)
   if(this->ClippingRange[0] > this->ClippingRange[1]) 
     {
     float temp;
-    vlDebugMacro(<< " Front and back clipping range reversed\n");
+    vlDebugMacro(<< " Front and back clipping range reversed");
     temp = this->ClippingRange[0];
     this->ClippingRange[0] = this->ClippingRange[1];
     this->ClippingRange[1] = temp;
@@ -159,7 +159,7 @@ void vlCamera::SetClippingRange(float X, float Y)
     {
     this->ClippingRange[1] += 0.001 - this->ClippingRange[0];
     this->ClippingRange[0] = 0.001;
-    vlDebugMacro(<< " Front clipping range is set to minimum.\n");
+    vlDebugMacro(<< " Front clipping range is set to minimum.");
     }
   
   this->Thickness = this->ClippingRange[1] - this->ClippingRange[0];
@@ -168,14 +168,14 @@ void vlCamera::SetClippingRange(float X, float Y)
   if (this->Thickness < 0.002) 
     {
     this->Thickness = 0.002;
-    vlDebugMacro(<< " ClippingRange thickness is set to minimum.\n");
+    vlDebugMacro(<< " ClippingRange thickness is set to minimum.");
     
     // set back plane
     this->ClippingRange[1] = this->ClippingRange[0] + this->Thickness;
     }
   
   vlDebugMacro(<< " ClippingRange set to ( " <<  this->ClippingRange[0] << ", "
-  << this->ClippingRange[1] << ")\n");
+  << this->ClippingRange[1] << ")");
 
   this->Modified();
 }  
@@ -199,14 +199,14 @@ void vlCamera::SetThickness(float X)
   if (this->Thickness < 0.002) 
     {
     this->Thickness = 0.002;
-    vlDebugMacro(<< " ClippingRange thickness is set to minimum.\n");
+    vlDebugMacro(<< " ClippingRange thickness is set to minimum.");
     }
   
   // set back plane
   this->ClippingRange[1] = this->ClippingRange[0] + this->Thickness;
 
   vlDebugMacro(<< " ClippingRange set to ( " <<  this->ClippingRange[0] << ", "
-  << this->ClippingRange[1] << ")\n");
+  << this->ClippingRange[1] << ")");
 
   this->Modified();
 }  
@@ -224,7 +224,7 @@ void vlCamera::SetDistance(float X)
   if (this->Distance < 0.002) 
     {
     this->Distance = 0.002;
-    vlDebugMacro(<< " Distance is set to minimum.\n");
+    vlDebugMacro(<< " Distance is set to minimum.");
     }
   
   // recalculate FocalPoint
@@ -235,7 +235,7 @@ void vlCamera::SetDistance(float X)
   this->FocalPoint[2] = this->ViewPlaneNormal[2] * 
     this->Distance + this->Position[2];
 
-  vlDebugMacro(<< " Distance set to ( " <<  this->Distance << ")\n");
+  vlDebugMacro(<< " Distance set to ( " <<  this->Distance << ")");
 
   this->Modified();
 }  
@@ -329,7 +329,7 @@ void vlCamera::CalcViewPlaneNormal()
     vpn[2] = -dz / distance;
     }
   
-  vlDebugMacro(<< "Calculating ViewPlaneNormal of (" << vpn[0] << " " << vpn[1] << " " << vpn[2] << ")\n");
+  vlDebugMacro(<< "Calculating ViewPlaneNormal of (" << vpn[0] << " " << vpn[1] << " " << vpn[2] << ")");
 }
 
 
@@ -341,7 +341,7 @@ void vlCamera::SetRoll(float roll)
   float temp[4];
 
   // roll is a rotation of camera view up about view plane normal
-  vlDebugMacro(<< " Setting Roll to " << roll << "\n");
+  vlDebugMacro(<< " Setting Roll to " << roll << "");
 
   // get the current roll
   current = this->GetRoll();
@@ -379,7 +379,7 @@ float vlCamera::GetRoll()
   // set roll using orientation
   orient = this->GetOrientation();
 
-  vlDebugMacro(<< " Returning Roll of " << orient[2] << "\n");
+  vlDebugMacro(<< " Returning Roll of " << orient[2] << "");
 
   return orient[2];
 }
@@ -405,7 +405,7 @@ void vlCamera::CalcDistance ()
   if (this->Distance < 0.002) 
     {
     this->Distance = 0.002;
-    vlDebugMacro(<< " Distance is set to minimum.\n");
+    vlDebugMacro(<< " Distance is set to minimum.");
 
     // recalculate position
     this->Position[0] = 
@@ -416,13 +416,13 @@ void vlCamera::CalcDistance ()
       - this->ViewPlaneNormal[2] * *distance + this->FocalPoint[2];
     
     vlDebugMacro(<< " Position set to ( " <<  this->Position[0] << ", "
-    << this->Position[1] << ", " << this->Position[2] << ")\n");
+    << this->Position[1] << ", " << this->Position[2] << ")");
     
-    vlDebugMacro(<< " Distance set to ( " <<  this->Distance << ")\n");
+    vlDebugMacro(<< " Distance set to ( " <<  this->Distance << ")");
     this->Modified();
     }
   
-  vlDebugMacro(<< " Distance set to ( " <<  this->Distance << ")\n");
+  vlDebugMacro(<< " Distance set to ( " <<  this->Distance << ")");
   
   this->Modified();
 } 
@@ -437,7 +437,7 @@ float *vlCamera::GetOrientation ()
   this->CalcPerspectiveTransform();
 
   vlDebugMacro(<< " Returning Orientation of ( " <<  this->Orientation[0] 
-  << ", " << this->Orientation[1] << ", " << this->Orientation[2] << ")\n");
+  << ", " << this->Orientation[1] << ", " << this->Orientation[2] << ")");
   
   return this->Orientation;
 }
@@ -814,7 +814,7 @@ void vlCamera::SetViewPlaneNormal(float X,float Y,float Z)
   norm = sqrt( X * X + Y * Y + Z * Z );
   if (!norm)
     {
-    vlErrorMacro(<< "SetViewPlaneNormal of (0,0,0)\n");
+    vlErrorMacro(<< "SetViewPlaneNormal of (0,0,0)");
     return;
     }
   
@@ -827,7 +827,7 @@ void vlCamera::SetViewPlaneNormal(float X,float Y,float Z)
     - Z * this->Distance/norm + this->FocalPoint[2];
     
   vlDebugMacro(<< " Position set to ( " <<  this->Position[0] << ", "
-  << this->Position[1] << ", " << this->Position[2] << ")\n");
+  << this->Position[1] << ", " << this->Position[2] << ")");
   
   // recalculate view plane normal
   this->CalcViewPlaneNormal();
