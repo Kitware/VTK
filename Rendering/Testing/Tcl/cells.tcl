@@ -530,6 +530,13 @@ eval aLight SetFocalPoint [[ren1 GetActiveCamera] GetFocalPoint]
 eval aLight SetPosition [[ren1 GetActiveCamera] GetPosition]
 renWin Render
 
+#
+# write to the temp directory if possible, otherwise use .
+set dir "."
+if {[info commands rtTester] == "rtTester"}  {
+   set dir [rtTester GetTempDirectory]
+}
+
 if { [info command vtkRIBExporter] != "" } {
   vtkTexture atext
   vtkBMPReader pnmReader
@@ -539,50 +546,51 @@ if { [info command vtkRIBExporter] != "" } {
   aTriangleActor SetTexture atext
   vtkRIBExporter rib
     rib SetInput renWin
-    rib SetFilePrefix cells
-    rib SetTexturePrefix cells
+    rib SetFilePrefix $dir/cells
+    rib SetTexturePrefix $dir/cells
 }
 
 vtkIVExporter iv
   iv SetInput renWin
-  iv SetFileName cells.iv
+  iv SetFileName $dir/cells.iv
 
 vtkOBJExporter obj
   obj SetInput renWin
-  obj SetFilePrefix cells
+  obj SetFilePrefix $dir/cells
 
 vtkVRMLExporter vrml
   vrml SetInput renWin
-  vrml SetStartWrite {vrml SetFileName cells.wrl}
+  vrml SetStartWrite {vrml SetFileName $dir/cells.wrl}
   vrml SetEndWrite {vrml SetFileName /a/acells.wrl}
   vrml SetSpeed 5.5
 
 vtkOOGLExporter oogl
   oogl SetInput renWin
-  oogl SetFileName cells.oogl
+  oogl SetFileName $dir/cells.oogl
+
 
 #
 # If the current directory is writable, then test the witers
 #
 
-if {[catch {set channel [open test.tmp w]}] == 0 } {
+if {[catch {set channel [open $dir/test.tmp w]}] == 0 } {
    close $channel
-   file delete -force test.tmp
+   file delete -force $dir/test.tmp
 
    iv Write
-   file delete -force cells.iv
+   file delete -force $dir/cells.iv
    obj Write
-   file delete -force cells.obj
-   file delete -force cells.mtl
+   file delete -force $dir/cells.obj
+   file delete -force $dir/cells.mtl
    vrml Write
-   file delete -force cells.wrl
-   #oogl Write
-   #file delete -force cells.oogl
+   file delete -force $dir/cells.wrl
+   oogl Write
+   file delete -force $dir/cells.oogl
    
    if { [info command vtkRIBExporter] != "" } {
       rib Write
-      file delete -force cells.rib
-      eval file delete -force [glob -nocomplain cells_*_*.tif]
+      file delete -force $dir/cells.rib
+      eval file delete -force [glob -nocomplain $dir/cells_*_*.tif]
    }
 }
 
