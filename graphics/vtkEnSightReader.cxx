@@ -1298,10 +1298,11 @@ void vtkEnSightReader::SetCaseFileName(char* fileName)
     path = new char[position + 1];
     numChars = strlen(this->CaseFileName);
     newFileName = new char[numChars - position + 1];
-    strncpy(path, this->CaseFileName, position);
+    strcpy(path, "");
+    strncat(path, this->CaseFileName, position);
     this->SetFilePath(path);
-    strncpy(newFileName, this->CaseFileName + position, numChars - position);
-    this->SetCaseFileName(newFileName);
+    strcpy(newFileName, this->CaseFileName + position);
+    strcpy(this->CaseFileName, newFileName);
     delete [] path;
     delete [] newFileName;
     }
