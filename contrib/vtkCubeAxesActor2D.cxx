@@ -74,6 +74,13 @@ vtkCubeAxesActor2D::vtkCubeAxesActor2D()
   sprintf(this->LabelFormat,"%s","%-#6.3g");
   this->FontFactor = 1.0;
   this->CornerOffset = 0.05;
+
+  this->XLabel = new char[2];
+  sprintf(this->XLabel,"%s","X");
+  this->YLabel = new char[2];
+  sprintf(this->YLabel,"%s","Y");
+  this->ZLabel = new char[2];
+  sprintf(this->ZLabel,"%s","Z");
 }
 
 vtkCubeAxesActor2D::~vtkCubeAxesActor2D()
@@ -96,6 +103,19 @@ vtkCubeAxesActor2D::~vtkCubeAxesActor2D()
     {
     delete [] this->LabelFormat;
     this->LabelFormat = NULL;
+    }
+  
+  if ( this->XLabel )
+    {
+    delete [] this->XLabel;
+    }
+  if ( this->YLabel )
+    {
+    delete [] this->YLabel;
+    }
+  if ( this->ZLabel )
+    {
+    delete [] this->ZLabel;
     }
 }
 
@@ -137,7 +157,6 @@ int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   int xIdx, yIdx, zIdx, zIdx2, corners[4], renderedSomething=0;
   int xAxes, yAxes, zAxes;
   int *size = viewport->GetSize();
-  static char *Label[]={"X", "Y", "Z"};
 
   // Initialization
   if ( !this->Input || !this->Camera )
@@ -267,10 +286,14 @@ int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
                    xCoords, yCoords, zCoords, xRange, yRange, zRange);
 
   // Upate axes
+  this->Labels[0] = this->XLabel;
+  this->Labels[1] = this->YLabel;
+  this->Labels[2] = this->ZLabel;
+
   this->XAxis->GetPoint1Coordinate()->SetValue(xCoords[0], xCoords[1]);
   this->XAxis->GetPoint2Coordinate()->SetValue(xCoords[2], xCoords[3]);
   this->XAxis->SetRange(xRange[0], xRange[1]);
-  this->XAxis->SetTitle(Label[xAxes]);
+  this->XAxis->SetTitle(this->Labels[xAxes]);
   this->XAxis->SetNumberOfLabels(this->NumberOfLabels);
   this->XAxis->SetBold(this->Bold);
   this->XAxis->SetItalic(this->Italic);
@@ -283,7 +306,7 @@ int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   this->YAxis->GetPoint1Coordinate()->SetValue(yCoords[2], yCoords[3]);
   this->YAxis->GetPoint2Coordinate()->SetValue(yCoords[0], yCoords[1]);
   this->YAxis->SetRange(yRange[1], yRange[0]);
-  this->YAxis->SetTitle(Label[yAxes]);
+  this->YAxis->SetTitle(this->Labels[yAxes]);
   this->YAxis->SetNumberOfLabels(this->NumberOfLabels);
   this->YAxis->SetBold(this->Bold);
   this->YAxis->SetItalic(this->Italic);
@@ -296,7 +319,7 @@ int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   this->ZAxis->GetPoint1Coordinate()->SetValue(zCoords[0], zCoords[1]);
   this->ZAxis->GetPoint2Coordinate()->SetValue(zCoords[2], zCoords[3]);
   this->ZAxis->SetRange(zRange[0], zRange[1]);
-  this->ZAxis->SetTitle(Label[zAxes]);
+  this->ZAxis->SetTitle(this->Labels[zAxes]);
   this->ZAxis->SetNumberOfLabels(this->NumberOfLabels);
   this->ZAxis->SetBold(this->Bold);
   this->ZAxis->SetItalic(this->Italic);
@@ -464,6 +487,10 @@ void vtkCubeAxesActor2D::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   os << indent << "Number Of Labels: " << this->NumberOfLabels << "\n";
+  os << indent << "X Label: " << this->XLabel << "\n";
+  os << indent << "Y Label: " << this->YLabel << "\n";
+  os << indent << "Z Label: " << this->ZLabel << "\n";
+  
   os << indent << "Font Family: ";
   if ( this->FontFamily == VTK_ARIAL )
     {
