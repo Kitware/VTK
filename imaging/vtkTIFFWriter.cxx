@@ -60,10 +60,11 @@ vtkTIFFWriter* vtkTIFFWriter::New()
     {
     return (vtkTIFFWriter*)ret;
     }
-  if (sizeof(vtkTiffLong) != 4)
+  int longSize = sizeof(vtkTiffLong);
+  if (longSize != 4)
     {
     vtkGenericWarningMacro ("vtkTIFFWriter expects sizeof(vtkTiffLong) to be 4,"
-		     << " but sizeof (vtkTiffLong) is " << sizeof(vtkTiffLong));
+		     << " but sizeof (vtkTiffLong) is " << longSize);
     }
   // If the factory was unable to create the object, then create it here.
   return new vtkTIFFWriter;
