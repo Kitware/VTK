@@ -18,7 +18,7 @@
 #include "vtkWriter.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkWriter, "1.35");
+vtkCxxRevisionMacro(vtkWriter, "1.36");
 
 // Construct with no start and end write methods or arguments.
 vtkWriter::vtkWriter()
@@ -44,6 +44,7 @@ vtkDataObject *vtkWriter::GetInput()
 void vtkWriter::Write()
 {
   vtkDataObject *input = this->GetInput();
+  int idx;
 
   // make sure input is available
   if ( !input )
@@ -52,24 +53,56 @@ void vtkWriter::Write()
     return;
     }
 
-  //
-  input->Update();
-  //
-  if (input->GetUpdateTime() < this->WriteTime &&
-      this->GetMTime() < this->WriteTime)
-  {
+  if ( this->NumberOfInputs == 1 )
+    {
+    if (this->Inputs[0] != NULL)
+      {
+      this->Inputs[0]->Update();
+      }
+    }
+  else
+    { 
+    // To avoid serlializing execution of pipelines with ports
+    // we need to sort the inputs by locality (ascending).
+    this->SortInputsByLocality();
+    for (idx = 0; idx < this->NumberOfInputs; ++idx)
+      {
+      if (this->SortedInputs[idx] != NULL)
+        {
+        this->SortedInputs[idx]->Update();
+        }
+      }
+    }
+
+  unsigned long lastUpdateTime =  this->Inputs[0]->GetUpdateTime();
+  for (idx = 1; idx < this->NumberOfInputs; ++idx)
+    {
+    unsigned long updateTime = this->Inputs[idx]->GetUpdateTime();
+    if ( updateTime > lastUpdateTime )
+      {
+      lastUpdateTime = updateTime;
+      }
+    }
+
+  if (lastUpdateTime < this->WriteTime && this->GetMTime() < this->WriteTime)
+    {
     // we are up to date
     return;
-  }
-  //
+    }
+
   this->InvokeEvent(vtkCommand::StartEvent,NULL);
   this->WriteData();
   this->InvokeEvent(vtkCommand::EndEvent,NULL);
 
-  if ( input->ShouldIReleaseData() )
+  // Release any inputs if marked for release
+  for (idx = 0; idx < this->NumberOfInputs; ++idx)
     {
-    input->ReleaseData();
+    if (this->Inputs[idx] && this->Inputs[idx]->ShouldIReleaseData())
+      {
+      this->Inputs[idx]->ReleaseData();
+      }
     }
+
   this->WriteTime.Modified();
 }
 
