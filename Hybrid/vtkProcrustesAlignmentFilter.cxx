@@ -21,8 +21,9 @@
 #include "vtkLandmarkTransform.h"
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkPolyData.h"
+#include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkProcrustesAlignmentFilter, "1.2");
+vtkCxxRevisionMacro(vtkProcrustesAlignmentFilter, "1.3");
 vtkStandardNewMacro(vtkProcrustesAlignmentFilter);
 
 //----------------------------------------------------------------------------
@@ -82,68 +83,89 @@ void vtkProcrustesAlignmentFilter::Execute()
 
   vtkPoints *mean_points = vtkPoints::New();
   mean_points->DeepCopy(this->GetInput(0)->GetPoints());
-  // we could have just called SetNumberOfPoints here but this way we get a meaningful
-  // estimate of the initial difference in the means.
+  // our initial estimate of the mean comes from the first example in the set
 
-  float point[3],*p;
+  // we keep a record of the first mean to fix the orientation and scale
+  // (which are otherwise undefined and the loop will not converge)
+  vtkPoints *first_mean = vtkPoints::New();
+  first_mean->DeepCopy(mean_points);
 
-  this->LandmarkTransform->SetTargetLandmarks(mean_points);
+  // storage for the new mean that is being calculated
+  vtkPoints *new_mean = vtkPoints::New();
+  new_mean->SetNumberOfPoints(N_POINTS);
 
   // compute mean and align all the shapes to it, until convergence
   int converged=0; // bool converged=false
   int iterations=0;
   const int MAX_ITERATIONS=5;
   float difference; 
-  do { 
+  float point[3],*p,*p2;
+  do { // (while not converged)
 
-      // compute the average of each point across all the shapes
-      difference=0.0F;
-      for(v=0;v<N_POINTS;v++)
+    // align each pointset with the mean
+    for(i=0;i<N_SETS;i++) {
+      this->LandmarkTransform->SetSourceLandmarks(this->GetOutput(i)->GetPoints());
+      this->LandmarkTransform->SetTargetLandmarks(mean_points);
+      this->LandmarkTransform->Update();
+      for(v=0;v<N_POINTS;v++) {
+        this->LandmarkTransform->InternalTransformPoint(
+            this->GetOutput(i)->GetPoint(v),
+            this->GetOutput(i)->GetPoint(v));
+        }
+      } 
+
+    // compute the new mean (just average the point locations)
+    for(v=0;v<N_POINTS;v++)
+      {
+      point[0]=0.0F;
+      point[1]=0.0F;
+      point[2]=0.0F;
+      for(i=0;i<N_SETS;i++)
         {
-        point[0]=0.0F;
-        point[1]=0.0F;
-        point[2]=0.0F;
-        for(i=0;i<N_SETS;i++)
-          {
-          p = this->GetOutput(i)->GetPoint(v);
-          point[0]+=p[0];
-          point[1]+=p[1];
-          point[2]+=p[2];
-          }
-        point[0]/=(float)N_SETS;
-        point[1]/=(float)N_SETS;
-        point[2]/=(float)N_SETS;
-        p = mean_points->GetPoint(v);
-        difference += point[0]-p[0];
-        difference += point[1]-p[1];
-        difference += point[2]-p[2];
-        p[0]=point[0];
-        p[1]=point[1];
-        p[2]=point[2];
+        p = this->GetOutput(i)->GetPoint(v);
+        point[0]+=p[0];
+        point[1]+=p[1];
+        point[2]+=p[2];
         }
+      p = new_mean->GetPoint(v);
+      p[0] = point[0]/(float)N_SETS;
+      p[1] = point[1]/(float)N_SETS;
+      p[2] = point[2]/(float)N_SETS;
+      }
 
-      vtkDebugMacro( << "Difference after " << (iterations+1) << " iteration(s) is: " << difference);
+    // align the new mean with the fixed mean
+    this->LandmarkTransform->SetSourceLandmarks(new_mean);
+    this->LandmarkTransform->SetTargetLandmarks(first_mean);
+    this->LandmarkTransform->Update();
+    for(v=0;v<N_POINTS;v++) {
+      this->LandmarkTransform->InternalTransformPoint(
+        new_mean->GetPoint(v),new_mean->GetPoint(v));
+      }
 
-      // align each pointset with the mean
-      for(i=0;i<N_SETS;i++) {
-        this->LandmarkTransform->SetSourceLandmarks(this->GetOutput(i)->GetPoints());
-        this->LandmarkTransform->Update();
-        for(v=0;v<N_POINTS;v++) {
-          this->LandmarkTransform->InternalTransformPoint(
-              this->GetOutput(i)->GetPoint(v),
-              this->GetOutput(i)->GetPoint(v));
-          }
-        } 
+    // the new mean becomes our mean
+    // compute the difference between the two
+    difference = 0.0F;
+    for(v=0;v<N_POINTS;v++)
+      {
+        p = new_mean->GetPoint(v);
+        p2 = mean_points->GetPoint(v);
+        difference += vtkMath::Distance2BetweenPoints(p,p2);
+        p2[0] = p[0];
+        p2[1] = p[1];
+        p2[2] = p[2];
+      }
 
-      // test for convergence
-      iterations++;
-      if(fabs(difference)<1e-4 || iterations>=MAX_ITERATIONS) {
-        converged=1; // true
-        }
+    // test for convergence
+    iterations++;
+    vtkDebugMacro( << "Difference after " << iterations << " iteration(s) is: " << difference);
+    if(difference<1e-6 || iterations>=MAX_ITERATIONS) {
+      converged=1; // true
+      }
 
-      // The convergence test is a simple sum of differences of changing mean.
-      // Procrustes shouldn't need more than 2 iterations but with large input sets
-      // you can get significant numerical oscillation, so we impose a limit for safety.
+    // The convergence test is that the sum of the distances between the
+    // points on mean(t) and mean(t-1) is less than a very small number.
+    // Procrustes shouldn't need more than 2 or 3 iterations but things could go wrong
+    // so we impose an iteration limit to avoid getting stuck in an infinite loop.
 
   } while(!converged);  
 
@@ -160,6 +182,8 @@ void vtkProcrustesAlignmentFilter::Execute()
 
   // clean up
   mean_points->Delete();
+  first_mean->Delete();
+  new_mean->Delete();
 }
 
 //----------------------------------------------------------------------------
