@@ -38,17 +38,41 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkCoordinate
+// .NAME vtkCoordinate - perform coordinate transformation, and represent position, in a variety of vtk coordinate systems
 // .SECTION Description
-// vtkCoordinate represents a location or position. It supports multiple
-// coordinate systems and relative positioning.
+// vtkCoordinate represents position in a variety of coordinate systems, and
+// converts position to other coordinate systems. It also supports relative
+// positioning, so you can create a cascade of vtkCoordinate objects (no loops
+// please!) that refer to each other. The typical usage of this object is
+// to set the coordinate system in which to represent a position (e.g., 
+// SetCoordinateSystemToNormalizedDisplay()), set the value of the coordinate
+// (e.g., SetValue()), and then invoke the appropriate method to convert to 
+// another coordinate system (e.g., GetComputedWorldValue()).
+// 
+// The coordinate systems in vtk are as follows:
+//<PRE>
+//  DISPLAY -             x-y pixel values in window 
+//  NORMALIZED DISPLAY -  x-y (0,1) normalized values
+//  VIEWPORT -            x-y pixel values in viewport
+//  NORMALIZED VIEWPORT - x-y (0,1) normalized value in viewport
+//  VIEW -                x-y-z (-1,1) values in camera coords. (z is depth)
+//  WORLD -               x-y-z global coordinate values
+//</PRE>
+//
+// If you cascade vtkCoordinate objects, you refer to another vtkCoordinate
+// object which in turn can refer to others, and so on. This allows you to
+// create composite groups of things like vtkActor2D that are positioned
+// relative to one another. Note that in cascaded sequences, each 
+// vtkCoordinate object may be specified in different coordinate systems!
+
+// .SECTION See Also
+// vtkProp2D vtkActor2D vtkScalarBarActor
 
 #ifndef __vtkCoordinate_h
 #define __vtkCoordinate_h
 
 #include "vtkObject.h"
 class vtkViewport;
-
 
 #define VTK_DISPLAY             0
 #define VTK_NORMALIZED_DISPLAY  1
@@ -60,21 +84,18 @@ class vtkViewport;
 class VTK_EXPORT vtkCoordinate : public vtkObject
 {
 public:
-  // Description:
-  // Creates an Coordinate with the following defaults: 
-  // value of  0, 0, 0 in world  coordinates
   vtkCoordinate();
-
-  // Description:
-  // Destroy a Coordinate.  
   ~vtkCoordinate();
-
-  static vtkCoordinate* New() {return new vtkCoordinate;};
   void PrintSelf(ostream& os, vtkIndent indent);
   const char *GetClassName() {return "vtkCoordinate";};
 
   // Description:
-  // Set/get the coordinate system which this corrdinate
+  // Creates an instance of this class with the following defaults: 
+  // value of  (0,0,0) in world  coordinates.
+  static vtkCoordinate* New() {return new vtkCoordinate;};
+
+  // Description:
+  // Set/get the coordinate system which this coordinate
   // is defined in. The options are Display, Normalized Display,
   // Viewport, Normalized Viewport, View, and World.
   vtkSetMacro(CoordinateSystem, int);
@@ -117,8 +138,9 @@ public:
   int *GetComputedDisplayValue(vtkViewport *);
   int *GetComputedLocalDisplayValue(vtkViewport *);
 
-  // GetComputed Value will return either World, Viewport or 
-  // Display based on what has been set as the coordinate system
+  // Description:
+  // GetComputedValue() will return either World, Viewport or 
+  // Display based on what has been set as the coordinate system.
   // This is good for objects like vtkLineSource, where the
   // user might want to use them as World or Viewport coordinates
   float *GetComputedValue(vtkViewport *);
