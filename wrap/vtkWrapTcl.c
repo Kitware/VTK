@@ -134,11 +134,24 @@ void use_hints(FILE *fp)
 	}
       fprintf(fp,");\n");
       break;
-    case 304: case 305: case 306: case 313:
+    case 304: case 305: case 306: 
       fprintf(fp,"    sprintf(interp->result,\"");
       for (i = 0; i < currentFunction->HintSize; i++)
 	{
 	fprintf(fp,"%%i ");
+	}
+      fprintf(fp,"\"");
+      for (i = 0; i < currentFunction->HintSize; i++)
+	{
+	fprintf(fp,",temp%i[%i]",MAX_ARGS,i);
+	}
+      fprintf(fp,");\n");
+      break;
+    case 313: case 314: case 315: case 316:
+      fprintf(fp,"    sprintf(interp->result,\"");
+      for (i = 0; i < currentFunction->HintSize; i++)
+	{
+	fprintf(fp,"%%u ");
 	}
       fprintf(fp,"\"");
       for (i = 0; i < currentFunction->HintSize; i++)
@@ -207,6 +220,7 @@ void return_result(FILE *fp)
     /* this is done by looking them up in a hint file */
     case 301: case 307:
     case 304: case 305: case 306:
+    case 314: case 315: case 316:      
       use_hints(fp);
       break;
     default:
@@ -393,6 +407,12 @@ void outputFunction(FILE *fp, FileInfo *data)
       (currentFunction->ArgTypes[0] == 5000)
       &&(currentFunction->NumberOfArguments != 1)) args_ok = 0;
 
+  /* we can't handle void * return types */
+  if ((currentFunction->ReturnType%1000) == 302) 
+    {
+    args_ok = 0;
+    }
+  
   /* watch out for functions that dont have enough info */
   switch (currentFunction->ReturnType%1000)
     {
