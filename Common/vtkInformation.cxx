@@ -31,7 +31,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformation, "1.2");
+vtkCxxRevisionMacro(vtkInformation, "1.3");
 vtkStandardNewMacro(vtkInformation);
 
 #ifdef VTK_DEBUG_LEAKS
@@ -217,8 +217,11 @@ VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(Integer, int);
     return &instance;                                                       \
     }
 
-VTK_INFORMATION_DEFINE_KEY_METHOD(DATA_TYPE, Integer);
+VTK_INFORMATION_DEFINE_KEY_METHOD(INPUT_REQUIRED_DATA_TYPE, Integer);
+VTK_INFORMATION_DEFINE_KEY_METHOD(INPUT_IS_OPTIONAL, Integer);
+VTK_INFORMATION_DEFINE_KEY_METHOD(INPUT_IS_REPEATABLE, Integer);
 VTK_INFORMATION_DEFINE_KEY_METHOD(INPUT_REQUIRED_FIELDS, InformationVector);
+VTK_INFORMATION_DEFINE_KEY_METHOD(DATA_TYPE, Integer);
 VTK_INFORMATION_DEFINE_KEY_METHOD(OUTPUT_PROVIDED_FIELDS, InformationVector);
 VTK_INFORMATION_DEFINE_KEY_METHOD(DATA_OBJECT, DataSet);
 VTK_INFORMATION_DEFINE_KEY_METHOD(FIELD_NAME, String);

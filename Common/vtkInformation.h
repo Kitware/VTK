@@ -108,8 +108,11 @@ public:
   // Description:
   // Get a key instance for the information entry specified by the
   // method name.
-  static vtkInformationIntegerKey* DATA_TYPE();
+  static vtkInformationIntegerKey* INPUT_IS_OPTIONAL();
+  static vtkInformationIntegerKey* INPUT_IS_REPEATABLE();
   static vtkInformationInformationVectorKey* INPUT_REQUIRED_FIELDS();
+  static vtkInformationIntegerKey* INPUT_REQUIRED_DATA_TYPE();
+  static vtkInformationIntegerKey* DATA_TYPE();
   static vtkInformationInformationVectorKey* OUTPUT_PROVIDED_FIELDS();
   static vtkInformationDataSetKey* DATA_OBJECT();
   static vtkInformationStringKey* FIELD_NAME();
