@@ -579,7 +579,6 @@ static void parse_fog (vtk3DSImporter *importer, Chunk *mainchunk)
 
 static void parse_fog_bgnd(vtk3DSImporter *vtkNotUsed(importer))
 {
-  vtkGenericWarningMacro(<< "fog background detected but not used\n");
 }
 
 
