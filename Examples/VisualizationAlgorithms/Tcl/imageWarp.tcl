@@ -6,14 +6,14 @@ package require vtk
 package require vtkinteraction
 
 # Read in an image and compute a luminance value. The image is extracted
-# as a set of polygons (vtkStructuredPointsGeometryFilter). We then will
+# as a set of polygons (vtkImageDataGeometryFilter). We then will
 # warp the plane using the scalar (luminance) values.
 #
 vtkBMPReader reader
   reader SetFileName $VTK_DATA_ROOT/Data/masonry.bmp
 vtkImageLuminance luminance
   luminance SetInput [reader GetOutput]
-vtkStructuredPointsGeometryFilter geometry
+vtkImageDataGeometryFilter geometry
   geometry SetInput [luminance GetOutput]
 vtkWarpScalar warp
   warp SetInput [geometry GetOutput]
