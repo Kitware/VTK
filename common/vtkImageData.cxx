@@ -549,6 +549,7 @@ static void vtkImageDataCastExecute(vtkImageData *inData, T *inPtr,
     case VTK_UNSIGNED_CHAR:
       vtkImageDataCastExecute(inData, (T *)(inPtr), 
 			      outData, (unsigned char *)(outPtr),outExt); 
+      break;
     default:
       vtkGenericWarningMacro("Execute: Unknown output ScalarType");
       return;
