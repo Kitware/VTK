@@ -72,6 +72,7 @@ public:
   int InsertNextScalar(int s) {return S.InsertNextValue(s);};
   int InsertNextScalar(float s) {return S.InsertNextValue((int)s);};
   void GetScalars(vtkIdList& ptIds, vtkFloatScalars& fs);
+  void GetScalars(int p1, int p2, vtkFloatScalars& fs);
 
   // miscellaneous
   int *GetPtr(const int id);

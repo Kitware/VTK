@@ -39,11 +39,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 // .NAME vtkExtractGeometry - extract cells that lie either entirely inside or outside of a specified implicit function
+
 // .SECTION Description
 // vtkExtractGeometry extracts from its input dataset all cells that are either
 // completely inside or outside of a specified implicit function. Any type of
 // dataset can be input to this filter. On output the filter generates an
 // unstructured grid.
+
+// .SECTION See Also
+// vtkGeometryFilter vtkExtractVOI
 
 #ifndef __vtkExtractGeometry_h
 #define __vtkExtractGeometry_h

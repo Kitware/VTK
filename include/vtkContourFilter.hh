@@ -76,10 +76,15 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void SetValue(int i, float value);
+  float GetValue(int i) {return this->Values[i];};
 
   // Description:
   // Return array of contour values (size of numContours).
   vtkGetVectorMacro(Values,float,VTK_MAX_CONTOURS);
+
+  // Description:
+  // Return the number of contour values.
+  vtkGetMacro(NumberOfContours,int);
 
   void GenerateValues(int numContours, float range[2]);
   void GenerateValues(int numContours, float range1, float range2);
@@ -90,6 +95,8 @@ protected:
   float Values[VTK_MAX_CONTOURS];
   int NumberOfContours;
   float Range[2];
+
+  void StructuredPointsContour(int dim); //special contouring for structured points
 };
 
 #endif

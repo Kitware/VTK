@@ -123,6 +123,12 @@ public:
   virtual void GetScalars(vtkIdList& ptIds, vtkFloatScalars& fs);
 
   // Description:
+  // Get the scalar values for the range of points ids specified 
+  // (i.e., p1->p2 inclusive). You must insure that the vtkFloatScalars has 
+  // been previously allocated with enough space.to hold the data.
+  virtual void GetScalars(int p1, int p2, vtkFloatScalars& fs);
+
+  // Description:
   // Return all the scalar values as a short scalar
   virtual vtkShortScalars *GetAllShortScalars();
 

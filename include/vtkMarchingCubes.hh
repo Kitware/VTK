@@ -44,18 +44,18 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // structured point set) and generates on output one or more isosurfaces.
 // One or more contour values must be specified to generate the isosurfaces.
 // Alternatively, you can specify a min/max scalar range and the number of
-// contours to generate a series of evenly spaced contour values. The current
-// implementation requires that the scalar data is defined with "short int"
-// data values.
+// contours to generate a series of evenly spaced contour values.
+
 // .SECTION Caveats
 // The output primitives are disjoint - that is, points may
 // be generated that are coincident but distinct. You may want to use
 // vtkCleanPolyData to remove the coincident points. 
 //
 // This filter is specialized to volumes. If you are interested in 
-// contouring other types of data, use the general vtkContourFilter.
+// contouring other types of data, use the general vtkContourFilter. If you
+// want to contour an image (i.e., a volume slice), use vtkMarchingSquares.
 // .SECTION See Also
-// vtkContourFilter vtkSliceCubes vtkDividingCubes
+// vtkContourFilter vtkSliceCubes vtkMarchingSquares vtkDividingCubes
 
 #ifndef __vtkMarchingCubes_h
 #define __vtkMarchingCubes_h
@@ -72,10 +72,15 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void SetValue(int i, float value);
+  float GetValue(int i) {return this->Values[i];};
 
   // Description:
   // Return array of contour values (size of numContours).
   vtkGetVectorMacro(Values,float,VTK_MAX_CONTOURS);
+
+  // Description:
+  // Return the number of contour values.
+  vtkGetMacro(NumberOfContours,int);
 
   void GenerateValues(int numContours, float range[2]);
   void GenerateValues(int numContours, float range1, float range2);
@@ -86,6 +91,7 @@ protected:
   float Values[VTK_MAX_CONTOURS];
   int NumberOfContours;
   float Range[2];
+
 };
 
 #endif

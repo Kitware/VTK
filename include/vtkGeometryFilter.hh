@@ -51,12 +51,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // type. The conversion process may be less than satisfactory for some 3D
 // datasets. For example, this filter will extract the outer surface of a 
 // volume or structured grid dataset. (For structured data you may want to
-// use vtkStructuredPointsGeometryFilter or vtkStructuredGridGeometryFilter.)
+// use vtkStructuredPointsGeometryFilter, vtkStructuredGridGeometryFilter,
+// or vtkExtractVOI.)
+
 // .SECTION Caveats
 // When vtkGeometryFilter extracts cells (or boundaries of cells) it may create
 // duplicate points. Use vtkCleanPolyData to merge duplicate points.
+
 // .SECTION See Also
 // vtkStructuredPointsGeometryFilter vtkStructuredGridGeometryFilter
+// vtkExtractGeometry vtkExtractVOI
 
 #ifndef __vtkGeometryFilter_h
 #define __vtkGeometryFilter_h
