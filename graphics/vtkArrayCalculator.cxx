@@ -354,6 +354,8 @@ void vtkArrayCalculator::SetFunction(const char* function)
     {
     return;
     }
+
+  this->Modified();
   
   if (this->Function)
     {
