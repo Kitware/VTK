@@ -28,6 +28,7 @@
 #include "vtkMesaCamera.h"
 #include "vtkMesaLight.h"
 #include "vtkCuller.h"
+#include "vtkToolkits.h"
 
 
 // make sure this file is included before the #define takes place
@@ -41,5 +42,5 @@
 #include "vtkOpenGLPolyDataMapper.cxx"
 #undef vtkOpenGLPolyDataMapper
 
-vtkCxxRevisionMacro(vtkMesaPolyDataMapper, "1.11");
+vtkCxxRevisionMacro(vtkMesaPolyDataMapper, "1.12");
 vtkStandardNewMacro(vtkMesaPolyDataMapper);

@@ -41,13 +41,19 @@
  #endif
 #endif
 
-#include <stdlib.h>
-#include <string.h>
+#ifndef VTK_IMPLEMENT_MESA_CXX
+  #ifdef __APPLE__
+    #include <OpenGL/gl.h>
+  #else
+    #include <GL/gl.h>
+  #endif
+#endif
+
 #include <math.h>
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.71");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.72");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper);
 #endif
 
@@ -77,22 +83,6 @@ void vtkOpenGLPolyDataMapper::ReleaseGraphicsResources(vtkWindow *win)
     this->ListId = 0;
     }
   this->LastWindow = NULL; 
-}
-
-// Get the lmcolor property, this is a pretty important little 
-// function.  It determines how vertex colors will be handled  
-// in gl.  When a PolyDataMapper has vertex colors it will use this 
-// method to determine what lmcolor mode to set.               
-GLenum vtkOpenGLPolyDataMapper::GetLmcolorMode(vtkProperty *prop)
-{
-  if (prop->GetAmbient() > prop->GetDiffuse())
-    {
-    return GL_AMBIENT;
-    }
-  else
-    {
-    return GL_DIFFUSE;
-    }
 }
 
 //
@@ -2576,7 +2566,17 @@ int vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
   glDisable( GL_COLOR_MATERIAL );
   if (c)
     {
-    glColorMaterial( GL_FRONT_AND_BACK, this->GetLmcolorMode(prop));
+    GLenum lmcolorMode;
+    if (prop->GetAmbient() > prop->GetDiffuse())
+      {
+      lmcolorMode = GL_AMBIENT;
+      }
+    else
+      {
+      lmcolorMode = GL_DIFFUSE;
+      }
+    
+    glColorMaterial( GL_FRONT_AND_BACK, lmcolorMode);
     glEnable( GL_COLOR_MATERIAL );
     }
   

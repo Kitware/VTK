@@ -25,25 +25,15 @@
 #ifndef __vtkXMesaRenderWindow_h
 #define __vtkXMesaRenderWindow_h
 
-#include "MangleMesaInclude/gl_mangle.h"
-#include "MangleMesaInclude/glx_mangle.h"
-#include <stdlib.h>
+#include "vtkMesaRenderWindow.h"
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
-#include "vtkMesaRenderWindow.h"
-#include "MangleMesaInclude/glx.h"
-#include "MangleMesaInclude/osmesa.h"
-
-
-
 
 class vtkIdList;
+class vtkXMesaRenderWindowInternal;
 
 class VTK_RENDERING_EXPORT vtkXMesaRenderWindow : public vtkMesaRenderWindow
 {
-protected:
-  GLXContext ContextId;
-  
 public:
   static vtkXMesaRenderWindow *New();
   vtkTypeRevisionMacro(vtkXMesaRenderWindow,vtkMesaRenderWindow);
@@ -186,6 +176,8 @@ protected:
   vtkXMesaRenderWindow();
   ~vtkXMesaRenderWindow();
 
+  vtkXMesaRenderWindowInternal *Internal;
+  
   Window   ParentId;
   Window   WindowId;
   Window   NextWindowId;
@@ -196,12 +188,6 @@ protected:
   int      ScreenSize[2];
   int      CursorHidden;
 
-  // OffScreen stuff
-  OSMesaContext OffScreenContextId;
-  void *OffScreenWindow;
-  int ScreenMapped;
-  // Looks like this just stores DoubleBuffer.
-  int ScreenDoubleBuffer;
 private:
   vtkXMesaRenderWindow(const vtkXMesaRenderWindow&);  // Not implemented.
   void operator=(const vtkXMesaRenderWindow&);  // Not implemented.

@@ -25,14 +25,6 @@
 #define __vtkOpenGLPolyDataMapper_h
 
 #include "vtkPolyDataMapper.h"
-#include <stdlib.h>
-#ifndef VTK_IMPLEMENT_MESA_CXX
-  #ifdef __APPLE__
-    #include <OpenGL/gl.h>
-  #else
-    #include <GL/gl.h>
-  #endif
-#endif
 
 class vtkProperty;
 class vtkRenderWindow;
@@ -58,16 +50,6 @@ public:
   // Draw method for OpenGL.
   virtual int Draw(vtkRenderer *ren, vtkActor *a);
   
-  //BTX  begin tcl exclude
-  
-  // Description:
-  // Get the lmcolor property, this is a pretty important little 
-  // function.  It determines how vertex colors will be handled  
-  // in gl.  When a PolyDataMapper has vertex colors it will use this 
-  // method to determine what lmcolor mode to set.               
-  GLenum GetLmcolorMode(vtkProperty *prop);
-  //ETX
-
 protected:
   vtkOpenGLPolyDataMapper();
   ~vtkOpenGLPolyDataMapper();

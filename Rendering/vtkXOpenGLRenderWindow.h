@@ -25,25 +25,15 @@
 #ifndef __vtkXOpenGLRenderWindow_h
 #define __vtkXOpenGLRenderWindow_h
 
-#include <stdlib.h>
+#include "vtkOpenGLRenderWindow.h"
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
-#include "vtkOpenGLRenderWindow.h"
-#include "GL/glx.h"
-#include "vtkToolkits.h"
-
-
-#ifdef VTK_OPENGL_HAS_OSMESA
-#include "GL/osmesa.h"
-#endif
 
 class vtkIdList;
+class vtkXOpenGLRenderWindowInternal;
 
 class VTK_RENDERING_EXPORT vtkXOpenGLRenderWindow : public vtkOpenGLRenderWindow
 {
-protected:
-  GLXContext ContextId;
-  
 public:
   static vtkXOpenGLRenderWindow *New();
   vtkTypeRevisionMacro(vtkXOpenGLRenderWindow,vtkOpenGLRenderWindow);
@@ -186,6 +176,8 @@ protected:
   vtkXOpenGLRenderWindow();
   ~vtkXOpenGLRenderWindow();
 
+  vtkXOpenGLRenderWindowInternal *Internal;
+  
   Window   ParentId;
   Window   WindowId;
   Window   NextWindowId;
@@ -196,14 +188,6 @@ protected:
   int      ScreenSize[2];
   int      CursorHidden;
 
-#ifdef VTK_OPENGL_HAS_OSMESA
-  // OffScreen stuff
-  OSMesaContext OffScreenContextId;
-  void *OffScreenWindow;
-  int ScreenMapped;
-  // Looks like this just stores DoubleBuffer.
-  int ScreenDoubleBuffer;
-#endif
 private:
   vtkXOpenGLRenderWindow(const vtkXOpenGLRenderWindow&);  // Not implemented.
   void operator=(const vtkXOpenGLRenderWindow&);  // Not implemented.
