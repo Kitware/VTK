@@ -12,19 +12,18 @@ vtkSphereSource sphere
     sphere SetThetaResolution 20
     sphere SetPhiResolution 40
 
-# Compute Bessel function and derivatives. We'll use a programmable filter
-# for this. Note the unusual GetInput() & GetOutput() methods.
+# Compute random scalars (colors) for each cell
 vtkProgrammableAttributeDataFilter randomColors
-   randomColors SetInput [sphere GetOutput]
-   randomColors SetExecuteMethod colorCells
+    randomColors SetInput [sphere GetOutput]
+    randomColors SetExecuteMethod colorCells
 
 proc colorCells {} {
-   vtkMath randomColorGenerator
-   set input [randomColors GetInput]
-   set output [randomColors GetOutput]
-   set numCells [$input GetNumberOfCells]
-   vtkScalars colors
-       colors SetNumberOfScalars $numCells
+    vtkMath randomColorGenerator
+    set input [randomColors GetInput]
+    set output [randomColors GetOutput]
+    set numCells [$input GetNumberOfCells]
+    vtkScalars colors
+	colors SetNumberOfScalars $numCells
 
     for {set i 0} {$i < $numCells} {incr i} {
         colors SetScalar $i [randomColorGenerator Random 0 1]
