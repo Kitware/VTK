@@ -105,7 +105,7 @@ public:
   
   // Description:
   // Set this RenderWindow's window id to a pre-existing window.
-  void SetWindowInfo(void *);
+  void SetWindowInfo(char *);
 
   void SetNextWindowInfo(char *)
      {
@@ -125,10 +125,7 @@ public:
       vtkWarningMacro("GetGenericDrawable Method not implemented.");
       return 0;
     }
-  void SetWindowInfo(char*)
-    {
-      vtkWarningMacro("SetWindowInfo Method not implemented.");
-    }
+
   void SetParentInfo(char*)
     {
       vtkWarningMacro("SetParentInfo Method not implemented.");

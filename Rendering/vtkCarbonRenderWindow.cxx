@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.24");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.25");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 
@@ -588,7 +588,7 @@ void vtkCarbonRenderWindow::InitializeApplication()
 
 //--------------------------------------------------------------------------
 // Initialize the window for rendering.
-void vtkCarbonRenderWindow::CreateAWindow(int, int, int, int)
+void vtkCarbonRenderWindow::CreateAWindow(int x, int y, int width, int height)
 {
   GDHandle hGD = NULL;
   GLint depthSizeSupport;
@@ -641,6 +641,7 @@ void vtkCarbonRenderWindow::CreateAWindow(int, int, int, int)
       this->OwnWindow = 1;
       }
     }
+
   SetWRefCon(this->WindowId, (long)this);
   ShowWindow(this->WindowId);
   SetPortWindowPort(this->WindowId);
@@ -771,6 +772,7 @@ void vtkCarbonRenderWindow::WindowInitialize()
 void vtkCarbonRenderWindow::Initialize (void)
 {
   // make sure we havent already been initialized
+
   if (this->ContextId)
     {
     return;
@@ -985,9 +987,13 @@ void vtkCarbonRenderWindow::SetWindowId(WindowPtr theWindow)
 
 //--------------------------------------------------------------------------
 // Set this RenderWindow's Carbon window id to a pre-existing window.
-void vtkCarbonRenderWindow::SetWindowInfo(void *windowID)
+void vtkCarbonRenderWindow::SetWindowInfo(char *info)
 {
-  this->WindowId = (WindowPtr)windowID;
+  int tmp;
+
+  sscanf(info,"%i",&tmp);
+
+  this->WindowId = (WindowPtr)tmp;
   vtkDebugMacro(<< "Setting WindowId to " << this->WindowId << "\n");
 }
 
