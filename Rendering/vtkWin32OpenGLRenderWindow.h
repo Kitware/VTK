@@ -24,7 +24,6 @@
 #ifndef __vtkWin32OpenGLRenderWindow_h
 #define __vtkWin32OpenGLRenderWindow_h
 
-#include <stdlib.h>
 #include "vtkOpenGLRenderWindow.h"
 #ifndef VTK_IMPLEMENT_MESA_CXX
 #include <GL/gl.h>

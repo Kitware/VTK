@@ -24,10 +24,8 @@
 #ifndef __vtkCocoaRenderWindow_h
 #define __vtkCocoaRenderWindow_h
 
-#include <stdlib.h>
 #include "vtkOpenGLRenderWindow.h"
 #include <OpenGL/gl.h>
-#endif
 
 class vtkIdList;
 
@@ -238,3 +236,4 @@ private:
   void operator=(const vtkCocoaRenderWindow&);  // Not implemented.
 };
 
+#endif

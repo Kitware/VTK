@@ -25,7 +25,6 @@
 #ifndef __vtkOpenGLRenderWindow_h
 #define __vtkOpenGLRenderWindow_h
 
-#include <stdlib.h>
 #include "vtkRenderWindow.h"
 #ifdef __APPLE__
 #include <OpenGL/gl.h>

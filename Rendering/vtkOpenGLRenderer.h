@@ -23,7 +23,6 @@
 #ifndef __vtkOpenGLRenderer_h
 #define __vtkOpenGLRenderer_h
 
-#include <stdlib.h>
 #include "vtkRenderer.h"
 
 class VTK_RENDERING_EXPORT vtkOpenGLRenderer : public vtkRenderer

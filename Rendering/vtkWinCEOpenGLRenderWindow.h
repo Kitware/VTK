@@ -24,7 +24,6 @@
 #ifndef __vtkWinCEOpenGLRenderWindow_h
 #define __vtkWinCEOpenGLRenderWindow_h
 
-#include <stdlib.h>
 #include "vtkOpenGLRenderWindow.h"
 #include "GL/osmesa.h"
 

@@ -25,7 +25,6 @@
 #ifndef __vtkCocoaRenderWindowInteractor_h
 #define __vtkCocoaRenderWindowInteractor_h
 
-#include <stdlib.h>
 #include "vtkRenderWindowInteractor.h"
 
 

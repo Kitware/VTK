@@ -29,9 +29,7 @@
 #ifndef __vtkWin32RenderWindowInteractor_h
 #define __vtkWin32RenderWindowInteractor_h
 
-#include <stdlib.h>
 #include "vtkRenderWindowInteractor.h"
-
 
 class VTK_RENDERING_EXPORT vtkWin32RenderWindowInteractor : public vtkRenderWindowInteractor 
 {

@@ -29,7 +29,6 @@
 #define __vtkOpenGLVolumeRayCastMapper_h
 
 #include "vtkVolumeRayCastMapper.h"
-#include <stdlib.h>
 #ifndef VTK_IMPLEMENT_MESA_CXX
   #ifdef __APPLE__
     #include <OpenGL/gl.h>

@@ -25,7 +25,6 @@
 #ifndef __vtkCarbonRenderWindowInteractor_h
 #define __vtkCarbonRenderWindowInteractor_h
 
-#include <stdlib.h>
 #include "vtkRenderWindowInteractor.h"
 
 #include <Carbon/Carbon.h>
