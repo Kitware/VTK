@@ -35,7 +35,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkKitwareContourFilter, "1.45");
+vtkCxxRevisionMacro(vtkKitwareContourFilter, "1.46");
 vtkStandardNewMacro(vtkKitwareContourFilter);
 
 // Construct object with initial range (0,1) and single contour value
@@ -89,7 +89,7 @@ int vtkKitwareContourFilter::RequestUpdateExtent(
         vtkSynchronizedTemplates2D::New();
       syncTemp2D->SetInput(vtkImageData::SafeDownCast(input));
       syncTemp2D->SetDebug(this->Debug);
-      syncTemp2D->RequestUpdateExtent(request, inputVector, outputVector);
+      syncTemp2D->ProcessRequest(request, inputVector, outputVector);
       syncTemp2D->Delete();
       return 1;
       }
@@ -102,7 +102,7 @@ int vtkKitwareContourFilter::RequestUpdateExtent(
       syncTemp3D->SetComputeNormals (this->ComputeNormals);
       syncTemp3D->SetComputeGradients (this->ComputeGradients);
       syncTemp3D->SetComputeScalars (this->ComputeScalars);
-      syncTemp3D->RequestUpdateExtent(request, inputVector, outputVector);
+      syncTemp3D->ProcessRequest(request, inputVector, outputVector);
       syncTemp3D->Delete();
       return 1;
       }
