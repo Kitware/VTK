@@ -25,8 +25,54 @@ IF(JAVA_COMPILE)
   ENDIF(COMMAND VTK_GENERATE_JAVA_DEPENDENCIES)
 
   IF(VTK_JAVA_NEW_STYLE)
+    SET(CLASS_FILES ${VTK_JAVA_DEPENDENCIES})
+    STRING(REGEX REPLACE "\\.java" ".class;" CLASS_FILES ${VTK_JAVA_DEPENDENCIES})
     ADD_CUSTOM_TARGET(VTKJava ALL)
-    SET(JAVA_TESTS "")
+    ADD_CUSTOM_TARGET(VTKJavaJar ALL)
+
+    SET(KITS Common Filtering Graphics IO Imaging)
+    IF (VTK_USE_HYBRID)
+      SET(KITS ${KITS} Hybrid)
+    ENDIF(VTK_USE_HYBRID)
+    IF (VTK_USE_PARALLEL)
+      SET(KITS ${KITS} Parallel)
+    ENDIF(VTK_USE_PARALLEL)
+    IF (VTK_USE_PATENTED)
+      SET(KITS ${KITS} Patented)
+    ENDIF(VTK_USE_PATENTED)
+    IF (VTK_USE_RENDERING)
+      SET(KITS ${KITS} Rendering)
+    ENDIF(VTK_USE_RENDERING)
+
+    FOREACH(kit ${KITS})
+      SET(VTK_JAVA_DEPENDENCIES "")
+      ADD_CUSTOM_TARGET(VTKJava${kit} ALL)
+      INCLUDE(${VTK_BINARY_DIR}/${kit}/JavaDependencies.cmake OPTIONAL)
+      VTK_GENERATE_JAVA_DEPENDENCIES(VTKJava${kit} ${VTK_JAVA_DEPENDENCIES})
+      ADD_DEPENDENCIES(VTKJavaJar VTKJava${kit})
+    ENDFOREACH(kit)
+
+    ADD_DEPENDENCIES(VTKJava VTKJavaJar)
+
+    ADD_CUSTOM_COMMAND(SOURCE ${VTK_JAVA_HOME}/vtkObject.class
+                       COMMAND ${JAVA_ARCHIVE}
+                       ARGS -cvf  "\"${LIBRARY_OUTPUT_PATH}/vtk.jar\""
+                            -C ${VTK_BINARY_DIR}/java
+                            vtk
+                       TARGET VTKJavaJar
+                       DEPENDS ${CLASS_FILES}
+                       OUTPUTS ${LIBRARY_OUTPUT_PATH}/vtk.jar)
+    ADD_CUSTOM_COMMAND(SOURCE VTKJavaJar
+                       TARGET VTKJavaJar
+                       DEPENDS ${LIBRARY_OUTPUT_PATH}/vtk.jar)
+    ADD_CUSTOM_COMMAND( 
+      SOURCE    VTKJava
+      COMMAND   echo 
+      ARGS "Checking dependencies for VTK Java"
+      TARGET    VTKJava
+      DEPENDS   ${LIBRARY_OUTPUT_PATH}/vtk.jar ${JAVA_TESTS}
+    )   
+
     IF(BUILD_TESTING)
       FOREACH(jfile
               SimpleVTK
@@ -53,13 +99,11 @@ IF(JAVA_COMPILE)
         SET(SEPARATOR ":")
       ENDIF(WIN32)
 
-
       ADD_TEST(JavaRegression ${JAVA_RUNTIME} 
                -classpath ${LIBRARY_OUTPUT_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
                Regression -D ${VTK_DATA_ROOT}
                           -V Baseline/Graphics/Cone.png)
     ENDIF(BUILD_TESTING)
-    VTK_GENERATE_JAVA_DEPENDENCIES(VTKJava vtk.jar ${VTK_JAVA_DEPENDENCIES} DEPENDS ${JAVA_TESTS})
 
   ELSE(VTK_JAVA_NEW_STYLE)
 
