@@ -31,7 +31,7 @@
 
 #include "vtkObject.h"
 
-class VTK_HYBRID_EXPORT vtkAmoebaMinimizer : public vtkObject
+class VTK_COMMON_EXPORT vtkAmoebaMinimizer : public vtkObject
 {
 public:
   static vtkAmoebaMinimizer *New();
