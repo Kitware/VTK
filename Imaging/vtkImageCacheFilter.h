@@ -23,45 +23,31 @@
 #ifndef __vtkImageCacheFilter_h
 #define __vtkImageCacheFilter_h
 
-#include "vtkImageToImageFilter.h"
+#include "vtkImageAlgorithm.h"
 
 class vtkExecutive;
 
-class VTK_IMAGING_EXPORT vtkImageCacheFilter : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImageCacheFilter : public vtkImageAlgorithm
 {
 public:
   static vtkImageCacheFilter *New();
-  vtkTypeRevisionMacro(vtkImageCacheFilter,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageCacheFilter,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // This is the maximum number of images that can be retained in memory.
   // it defaults to 10.
   void SetCacheSize(int size);
-  vtkGetMacro(CacheSize, int);
-  
-#ifndef VTK_USE_EXECUTIVES
-  // Description:
-  // This is an internal method that you should not call.
-  void UpdateData(vtkDataObject *outData);
-#endif
+  int GetCacheSize();
   
 protected:
   vtkImageCacheFilter();
   ~vtkImageCacheFilter();
 
-  int CacheSize;
-
   // Create a default executive.
   virtual vtkExecutive* CreateDefaultExecutive();
-
-#ifdef VTK_USE_EXECUTIVES
   virtual void ExecuteData(vtkDataObject *);
-#endif
   
-  vtkImageData **Data;
-  // I do not have write access to UpdateTime.
-  unsigned long *Times;
 private:
   vtkImageCacheFilter(const vtkImageCacheFilter&);  // Not implemented.
   void operator=(const vtkImageCacheFilter&);  // Not implemented.
