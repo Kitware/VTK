@@ -166,6 +166,7 @@ protected:
   Window WindowId;
   Widget Top;
   int OwnTop;
+  int OwnApp;
   XtAppContext App;
   int PositionBeforeStereo[2];
   Widget TopLevelShell;

@@ -27,7 +27,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.112");
+vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.113");
 vtkStandardNewMacro(vtkXRenderWindowInteractor);
 
 typedef struct
@@ -58,6 +58,7 @@ vtkXRenderWindowInteractor::vtkXRenderWindowInteractor()
   this->App = 0;
   this->Top = 0;
   this->OwnTop = 0;
+  this->OwnApp = 0;
   this->TopLevelShell = NULL;
   this->BreakLoopFlag = 0;
   this->BreakXtLoopCallback = vtkCallbackCommand::New();
@@ -74,6 +75,10 @@ vtkXRenderWindowInteractor::~vtkXRenderWindowInteractor()
     XtDestroyWidget(this->Top);
     }
   this->BreakXtLoopCallback->Delete();
+  if (this->OwnApp && this->App)
+    {
+    XtDestroyApplicationContext(this->App);
+    }
 }
 
 // Specify the Xt widget to use for interaction. This method is
@@ -208,10 +213,7 @@ void vtkXRenderWindowInteractor::Initialize()
   ren = (vtkXOpenGLRenderWindow *)(this->RenderWindow);
 
   // do initialization stuff if not initialized yet
-  
-  
-  
-  if (this->App)
+    if (this->App)
     {
     any_initialized = 1;
     app = this->App;
@@ -221,6 +223,7 @@ void vtkXRenderWindowInteractor::Initialize()
     vtkDebugMacro("toolkit init");
     XtToolkitInitialize();
     app = XtCreateApplicationContext();
+    this->OwnApp = 1;
     vtkDebugMacro("app ctx " << app);
     any_initialized = 1;
     }
