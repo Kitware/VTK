@@ -57,7 +57,8 @@ vtkCellArray *vtkPolyData::Dummy = NULL;
 vtkPolyData::vtkPolyData ()
 {
   static vtkCellArray StaticDummyObject;
-
+  StaticDummyObject.ReferenceCountingOff();
+  
   this->Verts = NULL;
   this->Lines = NULL;
   this->Polys = NULL;
