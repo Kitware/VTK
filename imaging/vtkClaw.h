@@ -50,6 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //#include "vtkImageXViewer.h"
 
 
+#define VTK_CLAW_MAX_NUMBER_OF_SEARCH_STRATEGIES 20
 
 // Definitions of the search strategies
 #define VTK_CLAW_NEAREST_NETWORK      0
@@ -97,6 +98,24 @@ public:
   vtkClaw();
   ~vtkClaw();
   char *GetClassName() {return "vtkClaw";};
+
+  void ClearSearchStrategies();
+  void AddSearchStrategy(int strategy);
+
+  // Description:
+  // Set/Get the ChildFraction.  New spheres are created from old spheres.
+  // Child fraction is the fraction of the distance from the center to the
+  // Parents surface.
+  vtkSetMacro(ChildFraction, float);
+  vtkGetMacro(ChildFraction, float);
+  
+  // Description:
+  // Set/Get the NeighborFraction.  
+  // Neighbor fraction determines how much spheres must overlap before they
+  // are considered neighbors.  1=> spheres must touch, 0=>spheres can
+  // never be neighbors.
+  vtkSetMacro(NeighborFraction, float);
+  vtkGetMacro(NeighborFraction, float);
   
   void SetStateSpace(vtkStateSpace *space);
   void SetStartState(float *state);
@@ -151,7 +170,7 @@ protected:
   
   // Defines which search strategies to use.
   int NumberOfSearchStrategies;
-  int SearchStrategies[20];
+  int SearchStrategies[VTK_CLAW_MAX_NUMBER_OF_SEARCH_STRATEGIES];
   // A path must be found between these two points.
   float *StartState;
   float *GoalState;
@@ -220,7 +239,7 @@ protected:
   int SpheresCount(SphereList *spheres);
   void SphereSearchStrategySet(int strategy);
   void SphereCandidateChoose(Sphere *b, float *proposed);
-  float SphereNearestNetworkMoveEvaluate(Sphere *b, int axis, int direction);
+  float SphereNearestNetworkMoveEvaluate(Sphere *b, float *proposed);
   float SphereNearestGlobalMoveEvaluate(Sphere *b, float *proposed);
   float SpherePioneerLocalMoveEvaluate(Sphere *b, float *proposed);
   float SpherePioneerGlobalMoveEvaluate(Sphere *b, float *proposed);

@@ -82,16 +82,17 @@ vtkClaw::vtkClaw()
   this->Path = NULL;
   this->StateSpace = NULL;
   this->Candidates = NULL;
-
+  this->DeferredSpheres = NULL;
+  
   //this->Viewer = NULL;
   
   this->FreeSpheres = NULL;
   this->Collisions = NULL;
   
   this->SearchStrategies[0] = VTK_CLAW_NEAREST_NETWORK;
+  this->SearchStrategies[1] = VTK_CLAW_PIONEER_LOCAL;
+  this->SearchStrategies[2] = VTK_CLAW_WELL_NOISE;
   //this->SearchStrategies[1] = VTK_CLAW_NEAREST_GLOBAL; // ...
-  this->SearchStrategies[2] = VTK_CLAW_PIONEER_LOCAL;
-  this->SearchStrategies[3] = VTK_CLAW_WELL_NOISE;
   this->NumberOfSearchStrategies = 3;
   
 }
@@ -100,7 +101,33 @@ vtkClaw::vtkClaw()
 vtkClaw::~vtkClaw()
 {
 }
-  
+
+
+
+
+//----------------------------------------------------------------------------
+// Description:
+// Removes all search strategies.  At least one strategy must be set 
+// to generate a path.
+void vtkClaw::ClearSearchStrategies()
+{
+  this->NumberOfSearchStrategies = 0;
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// Adds a new strategy to the set of strategies.
+void vtkClaw::AddSearchStrategy(int strategy)
+{
+  if (this->NumberOfSearchStrategies==VTK_CLAW_MAX_NUMBER_OF_SEARCH_STRATEGIES)
+    {
+    vtkErrorMacro(<<"AddSearchStrategies: Too many search strategies");
+    return;
+    }
+  this->SearchStrategies[this->NumberOfSearchStrategies] = strategy;
+  ++this->NumberOfSearchStrategies;
+}
+
   
 //----------------------------------------------------------------------------
 // Description:
@@ -195,7 +222,7 @@ void vtkClaw::SetSearchStrategies (int num, int *strategies)
   int idx;
 
   /* make sure at least one strategy is set */
-  if (num <= 0 || num >= 20)
+  if (num <= 0 || num >= VTK_CLAW_MAX_NUMBER_OF_SEARCH_STRATEGIES)
     {
     vtkErrorMacro(<< "SetSearchStrategies: Bad number");
     return;
@@ -231,6 +258,12 @@ void vtkClaw::GeneratePath()
   int goalIterations, startIterations;
   int strategyIdx;
   //vtkImageRobotSpace2D *rSpace; // ...
+  
+  if (this->NumberOfSearchStrategies <= 0)
+    {
+    vtkErrorMacro(<< "GeneratePath: Must have at least one strategy set.");
+    return;
+    }
   
   //if (this->Viewer)
   //  {
@@ -1554,9 +1587,9 @@ void vtkClaw::SphereCandidateChoose(Sphere *b, float *proposed)
 	}
       /* get the rating of this position from the searchStrategy */
       if (SEARCH_STRATEGY == 0)
-	temp = this->SphereNearestNetworkMoveEvaluate(b, axis, direction);
+	temp = this->SphereNearestNetworkMoveEvaluate(b, proposed);
       if (SEARCH_STRATEGY == 1)
-	temp = this->SphereNearestNetworkMoveEvaluate(b, axis, direction);
+	temp = this->SphereNearestNetworkMoveEvaluate(b, proposed);
       if (SEARCH_STRATEGY == 2)
 	temp = this->SphereNearestGlobalMoveEvaluate(b, proposed);
       if (SEARCH_STRATEGY == 3)
@@ -1564,18 +1597,24 @@ void vtkClaw::SphereCandidateChoose(Sphere *b, float *proposed)
       if (SEARCH_STRATEGY == 4)
 	temp = this->SpherePioneerGlobalMoveEvaluate(b, proposed);
       if (SEARCH_STRATEGY == 5)
-	temp = this->SphereNearestNetworkMoveEvaluate(b, axis, direction);
+	temp = this->SphereNearestNetworkMoveEvaluate(b, proposed);
       if (SEARCH_STRATEGY == 6)
 	temp = this->SphereNoiseMoveEvaluate();
       if (SEARCH_STRATEGY == 7)
 	temp = this->SphereNearestNoiseMoveEvaluate(b, proposed);
       if (SEARCH_STRATEGY == 8)
-	temp = this->SphereNearestNetworkMoveEvaluate(b, axis, direction);
+	temp = this->SphereNearestNetworkMoveEvaluate(b, proposed);
       if (SEARCH_STRATEGY == 9)
 	temp = this->SphereNoiseMoveEvaluate();
       if (SEARCH_STRATEGY == 10)
 	temp = this->SphereNoiseMoveEvaluate();
 
+      if (temp <= 0.0)
+	{
+	vtkWarningMacro(<< "Move evaluate for strategy " << SEARCH_STRATEGY
+	<< " produced a non positive number " << temp);
+	}
+      
       // We want uncovered first, but if all are covered, rank the covered.
       if (this->Candidates[axis * 2 + direction] == 0)
 	{
@@ -1614,22 +1653,17 @@ void vtkClaw::SphereCandidateChoose(Sphere *b, float *proposed)
 //----------------------------------------------------------------------------
 // Get as close to the other network as possible (the nearest)
 // larger return value is better.
-float vtkClaw::SphereNearestNetworkMoveEvaluate(Sphere *b, int axis, 
-						int direction)
+float vtkClaw::SphereNearestNetworkMoveEvaluate(Sphere *b, float *proposed)
 {
   Sphere *nearest;
   
   nearest = this->SphereNearest(b);
 
   if ( ! nearest)
-    return 0.0;
+    return 0.1;
 
-  // Note: This should be in the state space.
-  // the vector representation does not necessarily preseve distance.
-  if (direction)
-    return nearest->Center[axis] - b->Center[axis];
-  else
-    return b->Center[axis] - nearest->Center[axis];
+  return this->StateSpace->Distance(b->Center, nearest->Center) + b->Radius
+    - this->StateSpace->Distance(proposed, nearest->Center);
 }
   
 
@@ -1662,7 +1696,7 @@ float vtkClaw::SphereNearestGlobalMoveEvaluate(Sphere *b, float *proposed)
 float vtkClaw::SpherePioneerLocalMoveEvaluate(Sphere *b, float *proposed)
 {
   SphereList *l;
-  float temp = 0.0;
+  float temp = 0.1;
 
   l = b->Neighbors;
   while (l){
