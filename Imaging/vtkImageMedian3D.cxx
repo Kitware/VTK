@@ -23,7 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageMedian3D, "1.37");
+vtkCxxRevisionMacro(vtkImageMedian3D, "1.38");
 vtkStandardNewMacro(vtkImageMedian3D);
 
 //-----------------------------------------------------------------------------
@@ -395,6 +395,11 @@ void vtkImageMedian3D::ExecuteData(vtkDataObject *out)
   vtkDataArray *inArray;
   vtkDataArray *outArray;
 
+  // Avoid a floating point exception.
+  if (this->UpdateExtentIsEmpty(output))
+    {
+    return;
+    }
 
   input->GetExtent(inExt);
   output->SetExtent(output->GetUpdateExtent());

@@ -19,7 +19,7 @@
 
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkImageIterateFilter, "1.33");
+vtkCxxRevisionMacro(vtkImageIterateFilter, "1.34");
 
 //----------------------------------------------------------------------------
 vtkImageIterateFilter::vtkImageIterateFilter()
@@ -114,10 +114,17 @@ void vtkImageIterateFilter::AllocateOutputScalars(vtkImageData *outData)
 //----------------------------------------------------------------------------
 // Some filters (decomposes, anisotropic difusion ...) have execute 
 // called multiple times per update.
-void vtkImageIterateFilter::ExecuteData(vtkDataObject *vtkNotUsed(out))
+void vtkImageIterateFilter::ExecuteData(vtkDataObject *out)
 {
   int idx;
   vtkImageData *inData, *outData;
+
+  // Too many filters have floating point exceptions to execute
+  // with empty input/ no request.
+  if (this->UpdateExtentIsEmpty(out))
+    {
+    return;
+    }
 
   // IterationData are all set up 
   // see: SetNumberOfIterations() and UpdateInformation()
