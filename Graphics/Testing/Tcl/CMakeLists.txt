@@ -129,6 +129,7 @@ IF (VTK_USE_RENDERING)
       TestBandedContourFilter
       TestButtonSource
       TestCellDerivs
+      TestCurvatures
       testDataSetTriangleFilter
       testDataSetTriangleFilter2
       TestGraphLayoutFilter

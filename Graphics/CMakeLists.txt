@@ -27,6 +27,7 @@ vtkContourGrid.cxx
 vtkCubeSource.cxx
 vtkCursor3D.cxx
 vtkCutter.cxx
+vtkCurvatures.cxx
 vtkCylinderSource.cxx
 vtkDashedStreamLine.cxx
 vtkDataObjectToDataSetFilter.cxx
