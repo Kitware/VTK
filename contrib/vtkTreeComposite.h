@@ -122,7 +122,19 @@ public:
   void ResetCamera(vtkRenderer *ren);
   void ResetCameraClippingRange(vtkRenderer *ren);
   void ComputeVisiblePropBoundsRMI();
-  
+
+//BTX
+
+  enum Tags {
+    RENDER_RMI_TAG=12721,
+    COMPUTE_VISIBLE_PROP_BOUNDS_RMI_TAG=56563,
+    WIN_INFO_TAG=22134,
+    REN_INFO_TAG=22135,
+    BOUNDS_TAG=94135
+  };
+
+//ETX
+
 protected:
   vtkTreeComposite();
   ~vtkTreeComposite();

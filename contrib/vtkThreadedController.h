@@ -40,19 +40,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 // .NAME vtkThreadedController - Allows communication between running threads.
 // .SECTION Description
-// vtkThreadedController just uses a vtkMultiThreader to spawn threads.
-// It the implements sends and receives using shared memory and reference 
-// counting.
-
-// Unfortunately, as this is written, it is not thread safe.  All threads
-// use the same controller object, so operations like adding an RMI could
-// potentially conflict.  We need to have our own RegisterAndGetGlobalController
-// method to create different controllers for each thread.  This would also
-// simplify the GetLocalProcessId methods.
-
+// vtkThreadedController uses a vtkMultiThreader to spawn threads.
+// The communication is accomplished using a vtkSharedMemoryCommunicator.
+// The RMI communicator is identical to the user communicator.
+// Note that each thread gets its own vtkThreadedController to
+// accomplish thread safety.
 
 // .SECTION see also
-// vtkDownStreamPort vtkUpStreamPort vtkMultiThreader vtkMultiProcessController
+// vtkMultiProcessController vtkMultiThreader vtkSharedMemoryCommunicator
+// vtkInputPort vtkOutputPort
 
 #ifndef __vtkThreadedController_h
 #define __vtkThreadedController_h
@@ -60,9 +56,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObject.h"
 #include "vtkMultiProcessController.h"
 #include "vtkMultiThreader.h"
-
-class vtkThreadedControllerMessage;
-
+#include "vtkSharedMemoryCommunicator.h"
+#include "vtkCriticalSection.h"
 
 class VTK_EXPORT vtkThreadedController : public vtkMultiProcessController
 {
@@ -95,93 +90,155 @@ public:
   // for each of the required this->NumberOfProcesses methods) using
   // this->NumberOfProcesses processes.
   virtual void MultipleMethodExecute();
-    
-  //------------------ Communication --------------------
-  
-  // Description:
-  // This method sends data to another process.  Tag eliminates ambiguity
-  // and is used to match sends with receives.
-  virtual int Send(vtkDataObject *data, int remoteProcessId, int tag);
-  virtual int Send(int *data, int length, int remoteProcessId, int tag);
-  virtual int Send(unsigned long *data, int length, int remoteProcessId, int tag);
-  virtual int Send(char *data, int length, int remoteProcessId, int tag);
-  virtual int Send(float *data, int length, int remoteProcessId, int tag);
 
   // Description:
-  // This method receives data from a corresponding send. It blocks
-  // until the receive is finished.  
-  virtual int Receive(vtkDataObject *data, int remoteProcessId, int tag);
-  virtual int Receive(int *data, int length, int remoteProcessId, int tag);
-  virtual int Receive(unsigned long *data, int length, int remoteProcessId, int tag);
-  virtual int Receive(char *data, int length, int remoteProcessId, int tag);
-  virtual int Receive(float *data, int length, int remoteProcessId, int tag);
-  
+  // This method can be used to synchronize the threads.
+  virtual void Barrier();
+
   // Description:
-  // First method called after threads are spawned.
-  // It is public because the function vtkThreadedControllerStart
-  // is not a friend yet.  You should not call this method.
-  void Start(int threadIdx);
+  // This method can be used to tell the controller to create
+  // a special output window in which all messages are preceded
+  // by the process id.
+  virtual void CreateOutputWindow();
+
 
 protected:
+
   vtkThreadedController();
   ~vtkThreadedController();
   vtkThreadedController(const vtkThreadedController&) {};
   void operator=(const vtkThreadedController&) {};
   
   void CreateProcessControllers();
-  vtkThreadedControllerMessage *NewMessage(vtkDataObject *object,
-                                           void *data, int dataLength);
-  void DeleteMessage(vtkThreadedControllerMessage *message);
-  void AddMessage(vtkThreadedControllerMessage *message);
-  vtkThreadedControllerMessage *FindMessage(int sendId, int tag);
+  
+  // Description:
+  // First method called after threads are spawned.
+  void Start(int threadIdx);
+
+  void ResetControllers();
+
+  static VTK_THREAD_RETURN_TYPE vtkThreadedControllerStart( void *arg );
 
   // Each Process/Thread has its own controller.
-  vtkThreadedController *Controllers[VTK_MP_CONTROLLER_MAX_PROCESSES];
+  vtkThreadedController** Controllers;
 
-  // Required only for static access to threadId (GetLocalController).
+//BTX
+
+// Required only for static access to threadId (GetLocalController).
 #ifdef VTK_USE_PTHREADS
-  pthread_t ThreadIds[VTK_MP_CONTROLLER_MAX_PROCESSES];
+  typedef pthread_t ThreadIdType;
+#elif defined VTK_USE_SPROC
+  typedef pid_t ThreadIdType;
+#elif defined _WIN32
+  typedef DWORD ThreadIdType;
 #endif
-#ifdef VTK_USE_SPROC
-  pid_t ThreadIds[VTK_MP_CONTROLLER_MAX_PROCESSES];  
-#endif  
+
+//ETX
+ 
+  // Used in barrier
+  static vtkSimpleCriticalSection CounterLock;
+  static int Counter;
+  static int IsBarrierInProgress;
+  static void WaitForPreviousBarrierToEnd();
+  static void BarrierStarted();
+  static void BarrierEnded();
+  static void SignalNextThread();
+  static void InitializeBarrier();
+  static void WaitForNextThread();
+#ifdef _WIN32
+  static HANDLE BarrierEndedEvent;
+  static HANDLE NextThread;
+#else
+  static vtkSimpleCriticalSection BarrierLock;
+  static vtkSimpleCriticalSection BarrierInProgress;
+#endif
   
-  // The id for this objects process.
-  int LocalProcessId;
-  int WaitingForId;
+  ThreadIdType* ThreadIds;
+
+  int LastNumberOfProcesses;
 
   vtkMultiThreader *MultiThreader;
   // Used internally to switch between multiple and single method execution.
   int MultipleMethodFlag;
   
-  // It is not enough to block on the messages, we have to mutex 
-  // the whole send interaction.  I was trying to avoid a central 
-  // mutex (oh well).
-  vtkMutexLock *MessageListLock;
-
-  // This mutex is normally locked.  It is used to block the execution 
-  // of the receiving process when the send has not been called yet.
-  vtkMutexLock *Gate;
-
-  // Double linked list.
-  vtkThreadedControllerMessage *MessageListStart;
-  vtkThreadedControllerMessage *MessageListEnd;
-  
-  // Trying to track down lockups.
-  FILE *LogFile;
-  
-  // The generic send and receive methods.
-  int Send(vtkDataObject *object, void *data, int dataLength, 
-	   int remoteProcessId, int tag);
-  int Receive(vtkDataObject *object, void *data, int dataLength, 
-	      int remoteProcessId, int tag);
-
   // For static GetGlobalController.  Translates controller for thread0
   // to controller for local thread.
   vtkMultiProcessController *GetLocalController();
-  
+
 };
 
+// Note that the Windows and Unix implementations of
+// these methods are completely different. This is because,
+// in Windows, if the same thread locks the same mutex/critical
+// section twice, it will not block. Therefore, this method
+// can not be used to make the threads wait until all of them
+// reach the barrier
+
+
+// If there was a barrier before this one, we need to
+// wait until that is cleaned up or bad things happen.
+inline void vtkThreadedController::WaitForPreviousBarrierToEnd()
+{
+#ifdef _WIN32
+  WaitForSingleObject(vtkThreadedController::BarrierEndedEvent);
+#else
+  vtkThreadedController::BarrierInProgress.Lock();
+  vtkThreadedController::BarrierInProgress.Unlock();
+#endif
+}
+
+inline void vtkThreadedController::BarrierStarted()
+{
+  vtkThreadedController::IsBarrierInProgress = 1;
+#ifdef _WIN32
+
+#else
+  vtkThreadedController::BarrierInProgress.Lock();
+#endif
+}
+
+// A new barrier can now start
+inline void vtkThreadedController::BarrierEnded()
+{
+  vtkThreadedController::IsBarrierInProgress = 0;
+#ifdef _WIN32
+  SetEvent(vtkThreadedController::BarrierEndedEvent);
+#else
+  vtkThreadedController::BarrierInProgress.Unlock();
+#endif
+}
+
+// Tell the next guy that it is ok to continue with the barrier
+inline void vtkThreadedController::SignalNextThread()
+{
+#ifdef _WIN32
+  SetEvent(vtkThreadedController::NextThread);
+#else
+  vtkThreadedController::BarrierLock.Unlock();
+#endif
+}
+
+// Create the windows event necessary for waiting  
+inline  void vtkThreadedController::InitializeBarrier()
+{
+#ifdef _WIN32
+  if (!BarrierEndedEvent)
+    {
+    vtkThreadedController::BarrierEndedEvent = CreateEvent(0,FALSE,FALSE,0);
+    vtkThreadedController::NextThread = CreateEvent(0,FALSE,FALSE,0);
+    }
+#endif
+}
+
+// Wait until the previous thread says it's ok to continue
+inline void vtkThreadedController::WaitForNextThread()
+{
+#ifdef _WIN32
+  WaitForSingleObject(vtkThreadedController::NextThread);
+#else
+  vtkThreadedController::BarrierLock.Lock();
+#endif
+}
 
 #endif
 

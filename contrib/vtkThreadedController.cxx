@@ -43,11 +43,58 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkDataSet.h"
 #include "vtkImageData.h"
+#include "vtkOutputWindow.h"
+#include "vtkCriticalSection.h"
 
 #ifdef VTK_USE_SPROC
 #include <sys/prctl.h>
 #endif
 
+static vtkSimpleCriticalSection vtkOutputWindowCritSect;
+
+// Output window which prints out the process id
+// with the error or warning messages
+class VTK_EXPORT vtkThreadedControllerOutputWindow : public vtkOutputWindow
+{
+public:
+  vtkTypeMacro(vtkThreadedControllerOutputWindow,vtkOutputWindow);
+
+  void DisplayText(const char* t)
+  {
+    // Need to use critical section because the output window
+    // is global. For the same reason, the process id has to
+    // be obtained by calling GetGlobalController
+    vtkOutputWindowCritSect.Lock();
+    vtkMultiProcessController* cont = 
+      vtkMultiProcessController::GetGlobalController();
+    if (cont)
+      {
+      cout << "Process id: " << cont->GetLocalProcessId()
+	   << " >> ";
+      }
+    cout << t;
+    cout.flush();
+    vtkOutputWindowCritSect.Unlock();
+  }
+
+  vtkThreadedControllerOutputWindow()
+  {
+    vtkObject* ret = vtkObjectFactory::CreateInstance("vtkThreadedControllerOutputWindow");
+    if (ret)
+      ret->Delete();
+  }
+
+  friend vtkThreadedController;
+
+};
+
+
+void vtkThreadedController::CreateOutputWindow()
+{
+  vtkThreadedControllerOutputWindow* window = new vtkThreadedControllerOutputWindow;
+  this->OutputWindow = window;
+  vtkOutputWindow::SetInstance(this->OutputWindow);
+}
 
 //----------------------------------------------------------------------------
 vtkThreadedController* vtkThreadedController::New()
@@ -62,55 +109,40 @@ vtkThreadedController* vtkThreadedController::New()
   return new vtkThreadedController;
 }
 
-class vtkThreadedControllerMessage
-{
-public:
-  vtkDataObject *Object;
-  void          *Data;
-  int            DataLength;
-  int            Tag;
-  int            SendId;
-  vtkThreadedControllerMessage *Next;
-  vtkThreadedControllerMessage *Previous;
-};
-
 
 //----------------------------------------------------------------------------
 vtkThreadedController::vtkThreadedController()
 {
-  // This may no longer be neede now that superclass sets 
-  // GlobalDefaultNumberOfThreads.
-  vtkMultiThreader::SetGlobalMaximumNumberOfThreads(0);
-  
   this->LocalProcessId = 0;
-  this->WaitingForId = VTK_MP_CONTROLLER_INVALID_SOURCE;
 
-  this->MultiThreader = vtkMultiThreader::New();
-  this->NumberOfProcesses = this->MultiThreader->GetNumberOfThreads();
+  vtkMultiThreader::SetGlobalMaximumNumberOfThreads(0);
+
+  this->MultiThreader = 0;
+  this->NumberOfProcesses = 0;
   this->MultipleMethodFlag = 0;
     
-  // Here for debugging intermitent problems
-  this->LogFile = NULL;
-  //this->LogFile = fopen("ThreadedController.log", "w");
-  
-  this->MessageListLock = vtkMutexLock::New();
-  this->MessageListStart = NULL;
-  this->MessageListEnd = NULL;
+  this->LastNumberOfProcesses = 0;
+  this->Controllers = 0;
+  this->ThreadIds = 0;
 
-  this->Gate = vtkMutexLock::New();
-  this->Gate->Lock();
+  this->OutputWindow = 0;
 }
 
 //----------------------------------------------------------------------------
 vtkThreadedController::~vtkThreadedController()
 {
-  this->MultiThreader->Delete();
-  this->MultiThreader = NULL;
-  if (this->LogFile)
+  if (this->MultiThreader)
     {
-    fclose(this->LogFile);
+    this->MultiThreader->Delete();
     }
-  this->MessageListLock->Delete();
+  
+   if(this->Communicator)
+     {
+     this->Communicator->Delete();
+     }
+
+   this->NumberOfProcesses = 0;
+   this->ResetControllers();
 }
 
 //----------------------------------------------------------------------------
@@ -120,49 +152,151 @@ void vtkThreadedController::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MultiThreader:\n";
   this->MultiThreader->PrintSelf(os, indent.GetNextIndent());
   os << indent << "LocalProcessId: " << this->LocalProcessId << endl;
+  os << indent << "Barrier in progress: " 
+     << (vtkThreadedController::IsBarrierInProgress ? "(yes)" : "(no)")
+     << endl;
+  os << indent << "Barrier counter: " << vtkThreadedController::Counter
+     << endl;
+  os << indent << "Last number of processes: " << this->LastNumberOfProcesses
+     << endl;  
 }
 
 //----------------------------------------------------------------------------
 void vtkThreadedController::Initialize(int* vtkNotUsed(argc), 
 				       char*** vtkNotUsed(argv))
 {
-  this->Modified();
-  
-  this->NumberOfProcesses = this->MultiThreader->GetNumberOfThreads();
 }
   
+void vtkThreadedController::ResetControllers()
+{
+  int i;
+
+  for(i=1; i < this->LastNumberOfProcesses; i++)
+    {
+    this->Controllers[i]->Delete();
+    }
+
+  if (this->NumberOfProcesses == this->LastNumberOfProcesses)
+    {
+    return;
+    }
+  
+  delete[] this->Controllers;
+  delete[] this->ThreadIds;
+
+  if (this->NumberOfProcesses > 0 )
+    {
+    this->Controllers = new vtkThreadedController*[this->NumberOfProcesses];
+    this->ThreadIds = new ThreadIdType[this->NumberOfProcesses];
+    }
+}
+
 
 //----------------------------------------------------------------------------
 // Called before threads are spawned to create the "process objecs".
 void vtkThreadedController::CreateProcessControllers()
 {
-  int i, j;
+
+  // Delete previous controllers.
+  this->ResetControllers();
 
   // Create the controllers.
   // The original controller will be assigned thread 0.
   this->Controllers[0] = this;
   this->LocalProcessId = 0;
-  for (i = 1; i < this->NumberOfProcesses; ++i)
+
+  // Create a new communicator.
+  if (this->Communicator)
+    {
+    this->Communicator->Delete();
+    }
+  this->Communicator = vtkSharedMemoryCommunicator::New();
+  ((vtkSharedMemoryCommunicator*)this->Communicator)->Initialize(
+    this->NumberOfProcesses, 
+    this->ForceDeepCopy);
+  this->RMICommunicator = this->Communicator;
+
+  // Initialize the new controllers.
+  for (int i = 1; i < this->NumberOfProcesses; ++i)
     {
     this->Controllers[i] = vtkThreadedController::New();
     this->Controllers[i]->LocalProcessId = i;
     this->Controllers[i]->NumberOfProcesses = this->NumberOfProcesses;
+    this->Controllers[i]->Communicator = 
+      ((vtkSharedMemoryCommunicator*)this->Communicator)->Communicators[i];
+    this->Controllers[i]->RMICommunicator = 
+      ((vtkSharedMemoryCommunicator*)this->RMICommunicator)->Communicators[i];
     }
 
-  // Copy the array of controllers into each controller.
-  for (i = 1; i < this->NumberOfProcesses; ++i)
+  // Stored in case someone changes the number of processes.
+  // Needed to delete the controllers properly.
+  this->LastNumberOfProcesses = this->NumberOfProcesses;
+}
+
+vtkSimpleCriticalSection vtkThreadedController::CounterLock;
+int vtkThreadedController::Counter;
+
+#ifdef _WIN32
+HANDLE vtkThreadedController::BarrierEndedEvent = 0;
+HANDLE vtkThreadedController::NextThread = 0;
+#else
+vtkSimpleCriticalSection vtkThreadedController::BarrierLock(1);
+vtkSimpleCriticalSection vtkThreadedController::BarrierInProgress;
+#endif
+int vtkThreadedController::IsBarrierInProgress=0;
+
+
+void vtkThreadedController::Barrier()
+{
+  vtkThreadedController::InitializeBarrier();
+
+  // If there was a barrier before this one, we need to
+  // wait until that is cleaned up
+  if (vtkThreadedController::IsBarrierInProgress)
     {
-    for (j = 0; j < this->NumberOfProcesses; ++j)
+    vtkThreadedController::WaitForPreviousBarrierToEnd();
+    }
+
+  // All processes increment the counter (which is initially 0) by 1
+  vtkThreadedController::CounterLock.Lock();
+  int count = ++vtkThreadedController::Counter;
+  vtkThreadedController::CounterLock.Unlock();
+
+  if (count == this->NumberOfProcesses)
+    {
+    // If you are the last process, unlock the barrier
+    vtkThreadedController::BarrierStarted();
+    vtkThreadedController::SignalNextThread();
+    }
+  else
+    {
+    // If you are not the last process, wait until someone unlocks 
+    // the barrier
+    vtkThreadedController::WaitForNextThread();
+    vtkThreadedController::Counter--;
+
+    if (vtkThreadedController::Counter == 1)
       {
-      this->Controllers[i]->Controllers[j] = this->Controllers[j];
+      // If you are the last process to pass the barrier
+      // Set the counter to 0 and leave the barrier locked
+      vtkThreadedController::Counter = 0;
+      // Barrier is over, another one can start
+      vtkThreadedController::BarrierEnded();
       }
+    else
+      {
+      //  unlock the barrier for the next guy
+      vtkThreadedController::SignalNextThread();
+      }
+
     }
 }
 
 //----------------------------------------------------------------------------
-VTK_THREAD_RETURN_TYPE vtkThreadedControllerStart( void *arg )
+VTK_THREAD_RETURN_TYPE vtkThreadedController::vtkThreadedControllerStart( 
+  void *arg )
 {
-  ThreadInfoStruct *info = (ThreadInfoStruct*)(arg);
+  ThreadInfoStruct* info = (ThreadInfoStruct*)(arg);
   int threadId = info->ThreadID;
   vtkThreadedController *controller0 =(vtkThreadedController*)(info->UserData);
 
@@ -175,14 +309,15 @@ VTK_THREAD_RETURN_TYPE vtkThreadedControllerStart( void *arg )
 // as the argument.
 void vtkThreadedController::Start(int threadId)
 {
-  vtkThreadedController *localController = this->Controllers[threadId];
+  vtkThreadedController* localController = this->Controllers[threadId];
 
     // Store threadId in a table.
 #ifdef VTK_USE_PTHREADS  
   this->ThreadIds[threadId] = pthread_self();
-#endif
-#ifdef VTK_USE_SPROC
+#elif defined VTK_USE_SPROC
   this->ThreadIds[threadId] = PRDA->sys_prda.prda_sys.t_pid;
+#elif defined _WIN32
+  this->ThreadIds[threadId] = GetCurrentThreadId();
 #endif
   
   if (this->MultipleMethodFlag)
@@ -194,7 +329,7 @@ void vtkThreadedController::Start(int threadId)
       }
     else
       {
-      vtkErrorMacro("MultipleMethod " << threadId << " not set");
+      vtkWarningMacro("MultipleMethod " << threadId << " not set");
       }
     }
   else
@@ -214,8 +349,13 @@ void vtkThreadedController::Start(int threadId)
 // Execute the method set as the SingleMethod on NumberOfThreads threads.
 void vtkThreadedController::SingleMethodExecute()
 {
+  if (!this->MultiThreader)
+    {
+    this->MultiThreader = vtkMultiThreader::New();
+    }
   this->CreateProcessControllers();
   this->MultipleMethodFlag = 0;
+
   this->MultiThreader->SetSingleMethod(vtkThreadedControllerStart, 
 				       (void*)this);
   this->MultiThreader->SetNumberOfThreads(this->NumberOfProcesses);
@@ -230,6 +370,10 @@ void vtkThreadedController::SingleMethodExecute()
 // Execute the methods set as the MultipleMethods.
 void vtkThreadedController::MultipleMethodExecute()
 {
+  if (!this->MultiThreader)
+    {
+    this->MultiThreader = vtkMultiThreader::New();
+    }
   this->CreateProcessControllers();
   this->MultipleMethodFlag = 1;
 
@@ -244,323 +388,6 @@ void vtkThreadedController::MultipleMethodExecute()
   this->MultiThreader->SingleMethodExecute();
 }
 
-  
-
-
-//----------------------------------------------------------------------------
-int vtkThreadedController::Send(vtkDataObject *object, 
-                                 void *data, int dataLength,
-                                 int receiveId, int tag)
-{
-  vtkThreadedControllerMessage *message;
-  vtkThreadedController *receiveController;
-  receiveController = this->Controllers[receiveId];
-
-  // >>>>>>>>>> Lock >>>>>>>>>>
-  receiveController->MessageListLock->Lock();
-  // Create and copy the message.
-  message = receiveController->NewMessage(object, data, dataLength);
-  message->SendId = this->LocalProcessId;
-  message->Tag = tag;
-  
-  //cerr << this->LocalProcessId << ": Send to " << receiveId << " : message = " << message 
-  //     << ", object = " << message->Object << ", data = " << message->Data 
-  //     << ", tag = " << message->Tag << ", sendId = " << message->SendId << endl;
-  
-  receiveController->AddMessage(message);
-
-  // Check to see if the other process is blocked waiting for this message.
-  if (receiveController->WaitingForId == this->LocalProcessId ||
-      receiveController->WaitingForId == VTK_MP_CONTROLLER_ANY_SOURCE)
-    {
-    //cerr << this->LocalProcessId << ": receive process " << receiveId << " is already waiting\n";
-    
-    // Do this here before the MessageList is unlocked (avoids a race condition).
-    receiveController->WaitingForId = VTK_MP_CONTROLLER_INVALID_SOURCE;
-    receiveController->Gate->Unlock();
-    }
-
-  receiveController->MessageListLock->Unlock();
-  // <<<<<<<<< Unlock <<<<<<<<<<
-
-  return 1;
-}
-
-
-
-//----------------------------------------------------------------------------
-int vtkThreadedController::Receive(vtkDataObject *object, 
-                                   void *data, int dataLength,
-                                   int remoteId, int tag)
-{
-  vtkThreadedControllerMessage *message;
-
-  // >>>>>>>>>> Lock >>>>>>>>>>
-  this->MessageListLock->Lock();
-  
-  // Look for the message (has it arrived before me?).
-  message = this->FindMessage(remoteId, tag);
-  while (message == NULL)
-    {
-    //cerr << this->LocalProcessId << ": message not sent yet.  tag = " << tag << endl;
-    
-    this->WaitingForId = remoteId;
-    // Temporarily unlock the mutex until we receive the message.
-    this->MessageListLock->Unlock();
-    // Block until the message arrives.
-    this->Gate->Lock();
-    // Now lock the mutex again.  The message should be here.
-    this->MessageListLock->Lock();
-    message = this->FindMessage(remoteId, tag);
-    if (message == NULL)
-      {
-      vtkErrorMacro("I passed through the gate, but there is no message.");
-      }
-    }
-
-  //cerr << this->LocalProcessId << ": receive from " << remoteId << " : message = " << message 
-  //     << ", object = " << message->Object << ", data = " << message->Data 
-  //     << ", tag = " << message->Tag << ", sendId = " << message->SendId << endl;
-  
-  // Copy the message to the reveive data/object.
-  if (object && message->Object)
-    {
-    // The object was already copied into the message.
-    // We can shallow copy here even if deep copy was set.
-    object->ShallowCopy(message->Object);
-    }
-  if (data != NULL && message->Data != NULL && dataLength > 0)
-    {
-    if (dataLength != message->DataLength)
-      {
-      vtkErrorMacro("Receive message length does not match send.");
-      }
-    memcpy(data, message->Data, dataLength);
-    }
-
-
-  // Delete the message.
-  this->DeleteMessage(message);
-
-  this->MessageListLock->Unlock();
-  // <<<<<<<<< Unlock <<<<<<<<<
-
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-// This method assumes that the message list mutex is handled externally.
-vtkThreadedControllerMessage *vtkThreadedController::FindMessage(int sendId, 
-                                                                 int tag)
-{
-  vtkThreadedControllerMessage *message;
-  
-  message = this->MessageListStart;
-  while (message != NULL)
-    {
-    if ((sendId == VTK_MP_CONTROLLER_ANY_SOURCE || message->SendId == sendId) &&
-         message->Tag == tag)
-      { // We have found a message that matches.
-      // Remove the message from the list.
-
-      if (message->Next)
-        {
-        message->Next->Previous = message->Previous;
-        }
-      if (message->Previous)
-        {
-        message->Previous->Next = message->Next;
-        }
-      // Special Case: first in the list.
-      if (message == this->MessageListStart)
-        {
-        this->MessageListStart = message->Next;
-        }
-      // Special Case: last in list.
-      if (message == this->MessageListEnd)
-        {
-        this->MessageListEnd = message->Previous;
-        }
-      
-      // Return the message.
-      message->Next = message->Previous = NULL;
-
-      return message;
-      }
-    message = message->Next;
-    }
-  return NULL;
-}
-
-
-//----------------------------------------------------------------------------
-// The new and delete methods could reuse messages and maybe memory to avoid
-// allocating and deleting memory each send.
-vtkThreadedControllerMessage *vtkThreadedController::NewMessage(
-                          vtkDataObject *object, void *data, int dataLength)
-{
-  vtkThreadedControllerMessage *message = new vtkThreadedControllerMessage;
-
-  message->Next = message->Previous = NULL;
-  message->Tag = 0;
-  message->Object = NULL;
-  message->Data = NULL;
-  message->DataLength = 0;
-
-  if (object)
-    {
-    message->Object = object->MakeObject();
-    if (this->ForceDeepCopy)
-      {
-      message->Object->DeepCopy(object);
-      }
-    else
-      {
-      message->Object->ShallowCopy(object);
-      }
-    }
-  if (data && dataLength > 0)
-    {
-    message->Data = (void *)(new unsigned char[dataLength]);
-    message->DataLength = dataLength;
-    memcpy(message->Data, data, dataLength);
-    }
-
-  return message;
-}
-
-
-
-//----------------------------------------------------------------------------
-void vtkThreadedController::DeleteMessage(vtkThreadedControllerMessage *message)
-{
-  if (message->Object)
-    {
-    message->Object->Delete();
-    message->Object = NULL;
-    }
-
-  if (message->Data)
-    {
-    delete [] (unsigned char*)message->Data;
-    message->Data = NULL;
-    message->DataLength = 0;
-    }
-
-  delete message;
-}
-
-//----------------------------------------------------------------------------
-// Add the message to the end.
-void vtkThreadedController::AddMessage(vtkThreadedControllerMessage *message)
-{
-  // Special case: Empty list.
-  if (this->MessageListEnd == NULL)
-    {
-    // sanity check
-    if (this->MessageListStart)
-      {
-      vtkErrorMacro("List inconsistancy");
-      }
-    this->MessageListEnd = this->MessageListStart = message;
-    message->Next = message->Previous = NULL;
-    return;
-    }
-  
-  message->Next = NULL;
-  message->Previous = this->MessageListEnd;
-  this->MessageListEnd->Next = message;
-  this->MessageListEnd = message;
-}
-
-//----------------------------------------------------------------------------
-int vtkThreadedController::Send(int *data, int length, int remoteProcessId, 
-				int tag)
-{
-  length = length * sizeof(int);
-  return this->Send(NULL, (void*)data, length, remoteProcessId, tag);
-}
-
-//----------------------------------------------------------------------------
-int vtkThreadedController::Send(unsigned long *data, int length, 
-				int remoteProcessId, int tag)
-{
-  length = length * sizeof(unsigned long);
-  return this->Send(NULL, (void*)data, length, remoteProcessId, tag);
-}
-
-//----------------------------------------------------------------------------
-int vtkThreadedController::Send(char *data, int length, int remoteProcessId, 
-				int tag)
-{
-  length = length * sizeof(char);
-  return this->Send(NULL, (void*)data, length, remoteProcessId, tag);
-}
-
-//----------------------------------------------------------------------------
-int vtkThreadedController::Send(float *data, int length, int remoteProcessId, 
-				int tag)
-{
-  length = length * sizeof(float);
-  return this->Send(NULL, (void*)data, length, remoteProcessId, tag);
-}
-
-
-
-
-//----------------------------------------------------------------------------
-int vtkThreadedController::Receive(int *data, int length, int remoteProcessId, 
-				   int tag)
-{
-  length = length * sizeof(int);
-  return this->Receive(NULL, (void*)data, length, remoteProcessId, tag);
-}
-
-//----------------------------------------------------------------------------
-int vtkThreadedController::Receive(unsigned long *data, int length, 
-				   int remoteProcessId, int tag)
-{
-  length = length * sizeof(unsigned long);
-  return this->Receive(NULL, (void*)data, length, remoteProcessId, tag);
-}
-
-//----------------------------------------------------------------------------
-int vtkThreadedController::Receive(char *data, int length, 
-				   int remoteProcessId, int tag)
-{
-  length = length * sizeof(char);
-  return this->Receive(NULL, (void*)data, length, remoteProcessId, tag);
-}
-
-//----------------------------------------------------------------------------
-int vtkThreadedController::Receive(float *data, int length, 
-				   int remoteProcessId, int tag)
-{
-  length = length * sizeof(float);
-  return this->Receive(NULL, (void*)data, length, remoteProcessId, tag);
-}
-
-
-
-//----------------------------------------------------------------------------
-int vtkThreadedController::Send(vtkDataObject *data, int remoteProcessId, 
-				int tag)
-{ 
-  return this->Send(data, NULL, 0, remoteProcessId, tag);
-}
-
-//----------------------------------------------------------------------------
-int vtkThreadedController::Receive(vtkDataObject *data, 
-				   int remoteProcessId, int tag)
-{
-  return this->Receive(data, NULL, 0, remoteProcessId, tag);
-}
-
-
-
-
-//----------------------------------------------------------------------------
-// Does not work for windows yet.
 vtkMultiProcessController *vtkThreadedController::GetLocalController()
 {
 #ifdef VTK_USE_PTHREADS  
@@ -589,9 +416,24 @@ vtkMultiProcessController *vtkThreadedController::GetLocalController()
   
   vtkErrorMacro("Could Not Find my process id.");
   return NULL;
+#elif defined _WIN32
+
+  int idx;
+  DWORD pid = GetCurrentThreadId();
+  for (idx = 0; idx < this->NumberOfProcesses; ++idx)
+    {
+    if (pid == this->ThreadIds[idx])
+      {
+      return this->Controllers[idx];
+      }
+    }
+  
+  vtkErrorMacro("Could Not Find my process id.");
+  return NULL;
+  
 #else
 
-  vtkErrorMacro("ThreadedController only works with pthreads or sproc");
+  vtkErrorMacro("ThreadedController only works with windows api, pthreads or sproc");
   return NULL;
   
 #endif  

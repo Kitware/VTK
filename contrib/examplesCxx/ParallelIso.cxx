@@ -203,7 +203,7 @@ void process( vtkMultiProcessController *controller, void *arg )
       for (i = 1; i < numProcs; ++i)
         {
         // trigger the RMI to exit
-        controller->TriggerRMI(i, VTK_BREAK_RMI_TAG);      
+        controller->TriggerRMI(i, vtkMultiProcessController::BREAK_RMI_TAG);      
         }
       exit( 1 ); 
       }
@@ -213,7 +213,7 @@ void process( vtkMultiProcessController *controller, void *arg )
     for (i = 1; i < numProcs; ++i)
       {
       // trigger the RMI to change the iso surface value.
-      controller->TriggerRMI(i, VTK_BREAK_RMI_TAG);      
+      controller->TriggerRMI(i, vtkMultiProcessController::BREAK_RMI_TAG);      
       }
     
     // Clean up

@@ -137,7 +137,7 @@ void process_b(vtkMultiProcessController *controller, void *arg)
   char argg[13];
   strcpy(argg, "How are you?");
   controller->TriggerRMI(otherId, argg, 303);
-  controller->TriggerRMI(otherId, VTK_BREAK_RMI_TAG);
+  controller->TriggerRMI(otherId,vtkMultiProcessController::BREAK_RMI_TAG);
   
   renWindow->AddRenderer(ren);
   iren->SetRenderWindow(renWindow);
@@ -170,7 +170,6 @@ int main( int argc, char *argv[] )
   
   controller = vtkMultiProcessController::New();
   controller->Initialize(&argc, &argv);
-  controller->CreateOutputWindow();
 
   controller->SetNumberOfProcesses(2);
   controller->SetMultipleMethod(0, process_a, NULL);

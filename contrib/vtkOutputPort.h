@@ -86,7 +86,7 @@ public:
   // output ports can be waiting at once (as long as they share a controller).
   // This method will only return if the BreakFlag is turned on in the 
   // controller.  The controller automatically creates a break rmi with 
-  // the VTK_BREAK_RMI_TAG for doing this remotely.
+  // the vtkMultiProcessController::BREAK_RMI_TAG for doing this remotely.
   void WaitForUpdate() {this->Controller->ProcessRMIs();}
   
   // Description:

@@ -40,34 +40,37 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 // .NAME vtkMultiProcessController - Multiprocessing communication superclass
 // .SECTION Description
-// vtkMultiProcessController supplies an API for sending and receiving
-// message between processes.  The controller also defines calls for
-// sending and receiving vtkDataObjects, and remote method invocations.
+// vtkMultiProcessController is used to control multiple processes/threads
+// in a shared memory/distributed computing environment. It has
+// methods for executing single/multiple method(s) on multiple processors,
+// triggering registered callbacks (Remote Methods) (AddRMI(), TriggerRMI())
+// and communication. Please note that the communication is done using
+// the communicator which is accessible to the user. Therefore it is
+// possible to get the communicator with GetCommunicator() and use
+// it to send and receive data. This is the encoured communication method.
+// The internal (RMI) communications are done using a second internal
+// communicator (called RMICommunicator). For the threaded controllers,
+// this is identical to the user communicator. However, for the MPI
+// controller, this is a communicator which shares the same process
+// group as the user communicator but uses a different context. Therefore,
+// the user and the internal communications can not interfere with each
+// other (even if the same message tag is used).
 
 // .SECTION see also
-// vtkMPIController vtkThreadedController
+// vtkMPIController vtkThreadedController vtkInputPort vtkOutputPort 
+// vtkCommunicator vtkSharedMemoryCommunicator vtkMPICommunicator
 
 #ifndef __vtkMultiProcessController_h
 #define __vtkMultiProcessController_h
 
 #include "vtkObject.h"
 #include "vtkDataObject.h"
+#include "vtkCommunicator.h"
+
 class vtkDataSet;
 class vtkImageData;
 class vtkCollection;
-
-#define VTK_MP_CONTROLLER_MAX_PROCESSES 8192
-#define VTK_MP_CONTROLLER_ANY_SOURCE -1
-#define VTK_MP_CONTROLLER_INVALID_SOURCE -2
-
-// The special tag used for RMI communication.
-#define VTK_MP_CONTROLLER_RMI_TAG 315167
-#define VTK_MP_CONTROLLER_RMI_ARG_TAG 315168
-
-
-// Internally implemented RMI to break the process loop.
-#define VTK_BREAK_RMI_TAG           239954
-
+class vtkOutputWindow;
 
 class vtkMultiProcessController;
 
@@ -95,13 +98,13 @@ public:
   // This method is for setting up the processes.
   // If a subclass needs to initialize process communication (i.e. MPI)
   // it would over ride this method.
-  virtual void Initialize(int* vtkNotUsed(argc), char*** vtkNotUsed(arcv)) {}
+  virtual void Initialize(int* vtkNotUsed(argc), char*** vtkNotUsed(arcv))=0;
 
   // Description:
   // This method is for cleaning up.
   // If a subclass needs to clean up process communication (i.e. MPI)
   // it would over ride this method.
-  virtual void Finalize() {}
+  virtual void Finalize()=0;
 
   // Description:
   // Set the number of processes you will be using.  This defaults
@@ -150,40 +153,12 @@ public:
   // It is better if you hang on to the controller passed as an argument to the
   // SingleMethod or MultipleMethod functions.
   static vtkMultiProcessController *GetGlobalController();
-  
-  //------------------ Communication --------------------
-  
-  // Description:
-  // This method sends an object to another process.  Tag eliminates ambiguity
-  // and is used to match sends to receives.
-  virtual int Send(vtkDataObject *data, int remoteProcessId, int tag);
-  
-  // Description:
-  // Subclass have to supply these methods to send various arrays of data.
-  virtual int Send(int *data, int length, int remoteProcessId, int tag) = 0;
-  virtual int Send(unsigned long *data, int length, 
-		   int remoteProcessId, int tag) = 0;
-  virtual int Send(char *data, int length, 
-		   int remoteProcessId, int tag) = 0;
-  virtual int Send(float *data, int length, 
-		   int remoteProcessId, int tag) = 0;
 
   // Description:
-  // This method receives a data object from a corresponding send. It blocks
-  // until the receive is finished. 
-  virtual int Receive(vtkDataObject *data, int remoteProcessId, int tag);
-
-  // Description:
-  // Subclass have to supply these methods to receive various arrays of data.
-  // The methods also have to support a remoteProcessId of 
-  // VTK_MP_CONTROLLER_ANY_SOURCE
-  virtual int Receive(int *data, int length, int remoteProcessId, int tag) = 0;
-  virtual int Receive(unsigned long *data, int length, 
-		      int remoteProcessId, int tag) = 0;
-  virtual int Receive(char *data, int length, 
-		      int remoteProcessId, int tag) = 0;
-  virtual int Receive(float *data, int length, 
-		      int remoteProcessId, int tag) = 0;
+  // This method can be used to tell the controller to create
+  // a special output window in which all messages are preceded
+  // by the process id.
+  virtual void CreateOutputWindow() = 0;
   
   // Description:
   // By default, sending objects use shallow copy whenever possible.
@@ -237,17 +212,51 @@ public:
   // their WaitForUpdate loops.
   vtkSetMacro(BreakFlag, int);
   vtkGetMacro(BreakFlag, int);
-  
-  //------------------ Timing --------------------
+
   // Description:
-  // For performance monitoring, reading and writing polydata to strings
-  // are timed.  Access to these times is provided by these methods.
-  vtkGetMacro(WriteTime, float);
-  vtkGetMacro(ReadTime, float);
-  vtkGetMacro(SendWaitTime, float);
-  vtkGetMacro(SendTime, float);
-  vtkGetMacro(ReceiveWaitTime, float);
-  vtkGetMacro(ReceiveTime, float);
+  vtkGetObjectMacro(Communicator, vtkCommunicator);
+  
+//BTX
+
+  enum Consts {
+    MAX_PROCESSES=8192,
+    ANY_SOURCE=-1,
+    INVALID_SOURCE=-2,
+    RMI_TAG=315167,
+    RMI_ARG_TAG=315168,
+    BREAK_RMI_TAG=239954
+  };
+
+//ETX
+
+  // Description:
+  // This method can be used to synchronize processes/threads.
+  virtual void Barrier() = 0;
+
+  //------------------ Communication --------------------
+  
+  // Description:
+  // This method sends data to another process.  Tag eliminates ambiguity
+  // when multiple sends or receives exist in the same process.
+  int Send(int* data, int length, int remoteProcessId, int tag);
+  int Send(unsigned long* data, int length, int remoteProcessId, 
+	   int tag);
+  int Send(char* data, int length, int remoteProcessId, int tag);
+  int Send(float* data, int length, int remoteProcessId, int tag);
+  int Send(vtkDataObject *data, int remoteId, int tag);
+
+  // Description:
+  // This method receives data from a corresponding send. It blocks
+  // until the receive is finished.  It calls methods in "data"
+  // to communicate the sending data.
+  int Receive(int* data, int length, int remoteProcessId, int tag);
+  int Receive(unsigned long* data, int length, int remoteProcessId, 
+	      int tag);
+  int Receive(char* data, int length, int remoteProcessId, int tag);
+  int Receive(float* data, int length, int remoteProcessId, int tag);
+  int Receive(vtkDataObject* data, int remoteId, int tag);
+
+// Internally implemented RMI to break the process loop.
 
 protected:
   vtkMultiProcessController();
@@ -257,62 +266,178 @@ protected:
   
   int MaximumNumberOfProcesses;
   int NumberOfProcesses;
-  // Since we cannot use this ivar in vtkThreadController subclass,
-  // maybe we should eliminated it from this superclass.
+
   int LocalProcessId;
   
   vtkProcessFunctionType      SingleMethod;
   void                       *SingleData;
-  vtkProcessFunctionType      MultipleMethod[VTK_MP_CONTROLLER_MAX_PROCESSES];
-  void                       *MultipleData[VTK_MP_CONTROLLER_MAX_PROCESSES];  
+  vtkProcessFunctionType      MultipleMethod[MAX_PROCESSES];
+  void                       *MultipleData[MAX_PROCESSES];  
   
   vtkCollection *RMIs;
-  
-  char *MarshalString;
-  int MarshalStringLength;
-  // The data may not take up all of the string.
-  int MarshalDataLength;
   
   // This is a flag that can be used by the ports to break
   // their update loop. (same as ProcessRMIs)
   int BreakFlag;
-
-  // convenience method
-  void DeleteAndSetMarshalString(char *str, int strLength);
-  
-  // Write and read from marshal string
-  // return 1 success, 0 fail
-  int WriteObject(vtkDataObject *object);
-  int ReadObject(vtkDataObject *object);
-  
-  int WriteDataSet(vtkDataSet *object);
-  int ReadDataSet(vtkDataSet *object);
-
-  int WriteImageData(vtkImageData *object);
-  int ReadImageData(vtkImageData *object);
 
   void ProcessRMI(int remoteProcessId, void *arg, int argLength, int rmiTag);
 
   // This method implements "GetGlobalController".  
   // It needs to be virtual and static.
   virtual vtkMultiProcessController *GetLocalController();
+
   // It has to be set by the subclass (SingleMethodExecute ...), 
   // but I do not want to make the global variable visible in the header file.
   virtual void SetGlobalController(vtkMultiProcessController *controller);
   
-  float ReadTime;
-  float WriteTime;
-
-  float SendWaitTime;
-  float SendTime;
-  float ReceiveWaitTime;
-  float ReceiveTime;
-
   // This flag can force deep copies during send.
   int ForceDeepCopy;
 
+  vtkOutputWindow* OutputWindow;
+
+  vtkCommunicator* Communicator;
+
+  // Communicator which is a copy of the current user
+  // level communicator except the context; i.e. even if the tags 
+  // are the same, the RMI messages will not interfere with user 
+  // level messages. (This only works with MPI. When using threads,
+  // the tags have to be unique.)
+  vtkCommunicator* RMICommunicator;
+
 };
 
+
+inline int vtkMultiProcessController::Send(vtkDataObject *data, 
+					   int remoteThreadId, int tag)
+{
+  if (this->Communicator)
+    {
+    return this->Communicator->Send(data, remoteThreadId, tag);
+    }
+  else
+    {
+    return 0;
+    }
+}
+
+inline int vtkMultiProcessController::Send(int* data, int length, 
+					   int remoteThreadId, int tag)
+{
+  if (this->Communicator)
+    {
+    return this->Communicator->Send(data, length, remoteThreadId, tag);
+    }
+  else
+    {
+    return 0;
+    }
+}
+
+inline int vtkMultiProcessController::Send(unsigned long* data, 
+					   int length, int remoteThreadId, 
+					   int tag)
+{
+  if (this->Communicator)
+    {
+    return this->Communicator->Send(data, length, remoteThreadId, tag);
+    }
+  else
+    {
+    return 0;
+    }
+}
+
+inline int vtkMultiProcessController::Send(char* data, int length, 
+					   int remoteThreadId, int tag)
+{
+  if (this->Communicator)
+    {
+    return this->Communicator->Send(data, length, remoteThreadId, tag);
+    }
+  else
+    {
+    return 0;
+    }
+}
+
+inline int vtkMultiProcessController::Send(float* data, int length, 
+					   int remoteThreadId, int tag)
+{
+  if (this->Communicator)
+    {
+    return this->Communicator->Send(data, length, remoteThreadId, tag);
+    }
+  else
+    {
+    return 0;
+    }
+}
+
+inline int vtkMultiProcessController::Receive(vtkDataObject* data, 
+					      int remoteThreadId, int tag)
+{
+  if (this->Communicator)
+    {
+    return this->Communicator->Receive(data, remoteThreadId, tag);
+    }
+  else
+    {
+    return 0;
+    }
+}
+
+inline int vtkMultiProcessController::Receive(int* data, int length, 
+					      int remoteThreadId, int tag)
+{
+  if (this->Communicator)
+    {
+    return this->Communicator->Receive(data, length, remoteThreadId, tag);
+    }
+  else
+    {
+    return 0;
+    }
+}
+
+inline int vtkMultiProcessController::Receive(unsigned long* data, 
+					      int length,int remoteThreadId, 
+					      int tag)
+{
+  if (this->Communicator)
+    {
+    return this->Communicator->Receive(data, length, remoteThreadId, tag);
+    }
+  else
+    {
+    return 0;
+    }
+}
+
+inline int vtkMultiProcessController::Receive(char* data, int length, 
+					      int remoteThreadId, int tag)
+{
+  if (this->Communicator)
+    {
+    return this->Communicator->Receive(data, length, remoteThreadId, tag);
+    }
+  else
+    {
+    return 0;
+    }
+}
+
+inline int vtkMultiProcessController::Receive(float* data, int length, 
+					      int remoteThreadId, int tag)
+{
+  if (this->Communicator)
+    {
+    return this->Communicator->Receive(data, length, remoteThreadId, tag);
+    }
+  else
+    {
+    return 0;
+    }
+}
 
 #endif
 

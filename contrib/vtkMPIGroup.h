@@ -44,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .SECTION Description
 // This class is used to create MPI groups. A vtkMPIGroup object
 // has to be initialized by passing the controller. Then the
-// group can be created by adding, removing ids and copying the contents
+// group can be modified by adding, removing ids and copying the contents
 // of another group.
 
 // .SECTION See Also
@@ -119,6 +119,11 @@ public:
 //ETX
 
 protected:
+
+  // Description:
+  // Copies all the information from group, erasing
+  // previously stored data. Similar to copy constructor
+  void CopyFrom(vtkMPIGroup* group);
 
   // Description:
   // Allocate memory for numProcIds process ids

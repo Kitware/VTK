@@ -63,13 +63,6 @@ class vtkRectilinearGrid;
 class vtkStructuredPoints;
 class vtkImageData;
 
-// Arbitrary tags used by the ports for communication.
-#define VTK_PORT_DOWN_DATA_TIME_TAG         98970
-#define VTK_PORT_UPDATE_EXTENT_TAG          98971
-#define VTK_PORT_TRANSFER_NEEDED_TAG        98972
-#define VTK_PORT_INFORMATION_TRANSFER_TAG   98973
-#define VTK_PORT_DATA_TRANSFER_TAG          98974
-#define VTK_PORT_NEW_DATA_TIME_TAG          98975
 
 
 class VTK_EXPORT vtkInputPort : public vtkSource
@@ -122,6 +115,20 @@ public:
   vtkMultiProcessController *GetController() {return this->Controller;}
   vtkSetObjectMacro(Controller, vtkMultiProcessController);
   
+//BTX
+
+// Arbitrary tags used by the ports for communication.
+  enum Tags {
+    DOWN_DATA_TIME_TAG = 98970,
+    UPDATE_EXTENT_TAG = 98971,
+    TRANSFER_NEEDED_TAG = 98972,
+    INFORMATION_TRANSFER_TAG = 98973,
+    DATA_TRANSFER_TAG = 98974,
+    NEW_DATA_TIME_TAG = 98975,
+  };
+
+//ETX
+
 protected:
   vtkInputPort();
   ~vtkInputPort();  

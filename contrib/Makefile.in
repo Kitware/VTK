@@ -19,7 +19,8 @@ ABSTRACT_H =
 
 CONCRETE_H = 
 
-ABSTRACT = 
+ABSTRACT = \
+vtkCommunicator
 
 CONCRETE = \
 vtkArcPlotter \
@@ -62,6 +63,7 @@ vtkInputPort \
 vtkOutputPort \
 vtkVRMLImporter \
 vtkXYPlotActor \
+vtkSharedMemoryCommunicator \
 ${CONTROLLER_API_OBJ}
 
 

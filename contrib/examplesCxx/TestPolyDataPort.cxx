@@ -87,14 +87,14 @@ void  process_b( vtkMultiProcessController *controller, void *arg )
     rttiffw->SetFileName(save_filename); 
     rttiffw->Write(); 
     // Tell the other process to stop waiting.
-    controller->TriggerRMI(otherid, VTK_BREAK_RMI_TAG);
+    controller->TriggerRMI(otherid, vtkMultiProcessController::BREAK_RMI_TAG);
     exit(1);
     }
   else
     {
     //  Begin mouse interaction
     iren->Start();
-    controller->TriggerRMI(otherid, VTK_BREAK_RMI_TAG);
+    controller->TriggerRMI(otherid, vtkMultiProcessController::BREAK_RMI_TAG);
     }
   
   // Clean up

@@ -76,14 +76,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMesaRenderWindow.h"
 #endif
 
-
-
-#define VTK_COMPOSITE_RENDER_RMI_TAG 12721
-#define VTK_COMPUTE_VISIBLE_PROP_BOUNDS_RMI_TAG 56563
-#define VTK_COMPOSITE_WIN_INFO_TAG   22134
-#define VTK_COMPOSITE_REN_INFO_TAG   22135
-#define VTK_COMPOSITE_BOUNDS_TAG   94135
-
 // Structures to communicate render info.
 struct vtkCompositeRenderWindowInfo 
 {
@@ -397,7 +389,7 @@ void vtkTreeComposite::RenderRMI()
   // Receive the window size.
   controller->Receive((char*)(&winInfo), 
                       sizeof(struct vtkCompositeRenderWindowInfo), 0, 
-                      VTK_COMPOSITE_WIN_INFO_TAG);
+                      vtkTreeComposite::WIN_INFO_TAG);
   renWin->SetSize(winInfo.Size);
 
   // Synchronize the renderers.
@@ -408,7 +400,7 @@ void vtkTreeComposite::RenderRMI()
     // Receive the camera information.
     controller->Receive((char*)(&renInfo), 
                         sizeof(struct vtkCompositeRendererInfo), 
-                        0, VTK_COMPOSITE_REN_INFO_TAG);
+                        0, vtkTreeComposite::REN_INFO_TAG);
     ren = rens->GetNextItem();
     if (ren == NULL)
       {
@@ -450,10 +442,10 @@ void vtkTreeComposite::StartInteractor()
     }
 
   this->Controller->AddRMI(vtkTreeCompositeRenderRMI, (void*)this, 
-                           VTK_COMPOSITE_RENDER_RMI_TAG); 
+                           vtkTreeComposite::RENDER_RMI_TAG); 
 
   this->Controller->AddRMI(vtkTreeCompositeComputeVisiblePropBoundsRMI,
-   	             (void*)this, VTK_COMPUTE_VISIBLE_PROP_BOUNDS_RMI_TAG); 
+			   (void*)this,COMPUTE_VISIBLE_PROP_BOUNDS_RMI_TAG); 
   
   this->Controller->ProcessRMIs();
 }
@@ -473,7 +465,7 @@ void vtkTreeComposite::ExitInteractor()
   numProcs = this->Controller->GetNumberOfProcesses();
   for (id = 1; id < numProcs; ++id)
     {
-    this->Controller->TriggerRMI(id, VTK_BREAK_RMI_TAG);
+    this->Controller->TriggerRMI(id, vtkMultiProcessController::BREAK_RMI_TAG);
     }
 }
 
@@ -512,11 +504,11 @@ void vtkTreeComposite::StartRender()
   winInfo.NumberOfRenderers = rens->GetNumberOfItems();
   for (id = 1; id < numProcs; ++id)
     {
-    controller->TriggerRMI(id, NULL, 0, VTK_COMPOSITE_RENDER_RMI_TAG);
+    controller->TriggerRMI(id, NULL, 0, vtkTreeComposite::RENDER_RMI_TAG);
     // Synchronize the size of the windows.
     controller->Send((char*)(&winInfo), 
                      sizeof(vtkCompositeRenderWindowInfo), id, 
-                     VTK_COMPOSITE_WIN_INFO_TAG);
+                     vtkTreeComposite::WIN_INFO_TAG);
     }
   
   // Make sure the satellite renderers have the same camera I do.
@@ -543,7 +535,7 @@ void vtkTreeComposite::StartRender()
       {
       controller->Send((char*)(&renInfo),
                        sizeof(struct vtkCompositeRendererInfo), id, 
-                       VTK_COMPOSITE_REN_INFO_TAG);
+                       vtkTreeComposite::REN_INFO_TAG);
       }
     }
   
@@ -630,14 +622,14 @@ void vtkTreeComposite::ComputeVisiblePropBounds(vtkRenderer *ren,
   num = this->Controller->GetNumberOfProcesses();  
   for (id = 1; id < num; ++id)
     {
-    this->Controller->TriggerRMI(id,  VTK_COMPUTE_VISIBLE_PROP_BOUNDS_RMI_TAG);
+    this->Controller->TriggerRMI(id,COMPUTE_VISIBLE_PROP_BOUNDS_RMI_TAG);
     }
 
   ren->ComputeVisiblePropBounds(bounds);
 
   for (id = 1; id < num; ++id)
     {
-    this->Controller->Receive(tmp, 6, id, VTK_COMPOSITE_BOUNDS_TAG);
+    this->Controller->Receive(tmp, 6, id, vtkTreeComposite::BOUNDS_TAG);
     if (tmp[0] < bounds[0]) {bounds[0] = tmp[0];}
     if (tmp[1] > bounds[1]) {bounds[1] = tmp[1];}
     if (tmp[2] < bounds[2]) {bounds[2] = tmp[2];}
@@ -660,7 +652,7 @@ void vtkTreeComposite::ComputeVisiblePropBoundsRMI()
 
   ren->ComputeVisiblePropBounds(bounds);
 
-  this->Controller->Send(bounds, 6, 0, VTK_COMPOSITE_BOUNDS_TAG);
+  this->Controller->Send(bounds, 6, 0, vtkTreeComposite::BOUNDS_TAG);
 }
 
 //-------------------------------------------------------------------------

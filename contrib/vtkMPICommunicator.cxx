@@ -59,6 +59,8 @@ vtkMPICommunicator* vtkMPICommunicator::New()
   return new vtkMPICommunicator;
 }
 
+// Return the world communicator (i.e. MPI_COMM_WORLD).
+// Create one if necessary (singleton).
 vtkMPICommunicator* vtkMPICommunicator::GetWorldCommunicator()
 {
   int err, size;
@@ -86,6 +88,9 @@ vtkMPICommunicator* vtkMPICommunicator::GetWorldCommunicator()
       }
     comm->Initialized = 1;
     // To prevent the singleton from being deleted
+    // before Finalize().
+    // Note that Delete() is still public and malicious or erroneous
+    // code can still delete this singleton.
     comm->Register(0);
     vtkMPICommunicator::WorldCommunicator = comm;
     }
@@ -94,7 +99,7 @@ vtkMPICommunicator* vtkMPICommunicator::GetWorldCommunicator()
 
 void vtkMPICommunicator::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkObject::PrintSelf(os,indent);
+  this->vtkCommunicator::PrintSelf(os,indent);
   os << indent << "Group: ";
   if (this->Group)
     {
@@ -118,6 +123,8 @@ void vtkMPICommunicator::PrintSelf(ostream& os, vtkIndent indent)
   os << endl;
   os << indent << "Initialized: " << (this->Initialized ? "(yes)" : "(no)")
      << endl;
+  os << indent << "Keep handle: " << (this->KeepHandle ? "(yes)" : "(no)")
+     << endl;
   if ( this != vtkMPICommunicator::WorldCommunicator )
     {
     os << indent << "World communicator: ";
@@ -140,11 +147,13 @@ vtkMPICommunicator::vtkMPICommunicator()
   this->Handle = 0;
   this->Group = 0;
   this->Initialized = 0;
+  this->KeepHandle = 0;
 }
 
 vtkMPICommunicator::~vtkMPICommunicator()
 {
-  if (this->Handle)
+  // Free the handle if required and asked for.
+  if (this->Handle && !this->KeepHandle)
     {
     MPI_Comm_free(this->Handle);
     }
@@ -161,13 +170,15 @@ int vtkMPICommunicator::Initialize(vtkMPICommunicator* mpiComm,
     }
 
   // If mpiComm has been initialized, it is guaranteed (unless
-  // the MPI call return an error somewhere) to have valid 
+  // the MPI calls return an error somewhere) to have valid 
   // Communicator and Group
   if (!mpiComm->Initialized)
     {
     vtkWarningMacro("The communicator passed has not been initialized!");
     return 0;
     }
+
+  this->KeepHandleOff();
 
   int nProcIds = group->GetNumberOfProcessIds();
   // The new group has to be a sub-class
@@ -249,7 +260,250 @@ int vtkMPICommunicator::Initialize(vtkMPICommunicator* mpiComm,
   // to create new ones
   this->SetGroup(group);
 
+  this->Modified();
+
   return 1;
 
 }
-  
+
+// Start the copying process  
+void vtkMPICommunicator::InitializeCopy(vtkMPICommunicator* source)
+{
+  if(!source)
+    {
+    return;
+    }
+
+  this->SetGroup(0);
+  this->Group = vtkMPIGroup::New();
+  this->Group->CopyFrom(source->Group);
+
+  if (this->Handle && !this->KeepHandle)
+    {
+      MPI_Comm_free(this->Handle);
+    }
+  delete this->Handle;
+  this->Handle = 0;
+
+  this->Initialized = source->Initialized;
+  this->Modified();
+}
+
+// Copy the MPI handle
+void vtkMPICommunicator::CopyFrom(vtkMPICommunicator* source)
+{
+  this->InitializeCopy(source);
+
+  if (source->Handle)
+    {
+    this->KeepHandleOn();
+    this->Handle = new MPI_Comm;
+    *(this->Handle) = *(source->Handle);
+    }
+}
+
+// Duplicate the MPI handle
+void vtkMPICommunicator::Duplicate(vtkMPICommunicator* source)
+{
+  this->InitializeCopy(source);
+
+  this->KeepHandleOff();
+
+  if (source->Handle)
+    {
+    this->Handle = new MPI_Comm;
+    int err;
+    if ( (err = MPI_Comm_dup(*(source->Handle), this->Handle))
+	  != MPI_SUCCESS ) 
+      {
+      char *msg = vtkMPIController::ErrorString(err);
+      vtkErrorMacro("MPI error occured: " << msg);
+      delete[] msg;
+      }                      
+    }
+}
+
+//----------------------------------------------------------------------------
+int vtkMPICommunicator::Send(int* data, int length, int remoteProcessId, 
+			    int tag)
+{
+  int err = 
+    MPI_Send(data, length, MPI_INT, remoteProcessId, tag, 
+	     *(this->Handle));
+  if ( err == MPI_SUCCESS )
+    {
+    return 1;
+    }
+  else
+    {
+    char *msg = vtkMPIController::ErrorString(err);
+    vtkErrorMacro("MPI error occured: " << msg);
+    delete[] msg;
+    return 0;
+    }
+
+}
+//----------------------------------------------------------------------------
+int vtkMPICommunicator::Send(unsigned long* data, int length, 
+			     int remoteProcessId, int tag)
+{
+  int err = 
+    MPI_Send(data, length, MPI_UNSIGNED_LONG, remoteProcessId, tag, 
+	     *(this->Handle));
+  if ( err == MPI_SUCCESS )
+    {
+    return 1;
+    }
+  else
+    {
+    char *msg = vtkMPIController::ErrorString(err);
+    vtkErrorMacro("MPI error occured: " << msg);
+    delete[] msg;
+    return 0;
+    }
+}
+//----------------------------------------------------------------------------
+int vtkMPICommunicator::Send(char* data, int length, 
+			     int remoteProcessId, int tag)
+{
+  int err = 
+    MPI_Send(data, length, MPI_CHAR, remoteProcessId, tag, 
+	     *(this->Handle));
+  if ( err == MPI_SUCCESS )
+    {
+    return 1;
+    }
+  else
+    {
+    char *msg = vtkMPIController::ErrorString(err);
+    vtkErrorMacro("MPI error occured: " << msg);
+    delete[] msg;
+    return 0;
+    }
+}
+//----------------------------------------------------------------------------
+int vtkMPICommunicator::Send(float* data, int length, 
+			     int remoteProcessId, int tag)
+{
+  int err = 
+    MPI_Send(data, length, MPI_FLOAT, remoteProcessId, tag, 
+	     *(this->Handle));
+  if ( err == MPI_SUCCESS )
+    {
+    return 1;
+    }
+  else
+    {
+    char *msg = vtkMPIController::ErrorString(err);
+    vtkErrorMacro("MPI error occured: " << msg);
+    delete[] msg;
+    return 0;
+    }
+}
+
+
+
+//----------------------------------------------------------------------------
+int vtkMPICommunicator::Receive(int* data, int length, 
+				int remoteProcessId, int tag)
+{
+  MPI_Status status; 
+
+  if (remoteProcessId == vtkMultiProcessController::ANY_SOURCE)
+    {
+    remoteProcessId = MPI_ANY_SOURCE;
+    }
+  int err = 
+    MPI_Recv(data, length, MPI_INT, remoteProcessId, tag, 
+	     *(this->Handle),
+	     &status);
+  if ( err == MPI_SUCCESS )
+    {
+    return 1;
+    }
+  else
+    {
+    char *msg = vtkMPIController::ErrorString(err);
+    vtkErrorMacro("MPI error occured: " << msg);
+    delete[] msg;
+    return 0;
+    }
+
+}
+//----------------------------------------------------------------------------
+int vtkMPICommunicator::Receive(unsigned long* data, int length, 
+				int remoteProcessId, int tag)
+{
+  MPI_Status status; 
+
+  if (remoteProcessId == vtkMultiProcessController::ANY_SOURCE)
+    {
+    remoteProcessId = MPI_ANY_SOURCE;
+    }
+  int err = 
+    MPI_Recv(data, length, MPI_UNSIGNED_LONG, remoteProcessId, 
+	     tag, *(this->Handle), &status);
+  if ( err == MPI_SUCCESS )
+    {
+    return 1;
+    }
+  else
+    {
+    char *msg = vtkMPIController::ErrorString(err);
+    vtkErrorMacro("MPI error occured: " << msg);
+    delete[] msg;
+    return 0;
+    }
+}
+//----------------------------------------------------------------------------
+int vtkMPICommunicator::Receive(char* data, int length, 
+				int remoteProcessId, int tag)
+{
+  MPI_Status status; 
+
+  if (remoteProcessId == vtkMultiProcessController::ANY_SOURCE)
+    {
+    remoteProcessId = MPI_ANY_SOURCE;
+    }
+  int err = 
+    MPI_Recv(data, length, MPI_CHAR, remoteProcessId, tag, 
+	     *(this->Handle),
+	     &status);
+  if ( err == MPI_SUCCESS )
+    {
+    return 1;
+    }
+  else
+    {
+    char *msg = vtkMPIController::ErrorString(err);
+    vtkErrorMacro("MPI error occured: " << msg);
+    delete[] msg;
+    return 0;
+    }
+}
+//----------------------------------------------------------------------------
+int vtkMPICommunicator::Receive(float* data, int length, 
+				int remoteProcessId, int tag)
+{
+  MPI_Status status; 
+
+  if (remoteProcessId == vtkMultiProcessController::ANY_SOURCE)
+    {
+    remoteProcessId = MPI_ANY_SOURCE;
+    }
+  int err = 
+    MPI_Recv(data, length, MPI_FLOAT, remoteProcessId, tag, 
+	     *(this->Handle),
+	     &status);
+  if ( err == MPI_SUCCESS )
+    {
+    return 1;
+    }
+  else
+    {
+    char *msg = vtkMPIController::ErrorString(err);
+    vtkErrorMacro("MPI error occured: " << msg);
+    delete[] msg;
+    return 0;
+    }
+}

@@ -48,15 +48,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 #include "vtkCollection.h"
-#include "vtkDataSetReader.h"
-#include "vtkDataSetWriter.h"
-#include "vtkStructuredPointsReader.h"
-#include "vtkStructuredPointsWriter.h"
-#include "vtkImageClip.h"
-#include "vtkTimerLog.h"
 #include "vtkObjectFactory.h"
-
-
+#include "vtkOutputWindow.h"
 
 
 // Helper class to contain the RMI information.  
@@ -112,15 +105,15 @@ vtkMultiProcessController::vtkMultiProcessController()
   
   this->LocalProcessId = 0;
   this->NumberOfProcesses = 1;
-  this->MaximumNumberOfProcesses = VTK_MP_CONTROLLER_MAX_PROCESSES;
+  this->MaximumNumberOfProcesses = MAX_PROCESSES;
   
   this->RMIs = vtkCollection::New();
-  this->MarshalString = NULL;
-  this->MarshalStringLength = 0;
-  this->MarshalDataLength = 0;
   
-  this->SingleMethod = NULL;
-  this->SingleData = NULL;   
+  this->SingleMethod = 0;
+  this->SingleData = 0;   
+
+  this->Communicator = 0;
+  this->RMICommunicator = 0;
   
   for ( i = 0; i < VTK_MAX_THREADS; i++ )
     {
@@ -128,21 +121,11 @@ vtkMultiProcessController::vtkMultiProcessController()
     this->MultipleData[i] = NULL;
     }
 
-  this->WriteTime = 0.0;
-  this->ReadTime = 0.0;
-
-  this->SendTime = 0.0;
-  this->SendWaitTime = 0.0;
-
-  this->ReceiveTime = 0.0;
-  this->ReceiveWaitTime = 0.0;
-
   this->BreakFlag = 0;
   this->ForceDeepCopy = 1;
 
   // Define an rmi internally to exit from the processing loop.
-  this->AddRMI(vtkMultiProcessControllerBreakRMI, this,
-	       VTK_BREAK_RMI_TAG);
+  this->AddRMI(vtkMultiProcessControllerBreakRMI, this, BREAK_RMI_TAG);
 }
 
 //----------------------------------------------------------------------------
@@ -150,13 +133,20 @@ vtkMultiProcessController::vtkMultiProcessController()
 // (We need to have a "GetNetReferenceCount" to avoid memory leaks.)
 vtkMultiProcessController::~vtkMultiProcessController()
 {
+  if ( this->OutputWindow == vtkOutputWindow::GetInstance() )
+    {
+    vtkOutputWindow::SetInstance(0);
+    }
+
+  if (this->OutputWindow)
+    {
+    this->OutputWindow->Delete();
+    }
+
   this->RMIs->Delete();
   this->RMIs = NULL;
   // deletes string
-  this->DeleteAndSetMarshalString(NULL, 0);
-
 }
-
 
   
 //----------------------------------------------------------------------------
@@ -196,14 +186,40 @@ void vtkMultiProcessController::PrintSelf(ostream& os, vtkIndent indent)
      << this->MaximumNumberOfProcesses << endl;
   os << indent << "NumberOfProcesses: " << this->NumberOfProcesses << endl;
   os << indent << "LocalProcessId: " << this->LocalProcessId << endl;
-  os << indent << "MarshalStringLength: " << this->MarshalStringLength << endl;
-  os << indent << "MarshalDataLength: " << this->MarshalDataLength << endl;
-  os << indent << "ReceiveWaitTime: " << this->ReceiveWaitTime << endl;
-  os << indent << "ReceiveTime: " << this->ReceiveTime << endl;
-  os << indent << "SendWaitTime: " << this->SendWaitTime << endl;
-  os << indent << "SendTime: " << this->SendTime << endl;
-  os << indent << "ReadTime: " << this->ReadTime << endl;
-  os << indent << "WriteTime: " << this->WriteTime << endl;
+  os << indent << "Break flag: " << (this->BreakFlag ? "(yes)" : "(no)") 
+     << endl;
+  os << indent << "Force deep copy: " << (this->ForceDeepCopy ? "(yes)" : "(no)") 
+     << endl;
+  os << indent << "Output window: ";
+  if (this->OutputWindow)
+    {
+    os << endl;
+    this->OutputWindow->PrintSelf(os, nextIndent);
+    }
+  else
+    {
+    os << "(nil)" << endl;
+    }
+  os << indent << "Communicator: ";
+  if (this->Communicator)
+    {
+    os << endl;
+    this->Communicator->PrintSelf(os, nextIndent);
+    }
+  else
+    {
+    os << "(nil)" << endl;
+    }
+  os << indent << "RMI communicator: ";
+  if (this->RMICommunicator)
+    {
+    os << endl;
+    this->RMICommunicator->PrintSelf(os, nextIndent);
+    }
+  else
+    {
+    os << "(nil)" << endl;
+    }
   os << indent << "RMIs: \n";
   
   this->RMIs->InitTraversal();
@@ -212,14 +228,6 @@ void vtkMultiProcessController::PrintSelf(ostream& os, vtkIndent indent)
     os << nextIndent << rmi->Tag << endl;
     }
   
-  os << indent << "SendWaitTime: " << this->SendWaitTime << endl;
-  os << indent << "SendTime: " << this->SendTime << endl;
-  os << indent << "ReceiveWaitTime: " << this->ReceiveWaitTime << endl;
-  os << indent << "ReceiveTime: " << this->ReceiveTime << endl;
-  os << indent << "ReadTime: " << this->ReadTime << endl;
-  os << indent << "WriteTime: " << this->WriteTime << endl;
-  os << indent << "BreakFlag: " << this->BreakFlag << endl;
-  os << indent << "ForceDeepCopy: " << this->ForceDeepCopy << endl;
 }
 
 //----------------------------------------------------------------------------
@@ -233,8 +241,8 @@ void vtkMultiProcessController::SetNumberOfProcesses(int num)
   if (num < 1 || num > this->MaximumNumberOfProcesses)
     {
     vtkErrorMacro( << num 
-	  << "is an invalid number of processes try a number from 1 to " 
-	  << (this->NumberOfProcesses - 1));
+	  << " is an invalid number of processes try a number from 1 to " 
+	  << this->NumberOfProcesses );
     return;
     }
   
@@ -273,105 +281,6 @@ void vtkMultiProcessController::SetMultipleMethod( int index,
     }
 }
 
-
-
-
-//----------------------------------------------------------------------------
-int vtkMultiProcessController::Send(vtkDataObject *data, int remoteProcessId, 
-				    int tag)
-{
-  vtkTimerLog *log;
-
-  if (tag == VTK_MP_CONTROLLER_RMI_TAG)
-    {
-    vtkWarningMacro("The tag " << tag << " is reserved for RMIs.");
-    }
-  if (data == NULL)
-    {
-    this->MarshalDataLength = 0;
-    this->Send( &this->MarshalDataLength, 1,      
-		remoteProcessId, tag);
-    return 1;
-    }
-  if (this->WriteObject(data))
-    {
-    log = vtkTimerLog::New();
-    // First send the length of the string,
-    log->StartTimer();
-    this->Send( &this->MarshalDataLength, 1,      
-		remoteProcessId, tag);
-    log->StopTimer();
-    this->SendWaitTime = log->GetElapsedTime();
-    // then send the string.
-    log->StartTimer();
-    this->Send( this->MarshalString, this->MarshalDataLength, 
-		remoteProcessId, tag);
-    log->StopTimer();
-    this->SendTime = log->GetElapsedTime();
-    
-    log->Delete();
-    return 1;
-    }
-  
-  // could not marshal data
-  return 0;
-}
-
-//----------------------------------------------------------------------------
-int vtkMultiProcessController::Receive(vtkDataObject *data, 
-				       int remoteProcessId, int tag)
-{
-  int dataLength;
-  vtkTimerLog *log = vtkTimerLog::New();
-
-  // First receive the data length.
-  log->StartTimer();
-  if (!this->Receive( &dataLength, 1, remoteProcessId, tag))
-    {
-    vtkErrorMacro("Could not receive data!");
-    log->Delete();
-    return 0;
-    }
-  
-  log->StopTimer();
-  this->ReceiveWaitTime = log->GetElapsedTime();
-
-  if (dataLength < 0)
-    {
-    vtkErrorMacro("Bad data length");
-    log->Delete();
-    return 0;
-    }
-  
-  if (dataLength == 0)
-    { // This indicates a NULL object was sent. Do nothing.
-    log->Delete();
-    return 1;   
-    }
-  
-  // if we cannot reuse the string, allocate a new one.
-  if (dataLength > this->MarshalStringLength)
-    {
-    char *str = new char[dataLength + 10]; // maybe a little extra?
-    this->DeleteAndSetMarshalString(str, dataLength + 10);
-    }
-  
-  // Receive the string
-  log->StartTimer();
-  this->Receive(this->MarshalString, dataLength, 
-		remoteProcessId, tag);
-  this->MarshalDataLength = dataLength;
-  log->StopTimer();
-  this->ReceiveTime = log->GetElapsedTime();
-  
-  this->ReadObject(data);
-
-  // we should really look at status to determine success
-  log->Delete();
-  return 1;
-}
-
-
 //----------------------------------------------------------------------------
 void vtkMultiProcessController::AddRMI(vtkRMIFunctionType f, 
                                        void *localArg, int tag)
@@ -407,11 +316,11 @@ void vtkMultiProcessController::TriggerRMI(int remoteProcessId,
   // The remote method will know where to get additional args.
   triggerMessage[2] = this->GetLocalProcessId();
 
-  this->Send(triggerMessage, 3, remoteProcessId, VTK_MP_CONTROLLER_RMI_TAG);
+  this->RMICommunicator->Send(triggerMessage, 3, remoteProcessId, RMI_TAG);
   if (argLength > 0)
     {
-    this->Send((char*)arg, argLength, remoteProcessId,  
-               VTK_MP_CONTROLLER_RMI_ARG_TAG);
+    this->RMICommunicator->Send((char*)arg, argLength, remoteProcessId,  
+				 RMI_ARG_TAG);
     } 
 }
 
@@ -423,16 +332,16 @@ void vtkMultiProcessController::ProcessRMIs()
   
   while (1)
     {
-    if (!this->Receive(triggerMessage, 3, VTK_MP_CONTROLLER_ANY_SOURCE, 
-		       VTK_MP_CONTROLLER_RMI_TAG))
+    if (!this->RMICommunicator->Receive(triggerMessage, 3, ANY_SOURCE, 
+					RMI_TAG))
       {
       break;
       }
     if (triggerMessage[1] > 0)
       {
       arg = new unsigned char[triggerMessage[1]];
-      if (!this->Receive((char*)(arg), triggerMessage[1], 
-			 triggerMessage[2], VTK_MP_CONTROLLER_RMI_ARG_TAG))
+      if (!this->RMICommunicator->Receive((char*)(arg), triggerMessage[1], 
+					  triggerMessage[2], RMI_ARG_TAG))
 	{
 	break;
 	}
@@ -487,190 +396,6 @@ void vtkMultiProcessController::ProcessRMI(int remoteProcessId,
       }     
     }
 }
-
-//----------------------------------------------------------------------------
-// Internal method.  Assumes responsibility for deleting the string
-void vtkMultiProcessController::DeleteAndSetMarshalString(char *str, 
-							  int strLength)
-{
-  // delete any previous string
-  if (this->MarshalString)
-    {
-    delete [] this->MarshalString;
-    this->MarshalString = NULL;
-    this->MarshalStringLength = 0;
-    this->MarshalDataLength = 0;
-    }
-  
-  this->MarshalString = str;
-  this->MarshalStringLength = strLength;
-}
-
-
-  
-//----------------------------------------------------------------------------
-int vtkMultiProcessController::WriteObject(vtkDataObject *data)
-{
-  if (strcmp(data->GetClassName(), "vtkPolyData") == 0          ||
-      strcmp(data->GetClassName(), "vtkUnstructuredGrid") == 0  ||
-      strcmp(data->GetClassName(), "vtkStructuredGrid") == 0    ||
-      strcmp(data->GetClassName(), "vtkRectilinearGrid") == 0   ||
-      strcmp(data->GetClassName(), "vtkStructuredPoints") == 0)
-    {
-    return this->WriteDataSet((vtkDataSet*)data);
-    }  
-  if (strcmp(data->GetClassName(), "vtkImageData") == 0)
-    {
-    return this->WriteImageData((vtkImageData*)data);
-    }
-  
-  vtkErrorMacro("Cannot marshal object of type "
-		<< data->GetClassName());
-  return 0;
-}
-
-//----------------------------------------------------------------------------
-int vtkMultiProcessController::ReadObject(vtkDataObject *data)
-{
-  if (strcmp(data->GetClassName(), "vtkPolyData") == 0          ||
-      strcmp(data->GetClassName(), "vtkUnstructuredGrid") == 0  ||
-      strcmp(data->GetClassName(), "vtkStructuredGrid") == 0    ||
-      strcmp(data->GetClassName(), "vtkRectilinearGrid") == 0   ||
-      strcmp(data->GetClassName(), "vtkStructuredPoints") == 0)
-    {
-    return this->ReadDataSet((vtkDataSet*)data);
-    }  
-  if (strcmp(data->GetClassName(), "vtkImageData") == 0)
-    {
-    return this->ReadImageData((vtkImageData*)data);
-    }
-  
-  vtkErrorMacro("Cannot marshal object of type "
-		<< data->GetClassName());
-
-  return 1;
-}
-
-
-
-//----------------------------------------------------------------------------
-int vtkMultiProcessController::WriteImageData(vtkImageData *data)
-{
-  vtkImageClip *clip;
-  vtkStructuredPointsWriter *writer;
-  int size;
-  
-  // keep Update from propagating
-  vtkImageData *tmp = vtkImageData::New();
-  tmp->ShallowCopy(data);
-  
-  clip = vtkImageClip::New();
-  clip->SetInput(tmp);
-  clip->SetOutputWholeExtent(data->GetExtent());
-  writer = vtkStructuredPointsWriter::New();
-  writer->SetFileTypeToBinary();
-  writer->WriteToOutputStringOn();
-  writer->SetInput(clip->GetOutput());
-  writer->Write();
-  size = writer->GetOutputStringLength();
-  
-  this->DeleteAndSetMarshalString(writer->RegisterAndGetOutputString(), size);
-  this->MarshalDataLength = size;
-  clip->Delete();
-  writer->Delete();
-  tmp->Delete();
-  
-  return 1;
-}
-//----------------------------------------------------------------------------
-int vtkMultiProcessController::ReadImageData(vtkImageData *object)
-{
-  vtkStructuredPointsReader *reader = vtkStructuredPointsReader::New();
-
-  if (this->MarshalString == NULL || this->MarshalStringLength <= 0)
-    {
-    return 0;
-    }
-  
-  reader->ReadFromInputStringOn();
-  reader->SetInputString(this->MarshalString, this->MarshalDataLength);
-  reader->GetOutput()->Update();
-
-  object->ShallowCopy(reader->GetOutput());
-  
-  reader->Delete();
-
-  return 1;
-}
-
-
-//----------------------------------------------------------------------------
-int vtkMultiProcessController::WriteDataSet(vtkDataSet *data)
-{
-  vtkDataSet *copy;
-  unsigned long size;
-  vtkDataSetWriter *writer = vtkDataSetWriter::New();
-  vtkTimerLog *log = vtkTimerLog::New();
-
-  log->StartTimer();
-
-  copy = (vtkDataSet*)(data->MakeObject());
-  copy->ShallowCopy(data);
-
-  // There is a problem with binary files with no data.
-  if (copy->GetNumberOfCells() > 0)
-    {
-    writer->SetFileTypeToBinary();
-    }
-  writer->WriteToOutputStringOn();
-  writer->SetInput(copy);
-  
-  writer->Write();
-  size = writer->GetOutputStringLength();
-  this->DeleteAndSetMarshalString(writer->RegisterAndGetOutputString(), size);
-  this->MarshalDataLength = size;
-  writer->Delete();
-  copy->Delete();
-
-  log->StopTimer();
-  this->WriteTime = log->GetElapsedTime();
-  log->Delete();
-  
-  return 1;
-}
-//----------------------------------------------------------------------------
-int vtkMultiProcessController::ReadDataSet(vtkDataSet *object)
-{
-  vtkDataSet *output;
-  vtkDataSetReader *reader = vtkDataSetReader::New();
-  vtkTimerLog *log;
-
-  if (this->MarshalString == NULL || this->MarshalStringLength <= 0)
-    {
-    return 0;
-    }
-  
-  log = vtkTimerLog::New();
-  log->StartTimer();
-  reader->ReadFromInputStringOn();
-  reader->SetInputString(this->MarshalString, this->MarshalDataLength);
-  output = reader->GetOutput();
-  output->Update();
-
-  object->ShallowCopy(output);
-  //object->DataHasBeenGenerated();
-
-  reader->Delete();
-
-  log->StopTimer();
-  this->ReadTime = log->GetElapsedTime();
-  log->Delete();
-
-  return 1;
-}
-
-
-
 
 
 //============================================================================

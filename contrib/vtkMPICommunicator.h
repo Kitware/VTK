@@ -60,12 +60,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkMPICommunicator_h
 #define __vtkMPICommunicator_h
 
+#include "vtkCommunicator.h"
 #include "vtkMPIGroup.h"
 #include "mpi.h"
 
 class vtkMPIController;
 
-class VTK_EXPORT vtkMPICommunicator : public vtkObject
+class VTK_EXPORT vtkMPICommunicator : public vtkCommunicator
 {
 
 public:
@@ -91,6 +92,33 @@ public:
   // this.
   int Initialize(vtkMPICommunicator* mpiComm, vtkMPIGroup* group);
 
+  // Description:
+  // This method sends data to another process.  Tag eliminates ambiguity
+  // when multiple sends or receives exist in the same process.
+  virtual int Send(int* data, int length, int remoteProcessId, int tag);
+  virtual int Send(unsigned long* data, int length, int remoteProcessId,
+		   int tag);
+  virtual int Send(char* data, int length, int remoteProcessId, int tag);
+  virtual int Send(float* data, int length, int remoteProcessId, 
+		   int tag);
+  virtual int Send(vtkDataObject* data, int remoteProcessId, int tag)
+    { return this->vtkCommunicator::Send(data, remoteProcessId, tag); }
+
+  // Description:
+  // This method receives data from a corresponding send. It blocks
+  // until the receive is finished.  It calls methods in "data"
+  // to communicate the sending data.
+  virtual int Receive(int* data, int length, int remoteProcessId, 
+		      int tag);
+  virtual int Receive(unsigned long* data, int length, 
+		      int remoteProcessId, int tag);
+  virtual int Receive(char* data, int length, int remoteProcessId, 
+		      int tag);
+  virtual int Receive(float* data, int length, int remoteProcessId, 
+		      int tag);
+  virtual int Receive(vtkDataObject* data, int remoteProcessId, int tag)
+    { return this->vtkCommunicator::Receive(data, remoteProcessId, tag); }
+
 //BTX
 
   friend vtkMPIController;
@@ -101,12 +129,45 @@ protected:
 
   vtkSetObjectMacro(Group, vtkMPIGroup);
 
+  // Description:
+  // KeepHandle is normally off. This means that the MPI
+  // communicator handle will be freed at the destruction
+  // of the object. However, if the handle was copied from
+  // another object (via CopyFrom() not Duplicate()), this
+  // has to be turned on otherwise the handle will be freed
+  // multiple times causing MPI failure. The alternative to
+  // this is using reference counting but it is unnecessarily
+  // complicated for this case.
+  vtkSetMacro(KeepHandle, int);
+  vtkBooleanMacro(KeepHandle, int);
+
   static vtkMPICommunicator* WorldCommunicator;
+
+  void InitializeCopy(vtkMPICommunicator* source);
+
+  // Description:
+  // Copies all the attributes of source, deleting previously
+  // stored data. The MPI communicator handle is also copied.
+  // Normally, this should not be needed. It is used during
+  // the construction of a new communicator for copying the
+  // world communicator, keeping the same context.
+  void CopyFrom(vtkMPICommunicator* source);
+
+  // Description:
+  // Copies all the attributes of source, deleting previously
+  // stored data EXCEPT the MPI communicator handle which is
+  // duplicated with MPI_Comm_dup(). Therefore, although the
+  // processes in the communicator remain the same, a new context
+  // is created. This prevents the two communicators from 
+  // intefering with each other during message send/receives even
+  // if the tags are the same.
+  void Duplicate(vtkMPICommunicator* source);
 
   MPI_Comm* Handle;
   vtkMPIGroup* Group;
 
   int Initialized;
+  int KeepHandle;
 
   vtkMPICommunicator();
   ~vtkMPICommunicator();

@@ -101,7 +101,6 @@ void vtkMPIGroup::Initialize(int numProcIds)
     return;
     }
 
-  // This should never happen
   if (this->ProcessIds)
     {
     delete[] this->ProcessIds;
@@ -118,6 +117,7 @@ void vtkMPIGroup::Initialize(int numProcIds)
     }
 
   this->Initialized = 1;
+  this->Modified();
   return;
 }
 
@@ -149,6 +149,8 @@ int vtkMPIGroup::AddProcessId(int processId)
     this->ProcessIds[this->CurrentPosition] = processId;
     return ++this->CurrentPosition;
     }
+
+  this->Modified();
 }
 
 void vtkMPIGroup::RemoveProcessId(int processId)
@@ -160,8 +162,9 @@ void vtkMPIGroup::RemoveProcessId(int processId)
       {
       this->ProcessIds[i] = this->ProcessIds[i+1];
       }
+    this->CurrentPosition--;
+    this->Modified();
     }
-  this->CurrentPosition--;
   return;
 }
 
@@ -215,5 +218,13 @@ void vtkMPIGroup::CopyProcessIdsFrom(vtkMPIGroup* group)
     this->CurrentPosition = this->MaximumNumberOfProcessIds;
     }
 
+  this->Modified();
   return;
+}
+
+void vtkMPIGroup::CopyFrom(vtkMPIGroup* source)
+{
+  this->Initialized = 0;
+  this->Initialize(source->MaximumNumberOfProcessIds);
+  this->CopyProcessIdsFrom(source);
 }

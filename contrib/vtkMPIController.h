@@ -40,34 +40,42 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 // .NAME vtkMPIController - Process communication using MPI
 // .SECTION Description
-// vtkMPIController supplies a minimal set of communication methods as an
-// abstract interface through a variety of multi-processing communication
-// techniques.  It accepts Sends and Receives as well as implements
-// remove method invocations (RMI)
-// The "RegisterAndGetGlobalController" ensures that at most one 
-// controller exists per process.  In most cases, the controller will
-// be created automatically by a higher level object.
-// The intent is to generalize this class to have different multiprocessing
-// options: Threads, forking processes with shared memory or pipes.
-// The initialization is modeled after vtkMultiThreader, and may merge with
-// vtkMultiThreader in the future.
+// vtkMPIController is a concrete class which implements the
+// abstract multi-process control methods defined in vtkMultiProcessController
+// using MPI (Message Passing Interface) 
+// cf. Using MPI / Portable Parallel Programming with the Message-Passing
+// Interface, Gropp et al, MIT Press.
+// It also provide functionality specific to MPI and not present in 
+// vtkMultiProcessController.
+// Before any MPI communication can occur Initialize() must be called
+// by all processes. It is required to be called once, controllers
+// created after this need not call Initialize().
+// At the end of the program Finalize() must be called by all
+// processes. 
+// The use of user-defined communicators are supported with 
+// vtkMPICommunicator and vtkMPIGroup. Note that a duplicate of
+// the user defined communicator is used for internal communications (RMIs).
+// This communicator has the same properties as the user one except that
+// it has a new context which prevents the two communicators from
+// interfering with each other.
 
 // .SECTION see also
-// vtkDownStreamPort vtkUpStreamPort vtkMultiThreader vtkMultiProcessController
+// vtkOutputPort vtkInputPort  vtkMultiProcessController
+// vtkMPICommunicator vtkMPIGroup
 
 #ifndef __vtkMPIController_h
 #define __vtkMPIController_h
 
-#include "vtkObject.h"
 #include "vtkMultiProcessController.h"
-#include "mpi.h"
+#include "vtkMPICommunicator.h"
 
-class vtkMPIOutputWindow;
+#include "mpi.h"
 
 class VTK_EXPORT vtkMPIController : public vtkMultiProcessController
 {
 
 public:
+
   static vtkMPIController *New();
   vtkTypeMacro(vtkMPIController,vtkMultiProcessController);
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -78,17 +86,21 @@ public:
   // Calling it more than once will have no effect. Controllers
   // created after this call will be initialized automatically
   // (i.e. they will have the proper LocalProcessId and NumberOfProcesses).
+  // The addresses of argc and argv should be passed to this method
+  // otherwise command line arguments will not be correct (because
+  // usually MPI implementations add their own arguments during
+  // startup).
   virtual void Initialize(int* argc, char*** arcv);
 
   // Description:
   // This method is for cleaning up and has to be called before
   // the end of the program if MPI was initialized with
-  // vtkMPIController::Initialize
+  //Initialize()
   virtual void Finalize();
 
   // Description:
   // Execute the SingleMethod (as define by SetSingleMethod) using
-  // this->NumberOfProcesses processes.  You should not expect this to return.
+  // this->NumberOfProcesses processes.  
   virtual void SingleMethodExecute();
   
   // Description:
@@ -97,44 +109,43 @@ public:
   // this->NumberOfProcesses processes.
   virtual void MultipleMethodExecute();
 
-  virtual void Barrier()
+  // Description:
+  // This method can be used to synchronize MPI processes in the
+  // current communicator. This uses the user communicator.
+  void Barrier()
     {
-      MPI_Barrier(MPI_COMM_WORLD);
+      vtkMPICommunicator* comm = (vtkMPICommunicator*)this->Communicator;
+      int err;
+      if ( (err = MPI_Barrier(*(comm->Handle)) ) 
+	   != MPI_SUCCESS ) 
+	{
+	char *msg = vtkMPIController::ErrorString(err);
+	vtkErrorMacro("MPI error occured: " << msg);
+	delete[] msg;
+	}
     }
 
   // Description:
   // This method can be used to tell the controller to create
   // a special output window in which all messages are preceded
   // by the process id.
-  void CreateOutputWindow();
+  virtual void CreateOutputWindow();
 
   // Description:
   // Given an MPI error code, return a string which contains
   // an error message. This string has to be freed by the user.
   static char* ErrorString(int err);
 
-  //------------------ Communication --------------------
-  
-  // Description:
-  // This method sends data to another process.  Tag eliminates ambiguity
-  // when multiple sends or receives exist in the same process.
-  virtual int Send(int *data, int length, int remoteProcessId, int tag);
-  virtual int Send(unsigned long *data, int length, int remoteProcessId, int tag);
-  virtual int Send(char *data, int length, int remoteProcessId, int tag);
-  virtual int Send(float *data, int length, int remoteProcessId, int tag);
-  virtual int Send(vtkDataObject *data, int remoteId, int tag)
-    {return this->vtkMultiProcessController::Send(data,remoteId,tag);}
 
   // Description:
-  // This method receives data from a corresponding send. It blocks
-  // until the receive is finished.  It calls methods in "data"
-  // to communicate the sending data.
-  virtual int Receive(int *data, int length, int remoteProcessId, int tag);
-  virtual int Receive(unsigned long *data, int length, int remoteProcessId, int tag);
-  virtual int Receive(char *data, int length, int remoteProcessId, int tag);
-  virtual int Receive(float *data, int length, int remoteProcessId, int tag);
-  virtual int Receive(vtkDataObject *data, int remoteId, int tag)
-    {return this->vtkMultiProcessController::Receive(data, remoteId, tag);}
+  // MPIController uses this communicator in all sends and
+  // receives. By default, MPI_COMM_WORLD is used.
+  // THIS SHOULD ONLY BE CALLED ON THE PROCESSES INCLUDED
+  // IN THE COMMUNICATOR. FOR EXAMPLE, IF THE COMMUNICATOR
+  // CONTAINES PROCESSES 0 AND 1, INVOKING THIS METHOD ON
+  // ANY OTHER PROCESS WILL CAUSE AN MPI ERROR AND POSSIBLY
+  // LEAD TO A CRASH.
+  void SetCommunicator(vtkMPICommunicator* comm);
 
 protected:
 
@@ -143,12 +154,28 @@ protected:
   vtkMPIController(const vtkMPIController&) {};
   void operator=(const vtkMPIController&) {};
 
+  // Given a communicator, obtain size and rank
+  // setting NumberOfProcesses and LocalProcessId
+  // Should not be called if the current communicator
+  // does not include this process
   int InitializeNumberOfProcesses();
+
+  // Set the communicator to comm and call InitializeNumberOfProcesses()
+  void InitializeCommunicator(vtkMPICommunicator* comm);
+
+  // Duplicate the current communicator, creating RMICommunicator
+  void InitializeRMICommunicator();
+
+  // MPI communicator created when Initialize() called.
+  // This is a copy of MPI_COMM_WORLD but uses a new
+  // context, i.e. even if the tags are the same, the
+  // RMI messages will not interfere with user level
+  // messages.
+  static vtkMPICommunicator* WorldRMICommunicator;
 
   // Initialize only once.
   static int Initialized;
 
-  vtkMPIOutputWindow* OutputWindow;
 
 };
 

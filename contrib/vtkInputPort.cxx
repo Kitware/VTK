@@ -316,11 +316,11 @@ void vtkInputPort::UpdateInformation()
   int wholeInformation[7];
   this->Controller->Receive( wholeInformation, 7, 
                              this->RemoteProcessId,
-                             VTK_PORT_INFORMATION_TRANSFER_TAG);
+                             vtkInputPort::INFORMATION_TRANSFER_TAG);
 
   this->Controller->Receive( &pmt, 1, 
                              this->RemoteProcessId,
-                             VTK_PORT_INFORMATION_TRANSFER_TAG);
+                             vtkInputPort::INFORMATION_TRANSFER_TAG);
 
   output->SetWholeExtent( wholeInformation );
     
@@ -383,14 +383,14 @@ void vtkInputPort::TriggerAsynchronousUpdate()
   extent[7] = output->GetUpdateNumberOfPieces();  
   extent[8] = output->GetUpdateGhostLevel();  
   this->Controller->Send( extent, 9, this->RemoteProcessId, 
-                          VTK_PORT_UPDATE_EXTENT_TAG);
+                          vtkInputPort::UPDATE_EXTENT_TAG);
 
   // This is for pipeline parallism.
   // The Upstream port may or may not promote its data (execute).
   // It needs the data time of our output to compare to the mtime
   // of its input to determine if it should send the data (execute).
   this->Controller->Send( &(this->DataTime), 1, this->RemoteProcessId,
-			  VTK_PORT_NEW_DATA_TIME_TAG);
+			  vtkInputPort::NEW_DATA_TIME_TAG);
   
   // This automatically causes to remotePort to send the data.
   // Tell the update method to receive the data.
@@ -425,7 +425,7 @@ void vtkInputPort::UpdateData(vtkDataObject *output)
   // receive the data
 
   this->Controller->Receive(output, this->RemoteProcessId,
-			    VTK_PORT_DATA_TRANSFER_TAG);
+			    vtkInputPort::DATA_TRANSFER_TAG);
 
   output->SetWholeExtent( wholeExtent );
 
@@ -433,7 +433,7 @@ void vtkInputPort::UpdateData(vtkDataObject *output)
 
   // Receive the data time
   this->Controller->Receive( &(this->DataTime), 1, this->RemoteProcessId,
-			    VTK_PORT_NEW_DATA_TIME_TAG);
+			    vtkInputPort::NEW_DATA_TIME_TAG);
      
   this->TransferNeeded = 0;
 }

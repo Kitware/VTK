@@ -83,7 +83,7 @@ void process_b(vtkMultiProcessController *controller, void *vtkNotUsed(arg) )
   
   //  Begin mouse interaction
   iren->Start();
-  controller->TriggerRMI(otherid, VTK_BREAK_RMI_TAG);
+  controller->TriggerRMI(otherid, vtkMultiProcessController::BREAK_RMI_TAG);
   
   // Clean up
   ren->Delete();
