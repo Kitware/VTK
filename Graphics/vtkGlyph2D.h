@@ -46,7 +46,8 @@ protected:
   vtkGlyph2D() {};
   ~vtkGlyph2D() {};
 
-  void Execute();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+
 private:
   vtkGlyph2D(const vtkGlyph2D&);  // Not implemented.
   void operator=(const vtkGlyph2D&);  // Not implemented.

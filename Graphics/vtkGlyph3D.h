@@ -67,7 +67,7 @@
 #ifndef __vtkGlyph3D_h
 #define __vtkGlyph3D_h
 
-#include "vtkDataSetToPolyDataFilter.h"
+#include "vtkDataSetToPolyDataAlgorithm.h"
 
 #define VTK_SCALE_BY_SCALAR 0
 #define VTK_SCALE_BY_VECTOR 1
@@ -86,10 +86,10 @@
 #define VTK_INDEXING_BY_SCALAR 1
 #define VTK_INDEXING_BY_VECTOR 2
 
-class VTK_GRAPHICS_EXPORT vtkGlyph3D : public vtkDataSetToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkGlyph3D : public vtkDataSetToPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkGlyph3D,vtkDataSetToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkGlyph3D,vtkDataSetToPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description
@@ -98,12 +98,6 @@ public:
   // orientation is by vector. Clamping and indexing are turned off. No
   // initial sources are defined.
   static vtkGlyph3D *New();
-
-  // Description:
-  // Get the number of source objects used to define the glyph
-  // table. Specify the number of sources before defining a table of glyphs.
-  void SetNumberOfSources(int num);
-  int GetNumberOfSources();
 
   // Description:
   // Set the source to use for he glyph.
@@ -233,11 +227,12 @@ protected:
   vtkGlyph3D();
   ~vtkGlyph3D();
 
-  void Execute();
-  void ExecuteInformation();
-  void ComputeInputUpdateExtents(vtkDataObject *output);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int FillInputPortInformation(int, vtkInformation *);
 
-  int NumberOfSources; // Number of source objects
+  vtkPolyData* GetSource(int idx, vtkInformationVector *sourceInfo);
+
   vtkPolyData **Source; // Geometry to copy to each point
   int Scaling; // Determine whether scaling of geometry is performed
   int ScaleMode; // Scale by scalar value or vector magnitude

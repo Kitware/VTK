@@ -16,6 +16,8 @@
 
 #include "vtkCell.h"
 #include "vtkDoubleArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -23,11 +25,17 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkGlyph2D, "1.23");
+vtkCxxRevisionMacro(vtkGlyph2D, "1.24");
 vtkStandardNewMacro(vtkGlyph2D);
 
-void vtkGlyph2D::Execute()
+int vtkGlyph2D::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
   vtkPointData *pd;
   vtkDataArray *inScalars;
   vtkDataArray *inVectors;
@@ -49,10 +57,13 @@ void vtkGlyph2D::Execute()
   vtkIdType ptIncr, cellId;
   int haveVectors, haveNormals;
   double scalex,scaley, den;
-  vtkPolyData *output = this->GetOutput();
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPointData *outputPD = output->GetPointData();
-  vtkDataSet *input = this->GetInput();
-  int numberOfSources = this->GetNumberOfSources();
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  int numberOfSources = this->GetNumberOfInputConnections(1);
+  vtkPolyData *source = 0;
 
   vtkDebugMacro(<<"Generating 2D glyphs");
 
@@ -86,7 +97,7 @@ void vtkGlyph2D::Execute()
     vtkDebugMacro(<<"No points to glyph!");
     pts->Delete();
     trans->Delete();
-    return;
+    return 1;
     }
 
   // Check input for consistency
@@ -111,12 +122,12 @@ void vtkGlyph2D::Execute()
        ((!inVectors && this->VectorMode == VTK_USE_VECTOR) ||
         (!inNormals && this->VectorMode == VTK_USE_NORMAL))) )
     {
-    if ( this->GetSource(0) == NULL )
+    if ( this->GetSource(0, inputVector[1]) == NULL )
       {
       vtkErrorMacro(<<"Indexing on but don't have data to index with");
       pts->Delete();
       trans->Delete();
-      return;
+      return 1;
       }
     else
       {
@@ -136,11 +147,12 @@ void vtkGlyph2D::Execute()
     haveNormals = 1;
     for (numSourcePts=numSourceCells=i=0; i < numberOfSources; i++)
       {
-      if ( this->GetSource(i) != NULL )
+      source = this->GetSource(i, inputVector[1]);
+      if ( source != NULL )
         {
-        numSourcePts += this->GetSource(i)->GetNumberOfPoints();
-        numSourceCells += this->GetSource(i)->GetNumberOfCells();
-        sourceNormals = this->GetSource(i)->GetPointData()->GetNormals();
+        numSourcePts += source->GetNumberOfPoints();
+        numSourceCells += source->GetNumberOfCells();
+        sourceNormals = source->GetPointData()->GetNormals();
         if ( !sourceNormals )
           {
           haveNormals = 0;
@@ -150,11 +162,12 @@ void vtkGlyph2D::Execute()
     }
   else
     {
-    sourcePts = this->GetSource(0)->GetPoints();
+    source = this->GetSource(0, inputVector[1]);
+    sourcePts = source->GetPoints();
     numSourcePts = sourcePts->GetNumberOfPoints();
-    numSourceCells = this->GetSource(0)->GetNumberOfCells();
+    numSourceCells = source->GetNumberOfCells();
 
-    sourceNormals = this->GetSource(0)->GetPointData()->GetNormals();
+    sourceNormals = source->GetPointData()->GetNormals();
     if ( sourceNormals )
       {
       haveNormals = 1;
@@ -165,7 +178,7 @@ void vtkGlyph2D::Execute()
       }
 
     // Prepare to copy output.
-    pd = this->GetSource(0)->GetPointData();
+    pd = source->GetPointData();
     outputPD->CopyAllocate(pd,numPts*numSourcePts);
     }
 
@@ -211,7 +224,8 @@ void vtkGlyph2D::Execute()
     }
   else
     {
-    output->Allocate(this->GetSource(0),3*numPts*numSourceCells,numPts*numSourceCells);
+    output->Allocate(this->GetSource(0, inputVector[1]),
+                     3*numPts*numSourceCells, numPts*numSourceCells);
     }
 
   // Traverse all Input points, transforming Source points and copying
@@ -293,18 +307,19 @@ void vtkGlyph2D::Execute()
       index = (int) ((double)(value - this->Range[0]) * numberOfSources / den);
       index = (index < 0 ? 0 :
               (index >= numberOfSources ? (numberOfSources-1) : index));
-      
-      if ( this->GetSource(index) != NULL )
+
+      source = this->GetSource(index, inputVector[1]);
+      if ( source != NULL )
         {
-        sourcePts = this->GetSource(index)->GetPoints();
-        sourceNormals = this->GetSource(index)->GetPointData()->GetNormals();
+        sourcePts = source->GetPoints();
+        sourceNormals = source->GetPointData()->GetNormals();
         numSourcePts = sourcePts->GetNumberOfPoints();
-        numSourceCells = this->GetSource(index)->GetNumberOfCells();
+        numSourceCells = source->GetNumberOfCells();
         }
       }
     
     // Make sure we're not indexing into empty glyph
-    if ( this->GetSource(index) == NULL )
+    if ( this->GetSource(index, inputVector[1]) == NULL )
       {
       continue;
       }
@@ -321,7 +336,7 @@ void vtkGlyph2D::Execute()
     // Copy all topology (transformation independent)
     for (cellId=0; cellId < numSourceCells; cellId++)
       {
-      cell = this->GetSource(index)->GetCell(cellId);
+      cell = this->GetSource(index, inputVector[1])->GetCell(cellId);
       cellPts = cell->GetPointIds();
       npts = cellPts->GetNumberOfIds();
       for (pts->Reset(), i=0; i < npts; i++) 
@@ -446,6 +461,8 @@ void vtkGlyph2D::Execute()
   output->Squeeze();
   trans->Delete();
   pts->Delete();
+
+  return 1;
 }
 
 void vtkGlyph2D::PrintSelf(ostream& os, vtkIndent indent)
