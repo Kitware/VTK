@@ -16,11 +16,11 @@ namespace eval ::vtk {
     variable complain_on_loading 1
 
     proc load_component {name} {
-
+        
         global tcl_platform auto_path env
-
+        
         # First dir is empty, to let Tcl try in the current dir
-
+        
         set dirs {""}
         set ext [info sharedlibextension]
         if {$tcl_platform(platform) == "unix"} {
@@ -51,39 +51,45 @@ namespace eval ::vtk {
         if {$::vtk::complain_on_loading} {
             puts stderr "::vtk::load_component: $name could not be found."
         }
-
+        
         return 1
     }
 
-    # Get VTK_DATA_ROOT if we can
+    # Function returning either a command line argument, an environment 
+    # variable or a default value.
 
-    proc get_VTK_DATA_ROOT {} {
-
-        # First look at environment vars
-
-        global env
-        if {[info exists env(VTK_DATA_ROOT)]} {
-            return $env(VTK_DATA_ROOT)
-        }
-
-        # Then look at command line args
-
+    proc get_arg_or_env_or_default {arg envvar def} {
+        
+        # Look at command line args
+        
         global argc argv
         if {[info exists argc]} { 
             set argcm1 [expr $argc - 1]
             for {set i 0} {$i < $argcm1} {incr i} {
-                if {[lindex $argv $i] == "-D" && $i < $argcm1} {
+                if {[lindex $argv $i] == $arg && $i < $argcm1} {
                     return [lindex $argv [expr $i + 1]]
                 }
             }
         }
 
-        # Make a final guess at a relativepath
+        # Look at environment vars
 
-        return [file nativename [file join [file dirname [info script]] "../../../../VTKData"]]
+        global env
+        if {[info exists env($envvar)]} {
+            return $env($envvar)
+        }
+
+        # Return default
+
+        return $def
     }
 
-    variable VTK_DATA_ROOT [get_VTK_DATA_ROOT]
+    # Get VTK_DATA_ROOT if we can
+
+    variable VTK_DATA_ROOT [::vtk::get_arg_or_env_or_default \
+            "-D" \
+            "VTK_DATA_ROOT" \
+            [file nativename [file join [file dirname [info script]] "../../../../VTKData"]]]
 }
 
 set VTK_DATA_ROOT $::vtk::VTK_DATA_ROOT
