@@ -15,10 +15,10 @@ set iren [$renWin MakeRenderWindowInteractor];
 #
 vtkMCubesReader reader;
     reader SetFilename "../../data/pineRoot/pine_root.tri";
-vtkConnectivityFilter connect;
+vtkPolyConnectivityFilter connect;
     connect SetInput [reader GetOutput];
     connect ExtractLargestRegion;
-vtkDataSetMapper isoMapper;
+vtkPolyMapper isoMapper;
     isoMapper SetInput [connect GetOutput];
     isoMapper ScalarsVisibleOff;
 vtkActor isoActor;
