@@ -130,7 +130,8 @@ class VTK_EXPORT vtkIdList : public vtkObject
   void IntersectWith(vtkIdList& otherIds);
 
   // Description:
-  // Return 1 if id specified is contained in list; 0 otherwise.
+  // Return -1 if id specified is not contained in the list; otherwise return
+  // the position in the list.
   int IsId(int id);
 
   // Description:
@@ -164,10 +165,10 @@ inline int vtkIdList::IsId(int id)
     {
     if(id == this->GetId(i))
       {
-      return 1;
+      return i;
       }
     }
-  return 0;
+  return (-1);
 }
 
 
