@@ -65,18 +65,31 @@ public:
   vtkGetMacro(RemoteProcessId, int);
   vtkSetMacro(Tag, int);
   vtkGetMacro(Tag, int);
-  
+
+  // See the vtkAlgorithm for a desciption of what these do
+  int ProcessUpstreamRequest(vtkInformation *, vtkInformationVector *, 
+                              vtkInformationVector *);
+  int ProcessDownstreamRequest(vtkInformation *, vtkInformationVector *, 
+                                vtkInformationVector *);
+
+#ifdef VTK_USE_EXECUTIVES
+  // Description:
+  // Return the MTime also considering the other process
+  unsigned long GetMTime();
+
+#else
   // Description:
   // Need to override to propagate across port.
   void UpdateInformation();
 
   // Description:
-  // Need to override to propagate across port.
-  void PropagateUpdateExtent(vtkDataObject *vtkNotUsed(output)) {};
-
-  // Description:
   // Need to override to propagate across port
   void UpdateData( vtkDataObject *out );
+#endif
+  
+  // Description:
+  // Need to override to propagate across port.
+  void PropagateUpdateExtent(vtkDataObject *vtkNotUsed(output)) {};
 
   // Description:
   // Need to override to trigger the update across the port
@@ -133,6 +146,14 @@ protected:
   int LastUpdateExtent[6];
 
   int UpdateExtentIsOutsideOfTheExtent(vtkDataObject *output);
+
+#ifdef VTK_USE_EXECUTIVES
+  void ExecuteInformation();
+  void ExecuteData();
+
+  // see the vtkAlgorithm for what these methods do
+  virtual int FillOutputPortInformation(int port, vtkInformation* info);
+#endif
 
 private:
   vtkInputPort(const vtkInputPort&);  // Not implemented.

@@ -36,9 +36,15 @@ public:
   vtkSetMacro(MemoryLimit, unsigned long);
   vtkGetMacro(MemoryLimit, unsigned long);  
   
+#ifndef VTK_USE_EXECUTIVES
   // Description:
   // Need to override since this is where streaming will be done
   void UpdateData( vtkDataObject *out );
+#endif
+  
+  // See the vtkAlgorithm for a desciption of what these do
+  int ProcessUpstreamRequest(vtkInformation *, vtkInformationVector *, 
+                              vtkInformationVector *);
 
 protected:
   vtkMemoryLimitImageDataStreamer();

@@ -39,28 +39,42 @@ public:
   vtkSetMacro(NumberOfStreamDivisions,int);
   vtkGetMacro(NumberOfStreamDivisions,int);
   
+#ifdef VTK_USE_EXECUTIVES
+  virtual void Update() { this->vtkAlgorithm::Update();};  
+  virtual void UpdateWholeExtent() { 
+    this->vtkAlgorithm::UpdateWholeExtent();};  
+#else
   // Description:
   // Need to override since this is where streaming will be done
   void UpdateData( vtkDataObject *out );
-
+#endif
+  
   // Description:
   // Get the extent translator that will be used to split the requests
   virtual void SetExtentTranslator(vtkExtentTranslator*);
   vtkGetObjectMacro(ExtentTranslator,vtkExtentTranslator);
   
+  // See the vtkAlgorithm for a desciption of what these do
+  int ProcessUpstreamRequest(vtkInformation *, vtkInformationVector *, 
+                              vtkInformationVector *);
+  int ProcessDownstreamRequest(vtkInformation *, vtkInformationVector *, 
+                                vtkInformationVector *);
+
 protected:
   vtkImageDataStreamer();
   ~vtkImageDataStreamer();
-  
+
+  // see the vtkAlgorithm for what these methods do
+  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  virtual int FillOutputPortInformation(int port, vtkInformation* info);
+
   vtkExtentTranslator *ExtentTranslator;
   int            NumberOfStreamDivisions;
+  int            CurrentDivision;
 private:
   vtkImageDataStreamer(const vtkImageDataStreamer&);  // Not implemented.
   void operator=(const vtkImageDataStreamer&);  // Not implemented.
 };
-
-
-
 
 #endif
 
