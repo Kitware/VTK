@@ -7,8 +7,9 @@ IF(JAVA_COMPILE)
 		     OUTPUTS ${VTK_BINARY_DIR}/java/vtk/vtkObject.class)
   IF(JAVA_ARCHIVE)
     ADD_CUSTOM_COMMAND(SOURCE VTKJava
-	  	       COMMAND cd 
-                       ARGS ${VTK_BINARY_DIR}/java\; ${JAVA_ARCHIVE}
+	  	       COMMAND ${CMAKE_COMMAND}
+                       ARGS -E chdir 
+                            ${VTK_BINARY_DIR}/java ${JAVA_ARCHIVE}
                             -cvf ${LIBRARY_OUTPUT_PATH}/vtk.jar
                             vtk
 		       TARGET VTKJava
