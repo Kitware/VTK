@@ -106,18 +106,20 @@ public:
   vtkGetVectorMacro(Point2,float,3);
 
   // Description:
-  // Set/Get the plane normal. Works in conjunction with the plane center to
-  // orient the plane.
-  void SetNormal(float nx, float ny, float nz);
-  void SetNormal(float n[3]);
-  vtkGetVectorMacro(Normal,float,3);
-
-  // Description:
-  // Set/Get the center of the plane. Works in conjunction with the plane normal
-  // to position the plane.
+  // Set/Get the center of the plane. Works in conjunction with the plane 
+  // normal to position the plane. Don't use this method to define the plane.
+  // Instead, use it to move the plane to a new center point.
   void SetCenter(float x, float y, float z);
   void SetCenter(float center[3]);
   vtkGetVectorMacro(Center,float,3);
+
+  // Description:
+  // Set/Get the plane normal. Works in conjunction with the plane center to
+  // orient the plane. Don't use this method to define the plane. Instead, use
+  // it to rotate the plane around the current center point.
+  void SetNormal(float nx, float ny, float nz);
+  void SetNormal(float n[3]);
+  vtkGetVectorMacro(Normal,float,3);
 
   void Push(float distance);
 

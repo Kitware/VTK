@@ -247,15 +247,21 @@ void vtkPlaneSource::SetCenter(float center[3])
     }
   else
     {
-    float d;
+    int i;
+    float v1[3], v2[3];
 
-    for ( int i=0; i < 3; i++ )
+    for ( i=0; i < 3; i++ )
       {
-      d = center[i] - this->Center[i];
+      v1[i] = this->Point1[i] - this->Origin[i];
+      v2[i] = this->Point2[i] - this->Origin[i];
+      }
+
+    for ( i=0; i < 3; i++ )
+      {
       this->Center[i] = center[i];
-      this->Origin[i] += d;
-      this->Point1[i] += d;
-      this->Point2[i] += d;
+      this->Origin[i] = this->Center[i] - 0.5*(v1[i] + v2[i]);
+      this->Point1[i] = this->Origin[i] + v1[i];
+      this->Point2[i] = this->Origin[i] + v2[i];
       }
     this->Modified();
     }
