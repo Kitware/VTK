@@ -18,10 +18,9 @@
 #include "vtkLookupTable.h"
 #include "vtkBitArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkMath.h"
 
-#include <math.h>
-
-vtkCxxRevisionMacro(vtkLookupTable, "1.90");
+vtkCxxRevisionMacro(vtkLookupTable, "1.91");
 vtkStandardNewMacro(vtkLookupTable);
 
 // Construct with range=(0,1); and hsv ranges set up for rainbow color table 
@@ -131,8 +130,8 @@ int vtkLookupTable::Allocate(int sz, int ext)
 // Force the lookup table to rebuild
 void vtkLookupTable::ForceBuild()
 {
-  int i, hueCase;
-  float hue, sat, val, lx, ly, lz, frac, hinc, sinc, vinc, ainc;
+  int i;
+  float hue, sat, val, hinc, sinc, vinc, ainc;
   float rgba[4], alpha;
   unsigned char *c_rgba;
 
@@ -150,52 +149,7 @@ void vtkLookupTable::ForceBuild()
     val = this->ValueRange[0] + i*vinc;
     alpha = this->AlphaRange[0] + i*ainc;
 
-    hueCase = static_cast<int>(hue * 6);
-    frac = 6*hue - hueCase;
-    lx = val*(1.0 - sat);
-    ly = val*(1.0 - sat*frac);
-    lz = val*(1.0 - sat*(1.0 - frac));
-
-    switch (hueCase) 
-      {
-      /* 0<hue<1/6 */
-      case 0:
-      case 6:
-        rgba[0] = val;
-        rgba[1] = lz;
-        rgba[2] = lx;
-        break;
-        /* 1/6<hue<2/6 */
-      case 1:
-        rgba[0] = ly;
-        rgba[1] = val;
-        rgba[2] = lx;
-        break;
-        /* 2/6<hue<3/6 */
-      case 2:
-        rgba[0] = lx;
-        rgba[1] = val;
-        rgba[2] = lz;
-        break;
-        /* 3/6<hue/4/6 */
-      case 3:
-        rgba[0] = lx;
-        rgba[1] = ly;
-        rgba[2] = val;
-        break;
-        /* 4/6<hue<5/6 */
-      case 4:
-        rgba[0] = lz;
-        rgba[1] = lx;
-        rgba[2] = val;
-        break;
-        /* 5/6<hue<1 */
-      case 5:
-        rgba[0] = val;
-        rgba[1] = lx;
-        rgba[2] = ly;
-        break;
-      }
+    vtkMath::HSVToRGB(hue, sat, val, &rgba[0], &rgba[1], &rgba[2]);
     rgba[3] = alpha;
 
     c_rgba = this->Table->WritePointer(4*i,4);
@@ -239,7 +193,6 @@ void vtkLookupTable::ForceBuild()
         }
         break;
       }
-    
     }
   this->BuildTime.Modified();
 }

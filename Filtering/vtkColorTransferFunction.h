@@ -144,10 +144,6 @@ protected:
   int         FunctionSize;
   int         NumberOfPoints;
 
-  // conversion methods
-  void RGBToHSV( float r, float g, float b, float &h, float &s, float &v );
-  void HSVToRGB( float h, float s, float v, float &r, float &g, float &b );
-  
   // An evaluated color (0 to 255 RGBA A=255)
   unsigned char UnsignedCharRGBAValue[4];
 

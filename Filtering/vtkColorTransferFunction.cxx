@@ -17,10 +17,11 @@
 =========================================================================*/
 #include "vtkColorTransferFunction.h"
 
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
 
-vtkCxxRevisionMacro(vtkColorTransferFunction, "1.46");
+vtkCxxRevisionMacro(vtkColorTransferFunction, "1.47");
 vtkStandardNewMacro(vtkColorTransferFunction);
 
 // Construct a new vtkColorTransferFunction with default values
@@ -62,116 +63,6 @@ vtkColorTransferFunction::~vtkColorTransferFunction()
   
   delete [] this->Function;
   delete [] this->Table;
-}
-
-
-void vtkColorTransferFunction::RGBToHSV(float R, float G, float B,
-                                        float &H, float &S, float &V)
-{
-  float cmax, cmin;
-  
-  cmax = R;
-  cmin = R;
-  if (G > cmax)
-    {
-    cmax = G;
-    }
-  else if (G < cmin)
-    {
-    cmin = G;
-    }
-  if (B > cmax)
-    {
-    cmax = B;
-    }
-  else if (B < cmin)
-    {
-    cmin = B;
-    }
-  V = cmax;
-
-  if (V > 0.0)
-    {
-    S = (cmax - cmin)/cmax;
-    }
-  else 
-    {
-    S = 0.0;
-    }
-  if (S > 0)
-    {
-    if (R == cmax)
-      {
-      H = 0.17*(G - B)/(cmax - cmin);
-      }
-    else if (G == cmax)
-      {
-      H = 0.33 + 0.17*(B - R)/(cmax - cmin);
-      }
-    else
-      {
-      H = 0.67 + 0.17*(R - G)/(cmax - cmin);
-      }
-    if (H < 0.0)
-      {
-      H = H + 1.0;
-      }
-    }
-  else
-    {
-    H = 0.0;
-    }
-}
-
-void vtkColorTransferFunction::HSVToRGB(float hue, float sat, float V,
-                                        float &R, float &G, float &B)
-{
-  // compute RGB from HSV
-  if (hue > 0.17 && hue <= 0.33) // green/red
-    {
-    G = 1.0;
-    R = (0.33-hue)/0.16;
-    B = 0.0;
-    }
-  else if (hue > 0.33 && hue <= 0.5) // green/blue
-    {
-    G = 1.0;
-    B = (hue - 0.33)/0.17;
-    R = 0.0;
-    }
-  else if (hue > 0.5 && hue <= 0.67) // blue/green
-    {
-    B = 1.0;
-    G = (0.67 - hue)/0.17;
-    R = 0.0;
-    }
-  else if (hue > 0.67 && hue <= 0.83) // blue/red
-    {
-    B = 1.0;
-    R = (hue - 0.67)/0.16;
-    G = 0.0;
-    }
-  else if (hue > 0.83 && hue <= 1.0) // red/blue
-    {
-    R = 1.0;
-    B = (1.0-hue)/0.17;
-    G = 0.0;
-    }
-  else // red/green
-    {
-    R = 1.0;
-    G = hue/0.17;
-    B = 0.0;
-    }
-  
-  // add Saturation to the equation.
-  R = (sat*R + (1.0 - sat));
-  G = (sat*G + (1.0 - sat));
-  B = (sat*B + (1.0 - sat));
-  
-  R = R * V;
-  G = G * V;
-  B = B * V;
 }
 
 // Add a point defined in RGB
@@ -267,7 +158,7 @@ int vtkColorTransferFunction::AddHSVPoint( float x, float h,
 { 
   float r, b, g;
   
-  this->HSVToRGB( h, s, v, r, g, b );
+  vtkMath::HSVToRGB(h, s, v, &r, &g, &b);
   return this->AddRGBPoint( x, r, g, b );
 }
 
@@ -402,8 +293,8 @@ void vtkColorTransferFunction::AddHSVSegment( float x1, float h1,
 {
   float r1, r2, b1, b2, g1, g2;
   
-  this->HSVToRGB( h1, s1, v1, r1, g1, b1 );
-  this->HSVToRGB( h2, s2, v2, r2, g2, b2 );
+  vtkMath::HSVToRGB(h1, s1, v1, &r1, &g1, &b1);
+  vtkMath::HSVToRGB(h2, s2, v2, &r2, &g2, &b2);
   this->AddRGBSegment( x1, r1, g1, b1, x2, r2, g2, b2 );
 }
 
@@ -543,8 +434,8 @@ void vtkColorTransferFunction::GetTable( float x1, float x2,
         else
           {
           float h1, h2, h3, s1, s2, s3, v1, v2, v3;
-          this->RGBToHSV(*(fptr-3), *(fptr-2), *(fptr-1), h1, s1, v1);
-          this->RGBToHSV(*(fptr+1), *(fptr+2), *(fptr+3), h2, s2, v2);
+          vtkMath::RGBToHSV(*(fptr-3), *(fptr-2), *(fptr-1), &h1, &s1, &v1);
+          vtkMath::RGBToHSV(*(fptr+1), *(fptr+2), *(fptr+3), &h2, &s2, &v2);
           s3 = (1.0-weight)*s1 + weight*s2;
           v3 = (1.0-weight)*v1 + weight*v2;
           // Do we need to cross the 0/1 boundary?
@@ -574,7 +465,7 @@ void vtkColorTransferFunction::GetTable( float x1, float x2,
           h3 = (h3>1.0)?(1.0):((h3<0.0)?(0.0):(h3));
           s3 = (s3>1.0)?(1.0):((s3<0.0)?(0.0):(s3));
           v3 = (v3>1.0)?(1.0):((v3<0.0)?(0.0):(v3));
-          this->HSVToRGB(h3, s3, v3, *tptr, *(tptr+1), *(tptr+2) );
+          vtkMath::HSVToRGB(h3, s3, v3, tptr, tptr + 1, tptr + 2);
           tptr += 3;
           }
         }
@@ -686,8 +577,8 @@ const unsigned char *vtkColorTransferFunction::GetTable( float x1, float x2,
         else
           {
           float h1, h2, h3, s1, s2, s3, v1, v2, v3;
-          this->RGBToHSV(*(fptr-3), *(fptr-2), *(fptr-1), h1, s1, v1);
-          this->RGBToHSV(*(fptr+1), *(fptr+2), *(fptr+3), h2, s2, v2);
+          vtkMath::RGBToHSV(*(fptr-3), *(fptr-2), *(fptr-1), &h1, &s1, &v1);
+          vtkMath::RGBToHSV(*(fptr+1), *(fptr+2), *(fptr+3), &h2, &s2, &v2);
           s3 = (1.0-weight)*s1 + weight*s2;
           v3 = (1.0-weight)*v1 + weight*v2;
           // Do we need to cross the 0/1 boundary?
@@ -717,7 +608,7 @@ const unsigned char *vtkColorTransferFunction::GetTable( float x1, float x2,
           h3 = (h3>1.0)?(1.0):((h3<0.0)?(0.0):(h3));
           s3 = (s3>1.0)?(1.0):((s3<0.0)?(0.0):(s3));
           v3 = (v3>1.0)?(1.0):((v3<0.0)?(0.0):(v3));
-          this->HSVToRGB(h3, s3, v3, h1, s1, v1 );
+          vtkMath::HSVToRGB(h3, s3, v3, &h1, &s1, &v1);
           *(tptr++) = (unsigned char)(255*h1);
           *(tptr++) = (unsigned char)(255*s1);
           *(tptr++) = (unsigned char)(255*v1);
