@@ -322,13 +322,18 @@ vtkActor actor
     actor SetProperty property
 
 # Welcome banner
-vtkVectorText banner
-    banner SetText "     vtk Decimator"
-vtkPolyDataMapper bannerMapper
-    bannerMapper SetInput [banner GetOutput]
-vtkActor bannerActor
-    bannerActor SetMapper bannerMapper
-    bannerActor SetProperty property
+vtkTextMapper banner
+    banner SetInput "vtk Decimator"
+    banner SetFontFamilyToArial
+    banner SetFontSize 14
+    banner ItalicOn
+    banner SetJustificationToCentered
+vtkActor2D bannerActor
+    bannerActor SetMapper banner
+    [bannerActor GetProperty] SetColor 0 1 0
+    [bannerActor GetPositionCoordinate] SetCoordinateSystemToNormalizedDisplay
+    [bannerActor GetPositionCoordinate] SetValue 0.5 0.5
+Renderer AddProp bannerActor
 
 # Actor used for side-by-side data comparison
 vtkPolyDataMapper CompareMapper
@@ -351,7 +356,6 @@ vtkPolyDataMapper FEdgesMapper
 vtkActor FEdgesActor
     FEdgesActor SetMapper FEdgesMapper
 
-Renderer AddActor bannerActor
 Renderer ResetCamera
 [Renderer GetActiveCamera] Zoom 1.25
 
