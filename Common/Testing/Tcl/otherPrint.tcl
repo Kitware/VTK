@@ -8,6 +8,7 @@ package require vtktcl
 
 vtkDebugLeaks rtDebugLeaks
 rtDebugLeaks PromptUserOff
+rtDebugLeaks Delete
 
 proc rtOtherTest { fileid } {
 #actual test
