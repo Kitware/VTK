@@ -1,3 +1,20 @@
+/*=========================================================================
+
+  Program:   Visualization Library
+  Module:    CellArr.hh
+  Language:  C++
+  Date:      $Date$
+  Version:   $Revision$
+
+Description:
+---------------------------------------------------------------------------
+This file is part of the Visualization Library. No part of this file
+or its contents may be copied, reproduced or altered in any way
+without the express written consent of the authors.
+
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
+
+=========================================================================*/
 //
 // Define cell array
 //
@@ -16,6 +33,7 @@ public:
   vlCellArray (const int sz, const int ext=1000):NumberOfCells(0),Location(0),Ia(sz,ext){};
   vlCellArray(const vlCellArray& ca);
   ~vlCellArray() {};
+  char *GetClassName() {return "vlCellArray";};
 
   int GetNumberOfCells() {return this->NumberOfCells;};
 

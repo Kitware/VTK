@@ -20,13 +20,13 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #ifndef __vlPolyData_h
 #define __vlPolyData_h
 
-#include "DataSet.hh"
+#include "PointSet.hh"
 #include "FPoints.hh"
 #include "CellArr.hh"
 #include "CellList.hh"
 #include "LinkList.hh"
 
-class vlPolyData : public vlDataSet 
+class vlPolyData : public vlPointSet 
 {
 public:
   vlPolyData();
@@ -37,18 +37,11 @@ public:
 
   // dataset interface
   vlDataSet *MakeObject();
-  int GetNumberOfPoints();
   int GetNumberOfCells();
-  float *GetPoint(int ptId) {return this->Points->GetPoint(ptId);};
   vlCell *GetCell(int cellId);
   vlMapper *MakeMapper();
   void Initialize();
-
-  void ComputeBounds();
-
-  // PolyData specific stuff follows
-  vlSetObjectMacro(Points,vlPoints);
-  vlGetObjectMacro(Points,vlPoints);
+  void GetPointCells(int ptId, vlIdList *cellIds);
 
   // Can't use macros to set/get following cell arrays.  This is due to tricks
   // required to support traversal methods.
@@ -101,8 +94,8 @@ public:
   vlGetMacro(TriangleMesh,int);
 
 protected:
+  // points inherited
   // point data (i.e., scalars, vectors, normals, tcoords) inherited
-  vlPoints *Points;
   vlCellArray *Verts;
   vlCellArray *Lines;
   vlCellArray *Polys;

@@ -20,6 +20,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #define __vlLinkList_h
 
 #include "Object.hh"
+class vlDataSet;
 
 struct vlLink {
     unsigned short ncells;
@@ -29,16 +30,18 @@ struct vlLink {
 class vlLinkList : public vlObject {
 public:
   vlLinkList():Array(0),Size(0),MaxId(-1),Extend(1000) {};
-  vlLinkList(const int sz, const int ext=1000);
+  vlLinkList(int sz, int ext=1000);
   ~vlLinkList();
   char *GetClassName() {return "vlLinkList";};
-  vlLink &GetLink(const int id) {return this->Array[id];};
-  unsigned short GetNcells(const int id) {return this->Array[id].ncells;};
-  int *GetCells(const int id) {return this->Array[id].cells;};
-  void IncrementLinkCount(const int id) {this->Array[id].ncells++;};
+  vlLink &GetLink(int id) {return this->Array[id];};
+  unsigned short GetNcells(int id) {return this->Array[id].ncells;};
+  int *GetCells(int id) {return this->Array[id].cells;};
+  void IncrementLinkCount(int id) {this->Array[id].ncells++;};
   void AllocateLinks();
-  void InsertCellReference(const int id, const int pos, const int cellId)
+  void InsertCellReference(int id, unsigned short pos, int cellId)
     {this->Array[id].cells[pos] = cellId;};
+  void BuildLinks(vlDataSet *data);
+
   void Squeeze();
   void Reset();
 
@@ -47,7 +50,7 @@ private:
   int Size;       // allocated size of data
   int MaxId;     // maximum index inserted thus far
   int Extend;     // grow array by this point
-  vlLink *Resize(const int sz);  // function to resize data
+  vlLink *Resize(int sz);  // function to resize data
 };
 
 #endif

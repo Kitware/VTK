@@ -37,6 +37,7 @@ public:
   vlCell *GetCell(int cellId);
   vlMapper *MakeMapper() {return (vlMapper *)0;};
   void Initialize();
+  int FindCell(float x[3], float dist2);
 
   vlSetVector3Macro(AspectRatio,float);
   vlGetVectorMacro(AspectRatio,float);

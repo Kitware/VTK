@@ -227,3 +227,30 @@ void vlStructuredPoints::Initialize()
   this->SetAspectRatio(1,1,1);
   this->SetOrigin(0,0,0);
 }
+
+int vlStructuredPoints::FindCell(float x[3], float tol2)
+{
+  int i, loc[3];
+  float d;
+//
+//  Compute the ijk location
+//
+  for (i=0; i<3; i++) 
+    {
+    d = x[i] - this->Origin[i];
+    if ( d < 0.0 || d > ((this->Dimensions[i]-1)*this->AspectRatio[i]) ) 
+      {
+      return -1;
+      } 
+    else 
+      {
+      loc[i] = d / this->AspectRatio[i];
+      }
+    }
+//
+//  From this location get the cell number
+//
+  return loc[2] * (this->Dimensions[0]-1)*(this->Dimensions[1]-1) +
+         loc[1] * (this->Dimensions[0]-1) + loc[0];
+}
+

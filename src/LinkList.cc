@@ -14,13 +14,18 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include "LinkList.hh"
+#include "DataSet.hh"
 
-vlLinkList::vlLinkList(const int sz, const int ext)
+vlLinkList::vlLinkList(int sz, int ext)
 {
+  static vlLink linkInit = {0,0};
+
   this->Size = sz;
   this->Array = new vlLink[sz];
   this->Extend = ext;
   this->MaxId = -1;
+
+  for (int i=0; i < sz; i++) this->Array[i] = linkInit;
 }
 
 vlLinkList::~vlLinkList()
@@ -51,7 +56,7 @@ void vlLinkList::Reset()
 //
 // Private function does "reallocate"
 //
-vlLink *vlLinkList::Resize(const int sz)
+vlLink *vlLinkList::Resize(int sz)
 {
   int i;
   vlLink *newArray;
@@ -76,3 +81,42 @@ vlLink *vlLinkList::Resize(const int sz)
 
   return this->Array;
 }
+
+void vlLinkList::BuildLinks(vlDataSet *data)
+{
+  int numPts = data->GetNumberOfPoints();
+  int numCells = data->GetNumberOfCells();
+  int i, j, ptId, cellId;
+  vlCell *cell;
+  unsigned short *linkLoc;
+
+  // traverse data to determine number of uses of each point
+  for (cellId=0; cellId < numCells; cellId++)
+    {
+    cell = data->GetCell(cellId);
+    for (j=0; j < cell->GetNumberOfPoints(); j++)
+      {
+      this->IncrementLinkCount(cell->PointIds.GetId(j));      
+      }      
+    }
+
+  // now allocate storage for the links
+   this->AllocateLinks();
+
+  // fill out lists with references to cells
+  linkLoc = new unsigned short[numPts];
+  for (i=0; i < numPts; i++) linkLoc[i] = 0;
+
+  for (cellId=0; cellId < numCells; cellId++)
+    {
+    cell = data->GetCell(cellId);
+    for (j=0; j < cell->GetNumberOfPoints(); j++)
+      {
+      ptId = cell->PointIds.GetId(j);
+      this->InsertCellReference(ptId, (linkLoc[ptId])++, cellId);      
+      }      
+    }
+
+  delete [] linkLoc;
+}
+

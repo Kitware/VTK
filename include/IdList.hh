@@ -16,14 +16,21 @@ public:
   void SetId(const int i, const int id) {this->Ia[i]=id;};
   void InsertId(const int i, const int id) {this->Ia.InsertValue(i,id);};
   int InsertNextId(const int id) {return this->Ia.InsertNextValue(id);};
-  void operator+=(vlIdList& ids) {this->Ia += ids.Ia;};
-  void operator+=(const int i) {this->Ia += i;};
+//  void operator+=(vlIdList& ids) {this->Ia += ids.Ia;};
+//  void operator+=(const int i) {this->Ia += i;};
   int getChunk(const int sz) { // get chunk of memory
     int pos = this->Ia.GetMaxId()+1;
     this->Ia.InsertValue(pos+sz-1,0);
     return pos;
   }
   void Reset() {this->Ia.Reset();};
+
+  // special set operations
+  void DeleteId(int Id);
+  void IntersectWith(vlIdList *otherIds);
+  int IsId(int id)
+    {for(int i=0; i<this->GetNumberOfIds(); i++) if(id == this->GetId(i)) return 1;
+     return 0;}
 
 protected:
   vlIntArray Ia;

@@ -175,3 +175,50 @@ void vlStructuredDataSet::Initialize()
     this->PointVisibility = 0;
     }
 }
+
+void vlStructuredDataSet::GetPointCells(int ptId, vlIdList *cellIds)
+{
+  int ptDim[3], cellDim[3];
+  int ptLoc[3], cellLoc[3];
+  int i, j, cellId, add;
+  static int offset[8][3] = {-1,0,0, -1,-1,0, -1,-1,-1, -1,0,-1,
+                               0,0,0,  0,-1,0,  0,-1,-1,  0,0,-1};
+
+  for (i=0; i<3; i++) 
+    {
+    ptDim[i] = this->Dimensions[i];
+    cellDim[i] = ptDim[i] - 1;
+    }
+//
+//  Get the location of the point
+//
+  ptLoc[0] = ptId % ptDim[0];
+  ptLoc[1] = ptId % (ptDim[0]*ptDim[1]) / ptDim[0];
+  ptLoc[2] = ptId / (ptDim[0]*ptDim[1]);
+//
+//  From the point lcoation, compute the cell locations.  There are at
+//  most eight possible.
+//
+  cellIds->Reset();
+
+  for (j=0; j<8; j++) 
+    {
+    for (add=1, i=0; i<3; i++) 
+      {
+      cellLoc[i] = ptLoc[i] + offset[j][i];
+      if ( cellLoc[i] < 0 || cellLoc[i] >= cellDim[i] ) 
+        {
+        add = 0;
+        break;
+        }
+      }
+    if ( add ) 
+      {
+      cellId = cellLoc[0] + cellLoc[1]*cellDim[0] + 
+                            cellLoc[2]*cellDim[0]*cellDim[1];
+      cellIds->InsertNextId(cellId);
+      }
+    }
+
+  return;
+}

@@ -35,29 +35,50 @@ public:
   char *GetClassName() {return "vlDataSet";};
   void PrintSelf(ostream& os, vlIndent indent);
 
-  virtual vlDataSet *MakeObject() = 0;
-  virtual int GetNumberOfCells() = 0;
-  virtual int GetNumberOfPoints() = 0;
-  virtual float *GetPoint(int ptId) = 0;
-  virtual vlCell *GetCell(int cellId) = 0;
+  // Instantiate appropriate mapper object for this dataset
   virtual vlMapper *MakeMapper() = 0;
+  // restore data to initial state (i.e., release memory, etc.)
   virtual void Initialize();
+  // absorb update methods which propagate through network
   virtual void Update() {};
 
+  // Create concrete instance of this dataset
+  virtual vlDataSet *MakeObject() = 0;
+
+  // Determine number of points and cells composing dataset
+  virtual int GetNumberOfPoints() = 0;
+  virtual int GetNumberOfCells() = 0;
+
+  // Get point or cell of id 0<=cellId<NumberOfPoints/Cells
+  virtual float *GetPoint(int ptId) = 0;
+  virtual vlCell *GetCell(int cellId) = 0;
+
+  // topological inquiries to get neighbors and cells that use a point
+  virtual void GetPointCells(int ptId, vlIdList *cellIds) = 0;
+  virtual void GetCellNeighbors(int cellId, vlIdList *ptIds, 
+                                vlIdList *cellIds);
+
+  // Locate cell based on global coordinate and tolerance.
+  // Returns cellId >= 0 if inside, < 0 otherwise.
+  virtual int FindCell(float x[3], float dist2) = 0;
+
+  // some data sets are composite objects and need to check each part for MTime
   unsigned long int GetMTime();
 
+  // compute geometric bounds, center, longest side
   virtual void ComputeBounds();
   float *GetBounds();
   float *GetCenter();
   float GetLength();
   
+  // return pointer to this dataset's point data
   vlPointData *GetPointData() {return &this->PointData;};
 
 protected:
   vlPointData PointData;   // Scalars, vectors, etc. associated w/ each point
   vlTimeStamp ComputeTime; // Time at which bounds, center, etc. computed
-  float Bounds[6];
-  vlMapper *Mapper;
+  float Bounds[6];  // (xmin,xmax, ymin,ymax, zmin,zmax) geometric bounds
+  vlMapper *Mapper; // object used to map data to graphics
 };
 
 #endif

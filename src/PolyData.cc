@@ -288,11 +288,6 @@ int vlPolyData::GetNumberOfCells()
          GetNumberOfPolys() + GetNumberOfStrips();
 }
 
-int vlPolyData::GetNumberOfPoints() 
-{
-  return (this->Points ? this->Points->GetNumberOfPoints() : 0);
-}
-
 int vlPolyData::GetNumberOfVerts() 
 {
   return (this->Verts ? this->Verts->GetNumberOfCells() : 0);
@@ -325,25 +320,13 @@ vlMapper *vlPolyData::MakeMapper()
     }
   return this->Mapper;
 }
-void vlPolyData::ComputeBounds()
-{
-  int i;
-  float *bounds;
 
-  if ( this->Points )
-    {
-    bounds = this->Points->GetBounds();
-    for (i=0; i<6; i++) this->Bounds[i] = bounds[i];
-    this->ComputeTime.Modified();
-    }
-}
 void vlPolyData::PrintSelf(ostream& os, vlIndent indent)
 {
   if (this->ShouldIPrint(vlPolyData::GetClassName()))
     {
     vlDataSet::PrintSelf(os,indent);
     
-    os << indent << "Number Of Points: " << this->GetNumberOfPoints() << "\n";
     os << indent << "Number Of Vertices: " << this->GetNumberOfVerts() << "\n";
     os << indent << "Number Of Lines: " << this->GetNumberOfLines() << "\n";
     os << indent << "Number Of Polygons: " << this->GetNumberOfPolys() << "\n";
@@ -545,4 +528,25 @@ void vlPolyData::BuildCells()
 void vlPolyData::BuildLinks()
 {
   if ( ! this->Cells ) this->BuildCells();
+  this->Links = new vlLinkList(this->GetNumberOfPoints());
+
+  this->Links->BuildLinks(this);
+}
+
+void vlPolyData::GetPointCells(int ptId, vlIdList *cellIds)
+{
+  int *cells;
+  int numCells;
+  int i;
+
+  if ( ! this->Links ) this->BuildLinks();
+  cellIds->Reset();
+
+  numCells = this->Links->GetNcells(ptId);
+  cells = this->Links->GetCells(ptId);
+
+  for (i=0; i < numCells; i++)
+    {
+    cellIds->InsertId(i,cells[i]);
+    }
 }
