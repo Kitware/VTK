@@ -45,9 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPropCollection.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 vtkActor2D* vtkActor2D::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -59,8 +57,6 @@ vtkActor2D* vtkActor2D::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkActor2D;
 }
-
-
 
 
 // Creates an actor2D with the following defaults: 

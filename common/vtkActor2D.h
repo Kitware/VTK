@@ -43,7 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .SECTION Description
 // vtkActor2D is similar to vtkActor, but it is made to be used with two
 // dimensional images and annotation.  vtkActor2D has a position but does not
-// use a transformation matrix like vtkActor (see the superclass vtkProp2D
+// use a transformation matrix like vtkActor (see the superclass vtkProp
 // for information on positioning vtkActor2D).  vtkActor2D has a reference to
 // a vtkMapper2D object which does the rendering.
 
@@ -66,8 +66,8 @@ public:
 
   // Description:
   // Creates an actor2D with the following defaults: 
-  // position -1, -1 (view coordinates)
-  // orientation 0, scale (1,1), layer 0, visibility on
+  // position (0,0) (coordinate system is viewport);
+  // at layer 0.
   static vtkActor2D* New();
   
   // Description:
@@ -87,15 +87,9 @@ public:
   vtkGetMacro(LayerNumber, int);
   
   // Description:
-  // Returns an Prop2D's property2D.  Creates a property if one
+  // Returns this actor's vtkProperty2D.  Creates a property if one
   // doesn't already exist.
   vtkProperty2D* GetProperty();
-
-  // Description:
-  // Release any graphics resources that are being consumed by this actor.
-  // The parameter window could be used to determine which graphic
-  // resources to release.
-  virtual void ReleaseGraphicsResources(vtkWindow *);
 
   // Description:
   // Set this vtkProp's vtkProperty2D.
@@ -123,6 +117,12 @@ public:
   // Description:
   // Shallow copy of this vtkActor2D. Overloads the virtual vtkProp method.
   void ShallowCopy(vtkProp *prop);
+
+  // Description:
+  // Release any graphics resources that are being consumed by this actor.
+  // The parameter window could be used to determine which graphic
+  // resources to release.
+  virtual void ReleaseGraphicsResources(vtkWindow *);
 
 protected:
   vtkActor2D();

@@ -149,14 +149,6 @@ public:
   vtkGetMacro(Opacity,float);
 
   // Description:
-  // Turn on/off the visibility of edges. On some renderers it is
-  // possible to render the edges of geometric primitives separately
-  // from the interior.
-  vtkGetMacro(EdgeVisibility,int);
-  vtkSetMacro(EdgeVisibility,int);
-  vtkBooleanMacro(EdgeVisibility,int);
-
-  // Description:
   // Set/Get the ambient surface color. Not all renderers support separate
   // ambient and diffuse colors. From a physical standpoint it really
   // doesn't make too much sense to have both. For the rendering
@@ -175,21 +167,29 @@ public:
   vtkGetVectorMacro(SpecularColor,float,3);
 
   // Description:
-  // Set/Get the color of primitive edges (if edge visibility enabled).
-  vtkSetVector3Macro(EdgeColor,float);
-  vtkGetVectorMacro(EdgeColor,float,3);
+  // Turn on/off the visibility of edges. On some renderers it is
+  // possible to render the edges of geometric primitives separately
+  // from the interior.
+  vtkGetMacro(EdgeVisibility,int);
+  vtkSetMacro(EdgeVisibility,int);
+  vtkBooleanMacro(EdgeVisibility,int);
 
   // Description:
-  // Set/Get the diameter of a Point. The size is expressed in screen units.
-  // This is only implemented for OpenGL. The default is 1.0.
-  vtkSetClampMacro(PointSize,float,0,VTK_LARGE_FLOAT);
-  vtkGetMacro(PointSize,float);
+  // Set/Get the color of primitive edges (if edge visibility is enabled).
+  vtkSetVector3Macro(EdgeColor,float);
+  vtkGetVectorMacro(EdgeColor,float,3);
 
   // Description:
   // Set/Get the width of a Line. The width is expressed in screen units.
   // This is only implemented for OpenGL. The default is 1.0.
   vtkSetClampMacro(LineWidth,float,0,VTK_LARGE_FLOAT);
   vtkGetMacro(LineWidth,float);
+
+  // Description:
+  // Set/Get the diameter of a point. The size is expressed in screen units.
+  // This is only implemented for OpenGL. The default is 1.0.
+  vtkSetClampMacro(PointSize,float,0,VTK_LARGE_FLOAT);
+  vtkGetMacro(PointSize,float);
 
   // Description:
   // Turn on/off fast culling of polygons based on orientation of normal 
