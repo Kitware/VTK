@@ -26,15 +26,19 @@
 #include "vtkOpenGLPolyDataMapper.h"
 #include <GL/gl.h>
 #include "GL/glx.h"
+#else
+#include "MangleMesaInclude/osmesa.h"
+#endif
+
+#include "vtkToolkits.h"
+#ifndef VTK_IMPLEMENT_MESA_CXX
+ #ifdef VTK_OPENGL_HAS_OSMESA
+  #include <GL/osmesa.h>
+ #endif
 #endif
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
-
-#include "vtkToolkits.h"
-#ifdef VTK_OPENGL_HAS_OSMESA
-#include "MangleMesaInclude/osmesa.h"
-#endif
 
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
@@ -76,7 +80,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.16");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.17");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
