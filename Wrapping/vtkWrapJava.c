@@ -731,6 +731,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   
   if (!strcmp("vtkObject",data->ClassName))
     {
+    /* Add the Print method to vtkObject. */
     fprintf(fp,"\nextern \"C\" JNIEXPORT jstring JNICALL Java_vtk_vtkObject_Print(JNIEnv *env,jobject obj)\n");
     fprintf(fp,"{\n  vtkObject *op;\n");
     fprintf(fp,"  jstring tmp;\n\n");
@@ -738,6 +739,20 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     
     fprintf(fp,"  ostrstream buf;\n");
     fprintf(fp,"  op->Print(buf);\n");
+    fprintf(fp,"  buf.put('\\0');\n");  
+        fprintf(fp,"  tmp = vtkJavaMakeJavaString(env,buf.str());\n");
+    fprintf(fp,"  delete buf.str();\n");
+
+    fprintf(fp,"  return tmp;\n");
+    fprintf(fp,"}\n");
+    /* Add the PrintRevisions method to vtkObject. */
+    fprintf(fp,"\nextern \"C\" JNIEXPORT jstring JNICALL Java_vtk_vtkObject_PrintRevisions(JNIEnv *env,jobject obj)\n");
+    fprintf(fp,"{\n  vtkObject *op;\n");
+    fprintf(fp,"  jstring tmp;\n\n");
+    fprintf(fp,"  op = (vtkObject *)vtkJavaGetPointerFromObject(env,obj,(char *) \"vtkObject\");\n");
+    
+    fprintf(fp,"  ostrstream buf;\n");
+    fprintf(fp,"  op->PrintRevisions(buf);\n");
     fprintf(fp,"  buf.put('\\0');\n");  
         fprintf(fp,"  tmp = vtkJavaMakeJavaString(env,buf.str());\n");
     fprintf(fp,"  delete buf.str();\n");

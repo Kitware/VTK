@@ -426,7 +426,10 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
 
   if (!strcmp("vtkObject",data->ClassName))
     {
+    /* Add the Print method to vtkObject. */
     fprintf(fp,"  public native String Print();\n");
+    /* Add the PrintRevisions method to vtkObject. */
+    fprintf(fp,"  public native String PrintRevisions();\n");
     }
 
   if (!strcmp("vtkObject",data->ClassName))
