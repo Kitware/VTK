@@ -180,7 +180,13 @@ public:
   vtkBooleanMacro(Mirror, int);
 
   // Description:
-  // Turn on half-pixel interpolation border for input (default: on).
+  // Extend the apparent input border by a half voxel (default: on).
+  // This changes how interpolation is handled at the borders of the
+  // input image: if the center of an output voxel is beyond the edge
+  // of the input image, but is within a half voxel width of the edge
+  // (using the input voxel width), then the value of the output voxel
+  // is calculated as if the input's edge voxels were duplicated past
+  // the edges of the input.
   // This has no effect if Mirror or Wrap are on.
   vtkSetMacro(Border, int);
   vtkGetMacro(Border, int);

@@ -27,7 +27,7 @@
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageReslice, "1.53");
+vtkCxxRevisionMacro(vtkImageReslice, "1.54");
 vtkStandardNewMacro(vtkImageReslice);
 vtkCxxSetObjectMacro(vtkImageReslice, InformationInput, vtkImageData);
 vtkCxxSetObjectMacro(vtkImageReslice,ResliceAxes,vtkMatrix4x4);
@@ -2221,7 +2221,6 @@ void vtkOptimizedExecute(vtkImageReslice *self,
   int inInc[3];
   unsigned long count = 0;
   unsigned long target;
-  int r1, r2;
   int iter, idXmin, idXmax;
   double temp[3];
   F inOrigin[3], inInvSpacing[3];
