@@ -320,10 +320,11 @@ vtkCell *vtkScalarTree::GetNextCell(int& cellId, vtkIdList* &cellPts,
   float *s, min=VTK_LARGE_FLOAT, max=(-VTK_LARGE_FLOAT);
   int i, numScalars;
   vtkCell *cell;
+  int numCells = this->DataSet->GetNumberOfCells();
 
   while ( this->TreeIndex < this->TreeSize )
     {
-    for ( ; this->ChildNumber < this->BranchingFactor; 
+    for ( ; this->ChildNumber<this->BranchingFactor && this->CellId<numCells; 
     this->ChildNumber++, this->CellId++ )
       {
       cell = this->DataSet->GetCell(this->CellId);
