@@ -68,9 +68,8 @@ vtkClipPolyData aClipper
   aClipper Update
 
 vtkWindowLevelLookupTable wlLut 
-  wlLut SetWindow 1000
-  wlLut SetLevel 1200
-  wlLut SetTableRange 0 2047
+  wlLut SetWindow 2047.0
+  wlLut SetLevel 1023.5
   wlLut Build
 
 vtkPolyDataMapper aClipperMapper
