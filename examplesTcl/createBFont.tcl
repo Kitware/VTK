@@ -16,16 +16,11 @@ vtkRenderWindowInteractor iren
 vtkPNMReader image
   image SetFileName "../../vtkdata/B.pgm"
 
-vtkStructuredPointsToImage toImage
-    toImage SetInput [image GetOutput]
-    toImage SetOutputScalarTypeToUnsignedChar
-
 vtkImageGaussianSmooth gaussian
     eval gaussian SetStandardDeviations 2 2
     gaussian SetDimensionality 2
     gaussian SetStrides 2 2
     gaussian SetRadiusFactors 1 1
-    gaussian SetInput [toImage GetOutput]
     gaussian SetInput [image GetOutput]
 
 vtkStructuredPointsGeometryFilter geometry
