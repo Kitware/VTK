@@ -248,27 +248,56 @@ void vtkVolumeRayCastMapper::CastViewRay( VTKRayCastRayInfo *rayInfo,
   incrementLength = sqrt( (double) (volumeRayIncrement[0]*volumeRayIncrement[0] +
 				    volumeRayIncrement[1]*volumeRayIncrement[1] +
 				    volumeRayIncrement[2]*volumeRayIncrement[2]) );
-  if ( incrementLength )
+
+  volumeRayDirection[0] = volumeRayEnd[0] - volumeRayStart[0];
+  volumeRayDirection[1] = volumeRayEnd[1] - volumeRayStart[1];
+  volumeRayDirection[2] = volumeRayEnd[2] - volumeRayStart[2];
+
+  rayLength = sqrt( (double) (volumeRayDirection[0]*volumeRayDirection[0] +
+			      volumeRayDirection[1]*volumeRayDirection[1] +
+			      volumeRayDirection[2]*volumeRayDirection[2]) );
+
+  if ( rayLength )
     {
-      volumeRayDirection[0] = volumeRayIncrement[0] / incrementLength;
-      volumeRayDirection[1] = volumeRayIncrement[1] / incrementLength;
-      volumeRayDirection[2] = volumeRayIncrement[2] / incrementLength;
+    volumeRayDirection[0] /= rayLength;
+    volumeRayDirection[1] /= rayLength;
+    volumeRayDirection[2] /= rayLength;
     }
 
-  if ( this->ClipRayAgainstVolume( rayInfo ) )
+  if ( incrementLength && rayLength && this->ClipRayAgainstVolume( rayInfo ) )
     {
-    rayLength = 
-      sqrt((double)
-	   ((volumeRayEnd[0] - volumeRayStart[0])*(volumeRayEnd[0] - volumeRayStart[0]) +
-	    (volumeRayEnd[1] - volumeRayStart[1])*(volumeRayEnd[1] - volumeRayStart[1]) +
-	    (volumeRayEnd[2] - volumeRayStart[2])*(volumeRayEnd[2] - volumeRayStart[2])));
+    // Recompute the ray length since the start and end may have been
+    // modified by ClipRayAgainstVolume() 
+ 
+    volumeRayDirection[0] = volumeRayEnd[0] - volumeRayStart[0];
+    volumeRayDirection[1] = volumeRayEnd[1] - volumeRayStart[1];
+    volumeRayDirection[2] = volumeRayEnd[2] - volumeRayStart[2];
+    
+    rayLength = sqrt( (double) (volumeRayDirection[0]*volumeRayDirection[0] +
+				volumeRayDirection[1]*volumeRayDirection[1] +
+				volumeRayDirection[2]*volumeRayDirection[2]) );
+
+    if ( rayLength )
+      {
+      volumeRayDirection[0] /= rayLength;
+      volumeRayDirection[1] /= rayLength;
+      volumeRayDirection[2] /= rayLength;
+      }
+
+    volumeRayIncrement[0] = incrementLength * volumeRayDirection[0];
+    volumeRayIncrement[1] = incrementLength * volumeRayDirection[1];
+    volumeRayIncrement[2] = incrementLength * volumeRayDirection[2];
 
     rayInfo->NumberOfStepsToTake = (rayLength / incrementLength) + 1;
 
     for ( i = 0; i < 3; i++ )
       {
-      if ( (volumeRayStart[i] + rayInfo->NumberOfStepsToTake * volumeRayIncrement[i]) >
-	   volumeRayEnd[i] )
+      if ( ( volumeRayIncrement[i] > 0.0 && 
+	     ( volumeRayStart[i] + (float)(rayInfo->NumberOfStepsToTake-1) * volumeRayIncrement[i]) >
+	     volumeRayEnd[i] ) ||
+	   ( volumeRayIncrement[i] < 0.0 && 
+	     ( volumeRayStart[i] + (float)(rayInfo->NumberOfStepsToTake-1) * volumeRayIncrement[i]) <
+	     volumeRayEnd[i] ) )
 	{
         rayInfo->NumberOfStepsToTake--;
 	}
@@ -321,13 +350,13 @@ int vtkVolumeRayCastMapper::ClipRayAgainstVolume( VTKRayCastRayInfo *rayInfo )
       {
       diff = 0;
 
-      if ( rayStart[loop] < (this->VolumeBounds[2*loop]+0.001) )
+      if ( rayStart[loop] < (this->VolumeBounds[2*loop]+0.01) )
 	{
-	diff = (this->VolumeBounds[2*loop]+0.001) - rayStart[loop];
+	diff = (this->VolumeBounds[2*loop]+0.01) - rayStart[loop];
 	}
-      else if ( rayStart[loop] > (this->VolumeBounds[2*loop+1]-0.001) )
+      else if ( rayStart[loop] > (this->VolumeBounds[2*loop+1]-0.01) )
 	{
-	diff = (this->VolumeBounds[2*loop+1]-0.001) - rayStart[loop];
+	diff = (this->VolumeBounds[2*loop+1]-0.01) - rayStart[loop];
 	}
       
       if ( diff )
@@ -377,13 +406,13 @@ int vtkVolumeRayCastMapper::ClipRayAgainstVolume( VTKRayCastRayInfo *rayInfo )
       {
       diff = 0;
       
-      if ( rayEnd[loop] < (this->VolumeBounds[2*loop]+0.001) )
+      if ( rayEnd[loop] < (this->VolumeBounds[2*loop]+0.01) )
 	{
-	diff = (this->VolumeBounds[2*loop]+0.001) - rayEnd[loop];
+	diff = (this->VolumeBounds[2*loop]+0.01) - rayEnd[loop];
 	}
-      else if ( rayEnd[loop] > (this->VolumeBounds[2*loop+1]-0.001) )
+      else if ( rayEnd[loop] > (this->VolumeBounds[2*loop+1]-0.01) )
 	{
-	diff = (this->VolumeBounds[2*loop+1]-0.001) - rayEnd[loop];
+	diff = (this->VolumeBounds[2*loop+1]-0.01) - rayEnd[loop];
 	}
       
       if ( diff )
@@ -404,13 +433,13 @@ int vtkVolumeRayCastMapper::ClipRayAgainstVolume( VTKRayCastRayInfo *rayInfo )
 	  rayEnd[2] += rayDirection[2] * t;
 
 	  // Because the end clipping range might be far out, and
-	  // the 0.001 might be too small compared to this number (and
+	  // the 0.01 might be too small compared to this number (and
 	  // therefore is lost in the precision of a float) add a bit more
-	  // (one thousandth of a step) so that we are sure we are inside the
+	  // (one hundredth of a step) so that we are sure we are inside the
 	  // volume.
-	  rayEnd[0] -= rayDirection[0] * 0.001;
-	  rayEnd[1] -= rayDirection[1] * 0.001;
-	  rayEnd[2] -= rayDirection[2] * 0.001;
+	  rayEnd[0] -= rayDirection[0] * 0.01;
+	  rayEnd[1] -= rayDirection[1] * 0.01;
+	  rayEnd[2] -= rayDirection[2] * 0.01;
 	  }
 	}
       }
