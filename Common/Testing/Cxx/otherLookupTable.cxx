@@ -39,8 +39,6 @@ void Test(ostream& strm, vtkLookupTable *lut1)
   lut1->GetTableValue(10,rgb);
   rgb2 = lut1->GetTableValue(10);
 
-  lut1->SetAlpha(.5);
-
   unsigned char output[4*1024];
 
   int bitA = 1;
@@ -120,12 +118,18 @@ int main(int argc, char* argv[])
 
   vtkLookupTable *lut1 = vtkLookupTable::New();
   cout << "Test vtkLookupTable Start" << endl;
+  lut1->SetAlpha(1.0);
+  Test(cout, lut1);
+  lut1->SetAlpha(.5);
   Test(cout, lut1);
   lut1->Delete();
   cout << "Test vtkLookupTable End" << endl;
 
   vtkLogLookupTable *lut2 = vtkLogLookupTable::New();
   cout << "Test vtkLogLookupTable Start" << endl;
+  lut2->SetAlpha(1.0);
+  Test(cout, lut2);
+  lut2->SetAlpha(.5);
   Test(cout, lut2);
   lut2->Delete();
   cout << "Test vtkLogLookupTable End" << endl;
