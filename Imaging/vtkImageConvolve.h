@@ -42,16 +42,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .NAME vtkImageConvolve - Computes any given 3x3 cross kernel.
 // .SECTION Description
 // vtkImageConvolve convolves the image with a given 3x3 cross kernel.
-// Boundaries are handled, so the input
-// is the same sisze as the output.  The output is always float.
-// Dimensionality determines how the input regions are interpreted.
-// (images, or volumes). The Dimensionality defaults to two.
-
-
+// Boundaries are handled, so the input is the same sisze as the output.  The
+// output is always float.  Dimensionality determines how the input regions
+// are interpreted.  (images, or volumes). The Dimensionality defaults to
+// two.
 
 #ifndef __vtkImageConvolve_h
 #define __vtkImageConvolve_h
-
 
 #include "vtkImageToImageFilter.h"
 
@@ -59,9 +56,12 @@ class VTK_EXPORT vtkImageConvolve : public vtkImageToImageFilter
 {
 public:
   static vtkImageConvolve *New();
+
   vtkTypeMacro(vtkImageConvolve,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // Set the cross-kernel.
   vtkSetVector3Macro(Kernel, float);
   vtkGetVector3Macro(Kernel, float);
 
@@ -71,14 +71,12 @@ public:
   vtkGetMacro(Dimensionality,int);
   
 protected:
-
-  float Kernel[3];
-
   vtkImageConvolve();
   ~vtkImageConvolve() {};
   vtkImageConvolve(const vtkImageConvolve&) {};
   void operator=(const vtkImageConvolve&) {};
 
+  float Kernel[3];
   int Dimensionality;
 
   void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
