@@ -312,6 +312,17 @@ void vtkImageLogic::ThreadedExecute(vtkImageData **inData,
     {
     void *in2Ptr = inData[1]->GetScalarPointerForExtent(outExt);
     
+    // this filter expects that inputs that have the same number of components
+    if (inData[0]->GetNumberOfScalarComponents() != 
+        inData[1]->GetNumberOfScalarComponents())
+      {
+      vtkErrorMacro(<< "Execute: input1 NumberOfScalarComponents, "
+                    << inData[0]->GetNumberOfScalarComponents()
+                    << ", must match out input2 NumberOfScalarComponents "
+                    << inData[1]->GetNumberOfScalarComponents());
+      return;
+      }
+
     switch (inData[0]->GetScalarType())
       {
       case VTK_FLOAT:
