@@ -38,7 +38,8 @@ RSC=rc.exe
 # PROP Use_MFC 5
 # PROP Use_Debug_Libraries 0
 # PROP Output_Dir "."
-# PROP Intermediate_Dir ".\Release"
+# PROP Intermediate_Dir "."
+# PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /Yu"stdafx.h" /c
 # ADD CPP /nologo /MT /W2 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /FD /c
@@ -65,6 +66,7 @@ LINK32=link.exe
 # PROP Use_Debug_Libraries 1
 # PROP Output_Dir ".\Debug"
 # PROP Intermediate_Dir ".\Debug"
+# PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MDd /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /Yu"stdafx.h" /c
 # ADD CPP /nologo /MTd /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /FD /c
@@ -78,7 +80,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /debug /machine:I386
-# ADD LINK32 nafxcwd.lib /nologo /subsystem:windows /incremental:no /debug /machine:I386
+# ADD LINK32 nafxcwd.lib /nologo /subsystem:windows /incremental:no /debug /machine:I386 /out:"./pcmaker.exe"
 
 !ENDIF 
 
