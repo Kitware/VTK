@@ -329,7 +329,52 @@ LRESULT APIENTRY vtkTkImageWindowWidgetProc(HWND hWnd, UINT message,
     SetWindowLong(hWnd,GWL_WNDPROC,(LONG)TkWinTopLevelProc);
     rval = TkWinTopLevelProc(hWnd,message,wParam,lParam);
 #else
-    rval = 0;
+    if (message == WM_WINDOWPOSCHANGED) 
+      {
+      XEvent event;
+	    WINDOWPOS *pos = (WINDOWPOS *) lParam;
+	    TkWindow *winPtr = (TkWindow *) Tk_HWNDToWindow(pos->hwnd);
+    
+	    if (winPtr == NULL) {
+	      return 0;
+	      }
+
+	    /*
+	     * Update the shape of the contained window.
+	     */
+	    if (!(pos->flags & SWP_NOSIZE)) {
+	      winPtr->changes.width = pos->cx;
+	      winPtr->changes.height = pos->cy;
+	      }
+	    if (!(pos->flags & SWP_NOMOVE)) {
+	      winPtr->changes.x = pos->x;
+	      winPtr->changes.y = pos->y;
+	      }
+
+
+      /*
+       *  Generate a ConfigureNotify event.
+       */
+      event.type = ConfigureNotify;
+      event.xconfigure.serial = winPtr->display->request;
+      event.xconfigure.send_event = False;
+      event.xconfigure.display = winPtr->display;
+      event.xconfigure.event = winPtr->window;
+      event.xconfigure.window = winPtr->window;
+      event.xconfigure.border_width = winPtr->changes.border_width;
+      event.xconfigure.override_redirect = winPtr->atts.override_redirect;
+      event.xconfigure.x = winPtr->changes.x;
+      event.xconfigure.y = winPtr->changes.y;
+      event.xconfigure.width = winPtr->changes.width;
+      event.xconfigure.height = winPtr->changes.height;
+      event.xconfigure.above = None;
+      Tk_QueueWindowEvent(&event, TCL_QUEUE_TAIL);
+
+	    Tcl_ServiceAll();
+	    return 0;
+      }
+    SetWindowLong(hWnd,GWL_WNDPROC,(LONG)TkWinChildProc);
+    rval = TkWinChildProc(hWnd,message,wParam,lParam);
 #endif
     }
 
@@ -414,10 +459,15 @@ static int vtkTkImageWindowWidget_MakeImageWindow(struct vtkTkImageWindowWidget 
   
   self->ImageWindow->Render();  
 
+#if(TK_MAJOR_VERSION >=  8)
+  twdPtr = (TkWinDrawable*)Tk_AttachHWND(self->TkWin, ImageWindow->GetWindowId());
+#else
   twdPtr = (TkWinDrawable*) ckalloc(sizeof(TkWinDrawable));
   twdPtr->type = TWD_WINDOW;
   twdPtr->window.winPtr = winPtr;
   twdPtr->window.handle = ImageWindow->GetWindowId();
+#endif
+  
   self->OldProc = (WNDPROC)GetWindowLong(twdPtr->window.handle,GWL_WNDPROC);
   SetWindowLong(twdPtr->window.handle,GWL_USERDATA,(LONG)self);
   SetWindowLong(twdPtr->window.handle,GWL_WNDPROC,(LONG)vtkTkImageWindowWidgetProc);
