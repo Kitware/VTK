@@ -385,6 +385,7 @@ void vtkDepthSortPolyData::PrintSelf(ostream& os, vtkIndent indent)
        << this->Origin[2] << ")\n";
     }
   
+  os << indent << "Depth Sort Mode: ";
   if ( this->DepthSortMode == VTK_SORT_FIRST_POINT )
     {
     os << "First Point" << endl;
