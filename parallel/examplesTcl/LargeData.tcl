@@ -40,13 +40,13 @@ probe SpatialMatchOn
 
 vtkPolyDataMapper mapper
 mapper SetInput [probe GetOutput]
-mapper SetScalarRange 80 180
+mapper SetScalarRange 70 160
 
 vtkActor actor
 actor SetMapper mapper
 
 vtkRenderWindow renWin
-  renWin SetSize 500 500
+  renWin SetSize 500 350
 vtkRenderer ren
 renWin AddRenderer ren
 
@@ -63,8 +63,8 @@ wm withdraw .
 
 mapper SetPiece 8698578
 ren GetActiveCamera
-ren ResetCamera -1.1566 -1.12952 -0.266 -0.25 -0.1878 -0.1566
-[ren GetActiveCamera] Zoom 1.5
+ren ResetCamera -1.1566 -1.13452 -0.266 -0.252 -0.1878 -0.1566
+[ren GetActiveCamera] Zoom 2.0
 
 for { set i 8698560 } { $i < 8698585 } { incr i 1 } {
     mapper SetPiece $i
