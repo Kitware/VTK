@@ -119,6 +119,7 @@ vtkPropCollection \
 vtkProperty2D \
 vtkPyramid \
 vtkQuad \
+vtkQuadric \
 vtkRectilinearGrid \
 vtkReferenceCount \
 vtkScalars \
