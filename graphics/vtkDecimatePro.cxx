@@ -659,7 +659,7 @@ int vtkDecimatePro::EvaluateVertex(int ptId, unsigned short int numTris, int *tr
   x2 =  this->V->Array[0].x;
   for (i=0; i<3; i++)
     {
-    v2[i] = x2[i] - X[i];
+    v2[i] = x2[i] - this->X[i];
     }
 
   this->LoopArea=0.0;
@@ -676,7 +676,7 @@ int vtkDecimatePro::EvaluateVertex(int ptId, unsigned short int numTris, int *tr
     for (j=0; j<3; j++) 
       {
       v1[j] = v2[j];
-      v2[j] = x2[j] - X[j];
+      v2[j] = x2[j] - this->X[j];
       }
 
     this->T->Array[i].area = vtkTriangle::TriangleArea (this->X, x1, x2);
@@ -712,7 +712,7 @@ int vtkDecimatePro::EvaluateVertex(int ptId, unsigned short int numTris, int *tr
     this->Normal[j] /= this->LoopArea;
     this->Pt[j] /= this->LoopArea;
     }
-  if ( vtkMath::Normalize(Normal) == 0.0 )
+  if ( vtkMath::Normalize(this->Normal) == 0.0 )
     {
     return VTK_DEGENERATE_VERTEX;
     }
@@ -907,11 +907,11 @@ void vtkDecimatePro::SplitVertex(int ptId, int type, unsigned short int numTris,
     // don't forget to compute error for old vertex, and insert into queue
     if ( this->V->Array[0].FAngle == -1.0 )
       {
-      error = ComputeEdgeError(X, this->V->Array[0].x, this->V->Array[veryFirst].x);
+      error = ComputeEdgeError(this->X, this->V->Array[0].x, this->V->Array[veryFirst].x);
       }
     else
       {
-      error = ComputeEdgeError(X, this->V->Array[veryFirst].x, this->V->Array[fedge1].x);
+      error = ComputeEdgeError(this->X, this->V->Array[veryFirst].x, this->V->Array[fedge1].x);
       }
 
     if ( insert )
@@ -940,7 +940,9 @@ void vtkDecimatePro::SplitVertex(int ptId, int type, unsigned short int numTris,
     maxGroupSize = ( numTris < this->VertexDegree ? numTris : (this->VertexDegree - 1));
 
     if ( type == VTK_NON_MANIFOLD_VERTEX || type == VTK_HIGH_DEGREE_VERTEX )
+      {
       ; //use maxGroupSize
+      }
     else
       {
       maxGroupSize /= 2; //prevents infinite recursion
@@ -998,7 +1000,7 @@ void vtkDecimatePro::SplitVertex(int ptId, int type, unsigned short int numTris,
       // reconnect group into manifold chunk (first group is left attached)
       if ( i != 0 ) 
         {
-        id = this->Mesh->InsertNextLinkedPoint(X,group->GetNumberOfIds());
+        id = this->Mesh->InsertNextLinkedPoint(this->X,group->GetNumberOfIds());
         for ( j=0; j < group->GetNumberOfIds(); j++ )
           {
           tri = group->GetId(j);
@@ -1099,8 +1101,8 @@ int vtkDecimatePro::FindSplit (int type, int fedges[2], int& pt1, int& pt2,
     case VTK_BOUNDARY_VERTEX: //--------------------------------------------
       CollapseTris->SetNumberOfIds(1);
       // Compute the edge lengths
-      dist2 = vtkMath::Distance2BetweenPoints(X, this->V->Array[0].x);
-      e2dist2 = vtkMath::Distance2BetweenPoints(X, this->V->Array[this->V->MaxId].x);
+      dist2 = vtkMath::Distance2BetweenPoints(this->X, this->V->Array[0].x);
+      e2dist2 = vtkMath::Distance2BetweenPoints(this->X, this->V->Array[this->V->MaxId].x);
 
       maxI = -1;
       if ( dist2 <= e2dist2 )

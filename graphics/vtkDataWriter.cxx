@@ -89,15 +89,42 @@ vtkDataWriter::vtkDataWriter()
 
 vtkDataWriter::~vtkDataWriter()
 {
-  if ( this->FileName ) delete [] this->FileName;
-  if ( this->Header ) delete [] this->Header;
-  if ( this->ScalarsName ) delete [] this->ScalarsName;
-  if ( this->VectorsName ) delete [] this->VectorsName;
-  if ( this->TensorsName ) delete [] this->TensorsName;
-  if ( this->NormalsName ) delete [] this->NormalsName;
-  if ( this->TCoordsName ) delete [] this->TCoordsName;
-  if ( this->LookupTableName ) delete [] this->LookupTableName;
-  if ( this->FieldDataName ) delete [] this->FieldDataName;
+  if ( this->FileName )
+    {
+    delete [] this->FileName;
+    }
+  if ( this->Header )
+    {
+    delete [] this->Header;
+    }
+  if ( this->ScalarsName )
+    {
+    delete [] this->ScalarsName;
+    }
+  if ( this->VectorsName )
+    {
+    delete [] this->VectorsName;
+    }
+  if ( this->TensorsName )
+    {
+    delete [] this->TensorsName;
+    }
+  if ( this->NormalsName )
+    {
+    delete [] this->NormalsName;
+    }
+  if ( this->TCoordsName )
+    {
+    delete [] this->TCoordsName;
+    }
+  if ( this->LookupTableName )
+    {
+    delete [] this->LookupTableName;
+    }
+  if ( this->FieldDataName )
+    {
+    delete [] this->FieldDataName;
+    }
 }
 
 // Open a vtk data file. Returns NULL if error.
@@ -131,9 +158,13 @@ int vtkDataWriter::WriteHeader(FILE *fp)
   fprintf (fp, "%s\n", this->Header);
 
   if ( this->FileType == VTK_ASCII )
+    {
     fprintf (fp, "ASCII\n");
+    }
   else
+    {
     fprintf (fp, "BINARY\n");
+    }
 
   return 1;
 }
@@ -173,42 +204,60 @@ int vtkDataWriter::WriteCellData(FILE *fp, vtkDataSet *ds)
 //
   if ( scalars && scalars->GetNumberOfScalars() > 0 )
     {
-    if ( ! this->WriteScalarData(fp, scalars, numCells) ) return 0;
+    if ( ! this->WriteScalarData(fp, scalars, numCells) )
+      {
+      return 0;
+      }
     }
 //
 // Write vector data
 //
   if ( vectors && vectors->GetNumberOfVectors() > 0 )
     {
-    if ( ! this->WriteVectorData(fp, vectors, numCells) ) return 0;
+    if ( ! this->WriteVectorData(fp, vectors, numCells) )
+      {
+      return 0;
+      }
     }
 //
 // Write normals
 //
   if ( normals && normals->GetNumberOfNormals() > 0 )
     {
-    if ( ! this->WriteNormalData(fp, normals, numCells) ) return 0;
+    if ( ! this->WriteNormalData(fp, normals, numCells) )
+      {
+      return 0;
+      }
     }
 //
 // Write texture coords
 //
   if ( tcoords && tcoords->GetNumberOfTCoords() > 0 )
     {
-    if ( ! this->WriteTCoordData(fp, tcoords, numCells) ) return 0;
+    if ( ! this->WriteTCoordData(fp, tcoords, numCells) )
+      {
+      return 0;
+      }
     }
 //
 // Write tensors
 //
   if ( tensors && tensors->GetNumberOfTensors() > 0 )
     {
-    if ( ! this->WriteTensorData(fp, tensors, numCells) ) return 0;
+    if ( ! this->WriteTensorData(fp, tensors, numCells) )
+      {
+      return 0;
+      }
     }
 //
 // Write field
 //
   if ( field && field->GetNumberOfTuples() > 0 )
     {
-    if ( ! this->WriteFieldData(fp, field) ) return 0;
+    if ( ! this->WriteFieldData(fp, field) )
+      {
+      return 0;
+      }
     }
 
   return 1;
@@ -249,21 +298,30 @@ int vtkDataWriter::WritePointData(FILE *fp, vtkDataSet *ds)
 //
   if ( scalars && scalars->GetNumberOfScalars() > 0 )
     {
-    if ( ! this->WriteScalarData(fp, scalars, numPts) ) return 0;
+    if ( ! this->WriteScalarData(fp, scalars, numPts) )
+      {
+      return 0;
+      }
     }
 //
 // Write vector data
 //
   if ( vectors && vectors->GetNumberOfVectors() > 0 )
     {
-    if ( ! this->WriteVectorData(fp, vectors, numPts) ) return 0;
+    if ( ! this->WriteVectorData(fp, vectors, numPts) )
+      {
+      return 0;
+      }
     }
 //
 // Write normals
 //
   if ( normals && normals->GetNumberOfNormals() > 0 )
     {
-    if ( ! this->WriteNormalData(fp, normals, numPts) ) return 0;
+    if ( ! this->WriteNormalData(fp, normals, numPts) )
+      {
+      return 0;
+      }
     }
 //
 // Write texture coords

@@ -132,8 +132,9 @@ public:
     {this->MaxId = -1; this->Array = new vtkProLocalVertex[sz];};
   ~vtkVertexArray()
     {
+    if (this->Array)
       {
-      if (this->Array) delete [] this->Array;
+      delete [] this->Array;
       }
     };
   int GetNumberOfVertices() {return this->MaxId + 1;};
