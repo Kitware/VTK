@@ -14,13 +14,18 @@
 =========================================================================*/
 #include "vtkProcessObject.h"
 
-#include "vtkObjectFactory.h"
+#include "vtkAlgorithmOutput.h"
+#include "vtkCommand.h"
 #include "vtkDataObject.h"
 #include "vtkErrorCode.h"
-#include "vtkCommand.h"
+#include "vtkGarbageCollector.h"
+#include "vtkInformation.h"
+#include "vtkObjectFactory.h"
+#include "vtkSource.h"
+#include "vtkTrivialProducer.h"
 #include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkProcessObject, "1.39");
+vtkCxxRevisionMacro(vtkProcessObject, "1.40");
 
 // Instantiate object with no start, end, or progress methods.
 vtkProcessObject::vtkProcessObject()
@@ -34,13 +39,15 @@ vtkProcessObject::vtkProcessObject()
   this->SortedInputs = NULL;
   this->SortedInputs2 = NULL;
   this->ErrorCode = 0;
+
+  this->SetNumberOfInputPorts(1);
 }
 
 // Destructor for the vtkProcessObject class
 vtkProcessObject::~vtkProcessObject()
 {
   int idx;
-  
+
   for (idx = 0; idx < this->NumberOfInputs; ++idx)
     {
     if (this->Inputs[idx])
@@ -56,11 +63,12 @@ vtkProcessObject::~vtkProcessObject()
     this->Inputs = NULL;
     this->NumberOfInputs = 0;
     }
+
   if (this->SortedInputs)
     {
     delete [] this->SortedInputs;
     this->SortedInputs = NULL;
-    } 
+    }
   if (this->SortedInputs2)
     {
     delete [] this->SortedInputs2;
@@ -82,9 +90,14 @@ int vtkProcessObject::GetNumberOfInputs()
   return this->NumberOfInputs;
 }
 
-typedef vtkDataObject *vtkDataObjectPointer;
 //----------------------------------------------------------------------------
-// Called by constructor to set up input array.
+#ifdef VTK_USE_EXECUTIVES
+void vtkProcessObject::SetNumberOfInputs(int)
+{
+  // Input array size management is automatic.  Do nothing.
+}
+#else
+typedef vtkDataObject *vtkDataObjectPointer;
 void vtkProcessObject::SetNumberOfInputs(int num)
 {
   int idx;
@@ -130,12 +143,14 @@ void vtkProcessObject::SetNumberOfInputs(int num)
   this->NumberOfInputs = num;
   this->Modified();
 }
+#endif
 
 //----------------------------------------------------------------------------
-// Adds an input to the first null position in the input list.
-// Expands the list memory if necessary
-void vtkProcessObject::AddInput(vtkDataObject *input)
+void vtkProcessObject::AddInput(vtkDataObject* input)
 {
+#ifdef VTK_USE_EXECUTIVES
+  this->AddInputInternal(input);
+#else
   int idx;
   
   if (input)
@@ -156,13 +171,15 @@ void vtkProcessObject::AddInput(vtkDataObject *input)
   
   this->SetNumberOfInputs(this->NumberOfInputs + 1);
   this->Inputs[this->NumberOfInputs - 1] = input;
+#endif
 }
 
 //----------------------------------------------------------------------------
-// Adds an input to the first null position in the input list.
-// Expands the list memory if necessary
-void vtkProcessObject::RemoveInput(vtkDataObject *input)
+void vtkProcessObject::RemoveInput(vtkDataObject* input)
 {
+#ifdef VTK_USE_EXECUTIVES
+  this->RemoveInputInternal(input);
+#else
   int idx, loc;
   
   if (!input)
@@ -196,13 +213,15 @@ void vtkProcessObject::RemoveInput(vtkDataObject *input)
     }
   
   this->Modified();
+#endif
 }
 
 //----------------------------------------------------------------------------
-// Adds an input to the first null position in the input list.
-// Expands the list memory if necessary
 void vtkProcessObject::SqueezeInputArray()
 {
+#ifdef VTK_USE_EXECUTIVES
+  // Array is always squeezed.  Do nothing.
+#else
   int idx, loc;
   
   // move NULL entries to the end
@@ -231,12 +250,68 @@ void vtkProcessObject::SqueezeInputArray()
     {
     this->SetNumberOfInputs(loc);
     }
+#endif
 }
 
 //----------------------------------------------------------------------------
-// Set an Input of this filter. 
-void vtkProcessObject::SetNthInput(int idx, vtkDataObject *input)
+void vtkProcessObject::SetNthInput(int idx, vtkDataObject* input)
 {
+#ifdef VTK_USE_EXECUTIVES
+  int num = idx;
+  // Check whether anything will change.
+  if(num >= 0 && num < this->GetNumberOfInputConnections(0))
+    {
+    if(this->Inputs[num] == input)
+      {
+      return;
+      }
+    }
+  else if(num < 0)
+    {
+    vtkErrorMacro("SetNthInput cannot set input index " << num << ".");
+    return;
+    }
+
+  // Avoid creating holes in input array.
+  if(input && num > this->GetNumberOfInputConnections(0))
+    {
+    vtkErrorMacro("SetNthInput cannot set input index " << num
+                  << " to " << input->GetClassName() << "(" << input
+                  << ") because there are only "
+                  << this->GetNumberOfInputConnections(0)
+                  << " connections and NULL connections are not allowed.");
+    }
+  else if(!input && num < this->GetNumberOfInputConnections(0)-1)
+    {
+    vtkErrorMacro("SetNthInput cannot set input index " << num
+                  << " to NULL because there are "
+                  << this->GetNumberOfInputConnections(0)
+                  << " connections and NULL connections are not allowed.");
+    }
+  else if(input && num == this->GetNumberOfInputConnections(0))
+    {
+    this->AddInputInternal(input);
+    }
+  else if(!input && num == this->GetNumberOfInputConnections(0)-1)
+    {
+    this->RemoveInputInternal(input);
+    }
+  else if(input && num < this->GetNumberOfInputConnections(0))
+    {
+    if(vtkAlgorithmOutput* producerPort = input->GetProducerPort())
+      {
+      this->SetNthInputConnection(0, num, producerPort);
+      }
+    else
+      {
+      // The data object has no producer.  Give it a trivial source.
+      vtkTrivialProducer* producer = vtkTrivialProducer::New();
+      producer->SetOutput(input);
+      this->SetNthInputConnection(0, num, producer->GetOutputPort(0));
+      producer->Delete();
+      }
+    }
+#else
   if (idx < 0)
     {
     vtkErrorMacro(<< "SetNthInput: " << idx << ", cannot set input. ");
@@ -269,9 +344,10 @@ void vtkProcessObject::SetNthInput(int idx, vtkDataObject *input)
 
   this->Inputs[idx] = input;
   this->Modified();
+#endif
 }
 
-// Update the progress of the process object. If a ProgressMethod exists, 
+// Update the progress of the process object. If a ProgressMethod exists,
 // executes it. Then set the Progress ivar to amount. The parameter amount
 // should range between (0,1).
 void vtkProcessObject::UpdateProgress(double amount)
@@ -280,8 +356,12 @@ void vtkProcessObject::UpdateProgress(double amount)
   this->InvokeEvent(vtkCommand::ProgressEvent,(void *)&amount);
 }
 
+//----------------------------------------------------------------------------
 void vtkProcessObject::RemoveAllInputs()
 {
+#ifdef VTK_USE_EXECUTIVES
+  this->SetInputConnection(0, 0);
+#else
   if ( this->Inputs )
     {
     for (int idx = 0; idx < this->NumberOfInputs; ++idx)
@@ -297,6 +377,7 @@ void vtkProcessObject::RemoveAllInputs()
     this->NumberOfInputs = 0;
     this->Modified();
     }
+#endif
 }
 
 void vtkProcessObject::SortInputsByLocality()
@@ -306,14 +387,14 @@ void vtkProcessObject::SortInputsByLocality()
   // length starts at 1 and doubles every pass.
   int length;
   vtkDataObject **tmp;
-  
+
   // Copy inputs over to sorted array.
-  memcpy(this->SortedInputs, this->Inputs, 
+  memcpy(this->SortedInputs, this->Inputs,
          this->NumberOfInputs * sizeof(void*));
 
   length = 1;
   while (length < this->NumberOfInputs)
-    {  
+    {
     i1 = 0;
     while (i1 < this->NumberOfInputs)
       {
@@ -333,7 +414,7 @@ void vtkProcessObject::SortInputsByLocality()
           l2 = length;
           }
         }
-      this->SortMerge(this->SortedInputs+i1, l1, 
+      this->SortMerge(this->SortedInputs+i1, l1,
                       this->SortedInputs+i2, l2,
                       this->SortedInputs2+i1);
       i1 = i2 + l2;
@@ -347,8 +428,8 @@ void vtkProcessObject::SortInputsByLocality()
 }
 
 void vtkProcessObject::SortMerge(vtkDataObject **a1, int l1,
-                                 vtkDataObject **a2, int l2,
-                                 vtkDataObject **results)
+                                  vtkDataObject **a2, int l2,
+                                  vtkDataObject **results)
 {
   while (l1 > 0 || l2 > 0)
     {
@@ -410,11 +491,28 @@ int vtkProcessObject::FillOutputPortInformation(int, vtkInformation*)
 void vtkProcessObject::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
+#ifdef VTK_USE_EXECUTIVES
+  for(int i=0; i < this->NumberOfInputs; ++i)
+    {
+    collector->ReportReference(this->Inputs[i], "Inputs");
+    }
+#endif
 }
 
 //----------------------------------------------------------------------------
 void vtkProcessObject::RemoveReferences()
 {
+#ifdef VTK_USE_EXECUTIVES
+  for(int i=0; i < this->NumberOfInputs; ++i)
+    {
+    if(this->Inputs[i])
+      {
+      this->Inputs[i]->RemoveConsumer(this);
+      this->Inputs[i]->UnRegister(this);
+      this->Inputs[i] = 0;
+      }
+    }
+#endif
   this->Superclass::RemoveReferences();
 }
 
@@ -422,35 +520,145 @@ void vtkProcessObject::RemoveReferences()
 void vtkProcessObject::SetInputConnection(int port, vtkAlgorithmOutput* input)
 {
   this->Superclass::SetInputConnection(port, input);
+  this->SetupInputs();
 }
 
 //----------------------------------------------------------------------------
 void vtkProcessObject::AddInputConnection(int port, vtkAlgorithmOutput* input)
 {
   this->Superclass::AddInputConnection(port, input);
+  this->SetupInputs();
 }
 
 //----------------------------------------------------------------------------
 void vtkProcessObject::RemoveInputConnection(int port, vtkAlgorithmOutput* input)
 {
   this->Superclass::RemoveInputConnection(port, input);
+  this->SetupInputs();
 }
 
 //----------------------------------------------------------------------------
+#ifdef VTK_USE_EXECUTIVES
+void vtkProcessObject::AddInputInternal(vtkDataObject* input)
+{
+  if(input)
+    {
+    if(vtkAlgorithmOutput* producerPort = input->GetProducerPort())
+      {
+      this->AddInputConnection(0, producerPort);
+      }
+    else
+      {
+      // The data object has no producer.  Give it a trivial source.
+      vtkTrivialProducer* producer = vtkTrivialProducer::New();
+      producer->SetOutput(input);
+      this->AddInputConnection(0, producer->GetOutputPort(0));
+      producer->Delete();
+      }
+    }
+}
+#else
 void vtkProcessObject::AddInputInternal(vtkDataObject*)
 {
 }
+#endif
 
 //----------------------------------------------------------------------------
+#ifdef VTK_USE_EXECUTIVES
+void vtkProcessObject::RemoveInputInternal(vtkDataObject* input)
+{
+  if(input)
+    {
+    if(vtkAlgorithmOutput* producerPort = input->GetProducerPort())
+      {
+      this->RemoveInputConnection(0, producerPort);
+      }
+    else
+      {
+      // The data object has no producer.  Search for an input
+      // connection with this data object.
+      for(int i=0; i < this->GetNumberOfInputConnections(0); ++i)
+        {
+        vtkAlgorithmOutput* ic = this->GetInputConnection(0, i);
+        if(input == ic->GetProducer()->GetOutputDataObject(ic->GetIndex()))
+          {
+          // Remove the connection.
+          this->RemoveInputConnection(0, ic);
+          return;
+          }
+        }
+      vtkErrorMacro("Cannot remove input " << input->GetClassName()
+                    << "(" << input << ") because it is not a current input.");
+      }
+    }
+}
+#else
 void vtkProcessObject::RemoveInputInternal(vtkDataObject*)
 {
 }
+#endif
 
 //----------------------------------------------------------------------------
 void vtkProcessObject::SetupInputs()
 {
+#ifdef VTK_USE_EXECUTIVES
+  // Construct a new array of input data objects using connections
+  // from input port 0.
+  typedef vtkDataObject* vtkDataObjectPointer;
+  vtkDataObject** newInputs = 0;
+  int newNumberOfInputs = this->GetNumberOfInputConnections(0);
+  if(newNumberOfInputs > 0)
+    {
+    newInputs = new vtkDataObjectPointer[newNumberOfInputs];
+    int count=0;
+    for(int i=0; i < this->GetNumberOfInputConnections(0); ++i)
+      {
+      vtkAlgorithmOutput* ic = this->GetInputConnection(0, i);
+      newInputs[count] = ic->GetProducer()->GetOutputDataObject(ic->GetIndex());
+      if(newInputs[count])
+        {
+        newInputs[count]->Register(this);
+        newInputs[count]->AddConsumer(this);
+        ++count;
+        }
+      }
+    newNumberOfInputs = count;
+    }
+
+  // Remove the old array of input data objects.
+  if(this->NumberOfInputs)
+    {
+    for(int i=0; i < this->NumberOfInputs; ++i)
+      {
+      if(this->Inputs[i])
+        {
+        this->Inputs[i]->RemoveConsumer(this);
+        this->Inputs[i]->UnRegister(this);
+        }
+      }
+    delete [] this->Inputs;
+    }
+
+  // Save the new array of input data objects.
+  this->NumberOfInputs = newNumberOfInputs;
+  this->Inputs = newInputs;
+
+  if(this->SortedInputs)
+    {
+    delete [] this->SortedInputs;
+    this->SortedInputs = 0;
+    }
+  if(this->SortedInputs2)
+    {
+    delete [] this->SortedInputs2;
+    this->SortedInputs2 = 0;
+    }
+  this->SortedInputs = new vtkDataObjectPointer[this->NumberOfInputs];
+  this->SortedInputs2 = new vtkDataObjectPointer[this->NumberOfInputs];
+#endif
 }
 
+//----------------------------------------------------------------------------
 void vtkProcessObject::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
