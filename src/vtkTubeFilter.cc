@@ -73,9 +73,9 @@ void vtkTubeFilter::Execute()
   vtkPointData *pd, *outPD;
   vtkPolyData *input=(vtkPolyData *)this->Input;
   vtkPolyData *output=(vtkPolyData *)this->Output;
-//
-// Initialize
-//
+  //
+  // Initialize
+  //
   vtkDebugMacro(<<"Creating ribbon");
 
   if ( !(inPts=input->GetPoints()) || 
@@ -89,6 +89,7 @@ void vtkTubeFilter::Execute()
 
   // copy scalars, vectors, tcoords. Normals may be computed here.
   pd = input->GetPointData();
+  outPD = output->GetPointData();
   outPD->CopyNormalsOff();
   outPD->CopyAllocate(pd,numNewPts);
 
