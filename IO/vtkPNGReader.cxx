@@ -262,7 +262,6 @@ static void vtkPNGReaderUpdate2(vtkPNGReader *self, OT *outPtr,
     row_pointers[ui] = tempImage + rowbytes*ui;
     }
   png_read_image(png_ptr, row_pointers);
-  delete [] tempImage;
 
   // copy the data into the outPtr
   OT *outPtr2;
@@ -273,6 +272,7 @@ static void vtkPNGReaderUpdate2(vtkPNGReader *self, OT *outPtr,
     memcpy(outPtr2,row_pointers[height - i - 1] + outExt[0]*pixSize,outSize);
     outPtr2 += outInc[1];
     }
+  delete [] tempImage;
   delete [] row_pointers;
 
   // close the file
