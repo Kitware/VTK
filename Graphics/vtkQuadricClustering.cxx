@@ -22,7 +22,7 @@
 #include "vtkFeatureEdges.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkQuadricClustering, "1.42");
+vtkCxxRevisionMacro(vtkQuadricClustering, "1.43");
 vtkStandardNewMacro(vtkQuadricClustering);
 
 //----------------------------------------------------------------------------
@@ -1083,7 +1083,7 @@ void vtkQuadricClustering::EndAppendUsingPoints(vtkPolyData *input)
     this->QuadricArray = NULL;
     }
 
-  delete minError;
+  delete [] minError;
 }
 
 
