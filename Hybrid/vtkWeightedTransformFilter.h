@@ -71,7 +71,8 @@
 #define __vtkWeightedTransformFilter_h
 
 #include "vtkPointSetToPointSetFilter.h"
-#include "vtkAbstractTransform.h"
+
+class vtkAbstractTransform;
 
 class VTK_HYBRID_EXPORT vtkWeightedTransformFilter : public vtkPointSetToPointSetFilter
 {

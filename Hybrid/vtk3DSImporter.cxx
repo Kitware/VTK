@@ -18,13 +18,15 @@
 #include "vtk3DSImporter.h"
 
 #include "vtkByteSwap.h"
+#include "vtkCamera.h"
+#include "vtkLight.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyDataNormals.h"
 #include "vtkProperty.h"
 #include "vtkStripper.h"
 
-vtkCxxRevisionMacro(vtk3DSImporter, "1.28");
+vtkCxxRevisionMacro(vtk3DSImporter, "1.29");
 vtkStandardNewMacro(vtk3DSImporter);
 
 static Colour Black = {0.0, 0.0, 0.0};

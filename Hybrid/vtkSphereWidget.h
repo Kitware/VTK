@@ -59,7 +59,7 @@
 #define __vtkSphereWidget_h
 
 #include "vtk3DWidget.h"
-#include "vtkSphereSource.h"
+#include "vtkSphereSource.h" // Needed for faster access to the sphere source
 
 class vtkActor;
 class vtkPolyDataMapper;

@@ -27,7 +27,7 @@
 #define __vtk3DSImporter_h
 
 #include "vtkImporter.h"
-#include "vtk3DS.h"
+#include "vtk3DS.h"  // Needed for all the 3DS structures
 
 class vtkPolyData;
 

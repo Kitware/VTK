@@ -28,8 +28,9 @@
 
 
 #include "vtkImageStencilSource.h"
-#include "vtkPolyData.h"
-#include "vtkOBBTree.h"
+
+class vtkPolyData;
+class vtkOBBTree;
 
 class VTK_HYBRID_EXPORT vtkPolyDataToImageStencil : public vtkImageStencilSource
 {

@@ -33,11 +33,12 @@
 #ifndef __vtkVideoSource_h
 #define __vtkVideoSource_h
 
-#include "vtkTimerLog.h"
-#include "vtkCriticalSection.h"
-#include "vtkMultiThreader.h"
 #include "vtkImageSource.h"
-#include "vtkScalarsToColors.h"
+
+class vtkTimerLog;
+class vtkCriticalSection;
+class vtkMultiThreader;
+class vtkScalarsToColors;
 
 class VTK_HYBRID_EXPORT vtkVideoSource : public vtkImageSource
 {

@@ -33,7 +33,6 @@
 #define __vtkLandmarkTransform_h
 
 #include "vtkLinearTransform.h"
-#include "vtkMutexLock.h"
 
 #define VTK_LANDMARK_RIGIDBODY 6
 #define VTK_LANDMARK_SIMILARITY 7

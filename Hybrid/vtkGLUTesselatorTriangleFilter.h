@@ -32,7 +32,7 @@
 #define __vtkGLUTesselatorTriangleFilter_h
 
 #include "vtkPolyDataToPolyDataFilter.h"
-#include <GL/GLU.h>
+#include <GL/GLU.h> // Needed for GLUtesselator
 
 class VTK_HYBRID_EXPORT vtkGLUTesselatorTriangleFilter : public vtkPolyDataToPolyDataFilter
 {

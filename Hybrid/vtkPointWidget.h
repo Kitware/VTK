@@ -58,7 +58,7 @@
 #define __vtkPointWidget_h
 
 #include "vtk3DWidget.h"
-#include "vtkCursor3D.h"
+#include "vtkCursor3D.h" // Needed for faster access to the Cursor3D
 
 class vtkActor;
 class vtkPolyDataMapper;
