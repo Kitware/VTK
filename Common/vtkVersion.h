@@ -59,7 +59,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_MINOR_VERSION 0
 #define VTK_BUILD_VERSION 0
 #define VTK_VERSION "4.0.0"
-#define VTK_SOURCE_VERSION "vtk version " VTK_VERSION ", vtk source $Revision: 1.1008 $, $Date: 2001-10-01 19:26:36 $ (GMT)"
+#define VTK_SOURCE_VERSION "vtk version " VTK_VERSION ", vtk source $Revision: 1.1009 $, $Date: 2001-10-02 08:11:58 $ (GMT)"
 
 
 class VTK_EXPORT vtkVersion : public vtkObject {
