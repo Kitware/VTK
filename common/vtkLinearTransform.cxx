@@ -46,7 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //------------------------------------------------------------------------
 void vtkLinearTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkHomogenousTransform::PrintSelf(os, indent);
+  vtkHomogeneousTransform::PrintSelf(os, indent);
 }
 
 //------------------------------------------------------------------------

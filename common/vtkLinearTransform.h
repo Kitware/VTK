@@ -50,13 +50,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkLinearTransform_h
 #define __vtkLinearTransform_h
 
-#include "vtkHomogenousTransform.h"
+#include "vtkHomogeneousTransform.h"
 
-class VTK_EXPORT vtkLinearTransform : public vtkHomogenousTransform
+class VTK_EXPORT vtkLinearTransform : public vtkHomogeneousTransform
 {
 public:
 
-  vtkTypeMacro(vtkLinearTransform,vtkHomogenousTransform);
+  vtkTypeMacro(vtkLinearTransform,vtkHomogeneousTransform);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

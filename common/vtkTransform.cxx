@@ -238,8 +238,8 @@ void vtkTransform::InternalUpdate()
   // concatenate PreTransforms 
   for (i = nPreTransforms-1; i >= 0; i--)
     {
-    vtkHomogenousTransform *transform = 
-      (vtkHomogenousTransform *)this->Concatenation->GetTransform(i);
+    vtkHomogeneousTransform *transform = 
+      (vtkHomogeneousTransform *)this->Concatenation->GetTransform(i);
     vtkMatrix4x4::Multiply4x4(this->Matrix,transform->GetMatrix(),
 			      this->Matrix);
     }
@@ -247,8 +247,8 @@ void vtkTransform::InternalUpdate()
   // concatenate PostTransforms
   for (i = nPreTransforms; i < nTransforms; i++)
     {
-    vtkHomogenousTransform *transform = 
-      (vtkHomogenousTransform *)this->Concatenation->GetTransform(i);
+    vtkHomogeneousTransform *transform = 
+      (vtkHomogeneousTransform *)this->Concatenation->GetTransform(i);
     vtkMatrix4x4::Multiply4x4(transform->GetMatrix(),this->Matrix,
 			      this->Matrix);
     }

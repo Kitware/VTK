@@ -156,9 +156,9 @@ unsigned long int vtkImageReslice::GetMTime()
     {
     time = this->ResliceTransform->GetMTime();
     mTime = ( time > mTime ? time : mTime );
-    if (this->ResliceTransform->IsA("vtkHomogenousTransform"))
+    if (this->ResliceTransform->IsA("vtkHomogeneousTransform"))
       {
-      time = ((vtkHomogenousTransform *)this->ResliceTransform)
+      time = ((vtkHomogeneousTransform *)this->ResliceTransform)
 	->GetMatrixPointer()->GetMTime();
       mTime = ( time > mTime ? time : mTime );
       }    
@@ -209,7 +209,7 @@ void vtkImageReslice::ComputeInputUpdateExtent(int inExt[6],
   if (this->ResliceTransform)
     {
     this->ResliceTransform->Update();
-    if (!this->ResliceTransform->IsA("vtkHomogenousTransform"))
+    if (!this->ResliceTransform->IsA("vtkHomogeneousTransform"))
       { // set the input to the whole extent if the transform
 	// is nonlinear
       this->GetInput()->GetWholeExtent(inExt);
@@ -371,10 +371,10 @@ void vtkImageReslice::ExecuteInformation(vtkImageData *input,
     matrix->DeepCopy(this->ResliceAxes);
     }
   if (this->ResliceTransform && 
-      this->ResliceTransform->IsA("vtkHomogenousTransform"))
+      this->ResliceTransform->IsA("vtkHomogeneousTransform"))
     {
     vtkMatrix4x4 *transformMatrix = 
-      ((vtkHomogenousTransform *)this->ResliceTransform)->GetMatrixPointer();
+      ((vtkHomogeneousTransform *)this->ResliceTransform)->GetMatrixPointer();
     this->ResliceTransform->Update();
     vtkMatrix4x4::Multiply4x4(transformMatrix,matrix,matrix);
     }
@@ -1280,7 +1280,7 @@ static void vtkImageResliceExecute(vtkImageReslice *self,
 	  matrix->MultiplyPoint(point,point);
 	  f = 1.0f/point[3];
 	  point[0] *= f; // deal with w if the matrix
-	  point[1] *= f; //   was a Homogenous transform
+	  point[1] *= f; //   was a Homogeneous transform
 	  point[2] *= f;
 	  }
 	if (transform)
@@ -1316,7 +1316,7 @@ void vtkImageReslice::ThreadedExecute(vtkImageData *inData,
 {
   if (this->Optimization && 
       !(this->ResliceTransform && 
-	!this->ResliceTransform->IsA("vtkHomogenousTransform")))
+	!this->ResliceTransform->IsA("vtkHomogeneousTransform")))
     {
     this->OptimizedThreadedExecute(inData,outData,outExt,id);
     return;
@@ -1650,7 +1650,7 @@ int vtkImageReslice::FindExtent(int& r1, int& r2, float *point, float *xAxis,
   float f1,f2,p1,p2;
 
   // find signs of components of x axis 
-  // (this is complicated due to the homogenous coordinate)
+  // (this is complicated due to the homogeneous coordinate)
   for (i = 0; i < 3; i++)
     {
     f1 = point[3];
@@ -2220,20 +2220,6 @@ static void vtkOptimizedPermuteExecuteLinear(vtkImageReslice *self,
       inId0 = trunc - inExt[2*k];
       inId1 = inId0+doInterp;
 
-      if (self->GetMirror())
-	{
-	inId0 = vtkInterpolateMirror(inId0, inExtK);
-	inId1 = vtkInterpolateMirror(inId1, inExtK);
-	region = 1;
-	}
-      else if (self->GetWrap())
-	{
-	inId0 = vtkInterpolateWrap(inId0, inExtK);
-	inId1 = vtkInterpolateWrap(inId1, inExtK);
-	region = 1;
-	}
-      else
-	{
         if (inId0 < 0 || inId1 >= inExtK)
 	  {
 	  if (region == 1)
@@ -2250,7 +2236,6 @@ static void vtkOptimizedPermuteExecuteLinear(vtkImageReslice *self,
 	    clipExt[2*j] = i;	   
 	    }
 	  }
-	}
       traversal[j][2*i] = inId0*inInc[k];
       traversal[j][2*i+1] = inId1*inInc[k];
       }
@@ -2995,11 +2980,11 @@ vtkMatrix4x4 *vtkImageReslice::GetIndexMatrix()
     transform->SetMatrix(this->GetResliceAxes());
     }
   if (this->ResliceTransform && 
-      this->ResliceTransform->IsA("vtkHomogenousTransform") && 
+      this->ResliceTransform->IsA("vtkHomogeneousTransform") && 
       this->Optimization)
     {
     transform->PostMultiply();
-    transform->Concatenate(((vtkHomogenousTransform *)
+    transform->Concatenate(((vtkHomogeneousTransform *)
 			    this->ResliceTransform)->GetMatrixPointer());
     }
   
@@ -3018,7 +3003,8 @@ vtkMatrix4x4 *vtkImageReslice::GetIndexMatrix()
     inMatrix->Element[i][3] = -inOrigin[i]/inSpacing[i];
     outMatrix->Element[i][i] = outSpacing[i];
     outMatrix->Element[i][3] = outOrigin[i];
-    }
+    };
+  this->GetOutput()->GetOrigin(outOrigin); 
 
   if (!isIdentity)
     {

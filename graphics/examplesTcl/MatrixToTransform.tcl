@@ -3,7 +3,7 @@ if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl"
 if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
 
 # This example demonstrates how to use a matrix in place of a transfrom
-# via vtkMatrixToLinearTransform and vtkMatrixToHomogenousTransform.
+# via vtkMatrixToLinearTransform and vtkMatrixToHomogeneousTransform.
 
 
 # create a rendering window
@@ -125,7 +125,7 @@ m2 SetElement 3 0 -0.11
 m2 SetElement 3 1  0.3
 m2 SetElement 3 2  0.2
 
-vtkMatrixToHomogenousTransform t2
+vtkMatrixToHomogeneousTransform t2
 t2 SetInput m2 
 
 vtkTransformPolyDataFilter f21

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkMatrixToHomogenousTransform.h
+  Module:    vtkMatrixToHomogeneousTransform.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -40,28 +40,28 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 
-// .NAME vtkMatrixToHomogenousTransform - convert a matrix to a transform
+// .NAME vtkMatrixToHomogeneousTransform - convert a matrix to a transform
 // .SECTION Description
 // This is a very simple class which allows a vtkMatrix4x4 to be used in
-// place of a vtkHomogenousTransform or vtkAbstractTransform.  For example,
+// place of a vtkHomogeneousTransform or vtkAbstractTransform.  For example,
 // if you use it as a proxy between a matrix and vtkTransformPolyDataFilter
 // then any modifications to the matrix will automatically be reflected in
 // the output of the filter.
 // .SECTION See Also
 // vtkPerspectiveTransform vtkMatrix4x4 vtkMatrixToLinearTransform  
 
-#ifndef __vtkMatrixToHomogenousTransform_h
-#define __vtkMatrixToHomogenousTransform_h
+#ifndef __vtkMatrixToHomogeneousTransform_h
+#define __vtkMatrixToHomogeneousTransform_h
 
-#include "vtkHomogenousTransform.h"
+#include "vtkHomogeneousTransform.h"
 #include "vtkMatrix4x4.h"
 
-class VTK_EXPORT vtkMatrixToHomogenousTransform : 
-  public vtkHomogenousTransform
+class VTK_EXPORT vtkMatrixToHomogeneousTransform : 
+  public vtkHomogeneousTransform
 {
  public:
-  static vtkMatrixToHomogenousTransform *New();
-  vtkTypeMacro(vtkMatrixToHomogenousTransform,vtkHomogenousTransform);
+  static vtkMatrixToHomogeneousTransform *New();
+  vtkTypeMacro(vtkMatrixToHomogeneousTransform,vtkHomogeneousTransform);
   void PrintSelf (ostream& os, vtkIndent indent);
 
   // Set the input matrix.  Any modifications to the matrix will be
@@ -89,10 +89,10 @@ class VTK_EXPORT vtkMatrixToHomogenousTransform :
     vtkWarningMacro("SetMatrix: deprecated, use SetInput() instead"); }
 
 protected:
-  vtkMatrixToHomogenousTransform();
-  ~vtkMatrixToHomogenousTransform();
-  vtkMatrixToHomogenousTransform(const vtkMatrixToHomogenousTransform&) {};
-  void operator=(const vtkMatrixToHomogenousTransform&) {};
+  vtkMatrixToHomogeneousTransform();
+  ~vtkMatrixToHomogeneousTransform();
+  vtkMatrixToHomogeneousTransform(const vtkMatrixToHomogeneousTransform&) {};
+  void operator=(const vtkMatrixToHomogeneousTransform&) {};
 
   void InternalUpdate();
   void InternalDeepCopy(vtkAbstractTransform *transform);

@@ -89,13 +89,13 @@ void vtkPerspectiveTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Update();
 
-  vtkHomogenousTransform::PrintSelf(os, indent);
+  vtkHomogeneousTransform::PrintSelf(os, indent);
   os << indent << "Input: (" << this->Input << ")\n";
   this->Concatenation->PrintSelf(os, indent);
 }
 
 //----------------------------------------------------------------------------
-void vtkPerspectiveTransform::Concatenate(vtkHomogenousTransform *transform)
+void vtkPerspectiveTransform::Concatenate(vtkHomogeneousTransform *transform)
 {
   if (transform->CircuitCheck(this))
     {
@@ -107,7 +107,7 @@ void vtkPerspectiveTransform::Concatenate(vtkHomogenousTransform *transform)
 };
 
 //----------------------------------------------------------------------------
-void vtkPerspectiveTransform::SetInput(vtkHomogenousTransform *input)
+void vtkPerspectiveTransform::SetInput(vtkHomogeneousTransform *input)
 {
   if (this->Input == input) 
     { 
@@ -133,7 +133,7 @@ void vtkPerspectiveTransform::SetInput(vtkHomogenousTransform *input)
 //----------------------------------------------------------------------------
 int vtkPerspectiveTransform::CircuitCheck(vtkAbstractTransform *transform)
 {
-  if (this->vtkHomogenousTransform::CircuitCheck(transform) ||
+  if (this->vtkHomogeneousTransform::CircuitCheck(transform) ||
       this->Input && this->Input->CircuitCheck(transform))
     {
     return 1;
@@ -160,7 +160,7 @@ vtkAbstractTransform *vtkPerspectiveTransform::MakeTransform()
 //----------------------------------------------------------------------------
 unsigned long vtkPerspectiveTransform::GetMTime()
 {
-  unsigned long mtime = this->vtkHomogenousTransform::GetMTime();
+  unsigned long mtime = this->vtkHomogeneousTransform::GetMTime();
   unsigned long mtime2;
 
   if (this->Input)
@@ -209,7 +209,7 @@ void vtkPerspectiveTransform::InternalDeepCopy(vtkAbstractTransform *gtrans)
     }
 
   // defer to superclass
-  this->vtkHomogenousTransform::InternalDeepCopy(transform);
+  this->vtkHomogeneousTransform::InternalDeepCopy(transform);
 }
 
 //----------------------------------------------------------------------------
@@ -238,8 +238,8 @@ void vtkPerspectiveTransform::InternalUpdate()
   // concatenate PreTransforms 
   for (i = nPreTransforms-1; i >= 0; i--)
     {
-    vtkHomogenousTransform *transform = 
-      (vtkHomogenousTransform *)this->Concatenation->GetTransform(i);
+    vtkHomogeneousTransform *transform = 
+      (vtkHomogeneousTransform *)this->Concatenation->GetTransform(i);
     vtkMatrix4x4::Multiply4x4(this->Matrix,transform->GetMatrix(),
 			      this->Matrix);
     }
@@ -247,8 +247,8 @@ void vtkPerspectiveTransform::InternalUpdate()
   // concatenate PostTransforms
   for (i = nPreTransforms; i < nTransforms; i++)
     {
-    vtkHomogenousTransform *transform = 
-      (vtkHomogenousTransform *)this->Concatenation->GetTransform(i);
+    vtkHomogeneousTransform *transform = 
+      (vtkHomogeneousTransform *)this->Concatenation->GetTransform(i);
     vtkMatrix4x4::Multiply4x4(transform->GetMatrix(),this->Matrix,
 			      this->Matrix);
     }

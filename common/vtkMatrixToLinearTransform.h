@@ -48,7 +48,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // then any modifications to the matrix will automatically be reflected in
 // the output of the filter.
 // .SECTION See Also
-// vtkTransform vtkMatrix4x4 vtkMatrixToHomogenousTransform 
+// vtkTransform vtkMatrix4x4 vtkMatrixToHomogeneousTransform 
 
 #ifndef __vtkMatrixToLinearTransform_h
 #define __vtkMatrixToLinearTransform_h

@@ -69,13 +69,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkPerspectiveTransform_h
 #define __vtkPerspectiveTransform_h
 
-#include "vtkHomogenousTransform.h"
+#include "vtkHomogeneousTransform.h"
 
-class VTK_EXPORT vtkPerspectiveTransform : public vtkHomogenousTransform
+class VTK_EXPORT vtkPerspectiveTransform : public vtkHomogeneousTransform
 {
  public:
   static vtkPerspectiveTransform *New();
-  vtkTypeMacro(vtkPerspectiveTransform,vtkHomogenousTransform);
+  vtkTypeMacro(vtkPerspectiveTransform,vtkHomogeneousTransform);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -224,7 +224,7 @@ class VTK_EXPORT vtkPerspectiveTransform : public vtkHomogenousTransform
   // The concatenation is pipelined, meaning that if any of the
   // transformations are changed, even after Concatenate() is called,
   // those changes will be reflected when you call TransformPoint().
-  void Concatenate(vtkHomogenousTransform *transform);
+  void Concatenate(vtkHomogeneousTransform *transform);
 
   // Description:
   // Sets the internal state of the transform to PreMultiply. All subsequent
@@ -265,8 +265,8 @@ class VTK_EXPORT vtkPerspectiveTransform : public vtkHomogenousTransform
   // base transformation if it is set.  This method allows you to build
   // a transform pipeline: if the input is modified, then this transformation
   // will automatically update accordingly.
-  void SetInput(vtkHomogenousTransform *input);
-  vtkHomogenousTransform *GetInput() { return this->Input; };
+  void SetInput(vtkHomogeneousTransform *input);
+  vtkHomogeneousTransform *GetInput() { return this->Input; };
 
 
   // Description:
@@ -296,7 +296,7 @@ protected:
   void InternalDeepCopy(vtkAbstractTransform *t);
   void InternalUpdate();
 
-  vtkHomogenousTransform *Input;
+  vtkHomogeneousTransform *Input;
   vtkTransformConcatenation *Concatenation;
   vtkTransformConcatenationStack *Stack;
 };

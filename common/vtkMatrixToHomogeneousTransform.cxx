@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkMatrixToHomogenousTransform.cxx
+  Module:    vtkMatrixToHomogeneousTransform.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -39,54 +39,54 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS EVEN, SOFTWARE IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include "vtkMatrixToHomogenousTransform.h"
+#include "vtkMatrixToHomogeneousTransform.h"
 #include "vtkObjectFactory.h"
 
 //----------------------------------------------------------------------------
-vtkMatrixToHomogenousTransform* vtkMatrixToHomogenousTransform::New()
+vtkMatrixToHomogeneousTransform* vtkMatrixToHomogeneousTransform::New()
 {
   // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMatrixToHomogenousTransform");
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMatrixToHomogeneousTransform");
   if(ret)
     {
-    return (vtkMatrixToHomogenousTransform*)ret;
+    return (vtkMatrixToHomogeneousTransform*)ret;
     }
   // If the factory was unable to create the object, then create it here.
-  return new vtkMatrixToHomogenousTransform;
+  return new vtkMatrixToHomogeneousTransform;
 }
 
 //----------------------------------------------------------------------------
-vtkMatrixToHomogenousTransform::vtkMatrixToHomogenousTransform()
+vtkMatrixToHomogeneousTransform::vtkMatrixToHomogeneousTransform()
 {
   this->Input = NULL;
   this->InverseFlag = 0;
 }
 
 //----------------------------------------------------------------------------
-vtkMatrixToHomogenousTransform::~vtkMatrixToHomogenousTransform()
+vtkMatrixToHomogeneousTransform::~vtkMatrixToHomogeneousTransform()
 {
   this->SetInput(NULL);
 }
 
 //----------------------------------------------------------------------------
-void vtkMatrixToHomogenousTransform::PrintSelf(ostream& os, vtkIndent indent)
+void vtkMatrixToHomogeneousTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Update();
 
-  vtkHomogenousTransform::PrintSelf(os, indent);
+  vtkHomogeneousTransform::PrintSelf(os, indent);
   os << indent << "Input: " << this->Input << "\n";
   os << indent << "InverseFlag: " << this->InverseFlag << "\n";
 }
 
 //----------------------------------------------------------------------------
-void vtkMatrixToHomogenousTransform::Inverse()
+void vtkMatrixToHomogeneousTransform::Inverse()
 {
   this->InverseFlag = !this->InverseFlag;
   this->Modified();
 }
 
 //----------------------------------------------------------------------------
-void vtkMatrixToHomogenousTransform::InternalUpdate()
+void vtkMatrixToHomogeneousTransform::InternalUpdate()
 {
   if (this->Input)
     {
@@ -103,11 +103,11 @@ void vtkMatrixToHomogenousTransform::InternalUpdate()
 }
 
 //----------------------------------------------------------------------------
-void vtkMatrixToHomogenousTransform::InternalDeepCopy(
+void vtkMatrixToHomogeneousTransform::InternalDeepCopy(
 						vtkAbstractTransform *gtrans)
 {
-  vtkMatrixToHomogenousTransform *transform = 
-    (vtkMatrixToHomogenousTransform *)gtrans;
+  vtkMatrixToHomogeneousTransform *transform = 
+    (vtkMatrixToHomogeneousTransform *)gtrans;
 
   this->SetInput(transform->Input);
 
@@ -118,16 +118,16 @@ void vtkMatrixToHomogenousTransform::InternalDeepCopy(
 }
 
 //----------------------------------------------------------------------------
-vtkAbstractTransform *vtkMatrixToHomogenousTransform::MakeTransform()
+vtkAbstractTransform *vtkMatrixToHomogeneousTransform::MakeTransform()
 {
-  return vtkMatrixToHomogenousTransform::New();
+  return vtkMatrixToHomogeneousTransform::New();
 }
 
 //----------------------------------------------------------------------------
 // Get the MTime
-unsigned long vtkMatrixToHomogenousTransform::GetMTime()
+unsigned long vtkMatrixToHomogeneousTransform::GetMTime()
 {
-  unsigned long mtime = this->vtkHomogenousTransform::GetMTime();
+  unsigned long mtime = this->vtkHomogeneousTransform::GetMTime();
 
   if (this->Input)
     {

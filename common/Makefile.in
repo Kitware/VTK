@@ -23,7 +23,7 @@ vtkAttributeData \
 vtkCell \
 vtkDataArray \
 vtkDataSet \
-vtkHomogenousTransform \
+vtkHomogeneousTransform \
 vtkLinearTransform \
 vtkImplicitFunction \
 vtkLocator \
@@ -89,7 +89,7 @@ vtkLookupTable \
 vtkMapper2D \
 vtkMath \
 vtkMatrix4x4 \
-vtkMatrixToHomogenousTransform \
+vtkMatrixToHomogeneousTransform \
 vtkMatrixToLinearTransform \
 vtkMergePoints2D \
 vtkMultiThreader \

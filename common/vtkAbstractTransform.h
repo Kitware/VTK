@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // the vtkGeneralTransform class, the vtkPerspectiveTransform class,
 // or the vtkTransform class. 
 // .SECTION see also
-// vtkGeneralTransform vtkWarpTransform vtkHomogenousTransform
+// vtkGeneralTransform vtkWarpTransform vtkHomogeneousTransform
 // vtkLinearTransform vtkIdentityTransform
 // vtkTransformPolyDataFilter vtkTransformFilter vtkImageReslice
 // vtkImplicitFunction

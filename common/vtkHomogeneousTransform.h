@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkHomogenousTransform.h
+  Module:    vtkHomogeneousTransform.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -39,26 +39,26 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkHomogenousTransform - superclass for homogeneous transformations
+// .NAME vtkHomogeneousTransform - superclass for homogeneous transformations
 // .SECTION Description
-// vtkHomogenousTransform provides a generic interface for homogeneous 
+// vtkHomogeneousTransform provides a generic interface for homogeneous 
 // transformations, i.e. transformations which can be represented by 
 // multiplying a 4x4 matrix with a homogeneous coordinate. 
 // .SECTION see also
 // vtkPerspectiveTransform vtkLinearTransform vtkIdentityTransform
 
 
-#ifndef __vtkHomogenousTransform_h
-#define __vtkHomogenousTransform_h
+#ifndef __vtkHomogeneousTransform_h
+#define __vtkHomogeneousTransform_h
 
 #include "vtkAbstractTransform.h"
 #include "vtkMatrix4x4.h"
 
-class VTK_EXPORT vtkHomogenousTransform : public vtkAbstractTransform
+class VTK_EXPORT vtkHomogeneousTransform : public vtkAbstractTransform
 {
 public:
 
-  vtkTypeMacro(vtkHomogenousTransform,vtkAbstractTransform);
+  vtkTypeMacro(vtkHomogeneousTransform,vtkAbstractTransform);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -95,9 +95,9 @@ public:
   vtkMatrix4x4 *GetMatrixPointer() { return this->GetMatrix(); };
 
   // Description:
-  // Just like GetInverse(), but includes typecast to vtkHomogenousTransform.
-  vtkHomogenousTransform *GetHomogenousInverse() {
-    return (vtkHomogenousTransform *)this->GetInverse(); };
+  // Just like GetInverse(), but includes typecast to vtkHomogeneousTransform.
+  vtkHomogeneousTransform *GetHomogeneousInverse() {
+    return (vtkHomogeneousTransform *)this->GetInverse(); };
 
   // Description:
   // This will calculate the transformation without calling Update.
@@ -115,10 +115,10 @@ public:
 				   double derivative[3][3]);
 
 protected:
-  vtkHomogenousTransform();
-  ~vtkHomogenousTransform();
-  vtkHomogenousTransform(const vtkHomogenousTransform&) {};
-  void operator=(const vtkHomogenousTransform&) {};
+  vtkHomogeneousTransform();
+  ~vtkHomogeneousTransform();
+  vtkHomogeneousTransform(const vtkHomogeneousTransform&) {};
+  void operator=(const vtkHomogeneousTransform&) {};
 
   void InternalDeepCopy(vtkAbstractTransform *transform);
 
