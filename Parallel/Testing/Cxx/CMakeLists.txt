@@ -77,6 +77,15 @@ IF (VTK_DATA_ROOT)
                  -D ${VTK_DATA_ROOT}
                  -V Baseline/Parallel/GenericCommunicator.cxx.png
                  ${MPI_POSTFLAGS})
+        IF (MPI_MAX_NUMPROCS)
+          IF (MPI_MAX_NUMPROCS MATCHES "[1-9]*(0|[4-9])$")
+           ADD_TEST(MPIGroups-image ${MPIRUN} -np ${MPI_MAX_NUMPROCS}
+                   ${CXX_TEST_PATH}/MPIGroups
+                   -D ${VTK_DATA_ROOT}
+                   -V Baseline/Parallel/MPIGroups.cxx.png
+                   ${MPI_POSTFLAGS})
+          ENDIF (MPI_MAX_NUMPROCS MATCHES "[1-9]*(0|[4-9])$")
+        ENDIF (MPI_MAX_NUMPROCS)
       ENDIF(MPIRUN)
      ENDIF (UNIX)
     ELSE (VTK_USE_MPI)
