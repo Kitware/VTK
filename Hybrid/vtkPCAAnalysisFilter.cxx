@@ -19,7 +19,7 @@
 #include "vtkMath.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkPCAAnalysisFilter, "1.9");
+vtkCxxRevisionMacro(vtkPCAAnalysisFilter, "1.10");
 vtkStandardNewMacro(vtkPCAAnalysisFilter);
 
 //------------------------------------------------------------------------
@@ -396,12 +396,7 @@ void vtkPCAAnalysisFilter::SetNumberOfInputs(int n)
 //----------------------------------------------------------------------------
 // public
 void vtkPCAAnalysisFilter::SetInput(int idx,vtkPointSet* p) 
-{ 
-  if(idx<0 || idx>=this->vtkProcessObject::GetNumberOfInputs()) {
-    vtkErrorMacro(<<"Index out of bounds in SetInput!");
-    return;
-  }
-  
+{
   this->vtkProcessObject::SetNthInput(idx,p);
 }
 
