@@ -124,6 +124,8 @@ vtkMultiProcessController::vtkMultiProcessController()
   this->BreakFlag = 0;
   this->ForceDeepCopy = 1;
 
+  this->OutputWindow = 0;
+
   // Define an rmi internally to exit from the processing loop.
   this->AddRMI(vtkMultiProcessControllerBreakRMI, this, BREAK_RMI_TAG);
 }
