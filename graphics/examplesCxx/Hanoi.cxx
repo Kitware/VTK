@@ -23,7 +23,17 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include <iostream.h>
 #include <stdlib.h>
 
-#include "vtk.h"
+#include "vtkStack.h"
+#include "vtkRenderWindow.h"
+#include "vtkActor.h"
+#include "vtkMath.h"
+#include "vtkRenderer.h"
+#include "vtkLight.h"
+#include "vtkCamera.h"
+#include "vtkCylinderSource.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkPlaneSource.h"
+#include "vtkPolyDataMapper.h"
 
 // Some static variables to define geometry
 static int NumberOfPucks; //number of pucks to move
@@ -179,7 +189,7 @@ main(int argc, char *argv[])
 // Create renderer, lights, and camera
 //
   vtkRenderer *aren = vtkRenderer::New();
-  Renwin = vtkRenderWindow::New();
+    Renwin = vtkRenderWindow::New();
     Renwin->AddRenderer(aren);
     Renwin->SetSize(1200,750);
 

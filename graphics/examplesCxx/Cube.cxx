@@ -1,4 +1,13 @@
-#include "vtk.h"
+#include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkPolyData.h"
+#include "vtkFloatPoints.h"
+#include "vtkCellArray.h"
+#include "vtkIntScalars.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkActor.h"
+#include "vtkCamera.h"
 
 main ()
 {

@@ -1,4 +1,10 @@
-#include "vtk.h"
+#include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkSTLReader.h"
+#include "vtkPolyDataNormals.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkActor.h"
 
 main ()
 {

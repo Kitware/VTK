@@ -1,4 +1,14 @@
-#include "vtk.h"
+#include "vtkBooleanTexture.h"
+#include "vtkTexture.h"
+#include "vtkActor.h"
+#include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkQuadric.h"
+#include "vtkSphereSource.h"
+#include "vtkImplicitTextureCoords.h"
+#include "vtkDataSetMapper.h"
+#include "vtkActor.h"
 
 float positions[][3] = {
 	{-4,4,0}, {-2,4,0}, {0,4,0}, {2,4,0},

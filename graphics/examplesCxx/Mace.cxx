@@ -1,4 +1,11 @@
-#include "vtk.h"
+#include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkSphereSource.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkActor.h"
+#include "vtkConeSource.h"
+#include "vtkGlyph3D.h"
 
 main ()
 {

@@ -1,4 +1,14 @@
-#include "vtk.h"
+#include "vtkCamera.h"
+#include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkQuadric.h"
+#include "vtkSampleFunction.h"
+#include "vtkContourFilter.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkActor.h"
+#include "vtkOutlineFilter.h"
+#include "vtkLight.h"
 
 main ()
 {

@@ -1,8 +1,13 @@
-#include "vtk.h"
 
 // include OS specific include file to mix in X code
 #include "vtkXRenderWindow.h"
 #include "vtkXRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkActor.h"
+#include "vtkSphereSource.h"
+#include "vtkConeSource.h"
+#include "vtkGlyph3D.h"
+#include "vtkPolyDataMapper.h"
 #include <Xm/ArrowB.h>
 #include <Xm/Form.h>
 #include <X11/Shell.h>

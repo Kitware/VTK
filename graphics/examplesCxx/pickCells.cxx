@@ -1,4 +1,18 @@
-#include "vtk.h"
+#include "vtkActor.h"
+#include "vtkPolyData.h"
+#include "vtkUnstructuredGrid.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
+#include "vtkPointPicker.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkSphereSource.h"
+#include "vtkPolyDataReader.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkShrinkFilter.h"
+#include "vtkDataSetMapper.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkIdList.h"
 
 static void PickCells(void *);
 static vtkActor *sphereActor;

@@ -1,9 +1,18 @@
 //
 // Create bar charts of frequency of letters. 
 //
-#include "vtk.h"
 #include <stdio.h>
 #include <ctype.h>
+
+#include "vtkVectorText.h"
+#include "vtkLinearExtrusionFilter.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkActor.h"
+#include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkVectorText.h"
+#include "vtkLinearExtrusionFilter.h"
 
 main (int argc, char *argv[])
 {

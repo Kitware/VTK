@@ -1,7 +1,16 @@
 // 
 // create iso-surface of the Lorenz attractor
 //
-#include "vtk.h"
+
+#include "vtkMath.h"
+#include "vtkShortScalars.h"
+#include "vtkStructuredPoints.h"
+#include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkContourFilter.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkActor.h"
 
 float	Pr = 10.0;	// The Lorenz parameters
 float	b = 2.667;

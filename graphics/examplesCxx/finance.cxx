@@ -1,4 +1,16 @@
-#include "vtk.h"
+#include "vtkDataSet.h"
+#include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkGaussianSplatter.h"
+#include "vtkContourFilter.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkActor.h"
+#include "vtkAxes.h"
+#include "vtkTubeFilter.h"
+#include "vtkUnstructuredGrid.h"
+#include "vtkFloatPoints.h"
+#include "vtkFloatScalars.h"
 
 static vtkDataSet *ReadFinancialData(char *x, char *y, char *z, char *s);
 static int ParseFile(FILE *file, char *tag, float *data);

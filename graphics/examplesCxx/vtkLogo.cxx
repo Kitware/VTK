@@ -2,7 +2,19 @@
 // use implicit modeller to create a logo
 //
 
-#include "vtk.h"
+#include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkPolyDataReader.h"
+#include "vtkTransform.h"
+#include "vtkTransformPolyDataFilter.h"
+#include "vtkAppendPolyData.h"
+#include "vtkPolyDataNormals.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkActor.h"
+#include "vtkImplicitModeller.h"
+#include "vtkContourFilter.h"
+#include "vtkProperty.h"
 
 main ()
 {

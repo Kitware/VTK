@@ -1,7 +1,20 @@
 //
 // cut an outer sphere to reveal an inner sphere
 //
-#include "vtk.h"
+
+#include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkSphereSource.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkActor.h"
+#include "vtkPlanes.h"
+#include "vtkFloatPoints.h"
+#include "vtkFloatNormals.h"
+#include "vtkImplicitTextureCoords.h"
+#include "vtkDataSetMapper.h"
+#include "vtkStructuredPointsReader.h"
+#include "vtkTexture.h"
 
 main ()
 {

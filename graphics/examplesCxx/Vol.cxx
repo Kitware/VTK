@@ -1,4 +1,11 @@
-#include "vtk.h"
+#include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkStructuredPoints.h"
+#include "vtkFloatScalars.h"
+#include "vtkContourFilter.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkActor.h"
 
 main ()
 {

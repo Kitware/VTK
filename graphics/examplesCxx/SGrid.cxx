@@ -1,4 +1,13 @@
-#include "vtk.h"
+#include "vtkMath.h"
+#include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkStructuredGrid.h"
+#include "vtkFloatVectors.h"
+#include "vtkFloatPoints.h"
+#include "vtkHedgeHog.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkActor.h"
 
 main ()
 {

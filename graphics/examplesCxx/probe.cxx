@@ -1,4 +1,14 @@
-#include "vtk.h"
+#include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkPLOT3DReader.h"
+#include "vtkStructuredGridOutlineFilter.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkActor.h"
+#include "vtkCursor3D.h"
+#include "vtkProbeFilter.h"
+#include "vtkConeSource.h"
+#include "vtkGlyph3D.h"
 
 main ()
 {

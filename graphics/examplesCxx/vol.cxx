@@ -1,4 +1,12 @@
-#include "vtk.h"
+#include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkStructuredPointsReader.h"
+#include "vtkPiecewiseFunction.h"
+#include "vtkVolumeProperty.h"
+#include "vtkVolumeRayCastCompositeFunction.h"
+#include "vtkVolumeRayCastMapper.h"
+#include "vtkVolume.h"
 
 main ()
 {
@@ -26,7 +34,7 @@ main ()
   // Turn shading on and use trilinear interpolation
   vtkVolumeProperty *volumeProperty = vtkVolumeProperty::New();
     volumeProperty->SetColor(cTFun);
-    volumeProperty->SetOpacity(oTFun);
+    volumeProperty->SetScalarOpacity(oTFun);
     volumeProperty->SetInterpolationTypeToLinear();
     volumeProperty->ShadeOn();
 

@@ -1,4 +1,10 @@
-#include "vtk.h"
+#include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkSphereSource.h"
+#include "vtkElevationFilter.h"
+#include "vtkDataSetMapper.h"
+#include "vtkActor.h"
 
 main ()
 {
