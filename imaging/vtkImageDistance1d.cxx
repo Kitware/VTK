@@ -43,7 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //----------------------------------------------------------------------------
 vtkImageDistance1d::vtkImageDistance1d()
 {
-  this->SetOutputDataType(VTK_IMAGE_UNSIGNED_CHAR);
+  this->SetOutputDataType(VTK_UNSIGNED_CHAR);
 }
 
 
@@ -62,8 +62,8 @@ void vtkImageDistance1d::InterceptCacheUpdate(vtkImageRegion *region)
     }
 
   this->Input->UpdateImageInformation(region);
-  region->GetImageExtent1d(min, max);
-  region->SetExtent1d(min, max);
+  region->GetImageExtent(min, max);
+  region->SetExtent(min, max);
 }
 
 //----------------------------------------------------------------------------
@@ -77,8 +77,8 @@ void vtkImageDistance1d::ComputeRequiredInputRegionExtent(
 
   // Avoid a warning message.
   outRegion = outRegion;
-  inRegion->GetImageExtent1d(extent);
-  inRegion->SetExtent1d(extent);
+  inRegion->GetImageExtent(extent, 1);
+  inRegion->SetExtent(extent, 1);
 }
 
 
@@ -100,8 +100,8 @@ void vtkImageDistance1d::Execute1d(vtkImageRegion *inRegion,
 		<< ", outRegion = " << outRegion);
   
   // this filter expects that inputand output are unsigned char.
-  if (inRegion->GetDataType() != VTK_IMAGE_UNSIGNED_CHAR ||
-      outRegion->GetDataType() != VTK_IMAGE_UNSIGNED_CHAR)
+  if (inRegion->GetDataType() != VTK_UNSIGNED_CHAR ||
+      outRegion->GetDataType() != VTK_UNSIGNED_CHAR)
     {
     vtkErrorMacro(<< "Execute: input DataType, " << inRegion->GetDataType()
                   << ", and out DataType " << outRegion->GetDataType()
@@ -110,14 +110,14 @@ void vtkImageDistance1d::Execute1d(vtkImageRegion *inRegion,
     }
 
 
-  outRegion->GetExtent1d(min, max);
-  outRegion->GetIncrements1d(outInc);
-  inRegion->GetIncrements1d(inInc);
+  outRegion->GetExtent(min, max);
+  outRegion->GetIncrements(outInc);
+  inRegion->GetIncrements(inInc);
   
   // Forward pass
   dist = 255;
-  inPtr = (unsigned char *)(inRegion->GetScalarPointer1d());
-  outPtr = (unsigned char *)(outRegion->GetScalarPointer1d());
+  inPtr = (unsigned char *)(inRegion->GetScalarPointer());
+  outPtr = (unsigned char *)(outRegion->GetScalarPointer());
   for (idx = min; idx <= max; ++idx)
     {
     if (dist > *inPtr)

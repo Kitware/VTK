@@ -46,8 +46,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImageTranslate4d::vtkImageTranslate4d()
 {
   this->SetTranslation(0, 0, 0, 0);
-  this->SetAxes4d(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS,
-		  VTK_IMAGE_Z_AXIS, VTK_IMAGE_TIME_AXIS);
+  this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS,
+		VTK_IMAGE_Z_AXIS, VTK_IMAGE_TIME_AXIS);
 }
 
 
@@ -59,14 +59,14 @@ void vtkImageTranslate4d::ComputeOutputImageInformation(
   int idx;
   int extent[8];
   
-  inRegion->GetImageExtent4d(extent);
+  inRegion->GetImageExtent(extent, 4);
   for(idx = 0; idx < 4; ++idx)
     {
     extent[idx*2] += this->Translation[idx];
     extent[idx*2+1] += this->Translation[idx];    
     }
   
-  outRegion->SetImageExtent4d(extent);
+  outRegion->SetImageExtent(extent, 4);
 }
 
   
@@ -80,14 +80,14 @@ void vtkImageTranslate4d::ComputeRequiredInputRegionExtent(
   int idx;
   int extent[8];
   
-  outRegion->GetExtent4d(extent);
+  outRegion->GetExtent(extent, 4);
   for(idx = 0; idx < 4; ++idx)
     {
     extent[idx*2] -= this->Translation[idx];
     extent[idx*2+1] -= this->Translation[idx];    
     }
   
-  inRegion->SetExtent4d(extent);
+  inRegion->SetExtent(extent, 4);
 }
 
   
@@ -117,10 +117,9 @@ void vtkImageTranslate4dExecute4d(vtkImageTranslate4d *self,
   self = self;
   
   // Get information to march through data 
-  inRegion->GetIncrements4d(inInc0, inInc1, inInc2, inInc3);
-  outRegion->GetIncrements4d(outInc0, outInc1, outInc2, outInc3);
-  outRegion->GetExtent4d(min0, max0, min1, max1,
-			 min2, max2, min3, max3);
+  inRegion->GetIncrements(inInc0, inInc1, inInc2, inInc3);
+  outRegion->GetIncrements(outInc0, outInc1, outInc2, outInc3);
+  outRegion->GetExtent(min0, max0, min1, max1, min2, max2, min3, max3);
 
   // Loop through ouput pixels
   inPtr3 = inPtr;
@@ -168,8 +167,8 @@ void vtkImageTranslate4dExecute4d(vtkImageTranslate4d *self,
 void vtkImageTranslate4d::Execute4d(vtkImageRegion *inRegion, 
 					  vtkImageRegion *outRegion)
 {
-  void *inPtr = inRegion->GetScalarPointer4d();
-  void *outPtr = outRegion->GetScalarPointer4d();
+  void *inPtr = inRegion->GetScalarPointer();
+  void *outPtr = outRegion->GetScalarPointer();
   
   vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
 		<< ", outRegion = " << outRegion);
@@ -184,27 +183,27 @@ void vtkImageTranslate4d::Execute4d(vtkImageRegion *inRegion,
   
   switch (inRegion->GetDataType())
     {
-    case VTK_IMAGE_FLOAT:
+    case VTK_FLOAT:
       vtkImageTranslate4dExecute4d(this, 
 			  inRegion, (float *)(inPtr), 
 			  outRegion, (float *)(outPtr));
       break;
-    case VTK_IMAGE_INT:
+    case VTK_INT:
       vtkImageTranslate4dExecute4d(this, 
 			  inRegion, (int *)(inPtr), 
 			  outRegion, (int *)(outPtr));
       break;
-    case VTK_IMAGE_SHORT:
+    case VTK_SHORT:
       vtkImageTranslate4dExecute4d(this, 
 			  inRegion, (short *)(inPtr), 
 			  outRegion, (short *)(outPtr));
       break;
-    case VTK_IMAGE_UNSIGNED_SHORT:
+    case VTK_UNSIGNED_SHORT:
       vtkImageTranslate4dExecute4d(this, 
 			  inRegion, (unsigned short *)(inPtr), 
 			  outRegion, (unsigned short *)(outPtr));
       break;
-    case VTK_IMAGE_UNSIGNED_CHAR:
+    case VTK_UNSIGNED_CHAR:
       vtkImageTranslate4dExecute4d(this, 
 			  inRegion, (unsigned char *)(inPtr), 
 			  outRegion, (unsigned char *)(outPtr));

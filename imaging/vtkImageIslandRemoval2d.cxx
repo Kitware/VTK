@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Constructor: Sets default filter to be identity.
 vtkImageIslandRemoval2d::vtkImageIslandRemoval2d()
 {
-  this->SetAxes2d(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
+  this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
   this->SetAreaThreshold(4);
   this->SquareNeighborhoodOff();
   this->SetReplaceValue(255);
@@ -92,8 +92,8 @@ void vtkImageIslandRemoval2d::InterceptCacheUpdate(vtkImageRegion *region)
     }
   
   this->Input->UpdateImageInformation(region);
-  region->GetImageExtent2d(extent);
-  region->SetExtent2d(extent);
+  region->GetImageExtent(extent, 2);
+  region->SetExtent(extent, 2);
 }
 
 
@@ -137,9 +137,9 @@ void vtkImageIslandRemoval2dExecute(vtkImageIslandRemoval2d *self,
   // In case all 8 neighbors get added before we test the number.
   pixels = new vtkImage2dIslandPixel [area + 8]; 
   
-  outRegion->GetExtent2d(outMin0, outMax0, outMin1, outMax1);
-  outRegion->GetIncrements2d(outInc0, outInc1);
-  inRegion->GetIncrements2d(inInc0, inInc1);
+  outRegion->GetExtent(outMin0, outMax0, outMin1, outMax1);
+  outRegion->GetIncrements(outInc0, outInc1);
+  inRegion->GetIncrements(inInc0, inInc1);
 
   // Loop through pixels setting all output to 0 (unvisited).
   outPtr1 = outPtr;
@@ -483,32 +483,32 @@ void vtkImageIslandRemoval2d::Execute2d(vtkImageRegion *inRegion,
     return;
     }
 
-  inPtr = inRegion->GetScalarPointer2d();
-  outPtr = outRegion->GetScalarPointer2d();
+  inPtr = inRegion->GetScalarPointer();
+  outPtr = outRegion->GetScalarPointer();
 
   switch (inRegion->GetDataType())
     {
-    case VTK_IMAGE_FLOAT:
+    case VTK_FLOAT:
       vtkImageIslandRemoval2dExecute(this, 
 			   inRegion, (float *)(inPtr), 
 			   outRegion, (float *)(outPtr));
       break;
-    case VTK_IMAGE_INT:
+    case VTK_INT:
       vtkImageIslandRemoval2dExecute(this, 
 			   inRegion, (int *)(inPtr), 
 			   outRegion, (int *)(outPtr));
       break;
-    case VTK_IMAGE_SHORT:
+    case VTK_SHORT:
       vtkImageIslandRemoval2dExecute(this, 
 			   inRegion, (short *)(inPtr), 
 			   outRegion, (short *)(outPtr));
       break;
-    case VTK_IMAGE_UNSIGNED_SHORT:
+    case VTK_UNSIGNED_SHORT:
       vtkImageIslandRemoval2dExecute(this, 
 			   inRegion, (unsigned short *)(inPtr), 
 			   outRegion, (unsigned short *)(outPtr));
       break;
-    case VTK_IMAGE_UNSIGNED_CHAR:
+    case VTK_UNSIGNED_CHAR:
       vtkImageIslandRemoval2dExecute(this, 
 			   inRegion, (unsigned char *)(inPtr), 
 			   outRegion, (unsigned char *)(outPtr));

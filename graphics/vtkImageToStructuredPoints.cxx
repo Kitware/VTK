@@ -62,7 +62,71 @@ vtkImageToStructuredPoints::~vtkImageToStructuredPoints()
 }
 
 
+//----------------------------------------------------------------------------
+void vtkImageToStructuredPoints::PrintSelf(ostream& os, vtkIndent indent)
+{
+  int *extent;
+  vtkStructuredPointsSource::PrintSelf(os,indent);
 
+  os << indent << "Input: (" << this->Input << ")\n";
+  os << indent << "WholeImage: " << this->WholeImage << "\n";
+  os << indent << "Coordinate3: " << this->Coordinate3 << "\n";
+  extent = this->Region.GetExtent();
+  os << indent << "Extent: (" << extent[0] << ", " << extent[1] << ", "
+     << extent[2] << ", " << extent[3] << ", " 
+     << extent[4] << ", " << extent[5] << ")\n";
+  os << indent << "InputMemoryLimit: " << this->InputMemoryLimit << "\n";
+  os << indent << "SplitOrder: (";
+  os << vtkImageAxisNameMacro(this->SplitOrder[0]) << ", ";
+  os << vtkImageAxisNameMacro(this->SplitOrder[1]) << ", ";
+  os << vtkImageAxisNameMacro(this->SplitOrder[2]) << ", ";
+  os << vtkImageAxisNameMacro(this->SplitOrder[3]) << ")\n";
+}
+
+
+
+//----------------------------------------------------------------------------
+void vtkImageToStructuredPoints::SetSplitOrder(int *axes, int num)
+{
+  int idx;
+
+  if (num > VTK_IMAGE_DIMENSIONS)
+    {
+    vtkWarningMacro(<< "SetSplitOrder: " << num << "is to many axes.");
+    num = VTK_IMAGE_DIMENSIONS;
+    }
+  
+  this->Modified();
+  this->NumberOfSplitAxes = num;
+  for (idx = 0; idx < num; ++idx)
+    {
+    this->SplitOrder[idx] = axes[idx];
+    }
+  
+}
+
+  
+
+//----------------------------------------------------------------------------
+void vtkImageToStructuredPoints::GetSplitOrder(int *axes, int num)
+{
+  int idx;
+
+  if (num > this->NumberOfSplitAxes)
+    {
+    vtkWarningMacro(<< "GetSplitOrder: Only returning "
+      << this->NumberOfSplitAxes << " of requested " << num << " axes");
+    num = this->NumberOfSplitAxes;
+    }
+  
+  for (idx = 0; idx < num; ++idx)
+    {
+    axes[idx] = this->SplitOrder[idx];
+    }
+  
+}
+
+  
 
 //----------------------------------------------------------------------------
 void vtkImageToStructuredPoints::Update()
@@ -124,7 +188,7 @@ void vtkImageToStructuredPoints::Execute()
   // Determine the extent of the region we are converting
   if (this->WholeImage)
     {
-    region->GetImageExtent4d(regionExtent);
+    region->GetImageExtent(regionExtent, 4);
     if (this->Coordinate3<regionExtent[6] || this->Coordinate3>regionExtent[7])
       {
       vtkWarningMacro(<< "Coordinate3 = " << this->Coordinate3 
@@ -135,11 +199,11 @@ void vtkImageToStructuredPoints::Execute()
     }
   else
     {
-    this->Region.GetExtent4d(regionExtent);
+    this->Region.GetExtent(regionExtent, 4);
     }
   // make sure last axis has only one sample.
   regionExtent[6] = regionExtent[7] = this->Coordinate3;
-  region->SetExtent4d(regionExtent);
+  region->SetExtent(regionExtent, 4);
 
   // Update the data for the region.
   if ( region->GetVolume() < this->InputMemoryLimit)
@@ -173,15 +237,15 @@ void vtkImageToStructuredPoints::Execute()
     {
     vtkImageRegion *temp = region;
     region = new vtkImageRegion;
-    region->SetExtent4d(regionExtent);
+    region->SetExtent(regionExtent, 4);
     region->CopyRegionData(temp);
     temp->Delete();
     }
   
   // setup the structured points with the scalars
-  extent = region->GetExtent3d();
-  region->GetAspectRatio3d(aspectRatio);
-  region->GetOrigin3d(origin);
+  extent = region->GetExtent();
+  region->GetAspectRatio(aspectRatio, 3);
+  region->GetOrigin(origin, 3);
   origin[0] += (float)(extent[0]) * aspectRatio[0]; 
   origin[1] += (float)(extent[2]) * aspectRatio[1]; 
   origin[2] += (float)(extent[4]) * aspectRatio[2];
@@ -220,11 +284,11 @@ int vtkImageToStructuredPoints::SplitExecute(vtkImageRegion *outRegion)
   outRegion->GetAxes(saveAxes);
   
   // change to split order coordinat system to make spliting easier.
-  outRegion->SetAxes(this->SplitOrder.GetAxes());
+  outRegion->SetAxes(this->SplitOrder);
   
   // Split output into two pieces and update separately.
   inRegion = new vtkImageRegion;
-  inRegion->SetAxes(this->SplitOrder.GetAxes());
+  inRegion->SetAxes(this->SplitOrder);
   outRegion->GetExtent(splitExtent);
 
   splitAxisIdx = 0;

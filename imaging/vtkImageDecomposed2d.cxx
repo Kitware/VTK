@@ -142,18 +142,18 @@ void vtkImageDecomposed2d::SetInput(vtkImageSource *input)
 //----------------------------------------------------------------------------
 // Description:
 // Set the plane of the smoothing.
-void vtkImageDecomposed2d::SetAxes2d(int axis1, int axis2)
+void vtkImageDecomposed2d::SetAxes(int axis1, int axis2)
 {
   vtkDebugMacro(<< "SetAxes: axis1 = " << axis1 << ", axis2 = " << axis2);
 
   if ( ! this->Filter0 || ! this->Filter1)
     {
-    vtkErrorMacro(<< "SetAxes2d: Sub filter not created yet.");
+    vtkErrorMacro(<< "SetAxes: Sub filter not created yet.");
     return;
     }
   
-  this->Filter0->SetAxes1d(axis1);
-  this->Filter1->SetAxes1d(axis2);
+  this->Filter0->SetAxes(axis1);
+  this->Filter1->SetAxes(axis2);
   this->Modified();
 }
 

@@ -73,12 +73,12 @@ void vtkSubPixelPositionEdgels::Execute()
 
   // Fill in image information.
   this->Gradient->UpdateImageInformation(region);
-  region->SetAxes4d(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS, 
-		    VTK_IMAGE_COMPONENT_AXIS, VTK_IMAGE_Z_AXIS);
+  region->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS, 
+		  VTK_IMAGE_COMPONENT_AXIS, VTK_IMAGE_Z_AXIS);
   
   // get the input region
-  region->GetImageExtent4d(regionExtent);
-  region->SetExtent4d(regionExtent);
+  region->GetImageExtent(regionExtent, 4);
+  region->SetExtent(regionExtent, 4);
 
   this->Gradient->UpdateRegion(region);
   if ( ! region->IsAllocated())
@@ -88,14 +88,14 @@ void vtkSubPixelPositionEdgels::Execute()
     }
 
   // chekc data type for float
-  if (region->GetDataType() != VTK_IMAGE_FLOAT)
+  if (region->GetDataType() != VTK_FLOAT)
     {
     vtkImageRegion *temp = region;
     
     vtkWarningMacro(<<"Converting non float image data to float");
     
     region = new vtkImageRegion;
-    region->SetDataType(VTK_IMAGE_FLOAT);
+    region->SetDataType(VTK_FLOAT);
     region->SetExtent(temp->GetExtent());
     region->CopyRegionData(temp);
     temp->Delete();
@@ -125,7 +125,7 @@ void vtkSubPixelPositionEdgels::Move(vtkImageRegion *region,
 				     int x, int y,
 				     float *result, int z)
 {
-  int *extent = region->GetExtent2d();
+  int *extent = region->GetExtent();
   float vec[2];
   float val1, val2, val3, val4;
   float mix,mag;
@@ -144,8 +144,8 @@ void vtkSubPixelPositionEdgels::Move(vtkImageRegion *region,
     {
     // do the non maximal suppression at this pixel
     // first get the orientation
-    imgData = (float *)region->GetScalarPointer4d(0,0,0,z);
-    region->GetIncrements3d(imgIncX, imgIncY, imgIncVec);
+    imgData = (float *)region->GetScalarPointer(0,0,0,z);
+    region->GetIncrements(imgIncX, imgIncY, imgIncVec);
 
     imgPtr = imgData + x*imgIncX + y*imgIncY;
     vec[0] = *(imgPtr+ imgIncVec);

@@ -71,7 +71,7 @@ public:
   // Foward filter messages to fitler1
   void SetInput(vtkImageSource *Input);
 
-  void SetAxes3d(int axis0, int axis1, int axis2);
+  void SetAxes(int axis0, int axis1, int axis2);
 
 protected:
 

@@ -55,9 +55,8 @@ vtkImageGradient3d::vtkImageGradient3d()
   this->KernelMiddle[1] = 1;
   this->KernelMiddle[2] = 1;
   
-  this->SetAxes4d(VTK_IMAGE_X_AXIS,VTK_IMAGE_Y_AXIS,VTK_IMAGE_Z_AXIS,
-		  VTK_IMAGE_COMPONENT_AXIS);
-  this->SetOutputDataType(VTK_IMAGE_FLOAT);
+  this->SetAxes(VTK_IMAGE_X_AXIS,VTK_IMAGE_Y_AXIS,VTK_IMAGE_Z_AXIS);
+  this->SetOutputDataType(VTK_FLOAT);
   
   this->UseExecuteCenterOff();
 }
@@ -74,15 +73,15 @@ void vtkImageGradient3d::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 // Description:
 // Add Component as the fourth axis.
-void vtkImageGradient3d::SetAxes3d(int axis0, int axis1, int axis2)
+void vtkImageGradient3d::SetAxes(int axis0, int axis1, int axis2)
 {
   if (axis0 == VTK_IMAGE_COMPONENT_AXIS || axis1 == VTK_IMAGE_COMPONENT_AXIS ||
       axis2 == VTK_IMAGE_COMPONENT_AXIS)
     {
-    vtkErrorMacro(<< "SetAxes3d: Cannot use Component as an axis");
+    vtkErrorMacro(<< "SetAxes: Cannot use Component as an axis");
     return;
     }
-  this->SetAxes4d(axis0, axis1, axis2, VTK_IMAGE_COMPONENT_AXIS);
+  this->vtkImageFilter::SetAxes(axis0, axis1, axis2, VTK_IMAGE_COMPONENT_AXIS);
 }
 
 
@@ -93,10 +92,10 @@ void vtkImageGradient3d::InterceptCacheUpdate(vtkImageRegion *region)
 {
   int extent[8];
   
-  region->GetExtent4d(extent);
+  region->GetExtent(extent, 4);
   extent[6] = 0;
   extent[7] = 3;
-  region->SetExtent4d(extent);
+  region->SetExtent(extent, 4);
 }
 
 
@@ -112,7 +111,7 @@ void vtkImageGradient3d::ComputeOutputImageInformation(
   int extent[8];
   int idx;
 
-  inRegion->GetImageExtent4d(extent);
+  inRegion->GetImageExtent(extent, 4);
   if ( ! this->HandleBoundaries)
     {
     // shrink output image extent.
@@ -127,7 +126,7 @@ void vtkImageGradient3d::ComputeOutputImageInformation(
   extent[6] = 0;
   extent[7] = 3;
 
-  outRegion->SetImageExtent4d(extent);
+  outRegion->SetImageExtent(extent, 4);
 }
 
 
@@ -157,19 +156,19 @@ void vtkImageGradient4dExecute(vtkImageGradient3d *self,
   
   self = self;
   // Get boundary information
-  inRegion->GetImageExtent3d(inImageMin0,inImageMax0, inImageMin1,inImageMax1,
-			     inImageMin2,inImageMax2);
+  inRegion->GetImageExtent(inImageMin0,inImageMax0, inImageMin1,inImageMax1,
+			   inImageMin2,inImageMax2);
   
   // Get information to march through data
-  inRegion->GetIncrements3d(inInc0, inInc1, inInc2); 
-  outRegion->GetIncrements4d(outInc0, outInc1, outInc2, outInc3); 
-  outRegion->GetExtent3d(outMin0, outMax0, outMin1, outMax1, outMin2, outMax2);
+  inRegion->GetIncrements(inInc0, inInc1, inInc2); 
+  outRegion->GetIncrements(outInc0, outInc1, outInc2, outInc3); 
+  outRegion->GetExtent(outMin0, outMax0, outMin1, outMax1, outMin2, outMax2);
   
   // We want the input pixel to correspond to output
-  inPtr = (T *)(inRegion->GetScalarPointer3d(outMin0, outMin1, outMin2));
+  inPtr = (T *)(inRegion->GetScalarPointer(outMin0, outMin1, outMin2));
 
   // The aspect ratio is important for computing the gradient.
-  inRegion->GetAspectRatio3d(r0, r1, r2);
+  inRegion->GetAspectRatio(r0, r1, r2);
   r0 = 1.0 / r0;
   r1 = 1.0 / r1;
   r2 = 1.0 / r2;
@@ -232,11 +231,11 @@ void vtkImageGradient4dExecute(vtkImageGradient3d *self,
 void vtkImageGradient3d::Execute4d(vtkImageRegion *inRegion, 
 					 vtkImageRegion *outRegion)
 {
-  void *inPtr = inRegion->GetScalarPointer4d();
-  void *outPtr = outRegion->GetScalarPointer4d();
+  void *inPtr = inRegion->GetScalarPointer();
+  void *outPtr = outRegion->GetScalarPointer();
   
   // this filter expects that output is type float.
-  if (outRegion->GetDataType() != VTK_IMAGE_FLOAT)
+  if (outRegion->GetDataType() != VTK_FLOAT)
     {
     vtkErrorMacro(<< "Execute4d: output DataType, "
                   << vtkImageDataTypeNameMacro(outRegion->GetDataType())
@@ -246,27 +245,27 @@ void vtkImageGradient3d::Execute4d(vtkImageRegion *inRegion,
   
   switch (inRegion->GetDataType())
     {
-    case VTK_IMAGE_FLOAT:
+    case VTK_FLOAT:
       vtkImageGradient4dExecute(this, 
 			  inRegion, (float *)(inPtr), 
 			  outRegion, (float *)(outPtr));
       break;
-    case VTK_IMAGE_INT:
+    case VTK_INT:
       vtkImageGradient4dExecute(this, 
 			  inRegion, (int *)(inPtr), 
 			  outRegion, (float *)(outPtr));
       break;
-    case VTK_IMAGE_SHORT:
+    case VTK_SHORT:
       vtkImageGradient4dExecute(this, 
 			  inRegion, (short *)(inPtr), 
 			  outRegion, (float *)(outPtr));
       break;
-    case VTK_IMAGE_UNSIGNED_SHORT:
+    case VTK_UNSIGNED_SHORT:
       vtkImageGradient4dExecute(this, 
 			  inRegion, (unsigned short *)(inPtr), 
 			  outRegion, (float *)(outPtr));
       break;
-    case VTK_IMAGE_UNSIGNED_CHAR:
+    case VTK_UNSIGNED_CHAR:
       vtkImageGradient4dExecute(this, 
 			  inRegion, (unsigned char *)(inPtr), 
 			  outRegion, (float *)(outPtr));

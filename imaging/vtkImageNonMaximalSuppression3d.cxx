@@ -55,9 +55,9 @@ vtkImageNonMaximalSuppression3d::vtkImageNonMaximalSuppression3d()
   this->KernelMiddle[1] = 1;
   this->KernelMiddle[2] = 1;
   
-  this->SetAxes4d(VTK_IMAGE_X_AXIS,VTK_IMAGE_Y_AXIS,VTK_IMAGE_Z_AXIS,
-		  VTK_IMAGE_COMPONENT_AXIS);
-  this->SetOutputDataType(VTK_IMAGE_FLOAT);
+  this->SetAxes(VTK_IMAGE_X_AXIS,VTK_IMAGE_Y_AXIS,VTK_IMAGE_Z_AXIS);
+  
+  this->SetOutputDataType(VTK_FLOAT);
 }
 
 
@@ -65,15 +65,15 @@ vtkImageNonMaximalSuppression3d::vtkImageNonMaximalSuppression3d()
 // Description:
 // Add Component as the third axis.
 void 
-vtkImageNonMaximalSuppression3d::SetAxes3d(int axis0,int axis1,int axis2)
+vtkImageNonMaximalSuppression3d::SetAxes(int axis0,int axis1,int axis2)
 {
   if (axis0 == VTK_IMAGE_COMPONENT_AXIS || axis1 == VTK_IMAGE_COMPONENT_AXIS ||
       axis2 == VTK_IMAGE_COMPONENT_AXIS)
     {
-    vtkErrorMacro(<< "SetAxes2d: Cannot use Component as an axis");
+    vtkErrorMacro(<< "SetAxes: Cannot use Component as an axis");
     return;
     }
-  this->SetAxes4d(axis0, axis1, axis2, VTK_IMAGE_COMPONENT_AXIS);
+  this->vtkImageFilter::SetAxes(axis0, axis1, axis2, VTK_IMAGE_COMPONENT_AXIS);
 }
 
 
@@ -85,10 +85,10 @@ void vtkImageNonMaximalSuppression3d::InterceptCacheUpdate(
 {
   int extent[8];
   
-  region->GetExtent4d(extent);
+  region->GetExtent(extent, 4);
   extent[6] = 0;
   extent[7] = 3;
-  region->SetExtent4d(extent);
+  region->SetExtent(extent, 4);
 }
 
 
@@ -113,8 +113,8 @@ void vtkImageNonMaximalSuppression3d::ExecuteCenter4d(
   int neighbor;
 
   // This filter expects that output and input is type float.
-  if (outRegion->GetDataType() != VTK_IMAGE_FLOAT ||
-      inRegion->GetDataType() != VTK_IMAGE_FLOAT)
+  if (outRegion->GetDataType() != VTK_FLOAT ||
+      inRegion->GetDataType() != VTK_FLOAT)
     {
     vtkErrorMacro(<< "Execute: output DataType, "
                   << vtkImageDataTypeNameMacro(outRegion->GetDataType())
@@ -123,13 +123,13 @@ void vtkImageNonMaximalSuppression3d::ExecuteCenter4d(
     }
 
   // Get information to march through data
-  inRegion->GetIncrements4d(inInc0, inInc1, inInc2, inInc3); 
-  outRegion->GetIncrements4d(outInc0, outInc1, outInc2, outInc3); 
-  outRegion->GetExtent3d(outMin0, outMax0, outMin1, outMax1, outMin2, outMax2);
+  inRegion->GetIncrements(inInc0, inInc1, inInc2, inInc3); 
+  outRegion->GetIncrements(outInc0, outInc1, outInc2, outInc3); 
+  outRegion->GetExtent(outMin0, outMax0, outMin1, outMax1, outMin2, outMax2);
   
   // We want the input pixel to correspond to output
-  inPtr2 = (float *)(inRegion->GetScalarPointer4d(outMin0, outMin1, outMin2, 0));
-  outPtr2 = (float *)(outRegion->GetScalarPointer4d());
+  inPtr2 = (float *)(inRegion->GetScalarPointer(outMin0, outMin1, outMin2, 0));
+  outPtr2 = (float *)(outRegion->GetScalarPointer());
 
   // loop through pixels of output
   for (outIdx2 = outMin2; outIdx2 <= outMax2; ++outIdx2)
@@ -237,8 +237,8 @@ void vtkImageNonMaximalSuppression3d::Execute4d(vtkImageRegion *inRegion,
   int neighborA, neighborB;
 
   // This filter expects that output and input is type float.
-  if (outRegion->GetDataType() != VTK_IMAGE_FLOAT ||
-      inRegion->GetDataType() != VTK_IMAGE_FLOAT)
+  if (outRegion->GetDataType() != VTK_FLOAT ||
+      inRegion->GetDataType() != VTK_FLOAT)
     {
     vtkErrorMacro(<< "Execute: output DataType, "
                   << vtkImageDataTypeNameMacro(outRegion->GetDataType())
@@ -247,17 +247,17 @@ void vtkImageNonMaximalSuppression3d::Execute4d(vtkImageRegion *inRegion,
     }
 
   // Get information to march through data
-  inRegion->GetIncrements4d(inInc0, inInc1, inInc2, inInc3); 
-  outRegion->GetIncrements4d(outInc0, outInc1, outInc2, outInc3); 
-  outRegion->GetExtent3d(outMin0, outMax0, outMin1, outMax1, outMin2, outMax2);
+  inRegion->GetIncrements(inInc0, inInc1, inInc2, inInc3); 
+  outRegion->GetIncrements(outInc0, outInc1, outInc2, outInc3); 
+  outRegion->GetExtent(outMin0, outMax0, outMin1, outMax1, outMin2, outMax2);
   
   // For checking boundary conditions.
-  inRegion->GetImageExtent3d(inImageMin0,inImageMax0, inImageMin1,inImageMax1,
-			     inImageMin2,inImageMax2);
+  inRegion->GetImageExtent(inImageMin0,inImageMax0, inImageMin1,inImageMax1,
+			   inImageMin2,inImageMax2);
   
   // We want the input pixel to correspond to output
-  inPtr2 = (float *)(inRegion->GetScalarPointer4d(outMin0, outMin1, outMin2, 0));
-  outPtr2 = (float *)(outRegion->GetScalarPointer4d());
+  inPtr2 = (float *)(inRegion->GetScalarPointer(outMin0, outMin1, outMin2, 0));
+  outPtr2 = (float *)(outRegion->GetScalarPointer());
   
   // loop through pixels of output
   for (outIdx2 = outMin2; outIdx2 <= outMax2; ++outIdx2)

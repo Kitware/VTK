@@ -80,13 +80,13 @@ public:
   // Description:
   // Messages that get forwarded to this viewers "Region".
   void SetExtent(int *extent)
-  {this->Region.SetExtent2d(extent); this->Modified(); this->WholeImageOff();};
+  {this->Region.SetExtent(extent,2); this->Modified(); this->WholeImageOff();};
   void SetExtent(int min0, int max0, int min1, int max1)
-  {this->Region.SetExtent2d(min0,max0, min1,max1); this->Modified();this->WholeImageOff();};
-  int *GetExtent(){return this->Region.GetExtent2d();};
-  void GetExtent(int *extent){this->Region.GetExtent2d(extent);};
+  {this->Region.SetExtent(min0,max0, min1,max1); this->Modified();this->WholeImageOff();};
+  int *GetExtent(){return this->Region.GetExtent();};
+  void GetExtent(int *extent){this->Region.GetExtent(extent,2);};
   void GetExtent(int &min0,int &max0,int &min1,int &max1)
-  {this->Region.GetExtent2d(min0,max0,min1,max1);};
+  {this->Region.GetExtent(min0,max0,min1,max1);};
 
   // Description:
   // Coordinate2 and Coordiante3 specify which 2d image to show.
@@ -100,11 +100,11 @@ public:
   // Two dimensions are the ones displayed.  The others are provided
   // to set default values (i.e. slice of a volume.
   void SetAxes(int axis0, int axis1)
-  {this->Region.SetAxes2d(axis0,axis1); this->Modified();};
+  {this->Region.SetAxes(axis0,axis1); this->Modified();};
   void SetAxes(int axis0, int axis1, int axis2)
-  {this->Region.SetAxes3d(axis0,axis1,axis2); this->Modified();};
+  {this->Region.SetAxes(axis0,axis1,axis2); this->Modified();};
   void SetAxes(int axis0, int axis1, int axis2, int axis3)
-  {this->Region.SetAxes4d(axis0,axis1,axis2,axis3); this->Modified();};
+  {this->Region.SetAxes(axis0,axis1,axis2,axis3); this->Modified();};
 
   // Description:
   // Sets window/level for mapping pixels to colors.

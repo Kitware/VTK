@@ -89,27 +89,7 @@ protected:
   // of the unspecified dimensions default to [0, 0];
   // Used in vtkImageScatterPlot.
   vtkImageRegion *GetInput1Region(int *extent, int dim);    
-  vtkImageRegion *GetInput1Region5d(int extent[10])
-    {return this->GetInput1Region(extent, 5);};
-  vtkImageRegion *GetInput1Region4d(int extent[8])
-    {return this->GetInput1Region(extent, 4);};
-  vtkImageRegion *GetInput1Region3d(int extent[6])
-    {return this->GetInput1Region(extent, 3);};
-  vtkImageRegion *GetInput1Region2d(int extent[4])
-    {return this->GetInput1Region(extent, 2);};
-  vtkImageRegion *GetInput1Region1d(int extent[2])
-    {return this->GetInput1Region(extent, 1);};
   vtkImageRegion *GetInput2Region(int *extent, int dim);    
-  vtkImageRegion *GetInput2Region5d(int extent[10])
-    {return this->GetInput2Region(extent, 5);};
-  vtkImageRegion *GetInput2Region4d(int extent[8])
-    {return this->GetInput2Region(extent, 4);};
-  vtkImageRegion *GetInput2Region3d(int extent[6])
-    {return this->GetInput2Region(extent, 3);};
-  vtkImageRegion *GetInput2Region2d(int extent[4])
-    {return this->GetInput2Region(extent, 2);};
-  vtkImageRegion *GetInput2Region1d(int extent[2])
-    {return this->GetInput2Region(extent, 1);};
   
   void UpdateRegionTiled(vtkImageRegion *outRegion);
   virtual void ComputeOutputImageInformation(vtkImageRegion *inRegion1,

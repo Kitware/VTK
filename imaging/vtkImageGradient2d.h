@@ -59,7 +59,7 @@ public:
   char *GetClassName() {return "vtkImageGradient2d";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
-  void SetAxes2d(int axis0, int axis1);
+  void SetAxes(int axis0, int axis1);
   void InterceptCacheUpdate(vtkImageRegion *region);
   
   

@@ -51,7 +51,7 @@ vtkImageMagnify2d::vtkImageMagnify2d()
   this->Filter0 = new vtkImageMagnify1d;
   this->Filter1 = new vtkImageMagnify1d;
 
-  this->SetAxes2d(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
+  this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
   this->SetMagnificationFactors(1, 1);
 }
 

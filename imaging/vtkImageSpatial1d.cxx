@@ -85,10 +85,10 @@ void vtkImageSpatial1d::ComputeOutputImageInformation(
     }
   
   // shrink output image extent.
-  inRegion->GetImageExtent1d(min, max);
+  inRegion->GetImageExtent(min, max);
   min += this->KernelMiddle;
   max -= (this->KernelSize - 1) - this->KernelMiddle;
-  outRegion->SetImageExtent1d(min, max);
+  outRegion->SetImageExtent(min, max);
 }
 
 
@@ -108,13 +108,13 @@ void vtkImageSpatial1d::ComputeRequiredInputRegionExtent(
   int extentMin, extentMax;
   int ImageExtentMin, ImageExtentMax;
   
-  outRegion->GetExtent1d(extentMin, extentMax);
+  outRegion->GetExtent(extentMin, extentMax);
   // Expand to get inRegion Extent
   extentMin -= this->KernelMiddle;
   extentMax += (this->KernelSize - 1) - this->KernelMiddle;
 
   // If the expanded region is out of the IMAGE Extent
-  inRegion->GetImageExtent1d(ImageExtentMin, ImageExtentMax);
+  inRegion->GetImageExtent(ImageExtentMin, ImageExtentMax);
   if (extentMin < ImageExtentMin || extentMax > ImageExtentMax)
     {
     if (this->HandleBoundaries)
@@ -129,7 +129,7 @@ void vtkImageSpatial1d::ComputeRequiredInputRegionExtent(
       }
     }
   
-  inRegion->SetExtent1d(extentMin, extentMax);
+  inRegion->SetExtent(extentMin, extentMax);
 }
 
 

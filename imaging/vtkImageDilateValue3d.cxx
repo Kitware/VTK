@@ -50,7 +50,7 @@ vtkImageDilateValue3d::vtkImageDilateValue3d()
   this->Filter1 = new vtkImageDilateValue1d;
   this->Filter2 = new vtkImageDilateValue1d;
 
-  this->SetAxes3d(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS);
+  this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS);
 }
 
 

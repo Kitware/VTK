@@ -94,9 +94,9 @@ vtkImageDilateErode3d::SetKernelSize(int size0, int size1, int size2)
     this->Mask->Delete();
     }
   this->Mask = new vtkImageRegion;
-  this->Mask->SetDataType(VTK_IMAGE_UNSIGNED_CHAR);
+  this->Mask->SetDataType(VTK_UNSIGNED_CHAR);
   this->Mask->SetAxes(this->GetAxes());
-  this->Mask->SetExtent3d(0, size0-1, 0, size1-1, 0, size2-1);
+  this->Mask->SetExtent(0, size0-1, 0, size1-1, 0, size2-1);
   this->Mask->Allocate();
   if ( ! this->Mask->IsAllocated())
     {
@@ -110,7 +110,7 @@ vtkImageDilateErode3d::SetKernelSize(int size0, int size1, int size2)
   radius1 = (double)(size1) / 2.0;
   radius2 = (double)(size2) / 2.0;
 
-  this->Mask->GetIncrements3d(inc0, inc1, inc2);
+  this->Mask->GetIncrements(inc0, inc1, inc2);
   ptr2 = (unsigned char *)(this->Mask->GetScalarPointer());
   for (idx2 = 0; idx2 < size2; ++idx2)
     {
@@ -179,11 +179,11 @@ void vtkImageDilateErode3dExecute(vtkImageDilateErode3d *self,
   
   
   // Get information to march through data
-  inRegion->GetIncrements3d(inInc0, inInc1, inInc2); 
-  inRegion->GetImageExtent3d(inImageMin0, inImageMax0, inImageMin1,
-			     inImageMax1, inImageMin2, inImageMax2);
-  outRegion->GetIncrements3d(outInc0, outInc1, outInc2); 
-  outRegion->GetExtent3d(outMin0, outMax0, outMin1, outMax1, outMin2, outMax2);
+  inRegion->GetIncrements(inInc0, inInc1, inInc2); 
+  inRegion->GetImageExtent(inImageMin0, inImageMax0, inImageMin1,
+			   inImageMax1, inImageMin2, inImageMax2);
+  outRegion->GetIncrements(outInc0, outInc1, outInc2); 
+  outRegion->GetExtent(outMin0, outMax0, outMin1, outMax1, outMin2, outMax2);
   
   // Get ivars of this object (easier than making friends)
   erodeValue = (T)(self->GetErodeValue());
@@ -199,11 +199,11 @@ void vtkImageDilateErode3dExecute(vtkImageDilateErode3d *self,
 
   // Setup mask info
   mask = self->GetMask();
-  maskPtr = (unsigned char *)(mask->GetScalarPointer3d());
-  mask->GetIncrements3d(maskInc0, maskInc1, maskInc2);
+  maskPtr = (unsigned char *)(mask->GetScalarPointer());
+  mask->GetIncrements(maskInc0, maskInc1, maskInc2);
   
   // in and out should be marching through corresponding pixels.
-  inPtr = (T *)(inRegion->GetScalarPointer3d(outMin0, outMin1, outMin2));
+  inPtr = (T *)(inRegion->GetScalarPointer(outMin0, outMin1, outMin2));
   
   // loop through pixels of output
   outPtr2 = outPtr;
@@ -285,14 +285,14 @@ void vtkImageDilateErode3dExecute(vtkImageDilateErode3d *self,
 void vtkImageDilateErode3d::ExecuteCenter3d(vtkImageRegion *inRegion, 
 						  vtkImageRegion *outRegion)
 {
-  void *inPtr = inRegion->GetScalarPointer3d();
-  void *outPtr = outRegion->GetScalarPointer3d();
+  void *inPtr = inRegion->GetScalarPointer();
+  void *outPtr = outRegion->GetScalarPointer();
   
   vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
 		<< ", outRegion = " << outRegion);
 
   // Error checking on mask
-  if ( ! this->Mask || (this->Mask->GetDataType() != VTK_IMAGE_UNSIGNED_CHAR))
+  if ( ! this->Mask || (this->Mask->GetDataType() != VTK_UNSIGNED_CHAR))
     {
     vtkErrorMacro(<< "Execute3d: Bad Mask");
     return;
@@ -308,27 +308,27 @@ void vtkImageDilateErode3d::ExecuteCenter3d(vtkImageRegion *inRegion,
   
   switch (inRegion->GetDataType())
     {
-    case VTK_IMAGE_FLOAT:
+    case VTK_FLOAT:
       vtkImageDilateErode3dExecute(this, 
 			  inRegion, (float *)(inPtr), 
 			  outRegion, (float *)(outPtr), 0);
       break;
-    case VTK_IMAGE_INT:
+    case VTK_INT:
       vtkImageDilateErode3dExecute(this, 
 			  inRegion, (int *)(inPtr), 
 			  outRegion, (int *)(outPtr), 0);
       break;
-    case VTK_IMAGE_SHORT:
+    case VTK_SHORT:
       vtkImageDilateErode3dExecute(this, 
 			  inRegion, (short *)(inPtr), 
 			  outRegion, (short *)(outPtr), 0);
       break;
-    case VTK_IMAGE_UNSIGNED_SHORT:
+    case VTK_UNSIGNED_SHORT:
       vtkImageDilateErode3dExecute(this, 
 			  inRegion, (unsigned short *)(inPtr), 
 			  outRegion, (unsigned short *)(outPtr), 0);
       break;
-    case VTK_IMAGE_UNSIGNED_CHAR:
+    case VTK_UNSIGNED_CHAR:
       vtkImageDilateErode3dExecute(this, 
 			  inRegion, (unsigned char *)(inPtr), 
 			  outRegion, (unsigned char *)(outPtr), 0);
@@ -348,14 +348,14 @@ void vtkImageDilateErode3d::ExecuteCenter3d(vtkImageRegion *inRegion,
 void vtkImageDilateErode3d::Execute3d(vtkImageRegion *inRegion, 
 					    vtkImageRegion *outRegion)
 {
-  void *inPtr = inRegion->GetScalarPointer3d();
-  void *outPtr = outRegion->GetScalarPointer3d();
+  void *inPtr = inRegion->GetScalarPointer();
+  void *outPtr = outRegion->GetScalarPointer();
   
   vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
 		<< ", outRegion = " << outRegion);
 
   // Error checking on mask
-  if ( ! this->Mask || (this->Mask->GetDataType() != VTK_IMAGE_UNSIGNED_CHAR))
+  if ( ! this->Mask || (this->Mask->GetDataType() != VTK_UNSIGNED_CHAR))
     {
     vtkErrorMacro(<< "Execute3d: Bad Mask");
     return;
@@ -371,27 +371,27 @@ void vtkImageDilateErode3d::Execute3d(vtkImageRegion *inRegion,
   
   switch (inRegion->GetDataType())
     {
-    case VTK_IMAGE_FLOAT:
+    case VTK_FLOAT:
       vtkImageDilateErode3dExecute(this, 
 			  inRegion, (float *)(inPtr), 
 			  outRegion, (float *)(outPtr), 1);
       break;
-    case VTK_IMAGE_INT:
+    case VTK_INT:
       vtkImageDilateErode3dExecute(this, 
 			  inRegion, (int *)(inPtr), 
 			  outRegion, (int *)(outPtr), 1);
       break;
-    case VTK_IMAGE_SHORT:
+    case VTK_SHORT:
       vtkImageDilateErode3dExecute(this, 
 			  inRegion, (short *)(inPtr), 
 			  outRegion, (short *)(outPtr), 1);
       break;
-    case VTK_IMAGE_UNSIGNED_SHORT:
+    case VTK_UNSIGNED_SHORT:
       vtkImageDilateErode3dExecute(this, 
 			  inRegion, (unsigned short *)(inPtr), 
 			  outRegion, (unsigned short *)(outPtr), 1);
       break;
-    case VTK_IMAGE_UNSIGNED_CHAR:
+    case VTK_UNSIGNED_CHAR:
       vtkImageDilateErode3dExecute(this, 
 			  inRegion, (unsigned char *)(inPtr), 
 			  outRegion, (unsigned char *)(outPtr), 1);

@@ -147,7 +147,7 @@ void vtkImageFilter::UpdateRegion(vtkImageRegion *outRegion)
   
   if (this->Debug)
     {
-    int *b = outRegion->GetExtent4d();
+    int *b = outRegion->GetExtent();
     cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" 
 	 << this->GetClassName() << " (" << this << "): "
 	 << "GenerateRegion: " << b[0] << "," << b[1] << ", "
@@ -283,8 +283,8 @@ void vtkImageFilter::Execute5d(vtkImageRegion *inRegion,
   int inExtent[10], outExtent[10];
   
   // Get the extent of the forth dimension to be eliminated.
-  inRegion->GetExtent5d(inExtent);
-  outRegion->GetExtent5d(outExtent);
+  inRegion->GetExtent(inExtent, 5);
+  outRegion->GetExtent(outExtent, 5);
 
   // This method assumes that the third axis of in and out have same extent.
   min4 = inExtent[8];
@@ -301,10 +301,10 @@ void vtkImageFilter::Execute5d(vtkImageRegion *inRegion,
     // set up the 4d regions.
     inExtent[8] = coordinate4;
     inExtent[9] = coordinate4;
-    inRegion->SetExtent5d(inExtent);
+    inRegion->SetExtent(inExtent, 5);
     outExtent[8] = coordinate4;
     outExtent[9] = coordinate4;
-    outRegion->SetExtent5d(outExtent);
+    outRegion->SetExtent(outExtent, 5);
     this->Execute4d(inRegion, outRegion);
     }
   // restore the original extent
@@ -312,8 +312,8 @@ void vtkImageFilter::Execute5d(vtkImageRegion *inRegion,
   inExtent[9] = max4;
   outExtent[8] = min4;
   outExtent[9] = max4; 
-  inRegion->SetExtent5d(inExtent);
-  outRegion->SetExtent5d(outExtent);
+  inRegion->SetExtent(inExtent, 5);
+  outRegion->SetExtent(outExtent, 5);
 }
   
   
@@ -331,8 +331,8 @@ void vtkImageFilter::Execute4d(vtkImageRegion *inRegion,
   int inExtent[8], outExtent[8];
   
   // Get the extent of the third dimension to be eliminated.
-  inRegion->GetExtent4d(inExtent);
-  outRegion->GetExtent4d(outExtent);
+  inRegion->GetExtent(inExtent, 4);
+  outRegion->GetExtent(outExtent, 4);
 
   // This method assumes that the third axis of in and out have same extent.
   min3 = inExtent[6];
@@ -349,10 +349,10 @@ void vtkImageFilter::Execute4d(vtkImageRegion *inRegion,
     // set up the 3d regions.
     inExtent[6] = coordinate3;
     inExtent[7] = coordinate3;
-    inRegion->SetExtent4d(inExtent);
+    inRegion->SetExtent(inExtent, 4);
     outExtent[6] = coordinate3;
     outExtent[7] = coordinate3;
-    outRegion->SetExtent4d(outExtent);
+    outRegion->SetExtent(outExtent, 4);
     this->Execute3d(inRegion, outRegion);
     }
   // restore the original extent
@@ -360,8 +360,8 @@ void vtkImageFilter::Execute4d(vtkImageRegion *inRegion,
   inExtent[7] = max3;
   outExtent[6] = min3;
   outExtent[7] = max3; 
-  inRegion->SetExtent4d(inExtent);
-  outRegion->SetExtent4d(outExtent);
+  inRegion->SetExtent(inExtent, 4);
+  outRegion->SetExtent(outExtent, 4);
 }
   
   
@@ -379,8 +379,8 @@ void vtkImageFilter::Execute3d(vtkImageRegion *inRegion,
   int inExtent[6], outExtent[6];
   
   // Get the extent of the third dimension to be eliminated.
-  inRegion->GetExtent3d(inExtent);
-  outRegion->GetExtent3d(outExtent);
+  inRegion->GetExtent(inExtent, 3);
+  outRegion->GetExtent(outExtent, 3);
 
   // This method assumes that the third axis of in and out have same extent.
   min2 = inExtent[4];
@@ -397,10 +397,10 @@ void vtkImageFilter::Execute3d(vtkImageRegion *inRegion,
     // set up the 2d regions.
     inExtent[4] = coordinate2;
     inExtent[5] = coordinate2;
-    inRegion->SetExtent3d(inExtent);
+    inRegion->SetExtent(inExtent, 3);
     outExtent[4] = coordinate2;
     outExtent[5] = coordinate2;
-    outRegion->SetExtent3d(outExtent);
+    outRegion->SetExtent(outExtent, 3);
     this->Execute2d(inRegion, outRegion);
     }
   // restore the original extent
@@ -408,8 +408,8 @@ void vtkImageFilter::Execute3d(vtkImageRegion *inRegion,
   inExtent[5] = max2;
   outExtent[4] = min2;
   outExtent[5] = max2; 
-  inRegion->SetExtent3d(inExtent);
-  outRegion->SetExtent3d(outExtent);
+  inRegion->SetExtent(inExtent, 3);
+  outRegion->SetExtent(outExtent, 3);
 }
   
   
@@ -427,8 +427,8 @@ void vtkImageFilter::Execute2d(vtkImageRegion *inRegion,
   int inExtent[4], outExtent[4];
   
   // Get the extent of the third dimension to be eliminated.
-  inRegion->GetExtent2d(inExtent);
-  outRegion->GetExtent2d(outExtent);
+  inRegion->GetExtent(inExtent, 2);
+  outRegion->GetExtent(outExtent, 2);
 
   // This method assumes that the second axis of in and out have same extent.
   min1 = inExtent[2];
@@ -445,10 +445,10 @@ void vtkImageFilter::Execute2d(vtkImageRegion *inRegion,
     // set up the 1d regions.
     inExtent[2] = coordinate1;
     inExtent[3] = coordinate1;
-    inRegion->SetExtent2d(inExtent);
+    inRegion->SetExtent(inExtent, 2);
     outExtent[2] = coordinate1;
     outExtent[3] = coordinate1;
-    outRegion->SetExtent2d(outExtent);
+    outRegion->SetExtent(outExtent, 2);
     this->Execute1d(inRegion, outRegion);
     }
   // restore the original extent
@@ -456,8 +456,8 @@ void vtkImageFilter::Execute2d(vtkImageRegion *inRegion,
   inExtent[3] = max1;
   outExtent[2] = min1;
   outExtent[3] = max1; 
-  inRegion->SetExtent2d(inExtent);
-  outRegion->SetExtent2d(outExtent);
+  inRegion->SetExtent(inExtent, 2);
+  outRegion->SetExtent(outExtent, 2);
 }
   
   
@@ -505,7 +505,7 @@ void vtkImageFilter::UpdateRegionTiled(vtkImageRegion *outRegion)
   this->SplitRegion(outRegion, genericPieceSize);
 
   // loop over the output Region generating the pieces 
-  outRegion->GetExtent4d(outExtent);
+  outRegion->GetExtent(outExtent, 4);
   // loop over the Components dimensions
   pieceExtent[8] = outExtent[8];
   while (pieceExtent[8] <= outExtent[9])
@@ -558,7 +558,7 @@ void vtkImageFilter::UpdateRegionTiled(vtkImageRegion *outRegion)
 	      }
 	    
 	    // Generate the data for this piece
-	    outRegion->SetExtent4d(pieceExtent);
+	    outRegion->SetExtent(pieceExtent, 4);
 	    this->UpdateRegion(outRegion);
 	    
 	    pieceExtent[0] += genericPieceSize[0];

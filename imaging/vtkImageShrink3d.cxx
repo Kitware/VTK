@@ -47,7 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Constructor: Sets default filter to be identity.
 vtkImageShrink3d::vtkImageShrink3d()
 {
-  this->SetAxes3d(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS);
+  this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS);
   this->SetShrinkFactors(1, 1, 1);
   this->SetShift(0, 0, 0);
   this->AveragingOn();
@@ -73,7 +73,7 @@ void vtkImageShrink3d::ComputeRequiredInputRegionExtent(
   int extent[6];
   int idx;
   
-  outRegion->GetExtent3d(extent);
+  outRegion->GetExtent(extent, 3);
   
   for (idx = 0; idx < 3; ++idx)
     {
@@ -90,7 +90,7 @@ void vtkImageShrink3d::ComputeRequiredInputRegionExtent(
       }
     }
   
-  inRegion->SetExtent3d(extent);
+  inRegion->SetExtent(extent, 3);
 }
 
 
@@ -105,8 +105,8 @@ void vtkImageShrink3d::ComputeOutputImageInformation(
   int imageExtent[6];
   float aspectRatio[3];
 
-  inRegion->GetImageExtent3d(imageExtent);
-  inRegion->GetAspectRatio3d(aspectRatio);
+  inRegion->GetImageExtent(imageExtent, 3);
+  inRegion->GetAspectRatio(aspectRatio, 3);
 
   for (idx = 0; idx < 3; ++idx)
     {
@@ -119,8 +119,8 @@ void vtkImageShrink3d::ComputeOutputImageInformation(
     aspectRatio[idx] *= (float)(this->ShrinkFactors[idx]);
     }
 
-  outRegion->SetImageExtent3d(imageExtent);
-  outRegion->SetAspectRatio3d(aspectRatio);
+  outRegion->SetImageExtent(imageExtent, 3);
+  outRegion->SetAspectRatio(aspectRatio, 3);
 }
 
 
@@ -148,12 +148,12 @@ void vtkImageShrink3dExecute(vtkImageShrink3d *self,
   self->GetShrinkFactors(factor0, factor1, factor2);
   
   // Get information to march through data 
-  inRegion->GetIncrements3d(inInc0, inInc1, inInc2);
+  inRegion->GetIncrements(inInc0, inInc1, inInc2);
   tmpInc0 = inInc0 * factor0;
   tmpInc1 = inInc1 * factor1;
   tmpInc2 = inInc2 * factor2;
-  outRegion->GetIncrements3d(outInc0, outInc1, outInc2);
-  outRegion->GetExtent3d(min0, max0, min1, max1, min2, max2);
+  outRegion->GetIncrements(outInc0, outInc1, outInc2);
+  outRegion->GetExtent(min0, max0, min1, max1, min2, max2);
   norm = 1.0 / (float)(factor0 * factor1 * factor2);
 
   // Loop through ouput pixels
@@ -218,8 +218,8 @@ void vtkImageShrink3dExecute(vtkImageShrink3d *self,
 void vtkImageShrink3d::Execute3d(vtkImageRegion *inRegion, 
 				       vtkImageRegion *outRegion)
 {
-  void *inPtr = inRegion->GetScalarPointer3d();
-  void *outPtr = outRegion->GetScalarPointer3d();
+  void *inPtr = inRegion->GetScalarPointer();
+  void *outPtr = outRegion->GetScalarPointer();
   
   vtkDebugMacro(<< "Execute3d: inRegion = " << inRegion 
   << ", outRegion = " << outRegion);
@@ -234,27 +234,27 @@ void vtkImageShrink3d::Execute3d(vtkImageRegion *inRegion,
   
   switch (inRegion->GetDataType())
     {
-    case VTK_IMAGE_FLOAT:
+    case VTK_FLOAT:
       vtkImageShrink3dExecute(this, 
 			  inRegion, (float *)(inPtr), 
 			  outRegion, (float *)(outPtr));
       break;
-    case VTK_IMAGE_INT:
+    case VTK_INT:
       vtkImageShrink3dExecute(this, 
 			  inRegion, (int *)(inPtr), 
 			  outRegion, (int *)(outPtr));
       break;
-    case VTK_IMAGE_SHORT:
+    case VTK_SHORT:
       vtkImageShrink3dExecute(this, 
 			  inRegion, (short *)(inPtr), 
 			  outRegion, (short *)(outPtr));
       break;
-    case VTK_IMAGE_UNSIGNED_SHORT:
+    case VTK_UNSIGNED_SHORT:
       vtkImageShrink3dExecute(this, 
 			  inRegion, (unsigned short *)(inPtr), 
 			  outRegion, (unsigned short *)(outPtr));
       break;
-    case VTK_IMAGE_UNSIGNED_CHAR:
+    case VTK_UNSIGNED_CHAR:
       vtkImageShrink3dExecute(this, 
 			  inRegion, (unsigned char *)(inPtr), 
 			  outRegion, (unsigned char *)(outPtr));

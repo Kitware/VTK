@@ -48,7 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Constructor: Sets default filter to be identity.
 vtkImageMagnify1d::vtkImageMagnify1d()
 {
-  this->SetAxes1d(VTK_IMAGE_X_AXIS);
+  this->SetAxes(VTK_IMAGE_X_AXIS);
   this->SetMagnificationFactor(1);
   this->InterpolateOff();
 }
@@ -64,7 +64,7 @@ void vtkImageMagnify1d::ComputeRequiredInputRegionExtent(
 {
   int extent[2];
   
-  outRegion->GetExtent1d(extent);
+  outRegion->GetExtent(extent, 1);
   
   // For Min. Round Down
   extent[0] = 
@@ -82,7 +82,7 @@ void vtkImageMagnify1d::ComputeRequiredInputRegionExtent(
       (int)(floor((float)(extent[1]) / (float)(this->MagnificationFactor)));
     }
   
-  inRegion->SetExtent1d(extent);
+  inRegion->SetExtent(extent, 1);
 }
 
 
@@ -95,8 +95,8 @@ void vtkImageMagnify1d::ComputeOutputImageInformation(
   int imageExtent[2];
   float aspectRatio;
 
-  inRegion->GetImageExtent1d(imageExtent);
-  inRegion->GetAspectRatio1d(aspectRatio);
+  inRegion->GetImageExtent(imageExtent, 1);
+  inRegion->GetAspectRatio(aspectRatio);
 
   // Scale the output extent
   imageExtent[0] *= this->MagnificationFactor;
@@ -112,8 +112,8 @@ void vtkImageMagnify1d::ComputeOutputImageInformation(
   // Change the aspect ratio.
   aspectRatio /= (float)(this->MagnificationFactor);
 
-  outRegion->SetImageExtent1d(imageExtent);
-  outRegion->SetAspectRatio1d(aspectRatio);
+  outRegion->SetImageExtent(imageExtent, 1);
+  outRegion->SetAspectRatio(aspectRatio);
 }
 
 
@@ -135,10 +135,10 @@ void vtkImageMagnify1dExecute(vtkImageMagnify1d *self,
   float step, val;
 
   // Get information to march through data 
-  inRegion->GetIncrements2d(inInc0, inInc1);
-  outRegion->GetIncrements2d(outInc0, outInc1);
-  inRegion->GetExtent1d(inMin0, inMax0);
-  outRegion->GetExtent2d(outMin0, outMax0, outMin1, outMax1);
+  inRegion->GetIncrements(inInc0, inInc1);
+  outRegion->GetIncrements(outInc0, outInc1);
+  inRegion->GetExtent(inMin0, inMax0);
+  outRegion->GetExtent(outMin0, outMax0, outMin1, outMax1);
 
   // Compute interpolation stuff
   interpolate = self->GetInterpolate();
@@ -201,10 +201,10 @@ void vtkImageMagnify1dExecute(vtkImageMagnify1d *self,
 // It can handle any type data, but the two regions must have the same 
 // data type.
 void vtkImageMagnify1d::Execute2d(vtkImageRegion *inRegion, 
-					vtkImageRegion *outRegion)
+				  vtkImageRegion *outRegion)
 {
-  void *inPtr = inRegion->GetScalarPointer2d();
-  void *outPtr = outRegion->GetScalarPointer2d();
+  void *inPtr = inRegion->GetScalarPointer();
+  void *outPtr = outRegion->GetScalarPointer();
   
   vtkDebugMacro(<< "Execute2d: inRegion = " << inRegion 
 		<< ", outRegion = " << outRegion);
@@ -219,27 +219,27 @@ void vtkImageMagnify1d::Execute2d(vtkImageRegion *inRegion,
   
   switch (inRegion->GetDataType())
     {
-    case VTK_IMAGE_FLOAT:
+    case VTK_FLOAT:
       vtkImageMagnify1dExecute(this, 
 			  inRegion, (float *)(inPtr), 
 			  outRegion, (float *)(outPtr));
       break;
-    case VTK_IMAGE_INT:
+    case VTK_INT:
       vtkImageMagnify1dExecute(this, 
 			  inRegion, (int *)(inPtr), 
 			  outRegion, (int *)(outPtr));
       break;
-    case VTK_IMAGE_SHORT:
+    case VTK_SHORT:
       vtkImageMagnify1dExecute(this, 
 			  inRegion, (short *)(inPtr), 
 			  outRegion, (short *)(outPtr));
       break;
-    case VTK_IMAGE_UNSIGNED_SHORT:
+    case VTK_UNSIGNED_SHORT:
       vtkImageMagnify1dExecute(this, 
 			  inRegion, (unsigned short *)(inPtr), 
 			  outRegion, (unsigned short *)(outPtr));
       break;
-    case VTK_IMAGE_UNSIGNED_CHAR:
+    case VTK_UNSIGNED_CHAR:
       vtkImageMagnify1dExecute(this, 
 			  inRegion, (unsigned char *)(inPtr), 
 			  outRegion, (unsigned char *)(outPtr));

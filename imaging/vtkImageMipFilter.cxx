@@ -50,7 +50,7 @@ vtkImageMipFilter::vtkImageMipFilter()
   this->ProjectionRange[0] = 0;
   this->ProjectionRange[1] = 0;
   this->MinMaxIP = 1;
-  this->SetAxes3d(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS,VTK_IMAGE_Z_AXIS);
+  this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS,VTK_IMAGE_Z_AXIS);
 }
 
 
@@ -72,9 +72,9 @@ void vtkImageMipFilterExecute3d(vtkImageMipFilter *self,
   int prorange[2], minmaxip;
   
   // Get information to march through data 
-  inRegion->GetIncrements3d(inInc0, inInc1, inInc2);
-  outRegion->GetIncrements2d(outInc0, outInc1);
-  outRegion->GetExtent2d(min0, max0, min1, max1);
+  inRegion->GetIncrements(inInc0, inInc1, inInc2);
+  outRegion->GetIncrements(outInc0, outInc1);
+  outRegion->GetExtent(min0, max0, min1, max1);
   self->GetProjectionRange(prorange[0],prorange[1]);
   minmaxip = self->GetMinMaxIP();
 
@@ -139,8 +139,8 @@ void vtkImageMipFilterExecute3d(vtkImageMipFilter *self,
 void vtkImageMipFilter::Execute3d(vtkImageRegion *inRegion, 
 				  vtkImageRegion *outRegion)
 {
-  void *inPtr = inRegion->GetScalarPointer3d();
-  void *outPtr = outRegion->GetScalarPointer3d();
+  void *inPtr = inRegion->GetScalarPointer();
+  void *outPtr = outRegion->GetScalarPointer();
   
   vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
 		<< ", outRegion = " << outRegion);
@@ -155,27 +155,27 @@ void vtkImageMipFilter::Execute3d(vtkImageRegion *inRegion,
   
   switch (inRegion->GetDataType())
     {
-    case VTK_IMAGE_FLOAT:
+    case VTK_FLOAT:
       vtkImageMipFilterExecute3d(this, 
 			  inRegion, (float *)(inPtr), 
 			  outRegion, (float *)(outPtr));
       break;
-    case VTK_IMAGE_INT:
+    case VTK_INT:
       vtkImageMipFilterExecute3d(this, 
 			  inRegion, (int *)(inPtr), 
 			  outRegion, (int *)(outPtr));
       break;
-    case VTK_IMAGE_SHORT:
+    case VTK_SHORT:
       vtkImageMipFilterExecute3d(this, 
 			  inRegion, (short *)(inPtr), 
 			  outRegion, (short *)(outPtr));
       break;
-    case VTK_IMAGE_UNSIGNED_SHORT:
+    case VTK_UNSIGNED_SHORT:
       vtkImageMipFilterExecute3d(this, 
 			  inRegion, (unsigned short *)(inPtr), 
 			  outRegion, (unsigned short *)(outPtr));
       break;
-    case VTK_IMAGE_UNSIGNED_CHAR:
+    case VTK_UNSIGNED_CHAR:
       vtkImageMipFilterExecute3d(this, 
 			  inRegion, (unsigned char *)(inPtr), 
 			  outRegion, (unsigned char *)(outPtr));
@@ -200,9 +200,9 @@ vtkImageMipFilter::ComputeOutputImageInformation(vtkImageRegion *inRegion,
 
 
   // reduce extent from 3 to 2 D.
-  inRegion->GetImageExtent3d(extent);
+  inRegion->GetImageExtent(extent, 3);
   extent[4] = 0; extent[5] =0;
-  outRegion->SetImageExtent3d(extent);
+  outRegion->SetImageExtent(extent, 3);
 }
 
 
@@ -222,14 +222,14 @@ void vtkImageMipFilter::ComputeRequiredInputRegionExtent(
   int extent[6];
   int imageExtent[6];
   
-  outRegion->GetExtent3d(extent);
+  outRegion->GetExtent(extent, 3);
   
-  inRegion->GetImageExtent3d(imageExtent);
+  inRegion->GetImageExtent(imageExtent, 3);
 
   extent[4] = this->ProjectionRange[0];
   extent[5] = this->ProjectionRange[1];
 
-  inRegion->SetExtent3d(extent);
+  inRegion->SetExtent(extent, 3);
 }
 
 

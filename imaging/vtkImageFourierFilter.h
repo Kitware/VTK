@@ -118,6 +118,7 @@ public:
   // public for templated functions of this object
   void ExecuteFft(vtkImageComplex *in, vtkImageComplex *out, int N);
   void ExecuteRfft(vtkImageComplex *in, vtkImageComplex *out, int N);
+
   
 protected:
 

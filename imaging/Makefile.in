@@ -47,7 +47,7 @@ vtkImageNonMaximalSuppression3d.o \
 vtkImageOpenClose3d.o \
 vtkImageShrink3d.o \
 vtkImageSpatial3d.o \
-vtkImageMat4d.o \
+vtkImageMatte4d.o \
 vtkImageShortReader4d.o \
 vtkImageTranslate4d.o \
 vtkImageArithmetic.o \
@@ -101,7 +101,7 @@ tcl/vtkImageNonMaximalSuppression3dTcl.o \
 tcl/vtkImageOpenClose3dTcl.o \
 tcl/vtkImageShrink3dTcl.o \
 tcl/vtkImageSpatial3dTcl.o \
-tcl/vtkImageMat4dTcl.o \
+tcl/vtkImageMatte4dTcl.o \
 tcl/vtkImageShortReader4dTcl.o \
 tcl/vtkImageTranslate4dTcl.o \
 tcl/vtkImageArithmeticTcl.o \
@@ -155,7 +155,7 @@ vtkImageNonMaximalSuppression3d.h \
 vtkImageOpenClose3d.h \
 vtkImageShrink3d.h \
 vtkImageSpatial3d.h \
-vtkImageMat4d.h \
+vtkImageMatte4d.h \
 vtkImageShortReader4d.h \
 vtkImageTranslate4d.h \
 vtkImageArithmetic.h \
@@ -334,8 +334,8 @@ tcl/vtkImageShrink3dTcl.cxx: vtkImageShrink3d.h ../tcl/cpp_parse
 tcl/vtkImageSpatial3dTcl.cxx: vtkImageSpatial3d.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageSpatial3dTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageSpatial3d.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageSpatial3dTcl.cxx
 
-tcl/vtkImageMat4dTcl.cxx: vtkImageMat4d.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImageMat4dTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageMat4d.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageMat4dTcl.cxx
+tcl/vtkImageMatte4dTcl.cxx: vtkImageMatte4d.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageMatte4dTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageMatte4d.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageMatte4dTcl.cxx
 
 tcl/vtkImageShortReader4dTcl.cxx: vtkImageShortReader4d.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageShortReader4dTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageShortReader4d.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageShortReader4dTcl.cxx

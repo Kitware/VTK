@@ -49,7 +49,7 @@ vtkImageGaussianSmooth2d::vtkImageGaussianSmooth2d()
   this->Filter0 = new vtkImageGaussianSmooth1d;
   this->Filter1 = new vtkImageGaussianSmooth1d;
 
-  this->SetAxes2d(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
+  this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
 }
 
 

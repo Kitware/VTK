@@ -90,13 +90,13 @@ void vtkImageSpatial3d::ComputeOutputImageInformation(
     }
   
   // shrink output image extent.
-  inRegion->GetImageExtent3d(extent);
+  inRegion->GetImageExtent(extent, 3);
   for (idx = 0; idx < 3; ++idx)
     {
     extent[idx*2] += this->KernelMiddle[idx];
     extent[idx*2 + 1] -= (this->KernelSize[idx] - 1) - this->KernelMiddle[idx];
     }
-  outRegion->SetExtent3d(extent);
+  outRegion->SetExtent(extent, 3);
 }
 
 
@@ -117,8 +117,8 @@ void vtkImageSpatial3d::ComputeRequiredInputRegionExtent(
   int imageExtent[6];
   int idx;
   
-  outRegion->GetExtent3d(extent);
-  inRegion->GetImageExtent3d(imageExtent);
+  outRegion->GetExtent(extent, 3);
+  inRegion->GetImageExtent(imageExtent, 3);
 
   for (idx = 0; idx < 3; ++idx)
     {
@@ -153,7 +153,7 @@ void vtkImageSpatial3d::ComputeRequiredInputRegionExtent(
 	}
       }
     }
-  inRegion->SetExtent3d(extent);
+  inRegion->SetExtent(extent, 3);
 }
 
 

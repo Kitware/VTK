@@ -118,12 +118,12 @@ void vtkLinkEdgels::Execute()
 
   // Fill in image information.
   this->Input->UpdateImageInformation(region);
-  region->SetAxes4d(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS, 
-		    VTK_IMAGE_COMPONENT_AXIS, VTK_IMAGE_Z_AXIS);
+  region->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS, 
+		  VTK_IMAGE_COMPONENT_AXIS, VTK_IMAGE_Z_AXIS);
   
   // get the input region
-  region->GetImageExtent4d(regionExtent);
-  region->SetExtent4d(regionExtent);
+  region->GetImageExtent(regionExtent, 4);
+  region->SetExtent(regionExtent, 4);
 
   this->Input->UpdateRegion(region);
 
@@ -134,14 +134,14 @@ void vtkLinkEdgels::Execute()
     }
 
   // chekc data type for float
-  if (region->GetDataType() != VTK_IMAGE_FLOAT)
+  if (region->GetDataType() != VTK_FLOAT)
     {
     vtkImageRegion *temp = region;
     
     vtkWarningMacro(<<"Converting non float image data to float");
     
     region = new vtkImageRegion;
-    region->SetDataType(VTK_IMAGE_FLOAT);
+    region->SetDataType(VTK_FLOAT);
     region->SetExtent(temp->GetExtent());
     region->CopyRegionData(temp);
     temp->Delete();
@@ -196,7 +196,7 @@ void vtkLinkEdgels::LinkEdgels(vtkImageRegion *region,
 			       vtkFloatVectors *outVectors,
 			       int z)
 {
-  int *extent = region->GetExtent2d();
+  int *extent = region->GetExtent();
   int xdim = extent[1] - extent[0] + 1;
   int ydim = extent[3] - extent[2] + 1;
   int **forward;
@@ -236,8 +236,8 @@ void vtkLinkEdgels::LinkEdgels(vtkImageRegion *region,
   linkThresh = cos(this->LinkThreshold*3.1415926/180.0);
   phiThresh = cos(this->PhiThreshold*3.1415926/180.0);
 
-  imgPtrY = (float *)region->GetScalarPointer3d();
-  region->GetIncrements3d(imgIncX,imgIncY,imgIncVec);
+  imgPtrY = (float *)region->GetScalarPointer();
+  region->GetIncrements(imgIncX,imgIncY,imgIncVec);
   
   // first find all forward & backwards links
   for (y = 0; y < ydim; y++, imgPtrY += imgIncY)
@@ -360,7 +360,7 @@ void vtkLinkEdgels::LinkEdgels(vtkImageRegion *region,
   
 
   // now construct the chains
-  imgPtrX = (float *)region->GetScalarPointer3d();
+  imgPtrX = (float *)region->GetScalarPointer();
   
   vec[2] = z;
   for (y = 0; y < ydim; y++)

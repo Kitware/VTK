@@ -101,16 +101,6 @@ protected:
   // of the unspecified dimensions default to [0, 0];
   // Used in vtkImageScatterPlot.
   vtkImageRegion *GetInputRegion(int *extent, int dim);    
-  vtkImageRegion *GetInputRegion5d(int extent[10])
-    {return this->GetInputRegion(extent, 5);};
-  vtkImageRegion *GetInputRegion4d(int extent[8])
-    {return this->GetInputRegion(extent, 4);};
-  vtkImageRegion *GetInputRegion3d(int extent[6])
-    {return this->GetInputRegion(extent, 3);};
-  vtkImageRegion *GetInputRegion2d(int extent[4])
-    {return this->GetInputRegion(extent, 2);};
-  vtkImageRegion *GetInputRegion1d(int extent[2])
-    {return this->GetInputRegion(extent, 1);};
   
   void UpdateRegionTiled(vtkImageRegion *outRegion);
   virtual void SplitRegion(vtkImageRegion *region, int *pieceSize);

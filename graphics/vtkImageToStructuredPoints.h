@@ -60,7 +60,8 @@ public:
   vtkImageToStructuredPoints();
   ~vtkImageToStructuredPoints();
   char *GetClassName() {return "vtkImageToStructuredPoints";};
-
+  void PrintSelf(ostream& os, vtkIndent indent);
+  
   // Description:
   // Set/Get the input object from the image pipline.
   vtkSetObjectMacro(Input,vtkImageSource);
@@ -73,31 +74,29 @@ public:
 
   // Forward these messages to the "Region".
   void SetExtent(int *extent)
-  {this->Region.SetExtent3d(extent); this->WholeImageOff();};
+  {this->Region.SetExtent(extent, 3); this->WholeImageOff();};
   void SetExtent(int min0, int max0, int min1, int max1, int min2, int max2)
-  {this->Region.SetExtent3d(min0,max0,min1,max1,min2,max2);
+  {this->Region.SetExtent(min0,max0,min1,max1,min2,max2);
   this->WholeImageOff();};
-  int *GetExtent(){return this->Region.GetExtent3d();};
-  void GetExtent(int *extent){this->Region.GetExtent3d(extent);};
+  int *GetExtent(){return this->Region.GetExtent();};
+  void GetExtent(int *extent){this->Region.GetExtent(extent, 3);};
   void GetExtent(int &min0,int &max0,int &min1,int &max1,int &min2,int &max2)
-  {this->Region.GetExtent3d(min0,max0,min1,max1,min2,max2);};
+  {this->Region.GetExtent(min0,max0,min1,max1,min2,max2);};
 
   // Description:
   // Set the coordinate system which determines how extent are interpreted.
   // Note: This does not yet change the order of the structured points!
   void SetAxes(int axis0, int axis1, int axis2)
-  {this->Region.SetAxes3d(axis0,axis1,axis2); this->Modified();};
+  {this->Region.SetAxes(axis0,axis1,axis2); this->Modified();};
   void SetAxes(int axis0, int axis1, int axis2, int axis3)
-  {this->Region.SetAxes4d(axis0,axis1,axis2,axis3); this->Modified();};
+  {this->Region.SetAxes(axis0,axis1,axis2,axis3); this->Modified();};
 
   // Description:
-  // Set the order of the axes to split while streaming.
-  void SetSplitOrder(int axis0, int axis1)
-  {this->SplitOrder.SetAxes2d(axis0,axis1);};
-  void SetSplitOrder(int axis0, int axis1, int axis2)
-  {this->SplitOrder.SetAxes3d(axis0,axis1,axis2);};
-  void SetSplitOrder(int axis0, int axis1, int axis2, int axis3)
-  {this->SplitOrder.SetAxes4d(axis0,axis1,axis2,axis3);};
+  // Set/Get the order of the axes to split while streaming.
+  void SetSplitOrder(int *axes, int dim);
+  vtkImageRegionSetMacro(SplitOrder,int);
+  void GetSplitOrder(int *axes, int dim);
+  vtkImageRegionGetMacro(SplitOrder,int);
   
   // Description:
   // This object will stream to keep the input regions below this limit.
@@ -116,7 +115,8 @@ protected:
   int WholeImage;
   int Coordinate3;
   vtkImageRegion Region;
-  vtkImageRegion SplitOrder;
+  int NumberOfSplitAxes;
+  int SplitOrder[VTK_IMAGE_DIMENSIONS];
   int InputMemoryLimit;
 
   void Execute();

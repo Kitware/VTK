@@ -74,7 +74,7 @@ void vtkImageXViewer::PrintSelf(ostream& os, vtkIndent indent)
   int *b;
   
   vtkObject::PrintSelf(os, indent);
-  b = this->Region.GetExtent2d();
+  b = this->Region.GetExtent();
   os << indent << "Extent: (" << b[0] << ", " << b[1] << ", " << b[2] 
      << ", " << b[3] << ")\n";
   os << indent << "Coordinate2: " << this->Coordinate2 << "\n";
@@ -106,8 +106,8 @@ void vtkImageXViewerRenderGrey(vtkImageXViewer *self, vtkImageRegion *region,
   shift = self->GetColorShift();
   scale = self->GetColorScale();
   visualDepth = self->GetVisualDepth();
-  region->GetExtent2d(inMin0, inMax0, inMin1, inMax1);
-  region->GetIncrements2d(inInc0, inInc1);
+  region->GetExtent(inMin0, inMax0, inMin1, inMax1);
+  region->GetIncrements(inInc0, inInc1);
   
   // Loop through in regions pixels
   inPtr1 = inPtr;
@@ -166,8 +166,8 @@ void vtkImageXViewerRenderColor(vtkImageXViewer *self, vtkImageRegion *region,
   
   shift = self->GetColorShift();
   scale = self->GetColorScale();
-  region->GetExtent2d(inMin0, inMax0, inMin1, inMax1);
-  region->GetIncrements2d(inInc0, inInc1);
+  region->GetExtent(inMin0, inMax0, inMin1, inMax1);
+  region->GetIncrements(inInc0, inInc1);
   
   // Loop through in regions pixels
   redPtr1 = redPtr;
@@ -228,11 +228,11 @@ void vtkImageXViewer::Render(void)
   if (this->WholeImage)
     {
     this->Input->UpdateImageInformation(&(this->Region));
-    this->Region.GetImageExtent2d(extent);
+    this->Region.GetImageExtent(extent, 2);
     }
   else
     {
-    this->Region.GetExtent2d(extent);
+    this->Region.GetExtent(extent, 2);
     }
   
   if (this->ColorFlag)
@@ -252,7 +252,7 @@ void vtkImageXViewer::Render(void)
   // Get the region form the input
   region = new vtkImageRegion;
   region->SetAxes(this->Region.GetAxes());
-  region->SetExtent4d(extent);
+  region->SetExtent(extent, 4);
   this->Input->UpdateRegion(region);
   if ( ! region->IsAllocated())
     {
@@ -288,33 +288,33 @@ void vtkImageXViewer::Render(void)
       vtkErrorMacro(<< "Color is only supported with 24 bit True Color");
       return;
       }
-    ptr0 = region->GetScalarPointer3d(extent[0], extent[2], this->Red);
-    ptr1 = region->GetScalarPointer3d(extent[0], extent[2], this->Green);
-    ptr2 = region->GetScalarPointer3d(extent[0], extent[2], this->Blue);
+    ptr0 = region->GetScalarPointer(extent[0], extent[2], this->Red);
+    ptr1 = region->GetScalarPointer(extent[0], extent[2], this->Green);
+    ptr2 = region->GetScalarPointer(extent[0], extent[2], this->Blue);
     // Call the appropriate templated function
     switch (region->GetDataType())
       {
-      case VTK_IMAGE_FLOAT:
+      case VTK_FLOAT:
 	vtkImageXViewerRenderColor(this, region, 
 			   (float *)(ptr0),(float *)(ptr1),(float *)(ptr2), 
 			   dataOut);
 	break;
-      case VTK_IMAGE_INT:
+      case VTK_INT:
 	vtkImageXViewerRenderColor(this, region, 
 			   (int *)(ptr0), (int *)(ptr1), (int *)(ptr2), 
 			   dataOut);
 	break;
-      case VTK_IMAGE_SHORT:
+      case VTK_SHORT:
 	vtkImageXViewerRenderColor(this, region, 
 			   (short *)(ptr0),(short *)(ptr1),(short *)(ptr2), 
 			   dataOut);
 	break;
-      case VTK_IMAGE_UNSIGNED_SHORT:
+      case VTK_UNSIGNED_SHORT:
 	vtkImageXViewerRenderColor(this, region, (unsigned short *)(ptr0),
 			   (unsigned short *)(ptr1),(unsigned short *)(ptr2), 
 			    dataOut);
 	break;
-      case VTK_IMAGE_UNSIGNED_CHAR:
+      case VTK_UNSIGNED_CHAR:
 	vtkImageXViewerRenderColor(this, region, (unsigned char *)(ptr0), 
 			   (unsigned char *)(ptr1),(unsigned char *)(ptr2), 
 			    dataOut);
@@ -324,24 +324,24 @@ void vtkImageXViewer::Render(void)
   else
     {
     // GreyScale images.
-    ptr0 = region->GetScalarPointer2d();
+    ptr0 = region->GetScalarPointer();
     // Call the appropriate templated function
     switch (region->GetDataType())
       {
-      case VTK_IMAGE_FLOAT:
+      case VTK_FLOAT:
 	vtkImageXViewerRenderGrey(this, region, (float *)(ptr0), dataOut);
 	break;
-      case VTK_IMAGE_INT:
+      case VTK_INT:
 	vtkImageXViewerRenderGrey(this, region, (int *)(ptr0), dataOut);
 	break;
-      case VTK_IMAGE_SHORT:
+      case VTK_SHORT:
 	vtkImageXViewerRenderGrey(this, region, (short *)(ptr0), dataOut);
 	break;
-      case VTK_IMAGE_UNSIGNED_SHORT:
+      case VTK_UNSIGNED_SHORT:
 	vtkImageXViewerRenderGrey(this, region, (unsigned short *)(ptr0), 
 				  dataOut);
 	break;
-      case VTK_IMAGE_UNSIGNED_CHAR:
+      case VTK_UNSIGNED_CHAR:
 	vtkImageXViewerRenderGrey(this, region, (unsigned char *)(ptr0), 
 				  dataOut);
 	break;

@@ -52,8 +52,8 @@ vtkImageShortReader4d::vtkImageShortReader4d()
   this->Signed = 0;
   this->SwapBytes = 0;  
   this->First = 1;
-  this->SetAxes4d(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS,
-		  VTK_IMAGE_Z_AXIS, VTK_IMAGE_COMPONENT_AXIS);
+  this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS,
+		VTK_IMAGE_Z_AXIS, VTK_IMAGE_COMPONENT_AXIS);
   this->SetDimensions(256, 256, 1, 2);
   this->PixelMax = -9e99;
   this->PixelMin = +9e99;
@@ -156,12 +156,12 @@ void vtkImageShortReader4d::SetDimensions(int *size)
 // This method returns the largest region that can be generated.
 void vtkImageShortReader4d::UpdateImageInformation(vtkImageRegion *region)
 {
-  region->SetImageExtent4d(0, this->Dimensions[0]-1, 
-			   0, this->Dimensions[1]-1, 
-			   0, this->Dimensions[2]-1,
-			   0, this->Dimensions[3]-1);
-  region->SetAspectRatio4d(this->AspectRatio);
-  region->SetOrigin4d(this->Origin);
+  region->SetImageExtent(0, this->Dimensions[0]-1, 
+			 0, this->Dimensions[1]-1, 
+			 0, this->Dimensions[2]-1,
+			 0, this->Dimensions[3]-1);
+  region->SetAspectRatio(this->AspectRatio, 4);
+  region->SetOrigin(this->Origin, 4);
 }
 
 
@@ -287,8 +287,8 @@ void vtkImageShortReader4dGenerateImage2d(vtkImageShortReader4d *self,
     pixelMax = -pixelMin;
   
   // get the information needed to find a location in the file
-  region->GetExtent2d(min0, max0,  min1, max1);
-  region->GetIncrements2d(inc0, inc1);
+  region->GetExtent(min0, max0,  min1, max1);
+  region->GetIncrements(inc0, inc1);
   imageSize = (max0-min0+1)*(max1-min1+1)*2;  // the number of bytes in image
   headerSize = self->GetHeaderSize();
   
@@ -389,8 +389,8 @@ void vtkImageShortReader4dGenerateRegion2d(vtkImageShortReader4d *self,
     pixelMax = -pixelMin;
   
   // get the information needed to find a location in the file
-  region->GetExtent2d(min0, max0,  min1, max1);
-  region->GetIncrements2d(inc0, inc1);
+  region->GetExtent(min0, max0,  min1, max1);
+  region->GetIncrements(inc0, inc1);
   streamStartPos = min0 * self->Increments[0] 
                  + min1 * self->Increments[1];
   streamStartPos *= sizeof(unsigned short int);
@@ -531,23 +531,23 @@ void vtkImageShortReader4d::UpdateRegion2d(vtkImageRegion *region)
     }
 
   // read in the slice
-  ptr = region->GetScalarPointer2d();
+  ptr = region->GetScalarPointer();
   switch (region->GetDataType())
     {
-    case VTK_IMAGE_FLOAT:
+    case VTK_FLOAT:
       vtkImageShortReader4dGenerateRegion2d(this, region, (float *)(ptr));
       break;
-    case VTK_IMAGE_INT:
+    case VTK_INT:
       vtkImageShortReader4dGenerateRegion2d(this, region, (int *)(ptr));
       break;
-    case VTK_IMAGE_SHORT:
+    case VTK_SHORT:
       vtkImageShortReader4dGenerateRegion2d(this, region, (short *)(ptr));
       break;
-    case VTK_IMAGE_UNSIGNED_SHORT:
+    case VTK_UNSIGNED_SHORT:
       vtkImageShortReader4dGenerateRegion2d(this, region, 
 					    (unsigned short *)(ptr));
       break;
-    case VTK_IMAGE_UNSIGNED_CHAR:
+    case VTK_UNSIGNED_CHAR:
       vtkImageShortReader4dGenerateRegion2d(this, region, 
 					    (unsigned char *)(ptr));
       break;
@@ -571,11 +571,11 @@ vtkImageSource *vtkImageShortReader4d::GetOutput()
     {
     if (this->Signed)
       {
-      this->Output->SetDataType(VTK_IMAGE_SHORT);
+      this->Output->SetDataType(VTK_SHORT);
       }
     else
       {
-      this->Output->SetDataType(VTK_IMAGE_UNSIGNED_SHORT);
+      this->Output->SetDataType(VTK_UNSIGNED_SHORT);
       }
     }
   

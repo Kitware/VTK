@@ -59,7 +59,7 @@ public:
   char *GetClassName() {return "vtkImageGradient3d";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
-  void SetAxes3d(int axis0, int axis1, int axis2);
+  void SetAxes(int axis0, int axis1, int axis2);
   void InterceptCacheUpdate(vtkImageRegion *region);
   
   

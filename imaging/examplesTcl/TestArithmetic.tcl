@@ -5,11 +5,11 @@
 
 set sliceNumber 22
 
-set VTK_IMAGE_FLOAT              1
-set VTK_IMAGE_INT                2
-set VTK_IMAGE_SHORT              3
-set VTK_IMAGE_UNSIGNED_SHORT     4
-set VTK_IMAGE_UNSIGNED_CHAR      5
+set VTK_FLOAT              1
+set VTK_INT                2
+set VTK_SHORT              3
+set VTK_UNSIGNED_SHORT     4
+set VTK_UNSIGNED_CHAR      5
 
 set VTK_IMAGE_X_AXIS             0
 set VTK_IMAGE_Y_AXIS             1
@@ -28,7 +28,7 @@ reader SwapBytesOn;
 reader SetDimensions 256 256 94 1;
 reader SetFilePrefix "../../data/fullHead/headsq"
 reader SetPixelMask 0x7fff;
-reader SetOutputDataType $VTK_IMAGE_SHORT;
+reader SetOutputDataType $VTK_SHORT;
 
 vtkImageGaussianSmooth2d smooth
 smooth SetInput [reader GetOutput];

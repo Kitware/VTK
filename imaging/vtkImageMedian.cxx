@@ -112,9 +112,9 @@ void vtkImageMedianExecute(vtkImageMedian *self,
   int middleMin0, middleMax0, middleMin1, middleMax1, middleMin2, middleMax2;
   
   // Get information to march through data
-  inRegion->GetIncrements3d(inInc0, inInc1, inInc2); 
-  outRegion->GetIncrements3d(outInc0, outInc1, outInc2); 
-  outRegion->GetExtent3d(outMin0, outMax0, outMin1, outMax1, outMin2, outMax2);
+  inRegion->GetIncrements(inInc0, inInc1, inInc2); 
+  outRegion->GetIncrements(outInc0, outInc1, outInc2); 
+  outRegion->GetExtent(outMin0, outMax0, outMin1, outMax1, outMin2, outMax2);
   kernelMiddle = self->GetKernelMiddle();
   kernelSize = self->GetKernelSize();
   
@@ -126,9 +126,9 @@ void vtkImageMedianExecute(vtkImageMedian *self,
   hoodMax2 = kernelSize[2] + hoodMin2 - 1;
   
   // Clip by the input image extent
-  inRegion->GetImageExtent3d(middleMin0, middleMax0, 
-			     middleMin1, middleMax1, 
-			     middleMin2, middleMax2);
+  inRegion->GetImageExtent(middleMin0, middleMax0, 
+			   middleMin1, middleMax1, 
+			   middleMin2, middleMax2);
   hoodMin0 = (hoodMin0 > middleMin0) ? hoodMin0 : middleMin0;
   hoodMin1 = (hoodMin1 > middleMin1) ? hoodMin1 : middleMin1;
   hoodMin2 = (hoodMin2 > middleMin2) ? hoodMin2 : middleMin2;
@@ -238,8 +238,8 @@ void vtkImageMedianExecute(vtkImageMedian *self,
 void vtkImageMedian::Execute3d(vtkImageRegion *inRegion, 
 				     vtkImageRegion *outRegion)
 {
-  void *inPtr = inRegion->GetScalarPointer3d();
-  void *outPtr = outRegion->GetScalarPointer3d();
+  void *inPtr = inRegion->GetScalarPointer();
+  void *outPtr = outRegion->GetScalarPointer();
   
   vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
 		<< ", outRegion = " << outRegion);
@@ -254,27 +254,27 @@ void vtkImageMedian::Execute3d(vtkImageRegion *inRegion,
   
   switch (inRegion->GetDataType())
     {
-    case VTK_IMAGE_FLOAT:
+    case VTK_FLOAT:
       vtkImageMedianExecute(this, 
 			  inRegion, (float *)(inPtr), 
 			  outRegion, (float *)(outPtr));
       break;
-    case VTK_IMAGE_INT:
+    case VTK_INT:
       vtkImageMedianExecute(this, 
 			  inRegion, (int *)(inPtr), 
 			  outRegion, (int *)(outPtr));
       break;
-    case VTK_IMAGE_SHORT:
+    case VTK_SHORT:
       vtkImageMedianExecute(this, 
 			  inRegion, (short *)(inPtr), 
 			  outRegion, (short *)(outPtr));
       break;
-    case VTK_IMAGE_UNSIGNED_SHORT:
+    case VTK_UNSIGNED_SHORT:
       vtkImageMedianExecute(this, 
 			  inRegion, (unsigned short *)(inPtr), 
 			  outRegion, (unsigned short *)(outPtr));
       break;
-    case VTK_IMAGE_UNSIGNED_CHAR:
+    case VTK_UNSIGNED_CHAR:
       vtkImageMedianExecute(this, 
 			  inRegion, (unsigned char *)(inPtr), 
 			  outRegion, (unsigned char *)(outPtr));

@@ -46,9 +46,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //----------------------------------------------------------------------------
 vtkImageFourierBandPass2d::vtkImageFourierBandPass2d()
 {
-  this->SetAxes3d(VTK_IMAGE_COMPONENT_AXIS, 
-		  VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
-  this->SetOutputDataType(VTK_IMAGE_FLOAT);
+  this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
+  this->SetOutputDataType(VTK_FLOAT);
   this->SetLowPass(0.0);
   this->SetHighPass(1.5);
 }
@@ -57,9 +56,9 @@ vtkImageFourierBandPass2d::vtkImageFourierBandPass2d()
 //----------------------------------------------------------------------------
 // Description:
 // Sets the non component 2d dimensions of this filter.
-void vtkImageFourierBandPass2d::SetAxes2d(int axis0, int axis1)
+void vtkImageFourierBandPass2d::SetAxes(int axis0, int axis1)
 {
-  this->SetAxes3d(VTK_IMAGE_COMPONENT_AXIS, axis0, axis1);
+  this->vtkImageFilter::SetAxes(VTK_IMAGE_COMPONENT_AXIS, axis0, axis1);
 }
 
 
@@ -72,13 +71,13 @@ vtkImageFourierBandPass2d::InterceptCacheUpdate(vtkImageRegion *region)
 {
   int min, max;
   
-  region->GetExtent1d(min, max);
+  region->GetExtent(min, max);
   if (min < 0 || max > 1)
     {
     vtkErrorMacro(<< "Only two channels to request 0 and 1");
     }
   
-  region->SetExtent1d(0, 1);
+  region->SetExtent(0, 1);
 }
 
 
@@ -89,8 +88,8 @@ vtkImageFourierBandPass2d::InterceptCacheUpdate(vtkImageRegion *region)
 void vtkImageFourierBandPass2d::Execute1d(vtkImageRegion *inRegion, 
 						vtkImageRegion *outRegion)
 {
-  float *inPtr = (float *)(inRegion->GetScalarPointer1d());
-  float *outPtr = (float *)(outRegion->GetScalarPointer1d());
+  float *inPtr = (float *)(inRegion->GetScalarPointer());
+  float *outPtr = (float *)(outRegion->GetScalarPointer());
   int *extent, *imageExtent;
   int inInc;
   int outInc;
@@ -106,8 +105,8 @@ void vtkImageFourierBandPass2d::Execute1d(vtkImageRegion *inRegion,
     }
   
   // this filter expects that input is the same type as output (float).
-  if (inRegion->GetDataType() != VTK_IMAGE_FLOAT ||
-      outRegion->GetDataType() != VTK_IMAGE_FLOAT)
+  if (inRegion->GetDataType() != VTK_FLOAT ||
+      outRegion->GetDataType() != VTK_FLOAT)
     {
     vtkErrorMacro(<< "Execute: input and output must be floats");
     return;
@@ -135,8 +134,8 @@ void vtkImageFourierBandPass2d::Execute1d(vtkImageRegion *inRegion,
 
   freq = sqrt(freq);
   
-  inRegion->GetIncrements1d(inInc);
-  outRegion->GetIncrements1d(outInc);
+  inRegion->GetIncrements(inInc);
+  outRegion->GetIncrements(outInc);
   
   if (freq > this->LowPass && freq < this->HighPass)
     {

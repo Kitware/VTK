@@ -98,13 +98,13 @@ void vtkImageSpatialFilter::ComputeOutputImageInformation(
     }
   
   // shrink output image extent.
-  inRegion->GetImageExtent4d(extent);
+  inRegion->GetImageExtent(extent, 4);
   for (idx = 0; idx < 4; ++idx)
     {
     extent[idx*2] += this->KernelMiddle[idx];
     extent[idx*2 + 1] -= (this->KernelSize[idx] - 1) - this->KernelMiddle[idx];
     }
-  outRegion->SetImageExtent4d(extent);
+  outRegion->SetImageExtent(extent, 4);
 }
 
 
@@ -125,8 +125,8 @@ void vtkImageSpatialFilter::ComputeRequiredInputRegionExtent(
   int imageExtent[8];
   int idx;
   
-  outRegion->GetExtent4d(extent);
-  inRegion->GetImageExtent4d(imageExtent);
+  outRegion->GetExtent(extent, 4);
+  inRegion->GetImageExtent(imageExtent, 4);
 
   for (idx = 0; idx < 4; ++idx)
     {
@@ -161,7 +161,7 @@ void vtkImageSpatialFilter::ComputeRequiredInputRegionExtent(
 	}
       }
     }
-  inRegion->SetExtent4d(extent);
+  inRegion->SetExtent(extent, 4);
 }
 
 
@@ -189,11 +189,11 @@ void vtkImageSpatialFilter::Execute4d(vtkImageRegion *inRegion,
     }
   
   // Save the extent of the two regions
-  inRegion->GetExtent4d(inExtentSave);
-  outRegion->GetExtent4d(outExtentSave);
+  inRegion->GetExtent(inExtentSave, 4);
+  outRegion->GetExtent(outExtentSave, 4);
   
   // Compute the image extent of the output region (no boundary handling)
-  inRegion->GetImageExtent4d(outImageExtent);
+  inRegion->GetImageExtent(outImageExtent, 4);
   for (idx = 0; idx < 4; ++idx)
     {
     outImageExtent[idx*2] += this->KernelMiddle[idx];
@@ -209,7 +209,7 @@ void vtkImageSpatialFilter::Execute4d(vtkImageRegion *inRegion,
     }
 
   // Compute the out region that does not need boundary handling.
-  outRegion->GetExtent4d(outCenterExtent);
+  outRegion->GetExtent(outCenterExtent, 4);
   for (idx = 0; idx < 4; ++idx)
     {
     // Intersection
@@ -223,7 +223,7 @@ void vtkImageSpatialFilter::Execute4d(vtkImageRegion *inRegion,
       }
     }
   // Call center execute
-  outRegion->SetExtent4d(outCenterExtent);
+  outRegion->SetExtent(outCenterExtent, 4);
   this->ComputeRequiredInputRegionExtent(outRegion, inRegion);
   // Just in cass the image is so small there is no center.
   if (outRegion->GetVolume() > 0)
@@ -246,7 +246,7 @@ void vtkImageSpatialFilter::Execute4d(vtkImageRegion *inRegion,
 	  }
 	extent[idx*2] = outExtentSave[idx*2];
 	extent[idx*2+1] = outCenterExtent[idx*2];
-	outRegion->SetExtent4d(extent);
+	outRegion->SetExtent(extent, 4);
 	this->ComputeRequiredInputRegionExtent(outRegion, inRegion);
 	this->vtkImageFilter::Execute4d(inRegion, outRegion);
 	outCenterExtent[idx*2] = outExtentSave[idx*2];
@@ -260,7 +260,7 @@ void vtkImageSpatialFilter::Execute4d(vtkImageRegion *inRegion,
 	  }
 	extent[idx*2] = outCenterExtent[idx*2+1];
 	extent[idx*2+1] = outExtentSave[idx*2+1];
-	outRegion->SetExtent4d(extent);
+	outRegion->SetExtent(extent, 4);
 	this->ComputeRequiredInputRegionExtent(outRegion, inRegion);
 	this->vtkImageFilter::Execute4d(inRegion, outRegion);
 	outCenterExtent[idx*2+1] = outExtentSave[idx*2+1];
@@ -269,8 +269,8 @@ void vtkImageSpatialFilter::Execute4d(vtkImageRegion *inRegion,
     }
   
   // Restore original extent just in case
-  outRegion->SetExtent4d(outExtentSave);
-  inRegion->SetExtent4d(inExtentSave);
+  outRegion->SetExtent(outExtentSave, 4);
+  inRegion->SetExtent(inExtentSave, 4);
 }
 
 
@@ -286,8 +286,8 @@ void vtkImageSpatialFilter::ExecuteCenter4d(vtkImageRegion *inRegion,
   int inExtent[8], outExtent[8];
   
   // Get the extent of the third dimension to be eliminated.
-  inRegion->GetExtent4d(inExtent);
-  outRegion->GetExtent4d(outExtent);
+  inRegion->GetExtent(inExtent, 4);
+  outRegion->GetExtent(outExtent, 4);
 
   // This method assumes that the third axis of in and out have same extent.
   min3 = inExtent[6];
@@ -304,10 +304,10 @@ void vtkImageSpatialFilter::ExecuteCenter4d(vtkImageRegion *inRegion,
     // set up the 3d regions.
     inExtent[6] = coordinate3;
     inExtent[7] = coordinate3;
-    inRegion->SetExtent4d(inExtent);
+    inRegion->SetExtent(inExtent, 4);
     outExtent[6] = coordinate3;
     outExtent[7] = coordinate3;
-    outRegion->SetExtent4d(outExtent);
+    outRegion->SetExtent(outExtent, 4);
     this->ExecuteCenter3d(inRegion, outRegion);
     }
   // restore the original extent
@@ -315,8 +315,8 @@ void vtkImageSpatialFilter::ExecuteCenter4d(vtkImageRegion *inRegion,
   inExtent[7] = max3;
   outExtent[6] = min3;
   outExtent[7] = max3; 
-  inRegion->SetExtent4d(inExtent);
-  outRegion->SetExtent4d(outExtent);
+  inRegion->SetExtent(inExtent, 4);
+  outRegion->SetExtent(outExtent, 4);
 }
 
 
@@ -333,8 +333,8 @@ void vtkImageSpatialFilter::ExecuteCenter3d(vtkImageRegion *inRegion,
   int inExtent[6], outExtent[6];
   
   // Get the extent of the third dimension to be eliminated.
-  inRegion->GetExtent3d(inExtent);
-  outRegion->GetExtent3d(outExtent);
+  inRegion->GetExtent(inExtent, 3);
+  outRegion->GetExtent(outExtent, 3);
 
   // This method assumes that the third axis of in and out have same extent.
   min2 = inExtent[4];
@@ -351,10 +351,10 @@ void vtkImageSpatialFilter::ExecuteCenter3d(vtkImageRegion *inRegion,
     // set up the 2d regions.
     inExtent[4] = coordinate2;
     inExtent[5] = coordinate2;
-    inRegion->SetExtent3d(inExtent);
+    inRegion->SetExtent(inExtent, 3);
     outExtent[4] = coordinate2;
     outExtent[5] = coordinate2;
-    outRegion->SetExtent3d(outExtent);
+    outRegion->SetExtent(outExtent, 3);
     this->ExecuteCenter2d(inRegion, outRegion);
     }
   // restore the original extent
@@ -362,8 +362,8 @@ void vtkImageSpatialFilter::ExecuteCenter3d(vtkImageRegion *inRegion,
   inExtent[5] = max2;
   outExtent[4] = min2;
   outExtent[5] = max2; 
-  inRegion->SetExtent3d(inExtent);
-  outRegion->SetExtent3d(outExtent);
+  inRegion->SetExtent(inExtent, 3);
+  outRegion->SetExtent(outExtent, 3);
 }
   
 //----------------------------------------------------------------------------
@@ -378,8 +378,8 @@ void vtkImageSpatialFilter::ExecuteCenter2d(vtkImageRegion *inRegion,
   int inExtent[4], outExtent[4];
   
   // Get the extent of the third dimension to be eliminated.
-  inRegion->GetExtent2d(inExtent);
-  outRegion->GetExtent2d(outExtent);
+  inRegion->GetExtent(inExtent, 2);
+  outRegion->GetExtent(outExtent, 2);
 
   // This method assumes that the second axis of in and out have same extent.
   min1 = inExtent[2];
@@ -396,10 +396,10 @@ void vtkImageSpatialFilter::ExecuteCenter2d(vtkImageRegion *inRegion,
     // set up the 1d regions.
     inExtent[2] = coordinate1;
     inExtent[3] = coordinate1;
-    inRegion->SetExtent2d(inExtent);
+    inRegion->SetExtent(inExtent, 2);
     outExtent[2] = coordinate1;
     outExtent[3] = coordinate1;
-    outRegion->SetExtent2d(outExtent);
+    outRegion->SetExtent(outExtent, 2);
     this->ExecuteCenter1d(inRegion, outRegion);
     }
   // restore the original extent
@@ -407,8 +407,8 @@ void vtkImageSpatialFilter::ExecuteCenter2d(vtkImageRegion *inRegion,
   inExtent[3] = max1;
   outExtent[2] = min1;
   outExtent[3] = max1; 
-  inRegion->SetExtent2d(inExtent);
-  outRegion->SetExtent2d(outExtent);
+  inRegion->SetExtent(inExtent, 2);
+  outRegion->SetExtent(outExtent, 2);
 }
  
 //----------------------------------------------------------------------------

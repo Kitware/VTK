@@ -3,11 +3,11 @@
 
 set sliceNumber 45
 
-set VTK_IMAGE_FLOAT              1
-set VTK_IMAGE_INT                2
-set VTK_IMAGE_SHORT              3
-set VTK_IMAGE_UNSIGNED_SHORT     4
-set VTK_IMAGE_UNSIGNED_CHAR      5
+set VTK_FLOAT              1
+set VTK_INT                2
+set VTK_SHORT              3
+set VTK_UNSIGNED_SHORT     4
+set VTK_UNSIGNED_CHAR      5
 
 set VTK_IMAGE_X_AXIS             0
 set VTK_IMAGE_Y_AXIS             1
@@ -29,7 +29,7 @@ reader SetPixelMask 0x7fff;
 
 vtkImageMagnify1d magnify;
 magnify SetInput [reader GetOutput];
-magnify SetAxes1d $VTK_IMAGE_Z_AXIS;
+magnify SetAxes $VTK_IMAGE_Z_AXIS;
 magnify SetMagnificationFactor 2;
 magnify InterpolateOn;
 magnify ReleaseDataFlagOff;

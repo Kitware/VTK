@@ -108,7 +108,7 @@ void vtkImageVolumeShortWriter::Write()
     }
     
   this->Input->UpdateImageInformation(&region);
-  region.GetImageExtent3d(extent);
+  region.GetImageExtent(extent, 3);
   this->Write(extent);
 }
 
@@ -212,8 +212,8 @@ void vtkImageVolumeShortWriterWrite2d(vtkImageVolumeShortWriter *self,
     return;
     }
   
-  region->GetExtent2d(min0, max0, min1, max1);
-  region->GetIncrements2d(inc0, inc1);
+  region->GetExtent(min0, max0, min1, max1);
+  region->GetIncrements(inc0, inc1);
   streamRowRead = (max0-min0+1) * sizeof(short int);
   buf = new unsigned char [streamRowRead];
   
@@ -269,23 +269,23 @@ void vtkImageVolumeShortWriterWrite2d(vtkImageVolumeShortWriter *self,
 // This function writes a slice into a file.
 void vtkImageVolumeShortWriter::Write2d(vtkImageRegion *region)
 {
-  void *ptr = region->GetScalarPointer2d();
+  void *ptr = region->GetScalarPointer();
   
   switch (region->GetDataType())
     {
-    case VTK_IMAGE_FLOAT:
+    case VTK_FLOAT:
       vtkImageVolumeShortWriterWrite2d(this, region, (float *)(ptr));
       break;
-    case VTK_IMAGE_INT:
+    case VTK_INT:
       vtkImageVolumeShortWriterWrite2d(this, region, (int *)(ptr));
       break;
-    case VTK_IMAGE_SHORT:
+    case VTK_SHORT:
       vtkImageVolumeShortWriterWrite2d(this, region, (short *)(ptr));
       break;
-    case VTK_IMAGE_UNSIGNED_SHORT:
+    case VTK_UNSIGNED_SHORT:
       vtkImageVolumeShortWriterWrite2d(this, region, (unsigned short *)(ptr));
       break;
-    case VTK_IMAGE_UNSIGNED_CHAR:
+    case VTK_UNSIGNED_CHAR:
       vtkImageVolumeShortWriterWrite2d(this, region, (unsigned char *)(ptr));
       break;
     default:

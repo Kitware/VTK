@@ -49,7 +49,7 @@ vtkImageShiftScale::vtkImageShiftScale()
 {
   this->Shift = 0.0;
   this->Scale = 1.0;
-  this->SetAxes2d(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
+  this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
 }
 
 
@@ -72,9 +72,9 @@ void vtkImageShiftScaleExecute2d(vtkImageShiftScale *self,
   float scale = self->GetScale();
   
   // Get information to march through data 
-  inRegion->GetIncrements2d(inInc0, inInc1);
-  outRegion->GetIncrements2d(outInc0, outInc1);
-  outRegion->GetExtent2d(min0, max0, min1, max1);
+  inRegion->GetIncrements(inInc0, inInc1);
+  outRegion->GetIncrements(outInc0, outInc1);
+  outRegion->GetExtent(min0, max0, min1, max1);
 
   // Loop through ouput pixels
   inPtr1 = inPtr;
@@ -108,8 +108,8 @@ void vtkImageShiftScaleExecute2d(vtkImageShiftScale *self,
 void vtkImageShiftScale::Execute2d(vtkImageRegion *inRegion, 
 					     vtkImageRegion *outRegion)
 {
-  void *inPtr = inRegion->GetScalarPointer2d();
-  void *outPtr = outRegion->GetScalarPointer2d();
+  void *inPtr = inRegion->GetScalarPointer();
+  void *outPtr = outRegion->GetScalarPointer();
   
   vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
 		<< ", outRegion = " << outRegion);
@@ -124,27 +124,27 @@ void vtkImageShiftScale::Execute2d(vtkImageRegion *inRegion,
   
   switch (inRegion->GetDataType())
     {
-    case VTK_IMAGE_FLOAT:
+    case VTK_FLOAT:
       vtkImageShiftScaleExecute2d(this, 
 			  inRegion, (float *)(inPtr), 
 			  outRegion, (float *)(outPtr));
       break;
-    case VTK_IMAGE_INT:
+    case VTK_INT:
       vtkImageShiftScaleExecute2d(this, 
 			  inRegion, (int *)(inPtr), 
 			  outRegion, (int *)(outPtr));
       break;
-    case VTK_IMAGE_SHORT:
+    case VTK_SHORT:
       vtkImageShiftScaleExecute2d(this, 
 			  inRegion, (short *)(inPtr), 
 			  outRegion, (short *)(outPtr));
       break;
-    case VTK_IMAGE_UNSIGNED_SHORT:
+    case VTK_UNSIGNED_SHORT:
       vtkImageShiftScaleExecute2d(this, 
 			  inRegion, (unsigned short *)(inPtr), 
 			  outRegion, (unsigned short *)(outPtr));
       break;
-    case VTK_IMAGE_UNSIGNED_CHAR:
+    case VTK_UNSIGNED_CHAR:
       vtkImageShiftScaleExecute2d(this, 
 			  inRegion, (unsigned char *)(inPtr), 
 			  outRegion, (unsigned char *)(outPtr));

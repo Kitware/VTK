@@ -49,7 +49,7 @@ vtkImageDistance2d::vtkImageDistance2d()
   this->Filter0 = new vtkImageDistance1d;
   this->Filter1 = new vtkImageDistance1d;
 
-  this->SetAxes2d(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
+  this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
 }
 
 

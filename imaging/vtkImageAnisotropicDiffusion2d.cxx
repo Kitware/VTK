@@ -47,7 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct an instance of vtkImageAnisotropicDiffusion2d fitler.
 vtkImageAnisotropicDiffusion2d::vtkImageAnisotropicDiffusion2d()
 {
-  this->SetAxes2d(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
+  this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
   
   this->UseExecuteCenterOff();
   this->HandleBoundariesOn();
@@ -107,19 +107,19 @@ void vtkImageAnisotropicDiffusion2d::Execute2d(vtkImageRegion *inRegion,
   vtkImageRegion *temp;
   int extent[6]; 
 
-  inRegion->GetAspectRatio2d(ar0, ar1);
-  inRegion->GetExtent3d (extent);
+  inRegion->GetAspectRatio(ar0, ar1);
+  inRegion->GetExtent(extent, 3);
 
   // make the temporary regions to iterate over.
   in = new vtkImageRegion;
   out = new vtkImageRegion;
   
   // might as well make these floats
-  in->SetExtent3d(extent);
-  in->SetDataType(VTK_IMAGE_FLOAT);
+  in->SetExtent(extent, 3);
+  in->SetDataType(VTK_FLOAT);
   in->CopyRegionData(inRegion);
-  out->SetExtent3d(extent);
-  out->SetDataType(VTK_IMAGE_FLOAT);
+  out->SetExtent(extent, 3);
+  out->SetDataType(VTK_FLOAT);
   out->Allocate();
 
   // Loop performing the diffusion
@@ -160,12 +160,12 @@ void vtkImageAnisotropicDiffusion2d::Iterate(vtkImageRegion *inRegion,
   float *outPtr0, *outPtr1;
   float ar01, diff;
 
-  inRegion->GetExtent2d(min0, max0, min1, max1);
-  inRegion->GetIncrements2d(inInc0, inInc1);
-  outRegion->GetIncrements2d(outInc0, outInc1);
+  inRegion->GetExtent(min0, max0, min1, max1);
+  inRegion->GetIncrements(inInc0, inInc1);
+  outRegion->GetIncrements(outInc0, outInc1);
   ar01 = sqrt(ar0 * ar0 + ar1 * ar1);
-  inPtr1 = (float *)(inRegion->GetScalarPointer2d());
-  outPtr1 = (float *)(outRegion->GetScalarPointer2d());
+  inPtr1 = (float *)(inRegion->GetScalarPointer());
+  outPtr1 = (float *)(outRegion->GetScalarPointer());
   for (idx1 = min1; idx1 <= max1; ++idx1, inPtr1+=inInc1, outPtr1+=outInc1)
     {
     inPtr0 = inPtr1;

@@ -47,9 +47,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct an instance of vtkImageFft1d fitler.
 vtkImageFft1d::vtkImageFft1d()
 {
-  this->SetAxes2d(VTK_IMAGE_COMPONENT_AXIS, VTK_IMAGE_X_AXIS);
+  this->SetAxes(VTK_IMAGE_X_AXIS);
   // Output is always floats.
-  this->SetOutputDataType(VTK_IMAGE_FLOAT);
+  this->SetOutputDataType(VTK_FLOAT);
   this->InputRealComponent = 0;
   this->InputImaginaryComponent = 1;
 }
@@ -72,9 +72,9 @@ void vtkImageFft1d::PrintSelf(ostream& os, vtkIndent indent)
 // Description:
 // This 1d filter is actually a 2d filter with the component axis as the first
 // axis (axis0).
-void vtkImageFft1d::SetAxes1d(int axis)
+void vtkImageFft1d::SetAxes(int axis)
 {
-  this->SetAxes2d(VTK_IMAGE_COMPONENT_AXIS, axis);
+  this->vtkImageFourierFilter::SetAxes(VTK_IMAGE_COMPONENT_AXIS, axis);
 }
 
 //----------------------------------------------------------------------------
@@ -89,13 +89,13 @@ vtkImageFft1d::ComputeOutputImageInformation(vtkImageRegion *inRegion,
   int min, max;
 
   // shrink output image extent.
-  inRegion->GetImageExtent1d(min, max);
+  inRegion->GetImageExtent(min, max);
   // We could check to see if the input actually contains specified real and
   // imaginary components.
   // Output components are always 0, and 1.
   min = 0;
   max = 1;
-  outRegion->SetImageExtent1d(min, max);
+  outRegion->SetImageExtent(min, max);
 }
 
 //----------------------------------------------------------------------------
@@ -106,13 +106,13 @@ void vtkImageFft1d::InterceptCacheUpdate(vtkImageRegion *region)
 {
   int min, max;
   
-  region->GetExtent1d(min, max);
+  region->GetExtent(min, max);
   if (min < 0 || max > 1)
     {
     vtkErrorMacro(<< "Only two channels to request 0 and 1");
     }
   
-  region->SetExtent1d(0, 1);
+  region->SetExtent(0, 1);
 }
 
 //----------------------------------------------------------------------------
@@ -141,7 +141,7 @@ void vtkImageFft1d::ComputeRequiredInputRegionExtent(
     }
 
   // Eliminate a component if it is not contained in the image extent.
-  inRegion->GetImageExtent2d(extent);
+  inRegion->GetImageExtent(extent, 2);
   if (min < extent[0])
     {
     min = max;
@@ -158,7 +158,7 @@ void vtkImageFft1d::ComputeRequiredInputRegionExtent(
 
   extent[0] = min;
   extent[1] = max;
-  inRegion->SetExtent2d(extent);
+  inRegion->SetExtent(extent, 2);
 }
 
 //----------------------------------------------------------------------------
@@ -185,8 +185,8 @@ void vtkImageFft1dExecute2d(vtkImageFft1d *self,
   // avoid warnings
   inPtr = inPtr;
   // Get information to march through data 
-  inRegion->GetIncrements2d(inInc0, inInc1);
-  inRegion->GetExtent2d(inMin0, inMax0, inMin1, inMax1);
+  inRegion->GetIncrements(inInc0, inInc1);
+  inRegion->GetExtent(inMin0, inMax0, inMin1, inMax1);
   inSize1 = inMax1 - inMin1 + 1;
   
   // Allocate the arrays of complex numbers
@@ -204,7 +204,7 @@ void vtkImageFft1dExecute2d(vtkImageFft1d *self,
     }
   else
     {
-    inPtrReal = (T *)(inRegion->GetScalarPointer2d(realComp,inMin1));
+    inPtrReal = (T *)(inRegion->GetScalarPointer(realComp,inMin1));
     }
   if (imagComp > inMax0 || imagComp < inMin0)
     {
@@ -212,7 +212,7 @@ void vtkImageFft1dExecute2d(vtkImageFft1d *self,
     }
   else
     {
-    inPtrImag = (T *)(inRegion->GetScalarPointer2d(imagComp,inMin1));
+    inPtrImag = (T *)(inRegion->GetScalarPointer(imagComp,inMin1));
     }
   pComplex = inComplex;
   // Loop and copy
@@ -243,8 +243,8 @@ void vtkImageFft1dExecute2d(vtkImageFft1d *self,
   self->ExecuteFft(inComplex, outComplex, inSize1);
   
   // Get information to loop through output region.
-  outRegion->GetIncrements2d(outInc0, outInc1);
-  outRegion->GetExtent2d(outMin0, outMax0, outMin1, outMax1);
+  outRegion->GetIncrements(outInc0, outInc1);
+  outRegion->GetExtent(outMin0, outMax0, outMin1, outMax1);
   
   // Copy the complex numbers into the output
   pComplex = outComplex + (outMin1 - inMin1);
@@ -275,14 +275,14 @@ void vtkImageFft1d::Execute2d(vtkImageRegion *inRegion,
 {
   void *inPtr, *outPtr;
 
-  inPtr = inRegion->GetScalarPointer1d();
-  outPtr = outRegion->GetScalarPointer1d();
+  inPtr = inRegion->GetScalarPointer();
+  outPtr = outRegion->GetScalarPointer();
 
   vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
 		<< ", outRegion = " << outRegion);
   
   // this filter expects that the output be floats.
-  if (outRegion->GetDataType() != VTK_IMAGE_FLOAT)
+  if (outRegion->GetDataType() != VTK_FLOAT)
     {
     vtkErrorMacro(<< "Execute: Output must be be type float.");
     return;
@@ -291,23 +291,23 @@ void vtkImageFft1d::Execute2d(vtkImageRegion *inRegion,
   // choose which templated function to call.
   switch (inRegion->GetDataType())
     {
-    case VTK_IMAGE_FLOAT:
+    case VTK_FLOAT:
       vtkImageFft1dExecute2d(this, inRegion, (float *)(inPtr), 
 				   outRegion, (float *)(outPtr));
       break;
-    case VTK_IMAGE_INT:
+    case VTK_INT:
       vtkImageFft1dExecute2d(this, inRegion, (int *)(inPtr),
 				   outRegion, (float *)(outPtr));
       break;
-    case VTK_IMAGE_SHORT:
+    case VTK_SHORT:
       vtkImageFft1dExecute2d(this, inRegion, (short *)(inPtr),
 				   outRegion, (float *)(outPtr));
       break;
-    case VTK_IMAGE_UNSIGNED_SHORT:
+    case VTK_UNSIGNED_SHORT:
       vtkImageFft1dExecute2d(this, inRegion, (unsigned short *)(inPtr), 
 				   outRegion, (float *)(outPtr));
       break;
-    case VTK_IMAGE_UNSIGNED_CHAR:
+    case VTK_UNSIGNED_CHAR:
       vtkImageFft1dExecute2d(this, inRegion, (unsigned char *)(inPtr),
 				   outRegion, (float *)(outPtr));
       break;

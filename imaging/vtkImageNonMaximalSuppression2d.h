@@ -59,7 +59,7 @@ public:
   vtkImageNonMaximalSuppression2d();
   char *GetClassName() {return "vtkImageNonMaximalSuppression2d";};
   
-  void SetAxes2d(int axis0, int axis1);
+  void SetAxes(int axis0, int axis1);
   void InterceptCacheUpdate(vtkImageRegion *region);
 
 protected:

@@ -122,27 +122,27 @@ void vtkImagePad::Execute(vtkImageRegion *inRegion,
 {
   switch (inRegion->GetType())
     {
-    case VTK_IMAGE_FLOAT:
+    case VTK_FLOAT:
       vtkImagePadExecute(this, 
 	       (vtkImageTemplateRegion<float>)(inRegion), 
 	       (vtkImageTemplateRegion<float>)(outRegion));
       break;
-    case VTK_IMAGE_INT:
+    case VTK_INT:
       vtkImagePadExecute(this, 
 	       (vtkImageTemplateRegion<int>)(inRegion), 
 	       (vtkImageTemplateRegion<int>)(outRegion));
       break;
-    case VTK_IMAGE_SHORT:
+    case VTK_SHORT:
       vtkImagePadExecute(this, 
 	       (vtkImageTemplateRegion<short int>)(inRegion), 
 	       (vtkImageTemplateRegion<short int>)(outRegion));
       break;
-    case VTK_IMAGE_UNSIGNED_SHORT:
+    case VTK_UNSIGNED_SHORT:
       vtkImagePadExecute(this, 
 	       (vtkImageTemplateRegion<unsigned short int>)(inRegion), 
 	       (vtkImageTemplateRegion<unsigned short int>)(outRegion));
       break;
-    case VTK_IMAGE_UNSIGNED_CHAR:
+    case VTK_UNSIGNED_CHAR:
       vtkImagePadExecute(this, 
 	       (vtkImageTemplateRegion<unsigned char>)(inRegion), 
 	       (vtkImageTemplateRegion<unsigned char>)(outRegion));

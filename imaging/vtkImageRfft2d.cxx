@@ -49,7 +49,7 @@ vtkImageRfft2d::vtkImageRfft2d()
   this->Filter0 = new vtkImageRfft1d;
   this->Filter1 = new vtkImageRfft1d;
 
-  this->SetAxes2d(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
+  this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
 }
 
 

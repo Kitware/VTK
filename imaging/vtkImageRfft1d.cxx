@@ -47,18 +47,18 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct an instance of vtkImageRfft1d fitler.
 vtkImageRfft1d::vtkImageRfft1d()
 {
-  this->SetAxes2d(VTK_IMAGE_COMPONENT_AXIS, VTK_IMAGE_X_AXIS);
+  this->SetAxes(VTK_IMAGE_X_AXIS);
   // Output is whatever type you want, but defaults to float.
-  this->SetOutputDataType(VTK_IMAGE_FLOAT);
+  this->SetOutputDataType(VTK_FLOAT);
 }
 
 //----------------------------------------------------------------------------
 // Description:
 // This 1d filter is actually a 2d filter with the component axis as the first
 // axis (axis0).
-void vtkImageRfft1d::SetAxes1d(int axis)
+void vtkImageRfft1d::SetAxes(int axis)
 {
-  this->SetAxes2d(VTK_IMAGE_COMPONENT_AXIS, axis);
+  this->vtkImageFourierFilter::SetAxes(VTK_IMAGE_COMPONENT_AXIS, axis);
 }
 
 
@@ -70,13 +70,13 @@ void vtkImageRfft1d::InterceptCacheUpdate(vtkImageRegion *region)
 {
   int min, max;
   
-  region->GetExtent1d(min, max);
+  region->GetExtent(min, max);
   if (min < 0 || max > 1)
     {
     vtkErrorMacro(<< "Only two channels to request 0 and 1");
     }
   
-  region->SetExtent1d(0, 1);
+  region->SetExtent(0, 1);
 }
 
 
@@ -90,7 +90,7 @@ void vtkImageRfft1d::ComputeRequiredInputRegionExtent(
   int extent[4];
   
   outRegion = outRegion;
-  inRegion->GetImageExtent2d(extent);
+  inRegion->GetImageExtent(extent, 2);
   // make sure input has two component
   if (extent[0] != 0 || extent[1] != 1)
     {
@@ -99,7 +99,7 @@ void vtkImageRfft1d::ComputeRequiredInputRegionExtent(
     return;
     }
   
-  inRegion->SetExtent2d(extent);
+  inRegion->SetExtent(extent, 2);
 }
 
 //----------------------------------------------------------------------------
@@ -123,8 +123,8 @@ void vtkImageRfft1dExecute2d(vtkImageRfft1d *self,
   int idx;
   
   // Get information to march through data 
-  inRegion->GetIncrements2d(inInc0, inInc1);
-  inRegion->GetExtent2d(inMin0, inMax0, inMin1, inMax1);
+  inRegion->GetIncrements(inInc0, inInc1);
+  inRegion->GetExtent(inMin0, inMax0, inMin1, inMax1);
   inSize1 = inMax1 - inMin1 + 1;
   
   // Input should have two component
@@ -155,8 +155,8 @@ void vtkImageRfft1dExecute2d(vtkImageRfft1d *self,
   self->ExecuteRfft(inComplex, outComplex, inSize1);
   
   // Get information to loop through output region.
-  outRegion->GetIncrements2d(outInc0, outInc1);
-  outRegion->GetExtent2d(outMin0, outMax0, outMin1, outMax1);
+  outRegion->GetIncrements(outInc0, outInc1);
+  outRegion->GetExtent(outMin0, outMax0, outMin1, outMax1);
   
   // Copy the complex numbers into the output
   pComplex = outComplex + (outMin1 - inMin1);
@@ -185,14 +185,14 @@ void vtkImageRfft1d::Execute2d(vtkImageRegion *inRegion,
 {
   void *inPtr, *outPtr;
 
-  inPtr = inRegion->GetScalarPointer1d();
-  outPtr = outRegion->GetScalarPointer1d();
+  inPtr = inRegion->GetScalarPointer();
+  outPtr = outRegion->GetScalarPointer();
 
   vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
 		<< ", outRegion = " << outRegion);
   
   // this filter expects the input to be floats.
-  if (inRegion->GetDataType() != VTK_IMAGE_FLOAT)
+  if (inRegion->GetDataType() != VTK_FLOAT)
     {
     vtkErrorMacro(<< "Execute: Input must be be type float.");
     return;
@@ -201,23 +201,23 @@ void vtkImageRfft1d::Execute2d(vtkImageRegion *inRegion,
   // choose which templated function to call.
   switch (outRegion->GetDataType())
     {
-    case VTK_IMAGE_FLOAT:
+    case VTK_FLOAT:
       vtkImageRfft1dExecute2d(this, inRegion, (float *)(inPtr), 
 				   outRegion, (float *)(outPtr));
       break;
-    case VTK_IMAGE_INT:
+    case VTK_INT:
       vtkImageRfft1dExecute2d(this, inRegion, (float *)(inPtr),
 				   outRegion, (int *)(outPtr));
       break;
-    case VTK_IMAGE_SHORT:
+    case VTK_SHORT:
       vtkImageRfft1dExecute2d(this, inRegion, (float *)(inPtr),
 				   outRegion, (short *)(outPtr));
       break;
-    case VTK_IMAGE_UNSIGNED_SHORT:
+    case VTK_UNSIGNED_SHORT:
       vtkImageRfft1dExecute2d(this, inRegion, (float *)(inPtr), 
 				   outRegion, (unsigned short *)(outPtr));
       break;
-    case VTK_IMAGE_UNSIGNED_CHAR:
+    case VTK_UNSIGNED_CHAR:
       vtkImageRfft1dExecute2d(this, inRegion, (float *)(inPtr),
 				   outRegion, (unsigned char *)(outPtr));
       break;

@@ -46,8 +46,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Constructor: Sets default filter to be identity.
 vtkImageFourierWavelet2d::vtkImageFourierWavelet2d()
 {
-  this->SetAxes3d(VTK_IMAGE_COMPONENT_AXIS,VTK_IMAGE_X_AXIS,VTK_IMAGE_Y_AXIS);
-  this->SetOutputDataType(VTK_IMAGE_FLOAT);
+  this->SetAxes(VTK_IMAGE_COMPONENT_AXIS,VTK_IMAGE_X_AXIS,VTK_IMAGE_Y_AXIS);
+  this->SetOutputDataType(VTK_FLOAT);
   this->Spacing = 2;
   this->Wavelets = NULL;
 }
@@ -63,8 +63,8 @@ vtkImageFourierWavelet2d::InterceptCacheUpdate(vtkImageRegion *region)
   int extent[6];
 
   this->UpdateImageInformation(region);
-  region->GetImageExtent3d(extent);
-  region->SetExtent3d(extent);
+  region->GetImageExtent(extent, 3);
+  region->SetExtent(extent, 3);
 }
 
 
@@ -84,8 +84,8 @@ void vtkImageFourierWavelet2d::ComputeOutputImageInformation(
   int waveletMin, waveletMax, waveletSize;
   int idx;
   
-  inRegion->GetImageExtent3d(imageExtent);
-  this->Wavelets->GetExtent3d(waveletExtent);
+  inRegion->GetImageExtent(imageExtent, 3);
+  this->Wavelets->GetExtent(waveletExtent, 3);
   imageExtent[0] = waveletExtent[0];
   imageExtent[1] = waveletExtent[1];
   for (idx = 1; idx < 3; ++idx)
@@ -105,17 +105,17 @@ void vtkImageFourierWavelet2d::ComputeOutputImageInformation(
       }
     imageExtent[idx*2+1] = imageMin + (imageSize-waveletSize) / this->Spacing;
     }
-  outRegion->SetImageExtent3d(imageExtent);
+  outRegion->SetImageExtent(imageExtent, 3);
 
   // Compute aspect ratio (Components?)
-  inRegion->GetAspectRatio3d(aspectRatio);
+  inRegion->GetAspectRatio(aspectRatio, 3);
   aspectRatio[0] = 0.0;
   for (idx = 1; idx < 3; ++idx)
     {
     aspectRatio[idx] *= this->Spacing;
     }
   
-  outRegion->SetAspectRatio3d(aspectRatio);
+  outRegion->SetAspectRatio(aspectRatio, 3);
 }
 
 
@@ -128,10 +128,10 @@ void vtkImageFourierWavelet2d::ComputeRequiredInputRegionExtent(
   int extent[6];
   
   outRegion = outRegion;
-  inRegion->GetImageExtent3d(extent);
+  inRegion->GetImageExtent(extent, 3);
   // Only take the first component, but the whole image in other dimensions.
   extent[1] = extent[0];
-  inRegion->SetExtent3d(extent);
+  inRegion->SetExtent(extent, 3);
 }
 
 
@@ -152,10 +152,10 @@ void vtkImageFourierWavelet2d::InitializeWavelets(int dim)
     }
   // Allocate new region for the wavelets
   this->Wavelets = new vtkImageRegion;
-  this->Wavelets->SetDataType(VTK_IMAGE_FLOAT);
-  this->Wavelets->SetAxes3d(VTK_IMAGE_COMPONENT_AXIS,
-			    VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
-  this->Wavelets->SetExtent3d(0,(dim*dim)-1, 0,dim-1, 0,dim-1);
+  this->Wavelets->SetDataType(VTK_FLOAT);
+  this->Wavelets->SetAxes(VTK_IMAGE_COMPONENT_AXIS, 
+			  VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
+  this->Wavelets->SetExtent(0,(dim*dim)-1, 0,dim-1, 0,dim-1);
   this->Wavelets->Allocate();
   if ( ! this->Wavelets->IsAllocated())
     {
@@ -217,12 +217,12 @@ void vtkImageFourierWavelet2d::ComputeWaveletReal(int f1, int f2, int w0)
   float r1, i1, r2, i2;
   int idx1, idx2;
   
-  this->Wavelets->GetIncrements3d(waveletInc0, waveletInc1, waveletInc2);
-  this->Wavelets->GetExtent3d(waveletExtent);
+  this->Wavelets->GetIncrements(waveletInc0, waveletInc1, waveletInc2);
+  this->Wavelets->GetExtent(waveletExtent, 3);
   waveletSize1 = waveletExtent[3] - waveletExtent[2] + 1;
   waveletSize2 = waveletExtent[5] - waveletExtent[4] + 1;
   
-  waveletPtr2 = (float *)(this->Wavelets->GetScalarPointer3d(w0, 0, 0));
+  waveletPtr2 = (float *)(this->Wavelets->GetScalarPointer(w0, 0, 0));
   for (idx2 = 0; idx2 < waveletSize2; ++idx2)
     {
     r2 = cos(6.2831853 * (float)(f2 * idx2) / (float)(waveletSize2));
@@ -259,12 +259,12 @@ void vtkImageFourierWavelet2d::ComputeWaveletImaginary(int f1, int f2,
   float r1, i1, r2, i2;
   int idx1, idx2;
   
-  this->Wavelets->GetIncrements3d(waveletInc0, waveletInc1, waveletInc2);
-  this->Wavelets->GetExtent3d(waveletExtent);
+  this->Wavelets->GetIncrements(waveletInc0, waveletInc1, waveletInc2);
+  this->Wavelets->GetExtent(waveletExtent, 3);
   waveletSize1 = waveletExtent[3] - waveletExtent[2] + 1;
   waveletSize2 = waveletExtent[5] - waveletExtent[4] + 1;
   
-  waveletPtr2 = (float *)(this->Wavelets->GetScalarPointer3d(w0, 0, 0));
+  waveletPtr2 = (float *)(this->Wavelets->GetScalarPointer(w0, 0, 0));
   for (idx2 = 0; idx2 < waveletSize2; ++idx2)
     {
     r2 = cos(6.2831853 * (float)(f2 * idx2) / (float)(waveletSize2));
@@ -296,13 +296,13 @@ int vtkImageFourierWavelet2d::TestWaveletOrthogonality(int waveletIdx)
   double dot, mag;
 
   
-  this->Wavelets->GetExtent3d(min0, max0, min1, max1, min2, max2);
-  this->Wavelets->GetIncrements3d(inc0, inc1, inc2);
+  this->Wavelets->GetExtent(min0, max0, min1, max1, min2, max2);
+  this->Wavelets->GetIncrements(inc0, inc1, inc2);
   
   // loop through all the wavelets before the one we are testing.
   waveletPtr0 =
-    (float *)(this->Wavelets->GetScalarPointer3d(waveletIdx,min1,min2));
-  otherPtr0 = (float *)(this->Wavelets->GetScalarPointer3d());
+    (float *)(this->Wavelets->GetScalarPointer(waveletIdx,min1,min2));
+  otherPtr0 = (float *)(this->Wavelets->GetScalarPointer());
   for (idx0 = min0; idx0 < waveletIdx; ++idx0)
     {
     // Compute magnitude of wavelet and dot of wavelet and other.
@@ -367,14 +367,14 @@ vtkImageFourierWavelet2dExecute(vtkImageFourierWavelet2d *self,
   
   
   // Get information to march through data 
-  inRegion->GetIncrements3d(inInc0, inInc1, inInc2);
-  outRegion->GetIncrements3d(outInc0, outInc1, outInc2);
-  outRegion->GetExtent3d(outMin0,outMax0, outMin1,outMax1, outMin2,outMax2);
+  inRegion->GetIncrements(inInc0, inInc1, inInc2);
+  outRegion->GetIncrements(outInc0, outInc1, outInc2);
+  outRegion->GetExtent(outMin0,outMax0, outMin1,outMax1, outMin2,outMax2);
   // Get wavelet information
   wavelets = self->GetWavelets();
-  wavelets->GetIncrements3d(waveInc0, waveInc1, waveInc2);
-  wavelets->GetExtent3d(waveMin0,waveMax0,waveMin1,waveMax1,waveMin2,waveMax2);
-  wavePtr = (float *)(wavelets->GetScalarPointer3d());
+  wavelets->GetIncrements(waveInc0, waveInc1, waveInc2);
+  wavelets->GetExtent(waveMin0,waveMax0,waveMin1,waveMax1,waveMin2,waveMax2);
+  wavePtr = (float *)(wavelets->GetScalarPointer());
 
   spacing = self->GetSpacing();
   
@@ -456,38 +456,38 @@ void vtkImageFourierWavelet2d::Execute3d(vtkImageRegion *inRegion,
 		<< ", outRegion = " << outRegion);
   
   // this filter expects that output is float.
-  if (outRegion->GetDataType() != VTK_IMAGE_FLOAT)
+  if (outRegion->GetDataType() != VTK_FLOAT)
     {
     vtkErrorMacro(<< "Execute2d: Output must be floats");
     return;
     }
 
-  inPtr = inRegion->GetScalarPointer2d();
-  outPtr = outRegion->GetScalarPointer2d();
+  inPtr = inRegion->GetScalarPointer();
+  outPtr = outRegion->GetScalarPointer();
 
   switch (inRegion->GetDataType())
     {
-    case VTK_IMAGE_FLOAT:
+    case VTK_FLOAT:
       vtkImageFourierWavelet2dExecute(this,
 				    inRegion, (float *)(inPtr), 
 				    outRegion, (float *)(outPtr));
       break;
-    case VTK_IMAGE_INT:
+    case VTK_INT:
       vtkImageFourierWavelet2dExecute(this,
 				    inRegion, (int *)(inPtr), 
 				    outRegion, (float *)(outPtr));
       break;
-    case VTK_IMAGE_SHORT:
+    case VTK_SHORT:
       vtkImageFourierWavelet2dExecute(this,
 				    inRegion, (short *)(inPtr), 
 				    outRegion, (float *)(outPtr));
       break;
-    case VTK_IMAGE_UNSIGNED_SHORT:
+    case VTK_UNSIGNED_SHORT:
       vtkImageFourierWavelet2dExecute(this,
 				    inRegion, (unsigned short *)(inPtr), 
 				    outRegion, (float *)(outPtr));
       break;
-    case VTK_IMAGE_UNSIGNED_CHAR:
+    case VTK_UNSIGNED_CHAR:
       vtkImageFourierWavelet2dExecute(this,
 				    inRegion, (unsigned char *)(inPtr), 
 				    outRegion, (float *)(outPtr));

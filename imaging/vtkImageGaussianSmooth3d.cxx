@@ -50,7 +50,7 @@ vtkImageGaussianSmooth3d::vtkImageGaussianSmooth3d()
   this->Filter1 = new vtkImageGaussianSmooth1d;
   this->Filter2 = new vtkImageGaussianSmooth1d;
 
-  this->SetAxes3d(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS);
+  this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS);
 }
 
 

@@ -45,7 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //----------------------------------------------------------------------------
 vtkImageArithmetic::vtkImageArithmetic()
 {
-  this->SetAxes2d(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
+  this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
 }
 
 
@@ -71,10 +71,10 @@ void vtkImageArithmeticExecute2d(vtkImageArithmetic *self,
   self = self;
   
   // Get information to march through data 
-  in1Region->GetIncrements2d(in1Inc0, in1Inc1);
-  in2Region->GetIncrements2d(in2Inc0, in2Inc1);
-  outRegion->GetIncrements2d(outInc0, outInc1);
-  outRegion->GetExtent2d(min0, max0, min1, max1);
+  in1Region->GetIncrements(in1Inc0, in1Inc1);
+  in2Region->GetIncrements(in2Inc0, in2Inc1);
+  outRegion->GetIncrements(outInc0, outInc1);
+  outRegion->GetExtent(min0, max0, min1, max1);
 
   // Loop through ouput pixels
   in1Ptr1 = in1Ptr;
@@ -113,9 +113,9 @@ void vtkImageArithmetic::Execute2d(vtkImageRegion *inRegion1,
 					 vtkImageRegion *inRegion2, 
 					 vtkImageRegion *outRegion)
 {
-  void *inPtr1 = inRegion1->GetScalarPointer2d();
-  void *inPtr2 = inRegion2->GetScalarPointer2d();
-  void *outPtr = outRegion->GetScalarPointer2d();
+  void *inPtr1 = inRegion1->GetScalarPointer();
+  void *inPtr2 = inRegion2->GetScalarPointer();
+  void *outPtr = outRegion->GetScalarPointer();
   
   // this filter expects that inputs are the same type as output.
   if (inRegion1->GetDataType() != outRegion->GetDataType() ||
@@ -129,31 +129,31 @@ void vtkImageArithmetic::Execute2d(vtkImageRegion *inRegion1,
   
   switch (inRegion1->GetDataType())
     {
-    case VTK_IMAGE_FLOAT:
+    case VTK_FLOAT:
       vtkImageArithmeticExecute2d(this, 
 			  inRegion1, (float *)(inPtr1), 
 			  inRegion2, (float *)(inPtr2), 
 			  outRegion, (float *)(outPtr));
       break;
-    case VTK_IMAGE_INT:
+    case VTK_INT:
       vtkImageArithmeticExecute2d(this, 
 			  inRegion1, (int *)(inPtr1), 
 			  inRegion2, (int *)(inPtr2), 
 			  outRegion, (int *)(outPtr));
       break;
-    case VTK_IMAGE_SHORT:
+    case VTK_SHORT:
       vtkImageArithmeticExecute2d(this, 
 			  inRegion1, (short *)(inPtr1), 
 			  inRegion2, (short *)(inPtr2), 
 			  outRegion, (short *)(outPtr));
       break;
-    case VTK_IMAGE_UNSIGNED_SHORT:
+    case VTK_UNSIGNED_SHORT:
       vtkImageArithmeticExecute2d(this, 
 			  inRegion1, (unsigned short *)(inPtr1), 
 			  inRegion2, (unsigned short *)(inPtr2), 
 			  outRegion, (unsigned short *)(outPtr));
       break;
-    case VTK_IMAGE_UNSIGNED_CHAR:
+    case VTK_UNSIGNED_CHAR:
       vtkImageArithmeticExecute2d(this, 
 			  inRegion1, (unsigned char *)(inPtr1), 
 			  inRegion2, (unsigned char *)(inPtr2), 

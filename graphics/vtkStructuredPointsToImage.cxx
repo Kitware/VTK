@@ -163,29 +163,29 @@ int vtkStructuredPointsToImage::ComputeDataType()
   type = scalars->GetScalarType();
   if (strcmp(type, "ColorScalar") == 0)
     {
-    return VTK_IMAGE_FLOAT;
+    return VTK_FLOAT;
     }
 
   type = scalars->GetDataType();
   if (strcmp(type, "float") == 0)
     {
-    return VTK_IMAGE_FLOAT;
+    return VTK_FLOAT;
     }
   if (strcmp(type, "int") == 0)
     {
-    return VTK_IMAGE_INT;
+    return VTK_INT;
     }
   if (strcmp(type, "short") == 0)
     {
-    return VTK_IMAGE_SHORT;
+    return VTK_SHORT;
     }
   if (strcmp(type, "unsigned short") == 0)
     {
-    return VTK_IMAGE_UNSIGNED_SHORT;
+    return VTK_UNSIGNED_SHORT;
     }
   if (strcmp(type, "unsigned char") == 0)
     {
-    return VTK_IMAGE_UNSIGNED_CHAR;
+    return VTK_UNSIGNED_CHAR;
     }
   
   vtkErrorMacro(<< "GetDataType: Can not handle type " << type);
@@ -278,8 +278,8 @@ vtkStructuredPointsToImage::ComputeImageInformation(vtkImageRegion *region)
   //input->GetOrigin(origin);
   input->GetAspectRatio(aspectRatio);
 
-  region->SetImageExtent3d(0, size[0]-1, 0, size[1]-1, 0, size[2]-1);
-  region->SetAspectRatio3d(aspectRatio);
+  region->SetImageExtent(0, size[0]-1, 0, size[1]-1, 0, size[2]-1);
+  region->SetAspectRatio(aspectRatio, 3);
   if (region->GetDataType() == VTK_IMAGE_VOID)
     {
     region->SetDataType(this->ComputeDataType());

@@ -1858,7 +1858,7 @@ case 88:
 case 89:
 # line 432 "../../vtk/tcl/cpp_parse.y"
 { 
-   sprintf(temps,"Set%s5d",yypvt[-3].str); 
+   sprintf(temps,"Set%s",yypvt[-3].str); 
    func_name = strdup(temps);
    num_args = 5;
    arg_types[0] = yypvt[-1].integer;
@@ -1868,7 +1868,7 @@ case 89:
    arg_types[4] = yypvt[-1].integer;
    output_function();
    free(func_name);
-   sprintf(temps,"Set%s4d",yypvt[-3].str); 
+   sprintf(temps,"Set%s",yypvt[-3].str); 
    func_name = strdup(temps);
    num_args = 4;
    arg_types[0] = yypvt[-1].integer;
@@ -1877,7 +1877,7 @@ case 89:
    arg_types[3] = yypvt[-1].integer;
    output_function();
    free(func_name);
-   sprintf(temps,"Set%s3d",yypvt[-3].str); 
+   sprintf(temps,"Set%s",yypvt[-3].str); 
    func_name = strdup(temps);
    num_args = 3;
    arg_types[0] = yypvt[-1].integer;
@@ -1885,14 +1885,14 @@ case 89:
    arg_types[2] = yypvt[-1].integer;
    output_function();
    free(func_name);
-   sprintf(temps,"Set%s2d",yypvt[-3].str); 
+   sprintf(temps,"Set%s",yypvt[-3].str); 
    func_name = strdup(temps);
    num_args = 2;
    arg_types[0] = yypvt[-1].integer;
    arg_types[1] = yypvt[-1].integer;
    output_function();
    free(func_name);
-   sprintf(temps,"Set%s1d",yypvt[-3].str); 
+   sprintf(temps,"Set%s",yypvt[-3].str); 
    func_name = strdup(temps);
    num_args = 1;
    arg_types[0] = yypvt[-1].integer;
@@ -1902,7 +1902,7 @@ case 89:
 case 90:
 # line 475 "../../vtk/tcl/cpp_parse.y"
 { 
-   sprintf(temps,"Set%s5d",yypvt[-1].str); 
+   sprintf(temps,"Set%s",yypvt[-1].str); 
    func_name = strdup(temps);
    num_args = 10;
    arg_types[0] = 4;
@@ -1917,7 +1917,7 @@ case 90:
    arg_types[9] = 4;
    output_function();
    free(func_name);
-   sprintf(temps,"Set%s4d",yypvt[-1].str); 
+   sprintf(temps,"Set%s",yypvt[-1].str); 
    func_name = strdup(temps);
    num_args = 8;
    arg_types[0] = 4;
@@ -1930,7 +1930,7 @@ case 90:
    arg_types[7] = 4;
    output_function();
    free(func_name);
-   sprintf(temps,"Set%s3d",yypvt[-1].str); 
+   sprintf(temps,"Set%s",yypvt[-1].str); 
    func_name = strdup(temps);
    num_args = 6;
    arg_types[0] = 4;
@@ -1941,7 +1941,7 @@ case 90:
    arg_types[5] = 4;
    output_function();
    free(func_name);
-   sprintf(temps,"Set%s2d",yypvt[-1].str); 
+   sprintf(temps,"Set%s",yypvt[-1].str); 
    func_name = strdup(temps);
    num_args = 4;
    arg_types[0] = 4;
@@ -1950,7 +1950,7 @@ case 90:
    arg_types[3] = 4;
    output_function();
    free(func_name);
-   sprintf(temps,"Set%s1d",yypvt[-1].str); 
+   sprintf(temps,"Set%s",yypvt[-1].str); 
    func_name = strdup(temps);
    num_args = 2;
    arg_types[0] = 4;

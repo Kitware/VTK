@@ -58,7 +58,7 @@ public:
   vtkImageRfft1d();
   char *GetClassName() {return "vtkImageRfft1d";};
 
-  void SetAxes1d(int axis);
+  void SetAxes(int axis);
   void InterceptCacheUpdate(vtkImageRegion *region);
   
 protected:

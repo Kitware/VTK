@@ -430,7 +430,7 @@ macro:
    }
 | ImageRegionSetMacro '(' any_id ',' type_red2 ')'
    { 
-   sprintf(temps,"Set%s5d",$<str>3); 
+   sprintf(temps,"Set%s",$<str>3); 
    func_name = strdup(temps);
    num_args = 5;
    arg_types[0] = $<integer>5;
@@ -440,7 +440,7 @@ macro:
    arg_types[4] = $<integer>5;
    output_function();
    free(func_name);
-   sprintf(temps,"Set%s4d",$<str>3); 
+   sprintf(temps,"Set%s",$<str>3); 
    func_name = strdup(temps);
    num_args = 4;
    arg_types[0] = $<integer>5;
@@ -449,7 +449,7 @@ macro:
    arg_types[3] = $<integer>5;
    output_function();
    free(func_name);
-   sprintf(temps,"Set%s3d",$<str>3); 
+   sprintf(temps,"Set%s",$<str>3); 
    func_name = strdup(temps);
    num_args = 3;
    arg_types[0] = $<integer>5;
@@ -457,14 +457,14 @@ macro:
    arg_types[2] = $<integer>5;
    output_function();
    free(func_name);
-   sprintf(temps,"Set%s2d",$<str>3); 
+   sprintf(temps,"Set%s",$<str>3); 
    func_name = strdup(temps);
    num_args = 2;
    arg_types[0] = $<integer>5;
    arg_types[1] = $<integer>5;
    output_function();
    free(func_name);
-   sprintf(temps,"Set%s1d",$<str>3); 
+   sprintf(temps,"Set%s",$<str>3); 
    func_name = strdup(temps);
    num_args = 1;
    arg_types[0] = $<integer>5;
@@ -473,7 +473,7 @@ macro:
    }
 | ImageRegionSetBoundsMacro '(' any_id ')'
    { 
-   sprintf(temps,"Set%s5d",$<str>3); 
+   sprintf(temps,"Set%s",$<str>3); 
    func_name = strdup(temps);
    num_args = 10;
    arg_types[0] = 4;
@@ -488,7 +488,7 @@ macro:
    arg_types[9] = 4;
    output_function();
    free(func_name);
-   sprintf(temps,"Set%s4d",$<str>3); 
+   sprintf(temps,"Set%s",$<str>3); 
    func_name = strdup(temps);
    num_args = 8;
    arg_types[0] = 4;
@@ -501,7 +501,7 @@ macro:
    arg_types[7] = 4;
    output_function();
    free(func_name);
-   sprintf(temps,"Set%s3d",$<str>3); 
+   sprintf(temps,"Set%s",$<str>3); 
    func_name = strdup(temps);
    num_args = 6;
    arg_types[0] = 4;
@@ -512,7 +512,7 @@ macro:
    arg_types[5] = 4;
    output_function();
    free(func_name);
-   sprintf(temps,"Set%s2d",$<str>3); 
+   sprintf(temps,"Set%s",$<str>3); 
    func_name = strdup(temps);
    num_args = 4;
    arg_types[0] = 4;
@@ -521,7 +521,7 @@ macro:
    arg_types[3] = 4;
    output_function();
    free(func_name);
-   sprintf(temps,"Set%s1d",$<str>3); 
+   sprintf(temps,"Set%s",$<str>3); 
    func_name = strdup(temps);
    num_args = 2;
    arg_types[0] = 4;

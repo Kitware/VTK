@@ -47,7 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Constructor: Sets default filter to be identity.
 vtkImageHarrWavelet2d::vtkImageHarrWavelet2d()
 {
-  this->SetAxes2d(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
+  this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
   this->SetNumberLevels(1);
   this->SetPixelScale(1.0);
   this->SetPixelOffset(0.0);
@@ -69,8 +69,8 @@ void vtkImageHarrWavelet2d::InterceptCacheUpdate(vtkImageRegion *region)
     }
   
   this->Input->UpdateImageInformation(region);
-  region->GetImageExtent2d(extent);
-  region->SetExtent2d(extent);
+  region->GetImageExtent(extent, 2);
+  region->SetExtent(extent, 2);
 }
 
 
@@ -102,8 +102,8 @@ void vtkImageHarrWavelet2dExecute(vtkImageHarrWavelet2d *self,
   scale = self->GetPixelScale();
   
   // Get information to march through data 
-  inRegion->GetIncrements2d(inInc0, inInc1);
-  outRegion->GetIncrements2d(outInc0, outInc1);
+  inRegion->GetIncrements(inInc0, inInc1);
+  outRegion->GetIncrements(outInc0, outInc1);
   
   // Loop through ouput quadrent pixels
   inPtr1 = inPtr;
@@ -165,7 +165,7 @@ void vtkImageHarrWavelet2d::Execute2d(vtkImageRegion *inRegion,
     }
 
   // assumes that in and out have the same extent
-  inRegion->GetExtent2d(outMin0, outMax0, outMin1, outMax1);
+  inRegion->GetExtent(outMin0, outMax0, outMin1, outMax1);
   qSize0 = (outMax0 - outMin0 + 1);
   qSize1 = (outMax1 - outMin1 + 1);
   
@@ -175,32 +175,32 @@ void vtkImageHarrWavelet2d::Execute2d(vtkImageRegion *inRegion,
     qSize0 /= 2;
     qSize1 /= 2;
     
-    inPtr = inRegion->GetScalarPointer2d();
-    outPtr = outRegion->GetScalarPointer2d();
+    inPtr = inRegion->GetScalarPointer();
+    outPtr = outRegion->GetScalarPointer();
 
     switch (inRegion->GetDataType())
       {
-      case VTK_IMAGE_FLOAT:
+      case VTK_FLOAT:
 	vtkImageHarrWavelet2dExecute(this, qSize0, qSize1,
 				   inRegion, (float *)(inPtr), 
 				   outRegion, (float *)(outPtr));
 	break;
-      case VTK_IMAGE_INT:
+      case VTK_INT:
 	vtkImageHarrWavelet2dExecute(this, qSize0, qSize1,
 				   inRegion, (int *)(inPtr), 
 				   outRegion, (int *)(outPtr));
 	break;
-      case VTK_IMAGE_SHORT:
+      case VTK_SHORT:
 	vtkImageHarrWavelet2dExecute(this, qSize0, qSize1,
 				   inRegion, (short *)(inPtr), 
 				   outRegion, (short *)(outPtr));
 	break;
-      case VTK_IMAGE_UNSIGNED_SHORT:
+      case VTK_UNSIGNED_SHORT:
 	vtkImageHarrWavelet2dExecute(this, qSize0, qSize1,
 				   inRegion, (unsigned short *)(inPtr), 
 				   outRegion, (unsigned short *)(outPtr));
 	break;
-      case VTK_IMAGE_UNSIGNED_CHAR:
+      case VTK_UNSIGNED_CHAR:
 	vtkImageHarrWavelet2dExecute(this, qSize0, qSize1,
 				   inRegion, (unsigned char *)(inPtr), 
 				   outRegion, (unsigned char *)(outPtr));
@@ -225,7 +225,7 @@ void vtkImageHarrWavelet2d::Execute2d(vtkImageRegion *inRegion,
 	}
       else
 	{
-	tempRegion->SetExtent2d(outMin0, outMax0, outMin1, outMax1);
+	tempRegion->SetExtent(outMin0, outMax0, outMin1, outMax1);
 	}
       tempRegion->CopyRegionData(outRegion);
       inRegion = tempRegion;
