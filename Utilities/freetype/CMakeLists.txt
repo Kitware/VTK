@@ -117,6 +117,6 @@ CONFIGURE_FILE (${VTKFREETYPE_SOURCE_DIR}/.NoDartCoverage
 # Create the configuration file
 #
 ADD_DEFINITIONS (-DVTKFREETYPE)
-CONFIGURE_FILE (${VTKFREETYPE_SOURCE_DIR}${VTK_INSTALL_INCLUDE_DIR}FreeTypeConfig.h.in
-                ${VTKFREETYPE_BINARY_DIR}${VTK_INSTALL_INCLUDE_DIR}FreeTypeConfig.h)
+CONFIGURE_FILE (${VTKFREETYPE_SOURCE_DIR}/include/vtkFreeTypeConfig.h.in
+                ${VTKFREETYPE_BINARY_DIR}/include/vtkFreeTypeConfig.h)
 
