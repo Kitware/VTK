@@ -136,6 +136,7 @@ protected:
   vtkStructuredGridReader(const vtkStructuredGridReader&) {};
   void operator=(const vtkStructuredGridReader&) {};
 
+  void ExecuteInformation();
   void Execute();
   vtkDataReader *Reader;
 

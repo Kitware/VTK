@@ -38,6 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+#include "vtkStructuredInformation.h"
 #include "vtkStructuredGridReader.h"
 
 vtkStructuredGridReader::vtkStructuredGridReader()
@@ -149,6 +150,85 @@ void vtkStructuredGridReader::SetFieldDataName(char *name)
 char *vtkStructuredGridReader::GetFieldDataName() 
 {
   return this->Reader->GetFieldDataName();
+}
+
+// We just need to read the dimensions
+void vtkStructuredGridReader::ExecuteInformation()
+{
+  int numPts=0, npts, numCells=0, ncells;
+  char line[256];
+  int dimsRead=0;
+  vtkStructuredGrid *output = this->GetOutput();
+  
+  if (!this->Reader->OpenVTKFile() || !this->Reader->ReadHeader())
+    {
+    return;
+    }
+
+  //
+  // Read structured grid specific stuff
+  //
+  if (!this->Reader->ReadString(line))
+    {
+    vtkErrorMacro(<<"Data file ends prematurely!");
+    this->Reader->CloseVTKFile ();
+    return;
+    }
+
+  if ( !strncmp(this->Reader->LowerCase(line),"dataset",(unsigned long)7) )
+    {
+    //
+    // Make sure we're reading right type of geometry
+    //
+    if (!this->Reader->ReadString(line))
+      {
+      vtkErrorMacro(<<"Data file ends prematurely!");
+      this->Reader->CloseVTKFile ();
+      return;
+      } 
+
+    if ( strncmp(this->Reader->LowerCase(line),"structured_grid",15) )
+      {
+      vtkErrorMacro(<< "Cannot read dataset type: " << line);
+      this->Reader->CloseVTKFile ();
+      return;
+      }
+    //
+    // Read keyword and dimensions
+    //
+    while (1)
+      {
+      if (!this->Reader->ReadString(line))
+	{
+	break;
+	}
+
+      if ( ! strncmp(this->Reader->LowerCase(line),"dimensions",10) )
+        {
+        int ext[6];
+        if (!(this->Reader->Read(ext+1) && 
+	      this->Reader->Read(ext+3) && 
+	      this->Reader->Read(ext+5)))
+          {
+          vtkErrorMacro(<<"Error reading dimensions!");
+          this->Reader->CloseVTKFile ();
+          return;
+          }
+	// read dimensions, change to extent;
+	ext[0] = ext[2] = ext[4] = 0;
+	--ext[1];
+	--ext[3];
+	--ext[5];
+        output->GetStructuredInformation()->SetWholeExtent(ext);
+	// That is all we wanted !!!!!!!!!!!!!!!
+	this->Reader->CloseVTKFile();
+	return;
+        }
+      }
+    }
+
+  vtkErrorMacro("Could not read dimensions");
+  this->Reader->CloseVTKFile ();
 }
 
 void vtkStructuredGridReader::Execute()

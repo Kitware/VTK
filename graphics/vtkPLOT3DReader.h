@@ -202,8 +202,8 @@ protected:
   vtkPLOT3DReader(const vtkPLOT3DReader&) {};
   void operator=(const vtkPLOT3DReader&) {};
 
-  void Execute();
   void ExecuteInformation();
+  void Execute();
   int GetFileType(FILE *fp);
 
   //plot3d FileNames

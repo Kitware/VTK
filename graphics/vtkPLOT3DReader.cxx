@@ -102,6 +102,7 @@ vtkPLOT3DReader::~vtkPLOT3DReader()
     }
 }
 
+
 void vtkPLOT3DReader::ExecuteInformation()
 {
   FILE *xyzFp;
