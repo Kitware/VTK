@@ -26,16 +26,16 @@
 #ifndef __vtkParticleReader_h
 #define __vtkParticleReader_h
 
-#include "vtkPolyDataSource.h"
+#include "vtkPolyDataAlgorithm.h"
 
 #define VTK_FILE_BYTE_ORDER_BIG_ENDIAN 0
 #define VTK_FILE_BYTE_ORDER_LITTLE_ENDIAN 1
 
-class VTK_IO_EXPORT vtkParticleReader : public vtkPolyDataSource
+class VTK_IO_EXPORT vtkParticleReader : public vtkPolyDataAlgorithm
 {
 public:
   static vtkParticleReader *New();
-  vtkTypeRevisionMacro(vtkParticleReader,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkParticleReader,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);   
 
   // Description:
@@ -79,8 +79,8 @@ protected:
 
   unsigned long NumberOfPoints;
   
-  void ExecuteInformation();
-  void Execute();
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 private:
   vtkParticleReader(const vtkParticleReader&);  // Not implemented.
   void operator=(const vtkParticleReader&);  // Not implemented.

@@ -17,12 +17,15 @@
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkParticleReader, "1.20");
+vtkCxxRevisionMacro(vtkParticleReader, "1.21");
 vtkStandardNewMacro(vtkParticleReader);
 
 // These are copied right from vtkImageReader.
@@ -44,6 +47,8 @@ vtkParticleReader::vtkParticleReader()
   this->SetDataByteOrderToBigEndian();
 
   this->NumberOfPoints = 0;
+
+  this->SetNumberOfInputPorts(0);
 }
 
 //----------------------------------------------------------------------------
@@ -62,7 +67,6 @@ vtkParticleReader::~vtkParticleReader()
     this->FileName = NULL;
     }
 }
-
 
 //----------------------------------------------------------------------------
 void vtkParticleReader::OpenFile()
@@ -96,22 +100,36 @@ void vtkParticleReader::OpenFile()
     }
 }
 
-
 //----------------------------------------------------------------------------
 // This method returns the largest data that can be generated.
-void vtkParticleReader::ExecuteInformation()
+int vtkParticleReader::RequestInformation(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
-  vtkPolyData *output = this->GetOutput();
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  output->SetMaximumNumberOfPieces(-1);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
+               -1);
+
+  return 1;
 }
 
-
 //----------------------------------------------------------------------------
 // This method returns the largest data that can be generated.
-void vtkParticleReader::Execute()
+int vtkParticleReader::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
-  vtkPolyData *output = this->GetOutput();
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the ouptut
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkPoints *points;
   vtkFloatArray *array;
   vtkCellArray *verts;
@@ -123,7 +141,7 @@ void vtkParticleReader::Execute()
   if (!this->FileName)
     {
     vtkErrorMacro(<<"FileName must be specified.");
-    return;
+    return 0;
     }
   
   this->OpenFile();
@@ -133,14 +151,16 @@ void vtkParticleReader::Execute()
   if (this->File->fail())
     {
     vtkErrorMacro("Could not seek to end of file.");
-    return;
+    return 0;
     }
 
   fileLength = (unsigned long)this->File->tellg();
   this->NumberOfPoints = fileLength / (4 * sizeof(float));
 
-  piece = output->GetUpdatePiece();
-  numPieces = output->GetUpdateNumberOfPieces();
+  piece =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  numPieces =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
 
   if ((unsigned long)numPieces > this->NumberOfPoints)
     {
@@ -148,7 +168,7 @@ void vtkParticleReader::Execute()
     }
   if (numPieces <= 0 || piece < 0 || piece >= numPieces)
     {
-    return;
+    return 0;
     }
 
   start = piece * this->NumberOfPoints / numPieces;
@@ -162,9 +182,9 @@ void vtkParticleReader::Execute()
   this->File->seekg(start*4*sizeof(float), ios::beg);
   if (this->File->fail())
     {
-    cerr << "File operation failed: Seeking to " << start*4 << endl;
+    vtkErrorMacro(<< "File operation failed: Seeking to " << start*4);
     delete [] data;
-    return;
+    return 0;
     }
 
   // Read the data.
@@ -180,7 +200,7 @@ void vtkParticleReader::Execute()
     vtkErrorMacro("Could not read points: " << start 
            << " to " << next-1);
     delete [] data;
-    return;
+    return 0;
     }
   
   // Swap bytes if necessary.
@@ -227,8 +247,9 @@ void vtkParticleReader::Execute()
   verts->Delete();
   output->GetPointData()->SetScalars(array);
   array->Delete();
-}
 
+  return 1;
+}
 
 //----------------------------------------------------------------------------
 void vtkParticleReader::SetDataByteOrderToBigEndian()
@@ -310,7 +331,6 @@ const char *vtkParticleReader::GetDataByteOrderAsString()
 #endif
 }
 
-
 //----------------------------------------------------------------------------
 void vtkParticleReader::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -323,7 +343,4 @@ void vtkParticleReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Swap Bytes: " << (this->SwapBytes ? "On\n" : "Off\n");
 
   os << indent << "NumberOfPoints: " << this->NumberOfPoints << "\n";
-
 }
-
-
