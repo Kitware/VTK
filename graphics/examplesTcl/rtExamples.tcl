@@ -60,6 +60,7 @@ set noTest {
     ShotNoiseInclude.tcl TestFeatureAnd.tcl TestHistogram.tcl 
     TestHistogramEqualization.tcl TestMIPFilter.tcl
     TestSubsample3D.tcl
+    TkImageViewerInteractor.tcl TkViewer.tcl
     TestWriter.tcl Timing.tcl WindowLevelInterface.tcl
     vtkImageInclude.tcl}
 
