@@ -31,7 +31,7 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkVolumeProperty.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.19");
+vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.19.2.1");
 vtkStandardNewMacro(vtkUnstructuredGridBunykRayCastFunction);
 
 #define VTK_BUNYKRCF_NUMLISTS 100000
@@ -319,6 +319,7 @@ void vtkUnstructuredGridBunykRayCastFunction::Initialize( vtkRenderer *ren,
   // Update the tables for mapping scalar value to color / opacity
   this->UpdateColorTable();
   
+  this->ScalarOpacityUnitDistance = vol->GetProperty()->GetScalarOpacityUnitDistance();
 }
 
 int vtkUnstructuredGridBunykRayCastFunction::CheckValidity( vtkRenderer *ren,
@@ -748,6 +749,8 @@ void vtkUnstructuredGridBunykRayCastFunction::ComputePixelIntersections()
               if ( this->InTriangle( qx, qy, triPtr ) )
                 {
                 Intersection *intersect = (Intersection *)this->NewIntersection();
+                if ( intersect )
+                  {
                 intersect->TriPtr = triPtr;
                 intersect->Z      = az;
                 intersect->Next   = NULL;
@@ -774,6 +777,7 @@ void vtkUnstructuredGridBunykRayCastFunction::ComputePixelIntersections()
             }
           }
         }
+      }
       }
     triPtr = triPtr->Next;
     }
@@ -978,24 +982,12 @@ void vtkUnstructuredGridBunykRayCastFunction::UpdateColorTable()
       this->ColorTable[c][4*i+2] = (double)(tmpArray[3*i+2]);
       }
     
+    // Get the scalar opacity table.
+    // No need to correct the opacity here since we do not have a uniform spacing -
+    // we'll need to correct it as we sample along the ray (slow, but necessary)
     scalarOpacityFunc[c]->GetTable( scalarRange[c*2], scalarRange[c*2+1], 
                                     this->ColorTableSize[c], tmpArray );
     
-    // Correct the opacity array for the spacing between the planes if we are
-    // using a composite blending operation
-    if ( this->Mapper->GetBlendMode() == vtkUnstructuredGridVolumeMapper::COMPOSITE_BLEND )
-      {
-      float *ptr = tmpArray;    
-      double factor = this->SampleDistance / vol->GetProperty()->GetScalarOpacityUnitDistance(c);
-      for ( i = 0; i < this->ColorTableSize[c]; i++ )
-        {
-        if ( *ptr > 0.0001 )
-          {
-          *ptr =  1.0-pow((double)(1.0-(*ptr)),factor);
-          }
-        ptr++;
-        }
-      }
 
     // Add opacity to color table in double format
     // Multiply by component weight
@@ -1101,6 +1093,8 @@ void vtkUnstructuredGridBunykRayCastFunctionCastRay( T scalars,
   double  *colorTableShift = self->GetColorTableShift();
   double  *colorTableScale = self->GetColorTableScale();
 
+  double inverseUnitDistance = 1.0 / self->GetScalarOpacityUnitDistance();
+  
   while ( intersectionPtr && color[3] < 1.0 )
     {
     currentTriangle = intersectionPtr->TriPtr;
@@ -1205,6 +1199,7 @@ void vtkUnstructuredGridBunykRayCastFunctionCastRay( T scalars,
         float newColor2[4] = {0.0,0.0,0.0,0.0};
         
         float remainingOpacity = 1.0 - color[3];
+        double factor = (dist/2.0) * inverseUnitDistance;
 
         int c;
         for ( c = 0; c < numComponents; c++ )
@@ -1219,7 +1214,8 @@ void vtkUnstructuredGridBunykRayCastFunctionCastRay( T scalars,
             colorTable[c] +
             4 * (unsigned short)((v+colorTableShift[c])*colorTableScale[c]);
           
-          float opacity = *(tmpptr+3) * dist/2.0;
+          float opacity =  1.0-pow((double)(1.0-(*(tmpptr+3))),factor);
+
           float w =  remainingOpacity * opacity;
           newColor1[0] += w * *(tmpptr);
           newColor1[1] += w * *(tmpptr+1);
@@ -1241,7 +1237,7 @@ void vtkUnstructuredGridBunykRayCastFunctionCastRay( T scalars,
             colorTable[c] +
             4 * (unsigned short)((v+colorTableShift[c])*colorTableScale[c]);
           
-          float opacity = *(tmpptr+3) * dist / 2.0;
+          float opacity =  1.0-pow((double)(1.0-(*(tmpptr+3))),factor);
           float w =  remainingOpacity * opacity;
           newColor2[0] += w * *(tmpptr);
           newColor2[1] += w * *(tmpptr+1);
