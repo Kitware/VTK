@@ -56,7 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // lines will be justified the same way.
 
 // .SECTION See Also
-// vtkMapper2D vtkActor2D
+// vtkMapper2D vtkActor2D vtkLegendBoxActor vtkCaptionActor2D vtkVectorText
 
 #ifndef __vtkTextMapper_h
 #define __vtkTextMapper_h
