@@ -376,23 +376,36 @@ unsigned long vtkTransform::GetMTime()
 void vtkTransform::GetOrientation(double orientation[3])
 {
 #define VTK_AXIS_EPSILON 0.001
+  int i;
 
   this->Update();
   // convenient access to matrix
   double (*matrix)[4] = this->Matrix->Element;
+  double ortho[3][3];
 
-  // get scale factors
-  double scale[3];
-  this->GetScale(scale);
+  for (i = 0; i < 3; i++)
+    {
+    ortho[0][i] = matrix[0][i];
+    ortho[1][i] = matrix[1][i];
+    ortho[2][i] = matrix[2][i];
+    }
+  if (vtkMath::Determinant3x3(ortho) < 0)
+    {
+    ortho[0][i] = -ortho[0][i];
+    ortho[1][i] = -ortho[1][i];
+    ortho[2][i] = -ortho[2][i];
+    }
+
+  vtkMath::Orthogonalize3x3(ortho, ortho);
 
   // first rotate about y axis
-  double x2 = matrix[2][0]/scale[0];
-  double y2 = matrix[2][1]/scale[1];
-  double z2 = matrix[2][2]/scale[2];
+  double x2 = ortho[2][0];
+  double y2 = ortho[2][1];
+  double z2 = ortho[2][2];
 
-  double x3 = matrix[1][0]/scale[0];
-  double y3 = matrix[1][1]/scale[1];
-  double z3 = matrix[1][2]/scale[2];
+  double x3 = ortho[1][0];
+  double y3 = ortho[1][1];
+  double z3 = ortho[1][2];
 
   double d1 = sqrt(x2*x2 + z2*z2);
 
@@ -459,72 +472,37 @@ void vtkTransform::GetOrientation(double orientation[3])
 // vtkTransform::GetOrientationWXYZ 
 void vtkTransform::GetOrientationWXYZ(double wxyz[4])
 {
+  int i;
+
   this->Update();
+  // convenient access to matrix
+  double (*matrix)[4] = this->Matrix->Element;
+  double ortho[3][3];
 
-  double matrix[4][4]; // for local manipulation
-  vtkMatrix4x4::DeepCopy(*matrix,this->Matrix);
-
-  // get scale factors
-  double scale[3];
-  this->GetScale(scale);
-  for (int i = 0; i < 3; i++)
+  for (i = 0; i < 3; i++)
     {
-    if (scale[i] != 1.0)
-      {
-      matrix[0][i] /= scale[i];
-      matrix[1][i] /= scale[i];
-      matrix[2][i] /= scale[i];
-      }
+    ortho[0][i] = matrix[0][i];
+    ortho[1][i] = matrix[1][i];
+    ortho[2][i] = matrix[2][i];
+    }
+  if (vtkMath::Determinant3x3(ortho) < 0)
+    {
+    ortho[0][i] = -ortho[0][i];
+    ortho[1][i] = -ortho[1][i];
+    ortho[2][i] = -ortho[2][i];
     }
 
-  // create the quaternion
-  double quat[4];
-  quat[0] = 0.25*(1.0 + matrix[0][0] + matrix[1][1] + matrix[2][2]);
+  vtkMath::Matrix3x3ToQuaternion(ortho, wxyz);
 
-  if (quat[0] > 0.0001)
-    {
-    quat[0] = sqrt(quat[0]);
-    quat[1] = (matrix[2][1] - matrix[1][2])/(4.0*quat[0]);
-    quat[2] = (matrix[0][2] - matrix[2][0])/(4.0*quat[0]);
-    quat[3] = (matrix[1][0] - matrix[0][1])/(4.0*quat[0]);
-    }
-  else
-    {
-    quat[0] = 0;
-    quat[1] = -0.5*(matrix[1][1] + matrix[2][2]);
-
-    if (quat[1] > 0.0001)
-      {
-      quat[1] = sqrt(quat[1]);
-      quat[2] = matrix[1][0]/(2.0*quat[1]);
-      quat[3] = matrix[2][0]/(2.0*quat[1]);
-      }
-    else
-      {
-      quat[1] = 0;
-      quat[2] = 0.5*(1.0 - matrix[2][2]);
-      if (quat[2] > 0.0001)
-        {
-        quat[2] = sqrt(quat[2]);
-        quat[3] = matrix[2][1]/(2.0*quat[2]);
-        }
-      else
-        {
-        quat[2] = 0;
-        quat[3] = 1;
-        }
-      }
-    }
-  
   // calc the return value wxyz
- double mag = sqrt(quat[1]*quat[1] + quat[2]*quat[2] + quat[3]*quat[3]);
+ double mag = sqrt(wxyz[1]*wxyz[1] + wxyz[2]*wxyz[2] + wxyz[3]*wxyz[3]);
 
   if (mag)
     {
-    wxyz[0] = 2.0*acos(quat[0])/vtkMath::DoubleDegreesToRadians();
-    wxyz[1] = quat[1]/mag;
-    wxyz[2] = quat[2]/mag;
-    wxyz[3] = quat[3]/mag;
+    wxyz[0] = 2.0*acos(wxyz[0])/vtkMath::DoubleDegreesToRadians();
+    wxyz[1] /= mag;
+    wxyz[2] /= mag;
+    wxyz[3] /= mag;
     }
   else
     {
@@ -558,13 +536,16 @@ void vtkTransform::GetScale(double scale[3])
 
   // convenient access to matrix
   double (*matrix)[4] = this->Matrix->Element;
+  double U[3][3], VT[3][3];
 
   for (int i = 0; i < 3; i++) 
     {
-    scale[i] = sqrt(matrix[0][i]*matrix[0][i] +
-		    matrix[1][i]*matrix[1][i] +
-		    matrix[2][i]*matrix[2][i]);
+    U[0][i] = matrix[0][i];
+    U[1][i] = matrix[1][i];
+    U[2][i] = matrix[2][i];
     }
+
+  vtkMath::SingularValueDecomposition3x3(U, U, scale, VT);
 }
 
 //----------------------------------------------------------------------------

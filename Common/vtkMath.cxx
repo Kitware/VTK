@@ -1821,9 +1821,10 @@ void vtkMath::Orthogonalize3x3(const double A[3][3], double B[3][3])
 }
 
 //----------------------------------------------------------------------------
-// Extract the eigenvalues and eigenvectors from a 3x3 matrix. 
-// The eigenvectors returned in the columns of V are aligned optimally
-// with the x, y, and z axes respectively.
+// Extract the eigenvalues and eigenvectors from a 3x3 matrix.
+// The eigenvectors (the columns of V) will be normalized. 
+// The eigenvectors are aligned optimally with the x, y, and z
+// axes respectively.
 template <class T1, class T2>
 static inline void vtkDiagonalize3x3(const T1 A[3][3], T2 w[3], T2 V[3][3])
 {
@@ -1851,7 +1852,7 @@ static inline void vtkDiagonalize3x3(const T1 A[3][3], T2 w[3], T2 V[3][3])
     vtkMath::Identity3x3(V);
     return;
     }
-  
+
   // transpose temporarily, it makes it easier to sort the eigenvectors
   vtkMath::Transpose3x3(V,V);
 
@@ -1897,6 +1898,7 @@ static inline void vtkDiagonalize3x3(const T1 A[3][3], T2 w[3], T2 V[3][3])
       V[j][2] = 0.0;
       V[j][j] = 1.0;
       vtkMath::Cross(V[maxI],V[j],V[k]);
+      vtkMath::Normalize(V[k]);
       vtkMath::Cross(V[k],V[maxI],V[j]);
 
       // transpose vectors back to columns
@@ -1976,13 +1978,15 @@ void vtkMath::Diagonalize3x3(const double A[3][3],double w[3],double V[3][3])
 // are returned in vector w).
 // The matrices U and VT will both have positive determinants.
 // The scale factors w are ordered according to how well the
-// corresponding eigenvectors (in U) match the x, y and z axes
+// corresponding eigenvectors (in VT) match the x, y and z axes
 // respectively.
 //
 // The singular value decomposition is used to decompose a linear
 // transformation into a rotation, followed by a scale, followed
 // by a second rotation.  The scale factors w will be negative if
 // the determinant of matrix A is negative.
+//
+// Contributed by David Gobbi (dgobbi@irus.rri.on.ca)
 template <class T1, class T2>
 static inline void vtkSingularValueDecomposition3x3(const T1 A[3][3], 
 						    T2 U[3][3], T2 w[3],
@@ -2014,11 +2018,10 @@ static inline void vtkSingularValueDecomposition3x3(const T1 A[3][3],
   // orthogonalize, diagonalize, etc.
   vtkMath::Orthogonalize3x3(B, U);
   vtkMath::Transpose3x3(B, B);
-  vtkMath::Multiply3x3(U, B, VT);
-  vtkMath::Transpose3x3(U, U);
+  vtkMath::Multiply3x3(B, U, VT);
   vtkMath::Diagonalize3x3(VT, w, VT);
   vtkMath::Multiply3x3(U, VT, U);
-  vtkMath::Transpose3x3(U, U);
+  vtkMath::Transpose3x3(VT, VT);
 
   // re-create the flip
   if (d < 0)
@@ -2028,7 +2031,19 @@ static inline void vtkSingularValueDecomposition3x3(const T1 A[3][3],
     w[2] = -w[2];
     }
 
-  /* paranoia check: recombine to ensure that the SVD is correct 
+  /* paranoia check: recombine to ensure that the SVD is correct
+  vtkMath::Transpose3x3(B, B);
+
+  if (d < 0)
+    {
+    for (i = 0; i < 3; i++)
+      {
+      B[0][i] = -B[0][i];
+      B[1][i] = -B[1][i];
+      B[2][i] = -B[2][i];
+      }
+    }
+
   int j;
   T2 maxerr = 0;
   T2 tmp;
@@ -2037,15 +2052,15 @@ static inline void vtkSingularValueDecomposition3x3(const T1 A[3][3],
   vtkMath::Identity3x3(W);
   W[0][0] = w[0]; W[1][1] = w[1]; W[2][2] = w[2];
   vtkMath::Identity3x3(M);
-  vtkMath::Multiply3x3(M, VT, M);
-  vtkMath::Multiply3x3(M, W, M);
   vtkMath::Multiply3x3(M, U, M);
+  vtkMath::Multiply3x3(M, W, M);
+  vtkMath::Multiply3x3(M, VT, M);
 
   for (i = 0; i < 3; i++)
     {
     for (j = 0; j < 3; j++)
       {
-      if ((tmp = fabs(A[i][j] - M[i][j])) > maxerr)
+      if ((tmp = fabs(B[i][j] - M[i][j])) > maxerr)
 	{
 	maxerr = tmp;
 	}
