@@ -49,7 +49,7 @@
 #ifndef __vtkContourGrid_h
 #define __vtkContourGrid_h
 
-#include "vtkUnstructuredGridToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
 #include "vtkContourValues.h" // Needed for inline methods
 
@@ -57,10 +57,10 @@ class vtkEdgeTable;
 class vtkPointLocator;
 class vtkScalarTree;
 
-class VTK_GRAPHICS_EXPORT vtkContourGrid : public vtkUnstructuredGridToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkContourGrid : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkContourGrid,vtkUnstructuredGridToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkContourGrid,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -137,7 +137,8 @@ protected:
   vtkContourGrid();
   ~vtkContourGrid();
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int FillInputPortInformation(int, vtkInformation *);
 
   vtkContourValues *ContourValues;
   int ComputeNormals;

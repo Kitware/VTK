@@ -19,6 +19,8 @@
 #include "vtkCellData.h"
 #include "vtkContourValues.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -28,7 +30,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkContourGrid, "1.26");
+vtkCxxRevisionMacro(vtkContourGrid, "1.27");
 vtkStandardNewMacro(vtkContourGrid);
 
 // Construct object with initial range (0,1) and single contour value
@@ -67,7 +69,7 @@ vtkContourGrid::~vtkContourGrid()
 // then this object is modified as well.
 unsigned long vtkContourGrid::GetMTime()
 {
-  unsigned long mTime=this->vtkUnstructuredGridToPolyDataFilter::GetMTime();
+  unsigned long mTime=this->Superclass::GetMTime();
   unsigned long time;
 
   if (this->ContourValues)
@@ -86,14 +88,15 @@ unsigned long vtkContourGrid::GetMTime()
 
 template <class T>
 void vtkContourGridExecute(vtkContourGrid *self, vtkDataSet *input,
+                           vtkPolyData *output,
                            vtkDataArray *inScalars, T *scalarArrayPtr,
                            int numContours, double *values, 
-                           vtkPointLocator *locator, int computeScalars,
+                           int computeScalars,
                            int useScalarTree,vtkScalarTree *&scalarTree)
 {
   vtkIdType cellId, i;
   int abortExecute=0;
-  vtkPolyData *output=self->GetOutput();
+  vtkPointLocator *locator = self->GetLocator();
   vtkIdList *cellPts;
   vtkCell *cell;
   double range[2];
@@ -271,10 +274,22 @@ void vtkContourGridExecute(vtkContourGrid *self, vtkDataSet *input,
 //
 // Contouring filter for unstructured grids.
 //
-void vtkContourGrid::Execute()
+int vtkContourGrid::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkUnstructuredGrid *input = vtkUnstructuredGrid::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkDataArray *inScalars;
-  vtkDataSet *input=this->GetInput();
   void *scalarArrayPtr;
   vtkIdType numCells;
   int numContours = this->ContourValues->GetNumberOfContours();
@@ -295,21 +310,23 @@ void vtkContourGrid::Execute()
   if ( ! inScalars || numCells < 1 )
     {
     vtkDebugMacro(<<"No data to contour");
-    return;
+    return 1;
     }
 
   scalarArrayPtr = inScalars->GetVoidPointer(0);
         
   switch (inScalars->GetDataType())
     {
-    vtkTemplateMacro10(vtkContourGridExecute, this, input, inScalars,
+    vtkTemplateMacro10(vtkContourGridExecute, this, input, output, inScalars,
                        (VTK_TT *)(scalarArrayPtr), numContours, values,
-                       this->Locator, computeScalars, useScalarTree, 
+                       computeScalars, useScalarTree, 
                        scalarTree);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
-      return;
-    }       
+      return 1;
+    }
+
+  return 1;
 }
 
 // Specify a spatial locator for merging points. By default, 
@@ -341,6 +358,12 @@ void vtkContourGrid::CreateDefaultLocator()
     this->Locator->Register(this);
     this->Locator->Delete();
     }
+}
+
+int vtkContourGrid::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
+  return 1;
 }
 
 void vtkContourGrid::PrintSelf(ostream& os, vtkIndent indent)

@@ -34,15 +34,15 @@
 #ifndef __vtkRecursiveDividingCubes_h
 #define __vtkRecursiveDividingCubes_h
 
-#include "vtkStructuredPointsToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
 class vtkVoxel;
 
-class VTK_GRAPHICS_EXPORT vtkRecursiveDividingCubes : public vtkStructuredPointsToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkRecursiveDividingCubes : public vtkPolyDataAlgorithm
 {
 public:
   static vtkRecursiveDividingCubes *New();
-  vtkTypeRevisionMacro(vtkRecursiveDividingCubes,vtkStructuredPointsToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkRecursiveDividingCubes,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -66,8 +66,10 @@ protected:
   vtkRecursiveDividingCubes();
   ~vtkRecursiveDividingCubes();
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   void SubDivide(double origin[3], double h[3], double values[8]);
+
+  int FillInputPortInformation(int, vtkInformation *);
 
   double Value;
   double Distance;
@@ -84,5 +86,3 @@ private:
 };
 
 #endif
-
-

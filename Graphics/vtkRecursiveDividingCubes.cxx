@@ -17,13 +17,15 @@
 #include "vtkCellArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkRecursiveDividingCubes, "1.39");
+vtkCxxRevisionMacro(vtkRecursiveDividingCubes, "1.40");
 vtkStandardNewMacro(vtkRecursiveDividingCubes);
 
 vtkRecursiveDividingCubes::vtkRecursiveDividingCubes()
@@ -47,8 +49,21 @@ static vtkPoints *NewPts; //points being generated
 static vtkDoubleArray *NewNormals; //points being generated
 static vtkCellArray *NewVerts; //verts being generated
 
-void vtkRecursiveDividingCubes::Execute()
+int vtkRecursiveDividingCubes::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkImageData *input = vtkImageData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   int i, j, k;
   vtkIdType idx;
   vtkDataArray *inScalars;
@@ -56,8 +71,6 @@ void vtkRecursiveDividingCubes::Execute()
   double origin[3];
   int dim[3], jOffset, kOffset, sliceSize;
   int above, below, vertNum;
-  vtkImageData *input= this->GetInput();
-  vtkPolyData *output= this->GetOutput();
   vtkDoubleArray *voxelScalars;
 
   vtkDebugMacro(<< "Executing recursive dividing cubes...");
@@ -70,14 +83,14 @@ void vtkRecursiveDividingCubes::Execute()
   if ( ! (inScalars = input->GetPointData()->GetScalars()) )
     {
     vtkErrorMacro(<<"No scalar data to contour");
-    return;
+    return 1;
     }
 
   // just deal with volumes
   if ( input->GetDataDimension() != 3 )
     {
     vtkErrorMacro("Bad input: only treats 3D structured point datasets");
-    return;
+    return 1;
     }
   input->GetDimensions(dim);
   input->GetSpacing(Spacing);
@@ -182,6 +195,8 @@ void vtkRecursiveDividingCubes::Execute()
   NewNormals->Delete();
 
   output->Squeeze();
+
+  return 1;
 }
 
 static int ScalarInterp[8][8] = {{0,8,12,24,16,22,20,26},
@@ -317,6 +332,13 @@ void vtkRecursiveDividingCubes::SubDivide(double origin[3], double h[3],
         }
       }
     }
+}
+
+int vtkRecursiveDividingCubes::FillInputPortInformation(int,
+                                                        vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+  return 1;
 }
 
 void vtkRecursiveDividingCubes::PrintSelf(ostream& os, vtkIndent indent)
