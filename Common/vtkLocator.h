@@ -45,7 +45,7 @@
 // eight children.
 
 // .SECTION See Also
-// vtkPointLocator vtkCellLocator vtkOBBTree vtkLocatorFilter
+// vtkPointLocator vtkCellLocator vtkOBBTree vtkMergePoints
 
 #ifndef __vtkLocator_h
 #define __vtkLocator_h
