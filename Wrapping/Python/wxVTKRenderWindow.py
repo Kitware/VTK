@@ -194,7 +194,10 @@ class wxVTKRenderWindow(baseClass):
 
         # create the RenderWindow and initialize it
         self._RenderWindow = vtkRenderWindow()
-        self._RenderWindow.SetSize(size[0], size[1])
+        try:
+            self._RenderWindow.SetSize(size.width, size.height)
+        except AttributeError:
+            self._RenderWindow.SetSize(size[0], size[1])
         if stereo:
             self._RenderWindow.StereoCapableWindowOn()
             self._RenderWindow.SetStereoTypeToCrystalEyes()
@@ -216,8 +219,8 @@ class wxVTKRenderWindow(baseClass):
         EVT_MIDDLE_UP(self, self._OnButtonUp)
         EVT_MOTION(self, self.OnMotion)
 
-        EVT_ENTER_WINDOW(self, self.OnEnterWindow)
-        EVT_LEAVE_WINDOW(self, self.OnLeaveWindow)
+        EVT_ENTER_WINDOW(self, self._OnEnterWindow)
+        EVT_LEAVE_WINDOW(self, self._OnLeaveWindow)
 
         EVT_CHAR(self, self.OnChar)
         EVT_KEY_DOWN(self, self.OnKeyDown)
@@ -234,7 +237,11 @@ class wxVTKRenderWindow(baseClass):
         self.Render()
 
     def _OnSize(self,event):
-        width, height = event.GetSize()
+        try:
+            width, height = event.GetSize()
+        except:
+            width = event.GetSize().width
+            height = event.GetSize().height
         self._RenderWindow.SetSize(width, height)
         self.OnSize(event)
 
@@ -244,10 +251,17 @@ class wxVTKRenderWindow(baseClass):
     def OnMove(self,event):
         pass
 
+    def _OnEnterWindow(self,event):
+        self.UpdateRenderer(event)
+        self.OnEnterWindow(event)
+
     def OnEnterWindow(self,event):
         if self.__OldFocus == None:
             self.__OldFocus = wxWindow_FindFocus()
             self.SetFocus()
+
+    def _OnLeaveWindow(self,event):
+        self.OnLeaveWindow(event)
 
     def OnLeaveWindow(self,event):
         if self.__OldFocus:
