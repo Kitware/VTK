@@ -149,12 +149,6 @@ vtkVolumeProVG500Mapper::~vtkVolumeProVG500Mapper()
     this->LookupTable->Release();
     }
 
-  // Free the timestamp for when the volume was last build
-  if ( this->VolumeBuildTime )
-    {
-    this->VolumeBuildTime->Delete();
-    }
-
   // Free the volume if necessary
   if ( this->Volume )
     {
