@@ -86,6 +86,7 @@ void vlLocator::FreeSearchStructure()
       {
       if ( (ptIds = this->HashTable[i]) ) delete ptIds;
       }
+    delete [] this->HashTable;
     this->HashTable = NULL;
     }
 }
