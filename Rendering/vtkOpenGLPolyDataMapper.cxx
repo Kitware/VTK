@@ -43,7 +43,7 @@
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.83");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.84");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper);
 #endif
 
@@ -450,7 +450,7 @@ void vtkOpenGLPolyDataMapperDrawPoints(int idx,
                                        vtkDataArray *n,
                                        vtkUnsignedCharArray *c,
                                        vtkDataArray *t,
-                                       int &cellNum,
+                                       vtkIdType &cellNum,
                                        int &noAbort,
                                        vtkCellArray *ca,
                                        vtkRenderer *ren)
@@ -558,7 +558,7 @@ void vtkOpenGLPolyDataMapperDrawLines(int idx,
                                       vtkDataArray *n,
                                       vtkUnsignedCharArray *c,
                                       vtkDataArray *t,
-                                      int &cellNum,
+                                      vtkIdType &cellNum,
                                       int &noAbort,
                                       vtkCellArray *ca,
                                       vtkRenderer *ren)
@@ -670,7 +670,7 @@ void vtkOpenGLPolyDataMapperDrawPolygons(int idx,
                                          vtkDataArray *n,
                                          vtkUnsignedCharArray *c,
                                          vtkDataArray *t,
-                                         int &cellNum,
+                                         vtkIdType &cellNum,
                                          int &noAbort,
                                          GLenum rep,
                                          vtkCellArray *ca,
@@ -820,7 +820,7 @@ void vtkOpenGLPolyDataMapperDrawTStrips(int idx,
                                         vtkDataArray *n,
                                         vtkUnsignedCharArray *c,
                                         vtkDataArray *t,
-                                        int &cellNum,
+                                        vtkIdType &cellNum,
                                         int &noAbort,
                                         GLenum rep,
                                         vtkCellArray *ca,
@@ -968,7 +968,7 @@ void vtkOpenGLPolyDataMapperDrawTStripLines(int idx,
                                             vtkDataArray *n,
                                             vtkUnsignedCharArray *c,
                                             vtkDataArray *t,
-                                            int &cellNum,
+                                            vtkIdType &cellNum,
                                             int &noAbort,
                                             GLenum rep,
                                             vtkCellArray *ca,
