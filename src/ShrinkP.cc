@@ -23,15 +23,15 @@ void vlShrinkPolyData::Execute()
   vlPointData *pd;
   vlCellArray *inVerts,*inLines,*inPolys,*inStrips;
   int numNewPts, numNewLines, numNewPolys, poly_alloc_size;
-  int npts, *pts;
+  int npts, *pts, newId, newIds[3];
   vlFloatPoints *newPoints;
   vlCellArray *newVerts, *newLines, *newPolys;
-  int newIds[MAX_CELL_SIZE];
   float *p1, *p2, *p3, pt[3];
   vlPolyData *input=(vlPolyData *)this->Input;
 //
 // Initialize
 //
+  vlDebugMacro(<<"Shrinking polygonal data");
   this->Initialize();
 
   inPts = input->GetPoints();
@@ -85,12 +85,13 @@ void vlShrinkPolyData::Execute()
 //
   for (inVerts->InitTraversal(); inVerts->GetNextCell(npts,pts); )
     {
+    newVerts->InsertNextCell(npts);
     for (j=0; j<npts; j++)
       {
-      newIds[j] = newPoints->InsertNextPoint(inPts->GetPoint(pts[j]));
-      this->PointData.CopyData(pd,pts[j],newIds[j]);
+      newId = newPoints->InsertNextPoint(inPts->GetPoint(pts[j]));
+      newVerts->InsertCellPoint(newId);
+      this->PointData.CopyData(pd,pts[j],newId);
       }    
-    newVerts->InsertNextCell(npts,newIds);
     }
 //
 // Lines need to be shrunk, and if polyline, split into separate pieces
@@ -129,15 +130,17 @@ void vlShrinkPolyData::Execute()
 
     for (k=0; k<3; k++) center[k] /= npts;
 
+    
+    newPolys->InsertNextCell(npts);
     for (j=0; j<npts; j++)
       {
       p1 = inPts->GetPoint(pts[j]);
       for (k=0; k<3; k++)
         pt[k] = center[k] + this->ShrinkFactor*(p1[k] - center[k]);
-      newIds[j] = newPoints->InsertNextPoint(pt);
-      this->PointData.CopyData(pd,pts[j],newIds[j]);
+      newId = newPoints->InsertNextPoint(pt);
+      newPolys->InsertCellPoint(newId);
+      this->PointData.CopyData(pd,pts[j],newId);
       }
-    newPolys->InsertNextCell(npts,newIds);
     }
 //
 // Triangle strips need to be shrunk and split into separate pieces.
